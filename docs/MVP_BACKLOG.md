@@ -5,13 +5,13 @@
 - [ ] Classic / Dual / Matrix processing core
 - [ ] LR4 3-band crossover
 - [ ] Three lane processors
-- [ ] Lane level / mute / solo
-- [ ] Placeholder amp behaviours
-- [ ] APVTS state
+- [x] Lane level / mute / solo
+- [x] Placeholder amp behaviours
+- [x] APVTS state
 - [ ] Build VST3/AU/Standalone
 - [ ] Crossover split/sum tests
-- [ ] Latency compensation and polarity/fine delay
-- [ ] Functional editor controls
+- [~] Polarity/fine delay implemented; automatic latency compensation pending
+- [~] First routing/crossover controls implemented; lane UI pending
 
 ## Sprint 2 - first useful tone
 - Global Pre: gate, compressor, boost/OD, EQ
