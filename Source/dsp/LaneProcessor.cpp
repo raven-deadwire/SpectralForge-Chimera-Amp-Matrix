@@ -11,4 +11,5 @@ void LaneProcessor::process(juce::AudioBuffer<float>& b){
    p[n]=x*g;
   }
  }
+ cab.process(b);
 } }
