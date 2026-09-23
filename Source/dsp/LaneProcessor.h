@@ -12,6 +12,6 @@ public:
  void setModel(AmpModel m){ model=m; } void setDrive(float d){ drive=juce::jlimit(0.f,1.f,d); } void setTone(float b,float m,float t,float presence,float resonance);
  void setLevelDb(float d){ level.setTargetValue(juce::Decibels::decibelsToGain(d)); } void setMuted(bool m){ muted=m; }
  void setCabEnabled(bool e){cab.setEnabled(e);} void setCabCuts(float lo,float hi){cab.setLowCut(lo);cab.setHighCut(hi);}
- void process(juce::AudioBuffer<float>&);
+ void process(juce::AudioBuffer<float>&); float getLatencySamples() const noexcept { return oversampling ? oversampling->getLatencyInSamples() : 0.f; }
 private: AmpModel model{AmpModel::glass}; float drive{0.35f}; bool muted{}; juce::SmoothedValue<float> level{1.f}; CabModule cab; double sampleRate{48000.0}; float bassDb{},midDb{},trebleDb{},presenceDb{},resonanceDb{}; juce::dsp::IIR::ProcessorDuplicator<juce::dsp::IIR::Filter<float>,juce::dsp::IIR::Coefficients<float>> bassFilter,midFilter,trebleFilter,presenceFilter,resonanceFilter; std::unique_ptr<juce::dsp::Oversampling<float>> oversampling;
 }; }
