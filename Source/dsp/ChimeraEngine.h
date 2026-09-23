@@ -6,9 +6,17 @@
 #include "LaneProcessor.h"
 namespace spectralforge {
 enum class RoutingMode:int{classic=0,dual=1,matrix=2};
+struct LaneSettings {
+ float levelDb{0.f}; int model{0}; bool mute{false}; bool solo{false};
+ bool polarityInvert{false}; float fineDelayMs{0.f};
+};
 class ChimeraEngine {
 public:
  void prepare(const juce::dsp::ProcessSpec&); void reset();
- void process(juce::AudioBuffer<float>&,RoutingMode,float,float,const std::array<float,3>&,const std::array<int,3>&,const std::array<bool,3>&,const std::array<bool,3>&);
-private: ThreeBandCrossover crossover; std::array<LaneProcessor,3> lanes; std::array<juce::AudioBuffer<float>,3> work;
+ void process(juce::AudioBuffer<float>&,RoutingMode,float,float,const std::array<LaneSettings,3>&);
+private:
+ void applyAlignment(juce::AudioBuffer<float>&,int lane,const LaneSettings&);
+ ThreeBandCrossover crossover; std::array<LaneProcessor,3> lanes; std::array<juce::AudioBuffer<float>,3> work;
+ std::array<juce::dsp::DelayLine<float,juce::dsp::DelayLineInterpolationTypes::Linear>,3> delays{{ {256},{256},{256} }};
+ double sampleRate{48000.0};
 };}
