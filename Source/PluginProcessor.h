@@ -11,6 +11,8 @@ public:
  const juce::String getName()const override{return "Chimera Amp Matrix";} bool acceptsMidi()const override{return false;}bool producesMidi()const override{return false;}bool isMidiEffect()const override{return false;}
  double getTailLengthSeconds()const override{return 0;}int getNumPrograms()override{return 1;}int getCurrentProgram()override{return 0;}void setCurrentProgram(int)override{}const juce::String getProgramName(int)override{return{};}void changeProgramName(int,const juce::String&)override{}
  void getStateInformation(juce::MemoryBlock&)override;void setStateInformation(const void*,int)override;
+public:
+ juce::AudioProcessorValueTreeState& parameters() noexcept { return state; }
 private:
  static juce::AudioProcessorValueTreeState::ParameterLayout createParameters();juce::AudioProcessorValueTreeState state;spectralforge::ChimeraEngine engine;
  JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(ChimeraAmpMatrixAudioProcessor)
