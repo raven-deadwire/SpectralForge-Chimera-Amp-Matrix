@@ -7,7 +7,7 @@
 namespace spectralforge {
 enum class RoutingMode:int{classic=0,dual=1,matrix=2};
 struct LaneSettings {
- float levelDb{0.f}; int model{0}; bool mute{false}; bool solo{false};
+ float levelDb{0.f}; int model{0}; float bass{0.f},mid{0.f},treble{0.f},presence{0.f},resonance{0.f}; bool mute{false}; bool solo{false};
  bool polarityInvert{false}; float fineDelayMs{0.f}; bool cabEnabled{true}; float cabLowCut{70.f}; float cabHighCut{9000.f};
 };
 class ChimeraEngine {
