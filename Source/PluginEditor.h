@@ -23,6 +23,7 @@ private:
         juce::Label header, range;
         juce::ComboBox amp;
         juce::Slider drive,level,bass,lm,hm,treble,pres,res;
+        std::array<juce::Label,8> knobLabels;
         std::unique_ptr<CA> aa;
         std::array<std::unique_ptr<SA>,8> sa;
     };
