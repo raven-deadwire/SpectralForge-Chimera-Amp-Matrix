@@ -7,7 +7,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-latest]
+        os: [windows-latest, ubuntu-latest, macos-latest]
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
@@ -21,6 +21,7 @@ jobs:
           name: Chimera-1.0-${{ runner.os }}
           path: |
             build/ChimeraAmpMatrix_artefacts/Release/VST3/**
+            build/ChimeraAmpMatrix_artefacts/Release/VST3/*.vst3/**
             build/ChimeraAmpMatrix_artefacts/Release/Standalone/**
             build/ChimeraAmpMatrix_artefacts/Release/AU/**
           if-no-files-found: ignore
