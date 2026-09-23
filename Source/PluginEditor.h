@@ -5,5 +5,9 @@
 #include "PluginProcessor.h"
 class ChimeraAmpMatrixAudioProcessorEditor:public juce::AudioProcessorEditor{
 public:explicit ChimeraAmpMatrixAudioProcessorEditor(ChimeraAmpMatrixAudioProcessor&);void paint(juce::Graphics&)override;void resized()override;
-private:juce::Label title;
+private:
+ using ComboAttachment=juce::AudioProcessorValueTreeState::ComboBoxAttachment;
+ using SliderAttachment=juce::AudioProcessorValueTreeState::SliderAttachment;
+ juce::Label title;juce::ComboBox mode;juce::Slider x1,x2;
+ std::unique_ptr<ComboAttachment> modeA;std::unique_ptr<SliderAttachment>x1A,x2A;
 };
