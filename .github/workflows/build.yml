@@ -2,8 +2,7 @@ name: Build
 on:
   pull_request:
   push:
-    branches: [ main, "bootstrap/**" ]
-
+    branches: [ main ]
 jobs:
   build:
     strategy:
