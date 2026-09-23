@@ -17,6 +17,14 @@ jobs:
       - run: cmake --build build --config Release --parallel 2
       - run: ctest --test-dir build -C Release --output-on-failure
 
+      - name: Upload Windows UI verification
+        if: runner.os == 'Windows' && always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Chimera-Windows-UI-snapshots
+          path: build/ui-snapshots/*.png
+          if-no-files-found: warn
+
       - name: Package Windows test build
         if: runner.os == 'Windows'
         shell: pwsh
@@ -30,6 +38,10 @@ jobs:
           =================================================
           Unsigned development build. Windows SmartScreen/Chrome may warn because
           this binary does not yet have an Authenticode publisher signature.
+
+          Revision: ${{ github.sha }}
+          Matrix UI: Drive / Level / Band Tone, with crossover-following tone pivot.
+          Classic and Dual retain their full-range EQ. All UI text uses safe separators.
 
           VST3:
             Copy the .vst3 bundle to C:\Program Files\Common Files\VST3\
