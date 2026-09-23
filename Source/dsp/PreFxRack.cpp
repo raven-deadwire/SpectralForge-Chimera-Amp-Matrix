@@ -1,9 +1,11 @@
 #include "PreFxRack.h"
 namespace spectralforge {
-void PreFxRack::prepare(const juce::dsp::ProcessSpec&s){sampleRate=s.sampleRate;low.prepare(s);mid.prepare(s);high.prepare(s);reset();setEq(0,0,0,false);}
-void PreFxRack::reset(){low.reset();mid.reset();high.reset();}
+void PreFxRack::prepare(const juce::dsp::ProcessSpec&s){sampleRate=s.sampleRate;low.prepare(s);mid.prepare(s);high.prepare(s);compressor.prepare(s);odToneFilter.prepare(s);reset();setEq(0,0,0,false);}
+void PreFxRack::reset(){low.reset();mid.reset();high.reset();compressor.reset();odToneFilter.reset();}
 void PreFxRack::setGate(float db,bool e){gateThreshold=juce::Decibels::decibelsToGain(db);gateOn=e;}
+void PreFxRack::setCompressor(float t,float r,float a,float rel,bool e){compOn=e;compressor.setThreshold(t);compressor.setRatio(r);compressor.setAttack(a);compressor.setRelease(rel);}
 void PreFxRack::setBoost(float db,bool e){boostGain=juce::Decibels::decibelsToGain(db);boostOn=e;}
+void PreFxRack::setOverdrive(float d,float tone,float levelDb,bool e){odOn=e;odDrive=juce::jlimit(0.f,1.f,d);odTone=juce::jlimit(0.f,1.f,tone);odLevel=juce::Decibels::decibelsToGain(levelDb);*odToneFilter.state=*juce::dsp::IIR::Coefficients<float>::makeLowPass(sampleRate,juce::jmap(odTone,1800.f,9000.f));}
 void PreFxRack::setEq(float l,float m,float h,bool e){eqOn=e;*low.state=*juce::dsp::IIR::Coefficients<float>::makeLowShelf(sampleRate,120.f,.707f,juce::Decibels::decibelsToGain(l));*mid.state=*juce::dsp::IIR::Coefficients<float>::makePeakFilter(sampleRate,850.f,.8f,juce::Decibels::decibelsToGain(m));*high.state=*juce::dsp::IIR::Coefficients<float>::makeHighShelf(sampleRate,3500.f,.707f,juce::Decibels::decibelsToGain(h));}
-void PreFxRack::process(juce::AudioBuffer<float>&b){if(gateOn)for(int ch=0;ch<b.getNumChannels();++ch){auto*p=b.getWritePointer(ch);for(int n=0;n<b.getNumSamples();++n)if(std::abs(p[n])<gateThreshold)p[n]=0.f;}if(boostOn)b.applyGain(boostGain);if(eqOn){juce::dsp::AudioBlock<float> bl(b);juce::dsp::ProcessContextReplacing<float>ctx(bl);low.process(ctx);mid.process(ctx);high.process(ctx);}}
+void PreFxRack::process(juce::AudioBuffer<float>&b){if(gateOn)for(int ch=0;ch<b.getNumChannels();++ch){auto*p=b.getWritePointer(ch);for(int n=0;n<b.getNumSamples();++n)if(std::abs(p[n])<gateThreshold)p[n]=0.f;}if(compOn){juce::dsp::AudioBlock<float> bl(b);juce::dsp::ProcessContextReplacing<float>ctx(bl);compressor.process(ctx);}if(boostOn)b.applyGain(boostGain);if(odOn){const float gain=1.f+odDrive*24.f;for(int ch=0;ch<b.getNumChannels();++ch){auto*p=b.getWritePointer(ch);for(int n=0;n<b.getNumSamples();++n)p[n]=std::tanh(p[n]*gain)*odLevel;}juce::dsp::AudioBlock<float> bl(b);juce::dsp::ProcessContextReplacing<float>ctx(bl);odToneFilter.process(ctx);}if(eqOn){juce::dsp::AudioBlock<float> bl(b);juce::dsp::ProcessContextReplacing<float>ctx(bl);low.process(ctx);mid.process(ctx);high.process(ctx);}}
 }
