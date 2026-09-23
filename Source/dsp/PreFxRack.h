@@ -10,7 +10,7 @@ public:
  void setDrive(DriveModel,float,float,float,float,bool); void setEq(float,float,float,bool);
  void process(juce::AudioBuffer<float>&);
 private:
- using IIR=juce::dsp::IIR::ProcessorDuplicator<juce::dsp::IIR::Filter<float>,juce::dsp::IIR::Coefficients<float>>;
+ using IIR=juce::dsp::ProcessorDuplicator<juce::dsp::IIR::Filter<float>,juce::dsp::IIR::Coefficients<float>>;
  double sampleRate{48000.0}; float gateThreshold{.001f},boostGain{1.f},drive{.35f},tone{.5f},driveLevel{1.f},driveMix{1.f};
  bool gateOn{},compOn{},boostOn{},driveOn{},eqOn{}; DriveModel driveModel{DriveModel::greenDrive};
  juce::dsp::Compressor<float> compressor; IIR drivePre,driveTone,low,mid,high; juce::AudioBuffer<float> driveDry;
