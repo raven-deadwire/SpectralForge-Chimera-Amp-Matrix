@@ -1,0 +1,4 @@
+#include "ChimeraDSP.h"
+#include <iostream>
+#include <cmath>
+int main(){for(double sr:{44100.,48000.,96000.,192000.}){spectralforge::Crossover x;x.prepare({sr,512,2});juce::AudioBuffer<float>in(2,512);in.clear();in.setSample(0,0,1);in.setSample(1,0,1);std::array<juce::AudioBuffer<float>,3>o;x.split(in,o);for(auto&b:o)for(int c=0;c<b.getNumChannels();++c)for(int n=0;n<b.getNumSamples();++n)if(!std::isfinite(b.getSample(c,n)))return 2;spectralforge::Engine e;e.prepare({sr,512,2});std::array<spectralforge::LaneState,3>s{};for(auto mode:{spectralforge::RoutingMode::classic,spectralforge::RoutingMode::dual,spectralforge::RoutingMode::matrix}){auto b=in;e.process(b,mode,150,1200,s);for(int c=0;c<2;++c)for(int n=0;n<512;++n)if(!std::isfinite(b.getSample(c,n)))return 3;}}std::cout<<"Chimera DSP smoke tests passed\n";return 0;}
