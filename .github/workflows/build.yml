@@ -16,12 +16,54 @@ jobs:
       - run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
       - run: cmake --build build --config Release --parallel 2
       - run: ctest --test-dir build -C Release --output-on-failure
-      - uses: actions/upload-artifact@v4
+
+      - name: Package Windows test build
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $stage = "dist/Chimera-Amp-Matrix-1.0.0-test-win64"
+          New-Item -ItemType Directory -Force -Path "$stage/VST3","$stage/Standalone" | Out-Null
+          Copy-Item -Recurse "build/ChimeraAmpMatrix_artefacts/Release/VST3/*" "$stage/VST3/"
+          Copy-Item -Recurse "build/ChimeraAmpMatrix_artefacts/Release/Standalone/*" "$stage/Standalone/"
+          @"
+          SpectralForge Chimera Amp Matrix 1.0.0 TEST BUILD
+          =================================================
+          Unsigned development build. Windows SmartScreen/Chrome may warn because
+          this binary does not yet have an Authenticode publisher signature.
+
+          VST3:
+            Copy the .vst3 bundle to C:\Program Files\Common Files\VST3\
+
+          Standalone:
+            Run the executable from the Standalone folder.
+
+          Verify:
+            Compare the SHA256 of the ZIP with the .sha256.txt file supplied
+            alongside it in this workflow run.
+          "@ | Set-Content "$stage/README.txt"
+          Compress-Archive -Path "$stage/*" -DestinationPath "dist/Chimera-Amp-Matrix-1.0.0-test-win64.zip" -CompressionLevel Optimal
+          $hash = (Get-FileHash "dist/Chimera-Amp-Matrix-1.0.0-test-win64.zip" -Algorithm SHA256).Hash.ToLower()
+          "$hash  Chimera-Amp-Matrix-1.0.0-test-win64.zip" | Set-Content "dist/Chimera-Amp-Matrix-1.0.0-test-win64.sha256.txt"
+          Write-Host "SHA256: $hash"
+
+      - name: Upload Windows test package
+        if: runner.os == 'Windows'
+        uses: actions/upload-artifact@v4
+        with:
+          name: Chimera-Amp-Matrix-1.0.0-test-win64
+          path: |
+            dist/Chimera-Amp-Matrix-1.0.0-test-win64.zip
+            dist/Chimera-Amp-Matrix-1.0.0-test-win64.sha256.txt
+          if-no-files-found: error
+          compression-level: 0
+
+      - name: Upload non-Windows build artifacts
+        if: runner.os != 'Windows'
+        uses: actions/upload-artifact@v4
         with:
           name: Chimera-1.0-${{ runner.os }}
           path: |
             build/ChimeraAmpMatrix_artefacts/Release/VST3/**
-            build/ChimeraAmpMatrix_artefacts/Release/VST3/*.vst3/**
             build/ChimeraAmpMatrix_artefacts/Release/Standalone/**
             build/ChimeraAmpMatrix_artefacts/Release/AU/**
-          if-no-files-found: ignore
+          if-no-files-found: error
