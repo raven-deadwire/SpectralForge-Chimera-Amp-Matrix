@@ -33,7 +33,8 @@ target_sources(ChimeraAmpMatrix PRIVATE
   Source/dsp/ThreeBandCrossover.cpp Source/dsp/ThreeBandCrossover.h
   Source/dsp/LaneProcessor.cpp Source/dsp/LaneProcessor.h
   Source/dsp/PreFxRack.cpp Source/dsp/PreFxRack.h
-  Source/dsp/CabModule.cpp Source/dsp/CabModule.h)
+  Source/dsp/CabModule.cpp Source/dsp/CabModule.h
+  Source/dsp/PostFxRack.cpp Source/dsp/PostFxRack.h)
 
 target_compile_definitions(ChimeraAmpMatrix PUBLIC JUCE_WEB_BROWSER=0 JUCE_USE_CURL=0)
 target_link_libraries(ChimeraAmpMatrix PRIVATE juce::juce_audio_utils juce::juce_dsp
