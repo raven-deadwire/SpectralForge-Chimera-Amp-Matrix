@@ -3,6 +3,7 @@
 #include <juce_audio_utils/juce_audio_utils.h>
 #include <juce_dsp/juce_dsp.h>
 #include "dsp/ChimeraEngine.h"
+#include "dsp/PreFxRack.h"
 class ChimeraAmpMatrixAudioProcessor:public juce::AudioProcessor{
 public:
  ChimeraAmpMatrixAudioProcessor(); void prepareToPlay(double,int)override;void releaseResources()override{}
@@ -14,6 +15,6 @@ public:
 public:
  juce::AudioProcessorValueTreeState& parameters() noexcept { return state; }
 private:
- static juce::AudioProcessorValueTreeState::ParameterLayout createParameters();juce::AudioProcessorValueTreeState state;spectralforge::ChimeraEngine engine;
+ static juce::AudioProcessorValueTreeState::ParameterLayout createParameters();juce::AudioProcessorValueTreeState state;spectralforge::PreFxRack preFx;spectralforge::ChimeraEngine engine;
  JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(ChimeraAmpMatrixAudioProcessor)
 };
