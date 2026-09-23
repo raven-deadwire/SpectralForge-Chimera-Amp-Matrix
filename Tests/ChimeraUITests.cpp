@@ -31,7 +31,9 @@ void checkControls(ChimeraEditor& editor, int mode)
                         "Full-range EQ labels visible in Matrix");
         }
     }
-    require(sliders == (mode == 0 ? 8 : mode == 1 ? 16 : 11), "Wrong controls for routing mode");
+    if (sliders != (mode == 0 ? 8 : mode == 1 ? 16 : 11))
+        throw std::runtime_error("Wrong controls for mode " + std::to_string(mode) +
+                                 ": found " + std::to_string(sliders));
     require(toneLabels == (mode == 2 ? 3 : 0), "Wrong band tone visibility");
 }
 void saveSnapshot(ChimeraEditor& editor, const juce::File& directory,
@@ -83,6 +85,9 @@ int main(int argc, char** argv)
         {
             set(processor,"mode",static_cast<float>(mode));
             ChimeraEditor editor(processor);
+            // Exercise the real asynchronous UI event loop. Sleeping the message
+            // thread can prevent parameter notifications and timers from settling.
+            juce::MessageManager::getInstance()->runDispatchLoopUntil(150);
             checkControls(editor,mode);
             const juce::String name = mode == 0 ? "Classic" : mode == 1 ? "Dual" : "Matrix";
             saveSnapshot(editor,directory,name);
@@ -90,8 +95,7 @@ int main(int argc, char** argv)
             {
                 saveSnapshot(editor,directory,"Matrix-150pct",1.5f);
                 set(processor,"x1",350); set(processor,"x2",4000);
-                juce::Thread::sleep(80);
-                juce::Timer::callPendingTimersSynchronously();
+                juce::MessageManager::getInstance()->runDispatchLoopUntil(150);
                 bool lowUpdated = false, highUpdated = false;
                 for (auto* child : editor.getChildren())
                     if (auto* label = dynamic_cast<juce::Label*>(child))
@@ -103,8 +107,7 @@ int main(int argc, char** argv)
                 saveSnapshot(editor,directory,"Matrix-crossovers");
                 // Host-driven mode changes must immediately remove hidden controls.
                 set(processor,"mode",0);
-                juce::Thread::sleep(80);
-                juce::Timer::callPendingTimersSynchronously();
+                juce::MessageManager::getInstance()->runDispatchLoopUntil(150);
                 checkControls(editor,0);
                 require(processor.parameters().getRawParameterValue("x1")->load()==350,
                         "Switching modes reset saved crossover settings");

@@ -10,7 +10,7 @@ void styleLabel(juce::Label& label, float size = 14.0f)
 juce::String frequencyText(float hz)
 {
     return hz >= 1000.0f ? juce::String(hz / 1000.0f, 2) + " kHz"
-                        : juce::String(hz, 0) + " Hz";
+                        : juce::String(juce::roundToInt(hz)) + " Hz";
 }
 }
 
