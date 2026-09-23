@@ -1,0 +1,4 @@
+#include "PluginEditor.h"
+ChimeraAmpMatrixAudioProcessorEditor::ChimeraAmpMatrixAudioProcessorEditor(ChimeraAmpMatrixAudioProcessor&p):AudioProcessorEditor(&p){title.setText("SpectralForge | CHIMERA AMP MATRIX",juce::dontSendNotification);title.setJustificationType(juce::Justification::centred);title.setFont(juce::FontOptions(24.f).withStyle("Bold"));addAndMakeVisible(title);setSize(900,520);}
+void ChimeraAmpMatrixAudioProcessorEditor::paint(juce::Graphics&g){g.fillAll(juce::Colour(0xff111318));g.setColour(juce::Colour(0xffd4d7dc));g.setFont(15.f);g.drawFittedText("MVP routing core: Classic / Dual / 3-band Matrix",getLocalBounds().reduced(40).withTrimmedTop(80),juce::Justification::centredTop,1);}
+void ChimeraAmpMatrixAudioProcessorEditor::resized(){title.setBounds(30,25,getWidth()-60,45);}
