@@ -39,3 +39,10 @@ target_sources(ChimeraAmpMatrix PRIVATE
 target_compile_definitions(ChimeraAmpMatrix PUBLIC JUCE_WEB_BROWSER=0 JUCE_USE_CURL=0)
 target_link_libraries(ChimeraAmpMatrix PRIVATE juce::juce_audio_utils juce::juce_dsp
   PUBLIC juce::juce_recommended_config_flags juce::juce_recommended_lto_flags juce::juce_recommended_warning_flags)
+
+
+enable_testing()
+juce_add_console_app(ChimeraDSPTests PRODUCT_NAME "Chimera DSP Tests")
+target_sources(ChimeraDSPTests PRIVATE Tests/CrossoverTests.cpp Source/dsp/ThreeBandCrossover.cpp Source/dsp/ThreeBandCrossover.h)
+target_link_libraries(ChimeraDSPTests PRIVATE juce::juce_dsp juce::juce_audio_basics PUBLIC juce::juce_recommended_config_flags)
+add_test(NAME ChimeraDSPTests COMMAND ChimeraDSPTests)
