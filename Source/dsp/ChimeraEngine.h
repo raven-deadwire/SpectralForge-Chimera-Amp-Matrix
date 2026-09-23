@@ -18,6 +18,6 @@ private:
  void applyAlignment(juce::AudioBuffer<float>&,int lane,const LaneSettings&);
  ThreeBandCrossover crossover; std::array<LaneProcessor,3> lanes; std::array<juce::AudioBuffer<float>,3> work;
  using Delay = juce::dsp::DelayLine<float,juce::dsp::DelayLineInterpolationTypes::Linear>;
- std::array<Delay,3> delays { Delay(512), Delay(512), Delay(512) };
+ std::array<Delay,3> delays { Delay(2048), Delay(2048), Delay(2048) }; float alignmentReferenceSamples{0.f};
  double sampleRate{48000.0};
 };}
