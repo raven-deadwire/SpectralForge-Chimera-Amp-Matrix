@@ -8,5 +8,5 @@ class ThreeBandCrossover {
 public:
  void prepare(const juce::dsp::ProcessSpec&); void reset(); void setFrequencies(float,float);
  void split(const juce::AudioBuffer<float>&,juce::AudioBuffer<float>&,juce::AudioBuffer<float>&,juce::AudioBuffer<float>&);
-private: F lowLP,midHP,midLP,highHP; float x1{150.f},x2{1200.f};
+private: F split1,split2,lowPhase; float x1{150.f},x2{1200.f};
 }; }
