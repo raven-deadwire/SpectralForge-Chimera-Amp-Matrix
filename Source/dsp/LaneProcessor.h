@@ -13,5 +13,5 @@ public:
  void setLevelDb(float d){ level.setTargetValue(juce::Decibels::decibelsToGain(d)); } void setMuted(bool m){ muted=m; }
  void setCabEnabled(bool e){cab.setEnabled(e);} void setCabCuts(float lo,float hi){cab.setLowCut(lo);cab.setHighCut(hi);}
  void process(juce::AudioBuffer<float>&);
-private: AmpModel model{AmpModel::glass}; float drive{0.35f}; bool muted{}; juce::SmoothedValue<float> level{1.f}; CabModule cab; double sampleRate{48000.0}; float bassDb{},midDb{},trebleDb{},presenceDb{},resonanceDb{}; juce::dsp::IIR::Filter<float> bassFilter,midFilter,trebleFilter,presenceFilter,resonanceFilter; std::unique_ptr<juce::dsp::Oversampling<float>> oversampling;
+private: AmpModel model{AmpModel::glass}; float drive{0.35f}; bool muted{}; juce::SmoothedValue<float> level{1.f}; CabModule cab; double sampleRate{48000.0}; float bassDb{},midDb{},trebleDb{},presenceDb{},resonanceDb{}; juce::dsp::IIR::ProcessorDuplicator<juce::dsp::IIR::Filter<float>,juce::dsp::IIR::Coefficients<float>> bassFilter,midFilter,trebleFilter,presenceFilter,resonanceFilter; std::unique_ptr<juce::dsp::Oversampling<float>> oversampling;
 }; }
