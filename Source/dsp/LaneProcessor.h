@@ -4,7 +4,7 @@
 #include <juce_dsp/juce_dsp.h>
 #include "CabModule.h"
 namespace spectralforge {
-enum class AmpModel : int { clean=0, tightDrive=1, bassSaturator=2 };
+enum class AmpModel : int { glass=0, tight515=1, ironTube=2, solidPunch=3 };
 class LaneProcessor {
 public:
  void prepare(const juce::dsp::ProcessSpec& s){ level.reset(s.sampleRate,0.02); level.setCurrentAndTargetValue(1.0f); cab.prepare(s); }
