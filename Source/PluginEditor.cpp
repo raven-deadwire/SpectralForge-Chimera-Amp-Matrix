@@ -44,6 +44,9 @@ ChimeraEditor::ChimeraEditor(ChimeraProcessor& p) : AudioProcessorEditor(&p), pr
         std::array<juce::String,8> id{"drive"+n,"level"+n,"bass"+n,"lowmid"+n,"highmid"+n,"treble"+n,"presence"+n,"resonance"+n};
         for(size_t k=0;k<s.size();++k){
             setupKnob(*s[k],knobNames[k],k==1?" dB":(k>=2&&k<=5?" dB":""));
+            styleLabel(l.knobLabels[k],11.f);
+            l.knobLabels[k].setText(knobNames[k],juce::dontSendNotification);
+            addAndMakeVisible(l.knobLabels[k]);
             addAndMakeVisible(*s[k]);
             l.sa[k]=std::make_unique<SA>(st,id[k],*s[k]);
         }
@@ -81,7 +84,7 @@ void ChimeraEditor::updateModeUI(){
     for(int i=0;i<3;++i){
         std::array<juce::Slider*,8>s{&lanes[i].drive,&lanes[i].level,&lanes[i].bass,&lanes[i].lm,&lanes[i].hm,&lanes[i].treble,&lanes[i].pres,&lanes[i].res};
         const bool show=i==0||(dual&&i<2)||matrix;
-        for(auto* q:s)q->setVisible(show);
+        for(size_t k=0;k<s.size();++k){ s[k]->setVisible(show); lanes[i].knobLabels[k].setVisible(show); }
     }
     if(lastMode==0){
         routingHelp.setText("CLASSIC  •  Single full-range amp/cab rig  •  No crossover",juce::dontSendNotification);
@@ -134,6 +137,11 @@ void ChimeraEditor::resized(){
         l.amp.setBounds(x+20,278,width-40,28);
         std::array<juce::Slider*,8>s{&l.drive,&l.level,&l.bass,&l.lm,&l.hm,&l.treble,&l.pres,&l.res};
         const int kw=juce::jmin(84,(width-30)/4);
-        for(int k=0;k<8;++k)s[k]->setBounds(x+12+(k%4)*(width-24)/4,320+(k/4)*135,kw,112);
+        for(int k=0;k<8;++k){
+            const int kx=x+12+(k%4)*(width-24)/4;
+            const int ky=318+(k/4)*135;
+            l.knobLabels[k].setBounds(kx,ky,kw,18);
+            s[k]->setBounds(kx,ky+18,kw,94);
+        }
     }
 }
