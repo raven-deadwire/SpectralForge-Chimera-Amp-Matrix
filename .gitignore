@@ -1,0 +1,7 @@
+Build/
+build/
+cmake-build-*/
+.DS_Store
+*.jucer
+.idea/
+.vscode/
