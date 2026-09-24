@@ -103,6 +103,7 @@ ChimeraEditor::ChimeraEditor(ChimeraProcessor& p) : AudioProcessorEditor(&p),pro
             add(effect.labels[k]);add(effect.controls[k]);effect.attachments[k]=std::make_unique<SA>(p.parameters(),effectIds[i][k],effect.controls[k]);
         }
     }
+    effects[1].controls[0].textFromValueFunction=[this](double value){return juce::String(delaySync.getToggleState() ? 60000.0/processor.currentTempo() : value,1)+" ms";};
     inputMode.setName("Input mode");inputMode.addItemList({"STEREO","MONO L"},1);add(inputMode);inputModeAttachment=std::make_unique<CA>(p.parameters(),"inputmode",inputMode);
     inputMode.setTooltip("MONO L sends the left input to both channels. Stereo preserves separate channels.");
     presets.setName("Preset");presets.addItemList({"Clean Sustain","Tight Rhythm","Bass Matrix","Filter Lead","Fuzz Texture"},1);presets.setText("INIT / CUSTOM",juce::dontSendNotification);add(presets);
@@ -113,6 +114,7 @@ ChimeraEditor::ChimeraEditor(ChimeraProcessor& p) : AudioProcessorEditor(&p),pro
     dualType.setName("Dual type");dualType.addItemList({"BLEND","CROSSOVER"},1);add(dualType);dualTypeAttachment=std::make_unique<CA>(p.parameters(),"dualtype",dualType);dualType.onChange=[this]{updateModeUI();};
     const std::array<juce::Slider*,4> sliders{&doublerTime,&tempo,&dualBlend,&dualFrequency};const std::array<const char*,4> sliderIds{"doublertime","tempo","dualblend","dualcross"};const std::array<const char*,4> sliderSuffix{" ms"," BPM",""," Hz"};
     for(size_t i=0;i<4;++i){setupSlider(*sliders[i],sliderIds[i],sliderSuffix[i]);add(*sliders[i]);utilitySliders[i]=std::make_unique<SA>(p.parameters(),sliderIds[i],*sliders[i]);}
+    tempo.textFromValueFunction=[this](double value){return juce::String(hostTempo.getToggleState() ? processor.currentTempo() : value,1)+" BPM";};
     tempo.setNumDecimalPlacesToDisplay(1);dualBlend.textFromValueFunction=[](double v){return juce::String(juce::roundToInt((1-v)*100))+":"+juce::String(juce::roundToInt(v*100));};
     const std::array<juce::TextButton*,4> buttons{&doublerOn,&hostTempo,&metronome,&delaySync};const std::array<const char*,4> buttonIds{"doubleron","temposync","metronome","delaysync"};
     for(size_t i=0;i<4;++i){buttons[i]->setClickingTogglesState(true);utilityButtons[i]=std::make_unique<BA>(p.parameters(),buttonIds[i],*buttons[i]);}
@@ -121,7 +123,7 @@ ChimeraEditor::ChimeraEditor(ChimeraProcessor& p) : AudioProcessorEditor(&p),pro
     lowComp.setTooltip("One-knob VCA-style RMS compression: threshold and ratio move together. 0 = unity. Use LEVEL for makeup gain.");
     style(lowCompLabel,11.5f);lowCompLabel.setText("COMP",juce::dontSendNotification);add(lowCompLabel);
     style(diVoice,16);diVoice.setText("CLEAN DI / VCA",juce::dontSendNotification);add(diVoice);
-    style(diNote,12);diNote.setText("Direct low end. No amp or cabinet.\nPre Drive is bypassed; Gate and Pitch apply.",juce::dontSendNotification);add(diNote);
+    style(diNote,12);diNote.setText("Direct low end. No amp or cabinet.\nFuzz / Boost / Drive are bypassed.",juce::dontSendNotification);add(diNote);
     style(routingHelp); add(routingHelp); style(x1Label,11.f); style(x2Label,11.f);
     x1Label.setText("LOW / MID",juce::dontSendNotification); x2Label.setText("MID / HIGH",juce::dontSendNotification);
     add(x1Label); add(x2Label); setupSlider(x1,"LOW / MID"," Hz"); setupSlider(x2,"MID / HIGH"," Hz"); add(x1); add(x2);
@@ -163,7 +165,7 @@ ChimeraEditor::ChimeraEditor(ChimeraProcessor& p) : AudioProcessorEditor(&p),pro
         }
         setupSlider(lane.bandTone,"BAND TONE"," dB"); add(lane.bandTone); style(lane.toneLabel,11.5f);
         lane.toneLabel.setText("BAND TONE",juce::dontSendNotification); add(lane.toneLabel);
-        lane.bandTone.setTooltip("Pre-amp tilt within this band. Negative: darker. Positive: brighter. Pivot follows the crossover.");
+        lane.bandTone.setTooltip("Tilt within this band. Negative: darker. Positive: brighter. Pivot follows the crossover.");
         lane.toneAttachment=std::make_unique<SA>(state,"bandtone"+n,lane.bandTone);
         lane.cabType.setName("Cabinet "+n); lane.cabType.addItemList({"Filters only","V30 / SM57","Jensen / SM57","User IR"},1); add(lane.cabType);
         lane.ca=std::make_unique<CA>(state,"cabtype"+n,lane.cabType);
@@ -234,7 +236,7 @@ void ChimeraEditor::timerCallback()
         lane.cabLow.setEnabled(active); lane.cabHigh.setEnabled(active);
     }
     for(auto& effect:effects) effect.enabled.setButtonText(effect.enabled.getToggleState() ? "ON" : "OFF");
-    midi.setButtonText(processor.learningMidi() ? "LEARN" : "MIDI");tempo.setEnabled(!hostTempo.getToggleState());effects[1].controls[0].setEnabled(!delaySync.getToggleState());
+    midi.setButtonText(processor.learningMidi() ? "LEARN" : "MIDI");tempo.setEnabled(!hostTempo.getToggleState());effects[1].controls[0].setEnabled(!delaySync.getToggleState());effects[1].controls[0].updateText();tempo.updateText();
     gateStatus.setText(gateOn.getToggleState() ? "REDUCTION  "+juce::String(-juce::Decibels::gainToDecibels(processor.gateMeter(),-90.f),1)+" dB" : "BYPASSED",juce::dontSendNotification);
     const double sr=processor.getSampleRate()>0 ? processor.getSampleRate() : 48000;
     pitchStatus.setText(pitchOn.getToggleState() ? "+ "+juce::String(1000.0*processor.pitchLatency()/sr,1)+" ms latency" : "BYPASSED | zero added latency",juce::dontSendNotification);

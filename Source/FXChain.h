@@ -84,14 +84,14 @@ class PostFXChain {
     double rate{48000};
 public:
     void prepare(const juce::dsp::ProcessSpec& spec) {
-        compressor.prepare(spec);preamp.prepare(spec);eq.prepare(spec);chorus.prepare(spec);chorus.setCentreDelay(8);
+        compressor.prepare(spec);preamp.prepare(spec);eq.prepare(spec);chorus.setMix(0);chorus.prepare(spec);chorus.setCentreDelay(8);
         rate=spec.sampleRate;delay.setMaximumDelayInSamples(int(rate*2.1));delay.prepare(spec);reverb.prepare(spec);
         wetBuffer.setSize((int)spec.numChannels,(int)spec.maximumBlockSize);
         for(auto* value:{&time,&feedback,&delayMix,&reverbMix}) value->reset(rate,.030);
         time.setCurrentAndTargetValue(float(rate*.25));feedback.setCurrentAndTargetValue(.25f);delayMix.setCurrentAndTargetValue(0);reverbMix.setCurrentAndTargetValue(0);
     }
     int latency() const {return preamp.latency();}
-    void reset() {compressor.reset();preamp.reset();eq.reset();chorus.reset();delay.reset();reverb.reset();delayMix.setCurrentAndTargetValue(0);reverbMix.setCurrentAndTargetValue(0);}
+    void reset() {compressor.reset();preamp.reset();eq.reset();chorus.setMix(0);chorus.reset();delay.reset();reverb.reset();delayMix.setCurrentAndTargetValue(0);reverbMix.setCurrentAndTargetValue(0);}
     void process(juce::AudioBuffer<float>& buffer,const FXState& state) {
         compressor.process(buffer,state.busCompOn,state.busThreshold,state.busRatio,state.busAttack,state.busRelease,state.busMakeup);
         preamp.process(buffer,state.preampOn,state.preampDrive,state.preampColour,state.preampLevel);

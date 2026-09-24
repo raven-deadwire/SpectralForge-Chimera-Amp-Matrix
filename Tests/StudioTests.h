@@ -44,6 +44,12 @@ inline std::vector<float> dualSum(int blockSize,bool reference)
 }
 inline void run()
 {
+    {spectralforge::PreFXChain pre;spectralforge::PostFXChain post;pre.prepare({48000,127,2});post.prepare({48000,127,2});spectralforge::FXState state;juce::AudioBuffer<float> impulse(2,127);impulse.clear();impulse.setSample(0,0,1);impulse.setSample(1,0,-.5f);
+     pre.process(impulse,false,-60,80,20,false,0,state);post.process(impulse,state);const int delay=pre.latency(false)+post.latency();
+     for(int n=0;n<127;++n){require(std::abs(impulse.getSample(0,n)-(n==delay?1.f:0.f))<1e-6,"Bypassed pedal/rack startup is not an exact latency-aligned dry path");require(std::abs(impulse.getSample(0,n)+2*impulse.getSample(1,n))<1e-6,"Bypassed FX changed stereo polarity");}
+     std::cout<<"MEASURE all FX bypass at startup: exact dry impulse at "<<delay<<" samples\n";
+    }
+
     const auto off=effects(-1);for(int i=0;i<11;++i) {
         const auto on=effects(i);double residual=0;for(size_t n=0;n<off.size();++n)residual+=std::pow(off[n]-on[n],2);residual=std::sqrt(residual/off.size());
         std::cout<<"MEASURE effect module "<<i<<": enabled/bypass residual RMS "<<residual<<"\n";require(residual>1e-4,"A studio FX module is not connected");
