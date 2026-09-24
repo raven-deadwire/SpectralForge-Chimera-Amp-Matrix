@@ -1,0 +1,46 @@
+SpectralForge Chimera Amp Matrix 1.0.0 TEST - Windows 설치 안내
+===========================================================
+
+1. Studio One 등 DAW와 기존 Chimera 실행 창을 모두 닫습니다.
+2. Chimera-Amp-Matrix-1.0.0-test-win64-Setup.exe를 실행합니다.
+3. 설치할 항목을 선택합니다. 기본값은 VST3 + 단독 실행 앱 + 레퍼런스 도구입니다.
+4. VST3는 C:\Program Files\Common Files\VST3\Chimera Amp Matrix.vst3 에 설치됩니다.
+   이 경로는 DAW의 표준 64비트 VST3 검색 경로입니다.
+5. 단독 실행 앱은 기본적으로 C:\Program Files\SpectralForge\Chimera Amp Matrix 에
+   설치되며, 시작 메뉴의 SpectralForge 폴더에서 실행할 수 있습니다.
+6. DAW를 다시 실행합니다. 목록에 없으면 플러그인 재검색을 실행합니다.
+
+업데이트 / 복구
+동일한 설치 프로그램을 다시 실행하면 설치한 파일을 덮어써 복구합니다.
+다음 버전도 같은 설치 폴더와 제거 항목을 사용합니다.
+이전 ZIP을 별도 경로에 풀었다면 그 복사본은 자동으로 삭제하지 않습니다.
+DAW에서 같은 플러그인이 중복으로 발견되면 이전 복사본의 위치를 확인하세요.
+
+제거
+Windows 설정 > 앱 > 설치된 앱 > Chimera Amp Matrix에서 제거합니다.
+설치 프로그램이 배치한 파일과 바로가기만 제거합니다.
+개인 프리셋, 프로젝트, 다운로드한 IR 및 사용자 설정은 삭제하지 않습니다.
+구성 요소 선택은 새 파일의 설치 여부를 정합니다. 이미 설치된 구성 요소를
+빼려면 앱을 제거한 다음 필요한 항목만 선택하여 다시 설치하세요.
+
+개인 IR
+TONE3000에서 받은 개인용 NAM/IR 파일은 이 설치 프로그램에 포함하지 않습니다.
+IR 자료 ZIP을 별도 폴더에 풀고, 플러그인의 LOAD > Browse an IR folder로 불러옵니다.
+NAM은 외부 검증용 기준 데이터이며 현재 플러그인의 실시간 로딩 형식은 아닙니다.
+
+호환성 / 확인 범위
+Windows 10/11의 64비트 x64용 빌드입니다. 32비트 DAW는 지원하지 않습니다.
+Visual C++ 런타임을 정적으로 링크하여 별도 VC++ 재배포 패키지를 요구하지 않습니다.
+설치 파일은 코드서명 전 테스트 버전입니다. 설치형이어도 Windows/브라우저의
+게시자 또는 평판 경고가 사라진다는 의미는 아닙니다. 보안 기능을 끄지 마세요.
+SHA256은 함께 제공하는 .sha256.txt와 PowerShell Get-FileHash로 비교할 수 있습니다.
+
+English
+Close your DAW and Chimera before installing or updating. Setup installs the
+x64 VST3 bundle in Common Files\VST3 and the standalone app in Program Files,
+with Start Menu shortcuts and a Windows uninstall entry. Run Setup again to
+repair its files. User presets, downloaded IRs and settings are preserved.
+Component deselection does not remove an already-installed component: uninstall
+first, then install the desired selection. Portable copies outside these paths
+remain untouched. This unsigned test installer does not establish publisher
+trust or SmartScreen reputation. The binaries use the static MSVC runtime.

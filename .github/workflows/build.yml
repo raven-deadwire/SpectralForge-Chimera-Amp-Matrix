@@ -11,6 +11,16 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
+      - name: Check Windows packaging script syntax
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          foreach ($script in @("Tools/Build-WindowsInstaller.ps1", "Tools/Verify-WindowsInstaller.ps1")) {
+            $tokens = $null
+            $parseErrors = $null
+            [System.Management.Automation.Language.Parser]::ParseFile((Resolve-Path $script).Path, [ref]$tokens, [ref]$parseErrors) | Out-Null
+            if ($parseErrors.Count) { throw (($parseErrors | ForEach-Object Message) -join "`n") }
+          }
       - if: runner.os == 'Linux'
         run: sudo apt-get update && sudo apt-get install -y libasound2-dev libjack-jackd2-dev ladspa-sdk libcurl4-openssl-dev libfreetype6-dev libfontconfig1-dev libx11-dev libxcomposite-dev libxcursor-dev libxext-dev libxinerama-dev libxrandr-dev libxrender-dev libwebkit2gtk-4.1-dev libglu1-mesa-dev mesa-common-dev
       - run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
@@ -43,6 +53,7 @@ jobs:
           Copy-Item -Recurse "build/ChimeraAmpMatrix_artefacts/Release/Standalone/*" "$stage/Standalone/"
           Copy-Item "docs/THIRD_PARTY_NOTICES.md","docs/AMP_VALIDATION.md" "$stage/"
           Copy-Item "docs/FX_AND_IR_DESIGN.md","docs/MODELS_AND_REFERENCE.md","docs/NAM_REFERENCE_RESULTS.md" "$stage/"
+          Copy-Item "docs/WINDOWS_INSTALL.txt" "$stage/"
           Copy-Item -Recurse "docs/reference" "$stage/"
           New-Item -ItemType Directory -Force -Path "$stage/ReferenceTools" | Out-Null
           Copy-Item "Tools/validate_nam.py" "$stage/ReferenceTools/"
@@ -54,6 +65,10 @@ jobs:
           =================================================
           Unsigned development build. Windows SmartScreen/Chrome may warn because
           this binary does not yet have an Authenticode publisher signature.
+
+          Setup installer: installs VST3, the standalone app, Start Menu shortcuts and an uninstaller.
+          Close your DAW and Chimera before installing. See WINDOWS_INSTALL.txt.
+          Windows binaries statically link the MSVC runtime; no separate VC++ redist is needed.
 
           Revision: ${{ github.sha }}
           Signal chain: input/gate/transpose -> PRE pedals -> rigs/cabs -> merge -> POST rack -> output.
@@ -99,6 +114,37 @@ jobs:
           $hash = (Get-FileHash "dist/Chimera-Amp-Matrix-1.0.0-test-win64.zip" -Algorithm SHA256).Hash.ToLower()
           "$hash  Chimera-Amp-Matrix-1.0.0-test-win64.zip" | Set-Content "dist/Chimera-Amp-Matrix-1.0.0-test-win64.sha256.txt"
           Write-Host "SHA256: $hash"
+
+      - name: Build Windows installer
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: ./Tools/Build-WindowsInstaller.ps1
+
+      - name: Verify Windows install, repair and uninstall
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: ./Tools/Verify-WindowsInstaller.ps1
+
+      - name: Upload Windows installer verification
+        if: runner.os == 'Windows' && always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Chimera-Windows-installer-verification
+          path: build/installer-verification/**
+          if-no-files-found: warn
+
+      - name: Upload Windows installer
+        if: runner.os == 'Windows'
+        uses: actions/upload-artifact@v4
+        with:
+          name: Chimera-Amp-Matrix-1.0.0-test-win64-Setup
+          path: |
+            dist/Chimera-Amp-Matrix-1.0.0-test-win64-Setup.exe
+            dist/Chimera-Amp-Matrix-1.0.0-test-win64-Setup.exe.sha256.txt
+            docs/WINDOWS_INSTALL.txt
+            build/installer-verification/InstallerVerification.txt
+          if-no-files-found: error
+          compression-level: 0
 
       - name: Upload Windows test package
         if: runner.os == 'Windows'
