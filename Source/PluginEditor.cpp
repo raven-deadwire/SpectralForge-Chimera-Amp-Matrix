@@ -103,7 +103,7 @@ ChimeraEditor::ChimeraEditor(ChimeraProcessor& p) : AudioProcessorEditor(&p),pro
             add(effect.labels[k]);add(effect.controls[k]);effect.attachments[k]=std::make_unique<SA>(p.parameters(),effectIds[i][k],effect.controls[k]);
         }
     }
-    effects[1].controls[0].textFromValueFunction=[this](double value){return juce::String(delaySync.getToggleState() ? 60000.0/processor.currentTempo() : value,1)+" ms";};
+    effects[1].controls[0].textFromValueFunction=[this](double value){return juce::String(delaySync.getToggleState() ? 60000.0/processor.currentTempo() : value,1);};
     inputMode.setName("Input mode");inputMode.addItemList({"STEREO","MONO L"},1);add(inputMode);inputModeAttachment=std::make_unique<CA>(p.parameters(),"inputmode",inputMode);
     inputMode.setTooltip("MONO L sends the left input to both channels. Stereo preserves separate channels.");
     presets.setName("Preset");presets.addItemList({"Clean Sustain","Tight Rhythm","Bass Matrix","Filter Lead","Fuzz Texture"},1);presets.setText("INIT / CUSTOM",juce::dontSendNotification);add(presets);
@@ -114,7 +114,7 @@ ChimeraEditor::ChimeraEditor(ChimeraProcessor& p) : AudioProcessorEditor(&p),pro
     dualType.setName("Dual type");dualType.addItemList({"BLEND","CROSSOVER"},1);add(dualType);dualTypeAttachment=std::make_unique<CA>(p.parameters(),"dualtype",dualType);dualType.onChange=[this]{updateModeUI();};
     const std::array<juce::Slider*,4> sliders{&doublerTime,&tempo,&dualBlend,&dualFrequency};const std::array<const char*,4> sliderIds{"doublertime","tempo","dualblend","dualcross"};const std::array<const char*,4> sliderSuffix{" ms"," BPM",""," Hz"};
     for(size_t i=0;i<4;++i){setupSlider(*sliders[i],sliderIds[i],sliderSuffix[i]);add(*sliders[i]);utilitySliders[i]=std::make_unique<SA>(p.parameters(),sliderIds[i],*sliders[i]);}
-    tempo.textFromValueFunction=[this](double value){return juce::String(hostTempo.getToggleState() ? processor.currentTempo() : value,1)+" BPM";};
+    tempo.textFromValueFunction=[this](double value){return juce::String(hostTempo.getToggleState() ? processor.currentTempo() : value,1);};
     tempo.setNumDecimalPlacesToDisplay(1);dualBlend.textFromValueFunction=[](double v){return juce::String(juce::roundToInt((1-v)*100))+":"+juce::String(juce::roundToInt(v*100));};dualBlend.updateText();
     const std::array<juce::TextButton*,4> buttons{&doublerOn,&hostTempo,&metronome,&delaySync};const std::array<const char*,4> buttonIds{"doubleron","temposync","metronome","delaysync"};
     for(size_t i=0;i<4;++i){buttons[i]->setClickingTogglesState(true);utilityButtons[i]=std::make_unique<BA>(p.parameters(),buttonIds[i],*buttons[i]);}
