@@ -46,7 +46,7 @@ jobs:
           Copy-Item -Recurse "docs/reference" "$stage/"
           New-Item -ItemType Directory -Force -Path "$stage/ReferenceTools" | Out-Null
           Copy-Item "Tools/validate_nam.py" "$stage/ReferenceTools/"
-          Copy-Item "build/ChimeraRender_artefacts/Release/Chimera Render.exe" "$stage/ReferenceTools/"
+          Copy-Item "build/ChimeraRender_artefacts/Release/ChimeraRender.exe" "$stage/ReferenceTools/"
           Copy-Item -Recurse "build/reference-audio" "$stage/"
           Copy-Item "build/Testing/Temporary/LastTest.log" "$stage/Verification.txt"
           @"

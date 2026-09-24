@@ -99,7 +99,7 @@ ChimeraEditor::ChimeraEditor(ChimeraProcessor& p) : AudioProcessorEditor(&p),pro
     const std::array<std::array<const char*,5>,11> effectLabels{{{"DRIVE","TONE","LEVEL",nullptr,nullptr},{"TIME","FEEDBACK","MIX",nullptr,nullptr},{"SIZE","DAMPING","MIX",nullptr,nullptr},{"SUSTAIN","ATTACK","LEVEL",nullptr,nullptr},{"SENSE","Q","MIX",nullptr,nullptr},{"DRIVE","BODY","LEVEL",nullptr,nullptr},{"GAIN","BASS","TREBLE",nullptr,nullptr},{"THRESHOLD","RATIO","ATTACK","RELEASE","MAKEUP"},{"GAIN","COLOUR","TRIM",nullptr,nullptr},{"LOW 80 Hz","MID FREQ","MID GAIN","MID Q","HIGH 8 kHz"},{"RATE","DEPTH","MIX",nullptr,nullptr}}};
     const std::array<std::array<const char*,5>,11> effectSuffix{{{""," Hz"," dB",nullptr,nullptr},{" ms","","",nullptr,nullptr},{"","","",nullptr,nullptr},{""," ms"," dB",nullptr,nullptr},{"","","",nullptr,nullptr},{" dB",""," dB",nullptr,nullptr},{" dB"," dB"," dB",nullptr,nullptr},{" dB",":1"," ms"," ms"," dB"},{" dB",""," dB",nullptr,nullptr},{" dB"," Hz"," dB",""," dB"},{" Hz","","",nullptr,nullptr}}};
     for(size_t i=0;i<effects.size();++i) {
-        auto& effect=effects[i];style(effect.header,15);style(effect.scope,10);style(effect.description,11.5f);
+        auto& effect=effects[i];style(effect.header,15);style(effect.scope,10);style(effect.description,10.f);
         effect.header.setText(effectHeaders[i],juce::dontSendNotification);effect.scope.setText(effectScopes[i],juce::dontSendNotification);effect.description.setText(descriptions[i],juce::dontSendNotification);
         effect.header.setTooltip(descriptions[i]);add(effect.header);add(effect.scope);add(effect.description);add(effect.enabled);effect.enabled.setClickingTogglesState(true);
         effect.enabled.setComponentID(effectButtons[i]);effect.button=std::make_unique<BA>(p.parameters(),effectButtons[i],effect.enabled);
@@ -256,7 +256,15 @@ void ChimeraEditor::timerCallback()
         lane.cabStatus.setTooltip(lane.cabStatus.getText()+"\n"+processor.cabMetadata(i).summary());
         lane.cabLow.setEnabled(active); lane.cabHigh.setEnabled(active);
     }
-    for(size_t i=0;i<effects.size();++i){auto& effect=effects[i];effect.enabled.setButtonText(effect.enabled.getToggleState() ? "ON" : "OFF");const auto& model=spectralforge::modelInfo((int)i,effect.model.getSelectedId()-1);effect.model.setTooltip(juce::String("Reference: ")+model.reference+"\n"+model.character);effect.scope.setText(model.reference,juce::dontSendNotification);}
+    for(size_t i=0;i<effects.size();++i){
+        auto& effect=effects[i];effect.enabled.setButtonText(effect.enabled.getToggleState() ? "ON" : "OFF");
+        const auto& model=spectralforge::modelInfo((int)i,effect.model.getSelectedId()-1);
+        const juce::String scope=i==0 || i==5 || i==6 ? "Matrix LOW DI stays clean." : i==3 || i==4 ? "Shared by DI and amp paths." : "Applied after rig merge.";
+        const auto description=juce::String(model.character)+"\n"+scope;
+        effect.model.setTooltip(juce::String("Reference: ")+model.reference+"\n"+description);
+        effect.header.setTooltip(description);effect.description.setTooltip(description);
+        effect.description.setText(description,juce::dontSendNotification);effect.scope.setText(model.reference,juce::dontSendNotification);
+    }
     const int eq=effects[9].model.getSelectedId();effects[9].labels[0].setText(eq==2 ? "LOW 110 Hz" : eq==3 ? "LOW 60 Hz" : "LOW 80 Hz",juce::dontSendNotification);effects[9].labels[4].setText(eq==2 ? "HIGH 12 kHz" : eq==3 ? "HIGH 10 kHz" : "HIGH 8 kHz",juce::dontSendNotification);
     midi.setButtonText(processor.learningMidi() ? "LEARN" : "MIDI");tempo.setEnabled(!hostTempo.getToggleState());effects[1].controls[0].setEnabled(!delaySync.getToggleState());effects[1].controls[0].updateText();tempo.updateText();
     gateStatus.setText(gateOn.getToggleState() ? "REDUCTION  "+juce::String(-juce::Decibels::gainToDecibels(processor.gateMeter(),-90.f),1)+" dB" : "BYPASSED",juce::dontSendNotification);
@@ -376,7 +384,12 @@ void ChimeraEditor::paint(juce::Graphics& g)
                 for(float sx:{x+16,x+width-16})spectralforge::art::screw(g,sx,607);
                 g.setColour(colour.withAlpha(.65f));g.fillRect(x+12,332.f,float(width-24),2.f);
                 if(!di)spectralforge::art::cabinet(g,{x+12,664,51,43},processor.cabMetadata(i));
-                else {text(g,"DIRECT INJECTION",(int)x+17,650,width-34,16,10.f,accent);meter(g,juce::Decibels::decibelsToGain(-processor.lowCompMeter()),(int)x+17,677,width-34,4);}
+                else {
+                    text(g,"DIRECT INJECTION",(int)x+17,650,width-34,16,10.f,accent);
+                    const float reduction=juce::jlimit(0.f,1.f,processor.lowCompMeter()/24.f);
+                    g.setColour(line);g.fillRoundedRectangle(x+17,677,float(width-34),4,2);
+                    if(reduction>0.f){g.setColour(accent);g.fillRoundedRectangle(x+17,677,float(width-34)*reduction,4,2);}
+                }
             }
         }
     }
@@ -413,7 +426,7 @@ void ChimeraEditor::layoutControls()
         auto& effect=effects[(size_t)pedalOrder[(size_t)position]];const int x=20+position*230;
         effect.header.setBounds(x+14,344,186,22);effect.model.setBounds(x+14,369,186,27);effect.scope.setBounds(x+14,399,186,18);
         for(int k=0;k<3;++k){const int left=x+(k==2 ? 62 : 10+k*101),top=k==2 ? 518 : 423;effect.labels[(size_t)k].setBounds(left,top,94,20);effect.controls[(size_t)k].setBounds(left,top+22,94,77);}
-        effect.description.setBounds(x+14,610,187,28);effect.description.setTooltip(effect.description.getText());effect.enabled.setBounds(x+63,665,90,53);
+        effect.description.setBounds(x+14,618,187,22);effect.description.setTooltip(effect.description.getText());effect.enabled.setBounds(x+63,665,90,53);
     }
     for(int position=0;position<6;++position) {
         auto& effect=effects[(size_t)rackOrder[(size_t)position]];const int y=330+position*69;effect.header.setBounds(54,y+3,186,18);effect.model.setBounds(54,y+23,178,24);effect.scope.setBounds(54,y+47,180,14);effect.enabled.setBounds(241,y+20,43,26);

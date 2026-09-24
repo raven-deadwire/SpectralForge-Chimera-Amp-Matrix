@@ -10,7 +10,7 @@ inline void plate(juce::Graphics& g,juce::Rectangle<float> r,juce::Colour c,floa
     g.setColour(juce::Colours::black.withAlpha(.55f));g.fillRoundedRectangle(r.translated(0,4),radius);
     g.setGradientFill({c.brighter(.12f),r.getX(),r.getY(),c.darker(.42f),r.getX(),r.getBottom(),false});g.fillRoundedRectangle(r,radius);
     g.setColour(juce::Colours::white.withAlpha(.20f));g.drawRoundedRectangle(r.reduced(.8f),radius,1);
-    g.setColour(juce::Colours::black.withAlpha(.18f));for(float y=r.getY()+5;y<r.getBottom()-4;y+=4)g.drawHorizontalLine((int)y,r.getX()+4,r.getRight()-4);
+    g.setColour(juce::Colours::black.withAlpha(.045f));for(float y=r.getY()+5;y<r.getBottom()-4;y+=5)g.drawHorizontalLine((int)y,r.getX()+4,r.getRight()-4);
 }
 inline void cabinet(juce::Graphics& g,juce::Rectangle<float> r,const IRMetadata& m) {
     plate(g,r,juce::Colour(0xff292825),3);const auto face=r.reduced(5);g.setColour(juce::Colour(0xff111716));g.fillRect(face);
