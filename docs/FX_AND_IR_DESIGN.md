@@ -1,66 +1,79 @@
-# IR, DI and effects design decision
+# IR, routing and effect design
 
-## IR location
+## Permanent controls and navigation
 
-Keep IR controls inline in each active amplifier lane: source, bypass, LOAD/drop, low/high cut, and file/status. The DSP remains **amp -> cabinet -> merge** regardless of which UI page is open. A separate cabinet page does not move IR processing to a global bus.
+Gate and Transpose stay in the top strip on **RIGS, PRE and POST**. They are global input utilities, not pedals in the PRE page. The top strip also exposes input/output gain and meters, stereo/Mono L input, factory preset selection/previous/next, reference Open/Save As, Doubler and A/B. The bottom strip exposes Tuner, MIDI Learn, Tap, BPM, Host tempo, practice Click and Settings. Enabling Tuner opens a display in the routing bar while the top controls remain available; A4 and auto-mute live in that tuner display.
 
-| Approach | Fit for Chimera | Decision |
-| --- | --- | --- |
-| Inline amp/cab controls, as in the Odeholm workflow | Compare the MID/HIGH or Dual rigs while keeping their cabinet assignments visible. One IR slot per rig fits the available space. | Implemented. |
-| Dedicated cabinet page, as in Neural Archetype | Useful for multiple mic/IR slots, blend, distance, explicit delay and phase tools. Adds navigation for a simple one-slot loader. | Reserve for an expanded cabinet editor; no empty page in this build. |
+The five factory starting points are Clean Sustain, Tight Rhythm, Bass Matrix, Filter Lead and Fuzz Texture. They are original settings for different use cases, not reference-product presets. Save As/Open writes/loads `.chimera` files containing both A/B states and user IR bytes. A/B does not automatically match loudness.
 
-Matrix LOW is a DI lane. It has no amplifier or cabinet controls in this mode, and dropped IR files are ignored on that card. Its saved amp/cab controls and user IR remain available when switching back to Classic/Dual. The MID/HIGH IRs stay independent. IR loading does not increase the number of amp models.
+Input `MONO L` duplicates the left input before processing; `STEREO` preserves the input channels. Doubler adds a small modulated wet delay to decorrelate a stereo output; it does not alter the dry-path latency and is inactive on mono buses. MIDI Learn assigns the next received CC to the selected control and saves that map with the project/reference. Route MIDI to the plugin in the host, or select a MIDI input in the standalone application's native audio/MIDI Options dialog.
+
+TAP averages up to four recent intervals and returns to manual tempo. HOST follows the host BPM when available, with manual BPM as fallback. Delay SYNC uses a quarter note; manual delay time remains available when SYNC is off. The practice metronome is a free-running 4/4 click at that tempo, **not a DAW transport/bar-position synchronizer**. It is off by default and passes through output trim and tuner mute. Settings includes reference saving/loading, A4 reset, MIDI reset and credits; hardware device settings remain in the standalone application's native Options or the host.
+
+## IR decision
+
+IR stays inline with its amplifier lane: source, bypass, LOAD/drop, cuts and filename/status. The DSP stays **amp -> IR -> merge** regardless of visible page. This keeps two cabinet assignments visible when comparing Dual rigs or Matrix MID/HIGH. A separate cabinet page, as in the Neural Archetype workflow, becomes useful with multiple mic/IR slots, blend and explicit delay/phase tools; it adds navigation without a benefit for the present single-slot loader. No empty cabinet page is included.
+
+Matrix LOW is DI: it has COMP, LEVEL, BAND TONE and a reduction meter. Amp/cab controls are hidden and IR drops on that card are ignored. Stored amp/cab settings and IR remain available in Classic/Dual. User IR loading expands cabinet choice without expanding the amp model list. IR onset is retained; distinct IRs are not automatically time/phase matched.
 
 ## Mode responsibilities
 
-| Module | Classic | Dual | Matrix |
-| --- | --- | --- | --- |
-| Input trim, gate, transpose | Once before rig | Once before split | Once before clean/driven branches |
-| Pre Drive | Before rig | Once before both rigs | Before MID/HIGH; aligned dry tap feeds LOW |
-| LOW COMP | Inactive | Inactive | LOW DI only, after split and Band Tone |
-| Amp and cabinet | One full-range rig | Two full-range rigs, summed 50:50 | MID/HIGH only; LOW remains DI |
-| Tone controls | Full EQ | Full EQ per rig | Crossover-relative Band Tone per band |
-| Delay then Reverb | Once after rig | Once after merge | Once after merge, including LOW DI |
-| Output trim/tuner mute | Global | Global | Global |
+| Stage | Classic | Dual Blend | Dual Crossover | Matrix |
+| --- | --- | --- | --- | --- |
+| Input trim, input mode, Gate, Transpose | Once | Once | Once | Once |
+| PRE compressor and envelope | Once | Once | Once | Shared by clean/driven paths |
+| PRE Fuzz, Boost, Overdrive | One rig | Before both rigs | Before split | MID/HIGH; LOW uses aligned dry tap |
+| Split | None | Two full-range copies | Two LR4 bands, 60-4000 Hz crossover | Three LR4 bands |
+| Rig processing | Amp/IR, full EQ | Two amp/IR rigs, full EQ | Two amp/IR rigs, Band Tone | LOW DI/COMP; MID/HIGH amp/IR, Band Tone |
+| Merge | One rig | Adjustable linear 0:100-100:0 balance | Sum low + high, no 50% attenuation | Sum three bands |
+| POST rack, Doubler, output | Once | Once after merge | Once after merge | Once after merge |
 
-The same fixed pre-drive and amp delay is present in the LOW DI path. No extra compression lookahead is used. The LR4 crossover/allpass phase response and the natural onset of loaded IRs are distinct from the reported processing latency. Different IRs are not automatically phase-matched.
+All nonlinear oversampled stages have latency-aligned bypass. LOW DI includes the fixed delays of the Fuzz, Overdrive and amplifier stages it bypasses. Bus preamp delay applies globally even when bypassed. Quality changes leave the host-reported delay constant; enabling Transpose adds its displayed FFT-window delay. Allpass crossover phase and an IR's natural onset are not extra fixed processing latency.
 
-## One-knob LOW COMP
+## Five-pedal PRE board
 
-An original VCA-style feed-forward gain control with linked stereo RMS detection; not a dbx circuit emulation. COMP x ranges from 0 to 1:
+The fixed order is **Compressor -> Envelope -> Fuzz -> Boost -> Overdrive**. Every pedal has independent bypass. Five roles cover clean dynamics/sustain, touch filtering, dense fuzz textures, clean level/EQ shaping and tighter amplifier drive. They may be combined or left off; more pedal names would not by themselves improve that coverage. The order is shown on the board and is not yet user-reorderable.
 
-- Threshold: `-12 - 36*x` dBFS RMS; ratio: `1 + 7*x`.
-- 6 dB quadratic soft knee; 30 ms RMS smoothing; 10 ms gain attack; 140 ms release.
-- COMP 0 is unity. No automatic makeup gain; use LEVEL to match loudness. The card displays gain reduction.
-- Stereo detection follows the larger per-sample channel power and applies the same gain to both channels, preserving polarity and balance.
-
-## Pedalboard and rack
-
-PRE displays three stomp modules with independent bypass: **Noise Gate -> Transpose -> Tight Drive**. The fixed order is also the actual module chain; modules are not draggable/reorderable. Gate and transpose have linked quick controls in the global strip. Tight Drive is an original 4x-oversampled saturator with input high-pass, tone low-pass and output level.
-
-POST displays two rack units: **Stereo Delay -> Room Reverb**. They operate once after merge in every mode. Delay exposes milliseconds, feedback and mix; Reverb exposes room size, damping and mix. Current reverb uses JUCE's reverb engine. The rack form does not imply a Lexicon/TC algorithm clone. Current delay has no tempo sync, ducking or modulation.
-
-## Reference review and next acceptance gates
-
-| Role | Reference to study | Current status and next measurable criterion |
+| Pedal | Controls | Applied design/reference role |
 | --- | --- | --- |
-| Low-band dynamics | dbx 160/560A RMS/VCA and soft-knee behavior; Parallax low-band dynamics | Original one-knob RMS control implemented. Static curve, linked stereo and zero-control unity measured; evaluate bass attack/release with the same recorded DI. |
-| Tight boost | Ibanez TS808 Drive/Tone/Level workflow | Generic drive implemented. A measured TS-style model would need input-level calibration, frequency response and clipping/intermodulation references. |
-| Aggressive distortion | BOSS HM-2W and MT-2-style character in Slam | Review candidates, not extra labels on the current saturator. Choose one only after matched reamp sweeps/DI expose a useful, repeatable difference. |
-| Rack delay | TC 2290 workflow | Basic stereo echo implemented. Ducking, modulation and tempo sync are future behaviors requiring separate acceptance tests. |
-| Rack reverb | Lexicon PCM92 workflow | Basic room implemented. Dedicated diffusion/early-reflection/decay controls require impulse/decay references and listening tests. |
-| Post tone shaping | Parametric EQ | Defer until DI/IR A/B identifies a correction that cannot be handled by the existing cuts and tone controls. |
+| Compressor | Sustain, Attack, Level | Compact sustain/output operation, with attack control; MXR Dyna Comp/Super Comp workflow. Original linked RMS soft-knee algorithm, not the MXR OTA circuit. |
+| Envelope | Sensitivity, Q, Mix | Touch-driven low-pass sweep, 250-4000 Hz; EHX Q-Tron family as control/use-case reference. |
+| Fuzz | Drive, Body, Level | Dense sustain with asymmetric clipping and tone rolloff; EHX Big Muff family as a texture/control reference. Original 4x algorithm. |
+| Boost | Gain, Bass, Treble | Linear boost with 120 Hz/3.5 kHz shelves. Keeps clean shaping separate from distortion. |
+| Overdrive | Drive, Tone, Level | Tight amplifier push; TS808 control workflow. Original high-pass/saturator/low-pass algorithm at 4x, not a measured TS circuit. |
 
-## Official sources reviewed
+The Matrix LOW DI tap is after compressor/envelope and before all gain pedals. Post effects still process the complete merged signal, including LOW.
 
-- Slam visible input-to-cab chain and external IR loading: https://odeholm-audio.com/products/slam-amp
-- thall workflow: https://odeholm-audio.com/products/thall-amp
-- Dedicated cab and pre/post sections: https://neuraldsp.com/manual/archetype-tim-henson-x
-- Low-band compression and upper-band distortion: https://neuraldsp.com/plugins/parallax
-- VCA and knee reference: https://dbxpro.com/en-US/products/560a and https://dbxpro.com/en-US/compression-quiz
-- TS808: https://www.ibanez.com/usa/products/detail/ts808_99.html
-- HM-2W: https://www.boss.info/global/products/hm-2w/
-- TC2290-DT: https://www.tcelectronic.com/en/products/0815-aak
-- PCM92: https://lexiconpro.com/en-US/products/pcm92
+## Six-unit POST rack
 
-References guide control behavior and future validation. No copied artwork, commercial IRs, presets or claims of verified hardware equivalence are included.
+Fixed order: **Bus Comp -> Preamp -> EQ -> Chorus -> Delay -> Reverb**. These are active DSP modules, not decorative slots.
+
+| Unit | Controls | Engineering reference and implemented boundary |
+| --- | --- | --- |
+| Bus Comp | Threshold, Ratio, Attack, Release, Makeup | SSL bus-compressor control discipline; 30 ms/100 ms/4:1 starting point. Original linked feed-forward RMS dynamics, 6 dB knee. No SSL circuit or Auto-release emulation. |
+| Preamp | Gain, Colour, Trim | Neve 1073SPX input-gain/output-level separation and the broader Rupert Neve colour-stage workflow. Original 4x asymmetric saturation, DC removal and bandwidth control; not transformer/Class-A component modeling. |
+| EQ | Low gain, Mid frequency/gain/Q, High gain | Console shelving plus parametric-mid correction, informed by Neve/SSL workflows. This implementation has **three bands**, fixed 80 Hz/8 kHz shelves and one variable-Q mid; it is not a complete SSL four-band EQ. |
+| Chorus | Rate, Depth, Mix | Rack modulation role, with JUCE chorus and an 8 ms centre delay. No specific rack algorithm emulation. |
+| Delay | Time, Feedback, Mix, Sync | TC2290 workflow reference for repeat/mix control. Basic stereo echo; quarter-note BPM sync. No ducking or delay modulation yet. |
+| Reverb | Size, Damping, Mix | Lexicon PCM rack workflow reference for one shared ambience after merge. JUCE room reverb; not a PCM algorithm clone. |
+
+## LOW COMP control law
+
+An original VCA-style feed-forward RMS controller inspired by the dbx 160/560A role. COMP x in [0,1] sets threshold `-12-36*x` dBFS and ratio `1+7*x`. It uses a 6 dB soft knee, 30 ms RMS detector, 10 ms gain attack and 140 ms release. COMP 0 is unity. No automatic makeup: use LEVEL for loudness matching. Stereo follows the larger channel power and applies the same gain to both channels.
+
+## Official references reviewed
+
+- Visible signal flow and user IR: https://odeholm-audio.com/products/slam-amp and https://odeholm-audio.com/products/thall-amp
+- Archetype permanent utilities, pedal/cab sections: https://neuraldsp.com/manual/archetype-tim-henson-x
+- Split-band bass processing: https://neuraldsp.com/plugins/parallax
+- dbx RMS/VCA/knee: https://dbxpro.com/en-US/products/560a and https://dbxpro.com/en-US/compression-quiz
+- MXR compressor controls: https://www.jimdunlop.com/content/manuals/M102.pdf and https://www.jimdunlop.com/mxr-super-comp/
+- EHX filter/fuzz: https://www.ehx.com/products/micro-q-tron/ and https://www.ehx.com/products/big-muff-pi/
+- Ibanez TS808: https://www.ibanez.com/usa/products/detail/ts808_99.html
+- SSL bus control: https://store.solidstatelogic.com/plug-ins/ssl-native-bus-compressor-2 and https://www.solidstatelogic.com/products/big-six
+- Neve preamp/output architecture: https://www.ams-neve.com/outboard/1073spx/ and https://www.ams-neve.com/wp-content/uploads/2026/06/1073SPX_1.2_User_Manual.pdf
+- Console EQ scope: https://www.solidstatelogic.com/products/e-series-eq-module
+- TC delay: https://www.tcelectronic.com/en/products/0815-aak
+- Lexicon rack: https://lexiconpro.com/en-US/products/pcm92
+
+No reference artwork, commercial presets, captures or commercial IRs are copied. Hardware reproduction requires calibrated reamp references; synthetic tests establish repeatability and control behavior, not hardware equivalence.

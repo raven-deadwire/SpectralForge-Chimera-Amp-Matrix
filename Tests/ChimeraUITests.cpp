@@ -31,7 +31,7 @@ void checkControls(ChimeraEditor& editor, int mode)
                         "Full-range EQ labels visible in Matrix");
         }
     }
-    if (sliders != (mode == 0 ? 17 : mode == 1 ? 27 : 22))
+    if (sliders != (mode == 0 ? 18 : mode == 1 ? 29 : 23))
         throw std::runtime_error("Wrong controls for mode " + std::to_string(mode) +
                                  ": found " + std::to_string(sliders));
     require(toneLabels == (mode == 2 ? 3 : 0), "Wrong band tone visibility");
@@ -153,6 +153,10 @@ int main(int argc, char** argv)
         ChimeraProcessor processor;
         processor.setRateAndBufferSizeDetails(48000,256);
         processor.prepareToPlay(48000,256);
+        processor.learnMidi("output");juce::MidiBuffer cc;cc.addEvent(juce::MidiMessage::controllerEvent(1,40,0),0);juce::AudioBuffer<float> silence(2,256);silence.clear();processor.processBlock(silence,cc);
+        require(processor.parameters().getRawParameterValue("output")->load()==-36 && !processor.learningMidi(),"MIDI learn did not map the next CC");
+        juce::MemoryBlock midiState;processor.getStateInformation(midiState);ChimeraProcessor recalled;recalled.setStateInformation(midiState.getData(),(int)midiState.getSize());recalled.prepareToPlay(48000,256);cc.clear();cc.addEvent(juce::MidiMessage::controllerEvent(1,40,127),0);recalled.processBlock(silence,cc);require(recalled.parameters().getRawParameterValue("output")->load()==12,"MIDI map was not restored");
+        set(processor,"output",-6);
         for (int mode=0;mode<3;++mode)
         {
             set(processor,"mode",static_cast<float>(mode));
@@ -163,6 +167,11 @@ int main(int argc, char** argv)
             checkControls(editor,mode);
             const juce::String name = mode == 0 ? "Classic" : mode == 1 ? "Dual" : "Matrix";
             saveSnapshot(editor,directory,name);
+            if(mode==1) {
+                set(processor,"dualtype",1);set(processor,"dualcross",700);juce::MessageManager::getInstance()->runDispatchLoopUntil(150);
+                int count=0;for(auto* child:editor.findChildWithID("surface")->getChildren())if(child->isVisible() && dynamic_cast<juce::Slider*>(child))++count;
+                require(count==19,"Dual crossover has incorrect band controls");saveSnapshot(editor,directory,"Dual-crossover");set(processor,"dualtype",0);
+            }
             if (mode == 2)
             {
                 saveSnapshot(editor,directory,"Matrix-150pct",1.5f);
@@ -190,11 +199,12 @@ int main(int argc, char** argv)
                         require(editor.getLocalBounds().contains(editor.getLocalArea(child,child->getLocalBounds())),"FX control outside editor");
                         if(dynamic_cast<juce::Slider*>(child)) ++sliders;
                     }
-                    require(sliders==(juce::String(tab)=="PRE" ? 14 : 13),"FX module controls have the wrong scope");
+                    require(sliders==(juce::String(tab)=="PRE" ? 23 : 30),"FX module controls have the wrong scope");
                     saveSnapshot(editor,directory,juce::String(tab)=="PRE" ? "Pre-pedalboard" : "Post-rack");
                 }
                 for(auto* child:editor.findChildWithID("surface")->getChildren()) if(auto* button=dynamic_cast<juce::TextButton*>(child);button && button->getButtonText()=="RIGS") button->triggerClick();
                 juce::MessageManager::getInstance()->runDispatchLoopUntil(100);
+                set(processor,"tuneron",1);juce::MessageManager::getInstance()->runDispatchLoopUntil(120);saveSnapshot(editor,directory,"Tuner-global");set(processor,"tuneron",0);
                 // Host-driven mode changes must immediately remove hidden controls.
                 set(processor,"mode",0);
                 juce::MessageManager::getInstance()->runDispatchLoopUntil(150);

@@ -47,12 +47,32 @@ public:
         }
     }
 };
+class DualCrossover {
+    juce::dsp::LinkwitzRileyFilter<float> filter;
+    juce::SmoothedValue<float,juce::ValueSmoothingTypes::Multiplicative> frequency;
+    double rate{48000};int clock{};
+public:
+    void prepare(const juce::dsp::ProcessSpec& spec) {rate=spec.sampleRate;filter.prepare(spec);frequency.reset(rate,.05);frequency.setCurrentAndTargetValue(350);reset();}
+    void reset() {filter.reset();frequency.setCurrentAndTargetValue(frequency.getTargetValue());clock=0;}
+    void split(const juce::AudioBuffer<float>& input,std::array<juce::AudioBuffer<float>,3>& bands,float hz) {
+        frequency.setTargetValue(juce::jlimit(30.f,float(rate*.45),hz));
+        for(int i=0;i<2;++i)bands[i].setSize(input.getNumChannels(),input.getNumSamples(),false,false,true);
+        for(int n=0;n<input.getNumSamples();++n) {
+            const float cutoff=frequency.getNextValue();if(clock++%16==0)filter.setCutoffFrequency(cutoff);clock%=16;
+            for(int c=0;c<input.getNumChannels();++c) {float low{},high{};filter.processSample(c,input.getSample(c,n),low,high);bands[0].setSample(c,n,low);bands[1].setSample(c,n,high);}
+        }
+    }
+};
 class Engine {
     std::array<Amp,3> amps;
     std::array<Cab,3> cabs;
     std::array<MatrixTone,3> bandTones;
     std::array<juce::SmoothedValue<float>,3> levels;
     Crossover xo,diXO;
+    DualCrossover dualXO;
+    bool previousDualCross{};
+    juce::SmoothedValue<float> dualMix;
+    std::vector<float> blendCurve;
     LowCompressor lowCompressor;
     juce::dsp::DelayLine<float,juce::dsp::DelayLineInterpolationTypes::None> diAlignment{128};
     std::array<juce::AudioBuffer<float>,3> diBands;
@@ -67,7 +87,8 @@ public:
     void prepare(const juce::dsp::ProcessSpec& spec)
     {
         sampleRate = spec.sampleRate;previousMode=static_cast<RoutingMode>(-1);
-        xo.prepare(spec);diXO.prepare(spec);lowCompressor.prepare(spec.sampleRate);
+        xo.prepare(spec);diXO.prepare(spec);dualXO.prepare(spec);
+        dualMix.reset(spec.sampleRate,.02);dualMix.setCurrentAndTargetValue(.5f);blendCurve.resize(spec.maximumBlockSize);lowCompressor.prepare(spec.sampleRate);
         for (auto& amp : amps) amp.prepare(spec);
         diAlignment.prepare(spec);diAlignment.setDelay(float(latency()));
         for(auto& buffer:diBands) buffer.setSize((int)spec.numChannels,(int)spec.maximumBlockSize);
@@ -79,16 +100,18 @@ public:
     }
     void reset()
     {
-        xo.reset();diXO.reset();lowCompressor.reset();diAlignment.reset();
+        xo.reset();diXO.reset();dualXO.reset();lowCompressor.reset();diAlignment.reset();
         for (auto& amp : amps) amp.reset();
         for (auto& cab : cabs) cab.reset();
         for (auto& tone : bandTones) tone.reset();
     }
     void process(juce::AudioBuffer<float>& buffer, RoutingMode mode, float x1, float x2,
-                 const std::array<LaneState,3>& states, const juce::AudioBuffer<float>* cleanInput=nullptr)
+                 const std::array<LaneState,3>& states, const juce::AudioBuffer<float>* cleanInput=nullptr, bool dualCross=false, float blend=.5f)
     {
-        if (mode != previousMode) { reset(); previousMode = mode; }
+        if (mode != previousMode || dualCross!=previousDualCross) { reset(); previousMode = mode; previousDualCross=dualCross; }
         const bool matrix = mode == RoutingMode::matrix;
+        const bool split=matrix || (mode==RoutingMode::dual && dualCross);
+        dualMix.setTargetValue(juce::jlimit(0.f,1.f,blend));for(int n=0;n<buffer.getNumSamples();++n)blendCurve[(size_t)n]=dualMix.getNextValue();
         const int count = mode == RoutingMode::classic ? 1 : mode == RoutingMode::dual ? 2 : 3;
         bool anySolo = false;
         for (int i = 0; i < count; ++i) anySolo = anySolo || states[i].solo;
@@ -96,6 +119,7 @@ public:
             xo.set(x1, x2); xo.split(buffer, work);
             if(cleanInput) {diXO.set(x1,x2);diXO.split(*cleanInput,diBands);work[0].makeCopyOf(diBands[0],true);}
         }
+        else if(mode==RoutingMode::dual && dualCross) dualXO.split(buffer,work,x1);
         else for (int i = 0; i < count; ++i) work[i].makeCopyOf(buffer, true);
         buffer.clear();
         for (int i = 0; i < count; ++i)
@@ -103,9 +127,9 @@ public:
             const auto& state = states[i];
             const bool muted = state.mute || (anySolo && !state.solo);
             amps[i].set(static_cast<AmpModel>(juce::jlimit(0,7,state.amp)), state.drive);
-            if (matrix)
+            if (split)
             {
-                bandTones[i].set(matrixTonePivot(i, x1, x2, sampleRate), state.bandTone);
+                bandTones[i].set(matrix ? matrixTonePivot(i,x1,x2,sampleRate) : matrixTonePivot(i==0 ? 0 : 2,x1,x1,sampleRate),state.bandTone);
                 bandTones[i].process(work[i]);
             }
             else
@@ -118,19 +142,20 @@ public:
                 juce::dsp::AudioBlock<float> block(work[i]);juce::dsp::ProcessContextReplacing<float> context(block);
                 diAlignment.process(context);
             } else {
-                amps[i].process(work[i], !matrix,state.ampEnabled);
+                amps[i].process(work[i], !split,state.ampEnabled);
                 cabs[i].enable(state.cab);
                 cabs[i].setCuts(state.cabLow, state.cabHigh);
                 cabs[i].process(work[i]);
             }
             levels[i].setTargetValue(muted ? 0.f : juce::Decibels::decibelsToGain(state.levelDb) * (state.polarity ? -1.f : 1.f));
             for(int n=0;n<buffer.getNumSamples();++n) {
-                const float gain=levels[i].getNextValue();
+                const float weight=mode==RoutingMode::dual && !dualCross ? (i==0 ? 1-blendCurve[(size_t)n] : blendCurve[(size_t)n]) : 1.f;
+                const float gain=levels[i].getNextValue()*weight;
                 for(int c=0;c<buffer.getNumChannels();++c) work[i].setSample(c,n,work[i].getSample(c,n)*gain);
             }
             for (int c = 0; c < buffer.getNumChannels(); ++c)
                 buffer.addFrom(c, 0, work[i], c, 0, buffer.getNumSamples(),
-                               mode == RoutingMode::dual ? 0.5f : 1.0f);
+                               1.0f);
         }
     }
 };

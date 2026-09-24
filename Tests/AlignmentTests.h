@@ -65,7 +65,7 @@ inline std::vector<float> rig(spectralforge::RoutingMode mode,int quality,bool t
 {
     spectralforge::Engine engine;engine.prepare({48000,127,2});engine.setOversampling(quality);
     spectralforge::PostFXChain effects;effects.prepare({48000,127,2});
-    spectralforge::FXState fx;fx.delayOn=fx.reverbOn=post;fx.delayMs=71;fx.delayMix=.3f;fx.reverbMix=.15f;
+    spectralforge::FXState fx;fx.delayOn=fx.reverbOn=fx.busCompOn=fx.preampOn=fx.eqOn=fx.chorusOn=post;fx.eqMid=4;fx.delayMs=71;fx.delayMix=.3f;fx.reverbMix=.15f;
     std::array<spectralforge::LaneState,3> states{};for(auto& lane:states) {lane.cab=false;lane.amp=2;lane.drive=.6f;lane.ampEnabled=!transparent;}
     juce::AudioBuffer<float> input(2,127);std::vector<float> result;
     for(int block=0;block<380;++block) {
@@ -79,14 +79,14 @@ inline void lowDI()
 {
     auto render=[](bool driveOn,int os) {
         spectralforge::PreFXChain pre;pre.prepare({48000,127,2});spectralforge::Engine engine;engine.prepare({48000,127,2});engine.setOversampling(os);
-        spectralforge::FXState fx;fx.driveOn=driveOn;fx.drive=1;fx.driveLevel=12;
+        spectralforge::FXState fx;fx.driveOn=fx.fuzzOn=fx.boostOn=driveOn;fx.drive=1;fx.driveLevel=12;
         std::array<spectralforge::LaneState,3> states{};states[0].solo=true;states[0].cab=driveOn;states[0].drive=driveOn?1.f:0.f;states[0].amp=driveOn?3:0;
         juce::AudioBuffer<float> input(2,127);std::vector<float> result;
         for(int block=0;block<320;++block) {
             for(int n=0;n<127;++n) {const double t=(block*127+n)/48000.0;const float x=float(.16*std::sin(juce::MathConstants<double>::twoPi*61.73*t)+.07*std::sin(juce::MathConstants<double>::twoPi*1201*t));input.setSample(0,n,x);input.setSample(1,n,-x*.5f);}
             pre.process(input,false,-60,80,20,false,0,fx);
             const float x1=block<160 ? 60.f : 350.f,x2=block<160 ? 500.f : 4000.f;
-            engine.process(input,spectralforge::RoutingMode::matrix,x1,x2,states,&pre.drive.cleanOutput());
+            engine.process(input,spectralforge::RoutingMode::matrix,x1,x2,states,&pre.cleanOutput());
             if(block>60) {for(int n=0;n<127;++n) require(std::abs(input.getSample(0,n)+2*input.getSample(1,n))<1e-6f,"LOW DI lost linked stereo polarity");result.insert(result.end(),input.getReadPointer(0),input.getReadPointer(0)+127);}
         }
         return result;

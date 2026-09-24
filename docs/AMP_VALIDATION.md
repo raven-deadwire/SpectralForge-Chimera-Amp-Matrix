@@ -6,7 +6,7 @@ This build is a development instrument, with eight **voiced algorithmic amp mode
 
 The four guitar distortion voices previously used the same two waveshapers. Every voice now has separate input/interstage high-pass filtering, saturation gains/stage counts, asymmetry, output bandwidth, dry blend and envelope-dependent supply sag. A post-distortion DC blocker removes the offset produced by asymmetric saturation. Drive, rig level, global gains and mute/gate gain changes are smoothed.
 
-The full-range EQ remains available in Classic/Dual. Matrix bypasses it and uses the crossover-relative preamp Band Tone. The amplifier creates harmonics beyond its input band by design; the crossover is an input split, not a brick-wall restriction on the distorted output.
+The full-range EQ remains available in Classic/Dual Blend. Matrix and Dual Crossover bypass it and uses the crossover-relative preamp Band Tone. The amplifier creates harmonics beyond its input band by design; the crossover is an input split, not a brick-wall restriction on the distorted output.
 
 ## Automated evidence
 
@@ -55,3 +55,9 @@ Identical Dual rigs must null against Classic after the 50:50 merge, with post e
 `Tests/ReferenceTests.h` creates a versioned deterministic **synthetic** pluck/chord fixture, repeats an amp+factory-IR render (A/A null gate <1e-7 FS), and generates a different-drive B with RMS matching to A (level error gate <0.001 dB). Windows packages contain `reference-audio/DI-synthetic-v1.wav`, `A-tight035-v30.wav`, `B-tight065-v30-RMS-matched.wav`, and `metrics.csv`. These original generated signals are regression/listening fixtures, not real instrument or hardware recordings. The test requires a remaining waveform difference after loudness matching so a gain-only change cannot masquerade as voicing.
 
 Windows state tests also verify A/B amp, COMP and embedded user IR recall after deleting the original IR file, and a byte-exact `.chimera` export/import fixture. UI screenshots cover all routing modes, PRE pedalboard, POST rack and scaling.
+
+## Expanded module and Dual gates
+
+`Tests/StudioTests.h` requires a measurable enabled/bypass difference for each of the eleven pedal/rack modules and bounded finite output. The identical-Dual vs Classic test also runs the complete post rack, protecting its once-after-merge scope. The Matrix clean-path null now toggles all three gain pedals. Dual Blend endpoints must match the corresponding Classic rig, and a 75:25 setting must match that exact weighted sum. Moving Dual Crossover must match a serial allpass reference and remain independent of 127/511-sample blocks. Windows verifies Dual Crossover controls, five-pedal/six-rack pages, global tuner view, MIDI Learn and persisted CC assignments.
+
+All four tested sample rates/factors retain fixed dry-path delay. The current full processor adds the fixed pre Fuzz, Overdrive, amplifier and post Preamp delays (22 samples at 48 kHz, plus Transpose when enabled). Compression, EQ and wet-only time effects do not add dry-path delay. Distinct saturation/IR frequency-dependent phase responses still differ by design; fixed sample alignment does not make different amp/cab transfer functions identical.

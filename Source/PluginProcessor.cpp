@@ -5,11 +5,13 @@ ChimeraProcessor::ChimeraProcessor()
     : AudioProcessor(BusesProperties().withInput("Input",juce::AudioChannelSet::stereo(),true)
                                       .withOutput("Output",juce::AudioChannelSet::stereo(),true))
 {
+    clearMidi();
+    const std::array<const char*,extraCount> extraIds{"dualtype","dualblend","dualcross","inputmode","doubleron","doublertime","tempo","temposync","metronome"};
+    for(size_t i=0;i<extraIds.size();++i)extras[i]=state.getRawParameterValue(extraIds[i]);
     lowCompParameter=state.getRawParameterValue("lowcomp");
     const std::array<const char*,globalCount> ids{"mode","x1","x2","input","output","gateon","gatethreshold","gaterelease","gatehold","transposeon","transpose","oversampling","tuneron","tunermute"};
     for(size_t i=0;i<ids.size();++i) globals[i]=state.getRawParameterValue(ids[i]);
-    const std::array<const char*,12> fxIds{"preon","predrive","pretone","prelevel","delayon","delaytime","delayfeedback","delaymix","reverbon","reverbsize","reverbdamping","reverbmix"};
-    for(size_t i=0;i<fxIds.size();++i) fxParameters[i]=state.getRawParameterValue(fxIds[i]);
+    for(size_t i=0;i<spectralforge::fxSpecs.size();++i) fxParameters[i]=state.getRawParameterValue(spectralforge::fxSpecs[i].id);
     const std::array<const char*,18> laneIds{"amp","drive","level","bass","lowmid","highmid","treble","presence","resonance","bandtone","mute","solo","polarity","cab","cablow","cabhigh","cabtype","ampon"};
     for(int i=0;i<3;++i) for(size_t k=0;k<laneIds.size();++k)
         laneParameters[i][k]=state.getRawParameterValue(juce::String(laneIds[k])+juce::String(i+1));
@@ -20,7 +22,7 @@ void ChimeraProcessor::prepareToPlay(double sr,int block)
 {
     library.stop(); tuner.stop(); rate=sr; maximumBlock=juce::jmax(1,block);
     const juce::dsp::ProcessSpec spec{sr,(juce::uint32)maximumBlock,(juce::uint32)getTotalNumOutputChannels()};
-    engine.prepare(spec); preFX.prepare(spec); postFX.prepare(spec); tuner.prepare(sr);
+    engine.prepare(spec); preFX.prepare(spec); postFX.prepare(spec);utilities.prepare(spec); tuner.prepare(sr);
     std::array<int,3> sources{};
     for(int i=0;i<3;++i) sources[i]=(int)laneParameters[i][16]->load();
     library.prepare(spec,sources);
@@ -29,16 +31,26 @@ void ChimeraProcessor::prepareToPlay(double sr,int block)
     outputGain.setCurrentAndTargetValue(juce::Decibels::decibelsToGain(globals[output]->load()));
     tuningMute.setCurrentAndTargetValue(1);
     engine.setOversampling((int)globals[os]->load());
-    setLatencySamples(engine.latency()+preFX.latency(globals[pitchOn]->load()>.5f));
+    setLatencySamples(postFX.latency()+engine.latency()+preFX.latency(globals[pitchOn]->load()>.5f));
 }
 bool ChimeraProcessor::isBusesLayoutSupported(const BusesLayout& buses) const
 {
     return (buses.getMainOutputChannelSet()==juce::AudioChannelSet::mono() || buses.getMainOutputChannelSet()==juce::AudioChannelSet::stereo()) &&
             buses.getMainInputChannelSet()==buses.getMainOutputChannelSet();
 }
-void ChimeraProcessor::processBlock(juce::AudioBuffer<float>& buffer,juce::MidiBuffer&)
+void ChimeraProcessor::processBlock(juce::AudioBuffer<float>& buffer,juce::MidiBuffer& midi)
 {
     juce::ScopedNoDenormals noDenormals;
+    for(const auto metadata:midi) {
+        const auto message=metadata.getMessage();if(!message.isController())continue;
+        const int cc=message.getControllerNumber(),learn=midiLearn.exchange(-1);
+        if(learn>=0) midiMap[(size_t)cc].store(learn);
+        const int target=midiMap[(size_t)cc].load();
+        if(target>=0 && target<getParameters().size()) getParameters()[target]->setValueNotifyingHost(message.getControllerValue()/127.f);
+    }
+    float bpm=extras[tempo]->load();
+    if(extras[hostTempo]->load()>.5f) if(auto* playhead=getPlayHead()) if(const auto position=playhead->getPosition()) if(const auto hostBpm=position->getBpm()) bpm=juce::jlimit(40.f,240.f,float(*hostBpm));
+    tempoMeter.store(bpm);
     // Hosts may deliver blocks larger than prepareToPlay's hint. All DSP and
     // convolution buffers remain bounded to the prepared capacity.
     for(int offset=0;offset<buffer.getNumSamples();offset+=maximumBlock)
@@ -52,7 +64,8 @@ void ChimeraProcessor::processBlock(juce::AudioBuffer<float>& buffer,juce::MidiB
 }
 void ChimeraProcessor::process(juce::AudioBuffer<float>& buffer)
 {
-    if(resetPending.exchange(false)) {engine.reset();preFX.reset();postFX.reset();}
+    if(resetPending.exchange(false)) {engine.reset();preFX.reset();postFX.reset();utilities.reset();}
+    if(extras[inputMode]->load()>.5f && buffer.getNumChannels()==2) buffer.copyFrom(1,0,buffer,0,0,buffer.getNumSamples());
     const auto value=[this](Global id){return globals[id]->load();};
     inputGain.setTargetValue(juce::Decibels::decibelsToGain(value(input)));
     outputGain.setTargetValue(juce::Decibels::decibelsToGain(value(output)));
@@ -70,15 +83,11 @@ void ChimeraProcessor::process(juce::AudioBuffer<float>& buffer)
     const float meterDecay=float(std::exp(-buffer.getNumSamples()/(rate*.4)));
     inputPeak.store(juce::jmax(peak,inputPeak.load()*meterDecay));
     tuner.push(buffer,value(tunerOn)>.5f);
-    const auto fxValue=[this](size_t i){return fxParameters[i]->load();};
-    spectralforge::FXState fx;
-    fx.driveOn=fxValue(0)>.5f;fx.drive=fxValue(1);fx.tone=fxValue(2);fx.driveLevel=fxValue(3);
-    fx.delayOn=fxValue(4)>.5f;fx.delayMs=fxValue(5);fx.feedback=fxValue(6);fx.delayMix=fxValue(7);
-    fx.reverbOn=fxValue(8)>.5f;fx.room=fxValue(9);fx.damping=fxValue(10);fx.reverbMix=fxValue(11);
+    auto fx=spectralforge::readFX(fxParameters);if(fx.delaySync)fx.delayMs=60000.f/tempoMeter.load();
     const bool pitching=value(pitchOn)>.5f;
     preFX.process(buffer,value(gateOn)>.5f,value(threshold),value(release),value(hold),pitching,(int)value(semitones),fx);
     gateGain.store(preFX.gate.reduction());
-    const int latency=engine.latency()+preFX.latency(pitching);
+    const int latency=postFX.latency()+engine.latency()+preFX.latency(pitching);
     if(getLatencySamples()!=latency) setLatencySamples(latency);
     engine.setOversampling((int)value(os));
     std::array<spectralforge::LaneState,3> lanes{};
@@ -93,9 +102,11 @@ void ChimeraProcessor::process(juce::AudioBuffer<float>& buffer)
         engine.cabinet(i).requestedSource.store((int)f(16));
     }
     lanes[0].lowComp=lowCompParameter->load();
-    engine.process(buffer,(spectralforge::RoutingMode)(int)value(mode),value(x1),value(x2),lanes,&preFX.drive.cleanOutput());
+    const bool dualCross=value(mode)==1 && extras[dualType]->load()>.5f;
+    engine.process(buffer,(spectralforge::RoutingMode)(int)value(mode),dualCross ? extras[dualFrequency]->load() : value(x1),value(x2),lanes,&preFX.cleanOutput(),dualCross,extras[dualBlend]->load());
     lowCompGain.store(engine.lowReduction());
     postFX.process(buffer,fx);
+    utilities.process(buffer,tempoMeter.load(),extras[doublerOn]->load()>.5f,extras[doublerTime]->load(),extras[metronome]->load()>.5f,restartClick.exchange(false));
     tuningMute.setTargetValue(value(tunerOn)>.5f && value(tunerMute)>.5f ? 0.f : 1.f);
     peak=0;
     for(int n=0;n<buffer.getNumSamples();++n)
@@ -138,6 +149,12 @@ juce::AudioProcessorValueTreeState::ParameterLayout ChimeraProcessor::layout(){j
     toggle("reverbon","Post reverb",false);number("reverbsize","Reverb room size",0,1,.35f);number("reverbdamping","Reverb damping",0,1,.55f);number("reverbmix","Reverb mix",0,.6f,.15f);
     for(int i=1;i<=3;++i) p.add(std::make_unique<juce::AudioParameterBool>("ampon"+juce::String(i),"Amplifier enabled "+juce::String(i),true));
     number("lowcomp","Matrix LOW DI compression",0,1,.35f);
+    for(size_t i=12;i<spectralforge::fxSpecs.size();++i) {const auto& spec=spectralforge::fxSpecs[i];if(spec.toggle)toggle(spec.id,spec.id,spec.initial>.5f);else number(spec.id,spec.id,spec.minimum,spec.maximum,spec.initial);}
+    p.add(std::make_unique<juce::AudioParameterChoice>("dualtype","Dual routing",juce::StringArray{"Blend","Crossover"},0));
+    number("dualblend","Dual blend",0,1,.5f);number("dualcross","Dual crossover",60,4000,350);
+    p.add(std::make_unique<juce::AudioParameterChoice>("inputmode","Input mode",juce::StringArray{"Stereo","Mono L"},0));
+    toggle("doubleron","Doubler",false);number("doublertime","Doubler spread",1,20,6);
+    number("tempo","Tempo",40,240,120);toggle("temposync","Follow host tempo",false);toggle("metronome","Metronome",false);
     return p;
 }
 
@@ -146,7 +163,7 @@ juce::ValueTree ChimeraProcessor::captureCore()
     auto saved=state.copyState();
     saved.removeChild(saved.getChildWithName("USER_IRS"),nullptr);
     saved.removeChild(saved.getChildWithName("COMPARISONS"),nullptr);
-    saved.appendChild(library.save(),nullptr); saved.setProperty("schemaVersion",3,nullptr);
+    saved.appendChild(library.save(),nullptr); saved.setProperty("schemaVersion",4,nullptr);
     return saved;
 }
 void ChimeraProcessor::getStateInformation(juce::MemoryBlock& data)
@@ -158,7 +175,9 @@ void ChimeraProcessor::getStateInformation(juce::MemoryBlock& data)
       slots.setProperty("active",active,nullptr);
       for(int i=0;i<2;++i) if(comparisons[(size_t)i].isValid()) {auto slot=comparisons[(size_t)i].createCopy();slot.setProperty("slot",i,nullptr);slots.appendChild(slot,nullptr);}
     }
-    saved.appendChild(slots,nullptr);auto xml=saved.createXml();copyXmlToBinary(*xml,data);
+    saved.appendChild(slots,nullptr);
+    juce::ValueTree midi("MIDI_MAP");for(int cc=0;cc<128;++cc) {const int index=midiMap[(size_t)cc].load();if(index<0 || index>=getParameters().size())continue;if(auto* parameter=dynamic_cast<juce::AudioProcessorParameterWithID*>(getParameters()[index])) {juce::ValueTree item("CC");item.setProperty("cc",cc,nullptr);item.setProperty("id",parameter->paramID,nullptr);midi.appendChild(item,nullptr);}}
+    saved.appendChild(midi,nullptr);auto xml=saved.createXml();copyXmlToBinary(*xml,data);
 }
 void ChimeraProcessor::restoreCore(juce::ValueTree restored)
 {
@@ -187,7 +206,8 @@ void ChimeraProcessor::setStateInformation(const void* data,int size)
       comparisons={};selectedComparison.store(juce::jlimit(0,1,(int)saved.getProperty("active",0)));
       for(auto child:saved) {const int slot=(int)child.getProperty("slot",-1);if(slot>=0 && slot<2) comparisons[(size_t)slot]=child.createCopy();}
     }
-    restoreCore(restored);
+    clearMidi();for(auto item:restored.getChildWithName("MIDI_MAP")) {const int cc=(int)item.getProperty("cc",-1);auto* parameter=state.getParameter(item.getProperty("id").toString());if(cc>=0 && cc<128 && parameter)midiMap[(size_t)cc].store(parameter->getParameterIndex());}
+    restored.removeChild(restored.getChildWithName("MIDI_MAP"),nullptr);restoreCore(restored);
 }
 void ChimeraProcessor::selectComparison(int slot)
 {
@@ -207,3 +227,26 @@ void ChimeraProcessor::copyComparison()
 }
 juce::AudioProcessorEditor* ChimeraProcessor::createEditor() { return new ChimeraEditor(*this); }
 juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter() { return new ChimeraProcessor(); }
+
+void ChimeraProcessor::clearMidi() {for(auto& target:midiMap)target.store(-1);midiLearn.store(-1);}
+void ChimeraProcessor::learnMidi(const juce::String& id) {if(auto* parameter=state.getParameter(id))midiLearn.store(parameter->getParameterIndex());}
+void ChimeraProcessor::tapTempo() {
+    const double now=juce::Time::getMillisecondCounterHiRes(),interval=now-lastTap;lastTap=now;
+    if(interval<250 || interval>1500) {tapCount=0;restartClick.store(true);return;}
+    tapIntervals[(size_t)(tapCount++%4)]=interval;double sum=0;const int count=juce::jmin(4,tapCount);for(int i=0;i<count;++i)sum+=tapIntervals[(size_t)i];
+    auto* parameter=state.getParameter("tempo");parameter->setValueNotifyingHost(parameter->convertTo0to1(float(60000/(sum/count))));state.getParameter("temposync")->setValueNotifyingHost(0);restartClick.store(true);
+}
+void ChimeraProcessor::loadFactoryPreset(int index) {
+    // Sound presets keep performance controls and MIDI assignments intact.
+    for(auto* parameter:getParameters()) if(auto* p=dynamic_cast<juce::RangedAudioParameter*>(parameter)) {
+        const auto id=p->paramID;if(id=="input" || id=="inputmode" || id=="tempo" || id=="temposync" || id=="metronome" || id=="tuneron" || id=="tunermute" || id=="tunerref")continue;
+        p->setValueNotifyingHost(p->getDefaultValue());
+    }
+    auto set=[this](const char* id,float value){auto* p=state.getParameter(id);p->setValueNotifyingHost(p->convertTo0to1(value));};
+    if(index==0) {set("amp1",0);set("drive1",.15f);set("precompon",1);set("precomp",.25f);set("reverbon",1);set("reverbmix",.12f);}
+    if(index==1) {set("amp1",2);set("booston",1);set("boostgain",6);set("boostbass",-4);set("drive1",.45f);set("buscompon",1);}
+    if(index==2) {set("mode",2);set("amp2",7);set("amp3",6);set("lowcomp",.4f);set("drive2",.45f);set("drive3",.25f);set("x1",180);set("cab2",0);set("cab3",0);set("level2",-6);set("level3",-9);}
+    if(index==3) {set("amp1",1);set("filteron",1);set("filtersense",.6f);set("preon",1);set("predrive",.2f);set("delayon",1);set("delaysync",1);set("delaymix",.18f);}
+    if(index==4) {set("amp1",0);set("fuzzon",1);set("fuzzdrive",22);set("choruson",1);set("chorusmix",.15f);set("reverbon",1);}
+    resetPending.store(true);
+}

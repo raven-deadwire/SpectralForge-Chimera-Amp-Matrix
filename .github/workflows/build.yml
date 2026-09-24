@@ -52,7 +52,7 @@ jobs:
           this binary does not yet have an Authenticode publisher signature.
 
           Revision: ${{ github.sha }}
-          Signal chain: input -> gate -> transpose -> pre drive -> rigs/cabs -> merge -> delay/reverb -> output.
+          Signal chain: input/gate/transpose -> PRE pedals -> rigs/cabs -> merge -> POST rack -> output.
           New: independent amp voices; 1x/2x/4x/8x oversampling; IR loading and project embedding;
           input/output gain and meters; noise gate; polyphonic transpose; chromatic tuner.
           Factory IRs: V30 / SM57 and Jensen / SM57, by jesterdyne (CC BY 4.0).
@@ -60,9 +60,13 @@ jobs:
           Transpose adds the displayed latency when enabled; the host is notified.
           Tuner reads the original input. AUTO MUTE silences the output while tuning.
           Matrix LOW is clean DI with one-knob VCA-style COMP, LEVEL and BAND TONE.
-          LOW bypasses Pre Drive, amp and IR; its delay stays aligned to the other rigs.
+          LOW bypasses Fuzz/Boost/Overdrive, amp and IR; its delay stays aligned to the other rigs.
           Matrix MID/HIGH use DRIVE / LEVEL / BAND TONE. Classic/Dual keep full EQ.
-          PRE is a pedalboard (gate, transpose, drive); POST is a rack (delay, reverb).
+          PRE: Compressor, Envelope, Fuzz, Boost, Overdrive. Gate/Transpose stay on top.
+          POST: Bus Comp, Preamp, EQ, Chorus, Delay, Reverb.
+          Dual: adjustable full-range BLEND or LR4 low/high CROSSOVER.
+          Top: presets, Stereo/Mono L, Doubler. Bottom: tuner, MIDI Learn, Tap/BPM, Click.
+          Delay SYNC follows quarter-note tempo; HOST reads DAW BPM.
           A/B and MENU > Save reference store both sounds with embedded IRs.
           reference-audio contains deterministic synthetic DI and RMS-matched A/B WAVs.
           These fixtures test repeatability and voicing changes, not hardware accuracy.

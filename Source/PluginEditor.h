@@ -32,12 +32,19 @@ private:
     void showInfo();
     void referenceFile(bool save);
     void layoutControls();
+    void midiMenu();
     ChimeraProcessor& processor;
     ChimeraLookAndFeel look;
     juce::Component canvas;
     juce::TooltipWindow tooltips{this,600};
     juce::Label title,routingHelp,x1Label,x2Label,gateStatus,pitchStatus;
-    juce::ComboBox mode,quality,scale;
+    juce::ComboBox mode,quality,scale,inputMode,presets,dualType;
+    juce::Slider doublerTime,tempo,dualBlend,dualFrequency;
+    juce::Label dualLabel;
+    juce::TextButton doublerOn{"DOUBLER"},midi{"MIDI"},tap{"TAP"},hostTempo{"HOST"},metronome{"CLICK"},presetPrevious{"<"},presetNext{">"},presetSave{"SAVE AS"},presetLoad{"OPEN"},delaySync{"SYNC"};
+    std::unique_ptr<CA> inputModeAttachment,dualTypeAttachment;
+    std::array<std::unique_ptr<SA>,4> utilitySliders;
+    std::array<std::unique_ptr<BA>,4> utilityButtons;
     juce::Slider x1,x2;
     std::unique_ptr<CA> ma,qa;
     std::unique_ptr<SA> a1,a2;
@@ -53,12 +60,14 @@ private:
     struct FXUI {
         juce::Label header,scope,description;
         juce::TextButton enabled{"ON"};
-        std::array<juce::Slider,3> controls;
-        std::array<juce::Label,3> labels;
-        std::array<std::unique_ptr<SA>,3> attachments;
+        std::array<juce::Slider,5> controls;
+        std::array<juce::Label,5> labels;
+        std::array<std::unique_ptr<SA>,5> attachments;
         std::unique_ptr<BA> button;
     };
-    std::array<FXUI,5> effects; // drive, delay, reverb, gate, transpose
+    std::array<FXUI,11> effects; // drive, delay, reverb, comp, filter, fuzz, boost, bus, preamp, EQ, chorus
+    static constexpr std::array<int,5> pedalOrder{3,4,5,6,0};
+    static constexpr std::array<int,6> rackOrder{7,8,9,10,1,2};
     struct LaneUI {
         juce::Label header,range,toneLabel,tonePivot,cabStatus;
         juce::ComboBox amp,cabType;
@@ -75,4 +84,5 @@ private:
     std::array<LaneUI,3> lanes;
     std::unique_ptr<juce::FileChooser> chooser;
     int lastMode{-1};
+    bool lastDualCross{},lastTuner{};
 };

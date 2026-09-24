@@ -1,9 +1,13 @@
 #pragma once
 #include "GlobalDSP.h"
+#include "StudioModules.h"
 
 namespace spectralforge {
 struct FXState {
-    bool driveOn{},delayOn{},reverbOn{};
+    bool driveOn{},delayOn{},reverbOn{},preCompOn{},filterOn{},boostOn{},fuzzOn{},busCompOn{},preampOn{},eqOn{},chorusOn{},delaySync{};
+    float preComp{.35f},preAttack{15},preLevel{},filterSense{.4f},filterQ{1.2f},filterMix{1},boostGain{6},boostBass{},boostTreble{},fuzzDrive{18},fuzzTone{.45f},fuzzLevel{-12};
+    float busThreshold{-18},busRatio{4},busAttack{30},busRelease{100},busMakeup{},preampDrive{6},preampColour{.65f},preampLevel{-6};
+    float eqLow{},eqMidHz{1000},eqMid{},eqQ{.707f},eqHigh{},chorusRate{.7f},chorusDepth{.3f},chorusMix{.25f};
     float drive{.3f},tone{4000},driveLevel{},delayMs{250},feedback{.25f},delayMix{.2f},room{.35f},damping{.55f},reverbMix{.15f};
 };
 class DriveModule {
@@ -49,16 +53,30 @@ public:
     NoiseGate gate;
     Transposer transpose;
     DriveModule drive;
-    void prepare(const juce::dsp::ProcessSpec& spec) {gate.prepare(spec.sampleRate);transpose.prepare(spec);drive.prepare(spec);}
-    void reset() {gate.reset();transpose.reset();drive.reset();}
-    int latency(bool pitchEnabled) const {return drive.latency()+(pitchEnabled ? transpose.latency() : 0);}
+    DynamicsModule compressor;
+    EnvelopeModule envelope;
+    ColourModule fuzz;
+    BoostModule boost;
+    juce::AudioBuffer<float> clean;
+    juce::dsp::DelayLine<float,juce::dsp::DelayLineInterpolationTypes::None> cleanAlignment{128};
+    void prepare(const juce::dsp::ProcessSpec& spec) {gate.prepare(spec.sampleRate);transpose.prepare(spec);compressor.prepare(spec);envelope.prepare(spec);fuzz.prepare(spec);boost.prepare(spec);drive.prepare(spec);clean.setSize((int)spec.numChannels,(int)spec.maximumBlockSize);cleanAlignment.prepare(spec);cleanAlignment.setDelay(float(fuzz.latency()+drive.latency()));}
+    void reset() {gate.reset();transpose.reset();compressor.reset();envelope.reset();fuzz.reset();boost.reset();drive.reset();cleanAlignment.reset();}
+    const juce::AudioBuffer<float>& cleanOutput() const {return clean;}
+    int latency(bool pitchEnabled) const {return fuzz.latency()+drive.latency()+(pitchEnabled ? transpose.latency() : 0);}
     void process(juce::AudioBuffer<float>& buffer,bool gateOn,float threshold,float release,float hold,bool pitchOn,int semitones,const FXState& state) {
-        gate.process(buffer,gateOn,threshold,release,hold);transpose.process(buffer,pitchOn,semitones);drive.process(buffer,state);
+        gate.process(buffer,gateOn,threshold,release,hold);transpose.process(buffer,pitchOn,semitones);
+        compressor.process(buffer,state.preCompOn,-12-30*state.preComp,1+5*state.preComp,state.preAttack,140,state.preLevel);
+        envelope.process(buffer,state.filterOn,state.filterSense,state.filterQ,state.filterMix);
+        clean.makeCopyOf(buffer,true);juce::dsp::AudioBlock<float> block(clean);juce::dsp::ProcessContextReplacing<float> context(block);cleanAlignment.process(context);
+        fuzz.process(buffer,state.fuzzOn,state.fuzzDrive,state.fuzzTone,state.fuzzLevel,true);
+        boost.process(buffer,state.boostOn,state.boostGain,state.boostBass,state.boostTreble);
+        drive.process(buffer,state);
     }
 };
 // Global post modules receive the merged signal exactly once in every mode.
 // Echo/reverb are intentional effect delays, not hidden lane latency.
 class PostFXChain {
+    DynamicsModule compressor;ColourModule preamp;ConsoleEQ eq;juce::dsp::Chorus<float> chorus;
     juce::dsp::DelayLine<float,juce::dsp::DelayLineInterpolationTypes::Linear> delay;
     juce::dsp::Reverb reverb;
     juce::AudioBuffer<float> wetBuffer;
@@ -66,13 +84,20 @@ class PostFXChain {
     double rate{48000};
 public:
     void prepare(const juce::dsp::ProcessSpec& spec) {
-        rate=spec.sampleRate;delay.setMaximumDelayInSamples(int(rate*1.1));delay.prepare(spec);reverb.prepare(spec);
+        compressor.prepare(spec);preamp.prepare(spec);eq.prepare(spec);chorus.prepare(spec);chorus.setCentreDelay(8);
+        rate=spec.sampleRate;delay.setMaximumDelayInSamples(int(rate*2.1));delay.prepare(spec);reverb.prepare(spec);
         wetBuffer.setSize((int)spec.numChannels,(int)spec.maximumBlockSize);
         for(auto* value:{&time,&feedback,&delayMix,&reverbMix}) value->reset(rate,.030);
         time.setCurrentAndTargetValue(float(rate*.25));feedback.setCurrentAndTargetValue(.25f);delayMix.setCurrentAndTargetValue(0);reverbMix.setCurrentAndTargetValue(0);
     }
-    void reset() {delay.reset();reverb.reset();delayMix.setCurrentAndTargetValue(0);reverbMix.setCurrentAndTargetValue(0);}
+    int latency() const {return preamp.latency();}
+    void reset() {compressor.reset();preamp.reset();eq.reset();chorus.reset();delay.reset();reverb.reset();delayMix.setCurrentAndTargetValue(0);reverbMix.setCurrentAndTargetValue(0);}
     void process(juce::AudioBuffer<float>& buffer,const FXState& state) {
+        compressor.process(buffer,state.busCompOn,state.busThreshold,state.busRatio,state.busAttack,state.busRelease,state.busMakeup);
+        preamp.process(buffer,state.preampOn,state.preampDrive,state.preampColour,state.preampLevel);
+        eq.process(buffer,state.eqOn,state.eqLow,state.eqMidHz,state.eqMid,state.eqQ,state.eqHigh);
+        chorus.setRate(state.chorusRate);chorus.setDepth(state.chorusDepth);chorus.setMix(state.chorusOn ? state.chorusMix : 0.f);
+        {juce::dsp::AudioBlock<float> block(buffer);juce::dsp::ProcessContextReplacing<float> context(block);chorus.process(context);}
         time.setTargetValue(float(rate)*state.delayMs*.001f);feedback.setTargetValue(juce::jlimit(0.f,.85f,state.feedback));delayMix.setTargetValue(state.delayOn ? state.delayMix : 0.f);
         for(int n=0;n<buffer.getNumSamples();++n) {const float samples=time.getNextValue(),fb=feedback.getNextValue(),mix=delayMix.getNextValue();for(int c=0;c<buffer.getNumChannels();++c) {
             const float dry=buffer.getSample(c,n),echo=delay.popSample(c,samples);delay.pushSample(c,(state.delayOn ? dry : 0.f)+echo*fb);buffer.setSample(c,n,dry*(1-mix)+echo*mix);

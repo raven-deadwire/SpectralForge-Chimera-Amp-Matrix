@@ -5,6 +5,7 @@
 #include "FeatureTests.h"
 #include "AlignmentTests.h"
 #include "ReferenceTests.h"
+#include "StudioTests.h"
 
 namespace {
 void require(bool ok, const char* message)
@@ -165,6 +166,7 @@ int main()
         featureTests::run();
         alignmentTests::run();
         referenceTests::run();
+        studioTests::run();
         return 0;
     }
     catch (const std::exception& error)

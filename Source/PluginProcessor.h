@@ -1,8 +1,9 @@
 #pragma once
 #include <juce_audio_processors/juce_audio_processors.h>
 #include "ChimeraDSP.h"
-#include "FXChain.h"
+#include "FXParameters.h"
 #include "IRLibrary.h"
+#include "PerformanceUtilities.h"
 
 class ChimeraProcessor : public juce::AudioProcessor {
 public:
@@ -15,12 +16,12 @@ public:
     juce::AudioProcessorEditor* createEditor() override;
     bool hasEditor() const override { return true; }
     const juce::String getName() const override { return "Chimera Amp Matrix"; }
-    bool acceptsMidi() const override { return false; }
+    bool acceptsMidi() const override { return true; }
     bool producesMidi() const override { return false; }
     bool isMidiEffect() const override { return false; }
     double getTailLengthSeconds() const override {
         double tail=1.1;
-        if(fxParameters[4] && fxParameters[4]->load()>.5f) tail+=fxParameters[5]->load()*.001*std::log(.001)/std::log(juce::jlimit(.0001f,.85f,fxParameters[6]->load()));
+        if(fxParameters[4] && fxParameters[4]->load()>.5f) tail+=(fxParameters[48]->load()>.5f ? 1.5 : fxParameters[5]->load()*.001)*std::log(.001)/std::log(juce::jlimit(.0001f,.85f,fxParameters[6]->load()));
         if(fxParameters[8] && fxParameters[8]->load()>.5f) tail+=12.0;
         return tail;
     }
@@ -44,6 +45,12 @@ public:
     void selectComparison(int slot);
     void copyComparison();
     int comparisonSlot() const {return selectedComparison.load();}
+    void loadFactoryPreset(int index);
+    void learnMidi(const juce::String& parameterId);
+    void clearMidi();
+    bool learningMidi() const {return midiLearn.load()>=0;}
+    float currentTempo() const {return tempoMeter.load();}
+    void tapTempo();
     int pitchLatency() const { return preFX.transpose.latency(); }
 private:
     void process(juce::AudioBuffer<float>&);
@@ -59,7 +66,15 @@ private:
     spectralforge::PreFXChain preFX;
     spectralforge::PostFXChain postFX;
     spectralforge::Tuner tuner;
-    std::array<std::atomic<float>*,12> fxParameters{};
+    spectralforge::PerformanceUtilities utilities;
+    std::array<std::atomic<int>,128> midiMap;
+    std::atomic<int> midiLearn{-1};
+    std::atomic<bool> restartClick{false};
+    std::atomic<float> tempoMeter{120};
+    double lastTap{};std::array<double,4> tapIntervals{};int tapCount{};
+    enum Extra {dualType,dualBlend,dualFrequency,inputMode,doublerOn,doublerTime,tempo,hostTempo,metronome,extraCount};
+    std::array<std::atomic<float>*,extraCount> extras{};
+    std::array<std::atomic<float>*,spectralforge::fxSpecs.size()> fxParameters{};
     std::atomic<float>* lowCompParameter{};
     enum Global { mode,x1,x2,input,output,gateOn,threshold,release,hold,pitchOn,semitones,os,tunerOn,tunerMute,globalCount };
     std::array<std::atomic<float>*,globalCount> globals{};

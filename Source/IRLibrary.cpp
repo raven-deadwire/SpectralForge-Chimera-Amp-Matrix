@@ -111,7 +111,7 @@ juce::String IRLibrary::status(int lane) const
     if(source==3 && !users[lane]) return "No user IR loaded. Filters only.";
     const bool loading=cabs[lane]->activeSource.load()!=source ||
         (source==3 && cabs[lane]->activeGeneration.load()!=generations[lane]);
-    if(loading) return "Preparing IR...";
+    if(loading) return source==3 && users[lane] ? users[lane]->name+" | Preparing IR..." : "Preparing IR...";
     if(source==0) return "Filters only | no speaker IR";
     const auto asset=source==3 ? users[lane] : factory[(size_t)source-1];
     if(!asset) return "Factory IR unavailable";
