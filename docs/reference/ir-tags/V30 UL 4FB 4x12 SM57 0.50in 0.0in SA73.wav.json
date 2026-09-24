@@ -1,0 +1,14 @@
+{
+  "speaker": "Celestion Vintage 30 (2001, 8 ohm)",
+  "cabinet": "Mesa Traditional 4FB 4x12 (2002)",
+  "diameter_in": "12",
+  "microphone": "Shure SM57",
+  "position": "Upper left unit; 0.50 in from center",
+  "distance": "0.0 in",
+  "angle": "0 deg",
+  "preamp": "SA73",
+  "author": "OutmodedElectronics",
+  "source": "https://www.tone3000.com/tones/celestion-vintage-30-2002-mesa-boogie-traditional-4x12-sm57-45023",
+  "notes": "Guitar; 24-bit 48 kHz MPT. Creator describes distances from cap in prose and from center in filename key; preserve filename convention.",
+  "license": "T3K"
+}

@@ -1,5 +1,6 @@
 #pragma once
 #include "Cabinet.h"
+#include "IRMetadata.h"
 #include <juce_data_structures/juce_data_structures.h>
 #include <juce_audio_formats/juce_audio_formats.h>
 #include <array>
@@ -13,6 +14,7 @@ public:
         juce::AudioBuffer<float> samples;
         juce::MemoryBlock encoded;
         juce::String name;
+        IRMetadata metadata;
         double rate{};
     };
     explicit IRLibrary(std::array<Cab*,3> cabinets);
@@ -21,6 +23,8 @@ public:
     void stop();
     juce::Result importFile(int lane, const juce::File&);
     juce::String status(int lane) const;
+    IRMetadata metadata(int lane, int source) const;
+    void setMetadata(int lane, const IRMetadata&);
     juce::ValueTree save() const;
     void restore(const juce::ValueTree&);
     static std::shared_ptr<Asset> decode(const juce::MemoryBlock&, const juce::String&, juce::String& error);

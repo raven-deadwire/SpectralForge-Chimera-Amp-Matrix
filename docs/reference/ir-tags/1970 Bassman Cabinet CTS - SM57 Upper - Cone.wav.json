@@ -1,0 +1,14 @@
+{
+  "speaker": "Original CTS 8 ohm ceramic",
+  "cabinet": "1970 Fender Bassman 2x15",
+  "diameter_in": "15",
+  "microphone": "Shure SM57",
+  "position": "Upper unit; midpoint of cone",
+  "distance": "",
+  "angle": "",
+  "preamp": "Vintech Audio 73",
+  "author": "MaestrodiMusica",
+  "source": "https://www.tone3000.com/tones/1970-fender-bassman-2x15-cabinet-with-original-cts-speakers-ir-files-60274",
+  "notes": "Bass cabinet. Close mic, numerical distance/angle unknown. 60 Hz/12 kHz EQ and HCL Varis compressor in capture chain; not an isolated speaker transfer.",
+  "license": "T3K"
+}

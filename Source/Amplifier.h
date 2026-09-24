@@ -20,6 +20,14 @@ inline constexpr std::array<AmpVoice, 8> ampVoices{{
     {14,  55, 11500, 11.0f, 2.1f, 0.0f, .060f, .08f, .48f, .78f}
 }};
 
+// Broad output voicing estimated against one documented NAM capture per family.
+// Fitted on synthetic single notes; separate chords were held out. These are
+// original EQ coefficients, not NAM weights or a claim of circuit equivalence.
+inline constexpr std::array<std::array<float,3>,8> referenceContours{{
+    {-9.f,-12.f,12.f},{-3.33f,-9.45f,12.f},{-7.74f,-12.f,12.f},{-1.46f,-12.f,12.f},
+    {-5.53f,-5.13f,12.f},{-1.83f,3.23f,5.47f},{3.19f,-.93f,12.f},{6.2f,-12.f,12.f}
+}};
+
 class Amp {
     using Filter = juce::dsp::ProcessorDuplicator<juce::dsp::IIR::Filter<float>, juce::dsp::IIR::Coefficients<float>>;
     struct Path {
@@ -68,7 +76,7 @@ class Amp {
         }
     };
     std::array<Path, 4> paths;
-    Filter lo, lm, hm, hi, pres, res;
+    Filter lo, lm, hm, hi, pres, res,voiceLow,voiceMid,voiceHigh;
     juce::AudioBuffer<float> alternate, dry;
     juce::dsp::DelayLine<float,juce::dsp::DelayLineInterpolationTypes::None> bypassDelay{64};
     juce::SmoothedValue<float> enabled;
@@ -76,6 +84,12 @@ class Amp {
     AmpModel model{AmpModel::glass};
     float drive{.35f};
     int selected{2}, previous{2}, fadeRemaining{}, fadeLength{1}, delaySamples{};
+    void voiceTone() {
+        const auto& shape=referenceContours[(size_t)model];using C=juce::dsp::IIR::ArrayCoefficients<float>;
+        *voiceLow.state=C::makeLowShelf(sr,juce::jmin(100.,sr*.4),.707f,juce::Decibels::decibelsToGain(shape[0]));
+        *voiceMid.state=C::makePeakFilter(sr,juce::jmin(500.,sr*.4),.65f,juce::Decibels::decibelsToGain(shape[1]));
+        *voiceHigh.state=C::makeHighShelf(sr,juce::jmin(2000.,sr*.4),.707f,juce::Decibels::decibelsToGain(shape[2]));
+    }
 public:
     void prepare(const juce::dsp::ProcessSpec& spec)
     {
@@ -102,17 +116,17 @@ public:
         dry.setSize((int)spec.numChannels,(int)spec.maximumBlockSize);
         alternate.setSize((int)spec.numChannels, (int)spec.maximumBlockSize);
         fadeLength = juce::jmax(1, int(sr * .020));
-        tone(0,0,0,0,0,0);
-        for (auto* f : {&lo, &lm, &hm, &hi, &pres, &res}) f->prepare(spec);
+        tone(0,0,0,0,0,0);voiceTone();
+        for (auto* f : {&lo, &lm, &hm, &hi, &pres, &res,&voiceLow,&voiceMid,&voiceHigh}) f->prepare(spec);
         reset();
     }
     void reset()
     {
-        for (auto* f : {&lo, &lm, &hm, &hi, &pres, &res}) f->reset();
+        for (auto* f : {&lo, &lm, &hm, &hi, &pres, &res,&voiceLow,&voiceMid,&voiceHigh}) f->reset();
         for (auto& p : paths) if (p.oversampler) p.reset();
         previous = selected; fadeRemaining = 0; bypassDelay.reset();enabled.setCurrentAndTargetValue(enabled.getTargetValue());
     }
-    void set(AmpModel m, float d) { model = m; drive = juce::jlimit(0.f, 1.f, d); }
+    void set(AmpModel m, float d) { if(model!=m){model=m;voiceTone();} drive = juce::jlimit(0.f, 1.f, d); }
     void setOversampling(int choice)
     {
         choice = juce::jlimit(0, 3, choice);
@@ -152,6 +166,7 @@ public:
             for (int c = 0; c < buffer.getNumChannels(); ++c)
                 buffer.setSample(c,n,wet*buffer.getSample(c,n)+(1.0f-wet)*alternate.getSample(c,n));
         }
+        {juce::dsp::AudioBlock<float> block(buffer);juce::dsp::ProcessContextReplacing<float> context(block);voiceLow.process(context);voiceMid.process(context);voiceHigh.process(context);buffer.applyGain(.5f);}
         if (useFullRangeTone)
         {
             juce::dsp::AudioBlock<float> block(buffer);

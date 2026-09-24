@@ -1,4 +1,5 @@
 #include "PluginEditor.h"
+#include "HardwareArtwork.h"
 #include <iostream>
 #include <stdexcept>
 
@@ -36,7 +37,7 @@ void checkControls(ChimeraEditor& editor, int mode)
                                  ": found " + std::to_string(sliders));
     require(toneLabels == (mode == 2 ? 3 : 0), "Wrong band tone visibility");
 }
-void saveSnapshot(ChimeraEditor& editor, const juce::File& directory,
+void saveSnapshot(juce::Component& editor, const juce::File& directory,
                   const juce::String& name, float scale = 1.0f)
 {
     const auto file = directory.getChildFile(name + ".png");
@@ -53,6 +54,7 @@ void checkState()
     set(source,"mode",2); set(source,"bass1",7); set(source,"treble2",-5);
     set(source,"input",4); set(source,"output",-9); set(source,"gatehold",35); set(source,"gaterelease",140); set(source,"gatethreshold",-57); set(source,"transposeon",1); set(source,"transpose",-5); set(source,"oversampling",3); set(source,"tunerref",442);
     set(source,"bandtone1",9); set(source,"bandtone2",-6); set(source,"x1",220);
+    for(const auto& family:spectralforge::modelFamilies)set(source,family.parameter,float(family.count-1));
     juce::MemoryBlock data;
     source.getStateInformation(data);
     ChimeraProcessor restored;
@@ -61,7 +63,9 @@ void checkState()
         require(std::abs(source.parameters().getRawParameterValue(id)->load() -
                          restored.parameters().getRawParameterValue(id)->load()) < 0.0001f,
                 "State recall lost an EQ or Matrix parameter");
+    for(const auto& family:spectralforge::modelFamilies)require(restored.parameters().getRawParameterValue(family.parameter)->load()==family.count-1,"Selected model not recalled");
     auto legacy = source.parameters().copyState();
+    for(const auto& family:spectralforge::modelFamilies)legacy.removeChild(legacy.getChildWithProperty("id",family.parameter),nullptr);
     for (int i=1;i<=3;++i)
         legacy.removeChild(legacy.getChildWithProperty("id","bandtone"+juce::String(i)),nullptr);
     for(const auto* id:{"lowcomp","cabtype1","cabtype2","cabtype3","input","output","gateon","transposeon","transpose","oversampling","tuneron","tunerref"})
@@ -76,6 +80,7 @@ void checkState()
             restored.parameters().getRawParameterValue("transposeon")->load()==0 &&
             restored.parameters().getRawParameterValue("oversampling")->load()==2,
             "Legacy state inherited new DSP settings");
+    for(const auto& family:spectralforge::modelFamilies)require(restored.parameters().getRawParameterValue(family.parameter)->load()==0,"Legacy project inherited a model choice");
     for (int i=1;i<=3;++i)
         require(restored.parameters().getRawParameterValue("bandtone"+juce::String(i))->load() == 0.0f,
                 "Legacy state inherited a non-neutral Matrix tone");
@@ -119,7 +124,9 @@ void checkProcessor(const juce::File& directory)
         require(writer!=nullptr,"Cannot create IR writer"); stream.release();
         require(writer->writeFromAudioSampleBuffer(impulse,0,128),"Cannot encode IR");
     }
+    const auto sidecar=juce::File(irFile.getFullPathName()+".json");require(sidecar.replaceWithText("{\"speaker\":\"Reference V30\",\"diameter_in\":\"12\",\"microphone\":\"SM57\",\"distance\":\"0.5 in\"}"),"Cannot write IR sidecar");
     require(source.loadIR(0,irFile).wasOk(),"Processor IR load failed");
+    require(source.cabMetadata(0).values[2]=="12" && source.cabMetadata(0).values[5]=="0.5 in","IR sidecar was not imported");require(sidecar.deleteFile(),"Cannot remove IR sidecar fixture");
     set(source,"lowcomp",.42f);set(source,"drive1",.21f);source.copyComparison();source.selectComparison(1);
     set(source,"drive1",.79f);set(source,"cabtype1",2);set(source,"lowcomp",.68f);
     source.selectComparison(0);
@@ -128,6 +135,7 @@ void checkProcessor(const juce::File& directory)
     juce::MemoryBlock state; source.getStateInformation(state); require(irFile.deleteFile(),"Cannot delete source IR");
     ChimeraProcessor restored; restored.setStateInformation(state.getData(),(int)state.getSize());
     restored.setRateAndBufferSizeDetails(48000,256); restored.prepareToPlay(48000,256);
+    require(restored.cabMetadata(0).values[2]=="12" && restored.cabMetadata(0).values[5]=="0.5 in","Embedded IR metadata was lost");
     require(restored.cabStatus(0).contains("temporary-user-ir.wav"),"Project did not restore embedded IR");
     require(restored.parameters().getRawParameterValue("cabtype1")->load()==3,"IR source selection not recalled");
     restored.selectComparison(1);
@@ -148,8 +156,21 @@ int main(int argc, char** argv)
         const auto directory = argc > 1 ? juce::File(argv[1])
                                        : juce::File::getCurrentWorkingDirectory().getChildFile("ui-snapshots");
         require(directory.createDirectory().wasOk(), "Cannot create snapshot directory");
+        // A/B is two complete sound snapshots, not a stereo channel selector.
+        {ChimeraProcessor ab;ab.prepareToPlay(48000,256);set(ab,"cab1",0);set(ab,"drive1",.2f);set(ab,"preampmodel",2);set(ab,"delayon",0);set(ab,"reverbon",0);set(ab,"inputmode",0);ab.copyComparison();ab.selectComparison(1);set(ab,"drive1",.8f);set(ab,"preampmodel",1);ab.selectComparison(0);
+         require(ab.parameters().getRawParameterValue("preampmodel")->load()==2,"A/B lost model choice");
+         const auto render=[&](bool right){juce::AudioBuffer<float> block(2,256);juce::MidiBuffer midi;double active=0,other=0;for(int k=0;k<120;++k){block.clear();for(int n=0;n<256;++n)block.setSample(right ? 1 : 0,n,.1f*float(std::sin(juce::MathConstants<double>::twoPi*220*(k*256+n)/48000)));ab.processBlock(block,midi);if(k>60){active+=block.getRMSLevel(right?1:0,0,256);other+=block.getRMSLevel(right?0:1,0,256);}}return std::pair<double,double>{active,other};};
+         for(int slot:{0,1,0}){ab.selectComparison(slot);const auto l=render(false),r=render(true);require(l.first>.01 && r.first>.01 && l.second<1e-5 && r.second<1e-5,"A/B changed stereo channel routing");require(std::abs(l.first-r.first)<1e-3,"A/B lost equal left/right gain");}
+         require(std::isfinite(ab.cpuLoad()) && ab.cpuLoad()>0 && ab.cpuPeakLoad()>0,"CPU timing meter is inactive");std::cout<<"MEASURE CPU: "<<ab.cpuLoad()<<" percent average, "<<ab.cpuPeakLoad()<<" percent peak (this runner)\n";
+        }
         checkState();
         checkProcessor(directory);
+        {const auto folder=directory.getChildFile("ir-browser-fixture");require(folder.createDirectory().wasOk(),"Cannot create IR collection fixture");const auto guitar=folder.getChildFile("TEST V30 4x12 SM57.wav"),bass=folder.getChildFile("TEST Bass 8x10 MD421.wav");guitar.replaceWithText("UI-only fixture");bass.replaceWithText("UI-only fixture");juce::File picked;
+         IRBrowserPanel browser(folder,[&](juce::File file){picked=file;});auto* size=dynamic_cast<juce::ComboBox*>(browser.findChildWithID("irdiameter"));auto* list=dynamic_cast<juce::ListBox*>(browser.findChildWithID("irlist"));auto* search=dynamic_cast<juce::TextEditor*>(browser.findChildWithID("irsearch"));require(size && list && search,"IR collection controls missing");
+         size->setSelectedId(3,juce::sendNotificationSync);require(list->getListBoxModel()->getNumRows()==1,"10-inch IR filter did not isolate bass fixture");list->selectRow(0);dynamic_cast<juce::TextButton*>(browser.findChildWithID("irload"))->onClick();require(picked==bass,"IR collection loaded wrong file");
+         search->setText("SM57");search->onTextChange();require(list->getListBoxModel()->getNumRows()==0,"Mic filter ignored diameter selection");search->clear();search->onTextChange();size->setSelectedId(1,juce::sendNotificationSync);saveSnapshot(browser,directory,"IR-collection");
+         auto tags=spectralforge::IRMetadata::filenameHints(bass.getFileName());IRDetailsPanel details(tags,true,[](spectralforge::IRMetadata){});saveSnapshot(details,directory,"IR-details");require(folder.deleteRecursively(),"Cannot remove browser fixtures");}
+
         ChimeraProcessor processor;
         processor.setRateAndBufferSizeDetails(48000,256);
         processor.prepareToPlay(48000,256);
@@ -203,6 +224,10 @@ int main(int argc, char** argv)
                     }
                     require(sliders==(juce::String(tab)=="PRE" ? 23 : 30),"FX module controls have the wrong scope");
                     saveSnapshot(editor,directory,juce::String(tab)=="PRE" ? "Pre-pedalboard" : "Post-rack");
+                    for(int variant=1;variant<3;++variant){for(const auto& family:spectralforge::modelFamilies)set(processor,family.parameter,float(variant));juce::MessageManager::getInstance()->runDispatchLoopUntil(100);
+                        for(const auto& family:spectralforge::modelFamilies){auto* box=dynamic_cast<juce::ComboBox*>(editor.findChildWithID("surface")->findChildWithID(family.parameter));require(box && box->getSelectedId()==variant+1,"Host model automation did not update selector");}
+                        saveSnapshot(editor,directory,juce::String(tab)+"-models-"+juce::String(variant+1));}
+                    for(const auto& family:spectralforge::modelFamilies)set(processor,family.parameter,0);
                 }
                 for(auto* child:editor.findChildWithID("surface")->getChildren()) if(auto* button=dynamic_cast<juce::TextButton*>(child);button && button->getButtonText()=="RIGS") button->triggerClick();
                 juce::MessageManager::getInstance()->runDispatchLoopUntil(100);

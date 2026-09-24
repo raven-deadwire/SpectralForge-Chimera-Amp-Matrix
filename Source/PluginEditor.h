@@ -8,6 +8,7 @@ public:
     void drawLinearSlider(juce::Graphics&,int,int,int,int,float,float,float,juce::Slider::SliderStyle,juce::Slider&) override;
     void drawRotarySlider(juce::Graphics&,int,int,int,int,float,float,float,juce::Slider&) override;
     void drawButtonBackground(juce::Graphics&,juce::Button&,const juce::Colour&,bool,bool) override;
+    void drawButtonText(juce::Graphics&,juce::TextButton&,bool,bool) override;
     juce::Font getTextButtonFont(juce::TextButton&,int) override;
     juce::Font getComboBoxFont(juce::ComboBox&) override;
 };
@@ -29,7 +30,10 @@ private:
     void updateBandLabels();
     void setupSlider(juce::Slider&,const juce::String&,const juce::String& suffix={});
     void loadIR(int);
+    void chooseIR(int,bool folder);
+    void browseIR(int,const juce::File&);
     void showInfo();
+    void showIRDetails(int);
     void referenceFile(bool save);
     void layoutControls();
     void midiMenu();
@@ -59,6 +63,8 @@ private:
     std::unique_ptr<SA> lowCompAttachment;
     struct FXUI {
         juce::Label header,scope,description;
+        juce::ComboBox model;
+        std::unique_ptr<CA> modelAttachment;
         juce::TextButton enabled{"ON"};
         std::array<juce::Slider,5> controls;
         std::array<juce::Label,5> labels;
@@ -74,7 +80,7 @@ private:
         juce::Slider drive,level,bass,lm,hm,treble,pres,res,bandTone,cabLow,cabHigh;
         std::array<juce::Label,8> knobLabels;
         juce::Label lowLabel,highLabel;
-        juce::TextButton mute{"MUTE"},solo{"SOLO"},polarity{"INV"},cabOn{"CAB"},ampOn{"AMP"},load{"LOAD"};
+        juce::TextButton mute{"MUTE"},solo{"SOLO"},polarity{"INV"},cabOn{"CAB"},ampOn{"AMP"},load{"LOAD"},details{"TAGS"};
         std::unique_ptr<CA> aa,ca;
         std::array<std::unique_ptr<SA>,8> sa;
         std::unique_ptr<SA> toneAttachment,lowAttachment,highAttachment;

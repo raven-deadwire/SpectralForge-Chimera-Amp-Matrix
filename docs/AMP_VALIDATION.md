@@ -30,9 +30,9 @@ Windows additionally runs the actual processor/state/editor and saves screenshot
 - IR: WAV/AIFF, mono or stereo, 8-384 kHz, <=1 second, <=4 MB. Speaker IRs are normalised but their leading delay is retained. Loading/preparation/destruction occur outside the audio callback. New engines crossfade over 50 ms. Natural IR onset delay is not automatically removed or phase-matched between different captures.
 - No output limiter is applied. Watch the output meter and use the master trim; clipping is indicated in red.
 
-## Hardware validation still required
+## NAM reference validation
 
-A meaningful reproduction test needs a matched dry DI plus reamped hardware outputs, exact gain/EQ/channel/cabinet settings and level calibration. For each intended reference, compare clean-to-distorted sweeps, pickup-volume cleanup, single notes, bass transients, palm mutes, chords/intermodulation, attack/recovery and decay, at matched perceived loudness. No such hardware reference recordings were available for this change.
+A meaningful reproduction test needs a matched dry DI plus reamped hardware outputs, exact gain/EQ/channel/cabinet settings and level calibration. For each intended reference, compare clean-to-distorted sweeps, pickup-volume cleanup, single notes, bass transients, palm mutes, chords/intermodulation, attack/recovery and decay, at matched perceived loudness. The user has no reamp hardware. Eight third-party amp-head NAM captures now provide digital reference outputs instead; see NAM_REFERENCE_RESULTS.md for exact files, calibration limits and measured improvements. This still does not independently establish physical hardware fidelity.
 
 The previous bass listening report remains a useful first check. Guitar listening, especially low-tuned chords under transpose and high-gain pick attack through IRs, remains a listening acceptance step rather than an automated claim of fidelity.
 
@@ -50,7 +50,7 @@ Identical Dual rigs must null against Classic after the 50:50 merge, with post e
 2. Save reference A using MENU > Save reference. It includes parameter state, both A/B slots and the original user IR bytes. Record the plugin commit and IR source/hash externally alongside the DI.
 3. COPY A to B, then change one amp, cabinet or control. Switch A/B to compare. Active slot changes and project/reference recall clear DSP histories/tails; allow at least one second of preroll before measuring a sustained section, and include sufficient silence to measure tails.
 4. Match output loudness using LEVEL or OUTPUT. A/B switching does not automatically match loudness. Compare spectra, transient envelope, dynamic cleanup, chord intermodulation and decay on the same region.
-5. Re-render A from a fresh instance and null A/A first. Log metrics and accept/reject a change against the fixed reference. Hardware fidelity additionally requires a calibrated hardware reamp of that DI.
+5. Re-render A from a fresh instance and null A/A first. Log metrics and accept/reject a change against the fixed reference. NAM validation uses the exact same generated DI and fixed capture metadata; physical hardware fidelity remains a separate claim.
 
 `Tests/ReferenceTests.h` creates a versioned deterministic **synthetic** pluck/chord fixture, repeats an amp+factory-IR render (A/A null gate <1e-7 FS), and generates a different-drive B with RMS matching to A (level error gate <0.001 dB). Windows packages contain `reference-audio/DI-synthetic-v1.wav`, `A-tight035-v30.wav`, `B-tight065-v30-RMS-matched.wav`, and `metrics.csv`. These original generated signals are regression/listening fixtures, not real instrument or hardware recordings. The test requires a remaining waveform difference after loudness matching so a gain-only change cannot masquerade as voicing.
 
@@ -61,3 +61,5 @@ Windows state tests also verify A/B amp, COMP and embedded user IR recall after 
 `Tests/StudioTests.h` requires a measurable enabled/bypass difference for each of the eleven pedal/rack modules and bounded finite output. The identical-Dual vs Classic test also runs the complete post rack, protecting its once-after-merge scope. The Matrix clean-path null now toggles all three gain pedals. Dual Blend endpoints must match the corresponding Classic rig, and a 75:25 setting must match that exact weighted sum. Moving Dual Crossover must match a serial allpass reference and remain independent of 127/511-sample blocks. Windows verifies Dual Crossover controls, five-pedal/six-rack pages, global tuner view, MIDI Learn and persisted CC assignments.
 
 All four tested sample rates/factors retain fixed dry-path delay. The current full processor adds the fixed pre Fuzz, Overdrive, amplifier and post Preamp delays (24 samples at 48 kHz, plus Transpose when enabled). Compression, EQ and wet-only time effects do not add dry-path delay. Distinct saturation/IR frequency-dependent phase responses still differ by design; fixed sample alignment does not make different amp/cab transfer functions identical.
+
+The current update verifies all 36 model variants pairwise, model/metadata recall, IR collection filtering, and A/B stereo routing. The footer now reports measured audio callback CPU average and peak.

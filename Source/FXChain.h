@@ -4,6 +4,7 @@
 
 namespace spectralforge {
 struct FXState {
+    std::array<int,11> models{}; // drive, delay, reverb, comp, filter, fuzz, boost, bus, preamp, EQ, modulation
     bool driveOn{},delayOn{},reverbOn{},preCompOn{},filterOn{},boostOn{},fuzzOn{},busCompOn{},preampOn{},eqOn{},chorusOn{},delaySync{};
     float preComp{.35f},preAttack{15},preLevel{},filterSense{.4f},filterQ{1.2f},filterMix{1},boostGain{6},boostBass{},boostTreble{},fuzzDrive{18},fuzzTone{.45f},fuzzLevel{-12};
     float busThreshold{-18},busRatio{4},busAttack{30},busRelease{100},busMakeup{},preampDrive{6},preampColour{.65f},preampLevel{-6};
@@ -37,9 +38,10 @@ public:
     const juce::AudioBuffer<float>& cleanOutput() const {return dry;}
     void process(juce::AudioBuffer<float>& buffer,const FXState& state) {
         dry.makeCopyOf(buffer,true);juce::dsp::AudioBlock<float> dryBlock(dry);juce::dsp::ProcessContextReplacing<float> dryContext(dryBlock);alignment.process(dryContext);
-        juce::dsp::AudioBlock<float> block(buffer);juce::dsp::ProcessContextReplacing<float> context(block);highPass.process(context);
+        juce::dsp::AudioBlock<float> block(buffer);juce::dsp::ProcessContextReplacing<float> context(block);
+        *highPass.state=juce::dsp::IIR::ArrayCoefficients<float>::makeHighPass(rate,state.models[0]==0 ? 180.f : state.models[0]==1 ? 55.f : 90.f);highPass.process(context);
         auto up=oversampling->processSamplesUp(block); amount.setTargetValue(state.drive);
-        for(size_t n=0;n<up.getNumSamples();++n) {const float gain=1.f+amount.getNextValue()*15.f;for(size_t c=0;c<up.getNumChannels();++c) up.setSample((int)c,(int)n,std::tanh(up.getSample((int)c,(int)n)*gain)*.7f);}
+        for(size_t n=0;n<up.getNumSamples();++n) {const float gain=1.f+amount.getNextValue()*15.f;for(size_t c=0;c<up.getNumChannels();++c) {const float x=up.getSample((int)c,(int)n);float y=std::tanh(x*gain)*.7f;if(state.models[0]==1)y=.45f*x+.55f*(std::tanh(x*gain+.12f)-std::tanh(.12f));if(state.models[0]==2)y=juce::jlimit(-.62f,.62f,x*gain*1.5f);up.setSample((int)c,(int)n,y);}}
         oversampling->processSamplesDown(block);
         *lowPass.state=juce::dsp::IIR::ArrayCoefficients<float>::makeLowPass(rate,juce::jmin(double(state.tone),rate*.45));lowPass.process(context);
         mix.setTargetValue(state.driveOn ? 1.f : 0.f);level.setTargetValue(juce::Decibels::decibelsToGain(state.driveLevel));
@@ -65,48 +67,30 @@ public:
     int latency(bool pitchEnabled) const {return fuzz.latency()+drive.latency()+(pitchEnabled ? transpose.latency() : 0);}
     void process(juce::AudioBuffer<float>& buffer,bool gateOn,float threshold,float release,float hold,bool pitchOn,int semitones,const FXState& state) {
         gate.process(buffer,gateOn,threshold,release,hold);transpose.process(buffer,pitchOn,semitones);
-        compressor.process(buffer,state.preCompOn,-12-30*state.preComp,1+5*state.preComp,state.preAttack,140,state.preLevel);
-        envelope.process(buffer,state.filterOn,state.filterSense,state.filterQ,state.filterMix);
+        compressor.process(buffer,state.preCompOn,-12-30*state.preComp,1+5*state.preComp,state.preAttack,140,state.preLevel,state.models[3]);
+        envelope.process(buffer,state.filterOn,state.filterSense,state.filterQ,state.filterMix,state.models[4]);
         clean.makeCopyOf(buffer,true);juce::dsp::AudioBlock<float> block(clean);juce::dsp::ProcessContextReplacing<float> context(block);cleanAlignment.process(context);
-        fuzz.process(buffer,state.fuzzOn,state.fuzzDrive,state.fuzzTone,state.fuzzLevel,true);
-        boost.process(buffer,state.boostOn,state.boostGain,state.boostBass,state.boostTreble);
+        fuzz.process(buffer,state.fuzzOn,state.fuzzDrive,state.fuzzTone,state.fuzzLevel,true,state.models[5]);
+        boost.process(buffer,state.boostOn,state.boostGain,state.boostBass,state.boostTreble,state.models[6]);
         drive.process(buffer,state);
     }
 };
 // Global post modules receive the merged signal exactly once in every mode.
 // Echo/reverb are intentional effect delays, not hidden lane latency.
 class PostFXChain {
-    DynamicsModule compressor;ColourModule preamp;ConsoleEQ eq;juce::dsp::Chorus<float> chorus;
-    juce::dsp::DelayLine<float,juce::dsp::DelayLineInterpolationTypes::Linear> delay;
-    juce::dsp::Reverb reverb;
-    juce::AudioBuffer<float> wetBuffer;
-    juce::SmoothedValue<float> time,feedback,delayMix,reverbMix;
-    double rate{48000};
+    DynamicsModule compressor;ColourModule preamp;ConsoleEQ eq;
+    ModulationModule modulation;EchoModule echo;SpaceModule space;
 public:
-    void prepare(const juce::dsp::ProcessSpec& spec) {
-        compressor.prepare(spec);preamp.prepare(spec);eq.prepare(spec);chorus.setMix(0);chorus.prepare(spec);chorus.setCentreDelay(8);
-        rate=spec.sampleRate;delay.setMaximumDelayInSamples(int(rate*2.1));delay.prepare(spec);reverb.prepare(spec);
-        wetBuffer.setSize((int)spec.numChannels,(int)spec.maximumBlockSize);
-        for(auto* value:{&time,&feedback,&delayMix,&reverbMix}) value->reset(rate,.030);
-        time.setCurrentAndTargetValue(float(rate*.25));feedback.setCurrentAndTargetValue(.25f);delayMix.setCurrentAndTargetValue(0);reverbMix.setCurrentAndTargetValue(0);
-    }
+    void prepare(const juce::dsp::ProcessSpec& spec) {compressor.prepare(spec);preamp.prepare(spec);eq.prepare(spec);modulation.prepare(spec);echo.prepare(spec);space.prepare(spec);}
     int latency() const {return preamp.latency();}
-    void reset() {compressor.reset();preamp.reset();eq.reset();chorus.setMix(0);chorus.reset();delay.reset();reverb.reset();delayMix.setCurrentAndTargetValue(0);reverbMix.setCurrentAndTargetValue(0);}
+    void reset() {compressor.reset();preamp.reset();eq.reset();modulation.reset();echo.reset();space.reset();}
     void process(juce::AudioBuffer<float>& buffer,const FXState& state) {
-        compressor.process(buffer,state.busCompOn,state.busThreshold,state.busRatio,state.busAttack,state.busRelease,state.busMakeup);
-        preamp.process(buffer,state.preampOn,state.preampDrive,state.preampColour,state.preampLevel);
-        eq.process(buffer,state.eqOn,state.eqLow,state.eqMidHz,state.eqMid,state.eqQ,state.eqHigh);
-        chorus.setRate(state.chorusRate);chorus.setDepth(state.chorusDepth);chorus.setMix(state.chorusOn ? state.chorusMix : 0.f);
-        {juce::dsp::AudioBlock<float> block(buffer);juce::dsp::ProcessContextReplacing<float> context(block);chorus.process(context);}
-        time.setTargetValue(float(rate)*state.delayMs*.001f);feedback.setTargetValue(juce::jlimit(0.f,.85f,state.feedback));delayMix.setTargetValue(state.delayOn ? state.delayMix : 0.f);
-        for(int n=0;n<buffer.getNumSamples();++n) {const float samples=time.getNextValue(),fb=feedback.getNextValue(),mix=delayMix.getNextValue();for(int c=0;c<buffer.getNumChannels();++c) {
-            const float dry=buffer.getSample(c,n),echo=delay.popSample(c,samples);delay.pushSample(c,(state.delayOn ? dry : 0.f)+echo*fb);buffer.setSample(c,n,dry*(1-mix)+echo*mix);
-        }}
-        juce::Reverb::Parameters parameters;parameters.roomSize=state.room;parameters.damping=state.damping;parameters.wetLevel=1;parameters.dryLevel=0;parameters.width=1;parameters.freezeMode=0;reverb.setParameters(parameters);
-        wetBuffer.makeCopyOf(buffer,true);if(!state.reverbOn) wetBuffer.clear();
-        juce::dsp::AudioBlock<float> block(wetBuffer);juce::dsp::ProcessContextReplacing<float> context(block);reverb.process(context);
-        reverbMix.setTargetValue(state.reverbOn ? state.reverbMix : 0.f);
-        for(int n=0;n<buffer.getNumSamples();++n) {const float mix=reverbMix.getNextValue();for(int c=0;c<buffer.getNumChannels();++c) buffer.setSample(c,n,buffer.getSample(c,n)*(1-mix)+wetBuffer.getSample(c,n)*mix);}
+        compressor.process(buffer,state.busCompOn,state.busThreshold,state.busRatio,state.busAttack,state.busRelease,state.busMakeup,state.models[7]);
+        preamp.process(buffer,state.preampOn,state.preampDrive,state.preampColour,state.preampLevel,false,state.models[8]);
+        eq.process(buffer,state.eqOn,state.eqLow,state.eqMidHz,state.eqMid,state.eqQ,state.eqHigh,state.models[9]);
+        modulation.process(buffer,state.chorusOn,state.models[10],state.chorusRate,state.chorusDepth,state.chorusMix);
+        echo.process(buffer,state.delayOn,state.models[1],state.delayMs,state.feedback,state.delayMix);
+        space.process(buffer,state.reverbOn,state.models[2],state.room,state.damping,state.reverbMix);
     }
 };
 }

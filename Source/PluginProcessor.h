@@ -36,8 +36,12 @@ public:
     static juce::AudioProcessorValueTreeState::ParameterLayout layout();
     juce::Result loadIR(int lane,const juce::File& file);
     juce::String cabStatus(int lane) const { return library.status(lane); }
+    spectralforge::IRMetadata cabMetadata(int lane) const { return library.metadata(lane,(int)state.getRawParameterValue("cabtype"+juce::String(lane+1))->load()); }
+    void setCabMetadata(int lane,const spectralforge::IRMetadata& metadata) { library.setMetadata(lane,metadata); }
     float inputMeter() const { return inputPeak.load(); }
     float outputMeter() const { return outputPeak.load(); }
+    float cpuLoad() const { return cpuAverage.load(); }
+    float cpuPeakLoad() const { return cpuPeak.load(); }
     float lowCompMeter() const {return lowCompGain.load();}
     float gateMeter() const { return gateGain.load(); }
     float tuningFrequency() const { return tuner.frequency(); }
@@ -75,12 +79,14 @@ private:
     enum Extra {dualType,dualBlend,dualFrequency,inputMode,doublerOn,doublerTime,tempo,hostTempo,metronome,extraCount};
     std::array<std::atomic<float>*,extraCount> extras{};
     std::array<std::atomic<float>*,spectralforge::fxSpecs.size()> fxParameters{};
+    std::array<std::atomic<float>*,11> modelParameters{};
     std::atomic<float>* lowCompParameter{};
     enum Global { mode,x1,x2,input,output,gateOn,threshold,release,hold,pitchOn,semitones,os,tunerOn,tunerMute,globalCount };
     std::array<std::atomic<float>*,globalCount> globals{};
     std::array<std::array<std::atomic<float>*,18>,3> laneParameters{};
     juce::SmoothedValue<float> inputGain, outputGain, tuningMute;
     std::atomic<float> inputPeak{0},outputPeak{0},gateGain{1},lowCompGain{0};
+    std::atomic<float> cpuAverage{0},cpuPeak{0};
     int maximumBlock{512};
     double rate{48000};
 };

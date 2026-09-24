@@ -12,6 +12,7 @@ ChimeraProcessor::ChimeraProcessor()
     const std::array<const char*,globalCount> ids{"mode","x1","x2","input","output","gateon","gatethreshold","gaterelease","gatehold","transposeon","transpose","oversampling","tuneron","tunermute"};
     for(size_t i=0;i<ids.size();++i) globals[i]=state.getRawParameterValue(ids[i]);
     for(size_t i=0;i<spectralforge::fxSpecs.size();++i) fxParameters[i]=state.getRawParameterValue(spectralforge::fxSpecs[i].id);
+    for(size_t i=0;i<modelParameters.size();++i)modelParameters[i]=state.getRawParameterValue(spectralforge::modelFamilies[i].parameter);
     const std::array<const char*,18> laneIds{"amp","drive","level","bass","lowmid","highmid","treble","presence","resonance","bandtone","mute","solo","polarity","cab","cablow","cabhigh","cabtype","ampon"};
     for(int i=0;i<3;++i) for(size_t k=0;k<laneIds.size();++k)
         laneParameters[i][k]=state.getRawParameterValue(juce::String(laneIds[k])+juce::String(i+1));
@@ -20,7 +21,7 @@ ChimeraProcessor::~ChimeraProcessor() { releaseResources(); }
 void ChimeraProcessor::releaseResources() { library.stop(); tuner.stop(); }
 void ChimeraProcessor::prepareToPlay(double sr,int block)
 {
-    library.stop(); tuner.stop(); rate=sr; maximumBlock=juce::jmax(1,block);
+    library.stop(); tuner.stop(); cpuAverage.store(0);cpuPeak.store(0);rate=sr; maximumBlock=juce::jmax(1,block);
     const juce::dsp::ProcessSpec spec{sr,(juce::uint32)maximumBlock,(juce::uint32)getTotalNumOutputChannels()};
     engine.prepare(spec); preFX.prepare(spec); postFX.prepare(spec);utilities.prepare(spec); tuner.prepare(sr);
     std::array<int,3> sources{};
@@ -40,6 +41,7 @@ bool ChimeraProcessor::isBusesLayoutSupported(const BusesLayout& buses) const
 }
 void ChimeraProcessor::processBlock(juce::AudioBuffer<float>& buffer,juce::MidiBuffer& midi)
 {
+    const auto started=juce::Time::getHighResolutionTicks();
     juce::ScopedNoDenormals noDenormals;
     for(const auto metadata:midi) {
         const auto message=metadata.getMessage();if(!message.isController())continue;
@@ -60,6 +62,13 @@ void ChimeraProcessor::processBlock(juce::AudioBuffer<float>& buffer,juce::MidiB
         for(int c=0;c<buffer.getNumChannels();++c) channels[(size_t)c]=buffer.getWritePointer(c,offset);
         juce::AudioBuffer<float> part(channels.data(),buffer.getNumChannels(),count);
         process(part);
+    }
+    if(buffer.getNumSamples()>0 && rate>0) {
+        const double budget=buffer.getNumSamples()/rate;
+        const float load=float(100.0*juce::Time::highResolutionTicksToSeconds(juce::Time::getHighResolutionTicks()-started)/budget);
+        const float decay=float(std::exp(-budget));
+        cpuAverage.store(decay*cpuAverage.load()+(1-decay)*load);
+        cpuPeak.store(juce::jmax(load,cpuPeak.load()*decay));
     }
 }
 void ChimeraProcessor::process(juce::AudioBuffer<float>& buffer)
@@ -83,7 +92,7 @@ void ChimeraProcessor::process(juce::AudioBuffer<float>& buffer)
     const float meterDecay=float(std::exp(-buffer.getNumSamples()/(rate*.4)));
     inputPeak.store(juce::jmax(peak,inputPeak.load()*meterDecay));
     tuner.push(buffer,value(tunerOn)>.5f);
-    auto fx=spectralforge::readFX(fxParameters);if(fx.delaySync)fx.delayMs=60000.f/tempoMeter.load();
+    auto fx=spectralforge::readFX(fxParameters);for(size_t i=0;i<modelParameters.size();++i)fx.models[i]=(int)modelParameters[i]->load();if(fx.delaySync)fx.delayMs=60000.f/tempoMeter.load();
     const bool pitching=value(pitchOn)>.5f;
     preFX.process(buffer,value(gateOn)>.5f,value(threshold),value(release),value(hold),pitching,(int)value(semitones),fx);
     gateGain.store(preFX.gate.reduction());
@@ -155,7 +164,8 @@ juce::AudioProcessorValueTreeState::ParameterLayout ChimeraProcessor::layout(){j
     p.add(std::make_unique<juce::AudioParameterChoice>("inputmode","Input mode",juce::StringArray{"Stereo","Mono L"},0));
     toggle("doubleron","Doubler",false);number("doublertime","Doubler spread",1,20,6);
     number("tempo","Tempo",40,240,120);toggle("temposync","Follow host tempo",false);toggle("metronome","Metronome",false);
-    return p;
+    for(size_t i=0;i<spectralforge::modelFamilies.size();++i) {const auto& family=spectralforge::modelFamilies[i];p.add(std::make_unique<juce::AudioParameterChoice>(family.parameter,juce::String(family.category)+" model",spectralforge::modelNames((int)i),0));}
+return p;
 }
 
 juce::ValueTree ChimeraProcessor::captureCore()
@@ -163,7 +173,7 @@ juce::ValueTree ChimeraProcessor::captureCore()
     auto saved=state.copyState();
     saved.removeChild(saved.getChildWithName("USER_IRS"),nullptr);
     saved.removeChild(saved.getChildWithName("COMPARISONS"),nullptr);
-    saved.appendChild(library.save(),nullptr); saved.setProperty("schemaVersion",4,nullptr);
+    saved.appendChild(library.save(),nullptr); saved.setProperty("schemaVersion",5,nullptr);
     return saved;
 }
 void ChimeraProcessor::getStateInformation(juce::MemoryBlock& data)

@@ -24,3 +24,9 @@ JUCE license: https://github.com/juce-framework/JUCE/blob/8.0.8/LICENSE.md
 ## Design reference
 
 The information hierarchy and visible signal flow were informed by Odeholm Audio's Slam Amp and thall amp product pages. Chimera's interface is original JUCE vector drawing; no product artwork, logos, fonts, presets, amp captures or commercial IRs from those products are included.
+
+## Offline NAM / TONE3000 references
+
+NeuralAmpModelerCore by Steven Atkinson and contributors was used as an external offline renderer, pinned to `0b3d3c97b0859a3a8c92a8628c4dd89a25eb5842`. It is not linked into the plugin. https://github.com/sdatkinson/NeuralAmpModelerCore
+
+T3K NAM/IR files are not embedded or redistributed with the public plugin. Source/creator/hash records and metadata-only sidecars are in `reference`. Original hardware names are descriptive references, not endorsements. TONE3000 sharing terms: https://www.tone3000.com/guides/tone-sharing-guidelines

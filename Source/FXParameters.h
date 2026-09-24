@@ -1,5 +1,6 @@
 #pragma once
 #include "FXChain.h"
+#include "ModelCatalog.h"
 namespace spectralforge {
 struct FXParameterSpec {const char* id;float minimum,maximum,initial;bool toggle;};
 inline constexpr std::array<FXParameterSpec,49> fxSpecs{{

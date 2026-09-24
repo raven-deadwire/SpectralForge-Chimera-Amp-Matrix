@@ -1,0 +1,394 @@
+{
+  "nam_core_commit": "0b3d3c97b0859a3a8c92a8628c4dd89a25eb5842",
+  "renderer_sha256": "489e1a2d04cb20bf9994e2a957aee25b2f52122293ed934cb06226f39bc77338",
+  "sample_rate": 48000,
+  "render_block": 256,
+  "amp_drive": 0.4,
+  "oversampling": "4x",
+  "cases": [
+    {
+      "index": 0,
+      "name": "Glass",
+      "file": "SLAMMIN_FNDR_DUOVERB_V_V5_CRANKED_S.nam",
+      "reference": "Fender Twin Reverb 65 RI",
+      "url": "https://www.tone3000.com/tones/fender-twin-reverb-65-blackface-ri-45968",
+      "creator": "slamminmofo",
+      "license": "T3K",
+      "drive": 0.4,
+      "sha256": "98b69400de5d674a7b6bdc6c267b2cb82a250ba99829fa42a7d8b02f9224985a",
+      "input_level_dbu": 18.18,
+      "reference_input_gain_db": -6.68,
+      "calibration_status": "metadata, common source 11.5 dBu",
+      "measurements": {
+        "pluck": {
+          "baseline": {
+            "reference_rms_dbfs": -24.76040123103738,
+            "match_gain_db": 10.946065561062579,
+            "lag_samples": 34,
+            "correlation": -0.6659976626960596,
+            "log_spectrum_rms_db": 9.659117302540198
+          },
+          "same_ir": {
+            "reference_rms_dbfs": -11.034097320119887,
+            "match_gain_db": 9.339814011818559,
+            "lag_samples": 34,
+            "correlation": -0.7450915062185721,
+            "log_spectrum_rms_db": 7.779545380425589
+          }
+        },
+        "chord": {
+          "baseline": {
+            "reference_rms_dbfs": -25.7318865552137,
+            "match_gain_db": 11.125064142049583,
+            "lag_samples": 33,
+            "correlation": -0.5852328462084856,
+            "log_spectrum_rms_db": 7.880409899647734
+          },
+          "same_ir": {
+            "reference_rms_dbfs": -12.65348653122146,
+            "match_gain_db": 9.272320255881192,
+            "lag_samples": 33,
+            "correlation": -0.6359095070721597,
+            "log_spectrum_rms_db": 7.359873264185271
+          }
+        }
+      }
+    },
+    {
+      "index": 1,
+      "name": "Brit Edge",
+      "file": "SLAMMIN_MARSHALL_J45_V5_LOCUT_P5_S.nam",
+      "reference": "Marshall JTM45 RI / Volume5 LOCUT Presence5",
+      "url": "https://www.tone3000.com/tones/marshall-jtm-45-hyper-accuracy-33505",
+      "creator": "slamminmofo",
+      "license": "T3K",
+      "drive": 0.4,
+      "sha256": "a2457b6891a30a0bfcdfde9931396fb3a1df33ae718f43f5e0740e6ff7ffd8e6",
+      "input_level_dbu": 12.2418,
+      "reference_input_gain_db": -0.7417999999999992,
+      "calibration_status": "metadata, common source 11.5 dBu",
+      "measurements": {
+        "pluck": {
+          "baseline": {
+            "reference_rms_dbfs": -27.878947150698792,
+            "match_gain_db": -1.4241190424896075,
+            "lag_samples": 25,
+            "correlation": 0.865040716543296,
+            "log_spectrum_rms_db": 6.5229797015648145
+          },
+          "same_ir": {
+            "reference_rms_dbfs": -12.875767269074782,
+            "match_gain_db": -1.8686371786316496,
+            "lag_samples": 25,
+            "correlation": 0.8820168011505061,
+            "log_spectrum_rms_db": 4.505980199328469
+          }
+        },
+        "chord": {
+          "baseline": {
+            "reference_rms_dbfs": -28.32105259491506,
+            "match_gain_db": -1.487800492437409,
+            "lag_samples": 25,
+            "correlation": 0.8048115838140468,
+            "log_spectrum_rms_db": 4.764238722077285
+          },
+          "same_ir": {
+            "reference_rms_dbfs": -13.844012767122294,
+            "match_gain_db": -1.9269330790639105,
+            "lag_samples": 25,
+            "correlation": 0.8296189090137623,
+            "log_spectrum_rms_db": 4.2652051166136555
+          }
+        }
+      }
+    },
+    {
+      "index": 2,
+      "name": "Tight 515",
+      "file": "DI 6505 1992 Ld - 6 - SRL.nam",
+      "reference": "Peavey6505 1992 Lead / 4,7,3,7,1,5,8 / Suhr Reactive Load",
+      "url": "https://www.tone3000.com/tones/peavey-6505-1992-original-lead-mesa-4x12-load-amp-head-72177",
+      "creator": "OutmodedElectronics",
+      "license": "T3K",
+      "drive": 0.4,
+      "sha256": "25ee2f97166d57e33fbb50a399f281d64d0f9a2349b22d31ae1618c8d7ae179b",
+      "input_level_dbu": 11.5,
+      "reference_input_gain_db": 0.0,
+      "calibration_status": "metadata, common source 11.5 dBu",
+      "measurements": {
+        "pluck": {
+          "baseline": {
+            "reference_rms_dbfs": -21.434199160491886,
+            "match_gain_db": 4.554448532236805,
+            "lag_samples": -6,
+            "correlation": -0.6834887357375333,
+            "log_spectrum_rms_db": 6.053388294988243
+          },
+          "same_ir": {
+            "reference_rms_dbfs": -7.56996887072704,
+            "match_gain_db": 2.8408223910165367,
+            "lag_samples": -5,
+            "correlation": -0.7295317644580637,
+            "log_spectrum_rms_db": 6.367393938115045
+          }
+        },
+        "chord": {
+          "baseline": {
+            "reference_rms_dbfs": -21.647682024334056,
+            "match_gain_db": 2.6475621782331333,
+            "lag_samples": -1,
+            "correlation": -0.5212780589688516,
+            "log_spectrum_rms_db": 5.543852789789171
+          },
+          "same_ir": {
+            "reference_rms_dbfs": -8.245924663754357,
+            "match_gain_db": 1.3507365949755674,
+            "lag_samples": 0,
+            "correlation": -0.6083153430911934,
+            "log_spectrum_rms_db": 5.829579782397964
+          }
+        }
+      }
+    },
+    {
+      "index": 3,
+      "name": "Wide Rect",
+      "file": "DI MBDR MW Red Mdn - 2 - SRL.nam",
+      "reference": "Mesa Dual Rectifier MW Red Modern / Gain2:00 MV2 P3 T6 M4 B3",
+      "url": "https://www.tone3000.com/tones/mesa-dual-rectifier-mw-red-modern-mesa-4x12-load-amp-head-69212",
+      "creator": "OutmodedElectronics",
+      "license": "T3K",
+      "drive": 0.4,
+      "sha256": "70be3912f6a3fa8f3473c76aa0ba97b534d6524c4b27e48c379cebe30f577f86",
+      "input_level_dbu": 11.5,
+      "reference_input_gain_db": 0.0,
+      "calibration_status": "metadata, common source 11.5 dBu",
+      "measurements": {
+        "pluck": {
+          "baseline": {
+            "reference_rms_dbfs": -21.050978360292998,
+            "match_gain_db": 1.2998250862272733,
+            "lag_samples": -38,
+            "correlation": 0.6400282154787509,
+            "log_spectrum_rms_db": 5.895658715126628
+          },
+          "same_ir": {
+            "reference_rms_dbfs": -6.80179609001589,
+            "match_gain_db": 0.8005790164786019,
+            "lag_samples": -29,
+            "correlation": 0.7123021878904088,
+            "log_spectrum_rms_db": 5.185378820452268
+          }
+        },
+        "chord": {
+          "baseline": {
+            "reference_rms_dbfs": -24.4882396480668,
+            "match_gain_db": -1.350696654126635,
+            "lag_samples": -3,
+            "correlation": 0.4309366496031649,
+            "log_spectrum_rms_db": 6.3472879995239095
+          },
+          "same_ir": {
+            "reference_rms_dbfs": -10.679397259079895,
+            "match_gain_db": -2.16859916130668,
+            "lag_samples": -3,
+            "correlation": 0.5549807954034821,
+            "log_spectrum_rms_db": 6.022511031287323
+          }
+        }
+      }
+    },
+    {
+      "index": 4,
+      "name": "Liquid Lead",
+      "file": "KDM-Slammin_MKIV_44 Petrucci Lead 1 S.nam",
+      "reference": "Mesa MarkIV Lead / Petrucci1",
+      "url": "https://www.tone3000.com/tones/mesa-boogie-mark-iv-lead-hyper-accuracy-6406",
+      "creator": "Kody / slamminmofo",
+      "license": "T3K",
+      "drive": 0.4,
+      "sha256": "d62c5e72e0c447bd0043e602d98b0172dc3d5a049bbd87646171eabc12ed8174",
+      "input_level_dbu": 9,
+      "reference_input_gain_db": 2.4999999999999996,
+      "calibration_status": "metadata, common source 11.5 dBu",
+      "measurements": {
+        "pluck": {
+          "baseline": {
+            "reference_rms_dbfs": -14.803721925245474,
+            "match_gain_db": 7.320537685535827,
+            "lag_samples": -17,
+            "correlation": 0.6750138105441267,
+            "log_spectrum_rms_db": 6.598695016903549
+          },
+          "same_ir": {
+            "reference_rms_dbfs": -0.3769945393042135,
+            "match_gain_db": 6.194066128823722,
+            "lag_samples": -16,
+            "correlation": 0.754940488680412,
+            "log_spectrum_rms_db": 6.377681159987826
+          }
+        },
+        "chord": {
+          "baseline": {
+            "reference_rms_dbfs": -15.035449847770717,
+            "match_gain_db": 6.434328016741217,
+            "lag_samples": 4,
+            "correlation": 0.5469645446426683,
+            "log_spectrum_rms_db": 5.826784157843602
+          },
+          "same_ir": {
+            "reference_rms_dbfs": -0.9016052451214254,
+            "match_gain_db": 5.803849789559408,
+            "lag_samples": 4,
+            "correlation": 0.5844955717486886,
+            "log_spectrum_rms_db": 5.67150019828742
+          }
+        }
+      }
+    },
+    {
+      "index": 5,
+      "name": "Iron Tube",
+      "file": "Ampeg SVT-VR Classic (Normal).nam",
+      "reference": "Ampeg SVT-VR Classic Normal",
+      "url": "https://www.tone3000.com/tones/ampeg-svt-vr-classic-55132",
+      "creator": "johnjones4032",
+      "license": "T3K",
+      "drive": 0.4,
+      "sha256": "d38bc67a62c2aeca8bcd8907f9e7f2d05da257be870a5fbee408c8b73e90a61c",
+      "input_level_dbu": null,
+      "reference_input_gain_db": 0.0,
+      "calibration_status": "unknown; same digital input only",
+      "measurements": {
+        "pluck": {
+          "baseline": {
+            "reference_rms_dbfs": -19.420396445205842,
+            "match_gain_db": 4.182674569354563,
+            "lag_samples": -6,
+            "correlation": -0.9709561611038302,
+            "log_spectrum_rms_db": 1.5376562686104405
+          },
+          "same_ir": {
+            "reference_rms_dbfs": 4.078023853544006,
+            "match_gain_db": 3.7695924842248543,
+            "lag_samples": -21,
+            "correlation": -0.9793180815290714,
+            "log_spectrum_rms_db": 1.137201478973298
+          }
+        },
+        "chord": {
+          "baseline": {
+            "reference_rms_dbfs": -20.04167120883354,
+            "match_gain_db": 4.096868462484757,
+            "lag_samples": -5,
+            "correlation": -0.9747023980600885,
+            "log_spectrum_rms_db": 2.8934188707304314
+          },
+          "same_ir": {
+            "reference_rms_dbfs": -0.2682762586493056,
+            "match_gain_db": 3.4038166051768264,
+            "lag_samples": -7,
+            "correlation": -0.9508108854612177,
+            "log_spectrum_rms_db": 2.789950838843051
+          }
+        }
+      }
+    },
+    {
+      "index": 6,
+      "name": "Solid Punch",
+      "file": "GALLIEN KRUEGER - RB800 - G3.0.nam",
+      "reference": "GK RB800 Gain3 / EQ clock 5,2,11,2",
+      "url": "https://www.tone3000.com/tones/gallien-krueger-rb800-070-2694",
+      "creator": "Arlington Audio",
+      "license": "T3K",
+      "drive": 0.4,
+      "sha256": "5e6faea88886bfc97bfeaf0ed84792ef3525c6778c6656e637a7fc17031b8b69",
+      "input_level_dbu": null,
+      "reference_input_gain_db": 0.0,
+      "calibration_status": "unknown; same digital input only",
+      "measurements": {
+        "pluck": {
+          "baseline": {
+            "reference_rms_dbfs": -18.377318006174068,
+            "match_gain_db": 6.7796107747676215,
+            "lag_samples": 6,
+            "correlation": 0.9446659875324271,
+            "log_spectrum_rms_db": 3.4862466258320883
+          },
+          "same_ir": {
+            "reference_rms_dbfs": 7.76314747996045,
+            "match_gain_db": 6.89582160085508,
+            "lag_samples": -7,
+            "correlation": 0.9650942723349016,
+            "log_spectrum_rms_db": 3.1954211523626457
+          }
+        },
+        "chord": {
+          "baseline": {
+            "reference_rms_dbfs": -19.403808677750487,
+            "match_gain_db": 7.232815359655319,
+            "lag_samples": 7,
+            "correlation": 0.9323162463328497,
+            "log_spectrum_rms_db": 4.712374690700475
+          },
+          "same_ir": {
+            "reference_rms_dbfs": 4.011267607770128,
+            "match_gain_db": 7.539254556199496,
+            "lag_samples": 5,
+            "correlation": 0.961276063422676,
+            "log_spectrum_rms_db": 4.036283526933165
+          }
+        }
+      }
+    },
+    {
+      "index": 7,
+      "name": "Modern Bass",
+      "file": "Darkglass Drive - Microtubes B7K Ultra - No Cab.nam",
+      "reference": "B7K Ultra + Aguilar DB751 (not isolated B7K)",
+      "url": "https://www.tone3000.com/tones/darkglass-b7k-ultra-amp-head-64043",
+      "creator": "Darkglass",
+      "license": "T3K",
+      "drive": 0.4,
+      "sha256": "a8678f16e5befa0dfa648c714188a79b8d88e79ceba3da3b7b5e6465f13c83b6",
+      "input_level_dbu": null,
+      "reference_input_gain_db": 0.0,
+      "calibration_status": "unknown; same digital input only",
+      "measurements": {
+        "pluck": {
+          "baseline": {
+            "reference_rms_dbfs": -39.04712986819784,
+            "match_gain_db": -13.348307112977082,
+            "lag_samples": 128,
+            "correlation": 0.6717753752417229,
+            "log_spectrum_rms_db": 5.018247465776329
+          },
+          "same_ir": {
+            "reference_rms_dbfs": -10.77363524582845,
+            "match_gain_db": -13.02270298367623,
+            "lag_samples": 128,
+            "correlation": 0.7594445450635082,
+            "log_spectrum_rms_db": 5.0435279644050155
+          }
+        },
+        "chord": {
+          "baseline": {
+            "reference_rms_dbfs": -41.20554848827622,
+            "match_gain_db": -13.259138354618239,
+            "lag_samples": 128,
+            "correlation": 0.4640053679807852,
+            "log_spectrum_rms_db": 6.928034383354977
+          },
+          "same_ir": {
+            "reference_rms_dbfs": -13.875055123927883,
+            "match_gain_db": -11.795928822052025,
+            "lag_samples": -66,
+            "correlation": -0.586064103403645,
+            "log_spectrum_rms_db": 6.811621226762514
+          }
+        }
+      }
+    }
+  ]
+}

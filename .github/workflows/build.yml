@@ -42,7 +42,11 @@ jobs:
           Copy-Item -Recurse "build/ChimeraAmpMatrix_artefacts/Release/VST3/*" "$stage/VST3/"
           Copy-Item -Recurse "build/ChimeraAmpMatrix_artefacts/Release/Standalone/*" "$stage/Standalone/"
           Copy-Item "docs/THIRD_PARTY_NOTICES.md","docs/AMP_VALIDATION.md" "$stage/"
-          Copy-Item "docs/FX_AND_IR_DESIGN.md" "$stage/"
+          Copy-Item "docs/FX_AND_IR_DESIGN.md","docs/MODELS_AND_REFERENCE.md","docs/NAM_REFERENCE_RESULTS.md" "$stage/"
+          Copy-Item -Recurse "docs/reference" "$stage/"
+          New-Item -ItemType Directory -Force -Path "$stage/ReferenceTools" | Out-Null
+          Copy-Item "Tools/validate_nam.py" "$stage/ReferenceTools/"
+          Copy-Item "build/ChimeraRender_artefacts/Release/Chimera Render.exe" "$stage/ReferenceTools/"
           Copy-Item -Recurse "build/reference-audio" "$stage/"
           Copy-Item "build/Testing/Temporary/LastTest.log" "$stage/Verification.txt"
           @"
@@ -63,7 +67,14 @@ jobs:
           LOW bypasses Fuzz/Boost/Overdrive, amp and IR; its delay stays aligned to the other rigs.
           Matrix MID/HIGH use DRIVE / LEVEL / BAND TONE. Classic/Dual keep full EQ.
           PRE: Compressor, Envelope, Fuzz, Boost, Overdrive. Gate/Transpose stay on top.
-          POST: Bus Comp, Preamp, EQ, Chorus, Delay, Reverb.
+          POST: Bus Comp, Preamp, EQ, Modulation, Delay, Reverb.
+          36 selectable FX models; source-informed vector hardware panels.
+          CPU average/peak meters measure the audio callback deadline budget.
+          A/B stores complete sounds; it does not select left/right stereo channels.
+          LOAD > IR folder offers diameter and mic/position search; TAGS edits capture metadata.
+          Bass IR source catalog: Ampeg 8x10/MD421 and CTS Bassman 2x15/SM57.
+          T3K files require personal downloads; no restricted NAM/IR data is bundled.
+          Eight amp-head NAM comparisons and held-out voicing results are documented.
           Dual: adjustable full-range BLEND or LR4 low/high CROSSOVER.
           Top: presets, Stereo/Mono L, Doubler. Bottom: tuner, MIDI Learn, Tap/BPM, Click.
           Delay SYNC follows quarter-note tempo; HOST reads DAW BPM.

@@ -1,13 +1,15 @@
 #pragma once
 #include "FXChain.h"
+#include "ModelCatalog.h"
 #include "PerformanceUtilities.h"
 namespace studioTests {
 inline void require(bool ok,const char* message) {if(!ok)throw std::runtime_error(message);}
-inline std::vector<float> effects(int selected)
+inline std::vector<float> effects(int selected,int variant=0)
 {
     spectralforge::PreFXChain pre;spectralforge::PostFXChain post;pre.prepare({48000,127,2});post.prepare({48000,127,2});
     spectralforge::FXState fx;fx.preCompOn=selected==0;fx.filterOn=selected==1;fx.fuzzOn=selected==2;fx.boostOn=selected==3;fx.driveOn=selected==4;
     fx.busCompOn=selected==5;fx.preampOn=selected==6;fx.eqOn=selected==7;fx.chorusOn=selected==8;fx.delayOn=selected==9;fx.reverbOn=selected==10;fx.eqLow=6;fx.eqMid=-6;fx.eqHigh=6;
+    const std::array<int,11> families{3,4,5,6,0,7,8,9,10,1,2};if(selected>=0)fx.models[(size_t)families[(size_t)selected]]=variant;
     juce::AudioBuffer<float> buffer(2,127);std::vector<float> output;
     for(int b=0;b<400;++b) {
         for(int n=0;n<127;++n) {const double t=(b*127+n)/48000.0;const float x=float(.3*std::sin(juce::MathConstants<double>::twoPi*83*t)+.13*std::sin(juce::MathConstants<double>::twoPi*1301*t));buffer.setSample(0,n,x);buffer.setSample(1,n,-x*.6f);}
@@ -54,6 +56,23 @@ inline void run()
         const auto on=effects(i);double residual=0;for(size_t n=0;n<off.size();++n)residual+=std::pow(off[n]-on[n],2);residual=std::sqrt(residual/off.size());
         std::cout<<"MEASURE effect module "<<i<<": enabled/bypass residual RMS "<<residual<<"\n";require(residual>1e-4,"A studio FX module is not connected");
     }
+    const std::array<int,11> families{3,4,5,6,0,7,8,9,10,1,2};
+    for(int module=0;module<11;++module){const int family=families[(size_t)module];std::vector<std::vector<float>> renders;
+        for(int model=0;model<spectralforge::modelFamilies[(size_t)family].count;++model)renders.push_back(effects(module,model));
+        double minimum=1e9;for(size_t a=0;a<renders.size();++a)for(size_t b=a+1;b<renders.size();++b){double difference=0;for(size_t n=0;n<renders[a].size();++n)difference+=std::pow(renders[a][n]-renders[b][n],2);minimum=std::min(minimum,std::sqrt(difference/renders[a].size()));}
+        std::cout<<"MEASURE "<<spectralforge::modelFamilies[(size_t)family].category<<" model pairs: minimum residual "<<minimum<<"\n";require(minimum>1e-5,"Two selectable models produce the same audio");
+    }
+    for(double rate:{44100.0,96000.0}) {
+        spectralforge::PreFXChain pre;spectralforge::PostFXChain post;pre.prepare({rate,511,2});post.prepare({rate,511,2});spectralforge::FXState fx;
+        fx.preCompOn=fx.filterOn=fx.fuzzOn=fx.boostOn=fx.driveOn=fx.busCompOn=fx.preampOn=fx.eqOn=fx.chorusOn=fx.delayOn=fx.reverbOn=true;
+        fx.feedback=.85f;fx.room=1;fx.chorusDepth=1;juce::AudioBuffer<float> buffer(2,511);
+        for(int block=0;block<180;++block){for(size_t i=0;i<fx.models.size();++i)fx.models[i]=(block/13)%spectralforge::modelFamilies[i].count;
+            for(int n=0;n<511;++n){const float x=block<100 ? .2f*float(std::sin(juce::MathConstants<double>::twoPi*110*(block*511+n)/rate)) : 0.f;buffer.setSample(0,n,x);buffer.setSample(1,n,-.7f*x);}
+            pre.process(buffer,false,-60,80,20,false,0,fx);post.process(buffer,fx);
+            for(int c=0;c<2;++c)for(int n=0;n<511;++n)require(std::isfinite(buffer.getSample(c,n)) && std::abs(buffer.getSample(c,n))<20,"Model switching or feedback tails are unstable");
+        }
+    }
+    std::cout<<"PASS: 36 distinct selectable models; stereo model changes and tails at 44.1/96 kHz\n";
     const auto left=dual(false,0),right=dual(false,1),a=dual(false,0,0),b=dual(false,1,1),blend=dual(false,.25f);
     double endpoint=0,blendError=0;for(size_t n=0;n<a.size();++n){endpoint=juce::jmax(endpoint,std::abs(double(left[n]-a[n])),std::abs(double(right[n]-b[n])));blendError=juce::jmax(blendError,std::abs(double(blend[n]-(.75f*a[n]+.25f*b[n]))));}
     require(endpoint<1e-6 && blendError<1e-6,"Dual blend endpoints or balance are incorrect");

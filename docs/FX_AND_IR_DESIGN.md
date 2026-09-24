@@ -30,32 +30,11 @@ Matrix LOW is DI: it has COMP, LEVEL, BAND TONE and a reduction meter. Amp/cab c
 
 All nonlinear oversampled stages have latency-aligned bypass. LOW DI includes the fixed delays of the Fuzz, Overdrive and amplifier stages it bypasses. Bus preamp delay applies globally even when bypassed. Quality changes leave the host-reported delay constant; enabling Transpose adds its displayed FFT-window delay. Allpass crossover phase and an IR's natural onset are not extra fixed processing latency.
 
-## Five-pedal PRE board
+## Pedalboard and rack models
 
-The fixed order is **Compressor -> Envelope -> Fuzz -> Boost -> Overdrive**. Every pedal has independent bypass. Five roles cover clean dynamics/sustain, touch filtering, dense fuzz textures, clean level/EQ shaping and tighter amplifier drive. They may be combined or left off; more pedal names would not by themselves improve that coverage. The order is shown on the board and is not yet user-reorderable.
+PRE order: Compressor -> Envelope -> Fuzz -> Boost -> Overdrive. POST order: Bus Comp -> Preamp -> EQ -> Modulation -> Delay -> Reverb. Every module has independent bypass and a model selector. See [MODELS_AND_REFERENCE.md](MODELS_AND_REFERENCE.md) for all 36 implemented variants, hardware reference boundaries, CPU and A/B behavior, and the IR collection workflow.
 
-| Pedal | Controls | Applied design/reference role |
-| --- | --- | --- |
-| Compressor | Sustain, Attack, Level | Compact sustain/output operation, with attack control; MXR Dyna Comp/Super Comp workflow. Original linked RMS soft-knee algorithm, not the MXR OTA circuit. |
-| Envelope | Sensitivity, Q, Mix | Touch-driven low-pass sweep, 250-4000 Hz; EHX Q-Tron family as control/use-case reference. |
-| Fuzz | Drive, Body, Level | Dense sustain with asymmetric clipping and tone rolloff; EHX Big Muff family as a texture/control reference. Original 4x algorithm. |
-| Boost | Gain, Bass, Treble | Linear boost with 120 Hz/3.5 kHz shelves. Keeps clean shaping separate from distortion. |
-| Overdrive | Drive, Tone, Level | Tight amplifier push; TS808 control workflow. Original high-pass/saturator/low-pass algorithm at 4x, not a measured TS circuit. |
-
-The Matrix LOW DI tap is after compressor/envelope and before all gain pedals. Post effects still process the complete merged signal, including LOW.
-
-## Six-unit POST rack
-
-Fixed order: **Bus Comp -> Preamp -> EQ -> Chorus -> Delay -> Reverb**. These are active DSP modules, not decorative slots.
-
-| Unit | Controls | Engineering reference and implemented boundary |
-| --- | --- | --- |
-| Bus Comp | Threshold, Ratio, Attack, Release, Makeup | SSL bus-compressor control discipline; 30 ms/100 ms/4:1 starting point. Original linked feed-forward RMS dynamics, 6 dB knee. No SSL circuit or Auto-release emulation. |
-| Preamp | Gain, Colour, Trim | Neve 1073SPX input-gain/output-level separation and the broader Rupert Neve colour-stage workflow. Original 4x asymmetric saturation, DC removal and bandwidth control; not transformer/Class-A component modeling. |
-| EQ | Low gain, Mid frequency/gain/Q, High gain | Console shelving plus parametric-mid correction, informed by Neve/SSL workflows. This implementation has **three bands**, fixed 80 Hz/8 kHz shelves and one variable-Q mid; it is not a complete SSL four-band EQ. |
-| Chorus | Rate, Depth, Mix | Rack modulation role, with JUCE chorus and an 8 ms centre delay. No specific rack algorithm emulation. |
-| Delay | Time, Feedback, Mix, Sync | TC2290 workflow reference for repeat/mix control. Basic stereo echo; quarter-note BPM sync. No ducking or delay modulation yet. |
-| Reverb | Size, Damping, Mix | Lexicon PCM rack workflow reference for one shared ambience after merge. JUCE room reverb; not a PCM algorithm clone. |
+The five PRE roles cover dynamics/sustain, touch filtering, fuzz texture, clean boost/EQ and amp tightening. Order is fixed. Compressor/Envelope are shared with Matrix LOW; all three gain pedals are excluded from its clean tap. Rack effects process the entire merged signal.
 
 ## LOW COMP control law
 
@@ -76,4 +55,4 @@ An original VCA-style feed-forward RMS controller inspired by the dbx 160/560A r
 - TC delay: https://www.tcelectronic.com/en/products/0815-aak
 - Lexicon rack: https://lexiconpro.com/en-US/products/pcm92
 
-No reference artwork, commercial presets, captures or commercial IRs are copied. Hardware reproduction requires calibrated reamp references; synthetic tests establish repeatability and control behavior, not hardware equivalence.
+No reference artwork, commercial presets, captures or commercial IRs are copied. NAM captures now supply repeatable digital reference baselines without owning the hardware. See NAM_REFERENCE_RESULTS.md; capture comparisons do not establish hardware equivalence.
