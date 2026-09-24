@@ -115,7 +115,7 @@ ChimeraEditor::ChimeraEditor(ChimeraProcessor& p) : AudioProcessorEditor(&p),pro
     const std::array<juce::Slider*,4> sliders{&doublerTime,&tempo,&dualBlend,&dualFrequency};const std::array<const char*,4> sliderIds{"doublertime","tempo","dualblend","dualcross"};const std::array<const char*,4> sliderSuffix{" ms"," BPM",""," Hz"};
     for(size_t i=0;i<4;++i){setupSlider(*sliders[i],sliderIds[i],sliderSuffix[i]);add(*sliders[i]);utilitySliders[i]=std::make_unique<SA>(p.parameters(),sliderIds[i],*sliders[i]);}
     tempo.textFromValueFunction=[this](double value){return juce::String(hostTempo.getToggleState() ? processor.currentTempo() : value,1)+" BPM";};
-    tempo.setNumDecimalPlacesToDisplay(1);dualBlend.textFromValueFunction=[](double v){return juce::String(juce::roundToInt((1-v)*100))+":"+juce::String(juce::roundToInt(v*100));};
+    tempo.setNumDecimalPlacesToDisplay(1);dualBlend.textFromValueFunction=[](double v){return juce::String(juce::roundToInt((1-v)*100))+":"+juce::String(juce::roundToInt(v*100));};dualBlend.updateText();
     const std::array<juce::TextButton*,4> buttons{&doublerOn,&hostTempo,&metronome,&delaySync};const std::array<const char*,4> buttonIds{"doubleron","temposync","metronome","delaysync"};
     for(size_t i=0;i<4;++i){buttons[i]->setClickingTogglesState(true);utilityButtons[i]=std::make_unique<BA>(p.parameters(),buttonIds[i],*buttons[i]);}
     style(dualLabel,11);add(dualLabel);doublerOn.setTooltip("Stereo decorrelation; inactive on a mono bus.");metronome.setTooltip("4/4 practice click at the displayed tempo. Off by default.");delaySync.setTooltip("Quarter-note delay from TAP/manual tempo or HOST BPM.");
@@ -344,6 +344,9 @@ void ChimeraEditor::paint(juce::Graphics& g)
 }
 void ChimeraEditor::resized()
 {
+    const float factor=getWidth()/1180.f;const int choice=juce::jlimit(1,4,juce::roundToInt((factor-.75f)*4)+1);
+    if(std::abs(factor-(choice+2)*.25f)<.002f) scale.setSelectedId(choice,juce::dontSendNotification);
+    else {scale.setSelectedId(0,juce::dontSendNotification);scale.setText(juce::String(factor*100,0)+"%",juce::dontSendNotification);}
     canvas.setBounds(0,0,1180,780); canvas.setTransform(juce::AffineTransform::scale(getWidth()/1180.f));
     layoutControls();
 }

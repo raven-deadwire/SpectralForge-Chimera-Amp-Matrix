@@ -168,6 +168,7 @@ int main(int argc, char** argv)
             const juce::String name = mode == 0 ? "Classic" : mode == 1 ? "Dual" : "Matrix";
             saveSnapshot(editor,directory,name);
             if(mode==1) {
+                for(auto* child:editor.findChildWithID("surface")->getChildren()) if(auto* slider=dynamic_cast<juce::Slider*>(child);slider && slider->getName()=="dualblend")for(auto* text:slider->getChildren())if(auto* label=dynamic_cast<juce::Label*>(text))require(label->getText()=="50:50","Initial blend readout is not a rig ratio");
                 set(processor,"dualtype",1);set(processor,"dualcross",700);juce::MessageManager::getInstance()->runDispatchLoopUntil(150);
                 int count=0;for(auto* child:editor.findChildWithID("surface")->getChildren())if(child->isVisible() && dynamic_cast<juce::Slider*>(child))++count;
                 require(count==19,"Dual crossover has incorrect band controls");saveSnapshot(editor,directory,"Dual-crossover");set(processor,"dualtype",0);
@@ -178,6 +179,7 @@ int main(int argc, char** argv)
                 editor.setSize(885,585);
                 juce::MessageManager::getInstance()->runDispatchLoopUntil(100);
                 checkControls(editor,2);
+                for(auto* child:editor.findChildWithID("surface")->getChildren()) if(auto* box=dynamic_cast<juce::ComboBox*>(child);box && box->getName()=="Interface size")require(box->getText()=="75%","Size selector did not follow window resizing");
                 saveSnapshot(editor,directory,"Matrix-75pct");
                 editor.setSize(1180,780);
                 set(processor,"x1",350); set(processor,"x2",4000);
