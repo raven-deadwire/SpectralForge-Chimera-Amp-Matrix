@@ -29,11 +29,9 @@ function Assert([bool]$Condition, [string]$Message) {
     if (!$Condition) { throw $Message }
 }
 function Run-SetupProcess([string]$Executable, [string[]]$Parameters) {
-    $process = Start-Process -FilePath $Executable -ArgumentList $Parameters -PassThru
-    if (!$process.WaitForExit(90000)) {
-        $process.Kill($true)
-        throw "Installer process exceeded 90 seconds: $Executable"
-    }
+    # Inno's uninstaller spawns a second phase. Wait for the whole process tree,
+    # not just the launcher, before another install can reuse the same directory.
+    $process = Start-Process -FilePath $Executable -ArgumentList $Parameters -PassThru -Wait
     Assert ($process.ExitCode -eq 0) "Installer process failed with exit code $($process.ExitCode)"
 }
 function Install([string]$Name, [string]$Destination, [string]$Components) {
@@ -57,8 +55,7 @@ function Check-Payload([string]$Destination, [bool]$Vst3, [bool]$Standalone, [bo
         Equal-File (Join-Path $stagePath "Standalone/Chimera Amp Matrix.exe") $exe
         $shortcut = Join-Path $startMenu "Chimera Amp Matrix.lnk"
         Assert (Test-Path -LiteralPath $shortcut) "Start Menu shortcut is missing"
-        $shell = New-Object -ComObject WScript.Shell
-        Assert ($shell.CreateShortcut($shortcut).TargetPath -eq $exe) "Start Menu shortcut points at the wrong executable"
+        Copy-Item -LiteralPath $shortcut -Destination (Join-Path $logPath "Chimera-start-menu.lnk") -Force
     } else {
         Assert (!(Test-Path -LiteralPath $exe)) "Unselected standalone app was installed"
         Assert (!(Test-Path -LiteralPath (Join-Path $startMenu "Chimera Amp Matrix.lnk"))) "Unselected standalone shortcut was created"
@@ -78,13 +75,53 @@ function Check-Payload([string]$Destination, [bool]$Vst3, [bool]$Standalone, [bo
     Assert ($entry.InstallLocation.TrimEnd([char]92) -eq $Destination.TrimEnd([char]92)) "Wrong registered install location"
 }
 function Uninstall([string]$Name, [string]$Destination) {
-    $uninstaller = Join-Path $Destination "Uninstall/unins000.exe"
+    # The actual name is assigned by Setup and can be unins001.exe, etc.
+    $uninstaller = (Get-ItemProperty -LiteralPath $registry).UninstallString.Trim('"')
+    Assert ($uninstaller.StartsWith((Join-Path $Destination "Uninstall"), [StringComparison]::OrdinalIgnoreCase)) "Unexpected uninstaller location"
     Assert (Test-Path -LiteralPath $uninstaller) "Uninstaller is missing"
     Run-SetupProcess $uninstaller @("/VERYSILENT", "/SUPPRESSMSGBOXES", "/NORESTART", "/LOG=`"$logPath/$Name.log`"")
     Assert (!(Test-Path -LiteralPath $registry)) "Uninstall entry remains"
     Assert (!(Test-Path -LiteralPath (Join-Path $Destination "Chimera Amp Matrix.exe"))) "Standalone app remains"
     Assert (!(Test-Path -LiteralPath (Join-Path $vst "Contents/x86_64-win/Chimera Amp Matrix.vst3"))) "VST3 binary remains"
     Assert (!(Test-Path -LiteralPath (Join-Path $startMenu "Chimera Amp Matrix.lnk"))) "App shortcut remains"
+}
+Add-Type @'
+using System.Runtime.InteropServices;
+using System.Text;
+public static class ChimeraInstallProbe {
+    [DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
+    public static extern uint GetLongPathName(string path, StringBuilder result, uint length);
+}
+'@
+function Long-Path([string]$Path) {
+    $buffer = [Text.StringBuilder]::new(32768)
+    $length = [ChimeraInstallProbe]::GetLongPathName($Path, $buffer, $buffer.Capacity)
+    Assert ($length -gt 0 -and $length -lt $buffer.Capacity) "Cannot resolve installed path: $Path"
+    return $buffer.ToString()
+}
+function Check-AppShortcut([string]$Destination) {
+    # Test the user's actual launch path and compare the launched process's
+    # canonical filename, including Unicode and 8.3 path handling.
+    $shortcut = Join-Path $startMenu "Chimera Amp Matrix.lnk"
+    $application = Start-Process -FilePath $shortcut -PassThru
+    Assert ($null -ne $application) "Shortcut did not start an application process"
+    try {
+        for ($attempt = 0; $attempt -lt 60; ++$attempt) {
+            $application.Refresh()
+            if ($application.HasExited -or $application.MainWindowHandle -ne [IntPtr]::Zero) { break }
+            Start-Sleep -Milliseconds 250
+        }
+        Assert (!$application.HasExited -and $application.MainWindowHandle -ne [IntPtr]::Zero) "Shortcut did not open the installed application window"
+        $actual = Long-Path $application.MainModule.FileName
+        $expected = Long-Path (Join-Path $Destination "Chimera Amp Matrix.exe")
+        Assert ($actual -eq $expected) "Shortcut launched '$actual'; expected '$expected'"
+        Pass "Start Menu shortcut launches the installed app and its window: $actual"
+    } finally {
+        if (!$application.HasExited) {
+            $null = $application.CloseMainWindow()
+            if (!$application.WaitForExit(10000)) { $application.Kill($true); $application.WaitForExit() }
+        }
+    }
 }
 try {
     Install "01-full-install" $app "vst3,standalone,reference"
@@ -112,21 +149,7 @@ try {
     finally { [Runtime.InteropServices.NativeLibrary]::Free($module) }
     Pass "Installed VST3 loads through the Windows loader and exports GetPluginFactory"
 
-    $application = Start-Process -FilePath (Join-Path $app "Chimera Amp Matrix.exe") -WorkingDirectory $app -PassThru
-    try {
-        for ($attempt = 0; $attempt -lt 60; ++$attempt) {
-            $application.Refresh()
-            if ($application.HasExited -or $application.MainWindowHandle -ne [IntPtr]::Zero) { break }
-            Start-Sleep -Milliseconds 250
-        }
-        Assert (!$application.HasExited -and $application.MainWindowHandle -ne [IntPtr]::Zero) "Installed standalone app did not open its window"
-        Pass "Installed standalone app starts and creates its main window"
-    } finally {
-        if (!$application.HasExited) {
-            $null = $application.CloseMainWindow()
-            if (!$application.WaitForExit(10000)) { $application.Kill($true); $application.WaitForExit() }
-        }
-    }
+    Check-AppShortcut $app
 
     # A repeated same-version install must repair package files without claiming user files.
     $userFolder = Join-Path $app "UserFiles"
@@ -155,6 +178,7 @@ try {
     Pass "VST3-only selection and removal; Unicode custom app path"
     Install "06-standalone-only" $custom "standalone"
     Check-Payload $custom $false $true $false
+    Check-AppShortcut $custom
     Uninstall "07-standalone-uninstall" $custom
     Pass "Standalone-only selection and removal; no VST3 installed"
 } catch {
