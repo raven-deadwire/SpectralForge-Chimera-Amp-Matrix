@@ -1,6 +1,71 @@
 #pragma once
 #include <juce_audio_processors/juce_audio_processors.h>
 #include "ChimeraDSP.h"
-class ChimeraProcessor:public juce::AudioProcessor{
-public:ChimeraProcessor();void prepareToPlay(double,int)override;void releaseResources()override{};bool isBusesLayoutSupported(const BusesLayout&)const override;void processBlock(juce::AudioBuffer<float>&,juce::MidiBuffer&)override;juce::AudioProcessorEditor*createEditor()override;bool hasEditor()const override{return true;}const juce::String getName()const override{return "Chimera Amp Matrix";}bool acceptsMidi()const override{return false;}bool producesMidi()const override{return false;}bool isMidiEffect()const override{return false;}double getTailLengthSeconds()const override{return 3.0;}int getNumPrograms()override{return 1;}int getCurrentProgram()override{return 0;}void setCurrentProgram(int)override{}const juce::String getProgramName(int)override{return{};}void changeProgramName(int,const juce::String&)override{}void getStateInformation(juce::MemoryBlock&)override;void setStateInformation(const void*,int)override;juce::AudioProcessorValueTreeState&parameters(){return state;}static juce::AudioProcessorValueTreeState::ParameterLayout layout();
-private:juce::AudioProcessorValueTreeState state{*this,nullptr,"PARAMS",layout()};spectralforge::Engine engine;};
+#include "FXChain.h"
+#include "IRLibrary.h"
+
+class ChimeraProcessor : public juce::AudioProcessor {
+public:
+    ChimeraProcessor();
+    ~ChimeraProcessor() override;
+    void prepareToPlay(double,int) override;
+    void releaseResources() override;
+    bool isBusesLayoutSupported(const BusesLayout&) const override;
+    void processBlock(juce::AudioBuffer<float>&,juce::MidiBuffer&) override;
+    juce::AudioProcessorEditor* createEditor() override;
+    bool hasEditor() const override { return true; }
+    const juce::String getName() const override { return "Chimera Amp Matrix"; }
+    bool acceptsMidi() const override { return false; }
+    bool producesMidi() const override { return false; }
+    bool isMidiEffect() const override { return false; }
+    double getTailLengthSeconds() const override {
+        double tail=1.1;
+        if(fxParameters[4] && fxParameters[4]->load()>.5f) tail+=fxParameters[5]->load()*.001*std::log(.001)/std::log(juce::jlimit(.0001f,.85f,fxParameters[6]->load()));
+        if(fxParameters[8] && fxParameters[8]->load()>.5f) tail+=12.0;
+        return tail;
+    }
+    int getNumPrograms() override { return 1; }
+    int getCurrentProgram() override { return 0; }
+    void setCurrentProgram(int) override {}
+    const juce::String getProgramName(int) override { return {}; }
+    void changeProgramName(int,const juce::String&) override {}
+    void getStateInformation(juce::MemoryBlock&) override;
+    void setStateInformation(const void*,int) override;
+    juce::AudioProcessorValueTreeState& parameters() { return state; }
+    static juce::AudioProcessorValueTreeState::ParameterLayout layout();
+    juce::Result loadIR(int lane,const juce::File& file);
+    juce::String cabStatus(int lane) const { return library.status(lane); }
+    float inputMeter() const { return inputPeak.load(); }
+    float outputMeter() const { return outputPeak.load(); }
+    float lowCompMeter() const {return lowCompGain.load();}
+    float gateMeter() const { return gateGain.load(); }
+    float tuningFrequency() const { return tuner.frequency(); }
+    float tuningConfidence() const { return tuner.confidence(); }
+    void selectComparison(int slot);
+    void copyComparison();
+    int comparisonSlot() const {return selectedComparison.load();}
+    int pitchLatency() const { return preFX.transpose.latency(); }
+private:
+    void process(juce::AudioBuffer<float>&);
+    juce::ValueTree captureCore();
+    void restoreCore(juce::ValueTree);
+    std::array<juce::ValueTree,2> comparisons;
+    std::mutex comparisonMutex;
+    std::atomic<int> selectedComparison{0};
+    std::atomic<bool> resetPending{false};
+    juce::AudioProcessorValueTreeState state{*this,nullptr,"PARAMS",layout()};
+    spectralforge::Engine engine;
+    spectralforge::IRLibrary library{{&engine.cabinet(0),&engine.cabinet(1),&engine.cabinet(2)}};
+    spectralforge::PreFXChain preFX;
+    spectralforge::PostFXChain postFX;
+    spectralforge::Tuner tuner;
+    std::array<std::atomic<float>*,12> fxParameters{};
+    std::atomic<float>* lowCompParameter{};
+    enum Global { mode,x1,x2,input,output,gateOn,threshold,release,hold,pitchOn,semitones,os,tunerOn,tunerMute,globalCount };
+    std::array<std::atomic<float>*,globalCount> globals{};
+    std::array<std::array<std::atomic<float>*,18>,3> laneParameters{};
+    juce::SmoothedValue<float> inputGain, outputGain, tuningMute;
+    std::atomic<float> inputPeak{0},outputPeak{0},gateGain{1},lowCompGain{0};
+    int maximumBlock{512};
+    double rate{48000};
+};

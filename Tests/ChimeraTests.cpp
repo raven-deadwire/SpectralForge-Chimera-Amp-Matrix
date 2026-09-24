@@ -2,6 +2,9 @@
 #include <iostream>
 #include <stdexcept>
 #include <vector>
+#include "FeatureTests.h"
+#include "AlignmentTests.h"
+#include "ReferenceTests.h"
 
 namespace {
 void require(bool ok, const char* message)
@@ -159,6 +162,9 @@ int main()
             checkBandTone(sr); checkRouting(sr); smoke(sr);
             std::cout << "PASS " << sr << " Hz: band response, routing isolation, live EQ, all amp models\n";
         }
+        featureTests::run();
+        alignmentTests::run();
+        referenceTests::run();
         return 0;
     }
     catch (const std::exception& error)

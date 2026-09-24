@@ -17,6 +17,14 @@ jobs:
       - run: cmake --build build --config Release --parallel 2
       - run: ctest --test-dir build -C Release --output-on-failure
 
+      - name: Upload DSP verification
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Chimera-DSP-verification-${{ runner.os }}
+          path: build/Testing/Temporary/LastTest.log
+          if-no-files-found: warn
+
       - name: Upload Windows UI verification
         if: runner.os == 'Windows' && always()
         uses: actions/upload-artifact@v4
@@ -33,6 +41,10 @@ jobs:
           New-Item -ItemType Directory -Force -Path "$stage/VST3","$stage/Standalone" | Out-Null
           Copy-Item -Recurse "build/ChimeraAmpMatrix_artefacts/Release/VST3/*" "$stage/VST3/"
           Copy-Item -Recurse "build/ChimeraAmpMatrix_artefacts/Release/Standalone/*" "$stage/Standalone/"
+          Copy-Item "docs/THIRD_PARTY_NOTICES.md","docs/AMP_VALIDATION.md" "$stage/"
+          Copy-Item "docs/FX_AND_IR_DESIGN.md" "$stage/"
+          Copy-Item -Recurse "build/reference-audio" "$stage/"
+          Copy-Item "build/Testing/Temporary/LastTest.log" "$stage/Verification.txt"
           @"
           SpectralForge Chimera Amp Matrix 1.0.0 TEST BUILD
           =================================================
@@ -40,8 +52,23 @@ jobs:
           this binary does not yet have an Authenticode publisher signature.
 
           Revision: ${{ github.sha }}
-          Matrix UI: Drive / Level / Band Tone, with crossover-following tone pivot.
-          Classic and Dual retain their full-range EQ. All UI text uses safe separators.
+          Signal chain: input -> gate -> transpose -> pre drive -> rigs/cabs -> merge -> delay/reverb -> output.
+          New: independent amp voices; 1x/2x/4x/8x oversampling; IR loading and project embedding;
+          input/output gain and meters; noise gate; polyphonic transpose; chromatic tuner.
+          Factory IRs: V30 / SM57 and Jensen / SM57, by jesterdyne (CC BY 4.0).
+          User IR: WAV/AIFF, mono/stereo, <=1 second, <=4 MB. LOAD or drop onto a rig.
+          Transpose adds the displayed latency when enabled; the host is notified.
+          Tuner reads the original input. AUTO MUTE silences the output while tuning.
+          Matrix LOW is clean DI with one-knob VCA-style COMP, LEVEL and BAND TONE.
+          LOW bypasses Pre Drive, amp and IR; its delay stays aligned to the other rigs.
+          Matrix MID/HIGH use DRIVE / LEVEL / BAND TONE. Classic/Dual keep full EQ.
+          PRE is a pedalboard (gate, transpose, drive); POST is a rack (delay, reverb).
+          A/B and MENU > Save reference store both sounds with embedded IRs.
+          reference-audio contains deterministic synthetic DI and RMS-matched A/B WAVs.
+          These fixtures test repeatability and voicing changes, not hardware accuracy.
+          Use SIZE or resize the window for smaller screens.
+          Amp voices are algorithmic interpretations; hardware fidelity is not yet established.
+          See AMP_VALIDATION.md, FX_AND_IR_DESIGN.md, THIRD_PARTY_NOTICES.md and Verification.txt.
 
           VST3:
             Copy the .vst3 bundle to C:\Program Files\Common Files\VST3\
