@@ -124,7 +124,7 @@ def macos(build: Path, dist: Path) -> None:
     for source, destination in bundles:
         copy(source, destination)
         binary = destination / "Contents/MacOS" / PRODUCT
-        run("lipo", "-verify_arch", "arm64", "x86_64", str(binary))
+        run("lipo", str(binary), "-verify_arch", "arm64", "x86_64")
         # Ad-hoc signatures provide code seals for Apple Silicon, not a publisher identity.
         run("codesign", "--force", "--deep", "--sign", "-", str(destination))
         run("codesign", "--verify", "--deep", "--strict", str(destination))

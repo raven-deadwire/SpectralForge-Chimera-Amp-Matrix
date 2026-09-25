@@ -1,7 +1,6 @@
 #pragma once
 #include "FXParameters.h"
 #include <array>
-#include <initializer_list>
 #include <string>
 
 namespace spectralforge {
@@ -11,7 +10,21 @@ struct FactoryPreset {
     const char* category;
     const char* instrument;
     const char* description;
-    std::initializer_list<PresetParameter> parameters;
+    // Own the values instead of retaining initializer-list backing-array pointers.
+    // This also makes the table safe to copy across compiler/translation-unit boundaries.
+    std::array<PresetParameter,32> parameters{};
+    size_t parameterCount;
+
+    template<size_t N>
+    constexpr FactoryPreset(const char* presetName, const char* presetCategory,
+                            const char* presetInstrument, const char* presetDescription,
+                            const PresetParameter (&values)[N])
+        : name(presetName), category(presetCategory), instrument(presetInstrument),
+          description(presetDescription), parameterCount(N)
+    {
+        static_assert(N <= 32, "Increase factory preset parameter capacity");
+        for(size_t i=0;i<N;++i) parameters[i]=values[i];
+    }
 };
 
 // The original five ordinals and display names are retained. The remaining
@@ -114,8 +127,11 @@ bool applyFactoryPreset(int index, Setter&& set)
     for(const auto& family : modelFamilies) set(family.parameter,0.f);
     set("preorder",1.f);set("gainorder",0.f);
     set("doubleron",0.f);set("doublertime",6.f);
-    for(const auto& value : factoryPresets[static_cast<size_t>(index)].parameters)
+    const auto& preset=factoryPresets[static_cast<size_t>(index)];
+    for(size_t i=0;i<preset.parameterCount;++i) {
+        const auto& value=preset.parameters[i];
         set(value.id,value.value);
+    }
     return true;
 }
 }

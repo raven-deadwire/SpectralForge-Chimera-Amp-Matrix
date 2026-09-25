@@ -286,6 +286,7 @@ void checkProcessor(const juce::File& directory)
 }
 int main(int argc, char** argv)
 {
+    std::cout << std::unitbuf;
     juce::ScopedJuceInitialiser_GUI initialiseGUI;
     try
     {
@@ -363,12 +364,12 @@ int main(int argc, char** argv)
             saveSnapshot(browser,directory,"IR-bass-reference-library");
             const auto all=spectralforge::IRCollection::scan({},true);
             const auto catalog=juce::JSON::parse(spectralforge::referenceIRCatalog);const auto* entries=catalog.getArray();
-            require(entries && entries->size()==13,"Expected thirteen verified personal capture references");
+            require(entries && entries->size()==26,"Expected twenty-six verified personal capture references");
             const auto external=juce::JSON::parse(spectralforge::externalBassIRCatalog);require(external.getArray() && external.getArray()->size()==12,"Expected twelve external Shift Line references");
             require(all.size()==(size_t)entries->size()+2+external.getArray()->size(),"Factory and reference catalog counts disagree");
             int available=0,karnivore=0,bass=0;
             for(const auto& row:all) {available+=row.ready();karnivore+=row.tags.values[0].containsIgnoreCase("Karnivore");bass+=row.bass();}
-            require(available==2 && karnivore==7 && bass==14,"Missing catalog WAVs were counted as installed or capture inventory changed");
+            require(available==2 && karnivore==7 && bass==27,"Missing catalog WAVs were counted as installed or capture inventory changed");
             for(const auto& row:all) if(row.reference) require(row.tags.values[9].startsWith("https://"),"Reference source fields are shifted");
             for(const auto& row:all)if(row.external)require(!row.ready() && row.file==juce::File{},"An external bass reference falsely claims an installed WAV");
             require(browser.findChildWithID("irbassdownload")!=nullptr,"Official external bass download button missing");

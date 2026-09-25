@@ -157,6 +157,7 @@ void smoke(double sr)
 
 int main()
 {
+    std::cout << std::unitbuf;
     try
     {
         for (const double sr : {44100.0,48000.0,96000.0,192000.0})
