@@ -257,7 +257,7 @@ void checkProcessor(const juce::File& directory)
     }
     juce::MemoryBlock originalIR;
     require(irFile.loadFileAsData(originalIR),"Cannot read original IR bytes");
-    const auto sidecar=juce::File(irFile.getFullPathName()+".json");require(sidecar.replaceWithText("{\"speaker\":\"Reference V30\",\"diameter_in\":\"12\",\"microphone\":\"SM57\",\"distance\":\"0.5 in\"}"),"Cannot write IR sidecar");
+    const auto sidecar=juce::File(irFile.getFullPathName()+".json");require(sidecar.replaceWithText("{\"speaker\":\"Reference V30\",\"cabinet\":\"Reference 4x12\",\"diameter_in\":\"12\",\"microphone\":\"SM57\",\"distance\":\"0.5 in\"}"),"Cannot write IR sidecar");
     require(source.loadIR(0,irFile).wasOk(),"Processor IR load failed");
     require(source.cabMetadata(0).values[2]=="12" && source.cabMetadata(0).values[5]=="0.5 in","IR sidecar was not imported");require(sidecar.deleteFile(),"Cannot remove IR sidecar fixture");
     set(source,"lowcomp",.42f);set(source,"drive1",.21f);set(source,"preorder",1);set(source,"gainorder",1);source.copyComparison();source.selectComparison(1);
@@ -272,7 +272,7 @@ void checkProcessor(const juce::File& directory)
     restored.setRateAndBufferSizeDetails(48000,256); restored.prepareToPlay(48000,256);
     require(restored.cabMetadata(0).values[2]=="12" && restored.cabMetadata(0).values[5]=="0.5 in","Embedded IR metadata was lost");
     require(restored.userIRName(0)==irFile.getFileName(),"Project did not restore embedded IR identity");
-    require(restored.cabStatus(0).contains("Reference V30"),"Restored IR status did not use the compact metadata label");
+    require(restored.cabStatus(0).contains("Reference 4x12"),"Restored IR status did not use the compact metadata label");
     juce::MemoryBlock recalledState, recalledIR;
     restored.getStateInformation(recalledState);
     const auto recalledXml=juce::AudioProcessor::getXmlFromBinary(recalledState.getData(),(int)recalledState.getSize());
