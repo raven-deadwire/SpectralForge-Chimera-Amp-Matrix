@@ -2,7 +2,7 @@
 #include "FXChain.h"
 #include "ModelCatalog.h"
 namespace spectralforge {
-struct FXParameterSpec {const char* id;float minimum,maximum,initial;bool toggle;};
+struct FXParameterSpec {const char* id;float minimum,maximum,initial;bool toggle;float interval{0.01f};};
 inline constexpr std::array<FXParameterSpec,49> fxSpecs{{
     {"preon",0.0f,1.0f,0.0f,true},
     {"predrive",0.0f,1.0f,0.3f,false},
@@ -46,7 +46,7 @@ inline constexpr std::array<FXParameterSpec,49> fxSpecs{{
     {"eqlow",-12.0f,12.0f,0.0f,false},
     {"eqmidhz",150.0f,6000.0f,1000.0f,false},
     {"eqmid",-12.0f,12.0f,0.0f,false},
-    {"eqq",0.3f,5.0f,0.707f,false},
+    {"eqq",0.3f,5.0f,0.707f,false,0.001f},
     {"eqhigh",-12.0f,12.0f,0.0f,false},
     {"choruson",0.0f,1.0f,0.0f,true},
     {"chorusrate",0.05f,5.0f,0.7f,false},
