@@ -5,6 +5,7 @@
 namespace spectralforge {
 struct FXState {
     bool envelopeFirst{true};
+    bool boostAfterDrive{false};
     std::array<int,11> models{}; // drive, delay, reverb, comp, filter, fuzz, boost, bus, preamp, EQ, modulation
     bool driveOn{},delayOn{},reverbOn{},preCompOn{},filterOn{},boostOn{},fuzzOn{},busCompOn{},preampOn{},eqOn{},chorusOn{},delaySync{};
     float preComp{.35f},preAttack{15},preLevel{},filterSense{.4f},filterQ{1.2f},filterMix{1},boostGain{6},boostBass{},boostTreble{},fuzzDrive{18},fuzzTone{.45f},fuzzLevel{-12};
@@ -65,6 +66,7 @@ public:
             const float hz=inputCutoff.getNextValue();
             if((controlClock+n)%16==0) {const auto coefficients=C::makeHighPass(rate,hz);for(auto& f:highPass)*f.coefficients=coefficients;}
             for(int c=0;c<buffer.getNumChannels();++c)buffer.setSample(c,n,highPass[(size_t)c].processSample(buffer.getSample(c,n)));
+            if((controlClock+n)%16==15)for(auto& f:highPass)f.snapToZero();
         }
         juce::dsp::AudioBlock<float> block(buffer);auto up=oversampling->processSamplesUp(block);amount.setTargetValue(state.drive);
         const float bassPole=float(1-std::exp(-juce::MathConstants<double>::twoPi*220/(rate*4)));
@@ -102,9 +104,9 @@ public:
                 const float shaped=lowPass[(size_t)c].processSample(contour[(size_t)c].processSample(buffer.getSample(c,n)));
                 buffer.setSample(c,n,dry.getSample(c,n)*(1-wet)+shaped*wet*gain);
             }
+            if((controlClock+n)%16==15)for(size_t c=0;c<2;++c){lowPass[c].snapToZero();contour[c].snapToZero();}
         }
         controlClock=(controlClock+buffer.getNumSamples())%16;
-        for(size_t c=0;c<2;++c){highPass[c].snapToZero();lowPass[c].snapToZero();contour[c].snapToZero();}
     }
 };
 // Gate and pitch are shared. The drive exposes its latency-aligned clean tap
@@ -131,8 +133,9 @@ public:
         if(state.envelopeFirst) {filter();compress();} else {compress();filter();}
         clean.makeCopyOf(buffer,true);juce::dsp::AudioBlock<float> block(clean);juce::dsp::ProcessContextReplacing<float> context(block);cleanAlignment.process(context);
         fuzz.process(buffer,state.fuzzOn,state.fuzzDrive,state.fuzzTone,state.fuzzLevel,true,state.models[5]);
-        boost.process(buffer,state.boostOn,state.boostGain,state.boostBass,state.boostTreble,state.models[6]);
-        drive.process(buffer,state);
+        const auto applyBoost=[&]{boost.process(buffer,state.boostOn,state.boostGain,state.boostBass,state.boostTreble,state.models[6]);};
+        if(state.boostAfterDrive) {drive.process(buffer,state);applyBoost();}
+        else {applyBoost();drive.process(buffer,state);}
     }
 };
 // Global post modules receive the merged signal exactly once in every mode.

@@ -145,10 +145,77 @@ inline void colourAutomation()
     }
     std::cout<<"PASS: all eight fuzz/preamp voices preserve stereo and smooth tone automation across host block sizes\n";
 }
+inline void gainOrderContracts()
+{
+    // Boost after clipping must offer output lift, whereas boost before it
+    // drives the clipper harder. Both must leave the clean Matrix tap intact.
+    for (double rate : {44100., 96000.}) {
+        std::array<std::vector<float>, 2> reference;
+        for (int blockSize : {17, 511}) {
+            spectralforge::PreFXChain before, after;
+            before.prepare({rate, (juce::uint32)blockSize, 2});
+            after.prepare({rate, (juce::uint32)blockSize, 2});
+            spectralforge::FXState a;
+            a.fuzzOn=a.boostOn=a.driveOn=true;a.models[5]=1;
+            a.boostGain=12;a.boostBass=0;a.boostTreble=0;a.drive=.8f;
+            auto b=a;b.boostAfterDrive=true;
+            std::array<std::vector<float>, 2> output;
+            juce::AudioBuffer<float> left(2,blockSize),right(2,blockSize);
+            double cleanError=0;
+            for(int offset=0;offset<16384;offset+=blockSize) {
+                const int count=juce::jmin(blockSize,16384-offset);
+                left.setSize(2,count,false,false,true);right.setSize(2,count,false,false,true);
+                for(int n=0;n<count;++n) {
+                    const double t=(offset+n)/rate;
+                    const float x=float(.18*std::sin(juce::MathConstants<double>::twoPi*220*t)+.045*std::sin(juce::MathConstants<double>::twoPi*660*t));
+                    left.setSample(0,n,x);left.setSample(1,n,0);
+                }
+                right.makeCopyOf(left,true);
+                before.process(left,false,-60,80,20,false,0,a);
+                after.process(right,false,-60,80,20,false,0,b);
+                for(int n=0;n<count;++n) {
+                    cleanError=juce::jmax(cleanError,std::abs(double(before.cleanOutput().getSample(0,n)-after.cleanOutput().getSample(0,n))));
+                    for(auto* buffer : {&left,&right}) {
+                        require(std::isfinite(buffer->getSample(0,n)) && std::abs(buffer->getSample(0,n))<8.f,"Gain-order output is unstable");
+                        require(std::abs(buffer->getSample(1,n))<1e-7f,"Gain-order processing leaks across stereo channels");
+                    }
+                    output[0].push_back(left.getSample(0,n));output[1].push_back(right.getSample(0,n));
+                }
+            }
+            require(cleanError<1e-7,"Gain order changed Matrix clean DI");
+            require(before.latency(false)==after.latency(false) && before.latency(true)==after.latency(true),"Gain order changed latency");
+            double beforeEnergy=0,afterEnergy=0,difference=0;
+            for(size_t n=4096;n<output[0].size();++n) {
+                beforeEnergy+=output[0][n]*output[0][n];afterEnergy+=output[1][n]*output[1][n];
+                difference+=std::pow(output[0][n]-output[1][n],2);
+            }
+            require(std::sqrt(afterEnergy/beforeEnergy)>1.5,"Post-drive boost does not provide the expected headroom-dependent level lift");
+            require(difference>1,"Gain-order choice does not change active processing");
+            if(blockSize==17) reference=output;
+            else for(size_t order=0;order<2;++order) {
+                double maximum=0;size_t peakAt=0;
+                for(size_t n=0;n<output[order].size();++n) if(std::abs(output[order][n]-reference[order][n])>maximum) {
+                    maximum=std::abs(output[order][n]-reference[order][n]);peakAt=n;
+                }
+                std::cout<<"MEASURE gain order "<<order<<" at "<<rate<<" Hz: block null "<<maximum<<" at "<<peakAt<<"\n";
+                require(maximum<3e-5,"Gain-order result depends on host block size");
+            }
+        }
+        for(bool boostAfterDrive : {false,true}) {
+            spectralforge::PreFXChain bypass;bypass.prepare({rate,127,2});
+            spectralforge::FXState fx;fx.boostAfterDrive=boostAfterDrive;
+            juce::AudioBuffer<float> impulse(2,127);impulse.clear();impulse.setSample(0,0,1);
+            bypass.process(impulse,false,-60,80,20,false,0,fx);
+            for(int n=0;n<127;++n) require(std::abs(impulse.getSample(0,n)-(n==bypass.latency(false)?1.f:0.f))<1e-7,"Gain-order bypass is not latency-aligned dry audio");
+        }
+    }
+    std::cout<<"PASS: both gain orders change saturation/level, preserve clean DI and latency, stereo isolation and 17/511-sample block independence\n";
+}
 inline void run()
 {
     contracts();
     colourAutomation();
+    gainOrderContracts();
     // Detector order must alter an expressive filter without moving the Matrix
     // clean tap through fuzz/boost/drive or changing algorithmic delay.
     for(bool first:{false,true}) {

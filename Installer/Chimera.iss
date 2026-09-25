@@ -5,7 +5,7 @@
 #ifndef OutputPath
   #error OutputPath must be supplied by the build script
 #endif
-#define ProductName "Chimera Amp Matrix"
+#define ProductName "SpectralForge Chimera"
 #define ProductVersion "1.0.0"
 
 [Setup]
@@ -13,10 +13,10 @@
 AppId=SpectralForge.ChimeraAmpMatrix
 AppName={#ProductName}
 AppVersion={#ProductVersion}
-AppVerName={#ProductName} {#ProductVersion} Test
+AppVerName={#ProductName} Open Beta 1.0
 AppPublisher=RavenForge Luthier Intelligence
 AppPublisherURL=https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix
-DefaultDirName={autopf}\SpectralForge\{#ProductName}
+DefaultDirName={autopf}\SpectralForge\Chimera Amp Matrix
 DefaultGroupName=SpectralForge\{#ProductName}
 DisableProgramGroupPage=yes
 DisableDirPage=auto
@@ -25,11 +25,11 @@ ArchitecturesAllowed=x64compatible
 ArchitecturesInstallIn64BitMode=x64compatible
 MinVersion=10.0
 OutputDir={#OutputPath}
-OutputBaseFilename=Chimera-Amp-Matrix-{#ProductVersion}-test-win64-Setup
+OutputBaseFilename=SpectralForge-Chimera-1.0.0-beta.1-win64-Setup
 Compression=lzma2
 SolidCompression=yes
 WizardStyle=modern
-SetupIconFile=..\Assets\Artwork\raven-emblem.ico
+SetupIconFile=..\Assets\Artwork\spectralforge-emblem.ico
 UninstallDisplayName={#ProductName}
 UninstallDisplayIcon={uninstallexe}
 UninstallFilesDir={app}\Uninstall
@@ -64,10 +64,12 @@ Name: "reference"; Description: "{cm:ReferenceTools}"; Types: full
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; Components: standalone; Flags: unchecked
 
 [Files]
-Source: "{#StageDir}\VST3\Chimera Amp Matrix.vst3\*"; DestDir: "{commoncf64}\VST3\Chimera Amp Matrix.vst3"; Components: vst3; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "{#StageDir}\Standalone\Chimera Amp Matrix.exe"; DestDir: "{app}"; Components: standalone; Flags: ignoreversion
+Source: "{#StageDir}\VST3\SpectralForge Chimera.vst3\*"; DestDir: "{commoncf64}\VST3\SpectralForge Chimera.vst3"; Components: vst3; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "{#StageDir}\Standalone\SpectralForge Chimera.exe"; DestDir: "{app}"; Components: standalone; Flags: ignoreversion
 Source: "{#StageDir}\*.txt"; DestDir: "{app}"; Flags: ignoreversion
 Source: "{#StageDir}\ARTWORK_PROMPTS.json"; DestDir: "{app}\Documentation"; Flags: ignoreversion
+Source: "{#StageDir}\*.html"; DestDir: "{app}\Documentation"; Flags: ignoreversion
+Source: "{#StageDir}\payload-manifest.json"; DestDir: "{app}\Documentation"; Flags: ignoreversion
 Source: "{#StageDir}\*.md"; DestDir: "{app}\Documentation"; Flags: ignoreversion
 Source: "{#StageDir}\reference\*"; DestDir: "{app}\Documentation\reference"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "{#StageDir}\ReferenceTools\*"; DestDir: "{app}\ReferenceTools"; Components: reference; Flags: ignoreversion recursesubdirs createallsubdirs
@@ -79,14 +81,21 @@ Source: "{#StageDir}\reference-audio\*"; DestDir: "{app}\reference-audio"; Compo
 Source: "{src}\Chimera-Personal-IRs\*.wav"; DestDir: "{commonappdata}\SpectralForge\Chimera\IRs"; Flags: external skipifsourcedoesntexist recursesubdirs createallsubdirs onlyifdoesntexist uninsneveruninstall
 Source: "{src}\Chimera-Personal-IRs\*.json"; DestDir: "{commonappdata}\SpectralForge\Chimera\IRs"; Flags: external skipifsourcedoesntexist recursesubdirs createallsubdirs onlyifdoesntexist uninsneveruninstall
 
+[InstallDelete]
+; Retire only exact legacy program binaries, never user presets or IR folders.
+Type: files; Name: "{app}\Chimera Amp Matrix.exe"; Components: standalone
+Type: files; Name: "{commoncf64}\VST3\Chimera Amp Matrix.vst3\Contents\x86_64-win\Chimera Amp Matrix.vst3"; Components: vst3
+Type: files; Name: "{commonprograms}\SpectralForge\Chimera Amp Matrix\Chimera Amp Matrix.lnk"; Components: standalone
+
 [Icons]
-Name: "{group}\Chimera Amp Matrix"; Filename: "{app}\Chimera Amp Matrix.exe"; WorkingDir: "{app}"; Components: standalone
+Name: "{group}\SpectralForge Chimera"; Filename: "{app}\SpectralForge Chimera.exe"; WorkingDir: "{app}"; Components: standalone
+Name: "{group}\Manual"; Filename: "{app}\Documentation\MANUAL.html"
 Name: "{group}\{cm:InstallGuide}"; Filename: "{app}\WINDOWS_INSTALL.txt"
-Name: "{group}\{cm:UninstallProgram,Chimera Amp Matrix}"; Filename: "{uninstallexe}"
-Name: "{autodesktop}\Chimera Amp Matrix"; Filename: "{app}\Chimera Amp Matrix.exe"; WorkingDir: "{app}"; Tasks: desktopicon; Components: standalone
+Name: "{group}\{cm:UninstallProgram,SpectralForge Chimera}"; Filename: "{uninstallexe}"
+Name: "{autodesktop}\SpectralForge Chimera"; Filename: "{app}\SpectralForge Chimera.exe"; WorkingDir: "{app}"; Tasks: desktopicon; Components: standalone
 
 [Run]
-Filename: "{app}\Chimera Amp Matrix.exe"; Description: "{cm:LaunchProgram,Chimera Amp Matrix}"; Components: standalone; Flags: nowait postinstall skipifsilent
+Filename: "{app}\SpectralForge Chimera.exe"; Description: "{cm:LaunchProgram,SpectralForge Chimera}"; Components: standalone; Flags: nowait postinstall skipifsilent
 
 ; No wildcard deletion rules: user-created presets and IRs are never owned by Setup.
 [CustomMessages]

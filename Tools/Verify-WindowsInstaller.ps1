@@ -1,6 +1,6 @@
-param(
-    [string]$Installer = "dist/Chimera-Amp-Matrix-1.0.0-test-win64-Setup.exe",
-    [string]$Stage = "dist/Chimera-Amp-Matrix-1.0.0-test-win64",
+﻿param(
+    [string]$Installer = "dist/SpectralForge-Chimera-1.0.0-beta.1-win64-Setup.exe",
+    [string]$Stage = "dist/SpectralForge-Chimera-1.0.0-beta.1-win64",
     [string]$LogDirectory = "build/installer-verification"
 )
 $ErrorActionPreference = "Stop"
@@ -14,8 +14,8 @@ $stagePath = (Resolve-Path -LiteralPath $Stage).Path
 New-Item -ItemType Directory -Force -Path $LogDirectory | Out-Null
 $logPath = (Resolve-Path -LiteralPath $LogDirectory).Path
 $app = Join-Path ([Environment]::GetFolderPath("ProgramFiles")) "SpectralForge\Chimera Amp Matrix"
-$vst = Join-Path ([Environment]::GetFolderPath("CommonProgramFiles")) "VST3\Chimera Amp Matrix.vst3"
-$startMenu = Join-Path ([Environment]::GetFolderPath("CommonPrograms")) "SpectralForge\Chimera Amp Matrix"
+$vst = Join-Path ([Environment]::GetFolderPath("CommonProgramFiles")) "VST3\SpectralForge Chimera.vst3"
+$startMenu = Join-Path ([Environment]::GetFolderPath("CommonPrograms")) "SpectralForge\SpectralForge Chimera"
 $sharedIRs = Join-Path ([Environment]::GetFolderPath("CommonApplicationData")) "SpectralForge/Chimera/IRs"
 $companion = Join-Path (Split-Path -Parent $installerPath) "Chimera-Personal-IRs"
 $registry = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\SpectralForge.ChimeraAmpMatrix_is1"
@@ -50,23 +50,25 @@ function Equal-Tree([string]$Source, [string]$Destination) {
     }
 }
 function Check-Payload([string]$Destination, [bool]$Vst3, [bool]$Standalone, [bool]$Reference) {
-    if ($Vst3) { Equal-Tree (Join-Path $stagePath "VST3/Chimera Amp Matrix.vst3") $vst }
+    if ($Vst3) { Equal-Tree (Join-Path $stagePath "VST3/SpectralForge Chimera.vst3") $vst }
     else { Assert (!(Test-Path -LiteralPath $vst)) "Unselected VST3 was installed" }
-    $exe = Join-Path $Destination "Chimera Amp Matrix.exe"
+    $exe = Join-Path $Destination "SpectralForge Chimera.exe"
     if ($Standalone) {
-        Equal-File (Join-Path $stagePath "Standalone/Chimera Amp Matrix.exe") $exe
-        $shortcut = Join-Path $startMenu "Chimera Amp Matrix.lnk"
+        Equal-File (Join-Path $stagePath "Standalone/SpectralForge Chimera.exe") $exe
+        $shortcut = Join-Path $startMenu "SpectralForge Chimera.lnk"
         Assert (Test-Path -LiteralPath $shortcut) "Start Menu shortcut is missing"
         # Keep launchable shortcuts on the disposable test machine. The report
         # records the real launch result below; it must not redistribute .lnk files.
     } else {
         Assert (!(Test-Path -LiteralPath $exe)) "Unselected standalone app was installed"
-        Assert (!(Test-Path -LiteralPath (Join-Path $startMenu "Chimera Amp Matrix.lnk"))) "Unselected standalone shortcut was created"
+        Assert (!(Test-Path -LiteralPath (Join-Path $startMenu "SpectralForge Chimera.lnk"))) "Unselected standalone shortcut was created"
     }
     foreach ($file in Get-ChildItem -LiteralPath $stagePath -File) {
         if ($file.Extension -eq ".txt") { Equal-File $file.FullName (Join-Path $Destination $file.Name) }
-        if ($file.Extension -eq ".md") { Equal-File $file.FullName (Join-Path $Destination "Documentation/$($file.Name)") }
+        if ($file.Extension -in ".md", ".html") { Equal-File $file.FullName (Join-Path $Destination "Documentation/$($file.Name)") }
     }
+    Equal-File (Join-Path $stagePath "payload-manifest.json") (Join-Path $Destination "Documentation/payload-manifest.json")
+    Assert (Test-Path -LiteralPath (Join-Path $startMenu "Manual.lnk")) "Offline manual shortcut is missing"
     Equal-Tree (Join-Path $stagePath "reference") (Join-Path $Destination "Documentation/reference")
     if ($Reference) {
         Equal-Tree (Join-Path $stagePath "ReferenceTools") (Join-Path $Destination "ReferenceTools")
@@ -74,7 +76,7 @@ function Check-Payload([string]$Destination, [bool]$Vst3, [bool]$Standalone, [bo
     } else { Assert (!(Test-Path -LiteralPath (Join-Path $Destination "ReferenceTools"))) "Unselected reference tools were installed" }
     Assert (Test-Path -LiteralPath $registry) "Windows uninstall entry is missing"
     $entry = Get-ItemProperty -LiteralPath $registry
-    Assert ($entry.DisplayName -eq "Chimera Amp Matrix") "Wrong Windows app name"
+    Assert ($entry.DisplayName -eq "SpectralForge Chimera") "Wrong Windows app name"
     Assert ($entry.InstallLocation.TrimEnd([char]92) -eq $Destination.TrimEnd([char]92)) "Wrong registered install location"
 }
 function Uninstall([string]$Name, [string]$Destination) {
@@ -84,9 +86,9 @@ function Uninstall([string]$Name, [string]$Destination) {
     Assert (Test-Path -LiteralPath $uninstaller) "Uninstaller is missing"
     Run-SetupProcess $uninstaller @("/VERYSILENT", "/SUPPRESSMSGBOXES", "/NORESTART", "/LOG=`"$logPath/$Name.log`"")
     Assert (!(Test-Path -LiteralPath $registry)) "Uninstall entry remains"
-    Assert (!(Test-Path -LiteralPath (Join-Path $Destination "Chimera Amp Matrix.exe"))) "Standalone app remains"
-    Assert (!(Test-Path -LiteralPath (Join-Path $vst "Contents/x86_64-win/Chimera Amp Matrix.vst3"))) "VST3 binary remains"
-    Assert (!(Test-Path -LiteralPath (Join-Path $startMenu "Chimera Amp Matrix.lnk"))) "App shortcut remains"
+    Assert (!(Test-Path -LiteralPath (Join-Path $Destination "SpectralForge Chimera.exe"))) "Standalone app remains"
+    Assert (!(Test-Path -LiteralPath (Join-Path $vst "Contents/x86_64-win/SpectralForge Chimera.vst3"))) "VST3 binary remains"
+    Assert (!(Test-Path -LiteralPath (Join-Path $startMenu "SpectralForge Chimera.lnk"))) "App shortcut remains"
 }
 Add-Type @'
 using System.Runtime.InteropServices;
@@ -105,7 +107,7 @@ function Long-Path([string]$Path) {
 function Check-AppShortcut([string]$Destination) {
     # Test the user's actual launch path and compare the launched process's
     # canonical filename, including Unicode and 8.3 path handling.
-    $shortcut = Join-Path $startMenu "Chimera Amp Matrix.lnk"
+    $shortcut = Join-Path $startMenu "SpectralForge Chimera.lnk"
     $application = Start-Process -FilePath $shortcut -PassThru
     Assert ($null -ne $application) "Shortcut did not start an application process"
     try {
@@ -116,7 +118,7 @@ function Check-AppShortcut([string]$Destination) {
         }
         Assert (!$application.HasExited -and $application.MainWindowHandle -ne [IntPtr]::Zero) "Shortcut did not open the installed application window"
         $actual = Long-Path $application.MainModule.FileName
-        $expected = Long-Path (Join-Path $Destination "Chimera Amp Matrix.exe")
+        $expected = Long-Path (Join-Path $Destination "SpectralForge Chimera.exe")
         Assert ($actual -eq $expected) "Shortcut launched '$actual'; expected '$expected'"
         Pass "Start Menu shortcut launches the installed app and its window: $actual"
     } finally {
@@ -127,6 +129,17 @@ function Check-AppShortcut([string]$Destination) {
     }
 }
 try {
+    # Simulate the owned binaries from the previous product name. Keep unrelated
+    # personal files alongside them to exercise the exact legacy migration scope.
+    $legacyExe = Join-Path $app "Chimera Amp Matrix.exe"
+    $legacyVst = Join-Path ([Environment]::GetFolderPath("CommonProgramFiles")) "VST3/Chimera Amp Matrix.vst3/Contents/x86_64-win/Chimera Amp Matrix.vst3"
+    Assert (!(Test-Path -LiteralPath $legacyVst)) "Refusing to overwrite an existing legacy plugin"
+    New-Item -ItemType Directory -Force -Path $app, (Split-Path -Parent $legacyVst) | Out-Null
+    Copy-Item -LiteralPath (Join-Path $stagePath "Standalone/SpectralForge Chimera.exe") -Destination $legacyExe
+    Copy-Item -LiteralPath (Join-Path $stagePath "VST3/SpectralForge Chimera.vst3/Contents/x86_64-win/SpectralForge Chimera.vst3") -Destination $legacyVst
+    $legacyPreset = Join-Path $app "personal-upgrade-preserve.chimera"
+    "user-owned legacy preset fixture" | Set-Content -LiteralPath $legacyPreset
+    $legacyPresetHash = (Get-FileHash -LiteralPath $legacyPreset).Hash
     New-Item -ItemType Directory -Path "$companion/Bass" -Force | Out-Null
     New-Item -ItemType Directory -Path "$companion/Guitar" -Force | Out-Null
     $fixture = Join-Path $companion "Bass/CI Bass 8x10 MD421.wav"
@@ -137,6 +150,9 @@ try {
     '{"cabinet":"CI synthetic guitar metadata","diameter_in":"12","microphone":"SM57"}' | Set-Content -LiteralPath ($guitarFixture + ".json")
     Install "01-full-install" $app "vst3,standalone,reference"
     Check-Payload $app $true $true $true
+    Assert (!(Test-Path -LiteralPath $legacyExe) -and !(Test-Path -LiteralPath $legacyVst)) "Legacy product binaries were not retired"
+    Assert ((Get-FileHash -LiteralPath $legacyPreset).Hash -eq $legacyPresetHash) "Product rename changed a personal preset"
+    Pass "Product rename retires only exact old executable/VST3 binaries and preserves personal preset bytes"
     $installedIR = Join-Path $sharedIRs "Bass/CI Bass 8x10 MD421.wav"
     Equal-File $fixture $installedIR
     Equal-File ($fixture + ".json") ($installedIR + ".json")
@@ -156,8 +172,8 @@ try {
     Assert ($LASTEXITCODE -eq 0 -and ![string]::IsNullOrWhiteSpace($vsRoot)) "Visual C++ tools were not located"
     $toolset = Get-ChildItem -LiteralPath (Join-Path $vsRoot "VC/Tools/MSVC") -Directory | Sort-Object Name -Descending | Select-Object -First 1
     $dumpbin = Join-Path $toolset.FullName "bin/Hostx64/x64/dumpbin.exe"
-    $vstBinary = Join-Path $vst "Contents/x86_64-win/Chimera Amp Matrix.vst3"
-    foreach ($binary in @((Join-Path $app "Chimera Amp Matrix.exe"), (Join-Path $app "ReferenceTools/ChimeraRender.exe"), $vstBinary)) {
+    $vstBinary = Join-Path $vst "Contents/x86_64-win/SpectralForge Chimera.vst3"
+    foreach ($binary in @((Join-Path $app "SpectralForge Chimera.exe"), (Join-Path $app "ReferenceTools/ChimeraRender.exe"), $vstBinary)) {
         $imports = & $dumpbin /DEPENDENTS $binary
         Assert ($LASTEXITCODE -eq 0) "Cannot inspect dependencies: $binary"
         $imports | Add-Content -LiteralPath (Join-Path $logPath "runtime-dependencies.txt")

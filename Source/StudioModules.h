@@ -56,17 +56,37 @@ public:
     }
 };
 class BoostModule {
-    using F=juce::dsp::ProcessorDuplicator<juce::dsp::IIR::Filter<float>,juce::dsp::IIR::Coefficients<float>>;
-    F low,high;juce::AudioBuffer<float> dry;juce::SmoothedValue<float> mix,gain;double rate{48000};
+    using F=juce::dsp::IIR::Filter<float>;
+    using C=juce::dsp::IIR::ArrayCoefficients<float>;
+    std::array<F,2> low,high;
+    juce::SmoothedValue<float> mix,gain;
+    double rate{48000};int controlClock{};
 public:
-    void prepare(const juce::dsp::ProcessSpec& s) {rate=s.sampleRate;dry.setSize((int)s.numChannels,(int)s.maximumBlockSize);low.prepare(s);high.prepare(s);mix.reset(rate,.015);gain.reset(rate,.02);mix.setCurrentAndTargetValue(0);gain.setCurrentAndTargetValue(1);}
-    void reset() {low.reset();high.reset();}
+    void prepare(const juce::dsp::ProcessSpec& spec) {
+        rate=spec.sampleRate;auto mono=spec;mono.numChannels=1;
+        for(size_t c=0;c<2;++c) {
+            *low[c].coefficients=C::makeLowShelf(rate,120.f,.707f,1.f);
+            *high[c].coefficients=C::makeHighShelf(rate,juce::jmin(3500.0,rate*.4),.707f,1.f);
+            low[c].prepare(mono);high[c].prepare(mono);
+        }
+        mix.reset(rate,.015);gain.reset(rate,.02);mix.setCurrentAndTargetValue(0);gain.setCurrentAndTargetValue(1);controlClock=0;
+    }
+    void reset() {for(size_t c=0;c<2;++c){low[c].reset();high[c].reset();}controlClock=0;}
     void process(juce::AudioBuffer<float>& b,bool on,float db,float bass,float treble,int model=0) {
-        dry.makeCopyOf(b,true);using C=juce::dsp::IIR::ArrayCoefficients<float>;
-        *low.state=model==1 ? C::makeHighPass(rate,650.f) : C::makeLowShelf(rate,model==3 ? 280.f : model==4 ? 90.f : model==2 ? 70.f : 120.f,.707f,juce::Decibels::decibelsToGain(bass+(model==3 ? 2.7f : model==4 ? 1.2f : 0.f)));*high.state=C::makeHighShelf(rate,juce::jmin(model==3 ? 2200.0 : model==4 ? 5000.0 : model==2 ? 7000.0 : 3500.0,rate*.4),.707f,juce::Decibels::decibelsToGain(treble+(model==3 ? -2.5f : model==4 ? 1.4f : model==1 ? 3.f : model==2 ? -.6f : 0.f)));
-        juce::dsp::AudioBlock<float> block(b);juce::dsp::ProcessContextReplacing<float> context(block);low.process(context);high.process(context);
+        const auto lowCoefficients=model==1 ? C::makeHighPass(rate,650.f) : C::makeLowShelf(rate,model==3 ? 280.f : model==4 ? 90.f : model==2 ? 70.f : 120.f,.707f,juce::Decibels::decibelsToGain(bass+(model==3 ? 2.7f : model==4 ? 1.2f : 0.f)));
+        const auto highCoefficients=C::makeHighShelf(rate,juce::jmin(model==3 ? 2200.0 : model==4 ? 5000.0 : model==2 ? 7000.0 : 3500.0,rate*.4),.707f,juce::Decibels::decibelsToGain(treble+(model==3 ? -2.5f : model==4 ? 1.4f : model==1 ? 3.f : model==2 ? -.6f : 0.f)));
+        for(size_t c=0;c<2;++c){*low[c].coefficients=lowCoefficients;*high[c].coefficients=highCoefficients;}
         mix.setTargetValue(on ? 1.f : 0.f);gain.setTargetValue(juce::Decibels::decibelsToGain(db));
-        for(int n=0;n<b.getNumSamples();++n) {const float m=mix.getNextValue(),g=gain.getNextValue();for(int c=0;c<b.getNumChannels();++c)b.setSample(c,n,dry.getSample(c,n)*(1-m)+b.getSample(c,n)*g*m);}
+        for(int n=0;n<b.getNumSamples();++n) {
+            const float m=mix.getNextValue(),g=gain.getNextValue();
+            for(int c=0;c<b.getNumChannels();++c) {
+                const float x=b.getSample(c,n),shaped=high[(size_t)c].processSample(low[(size_t)c].processSample(x));
+                b.setSample(c,n,x*(1-m)+shaped*g*m);
+            }
+            // End-of-host-block snapping changed low-level states with block
+            // size; a following saturated drive magnified that difference.
+            if(++controlClock==16) {for(size_t c=0;c<2;++c){low[c].snapToZero();high[c].snapToZero();}controlClock=0;}
+        }
     }
 };
 // Shared oversampled saturation infrastructure. Amp voices and these modules

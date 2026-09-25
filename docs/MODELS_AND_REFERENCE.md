@@ -1,6 +1,6 @@
 # Models and reference workflow
 
-This development build has **46 selectable effect variants: 25 PRE pedals and 21 POST rack models**, alongside eight amplifier voices. These are original algorithms with hardware-informed controls and artwork, not licensed circuit models or verified replicas. Choosing a model changes processing as well as its appearance. A/B and project recall include the selection; see the automation compatibility note below when upgrading older test projects.
+SpectralForge Chimera Open Beta 1.0 has **46 selectable effect variants: 25 PRE pedals and 21 POST rack models**, alongside fifteen amplifier voices. These are original algorithms with hardware-informed controls and artwork, not licensed circuit models or verified replicas. Choosing a model changes processing as well as its appearance. A/B and project recall include the selection; see the automation compatibility note below when upgrading older test projects.
 
 | Module | Choices | Actual processing differences |
 |---|---|---|
@@ -32,17 +32,19 @@ Each PRE family has five choices. The first three retain their existing raw proj
 
 New instances default to **TOUCH: Envelope -> Compressor -> Fuzz -> Boost -> Overdrive**. The envelope detector then receives the playing dynamics before PRE compression. **SUSTAIN: Compressor -> Envelope -> Fuzz -> Boost -> Overdrive** remains selectable for a more level-controlled detector input. Both follow global Gate/Transpose, so those utilities can still affect the signal that reaches the envelope. Old states without the order parameter restore Compressor first.
 
-Fuzz precedes Boost/Overdrive so those stages can shape its output and subsequent amp drive. This is an in-plugin signal-order decision. Pickup loading, pedal input impedance and the guitar-volume interaction of a physical early-chain Fuzz Face are not simulated; moving a digital module cannot establish that circuit behavior. General drag-and-drop reordering is not implemented.
+Fuzz precedes Boost/Overdrive so those stages can shape its output and subsequent amp drive. This is an in-plugin signal-order decision. Pickup loading, pedal input impedance and the guitar-volume interaction of a physical early-chain Fuzz Face are not simulated; moving a digital module cannot establish that circuit behavior. A separate gain-order selector switches Fuzz → Boost → Overdrive (default) to Fuzz → Overdrive → Boost. After-drive boost can lift level if the downstream amp has headroom; it does not guarantee a clean solo lift. Use lane LEVEL or OUTPUT after the amp for final level. General drag-and-drop reordering is not implemented.
 
 The new Bass DI and Micro Bass algorithms preserve more low-frequency content than the guitar-tightening drive variants. Their fixed blend/contour choices do not reproduce every SansAmp or B3K control. Variable Mu uses an original progressive gain-control law; it is not a vacuum-tube circuit simulation. NAM head comparisons do not validate these pedal algorithms.
 
 ## Amplifier reference boundary
 
-The eight voices are Glass, Brit Edge, Tight 515, Wide Rect, Liquid Lead, Iron Tube, Solid Punch and Modern Bass. Their fixed NAM reference captures, input-calibration gaps and held-out comparison results are documented in [NAM_REFERENCE_RESULTS.md](NAM_REFERENCE_RESULTS.md). Modern Bass uses a B7K Ultra **plus Aguilar DB751** reference chain, not an isolated Darkglass head. Reference artwork does not establish circuit accuracy or a hardware-fidelity pass.
+The original eight voices are Glass, Brit Edge, Tight 515, Wide Rect, Liquid Lead, Iron Tube, Solid Punch and Modern Bass. Their fixed NAM reference captures, input-calibration gaps and held-out comparison results are documented in [NAM_REFERENCE_RESULTS.md](NAM_REFERENCE_RESULTS.md). Modern Bass uses a B7K Ultra **plus Aguilar DB751** reference chain, not an isolated Darkglass head. Reference artwork does not establish circuit accuracy or a hardware-fidelity pass.
+
+Seven appended voices — Chime 30, Orange Crown, Bassman Valve, Subway Clean, Match Chime, Silk ODS and Taste Punch — have independent algorithmic voicing. Matchless and Dumble reference captures are explicitly identified clones; no hardware-equivalence claim is made. An exact EICH T900 NAM was not found. See [AMP_VOICES_OPEN_BETA.md](AMP_VOICES_OPEN_BETA.md) for all fifteen model/reference mappings and limits. The fixed NAM comparison results remain evidence for the original eight only.
 
 ## Test-project compatibility
 
-Saved raw model indices 0-2 continue to select the original choices. Expanding PRE choice parameters from three to five values changes the conversion between a normalized host automation value and a choice index. Older DAW automation lanes may therefore select a different model even when ordinary project-state recall is correct. Review and re-record model-selection automation after upgrading an older test build. This is a compatibility limitation of the current test parameter layout, not a claim of complete automation compatibility.
+Saved raw model indices 0-2 continue to select the original choices. Expanding PRE choice parameters from three to five values changes the conversion between a normalized host automation value and a choice index. Amp choices likewise expand from eight to fifteen while original raw indices 0–7 remain stable. Older DAW automation lanes may therefore select a different model even when ordinary project-state recall is correct. Review and re-record model-selection automation after upgrading an older test build. This is a compatibility limitation of the current test parameter layout, not a claim of complete automation compatibility.
 
 ## CPU meter
 

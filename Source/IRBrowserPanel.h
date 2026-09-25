@@ -11,8 +11,9 @@ class IRBrowserPanel : public juce::Component, private juce::ListBoxModel {
     juce::TextEditor search;
     juce::ComboBox diameter,kind;
     juce::ListBox list{"IR library",this};
-    juce::TextButton load{"LOAD INTO RIG"},importPack{"IMPORT PERSONAL ZIP"},addFolder{"ADD FOLDER"},oneFile{"OPEN IR"},source{"SOURCE PAGE"};
+    juce::TextButton load{"LOAD INTO RIG"},importPack{"IMPORT PERSONAL ZIP"},addFolder{"ADD FOLDER"},oneFile{"OPEN IR"},source{"SOURCE PAGE"},bassPack{"GET BASS IRS"};
     juce::Label status;
+    juce::TextEditor captureDetails;
     std::unique_ptr<juce::FileChooser> chooser;
     std::function<void(juce::File,int)> selected;
     const Entry* selection() const {
@@ -20,6 +21,7 @@ class IRBrowserPanel : public juce::Component, private juce::ListBoxModel {
         return row>=0 && row<(int)visible.size() ? &entries[visible[(size_t)row]] : nullptr;
     }
     int getNumRows() override { return (int)visible.size(); }
+    juce::String getTooltipForRow(int row) override {return row>=0 && row<(int)visible.size() ? entries[visible[(size_t)row]].details() : juce::String{};}
     void paintListBoxItem(int row,juce::Graphics& g,int width,int height,bool active) override {
         if(row<0 || row>=(int)visible.size()) return;
         const auto& e=entries[visible[(size_t)row]];
@@ -28,14 +30,16 @@ class IRBrowserPanel : public juce::Component, private juce::ListBoxModel {
         g.fillEllipse(10,14,5,5);
         g.setColour(juce::Colour(0xffe2dbcc));
         g.setFont(juce::FontOptions(12.f));
-        g.drawText(e.name,24,4,width-32,22,juce::Justification::centredLeft);
+        g.drawText(e.displayName(),24,4,width-32,22,juce::Justification::centredLeft);
         g.setColour(juce::Colour(0xffa6aaa7)); g.setFont(juce::FontOptions(10.5f));
-        const auto badge=e.factorySource ? "FACTORY" : e.ready() ? "INSTALLED" : "IMPORT REQUIRED";
-        g.drawText(juce::String(badge)+" / "+(e.bass()?"BASS":"GUITAR / OTHER")+" / "+e.tags.summary(),24,28,width-32,height-30,juce::Justification::centredLeft);
+        const auto badge=e.factorySource ? "FACTORY" : e.ready() ? "INSTALLED" : e.external ? "EXTERNAL / DOWNLOAD" : "IMPORT REQUIRED";
+        g.drawText(juce::String(badge)+" / "+(e.bass()?"BASS":"GUITAR / OTHER")+" / "+e.tags.values[4],24,28,width-32,height-30,juce::Justification::centredLeft);
     }
     void selectedRowsChanged(int) override {
         const auto* e=selection(); load.setEnabled(e && e->ready());
-        source.setEnabled(e && e->tags.values[9].startsWith("https://")); repaint();
+        source.setEnabled(e && e->tags.values[9].startsWith("https://"));
+        source.setButtonText(e && e->external && !e->ready() ? "GET FROM CREATOR" : "SOURCE PAGE");
+        captureDetails.setText(e ? ((e->external && !e->ready()) ? juce::String("External download: open GET FROM CREATOR, download and extract the original ZIP, then ADD FOLDER. No audio is bundled or downloaded by Chimera.\n\n") : juce::String{})+e->details() : "Select an IR to inspect the original filename and full capture details.",false);repaint();
     }
     void listBoxItemDoubleClicked(int,const juce::MouseEvent&) override { commit(); }
     void commit() {
@@ -50,13 +54,13 @@ class IRBrowserPanel : public juce::Component, private juce::ListBoxModel {
         int available=0;
         for(size_t i=0;i<entries.size();++i) {
             const auto& e=entries[i]; if(e.ready()) ++available;
-            const auto text=e.name+" "+juce::JSON::toString(e.tags.json(),true);
+            const auto text=e.name+" "+e.displayName()+" "+juce::JSON::toString(e.tags.json(),true);
             if((query.isEmpty() || text.containsIgnoreCase(query)) && (inches.isEmpty() || e.tags.values[2]==inches)
                 && (kind.getSelectedId()!=2 || e.bass()) && (kind.getSelectedId()!=3 || !e.bass())
                 && (kind.getSelectedId()!=4 || e.ready())) visible.push_back(i);
         }
         list.deselectAllRows(); list.updateContent();
-        status.setText(juce::String(available)+" available / "+juce::String(entries.size())+" listed. "+(available==(int)entries.size() ? "All listed IRs ready." : "Missing references need your personal ZIP."),juce::dontSendNotification);
+        status.setText(juce::String(available)+" available / "+juce::String(entries.size())+" listed. "+(available==(int)entries.size() ? "All listed IRs ready." : "External entries require original files."),juce::dontSendNotification);
         selectedRowsChanged(-1);
     }
     void refresh() { entries=spectralforge::IRCollection::scan(folders,libraryMode); filter(); }
@@ -80,7 +84,11 @@ class IRBrowserPanel : public juce::Component, private juce::ListBoxModel {
         diameter.addItemList({"All sizes","8 in","10 in","12 in","15 in","18 in"},1);diameter.setSelectedId(1);diameter.onChange=[this]{filter();};
         kind.addItemList({"All cabinets","Bass","Guitar / other","Installed only"},1);kind.setSelectedId(1);kind.onChange=[this]{filter();};
         for(juce::Component* c:std::initializer_list<juce::Component*>{&search,&diameter,&kind,&list,&load,&status,&source}) addAndMakeVisible(c);
-        if(libraryMode) for(auto* c:{&importPack,&addFolder,&oneFile}) addAndMakeVisible(c);
+        addAndMakeVisible(captureDetails);captureDetails.setComponentID("ircapturedetails");captureDetails.setMultiLine(true);captureDetails.setReadOnly(true);captureDetails.setScrollbarsShown(true);captureDetails.setCaretVisible(false);
+        captureDetails.setColour(juce::TextEditor::backgroundColourId,juce::Colour(0xff252827));captureDetails.setColour(juce::TextEditor::textColourId,juce::Colour(0xffe2dbcc));captureDetails.setColour(juce::TextEditor::outlineColourId,juce::Colours::transparentBlack);captureDetails.setFont(juce::FontOptions(11.f));
+        if(libraryMode) for(auto* c:{&importPack,&addFolder,&oneFile,&bassPack}) addAndMakeVisible(c);
+        bassPack.setComponentID("irbassdownload");bassPack.setTooltip("Opens Shift Line's official free bass IR pack page. Download, extract the ZIP, then ADD FOLDER. These IRs are not bundled with Chimera.");
+        bassPack.onClick=[]{juce::URL("https://shift-line.com/irpackbass").launchInDefaultBrowser();};
         importPack.onClick=[this]{choose(0);};addFolder.onClick=[this]{choose(1);};oneFile.onClick=[this]{choose(2);};
         source.onClick=[this]{if(const auto* e=selection()) if(e->tags.values[9].startsWith("https://"))juce::URL(e->tags.values[9]).launchInDefaultBrowser();};
         list.setRowHeight(59);list.setColour(juce::ListBox::backgroundColourId,juce::Colour(0xff171919));
@@ -93,20 +101,19 @@ public:
     IRBrowserPanel(const juce::File& folder,std::function<void(juce::File)> callback):folders{folder},selected([callback=std::move(callback)](juce::File file,int){callback(file);}) {initialise();}
     void paint(juce::Graphics& g) override {
         g.fillAll(juce::Colour(0xff101212));g.setColour(juce::Colour(0xffd4c7ad));g.setFont(juce::FontOptions(22.f));
-        g.drawText("CABINET LIBRARY",20,14,340,32,juce::Justification::centredLeft);
+        g.drawText("CABINET LIBRARY",20,14,255,32,juce::Justification::centredLeft);
         g.setColour(juce::Colour(0xff252827));g.fillRoundedRectangle(722,105,258,422,5);
         if(const auto* e=selection()) {
             spectralforge::art::cabinet(g,{789,118,124,146},e->tags);
             g.setFont(juce::FontOptions(11.f));g.setColour(juce::Colour(0xffaaa89f));
             g.drawText("CABINET STYLE / NOT CAPTURE PHOTO",732,267,238,18,juce::Justification::centred);
-            const auto field=[&](const char* key,const juce::String& value,int y) {g.setColour(juce::Colour(0xffaaa89f));g.drawText(key,736,y,224,17,juce::Justification::centredLeft);g.setColour(juce::Colour(0xffe2dbcc));g.drawFittedText(value.isEmpty()?"Unknown / not documented":value,736,y+18,228,30,juce::Justification::topLeft,2);};
-            field("CABINET",e->tags.values[1],292);field("MICROPHONE",e->tags.values[3],350);field("CONE / UNIT POSITION",e->tags.values[4],408);
-            g.setColour(juce::Colour(0xffaaa89f));g.drawFittedText("Distance: "+(e->tags.values[5].isEmpty()?juce::String("unknown"):e->tags.values[5])+"\nAngle: "+(e->tags.values[6].isEmpty()?juce::String("unknown"):e->tags.values[6]),736,468,228,48,juce::Justification::topLeft,3);
-        } else {g.setFont(juce::FontOptions(13.f));g.setColour(juce::Colour(0xffb7b5ae));g.drawFittedText("Select a cabinet to inspect its speaker, microphone and capture position.",744,220,213,100,juce::Justification::centred,4);}
+        } else {g.setFont(juce::FontOptions(13.f));g.setColour(juce::Colour(0xffb7b5ae));g.drawFittedText("Select a cabinet to inspect its speaker, microphone and capture position.",744,164,213,100,juce::Justification::centred,4);}
     }
     void resized() override {
         importPack.setBounds(472,19,193,27);addFolder.setBounds(675,19,147,27);oneFile.setBounds(832,19,148,27);
+        bassPack.setBounds(285,19,160,27);
         search.setBounds(20,64,470,28);diameter.setBounds(500,64,140,28);kind.setBounds(650,64,330,28);
         list.setBounds(20,105,685,422);status.setBounds(20,541,565,28);source.setBounds(598,541,180,28);load.setBounds(790,541,190,28);
+        captureDetails.setBounds(732,292,238,225);
     }
 };

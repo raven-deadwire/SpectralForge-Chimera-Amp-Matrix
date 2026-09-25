@@ -1,16 +1,24 @@
-name: v1 Build and Test
+name: Open Beta 1.0 Build and Test
 on:
   pull_request:
   workflow_dispatch:
+  workflow_call:
+permissions:
+  contents: read
 jobs:
   build:
     strategy:
       fail-fast: false
       matrix:
-        os: [windows-latest, ubuntu-latest, macos-latest]
+        os: [windows-latest, ubuntu-22.04, macos-15]
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Check release packaging syntax
+        run: python -m py_compile Tools/package_release.py
       - name: Check Windows packaging script syntax
         if: runner.os == 'Windows'
         shell: pwsh
@@ -22,8 +30,13 @@ jobs:
             if ($parseErrors.Count) { throw (($parseErrors | ForEach-Object Message) -join "`n") }
           }
       - if: runner.os == 'Linux'
-        run: sudo apt-get update && sudo apt-get install -y libasound2-dev libjack-jackd2-dev ladspa-sdk libcurl4-openssl-dev libfreetype6-dev libfontconfig1-dev libx11-dev libxcomposite-dev libxcursor-dev libxext-dev libxinerama-dev libxrandr-dev libxrender-dev libwebkit2gtk-4.1-dev libglu1-mesa-dev mesa-common-dev
-      - run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+        run: sudo apt-get update && sudo apt-get install -y libasound2-dev libjack-jackd2-dev ladspa-sdk libcurl4-openssl-dev libfreetype6-dev libfontconfig1-dev libx11-dev libxcomposite-dev libxcursor-dev libxext-dev libxinerama-dev libxrandr-dev libxrender-dev libwebkit2gtk-4.1-dev libglu1-mesa-dev mesa-common-dev dpkg-dev
+      - name: Configure Windows/Linux
+        if: runner.os != 'macOS'
+        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+      - name: Configure universal macOS
+        if: runner.os == 'macOS'
+        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_OSX_ARCHITECTURES="arm64;x86_64" -DCMAKE_OSX_DEPLOYMENT_TARGET=12.0
       - run: cmake --build build --config Release --parallel 2
       - run: ctest --test-dir build -C Release --output-on-failure
 
@@ -67,78 +80,17 @@ jobs:
             build/ui-snapshots/PRE-*-first.png
           if-no-files-found: warn
 
-      - name: Package Windows test build
+      - name: Stage Windows open beta payload
         if: runner.os == 'Windows'
-        shell: pwsh
-        run: |
-          $stage = "dist/Chimera-Amp-Matrix-1.0.0-test-win64"
-          New-Item -ItemType Directory -Force -Path "$stage/VST3","$stage/Standalone" | Out-Null
-          Copy-Item -Recurse "build/ChimeraAmpMatrix_artefacts/Release/VST3/*" "$stage/VST3/"
-          Copy-Item -Recurse "build/ChimeraAmpMatrix_artefacts/Release/Standalone/*" "$stage/Standalone/"
-          Copy-Item "docs/THIRD_PARTY_NOTICES.md","docs/AMP_VALIDATION.md" "$stage/"
-          Copy-Item "docs/FX_AND_IR_DESIGN.md","docs/MODELS_AND_REFERENCE.md","docs/NAM_REFERENCE_RESULTS.md","docs/GRAPHICS_DSP_UPDATE.md" "$stage/"
-          Copy-Item "docs/WINDOWS_INSTALL.txt","docs/WINDOWS_SIGNING.md","docs/ARTWORK_PROMPTS.json" "$stage/"
-          Copy-Item -Recurse "docs/reference" "$stage/"
-          New-Item -ItemType Directory -Force -Path "$stage/ReferenceTools" | Out-Null
-          Copy-Item "Tools/validate_nam.py" "$stage/ReferenceTools/"
-          Copy-Item "build/ChimeraRender_artefacts/Release/ChimeraRender.exe" "$stage/ReferenceTools/"
-          Copy-Item -Recurse "build/reference-audio" "$stage/"
-          Copy-Item "build/Testing/Temporary/LastTest.log" "$stage/Verification.txt"
-          @"
-          RavenForge Luthier Intelligence / Chimera Amp Matrix 1.0.0 TEST BUILD
-          =================================================
-          Unsigned development build. Windows SmartScreen/Chrome may warn because
-          this binary does not yet have an Authenticode publisher signature.
+        run: python Tools/package_release.py windows
 
-          Setup installer: installs VST3, the standalone app, Start Menu shortcuts and an uninstaller.
-          Close your DAW and Chimera before installing. See WINDOWS_INSTALL.txt.
-          Windows binaries statically link the MSVC runtime; no separate VC++ redist is needed.
+      - name: Package and verify macOS universal installer
+        if: runner.os == 'macOS'
+        run: python Tools/package_release.py macos
 
-          Revision: ${{ github.sha }}
-          Signal chain: input/gate/transpose -> PRE pedals -> rigs/cabs -> merge -> POST rack -> output.
-          New: independent amp voices; 1x/2x/4x/8x oversampling; IR loading and project embedding;
-          input/output gain and meters; noise gate; polyphonic transpose; chromatic tuner.
-          Factory IRs: V30 / SM57 and Jensen / SM57, by jesterdyne (CC BY 4.0).
-          User IR: WAV/AIFF, mono/stereo, <=1 second, <=4 MB. LOAD or drop onto a rig.
-          Transpose adds the displayed latency when enabled; the host is notified.
-          Tuner reads the original input. AUTO MUTE silences the output while tuning.
-          Matrix LOW: one-knob COMP, LEVEL, BAND TONE and DI/AMP blend; head drive fixed at 0.
-          LOW bypasses Fuzz/Boost/Overdrive. Selected head/IR feed its optional wet branch.
-          Matrix MID/HIGH use DRIVE / LEVEL / BAND TONE. Classic/Dual keep full EQ.
-          PRE: Envelope/Compressor order switch, then Fuzz, Boost, Overdrive. Gate/Transpose stay on top.
-          POST: Bus Comp, Preamp, EQ, Modulation, Delay, Reverb.
-          46 selectable FX models; distinct generated reference-inspired RavenForge hardware artwork.
-          CPU average/peak meters measure the audio callback deadline budget.
-          A/B stores complete sounds; it does not select left/right stereo channels.
-          IR LIBRARY lists installed and missing reference cabinets, with bass/size/mic filters.
-          IR catalog: 13 personal captures including 7 Karnivore, Ampeg 8x10/MD421 and CTS Bassman 2x15/SM57.
-          IMPORT PERSONAL ZIP installs your existing pack; a private installer bundle includes the companion IR folder.
-          No restricted NAM/IR data is bundled in this public build.
-          Eight amp-head NAM comparisons and held-out voicing results are documented.
-          Dual: adjustable full-range BLEND or LR4 low/high CROSSOVER.
-          Top: presets, Stereo/Mono L, Doubler. Bottom: tuner, MIDI Learn, Tap/BPM, Click.
-          Delay SYNC follows quarter-note tempo; HOST reads DAW BPM.
-          A/B and MENU > Save reference store both sounds with embedded IRs.
-          reference-audio contains deterministic synthetic DI and RMS-matched A/B WAVs.
-          These fixtures test repeatability and voicing changes, not hardware accuracy.
-          Use SIZE or resize the window for smaller screens.
-          Amp voices are algorithmic interpretations; hardware fidelity is not yet established.
-          See AMP_VALIDATION.md, FX_AND_IR_DESIGN.md, THIRD_PARTY_NOTICES.md and Verification.txt.
-
-          VST3:
-            Copy the .vst3 bundle to C:\Program Files\Common Files\VST3\
-
-          Standalone:
-            Run the executable from the Standalone folder.
-
-          Verify:
-            Compare the SHA256 of the ZIP with the .sha256.txt file supplied
-            alongside it in this workflow run.
-          "@ | Set-Content "$stage/README.txt"
-          Compress-Archive -Path "$stage/*" -DestinationPath "dist/Chimera-Amp-Matrix-1.0.0-test-win64.zip" -CompressionLevel Optimal
-          $hash = (Get-FileHash "dist/Chimera-Amp-Matrix-1.0.0-test-win64.zip" -Algorithm SHA256).Hash.ToLower()
-          "$hash  Chimera-Amp-Matrix-1.0.0-test-win64.zip" | Set-Content "dist/Chimera-Amp-Matrix-1.0.0-test-win64.sha256.txt"
-          Write-Host "SHA256: $hash"
+      - name: Package and verify Linux installers
+        if: runner.os == 'Linux'
+        run: python Tools/package_release.py linux
 
       - name: Verify signed release cannot fall back to unsigned
         if: runner.os == 'Windows'
@@ -213,10 +165,10 @@ jobs:
         if: runner.os == 'Windows'
         uses: actions/upload-artifact@v4
         with:
-          name: Chimera-Amp-Matrix-1.0.0-test-win64
+          name: SpectralForge-Chimera-1.0.0-beta.1-win64
           path: |
-            dist/Chimera-Amp-Matrix-1.0.0-test-win64.zip
-            dist/Chimera-Amp-Matrix-1.0.0-test-win64.sha256.txt
+            dist/SpectralForge-Chimera-1.0.0-beta.1-win64.zip
+            dist/SpectralForge-Chimera-1.0.0-beta.1-win64.zip.sha256.txt
           if-no-files-found: error
           compression-level: 0
 
@@ -224,10 +176,10 @@ jobs:
         if: runner.os == 'Windows'
         uses: actions/upload-artifact@v4
         with:
-          name: Chimera-Amp-Matrix-1.0.0-test-win64-Setup
+          name: SpectralForge-Chimera-1.0.0-beta.1-win64-Setup
           path: |
-            dist/Chimera-Amp-Matrix-1.0.0-test-win64-Setup.exe
-            dist/Chimera-Amp-Matrix-1.0.0-test-win64-Setup.exe.sha256.txt
+            dist/SpectralForge-Chimera-1.0.0-beta.1-win64-Setup.exe
+            dist/SpectralForge-Chimera-1.0.0-beta.1-win64-Setup.exe.sha256.txt
             docs/WINDOWS_INSTALL.txt
             build/installer-verification/InstallerVerification.txt
           if-no-files-found: error
@@ -242,13 +194,88 @@ jobs:
           if-no-files-found: error
           compression-level: 0
 
-      - name: Upload non-Windows build artifacts
-        if: runner.os != 'Windows'
+      - name: Upload macOS installer
+        if: runner.os == 'macOS'
         uses: actions/upload-artifact@v4
         with:
-          name: Chimera-1.0-${{ runner.os }}
+          name: SpectralForge-Chimera-1.0.0-beta.1-macos-universal
           path: |
-            build/ChimeraAmpMatrix_artefacts/Release/VST3/**
-            build/ChimeraAmpMatrix_artefacts/Release/Standalone/**
-            build/ChimeraAmpMatrix_artefacts/Release/AU/**
+            dist/SpectralForge-Chimera-1.0.0-beta.1-macos-universal.pkg
+            dist/SpectralForge-Chimera-1.0.0-beta.1-macos-universal.pkg.sha256.txt
+            dist/macOS-package-verification.txt
           if-no-files-found: error
+          compression-level: 0
+
+      - name: Upload Linux installers
+        if: runner.os == 'Linux'
+        uses: actions/upload-artifact@v4
+        with:
+          name: SpectralForge-Chimera-1.0.0-beta.1-linux-x86_64
+          path: |
+            dist/SpectralForge-Chimera-1.0.0-beta.1-linux-x86_64.deb
+            dist/SpectralForge-Chimera-1.0.0-beta.1-linux-x86_64.deb.sha256.txt
+            dist/SpectralForge-Chimera-1.0.0-beta.1-linux-x86_64.tar.gz
+            dist/SpectralForge-Chimera-1.0.0-beta.1-linux-x86_64.tar.gz.sha256.txt
+            dist/Linux-package-verification.txt
+          if-no-files-found: error
+          compression-level: 0
+
+  assemble-candidate:
+    needs: build
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: SpectralForge-Chimera-1.0.0-beta.1-*
+          path: candidate
+          merge-multiple: true
+      - name: Assemble update manifest from verified installers
+        shell: bash
+        run: |
+          # upload-artifact preserves common-root subdirectories in multi-root uploads.
+          python - <<'PY'
+          from pathlib import Path
+          import shutil
+          root = Path('candidate')
+          for source in list(root.rglob('*')):
+              if source.is_file() and source.parent != root:
+                  target = root / source.name
+                  if target.exists() and target.read_bytes() != source.read_bytes():
+                      raise RuntimeError(f'Conflicting candidate files: {source.name}')
+                  if not target.exists():
+                      shutil.copy2(source, target)
+          PY
+          python Tools/package_release.py manifest --dist candidate
+          cp docs/MANUAL.html docs/INSTALLATION.md docs/OPEN_BETA_RELEASE_NOTES.md docs/THIRD_PARTY_NOTICES.md docs/RELEASE_CHECKLIST.md candidate/
+      - name: Record exact source revision and publication status
+        shell: bash
+        run: |
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          Path('candidate/candidate-source.json').write_text(json.dumps({
+              'version': '1.0.0-beta.1', 'tag': 'v1.0.0-beta.1',
+              'revision': os.environ['GITHUB_SHA'], 'runId': os.environ['GITHUB_RUN_ID'],
+              'published': False, 'publisherSigned': False, 'macOSNotarized': False
+          }, indent=2) + '\n')
+          PY
+      - name: Upload concrete draft-ready release files
+        uses: actions/upload-artifact@v4
+        with:
+          name: SpectralForge-Chimera-Open-Beta-1.0-Release-Candidate
+          path: |
+            candidate/*.exe
+            candidate/*.pkg
+            candidate/*.deb
+            candidate/*.zip
+            candidate/*.tar.gz
+            candidate/*.txt
+            candidate/*.json
+            candidate/*.md
+            candidate/*.html
+          if-no-files-found: error
+          compression-level: 0

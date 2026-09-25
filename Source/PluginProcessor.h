@@ -15,7 +15,7 @@ public:
     void processBlock(juce::AudioBuffer<float>&,juce::MidiBuffer&) override;
     juce::AudioProcessorEditor* createEditor() override;
     bool hasEditor() const override { return true; }
-    const juce::String getName() const override { return "Chimera Amp Matrix"; }
+    const juce::String getName() const override { return "SpectralForge Chimera"; }
     bool acceptsMidi() const override { return true; }
     bool producesMidi() const override { return false; }
     bool isMidiEffect() const override { return false; }
@@ -84,7 +84,7 @@ private:
     std::array<std::atomic<float>*,extraCount> extras{};
     std::array<std::atomic<float>*,spectralforge::fxSpecs.size()> fxParameters{};
     std::array<std::atomic<float>*,11> modelParameters{};
-    std::atomic<float>* lowCompParameter{}, * lowAmpMixParameter{}, * preOrderParameter{};
+    std::atomic<float>* lowCompParameter{}, * lowAmpMixParameter{}, * preOrderParameter{}, * gainOrderParameter{};
     enum Global { mode,x1,x2,input,output,gateOn,threshold,release,hold,pitchOn,semitones,os,tunerOn,tunerMute,globalCount };
     std::array<std::atomic<float>*,globalCount> globals{};
     std::array<std::array<std::atomic<float>*,18>,3> laneParameters{};

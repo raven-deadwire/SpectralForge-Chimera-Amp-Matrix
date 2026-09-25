@@ -1,6 +1,6 @@
 # Amp and global DSP validation
 
-This build is a development instrument, with eight **voiced algorithmic amp models**. It is not a circuit simulation or a neural capture of the named hardware families. Synthetic measurements establish behavior and regression safety; they do **not** establish perceptual or electrical equivalence to a physical amplifier.
+SpectralForge Chimera Open Beta 1.0 has fifteen **voiced algorithmic amp models**. It is not a circuit simulation or a neural capture of the named hardware families. Synthetic measurements establish behavior and regression safety; they do **not** establish perceptual or electrical equivalence to a physical amplifier.
 
 ## Changes from the previous test build
 
@@ -10,10 +10,10 @@ The full-range EQ remains available in Classic/Dual Blend. Matrix and Dual Cross
 
 ## Automated evidence
 
-`Tests/ChimeraTests.cpp` and `Tests/FeatureTests.h` cover:
+`Tests/ChimeraTests.cpp`, `Tests/FeatureTests.h` and `Tests/AmpVoiceTests.h` cover:
 
 - Existing band-tone response, coefficient updates and routing isolation at 44.1, 48, 96 and 192 kHz.
-- Eight distinct responses, bounded finite output, persistent DC below 0.001 FS, and positive compressed input/output dynamics.
+- Fifteen distinct responses, bounded finite output, persistent DC below 0.001 FS, and positive compressed input/output dynamics.
 - A coherent 10.006 kHz high-drive sine, measuring the folded fifth harmonic near 2.032 kHz relative to the fundamental. 4x and 8x must improve this component by at least 12 dB versus 1x. This is one deliberately severe aliasing probe, not a complete perceptual score.
 - Stereo-linked gate closure, fast reopening and no chatter on a 30.87 Hz bass fundamental.
 - Monophonic tuner frequency/cents error on synthetic harmonic-rich tones from 25.96 to 1390 Hz, and silence rejection.
@@ -32,7 +32,7 @@ Windows additionally runs the actual processor/state/editor and saves screenshot
 
 ## NAM reference validation
 
-A meaningful reproduction test needs a matched dry DI plus reamped hardware outputs, exact gain/EQ/channel/cabinet settings and level calibration. For each intended reference, compare clean-to-distorted sweeps, pickup-volume cleanup, single notes, bass transients, palm mutes, chords/intermodulation, attack/recovery and decay, at matched perceived loudness. The user has no reamp hardware. Eight third-party amp-head NAM captures now provide digital reference outputs instead; see NAM_REFERENCE_RESULTS.md for exact files, calibration limits and measured improvements. This still does not independently establish physical hardware fidelity.
+A meaningful reproduction test needs a matched dry DI plus reamped hardware outputs, exact gain/EQ/channel/cabinet settings and level calibration. For each intended reference, compare clean-to-distorted sweeps, pickup-volume cleanup, single notes, bass transients, palm mutes, chords/intermodulation, attack/recovery and decay, at matched perceived loudness. Third-party NAM captures provide digital reference outputs. The original eight-voice fixed-capture comparison is in [NAM_REFERENCE_RESULTS.md](NAM_REFERENCE_RESULTS.md); six additional actual NAM comparisons for voices 8–13 are documented in [OPEN_BETA_NAM_VALIDATION.md](OPEN_BETA_NAM_VALIDATION.md). New model mappings and exact/clone/related-reference distinctions are in [AMP_VOICES_OPEN_BETA.md](AMP_VOICES_OPEN_BETA.md). An exact EICH T900 NAM has not been obtained. Read each report's capture settings, calibration limits and measured scope; neither reference availability nor comparison metrics independently establish physical hardware fidelity.
 
 The previous bass listening report remains a useful first check. Guitar listening, especially low-tuned chords under transpose and high-gain pick attack through IRs, remains a listening acceptance step rather than an automated claim of fidelity.
 
@@ -53,7 +53,7 @@ the head's algorithmic latency. Natural IR phase/onset delay is deliberately ret
 ## Repeatable A/B workflow
 
 1. Record one dry DI without effects. Keep its exact audio, start time, interface input setting, sample rate, block size and measured peak/RMS fixed; do not replay the part for the B pass.
-2. Save reference A using MENU > Save reference. It includes parameter state, both A/B slots and the original user IR bytes. Record the plugin commit and IR source/hash externally alongside the DI.
+2. Save reference A using SAVE AS. It includes parameter state, both A/B slots and the original user IR bytes. Record the plugin commit and IR source/hash externally alongside the DI.
 3. COPY A to B, then change one amp, cabinet or control. Switch A/B to compare. Active slot changes and project/reference recall clear DSP histories/tails; allow at least one second of preroll before measuring a sustained section, and include sufficient silence to measure tails.
 4. Match output loudness using LEVEL or OUTPUT. A/B switching does not automatically match loudness. Compare spectra, transient envelope, dynamic cleanup, chord intermodulation and decay on the same region.
 5. Re-render A from a fresh instance and null A/A first. Log metrics and accept/reject a change against the fixed reference. NAM validation uses the exact same generated DI and fixed capture metadata; physical hardware fidelity remains a separate claim.
@@ -74,4 +74,4 @@ Drive processing remains fixed at 4x oversampling. Model filter coefficients tra
 
 Processor/UI tests cover model and metadata recall, actual IR decoding and collection filtering, and A/B stereo routing. The original raw PRE model indices 0-2 retain their meanings. Old normalized DAW model-selection automation can map differently after expansion from three to five choices; ordinary state-recall tests do not remove that host-automation compatibility limit.
 
-Pass/fail evidence belongs to the matching build's logs. Existing NAM measurement values remain fixed-capture head comparisons in [NAM_REFERENCE_RESULTS.md](NAM_REFERENCE_RESULTS.md); this FX update does not imply those hardware references, new pedals or artwork have passed a new physical-equivalence test.
+Pass/fail evidence belongs to the matching build's logs. The original eight-voice NAM measurements remain fixed-capture head comparisons in [NAM_REFERENCE_RESULTS.md](NAM_REFERENCE_RESULTS.md). The six added-voice comparisons are documented separately in [OPEN_BETA_NAM_VALIDATION.md](OPEN_BETA_NAM_VALIDATION.md), with model context in [AMP_VOICES_OPEN_BETA.md](AMP_VOICES_OPEN_BETA.md). Pedals, artwork and quantitative NAM comparison must not be presented as a physical-equivalence pass.

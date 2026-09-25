@@ -38,3 +38,7 @@ for this project, using the user's RavenForge brand imagery as style references 
 workbench background. Generation prompts are in ARTWORK_PROMPTS.json. Hardware images
 are illustrative and do not constitute photographs of the captured equipment. No third-party
 logos or product artwork are included. Native UI controls/text remain separate from images.
+
+## External bass IR source links
+
+Shift Line Bass IR Pack: https://shift-line.com/irpackbass . Chimera contains capture metadata, original-file hashes and a link to the creator's download page; it does not include these twelve WAV files. Software distribution requires the creator's permission. See EXTERNAL_BASS_IRS.md for the user download/import workflow and verification provenance.

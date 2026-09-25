@@ -5,14 +5,10 @@ namespace spectralforge {
 IRLibrary::IRLibrary(std::array<Cab*,3> cabinets) : Thread("Chimera IR preparation"), cabs(cabinets)
 {
     juce::String error;
-    factory[0]=decode(juce::MemoryBlock(ChimeraIRData::guitar_v30_sm57_wav,ChimeraIRData::guitar_v30_sm57_wavSize),"V30 / SM57",error);
-    factory[1]=decode(juce::MemoryBlock(ChimeraIRData::guitar_jensen_sm57_wav,ChimeraIRData::guitar_jensen_sm57_wavSize),"Jensen / SM57",error);
+    factory[0]=decode(juce::MemoryBlock(ChimeraIRData::guitar_v30_sm57_wav,ChimeraIRData::guitar_v30_sm57_wavSize),IRMetadata::factoryFilename(0),error);
+    factory[1]=decode(juce::MemoryBlock(ChimeraIRData::guitar_jensen_sm57_wav,ChimeraIRData::guitar_jensen_sm57_wavSize),IRMetadata::factoryFilename(1),error);
     jassert(factory[0] && factory[1]);
-    for(int i=0;i<2;++i)if(factory[i]) {
-        auto& m=factory[i]->metadata;m.values[0]=i==0 ? "Celestion Vintage 30" : "Jensen (model unspecified)";
-        m.values[1]=i==0 ? "ENGL (configuration unspecified)" : "Unspecified";m.values[3]="Shure SM57";m.values[4]="Center";
-        m.values[8]="jesterdyne";m.values[9]=i==0 ? "https://freesound.org/s/116735/" : "https://freesound.org/s/116743/";m.values[10]="CC BY 4.0";m.values[11]="Factory IR. Distance, angle and speaker diameter are not documented by this asset.";
-    }
+    for(int i=0;i<2;++i)if(factory[i])factory[i]->metadata=IRMetadata::factory(i);
 }
 IRLibrary::~IRLibrary() { stop(); }
 void IRLibrary::stop() { signalThreadShouldExit(); notify(); stopThread(-1); }
@@ -41,8 +37,8 @@ std::shared_ptr<IRLibrary::Asset> IRLibrary::decode(const juce::MemoryBlock& byt
             energy+=double(x)*x;
         }
     if(energy<1e-12) { error="IR is silent. Previous IR kept."; return {}; }
-    asset->encoded=bytes; asset->rate=reader->sampleRate; asset->name=name;
-    asset->metadata=IRMetadata::filenameHints(name);
+    asset->encoded=bytes; asset->rate=reader->sampleRate; asset->name=IRMetadata::leafName(name);
+    asset->metadata=IRMetadata::filenameHints(asset->name);
     return asset;
 }
 juce::Result IRLibrary::importFile(int lane, const juce::File& file)
@@ -124,11 +120,11 @@ juce::String IRLibrary::status(int lane) const
     if(source==3 && !users[lane]) return "No user IR loaded. Filters only.";
     const bool loading=cabs[lane]->activeSource.load()!=source ||
         (source==3 && cabs[lane]->activeGeneration.load()!=generations[lane]);
-    if(loading) return source==3 && users[lane] ? users[lane]->name+" | Preparing IR..." : "Preparing IR...";
+    if(loading) return source==3 && users[lane] ? users[lane]->metadata.shortLabel(users[lane]->name)+" | Preparing IR..." : "Preparing IR...";
     if(source==0) return "Filters only | no speaker IR";
     const auto asset=source==3 ? users[lane] : factory[(size_t)source-1];
     if(!asset) return "Factory IR unavailable";
-    return asset->name + " | " + juce::String(juce::roundToInt(1000.0*asset->samples.getNumSamples()/asset->rate))+" ms";
+    return asset->metadata.shortLabel(asset->name) + " | " + juce::String(juce::roundToInt(1000.0*asset->samples.getNumSamples()/asset->rate))+" ms";
 }
 juce::ValueTree IRLibrary::save() const
 {

@@ -6,7 +6,7 @@
 namespace spectralforge::art {
 // Every selectable hardware reference has an original material/trim render.
 // Two Mu-Tron directions share their physical enclosure, not unrelated skins.
-enum class Surface { workbench, emblem, p808, pcentaur, prat, pm87, pdyna, pdiamond, pqtron, pmutron, pmuff, pface, pbender, prc, prange, pmicro, aglass, abrit, a515, arect, amark, asvt, agk, ahybrid, rsslvca, r1176, rla2a, rn73, rv5, risa, rssleq, rn73eq, rpultec, rce2, rdimension, rstone, rmistress, reddy, rpulsar, r2290, rre201, rmemory, remt, rlex, rspring, cmesa, campeg, cbassman, cdelta, pfet, pmu, pbddi, pb3k, pm82, paw3, pwool, pfactory, pep, plpb, count, cabEight=campeg, cabFour=cmesa, cabTwo=cbassman };
+enum class Surface { workbench, emblem, p808, pcentaur, prat, pm87, pdyna, pdiamond, pqtron, pmutron, pmuff, pface, pbender, prc, prange, pmicro, aglass, abrit, a515, arect, amark, asvt, agk, ahybrid, rsslvca, r1176, rla2a, rn73, rv5, risa, rssleq, rn73eq, rpultec, rce2, rdimension, rstone, rmistress, reddy, rpulsar, r2290, rre201, rmemory, remt, rlex, rspring, cmesa, campeg, cbassman, cdelta, pfet, pmu, pbddi, pb3k, pm82, paw3, pwool, pfactory, pep, plpb, achim30, aorange, abassman, asubway, amatchless, adumble, aeich, count, cabEight=campeg, cabFour=cmesa, cabTwo=cbassman };
 // Keep values stable: the editor styles working JUCE knobs from this palette.
 enum KnobStyle { black=0, cream=1, silver=2, gold=3, chrome=4, ssl=5, red=6, yellow=7, neve=8 };
 struct ModelStyle { Surface surface; int knobStyle; bool brightFace; };
@@ -69,7 +69,14 @@ inline ModelStyle surfaceStyle(Surface surface) {
         {Surface::pwool,black,true},
         {Surface::pfactory,black,true},
         {Surface::pep,black,false},
-        {Surface::plpb,black,true}
+        {Surface::plpb,black,true},
+        {Surface::achim30,gold,true},
+        {Surface::aorange,black,true},
+        {Surface::abassman,black,true},
+        {Surface::asubway,silver,false},
+        {Surface::amatchless,cream,true},
+        {Surface::adumble,black,true},
+        {Surface::aeich,black,true}
     }};
     return styles[static_cast<size_t>(surface)];
 }
@@ -77,10 +84,10 @@ struct RasterBank {
     std::array<juce::Image,static_cast<size_t>(Surface::count)> images;
     RasterBank() {
         constexpr std::array<const char*,static_cast<size_t>(Surface::count)> names{
-            "ravenworkbench_jpg","ravenemblem_png","p808_jpg","pcentaur_jpg","prat_jpg","pm87_jpg","pdyna_jpg","pdiamond_jpg","pqtron_jpg","pmutron_jpg","pmuff_jpg","pface_jpg","pbender_jpg","prc_jpg","prange_jpg","pmicro_jpg","aglass_jpg","abrit_jpg","a515_jpg","arect_jpg","amark_jpg","asvt_jpg","agk_jpg","ahybrid_jpg","rsslvca_jpg","r1176_jpg","rla2a_jpg","rn73_jpg","rv5_jpg","risa_jpg","rssleq_jpg","rn73eq_jpg","rpultec_jpg","rce2_jpg","rdimension_jpg","rstone_jpg","rmistress_jpg","reddy_jpg","rpulsar_jpg","r2290_jpg","rre201_jpg","rmemory_jpg","remt_jpg","rlex_jpg","rspring_jpg","cmesa_jpg","campeg_jpg","cbassman_jpg","cdelta_jpg","pfet_jpg","pmu_jpg","pbddi_jpg","pb3k_jpg","pm82_jpg","paw3_jpg","pwool_jpg","pfactory_jpg","pep_jpg","plpb_jpg"
+            "ravenworkbench_jpg","ravenemblem_png","p808_jpg","pcentaur_jpg","prat_jpg","pm87_jpg","pdyna_jpg","pdiamond_jpg","pqtron_jpg","pmutron_jpg","pmuff_jpg","pface_jpg","pbender_jpg","prc_jpg","prange_jpg","pmicro_jpg","aglass_jpg","abrit_jpg","a515_jpg","arect_jpg","amark_jpg","asvt_jpg","agk_jpg","ahybrid_jpg","rsslvca_jpg","r1176_jpg","rla2a_jpg","rn73_jpg","rv5_jpg","risa_jpg","rssleq_jpg","rn73eq_jpg","rpultec_jpg","rce2_jpg","rdimension_jpg","rstone_jpg","rmistress_jpg","reddy_jpg","rpulsar_jpg","r2290_jpg","rre201_jpg","rmemory_jpg","remt_jpg","rlex_jpg","rspring_jpg","cmesa_jpg","campeg_jpg","cbassman_jpg","cdelta_jpg","pfet_jpg","pmu_jpg","pbddi_jpg","pb3k_jpg","pm82_jpg","paw3_jpg","pwool_jpg","pfactory_jpg","pep_jpg","plpb_jpg","achim30_jpg","aorange_jpg","abassman_jpg","asubway_jpg","amatchless_jpg","adumble_jpg","aeich_jpg"
         };
         constexpr std::array<const char*,static_cast<size_t>(Surface::count)> alphaNames{
-            nullptr,nullptr,"p808alpha_png","pcentauralpha_png","pratalpha_png","pm87alpha_png","pdynaalpha_png","pdiamondalpha_png","pqtronalpha_png","pmutronalpha_png","pmuffalpha_png","pfacealpha_png","pbenderalpha_png","prcalpha_png","prangealpha_png","pmicroalpha_png","aglassalpha_png","abritalpha_png","a515alpha_png","arectalpha_png","amarkalpha_png","asvtalpha_png","agkalpha_png","ahybridalpha_png","rsslvcaalpha_png","r1176alpha_png","rla2aalpha_png","rn73alpha_png","rv5alpha_png","risaalpha_png","rssleqalpha_png","rn73eqalpha_png","rpultecalpha_png","rce2alpha_png","rdimensionalpha_png","rstonealpha_png","rmistressalpha_png","reddyalpha_png","rpulsaralpha_png","r2290alpha_png","rre201alpha_png","rmemoryalpha_png","remtalpha_png","rlexalpha_png","rspringalpha_png","cmesaalpha_png","campegalpha_png","cbassmanalpha_png","cdeltaalpha_png","pfetalpha_png","pmualpha_png","pbddialpha_png","pb3kalpha_png","pm82alpha_png","paw3alpha_png","pwoolalpha_png","pfactoryalpha_png","pepalpha_png","plpbalpha_png"
+            nullptr,nullptr,"p808alpha_png","pcentauralpha_png","pratalpha_png","pm87alpha_png","pdynaalpha_png","pdiamondalpha_png","pqtronalpha_png","pmutronalpha_png","pmuffalpha_png","pfacealpha_png","pbenderalpha_png","prcalpha_png","prangealpha_png","pmicroalpha_png","aglassalpha_png","abritalpha_png","a515alpha_png","arectalpha_png","amarkalpha_png","asvtalpha_png","agkalpha_png","ahybridalpha_png","rsslvcaalpha_png","r1176alpha_png","rla2aalpha_png","rn73alpha_png","rv5alpha_png","risaalpha_png","rssleqalpha_png","rn73eqalpha_png","rpultecalpha_png","rce2alpha_png","rdimensionalpha_png","rstonealpha_png","rmistressalpha_png","reddyalpha_png","rpulsaralpha_png","r2290alpha_png","rre201alpha_png","rmemoryalpha_png","remtalpha_png","rlexalpha_png","rspringalpha_png","cmesaalpha_png","campegalpha_png","cbassmanalpha_png","cdeltaalpha_png","pfetalpha_png","pmualpha_png","pbddialpha_png","pb3kalpha_png","pm82alpha_png","paw3alpha_png","pwoolalpha_png","pfactoryalpha_png","pepalpha_png","plpbalpha_png","achim30alpha_png","aorangealpha_png","abassmanalpha_png","asubwayalpha_png","amatchlessalpha_png","adumblealpha_png","aeichalpha_png"
         };
         for(size_t i=0;i<names.size();++i) {
             int size=0;
@@ -132,8 +139,8 @@ inline ModelStyle modelStyle(int family,int model) {
 inline ModelStyle pedalStyle(int family,int model) {return modelStyle(family,model);}
 inline ModelStyle rackStyle(int family,int model) {return modelStyle(family,model);}
 inline ModelStyle headStyle(int model) {
-    constexpr std::array<Surface,8> heads{Surface::aglass,Surface::abrit,Surface::a515,Surface::arect,Surface::amark,Surface::asvt,Surface::agk,Surface::ahybrid};
-    return surfaceStyle(heads[static_cast<size_t>(juce::jlimit(0,7,model))]);
+    constexpr std::array<Surface,15> heads{Surface::aglass,Surface::abrit,Surface::a515,Surface::arect,Surface::amark,Surface::asvt,Surface::agk,Surface::ahybrid,Surface::achim30,Surface::aorange,Surface::abassman,Surface::asubway,Surface::amatchless,Surface::adumble,Surface::aeich};
+    return surfaceStyle(heads[static_cast<size_t>(juce::jlimit(0,static_cast<int>(heads.size())-1,model))]);
 }
 inline Surface pedalSurface(int family,int model) {return pedalStyle(family,model).surface;}
 inline void pedal(juce::Graphics& g,juce::Rectangle<float> r,int family,int model) {
@@ -142,7 +149,26 @@ inline void pedal(juce::Graphics& g,juce::Rectangle<float> r,int family,int mode
 inline void head(juce::Graphics& g,juce::Rectangle<float> r,int model) {
     raster(g,headStyle(model).surface,r,{0,0,1,1},true);
 }
+// A compact rack has a much wider aspect ratio than its source render. Keep
+// the meter/handle section and mounting ears proportional; extend only the
+// undecorated centre fascia. This avoids oval screws and flattened VU meters.
 inline void rack(juce::Graphics& g,juce::Rectangle<float> r,int family,int model) {
-    raster(g,rackStyle(family,model).surface,r);
+    const auto& source=RasterBank::get().images[static_cast<size_t>(rackStyle(family,model).surface)];
+    if(!source.isValid() || r.isEmpty()) return;
+    const int w=source.getWidth(),h=source.getHeight();
+    const int leftEnd=juce::roundToInt(w*.36f),rightStart=juce::roundToInt(w*.92f);
+    const float scale=r.getHeight()/static_cast<float>(h);
+    const float leftWidth=leftEnd*scale,rightWidth=(w-rightStart)*scale;
+    if(leftWidth+rightWidth>=r.getWidth()) {
+        g.drawImage(source,r,juce::RectanglePlacement::centred);
+        return;
+    }
+    g.setColour(juce::Colours::white);
+    const auto draw=[&](int start,int width,juce::Rectangle<float> destination) {
+        g.drawImage(source.getClippedImage({start,0,width,h}),destination,juce::RectanglePlacement::stretchToFit);
+    };
+    draw(0,leftEnd,{r.getX(),r.getY(),leftWidth,r.getHeight()});
+    draw(leftEnd,rightStart-leftEnd,{r.getX()+leftWidth,r.getY(),r.getWidth()-leftWidth-rightWidth,r.getHeight()});
+    draw(rightStart,w-rightStart,{r.getRight()-rightWidth,r.getY(),rightWidth,r.getHeight()});
 }
 }

@@ -1,4 +1,8 @@
 {
+  "file": "Delta AT4050 Centre 1 Inch.wav",
+  "sha256": "032300b1f903bb0e09ef22315c4cc403b27ad7285e4065ef65712f4b1a44ecba",
+  "sample_rate": 44100,
+  "frames": 16489,
   "speaker": "Celestion G15V-100 Fullback",
   "cabinet": "Peavey Delta Blues 1x15",
   "diameter_in": "15",
@@ -10,5 +14,6 @@
   "author": "markswarbrick",
   "source": "https://www.tone3000.com/tones/peavey-delta-blues-1x15-cabs-2759",
   "notes": "Guitar 15-inch, not a bass cabinet. Angle and exact distance datum are not stated.",
-  "license": "T3K"
+  "license": "T3K",
+  "display_name": "Delta 1x15 Fullback — AT4050"
 }

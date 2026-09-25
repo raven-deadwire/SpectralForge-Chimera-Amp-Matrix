@@ -1,5 +1,5 @@
 param(
-    [string]$Stage = "dist/Chimera-Amp-Matrix-1.0.0-test-win64",
+    [string]$Stage = "dist/SpectralForge-Chimera-1.0.0-beta.1-win64",
     [string]$OutputDirectory = "dist/msix",
     [ValidateSet("Review", "Store", "Signed")][string]$Mode = "Review",
     [string]$IdentityFile,
@@ -42,7 +42,7 @@ if ($Mode -eq "Signed") {
 }
 if ($packageName -notmatch '^[A-Za-z0-9.-]{3,50}$') { throw "Package identity Name has invalid characters or length." }
 $stagePath = (Resolve-Path -LiteralPath $Stage).Path
-$executable = Join-Path $stagePath "Standalone/Chimera Amp Matrix.exe"
+$executable = Join-Path $stagePath "Standalone/SpectralForge Chimera.exe"
 if (!(Test-Path -LiteralPath $executable -PathType Leaf)) { throw "Validated standalone executable is missing." }
 $command = Get-Command MakeAppx.exe -ErrorAction SilentlyContinue
 $makeAppx = if ($command) { $command.Source } else {
@@ -55,13 +55,13 @@ $outputPath = (Resolve-Path -LiteralPath $OutputDirectory).Path
 $work = Join-Path ([IO.Path]::GetTempPath()) ("Chimera-MSIX-" + [guid]::NewGuid().ToString("N"))
 New-Item -ItemType Directory -Path "$work/App", "$work/Assets", "$work/Docs" -Force | Out-Null
 try {
-    Copy-Item -LiteralPath $executable -Destination "$work/App/Chimera Amp Matrix.exe"
-    foreach ($name in @("THIRD_PARTY_NOTICES.md", "AMP_VALIDATION.md", "MODELS_AND_REFERENCE.md", "NAM_REFERENCE_RESULTS.md", "WINDOWS_MSIX.md")) {
+    Copy-Item -LiteralPath $executable -Destination "$work/App/SpectralForge Chimera.exe"
+    foreach ($name in @("MANUAL.html", "OPEN_BETA_RELEASE_NOTES.md", "INSTALLATION.md", "THIRD_PARTY_NOTICES.md", "AMP_VALIDATION.md", "MODELS_AND_REFERENCE.md", "NAM_REFERENCE_RESULTS.md", "WINDOWS_MSIX.md")) {
         Copy-Item -LiteralPath (Join-Path $PSScriptRoot "../docs/$name") -Destination "$work/Docs/$name"
     }
     # Raster resampling only: use the same generated RavenForge emblem as the app.
     Add-Type -AssemblyName System.Drawing
-    $art = [Drawing.Image]::FromFile((Resolve-Path -LiteralPath (Join-Path $PSScriptRoot "../Assets/Artwork/raven-emblem.png")))
+    $art = [Drawing.Image]::FromFile((Resolve-Path -LiteralPath (Join-Path $PSScriptRoot "../Assets/Artwork/spectralforge-emblem.png")))
     try {
         foreach ($logo in @(@("Square150x150Logo.png",150), @("Square44x44Logo.png",44), @("StoreLogo.png",50))) {
             $bitmap = [Drawing.Bitmap]::new([int]$logo[1], [int]$logo[1])
@@ -82,7 +82,7 @@ try {
     $suffix = if ($Mode -eq "Store") { "store-submission" } elseif ($Mode -eq "Signed") { "signed" } else { "review-unsigned" }
     $package = Join-Path $outputPath "Chimera-$Version-x64-$suffix.msix"
     if ($Mode -eq "Signed") {
-        & (Join-Path $PSScriptRoot "Sign-WindowsArtifact.ps1") -Path "$work/App/Chimera Amp Matrix.exe" -CertificateThumbprint $CertificateThumbprint -ExpectedPublisher $publisherDisplayName
+        & (Join-Path $PSScriptRoot "Sign-WindowsArtifact.ps1") -Path "$work/App/SpectralForge Chimera.exe" -CertificateThumbprint $CertificateThumbprint -ExpectedPublisher $publisherDisplayName
     }
     & $makeAppx pack /d $work /p $package /h SHA256 /o
     if ($LASTEXITCODE -ne 0) { throw "MakeAppx schema/semantic validation or packaging failed." }

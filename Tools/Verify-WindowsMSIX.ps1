@@ -37,8 +37,8 @@ try {
     if (@(Get-ChildItem -LiteralPath $unpacked -Recurse -File | Where-Object { $_.Extension -in ".vst3", ".nam", ".wav" }).Count) {
         throw "Standalone MSIX must not imply global VST3 registration or bundle private captures."
     }
-    $sourceExe = "dist/Chimera-Amp-Matrix-1.0.0-test-win64/Standalone/Chimera Amp Matrix.exe"
-    if ((Get-FileHash -LiteralPath "$unpacked/App/Chimera Amp Matrix.exe").Hash -ne (Get-FileHash -LiteralPath $sourceExe).Hash) {
+    $sourceExe = "dist/SpectralForge-Chimera-1.0.0-beta.1-win64/Standalone/SpectralForge Chimera.exe"
+    if ((Get-FileHash -LiteralPath "$unpacked/App/SpectralForge Chimera.exe").Hash -ne (Get-FileHash -LiteralPath $sourceExe).Hash) {
         throw "Packaged app differs from the DSP/UI-validated standalone."
     }
     Pass "SHA256, MakeAppx unpack, RavenForge identity, x64 architecture and exact validated application payload"
@@ -71,10 +71,10 @@ try {
     $installed = Get-AppxPackage -Name $testName
     if (!$installed -or $installed.Status -ne "Ok") { throw "MSIX deployment did not register a healthy package." }
     $aumid = $installed.PackageFamilyName + "!Chimera"
-    $installedExe = Join-Path $installed.InstallLocation "App/Chimera Amp Matrix.exe"
+    $installedExe = Join-Path $installed.InstallLocation "App/SpectralForge Chimera.exe"
     Start-Process explorer.exe -ArgumentList "shell:AppsFolder\$aumid" | Out-Null
     for ($attempt=0; $attempt -lt 60; ++$attempt) {
-        $launched = Get-Process -Name "Chimera Amp Matrix" -ErrorAction SilentlyContinue |
+        $launched = Get-Process -Name "SpectralForge Chimera" -ErrorAction SilentlyContinue |
             Where-Object { $_.Path -eq $installedExe -and $_.MainWindowHandle -ne 0 } | Select-Object -First 1
         if ($launched) { break }
         Start-Sleep -Milliseconds 500

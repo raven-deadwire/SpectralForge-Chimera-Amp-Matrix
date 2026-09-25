@@ -1,0 +1,347 @@
+[
+  {
+    "index": 8,
+    "name": "Chime 30",
+    "file": "SLAMMIN_VOX_AC30_TB_V5_TC4_B5_T5_NOON_S.nam",
+    "reference": "VOX AC30 CH / Top Boost V5 ToneCut4 Bass5 Treble5",
+    "url": "https://www.tone3000.com/tones/vox-ac30-ch-hyper-accuracy-31267",
+    "creator": "slamminmofo",
+    "license": "T3K",
+    "drive": 0.4,
+    "instrument": "guitar",
+    "sha256": "334971cd13ce21511a5cca291106abcacca22e72c012aeff96fbecd08e104c6d",
+    "bytes": 294836,
+    "source_lineage": "Actual VOX AC30 CH head; Suhr Reactive Load; master maximum, attenuator disabled, effects off.",
+    "capture_settings": "Top Boost high input; V5 TC4 B5 T5; page calibration +12.4 dBu rounded, file metadata is authoritative.",
+    "nam_architecture": "SlimmableContainer",
+    "sample_rate": 48000.0,
+    "input_level_dbu": 12.2418,
+    "source_training_checks": {
+      "passed": false,
+      "version": 4
+    },
+    "source_ignore_checks": true,
+    "reference_input_gain_db": -0.7417999999999992,
+    "calibration_status": "metadata, common source 11.5 dBu",
+    "measurements": {
+      "pluck": {
+        "baseline": {
+          "reference_rms_dbfs": -23.913113617543488,
+          "match_gain_db": -1.8963439746482873,
+          "lag_samples": 22,
+          "correlation": 0.6617631673193004,
+          "log_spectrum_rms_db": 8.379953919103073
+        },
+        "same_ir": {
+          "reference_rms_dbfs": -12.94658282131467,
+          "match_gain_db": -3.0805536604481976,
+          "lag_samples": 26,
+          "correlation": 0.7264033708794739,
+          "log_spectrum_rms_db": 8.041048078756713
+        }
+      },
+      "chord": {
+        "baseline": {
+          "reference_rms_dbfs": -23.94269625701719,
+          "match_gain_db": -1.9284371475513793,
+          "lag_samples": 26,
+          "correlation": 0.6819481493066066,
+          "log_spectrum_rms_db": 5.4507285408739765
+        },
+        "same_ir": {
+          "reference_rms_dbfs": -12.921675152705447,
+          "match_gain_db": -2.6403222495324212,
+          "lag_samples": 25,
+          "correlation": 0.725345046335991,
+          "log_spectrum_rms_db": 5.258316027137655
+        }
+      }
+    }
+  },
+  {
+    "index": 9,
+    "name": "Orange Crown",
+    "file": "Rockerverb 50 MKIII Head Only.nam",
+    "reference": "Orange Rockerverb 50 MKIII / Head Only",
+    "url": "https://www.tone3000.com/tones/orange-rockerverb-50-mkiii-head-94818",
+    "creator": "hlrossato",
+    "license": "T3K",
+    "drive": 0.4,
+    "instrument": "guitar",
+    "sha256": "bafe2834a16ad1c0604a6f425c254fbe77cd502f8e0df9fa89fe51564b1f188b",
+    "bytes": 293979,
+    "source_lineage": "Actual Orange Rockerverb 50 MKIII head; Torpedo Captor; no cabinet.",
+    "capture_settings": "Gain 5.5 / Bass 5 / Mid 5 / Treble 6 / Volume 4. Apollo Twin X and Palmer reamp; absolute calibration not documented.",
+    "nam_architecture": "SlimmableContainer",
+    "sample_rate": 48000,
+    "input_level_dbu": null,
+    "source_training_checks": null,
+    "source_ignore_checks": null,
+    "reference_input_gain_db": 0.0,
+    "calibration_status": "unknown; same digital input only",
+    "measurements": {
+      "pluck": {
+        "baseline": {
+          "reference_rms_dbfs": -17.84287683110173,
+          "match_gain_db": 1.0121669560754831,
+          "lag_samples": 92,
+          "correlation": -0.7764218678495416,
+          "log_spectrum_rms_db": 5.655809319709131
+        },
+        "same_ir": {
+          "reference_rms_dbfs": -8.089474949425068,
+          "match_gain_db": -0.5507496248463869,
+          "lag_samples": 95,
+          "correlation": -0.7494438051723049,
+          "log_spectrum_rms_db": 5.784283880538508
+        }
+      },
+      "chord": {
+        "baseline": {
+          "reference_rms_dbfs": -19.047618625430378,
+          "match_gain_db": 0.05441734743768002,
+          "lag_samples": 80,
+          "correlation": -0.4909302182558293,
+          "log_spectrum_rms_db": 5.26717750208708
+        },
+        "same_ir": {
+          "reference_rms_dbfs": -8.117649377122458,
+          "match_gain_db": -0.7807201340164338,
+          "lag_samples": 81,
+          "correlation": -0.4990340594009978,
+          "log_spectrum_rms_db": 5.567833810224241
+        }
+      }
+    }
+  },
+  {
+    "index": 10,
+    "name": "Bassman Valve",
+    "file": "FENDER SUPER BASSMAN.nam",
+    "reference": "Fender Super Bassman 2011 / DI output, overdrive channel",
+    "url": "https://www.tone3000.com/tones/fender-super-bassman-74042",
+    "creator": "payday",
+    "license": "T3K",
+    "drive": 0.4,
+    "instrument": "bass",
+    "sha256": "4c0d5d9daf48fe46189a1e360f0621dd4a4fe442a8fa00e722b849b9552d4aad",
+    "bytes": 297192,
+    "source_lineage": "Actual Fender Super Bassman 300W head DI-out capture; not the power-stage speaker output.",
+    "capture_settings": "Overdrive channel voiced by creator for P-bass; exact knob positions and absolute input calibration not documented.",
+    "nam_architecture": "SlimmableContainer",
+    "sample_rate": 48000,
+    "input_level_dbu": null,
+    "source_training_checks": null,
+    "source_ignore_checks": null,
+    "reference_input_gain_db": 0.0,
+    "calibration_status": "unknown; same digital input only",
+    "measurements": {
+      "pluck": {
+        "baseline": {
+          "reference_rms_dbfs": -27.681478497301768,
+          "match_gain_db": 3.2783973796038604,
+          "lag_samples": -17,
+          "correlation": 0.8435650087407418,
+          "log_spectrum_rms_db": 3.7713561363664576
+        },
+        "same_ir": {
+          "reference_rms_dbfs": -1.14532556782322,
+          "match_gain_db": 3.469890983089583,
+          "lag_samples": -32,
+          "correlation": 0.9775028673665279,
+          "log_spectrum_rms_db": 4.027326840378391
+        }
+      },
+      "chord": {
+        "baseline": {
+          "reference_rms_dbfs": -28.745936998209125,
+          "match_gain_db": 4.151111873486685,
+          "lag_samples": 6,
+          "correlation": 0.825230933040032,
+          "log_spectrum_rms_db": 3.8002301413845587
+        },
+        "same_ir": {
+          "reference_rms_dbfs": -5.612448257844323,
+          "match_gain_db": 3.5867437504591564,
+          "lag_samples": -30,
+          "correlation": 0.8876638294466564,
+          "log_spectrum_rms_db": 4.601877691502105
+        }
+      }
+    }
+  },
+  {
+    "index": 11,
+    "name": "Subway Clean",
+    "file": "Mesa Subway D800+ DI Flat.nam",
+    "reference": "Mesa Subway D-800+ 2017 / DI Flat",
+    "url": "https://www.tone3000.com/tones/mesa-subway-d-800-di-flat-41431",
+    "creator": "markhopkinsbass",
+    "license": "T3K",
+    "drive": 0.4,
+    "instrument": "bass",
+    "sha256": "2e26aaff8dd10cd46179d94c8c16fe6da6d6ff522843216eae324d7adc9ce319",
+    "bytes": 300579,
+    "source_lineage": "Actual Mesa Subway D-800+ DI output; plus model, not the base D-800.",
+    "capture_settings": "Flat EQ per creator; voicing, gain and absolute input calibration not documented.",
+    "nam_architecture": "SlimmableContainer",
+    "sample_rate": 48000.0,
+    "input_level_dbu": null,
+    "source_training_checks": {
+      "passed": true,
+      "version": 3
+    },
+    "source_ignore_checks": false,
+    "reference_input_gain_db": 0.0,
+    "calibration_status": "unknown; same digital input only",
+    "measurements": {
+      "pluck": {
+        "baseline": {
+          "reference_rms_dbfs": -37.5814311974742,
+          "match_gain_db": -9.652228693597873,
+          "lag_samples": 57,
+          "correlation": 0.7066878192470106,
+          "log_spectrum_rms_db": 1.8257644657563903
+        },
+        "same_ir": {
+          "reference_rms_dbfs": -10.989552375953465,
+          "match_gain_db": -10.252045096896643,
+          "lag_samples": 0,
+          "correlation": 0.9592005793749468,
+          "log_spectrum_rms_db": 1.0992822506215378
+        }
+      },
+      "chord": {
+        "baseline": {
+          "reference_rms_dbfs": -39.98703166282931,
+          "match_gain_db": -9.70583403171338,
+          "lag_samples": 81,
+          "correlation": 0.7175868050149207,
+          "log_spectrum_rms_db": 2.2267079965600054
+        },
+        "same_ir": {
+          "reference_rms_dbfs": -15.731692359641798,
+          "match_gain_db": -10.674083725661651,
+          "lag_samples": -8,
+          "correlation": 0.8503907957871536,
+          "log_spectrum_rms_db": 1.0551643116698106
+        }
+      }
+    }
+  },
+  {
+    "index": 12,
+    "name": "Match Chime",
+    "file": "DC30 Ch2 BRT Cut2 vol 35.nam",
+    "reference": "Ceriatone DC30 clone / EF86 Ch2 BRT Cut2 Volume35",
+    "url": "https://www.tone3000.com/tones/matchless-dc30-clone-4638",
+    "creator": "Tor KV",
+    "license": "T3K",
+    "drive": 0.4,
+    "instrument": "guitar",
+    "sha256": "a1c8adb4961ae01052f21f2fab98209a3e78ecbf0c81f0d54deaf13979e291f0",
+    "bytes": 294515,
+    "source_lineage": "Ceriatone DC30 physical CLONE of Matchless DC30; different construction/transformers. Not an original Matchless hardware capture.",
+    "capture_settings": "EF86 channel, second brightest six-position tone setting, Cut2, Volume35 percent, low input, full power/master bypass. Page says +12.1 dBu but downloaded A2 metadata omits calibration; unity digital gain used.",
+    "nam_architecture": "SlimmableContainer",
+    "sample_rate": 48000.0,
+    "input_level_dbu": null,
+    "source_training_checks": null,
+    "source_ignore_checks": null,
+    "reference_input_gain_db": 0.0,
+    "calibration_status": "unknown; same digital input only",
+    "measurements": {
+      "pluck": {
+        "baseline": {
+          "reference_rms_dbfs": -16.898660035545237,
+          "match_gain_db": 4.619154374804299,
+          "lag_samples": 12,
+          "correlation": -0.7339006519065896,
+          "log_spectrum_rms_db": 6.012611109774556
+        },
+        "same_ir": {
+          "reference_rms_dbfs": -6.080538259130014,
+          "match_gain_db": 4.026987929486875,
+          "lag_samples": 13,
+          "correlation": -0.7793993944557984,
+          "log_spectrum_rms_db": 5.731929635716951
+        }
+      },
+      "chord": {
+        "baseline": {
+          "reference_rms_dbfs": -17.205343953390834,
+          "match_gain_db": 4.996025181042076,
+          "lag_samples": 13,
+          "correlation": -0.7561853087136693,
+          "log_spectrum_rms_db": 5.32324620339767
+        },
+        "same_ir": {
+          "reference_rms_dbfs": -6.1305719381957156,
+          "match_gain_db": 4.533845507595923,
+          "lag_samples": 13,
+          "correlation": -0.7684808052381119,
+          "log_spectrum_rms_db": 5.207206982186293
+        }
+      }
+    }
+  },
+  {
+    "index": 13,
+    "name": "Silk ODS",
+    "file": "SLAMMIN_DUMBLE_FORD_OD_SMOOTH_S.nam",
+    "reference": "Dumble ODS #102 Ford CLONE / OD Smooth",
+    "url": "https://www.tone3000.com/tones/dumble-ods-102-ford-hyper-accuracy-30435",
+    "creator": "slamminmofo",
+    "license": "T3K",
+    "drive": 0.4,
+    "instrument": "guitar",
+    "sha256": "063a795eacb0548e2f22d70f5047ac304da16bfd7a686430a3aa1a26087a9e0e",
+    "bytes": 295799,
+    "source_lineage": "Creators physical ODS #102 Robben Ford CLONE; not a verified original Alexander Dumble amplifier.",
+    "capture_settings": "Normal input, overdrive smooth setting. Full numeric knob settings unavailable. Page +12.4 dBu rounded; file +12.2418 dBu used.",
+    "nam_architecture": "SlimmableContainer",
+    "sample_rate": 48000.0,
+    "input_level_dbu": 12.2418,
+    "source_training_checks": {
+      "passed": false,
+      "version": 4
+    },
+    "source_ignore_checks": true,
+    "reference_input_gain_db": -0.7417999999999992,
+    "calibration_status": "metadata, common source 11.5 dBu",
+    "measurements": {
+      "pluck": {
+        "baseline": {
+          "reference_rms_dbfs": -25.109535602340888,
+          "match_gain_db": -6.000724362156262,
+          "lag_samples": 111,
+          "correlation": -0.6840505160848529,
+          "log_spectrum_rms_db": 4.703252075383635
+        },
+        "same_ir": {
+          "reference_rms_dbfs": -13.120435361612031,
+          "match_gain_db": -6.3591584539448025,
+          "lag_samples": 19,
+          "correlation": 0.7863542860570518,
+          "log_spectrum_rms_db": 4.393753795413182
+        }
+      },
+      "chord": {
+        "baseline": {
+          "reference_rms_dbfs": -24.562617514096413,
+          "match_gain_db": -5.954891308254126,
+          "lag_samples": 23,
+          "correlation": 0.7007681310921479,
+          "log_spectrum_rms_db": 6.411538356413064
+        },
+        "same_ir": {
+          "reference_rms_dbfs": -12.999139417816837,
+          "match_gain_db": -6.033618561706209,
+          "lag_samples": 24,
+          "correlation": 0.7585483178585063,
+          "log_spectrum_rms_db": 5.925399683670131
+        }
+      }
+    }
+  }
+]

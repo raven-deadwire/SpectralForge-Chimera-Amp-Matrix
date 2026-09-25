@@ -58,8 +58,10 @@ def main():
     p=argparse.ArgumentParser();p.add_argument('--models',type=Path,required=True);p.add_argument('--manifest',type=Path,required=True);p.add_argument('--nam-render',type=Path,required=True);p.add_argument('--chimera-render',type=Path,required=True);p.add_argument('--out',type=Path,required=True);p.add_argument('--fit',action='store_true');p.add_argument('--ir',type=Path);p.add_argument('--bass-ir',type=Path);args=p.parse_args();args.out.mkdir(parents=True,exist_ok=True)
     rows=[]
     for item in json.loads(args.manifest.read_text())['amps']:
-        model=args.models/item['file'];data=json.loads(model.read_text());cal=data.get('metadata',{}).get('input_level_dbu');gain=10**((11.5-cal)/20) if cal is not None else 1
-        case=dict(item,sha256=hashlib.sha256(model.read_bytes()).hexdigest(),input_level_dbu=cal,reference_input_gain_db=float(20*np.log10(gain)),calibration_status='metadata, common source 11.5 dBu' if cal is not None else 'unknown; same digital input only',measurements={});fitted=None
+        model=args.models/item['file'];model_bytes=model.read_bytes();model_hash=hashlib.sha256(model_bytes).hexdigest()
+        if item.get('sha256') and item['sha256'] != model_hash:raise ValueError(f"Reference hash mismatch: {item['file']}")
+        data=json.loads(model_bytes);cal=data.get('metadata',{}).get('input_level_dbu');gain=10**((11.5-cal)/20) if cal is not None else 1
+        case=dict(item,sha256=model_hash,input_level_dbu=cal,reference_input_gain_db=float(20*np.log10(gain)),calibration_status='metadata, common source 11.5 dBu' if cal is not None else 'unknown; same digital input only',measurements={});fitted=None
         for kind in ['pluck','chord']:
             base=args.out/f"{item['index']}-{kind}";dry=fixture(kind=='chord');wavfile.write(str(base)+'-di.wav',SR,dry.astype('float32'));wavfile.write(str(base)+'-calibrated.wav',SR,(dry*gain).astype('float32'))
             subprocess.run([str(args.nam_render.resolve()),'--slim','1',str(model.resolve()),str(base)+'-calibrated.wav',str(base)+'-nam.wav'],check=True,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)
@@ -69,7 +71,7 @@ def main():
                 if fitted is None:fitted=fit(a,b);case['proposed_contour_db']=list(np.round(fitted,2))
                 result['proposed']=metrics(a,contour(b,fitted))
             if args.ir:
-                ir=read(args.bass_ir if item['index']>=5 and args.bass_ir else args.ir);ir=ir[:,0] if ir.ndim>1 else ir;ir/=np.max(abs(ir));aa=signal.fftconvolve(a,ir);bb=signal.fftconvolve(b,ir);result['same_ir']=metrics(aa,bb);bb*=np.sqrt(np.sum(aa*aa)/np.sum(bb*bb));scale=.9/max(np.max(abs(aa)),np.max(abs(bb)));wavfile.write(str(base)+'-A-NAM.wav',SR,(aa*scale).astype('float32'));wavfile.write(str(base)+'-B-Chimera-matched.wav',SR,(bb*scale).astype('float32'))
+                ir=read(args.bass_ir if item.get('instrument', 'bass' if 5 <= item['index'] <= 7 else 'guitar') == 'bass' and args.bass_ir else args.ir);ir=ir[:,0] if ir.ndim>1 else ir;ir/=np.max(abs(ir));aa=signal.fftconvolve(a,ir);bb=signal.fftconvolve(b,ir);result['same_ir']=metrics(aa,bb);bb*=np.sqrt(np.sum(aa*aa)/np.sum(bb*bb));scale=.9/max(np.max(abs(aa)),np.max(abs(bb)));wavfile.write(str(base)+'-A-NAM.wav',SR,(aa*scale).astype('float32'));wavfile.write(str(base)+'-B-Chimera-matched.wav',SR,(bb*scale).astype('float32'))
             case['measurements'][kind]=result
         rows.append(case);print(item['name'],case['measurements'],flush=True);(args.out/'metrics.json').write_text(json.dumps(rows,indent=2)+'\n')
 if __name__=='__main__':main()

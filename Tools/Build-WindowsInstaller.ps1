@@ -1,5 +1,5 @@
 param(
-    [string]$Stage = "dist/Chimera-Amp-Matrix-1.0.0-test-win64",
+    [string]$Stage = "dist/SpectralForge-Chimera-1.0.0-beta.1-win64",
     [string]$OutputDirectory = "dist",
     [switch]$Sign,
     [string]$CertificateThumbprint = $env:CHIMERA_SIGNING_THUMBPRINT,
@@ -7,11 +7,14 @@ param(
 )
 $ErrorActionPreference = "Stop"
 Set-StrictMode -Version Latest
+if ($Sign -and $CertificateThumbprint -notmatch '^[0-9A-Fa-f]{40}$') {
+    throw "A verified public code-signing certificate is required for a signed release."
+}
 $stagePath = (Resolve-Path -LiteralPath $Stage).Path
 $required = @(
-    "Standalone/Chimera Amp Matrix.exe",
-    "VST3/Chimera Amp Matrix.vst3/Contents/x86_64-win/Chimera Amp Matrix.vst3",
-    "ReferenceTools/ChimeraRender.exe", "WINDOWS_INSTALL.txt", "Verification.txt"
+    "Standalone/SpectralForge Chimera.exe",
+    "VST3/SpectralForge Chimera.vst3/Contents/x86_64-win/SpectralForge Chimera.vst3",
+    "ReferenceTools/ChimeraRender.exe", "WINDOWS_INSTALL.txt", "Verification.txt", "MANUAL.html", "payload-manifest.json"
 )
 foreach ($file in $required) {
     if (!(Test-Path -LiteralPath (Join-Path $stagePath $file) -PathType Leaf)) {
@@ -31,6 +34,16 @@ if ($Sign) {
     $signScript = (Resolve-Path -LiteralPath (Join-Path $PSScriptRoot "Sign-WindowsArtifact.ps1")).Path
     $binaries = @(Get-ChildItem -LiteralPath $stagePath -File -Recurse | Where-Object { $_.Extension -in ".exe", ".dll", ".vst3" } | Select-Object -ExpandProperty FullName)
     & $signScript -Path $binaries -CertificateThumbprint $CertificateThumbprint -ExpectedPublisher $ExpectedPublisher
+    # Signing changes bytes. Refresh the stage inventory after signatures, before
+    # Inno embeds it, so installed documentation describes the actual payload.
+    $payloadManifest = Join-Path $stagePath "payload-manifest.json"
+    $payload = Get-Content -LiteralPath $payloadManifest -Raw | ConvertFrom-Json
+    foreach ($entry in $payload.files) {
+        $payloadFile = Join-Path $stagePath $entry.path
+        $entry.bytes = (Get-Item -LiteralPath $payloadFile).Length
+        $entry.sha256 = (Get-FileHash -LiteralPath $payloadFile -Algorithm SHA256).Hash.ToLowerInvariant()
+    }
+    $payload | ConvertTo-Json -Depth 6 | Set-Content -LiteralPath $payloadManifest -Encoding utf8
     # Pass only non-secret identity metadata to Inno's signing subprocess.
     $env:CHIMERA_SIGNING_THUMBPRINT = $CertificateThumbprint
     $env:CHIMERA_SIGNING_PUBLISHER = $ExpectedPublisher
@@ -40,7 +53,7 @@ if ($Sign) {
 }
 & $iscc @compilerArguments $script
 if ($LASTEXITCODE -ne 0) { throw "Inno Setup failed with exit code $LASTEXITCODE" }
-$installer = Join-Path $outputPath "Chimera-Amp-Matrix-1.0.0-test-win64-Setup.exe"
+$installer = Join-Path $outputPath "SpectralForge-Chimera-1.0.0-beta.1-win64-Setup.exe"
 if (!(Test-Path -LiteralPath $installer)) { throw "Installer compiler did not produce the expected Setup executable." }
 if ($Sign) {
     & $signScript -Path $installer -CertificateThumbprint $CertificateThumbprint -ExpectedPublisher $ExpectedPublisher -VerifyOnly

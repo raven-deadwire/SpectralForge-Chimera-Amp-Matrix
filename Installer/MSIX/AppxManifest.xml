@@ -6,7 +6,7 @@
          IgnorableNamespaces="uap uap10 rescap">
   <Identity Name="RavenForge.ChimeraAmpMatrix.Review" Publisher="CN=RavenForge Luthier Intelligence" Version="1.0.0.0" ProcessorArchitecture="x64" />
   <Properties>
-    <DisplayName>Chimera Amp Matrix</DisplayName>
+    <DisplayName>SpectralForge Chimera</DisplayName>
     <PublisherDisplayName>RavenForge Luthier Intelligence</PublisherDisplayName>
     <Description>Multiband guitar and bass amplifier and effects.</Description>
     <Logo>Assets\StoreLogo.png</Logo>
@@ -14,8 +14,8 @@
   <Resources><Resource Language="en-US" /></Resources>
   <Dependencies><TargetDeviceFamily Name="Windows.Desktop" MinVersion="10.0.19041.0" MaxVersionTested="10.0.26100.0" /></Dependencies>
   <Applications>
-    <Application Id="Chimera" Executable="App\Chimera Amp Matrix.exe" uap10:RuntimeBehavior="win32App" uap10:TrustLevel="mediumIL">
-      <uap:VisualElements DisplayName="Chimera Amp Matrix" Description="Guitar and bass amplifier and effects"
+    <Application Id="Chimera" Executable="App\SpectralForge Chimera.exe" uap10:RuntimeBehavior="win32App" uap10:TrustLevel="mediumIL">
+      <uap:VisualElements DisplayName="SpectralForge Chimera" Description="Guitar and bass amplifier and effects"
                           Square150x150Logo="Assets\Square150x150Logo.png" Square44x44Logo="Assets\Square44x44Logo.png" BackgroundColor="transparent" />
     </Application>
   </Applications>

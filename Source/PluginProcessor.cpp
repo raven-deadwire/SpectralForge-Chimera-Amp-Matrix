@@ -1,5 +1,6 @@
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
+#include "FactoryPresets.h"
 
 ChimeraProcessor::ChimeraProcessor()
     : AudioProcessor(BusesProperties().withInput("Input",juce::AudioChannelSet::stereo(),true)
@@ -10,6 +11,7 @@ ChimeraProcessor::ChimeraProcessor()
     for(size_t i=0;i<extraIds.size();++i)extras[i]=state.getRawParameterValue(extraIds[i]);
     lowCompParameter=state.getRawParameterValue("lowcomp");lowAmpMixParameter=state.getRawParameterValue("lowampmix");
     preOrderParameter=state.getRawParameterValue("preorder");
+    gainOrderParameter=state.getRawParameterValue("gainorder");
     const std::array<const char*,globalCount> ids{"mode","x1","x2","input","output","gateon","gatethreshold","gaterelease","gatehold","transposeon","transpose","oversampling","tuneron","tunermute"};
     for(size_t i=0;i<ids.size();++i) globals[i]=state.getRawParameterValue(ids[i]);
     for(size_t i=0;i<spectralforge::fxSpecs.size();++i) fxParameters[i]=state.getRawParameterValue(spectralforge::fxSpecs[i].id);
@@ -94,7 +96,7 @@ void ChimeraProcessor::process(juce::AudioBuffer<float>& buffer)
     const float meterDecay=float(std::exp(-buffer.getNumSamples()/(rate*.4)));
     inputPeak.store(juce::jmax(peak,inputPeak.load()*meterDecay));
     tuner.push(buffer,value(tunerOn)>.5f);
-    auto fx=spectralforge::readFX(fxParameters);fx.envelopeFirst=preOrderParameter->load()>.5f;for(size_t i=0;i<modelParameters.size();++i)fx.models[i]=(int)modelParameters[i]->load();if(fx.delaySync)fx.delayMs=60000.f/tempoMeter.load();
+    auto fx=spectralforge::readFX(fxParameters);fx.envelopeFirst=preOrderParameter->load()>.5f;fx.boostAfterDrive=gainOrderParameter->load()>.5f;for(size_t i=0;i<modelParameters.size();++i)fx.models[i]=(int)modelParameters[i]->load();if(fx.delaySync)fx.delayMs=60000.f/tempoMeter.load();
     const bool pitching=value(pitchOn)>.5f;
     preFX.process(buffer,value(gateOn)>.5f,value(threshold),value(release),value(hold),pitching,(int)value(semitones),fx);
     preReduction.store(preFX.compressor.reduction());
@@ -147,7 +149,7 @@ juce::Result ChimeraProcessor::loadIR(int lane,const juce::File& file)
     }
     return result;
 }
-juce::AudioProcessorValueTreeState::ParameterLayout ChimeraProcessor::layout(){juce::AudioProcessorValueTreeState::ParameterLayout p;p.add(std::make_unique<juce::AudioParameterChoice>("mode","Routing",juce::StringArray{"Classic","Dual","Matrix"},0));p.add(std::make_unique<juce::AudioParameterFloat>("x1","X1",60.f,350.f,150.f));p.add(std::make_unique<juce::AudioParameterFloat>("x2","X2",500.f,4000.f,1200.f));for(int i=1;i<=3;++i){auto n=juce::String(i);p.add(std::make_unique<juce::AudioParameterChoice>("amp"+n,"Amp "+n,juce::StringArray{"Glass","Brit Edge","Tight 515","Wide Rect","Liquid Lead","Iron Tube","Solid Punch","Modern Bass"},2));p.add(std::make_unique<juce::AudioParameterFloat>("drive"+n,"Drive "+n,0.f,1.f,.35f));p.add(std::make_unique<juce::AudioParameterFloat>("level"+n,"Level "+n,-24.f,12.f,0.f));for(auto id:{"bass","lowmid","highmid","treble"})p.add(std::make_unique<juce::AudioParameterFloat>(juce::String(id)+n,juce::String(id)+" "+n,-12.f,12.f,0.f));p.add(std::make_unique<juce::AudioParameterFloat>("presence"+n,"Presence "+n,0.f,10.f,0.f));p.add(std::make_unique<juce::AudioParameterFloat>("resonance"+n,"Resonance "+n,0.f,10.f,0.f));p.add(std::make_unique<juce::AudioParameterBool>("mute"+n,"Mute "+n,false));p.add(std::make_unique<juce::AudioParameterBool>("solo"+n,"Solo "+n,false));p.add(std::make_unique<juce::AudioParameterBool>("polarity"+n,"Polarity "+n,false));p.add(std::make_unique<juce::AudioParameterBool>("cab"+n,"Cab "+n,true));p.add(std::make_unique<juce::AudioParameterFloat>("cablow"+n,"Cab Low "+n,20.f,500.f,70.f));p.add(std::make_unique<juce::AudioParameterFloat>("cabhigh"+n,"Cab High "+n,1500.f,20000.f,9000.f));}for(int i=1;i<=3;++i){auto n=juce::String(i);p.add(std::make_unique<juce::AudioParameterFloat>("bandtone"+n,"Matrix Band Tone "+n,-12.f,12.f,0.f));}
+juce::AudioProcessorValueTreeState::ParameterLayout ChimeraProcessor::layout(){juce::AudioProcessorValueTreeState::ParameterLayout p;p.add(std::make_unique<juce::AudioParameterChoice>("mode","Routing",juce::StringArray{"Classic","Dual","Matrix"},0));p.add(std::make_unique<juce::AudioParameterFloat>("x1","X1",60.f,350.f,150.f));p.add(std::make_unique<juce::AudioParameterFloat>("x2","X2",500.f,4000.f,1200.f));for(int i=1;i<=3;++i){auto n=juce::String(i);p.add(std::make_unique<juce::AudioParameterChoice>("amp"+n,"Amp "+n,spectralforge::ampNames(),2));p.add(std::make_unique<juce::AudioParameterFloat>("drive"+n,"Drive "+n,0.f,1.f,.35f));p.add(std::make_unique<juce::AudioParameterFloat>("level"+n,"Level "+n,-24.f,12.f,0.f));for(auto id:{"bass","lowmid","highmid","treble"})p.add(std::make_unique<juce::AudioParameterFloat>(juce::String(id)+n,juce::String(id)+" "+n,-12.f,12.f,0.f));p.add(std::make_unique<juce::AudioParameterFloat>("presence"+n,"Presence "+n,0.f,10.f,0.f));p.add(std::make_unique<juce::AudioParameterFloat>("resonance"+n,"Resonance "+n,0.f,10.f,0.f));p.add(std::make_unique<juce::AudioParameterBool>("mute"+n,"Mute "+n,false));p.add(std::make_unique<juce::AudioParameterBool>("solo"+n,"Solo "+n,false));p.add(std::make_unique<juce::AudioParameterBool>("polarity"+n,"Polarity "+n,false));p.add(std::make_unique<juce::AudioParameterBool>("cab"+n,"Cab "+n,true));p.add(std::make_unique<juce::AudioParameterFloat>("cablow"+n,"Cab Low "+n,20.f,500.f,70.f));p.add(std::make_unique<juce::AudioParameterFloat>("cabhigh"+n,"Cab High "+n,1500.f,20000.f,9000.f));}for(int i=1;i<=3;++i){auto n=juce::String(i);p.add(std::make_unique<juce::AudioParameterFloat>("bandtone"+n,"Matrix Band Tone "+n,-12.f,12.f,0.f));}
     for(int i=1;i<=3;++i) p.add(std::make_unique<juce::AudioParameterChoice>("cabtype"+juce::String(i),"Cabinet source "+juce::String(i),juce::StringArray{"Filters only","V30 / SM57","Jensen / SM57","User IR"},1));
     auto number=[&](const char* id,const char* name,float low,float high,float value) { p.add(std::make_unique<juce::AudioParameterFloat>(id,name,low,high,value)); };
     auto toggle=[&](const char* id,const char* name,bool value) { p.add(std::make_unique<juce::AudioParameterBool>(id,name,value)); };
@@ -173,6 +175,8 @@ juce::AudioProcessorValueTreeState::ParameterLayout ChimeraProcessor::layout(){j
     number("tempo","Tempo",40,240,120);toggle("temposync","Follow host tempo",false);toggle("metronome","Metronome",false);
     for(size_t i=0;i<spectralforge::modelFamilies.size();++i) {const auto& family=spectralforge::modelFamilies[i];p.add(std::make_unique<juce::AudioParameterChoice>(family.parameter,juce::String(family.category)+" model",spectralforge::modelNames((int)i),0));}
     p.add(std::make_unique<juce::AudioParameterChoice>("preorder","Pedal detector order",juce::StringArray{"Compressor first","Envelope first"},1));
+    // Append new parameters so existing host parameter indices remain stable.
+    p.add(std::make_unique<juce::AudioParameterChoice>("gainorder","Pedal gain order",juce::StringArray{"Fuzz > Boost > Drive","Fuzz > Drive > Boost"},0));
 return p;
 }
 
@@ -181,7 +185,7 @@ juce::ValueTree ChimeraProcessor::captureCore()
     auto saved=state.copyState();
     saved.removeChild(saved.getChildWithName("USER_IRS"),nullptr);
     saved.removeChild(saved.getChildWithName("COMPARISONS"),nullptr);
-    saved.appendChild(library.save(),nullptr); saved.setProperty("schemaVersion",5,nullptr);
+    saved.appendChild(library.save(),nullptr); saved.setProperty("schemaVersion",6,nullptr);
     return saved;
 }
 void ChimeraProcessor::getStateInformation(juce::MemoryBlock& data)
@@ -207,7 +211,7 @@ void ChimeraProcessor::restoreCore(juce::ValueTree restored)
         if(id.isEmpty() || restored.getChildWithProperty("id",id).isValid()) continue;
         auto* parameter=state.getParameter(id);if(!parameter) continue;
         float value=parameter->convertFrom0to1(parameter->getDefaultValue());
-        if(id.startsWith("cabtype") || id=="gateon" || id=="output" || id=="lowcomp" || id=="preorder") value=0;
+        if(id.startsWith("cabtype") || id=="gateon" || id=="output" || id=="lowcomp" || id=="preorder" || id=="gainorder") value=0;
         juce::ValueTree item("PARAM");item.setProperty("id",id,nullptr);item.setProperty("value",value,nullptr);restored.appendChild(item,nullptr);
     }
     library.restore(restored.getChildWithName("USER_IRS"));restored.removeChild(restored.getChildWithName("USER_IRS"),nullptr);
@@ -255,16 +259,11 @@ void ChimeraProcessor::tapTempo() {
     auto* parameter=state.getParameter("tempo");parameter->setValueNotifyingHost(parameter->convertTo0to1(float(60000/(sum/count))));state.getParameter("temposync")->setValueNotifyingHost(0);restartClick.store(true);
 }
 void ChimeraProcessor::loadFactoryPreset(int index) {
-    // Sound presets keep performance controls and MIDI assignments intact.
-    for(auto* parameter:getParameters()) if(auto* p=dynamic_cast<juce::RangedAudioParameter*>(parameter)) {
-        const auto id=p->paramID;if(id=="input" || id=="inputmode" || id=="tempo" || id=="temposync" || id=="metronome" || id=="tuneron" || id=="tunermute" || id=="tunerref")continue;
-        p->setValueNotifyingHost(p->getDefaultValue());
-    }
-    auto set=[this](const char* id,float value){auto* p=state.getParameter(id);p->setValueNotifyingHost(p->convertTo0to1(value));};
-    if(index==0) {set("amp1",0);set("drive1",.15f);set("precompon",1);set("precomp",.25f);set("reverbon",1);set("reverbmix",.12f);}
-    if(index==1) {set("amp1",2);set("booston",1);set("boostgain",6);set("boostbass",-4);set("drive1",.45f);set("buscompon",1);}
-    if(index==2) {set("mode",2);set("amp1",5);set("amp2",7);set("amp3",6);set("lowcomp",.4f);set("drive2",.45f);set("drive3",.25f);set("x1",180);set("cab2",0);set("cab3",0);set("level2",-6);set("level3",-9);}
-    if(index==3) {set("amp1",1);set("filteron",1);set("filtersense",.6f);set("preon",1);set("predrive",.2f);set("delayon",1);set("delaysync",1);set("delaymix",.18f);}
-    if(index==4) {set("amp1",0);set("fuzzon",1);set("fuzzdrive",22);set("choruson",1);set("chorusmix",.15f);set("reverbon",1);}
-    resetPending.store(true);
+    // The shared catalog resets every sound parameter, then applies the preset.
+    // Performance controls, MIDI mappings and user-owned IR assets are retained.
+    // An invalid preset index deliberately leaves the current sound unchanged.
+    if (spectralforge::applyFactoryPreset(index, [this](const char* id, float value) {
+        if (auto* parameter = state.getParameter(id))
+            parameter->setValueNotifyingHost(parameter->convertTo0to1(value));
+    })) resetPending.store(true);
 }

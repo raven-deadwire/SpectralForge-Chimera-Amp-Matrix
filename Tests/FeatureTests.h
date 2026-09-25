@@ -2,6 +2,7 @@
 #include "GlobalDSP.h"
 #include "IRLibrary.h"
 #include "ChimeraIRData.h"
+#include "AmpVoiceTests.h"
 #include <complex>
 
 namespace featureTests {
@@ -27,8 +28,8 @@ inline double component(const std::vector<float>& audio,double hz)
 }
 inline void amps()
 {
-    std::array<std::vector<float>,8> renders;
-    for(int model=0;model<8;++model)
+    std::array<std::vector<float>,spectralforge::ampModelCount> renders;
+    for(int model=0;model<spectralforge::ampModelCount;++model)
     {
         renders[(size_t)model]=amplifier(model,2,.3f);
         double mean=0;
@@ -159,5 +160,5 @@ inline void cabinets()
     expect(block.getMagnitude(0,0,256)>0.001f,"Convolution did not produce audio");
     expect(block.getMagnitude(1,0,256)<1e-8f,"Cabinet leaks left input into right channel");
 }
-inline void run() { amps();gateAndTuner();pitch();cabinets();std::cout<<"PASS: amplifier signatures/DC/dynamics, anti-aliasing, gate, tuner, transpose, embedded IR and lane isolation\n"; }
+inline void run() { amps();ampVoiceTests::run();gateAndTuner();pitch();cabinets();std::cout<<"PASS: amplifier signatures/DC/dynamics, anti-aliasing, gate, tuner, transpose, embedded IR and lane isolation\n"; }
 }

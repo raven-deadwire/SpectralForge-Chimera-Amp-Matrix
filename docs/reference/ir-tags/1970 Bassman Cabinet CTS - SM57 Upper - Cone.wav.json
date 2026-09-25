@@ -1,4 +1,8 @@
 {
+  "file": "1970 Bassman Cabinet CTS - SM57 Upper - Cone.wav",
+  "sha256": "ee5fcd48ac2a1776904def37e165c70979ca7a5313443de859440393d86df2d8",
+  "sample_rate": 48000,
+  "frames": 24000,
   "speaker": "Original CTS 8 ohm ceramic",
   "cabinet": "1970 Fender Bassman 2x15",
   "diameter_in": "15",
@@ -10,5 +14,6 @@
   "author": "MaestrodiMusica",
   "source": "https://www.tone3000.com/tones/1970-fender-bassman-2x15-cabinet-with-original-cts-speakers-ir-files-60274",
   "notes": "Bass cabinet. Close mic, numerical distance/angle unknown. 60 Hz/12 kHz EQ and HCL Varis compressor in capture chain; not an isolated speaker transfer.",
-  "license": "T3K"
+  "license": "T3K",
+  "display_name": "Bassman 2x15 CTS — SM57 cone"
 }

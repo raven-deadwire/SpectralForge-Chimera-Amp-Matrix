@@ -2,6 +2,7 @@
 #include <juce_audio_utils/juce_audio_utils.h>
 #include "PluginProcessor.h"
 #include "CabinetSelector.h"
+#include "ReleaseSupport.h"
 
 class ChimeraLookAndFeel : public juce::LookAndFeel_V4 {
 public:
@@ -35,6 +36,9 @@ private:
     void chooseIR(int,bool folder);
     void browseIR(int,const juce::File&);
     void showInfo();
+    void showSupport();
+    void trackDialog(juce::DialogWindow*);
+    void markPresetCustom();
     void showIRDetails(int);
     void referenceFile(bool save);
     void layoutControls();
@@ -43,12 +47,16 @@ private:
     ChimeraLookAndFeel look;
     juce::Component canvas;
     juce::TooltipWindow tooltips{this,600};
+    std::shared_ptr<spectralforge::release::ReleaseSupport> support=std::make_shared<spectralforge::release::ReleaseSupport>();
+    juce::Image wordmark,brandEmblem;
+    std::vector<juce::Component::SafePointer<juce::DialogWindow>> dialogs;
+    std::vector<float> presetValues;
     juce::Label title,routingHelp,x1Label,x2Label,gateStatus,pitchStatus;
-    juce::ComboBox mode,quality,scale,inputMode,presets,dualType,preOrder;
+    juce::ComboBox mode,quality,scale,inputMode,presets,dualType,preOrder,gainOrder;
     juce::Slider doublerTime,tempo,dualBlend,dualFrequency;
     juce::Label dualLabel;
     juce::TextButton doublerOn{"DOUBLER"},midi{"MIDI"},tap{"TAP"},hostTempo{"HOST"},metronome{"CLICK"},presetPrevious{"<"},presetNext{">"},presetSave{"SAVE AS"},presetLoad{"OPEN"},delaySync{"SYNC"};
-    std::unique_ptr<CA> inputModeAttachment,dualTypeAttachment,preOrderAttachment;
+    std::unique_ptr<CA> inputModeAttachment,dualTypeAttachment,preOrderAttachment,gainOrderAttachment;
     std::array<std::unique_ptr<SA>,4> utilitySliders;
     std::array<std::unique_ptr<BA>,4> utilityButtons;
     juce::Slider x1,x2;
@@ -76,11 +84,11 @@ private:
     };
     std::array<FXUI,11> effects; // drive, delay, reverb, comp, filter, fuzz, boost, bus, preamp, EQ, chorus
     std::array<int,5> pedalOrder{4,3,5,6,0};
-    bool lastEnvelopeFirst{true};
+    bool lastEnvelopeFirst{true},lastBoostAfterDrive{};
     static constexpr std::array<int,6> rackOrder{7,8,9,10,1,2};
     struct LaneUI {
         int lastModel{-1};
-        juce::Label header,range,toneLabel,tonePivot,cabStatus;
+        juce::Label header,range,toneLabel,tonePivot,cabStatus,ampReference;
         juce::ComboBox amp;
         CabinetSelector cabType;
         juce::Slider drive,level,bass,lm,hm,treble,pres,res,bandTone,cabLow,cabHigh;

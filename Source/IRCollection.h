@@ -12,12 +12,30 @@ struct IRCollection {
         IRMetadata tags;
         int factorySource{};
         bool reference{};
+        juce::String menuLabel;
+        bool external{};
+        juce::String displayName() const {return menuLabel.isNotEmpty() ? menuLabel : tags.shortLabel(name);}
+        juce::String details() const {return tags.details(name);}
         bool ready() const { return factorySource != 0 || file.existsAsFile(); }
         bool bass() const {
             return tags.values[1].containsIgnoreCase("Ampeg") || tags.values[1].containsIgnoreCase("Bassman")
                 || tags.values[11].startsWithIgnoreCase("Bass") || name.containsIgnoreCase("bass");
         }
     };
+    static void labelEntries(std::vector<Entry>& entries) {
+        // Repeated microphone positions and equal basenames remain distinct.
+        // Disambiguation uses ordinal labels, never private filesystem paths.
+        juce::StringArray labels;
+        for(const auto& entry:entries)labels.add(entry.tags.shortLabel(entry.name));
+        juce::StringArray used;
+        for(size_t i=0;i<entries.size();++i) {
+            int total=0,ordinal=0;
+            for(size_t j=0;j<entries.size();++j)if(labels[(int)i].equalsIgnoreCase(labels[(int)j])) {++total;if(j<=i)++ordinal;}
+            entries[i].menuLabel=total>1 ? IRMetadata::boundedLabel(labels[(int)i],49)+" ["+juce::String(ordinal)+"]" : labels[(int)i];
+            while(used.contains(entries[i].menuLabel,true))entries[i].menuLabel=IRMetadata::boundedLabel(labels[(int)i],49)+" ["+juce::String(++ordinal)+"]";
+            used.add(entries[i].menuLabel);
+        }
+    }
     static juce::File userRoot() {
         return juce::File::getSpecialLocation(juce::File::userApplicationDataDirectory).getChildFile("SpectralForge/Chimera");
     }
@@ -53,16 +71,17 @@ struct IRCollection {
     }
     static std::vector<Entry> scan(const std::vector<juce::File>& folders, bool references) {
         std::vector<Entry> result;
+        juce::Array<juce::var> catalogEntries;
+        for(const auto* raw:{referenceIRCatalog,externalBassIRCatalog}) {
+            const auto catalog=juce::JSON::parse(raw);
+            if(const auto* entries=catalog.getArray())catalogEntries.addArray(*entries);
+        }
         if (references) {
             for (int i=0; i<2; ++i) {
-                IRMetadata tags; tags.values[0]=i==0 ? "Celestion Vintage 30" : "Jensen (model unspecified)";
-                tags.values[3]="Shure SM57"; tags.values[4]="Center"; tags.values[8]="jesterdyne";
-                tags.values[10]="CC BY 4.0"; tags.values[11]="Factory guitar IR. Undocumented dimensions remain unknown.";
-                result.push_back({{},i==0 ? "Factory V30 / SM57" : "Factory Jensen / SM57",tags,i+1,false});
+                result.push_back({{},IRMetadata::factoryFilename(i),IRMetadata::factory(i),i+1,false});
             }
-            const auto catalog=juce::JSON::parse(referenceIRCatalog);
-            if (const auto* entries=catalog.getArray()) for (const auto& entry:*entries)
-                result.push_back({{},entry["file"].toString(),IRMetadata::fromJSON(entry),0,true});
+            for(const auto& entry:catalogEntries)
+                result.push_back({{},entry["file"].toString(),IRMetadata::fromJSON(entry),0,true,{},(bool)entry["external"]});
         }
         juce::StringArray seen;
         for (const auto& folder:folders) {
@@ -70,12 +89,11 @@ struct IRCollection {
             for (const auto& item:juce::RangedDirectoryIterator(folder,true,"*",juce::File::findFiles)) {
                 const auto f=item.getFile();
                 if (!f.hasFileExtension("wav;aif;aiff") || seen.contains(f.getFullPathName())) continue;
-                if (seen.size()>=512) return result;
+                if (seen.size()>=512) {labelEntries(result);return result;}
                 seen.add(f.getFullPathName());
                 bool matched=false;
                 if (references) {
-                    const auto catalog=juce::JSON::parse(referenceIRCatalog);
-                    if (const auto* entries=catalog.getArray()) for (const auto& expected:*entries) {
+                    for (const auto& expected:catalogEntries) {
                         if (expected["file"].toString()!=f.getFileName() || f.getSize()>4*1024*1024) continue;
                         if (juce::SHA256(f).toHexString()!=expected["sha256"].toString()) continue;
                         for (auto& row:result) if (row.reference && row.name==f.getFileName()) { row.file=f; matched=true; break; }
@@ -91,7 +109,7 @@ struct IRCollection {
                 result.push_back({f,f.getFileName(),tags,0,false});
             }
         }
-        return result;
+        labelEntries(result);return result;
     }
     // Import only hash-verified catalog IRs; never extract arbitrary ZIP paths,
     // execute files, or copy the NAM weights which can coexist in the personal archive.

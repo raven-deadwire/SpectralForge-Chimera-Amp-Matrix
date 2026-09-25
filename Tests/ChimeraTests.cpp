@@ -6,6 +6,7 @@
 #include "AlignmentTests.h"
 #include "ReferenceTests.h"
 #include "StudioTests.h"
+#include "FactoryPresetTests.h"
 
 namespace {
 void require(bool ok, const char* message)
@@ -137,7 +138,7 @@ void smoke(double sr)
     std::array<LaneState,3> states{};
     juce::AudioBuffer<float> buffer(2,blockSize);
     for (auto mode : {RoutingMode::classic,RoutingMode::dual,RoutingMode::matrix})
-        for (int model = 0; model < 8; ++model)
+        for (int model = 0; model < ampModelCount; ++model)
             for (int block = 0; block < 12; ++block)
             {
                 for (auto& lane : states)
@@ -167,6 +168,7 @@ int main()
         alignmentTests::run();
         referenceTests::run();
         studioTests::run();
+        factoryPresetTests::run();
         return 0;
     }
     catch (const std::exception& error)
