@@ -10,8 +10,12 @@ $packagePath = (Resolve-Path -LiteralPath $Package).Path
 New-Item -ItemType Directory -Path $OutputDirectory -Force | Out-Null
 $outputPath = (Resolve-Path -LiteralPath $OutputDirectory).Path
 $report = Join-Path $outputPath "MSIXVerification.txt"
-"MSIX verification; Windows $([Environment]::OSVersion.Version); Store certification is not performed by this test." | Set-Content -LiteralPath $report
-function Pass([string]$Message) { "PASS: $Message" | Tee-Object -FilePath $report -Append | Write-Host }
+"MSIX verification; Windows $([Environment]::OSVersion.Version); Store certification is not performed by this test." | Set-Content -LiteralPath $report -Encoding UTF8
+function Pass([string]$Message) {
+    $line = "PASS: $Message"
+    Add-Content -LiteralPath $report -Value $line -Encoding UTF8
+    Write-Host $line
+}
 $makeAppx = Get-ChildItem -Path "${env:ProgramFiles(x86)}/Windows Kits/10/bin/*/x64/makeappx.exe" |
     Sort-Object FullName -Descending | Select-Object -First 1 -ExpandProperty FullName
 $unpacked = Join-Path $outputPath ("payload-" + [guid]::NewGuid().ToString("N"))
@@ -91,7 +95,7 @@ try {
     if (!(Test-Path -LiteralPath $marker)) { throw "MSIX uninstall removed external user-library data." }
     Pass "Uninstall removes only the CI package registration and preserves the external user IR library"
 } catch {
-    "FAIL: $($_.Exception.Message)" | Add-Content -LiteralPath $report
+    "FAIL: $($_.Exception.Message)" | Add-Content -LiteralPath $report -Encoding UTF8
     throw
 } finally {
     if ($launched -and !$launched.HasExited) { $launched.Kill() }
