@@ -1,0 +1,51 @@
+name: Audit reported Windows downloads
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - '.github/workflows/windows-download-audit.yml'
+      - 'Tools/Scan-WindowsArtifacts.ps1'
+permissions:
+  contents: read
+  actions: read
+jobs:
+  audit:
+    runs-on: windows-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Retrieve the exact three reported archives from build 127
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $ErrorActionPreference = 'Stop'
+          # Historical incident inputs, deliberately pinned. This job diagnoses
+          # the reported bytes; it does not call a later rebuild the same file.
+          $inputs = @(
+            @{ Id = '10843244503'; Name = 'installer-verification'; SHA256 = 'e62b32d27f4cf9615b16e2fbdbaeb65f333b5e94c032850cb75f7fac5b9ebeb2' },
+            @{ Id = '10843333959'; Name = 'Setup'; SHA256 = '3ade82cc0a6b21c50881e79e14010bf72259ba57be0daa2bb48072c52b02eead' },
+            @{ Id = '10843403780'; Name = 'MSIX-review-unsigned'; SHA256 = '1e3fb29cbad0a683d1a307747d884612235aeb6238f993948699a3208dcacb2a' }
+          )
+          $root = New-Item -ItemType Directory -Force 'audit-inputs'
+          foreach ($item in $inputs) {
+            $archive = Join-Path $root.FullName ($item.Name + '.zip')
+            $uri = "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/artifacts/$($item.Id)/zip"
+            Invoke-WebRequest -Uri $uri -Headers @{ Authorization = "Bearer $env:GH_TOKEN"; 'X-GitHub-Api-Version' = '2022-11-28' } -OutFile $archive
+            if ((Get-FileHash -LiteralPath $archive -Algorithm SHA256).Hash.ToLowerInvariant() -ne $item.SHA256) { throw "Original archive checksum mismatch: $($item.Name)" }
+            [IO.Compression.ZipFile]::ExtractToDirectory($archive, (Join-Path $root.FullName $item.Name))
+          }
+          $msix = @(Get-ChildItem -LiteralPath $root.FullName -Recurse -Filter '*.msix' -File)
+          if ($msix.Count -ne 1) { throw 'Expected exactly one original MSIX.' }
+          [IO.Compression.ZipFile]::ExtractToDirectory($msix[0].FullName, (Join-Path $root.FullName 'MSIX-payload'))
+          $inputs | ConvertTo-Json | Set-Content 'audit-inputs/OriginalArtifacts.json' -Encoding utf8
+      - name: Inspect original archives and extracted payloads without executing them
+        shell: pwsh
+        run: ./Tools/Scan-WindowsArtifacts.ps1 -Path audit-inputs -ReportDirectory build/reported-download-security
+      - name: Upload inspection reports only
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Chimera-Reported-Downloads-Security
+          path: build/reported-download-security/*
+          if-no-files-found: warn

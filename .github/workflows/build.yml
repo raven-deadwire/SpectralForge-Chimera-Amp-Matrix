@@ -15,7 +15,7 @@ jobs:
         if: runner.os == 'Windows'
         shell: pwsh
         run: |
-          foreach ($script in @("Tools/Build-WindowsInstaller.ps1", "Tools/Verify-WindowsInstaller.ps1", "Tools/Sign-WindowsArtifact.ps1", "Tools/Build-WindowsMSIX.ps1", "Tools/Verify-WindowsMSIX.ps1")) {
+          foreach ($script in @("Tools/Build-WindowsInstaller.ps1", "Tools/Verify-WindowsInstaller.ps1", "Tools/Sign-WindowsArtifact.ps1", "Tools/Build-WindowsMSIX.ps1", "Tools/Verify-WindowsMSIX.ps1", "Tools/Scan-WindowsArtifacts.ps1")) {
             $tokens = $null
             $parseErrors = $null
             [System.Management.Automation.Language.Parser]::ParseFile((Resolve-Path $script).Path, [ref]$tokens, [ref]$parseErrors) | Out-Null
@@ -116,17 +116,6 @@ jobs:
           "$hash  Chimera-Amp-Matrix-1.0.0-test-win64.zip" | Set-Content "dist/Chimera-Amp-Matrix-1.0.0-test-win64.sha256.txt"
           Write-Host "SHA256: $hash"
 
-      - name: Upload Windows test package
-        if: runner.os == 'Windows'
-        uses: actions/upload-artifact@v4
-        with:
-          name: Chimera-Amp-Matrix-1.0.0-test-win64
-          path: |
-            dist/Chimera-Amp-Matrix-1.0.0-test-win64.zip
-            dist/Chimera-Amp-Matrix-1.0.0-test-win64.sha256.txt
-          if-no-files-found: error
-          compression-level: 0
-
       - name: Verify signed release cannot fall back to unsigned
         if: runner.os == 'Windows'
         shell: pwsh
@@ -156,21 +145,10 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: Chimera-Windows-installer-verification
-          path: build/installer-verification/**
-          if-no-files-found: warn
-
-      - name: Upload Windows installer
-        if: runner.os == 'Windows'
-        uses: actions/upload-artifact@v4
-        with:
-          name: Chimera-Amp-Matrix-1.0.0-test-win64-Setup
           path: |
-            dist/Chimera-Amp-Matrix-1.0.0-test-win64-Setup.exe
-            dist/Chimera-Amp-Matrix-1.0.0-test-win64-Setup.exe.sha256.txt
-            docs/WINDOWS_INSTALL.txt
-            build/installer-verification/InstallerVerification.txt
-          if-no-files-found: error
-          compression-level: 0
+            build/installer-verification/*.txt
+            build/installer-verification/*.log
+          if-no-files-found: warn
 
       - name: Build MSIX review package
         if: runner.os == 'Windows'
@@ -190,6 +168,46 @@ jobs:
           name: Chimera-Windows-MSIX-verification
           path: build/msix-verification/MSIXVerification.txt
           if-no-files-found: warn
+
+      - name: Scan Windows distribution with Microsoft Defender
+        if: runner.os == 'Windows'
+        timeout-minutes: 10
+        shell: pwsh
+        run: ./Tools/Scan-WindowsArtifacts.ps1 -Path dist -ReportDirectory build/windows-security
+
+      - name: Upload Windows security report
+        if: runner.os == 'Windows' && always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Chimera-Windows-security-report
+          path: build/windows-security/*
+          if-no-files-found: warn
+
+      # Executable downloads are only uploaded after the malware scan succeeds.
+      # This is not a Chrome Safe Browsing verdict or a publisher signature.
+      - name: Upload Windows test package
+        if: runner.os == 'Windows'
+        uses: actions/upload-artifact@v4
+        with:
+          name: Chimera-Amp-Matrix-1.0.0-test-win64
+          path: |
+            dist/Chimera-Amp-Matrix-1.0.0-test-win64.zip
+            dist/Chimera-Amp-Matrix-1.0.0-test-win64.sha256.txt
+          if-no-files-found: error
+          compression-level: 0
+
+      - name: Upload Windows installer
+        if: runner.os == 'Windows'
+        uses: actions/upload-artifact@v4
+        with:
+          name: Chimera-Amp-Matrix-1.0.0-test-win64-Setup
+          path: |
+            dist/Chimera-Amp-Matrix-1.0.0-test-win64-Setup.exe
+            dist/Chimera-Amp-Matrix-1.0.0-test-win64-Setup.exe.sha256.txt
+            docs/WINDOWS_INSTALL.txt
+            build/installer-verification/InstallerVerification.txt
+          if-no-files-found: error
+          compression-level: 0
 
       - name: Upload MSIX review package
         if: runner.os == 'Windows'

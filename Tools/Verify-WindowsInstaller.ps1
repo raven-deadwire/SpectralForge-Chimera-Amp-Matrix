@@ -57,7 +57,8 @@ function Check-Payload([string]$Destination, [bool]$Vst3, [bool]$Standalone, [bo
         Equal-File (Join-Path $stagePath "Standalone/Chimera Amp Matrix.exe") $exe
         $shortcut = Join-Path $startMenu "Chimera Amp Matrix.lnk"
         Assert (Test-Path -LiteralPath $shortcut) "Start Menu shortcut is missing"
-        Copy-Item -LiteralPath $shortcut -Destination (Join-Path $logPath "Chimera-start-menu.lnk") -Force
+        # Keep launchable shortcuts on the disposable test machine. The report
+        # records the real launch result below; it must not redistribute .lnk files.
     } else {
         Assert (!(Test-Path -LiteralPath $exe)) "Unselected standalone app was installed"
         Assert (!(Test-Path -LiteralPath (Join-Path $startMenu "Chimera Amp Matrix.lnk"))) "Unselected standalone shortcut was created"
