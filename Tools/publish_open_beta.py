@@ -122,8 +122,8 @@ class GitHub:
         raise RuntimeError("Unexpected pagination size")
 
     def download(self, path, destination, *, authenticated=True):
-        with self.request(path, authenticated=authenticated,
-                          headers={"Accept": "application/octet-stream"}) as response:
+        # Actions archive endpoints negotiate GitHub JSON before redirecting to ZIP bytes.
+        with self.request(path, authenticated=authenticated) as response:
             with destination.open("wb") as output:
                 shutil.copyfileobj(response, output, length=1024 * 1024)
 
