@@ -255,6 +255,8 @@ void checkProcessor(const juce::File& directory)
         require(writer!=nullptr,"Cannot create IR writer"); stream.release();
         require(writer->writeFromAudioSampleBuffer(impulse,0,128),"Cannot encode IR");
     }
+    juce::MemoryBlock originalIR;
+    require(irFile.loadFileAsData(originalIR),"Cannot read original IR bytes");
     const auto sidecar=juce::File(irFile.getFullPathName()+".json");require(sidecar.replaceWithText("{\"speaker\":\"Reference V30\",\"diameter_in\":\"12\",\"microphone\":\"SM57\",\"distance\":\"0.5 in\"}"),"Cannot write IR sidecar");
     require(source.loadIR(0,irFile).wasOk(),"Processor IR load failed");
     require(source.cabMetadata(0).values[2]=="12" && source.cabMetadata(0).values[5]=="0.5 in","IR sidecar was not imported");require(sidecar.deleteFile(),"Cannot remove IR sidecar fixture");
@@ -269,7 +271,15 @@ void checkProcessor(const juce::File& directory)
     ChimeraProcessor restored; restored.setStateInformation(state.getData(),(int)state.getSize());
     restored.setRateAndBufferSizeDetails(48000,256); restored.prepareToPlay(48000,256);
     require(restored.cabMetadata(0).values[2]=="12" && restored.cabMetadata(0).values[5]=="0.5 in","Embedded IR metadata was lost");
-    require(restored.cabStatus(0).contains("temporary-user-ir.wav"),"Project did not restore embedded IR");
+    require(restored.userIRName(0)==irFile.getFileName(),"Project did not restore embedded IR identity");
+    require(restored.cabStatus(0).contains("Reference V30"),"Restored IR status did not use the compact metadata label");
+    juce::MemoryBlock recalledState, recalledIR;
+    restored.getStateInformation(recalledState);
+    const auto recalledXml=juce::AudioProcessor::getXmlFromBinary(recalledState.getData(),(int)recalledState.getSize());
+    require(recalledXml!=nullptr,"Recalled project state is invalid");
+    const auto savedIR=juce::ValueTree::fromXml(*recalledXml).getChildWithName("USER_IRS").getChildWithProperty("lane",0);
+    require(recalledIR.fromBase64Encoding(savedIR.getProperty("data").toString()) && recalledIR==originalIR,
+            "Project did not preserve embedded IR bytes after the source file was deleted");
     require(restored.parameters().getRawParameterValue("cabtype1")->load()==3,"IR source selection not recalled");
     restored.selectComparison(1);
     require(restored.parameters().getRawParameterValue("preorder")->load()==0,"Saved B pedal order did not survive project recall");
@@ -277,7 +287,7 @@ void checkProcessor(const juce::File& directory)
     require(std::abs(restored.parameters().getRawParameterValue("drive1")->load()-.79f)<1e-5f && restored.parameters().getRawParameterValue("cabtype1")->load()==2,"Saved B slot did not survive project recall");
     restored.selectComparison(0);
     require(restored.parameters().getRawParameterValue("gainorder")->load()==1,"Saved A gain order did not survive project recall");
-    require(restored.cabStatus(0).contains("temporary-user-ir.wav") && std::abs(restored.parameters().getRawParameterValue("lowcomp")->load()-.42f)<1e-5f,"A slot IR or COMP was lost after project recall");
+    require(restored.userIRName(0)==irFile.getFileName() && std::abs(restored.parameters().getRawParameterValue("lowcomp")->load()-.42f)<1e-5f,"A slot IR or COMP was lost after project recall");
     const auto reference=directory.getChildFile("roundtrip.chimera");require(reference.replaceWithData(state.getData(),state.getSize()),"Could not save reference fixture");
     juce::MemoryBlock fromDisk;require(reference.loadFileAsData(fromDisk) && fromDisk==state,"Reference export/import bytes changed");
     std::cout<<"PASS: global gain, oversized blocks, host latency, tuner mute, embedded IR, A/B and reference recall\n";
