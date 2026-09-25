@@ -53,6 +53,7 @@ def checksum(path: Path) -> None:
 
 def documents(destination: Path, build: Path) -> None:
     destination.mkdir(parents=True, exist_ok=True)
+    copy(ROOT / "COPYRIGHT.txt", destination / "COPYRIGHT.txt")
     for name in ("MANUAL.html", "OPEN_BETA_RELEASE_NOTES.md", "THIRD_PARTY_NOTICES.md",
                  "AMP_VALIDATION.md", "AMP_VOICES_OPEN_BETA.md", "OPEN_BETA_NAM_VALIDATION.md", "PRESETS.md", "EXTERNAL_BASS_IRS.md", "UPDATES.md", "MODELS_AND_REFERENCE.md", "FX_AND_IR_DESIGN.md",
                  "WINDOWS_INSTALL.txt", "INSTALLATION.md", "NAM_REFERENCE_RESULTS.md"):

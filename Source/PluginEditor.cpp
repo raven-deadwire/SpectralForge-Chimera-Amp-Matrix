@@ -282,8 +282,11 @@ void ChimeraEditor::filesDropped(const juce::StringArray& files,int x,int y)
 }
 void ChimeraEditor::showInfo()
 {
+    const auto copyrightNotice = juce::String::fromUTF8(
+        "Copyright © 2026 RavenForge Luthier Intelligence. All rights reserved.\n\n"
+        "Third-party software and assets are subject to their respective copyright notices and license terms.");
     juce::AlertWindow::showMessageBoxAsync(juce::MessageBoxIconType::InfoIcon,"SpectralForge Chimera",
-        juce::String("SpectralForge Chimera | Open Beta 1.0\nRavenForge Luthier Intelligence\nBuild ")+CHIMERA_BUILD_REVISION+"\n\nAmp voices are algorithmic interpretations, not verified hardware replicas.\n\nFactory IRs: jesterdyne, CC BY 4.0\nEngl Celestion V30 SM57 center-01.wav\nhttps://freesound.org/s/116735/\nJensen Cab SM57 center.wav\nhttps://freesound.org/s/116743/\nhttps://creativecommons.org/licenses/by/4.0/\nFiles unchanged; normalised and resampled during playback.\n\nPitch: Chimera STFT / JUCE FFT\n\nComplete notices are supplied with the download.","OK",this);
+        juce::String("SpectralForge Chimera | Open Beta 1.0\nRavenForge Luthier Intelligence\nBuild ")+CHIMERA_BUILD_REVISION+"\n\nAmp voices are algorithmic interpretations, not verified hardware replicas.\n\nFactory IRs: jesterdyne, CC BY 4.0\nEngl Celestion V30 SM57 center-01.wav\nhttps://freesound.org/s/116735/\nJensen Cab SM57 center.wav\nhttps://freesound.org/s/116743/\nhttps://creativecommons.org/licenses/by/4.0/\nFiles unchanged; normalised and resampled during playback.\n\nPitch: Chimera STFT / JUCE FFT\n\nComplete notices are supplied with the download.\n\n"+copyrightNotice,"OK",this);
 }
 void ChimeraEditor::timerCallback()
 {

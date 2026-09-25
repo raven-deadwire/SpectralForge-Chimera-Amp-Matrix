@@ -69,3 +69,9 @@ uses the standard-folder Setup installer. See [MSIX scope and signing](docs/WIND
 - [Maintainer release checklist](docs/RELEASE_CHECKLIST.md). The `prepare-release.yml` workflow produces draft-ready artifacts and a hash-based update manifest; it never publishes externally.
 
 SETTINGS → Manual / Bug report / Updates provides an embedded offline manual, user-reviewed bug reports and beta update checks. Downloads are verified against same-repository release metadata, byte size and SHA256; users save/close their host before installation. Publisher signing and macOS notarization remain pending. The published prerelease includes `update-beta.json` for beta-channel discovery.
+
+---
+
+Copyright © 2026 RavenForge Luthier Intelligence. All rights reserved.
+
+Third-party software and assets are subject to their respective copyright notices and license terms.

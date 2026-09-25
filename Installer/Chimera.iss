@@ -37,6 +37,7 @@ CloseApplications=no
 RestartApplications=no
 SetupLogging=yes
 VersionInfoCompany=RavenForge Luthier Intelligence
+VersionInfoCopyright=Copyright © 2026 RavenForge Luthier Intelligence. All rights reserved.
 VersionInfoDescription={#ProductName} Windows Installer
 VersionInfoVersion={#ProductVersion}.0
 VersionInfoProductName={#ProductName}

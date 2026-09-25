@@ -14,7 +14,7 @@ set(CHIMERA_FORMATS VST3 Standalone)
 if(APPLE)
   list(APPEND CHIMERA_FORMATS AU)
 endif()
-juce_add_plugin(ChimeraAmpMatrix COMPANY_NAME "RavenForge Luthier Intelligence" BUNDLE_ID audio.spectralforge.chimera IS_SYNTH FALSE NEEDS_MIDI_INPUT TRUE NEEDS_MIDI_OUTPUT FALSE IS_MIDI_EFFECT FALSE COPY_PLUGIN_AFTER_BUILD FALSE MICROPHONE_PERMISSION_ENABLED TRUE MICROPHONE_PERMISSION_TEXT "SpectralForge Chimera uses audio input to process your guitar or bass." PLUGIN_MANUFACTURER_CODE SpFg PLUGIN_CODE Chm1 FORMATS ${CHIMERA_FORMATS} PRODUCT_NAME "SpectralForge Chimera" ICON_BIG "Assets/Artwork/spectralforge-emblem.png" ICON_SMALL "Assets/Artwork/spectralforge-emblem.png")
+juce_add_plugin(ChimeraAmpMatrix COMPANY_NAME "RavenForge Luthier Intelligence" COMPANY_COPYRIGHT "Copyright © 2026 RavenForge Luthier Intelligence. All rights reserved." BUNDLE_ID audio.spectralforge.chimera IS_SYNTH FALSE NEEDS_MIDI_INPUT TRUE NEEDS_MIDI_OUTPUT FALSE IS_MIDI_EFFECT FALSE COPY_PLUGIN_AFTER_BUILD FALSE MICROPHONE_PERMISSION_ENABLED TRUE MICROPHONE_PERMISSION_TEXT "SpectralForge Chimera uses audio input to process your guitar or bass." PLUGIN_MANUFACTURER_CODE SpFg PLUGIN_CODE Chm1 FORMATS ${CHIMERA_FORMATS} PRODUCT_NAME "SpectralForge Chimera" ICON_BIG "Assets/Artwork/spectralforge-emblem.png" ICON_SMALL "Assets/Artwork/spectralforge-emblem.png")
 juce_add_binary_data(ChimeraIRs HEADER_NAME ChimeraIRData.h NAMESPACE ChimeraIRData SOURCES Assets/IRs/guitar_v30_sm57.wav Assets/IRs/guitar_jensen_sm57.wav)
 # Explicit production assets: abandoned trial encodings are never embedded.
 set(CHIMERA_ARTWORK Assets/Artwork/raven-workbench.jpg Assets/Artwork/raven-emblem.png Assets/Artwork/spectralforge-emblem.png Assets/Artwork/chimera-wordmark.png)

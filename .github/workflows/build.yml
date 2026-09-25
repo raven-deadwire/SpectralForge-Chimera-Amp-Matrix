@@ -250,7 +250,7 @@ jobs:
                       shutil.copy2(source, target)
           PY
           python Tools/package_release.py manifest --dist candidate
-          cp docs/MANUAL.html docs/INSTALLATION.md docs/OPEN_BETA_RELEASE_NOTES.md docs/THIRD_PARTY_NOTICES.md docs/RELEASE_CHECKLIST.md candidate/
+          cp COPYRIGHT.txt docs/MANUAL.html docs/INSTALLATION.md docs/OPEN_BETA_RELEASE_NOTES.md docs/THIRD_PARTY_NOTICES.md docs/RELEASE_CHECKLIST.md candidate/
       - name: Record exact source revision and publication status
         shell: bash
         run: |

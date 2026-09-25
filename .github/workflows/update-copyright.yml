@@ -1,0 +1,27 @@
+name: Update Open Beta 1 copyright notice
+
+on:
+  push:
+    branches: [release/copyright-2026]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: publish-chimera-v1.0.0-beta.1
+  cancel-in-progress: false
+
+jobs:
+  update-notice:
+    if: github.repository == 'raven-deadwire/SpectralForge-Chimera-Amp-Matrix' && github.ref == 'refs/heads/release/copyright-2026'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - name: Update copyright documents and verify unchanged installers
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 Tools/update_release_copyright.py

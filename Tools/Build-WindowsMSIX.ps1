@@ -56,6 +56,7 @@ $work = Join-Path ([IO.Path]::GetTempPath()) ("Chimera-MSIX-" + [guid]::NewGuid(
 New-Item -ItemType Directory -Path "$work/App", "$work/Assets", "$work/Docs" -Force | Out-Null
 try {
     Copy-Item -LiteralPath $executable -Destination "$work/App/SpectralForge Chimera.exe"
+    Copy-Item -LiteralPath (Join-Path $PSScriptRoot "../COPYRIGHT.txt") -Destination "$work/Docs/COPYRIGHT.txt"
     foreach ($name in @("MANUAL.html", "OPEN_BETA_RELEASE_NOTES.md", "INSTALLATION.md", "THIRD_PARTY_NOTICES.md", "AMP_VALIDATION.md", "MODELS_AND_REFERENCE.md", "NAM_REFERENCE_RESULTS.md", "WINDOWS_MSIX.md")) {
         Copy-Item -LiteralPath (Join-Path $PSScriptRoot "../docs/$name") -Destination "$work/Docs/$name"
     }

@@ -1,5 +1,11 @@
 # Third-party notices
 
+## SpectralForge Chimera
+
+Copyright © 2026 RavenForge Luthier Intelligence. All rights reserved.
+
+Third-party software and assets are subject to their respective copyright notices and license terms.
+
 ## Factory cabinet impulse responses
 
 Author: **jesterdyne**. License: **Creative Commons Attribution 4.0 International**.

@@ -53,3 +53,9 @@ Windows Setup SHA-256:
 - Amp/effect models are reference-inspired algorithmic models, without manufacturer endorsement or a claim of exact hardware reproduction. Matchless/Dumble clone references are identified; EICH Taste Punch has no exact T900 NAM validation. See the [amp validation report](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/blob/v1.0.0-beta.1/docs/OPEN_BETA_NAM_VALIDATION.md).
 
 문제는 앱의 **SETTINGS → Bug report** 또는 [GitHub Issues](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/issues)로 알려주세요. OS, DAW/플러그인 형식, 샘플레이트·버퍼 크기와 재현 순서를 함께 적어주시면 도움이 됩니다.
+
+---
+
+Copyright © 2026 RavenForge Luthier Intelligence. All rights reserved.
+
+Third-party software and assets are subject to their respective copyright notices and license terms.
