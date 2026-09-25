@@ -330,6 +330,10 @@ void ChimeraEditor::updateHardwareStyles()
             else if(knob==5)knob=k%3==0 ? 5 : k%3==1 ? 7 : 0;
             apply(effect.controls[k],knob,hardware.brightFace);
             effect.labels[k].setColour(juce::Label::textColourId,labelInk);
+            // Rack trim and decorative meter rims can cross a live label.
+            // Keep each control name on the same readable field as its value.
+            effect.labels[k].setColour(juce::Label::backgroundColourId,pedal ? juce::Colours::transparentBlack
+                : hardware.brightFace ? juce::Colour(0xffeae5d9).withAlpha(.90f) : background.withAlpha(.88f));
         }
     }
     for(size_t i=0;i<lanes.size();++i) {
