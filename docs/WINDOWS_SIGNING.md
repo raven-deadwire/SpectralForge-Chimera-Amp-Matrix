@@ -4,6 +4,12 @@ Publisher: **RavenForge Luthier Intelligence**. The installer metadata uses this
 This is not a digital signature. The current CI builds remain explicitly unsigned test builds.
 No certificate or signing-service identity has been provided or connected.
 
+For the standalone app, the new MSIX/Store route can avoid purchasing a separate
+certificate: Microsoft signs the MSIX after Store certification. The reserved app's
+Partner Center identity must be supplied first. See `WINDOWS_MSIX.md`; ordinary
+direct-download MSIX files still require a trusted signature. VST3 Setup remains
+an EXE distribution and is not automatically signed by submitting an MSIX.
+
 ## Prepared release path
 
 Use a publicly trusted CA-issued code-signing certificate with a hardware token or HSM.

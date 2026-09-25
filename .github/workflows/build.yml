@@ -15,7 +15,7 @@ jobs:
         if: runner.os == 'Windows'
         shell: pwsh
         run: |
-          foreach ($script in @("Tools/Build-WindowsInstaller.ps1", "Tools/Verify-WindowsInstaller.ps1", "Tools/Sign-WindowsArtifact.ps1")) {
+          foreach ($script in @("Tools/Build-WindowsInstaller.ps1", "Tools/Verify-WindowsInstaller.ps1", "Tools/Sign-WindowsArtifact.ps1", "Tools/Build-WindowsMSIX.ps1", "Tools/Verify-WindowsMSIX.ps1")) {
             $tokens = $null
             $parseErrors = $null
             [System.Management.Automation.Language.Parser]::ParseFile((Resolve-Path $script).Path, [ref]$tokens, [ref]$parseErrors) | Out-Null
@@ -169,6 +169,34 @@ jobs:
             dist/Chimera-Amp-Matrix-1.0.0-test-win64-Setup.exe.sha256.txt
             docs/WINDOWS_INSTALL.txt
             build/installer-verification/InstallerVerification.txt
+          if-no-files-found: error
+          compression-level: 0
+
+      - name: Build MSIX review package
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: ./Tools/Build-WindowsMSIX.ps1
+
+      - name: Verify MSIX deployment and application activation
+        if: runner.os == 'Windows'
+        timeout-minutes: 3
+        shell: powershell
+        run: ./Tools/Verify-WindowsMSIX.ps1
+
+      - name: Upload MSIX verification
+        if: runner.os == 'Windows' && always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Chimera-Windows-MSIX-verification
+          path: build/msix-verification/MSIXVerification.txt
+          if-no-files-found: warn
+
+      - name: Upload MSIX review package
+        if: runner.os == 'Windows'
+        uses: actions/upload-artifact@v4
+        with:
+          name: Chimera-Windows-MSIX-review-unsigned
+          path: dist/msix/*
           if-no-files-found: error
           compression-level: 0
 

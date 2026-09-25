@@ -42,7 +42,13 @@ The previous bass listening report remains a useful first check. Guitar listenin
 
 Automated crossover motion compares parallel bands to a serial time-varying allpass reference, including the same smoothing schedule, and compares 127- vs 511-sample blocks. Gates are <0.00005 FS reference residual, <0.01 dB level difference and <0.000001 FS block-size residual. This catches split/allpass coefficient disagreement and block-boundary timing errors; it does not claim that time-varying filters preserve every instantaneous waveform amplitude.
 
-Identical Dual rigs must null against Classic after the 50:50 merge, with post effects both on and off, at every oversampling choice. Dry impulse positions must equal summed module latency at all four tested rates/factors. Matrix LOW must null when only Pre Drive, amp, cabinet and oversampling settings change, including moving crossovers. COMP 0 must be unity; steady RMS reduction must match its control law within 0.35 dB and preserve linked stereo balance.
+Identical Dual rigs must null against Classic after the 50:50 merge, with post effects both on and off, at every oversampling choice. Dry impulse positions must equal summed module latency at all four tested rates/factors. At 0% AMP, Matrix LOW must null when only Pre Drive, amp, cabinet and oversampling settings change, including moving crossovers. COMP 0 must be unity; steady RMS reduction must match its control law within 0.35 dB and preserve linked stereo balance.
+
+LOW also blends its compressed DI with the selected head/cab using constant-sum
+weights. At 44.1/96 kHz and every oversampling factor, the midpoint must null against
+the endpoint average; both hidden drive changes and a previous Classic high-drive
+history must have no effect on Matrix LOW's fixed-zero drive. The DI branch matches
+the head's algorithmic latency. Natural IR phase/onset delay is deliberately retained.
 
 ## Repeatable A/B workflow
 

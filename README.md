@@ -44,3 +44,10 @@ verified hardware equivalence. Windows signing is prepared in `Tools/Sign-Window
 and `Tools/Build-WindowsInstaller.ps1 -Sign`; a CA-validated publisher identity is
 still required. See `docs/WINDOWS_SIGNING.md` for the concrete signing path and the
 difference between publisher identity and SmartScreen reputation.
+
+An x64 standalone **MSIX** packaging path is now available in
+`Tools/Build-WindowsMSIX.ps1`: unsigned review, Partner Center identity-bound Store
+submission, and trusted-certificate direct distribution. MSIX is not itself a
+publisher certificate. Microsoft signs a Store package after certification; the
+current review package has not received that certification. The DAW VST3 still
+uses the standard-folder Setup installer. See [MSIX scope and signing](docs/WINDOWS_MSIX.md).
