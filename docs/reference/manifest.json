@@ -1,0 +1,85 @@
+{
+  "nam_core_commit": "0b3d3c97b0859a3a8c92a8628c4dd89a25eb5842",
+  "amps": [
+    {
+      "index": 0,
+      "name": "Glass",
+      "file": "SLAMMIN_FNDR_DUOVERB_V_V5_CRANKED_S.nam",
+      "reference": "Fender Twin Reverb 65 RI",
+      "url": "https://www.tone3000.com/tones/fender-twin-reverb-65-blackface-ri-45968",
+      "creator": "slamminmofo",
+      "license": "T3K",
+      "drive": 0.4
+    },
+    {
+      "index": 1,
+      "name": "Brit Edge",
+      "file": "SLAMMIN_MARSHALL_J45_V5_LOCUT_P5_S.nam",
+      "reference": "Marshall JTM45 RI / Volume5 LOCUT Presence5",
+      "url": "https://www.tone3000.com/tones/marshall-jtm-45-hyper-accuracy-33505",
+      "creator": "slamminmofo",
+      "license": "T3K",
+      "drive": 0.4
+    },
+    {
+      "index": 2,
+      "name": "Tight 515",
+      "file": "DI 6505 1992 Ld - 6 - SRL.nam",
+      "reference": "Peavey6505 1992 Lead / 4,7,3,7,1,5,8 / Suhr Reactive Load",
+      "url": "https://www.tone3000.com/tones/peavey-6505-1992-original-lead-mesa-4x12-load-amp-head-72177",
+      "creator": "OutmodedElectronics",
+      "license": "T3K",
+      "drive": 0.4
+    },
+    {
+      "index": 3,
+      "name": "Wide Rect",
+      "file": "DI MBDR MW Red Mdn - 2 - SRL.nam",
+      "reference": "Mesa Dual Rectifier MW Red Modern / Gain2:00 MV2 P3 T6 M4 B3",
+      "url": "https://www.tone3000.com/tones/mesa-dual-rectifier-mw-red-modern-mesa-4x12-load-amp-head-69212",
+      "creator": "OutmodedElectronics",
+      "license": "T3K",
+      "drive": 0.4
+    },
+    {
+      "index": 4,
+      "name": "Liquid Lead",
+      "file": "KDM-Slammin_MKIV_44 Petrucci Lead 1 S.nam",
+      "reference": "Mesa MarkIV Lead / Petrucci1",
+      "url": "https://www.tone3000.com/tones/mesa-boogie-mark-iv-lead-hyper-accuracy-6406",
+      "creator": "Kody / slamminmofo",
+      "license": "T3K",
+      "drive": 0.4
+    },
+    {
+      "index": 5,
+      "name": "Iron Tube",
+      "file": "Ampeg SVT-VR Classic (Normal).nam",
+      "reference": "Ampeg SVT-VR Classic Normal",
+      "url": "https://www.tone3000.com/tones/ampeg-svt-vr-classic-55132",
+      "creator": "johnjones4032",
+      "license": "T3K",
+      "drive": 0.4
+    },
+    {
+      "index": 6,
+      "name": "Solid Punch",
+      "file": "GALLIEN KRUEGER - RB800 - G3.0.nam",
+      "reference": "GK RB800 Gain3 / EQ clock 5,2,11,2",
+      "url": "https://www.tone3000.com/tones/gallien-krueger-rb800-070-2694",
+      "creator": "Arlington Audio",
+      "license": "T3K",
+      "drive": 0.4
+    },
+    {
+      "index": 7,
+      "name": "Modern Bass",
+      "file": "Darkglass Drive - Microtubes B7K Ultra - No Cab.nam",
+      "reference": "B7K Ultra + Aguilar DB751 (not isolated B7K)",
+      "url": "https://www.tone3000.com/tones/darkglass-b7k-ultra-amp-head-64043",
+      "creator": "Darkglass",
+      "license": "T3K",
+      "drive": 0.4
+    }
+  ]
+}

@@ -1,0 +1,281 @@
+name: Open Beta 1.0 Build and Test
+on:
+  pull_request:
+  workflow_dispatch:
+  workflow_call:
+permissions:
+  contents: read
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, ubuntu-22.04, macos-15]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Check release packaging syntax
+        run: python -m py_compile Tools/package_release.py
+      - name: Check Windows packaging script syntax
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          foreach ($script in @("Tools/Build-WindowsInstaller.ps1", "Tools/Verify-WindowsInstaller.ps1", "Tools/Sign-WindowsArtifact.ps1", "Tools/Build-WindowsMSIX.ps1", "Tools/Verify-WindowsMSIX.ps1", "Tools/Scan-WindowsArtifacts.ps1")) {
+            $tokens = $null
+            $parseErrors = $null
+            [System.Management.Automation.Language.Parser]::ParseFile((Resolve-Path $script).Path, [ref]$tokens, [ref]$parseErrors) | Out-Null
+            if ($parseErrors.Count) { throw (($parseErrors | ForEach-Object Message) -join "`n") }
+          }
+      - if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y libasound2-dev libjack-jackd2-dev ladspa-sdk libcurl4-openssl-dev libfreetype6-dev libfontconfig1-dev libx11-dev libxcomposite-dev libxcursor-dev libxext-dev libxinerama-dev libxrandr-dev libxrender-dev libwebkit2gtk-4.1-dev libglu1-mesa-dev mesa-common-dev dpkg-dev
+      - name: Configure Windows/Linux
+        if: runner.os != 'macOS'
+        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+      - name: Configure universal macOS
+        if: runner.os == 'macOS'
+        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_OSX_ARCHITECTURES="arm64;x86_64" -DCMAKE_OSX_DEPLOYMENT_TARGET=12.0
+      - run: cmake --build build --config Release --parallel 2
+      - run: ctest --test-dir build -C Release --output-on-failure
+
+      - name: Upload DSP verification
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Chimera-DSP-verification-${{ runner.os }}
+          path: build/Testing/Temporary/LastTest.log
+          if-no-files-found: warn
+
+      - name: Upload Windows UI verification
+        if: runner.os == 'Windows' && always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Chimera-Windows-UI-snapshots
+          path: |
+            build/ui-snapshots/*.png
+            !build/ui-snapshots/Head-*.png
+            !build/ui-snapshots/PRE-models-*.png
+            !build/ui-snapshots/POST-models-*.png
+            !build/ui-snapshots/PRE-*-first.png
+          if-no-files-found: warn
+
+      - name: Upload Windows head artwork gallery
+        if: runner.os == 'Windows' && always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Chimera-Windows-Head-gallery
+          path: build/ui-snapshots/Head-*.png
+          if-no-files-found: warn
+
+      - name: Upload Windows pedal and rack gallery
+        if: runner.os == 'Windows' && always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Chimera-Windows-Pedal-Rack-gallery
+          path: |
+            build/ui-snapshots/PRE-models-*.png
+            build/ui-snapshots/POST-models-*.png
+            build/ui-snapshots/PRE-*-first.png
+          if-no-files-found: warn
+
+      - name: Stage Windows open beta payload
+        if: runner.os == 'Windows'
+        run: python Tools/package_release.py windows
+
+      - name: Package and verify macOS universal installer
+        if: runner.os == 'macOS'
+        run: python Tools/package_release.py macos
+
+      - name: Package and verify Linux installers
+        if: runner.os == 'Linux'
+        run: python Tools/package_release.py linux
+
+      - name: Verify signed release cannot fall back to unsigned
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $rejected = $false
+          try { ./Tools/Build-WindowsInstaller.ps1 -Sign -CertificateThumbprint "" }
+          catch {
+            if ($_.Exception.Message -notmatch "verified public code-signing certificate is required") { throw }
+            $rejected = $true
+          }
+          if (!$rejected) { throw "Signed build accepted a missing signing identity" }
+          Write-Host "PASS: signed distribution is blocked without a verified publisher certificate"
+
+      - name: Build Windows installer
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: ./Tools/Build-WindowsInstaller.ps1
+
+      - name: Verify Windows install, repair and uninstall
+        if: runner.os == 'Windows'
+        timeout-minutes: 3
+        shell: pwsh
+        run: ./Tools/Verify-WindowsInstaller.ps1
+
+      - name: Upload Windows installer verification
+        if: runner.os == 'Windows' && always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Chimera-Windows-installer-verification
+          path: |
+            build/installer-verification/*.txt
+            build/installer-verification/*.log
+          if-no-files-found: warn
+
+      - name: Build MSIX review package
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: ./Tools/Build-WindowsMSIX.ps1
+
+      - name: Verify MSIX deployment and application activation
+        if: runner.os == 'Windows'
+        timeout-minutes: 3
+        shell: powershell
+        run: ./Tools/Verify-WindowsMSIX.ps1
+
+      - name: Upload MSIX verification
+        if: runner.os == 'Windows' && always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Chimera-Windows-MSIX-verification
+          path: build/msix-verification/MSIXVerification.txt
+          if-no-files-found: warn
+
+      - name: Scan Windows distribution with Microsoft Defender
+        if: runner.os == 'Windows'
+        timeout-minutes: 10
+        shell: pwsh
+        run: ./Tools/Scan-WindowsArtifacts.ps1 -Path dist -ReportDirectory build/windows-security
+
+      - name: Upload Windows security report
+        if: runner.os == 'Windows' && always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Chimera-Windows-security-report
+          path: build/windows-security/*
+          if-no-files-found: warn
+
+      # Executable downloads are only uploaded after the malware scan succeeds.
+      # This is not a Chrome Safe Browsing verdict or a publisher signature.
+      - name: Upload Windows test package
+        if: runner.os == 'Windows'
+        uses: actions/upload-artifact@v4
+        with:
+          name: SpectralForge-Chimera-1.0.0-beta.1-win64
+          path: |
+            dist/SpectralForge-Chimera-1.0.0-beta.1-win64.zip
+            dist/SpectralForge-Chimera-1.0.0-beta.1-win64.zip.sha256.txt
+          if-no-files-found: error
+          compression-level: 0
+
+      - name: Upload Windows installer
+        if: runner.os == 'Windows'
+        uses: actions/upload-artifact@v4
+        with:
+          name: SpectralForge-Chimera-1.0.0-beta.1-win64-Setup
+          path: |
+            dist/SpectralForge-Chimera-1.0.0-beta.1-win64-Setup.exe
+            dist/SpectralForge-Chimera-1.0.0-beta.1-win64-Setup.exe.sha256.txt
+            docs/WINDOWS_INSTALL.txt
+            build/installer-verification/InstallerVerification.txt
+          if-no-files-found: error
+          compression-level: 0
+
+      - name: Upload MSIX review package
+        if: runner.os == 'Windows'
+        uses: actions/upload-artifact@v4
+        with:
+          name: Chimera-Windows-MSIX-review-unsigned
+          path: dist/msix/*
+          if-no-files-found: error
+          compression-level: 0
+
+      - name: Upload macOS installer
+        if: runner.os == 'macOS'
+        uses: actions/upload-artifact@v4
+        with:
+          name: SpectralForge-Chimera-1.0.0-beta.1-macos-universal
+          path: |
+            dist/SpectralForge-Chimera-1.0.0-beta.1-macos-universal.pkg
+            dist/SpectralForge-Chimera-1.0.0-beta.1-macos-universal.pkg.sha256.txt
+            dist/macOS-package-verification.txt
+          if-no-files-found: error
+          compression-level: 0
+
+      - name: Upload Linux installers
+        if: runner.os == 'Linux'
+        uses: actions/upload-artifact@v4
+        with:
+          name: SpectralForge-Chimera-1.0.0-beta.1-linux-x86_64
+          path: |
+            dist/SpectralForge-Chimera-1.0.0-beta.1-linux-x86_64.deb
+            dist/SpectralForge-Chimera-1.0.0-beta.1-linux-x86_64.deb.sha256.txt
+            dist/SpectralForge-Chimera-1.0.0-beta.1-linux-x86_64.tar.gz
+            dist/SpectralForge-Chimera-1.0.0-beta.1-linux-x86_64.tar.gz.sha256.txt
+            dist/Linux-package-verification.txt
+          if-no-files-found: error
+          compression-level: 0
+
+  assemble-candidate:
+    needs: build
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: SpectralForge-Chimera-1.0.0-beta.1-*
+          path: candidate
+          merge-multiple: true
+      - name: Assemble update manifest from verified installers
+        shell: bash
+        run: |
+          # upload-artifact preserves common-root subdirectories in multi-root uploads.
+          python - <<'PY'
+          from pathlib import Path
+          import shutil
+          root = Path('candidate')
+          for source in list(root.rglob('*')):
+              if source.is_file() and source.parent != root:
+                  target = root / source.name
+                  if target.exists() and target.read_bytes() != source.read_bytes():
+                      raise RuntimeError(f'Conflicting candidate files: {source.name}')
+                  if not target.exists():
+                      shutil.copy2(source, target)
+          PY
+          python Tools/package_release.py manifest --dist candidate
+          cp docs/MANUAL.html docs/INSTALLATION.md docs/OPEN_BETA_RELEASE_NOTES.md docs/THIRD_PARTY_NOTICES.md docs/RELEASE_CHECKLIST.md candidate/
+      - name: Record exact source revision and publication status
+        shell: bash
+        run: |
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          Path('candidate/candidate-source.json').write_text(json.dumps({
+              'version': '1.0.0-beta.1', 'tag': 'v1.0.0-beta.1',
+              'revision': os.environ['GITHUB_SHA'], 'runId': os.environ['GITHUB_RUN_ID'],
+              'published': False, 'publisherSigned': False, 'macOSNotarized': False
+          }, indent=2) + '\n')
+          PY
+      - name: Upload concrete draft-ready release files
+        uses: actions/upload-artifact@v4
+        with:
+          name: SpectralForge-Chimera-Open-Beta-1.0-Release-Candidate
+          path: |
+            candidate/*.exe
+            candidate/*.pkg
+            candidate/*.deb
+            candidate/*.zip
+            candidate/*.tar.gz
+            candidate/*.txt
+            candidate/*.json
+            candidate/*.md
+            candidate/*.html
+          if-no-files-found: error
+          compression-level: 0

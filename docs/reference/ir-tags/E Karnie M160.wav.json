@@ -1,0 +1,19 @@
+{
+  "file": "E Karnie M160.wav",
+  "sha256": "00160d5698fa79b51b06d7e07eebf4c7c47cd0f2d489c0bc243eb397a0614b8b",
+  "sample_rate": 48000,
+  "frames": 1059,
+  "speaker": "Eminence Karnivore",
+  "cabinet": "Mesa standard-size 4x12; slant section",
+  "diameter_in": "12",
+  "microphone": "Beyerdynamic M160 (filename inference)",
+  "position": "Slant section; cone position undocumented",
+  "distance": "",
+  "angle": "",
+  "preamp": "",
+  "author": "metalforge",
+  "source": "https://www.tone3000.com/tones/eminence-karnivore-95252",
+  "notes": "Guitar; original capture, no gain normalization. Creator notes quiet levels. Microphone identification follows filenames; distance, angle and exact cone position are not documented.",
+  "license": "T3K",
+  "display_name": "Mesa 4x12 Karnivore — M160"
+}

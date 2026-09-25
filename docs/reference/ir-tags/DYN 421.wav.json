@@ -1,0 +1,19 @@
+{
+  "file": "DYN 421.wav",
+  "sha256": "98fba89cdbf2ef0af1f9548c3b3f59e0c0dde9277f94c2bfca0224d9ed481bbd",
+  "sample_rate": 48000,
+  "frames": 6000,
+  "speaker": "Unspecified Ampeg OEM",
+  "cabinet": "Ampeg 8x10",
+  "diameter_in": "10",
+  "microphone": "Sennheiser MD421",
+  "position": "",
+  "distance": "",
+  "angle": "",
+  "preamp": "",
+  "author": "amrinbastomi",
+  "source": "https://www.tone3000.com/tones/ir-bass-metal-packs-30275/",
+  "license": "T3K",
+  "notes": "Bass cabinet. Unit model, cone position, distance and angle are undocumented.",
+  "display_name": "Ampeg 8x10 — MD421"
+}

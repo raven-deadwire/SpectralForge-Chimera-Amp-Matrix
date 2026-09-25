@@ -1,0 +1,5 @@
+/build/
+/dist/
+/reference-audio/
+__pycache__/
+*.pyc

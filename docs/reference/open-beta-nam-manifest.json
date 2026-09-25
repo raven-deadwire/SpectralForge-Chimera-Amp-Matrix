@@ -1,0 +1,145 @@
+{
+  "nam_core_commit": "0b3d3c97b0859a3a8c92a8628c4dd89a25eb5842",
+  "amps": [
+    {
+      "index": 8,
+      "name": "Chime 30",
+      "file": "SLAMMIN_VOX_AC30_TB_V5_TC4_B5_T5_NOON_S.nam",
+      "reference": "VOX AC30 CH / Top Boost V5 ToneCut4 Bass5 Treble5",
+      "url": "https://www.tone3000.com/tones/vox-ac30-ch-hyper-accuracy-31267",
+      "creator": "slamminmofo",
+      "license": "T3K",
+      "drive": 0.4,
+      "instrument": "guitar",
+      "sha256": "334971cd13ce21511a5cca291106abcacca22e72c012aeff96fbecd08e104c6d",
+      "bytes": 294836,
+      "source_lineage": "Actual VOX AC30 CH head; Suhr Reactive Load; master maximum, attenuator disabled, effects off.",
+      "capture_settings": "Top Boost high input; V5 TC4 B5 T5; page calibration +12.4 dBu rounded, file metadata is authoritative.",
+      "nam_architecture": "SlimmableContainer",
+      "sample_rate": 48000.0,
+      "input_level_dbu": 12.2418,
+      "source_training_checks": {
+        "passed": false,
+        "version": 4
+      },
+      "source_ignore_checks": true
+    },
+    {
+      "index": 9,
+      "name": "Orange Crown",
+      "file": "Rockerverb 50 MKIII Head Only.nam",
+      "reference": "Orange Rockerverb 50 MKIII / Head Only",
+      "url": "https://www.tone3000.com/tones/orange-rockerverb-50-mkiii-head-94818",
+      "creator": "hlrossato",
+      "license": "T3K",
+      "drive": 0.4,
+      "instrument": "guitar",
+      "sha256": "bafe2834a16ad1c0604a6f425c254fbe77cd502f8e0df9fa89fe51564b1f188b",
+      "bytes": 293979,
+      "source_lineage": "Actual Orange Rockerverb 50 MKIII head; Torpedo Captor; no cabinet.",
+      "capture_settings": "Gain 5.5 / Bass 5 / Mid 5 / Treble 6 / Volume 4. Apollo Twin X and Palmer reamp; absolute calibration not documented.",
+      "nam_architecture": "SlimmableContainer",
+      "sample_rate": 48000,
+      "input_level_dbu": null,
+      "source_training_checks": null,
+      "source_ignore_checks": null
+    },
+    {
+      "index": 10,
+      "name": "Bassman Valve",
+      "file": "FENDER SUPER BASSMAN.nam",
+      "reference": "Fender Super Bassman 2011 / DI output, overdrive channel",
+      "url": "https://www.tone3000.com/tones/fender-super-bassman-74042",
+      "creator": "payday",
+      "license": "T3K",
+      "drive": 0.4,
+      "instrument": "bass",
+      "sha256": "4c0d5d9daf48fe46189a1e360f0621dd4a4fe442a8fa00e722b849b9552d4aad",
+      "bytes": 297192,
+      "source_lineage": "Actual Fender Super Bassman 300W head DI-out capture; not the power-stage speaker output.",
+      "capture_settings": "Overdrive channel voiced by creator for P-bass; exact knob positions and absolute input calibration not documented.",
+      "nam_architecture": "SlimmableContainer",
+      "sample_rate": 48000,
+      "input_level_dbu": null,
+      "source_training_checks": null,
+      "source_ignore_checks": null
+    },
+    {
+      "index": 11,
+      "name": "Subway Clean",
+      "file": "Mesa Subway D800+ DI Flat.nam",
+      "reference": "Mesa Subway D-800+ 2017 / DI Flat",
+      "url": "https://www.tone3000.com/tones/mesa-subway-d-800-di-flat-41431",
+      "creator": "markhopkinsbass",
+      "license": "T3K",
+      "drive": 0.4,
+      "instrument": "bass",
+      "sha256": "2e26aaff8dd10cd46179d94c8c16fe6da6d6ff522843216eae324d7adc9ce319",
+      "bytes": 300579,
+      "source_lineage": "Actual Mesa Subway D-800+ DI output; plus model, not the base D-800.",
+      "capture_settings": "Flat EQ per creator; voicing, gain and absolute input calibration not documented.",
+      "nam_architecture": "SlimmableContainer",
+      "sample_rate": 48000.0,
+      "input_level_dbu": null,
+      "source_training_checks": {
+        "passed": true,
+        "version": 3
+      },
+      "source_ignore_checks": false
+    },
+    {
+      "index": 12,
+      "name": "Match Chime",
+      "file": "DC30 Ch2 BRT Cut2 vol 35.nam",
+      "reference": "Ceriatone DC30 clone / EF86 Ch2 BRT Cut2 Volume35",
+      "url": "https://www.tone3000.com/tones/matchless-dc30-clone-4638",
+      "creator": "Tor KV",
+      "license": "T3K",
+      "drive": 0.4,
+      "instrument": "guitar",
+      "sha256": "a1c8adb4961ae01052f21f2fab98209a3e78ecbf0c81f0d54deaf13979e291f0",
+      "bytes": 294515,
+      "source_lineage": "Ceriatone DC30 physical CLONE of Matchless DC30; different construction/transformers. Not an original Matchless hardware capture.",
+      "capture_settings": "EF86 channel, second brightest six-position tone setting, Cut2, Volume35 percent, low input, full power/master bypass. Page says +12.1 dBu but downloaded A2 metadata omits calibration; unity digital gain used.",
+      "nam_architecture": "SlimmableContainer",
+      "sample_rate": 48000.0,
+      "input_level_dbu": null,
+      "source_training_checks": null,
+      "source_ignore_checks": null
+    },
+    {
+      "index": 13,
+      "name": "Silk ODS",
+      "file": "SLAMMIN_DUMBLE_FORD_OD_SMOOTH_S.nam",
+      "reference": "Dumble ODS #102 Ford CLONE / OD Smooth",
+      "url": "https://www.tone3000.com/tones/dumble-ods-102-ford-hyper-accuracy-30435",
+      "creator": "slamminmofo",
+      "license": "T3K",
+      "drive": 0.4,
+      "instrument": "guitar",
+      "sha256": "063a795eacb0548e2f22d70f5047ac304da16bfd7a686430a3aa1a26087a9e0e",
+      "bytes": 295799,
+      "source_lineage": "Creators physical ODS #102 Robben Ford CLONE; not a verified original Alexander Dumble amplifier.",
+      "capture_settings": "Normal input, overdrive smooth setting. Full numeric knob settings unavailable. Page +12.4 dBu rounded; file +12.2418 dBu used.",
+      "nam_architecture": "SlimmableContainer",
+      "sample_rate": 48000.0,
+      "input_level_dbu": 12.2418,
+      "source_training_checks": {
+        "passed": false,
+        "version": 4
+      },
+      "source_ignore_checks": true
+    }
+  ],
+  "not_comparable": [
+    {
+      "requested": "EICH T900",
+      "status": "No exact public NAM capture located on TONE3000 in this audit.",
+      "related": "TecAmp Blackjag 900 DI was downloaded for provenance audit only. It is a different amplifier and is not used as an EICH T900 reference."
+    },
+    {
+      "requested": "Vanderkley Aurora",
+      "status": "No exact public NAM capture located on TONE3000 in this audit. No substituted reference or measurement claimed."
+    }
+  ]
+}
