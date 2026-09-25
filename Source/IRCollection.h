@@ -26,6 +26,10 @@ struct IRCollection {
     }
     static std::vector<juce::File> roots() {
         std::vector<juce::File> result{userRoot().getChildFile("IRs"), sharedIRRoot()};
+        // Portable installs may keep the companion folder alongside the EXE.
+        const auto executable=juce::File::getSpecialLocation(juce::File::currentExecutableFile).getParentDirectory();
+        for(const auto& folder:{executable.getChildFile("Chimera-Personal-IRs"),executable.getParentDirectory().getChildFile("Chimera-Personal-IRs")})
+            if(folder.isDirectory()) result.push_back(folder);
         const auto config = userRoot().getChildFile("ir-folders.json");
         if (config.getSize() <= 16384) {
             const auto json = juce::JSON::parse(config);
@@ -89,7 +93,7 @@ struct IRCollection {
         }
         return result;
     }
-    // Import only the six hash-verified reference IRs; never extract arbitrary ZIP paths,
+    // Import only hash-verified catalog IRs; never extract arbitrary ZIP paths,
     // execute files, or copy the NAM weights which can coexist in the personal archive.
     static juce::Result importPersonalPack(const juce::File& file, const juce::File& destination, int& count) {
         count=0;

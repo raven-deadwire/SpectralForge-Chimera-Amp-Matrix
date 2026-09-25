@@ -25,11 +25,19 @@ inline void plate(juce::Graphics& g,juce::Rectangle<float> r,juce::Colour c,floa
     g.setColour(juce::Colours::black.withAlpha(.045f));for(float y=r.getY()+5;y<r.getBottom()-4;y+=5)g.drawHorizontalLine((int)y,r.getX()+4,r.getRight()-4);
 }
 inline void cabinet(juce::Graphics& g,juce::Rectangle<float> r,const IRMetadata& m) {
-    if(m.values[1].contains("8x10") || m.values[1].contains("4x12") || m.values[1].contains("2x15")) {
-        raster(g,m.values[1].contains("8x10") ? Surface::cabEight : m.values[1].contains("2x15") ? Surface::cabTwo : Surface::cabFour,r,{0,0,1,1},true);return;
+    const auto configuration=m.values[1].toLowerCase();
+    if(configuration.contains("8x10") || configuration.contains("4x12") || configuration.contains("2x15") || configuration.contains("1x15")) {
+        const auto surface=configuration.contains("8x10") ? Surface::campeg : configuration.contains("2x15") ? Surface::cbassman : configuration.contains("1x15") ? Surface::cdelta : Surface::cmesa;
+        raster(g,surface,r,{0,0,1,1},true);return;
     }
     plate(g,r,juce::Colour(0xff292825),3);const auto face=r.reduced(5);g.setColour(juce::Colour(0xff111716));g.fillRect(face);
-    int count=m.values[1].contains("8x") ? 8 : m.values[1].contains("6x") ? 6 : m.values[1].contains("4x") ? 4 : m.values[1].contains("2x") ? 2 : 1;
+    // Unknown cabinet metadata must not manufacture a one-speaker cabinet.
+    const int count=configuration.contains("8x") ? 8 : configuration.contains("6x") ? 6 : configuration.contains("4x") ? 4 : configuration.contains("2x") ? 2 : configuration.contains("1x") ? 1 : 0;
+    if(count==0) {
+        g.setColour(juce::Colour(0xffc4a678));g.setFont(juce::FontOptions(juce::jlimit(10.f,27.f,r.getHeight()*.27f)));
+        g.drawText("IR",face.toNearestInt(),juce::Justification::centred);
+        return;
+    }
     const int columns=count>=4 ? 2 : 1,rows=(count+columns-1)/columns;
     const float d=juce::jmin(face.getWidth()/columns,face.getHeight()/rows)*.82f;
     for(int i=0;i<count;++i){const float x=face.getX()+(i%columns+.5f)*face.getWidth()/columns,y=face.getY()+(i/columns+.5f)*face.getHeight()/rows;

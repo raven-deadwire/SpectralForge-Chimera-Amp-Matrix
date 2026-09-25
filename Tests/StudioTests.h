@@ -44,8 +44,128 @@ inline std::vector<float> dualSum(int blockSize,bool reference)
     }
     return result;
 }
+inline void contracts()
+{
+    // Program-dependent detectors must give the same envelope in small live
+    // blocks and large offline-render blocks. Include a release after a burst.
+    for(int character=0;character<5;++character) {
+        const auto render=[&](int blockSize) {
+            spectralforge::DynamicsModule compressor;compressor.prepare({48000,(juce::uint32)blockSize,2});
+            juce::AudioBuffer<float> buffer(2,blockSize);std::vector<float> result;
+            for(int offset=0;offset<24000;) {
+                const int count=std::min(blockSize,24000-offset);buffer.setSize(2,count,false,false,true);
+                for(int n=0;n<count;++n) {const int t=offset+n;const float x=(t<6000 ? .7f : .05f)*std::sin(juce::MathConstants<float>::twoPi*125*t/48000);buffer.setSample(0,n,x);buffer.setSample(1,n,-x*.4f);}
+                compressor.process(buffer,true,-25,5,12,100,0,character);
+                for(int n=0;n<count;++n) {require(std::abs(buffer.getSample(1,n)+.4f*buffer.getSample(0,n))<1e-6,"Compressor is not stereo linked");result.push_back(buffer.getSample(0,n));}
+                offset+=count;
+            }
+            return result;
+        };
+        const auto small=render(17),large=render(511);float error=0;
+        for(size_t n=0;n<small.size();++n)error=std::max(error,std::abs(small[n]-large[n]));
+        std::cout<<"MEASURE compressor "<<character<<" block-size null "<<error<<"\n";
+        require(error<1e-6,"Program-dependent compressor recovery changes with host block size");
+    }
+    const auto driveRender=[](int blockSize) {
+        spectralforge::DriveModule drive;drive.prepare({48000,(juce::uint32)blockSize,2});spectralforge::FXState fx;fx.driveOn=true;
+        juce::AudioBuffer<float> buffer(2,blockSize);std::vector<float> result;
+        for(int offset=0;offset<30000;) {
+            fx.models[0]=offset/6000;fx.drive=fx.models[0]%2 ? .8f : .35f;fx.tone=fx.models[0]%2 ? 1300.f : 9000.f;
+            const int count=juce::jmin(blockSize,6000-offset%6000,30000-offset);buffer.setSize(2,count,false,false,true);
+            for(int n=0;n<count;++n) {const int t=offset+n;buffer.setSample(0,n,.45f*std::sin(juce::MathConstants<float>::twoPi*125*t/48000));buffer.setSample(1,n,0);}
+            drive.process(buffer,fx);
+            for(int n=0;n<count;++n) {require(std::abs(buffer.getSample(1,n))<1e-7,"Drive leaks signal into the silent stereo channel");result.push_back(buffer.getSample(0,n));}
+            offset+=count;
+        }
+        return result;
+    };
+    const auto small=driveRender(17),large=driveRender(511);float driveError=0;
+    for(size_t n=0;n<small.size();++n)driveError=std::max(driveError,std::abs(small[n]-large[n]));
+    std::cout<<"MEASURE automated drive block-size null "<<driveError<<"\n";
+    require(driveError<3e-6,"Drive model/parameter smoothing depends on host block size");
+    for(int model=0;model<5;++model) {
+        spectralforge::DriveModule drive;drive.prepare({48000,240,1});spectralforge::FXState fx;fx.driveOn=true;fx.drive=.8f;fx.models[0]=model;
+        juce::AudioBuffer<float> buffer(1,240);double dc=0;
+        for(int block=0;block<200;++block) {
+            for(int n=0;n<240;++n) {const int t=block*240+n;buffer.setSample(0,n,.4f*std::sin(juce::MathConstants<float>::twoPi*60*t/48000)+.1f*std::sin(juce::MathConstants<float>::twoPi*420*t/48000));}
+            drive.process(buffer,fx);if(block>=100)for(int n=0;n<240;++n)dc+=buffer.getSample(0,n);
+        }
+        dc/=24000;std::cout<<"MEASURE drive "<<model<<" DC mean "<<dc<<"\n";
+        require(std::abs(dc)<1e-4,"Asymmetric drive retains signal-generated DC");
+    }
+    // All modules were active before bypass: history/tails must still disappear
+    // from the dry path, with identical fixed latency at every supported rate.
+    for(double rate:{44100.0,48000.0,96000.0,192000.0}) {
+        spectralforge::PreFXChain pre;spectralforge::PostFXChain post;pre.prepare({rate,127,2});post.prepare({rate,127,2});
+        spectralforge::FXState fx;fx.models={4,2,2,4,4,4,4,2,2,2,5};
+        juce::AudioBuffer<float> buffer(2,127);float maximum=0;
+        const int warm=juce::roundToInt(rate*.1),settled=juce::roundToInt(rate*.18),total=juce::roundToInt(rate*.22),delay=pre.latency(false)+post.latency();
+        for(int offset=0;offset<total;offset+=127) {
+            const bool enabled=offset<warm;
+            fx.preCompOn=fx.filterOn=fx.fuzzOn=fx.boostOn=fx.driveOn=fx.busCompOn=fx.preampOn=fx.eqOn=fx.chorusOn=fx.delayOn=fx.reverbOn=enabled;
+            for(int n=0;n<127;++n) {const float x=.2f*float(std::sin(juce::MathConstants<double>::twoPi*137*(offset+n)/rate));buffer.setSample(0,n,x);buffer.setSample(1,n,-.4f*x);}
+            pre.process(buffer,false,-60,80,20,false,0,fx);post.process(buffer,fx);
+            if(offset>=settled)for(int n=0;n<127;++n) {const float expected=.2f*float(std::sin(juce::MathConstants<double>::twoPi*137*(offset+n-delay)/rate));maximum=std::max(maximum,std::abs(expected-buffer.getSample(0,n)));maximum=std::max(maximum,std::abs(-.4f*expected-buffer.getSample(1,n)));}
+        }
+        std::cout<<"MEASURE FX return-to-bypass "<<rate<<" Hz: dry null "<<maximum<<"; PRE GR "<<pre.compressor.reduction()<<"; POST GR "<<post.compressorReduction()<<"\n";
+        require(maximum<1e-6,"Bypassed FX retain coloration or wet tails after bypass settles");
+        require(std::abs(pre.compressor.reduction())<1e-6 && std::abs(post.compressorReduction())<1e-6,"Bypassed compressor reports gain reduction which is not being applied");
+        require(std::abs(post.stagePeaks.back()-buffer.getMagnitude(0,buffer.getNumSamples()))<1e-6,"Rack meter does not report actual stage output");
+        post.reset();for(float peak:post.stagePeaks)require(peak==0,"Rack meters retain a stale level after reset");
+    }
+    std::cout<<"PASS: sample-clock smoothing, stereo separation, DC removal, bypass return and real rack meters\n";
+}
+inline void colourAutomation()
+{
+    for(bool fuzz:{false,true})for(int model=0;model<(fuzz ? 5 : 3);++model) {
+        const auto render=[&](int blockSize,bool automate) {
+            spectralforge::ColourModule effect;effect.prepare({48000,(juce::uint32)blockSize,2});
+            juce::AudioBuffer<float> buffer(2,blockSize);std::vector<float> result;
+            for(int offset=0;offset<18000;) {
+                const int count=juce::jmin(blockSize,6000-offset%6000,18000-offset);buffer.setSize(2,count,false,false,true);
+                for(int n=0;n<count;++n) {const float x=.3f*std::sin(juce::MathConstants<float>::twoPi*3500*(offset+n)/48000);buffer.setSample(0,n,x);buffer.setSample(1,n,x);}
+                effect.process(buffer,true,6,automate && offset>=6000 && offset<12000 ? 1.f : 0.f,0,fuzz,model);
+                for(int n=0;n<count;++n) {require(std::abs(buffer.getSample(0,n)-buffer.getSample(1,n))<1e-6,"Colour tone automation changes the stereo image");result.push_back(buffer.getSample(0,n));}
+                offset+=count;
+            }
+            return result;
+        };
+        const auto small=render(17,true),large=render(511,true),unchanged=render(511,false);float blockError=0,initialChange=0,settledChange=0,returnError=0;
+        for(size_t n=0;n<small.size();++n) {
+            blockError=std::max(blockError,std::abs(small[n]-large[n]));
+            if(n>=6000 && n<6016)initialChange=std::max(initialChange,std::abs(small[n]-unchanged[n]));
+            if(n>=8000 && n<10000)settledChange=std::max(settledChange,std::abs(small[n]-unchanged[n]));
+            if(n>=17000)returnError=std::max(returnError,std::abs(small[n]-unchanged[n]));
+        }
+        std::cout<<"MEASURE "<<(fuzz ? "fuzz " : "preamp ")<<model<<" tone automation: initial/settled "<<initialChange<<"/"<<settledChange<<"; block null "<<blockError<<"; return null "<<returnError<<"\n";
+        require(settledChange>1e-3,"Colour tone control is not connected");
+        require(initialChange<settledChange*.12f,"Colour tone changes abruptly at the automation boundary");
+        require(blockError<3e-6,"Colour tone automation depends on host block size");
+        require(returnError<1e-5,"Colour tone does not return to its original response after automation");
+    }
+    std::cout<<"PASS: all eight fuzz/preamp voices preserve stereo and smooth tone automation across host block sizes\n";
+}
 inline void run()
 {
+    contracts();
+    colourAutomation();
+    // Detector order must alter an expressive filter without moving the Matrix
+    // clean tap through fuzz/boost/drive or changing algorithmic delay.
+    for(bool first:{false,true}) {
+        spectralforge::PreFXChain clean,driven,opposite;
+        for(auto* chain:{&clean,&driven,&opposite})chain->prepare({48000,127,2});
+        spectralforge::FXState fx;fx.envelopeFirst=first;fx.preCompOn=fx.filterOn=true;fx.preComp=.8f;
+        auto wet=fx;wet.fuzzOn=wet.boostOn=wet.driveOn=true;wet.models[0]=4;wet.models[5]=4;
+        auto reversed=fx;reversed.envelopeFirst=!first;
+        double tapError=0,orderError=0;juce::AudioBuffer<float> a(2,127),b(2,127),c(2,127);
+        for(int block=0;block<180;++block) {
+            for(int n=0;n<127;++n) {const int t=block*127+n;const float attack=std::exp(-float(t%4800)/1100);const float x=attack*.6f*std::sin(juce::MathConstants<float>::twoPi*110*t/48000);a.setSample(0,n,x);a.setSample(1,n,-x*.5f);}
+            b.makeCopyOf(a);c.makeCopyOf(a);clean.process(a,false,-60,80,20,false,0,fx);driven.process(b,false,-60,80,20,false,0,wet);opposite.process(c,false,-60,80,20,false,0,reversed);
+            for(int n=0;n<127;++n) {tapError=std::max(tapError,double(std::abs(clean.cleanOutput().getSample(0,n)-driven.cleanOutput().getSample(0,n))));orderError+=std::pow(a.getSample(0,n)-c.getSample(0,n),2);}
+        }
+        require(tapError<1e-6,"Pedal order leaked saturation into Matrix clean DI");require(orderError>1e-4,"Pedal order does not change envelope dynamics");require(clean.latency(false)==opposite.latency(false),"Pedal order changed latency");
+    }
+    std::cout<<"PASS: both detector orders affect dynamics, preserve Matrix clean tap and fixed latency\n";
     {spectralforge::PreFXChain pre;spectralforge::PostFXChain post;pre.prepare({48000,127,2});post.prepare({48000,127,2});spectralforge::FXState state;juce::AudioBuffer<float> impulse(2,127);impulse.clear();impulse.setSample(0,0,1);impulse.setSample(1,0,-.5f);
      pre.process(impulse,false,-60,80,20,false,0,state);post.process(impulse,state);const int delay=pre.latency(false)+post.latency();
      for(int n=0;n<127;++n){require(std::abs(impulse.getSample(0,n)-(n==delay?1.f:0.f))<1e-6,"Bypassed pedal/rack startup is not an exact latency-aligned dry path");require(std::abs(impulse.getSample(0,n)+2*impulse.getSample(1,n))<1e-6,"Bypassed FX changed stereo polarity");}
@@ -72,7 +192,7 @@ inline void run()
             for(int c=0;c<2;++c)for(int n=0;n<511;++n)require(std::isfinite(buffer.getSample(c,n)) && std::abs(buffer.getSample(c,n))<20,"Model switching or feedback tails are unstable");
         }
     }
-    std::cout<<"PASS: 36 distinct selectable models; stereo model changes and tails at 44.1/96 kHz\n";
+    std::cout<<"PASS: 46 distinct selectable models; stereo model changes and tails at 44.1/96 kHz\n";
     const auto left=dual(false,0),right=dual(false,1),a=dual(false,0,0),b=dual(false,1,1),blend=dual(false,.25f);
     double endpoint=0,blendError=0;for(size_t n=0;n<a.size();++n){endpoint=juce::jmax(endpoint,std::abs(double(left[n]-a[n])),std::abs(double(right[n]-b[n])));blendError=juce::jmax(blendError,std::abs(double(blend[n]-(.75f*a[n]+.25f*b[n]))));}
     require(endpoint<1e-6 && blendError<1e-6,"Dual blend endpoints or balance are incorrect");

@@ -23,6 +23,7 @@ public:
     void stop();
     juce::Result importFile(int lane, const juce::File&);
     juce::String status(int lane) const;
+    juce::String userName(int lane) const;
     IRMetadata metadata(int lane, int source) const;
     void setMetadata(int lane, const IRMetadata&);
     juce::ValueTree save() const;

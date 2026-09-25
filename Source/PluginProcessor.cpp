@@ -9,6 +9,7 @@ ChimeraProcessor::ChimeraProcessor()
     const std::array<const char*,extraCount> extraIds{"dualtype","dualblend","dualcross","inputmode","doubleron","doublertime","tempo","temposync","metronome"};
     for(size_t i=0;i<extraIds.size();++i)extras[i]=state.getRawParameterValue(extraIds[i]);
     lowCompParameter=state.getRawParameterValue("lowcomp");lowAmpMixParameter=state.getRawParameterValue("lowampmix");
+    preOrderParameter=state.getRawParameterValue("preorder");
     const std::array<const char*,globalCount> ids{"mode","x1","x2","input","output","gateon","gatethreshold","gaterelease","gatehold","transposeon","transpose","oversampling","tuneron","tunermute"};
     for(size_t i=0;i<ids.size();++i) globals[i]=state.getRawParameterValue(ids[i]);
     for(size_t i=0;i<spectralforge::fxSpecs.size();++i) fxParameters[i]=state.getRawParameterValue(spectralforge::fxSpecs[i].id);
@@ -24,6 +25,7 @@ void ChimeraProcessor::prepareToPlay(double sr,int block)
     library.stop(); tuner.stop(); cpuAverage.store(0);cpuPeak.store(0);rate=sr; maximumBlock=juce::jmax(1,block);
     const juce::dsp::ProcessSpec spec{sr,(juce::uint32)maximumBlock,(juce::uint32)getTotalNumOutputChannels()};
     engine.prepare(spec); preFX.prepare(spec); postFX.prepare(spec);utilities.prepare(spec); tuner.prepare(sr);
+    preReduction.store(0);postReduction.store(0);for(auto& meter:postPeaks)meter.store(0);
     std::array<int,3> sources{};
     for(int i=0;i<3;++i) sources[i]=(int)laneParameters[i][16]->load();
     library.prepare(spec,sources);
@@ -92,9 +94,10 @@ void ChimeraProcessor::process(juce::AudioBuffer<float>& buffer)
     const float meterDecay=float(std::exp(-buffer.getNumSamples()/(rate*.4)));
     inputPeak.store(juce::jmax(peak,inputPeak.load()*meterDecay));
     tuner.push(buffer,value(tunerOn)>.5f);
-    auto fx=spectralforge::readFX(fxParameters);for(size_t i=0;i<modelParameters.size();++i)fx.models[i]=(int)modelParameters[i]->load();if(fx.delaySync)fx.delayMs=60000.f/tempoMeter.load();
+    auto fx=spectralforge::readFX(fxParameters);fx.envelopeFirst=preOrderParameter->load()>.5f;for(size_t i=0;i<modelParameters.size();++i)fx.models[i]=(int)modelParameters[i]->load();if(fx.delaySync)fx.delayMs=60000.f/tempoMeter.load();
     const bool pitching=value(pitchOn)>.5f;
     preFX.process(buffer,value(gateOn)>.5f,value(threshold),value(release),value(hold),pitching,(int)value(semitones),fx);
+    preReduction.store(preFX.compressor.reduction());
     gateGain.store(preFX.gate.reduction());
     const int latency=postFX.latency()+engine.latency()+preFX.latency(pitching);
     if(getLatencySamples()!=latency) setLatencySamples(latency);
@@ -115,6 +118,9 @@ void ChimeraProcessor::process(juce::AudioBuffer<float>& buffer)
     engine.process(buffer,(spectralforge::RoutingMode)(int)value(mode),dualCross ? extras[dualFrequency]->load() : value(x1),value(x2),lanes,&preFX.cleanOutput(),dualCross,extras[dualBlend]->load());
     lowCompGain.store(engine.lowReduction());
     postFX.process(buffer,fx);
+    postReduction.store(postFX.compressorReduction());
+    for(size_t i=0;i<postPeaks.size();++i)
+        postPeaks[i].store(juce::jmax(postFX.stagePeaks[i],postPeaks[i].load()*meterDecay));
     utilities.process(buffer,tempoMeter.load(),extras[doublerOn]->load()>.5f,extras[doublerTime]->load(),extras[metronome]->load()>.5f,restartClick.exchange(false));
     tuningMute.setTargetValue(value(tunerOn)>.5f && value(tunerMute)>.5f ? 0.f : 1.f);
     peak=0;
@@ -166,6 +172,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout ChimeraProcessor::layout(){j
     toggle("doubleron","Doubler",false);number("doublertime","Doubler spread",1,20,6);
     number("tempo","Tempo",40,240,120);toggle("temposync","Follow host tempo",false);toggle("metronome","Metronome",false);
     for(size_t i=0;i<spectralforge::modelFamilies.size();++i) {const auto& family=spectralforge::modelFamilies[i];p.add(std::make_unique<juce::AudioParameterChoice>(family.parameter,juce::String(family.category)+" model",spectralforge::modelNames((int)i),0));}
+    p.add(std::make_unique<juce::AudioParameterChoice>("preorder","Pedal detector order",juce::StringArray{"Compressor first","Envelope first"},1));
 return p;
 }
 
@@ -200,7 +207,7 @@ void ChimeraProcessor::restoreCore(juce::ValueTree restored)
         if(id.isEmpty() || restored.getChildWithProperty("id",id).isValid()) continue;
         auto* parameter=state.getParameter(id);if(!parameter) continue;
         float value=parameter->convertFrom0to1(parameter->getDefaultValue());
-        if(id.startsWith("cabtype") || id=="gateon" || id=="output" || id=="lowcomp") value=0;
+        if(id.startsWith("cabtype") || id=="gateon" || id=="output" || id=="lowcomp" || id=="preorder") value=0;
         juce::ValueTree item("PARAM");item.setProperty("id",id,nullptr);item.setProperty("value",value,nullptr);restored.appendChild(item,nullptr);
     }
     library.restore(restored.getChildWithName("USER_IRS"));restored.removeChild(restored.getChildWithName("USER_IRS"),nullptr);

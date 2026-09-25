@@ -6,7 +6,7 @@ This build is a development instrument, with eight **voiced algorithmic amp mode
 
 The four guitar distortion voices previously used the same two waveshapers. Every voice now has separate input/interstage high-pass filtering, saturation gains/stage counts, asymmetry, output bandwidth, dry blend and envelope-dependent supply sag. A post-distortion DC blocker removes the offset produced by asymmetric saturation. Drive, rig level, global gains and mute/gate gain changes are smoothed.
 
-The full-range EQ remains available in Classic/Dual Blend. Matrix and Dual Crossover bypass it and uses the crossover-relative preamp Band Tone. The amplifier creates harmonics beyond its input band by design; the crossover is an input split, not a brick-wall restriction on the distorted output.
+The full-range EQ remains available in Classic/Dual Blend. Matrix and Dual Crossover bypass it and use the crossover-relative preamp Band Tone. The amplifier creates harmonics beyond its input band by design; the crossover is an input split, not a brick-wall restriction on the distorted output.
 
 ## Automated evidence
 
@@ -64,8 +64,14 @@ Windows state tests also verify A/B amp, COMP and embedded user IR recall after 
 
 ## Expanded module and Dual gates
 
-`Tests/StudioTests.h` requires a measurable enabled/bypass difference for each of the eleven pedal/rack modules and bounded finite output. The identical-Dual vs Classic test also runs the complete post rack, protecting its once-after-merge scope. The Matrix clean-path null now toggles all three gain pedals. Dual Blend endpoints must match the corresponding Classic rig, and a 75:25 setting must match that exact weighted sum. Moving Dual Crossover must match a serial allpass reference and remain independent of 127/511-sample blocks. Windows verifies Dual Crossover controls, five-pedal/six-rack pages, global tuner view, MIDI Learn and persisted CC assignments.
+`Tests/StudioTests.h` requires a measurable enabled/bypass difference for each of the eleven pedal/rack modules and bounded finite output. The identical-Dual vs Classic test also runs the complete post rack, protecting its once-after-merge scope. The Matrix clean-path null toggles all three gain pedals. Both PRE detector orders must affect dynamics while preserving that clean tap and fixed latency. Dual Blend endpoints must match the corresponding Classic rig, and a 75:25 setting must match that exact weighted sum. Moving Dual Crossover must match a serial allpass reference and remain independent of 127/511-sample blocks. Windows tests check Dual Crossover controls, five-pedal/six-rack pages, global tuner view, MIDI Learn and persisted CC assignments.
 
 All four tested sample rates/factors retain fixed dry-path delay. The current full processor adds the fixed pre Fuzz, Overdrive, amplifier and post Preamp delays (24 samples at 48 kHz, plus Transpose when enabled). Compression, EQ and wet-only time effects do not add dry-path delay. Distinct saturation/IR frequency-dependent phase responses still differ by design; fixed sample alignment does not make different amp/cab transfer functions identical.
 
-The current update verifies all 36 model variants pairwise, model/metadata recall, IR collection filtering, and A/B stereo routing. The footer now reports measured audio callback CPU average and peak.
+The current suite checks all **46 FX variants** pairwise within each family: five models in each of the five PRE families and 21 POST models. Additional DSP gates cover all five compressor variants with differing host block sizes, automated drive changes, stereo separation, asymmetric-drive DC removal, and return to exact delayed dry bypass at 44.1/48/96/192 kHz. The FET parallel blend and Variable Mu recovery memory are original algorithms; these tests establish stability and differences, not hardware equivalence.
+
+Drive processing remains fixed at 4x oversampling. Model filter coefficients transition over 35 ms on a sample-based update schedule; tone is smoothed over 20 ms, and an 8 Hz DC blocker removes asymmetric-clipping offset. Optical recovery is evaluated per sample rather than once per host block. Meter tests check each POST stage's measured peak and applied compressor gain reduction. The footer reports measured audio-callback CPU average and peak.
+
+Processor/UI tests cover model and metadata recall, actual IR decoding and collection filtering, and A/B stereo routing. The original raw PRE model indices 0-2 retain their meanings. Old normalized DAW model-selection automation can map differently after expansion from three to five choices; ordinary state-recall tests do not remove that host-automation compatibility limit.
+
+Pass/fail evidence belongs to the matching build's logs. Existing NAM measurement values remain fixed-capture head comparisons in [NAM_REFERENCE_RESULTS.md](NAM_REFERENCE_RESULTS.md); this FX update does not imply those hardware references, new pedals or artwork have passed a new physical-equivalence test.

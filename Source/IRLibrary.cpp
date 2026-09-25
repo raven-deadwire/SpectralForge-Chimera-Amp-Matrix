@@ -111,6 +111,11 @@ void IRLibrary::run()
     }
     for(auto* cab:cabs) cab->collect();
 }
+juce::String IRLibrary::userName(int lane) const
+{
+    std::lock_guard<std::mutex> lock(mutex);
+    return users[(size_t)lane] ? users[(size_t)lane]->name : juce::String{};
+}
 juce::String IRLibrary::status(int lane) const
 {
     std::lock_guard<std::mutex> lock(mutex);

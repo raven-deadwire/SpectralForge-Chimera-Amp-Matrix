@@ -21,23 +21,30 @@ Implemented signal path: **input/gate/transpose -> PRE pedalboard -> rigs/cabine
 
 - Eight independently voiced amp algorithms with 1x/2x/4x/8x oversampling (4x default).
 - Matrix LOW: one-knob VCA-style COMP, Level, Band Tone and DI/AMP blend. The head drive is fixed at 0 and hidden; Classic/Dual drive settings are preserved. LOW receives the clean tap before Fuzz/Boost/Overdrive. Its DI and selected amp/cab branch have matching algorithmic delay. MID/HIGH retain Drive, Level and Band Tone. Classic/Dual Blend retain full-range EQ; Dual Crossover uses two Band Tone controls.
-- PRE pedalboard: Compressor, Envelope Filter, Fuzz, Boost, Overdrive. POST rack: Bus Compressor, Preamp, three-band EQ, Chorus, Delay, Reverb. Gate and Transpose remain permanently accessible in the top strip.
+- PRE pedalboard: Envelope Filter, Compressor, Fuzz, Boost, Overdrive, with five models per family. TOUCH puts Envelope first; SUSTAIN puts Compressor first. Older states retain their previous order. POST rack: Bus Compressor, Preamp, three-band EQ, Modulation, Delay, Reverb, with 21 model choices. Gate and Transpose remain permanently accessible in the top strip.
 - A/B snapshots and Save/Load reference files include parameters and embedded IRs. Repeatable synthetic DI and RMS-matched amp/cab A/B WAVs accompany Windows builds.
-- Two bundled guitar cabinet IRs, plus a WAV/AIFF loader and drag-and-drop per rig. User IR audio is embedded in the DAW project, so moving the original file does not break recall. Cabinet bypass, cuts, status, mute/solo and polarity are exposed.
+- Two embedded factory IRs, plus a WAV/AIFF loader, direct installed-file CAB menu and drag-and-drop per rig. The private full installer pack contains another 13 real WAV captures, including two bass captures and seven Karnivore variants. User IR audio is embedded in the DAW project, so moving the original file does not break recall. Cabinet bypass, cuts, status, mute/solo and polarity are exposed.
 - Global input/output gain and peak meters; gate threshold/hold/release; polyphonic transpose (-12 to +12 semitones); tuner with A4 calibration and auto-mute.
 - Factory starting presets and file-based references, input Stereo/Mono L, stereo Doubler; bottom tuner, persistent MIDI CC Learn, Tap/manual/host BPM and a practice metronome. Delay can follow quarter-note tempo.
-- Generated RavenForge hardware imagery with live native controls, continuous resizing and 75/100/125/150% size choices. Host automation and project recall cover all audio controls.
+- Model-specific generated RavenForge hardware imagery with live native controls, continuous resizing and 75/100/125/150% size choices. All audio controls expose host automation and project recall; older normalized PRE model-selection automation needs review after the three-to-five-choice expansion.
 
 Amp names describe target voicings. **Hardware reproduction accuracy has not been established.** See [validation scope and limits](docs/AMP_VALIDATION.md), [third-party credits](docs/THIRD_PARTY_NOTICES.md) and the test log included in Windows packages. See the [IR placement, effects references and mode decisions](docs/FX_AND_IR_DESIGN.md).
 
 ## RavenForge interface and cabinet collection
 
-Publisher: RavenForge Luthier Intelligence. The interface uses fourteen generated
-RavenForge raster assets with live JUCE controls, rather than flat color plates.
-IR LIBRARY shows two factory IRs and six documented personal references, including
-Ampeg 8x10/MD421 and Bassman CTS 2x15/SM57, with explicit installed/missing states.
-Import the existing personal ZIP once, add a folder, or install a private companion
-pack alongside Setup. Those personal captures are not in this public repository.
+Publisher: RavenForge Luthier Intelligence. The interface uses 57 model artwork
+assets plus the RavenForge workbench and emblem, with live JUCE controls. Pedals
+and racks keep rectangular layouts, interpreting each reference's material,
+panel and knob details. The two Mu-Tron modes intentionally share one body.
+
+IR LIBRARY distinguishes the two factory IRs and 13 documented personal captures,
+including Ampeg 8x10/MD421, Bassman CTS 2x15/SM57 and seven Eminence Karnivore
+captures. Missing catalog entries cannot be loaded. Extract the entire private
+installer ZIP so its actual WAV companion folder remains beside Setup, import the
+updated personal ZIP, or add an extracted folder. The public bare installer has
+only the two factory audio assets and reference metadata. Personal capture data
+is not in this repository. See [installation instructions](docs/WINDOWS_INSTALL.txt)
+and [graphics/DSP update details](docs/GRAPHICS_DSP_UPDATE.md).
 
 This remains a development build, not a claim of commercial release readiness or
 verified hardware equivalence. Windows signing is prepared in `Tools/Sign-WindowsArtifact.ps1`

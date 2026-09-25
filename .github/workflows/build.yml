@@ -40,7 +40,31 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: Chimera-Windows-UI-snapshots
-          path: build/ui-snapshots/*.png
+          path: |
+            build/ui-snapshots/*.png
+            !build/ui-snapshots/Head-*.png
+            !build/ui-snapshots/PRE-models-*.png
+            !build/ui-snapshots/POST-models-*.png
+            !build/ui-snapshots/PRE-*-first.png
+          if-no-files-found: warn
+
+      - name: Upload Windows head artwork gallery
+        if: runner.os == 'Windows' && always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Chimera-Windows-Head-gallery
+          path: build/ui-snapshots/Head-*.png
+          if-no-files-found: warn
+
+      - name: Upload Windows pedal and rack gallery
+        if: runner.os == 'Windows' && always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Chimera-Windows-Pedal-Rack-gallery
+          path: |
+            build/ui-snapshots/PRE-models-*.png
+            build/ui-snapshots/POST-models-*.png
+            build/ui-snapshots/PRE-*-first.png
           if-no-files-found: warn
 
       - name: Package Windows test build
@@ -52,7 +76,7 @@ jobs:
           Copy-Item -Recurse "build/ChimeraAmpMatrix_artefacts/Release/VST3/*" "$stage/VST3/"
           Copy-Item -Recurse "build/ChimeraAmpMatrix_artefacts/Release/Standalone/*" "$stage/Standalone/"
           Copy-Item "docs/THIRD_PARTY_NOTICES.md","docs/AMP_VALIDATION.md" "$stage/"
-          Copy-Item "docs/FX_AND_IR_DESIGN.md","docs/MODELS_AND_REFERENCE.md","docs/NAM_REFERENCE_RESULTS.md" "$stage/"
+          Copy-Item "docs/FX_AND_IR_DESIGN.md","docs/MODELS_AND_REFERENCE.md","docs/NAM_REFERENCE_RESULTS.md","docs/GRAPHICS_DSP_UPDATE.md" "$stage/"
           Copy-Item "docs/WINDOWS_INSTALL.txt","docs/WINDOWS_SIGNING.md","docs/ARTWORK_PROMPTS.json" "$stage/"
           Copy-Item -Recurse "docs/reference" "$stage/"
           New-Item -ItemType Directory -Force -Path "$stage/ReferenceTools" | Out-Null
@@ -81,13 +105,13 @@ jobs:
           Matrix LOW: one-knob COMP, LEVEL, BAND TONE and DI/AMP blend; head drive fixed at 0.
           LOW bypasses Fuzz/Boost/Overdrive. Selected head/IR feed its optional wet branch.
           Matrix MID/HIGH use DRIVE / LEVEL / BAND TONE. Classic/Dual keep full EQ.
-          PRE: Compressor, Envelope, Fuzz, Boost, Overdrive. Gate/Transpose stay on top.
+          PRE: Envelope/Compressor order switch, then Fuzz, Boost, Overdrive. Gate/Transpose stay on top.
           POST: Bus Comp, Preamp, EQ, Modulation, Delay, Reverb.
-          36 selectable FX models; generated RavenForge hardware artwork.
+          46 selectable FX models; distinct generated reference-inspired RavenForge hardware artwork.
           CPU average/peak meters measure the audio callback deadline budget.
           A/B stores complete sounds; it does not select left/right stereo channels.
           IR LIBRARY lists installed and missing reference cabinets, with bass/size/mic filters.
-          Bass IR source catalog: Ampeg 8x10/MD421 and CTS Bassman 2x15/SM57.
+          IR catalog: 13 personal captures including 7 Karnivore, Ampeg 8x10/MD421 and CTS Bassman 2x15/SM57.
           IMPORT PERSONAL ZIP installs your existing pack; a private installer bundle includes the companion IR folder.
           No restricted NAM/IR data is bundled in this public build.
           Eight amp-head NAM comparisons and held-out voicing results are documented.

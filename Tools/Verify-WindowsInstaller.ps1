@@ -128,17 +128,26 @@ function Check-AppShortcut([string]$Destination) {
 }
 try {
     New-Item -ItemType Directory -Path "$companion/Bass" -Force | Out-Null
+    New-Item -ItemType Directory -Path "$companion/Guitar" -Force | Out-Null
     $fixture = Join-Path $companion "Bass/CI Bass 8x10 MD421.wav"
     Copy-Item -LiteralPath "Assets/IRs/guitar_v30_sm57.wav" -Destination $fixture
     '{"cabinet":"CI synthetic bass metadata","diameter_in":"10","microphone":"MD421"}' | Set-Content -LiteralPath ($fixture + ".json")
+    $guitarFixture = Join-Path $companion "Guitar/CI Guitar 4x12 SM57.wav"
+    Copy-Item -LiteralPath "Assets/IRs/guitar_jensen_sm57.wav" -Destination $guitarFixture
+    '{"cabinet":"CI synthetic guitar metadata","diameter_in":"12","microphone":"SM57"}' | Set-Content -LiteralPath ($guitarFixture + ".json")
     Install "01-full-install" $app "vst3,standalone,reference"
     Check-Payload $app $true $true $true
     $installedIR = Join-Path $sharedIRs "Bass/CI Bass 8x10 MD421.wav"
     Equal-File $fixture $installedIR
     Equal-File ($fixture + ".json") ($installedIR + ".json")
-    & "build/ChimeraUITests_artefacts/Release/ChimeraUITests.exe" --installed-ir-probe $installedIR
-    Assert ($LASTEXITCODE -eq 0) "Application did not discover installed IRs"
-    Pass "Companion IR pack installs to the shared library and is discovered by the application"
+    $installedGuitarIR = Join-Path $sharedIRs "Guitar/CI Guitar 4x12 SM57.wav"
+    Equal-File $guitarFixture $installedGuitarIR
+    Equal-File ($guitarFixture + ".json") ($installedGuitarIR + ".json")
+    foreach ($installedCapture in @($installedIR, $installedGuitarIR)) {
+        & "build/ChimeraUITests_artefacts/Release/ChimeraUITests.exe" --installed-ir-probe $installedCapture
+        Assert ($LASTEXITCODE -eq 0) "Application failed to discover, decode or select installed IR: $installedCapture"
+    }
+    Pass "Companion Bass/Guitar WAVs install recursively, match their source hashes, decode, appear in the cabinet menu and load into a rig"
     Pass "Full install: standard VST3 path, app, documentation, shortcuts and uninstall registration; payload hashes match"
 
     # Inspect the imports of all shipped native binaries, not just this runner's installed runtimes.
@@ -181,6 +190,7 @@ try {
     Pass "Same-version reinstall repairs files and preserves personal presets/IRs"
     Uninstall "03-full-uninstall" $app
     Equal-File $fixture $installedIR
+    Equal-File $guitarFixture $installedGuitarIR
     Pass "Personal IR collection is preserved after uninstall"
     Assert ((Get-FileHash -LiteralPath $preset).Hash -eq $presetHash -and (Get-FileHash -LiteralPath $userIR).Hash -eq $irHash) "Uninstall modified user files"
     Pass "Uninstall removes owned binaries, shortcut and Windows registration; preserves user files"

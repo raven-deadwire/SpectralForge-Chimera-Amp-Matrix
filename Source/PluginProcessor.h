@@ -35,6 +35,10 @@ public:
     juce::AudioProcessorValueTreeState& parameters() { return state; }
     static juce::AudioProcessorValueTreeState::ParameterLayout layout();
     juce::Result loadIR(int lane,const juce::File& file);
+    juce::String userIRName(int lane) const {return library.userName(lane);}
+    float preCompressorReduction() const {return preReduction.load();}
+    float postCompressorReduction() const {return postReduction.load();}
+    float postModuleLevel(int position) const {return postPeaks[(size_t)juce::jlimit(0,5,position)].load();}
     juce::String cabStatus(int lane) const { return library.status(lane); }
     spectralforge::IRMetadata cabMetadata(int lane) const { return library.metadata(lane,(int)state.getRawParameterValue("cabtype"+juce::String(lane+1))->load()); }
     void setCabMetadata(int lane,const spectralforge::IRMetadata& metadata) { library.setMetadata(lane,metadata); }
@@ -80,12 +84,14 @@ private:
     std::array<std::atomic<float>*,extraCount> extras{};
     std::array<std::atomic<float>*,spectralforge::fxSpecs.size()> fxParameters{};
     std::array<std::atomic<float>*,11> modelParameters{};
-    std::atomic<float>* lowCompParameter{}, * lowAmpMixParameter{};
+    std::atomic<float>* lowCompParameter{}, * lowAmpMixParameter{}, * preOrderParameter{};
     enum Global { mode,x1,x2,input,output,gateOn,threshold,release,hold,pitchOn,semitones,os,tunerOn,tunerMute,globalCount };
     std::array<std::atomic<float>*,globalCount> globals{};
     std::array<std::array<std::atomic<float>*,18>,3> laneParameters{};
     juce::SmoothedValue<float> inputGain, outputGain, tuningMute;
     std::atomic<float> inputPeak{0},outputPeak{0},gateGain{1},lowCompGain{0};
+    std::atomic<float> preReduction{0},postReduction{0};
+    std::array<std::atomic<float>,6> postPeaks{};
     std::atomic<float> cpuAverage{0},cpuPeak{0};
     int maximumBlock{512};
     double rate{48000};
