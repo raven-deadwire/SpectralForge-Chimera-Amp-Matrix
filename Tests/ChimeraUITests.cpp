@@ -110,8 +110,12 @@ void checkControls(ChimeraEditor& editor, int mode)
         if (auto* label = dynamic_cast<juce::Label*>(child))
         {
             const auto text = label->getText();
+            // Compact IR labels use Unicode typography. Reject damaged text,
+            // not legitimate dashes, arrows or localized names.
             for (auto character : text)
-                require(character < 128, "Non-ASCII UI text reintroduced");
+                require(character != 0xfffd && character != 0x7f &&
+                        (character >= 32 || character == '\n' || character == '\t'),
+                        "Invalid replacement/control character in UI text");
             if (text == "BAND TONE") ++toneLabels;
             if (mode == 2)
                 require(text != "BASS" && text != "LOW MID" && text != "HIGH MID" &&
