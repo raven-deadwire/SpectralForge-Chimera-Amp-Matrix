@@ -8,7 +8,7 @@ ChimeraProcessor::ChimeraProcessor()
     clearMidi();
     const std::array<const char*,extraCount> extraIds{"dualtype","dualblend","dualcross","inputmode","doubleron","doublertime","tempo","temposync","metronome"};
     for(size_t i=0;i<extraIds.size();++i)extras[i]=state.getRawParameterValue(extraIds[i]);
-    lowCompParameter=state.getRawParameterValue("lowcomp");
+    lowCompParameter=state.getRawParameterValue("lowcomp");lowAmpMixParameter=state.getRawParameterValue("lowampmix");
     const std::array<const char*,globalCount> ids{"mode","x1","x2","input","output","gateon","gatethreshold","gaterelease","gatehold","transposeon","transpose","oversampling","tuneron","tunermute"};
     for(size_t i=0;i<ids.size();++i) globals[i]=state.getRawParameterValue(ids[i]);
     for(size_t i=0;i<spectralforge::fxSpecs.size();++i) fxParameters[i]=state.getRawParameterValue(spectralforge::fxSpecs[i].id);
@@ -110,7 +110,7 @@ void ChimeraProcessor::process(juce::AudioBuffer<float>& buffer)
         lane.cabLow=f(14); lane.cabHigh=f(15); lane.ampEnabled=f(17)>.5f;
         engine.cabinet(i).requestedSource.store((int)f(16));
     }
-    lanes[0].lowComp=lowCompParameter->load();
+    lanes[0].lowComp=lowCompParameter->load();lanes[0].lowAmpMix=lowAmpMixParameter->load();
     const bool dualCross=value(mode)==1 && extras[dualType]->load()>.5f;
     engine.process(buffer,(spectralforge::RoutingMode)(int)value(mode),dualCross ? extras[dualFrequency]->load() : value(x1),value(x2),lanes,&preFX.cleanOutput(),dualCross,extras[dualBlend]->load());
     lowCompGain.store(engine.lowReduction());
@@ -157,7 +157,8 @@ juce::AudioProcessorValueTreeState::ParameterLayout ChimeraProcessor::layout(){j
     toggle("delayon","Post delay",false);number("delaytime","Delay time",20,1000,250);number("delayfeedback","Delay feedback",0,.85f,.25f);number("delaymix","Delay mix",0,.6f,.2f);
     toggle("reverbon","Post reverb",false);number("reverbsize","Reverb room size",0,1,.35f);number("reverbdamping","Reverb damping",0,1,.55f);number("reverbmix","Reverb mix",0,.6f,.15f);
     for(int i=1;i<=3;++i) p.add(std::make_unique<juce::AudioParameterBool>("ampon"+juce::String(i),"Amplifier enabled "+juce::String(i),true));
-    number("lowcomp","Matrix LOW DI compression",0,1,.35f);
+    number("lowcomp","Matrix LOW compression",0,1,.35f);
+    number("lowampmix","Matrix LOW DI to amp blend",0,1,0);
     for(size_t i=12;i<spectralforge::fxSpecs.size();++i) {const auto& spec=spectralforge::fxSpecs[i];if(spec.toggle)toggle(spec.id,spec.id,spec.initial>.5f);else number(spec.id,spec.id,spec.minimum,spec.maximum,spec.initial);}
     p.add(std::make_unique<juce::AudioParameterChoice>("dualtype","Dual routing",juce::StringArray{"Blend","Crossover"},0));
     number("dualblend","Dual blend",0,1,.5f);number("dualcross","Dual crossover",60,4000,350);

@@ -108,6 +108,36 @@ inline void lowDI()
         std::cout<<"MEASURE dry impulse "<<rate<<" Hz / "<<(1<<os)<<"x: "<<delay<<" samples (reported = measured)\n";
     }
 }
+inline void lowBlend()
+{
+    const auto render=[](double rate,int os,float mix,float drive,int model,bool visitClassic) {
+        spectralforge::Engine engine;engine.prepare({rate,127,2});engine.setOversampling(os);
+        std::array<spectralforge::LaneState,3> states{};
+        states[0].solo=true;states[0].cab=false;states[0].lowComp=.35f;
+        states[0].lowAmpMix=mix;states[0].drive=drive;states[0].amp=model;
+        juce::AudioBuffer<float> buffer(2,127);std::vector<float> result;
+        if(visitClassic) for(int b=0;b<30;++b) {
+            for(int c=0;c<2;++c) for(int n=0;n<127;++n) buffer.setSample(c,n,.2f);
+            engine.process(buffer,spectralforge::RoutingMode::classic,150,1200,states);
+        }
+        for(int b=0;b<180;++b) {
+            for(int n=0;n<127;++n) {const float x=.18f*float(std::sin(juce::MathConstants<double>::twoPi*73*(b*127+n)/rate));buffer.setSample(0,n,x);buffer.setSample(1,n,-.37f*x);}
+            engine.process(buffer,spectralforge::RoutingMode::matrix,b<90?150.f:280.f,1200,states);
+            if(b>40) for(int c=0;c<2;++c) for(int n=0;n<127;++n) {const float x=buffer.getSample(c,n);require(std::isfinite(x),"LOW blend produced invalid audio");result.push_back(x);}
+        }
+        return result;
+    };
+    for(double rate:{44100.0,96000.0}) for(int os=0;os<4;++os) {
+        const auto di=render(rate,os,0,0,5,false),wet=render(rate,os,1,0,5,false),half=render(rate,os,.5f,0,5,false);
+        double error=0;for(size_t i=0;i<half.size();++i) error=std::max(error,std::abs(double(half[i]-(di[i]+wet[i])*.5f)));
+        require(error<2e-6,"LOW DI/amp merge has inconsistent timing or blend gain");
+        require(nullPeak(wet,render(rate,os,1,1,5,false))<1e-6,"Hidden Classic drive changes Matrix LOW amp");
+        require(nullPeak(wet,render(rate,os,1,1,5,true))<1e-5,"Classic drive state leaks into Matrix LOW");
+        require(nullPeak(di,wet)>.001,"LOW amp blend is not audible");
+        require(nullPeak(wet,render(rate,os,1,0,7,false))>.0001,"LOW head selector is not connected");
+        std::cout<<"MEASURE LOW DI/amp blend "<<rate<<" Hz / "<<(1<<os)<<"x: endpoint interpolation null "<<error<<"; drive fixed at zero\n";
+    }
+}
 inline void compressor()
 {
     for(float knob:{0.f,.35f,.8f}) {
@@ -126,7 +156,7 @@ inline void compressor()
 }
 inline void run()
 {
-    lowDI();compressor();
+    lowDI();lowBlend();compressor();
     for(double rate:{44100.0,48000.0,96000.0,192000.0})for(auto cross:{std::pair<float,float>{60,500},{150,1200},{350,4000}})response(rate,cross.first,cross.second);
     const auto a=moving(127,false),b=moving(511,false),reference=moving(127,true);
     const double blockError=nullPeak(a,b),sumError=nullPeak(a,reference);

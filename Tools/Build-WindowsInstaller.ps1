@@ -1,6 +1,9 @@
 param(
     [string]$Stage = "dist/Chimera-Amp-Matrix-1.0.0-test-win64",
-    [string]$OutputDirectory = "dist"
+    [string]$OutputDirectory = "dist",
+    [switch]$Sign,
+    [string]$CertificateThumbprint = $env:CHIMERA_SIGNING_THUMBPRINT,
+    [string]$ExpectedPublisher = "RavenForge Luthier Intelligence"
 )
 $ErrorActionPreference = "Stop"
 Set-StrictMode -Version Latest
@@ -23,10 +26,25 @@ $iscc = if ($isccCommand) { $isccCommand.Source } else {
 }
 if (!(Test-Path -LiteralPath $iscc)) { throw "Inno Setup 6.3 or newer is required to build the installer." }
 $script = Join-Path $PSScriptRoot "../Installer/Chimera.iss"
-& $iscc "/DStageDir=$stagePath" "/DOutputPath=$outputPath" $script
+$compilerArguments = @("/DStageDir=$stagePath", "/DOutputPath=$outputPath")
+if ($Sign) {
+    $signScript = (Resolve-Path -LiteralPath (Join-Path $PSScriptRoot "Sign-WindowsArtifact.ps1")).Path
+    $binaries = @(Get-ChildItem -LiteralPath $stagePath -File -Recurse | Where-Object { $_.Extension -in ".exe", ".dll", ".vst3" } | Select-Object -ExpandProperty FullName)
+    & $signScript -Path $binaries -CertificateThumbprint $CertificateThumbprint -ExpectedPublisher $ExpectedPublisher
+    # Pass only non-secret identity metadata to Inno's signing subprocess.
+    $env:CHIMERA_SIGNING_THUMBPRINT = $CertificateThumbprint
+    $env:CHIMERA_SIGNING_PUBLISHER = $ExpectedPublisher
+    $pwsh = (Get-Process -Id $PID).Path
+    $compilerArguments += "/DSignRelease"
+    $compilerArguments += ('/SChimeraRelease=$q{0}$q -NoProfile -File $q{1}$q -ExpectedPublisher $q{2}$q -Path $f' -f $pwsh, $signScript, $ExpectedPublisher)
+}
+& $iscc @compilerArguments $script
 if ($LASTEXITCODE -ne 0) { throw "Inno Setup failed with exit code $LASTEXITCODE" }
 $installer = Join-Path $outputPath "Chimera-Amp-Matrix-1.0.0-test-win64-Setup.exe"
 if (!(Test-Path -LiteralPath $installer)) { throw "Installer compiler did not produce the expected Setup executable." }
+if ($Sign) {
+    & $signScript -Path $installer -CertificateThumbprint $CertificateThumbprint -ExpectedPublisher $ExpectedPublisher -VerifyOnly
+}
 $hash = (Get-FileHash -LiteralPath $installer -Algorithm SHA256).Hash.ToLowerInvariant()
 "$hash  $([IO.Path]::GetFileName($installer))" | Set-Content -LiteralPath ($installer + ".sha256.txt")
 Write-Host "Installer SHA256: $hash"

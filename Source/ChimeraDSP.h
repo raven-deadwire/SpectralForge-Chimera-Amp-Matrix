@@ -8,7 +8,7 @@
 #include "LowCompressor.h"
 namespace spectralforge {
 enum class RoutingMode:int{classic,dual,matrix};
-struct LaneState{int amp{};float drive{.35f},levelDb{},bass{},lowMid{},highMid{},treble{},presence{},resonance{};bool mute{},solo{},polarity{},cab{true},ampEnabled{true};float lowComp{},bandTone{},fineDelayMs{},cabLow{70.f},cabHigh{9000.f};};
+struct LaneState{int amp{};float drive{.35f},levelDb{},bass{},lowMid{},highMid{},treble{},presence{},resonance{};bool mute{},solo{},polarity{},cab{true},ampEnabled{true};float lowComp{},lowAmpMix{},bandTone{},fineDelayMs{},cabLow{70.f},cabHigh{9000.f};};
 class Crossover {
     using LR=juce::dsp::LinkwitzRileyFilter<float>;
     LR lowSplit,highSplit,lowPhase;
@@ -71,7 +71,8 @@ class Engine {
     Crossover xo,diXO;
     DualCrossover dualXO;
     bool previousDualCross{};
-    juce::SmoothedValue<float> dualMix;
+    juce::SmoothedValue<float> dualMix,lowMix;
+    juce::AudioBuffer<float> lowDry;
     std::vector<float> blendCurve;
     LowCompressor lowCompressor;
     juce::dsp::DelayLine<float,juce::dsp::DelayLineInterpolationTypes::None> diAlignment{128};
@@ -88,6 +89,7 @@ public:
     {
         sampleRate = spec.sampleRate;previousMode=static_cast<RoutingMode>(-1);
         xo.prepare(spec);diXO.prepare(spec);dualXO.prepare(spec);
+        lowMix.reset(spec.sampleRate,.02);lowMix.setCurrentAndTargetValue(0);lowDry.setSize((int)spec.numChannels,(int)spec.maximumBlockSize);
         dualMix.reset(spec.sampleRate,.02);dualMix.setCurrentAndTargetValue(.5f);blendCurve.resize(spec.maximumBlockSize);lowCompressor.prepare(spec.sampleRate);
         for (auto& amp : amps) amp.prepare(spec);
         diAlignment.prepare(spec);diAlignment.setDelay(float(latency()));
@@ -100,7 +102,7 @@ public:
     }
     void reset()
     {
-        xo.reset();diXO.reset();dualXO.reset();lowCompressor.reset();diAlignment.reset();
+        xo.reset();diXO.reset();dualXO.reset();lowCompressor.reset();diAlignment.reset();lowMix.setCurrentAndTargetValue(lowMix.getTargetValue());
         for (auto& amp : amps) amp.reset();
         for (auto& cab : cabs) cab.reset();
         for (auto& tone : bandTones) tone.reset();
@@ -108,7 +110,9 @@ public:
     void process(juce::AudioBuffer<float>& buffer, RoutingMode mode, float x1, float x2,
                  const std::array<LaneState,3>& states, const juce::AudioBuffer<float>* cleanInput=nullptr, bool dualCross=false, float blend=.5f)
     {
+        const bool enteringLow=mode==RoutingMode::matrix && previousMode!=RoutingMode::matrix;
         if (mode != previousMode || dualCross!=previousDualCross) { reset(); previousMode = mode; previousDualCross=dualCross; }
+        if(enteringLow) amps[0].setDriveImmediately(0);
         const bool matrix = mode == RoutingMode::matrix;
         const bool split=matrix || (mode==RoutingMode::dual && dualCross);
         dualMix.setTargetValue(juce::jlimit(0.f,1.f,blend));for(int n=0;n<buffer.getNumSamples();++n)blendCurve[(size_t)n]=dualMix.getNextValue();
@@ -126,7 +130,7 @@ public:
         {
             const auto& state = states[i];
             const bool muted = state.mute || (anySolo && !state.solo);
-            amps[i].set(static_cast<AmpModel>(juce::jlimit(0,7,state.amp)), state.drive);
+            amps[i].set(static_cast<AmpModel>(juce::jlimit(0,7,state.amp)), matrix && i==0 ? 0.f : state.drive);
             if (split)
             {
                 bandTones[i].set(matrix ? matrixTonePivot(i,x1,x2,sampleRate) : matrixTonePivot(i==0 ? 0 : 2,x1,x1,sampleRate),state.bandTone);
@@ -139,8 +143,20 @@ public:
             // values recalled from previous Classic/Dual sessions. Keep their state.
             if(matrix && i==0) {
                 lowCompressor.process(work[i],state.lowComp);
-                juce::dsp::AudioBlock<float> block(work[i]);juce::dsp::ProcessContextReplacing<float> context(block);
+                lowDry.makeCopyOf(work[i],true);
+                juce::dsp::AudioBlock<float> block(lowDry);juce::dsp::ProcessContextReplacing<float> context(block);
                 diAlignment.process(context);
+                // The compressed low band feeds both branches. The DI has the same
+                // algorithmic delay as the head at every oversampling setting.
+                // IR capture delay/phase is intentional and is not silently trimmed.
+                amps[i].process(work[i],false,true);
+                cabs[i].enable(state.cab);cabs[i].setCuts(state.cabLow,state.cabHigh);cabs[i].process(work[i]);
+                lowMix.setTargetValue(state.ampEnabled ? juce::jlimit(0.f,1.f,state.lowAmpMix) : 0.f);
+                for(int n=0;n<buffer.getNumSamples();++n) {
+                    const float mix=lowMix.getNextValue();
+                    for(int c=0;c<buffer.getNumChannels();++c)
+                        work[i].setSample(c,n,lowDry.getSample(c,n)*(1-mix)+work[i].getSample(c,n)*mix);
+                }
             } else {
                 amps[i].process(work[i], !split,state.ampEnabled);
                 cabs[i].enable(state.cab);

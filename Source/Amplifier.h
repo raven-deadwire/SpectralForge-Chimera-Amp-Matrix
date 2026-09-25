@@ -126,6 +126,7 @@ public:
         for (auto& p : paths) if (p.oversampler) p.reset();
         previous = selected; fadeRemaining = 0; bypassDelay.reset();enabled.setCurrentAndTargetValue(enabled.getTargetValue());
     }
+    void setDriveImmediately(float value) { drive=juce::jlimit(0.f,1.f,value);for(auto& path:paths)path.drive.setCurrentAndTargetValue(drive); }
     void set(AmpModel m, float d) { if(model!=m){model=m;voiceTone();} drive = juce::jlimit(0.f, 1.f, d); }
     void setOversampling(int choice)
     {

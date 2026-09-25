@@ -16,8 +16,10 @@ $logPath = (Resolve-Path -LiteralPath $LogDirectory).Path
 $app = Join-Path ([Environment]::GetFolderPath("ProgramFiles")) "SpectralForge\Chimera Amp Matrix"
 $vst = Join-Path ([Environment]::GetFolderPath("CommonProgramFiles")) "VST3\Chimera Amp Matrix.vst3"
 $startMenu = Join-Path ([Environment]::GetFolderPath("CommonPrograms")) "SpectralForge\Chimera Amp Matrix"
+$sharedIRs = Join-Path ([Environment]::GetFolderPath("CommonApplicationData")) "SpectralForge/Chimera/IRs"
+$companion = Join-Path (Split-Path -Parent $installerPath) "Chimera-Personal-IRs"
 $registry = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\SpectralForge.ChimeraAmpMatrix_is1"
-foreach ($path in @($app, $vst, $startMenu, $registry)) {
+foreach ($path in @($app, $vst, $startMenu, $registry, $sharedIRs, $companion)) {
     if (Test-Path -LiteralPath $path) { throw "Refusing to overwrite an existing installation: $path" }
 }
 $report = [Collections.Generic.List[string]]::new()
@@ -124,8 +126,18 @@ function Check-AppShortcut([string]$Destination) {
     }
 }
 try {
+    New-Item -ItemType Directory -Path "$companion/Bass" -Force | Out-Null
+    $fixture = Join-Path $companion "Bass/CI Bass 8x10 MD421.wav"
+    Copy-Item -LiteralPath "Assets/IRs/guitar_v30_sm57.wav" -Destination $fixture
+    '{"cabinet":"CI synthetic bass metadata","diameter_in":"10","microphone":"MD421"}' | Set-Content -LiteralPath ($fixture + ".json")
     Install "01-full-install" $app "vst3,standalone,reference"
     Check-Payload $app $true $true $true
+    $installedIR = Join-Path $sharedIRs "Bass/CI Bass 8x10 MD421.wav"
+    Equal-File $fixture $installedIR
+    Equal-File ($fixture + ".json") ($installedIR + ".json")
+    & "build/ChimeraUITests_artefacts/Release/ChimeraUITests.exe" --installed-ir-probe $installedIR
+    Assert ($LASTEXITCODE -eq 0) "Application did not discover installed IRs"
+    Pass "Companion IR pack installs to the shared library and is discovered by the application"
     Pass "Full install: standard VST3 path, app, documentation, shortcuts and uninstall registration; payload hashes match"
 
     # Inspect the imports of all shipped native binaries, not just this runner's installed runtimes.
@@ -167,6 +179,8 @@ try {
     Assert ((Get-FileHash -LiteralPath $preset).Hash -eq $presetHash -and (Get-FileHash -LiteralPath $userIR).Hash -eq $irHash) "Repair modified user files"
     Pass "Same-version reinstall repairs files and preserves personal presets/IRs"
     Uninstall "03-full-uninstall" $app
+    Equal-File $fixture $installedIR
+    Pass "Personal IR collection is preserved after uninstall"
     Assert ((Get-FileHash -LiteralPath $preset).Hash -eq $presetHash -and (Get-FileHash -LiteralPath $userIR).Hash -eq $irHash) "Uninstall modified user files"
     Pass "Uninstall removes owned binaries, shortcut and Windows registration; preserves user files"
 

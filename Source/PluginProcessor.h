@@ -80,7 +80,7 @@ private:
     std::array<std::atomic<float>*,extraCount> extras{};
     std::array<std::atomic<float>*,spectralforge::fxSpecs.size()> fxParameters{};
     std::array<std::atomic<float>*,11> modelParameters{};
-    std::atomic<float>* lowCompParameter{};
+    std::atomic<float>* lowCompParameter{}, * lowAmpMixParameter{};
     enum Global { mode,x1,x2,input,output,gateOn,threshold,release,hold,pitchOn,semitones,os,tunerOn,tunerMute,globalCount };
     std::array<std::atomic<float>*,globalCount> globals{};
     std::array<std::array<std::atomic<float>*,18>,3> laneParameters{};

@@ -1,0 +1,71 @@
+{
+  "mode": "built-in image_gen",
+  "encoding": "JPEG quality 92, source proportions retained",
+  "assets": [
+    {
+      "name": "pedal-oxide",
+      "prompt": "Use case: product-mockup. Asset type: production background image for a professional audio plugin, not a UI screenshot. A single complete hardware enclosure, absolutely straight-on orthographic view with no perspective tilt, product fills 96% of frame, centered, black studio backdrop, soft upper-left studio light, photographic PBR realism, fine tactile surface details, gently worn premium hardware. No text, logo, labels, knobs, switches, sockets, meters, LEDs or cables: the app overlays all controls. Leave the front panel blank and uncluttered for readable controls. Sharp realistic construction, subtle edge depth and shadow, not flat illustration. Portrait 1:2 canvas. A vintage Japanese overdrive pedal body, rich dark green fine powder-coated die-cast metal, rounded rectangular casting and visible beveled edge, top 72% is a smooth empty panel, bottom 24% is ribbed black rubber tread footpad inset. Four subtle recessed screws at corners, no controls. View straight at top face.",
+      "file": "Assets/Artwork/pedal-oxide.jpg"
+    },
+    {
+      "name": "pedal-alloy",
+      "prompt": "Use case: product-mockup. Asset type: production background image for a professional audio plugin, not a UI screenshot. A single complete hardware enclosure, absolutely straight-on orthographic view with no perspective tilt, product fills 96% of frame, centered, black studio backdrop, soft upper-left studio light, photographic PBR realism, fine tactile surface details, gently worn premium hardware. No text, logo, labels, knobs, switches, sockets, meters, LEDs or cables: the app overlays all controls. Leave the front panel blank and uncluttered for readable controls. Sharp realistic construction, subtle edge depth and shadow, not flat illustration. Portrait 1:2 canvas. A vintage American fuzz pedal body, satin brushed aluminum die-cast metal rounded rectangular enclosure with a deep dark side lip, two subtle narrow red border lines on the upper edges, smooth empty silver-gray face with sparse believable brushed machining scratches, no rubber footpad, four recessed corner screws. View straight at top face. Restrained dark silver, not white.",
+      "file": "Assets/Artwork/pedal-alloy.jpg"
+    },
+    {
+      "name": "amp-british",
+      "prompt": "Use case: product-mockup. Asset type: production background image for a professional audio plugin, not a UI screenshot. A single complete hardware enclosure, absolutely straight-on orthographic view with no perspective tilt, product fills 96% of frame, centered, black studio backdrop, soft upper-left studio light, photographic PBR realism, fine tactile surface details, gently worn premium hardware. No text, logo, labels, knobs, switches, sockets, meters, LEDs or cables: the app overlays all controls. Leave the front panel blank and uncluttered for readable controls. Sharp realistic construction, subtle edge depth and shadow, not flat illustration. Wide 3:1 canvas. British tube amplifier head black pebbled leather tolex shell, thin gold piping, woven black grille covering upper 42% of front, lower 48% is a completely empty dark champagne gold brushed aluminum control face, wood cabinet corners, leather carry handle at the top. Entire front has no logo and no controls, showcase tactile leather and grille. Direct front orthographic.",
+      "file": "Assets/Artwork/amp-british.jpg"
+    },
+    {
+      "name": "rack-studio",
+      "prompt": "Use case: product-mockup. Asset type: production background image for a professional audio plugin, not a UI screenshot. A single complete hardware enclosure, absolutely straight-on orthographic view with no perspective tilt, product fills 96% of frame, centered, black studio backdrop, soft upper-left studio light, photographic PBR realism, fine tactile surface details, gently worn premium hardware. No text, logo, labels, knobs, switches, sockets, meters, LEDs or cables: the app overlays all controls. Leave the front panel blank and uncluttered for readable controls. Sharp realistic construction, subtle edge depth and shadow, not flat illustration. Wide 8:1 canvas. A 19-inch studio rack processor front panel, dark navy slate anodized brushed metal inspired by classic British transformer preamps. Solid flat blank face 92% of width, black rack ears and oval mounting slots at far ends, precise chamfered silver edge highlight, tiny screwheads at extreme corners. Entire front empty, rich metal material rather than painted flat color, directly front orthographic.",
+      "file": "Assets/Artwork/rack-studio.jpg"
+    },
+    {
+      "name": "raven-workbench",
+      "prompt": "Use case: stylized-concept. Production 3:2 background image for the entire RavenForge Luthier Intelligence amplifier plugin. Use the attached RavenForge website ONLY as reference for its established charcoal, feather, dark wenge wood, smoke and pale gold visual identity; do not copy the website layout or people. Create a restrained cinematic blackened luthier workbench surface with extremely subtle wenge wood grain and a carved world-tree / raven-wing relief dissolving into fine smoky darkness, sculptural flowing wood and feather details concentrated along the left and right edges. The central 80% must be nearly-black low-contrast negative space so hardware controls can be placed above. A very faint star-dust haze only at upper right, delicate warm bronze rim highlights at edges. Dark elegant instrument craftsmanship, premium goth/metal character. NO instruments, people, frames, buttons, panels, typography, text, logos or UI. High-end photographic detail, minimal brightness, avoid excessive white contrast.",
+      "file": "Assets/Artwork/raven-workbench.jpg"
+    },
+    {
+      "name": "pedal-carbon",
+      "prompt": "Use case: product-mockup. Production image asset for RavenForge Luthier Intelligence audio plugin. A single complete premium audio hardware enclosure, dead-on orthographic product view, no perspective tilt, centered, pure black studio background. Photorealistic materials with soft upper-left studio light, restrained smoky highlights and dark charcoal shadows. Not a UI mockup. NO text, logos, labels, knobs, switches, LEDs, sockets, meters or cables. The native software adds all controls, so the front control surface must be completely empty. Frame tightly with very little margin. Portrait 1:2 image. Compact rectangular compressor/boost pedal body, black charcoal finely hammered powdercoat, polished narrow nickel edge chamfer, low rectangular casting with softly rounded corners, four small steel screws at corners and inset black rubber bottom plate occupying bottom 22%, smooth empty face. Much darker than silver and visibly different from green stomp enclosure.",
+      "file": "Assets/Artwork/pedal-carbon.jpg"
+    },
+    {
+      "name": "amp-modern",
+      "prompt": "Use case: product-mockup. Production image asset for RavenForge Luthier Intelligence audio plugin. A single complete premium audio hardware enclosure, dead-on orthographic product view, no perspective tilt, centered, pure black studio background. Photorealistic materials with soft upper-left studio light, restrained smoky highlights and dark charcoal shadows. Not a UI mockup. NO text, logos, labels, knobs, switches, LEDs, sockets, meters or cables. The native software adds all controls, so the front control surface must be completely empty. Frame tightly with very little margin. Wide 3:1 image. Modern high-gain American amplifier head, rugged black pebbled tolex outer shell, upper 38% a charcoal diamond tread plate with realistic raised lozenges, lower 50% an entirely blank brushed dark gunmetal control fascia with two small chrome side handles at extreme edges, metal reinforced corners and top carrying handle. Subdued steel and black, no gold. Entire head visible.",
+      "file": "Assets/Artwork/amp-modern.jpg"
+    },
+    {
+      "name": "rack-alloy",
+      "prompt": "Use case: product-mockup. Production image asset for RavenForge Luthier Intelligence audio plugin. A single complete premium audio hardware enclosure, dead-on orthographic product view, no perspective tilt, centered, pure black studio background. Photorealistic materials with soft upper-left studio light, restrained smoky highlights and dark charcoal shadows. Not a UI mockup. NO text, logos, labels, knobs, switches, LEDs, sockets, meters or cables. The native software adds all controls, so the front control surface must be completely empty. Frame tightly with very little margin. Very wide 8:1 image. 19-inch high-end analog studio rack processor, full-width empty brushed champagne-silver aluminum fascia, narrow machined nickel edge, black rack ears with two mounting slots per side, gentle warm reflections, vintage optical compressor / high-headroom DI craftsmanship. No center ornament. Make hardware occupy nearly entire image height and width.",
+      "file": "Assets/Artwork/rack-alloy.jpg"
+    },
+    {
+      "name": "cab-eight",
+      "prompt": "Use case: product-mockup. Production image asset for RavenForge Luthier Intelligence audio plugin. A single complete premium audio hardware enclosure, dead-on orthographic product view, no perspective tilt, centered, pure black studio background. Photorealistic materials with soft upper-left studio light, restrained smoky highlights and dark charcoal shadows. Not a UI mockup. NO text, logos, labels, knobs, switches, LEDs, sockets, meters or cables. The native software adds all controls, so the front control surface must be completely empty. Frame tightly with very little margin. Portrait 2:3 image. A classic bass cabinet with EIGHT 10-inch speakers in TWO columns and FOUR rows, subtle round speaker silhouettes visible behind black woven grille, black tolex rectangular tall shell, silver piping, protective metal corners, bottom caster feet. Whole enclosure only. No microphones. Bass 8x10 proportions, clearly eight drivers, no fake lettering. The grille is not blank; it has accurate woven fabric texture.",
+      "file": "Assets/Artwork/cab-eight.jpg"
+    },
+    {
+      "name": "pedal-brass",
+      "prompt": "Use case: product-mockup. One production image asset for a premium RavenForge audio plugin. A single complete physical enclosure centered tightly, orthographic dead-on front view, no tilt or perspective, black studio backdrop, soft upper-left light with restrained warm highlights. Realistic tactile materials and precise hardware manufacture. No logo, text, labels, knobs, switches, sockets, LEDs, meters, cables or microphone; all functional controls will be overlaid natively. Entire enclosure visible with minimal margins. Not a UI mockup. Portrait 1:2. A boutique overdrive / boost pedal body, heavy satin dark champagne-gold cast metal, sloping bevel around the perimeter, four tiny recessed black screws near the corners, broad completely empty brass face, lightly brushed radial machining, no footpad. Dark antique brass, not yellow, premium elegant luthier workshop feel.",
+      "file": "Assets/Artwork/pedal-brass.jpg"
+    },
+    {
+      "name": "amp-silver",
+      "prompt": "Use case: product-mockup. One production image asset for a premium RavenForge audio plugin. A single complete physical enclosure centered tightly, orthographic dead-on front view, no tilt or perspective, black studio backdrop, soft upper-left light with restrained warm highlights. Realistic tactile materials and precise hardware manufacture. No logo, text, labels, knobs, switches, sockets, LEDs, meters, cables or microphone; all functional controls will be overlaid natively. Entire enclosure visible with minimal margins. Not a UI mockup. Wide 3:1. An American vintage clean/bass amplifier head in black tolex with nickel corner protectors and top leather handle. Upper 42% woven silver-gray grille cloth with subtle black diagonal threads. Lower 48% completely blank dark brushed silver control panel framed by fine nickel piping. The front is totally control-free. Whole front elevation visible.",
+      "file": "Assets/Artwork/amp-silver.jpg"
+    },
+    {
+      "name": "cab-four",
+      "prompt": "Use case: product-mockup. One production image asset for a premium RavenForge audio plugin. A single complete physical enclosure centered tightly, orthographic dead-on front view, no tilt or perspective, black studio backdrop, soft upper-left light with restrained warm highlights. Realistic tactile materials and precise hardware manufacture. No logo, text, labels, knobs, switches, sockets, LEDs, meters, cables or microphone; all functional controls will be overlaid natively. Entire enclosure visible with minimal margins. Not a UI mockup. Square 1:1. A closed-back 4x12 guitar cabinet with four 12-inch drivers in two columns and two rows, speakers subtly visible beneath beige-gray basketweave grille cloth, thick black tolex shell, subtle cream piping, small black reinforced corners. Clearly four speakers, no brand plate, straight-on view, refined lightly worn material.",
+      "file": "Assets/Artwork/cab-four.jpg"
+    },
+    {
+      "name": "cab-two",
+      "prompt": "Use case: product-mockup. One production image asset for a premium RavenForge audio plugin. A single complete physical enclosure centered tightly, orthographic dead-on front view, no tilt or perspective, black studio backdrop, soft upper-left light with restrained warm highlights. Realistic tactile materials and precise hardware manufacture. No logo, text, labels, knobs, switches, sockets, LEDs, meters, cables or microphone; all functional controls will be overlaid natively. Entire enclosure visible with minimal margins. Not a UI mockup. Portrait 2:3. A vintage 2x15 bass cabinet with two large 15-inch drivers in one vertical column, classic black and silver woven grille cloth with speaker circles faintly visible, thick black tolex shell with silver piping, nickel reinforced corners and small feet. Whole cabinet visible, exactly two drivers, no brand plate. Wide driver proportions, elegant vintage craftsmanship.",
+      "file": "Assets/Artwork/cab-two.jpg"
+    }
+  ]
+}

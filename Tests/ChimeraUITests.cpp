@@ -32,7 +32,7 @@ void checkControls(ChimeraEditor& editor, int mode)
                         "Full-range EQ labels visible in Matrix");
         }
     }
-    if (sliders != (mode == 0 ? 18 : mode == 1 ? 29 : 23))
+    if (sliders != (mode == 0 ? 18 : mode == 1 ? 29 : 26))
         throw std::runtime_error("Wrong controls for mode " + std::to_string(mode) +
                                  ": found " + std::to_string(sliders));
     require(toneLabels == (mode == 2 ? 3 : 0), "Wrong band tone visibility");
@@ -50,7 +50,7 @@ void saveSnapshot(juce::Component& editor, const juce::File& directory,
 void checkState()
 {
     ChimeraProcessor source;
-    set(source,"lowcomp",.65f);set(source,"preon",1);set(source,"delayon",1);set(source,"reverbon",1);
+    set(source,"lowcomp",.65f);set(source,"lowampmix",.61f);set(source,"preon",1);set(source,"delayon",1);set(source,"reverbon",1);
     set(source,"mode",2); set(source,"bass1",7); set(source,"treble2",-5);
     set(source,"input",4); set(source,"output",-9); set(source,"gatehold",35); set(source,"gaterelease",140); set(source,"gatethreshold",-57); set(source,"transposeon",1); set(source,"transpose",-5); set(source,"oversampling",3); set(source,"tunerref",442);
     set(source,"bandtone1",9); set(source,"bandtone2",-6); set(source,"x1",220);
@@ -59,7 +59,7 @@ void checkState()
     source.getStateInformation(data);
     ChimeraProcessor restored;
     restored.setStateInformation(data.getData(),static_cast<int>(data.getSize()));
-    for (const auto* id : {"lowcomp","preon","delayon","reverbon","mode","bass1","treble2","bandtone1","bandtone2","x1","input","output","gatehold","gaterelease","gatethreshold","transposeon","transpose","oversampling","tunerref"})
+    for (const auto* id : {"lowampmix","lowcomp","preon","delayon","reverbon","mode","bass1","treble2","bandtone1","bandtone2","x1","input","output","gatehold","gaterelease","gatethreshold","transposeon","transpose","oversampling","tunerref"})
         require(std::abs(source.parameters().getRawParameterValue(id)->load() -
                          restored.parameters().getRawParameterValue(id)->load()) < 0.0001f,
                 "State recall lost an EQ or Matrix parameter");
@@ -68,12 +68,12 @@ void checkState()
     for(const auto& family:spectralforge::modelFamilies)legacy.removeChild(legacy.getChildWithProperty("id",family.parameter),nullptr);
     for (int i=1;i<=3;++i)
         legacy.removeChild(legacy.getChildWithProperty("id","bandtone"+juce::String(i)),nullptr);
-    for(const auto* id:{"lowcomp","cabtype1","cabtype2","cabtype3","input","output","gateon","transposeon","transpose","oversampling","tuneron","tunerref"})
+    for(const auto* id:{"lowampmix","lowcomp","cabtype1","cabtype2","cabtype3","input","output","gateon","transposeon","transpose","oversampling","tuneron","tunerref"})
         legacy.removeChild(legacy.getChildWithProperty("id",id),nullptr);
     auto xml = legacy.createXml();
     juce::AudioProcessor::copyXmlToBinary(*xml,data);
     restored.setStateInformation(data.getData(),static_cast<int>(data.getSize()));
-    require(restored.parameters().getRawParameterValue("lowcomp")->load()==0 &&
+    require(restored.parameters().getRawParameterValue("lowampmix")->load()==0 && restored.parameters().getRawParameterValue("lowcomp")->load()==0 &&
             restored.parameters().getRawParameterValue("cabtype1")->load()==0 &&
             restored.parameters().getRawParameterValue("gateon")->load()==0 &&
             restored.parameters().getRawParameterValue("output")->load()==0 &&
@@ -153,6 +153,13 @@ int main(int argc, char** argv)
     juce::ScopedJuceInitialiser_GUI initialiseGUI;
     try
     {
+        if(argc==3 && juce::String(argv[1])=="--installed-ir-probe") {
+            const juce::File expected(argv[2]);bool found=false;
+            for(const auto& entry:spectralforge::IRCollection::scan(spectralforge::IRCollection::roots(),true))
+                found=found || (entry.file==expected && entry.ready());
+            require(found,"Installed personal IR not discovered by the application library");
+            std::cout<<"PASS: installed personal IR discovered from shared library root\n";return 0;
+        }
         const auto directory = argc > 1 ? juce::File(argv[1])
                                        : juce::File::getCurrentWorkingDirectory().getChildFile("ui-snapshots");
         require(directory.createDirectory().wasOk(), "Cannot create snapshot directory");
@@ -163,6 +170,7 @@ int main(int argc, char** argv)
          for(int slot:{0,1,0}){ab.selectComparison(slot);const auto l=render(false),r=render(true);require(l.first>.01 && r.first>.01 && l.second<1e-5 && r.second<1e-5,"A/B changed stereo channel routing");require(std::abs(l.first-r.first)<1e-3,"A/B lost equal left/right gain");}
          require(std::isfinite(ab.cpuLoad()) && ab.cpuLoad()>0 && ab.cpuPeakLoad()>0,"CPU timing meter is inactive");std::cout<<"MEASURE CPU: "<<ab.cpuLoad()<<" percent average, "<<ab.cpuPeakLoad()<<" percent peak (this runner)\n";
         }
+        for(const auto& asset:spectralforge::art::RasterBank::get().images) require(asset.isValid(),"Embedded hardware raster missing or undecodable");
         checkState();
         checkProcessor(directory);
         {const auto folder=directory.getChildFile("ir-browser-fixture");require(folder.createDirectory().wasOk(),"Cannot create IR collection fixture");const auto guitar=folder.getChildFile("TEST V30 4x12 SM57.wav"),bass=folder.getChildFile("TEST Bass 8x10 MD421.wav");guitar.replaceWithText("UI-only fixture");bass.replaceWithText("UI-only fixture");juce::File picked;
@@ -170,6 +178,26 @@ int main(int argc, char** argv)
          size->setSelectedId(3,juce::sendNotificationSync);require(list->getListBoxModel()->getNumRows()==1,"10-inch IR filter did not isolate bass fixture");list->selectRow(0);dynamic_cast<juce::TextButton*>(browser.findChildWithID("irload"))->onClick();require(picked==bass,"IR collection loaded wrong file");
          search->setText("SM57");search->onTextChange();require(list->getListBoxModel()->getNumRows()==0,"Mic filter ignored diameter selection");search->clear();search->onTextChange();size->setSelectedId(1,juce::sendNotificationSync);saveSnapshot(browser,directory,"IR-collection");
          auto tags=spectralforge::IRMetadata::filenameHints(bass.getFileName());IRDetailsPanel details(tags,true,[](spectralforge::IRMetadata){});saveSnapshot(details,directory,"IR-details");require(folder.deleteRecursively(),"Cannot remove browser fixtures");}
+
+        {
+            IRBrowserPanel browser([](juce::File,int){});
+            auto* kind=dynamic_cast<juce::ComboBox*>(browser.findChildWithID("irkind"));
+            auto* list=dynamic_cast<juce::ListBox*>(browser.findChildWithID("irlist"));
+            require(kind && list,"Reference library controls missing");
+            kind->setSelectedId(2,juce::sendNotificationSync);
+            require(list->getListBoxModel()->getNumRows()>=2,"Bass references invisible before import");
+            list->selectRow(0);require(!dynamic_cast<juce::TextButton*>(browser.findChildWithID("irload"))->isEnabled(),"Missing IR incorrectly loadable");
+            saveSnapshot(browser,directory,"IR-bass-reference-library");
+            const auto all=spectralforge::IRCollection::scan({},true);
+            require(all.size()==8,"Factory and reference catalog count changed");
+            for(const auto& row:all) if(row.reference) require(row.tags.values[9].startsWith("https://"),"Reference source fields are shifted");
+            const auto invalid=directory.getChildFile("invalid-personal.zip");
+            {std::array<char,128> damaged{};juce::ZipFile::Builder zip;zip.addEntry(new juce::MemoryInputStream(damaged.data(),damaged.size(),false),9,"../../DYN 421.wav",juce::Time::getCurrentTime());auto stream=invalid.createOutputStream();require(stream && zip.writeToStream(*stream,nullptr),"Cannot write invalid pack fixture");}
+            int count=0;const auto target=directory.getChildFile("pack-import-destination");
+            require(spectralforge::IRCollection::importPersonalPack(invalid,target,count).failed() && !target.exists(),"Invalid personal pack was extracted");
+            invalid.deleteFile();
+            std::cout<<"PASS: bass reference visibility, missing-file state, source metadata and invalid ZIP rejection\n";
+        }
 
         ChimeraProcessor processor;
         processor.setRateAndBufferSizeDetails(48000,256);

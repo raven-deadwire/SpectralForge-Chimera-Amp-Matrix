@@ -2,7 +2,7 @@
 #include "HardwareArtwork.h"
 
 namespace {
-const juce::Colour background(0xff101313),panel(0xff1b1f1f),line(0xff343a39),ink(0xffe6e4db),muted(0xffa0aaa5),accent(0xffe8a565);
+const juce::Colour background(0xff0d1010),panel(0xff171b1b),line(0xff3a3a34),ink(0xffe1dbce),muted(0xffa4a79f),accent(0xffc4a678);
 void style(juce::Label& label,float size=13.f,juce::Justification justification=juce::Justification::centredLeft)
 {
     label.setFont(juce::FontOptions(size)); label.setColour(juce::Label::textColourId,ink);
@@ -72,9 +72,10 @@ void ChimeraLookAndFeel::drawRotarySlider(juce::Graphics& g,int x,int y,int widt
 }
 ChimeraEditor::ChimeraEditor(ChimeraProcessor& p) : AudioProcessorEditor(&p),processor(p)
 {
+    (void)spectralforge::art::RasterBank::get();
     setLookAndFeel(&look); canvas.setComponentID("surface"); addAndMakeVisible(canvas);
     auto add=[this](juce::Component& component){canvas.addAndMakeVisible(component);};
-    style(title,28.f); title.setText("CHIMERA",juce::dontSendNotification); add(title);
+    style(title,28.f);title.setFont(juce::FontOptions(juce::Font::getDefaultSerifFontName(),30.f,juce::Font::plain)); title.setText("CHIMERA",juce::dontSendNotification); add(title);
     mode.setName("Routing Mode"); mode.addItemList({"CLASSIC","DUAL","MATRIX"},1); add(mode);
     mode.setTooltip("Classic: one full-range rig. Dual: two parallel rigs. Matrix: three input bands.");
     quality.setName("Oversampling"); quality.addItemList({"1x","2x","4x","8x"},1); add(quality);
@@ -86,10 +87,11 @@ ChimeraEditor::ChimeraEditor(ChimeraProcessor& p) : AudioProcessorEditor(&p),pro
         const juce::Component::SafePointer<ChimeraEditor> safe(this);
         menu.showMenuAsync(juce::PopupMenu::Options().withTargetComponent(&info),[safe](int result){if(!safe)return;if(result==1)safe->referenceFile(true);else if(result==2)safe->referenceFile(false);else if(result==3)safe->showInfo();else if(result==4){auto* p=safe->processor.parameters().getParameter("tunerref");p->setValueNotifyingHost(p->convertTo0to1(440));}else if(result==5)safe->processor.clearMidi();});
     };
-    for(auto* button:{&compareA,&compareB,&copyAB,&rigsTab,&preTab,&postTab}) add(*button);
+    for(auto* button:{&compareA,&compareB,&copyAB,&irLibraryButton,&rigsTab,&preTab,&postTab}) add(*button);
     compareA.onClick=[this]{processor.selectComparison(0);timerCallback();};compareB.onClick=[this]{processor.selectComparison(1);timerCallback();};copyAB.onClick=[this]{processor.copyComparison();};
     compareA.setTooltip("Recall sound snapshot A: all parameters, models and embedded IRs. Both stereo channels are processed together.");compareB.setTooltip("Recall sound snapshot B. This is a stored sound, not the right audio channel.");
     copyAB.setTooltip("Copy the active sound to the other slot. A/B stores all parameters and IR audio; both slots are saved with the project/reference file.");
+    irLibraryButton.setComponentID("irlibrary");irLibraryButton.onClick=[this]{loadIR(0);};
     rigsTab.onClick=[this]{page=0;updateModeUI();};preTab.onClick=[this]{page=1;updateModeUI();};postTab.onClick=[this]{page=2;updateModeUI();};
     const std::array<const char*,11> effectHeaders{"OVERDRIVE","DELAY","REVERB","COMPRESSOR","ENVELOPE","FUZZ","BOOST","BUS COMP","PREAMP","EQ","MODULATION"};
     const std::array<const char*,11> effectScopes{"05 / TIGHT GAIN","05 / SPACE","06 / SPACE","01 / DYNAMICS","02 / FILTER","03 / TEXTURE","04 / SHAPING","01 / DYNAMICS","02 / COLOUR","03 / TONE","04 / MODULATION"};
@@ -134,8 +136,11 @@ ChimeraEditor::ChimeraEditor(ChimeraProcessor& p) : AudioProcessorEditor(&p),pro
     setupSlider(lowComp,"COMP");add(lowComp);lowCompAttachment=std::make_unique<SA>(p.parameters(),"lowcomp",lowComp);
     lowComp.setTooltip("One-knob VCA-style RMS compression: threshold and ratio move together. 0 = unity. Use LEVEL for makeup gain.");
     style(lowCompLabel,11.5f);lowCompLabel.setText("COMP",juce::dontSendNotification);add(lowCompLabel);
-    style(diVoice,16);diVoice.setText("CLEAN DI / VCA",juce::dontSendNotification);add(diVoice);
-    style(diNote,12);diNote.setText("Fuzz / Boost / Drive bypassed on LOW DI.",juce::dontSendNotification);add(diNote);
+    setupSlider(lowAmpMix,"DI / AMP");add(lowAmpMix);lowAmpMix.setComponentID("lowampmix");lowAmpMixAttachment=std::make_unique<SA>(p.parameters(),"lowampmix",lowAmpMix);
+    lowAmpMix.textFromValueFunction=[](double v){return juce::String(juce::roundToInt(v*100))+"% AMP";};lowAmpMix.valueFromTextFunction=[](const juce::String& s){return s.getDoubleValue()/100;};
+    lowAmpMix.setTooltip("Blend compressed LOW DI with the selected head/cab. 0% = DI; 100% = amp/cab. Head drive is fixed at 0 in Matrix LOW. IR capture phase is retained.");
+    style(diVoice,10);diVoice.setText("DI / AMP",juce::dontSendNotification);add(diVoice);
+    style(diNote,12);diNote.setText("HEAD DRIVE: 0 / COMP BEFORE BLEND",juce::dontSendNotification);add(diNote);
     style(routingHelp); add(routingHelp); style(x1Label,11.f); style(x2Label,11.f);
     x1Label.setText("LOW / MID",juce::dontSendNotification); x2Label.setText("MID / HIGH",juce::dontSendNotification);
     add(x1Label); add(x2Label); setupSlider(x1,"LOW / MID"," Hz"); setupSlider(x2,"MID / HIGH"," Hz"); add(x1); add(x2);
@@ -193,7 +198,7 @@ ChimeraEditor::ChimeraEditor(ChimeraProcessor& p) : AudioProcessorEditor(&p),pro
         lane.mute.setTooltip("Mute this active rig"); lane.solo.setTooltip("Solo this active rig"); lane.polarity.setTooltip("Invert this rig's polarity");
         lane.cabOn.setTooltip("Enable or bypass this rig's IR and cabinet cuts");
         add(lane.details);lane.details.setComponentID("irtags"+n);lane.details.onClick=[this,i]{showIRDetails(i);};lane.details.setTooltip("Inspect or edit speaker, diameter, microphone, position, distance and provenance.");
-        add(lane.load); lane.load.onClick=[this,i]{loadIR(i);}; lane.load.setTooltip("Load WAV/AIFF IR, mono/stereo, up to 1 second and 4 MB. You can also drop a file onto this rig.");
+        add(lane.load); lane.load.onClick=[this,i]{loadIR(i);}; lane.load.setTooltip("Open the cabinet library: factory, bass/guitar references and installed user IRs. Import the personal ZIP once.");
     }
     mode.onChange=[this]{updateModeUI();}; x1.onValueChange=[this]{updateBandLabels();}; x2.onValueChange=[this]{updateBandLabels();};
     setResizable(true,true); setResizeLimits(885,585,1770,1170); getConstrainer()->setFixedAspectRatio(1180.0/780.0);
@@ -208,10 +213,12 @@ void ChimeraEditor::setupSlider(juce::Slider& slider,const juce::String& name,co
 }
 void ChimeraEditor::loadIR(int lane)
 {
-    juce::PopupMenu menu;menu.addItem(1,"Load one IR...");menu.addItem(2,"Browse an IR folder...");
-    juce::PopupMenu sources;sources.addItem(11,"Bass / Ampeg 8x10 / MD421 and more");sources.addItem(12,"Bass / Fender 2x15 / CTS / seven mics");sources.addItem(13,"Guitar / V30 4x12 / M201 positions");menu.addSubMenu("Get reference IRs on TONE3000",sources);
-    const juce::File folder(processor.parameters().state.getProperty("irFolder").toString());if(folder.isDirectory())menu.addItem(3,"Open previous IR collection");
-    const juce::Component::SafePointer<ChimeraEditor> safe(this);menu.showMenuAsync(juce::PopupMenu::Options().withTargetComponent(&lanes[(size_t)lane].load),[safe,lane,folder](int result){if(!safe)return;if(result>=11 && result<=13){const std::array<const char*,3> urls{"https://www.tone3000.com/tones/ir-bass-metal-packs-30275/","https://www.tone3000.com/tones/1970-fender-bassman-2x15-cabinet-with-original-cts-speakers-ir-files-60274","https://www.tone3000.com/tones/v30-m201-mesa-traditional-4x12-irs-66230"};juce::URL(urls[(size_t)result-11]).launchInDefaultBrowser();return;}if(result==3)safe->browseIR(lane,folder);else if(result==1 || result==2)safe->chooseIR(lane,result==2);});
+    const juce::Component::SafePointer<ChimeraEditor> safe(this);juce::DialogWindow::LaunchOptions options;
+    options.content.setOwned(new IRBrowserPanel([safe,lane](juce::File file,int factory){if(!safe)return;
+        if(factory) {auto* p=safe->processor.parameters().getParameter("cabtype"+juce::String(lane+1));p->setValueNotifyingHost(p->convertTo0to1(float(factory)));}
+        else safe->processor.loadIR(lane,file);safe->timerCallback();}));
+    options.dialogTitle="RavenForge / Cabinet library / Rig "+juce::String(lane+1);options.dialogBackgroundColour=background;
+    options.useNativeTitleBar=true;options.escapeKeyTriggersCloseButton=true;options.resizable=false;options.componentToCentreAround=this;options.launchAsync();
 }
 void ChimeraEditor::chooseIR(int lane,bool folder)
 {
@@ -235,12 +242,12 @@ void ChimeraEditor::filesDropped(const juce::StringArray& files,int x,int y)
     const int count=lastMode==0 ? 1 : lastMode==1 ? 2 : 3;
     if(y<330 || y>742) return;
     const int width=(1140-14*(count-1))/count;
-    for(int i=0;i<count;++i) if(!(lastMode==2 && i==0) && x>=20+i*(width+14) && x<20+i*(width+14)+width) { processor.loadIR(i,juce::File(files[0])); timerCallback(); break; }
+    for(int i=0;i<count;++i) if(x>=20+i*(width+14) && x<20+i*(width+14)+width) { processor.loadIR(i,juce::File(files[0])); timerCallback(); break; }
 }
 void ChimeraEditor::showInfo()
 {
     juce::AlertWindow::showMessageBoxAsync(juce::MessageBoxIconType::InfoIcon,"Chimera Amp Matrix",
-        "SpectralForge | 1.0 development build\n\nAmp voices are algorithmic interpretations, not verified hardware replicas.\n\nFactory IRs: jesterdyne, CC BY 4.0\nEngl Celestion V30 SM57 center-01.wav\nhttps://freesound.org/s/116735/\nJensen Cab SM57 center.wav\nhttps://freesound.org/s/116743/\nhttps://creativecommons.org/licenses/by/4.0/\nFiles unchanged; normalised and resampled during playback.\n\nPitch: Chimera STFT / JUCE FFT\n\nComplete notices are supplied with the download.","OK",this);
+        "RavenForge Luthier Intelligence | 1.0 development build\n\nAmp voices are algorithmic interpretations, not verified hardware replicas.\n\nFactory IRs: jesterdyne, CC BY 4.0\nEngl Celestion V30 SM57 center-01.wav\nhttps://freesound.org/s/116735/\nJensen Cab SM57 center.wav\nhttps://freesound.org/s/116743/\nhttps://creativecommons.org/licenses/by/4.0/\nFiles unchanged; normalised and resampled during playback.\n\nPitch: Chimera STFT / JUCE FFT\n\nComplete notices are supplied with the download.","OK",this);
 }
 void ChimeraEditor::timerCallback()
 {
@@ -252,7 +259,7 @@ void ChimeraEditor::timerCallback()
     {
         auto& lane=lanes[i];
         const bool active=processor.parameters().getRawParameterValue("cab"+juce::String(i+1))->load()>.5f;
-        lane.cabStatus.setText(current==2 && i==0 ? "GAIN REDUCTION  "+juce::String(processor.lowCompMeter(),1)+" dB" : (active ? "" : "BYPASSED | ")+processor.cabStatus(i),juce::dontSendNotification);
+        lane.cabStatus.setText(current==2 && i==0 ? "GR "+juce::String(processor.lowCompMeter(),1)+" dB | DRIVE 0 | "+processor.cabStatus(i) : (active ? "" : "BYPASSED | ")+processor.cabStatus(i),juce::dontSendNotification);
         lane.cabStatus.setTooltip(lane.cabStatus.getText()+"\n"+processor.cabMetadata(i).summary());
         lane.cabLow.setEnabled(active); lane.cabHigh.setEnabled(active);
     }
@@ -298,7 +305,7 @@ void ChimeraEditor::updateModeUI()
         effect.header.setVisible(show);effect.scope.setVisible(show);effect.description.setVisible(show && pedal);effect.enabled.setVisible(show);effect.model.setVisible(show);
         for(int k=0;k<5;++k){const bool visible=show && effect.attachments[(size_t)k]!=nullptr;effect.controls[k].setVisible(visible);effect.labels[k].setVisible(visible);}
     }
-    for(juce::Component* c:std::initializer_list<juce::Component*>{&lowComp,&lowCompLabel,&diVoice,&diNote}) c->setVisible(matrix && page==0);
+    for(juce::Component* c:std::initializer_list<juce::Component*>{&lowComp,&lowCompLabel,&lowAmpMix,&diVoice}) c->setVisible(matrix && page==0);
     for(int i=0;i<3;++i)
     {
         auto& lane=lanes[i]; const bool show=i<count && page==0;
@@ -306,10 +313,10 @@ void ChimeraEditor::updateModeUI()
         auto controls=lane.controls();
         for(size_t k=0;k<8;++k) { controls[k]->setVisible(show && (!split || k<2)); lane.knobLabels[k].setVisible(show && (!split || k<2)); }
         if(matrix && i==0) {
-            for(juce::Component* c:std::initializer_list<juce::Component*>{&lane.drive,&lane.knobLabels[0],&lane.amp,&lane.ampOn,&lane.cabOn,&lane.cabType,&lane.load,&lane.details,&lane.cabLow,&lane.cabHigh,&lane.lowLabel,&lane.highLabel}) c->setVisible(false);
+            for(juce::Component* c:std::initializer_list<juce::Component*>{&lane.drive,&lane.knobLabels[0]}) c->setVisible(false);
         }
         lane.bandTone.setVisible(show && split); lane.toneLabel.setVisible(show && split); lane.tonePivot.setVisible(show && split);
-        lane.header.setText(matrix ? (i==0 ? "01 / LOW DI" : i==1 ? "02 / MID" : "03 / HIGH") : "RIG "+juce::String(i+1),juce::dontSendNotification);
+        lane.header.setText(matrix ? (i==0 ? "01 / LOW" : i==1 ? "02 / MID" : "03 / HIGH") : "RIG "+juce::String(i+1),juce::dontSendNotification);
         if(!matrix) lane.range.setText("Full-range input",juce::dontSendNotification);
     }
     mode.setVisible(!lastTuner);routingHelp.setVisible(!lastTuner);dualType.setVisible(lastMode==1 && !lastTuner);dualLabel.setVisible(lastMode==1 && page==0 && !lastTuner);
@@ -322,13 +329,16 @@ void ChimeraEditor::updateModeUI()
 void ChimeraEditor::paint(juce::Graphics& g)
 {
     g.fillAll(background); g.addTransform(juce::AffineTransform::scale(getWidth()/1180.f));
-    g.setColour(accent); g.fillRect(20,20,3,36);
+    spectralforge::art::raster(g,spectralforge::art::Surface::workbench,{0,0,1180,780});
+    g.setColour(background.withAlpha(.40f));g.fillRect(0,0,1180,780);
+    g.setColour(accent.withAlpha(.7f));g.fillRect(20,20,2,36);
     text(g,"SOUND A / B",490,11,121,14,8.5f,muted);
-    text(g,"SPECTRALFORGE  /  AMP MATRIX",194,26,284,28,12.f,muted);
+    g.setColour(ink);g.setFont(juce::FontOptions(juce::Font::getDefaultSerifFontName(),18.f,juce::Font::plain));g.drawText("RAVENFORGE",205,20,244,24,juce::Justification::centredLeft);
+    text(g,"L U T H I E R   I N T E L L I G E N C E",206,45,274,13,8.f,muted);
     text(g,"OVERSAMPLING",816,8,110,22,10.f); text(g,"SIZE",986,8,64,22,10.f);
     g.setColour(line); g.drawHorizontalLine(67,20,1160);
     const std::array<juce::Rectangle<float>,5> panels{{{20,80,138,168},{170,80,254,168},{436,80,176,168},{624,80,326,168},{962,80,198,168}}};
-    for(auto box:panels) { g.setColour(panel); g.fillRoundedRectangle(box,5); g.setColour(line); g.drawRoundedRectangle(box,5,1); }
+    for(auto box:panels) { g.setColour(panel.withAlpha(.88f)); g.fillRoundedRectangle(box,5); g.setColour(line); g.drawRoundedRectangle(box,5,1); }
     text(g,"INPUT",32,91,104,24,12.f,ink); text(g,"DI TRIM",32,119,106,21,10.f);
     text(g,"THRESH",182,126,63,26,10.f); text(g,"RELEASE",182,160,64,26,10.f); text(g,"HOLD",308,160,54,26,10.f);
     text(g,"SEMITONES",450,129,148,22,10.f);
@@ -353,9 +363,9 @@ void ChimeraEditor::paint(juce::Graphics& g)
         for(int i=0;i<6;++i) {
             const float y=330.f+i*69.f;const auto& effect=effects[(size_t)rackOrder[(size_t)i]];
             const auto colour=juce::Colour(spectralforge::modelInfo(rackOrder[(size_t)i],effect.model.getSelectedId()-1).colour);
-            spectralforge::art::plate(g,{20,y,1140,64},colour.darker(.45f),3);
+            spectralforge::art::rack(g,{20,y,1140,64},rackOrder[(size_t)i],effect.model.getSelectedId()-1);
             g.setColour(background.withAlpha(.45f));g.fillRect(48.f,y+2,243.f,60.f);
-            for(float x:{32.f,1148.f})for(float sy:{y+14,y+50})spectralforge::art::screw(g,x,sy);
+            g.setColour(colour.withAlpha(.7f));g.fillRect(48.f,y+8,2.f,46.f);
             g.setColour(effect.enabled.getToggleState() ? accent : line);g.fillEllipse(45,y+27,4,7);
             g.setColour(ink.withAlpha(.12f));g.drawVerticalLine(292,y+6,y+58);
         }
@@ -366,29 +376,24 @@ void ChimeraEditor::paint(juce::Graphics& g)
             if(page==1) {
                 const int family=pedalOrder[(size_t)i];const auto& effect=effects[(size_t)family];const int model=effect.model.getSelectedId()-1;
                 const auto colour=juce::Colour(spectralforge::modelInfo(family,model).colour);
-                spectralforge::art::plate(g,{x,330,float(width),412},colour,12);
-                g.setColour(background.withAlpha(.32f));g.fillRoundedRectangle(x+8,338,float(width-16),81,6);
-                if(family==5 && model==1){g.setColour(ink.withAlpha(.10f));g.drawEllipse(x+14,427,float(width-28),166,8);}
-                if(family==0 && model==0){g.setColour(juce::Colours::black.withAlpha(.4f));g.fillRoundedRectangle(x+8,638,float(width-16),93,7);for(int n=0;n<8;++n){g.setColour(ink.withAlpha(.10f));g.drawHorizontalLine(643+n*11,x+13,x+width-13);}}
-                else {g.setColour(background.withAlpha(.38f));g.fillRoundedRectangle(x+12,640,float(width-24),91,6);}
-                for(float sx:{x+19,x+width-19})spectralforge::art::screw(g,sx,720);
+                spectralforge::art::pedal(g,{x,330,float(width),412},family,model);
+                g.setColour(background.withAlpha(.67f));g.fillRoundedRectangle(x+13,341,float(width-26),78,3);
+                g.setColour(colour.withAlpha(.7f));g.fillRect(x+14,338.f,float(width-28),2.f);
                 g.setColour(effect.enabled.getToggleState() ? accent.withAlpha(.15f) : juce::Colours::transparentBlack);g.fillEllipse(x+width*.5f-9,645,18,18);
                 g.setColour(effect.enabled.getToggleState() ? accent : line);g.fillEllipse(x+width*.5f-3,651,6,6);
                 text(g,juce::String(i+1)+" / IN > OUT",(int)x+16,720,width-32,14,8.f,ink.withAlpha(.5f),juce::Justification::centred);
             } else {
                 const auto& lane=lanes[(size_t)i];const bool di=lastMode==2 && i==0;const auto colour=di ? juce::Colour(0xff40544c) : spectralforge::art::ampColour(lane.amp.getSelectedId()-1);
-                spectralforge::art::plate(g,{x,330,float(width),412},panel,5);
-                spectralforge::art::plate(g,{x+7,391,float(width-14),226},colour.darker(.6f),5);
-                g.setColour(colour);g.fillRoundedRectangle(x+10,392,float(width-20),43,3);
-                g.setColour(background.withAlpha(.78f));g.fillRoundedRectangle(x+10,437,float(width-20),174,3);
-                for(float sx:{x+16,x+width-16})spectralforge::art::screw(g,sx,607);
+                g.setColour(panel.withAlpha(.8f));g.fillRoundedRectangle(x,330,float(width),412,5);
+                g.setColour(line.withAlpha(.65f));g.drawRoundedRectangle(x,330,float(width),412,5,1);
+                spectralforge::art::head(g,{x+7,391,float(width-14),226},lane.amp.getSelectedId()-1);
+                g.setColour(background.withAlpha(.76f));g.fillRoundedRectangle(x+10,437,float(width-20),174,3);
                 g.setColour(colour.withAlpha(.65f));g.fillRect(x+12,332.f,float(width-24),2.f);
-                if(!di)spectralforge::art::cabinet(g,{x+12,664,51,43},processor.cabMetadata(i));
-                else {
-                    text(g,"DIRECT INJECTION",(int)x+17,650,width-34,16,10.f,accent);
+                spectralforge::art::cabinet(g,{x+12,664,51,43},processor.cabMetadata(i));
+                if(di) {
                     const float reduction=juce::jlimit(0.f,1.f,processor.lowCompMeter()/24.f);
-                    g.setColour(line);g.fillRoundedRectangle(x+17,677,float(width-34),4,2);
-                    if(reduction>0.f){g.setColour(accent);g.fillRoundedRectangle(x+17,677,float(width-34)*reduction,4,2);}
+                    g.setColour(line);g.fillRoundedRectangle(x+17,614,float(width-34),3,1.5f);
+                    if(reduction>0.f){g.setColour(accent);g.fillRoundedRectangle(x+17,614,float(width-34)*reduction,3,1.5f);}
                 }
             }
         }
@@ -408,7 +413,7 @@ void ChimeraEditor::resized()
 void ChimeraEditor::layoutControls()
 {
     compareA.setBounds(490,30,30,28);compareB.setBounds(524,30,30,28);copyAB.setBounds(558,30,52,28);rigsTab.setBounds(634,30,52,28);preTab.setBounds(692,30,52,28);postTab.setBounds(750,30,52,28);
-    title.setBounds(30,16,166,40); quality.setBounds(816,30,130,28); scale.setBounds(986,30,80,28); info.setBounds(504,750,86,25);
+    title.setBounds(30,16,166,40); quality.setBounds(816,30,130,28); scale.setBounds(986,30,80,28);irLibraryButton.setBounds(1074,30,86,28); info.setBounds(504,750,86,25);
     mode.setBounds(106,268,140,28); routingHelp.setBounds(lastMode==1 ? 415 : 258,268,lastMode==1 ? 160 : 277,28);
     dualType.setBounds(260,268,144,28);dualLabel.setBounds(597,257,280,20);dualBlend.setBounds(597,280,330,28);dualFrequency.setBounds(597,280,330,28);
     x1Label.setBounds(565,258,224,20); x1.setBounds(565,280,252,28);
@@ -434,7 +439,7 @@ void ChimeraEditor::layoutControls()
         for(int k=0;k<count;++k){const int x=302+k*cell;effect.labels[(size_t)k].setBounds(x,y+5,cell-12,18);effect.controls[(size_t)k].setBounds(x,y+27,cell-12,29);}
     }
     delaySync.setBounds(241,330+4*69+47,43,15);
-    diVoice.setBounds(32,398,344,32);diNote.setBounds(32,690,342,22);
+    diVoice.setBounds(32,584,68,22);lowAmpMix.setBounds(102,582,276,26);diNote.setVisible(false);
     const bool matrix=lastMode==2,split=matrix || (lastMode==1 && lastDualCross); const int count=lastMode==0 ? 1 : lastMode==1 ? 2 : 3;
     const int width=(1140-14*(count-1))/count;
     for(int i=0;i<count;++i)
@@ -449,7 +454,7 @@ void ChimeraEditor::layoutControls()
             const std::array<juce::Label*,3> labels{matrix && i==0 ? &lowCompLabel : &lane.knobLabels[0],&lane.knobLabels[1],&lane.toneLabel};
             const int cell=(width-24)/3;
             for(int k=0;k<3;++k) { labels[k]->setJustificationType(juce::Justification::centred);labels[k]->setBounds(x+12+k*cell,453,cell-4,21);controls[k]->setSliderStyle(juce::Slider::RotaryHorizontalVerticalDrag);controls[k]->setTextBoxStyle(juce::Slider::TextBoxBelow,false,cell-8,23);controls[k]->setBounds(x+12+k*cell,478,cell-4,96); }
-            lane.tonePivot.setBounds(x+12,585,width-24,22);
+            lane.tonePivot.setBounds(x+12,585,width-24,22);if(matrix && i==0)lane.tonePivot.setVisible(false);
         }
         else
         {

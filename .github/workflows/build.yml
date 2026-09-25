@@ -15,7 +15,7 @@ jobs:
         if: runner.os == 'Windows'
         shell: pwsh
         run: |
-          foreach ($script in @("Tools/Build-WindowsInstaller.ps1", "Tools/Verify-WindowsInstaller.ps1")) {
+          foreach ($script in @("Tools/Build-WindowsInstaller.ps1", "Tools/Verify-WindowsInstaller.ps1", "Tools/Sign-WindowsArtifact.ps1")) {
             $tokens = $null
             $parseErrors = $null
             [System.Management.Automation.Language.Parser]::ParseFile((Resolve-Path $script).Path, [ref]$tokens, [ref]$parseErrors) | Out-Null
@@ -53,7 +53,7 @@ jobs:
           Copy-Item -Recurse "build/ChimeraAmpMatrix_artefacts/Release/Standalone/*" "$stage/Standalone/"
           Copy-Item "docs/THIRD_PARTY_NOTICES.md","docs/AMP_VALIDATION.md" "$stage/"
           Copy-Item "docs/FX_AND_IR_DESIGN.md","docs/MODELS_AND_REFERENCE.md","docs/NAM_REFERENCE_RESULTS.md" "$stage/"
-          Copy-Item "docs/WINDOWS_INSTALL.txt" "$stage/"
+          Copy-Item "docs/WINDOWS_INSTALL.txt","docs/WINDOWS_SIGNING.md","docs/ARTWORK_PROMPTS.json" "$stage/"
           Copy-Item -Recurse "docs/reference" "$stage/"
           New-Item -ItemType Directory -Force -Path "$stage/ReferenceTools" | Out-Null
           Copy-Item "Tools/validate_nam.py" "$stage/ReferenceTools/"
@@ -61,7 +61,7 @@ jobs:
           Copy-Item -Recurse "build/reference-audio" "$stage/"
           Copy-Item "build/Testing/Temporary/LastTest.log" "$stage/Verification.txt"
           @"
-          SpectralForge Chimera Amp Matrix 1.0.0 TEST BUILD
+          RavenForge Luthier Intelligence / Chimera Amp Matrix 1.0.0 TEST BUILD
           =================================================
           Unsigned development build. Windows SmartScreen/Chrome may warn because
           this binary does not yet have an Authenticode publisher signature.
@@ -78,17 +78,18 @@ jobs:
           User IR: WAV/AIFF, mono/stereo, <=1 second, <=4 MB. LOAD or drop onto a rig.
           Transpose adds the displayed latency when enabled; the host is notified.
           Tuner reads the original input. AUTO MUTE silences the output while tuning.
-          Matrix LOW is clean DI with one-knob VCA-style COMP, LEVEL and BAND TONE.
-          LOW bypasses Fuzz/Boost/Overdrive, amp and IR; its delay stays aligned to the other rigs.
+          Matrix LOW: one-knob COMP, LEVEL, BAND TONE and DI/AMP blend; head drive fixed at 0.
+          LOW bypasses Fuzz/Boost/Overdrive. Selected head/IR feed its optional wet branch.
           Matrix MID/HIGH use DRIVE / LEVEL / BAND TONE. Classic/Dual keep full EQ.
           PRE: Compressor, Envelope, Fuzz, Boost, Overdrive. Gate/Transpose stay on top.
           POST: Bus Comp, Preamp, EQ, Modulation, Delay, Reverb.
-          36 selectable FX models; source-informed vector hardware panels.
+          36 selectable FX models; generated RavenForge hardware artwork.
           CPU average/peak meters measure the audio callback deadline budget.
           A/B stores complete sounds; it does not select left/right stereo channels.
-          LOAD > IR folder offers diameter and mic/position search; TAGS edits capture metadata.
+          IR LIBRARY lists installed and missing reference cabinets, with bass/size/mic filters.
           Bass IR source catalog: Ampeg 8x10/MD421 and CTS Bassman 2x15/SM57.
-          T3K files require personal downloads; no restricted NAM/IR data is bundled.
+          IMPORT PERSONAL ZIP installs your existing pack; a private installer bundle includes the companion IR folder.
+          No restricted NAM/IR data is bundled in this public build.
           Eight amp-head NAM comparisons and held-out voicing results are documented.
           Dual: adjustable full-range BLEND or LR4 low/high CROSSOVER.
           Top: presets, Stereo/Mono L, Doubler. Bottom: tuner, MIDI Learn, Tap/BPM, Click.
@@ -125,6 +126,19 @@ jobs:
             dist/Chimera-Amp-Matrix-1.0.0-test-win64.sha256.txt
           if-no-files-found: error
           compression-level: 0
+
+      - name: Verify signed release cannot fall back to unsigned
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $rejected = $false
+          try { ./Tools/Build-WindowsInstaller.ps1 -Sign -CertificateThumbprint "" }
+          catch {
+            if ($_.Exception.Message -notmatch "verified public code-signing certificate is required") { throw }
+            $rejected = $true
+          }
+          if (!$rejected) { throw "Signed build accepted a missing signing identity" }
+          Write-Host "PASS: signed distribution is blocked without a verified publisher certificate"
 
       - name: Build Windows installer
         if: runner.os == 'Windows'

@@ -1,3 +1,22 @@
+# Current LOW routing and cabinet-library update
+
+Matrix LOW now routes the compressed clean low band into a DI branch and an optional
+selected amp/cab branch. DI/AMP blends these at constant-sum gain; default is 0% amp.
+Head drive is fixed at zero in this mode; stored Classic/Dual drive is preserved.
+The compressor is before both branches. The DI delay equals the amp algorithmic delay
+at every oversampling factor. IR capture phase/delay is preserved, so cabinet coloration
+can intentionally affect a mixed result. Fuzz/Boost/Overdrive still do not feed LOW.
+
+IR LIBRARY is always available and each lane has an IRs button. Both factory assets
+and all six reference captures are listed, with installed/missing status; missing files
+cannot be loaded. The personal installer companion folder installs to a shared library.
+The ZIP importer accepts only catalog-matched SHA-256 audio, ignoring NAM files and
+ZIP paths, and writes corrected canonical metadata. Folder additions persist outside
+presets/A-B. The 15-inch Delta Blues is a guitar cab, while CTS 2x15 and Ampeg 8x10 are bass.
+
+The following sections retain earlier design history; the routing above supersedes
+the earlier assertion that LOW has no amp/cab path.
+
 # IR, routing and effect design
 
 ## Permanent controls and navigation

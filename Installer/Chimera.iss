@@ -14,7 +14,7 @@ AppId=SpectralForge.ChimeraAmpMatrix
 AppName={#ProductName}
 AppVersion={#ProductVersion}
 AppVerName={#ProductName} {#ProductVersion} Test
-AppPublisher=SpectralForge
+AppPublisher=RavenForge Luthier Intelligence
 AppPublisherURL=https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix
 DefaultDirName={autopf}\SpectralForge\{#ProductName}
 DefaultGroupName=SpectralForge\{#ProductName}
@@ -35,11 +35,16 @@ UninstallFilesDir={app}\Uninstall
 CloseApplications=no
 RestartApplications=no
 SetupLogging=yes
-VersionInfoCompany=SpectralForge
+VersionInfoCompany=RavenForge Luthier Intelligence
 VersionInfoDescription={#ProductName} Windows Installer
 VersionInfoVersion={#ProductVersion}.0
 VersionInfoProductName={#ProductName}
 VersionInfoProductVersion={#ProductVersion}
+
+#ifdef SignRelease
+SignTool=ChimeraRelease
+SignedUninstaller=yes
+#endif
 
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"
@@ -61,10 +66,17 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; Components: standalo
 Source: "{#StageDir}\VST3\Chimera Amp Matrix.vst3\*"; DestDir: "{commoncf64}\VST3\Chimera Amp Matrix.vst3"; Components: vst3; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "{#StageDir}\Standalone\Chimera Amp Matrix.exe"; DestDir: "{app}"; Components: standalone; Flags: ignoreversion
 Source: "{#StageDir}\*.txt"; DestDir: "{app}"; Flags: ignoreversion
+Source: "{#StageDir}\ARTWORK_PROMPTS.json"; DestDir: "{app}\Documentation"; Flags: ignoreversion
 Source: "{#StageDir}\*.md"; DestDir: "{app}\Documentation"; Flags: ignoreversion
 Source: "{#StageDir}\reference\*"; DestDir: "{app}\Documentation\reference"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "{#StageDir}\ReferenceTools\*"; DestDir: "{app}\ReferenceTools"; Components: reference; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "{#StageDir}\reference-audio\*"; DestDir: "{app}\reference-audio"; Components: reference; Flags: ignoreversion recursesubdirs createallsubdirs
+
+; Optional user-owned companion pack, supplied separately from the public build.
+; Install where both VST3 and standalone (and other Windows accounts) can discover it.
+; Preserve these files across uninstall. Setup never bundles restricted T3K captures.
+Source: "{src}\Chimera-Personal-IRs\*.wav"; DestDir: "{commonappdata}\SpectralForge\Chimera\IRs"; Flags: external skipifsourcedoesntexist recursesubdirs createallsubdirs onlyifdoesntexist uninsneveruninstall
+Source: "{src}\Chimera-Personal-IRs\*.json"; DestDir: "{commonappdata}\SpectralForge\Chimera\IRs"; Flags: external skipifsourcedoesntexist recursesubdirs createallsubdirs onlyifdoesntexist uninsneveruninstall
 
 [Icons]
 Name: "{group}\Chimera Amp Matrix"; Filename: "{app}\Chimera Amp Matrix.exe"; WorkingDir: "{app}"; Components: standalone

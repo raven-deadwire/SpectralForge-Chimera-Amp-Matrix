@@ -85,10 +85,11 @@ inline constexpr const char* referenceIRCatalog=R"IRCAT([
     "position": "",
     "distance": "",
     "angle": "",
-    "preamp": "amrinbastomi",
-    "author": "https://www.tone3000.com/tones/ir-bass-metal-packs-30275/",
-    "source": "Bass cabinet. Unit model, cone position, distance and angle are undocumented.",
-    "license": "T3K"
+    "preamp": "",
+    "author": "amrinbastomi",
+    "source": "https://www.tone3000.com/tones/ir-bass-metal-packs-30275/",
+    "license": "T3K",
+    "notes": "Bass cabinet. Unit model, cone position, distance and angle are undocumented."
   },
   {
     "file": "1970 Bassman Cabinet CTS - SM57 Upper - Cone.wav",

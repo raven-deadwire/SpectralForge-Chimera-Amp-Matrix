@@ -56,11 +56,11 @@ private:
     std::array<std::unique_ptr<SA>,7> globalAttachments;
     juce::TextButton gateOn{"GATE"},pitchOn{"TRANSPOSE"},tunerOn{"TUNER"},tunerMute{"AUTO MUTE"},info{"INFO"};
     std::array<std::unique_ptr<BA>,4> globalButtons;
-    juce::TextButton compareA{"A"},compareB{"B"},copyAB{"COPY"},rigsTab{"RIGS"},preTab{"PRE"},postTab{"POST"};
+    juce::TextButton compareA{"A"},compareB{"B"},copyAB{"COPY"},irLibraryButton{"IR LIBRARY"},rigsTab{"RIGS"},preTab{"PRE"},postTab{"POST"};
     int page{}; // 0: rigs, 1: pedalboard, 2: rack
-    juce::Slider lowComp;
+    juce::Slider lowComp,lowAmpMix;
     juce::Label lowCompLabel,diVoice,diNote;
-    std::unique_ptr<SA> lowCompAttachment;
+    std::unique_ptr<SA> lowCompAttachment,lowAmpMixAttachment;
     struct FXUI {
         juce::Label header,scope,description;
         juce::ComboBox model;
@@ -80,7 +80,7 @@ private:
         juce::Slider drive,level,bass,lm,hm,treble,pres,res,bandTone,cabLow,cabHigh;
         std::array<juce::Label,8> knobLabels;
         juce::Label lowLabel,highLabel;
-        juce::TextButton mute{"MUTE"},solo{"SOLO"},polarity{"INV"},cabOn{"CAB"},ampOn{"AMP"},load{"LOAD"},details{"TAGS"};
+        juce::TextButton mute{"MUTE"},solo{"SOLO"},polarity{"INV"},cabOn{"CAB"},ampOn{"AMP"},load{"IRs"},details{"TAGS"};
         std::unique_ptr<CA> aa,ca;
         std::array<std::unique_ptr<SA>,8> sa;
         std::unique_ptr<SA> toneAttachment,lowAttachment,highAttachment;
