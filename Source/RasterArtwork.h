@@ -4,11 +4,11 @@
 #include <array>
 
 namespace spectralforge::art {
-enum class Surface { workbench, pedalOxide, pedalAlloy, pedalCarbon, pedalBrass, ampBritish, ampModern, ampSilver, rackStudio, rackAlloy, cabEight, cabFour, cabTwo, count };
+enum class Surface { workbench, pedalOxide, pedalAlloy, pedalCarbon, pedalBrass, ampBritish, ampModern, ampSilver, rackStudio, rackAlloy, cabEight, cabFour, cabTwo, emblem, count };
 struct RasterBank {
     std::array<juce::Image,(size_t)Surface::count> images;
     RasterBank() {
-        constexpr std::array<const char*,(size_t)Surface::count> names{"ravenworkbench_jpg","pedaloxide_jpg","pedalalloy_jpg","pedalcarbon_jpg","pedalbrass_jpg","ampbritish_jpg","ampmodern_jpg","ampsilver_jpg","rackstudio_jpg","rackalloy_jpg","cabeight_jpg","cabfour_jpg","cabtwo_jpg"};
+        constexpr std::array<const char*,(size_t)Surface::count> names{"ravenworkbench_jpg","pedaloxide_jpg","pedalalloy_jpg","pedalcarbon_jpg","pedalbrass_jpg","ampbritish_jpg","ampmodern_jpg","ampsilver_jpg","rackstudio_jpg","rackalloy_jpg","cabeight_jpg","cabfour_jpg","cabtwo_jpg","ravenemblem_png"};
         for(size_t i=0;i<names.size();++i) {int size=0;const auto* bytes=ChimeraArtworkData::getNamedResource(names[i],size);if(bytes)images[i]=juce::ImageFileFormat::loadFrom(bytes,(size_t)size);}
     }
     static const RasterBank& get() {static const RasterBank bank;return bank;}

@@ -256,7 +256,7 @@ void ChimeraProcessor::loadFactoryPreset(int index) {
     auto set=[this](const char* id,float value){auto* p=state.getParameter(id);p->setValueNotifyingHost(p->convertTo0to1(value));};
     if(index==0) {set("amp1",0);set("drive1",.15f);set("precompon",1);set("precomp",.25f);set("reverbon",1);set("reverbmix",.12f);}
     if(index==1) {set("amp1",2);set("booston",1);set("boostgain",6);set("boostbass",-4);set("drive1",.45f);set("buscompon",1);}
-    if(index==2) {set("mode",2);set("amp2",7);set("amp3",6);set("lowcomp",.4f);set("drive2",.45f);set("drive3",.25f);set("x1",180);set("cab2",0);set("cab3",0);set("level2",-6);set("level3",-9);}
+    if(index==2) {set("mode",2);set("amp1",5);set("amp2",7);set("amp3",6);set("lowcomp",.4f);set("drive2",.45f);set("drive3",.25f);set("x1",180);set("cab2",0);set("cab3",0);set("level2",-6);set("level3",-9);}
     if(index==3) {set("amp1",1);set("filteron",1);set("filtersense",.6f);set("preon",1);set("predrive",.2f);set("delayon",1);set("delaysync",1);set("delaymix",.18f);}
     if(index==4) {set("amp1",0);set("fuzzon",1);set("fuzzdrive",22);set("choruson",1);set("chorusmix",.15f);set("reverbon",1);}
     resetPending.store(true);

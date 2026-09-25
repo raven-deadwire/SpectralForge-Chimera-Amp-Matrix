@@ -29,6 +29,7 @@ OutputBaseFilename=Chimera-Amp-Matrix-{#ProductVersion}-test-win64-Setup
 Compression=lzma2
 SolidCompression=yes
 WizardStyle=modern
+SetupIconFile=..\Assets\Artwork\raven-emblem.ico
 UninstallDisplayName={#ProductName}
 UninstallDisplayIcon={uninstallexe}
 UninstallFilesDir={app}\Uninstall

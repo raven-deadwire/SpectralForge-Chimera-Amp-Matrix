@@ -33,7 +33,7 @@ T3K NAM/IR files are not embedded or redistributed with the public plugin. Sourc
 
 ## RavenForge interface artwork
 
-Thirteen original raster assets were generated with the built-in image-generation tool
+Fourteen original raster assets were generated with the built-in image-generation tool
 for this project, using the user's RavenForge brand imagery as style references for the
 workbench background. Generation prompts are in ARTWORK_PROMPTS.json. Hardware images
 are illustrative and do not constitute photographs of the captured equipment. No third-party

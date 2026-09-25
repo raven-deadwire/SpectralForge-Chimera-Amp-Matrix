@@ -3,6 +3,17 @@
 #include "IRMetadata.h"
 #include "RasterArtwork.h"
 namespace spectralforge::art {
+class DialogLook : public juce::LookAndFeel_V4 {
+public:
+    DialogLook() {
+        const juce::Colour bg(0xff101313),face(0xff202522),ink(0xffe1dbce),edge(0xff42453f),gold(0xffc4a678);
+        setColour(juce::ComboBox::backgroundColourId,bg);setColour(juce::ComboBox::textColourId,ink);setColour(juce::ComboBox::outlineColourId,edge);setColour(juce::ComboBox::arrowColourId,gold);
+        setColour(juce::TextEditor::backgroundColourId,bg);setColour(juce::TextEditor::textColourId,ink);setColour(juce::TextEditor::outlineColourId,edge);setColour(juce::TextEditor::focusedOutlineColourId,gold);
+        setColour(juce::TextButton::buttonColourId,face);setColour(juce::TextButton::buttonOnColourId,gold);setColour(juce::TextButton::textColourOffId,ink);
+        setColour(juce::PopupMenu::backgroundColourId,bg);setColour(juce::PopupMenu::textColourId,ink);setColour(juce::PopupMenu::highlightedBackgroundColourId,face);
+        setColour(juce::Label::textColourId,ink);setColour(juce::ListBox::outlineColourId,edge);
+    }
+};
 inline void screw(juce::Graphics& g,float x,float y) {
     g.setGradientFill({juce::Colour(0xffa4aaa8),x-3,y-3,juce::Colour(0xff252a2a),x+4,y+4,false});g.fillEllipse(x-4,y-4,8,8);
     g.setColour(juce::Colours::black.withAlpha(.8f));g.drawLine(x-2,y+2,x+2,y-2,1.2f);
@@ -31,15 +42,18 @@ inline juce::Colour ampColour(int model) {constexpr std::array<juce::uint32,8> c
 class IRDetailsPanel : public juce::Component {
 public:
     IRDetailsPanel(spectralforge::IRMetadata value,bool canEdit,std::function<void(spectralforge::IRMetadata)> callback):metadata(std::move(value)),save(std::move(callback)) {
+        setLookAndFeel(&look);
         for(size_t i=0;i<fields.size();++i){labels[i].setText(spectralforge::IRMetadata::labels[i],juce::dontSendNotification);labels[i].setFont(juce::FontOptions(12.f));labels[i].setColour(juce::Label::textColourId,juce::Colour(0xffd6d8d3));addAndMakeVisible(labels[i]);fields[i].setText(metadata.values[i]);fields[i].setReadOnly(!canEdit);fields[i].setTextToShowWhenEmpty("Unknown / not documented",juce::Colours::grey);addAndMakeVisible(fields[i]);}
         addAndMakeVisible(done);done.setButtonText(canEdit ? "SAVE IN PROJECT" : "CLOSE");done.onClick=[this,canEdit]{if(canEdit){for(size_t i=0;i<fields.size();++i)metadata.values[i]=fields[i].getText();save(metadata);}if(auto* window=findParentComponentOfClass<juce::DialogWindow>())window->exitModalState(0);};setSize(760,474);
     }
+    ~IRDetailsPanel() override { setLookAndFeel(nullptr); }
     void paint(juce::Graphics& g) override {
         g.fillAll(juce::Colour(0xff171c1d));spectralforge::art::cabinet(g,{20,16,72,72},metadata);g.setColour(juce::Colour(0xffe6e4db));g.setFont(juce::FontOptions(18.f));g.drawText("CABINET / CAPTURE DETAILS",110,17,620,26,juce::Justification::centredLeft);
         g.setColour(juce::Colour(0xffa0aaa5));g.setFont(juce::FontOptions(12.f));g.drawText("Cone position, grille distance and off-axis angle are separate measurements.",110,48,626,20,juce::Justification::centredLeft);g.drawText("Unknown fields stay blank. Tags travel with the IR in projects and A/B slots.",110,67,626,20,juce::Justification::centredLeft);
     }
     void resized() override {for(size_t i=0;i<fields.size();++i){int x=20+int(i%2)*370,y=102+int(i/2)*52;labels[i].setBounds(x,y,350,18);fields[i].setBounds(x,y+20,350,27);}done.setBounds(535,433,205,27);}
 private:
+    spectralforge::art::DialogLook look;
     spectralforge::IRMetadata metadata;std::function<void(spectralforge::IRMetadata)> save;
     std::array<juce::Label,12> labels;std::array<juce::TextEditor,12> fields;juce::TextButton done;
 };

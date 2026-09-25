@@ -137,7 +137,7 @@ ChimeraEditor::ChimeraEditor(ChimeraProcessor& p) : AudioProcessorEditor(&p),pro
     lowComp.setTooltip("One-knob VCA-style RMS compression: threshold and ratio move together. 0 = unity. Use LEVEL for makeup gain.");
     style(lowCompLabel,11.5f);lowCompLabel.setText("COMP",juce::dontSendNotification);add(lowCompLabel);
     setupSlider(lowAmpMix,"DI / AMP");add(lowAmpMix);lowAmpMix.setComponentID("lowampmix");lowAmpMixAttachment=std::make_unique<SA>(p.parameters(),"lowampmix",lowAmpMix);
-    lowAmpMix.textFromValueFunction=[](double v){return juce::String(juce::roundToInt(v*100))+"% AMP";};lowAmpMix.valueFromTextFunction=[](const juce::String& s){return s.getDoubleValue()/100;};
+    lowAmpMix.textFromValueFunction=[](double v){return juce::String(juce::roundToInt(v*100))+"% AMP";};lowAmpMix.valueFromTextFunction=[](const juce::String& s){return s.getDoubleValue()/100;};lowAmpMix.updateText();
     lowAmpMix.setTooltip("Blend compressed LOW DI with the selected head/cab. 0% = DI; 100% = amp/cab. Head drive is fixed at 0 in Matrix LOW. IR capture phase is retained.");
     style(diVoice,10);diVoice.setText("DI / AMP",juce::dontSendNotification);add(diVoice);
     style(diNote,12);diNote.setText("HEAD DRIVE: 0 / COMP BEFORE BLEND",juce::dontSendNotification);add(diNote);
@@ -333,8 +333,9 @@ void ChimeraEditor::paint(juce::Graphics& g)
     g.setColour(background.withAlpha(.40f));g.fillRect(0,0,1180,780);
     g.setColour(accent.withAlpha(.7f));g.fillRect(20,20,2,36);
     text(g,"SOUND A / B",490,11,121,14,8.5f,muted);
-    g.setColour(ink);g.setFont(juce::FontOptions(juce::Font::getDefaultSerifFontName(),18.f,juce::Font::plain));g.drawText("RAVENFORGE",205,20,244,24,juce::Justification::centredLeft);
-    text(g,"L U T H I E R   I N T E L L I G E N C E",206,45,274,13,8.f,muted);
+    spectralforge::art::raster(g,spectralforge::art::Surface::emblem,{199,20,35,35},{0,0,1,1},true);
+    g.setColour(ink);g.setFont(juce::FontOptions(juce::Font::getDefaultSerifFontName(),18.f,juce::Font::plain));g.drawText("RAVENFORGE",241,20,234,24,juce::Justification::centredLeft);
+    text(g,"L U T H I E R   I N T E L L I G E N C E",241,45,237,13,8.f,muted);
     text(g,"OVERSAMPLING",816,8,110,22,10.f); text(g,"SIZE",986,8,64,22,10.f);
     g.setColour(line); g.drawHorizontalLine(67,20,1160);
     const std::array<juce::Rectangle<float>,5> panels{{{20,80,138,168},{170,80,254,168},{436,80,176,168},{624,80,326,168},{962,80,198,168}}};
@@ -378,10 +379,11 @@ void ChimeraEditor::paint(juce::Graphics& g)
                 const auto colour=juce::Colour(spectralforge::modelInfo(family,model).colour);
                 spectralforge::art::pedal(g,{x,330,float(width),412},family,model);
                 g.setColour(background.withAlpha(.67f));g.fillRoundedRectangle(x+13,341,float(width-26),78,3);
+                g.setColour(background.withAlpha(.85f));g.fillRoundedRectangle(x+13,615,float(width-26),28,3);
                 g.setColour(colour.withAlpha(.7f));g.fillRect(x+14,338.f,float(width-28),2.f);
                 g.setColour(effect.enabled.getToggleState() ? accent.withAlpha(.15f) : juce::Colours::transparentBlack);g.fillEllipse(x+width*.5f-9,645,18,18);
                 g.setColour(effect.enabled.getToggleState() ? accent : line);g.fillEllipse(x+width*.5f-3,651,6,6);
-                text(g,juce::String(i+1)+" / IN > OUT",(int)x+16,720,width-32,14,8.f,ink.withAlpha(.5f),juce::Justification::centred);
+                text(g,juce::String(i+1)+" / IN > OUT",(int)x+16,720,width-32,14,8.f,ink.withAlpha(.85f),juce::Justification::centred);
             } else {
                 const auto& lane=lanes[(size_t)i];const bool di=lastMode==2 && i==0;const auto colour=di ? juce::Colour(0xff40544c) : spectralforge::art::ampColour(lane.amp.getSelectedId()-1);
                 g.setColour(panel.withAlpha(.8f));g.fillRoundedRectangle(x,330,float(width),412,5);

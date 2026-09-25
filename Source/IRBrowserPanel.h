@@ -2,6 +2,7 @@
 #include "IRCollection.h"
 
 class IRBrowserPanel : public juce::Component, private juce::ListBoxModel {
+    spectralforge::art::DialogLook look;
     using Entry=spectralforge::IRCollection::Entry;
     std::vector<Entry> entries;
     std::vector<size_t> visible;
@@ -25,6 +26,7 @@ class IRBrowserPanel : public juce::Component, private juce::ListBoxModel {
         g.fillAll(active ? juce::Colour(0xff38352e) : juce::Colour(0xff181a1a));
         g.setColour(e.ready() ? juce::Colour(0xffbca479) : juce::Colour(0xff666c6b));
         g.fillEllipse(10,14,5,5);
+        g.setColour(juce::Colour(0xffe2dbcc));
         g.setFont(juce::FontOptions(12.f));
         g.drawText(e.name,24,4,width-32,22,juce::Justification::centredLeft);
         g.setColour(juce::Colour(0xffa6aaa7)); g.setFont(juce::FontOptions(10.5f));
@@ -54,7 +56,7 @@ class IRBrowserPanel : public juce::Component, private juce::ListBoxModel {
                 && (kind.getSelectedId()!=4 || e.ready())) visible.push_back(i);
         }
         list.deselectAllRows(); list.updateContent();
-        status.setText(juce::String(available)+" available / "+juce::String(entries.size())+" listed. Missing reference IRs need your personal ZIP.",juce::dontSendNotification);
+        status.setText(juce::String(available)+" available / "+juce::String(entries.size())+" listed. "+(available==(int)entries.size() ? "All listed IRs ready." : "Missing references need your personal ZIP."),juce::dontSendNotification);
         selectedRowsChanged(-1);
     }
     void refresh() { entries=spectralforge::IRCollection::scan(folders,libraryMode); filter(); }
@@ -72,6 +74,7 @@ class IRBrowserPanel : public juce::Component, private juce::ListBoxModel {
         });
     }
     void initialise() {
+        setLookAndFeel(&look);
         search.setComponentID("irsearch");diameter.setComponentID("irdiameter");kind.setComponentID("irkind");load.setComponentID("irload");list.setComponentID("irlist");
         search.setTextToShowWhenEmpty("Speaker, mic, cone position or creator",juce::Colours::grey);search.onTextChange=[this]{filter();};
         diameter.addItemList({"All sizes","8 in","10 in","12 in","15 in","18 in"},1);diameter.setSelectedId(1);diameter.onChange=[this]{filter();};
@@ -85,6 +88,7 @@ class IRBrowserPanel : public juce::Component, private juce::ListBoxModel {
         setSize(1000,590);refresh();
     }
 public:
+    ~IRBrowserPanel() override { setLookAndFeel(nullptr); }
     explicit IRBrowserPanel(std::function<void(juce::File,int)> callback):folders(spectralforge::IRCollection::roots()),libraryMode(true),selected(std::move(callback)) {initialise();}
     IRBrowserPanel(const juce::File& folder,std::function<void(juce::File)> callback):folders{folder},selected([callback=std::move(callback)](juce::File file,int){callback(file);}) {initialise();}
     void paint(juce::Graphics& g) override {

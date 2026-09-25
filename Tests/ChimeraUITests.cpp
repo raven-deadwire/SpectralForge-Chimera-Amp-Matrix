@@ -14,12 +14,13 @@ void set(ChimeraProcessor& processor, const juce::String& id, float value)
 }
 void checkControls(ChimeraEditor& editor, int mode)
 {
-    int sliders = 0, toneLabels = 0;
+    int sliders = 0, toneLabels = 0;bool lowHeadVisible=false;
     for (auto* child : editor.findChildWithID("surface")->getChildren())
     {
         if (!child->isVisible()) continue;
         require(editor.getLocalBounds().contains(editor.getLocalArea(child,child->getLocalBounds())), "Visible control outside editor bounds");
         if (dynamic_cast<juce::Slider*>(child) != nullptr) ++sliders;
+        if(auto* box=dynamic_cast<juce::ComboBox*>(child);box && box->getName()=="Amp 1")lowHeadVisible=true;
         if (auto* label = dynamic_cast<juce::Label*>(child))
         {
             const auto text = label->getText();
@@ -35,6 +36,7 @@ void checkControls(ChimeraEditor& editor, int mode)
     if (sliders != (mode == 0 ? 18 : mode == 1 ? 29 : 26))
         throw std::runtime_error("Wrong controls for mode " + std::to_string(mode) +
                                  ": found " + std::to_string(sliders));
+    require(mode!=2 || lowHeadVisible,"Matrix LOW head selector hidden");
     require(toneLabels == (mode == 2 ? 3 : 0), "Wrong band tone visibility");
 }
 void saveSnapshot(juce::Component& editor, const juce::File& directory,
@@ -224,6 +226,18 @@ int main(int argc, char** argv)
             }
             if (mode == 2)
             {
+                auto* lowMix=dynamic_cast<juce::Slider*>(editor.findChildWithID("surface")->findChildWithID("lowampmix"));
+                require(lowMix!=nullptr,"Matrix LOW blend is missing");
+                const auto checkLowReadout=[&](const juce::String& expected) {
+                    bool found=false;
+                    for(auto* child:lowMix->getChildren()) if(auto* label=dynamic_cast<juce::Label*>(child)) {found=true;require(label->getText()==expected,"LOW blend display does not show the AMP percentage");}
+                    require(found,"LOW blend value is not visible");
+                };
+                checkLowReadout("0% AMP");
+                set(processor,"amp1",5);set(processor,"amp2",3);set(processor,"amp3",1);set(processor,"lowampmix",.5f);
+                juce::MessageManager::getInstance()->runDispatchLoopUntil(100);
+                checkLowReadout("50% AMP");
+                saveSnapshot(editor,directory,"Matrix-bass-blend");
                 saveSnapshot(editor,directory,"Matrix-150pct",1.5f);
                 editor.setSize(885,585);
                 juce::MessageManager::getInstance()->runDispatchLoopUntil(100);

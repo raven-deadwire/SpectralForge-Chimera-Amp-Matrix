@@ -1,6 +1,6 @@
 {
   "mode": "built-in image_gen",
-  "encoding": "JPEG quality 92, source proportions retained",
+  "encoding": "Opaque assets: JPEG quality 92, source proportions retained. Emblem: original transparent PNG and Windows ICO.",
   "assets": [
     {
       "name": "pedal-oxide",
@@ -66,6 +66,11 @@
       "name": "cab-two",
       "prompt": "Use case: product-mockup. One production image asset for a premium RavenForge audio plugin. A single complete physical enclosure centered tightly, orthographic dead-on front view, no tilt or perspective, black studio backdrop, soft upper-left light with restrained warm highlights. Realistic tactile materials and precise hardware manufacture. No logo, text, labels, knobs, switches, sockets, LEDs, meters, cables or microphone; all functional controls will be overlaid natively. Entire enclosure visible with minimal margins. Not a UI mockup. Portrait 2:3. A vintage 2x15 bass cabinet with two large 15-inch drivers in one vertical column, classic black and silver woven grille cloth with speaker circles faintly visible, thick black tolex shell with silver piping, nickel reinforced corners and small feet. Whole cabinet visible, exactly two drivers, no brand plate. Wide driver proportions, elegant vintage craftsmanship.",
       "file": "Assets/Artwork/cab-two.jpg"
+    },
+    {
+      "name": "raven-emblem",
+      "prompt": "Use case: logo-brand. Asset type: real application icon and small toolbar brand emblem for RavenForge Luthier Intelligence. Use the small raven emblem at the upper-left of the supplied RavenForge website image as the sole identity reference. Isolate and faithfully redraw that elegant raven with upward outstretched wings and crossed tapering feather shapes into one strong balanced monochrome emblem, with very subtle warm pewter / pale champagne metallic edges. Centered square composition, mark fills 84% of the square. Preserve the bird-like wing gesture and premium dark luthier aesthetic; simplify tiny feather details so the silhouette is legible at 32 px. Actual transparent background, no frame, no badge outline, no letters, no words, no website, no person, no instrument, no added symbols. A single finished raven emblem suitable for a Windows app icon.",
+      "file": "Assets/Artwork/raven-emblem.png"
     }
   ]
 }

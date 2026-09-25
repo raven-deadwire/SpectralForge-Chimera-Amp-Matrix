@@ -16,7 +16,7 @@ This development build adds 36 selectable pedal/rack variants. These are origina
 | Delay | Digital 229 / Tape Echo / Analog Memory | Clear repeat, filtered wow/flutter, dark modulated repeat |
 | Reverb | Studio Plate / Concert Hall / Spring Tank | Short dense diffusion, predelayed hall, dispersive feedback spring |
 
-The controls are deliberately consistent within each module. No claim is made that every knob range or circuit topology matches the referenced hardware. The six rack modules still run exactly once after merge. Matrix LOW keeps its clean tap before Fuzz/Boost/Drive, plus the alignment delay. Gate and Transpose remain global on every page.
+The controls are deliberately consistent within each module. No claim is made that every knob range or circuit topology matches the referenced hardware. The six rack modules still run exactly once after merge. Matrix LOW keeps its clean tap before Fuzz/Boost/Drive, compresses it, and blends the DI with the selected amp/cab. Head drive is fixed at zero; the DI delay matches the head algorithmic latency. Gate and Transpose remain global on every page.
 
 ## CPU meter
 
@@ -30,9 +30,9 @@ Switching resets DSP histories/tails and is not gapless tail-preserving preset m
 
 ## IR collection
 
-IR remains on its amplifier lane. LOAD opens a single-file loader or folder collection. The collection indexes up to 512 WAV/AIFF files, filters by speaker diameter, and searches speaker/microphone/position/creator text. TAGS shows twelve independent capture fields. User tags are editable and are embedded with audio in projects and A/B. Factory tags are read-only.
+IR remains on its amplifier lane. IR LIBRARY and each lane's IRs button open the persistent cabinet collection, with factory and missing/installed reference rows. The collection indexes up to 512 WAV/AIFF files, filters by speaker diameter, and searches speaker/microphone/position/creator text. TAGS shows twelve independent capture fields. User tags are editable and are embedded with audio in projects and A/B. Factory tags are read-only.
 
-A sidecar named exactly `filename.wav.json` supplies confirmed fields. The examples in `reference/ir-tags` match the selected TONE3000 files. Copy the matching sidecar beside your downloaded WAV. Recognized filenames use the source catalog with a filename-association warning; verify the recorded SHA256 for exact identity. Other files receive only identifiable filename hints. LOAD also provides direct links to the bass/guitar source pages. Unknown distance, off-axis angle, unit model or diameter stays blank. A 4x12 means four 12-inch speakers; it says nothing about mic distance. Close-mic descriptions without a number are not converted into invented centimeters.
+A sidecar named exactly `filename.wav.json` supplies confirmed fields. The examples in `reference/ir-tags` match the selected TONE3000 files. Copy the matching sidecar beside your downloaded WAV. Recognized filenames use the source catalog with a filename-association warning; verify the recorded SHA256 for exact identity. Other files receive only identifiable filename hints. The selected reference exposes its source page. Unknown distance, off-axis angle, unit model or diameter stays blank. A 4x12 means four 12-inch speakers; it says nothing about mic distance. Close-mic descriptions without a number are not converted into invented centimeters.
 
 The expanded reference collection includes guitar V30/SM57, two V30/M201 grille distances, a 15-inch Fullback guitar speaker, **Ampeg 8x10/MD421 bass** and **Fender Bassman 2x15/CTS/SM57 bass**. The Fullback is not mislabeled a bass cabinet simply because it is 15 inches. `reference/ir-catalog.json` records source, creator, license, exact file hash, frame count and known capture conditions.
 
@@ -56,4 +56,4 @@ TONE3000 T3K files were obtained through the user's signed-in browser and used l
 - Vibrato: https://www.ehx.com/products/eddy/
 - Tremolo: https://www.ehx.com/products/nano-pulsar/
 
-Artwork uses original vector enclosures, material shading, machined knobs, footswitches and speaker grilles. Equipment names identify references; no manufacturer logos or proprietary product artwork are included.
+Artwork combines fourteen generated RavenForge enclosure/background images with native machined knobs, footswitches and readable labels. Equipment names identify references; no manufacturer logos or proprietary product artwork are included.
