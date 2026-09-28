@@ -17,6 +17,10 @@ inline void tab(juce::Component& root,const char* name){for(auto* child:root.get
 inline void snapshot(juce::Component& root,const juce::File& directory,const char* name){auto stream=directory.getChildFile(juce::String(name)+".png").createOutputStream();juce::PNGImageFormat png;require(stream && png.writeImageToStream(root.createComponentSnapshot(root.getLocalBounds()),*stream),"Native UI screenshot failed");}
 inline void run(const juce::File& directory){
     auto storage=std::make_unique<ChimeraProcessor>();auto& processor=*storage;ChimeraEditor editor(processor);auto* canvas=editor.findChildWithID("surface");require(canvas!=nullptr,"Native UI canvas missing");
+    auto* gateLocation=find<juce::TextButton>(*canvas,"gateAfterRig");require(gateLocation!=nullptr,"POST GATE control missing");
+    const bool originalGateLocation=processor.parameters().getRawParameterValue("gateAfterRig")->load()>.5f;
+    gateLocation->triggerClick();settle();require((processor.parameters().getRawParameterValue("gateAfterRig")->load()>.5f)!=originalGateLocation,"POST GATE button does not toggle the audio parameter");
+    gateLocation->triggerClick();settle();require((processor.parameters().getRawParameterValue("gateAfterRig")->load()>.5f)==originalGateLocation,"POST GATE button cannot restore the prior routing");
     for(const auto* id:{"legacyPreControls","boardEnabled"})require(find(*canvas,id)==nullptr,"Obsolete Legacy/engine-selection control remains in native editor");
     set(processor,"mode",0);tab(*canvas,"RIGS");
     auto* selector=find<AmpSelector>(*canvas,"ampSelect1");require(selector!=nullptr,"Native UI amp selector missing");

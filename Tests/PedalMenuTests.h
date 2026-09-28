@@ -116,6 +116,19 @@ inline void run() {
     const auto id=pedalControlID(0,27,0);auto* parameter=processor.parameters().getParameter(id);
     check(parameter!=nullptr,"Pedal parameter missing from product state");parameter->setValueNotifyingHost(.25f);settle();
     check(!processor.pedalBoardState().enabled,"APVTS notification unexpectedly activated the new board");
+    auto* bypassParameter=processor.parameters().getParameter(pedalBypassID(0,27));
+    check(bypassParameter!=nullptr,"Pedal bypass parameter missing");
+    bypassParameter->setValueNotifyingHost(1.f);settle();
+    check(!processor.pedalBoardState().enabled && power->getButtonText()=="OFF" && power->getToggleState(),
+          "Bypass automation failed to update OFF or incorrectly activated the board");
+    detail->triggerClick();settle();
+    auto* recalledDetailPower=dynamic_cast<juce::TextButton*>(board.findChildWithID("boardDetailBypass"));
+    check(recalledDetailPower && recalledDetailPower->getButtonText()=="OFF" && !processor.pedalBoardState().enabled,
+          "Opening pedal details changed the bypassed compatibility audio path");
+    bypassParameter->setValueNotifyingHost(0.f);settle();
+    check(!processor.pedalBoardState().enabled && recalledDetailPower->getButtonText()=="ON" && power->getButtonText()=="ON",
+          "Host bypass update failed to synchronize both power controls without activation");
+    close->triggerClick();settle();
     juce::Slider* activeControl=nullptr;
     for(auto* child:board.getChildren())if(auto* slider=dynamic_cast<juce::Slider*>(child);slider && slider->isVisible() && slider->getComponentID()==id)activeControl=slider;
     check(activeControl && activeControl->keyPressed(juce::KeyPress(juce::KeyPress::upKey)),"Pedal keyboard edit was not accepted");

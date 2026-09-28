@@ -386,14 +386,19 @@ int main(int argc, char** argv)
         const auto directory = argc > 1 ? juce::File(argv[1])
                                        : juce::File::getCurrentWorkingDirectory().getChildFile("ui-snapshots");
         require(directory.createDirectory().wasOk(), "Cannot create snapshot directory");
-        ampSelectorTests::run();
-        ampSelectionStateTests::run();
-        pedalMenuTests::run();
-        nativeStateTests::run(directory);
-        runNativeUITests(directory);
-        runCorrectionUITests(directory);
-        checkEditorLifetime();
-        runBoardStateTests(directory);
+        int suiteFailures=0;
+        const auto runSuite=[&](const char* name,auto&& run) {
+            try {run();}
+            catch(const std::exception& error) {++suiteFailures;std::cerr<<"FAIL suite "<<name<<": "<<error.what()<<'\n';juce::PopupMenu::dismissAllActiveMenus();juce::MessageManager::getInstance()->runDispatchLoopUntil(30);}
+        };
+        runSuite("amp selectors",[]{ampSelectorTests::run();});
+        runSuite("amp selection state",[]{ampSelectionStateTests::run();});
+        runSuite("pedal menus and power",[]{pedalMenuTests::run();});
+        runSuite("native state",[&]{nativeStateTests::run(directory);});
+        runSuite("native panels",[&]{runNativeUITests(directory);});
+        runSuite("correction UI",[&]{runCorrectionUITests(directory);});
+        runSuite("editor lifetime",[]{checkEditorLifetime();});
+        runSuite("board state",[&]{runBoardStateTests(directory);});
         // A/B is two complete sound snapshots, not a stereo channel selector.
         {const auto abStorage=std::make_unique<ChimeraProcessor>();auto& ab=*abStorage;compatibilityAudio(ab);ab.prepareToPlay(48000,256);set(ab,"cab1",0);set(ab,"drive1",.2f);set(ab,"preampmodel",2);set(ab,"delayon",0);set(ab,"reverbon",0);set(ab,"inputmode",0);ab.copyComparison();ab.selectComparison(1);set(ab,"drive1",.8f);set(ab,"preampmodel",1);ab.selectComparison(0);
          require(ab.parameters().getRawParameterValue("preampmodel")->load()==2,"A/B lost model choice");
@@ -638,6 +643,7 @@ int main(int argc, char** argv)
         {auto service=std::make_shared<spectralforge::release::ReleaseSupport>();ChimeraSupportPanel panel(service,{});saveSnapshot(panel,directory,"Support-updates");for(auto* child:panel.getChildren())require(panel.getLocalBounds().contains(child->getBounds()),"Support control outside panel");}
         std::cout << "PASS: mode controls, text, automation, state recall, legacy recall; PNGs in "
                   << directory.getFullPathName() << '\n';
+        require(suiteFailures==0,"One or more independent UI suites failed; see named failures above");
         return 0;
     }
     catch (const std::exception& error)

@@ -7,7 +7,7 @@
 // immediately; bank ownership, MIDI state and undo remain processor operations.
 class PedalBoardPanel final : public juce::Component, private juce::Timer {
     using SA=juce::AudioProcessorValueTreeState::SliderAttachment;
-    using BA=juce::AudioProcessorValueTreeState::ButtonAttachment;
+    using BA=juce::ParameterAttachment;
     // APVTS notifications update the control without activating another audio
     // path. Only deliberate mouse, keyboard or textbox edits activate the board.
     class BoardSlider final : public juce::Slider, private juce::Label::Listener,
@@ -65,6 +65,17 @@ class PedalBoardPanel final : public juce::Component, private juce::Timer {
         button.setColour(juce::TextButton::textColourOnId,juce::Colour(0xffd2d6ce));
         button.setTooltip(active?"Effect is ON. Click to bypass.":"Effect is OFF. Click to enable.");
     }
+    std::unique_ptr<BA> bindPower(juce::TextButton& button,int owner,int model) {
+        auto* parameter=processor.parameters().getParameter(spectralforge::pedalBypassID(owner,model));
+        if(!parameter)return {};
+        // ButtonAttachment sends a click notification when a parameter changes.
+        // A non-notifying update keeps host recall separate from a user click.
+        auto attachment=std::make_unique<BA>(*parameter,[&button](float value) {
+            button.setToggleState(value>.5f,juce::dontSendNotification);
+            stylePowerButton(button,true,value>.5f);
+        });
+        attachment->sendInitialUpdate();return attachment;
+    }
     static int cardControl(int model,int index) {
         if(model==4) {constexpr int map[]{6,0,1,2,3,4};return map[index];}
         if(model==10) {constexpr int map[]{0,2,3,4,5,6};return map[index];}
@@ -104,7 +115,7 @@ class PedalBoardPanel final : public juce::Component, private juce::Timer {
         c.slider.getProperties().set("knobStyle",artwork.knobStyle);
         c.slider.getProperties().set("brightFace",showMidi?false:artwork.brightFace);
         c.slider.setEnabled(spec.connected);c.midi.setEnabled(spec.connected);
-        c.slider.setTooltip(spec.connected ? "Experimental DSP curve. Hardware taper has not been calibrated." : "Not connected to DSP; control is disabled.");
+        c.slider.setTooltip(spec.connected ? spec.label : "This hardware function is unavailable in the plugin.");
         const auto names=juce::StringArray::fromTokens(spec.choices,"|",{});
         if(juce::String(spec.choices).isNotEmpty()) c.slider.textFromValueFunction=[names](double value){return names[juce::jlimit(0,names.size()-1,juce::roundToInt(value))];};
         const auto id=spectralforge::pedalControlID(owner,model,index);c.slider.setComponentID(id);
@@ -118,7 +129,7 @@ class PedalBoardPanel final : public juce::Component, private juce::Timer {
             detailTitle.setText(spectralforge::pedalMenuName(detailedModel),juce::dontSendNotification);
             detailReference.setText(spectralforge::pedalModel(detailedModel).name,juce::dontSendNotification);
             for(int i=0;i<spectralforge::pedalMaxControls;++i)bind(details[(size_t)i],owner,detailedModel,i,true);
-            detailBypassAttachment=std::make_unique<BA>(processor.parameters(),spectralforge::pedalBypassID(owner,detailedModel),detailBypass);
+            detailBypassAttachment=bindPower(detailBypass,owner,detailedModel);
         }
         refresh();resized();repaint();
     }
@@ -138,7 +149,7 @@ class PedalBoardPanel final : public juce::Component, private juce::Timer {
                 card.owner=owner;card.modelId=model;
                 if(ownerChanged)card.model.resetSyncExplicit(model+1);else card.model.syncSelectedId(model+1);
                 card.attachment.reset();
-                if(model)card.attachment=std::make_unique<BA>(processor.parameters(),spectralforge::pedalBypassID(owner,model),card.bypass);
+                if(model)card.attachment=bindPower(card.bypass,owner,model);
                 for(int c=0;c<6;++c)bind(card.controls[(size_t)c],owner,model,cardControl(model,c),false);
                 card.model.setTooltip(model==39?"Spectral octaver: about 43-46 ms processing delay. Dense low chords can lose fundamentals.":model==38?"Monophonic octave divider. Use single notes; chord tracking is not supported.":"Choose a pedal by type. Each slot keeps its own settings.");
             }
@@ -186,13 +197,22 @@ public:
             card.copy.onClick=[this,position]{duplicate(cards[(size_t)position].owner);};
             card.remove.onClick=[this,position]{processor.setPedalModel(cards[(size_t)position].owner,0);refresh();};
             card.detail.onClick=[this,position]{showDetails(cards[(size_t)position].owner);};
-            card.bypass.onClick=[this]{processor.setPedalBoardEnabled(true);refresh();};
+            card.bypass.setClickingTogglesState(true);
+            card.bypass.onClick=[this,position]{
+                auto& c=cards[(size_t)position];
+                if(c.attachment)c.attachment->setValueAsCompleteGesture(c.bypass.getToggleState()?1.f:0.f);
+                processor.setPedalBoardEnabled(true);refresh();
+            };
             for(auto& c:card.controls)addControl(c);
         }
         for(auto& c:details)addControl(c);
         for(juce::Component* c:std::initializer_list<juce::Component*>{&close,&undo,&redo,&notice,&detailTitle,&detailReference,&detailBypass,&tapLabel,&tap})addAndMakeVisible(c);
         close.setComponentID("boardDetailClose");detailTitle.setComponentID("boardDetailTitle");detailReference.setComponentID("boardDetailReference");
-        detailBypass.setComponentID("boardDetailBypass");detailBypass.onClick=[this]{processor.setPedalBoardEnabled(true);refresh();};
+        detailBypass.setComponentID("boardDetailBypass");detailBypass.setClickingTogglesState(true);
+        detailBypass.onClick=[this]{
+            if(detailBypassAttachment)detailBypassAttachment->setValueAsCompleteGesture(detailBypass.getToggleState()?1.f:0.f);
+            processor.setPedalBoardEnabled(true);refresh();
+        };
         undo.setComponentID("boardUndo");redo.setComponentID("boardRedo");tap.setComponentID("boardLowTapControl");notice.setComponentID("boardNotice");
         detailTitle.setFont(juce::FontOptions(19.f,juce::Font::bold));detailReference.setFont(juce::FontOptions(11.f));
         detailReference.setColour(juce::Label::textColourId,juce::Colour(0xffaeb8ab));

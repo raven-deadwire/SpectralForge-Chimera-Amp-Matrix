@@ -100,6 +100,7 @@ ChimeraEditor::ChimeraEditor(ChimeraProcessor& p) : AudioProcessorEditor(&p),pro
     add(boardPanel);add(preEngineStatus);add(gateLocation);
     gateLocation.setComponentID("gateAfterRig");preEngineStatus.setComponentID("preEngineStatus");
     preEngineStatus.setFont(juce::FontOptions(11.f));preEngineStatus.setColour(juce::Label::textColourId,ink);
+    gateLocation.setClickingTogglesState(true);
     gateLocationAttachment=std::make_unique<BA>(p.parameters(),"gateAfterRig",gateLocation);
     gateLocation.setTooltip("Use the clean input detector to attenuate after AMP/CAB, before POST delay/reverb. Off preserves the original input gate.");
     title.setText("SpectralForge Chimera",juce::dontSendNotification);title.setVisible(false);
