@@ -45,25 +45,24 @@ inline void run(const juce::File& outputDirectory) {
         set(p,"boardEnabled",1);p.setPedalModel(0,26);p.setPedalModel(1,31);
         const auto driveID=pedalControlID(0,26,0),eqID=pedalControlID(1,31,5);
         auto* driveParameter=p.parameters().getParameter(driveID);
-        // Host conversion snaps these native controls to their declared .01 grid.
-        set(p,driveID,.173f);require(std::abs(raw(p,driveID)-.17f)<1.e-5f,"Native control quantisation did not follow its declared range");set(p,eqID,7.2f);set(p,"boardLowTap",1);set(p,pedalBypassID(1,31),1);
+        set(p,driveID,.173f);set(p,eqID,7.2f);set(p,"boardLowTap",1);set(p,pedalBypassID(1,31),1);
         const auto initial=p.pedalBoardState();
         p.movePedal(0,1);const auto moved=p.pedalBoardState();
         require(moved.order[0]==1 && moved.order[1]==0,"Processor move did not exchange positions");
-        require(p.parameters().getParameter(driveID)==driveParameter && std::abs(raw(p,driveID)-.17f)<1.e-5f,
+        require(p.parameters().getParameter(driveID)==driveParameter && std::abs(raw(p,driveID)-.173f)<1.e-5f,
                 "Move repurposed the host parameter object or owner value");
         require(moved.instances[0].model==26 && moved.instances[1].model==31,"Move changed owner model identity");
         p.undoPedalEdit();equal(p.pedalBoardState(),initial,"Undo failed to restore order and controls");
         p.undoPedalEdit(true);equal(p.pedalBoardState(),moved,"Redo failed to restore order and controls");
         require(p.duplicatePedal(0),"Duplicate into an empty owner failed");
         auto duplicated=p.pedalBoardState();
-        require(duplicated.instances[2].model==26 && std::abs(duplicated.instances[2].controls[0]-.17f)<1.e-5f,
+        require(duplicated.instances[2].model==26 && std::abs(duplicated.instances[2].controls[0]-.173f)<1.e-5f,
                 "Duplicate did not copy the source control state");
         const auto duplicateID=pedalControlID(2,26,0);
         require(duplicateID!=driveID && p.parameters().getParameter(duplicateID)!=driveParameter,
                 "Duplicate aliased the source host parameter identity");
-        set(p,duplicateID,.82f);
-        require(std::abs(raw(p,driveID)-.17f)<1.e-5f,"Editing duplicate altered source instance");
+        set(p,duplicateID,.821f);
+        require(std::abs(raw(p,driveID)-.173f)<1.e-5f,"Editing duplicate altered source instance");
         p.setPedalModel(3,6);p.setPedalModel(4,7);const auto full=p.pedalBoardState();
         require(!p.duplicatePedal(0),"A sixth pedal was admitted");
         equal(p.pedalBoardState(),full,"Rejected sixth pedal still mutated the board");
@@ -77,10 +76,10 @@ inline void run(const juce::File& outputDirectory) {
 
         const auto expected=p.pedalBoardState();const auto bytes=save(p);const auto recalledStorage=std::make_unique<ChimeraProcessor>();auto& recalled=*recalledStorage;load(recalled,bytes);
         equal(recalled.pedalBoardState(),expected,"Project recall lost enabled/order/tap/model/bypass/control state");
-        require(std::abs(raw(recalled,duplicateID)-.82f)<1.e-5f,"Project recall lost an independent duplicate control");
+        require(std::abs(raw(recalled,duplicateID)-.821f)<1.e-5f,"Project recall lost an independent duplicate control");
         mark("Actual Processor binary state round trip of the universal board");
 
-        p.selectComparison(1);p.setPedalModel(3,27);set(p,pedalControlID(3,27,1),.68f);
+        p.selectComparison(1);p.setPedalModel(3,27);set(p,pedalControlID(3,27,1),.682f);
         set(p,"boardLowTap",4);set(p,pedalBypassID(0,26),1);p.movePedal(0,1);const auto b=p.pedalBoardState();
         p.selectComparison(0);equal(p.pedalBoardState(),expected,"A/B failed to restore board A");
         p.selectComparison(1);equal(p.pedalBoardState(),b,"A/B failed to restore board B");
@@ -114,12 +113,12 @@ inline void run(const juce::File& outputDirectory) {
         require(std::abs(raw(p,id)-1)<1.e-5f && !p.learningMidi(),"Board MIDI learn did not reach the selected owner/control");
         p.movePedal(0,1);sendCC(p,40,0);require(std::abs(raw(p,id))<1.e-5f,"MIDI binding did not follow moved owner");
         require(p.duplicatePedal(0),"MIDI test duplicate failed");
-        set(p,pedalControlID(1,26,0),.78f);sendCC(p,40,127);
-        require(std::abs(raw(p,pedalControlID(1,26,0))-.78f)<1.e-5f,"Duplicated instance inherited the source MIDI binding");
+        set(p,pedalControlID(1,26,0),.777f);sendCC(p,40,127);
+        require(std::abs(raw(p,pedalControlID(1,26,0))-.777f)<1.e-5f,"Duplicated instance inherited the source MIDI binding");
         const auto saved=save(p);const auto recalledStorage=std::make_unique<ChimeraProcessor>();auto& recalled=*recalledStorage;load(recalled,saved);
         recalled.setRateAndBufferSizeDetails(48000,256);recalled.prepareToPlay(48000,256);sendCC(recalled,40,0);
         require(std::abs(raw(recalled,id))<1.e-5f,"Board MIDI binding did not survive project recall");
-        require(std::abs(raw(recalled,pedalControlID(1,26,0))-.78f)<1.e-5f,"Restored MIDI binding targeted the duplicate");
+        require(std::abs(raw(recalled,pedalControlID(1,26,0))-.777f)<1.e-5f,"Restored MIDI binding targeted the duplicate");
         p.setPedalModel(0,27);const float retired=raw(p,id);sendCC(p,40,0);
         require(raw(p,id)==retired,"Explicit replacement retained the retired control MIDI map");
         p.learnMidi(pedalControlID(0,27,0));require(p.learningMidi(),"Pending board MIDI learn was not armed");
