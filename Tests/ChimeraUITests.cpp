@@ -53,8 +53,10 @@ void checkArtwork()
     std::set<juce::String> nativeHeads;
     for(int model=spectralforge::legacyAmpModelCount;model<spectralforge::ampModelCount;++model) {
         require(nativeHeadArtwork(model),"New head has no dedicated vector artwork");
-        juce::Image image(juce::Image::ARGB,466,170,true);juce::Graphics graphics(image);
-        head(graphics,{0,0,466,170},model);
+        juce::Image image(juce::Image::ARGB,466,170,true);
+        // Native Windows images finish their Direct2D frame when Graphics is
+        // destroyed. Commit the drawing before PNG encoding or reading pixels.
+        {juce::Graphics graphics(image);head(graphics,{0,0,466,170},model);}
         juce::MemoryOutputStream bytes;juce::PNGImageFormat png;require(png.writeImageToStream(image,bytes),"Native head cannot render");
         const auto digest=juce::SHA256(bytes.getData(),bytes.getDataSize()).toHexString();
         require(nativeHeads.insert(digest).second,"New heads share an identical fascia");
