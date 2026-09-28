@@ -16,7 +16,7 @@ public:
         channelLabel.setText("CHANNEL",juce::dontSendNotification);inputLabel.setText("INPUT",juce::dontSendNotification);
         viewport.setViewedComponent(&content,false);viewport.setScrollBarsShown(true,false);viewport.setScrollBarThickness(9);
         addAndMakeVisible(expand);expand.setButtonText("ALL");expand.setComponentID("ampExpand"+juce::String(lane+1));expand.setTooltip("Open the full amplifier panel");expand.setVisible(!detailed);
-        expand.onClick=[this]{if(dialog){dialog->toFront(true);return;}auto* full=new AmpNativePanel(processor,lane,true);full->setLookAndFeel(&getLookAndFeel());full->setSize(920,480);full->refresh();juce::DialogWindow::LaunchOptions options;options.content.setOwned(full);options.dialogTitle=juce::String(spectralforge::ampInfo(model).name)+" / "+spectralforge::ampInfo(model).reference;options.dialogBackgroundColour=juce::Colour(0xff171b1b);options.useNativeTitleBar=true;options.escapeKeyTriggersCloseButton=true;options.resizable=false;options.componentToCentreAround=this;dialog=options.launchAsync();};
+        expand.onClick=[this]{if(dialog){dialog->toFront(true);return;}auto* full=new AmpNativePanel(processor,lane,true);full->setLookAndFeel(&getLookAndFeel());full->setSize(920,480);full->refresh();juce::DialogWindow::LaunchOptions options;options.content.setOwned(full);options.dialogTitle=juce::String::fromUTF8(spectralforge::ampInfo(model).name)+" / "+juce::String::fromUTF8(spectralforge::ampInfo(model).reference);options.dialogBackgroundColour=juce::Colour(0xff171b1b);options.useNativeTitleBar=true;options.escapeKeyTriggersCloseButton=true;options.resizable=false;options.componentToCentreAround=this;dialog=options.launchAsync();};
         channel.onChange=[this]{channel.acceptSelection();processor.setAmpChannel(lane,channel.getSelectedId()-1);refresh();};
         input.onChange=[this]{input.acceptSelection();processor.setAmpNativeRoute(lane,input.getSelectedId()-1);};
     }
@@ -29,15 +29,15 @@ public:
         if(nextContext!=context || nextModel!=model || split!=currentSplit) {
             context=nextContext;model=nextModel;currentSplit=split;currentChannel=-1;controls.clear();
             channel.clear(juce::dontSendNotification);input.clear(juce::dontSendNotification);
-            for(size_t i=0;i<panel.channels.size();++i)channel.addItem(panel.channels[i],(int)i+1);
-            for(size_t i=0;i<panel.routes.size();++i)input.addItem(panel.routes[i],(int)i+1);
+            for(size_t i=0;i<panel.channels.size();++i)channel.addItem(juce::String::fromUTF8(panel.channels[i]),(int)i+1);
+            for(size_t i=0;i<panel.routes.size();++i)input.addItem(juce::String::fromUTF8(panel.routes[i]),(int)i+1);
             channel.resetSyncExplicit(processor.selectedAmpChannel(lane)+1);input.resetSyncExplicit(processor.selectedAmpNativeRoute(lane)+1);
             channel.setVisible(panel.channels.size()>1);channelLabel.setVisible(panel.channels.size()>1);
             input.setVisible(panel.routes.size()>1);inputLabel.setVisible(panel.routes.size()>1);
             for(size_t i=0;i<panel.controls.size();++i) {
                 auto control=std::make_unique<NativeControlView>();const auto& spec=panel.controls[i];juce::StringArray options;
-                for(const auto* option:spec.options)options.add(option);
-                control->bind(processor.parameters(),spectralforge::ampNativeControlID(context,model,(int)i),spec.label,spec.group,
+                for(const auto* option:spec.options)options.add(juce::String::fromUTF8(option));
+                control->bind(processor.parameters(),spectralforge::ampNativeControlID(context,model,(int)i),juce::String::fromUTF8(spec.label),juce::String::fromUTF8(spec.group),
                               spec.kind==spectralforge::AmpNativeControlKind::knob?0:spec.kind==spectralforge::AmpNativeControlKind::choice?1:2,
                               options,spec.minimum,spec.maximum,spec.kind==spectralforge::AmpNativeControlKind::knob?.001:1.,spectralforge::art::headStyle(model).knobStyle);
                 control->activate=[this]{processor.activateNativeAmp(lane);};content.addAndMakeVisible(*control);controls.push_back(std::move(control));

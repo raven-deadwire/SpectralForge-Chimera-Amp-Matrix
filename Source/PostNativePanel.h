@@ -14,7 +14,7 @@ public:
         title.setText(section==0?"BUS COMPRESSOR":section==1?"PREAMPLIFIER":"EQUALIZER",juce::dontSendNotification);
         addAndMakeVisible(model);addAndMakeVisible(bypass);addAndMakeVisible(viewport);
         model.setComponentID(spectralforge::postNativeModelID(section));model.setName(title.getText()+" model");
-        juce::PopupMenu group;for(int m=0;m<3;++m)group.addItem(m+1,spectralforge::postNativeModel(section,m).name);
+        juce::PopupMenu group;for(int m=0;m<3;++m)group.addItem(m+1,juce::String::fromUTF8(spectralforge::postNativeModel(section,m).name));
         model.getRootMenu()->addSubMenu(title.getText(),group);
         bypass.setClickingTogglesState(true);
         model.onChange=[this]{model.acceptSelection();processor.activateNativePost(section);if(auto* parameter=processor.parameters().getParameter(spectralforge::postNativeModelID(section))){parameter->beginChangeGesture();parameter->setValueNotifyingHost(parameter->convertTo0to1((float)(model.getSelectedId()-1)));parameter->endChangeGesture();}refresh();};
@@ -27,7 +27,7 @@ public:
         const int nextModel=selected?juce::jlimit(0,2,(int)selected->load()):0;
         if(currentModel!=nextModel) {
             currentModel=nextModel;const auto& spec=spectralforge::postNativeModel(section,currentModel);model.resetSyncExplicit(currentModel+1);
-            reference.setText(juce::String("REFERENCE: ")+spec.reference,juce::dontSendNotification);reference.setTooltip(reference.getText());
+            reference.setText(juce::String("REFERENCE: ")+juce::String::fromUTF8(spec.reference),juce::dontSendNotification);reference.setTooltip(reference.getText());
             bypassAttachment.reset();bypass.setComponentID(spectralforge::postNativeBypassID(section,currentModel));
             if(auto* parameter=processor.parameters().getParameter(spectralforge::postNativeBypassID(section,currentModel))) {
                 bypassAttachment=std::make_unique<juce::ParameterAttachment>(*parameter,[this](float v){bypass.setToggleState(v>.5f,juce::dontSendNotification);updateBypass();});bypassAttachment->sendInitialUpdate();
@@ -35,10 +35,10 @@ public:
             controls.clear();
             for(int i=0;i<spec.controlCount;++i) {
                 const auto& c=spec.controls[(size_t)i];auto control=std::make_unique<NativeControlView>();
-                control->bind(processor.parameters(),spectralforge::postNativeControlID(section,currentModel,i),c.label,c.connected?"PANEL":"HARDWARE ONLY",
+                control->bind(processor.parameters(),spectralforge::postNativeControlID(section,currentModel,i),juce::String::fromUTF8(c.label),c.connected?"PANEL":"HARDWARE ONLY",
                     c.kind==spectralforge::PostNativeControlKind::knob?0:c.kind==spectralforge::PostNativeControlKind::choice?1:2,
-                    juce::StringArray::fromTokens(c.options,"|",{}),c.minimum,c.maximum,c.interval,spectralforge::art::rackStyle(section+7,currentModel).knobStyle);
-                control->setEnabled(c.connected);const auto note=juce::String(c.note).replace("Digital implementation range; hardware taper uncalibrated.","").trim();const auto tooltip=juce::String(c.label)+(note.isEmpty()?"":"\n"+note);control->label.setTooltip(tooltip);control->slider.setTooltip(tooltip);control->choice.setTooltip(tooltip);control->toggle.setTooltip(tooltip);
+                    juce::StringArray::fromTokens(juce::String::fromUTF8(c.options),"|",{}),c.minimum,c.maximum,c.interval,spectralforge::art::rackStyle(section+7,currentModel).knobStyle);
+                control->setEnabled(c.connected);const auto note=juce::String::fromUTF8(c.note).replace("Digital implementation range; hardware taper uncalibrated.","").trim();const auto tooltip=juce::String::fromUTF8(c.label)+(note.isEmpty()?"":"\n"+note);control->label.setTooltip(tooltip);control->slider.setTooltip(tooltip);control->choice.setTooltip(tooltip);control->toggle.setTooltip(tooltip);
                 control->activate=[this]{processor.activateNativePost(section);};content.addAndMakeVisible(*control);controls.push_back(std::move(control));
             }
             for(int i=0;i<2;++i) {

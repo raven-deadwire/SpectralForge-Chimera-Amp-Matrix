@@ -2,6 +2,7 @@
 #include "PluginProcessor.h"
 #include <memory>
 #include <stdexcept>
+#include <set>
 
 namespace nativeStateTests {
 inline void require(bool ok,const char* message) {if(!ok)throw std::runtime_error(message);}
@@ -17,6 +18,14 @@ inline void run(const juce::File& directory) {
     const auto storage=std::make_unique<ChimeraProcessor>();auto& p=*storage;
     const auto recalledStorage=std::make_unique<ChimeraProcessor>();auto& recalled=*recalledStorage;
     juce::StringArray checked;
+    std::set<std::string> hostIDs;
+    for(auto* parameter:p.getParameters()) {
+        const auto* identified=dynamic_cast<juce::AudioProcessorParameterWithID*>(parameter);
+        require(identified!=nullptr,"Host parameter has no stable ID");
+        if(!hostIDs.insert(identified->paramID.toStdString()).second)
+            throw std::runtime_error("Duplicate actual APVTS parameter ID: "+identified->paramID.toStdString());
+    }
+    checked.add("Every actual host parameter ID is unique across released, pedal, native amp and POST parameters");
     for(int mode=0;mode<3;++mode) {
         set(p,"mode",float(mode));
         for(int lane=0;lane<mode+1;++lane) {
@@ -57,12 +66,23 @@ inline void run(const juce::File& directory) {
             }
         }
     }
+    const auto softwareTrim=postNativeTrimID(1,2),hardwareTrim=postNativeControlID(1,2,3);
+    require(softwareTrim!=hardwareTrim,"ISA panel TRIM collides with software input trim");
+    require(p.parameters().getRawParameterValue(softwareTrim)!=p.parameters().getRawParameterValue(hardwareTrim),"ISA and software trims share one APVTS storage cell");
+    set(p,softwareTrim,-7.f);set(p,hardwareTrim,12.2f);
+    PostNativeParameterCache postCache;postCache.bind(p.parameters());
+    const auto isa=postCache.read().sections[1].banks[2];
+    require(std::abs(isa.trimDb+7.f)<1.e-4f && std::abs(isa.values[3]-12.2f)<1.e-4f,"ISA and software trims are not independent through the actual DSP parameter cache");
+    checked.add("ISA hardware TRIM 12.2 and software input trim -7 retain independent APVTS values and DSP cache entries");
     juce::MemoryBlock bytes;p.getStateInformation(bytes);recalled.setStateInformation(bytes.getData(),int(bytes.getSize()));
     for(auto child:p.parameters().copyState()) {
         const auto id=child.getProperty("id").toString();
         if(id.startsWith("nativeAmp_") || id.startsWith("pn_"))
             require(std::abs(get(p,id)-get(recalled,id))<1.e-4f,"Binary project recall changed an active or inactive native amp/POST bank");
     }
+    PostNativeParameterCache recalledPost;recalledPost.bind(recalled.parameters());
+    const auto recalledISA=recalledPost.read().sections[1].banks[2];
+    require(std::abs(recalledISA.trimDb+7.f)<1.e-4f && std::abs(recalledISA.values[3]-12.2f)<1.e-4f,"Binary recall merged the separate ISA and software trims");
     checked.add("Binary project recall preserves every native amp and POST bank, including inactive models");
     set(p,"mode",0);p.copyComparison();p.selectComparison(1);
     p.setAmpModel(0,22);set(p,postNativeModelID(2),0);set(p,postNativeControlID(2,0,0),7.f);

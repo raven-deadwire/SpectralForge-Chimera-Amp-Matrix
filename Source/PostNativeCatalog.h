@@ -106,8 +106,8 @@ inline juce::String postNativeModeID(int s) { return postNativePrefix(s)+"_nativ
 inline juce::String postNativeModelID(int s) { return postNativePrefix(s)+"_model"; }
 inline juce::String postNativeBankPrefix(int s,int m) { return postNativePrefix(s)+"_m"+juce::String(m); }
 inline juce::String postNativeBypassID(int s,int m) { return postNativeBankPrefix(s,m)+"_bypass"; }
-inline juce::String postNativeTrimID(int s,int m) { return postNativeBankPrefix(s,m)+"_trim"; }
-inline juce::String postNativeLevelID(int s,int m) { return postNativeBankPrefix(s,m)+"_level"; }
+inline juce::String postNativeTrimID(int s,int m) { return postNativeBankPrefix(s,m)+"_softwareTrim"; }
+inline juce::String postNativeLevelID(int s,int m) { return postNativeBankPrefix(s,m)+"_softwareLevel"; }
 inline juce::String postNativeControlID(int s,int m,int c) { return postNativeBankPrefix(s,m)+"_"+postNativeModel(s,m).controls[static_cast<size_t>(c)].id; }
 struct PostNativeBank { bool bypass{true}; float trimDb{},levelDb{}; std::array<float,postNativeMaxControls> values{}; };
 struct PostNativeSectionState { bool nativeEnabled{false}; int selected{}; std::array<PostNativeBank,3> banks{}; };

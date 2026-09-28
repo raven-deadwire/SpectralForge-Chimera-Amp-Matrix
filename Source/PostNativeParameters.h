@@ -9,13 +9,13 @@ inline void addPostNativeParameters(juce::AudioProcessorValueTreeState::Paramete
         layout.add(std::make_unique<juce::AudioParameterBool>(ID{postNativeModeID(s),1},"POST native section "+juce::String(s+1),true,juce::AudioParameterBoolAttributes().withAutomatable(false)));
         layout.add(std::make_unique<juce::AudioParameterInt>(ID{postNativeModelID(s),1},"POST section "+juce::String(s+1)+" model",0,2,0,juce::AudioParameterIntAttributes().withAutomatable(false)));
         for(int m=0;m<3;++m) {
-            const auto& model=postNativeModel(s,m);const auto prefix="POST "+juce::String(model.name)+" ";
+            const auto& model=postNativeModel(s,m);const auto prefix="POST "+juce::String::fromUTF8(model.name)+" ";
             layout.add(std::make_unique<juce::AudioParameterBool>(ID{postNativeBypassID(s,m),1},prefix+"bypass",true));
             layout.add(std::make_unique<juce::AudioParameterFloat>(ID{postNativeTrimID(s,m),1},prefix+"software trim",juce::NormalisableRange<float>(-24.f,24.f,.01f),0.f));
             layout.add(std::make_unique<juce::AudioParameterFloat>(ID{postNativeLevelID(s,m),1},prefix+"software level",juce::NormalisableRange<float>(-24.f,24.f,.01f),0.f));
             for(int c=0;c<model.controlCount;++c) {
                 const auto& p=model.controls[c];
-                layout.add(std::make_unique<juce::AudioParameterFloat>(ID{postNativeControlID(s,m,c),1},prefix+p.label,
+                layout.add(std::make_unique<juce::AudioParameterFloat>(ID{postNativeControlID(s,m,c),1},prefix+juce::String::fromUTF8(p.label),
                     juce::NormalisableRange<float>(p.minimum,p.maximum,p.interval),p.initial,
                     juce::AudioParameterFloatAttributes().withAutomatable(p.connected)));
             }

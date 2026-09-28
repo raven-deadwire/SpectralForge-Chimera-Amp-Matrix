@@ -4,6 +4,7 @@
 #include <cmath>
 #include <iostream>
 #include <stdexcept>
+#include <set>
 #include <vector>
 using namespace spectralforge;
 namespace {
@@ -20,6 +21,12 @@ double difference(const Result& a,const Result& b){double sum=0;for(size_t i=400
 PostNativeBank usefulBank(int s,int m){auto b=defaultPostNativeState().sections[s].banks[m];b.bypass=false;if(s==0&&m==0){b.values[0]=-30;b.values[8]=1;}if(s==0&&m==1)b.values[0]=12;if(s==0&&m==2)b.values[1]=70;if(s==1&&m==1){b.values[1]=4;b.values[3]=1;}if(s==1&&m==2){b.values[0]=0;b.values[1]=2;}if(s==2&&m==0){b.values[0]=7;b.values[3]=9;b.values[6]=-8;b.values[9]=7;}if(s==2&&m==1){b.values[0]=7;b.values[1]=-8;b.values[3]=7;}if(s==2&&m==2){b.values[1]=6;b.values[2]=5;b.values[4]=7;b.values[6]=6;}return b;}
 }
 int main(){try{
+    // Model controls may share words with utility controls. Every generated
+    // host ID, including disabled hardware controls, must remain independent.
+    std::set<std::string> ids;
+    const auto addID=[&](const juce::String& id){check(ids.insert(id.toStdString()).second,"Duplicate POST host parameter: "+id.toStdString());};
+    for(int s=0;s<3;++s){addID(postNativeModeID(s));addID(postNativeModelID(s));for(int m=0;m<3;++m){addID(postNativeBypassID(s,m));addID(postNativeTrimID(s,m));addID(postNativeLevelID(s,m));for(int c=0;c<postNativeModel(s,m).controlCount;++c)addID(postNativeControlID(s,m,c));}}
+    check(ids.size()==105,"POST parameter inventory unexpectedly changed");
     int controls=0,meters=0;double minimumControl=100;
     for(int s=0;s<3;++s)for(int m=0;m<3;++m){const auto& model=postNativeModel(s,m);auto base=usefulBank(s,m);const auto reference=render(s,m,base);check(reference.leak==0,"stereo leakage");
         const auto partition=render(s,m,base,37);check(difference(reference,partition)<1.e-6,"host block dependence");

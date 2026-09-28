@@ -382,7 +382,7 @@ void ChimeraEditor::updateHardwareStyles()
         lane.nativePanel->refresh();
         if(lane.lastModel==model)continue;
         lane.lastModel=model;const auto& amp=spectralforge::ampInfo(model);
-        lane.ampReference.setText(juce::String("REFERENCE: ")+amp.reference,juce::dontSendNotification);
+        lane.ampReference.setText(juce::String("REFERENCE: ")+juce::String::fromUTF8(amp.reference),juce::dontSendNotification);
         lane.amp.setTooltip(juce::String(amp.name)+"\n"+amp.character);
         lane.ampReference.setTooltip(lane.ampReference.getText());
         const auto hardware=spectralforge::art::headStyle(model);

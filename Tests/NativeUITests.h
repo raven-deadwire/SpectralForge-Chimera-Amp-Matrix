@@ -39,6 +39,7 @@ inline void run(const juce::File& directory){
                 for(int control=0;control<(int)spec.controls.size();++control){
                     const auto id=spectralforge::ampNativeControlID(0,model,control);auto* view=find<NativeControlView>(*panel,id+"_control");
                     require(view!=nullptr,"Original amplifier control was not constructed");
+                    require(view->label.getText()==juce::String::fromUTF8(spec.controls[(size_t)control].label),"Native amplifier label has invalid UTF-8 decoding");
                     require(view->isVisible()==spectralforge::ampNativeControlVisible(model,control,ch),"Wrong channel-specific controls visible");
                     require(processor.parameters().getParameter(id)!=nullptr,"Original amplifier control has no host/audio parameter");++controlCases;
                 }
@@ -67,8 +68,8 @@ inline void run(const juce::File& directory){
         for(int model=0;model<3;++model){modelBox->setSelectedId(model+1,juce::sendNotificationSync);settle();const auto& spec=spectralforge::postNativeModel(section,model);
             require(modelBox->getText()==spec.name,"POST model list contains a hardware reference");
             require((int)processor.parameters().getRawParameterValue(spectralforge::postNativeModelID(section))->load()==model,"POST model did not reach audio state");
-            for(int c=0;c<spec.controlCount;++c){const auto id=spectralforge::postNativeControlID(section,model,c);auto* view=find<NativeControlView>(*panel,id+"_control");require(view && view->isVisible(),"POST original control missing");require(view->isEnabled()==spec.controls[(size_t)c].connected,"Physical-only POST control is falsely interactive");
-                const auto& control=spec.controls[(size_t)c];if(control.connected){float target=0;
+            for(int c=0;c<spec.controlCount;++c){const auto id=spectralforge::postNativeControlID(section,model,c);auto* view=find<NativeControlView>(*panel,id+"_control");require(view && view->isVisible(),"POST original control missing");require(view->label.getText()==juce::String::fromUTF8(spec.controls[(size_t)c].label),"POST control label has invalid UTF-8 decoding");require(view->isEnabled()==spec.controls[(size_t)c].connected,"Physical-only POST control is falsely interactive");
+                const auto& control=spec.controls[(size_t)c];if(control.kind==spectralforge::PostNativeControlKind::choice){const auto options=juce::StringArray::fromTokens(juce::String::fromUTF8(control.options),"|",{});require(view->choice.getNumItems()==options.size(),"POST choice option count mismatch");for(int option=0;option<options.size();++option)require(view->choice.getItemText(option)==options[option],"POST choice option has invalid UTF-8 decoding");}if(control.connected){float target=0;
                     if(control.kind==spectralforge::PostNativeControlKind::knob){target=control.minimum+(control.maximum-control.minimum)*.61f;auto* slider=find<juce::Slider>(*view,id);require(slider!=nullptr,"POST knob widget missing");slider->setValue(target,juce::sendNotificationSync);target=(float)slider->getValue();}
                     else if(control.kind==spectralforge::PostNativeControlKind::choice){auto* choice=find<juce::ComboBox>(*view,id);require(choice!=nullptr,"POST choice widget missing");target=(float)((choice->getSelectedId())%choice->getNumItems());choice->setSelectedId((int)target+1,juce::sendNotificationSync);}
                     else {auto* button=find<juce::TextButton>(*view,id);require(button!=nullptr,"POST switch widget missing");target=button->getToggleState()?0.f:1.f;button->triggerClick();settle(15);}
