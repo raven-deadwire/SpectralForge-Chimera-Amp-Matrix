@@ -1,0 +1,58 @@
+name: Export existing Chimera candidate
+on:
+  push:
+    branches:
+      - work/export-candidate-20260928
+permissions:
+  contents: read
+  actions: read
+jobs:
+  export-existing-artifacts:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Download the already built candidate
+        uses: actions/download-artifact@v4
+        with:
+          name: Chimera-update-Windows-candidate
+          run-id: 36414431518
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: original-candidate
+      - name: Download the original test evidence
+        uses: actions/download-artifact@v4
+        with:
+          name: Chimera-update-Windows-evidence
+          run-id: 36414431518
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: original-evidence
+      - name: Verify and split original ZIP bytes; select small evidence
+        run: python Tools/export_existing_candidate.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Chimera-existing-50271a6920-part1
+          path: exported/Chimera-update-50271a6920-win64.zip.part1
+          compression-level: 0
+          if-no-files-found: error
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Chimera-existing-50271a6920-part2
+          path: exported/Chimera-update-50271a6920-win64.zip.part2
+          compression-level: 0
+          if-no-files-found: error
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Chimera-existing-50271a6920-metadata
+          path: |
+            exported/parts-manifest.json
+            exported/*.sha256
+          if-no-files-found: error
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Chimera-existing-50271a6920-small-evidence
+          path: exported/Chimera-existing-50271a6920-small-evidence.zip
+          compression-level: 0
+          if-no-files-found: error
