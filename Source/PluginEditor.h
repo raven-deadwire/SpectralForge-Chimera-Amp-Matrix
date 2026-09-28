@@ -5,6 +5,9 @@
 #include "ReleaseSupport.h"
 #include "PedalBoardPanel.h"
 #include "AmpSelector.h"
+#include "AmpNativePanel.h"
+#include "PostNativePanel.h"
+#include "EffectSelectionCatalog.h"
 
 class ChimeraLookAndFeel : public juce::LookAndFeel_V4 {
 public:
@@ -50,10 +53,9 @@ private:
     ChimeraLookAndFeel look;
     juce::Component canvas;
     PedalBoardPanel boardPanel;
-    juce::TextButton boardEnabled{"USE NEW 5-SLOT BOARD"},legacyPreControls{"LEGACY CONTROLS"},gateLocation{"POST GATE"};
+    juce::TextButton gateLocation{"POST GATE"};
     juce::Label preEngineStatus;
     std::unique_ptr<BA> gateLocationAttachment;
-    bool showLegacyPreControls{};
     bool lastBoardEnabled{};
     juce::TooltipWindow tooltips{this,600};
     // Updates own a network worker. Ordinary editor open/close must not start
@@ -93,6 +95,9 @@ private:
         std::array<std::unique_ptr<SA>,5> attachments;
         std::unique_ptr<BA> button;
     };
+    std::array<std::unique_ptr<PostNativePanel>,3> postPanels;
+    std::array<juce::TextButton,6> postModuleButtons;
+    int selectedPost{};
     std::array<FXUI,11> effects; // drive, delay, reverb, comp, filter, fuzz, boost, bus, preamp, EQ, chorus
     std::array<int,5> pedalOrder{4,3,5,6,0};
     bool lastEnvelopeFirst{true},lastBoostAfterDrive{};
@@ -101,7 +106,7 @@ private:
         int lastModel{-1};
         juce::Label header,range,toneLabel,tonePivot,cabStatus,ampReference;
         AmpSelector amp;
-        StableAmpComboBox ampChannel;
+        std::unique_ptr<AmpNativePanel> nativePanel;
         CabinetSelector cabType;
         juce::Slider drive,level,bass,lm,hm,treble,pres,res,bandTone,cabLow,cabHigh;
         std::array<juce::Label,8> knobLabels;

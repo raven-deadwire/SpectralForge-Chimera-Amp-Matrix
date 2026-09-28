@@ -50,6 +50,20 @@ jobs:
           compression-level: 0
           if-no-files-found: error
       - uses: actions/upload-artifact@v4
+        if: hashFiles('candidate-transfer/part-3/*') != ''
+        with:
+          name: Chimera-candidate-part-3
+          path: candidate-transfer/part-3/*
+          compression-level: 0
+          if-no-files-found: error
+      - uses: actions/upload-artifact@v4
+        if: hashFiles('candidate-transfer/part-4/*') != ''
+        with:
+          name: Chimera-candidate-part-4
+          path: candidate-transfer/part-4/*
+          compression-level: 0
+          if-no-files-found: error
+      - uses: actions/upload-artifact@v4
         with:
           name: Chimera-candidate-transfer-metadata
           path: candidate-transfer/metadata/*
@@ -73,6 +87,9 @@ jobs:
             build/ui-snapshots/Universal-mode-2.png
             build/ui-snapshots/Universal-detail.png
             build/ui-snapshots/Board-State-Verification.json
+            build/ui-snapshots/Native-*.json
+            build/ui-snapshots/Native-Amp-*.png
+            build/ui-snapshots/Native-Post-*.png
           if-no-files-found: error
   preparation-contracts:
     runs-on: ubuntu-22.04

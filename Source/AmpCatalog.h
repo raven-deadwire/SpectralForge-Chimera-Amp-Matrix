@@ -32,9 +32,9 @@ inline constexpr std::array<AmpInfo, ampModelCount> ampCatalog{{
     {"Iron Compact", "ENGL Ironball E606", "Clean and lead / tight attack", false},
     {"Fourfold", "Diezel VH4", "Four channels / controlled low end", false},
     {"Classic Tube", "Ampeg SVT-CL", "Single-channel tube bass / firm fundamentals", true},
-    {"Monolith", "SUNN Model T — 1970s design study", "Normal and bright input paths / broad breakup", false},
+    {"Monolith", "SUNN Model T", "Normal and bright input paths / broad breakup", false},
     {"Night Harvest", "Fortin Evil Pumpkin", "Two gain paths and clean / aggressive attack", false},
-    {"Hot Lead", "Soldano SLO-100 LTD OD", "Overdrive voice / singing sustain", false},
+    {"Hot Lead", "Soldano SLO-100", "Overdrive voice / singing sustain", false},
     {"Blue Storm", "Bogner Uberschall Rev Blue", "Clean and lead / dense low mids", false}
 }};
 // Search metadata stays separate from the single primary category shown in the menu.

@@ -47,6 +47,12 @@ inline void run(const juce::File& outputDirectory) {
         auto* driveParameter=p.parameters().getParameter(driveID);
         set(p,driveID,.173f);set(p,eqID,7.2f);set(p,"boardLowTap",1);set(p,pedalBypassID(1,31),1);
         const auto initial=p.pedalBoardState();
+        p.setPedalModel(0,27);set(p,pedalControlID(0,27,1),.682f);
+        p.setPedalModel(0,26);
+        require(std::abs(raw(p,driveID)-.173f)<1.e-5f,"Selecting an already used pedal silently reset its saved parameter bank");
+        p.setPedalModel(0,27);
+        require(std::abs(raw(p,pedalControlID(0,27,1))-.682f)<1.e-5f,"Returning to a pedal did not retain its own settings");
+        p.setPedalModel(0,26);
         p.movePedal(0,1);const auto moved=p.pedalBoardState();
         require(moved.order[0]==1 && moved.order[1]==0,"Processor move did not exchange positions");
         require(p.parameters().getParameter(driveID)==driveParameter && std::abs(raw(p,driveID)-.173f)<1.e-5f,
@@ -77,6 +83,7 @@ inline void run(const juce::File& outputDirectory) {
         const auto expected=p.pedalBoardState();const auto bytes=save(p);const auto recalledStorage=std::make_unique<ChimeraProcessor>();auto& recalled=*recalledStorage;load(recalled,bytes);
         equal(recalled.pedalBoardState(),expected,"Project recall lost enabled/order/tap/model/bypass/control state");
         require(std::abs(raw(recalled,duplicateID)-.821f)<1.e-5f,"Project recall lost an independent duplicate control");
+        require(std::abs(raw(recalled,pedalControlID(0,27,1))-.682f)<1.e-5f,"Project recall lost an inactive pedal model bank");
         mark("Actual Processor binary state round trip of the universal board");
 
         p.selectComparison(1);p.setPedalModel(3,27);set(p,pedalControlID(3,27,1),.682f);
@@ -93,18 +100,26 @@ inline void run(const juce::File& outputDirectory) {
         const auto pStorage=std::make_unique<ChimeraProcessor>();auto& p=*pStorage;set(p,"preon",1);set(p,"predrive",.27f);set(p,"gainorder",1);
         set(p,"boardEnabled",1);p.setPedalModel(0,26);set(p,"boardLowTap",5);
         auto legacy=p.parameters().copyState();
-        for(int i=legacy.getNumChildren();--i>=0;)if(legacy.getChild(i).getProperty("id").toString().startsWith("board"))legacy.removeChild(i,nullptr);
+        for(int i=legacy.getNumChildren();--i>=0;) {
+            const auto id=legacy.getChild(i).getProperty("id").toString();
+            if(id.startsWith("board") || id.startsWith("nativeAmp_") || id.startsWith("pn_"))legacy.removeChild(i,nullptr);
+        }
         legacy.removeProperty("schemaVersion",nullptr);
         juce::MemoryBlock data;auto xml=legacy.createXml();juce::AudioProcessor::copyXmlToBinary(*xml,data);
         load(p,data);const auto state=p.pedalBoardState();
         require(!state.enabled,"A pre-board legacy project activated the new board");
-        require(state.order==std::array<int,5>{0,1,2,3,4} && state.lowTap==2,"Legacy board defaults inherited previous live state");
-        for(const auto& instance:state.instances)require(instance.model==0,"Legacy project inherited a previously loaded pedal");
+        require(state.order==std::array<int,5>{1,0,2,4,3} && state.lowTap==2,"Old project order was not represented on the five-slot board");
+        constexpr int seededModels[]{6,11,16,21,1};
+        constexpr const char* enabled[]{"precompon","filteron","fuzzon","booston","preon"};
+        for(int owner=0;owner<5;++owner) {
+            require(state.instances[(size_t)owner].model==seededModels[owner],"Old project did not seed its pedal families into the current board");
+            require(state.instances[(size_t)owner].bypass==(raw(p,enabled[owner])<.5f),"Old project pedal ON/OFF state changed during visible-board migration");
+        }
         require(raw(p,"preon")==1 && std::abs(raw(p,"predrive")-.27f)<1.e-5f && raw(p,"gainorder")==1,
                 "Board migration changed legacy sound controls");
         p.undoPedalEdit();equal(p.pedalBoardState(),state,"Loading another project retained stale board undo history");
         p.undoPedalEdit(true);equal(p.pedalBoardState(),state,"Loading another project retained stale board redo history");
-        mark("Legacy missing board schema restores board-off defaults and preserves old raw parameters");
+        mark("Old project seeds current five-slot models/order/ON-OFF, preserves compatibility audio and raw parameters");
     }
     {
         const auto pStorage=std::make_unique<ChimeraProcessor>();auto& p=*pStorage;p.setRateAndBufferSizeDetails(48000,256);p.prepareToPlay(48000,256);
@@ -138,11 +153,22 @@ inline void run(const juce::File& outputDirectory) {
         require(p.getLatencySamples()==originalTotal,"Deleting a poly octave failed to remove its extra latency");
         p.setPedalModel(0,38);sendCC(p,119,0);
         require(p.getLatencySamples()==originalTotal,"Mono octave inherited the poly frame delay");
+        set(p,pedalControlID(0,38,1),.613f);
         p.loadFactoryPreset(0);
-        require(!p.pedalBoardState().enabled && p.pedalBoardState().instances[0].model==38,"Legacy factory preset overwrote the saved new-board bank");
-        p.setPedalBoardEnabled(true);
-        require(p.pedalBoardState().enabled && p.pedalBoardState().instances[0].model==38,"Explicit new-board activation did not retain the board bank");
-        mark("Poly host latency, latency-preserving bypass, deletion, zero-frame mono and explicit Legacy preset/new-board switching");
+        require(!p.pedalBoardState().enabled,"Factory compatibility sound unexpectedly changed audio paths");
+        constexpr int familyFirst[]{6,11,16,21,1};
+        constexpr const char* familyModel[]{"compmodel","filtermodel","fuzzmodel","boostmodel","drivemodel"};
+        constexpr const char* enabled[]{"precompon","filteron","fuzzon","booston","preon"};
+        const auto factoryBoard=p.pedalBoardState();
+        for(int owner=0;owner<5;++owner) {
+            const auto& instance=factoryBoard.instances[(size_t)owner];
+            require(instance.model==familyFirst[owner]+int(raw(p,familyModel[owner])),"Factory sound did not populate the visible pedal selection");
+            require(instance.bypass==(raw(p,enabled[owner])<.5f),"Factory sound did not populate the visible pedal ON/OFF state");
+        }
+        require(std::abs(raw(p,pedalControlID(0,38,1))-.613f)<1.e-5f,"Factory sound erased an inactive user's pedal bank");
+        p.setPedalModel(0,38);
+        require(p.pedalBoardState().enabled && std::abs(p.pedalBoardState().instances[0].controls[1]-.613f)<1.e-5f,"Direct selection did not activate and recall the saved pedal bank");
+        mark("Poly host latency/bypass/delete, zero-frame mono, factory-visible pedal state and silent bank recall");
     }
     auto* report=new juce::DynamicObject();report->setProperty("status","PASS");
     report->setProperty("scope","Native Processor/APVTS state and identity assertions; no external DAW or hardware-fidelity claim");

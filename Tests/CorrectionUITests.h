@@ -12,6 +12,11 @@
 namespace correctionUITests {
 inline void require(bool value,const char* message) {if(!value)throw std::runtime_error(message);}
 inline void settle(int milliseconds=70) {juce::MessageManager::getInstance()->runDispatchLoopUntil(milliseconds);}
+inline juce::Component* find(juce::Component& root,const juce::String& id) {
+    if(root.getComponentID()==id)return &root;
+    for(auto* child:root.getChildren())if(auto* result=find(*child,id))return result;
+    return nullptr;
+}
 inline void set(ChimeraProcessor& processor,const juce::String& id,float value) {
     auto* parameter=processor.parameters().getParameter(id);
     require(parameter!=nullptr,"Correction UI test parameter missing");
@@ -31,11 +36,11 @@ inline void clickTab(juce::Component& canvas,const char* title) {
     throw std::runtime_error("Correction UI test could not find a page tab");
 }
 inline AmpSelector& selector(juce::Component& canvas,int lane) {
-    auto* control=dynamic_cast<AmpSelector*>(canvas.findChildWithID("ampSelect"+juce::String(lane+1)));
+    auto* control=dynamic_cast<AmpSelector*>(find(canvas,"ampSelect"+juce::String(lane+1)));
     require(control!=nullptr,"Actual amplifier selector not exposed in editor");return *control;
 }
 inline juce::ComboBox& channelSelector(juce::Component& canvas,int lane) {
-    auto* control=dynamic_cast<juce::ComboBox*>(canvas.findChildWithID("ampChannel"+juce::String(lane+1)));
+    auto* control=dynamic_cast<juce::ComboBox*>(find(canvas,"ampChannel"+juce::String(lane+1)));
     require(control!=nullptr,"Actual amplifier channel selector not exposed in editor");return *control;
 }
 inline std::vector<float> render(ChimeraProcessor& processor) {
@@ -86,40 +91,36 @@ inline void run(const juce::File& directory) {
     }
     for(const auto* id:{"compmodel","filtermodel","fuzzmodel","boostmodel","drivemodel"}) {
         auto* legacy=canvas->findChildWithID(id);
-        require(legacy && !legacy->isVisible(),"Fresh PRE page still exposes the fixed legacy modules");
+        require(!legacy || !legacy->isVisible(),"Fresh PRE page still exposes the fixed legacy modules");
     }
     snapshot(editor,directory,"Correction-fresh-PRE");
 
-    // An old project is deliberately kept on its saved audio path, with an
-    // explicit visible Legacy indication so this is not mistaken for a failed
-    // update. No old pedal controls are reinterpreted as new model controls.
+    // A pre-board project opens the same current board and directly editable
+    // slots. Compatibility audio handling is internal, without a Legacy page
+    // or a second engine-selection step in the user flow.
     auto legacy=processor.parameters().copyState();
     for(int i=legacy.getNumChildren();--i>=0;)
-        if(legacy.getChild(i).getProperty("id").toString().startsWith("board"))legacy.removeChild(i,nullptr);
+        if(const auto id=legacy.getChild(i).getProperty("id").toString();id.startsWith("board") || id.startsWith("nativeAmp_") || id.startsWith("pn_"))legacy.removeChild(i,nullptr);
     legacy.removeProperty("schemaVersion",nullptr);
     juce::MemoryBlock bytes;auto xml=legacy.createXml();juce::AudioProcessor::copyXmlToBinary(*xml,bytes);
     processor.setStateInformation(bytes.getData(),int(bytes.getSize()));settle(120);
-    require(!processor.pedalBoardState().enabled,"Old project silently entered the new pedal engine");
-    auto* status=dynamic_cast<juce::Label*>(canvas->findChildWithID("preEngineStatus"));
-    auto* boardSwitch=dynamic_cast<juce::TextButton*>(canvas->findChildWithID("boardEnabled"));
-    require(status && status->isVisible() && status->getText().containsIgnoreCase("LEGACY"),
-            "Old project has no visible Legacy pedalboard indication");
-    require(boardSwitch && boardSwitch->isVisible() && boardSwitch->getButtonText()=="USE NEW 5-SLOT BOARD",
-            "Old project has no direct way to enter the new pedalboard");
+    for(const auto* id:{"legacyPreControls","boardEnabled"})
+        if(auto* obsolete=find(*canvas,id))require(!obsolete->isVisible(),"Recalled PRE still exposes an obsolete engine-switch/Legacy UI");
     for(int position=0;position<5;++position) {
         auto* model=dynamic_cast<juce::ComboBox*>(board->findChildWithID("boardModelAt"+juce::String(position)));
-        require(model && model->isVisible() && !model->isEnabled(),
-                "Inactive new pedal selectors can silently edit an old project");
+        require(model && model->isVisible() && model->isEnabled(),
+                "Recalled project does not expose directly editable five-slot pedal selectors");
     }
-    snapshot(editor,directory,"Correction-legacy-PRE");
+    snapshot(editor,directory,"Correction-recalled-PRE");
 
     // Use an empty new board and bypass optional global processing so these
     // renders measure the selected amplifier's actual processor routing.
-    boardSwitch->triggerClick();settle(120);
-    require(processor.pedalBoardState().enabled,"Use-new-board button did not activate the new audio path");
+    for(int owner=0;owner<5;++owner)processor.setPedalModel(owner,0);
+    settle(120);
+    require(processor.pedalBoardState().enabled,"Editing the visible board did not activate its audio path");
     for(int position=0;position<5;++position)
         require(board->findChildWithID("boardModelAt"+juce::String(position))->isEnabled(),
-                "New pedal selectors stayed disabled after explicit migration");
+                "Pedal selectors became disabled after direct editing");
     set(processor,"gateon",0);set(processor,"mode",0);
     set(processor,"output",0);set(processor,"input",0);set(processor,"oversampling",2);
     for(int lane=0;lane<3;++lane) {
@@ -145,11 +146,16 @@ inline void run(const juce::File& directory) {
         }
         voices.push_back(std::move(output));
         auto& channel=channelSelector(*canvas,0);
-        require(channel.isVisible() && channel.getNumItems()>0,"New amplifier has no accessible channel selector");
+        const auto& panel=spectralforge::ampNativePanel(model);
+        require(channel.getNumItems()==int(panel.channels.size()),"Native channel selector does not match the selected amplifier panel");
+        require(channel.isVisible()==(panel.channels.size()>1),"Single-channel amplifier exposes an unnecessary channel selector");
         for(int index=0;index<channel.getNumItems();++index) {
             channel.setSelectedItemIndex(index,juce::sendNotificationSync);settle(20);
             require(processor.selectedAmpChannel(0)==index,"Channel selection did not reach actual amplifier DSP state");
         }
+        auto* reference=dynamic_cast<juce::Label*>(find(*canvas,"ampreference1"));
+        require(reference && reference->isVisible() && reference->getText()==juce::String("REFERENCE: ")+spectralforge::ampInfo(model).reference,
+                "Reference name was removed from the selected amplifier display");
     }
     snapshot(editor,directory,"Correction-new-amp-channels");
 
@@ -166,7 +172,7 @@ inline void run(const juce::File& directory) {
         require(selector(*canvas,lane).getSelectedId()==models[(size_t)lane]+1,"Matrix lane selector did not retain its model");
     }
     snapshot(editor,directory,"Correction-three-extended-lanes");
-    std::cout<<"PASS correction UI: fresh five-slot PRE, visible legacy recall, product-only selected amp names, "
+    std::cout<<"PASS correction UI: directly editable five-slot PRE after fresh/old recall, alias-only amp menus with visible reference captions, "
                "8 editor-to-audio DSP selections, native channel callbacks and isolated Matrix lane selectors; "
                "minimum RMS-matched processor residual "<<smallestResidual<<"\n";
 }

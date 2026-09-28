@@ -85,6 +85,9 @@ try:
         targets.append(('ChimeraNewAmpTests',['Tests/NewAmpTests.cpp']))
     if (src/'Tests/PedalOctaverTests.cpp').exists():
         targets.append(('ChimeraPedalOctaverTests',['Tests/PedalOctaverTests.cpp']))
+    for native in ['AmpNative','PostNative']:
+        if (src/('Tests/'+native+'Tests.cpp')).exists():
+            targets.append(('Chimera'+native+'Tests',['Tests/'+native+'Tests.cpp']))
     for name, sources in targets:
         run('link-'+name,flags+sources+list(map(str,objects))+['-ldl','-lrt','-lz','-o',str(out/name)])
         run('test-'+name,[str(out/name)])

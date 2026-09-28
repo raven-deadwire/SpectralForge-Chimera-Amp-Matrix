@@ -8,6 +8,8 @@
 #include "PedalBoardDSP.h"
 #include "PostRigGate.h"
 #include "AmpSelectionParameters.h"
+#include "AmpNativeParameters.h"
+#include "PostNativeParameters.h"
 
 class ChimeraProcessor : public juce::AudioProcessor {
 public:
@@ -43,6 +45,7 @@ public:
     float preCompressorReduction() const {return preReduction.load();}
     float postCompressorReduction() const {return postReduction.load();}
     float postModuleLevel(int position) const {return postPeaks[(size_t)juce::jlimit(0,5,position)].load();}
+    float postNativeMeter(int section) const {return nativePostMeters[(size_t)juce::jlimit(0,2,section)].load();}
     juce::String cabStatus(int lane) const { return library.status(lane); }
     spectralforge::IRMetadata cabMetadata(int lane) const { return library.metadata(lane,(int)state.getRawParameterValue("cabtype"+juce::String(lane+1))->load()); }
     void setCabMetadata(int lane,const spectralforge::IRMetadata& metadata) { library.setMetadata(lane,metadata); }
@@ -73,12 +76,20 @@ public:
     void undoPedalEdit(bool redo=false);
     float pedalReduction() const { return boardReduction.load(); }
     juce::String diagnosticReport() const;
-    int selectedAmpModel(int lane) const noexcept { return ampSelection.model(lane); }
-    int selectedAmpChannel(int lane) const noexcept { return ampSelection.channel(lane,selectedAmpModel(lane)); }
+    int selectedAmpModel(int lane) const noexcept;
+    int selectedAmpChannel(int lane) const noexcept;
+    int selectedAmpNativeRoute(int lane) const noexcept;
     void setAmpModel(int lane,int model);
     void setAmpChannel(int lane,int channel);
+    void setAmpNativeRoute(int lane,int route);
+    void activateNativeAmp(int lane);
+    void activateNativePost(int section);
 private:
     spectralforge::AmpSelectionParameterCache ampSelection;
+    spectralforge::AmpNativeParameterCache nativeAmps;
+    spectralforge::PostNativeParameterCache nativePost;
+    int ampContext(int lane) const noexcept;
+    void seedNativeSelections(bool seedBoard,bool seedAmps=true,bool seedPost=true);
     void resetAmpSelection();
     void rememberPedalEdit();
     void setRawParameter(const juce::String&,float);
@@ -123,6 +134,7 @@ private:
     std::atomic<float> inputPeak{0},outputPeak{0},gateGain{1},lowCompGain{0};
     std::atomic<float> preReduction{0},postReduction{0};
     std::array<std::atomic<float>,6> postPeaks{};
+    std::array<std::atomic<float>,3> nativePostMeters{};
     std::atomic<float> cpuAverage{0},cpuPeak{0};
     int maximumBlock{512};
     double rate{48000};

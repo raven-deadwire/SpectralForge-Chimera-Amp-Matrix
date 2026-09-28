@@ -17,6 +17,8 @@ inline void run() {
     const auto storage=std::make_unique<ChimeraProcessor>();auto& p=*storage;
     const auto restoredStorage=std::make_unique<ChimeraProcessor>();auto& restored=*restoredStorage;
     const auto legacyNames=legacyAmpNames();
+    raw(p,"mode",2);
+    for(int context=0;context<ampNativeContextCount;++context)raw(p,ampNativeEnabledID(context),0);
     require(legacyNames.size()==15,"Legacy amp names no longer contain exactly 15 host choices");
     for(int lane=0;lane<3;++lane) {
         auto* legacy=dynamic_cast<juce::AudioParameterChoice*>(p.parameters().getParameter("amp"+juce::String(lane+1)));
@@ -35,19 +37,19 @@ inline void run() {
     for(int lane=0;lane<3;++lane) for(int model=15;model<23;++model) {
         p.setAmpModel(lane,model);
         require(p.selectedAmpModel(lane)==model,"An appended amp is not selectable");
-        require(p.selectedAmpChannel(lane)==newAmpDefaultChannel(model),"New amp did not use its declared default channel");
+        require(p.selectedAmpChannel(lane)==ampNativePanel(model).defaultChannel,"New amp did not use its declared default channel");
         auto* old=p.parameters().getParameter("amp"+juce::String(lane+1));
         old->setValueNotifyingHost(0.f);
         require(p.selectedAmpModel(lane)==model,"Old host automation silently overrode the explicit new amp");
         require(!p.parameters().getParameter(ampChannelID(lane,model))->isAutomatable(),"Channel structure must not be an old automation alias");
-        const int last=newAmpChannelCount(model)-1;
+        const int last=(int)ampNativePanel(model).channels.size()-1;
         p.setAmpChannel(lane,last);
         p.setAmpChannel(lane,last+1);
         require(p.selectedAmpChannel(lane)==last,"Invalid channel selection changed active state");
     }
     for(int lane=0;lane<3;++lane) for(int model=15;model<23;++model) {
         p.setAmpModel(lane,model);
-        require(p.selectedAmpChannel(lane)==newAmpChannelCount(model)-1,"Switching amp lost its per-model channel bank");
+        require(p.selectedAmpChannel(lane)==(int)ampNativePanel(model).channels.size()-1,"Switching amp lost its per-model channel bank");
     }
     p.setAmpModel(0,15);p.setAmpChannel(0,3);
     p.setAmpModel(1,15);p.setAmpChannel(1,1);
@@ -74,7 +76,7 @@ inline void run() {
     auto legacyTree=restored.parameters().copyState();
     for(int i=legacyTree.getNumChildren()-1;i>=0;--i) {
         const auto id=legacyTree.getChild(i).getProperty("id").toString();
-        if(id.startsWith("ampext") || id.startsWith("ampchannel"))legacyTree.removeChild(i,nullptr);
+        if(id.startsWith("ampext") || id.startsWith("ampchannel") || id.startsWith("nativeAmp_") || id.startsWith("pn_"))legacyTree.removeChild(i,nullptr);
     }
     for(int lane=0;lane<3;++lane)
         legacyTree.getChildWithProperty("id","amp"+juce::String(lane+1)).setProperty("value",lane+10,nullptr);
@@ -84,7 +86,7 @@ inline void run() {
         require(restored.selectedAmpModel(lane)==lane+10,"Old project inherited a new amp bank from the preceding project");
         for(int model=15;model<23;++model) {
             restored.setAmpModel(lane,model);
-            require(restored.selectedAmpChannel(lane)==newAmpDefaultChannel(model),"Old project inherited a new channel bank");
+            require(restored.selectedAmpChannel(lane)==ampNativePanel(model).defaultChannel,"Old project inherited a new channel bank");
         }
     }
     restored.setAmpModel(0,15);restored.setAmpChannel(0,3);

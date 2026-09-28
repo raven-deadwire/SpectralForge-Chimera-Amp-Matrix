@@ -21,7 +21,7 @@ for source in required:
     if source.is_file() and not source.stat().st_size:raise RuntimeError('Empty product '+str(source))
     if source.is_dir():shutil.copytree(source,stage/source.name)
     else:shutil.copy2(source,stage/source.name)
-for filename in ['UPDATE_TEST_BUILD.md','PEDAL_BOARD_DSP.md','NEW_AMP_DSP.md','MANUAL.html','THIRD_PARTY_NOTICES.md']:
+for filename in ['UPDATE_TEST_BUILD.md','PEDAL_BOARD_DSP.md','NEW_AMP_DSP.md','AMP_NATIVE_DSP.md','POST_NATIVE_DSP.md','MANUAL.html','THIRD_PARTY_NOTICES.md']:
     source=root/'docs'/filename
     if not source.is_file():raise RuntimeError('Missing required test-build document '+str(source))
     shutil.copy2(source,stage/source.name)

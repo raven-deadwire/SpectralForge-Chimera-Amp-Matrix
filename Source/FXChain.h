@@ -1,9 +1,11 @@
 #pragma once
 #include "GlobalDSP.h"
 #include "StudioModules.h"
+#include "PostNativeDSP.h"
 
 namespace spectralforge {
 struct FXState {
+    PostNativeState postNative=defaultPostNativeState(false);
     bool envelopeFirst{true};
     bool boostAfterDrive{false};
     std::array<int,11> models{}; // drive, delay, reverb, comp, filter, fuzz, boost, bus, preamp, EQ, modulation
@@ -142,19 +144,30 @@ public:
 // Echo/reverb are intentional effect delays, not hidden lane latency.
 class PostFXChain {
     DynamicsModule compressor;ColourModule preamp;ConsoleEQ eq;
+    PostNativeDSP native;juce::AudioBuffer<float> transition;
+    std::array<juce::SmoothedValue<float>,3> nativeMix;std::array<bool,3> nativeReady{};
+    float busReduction{};
+    template<class Legacy> void processRack(juce::AudioBuffer<float>& buffer,int section,const FXState& state,Legacy&& legacy) {
+        auto& mix=nativeMix[section];const bool useNative=state.postNative.sections[section].nativeEnabled;
+        if(!nativeReady[section]) {mix.setCurrentAndTargetValue(useNative?1.f:0.f);nativeReady[section]=true;}else mix.setTargetValue(useNative?1.f:0.f);
+        if(!mix.isSmoothing()) {if(useNative)native.processSection(buffer,section,state.postNative.sections[section]);else legacy(buffer);}
+        else {transition.makeCopyOf(buffer,true);legacy(buffer);native.processSection(transition,section,state.postNative.sections[section]);for(int n=0;n<buffer.getNumSamples();++n){const float wet=mix.getNextValue();for(int c=0;c<buffer.getNumChannels();++c)buffer.setSample(c,n,buffer.getSample(c,n)*(1-wet)+transition.getSample(c,n)*wet);}}
+        if(section==0)busReduction=useNative?native.reduction():compressor.reduction();
+    }
     ModulationModule modulation;EchoModule echo;SpaceModule space;
 public:
     std::array<float,6> stagePeaks{};
-    float compressorReduction() const {return compressor.reduction();}
-    void prepare(const juce::dsp::ProcessSpec& spec) {compressor.prepare(spec);preamp.prepare(spec);eq.prepare(spec);modulation.prepare(spec);echo.prepare(spec);space.prepare(spec);stagePeaks={};}
+    float compressorReduction() const {return busReduction;}
+    float nativeMeter(int section) const {return native.meter(section);}
+    void prepare(const juce::dsp::ProcessSpec& spec) {compressor.prepare(spec);preamp.prepare(spec);eq.prepare(spec);modulation.prepare(spec);echo.prepare(spec);space.prepare(spec);native.prepare(spec,preamp.latency());transition.setSize((int)spec.numChannels,(int)spec.maximumBlockSize);for(auto& mix:nativeMix){mix.reset(spec.sampleRate,.02);mix.setCurrentAndTargetValue(0);}nativeReady={};busReduction=0;stagePeaks={};}
     int latency() const {return preamp.latency();}
-    void reset() {compressor.reset();preamp.reset();eq.reset();modulation.reset();echo.reset();space.reset();stagePeaks={};}
+    void reset() {compressor.reset();preamp.reset();eq.reset();modulation.reset();echo.reset();space.reset();native.reset();nativeReady={};busReduction=0;stagePeaks={};}
     void process(juce::AudioBuffer<float>& buffer,const FXState& state) {
-        compressor.process(buffer,state.busCompOn,state.busThreshold,state.busRatio,state.busAttack,state.busRelease,state.busMakeup,state.models[7]);
+        processRack(buffer,0,state,[&](juce::AudioBuffer<float>& b){compressor.process(b,state.busCompOn,state.busThreshold,state.busRatio,state.busAttack,state.busRelease,state.busMakeup,state.models[7]);});
         stagePeaks[0]=buffer.getMagnitude(0,buffer.getNumSamples());
-        preamp.process(buffer,state.preampOn,state.preampDrive,state.preampColour,state.preampLevel,false,state.models[8]);
+        processRack(buffer,1,state,[&](juce::AudioBuffer<float>& b){preamp.process(b,state.preampOn,state.preampDrive,state.preampColour,state.preampLevel,false,state.models[8]);});
         stagePeaks[1]=buffer.getMagnitude(0,buffer.getNumSamples());
-        eq.process(buffer,state.eqOn,state.eqLow,state.eqMidHz,state.eqMid,state.eqQ,state.eqHigh,state.models[9]);
+        processRack(buffer,2,state,[&](juce::AudioBuffer<float>& b){eq.process(b,state.eqOn,state.eqLow,state.eqMidHz,state.eqMid,state.eqQ,state.eqHigh,state.models[9]);});
         stagePeaks[2]=buffer.getMagnitude(0,buffer.getNumSamples());
         modulation.process(buffer,state.chorusOn,state.models[10],state.chorusRate,state.chorusDepth,state.chorusMix);
         stagePeaks[3]=buffer.getMagnitude(0,buffer.getNumSamples());
