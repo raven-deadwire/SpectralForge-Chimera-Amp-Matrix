@@ -43,6 +43,8 @@ def main():
         summary['python_cases']=int(re.search(r'Ran (\d+) tests',py)[1])
         js=run('js-tests',['node','tests/state_test.js',reports/'native-state.cbp',reports/'js-state.cbp'])
         summary['javascript_cases']=int(re.search(r'(\d+) JavaScript preparation cases passed',js)[1])
+        control=run('control-state-tests',['node','tests/control_state_test.js'])
+        summary['control_state_cases']=int(re.search(r'(\d+) control-state cases passed',control)[1])
         run('cross-language-return',[executable,'--read',reports/'js-state.cbp'])
         if args.browser:
             ui=run('browser-tests',[sys.executable,'tests/browser_test.py','--browser',args.browser])

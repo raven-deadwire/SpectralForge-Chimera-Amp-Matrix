@@ -107,9 +107,77 @@ def run(executable):
             assert download.suggested_filename=='chimera-five-slot.cbp'
             download.save_as(ROOT/'reports/browser-state.cbp')
         test('export creates preparation state not production project',save)
+        def hardware_family():
+            expected={
+              'comp':[['RELEASE','ATTACK','OUTPUT','RATIO','INPUT'],['OUTPUT','SENSITIVITY'],['COMP','EQ','VOL','EQ IN','4.8 kHz HI-CUT']],
+              'fuzz':[['VOLUME','TONE','SUSTAIN'],['VOLUME','FUZZ'],['LEVEL','ATTACK'],['VOL','EQ','PINCH','WOOL'],['VOLUME','GATE','COMP','DRIVE','STAB']],
+              'boost':[['GAIN','VOLUME','TREBLE','BASS'],['SET'],['GAIN'],['GAIN','+3 dB GAIN','BRIGHT / FLAT EQ'],['BOOST']]}
+            for family,panels in expected.items():
+                page.locator('#auditFamily').select_option(family)
+                for i,labels in enumerate(panels):
+                    page.locator('.pedal').nth(i).get_by_role('button',name='전용 조절부').click()
+                    assert page.locator('#controls .control label').all_text_contents()==labels
+                    assert page.locator('#legacyStore').is_visible()
+                    page.locator('#closeEditor').click()
+        test('existing compressor fuzz boost original panels replace generic controls',hardware_family)
+        def all_panels():
+            for family in ['drive','comp','filter','fuzz','boost']:
+                page.locator('#auditFamily').select_option(family)
+                for i in range(5):
+                    page.locator('.pedal').nth(i).get_by_role('button',name='전용 조절부').click()
+                    assert page.locator('#controls .control').count()>0
+                    assert page.locator('#controls [data-control]').evaluate_all('(xs)=>xs.every(x=>x.dataset.control.startsWith("hw."))')
+                    assert 'DSP' in page.locator('#editorMeta').inner_text()
+                    page.locator('#closeEditor').click()
+        test('all 25 existing native panels open without page errors',all_panels)
+        def preserve_old_file():
+            payload=page.evaluate("""() => {const s=board.state;const e=s.effects[0];e.parameters={precomp:.123,precompattack:37,precomplevel:7};e.midi={74:'precomp'};return ChimeraPrep.encode(s)}""")
+            page.locator('#file').set_input_files({'name':'old.cbp','mimeType':'text/plain','buffer':payload.encode()})
+            page.wait_for_function("document.getElementById('status').textContent.includes('그대로 보존')")
+            before=page.evaluate('board.state.effects[0]')
+            assert before['parameters']['precomp']==.123 and before['parameters']['precompattack']==37
+            assert before['midi']['74']=='precomp' and before['parameters']['hw.input']==.5
+            page.locator('.pedal').nth(0).get_by_role('button',name='전용 조절부').click()
+            page.locator('[data-control="hw.input"]').evaluate('(e)=>{e.value=.81}')
+            page.locator('[data-control="hw.input"]').dispatch_event('change')
+            after=page.evaluate('board.state.effects[0]')
+            assert after['parameters']['hw.input']==.81 and after['parameters']['precomp']==.123 and after['midi']==before['midi']
+        test('legacy CBP import preserves raw values and MIDI independently of original knobs',preserve_old_file)
+        def aw3():
+            page.locator('#auditFamily').select_option('filter')
+            page.locator('.pedal').nth(4).get_by_role('button',name='전용 조절부').click()
+            page.locator('[data-control="hw.mode"]').select_option('3')
+            assert page.locator('#controls .control label').all_text_contents()==['DECAY','VOWEL 2','VOWEL 1','MODE']
+            assert page.locator('#controls .control').count()==4
+            page.locator('[data-control="hw.mode"]').select_option('0')
+            assert page.locator('#controls .control label').all_text_contents()==['DECAY','MANUAL','SENS','MODE']
+        test('AW3 Human labels reuse the original physical controls',aw3)
+        def bad_native():
+            before=page.evaluate('board.state')
+            for expr in ["s.effects[0].parameters['hw.input']=2", "s.effects[0].parameters['fictional.tone']=.4", "delete s.effects[0].parameters['hw.input']", "s.effects[0].parameters['hw.ratio']=.5"]:
+                payload=page.evaluate('() => {const s=board.state;'+expr+';return ChimeraPrep.encode(s)}')
+                page.locator('#file').set_input_files({'name':'bad-control.cbp','mimeType':'text/plain','buffer':payload.encode()})
+                page.wait_for_function("document.getElementById('file').value===''")
+                assert page.evaluate('board.state')==before
+        test('invalid or partial native parameter maps are rejected transactionally',bad_native)
+        def independent_hardware_duplicate():
+            page.locator('#remove').click();page.locator('#auditFamily').select_option('fuzz');page.locator('#remove').click()
+            page.locator('.pedal').nth(0).click();page.locator('#duplicate').click()
+            before=page.evaluate('board.state.effects');assert before[0]['model']==before[1]['model']
+            page.locator('.pedal').nth(1).get_by_role('button',name='전용 조절부').click()
+            page.locator('[data-control="hw.fuzz"]').evaluate('(e)=>{e.value=.93}')
+            page.locator('[data-control="hw.fuzz"]').dispatch_event('change')
+            after=page.evaluate('board.state.effects');assert after[0]['parameters']['hw.fuzz']==.5 and after[1]['parameters']['hw.fuzz']==.93
+        test('duplicate hardware controls are independent within five slots',independent_hardware_duplicate)
         reset();page.screenshot(path=str(ROOT/'reports/preview-board.png'),full_page=True)
         page.locator('.pedal').nth(3).get_by_role('button',name='전용 조절부').click()
         page.screenshot(path=str(ROOT/'reports/preview-jb2.png'),full_page=True)
+        page.locator('#closeEditor').click()
+        for family,index,filename in [('comp',0,'original-m87'),('fuzz',4,'original-fuzz-factory'),('boost',3,'original-ep'),('filter',4,'original-aw3')]:
+            page.locator('#auditFamily').select_option(family)
+            page.locator('.pedal').nth(index).get_by_role('button',name='전용 조절부').click()
+            page.screenshot(path=str(ROOT/f'reports/{filename}.png'),full_page=True)
+            page.locator('#closeEditor').click()
         report={'browser':browser.version,'navigation':'set_content; offline','tests':results,'page_errors':errors,
                 'audio_validation':False,'production_plugin_validation':False}
         (ROOT/'reports/browser-tests.json').write_text(json.dumps(report,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')

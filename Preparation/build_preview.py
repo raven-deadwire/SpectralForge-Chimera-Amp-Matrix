@@ -9,6 +9,7 @@ def build(output=None):
     catalog=build_catalog()
     (root/'catalog.json').write_text(json.dumps(catalog,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
     html=(root/'ui/prototype.template.html').read_text(encoding='utf-8')
+    html=html.replace('__CONTROL_JS__',(root/'ui/control_state.js').read_text(encoding='utf-8'))
     html=html.replace('__STATE_JS__',(root/'ui/state.js').read_text(encoding='utf-8'))
     html=html.replace('__CATALOG__',json.dumps(catalog,ensure_ascii=False,separators=(',',':')).replace('<','\\u003c'))
     output=Path(output) if output else root/'Chimera_FiveSlot_Preview.html'

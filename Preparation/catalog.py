@@ -7,6 +7,7 @@ from __future__ import annotations
 import json
 import math
 from pathlib import Path
+from pedal_controls import upgrade_pedals
 
 BASE = "025d30471109649e5e3243ff1e7e89639a576b79"
 REPO = "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/blob/" + BASE + "/"
@@ -120,7 +121,8 @@ def build_catalog():
     cl=by_id["planned.amp.svt-cl"]
     cl["native_target"]={"status":"partial_reference_only","sources":["https://ampeg.com/products/classic/svtcl/"],
                          "controls":[choice("mid_frequency",["1","2","3","4","5"])],"note":"Exact frequency values and remaining panel require manual verification."}
-    catalog=dict(schema_version=1,base_commit=BASE,max_pedals=5,models=models,
+    upgrade_pedals(models)
+    catalog=dict(control_revision=2,schema_version=1,base_commit=BASE,max_pedals=5,models=models,
                  warning="Control-thread preparation only. No new model DSP or hardware calibration is implemented. Normalized defaults are UI seeds, not hardware factory settings.")
     validate_catalog(catalog)
     return catalog
@@ -133,7 +135,9 @@ def validate_catalog(catalog):
     for model in catalog["models"]:
         if model["id"] in ids: raise ValueError("Duplicate model id")
         ids.add(model["id"])
-        for controls in (model["controls"],model.get("native_target",{}).get("controls",[])):
+        if set(c["id"] for c in model["controls"]) & set(c["id"] for c in model.get("legacy_controls",[])):
+            raise ValueError("Legacy/native control collision")
+        for controls in (model["controls"],model.get("legacy_controls",[]),model.get("native_target",{}).get("controls",[])):
             keys=set()
             for c in controls:
                 if c["id"] in keys: raise ValueError("Duplicate control id")

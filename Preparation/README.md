@@ -1,3 +1,19 @@
+# 2026-09-28 원본 조작부 개정 (v2)
+
+기존 PRE 25개에 공통 `Amount/Attack/Level`, `Drive/Tone/Level`, `Gain/Bass/Treble`을 일괄 사용하던 준비 UI를 수정했습니다. **신규 모델만이 아니라 기존 25개도 전용 패널 정의를 사용**합니다.
+
+- `pedal_controls.py`: 25개 모델의 원본 대상 조절부·리비전·자료 확인 상태. 19개는 제조사 자료/패널 확인, 6개는 원본 1차 자료 추가 확인 필요.
+- `controls` = 원본 조작부 대상(`hw.*`), `legacy_controls` = 옛 원시 값. 두 저장소는 자동 변환하지 않으며 DSP는 어느 새 제어에도 연결하지 않습니다.
+- `ui/control_state.js`: 이전 준비용 `.cbp`의 옛 값/MIDI를 보존하고 원본 노브를 별도 초기화. 부분·범위 초과·알 수 없는 제어 파일은 원래 보드를 유지하며 거부.
+- 미터는 “신호 없음”, EP/CPR-1 내부 스위치는 별도 그룹, AW-3 HUMAN은 같은 노브의 라벨만 변경.
+- UI의 “기존 계열 점검”으로 기존 컴프/필터/퍼즈/부스트/드라이브를 각각 다섯 개씩 확인합니다.
+- 다섯 슬롯·독립 인스턴스·상태 저장 규칙은 그대로이며 실제 플러그인은 변경하지 않았습니다.
+
+전체 원본/제어/출처/미해결 범위는 [ORIGINAL_PEDAL_CONTROLS.md](ORIGINAL_PEDAL_CONTROLS.md), 최신 테스트 범위는 [VERIFICATION.md](VERIFICATION.md)를 보세요.
+
+---
+## 최초 준비 구현 기록 (v1 — 아래 공통 UI 설명은 위 개정으로 대체)
+
 # Chimera: five-slot preparation foundation
 
 Base reviewed: `025d30471109649e5e3243ff1e7e89639a576b79` (2026-09-28).
