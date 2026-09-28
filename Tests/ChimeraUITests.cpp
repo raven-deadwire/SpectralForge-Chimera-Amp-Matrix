@@ -87,7 +87,7 @@ void checkInstalledIR(const juce::File& expected)
         found=found || (entry.file==expected && entry.ready());
     require(found,"Installed personal IR not discovered by the application library");
     checkDecodedIR(expected);
-    ChimeraProcessor processor;CabinetSelector selector;selector.refresh();
+    const auto processorStorage=std::make_unique<ChimeraProcessor>();auto& processor=*processorStorage;CabinetSelector selector;selector.refresh();
     bool selected=false;
     selector.selected=[&](juce::File file,int source) {
         require(source==3 && file==expected,"Cabinet selector resolved the wrong installed IR");
@@ -143,7 +143,7 @@ void saveSnapshot(juce::Component& editor, const juce::File& directory,
 }
 void checkState()
 {
-    ChimeraProcessor source;
+    const auto sourceStorage=std::make_unique<ChimeraProcessor>();auto& source=*sourceStorage;
     require(source.parameters().getRawParameterValue("preorder")->load()==1,"New session must put the envelope before compression");
     require(source.parameters().getRawParameterValue("gainorder")->load()==0,"New session must put boost before drive");
     set(source,"gainorder",1);
@@ -155,7 +155,7 @@ void checkState()
     for(const auto& family:spectralforge::modelFamilies)set(source,family.parameter,float(family.count-1));
     juce::MemoryBlock data;
     source.getStateInformation(data);
-    ChimeraProcessor restored;
+    const auto restoredStorage=std::make_unique<ChimeraProcessor>();auto& restored=*restoredStorage;
     restored.setStateInformation(data.getData(),static_cast<int>(data.getSize()));
     for (const auto* id : {"gainorder","preorder","lowampmix","lowcomp","preon","delayon","reverbon","mode","bass1","treble2","bandtone1","bandtone2","x1","input","output","gatehold","gaterelease","gatethreshold","transposeon","transpose","oversampling","tunerref"})
         require(std::abs(source.parameters().getRawParameterValue(id)->load() -
@@ -187,7 +187,7 @@ void checkState()
 }
 void checkFactoryPresets()
 {
-    ChimeraProcessor processor;
+    const auto processorStorage=std::make_unique<ChimeraProcessor>();auto& processor=*processorStorage;
     // Device/performance preferences survive switching sounds.
     const std::map<std::string,float> performance{{"input",-3},{"inputmode",1},{"tempo",137},
         {"temposync",1},{"metronome",1},{"tuneron",1},{"tunermute",0},{"tunerref",442}};
@@ -224,7 +224,7 @@ void checkFactoryPresets()
 }
 void checkProcessor(const juce::File& directory)
 {
-    ChimeraProcessor source;
+    const auto sourceStorage=std::make_unique<ChimeraProcessor>();auto& source=*sourceStorage;
     source.setRateAndBufferSizeDetails(48000,256); source.prepareToPlay(48000,256);
     set(source,"cab1",0); set(source,"gateon",0); set(source,"amp1",0); set(source,"drive1",0); set(source,"output",0);
     juce::MidiBuffer midi;
@@ -276,7 +276,7 @@ void checkProcessor(const juce::File& directory)
     require(source.parameters().getRawParameterValue("preorder")->load()==1,"A/B failed to restore pedal order");
     require(source.parameters().getRawParameterValue("gainorder")->load()==1,"A/B failed to restore gain order");
     juce::MemoryBlock state; source.getStateInformation(state); require(irFile.deleteFile(),"Cannot delete source IR");
-    ChimeraProcessor restored; restored.setStateInformation(state.getData(),(int)state.getSize());
+    const auto restoredStorage=std::make_unique<ChimeraProcessor>();auto& restored=*restoredStorage; restored.setStateInformation(state.getData(),(int)state.getSize());
     restored.setRateAndBufferSizeDetails(48000,256); restored.prepareToPlay(48000,256);
     require(restored.cabMetadata(0).values[2]=="12" && restored.cabMetadata(0).values[5]=="0.5 in","Embedded IR metadata was lost");
     require(restored.userIRName(0)==irFile.getFileName(),"Project did not restore embedded IR identity");
@@ -305,7 +305,7 @@ void checkEditorLifetime()
 {
     const auto started=juce::Time::getMillisecondCounterHiRes();
     for(int iteration=0;iteration<30;++iteration) {
-        ChimeraProcessor processor;
+        const auto processorStorage=std::make_unique<ChimeraProcessor>();auto& processor=*processorStorage;
         processor.prepareToPlay(48000,256);
         {
             auto editor=std::make_unique<ChimeraEditor>(processor);
@@ -350,7 +350,7 @@ int main(int argc, char** argv)
             const auto rows=spectralforge::IRCollection::scan({temporary.folder},true);
             require(rows.size()==(size_t)(expected+2+externalCount),"Imported IRs were duplicated or lost during catalog resolution");
             for(const auto& row:rows) {if(row.external)continue;require(row.ready(),"Imported reference remains unavailable");if(!row.factorySource)checkDecodedIR(row.file);}
-            ChimeraProcessor processor;CabinetSelector selector;selector.refresh({temporary.folder});int loaded=0;
+            const auto processorStorage=std::make_unique<ChimeraProcessor>();auto& processor=*processorStorage;CabinetSelector selector;selector.refresh({temporary.folder});int loaded=0;
             require(selector.installedCount()==expected,"Cabinet menu did not expose the complete imported pack");
             selector.selected=[&](juce::File file,int source) {
                 require(source==3 && processor.loadIR(loaded%3,file).wasOk(),"Imported IR failed to load into a rig");++loaded;
@@ -366,7 +366,7 @@ int main(int argc, char** argv)
         checkEditorLifetime();
         runBoardStateTests(directory);
         // A/B is two complete sound snapshots, not a stereo channel selector.
-        {ChimeraProcessor ab;ab.prepareToPlay(48000,256);set(ab,"cab1",0);set(ab,"drive1",.2f);set(ab,"preampmodel",2);set(ab,"delayon",0);set(ab,"reverbon",0);set(ab,"inputmode",0);ab.copyComparison();ab.selectComparison(1);set(ab,"drive1",.8f);set(ab,"preampmodel",1);ab.selectComparison(0);
+        {const auto abStorage=std::make_unique<ChimeraProcessor>();auto& ab=*abStorage;ab.prepareToPlay(48000,256);set(ab,"cab1",0);set(ab,"drive1",.2f);set(ab,"preampmodel",2);set(ab,"delayon",0);set(ab,"reverbon",0);set(ab,"inputmode",0);ab.copyComparison();ab.selectComparison(1);set(ab,"drive1",.8f);set(ab,"preampmodel",1);ab.selectComparison(0);
          require(ab.parameters().getRawParameterValue("preampmodel")->load()==2,"A/B lost model choice");
          const auto render=[&](bool right){juce::AudioBuffer<float> block(2,256);juce::MidiBuffer midi;double active=0,other=0;for(int k=0;k<120;++k){block.clear();for(int n=0;n<256;++n)block.setSample(right ? 1 : 0,n,.1f*float(std::sin(juce::MathConstants<double>::twoPi*220*(k*256+n)/48000)));ab.processBlock(block,midi);if(k>60){active+=block.getRMSLevel(right?1:0,0,256);other+=block.getRMSLevel(right?0:1,0,256);}}return std::pair<double,double>{active,other};};
          for(int slot:{0,1,0}){ab.selectComparison(slot);const auto l=render(false),r=render(true);require(l.first>.01 && r.first>.01 && l.second<1e-5 && r.second<1e-5,"A/B changed stereo channel routing");require(std::abs(l.first-r.first)<1e-3,"A/B lost equal left/right gain");}
@@ -431,12 +431,12 @@ int main(int argc, char** argv)
             std::cout<<"PASS: bass reference visibility, missing-file state, source metadata and invalid ZIP rejection\n";
         }
 
-        ChimeraProcessor processor;
+        const auto processorStorage=std::make_unique<ChimeraProcessor>();auto& processor=*processorStorage;
         processor.setRateAndBufferSizeDetails(48000,256);
         processor.prepareToPlay(48000,256);
         processor.learnMidi("output");juce::MidiBuffer cc;cc.addEvent(juce::MidiMessage::controllerEvent(1,40,0),0);juce::AudioBuffer<float> silence(2,256);silence.clear();processor.processBlock(silence,cc);
         require(processor.parameters().getRawParameterValue("output")->load()==-36 && !processor.learningMidi(),"MIDI learn did not map the next CC");
-        juce::MemoryBlock midiState;processor.getStateInformation(midiState);ChimeraProcessor recalled;recalled.setStateInformation(midiState.getData(),(int)midiState.getSize());recalled.prepareToPlay(48000,256);cc.clear();cc.addEvent(juce::MidiMessage::controllerEvent(1,40,127),0);recalled.processBlock(silence,cc);require(recalled.parameters().getRawParameterValue("output")->load()==12,"MIDI map was not restored");
+        juce::MemoryBlock midiState;processor.getStateInformation(midiState);const auto recalledStorage=std::make_unique<ChimeraProcessor>();auto& recalled=*recalledStorage;recalled.setStateInformation(midiState.getData(),(int)midiState.getSize());recalled.prepareToPlay(48000,256);cc.clear();cc.addEvent(juce::MidiMessage::controllerEvent(1,40,127),0);recalled.processBlock(silence,cc);require(recalled.parameters().getRawParameterValue("output")->load()==12,"MIDI map was not restored");
         set(processor,"output",-6);
         for (int mode=0;mode<3;++mode)
         {
@@ -546,7 +546,7 @@ int main(int argc, char** argv)
             }
         }
         {
-            ChimeraProcessor universal;universal.prepareToPlay(48000,256);
+            const auto universalStorage=std::make_unique<ChimeraProcessor>();auto& universal=*universalStorage;universal.prepareToPlay(48000,256);
             const int models[]{30,6,26,27,31};for(int i=0;i<5;++i)universal.setPedalModel(i,models[i]);set(universal,"boardEnabled",1);
             ChimeraEditor editor(universal);auto* canvas=editor.findChildWithID("surface");require(canvas,"Missing editor surface");
             for(auto* child:canvas->getChildren())if(auto* button=dynamic_cast<juce::TextButton*>(child);button&&button->getButtonText()=="PRE")button->triggerClick();

@@ -33,8 +33,10 @@ inline void load(ChimeraProcessor& p,const juce::MemoryBlock& bytes) {p.setState
 inline void run(const juce::File& outputDirectory) {
     using namespace spectralforge;
     juce::StringArray passed;
+    std::cout<<"BEGIN universal PRE state checks; Processor size "<<sizeof(ChimeraProcessor)<<" bytes (heap-owned like plugin instances)\n";
+    const auto mark=[&](const juce::String& name){passed.add(name);std::cout<<"PASS board state: "<<name<<"\n";};
     {
-        ChimeraProcessor p;
+        const auto pStorage=std::make_unique<ChimeraProcessor>();auto& p=*pStorage;
         require(!p.pedalBoardState().enabled,"New board must require explicit opt-in");
         for(const auto& id:juce::StringArray{"boardEnabled","boardLowTap",pedalModelID(0),pedalOrderID(0)})
             require(!p.parameters().getParameter(id)->isAutomatable(),"Structural board edit is still host-automatable");
@@ -69,26 +71,26 @@ inline void run(const juce::File& outputDirectory) {
         p.setPedalModel(4,0);require(p.pedalBoardState().instances[4].model==0,"Delete did not create Empty");
         require(p.duplicatePedal(0),"Empty owner could not be reused");
         require(p.pedalBoardState().instances[4].model==26,"Duplicate reused the wrong owner");
-        passed.add("APVTS owner identity, move, independent duplicate, Empty, capacity and invalid-model guards");
-        passed.add("Processor undo and redo restore structural snapshots");
+        mark("APVTS owner identity, move, independent duplicate, Empty, capacity and invalid-model guards");
+        mark("Processor undo and redo restore structural snapshots");
 
-        const auto expected=p.pedalBoardState();const auto bytes=save(p);ChimeraProcessor recalled;load(recalled,bytes);
+        const auto expected=p.pedalBoardState();const auto bytes=save(p);const auto recalledStorage=std::make_unique<ChimeraProcessor>();auto& recalled=*recalledStorage;load(recalled,bytes);
         equal(recalled.pedalBoardState(),expected,"Project recall lost enabled/order/tap/model/bypass/control state");
         require(std::abs(raw(recalled,duplicateID)-.821f)<1.e-5f,"Project recall lost an independent duplicate control");
-        passed.add("Actual Processor binary state round trip of the universal board");
+        mark("Actual Processor binary state round trip of the universal board");
 
         p.selectComparison(1);p.setPedalModel(3,27);set(p,pedalControlID(3,27,1),.682f);
         set(p,"boardLowTap",4);set(p,pedalBypassID(0,26),1);p.movePedal(0,1);const auto b=p.pedalBoardState();
         p.selectComparison(0);equal(p.pedalBoardState(),expected,"A/B failed to restore board A");
         p.selectComparison(1);equal(p.pedalBoardState(),b,"A/B failed to restore board B");
-        const auto comparisons=save(p);ChimeraProcessor recalledAB;load(recalledAB,comparisons);
+        const auto comparisons=save(p);const auto recalledABStorage=std::make_unique<ChimeraProcessor>();auto& recalledAB=*recalledABStorage;load(recalledAB,comparisons);
         require(recalledAB.comparisonSlot()==1,"Project recall lost selected comparison");
         equal(recalledAB.pedalBoardState(),b,"Project recall lost selected board B");
         recalledAB.selectComparison(0);equal(recalledAB.pedalBoardState(),expected,"Project recall lost inactive board A");
-        passed.add("A/B board snapshots and both saved comparison slots");
+        mark("A/B board snapshots and both saved comparison slots");
     }
     {
-        ChimeraProcessor p;set(p,"preon",1);set(p,"predrive",.27f);set(p,"gainorder",1);
+        const auto pStorage=std::make_unique<ChimeraProcessor>();auto& p=*pStorage;set(p,"preon",1);set(p,"predrive",.27f);set(p,"gainorder",1);
         set(p,"boardEnabled",1);p.setPedalModel(0,26);set(p,"boardLowTap",5);
         auto legacy=p.parameters().copyState();
         for(int i=legacy.getNumChildren();--i>=0;)if(legacy.getChild(i).getProperty("id").toString().startsWith("board"))legacy.removeChild(i,nullptr);
@@ -102,10 +104,10 @@ inline void run(const juce::File& outputDirectory) {
                 "Board migration changed legacy sound controls");
         p.undoPedalEdit();equal(p.pedalBoardState(),state,"Loading another project retained stale board undo history");
         p.undoPedalEdit(true);equal(p.pedalBoardState(),state,"Loading another project retained stale board redo history");
-        passed.add("Legacy missing board schema restores board-off defaults and preserves old raw parameters");
+        mark("Legacy missing board schema restores board-off defaults and preserves old raw parameters");
     }
     {
-        ChimeraProcessor p;p.setRateAndBufferSizeDetails(48000,256);p.prepareToPlay(48000,256);
+        const auto pStorage=std::make_unique<ChimeraProcessor>();auto& p=*pStorage;p.setRateAndBufferSizeDetails(48000,256);p.prepareToPlay(48000,256);
         set(p,"boardEnabled",1);p.setPedalModel(0,26);const auto id=pedalControlID(0,26,0);
         p.learnMidi(id);sendCC(p,40,127);
         require(std::abs(raw(p,id)-1)<1.e-5f && !p.learningMidi(),"Board MIDI learn did not reach the selected owner/control");
@@ -113,7 +115,7 @@ inline void run(const juce::File& outputDirectory) {
         require(p.duplicatePedal(0),"MIDI test duplicate failed");
         set(p,pedalControlID(1,26,0),.777f);sendCC(p,40,127);
         require(std::abs(raw(p,pedalControlID(1,26,0))-.777f)<1.e-5f,"Duplicated instance inherited the source MIDI binding");
-        const auto saved=save(p);ChimeraProcessor recalled;load(recalled,saved);
+        const auto saved=save(p);const auto recalledStorage=std::make_unique<ChimeraProcessor>();auto& recalled=*recalledStorage;load(recalled,saved);
         recalled.setRateAndBufferSizeDetails(48000,256);recalled.prepareToPlay(48000,256);sendCC(recalled,40,0);
         require(std::abs(raw(recalled,id))<1.e-5f,"Board MIDI binding did not survive project recall");
         require(std::abs(raw(recalled,pedalControlID(1,26,0))-.777f)<1.e-5f,"Restored MIDI binding targeted the duplicate");
@@ -121,7 +123,7 @@ inline void run(const juce::File& outputDirectory) {
         require(raw(p,id)==retired,"Explicit replacement retained the retired control MIDI map");
         p.learnMidi(pedalControlID(0,27,0));require(p.learningMidi(),"Pending board MIDI learn was not armed");
         p.setPedalModel(0,26);require(!p.learningMidi(),"Replacement retained pending MIDI learn for the retired model");
-        passed.add("MIDI learn, moved owner, independent duplication, binary recall and explicit replacement retirement");
+        mark("MIDI learn, moved owner, independent duplication, binary recall and explicit replacement retirement");
     }
     auto* report=new juce::DynamicObject();report->setProperty("status","PASS");
     report->setProperty("scope","Native Processor/APVTS state and identity assertions; no external DAW or hardware-fidelity claim");
