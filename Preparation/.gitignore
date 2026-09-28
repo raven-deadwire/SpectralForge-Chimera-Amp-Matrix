@@ -1,0 +1,6 @@
+_build/
+__pycache__/
+*.pyc
+catalog.json
+Chimera_FiveSlot_Preview.html
+reports/
