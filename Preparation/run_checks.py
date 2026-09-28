@@ -14,6 +14,7 @@ ROOT=Path(__file__).resolve().parent
 
 def main():
     parser=argparse.ArgumentParser();parser.add_argument('--browser',help='Optional installed Chromium executable')
+    parser.add_argument('--require-browser',action='store_true',help='Return BLOCKED_ENVIRONMENT when browser suites cannot run')
     args=parser.parse_args();reports=ROOT/'reports';reports.mkdir(exist_ok=True)
     steps=[]
     def run(name,command):
@@ -47,17 +48,25 @@ def main():
         summary['control_state_cases']=int(re.search(r'(\d+) control-state cases passed',control)[1])
         amp=run('amp-state-tests',['node','tests/amp_state_test.js'])
         summary['amp_state_cases']=int(re.search(r'(\d+) amplifier state cases passed',amp)[1])
+        rack=run('rack-state-tests',['node','tests/rack_state_test.js'])
+        summary['rack_state_cases']=int(re.search(r'(\d+) rack state cases passed',rack)[1])
         run('cross-language-return',[executable,'--read',reports/'js-state.cbp'])
         if args.browser:
             ui=run('browser-tests',[sys.executable,'tests/browser_test.py','--browser',args.browser])
             summary['browser_cases']=int(re.search(r'(\d+) browser UI cases passed',ui)[1])
             amp_ui=run('amp-browser-tests',[sys.executable,'tests/amp_browser_test.py','--browser',args.browser])
             summary['amp_browser_cases']=int(re.search(r'(\d+) amplifier browser cases passed',amp_ui)[1])
-        else:summary['browser_cases']='not_run';summary['amp_browser_cases']='not_run'
-        summary['status']='passed'
+            rack_ui=run('rack-browser-tests',[sys.executable,'tests/rack_browser_test.py','--browser',args.browser])
+            summary['rack_browser_cases']=int(re.search(r'(\d+) rack browser cases passed',rack_ui)[1])
+            summary['status']='passed';summary['required_cases_complete']=True
+        else:
+            summary['browser_cases']='not_run';summary['amp_browser_cases']='not_run';summary['rack_browser_cases']='not_run'
+            summary['required_cases_complete']=False
+            summary['status']='blocked_environment' if args.require_browser else 'partial'
+            summary['reason']='Browser suites not run: no Chromium executable supplied. This is not a full preparation gate PASS.'
     except (OSError,RuntimeError,subprocess.TimeoutExpired) as exc:
         summary['status']='failed';summary['error']=str(exc);print(exc,file=sys.stderr)
     finally:
         (reports/'summary.json').write_text(json.dumps(summary,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
-    return 0 if summary['status']=='passed' else 1
+    return 0 if summary['status'] in ('passed','partial') else 2 if summary['status']=='blocked_environment' else 1
 if __name__=='__main__':raise SystemExit(main())

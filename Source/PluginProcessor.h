@@ -4,6 +4,9 @@
 #include "FXParameters.h"
 #include "IRLibrary.h"
 #include "PerformanceUtilities.h"
+#include "PedalBoardParameters.h"
+#include "PedalBoardDSP.h"
+#include "PostRigGate.h"
 
 class ChimeraProcessor : public juce::AudioProcessor {
 public:
@@ -60,7 +63,26 @@ public:
     float currentTempo() const {return tempoMeter.load();}
     void tapTempo();
     int pitchLatency() const { return preFX.transpose.latency(); }
+    spectralforge::PedalBoardState pedalBoardState() const { return boardParameters.read(); }
+    void setPedalModel(int owner,int model);
+    void movePedal(int owner,int direction);
+    bool duplicatePedal(int owner);
+    void undoPedalEdit(bool redo=false);
+    float pedalReduction() const { return boardReduction.load(); }
+    juce::String diagnosticReport() const;
 private:
+    void rememberPedalEdit();
+    void setRawParameter(const juce::String&,float);
+    std::vector<juce::ValueTree> boardUndo,boardRedo;
+    std::atomic<unsigned> boardEditSequence{0};
+    spectralforge::PedalBoardParameterCache boardParameters;
+    spectralforge::PedalBoardDSP pedalBoard;
+    spectralforge::PostRigGate postRigGate;
+    std::atomic<float>* gateAfterRig{};
+    spectralforge::PedalBoardState audioBoard;
+    std::atomic<float> boardReduction{0};
+    std::array<std::atomic<float>,5> stageRms{},stagePeaks{};
+    void measureStage(int,const juce::AudioBuffer<float>&);
     void process(juce::AudioBuffer<float>&);
     juce::ValueTree captureCore();
     void restoreCore(juce::ValueTree);

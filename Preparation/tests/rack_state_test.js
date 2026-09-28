@@ -1,0 +1,36 @@
+'use strict';
+const assert=require('assert'),fs=require('fs'),path=require('path');
+const {RackRig,parseStrict,modelMap,validate}=require('../ui/rack_state.js');
+const catalog=JSON.parse(fs.readFileSync(path.join(__dirname,'../catalog.json'),'utf8'));
+const tests=[];function test(name,fn){fn();tests.push(name);console.log('PASS '+name);}
+const rig=()=>new RackRig(catalog),copy=v=>JSON.parse(JSON.stringify(v));
+function rejection(edit){const r=rig(),before=r.export(),s=JSON.parse(before);edit(s);assert.throws(()=>r.load(JSON.stringify(s)));assert.equal(r.export(),before);assert.equal(r.canUndo,false);}
+test('three independent POST sections and no pedal expansion',()=>{const r=rig();assert.deepEqual(Object.keys(r.state.sections),['bus','preamp','eq']);assert.equal(catalog.max_pedals,5);assert.equal(modelMap(catalog).size,9);});
+test('all nine rack states instantiate and roundtrip',()=>{const r=rig();for(const section of ['bus','preamp','eq']){r.select(section);for(let i=0;i<3;i++)r.choose(`legacy.${section}.${i}`);}const t=rig();t.load(r.export());assert.deepEqual(t.state,r.state);});
+test('1176 and LA2A preserve independent values',()=>{const r=rig();r.choose('legacy.bus.1');r.set('hw.input',.14);r.choose('legacy.bus.2');r.set('hw.gain',.88);r.choose('legacy.bus.1');assert.equal(r.current().parameters['hw.input'],.14);r.choose('legacy.bus.2');assert.equal(r.current().parameters['hw.gain'],.88);});
+test('Pultec boost and attenuation coexist',()=>{const r=rig();r.select('eq');r.choose('legacy.eq.2');r.set('hw.lf_boost',.6);r.set('hw.lf_atten',.4);assert.equal(r.current().parameters['hw.lf_boost'],.6);assert.equal(r.current().parameters['hw.lf_atten'],.4);});
+test('utility trims remain separate from hardware output',()=>{const r=rig();r.choose('legacy.bus.1');r.set('hw.output',.82);r.trim('outputLevel',-7);assert.equal(r.current().parameters['hw.output'],.82);assert.equal(r.current().utility.outputLevel,-7);});
+test('bypass retains controls and section selection',()=>{const r=rig();r.choose('legacy.bus.1');r.set('hw.input',.2);r.bypass(true);r.select('eq');r.select('bus');assert.equal(r.current().bypassed,true);assert.equal(r.current().parameters['hw.input'],.2);});
+test('undo redo restores selected model and values',()=>{const r=rig();const a=r.export();r.choose('legacy.bus.2');r.set('hw.gain',.71);const b=r.export();r.undo();r.undo();assert.equal(r.export(),a);r.redo();r.redo();assert.equal(r.export(),b);});
+test('import participates in undo',()=>{const a=rig(),b=rig();a.choose('legacy.bus.2');b.load(a.export());assert.equal(b.current().model,'legacy.bus.2');b.undo();assert.equal(b.current().model,'legacy.bus.0');});
+test('new edit clears redo',()=>{const r=rig();r.choose('legacy.bus.2');r.undo();r.set('hw.threshold',.12);assert.equal(r.canRedo,false);});
+test('external mutation cannot modify state',()=>{const r=rig(),s=r.state;s.sections.bus.bank['legacy.bus.0']['hw.threshold']=.999;assert.equal(r.current().parameters['hw.threshold'],.5);});
+test('wrong category model rejected',()=>{const r=rig(),old=r.export();assert.throws(()=>r.choose('legacy.preamp.0'));assert.equal(r.export(),old);});
+test('unknown model rejects atomically',()=>rejection(s=>{s.sections.bus.model='fake';}));
+test('missing hardware control rejects atomically',()=>rejection(s=>{delete s.sections.bus.bank['legacy.bus.0']['hw.threshold'];}));
+test('unknown hardware control rejects atomically',()=>rejection(s=>{s.sections.bus.bank['legacy.bus.0']['hw.fake']=.5;}));
+test('position bounds reject atomically',()=>rejection(s=>{s.sections.bus.bank['legacy.bus.0']['hw.threshold']=1.1;}));
+test('fractional choice rejects atomically',()=>rejection(s=>{s.sections.bus.bank['legacy.bus.0']['hw.ratio']=.5;}));
+test('boolean cannot stand in for numeric switch',()=>rejection(s=>{s.sections.bus.bank['legacy.bus.0']['hw.compressor_in']=true;}));
+test('numeric bypass rejects atomically',()=>rejection(s=>{s.sections.bus.bypassed=1;}));
+test('unknown utility rejects atomically',()=>rejection(s=>{s.sections.bus.utility.master=0;}));
+test('wrong schema version rejects atomically',()=>rejection(s=>{s.version=2;}));
+test('cross-section state bank rejected',()=>rejection(s=>{s.sections.bus.bank['legacy.eq.0']=s.sections.eq.bank['legacy.eq.0'];}));
+test('duplicate JSON keys including escaped forms rejected',()=>{const r=rig(),t=r.export();assert.throws(()=>r.load(t.replace('"version": 1','"version": 1,"version": 1')));assert.throws(()=>parseStrict('{"a":1,"\\u0061":2}'));});
+test('nonfinite literal and overflowing exponent rejected',()=>{for(const v of ['NaN','Infinity','-Infinity','1e999'])assert.throws(()=>parseStrict('{"v":'+v+'}'));});
+test('prototype keys rejected at every depth',()=>{for(const k of ['__proto__','constructor','prototype'])assert.throws(()=>parseStrict('{"nested":{"'+k+'":{}}}'));});
+test('oversized and deeply nested JSON rejected',()=>{assert.throws(()=>parseStrict(' '.repeat(262145)));assert.throws(()=>parseStrict('['.repeat(40)+'0'+']'.repeat(40)));});
+test('valid escaped strings and strict tail handling',()=>{assert.equal(parseStrict('{"a":"quote \\\" and \\\\"}').a,'quote " and \\');for(const s of ['{}x','[0,]','{"a":1,}','{"a":01}'])assert.throws(()=>parseStrict(s));});
+test('NaN programmatic edit does not clear state',()=>{const r=rig(),t=r.export();assert.throws(()=>r.set('hw.threshold',NaN));assert.equal(r.export(),t);});
+test('rack construction leaves original pedal and amp catalog data intact',()=>{const prior=JSON.stringify(catalog);const r=rig();r.choose('legacy.bus.2');r.set('hw.gain',.1);assert.equal(JSON.stringify(catalog),prior);});
+console.log(tests.length+' rack state cases passed');

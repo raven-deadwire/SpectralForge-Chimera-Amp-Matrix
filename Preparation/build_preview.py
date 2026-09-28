@@ -4,6 +4,7 @@ import json
 from pathlib import Path
 from catalog import build_catalog
 from amp_preview import extend_template
+from rack_preview import extend_racks
 
 def build(output=None):
     root=Path(__file__).resolve().parent
@@ -16,6 +17,7 @@ def build(output=None):
     html=html.replace('__CONTROL_JS__',(root/'ui/control_state.js').read_text(encoding='utf-8'))
     html=html.replace('__STATE_JS__',(root/'ui/state.js').read_text(encoding='utf-8'))
     html=html.replace('__CATALOG__',json.dumps(catalog,ensure_ascii=False,separators=(',',':')).replace('<','\\u003c'))
+    html=extend_racks(html,root)
     output=Path(output) if output else root/'Chimera_FiveSlot_Preview.html'
     output.write_text(html,encoding='utf-8')
     return output

@@ -1,0 +1,58 @@
+name: Chimera update candidate
+on:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  windows-candidate:
+    runs-on: windows-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Configure
+        run: cmake -S . -B build -A x64 -DCMAKE_BUILD_TYPE=Release
+      - name: Build product and regression checks
+        run: cmake --build build --config Release --parallel 2
+      - name: Execute DSP and actual JUCE UI tests
+        run: ctest --test-dir build -C Release --output-on-failure --no-tests=error
+      - name: Package distinct Windows test build
+        run: python Tools/package_update_candidate.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: Chimera-update-Windows-evidence
+          path: |
+            build/Testing/Temporary/LastTest.log
+            build/ui-snapshots/Universal-*.png
+          if-no-files-found: warn
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Chimera-update-Windows-candidate
+          path: candidate/*
+          if-no-files-found: error
+  preparation-contracts:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: pip install -r Preparation/requirements.txt playwright
+      - run: python -m playwright install --with-deps chromium
+      - name: Require complete browser and state coverage
+        run: |
+          browser_path=$(python -c 'from playwright.sync_api import sync_playwright; p=sync_playwright().start(); print(p.chromium.executable_path); p.stop()')
+          python Preparation/run_checks.py --require-browser --browser "$browser_path"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: Chimera-update-preparation-evidence
+          path: Preparation/reports/

@@ -76,3 +76,32 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
   target_link_libraries(ChimeraReleaseTests PRIVATE CURL::libcurl)
 endif()
 add_test(NAME ChimeraReleaseTests COMMAND ChimeraReleaseTests)
+
+juce_add_console_app(ChimeraStabilityTests PRODUCT_NAME "Chimera Stability Tests")
+target_sources(ChimeraStabilityTests PRIVATE Tests/StabilityTests.cpp)
+target_include_directories(ChimeraStabilityTests PRIVATE Source)
+target_compile_definitions(ChimeraStabilityTests PRIVATE JUCE_USE_CURL=0 JUCE_WEB_BROWSER=0)
+target_link_libraries(ChimeraStabilityTests PRIVATE juce::juce_dsp juce::juce_audio_basics PUBLIC juce::juce_recommended_config_flags)
+add_test(NAME ChimeraStabilityTests COMMAND ChimeraStabilityTests)
+
+juce_add_console_app(ChimeraPedalBoardTests PRODUCT_NAME "Chimera Pedal Board Tests")
+target_sources(ChimeraPedalBoardTests PRIVATE Tests/PedalBoardTests.cpp)
+target_include_directories(ChimeraPedalBoardTests PRIVATE Source)
+target_compile_definitions(ChimeraPedalBoardTests PRIVATE JUCE_USE_CURL=0 JUCE_WEB_BROWSER=0)
+target_link_libraries(ChimeraPedalBoardTests PRIVATE juce::juce_dsp juce::juce_audio_basics PUBLIC juce::juce_recommended_config_flags)
+add_test(NAME ChimeraPedalBoardTests COMMAND ChimeraPedalBoardTests)
+
+juce_add_console_app(ChimeraIRCollectionTests PRODUCT_NAME "Chimera IR Collection Tests")
+target_sources(ChimeraIRCollectionTests PRIVATE Tests/IRCollectionTests.cpp)
+target_include_directories(ChimeraIRCollectionTests PRIVATE Source)
+target_compile_definitions(ChimeraIRCollectionTests PRIVATE JUCE_USE_CURL=0 JUCE_WEB_BROWSER=0)
+target_link_libraries(ChimeraIRCollectionTests PRIVATE juce::juce_audio_formats juce::juce_cryptography PUBLIC juce::juce_recommended_config_flags)
+add_test(NAME ChimeraIRCollectionTests COMMAND ChimeraIRCollectionTests)
+
+# On-demand validation for user-owned IR files. Requires explicit CLI inputs;
+# this is not a zero-input CTest or a source of redistributable capture assets.
+juce_add_console_app(ChimeraValidateExternalIR PRODUCT_NAME "Chimera Validate External IR")
+target_sources(ChimeraValidateExternalIR PRIVATE Tests/ValidateExternalIR.cpp Source/IRLibrary.cpp)
+target_include_directories(ChimeraValidateExternalIR PRIVATE Source)
+target_compile_definitions(ChimeraValidateExternalIR PRIVATE JUCE_USE_CURL=0 JUCE_WEB_BROWSER=0)
+target_link_libraries(ChimeraValidateExternalIR PRIVATE ChimeraIRs juce::juce_data_structures juce::juce_dsp juce::juce_audio_formats juce::juce_cryptography PUBLIC juce::juce_recommended_config_flags)

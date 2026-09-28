@@ -1,3 +1,44 @@
+# R1a verification — 2026-09-28 current execution
+
+Executed on Linux x86_64, Python 3.12.14, Node 24.19.0, g++ and CMake.
+Command: `python run_checks.py --require-browser` (with CMake on PATH).
+Exit code **2**, status **BLOCKED_ENVIRONMENT**, because Chromium is unavailable.
+This is not a full preparation gate PASS and no product CP0 is issued here.
+
+| Suite | Executed PASS | Not run |
+|---|---:|---:|
+| C++ board state | 20 | 0 |
+| Python assets/catalog/amp/rack descriptors | 94 | 0 |
+| JavaScript board state | 22 | 0 |
+| JavaScript pedal control state | 10 | 0 |
+| JavaScript amp state | 30 | 0 |
+| JavaScript rack state | 28 | 0 |
+| Existing pedal browser | 0 | 20 |
+| Existing amp browser | 0 | 24 |
+| New rack browser | 0 | 12 |
+| **Total** | **204** | **56** |
+
+CTest and C++ → JavaScript → C++ exchange passed without being counted twice.
+The new 18 Python + 28 JavaScript rack checks executed successfully. The 12
+rack browser checks are implemented but unexecuted; layout, file-download UI,
+and screenshots remain unverified in this environment. The browser source was
+syntax-checked only. No generated screenshot is claimed.
+
+The unmodified `68ae655` baseline was separately run in a clean detached
+worktree: **158 executed PASS / 44 browser NOT_RUN**, also insufficient for
+its 202-case baseline CP0. Its original optional-browser runner returned 0;
+the external baseline status explicitly records BLOCKED_ENVIRONMENT. The new
+runner supports `--require-browser` to prevent missing browser tests from
+being reported as complete; without that flag it reports `partial`.
+
+Rack target review: 7 core primary-panel records, 2 partial primary records.
+Production rack DSP/host bindings, capture approval and measured circuit
+response remain false for all nine models. See `RACK_PREPARATION.md`.
+
+---
+
+## Historical v3 report (prior environment; not rerun in full here)
+
 # Preparation v3 verification — 2026-09-28
 
 Scope: amp-specific panel definitions and silent UI/state, on top of the existing

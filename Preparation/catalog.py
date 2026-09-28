@@ -8,6 +8,7 @@ import json
 import math
 from pathlib import Path
 from pedal_controls import upgrade_pedals
+from rack_controls import upgrade_racks, validate_rack_panels
 
 BASE = "025d30471109649e5e3243ff1e7e89639a576b79"
 REPO = "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/blob/" + BASE + "/"
@@ -105,6 +106,7 @@ def build_catalog():
     from amp_controls import upgrade_amplifiers
     upgrade_amplifiers(models)
     upgrade_pedals(models)
+    upgrade_racks(models)
     catalog=dict(control_revision=3,schema_version=1,base_commit=BASE,max_pedals=5,models=models,
                  warning="Control-thread preparation only. No new model DSP or hardware calibration is implemented. Normalized defaults are UI seeds, not hardware factory settings.")
     validate_catalog(catalog)
@@ -114,6 +116,7 @@ def build_catalog():
 def validate_catalog(catalog):
     from amp_controls import validate_amp_panels
     validate_amp_panels(catalog["models"])
+    validate_rack_panels(catalog["models"])
     if catalog.get("schema_version")!=1 or catalog.get("max_pedals")!=5:
         raise ValueError("Wrong catalog schema/capacity")
     ids=set()

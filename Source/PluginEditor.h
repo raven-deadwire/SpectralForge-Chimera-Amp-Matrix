@@ -3,6 +3,8 @@
 #include "PluginProcessor.h"
 #include "CabinetSelector.h"
 #include "ReleaseSupport.h"
+#include "PedalBoardPanel.h"
+#include "AmpSelector.h"
 
 class ChimeraLookAndFeel : public juce::LookAndFeel_V4 {
 public:
@@ -37,6 +39,7 @@ private:
     void browseIR(int,const juce::File&);
     void showInfo();
     void showSupport();
+    void showDiagnostics();
     void trackDialog(juce::DialogWindow*);
     void markPresetCustom();
     void showIRDetails(int);
@@ -46,8 +49,14 @@ private:
     ChimeraProcessor& processor;
     ChimeraLookAndFeel look;
     juce::Component canvas;
+    PedalBoardPanel boardPanel;
+    juce::TextButton boardEnabled{"UNIVERSAL 5 / EXPERIMENTAL"},gateLocation{"POST GATE"};
+    std::unique_ptr<BA> boardEnabledAttachment,gateLocationAttachment;
+    bool lastBoardEnabled{};
     juce::TooltipWindow tooltips{this,600};
-    std::shared_ptr<spectralforge::release::ReleaseSupport> support=std::make_shared<spectralforge::release::ReleaseSupport>();
+    // Updates own a network worker. Ordinary editor open/close must not start
+    // one or join one during host project teardown.
+    std::shared_ptr<spectralforge::release::ReleaseSupport> support;
     juce::Image wordmark,brandEmblem;
     std::vector<juce::Component::SafePointer<juce::DialogWindow>> dialogs;
     std::vector<float> presetValues;
@@ -89,7 +98,7 @@ private:
     struct LaneUI {
         int lastModel{-1};
         juce::Label header,range,toneLabel,tonePivot,cabStatus,ampReference;
-        juce::ComboBox amp;
+        AmpSelector amp;
         CabinetSelector cabType;
         juce::Slider drive,level,bass,lm,hm,treble,pres,res,bandTone,cabLow,cabHigh;
         std::array<juce::Label,8> knobLabels;

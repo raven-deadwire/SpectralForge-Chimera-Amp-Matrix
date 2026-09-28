@@ -1,3 +1,23 @@
+# R1a 추가 — POST 원본 조절부
+
+컴프레서·프리앰프·EQ 9종의 별도 Rack 탭과 `.crlab` 상태를 추가했습니다.
+기존 페달 최대 5개 및 앰프 v3를 유지합니다. [RACK_PREPARATION.md](RACK_PREPARATION.md)와
+[현재 검증 범위](VERIFICATION.md)를 참고하세요. 현재 환경에서는 204개 검사가
+통과했으며 Chromium 부재로 브라우저 56개는 미실행입니다. 전체 통과나
+제품 CP0를 발급한 상태가 아닙니다.
+
+필수 브라우저 검사를 포함한 판정은 다음 명령을 사용합니다.
+
+```sh
+python run_checks.py --require-browser --browser /path/to/chromium
+```
+
+브라우저 경로를 제공하지 않으면 `--require-browser`는 가능한 검사를
+수행한 뒤 종료코드 2와 `blocked_environment`를 반환합니다. 해당 옵션이
+없으면 상태는 `partial`입니다.
+
+---
+
 # 2026-09-28 원본 조작부 개정 (v2)
 
 기존 PRE 25개에 공통 `Amount/Attack/Level`, `Drive/Tone/Level`, `Gain/Bass/Treble`을 일괄 사용하던 준비 UI를 수정했습니다. **신규 모델만이 아니라 기존 25개도 전용 패널 정의를 사용**합니다.

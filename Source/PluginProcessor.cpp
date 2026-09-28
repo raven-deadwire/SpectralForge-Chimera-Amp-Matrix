@@ -1,12 +1,15 @@
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
 #include "FactoryPresets.h"
+#include "ReleaseInfo.h"
 
 ChimeraProcessor::ChimeraProcessor()
     : AudioProcessor(BusesProperties().withInput("Input",juce::AudioChannelSet::stereo(),true)
                                       .withOutput("Output",juce::AudioChannelSet::stereo(),true))
 {
     clearMidi();
+    boardParameters.bind(state);
+    gateAfterRig=state.getRawParameterValue("gateAfterRig");
     const std::array<const char*,extraCount> extraIds{"dualtype","dualblend","dualcross","inputmode","doubleron","doublertime","tempo","temposync","metronome"};
     for(size_t i=0;i<extraIds.size();++i)extras[i]=state.getRawParameterValue(extraIds[i]);
     lowCompParameter=state.getRawParameterValue("lowcomp");lowAmpMixParameter=state.getRawParameterValue("lowampmix");
@@ -26,7 +29,9 @@ void ChimeraProcessor::prepareToPlay(double sr,int block)
 {
     library.stop(); tuner.stop(); cpuAverage.store(0);cpuPeak.store(0);rate=sr; maximumBlock=juce::jmax(1,block);
     const juce::dsp::ProcessSpec spec{sr,(juce::uint32)maximumBlock,(juce::uint32)getTotalNumOutputChannels()};
-    engine.prepare(spec); preFX.prepare(spec); postFX.prepare(spec);utilities.prepare(spec); tuner.prepare(sr);
+    engine.prepare(spec); preFX.prepare(spec); pedalBoard.prepare(spec); postFX.prepare(spec);utilities.prepare(spec); tuner.prepare(sr);
+    audioBoard=boardParameters.read();
+    postRigGate.prepare(spec);
     preReduction.store(0);postReduction.store(0);for(auto& meter:postPeaks)meter.store(0);
     std::array<int,3> sources{};
     for(int i=0;i<3;++i) sources[i]=(int)laneParameters[i][16]->load();
@@ -36,7 +41,8 @@ void ChimeraProcessor::prepareToPlay(double sr,int block)
     outputGain.setCurrentAndTargetValue(juce::Decibels::decibelsToGain(globals[output]->load()));
     tuningMute.setCurrentAndTargetValue(1);
     engine.setOversampling((int)globals[os]->load());
-    setLatencySamples(postFX.latency()+engine.latency()+preFX.latency(globals[pitchOn]->load()>.5f));
+    const bool pitchActive=globals[pitchOn]->load()>.5f && int(globals[semitones]->load())!=0;
+    setLatencySamples(postFX.latency()+engine.latency()+(audioBoard.enabled ? pedalBoard.latency()+(pitchActive ? preFX.transpose.latency() : 0) : preFX.latency(pitchActive)));
 }
 bool ChimeraProcessor::isBusesLayoutSupported(const BusesLayout& buses) const
 {
@@ -77,7 +83,7 @@ void ChimeraProcessor::processBlock(juce::AudioBuffer<float>& buffer,juce::MidiB
 }
 void ChimeraProcessor::process(juce::AudioBuffer<float>& buffer)
 {
-    if(resetPending.exchange(false)) {engine.reset();preFX.reset();postFX.reset();utilities.reset();}
+    if(resetPending.exchange(false)) {engine.reset();preFX.reset();pedalBoard.reset();postRigGate.reset();postFX.reset();utilities.reset();}
     if(extras[inputMode]->load()>.5f && buffer.getNumChannels()==2) buffer.copyFrom(1,0,buffer,0,0,buffer.getNumSamples());
     const auto value=[this](Global id){return globals[id]->load();};
     inputGain.setTargetValue(juce::Decibels::decibelsToGain(value(input)));
@@ -95,13 +101,28 @@ void ChimeraProcessor::process(juce::AudioBuffer<float>& buffer)
     }
     const float meterDecay=float(std::exp(-buffer.getNumSamples()/(rate*.4)));
     inputPeak.store(juce::jmax(peak,inputPeak.load()*meterDecay));
+    measureStage(0,buffer);
     tuner.push(buffer,value(tunerOn)>.5f);
     auto fx=spectralforge::readFX(fxParameters);fx.envelopeFirst=preOrderParameter->load()>.5f;fx.boostAfterDrive=gainOrderParameter->load()>.5f;for(size_t i=0;i<modelParameters.size();++i)fx.models[i]=(int)modelParameters[i]->load();if(fx.delaySync)fx.delayMs=60000.f/tempoMeter.load();
-    const bool pitching=value(pitchOn)>.5f;
-    preFX.process(buffer,value(gateOn)>.5f,value(threshold),value(release),value(hold),pitching,(int)value(semitones),fx);
-    preReduction.store(preFX.compressor.reduction());
-    gateGain.store(preFX.gate.reduction());
-    const int latency=postFX.latency()+engine.latency()+preFX.latency(pitching);
+    const bool pitching=value(pitchOn)>.5f && int(value(semitones))!=0;
+    const auto before=boardEditSequence.load(std::memory_order_acquire);
+    if((before&1u)==0) {
+        const auto candidate=boardParameters.read();
+        if(before==boardEditSequence.load(std::memory_order_acquire)) audioBoard=candidate;
+    }
+    const bool gateAtOutput=gateAfterRig->load()>.5f;
+    const int preLatency=audioBoard.enabled ? pedalBoard.latency()+(pitching ? preFX.transpose.latency() : 0) : preFX.latency(pitching);
+    postRigGate.detect(buffer,value(gateOn)>.5f,value(threshold),value(release),value(hold),preLatency+engine.latency());
+    if(audioBoard.enabled) {
+        preFX.gate.process(buffer,!gateAtOutput && value(gateOn)>.5f,value(threshold),value(release),value(hold));
+        preFX.transpose.process(buffer,pitching,(int)value(semitones));
+        pedalBoard.process(buffer,audioBoard);
+    } else preFX.process(buffer,!gateAtOutput && value(gateOn)>.5f,value(threshold),value(release),value(hold),pitching,(int)value(semitones),fx);
+    boardReduction.store(audioBoard.enabled ? pedalBoard.compressorReduction() : 0.f);
+    preReduction.store(audioBoard.enabled ? pedalBoard.compressorReduction() : preFX.compressor.reduction());
+    measureStage(1,buffer);
+    gateGain.store(gateAtOutput ? postRigGate.reduction() : preFX.gate.reduction());
+    const int latency=postFX.latency()+engine.latency()+(audioBoard.enabled ? pedalBoard.latency()+(pitching ? preFX.transpose.latency() : 0) : preFX.latency(pitching));
     if(getLatencySamples()!=latency) setLatencySamples(latency);
     engine.setOversampling((int)value(os));
     std::array<spectralforge::LaneState,3> lanes{};
@@ -117,9 +138,12 @@ void ChimeraProcessor::process(juce::AudioBuffer<float>& buffer)
     }
     lanes[0].lowComp=lowCompParameter->load();lanes[0].lowAmpMix=lowAmpMixParameter->load();
     const bool dualCross=value(mode)==1 && extras[dualType]->load()>.5f;
-    engine.process(buffer,(spectralforge::RoutingMode)(int)value(mode),dualCross ? extras[dualFrequency]->load() : value(x1),value(x2),lanes,&preFX.cleanOutput(),dualCross,extras[dualBlend]->load());
+    engine.process(buffer,(spectralforge::RoutingMode)(int)value(mode),dualCross ? extras[dualFrequency]->load() : value(x1),value(x2),lanes,audioBoard.enabled ? &pedalBoard.cleanOutput() : &preFX.cleanOutput(),dualCross,extras[dualBlend]->load());
     lowCompGain.store(engine.lowReduction());
+    if(gateAtOutput)postRigGate.apply(buffer);
+    measureStage(2,buffer);
     postFX.process(buffer,fx);
+    measureStage(3,buffer);
     postReduction.store(postFX.compressorReduction());
     for(size_t i=0;i<postPeaks.size();++i)
         postPeaks[i].store(juce::jmax(postFX.stagePeaks[i],postPeaks[i].load()*meterDecay));
@@ -137,6 +161,7 @@ void ChimeraProcessor::process(juce::AudioBuffer<float>& buffer)
         }
     }
     outputPeak.store(juce::jmax(peak,outputPeak.load()*meterDecay));
+    measureStage(4,buffer);
 }
 juce::Result ChimeraProcessor::loadIR(int lane,const juce::File& file)
 {
@@ -177,6 +202,8 @@ juce::AudioProcessorValueTreeState::ParameterLayout ChimeraProcessor::layout(){j
     p.add(std::make_unique<juce::AudioParameterChoice>("preorder","Pedal detector order",juce::StringArray{"Compressor first","Envelope first"},1));
     // Append new parameters so existing host parameter indices remain stable.
     p.add(std::make_unique<juce::AudioParameterChoice>("gainorder","Pedal gain order",juce::StringArray{"Fuzz > Boost > Drive","Fuzz > Drive > Boost"},0));
+    spectralforge::addPedalBoardParameters(p);
+    p.add(std::make_unique<juce::AudioParameterBool>(juce::ParameterID{"gateAfterRig",1},"Gate after rig (input detector)",false));
 return p;
 }
 
@@ -185,7 +212,7 @@ juce::ValueTree ChimeraProcessor::captureCore()
     auto saved=state.copyState();
     saved.removeChild(saved.getChildWithName("USER_IRS"),nullptr);
     saved.removeChild(saved.getChildWithName("COMPARISONS"),nullptr);
-    saved.appendChild(library.save(),nullptr); saved.setProperty("schemaVersion",6,nullptr);
+    saved.appendChild(library.save(),nullptr); saved.setProperty("schemaVersion",7,nullptr);
     return saved;
 }
 void ChimeraProcessor::getStateInformation(juce::MemoryBlock& data)
@@ -204,6 +231,7 @@ void ChimeraProcessor::getStateInformation(juce::MemoryBlock& data)
 void ChimeraProcessor::restoreCore(juce::ValueTree restored)
 {
     if(!restored.isValid() || !restored.hasType("PARAMS")) return;
+    boardUndo.clear();boardRedo.clear();midiLearn.store(-1);
     const auto defaults=state.copyState();
     for(auto child:defaults)
     {
@@ -265,5 +293,94 @@ void ChimeraProcessor::loadFactoryPreset(int index) {
     if (spectralforge::applyFactoryPreset(index, [this](const char* id, float value) {
         if (auto* parameter = state.getParameter(id))
             parameter->setValueNotifyingHost(parameter->convertTo0to1(value));
-    })) resetPending.store(true);
+    })) {boardUndo.clear();boardRedo.clear();setRawParameter("boardEnabled",0);resetPending.store(true);}
+}
+
+void ChimeraProcessor::setRawParameter(const juce::String& id,float value) {
+    if(auto* parameter=state.getParameter(id)) {
+        parameter->beginChangeGesture();parameter->setValueNotifyingHost(parameter->convertTo0to1(value));parameter->endChangeGesture();
+    }
+}
+void ChimeraProcessor::rememberPedalEdit() {
+    juce::ValueTree snapshot("BOARD_EDIT");
+    for(auto child:state.copyState()) if(child.getProperty("id").toString().startsWith("board"))snapshot.appendChild(child.createCopy(),nullptr);
+    boardUndo.push_back(snapshot);if(boardUndo.size()>32)boardUndo.erase(boardUndo.begin());boardRedo.clear();
+}
+void ChimeraProcessor::setPedalModel(int owner,int model) {
+    if(owner<0 || owner>=5 || model<0 || model>=spectralforge::pedalModelCount || !spectralforge::pedalModel(model).implemented)return;
+    rememberPedalEdit();boardEditSequence.fetch_add(1,std::memory_order_acq_rel);
+    midiLearn.store(-1);
+    // Retire controller bindings for this owner when an explicit replacement is made.
+    const auto prefix="board"+juce::String(owner)+"_";
+    for(auto& binding:midiMap) {
+        const auto index=binding.load();
+        if(index>=0 && index<getParameters().size()) if(auto* p=dynamic_cast<juce::AudioProcessorParameterWithID*>(getParameters()[index]))
+            if(p->paramID.startsWith(prefix))binding.store(-1);
+    }
+    setRawParameter(spectralforge::pedalModelID(owner),float(model));
+    if(model)state.state.setProperty("boardBankUsed_"+juce::String(owner)+"_"+juce::String(model),true,nullptr);
+    if(model)setRawParameter(spectralforge::pedalBypassID(owner,model),0);
+    for(int c=0;c<spectralforge::pedalModel(model).controlCount;++c)
+        setRawParameter(spectralforge::pedalControlID(owner,model,c),spectralforge::pedalModel(model).controls[(size_t)c].initial);
+    boardEditSequence.fetch_add(1,std::memory_order_release);
+}
+void ChimeraProcessor::movePedal(int owner,int direction) {
+    const auto board=boardParameters.read();int position=-1;
+    for(int i=0;i<5;++i)if(board.order[(size_t)i]==owner)position=i;
+    const int destination=position+direction;
+    if(position<0 || destination<0 || destination>=5)return;
+    rememberPedalEdit();boardEditSequence.fetch_add(1,std::memory_order_acq_rel);
+    setRawParameter(spectralforge::pedalOrderID(position),float(board.order[(size_t)destination]));
+    setRawParameter(spectralforge::pedalOrderID(destination),float(owner));
+    boardEditSequence.fetch_add(1,std::memory_order_release);
+}
+bool ChimeraProcessor::duplicatePedal(int owner) {
+    if(owner<0 || owner>=5)return false;
+    const auto board=boardParameters.read();const auto source=board.instances[(size_t)owner];if(!source.model)return false;
+    int target=-1;for(int i:board.order)if(!board.instances[(size_t)i].model) {target=i;break;}
+    if(target<0)return false;
+    rememberPedalEdit();boardEditSequence.fetch_add(1,std::memory_order_acq_rel);
+    midiLearn.store(-1);
+    const auto prefix="board"+juce::String(target)+"_";
+    for(auto& binding:midiMap) {const int index=binding.load();if(index>=0&&index<getParameters().size())
+        if(auto* p=dynamic_cast<juce::AudioProcessorParameterWithID*>(getParameters()[index]))if(p->paramID.startsWith(prefix))binding.store(-1);}
+    setRawParameter(spectralforge::pedalModelID(target),float(source.model));
+    state.state.setProperty("boardBankUsed_"+juce::String(target)+"_"+juce::String(source.model),true,nullptr);
+    setRawParameter(spectralforge::pedalBypassID(target,source.model),source.bypass?1.f:0.f);
+    for(int c=0;c<spectralforge::pedalModel(source.model).controlCount;++c)
+        setRawParameter(spectralforge::pedalControlID(target,source.model,c),source.controls[(size_t)c]);
+    boardEditSequence.fetch_add(1,std::memory_order_release);return true;
+}
+void ChimeraProcessor::undoPedalEdit(bool redo) {
+    auto& from=redo ? boardRedo : boardUndo;auto& to=redo ? boardUndo : boardRedo;if(from.empty())return;
+    juce::ValueTree current("BOARD_EDIT");
+    for(auto child:state.copyState())if(child.getProperty("id").toString().startsWith("board"))current.appendChild(child.createCopy(),nullptr);
+    to.push_back(current);const auto next=from.back();from.pop_back();boardEditSequence.fetch_add(1,std::memory_order_acq_rel);
+    for(auto child:next)setRawParameter(child.getProperty("id").toString(),float(child.getProperty("value")));
+    boardEditSequence.fetch_add(1,std::memory_order_release);
+}
+
+void ChimeraProcessor::measureStage(int index,const juce::AudioBuffer<float>& buffer) {
+    double energy=0;float peak=0;const int count=buffer.getNumSamples()*buffer.getNumChannels();
+    for(int c=0;c<buffer.getNumChannels();++c)for(int n=0;n<buffer.getNumSamples();++n) {
+        const float v=buffer.getSample(c,n);energy+=double(v)*v;peak=juce::jmax(peak,std::abs(v));
+    }
+    stageRms[(size_t)index].store(count>0 ? float(std::sqrt(energy/count)) : 0.f);stagePeaks[(size_t)index].store(peak);
+}
+juce::String ChimeraProcessor::diagnosticReport() const {
+    auto object=std::make_unique<juce::DynamicObject>();
+    object->setProperty("schema",1);object->setProperty("version",spectralforge::release::version);
+    object->setProperty("build_revision",spectralforge::release::revision);
+    object->setProperty("sample_rate",getSampleRate());object->setProperty("host_block_hint",getBlockSize());
+    object->setProperty("channels",getTotalNumOutputChannels());object->setProperty("reported_latency_samples",getLatencySamples());
+    object->setProperty("mode",int(globals[mode]->load()));object->setProperty("universal_board",boardParameters.enabled->load()>.5f);
+    object->setProperty("transpose_enabled",globals[pitchOn]->load()>.5f);object->setProperty("semitones",int(globals[semitones]->load()));
+    object->setProperty("oversampling_index",int(globals[os]->load()));object->setProperty("output_trim_db",globals[output]->load());
+    object->setProperty("post_rig_gate",gateAfterRig->load()>.5f);object->setProperty("callback_average_percent",cpuAverage.load());
+    object->setProperty("callback_peak_percent",cpuPeak.load());object->setProperty("measurements","Last processed block, unweighted RMS/peak; not LUFS or whole-PC CPU. No audio is included.");
+    juce::Array<juce::var> stages;const char* names[]{"INPUT_TRIM","PRE","RIG_GATE","POST","OUTPUT"};
+    for(int i=0;i<5;++i) {auto stage=std::make_unique<juce::DynamicObject>();stage->setProperty("stage",names[i]);
+        stage->setProperty("rms_dbfs",juce::Decibels::gainToDecibels(stageRms[(size_t)i].load(),-120.f));
+        stage->setProperty("peak_dbfs",juce::Decibels::gainToDecibels(stagePeaks[(size_t)i].load(),-120.f));stages.add(juce::var(stage.release()));}
+    object->setProperty("stages",stages);return juce::JSON::toString(juce::var(object.release()),false);
 }

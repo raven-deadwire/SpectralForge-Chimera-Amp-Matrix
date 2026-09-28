@@ -2,6 +2,8 @@
 #include "HardwareArtwork.h"
 #include "SupportPanel.h"
 #include "FactoryPresets.h"
+#include "BoardStateUITests.h"
+#include "AmpSelectorTests.h"
 #include <map>
 #include <iostream>
 #include <set>
@@ -243,7 +245,9 @@ void checkProcessor(const juce::File& directory)
     require(std::abs(10*std::log10(output/baseline)+12)<.2,"Global output gain is not connected");
     const int latency=source.getLatencySamples();
     for(int os=0;os<4;++os) {set(source,"oversampling",float(os));level();require(source.getLatencySamples()==latency,"Oversampling changed host latency");}
-    set(source,"transposeon",1); set(source,"transpose",-5); level();
+    set(source,"transposeon",1); set(source,"transpose",0); level();
+    require(source.getLatencySamples()==latency,"Zero-semitone transpose adds unnecessary latency");
+    set(source,"transpose",-5); level();
     require(source.getLatencySamples()==latency+source.pitchLatency(),"Pitch latency is not reported to host");
     set(source,"tuneron",1); set(source,"tunermute",1);
     require(level()<1e-12,"Tuner auto-mute is not connected");
@@ -297,6 +301,31 @@ void checkProcessor(const juce::File& directory)
     std::cout<<"PASS: global gain, oversized blocks, host latency, tuner mute, embedded IR, A/B and reference recall\n";
 }
 
+void checkEditorLifetime()
+{
+    const auto started=juce::Time::getMillisecondCounterHiRes();
+    for(int iteration=0;iteration<30;++iteration) {
+        ChimeraProcessor processor;
+        processor.prepareToPlay(48000,256);
+        {
+            auto editor=std::make_unique<ChimeraEditor>(processor);
+            juce::MessageManager::getInstance()->runDispatchLoopUntil(2);
+            // A popup can outlive its target until the queued dismissal runs.
+            // Exercise that callback after its editor and controls are gone.
+            if(iteration%3==0) {
+                for(auto* child:editor->findChildWithID("surface")->getChildren())
+                    if(auto* button=dynamic_cast<juce::TextButton*>(child);button && button->getButtonText()=="SETTINGS") button->onClick();
+            }
+        }
+        juce::PopupMenu::dismissAllActiveMenus();
+        juce::MessageManager::getInstance()->runDispatchLoopUntil(2);
+        juce::AudioBuffer<float> audio(2,256);audio.clear();juce::MidiBuffer midi;
+        processor.processBlock(audio,midi);
+        processor.releaseResources();
+    }
+    std::cout<<"PASS: 30 editor/pending-popup/processor lifetime cycles in "
+             <<juce::Time::getMillisecondCounterHiRes()-started<<" ms (standalone harness, not a DAW shutdown test)\n";
+}
 }
 int main(int argc, char** argv)
 {
@@ -333,6 +362,9 @@ int main(int argc, char** argv)
         const auto directory = argc > 1 ? juce::File(argv[1])
                                        : juce::File::getCurrentWorkingDirectory().getChildFile("ui-snapshots");
         require(directory.createDirectory().wasOk(), "Cannot create snapshot directory");
+        ampSelectorTests::run();
+        checkEditorLifetime();
+        runBoardStateTests(directory);
         // A/B is two complete sound snapshots, not a stereo channel selector.
         {ChimeraProcessor ab;ab.prepareToPlay(48000,256);set(ab,"cab1",0);set(ab,"drive1",.2f);set(ab,"preampmodel",2);set(ab,"delayon",0);set(ab,"reverbon",0);set(ab,"inputmode",0);ab.copyComparison();ab.selectComparison(1);set(ab,"drive1",.8f);set(ab,"preampmodel",1);ab.selectComparison(0);
          require(ab.parameters().getRawParameterValue("preampmodel")->load()==2,"A/B lost model choice");
@@ -348,6 +380,10 @@ int main(int argc, char** argv)
          IRBrowserPanel browser(folder,[&](juce::File file){picked=file;});auto* size=dynamic_cast<juce::ComboBox*>(browser.findChildWithID("irdiameter"));auto* list=dynamic_cast<juce::ListBox*>(browser.findChildWithID("irlist"));auto* search=dynamic_cast<juce::TextEditor*>(browser.findChildWithID("irsearch"));require(size && list && search,"IR collection controls missing");
          size->setSelectedId(3,juce::sendNotificationSync);require(list->getListBoxModel()->getNumRows()==1,"10-inch IR filter did not isolate bass fixture");list->selectRow(0);dynamic_cast<juce::TextButton*>(browser.findChildWithID("irload"))->onClick();require(picked==bass,"IR collection loaded wrong file");checkDecodedIR(picked);
          search->setText("SM57");search->onTextChange();require(list->getListBoxModel()->getNumRows()==0,"Mic filter ignored diameter selection");search->clear();search->onTextChange();size->setSelectedId(1,juce::sendNotificationSync);saveSnapshot(browser,directory,"IR-collection");
+         auto* instrument=dynamic_cast<juce::ComboBox*>(browser.findChildWithID("irkind"));auto* availability=dynamic_cast<juce::ComboBox*>(browser.findChildWithID("iravailability"));require(instrument && availability,"Independent IR filters missing");
+         instrument->setSelectedId(2,juce::sendNotificationSync);availability->setSelectedId(4,juce::sendNotificationSync);require(list->getListBoxModel()->getNumRows()==1,"Installed bass filter does not combine independently");
+         availability->setSelectedId(5,juce::sendNotificationSync);require(list->getListBoxModel()->getNumRows()==0 && instrument->getSelectedId()==2,"Availability selection reset instrument or included installed files");
+         availability->setSelectedId(1,juce::sendNotificationSync);instrument->setSelectedId(1,juce::sendNotificationSync);
          auto tags=spectralforge::IRMetadata::filenameHints(bass.getFileName());IRDetailsPanel details(tags,true,[](spectralforge::IRMetadata){});saveSnapshot(details,directory,"IR-details");
          CabinetSelector selector;selector.refresh({folder});require(selector.installedCount()==2,"Cabinet menu must expose both actual WAV fixtures");
          int choices=0,browses=0;selector.selected=[&](juce::File file,int source){require(source==3 && (file==guitar || file==bass),"Installed cabinet selection changed a host enum index");checkDecodedIR(file);++choices;};selector.browse=[&]{++browses;};
@@ -508,6 +544,25 @@ int main(int argc, char** argv)
                 require(processor.parameters().getRawParameterValue("x1")->load()==350,
                         "Switching modes reset saved crossover settings");
             }
+        }
+        {
+            ChimeraProcessor universal;universal.prepareToPlay(48000,256);
+            const int models[]{30,6,26,27,31};for(int i=0;i<5;++i)universal.setPedalModel(i,models[i]);set(universal,"boardEnabled",1);
+            ChimeraEditor editor(universal);auto* canvas=editor.findChildWithID("surface");require(canvas,"Missing editor surface");
+            for(auto* child:canvas->getChildren())if(auto* button=dynamic_cast<juce::TextButton*>(child);button&&button->getButtonText()=="PRE")button->triggerClick();
+            for(int mode=0;mode<3;++mode) {
+                set(universal,"mode",float(mode));juce::MessageManager::getInstance()->runDispatchLoopUntil(180);
+                auto* board=canvas->findChildWithID("universalPedalBoard");require(board&&board->isVisible(),"Product board view not connected");
+                for(int i=0;i<5;++i) {auto* box=dynamic_cast<juce::ComboBox*>(board->findChildWithID("boardModelAt"+juce::String(i)));
+                    require(box&&box->isVisible()&&box->getSelectedId()==models[i]+1,"Five model selectors do not reflect audio owners");
+                    require(board->getLocalBounds().contains(box->getBounds()),"Five pedals do not fit without scrolling");}
+                saveSnapshot(editor,directory,"Universal-mode-"+juce::String(mode));
+            }
+            auto* board=canvas->findChildWithID("universalPedalBoard");
+            for(auto* child:board->getChildren())if(auto* button=dynamic_cast<juce::TextButton*>(child);button&&button->getButtonText()=="CONTROLS") {button->triggerClick();break;}
+            juce::MessageManager::getInstance()->runDispatchLoopUntil(100);saveSnapshot(editor,directory,"Universal-detail");
+            const auto diagnostic=juce::JSON::parse(universal.diagnosticReport());require(diagnostic.isObject()&&diagnostic["stages"].getArray()&&diagnostic["stages"].getArray()->size()==5,"Diagnostic stage snapshot missing");
+            require(!universal.diagnosticReport().contains(directory.getFullPathName()),"Diagnostic leaked a user path");
         }
         {auto service=std::make_shared<spectralforge::release::ReleaseSupport>();ChimeraSupportPanel panel(service,{});saveSnapshot(panel,directory,"Support-updates");for(auto* child:panel.getChildren())require(panel.getLocalBounds().contains(child->getBounds()),"Support control outside panel");}
         std::cout << "PASS: mode controls, text, automation, state recall, legacy recall; PNGs in "
