@@ -361,19 +361,23 @@ int main(int argc, char** argv)
             checkInstalledIR(juce::File(argv[2]));
             std::cout<<"PASS: installed personal IR discovered, audio decoded, selected in the cabinet menu and loaded into a rig\n";return 0;
         }
-        if(argc==3 && juce::String(argv[1])=="--personal-ir-pack-probe") {
+        if(argc==3 && (juce::String(argv[1])=="--personal-ir-pack-probe" || juce::String(argv[1])=="--raven-ir-pack-probe")) {
             struct TemporaryDirectory {
                 juce::File folder=juce::File::getSpecialLocation(juce::File::tempDirectory).getNonexistentChildFile("Chimera-IR-pack-probe",{},false);
                 ~TemporaryDirectory() {folder.deleteRecursively();}
             } temporary;
-            const auto catalog=juce::JSON::parse(spectralforge::referenceIRCatalog);
+            const bool raven=juce::String(argv[1])=="--raven-ir-pack-probe";
+            const auto catalog=juce::JSON::parse(raven ? spectralforge::ravenIRCatalog : spectralforge::referenceIRCatalog);
             require(catalog.getArray()!=nullptr,"Reference catalog is invalid");
-            const int expected=catalog.getArray()->size();const int externalCount=juce::JSON::parse(spectralforge::externalBassIRCatalog).getArray()->size();int imported=0;
+            const int expected=catalog.getArray()->size();int listed=2,imported=0;
+            for(const auto* raw:{spectralforge::referenceIRCatalog,spectralforge::externalBassIRCatalog,spectralforge::ravenIRCatalog})listed+=juce::JSON::parse(raw).getArray()->size();
             require(spectralforge::IRCollection::importPersonalPack(juce::File(argv[2]),temporary.folder,imported).wasOk(),"Personal IR ZIP failed import");
             require(imported==expected,"Personal IR ZIP is missing one or more catalog WAVs");
             const auto rows=spectralforge::IRCollection::scan({temporary.folder},true);
-            require(rows.size()==(size_t)(expected+2+externalCount),"Imported IRs were duplicated or lost during catalog resolution");
-            for(const auto& row:rows) {if(row.external)continue;require(row.ready(),"Imported reference remains unavailable");if(!row.factorySource)checkDecodedIR(row.file);}
+            require(rows.size()==(size_t)listed,"Imported IRs were duplicated or lost during catalog resolution");
+            int ready=0;
+            for(const auto& row:rows) {if(!row.ready())continue;++ready;if(!row.factorySource)checkDecodedIR(row.file);}
+            require(ready==expected+2,"Imported reference remains unavailable or uninstalled audio was counted as ready");
             const auto processorStorage=std::make_unique<ChimeraProcessor>();auto& processor=*processorStorage;CabinetSelector selector;selector.refresh({temporary.folder});int loaded=0;
             require(selector.installedCount()==expected,"Cabinet menu did not expose the complete imported pack");
             selector.selected=[&](juce::File file,int source) {
@@ -381,7 +385,7 @@ int main(int argc, char** argv)
             };
             for(int i=0;i<expected;++i)selector.setSelectedId(100+i,juce::sendNotificationSync);
             require(loaded==expected,"Cabinet menu failed to select every imported IR");
-            std::cout<<"PASS: "<<expected<<" personal IR WAVs imported, hash matched, decoded and loaded through the cabinet menu; "<<(expected+2)<<" available / "<<rows.size()<<" listed\n";return 0;
+            std::cout<<"PASS: "<<expected<<(raven ? " Raven pack" : " personal")<<" IR WAVs imported, hash matched, decoded and loaded through the cabinet menu; "<<(expected+2)<<" available / "<<rows.size()<<" listed\n";return 0;
         }
         const auto directory = argc > 1 ? juce::File(argv[1])
                                        : juce::File::getCurrentWorkingDirectory().getChildFile("ui-snapshots");
@@ -450,13 +454,20 @@ int main(int argc, char** argv)
             const auto catalog=juce::JSON::parse(spectralforge::referenceIRCatalog);const auto* entries=catalog.getArray();
             require(entries && entries->size()==26,"Expected twenty-six verified personal capture references");
             const auto external=juce::JSON::parse(spectralforge::externalBassIRCatalog);require(external.getArray() && external.getArray()->size()==12,"Expected twelve external Shift Line references");
-            require(all.size()==(size_t)entries->size()+2+external.getArray()->size(),"Factory and reference catalog counts disagree");
+            const auto raven=juce::JSON::parse(spectralforge::ravenIRCatalog);require(raven.getArray() && raven.getArray()->size()==4,"Expected three Raven microphone positions and one V30 comparison");
+            require(all.size()==(size_t)entries->size()+2+external.getArray()->size()+raven.getArray()->size(),"Factory and reference catalog counts disagree");
             int available=0,karnivore=0,bass=0;
             for(const auto& row:all) {available+=row.ready();karnivore+=row.tags.values[0].containsIgnoreCase("Karnivore");bass+=row.bass();}
             require(available==2 && karnivore==7 && bass==27,"Missing catalog WAVs were counted as installed or capture inventory changed");
             for(const auto& row:all) if(row.reference) require(row.tags.values[9].startsWith("https://"),"Reference source fields are shifted");
-            for(const auto& row:all)if(row.external)require(!row.ready() && row.file==juce::File{},"An external bass reference falsely claims an installed WAV");
+            for(const auto& row:all)if(row.external)require(!row.ready() && row.file==juce::File{},"An external reference falsely claims an installed WAV");
             require(browser.findChildWithID("irbassdownload")!=nullptr,"Official external bass download button missing");
+            kind->setSelectedId(1,juce::sendNotificationSync);
+            auto* search=dynamic_cast<juce::TextEditor*>(browser.findChildWithID("irsearch"));require(search!=nullptr,"IR search missing");
+            search->setText("Raven",false);search->onTextChange();
+            require(list->getListBoxModel()->getNumRows()==4,"Raven library search does not expose all three positions and comparison");
+            list->selectRow(0);require(!dynamic_cast<juce::TextButton*>(browser.findChildWithID("irload"))->isEnabled(),"Uninstalled Raven capture incorrectly loadable");
+            saveSnapshot(browser,directory,"IR-Raven-reference-library");
             const auto invalid=directory.getChildFile("invalid-personal.zip");
             {std::array<char,128> damaged{};juce::ZipFile::Builder zip;zip.addEntry(new juce::MemoryInputStream(damaged.data(),damaged.size(),false),9,"../../DYN 421.wav",juce::Time::getCurrentTime());auto stream=invalid.createOutputStream();require(stream && zip.writeToStream(*stream,nullptr),"Cannot write invalid pack fixture");}
             int count=0;const auto target=directory.getChildFile("pack-import-destination");
@@ -550,11 +561,10 @@ int main(int argc, char** argv)
                         }
                     } else {
                         for(int section=0;section<6;++section) {
-                            auto* button=dynamic_cast<juce::Button*>(canvas->findChildWithID("postModule"+juce::String(section)));
-                            require(button && button->isVisible(),"POST effect category is inaccessible");button->triggerClick();
-                            juce::MessageManager::getInstance()->runDispatchLoopUntil(100);
+                            auto* button=dynamic_cast<juce::Button*>(correctionUITests::find(*canvas,"postExpand"+juce::String(section)));
+                            require(button && button->isVisible(),"POST rack row has no accessible ALL button");
                             if(section<3) {
-                                auto* panel=canvas->findChildWithID("postNativePanel"+juce::String(section));require(panel && panel->isVisible(),"POST native panel did not follow category selection");
+                                auto* panel=canvas->findChildWithID("postNativePanel"+juce::String(section));require(panel && panel->isVisible() && panel->getHeight()==64,"POST native modules do not share the compact rack overview");
                                 auto* model=dynamic_cast<juce::ComboBox*>(correctionUITests::find(*panel,spectralforge::postNativeModelID(section)));
                                 require(model && model->getNumItems()==3,"POST native section does not expose three models");
                                 for(int choice=0;choice<3;++choice){model->setSelectedId(choice+1,juce::sendNotificationSync);juce::MessageManager::getInstance()->runDispatchLoopUntil(60);saveSnapshot(editor,directory,"POST-native-"+juce::String(section)+"-"+juce::String(choice));}

@@ -6,26 +6,34 @@
   #error OutputPath must be supplied by the build script
 #endif
 #define ProductName "SpectralForge Chimera"
-#define ProductVersion "1.0.0"
+#ifdef BuildId
+  #define ProductVersion "1.0.1"
+  #define ProductRelease "Preview " + BuildId
+  #define OutputName "SpectralForge-Chimera-update-" + BuildId + "-win64-Setup"
+#else
+  #define ProductVersion "1.0.0"
+  #define ProductRelease "Open Beta 1.0"
+  #define OutputName "SpectralForge-Chimera-1.0.0-beta.1-win64-Setup"
+#endif
 
 [Setup]
 ; Keep AppId stable across updates so Windows has one uninstall entry.
 AppId=SpectralForge.ChimeraAmpMatrix
 AppName={#ProductName}
 AppVersion={#ProductVersion}
-AppVerName={#ProductName} Open Beta 1.0
+AppVerName={#ProductName} {#ProductRelease}
 AppPublisher=RavenForge Luthier Intelligence
 AppPublisherURL=https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix
 DefaultDirName={autopf}\SpectralForge\Chimera Amp Matrix
 DefaultGroupName=SpectralForge\{#ProductName}
 DisableProgramGroupPage=yes
-DisableDirPage=auto
+DisableDirPage=no
 PrivilegesRequired=admin
 ArchitecturesAllowed=x64compatible
 ArchitecturesInstallIn64BitMode=x64compatible
 MinVersion=10.0
 OutputDir={#OutputPath}
-OutputBaseFilename=SpectralForge-Chimera-1.0.0-beta.1-win64-Setup
+OutputBaseFilename={#OutputName}
 Compression=lzma2
 SolidCompression=yes
 WizardStyle=modern
@@ -65,7 +73,7 @@ Name: "reference"; Description: "{cm:ReferenceTools}"; Types: full
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; Components: standalone; Flags: unchecked
 
 [Files]
-Source: "{#StageDir}\VST3\SpectralForge Chimera.vst3\*"; DestDir: "{commoncf64}\VST3\SpectralForge Chimera.vst3"; Components: vst3; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "{#StageDir}\VST3\SpectralForge Chimera.vst3\*"; DestDir: "{code:GetVst3Dir}\SpectralForge Chimera.vst3"; Components: vst3; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "{#StageDir}\Standalone\SpectralForge Chimera.exe"; DestDir: "{app}"; Components: standalone; Flags: ignoreversion
 Source: "{#StageDir}\*.txt"; DestDir: "{app}"; Flags: ignoreversion
 Source: "{#StageDir}\ARTWORK_PROMPTS.json"; DestDir: "{app}\Documentation"; Flags: ignoreversion
@@ -86,6 +94,7 @@ Source: "{src}\Chimera-Personal-IRs\*.json"; DestDir: "{commonappdata}\SpectralF
 ; Retire only exact legacy program binaries, never user presets or IR folders.
 Type: files; Name: "{app}\Chimera Amp Matrix.exe"; Components: standalone
 Type: files; Name: "{commoncf64}\VST3\Chimera Amp Matrix.vst3\Contents\x86_64-win\Chimera Amp Matrix.vst3"; Components: vst3
+Type: files; Name: "{code:GetPreviousVst3Dir}\SpectralForge Chimera.vst3\Contents\x86_64-win\SpectralForge Chimera.vst3"; Components: vst3; Check: Vst3PathChanged
 Type: files; Name: "{commonprograms}\SpectralForge\Chimera Amp Matrix\Chimera Amp Matrix.lnk"; Components: standalone
 
 [Icons]
@@ -110,3 +119,83 @@ english.ReferenceTools=Offline reference tools and example audio
 korean.ReferenceTools=오프라인 레퍼런스 도구 및 예제 음원
 english.InstallGuide=Installation guide
 korean.InstallGuide=설치 안내
+english.Vst3FolderTitle=VST3 installation folder
+korean.Vst3FolderTitle=VST3 설치 경로
+english.Vst3FolderDescription=Choose the plugin folder scanned by your DAW.
+korean.Vst3FolderDescription=DAW에서 검색할 VST3 플러그인 폴더를 선택하세요.
+english.Vst3FolderInfo=The standard folder works with most DAWs. If you select a custom folder, add it to your DAW's plugin search paths.
+korean.Vst3FolderInfo=기본 경로는 대부분의 DAW에서 자동 검색됩니다. 다른 경로를 선택하면 DAW의 플러그인 검색 경로에도 추가하세요.
+english.Vst3FolderLabel=VST3 folder:
+korean.Vst3FolderLabel=VST3 폴더:
+english.Vst3FolderInvalid=Choose an absolute VST3 folder path.
+korean.Vst3FolderInvalid=VST3 폴더의 전체 경로를 선택하세요.
+
+[Code]
+var
+  Vst3Page: TInputDirWizardPage;
+  PreviousVst3Dir: String;
+
+function GetVst3Dir(Param: String): String;
+begin
+  Result := Vst3Page.Values[0];
+end;
+
+function GetPreviousVst3Dir(Param: String): String;
+begin
+  Result := PreviousVst3Dir;
+end;
+
+function Vst3PathChanged: Boolean;
+begin
+  Result := CompareText(AddBackslash(PreviousVst3Dir), AddBackslash(Vst3Page.Values[0])) <> 0;
+end;
+
+procedure InitializeWizard;
+var
+  RequestedVst3Dir: String;
+begin
+  PreviousVst3Dir := GetPreviousData('Vst3Dir', ExpandConstant('{commoncf64}\VST3'));
+  Vst3Page := CreateInputDirPage(wpSelectComponents,
+    CustomMessage('Vst3FolderTitle'), CustomMessage('Vst3FolderDescription'),
+    CustomMessage('Vst3FolderInfo'), False, '');
+  Vst3Page.Add(CustomMessage('Vst3FolderLabel'));
+  RequestedVst3Dir := ExpandConstant('{param:VST3DIR|}');
+  if RequestedVst3Dir = '' then RequestedVst3Dir := PreviousVst3Dir;
+  Vst3Page.Values[0] := RequestedVst3Dir;
+end;
+
+function ShouldSkipPage(PageID: Integer): Boolean;
+begin
+  Result := (PageID = Vst3Page.ID) and not WizardIsComponentSelected('vst3');
+end;
+
+function PrepareToInstall(var NeedsRestart: Boolean): String;
+var
+  Folder: String;
+begin
+  Result := '';
+  if not WizardIsComponentSelected('vst3') then Exit;
+  Folder := Vst3Page.Values[0];
+  if not (((Length(Folder) >= 3) and (Folder[2] = ':') and (Folder[3] = '\')) or
+          ((Length(Folder) > 2) and (Copy(Folder, 1, 2) = '\\'))) then
+    Result := CustomMessage('Vst3FolderInvalid');
+end;
+
+procedure RegisterPreviousData(PreviousDataKey: Integer);
+begin
+  if WizardIsComponentSelected('vst3') then
+    SetPreviousData(PreviousDataKey, 'Vst3Dir', Vst3Page.Values[0])
+  else
+    SetPreviousData(PreviousDataKey, 'Vst3Dir', PreviousVst3Dir);
+end;
+
+function UpdateReadyMemo(Space, NewLine, MemoUserInfoInfo, MemoDirInfo, MemoTypeInfo,
+  MemoComponentsInfo, MemoGroupInfo, MemoTasksInfo: String): String;
+begin
+  Result := MemoDirInfo;
+  if WizardIsComponentSelected('vst3') then
+    Result := Result + NewLine + NewLine + CustomMessage('Vst3FolderLabel') +
+      NewLine + Space + Vst3Page.Values[0];
+  Result := Result + NewLine + NewLine + MemoComponentsInfo;
+  if MemoTasksInfo <> '' then Result := Result + NewLine + NewLine + MemoTasksInfo;
+end;

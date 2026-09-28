@@ -42,12 +42,21 @@ public:
         toggle.onClick=[this]{if(activate)activate();if(attachment)attachment->setValueAsCompleteGesture(toggle.getToggleState()?1.f:0.f);updateToggle();};
     }
     void resized() override {
+        if(compact) {
+            group.setVisible(false);label.setBounds(2,0,getWidth()-4,17);
+            slider.setBounds(2,17,getWidth()-4,getHeight()-18);
+            choice.setBounds(4,25,getWidth()-8,26);toggle.setBounds(6,25,getWidth()-12,26);return;
+        }
+        group.setVisible(true);
         group.setBounds(2,0,getWidth()-4,13);label.setBounds(2,13,getWidth()-4,27);
         slider.setBounds(2,39,getWidth()-4,getHeight()-41);
         choice.setBounds(5,47,getWidth()-10,27);toggle.setBounds(9,47,getWidth()-18,27);
     }
+    void setCompact(bool value) {
+        compact=value;slider.setTextBoxStyle(compact?juce::Slider::TextBoxRight:juce::Slider::TextBoxBelow,false,compact?62:82,18);resized();
+    }
 private:
-    int type{};bool dragging{};juce::StringArray labels;
+    int type{};bool dragging{},compact{};juce::StringArray labels;
     std::unique_ptr<juce::ParameterAttachment> attachment;
     void updateToggle(){toggle.setButtonText(labels.size()>1?labels[toggle.getToggleState()?1:0]:toggle.getToggleState()?"ON":"OFF");}
 };

@@ -89,15 +89,13 @@ private:
         juce::Label header,scope,description;
         juce::ComboBox model;
         std::unique_ptr<CA> modelAttachment;
-        juce::TextButton enabled{"ON"};
+        juce::TextButton enabled{"ON"},expand{"ALL"};
         std::array<juce::Slider,5> controls;
         std::array<juce::Label,5> labels;
         std::array<std::unique_ptr<SA>,5> attachments;
         std::unique_ptr<BA> button;
     };
     std::array<std::unique_ptr<PostNativePanel>,3> postPanels;
-    std::array<juce::TextButton,6> postModuleButtons;
-    int selectedPost{};
     std::array<FXUI,11> effects; // drive, delay, reverb, comp, filter, fuzz, boost, bus, preamp, EQ, chorus
     std::array<int,5> pedalOrder{4,3,5,6,0};
     bool lastEnvelopeFirst{true},lastBoostAfterDrive{};

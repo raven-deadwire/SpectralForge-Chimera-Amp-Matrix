@@ -8,6 +8,7 @@
 - 이펙터 선택 목록은 제품 별칭만 표시하며 Compressor, Boost, Overdrive,
   Distortion, Fuzz, Envelope Filter, Wah, Equalizer, Modulation, Pitch / Octave로 분류합니다.
   같은 항목은 한 분류에 한 번만 나타납니다. 원본 참조는 상세 화면에 표시합니다.
+- 선택한 페달은 메뉴 아래에 작은 원본 참조명을 표시합니다. 선택 목록은 별칭만 유지합니다.
 - 모델을 고르면 바로 불러옵니다. 파라미터 은행 확인창은 없습니다.
   이미 사용한 자리·모델은 저장된 노브 값을 기억합니다. 복제는 독립된 자리로 복사합니다.
 - 조절부가 4개인 페달은 2×2로 배치합니다. ON은 이펙트 작동, OFF는 바이패스입니다.
@@ -18,9 +19,12 @@
 - 앰프 23종의 전용 노브·스위치·채널·입력 경로를 실제 DSP에 연결했습니다.
   Classic 1개, Dual 2개, Matrix 3개 문맥에서 모델별 설정을 독립 저장합니다.
   ALL로 전용 패널을 크게 열고, 복잡한 패널은 스크롤해 조절합니다.
+  Matrix LOW 기본 화면에는 BAND TONE, LOW DI COMP, DI / AMP MIX를 우선 표시하며,
+  나머지 앰프 조절부는 ALL 패널에서 수정합니다.
 - POST는 Bus Compressor → Preamp → EQ → Modulation → Delay → Reverb 순서입니다.
   첫 세 종류의 9개 모델은 각 장비의 노브·스위치·미터를 표시하고 실제 처리에 연결합니다.
   INPUT TRIM / OUTPUT LEVEL은 별도의 소프트웨어 게인입니다.
+  기본 POST 화면은 기존 6행 랙으로 표시하며 각 유닛의 ALL에서 전체 파라미터를 엽니다.
 
 ## 저장과 호환성
 
@@ -39,6 +43,17 @@ AMP_NATIVE_DSP.md, POST_NATIVE_DSP.md, PEDAL_BOARD_DSP.md에 구현과 검증 �
 NAM 캡처와의 동등성을 측정한 결과는 아닙니다. 팬텀 전원·외부 하드웨어 인서트처럼
 소프트웨어 오디오 입력에서 제공할 수 없는 물리 기능은 작동하는 노브로 표시하지 않습니다.
 CTest.log는 패키지의 자동 검사 기록입니다. 사용자 DAW의 종료·실제 연주는 별도 환경입니다.
+
+## Raven IR과 설치 경로
+
+Raven G12-100 SM57 In / Out / Ref와 V30 비교 캡처는 개인용 설치 묶음의
+`Chimera-Personal-IRs` 폴더로 함께 제공합니다. 압축을 전체 해제한 뒤 같은 위치의
+Setup을 실행하면 공용 IR 데이터 경로에 설치되어 IR LIBRARY와 각 레인의 CAB에서 선택할 수 있습니다.
+개인 IR ZIP 가져오기도 파일 해시 검증 후 해당 네 파일을 인식합니다.
+
+Setup에서는 앱 설치 경로와 VST3 설치 경로를 각각 선택할 수 있습니다.
+VST3의 기본값은 Windows 표준 폴더이며 사용자 지정 폴더는 DAW의 검색 경로에 추가합니다.
+개인 IR은 앱 경로와 별도 보관되며 재설치·제거 시 보존됩니다.
 
 ## 실행 파일 확인
 

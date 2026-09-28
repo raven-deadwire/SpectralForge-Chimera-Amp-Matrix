@@ -61,6 +61,25 @@ inline void run() {
     PedalBoardPanel board(processor);board.setBounds(0,0,1140,416);board.setVisible(true);
     auto* first=dynamic_cast<PedalSelector*>(board.findChildWithID("boardModelAt0"));
     check(first!=nullptr && first->isEnabled(),"Board model selector missing or disabled");
+    auto* reference=dynamic_cast<juce::Label*>(board.findChildWithID("boardReferenceAt0"));
+    check(reference!=nullptr,"Selected pedal reference caption is missing");
+    for(int model=1;model<pedalModelCount;++model) {
+        check(first->selectMenuResult(model+1),"Pedal reference target cannot be selected");
+        check(reference->isVisible() && reference->getText()==pedalReferenceName(model) && reference->getText().isNotEmpty(),
+              "Selected pedal does not identify its hardware reference or original DSP");
+        check(reference->getY()>=first->getBottom() && board.getLocalBounds().contains(reference->getBounds()),
+              "Pedal reference is not visible below the selector");
+        check(reference->getFont().getHeight()>=11.f && reference->getMinimumHorizontalScale()==1.f,
+              "Pedal reference shrinks below its readable caption size");
+        const auto font=reference->getFont();
+        juce::GlyphArrangement glyphs;glyphs.addLineOfText(font,reference->getText(),0,0);
+        check(glyphs.getBoundingBox(0,-1,true).getWidth()<=reference->getWidth()-10,
+              "Hardware reference is too long for the visible pedal card");
+        for(auto* child:board.getChildren())if(child!=reference && child->isVisible())
+            check(!reference->getBounds().intersects(child->getBounds()),"Pedal reference overlaps another visible control");
+    }
+    first->selectMenuResult(1);
+    check(!reference->isVisible() && reference->getText().isEmpty(),"Empty slot retains a stale hardware reference");
     check(first->selectMenuResult(30),"Cannot select Dual Circuit through real board control");
     check(processor.pedalBoardState().instances[0].model==29,"Pedal selection waits for approval before loading DSP");
     check(juce::Component::getNumCurrentlyModalComponents()==0,"Pedal selection opened a parameter-bank alert");
@@ -85,6 +104,9 @@ inline void run() {
     auto* title=dynamic_cast<juce::Label*>(board.findChildWithID("boardDetailTitle"));
     check(close!=nullptr && close->isVisible() && title!=nullptr && title->getText()=="Dual Circuit",
           "Pedal detail view did not open the selected product controls");
+    auto* detailReference=dynamic_cast<juce::Label*>(board.findChildWithID("boardDetailReference"));
+    check(detailReference && detailReference->isVisible() && detailReference->getText()==pedalReferenceName(29) && !reference->isVisible(),
+          "Detailed pedal view does not retain the selected hardware reference");
     for(auto* child:board.getChildren())if(child!=close && child->isVisible())
         check(!close->getBounds().intersects(child->getBounds()),"Return button overlaps a visible pedal-detail control");
     close->triggerClick();settle();
@@ -133,6 +155,6 @@ inline void run() {
     for(auto* child:board.getChildren())if(auto* slider=dynamic_cast<juce::Slider*>(child);slider && slider->isVisible() && slider->getComponentID()==id)activeControl=slider;
     check(activeControl && activeControl->keyPressed(juce::KeyPress(juce::KeyPress::upKey)),"Pedal keyboard edit was not accepted");
     check(processor.pedalBoardState().enabled,"A deliberate keyboard pedal edit did not activate its audio path");
-    std::cout<<"PASS pedal menus: 39 DSPs in 10 exclusive categories, aliases only, async selection and popup reopen, immediate load/copy without dialogs, ON/OFF, four-control 2 by 2 layouts and user-only board activation\n";
+    std::cout<<"PASS pedal menus: 39 DSPs in 10 exclusive categories, alias-only lists with separate readable hardware captions, async selection and popup reopen, immediate load/copy without dialogs, ON/OFF, four-control 2 by 2 layouts and user-only board activation\n";
 }
 }

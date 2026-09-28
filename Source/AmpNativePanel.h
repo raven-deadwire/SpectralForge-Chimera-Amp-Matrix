@@ -27,13 +27,13 @@ public:
         const int nextContext=spectralforge::ampNativeContext(mode,lane),nextModel=processor.selectedAmpModel(lane);
         const auto& panel=spectralforge::ampNativePanel(nextModel);
         if(nextContext!=context || nextModel!=model || split!=currentSplit) {
-            context=nextContext;model=nextModel;currentSplit=split;currentChannel=-1;controls.clear();
+            context=nextContext;model=nextModel;currentSplit=split;lowOverview=!detailed && mode==2 && lane==0;currentChannel=-1;controls.clear();
             channel.clear(juce::dontSendNotification);input.clear(juce::dontSendNotification);
             for(size_t i=0;i<panel.channels.size();++i)channel.addItem(juce::String::fromUTF8(panel.channels[i]),(int)i+1);
             for(size_t i=0;i<panel.routes.size();++i)input.addItem(juce::String::fromUTF8(panel.routes[i]),(int)i+1);
             channel.resetSyncExplicit(processor.selectedAmpChannel(lane)+1);input.resetSyncExplicit(processor.selectedAmpNativeRoute(lane)+1);
-            channel.setVisible(panel.channels.size()>1);channelLabel.setVisible(panel.channels.size()>1);
-            input.setVisible(panel.routes.size()>1);inputLabel.setVisible(panel.routes.size()>1);
+            channel.setVisible(!lowOverview && panel.channels.size()>1);channelLabel.setVisible(!lowOverview && panel.channels.size()>1);
+            input.setVisible(!lowOverview && panel.routes.size()>1);inputLabel.setVisible(!lowOverview && panel.routes.size()>1);
             for(size_t i=0;i<panel.controls.size();++i) {
                 auto control=std::make_unique<NativeControlView>();const auto& spec=panel.controls[i];juce::StringArray options;
                 for(const auto* option:spec.options)options.add(juce::String::fromUTF8(option));
@@ -65,7 +65,11 @@ public:
         channel.syncSelectedId(processor.selectedAmpChannel(lane)+1);input.syncSelectedId(processor.selectedAmpNativeRoute(lane)+1);
         const int nextChannel=processor.selectedAmpChannel(lane);
         if(currentChannel!=nextChannel) {
-            currentChannel=nextChannel;for(size_t i=0;i<controls.size();++i)controls[i]->setVisible(i>=panel.controls.size() || spectralforge::ampNativeControlVisible(model,(int)i,currentChannel));
+            currentChannel=nextChannel;for(size_t i=0;i<controls.size();++i) {
+                const auto id=controls[i]->getComponentID();
+                const bool frontControl=id=="bandtone1_control" || id=="lowcomp_control" || id=="lowampmix_control";
+                controls[i]->setVisible(lowOverview?frontControl:i>=panel.controls.size() || spectralforge::ampNativeControlVisible(model,(int)i,currentChannel));
+            }
             viewport.setViewPosition(0,0);resized();
         }
         if(dialog)if(auto* full=dynamic_cast<AmpNativePanel*>(dialog->getContentComponent()))full->refresh();
@@ -83,7 +87,7 @@ public:
         content.setSize(available,juce::jmax(viewport.getHeight(),((visible+columns-1)/columns)*103));
     }
 private:
-    ChimeraProcessor& processor;int lane{},context{-1},model{-1},currentChannel{-1};bool detailed{},currentSplit{};
+    ChimeraProcessor& processor;int lane{},context{-1},model{-1},currentChannel{-1};bool detailed{},currentSplit{},lowOverview{};
     juce::TextButton expand;juce::Component::SafePointer<juce::DialogWindow> dialog;
     juce::Label channelLabel,inputLabel;StableAmpComboBox channel,input;
     juce::Viewport viewport;juce::Component content;std::vector<std::unique_ptr<NativeControlView>> controls;

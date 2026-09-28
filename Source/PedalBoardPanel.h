@@ -42,7 +42,7 @@ class PedalBoardPanel final : public juce::Component, private juce::Timer {
     };
     struct Card {
         PedalSelector model;juce::TextButton bypass{"ON"},left{"<"},right{">"},copy{"COPY"},remove{"X"},detail{"CONTROLS"};
-        juce::Label title;std::array<Control,6> controls;std::unique_ptr<BA> attachment;
+        juce::Label title,reference;std::array<Control,6> controls;std::unique_ptr<BA> attachment;
         int owner{-1},modelId{-1};
     };
     ChimeraProcessor& processor;
@@ -127,7 +127,8 @@ class PedalBoardPanel final : public juce::Component, private juce::Timer {
         detailBypassAttachment.reset();
         if(owner>=0) {
             detailTitle.setText(spectralforge::pedalMenuName(detailedModel),juce::dontSendNotification);
-            detailReference.setText(spectralforge::pedalModel(detailedModel).name,juce::dontSendNotification);
+            detailReference.setText(spectralforge::pedalReferenceName(detailedModel),juce::dontSendNotification);
+            detailReference.setTooltip(spectralforge::pedalModel(detailedModel).name);
             for(int i=0;i<spectralforge::pedalMaxControls;++i)bind(details[(size_t)i],owner,detailedModel,i,true);
             detailBypassAttachment=bindPower(detailBypass,owner,detailedModel);
         }
@@ -147,6 +148,8 @@ class PedalBoardPanel final : public juce::Component, private juce::Timer {
                 layoutChanged=true;
                 const bool ownerChanged=card.owner!=owner;
                 card.owner=owner;card.modelId=model;
+                card.reference.setText(spectralforge::pedalReferenceName(model),juce::dontSendNotification);
+                card.reference.setTooltip(model?spectralforge::pedalModel(model).name:"");
                 if(ownerChanged)card.model.resetSyncExplicit(model+1);else card.model.syncSelectedId(model+1);
                 card.attachment.reset();
                 if(model)card.attachment=bindPower(card.bypass,owner,model);
@@ -156,6 +159,7 @@ class PedalBoardPanel final : public juce::Component, private juce::Timer {
             card.title.setText("SLOT "+juce::String(position+1)+"  /  "+(model?juce::String(spectralforge::pedalModel(model).controlCount)+" CONTROLS":"ADD A PEDAL"),juce::dontSendNotification);
             const bool visible=detailedOwner<0;
             for(juce::Component* c:std::initializer_list<juce::Component*>{&card.title,&card.model,&card.bypass,&card.left,&card.right,&card.copy,&card.remove,&card.detail})c->setVisible(visible);
+            card.reference.setVisible(visible&&model!=0);
             card.model.setEnabled(true);
             card.left.setEnabled(position>0);card.right.setEnabled(position<4);card.copy.setEnabled(count<5&&model!=0);card.detail.setEnabled(model!=0);
             card.detail.setButtonText(spectralforge::pedalModel(model).controlCount>6?"ALL CONTROLS":"DETAIL / MIDI");
@@ -183,8 +187,13 @@ public:
         setComponentID("universalPedalBoard");
         for(int position=0;position<5;++position) {
             auto& card=cards[(size_t)position];
-            for(juce::Component* c:std::initializer_list<juce::Component*>{&card.title,&card.model,&card.bypass,&card.left,&card.right,&card.copy,&card.remove,&card.detail})addAndMakeVisible(c);
+            for(juce::Component* c:std::initializer_list<juce::Component*>{&card.title,&card.reference,&card.model,&card.bypass,&card.left,&card.right,&card.copy,&card.remove,&card.detail})addAndMakeVisible(c);
             card.model.setComponentID("boardModelAt"+juce::String(position));
+            card.reference.setComponentID("boardReferenceAt"+juce::String(position));
+            card.title.setFont(juce::FontOptions(11.f));
+            card.reference.setFont(juce::FontOptions(11.f));
+            card.reference.setMinimumHorizontalScale(1.f);
+            card.reference.setColour(juce::Label::textColourId,juce::Colour(0xffaeb8ab));
             card.detail.setComponentID("boardDetailAt"+juce::String(position));
             card.copy.setComponentID("boardCopyAt"+juce::String(position));
             card.remove.setComponentID("boardRemoveAt"+juce::String(position));
@@ -244,7 +253,8 @@ public:
         close.setBounds(937,5,203,27);detailBypass.setBounds(741,5,87,27);detailTitle.setBounds(14,44,1090,24);detailReference.setBounds(14,68,1090,18);
         for(int position=0;position<5;++position) {
             auto& c=cards[(size_t)position];const int x=position*230;
-            c.title.setBounds(x+9,52,202,19);c.model.setBounds(x+9,79,202,29);
+            c.title.setBounds(x+9,51,202,16);c.model.setBounds(x+9,68,202,29);
+            c.reference.setBounds(x+9,98,202,18);
             for(int k=0;k<6;++k) {
                 const int count=spectralforge::pedalModel(juce::jmax(0,c.modelId)).controlCount;
                 const bool compact=count>3;

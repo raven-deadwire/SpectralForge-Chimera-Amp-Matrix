@@ -116,7 +116,7 @@ struct IRCollection {
         if(report) *report={};
         std::vector<Entry> result;
         juce::Array<juce::var> catalogEntries;
-        for(const auto* raw:{referenceIRCatalog,externalBassIRCatalog}) {
+        for(const auto* raw:{referenceIRCatalog,externalBassIRCatalog,ravenIRCatalog}) {
             const auto catalog=juce::JSON::parse(raw);
             if(const auto* entries=catalog.getArray())catalogEntries.addArray(*entries);
         }
@@ -167,8 +167,12 @@ struct IRCollection {
         if (zip.getNumEntries()>4096) return juce::Result::fail("The archive contains too many entries.");
         struct Pending { juce::String name; juce::MemoryBlock audio; juce::var tags; };
         std::vector<Pending> pending;
-        const auto catalog=juce::JSON::parse(referenceIRCatalog);
-        for (const auto& expected:*catalog.getArray()) {
+        juce::Array<juce::var> catalogEntries;
+        for(const auto* raw:{referenceIRCatalog,ravenIRCatalog}) {
+            const auto catalog=juce::JSON::parse(raw);
+            if(const auto* entries=catalog.getArray())catalogEntries.addArray(*entries);
+        }
+        for (const auto& expected:catalogEntries) {
             for (int i=0; i<zip.getNumEntries(); ++i) {
                 const auto* entry=zip.getEntry(i);
                 const auto leaf=entry->filename.replaceCharacter('\\','/').fromLastOccurrenceOf("/",false,false);

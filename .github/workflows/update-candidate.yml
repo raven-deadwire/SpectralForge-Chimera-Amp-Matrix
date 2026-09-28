@@ -7,7 +7,7 @@ permissions:
 jobs:
   windows-candidate:
     runs-on: windows-latest
-    timeout-minutes: 45
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@v4
         with:
@@ -17,12 +17,83 @@ jobs:
           python-version: '3.12'
       - name: Configure
         run: cmake -S . -B build -A x64 -DCMAKE_BUILD_TYPE=Release
+      - name: Check candidate installer scripts
+        shell: pwsh
+        run: |
+          python -m py_compile Tools/package_installer_candidate.py Tools/Build-PersonalWindowsBundle.py
+          foreach ($script in @("Tools/Build-WindowsInstaller.ps1", "Tools/Verify-WindowsInstaller.ps1")) {
+            $tokens = $null
+            $errors = $null
+            [System.Management.Automation.Language.Parser]::ParseFile((Resolve-Path $script).Path, [ref]$tokens, [ref]$errors) | Out-Null
+            if ($errors.Count) { throw (($errors | ForEach-Object Message) -join "`n") }
+          }
       - name: Build product and regression checks
         run: cmake --build build --config Release --parallel 2
       - name: Execute DSP and actual JUCE UI tests
         run: ctest --test-dir build -C Release --output-on-failure --no-tests=error
       - name: Package distinct Windows test build
         run: python Tools/package_update_candidate.py
+      - name: Stage exact-commit Windows installer payload
+        run: python Tools/package_installer_candidate.py stage
+      - name: Build distinct Windows Setup
+        shell: pwsh
+        run: |
+          $buildId = ((& git rev-parse HEAD).Trim()).Substring(0, 10)
+          ./Tools/Build-WindowsInstaller.ps1 -Stage installer-candidate/payload -OutputDirectory installer-candidate -BuildId $buildId
+      - name: Verify selected paths, installed app, VST3, repair and uninstall
+        timeout-minutes: 5
+        shell: pwsh
+        run: |
+          $buildId = ((& git rev-parse HEAD).Trim()).Substring(0, 10)
+          ./Tools/Verify-WindowsInstaller.ps1 -Installer "installer-candidate/SpectralForge-Chimera-update-$buildId-win64-Setup.exe" -Stage installer-candidate/payload -LogDirectory build/candidate-installer-verification
+      - name: Scan candidate Setup with Microsoft Defender
+        timeout-minutes: 10
+        shell: pwsh
+        run: |
+          $buildId = ((& git rev-parse HEAD).Trim()).Substring(0, 10)
+          ./Tools/Scan-WindowsArtifacts.ps1 -Path "installer-candidate/SpectralForge-Chimera-update-$buildId-win64-Setup.exe" -ReportDirectory build/candidate-installer-security
+      - name: Prepare verified Setup transfer parts
+        run: python Tools/package_installer_candidate.py transfer
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: Chimera-candidate-installer-verification
+          path: |
+            build/candidate-installer-verification/*
+            build/candidate-installer-security/*
+          if-no-files-found: warn
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Chimera-installer-part-1
+          path: installer-transfer/part-1/*
+          compression-level: 0
+          if-no-files-found: error
+      - uses: actions/upload-artifact@v4
+        if: success() && hashFiles('installer-transfer/part-2/*') != ''
+        with:
+          name: Chimera-installer-part-2
+          path: installer-transfer/part-2/*
+          compression-level: 0
+          if-no-files-found: error
+      - uses: actions/upload-artifact@v4
+        if: success() && hashFiles('installer-transfer/part-3/*') != ''
+        with:
+          name: Chimera-installer-part-3
+          path: installer-transfer/part-3/*
+          compression-level: 0
+          if-no-files-found: error
+      - uses: actions/upload-artifact@v4
+        if: success() && hashFiles('installer-transfer/part-4/*') != ''
+        with:
+          name: Chimera-installer-part-4
+          path: installer-transfer/part-4/*
+          compression-level: 0
+          if-no-files-found: error
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Chimera-installer-transfer-metadata
+          path: installer-transfer/metadata/*
+          if-no-files-found: error
       - uses: actions/upload-artifact@v4
         if: always()
         with:

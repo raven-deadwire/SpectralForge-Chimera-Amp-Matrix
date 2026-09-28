@@ -1,6 +1,7 @@
 param(
     [string]$Stage = "dist/SpectralForge-Chimera-1.0.0-beta.1-win64",
     [string]$OutputDirectory = "dist",
+    [string]$BuildId = "",
     [switch]$Sign,
     [string]$CertificateThumbprint = $env:CHIMERA_SIGNING_THUMBPRINT,
     [string]$ExpectedPublisher = "RavenForge Luthier Intelligence"
@@ -30,6 +31,14 @@ $iscc = if ($isccCommand) { $isccCommand.Source } else {
 if (!(Test-Path -LiteralPath $iscc)) { throw "Inno Setup 6.3 or newer is required to build the installer." }
 $script = Join-Path $PSScriptRoot "../Installer/Chimera.iss"
 $compilerArguments = @("/DStageDir=$stagePath", "/DOutputPath=$outputPath")
+$outputName = "SpectralForge-Chimera-1.0.0-beta.1-win64-Setup.exe"
+if ($BuildId) {
+    if ($BuildId -notmatch '^[0-9a-f]{10}$') { throw "Candidate BuildId must be the first ten lowercase source commit characters." }
+    $candidateManifest = Get-Content -LiteralPath (Join-Path $stagePath "payload-manifest.json") -Raw | ConvertFrom-Json
+    if (!$candidateManifest.source_sha.StartsWith($BuildId)) { throw "Candidate installer and payload source revisions differ." }
+    $compilerArguments += "/DBuildId=$BuildId"
+    $outputName = "SpectralForge-Chimera-update-$BuildId-win64-Setup.exe"
+}
 if ($Sign) {
     $signScript = (Resolve-Path -LiteralPath (Join-Path $PSScriptRoot "Sign-WindowsArtifact.ps1")).Path
     $binaries = @(Get-ChildItem -LiteralPath $stagePath -File -Recurse | Where-Object { $_.Extension -in ".exe", ".dll", ".vst3" } | Select-Object -ExpandProperty FullName)
@@ -53,7 +62,7 @@ if ($Sign) {
 }
 & $iscc @compilerArguments $script
 if ($LASTEXITCODE -ne 0) { throw "Inno Setup failed with exit code $LASTEXITCODE" }
-$installer = Join-Path $outputPath "SpectralForge-Chimera-1.0.0-beta.1-win64-Setup.exe"
+$installer = Join-Path $outputPath $outputName
 if (!(Test-Path -LiteralPath $installer)) { throw "Installer compiler did not produce the expected Setup executable." }
 if ($Sign) {
     & $signScript -Path $installer -CertificateThumbprint $CertificateThumbprint -ExpectedPublisher $ExpectedPublisher -VerifyOnly

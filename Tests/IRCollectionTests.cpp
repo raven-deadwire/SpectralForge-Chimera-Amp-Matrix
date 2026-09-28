@@ -13,7 +13,7 @@ void writeIR(const juce::File& file,bool silent=false) {
     require(writer->writeFromAudioSampleBuffer(samples,0,256),"Cannot write WAV fixture");
 }
 }
-int main() {
+int main(int argc,char** argv) {
     const auto root=juce::File::getSpecialLocation(juce::File::tempDirectory).getNonexistentChildFile("Chimera-IR-scan",{},false);
     struct Cleanup {juce::File root;~Cleanup(){root.deleteRecursively();}} cleanup{root};
     try {
@@ -39,6 +39,38 @@ int main() {
         const auto references=C::scan({},true);
         int factories=0;for(const auto& e:references)if(C::matches(e,{},{},C::Instrument::all,C::Availability::factory))++factories;
         require(factories==2,"Factory assets lost or counted as imported files");
+        int ravenMissing=0;juce::StringArray ravenLabels;
+        for(const auto& e:references)if(e.name.startsWith("Mar1960_")) {
+            require(e.reference && e.external && !e.ready(),"Uninstalled Raven capture incorrectly marked as bundled audio");
+            require(e.tags.values[8]=="The other John Browne" && e.tags.values[9].contains("_TzZ_FVMGfg"),"Raven capture provenance lost");
+            require(!ravenLabels.contains(e.displayName()),"Raven microphone positions have duplicate labels");
+            ravenLabels.add(e.displayName());++ravenMissing;
+        }
+        require(ravenMissing==4,"Raven three positions or V30 comparison missing from library catalog");
+        const auto ravenHints=spectralforge::IRMetadata::filenameHints("Mar1960_Raven_SM57_In.wav");
+        require(ravenHints.values[0]=="Celestion G12-100 Raven" && ravenHints.values[4]=="In","Raven filename metadata not recognized");
+        const auto fakeZip=root.getChildFile("invalid-raven.zip"),fakeDestination=root.getChildFile("invalid-raven-import");
+        {
+            juce::ZipFile::Builder builder;builder.addFile(bass,6,"IR/Raven/Mar1960_Raven_SM57_In.wav");
+            auto stream=fakeZip.createOutputStream();require(stream!=nullptr && builder.writeToStream(*stream,nullptr),"Cannot create Raven mismatch fixture");
+        }
+        int imported=0;
+        require(C::importPersonalPack(fakeZip,fakeDestination,imported).failed() && imported==0 && !fakeDestination.exists(),"Raven hash mismatch created an installed capture");
+        // Optional private pack exercises the actual four WAVs without checking
+        // them into the repository or making them a public CI fixture.
+        if(argc>1) {
+            const auto privatePack=juce::File::getCurrentWorkingDirectory().getChildFile(argv[1]);
+            const auto destination=root.getChildFile("raven-import");
+            require(C::importPersonalPack(privatePack,destination,imported).wasOk() && imported==4,"Private Raven pack did not import all four verified captures");
+            const auto restored=C::scan({destination},true);
+            int ravenReady=0,ready=0;
+            for(const auto& e:restored) {
+                if(e.ready())++ready;
+                if(e.name.startsWith("Mar1960_")) {require(e.ready() && e.reference && e.validationError.isEmpty(),"Imported Raven file did not become selectable");++ravenReady;}
+            }
+            require(ravenReady==4 && ready==6,"Private Raven library scan did not restore four imports plus two factory captures");
+            std::cout<<"PASS: private Raven ZIP imported four hash-verified WAVs; library scan found six ready captures including factory IRs\n";
+        }
         const auto capped=root.getChildFile("large");require(capped.createDirectory().wasOk(),"Cannot create capped scan folder");
         for(int i=0;i<512;++i)require(bass.copyFileTo(capped.getChildFile("IR-"+juce::String(i)+".wav")),"Cannot create scan limit fixture");
         auto rows=C::scan({capped},false,&report);
@@ -46,7 +78,7 @@ int main() {
         require(bass.copyFileTo(capped.getChildFile("IR-extra.wav")),"Cannot create overflow fixture");
         rows=C::scan({capped},false,&report);
         require(rows.size()==512 && report.examinedFiles==512 && report.truncated,"Scan silently omitted files beyond its limit");
-        std::cout<<"PASS: independent instrument/status/diameter filters, missing/external/factory separation, corrupt/silent file rejection, duplicate-root suppression, explicit 512 vs 513 scan limit\n";
+        std::cout<<"PASS: independent instrument/status/diameter filters, missing/external/factory separation, Raven capture metadata and hash rejection, corrupt/silent file rejection, duplicate-root suppression, explicit 512 vs 513 scan limit\n";
         return 0;
     } catch(const std::exception& error) {std::cerr<<"FAIL: "<<error.what()<<'\n';return 1;}
 }
