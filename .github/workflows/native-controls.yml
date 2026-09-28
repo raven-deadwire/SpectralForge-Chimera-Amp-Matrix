@@ -1,0 +1,74 @@
+name: Beta 1.0 Native Controls Integration
+on:
+  push:
+    branches: [beta/native-controls-20260928]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  source-bundle:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Export tracked source and pinned JUCE for offline verification
+        shell: bash
+        run: |
+          mkdir -p bundle/project bundle/JUCE
+          git archive HEAD | tar -x -C bundle/project
+          git clone --depth 1 --branch 8.0.8 https://github.com/juce-framework/JUCE.git juce-export
+          git -C juce-export archive HEAD | tar -x -C bundle/JUCE
+          git rev-parse HEAD > bundle/SOURCE_COMMIT.txt
+          git -C juce-export rev-parse HEAD > bundle/JUCE_COMMIT.txt
+          tar -czf native-controls-source.tar.gz -C bundle .
+      - uses: actions/upload-artifact@v4
+        with:
+          name: native-controls-source
+          path: native-controls-source.tar.gz
+          retention-days: 7
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Check native integration source
+        id: native
+        shell: pwsh
+        run: |
+          if (Test-Path Source/NativeControls.h) { 'ready=true' >> $env:GITHUB_OUTPUT }
+          else { 'ready=false' >> $env:GITHUB_OUTPUT }
+      - name: Configure native beta
+        if: steps.native.outputs.ready == 'true'
+        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+      - name: Build native beta
+        if: steps.native.outputs.ready == 'true'
+        run: cmake --build build --config Release --parallel 2
+      - name: Test native beta
+        if: steps.native.outputs.ready == 'true'
+        run: ctest --test-dir build -C Release --output-on-failure
+      - name: Package native beta binaries
+        if: steps.native.outputs.ready == 'true'
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path native-beta | Out-Null
+          Copy-Item -Recurse 'build/ChimeraAmpMatrix_artefacts/Release/VST3/*.vst3' native-beta/
+          Copy-Item 'build/ChimeraAmpMatrix_artefacts/Release/Standalone/*.exe' native-beta/
+          if (Test-Path docs/NATIVE_CONTROLS_BETA.md) { Copy-Item docs/NATIVE_CONTROLS_BETA.md native-beta/ }
+          git rev-parse HEAD | Set-Content native-beta/BUILD_COMMIT.txt
+      - uses: actions/upload-artifact@v4
+        if: steps.native.outputs.ready == 'true' && success()
+        with:
+          name: SpectralForge-Chimera-1.0-Native-Controls-win64
+          path: native-beta/
+          retention-days: 14
+      - uses: actions/upload-artifact@v4
+        if: steps.native.outputs.ready == 'true' && always()
+        with:
+          name: native-controls-windows-verification
+          path: |
+            build/Testing/Temporary/LastTest.log
+            build/ui-snapshots/*.png
+          if-no-files-found: warn
+          retention-days: 14
