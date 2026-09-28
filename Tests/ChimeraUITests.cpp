@@ -585,20 +585,38 @@ int main(int argc, char** argv)
                 saveSnapshot(editor,directory,"Universal-mode-"+juce::String(mode));
             }
             auto* board=canvas->findChildWithID("universalPedalBoard");
-            for(auto* child:board->getChildren())if(auto* button=dynamic_cast<juce::TextButton*>(child);button&&button->getButtonText()=="CONTROLS") {button->triggerClick();break;}
-            juce::MessageManager::getInstance()->runDispatchLoopUntil(100);saveSnapshot(editor,directory,"Universal-detail");
+            const auto clickBoardButton=[&](const juce::String& text) {
+                for(auto* child:board->getChildren())
+                    if(auto* button=dynamic_cast<juce::TextButton*>(child);button && button->isVisible() && button->isEnabled() && button->getButtonText()==text) {
+                        button->triggerClick();juce::MessageManager::getInstance()->runDispatchLoopUntil(100);return;
+                    }
+                throw std::runtime_error("Visible board button not found: "+text.toStdString());
+            };
+            const auto checkDetailPanel=[&](int expectedControls) {
+                auto* model=board->findChildWithID("boardModelAt0");
+                require(model && !model->isVisible(),"Pedal detail action did not replace the five-card view");
+                int sliders=0;bool canReturn=false;
+                for(auto* child:board->getChildren())if(child->isVisible()) {
+                    require(board->getLocalBounds().contains(child->getBounds()),"Detail control outside the fixed board bounds");
+                    require(editor.getLocalBounds().contains(editor.getLocalArea(child,child->getLocalBounds())),"Detail control outside scaled editor");
+                    if(dynamic_cast<juce::Slider*>(child))++sliders;
+                    if(auto* button=dynamic_cast<juce::TextButton*>(child);button && button->getButtonText()=="BACK TO 5 PEDALS")canReturn=button->isEnabled();
+                }
+                require(canReturn && sliders==expectedControls+1,"Detail panel is missing controls or its return action"); // Includes LOW TAP.
+            };
+            clickBoardButton("DETAIL / MIDI");checkDetailPanel(3);saveSnapshot(editor,directory,"Universal-detail");
             // Capture every newly added pitch type in the same five-slot board.
-            for(auto* child:board->getChildren())if(auto* button=dynamic_cast<juce::TextButton*>(child);button && button->getButtonText()=="BACK TO 5 PEDALS")button->triggerClick();
+            clickBoardButton("BACK TO 5 PEDALS");
             universal.setPedalModel(0,38);universal.setPedalModel(1,39);
             {juce::AudioBuffer<float> audio(2,256);audio.clear();juce::MidiBuffer midi;universal.processBlock(audio,midi);}
             juce::MessageManager::getInstance()->runDispatchLoopUntil(160);saveSnapshot(editor,directory,"Correction-octavers");
             // The largest supported pedal panel must remain usable within the
             // original board bounds at both 100% and 75% UI sizes.
             universal.setPedalModel(0,31);juce::MessageManager::getInstance()->runDispatchLoopUntil(120);
-            for(auto* child:board->getChildren())if(auto* button=dynamic_cast<juce::TextButton*>(child);button && button->getButtonText()=="CONTROLS") {button->triggerClick();break;}
-            juce::MessageManager::getInstance()->runDispatchLoopUntil(100);saveSnapshot(editor,directory,"Correction-EQ-detail");
-            editor.setSize(885,585);juce::MessageManager::getInstance()->runDispatchLoopUntil(80);saveSnapshot(editor,directory,"Correction-EQ-detail-75pct");
+            clickBoardButton("ALL CONTROLS");checkDetailPanel(12);saveSnapshot(editor,directory,"Correction-EQ-detail");
+            editor.setSize(885,585);juce::MessageManager::getInstance()->runDispatchLoopUntil(80);checkDetailPanel(12);saveSnapshot(editor,directory,"Correction-EQ-detail-75pct");
             editor.setSize(1180,780);
+            std::cout<<"PASS: actual pedal detail/return actions and all 12 EQ controls inside the fixed board at 100/75 percent\n";
             const auto diagnostic=juce::JSON::parse(universal.diagnosticReport());require(diagnostic.isObject()&&diagnostic["stages"].getArray()&&diagnostic["stages"].getArray()->size()==5,"Diagnostic stage snapshot missing");
             require(!universal.diagnosticReport().contains(directory.getFullPathName()),"Diagnostic leaked a user path");
         }
