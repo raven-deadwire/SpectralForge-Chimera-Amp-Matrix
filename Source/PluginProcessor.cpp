@@ -3,6 +3,17 @@
 #include "FactoryPresets.h"
 #include "ReleaseInfo.h"
 
+namespace {
+std::pair<int,int> nativeSelectionFromLegacy(int model,int channel) noexcept {
+    const auto& panel=spectralforge::ampNativePanel(model);
+    // The first appended release represented Model T input routing as channels,
+    // and offered only the SLO overdrive circuit. Keep those meanings on recall.
+    if(model==19)return {0,juce::jlimit(0,(int)panel.routes.size()-1,channel)};
+    if(model==21)return {1,0};
+    return {model>=spectralforge::legacyAmpModelCount?juce::jlimit(0,(int)panel.channels.size()-1,channel):panel.defaultChannel,0};
+}
+}
+
 ChimeraProcessor::ChimeraProcessor()
     : AudioProcessor(BusesProperties().withInput("Input",juce::AudioChannelSet::stereo(),true)
                                       .withOutput("Output",juce::AudioChannelSet::stereo(),true))
@@ -326,12 +337,13 @@ int ChimeraProcessor::selectedAmpChannel(int lane) const noexcept {
     const auto native=nativeAmps.read(ampContext(lane));
     if(native.enabled)return native.channel;
     const int model=selectedAmpModel(lane);
-    return model>=spectralforge::legacyAmpModelCount?ampSelection.channel(lane,model):spectralforge::ampNativePanel(model).defaultChannel;
+    return nativeSelectionFromLegacy(model,ampSelection.channel(lane,model)).first;
 }
 int ChimeraProcessor::selectedAmpNativeRoute(int lane) const noexcept {
     const int context=ampContext(lane);const auto native=nativeAmps.read(context);
     if(native.enabled)return native.inputRoute;
     const int model=ampSelection.model(lane);
+    if(model==19)return nativeSelectionFromLegacy(model,ampSelection.channel(lane,model)).second;
     return juce::jlimit(0,(int)spectralforge::ampNativePanel(model).routes.size()-1,
         juce::roundToInt(spectralforge::AmpNativeParameterCache::value(nativeAmps.routes[(size_t)context][(size_t)model],0.f)));
 }
@@ -339,7 +351,10 @@ void ChimeraProcessor::activateNativeAmp(int lane) {
     if(lane<0 || lane>=3)return;
     const int context=ampContext(lane);const auto native=nativeAmps.read(context);
     if(native.enabled)return;
-    setRawParameter(spectralforge::ampNativeModelID(context),float(ampSelection.model(lane)));
+    const int model=ampSelection.model(lane);const auto selection=nativeSelectionFromLegacy(model,ampSelection.channel(lane,model));
+    setRawParameter(spectralforge::ampNativeModelID(context),float(model));
+    setRawParameter(spectralforge::ampNativeChannelID(context,model),float(selection.first));
+    if(model>=spectralforge::legacyAmpModelCount)setRawParameter(spectralforge::ampNativeRouteID(context,model),float(selection.second));
     setRawParameter(spectralforge::ampNativeEnabledID(context),1.f);
 }
 void ChimeraProcessor::activateNativePost(int section) {
@@ -353,7 +368,9 @@ void ChimeraProcessor::seedNativeSelections(bool seedBoard,bool seedAmps,bool se
         const int model=ampSelection.model(lane);
         setRawParameter(spectralforge::ampNativeEnabledID(context),0.f);
         setRawParameter(spectralforge::ampNativeModelID(context),float(model));
-        if(model>=spectralforge::legacyAmpModelCount)setRawParameter(spectralforge::ampNativeChannelID(context,model),float(ampSelection.channel(lane,model)));
+        const auto selection=nativeSelectionFromLegacy(model,ampSelection.channel(lane,model));
+        setRawParameter(spectralforge::ampNativeChannelID(context,model),float(selection.first));
+        setRawParameter(spectralforge::ampNativeRouteID(context,model),float(selection.second));
     }
     constexpr const char* postOn[]{"buscompon","preampon","eqon"};
     for(int s=0;seedPost && s<3;++s) {
@@ -393,13 +410,16 @@ void ChimeraProcessor::setAmpChannel(int lane,int channel) {
     if(channel<0 || channel>=(int)spectralforge::ampNativePanel(model).channels.size())return;
     activateNativeAmp(lane);
     setRawParameter(spectralforge::ampNativeChannelID(ampContext(lane),model),float(channel));
-    if(model>=spectralforge::legacyAmpModelCount && channel<spectralforge::newAmpChannelCount(model))setRawParameter(spectralforge::ampChannelID(lane,model),float(channel));
+    if(model==19)setRawParameter(spectralforge::ampChannelID(lane,model),float(selectedAmpNativeRoute(lane)));
+    else if(model==21) {if(channel==1)setRawParameter(spectralforge::ampChannelID(lane,model),0.f);}
+    else if(model>=spectralforge::legacyAmpModelCount && channel<spectralforge::newAmpChannelCount(model))setRawParameter(spectralforge::ampChannelID(lane,model),float(channel));
 }
 void ChimeraProcessor::setAmpNativeRoute(int lane,int route) {
     if(lane<0 || lane>=3)return;
     const int model=selectedAmpModel(lane);
     if(route<0 || route>=(int)spectralforge::ampNativePanel(model).routes.size())return;
     activateNativeAmp(lane);setRawParameter(spectralforge::ampNativeRouteID(ampContext(lane),model),float(route));
+    if(model==19)setRawParameter(spectralforge::ampChannelID(lane,model),float(route));
 }
 void ChimeraProcessor::resetAmpSelection() {
     for(int lane=0;lane<3;++lane) {
