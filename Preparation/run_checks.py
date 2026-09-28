@@ -45,11 +45,15 @@ def main():
         summary['javascript_cases']=int(re.search(r'(\d+) JavaScript preparation cases passed',js)[1])
         control=run('control-state-tests',['node','tests/control_state_test.js'])
         summary['control_state_cases']=int(re.search(r'(\d+) control-state cases passed',control)[1])
+        amp=run('amp-state-tests',['node','tests/amp_state_test.js'])
+        summary['amp_state_cases']=int(re.search(r'(\d+) amplifier state cases passed',amp)[1])
         run('cross-language-return',[executable,'--read',reports/'js-state.cbp'])
         if args.browser:
             ui=run('browser-tests',[sys.executable,'tests/browser_test.py','--browser',args.browser])
             summary['browser_cases']=int(re.search(r'(\d+) browser UI cases passed',ui)[1])
-        else:summary['browser_cases']='not_run'
+            amp_ui=run('amp-browser-tests',[sys.executable,'tests/amp_browser_test.py','--browser',args.browser])
+            summary['amp_browser_cases']=int(re.search(r'(\d+) amplifier browser cases passed',amp_ui)[1])
+        else:summary['browser_cases']='not_run';summary['amp_browser_cases']='not_run'
         summary['status']='passed'
     except (OSError,RuntimeError,subprocess.TimeoutExpired) as exc:
         summary['status']='failed';summary['error']=str(exc);print(exc,file=sys.stderr)

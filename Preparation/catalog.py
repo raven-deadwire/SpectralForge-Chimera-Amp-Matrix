@@ -102,33 +102,18 @@ def build_catalog():
         [knob("input","Input",-12,12,0,"dB",basis="original_design"),knob("output","Output",-12,12,0,"dB",basis="original_design")],status="original_ui_proposal")
     for key,name,category in (("fortin33","Fortin 33","BOOST"),("phase90","MXR Phase 90","MODULATION"),("octave-fuzz","Octave Fuzz — reference pending","FUZZ")):
         add(key,name,category,[],status="native_panel_pending")
-    by_id={m["id"]:m for m in models}
-    z=by_id["planned.amp.zuta-gbg120"]
-    z["sources"]=["https://zutagroup.com/products/gbg120-tube-amp-by-zuta"]
-    z["controls_status"]="documented_labels_partial_unimplemented_dsp"
-    z["controls"]=[choice("channel",["CH1","CH2","CH3","CH4"],"GLOBAL")]
-    for ch,buttons in ((1,["low_cut","gain_switch","gate","bright"]),(2,["vintage","gain_switch","gate","bright"]),
-                       (3,["vintage","gain_switch","gate","bright"]),(4,["low_boost","tight","gate","mid_boost"])):
-        group=f"CH{ch}"
-        z["controls"] += [knob(f"ch{ch}.{k}",k.title(),group=group) for k in ("gain","volume","low","mid","high")]
-        z["controls"] += [switch(f"ch{ch}.{k}",group) for k in buttons]
-    z["controls"] += [knob(k,k.title(),group="GLOBAL") for k in ("presence","depth","master","gate_threshold","solo_level")]
-    z["controls"] += [switch("presence_frequency_shift","GLOBAL")]
-    z["omissions"]="FX loops, line routing, tube-pair/GBG diode mode and foot control not defined; not a complete hardware panel."
-    eich=by_id["legacy.amp.14"]
-    eich["native_target"]={"status":"documented_labels_unimplemented_dsp","sources":["https://www.eich-amps.com/t900"],
-                           "controls":[knob(k) for k in ("gain","taste","lo","lomid","himid","hi","master")]}
-    cl=by_id["planned.amp.svt-cl"]
-    cl["native_target"]={"status":"partial_reference_only","sources":["https://ampeg.com/products/classic/svtcl/"],
-                         "controls":[choice("mid_frequency",["1","2","3","4","5"])],"note":"Exact frequency values and remaining panel require manual verification."}
+    from amp_controls import upgrade_amplifiers
+    upgrade_amplifiers(models)
     upgrade_pedals(models)
-    catalog=dict(control_revision=2,schema_version=1,base_commit=BASE,max_pedals=5,models=models,
+    catalog=dict(control_revision=3,schema_version=1,base_commit=BASE,max_pedals=5,models=models,
                  warning="Control-thread preparation only. No new model DSP or hardware calibration is implemented. Normalized defaults are UI seeds, not hardware factory settings.")
     validate_catalog(catalog)
     return catalog
 
 
 def validate_catalog(catalog):
+    from amp_controls import validate_amp_panels
+    validate_amp_panels(catalog["models"])
     if catalog.get("schema_version")!=1 or catalog.get("max_pedals")!=5:
         raise ValueError("Wrong catalog schema/capacity")
     ids=set()

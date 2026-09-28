@@ -1,25 +1,51 @@
-# 원본 조작부 개정 검증 — 2026-09-28
+# Preparation v3 verification — 2026-09-28
 
-명령: `python run_checks.py --browser /usr/bin/chromium`
+Scope: amp-specific panel definitions and silent UI/state, on top of the existing
+five-slot pedal preparation. Production Source/, root CMake, host parameters,
+installer and release files are not changed.
 
-|검사|결과|
+## Executed locally
+
+Linux x86_64; Python 3.13.5; Node; C++20; system Chromium with Playwright.
+Command: `python run_checks.py --browser /usr/bin/chromium`
+
+| Suite | Passed cases |
 |---|---:|
-|C++ 상태 코어|20 통과|
-|Python 자산·카탈로그|44 통과|
-|JS 상태 코어|22 통과|
-|JS 제어 스키마·마이그레이션|10 통과|
-|Chromium UI|20 통과|
+| C++ board state | 20 |
+| Python assets, catalog and amp descriptors | 76 |
+| JavaScript board state | 22 |
+| JavaScript pedal control state | 10 |
+| JavaScript amp state | 30 |
+| Existing pedal browser suite | 20 |
+| Amp browser suite | 24 |
+| **Total** | **202** |
 
-총 116개 테스트 케이스 통과. 카탈로그별 반복 점검을 별도 테스트 개수로 부풀리지 않았다. CTest와 C++→JS→C++ 준비용 상태 교환도 통과했다.
+CTest and C++ -> JavaScript -> C++ .cbp exchange also passed; these reruns are
+not added again to the case count. No hardware audio fixtures are included.
+The existing 116 checks remain, plus 86 amp descriptor/state/browser checks.
 
-## 추가 검증
+Amp checks include all 23 panel targets, channel-specific visibility and values,
+shared EQ keys, per-model/per-lane recall, isolated software trim, Undo/Redo,
+actual .calab export/import, malformed-file atomic rejection, unchanged pedal
+state, five slots, and 1280/1024/900/640 px layout without horizontal overflow.
+Continuous hardware controls retain normalized positions, not measured tapers.
+Browser opening of a panel is not a manufacturer or audio accuracy certification.
 
-25개 기존 PRE 모두 hw.* 조작부와 정확히 보존한 legacy_controls의 키가 겹치지 않는다. M87의 4단 Ratio와 Cali76의 연속 Ratio, Dyna Comp/Fuzz Face의 두 노브, 한 노브 부스터, EP 내부 DIP, Q-Tron MIX 모드, M82 DECAY 의미, AW-3 HUMAN 라벨을 검사했다.
+Screenshots for SVT-VR, Mark IV, ZUTA CH4, Fortin and JTM45 were generated;
+SVT-VR and Mark IV were visually inspected. Reports and generated HTML/catalog
+are local generated outputs and are excluded from Git.
 
-기존 CBP의 값/MIDI는 변경되지 않고 새 노브 편집도 옛 값을 수정하지 않는다. 알 수 없는 키·부분 제어 목록·범위 초과·소수 선택값은 원래 상태를 보존하며 거부한다. 파일 버전은 준비용 `.cbp` v1을 유지하고 카탈로그는 control_revision=2를 기록한다.
+## Evidence boundary
 
-1280/1024/900/640px에서 다섯 카드 한 줄·가로 넘침 없음. M87, JB-2, Fuzz Factory, EP, AW-3의 상세 뷰 스크린샷을 생성했다. 상세 뷰 안의 세로 스크롤과 페달보드 확대는 구분한다.
+11 amp targets have core primary-panel review, 7 have partial/revision review,
+and 5 remain pending original-panel review. All explicitly have
+`production_dsp_connected=false`, `capture_approved=false`, and
+`circuit_response_verified=false`. See amp_controls.py and AMP_PREPARATION.md.
+Existing pedal evidence remains 19 panel-reviewed and 6 pending.
 
-## 미검증/미구현
-
-19개 변형의 제조사 자료·사진 확인은 컨트롤 이름/구성에 한정된다. 나머지 6개 역사적 원본의 1차 자료 확인은 미완료다. 노브 테이퍼·새 DSP 바인딩·실물 반응·NAM 렌더링·실제 MIDI/DAW 오토메이션·Windows 플러그인·DAW 종료 문제는 이번 검증 대상이 아니다. 파일 검사 테스트는 합성 fixture이며 새로운 실물 NAM/IR 승인 결과가 아니다.
+Not performed: production JUCE UI/DSP connection, real MIDI/DAW automation,
+.chimera/APVTS migration, NAM rendering/listening or real IR quality audit,
+Windows VST3/DAW validation, product build/release, or hardware response tests.
+The new .calab format is a separate amp-preparation JSON state; it is not a
+production project or C++ amp-state implementation. The existing C++ tests
+exercise the unchanged pedal board core.

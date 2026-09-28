@@ -3,12 +3,16 @@
 import json
 from pathlib import Path
 from catalog import build_catalog
+from amp_preview import extend_template
 
 def build(output=None):
     root=Path(__file__).resolve().parent
     catalog=build_catalog()
     (root/'catalog.json').write_text(json.dumps(catalog,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
-    html=(root/'ui/prototype.template.html').read_text(encoding='utf-8')
+    html=extend_template((root/'ui/prototype.template.html').read_text(encoding='utf-8'),root)
+    html=html.replace('__AMP_PANEL__',(root/'ui/amp_panel.html').read_text(encoding='utf-8'))
+    html=html.replace('__AMP_STATE_JS__',(root/'ui/amp_state.js').read_text(encoding='utf-8'))
+    html=html.replace('__AMP_EDITOR_JS__',(root/'ui/amp_editor.js').read_text(encoding='utf-8'))
     html=html.replace('__CONTROL_JS__',(root/'ui/control_state.js').read_text(encoding='utf-8'))
     html=html.replace('__STATE_JS__',(root/'ui/state.js').read_text(encoding='utf-8'))
     html=html.replace('__CATALOG__',json.dumps(catalog,ensure_ascii=False,separators=(',',':')).replace('<','\\u003c'))
