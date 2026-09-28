@@ -50,8 +50,10 @@ private:
     ChimeraLookAndFeel look;
     juce::Component canvas;
     PedalBoardPanel boardPanel;
-    juce::TextButton boardEnabled{"UNIVERSAL 5 / EXPERIMENTAL"},gateLocation{"POST GATE"};
-    std::unique_ptr<BA> boardEnabledAttachment,gateLocationAttachment;
+    juce::TextButton boardEnabled{"USE NEW 5-SLOT BOARD"},legacyPreControls{"LEGACY CONTROLS"},gateLocation{"POST GATE"};
+    juce::Label preEngineStatus;
+    std::unique_ptr<BA> gateLocationAttachment;
+    bool showLegacyPreControls{};
     bool lastBoardEnabled{};
     juce::TooltipWindow tooltips{this,600};
     // Updates own a network worker. Ordinary editor open/close must not start
@@ -76,7 +78,7 @@ private:
     juce::TextButton gateOn{"GATE"},pitchOn{"TRANSPOSE"},tunerOn{"TUNER"},tunerMute{"AUTO MUTE"},info{"INFO"};
     std::array<std::unique_ptr<BA>,4> globalButtons;
     juce::TextButton compareA{"A"},compareB{"B"},copyAB{"COPY"},irLibraryButton{"IR LIBRARY"},rigsTab{"RIGS"},preTab{"PRE"},postTab{"POST"};
-    int page{}; // 0: rigs, 1: pedalboard, 2: rack
+    int page{1}; // Open the production five-slot PRE view; RIGS/POST remain one click away.
     juce::Slider lowComp,lowAmpMix;
     juce::Label lowCompLabel,diVoice,diNote;
     std::unique_ptr<SA> lowCompAttachment,lowAmpMixAttachment;
@@ -99,12 +101,12 @@ private:
         int lastModel{-1};
         juce::Label header,range,toneLabel,tonePivot,cabStatus,ampReference;
         AmpSelector amp;
+        StableAmpComboBox ampChannel;
         CabinetSelector cabType;
         juce::Slider drive,level,bass,lm,hm,treble,pres,res,bandTone,cabLow,cabHigh;
         std::array<juce::Label,8> knobLabels;
         juce::Label lowLabel,highLabel;
         juce::TextButton mute{"MUTE"},solo{"SOLO"},polarity{"INV"},cabOn{"CAB"},ampOn{"AMP"},load{"IRs"},details{"TAGS"};
-        std::unique_ptr<CA> aa;
         std::array<std::unique_ptr<SA>,8> sa;
         std::unique_ptr<SA> toneAttachment,lowAttachment,highAttachment;
         std::array<std::unique_ptr<BA>,5> buttons;

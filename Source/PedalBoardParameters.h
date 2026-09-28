@@ -8,7 +8,9 @@ namespace spectralforge {
 // not change the normalized host position of any existing model selection.
 inline void addPedalBoardParameters(juce::AudioProcessorValueTreeState::ParameterLayout& layout) {
     using ID=juce::ParameterID;
-    layout.add(std::make_unique<juce::AudioParameterBool>(ID{"boardEnabled",1},"PRE universal board (explicit opt-in)",false,juce::AudioParameterBoolAttributes().withAutomatable(false)));
+    // New instances open the production five-slot board. Legacy state restore
+    // explicitly writes zero when the old project has no boardEnabled field.
+    layout.add(std::make_unique<juce::AudioParameterBool>(ID{"boardEnabled",1},"PRE five-slot board",true,juce::AudioParameterBoolAttributes().withAutomatable(false)));
     layout.add(std::make_unique<juce::AudioParameterInt>(ID{"boardLowTap",1},"PRE LOW tap after position",0,5,2,juce::AudioParameterIntAttributes().withAutomatable(false)));
     for(int owner=0;owner<5;++owner) {
         layout.add(std::make_unique<juce::AudioParameterInt>(ID{pedalModelID(owner),1},"PRE owner "+juce::String(owner+1)+" model",0,255,0,juce::AudioParameterIntAttributes().withAutomatable(false)));

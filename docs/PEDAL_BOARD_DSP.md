@@ -1,9 +1,17 @@
 # Five-slot PRE board: implementation boundary
 
-The universal PRE board is an explicit opt-in engine. With `boardEnabled=0`, the
-existing `PreFXChain`, raw parameter units, order controls and latency are used.
-Enabling the new board is an engine choice, not a tone-preserving migration of
-old raw values into hardware knob positions.
+New plugin instances start with the universal five-slot PRE board active and
+visible. Loading a project without board state explicitly selects the preserved
+Legacy PRE engine (`boardEnabled=0`), including its original raw values, order and
+latency. Existing factory presets also retain their Legacy PRE sound and are
+labelled accordingly in the preset menu.
+
+The PRE page always identifies the active engine. When Legacy PRE is active,
+the new board remains visible with editing disabled and a **USE NEW 5-SLOT BOARD**
+button; **LEGACY CONTROLS** explicitly opens the old controls. Switching engines
+retains both parameter banks without converting old raw values to hardware
+positions. Up to six original controls, including all five M87 controls, appear
+directly on a pedal card. Larger panels use the fixed-size detail view.
 
 ## Production state and routing
 
@@ -16,12 +24,14 @@ Model selection, engine enable, order and LOW tap are marked non-automatable;
 host-driven structural changes are not supported in this build. Bypass also has
 its own owner/model bank, so another model cannot inherit an old bypass lane.
 
-Every owner reserves the same small oversampling transport latency. Empty and
-settled bypass owners run only that delay, not their effect processors. This
-keeps bypass, model choices and the LOW branch latency aligned without changing
-host delay for every pedal choice. The LOW tap copies the signal after the chosen
-position, then applies the remaining owner delays. Distortion before the tap
-really reaches LOW. The tap does not create another effect slot.
+Ordinary owners reserve the same small oversampling transport latency. The
+spectral octaver reserves its actual frame delay only in the slot where it is
+selected: 2048 samples at 44.1/48 kHz and 4096 at 96 kHz. Empty owners do not
+inherit that extra delay. Bypass preserves the selected owner's delay while
+skipping settled effect processing. Host delay and the clean gate detector use
+the sum of the selected owner delays; the LOW tap is aligned by the delays of
+the owners after it. Distortion before the tap really reaches LOW. The tap does
+not create another effect slot.
 
 All DSP objects, buffers and delay capacities are prepared before processing.
 Host block processing uses a bounded five-owner loop. The current implementation
@@ -57,7 +67,8 @@ control names do not establish sound equivalence.
 | Manual Wah | Smoothed position, range and resonance on a swept band-pass filter | Original design; no 535Q hardware certification |
 | PRE EQ | Ten independent peak bands plus input/output gain | 16 kHz is Nyquist-limited at low sample rates; filter response is original DSP |
 | PRE modulation | Separate per-owner modulation instance, independent of existing POST modulation | The same original modulation voices as POST, not a newly verified Phase 90 |
-| Mono/poly octaver | Catalog and parameter reservation only | Disabled; no reuse of the Transpose engine and no octave DSP claim |
+| Mono octaver | Independent hysteresis detector and /2, /4 tracking dividers, envelope-following sub voices, Dry/Down1/Down2 | Single notes only; no added frame delay but tracking/filter settling remains; not an OC-2 circuit clone |
+| Spectral octaver | Independent STFT -12/+12 resynthesis and equally delayed Dry/Down/Up; separate from Transpose | Experimental, 42.7–46.4 ms at 44.1/48/96 kHz; transient smearing and limited low/dense-chord separation; not a Micro POG replica |
 
 Default normalized positions are UI seeds, not hardware factory settings. The new
 board does not convert or overwrite the previous raw PRE bank. Controls known to
@@ -70,12 +81,23 @@ compression before adding the Cali DRY control, avoiding a hidden fixed dry path
 
 ## Verification
 
-`Tests/PedalBoardTests.cpp` is a JUCE DSP test executable. It exercises all 37
+`Tests/PedalBoardTests.cpp` is a JUCE DSP test executable. It exercises all 39
 available catalog paths at 44.1/48/96 kHz, exact Empty/LOW impulse alignment for
-all six tap boundaries, disabled octavers, repeated SD-1 instances, audible order
+all six tap boundaries, selected poly dry/bypass latency at three positions and
+all tap boundaries, repeated SD-1 instances, audible order
 changes without moving parameter owners, LOW membership, representative dedicated
 controls, all six JB-2 topologies, invalid-order normalization and the legacy/new
 FET parallel equations.
+
+`Tests/PedalOctaverTests.cpp` separately checks mono /2 and /4 and spectral
+octaves at 55/110/220/440 Hz, a 220/277/330 Hz three-note chord, dry impulse
+latency, zero-level mute, 111/256-sample block invariance and stereo isolation at
+44.1/48/96 kHz. A separate low-register chord probe found that the down-octave
+fundamental of an 82.4/103.8/123.5 Hz chord was weakened and shifted: this is a
+documented limitation, not a passed low-bass chord validation. The independent
+octaver callback allocation probe observed zero allocator/free calls over 1920
+callbacks. The host-state test also verifies delay reporting for poly selection,
+bypass, deletion and replacement with the mono divider.
 
 The separate Linux `Tests/PedalBoardAllocationTests.cpp` harness intercepts
 malloc/calloc/realloc/free and C++ new/delete during 900 board callbacks. The

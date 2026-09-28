@@ -1,6 +1,7 @@
 #pragma once
 #include <juce_graphics/juce_graphics.h>
 #include "ChimeraArtworkData.h"
+#include "AmpCatalog.h"
 #include <array>
 
 namespace spectralforge::art {
@@ -138,7 +139,12 @@ inline ModelStyle modelStyle(int family,int model) {
 }
 inline ModelStyle pedalStyle(int family,int model) {return modelStyle(family,model);}
 inline ModelStyle rackStyle(int family,int model) {return modelStyle(family,model);}
+inline bool nativeHeadArtwork(int model) { return model>=legacyAmpModelCount && model<ampModelCount; }
 inline ModelStyle headStyle(int model) {
+    if(nativeHeadArtwork(model)) {
+        constexpr std::array<int,8> knobs{silver,black,chrome,cream,gold,black,cream,silver};
+        return {Surface::workbench,knobs[(size_t)(model-legacyAmpModelCount)],false};
+    }
     constexpr std::array<Surface,15> heads{Surface::aglass,Surface::abrit,Surface::a515,Surface::arect,Surface::amark,Surface::asvt,Surface::agk,Surface::ahybrid,Surface::achim30,Surface::aorange,Surface::abassman,Surface::asubway,Surface::amatchless,Surface::adumble,Surface::aeich};
     return surfaceStyle(heads[static_cast<size_t>(juce::jlimit(0,static_cast<int>(heads.size())-1,model))]);
 }
@@ -147,7 +153,33 @@ inline void pedal(juce::Graphics& g,juce::Rectangle<float> r,int family,int mode
     raster(g,pedalStyle(family,model).surface,r);
 }
 inline void head(juce::Graphics& g,juce::Rectangle<float> r,int model) {
-    raster(g,headStyle(model).surface,r,{0,0,1,1},true);
+    if(!nativeHeadArtwork(model)) {raster(g,headStyle(model).surface,r,{0,0,1,1},true);return;}
+    // New heads use original vector fascias; they never borrow an unrelated
+    // manufacturer's embedded photograph or display a reference brand.
+    constexpr std::array<juce::uint32,8> colours{0xffad4937,0xff7b9495,0xff8d9baf,0xffae986c,0xffbba660,0xffd37934,0xffafa78b,0xff4a7fae};
+    const int index=model-legacyAmpModelCount;const auto accent=juce::Colour(colours[(size_t)index]);
+    auto body=r.reduced(3.f);g.setColour(juce::Colour(0xff080a0b));g.fillRoundedRectangle(body.translated(0,3),6);
+    g.setGradientFill(juce::ColourGradient(juce::Colour(0xff303237),body.getTopLeft(),juce::Colour(0xff101114),body.getBottomLeft(),false));g.fillRoundedRectangle(body,6);
+    g.setColour(accent.withAlpha(.70f));g.drawRoundedRectangle(body.reduced(1),5,1.5f);
+    auto grille=body.reduced(10.f,7.f);grille.removeFromBottom(body.getHeight()*.24f);
+    g.setColour(juce::Colour(0xff121518));g.fillRoundedRectangle(grille,3);
+    g.saveState();g.reduceClipRegion(grille.toNearestInt());g.setColour(accent.withAlpha(.20f));
+    const float spacing=4.f+float(index%3);
+    for(float y=grille.getY();y<grille.getBottom();y+=spacing)g.drawHorizontalLine((int)y,grille.getX(),grille.getRight());
+    for(float x=grille.getX();x<grille.getRight();x+=spacing+2)g.drawVerticalLine((int)x,grille.getY(),grille.getBottom());
+    g.restoreState();
+    auto badge=grille.withSizeKeepingCentre(juce::jmin(grille.getWidth()*.68f,240.f),juce::jlimit(20.f,38.f,r.getHeight()*.28f));
+    g.setColour(juce::Colour(0xff101215).withAlpha(.94f));g.fillRoundedRectangle(badge,2);
+    g.setColour(accent.brighter(.25f));g.setFont(juce::FontOptions(juce::jlimit(13.f,25.f,r.getHeight()*.18f),juce::Font::bold));
+    g.drawFittedText(juce::String(ampInfo(model).name).toUpperCase(),badge.toNearestInt().reduced(4,0),juce::Justification::centred,1);
+    auto strip=body.withY(grille.getBottom()+2).withHeight(body.getBottom()-grille.getBottom()-5).reduced(10.f,0);
+    g.setColour(accent.withAlpha(.60f));g.fillRoundedRectangle(strip,2);
+    g.setColour(juce::Colour(0xff101114));g.setFont(juce::FontOptions(juce::jlimit(7.f,10.f,strip.getHeight()*.5f),juce::Font::bold));
+    g.drawText("SPECTRALFORGE",strip.toNearestInt().reduced(9,0),juce::Justification::centredLeft);
+    for(float x:{body.getX()+5,body.getRight()-5})for(float y:{body.getY()+5,body.getBottom()-5}) {
+        g.setColour(juce::Colour(0xff747578));g.fillEllipse(x-1.5f,y-1.5f,3,3);
+        g.setColour(juce::Colour(0xff1b1d20));g.drawLine(x-1,y,x+1,y,.75f);
+    }
 }
 // A compact rack has a much wider aspect ratio than its source render. Keep
 // the meter/handle section and mounting ears proportional; extend only the

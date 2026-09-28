@@ -7,6 +7,7 @@
 #include "PedalBoardParameters.h"
 #include "PedalBoardDSP.h"
 #include "PostRigGate.h"
+#include "AmpSelectionParameters.h"
 
 class ChimeraProcessor : public juce::AudioProcessor {
 public:
@@ -64,13 +65,21 @@ public:
     void tapTempo();
     int pitchLatency() const { return preFX.transpose.latency(); }
     spectralforge::PedalBoardState pedalBoardState() const { return boardParameters.read(); }
+    void setPedalBoardEnabled(bool enabled);
+    int pedalBoardLatencySamples()const{return pedalBoard.latency(boardParameters.read());}
     void setPedalModel(int owner,int model);
     void movePedal(int owner,int direction);
     bool duplicatePedal(int owner);
     void undoPedalEdit(bool redo=false);
     float pedalReduction() const { return boardReduction.load(); }
     juce::String diagnosticReport() const;
+    int selectedAmpModel(int lane) const noexcept { return ampSelection.model(lane); }
+    int selectedAmpChannel(int lane) const noexcept { return ampSelection.channel(lane,selectedAmpModel(lane)); }
+    void setAmpModel(int lane,int model);
+    void setAmpChannel(int lane,int channel);
 private:
+    spectralforge::AmpSelectionParameterCache ampSelection;
+    void resetAmpSelection();
     void rememberPedalEdit();
     void setRawParameter(const juce::String&,float);
     std::vector<juce::ValueTree> boardUndo,boardRedo;

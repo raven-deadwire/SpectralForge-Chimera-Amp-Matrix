@@ -2,57 +2,59 @@
 #include <juce_gui_basics/juce_gui_basics.h>
 #include "AmpCatalog.h"
 
-// Browsing may repeat an amp under several tags, but the ComboBox must retain
-// exactly 15 items in the original order: JUCE ComboBoxParameterAttachment
-// maps selected ITEM INDEX / (NUM ITEMS - 1), not the displayed popup's item ID.
-class AmpSelector final : public juce::ComboBox {
+// A ComboBox user change is normally delivered asynchronously. Preserve its
+// current selection while that notification waits, instead of overwriting it
+// with the previous processor value during a timer refresh.
+class StableAmpComboBox : public juce::ComboBox {
+    int lastSyncedId{};
+    bool synced{};
+public:
+    void syncSelectedId(int id) {
+        if(synced && getSelectedId()!=lastSyncedId)return;
+        resetSyncExplicit(id);
+    }
+    void acceptSelection() { lastSyncedId=getSelectedId();synced=true; }
+    // Model-bank replacement deliberately discards an older bank's pending UI
+    // choice and installs the new bank's actual processor value.
+    void resetSyncExplicit(int id) {
+        setSelectedId(id,juce::dontSendNotification);
+        acceptSelection();
+    }
+};
+
+// UI model IDs are independent of the preserved 15-choice legacy host parameter.
+// The processor explicitly routes a choice to its legacy or extension bank.
+class AmpSelector final : public StableAmpComboBox {
 public:
     AmpSelector() {
         addItemList(spectralforge::ampNames(),1);
-        setTooltip("Browse by role or instrument. Every lane can select any existing amp; tags do not add hardware channels.");
+        setTooltip("Select a Chimera amplifier. Every head is available on any lane.");
     }
     juce::PopupMenu browsingMenu() const {
         using namespace spectralforge;
-        const auto group=[this](AmpRole role,AmpInstrument instrument) {
-            juce::PopupMenu result;
-            for(int i=0;i<ampModelCount;++i)if(ampMatches(i,role,instrument)) {
-                const auto& info=ampCatalog[static_cast<size_t>(i)];
-                result.addItem(i+1,juce::String(info.name)+" / "+info.reference,true,getSelectedId()==i+1);
-            }
-            return result;
-        };
         juce::PopupMenu menu;
-        menu.addSectionHeader("CURRENT VOICES / any lane");
-        menu.addSubMenu("All 15 amps",group(AmpRole::any,AmpInstrument::any));
-        juce::PopupMenu roles;
-        for(const auto& item:ampRoleChoices)roles.addSubMenu(item.label,group(item.role,AmpInstrument::any));
-        menu.addSubMenu("Role / overlapping tags",roles);
-        juce::PopupMenu instruments;
-        instruments.addSubMenu("Guitar",group(AmpRole::any,AmpInstrument::guitar));
-        instruments.addSubMenu("Bass",group(AmpRole::any,AmpInstrument::bass));
-        menu.addSubMenu("Instrument / cross-selection allowed",instruments);
-        menu.addSeparator();
-        juce::PopupMenu pending;
-        for(size_t i=0;i<pendingAmpTargets.size();++i) {
-            const auto& target=pendingAmpTargets[i];
-            pending.addItem(1001+int(i),juce::String(target.required ? "Required: " : "Candidate: ")+target.name+" / "+target.scope,false,false);
+        for(const auto& category:ampRoleChoices) {
+            juce::PopupMenu group;
+            for(int i=0;i<ampModelCount;++i)if(ampPrimaryRoles[(size_t)i]==category.role)
+                group.addItem(i+1,ampInfo(i).name,true,getSelectedId()==i+1);
+            menu.addSubMenu(category.label,group);
         }
-        menu.addSubMenu("Development targets / not selectable",pending);
         return menu;
     }
     bool selectMenuResult(int id) {
         if(spectralforge::ampIndexFromMenuId(id)<0)return false;
-        setSelectedId(id,juce::sendNotificationAsync);
+        setSelectedId(id,juce::sendNotificationSync);
         return true;
     }
     void showPopup() override {
-        // Delegate lifecycle, keyboard navigation, target deletion and safe
-        // asynchronous callback handling to JUCE. It copies this menu before
-        // returning; restore the flat host enumeration before any user choice.
-        auto* menu=getRootMenu();
-        const auto stableMenu=*menu;
-        *menu=browsingMenu();
-        juce::ComboBox::showPopup();
-        *menu=stableMenu;
+        if(!isEnabled())return;
+        const juce::Component::SafePointer<AmpSelector> safe(this);
+        browsingMenu().showMenuAsync(juce::PopupMenu::Options().withTargetComponent(this),[safe](int id) {
+            if(!safe)return;
+            // The base mouse/keyboard path marks its popup active before calling
+            // this override. Clear that flag after both selection and cancel.
+            safe->hidePopup();
+            if(safe && id>0)safe->selectMenuResult(id);
+        });
     }
 };

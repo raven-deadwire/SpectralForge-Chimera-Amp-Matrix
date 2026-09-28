@@ -92,12 +92,15 @@ ChimeraEditor::ChimeraEditor(ChimeraProcessor& p) : AudioProcessorEditor(&p),pro
     (void)spectralforge::art::RasterBank::get();
     setLookAndFeel(&look); canvas.setComponentID("surface"); addAndMakeVisible(canvas);
     auto add=[this](juce::Component& component){canvas.addAndMakeVisible(component);};
-    add(boardPanel);add(boardEnabled);add(gateLocation);
+    add(boardPanel);add(boardEnabled);add(legacyPreControls);add(preEngineStatus);add(gateLocation);
     boardEnabled.setComponentID("boardEnabled");gateLocation.setComponentID("gateAfterRig");
-    boardEnabledAttachment=std::make_unique<BA>(p.parameters(),"boardEnabled",boardEnabled);
+    legacyPreControls.setComponentID("legacyPreControls");preEngineStatus.setComponentID("preEngineStatus");
+    preEngineStatus.setFont(juce::FontOptions(11.f));preEngineStatus.setColour(juce::Label::textColourId,ink);
     gateLocationAttachment=std::make_unique<BA>(p.parameters(),"gateAfterRig",gateLocation);
-    boardEnabled.onClick=[this]{updateModeUI();};
-    boardEnabled.setTooltip("Switch between the preserved Legacy PRE chain and the independent five-pedal experimental engine. No existing values are converted. Stop playback before switching.");
+    boardEnabled.onClick=[this]{processor.setPedalBoardEnabled(!processor.pedalBoardState().enabled);showLegacyPreControls=false;updateModeUI();};
+    legacyPreControls.onClick=[this]{showLegacyPreControls=!showLegacyPreControls;updateModeUI();};
+    boardEnabled.setTooltip("Switch the active PRE engine. Your original session/preset sound and new-board settings are stored separately. Stop playback before switching.");
+    legacyPreControls.setTooltip("Inspect and edit the preserved PRE controls used by an earlier session or factory preset.");
     gateLocation.setTooltip("Use the clean input detector to attenuate after AMP/CAB, before POST delay/reverb. Off preserves the original input gate.");
     title.setText("SpectralForge Chimera",juce::dontSendNotification);title.setVisible(false);
     const auto loadBrand=[](const char* name){int size=0;const auto* bytes=ChimeraArtworkData::getNamedResource(name,size);auto image=bytes ? juce::ImageFileFormat::loadFrom(bytes,(size_t)size) : juce::Image{};
@@ -154,10 +157,11 @@ ChimeraEditor::ChimeraEditor(ChimeraProcessor& p) : AudioProcessorEditor(&p),pro
     inputMode.setName("Input mode");inputMode.addItemList({"STEREO","MONO L"},1);add(inputMode);inputModeAttachment=std::make_unique<CA>(p.parameters(),"inputmode",inputMode);
     inputMode.setTooltip("MONO L sends the left input to both channels. Stereo preserves separate channels.");
     presets.setName("Preset");
+    presets.getRootMenu()->addSectionHeader("FACTORY PRESETS / PRESERVED LEGACY PRE");
     juce::StringArray categories;for(const auto& preset:spectralforge::factoryPresets)categories.addIfNotAlreadyThere(preset.category);
     for(const auto& category:categories){juce::PopupMenu group;for(int i=0;i<spectralforge::factoryPresetCount;++i)if(category==spectralforge::factoryPresets[(size_t)i].category)group.addItem(i+1,spectralforge::factoryPresets[(size_t)i].name);presets.getRootMenu()->addSubMenu(category,group);}
     presets.setText("INIT / CUSTOM",juce::dontSendNotification);add(presets);
-    presets.onChange=[this]{if(presets.getSelectedId()>0) {processor.loadFactoryPreset(presets.getSelectedId()-1);presetValues.clear();for(auto* parameter:processor.getParameters())presetValues.push_back(parameter->getValue());presets.setTooltip(spectralforge::factoryPresets[(size_t)(presets.getSelectedId()-1)].description);updateModeUI();}};
+    presets.onChange=[this]{if(presets.getSelectedId()>0) {processor.loadFactoryPreset(presets.getSelectedId()-1);presetValues.clear();for(auto* parameter:processor.getParameters())presetValues.push_back(parameter->getValue());presets.setTooltip(juce::String(spectralforge::factoryPresets[(size_t)(presets.getSelectedId()-1)].description)+"\nPreserved Legacy PRE sound. The PRE tab offers an explicit switch to the new five-slot board.");showLegacyPreControls=false;updateModeUI();}};
     for(auto* button:{&doublerOn,&midi,&tap,&hostTempo,&metronome,&presetPrevious,&presetNext,&presetSave,&presetLoad,&delaySync})add(*button);
     presetPrevious.onClick=[this]{presets.setSelectedId(presets.getSelectedId()<=1 ? spectralforge::factoryPresetCount : presets.getSelectedId()-1);};presetNext.onClick=[this]{presets.setSelectedId(presets.getSelectedId()>=spectralforge::factoryPresetCount ? 1 : presets.getSelectedId()+1);};
     presetSave.onClick=[this]{referenceFile(true);};presetLoad.onClick=[this]{referenceFile(false);};tap.onClick=[this]{processor.tapTempo();};midi.onClick=[this]{midiMenu();};
@@ -209,9 +213,11 @@ ChimeraEditor::ChimeraEditor(ChimeraProcessor& p) : AudioProcessorEditor(&p),pro
         style(lane.header,15.f); style(lane.range,12.f); style(lane.tonePivot,11.f); style(lane.cabStatus,11.f);
         lane.range.setColour(juce::Label::textColourId,muted); lane.cabStatus.setColour(juce::Label::textColourId,muted);
         add(lane.header); add(lane.range); add(lane.tonePivot); add(lane.cabStatus);
-        lane.amp.setName("Amp "+n); add(lane.amp);
-        lane.aa=std::make_unique<CA>(state,"amp"+n,lane.amp);
-        lane.amp.onChange=[this]{updateHardwareStyles();repaint();};
+        lane.amp.setName("Amp "+n);lane.amp.setComponentID("ampSelect"+n);add(lane.amp);
+        lane.amp.resetSyncExplicit(processor.selectedAmpModel(i)+1);
+        lane.amp.onChange=[this,i]{auto& control=lanes[(size_t)i].amp;control.acceptSelection();processor.setAmpModel(i,control.getSelectedId()-1);updateHardwareStyles();repaint();};
+        lane.ampChannel.setName("Amp channel "+n);lane.ampChannel.setComponentID("ampChannel"+n);add(lane.ampChannel);
+        lane.ampChannel.onChange=[this,i]{auto& control=lanes[(size_t)i].ampChannel;control.acceptSelection();processor.setAmpChannel(i,control.getSelectedId()-1);};
         auto controls=lane.controls();
         for(size_t k=0;k<8;++k)
         {
@@ -301,12 +307,14 @@ void ChimeraEditor::timerCallback()
     updateHardwareStyles();
     if(!presetValues.empty()) {const auto& params=processor.getParameters();bool changed=presetValues.size()!=size_t(params.size());for(int i=0;!changed && i<params.size();++i)changed=std::abs(params[i]->getValue()-presetValues[(size_t)i])>1e-6f;if(changed)markPresetCustom();}
     const int current=(int)processor.parameters().getRawParameterValue("mode")->load();
-    if(lastBoardEnabled!=boardEnabled.getToggleState() || lastBoostAfterDrive!=(gainOrder.getSelectedId()==2) || lastEnvelopeFirst!=(preOrder.getSelectedId()==2) || current!=lastMode || lastDualCross!=(dualType.getSelectedId()==2) || lastTuner!=tunerOn.getToggleState()) updateModeUI();
+    if(lastBoardEnabled!=processor.pedalBoardState().enabled || lastBoostAfterDrive!=(gainOrder.getSelectedId()==2) || lastEnvelopeFirst!=(preOrder.getSelectedId()==2) || current!=lastMode || lastDualCross!=(dualType.getSelectedId()==2) || lastTuner!=tunerOn.getToggleState()) updateModeUI();
     if(current==2 || (current==1 && lastDualCross)) updateBandLabels();
     compareA.setToggleState(processor.comparisonSlot()==0,juce::dontSendNotification);compareB.setToggleState(processor.comparisonSlot()==1,juce::dontSendNotification);
     for(int i=0;i<3;++i)
     {
         auto& lane=lanes[i];
+        lane.amp.syncSelectedId(processor.selectedAmpModel(i)+1);
+        lane.ampChannel.syncSelectedId(processor.selectedAmpChannel(i)+1);
         const bool active=processor.parameters().getRawParameterValue("cab"+juce::String(i+1))->load()>.5f;
         lane.cabType.sync((int)processor.parameters().getRawParameterValue("cabtype"+juce::String(i+1))->load(),processor.userIRName(i));
         lane.cabStatus.setText(current==2 && i==0 ? "GR "+juce::String(processor.lowCompMeter(),1)+" dB | DRIVE 0 | "+processor.cabStatus(i) : (active ? "" : "BYPASSED | ")+processor.cabStatus(i),juce::dontSendNotification);
@@ -361,9 +369,23 @@ void ChimeraEditor::updateHardwareStyles()
         }
     }
     for(size_t i=0;i<lanes.size();++i) {
-        auto& lane=lanes[i];const int model=juce::jmax(0,lane.amp.getSelectedId()-1);
+        auto& lane=lanes[i];const int model=processor.selectedAmpModel((int)i);
+        lane.amp.syncSelectedId(model+1);
+        lane.ampChannel.syncSelectedId(processor.selectedAmpChannel((int)i)+1);
         if(lane.lastModel==model)continue;
-        lane.lastModel=model;const auto& amp=spectralforge::ampInfo(model);lane.ampReference.setText(amp.reference,juce::dontSendNotification);lane.amp.setTooltip(juce::String(amp.name)+" / "+amp.reference+"\n"+amp.character);lane.ampReference.setTooltip(juce::String(amp.reference)+"\nAlgorithmic voicing reference; not a measured hardware replica.");const auto hardware=spectralforge::art::headStyle(model);
+        lane.lastModel=model;const auto& amp=spectralforge::ampInfo(model);
+        lane.ampReference.setText(spectralforge::ampPrimaryRoleName(model),juce::dontSendNotification);
+        lane.amp.setTooltip(juce::String(amp.name)+"\n"+amp.character);
+        lane.ampReference.setTooltip(amp.character);
+        lane.ampChannel.clear(juce::dontSendNotification);
+        if(model>=spectralforge::legacyAmpModelCount) {
+            for(int ch=0;ch<spectralforge::newAmpChannelCount(model);++ch)
+                lane.ampChannel.addItem(spectralforge::newAmpChannelName(model,ch),ch+1);
+            lane.ampChannel.resetSyncExplicit(processor.selectedAmpChannel((int)i)+1);
+        } else lane.ampChannel.resetSyncExplicit(0);
+        lane.ampChannel.setVisible(page==0 && (int)i<(lastMode==0 ? 1 : lastMode==1 ? 2 : 3) && model>=spectralforge::legacyAmpModelCount);
+        lane.ampChannel.setEnabled(spectralforge::newAmpChannelCount(model)>1);
+        const auto hardware=spectralforge::art::headStyle(model);
         for(auto* slider:lane.controls())apply(*slider,hardware.knobStyle,false);
         apply(lane.bandTone,hardware.knobStyle,false);
         if(i==0)apply(lowComp,hardware.knobStyle,false);
@@ -387,17 +409,23 @@ void ChimeraEditor::updateModeUI()
 {
     lastEnvelopeFirst=preOrder.getSelectedId()==2;pedalOrder=lastEnvelopeFirst ? std::array<int,5>{4,3,5,6,0} : std::array<int,5>{3,4,5,6,0};
     lastBoostAfterDrive=gainOrder.getSelectedId()==2;if(lastBoostAfterDrive)std::swap(pedalOrder[3],pedalOrder[4]);
-    lastBoardEnabled=boardEnabled.getToggleState();
+    lastBoardEnabled=processor.pedalBoardState().enabled;
+    if(lastBoardEnabled)showLegacyPreControls=false;
     boardEnabled.setVisible(page==1 && !tunerOn.getToggleState());
-    boardPanel.setVisible(page==1 && lastBoardEnabled);
-    preOrder.setVisible(page==1 && !lastBoardEnabled && !tunerOn.getToggleState());gainOrder.setVisible(page==1 && !lastBoardEnabled && !tunerOn.getToggleState());
+    boardEnabled.setButtonText(lastBoardEnabled?"SWITCH TO LEGACY PRE":"USE NEW 5-SLOT BOARD");
+    legacyPreControls.setVisible(page==1 && !lastBoardEnabled && !tunerOn.getToggleState());
+    legacyPreControls.setButtonText(showLegacyPreControls?"BACK TO NEW BOARD":"LEGACY CONTROLS");
+    preEngineStatus.setVisible(page==1 && !tunerOn.getToggleState());
+    preEngineStatus.setText(lastBoardEnabled?"5-SLOT PRE ACTIVE  /  any pedal in any slot; independent copies":"LEGACY PRE ACTIVE  /  original session or preset sound retained",juce::dontSendNotification);
+    boardPanel.setVisible(page==1 && !showLegacyPreControls);
+    preOrder.setVisible(page==1 && showLegacyPreControls && !tunerOn.getToggleState());gainOrder.setVisible(page==1 && showLegacyPreControls && !tunerOn.getToggleState());
     lastMode=(int)processor.parameters().getRawParameterValue("mode")->load();
     lastDualCross=dualType.getSelectedId()==2;lastTuner=tunerOn.getToggleState();
     const bool matrix=lastMode==2,split=matrix || (lastMode==1 && lastDualCross); const int count=lastMode==0 ? 1 : lastMode==1 ? 2 : 3;
     x1.setVisible(matrix && page==0 && !lastTuner); x2.setVisible(matrix && page==0 && !lastTuner); x1Label.setVisible(matrix && page==0 && !lastTuner); x2Label.setVisible(matrix && page==0 && !lastTuner);
     rigsTab.setToggleState(page==0,juce::dontSendNotification);preTab.setToggleState(page==1,juce::dontSendNotification);postTab.setToggleState(page==2,juce::dontSendNotification);
     for(size_t i=0;i<effects.size();++i) {
-        auto& effect=effects[i];const bool pedal=i==0 || (i>=3 && i<=6),show=pedal ? page==1 && !lastBoardEnabled : page==2;
+        auto& effect=effects[i];const bool pedal=i==0 || (i>=3 && i<=6),show=pedal ? page==1 && showLegacyPreControls : page==2;
         effect.header.setVisible(show);effect.scope.setVisible(show);effect.description.setVisible(show && pedal);effect.enabled.setVisible(show);effect.model.setVisible(show);
         for(int k=0;k<5;++k){const bool visible=show && effect.attachments[(size_t)k]!=nullptr;effect.controls[k].setVisible(visible);effect.labels[k].setVisible(visible);}
     }
@@ -406,6 +434,7 @@ void ChimeraEditor::updateModeUI()
     {
         auto& lane=lanes[i]; const bool show=i<count && page==0;
         for(juce::Component* c : std::initializer_list<juce::Component*>{&lane.header,&lane.range,&lane.ampReference,&lane.amp,&lane.ampOn,&lane.mute,&lane.solo,&lane.polarity,&lane.cabOn,&lane.load,&lane.details,&lane.cabType,&lane.cabLow,&lane.cabHigh,&lane.lowLabel,&lane.highLabel,&lane.cabStatus}) c->setVisible(show);
+        lane.ampChannel.setVisible(show && processor.selectedAmpModel(i)>=spectralforge::legacyAmpModelCount);
         auto controls=lane.controls();
         for(size_t k=0;k<8;++k) { controls[k]->setVisible(show && (!split || k<2)); lane.knobLabels[k].setVisible(show && (!split || k<2)); }
         if(matrix && i==0) {
@@ -472,7 +501,7 @@ void ChimeraEditor::paint(juce::Graphics& g)
             for(int segment=0;segment<16;++segment){g.setColour(segment<float(amount*16) ? (level>=1 && i!=0 ? juce::Colour(0xffe49b73) : juce::Colour(0xffa5c1a0)) : line);g.fillRect(326.f+segment*6,y+35,4.f,5.f);}
             g.setColour(meterInk.withAlpha(.22f));g.drawVerticalLine(447,y+10,y+54);
         }
-    } else {
+    } else if(page!=1 || showLegacyPreControls) {
         const int count=page==1 ? 5 : lastMode==0 ? 1 : lastMode==1 ? 2 : 3;const int width=(1140-14*(count-1))/count;
         for(int i=0;i<count;++i) {
             const float x=float(20+i*(width+14));
@@ -524,7 +553,8 @@ void ChimeraEditor::resized()
 }
 void ChimeraEditor::layoutControls()
 {
-    boardEnabled.setBounds(818,301,342,24);boardPanel.setBounds(20,330,1140,415);
+    preEngineStatus.setBounds(20,298,638,27);legacyPreControls.setBounds(665,299,232,27);
+    boardEnabled.setBounds(907,299,253,27);boardPanel.setBounds(20,330,1140,415);
     gateLocation.setBounds(298,93,113,23);
     preOrder.setBounds(585,268,257,28);gainOrder.setBounds(852,268,308,28);
     compareA.setBounds(490,30,30,28);compareB.setBounds(524,30,30,28);copyAB.setBounds(558,30,52,28);rigsTab.setBounds(634,30,52,28);preTab.setBounds(692,30,52,28);postTab.setBounds(750,30,52,28);
@@ -562,7 +592,8 @@ void ChimeraEditor::layoutControls()
         auto& lane=lanes[i]; const int x=20+i*(width+14);
         lane.header.setBounds(x+12,342,width-165,24); lane.range.setBounds(x+12,371,width-24,20);
         lane.mute.setBounds(x+width-147,344,48,23); lane.solo.setBounds(x+width-95,344,44,23); lane.polarity.setBounds(x+width-47,344,35,23);
-        lane.ampOn.setBounds(x+12,398,48,32);lane.amp.setBounds(x+68,398,width-80,32);lane.ampReference.setBounds(x+14,432,lastMode==0 ? 460 : width-28,16);
+        lane.ampOn.setBounds(x+12,398,48,32);lane.amp.setBounds(x+68,398,width-80,32);lane.ampReference.setBounds(x+14,433,92,18);
+        lane.ampChannel.setBounds(x+110,432,lastMode==0 ? 362 : width-122,22);
         if(split)
         {
             const std::array<juce::Slider*,3> controls{matrix && i==0 ? &lowComp : &lane.drive,&lane.level,&lane.bandTone};

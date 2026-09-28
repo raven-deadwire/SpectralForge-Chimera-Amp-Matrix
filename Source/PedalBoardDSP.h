@@ -1,6 +1,7 @@
 #pragma once
 #include "FXChain.h"
 #include "PedalBoardCatalog.h"
+#include "PedalOctaverDSP.h"
 
 namespace spectralforge {
 // These are original, experimental control curves. They do not transform the
@@ -74,6 +75,7 @@ class PedalEffectInstance {
     using C=juce::dsp::IIR::ArrayCoefficients<float>;
     DriveModule drive;ColourModule fuzz;DynamicsModule compressor;BoostModule boost;ModulationModule modulation;
     PedalNewDrive newDrive;
+    PedalMonoOctaver monoOctaver;PedalPolyOctaver polyOctaver;
     std::array<std::array<F,2>,10> eq;
     juce::dsp::StateVariableTPTFilter<float> envelopeFilter;
     juce::AudioBuffer<float> dry,source;
@@ -180,28 +182,33 @@ class PedalEffectInstance {
             volume(b,juce::Decibels::decibelsToGain(p[11]));return 0;
         }
         if(s.model>=32 && s.model<=37) {modulation.process(b,true,s.model-32,p[0],p[1],p[2]);return 0;}
+        if(s.model==38) {monoOctaver.process(b,p[0],p[1],p[2]);return monoOctaver.latency();}
+        if(s.model==39) {polyOctaver.process(b,p[0],p[1],p[2]);return polyOctaver.latency();}
         return 0;
     }
 public:
     void prepare(const juce::dsp::ProcessSpec& spec) {
-        rate=spec.sampleRate;drive.prepare(spec);fuzz.prepare(spec);compressor.prepare(spec);boost.prepare(spec);modulation.prepare(spec);newDrive.prepare(spec);
+        rate=spec.sampleRate;drive.prepare(spec);fuzz.prepare(spec);compressor.prepare(spec);boost.prepare(spec);modulation.prepare(spec);newDrive.prepare(spec);monoOctaver.prepare(spec);polyOctaver.prepare(spec);
         fixedLatency=juce::jmax(drive.latency(),fuzz.latency(),newDrive.latency());
         dry.setSize((int)spec.numChannels,(int)spec.maximumBlockSize);source.setSize((int)spec.numChannels,(int)spec.maximumBlockSize);
-        dryDelay.prepare(spec);dryDelay.setDelay(float(fixedLatency));padding.prepare(spec);
+        dryDelay.setMaximumDelayInSamples(maximumLatency());dryDelay.prepare(spec);dryDelay.setDelay(float(fixedLatency));padding.prepare(spec);
         auto mono=spec;mono.numChannels=1;for(auto& bank:eq)for(auto& f:bank){*f.coefficients=C::makePeakFilter(rate,1000,.707f,1);f.prepare(mono);}
         envelopeFilter.prepare(spec);wet.reset(rate,.015);outputGain.reset(rate,.02);wahPosition.reset(rate,.02);wet.setCurrentAndTargetValue(0);outputGain.setCurrentAndTargetValue(1);wahPosition.setCurrentAndTargetValue(.5f);reset();
     }
     int latency()const{return fixedLatency;}
+    int latency(int model)const{return model==39?juce::jmax(fixedLatency,polyOctaver.latency()):fixedLatency;}
+    int maximumLatency()const{return juce::jmax(fixedLatency,polyOctaver.latency());}
     float reduction()const{return appliedGR;}
-    void reset() {drive.reset();fuzz.reset();compressor.reset();boost.reset();modulation.reset();newDrive.reset();for(auto& bank:eq)for(auto& f:bank)f.reset();envelopeFilter.reset();dryDelay.reset();padding.reset();envelope=0;lastModel=0;filterClock=0;appliedGR=0;wet.setCurrentAndTargetValue(0);}
+    void reset() {drive.reset();fuzz.reset();compressor.reset();boost.reset();modulation.reset();newDrive.reset();monoOctaver.reset();polyOctaver.reset();for(auto& bank:eq)for(auto& f:bank)f.reset();envelopeFilter.reset();dryDelay.reset();padding.reset();envelope=0;lastModel=0;filterClock=0;appliedGR=0;wet.setCurrentAndTargetValue(0);}
     void process(juce::AudioBuffer<float>& b,const PedalInstanceState& state) {
+        const int slotLatency=latency(state.model);dryDelay.setDelay(float(slotLatency));
         source.makeCopyOf(b,true);dry.makeCopyOf(b,true);juce::dsp::AudioBlock<float> dryBlock(dry);juce::dsp::ProcessContextReplacing<float> dryContext(dryBlock);dryDelay.process(dryContext);
         const bool active=state.model>0 && state.model<pedalModelCount && pedalModel(state.model).implemented && !state.bypass;
-        if(lastModel!=state.model) {drive.reset();fuzz.reset();compressor.reset();boost.reset();modulation.reset();newDrive.reset();envelopeFilter.reset();padding.reset();for(auto& bank:eq)for(auto& f:bank)f.reset();envelope=0;filterClock=0;wet.setCurrentAndTargetValue(0);lastModel=state.model;}
+        if(lastModel!=state.model) {drive.reset();fuzz.reset();compressor.reset();boost.reset();modulation.reset();newDrive.reset();monoOctaver.reset();polyOctaver.reset();envelopeFilter.reset();padding.reset();for(auto& bank:eq)for(auto& f:bank)f.reset();envelope=0;filterClock=0;wet.setCurrentAndTargetValue(0);lastModel=state.model;}
         wet.setTargetValue(active?1.f:0.f);appliedGR=0;
         if(!active && !wet.isSmoothing()) {b.makeCopyOf(dry,true);return;} // Empty/bypassed: no effect DSP.
-        const int native=processModel(b,state);padding.setDelay(float(juce::jmax(0,fixedLatency-native)));
-        if(native<fixedLatency) {juce::dsp::AudioBlock<float> block(b);juce::dsp::ProcessContextReplacing<float> context(block);padding.process(context);}
+        const int native=processModel(b,state);padding.setDelay(float(juce::jmax(0,slotLatency-native)));
+        if(native<slotLatency) {juce::dsp::AudioBlock<float> block(b);juce::dsp::ProcessContextReplacing<float> context(block);padding.process(context);}
         for(int n=0;n<b.getNumSamples();++n) {const float mix=wet.getNextValue();for(int c=0;c<b.getNumChannels();++c)b.setSample(c,n,dry.getSample(c,n)*(1-mix)+b.getSample(c,n)*mix);}
     }
 };
@@ -210,21 +217,23 @@ class PedalBoardDSP {
     std::array<PedalEffectInstance,pedalBoardCapacity> instances;
     juce::AudioBuffer<float> clean;
     juce::dsp::DelayLine<float,juce::dsp::DelayLineInterpolationTypes::None> cleanAlignment{1024};
-    int slotDelay{};float gr{};
+    int slotDelay{},reportedLatency{};float gr{};
 public:
-    void prepare(const juce::dsp::ProcessSpec& spec) {for(auto& instance:instances)instance.prepare(spec);slotDelay=instances[0].latency();clean.setSize((int)spec.numChannels,(int)spec.maximumBlockSize);cleanAlignment.prepare(spec);reset();}
+    void prepare(const juce::dsp::ProcessSpec& spec) {for(auto& instance:instances)instance.prepare(spec);slotDelay=instances[0].latency();reportedLatency=pedalBoardCapacity*slotDelay;clean.setSize((int)spec.numChannels,(int)spec.maximumBlockSize);cleanAlignment.setMaximumDelayInSamples(pedalBoardCapacity*instances[0].maximumLatency());cleanAlignment.prepare(spec);reset();}
     void reset(){for(auto& instance:instances)instance.reset();cleanAlignment.reset();gr=0;}
-    int latency()const{return pedalBoardCapacity*slotDelay;}
+    int latency()const{return reportedLatency;}
+    int maximumLatency()const{return pedalBoardCapacity*instances[0].maximumLatency();}
+    int latency(const PedalBoardState& state)const {int total=0;for(size_t owner=0;owner<instances.size();++owner)total+=instances[owner].latency(state.instances[owner].model);return total;}
     float compressorReduction()const{return gr;}
     const juce::AudioBuffer<float>& cleanOutput()const{return clean;}
     void process(juce::AudioBuffer<float>& b,PedalBoardState state) {
-        sanitisePedalBoard(state);gr=0;
+        sanitisePedalBoard(state);reportedLatency=latency(state);gr=0;
         if(state.lowTap==0)clean.makeCopyOf(b,true);
         for(int position=0;position<pedalBoardCapacity;++position) {
             const auto owner=(size_t)state.order[(size_t)position];instances[owner].process(b,state.instances[owner]);gr=juce::jmax(gr,instances[owner].reduction());
             if(position+1==state.lowTap)clean.makeCopyOf(b,true);
         }
-        const int remainder=(pedalBoardCapacity-state.lowTap)*slotDelay;
+        int remainder=0;for(int position=state.lowTap;position<pedalBoardCapacity;++position) {const auto owner=(size_t)state.order[(size_t)position];remainder+=instances[owner].latency(state.instances[owner].model);}
         cleanAlignment.setDelay(float(remainder));
         // Keep the alignment history advancing even at the final tap.
         juce::dsp::AudioBlock<float> block(clean);juce::dsp::ProcessContextReplacing<float> context(block);cleanAlignment.process(context);

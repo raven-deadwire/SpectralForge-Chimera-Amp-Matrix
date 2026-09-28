@@ -4,6 +4,8 @@
 #include "FactoryPresets.h"
 #include "BoardStateUITests.h"
 #include "AmpSelectorTests.h"
+#include "AmpSelectionStateTests.h"
+#include "CorrectionUITests.h"
 #include <map>
 #include <iostream>
 #include <set>
@@ -16,7 +18,7 @@ void checkArtwork()
 {
     using namespace spectralforge::art;
     const auto& images=RasterBank::get().images;
-    require(images.size()==static_cast<size_t>(Surface::count) && images.size()==size_t(51+spectralforge::ampModelCount),
+    require(images.size()==static_cast<size_t>(Surface::count) && images.size()==size_t(51+spectralforge::legacyAmpModelCount),
             "The complete hardware artwork inventory was not embedded");
     for(size_t i=0;i<images.size();++i) {
         const auto& asset=images[i];
@@ -29,7 +31,7 @@ void checkArtwork()
         require(visible,"Embedded hardware artwork is fully transparent");
     }
     std::set<Surface> heads,pedals,racks;
-    for(int model=0;model<spectralforge::ampModelCount;++model)require(heads.insert(headStyle(model).surface).second,"Two amplifier heads share an unrelated artwork surface");
+    for(int model=0;model<spectralforge::legacyAmpModelCount;++model)require(heads.insert(headStyle(model).surface).second,"Two amplifier heads share an unrelated artwork surface");
     for(int family:{0,3,4,5,6}) {
         std::set<Surface> familySurfaces;
         require(spectralforge::modelFamilies[(size_t)family].count==5,"A PRE family has fewer than five selectable models");
@@ -47,7 +49,18 @@ void checkArtwork()
     for(int family:{1,2,7,8,9,10})
         for(int model=0;model<spectralforge::modelFamilies[(size_t)family].count;++model)
             require(racks.insert(rackStyle(family,model).surface).second,"Distinct POST references share one artwork surface");
-    require(heads.size()==size_t(spectralforge::ampModelCount) && pedals.size()==24 && racks.size()==21,"Model artwork mapping does not cover every reference");
+    require(heads.size()==size_t(spectralforge::legacyAmpModelCount) && pedals.size()==24 && racks.size()==21,"Model artwork mapping does not cover every reference");
+    std::set<juce::String> nativeHeads;
+    for(int model=spectralforge::legacyAmpModelCount;model<spectralforge::ampModelCount;++model) {
+        require(nativeHeadArtwork(model),"New head has no dedicated vector artwork");
+        juce::Image image(juce::Image::ARGB,466,170,true);juce::Graphics graphics(image);
+        head(graphics,{0,0,466,170},model);
+        juce::MemoryOutputStream bytes;juce::PNGImageFormat png;require(png.writeImageToStream(image,bytes),"Native head cannot render");
+        const auto digest=juce::SHA256(bytes.getData(),bytes.getDataSize()).toHexString();
+        require(nativeHeads.insert(digest).second,"New heads share an identical fascia");
+        require(image.getPixelAt(20,20).getAlpha()>0,"Native head artwork is empty");
+    }
+    require(nativeHeads.size()==8,"Missing new amp artwork");
     for(auto surface:pedals)require(!heads.count(surface) && !racks.count(surface),"A pedal is using amp or rack artwork");
     for(auto surface:racks)require(!heads.count(surface),"A rack is using amplifier artwork");
     std::cout<<"PASS: "<<images.size()<<" decoded visible rasters; "<<heads.size()<<" unique heads, 24 PRE enclosures (25 models), 21 unique POST surfaces\n";
@@ -363,6 +376,8 @@ int main(int argc, char** argv)
                                        : juce::File::getCurrentWorkingDirectory().getChildFile("ui-snapshots");
         require(directory.createDirectory().wasOk(), "Cannot create snapshot directory");
         ampSelectorTests::run();
+        ampSelectionStateTests::run();
+        runCorrectionUITests(directory);
         checkEditorLifetime();
         runBoardStateTests(directory);
         // A/B is two complete sound snapshots, not a stereo channel selector.
@@ -442,6 +457,8 @@ int main(int argc, char** argv)
         {
             set(processor,"mode",static_cast<float>(mode));
             ChimeraEditor editor(processor);
+            for(auto* child:editor.findChildWithID("surface")->getChildren())
+                if(auto* button=dynamic_cast<juce::TextButton*>(child);button && button->getButtonText()=="RIGS")button->triggerClick();
             // Exercise the real asynchronous UI event loop. Sleeping the message
             // thread can prevent parameter notifications and timers from settling.
             juce::MessageManager::getInstance()->runDispatchLoopUntil(150);
@@ -449,14 +466,14 @@ int main(int argc, char** argv)
             const juce::String name = mode == 0 ? "Classic" : mode == 1 ? "Dual" : "Matrix";
             saveSnapshot(editor,directory,name);
             if(mode==0) {
-                const float original=processor.parameters().getRawParameterValue("amp1")->load();
+                const int original=processor.selectedAmpModel(0);
                 for(int model=0;model<spectralforge::ampModelCount;++model) {
-                    set(processor,"amp1",(float)model);juce::MessageManager::getInstance()->runDispatchLoopUntil(80);
+                    processor.setAmpModel(0,model);juce::MessageManager::getInstance()->runDispatchLoopUntil(80);
                     auto* reference=dynamic_cast<juce::Label*>(editor.findChildWithID("surface")->findChildWithID("ampreference1"));
-                    require(reference && reference->isVisible() && reference->getText()==spectralforge::ampInfo(model).reference,"Amp original reference did not follow model selection");
+                    require(reference && reference->isVisible() && reference->getText()==spectralforge::ampPrimaryRoleName(model),"Amp role label did not follow model selection");
                     saveSnapshot(editor,directory,"Head-"+juce::String(model+1));
                 }
-                set(processor,"amp1",original);
+                processor.setAmpModel(0,original);
             }
             if(mode==1) {
                 for(auto* child:editor.findChildWithID("surface")->getChildren()) if(auto* slider=dynamic_cast<juce::Slider*>(child);slider && slider->getName()=="dualblend")for(auto* text:slider->getChildren())if(auto* label=dynamic_cast<juce::Label*>(text))require(label->getText()=="50:50","Initial blend readout is not a rig ratio");
@@ -500,6 +517,13 @@ int main(int argc, char** argv)
                     bool clicked=false;
                     for(auto* child:editor.findChildWithID("surface")->getChildren()) if(auto* button=dynamic_cast<juce::TextButton*>(child);button && button->getButtonText()==tab) {button->triggerClick();clicked=true;}
                     require(clicked,"Missing FX page tab");juce::MessageManager::getInstance()->runDispatchLoopUntil(150);
+                    if(juce::String(tab)=="PRE") {
+                        set(processor,"boardEnabled",0);juce::MessageManager::getInstance()->runDispatchLoopUntil(60);
+                        bool legacyOpened=false;
+                        for(auto* child:editor.findChildWithID("surface")->getChildren())
+                            if(auto* button=dynamic_cast<juce::TextButton*>(child);button && button->getButtonText()=="LEGACY CONTROLS") {button->triggerClick();legacyOpened=true;}
+                        require(legacyOpened,"Legacy controls are inaccessible");juce::MessageManager::getInstance()->runDispatchLoopUntil(80);
+                    }
                     int sliders=0;for(auto* child:editor.findChildWithID("surface")->getChildren()) if(child->isVisible()) {
                         require(editor.getLocalBounds().contains(editor.getLocalArea(child,child->getLocalBounds())),"FX control outside editor");
                         if(dynamic_cast<juce::Slider*>(child)) ++sliders;
@@ -561,6 +585,18 @@ int main(int argc, char** argv)
             auto* board=canvas->findChildWithID("universalPedalBoard");
             for(auto* child:board->getChildren())if(auto* button=dynamic_cast<juce::TextButton*>(child);button&&button->getButtonText()=="CONTROLS") {button->triggerClick();break;}
             juce::MessageManager::getInstance()->runDispatchLoopUntil(100);saveSnapshot(editor,directory,"Universal-detail");
+            // Capture every newly added pitch type in the same five-slot board.
+            for(auto* child:board->getChildren())if(auto* button=dynamic_cast<juce::TextButton*>(child);button && button->getButtonText()=="BACK TO 5 PEDALS")button->triggerClick();
+            universal.setPedalModel(0,38);universal.setPedalModel(1,39);
+            {juce::AudioBuffer<float> audio(2,256);audio.clear();juce::MidiBuffer midi;universal.processBlock(audio,midi);}
+            juce::MessageManager::getInstance()->runDispatchLoopUntil(160);saveSnapshot(editor,directory,"Correction-octavers");
+            // The largest supported pedal panel must remain usable within the
+            // original board bounds at both 100% and 75% UI sizes.
+            universal.setPedalModel(0,31);juce::MessageManager::getInstance()->runDispatchLoopUntil(120);
+            for(auto* child:board->getChildren())if(auto* button=dynamic_cast<juce::TextButton*>(child);button && button->getButtonText()=="CONTROLS") {button->triggerClick();break;}
+            juce::MessageManager::getInstance()->runDispatchLoopUntil(100);saveSnapshot(editor,directory,"Correction-EQ-detail");
+            editor.setSize(885,585);juce::MessageManager::getInstance()->runDispatchLoopUntil(80);saveSnapshot(editor,directory,"Correction-EQ-detail-75pct");
+            editor.setSize(1180,780);
             const auto diagnostic=juce::JSON::parse(universal.diagnosticReport());require(diagnostic.isObject()&&diagnostic["stages"].getArray()&&diagnostic["stages"].getArray()->size()==5,"Diagnostic stage snapshot missing");
             require(!universal.diagnosticReport().contains(directory.getFullPathName()),"Diagnostic leaked a user path");
         }

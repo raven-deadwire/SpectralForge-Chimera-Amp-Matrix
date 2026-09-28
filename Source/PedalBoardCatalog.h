@@ -47,8 +47,8 @@ inline constexpr std::array<PedalModelSpec,pedalModelCount> pedalModels{{
  {"pre.mod.3","PRE Mistress Flange","MODULATION",true,3,{{{"rate","RATE",0.05f,5.0f,0.7f,0.001f,true,""},{"depth","DEPTH",0.0f,1.0f,0.5f,0.001f,true,""},{"mix","MIX",0.0f,0.7f,0.25f,0.001f,true,""}}}},
  {"pre.mod.4","PRE Eddy Vibrato","MODULATION",true,3,{{{"rate","RATE",0.05f,5.0f,0.7f,0.001f,true,""},{"depth","DEPTH",0.0f,1.0f,0.5f,0.001f,true,""},{"mix","MIX",0.0f,0.7f,0.25f,0.001f,true,""}}}},
  {"pre.mod.5","PRE Pulsar Tremolo","MODULATION",true,3,{{{"rate","RATE",0.05f,5.0f,0.7f,0.001f,true,""},{"depth","DEPTH",0.0f,1.0f,0.5f,0.001f,true,""},{"mix","MIX",0.0f,0.7f,0.25f,0.001f,true,""}}}},
- {"planned.octaver-mono","Mono octaver - DSP pending","PITCH",false,3,{{{"dry","DRY",0.0f,1.0f,0.5f,0.001f,false,""},{"down1","DOWN1",0.0f,1.0f,0.5f,0.001f,false,""},{"down2","DOWN2",0.0f,1.0f,0.5f,0.001f,false,""}}}},
- {"planned.octaver-poly","Poly octaver - DSP pending","PITCH",false,3,{{{"dry","DRY",0.0f,1.0f,0.5f,0.001f,false,""},{"down","DOWN",0.0f,1.0f,0.5f,0.001f,false,""},{"up","UP",0.0f,1.0f,0.5f,0.001f,false,""}}}},
+ {"planned.octaver-mono","Mono Octaver / tracking divider","PITCH",true,3,{{{"dry","DRY",0.0f,1.0f,1.0f,0.001f,true,""},{"down1","DOWN1",0.0f,1.0f,0.5f,0.001f,true,""},{"down2","DOWN2",0.0f,1.0f,0.0f,0.001f,true,""}}}},
+ {"planned.octaver-poly","Spectral Octaver / experimental","PITCH",true,3,{{{"dry","DRY",0.0f,1.0f,1.0f,0.001f,true,""},{"down","DOWN",0.0f,1.0f,0.5f,0.001f,true,""},{"up","UP",0.0f,1.0f,0.0f,0.001f,true,""}}}},
 }};
 inline const PedalModelSpec& pedalModel(int model) { return pedalModels[(size_t)juce::jlimit(0,pedalModelCount-1,model)]; }
 inline juce::String pedalControlID(int owner,int model,int control) { return "board"+juce::String(owner)+"_m"+juce::String(model)+"_"+juce::String(pedalModel(model).controls[(size_t)control].id).replaceCharacter('.','_'); }
@@ -60,5 +60,5 @@ struct PedalBoardState { bool enabled{}; int lowTap{2}; std::array<int,pedalBoar
 inline PedalInstanceState defaultPedalInstance(int model) { PedalInstanceState s; s.model=juce::jlimit(0,pedalModelCount-1,model); const auto& m=pedalModel(s.model); for(int i=0;i<m.controlCount;++i)s.controls[(size_t)i]=m.controls[(size_t)i].initial; return s; }
 // Fail closed: invalid/duplicate order entries are filled with unused owners.
 inline void sanitisePedalBoard(PedalBoardState& state) { std::array<bool,5> seen{}; for(auto& id:state.order) { if(id<0 || id>=5 || seen[(size_t)id])id=-1; else seen[(size_t)id]=true; } for(auto& id:state.order)if(id<0)for(int j=0;j<5;++j)if(!seen[(size_t)j]) { id=j;seen[(size_t)j]=true;break; } state.lowTap=juce::jlimit(0,5,state.lowTap); for(auto& instance:state.instances) { if(instance.model<0 || instance.model>=pedalModelCount)instance.model=0; const auto& m=pedalModel(instance.model); for(int c=0;c<m.controlCount;++c) { auto& v=instance.controls[(size_t)c]; const auto& p=m.controls[(size_t)c]; v=std::isfinite(v)?juce::jlimit(p.minimum,p.maximum,v):p.initial; } } }
-inline constexpr const char* pedalBoardDSPStatus="Experimental original DSP curves; hardware taper/circuit/capture matching is not verified. Variable Mu SEP/R controls, AW-3 HUMAN/TEMPO and octavers remain disabled.";
+inline constexpr const char* pedalBoardDSPStatus="Experimental original DSP curves; hardware taper/circuit/capture matching is not verified. Variable Mu SEP/R controls and AW-3 modes remain disabled. Spectral octaver adds 42.7-46.4 ms at supported rates and has limited low-chord tracking.";
 }

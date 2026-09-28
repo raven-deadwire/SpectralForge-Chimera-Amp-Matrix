@@ -37,7 +37,7 @@ inline void run(const juce::File& outputDirectory) {
     const auto mark=[&](const juce::String& name){passed.add(name);std::cout<<"PASS board state: "<<name<<"\n";};
     {
         const auto pStorage=std::make_unique<ChimeraProcessor>();auto& p=*pStorage;
-        require(!p.pedalBoardState().enabled,"New board must require explicit opt-in");
+        require(p.pedalBoardState().enabled,"New plugin instances must open with the five-slot board active");
         for(const auto& id:juce::StringArray{"boardEnabled","boardLowTap",pedalModelID(0),pedalOrderID(0)})
             require(!p.parameters().getParameter(id)->isAutomatable(),"Structural board edit is still host-automatable");
         require(!p.parameters().getParameter(pedalControlID(0,10,1))->isAutomatable(),
@@ -66,7 +66,7 @@ inline void run(const juce::File& outputDirectory) {
         p.setPedalModel(3,6);p.setPedalModel(4,7);const auto full=p.pedalBoardState();
         require(!p.duplicatePedal(0),"A sixth pedal was admitted");
         equal(p.pedalBoardState(),full,"Rejected sixth pedal still mutated the board");
-        for(int invalid:{-1,38,39,255,1000}) {p.setPedalModel(0,invalid);equal(p.pedalBoardState(),full,"Pending or invalid model changed the board");}
+        for(int invalid:{-1,40,255,1000}) {p.setPedalModel(0,invalid);equal(p.pedalBoardState(),full,"Invalid model changed the board");}
         p.setPedalModel(-1,26);p.setPedalModel(5,26);equal(p.pedalBoardState(),full,"Invalid owner changed the board");
         p.setPedalModel(4,0);require(p.pedalBoardState().instances[4].model==0,"Delete did not create Empty");
         require(p.duplicatePedal(0),"Empty owner could not be reused");
@@ -124,6 +124,25 @@ inline void run(const juce::File& outputDirectory) {
         p.learnMidi(pedalControlID(0,27,0));require(p.learningMidi(),"Pending board MIDI learn was not armed");
         p.setPedalModel(0,26);require(!p.learningMidi(),"Replacement retained pending MIDI learn for the retired model");
         mark("MIDI learn, moved owner, independent duplication, binary recall and explicit replacement retirement");
+    }
+    {
+        const auto storage=std::make_unique<ChimeraProcessor>();auto& p=*storage;
+        p.setRateAndBufferSizeDetails(48000,256);p.prepareToPlay(48000,256);
+        const int originalTotal=p.getLatencySamples(),originalBoard=p.pedalBoardLatencySamples();
+        p.setPedalModel(0,39);sendCC(p,119,0);
+        const int selectedTotal=originalTotal-originalBoard+p.pedalBoardLatencySamples();
+        require(p.getLatencySamples()==selectedTotal && selectedTotal>originalTotal+1000,"Poly octave delay is not reported to the host");
+        set(p,pedalBypassID(0,39),1);sendCC(p,119,0);
+        require(p.getLatencySamples()==selectedTotal,"Poly bypass unexpectedly changed host latency");
+        p.setPedalModel(0,0);sendCC(p,119,0);
+        require(p.getLatencySamples()==originalTotal,"Deleting a poly octave failed to remove its extra latency");
+        p.setPedalModel(0,38);sendCC(p,119,0);
+        require(p.getLatencySamples()==originalTotal,"Mono octave inherited the poly frame delay");
+        p.loadFactoryPreset(0);
+        require(!p.pedalBoardState().enabled && p.pedalBoardState().instances[0].model==38,"Legacy factory preset overwrote the saved new-board bank");
+        p.setPedalBoardEnabled(true);
+        require(p.pedalBoardState().enabled && p.pedalBoardState().instances[0].model==38,"Explicit new-board activation did not retain the board bank");
+        mark("Poly host latency, latency-preserving bypass, deletion, zero-frame mono and explicit Legacy preset/new-board switching");
     }
     auto* report=new juce::DynamicObject();report->setProperty("status","PASS");
     report->setProperty("scope","Native Processor/APVTS state and identity assertions; no external DAW or hardware-fidelity claim");

@@ -6,8 +6,10 @@ namespace spectralforge {
 // Append new voices: raw project indices 0-7 are the original beta voices.
 enum class AmpModel : int {
     glass, britEdge, tight515, wideRect, liquidLead, ironTube, solidPunch, modernBass,
-    chime30, orangeCrown, bassmanValve, subwayClean, matchChime, silkODS, tastePunch, count
+    chime30, orangeCrown, bassmanValve, subwayClean, matchChime, silkODS, tastePunch,
+    zutaCinder, ironCompact, fourChannel, classicTube, sunMonolith, evilHarvest, hotLead, blueStorm, count
 };
+inline constexpr int legacyAmpModelCount = 15;
 inline constexpr int ampModelCount = static_cast<int>(AmpModel::count);
 struct AmpInfo { const char* name; const char* reference; const char* character; bool bass; };
 inline constexpr std::array<AmpInfo, ampModelCount> ampCatalog{{
@@ -21,14 +23,22 @@ inline constexpr std::array<AmpInfo, ampModelCount> ampCatalog{{
     {"Modern Bass", "Darkglass B7K Ultra + Aguilar DB751", "Blended bass drive / reference chain", true},
     {"Chime 30", "VOX AC30 Top Boost", "Bright edge breakup / responsive upper mids", false},
     {"Orange Crown", "Orange Rockerverb 50 MKIII", "Dense low mids / thick high gain", false},
-    {"Bassman Valve", "Fender Super Bassman", "Rounded tube bass / retained fundamentals", true},
-    {"Subway Clean", "Mesa Subway D-800+", "High-headroom bass / broad clean bandwidth", true},
-    {"Match Chime", "Matchless DC-30", "Complex chime / firm mids and responsive breakup", false},
-    {"Silk ODS", "Dumble Overdrive Special", "Smooth singing drive / rounded high mids", false},
-    {"Taste Punch", "EICH T900", "Open bass dynamics / clear mids and extended lows", true}
+    {"Vintage Valve", "Fender Super Bassman", "Rounded tube bass / retained fundamentals", true},
+    {"Metro Clean", "Mesa Subway D-800+", "High-headroom bass / broad clean bandwidth", true},
+    {"Prism Chime", "Matchless DC-30", "Complex chime / firm mids and responsive breakup", false},
+    {"Silk Lead", "Dumble Overdrive Special", "Smooth singing drive / rounded high mids", false},
+    {"Taste Punch", "EICH T900", "Open bass dynamics / clear mids and extended lows", true},
+    {"Cinder 120", "ZUTA GBG120", "Four-channel drive / layered saturation", false},
+    {"Iron Compact", "ENGL Ironball E606", "Clean and lead / tight attack", false},
+    {"Fourfold", "Diezel VH4", "Four channels / controlled low end", false},
+    {"Classic Tube", "Ampeg SVT-CL", "Single-channel tube bass / firm fundamentals", true},
+    {"Monolith", "SUNN Model T — 1970s design study", "Normal and bright input paths / broad breakup", false},
+    {"Night Harvest", "Fortin Evil Pumpkin", "Two gain paths and clean / aggressive attack", false},
+    {"Hot Lead", "Soldano SLO-100 LTD OD", "Overdrive voice / singing sustain", false},
+    {"Blue Storm", "Bogner Uberschall Rev Blue", "Clean and lead / dense low mids", false}
 }};
-// Browse tags describe current voicing use, not newly implemented hardware
-// channels. They are separate from the stable 15-value host enumeration above.
+// Search metadata stays separate from the single primary category shown in the menu.
+// The original host parameter continues to use exactly 15 choices.
 enum class AmpRole : unsigned { any=0, clean=1, crunch=2, lead=4, highGain=8, bass=16 };
 enum class AmpInstrument { any, guitar, bass };
 constexpr unsigned roleBits(AmpRole role) { return static_cast<unsigned>(role); }
@@ -54,7 +64,15 @@ inline constexpr std::array<unsigned,ampModelCount> ampRoleTags{{
     AmpRole::clean|AmpRole::bass,                                 // Subway Clean
     AmpRole::clean|AmpRole::crunch,                               // Match Chime
     AmpRole::clean|AmpRole::crunch|AmpRole::lead,                  // Silk ODS
-    AmpRole::clean|AmpRole::bass                                  // Taste Punch
+    AmpRole::clean|AmpRole::bass,                                 // Taste Punch
+    AmpRole::clean|AmpRole::crunch|AmpRole::lead|AmpRole::highGain,
+    AmpRole::clean|AmpRole::highGain,
+    AmpRole::clean|AmpRole::crunch|AmpRole::lead|AmpRole::highGain,
+    AmpRole::clean|AmpRole::crunch|AmpRole::bass,
+    AmpRole::clean|AmpRole::crunch,
+    AmpRole::clean|AmpRole::lead|AmpRole::highGain,
+    AmpRole::lead|AmpRole::highGain,
+    AmpRole::clean|AmpRole::highGain
 }};
 constexpr bool ampMatches(int index,AmpRole role=AmpRole::any,AmpInstrument instrument=AmpInstrument::any) {
     if(index<0 || index>=ampModelCount)return false;
@@ -63,17 +81,25 @@ constexpr bool ampMatches(int index,AmpRole role=AmpRole::any,AmpInstrument inst
         && (instrument==AmpInstrument::any || (instrument==AmpInstrument::bass ? info.bass : !info.bass));
 }
 constexpr int ampIndexFromMenuId(int id) { return id>=1 && id<=ampModelCount ? id-1 : -1; }
-struct PendingAmpInfo { const char* name; const char* scope; bool required; };
-inline constexpr std::array<PendingAmpInfo,8> pendingAmpTargets{{
-    {"ZUTA GBG120","CH1-4 / DSP pending",true},
-    {"ENGL","Ironball E606 study; Savage 120 Mk II separate candidate",true},
-    {"Diezel VH4","Head/channel scope unresolved / DSP pending",true},
-    {"Ampeg SVT-CL","Separate from SVT-VR / DSP pending",true},
-    {"SUNN","Model T first study; exact generation unresolved",true},
-    {"Fortin Evil Pumpkin","Candidate / DSP pending",false},
-    {"Soldano SLO-100 LTD OD","OD reference only; other channels unresolved",false},
-    {"Bogner Uberschall Rev Blue","Clean/Lead source review / DSP pending",false}
+// One primary category per model prevents repeated entries while leaving all
+// heads available to Classic, Dual and every Matrix lane.
+inline constexpr std::array<AmpRole,ampModelCount> ampPrimaryRoles{{
+    AmpRole::clean, AmpRole::crunch, AmpRole::highGain, AmpRole::highGain,
+    AmpRole::lead, AmpRole::bass, AmpRole::bass, AmpRole::bass,
+    AmpRole::crunch, AmpRole::highGain, AmpRole::bass, AmpRole::bass,
+    AmpRole::clean, AmpRole::lead, AmpRole::bass,
+    AmpRole::highGain, AmpRole::highGain, AmpRole::highGain, AmpRole::bass,
+    AmpRole::crunch, AmpRole::highGain, AmpRole::lead, AmpRole::highGain
 }};
+inline const char* ampPrimaryRoleName(int model) {
+    const auto role=ampPrimaryRoles[(size_t)juce::jlimit(0,ampModelCount-1,model)];
+    for(const auto& item:ampRoleChoices)if(item.role==role)return item.label;
+    return "";
+}
+inline juce::StringArray legacyAmpNames() {
+    return {"Glass","Brit Edge","Tight 515","Wide Rect","Liquid Lead","Iron Tube","Solid Punch","Modern Bass",
+            "Chime 30","Orange Crown","Bassman Valve","Subway Clean","Match Chime","Silk ODS","Taste Punch"};
+}
 inline const AmpInfo& ampInfo(int index) { return ampCatalog[(size_t)juce::jlimit(0, ampModelCount - 1, index)]; }
 inline juce::StringArray ampNames() { juce::StringArray names; for (const auto& info : ampCatalog) names.add(info.name); return names; }
 }

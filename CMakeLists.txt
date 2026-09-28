@@ -105,3 +105,18 @@ target_sources(ChimeraValidateExternalIR PRIVATE Tests/ValidateExternalIR.cpp So
 target_include_directories(ChimeraValidateExternalIR PRIVATE Source)
 target_compile_definitions(ChimeraValidateExternalIR PRIVATE JUCE_USE_CURL=0 JUCE_WEB_BROWSER=0)
 target_link_libraries(ChimeraValidateExternalIR PRIVATE ChimeraIRs juce::juce_data_structures juce::juce_dsp juce::juce_audio_formats juce::juce_cryptography PUBLIC juce::juce_recommended_config_flags)
+
+# Appended amp topologies: separate real-DSP numerical and legacy-preservation gate.
+juce_add_console_app(ChimeraNewAmpTests PRODUCT_NAME "Chimera New Amp Tests")
+target_sources(ChimeraNewAmpTests PRIVATE Tests/NewAmpTests.cpp)
+target_include_directories(ChimeraNewAmpTests PRIVATE Source)
+target_compile_definitions(ChimeraNewAmpTests PRIVATE JUCE_USE_CURL=0 JUCE_WEB_BROWSER=0)
+target_link_libraries(ChimeraNewAmpTests PRIVATE juce::juce_dsp juce::juce_audio_basics PUBLIC juce::juce_recommended_config_flags)
+add_test(NAME ChimeraNewAmpTests COMMAND ChimeraNewAmpTests)
+
+juce_add_console_app(ChimeraPedalOctaverTests PRODUCT_NAME "Chimera Pedal Octaver Tests")
+target_sources(ChimeraPedalOctaverTests PRIVATE Tests/PedalOctaverTests.cpp)
+target_include_directories(ChimeraPedalOctaverTests PRIVATE Source)
+target_compile_definitions(ChimeraPedalOctaverTests PRIVATE JUCE_USE_CURL=0 JUCE_WEB_BROWSER=0)
+target_link_libraries(ChimeraPedalOctaverTests PRIVATE juce::juce_dsp juce::juce_audio_basics PUBLIC juce::juce_recommended_config_flags)
+add_test(NAME ChimeraPedalOctaverTests COMMAND ChimeraPedalOctaverTests)

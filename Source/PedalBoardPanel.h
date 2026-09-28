@@ -13,7 +13,7 @@ class PedalBoardPanel final : public juce::Component, private juce::Timer {
     };
     struct Card {
         juce::ComboBox model;juce::TextButton bypass{"BYPASS"},left{"<"},right{">"},copy{"COPY"},remove{"X"},detail{"CONTROLS"};
-        juce::Label title;std::array<Control,3> controls;std::unique_ptr<BA> attachment;
+        juce::Label title;std::array<Control,6> controls;std::unique_ptr<BA> attachment;
         int owner{-1},modelId{-1};
     };
     ChimeraProcessor& processor;
@@ -25,6 +25,12 @@ class PedalBoardPanel final : public juce::Component, private juce::Timer {
     std::unique_ptr<SA> tapAttachment;
     int detailedOwner{-1},detailedModel{-1};
     bool syncing{};
+    static int cardControl(int model,int index) {
+        if(model==4) {constexpr int map[]{6,0,1,2,3,4};return map[index];}
+        if(model==10) {constexpr int map[]{0,2,3,4,5,6};return map[index];}
+        if(model==29) {constexpr int map[]{0,2,3,5,6,7};return map[index];}
+        return index;
+    }
     void replaceModel(int owner,int model) {
         // Host automation is outside A/B/state history: disclose bank reuse even after loading an older snapshot.
         if(model==0) {processor.setPedalModel(owner,model);refresh();return;}
@@ -45,8 +51,12 @@ class PedalBoardPanel final : public juce::Component, private juce::Timer {
     void addControl(Control& c) {
         addAndMakeVisible(c.label);addAndMakeVisible(c.slider);addAndMakeVisible(c.midi);
         c.label.setJustificationType(juce::Justification::centred);c.label.setFont(juce::FontOptions(11.f));
+        c.label.setColour(juce::Label::textColourId,juce::Colour(0xffdce8d2));
+        c.label.setColour(juce::Label::backgroundColourId,juce::Colour(0xff151c18).withAlpha(.94f));
         c.slider.setSliderStyle(juce::Slider::RotaryHorizontalVerticalDrag);
         c.slider.setTextBoxStyle(juce::Slider::TextBoxBelow,false,78,20);
+        c.slider.setColour(juce::Slider::textBoxTextColourId,juce::Colour(0xffdce8d2));
+        c.slider.setColour(juce::Slider::textBoxBackgroundColourId,juce::Colour(0xff151c18));
     }
     void bind(Control& c,int owner,int model,int index,bool showMidi) {
         c.attachment.reset();c.slider.textFromValueFunction=nullptr;c.slider.valueFromTextFunction=nullptr;
@@ -55,6 +65,7 @@ class PedalBoardPanel final : public juce::Component, private juce::Timer {
         if(!exists)return;
         const auto& spec=m.controls[(size_t)index];
         c.label.setText(spec.label,juce::dontSendNotification);c.slider.setName(spec.label);
+        c.label.setTooltip(spec.label);
         c.slider.setRange(spec.minimum,spec.maximum,spec.interval);
         c.slider.setEnabled(spec.connected);c.midi.setEnabled(spec.connected);
         c.slider.setTooltip(spec.connected ? "Experimental DSP curve. Hardware taper has not been calibrated." : "Not connected to DSP; control is disabled.");
@@ -77,30 +88,42 @@ class PedalBoardPanel final : public juce::Component, private juce::Timer {
         if(!isVisible())return;
         const auto state=processor.pedalBoardState();syncing=true;
         if(detailedOwner>=0 && state.instances[(size_t)detailedOwner].model!=detailedModel) {syncing=false;showDetails(-1);return;}
-        int count=0;for(const auto& e:state.instances)if(e.model)++count;
+        bool layoutChanged=false;int count=0;for(const auto& e:state.instances)if(e.model)++count;
         const bool matrix=processor.parameters().getRawParameterValue("mode")->load()==2;
         tap.setEnabled(matrix);tapLabel.setText(matrix ? "LOW TAP after slot" : "LOW TAP / Matrix only",juce::dontSendNotification);
         for(int position=0;position<5;++position) {
             auto& card=cards[(size_t)position];const int owner=state.order[(size_t)position],model=state.instances[(size_t)owner].model;
             if(card.owner!=owner || card.modelId!=model) {
+                layoutChanged=true;
                 card.owner=owner;card.modelId=model;card.model.setSelectedId(model+1,juce::dontSendNotification);
                 card.attachment.reset();
                 if(model)card.attachment=std::make_unique<BA>(processor.parameters(),spectralforge::pedalBypassID(owner,model),card.bypass);
-                for(int c=0;c<3;++c)bind(card.controls[(size_t)c],owner,model,c,false);
+                for(int c=0;c<6;++c)bind(card.controls[(size_t)c],owner,model,cardControl(model,c),false);
+                card.model.setTooltip(model==39?"Experimental spectral octaver: about 43-46 ms processing delay. Dense/low chords can smear or lose fundamentals. Not a Micro POG replica.":model==38?"Monophonic /2 and /4 tracking divider. Use single notes; chord tracking is not supported.":"Choose any supported pedal. The fixed owner/model bank retains independent host automation.");
             }
-            card.title.setText("SLOT "+juce::String(position+1)+"  /  INSTANCE "+juce::String(owner+1),juce::dontSendNotification);
+            card.title.setText("SLOT "+juce::String(position+1)+"  /  "+(model?juce::String(spectralforge::pedalModel(model).controlCount)+" CONTROLS":"ADD A PEDAL"),juce::dontSendNotification);
             const bool visible=detailedOwner<0;
             for(juce::Component* c:std::initializer_list<juce::Component*>{&card.title,&card.model,&card.bypass,&card.left,&card.right,&card.copy,&card.remove,&card.detail})c->setVisible(visible);
-            card.left.setEnabled(position>0);card.right.setEnabled(position<4);card.copy.setEnabled(count<5&&model!=0);card.detail.setEnabled(model!=0);
-            card.remove.setEnabled(model!=0);card.bypass.setEnabled(model!=0);
-            for(int c=0;c<3;++c) {const bool show=visible&&c<spectralforge::pedalModel(model).controlCount;card.controls[(size_t)c].label.setVisible(show);card.controls[(size_t)c].slider.setVisible(show);}
+            card.model.setEnabled(state.enabled);
+            card.left.setEnabled(state.enabled&&position>0);card.right.setEnabled(state.enabled&&position<4);card.copy.setEnabled(state.enabled&&count<5&&model!=0);card.detail.setEnabled(model!=0);
+            card.detail.setButtonText(spectralforge::pedalModel(model).controlCount>6?"ALL CONTROLS":"DETAIL / MIDI");
+            card.remove.setEnabled(state.enabled&&model!=0);card.bypass.setEnabled(state.enabled&&model!=0);
+            for(int c=0;c<6;++c) {
+                const int index=cardControl(model,c);const bool show=visible&&index<spectralforge::pedalModel(model).controlCount;
+                card.controls[(size_t)c].label.setVisible(show);card.controls[(size_t)c].slider.setVisible(show);
+                if(show)card.controls[(size_t)c].slider.setEnabled(state.enabled&&spectralforge::pedalModel(model).controls[(size_t)index].connected);
+            }
         }
         close.setVisible(detailedOwner>=0);detailTitle.setVisible(detailedOwner>=0);
         for(int c=0;c<spectralforge::pedalMaxControls;++c) {
             const bool show=detailedOwner>=0&&c<spectralforge::pedalModel(juce::jmax(0,detailedModel)).controlCount;
             details[(size_t)c].label.setVisible(show);details[(size_t)c].slider.setVisible(show);details[(size_t)c].midi.setVisible(show);
+            if(show) {const bool enabled=state.enabled&&spectralforge::pedalModel(detailedModel).controls[(size_t)c].connected;details[(size_t)c].slider.setEnabled(enabled);details[(size_t)c].midi.setEnabled(enabled);}
         }
-        syncing=false;repaint();
+        tap.setEnabled(state.enabled&&matrix);undo.setEnabled(state.enabled);redo.setEnabled(state.enabled);
+        if(!state.enabled)notice.setText("Original PRE is processing. Choose USE NEW 5-SLOT BOARD above to activate these pedals; your old settings are retained.",juce::dontSendNotification);
+        else if(notice.getText().startsWith("Original PRE"))notice.setText("Any pedal in any slot. New SD-1, OCD, Distortion+, JB-2, Wah and EQ are at the top of each model menu.",juce::dontSendNotification);
+        syncing=false;if(layoutChanged)resized();repaint();
     }
 public:
     explicit PedalBoardPanel(ChimeraProcessor& p):processor(p) {
@@ -110,7 +133,13 @@ public:
             for(juce::Component* c:std::initializer_list<juce::Component*>{&card.title,&card.model,&card.bypass,&card.left,&card.right,&card.copy,&card.remove,&card.detail})addAndMakeVisible(c);
             card.model.setComponentID("boardModelAt"+juce::String(position));
             card.model.addItem("Empty / +",1);
-            for(int model=1;model<spectralforge::pedalModelCount;++model) {
+            card.model.getRootMenu()->addSectionHeader("NEW PEDALS / ORIGINAL DSP");
+            for(int model=26;model<spectralforge::pedalModelCount;++model) {
+                const auto& m=spectralforge::pedalModel(model);
+                card.model.getRootMenu()->addItem(model+1,juce::String(m.category)+" / "+m.name,m.implemented,false);
+            }
+            card.model.getRootMenu()->addSectionHeader("EXISTING PEDAL REFERENCES");
+            for(int model=1;model<26;++model) {
                 const auto& m=spectralforge::pedalModel(model);
                 card.model.getRootMenu()->addItem(model+1,juce::String(m.category)+" / "+m.name,m.implemented,false);
             }
@@ -127,7 +156,7 @@ public:
         close.onClick=[this]{showDetails(-1);};undo.onClick=[this]{processor.undoPedalEdit();refresh();};redo.onClick=[this]{processor.undoPedalEdit(true);refresh();};
         tap.setRange(0,5,1);tap.setSliderStyle(juce::Slider::LinearHorizontal);tap.setTextBoxStyle(juce::Slider::TextBoxRight,false,28,22);
         tapAttachment=std::make_unique<SA>(processor.parameters(),"boardLowTap",tap);
-        notice.setFont(juce::FontOptions(11.f));notice.setText("Experimental DSP. Fixed instance MIDI/automation follows moves. Stop playback before changing the board structure.",juce::dontSendNotification);
+        notice.setFont(juce::FontOptions(11.f));notice.setText("Any pedal in any slot. New SD-1, OCD, Distortion+, JB-2, Wah and EQ are at the top of each model menu.",juce::dontSendNotification);
         startTimerHz(10);refresh();
     }
     ~PedalBoardPanel() override {stopTimer();}
@@ -145,9 +174,12 @@ public:
             if(family>=0)spectralforge::art::pedal(g,{float(x),46.f,220.f,352.f},family,variant);
             else {g.setColour(juce::Colour(card.modelId==0?0xff252a27:0xff354942));g.fillRoundedRectangle(float(x),46,220,352,9);}
             g.setColour(juce::Colour(0xff111513).withAlpha(.9f));g.fillRoundedRectangle(float(x+7),51,206,66,4);
+            if(card.modelId==0) {g.setColour(juce::Colour(0xff8ea38f));g.setFont(juce::FontOptions(36.f));g.drawText("+",x+30,143,160,62,juce::Justification::centred);g.setFont(juce::FontOptions(12.f));g.drawText("Choose any pedal above",x+12,211,196,22,juce::Justification::centred);}
         }
         g.setColour(juce::Colour(0xffc6d7bc));g.setFont(juce::FontOptions(11.f));
         g.drawText("GR "+juce::String(processor.pedalReduction(),1)+" dB",840,7,118,25,juce::Justification::centredRight);
+        const auto state=processor.pedalBoardState();int poly=0;for(const auto& instance:state.instances)if(instance.model==39)++poly;
+        if(poly>0 && detailedOwner<0) {const double sampleRate=processor.getSampleRate()>0?processor.getSampleRate():48000;g.setColour(juce::Colour(0xffe6bb7b));g.drawText("PRE DELAY "+juce::String(1000.0*processor.pedalBoardLatencySamples()/sampleRate,1)+" ms / spectral octave",527,7,312,25,juce::Justification::centredLeft);}
     }
     void resized() override {
         undo.setBounds(0,5,61,25);redo.setBounds(67,5,61,25);tapLabel.setBounds(145,5,168,25);tap.setBounds(313,5,200,25);notice.setBounds(0,398,1140,17);
@@ -155,9 +187,12 @@ public:
         for(int position=0;position<5;++position) {
             auto& c=cards[(size_t)position];const int x=position*230;
             c.title.setBounds(x+9,52,202,19);c.model.setBounds(x+9,79,202,29);
-            for(int k=0;k<3;++k) {
-                const int left=x+(k==2 ? 64 : 7+k*107),top=k==2 ? 218 : 119;
-                c.controls[(size_t)k].label.setBounds(left,top,98,18);c.controls[(size_t)k].slider.setBounds(left,top+18,98,81);
+            for(int k=0;k<6;++k) {
+                const bool compact=spectralforge::pedalModel(juce::jmax(0,c.modelId)).controlCount>3;
+                const int left=compact?x+7+(k%3)*70:x+(k>=3?7:k==2?64:7+k*107),top=compact?121+(k/3)*96:k==2?218:119;
+                const int width=compact?66:98,height=compact?74:81;
+                c.controls[(size_t)k].label.setBounds(left,top,width,18);c.controls[(size_t)k].slider.setBounds(left,top+18,width,height);
+                c.controls[(size_t)k].slider.setTextBoxStyle(juce::Slider::TextBoxBelow,false,compact?65:78,18);
             }
             c.left.setBounds(x+9,320,31,25);c.right.setBounds(x+44,320,31,25);c.copy.setBounds(x+80,320,62,25);c.remove.setBounds(x+147,320,64,25);
             c.detail.setBounds(x+9,354,107,31);c.bypass.setBounds(x+122,354,89,31);

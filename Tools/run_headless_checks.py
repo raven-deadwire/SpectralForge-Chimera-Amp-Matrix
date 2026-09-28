@@ -81,6 +81,10 @@ try:
         targets.append(('ChimeraPedalBoardTests',['Tests/PedalBoardTests.cpp']))
     if (src/'Tests/IRCollectionTests.cpp').exists():
         targets.append(('ChimeraIRCollectionTests',['Tests/IRCollectionTests.cpp']))
+    if (src/'Tests/NewAmpTests.cpp').exists():
+        targets.append(('ChimeraNewAmpTests',['Tests/NewAmpTests.cpp']))
+    if (src/'Tests/PedalOctaverTests.cpp').exists():
+        targets.append(('ChimeraPedalOctaverTests',['Tests/PedalOctaverTests.cpp']))
     for name, sources in targets:
         run('link-'+name,flags+sources+list(map(str,objects))+['-ldl','-lrt','-lz','-o',str(out/name)])
         run('test-'+name,[str(out/name)])

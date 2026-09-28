@@ -37,6 +37,43 @@ jobs:
           name: Chimera-update-Windows-candidate
           path: candidate/*
           if-no-files-found: error
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Chimera-candidate-part-1
+          path: candidate-transfer/part-1/*
+          compression-level: 0
+          if-no-files-found: error
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Chimera-candidate-part-2
+          path: candidate-transfer/part-2/*
+          compression-level: 0
+          if-no-files-found: error
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Chimera-candidate-transfer-metadata
+          path: candidate-transfer/metadata/*
+          if-no-files-found: error
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: Chimera-correction-preview
+          path: |
+            build/Testing/Temporary/LastTest.log
+            build/ui-snapshots/Correction-*.png
+            build/ui-snapshots/Correction-*.json
+            build/ui-snapshots/Head-16.png
+            build/ui-snapshots/Head-17.png
+            build/ui-snapshots/Head-18.png
+            build/ui-snapshots/Head-19.png
+            build/ui-snapshots/Head-20.png
+            build/ui-snapshots/Head-21.png
+            build/ui-snapshots/Head-22.png
+            build/ui-snapshots/Head-23.png
+            build/ui-snapshots/Universal-mode-2.png
+            build/ui-snapshots/Universal-detail.png
+            build/ui-snapshots/Board-State-Verification.json
+          if-no-files-found: error
   preparation-contracts:
     runs-on: ubuntu-22.04
     timeout-minutes: 15

@@ -37,17 +37,30 @@ inline void run() {
                 require(std::abs(b.getSample(0,n)-board.cleanOutput().getSample(0,n))<1e-6f,"PRE LOW tap is not latency aligned");
             }
         }
-        for(int model=1;model<38;++model) {
+        for(int model=1;model<pedalModelCount;++model) {
             state={};state.enabled=true;state.instances[0]=defaultPedalInstance(model);board.reset();const auto processed=render(board,state,rate);
             state.instances[0].bypass=true;board.reset();const auto dry=render(board,state,rate);
             // Flat graphic EQ is intentionally transparent at its default.
             if(model!=31)require(difference(processed,dry)>1e-5f,"Available PRE model produces no audio response");
         }
-        state={};state.instances[0]=defaultPedalInstance(38);board.reset();const auto monoPending=render(board,state,rate);
-        state.instances[0]=defaultPedalInstance(39);board.reset();const auto polyPending=render(board,state,rate);
-        state.instances[0]=defaultPedalInstance(0);board.reset();const auto empty=render(board,state,rate);
-        require(difference(monoPending,empty)<1e-6f && difference(polyPending,empty)<1e-6f,"Unimplemented octaver was activated");
-        std::cout<<"PASS PRE board "<<rate<<" Hz: 37 available DSPs, Empty/LOW latency, pending octavers inert\n";
+        // A selected spectral octave owner adds its real frame delay, including
+        // bypass; other slots retain only their small base transport delay.
+        for(int position:{0,2,4})for(int tap=0;tap<=5;++tap)for(bool bypass:{false,true}) {
+            PedalBoardDSP aligned;aligned.prepare({rate,256,2});state={};state.lowTap=tap;
+            state.instances[(size_t)position]=defaultPedalInstance(39);auto& octave=state.instances[(size_t)position];octave.controls[0]=1;octave.controls[1]=octave.controls[2]=0;octave.bypass=bypass;
+            const int total=aligned.latency(state);require(total>1000 && total<10000,"Selected octave latency is absent or imposed on all slots");
+            juce::AudioBuffer<float> b(2,256);
+            for(int block=0;block<(total+1024+255)/256;++block) {
+                b.clear();if(block==0){b.setSample(0,0,1);b.setSample(1,0,1);}aligned.process(b,state);
+                require(aligned.latency()==total,"Board state latency and processing latency disagree");
+                for(int n=0;n<256;++n) {
+                    const float expected=block*256+n==total?1.f:0.f;
+                    require(std::abs(b.getSample(0,n)-expected)<1e-6f,"Poly dry/bypass latency is not sample-exact in the board");
+                    require(std::abs(b.getSample(0,n)-aligned.cleanOutput().getSample(0,n))<1e-6f,"Poly before/after LOW tap is misaligned");
+                }
+            }
+        }
+        std::cout<<"PASS PRE board "<<rate<<" Hz: 39 available DSPs, Empty/LOW latency, selected poly latency and bypass alignment\n";
     }
     PedalBoardDSP first,second;first.prepare({48000,256,2});second.prepare({48000,256,2});
     PedalBoardState s;s.enabled=true;s.lowTap=0;

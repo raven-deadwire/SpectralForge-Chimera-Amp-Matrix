@@ -21,7 +21,7 @@ for source in required:
     if source.is_file() and not source.stat().st_size:raise RuntimeError('Empty product '+str(source))
     if source.is_dir():shutil.copytree(source,stage/source.name)
     else:shutil.copy2(source,stage/source.name)
-for filename in ['UPDATE_TEST_BUILD.md','PEDAL_BOARD_DSP.md','MANUAL.html','THIRD_PARTY_NOTICES.md']:
+for filename in ['UPDATE_TEST_BUILD.md','PEDAL_BOARD_DSP.md','NEW_AMP_DSP.md','MANUAL.html','THIRD_PARTY_NOTICES.md']:
     source=root/'docs'/filename
     if not source.is_file():raise RuntimeError('Missing required test-build document '+str(source))
     shutil.copy2(source,stage/source.name)
@@ -61,3 +61,17 @@ digest=hashlib.sha256(archive.read_bytes()).hexdigest()
 (out/(archive.name+'.sha256')).write_text(digest+'  '+archive.name+'\n')
 shutil.rmtree(stage)
 print(json.dumps({'archive':archive.name,'sha256':digest,'source_sha':sha}))
+
+# Keep transfer artifacts below common per-file download limits. These are exact
+# byte parts of the already hashed ZIP; joining them never repackages binaries.
+parts=root/'candidate-transfer';parts.mkdir(exist_ok=True)
+raw=archive.read_bytes();part_records=[]
+for number,offset in enumerate(range(0,len(raw),20*1024*1024),1):
+    data=raw[offset:offset+20*1024*1024]
+    folder=parts/('part-'+str(number));folder.mkdir(exist_ok=True)
+    path=folder/(archive.name+'.part'+str(number));path.write_bytes(data)
+    part_records.append({'name':path.name,'bytes':len(data),'sha256':hashlib.sha256(data).hexdigest()})
+metadata=parts/'metadata';metadata.mkdir(exist_ok=True)
+(metadata/'parts-manifest.json').write_text(json.dumps({'source_sha':sha,'archive':archive.name,'bytes':len(raw),'sha256':digest,'parts':part_records},indent=2)+'\n')
+shutil.copy2(out/(archive.name+'.sha256'),metadata/(archive.name+'.sha256'))
+(metadata/'build-manifest.json').write_text(json.dumps(manifest,indent=2)+'\n')

@@ -3,10 +3,12 @@
 #include <array>
 #include <cmath>
 #include "AmpCatalog.h"
+#include "NewAmpDSP.h"
 
 namespace spectralforge {
 // Voiced nonlinear models, not component-level replicas or measured captures.
-// Each row defines input/interstage coupling, bandwidth, bias and supply sag.
+// The first 15 rows are the frozen Legacy path. Appended array entries are not
+// used: models 15-22 execute the distinct circuits in NewAmpDSP.h instead.
 struct AmpVoice { float inputHP, couplingHP, bandwidth, gain, stage2, stage3, bias, sag, dry, output; };
 inline constexpr std::array<AmpVoice, ampModelCount> ampVoices{{
     {18,  25, 18000,  2.0f, 1.0f, 0.0f, .015f, .02f, .80f, 1.00f},
@@ -57,9 +59,20 @@ class Amp {
         juce::dsp::DelayLine<float, juce::dsp::DelayLineInterpolationTypes::None> compensation{64};
         struct Channel { float inputLow{}, couplingLow{}, outputLow{}, dcLow{}, envelope{}; };
         std::array<Channel, 2> channels{};
+        NewAmpDSP newAmp;
         juce::SmoothedValue<float> drive;
         double rate{};
-        void reset() { oversampler->reset(); compensation.reset(); channels = {}; drive.setCurrentAndTargetValue(drive.getTargetValue()); }
+        void reset() { oversampler->reset(); compensation.reset(); channels = {}; newAmp.reset(); drive.setCurrentAndTargetValue(drive.getTargetValue()); }
+        void processNew(juce::AudioBuffer<float>& buffer, float amount)
+        {
+            juce::dsp::AudioBlock<float> base(buffer);
+            auto block = oversampler->processSamplesUp(base);
+            drive.setTargetValue(amount);
+            newAmp.process(block, drive);
+            oversampler->processSamplesDown(base);
+            juce::dsp::ProcessContextReplacing<float> context(base);
+            compensation.process(context);
+        }
         void process(juce::AudioBuffer<float>& buffer, const AmpVoice& voice, float amount)
         {
             juce::dsp::AudioBlock<float> base(buffer);
@@ -104,6 +117,7 @@ class Amp {
     juce::SmoothedValue<float> enabled;
     double sr{48000};
     AmpModel model{AmpModel::glass};
+    int nativeChannelValue{};
     float drive{.35f};
     int selected{2}, previous{2}, fadeRemaining{}, fadeLength{1}, delaySamples{};
     void voiceTone() {
@@ -128,6 +142,7 @@ public:
                 juce::dsp::Oversampling<float>::filterHalfBandPolyphaseIIR, true, true);
             p.oversampler->initProcessing(spec.maximumBlockSize);
             p.rate = sr * (1 << i);
+            p.newAmp.prepare(p.rate);
             p.drive.reset(p.rate, .020);
             p.drive.setCurrentAndTargetValue(drive);
             delaySamples = juce::jmax(delaySamples, juce::roundToInt(p.oversampler->getLatencyInSamples()));
@@ -155,8 +170,17 @@ public:
     void setDriveImmediately(float value) { drive=juce::jlimit(0.f,1.f,value);for(auto& path:paths)path.drive.setCurrentAndTargetValue(drive); }
     void set(AmpModel m, float d) {
         m = static_cast<AmpModel>(juce::jlimit(0, ampModelCount - 1, static_cast<int>(m)));
-        if(model!=m){model=m;voiceTone();captureLow.reset();captureMid.reset();captureHigh.reset();} drive = juce::jlimit(0.f, 1.f, d);
+        if(model!=m){model=m;nativeChannelValue=newAmpDefaultChannel(static_cast<int>(model));voiceTone();captureLow.reset();captureMid.reset();captureHigh.reset();}
+        if(isNewAmpModel(static_cast<int>(model)))for(auto& path:paths)path.newAmp.set(static_cast<int>(model),nativeChannelValue);
+        drive = juce::jlimit(0.f, 1.f, d);
     }
+    void set(AmpModel m, float d, int channel) { set(m, d); setNativeChannel(channel); }
+    void setNativeChannel(int channel)
+    {
+        nativeChannelValue = juce::jlimit(0, newAmpChannelCount(static_cast<int>(model)) - 1, channel);
+        if(isNewAmpModel(static_cast<int>(model)))for(auto& path:paths)path.newAmp.set(static_cast<int>(model),nativeChannelValue);
+    }
+    int nativeChannel() const { return nativeChannelValue; }
     void setOversampling(int choice)
     {
         choice = juce::jlimit(0, 3, choice);
@@ -178,6 +202,16 @@ public:
         else if (model==AmpModel::matchChime) { bf=85; lmf=420; hmf=1350; hf=4300; pf=3700; rf=95; }
         else if (model==AmpModel::silkODS) { bf=70; lmf=500; hmf=1800; hf=3800; pf=2400; rf=90; }
         else if (model==AmpModel::tastePunch) { bf=30; lmf=250; hmf=800; hf=8000; pf=5000; rf=50; }
+        // New designs retain the existing global six-band control contract;
+        // this is not a claim that these are the original hardware tapers.
+        else if (model==AmpModel::zutaCinder) { bf=90; lmf=430; hmf=1400; hf=4000; pf=3000; rf=94; }
+        else if (model==AmpModel::ironCompact) { bf=100; lmf=500; hmf=1500; hf=3900; pf=2700; rf=125; }
+        else if (model==AmpModel::fourChannel) { bf=85; lmf=400; hmf=1300; hf=3800; pf=2200; rf=82; }
+        else if (model==AmpModel::classicTube) { bf=40; lmf=220; hmf=800; hf=4000; pf=2100; rf=48; }
+        else if (model==AmpModel::sunMonolith) { bf=70; lmf=320; hmf=1200; hf=3500; pf=1900; rf=62; }
+        else if (model==AmpModel::evilHarvest) { bf=95; lmf=500; hmf=1600; hf=4200; pf=3300; rf=89; }
+        else if (model==AmpModel::hotLead) { bf=90; lmf=400; hmf=1500; hf=4000; pf=2700; rf=90; }
+        else if (model==AmpModel::blueStorm) { bf=70; lmf=350; hmf=1200; hf=3400; pf=1800; rf=68; }
         using C = juce::dsp::IIR::ArrayCoefficients<float>;
         auto hz = [this](float f) { return juce::jmin(f, float(sr * .45)); };
         *lo.state=C::makeLowShelf(sr,hz(bf),.707f,juce::Decibels::decibelsToGain(bass));
@@ -191,19 +225,22 @@ public:
     {
         dry.makeCopyOf(buffer,true);juce::dsp::AudioBlock<float> dryBlock(dry);juce::dsp::ProcessContextReplacing<float> dryContext(dryBlock);bypassDelay.process(dryContext);
         const auto& voice = ampVoices[(size_t)model];
+        const bool extended = isNewAmpModel(static_cast<int>(model));
         if (fadeRemaining > 0)
         {
             alternate.makeCopyOf(buffer, true);
-            paths[previous].process(alternate, voice, drive);
+            if(extended)paths[previous].processNew(alternate, drive);
+            else paths[previous].process(alternate, voice, drive);
         }
-        paths[selected].process(buffer, voice, drive);
+        if(extended)paths[selected].processNew(buffer, drive);
+        else paths[selected].process(buffer, voice, drive);
         for (int n = 0; n < buffer.getNumSamples() && fadeRemaining > 0; ++n, --fadeRemaining)
         {
             const float wet = 1.0f - float(fadeRemaining) / float(fadeLength);
             for (int c = 0; c < buffer.getNumChannels(); ++c)
                 buffer.setSample(c,n,wet*buffer.getSample(c,n)+(1.0f-wet)*alternate.getSample(c,n));
         }
-        {juce::dsp::AudioBlock<float> block(buffer);juce::dsp::ProcessContextReplacing<float> context(block);voiceLow.process(context);voiceMid.process(context);voiceHigh.process(context);buffer.applyGain(.5f);}
+        if(!extended){juce::dsp::AudioBlock<float> block(buffer);juce::dsp::ProcessContextReplacing<float> context(block);voiceLow.process(context);voiceMid.process(context);voiceHigh.process(context);buffer.applyGain(.5f);}
         if(static_cast<int>(model)>=8 && static_cast<int>(model)<=13) {
             juce::dsp::AudioBlock<float> block(buffer);juce::dsp::ProcessContextReplacing<float> context(block);
             captureLow.process(context);captureMid.process(context);captureHigh.process(context);
