@@ -1,69 +1,353 @@
 <!doctype html>
-<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>SpectralForge Chimera — Open Beta 1.1 Manual</title>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SpectralForge Chimera — Open Beta 1.1 Detailed Manual</title>
 <style>
-:root{color-scheme:dark;--bg:#111519;--panel:#1b2229;--fg:#e7ebef;--muted:#b9c3ca;--line:#34424d;--gold:#dcc28a}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.75 system-ui,-apple-system,"Segoe UI",sans-serif}main{max-width:960px;margin:auto;padding:48px 24px 80px}header{border-bottom:1px solid var(--line);padding-bottom:30px}.eyebrow{letter-spacing:.22em;color:var(--gold);font-size:13px}h1{font-size:50px;line-height:1.1;letter-spacing:.04em;margin:12px 0}h2{margin-top:48px;color:var(--gold);font-size:25px}h3{margin-top:26px;font-size:19px}a{color:#b9d9ed;text-underline-offset:3px}nav{display:flex;flex-wrap:wrap;gap:8px 22px;margin:24px 0}p,li{max-width:85ch}table{width:100%;border-collapse:collapse;margin:20px 0;font-size:14px}th,td{text-align:left;vertical-align:top;border-bottom:1px solid var(--line);padding:12px}th{background:var(--panel)}code{background:var(--panel);padding:2px 5px;border-radius:4px;overflow-wrap:anywhere}.note{border-left:3px solid var(--gold);padding:12px 20px;background:var(--panel)}.muted{color:var(--muted)}.flow{background:var(--panel);padding:16px 20px;font-size:15px;border-radius:5px}footer{border-top:1px solid var(--line);margin-top:50px;padding-top:20px;color:var(--muted)}@media print{body{background:white;color:#111}h2,.eyebrow,a{color:#222}.note,.flow,th,code{background:#eee}main{padding:0}nav{display:none}h2,h3{break-after:avoid}tr{break-inside:avoid}}</style></head>
-<body><main><header><div class="eyebrow">SPECTRALFORGE</div><h1>CHIMERA</h1><p>Open Beta 1.1 · <code>1.1.0-beta.1</code><br>Guitar &amp; bass amplifier / effects suite<br>한국어 · English / Offline manual</p></header>
-<nav aria-label="Contents"><a href="#update-test">베타 1.1 변경</a><a href="#quick">시작하기</a><a href="#routing">라우팅</a><a href="#pre">PRE</a><a href="#rigs">앰프 / IR</a><a href="#post">POST</a><a href="#presets">프리셋</a><a href="#help">지원 / 업데이트</a><a href="#trouble">문제 해결</a><a href="#english">English</a></nav>
-<p class="note">공개 베타의 앰프·이펙터는 레퍼런스에서 영감을 얻은 독립 알고리즘입니다. 실제 기기의 회로 복제나 측정 일치를 보증하지 않습니다. 화면에 함께 나오는 제조사·제품명은 소리의 설계 방향을 설명하는 참고 명칭이며 제휴·인증을 뜻하지 않습니다.</p>
-<section id="update-test"><h2>Open Beta 1.1 · 2026-09-29</h2>
-<p class="note">이 절은 업데이트 후보 코드의 사용 범위를 설명합니다. 실제 배포 파일의 빌드 리비전과 검증 보고서를 함께 확인하세요. Windows 패키지 생성과 실제 DAW 종료·연주 검증은 별개입니다. 아래 기존 베타 안내보다 이 절의 새 보드·네이티브 패널 설명을 우선합니다.</p>
-<h3>최대 5개 범용 PRE</h3>
-<p>새 인스턴스는 <strong>5-SLOT PEDALBOARD</strong>가 활성화된 PRE 화면으로 시작합니다. 다섯 자리 안에서 지원 페달을 선택·교체·복제·삭제·이동합니다. Bypass도 한 자리를 사용하며 여섯 번째 페달은 추가되지 않습니다. 복잡한 모델은 <strong>CONTROLS</strong>에서 조절하고 <strong>BACK TO 5 PEDALS</strong>로 돌아옵니다. <strong>UNDO/REDO</strong>는 보드 편집을 되돌립니다. 모델별 원본 조작부를 사용하는 새 DSP는 실험 단계이며 실제 기기의 테이퍼·회로·캡처와 일치함을 보증하지 않습니다. 연결되지 않은 컨트롤과 모델은 비활성 상태로 표시합니다.</p>
-<p>PRE는 새 5슬롯 보드만 표시합니다. 목록은 원본명 없이 종류별 제품 별칭으로 분류하며 선택 즉시 불러옵니다. 4개 조절부는 2×2로 배열하고 <strong>ON</strong>은 이펙트 작동, <strong>OFF</strong>는 바이패스입니다. 레거시 조절부와 파라미터 은행 확인창은 표시하지 않습니다. 이전 프로젝트·factory preset의 기존 소리는 내부 호환 처리로 유지하며 사용자가 해당 패널을 편집하면 새 DSP로 전환합니다. 모델별 은행·순서·LOW TAP·ON/OFF는 프로젝트와 A/B에 저장됩니다.</p>
-<p>앰프 23종과 POST 첫 세 종류의 9개 모델은 장비별 전용 조절부를 사용합니다. 앰프 참조명은 목록 밖에 표시하고 단일 채널은 선택란을 숨깁니다. Classic/Dual/Matrix의 6문맥은 독립된 모델·채널·노브 은행을 사용합니다. <strong>ALL</strong>로 큰 패널을 열 수 있습니다. 물리적 팬텀 전원이나 외부 입출력처럼 제공되지 않는 기능은 비활성 정보로 표시합니다.</p>
-<p><strong>LOW TAP</strong>은 같은 다섯 페달 사이의 분기 위치이며 슬롯을 추가하지 않습니다. Matrix에서 TAP 앞의 페달은 LOW에도 적용됩니다. 왜곡 페달을 TAP 앞으로 옮긴 경우 LOW DI도 그 영향을 받습니다. Classic/Dual은 다섯 페달을 같은 순서로 직렬 처리하고 TAP 편집을 비활성화합니다. 일부 Manley 독립 스테레오 제어와 AW-3 HUMAN/TEMPO는 개발 대기입니다. 옥타버는 단음 분주와 폴리 스펙트럼 처리로 구분합니다. 폴리 모델을 선택하면 약 43~46ms의 추가 지연이 있으며 Bypass에도 정렬을 위해 유지합니다. 불필요한 지연을 제거하려면 해당 슬롯을 Empty로 바꿉니다.</p>
-<h3>23개 앰프와 채널</h3>
-<p>앰프 메뉴는 <strong>Chimera 모델명만</strong> 표시하며 Clean / Crunch / Lead / High-Gain / Bass의 한 분류에 각 모델을 한 번만 표시합니다. 어느 레인에서도 모든 모델을 선택할 수 있습니다. 기존 15개 host 선택지와 정규화된 자동화는 유지하며, 신규 모델은 별도 선택 상태에 저장됩니다.</p>
-<p><strong>Cinder 120, Iron Compact, Fourfold, Classic Tube, Monolith, Night Harvest, Hot Lead, Blue Storm</strong>의 신규 DSP와 채널·입력경로 선택이 실제 제품에 연결됩니다. 채널 선택은 모델과 레인별로 기억합니다. 현재 DRIVE/EQ/LEVEL은 공통 소프트웨어 조절부이며 모든 원본 전용 노브·스위치·공유EQ·6문맥 은행을 구현한 것은 아닙니다. 새 POST 9종의 전용 패널도 준비 단계입니다. 실제 회로·NAM 캡처 일치도는 검증하지 않았습니다.</p>
-<h3>POST GATE와 단계별 진단</h3>
-<p><strong>POST GATE</strong>를 켜면 깨끗한 입력으로 연주 여부를 검출하고 앰프·캐비닛 합산 뒤, POST 공간계 앞에서 감쇄합니다. 꺼진 경우 기존 입력 Gate를 사용합니다. Threshold/Hold/Release는 동일한 상단 조절부를 사용합니다. 서스테인이 잘리면 임계값과 시간을 조정하세요. 이 기능은 연주 중 히스를 완전히 제거하지 않으며 모든 지연·병렬 조합에서의 청감 검증을 대신하지 않습니다.</p>
-<p><strong>SETTINGS → Review / copy / save diagnostics...</strong>는 INPUT_TRIM/PRE/RIG_GATE/POST/OUTPUT의 마지막 처리 블록 RMS·Peak, 보고 지연, 라우팅·Transpose·오버샘플링 상태와 오디오 콜백 평균/피크 부하를 보여줍니다. RMS는 비가중 값이며 LUFS가 아닙니다. 콜백 부하는 전체 PC CPU와 다릅니다. 보고서에 오디오 파일은 포함되지 않습니다. 동일 스템·프리셋으로 비교하면 감쇄가 시작되는 단계를 추적하는 데 도움이 됩니다.</p>
-<p>Transpose는 0반음과 비영점 설정, On/Off를 각각 비교하세요. 보고 지연이 맞는 것과 피치 아티팩트가 없는 것은 별도입니다. UI 종료 안정성 관련 코드와 검사를 보강했지만, Sonar/Cubase/Studio One 제보의 실제 종료 무응답이 해결됐는지는 해당 Windows 환경의 재검증이 필요합니다.</p>
-</section>
-<p><strong>종료 안정성:</strong> 화면 동기화 실패 시의 무한 대기와 에디터·오디오 종료 자원 정리를 수정했습니다. 자동 회귀 검사를 통과했지만 사용자 Studio One 환경의 해결은 아직 확인되지 않았습니다. 재발하면 동봉된 STUDIO_ONE_TEARDOWN.md의 선택형 진단 절차를 참고하세요.</p>
-<h2 id="quick">01 · 설치와 첫 소리</h2>
-<ol><li>실행 중인 Chimera와 DAW를 종료한 뒤 운영체제용 설치 파일을 실행합니다. 설치 경로와 서명 상태는 동봉된 <code>INSTALLATION.md</code>를 확인하세요.</li><li>단독 실행에서는 <strong>Options / Audio settings</strong>에서 오디오 인터페이스와 입출력 채널을 선택합니다. DAW에서는 오디오 트랙에 VST3를 삽입하고 입력 모니터링을 켭니다. macOS에서는 AU도 사용할 수 있습니다.</li><li>악기를 인터페이스의 악기용 입력에 연결하고 <strong>MONO L</strong>을 선택합니다. 실제 스테레오 소스를 받을 때만 STEREO를 사용합니다. 헤드폰·스피커 출력 레벨을 먼저 낮춥니다.</li><li>INPUT 미터가 움직이는지 확인하고 과도한 입력 피크가 생기지 않도록 인터페이스 게인을 조정합니다. 처음에는 Classic과 클린 계열 프리셋으로 확인합니다.</li><li>4x oversampling이 기본입니다. 끊김이 있으면 2x/1x로 낮추거나 인터페이스 버퍼를 늘립니다. 샘플레이트는 DAW/드라이버에서 설정합니다.</li><li>현재 상태를 <strong>SAVE AS</strong>로 저장하고 DAW 프로젝트도 저장합니다. 사용자 IR은 상태에 포함되므로 원본 파일을 옮겨도 저장된 소리를 다시 열 수 있습니다.</li></ol>
-<p>Windows는 ASIO를 지원하는 인터페이스 드라이버를 선택하면 실시간 연주 설정이 수월합니다. ASIO가 목록에 없다면 현재 바이너리의 지원 여부와 드라이버 설치를 확인하고 Windows Audio를 사용할 수 있습니다. 입력이 없는 장치나 출력 채널이 잘못 선택된 경우 플러그인 설정만으로 소리가 나지 않습니다.</p>
-<h2 id="routing">02 · 신호 흐름과 세 가지 모드</h2>
-<p class="flow">INPUT → Gate → Transpose → PRE → Rigs / Cabinets → Merge → POST → Doubler / OUTPUT</p>
-<p>튜너는 Gate와 Transpose 전의 원음을 읽습니다. A/B는 두 개의 전체 사운드 스냅샷으로, 좌우 채널이나 Dual의 두 앰프를 선택하는 버튼이 아닙니다.</p>
-<table><thead><tr><th>모드</th><th>동작</th><th>사용 예</th></tr></thead><tbody><tr><td>Classic</td><td>한 개의 전체 대역 앰프·캐비닛 경로. 일반적인 앰프 EQ를 사용합니다.</td><td>클린, 크런치, 리듬 기타, 기본 베이스 톤</td></tr><tr><td>Dual · Blend</td><td>두 개의 전체 대역 리그를 BLEND로 섞습니다. 기타+기타, 기타+베이스, 베이스+베이스 모두 가능하며 악기 입력을 자동으로 분리하는 기능은 아닙니다.</td><td>타이트한 앰프와 두꺼운 앰프 혼합</td></tr><tr><td>Dual · Crossover</td><td>LR4 크로스오버로 낮은 대역과 높은 대역을 나누어 각각 처리합니다. 크로스오버 값과 대역별 Band Tone을 확인합니다.</td><td>깨끗한 저음 + 드라이브 중고음</td></tr><tr><td>Matrix</td><td>LOW / MID / HIGH 세 대역. LOW는 COMP, LEVEL, BAND TONE, DI/AMP 블렌드를 사용합니다. MID/HIGH에는 각 DRIVE·LEVEL·BAND TONE이 있습니다.</td><td>다운튜닝, 확장 음역, 저음 보존, 복합 디스토션</td></tr></tbody></table>
-<p>Matrix LOW는 Fuzz/Boost/Overdrive 앞의 깨끗한 신호를 받습니다. LOW 헤드의 drive는 0으로 고정되며, DI/AMP로 선택한 앰프·캐비닛의 비율을 정합니다. 낮은 대역의 헤드 drive를 감추더라도 Classic/Dual의 저장된 drive 값은 유지합니다. 대역 분할은 소리의 기본음·배음에 적용되며, 악기별로 다른 입력을 라우팅하는 기능이 아닙니다.</p>
-<h3>위쪽 / 아래쪽 공통 기능</h3><table><tbody><tr><th>INPUT / OUTPUT</th><td>입출력 게인과 레벨 미터. OUTPUT은 최종 레벨을 맞추는 용도로 사용합니다.</td></tr><tr><th>Gate</th><td>THRESH는 작동 기준, HOLD는 닫히기 전 유지 시간, RELEASE는 닫히는 속도입니다. 소리 끝이 잘리면 THRESH를 낮추거나 HOLD/RELEASE를 늘립니다.</td></tr><tr><th>Transpose</th><td>−12~+12 반음. 활성 상태에서 표시된 지연이 추가되며 DAW에 전달됩니다. 코드와 짧은 어택은 설정에 따라 아티팩트가 날 수 있습니다.</td></tr><tr><th>Doubler</th><td>스테레오 폭을 만드는 짧은 지연. 모노 합산 시 음색이 달라질 수 있으므로 모노 출력도 확인합니다.</td></tr><tr><th>Tuner / AUTO MUTE</th><td>크로매틱 튜너, A4 기준 조절. AUTO MUTE가 켜져 있으면 튜닝 중 출력이 무음입니다.</td></tr><tr><th>MIDI / TAP / HOST / CLICK</th><td>MIDI CC 학습, 수동/탭 BPM, 호스트 템포, 연습용 클릭. 딜레이 SYNC는 4분음표를 따라갑니다.</td></tr><tr><th>CPU / SIZE</th><td>평균·피크 CPU는 오디오 콜백 시간 예산을 기준으로 합니다. SIZE 또는 창 크기로 화면을 조절합니다.</td></tr></tbody></table>
-<h2 id="pre">03 · PRE 페달과 순서</h2>
-<p>5개 슬롯에 총 39개 페달 중 필요한 모델을 선택합니다. 종류별 목록에서 고르면 바로 적용되며 선택한 원본 참조명은 카드 아래에 작게 표시됩니다. 슬롯의 ON은 처리 활성, OFF는 바이패스입니다. 페달을 이동·복제하여 순서를 구성할 수 있습니다.</p>
-<p>4노브 페달은 2×2, 5노브 페달은 위 3개·아래 좌우 2개로 배치합니다. CONTROLS에서 전체 조절부를 열 수 있습니다. 모델별 값과 MIDI, A/B 상태가 저장됩니다.</p>
-<p>필터 앞에 컴프레서를 두면 입력 레벨이 정리되는 대신 피킹에 따른 필터 반응 폭이 줄 수 있습니다. 부스트를 드라이브 앞에 두면 주로 포화를 늘리고, 뒤에 두면 다음 앰프의 헤드룸에 따라 음량과 포화가 함께 달라집니다. 순서를 바꾼 뒤에는 출력 레벨을 맞춰 비교하세요.</p>
-<p>이전 프로젝트와 factory preset은 내부 호환 경로로 기존 오디오를 유지하며 새 보드를 편집하면 새 처리로 전환합니다. 구형 TOUCH/SUSTAIN 및 고정 계열 순서 조절부는 현재 화면에 표시되지 않습니다.</p>
-<h2 id="rigs">04 · 앰프와 캐비닛 / IR</h2>
-<p>총 23개 앰프를 자체 모델명으로 선택합니다. 신규 8개는 모델별 DSP와 채널·입력경로를 사용합니다. 같은 프리셋이라도 IR을 바꾸면 고역, 저음 공진과 상대 음량이 크게 달라질 수 있습니다. 먼저 헤드와 캐비닛을 선택하고 DRIVE와 EQ를 맞추세요. 참고 자료의 존재와 하드웨어 응답 일치는 별개입니다.</p>
-<ul><li><strong>CAB:</strong> 내장 factory IR 또는 실제 설치된 사용자 IR을 선택합니다. BYPASS는 캐비닛 처리만 우회합니다. 실제 기타 캐비닛으로 출력할 때 사용할 수 있습니다.</li><li><strong>LOAD / 파일 드롭:</strong> WAV/AIFF, 모노·스테레오, 최대 1초·4 MB 범위의 IR을 리그에 불러옵니다. 길거나 큰 파일은 먼저 오디오 편집기에서 확인합니다.</li><li><strong>IR LIBRARY:</strong> 악기/크기/마이크 등으로 목록을 필터링합니다. 표시 이름은 간단하게 정리되고 상세 정보에서 원본 파일명·출처를 확인할 수 있습니다.</li><li><strong>Available / Missing:</strong> 실제 파일이 있는 항목만 로드할 수 있습니다. 출처 목록이 있다는 사실만으로 그 IR 음원이 설치된 것은 아닙니다.</li><li><strong>ADD FOLDER / 개인 ZIP:</strong> 사용 권한을 가진 IR 폴더 또는 기존 개인 팩을 추가합니다. 공개 설치 파일은 개인 팩의 제한된 IR을 포함하지 않습니다.</li><li><strong>LOW CUT / HIGH CUT:</strong> 불필요한 저음·고음을 정리합니다. 지나치게 좁히면 소리가 사라지므로 밴드 모드에서는 대역과 함께 확인합니다.</li><li><strong>MUTE / SOLO / POLARITY:</strong> 경로별 비교와 합산 점검용입니다. 리그가 들리지 않으면 mute/solo 상태부터 확인합니다.</li></ul>
-<p>Factory IR의 크레딧·배포 조건은 <code>THIRD_PARTY_NOTICES.md</code>에 있습니다. 사용자 IR이 포함된 프리셋·프로젝트를 다른 사람에게 보낼 때는 해당 IR의 공유 조건을 확인하세요.</p>
-<h2 id="post">05 · POST 랙</h2>
-<p>POST는 리그 합산 후 <strong>Bus Compressor → Preamp → EQ → Modulation → Delay → Reverb</strong> 순서입니다. 화면의 랙 전면 이미지는 각 슬롯의 실제 표시 비율에 맞춘 디자인이며 노브와 스위치는 별도로 동작합니다.</p>
-<table><tbody><tr><th>Bus Comp</th><td>Threshold, Ratio, Attack, Release, Makeup. GR 표시로 압축량을 확인합니다. Makeup을 올려 단순히 더 큰 소리와 비교하지 않도록 합니다.</td></tr><tr><th>Preamp</th><td>Gain은 채색·포화에, Colour는 성향에, Trim은 다음 단으로 보내는 레벨에 영향을 줍니다.</td></tr><tr><th>EQ</th><td>저역·고역 쉘프와 주파수/게인/Q를 조정하는 중역. 모델에 따라 쉘프 위치와 곡선이 다릅니다.</td></tr><tr><th>Modulation</th><td>Rate, Depth, Mix. 코러스·디멘션·페이저·플랜저·비브라토·트레몰로 계열.</td></tr><tr><th>Delay</th><td>Time, Feedback, Mix. SYNC 활성 시 템포를 따릅니다. 높은 Feedback은 반복음을 길게 유지하므로 최종 레벨을 확인합니다.</td></tr><tr><th>Reverb</th><td>Size, Damping, Mix. Plate/Hall/Spring 계열. 저역이 번지면 Mix와 Size부터 낮춥니다.</td></tr></tbody></table>
-<h2 id="presets">06 · 추천 프리셋과 저장</h2>
-<p>31개 추천 프리셋은 Guitar Clean/Edge/Rock/High Gain/Lead, Bass Clean/Pick/Slap/Drive/Fuzz/Envelope, Dual Guitar+Guitar/Guitar+Bass/Bass+Bass, Matrix Bass/Experimental, Texture Envelope/Fuzz로 세분화됩니다. 악기, 라우팅, 연주 용도를 기준으로 골라 시작합니다. 사용자의 픽업 출력·튜닝·연주 강도에 맞춘 최종 레벨까지 보장하는 값은 아닙니다. 베이스에서는 저음 보존과 중고음 드라이브 비율을 먼저, 기타에서는 리듬/리드의 중역과 공간계 양을 먼저 조정하세요.</p>
-<ol><li>목적에 가까운 추천 프리셋을 선택합니다.</li><li>INPUT과 Gate를 악기에 맞춘 뒤 IR을 선택합니다.</li><li>DRIVE, 리그 LEVEL과 블렌드/대역을 조절합니다.</li><li>A/B의 COPY로 기준 상태를 복사하고 두 소리를 비슷한 음량으로 비교합니다.</li><li>SAVE AS로 개인 사운드를 저장합니다. OPEN으로 다시 불러올 수 있습니다.</li></ol>
-<p>신규 Matchless Edge, Dumble Smooth Lead, EICH Modern Clean은 추가 헤드의 용도를 바로 확인할 수 있는 시작점입니다. 추천 프리셋은 이전 사운드의 이펙트 켜짐 상태까지 초기화한 뒤 정의된 음색을 적용합니다. 입력 게인·입력 채널, 템포·클릭·튜너·MIDI 같은 연주 환경 설정은 유지합니다. 프로젝트는 파라미터와 IR을 보관합니다. 이전 개발 버전의 정규화된 모델 선택 자동화는 모델 수 확장에 따라 재검토가 필요할 수 있습니다. 중요한 세션은 복사본으로 열고 모델명·값·IR을 확인한 뒤 저장하세요.</p>
-<h2 id="help">07 · 매뉴얼, 버그 리포트, 업데이트</h2>
-<p>앱의 SETTINGS → Manual / Bug report / Updates에서 이 오프라인 매뉴얼, 버그 리포트, 업데이트 확인 기능에 접근합니다. 이 문서는 인터넷 연결 없이 열 수 있습니다.</p>
-<h3>버그 리포트</h3><p>발생 단계, 기대한 결과, 실제 결과, 운영체제, DAW와 버전, 샘플레이트/버퍼, 사용 모델과 라우팅을 적습니다. 앱이 준비하는 진단 내용을 확인하고 공유할 정보를 선택한 뒤 보고서를 제출하세요. 화면·오디오·프리셋은 문제 재현에 도움이 되지만 개인 IR을 공개 첨부하지 않도록 확인합니다. 오류 보고 기능이 사용자 대신 임의로 메시지를 보내지는 않습니다.</p>
-<h3>업데이트</h3><p>VST3/AU에서는 공식 릴리스 페이지를 열어 업데이트합니다. 플러그인 지원 창은 백그라운드 HTTP 업데이트 작업을 만들지 않습니다. 아래의 자동 확인·해시 검증 다운로드는 Standalone에 적용됩니다.</p><p>베타 채널의 새 버전을 확인하고 운영체제에 맞는 설치 파일을 받을 수 있습니다. 다운로드의 크기와 SHA256이 릴리즈 명세와 일치하는지 검증합니다. SHA256 일치는 다운로드 무결성 확인이며 퍼블리셔 코드서명을 대신하지 않습니다. 다운로드 후 작업을 저장하고 DAW/Chimera를 종료한 다음 설치하세요. 플러그인이 실행 중인 오디오 처리 과정에서 바이너리를 교체하지 않습니다.</p>
-<p>공식 릴리즈에 아직 게시되지 않은 버전은 업데이트 서버에서 발견되지 않을 수 있습니다. 네트워크 오류가 생겨도 현재 오디오 세션은 계속 사용할 수 있습니다. 공개 전 준비 단계의 설치 파일은 자동 업데이트 서버 등록을 뜻하지 않습니다.</p>
-<h2 id="trouble">08 · 문제 해결 / 확인 범위</h2>
-<table><thead><tr><th>증상</th><th>확인 순서</th></tr></thead><tbody><tr><td>입력 미터가 움직이지 않음</td><td>인터페이스 입력, 드라이버, DAW 모니터링, MONO L/STEREO, OS 마이크 권한</td></tr><tr><td>미터는 움직이는데 무음</td><td>튜너 AUTO MUTE, 리그 MUTE/SOLO, Gate threshold, 출력 채널과 OUTPUT</td></tr><tr><td>딱딱거림 / CPU 급증</td><td>버퍼 증가, oversampling 감소, Transpose 비활성 비교, 여러 인스턴스 수 확인</td></tr><tr><td>이상하게 얇거나 위상이 틀어짐</td><td>POLARITY, Dual 블렌드, Doubler, 스테레오→모노 합산, 사용자 IR 시작 시간</td></tr><tr><td>새 IR이 안 보임</td><td>실제 WAV 존재 여부, 압축 해제, ADD FOLDER, Available 상태, 파일 길이·크기 제한</td></tr><tr><td>DAW에 안 보임</td><td>표준 VST3/AU 폴더, 맞는 CPU 아키텍처, DAW 재검색. 기존 수동 복사본과 새 설치본의 중복을 확인</td></tr><tr><td>업데이트 없음 / 실패</td><td>인터넷 연결, 공식 베타 게시 여부, 자산 파일명/크기. 실패한 다운로드를 실행하지 말고 공식 릴리즈에서 다시 받기</td></tr></tbody></table>
-<p>자동 검사는 DSP의 유한값·상태 저장·라우팅과 UI/패키징의 일부 동작을 확인합니다. 실제 악기 청취, 모든 DAW/장치 조합, 서명·공증, 모든 OS에서의 실시간 오디오 품질까지 통과했다는 의미는 아닙니다. 패키지의 <code>Verification.txt</code>와 릴리즈 검수 보고서를 함께 확인하세요.</p>
+:root{color-scheme:dark;--bg:#0d1115;--panel:#171d23;--panel2:#202831;--fg:#edf1f4;--muted:#aeb9c2;--line:#34414c;--gold:#d9bd7d;--blue:#a9d2e8;--warn:#e5bc75}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.72 system-ui,-apple-system,"Segoe UI","Noto Sans KR",sans-serif}
+main{max-width:1160px;margin:auto;padding:46px 28px 88px}header{padding:18px 0 30px;border-bottom:1px solid var(--line)}.eyebrow{letter-spacing:.24em;color:var(--gold);font-size:12px;font-weight:700}
+h1{font-size:52px;line-height:1.04;margin:10px 0 14px;letter-spacing:.03em}h2{margin-top:56px;padding-top:6px;color:var(--gold);font-size:27px;border-top:1px solid var(--line)}
+h3{font-size:20px;margin-top:30px}h4{font-size:16px;margin:24px 0 8px;color:#d9e1e7}p,li{max-width:92ch}a{color:var(--blue);text-underline-offset:3px}
+nav{display:flex;flex-wrap:wrap;gap:8px 18px;margin:24px 0 8px}nav a{font-size:14px}.lead{font-size:18px;color:#d8e0e6;max-width:78ch}
+.note,.warning,.tip{border-left:3px solid var(--gold);padding:13px 18px;background:var(--panel);margin:18px 0}.warning{border-left-color:var(--warn)}.tip{border-left-color:#8ab7c9}
+.flow{background:var(--panel);padding:14px 18px;border:1px solid var(--line);border-radius:6px;font-weight:600;overflow-wrap:anywhere}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px}.card{background:var(--panel);border:1px solid var(--line);border-radius:7px;padding:14px 16px}.card h4{margin-top:0}
+table{width:100%;border-collapse:collapse;margin:18px 0 28px;font-size:14px}th,td{text-align:left;vertical-align:top;border-bottom:1px solid var(--line);padding:10px 11px}th{background:var(--panel2);color:#f2f5f7}tbody tr:hover{background:rgba(255,255,255,.018)}
+code{background:var(--panel2);padding:2px 5px;border-radius:4px;overflow-wrap:anywhere}.small{font-size:13px;color:var(--muted)}.muted{color:var(--muted)}
+.badge{display:inline-block;border:1px solid var(--line);border-radius:999px;padding:1px 8px;margin:2px 4px 2px 0;font-size:12px;color:#dbe3e8;background:var(--panel)}
+details{border:1px solid var(--line);border-radius:7px;background:var(--panel);margin:12px 0;padding:0 14px}summary{cursor:pointer;font-weight:700;padding:13px 0;color:#eef2f5}
+footer{border-top:1px solid var(--line);margin-top:58px;padding-top:22px;color:var(--muted)}
+@media(max-width:760px){main{padding:28px 16px 60px}h1{font-size:39px}table{display:block;overflow-x:auto;white-space:normal}.wide{min-width:900px}}
+@media print{body{background:#fff;color:#111}main{max-width:none;padding:0}.eyebrow,h2,a{color:#222}.note,.warning,.tip,.flow,.card,details,th,code{background:#f1f1f1}nav{display:none}h2,h3,h4{break-after:avoid}tr,details{break-inside:avoid}}
+</style>
+</head>
+<body><main>
+<header>
+<div class="eyebrow">SPECTRALFORGE · RAVENFORGE LUTHIER INTELLIGENCE</div>
+<h1>CHIMERA</h1>
+<p class="lead">Open Beta 1.1 · <code>1.1.0-beta.1</code><br>Guitar &amp; Bass Amp Matrix / Effects Suite — 상세 사용자 매뉴얼</p>
+<p class="small">23 amplifier models · 39 PRE pedal models · 21 POST rack models · 31 factory presets · Classic / Dual / Matrix routing</p>
+</header>
 
-<h2 id="english">English · Quick reference</h2>
-<h3>Open Beta 1.1 update</h3><p>PRE always displays the five-slot board. Effect menus contain product aliases in exclusive categories and load immediately without a bank confirmation. Four-control pedals use a 2×2 arrangement. ON means processing; OFF means bypass. Every added model has matching raster artwork. All 23 amplifier panels and nine compressor/preamp/EQ POST panels have model-specific controls connected to audio. References appear outside model menus; single-channel amps hide the channel selector. Six Classic/Dual/Matrix contexts retain independent model/channel/control banks. ALL expands a native panel. Original host parameter IDs and indices remain stable. Older sessions retain their prior audio internally until that panel is edited. These are independent software models, not measured hardware or NAM equivalence.</p>
-<h3>Install and first sound</h3><p>Close Chimera and the DAW before installation or update. Install the package for your operating system; see <code>INSTALLATION.md</code>. In the standalone audio settings choose your interface and input/output channels. In a DAW, insert the VST3 or macOS AU on an audio track and enable input monitoring. Choose MONO L for a single instrument input, or STEREO for a real stereo source. Start with a low physical monitoring level, a clean Classic preset, and verify the input meter.</p>
-<p>The standard oversampling setting is 4x. Lower it to 2x/1x or raise the device buffer if audio breaks up. Sample rate and buffer configuration belong to the host/driver. Save a reference with SAVE AS and save your DAW session. User IR audio is embedded in saved state so moving its original file does not invalidate recall.</p>
-<h3>Routing</h3><p class="flow">Input / Gate / Transpose → PRE → Amp &amp; Cabinet rigs → Merge → POST → Doubler / Output</p><table><tbody><tr><th>Classic</th><td>One full-range amp/cabinet rig with conventional EQ.</td></tr><tr><th>Dual Blend</th><td>Two full-range rigs and adjustable blend; guitar+guitar, guitar+bass or bass+bass voicings process the input signal, not separate detected instruments.</td></tr><tr><th>Dual Crossover</th><td>LR4 low/high split and band tone controls.</td></tr><tr><th>Matrix</th><td>LOW compression, level, band tone and DI/AMP blend; separate MID/HIGH drive, level and band tone. LOW receives the tap before Fuzz/Boost/Overdrive. LOW amp drive is fixed at zero; stored Classic/Dual drive values are preserved.</td></tr></tbody></table>
-<h3>PRE / POST</h3><p>PRE has five freely arranged slots with 39 pedal models. Select, duplicate and move models to construct the chain; ON enables processing and OFF bypasses a slot. Four knobs use 2×2 and five knobs use a 3+2 layout. Original reference names appear as small captions. Older sessions retain compatibility processing until the new board is edited. Compression before an envelope changes its playing response; a boost before drive mainly increases saturation, while a boost after drive depends on the next amplifier's headroom.</p><p>POST follows Bus Compressor → Preamp → EQ → Modulation → Delay → Reverb in six rows. ALL opens full controls; compressor/preamp/EQ menus select models directly. Match output levels when comparing settings.</p>
-<h3>Amps / cabinets</h3><p>Twenty-three amplifier choices use Chimera names without hardware names in the selector or tooltip. Each appears once in Clean, Crunch, Lead, High-Gain or Bass; every lane can select every model. Eight new models execute distinct DSP paths and expose their supported channels or input routes. Hardware fidelity remains unverified. Choose the head/cab first, then gain and EQ. Load a mono/stereo WAV/AIFF up to one second and 4 MB. Factory IR credits are in THIRD_PARTY_NOTICES.md. A library entry must have an available file before it can play. Import your authorised folders or personal ZIP; restricted reference packs are not bundled.</p>
-<h3>Presets and compatibility</h3><p>Choose among 31 starting presets grouped by Guitar Clean/Edge/Rock/High Gain/Lead, Bass Clean/Pick/Slap/Drive/Fuzz/Envelope, Dual Guitar+Guitar/Guitar+Bass/Bass+Bass, Matrix Bass/Experimental and Texture Envelope/Fuzz. Factory loading resets the sound/FX before applying the preset, while retaining performance input gain/routing, tempo/click/tuner and MIDI settings. Choose by instrument, routing and playing role, then adapt INPUT, Gate, IR, drive and rig balance to your pickup output and tuning. COPY a baseline between A/B for level-matched comparison. SAVE AS/OPEN manage your own sounds. Model-selector normalised automation from earlier development builds may need review after model-count expansion. Work on a copy of important older sessions and verify selected names, parameter values and IRs.</p>
-<h3>Help / reports / updates</h3><p>Hosted VST3/AU opens the official releases page without creating an HTTP update worker. Automatic checks and verified downloads below apply to Standalone.</p><p>SETTINGS → Manual / Bug report / Updates opens this offline manual, report tools and beta update checks. A useful report includes exact reproduction steps, expected/actual behaviour, OS, DAW/version, sample rate, buffer, models and routing. Review diagnostic data before submitting; no report is sent without your action. Avoid public attachments containing restricted personal IRs.</p><p>Updates discover compatible official beta release assets and verify download size/SHA256. Hash verification is integrity checking, not publisher identity signing. Save your work, close the host and app, then run the installer; an active audio process is never silently replaced. Unpublished prepared builds are not discoverable by the updater. Network failure should leave the current session usable.</p>
-<h3>Troubleshooting</h3><p>No input meter: check driver, input channel, monitoring and OS microphone permission. Meter but no sound: check tuner mute, rig mute/solo, gate and output. Crackles: raise buffer, reduce oversampling, compare transpose bypass and instance count. Thin sound: check polarity, blend, doubler, mono compatibility and IR timing. Missing plugin: check standard VST3/AU folders, architecture and DAW rescan; remove obsolete manual copies after backing up presets. Missing IR: verify actual audio files, extraction, library folders and limits. Failed update: do not run incomplete downloads; retry from the official release.</p>
-<p>DSP/UI/package tests are evidence for the covered cases, not hardware equivalence, universal DAW compatibility, signed/notarized distribution or real-instrument listening approval. Read the included verification logs and release notes for the tested scope.</p>
-<footer><p>SpectralForge Chimera · Open Beta 1.1</p><p>Copyright © 2026 RavenForge Luthier Intelligence. All rights reserved.</p><p>Third-party software and assets are subject to their respective copyright notices and license terms.</p><p>Offline document. No remote scripts, fonts or analytics.</p></footer></main></body></html>
+<nav aria-label="목차">
+<a href="#quick">빠른 시작</a><a href="#signal">신호 흐름</a><a href="#global">공통 기능</a><a href="#pre">PRE 39종</a><a href="#amps">앰프 23종</a><a href="#ir">Cab / IR</a><a href="#post">POST 21종</a><a href="#preset">프리셋 / A·B</a><a href="#workflow">추천 운용</a><a href="#diag">진단 / 성능</a><a href="#trouble">문제 해결</a><a href="#limits">베타 한계</a><a href="#english">English Quick Reference</a>
+</nav>
+
+<p class="note"><strong>모델 명칭에 대하여:</strong> Chimera의 앰프·페달·랙은 표기된 하드웨어를 설계 참고점으로 삼은 독립 소프트웨어 모델입니다. 제조사와의 제휴·인증, 회로 단위 복제, 실물과의 측정 일치를 의미하지 않습니다. 원본명은 사용자가 음색의 출발점과 조작부의 의도를 이해하기 위한 reference caption입니다.</p>
+
+<section id="quick">
+<h2>01 · 빠른 시작</h2>
+<ol>
+<li>DAW와 기존 Chimera를 종료한 뒤 운영체제용 Open Beta 1.1 패키지를 설치합니다. Windows는 Standalone과 VST3 경로를 각각 선택할 수 있습니다.</li>
+<li>DAW에서는 오디오 트랙에 <strong>SpectralForge Chimera</strong> VST3/AU를 삽입하고 모니터링을 켭니다. Standalone에서는 Audio Settings에서 인터페이스와 입출력 채널을 지정합니다.</li>
+<li>일반적인 기타/베이스 한 대는 <strong>MONO L</strong>로 시작합니다. 실제 스테레오 소스일 때만 STEREO를 사용합니다.</li>
+<li>처음에는 <strong>Classic</strong> 모드에서 프리셋 하나를 고르고, INPUT 미터가 과도하게 피크하지 않도록 인터페이스와 INPUT gain을 맞춥니다.</li>
+<li>헤드 → Cabinet/IR → PRE/POST 순으로 세부 음색을 맞춘 뒤 최종 OUTPUT으로 레벨 매칭합니다. 더 큰 소리가 더 좋은 소리처럼 들리는 착시를 피하려면 A/B 비교 시 출력 레벨을 맞추십시오.</li>
+<li>기본 앰프 oversampling은 4×입니다. 실시간 연주에서 끊김이 있으면 2×/1×로 낮추거나 오디오 버퍼를 늘립니다.</li>
+</ol>
+<div class="grid">
+<div class="card"><h4>기타 기본</h4><p>Classic → Glass / Brit Edge / Tight 515 중 선택 → V30/Jensen IR → PRE 드라이브 → POST 공간계.</p></div>
+<div class="card"><h4>베이스 기본</h4><p>Classic 또는 Matrix → Iron Tube / Solid Punch / Taste Punch → 필요 시 Cab bypass 또는 bass IR → 컴프레서로 피크 정리.</p></div>
+<div class="card"><h4>다운튜닝 / 확장음역</h4><p>Matrix → LOW를 DI 중심으로 유지하고 MID/HIGH에 드라이브·앰프를 집중. LOW TAP 위치와 두 crossover를 먼저 정합니다.</p></div>
+</div>
+</section>
+
+<section id="signal">
+<h2>02 · 신호 흐름과 라우팅 모드</h2>
+<p class="flow">INPUT → Gate / Transpose → 5-slot PRE → Rig(s) + Cabinet/IR → Merge → POST Gate(optional) → POST Rack → Doubler → OUTPUT</p>
+<p>튜너는 Gate와 Transpose 이전의 원음을 읽습니다. A/B는 좌·우 채널이나 두 리그의 선택이 아니라 <strong>전체 사운드 상태 두 개</strong>입니다.</p>
+<table class="wide"><thead><tr><th>모드</th><th>구조</th><th>주요 파라미터</th><th>적합한 용도</th></tr></thead><tbody>
+<tr><td><strong>Classic</strong></td><td>전체 대역 → 단일 앰프 → 단일 Cab/IR</td><td>Amp controls, Drive/Level, EQ, Cab cuts</td><td>전통적 기타/베이스 앰프 시뮬, 빠른 톤 메이킹</td></tr>
+<tr><td><strong>Dual · Blend</strong></td><td>전체 대역을 두 리그에 복제한 뒤 비율로 합산</td><td>Rig A/B 모델·IR·Level, Blend</td><td>타이트함+두께, 클린+크런치, 두 베이스 헤드 혼합</td></tr>
+<tr><td><strong>Dual · Crossover</strong></td><td>LR4 crossover로 LOW/HIGH 분할 후 두 리그 처리</td><td>Crossover, 각 Band Tone, 두 리그 Level</td><td>저역을 깨끗하게 두고 상단만 드라이브, 기타/베이스 하이브리드</td></tr>
+<tr><td><strong>Matrix</strong></td><td>LOW / MID / HIGH 3대역 분할</td><td>두 crossover, LOW COMP·DI/AMP, MID/HIGH Drive·Band Tone</td><td>다운튜닝, 5/6현 베이스, 현대 메탈, 복합 질감</td></tr>
+</tbody></table>
+<h3>Matrix LOW의 핵심</h3>
+<p>LOW는 하나의 대역 안에서 <strong>DI와 선택한 amp/cab branch를 혼합</strong>합니다. LOW COMP는 저역의 다이내믹을 제어하고, BAND TONE과 LEVEL로 합산 전에 저역을 정리합니다. <strong>LOW TAP</strong>은 5-slot PRE 보드의 어느 경계에서 LOW로 분기할지를 정합니다. TAP 앞에 있는 페달은 LOW에도 실제로 적용되고, TAP 뒤 페달은 LOW에서 제외됩니다. 따라서 왜곡 페달을 TAP 앞으로 옮기면 LOW DI까지 왜곡됩니다.</p>
+<p class="tip"><strong>권장 시작점:</strong> 저역 보존이 목적이면 Compressor/Envelope 정도만 TAP 앞에 두고, Fuzz/Drive/Modulation은 TAP 뒤에 두십시오. 반대로 실험적인 저역 질감을 만들 때는 gain pedal을 TAP 앞에 옮길 수 있습니다.</p>
+</section>
+
+<section id="global">
+<h2>03 · 공통 기능</h2>
+<table><tbody>
+<tr><th>INPUT / OUTPUT</th><td>플러그인 내부의 입출력 trim과 미터입니다. 인터페이스 입력 자체의 클리핑은 여기서 복구할 수 없습니다. OUTPUT은 최종 loudness matching에 사용합니다.</td></tr>
+<tr><th>MONO L / STEREO</th><td>MONO L은 왼쪽 입력을 복제해 내부 스테레오 경로에 공급합니다. STEREO는 두 입력 채널을 유지합니다.</td></tr>
+<tr><th>Gate</th><td><strong>Threshold</strong>는 문이 닫히는 기준, <strong>Hold</strong>는 신호가 기준 아래로 내려간 뒤 유지 시간, <strong>Release</strong>는 감쇄 속도입니다. 서스테인이 잘리면 Threshold를 낮추거나 Hold/Release를 늘립니다.</td></tr>
+<tr><th>POST GATE</th><td>연주 검출은 깨끗한 입력을 사용하고, 실제 감쇄는 리그/캐비닛 합산 뒤 POST 공간계 전에 적용합니다. 앰프 시뮬의 히스를 연주 사이에 줄이는 데 유리하지만 연주 중 발생하는 히스를 제거하는 노이즈 리덕션은 아닙니다.</td></tr>
+<tr><th>Transpose</th><td>−12~+12 semitone polyphonic pitch shift. 활성 시 추가 latency가 발생하며 호스트에 보고됩니다. 짧은 어택·복합 코드에서는 아티팩트가 생길 수 있습니다.</td></tr>
+<tr><th>Tuner / AUTO MUTE</th><td>입력 원음을 읽는 chromatic tuner. A4 기준 조절 가능. AUTO MUTE를 켜면 튜닝 중 최종 출력이 음소거됩니다.</td></tr>
+<tr><th>Oversampling</th><td>앰프 품질을 1× / 2× / 4× / 8×로 선택합니다. 높을수록 nonlinear aliasing 억제에 유리하지만 CPU 사용량이 증가합니다. 기본 4×.</td></tr>
+<tr><th>Doubler</th><td>짧고 변조된 wet delay로 스테레오 폭을 만듭니다. 모노 합산 시 위상/톤이 달라질 수 있으므로 믹스에서는 mono check를 권장합니다.</td></tr>
+<tr><th>TAP / BPM / HOST</th><td>수동 BPM, 탭 템포, 호스트 템포 추종. Delay SYNC는 quarter-note 기준으로 동작합니다.</td></tr>
+<tr><th>CLICK</th><td>연습용 4/4 metronome. DAW transport/bar 위치에 동기화되는 기능은 아닙니다.</td></tr>
+<tr><th>MIDI Learn</th><td>선택한 컨트롤에 다음으로 수신되는 MIDI CC를 할당합니다. Standalone은 MIDI input을 지정하고, 플러그인은 DAW에서 MIDI를 라우팅합니다.</td></tr>
+<tr><th>A/B / COPY</th><td>A와 B에 전체 사운드를 저장하고 전환합니다. COPY는 현재 상태를 반대 슬롯으로 복제합니다. 자동 loudness match는 하지 않습니다.</td></tr>
+<tr><th>CPU AVG / PK</th><td>전체 PC CPU가 아니라 Chimera audio callback이 block deadline에서 소비한 비율입니다. PK가 지속적으로 높다면 oversampling/효과 수/버퍼를 조정합니다.</td></tr>
+</tbody></table>
+</section>
+
+<section id="pre">
+<h2>04 · PRE — 5-slot pedalboard / 39 models</h2>
+<p>PRE에는 정확히 <strong>5개 슬롯</strong>이 있습니다. 한 슬롯의 모델을 교체해도 다른 슬롯의 parameter owner와 상태는 분리됩니다. 모델 선택, 복제, 삭제, 순서 변경과 각 모델의 bypass를 지원합니다. <strong>Empty</strong>는 모델 수 39종에 포함하지 않습니다.</p>
+<p>구형 프로젝트는 기존 Legacy PRE 상태를 보존할 수 있으며, 새 5-slot 보드를 편집하면 새 엔진을 사용합니다. 구조 변경(모델 교체·재배열·LOW TAP 이동)은 재생 중 click-free를 보장하지 않으므로 중요한 세션에서는 transport를 정지한 뒤 편집하는 것을 권장합니다.</p>
+
+<h3>Compressor — 5</h3>
+<table class="wide"><thead><tr><th>Chimera</th><th>Reference</th><th>주요 조작</th><th>성향 / 용도</th></tr></thead><tbody>
+<tr><td>Studio VCA</td><td>MXR M87 Bass Compressor</td><td>Release, Attack, Output, Ratio, Input</td><td>빠르고 비교적 투명한 피크 제어. 베이스, 타이트한 리듬, Matrix LOW 앞에서 안정적인 레벨을 만들 때.</td></tr>
+<tr><td>Red OTA</td><td>MXR Dyna Comp M102</td><td>Output, Sensitivity</td><td>단순한 2노브 sustain 계열. 클린 기타의 길이감과 빈티지한 눌림을 빠르게 만들기 좋습니다.</td></tr>
+<tr><td>Optical</td><td>Diamond Compressor CPR-1</td><td>Comp, EQ, Vol, EQ In, Hi-cut</td><td>부드러운 레벨링과 톤 보정. 아르페지오, 클린/세미클린, 베이스의 자연스러운 정리에 적합.</td></tr>
+<tr><td>Studio FET</td><td>Origin Effects Cali76 / 1176 influence</td><td>In, Out, Dry, Ratio, Attack, Release</td><td>빠른 트랜지언트 제어와 parallel dry. 픽 베이스·고게인 앞단에서 어택을 유지하면서 압축할 때.</td></tr>
+<tr><td>Variable Mu</td><td>Manley Stereo Variable Mu</td><td>Dual Input, Threshold, Attack, Recovery, Output, Compress/Limit</td><td>점진적으로 강해지는 부드러운 압축. 현재 linked 운용이 중심이며 SEP/right-bank 계열은 비활성입니다.</td></tr>
+</tbody></table>
+
+<h3>Overdrive / Distortion — 9</h3>
+<table class="wide"><thead><tr><th>Chimera</th><th>Reference</th><th>핵심</th><th>권장 용도</th></tr></thead><tbody>
+<tr><td>Green Drive</td><td>Ibanez TS808</td><td>Over Drive / Tone / Level</td><td>중역을 밀고 저역을 정리하는 soft clip. Tight 515 같은 high-gain head 앞의 low-drive boost에 적합.</td></tr>
+<tr><td>Gold Drive</td><td>Klon Centaur</td><td>Gain / Treble / Output</td><td>clean 성분을 남긴 asymmetric drive. edge breakup과 lead push에 적합.</td></tr>
+<tr><td>Rodent</td><td>Pro Co RAT 2</td><td>Distortion / Filter / Volume</td><td>hard clipping과 low-pass filter. 록 distortion부터 거친 fuzz-adjacent texture까지.</td></tr>
+<tr><td>Bass DI</td><td>Tech 21 SansAmp Bass Driver DI v2</td><td>Level, Blend, Treble, Mid, Bass, Presence, Drive, Mid/Bass Shift</td><td>저역을 유지하면서 drive와 EQ를 섞는 베이스용 전치단. Classic bass 또는 Matrix MID에 유용.</td></tr>
+<tr><td>Micro Bass</td><td>Darkglass Microtubes B3K v2</td><td>Blend, Tone, Level, Drive, Grunt, Mid Boost</td><td>clean low와 공격적인 상단 배음을 병합. 현대 메탈 베이스와 low-B에 적합.</td></tr>
+<tr><td>Yellow Asym</td><td>BOSS SD-1</td><td>Drive / Tone / Level</td><td>비대칭 clipping 계열. high-gain 앞에서 어택과 upper-mid를 강조하는 용도.</td></tr>
+<tr><td>Obsession</td><td>Fulltone OCD v2</td><td>Volume / Drive / Tone / HP-LP</td><td>더 넓은 대역과 강한 amp-like drive. 크런치부터 hard rock까지.</td></tr>
+<tr><td>Plus Drive</td><td>MXR Distortion+ M104</td><td>Distortion / Output</td><td>간단한 2노브 distortion. vintage hard-clipping texture.</td></tr>
+<tr><td>Dual Circuit</td><td>BOSS/JHS JB-2</td><td>BOSS/JHS 각각 Drive·Tone·Level, 6 mode, toggle</td><td>두 개의 독립 drive path를 JHS/BOSS 단독, 순차, parallel로 조합하는 복합 모델.</td></tr>
+</tbody></table>
+
+<h3>Fuzz — 5</h3>
+<table><thead><tr><th>Chimera</th><th>Reference</th><th>성향</th></tr></thead><tbody>
+<tr><td>Big Sustain</td><td>EHX Big Muff Pi NYC</td><td>Volume/Tone/Sustain. 두껍고 긴 sustain, wall-of-sound와 lead.</td></tr>
+<tr><td>Round Fuzz</td><td>Dunlop Fuzz Face JDF2</td><td>Volume/Fuzz. 둥근 비대칭 fuzz. 실제 Fuzz Face의 pickup loading/impedance 상호작용은 모델링하지 않습니다.</td></tr>
+<tr><td>Vintage Fuzz</td><td>Sola Sound Tone Bender MKII</td><td>Level/Attack. 날카로운 어택과 vintage gated edge.</td></tr>
+<tr><td>Wool Bass</td><td>ZVEX Woolly Mammoth</td><td>Vol/EQ/Pinch/Wool. 베이스 중심의 gated fuzz, synth-like low-end texture.</td></tr>
+<tr><td>Gated Fuzz</td><td>ZVEX Fuzz Factory</td><td>Volume/Gate/Comp/Drive/Stab. 강한 gate와 불안정한 질감의 방향을 재해석. 실제 self-oscillation 회로 재현을 보증하지 않습니다.</td></tr>
+</tbody></table>
+
+<h3>Boost — 5</h3>
+<table><thead><tr><th>Chimera</th><th>Reference</th><th>성향 / 배치</th></tr></thead><tbody>
+<tr><td>Clean Lift</td><td>Xotic RC Booster</td><td>Gain/Volume/Treble/Bass. 넓은 대역의 clean push와 EQ.</td></tr>
+<tr><td>Treble Lift</td><td>Dallas Rangemaster</td><td>Set. 저역을 덜어 upper-mid를 밀어주는 vintage treble boost.</td></tr>
+<tr><td>Micro Lift</td><td>MXR Micro Amp M133</td><td>Gain. 가장 단순한 full-band level push.</td></tr>
+<tr><td>Echo Lift</td><td>Xotic EP Booster</td><td>Gain + internal-style gain/bright options. low-mid weight와 매끈한 top.</td></tr>
+<tr><td>Linear Power</td><td>EHX LPB-1</td><td>Boost. 단순하고 강한 broadband transistor-style lift.</td></tr>
+</tbody></table>
+<p class="tip">Boost가 drive <strong>앞</strong>이면 뒤 gain stage를 더 세게 밀어 saturation이 증가하기 쉽고, drive <strong>뒤</strong>면 상대적으로 level lift 역할이 커집니다. 하지만 최종 앰프가 이미 포화돼 있으면 뒤 boost도 다시 왜곡량으로 바뀔 수 있습니다.</p>
+
+<h3>Envelope / Wah — 6</h3>
+<table class="wide"><thead><tr><th>Chimera</th><th>Reference</th><th>동작</th></tr></thead><tbody>
+<tr><td>Q Sweep</td><td>EHX Q-Tron</td><td>LP/BP/HP/MIX, Up/Down, range, peak, gain, boost. 피킹 강도에 따라 필터를 움직이는 가장 범용적인 envelope filter.</td></tr>
+<tr><td>Band Sweep</td><td>Musitronics Mu-Tron III</td><td>Gain/Peak/Mode/Range/Drive. band-pass 중심의 classic funk envelope.</td></tr>
+<tr><td>Reverse Sweep</td><td>Mu-Tron III Down</td><td>위와 같은 기본 구조를 downward sweep으로 사용. 일반 auto-wah와 반대 방향 질감.</td></tr>
+<tr><td>Bass Envelope</td><td>MXR M82</td><td>Dry/FX/Decay/Q/Sensitivity. dry low를 섞어 저음의 핵을 남기는 베이스 중심 모델.</td></tr>
+<tr><td>Dynamic Wah</td><td>BOSS AW-3</td><td>Decay/Manual/Sens. 현재 UP-like path 중심이며 HUMAN/TEMPO를 포함한 MODE 전체는 구현 대상이 아닙니다.</td></tr>
+<tr><td>Manual Wah</td><td>Chimera original</td><td>Position/Range/Q. MIDI expression에 매핑해 수동 wah처럼 사용할 수 있는 원본 DSP.</td></tr>
+</tbody></table>
+
+<h3>Equalizer / Modulation / Pitch — 9</h3>
+<table class="wide"><thead><tr><th>Chimera</th><th>Reference</th><th>설명</th></tr></thead><tbody>
+<tr><td>Graphic EQ</td><td>Chimera original</td><td>31.25 Hz~16 kHz 10-band ±12 dB + Input/Output. 앰프 앞의 세밀한 shaping, low cut 대용의 저역 정리, 특정 pick attack 강조에 사용.</td></tr>
+<tr><td>Classic Chorus</td><td>BOSS CE-2</td><td>Rate/Depth/Mix. 단일 modulated delay 계열의 전통적 chorus.</td></tr>
+<tr><td>Spatial Chorus</td><td>Roland Dimension D</td><td>Rate/Depth/Mix. 좌우를 벌리는 stereo chorus 성향.</td></tr>
+<tr><td>Stone Phase</td><td>EHX Small Stone</td><td>Rate/Depth/Mix. swept all-pass phaser.</td></tr>
+<tr><td>Tidal Flange</td><td>EHX Electric Mistress</td><td>Rate/Depth/Mix. 짧은 delay와 feedback comb 계열.</td></tr>
+<tr><td>Drift Vibrato</td><td>EHX Eddy</td><td>Rate/Depth/Mix. pitch modulation 중심.</td></tr>
+<tr><td>Pulse Tremolo</td><td>EHX Pulsar</td><td>Rate/Depth/Mix. amplitude modulation / stereo motion.</td></tr>
+<tr><td>Mono Octaver</td><td>Chimera tracking divider</td><td>Dry/Down1/Down2. 단음 추적용 /2, /4 divider. 낮은 지연이 장점이지만 chord tracking용이 아닙니다.</td></tr>
+<tr><td>Spectral Octaver</td><td>Chimera spectral processor</td><td>Dry/Down/Up. polyphonic STFT 방식. 44.1/48/96 kHz에서 약 42.7~46.4 ms의 고유 지연이 있으며 저역 복합 코드에서 분리 한계가 있습니다.</td></tr>
+</tbody></table>
+</section>
+
+<section id="amps">
+<h2>05 · Amplifier — 23 models</h2>
+<p>앰프 메뉴에는 Chimera 이름이 표시되고, 선택한 모델의 reference name은 별도 caption으로 확인할 수 있습니다. 모델은 Clean / Crunch / Lead / High-Gain / Bass의 한 primary category에 정리되지만 모든 라우팅 lane에서 선택 가능합니다. 다중 채널·입력 경로가 있는 모델은 해당 selector가 활성화됩니다.</p>
+<table class="wide"><thead><tr><th>#</th><th>Chimera</th><th>Reference</th><th>Category</th><th>Channel / input</th><th>성향과 추천</th></tr></thead><tbody>
+<tr><td>1</td><td>Glass</td><td>Fender '65 Twin Reverb</td><td>Clean</td><td>Normal / Vibrato · Input 1/2</td><td>열린 고역과 큰 clean headroom. pedal platform, arpeggio, ambient clean.</td></tr>
+<tr><td>2</td><td>Brit Edge</td><td>Marshall JTM45</td><td>Crunch</td><td>Single · High Treble/Normal high/low, Jumped</td><td>피킹에 반응하는 British edge와 부드러운 breakup. classic rock, filter lead.</td></tr>
+<tr><td>3</td><td>Tight 515</td><td>Peavey 6505 / 5150 family</td><td>High-Gain</td><td>Rhythm / Lead · High/Low Gain input</td><td>저역이 단단하고 upper-mid가 명확한 high-gain. 빠른 metal rhythm, low tuning.</td></tr>
+<tr><td>4</td><td>Wide Rect</td><td>Mesa Dual Rectifier</td><td>High-Gain</td><td>CH1 / CH2 / CH3</td><td>넓은 low-end와 큰 포화감. 두꺼운 rhythm, Dual blend의 wide side.</td></tr>
+<tr><td>5</td><td>Liquid Lead</td><td>Mesa Mark IV Lead</td><td>Lead</td><td>Rhythm 1 / Rhythm 2 / Lead</td><td>집중된 mid와 긴 sustain. melodic lead, singing solo.</td></tr>
+<tr><td>6</td><td>Iron Tube</td><td>Ampeg SVT-VR</td><td>Bass</td><td>Channel One / Two · Normal/Bright input</td><td>무거운 low-mid와 tube-style drive. rock bass, vintage DI blend.</td></tr>
+<tr><td>7</td><td>Solid Punch</td><td>Gallien-Krueger 800RB</td><td>Bass</td><td>Single</td><td>빠른 어택과 선명한 upper-mid. pick bass, slap, Matrix HIGH.</td></tr>
+<tr><td>8</td><td>Modern Bass</td><td>Darkglass B7K Ultra + Aguilar DB751 reference chain</td><td>Bass</td><td>Single</td><td>clean low와 공격적 상단 drive의 혼합 성향. modern metal bass.</td></tr>
+<tr><td>9</td><td>Chime 30</td><td>VOX AC30 Top Boost</td><td>Crunch</td><td>Normal / Top Boost · High/Low input</td><td>밝고 반응성이 큰 chime과 edge breakup. jangly clean, indie/rock edge.</td></tr>
+<tr><td>10</td><td>Orange Crown</td><td>Orange Rockerverb 50 MKIII</td><td>High-Gain</td><td>Clean / Dirty</td><td>dense low-mid와 두꺼운 gain. heavy rock, slower riff, broad wall tone.</td></tr>
+<tr><td>11</td><td>Vintage Valve</td><td>Fender Super Bassman</td><td>Bass</td><td>Vintage / Overdrive · Input 1 / -6 dB</td><td>둥근 fundamental과 부드러운 breakup. fingerstyle, warm rock bass.</td></tr>
+<tr><td>12</td><td>Metro Clean</td><td>Mesa Subway D-800+</td><td>Bass</td><td>Single</td><td>넓은 bandwidth와 높은 headroom. slap, clean low-B, Matrix LOW amp branch.</td></tr>
+<tr><td>13</td><td>Prism Chime</td><td>Matchless DC-30</td><td>Clean</td><td>12AX7 / EF86 · High/Low input</td><td>복합적인 chime, 단단한 mid, touch-sensitive breakup. boutique clean/edge.</td></tr>
+<tr><td>14</td><td>Silk Lead</td><td>Dumble Overdrive Special</td><td>Lead</td><td>Clean / Overdrive</td><td>둥글고 매끄러운 high-mid와 singing drive. expressive lead.</td></tr>
+<tr><td>15</td><td>Taste Punch</td><td>EICH T900</td><td>Bass</td><td>Single</td><td>열린 dynamics와 또렷한 mid, extended low. modern clean bass. 정확한 T900 캡처 검증은 없음.</td></tr>
+<tr><td>16</td><td>Cinder 120</td><td>ZUTA GBG120</td><td>High-Gain</td><td>CH1 / CH2 / CH3 / CH4</td><td>4채널 기반의 layered saturation. clean에서 aggressive gain까지 폭넓게 구성.</td></tr>
+<tr><td>17</td><td>Iron Compact</td><td>ENGL Ironball E606</td><td>High-Gain</td><td>Clean / Lead</td><td>타이트한 attack과 compact modern gain. 리듬/리드 전환이 빠른 metal rig.</td></tr>
+<tr><td>18</td><td>Fourfold</td><td>Diezel VH4</td><td>High-Gain</td><td>Clean / Crunch / Mega / Lead</td><td>통제된 저역과 채널별 다른 gain 단계. progressive/modern metal, multi-channel workflow.</td></tr>
+<tr><td>19</td><td>Classic Tube</td><td>Ampeg SVT-CL</td><td>Bass</td><td>Single</td><td>firm fundamental과 classic tube bass response. rock/metal bass 기본 헤드.</td></tr>
+<tr><td>20</td><td>Monolith</td><td>SUNN Model T</td><td>Crunch</td><td>Single · Normal / Brilliant / Jumped</td><td>넓은 breakup과 큰 low-mid mass. doom, sludge, fuzz platform.</td></tr>
+<tr><td>21</td><td>Night Harvest</td><td>Fortin Evil Pumpkin</td><td>High-Gain</td><td>Gain I / Gain II / Clean</td><td>빠르고 공격적인 attack, 두 gain path. 극단적 modern metal과 정교한 palm-mute.</td></tr>
+<tr><td>22</td><td>Hot Lead</td><td>Soldano SLO-100</td><td>Lead</td><td>Normal / Overdrive</td><td>고역이 매끄럽고 sustain이 긴 overdrive voice. hard rock/metal lead.</td></tr>
+<tr><td>23</td><td>Blue Storm</td><td>Bogner Uberschall Rev Blue</td><td>High-Gain</td><td>Clean / Lead</td><td>dense low-mid와 큰 gain. 무거운 riff, low-tuned wall tone.</td></tr>
+</tbody></table>
+<p class="warning"><strong>중요:</strong> 모델의 reference는 방향을 설명하는 것이며 “실물과 동일하다”는 인증이 아닙니다. 특히 일부 신규 헤드는 패널/캡처 검증 범위가 서로 다릅니다. 모델별 UI에 원본에서 영감을 받은 조작부가 있어도 물리적 phantom power, 외부 insert/loop, speaker power switching처럼 플러그인에서 의미가 없는 기능은 제공하지 않거나 비활성 정보로 표시합니다.</p>
+</section>
+
+<section id="ir">
+<h2>06 · Cabinet / IR</h2>
+<p>Cabinet 처리는 각 amp lane 내부에서 <strong>Amp → IR → Merge</strong> 순서로 동작합니다. Classic은 한 개, Dual은 두 개, Matrix는 LOW amp branch와 MID/HIGH에서 각각 필요한 IR을 선택할 수 있습니다.</p>
+<ul>
+<li><strong>CAB:</strong> 설치된 factory/user IR을 직접 선택합니다. BYPASS는 cab convolution만 우회합니다.</li>
+<li><strong>LOAD / Drag &amp; Drop:</strong> WAV/AIFF IR을 lane에 불러옵니다. 현재 loader는 최대 1초·4 MB 범위를 기준으로 사용합니다.</li>
+<li><strong>IR LIBRARY:</strong> speaker size, mic, position, creator 등 catalog metadata로 검색/필터링합니다. “Missing” catalog row는 메타데이터만 있고 실제 WAV가 설치되지 않은 상태입니다.</li>
+<li><strong>LOW CUT / HIGH CUT:</strong> cab 이후 대역을 정리합니다. Matrix에서는 lane crossover와 겹쳐 지나치게 좁아지지 않도록 확인합니다.</li>
+<li><strong>MUTE / SOLO / POLARITY:</strong> 두 리그 또는 세 밴드의 합산 문제를 진단하는 데 사용합니다.</li>
+<li><strong>Project recall:</strong> user IR 오디오는 프로젝트/A·B 상태에 포함되므로 원본 파일을 이동해도 저장된 세션의 recall을 유지하도록 설계되어 있습니다.</li>
+</ul>
+<p>공개 Beta 1.1에는 재배포 가능한 factory IR 두 개와 reference metadata가 포함됩니다. 개인 Raven IR 또는 외부 TONE3000 캡처는 공개 설치 파일에 포함되지 않으며 사용자가 권한을 가진 파일을 직접 가져와야 합니다.</p>
+</section>
+
+<section id="post">
+<h2>07 · POST Rack — 21 models</h2>
+<p class="flow">Bus Compressor → Preamp → EQ → Modulation → Delay → Reverb</p>
+<p>POST는 리그 합산 뒤 한 번만 처리됩니다. 각 행은 독립 bypass와 model selector를 가지며, 필요한 모델은 <strong>ALL</strong>에서 전체 원본형 조작부를 엽니다.</p>
+
+<h3>Bus Compressor — 3</h3>
+<table class="wide"><thead><tr><th>Chimera</th><th>Reference</th><th>핵심 동작</th><th>용도</th></tr></thead><tbody>
+<tr><td>Console VCA</td><td>SSL XLogic G Series Compressor</td><td>Threshold, Makeup, stepped Attack/Release/Ratio, Compressor In, Auto Fade</td><td>전체 리그의 glue와 peak control. 리듬 bus, Dual/Matrix 합산 안정화.</td></tr>
+<tr><td>Studio FET</td><td>UA 1176LN D/E style</td><td>Input, Output, Attack, Release, Attack Off, 4:1~20:1 + All Buttons, meter</td><td>빠른 peak control과 적극적인 character. pick attack, aggressive bus compression.</td></tr>
+<tr><td>Opto Level</td><td>Teletronix LA-2A</td><td>Gain, Peak Reduction, Compress/Limit, meter, HF emphasis</td><td>부드럽고 program-dependent한 leveling. clean bass, lead, ambient.</td></tr>
+</tbody></table>
+
+<h3>Preamp — 3</h3>
+<table><thead><tr><th>Chimera</th><th>Reference</th><th>설명</th></tr></thead><tbody>
+<tr><td>Console Colour</td><td>Neve 1073 preamp</td><td>Mic/Line gain 단계와 polarity를 바탕으로 low-mid body와 비대칭 saturation을 더하는 방향.</td></tr>
+<tr><td>Pure DI</td><td>Avalon V5</td><td>입력 voicing, boost bank, tone bank, high-cut, pad, polarity를 포함한 clean/high-headroom DI 방향.</td></tr>
+<tr><td>Transformer Blue</td><td>Focusrite ISA One</td><td>Mic/Line/Inst routing, gain/trim, HPF, polarity, meter source. physical impedance/phantom은 실제 하드웨어 기능이므로 플러그인에서 별도 전기 동작을 만들지 않습니다.</td></tr>
+</tbody></table>
+
+<h3>EQ — 3</h3>
+<table><thead><tr><th>Chimera</th><th>Reference</th><th>설명</th></tr></thead><tbody>
+<tr><td>Console EQ</td><td>SSL E Series EQ</td><td>4-band 구조, HF/LF shelf↔bell, 두 mid의 Q, Brown/Black 성향 전환.</td></tr>
+<tr><td>Colour Shelves</td><td>Neve 1073 EQ</td><td>고정 12 kHz HF, 선택식 MF/LF, HPF를 포함하는 넓은 musical EQ.</td></tr>
+<tr><td>Passive Tube</td><td>Pultec EQP-1A</td><td>저역 boost/attenuation 동시 사용, high boost bandwidth, 독립 high attenuation. 넓은 곡선의 tone shaping.</td></tr>
+</tbody></table>
+
+<h3>Modulation — 6</h3>
+<table><thead><tr><th>모델</th><th>Reference</th><th>성향</th></tr></thead><tbody>
+<tr><td>Classic Chorus</td><td>BOSS CE-2</td><td>전통적인 single-voice chorus.</td></tr>
+<tr><td>Dimension</td><td>Roland Dimension D</td><td>폭이 넓고 상대적으로 덜 흔들리는 stereo spread.</td></tr>
+<tr><td>Stone Phase</td><td>EHX Small Stone</td><td>all-pass phasing.</td></tr>
+<tr><td>Mistress Flange</td><td>EHX Electric Mistress</td><td>짧은 delay/feedback comb의 metallic sweep.</td></tr>
+<tr><td>Eddy Vibrato</td><td>EHX Eddy</td><td>pitch modulation 중심의 movement.</td></tr>
+<tr><td>Pulsar Tremolo</td><td>EHX Pulsar</td><td>amplitude modulation과 stereo motion.</td></tr>
+</tbody></table>
+<p>모듈레이션의 기본 공통 조작은 Rate / Depth / Mix입니다.</p>
+
+<h3>Delay — 3</h3>
+<table><thead><tr><th>모델</th><th>Reference</th><th>성향</th></tr></thead><tbody>
+<tr><td>Precision Delay</td><td>TC Electronic 2290</td><td>선명하고 깨끗한 repeat. 리드와 리듬의 정확한 공간 확보.</td></tr>
+<tr><td>Tape Echo</td><td>Roland RE-201</td><td>필터링, wow/flutter 성향의 repeat. 빈티지/ambient.</td></tr>
+<tr><td>Analog Echo</td><td>EHX Deluxe Memory Man</td><td>어둡고 변조된 repeat. lead와 texture에 자연스럽게 뒤로 물러남.</td></tr>
+</tbody></table>
+<p>Time / Feedback / Mix가 기본이며 SYNC를 켜면 현재 BPM의 quarter-note를 따릅니다.</p>
+
+<h3>Reverb — 3</h3>
+<table><thead><tr><th>모델</th><th>Reference</th><th>성향</th></tr></thead><tbody>
+<tr><td>Studio Plate</td><td>EMT 140</td><td>짧고 밀도 높은 diffusion. lead/clean에 범용.</td></tr>
+<tr><td>Concert Hall</td><td>Lexicon 224</td><td>길고 modulated한 hall. ambient와 cinematic texture.</td></tr>
+<tr><td>Spring Tank</td><td>Fender-style spring</td><td>분산된 spring resonance. vintage clean/edge.</td></tr>
+</tbody></table>
+<p>Size / Damping / Mix로 공간의 크기와 고역 감쇄를 조절합니다. 저역이 번지면 먼저 Mix와 Size를 줄이고, 필요하면 POST EQ 또는 Cab low cut을 사용합니다.</p>
+</section>
+
+<section id="preset">
+<h2>08 · Factory Presets / Save / A·B</h2>
+<p>Beta 1.1에는 31개 시작 프리셋이 있습니다. 완성된 마스터링 preset이 아니라 입력 악기와 연주 목적에 맞게 조정할 <strong>starting point</strong>입니다.</p>
+<table class="wide"><thead><tr><th>그룹</th><th>프리셋</th></tr></thead><tbody>
+<tr><td>Guitar Clean / Edge / Rock / High Gain / Lead / Texture</td><td>Clean Sustain, Bell Clean, Ambient Clean, Edge Chime, Matchless Edge, Classic Crunch, Tight Rhythm, Orange Heavy, Melodic Death Rhythm, Melodic Lead, Dumble Smooth Lead, Filter Lead, Fuzz Texture</td></tr>
+<tr><td>Bass</td><td>Finger Round, EICH Modern Clean, Pick Punch, Slap Studio, Modern Grind, Vintage Bass DI, Wool Bass Fuzz, Bass Envelope</td></tr>
+<tr><td>Dual</td><td>G+G Clean / Crunch, G+G Tight / Wide, G+B Low Anchor, G+B Air / Weight, B+B Warm / Definition, B+B Clean / Grind</td></tr>
+<tr><td>Matrix</td><td>Bass Matrix, Low B Foundation, Pick Attack Matrix, Spectral Texture</td></tr>
+</tbody></table>
+<h3>추천 preset 수정 순서</h3>
+<ol><li>목적에 가장 가까운 preset 선택.</li><li>INPUT와 Gate를 실제 악기에 맞춤.</li><li>앰프/IR을 먼저 확정.</li><li>Classic은 amp drive/EQ, Dual은 두 rig Level/Blend 또는 crossover, Matrix는 LOW TAP와 두 crossover를 먼저 조정.</li><li>PRE의 gain staging을 맞추고 POST로 마감.</li><li>A를 기준으로 COPY→B 후 한 요소만 바꾸어 level-matched 비교.</li><li>SAVE AS로 사용자 reference를 저장.</li></ol>
+<p>Factory preset 로드는 사운드 파라미터를 초기화한 뒤 정의된 상태를 적용하므로 앞서 사용하던 fuzz, solo, polarity, transpose 같은 상태가 우연히 남지 않도록 설계되어 있습니다. 반면 입력 모드/게인, tempo/host-follow, click, tuner, MIDI 등 연주 환경 성격의 설정은 유지될 수 있습니다.</p>
+</section>
+
+<section id="workflow">
+<h2>09 · 실전 톤 메이킹 예시</h2>
+<details open><summary>멜로딕 데스 / 타이트한 다운튜닝 기타</summary>
+<p>Classic에서는 <strong>Tight 515 → V30 계열 IR → Green Drive 또는 Yellow Asym</strong>을 기준으로 잡습니다. Drive pedal은 gain 자체보다 low-end 정리와 amp input push에 사용하고, amp gain을 지나치게 올리지 않습니다. Dual에서는 Tight 515를 중심에 두고 Wide Rect 또는 Blue Storm을 낮은 비율로 섞어 폭을 추가합니다.</p>
+</details>
+<details><summary>5/6현 베이스 — clean low + driven mids</summary>
+<p>Matrix에서 첫 crossover를 약 120~200 Hz 범위의 시작점으로 두고 LOW는 COMP와 DI 중심, MID는 Modern Bass/Micro Bass drive, HIGH는 Solid Punch/Taste Punch 계열로 어택을 정리합니다. LOW TAP은 gain pedal보다 앞에 두는 것이 일반적인 출발점입니다. 각 밴드 level을 solo로 정한 뒤 전체 합산에서 polarity/phase를 확인합니다.</p>
+</details>
+<details><summary>클린 / 앰비언트 기타</summary>
+<p>Glass 또는 Prism Chime을 낮은 drive로 사용하고 Optical compression으로 피킹을 정리합니다. POST Dimension → Tape Echo → Concert Hall 순서에서 modulation과 reverb mix를 작게 시작해 누적 과다를 피합니다.</p>
+</details>
+<details><summary>리드 톤</summary>
+<p>Liquid Lead / Silk Lead / Hot Lead가 출발점입니다. Gold Drive는 gain을 크게 올리기보다 attack과 harmonic density를 보강하는 방향으로 쓰고, POST delay와 plate를 추가합니다. 솔로 음량을 실제로 올려야 할 때는 amp 앞 boost만 믿지 말고 lane Level 또는 최종 OUTPUT을 사용합니다.</p>
+</details>
+</section>
+
+<section id="diag">
+<h2>10 · Diagnostics / CPU / Latency</h2>
+<p><strong>SETTINGS → Review / copy / save diagnostics...</strong>에서 주요 처리 단계의 RMS/Peak, routing, Transpose, oversampling, 보고 latency와 audio callback AVG/PK를 확인할 수 있습니다. 이 수치는 LUFS나 전체 시스템 CPU가 아닙니다.</p>
+<ul>
+<li><strong>레벨이 갑자기 줄었을 때:</strong> INPUT_TRIM → PRE → RIG_GATE → POST → OUTPUT 순으로 어느 단계에서 감쇄가 시작되는지 확인합니다.</li>
+<li><strong>Transpose:</strong> 0 semitone/비영점과 On/Off를 따로 비교합니다. host-reported latency가 맞는 것과 pitch quality가 좋은 것은 별도 문제입니다.</li>
+<li><strong>Spectral Octaver:</strong> 해당 slot에만 약 43~46 ms의 frame delay가 추가됩니다. bypass도 정렬을 위해 그 delay를 유지하며, 완전히 제거하려면 해당 slot을 Empty로 바꿉니다.</li>
+<li><strong>CPU peak:</strong> 8× oversampling, 여러 nonlinear pedal, convolution, poly pitch를 함께 쓰면 크게 늘 수 있습니다. tracking 단계에서는 2×/4×로 낮추고 최종 render에서 상향하는 방법이 실용적입니다.</li>
+<li><strong>IR phase:</strong> 서로 다른 IR의 자연 onset/phase는 자동 time-align되지 않습니다. Dual/Matrix에서 저역이 사라지면 polarity와 IR 조합을 확인합니다.</li>
+</ul>
+</section>
+
+<section id="trouble">
+<h2>11 · 문제 해결</h2>
+<table class="wide"><thead><tr><th>증상</th><th>확인 순서</th></tr></thead><tbody>
+<tr><td>입력 미터가 움직이지 않음</td><td>오디오 인터페이스 입력 → DAW track input/monitor → MONO L/STEREO → Standalone Audio Settings 순으로 확인.</td></tr>
+<tr><td>소리는 나는데 너무 작음</td><td>INPUT → pedal output → amp/channel master → rig level → cab bypass/cuts → POST module output → master OUTPUT. 진단 보고서로 단계별 RMS 비교.</td></tr>
+<tr><td>고게인에서 히스가 남음</td><td>입력 Gate와 POST GATE를 구분. POST GATE는 연주 사이의 앰프 히스 감쇄에 유리하지만 연주 중 noise suppression 기능은 아님.</td></tr>
+<tr><td>Matrix에서 저음이 얇음</td><td>LOW solo → DI/AMP mix → LOW TAP → first crossover → polarity → LOW cab/IR → Band Tone/Level 순으로 확인.</td></tr>
+<tr><td>Dual에서 저음이 사라짐</td><td>두 IR의 polarity/onset, Blend, 각 rig Level을 확인. 서로 다른 IR은 자동 phase alignment하지 않음.</td></tr>
+<tr><td>CPU가 치솟음</td><td>Oversampling을 낮추고 Spectral Octaver/Transpose, convolution, modulation 수를 점검. 오디오 buffer 증가.</td></tr>
+<tr><td>Pitch 사용 시 latency가 큼</td><td>Transpose와 Spectral Octaver를 각각 끄고 비교. Spectral Octaver는 구조적으로 frame delay가 있음.</td></tr>
+<tr><td>페달을 바꾸자 click이 남</td><td>모델 교체/재배열/LOW TAP 이동은 transport를 정지한 뒤 수행. 구조 편집의 완전한 click-free 동작은 베타 보증 범위 아님.</td></tr>
+<tr><td>Studio One에서 프로젝트 종료 후 멈춤</td><td>Beta 1.1의 종료 자원 정리 수정이 포함됐지만 사용자 환경에서 해결 확정은 아님. 동봉된 <code>STUDIO_ONE_TEARDOWN.md</code>와 선택형 Trace-Chimera-Session 도구로 재현 상태 수집.</td></tr>
+<tr><td>기존 프로젝트의 model automation이 달라짐</td><td>구형 테스트 빌드의 normalized model-choice automation은 목록 확장으로 매핑이 달라질 수 있음. 프로젝트 사본에서 모델 선택 lane을 검토/재기록.</td></tr>
+</tbody></table>
+</section>
+
+<section id="limits">
+<h2>12 · Open Beta 1.1 범위와 알려진 한계</h2>
+<ul>
+<li>Windows 배포본은 publisher code-signing이 완료된 정식 상용 서명 상태가 아니며, macOS도 Developer ID 서명/공증 전입니다. 운영체제 경고가 나타날 수 있습니다.</li>
+<li>앰프·페달·랙의 hardware reference는 기능·톤 방향을 위한 설계 참고점입니다. 실물 DI/reamp 기반의 전 모델 fidelity certification은 완료되지 않았습니다.</li>
+<li>Transpose와 Spectral Octaver는 latency와 transient/chord artifact가 있을 수 있습니다.</li>
+<li>AW-3의 HUMAN/TEMPO 등 일부 원본 기능, Variable Mu의 독립 right-bank/SEP 등은 현재 production behavior로 구현되지 않았거나 비활성 표시됩니다.</li>
+<li>PRE 구조 편집 중 click-free를 보증하지 않습니다.</li>
+<li>서로 다른 IR의 natural onset/phase를 자동 보정하지 않습니다.</li>
+<li>Studio One 종료 hang은 코드상 종료 루프와 자원 정리를 수정했지만 사용자 실제 환경에서 완전 해결 확인 전입니다.</li>
+<li>이번 공개 베타는 무료이며 향후 유료화될 수 있고, 베타 종료 후 무료 지원 정책이 바뀔 수 있습니다.</li>
+</ul>
+<h3>버그 리포트에 포함하면 좋은 정보</h3>
+<p>OS / DAW와 버전 / plugin format / sample rate / buffer size / Chimera mode / 사용 amp·pedal·IR / oversampling / Transpose 여부 / 재현 단계 / diagnostics report를 포함하면 재현성이 크게 올라갑니다. 개인 오디오나 프로젝트 전체는 필요할 때만 사용자가 검토 후 공유하십시오.</p>
+</section>
+
+<section id="english">
+<h2>13 · English Quick Reference</h2>
+<p><strong>SpectralForge Chimera Open Beta 1.1</strong> is a guitar/bass amp and effects suite with 23 amplifier models, a five-slot PRE board containing 39 pedal models, 21 POST rack models and 31 factory starting presets.</p>
+<ul>
+<li><strong>Classic:</strong> one full-range amp/cab rig.</li>
+<li><strong>Dual Blend:</strong> two full-range rigs mixed together.</li>
+<li><strong>Dual Crossover:</strong> two LR4 frequency bands feeding independent rigs.</li>
+<li><strong>Matrix:</strong> LOW/MID/HIGH bands; LOW offers compression and DI/amp blending while MID/HIGH use independent rigs.</li>
+<li><strong>LOW TAP:</strong> selects the position in the five-slot PRE board where Matrix LOW branches. Pedals before the tap also affect LOW.</li>
+<li><strong>Signal path:</strong> Input → Gate/Transpose → PRE → Rig/Cab → Merge → optional Post Gate → POST → Doubler → Output.</li>
+<li><strong>Important beta limits:</strong> hardware-reference names do not imply licensed or verified hardware replicas; poly pitch can add latency/artifacts; structural pedalboard edits are not certified click-free during playback; different IRs are not automatically phase/time aligned; the reported Studio One shutdown hang still requires confirmation on the affected user system.</li>
+</ul>
+</section>
+
+<footer>
+<p>SpectralForge Chimera · Open Beta 1.1 · <code>1.1.0-beta.1</code><br>
+Copyright © 2026 RavenForge Luthier Intelligence. All rights reserved.<br>
+Third-party names and assets remain the property of their respective owners and are used only to identify design references where applicable.</p>
+</footer>
+</main></body></html>
