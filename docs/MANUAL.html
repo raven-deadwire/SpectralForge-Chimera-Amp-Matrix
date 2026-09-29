@@ -20,7 +20,7 @@ nav{display:flex;flex-wrap:wrap;gap:7px 16px;margin:24px 0 8px}nav a{color:var(-
 .model-card img{width:125px;height:125px;object-fit:contain;align-self:start;background:#0b0e11;border-radius:7px;border:1px solid #27323b}.model-card .ref{font-size:12px;color:var(--gold);margin-bottom:8px}
 .model-card dl{margin:0}.model-card dt{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:#8fa1ae;font-weight:800;margin-top:7px}.model-card dd{margin:1px 0 0;color:#d9e1e6;font-size:13px}
 .group-count{font-size:12px;color:var(--muted);font-weight:500}.section-intro{max-width:96ch}details{border:1px solid var(--line);border-radius:8px;background:var(--panel);margin:12px 0;padding:0 15px}summary{cursor:pointer;font-weight:800;padding:14px 0}
-code{background:var(--panel2);padding:2px 5px;border-radius:4px}.workflow-grid{display:grid;grid-template-columns:1fr;gap:14px}.workflow{display:block;background:var(--panel);border:1px solid var(--line);padding:17px 18px;border-radius:9px}.workflow h4{color:var(--gold);margin:0 0 6px;font-size:19px}.workflow-goal{margin:0;color:#d6dee4}.workflow-head{display:grid;grid-template-columns:minmax(330px,1.15fr) minmax(360px,1.85fr);gap:18px;align-items:start}.workflow-chain{display:flex;gap:8px;flex-wrap:wrap;align-items:flex-start}.workflow-asset{width:86px;margin:0;text-align:center}.workflow-asset img{display:block;width:82px;height:82px;object-fit:contain;background:#0b0e11;border:1px solid #27323b;border-radius:7px;margin:auto}.workflow-asset figcaption{font-size:10.5px;line-height:1.25;color:var(--muted);margin-top:5px}.workflow-steps{margin-top:13px;border-top:1px solid var(--line)}.workflow-step{display:grid;grid-template-columns:150px 1fr;gap:14px;padding:9px 0;border-bottom:1px solid rgba(52,65,76,.65)}.workflow-step:last-child{border-bottom:0}.workflow-step strong{color:#c8d6df}.workflow-note{margin:10px 0 0;color:#d9c28e;font-size:13px}
+code{background:var(--panel2);padding:2px 5px;border-radius:4px}.workflow-grid{display:grid;grid-template-columns:1fr;gap:14px}.workflow{display:block;background:var(--panel);border:1px solid var(--line);padding:17px 18px;border-radius:9px}.workflow h4{color:var(--gold);margin:0 0 6px;font-size:19px}.workflow-goal{margin:0;color:#d6dee4}.workflow-head{display:grid;grid-template-columns:minmax(330px,1.15fr) minmax(360px,1.85fr);gap:18px;align-items:start}.workflow-chain{display:flex;gap:8px;flex-wrap:wrap;align-items:flex-start}.workflow-asset{width:86px;margin:0;text-align:center}.workflow-asset img{display:block;width:82px;height:82px;object-fit:contain;background:#0b0e11;border:1px solid #27323b;border-radius:7px;margin:auto}.workflow-asset figcaption{font-size:10.5px;line-height:1.25;color:var(--muted);margin-top:5px}.workflow-steps{margin-top:13px;border-top:1px solid var(--line)}.workflow-step{display:grid;grid-template-columns:150px 1fr;gap:14px;padding:9px 0;border-bottom:1px solid rgba(52,65,76,.65)}.workflow-step:last-child{border-bottom:0}.workflow-step strong{color:#c8d6df}.workflow-note{margin:10px 0 0;color:#d9c28e;font-size:13px}.workflow-category{margin:28px 0 40px}.workflow-category-head{display:flex;align-items:baseline;justify-content:space-between;gap:18px;border-bottom:1px solid var(--line);padding-bottom:8px;margin-bottom:14px}.workflow-category-head h3{margin:0;color:var(--gold);font-size:22px}.workflow-category-head p{margin:0;color:var(--muted);font-size:13px;max-width:760px;text-align:right}.workflow-category-list{display:grid;grid-template-columns:1fr;gap:14px}
 footer{border-top:1px solid var(--line);margin-top:58px;padding-top:22px;color:var(--muted)}
 @media(max-width:680px){main{padding:26px 14px 60px}h1{font-size:38px}.model-card{grid-template-columns:92px 1fr}.model-card img{width:92px;height:92px}.languages{position:static}.wide{min-width:760px}.workflow-head{grid-template-columns:1fr}.workflow-step{grid-template-columns:1fr;gap:3px}.workflow-chain{gap:6px}}
 @media print{body{background:#fff;color:#111}main{max-width:none;padding:0}.languages,nav{display:none}.model-card,.note,.warning,.tip,.flow,th,.workflow,details{background:#f2f2f2;color:#111}.model-card dd,.model-card h4{color:#111}h2,.eyebrow{color:#222}.model-card{break-inside:avoid}tr{break-inside:avoid}}
@@ -807,6 +807,30 @@ function renderModels(target,data){
    '<dt>'+esc(L[lang].labels.controls)+'</dt><dd>'+esc(x[7])+'</dd></dl></div></article>').join('')+'</div></div>';
  }).join('');
 }
+const WORKFLOW_GROUPS={
+en:[
+{title:'Guitar',description:'Classic guitar tones from clean and edge breakup to high-gain rhythm, fuzz and melodic lead.',items:[0,4,5,7,8]},
+{title:'Bass',description:'Full-range bass workflows focused on dynamics, slap control and octave/synth textures.',items:[9,13]},
+{title:'Dual',description:'Two-rig workflows for Blend and Crossover, including guitar and bass combinations from one input.',items:[1,2,10,11]},
+{title:'Matrix',description:'Three-band workflows where LOW, MID and HIGH have deliberately different jobs.',items:[3,12]},
+{title:'Utility & Recording',description:'Non-standard uses: vocal/channel-strip processing and repeatable DI reamping/rendering.',items:[6,14]}
+],
+de:[
+{title:'Gitarre',description:'Classic-Gitarrensounds von Clean und Edge Breakup bis High-Gain-Rhythmus, Fuzz und melodischem Lead.',items:[0,4,5,7,8]},
+{title:'Bass',description:'Fullrange-Bass-Workflows für Dynamik, Slap-Kontrolle und Oktav-/Synth-Texturen.',items:[9,13]},
+{title:'Dual',description:'Zwei-Rig-Workflows für Blend und Crossover, mit Gitarren- und Basskombinationen aus einem Eingang.',items:[1,2,10,11]},
+{title:'Matrix',description:'Dreiband-Workflows, in denen LOW, MID und HIGH bewusst unterschiedliche Aufgaben übernehmen.',items:[3,12]},
+{title:'Utility & Recording',description:'Alternative Anwendungen: Vocal/Channel-Strip sowie reproduzierbares DI-Reamping und Rendering.',items:[6,14]}
+],
+ko:[
+{title:'Guitar',description:'클린·Edge Breakup부터 하이게인 리듬, 퍼즈, 멜로딕 리드까지 일반 기타 톤을 만드는 예시입니다.',items:[0,4,5,7,8]},
+{title:'Bass',description:'Full-range 베이스에서 다이내믹, 슬랩 피크 제어, 옥타버·신스 질감을 만드는 예시입니다.',items:[9,13]},
+{title:'Dual',description:'하나의 입력을 두 Rig로 나누어 Blend 또는 Crossover로 조합하는 기타·베이스 예시입니다.',items:[1,2,10,11]},
+{title:'Matrix',description:'LOW / MID / HIGH에 서로 다른 역할을 부여하는 3대역 실전 운용 예시입니다.',items:[3,12]},
+{title:'Utility & Recording',description:'보컬 채널 스트립, 녹음된 DI 리앰프·최종 렌더처럼 악기 연주 외의 활용 예시입니다.',items:[6,14]}
+]
+};
+
 const WORKFLOWS={
 en:[
 {title:'Classic · Tight low-tuned rhythm',goal:'A fast, dry rhythm tone that keeps pick attack and low-string definition instead of turning gain into a wall of compression.',images:[['p808.jpg','Green Drive'],['a515.jpg','Tight 515'],['cmesa.jpg','V30-style cab']],steps:[
@@ -1155,10 +1179,14 @@ function render(){
    lang==='ko'?['항목','내용']:lang==='de'?['Bereich','Details']:['Item','Details'],X[lang].bug,false);
  document.getElementById('diagBody').innerHTML=bullets(L[lang].diag);
  document.getElementById('limitsBody').innerHTML=bullets(L[lang].limits);
- document.getElementById('workflowBody').innerHTML=WORKFLOWS[lang].map(w=>{
+ const renderWorkflow=w=>{
    const media=w.images.map(img=>'<figure class="workflow-asset"><img loading="lazy" decoding="async" src="'+ASSET+encodeURIComponent(img[0])+'" alt="'+esc(img[1])+'"><figcaption>'+esc(img[1])+'</figcaption></figure>').join('');
    const steps=w.steps.map(step=>'<div class="workflow-step"><strong>'+esc(step[0])+'</strong><span>'+esc(step[1])+'</span></div>').join('');
    return '<article class="workflow"><div class="workflow-head"><div><h4>'+esc(w.title)+'</h4><p class="workflow-goal">'+esc(w.goal)+'</p></div><div class="workflow-chain">'+media+'</div></div><div class="workflow-steps">'+steps+'</div></article>';
+ };
+ document.getElementById('workflowBody').innerHTML=WORKFLOW_GROUPS[lang].map(group=>{
+   const items=group.items.map(index=>renderWorkflow(WORKFLOWS[lang][index])).join('');
+   return '<section class="workflow-category"><div class="workflow-category-head"><h3>'+esc(group.title)+' <span class="group-count">· '+group.items.length+'</span></h3><p>'+esc(group.description)+'</p></div><div class="workflow-category-list">'+items+'</div></section>';
  }).join('');
  localStorage.setItem('chimeraManualLang',lang);
 }
