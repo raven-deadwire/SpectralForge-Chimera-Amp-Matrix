@@ -34,7 +34,7 @@ footer{border-top:1px solid var(--line);margin-top:58px;padding-top:22px;color:v
 <section id="quick"><h2 data-k="quickTitle"></h2><div id="quickBody"></div></section>
 <section id="install"><h2 data-x="installTitle"></h2><div id="installBody"></div></section>
 <section id="operation"><h2 data-x="operationTitle"></h2><p class="section-intro" data-x="operationIntro"></p><h3 data-x="boardTitle"></h3><div id="boardBody"></div><h3 data-x="stateTitle"></h3><div id="stateBody"></div><h3 data-x="supportTitle"></h3><div id="supportBody"></div></section>
-<section id="signal"><h2 data-k="signalTitle"></h2><p class="flow">INPUT → Gate / Transpose → 5-slot PRE → Rig(s) + Cabinet/IR → Merge → POST Gate → POST Rack → Doubler → OUTPUT</p><div id="modeTable"></div><p class="tip" data-k="lowTapTip"></p></section>
+<section id="signal"><h2 data-k="signalTitle"></h2><p class="flow">INPUT → Gate / Transpose → 5-slot PRE → Rig(s) + Cabinet/IR → Merge → POST Gate → POST Rack → Doubler → OUTPUT</p><div id="modeTable"></div></section>
 <section id="compare"><h2 data-k="compareTitle"></h2><p class="section-intro" data-k="compareIntro"></p><h3 data-k="preFamilyTitle"></h3><div id="preFamilyTable"></div><h3 data-k="ampFamilyTitle"></h3><div id="ampFamilyTable"></div><h3 data-k="postFamilyTitle"></h3><div id="postFamilyTable"></div><h3 data-k="stageTitle"></h3><div id="stageTable"></div></section>
 <section id="pre"><h2 data-k="preTitle"></h2><p class="section-intro" data-k="preIntro"></p><div id="preModels"></div></section>
 <section id="amps"><h2 data-k="ampTitle"></h2><p class="section-intro" data-k="ampIntro"></p><div id="ampModels"></div><h3 data-x="ampRouteTitle"></h3><div id="ampRouteBody"></div></section>
@@ -59,11 +59,11 @@ navQuick:'Quick start',navSignal:'Signal & routing',navCompare:'Model-family com
 referenceNote:'Model names and hardware references describe design direction. They do not imply licensing, manufacturer endorsement, circuit-level reproduction or verified hardware equivalence.',
 quickTitle:'01 · Quick start',signalTitle:'04 · Signal flow and routing',compareTitle:'05 · Model-family differences',compareIntro:'Choose the family before the individual model. PRE defines what reaches the amp, the amp defines the core identity, Cabinet/IR strongly shapes the audible spectrum, and POST finishes dynamics, colour, movement and space.',
 preFamilyTitle:'PRE families',ampFamilyTitle:'Amplifier families',postFamilyTitle:'POST families',stageTitle:'PRE / AMP / CAB / POST — different jobs',
-preTitle:'06 · PRE — 5-slot pedalboard / 39 models',preIntro:'Five slots can be filled, duplicated and reordered. Matrix LOW TAP is a branch position inside this board: pedals before the tap also process LOW. During this beta, stop transport before structural edits when possible.',
+preTitle:'06 · PRE — 5-slot pedalboard / 39 models',preIntro:'Five slots can be filled, duplicated and reordered. During this beta, stop transport before model replacement or reorder when possible.',
 ampTitle:'07 · Amplifiers — 23 models',ampIntro:'Models are grouped by primary role for browsing, but every amp can be selected in every rig lane. Model-specific channels and input routes appear where implemented.',
 postTitle:'08 · POST Rack — 21 models',postIntro:'POST processes the merged rig once. Use it for overall dynamics, colour, final EQ, modulation, delay and reverb.',
 irTitle:'09 · Cabinet / IR',workflowTitle:'10 · Practical workflows',presetTitle:'11 · Factory presets / A·B / Save',globalTitle:'12 · Global controls',diagTitle:'14 · Diagnostics and troubleshooting',limitsTitle:'15 · Open Beta scope and known limits',
-lowTapTip:'Matrix LOW TAP is not another pedal slot. It chooses the branch point within the five-slot PRE chain. A distortion before the tap also distorts LOW DI.',
+
 footer:'Third-party product names remain the property of their respective owners and are used only to identify design references where applicable.',
 labels:{reference:'Reference',role:'Role',character:'Character',use:'Recommended use',controls:'Main controls',channels:'Channels / input'},
 quick:['Close the DAW and older Chimera instance before installing or updating. In a DAW insert Chimera as VST3/AU; in Standalone choose the interface in Audio Settings.','Start with MONO L for a single guitar, bass or mono source. Use STEREO only for a true stereo input.','Begin in Classic with a familiar preset. Set interface gain and Chimera INPUT for a healthy signal without clipping.','Choose amp and Cabinet/IR first, then refine PRE gain staging and POST finishing. Level-match A/B comparisons.','Amp oversampling defaults to 4×. If real-time playback breaks up, use 2×/1× or increase the audio buffer.'],
@@ -76,7 +76,7 @@ limits:['This is a free open beta and may become a paid product. Free updates/su
 workflows:[
 ['Tight low-tuned guitar','Green Drive or Yellow Asym → Tight 515 / Iron Compact / Night Harvest → V30-type IR. Use the drive mostly for low-end control and input push rather than maxing amp gain.'],
 ['Dual · Blend — Tight + Wide rhythm','Rig A: Tight 515 + V30-type IR · Rig B: Wide Rect or Blue Storm + a contrasting IR · start around 65–75% A / 25–35% B, level-match both rigs, then check polarity and mono compatibility. Use A for attack and B for width/low-mid mass.'],
-['Extended-range / 5–6 string bass','Matrix: LOW DI + compression, MID with Micro Bass/Modern Bass, HIGH with Solid Punch/Taste Punch. Keep gain pedals after LOW TAP when preserving fundamentals.'],
+['Extended-range / 5–6 string bass','Matrix: LOW uses its dedicated DI/amp blend and compression, MID uses Micro Bass/Modern Bass, and HIGH uses Solid Punch/Taste Punch. Build the LOW foundation first, then add MID/HIGH texture.'],
 ['Clean / ambient guitar','Optical compression → Glass or Prism Chime → Dimension → Tape Echo → Concert Hall. Start with modest modulation and reverb mix.'],
 ['Melodic lead','Gold Drive → Liquid Lead / Silk Lead / Hot Lead → Analog Echo or Precision Delay → Studio Plate. Use rig/output level for a real solo lift.'],
 ['Vocal / channel-strip mode','Use Classic mode, the audio interface mic input and physical phantom power when required. Bypass the active rig Amplifier and Cabinet. Optional PRE Compressor/Graphic EQ can shape the signal before the bypassed rig; POST has a fixed Bus Compressor → Preamp → EQ order. Bypass any unused section. Neve/Avalon/ISA references add software colour only; they do not provide analog mic gain, impedance or +48 V.']
@@ -88,11 +88,11 @@ navQuick:'Schnellstart',navSignal:'Signal & Routing',navCompare:'Modellgruppen',
 referenceNote:'Modellnamen und Hardware-Referenzen beschreiben die gestalterische Richtung. Sie bedeuten keine Lizenzierung, Herstellerfreigabe, Schaltungsreproduktion oder bestätigte Hardware-Gleichheit.',
 quickTitle:'01 · Schnellstart',signalTitle:'04 · Signalfluss und Routing',compareTitle:'05 · Unterschiede der Modellgruppen',compareIntro:'Zuerst die Modellgruppe wählen, dann das Einzelmodell. PRE bestimmt das Signal am Amp-Eingang, der Amp prägt die Grundidentität, Cabinet/IR formt das hörbare Spektrum stark und POST vollendet Dynamik, Klangfarbe, Bewegung und Raum.',
 preFamilyTitle:'PRE-Gruppen',ampFamilyTitle:'Amp-Gruppen',postFamilyTitle:'POST-Gruppen',stageTitle:'PRE / AMP / CAB / POST — unterschiedliche Aufgaben',
-preTitle:'06 · PRE — 5-Slot-Pedalboard / 39 Modelle',preIntro:'Fünf Slots lassen sich belegen, duplizieren und neu anordnen. Matrix LOW TAP ist eine Abgriffposition im Board: Pedale davor bearbeiten auch LOW. Strukturänderungen sollten während dieser Beta möglichst bei gestopptem Transport erfolgen.',
+preTitle:'06 · PRE — 5-Slot-Pedalboard / 39 Modelle',preIntro:'Fünf Slots lassen sich belegen, duplizieren und neu anordnen. Modellwechsel und Reihenfolge sollten während dieser Beta möglichst bei gestopptem Transport geändert werden.',
 ampTitle:'07 · Verstärker — 23 Modelle',ampIntro:'Die Auswahl gruppiert Modelle nach Hauptrolle; jeder Amp kann dennoch in jeder Rig-Spur verwendet werden. Modellspezifische Kanäle und Eingangswege erscheinen, sofern implementiert.',
 postTitle:'08 · POST-Rack — 21 Modelle',postIntro:'POST bearbeitet das zusammengeführte Rig einmal. Hier werden Gesamtdynamik, Farbe, EQ, Modulation, Delay und Reverb eingestellt.',
 irTitle:'09 · Cabinet / IR',workflowTitle:'10 · Praktische Workflows',presetTitle:'11 · Werks-Presets / A·B / Speichern',globalTitle:'12 · Globale Funktionen',diagTitle:'14 · Diagnose und Fehlerbehebung',limitsTitle:'15 · Open-Beta-Umfang und bekannte Grenzen',
-lowTapTip:'Matrix LOW TAP ist kein zusätzlicher Pedal-Slot. Es bestimmt die Abzweigstelle innerhalb der fünf PRE-Slots. Eine Distortion vor dem Tap verzerrt auch LOW DI.',
+
 footer:'Produktnamen Dritter bleiben Eigentum der jeweiligen Rechteinhaber und dienen nur zur Kennzeichnung von Design-Referenzen.',
 labels:{reference:'Referenz',role:'Aufgabe',character:'Charakter',use:'Empfohlener Einsatz',controls:'Hauptregler',channels:'Kanäle / Eingang'},
 quick:['DAW und ältere Chimera-Instanzen vor Installation oder Update schließen. In der DAW Chimera als VST3/AU laden; im Standalone das Interface unter Audio Settings wählen.','Für eine einzelne Gitarre, einen Bass oder eine Monoquelle mit MONO L beginnen. STEREO nur für echte Stereoquellen verwenden.','Im Classic-Modus mit einem vertrauten Preset beginnen. Interface-Gain und Chimera INPUT kräftig, aber ohne Clipping einstellen.','Zuerst Amp und Cabinet/IR wählen, danach PRE-Gain-Staging und POST-Finish. A/B immer pegelangepasst vergleichen.','Amp-Oversampling ist standardmäßig 4×. Bei Aussetzern auf 2×/1× reduzieren oder den Audiopuffer erhöhen.'],
@@ -105,7 +105,7 @@ limits:['Diese offene Beta ist kostenlos und kann später kostenpflichtig werden
 workflows:[
 ['Tightes, tief gestimmtes Gitarren-Rig','Green Drive oder Yellow Asym → Tight 515 / Iron Compact / Night Harvest → V30-artige IR. Drive eher zur Tiefenstraffung und zum Pushen des Amp-Eingangs verwenden als für maximalen Amp-Gain.'],
 ['Dual · Blend — Tight + Wide Rhythm','Rig A: Tight 515 + V30-artige IR · Rig B: Wide Rect oder Blue Storm + kontrastierende IR · zunächst etwa 65–75 % A / 25–35 % B, beide Rigs pegeln, danach Polarität und Mono prüfen. A liefert Attack, B Breite und Low-Mid-Masse.'],
-['Extended-Range / 5–6-Saiter-Bass','Matrix: LOW DI + Kompression, MID mit Micro Bass/Modern Bass, HIGH mit Solid Punch/Taste Punch. Gain-Pedale hinter LOW TAP halten, wenn das Fundament sauber bleiben soll.'],
+['Extended-Range / 5–6-Saiter-Bass','Matrix: LOW nutzt den eigenen DI/Amp-Mix und die Kompression, MID Micro Bass/Modern Bass und HIGH Solid Punch/Taste Punch. Zuerst das LOW-Fundament aufbauen, dann MID/HIGH hinzufügen.'],
 ['Clean / Ambient-Gitarre','Optical → Glass oder Prism Chime → Dimension → Tape Echo → Concert Hall. Modulation und Reverb zunächst sparsam mischen.'],
 ['Melodisches Lead','Gold Drive → Liquid Lead / Silk Lead / Hot Lead → Analog Echo oder Precision Delay → Studio Plate. Für echten Solo-Pegel Rig-/Output-Level verwenden.'],
 ['Vocal / Channel-Strip-Modus','Classic-Modus verwenden, das Mikrofon über den echten Mic-Eingang des Audiointerfaces anschließen und bei Bedarf dort Phantomspannung nutzen. Amplifier und Cabinet des aktiven Rigs bypassen. PRE Compressor/Graphic EQ können optional vor dem umgangenen Rig arbeiten; POST hat die feste Reihenfolge Bus Compressor → Preamp → EQ. Nicht benötigte Sektionen bypassen. Neve/Avalon/ISA-Referenzen liefern nur Software-Klangfarbe, keine analoge Mic-Verstärkung, Impedanz oder +48 V.']
@@ -117,11 +117,11 @@ navQuick:'빠른 시작',navSignal:'신호 / 라우팅',navCompare:'모델군 �
 referenceNote:'모델명과 하드웨어 레퍼런스는 설계 방향을 설명합니다. 제조사 제휴·인증, 회로 단위 복제, 실물과의 측정 일치를 의미하지 않습니다.',
 quickTitle:'01 · 빠른 시작',signalTitle:'04 · 신호 흐름과 라우팅',compareTitle:'05 · 모델군별 차이',compareIntro:'개별 모델을 고르기 전에 먼저 모델군의 역할을 정하면 빠릅니다. PRE는 앰프에 들어가는 신호를 만들고, AMP는 기본 정체성을 만들며, Cabinet/IR은 실제 들리는 스펙트럼을 크게 결정하고, POST는 다이내믹·색채·움직임·공간을 마무리합니다.',
 preFamilyTitle:'PRE 모델군',ampFamilyTitle:'AMP 모델군',postFamilyTitle:'POST 모델군',stageTitle:'PRE / AMP / CAB / POST 역할 차이',
-preTitle:'06 · PRE — 5-slot Pedalboard / 39 Models',preIntro:'5개 슬롯 안에서 모델을 선택·복제·재배열할 수 있습니다. Matrix LOW TAP은 이 보드 안의 분기 위치이므로 TAP 앞 페달은 LOW에도 적용됩니다. 베타에서는 모델 교체·재배열·TAP 이동 같은 구조 편집은 가능하면 재생을 멈춘 뒤 수행하십시오.',
+preTitle:'06 · PRE — 5-slot Pedalboard / 39 Models',preIntro:'5개 슬롯 안에서 모델을 선택·복제·재배열할 수 있습니다. 베타에서는 모델 교체·순서 변경 같은 구조 편집은 가능하면 재생을 멈춘 뒤 수행하십시오.',
 ampTitle:'07 · Amplifier — 23 Models',ampIntro:'앰프는 탐색 편의를 위해 하나의 대표 역할로 분류되지만 모든 rig lane에서 선택할 수 있습니다. 모델별 채널과 입력 경로가 구현된 경우 해당 selector가 표시됩니다.',
 postTitle:'08 · POST Rack — 21 Models',postIntro:'POST는 합산된 리그를 한 번 처리합니다. 전체 다이내믹·컬러·최종 EQ를 정리한 뒤 모듈레이션·딜레이·리버브로 움직임과 공간을 완성합니다.',
 irTitle:'09 · Cabinet / IR',workflowTitle:'10 · 실전 사용 예시',presetTitle:'11 · Factory Presets / A·B / Save',globalTitle:'12 · 공통 기능',diagTitle:'14 · Diagnostics / Troubleshooting',limitsTitle:'15 · Open Beta 범위와 알려진 한계',
-lowTapTip:'Matrix LOW TAP은 여섯 번째 페달 슬롯이 아닙니다. 5-slot PRE 체인 중 LOW가 갈라지는 위치를 정합니다. Distortion을 TAP 앞에 두면 LOW DI도 같이 왜곡됩니다.',
+
 footer:'서드파티 제품명은 각 권리자의 자산이며 해당 모델의 설계 참고점을 식별하기 위한 목적으로만 사용됩니다.',
 labels:{reference:'Reference',role:'역할',character:'캐릭터',use:'추천 용도',controls:'주요 컨트롤',channels:'채널 / 입력'},
 quick:['설치·업데이트 전 DAW와 기존 Chimera를 종료합니다. DAW에서는 VST3/AU를 삽입하고 Standalone에서는 Audio Settings에서 인터페이스를 선택합니다.','일반적인 기타·베이스·모노 소스는 MONO L로 시작합니다. 실제 스테레오 소스만 STEREO를 사용합니다.','Classic에서 익숙한 프리셋으로 시작하고 인터페이스 게인과 Chimera INPUT을 클리핑 없이 충분히 확보합니다.','앰프와 Cabinet/IR을 먼저 확정한 뒤 PRE gain staging과 POST를 다듬습니다. A/B는 비슷한 음량으로 맞춰 비교합니다.','앰프 oversampling 기본값은 4×입니다. 실시간 끊김이 있으면 2×/1×로 낮추거나 오디오 버퍼를 늘립니다.'],
@@ -134,7 +134,7 @@ limits:['현재 무료 Open Beta이며 향후 유료화될 수 있습니다. 베
 workflows:[
 ['타이트한 다운튜닝 기타','Green Drive 또는 Yellow Asym → Tight 515 / Iron Compact / Night Harvest → V30 계열 IR. Drive는 amp gain을 끝까지 올리기보다 저역 정리와 input push 용도로 쓰는 편이 유리합니다.'],
 ['Dual · Blend — Tight + Wide 리듬','Rig A는 Tight 515 + V30 계열 IR, Rig B는 Wide Rect 또는 Blue Storm + 성향이 다른 IR로 시작합니다. Blend는 A 65–75% / B 25–35% 정도에서 시작해 두 Rig의 레벨을 먼저 맞춘 뒤 polarity와 mono를 확인합니다. A는 attack, B는 폭과 low-mid 질량을 담당하게 잡습니다.'],
-['확장음역 / 5·6현 베이스','Matrix에서 LOW는 DI + compression, MID는 Micro Bass/Modern Bass, HIGH는 Solid Punch/Taste Punch를 기준으로 시작합니다. fundamental 보존이 목적이면 gain pedal을 LOW TAP 뒤에 둡니다.'],
+['확장음역 / 5·6현 베이스','Matrix에서 LOW는 전용 DI/AMP blend + compression, MID는 Micro Bass/Modern Bass, HIGH는 Solid Punch/Taste Punch를 기준으로 시작합니다. LOW foundation을 먼저 만든 뒤 MID/HIGH 질감을 더합니다.'],
 ['클린 / 앰비언트 기타','Optical → Glass 또는 Prism Chime → Dimension → Tape Echo → Concert Hall. modulation과 reverb mix는 작게 시작해 누적 과다를 피합니다.'],
 ['멜로딕 리드','Gold Drive → Liquid Lead / Silk Lead / Hot Lead → Analog Echo 또는 Precision Delay → Studio Plate. 실제 솔로 볼륨 상승은 rig/output level로 만듭니다.'],
 ['보컬 / 마이크 프리·채널 스트립','Classic 모드를 사용하고 마이크는 오디오 인터페이스의 실제 Mic 입력에 연결하며 필요한 +48 V도 인터페이스에서 공급합니다. 활성 RIG의 Amplifier와 Cabinet을 모두 bypass합니다. 필요하면 PRE Compressor/Graphic EQ를 RIG 앞에서 사용하고, POST는 고정 순서인 Bus Compressor → Preamp → EQ로 사용합니다. 필요 없는 섹션은 bypass하십시오. Neve 1073 / Avalon V5 / ISA 계열 레퍼런스는 소프트웨어 컬러 모델이며 실제 아날로그 마이크 게인·입력 임피던스·팬텀 전원을 제공하지 않습니다.']
@@ -160,20 +160,20 @@ install:[
 board:[
 ['Select model','Choose a category/model in any of the five slots. Empty removes processing from that slot.'],
 ['ON / OFF','ON processes the selected model; OFF bypasses it while preserving the slot/model state and its required alignment delay.'],
-['< / >','Move the pedal left or right. Crossing Matrix LOW TAP changes whether that pedal also processes LOW.'],
+['< / >','Move the pedal left or right to change processing order.'],
 ['COPY','Duplicate a pedal into an empty slot. If all five slots are occupied, delete or replace one first.'],
 ['X','Remove the pedal and return the slot to Empty.'],
 ['DETAIL / MIDI · ALL CONTROLS','Open all model controls and per-control MIDI Learn. Disabled controls represent reference-hardware functions that are unavailable in Chimera.'],
 ['UNDO / REDO','Undo or redo structural pedalboard edits.'],
-['LOW TAP','Matrix only. Selects the branch after slot 0–5. This is not a sixth effect slot.'],
-['Editing during playback','Continuous controls are smoothed, but model replacement, reorder and LOW TAP changes are not certified click-free. Stop transport before structural edits when possible.']
+
+['Editing during playback','Continuous controls are smoothed, but model replacement and reorder are not certified click-free. Stop transport before structural edits when possible.']
 ],
 state:[
 ['A / B / COPY','A and B are two complete sound snapshots. Switching stores the outgoing state and recalls the other. COPY duplicates the active sound to the other slot. Switching resets DSP histories/tails; it is not a gapless morph and does not loudness-match automatically.'],
 ['SAVE AS / OPEN','Reference files use .chimera and preserve the complete state including A/B snapshots, embedded user IR audio and MIDI mappings. The load path rejects invalid/non-Chimera state and oversized reference files.'],
 ['MIDI Learn','Use the global MIDI menu for common targets or the pedal detail view for an individual model control. The next received CC is assigned. Clear MIDI Assignments removes all mappings. MIDI mappings are global to the saved state, not separate A/B maps.'],
 ['Interface size','Use 75 / 100 / 125 / 150% or resize the editor window.'],
-['Automation compatibility','Continuous audio controls expose host automation. Structural board choices are deliberately non-automatable. Model-list expansion can change normalized choice automation from early test builds; review/re-record old model-selection automation after upgrading.']
+['Automation compatibility','Continuous audio controls expose host automation. Structural model/order choices are deliberately non-automatable. Model-list expansion can change normalized choice automation from early test builds; review/re-record old model-selection automation after upgrading.']
 ],
 support:[
 ['Manual / Bug report / Updates','Opens the bundled manual, a user-reviewed GitHub issue draft and update controls. Hosted plugins open the official Releases page; verified download/update workers live in Standalone.'],
@@ -251,20 +251,20 @@ install:[
 board:[
 ['Modell wählen','In jedem der fünf Slots Kategorie/Modell wählen. Empty entfernt die Bearbeitung aus dem Slot.'],
 ['ON / OFF','ON verarbeitet das Modell; OFF bypasst es, behält aber Modellzustand und erforderliche Ausrichtungsverzögerung.'],
-['< / >','Pedal nach links/rechts verschieben. Beim Überqueren des Matrix LOW TAP ändert sich, ob LOW ebenfalls bearbeitet wird.'],
+['< / >','Pedal nach links/rechts verschieben und damit die Bearbeitungsreihenfolge ändern.'],
 ['COPY','Pedal in einen freien Slot duplizieren. Sind alle fünf belegt, zuerst einen Slot löschen/ersetzen.'],
 ['X','Pedal entfernen und Slot auf Empty setzen.'],
 ['DETAIL / MIDI · ALL CONTROLS','Alle Modellregler und MIDI Learn pro Regler öffnen. Deaktivierte Regler sind Referenz-Hardwarefunktionen, die Chimera nicht bereitstellt.'],
 ['UNDO / REDO','Strukturelle Pedalboard-Änderungen rückgängig machen/wiederholen.'],
-['LOW TAP','Nur Matrix. Abgriff nach Slot 0–5; kein sechster Effekt-Slot.'],
-['Bearbeitung während Wiedergabe','Kontinuierliche Regler werden geglättet; Modellwechsel, Reihenfolge und LOW TAP sind nicht als vollständig klickfrei zertifiziert. Strukturänderungen möglichst bei gestopptem Transport.']
+
+['Bearbeitung während Wiedergabe','Kontinuierliche Regler werden geglättet; Modellwechsel und Reihenfolge sind nicht als vollständig klickfrei zertifiziert. Strukturänderungen möglichst bei gestopptem Transport.']
 ],
 state:[
 ['A / B / COPY','A und B sind vollständige Sound-Snapshots. Beim Wechsel wird der alte Zustand gespeichert und der andere geladen. COPY kopiert den aktiven Sound. DSP-Historien/Tails werden zurückgesetzt; kein nahtloses Morphing und kein automatisches Loudness-Matching.'],
 ['SAVE AS / OPEN','.chimera-Dateien speichern den vollständigen Zustand inklusive A/B, eingebettetem User-IR-Audio und MIDI-Mappings. Ungültige/zu große Dateien werden nicht geladen.'],
 ['MIDI Learn','Globales MIDI-Menü für häufige Ziele oder Pedal-Detailansicht für einzelne Modellregler. Der nächste empfangene CC wird zugewiesen. Clear MIDI Assignments löscht alle Mappings. MIDI-Mappings sind global im gespeicherten Zustand, nicht getrennt pro A/B.'],
 ['Oberflächengröße','75 / 100 / 125 / 150 % oder Fenster frei skalieren.'],
-['Automation-Kompatibilität','Kontinuierliche Audio-Regler sind Host-automatisierbar. Strukturelle Board-Entscheidungen sind absichtlich nicht automatisierbar. Erweiterte Modelllisten können normalisierte Choice-Automation aus frühen Test-Builds verändern; alte Modellwahl-Automation prüfen/neu aufzeichnen.']
+['Automation-Kompatibilität','Kontinuierliche Audio-Regler sind Host-automatisierbar. Strukturelle Modell-/Reihenfolge-Entscheidungen sind absichtlich nicht automatisierbar. Erweiterte Modelllisten können normalisierte Choice-Automation aus frühen Test-Builds verändern; alte Modellwahl-Automation prüfen/neu aufzeichnen.']
 ],
 support:[
 ['Manual / Bug report / Updates','Öffnet Handbuch, einen vom Benutzer zu prüfenden GitHub-Entwurf und Update-Funktionen. Hosted Plugins öffnen die offizielle Releases-Seite; verifizierter Downloader nur im Standalone.'],
@@ -342,20 +342,20 @@ install:[
 board:[
 ['모델 선택','5개 슬롯 어디서든 카테고리와 모델을 선택합니다. Empty는 해당 슬롯의 처리를 제거합니다.'],
 ['ON / OFF','ON은 모델을 처리하고 OFF는 bypass합니다. OFF여도 슬롯/모델 상태와 필요한 latency 정렬은 유지됩니다.'],
-['< / >','페달을 왼쪽/오른쪽으로 이동합니다. Matrix LOW TAP을 넘어가면 해당 페달이 LOW에도 적용되는지가 달라집니다.'],
+['< / >','페달을 왼쪽/오른쪽으로 이동해 처리 순서를 바꿉니다.'],
 ['COPY','현재 페달을 빈 슬롯에 복제합니다. 5칸이 모두 차 있으면 먼저 삭제하거나 교체해야 합니다.'],
 ['X','페달을 제거하고 슬롯을 Empty로 되돌립니다.'],
 ['DETAIL / MIDI · ALL CONTROLS','모델 전체 컨트롤과 각 컨트롤별 MIDI Learn을 엽니다. 비활성 컨트롤은 레퍼런스 하드웨어에는 있지만 Chimera에서는 제공하지 않는 기능입니다.'],
 ['UNDO / REDO','페달보드의 구조 편집을 실행 취소하거나 다시 적용합니다.'],
-['LOW TAP','Matrix 전용. 0~5번 슬롯 경계 중 LOW 분기 위치를 지정합니다. 여섯 번째 이펙트 슬롯이 아닙니다.'],
-['재생 중 편집','연속 컨트롤은 smoothing하지만 모델 교체·순서 변경·LOW TAP 이동은 완전한 click-free를 보장하지 않습니다. 가능하면 transport를 멈춘 뒤 구조를 편집합니다.']
+
+['재생 중 편집','연속 컨트롤은 smoothing하지만 모델 교체·순서 변경은 완전한 click-free를 보장하지 않습니다. 가능하면 transport를 멈춘 뒤 구조를 편집합니다.']
 ],
 state:[
 ['A / B / COPY','A와 B는 전체 사운드 스냅샷 두 개입니다. 전환 시 현재 상태를 저장하고 다른 슬롯을 불러옵니다. COPY는 현재 톤을 반대 슬롯으로 복제합니다. 전환 시 DSP history/tail은 reset되므로 gapless morph가 아니며 자동 loudness match도 하지 않습니다.'],
 ['SAVE AS / OPEN','.chimera 파일은 A/B 스냅샷, embedded user IR 오디오, MIDI mapping을 포함한 전체 상태를 저장합니다. 잘못된 형식이나 과도하게 큰 reference 파일은 로드하지 않습니다.'],
 ['MIDI Learn','공통 대상은 하단 MIDI 메뉴, 개별 페달 컨트롤은 DETAIL 화면에서 Learn합니다. 다음에 들어오는 CC가 할당됩니다. Clear MIDI Assignments는 전체 mapping을 지웁니다. MIDI mapping은 A/B별이 아니라 저장 상태 전체에 공통입니다.'],
 ['UI 크기','75 / 100 / 125 / 150% SIZE 선택 또는 창 크기 직접 조절을 사용합니다.'],
-['자동화 호환성','연속 오디오 컨트롤은 호스트 자동화를 지원합니다. 페달 모델/순서/LOW TAP 같은 구조 선택은 의도적으로 자동화 대상이 아닙니다. 초기 테스트 빌드의 normalized model-choice automation은 모델 목록 확장으로 매핑이 달라질 수 있으므로 업그레이드 후 확인·재기록하십시오.']
+['자동화 호환성','연속 오디오 컨트롤은 호스트 자동화를 지원합니다. 페달 모델/순서 같은 구조 선택은 의도적으로 자동화 대상이 아닙니다. 초기 테스트 빌드의 normalized model-choice automation은 모델 목록 확장으로 매핑이 달라질 수 있으므로 업그레이드 후 확인·재기록하십시오.']
 ],
 support:[
 ['Manual / Bug report / Updates','동봉 매뉴얼, 사용자가 검토하는 GitHub issue draft, 업데이트 기능을 엽니다. Hosted VST3/AU에서는 공식 Releases 페이지를 열고, 검증 다운로드 기능은 Standalone에서만 동작합니다.'],
@@ -852,11 +852,11 @@ en:[
 ['Watch for','Dual Crossover still uses one input signal—it does not separate a guitar and bass into different inputs. Do not judge the HIGH band alone as a complete tone.']
 ]},
 {title:'Matrix · 5/6-string bass with clean LOW',goal:'Preserve low-B fundamentals while creating grind in MID and attack in HIGH without forcing the entire bass through one distortion stage.',images:[['pm87.jpg','LOW compression'],['ahybrid.jpg','MID · Modern Bass'],['agk.jpg','HIGH · Solid Punch']],steps:[
-['1 · Set the bands','Start X1 around 140–180 Hz and X2 around 1.2–1.6 kHz. Keep LOW TAP before the main gain pedals if the fundamental must stay clean.'],
+['1 · Set the bands','Start X1 around 140–180 Hz and X2 around 1.2–1.6 kHz. Build a clean LOW foundation with LOW COMP and the DI/AMP blend before adding MID/HIGH drive.'],
 ['2 · Build LOW first','SOLO LOW. Start LOW COMP around 25–40% and DI/AMP around 0–20% AMP. Get a stable, boring low foundation before adding the other bands.'],
 ['3 · Add MID and HIGH','MID: Modern Bass with moderate drive for grind. HIGH: Solid Punch or Taste Punch with low drive for attack. A useful first balance is MID several dB below LOW and HIGH slightly below MID, then adjust by ear.'],
-['4 · Recombine','Turn off SOLO, then adjust Band Tone rather than immediately changing crossovers. If low B disappears, check LOW TAP, DI/AMP, polarity and any LOW cab before touching the MID/HIGH drive.'],
-['Watch for','Heavy distortion before LOW TAP defeats the clean-foundation idea. Different IRs can also create phase changes; keep LOW simple until the whole matrix works.']
+['4 · Recombine','Turn off SOLO, then adjust Band Tone rather than immediately changing crossovers. If low B disappears, check DI/AMP, LOW COMP/Level, polarity and any LOW cab before touching the MID/HIGH drive.'],
+['Watch for','Keep the dedicated LOW path simple while building the foundation. Different IRs can create phase changes, so establish LOW first before making MID/HIGH more complex.']
 ]},
 {title:'Classic · Clean / ambient guitar',goal:'A wide clean tone with movement and space while keeping the direct attack readable.',images:[['pdiamond.jpg','Optical comp'],['aglass.jpg','Glass'],['rdimension.jpg','Dimension'],['rre201.jpg','Tape Echo'],['rlex.jpg','Concert Hall']],steps:[
 ['1 · Start dry','Classic with Glass or Prism Chime. Use light Optical compression—enough to even the attack, not flatten it. Get the clean amp/IR right before turning on space effects.'],
@@ -948,11 +948,11 @@ de:[
 ['Achtung','Dual Crossover verwendet weiterhin ein Eingangssignal; es trennt nicht Gitarre und Bass als separate Eingänge.']
 ]},
 {title:'Matrix · 5/6-Saiter-Bass mit sauberem LOW',goal:'Low-B-Fundament erhalten, MID-Grind und HIGH-Attack unabhängig erzeugen.',images:[['pm87.jpg','LOW Compression'],['ahybrid.jpg','MID · Modern Bass'],['agk.jpg','HIGH · Solid Punch']],steps:[
-['1 · Bänder setzen','X1 etwa 140–180 Hz, X2 etwa 1,2–1,6 kHz. LOW TAP vor den Haupt-Gain-Pedalen lassen, wenn das Fundament sauber bleiben soll.'],
+['1 · Bänder setzen','X1 etwa 140–180 Hz, X2 etwa 1,2–1,6 kHz. Zuerst mit LOW COMP und DI/Amp-Mix ein sauberes LOW-Fundament bauen, danach MID/HIGH-Drive ergänzen.'],
 ['2 · LOW zuerst','LOW SOLO. LOW COMP ca. 25–40 %, DI/AMP zunächst 0–20 % AMP. Erst eine stabile, unspektakuläre Basis bauen.'],
 ['3 · MID/HIGH hinzufügen','MID: Modern Bass mit moderatem Drive. HIGH: Solid Punch oder Taste Punch mit wenig Drive. MID zunächst einige dB unter LOW, HIGH etwas unter MID.'],
-['4 · Zusammenführen','Band Tone vor erneuten Crossover-Änderungen verwenden. Bei verschwundenem Low-B zuerst LOW TAP, DI/AMP, Polarität und LOW-Cab prüfen.'],
-['Achtung','Starke Verzerrung vor LOW TAP widerspricht dem sauberen LOW-Konzept. LOW zunächst einfach halten.']
+['4 · Zusammenführen','Band Tone vor erneuten Crossover-Änderungen verwenden. Bei verschwundenem Low-B zuerst DI/Amp, LOW COMP/Level, Polarität und LOW-Cab prüfen.'],
+['Achtung','Den eigenen LOW-Pfad beim Aufbau des Fundaments einfach halten. Unterschiedliche IRs können Phasenänderungen erzeugen; MID/HIGH erst danach komplexer machen.']
 ]},
 {title:'Classic · Clean / Ambient',goal:'Breiter Clean-Sound mit Bewegung und Raum, aber klar lesbarem Direktanschlag.',images:[['pdiamond.jpg','Optical'],['aglass.jpg','Glass'],['rdimension.jpg','Dimension'],['rre201.jpg','Tape Echo'],['rlex.jpg','Concert Hall']],steps:[
 ['1 · Trocken beginnen','Glass oder Prism Chime. Leichte Optical-Kompression. Erst Amp/IR sauber einstellen, dann Raum hinzufügen.'],
@@ -1044,11 +1044,11 @@ ko:[
 ['주의','Dual Crossover는 하나의 입력을 주파수로 나누는 기능입니다. 기타 입력과 베이스 입력을 각각 다른 Rig로 보내는 기능이 아닙니다. HIGH만 따로 듣고 “톤이 완성되지 않았다”고 판단하지 마세요.']
 ]},
 {title:'Matrix · 5/6현 베이스의 Clean LOW',goal:'Low-B fundamental은 최대한 보존하고 MID에는 grind, HIGH에는 attack을 따로 만드는 현대 베이스 예시입니다.',images:[['pm87.jpg','LOW Compression'],['ahybrid.jpg','MID · Modern Bass'],['agk.jpg','HIGH · Solid Punch']],steps:[
-['1 · 대역 설정','X1은 약 140–180 Hz, X2는 약 1.2–1.6 kHz부터 시작합니다. fundamental을 깨끗하게 유지하려면 메인 gain pedal은 LOW TAP 뒤에 둡니다.'],
+['1 · 대역 설정','X1은 약 140–180 Hz, X2는 약 1.2–1.6 kHz부터 시작합니다. LOW COMP와 DI/AMP blend로 깨끗한 LOW foundation을 먼저 만든 뒤 MID/HIGH drive를 추가합니다.'],
 ['2 · LOW부터 완성','LOW만 SOLO합니다. LOW COMP는 약 25–40%, DI/AMP는 0–20% AMP 정도에서 시작하세요. 다른 밴드가 없어도 음정과 저역 길이가 안정적으로 들리는 “재미없는 저역”을 먼저 만드는 게 핵심입니다.'],
 ['3 · MID/HIGH 추가','MID는 Modern Bass에 중간 정도 Drive로 grind를 만듭니다. HIGH는 Solid Punch 또는 Taste Punch를 저게인으로 써서 pick/finger attack을 더합니다. 처음에는 MID를 LOW보다 몇 dB 낮게, HIGH를 MID보다 조금 더 낮게 두고 합산 후 올리는 방식이 안전합니다.'],
-['4 · 합산 후 조정','모든 SOLO를 끈 뒤 crossover를 다시 만지기 전에 Band Tone과 Level부터 조절합니다. Low-B가 사라지면 MID/HIGH Drive보다 LOW TAP, DI/AMP, polarity, LOW cab 상태를 먼저 확인합니다.'],
-['주의','LOW TAP 앞에 강한 distortion을 두면 clean foundation이라는 Matrix의 장점이 사라집니다. 서로 다른 IR도 위상 변화를 만들 수 있으니 LOW는 최대한 단순하게 시작하세요.']
+['4 · 합산 후 조정','모든 SOLO를 끈 뒤 crossover를 다시 만지기 전에 Band Tone과 Level부터 조절합니다. Low-B가 사라지면 MID/HIGH Drive보다 DI/AMP, LOW COMP/Level, polarity, LOW cab 상태를 먼저 확인합니다.'],
+['주의','LOW foundation을 만들 때는 전용 LOW 경로를 최대한 단순하게 시작하세요. 서로 다른 IR은 위상 변화를 만들 수 있으므로 LOW가 안정된 뒤 MID/HIGH를 복잡하게 만드는 편이 좋습니다.']
 ]},
 {title:'Classic · Clean / Ambient 기타',goal:'직접음의 어택을 잃지 않으면서 스테레오 폭, delay, reverb를 단계적으로 추가하는 예시입니다.',images:[['pdiamond.jpg','Optical'],['aglass.jpg','Glass'],['rdimension.jpg','Dimension'],['rre201.jpg','Tape Echo'],['rlex.jpg','Concert Hall']],steps:[
 ['1 · Dry 톤부터','Glass 또는 Prism Chime으로 시작합니다. Optical compression은 피킹을 조금 고르게 만들 정도만 사용하고, modulation/delay/reverb를 모두 끈 상태에서 Amp/IR부터 완성합니다.'],
