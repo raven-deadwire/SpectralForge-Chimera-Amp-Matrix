@@ -21,7 +21,7 @@ jobs:
       - name: Check candidate installer scripts
         shell: pwsh
         run: |
-          python -m py_compile Tools/package_installer_candidate.py Tools/Build-PersonalWindowsBundle.py Tools/prepare_lifecycle_baseline.py
+          python -m py_compile Tools/package_installer_candidate.py Tools/Build-PersonalWindowsBundle.py Tools/prepare_lifecycle_baseline.py Tools/extract_vblank_test_class.py Tools/verify_vblank_failure.py
           foreach ($script in @("Tools/Build-WindowsInstaller.ps1", "Tools/Verify-WindowsInstaller.ps1", "Tools/Trace-Chimera-Session.ps1")) {
             $tokens = $null
             $errors = $null
@@ -32,8 +32,20 @@ jobs:
           $nativeHelper = [regex]::Match($diagnosticsScript, "(?s)Add-Type -TypeDefinition @'\r?\n(.*?)\r?\n'@")
           if (!$nativeHelper.Success) { throw 'Diagnostic dump helper definition missing' }
           Add-Type -TypeDefinition $nativeHelper.Groups[1].Value
-      - name: Build independent VST3 lifecycle host
-        run: cmake --build build --config Release --target ChimeraVST3LifecycleTests --parallel 2
+      - name: Build independent shutdown regression probes
+        run: cmake --build build --config Release --target ChimeraVST3LifecycleTests ChimeraVBlankFailureTests --parallel 2
+      - name: Verify VBlank failure can stop safely
+        run: ctest --test-dir build -C Release -R "^ChimeraVBlankFailureTests$" --output-on-failure --no-tests=error
+      - name: Preserve VBlank failure regression evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Chimera-VBlank-failure-evidence
+          path: |
+            build/Testing/Temporary/LastTest.log
+            build/vblank-failure-verification.json
+            build/vblank-test-generated/extraction.json
+          if-no-files-found: warn
       - name: Fetch previously delivered VST3 for shutdown comparison
         id: baseline_download
         continue-on-error: true
@@ -55,6 +67,15 @@ jobs:
         run: |
           & build/Release/ChimeraVST3LifecycleTests.exe "build/lifecycle-baseline/SpectralForge Chimera.vst3/Contents/x86_64-win/SpectralForge Chimera.vst3" 2>&1 | Tee-Object build/lifecycle-baseline-result.txt
           exit $LASTEXITCODE
+      - name: Preserve early baseline shutdown observations
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Chimera-VST3-baseline-probe
+          path: |
+            build/lifecycle-baseline-result.txt
+            build/lifecycle-baseline/baseline-verification.json
+          if-no-files-found: warn
       - name: Build product and regression checks
         run: cmake --build build --config Release --parallel 2
       - name: Execute DSP and actual JUCE UI tests

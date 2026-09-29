@@ -10,6 +10,7 @@ endif()
 include(FetchContent)
 FetchContent_Declare(JUCE GIT_REPOSITORY https://github.com/juce-framework/JUCE.git GIT_TAG 8.0.8)
 FetchContent_MakeAvailable(JUCE)
+include(cmake/JuceVBlankShutdown.cmake)
 set(CHIMERA_FORMATS VST3 Standalone)
 if(APPLE)
   list(APPEND CHIMERA_FORMATS AU)
@@ -43,6 +44,35 @@ endif()
 target_compile_definitions(ChimeraAmpMatrix PUBLIC JUCE_WEB_BROWSER=0 JUCE_USE_CURL=${CHIMERA_USE_CURL} JUCE_LOAD_CURL_SYMBOLS_LAZILY=0 JUCE_VST3_CAN_REPLACE_VST2=0)
 target_link_libraries(ChimeraAmpMatrix PRIVATE ChimeraIRs ChimeraArtwork ChimeraManual juce::juce_cryptography juce::juce_audio_utils juce::juce_dsp PUBLIC juce::juce_recommended_config_flags juce::juce_recommended_warning_flags)
 enable_testing()
+
+# Compile the actual upstream/patched VBlankThread class with a deterministic
+# failing DXGI output. This runs on every platform without a physical display.
+find_package(Python3 3.9 REQUIRED COMPONENTS Interpreter)
+find_package(Threads REQUIRED)
+set(CHIMERA_VBLANK_TEST_DIR "${CMAKE_BINARY_DIR}/vblank-test-generated")
+execute_process(
+  COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/Tools/extract_vblank_test_class.py"
+    --baseline-source "${CHIMERA_VBLANK_ORIGINAL_SOURCE}"
+    --patched-source "${CHIMERA_VBLANK_PATCHED_SOURCE}"
+    --output-dir "${CHIMERA_VBLANK_TEST_DIR}"
+  COMMAND_ERROR_IS_FATAL ANY)
+foreach(variant Baseline Patched)
+  add_executable(ChimeraVBlank${variant}Probe Tests/VBlankThreadProbe.cpp)
+  target_include_directories(ChimeraVBlank${variant}Probe PRIVATE "${CHIMERA_VBLANK_TEST_DIR}")
+  target_compile_definitions(ChimeraVBlank${variant}Probe PRIVATE
+    CHIMERA_VBLANK_CLASS_HEADER="VBlankThread${variant}.h")
+  target_link_libraries(ChimeraVBlank${variant}Probe PRIVATE Threads::Threads)
+endforeach()
+add_custom_target(ChimeraVBlankFailureTests
+  DEPENDS ChimeraVBlankBaselineProbe ChimeraVBlankPatchedProbe)
+add_test(NAME ChimeraVBlankFailureTests
+  COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/Tools/verify_vblank_failure.py"
+    --baseline "$<TARGET_FILE:ChimeraVBlankBaselineProbe>"
+    --patched "$<TARGET_FILE:ChimeraVBlankPatchedProbe>"
+    --extraction-report "${CHIMERA_VBLANK_TEST_DIR}/extraction.json"
+    --report "${CMAKE_BINARY_DIR}/vblank-failure-verification.json")
+set_tests_properties(ChimeraVBlankFailureTests PROPERTIES TIMEOUT 20)
+
 juce_add_console_app(ChimeraTests PRODUCT_NAME "Chimera Tests")
 target_sources(ChimeraTests PRIVATE Tests/ChimeraTests.cpp Source/IRLibrary.cpp)
 target_include_directories(ChimeraTests PRIVATE Source)
