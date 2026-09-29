@@ -95,6 +95,8 @@ def main():
     run = api.json(f"/actions/runs/{run_id}")
     require(run["head_sha"] == head and run["head_branch"] == BRANCH
             and run["event"] in ("push", "workflow_dispatch"), "Release workflow identity mismatch")
+    current = api.json("/git/ref/heads/" + BRANCH)
+    require(current["object"]["sha"] == head, "A newer release source supersedes this build")
     jobs = api.pages(f"/actions/runs/{run_id}/jobs", "jobs")
     for suffix in ("build (windows-latest)", "build (ubuntu-22.04)", "build (macos-15)", "assemble-candidate"):
         matches = [job for job in jobs if job["name"].split(" / ")[-1] == suffix]

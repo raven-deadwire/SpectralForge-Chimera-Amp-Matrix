@@ -8,7 +8,7 @@ permissions:
   actions: read
 concurrency:
   group: publish-chimera-v1.1.0-beta.1
-  cancel-in-progress: false
+  cancel-in-progress: true
 jobs:
   verified-builds:
     if: github.repository == 'raven-deadwire/SpectralForge-Chimera-Amp-Matrix' && github.ref == 'refs/heads/release/open-beta-1.1'

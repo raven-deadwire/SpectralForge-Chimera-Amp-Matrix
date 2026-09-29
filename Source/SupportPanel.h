@@ -16,7 +16,7 @@ public:
         reveal.setComponentID("supportReveal");
         cancel.setComponentID("supportCancel");
         status.setComponentID("supportStatus");
-        title.setText("SpectralForge Chimera  /  Open Beta 1.0",juce::dontSendNotification);
+        title.setText(juce::String("SpectralForge Chimera  /  ") + spectralforge::release::displayVersion,juce::dontSendNotification);
         title.setFont(juce::FontOptions(21.f,juce::Font::bold));
         status.setMultiLine(true,true);status.setReadOnly(true);status.setScrollbarsShown(true);
         status.setColour(juce::TextEditor::backgroundColourId,juce::Colour(0xff101615));
