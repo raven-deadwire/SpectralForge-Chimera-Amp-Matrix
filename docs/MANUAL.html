@@ -29,18 +29,21 @@ footer{border-top:1px solid var(--line);margin-top:58px;padding-top:22px;color:v
 <body><main>
 <header><div class="topbar"><div><div class="eyebrow">SPECTRALFORGE · RAVENFORGE LUTHIER INTELLIGENCE</div><h1>CHIMERA</h1><p class="lead" data-k="subtitle"></p><p class="small">Open Beta 1.1 · <code>1.1.0-beta.1</code> · <span data-k="counts"></span></p></div>
 <div class="languages" aria-label="Language"><button class="lang-btn" data-lang="en">EN</button><button class="lang-btn" data-lang="de">DE</button><button class="lang-btn" data-lang="ko">KR</button></div></div></header>
-<nav><a href="#quick" data-k="navQuick"></a><a href="#signal" data-k="navSignal"></a><a href="#compare" data-k="navCompare"></a><a href="#pre" data-k="navPre"></a><a href="#amps" data-k="navAmp"></a><a href="#post" data-k="navPost"></a><a href="#ir" data-k="navIr"></a><a href="#workflows" data-k="navWorkflow"></a><a href="#preset" data-k="navPreset"></a><a href="#global" data-k="navGlobal"></a><a href="#diag" data-k="navDiag"></a><a href="#limits" data-k="navLimits"></a></nav>
+<nav><a href="#quick" data-k="navQuick"></a><a href="#install" data-x="navInstall"></a><a href="#operation" data-x="navOperation"></a><a href="#signal" data-k="navSignal"></a><a href="#compare" data-k="navCompare"></a><a href="#pre" data-k="navPre"></a><a href="#amps" data-k="navAmp"></a><a href="#post" data-k="navPost"></a><a href="#ir" data-k="navIr"></a><a href="#workflows" data-k="navWorkflow"></a><a href="#preset" data-k="navPreset"></a><a href="#global" data-k="navGlobal"></a><a href="#host" data-x="navHost"></a><a href="#diag" data-k="navDiag"></a><a href="#limits" data-k="navLimits"></a></nav>
 <p class="note" data-k="referenceNote"></p>
 <section id="quick"><h2 data-k="quickTitle"></h2><div id="quickBody"></div></section>
+<section id="install"><h2 data-x="installTitle"></h2><div id="installBody"></div></section>
+<section id="operation"><h2 data-x="operationTitle"></h2><p class="section-intro" data-x="operationIntro"></p><h3 data-x="boardTitle"></h3><div id="boardBody"></div><h3 data-x="stateTitle"></h3><div id="stateBody"></div><h3 data-x="supportTitle"></h3><div id="supportBody"></div></section>
 <section id="signal"><h2 data-k="signalTitle"></h2><p class="flow">INPUT → Gate / Transpose → 5-slot PRE → Rig(s) + Cabinet/IR → Merge → POST Gate → POST Rack → Doubler → OUTPUT</p><div id="modeTable"></div><p class="tip" data-k="lowTapTip"></p></section>
 <section id="compare"><h2 data-k="compareTitle"></h2><p class="section-intro" data-k="compareIntro"></p><h3 data-k="preFamilyTitle"></h3><div id="preFamilyTable"></div><h3 data-k="ampFamilyTitle"></h3><div id="ampFamilyTable"></div><h3 data-k="postFamilyTitle"></h3><div id="postFamilyTable"></div><h3 data-k="stageTitle"></h3><div id="stageTable"></div></section>
 <section id="pre"><h2 data-k="preTitle"></h2><p class="section-intro" data-k="preIntro"></p><div id="preModels"></div></section>
-<section id="amps"><h2 data-k="ampTitle"></h2><p class="section-intro" data-k="ampIntro"></p><div id="ampModels"></div></section>
+<section id="amps"><h2 data-k="ampTitle"></h2><p class="section-intro" data-k="ampIntro"></p><div id="ampModels"></div><h3 data-x="ampRouteTitle"></h3><div id="ampRouteBody"></div></section>
 <section id="post"><h2 data-k="postTitle"></h2><p class="flow">BUS COMP → PREAMP → EQ → MODULATION → DELAY → REVERB</p><p class="section-intro" data-k="postIntro"></p><div id="postModels"></div></section>
-<section id="ir"><h2 data-k="irTitle"></h2><div id="irBody"></div></section>
+<section id="ir"><h2 data-k="irTitle"></h2><div id="irBody"></div><h3 data-x="irLibraryTitle"></h3><div id="irDetailBody"></div><h3 data-x="irCreditsTitle"></h3><div id="irCreditsBody"></div></section>
 <section id="workflows"><h2 data-k="workflowTitle"></h2><div id="workflowBody" class="workflow-grid"></div></section>
-<section id="preset"><h2 data-k="presetTitle"></h2><div id="presetBody"></div></section>
+<section id="preset"><h2 data-k="presetTitle"></h2><div id="presetBody"></div><h3 data-x="presetListTitle"></h3><div id="presetTable"></div><h3 data-x="recallTitle"></h3><div id="recallBody"></div></section>
 <section id="global"><h2 data-k="globalTitle"></h2><div id="globalBody"></div></section>
+<section id="host"><h2 data-x="hostTitle"></h2><p class="section-intro" data-x="hostIntro"></p><h3 data-x="hostCheckTitle"></h3><div id="hostCheckBody"></div><h3 data-x="updateTitle"></h3><div id="updateBody"></div><h3 data-x="bugTitle"></h3><div id="bugBody"></div></section>
 <section id="diag"><h2 data-k="diagTitle"></h2><div id="diagBody"></div></section>
 <section id="limits"><h2 data-k="limitsTitle"></h2><div id="limitsBody"></div></section>
 <footer><p>SpectralForge Chimera · Open Beta 1.1 · <code>1.1.0-beta.1</code><br>Copyright © 2026 RavenForge Luthier Intelligence. All rights reserved.<br><span data-k="footer"></span></p></footer>
@@ -54,12 +57,12 @@ en:{
 subtitle:'Detailed user manual · Guitar & bass amp matrix / effects suite',counts:'23 amp models · 39 PRE models · 21 POST models · 31 factory presets',
 navQuick:'Quick start',navSignal:'Signal & routing',navCompare:'Model-family comparison',navPre:'PRE 39',navAmp:'AMP 23',navPost:'POST 21',navIr:'Cab / IR',navWorkflow:'Workflows',navPreset:'Presets / A·B',navGlobal:'Global controls',navDiag:'Diagnostics',navLimits:'Beta scope',
 referenceNote:'Model names and hardware references describe design direction. They do not imply licensing, manufacturer endorsement, circuit-level reproduction or verified hardware equivalence.',
-quickTitle:'01 · Quick start',signalTitle:'02 · Signal flow and routing',compareTitle:'03 · Model-family differences',compareIntro:'Choose the family before the individual model. PRE defines what reaches the amp, the amp defines the core identity, Cabinet/IR strongly shapes the audible spectrum, and POST finishes dynamics, colour, movement and space.',
+quickTitle:'01 · Quick start',signalTitle:'04 · Signal flow and routing',compareTitle:'05 · Model-family differences',compareIntro:'Choose the family before the individual model. PRE defines what reaches the amp, the amp defines the core identity, Cabinet/IR strongly shapes the audible spectrum, and POST finishes dynamics, colour, movement and space.',
 preFamilyTitle:'PRE families',ampFamilyTitle:'Amplifier families',postFamilyTitle:'POST families',stageTitle:'PRE / AMP / CAB / POST — different jobs',
-preTitle:'04 · PRE — 5-slot pedalboard / 39 models',preIntro:'Five slots can be filled, duplicated and reordered. Matrix LOW TAP is a branch position inside this board: pedals before the tap also process LOW. During this beta, stop transport before structural edits when possible.',
-ampTitle:'05 · Amplifiers — 23 models',ampIntro:'Models are grouped by primary role for browsing, but every amp can be selected in every rig lane. Model-specific channels and input routes appear where implemented.',
-postTitle:'06 · POST Rack — 21 models',postIntro:'POST processes the merged rig once. Use it for overall dynamics, colour, final EQ, modulation, delay and reverb.',
-irTitle:'07 · Cabinet / IR',workflowTitle:'08 · Practical workflows',presetTitle:'09 · Factory presets / A·B / Save',globalTitle:'10 · Global controls',diagTitle:'11 · Diagnostics and troubleshooting',limitsTitle:'12 · Open Beta scope and known limits',
+preTitle:'06 · PRE — 5-slot pedalboard / 39 models',preIntro:'Five slots can be filled, duplicated and reordered. Matrix LOW TAP is a branch position inside this board: pedals before the tap also process LOW. During this beta, stop transport before structural edits when possible.',
+ampTitle:'07 · Amplifiers — 23 models',ampIntro:'Models are grouped by primary role for browsing, but every amp can be selected in every rig lane. Model-specific channels and input routes appear where implemented.',
+postTitle:'08 · POST Rack — 21 models',postIntro:'POST processes the merged rig once. Use it for overall dynamics, colour, final EQ, modulation, delay and reverb.',
+irTitle:'09 · Cabinet / IR',workflowTitle:'10 · Practical workflows',presetTitle:'11 · Factory presets / A·B / Save',globalTitle:'12 · Global controls',diagTitle:'14 · Diagnostics and troubleshooting',limitsTitle:'15 · Open Beta scope and known limits',
 lowTapTip:'Matrix LOW TAP is not another pedal slot. It chooses the branch point within the five-slot PRE chain. A distortion before the tap also distorts LOW DI.',
 footer:'Third-party product names remain the property of their respective owners and are used only to identify design references where applicable.',
 labels:{reference:'Reference',role:'Role',character:'Character',use:'Recommended use',controls:'Main controls',channels:'Channels / input'},
@@ -68,7 +71,7 @@ modes:[['Classic','One full-range amp/cab path','Conventional guitar or bass ton
 ir:['Cabinet processing stays inside each rig lane: Amp → IR → Merge.','CAB selects an installed factory/user IR; BYPASS skips cabinet convolution. WAV/AIFF can be loaded or dropped into a lane.','LOW CUT / HIGH CUT shape the cabinet output. In split modes avoid fighting the crossover with excessively narrow cuts.','MUTE / SOLO / POLARITY help diagnose Dual/Matrix summing. Different IRs are not automatically time/phase aligned.','The public beta includes two redistributable factory IRs and metadata. Personal Raven/TONE3000 captures are not included in the public installer.'],
 preset:['31 factory presets are starting points, not mastered final tones.','Recommended order: nearest preset → input/gate → amp and IR → routing/crossover → PRE → POST → level-match A/B → SAVE AS.','A and B are two complete sound snapshots. COPY duplicates the active snapshot; it is not left/right routing and does not loudness-match automatically.','User IR audio is stored with project/A·B state for recall. Review model-selection automation when opening projects from early test builds.'],
 global:[['INPUT / OUTPUT','Internal trims and meters. Fix interface clipping at the interface; use OUTPUT for final level matching.'],['Gate','Threshold, Hold and Release. Lower Threshold or increase Hold/Release when tails are cut.'],['POST GATE','Detects playing from the clean input but attenuates after rig/cab merge before spatial POST FX. Useful between notes; not a full denoiser while playing.'],['Transpose','−12 to +12 semitones. Adds reported latency and can create artifacts on sharp transients or dense chords.'],['Tuner / Auto Mute','Chromatic tuner reads the original input before Gate/Transpose. A4 is adjustable; Auto Mute silences output while tuning.'],['Oversampling','1× / 2× / 4× / 8× for amp processing; 4× default. Higher values trade CPU for nonlinear quality.'],['Doubler','Short modulated wet delay for stereo width. Check mono compatibility.'],['TAP / BPM / HOST / CLICK','Manual/tap/host tempo and practice click. Delay Sync follows quarter-note tempo; click is not DAW bar-position sync.'],['MIDI Learn','Assign the next received CC to the selected control. Route MIDI through the host or Standalone MIDI input.'],['CPU AVG / PK','Percentage of the audio-block deadline consumed by Chimera, not total system CPU.']],
-diag:['Use SETTINGS → Review / copy / save diagnostics to compare RMS/Peak through INPUT_TRIM, PRE, RIG_GATE, POST and OUTPUT.','If level unexpectedly drops, identify the first stage where RMS/Peak changes instead of compensating only at OUTPUT.','If Dual/Matrix loses lows, solo lanes and inspect polarity, IR onset, blend and crossover. IRs are not auto-aligned.','Spectral Octaver adds roughly 42.7–46.4 ms at supported rates. Bypass preserves alignment; replace the slot with Empty to remove that frame delay.','For high CPU, lower amp oversampling, review Transpose/Spectral Octaver and convolution use, or increase host buffer size.','Beta 1.1 improves JUCE shutdown/resource cleanup, but the reported Studio One project-close hang is not confirmed resolved on the affected system.'],
+diag:['Use SETTINGS → Review / copy / save diagnostics to compare RMS/Peak through INPUT_TRIM, PRE, RIG_GATE, POST and OUTPUT.','If level unexpectedly drops, identify the first stage where RMS/Peak changes instead of compensating only at OUTPUT.','If Dual/Matrix loses lows, solo lanes and inspect polarity, IR onset, blend and crossover. IRs are not auto-aligned.','Spectral Octaver adds roughly 42.7–46.4 ms at supported rates. Bypass preserves alignment; replace the slot with Empty to remove that frame delay.','For high CPU, lower amp oversampling, review Transpose/Spectral Octaver and convolution use, or increase host buffer size.','Beta 1.1 improves JUCE shutdown/resource cleanup. Host shutdown, project-close and plugin-unload behaviour still requires validation in each DAW; Studio One is one previously reported case, not the only host covered by this guidance.'],
 limits:['This is a free open beta and may become a paid product. Free updates/support after beta are not guaranteed.','Windows publisher signing and macOS Developer ID signing/notarization are not complete; OS warnings can appear.','Hardware-reference controls and voicings are authored DSP interpretations. Full real-hardware DI/reamp fidelity certification has not been completed.','Some reference functions remain intentionally unavailable, including AW-3 HUMAN/TEMPO-style modes and independent Variable Mu right-bank/SEP operation.','Structural PRE edits are not certified click-free during playback.','Transpose and spectral pitch processing can add latency and transient/chord artifacts.','IR natural onset and phase are not automatically corrected across lanes.'],
 workflows:[
 ['Tight low-tuned guitar','Green Drive or Yellow Asym → Tight 515 / Iron Compact / Night Harvest → V30-type IR. Use the drive mostly for low-end control and input push rather than maxing amp gain.'],
@@ -83,12 +86,12 @@ de:{
 subtitle:'Ausführliches Benutzerhandbuch · Gitarren- und Bass-Amp-Matrix / Effektsuite',counts:'23 Amp-Modelle · 39 PRE-Modelle · 21 POST-Modelle · 31 Werks-Presets',
 navQuick:'Schnellstart',navSignal:'Signal & Routing',navCompare:'Modellgruppen',navPre:'PRE 39',navAmp:'AMP 23',navPost:'POST 21',navIr:'Cab / IR',navWorkflow:'Praxisbeispiele',navPreset:'Presets / A·B',navGlobal:'Globale Funktionen',navDiag:'Diagnose',navLimits:'Beta-Umfang',
 referenceNote:'Modellnamen und Hardware-Referenzen beschreiben die gestalterische Richtung. Sie bedeuten keine Lizenzierung, Herstellerfreigabe, Schaltungsreproduktion oder bestätigte Hardware-Gleichheit.',
-quickTitle:'01 · Schnellstart',signalTitle:'02 · Signalfluss und Routing',compareTitle:'03 · Unterschiede der Modellgruppen',compareIntro:'Zuerst die Modellgruppe wählen, dann das Einzelmodell. PRE bestimmt das Signal am Amp-Eingang, der Amp prägt die Grundidentität, Cabinet/IR formt das hörbare Spektrum stark und POST vollendet Dynamik, Klangfarbe, Bewegung und Raum.',
+quickTitle:'01 · Schnellstart',signalTitle:'04 · Signalfluss und Routing',compareTitle:'05 · Unterschiede der Modellgruppen',compareIntro:'Zuerst die Modellgruppe wählen, dann das Einzelmodell. PRE bestimmt das Signal am Amp-Eingang, der Amp prägt die Grundidentität, Cabinet/IR formt das hörbare Spektrum stark und POST vollendet Dynamik, Klangfarbe, Bewegung und Raum.',
 preFamilyTitle:'PRE-Gruppen',ampFamilyTitle:'Amp-Gruppen',postFamilyTitle:'POST-Gruppen',stageTitle:'PRE / AMP / CAB / POST — unterschiedliche Aufgaben',
-preTitle:'04 · PRE — 5-Slot-Pedalboard / 39 Modelle',preIntro:'Fünf Slots lassen sich belegen, duplizieren und neu anordnen. Matrix LOW TAP ist eine Abgriffposition im Board: Pedale davor bearbeiten auch LOW. Strukturänderungen sollten während dieser Beta möglichst bei gestopptem Transport erfolgen.',
-ampTitle:'05 · Verstärker — 23 Modelle',ampIntro:'Die Auswahl gruppiert Modelle nach Hauptrolle; jeder Amp kann dennoch in jeder Rig-Spur verwendet werden. Modellspezifische Kanäle und Eingangswege erscheinen, sofern implementiert.',
-postTitle:'06 · POST-Rack — 21 Modelle',postIntro:'POST bearbeitet das zusammengeführte Rig einmal. Hier werden Gesamtdynamik, Farbe, EQ, Modulation, Delay und Reverb eingestellt.',
-irTitle:'07 · Cabinet / IR',workflowTitle:'08 · Praktische Workflows',presetTitle:'09 · Werks-Presets / A·B / Speichern',globalTitle:'10 · Globale Funktionen',diagTitle:'11 · Diagnose und Fehlerbehebung',limitsTitle:'12 · Open-Beta-Umfang und bekannte Grenzen',
+preTitle:'06 · PRE — 5-Slot-Pedalboard / 39 Modelle',preIntro:'Fünf Slots lassen sich belegen, duplizieren und neu anordnen. Matrix LOW TAP ist eine Abgriffposition im Board: Pedale davor bearbeiten auch LOW. Strukturänderungen sollten während dieser Beta möglichst bei gestopptem Transport erfolgen.',
+ampTitle:'07 · Verstärker — 23 Modelle',ampIntro:'Die Auswahl gruppiert Modelle nach Hauptrolle; jeder Amp kann dennoch in jeder Rig-Spur verwendet werden. Modellspezifische Kanäle und Eingangswege erscheinen, sofern implementiert.',
+postTitle:'08 · POST-Rack — 21 Modelle',postIntro:'POST bearbeitet das zusammengeführte Rig einmal. Hier werden Gesamtdynamik, Farbe, EQ, Modulation, Delay und Reverb eingestellt.',
+irTitle:'09 · Cabinet / IR',workflowTitle:'10 · Praktische Workflows',presetTitle:'11 · Werks-Presets / A·B / Speichern',globalTitle:'12 · Globale Funktionen',diagTitle:'14 · Diagnose und Fehlerbehebung',limitsTitle:'15 · Open-Beta-Umfang und bekannte Grenzen',
 lowTapTip:'Matrix LOW TAP ist kein zusätzlicher Pedal-Slot. Es bestimmt die Abzweigstelle innerhalb der fünf PRE-Slots. Eine Distortion vor dem Tap verzerrt auch LOW DI.',
 footer:'Produktnamen Dritter bleiben Eigentum der jeweiligen Rechteinhaber und dienen nur zur Kennzeichnung von Design-Referenzen.',
 labels:{reference:'Referenz',role:'Aufgabe',character:'Charakter',use:'Empfohlener Einsatz',controls:'Hauptregler',channels:'Kanäle / Eingang'},
@@ -97,7 +100,7 @@ modes:[['Classic','Ein Fullrange-Amp/Cab-Pfad','Konventionelle Gitarren-/Basstö
 ir:['Cabinet-Bearbeitung bleibt in jeder Rig-Spur: Amp → IR → Merge.','CAB wählt eine installierte Factory/User-IR; BYPASS umgeht die Cabinet-Convolution. WAV/AIFF lassen sich laden oder in eine Spur ziehen.','LOW CUT / HIGH CUT formen den Cabinet-Ausgang. In Split-Modi die Crossover nicht durch zu enge Filter konterkarieren.','MUTE / SOLO / POLARITY helfen bei Summierungsproblemen in Dual/Matrix. Verschiedene IRs werden nicht automatisch zeitlich oder phasenmäßig ausgerichtet.','Die öffentliche Beta enthält zwei weiterverteilbare Factory-IRs und Metadaten. Persönliche Raven/TONE3000-Captures sind nicht enthalten.'],
 preset:['31 Werks-Presets sind Ausgangspunkte, keine fertig gemasterten Sounds.','Empfohlene Reihenfolge: Preset → Input/Gate → Amp und IR → Routing/Crossover → PRE → POST → A/B pegeln → SAVE AS.','A und B sind zwei vollständige Sound-Snapshots. COPY kopiert den aktiven Zustand; es ist kein Links/Rechts-Routing und führt keinen automatischen Pegelabgleich durch.','User-IR-Audio wird für Recall mit Projekt/A·B-Zustand gespeichert. Modellwahl-Automation aus frühen Test-Builds sollte kontrolliert werden.'],
 global:[['INPUT / OUTPUT','Interne Trims und Meter. Interface-Clipping am Interface beheben; OUTPUT für den finalen Pegelabgleich verwenden.'],['Gate','Threshold, Hold und Release. Bei abgeschnittenen Ausklängen Threshold senken oder Hold/Release erhöhen.'],['POST GATE','Erkennt das Spiel am sauberen Eingang und dämpft nach Rig/Cab-Merge vor räumlichen POST-Effekten. Hilft zwischen Noten, ist aber kein vollständiger Denoiser während des Spiels.'],['Transpose','−12 bis +12 Halbtöne. Fügt gemeldete Latenz hinzu und kann bei harten Transienten oder dichten Akkorden Artefakte erzeugen.'],['Tuner / Auto Mute','Chromatisches Stimmgerät vor Gate/Transpose; A4 einstellbar. Auto Mute schaltet den Ausgang beim Stimmen stumm.'],['Oversampling','1× / 2× / 4× / 8× für die Amp-Verarbeitung; Standard 4×. Höhere Werte kosten mehr CPU.'],['Doubler','Kurzes moduliertes Wet-Delay für Stereobreite. Monokompatibilität prüfen.'],['TAP / BPM / HOST / CLICK','Manuelles/Tap/Host-Tempo und Übungs-Klick. Delay Sync folgt Viertelnoten; Click ist keine DAW-Taktpositions-Synchronisation.'],['MIDI Learn','Nächsten empfangenen CC dem gewählten Regler zuweisen. MIDI im Host oder Standalone routen.'],['CPU AVG / PK','Anteil des Audio-Block-Zeitbudgets, den Chimera verbraucht; nicht die gesamte System-CPU.']],
-diag:['Unter SETTINGS → Review / copy / save diagnostics RMS/Peak über INPUT_TRIM, PRE, RIG_GATE, POST und OUTPUT vergleichen.','Bei unerwartetem Pegelverlust die erste Stufe mit RMS/Peak-Änderung suchen, statt nur OUTPUT anzuheben.','Bei fehlenden Tiefen in Dual/Matrix Spuren solo prüfen: Polarität, IR-Onset, Blend und Crossover. IRs werden nicht automatisch ausgerichtet.','Spectral Octaver fügt etwa 42,7–46,4 ms hinzu. Bypass hält die Ausrichtung; Slot auf Empty setzen, um die Frame-Latenz zu entfernen.','Bei hoher CPU Amp-Oversampling senken, Transpose/Spectral Octaver und Convolution prüfen oder Host-Puffer erhöhen.','Beta 1.1 verbessert JUCE-Shutdown und Ressourcenfreigabe; das gemeldete Studio-One-Hängen beim Projektschließen ist auf dem betroffenen System noch nicht als behoben bestätigt.'],
+diag:['Unter SETTINGS → Review / copy / save diagnostics RMS/Peak über INPUT_TRIM, PRE, RIG_GATE, POST und OUTPUT vergleichen.','Bei unerwartetem Pegelverlust die erste Stufe mit RMS/Peak-Änderung suchen, statt nur OUTPUT anzuheben.','Bei fehlenden Tiefen in Dual/Matrix Spuren solo prüfen: Polarität, IR-Onset, Blend und Crossover. IRs werden nicht automatisch ausgerichtet.','Spectral Octaver fügt etwa 42,7–46,4 ms hinzu. Bypass hält die Ausrichtung; Slot auf Empty setzen, um die Frame-Latenz zu entfernen.','Bei hoher CPU Amp-Oversampling senken, Transpose/Spectral Octaver und Convolution prüfen oder Host-Puffer erhöhen.','Beta 1.1 verbessert JUCE-Shutdown und Ressourcenfreigabe. Projektabschluss, Plugin-Unload und Host-Shutdown müssen in jeder DAW separat validiert werden; Studio One ist nur ein bereits gemeldeter Fall.'],
 limits:['Diese offene Beta ist kostenlos und kann später kostenpflichtig werden. Kostenlose Updates/Support nach der Beta sind nicht garantiert.','Windows-Publisher-Signierung und macOS Developer-ID-Signierung/Notarisierung sind noch nicht abgeschlossen; Betriebssystemwarnungen sind möglich.','Hardware-Referenzen sind eigenständige DSP-Interpretationen. Eine vollständige DI/Reamp-Treueprüfung mit realer Hardware ist nicht abgeschlossen.','Einige Referenzfunktionen bleiben absichtlich deaktiviert, darunter AW-3 HUMAN/TEMPO-ähnliche Modi und unabhängiger rechter Variable-Mu-Kanal/SEP.','Strukturänderungen im PRE sind während der Wiedergabe nicht als vollständig klickfrei zertifiziert.','Transpose und spektrale Pitch-Verarbeitung können Latenz und Transienten-/Akkordartefakte erzeugen.','Natürlicher IR-Onset und Phase werden zwischen Spuren nicht automatisch korrigiert.'],
 workflows:[
 ['Tightes, tief gestimmtes Gitarren-Rig','Green Drive oder Yellow Asym → Tight 515 / Iron Compact / Night Harvest → V30-artige IR. Drive eher zur Tiefenstraffung und zum Pushen des Amp-Eingangs verwenden als für maximalen Amp-Gain.'],
@@ -112,12 +115,12 @@ ko:{
 subtitle:'상세 사용자 매뉴얼 · 기타·베이스 Amp Matrix / Effects Suite',counts:'앰프 23종 · PRE 39종 · POST 21종 · 팩토리 프리셋 31개',
 navQuick:'빠른 시작',navSignal:'신호 / 라우팅',navCompare:'모델군 비교',navPre:'PRE 39',navAmp:'AMP 23',navPost:'POST 21',navIr:'Cab / IR',navWorkflow:'사용 예시',navPreset:'프리셋 / A·B',navGlobal:'공통 기능',navDiag:'진단',navLimits:'베타 범위',
 referenceNote:'모델명과 하드웨어 레퍼런스는 설계 방향을 설명합니다. 제조사 제휴·인증, 회로 단위 복제, 실물과의 측정 일치를 의미하지 않습니다.',
-quickTitle:'01 · 빠른 시작',signalTitle:'02 · 신호 흐름과 라우팅',compareTitle:'03 · 모델군별 차이',compareIntro:'개별 모델을 고르기 전에 먼저 모델군의 역할을 정하면 빠릅니다. PRE는 앰프에 들어가는 신호를 만들고, AMP는 기본 정체성을 만들며, Cabinet/IR은 실제 들리는 스펙트럼을 크게 결정하고, POST는 다이내믹·색채·움직임·공간을 마무리합니다.',
+quickTitle:'01 · 빠른 시작',signalTitle:'04 · 신호 흐름과 라우팅',compareTitle:'05 · 모델군별 차이',compareIntro:'개별 모델을 고르기 전에 먼저 모델군의 역할을 정하면 빠릅니다. PRE는 앰프에 들어가는 신호를 만들고, AMP는 기본 정체성을 만들며, Cabinet/IR은 실제 들리는 스펙트럼을 크게 결정하고, POST는 다이내믹·색채·움직임·공간을 마무리합니다.',
 preFamilyTitle:'PRE 모델군',ampFamilyTitle:'AMP 모델군',postFamilyTitle:'POST 모델군',stageTitle:'PRE / AMP / CAB / POST 역할 차이',
-preTitle:'04 · PRE — 5-slot Pedalboard / 39 Models',preIntro:'5개 슬롯 안에서 모델을 선택·복제·재배열할 수 있습니다. Matrix LOW TAP은 이 보드 안의 분기 위치이므로 TAP 앞 페달은 LOW에도 적용됩니다. 베타에서는 모델 교체·재배열·TAP 이동 같은 구조 편집은 가능하면 재생을 멈춘 뒤 수행하십시오.',
-ampTitle:'05 · Amplifier — 23 Models',ampIntro:'앰프는 탐색 편의를 위해 하나의 대표 역할로 분류되지만 모든 rig lane에서 선택할 수 있습니다. 모델별 채널과 입력 경로가 구현된 경우 해당 selector가 표시됩니다.',
-postTitle:'06 · POST Rack — 21 Models',postIntro:'POST는 합산된 리그를 한 번 처리합니다. 전체 다이내믹·컬러·최종 EQ를 정리한 뒤 모듈레이션·딜레이·리버브로 움직임과 공간을 완성합니다.',
-irTitle:'07 · Cabinet / IR',workflowTitle:'08 · 실전 사용 예시',presetTitle:'09 · Factory Presets / A·B / Save',globalTitle:'10 · 공통 기능',diagTitle:'11 · Diagnostics / Troubleshooting',limitsTitle:'12 · Open Beta 범위와 알려진 한계',
+preTitle:'06 · PRE — 5-slot Pedalboard / 39 Models',preIntro:'5개 슬롯 안에서 모델을 선택·복제·재배열할 수 있습니다. Matrix LOW TAP은 이 보드 안의 분기 위치이므로 TAP 앞 페달은 LOW에도 적용됩니다. 베타에서는 모델 교체·재배열·TAP 이동 같은 구조 편집은 가능하면 재생을 멈춘 뒤 수행하십시오.',
+ampTitle:'07 · Amplifier — 23 Models',ampIntro:'앰프는 탐색 편의를 위해 하나의 대표 역할로 분류되지만 모든 rig lane에서 선택할 수 있습니다. 모델별 채널과 입력 경로가 구현된 경우 해당 selector가 표시됩니다.',
+postTitle:'08 · POST Rack — 21 Models',postIntro:'POST는 합산된 리그를 한 번 처리합니다. 전체 다이내믹·컬러·최종 EQ를 정리한 뒤 모듈레이션·딜레이·리버브로 움직임과 공간을 완성합니다.',
+irTitle:'09 · Cabinet / IR',workflowTitle:'10 · 실전 사용 예시',presetTitle:'11 · Factory Presets / A·B / Save',globalTitle:'12 · 공통 기능',diagTitle:'14 · Diagnostics / Troubleshooting',limitsTitle:'15 · Open Beta 범위와 알려진 한계',
 lowTapTip:'Matrix LOW TAP은 여섯 번째 페달 슬롯이 아닙니다. 5-slot PRE 체인 중 LOW가 갈라지는 위치를 정합니다. Distortion을 TAP 앞에 두면 LOW DI도 같이 왜곡됩니다.',
 footer:'서드파티 제품명은 각 권리자의 자산이며 해당 모델의 설계 참고점을 식별하기 위한 목적으로만 사용됩니다.',
 labels:{reference:'Reference',role:'역할',character:'캐릭터',use:'추천 용도',controls:'주요 컨트롤',channels:'채널 / 입력'},
@@ -126,7 +129,7 @@ modes:[['Classic','전대역 단일 amp/cab 경로','일반 기타·베이스 �
 ir:['Cabinet 처리는 각 rig lane 안에서 Amp → IR → Merge 순서로 유지됩니다.','CAB은 설치된 factory/user IR을 고르고 BYPASS는 cabinet convolution만 우회합니다. WAV/AIFF를 불러오거나 lane에 드롭할 수 있습니다.','LOW CUT / HIGH CUT으로 cab 출력을 정리합니다. 분할 모드에서는 crossover와 겹쳐 지나치게 좁아지지 않게 합니다.','MUTE / SOLO / POLARITY로 Dual/Matrix 합산 문제를 확인합니다. 서로 다른 IR은 자동으로 time/phase alignment하지 않습니다.','공개 베타에는 재배포 가능한 factory IR 두 개와 metadata가 포함됩니다. 개인 Raven/TONE3000 캡처는 공개 설치 파일에 포함되지 않습니다.'],
 preset:['31개 factory preset은 완성된 마스터링 톤이 아니라 시작점입니다.','권장 순서: 목적에 가까운 preset → input/gate → amp와 IR → routing/crossover → PRE → POST → A/B 레벨 매칭 → SAVE AS.','A와 B는 전체 사운드 스냅샷 두 개입니다. COPY는 현재 상태를 반대편으로 복제하며 좌/우 라우팅이나 자동 loudness match 기능이 아닙니다.','User IR 오디오는 프로젝트/A·B 상태에 포함되어 recall됩니다. 초기 테스트 빌드의 model-selection automation은 목록 확장 후 매핑을 확인하십시오.'],
 global:[['INPUT / OUTPUT','내부 trim과 미터. 인터페이스 자체 clipping은 인터페이스에서 해결하고 OUTPUT은 최종 level matching에 사용합니다.'],['Gate','Threshold, Hold, Release. 서스테인이 잘리면 Threshold를 낮추거나 Hold/Release를 늘립니다.'],['POST GATE','깨끗한 입력에서 연주 여부를 검출하고 rig/cab 합산 뒤 공간계 POST 앞에서 감쇄합니다. 음 사이 히스 감소에는 유리하지만 연주 중 노이즈를 제거하는 완전한 denoiser는 아닙니다.'],['Transpose','−12~+12 semitone. 보고 latency가 추가되고 빠른 transient나 복잡한 chord에서 artifact가 생길 수 있습니다.'],['Tuner / Auto Mute','Gate/Transpose 전 원음을 읽는 chromatic tuner. A4 조절 가능, Auto Mute는 튜닝 중 출력을 끕니다.'],['Oversampling','앰프 처리 1× / 2× / 4× / 8×, 기본 4×. 높은 값은 nonlinear 품질과 CPU를 교환합니다.'],['Doubler','짧은 modulated wet delay로 stereo width를 만듭니다. 모노 호환성을 확인하십시오.'],['TAP / BPM / HOST / CLICK','수동/탭/호스트 템포와 연습용 클릭. Delay Sync는 4분음표를 따르며 Click은 DAW 마디 위치 동기화가 아닙니다.'],['MIDI Learn','선택한 컨트롤에 다음 수신 CC를 할당합니다. Host 또는 Standalone에서 MIDI를 라우팅합니다.'],['CPU AVG / PK','전체 PC CPU가 아니라 Chimera가 audio block 시간 예산에서 사용한 비율입니다.']],
-diag:['SETTINGS → Review / copy / save diagnostics에서 INPUT_TRIM, PRE, RIG_GATE, POST, OUTPUT의 RMS/Peak를 비교합니다.','레벨이 갑자기 줄면 OUTPUT으로 무작정 보상하기보다 RMS/Peak가 처음 달라지는 단계를 찾습니다.','Dual/Matrix에서 저역이 사라지면 lane solo 후 polarity, IR onset, blend, crossover를 확인합니다. IR은 자동 정렬되지 않습니다.','Spectral Octaver는 지원 sample rate에서 약 42.7~46.4 ms를 추가합니다. Bypass도 정렬을 유지하며, 이 frame delay를 없애려면 슬롯을 Empty로 바꿉니다.','CPU가 높으면 amp oversampling을 낮추고 Transpose/Spectral Octaver, convolution 사용량을 확인하거나 host buffer를 늘립니다.','Beta 1.1은 JUCE 종료 경로와 자원 정리를 개선했지만 제보된 Studio One 프로젝트 종료 멈춤은 해당 사용자 환경에서 해결 확정 전입니다.'],
+diag:['SETTINGS → Review / copy / save diagnostics에서 INPUT_TRIM, PRE, RIG_GATE, POST, OUTPUT의 RMS/Peak를 비교합니다.','레벨이 갑자기 줄면 OUTPUT으로 무작정 보상하기보다 RMS/Peak가 처음 달라지는 단계를 찾습니다.','Dual/Matrix에서 저역이 사라지면 lane solo 후 polarity, IR onset, blend, crossover를 확인합니다. IR은 자동 정렬되지 않습니다.','Spectral Octaver는 지원 sample rate에서 약 42.7~46.4 ms를 추가합니다. Bypass도 정렬을 유지하며, 이 frame delay를 없애려면 슬롯을 Empty로 바꿉니다.','CPU가 높으면 amp oversampling을 낮추고 Transpose/Spectral Octaver, convolution 사용량을 확인하거나 host buffer를 늘립니다.','Beta 1.1은 JUCE 종료 경로와 자원 정리를 개선했습니다. 프로젝트 닫기·플러그인 언로드·DAW 종료 안정성은 호스트마다 별도 확인이 필요하며, Studio One은 기존 제보 사례 중 하나일 뿐 이 절차의 대상은 모든 DAW입니다.'],
 limits:['현재 무료 Open Beta이며 향후 유료화될 수 있습니다. 베타 이후 무료 업데이트·지원은 보장되지 않습니다.','Windows publisher code signing과 macOS Developer ID 서명/공증은 완료 전이므로 운영체제 경고가 나타날 수 있습니다.','하드웨어 레퍼런스 조작부와 보이싱은 독립 DSP 해석입니다. 전 모델의 실물 DI/reamp fidelity 인증은 완료되지 않았습니다.','AW-3 HUMAN/TEMPO 계열과 Variable Mu 독립 right-bank/SEP 등 일부 원본 기능은 의도적으로 비활성 또는 미구현 상태입니다.','PRE 구조 편집의 완전한 click-free 동작은 재생 중 보증하지 않습니다.','Transpose와 spectral pitch 처리는 latency와 transient/chord artifact를 만들 수 있습니다.','IR의 natural onset과 phase는 lane 사이에서 자동 보정하지 않습니다.'],
 workflows:[
 ['타이트한 다운튜닝 기타','Green Drive 또는 Yellow Asym → Tight 515 / Iron Compact / Night Harvest → V30 계열 IR. Drive는 amp gain을 끝까지 올리기보다 저역 정리와 input push 용도로 쓰는 편이 유리합니다.'],
@@ -139,6 +142,332 @@ workflows:[
 }
 };
 
+
+const X={
+en:{
+navInstall:'Installation',navOperation:'Operation / state',navHost:'DAW / updates',
+installTitle:'02 · Installation and first launch',operationTitle:'03 · Interface, PRE editing and saved state',operationIntro:'These controls determine how the current sound is edited, stored, recalled and supported. Structural changes should be deliberate; ordinary continuous controls remain automatable.',
+boardTitle:'Five-slot PRE controls',stateTitle:'Save / A·B / MIDI / interface state',supportTitle:'SETTINGS and support',
+ampRouteTitle:'Amplifier channels and input routes',irLibraryTitle:'IR Library operation and limits',irCreditsTitle:'IR credits and external bass IRs',
+presetListTitle:'31 factory presets',recallTitle:'Preset / A·B recall rules',
+hostTitle:'13 · DAW compatibility, updates and reporting',hostIntro:'Chimera should be diagnosed as a hosted audio plugin, not around one specific DAW. The same checks apply to VST3/AU hosts such as Studio One, Cubase/Nuendo, REAPER, Ableton Live, Bitwig Studio, FL Studio, Logic Pro and other compatible hosts. Mentioning a DAW here does not mean full certification.',
+hostCheckTitle:'Host-wide compatibility checklist',updateTitle:'Updates and privacy',bugTitle:'Bug reports and diagnostic data',
+install:[
+['Windows 10/11 x64','Standalone + VST3','Setup installs the standalone app and VST3. Standard VST3 path is C:\\\\Program Files\\\\Common Files\\\\VST3; a custom VST3 path must also be added to the DAW scan paths. ASIO drivers are recommended for low-latency real-time use.'],
+['macOS 12+ · Apple Silicon / Intel','Standalone + VST3 + AU','Universal package installs the app plus VST3/AU. The beta is not Developer ID signed or notarized, so Gatekeeper can show a warning. Allow microphone/audio-input permission for the standalone app or recording host when requested.'],
+['Debian / Ubuntu x86_64 · glibc 2.35 baseline','Standalone + VST3','DEB installs the standalone app and VST3; the portable TAR uses per-user locations and still depends on listed system libraries. Other distributions are not certified by the release build.']
+],
+board:[
+['Select model','Choose a category/model in any of the five slots. Empty removes processing from that slot.'],
+['ON / OFF','ON processes the selected model; OFF bypasses it while preserving the slot/model state and its required alignment delay.'],
+['< / >','Move the pedal left or right. Crossing Matrix LOW TAP changes whether that pedal also processes LOW.'],
+['COPY','Duplicate a pedal into an empty slot. If all five slots are occupied, delete or replace one first.'],
+['X','Remove the pedal and return the slot to Empty.'],
+['DETAIL / MIDI · ALL CONTROLS','Open all model controls and per-control MIDI Learn. Disabled controls represent reference-hardware functions that are unavailable in Chimera.'],
+['UNDO / REDO','Undo or redo structural pedalboard edits.'],
+['LOW TAP','Matrix only. Selects the branch after slot 0–5. This is not a sixth effect slot.'],
+['Editing during playback','Continuous controls are smoothed, but model replacement, reorder and LOW TAP changes are not certified click-free. Stop transport before structural edits when possible.']
+],
+state:[
+['A / B / COPY','A and B are two complete sound snapshots. Switching stores the outgoing state and recalls the other. COPY duplicates the active sound to the other slot. Switching resets DSP histories/tails; it is not a gapless morph and does not loudness-match automatically.'],
+['SAVE AS / OPEN','Reference files use .chimera and preserve the complete state including A/B snapshots, embedded user IR audio and MIDI mappings. The load path rejects invalid/non-Chimera state and oversized reference files.'],
+['MIDI Learn','Use the global MIDI menu for common targets or the pedal detail view for an individual model control. The next received CC is assigned. Clear MIDI Assignments removes all mappings. MIDI mappings are global to the saved state, not separate A/B maps.'],
+['Interface size','Use 75 / 100 / 125 / 150% or resize the editor window.'],
+['Automation compatibility','Continuous audio controls expose host automation. Structural board choices are deliberately non-automatable. Model-list expansion can change normalized choice automation from early test builds; review/re-record old model-selection automation after upgrading.']
+],
+support:[
+['Manual / Bug report / Updates','Opens the bundled manual, a user-reviewed GitHub issue draft and update controls. Hosted plugins open the official Releases page; verified download/update workers live in Standalone.'],
+['Review / copy / save diagnostics','Shows a diagnostic snapshot with stage RMS/Peak, routing, pitch/oversampling state, reported latency and callback load.'],
+['Save / Load reference','Same .chimera state workflow exposed from SETTINGS.'],
+['About / IR credits','Shows product information and cabinet/third-party credits.'],
+['Reset tuner A4','Returns tuner reference to 440 Hz.'],
+['Clear MIDI assignments','Clears every learned CC mapping.']
+],
+matrix:[
+['LOW COMP','One-knob VCA-style control for the clean LOW foundation. It has no automatic makeup; use LOW Level for loudness matching.'],
+['DI / AMP','0% AMP = compressed DI only; 100% AMP = selected head/cab only. Intermediate values blend both.'],
+['LOW amplifier','Head Drive is fixed at 0 in Matrix LOW. The selected amp can still colour the low band. Turning the LOW amp off forces the blend to DI.'],
+['Alignment','The DI branch is delayed to match the amplifier algorithmic latency. IR natural onset/phase is retained and is not automatically corrected.'],
+['Band Tone','LOW/MID/HIGH use band-oriented tone control. MID/HIGH keep independent drive/amp/cab processing.']
+],
+irDetail:[
+['Supported files','WAV or AIFF, mono/stereo, 8–384 kHz, 8 samples up to 1 second, under 4 MB per IR. Invalid files are rejected without replacing the previous IR.'],
+['IR LIBRARY','Search by metadata, filter speaker diameter (8/10/12/15/18 in), instrument/status and inspect speaker, microphone, position, distance and provenance.'],
+['Statuses','FACTORY is bundled; INSTALLED is a local usable file; IMPORT REQUIRED/MISSING is metadata without the original audio; EXTERNAL/DOWNLOAD requires the creator file; INVALID FILE failed validation.'],
+['IMPORT PERSONAL ZIP','Imports the recognized personal IR archive. ZIP maximum is 32 MB; NAM files are ignored.'],
+['ADD FOLDER','Registers an extracted IR folder. The collection scans up to 512 audio files; if truncated, use a smaller folder.'],
+['OPEN IR','Load an individual WAV/AIFF. SOURCE PAGE / GET BASS IRS opens the creator/reference page; Chimera does not silently download external IR audio.'],
+['TAGS / sidecars','A matching filename.wav.json sidecar can provide confirmed metadata. Unknown capture distance/angle remains unknown rather than being guessed.'],
+['Project recall','Loaded user IR audio is embedded in project/A·B state, so moving the original file does not break that saved sound.']
+],
+irCredits:[
+'The two public factory IRs are by jesterdyne and distributed under Creative Commons Attribution 4.0; exact source titles and links are listed in THIRD_PARTY_NOTICES.md.',
+'Shift Line Bass IR Pack is an external free pack. Use GET BASS IRS, download/extract it from the creator, then ADD FOLDER. Those WAV files are not bundled or downloaded by Chimera.',
+'Personal TONE3000/NAM reference captures are not redistributed in the public release. Respect the source creator and license before sharing a preset/project that contains restricted IR audio.'
+],
+recall:[
+'Factory preset loading resets the defined sound path so an old fuzz, delay, solo, polarity flip or transpose does not accidentally remain enabled.',
+'Performance/environment settings such as input gain/mode, tempo/host-follow, click, tuner settings and MIDI mappings are retained.',
+'Factory presets never select a personal/user IR pathname; user-owned IR assets remain available separately.',
+'A/B snapshots are not overwritten by selecting a factory preset. Save a .chimera reference when you want to preserve the resulting custom state.',
+'All factory presets turn the doubler and transpose off unless explicitly defined otherwise by the preset logic.'
+],
+hostChecks:[
+['Plugin scan / format','Confirm that the DAW is loading the current SpectralForge Chimera build from the intended VST3/AU path. Remove or disable duplicate obsolete copies only after verifying the new build.'],
+['Audio configuration','Record OS, DAW/version, plugin format, sample rate, buffer/block size, input/output channel count and interface driver. Reproduce first with a simple project and one Chimera instance.'],
+['State reproduction','Record routing mode, amp(s), PRE/POST models, IR source, oversampling, Transpose/Spectral Octaver, gate position and exact steps. Save a project copy before destructive testing.'],
+['Latency / phase','Compare Transpose 0 vs non-zero, Spectral Octaver present vs Empty, and IR combinations. A correct host-reported latency does not guarantee artifact-free pitch or phase alignment.'],
+['CPU / dropouts','Compare Chimera callback AVG/PK with the host meter. Lower oversampling, disable pitch/convolution-heavy stages and increase buffer to isolate deadline overruns.'],
+['Project close / plugin unload / DAW quit','If any host hangs or becomes unresponsive after using Chimera, test a minimal project and note whether the failure happens when closing the plugin editor, removing the plugin, closing the project/song, or quitting the DAW. This procedure applies to every host.'],
+['Known report context','Studio One has been one reported project-close case and has extra tracing documentation. That does not limit shutdown investigation to Studio One; equivalent lifecycle data should be collected for any DAW where the issue reproduces.']
+],
+updates:[
+['Hosted VST3/AU','CHECK FOR UPDATES opens the official Releases page in the browser. The plugin host does not own a background updater.'],
+['Standalone','Can check the official beta channel and explicitly download a compatible installer. Downloads are limited and verified against the release manifest by exact size and SHA-256.'],
+['Automatic checks','Off by default. If opted in, Standalone checks at most once per 24 hours per saved settings file. A manual check is still available.'],
+['Privacy','No additional telemetry is sent. GitHub receives normal connection information such as IP address and the Chimera product/version user-agent when a check is made.'],
+['Installation','Chimera never silently replaces a loaded plugin or launches the installer. SHOW INSTALLER reveals the verified file; close all DAWs and Standalone before running it. SHA-256 verification is not a substitute for publisher code signing/notarization.']
+],
+bug:[
+['Report draft','REPORT A BUG opens a GitHub draft for the user to review and submit. Nothing is automatically submitted.'],
+['Included','Chimera version/build revision, OS, architecture, plugin format, sample rate, block size, channel counts and reported latency.'],
+['Excluded','No audio, IR audio, device names, account details, project names, host file paths or machine identifiers are automatically included.'],
+['Diagnostic snapshot','Stage measurements are last-block unweighted RMS/Peak, not LUFS. Callback AVG/PK measures this plugin against the audio-block deadline, not whole-PC CPU. No audio is included.']
+]
+},
+de:{
+navInstall:'Installation',navOperation:'Bedienung / Zustand',navHost:'DAW / Updates',
+installTitle:'02 · Installation und erster Start',operationTitle:'03 · Oberfläche, PRE-Bearbeitung und gespeicherter Zustand',operationIntro:'Diese Funktionen bestimmen Bearbeitung, Speicherung, Recall und Support. Strukturänderungen sollten bewusst erfolgen; kontinuierliche Audio-Regler bleiben automatisierbar.',
+boardTitle:'Bedienung des 5-Slot-Pedalboards',stateTitle:'Speichern / A·B / MIDI / Oberfläche',supportTitle:'SETTINGS und Support',
+ampRouteTitle:'Amp-Kanäle und Eingangswege',irLibraryTitle:'IR-Library: Bedienung und Grenzen',irCreditsTitle:'IR-Credits und externe Bass-IRs',
+presetListTitle:'31 Werks-Presets',recallTitle:'Preset- / A·B-Recall-Regeln',
+hostTitle:'13 · DAW-Kompatibilität, Updates und Fehlerberichte',hostIntro:'Chimera wird als gehostetes Audio-Plugin diagnostiziert, nicht rund um eine einzelne DAW. Dieselben Prüfungen gelten für VST3-/AU-Hosts wie Studio One, Cubase/Nuendo, REAPER, Ableton Live, Bitwig Studio, FL Studio, Logic Pro und andere kompatible Hosts. Eine Erwähnung bedeutet keine vollständige Zertifizierung.',
+hostCheckTitle:'DAW-übergreifende Checkliste',updateTitle:'Updates und Datenschutz',bugTitle:'Fehlerbericht und Diagnosedaten',
+install:[
+['Windows 10/11 x64','Standalone + VST3','Setup installiert Standalone und VST3. Standardpfad: C:\\\\Program Files\\\\Common Files\\\\VST3. Bei einem eigenen VST3-Pfad muss dieser auch im DAW-Scanpfad liegen. Für geringe Echtzeitlatenz ist ein ASIO-Treiber empfehlenswert.'],
+['macOS 12+ · Apple Silicon / Intel','Standalone + VST3 + AU','Universal-Paket installiert App, VST3 und AU. Die Beta ist nicht Developer-ID-signiert/notarisiert; Gatekeeper kann warnen. Audio-/Mikrofonberechtigung bei Bedarf für Standalone oder Host erlauben.'],
+['Debian / Ubuntu x86_64 · glibc 2.35 Baseline','Standalone + VST3','DEB installiert Standalone und VST3. Das TAR nutzt Benutzerpfade und benötigt weiterhin die aufgelisteten Systembibliotheken. Andere Distributionen sind durch den Release-Build nicht zertifiziert.']
+],
+board:[
+['Modell wählen','In jedem der fünf Slots Kategorie/Modell wählen. Empty entfernt die Bearbeitung aus dem Slot.'],
+['ON / OFF','ON verarbeitet das Modell; OFF bypasst es, behält aber Modellzustand und erforderliche Ausrichtungsverzögerung.'],
+['< / >','Pedal nach links/rechts verschieben. Beim Überqueren des Matrix LOW TAP ändert sich, ob LOW ebenfalls bearbeitet wird.'],
+['COPY','Pedal in einen freien Slot duplizieren. Sind alle fünf belegt, zuerst einen Slot löschen/ersetzen.'],
+['X','Pedal entfernen und Slot auf Empty setzen.'],
+['DETAIL / MIDI · ALL CONTROLS','Alle Modellregler und MIDI Learn pro Regler öffnen. Deaktivierte Regler sind Referenz-Hardwarefunktionen, die Chimera nicht bereitstellt.'],
+['UNDO / REDO','Strukturelle Pedalboard-Änderungen rückgängig machen/wiederholen.'],
+['LOW TAP','Nur Matrix. Abgriff nach Slot 0–5; kein sechster Effekt-Slot.'],
+['Bearbeitung während Wiedergabe','Kontinuierliche Regler werden geglättet; Modellwechsel, Reihenfolge und LOW TAP sind nicht als vollständig klickfrei zertifiziert. Strukturänderungen möglichst bei gestopptem Transport.']
+],
+state:[
+['A / B / COPY','A und B sind vollständige Sound-Snapshots. Beim Wechsel wird der alte Zustand gespeichert und der andere geladen. COPY kopiert den aktiven Sound. DSP-Historien/Tails werden zurückgesetzt; kein nahtloses Morphing und kein automatisches Loudness-Matching.'],
+['SAVE AS / OPEN','.chimera-Dateien speichern den vollständigen Zustand inklusive A/B, eingebettetem User-IR-Audio und MIDI-Mappings. Ungültige/zu große Dateien werden nicht geladen.'],
+['MIDI Learn','Globales MIDI-Menü für häufige Ziele oder Pedal-Detailansicht für einzelne Modellregler. Der nächste empfangene CC wird zugewiesen. Clear MIDI Assignments löscht alle Mappings. MIDI-Mappings sind global im gespeicherten Zustand, nicht getrennt pro A/B.'],
+['Oberflächengröße','75 / 100 / 125 / 150 % oder Fenster frei skalieren.'],
+['Automation-Kompatibilität','Kontinuierliche Audio-Regler sind Host-automatisierbar. Strukturelle Board-Entscheidungen sind absichtlich nicht automatisierbar. Erweiterte Modelllisten können normalisierte Choice-Automation aus frühen Test-Builds verändern; alte Modellwahl-Automation prüfen/neu aufzeichnen.']
+],
+support:[
+['Manual / Bug report / Updates','Öffnet Handbuch, einen vom Benutzer zu prüfenden GitHub-Entwurf und Update-Funktionen. Hosted Plugins öffnen die offizielle Releases-Seite; verifizierter Downloader nur im Standalone.'],
+['Review / copy / save diagnostics','Diagnose-Snapshot mit Stufen-RMS/Peak, Routing, Pitch/Oversampling, gemeldeter Latenz und Callback-Last.'],
+['Save / Load reference','Gleicher .chimera-Zustandsworkflow über SETTINGS.'],
+['About / IR credits','Produktinformation und Cabinet-/Drittanbieter-Credits.'],
+['Reset tuner A4','Stimmreferenz auf 440 Hz zurücksetzen.'],
+['Clear MIDI assignments','Alle gelernten CC-Zuweisungen löschen.']
+],
+matrix:[
+['LOW COMP','Ein-Regler-VCA-artige Kontrolle der sauberen LOW-Basis. Kein Auto-Makeup; LOW Level zum Pegeln verwenden.'],
+['DI / AMP','0 % AMP = nur komprimiertes DI; 100 % AMP = nur Head/Cab. Dazwischen werden beide gemischt.'],
+['LOW-Amp','Head Drive ist in Matrix LOW auf 0 fixiert. Der gewählte Amp kann trotzdem färben. Amp OFF setzt den Blend effektiv auf DI.'],
+['Alignment','Der DI-Zweig wird auf die algorithmische Amp-Latenz verzögert. Natürlicher IR-Onset/Phase bleibt erhalten und wird nicht automatisch korrigiert.'],
+['Band Tone','LOW/MID/HIGH nutzen bandorientierte Tonregelung; MID/HIGH behalten unabhängige Drive-/Amp-/Cab-Bearbeitung.']
+],
+irDetail:[
+['Unterstützte Dateien','WAV/AIFF, mono/stereo, 8–384 kHz, 8 Samples bis 1 Sekunde, unter 4 MB pro IR. Ungültige Dateien ersetzen die vorige IR nicht.'],
+['IR LIBRARY','Metadatensuche; Filter nach 8/10/12/15/18 Zoll, Instrument/Status; Details zu Speaker, Mikrofon, Position, Distanz und Herkunft.'],
+['Status','FACTORY = enthalten; INSTALLED = lokal nutzbar; IMPORT REQUIRED/MISSING = Metadaten ohne Audio; EXTERNAL/DOWNLOAD = Creator-Datei nötig; INVALID FILE = Prüfung fehlgeschlagen.'],
+['IMPORT PERSONAL ZIP','Erkannten persönlichen IR-Archiv importieren. ZIP maximal 32 MB; NAM-Dateien werden ignoriert.'],
+['ADD FOLDER','Entpackten IR-Ordner registrieren. Maximal 512 Audiofiles pro Scan; bei Kürzung kleineren Ordner verwenden.'],
+['OPEN IR','Einzelne WAV/AIFF laden. SOURCE PAGE / GET BASS IRS öffnet Creator-/Referenzseite; Chimera lädt externes IR-Audio nicht still herunter.'],
+['TAGS / Sidecars','Passendes filename.wav.json kann bestätigte Metadaten liefern. Unbekannte Distanz/Winkel bleiben unbekannt.'],
+['Projekt-Recall','Geladenes User-IR-Audio wird in Projekt/A·B eingebettet; Verschieben der Originaldatei zerstört den gespeicherten Sound nicht.']
+],
+irCredits:[
+'Die zwei öffentlichen Factory-IRs stammen von jesterdyne und stehen unter Creative Commons Attribution 4.0; genaue Titel/Links stehen in THIRD_PARTY_NOTICES.md.',
+'Shift Line Bass IR Pack ist extern und kostenlos. Über GET BASS IRS beim Creator laden/entpacken und dann ADD FOLDER. Die WAV-Dateien sind nicht in Chimera enthalten.',
+'Persönliche TONE3000/NAM-Referenzcaptures werden im öffentlichen Release nicht weitergegeben. Rechte/Lizenz prüfen, bevor ein Projekt/Preset mit eingeschränktem IR-Audio geteilt wird.'
+],
+recall:[
+'Ein Factory-Preset initialisiert den definierten Soundpfad, damit vorheriger Fuzz, Delay, Solo, Polaritätswechsel oder Transpose nicht versehentlich aktiv bleibt.',
+'Performance-/Umgebungseinstellungen wie Input-Gain/-Modus, Tempo/Host-Follow, Click, Tuner und MIDI-Mappings bleiben erhalten.',
+'Factory-Presets wählen niemals einen persönlichen User-IR-Pfad; eigene IR-Assets bleiben separat verfügbar.',
+'A/B-Snapshots werden durch die Auswahl eines Factory-Presets nicht überschrieben. Einen .chimera-Reference speichern, wenn der resultierende Custom-Sound erhalten werden soll.',
+'Doubler und Transpose werden durch Factory-Preset-Grundeinstellungen ausgeschaltet, sofern die Preset-Logik nicht ausdrücklich etwas anderes definiert.'
+],
+hostChecks:[
+['Plugin-Scan / Format','Sicherstellen, dass die DAW den aktuellen Chimera-Build aus dem vorgesehenen VST3/AU-Pfad lädt. Doppelte alte Kopien erst nach Prüfung des neuen Builds entfernen/deaktivieren.'],
+['Audio-Konfiguration','OS, DAW/Version, Plugin-Format, Sample-Rate, Buffer/Blockgröße, I/O-Kanalzahl und Interface-Treiber notieren. Zuerst in einem einfachen Projekt mit einer Instanz reproduzieren.'],
+['Zustand reproduzieren','Routing-Modus, Amps, PRE/POST, IR-Quelle, Oversampling, Transpose/Spectral Octaver, Gate-Position und genaue Schritte notieren. Vor destruktiven Tests Projektkopie speichern.'],
+['Latenz / Phase','Transpose 0 vs. ≠0, Spectral Octaver vs. Empty und IR-Kombinationen vergleichen. Korrekte Host-Latenzkompensation garantiert keine artefaktfreie Pitch-/Phasenqualität.'],
+['CPU / Dropouts','Chimera Callback AVG/PK mit Host-Meter vergleichen. Oversampling reduzieren, Pitch/Convolution isolieren und Buffer erhöhen.'],
+['Projekt schließen / Plugin-Unload / DAW beenden','Bei Hänger in jedem Host Minimalprojekt testen und festhalten, ob es beim Schließen des Editors, Entfernen des Plugins, Schließen des Projekts oder Beenden der DAW passiert.'],
+['Bekannter Kontext','Studio One war ein gemeldeter Project-Close-Fall und besitzt zusätzliche Trace-Dokumentation. Das Verfahren gilt trotzdem für jede DAW mit reproduzierbarem Lifecycle-Problem.']
+],
+updates:[
+['Hosted VST3/AU','CHECK FOR UPDATES öffnet die offizielle Releases-Seite. Der Host besitzt keinen Background-Updater.'],
+['Standalone','Kann den offiziellen Beta-Kanal prüfen und nach Bestätigung einen kompatiblen Installer laden. Größe und SHA-256 werden gegen das Manifest geprüft.'],
+['Automatische Checks','Standardmäßig aus. Nach Opt-in höchstens einmal pro 24 Stunden pro Settings-Datei; manueller Check bleibt möglich.'],
+['Datenschutz','Keine zusätzliche Telemetrie. Bei einem Check erhält GitHub übliche Verbindungsdaten wie IP und Chimera-Produkt/Versions-User-Agent.'],
+['Installation','Kein stiller Austausch geladener Plugins, kein automatischer Installerstart. SHOW INSTALLER zeigt die verifizierte Datei; vorher DAWs und Standalone schließen. SHA-256 ersetzt keine Code-Signatur/Notarisierung.']
+],
+bug:[
+['Entwurf','REPORT A BUG öffnet einen GitHub-Entwurf, den der Benutzer prüft und absendet. Nichts wird automatisch abgeschickt.'],
+['Enthalten','Chimera-Version/Build, OS, Architektur, Plugin-Format, Sample-Rate, Blockgröße, Kanalzahlen und gemeldete Latenz.'],
+['Nicht enthalten','Kein Audio, keine IR-Audiodaten, Gerätenamen, Accountdaten, Projektnamen, Host-Dateipfade oder Maschinenkennungen werden automatisch beigefügt.'],
+['Diagnose-Snapshot','Stufenwerte sind ungegewichtetes RMS/Peak des letzten Blocks, nicht LUFS. Callback AVG/PK misst Chimera gegen die Audio-Block-Deadline, nicht die gesamte PC-CPU. Kein Audio enthalten.']
+]
+},
+ko:{
+navInstall:'설치',navOperation:'조작 / 저장',navHost:'DAW / 업데이트',
+installTitle:'02 · 설치와 첫 실행',operationTitle:'03 · 인터페이스·PRE 편집·상태 저장',operationIntro:'이 절은 현재 톤을 어떻게 편집하고 저장·복원하며 지원 기능을 사용하는지 설명합니다. 구조 변경은 의도적으로 수행하고, 일반적인 연속 오디오 컨트롤은 호스트 자동화를 사용할 수 있습니다.',
+boardTitle:'5-slot PRE 조작법',stateTitle:'Save / A·B / MIDI / 인터페이스 상태',supportTitle:'SETTINGS와 지원 기능',
+ampRouteTitle:'앰프 채널과 입력 경로',irLibraryTitle:'IR Library 사용법과 제한',irCreditsTitle:'IR 크레딧과 외부 베이스 IR',
+presetListTitle:'Factory Preset 31종',recallTitle:'Preset / A·B Recall 규칙',
+hostTitle:'13 · DAW 호환성·업데이트·버그 리포트',hostIntro:'Chimera는 특정 DAW 하나가 아니라 호스트형 오디오 플러그인으로 진단해야 합니다. Studio One, Cubase/Nuendo, REAPER, Ableton Live, Bitwig Studio, FL Studio, Logic Pro 및 기타 호환 VST3/AU 호스트에 같은 절차를 적용합니다. 여기서 DAW 이름을 언급하는 것은 완전한 호환 인증을 뜻하지 않습니다.',
+hostCheckTitle:'모든 DAW에 적용하는 호환성 점검',updateTitle:'업데이트와 개인정보',bugTitle:'버그 리포트와 진단 데이터',
+install:[
+['Windows 10/11 x64','Standalone + VST3','Setup에서 Standalone과 VST3를 설치합니다. 표준 VST3 경로는 C:\\\\Program Files\\\\Common Files\\\\VST3이며, 사용자 지정 경로를 선택하면 DAW의 플러그인 검색 경로에도 추가해야 합니다. 실시간 연주에는 ASIO 드라이버를 권장합니다.'],
+['macOS 12+ · Apple Silicon / Intel','Standalone + VST3 + AU','Universal 패키지로 App/VST3/AU를 설치합니다. 현재 베타는 Developer ID 서명·공증 전이라 Gatekeeper 경고가 나타날 수 있습니다. Standalone 또는 녹음 호스트가 요청하면 마이크/오디오 입력 권한을 허용합니다.'],
+['Debian / Ubuntu x86_64 · glibc 2.35 기준','Standalone + VST3','DEB는 Standalone과 VST3를 설치합니다. TAR는 사용자 홈 경로에 설치하지만 명시된 시스템 라이브러리가 필요합니다. 다른 배포판은 릴리스 빌드의 인증 범위가 아닙니다.']
+],
+board:[
+['모델 선택','5개 슬롯 어디서든 카테고리와 모델을 선택합니다. Empty는 해당 슬롯의 처리를 제거합니다.'],
+['ON / OFF','ON은 모델을 처리하고 OFF는 bypass합니다. OFF여도 슬롯/모델 상태와 필요한 latency 정렬은 유지됩니다.'],
+['< / >','페달을 왼쪽/오른쪽으로 이동합니다. Matrix LOW TAP을 넘어가면 해당 페달이 LOW에도 적용되는지가 달라집니다.'],
+['COPY','현재 페달을 빈 슬롯에 복제합니다. 5칸이 모두 차 있으면 먼저 삭제하거나 교체해야 합니다.'],
+['X','페달을 제거하고 슬롯을 Empty로 되돌립니다.'],
+['DETAIL / MIDI · ALL CONTROLS','모델 전체 컨트롤과 각 컨트롤별 MIDI Learn을 엽니다. 비활성 컨트롤은 레퍼런스 하드웨어에는 있지만 Chimera에서는 제공하지 않는 기능입니다.'],
+['UNDO / REDO','페달보드의 구조 편집을 실행 취소하거나 다시 적용합니다.'],
+['LOW TAP','Matrix 전용. 0~5번 슬롯 경계 중 LOW 분기 위치를 지정합니다. 여섯 번째 이펙트 슬롯이 아닙니다.'],
+['재생 중 편집','연속 컨트롤은 smoothing하지만 모델 교체·순서 변경·LOW TAP 이동은 완전한 click-free를 보장하지 않습니다. 가능하면 transport를 멈춘 뒤 구조를 편집합니다.']
+],
+state:[
+['A / B / COPY','A와 B는 전체 사운드 스냅샷 두 개입니다. 전환 시 현재 상태를 저장하고 다른 슬롯을 불러옵니다. COPY는 현재 톤을 반대 슬롯으로 복제합니다. 전환 시 DSP history/tail은 reset되므로 gapless morph가 아니며 자동 loudness match도 하지 않습니다.'],
+['SAVE AS / OPEN','.chimera 파일은 A/B 스냅샷, embedded user IR 오디오, MIDI mapping을 포함한 전체 상태를 저장합니다. 잘못된 형식이나 과도하게 큰 reference 파일은 로드하지 않습니다.'],
+['MIDI Learn','공통 대상은 하단 MIDI 메뉴, 개별 페달 컨트롤은 DETAIL 화면에서 Learn합니다. 다음에 들어오는 CC가 할당됩니다. Clear MIDI Assignments는 전체 mapping을 지웁니다. MIDI mapping은 A/B별이 아니라 저장 상태 전체에 공통입니다.'],
+['UI 크기','75 / 100 / 125 / 150% SIZE 선택 또는 창 크기 직접 조절을 사용합니다.'],
+['자동화 호환성','연속 오디오 컨트롤은 호스트 자동화를 지원합니다. 페달 모델/순서/LOW TAP 같은 구조 선택은 의도적으로 자동화 대상이 아닙니다. 초기 테스트 빌드의 normalized model-choice automation은 모델 목록 확장으로 매핑이 달라질 수 있으므로 업그레이드 후 확인·재기록하십시오.']
+],
+support:[
+['Manual / Bug report / Updates','동봉 매뉴얼, 사용자가 검토하는 GitHub issue draft, 업데이트 기능을 엽니다. Hosted VST3/AU에서는 공식 Releases 페이지를 열고, 검증 다운로드 기능은 Standalone에서만 동작합니다.'],
+['Review / copy / save diagnostics','단계별 RMS/Peak, routing, pitch/oversampling 상태, 보고 latency, callback load가 포함된 진단 snapshot을 표시합니다.'],
+['Save / Load reference','SETTINGS에서도 동일한 .chimera 저장/불러오기 흐름을 사용할 수 있습니다.'],
+['About / IR credits','제품 정보와 Cabinet/서드파티 크레딧을 확인합니다.'],
+['Reset tuner A4','튜너 기준음을 440 Hz로 되돌립니다.'],
+['Clear MIDI assignments','학습된 모든 MIDI CC mapping을 지웁니다.']
+],
+matrix:[
+['LOW COMP','깨끗한 LOW foundation을 위한 1-knob VCA 스타일 컴프레서입니다. 자동 makeup은 없으므로 LOW Level로 음량을 맞춥니다.'],
+['DI / AMP','0% AMP는 compressed DI만, 100% AMP는 선택한 head/cab만 사용합니다. 중간 값은 두 경로를 섞습니다.'],
+['LOW 앰프','Matrix LOW에서는 head Drive가 0으로 고정됩니다. 선택한 amp는 저역에 컬러를 줄 수 있습니다. LOW Amp를 끄면 blend는 사실상 DI로 돌아갑니다.'],
+['정렬','DI branch는 amp algorithmic latency에 맞춰 지연됩니다. IR의 natural onset/phase는 보존하며 자동 보정하지 않습니다.'],
+['Band Tone','LOW/MID/HIGH는 대역 중심의 tone control을 사용하고, MID/HIGH는 독립적인 drive/amp/cab 처리를 유지합니다.']
+],
+irDetail:[
+['지원 파일','WAV/AIFF, mono/stereo, 8–384 kHz, 8 samples~최대 1초, IR당 4 MB 미만. 잘못된 파일은 기존 IR을 교체하지 않고 거부합니다.'],
+['IR LIBRARY','metadata 검색, speaker diameter 8/10/12/15/18인치, instrument/status 필터, speaker·mic·position·distance·provenance 상세 정보를 제공합니다.'],
+['상태 표시','FACTORY=동봉, INSTALLED=로컬 사용 가능, IMPORT REQUIRED/MISSING=metadata만 있고 원본 audio 없음, EXTERNAL/DOWNLOAD=제작자 파일 필요, INVALID FILE=검증 실패입니다.'],
+['IMPORT PERSONAL ZIP','인식된 개인 IR archive를 가져옵니다. ZIP 최대 32 MB이며 NAM 파일은 무시합니다.'],
+['ADD FOLDER','압축을 푼 IR 폴더를 등록합니다. 한 번에 최대 512개 audio file을 스캔하며 초과하면 더 작은 폴더를 사용합니다.'],
+['OPEN IR','WAV/AIFF 한 파일을 직접 엽니다. SOURCE PAGE / GET BASS IRS는 제작자·레퍼런스 페이지를 열 뿐 외부 IR을 Chimera가 자동 다운로드하지 않습니다.'],
+['TAGS / sidecar','정확히 대응하는 filename.wav.json sidecar로 확인된 metadata를 넣을 수 있습니다. 모르는 거리·각도는 추정해서 채우지 않습니다.'],
+['프로젝트 recall','불러온 user IR audio는 프로젝트/A·B 상태에 embedded되므로 원본 파일을 옮겨도 저장된 사운드는 다시 열 수 있습니다.']
+],
+irCredits:[
+'공개 Factory IR 두 개는 jesterdyne 제작이며 Creative Commons Attribution 4.0으로 배포됩니다. 정확한 원본 제목과 링크는 THIRD_PARTY_NOTICES.md에 있습니다.',
+'Shift Line Bass IR Pack은 외부 무료 팩입니다. GET BASS IRS에서 제작자 페이지로 이동해 직접 다운로드·압축 해제한 뒤 ADD FOLDER로 등록합니다. 해당 WAV는 Chimera에 포함되거나 자동 다운로드되지 않습니다.',
+'개인 TONE3000/NAM 레퍼런스 캡처는 공개 릴리스에서 재배포하지 않습니다. 제한된 IR audio가 포함된 프로젝트/프리셋을 공유하기 전 제작자 권한과 라이선스를 확인하십시오.'
+],
+recall:[
+'Factory preset은 정의된 사운드 경로를 초기화한 뒤 적용하므로 이전 fuzz, delay, solo, polarity, transpose 상태가 우연히 남지 않습니다.',
+'Input gain/mode, tempo/host-follow, click, tuner 설정, MIDI mapping 같은 연주 환경 설정은 유지됩니다.',
+'Factory preset은 개인/user IR 경로를 선택하지 않으며 사용자가 가진 IR asset은 별도로 유지됩니다.',
+'Factory preset을 선택해도 A/B snapshot 자체를 덮어쓰지는 않습니다. 수정한 결과를 보존하려면 .chimera reference로 저장하십시오.',
+'Factory preset 기본 초기화는 doubler와 transpose를 끕니다. 프리셋 로직이 명시적으로 다른 상태를 지정한 경우에만 달라집니다.'
+],
+hostChecks:[
+['플러그인 스캔 / 포맷','DAW가 의도한 VST3/AU 경로의 최신 SpectralForge Chimera를 실제로 로드하는지 확인합니다. 중복된 구버전 복사본은 새 빌드 확인 후에만 비활성/정리합니다.'],
+['오디오 설정','OS, DAW/버전, plugin format, sample rate, buffer/block size, 입출력 channel 수, 인터페이스 driver를 기록합니다. 먼저 단순한 새 프로젝트와 Chimera 1개 인스턴스로 재현합니다.'],
+['상태 재현','Routing mode, amp, PRE/POST 모델, IR source, oversampling, Transpose/Spectral Octaver, Gate 위치와 정확한 재현 순서를 기록합니다. 파괴적 테스트 전에 프로젝트 복사본을 저장합니다.'],
+['Latency / phase','Transpose 0과 비영점, Spectral Octaver 존재와 Empty, IR 조합을 각각 비교합니다. 호스트에 latency가 올바르게 보고되는 것과 pitch artifact/phase가 없는 것은 별개입니다.'],
+['CPU / dropout','Chimera callback AVG/PK와 DAW 자체 CPU meter를 구분해 비교합니다. Oversampling을 낮추고 pitch/convolution-heavy stage를 끄며 buffer를 늘려 deadline 초과 원인을 격리합니다.'],
+['프로젝트 닫기 / plugin unload / DAW 종료','어떤 DAW든 Chimera 사용 후 멈춤이 생기면 최소 프로젝트로 재현하고, plugin editor 닫기·plugin 제거·프로젝트/곡 닫기·DAW 종료 중 어느 시점에서 문제가 생기는지 구분합니다. 이 절차는 모든 호스트에 적용합니다.'],
+['기존 제보 사례','Studio One은 프로젝트 닫기 멈춤이 제보된 사례 중 하나라 별도 trace 문서가 있습니다. 그러나 종료/lifecycle 점검 범위는 Studio One에 한정되지 않으며 다른 DAW에서도 동일한 수준으로 재현 정보를 수집해야 합니다.']
+],
+updates:[
+['Hosted VST3/AU','CHECK FOR UPDATES는 공식 GitHub Releases 페이지를 브라우저로 엽니다. DAW 호스트 안에서는 background updater를 만들지 않습니다.'],
+['Standalone','공식 beta channel을 확인하고 사용자가 명시적으로 요청하면 호환 installer를 다운로드합니다. 파일 크기와 SHA-256을 release manifest와 대조합니다.'],
+['자동 확인','기본값은 OFF입니다. 사용자가 opt-in하면 settings file 기준 최대 24시간에 한 번 확인하며 수동 check는 언제든 가능합니다.'],
+['개인정보','추가 telemetry는 없습니다. 업데이트 확인을 하면 GitHub에는 일반적인 연결 IP와 Chimera product/version user-agent가 전달됩니다.'],
+['설치','로드된 플러그인을 자동 교체하거나 installer를 자동 실행하지 않습니다. SHOW INSTALLER는 검증 파일 위치만 열며 실행 전 모든 DAW와 Standalone을 종료해야 합니다. SHA-256 검증은 publisher code signing/notarization을 대체하지 않습니다.']
+],
+bug:[
+['Report draft','REPORT A BUG는 사용자가 검토하고 직접 제출하는 GitHub issue draft를 엽니다. 자동 제출하지 않습니다.'],
+['포함 정보','Chimera version/build revision, OS, architecture, plugin format, sample rate, block size, channel 수, reported latency.'],
+['자동 제외','Audio, IR audio, device name, account 정보, project 이름, host file path, machine identifier는 자동 첨부하지 않습니다.'],
+['Diagnostic snapshot','단계별 측정값은 마지막 block의 unweighted RMS/Peak이며 LUFS가 아닙니다. Callback AVG/PK는 전체 PC CPU가 아니라 audio-block deadline 대비 Chimera callback 사용률입니다. 오디오는 포함하지 않습니다.']
+]
+}
+};
+
+const AMP_ROUTES=[
+['Glass','NORMAL / VIBRATO','INPUT 1 / INPUT 2'],
+['Brit Edge','SINGLE','HIGH TREBLE HIGH · HIGH TREBLE LOW · NORMAL HIGH · NORMAL LOW · JUMPED'],
+['Tight 515','RHYTHM / LEAD','HIGH GAIN INPUT / LOW GAIN INPUT'],
+['Wide Rect','CH1 / CH2 / CH3','INPUT'],
+['Liquid Lead','RHYTHM 1 / RHYTHM 2 / LEAD','INPUT'],
+['Iron Tube','CHANNEL ONE / CHANNEL TWO','NORMAL INPUT / BRIGHT INPUT'],
+['Solid Punch','SINGLE','INPUT'],
+['Modern Bass','SINGLE','INPUT'],
+['Chime 30','NORMAL / TOP BOOST','HIGH INPUT / LOW INPUT'],
+['Orange Crown','CLEAN / DIRTY','INPUT'],
+['Vintage Valve','VINTAGE / OVERDRIVE','INPUT 1 / INPUT 2 · -6 dB'],
+['Metro Clean','SINGLE','INPUT'],
+['Prism Chime','CH1 / 12AX7 · CH2 / EF86','HIGH INPUT / LOW INPUT'],
+['Silk Lead','CLEAN / OVERDRIVE','INPUT'],
+['Taste Punch','SINGLE','INPUT'],
+['Cinder 120','CH1 / CH2 / CH3 / CH4','INPUT'],
+['Iron Compact','CLEAN / LEAD','INPUT'],
+['Fourfold','CH1 CLEAN · CH2 CRUNCH · CH3 MEGA · CH4 LEAD','INPUT'],
+['Classic Tube','SINGLE','INPUT'],
+['Monolith','SINGLE','NORMAL · BRILLIANT · JUMPED'],
+['Night Harvest','GAIN I / GAIN II / CLEAN','INPUT'],
+['Hot Lead','NORMAL / OVERDRIVE','INPUT'],
+['Blue Storm','CLEAN / LEAD','INPUT']
+];
+
+const PRESETS={
+en:[
+['Guitar / Clean','Clean Sustain','Optical-compressed Glass clean; balanced arpeggios.'],['Guitar / High Gain','Tight Rhythm','Tight 515 plus low-cut boost for controlled metal rhythm.'],['Matrix / Bass','Bass Matrix','Clean LOW, Modern Bass mids and Solid Punch attack; 180 Hz / 1.2 kHz.'],['Texture / Envelope','Filter Lead','Pick-responsive filter, Brit Edge and tempo-following delay.'],['Texture / Fuzz','Fuzz Texture','Big Sustain into Glass with chorus and plate.'],
+['Guitar / Clean','Bell Clean','Low-gain Chime 30 with bright cab and restrained spring.'],['Guitar / Edge','Edge Chime','Chime 30 edge breakup with EP-style lift.'],['Guitar / Rock','Classic Crunch','Brit Edge, treble lift and compact spring.'],['Guitar / High Gain','Orange Heavy','Orange Crown low-mid weight for heavy/slower riffs.'],['Guitar / High Gain','Melodic Death Rhythm','Tight 515 + low-drive Green 808 for fast low-tuned rhythm.'],['Guitar / Lead','Melodic Lead','Liquid Lead, dark delay and plate.'],['Guitar / Clean','Ambient Clean','Glass + Dimension + tape delay + hall.'],
+['Bass / Clean','Finger Round','Warm Vintage Valve and optical leveling.'],['Bass / Pick','Pick Punch','Solid Punch plus fast FET control.'],['Bass / Slap','Slap Studio','Metro Clean with controlled peaks and low-mid scoop.'],['Bass / Drive','Modern Grind','Modern Bass + Micro Bass drive.'],['Bass / Drive','Vintage Bass DI','Bass DI into Iron Tube with soft compression.'],['Bass / Fuzz','Wool Bass Fuzz','Wool Bass into Metro Clean.'],['Bass / Envelope','Bass Envelope','Bass Envelope before gentle VCA compression.'],
+['Dual / G+G','G+G Clean / Crunch','Parallel Glass + Brit Edge, clean-weighted.'],['Dual / G+G','G+G Tight / Wide','Parallel Tight 515 + Wide Rect.'],['Dual / G+B','G+B Low Anchor','220 Hz crossover: clean Metro lows + Tight 515 upper grit.'],['Dual / G+B','G+B Air / Weight','320 Hz crossover: Vintage Valve weight + Chime 30 air.'],['Dual / B+B','B+B Warm / Definition','Parallel Vintage Valve body + Metro Clean definition.'],['Dual / B+B','B+B Clean / Grind','250 Hz crossover: Metro lows + Modern Bass grind.'],
+['Matrix / Bass','Low B Foundation','140 Hz / 1.4 kHz; clean low-B foundation.'],['Matrix / Bass','Pick Attack Matrix','180 Hz / 1.6 kHz; Iron Tube mids + Modern Bass attack.'],['Matrix / Experimental','Spectral Texture','Clean LOW, Chime mids, Orange upper grit and phase.'],['Guitar / Edge','Matchless Edge','Prism Chime boutique edge with optical control and spring.'],['Guitar / Lead','Dumble Smooth Lead','Silk Lead + Gold Drive + gentle boost + dark repeats.'],['Bass / Clean','EICH Modern Clean','Taste Punch with mild VCA and broad bandwidth.']
+],
+de:[
+['Guitar / Clean','Clean Sustain','Glass-Clean mit Optical-Kompression; ausgeglichene Arpeggien.'],['Guitar / High Gain','Tight Rhythm','Tight 515 plus Low-Cut-Boost für kontrollierten Metal-Rhythmus.'],['Matrix / Bass','Bass Matrix','Sauberes LOW, Modern-Bass-Mitten und Solid-Punch-Attack; 180 Hz / 1,2 kHz.'],['Texture / Envelope','Filter Lead','Anschlagsabhängiger Filter, Brit Edge und Tempo-Delay.'],['Texture / Fuzz','Fuzz Texture','Big Sustain in Glass mit Chorus und Plate.'],
+['Guitar / Clean','Bell Clean','Low-Gain Chime 30, helles Cab, dezente Spring.'],['Guitar / Edge','Edge Chime','Chime 30 am Breakup mit EP-artigem Lift.'],['Guitar / Rock','Classic Crunch','Brit Edge, Treble Lift und kompakte Spring.'],['Guitar / High Gain','Orange Heavy','Orange-Crown-Low-Mids für schwere/langsamere Riffs.'],['Guitar / High Gain','Melodic Death Rhythm','Tight 515 + Green 808 mit wenig Drive für schnelle tiefe Riffs.'],['Guitar / Lead','Melodic Lead','Liquid Lead, dunkles Delay und Plate.'],['Guitar / Clean','Ambient Clean','Glass + Dimension + Tape Delay + Hall.'],
+['Bass / Clean','Finger Round','Warmer Vintage Valve mit Optical Leveling.'],['Bass / Pick','Pick Punch','Solid Punch plus schnelle FET-Kontrolle.'],['Bass / Slap','Slap Studio','Metro Clean mit kontrollierten Peaks und Low-Mid-Scoop.'],['Bass / Drive','Modern Grind','Modern Bass + Micro Bass Drive.'],['Bass / Drive','Vintage Bass DI','Bass DI in Iron Tube mit sanfter Kompression.'],['Bass / Fuzz','Wool Bass Fuzz','Wool Bass in Metro Clean.'],['Bass / Envelope','Bass Envelope','Bass Envelope vor sanfter VCA-Kompression.'],
+['Dual / G+G','G+G Clean / Crunch','Parallel Glass + Brit Edge, clean-lastig.'],['Dual / G+G','G+G Tight / Wide','Parallel Tight 515 + Wide Rect.'],['Dual / G+B','G+B Low Anchor','220-Hz-Crossover: saubere Metro-Tiefen + Tight-515-Oberband.'],['Dual / G+B','G+B Air / Weight','320-Hz-Crossover: Vintage-Valve-Gewicht + Chime-30-Luft.'],['Dual / B+B','B+B Warm / Definition','Parallel Vintage Valve Body + Metro Clean Definition.'],['Dual / B+B','B+B Clean / Grind','250-Hz-Crossover: Metro-Tiefen + Modern-Bass-Grind.'],
+['Matrix / Bass','Low B Foundation','140 Hz / 1,4 kHz; sauberes Low-B-Fundament.'],['Matrix / Bass','Pick Attack Matrix','180 Hz / 1,6 kHz; Iron-Tube-Mitten + Modern-Bass-Attack.'],['Matrix / Experimental','Spectral Texture','Sauberes LOW, Chime-Mitten, Orange-Oberband und Phase.'],['Guitar / Edge','Matchless Edge','Prism-Chime-Boutique-Edge mit Optical und Spring.'],['Guitar / Lead','Dumble Smooth Lead','Silk Lead + Gold Drive + sanfter Boost + dunkle Repeats.'],['Bass / Clean','EICH Modern Clean','Taste Punch mit milder VCA-Kontrolle und breiter Bandbreite.']
+],
+ko:[
+['Guitar / Clean','Clean Sustain','Optical compression + Glass clean. 아르페지오와 sustain 클린.'],['Guitar / High Gain','Tight Rhythm','Tight 515 + low-cut boost. 건조하고 통제된 메탈 리듬.'],['Matrix / Bass','Bass Matrix','Clean LOW + Modern Bass MID + Solid Punch HIGH, 180 Hz / 1.2 kHz.'],['Texture / Envelope','Filter Lead','피킹 반응 filter + Brit Edge + tempo-follow delay.'],['Texture / Fuzz','Fuzz Texture','Big Sustain → Glass + chorus + plate.'],
+['Guitar / Clean','Bell Clean','저게인 Chime 30 + 밝은 cab + 절제된 spring.'],['Guitar / Edge','Edge Chime','Chime 30 edge breakup + EP 스타일 lift.'],['Guitar / Rock','Classic Crunch','Brit Edge + treble lift + compact spring.'],['Guitar / High Gain','Orange Heavy','Orange Crown의 두꺼운 low-mid. 헤비록/느린 riff.'],['Guitar / High Gain','Melodic Death Rhythm','Tight 515 + 저드라이브 Green 808. 빠른 다운튜닝 리듬.'],['Guitar / Lead','Melodic Lead','Liquid Lead + dark delay + plate.'],['Guitar / Clean','Ambient Clean','Glass + Dimension + tape delay + hall.'],
+['Bass / Clean','Finger Round','따뜻한 Vintage Valve + optical leveling.'],['Bass / Pick','Pick Punch','Solid Punch + 빠른 FET peak control.'],['Bass / Slap','Slap Studio','Metro Clean + peak control + 절제된 low-mid scoop.'],['Bass / Drive','Modern Grind','Modern Bass + Micro Bass drive.'],['Bass / Drive','Vintage Bass DI','Bass DI → Iron Tube + 부드러운 compression.'],['Bass / Fuzz','Wool Bass Fuzz','Wool Bass → Metro Clean.'],['Bass / Envelope','Bass Envelope','Bass Envelope → gentle VCA compression.'],
+['Dual / G+G','G+G Clean / Crunch','Glass + Brit Edge 병렬 blend, clean 중심.'],['Dual / G+G','G+G Tight / Wide','Tight 515 + Wide Rect 병렬 blend.'],['Dual / G+B','G+B Low Anchor','220 Hz crossover: Metro clean low + Tight 515 upper grit.'],['Dual / G+B','G+B Air / Weight','320 Hz crossover: Vintage Valve weight + Chime 30 air.'],['Dual / B+B','B+B Warm / Definition','Vintage Valve body + Metro Clean definition 병렬.'],['Dual / B+B','B+B Clean / Grind','250 Hz crossover: Metro clean low + Modern Bass grind.'],
+['Matrix / Bass','Low B Foundation','140 Hz / 1.4 kHz. Low-B fundamental 중심.'],['Matrix / Bass','Pick Attack Matrix','180 Hz / 1.6 kHz. Iron Tube mid + Modern Bass attack.'],['Matrix / Experimental','Spectral Texture','Clean LOW + Chime MID + Orange HIGH + slow phase.'],['Guitar / Edge','Matchless Edge','Prism Chime boutique edge + optical + spring.'],['Guitar / Lead','Dumble Smooth Lead','Silk Lead + Gold Drive + gentle boost + dark delay.'],['Bass / Clean','EICH Modern Clean','Taste Punch + mild VCA, 넓은 bandwidth.']
+]
+};
 const preFamilies={
 en:[['Compressor','Control level/peaks','Changes density and sustain more than distortion','Clean, bass, pre-gain stabilisation','Use when performance dynamics need to be more consistent'],['Boost','Push the next gain stage','Mostly level/EQ, preserves more original character','Amp push, tightening, level lift','Use when you want more from the following stage rather than a new distortion source'],['Overdrive','Moderate clipping + tone shaping','More harmonics and compression','Rock, amp push, bass drive','Use when gain and tonal shaping should interact with the amp'],['Distortion','Stronger self-contained clipping','More saturation and flattening than OD','Hard rock, aggressive rhythm','Use when the pedal should be a primary distortion source'],['Fuzz','Extreme nonlinear texture','Very dense harmonics, gating/compression','Doom, stoner, noise, synth-like bass','Use for texture beyond conventional amp distortion'],['Envelope Filter','Playing-driven filter motion','Highly touch-sensitive sweep','Funk, bass solo, texture','Use when picking dynamics should control the effect'],['Wah','Manual filter motion','Directly movable resonant mid-band','Lead, expression-pedal use','Use when the sweep should be performed manually'],['Equalizer','Pre-amp spectral shaping','Precise frequency correction','Tightening, resonance control, attack shaping','Use to alter what frequencies hit distortion/amp stages'],['Modulation','Time/phase modulation before amp','Width and movement; can change phase relationship','Clean, experimental pre-amp effects','Use when modulation should also interact with amp distortion'],['Pitch / Octave','Generate pitch layers','Sub/octave or polyphonic spectral layers','Synth bass, octave riffs, texture','Choose mono for low latency single notes; spectral for polyphony with latency']],
 de:[['Kompressor','Pegel/Spitzen kontrollieren','Verändert eher Dichte und Sustain als Verzerrung','Clean, Bass, Stabilisierung vor Gain','Wenn die Spieldynamik gleichmäßiger werden soll'],['Boost','Nächste Gain-Stufe antreiben','Vor allem Pegel/EQ, viel Originalcharakter bleibt','Amp-Push, Tightening, Pegelanhebung','Wenn die folgende Stufe stärker arbeiten soll statt einer neuen Distortion'],['Overdrive','Mittlere Verzerrung + Tonformung','Mehr Obertöne und Kompression','Rock, Amp-Push, Bass-Drive','Wenn Gain und Tonformung mit dem Amp interagieren sollen'],['Distortion','Stärkere eigenständige Verzerrung','Mehr Sättigung und Einebnung als OD','Hard Rock, aggressive Rhythmus-Sounds','Wenn das Pedal selbst Hauptquelle der Verzerrung sein soll'],['Fuzz','Extreme nichtlineare Textur','Sehr dichte Obertöne, Gate/Kompression','Doom, Stoner, Noise, Synth-Bass','Für Texturen jenseits klassischer Amp-Verzerrung'],['Envelope Filter','Anschlagsgesteuerte Filterbewegung','Sehr dynamikempfindlicher Sweep','Funk, Bass-Solo, Textur','Wenn die Anschlagsstärke den Effekt steuern soll'],['Wah','Manuelle Filterbewegung','Resonantes Mittenband direkt verschiebbar','Lead, Expression-Pedal','Wenn der Sweep manuell gespielt werden soll'],['Equalizer','Spektrale Formung vor dem Amp','Präzise Frequenzkorrektur','Tightening, Resonanzen, Attack','Wenn bestimmte Frequenzen anders in Gain/Amp gelangen sollen'],['Modulation','Zeit-/Phasenmodulation vor dem Amp','Breite und Bewegung, veränderte Phasenbeziehungen','Clean, experimentelle Vor-Amp-Effekte','Wenn Modulation mit Amp-Verzerrung interagieren soll'],['Pitch / Oktave','Zusätzliche Tonhöhen erzeugen','Sub/Oktave oder polyphone Spektral-Layer','Synth-Bass, Oktavriffs, Textur','Mono für geringe Latenz/Einzelnoten; Spectral für Polyphonie mit Latenz']],
@@ -392,11 +721,23 @@ function renderModels(target,data){
 function render(){
  document.documentElement.lang=lang;
  document.querySelectorAll('[data-k]').forEach(n=>n.textContent=L[lang][n.dataset.k]||'');
+ document.querySelectorAll('[data-x]').forEach(n=>n.textContent=X[lang][n.dataset.x]||'');
  document.querySelectorAll('.lang-btn').forEach(b=>b.classList.toggle('active',b.dataset.lang===lang));
  document.getElementById('quickBody').innerHTML=bullets(L[lang].quick);
+ document.getElementById('installBody').innerHTML=table(
+   lang==='ko'?['운영체제','형식','설치 / 첫 실행']:lang==='de'?['System','Formate','Installation / Start']:['System','Formats','Installation / first launch'],X[lang].install);
+ document.getElementById('boardBody').innerHTML=table(
+   lang==='ko'?['조작','동작']:lang==='de'?['Bedienung','Funktion']:['Control','Behaviour'],X[lang].board,false);
+ document.getElementById('stateBody').innerHTML=table(
+   lang==='ko'?['기능','저장 / Recall 동작']:lang==='de'?['Funktion','Speichern / Recall']:['Function','Saved / recall behaviour'],X[lang].state,false);
+ document.getElementById('supportBody').innerHTML=table(
+   lang==='ko'?['SETTINGS 항목','설명']:lang==='de'?['SETTINGS','Beschreibung']:['SETTINGS item','Description'],X[lang].support,false);
  document.getElementById('modeTable').innerHTML=table(
    lang==='ko'?['모드','구조','추천 용도']:lang==='de'?['Modus','Struktur','Einsatz']:['Mode','Structure','Use'],
    L[lang].modes,false);
+ const matrixRows=X[lang].matrix;
+ document.getElementById('modeTable').innerHTML += '<h3>Matrix LOW</h3>'+table(
+   lang==='ko'?['기능','동작']:lang==='de'?['Funktion','Verhalten']:['Function','Behaviour'],matrixRows,false);
  document.getElementById('preFamilyTable').innerHTML=table(
    lang==='ko'?['모델군','핵심 역할','소리에 미치는 영향','대표 용도','선택 기준']:lang==='de'?['Gruppe','Kernaufgabe','Klangwirkung','Typischer Einsatz','Auswahlkriterium']:['Family','Core role','Sound effect','Typical use','Choose it when'],
    preFamilies[lang]);
@@ -410,10 +751,24 @@ function render(){
    lang==='ko'?['Stage','핵심 질문','담당 요소','우선순위']:lang==='de'?['Stage','Kernfrage','Bearbeitet','Priorität']:['Stage','Core question','Handles','Priority'],
    stages[lang],false);
  renderModels('#preModels',PRE);renderModels('#ampModels',AMP);renderModels('#postModels',POST);
+ document.getElementById('ampRouteBody').innerHTML=table(
+   lang==='ko'?['모델','채널','입력 경로']:lang==='de'?['Modell','Kanäle','Eingangswege']:['Model','Channels','Input routes'],AMP_ROUTES);
  document.getElementById('irBody').innerHTML=bullets(L[lang].ir);
+ document.getElementById('irDetailBody').innerHTML=table(
+   lang==='ko'?['항목','내용']:lang==='de'?['Bereich','Details']:['Item','Details'],X[lang].irDetail,false);
+ document.getElementById('irCreditsBody').innerHTML=bullets(X[lang].irCredits);
  document.getElementById('presetBody').innerHTML=bullets(L[lang].preset);
+ document.getElementById('presetTable').innerHTML=table(
+   lang==='ko'?['분류','Preset','용도']:lang==='de'?['Kategorie','Preset','Einsatz']:['Category','Preset','Use'],PRESETS[lang]);
+ document.getElementById('recallBody').innerHTML=bullets(X[lang].recall);
  document.getElementById('globalBody').innerHTML=table(
    lang==='ko'?['기능','설명']:lang==='de'?['Funktion','Beschreibung']:['Function','Description'],L[lang].global,false);
+ document.getElementById('hostCheckBody').innerHTML=table(
+   lang==='ko'?['점검 항목','방법']:lang==='de'?['Prüfung','Vorgehen']:['Check','Procedure'],X[lang].hostChecks,false);
+ document.getElementById('updateBody').innerHTML=table(
+   lang==='ko'?['항목','동작']:lang==='de'?['Bereich','Verhalten']:['Item','Behaviour'],X[lang].updates,false);
+ document.getElementById('bugBody').innerHTML=table(
+   lang==='ko'?['항목','내용']:lang==='de'?['Bereich','Details']:['Item','Details'],X[lang].bug,false);
  document.getElementById('diagBody').innerHTML=bullets(L[lang].diag);
  document.getElementById('limitsBody').innerHTML=bullets(L[lang].limits);
  document.getElementById('workflowBody').innerHTML=L[lang].workflows.map(x=>'<article class="workflow"><h4>'+esc(x[0])+'</h4><p>'+esc(x[1])+'</p></article>').join('');
