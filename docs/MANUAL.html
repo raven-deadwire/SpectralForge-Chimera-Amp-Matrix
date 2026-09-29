@@ -32,7 +32,7 @@ footer{border-top:1px solid var(--line);margin-top:58px;padding-top:22px;color:v
 <nav><a href="#quick" data-k="navQuick"></a><a href="#install" data-x="navInstall"></a><a href="#operation" data-x="navOperation"></a><a href="#signal" data-k="navSignal"></a><a href="#compare" data-k="navCompare"></a><a href="#pre" data-k="navPre"></a><a href="#amps" data-k="navAmp"></a><a href="#post" data-k="navPost"></a><a href="#ir" data-k="navIr"></a><a href="#workflows" data-k="navWorkflow"></a><a href="#preset" data-k="navPreset"></a><a href="#global" data-k="navGlobal"></a><a href="#host" data-x="navHost"></a><a href="#diag" data-k="navDiag"></a><a href="#limits" data-k="navLimits"></a></nav>
 <p class="note" data-k="referenceNote"></p>
 <section id="quick"><h2 data-k="quickTitle"></h2><div id="quickBody"></div></section>
-<section id="install"><h2 data-x="installTitle"></h2><div id="installBody"></div></section>
+<section id="install"><h2 data-x="installTitle"></h2><div id="installBody"></div><h3 data-x="requirementsTitle"></h3><p class="section-intro" data-x="requirementsNote"></p><div id="requirementsBody"></div><h3 data-x="performanceTitle"></h3><div id="performanceBody"></div><p class="tip" data-x="performanceTip"></p></section>
 <section id="operation"><h2 data-x="operationTitle"></h2><p class="section-intro" data-x="operationIntro"></p><h3 data-x="boardTitle"></h3><div id="boardBody"></div><h3 data-x="stateTitle"></h3><div id="stateBody"></div><h3 data-x="supportTitle"></h3><div id="supportBody"></div></section>
 <section id="signal"><h2 data-k="signalTitle"></h2><p class="flow">INPUT → Gate / Transpose → 5-slot PRE → Rig(s) + Cabinet/IR → Merge → POST Gate → POST Rack → Doubler → OUTPUT</p><div id="modeTable"></div></section>
 <section id="compare"><h2 data-k="compareTitle"></h2><p class="section-intro" data-k="compareIntro"></p><h3 data-k="preFamilyTitle"></h3><div id="preFamilyTable"></div><h3 data-k="ampFamilyTitle"></h3><div id="ampFamilyTable"></div><h3 data-k="postFamilyTitle"></h3><div id="postFamilyTable"></div><h3 data-k="stageTitle"></h3><div id="stageTable"></div></section>
@@ -146,16 +146,70 @@ workflows:[
 const X={
 en:{
 navInstall:'Installation',navOperation:'Operation / state',navHost:'DAW / updates',
-installTitle:'02 · Installation and first launch',operationTitle:'03 · Interface, PRE editing and saved state',operationIntro:'These controls determine how the current sound is edited, stored, recalled and supported. Structural changes should be deliberate; ordinary continuous controls remain automatable.',
+installTitle:'02 · Installation and first launch',requirementsTitle:'System requirements and recommended configuration',requirementsNote:'Platform/architecture entries below are release-supported requirements. CPU and RAM figures are practical recommendations, not certified hard minimums; actual headroom depends on the DAW, interface driver, sample rate, buffer, routing mode and enabled models.',performanceTitle:'Real-time performance starting points',performanceTip:'For troubleshooting, start at 48 kHz / 256 samples / 2× or 4× amp oversampling with one Chimera instance. Add 8× oversampling, Transpose, Spectral Octaver, multiple IR-heavy rigs and additional plugin instances only after the baseline is stable.',operationTitle:'03 · Interface, PRE editing and saved state',operationIntro:'These controls determine how the current sound is edited, stored, recalled and supported. Structural changes should be deliberate; ordinary continuous controls remain automatable.',
 boardTitle:'Five-slot PRE controls',stateTitle:'Save / A·B / MIDI / interface state',supportTitle:'SETTINGS and support',
 ampRouteTitle:'Amplifier channels and input routes',irLibraryTitle:'IR Library operation and limits',irCreditsTitle:'IR credits and external bass IRs',
 presetListTitle:'31 factory presets',recallTitle:'Preset / A·B recall rules',
 hostTitle:'13 · DAW compatibility, updates and reporting',hostIntro:'Chimera should be diagnosed as a hosted audio plugin, not around one specific DAW. The same checks apply to VST3/AU hosts such as Studio One, Cubase/Nuendo, REAPER, Ableton Live, Bitwig Studio, FL Studio, Logic Pro and other compatible hosts. Mentioning a DAW here does not mean full certification.',
 hostCheckTitle:'Host-wide compatibility checklist',updateTitle:'Updates and privacy',bugTitle:'Bug reports and diagnostic data',
 install:[
-['Windows 10/11 x64','Standalone + VST3','Setup installs the standalone app and VST3. Standard VST3 path is C:\\\\Program Files\\\\Common Files\\\\VST3; a custom VST3 path must also be added to the DAW scan paths. ASIO drivers are recommended for low-latency real-time use.'],
+['Windows 10/11 x64','Standalone + VST3','Setup installs the standalone app and VST3. Standard VST3 path is C:\\\\Program Files\\\\Common Files\\\\VST3; a custom VST3 path must also be added to the DAW scan paths. Use a stable low-latency audio driver/API supported by your interface and host for real-time use.'],
 ['macOS 12+ · Apple Silicon / Intel','Standalone + VST3 + AU','Universal package installs the app plus VST3/AU. The beta is not Developer ID signed or notarized, so Gatekeeper can show a warning. Allow microphone/audio-input permission for the standalone app or recording host when requested.'],
 ['Debian / Ubuntu x86_64 · glibc 2.35 baseline','Standalone + VST3','DEB installs the standalone app and VST3; the portable TAR uses per-user locations and still depends on listed system libraries. Other distributions are not certified by the release build.']
+],
+requirements:[
+['Operating system','Windows 10/11 x64 · macOS 12+ on Apple Silicon or Intel · Debian/Ubuntu x86_64 with glibc 2.35 baseline'],
+['CPU architecture','64-bit only. Windows/Linux release targets x86_64; macOS universal contains arm64 + x86_64. No separate AVX-only CPU requirement is published for this beta.'],
+['Plugin formats','Windows: VST3 + Standalone · macOS: AU + VST3 + Standalone · Linux: VST3 + Standalone'],
+['DAW / host','A 64-bit host that supports the corresponding VST3 or AU format. Host-by-host compatibility remains a beta validation area.'],
+['Display','The editor is 1180 × 780 at 100%. 75% mode is approximately 885 × 585; 1280 × 800 or larger is a practical minimum display recommendation, with 1920 × 1080 or larger preferred.'],
+['Memory','No certified hard RAM minimum has been established. 8 GB system RAM is a practical baseline; 16 GB or more is recommended for normal DAW projects, multiple Chimera instances and large sample-based sessions.'],
+['CPU recommendation','A modern 64-bit CPU with strong single-core performance and 4 or more cores is a practical baseline. 6–8 or more cores provide more session headroom for multiple plugin instances; macOS Intel remains supported, while Apple Silicon generally offers more real-time headroom.'],
+['Storage','Open Beta 1.1 installer downloads are about 40 MB on Windows/Linux and 125 MB on macOS. Keep additional free space for installation, update copies, user IRs and DAW projects; 500 MB free beyond the installer is a practical minimum reserve.'],
+['Audio I/O','For live guitar/bass/vocal input, use an audio interface or system audio device with a stable low-latency driver/API. Physical microphone gain and +48 V remain functions of the interface, not Chimera.']
+],
+performance:[
+['Tracking / live monitoring','44.1 or 48 kHz · start around 128–256 samples · 2× or 4× amp oversampling. Try 64 samples only when the whole host session remains stable.'],
+['General mixing','44.1 or 48 kHz · 256–512 samples · 4× amp oversampling is the default balance. Increase the host buffer before sacrificing the intended routing or IR choices.'],
+['Heavy / final render','512 samples or more when latency is irrelevant. Compare 4× and 8× oversampling at matched output level; use 8× only when it brings an audible benefit and the render is stable.'],
+['Higher sample rates','88.2/96 kHz can increase CPU load substantially. They are not required for Chimera to operate; choose them for the session only when the rest of the production benefits.'],
+['Highest-cost features','Transpose, Spectral Octaver, higher amp oversampling, multiple convolution/IR paths, Matrix/Dual multi-rig processing and multiple Chimera instances can all reduce real-time headroom. Spectral Octaver also adds roughly 43–46 ms of frame latency.']
+],
+requirements:[
+['Betriebssystem','Windows 10/11 x64 · macOS 12+ auf Apple Silicon oder Intel · Debian/Ubuntu x86_64 mit glibc-2.35-Baseline'],
+['CPU-Architektur','Nur 64 Bit. Windows/Linux: x86_64; macOS Universal: arm64 + x86_64. Für diese Beta ist keine separate AVX-only-Anforderung veröffentlicht.'],
+['Plugin-Formate','Windows: VST3 + Standalone · macOS: AU + VST3 + Standalone · Linux: VST3 + Standalone'],
+['DAW / Host','64-Bit-Host mit Unterstützung des entsprechenden VST3- oder AU-Formats. Die Kompatibilität einzelner Hosts bleibt Teil der Beta-Validierung.'],
+['Display','Editorgröße bei 100 %: 1180 × 780. Bei 75 % etwa 885 × 585. Praktisch mindestens 1280 × 800, bevorzugt 1920 × 1080 oder größer.'],
+['Arbeitsspeicher','Kein zertifiziertes hartes RAM-Minimum. 8 GB sind eine praktische Basis; 16 GB oder mehr werden für normale DAW-Projekte, mehrere Chimera-Instanzen und große Sample-Sessions empfohlen.'],
+['CPU-Empfehlung','Moderner 64-Bit-Prozessor mit guter Single-Core-Leistung und mindestens 4 Kernen als praktische Basis. 6–8 oder mehr Kerne bieten mehr Reserve für mehrere Instanzen; Intel-macOS bleibt unterstützt, Apple Silicon bietet in der Regel mehr Echtzeitreserve.'],
+['Speicherplatz','Open-Beta-1.1-Installer: etwa 40 MB unter Windows/Linux und 125 MB unter macOS. Zusätzlich Platz für Installation, Updates, User-IRs und Projekte vorsehen; 500 MB Reserve über den Installer hinaus sind ein praktischer Mindestpuffer.'],
+['Audio-I/O','Für Live-Gitarre/Bass/Vocal ein Audiointerface oder System-Audiogerät mit stabilem Low-Latency-Treiber/API verwenden. Physischer Mic-Gain und +48 V gehören zum Interface, nicht zu Chimera.']
+],
+performance:[
+['Tracking / Live Monitoring','44,1 oder 48 kHz · zunächst 128–256 Samples · 2× oder 4× Amp-Oversampling. 64 Samples nur testen, wenn die gesamte Host-Session stabil bleibt.'],
+['Allgemeines Mixing','44,1 oder 48 kHz · 256–512 Samples · 4× Amp-Oversampling als Standardkompromiss. Zuerst Host-Buffer erhöhen, bevor Routing oder IR-Auswahl vereinfacht werden.'],
+['Heavy / Final Render','512 Samples oder mehr, wenn Latenz unwichtig ist. 4× und 8× bei gleichem Ausgangspegel vergleichen; 8× nur bei hörbarem Vorteil und stabilem Render.'],
+['Höhere Sample-Rates','88,2/96 kHz können die CPU-Last deutlich erhöhen. Sie sind für den Betrieb von Chimera nicht erforderlich.'],
+['Teuerste Funktionen','Transpose, Spectral Octaver, höheres Amp-Oversampling, mehrere Convolution/IR-Pfade, Matrix/Dual-Multi-Rig und mehrere Chimera-Instanzen reduzieren Echtzeitreserve. Spectral Octaver fügt außerdem etwa 43–46 ms Frame-Latenz hinzu.']
+],
+requirements:[
+['운영체제','Windows 10/11 x64 · macOS 12 이상 Apple Silicon/Intel · Debian/Ubuntu x86_64, glibc 2.35 기준'],
+['CPU 아키텍처','64-bit 전용입니다. Windows/Linux 릴리스는 x86_64, macOS Universal은 arm64 + x86_64를 포함합니다. 현재 베타는 별도의 AVX 전용 최소 CPU 조건을 두고 있지 않습니다.'],
+['플러그인 형식','Windows: VST3 + Standalone · macOS: AU + VST3 + Standalone · Linux: VST3 + Standalone'],
+['DAW / Host','해당 VST3 또는 AU 형식을 지원하는 64-bit 호스트가 필요합니다. DAW별 세부 호환성은 여전히 베타 검증 범위입니다.'],
+['화면','100% UI는 1180 × 780, 75%는 약 885 × 585입니다. 실사용 기준 최소 1280 × 800 정도를 권장하고, 1920 × 1080 이상이면 가장 편합니다.'],
+['메모리','공식적으로 인증된 최소 RAM은 아직 정하지 않았습니다. 시스템 RAM 8 GB를 실사용 기준선으로 보고, 일반 DAW 프로젝트·다중 Chimera 인스턴스·샘플 기반 작업에는 16 GB 이상을 권장합니다.'],
+['CPU 권장','강한 single-core 성능을 가진 현대적인 64-bit CPU와 4코어 이상을 실사용 기준선으로 봅니다. 여러 Chimera 인스턴스를 사용할 경우 6–8코어 이상이 유리합니다. macOS Intel도 지원하지만 실시간 여유는 대체로 Apple Silicon 쪽이 더 큽니다.'],
+['저장공간','Open Beta 1.1 다운로드 크기는 Windows/Linux 약 40 MB, macOS 약 125 MB입니다. 설치·업데이트 복사본·User IR·DAW 프로젝트를 위해 installer 외에 최소 약 500 MB 이상의 여유 공간을 두는 것을 권장합니다.'],
+['오디오 I/O','기타·베이스·보컬을 실시간 입력하려면 안정적인 저지연 드라이버/API를 지원하는 오디오 인터페이스 또는 시스템 오디오 장치를 사용합니다. 실제 마이크 게인과 +48 V는 Chimera가 아니라 인터페이스가 담당합니다.']
+],
+performance:[
+['실시간 연주 / 모니터링','44.1 또는 48 kHz · 128–256 samples부터 시작 · Amp Oversampling 2× 또는 4×. 전체 DAW 세션이 안정적인 경우에만 64 samples까지 낮춰봅니다.'],
+['일반 믹싱','44.1 또는 48 kHz · 256–512 samples · Amp Oversampling 4×가 기본적인 균형점입니다. Routing이나 IR을 포기하기 전에 host buffer를 먼저 늘리는 편이 좋습니다.'],
+['고부하 / 최종 렌더','latency가 중요하지 않으면 512 samples 이상. 동일 Output level에서 4×와 8×를 비교하고, 실제 음질 이득이 있으며 렌더가 안정적일 때만 8×를 사용합니다.'],
+['높은 Sample Rate','88.2/96 kHz는 CPU 사용량을 크게 늘릴 수 있습니다. Chimera 동작에 필수는 아니며 세션 전체가 높은 sample rate의 이점을 필요로 할 때 선택합니다.'],
+['부하가 큰 기능','Transpose, Spectral Octaver, 높은 Amp Oversampling, 여러 convolution/IR 경로, Matrix/Dual 다중 Rig, 여러 Chimera 인스턴스는 실시간 여유를 줄입니다. Spectral Octaver는 약 43–46 ms의 frame latency도 추가합니다.']
 ],
 board:[
 ['Select model','Choose a category/model in any of the five slots. Empty removes processing from that slot.'],
@@ -237,14 +291,14 @@ bug:[
 },
 de:{
 navInstall:'Installation',navOperation:'Bedienung / Zustand',navHost:'DAW / Updates',
-installTitle:'02 · Installation und erster Start',operationTitle:'03 · Oberfläche, PRE-Bearbeitung und gespeicherter Zustand',operationIntro:'Diese Funktionen bestimmen Bearbeitung, Speicherung, Recall und Support. Strukturänderungen sollten bewusst erfolgen; kontinuierliche Audio-Regler bleiben automatisierbar.',
+installTitle:'02 · Installation und erster Start',requirementsTitle:'Systemanforderungen und empfohlene Konfiguration',requirementsNote:'Plattform und Architektur sind bestätigte Release-Anforderungen. CPU- und RAM-Werte sind praktische Empfehlungen, keine zertifizierten Mindestwerte; die tatsächliche Reserve hängt von DAW, Audiotreiber, Sample-Rate, Buffer, Routing und aktiven Modellen ab.',performanceTitle:'Startwerte für Echtzeit-Performance',performanceTip:'Für die Fehlersuche mit 48 kHz / 256 Samples / 2× oder 4× Amp-Oversampling und einer Chimera-Instanz beginnen. 8×, Transpose, Spectral Octaver, mehrere IR-intensive Rigs und weitere Instanzen erst nach einer stabilen Basis hinzufügen.',operationTitle:'03 · Oberfläche, PRE-Bearbeitung und gespeicherter Zustand',operationIntro:'Diese Funktionen bestimmen Bearbeitung, Speicherung, Recall und Support. Strukturänderungen sollten bewusst erfolgen; kontinuierliche Audio-Regler bleiben automatisierbar.',
 boardTitle:'Bedienung des 5-Slot-Pedalboards',stateTitle:'Speichern / A·B / MIDI / Oberfläche',supportTitle:'SETTINGS und Support',
 ampRouteTitle:'Amp-Kanäle und Eingangswege',irLibraryTitle:'IR-Library: Bedienung und Grenzen',irCreditsTitle:'IR-Credits und externe Bass-IRs',
 presetListTitle:'31 Werks-Presets',recallTitle:'Preset- / A·B-Recall-Regeln',
 hostTitle:'13 · DAW-Kompatibilität, Updates und Fehlerberichte',hostIntro:'Chimera wird als gehostetes Audio-Plugin diagnostiziert, nicht rund um eine einzelne DAW. Dieselben Prüfungen gelten für VST3-/AU-Hosts wie Studio One, Cubase/Nuendo, REAPER, Ableton Live, Bitwig Studio, FL Studio, Logic Pro und andere kompatible Hosts. Eine Erwähnung bedeutet keine vollständige Zertifizierung.',
 hostCheckTitle:'DAW-übergreifende Checkliste',updateTitle:'Updates und Datenschutz',bugTitle:'Fehlerbericht und Diagnosedaten',
 install:[
-['Windows 10/11 x64','Standalone + VST3','Setup installiert Standalone und VST3. Standardpfad: C:\\\\Program Files\\\\Common Files\\\\VST3. Bei einem eigenen VST3-Pfad muss dieser auch im DAW-Scanpfad liegen. Für geringe Echtzeitlatenz ist ein ASIO-Treiber empfehlenswert.'],
+['Windows 10/11 x64','Standalone + VST3','Setup installiert Standalone und VST3. Standardpfad: C:\\\\Program Files\\\\Common Files\\\\VST3. Bei einem eigenen VST3-Pfad muss dieser auch im DAW-Scanpfad liegen. Für Echtzeitbetrieb einen stabilen Low-Latency-Audiotreiber bzw. die vom Interface/Host unterstützte Audio-API verwenden.'],
 ['macOS 12+ · Apple Silicon / Intel','Standalone + VST3 + AU','Universal-Paket installiert App, VST3 und AU. Die Beta ist nicht Developer-ID-signiert/notarisiert; Gatekeeper kann warnen. Audio-/Mikrofonberechtigung bei Bedarf für Standalone oder Host erlauben.'],
 ['Debian / Ubuntu x86_64 · glibc 2.35 Baseline','Standalone + VST3','DEB installiert Standalone und VST3. Das TAR nutzt Benutzerpfade und benötigt weiterhin die aufgelisteten Systembibliotheken. Andere Distributionen sind durch den Release-Build nicht zertifiziert.']
 ],
@@ -328,14 +382,14 @@ bug:[
 },
 ko:{
 navInstall:'설치',navOperation:'조작 / 저장',navHost:'DAW / 업데이트',
-installTitle:'02 · 설치와 첫 실행',operationTitle:'03 · 인터페이스·PRE 편집·상태 저장',operationIntro:'이 절은 현재 톤을 어떻게 편집하고 저장·복원하며 지원 기능을 사용하는지 설명합니다. 구조 변경은 의도적으로 수행하고, 일반적인 연속 오디오 컨트롤은 호스트 자동화를 사용할 수 있습니다.',
+installTitle:'02 · 설치와 첫 실행',requirementsTitle:'시스템 요구사항과 권장 사양',requirementsNote:'운영체제와 CPU 아키텍처는 실제 릴리스가 지원하는 조건입니다. CPU·RAM 수치는 공식 최소 벤치마크가 아니라 실사용 권장치이며, 실제 여유는 DAW·오디오 드라이버·sample rate·buffer·routing mode·활성 모델에 따라 달라집니다.',performanceTitle:'실시간 성능 권장 시작값',performanceTip:'문제를 진단할 때는 48 kHz / 256 samples / Amp Oversampling 2× 또는 4× / Chimera 1개 인스턴스로 시작하세요. 이 상태가 안정된 뒤 8×, Transpose, Spectral Octaver, 다중 IR Rig, 추가 Chimera 인스턴스를 하나씩 늘리는 방식이 원인 파악에 가장 좋습니다.',operationTitle:'03 · 인터페이스·PRE 편집·상태 저장',operationIntro:'이 절은 현재 톤을 어떻게 편집하고 저장·복원하며 지원 기능을 사용하는지 설명합니다. 구조 변경은 의도적으로 수행하고, 일반적인 연속 오디오 컨트롤은 호스트 자동화를 사용할 수 있습니다.',
 boardTitle:'5-slot PRE 조작법',stateTitle:'Save / A·B / MIDI / 인터페이스 상태',supportTitle:'SETTINGS와 지원 기능',
 ampRouteTitle:'앰프 채널과 입력 경로',irLibraryTitle:'IR Library 사용법과 제한',irCreditsTitle:'IR 크레딧과 외부 베이스 IR',
 presetListTitle:'Factory Preset 31종',recallTitle:'Preset / A·B Recall 규칙',
 hostTitle:'13 · DAW 호환성·업데이트·버그 리포트',hostIntro:'Chimera는 특정 DAW 하나가 아니라 호스트형 오디오 플러그인으로 진단해야 합니다. Studio One, Cubase/Nuendo, REAPER, Ableton Live, Bitwig Studio, FL Studio, Logic Pro 및 기타 호환 VST3/AU 호스트에 같은 절차를 적용합니다. 여기서 DAW 이름을 언급하는 것은 완전한 호환 인증을 뜻하지 않습니다.',
 hostCheckTitle:'모든 DAW에 적용하는 호환성 점검',updateTitle:'업데이트와 개인정보',bugTitle:'버그 리포트와 진단 데이터',
 install:[
-['Windows 10/11 x64','Standalone + VST3','Setup에서 Standalone과 VST3를 설치합니다. 표준 VST3 경로는 C:\\\\Program Files\\\\Common Files\\\\VST3이며, 사용자 지정 경로를 선택하면 DAW의 플러그인 검색 경로에도 추가해야 합니다. 실시간 연주에는 ASIO 드라이버를 권장합니다.'],
+['Windows 10/11 x64','Standalone + VST3','Setup에서 Standalone과 VST3를 설치합니다. 표준 VST3 경로는 C:\\\\Program Files\\\\Common Files\\\\VST3이며, 사용자 지정 경로를 선택하면 DAW의 플러그인 검색 경로에도 추가해야 합니다. 실시간 연주에는 오디오 인터페이스와 호스트가 지원하는 안정적인 저지연 오디오 드라이버/API를 사용합니다.'],
 ['macOS 12+ · Apple Silicon / Intel','Standalone + VST3 + AU','Universal 패키지로 App/VST3/AU를 설치합니다. 현재 베타는 Developer ID 서명·공증 전이라 Gatekeeper 경고가 나타날 수 있습니다. Standalone 또는 녹음 호스트가 요청하면 마이크/오디오 입력 권한을 허용합니다.'],
 ['Debian / Ubuntu x86_64 · glibc 2.35 기준','Standalone + VST3','DEB는 Standalone과 VST3를 설치합니다. TAR는 사용자 홈 경로에 설치하지만 명시된 시스템 라이브러리가 필요합니다. 다른 배포판은 릴리스 빌드의 인증 범위가 아닙니다.']
 ],
@@ -1130,6 +1184,10 @@ function render(){
  document.getElementById('quickBody').innerHTML=bullets(L[lang].quick);
  document.getElementById('installBody').innerHTML=table(
    lang==='ko'?['운영체제','형식','설치 / 첫 실행']:lang==='de'?['System','Formate','Installation / Start']:['System','Formats','Installation / first launch'],X[lang].install);
+ document.getElementById('requirementsBody').innerHTML=table(
+   lang==='ko'?['항목','요구 / 권장']:lang==='de'?['Bereich','Anforderung / Empfehlung']:['Item','Requirement / recommendation'],X[lang].requirements,false);
+ document.getElementById('performanceBody').innerHTML=table(
+   lang==='ko'?['사용 상황','권장 시작값']:lang==='de'?['Einsatz','Empfohlener Startwert']:['Use case','Recommended starting point'],X[lang].performance,false);
  document.getElementById('boardBody').innerHTML=table(
    lang==='ko'?['조작','동작']:lang==='de'?['Bedienung','Funktion']:['Control','Behaviour'],X[lang].board,false);
  document.getElementById('stateBody').innerHTML=table(
