@@ -5,6 +5,30 @@ Close the application and all DAWs before installing or updating. Save a copy of
 Compare the downloaded installer against `SHA256SUMS.txt` from the same release.
 The beta packages currently have no verified publisher code signature. The macOS binaries use an ad-hoc build signature for local code integrity; they are not Developer ID signed or notarized. No Windows Store certification is claimed.
 
+## System requirements and recommended configuration
+
+The platform/architecture requirements below are release-supported values. CPU and RAM figures are practical recommendations, not certified hard minimums.
+
+| Item | Requirement / recommendation |
+|---|---|
+| Operating systems | Windows 10/11 x64 · macOS 12+ on Apple Silicon or Intel · Debian/Ubuntu x86_64 with glibc 2.35 baseline |
+| CPU architecture | 64-bit only. Windows/Linux target x86_64; macOS universal contains arm64 + x86_64. No separate AVX-only minimum is published for this beta. |
+| Plugin formats | Windows: VST3 + Standalone · macOS: AU + VST3 + Standalone · Linux: VST3 + Standalone |
+| DAW / host | A 64-bit host supporting the corresponding VST3 or AU format. Host-specific compatibility remains part of beta validation. |
+| Display | Editor is 1180×780 at 100% and about 885×585 at 75%. 1280×800 is a practical minimum; 1920×1080 or larger is preferred. |
+| Memory | No certified hard minimum. 8 GB system RAM is a practical baseline; 16 GB+ is recommended for normal DAW work, multiple Chimera instances, or large sample-based sessions. |
+| CPU recommendation | Modern 64-bit CPU with strong single-core performance and 4+ cores as a practical baseline; 6–8+ cores provide more headroom for multi-instance sessions. |
+| Storage | Beta 1.1 installer downloads are about 40 MB on Windows/Linux and 125 MB on macOS. Keep additional free space for installation, updates, user IRs and projects; ~500 MB extra is a practical reserve. |
+| Audio I/O | For live input, use an interface or system audio device with a stable low-latency driver/API. Physical mic gain and +48 V are supplied by the interface, not Chimera. |
+
+### Real-time performance starting points
+
+- **Tracking / live monitoring:** 44.1 or 48 kHz, 128–256 samples, amp oversampling 2× or 4×. Try 64 samples only if the whole host session remains stable.
+- **General mixing:** 44.1 or 48 kHz, 256–512 samples, 4× amp oversampling.
+- **Heavy / final render:** 512 samples or more when latency is not important; compare 4× and 8× at matched output level.
+- **Higher sample rates:** 88.2/96 kHz can increase CPU load substantially and are not required for Chimera to operate.
+- **Highest-cost features:** Transpose, Spectral Octaver, high amp oversampling, multiple IR/convolution paths, Dual/Matrix multi-rig processing and multiple Chimera instances.
+
 ## Windows 10/11 · x64
 
 Run `SpectralForge-Chimera-1.1.0-beta.1-win64-Setup.exe`.
