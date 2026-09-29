@@ -1,26 +1,26 @@
-# SpectralForge Chimera — Open Beta 1.0 factory presets
+# SpectralForge Chimera — Open Beta 1.1 factory presets
 
-The 31 factory presets are starting points for an instrument DI. The menu groups them by instrument, use and routing. Names identify Chimera's own DSP voicings; the amplifier and effect reference names are design influences, not a claim of an exact circuit or captured model.
+The 31 factory presets are starting points for an instrument DI. The menu uses a fixed taxonomy: Guitar (Clean & Ambient / Edge & Rock / High Gain / Lead & Texture), Bass (Clean & Dynamics / Drive & Texture), Dual (Blend / Crossover), and Matrix (Bass / Experimental). Names identify Chimera's own DSP voicings; the amplifier and effect reference names are design influences, not a claim of an exact circuit or captured model.
 
 Set interface gain first. Aim for normal playing peaks around **−12 to −6 dBFS** with Input at 0 dB; lower interface gain if the input clips. Factory output is usually −9 to −11 dB to leave mix headroom. Pickup output, playing and added gain can still change the final level. Match Output when comparing sounds; the presets are not a promise of identical loudness or a mastering limiter.
 
-## Guitar and texture presets
+## Guitar presets
 
 | Preset | Category | Main sound | Cabinet / use |
 |---|---|---|---|
-| Clean Sustain | Clean | Glass, optical compression, short plate | Jensen; controlled arpeggios and sustained clean lines |
-| Bell Clean | Clean | Chime 30, restrained spring | Jensen; bright clean picking |
-| Ambient Clean | Clean | Glass, Dimension, tape delay, hall | Jensen; spacious layered parts |
-| Edge Chime | Edge | Chime 30, mild EP Lift | Jensen; touch-sensitive breakup |
-| Matchless Edge | Edge | Match Chime (Matchless DC-30 influence), light optical control, spring | Jensen; articulate boutique chime |
-| Classic Crunch | Rock | Brit Edge, Treble Lift, short spring | V30; classic rock rhythm |
+| Clean Sustain | Clean & Ambient | Glass, optical compression, short plate | Jensen; controlled arpeggios and sustained clean lines |
+| Bell Clean | Clean & Ambient | Chime 30, restrained spring | Jensen; bright clean picking |
+| Ambient Clean | Clean & Ambient | Glass, Dimension, tape delay, hall | Jensen; spacious layered parts |
+| Edge Chime | Edge & Rock | Chime 30, mild EP Lift | Jensen; touch-sensitive breakup |
+| Matchless Edge | Edge & Rock | Match Chime (Matchless DC-30 influence), light optical control, spring | Jensen; articulate boutique chime |
+| Classic Crunch | Edge & Rock | Brit Edge, Treble Lift, short spring | V30; classic rock rhythm |
 | Tight Rhythm | High gain | Tight 515, low-cut clean boost | V30; dry, controlled metal rhythm |
 | Orange Heavy | High gain | Orange Crown, full low mids | V30; heavy rock and slower riffs |
 | Melodic Death Rhythm | High gain | Tight 515, low-drive Green 808, focused upper mids | V30; fast low-tuned rhythm |
-| Melodic Lead | Lead | Liquid Lead, dark delay, plate | V30; melodic solos |
-| Dumble Smooth Lead | Lead | Silk ODS (Dumble Overdrive Special influence), Gold Drive then boost, dark delay | V30; smooth, expressive lead |
-| Filter Lead | Envelope texture | Brit Edge, pick-responsive filter, mild drive | V30; filter lead with a quarter-note delay at the current tempo |
-| Fuzz Texture | Fuzz texture | Big Sustain, Glass, chorus, plate | V30; sustaining fuzz layers |
+| Melodic Lead | Lead & Texture | Liquid Lead, dark delay, plate | V30; melodic solos |
+| Dumble Smooth Lead | Lead & Texture | Silk ODS (Dumble Overdrive Special influence), Gold Drive then boost, dark delay | V30; smooth, expressive lead |
+| Filter Lead | Lead & Texture | Brit Edge, pick-responsive filter, mild drive | V30; filter lead with a quarter-note delay at the current tempo |
+| Fuzz Texture | Lead & Texture | Big Sustain, Glass, chorus, plate | V30; sustaining fuzz layers |
 
 ## Bass presets
 
@@ -28,14 +28,14 @@ These presets select **Filters only**, with a 28–35 Hz low cut and an upper cu
 
 | Preset | Category | Main sound | Use |
 |---|---|---|---|
-| Finger Round | Clean | Bassman Valve, optical levelling | Warm fingerstyle foundation |
-| EICH Modern Clean | Clean | Taste Punch (EICH T900 influence), mild VCA | Broad, clear modern bass foundation |
-| Pick Punch | Pick | Solid Punch, FET control, upper mids | Clear picked rock bass |
-| Slap Studio | Slap | Subway Clean, VCA control, mild low-mid scoop | Slap with controlled peaks |
-| Modern Grind | Drive | Modern Bass and Micro Bass | Aggressive upper harmonics with retained lows |
-| Vintage Bass DI | Drive | Iron Tube and Bass DI, gentle Variable Mu | Warm rock DI character |
-| Wool Bass Fuzz | Fuzz | Wool Bass fuzz into Subway Clean | Gated sustain with a filtered top |
-| Bass Envelope | Envelope | Bass Envelope followed by VCA | Pick-responsive sweep with a dry-low blend |
+| Finger Round | Clean & Dynamics | Bassman Valve, optical levelling | Warm fingerstyle foundation |
+| EICH Modern Clean | Clean & Dynamics | Taste Punch (EICH T900 influence), mild VCA | Broad, clear modern bass foundation |
+| Pick Punch | Clean & Dynamics | Solid Punch, FET control, upper mids | Clear picked rock bass |
+| Slap Studio | Clean & Dynamics | Subway Clean, VCA control, mild low-mid scoop | Slap with controlled peaks |
+| Modern Grind | Drive & Texture | Modern Bass and Micro Bass | Aggressive upper harmonics with retained lows |
+| Vintage Bass DI | Drive & Texture | Iron Tube and Bass DI, gentle Variable Mu | Warm rock DI character |
+| Wool Bass Fuzz | Drive & Texture | Wool Bass fuzz into Subway Clean | Gated sustain with a filtered top |
+| Bass Envelope | Drive & Texture | Bass Envelope followed by VCA | Pick-responsive sweep with a dry-low blend |
 
 The envelope precedes the compressor so its detector can follow playing dynamics. Reduce **Sense** if the filter opens too easily; increase it for a quieter instrument. Fuzz sustain also depends on the instrument level.
 
