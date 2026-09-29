@@ -6,14 +6,43 @@ on:
 permissions:
   contents: read
   actions: read
-concurrency:
-  group: publish-chimera-v1.1.0-beta.1
-  cancel-in-progress: true
 jobs:
+  supersede-old-builds:
+    if: github.repository == 'raven-deadwire/SpectralForge-Chimera-Amp-Matrix' && github.ref == 'refs/heads/release/open-beta-1.1'
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      actions: write
+    steps:
+      - name: Cancel only superseded Beta 1.1 release runs
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python3 - <<'PYTHON'
+          import json, os, urllib.request
+          repo = os.environ['GITHUB_REPOSITORY']
+          root = 'https://api.github.com/repos/' + repo
+          headers = {'Authorization': 'Bearer ' + os.environ['GH_TOKEN'], 'Accept': 'application/vnd.github+json', 'X-GitHub-Api-Version': '2022-11-28'}
+          def request(path, method='GET'):
+              return urllib.request.urlopen(urllib.request.Request(root + path, headers=headers, method=method), timeout=30)
+          with request('/git/ref/heads/release/open-beta-1.1') as response:
+              assert json.load(response)['object']['sha'] == os.environ['GITHUB_SHA'], 'Source was superseded'
+          with request('/actions/runs?branch=release%2Fopen-beta-1.1&per_page=100') as response:
+              runs = json.load(response)['workflow_runs']
+          for run in runs:
+              if (run['name'] == 'Build and publish Open Beta 1.1' and run['head_sha'] != os.environ['GITHUB_SHA']
+                      and run['status'] != 'completed'):
+                  with request('/actions/runs/' + str(run['id']) + '/cancel', 'POST') as response:
+                      print('Cancelled superseded release build', run['id'], response.status)
+          PYTHON
   verified-builds:
+    needs: supersede-old-builds
     if: github.repository == 'raven-deadwire/SpectralForge-Chimera-Amp-Matrix' && github.ref == 'refs/heads/release/open-beta-1.1'
     uses: ./.github/workflows/build.yml
   publish:
+    concurrency:
+      group: publish-chimera-v1.1.0-beta.1
+      cancel-in-progress: false
     needs: verified-builds
     runs-on: ubuntu-24.04
     timeout-minutes: 30
