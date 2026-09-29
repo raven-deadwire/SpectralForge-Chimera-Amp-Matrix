@@ -1,6 +1,8 @@
-# SpectralForge Chimera — Open Beta 1.0 updates and support
+# SpectralForge Chimera — Open Beta 1.1 updates and support
 
-The installed binary version is `1.0.0-beta.1`; the release tag is `v1.0.0-beta.1`.
+Hosted VST3/AU opens the official releases page without creating an HTTP update worker. Automatic update checks and verified downloads described below apply to Standalone.
+
+The installed binary version is `1.1.0-beta.1`; the release tag is `v1.1.0-beta.1`.
 The existing plugin IDs and `SpectralForge/Chimera` data directory remain compatible.
 
 ## User behavior
@@ -46,7 +48,7 @@ Only the fixed repository is queried:
 
 The highest semantic version among non-draft `beta`, `rc` and final releases with
 an `update-beta.json` asset is selected. Tags must start with `v`; beta.10 sorts
-later than beta.2. Final 1.0.0 sorts later than 1.0.0-beta.1. Alpha releases are not
+later than beta.2. Final 1.0.0 sorts later than 1.1.0-beta.1. Alpha releases are not
 offered on this channel. Assets and release pages must belong to the same exact
 repository and tag. A draft release cannot be discovered until it is published.
 An empty published release list is displayed as no published update; a missing or
@@ -57,15 +59,15 @@ Example schema (hash and size must be replaced by the release assembly tool):
 ```json
 {
   "schema": 1,
-  "version": "1.0.0-beta.1",
+  "version": "1.1.0-beta.1",
   "channel": "beta",
-  "releaseUrl": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/releases/tag/v1.0.0-beta.1",
+  "releaseUrl": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/releases/tag/v1.1.0-beta.1",
   "assets": [
     {
       "platform": "windows",
       "arch": "x86_64",
-      "name": "SpectralForge-Chimera-1.0.0-beta.1-win64-Setup.exe",
-      "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/releases/download/v1.0.0-beta.1/SpectralForge-Chimera-1.0.0-beta.1-win64-Setup.exe",
+      "name": "SpectralForge-Chimera-1.1.0-beta.1-win64-Setup.exe",
+      "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/releases/download/v1.1.0-beta.1/SpectralForge-Chimera-1.1.0-beta.1-win64-Setup.exe",
       "sha256": "REPLACE_WITH_64_HEX_CHARACTERS",
       "size": 123456
     }

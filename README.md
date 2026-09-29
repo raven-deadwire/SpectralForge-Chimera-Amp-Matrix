@@ -1,10 +1,10 @@
-# SpectralForge Chimera — Open Beta 1.0
+# SpectralForge Chimera — Open Beta 1.1
 
 **SpectralForge Chimera** is a guitar and bass amp & effects suite built around a flexible multi-amp architecture.
 
-**[Download Open Beta 1 — Windows / macOS / Linux](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/releases/tag/v1.0.0-beta.1)** · **[한국어 매뉴얼 / English quick reference](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/releases/download/v1.0.0-beta.1/MANUAL.html)**
+**[Download Open Beta 1.1 — Windows / macOS / Linux](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/releases/tag/v1.1.0-beta.1)** · **[한국어 매뉴얼 / English quick reference](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/releases/download/v1.1.0-beta.1/MANUAL.html)**
 
-Version `1.0.0-beta.1` includes 15 amp heads, 46 effect models and 31 factory presets. The offline manual is also included in each installer and available under SETTINGS → Manual. This beta is unsigned on Windows and not Developer ID signed or notarized on macOS.
+Version `1.1.0-beta.1` includes 23 amp heads, 39 PRE pedal models, the six-module POST rack and 31 factory presets. The offline manual is also included in each installer and available under SETTINGS → Manual. This beta is unsigned on Windows and not Developer ID signed or notarized on macOS.
 
 It works as a conventional single-amp simulator in **Classic Mode**, blends two complete amp rigs or splits low/high in **Dual Mode**, or splits the instrument signal into multiple frequency bands in **Matrix Mode**, blending a compressed LOW DI with a selectable head/cab beneath independent MID/HIGH rigs.
 
@@ -19,13 +19,13 @@ With integrated **Pre FX, Post FX, amp models, cabinet/IR processing, and flexib
 **RavenForge Luthier Intelligence**
 *Forge your signal. Build your amp.*
 
-## Open Beta 1.0
+## Open Beta 1.1
 
 Implemented signal path: **input/gate/transpose -> PRE pedalboard -> rigs/cabinets -> merge -> POST rack -> doubler/output**. The chromatic tuner taps the input before the gate and transpose; optional auto-mute silences the output while tuning.
 
-- Fifteen independently voiced amp algorithms with 1x/2x/4x/8x oversampling (4x default).
-- Matrix LOW: one-knob VCA-style COMP, Level, Band Tone and DI/AMP blend. The head drive is fixed at 0 and hidden; Classic/Dual drive settings are preserved. LOW receives the clean tap before Fuzz/Boost/Overdrive. Its DI and selected amp/cab branch have matching algorithmic delay. MID/HIGH retain Drive, Level and Band Tone. Classic/Dual Blend retain full-range EQ; Dual Crossover uses two Band Tone controls.
-- PRE pedalboard: Envelope Filter, Compressor, Fuzz, Boost, Overdrive, with five models per family. TOUCH puts Envelope first; SUSTAIN puts Compressor first. Gain order switches between Fuzz → Boost → Overdrive and Fuzz → Overdrive → Boost. Older states retain their previous order. POST rack: Bus Compressor, Preamp, three-band EQ, Modulation, Delay, Reverb, with 21 model choices. Gate and Transpose remain permanently accessible in the top strip.
+- Twenty-three amplifier models with model-specific controls, channels/input paths and 1x/2x/4x/8x oversampling (4x default).
+- Matrix LOW: one-knob VCA-style COMP, Level, Band Tone and DI/AMP blend. The compact view prioritizes Band Tone, LOW DI COMP and DI/AMP; ALL exposes the full amplifier controls. Classic/Dual settings are preserved. LOW receives the clean tap before Fuzz/Boost/Overdrive. Its DI and selected amp/cab branch have matching algorithmic delay. MID/HIGH retain Drive, Level and Band Tone. Classic/Dual Blend retain full-range EQ; Dual Crossover uses two Band Tone controls.
+- PRE: five freely arranged slots, 39 models grouped into exclusive categories, immediate selection, duplicate/reorder, and model-specific parameter banks. Pedal reference names are small captions; four knobs use 2×2 and five knobs use 3+2 layouts. Older sessions retain their internal compatibility processing until the new board is edited. POST: Bus Compressor, Preamp, EQ, Modulation, Delay and Reverb in six rows with ALL detail panels; compressor/preamp/EQ choices open directly without an intermediate category.
 - A/B snapshots and Save/Load reference files include parameters and embedded IRs. Repeatable synthetic DI and RMS-matched amp/cab A/B WAVs accompany Windows builds.
 - Two embedded factory IRs, plus a WAV/AIFF loader, direct installed-file CAB menu and drag-and-drop per rig. Personal and external captures require local import and are not included in the public release. User IR audio is embedded in the DAW project, so moving the original file does not break recall. Cabinet bypass, cuts, status, mute/solo and polarity are exposed.
 - Global input/output gain and peak meters; gate threshold/hold/release; polyphonic transpose (-12 to +12 semitones); tuner with A4 calibration and auto-mute.
@@ -36,8 +36,7 @@ Amp names describe target voicings. **Hardware reproduction accuracy has not bee
 
 ## Interface and cabinet collection
 
-Publisher: RavenForge Luthier Intelligence. The interface uses 64 model artwork
-surfaces plus the workbench background and brand assets, with live JUCE controls. Pedals
+Publisher: RavenForge Luthier Intelligence. The interface uses model-specific artwork plus the workbench background and brand assets, with live JUCE controls. Pedals
 and racks keep rectangular layouts, interpreting each reference's material,
 panel and knob details. The two Mu-Tron modes intentionally share one body.
 
@@ -49,7 +48,7 @@ Personal capture data is not in this repository or the release downloads.
 See [installation instructions](docs/INSTALLATION.md)
 and [graphics/DSP update details](docs/GRAPHICS_DSP_UPDATE.md).
 
-This is Open Beta 1.0. The release uses the verified binaries from [build #136](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/36107249747); real hardware listening and DAW compatibility remain areas for beta feedback. Hardware equivalence is not claimed. Windows signing is prepared in `Tools/Sign-WindowsArtifact.ps1`
+Open Beta 1.1 is published only after all three platform builds and package checks pass. Windows shutdown changes address a reproduced JUCE VBlank failure loop and release shared image/IR resources earlier. **The reported Studio One hang has not yet been confirmed resolved on the user’s system.** See [shutdown diagnostics](docs/STUDIO_ONE_TEARDOWN.md). Real hardware listening and DAW compatibility remain areas for beta feedback. Hardware equivalence is not claimed. Windows signing is prepared in `Tools/Sign-WindowsArtifact.ps1`
 and `Tools/Build-WindowsInstaller.ps1 -Sign`; a CA-validated publisher identity is
 still required. See `docs/WINDOWS_SIGNING.md` for the concrete signing path and the
 difference between publisher identity and SmartScreen reputation.
@@ -63,12 +62,12 @@ uses the standard-folder Setup installer. See [MSIX scope and signing](docs/WIND
 
 ## Installation, help and release
 
-- [Download the Korean / English offline manual](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/releases/download/v1.0.0-beta.1/MANUAL.html) — open the downloaded HTML file in a browser for routing, controls, amp/IR use, presets, troubleshooting and support.
+- [Download the Korean / English offline manual](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/releases/download/v1.1.0-beta.1/MANUAL.html) — open the downloaded HTML file in a browser for routing, controls, amp/IR use, presets, troubleshooting and support.
 - [Platform installation](docs/INSTALLATION.md) — Windows Setup, macOS universal PKG (app/VST3/AU), Linux x86_64 DEB/TAR.
-- [Beta release notes](docs/PUBLISHED_OPEN_BETA_1.md), [15 amp references](docs/AMP_VOICES_OPEN_BETA.md), [31 preset guide](docs/PRESETS.md).
+- [Beta 1.1 release notes](docs/PUBLISHED_OPEN_BETA_1_1.md), [23 amp controls](docs/AMP_NATIVE_DSP.md), [31 preset guide](docs/PRESETS.md).
 - [Maintainer release checklist](docs/RELEASE_CHECKLIST.md). The `prepare-release.yml` workflow produces draft-ready artifacts and a hash-based update manifest; it never publishes externally.
 
-SETTINGS → Manual / Bug report / Updates provides an embedded offline manual, user-reviewed bug reports and beta update checks. Downloads are verified against same-repository release metadata, byte size and SHA256; users save/close their host before installation. Publisher signing and macOS notarization remain pending. The published prerelease includes `update-beta.json` for beta-channel discovery.
+SETTINGS → Manual / Bug report / Updates provides an embedded offline manual and user-reviewed bug reports. Hosted VST3/AU opens the releases page without an HTTP updater; Standalone retains beta update checks. Downloads are verified against same-repository release metadata, byte size and SHA256; users save/close their host before installation. Publisher signing and macOS notarization remain pending. The published prerelease includes `update-beta.json` for beta-channel discovery. Windows Setup supports separate app and VST3 paths. This free beta may become paid; free support may end after beta.
 
 ---
 

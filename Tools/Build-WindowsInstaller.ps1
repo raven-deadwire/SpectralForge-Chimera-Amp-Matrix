@@ -1,5 +1,5 @@
 param(
-    [string]$Stage = "dist/SpectralForge-Chimera-1.0.0-beta.1-win64",
+    [string]$Stage = "dist/SpectralForge-Chimera-1.1.0-beta.1-win64",
     [string]$OutputDirectory = "dist",
     [string]$BuildId = "",
     [switch]$Sign,
@@ -31,7 +31,7 @@ $iscc = if ($isccCommand) { $isccCommand.Source } else {
 if (!(Test-Path -LiteralPath $iscc)) { throw "Inno Setup 6.3 or newer is required to build the installer." }
 $script = Join-Path $PSScriptRoot "../Installer/Chimera.iss"
 $compilerArguments = @("/DStageDir=$stagePath", "/DOutputPath=$outputPath")
-$outputName = "SpectralForge-Chimera-1.0.0-beta.1-win64-Setup.exe"
+$outputName = "SpectralForge-Chimera-1.1.0-beta.1-win64-Setup.exe"
 if ($BuildId) {
     if ($BuildId -notmatch '^[0-9a-f]{10}$') { throw "Candidate BuildId must be the first ten lowercase source commit characters." }
     $candidateManifest = Get-Content -LiteralPath (Join-Path $stagePath "payload-manifest.json") -Raw | ConvertFrom-Json

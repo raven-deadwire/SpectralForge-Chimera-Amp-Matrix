@@ -1,4 +1,4 @@
-name: Open Beta 1.0 · Prepare release candidate
+name: Open Beta 1.1 · Prepare release candidate
 on:
   workflow_dispatch:
 permissions:

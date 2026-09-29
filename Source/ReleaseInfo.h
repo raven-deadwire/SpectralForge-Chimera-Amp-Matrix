@@ -1,8 +1,8 @@
 #pragma once
 
 namespace spectralforge::release {
-inline constexpr auto version = "1.0.0-beta.1";
-inline constexpr auto displayVersion = "Open Beta 1.0";
+inline constexpr auto version = "1.1.0-beta.1";
+inline constexpr auto displayVersion = "Open Beta 1.1";
 inline constexpr auto channel = "beta";
 inline constexpr auto repository = "raven-deadwire/SpectralForge-Chimera-Amp-Matrix";
 inline constexpr auto repositoryUrl = "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix";

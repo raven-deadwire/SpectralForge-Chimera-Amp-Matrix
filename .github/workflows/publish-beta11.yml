@@ -1,0 +1,33 @@
+name: Build and publish Open Beta 1.1
+on:
+  push:
+    branches: [release/open-beta-1.1]
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+concurrency:
+  group: publish-chimera-v1.1.0-beta.1
+  cancel-in-progress: false
+jobs:
+  verified-builds:
+    if: github.repository == 'raven-deadwire/SpectralForge-Chimera-Amp-Matrix' && github.ref == 'refs/heads/release/open-beta-1.1'
+    uses: ./.github/workflows/build.yml
+  publish:
+    needs: verified-builds
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    permissions:
+      contents: write
+      actions: read
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verify this run's packages and publish Beta 1.1
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python Tools/publish_beta11.py

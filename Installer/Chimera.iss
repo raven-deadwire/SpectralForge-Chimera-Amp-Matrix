@@ -7,13 +7,13 @@
 #endif
 #define ProductName "SpectralForge Chimera"
 #ifdef BuildId
-  #define ProductVersion "1.0.1"
+  #define ProductVersion "1.1.0"
   #define ProductRelease "Preview " + BuildId
   #define OutputName "SpectralForge-Chimera-update-" + BuildId + "-win64-Setup"
 #else
-  #define ProductVersion "1.0.0"
-  #define ProductRelease "Open Beta 1.0"
-  #define OutputName "SpectralForge-Chimera-1.0.0-beta.1-win64-Setup"
+  #define ProductVersion "1.1.0"
+  #define ProductRelease "Open Beta 1.1"
+  #define OutputName "SpectralForge-Chimera-1.1.0-beta.1-win64-Setup"
 #endif
 
 [Setup]

@@ -17,7 +17,7 @@ import tempfile
 import zipfile
 
 ROOT = Path(__file__).resolve().parents[1]
-VERSION = "1.0.0-beta.1"
+VERSION = "1.1.0-beta.1"
 PRODUCT = "SpectralForge Chimera"
 PREFIX = f"SpectralForge-Chimera-{VERSION}"
 REPO = "raven-deadwire/SpectralForge-Chimera-Amp-Matrix"
@@ -56,7 +56,8 @@ def documents(destination: Path, build: Path) -> None:
     copy(ROOT / "COPYRIGHT.txt", destination / "COPYRIGHT.txt")
     for name in ("MANUAL.html", "OPEN_BETA_RELEASE_NOTES.md", "THIRD_PARTY_NOTICES.md",
                  "AMP_VALIDATION.md", "AMP_VOICES_OPEN_BETA.md", "OPEN_BETA_NAM_VALIDATION.md", "PRESETS.md", "EXTERNAL_BASS_IRS.md", "UPDATES.md", "MODELS_AND_REFERENCE.md", "FX_AND_IR_DESIGN.md",
-                 "WINDOWS_INSTALL.txt", "INSTALLATION.md", "NAM_REFERENCE_RESULTS.md"):
+                 "WINDOWS_INSTALL.txt", "INSTALLATION.md", "NAM_REFERENCE_RESULTS.md",
+                 "STUDIO_ONE_TEARDOWN.md", "AMP_NATIVE_DSP.md", "POST_NATIVE_DSP.md", "PEDAL_BOARD_DSP.md"):
         copy(ROOT / "docs" / name, destination / name)
     copy(build / "Testing/Temporary/LastTest.log", destination / "Verification.txt")
     copy(ROOT / "docs/reference", destination / "reference")
@@ -89,10 +90,11 @@ def windows(build: Path, dist: Path) -> None:
     for name in ("GRAPHICS_DSP_UPDATE.md", "WINDOWS_SIGNING.md", "ARTWORK_PROMPTS.json"):
         copy(ROOT / "docs" / name, stage / name)
     copy(ROOT / "Tools/validate_nam.py", stage / "ReferenceTools/validate_nam.py")
+    copy(ROOT / "Tools/Trace-Chimera-Session.ps1", stage / "ReferenceTools/Trace-Chimera-Session.ps1")
     copy(build / "ChimeraRender_artefacts/Release/ChimeraRender.exe", stage / "ReferenceTools/ChimeraRender.exe")
     copy(build / "reference-audio", stage / "reference-audio")
     (stage / "README.txt").write_text(
-        f"{PRODUCT} — Open Beta 1.0 ({VERSION})\n\n"
+        f"{PRODUCT} — Open Beta 1.1 ({VERSION})\n\n"
         "Close Chimera and your DAW before installing or updating.\n"
         "Run the Setup installer for standard VST3 registration and the standalone app.\n"
         "Read MANUAL.html for Korean/English usage and INSTALLATION.md for platform details.\n"
@@ -150,7 +152,7 @@ def macos(build: Path, dist: Path) -> None:
         components.write_bytes(plistlib.dumps(info))
         package = dist / f"{PREFIX}-macos-universal.pkg"
         run("pkgbuild", "--root", str(stage), "--component-plist", str(components),
-            "--identifier", "audio.spectralforge.chimera", "--version", "1.0.0", "--install-location", "/", str(package))
+            "--identifier", "audio.spectralforge.chimera", "--version", "1.1.0", "--install-location", "/", str(package))
         expanded = Path(temporary) / "expanded"
         run("pkgutil", "--expand-full", str(package), str(expanded))
         unpacked = expanded / "Payload"
@@ -185,7 +187,7 @@ def linux(build: Path, dist: Path) -> None:
     desktop = stage / "usr/share/applications/chimera-amp-matrix.desktop"
     desktop.parent.mkdir(parents=True, exist_ok=True)
     desktop.write_text("[Desktop Entry]\nType=Application\nName=SpectralForge Chimera\n"
-                       "Comment=Guitar and bass amp matrix — Open Beta 1.0\n"
+                       "Comment=Guitar and bass amp matrix — Open Beta 1.1\n"
                        "Exec=chimera-amp-matrix\nIcon=chimera-amp-matrix\nTerminal=false\n"
                        "Categories=AudioVideo;Audio;\n", encoding="utf-8")
     vstbinary = plugin / "Contents/x86_64-linux/SpectralForge Chimera.so"
@@ -204,7 +206,7 @@ def linux(build: Path, dist: Path) -> None:
             raise RuntimeError("Cannot produce explicit Debian runtime dependencies")
         control = stage / "DEBIAN/control"
         control.parent.mkdir()
-        control.write_text(f"Package: chimera-amp-matrix\nVersion: 1.0.0~beta.1\nSection: sound\nPriority: optional\nArchitecture: amd64\nMaintainer: RavenForge <noreply@ravenforge.audio>\nDepends: {depends}\nHomepage: https://github.com/{REPO}\nDescription: SpectralForge Chimera Open Beta 1.0\n Guitar and bass amp suite, standalone and VST3, with offline manual.\n", encoding="utf-8")
+        control.write_text(f"Package: chimera-amp-matrix\nVersion: 1.1.0~beta.1\nSection: sound\nPriority: optional\nArchitecture: amd64\nMaintainer: RavenForge <noreply@ravenforge.audio>\nDepends: {depends}\nHomepage: https://github.com/{REPO}\nDescription: SpectralForge Chimera Open Beta 1.1\n Guitar and bass amp suite, standalone and VST3, with offline manual.\n", encoding="utf-8")
         package = dist / f"{PREFIX}-linux-x86_64.deb"
         run("dpkg-deb", "--build", "--root-owner-group", str(stage), str(package))
         extracted = work / "extracted"

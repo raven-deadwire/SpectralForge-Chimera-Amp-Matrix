@@ -1,13 +1,13 @@
-# SpectralForge Chimera — Open Beta 1.0 installation
+# SpectralForge Chimera — Open Beta 1.1 installation
 
-Version `1.0.0-beta.1`, release tag `v1.0.0-beta.1`.
+Version `1.1.0-beta.1`, release tag `v1.1.0-beta.1`.
 Close the application and all DAWs before installing or updating. Save a copy of important sessions first.
 Compare the downloaded installer against `SHA256SUMS.txt` from the same release.
 The beta packages currently have no verified publisher code signature. The macOS binaries use an ad-hoc build signature for local code integrity; they are not Developer ID signed or notarized. No Windows Store certification is claimed.
 
 ## Windows 10/11 · x64
 
-Run `SpectralForge-Chimera-1.0.0-beta.1-win64-Setup.exe`.
+Run `SpectralForge-Chimera-1.1.0-beta.1-win64-Setup.exe`.
 Select VST3, standalone and optional reference tools. Setup requires administrator privileges for the standard VST3 folder.
 
 - VST3: `C:\Program Files\Common Files\VST3\SpectralForge Chimera.vst3`
@@ -19,9 +19,11 @@ Select VST3, standalone and optional reference tools. Setup requires administrat
 
 The ZIP is a portable layout for manual inspection/use. Its VST3 bundle must be copied to a host-scanned folder; running the standalone does not register the plugin. MSIX output is an internal review package only and is not a public beta installer.
 
+Windows Setup에서 앱과 VST3 경로를 각각 선택할 수 있습니다. 사용자 지정 VST3 폴더는 DAW 검색 경로에도 추가하세요. 이전 수동 설치본이 다른 경로에 남아 있다면 새 버전을 확인한 뒤 중복된 구형 플러그인을 정리하세요.
+
 ## macOS 12 or later · Apple Silicon and Intel
 
-Run `SpectralForge-Chimera-1.0.0-beta.1-macos-universal.pkg`.
+Run `SpectralForge-Chimera-1.1.0-beta.1-macos-universal.pkg`.
 The universal app, VST3 and AU contain both arm64 and x86_64 code. Package installation requires administrator authorization.
 
 - App: `/Applications/SpectralForge Chimera.app`
@@ -41,7 +43,7 @@ The release builder targets Ubuntu 22.04 with glibc 2.35 baseline. Other distrib
 Install the `.deb` with a dependency-resolving package manager:
 
 ```sh
-sudo apt install ./SpectralForge-Chimera-1.0.0-beta.1-linux-x86_64.deb
+sudo apt install ./SpectralForge-Chimera-1.1.0-beta.1-linux-x86_64.deb
 ```
 
 - Standalone: `/usr/bin/chimera-amp-matrix`

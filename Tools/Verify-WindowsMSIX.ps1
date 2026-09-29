@@ -1,5 +1,5 @@
 param(
-    [string]$Package = "dist/msix/Chimera-1.0.0.0-x64-review-unsigned.msix",
+    [string]$Package = "dist/msix/Chimera-1.1.0.0-x64-review-unsigned.msix",
     [string]$OutputDirectory = "build/msix-verification"
 )
 $ErrorActionPreference = "Stop"
@@ -37,7 +37,7 @@ try {
     if (@(Get-ChildItem -LiteralPath $unpacked -Recurse -File | Where-Object { $_.Extension -in ".vst3", ".nam", ".wav" }).Count) {
         throw "Standalone MSIX must not imply global VST3 registration or bundle private captures."
     }
-    $sourceExe = "dist/SpectralForge-Chimera-1.0.0-beta.1-win64/Standalone/SpectralForge Chimera.exe"
+    $sourceExe = "dist/SpectralForge-Chimera-1.1.0-beta.1-win64/Standalone/SpectralForge Chimera.exe"
     if ((Get-FileHash -LiteralPath "$unpacked/App/SpectralForge Chimera.exe").Hash -ne (Get-FileHash -LiteralPath $sourceExe).Hash) {
         throw "Packaged app differs from the DSP/UI-validated standalone."
     }

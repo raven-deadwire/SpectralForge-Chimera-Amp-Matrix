@@ -1,9 +1,9 @@
 param(
-    [string]$Stage = "dist/SpectralForge-Chimera-1.0.0-beta.1-win64",
+    [string]$Stage = "dist/SpectralForge-Chimera-1.1.0-beta.1-win64",
     [string]$OutputDirectory = "dist/msix",
     [ValidateSet("Review", "Store", "Signed")][string]$Mode = "Review",
     [string]$IdentityFile,
-    [string]$Version = "1.0.0.0",
+    [string]$Version = "1.1.0.0",
     [string]$CertificateThumbprint = $env:CHIMERA_SIGNING_THUMBPRINT
 )
 $ErrorActionPreference = "Stop"

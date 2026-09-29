@@ -1,12 +1,12 @@
-# Open Beta 1.0 release handoff
+# Open Beta 1.1 release handoff
 
-Target: **SpectralForge Chimera**, `1.0.0-beta.1`, tag `v1.0.0-beta.1`.
+Target: **SpectralForge Chimera**, `1.1.0-beta.1`, tag `v1.1.0-beta.1`.
 The preparation workflows create downloadable build artifacts only. They do not create tags, draft releases or public releases.
 
 ## Candidate preparation
 
 1. Review the source diff and brand assets. Confirm plugin unique IDs, state types and installer AppId are unchanged.
-2. Push the reviewed revision to the open development PR, or run **Open Beta 1.0 · Prepare release candidate** on the exact intended revision. Both routes build all three platforms and assemble one candidate without publishing.
+2. Push the reviewed revision to the open development PR, or run **Open Beta 1.1 · Prepare release candidate** on the exact intended revision. Both routes build all three platforms and assemble one candidate without publishing.
 3. Require green Windows, macOS and Linux jobs and the aggregate manifest job. Do not reuse binaries from a different commit or an earlier run.
 4. Inspect Windows UI galleries at minimum/default size. Confirm all text and control targets, amp references, short IR titles, and rack aspect ratio.
 5. Check DSP, installer, MSIX-review and Defender reports. MSIX is not a downloadable public installer. Do not treat a missing report as a pass.
@@ -16,9 +16,9 @@ The preparation workflows create downloadable build artifacts only. They do not 
 
 ## Concrete publication package
 
-- `SpectralForge-Chimera-1.0.0-beta.1-win64-Setup.exe`
-- `SpectralForge-Chimera-1.0.0-beta.1-macos-universal.pkg`
-- `SpectralForge-Chimera-1.0.0-beta.1-linux-x86_64.deb`
+- `SpectralForge-Chimera-1.1.0-beta.1-win64-Setup.exe`
+- `SpectralForge-Chimera-1.1.0-beta.1-macos-universal.pkg`
+- `SpectralForge-Chimera-1.1.0-beta.1-linux-x86_64.deb`
 - Optional Windows portable ZIP and Linux TAR.GZ, with their runtime/install documentation
 - `SHA256SUMS.txt`, per-file SHA256 sidecars, `update-beta.json`
 - `OPEN_BETA_RELEASE_NOTES.md`, `INSTALLATION.md`, `MANUAL.html`, `THIRD_PARTY_NOTICES.md`
@@ -35,3 +35,7 @@ For a rollback, unpublish/replace the incorrect release only through a deliberat
 ## Builder maintenance
 
 The macOS universal job pins `macos-15`; the macOS 14 hosted image enters scheduled brownouts in October 2026 and retires on 2026-11-02 ([official runner notice](https://github.com/actions/runner-images/issues/13518)). The Linux binary builder intentionally remains Ubuntu 22.04 for its glibc baseline; migrate it to a newer hosted runner with a pinned Ubuntu 22.04 build container before that hosted image retires on 2027-04-17 ([official runner notice](https://github.com/actions/runner-images/issues/14254)). The artifact-only aggregation job uses Ubuntu 24.04 and does not influence binary compatibility.
+
+## Authorized Beta 1.1 publication
+
+Push the reviewed versioned source to `release/open-beta-1.1`. `publish-beta11.yml` runs the existing three-platform build, packaging and validation gates, then verifies the exact run/commit/artifact SHA-256 and publishes `v1.1.0-beta.1` as a prerelease. Existing tags and assets are never replaced. Personal IR/NAM bundles remain excluded. The prior Beta 1.0 publisher remains pinned to its original release and is not reused as a build target.

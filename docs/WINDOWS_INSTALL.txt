@@ -1,9 +1,9 @@
-SpectralForge Chimera — Open Beta 1.0 (1.0.0-beta.1)
+SpectralForge Chimera — Open Beta 1.1 (1.1.0-beta.1)
 Windows 10/11 x64 설치 안내
 ==================================================
 
 1. Studio One 등 모든 DAW와 Chimera를 종료하고 중요한 프로젝트를 복사해 보관합니다.
-2. SpectralForge-Chimera-1.0.0-beta.1-win64-Setup.exe를 실행합니다.
+2. SpectralForge-Chimera-1.1.0-beta.1-win64-Setup.exe를 실행합니다.
 3. VST3, 단독 실행 앱, 선택적 레퍼런스 도구를 선택합니다.
 4. VST3는 C:\Program Files\Common Files\VST3\SpectralForge Chimera.vst3에 설치됩니다.
 5. 단독 실행 앱의 기본 폴더는 기존 개발판 업그레이드를 위해

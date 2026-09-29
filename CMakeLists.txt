@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.22)
-project(ChimeraAmpMatrix VERSION 1.0.0 LANGUAGES C CXX)
+project(ChimeraAmpMatrix VERSION 1.1.0 LANGUAGES C CXX)
 set(CMAKE_CXX_STANDARD 20)
 if(MSVC)
   add_compile_options(/utf-8)

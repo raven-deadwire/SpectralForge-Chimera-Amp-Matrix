@@ -1,6 +1,6 @@
 ﻿param(
-    [string]$Installer = "dist/SpectralForge-Chimera-1.0.0-beta.1-win64-Setup.exe",
-    [string]$Stage = "dist/SpectralForge-Chimera-1.0.0-beta.1-win64",
+    [string]$Installer = "dist/SpectralForge-Chimera-1.1.0-beta.1-win64-Setup.exe",
+    [string]$Stage = "dist/SpectralForge-Chimera-1.1.0-beta.1-win64",
     [string]$LogDirectory = "build/installer-verification"
 )
 $ErrorActionPreference = "Stop"
