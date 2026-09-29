@@ -1,6 +1,7 @@
 #pragma once
 #include <juce_dsp/juce_dsp.h>
 #include "PolyPitch.h"
+#include "LifecycleTrace.h"
 #include <atomic>
 #include <array>
 
@@ -15,6 +16,13 @@ public:
     void reset() { detector=0; gain=1; holdCounter=0; open=true; }
     float reduction() const { return gain; }
     void process(juce::AudioBuffer<float>& buffer,bool enabled,float thresholdDb,float releaseMs,float holdMs)
+    { processInternal(buffer,&buffer,nullptr,enabled,thresholdDb,releaseMs,holdMs); }
+    // The same input detector can control a later gain stage without altering
+    // the clean signal or deriving its envelope from distortion-generated noise.
+    void detect(const juce::AudioBuffer<float>& buffer,float* envelope,bool enabled,float thresholdDb,float releaseMs,float holdMs)
+    { processInternal(buffer,nullptr,envelope,enabled,thresholdDb,releaseMs,holdMs); }
+private:
+    void processInternal(const juce::AudioBuffer<float>& buffer,juce::AudioBuffer<float>* output,float* envelope,bool enabled,float thresholdDb,float releaseMs,float holdMs)
     {
         const float threshold=juce::Decibels::decibelsToGain(thresholdDb);
         const float closeThreshold=threshold*.501187f; // 6 dB hysteresis
@@ -36,7 +44,8 @@ public:
             const float target=(!enabled || open) ? 1.f : 0.f;
             const float coefficient=target>gain ? attack : release;
             gain=target+(gain-target)*coefficient;
-            for(int c=0;c<buffer.getNumChannels();++c) buffer.setSample(c,n,buffer.getSample(c,n)*gain);
+            if(envelope) envelope[n]=gain;
+            if(output)for(int c=0;c<buffer.getNumChannels();++c) output->setSample(c,n,buffer.getSample(c,n)*gain);
         }
     }
 };
@@ -47,7 +56,8 @@ class Transposer {
     juce::dsp::DelayLine<float,juce::dsp::DelayLineInterpolationTypes::None> dryDelay;
     juce::SmoothedValue<float> wet,engage;
     bool firstBlock{true};
-    int delaySamples{};
+    int delaySamples{},warmupSamples{};
+    bool wasRendering{};
 public:
     void prepare(const juce::dsp::ProcessSpec& spec)
     {
@@ -57,15 +67,17 @@ public:
         aligned.setSize((int)spec.numChannels,(int)spec.maximumBlockSize);
         dryDelay.setMaximumDelayInSamples(delaySamples+1); dryDelay.prepare(spec); dryDelay.setDelay(float(delaySamples));
         wet.reset(spec.sampleRate,.015); wet.setCurrentAndTargetValue(0);
-        engage.reset(spec.sampleRate,.015);engage.setCurrentAndTargetValue(0);firstBlock=true;
+        engage.reset(spec.sampleRate,.015);engage.setCurrentAndTargetValue(0);firstBlock=true;warmupSamples=0;wasRendering=false;
     }
 
-    void reset() {stretch.reset();dryDelay.reset();wet.setCurrentAndTargetValue(0);firstBlock=true;}
+    void reset() {stretch.reset();dryDelay.reset();wet.setCurrentAndTargetValue(0);engage.setCurrentAndTargetValue(0);firstBlock=true;warmupSamples=0;wasRendering=false;}
     int latency() const { return delaySamples; }
+    uint64_t processedPitchFrames() const { return stretch.processedFrames(); }
     void process(juce::AudioBuffer<float>& buffer,bool enabled,int semitones)
     {
-        // Keep the history warm, including while bypassed, so enabling pitch does
-        // not expose an empty FFT window. The dry zero-semitone path is exact.
+        // Bypass/zero semitones keeps only the delay/input history warm. A newly
+        // enabled shifter fills its overlap-add window before the wet fade, so
+        // enabling does not fade into an empty synthesis window.
         if(firstBlock) {engage.setCurrentAndTargetValue(enabled ? 1.f : 0.f);firstBlock=false;}
         engage.setTargetValue(enabled ? 1.f : 0.f);
         const int n=buffer.getNumSamples();
@@ -74,10 +86,16 @@ public:
         juce::dsp::AudioBlock<float> dryBlock(aligned);
         juce::dsp::ProcessContextReplacing<float> context(dryBlock); dryDelay.process(context);
         stretch.setSemitones(semitones);
-        stretch.process(buffer,shifted);
-        wet.setTargetValue(enabled && semitones!=0 ? 1.f : 0.f);
+        const bool needsShift=enabled && semitones!=0;
+        if(!needsShift) wet.setTargetValue(0.f);
+        const bool render=needsShift || wet.isSmoothing() || wet.getCurrentValue()>0.f;
+        if(render && !wasRendering) warmupSamples=delaySamples;
+        stretch.process(buffer,shifted,render);
+        wasRendering=render;
         for(int i=0;i<n;++i)
         {
+            if(needsShift && warmupSamples>0) --warmupSamples;
+            else if(needsShift) wet.setTargetValue(1.f);
             const float mix=wet.getNextValue(),blend=engage.getNextValue();
             for(int c=0;c<buffer.getNumChannels();++c)
                 buffer.setSample(c,i,buffer.getSample(c,i)*(1.f-blend)+blend*(aligned.getSample(c,i)*(1.f-mix)+shifted.getSample(c,i)*mix));
@@ -99,9 +117,12 @@ class Tuner : private juce::Thread {
 public:
     Tuner() : Thread("Chimera tuner") {}
     ~Tuner() override { stop(); }
-    void stop() { signalThreadShouldExit(); notify(); stopThread(-1); }
+    void requestStop() { lifecycle::write("tuner.stop.requested", this); signalThreadShouldExit(); notify(); }
+    void stop() { const lifecycle::Scope trace("tuner.stop", this); requestStop(); stopThread(-1); }
+    bool stopped() const noexcept { return !isThreadRunning(); }
     void prepare(double rate)
     {
+        const lifecycle::Scope trace("tuner.prepare", this);
         stop(); fifo.reset(); history.fill(0); writeIndex=filled=phase=0; low1=low2=0;
         decimation=juce::jmax(1,juce::roundToInt(rate/12000.0)); analysisRate=rate/decimation;
         coefficient=float(1.0-std::exp(-juce::MathConstants<double>::twoPi*2000.0/rate));
@@ -169,6 +190,7 @@ public:
 private:
     void run() override
     {
+        const lifecycle::Scope trace("tuner.worker", this);
         while(!threadShouldExit())
         {
             bool received=false;

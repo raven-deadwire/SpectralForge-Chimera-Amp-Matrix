@@ -1,0 +1,713 @@
+{
+  "generator": "built-in image_gen__imagegen",
+  "scope": "Original photoreal material skins, not exact manufacturer replicas. Live software controls are intentionally not baked into rasters.",
+  "assets": [
+    {
+      "name": "acinder",
+      "model": 15,
+      "kind": "amp",
+      "knobStyle": "silver",
+      "brightFace": false,
+      "prompt": "Use case: product-mockup. Create ONE transparent cutout raster asset for a professional audio plugin. The attached image is a STYLE AND PROPORTION REFERENCE ONLY: keep its photoreal manufactured amplifier cabinet materials, dead-straight frontal orthographic camera, wide low 3:1 amp-head silhouette, a carry handle centered on top, metal corners, soft studio light, sharp realistic texture. NEW subject: boutique 120-watt four-channel high-gain tube guitar amplifier head, crimson red tolex cabinet, black woven upper grille, elegant narrow brushed dark gunmetal lower faceplate covering bottom 32 percent, subtle chrome piping, sturdy chrome corners. The entire LOWER FACEPLATE MUST BE COMPLETELY BLANK for live plugin knobs to overlay: NO knobs, NO jacks, NO switches, NO lettering, NO logo, NO badge anywhere. Realistic original chassis not vector box. Centered with minimal transparent margin, all handle and feet visible, no floor, no checkerboard, no cast background. A single amplifier only. Produce a clean alpha-transparent background. Aim 1536x512 wide asset.",
+      "style_reference": "Assets/Artwork/abrit.jpg",
+      "generated_source": "exec-f8a16a62-c0e3-45bb-a80d-7bdaf0bb34af.png",
+      "dimensions": [
+        1000,
+        334
+      ],
+      "alpha_range": [
+        0,
+        255
+      ],
+      "fully_transparent_pixels": 39537,
+      "opaque_98pct_pixels": 285417,
+      "files": [
+        {
+          "path": "Assets/Artwork/acinder.jpg",
+          "bytes": 98645,
+          "sha256": "90206de98cef7a27cb9a2c24e8c7b4043fbbd2a112386e27eb7c71a54ef50b40"
+        },
+        {
+          "path": "Assets/Artwork/acinder-alpha.png",
+          "bytes": 31654,
+          "sha256": "6b50ecaf8bf5db189ca068fa295d80bea563e6087d0073a3b3099d5e23b69ac4"
+        }
+      ]
+    },
+    {
+      "name": "airon",
+      "model": 16,
+      "kind": "amp",
+      "knobStyle": "silver",
+      "brightFace": false,
+      "prompt": "Use case: product-mockup. One photorealistic transparent amplifier head cutout for a professional audio plugin. Input image is STYLE/PROPORTION REFERENCE only. Match realistic manufactured hardware, front orthographic view, wide low 3:1 silhouette, narrow real top edge, handle centered above, small feet. New subject: compact dark gunmetal tube amp head with black tolex, brushed steel horizontal upper grille slats and visible faint amber tube glow behind grille, narrow blank charcoal lower control plate, heavy squared chrome handle mounts. Accurate rich material texture, fine grille detail, studio highlights, no dramatic perspective. Entire lower faceplate (bottom 30 percent) reserved for live software knobs: NO knobs, jacks, switches, lettering, logos or badges ANYWHERE. Not a flat vector illustration. Center head in image with 2 percent transparent padding on all sides, completely visible handle and feet, no floor or background shadow. Single amp only. True alpha transparency, no checkerboard. Wide 3:1 composition.",
+      "style_reference": "Assets/Artwork/abrit.jpg",
+      "generated_source": "exec-d11f4e4e-baa7-4e24-83c9-8f1c8e98bee8.png",
+      "dimensions": [
+        1000,
+        334
+      ],
+      "alpha_range": [
+        0,
+        254
+      ],
+      "fully_transparent_pixels": 37684,
+      "opaque_98pct_pixels": 283338,
+      "files": [
+        {
+          "path": "Assets/Artwork/airon.jpg",
+          "bytes": 94724,
+          "sha256": "58cc81dc91ffd48ce818cc660ba04bbf361710d32c0e9cf436285c3595769644"
+        },
+        {
+          "path": "Assets/Artwork/airon-alpha.png",
+          "bytes": 48976,
+          "sha256": "71486da2ae6244a689cd2cf891bde0613301c82a7125f3e89089ab6ef276b81e"
+        }
+      ]
+    },
+    {
+      "name": "afourfold",
+      "model": 17,
+      "kind": "amp",
+      "knobStyle": "black",
+      "brightFace": true,
+      "prompt": "Use case: product-mockup. One photorealistic transparent amplifier head cutout for a professional audio plugin. Input image is STYLE/PROPORTION REFERENCE only. Match realistic manufactured hardware, front orthographic view, wide low 3:1 silhouette, narrow real top edge, handle centered above, small feet. New subject: large precision four-channel high-gain amp head with black leatherette, two-tier perforated charcoal grille, tall polished chrome vertical handles near outer edges, brushed cool-silver BLANK lower faceplate. Accurate rich material texture, fine grille detail, studio highlights, no dramatic perspective. Entire lower faceplate (bottom 30 percent) reserved for live software knobs: NO knobs, jacks, switches, lettering, logos or badges ANYWHERE. Not a flat vector illustration. Center head in image with 2 percent transparent padding on all sides, completely visible handle and feet, no floor or background shadow. Single amp only. True alpha transparency, no checkerboard. Wide 3:1 composition.",
+      "style_reference": "Assets/Artwork/abrit.jpg",
+      "generated_source": "exec-8c6b3473-57f3-4c4f-8422-928db07cbd4d.png",
+      "dimensions": [
+        1000,
+        334
+      ],
+      "alpha_range": [
+        0,
+        254
+      ],
+      "fully_transparent_pixels": 39193,
+      "opaque_98pct_pixels": 281618,
+      "files": [
+        {
+          "path": "Assets/Artwork/afourfold.jpg",
+          "bytes": 99259,
+          "sha256": "44218ace6bfddded2b4f174f2e81467e950cbad66ed7c6b7c43495bd1c912bd1"
+        },
+        {
+          "path": "Assets/Artwork/afourfold-alpha.png",
+          "bytes": 40014,
+          "sha256": "6ac5a3b768c8011a2b57aa81e434d021635467199ca5fdda9411d39b25fa1ee8"
+        }
+      ]
+    },
+    {
+      "name": "aclassictube",
+      "model": 18,
+      "kind": "amp",
+      "knobStyle": "silver",
+      "brightFace": false,
+      "prompt": "Use case: product-mockup. One photorealistic transparent amplifier head cutout for a professional audio plugin. Input image is STYLE/PROPORTION REFERENCE only. Match realistic manufactured hardware, front orthographic view, wide low 3:1 silhouette, narrow real top edge, handle centered above, small feet. New subject: classic 300-watt all-tube bass amp head with black pebbled tolex, broad horizontally ribbed silver-gray grille cloth, narrow black BLANK lower faceplate bordered in brushed aluminum, rugged rounded metal corners. Accurate rich material texture, fine grille detail, studio highlights, no dramatic perspective. Entire lower faceplate (bottom 30 percent) reserved for live software knobs: NO knobs, jacks, switches, lettering, logos or badges ANYWHERE. Not a flat vector illustration. Center head in image with 2 percent transparent padding on all sides, completely visible handle and feet, no floor or background shadow. Single amp only. True alpha transparency, no checkerboard. Wide 3:1 composition.",
+      "style_reference": "Assets/Artwork/abrit.jpg",
+      "generated_source": "exec-0b96c07e-1f24-4b21-9f7f-edae7c5f091c.png",
+      "dimensions": [
+        1000,
+        334
+      ],
+      "alpha_range": [
+        0,
+        255
+      ],
+      "fully_transparent_pixels": 46558,
+      "opaque_98pct_pixels": 277716,
+      "files": [
+        {
+          "path": "Assets/Artwork/aclassictube.jpg",
+          "bytes": 87781,
+          "sha256": "2d8528abfc6a0ce843183ae40c17bce149fc4c29a8e5f7946c8579e2fa6b5c58"
+        },
+        {
+          "path": "Assets/Artwork/aclassictube-alpha.png",
+          "bytes": 27634,
+          "sha256": "2a6038138e8c9ffb65a4cfab341645a119f9c99fedd887670c599e2e23970a24"
+        }
+      ]
+    },
+    {
+      "name": "amonolith",
+      "model": 19,
+      "kind": "amp",
+      "knobStyle": "black",
+      "brightFace": true,
+      "prompt": "Use case: product-mockup. One photorealistic transparent amplifier head cutout for a professional audio plugin. Input image is STYLE/PROPORTION REFERENCE only. Match realistic manufactured hardware, front orthographic view, wide low 3:1 silhouette, narrow real top edge, handle centered above, small feet. New subject: vintage early-1970s 120-watt tube amp head with black grainy tolex, black woven grille with bold narrow silver horizontal trim, warm aged-silver completely BLANK lower fascia, small worn black carry handle. Accurate rich material texture, fine grille detail, studio highlights, no dramatic perspective. Entire lower faceplate (bottom 30 percent) reserved for live software knobs: NO knobs, jacks, switches, lettering, logos or badges ANYWHERE. Not a flat vector illustration. Center head in image with 2 percent transparent padding on all sides, completely visible handle and feet, no floor or background shadow. Single amp only. True alpha transparency, no checkerboard. Wide 3:1 composition.",
+      "style_reference": "Assets/Artwork/abrit.jpg",
+      "generated_source": "exec-e3d98725-aad5-406a-b15c-166d6210c010.png",
+      "dimensions": [
+        1000,
+        334
+      ],
+      "alpha_range": [
+        0,
+        254
+      ],
+      "fully_transparent_pixels": 39009,
+      "opaque_98pct_pixels": 284834,
+      "files": [
+        {
+          "path": "Assets/Artwork/amonolith.jpg",
+          "bytes": 109314,
+          "sha256": "abeb9d595e578b930ca5cea229644be91c3623604f91cf606e2a70d44ea8ff8e"
+        },
+        {
+          "path": "Assets/Artwork/amonolith-alpha.png",
+          "bytes": 37065,
+          "sha256": "69e2c18f9ab38ae9b0612ac7480e0132c0257d0ed327c00cf38dfd670f227b44"
+        }
+      ]
+    },
+    {
+      "name": "anightharvest",
+      "model": 20,
+      "kind": "amp",
+      "knobStyle": "silver",
+      "brightFace": false,
+      "prompt": "Use case: product-mockup. One photorealistic transparent amplifier head cutout for a professional audio plugin. Input image is STYLE/PROPORTION REFERENCE only. Match realistic manufactured hardware, front orthographic view, wide low 3:1 silhouette, narrow real top edge, handle centered above, small feet. New subject: boutique extreme metal amplifier head with textured matte charcoal shell, large black expanded-steel upper grille with very subtle warm ember glow behind it, narrow copper-orange pinstripe around grille, fully blank dark graphite lower fascia, substantial brushed metal handle hardware. Accurate rich material texture, fine grille detail, studio highlights, no dramatic perspective. Entire lower faceplate (bottom 30 percent) reserved for live software knobs: NO knobs, jacks, switches, lettering, logos or badges ANYWHERE. Not a flat vector illustration. Center head in image with 2 percent transparent padding on all sides, completely visible handle and feet, no floor or background shadow. Single amp only. True alpha transparency, no checkerboard. Wide 3:1 composition.",
+      "style_reference": "Assets/Artwork/abrit.jpg",
+      "generated_source": "exec-e130e7b7-66ba-44a2-a1b4-37cbfb4c220a.png",
+      "dimensions": [
+        1000,
+        334
+      ],
+      "alpha_range": [
+        0,
+        255
+      ],
+      "fully_transparent_pixels": 35836,
+      "opaque_98pct_pixels": 290478,
+      "files": [
+        {
+          "path": "Assets/Artwork/anightharvest.jpg",
+          "bytes": 101643,
+          "sha256": "fa28b538017d1405cecfb437a9113322d141f08203c087e29093906e486bb657"
+        },
+        {
+          "path": "Assets/Artwork/anightharvest-alpha.png",
+          "bytes": 28792,
+          "sha256": "ab6f2f49623b2a6868b698ae6cbf6a14a2717cb9e70d5115f01864ce9c32a2ce"
+        }
+      ]
+    },
+    {
+      "name": "ahotlead",
+      "model": 21,
+      "kind": "amp",
+      "knobStyle": "black",
+      "brightFace": true,
+      "prompt": "Use case: product-mockup. One photorealistic transparent amplifier head cutout for a professional audio plugin. Input image is STYLE/PROPORTION REFERENCE only. Match realistic manufactured hardware, front orthographic view, wide low 3:1 silhouette, narrow real top edge, handle centered above, small feet. New subject: 1980s-style high-gain tube guitar head with deep violet-purple pebbled tolex, black diamond-mesh upper grille, satin warm silver BLANK lower control fascia, tough chrome corner caps, black handle. Accurate rich material texture, fine grille detail, studio highlights, no dramatic perspective. Entire lower faceplate (bottom 30 percent) reserved for live software knobs: NO knobs, jacks, switches, lettering, logos or badges ANYWHERE. Not a flat vector illustration. Center head in image with 2 percent transparent padding on all sides, completely visible handle and feet, no floor or background shadow. Single amp only. True alpha transparency, no checkerboard. Wide 3:1 composition.",
+      "style_reference": "Assets/Artwork/abrit.jpg",
+      "generated_source": "exec-58b82dce-8902-4dfc-b7b2-bdd3e805e077.png",
+      "dimensions": [
+        1000,
+        334
+      ],
+      "alpha_range": [
+        0,
+        255
+      ],
+      "fully_transparent_pixels": 43241,
+      "opaque_98pct_pixels": 279990,
+      "files": [
+        {
+          "path": "Assets/Artwork/ahotlead.jpg",
+          "bytes": 99240,
+          "sha256": "77bc0e4b048b2c7d1e6d85ee03864fa1ace72cac2ede7ebbecfc7ad0854e5556"
+        },
+        {
+          "path": "Assets/Artwork/ahotlead-alpha.png",
+          "bytes": 29219,
+          "sha256": "e78ee376282e2dca30c7fba5c7d38c83b27b205a537dadd5e7610eca3b279768"
+        }
+      ]
+    },
+    {
+      "name": "abluestorm",
+      "model": 22,
+      "kind": "amp",
+      "knobStyle": "silver",
+      "brightFace": false,
+      "prompt": "Use case: product-mockup. One photorealistic transparent amplifier head cutout for a professional audio plugin. Input image is STYLE/PROPORTION REFERENCE only. Match realistic manufactured hardware, front orthographic view, wide low 3:1 silhouette, narrow real top edge, handle centered above, small feet. New subject: large modern high-gain tube guitar head with black pebbled tolex, dark grille with horizontal steel vent slots, a deep metallic midnight-blue totally BLANK lower faceplate, chrome corners and black carry handle. Accurate rich material texture, fine grille detail, studio highlights, no dramatic perspective. Entire lower faceplate (bottom 30 percent) reserved for live software knobs: NO knobs, jacks, switches, lettering, logos or badges ANYWHERE. Not a flat vector illustration. Center head in image with 2 percent transparent padding on all sides, completely visible handle and feet, no floor or background shadow. Single amp only. True alpha transparency, no checkerboard. Wide 3:1 composition.",
+      "style_reference": "Assets/Artwork/abrit.jpg",
+      "generated_source": "exec-5e17b4ad-069c-4ae6-9cee-3794e1fcea36.png",
+      "dimensions": [
+        1000,
+        334
+      ],
+      "alpha_range": [
+        0,
+        255
+      ],
+      "fully_transparent_pixels": 51694,
+      "opaque_98pct_pixels": 273853,
+      "files": [
+        {
+          "path": "Assets/Artwork/abluestorm.jpg",
+          "bytes": 74828,
+          "sha256": "f85c62b95f2ef3a9d017123c9f35aa85e8878819458ca448b1484124098748a5"
+        },
+        {
+          "path": "Assets/Artwork/abluestorm-alpha.png",
+          "bytes": 24783,
+          "sha256": "91cc245779797768b849f3a4e2248bc6ad1409cbfbc3eddb5d2365b987c944b9"
+        }
+      ]
+    },
+    {
+      "name": "pyellowasym",
+      "model": 26,
+      "kind": "pedal",
+      "knobStyle": "black",
+      "brightFace": true,
+      "prompt": "Use case: product-mockup. Create ONE photorealistic blank guitar/bass stompbox enclosure cutout for a professional audio-plugin live-controls skin. Input image is STYLE/PROPORTION REFERENCE ONLY. Match its realistic die-cast enclosure materials, straight front/top orthographic product view with long axis vertical, tall rectangular footprint approximately 440 wide by 748 tall, minimal natural thickness along rim, beautiful studio edge highlights. New subject: warm mustard-yellow painted die-cast housing, cream double keyline border, dense black rubber tread pad across lower quarter, glossy bevels and silver side jacks. IMPORTANT this is a blank background skin, entire face has NO lettering, NO logos, NO badges, NO knobs, NO toggle switches, NO footswitch buttons, NO holes. Realistic physical material, not flat vector illustration. Do not put meters or slider slots into the blank face. Preserve generous blank central area. Only tiny side jack details allowed beyond rim. Single tall rectangular stompbox only, fully visible centered with 2 percent transparent padding all sides. True alpha transparent background, no checkerboard, no floor, no cast background shadow. Portrait image.",
+      "style_reference": "Assets/Artwork/p808.jpg",
+      "generated_source": "exec-a8f1baae-6cac-40cd-9bf5-2c0946e3383d.png",
+      "dimensions": [
+        440,
+        748
+      ],
+      "alpha_range": [
+        0,
+        254
+      ],
+      "fully_transparent_pixels": 38147,
+      "opaque_98pct_pixels": 283917,
+      "files": [
+        {
+          "path": "Assets/Artwork/pyellowasym.jpg",
+          "bytes": 81121,
+          "sha256": "73bb6ea90ee0cec28e8e1c8f522297fe5b03f1e11b9c1f7fc7353c2c20c6a6f6"
+        },
+        {
+          "path": "Assets/Artwork/pyellowasym-alpha.png",
+          "bytes": 48528,
+          "sha256": "15f3c241e2a3702f953d13f69daefba4edea6ddd4ad099d77bb424246400fb98"
+        }
+      ]
+    },
+    {
+      "name": "pobsession",
+      "model": 27,
+      "kind": "pedal",
+      "knobStyle": "black",
+      "brightFace": true,
+      "prompt": "Use case: product-mockup. Create ONE photorealistic blank guitar/bass stompbox enclosure cutout for a professional audio-plugin live-controls skin. Input image is STYLE/PROPORTION REFERENCE ONLY. Match its realistic die-cast enclosure materials, straight front/top orthographic product view with long axis vertical, tall rectangular footprint approximately 440 wide by 748 tall, minimal natural thickness along rim, beautiful studio edge highlights. New subject: ivory-white powder-coated boutique rectangular housing, black fine perimeter pinstripe, light wear at corners, black recessed lower footpad and chrome side jacks. IMPORTANT this is a blank background skin, entire face has NO lettering, NO logos, NO badges, NO knobs, NO toggle switches, NO footswitch buttons, NO holes. Realistic physical material, not flat vector illustration. Do not put meters or slider slots into the blank face. Preserve generous blank central area. Only tiny side jack details allowed beyond rim. Single tall rectangular stompbox only, fully visible centered with 2 percent transparent padding all sides. True alpha transparent background, no checkerboard, no floor, no cast background shadow. Portrait image.",
+      "style_reference": "Assets/Artwork/p808.jpg",
+      "generated_source": "exec-3b81c38b-3c5f-4058-a82a-90c7bea2ed00.png",
+      "dimensions": [
+        440,
+        748
+      ],
+      "alpha_range": [
+        0,
+        255
+      ],
+      "fully_transparent_pixels": 47715,
+      "opaque_98pct_pixels": 275883,
+      "files": [
+        {
+          "path": "Assets/Artwork/pobsession.jpg",
+          "bytes": 52666,
+          "sha256": "8f217f650d1cf36b71c0d34b6b7406476b65ae272e93a907fd1a6371966e77df"
+        },
+        {
+          "path": "Assets/Artwork/pobsession-alpha.png",
+          "bytes": 27771,
+          "sha256": "9b55aa435ec18a887dbd6ec9796fb33613b7e74ec0919f2f602c678d4b66c2d5"
+        }
+      ]
+    },
+    {
+      "name": "pplus",
+      "model": 28,
+      "kind": "pedal",
+      "knobStyle": "black",
+      "brightFace": true,
+      "prompt": "Use case: product-mockup. Create ONE photorealistic blank guitar/bass stompbox enclosure cutout for a professional audio-plugin live-controls skin. Input image is STYLE/PROPORTION REFERENCE ONLY. Match its realistic die-cast enclosure materials, straight front/top orthographic product view with long axis vertical, tall rectangular footprint approximately 440 wide by 748 tall, minimal natural thickness along rim, beautiful studio edge highlights. New subject: saturated ochre-gold textured die-cast rectangular housing, compact rounded corners, narrow black perimeter outline, no footpad, subtle black rubber rim at bottom edge. IMPORTANT this is a blank background skin, entire face has NO lettering, NO logos, NO badges, NO knobs, NO toggle switches, NO footswitch buttons, NO holes. Realistic physical material, not flat vector illustration. Do not put meters or slider slots into the blank face. Preserve generous blank central area. Only tiny side jack details allowed beyond rim. Single tall rectangular stompbox only, fully visible centered with 2 percent transparent padding all sides. True alpha transparent background, no checkerboard, no floor, no cast background shadow. Portrait image.",
+      "style_reference": "Assets/Artwork/p808.jpg",
+      "generated_source": "exec-0968794e-f96a-4789-89ee-8fa65badd674.png",
+      "dimensions": [
+        440,
+        748
+      ],
+      "alpha_range": [
+        0,
+        254
+      ],
+      "fully_transparent_pixels": 39096,
+      "opaque_98pct_pixels": 282819,
+      "files": [
+        {
+          "path": "Assets/Artwork/pplus.jpg",
+          "bytes": 87174,
+          "sha256": "0d6020476c5bb46617d12816b0fd96a6b952ba9dfd48d90ecad00e4e996c1b03"
+        },
+        {
+          "path": "Assets/Artwork/pplus-alpha.png",
+          "bytes": 41376,
+          "sha256": "d3a1248116b466f47df08d31ff2a0044f8ec4944419de139c5f506253746d53c"
+        }
+      ]
+    },
+    {
+      "name": "pdualcircuit",
+      "model": 29,
+      "kind": "pedal",
+      "knobStyle": "cream",
+      "brightFace": false,
+      "prompt": "Use case: product-mockup. Create ONE photorealistic blank guitar/bass stompbox enclosure cutout for a professional audio-plugin live-controls skin. Input image is STYLE/PROPORTION REFERENCE ONLY. Match its realistic die-cast enclosure materials, straight front/top orthographic product view with long axis vertical, tall rectangular footprint approximately 440 wide by 748 tall, minimal natural thickness along rim, beautiful studio edge highlights. New subject: warm burgundy-red textured chassis with a refined diagonal ivory and dark-copper trim stripe along the outermost left and right edges, black rubber footpad in lower quarter, silver side jacks. IMPORTANT this is a blank background skin, entire face has NO lettering, NO logos, NO badges, NO knobs, NO toggle switches, NO footswitch buttons, NO holes. Realistic physical material, not flat vector illustration. Do not put meters or slider slots into the blank face. Preserve generous blank central area. Only tiny side jack details allowed beyond rim. Single tall rectangular stompbox only, fully visible centered with 2 percent transparent padding all sides. True alpha transparent background, no checkerboard, no floor, no cast background shadow. Portrait image.",
+      "style_reference": "Assets/Artwork/p808.jpg",
+      "generated_source": "exec-cbecd39b-daf8-41ac-9cec-ac5d1f9f624e.png",
+      "dimensions": [
+        440,
+        748
+      ],
+      "alpha_range": [
+        0,
+        255
+      ],
+      "fully_transparent_pixels": 42698,
+      "opaque_98pct_pixels": 281419,
+      "files": [
+        {
+          "path": "Assets/Artwork/pdualcircuit.jpg",
+          "bytes": 80038,
+          "sha256": "82e51f7170d464057738bad53efbbfa44f69aed6064c062fc1b37715ce51ea2a"
+        },
+        {
+          "path": "Assets/Artwork/pdualcircuit-alpha.png",
+          "bytes": 27125,
+          "sha256": "1c2ab49f3f9e70da4d9aa8bbb20b9681ef2f6edf5d1bd986645472605aeed35a"
+        }
+      ]
+    },
+    {
+      "name": "pmanualwah",
+      "model": 30,
+      "kind": "pedal",
+      "knobStyle": "silver",
+      "brightFace": false,
+      "prompt": "Use case: product-mockup. Create ONE photorealistic blank guitar/bass stompbox enclosure cutout for a professional audio-plugin live-controls skin. Input image is STYLE/PROPORTION REFERENCE ONLY. Match its realistic die-cast enclosure materials, straight front/top orthographic product view with long axis vertical, tall rectangular footprint approximately 440 wide by 748 tall, minimal natural thickness along rim, beautiful studio edge highlights. New subject: black cast-metal wah treadle adapted to a rectangular enclosure, chrome side rails and pivot hardware, dense ridged black rubber tread pattern in lower third ONLY, smooth dark graphite blank upper face covering upper two thirds for live controls. IMPORTANT this is a blank background skin, entire face has NO lettering, NO logos, NO badges, NO knobs, NO toggle switches, NO footswitch buttons, NO holes. Realistic physical material, not flat vector illustration. Do not put meters or slider slots into the blank face. Preserve generous blank central area. Only tiny side jack details allowed beyond rim. Single tall rectangular stompbox only, fully visible centered with 2 percent transparent padding all sides. True alpha transparent background, no checkerboard, no floor, no cast background shadow. Portrait image.",
+      "style_reference": "Assets/Artwork/p808.jpg",
+      "generated_source": "exec-1cdfe9fc-239a-4db9-a4ef-38c8dcad7bee.png",
+      "dimensions": [
+        440,
+        748
+      ],
+      "alpha_range": [
+        0,
+        254
+      ],
+      "fully_transparent_pixels": 38299,
+      "opaque_98pct_pixels": 282241,
+      "files": [
+        {
+          "path": "Assets/Artwork/pmanualwah.jpg",
+          "bytes": 58605,
+          "sha256": "058c230972f3bc0b7e13730d599d9bf315b4e37022aba3aec3526822590eae4a"
+        },
+        {
+          "path": "Assets/Artwork/pmanualwah-alpha.png",
+          "bytes": 24998,
+          "sha256": "45b72876a78664bc5656c154a3330d0187bbb22bb772007c64f73565c7e8c7b0"
+        }
+      ]
+    },
+    {
+      "name": "pgraphiceq",
+      "model": 31,
+      "kind": "pedal",
+      "knobStyle": "silver",
+      "brightFace": false,
+      "prompt": "Use case: product-mockup. Create ONE photorealistic blank guitar/bass stompbox enclosure cutout for a professional audio-plugin live-controls skin. Input image is STYLE/PROPORTION REFERENCE ONLY. Match its realistic die-cast enclosure materials, straight front/top orthographic product view with long axis vertical, tall rectangular footprint approximately 440 wide by 748 tall, minimal natural thickness along rim, beautiful studio edge highlights. New subject: wide-but-portrait rectangular black anodized aluminium equalizer housing, fine horizontal brushing, vertical silver edge rails and tiny corner screws, a very thin red perimeter keyline, totally blank middle face for software controls. IMPORTANT this is a blank background skin, entire face has NO lettering, NO logos, NO badges, NO knobs, NO toggle switches, NO footswitch buttons, NO holes. Realistic physical material, not flat vector illustration. Do not put meters or slider slots into the blank face. Preserve generous blank central area. Only tiny side jack details allowed beyond rim. Single tall rectangular stompbox only, fully visible centered with 2 percent transparent padding all sides. True alpha transparent background, no checkerboard, no floor, no cast background shadow. Portrait image.",
+      "style_reference": "Assets/Artwork/p808.jpg",
+      "generated_source": "exec-8d29cdb3-7400-45f9-b768-e8d8f08a32e9.png",
+      "dimensions": [
+        440,
+        748
+      ],
+      "alpha_range": [
+        0,
+        255
+      ],
+      "fully_transparent_pixels": 43695,
+      "opaque_98pct_pixels": 279388,
+      "files": [
+        {
+          "path": "Assets/Artwork/pgraphiceq.jpg",
+          "bytes": 49563,
+          "sha256": "da4b07aeebd93a18de07ab5279271a7553e775bf466b59ef638620e94403b4dd"
+        },
+        {
+          "path": "Assets/Artwork/pgraphiceq-alpha.png",
+          "bytes": 20128,
+          "sha256": "9aa665e1c90f501a20484e5ea103e40447f7d2f0f5d31f8dadcb71b2a8094cbb"
+        }
+      ]
+    },
+    {
+      "name": "pchorus",
+      "model": 32,
+      "kind": "pedal",
+      "knobStyle": "black",
+      "brightFace": true,
+      "prompt": "Use case: product-mockup. Create ONE photorealistic blank guitar/bass stompbox enclosure cutout for a professional audio-plugin live-controls skin. Input image is STYLE/PROPORTION REFERENCE ONLY. Match its realistic die-cast enclosure materials, straight front/top orthographic product view with long axis vertical, tall rectangular footprint approximately 440 wide by 748 tall, minimal natural thickness along rim, beautiful studio edge highlights. New subject: powder-blue enamel rectangular analog chorus pedal housing, pale cream fine border lines, black recessed rubber footpad across lower quarter, chrome side jacks. IMPORTANT this is a blank background skin, entire face has NO lettering, NO logos, NO badges, NO knobs, NO toggle switches, NO footswitch buttons, NO holes. Realistic physical material, not flat vector illustration. Do not put meters or slider slots into the blank face. Preserve generous blank central area. Only tiny side jack details allowed beyond rim. Single tall rectangular stompbox only, fully visible centered with 2 percent transparent padding all sides. True alpha transparent background, no checkerboard, no floor, no cast background shadow. Portrait image.",
+      "style_reference": "Assets/Artwork/p808.jpg",
+      "generated_source": "exec-28ce1dc7-7e61-4106-ad7b-4d11ec54a3be.png",
+      "dimensions": [
+        440,
+        748
+      ],
+      "alpha_range": [
+        0,
+        254
+      ],
+      "fully_transparent_pixels": 38392,
+      "opaque_98pct_pixels": 282269,
+      "files": [
+        {
+          "path": "Assets/Artwork/pchorus.jpg",
+          "bytes": 77767,
+          "sha256": "fd4395f28d770be8d290fc3195af1cb779f22e9ce31cb721b2d3ba487ca18722"
+        },
+        {
+          "path": "Assets/Artwork/pchorus-alpha.png",
+          "bytes": 39015,
+          "sha256": "8c8cf90926d6da49e28b4f829a4fa76c375c40c7962f009237be2445645b68ff"
+        }
+      ]
+    },
+    {
+      "name": "pdimension",
+      "model": 33,
+      "kind": "pedal",
+      "knobStyle": "silver",
+      "brightFace": false,
+      "prompt": "Use case: product-mockup. Create ONE photorealistic blank guitar/bass stompbox enclosure cutout for a professional audio-plugin live-controls skin. Input image is STYLE/PROPORTION REFERENCE ONLY. Match its realistic die-cast enclosure materials, straight front/top orthographic product view with long axis vertical, tall rectangular footprint approximately 440 wide by 748 tall, minimal natural thickness along rim, beautiful studio edge highlights. New subject: lavender-purple anodized rectangular dimension chorus pedal housing, polished silver bevels, a brushed dark-gray rubber footpad panel across lower quarter, delicate dark perimeter line. IMPORTANT this is a blank background skin, entire face has NO lettering, NO logos, NO badges, NO knobs, NO toggle switches, NO footswitch buttons, NO holes. Realistic physical material, not flat vector illustration. Do not put meters or slider slots into the blank face. Preserve generous blank central area. Only tiny side jack details allowed beyond rim. Single tall rectangular stompbox only, fully visible centered with 2 percent transparent padding all sides. True alpha transparent background, no checkerboard, no floor, no cast background shadow. Portrait image.",
+      "style_reference": "Assets/Artwork/p808.jpg",
+      "generated_source": "exec-40c145fe-6f6f-4e1b-b3a7-fbe2234d0510.png",
+      "dimensions": [
+        440,
+        748
+      ],
+      "alpha_range": [
+        0,
+        255
+      ],
+      "fully_transparent_pixels": 43024,
+      "opaque_98pct_pixels": 279992,
+      "files": [
+        {
+          "path": "Assets/Artwork/pdimension.jpg",
+          "bytes": 65803,
+          "sha256": "74c9eeefb8a618663e3742e6a5174087df7e8413051c4de4c843e0771b532546"
+        },
+        {
+          "path": "Assets/Artwork/pdimension-alpha.png",
+          "bytes": 27450,
+          "sha256": "df913afd667d52dac097d11e903da41c1f511acd68f2538de6fc89da9c159799"
+        }
+      ]
+    },
+    {
+      "name": "pphase",
+      "model": 34,
+      "kind": "pedal",
+      "knobStyle": "black",
+      "brightFace": true,
+      "prompt": "Use case: product-mockup. Create ONE photorealistic blank guitar/bass stompbox enclosure cutout for a professional audio-plugin live-controls skin. Input image is STYLE/PROPORTION REFERENCE ONLY. Match its realistic die-cast enclosure materials, straight front/top orthographic product view with long axis vertical, tall rectangular footprint approximately 440 wide by 748 tall, minimal natural thickness along rim, beautiful studio edge highlights. New subject: burnt-orange painted rectangular phaser pedal housing, satin black perimeter pinstripe, lightly textured enamel, four tiny steel corner screws, no fixed knobs or footswitch. IMPORTANT this is a blank background skin, entire face has NO lettering, NO logos, NO badges, NO knobs, NO toggle switches, NO footswitch buttons, NO holes. Realistic physical material, not flat vector illustration. Do not put meters or slider slots into the blank face. Preserve generous blank central area. Only tiny side jack details allowed beyond rim. Single tall rectangular stompbox only, fully visible centered with 2 percent transparent padding all sides. True alpha transparent background, no checkerboard, no floor, no cast background shadow. Portrait image.",
+      "style_reference": "Assets/Artwork/p808.jpg",
+      "generated_source": "exec-c81b1cf2-aef4-44ee-bc4e-2e0d68787ac0.png",
+      "dimensions": [
+        440,
+        748
+      ],
+      "alpha_range": [
+        0,
+        255
+      ],
+      "fully_transparent_pixels": 47031,
+      "opaque_98pct_pixels": 277680,
+      "files": [
+        {
+          "path": "Assets/Artwork/pphase.jpg",
+          "bytes": 77854,
+          "sha256": "94dda4f4b46eb7243c2265af1f75972f802e404460cfa7b134a3967bde3698fe"
+        },
+        {
+          "path": "Assets/Artwork/pphase-alpha.png",
+          "bytes": 47158,
+          "sha256": "6994207dc9be486ab1f06bf9ef13f74bafe14571ba98177e429eebfe2229e437"
+        }
+      ]
+    },
+    {
+      "name": "pflange",
+      "model": 35,
+      "kind": "pedal",
+      "knobStyle": "black",
+      "brightFace": true,
+      "prompt": "Use case: product-mockup. Create ONE photorealistic blank guitar/bass stompbox enclosure cutout for a professional audio-plugin live-controls skin. Input image is STYLE/PROPORTION REFERENCE ONLY. Match its realistic die-cast enclosure materials, straight front/top orthographic product view with long axis vertical, tall rectangular footprint approximately 440 wide by 748 tall, minimal natural thickness along rim, beautiful studio edge highlights. New subject: brushed-silver rectangular analog flanger housing with a thin grass-green diagonal edge stripe confined to outermost right edge, fine aluminum brushing, dark gray recessed lower footpad. IMPORTANT this is a blank background skin, entire face has NO lettering, NO logos, NO badges, NO knobs, NO toggle switches, NO footswitch buttons, NO holes. Realistic physical material, not flat vector illustration. Do not put meters or slider slots into the blank face. Preserve generous blank central area. Only tiny side jack details allowed beyond rim. Single tall rectangular stompbox only, fully visible centered with 2 percent transparent padding all sides. True alpha transparent background, no checkerboard, no floor, no cast background shadow. Portrait image.",
+      "style_reference": "Assets/Artwork/p808.jpg",
+      "generated_source": "exec-bd3cd62f-82f5-48fb-bd57-fff2bdd489ca.png",
+      "dimensions": [
+        440,
+        748
+      ],
+      "alpha_range": [
+        0,
+        255
+      ],
+      "fully_transparent_pixels": 49419,
+      "opaque_98pct_pixels": 274741,
+      "files": [
+        {
+          "path": "Assets/Artwork/pflange.jpg",
+          "bytes": 57952,
+          "sha256": "a00882fe869d75fd95eb180cf9301dfcb31d3d716a5de52527a8dd8d1ed9bcc6"
+        },
+        {
+          "path": "Assets/Artwork/pflange-alpha.png",
+          "bytes": 31239,
+          "sha256": "c44ca022d4ebbe71b8cfb4b627013d233cb7938e2582dfa2b4f8079ff6402652"
+        }
+      ]
+    },
+    {
+      "name": "pvibrato",
+      "model": 36,
+      "kind": "pedal",
+      "knobStyle": "cream",
+      "brightFace": false,
+      "prompt": "Use case: product-mockup. Create ONE photorealistic blank guitar/bass stompbox enclosure cutout for a professional audio-plugin live-controls skin. Input image is STYLE/PROPORTION REFERENCE ONLY. Match its realistic die-cast enclosure materials, straight front/top orthographic product view with long axis vertical, tall rectangular footprint approximately 440 wide by 748 tall, minimal natural thickness along rim, beautiful studio edge highlights. New subject: deep ocean-blue pearlescent rectangular vibrato pedal housing, softly rounded corners, cream fine decorative perimeter line, small warm turquoise wave-like trim only at lower edge, no fixed controls. IMPORTANT this is a blank background skin, entire face has NO lettering, NO logos, NO badges, NO knobs, NO toggle switches, NO footswitch buttons, NO holes. Realistic physical material, not flat vector illustration. Do not put meters or slider slots into the blank face. Preserve generous blank central area. Only tiny side jack details allowed beyond rim. Single tall rectangular stompbox only, fully visible centered with 2 percent transparent padding all sides. True alpha transparent background, no checkerboard, no floor, no cast background shadow. Portrait image.",
+      "style_reference": "Assets/Artwork/p808.jpg",
+      "generated_source": "exec-6eb7aa34-3733-4b3b-9d70-07b4a794a6b5.png",
+      "dimensions": [
+        440,
+        748
+      ],
+      "alpha_range": [
+        0,
+        254
+      ],
+      "fully_transparent_pixels": 46863,
+      "opaque_98pct_pixels": 276551,
+      "files": [
+        {
+          "path": "Assets/Artwork/pvibrato.jpg",
+          "bytes": 91398,
+          "sha256": "2128b8e70da147357cd89cf4904257d96c5bdb2057db402240bb0a380cec58b4"
+        },
+        {
+          "path": "Assets/Artwork/pvibrato-alpha.png",
+          "bytes": 44364,
+          "sha256": "ccb63a7d1d0aba349654ec6b978698d2fb6da2fcb013945581627896c202e8ff"
+        }
+      ]
+    },
+    {
+      "name": "ptremolo",
+      "model": 37,
+      "kind": "pedal",
+      "knobStyle": "cream",
+      "brightFace": false,
+      "prompt": "Use case: product-mockup. Create ONE photorealistic blank guitar/bass stompbox enclosure cutout for a professional audio-plugin live-controls skin. Input image is STYLE/PROPORTION REFERENCE ONLY. Match its realistic die-cast enclosure materials, straight front/top orthographic product view with long axis vertical, tall rectangular footprint approximately 440 wide by 748 tall, minimal natural thickness along rim, beautiful studio edge highlights. New subject: charcoal-black satin rectangular tremolo pedal housing, deep-red narrow outer pinstripe, subtle ruby-red anodized side rails and fine black texture, blank middle panel, no controls. IMPORTANT this is a blank background skin, entire face has NO lettering, NO logos, NO badges, NO knobs, NO toggle switches, NO footswitch buttons, NO holes. Realistic physical material, not flat vector illustration. Do not put meters or slider slots into the blank face. Preserve generous blank central area. Only tiny side jack details allowed beyond rim. Single tall rectangular stompbox only, fully visible centered with 2 percent transparent padding all sides. True alpha transparent background, no checkerboard, no floor, no cast background shadow. Portrait image.",
+      "style_reference": "Assets/Artwork/p808.jpg",
+      "generated_source": "exec-caf8d85b-5fa2-4da0-9eb1-04830edf6c03.png",
+      "dimensions": [
+        440,
+        748
+      ],
+      "alpha_range": [
+        0,
+        255
+      ],
+      "fully_transparent_pixels": 52012,
+      "opaque_98pct_pixels": 271128,
+      "files": [
+        {
+          "path": "Assets/Artwork/ptremolo.jpg",
+          "bytes": 61826,
+          "sha256": "e9b3aa3fd3e073e4a74b58ec7d2eb9ad47137382633355ce1896a7c9fa5a2911"
+        },
+        {
+          "path": "Assets/Artwork/ptremolo-alpha.png",
+          "bytes": 29166,
+          "sha256": "c6b2e2bc89be153851241b17eaf308be8ddfaffd8f41340e0adfcd5cbd3e2030"
+        }
+      ]
+    },
+    {
+      "name": "pmonoctave",
+      "model": 38,
+      "kind": "pedal",
+      "knobStyle": "cream",
+      "brightFace": false,
+      "prompt": "Use case: product-mockup. Create ONE photorealistic blank guitar/bass stompbox enclosure cutout for a professional audio-plugin live-controls skin. Input image is STYLE/PROPORTION REFERENCE ONLY. Match its realistic die-cast enclosure materials, straight front/top orthographic product view with long axis vertical, tall rectangular footprint approximately 440 wide by 748 tall, minimal natural thickness along rim, beautiful studio edge highlights. New subject: rich copper-brown hammered enamel rectangular octave pedal housing, black inset rubber tread pad on lower quarter, warm gold thin trim line, visible chrome side jacks. IMPORTANT this is a blank background skin, entire face has NO lettering, NO logos, NO badges, NO knobs, NO toggle switches, NO footswitch buttons, NO holes. Realistic physical material, not flat vector illustration. Do not put meters or slider slots into the blank face. Preserve generous blank central area. Only tiny side jack details allowed beyond rim. Single tall rectangular stompbox only, fully visible centered with 2 percent transparent padding all sides. True alpha transparent background, no checkerboard, no floor, no cast background shadow. Portrait image.",
+      "style_reference": "Assets/Artwork/p808.jpg",
+      "generated_source": "exec-e9149f09-4da7-46b8-b182-1c086e80dbd3.png",
+      "dimensions": [
+        440,
+        748
+      ],
+      "alpha_range": [
+        0,
+        253
+      ],
+      "fully_transparent_pixels": 42560,
+      "opaque_98pct_pixels": 278748,
+      "files": [
+        {
+          "path": "Assets/Artwork/pmonoctave.jpg",
+          "bytes": 135899,
+          "sha256": "52a6e2e2b15997b3c5f0be293357b6e90b6957c3b1de91082d9baf499f017ac7"
+        },
+        {
+          "path": "Assets/Artwork/pmonoctave-alpha.png",
+          "bytes": 51992,
+          "sha256": "3473ec4e86b7ea832b058c5d1601fa4509a7769cdf86157fc38992f697166dc9"
+        }
+      ]
+    },
+    {
+      "name": "pspectraloctave",
+      "model": 39,
+      "kind": "pedal",
+      "knobStyle": "cream",
+      "brightFace": false,
+      "prompt": "Use case: product-mockup. Create ONE photorealistic blank guitar/bass stompbox enclosure cutout for a professional audio-plugin live-controls skin. Input image is STYLE/PROPORTION REFERENCE ONLY. Match its realistic die-cast enclosure materials, straight front/top orthographic product view with long axis vertical, tall rectangular footprint approximately 440 wide by 748 tall, minimal natural thickness along rim, beautiful studio edge highlights. New subject: vivid dark ruby-red metallic rectangular polyphonic octave pedal housing, brushed-silver vertical side rails and fine silver corner hardware, completely blank face and a dark lower footpad. IMPORTANT this is a blank background skin, entire face has NO lettering, NO logos, NO badges, NO knobs, NO toggle switches, NO footswitch buttons, NO holes. Realistic physical material, not flat vector illustration. Do not put meters or slider slots into the blank face. Preserve generous blank central area. Only tiny side jack details allowed beyond rim. Single tall rectangular stompbox only, fully visible centered with 2 percent transparent padding all sides. True alpha transparent background, no checkerboard, no floor, no cast background shadow. Portrait image.",
+      "style_reference": "Assets/Artwork/p808.jpg",
+      "generated_source": "exec-37d70644-269e-4cd0-be37-3cfe10f59c58.png",
+      "dimensions": [
+        440,
+        748
+      ],
+      "alpha_range": [
+        0,
+        255
+      ],
+      "fully_transparent_pixels": 41395,
+      "opaque_98pct_pixels": 281527,
+      "files": [
+        {
+          "path": "Assets/Artwork/pspectraloctave.jpg",
+          "bytes": 67115,
+          "sha256": "7c18cd40028520164bbd5f3bdc6b036b06fd40552e2c4fa50725e370e2da7ee2"
+        },
+        {
+          "path": "Assets/Artwork/pspectraloctave-alpha.png",
+          "bytes": 38472,
+          "sha256": "daa487a95ee23b4c3a045f63f556b8eade5b2a508d127200bd2ba3881273ad08"
+        }
+      ]
+    }
+  ],
+  "processing": "ImageMagick resampling to repository skin dimensions; JPEG quality90 plus lossless 8-bit alpha plane. No manual painted graphics; each image generated independently.",
+  "visual_qa": "All22 source images inspected: matching front orthographic photoreal hardware materials, distinct model-specific chassis/trim, blank control regions, no baked brand names; true transparency and paired dimensions verified. Runtime screenshots are validated separately.",
+  "total_asset_bytes": 2577134
+}

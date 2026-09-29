@@ -10,6 +10,7 @@ endif()
 include(FetchContent)
 FetchContent_Declare(JUCE GIT_REPOSITORY https://github.com/juce-framework/JUCE.git GIT_TAG 8.0.8)
 FetchContent_MakeAvailable(JUCE)
+include(cmake/JuceVBlankShutdown.cmake)
 set(CHIMERA_FORMATS VST3 Standalone)
 if(APPLE)
   list(APPEND CHIMERA_FORMATS AU)
@@ -19,6 +20,7 @@ juce_add_binary_data(ChimeraIRs HEADER_NAME ChimeraIRData.h NAMESPACE ChimeraIRD
 # Explicit production assets: abandoned trial encodings are never embedded.
 set(CHIMERA_ARTWORK Assets/Artwork/raven-workbench.jpg Assets/Artwork/raven-emblem.png Assets/Artwork/spectralforge-emblem.png Assets/Artwork/chimera-wordmark.png)
 set(CHIMERA_MODEL_ARTWORK p808 pcentaur prat pm87 pdyna pdiamond pqtron pmutron pmuff pface pbender prc prange pmicro aglass abrit a515 arect amark asvt agk ahybrid rsslvca r1176 rla2a rn73 rv5 risa rssleq rn73eq rpultec rce2 rdimension rstone rmistress reddy rpulsar r2290 rre201 rmemory remt rlex rspring cmesa campeg cbassman cdelta pfet pmu pbddi pb3k pm82 paw3 pwool pfactory pep plpb achim30 aorange abassman asubway amatchless adumble aeich)
+include(Assets/Artwork/ExpandedArtwork.cmake OPTIONAL)
 foreach(model IN LISTS CHIMERA_MODEL_ARTWORK)
   list(APPEND CHIMERA_ARTWORK "Assets/Artwork/${model}.jpg" "Assets/Artwork/${model}-alpha.png")
 endforeach()
@@ -42,6 +44,35 @@ endif()
 target_compile_definitions(ChimeraAmpMatrix PUBLIC JUCE_WEB_BROWSER=0 JUCE_USE_CURL=${CHIMERA_USE_CURL} JUCE_LOAD_CURL_SYMBOLS_LAZILY=0 JUCE_VST3_CAN_REPLACE_VST2=0)
 target_link_libraries(ChimeraAmpMatrix PRIVATE ChimeraIRs ChimeraArtwork ChimeraManual juce::juce_cryptography juce::juce_audio_utils juce::juce_dsp PUBLIC juce::juce_recommended_config_flags juce::juce_recommended_warning_flags)
 enable_testing()
+
+# Compile the actual upstream/patched VBlankThread class with a deterministic
+# failing DXGI output. This runs on every platform without a physical display.
+find_package(Python3 3.9 REQUIRED COMPONENTS Interpreter)
+find_package(Threads REQUIRED)
+set(CHIMERA_VBLANK_TEST_DIR "${CMAKE_BINARY_DIR}/vblank-test-generated")
+execute_process(
+  COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/Tools/extract_vblank_test_class.py"
+    --baseline-source "${CHIMERA_VBLANK_ORIGINAL_SOURCE}"
+    --patched-source "${CHIMERA_VBLANK_PATCHED_SOURCE}"
+    --output-dir "${CHIMERA_VBLANK_TEST_DIR}"
+  COMMAND_ERROR_IS_FATAL ANY)
+foreach(variant Baseline Patched)
+  add_executable(ChimeraVBlank${variant}Probe Tests/VBlankThreadProbe.cpp)
+  target_include_directories(ChimeraVBlank${variant}Probe PRIVATE "${CHIMERA_VBLANK_TEST_DIR}")
+  target_compile_definitions(ChimeraVBlank${variant}Probe PRIVATE
+    CHIMERA_VBLANK_CLASS_HEADER="VBlankThread${variant}.h")
+  target_link_libraries(ChimeraVBlank${variant}Probe PRIVATE Threads::Threads)
+endforeach()
+add_custom_target(ChimeraVBlankFailureTests
+  DEPENDS ChimeraVBlankBaselineProbe ChimeraVBlankPatchedProbe)
+add_test(NAME ChimeraVBlankFailureTests
+  COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/Tools/verify_vblank_failure.py"
+    --baseline "$<TARGET_FILE:ChimeraVBlankBaselineProbe>"
+    --patched "$<TARGET_FILE:ChimeraVBlankPatchedProbe>"
+    --extraction-report "${CHIMERA_VBLANK_TEST_DIR}/extraction.json"
+    --report "${CMAKE_BINARY_DIR}/vblank-failure-verification.json")
+set_tests_properties(ChimeraVBlankFailureTests PROPERTIES TIMEOUT 20)
+
 juce_add_console_app(ChimeraTests PRODUCT_NAME "Chimera Tests")
 target_sources(ChimeraTests PRIVATE Tests/ChimeraTests.cpp Source/IRLibrary.cpp)
 target_include_directories(ChimeraTests PRIVATE Source)
@@ -57,6 +88,22 @@ if(WIN32)
   target_compile_definitions(ChimeraUITests PRIVATE JUCE_MODAL_LOOPS_PERMITTED=1)
   target_link_libraries(ChimeraUITests PRIVATE ChimeraAmpMatrix ChimeraArtwork ChimeraManual juce::juce_cryptography juce::juce_audio_utils juce::juce_dsp)
   add_test(NAME ChimeraUITests COMMAND ChimeraUITests "${CMAKE_BINARY_DIR}/ui-snapshots")
+
+  # Exercise the shipped DLL through the real VST3 ABI. No JUCE/Chimera link:
+  # last-instance release and FreeLibrary must tear down all plugin globals.
+  set(CHIMERA_VST3_SDK "${JUCE_SOURCE_DIR}/modules/juce_audio_processors/format_types/VST3_SDK")
+  add_executable(ChimeraVST3LifecycleTests
+    Tests/VST3LifecycleTests.cpp
+    "${CHIMERA_VST3_SDK}/pluginterfaces/base/funknown.cpp"
+    "${CHIMERA_VST3_SDK}/pluginterfaces/base/coreiids.cpp"
+    "${CHIMERA_VST3_SDK}/public.sdk/source/vst/vstinitiids.cpp")
+  target_include_directories(ChimeraVST3LifecycleTests PRIVATE "${CHIMERA_VST3_SDK}")
+  target_link_libraries(ChimeraVST3LifecycleTests PRIVATE ole32 user32)
+  # Keep the host independently buildable for baseline protocol checks. The
+  # normal all-target build supplies the plugin used by the CTest below.
+  add_test(NAME ChimeraVST3LifecycleTests
+    COMMAND ChimeraVST3LifecycleTests "$<TARGET_FILE:ChimeraAmpMatrix_VST3>")
+  set_tests_properties(ChimeraVST3LifecycleTests PROPERTIES TIMEOUT 260)
 endif()
 
 # Deterministic offline amp renderer for user-owned NAM reference comparisons.
@@ -76,3 +123,56 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
   target_link_libraries(ChimeraReleaseTests PRIVATE CURL::libcurl)
 endif()
 add_test(NAME ChimeraReleaseTests COMMAND ChimeraReleaseTests)
+
+juce_add_console_app(ChimeraStabilityTests PRODUCT_NAME "Chimera Stability Tests")
+target_sources(ChimeraStabilityTests PRIVATE Tests/StabilityTests.cpp)
+target_include_directories(ChimeraStabilityTests PRIVATE Source)
+target_compile_definitions(ChimeraStabilityTests PRIVATE JUCE_USE_CURL=0 JUCE_WEB_BROWSER=0)
+target_link_libraries(ChimeraStabilityTests PRIVATE juce::juce_dsp juce::juce_audio_basics PUBLIC juce::juce_recommended_config_flags)
+add_test(NAME ChimeraStabilityTests COMMAND ChimeraStabilityTests)
+
+juce_add_console_app(ChimeraPedalBoardTests PRODUCT_NAME "Chimera Pedal Board Tests")
+target_sources(ChimeraPedalBoardTests PRIVATE Tests/PedalBoardTests.cpp)
+target_include_directories(ChimeraPedalBoardTests PRIVATE Source)
+target_compile_definitions(ChimeraPedalBoardTests PRIVATE JUCE_USE_CURL=0 JUCE_WEB_BROWSER=0)
+target_link_libraries(ChimeraPedalBoardTests PRIVATE juce::juce_dsp juce::juce_audio_basics PUBLIC juce::juce_recommended_config_flags)
+add_test(NAME ChimeraPedalBoardTests COMMAND ChimeraPedalBoardTests)
+
+juce_add_console_app(ChimeraIRCollectionTests PRODUCT_NAME "Chimera IR Collection Tests")
+target_sources(ChimeraIRCollectionTests PRIVATE Tests/IRCollectionTests.cpp)
+target_include_directories(ChimeraIRCollectionTests PRIVATE Source)
+target_compile_definitions(ChimeraIRCollectionTests PRIVATE JUCE_USE_CURL=0 JUCE_WEB_BROWSER=0)
+target_link_libraries(ChimeraIRCollectionTests PRIVATE juce::juce_audio_formats juce::juce_cryptography PUBLIC juce::juce_recommended_config_flags)
+add_test(NAME ChimeraIRCollectionTests COMMAND ChimeraIRCollectionTests)
+
+# On-demand validation for user-owned IR files. Requires explicit CLI inputs;
+# this is not a zero-input CTest or a source of redistributable capture assets.
+juce_add_console_app(ChimeraValidateExternalIR PRODUCT_NAME "Chimera Validate External IR")
+target_sources(ChimeraValidateExternalIR PRIVATE Tests/ValidateExternalIR.cpp Source/IRLibrary.cpp)
+target_include_directories(ChimeraValidateExternalIR PRIVATE Source)
+target_compile_definitions(ChimeraValidateExternalIR PRIVATE JUCE_USE_CURL=0 JUCE_WEB_BROWSER=0)
+target_link_libraries(ChimeraValidateExternalIR PRIVATE ChimeraIRs juce::juce_data_structures juce::juce_dsp juce::juce_audio_formats juce::juce_cryptography PUBLIC juce::juce_recommended_config_flags)
+
+# Appended amp topologies: separate real-DSP numerical and legacy-preservation gate.
+juce_add_console_app(ChimeraNewAmpTests PRODUCT_NAME "Chimera New Amp Tests")
+target_sources(ChimeraNewAmpTests PRIVATE Tests/NewAmpTests.cpp)
+target_include_directories(ChimeraNewAmpTests PRIVATE Source)
+target_compile_definitions(ChimeraNewAmpTests PRIVATE JUCE_USE_CURL=0 JUCE_WEB_BROWSER=0)
+target_link_libraries(ChimeraNewAmpTests PRIVATE juce::juce_dsp juce::juce_audio_basics PUBLIC juce::juce_recommended_config_flags)
+add_test(NAME ChimeraNewAmpTests COMMAND ChimeraNewAmpTests)
+
+juce_add_console_app(ChimeraPedalOctaverTests PRODUCT_NAME "Chimera Pedal Octaver Tests")
+target_sources(ChimeraPedalOctaverTests PRIVATE Tests/PedalOctaverTests.cpp)
+target_include_directories(ChimeraPedalOctaverTests PRIVATE Source)
+target_compile_definitions(ChimeraPedalOctaverTests PRIVATE JUCE_USE_CURL=0 JUCE_WEB_BROWSER=0)
+target_link_libraries(ChimeraPedalOctaverTests PRIVATE juce::juce_dsp juce::juce_audio_basics PUBLIC juce::juce_recommended_config_flags)
+add_test(NAME ChimeraPedalOctaverTests COMMAND ChimeraPedalOctaverTests)
+
+foreach(native AmpNative PostNative)
+  juce_add_console_app(Chimera${native}Tests PRODUCT_NAME "Chimera ${native} Tests")
+  target_sources(Chimera${native}Tests PRIVATE Tests/${native}Tests.cpp)
+  target_include_directories(Chimera${native}Tests PRIVATE Source)
+  target_compile_definitions(Chimera${native}Tests PRIVATE JUCE_USE_CURL=0 JUCE_WEB_BROWSER=0)
+  target_link_libraries(Chimera${native}Tests PRIVATE juce::juce_dsp juce::juce_audio_basics PUBLIC juce::juce_recommended_config_flags)
+  add_test(NAME Chimera${native}Tests COMMAND Chimera${native}Tests)
+endforeach()

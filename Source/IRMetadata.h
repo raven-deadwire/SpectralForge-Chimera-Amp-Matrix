@@ -49,6 +49,8 @@ struct IRMetadata {
     static IRMetadata filenameHints(const juce::String& name) {
         static const auto catalog=juce::JSON::parse(referenceIRCatalog);
         static const auto external=juce::JSON::parse(externalBassIRCatalog);
+        static const auto raven=juce::JSON::parse(ravenIRCatalog);
+        if(const auto* entries=raven.getArray())for(const auto& entry:*entries)if(entry.getProperty("file",{}).toString()==name){auto known=fromJSON(entry);known.values[11]+=" Catalog association by filename; verify file hash against the source catalog.";return known;}
         if(const auto* entries=external.getArray())for(const auto& entry:*entries)if(entry.getProperty("file",{}).toString()==name){auto known=fromJSON(entry);known.values[11]+=" Filename association only; the catalog records the original SHA-256.";return known;}
         if(const auto* entries=catalog.getArray())for(const auto& entry:*entries)if(entry.getProperty("file",{}).toString()==name){auto known=fromJSON(entry);known.values[11]+=" Catalog association by filename; verify file hash against the source catalog.";return known;}
         IRMetadata result;std::smatch match;const auto s=name.toStdString();

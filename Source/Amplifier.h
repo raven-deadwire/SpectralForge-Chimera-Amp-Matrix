@@ -3,10 +3,13 @@
 #include <array>
 #include <cmath>
 #include "AmpCatalog.h"
+#include "NewAmpDSP.h"
+#include "AmpNativeDSP.h"
 
 namespace spectralforge {
 // Voiced nonlinear models, not component-level replicas or measured captures.
-// Each row defines input/interstage coupling, bandwidth, bias and supply sag.
+// The first 15 rows are the frozen Legacy path. Appended array entries are not
+// used: models 15-22 execute the distinct circuits in NewAmpDSP.h instead.
 struct AmpVoice { float inputHP, couplingHP, bandwidth, gain, stage2, stage3, bias, sag, dry, output; };
 inline constexpr std::array<AmpVoice, ampModelCount> ampVoices{{
     {18,  25, 18000,  2.0f, 1.0f, 0.0f, .015f, .02f, .80f, 1.00f},
@@ -53,13 +56,60 @@ inline constexpr std::array<std::array<float,3>,ampModelCount> additionalCapture
 class Amp {
     using Filter = juce::dsp::ProcessorDuplicator<juce::dsp::IIR::Filter<float>, juce::dsp::IIR::Coefficients<float>>;
     struct Path {
-        std::unique_ptr<juce::dsp::Oversampling<float>> oversampler;
-        juce::dsp::DelayLine<float, juce::dsp::DelayLineInterpolationTypes::None> compensation{64};
+        std::unique_ptr<juce::dsp::Oversampling<float>> oversampler,nativeOversampler;
+        juce::dsp::DelayLine<float, juce::dsp::DelayLineInterpolationTypes::None> compensation{64},nativeCompensation{64};
         struct Channel { float inputLow{}, couplingLow{}, outputLow{}, dcLow{}, envelope{}; };
         std::array<Channel, 2> channels{};
+        NewAmpDSP newAmp;
+        std::array<AmpNativeDSP,2> nativeAmps;
+        AmpNativeState nativeState{};
+        bool nativeReady{};
+        int nativeActive{},nativePrevious{},nativeFade{},nativeFadeLength{1};
         juce::SmoothedValue<float> drive;
         double rate{};
-        void reset() { oversampler->reset(); compensation.reset(); channels = {}; drive.setCurrentAndTargetValue(drive.getTargetValue()); }
+        void reset() { oversampler->reset();nativeOversampler->reset(); compensation.reset();nativeCompensation.reset(); channels = {}; newAmp.reset(); for(auto& amp:nativeAmps)amp.reset(); nativeFade=0; drive.setCurrentAndTargetValue(drive.getTargetValue()); }
+        void setNative(const AmpNativeState& state)
+        {
+            if(!nativeReady) {
+                for(auto& amp:nativeAmps)amp.set(state);
+                nativeReady=true;nativeState=state;nativeFade=0;return;
+            }
+            if(state.model!=nativeState.model || state.channel!=nativeState.channel || state.inputRoute!=nativeState.inputRoute) {
+                nativePrevious=nativeActive;nativeActive=1-nativeActive;
+                nativeAmps[(size_t)nativeActive].set(state);
+                nativeAmps[(size_t)nativeActive].reset();
+                nativeFade=nativeFadeLength;
+            } else nativeAmps[(size_t)nativeActive].set(state);
+            nativeState=state;
+        }
+        void processNative(juce::AudioBuffer<float>& buffer)
+        {
+            juce::dsp::AudioBlock<float> base(buffer);
+            auto block=nativeOversampler->processSamplesUp(base);
+            for(size_t n=0;n<block.getNumSamples();++n) {
+                const float mix=nativeFade>0?1.f-float(nativeFade)/float(nativeFadeLength):1.f;
+                for(size_t c=0;c<block.getNumChannels();++c) {
+                    const float input=block.getSample((int)c,(int)n);
+                    float output=nativeAmps[(size_t)nativeActive].tick(input,(int)c);
+                    if(nativeFade>0)output=mix*output+(1.f-mix)*nativeAmps[(size_t)nativePrevious].tick(input,(int)c);
+                    block.setSample((int)c,(int)n,output);
+                }
+                if(nativeFade>0)--nativeFade;
+            }
+            nativeOversampler->processSamplesDown(base);
+            juce::dsp::ProcessContextReplacing<float> context(base);
+            nativeCompensation.process(context);
+        }
+        void processNew(juce::AudioBuffer<float>& buffer, float amount)
+        {
+            juce::dsp::AudioBlock<float> base(buffer);
+            auto block = oversampler->processSamplesUp(base);
+            drive.setTargetValue(amount);
+            newAmp.process(block, drive);
+            oversampler->processSamplesDown(base);
+            juce::dsp::ProcessContextReplacing<float> context(base);
+            compensation.process(context);
+        }
         void process(juce::AudioBuffer<float>& buffer, const AmpVoice& voice, float amount)
         {
             juce::dsp::AudioBlock<float> base(buffer);
@@ -97,13 +147,19 @@ class Amp {
             compensation.process(context);
         }
     };
-    std::array<Path, 4> paths;
+    // Circuit storage is prepared once off the audio thread. Keeping these
+    // fixed arrays off the stack avoids Windows' 1 MiB thread-stack ceiling
+    // when a host/test constructs several routing engines at once.
+    std::unique_ptr<std::array<Path,4>> pathStorage=std::make_unique<std::array<Path,4>>();
+    std::array<Path,4>& paths=*pathStorage;
     Filter lo, lm, hm, hi, pres, res,voiceLow,voiceMid,voiceHigh,captureLow,captureMid,captureHigh;
-    juce::AudioBuffer<float> alternate, dry;
+    juce::AudioBuffer<float> alternate, dry, engineAlternate;
     juce::dsp::DelayLine<float,juce::dsp::DelayLineInterpolationTypes::None> bypassDelay{64};
-    juce::SmoothedValue<float> enabled;
+    juce::SmoothedValue<float> enabled,nativeMix;
     double sr{48000};
     AmpModel model{AmpModel::glass};
+    int nativeChannelValue{};
+    bool useNativeControls{};
     float drive{.35f};
     int selected{2}, previous{2}, fadeRemaining{}, fadeLength{1}, delaySamples{};
     void voiceTone() {
@@ -116,6 +172,12 @@ class Amp {
         *captureMid.state=C::makePeakFilter(sr,juce::jmin(500.,sr*.4),.65f,juce::Decibels::decibelsToGain(capture[1]));
         *captureHigh.state=C::makeHighShelf(sr,juce::jmin(2000.,sr*.4),.707f,juce::Decibels::decibelsToGain(capture[2]));
     }
+    void processLegacyTone(juce::AudioBuffer<float>& buffer,bool fullRange) {
+        juce::dsp::AudioBlock<float> block(buffer);juce::dsp::ProcessContextReplacing<float> context(block);
+        if(!isNewAmpModel(static_cast<int>(model))){voiceLow.process(context);voiceMid.process(context);voiceHigh.process(context);buffer.applyGain(.5f);}
+        if(static_cast<int>(model)>=8 && static_cast<int>(model)<=13){captureLow.process(context);captureMid.process(context);captureHigh.process(context);}
+        if(fullRange)for(auto* filter:{&lo,&lm,&hm,&hi,&res,&pres})filter->process(context);
+    }
 public:
     void prepare(const juce::dsp::ProcessSpec& spec)
     {
@@ -127,7 +189,13 @@ public:
             p.oversampler = std::make_unique<juce::dsp::Oversampling<float>>(spec.numChannels, i,
                 juce::dsp::Oversampling<float>::filterHalfBandPolyphaseIIR, true, true);
             p.oversampler->initProcessing(spec.maximumBlockSize);
+            p.nativeOversampler=std::make_unique<juce::dsp::Oversampling<float>>(spec.numChannels,i,
+                juce::dsp::Oversampling<float>::filterHalfBandPolyphaseIIR,true,true);
+            p.nativeOversampler->initProcessing(spec.maximumBlockSize);
             p.rate = sr * (1 << i);
+            p.newAmp.prepare(p.rate);
+            for(auto& amp:p.nativeAmps)amp.prepare(p.rate);
+            p.nativeFadeLength=juce::jmax(1,int(p.rate*.020));
             p.drive.reset(p.rate, .020);
             p.drive.setCurrentAndTargetValue(drive);
             delaySamples = juce::jmax(delaySamples, juce::roundToInt(p.oversampler->getLatencyInSamples()));
@@ -136,11 +204,15 @@ public:
         {
             p.compensation.prepare(spec);
             p.compensation.setDelay(float(delaySamples - juce::roundToInt(p.oversampler->getLatencyInSamples())));
+            p.nativeCompensation.prepare(spec);
+            p.nativeCompensation.setDelay(float(delaySamples-juce::roundToInt(p.nativeOversampler->getLatencyInSamples())));
         }
         bypassDelay.prepare(spec);bypassDelay.setDelay(float(delaySamples));
         enabled.reset(sr,.015);enabled.setCurrentAndTargetValue(1);
+        nativeMix.reset(sr,.020);nativeMix.setCurrentAndTargetValue(useNativeControls?1.f:0.f);
         dry.setSize((int)spec.numChannels,(int)spec.maximumBlockSize);
         alternate.setSize((int)spec.numChannels, (int)spec.maximumBlockSize);
+        engineAlternate.setSize((int)spec.numChannels,(int)spec.maximumBlockSize);
         fadeLength = juce::jmax(1, int(sr * .020));
         tone(0,0,0,0,0,0);voiceTone();
         for (auto* f : {&lo, &lm, &hm, &hi, &pres, &res,&voiceLow,&voiceMid,&voiceHigh,&captureLow,&captureMid,&captureHigh}) f->prepare(spec);
@@ -150,12 +222,26 @@ public:
     {
         for (auto* f : {&lo, &lm, &hm, &hi, &pres, &res,&voiceLow,&voiceMid,&voiceHigh,&captureLow,&captureMid,&captureHigh}) f->reset();
         for (auto& p : paths) if (p.oversampler) p.reset();
-        previous = selected; fadeRemaining = 0; bypassDelay.reset();enabled.setCurrentAndTargetValue(enabled.getTargetValue());
+        previous = selected; fadeRemaining = 0; nativeMix.setCurrentAndTargetValue(nativeMix.getTargetValue());bypassDelay.reset();enabled.setCurrentAndTargetValue(enabled.getTargetValue());
     }
     void setDriveImmediately(float value) { drive=juce::jlimit(0.f,1.f,value);for(auto& path:paths)path.drive.setCurrentAndTargetValue(drive); }
     void set(AmpModel m, float d) {
+        if(useNativeControls)return; // Retain the previous legacy circuit during its exit fade.
         m = static_cast<AmpModel>(juce::jlimit(0, ampModelCount - 1, static_cast<int>(m)));
-        if(model!=m){model=m;voiceTone();captureLow.reset();captureMid.reset();captureHigh.reset();} drive = juce::jlimit(0.f, 1.f, d);
+        if(model!=m){model=m;nativeChannelValue=newAmpDefaultChannel(static_cast<int>(model));voiceTone();captureLow.reset();captureMid.reset();captureHigh.reset();}
+        if(isNewAmpModel(static_cast<int>(model)))for(auto& path:paths)path.newAmp.set(static_cast<int>(model),nativeChannelValue);
+        drive = juce::jlimit(0.f, 1.f, d);
+    }
+    void set(AmpModel m, float d, int channel) { if(!useNativeControls){set(m, d); setNativeChannel(channel);} }
+    void setNativeChannel(int channel)
+    {
+        nativeChannelValue = juce::jlimit(0, newAmpChannelCount(static_cast<int>(model)) - 1, channel);
+        if(isNewAmpModel(static_cast<int>(model)))for(auto& path:paths)path.newAmp.set(static_cast<int>(model),nativeChannelValue);
+    }
+    int nativeChannel() const { return nativeChannelValue; }
+    void setNative(const AmpNativeState& state) {
+        useNativeControls=state.enabled;nativeMix.setTargetValue(useNativeControls?1.f:0.f);
+        if(useNativeControls)for(auto& path:paths)path.setNative(state);
     }
     void setOversampling(int choice)
     {
@@ -167,6 +253,7 @@ public:
     int latency() const { return delaySamples; }
     void tone(float bass, float lowmid, float highmid, float treble, float presence, float resonance)
     {
+        if(useNativeControls)return;
         float bf=80, lmf=450, hmf=1500, hf=4000, pf=2500, rf=90;
         if (model==AmpModel::ironTube) { bf=40; lmf=220; hmf=800; rf=70; }
         else if (model==AmpModel::solidPunch) { bf=60; lmf=250; hmf=1000; hf=5000; pf=4500; }
@@ -178,6 +265,16 @@ public:
         else if (model==AmpModel::matchChime) { bf=85; lmf=420; hmf=1350; hf=4300; pf=3700; rf=95; }
         else if (model==AmpModel::silkODS) { bf=70; lmf=500; hmf=1800; hf=3800; pf=2400; rf=90; }
         else if (model==AmpModel::tastePunch) { bf=30; lmf=250; hmf=800; hf=8000; pf=5000; rf=50; }
+        // New designs retain the existing global six-band control contract;
+        // this is not a claim that these are the original hardware tapers.
+        else if (model==AmpModel::zutaCinder) { bf=90; lmf=430; hmf=1400; hf=4000; pf=3000; rf=94; }
+        else if (model==AmpModel::ironCompact) { bf=100; lmf=500; hmf=1500; hf=3900; pf=2700; rf=125; }
+        else if (model==AmpModel::fourChannel) { bf=85; lmf=400; hmf=1300; hf=3800; pf=2200; rf=82; }
+        else if (model==AmpModel::classicTube) { bf=40; lmf=220; hmf=800; hf=4000; pf=2100; rf=48; }
+        else if (model==AmpModel::sunMonolith) { bf=70; lmf=320; hmf=1200; hf=3500; pf=1900; rf=62; }
+        else if (model==AmpModel::evilHarvest) { bf=95; lmf=500; hmf=1600; hf=4200; pf=3300; rf=89; }
+        else if (model==AmpModel::hotLead) { bf=90; lmf=400; hmf=1500; hf=4000; pf=2700; rf=90; }
+        else if (model==AmpModel::blueStorm) { bf=70; lmf=350; hmf=1200; hf=3400; pf=1800; rf=68; }
         using C = juce::dsp::IIR::ArrayCoefficients<float>;
         auto hz = [this](float f) { return juce::jmin(f, float(sr * .45)); };
         *lo.state=C::makeLowShelf(sr,hz(bf),.707f,juce::Decibels::decibelsToGain(bass));
@@ -191,28 +288,38 @@ public:
     {
         dry.makeCopyOf(buffer,true);juce::dsp::AudioBlock<float> dryBlock(dry);juce::dsp::ProcessContextReplacing<float> dryContext(dryBlock);bypassDelay.process(dryContext);
         const auto& voice = ampVoices[(size_t)model];
+        const bool extended = isNewAmpModel(static_cast<int>(model));
+        const bool blendEngines=nativeMix.isSmoothing();
+        if(blendEngines) {
+            engineAlternate.makeCopyOf(buffer,true);
+            if(useNativeControls) {
+                if(extended)paths[selected].processNew(engineAlternate,drive);
+                else paths[selected].process(engineAlternate,voice,drive);
+                processLegacyTone(engineAlternate,useFullRangeTone);
+            } else paths[selected].processNative(engineAlternate);
+        }
         if (fadeRemaining > 0)
         {
             alternate.makeCopyOf(buffer, true);
-            paths[previous].process(alternate, voice, drive);
+            if(useNativeControls)paths[previous].processNative(alternate);
+            else if(extended)paths[previous].processNew(alternate, drive);
+            else paths[previous].process(alternate, voice, drive);
         }
-        paths[selected].process(buffer, voice, drive);
+        if(useNativeControls)paths[selected].processNative(buffer);
+        else if(extended)paths[selected].processNew(buffer, drive);
+        else paths[selected].process(buffer, voice, drive);
         for (int n = 0; n < buffer.getNumSamples() && fadeRemaining > 0; ++n, --fadeRemaining)
         {
             const float wet = 1.0f - float(fadeRemaining) / float(fadeLength);
             for (int c = 0; c < buffer.getNumChannels(); ++c)
                 buffer.setSample(c,n,wet*buffer.getSample(c,n)+(1.0f-wet)*alternate.getSample(c,n));
         }
-        {juce::dsp::AudioBlock<float> block(buffer);juce::dsp::ProcessContextReplacing<float> context(block);voiceLow.process(context);voiceMid.process(context);voiceHigh.process(context);buffer.applyGain(.5f);}
-        if(static_cast<int>(model)>=8 && static_cast<int>(model)<=13) {
-            juce::dsp::AudioBlock<float> block(buffer);juce::dsp::ProcessContextReplacing<float> context(block);
-            captureLow.process(context);captureMid.process(context);captureHigh.process(context);
-        }
-        if (useFullRangeTone)
-        {
-            juce::dsp::AudioBlock<float> block(buffer);
-            juce::dsp::ProcessContextReplacing<float> context(block);
-            for (auto* f : {&lo, &lm, &hm, &hi, &res, &pres}) f->process(context);
+        if(!useNativeControls)processLegacyTone(buffer,useFullRangeTone);
+        if(blendEngines)for(int n=0;n<buffer.getNumSamples();++n) {
+            const float nativeWeight=nativeMix.getNextValue();
+            const float primaryWeight=useNativeControls?nativeWeight:1.f-nativeWeight;
+            for(int c=0;c<buffer.getNumChannels();++c)
+                buffer.setSample(c,n,primaryWeight*buffer.getSample(c,n)+(1.f-primaryWeight)*engineAlternate.getSample(c,n));
         }
         enabled.setTargetValue(ampEnabled ? 1.f : 0.f);
         for(int n=0;n<buffer.getNumSamples();++n) {const float mix=enabled.getNextValue();for(int c=0;c<buffer.getNumChannels();++c) buffer.setSample(c,n,buffer.getSample(c,n)*mix+dry.getSample(c,n)*(1-mix));}

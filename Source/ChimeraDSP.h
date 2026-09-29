@@ -8,7 +8,7 @@
 #include "LowCompressor.h"
 namespace spectralforge {
 enum class RoutingMode:int{classic,dual,matrix};
-struct LaneState{int amp{};float drive{.35f},levelDb{},bass{},lowMid{},highMid{},treble{},presence{},resonance{};bool mute{},solo{},polarity{},cab{true},ampEnabled{true};float lowComp{},lowAmpMix{},bandTone{},fineDelayMs{},cabLow{70.f},cabHigh{9000.f};};
+struct LaneState{int amp{};float drive{.35f},levelDb{},bass{},lowMid{},highMid{},treble{},presence{},resonance{};bool mute{},solo{},polarity{},cab{true},ampEnabled{true};float lowComp{},lowAmpMix{},bandTone{},fineDelayMs{},cabLow{70.f},cabHigh{9000.f};int ampChannel{};AmpNativeState native{};};
 class Crossover {
     using LR=juce::dsp::LinkwitzRileyFilter<float>;
     LR lowSplit,highSplit,lowPhase;
@@ -130,7 +130,8 @@ public:
         {
             const auto& state = states[i];
             const bool muted = state.mute || (anySolo && !state.solo);
-            amps[i].set(static_cast<AmpModel>(juce::jlimit(0,ampModelCount-1,state.amp)), matrix && i==0 ? 0.f : state.drive);
+            amps[i].setNative(state.native);
+            amps[i].set(static_cast<AmpModel>(juce::jlimit(0,ampModelCount-1,state.amp)), matrix && i==0 ? 0.f : state.drive,state.ampChannel);
             if (split)
             {
                 bandTones[i].set(matrix ? matrixTonePivot(i,x1,x2,sampleRate) : matrixTonePivot(i==0 ? 0 : 2,x1,x1,sampleRate),state.bandTone);

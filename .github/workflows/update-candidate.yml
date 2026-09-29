@@ -1,0 +1,253 @@
+name: Chimera update candidate
+on:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  windows-candidate:
+    runs-on: windows-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Configure
+        run: cmake -S . -B build -A x64 -DCMAKE_BUILD_TYPE=Release
+      - name: Check candidate installer scripts
+        shell: pwsh
+        run: |
+          python -m py_compile Tools/package_installer_candidate.py Tools/Build-PersonalWindowsBundle.py Tools/prepare_lifecycle_baseline.py Tools/extract_vblank_test_class.py Tools/verify_vblank_failure.py
+          foreach ($script in @("Tools/Build-WindowsInstaller.ps1", "Tools/Verify-WindowsInstaller.ps1", "Tools/Trace-Chimera-Session.ps1")) {
+            $tokens = $null
+            $errors = $null
+            [System.Management.Automation.Language.Parser]::ParseFile((Resolve-Path $script).Path, [ref]$tokens, [ref]$errors) | Out-Null
+            if ($errors.Count) { throw (($errors | ForEach-Object Message) -join "`n") }
+          }
+          $diagnosticsScript = Get-Content Tools/Trace-Chimera-Session.ps1 -Raw
+          $nativeHelper = [regex]::Match($diagnosticsScript, "(?s)Add-Type -TypeDefinition @'\r?\n(.*?)\r?\n'@")
+          if (!$nativeHelper.Success) { throw 'Diagnostic dump helper definition missing' }
+          Add-Type -TypeDefinition $nativeHelper.Groups[1].Value
+      - name: Build independent shutdown regression probes
+        run: cmake --build build --config Release --target ChimeraVST3LifecycleTests ChimeraVBlankFailureTests --parallel 2
+      - name: Verify VBlank failure can stop safely
+        run: ctest --test-dir build -C Release -R "^ChimeraVBlankFailureTests$" --output-on-failure --no-tests=error
+      - name: Preserve VBlank failure regression evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Chimera-VBlank-failure-evidence
+          path: |
+            build/Testing/Temporary/LastTest.log
+            build/vblank-failure-verification.json
+            build/vblank-test-generated/extraction.json
+          if-no-files-found: warn
+      - name: Fetch previously delivered VST3 for shutdown comparison
+        id: baseline_download
+        continue-on-error: true
+        uses: actions/download-artifact@v4
+        with:
+          name: Chimera-update-Windows-candidate
+          run-id: 36498630415
+          github-token: ${{ github.token }}
+          path: build/lifecycle-baseline-download
+      - name: Verify baseline binary provenance
+        if: steps.baseline_download.outcome == 'success'
+        run: python Tools/prepare_lifecycle_baseline.py build/lifecycle-baseline-download build/lifecycle-baseline
+      - name: Observe previous VST3 shutdown behavior
+        id: baseline-lifecycle
+        if: steps.baseline_download.outcome == 'success'
+        continue-on-error: true
+        timeout-minutes: 5
+        shell: pwsh
+        run: |
+          & build/Release/ChimeraVST3LifecycleTests.exe "build/lifecycle-baseline/SpectralForge Chimera.vst3/Contents/x86_64-win/SpectralForge Chimera.vst3" 2>&1 | Tee-Object build/lifecycle-baseline-result.txt
+          exit $LASTEXITCODE
+      - name: Preserve early baseline shutdown observations
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Chimera-VST3-baseline-probe
+          path: |
+            build/lifecycle-baseline-result.txt
+            build/lifecycle-baseline/baseline-verification.json
+          if-no-files-found: warn
+      - name: Build product and regression checks
+        run: cmake --build build --config Release --parallel 2
+      - name: Execute DSP and actual JUCE UI tests
+        shell: pwsh
+        run: |
+          $env:CHIMERA_LIFECYCLE_TRACE = Join-Path (Get-Location) "build/lifecycle-current-trace.log"
+          ctest --test-dir build -C Release --output-on-failure --no-tests=error
+          exit $LASTEXITCODE
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: Chimera-VST3-lifecycle-evidence
+          path: |
+            build/lifecycle-baseline-result.txt
+            build/lifecycle-baseline/baseline-verification.json
+            build/lifecycle-current-trace.log
+            build/Testing/Temporary/LastTest.log
+          if-no-files-found: warn
+      - name: Package distinct Windows test build
+        run: python Tools/package_update_candidate.py
+      - name: Stage exact-commit Windows installer payload
+        run: python Tools/package_installer_candidate.py stage
+      - name: Build distinct Windows Setup
+        shell: pwsh
+        run: |
+          $buildId = ((& git rev-parse HEAD).Trim()).Substring(0, 10)
+          ./Tools/Build-WindowsInstaller.ps1 -Stage installer-candidate/payload -OutputDirectory installer-candidate -BuildId $buildId
+      - name: Verify selected paths, installed app, VST3, repair and uninstall
+        timeout-minutes: 5
+        shell: pwsh
+        run: |
+          $buildId = ((& git rev-parse HEAD).Trim()).Substring(0, 10)
+          ./Tools/Verify-WindowsInstaller.ps1 -Installer "installer-candidate/SpectralForge-Chimera-update-$buildId-win64-Setup.exe" -Stage installer-candidate/payload -LogDirectory build/candidate-installer-verification
+      - name: Scan candidate Setup with Microsoft Defender
+        timeout-minutes: 10
+        shell: pwsh
+        run: |
+          $buildId = ((& git rev-parse HEAD).Trim()).Substring(0, 10)
+          ./Tools/Scan-WindowsArtifacts.ps1 -Path "installer-candidate/SpectralForge-Chimera-update-$buildId-win64-Setup.exe" -ReportDirectory build/candidate-installer-security
+      - name: Prepare verified Setup transfer parts
+        run: python Tools/package_installer_candidate.py transfer
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: Chimera-candidate-installer-verification
+          path: |
+            build/candidate-installer-verification/*
+            build/candidate-installer-security/*
+          if-no-files-found: warn
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Chimera-installer-part-1
+          path: installer-transfer/part-1/*
+          compression-level: 0
+          if-no-files-found: error
+      - uses: actions/upload-artifact@v4
+        if: success() && hashFiles('installer-transfer/part-2/*') != ''
+        with:
+          name: Chimera-installer-part-2
+          path: installer-transfer/part-2/*
+          compression-level: 0
+          if-no-files-found: error
+      - uses: actions/upload-artifact@v4
+        if: success() && hashFiles('installer-transfer/part-3/*') != ''
+        with:
+          name: Chimera-installer-part-3
+          path: installer-transfer/part-3/*
+          compression-level: 0
+          if-no-files-found: error
+      - uses: actions/upload-artifact@v4
+        if: success() && hashFiles('installer-transfer/part-4/*') != ''
+        with:
+          name: Chimera-installer-part-4
+          path: installer-transfer/part-4/*
+          compression-level: 0
+          if-no-files-found: error
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Chimera-installer-transfer-metadata
+          path: installer-transfer/metadata/*
+          if-no-files-found: error
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: Chimera-update-Windows-evidence
+          path: |
+            build/Testing/Temporary/LastTest.log
+            build/ui-snapshots/*.png
+            build/ui-snapshots/*.json
+          if-no-files-found: warn
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Chimera-update-Windows-candidate
+          path: candidate/*
+          if-no-files-found: error
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Chimera-candidate-part-1
+          path: candidate-transfer/part-1/*
+          compression-level: 0
+          if-no-files-found: error
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Chimera-candidate-part-2
+          path: candidate-transfer/part-2/*
+          compression-level: 0
+          if-no-files-found: error
+      - uses: actions/upload-artifact@v4
+        if: hashFiles('candidate-transfer/part-3/*') != ''
+        with:
+          name: Chimera-candidate-part-3
+          path: candidate-transfer/part-3/*
+          compression-level: 0
+          if-no-files-found: error
+      - uses: actions/upload-artifact@v4
+        if: hashFiles('candidate-transfer/part-4/*') != ''
+        with:
+          name: Chimera-candidate-part-4
+          path: candidate-transfer/part-4/*
+          compression-level: 0
+          if-no-files-found: error
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Chimera-candidate-transfer-metadata
+          path: candidate-transfer/metadata/*
+          if-no-files-found: error
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: Chimera-correction-preview
+          path: |
+            build/Testing/Temporary/LastTest.log
+            build/ui-snapshots/Correction-*.png
+            build/ui-snapshots/Correction-*.json
+            build/ui-snapshots/Head-16.png
+            build/ui-snapshots/Head-17.png
+            build/ui-snapshots/Head-18.png
+            build/ui-snapshots/Head-19.png
+            build/ui-snapshots/Head-20.png
+            build/ui-snapshots/Head-21.png
+            build/ui-snapshots/Head-22.png
+            build/ui-snapshots/Head-23.png
+            build/ui-snapshots/Universal-mode-2.png
+            build/ui-snapshots/Universal-detail.png
+            build/ui-snapshots/Board-State-Verification.json
+            build/ui-snapshots/Native-*.json
+            build/ui-snapshots/Native-Amp-*.png
+            build/ui-snapshots/Native-Post-*.png
+            build/ui-snapshots/Support-hosted.png
+            build/ui-snapshots/IR-Raven-reference-library.png
+          if-no-files-found: error
+  preparation-contracts:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: pip install -r Preparation/requirements.txt playwright
+      - run: python -m playwright install --with-deps chromium
+      - name: Require complete browser and state coverage
+        run: |
+          browser_path=$(python -c 'from playwright.sync_api import sync_playwright; p=sync_playwright().start(); print(p.chromium.executable_path); p.stop()')
+          python Preparation/run_checks.py --require-browser --browser "$browser_path"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: Chimera-update-preparation-evidence
+          path: Preparation/reports/

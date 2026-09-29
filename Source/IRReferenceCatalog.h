@@ -817,4 +817,87 @@ inline constexpr const char* externalBassIRCatalog=R"IRCAT([
     "external": true
   }
 ])IRCAT";
+// Metadata only. User-owned Raven WAVs remain outside public builds.
+inline constexpr const char* ravenIRCatalog=R"IRCAT([
+  {
+    "file": "Mar1960_Raven_SM57_In.wav",
+    "sha256": "37e55a1c6a176b3027e92270f4da5e1095e18aae1e893a563f3c247cc40a939b",
+    "sample_rate": 48000,
+    "frames": 9601,
+    "speaker": "Celestion G12-100 Raven",
+    "cabinet": "Marshall 1960 (filename and video source; exact suffix unverified)",
+    "diameter_in": "",
+    "microphone": "Shure SM57 (filename)",
+    "position": "In",
+    "distance": "",
+    "angle": "",
+    "preamp": "",
+    "author": "The other John Browne",
+    "source": "https://www.youtube.com/watch?v=_TzZ_FVMGfg",
+    "license": "Creator download; private import. Public redistribution permission not obtained.",
+    "notes": "Guitar; original unmodified 48 kHz mono PCM24, 9601 samples (200.02 ms). Creator position label In; physical microphone distance undisclosed. Exact cabinet suffix, phase processing and source normalization are unverified.",
+    "display_name": "Raven G12-100 \u2014 SM57 In",
+    "external": true
+  },
+  {
+    "file": "Mar1960_Raven_SM57_Out.wav",
+    "sha256": "14fd8669fd649266e6951188ca5f085b56d23cc4a8db4823c5657805cc3f7edd",
+    "sample_rate": 48000,
+    "frames": 9601,
+    "speaker": "Celestion G12-100 Raven",
+    "cabinet": "Marshall 1960 (filename and video source; exact suffix unverified)",
+    "diameter_in": "",
+    "microphone": "Shure SM57 (filename)",
+    "position": "Out",
+    "distance": "",
+    "angle": "",
+    "preamp": "",
+    "author": "The other John Browne",
+    "source": "https://www.youtube.com/watch?v=_TzZ_FVMGfg",
+    "license": "Creator download; private import. Public redistribution permission not obtained.",
+    "notes": "Guitar; original unmodified 48 kHz mono PCM24, 9601 samples (200.02 ms). Creator position label Out; physical microphone distance undisclosed. Exact cabinet suffix, phase processing and source normalization are unverified.",
+    "display_name": "Raven G12-100 \u2014 SM57 Out",
+    "external": true
+  },
+  {
+    "file": "Mar1960_Raven_SM57_Ref.wav",
+    "sha256": "ac09304385a72d8ef76ba1ea95bb1d747518e56cd4bbb749dad145e245075260",
+    "sample_rate": 48000,
+    "frames": 9601,
+    "speaker": "Celestion G12-100 Raven",
+    "cabinet": "Marshall 1960 (filename and video source; exact suffix unverified)",
+    "diameter_in": "",
+    "microphone": "Shure SM57 (filename)",
+    "position": "Ref",
+    "distance": "",
+    "angle": "",
+    "preamp": "",
+    "author": "The other John Browne",
+    "source": "https://www.youtube.com/watch?v=_TzZ_FVMGfg",
+    "license": "Creator download; private import. Public redistribution permission not obtained.",
+    "notes": "Guitar; original unmodified 48 kHz mono PCM24, 9601 samples (200.02 ms). Creator position label Ref; physical microphone distance undisclosed. Exact cabinet suffix, phase processing and source normalization are unverified.",
+    "display_name": "Raven G12-100 \u2014 SM57 Ref",
+    "external": true
+  },
+  {
+    "file": "Mar1960_V30_SM57.wav",
+    "sha256": "719743fc438312e270ac78ecf0896b12900219dac54f2dac57eeb87c02fd43da",
+    "sample_rate": 48000,
+    "frames": 9601,
+    "speaker": "Celestion Vintage 30 (comparison file)",
+    "cabinet": "Marshall 1960 (filename and video source; exact suffix unverified)",
+    "diameter_in": "",
+    "microphone": "Shure SM57 (filename)",
+    "position": "",
+    "distance": "",
+    "angle": "",
+    "preamp": "",
+    "author": "The other John Browne",
+    "source": "https://www.youtube.com/watch?v=_TzZ_FVMGfg",
+    "license": "Creator download; private import. Public redistribution permission not obtained.",
+    "notes": "Guitar; original unmodified 48 kHz mono PCM24, 9601 samples (200.02 ms). V30 comparison supplied with the Raven capture pack. Exact cabinet suffix, phase processing and source normalization are unverified.",
+    "display_name": "Marshall 1960 V30 \u2014 SM57 comparison",
+    "external": true
+  }
+])IRCAT";
 }

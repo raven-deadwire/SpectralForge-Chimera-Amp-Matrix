@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "by_sha256": {},
+  "record_template_do_not_treat_as_verified": {
+    "source_url": "",
+    "hardware": "exact make/model/revision and hardware/clone lineage",
+    "capture_scope": "amp_head",
+    "creator_verified": null,
+    "verified_evidence_url": "",
+    "verified_checked_on": "",
+    "a2_confirmed": null,
+    "a2_evidence_url": "",
+    "training_lineage": "unknown",
+    "redistribution": "unknown",
+    "redistribution_evidence_url": ""
+  },
+  "instructions": "Copy the template under the ACTUAL file SHA-256 in by_sha256 and fill only reviewed facts. This file performs no online verification and grants no rights. IRs do not need A2."
+}

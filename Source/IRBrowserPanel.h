@@ -9,7 +9,8 @@ class IRBrowserPanel : public juce::Component, private juce::ListBoxModel {
     std::vector<juce::File> folders;
     bool libraryMode{};
     juce::TextEditor search;
-    juce::ComboBox diameter,kind;
+    juce::ComboBox diameter,kind,availability;
+    spectralforge::IRCollection::ScanReport scanReport;
     juce::ListBox list{"IR library",this};
     juce::TextButton load{"LOAD INTO RIG"},importPack{"IMPORT PERSONAL ZIP"},addFolder{"ADD FOLDER"},oneFile{"OPEN IR"},source{"SOURCE PAGE"},bassPack{"GET BASS IRS"};
     juce::Label status;
@@ -32,7 +33,7 @@ class IRBrowserPanel : public juce::Component, private juce::ListBoxModel {
         g.setFont(juce::FontOptions(12.f));
         g.drawText(e.displayName(),24,4,width-32,22,juce::Justification::centredLeft);
         g.setColour(juce::Colour(0xffa6aaa7)); g.setFont(juce::FontOptions(10.5f));
-        const auto badge=e.factorySource ? "FACTORY" : e.ready() ? "INSTALLED" : e.external ? "EXTERNAL / DOWNLOAD" : "IMPORT REQUIRED";
+        const auto badge=e.factorySource ? "FACTORY" : e.validationError.isNotEmpty() ? "INVALID FILE" : e.ready() ? "INSTALLED" : e.external ? "EXTERNAL / DOWNLOAD" : "IMPORT REQUIRED";
         g.drawText(juce::String(badge)+" / "+(e.bass()?"BASS":"GUITAR / OTHER")+" / "+e.tags.values[4],24,28,width-32,height-30,juce::Justification::centredLeft);
     }
     void selectedRowsChanged(int) override {
@@ -54,16 +55,18 @@ class IRBrowserPanel : public juce::Component, private juce::ListBoxModel {
         int available=0;
         for(size_t i=0;i<entries.size();++i) {
             const auto& e=entries[i]; if(e.ready()) ++available;
-            const auto text=e.name+" "+e.displayName()+" "+juce::JSON::toString(e.tags.json(),true);
-            if((query.isEmpty() || text.containsIgnoreCase(query)) && (inches.isEmpty() || e.tags.values[2]==inches)
-                && (kind.getSelectedId()!=2 || e.bass()) && (kind.getSelectedId()!=3 || !e.bass())
-                && (kind.getSelectedId()!=4 || e.ready())) visible.push_back(i);
+            if(spectralforge::IRCollection::matches(e,query,inches,
+                (spectralforge::IRCollection::Instrument)juce::jmax(0,kind.getSelectedId()-1),
+                (spectralforge::IRCollection::Availability)juce::jmax(0,availability.getSelectedId()-1))) visible.push_back(i);
         }
         list.deselectAllRows(); list.updateContent();
-        status.setText(juce::String(available)+" available / "+juce::String(entries.size())+" listed. "+(available==(int)entries.size() ? "All listed IRs ready." : "External entries require original files."),juce::dontSendNotification);
+        auto summary=juce::String(available)+" ready / "+juce::String(entries.size())+" listed.";
+        if(scanReport.invalidFiles>0)summary+=" "+juce::String(scanReport.invalidFiles)+" invalid.";
+        summary+=scanReport.truncated ? " Scan limit: 512 files; additional files omitted. Select a smaller folder." : " Missing entries require original files.";
+        status.setText(summary,juce::dontSendNotification);
         selectedRowsChanged(-1);
     }
-    void refresh() { entries=spectralforge::IRCollection::scan(folders,libraryMode); filter(); }
+    void refresh() { entries=spectralforge::IRCollection::scan(folders,libraryMode,&scanReport); filter(); }
     void choose(int action) {
         chooser=std::make_unique<juce::FileChooser>(action==0 ? "Import Chimera personal IR ZIP" : action==1 ? "Add an IR folder" : "Open cabinet IR",juce::File{},action==0 ? "*.zip" : action==1 ? "" : "*.wav;*.aif;*.aiff");
         const juce::Component::SafePointer<IRBrowserPanel> safe(this);
@@ -79,11 +82,12 @@ class IRBrowserPanel : public juce::Component, private juce::ListBoxModel {
     }
     void initialise() {
         setLookAndFeel(&look);
-        search.setComponentID("irsearch");diameter.setComponentID("irdiameter");kind.setComponentID("irkind");load.setComponentID("irload");list.setComponentID("irlist");
+        search.setComponentID("irsearch");diameter.setComponentID("irdiameter");kind.setComponentID("irkind");availability.setComponentID("iravailability");load.setComponentID("irload");list.setComponentID("irlist");status.setComponentID("irstatus");
         search.setTextToShowWhenEmpty("Speaker, mic, cone position or creator",juce::Colours::grey);search.onTextChange=[this]{filter();};
         diameter.addItemList({"All sizes","8 in","10 in","12 in","15 in","18 in"},1);diameter.setSelectedId(1);diameter.onChange=[this]{filter();};
-        kind.addItemList({"All cabinets","Bass","Guitar / other","Installed only"},1);kind.setSelectedId(1);kind.onChange=[this]{filter();};
-        for(juce::Component* c:std::initializer_list<juce::Component*>{&search,&diameter,&kind,&list,&load,&status,&source}) addAndMakeVisible(c);
+        kind.addItemList({"All instruments","Bass","Guitar / other"},1);kind.setSelectedId(1);kind.onChange=[this]{filter();};
+        availability.addItemList({"All statuses","Ready to load","Factory","Installed files","Missing files","External download","Invalid files"},1);availability.setSelectedId(1);availability.onChange=[this]{filter();};
+        for(juce::Component* c:std::initializer_list<juce::Component*>{&search,&diameter,&kind,&availability,&list,&load,&status,&source}) addAndMakeVisible(c);
         addAndMakeVisible(captureDetails);captureDetails.setComponentID("ircapturedetails");captureDetails.setMultiLine(true);captureDetails.setReadOnly(true);captureDetails.setScrollbarsShown(true);captureDetails.setCaretVisible(false);
         captureDetails.setColour(juce::TextEditor::backgroundColourId,juce::Colour(0xff252827));captureDetails.setColour(juce::TextEditor::textColourId,juce::Colour(0xffe2dbcc));captureDetails.setColour(juce::TextEditor::outlineColourId,juce::Colours::transparentBlack);captureDetails.setFont(juce::FontOptions(11.f));
         if(libraryMode) for(auto* c:{&importPack,&addFolder,&oneFile,&bassPack}) addAndMakeVisible(c);
@@ -92,7 +96,7 @@ class IRBrowserPanel : public juce::Component, private juce::ListBoxModel {
         importPack.onClick=[this]{choose(0);};addFolder.onClick=[this]{choose(1);};oneFile.onClick=[this]{choose(2);};
         source.onClick=[this]{if(const auto* e=selection()) if(e->tags.values[9].startsWith("https://"))juce::URL(e->tags.values[9]).launchInDefaultBrowser();};
         list.setRowHeight(59);list.setColour(juce::ListBox::backgroundColourId,juce::Colour(0xff171919));
-        load.onClick=[this]{commit();};status.setColour(juce::Label::textColourId,juce::Colour(0xffa6aaa7));
+        load.onClick=[this]{commit();};status.setColour(juce::Label::textColourId,juce::Colour(0xffa6aaa7));status.setFont(juce::FontOptions(11.f));
         setSize(1000,590);refresh();
     }
 public:
@@ -112,8 +116,8 @@ public:
     void resized() override {
         importPack.setBounds(472,19,193,27);addFolder.setBounds(675,19,147,27);oneFile.setBounds(832,19,148,27);
         bassPack.setBounds(285,19,160,27);
-        search.setBounds(20,64,470,28);diameter.setBounds(500,64,140,28);kind.setBounds(650,64,330,28);
-        list.setBounds(20,105,685,422);status.setBounds(20,541,565,28);source.setBounds(598,541,180,28);load.setBounds(790,541,190,28);
+        search.setBounds(20,64,350,28);diameter.setBounds(380,64,110,28);kind.setBounds(500,64,190,28);availability.setBounds(700,64,280,28);
+        list.setBounds(20,105,685,422);status.setBounds(20,535,565,44);source.setBounds(598,541,180,28);load.setBounds(790,541,190,28);
         captureDetails.setBounds(732,292,238,225);
     }
 };

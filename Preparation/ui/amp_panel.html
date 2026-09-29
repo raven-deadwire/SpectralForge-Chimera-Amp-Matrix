@@ -1,0 +1,25 @@
+<section id="ampLab" hidden aria-label="앰프 모델별 조절부">
+  <div class="amp-toolbar">
+    <label>모드 <select id="ampMode"><option>Classic</option><option>Dual</option><option>Matrix</option></select></label>
+    <label>레인 <select id="ampLane"></select></label>
+    <span class="spacer"></span><button id="ampUndo">되돌리기</button><button id="ampRedo">다시</button>
+    <button id="ampSave">앰프 설정 저장</button><button id="ampLoad">열기</button><input id="ampFile" type="file" accept=".calab,application/json">
+  </div>
+  <div class="amp-toolbar amp-selectors">
+    <label class="amp-model-label">헤드 / 레퍼런스 <select id="ampModel"></select></label>
+    <label>채널 <select id="ampChannel"></select></label>
+    <label id="ampInputLabel">입력 잭 선택 <select id="ampRoute"></select></label>
+  </div>
+  <div class="amp-head">
+    <div class="amp-head-title"><div><div class="eyebrow">MODEL-SPECIFIC AMPLIFIER / NO AUDIO</div><h2 id="ampTitle"></h2></div><span id="ampReview" class="badge"></span></div>
+    <p id="ampReference" class="editor-meta"></p>
+    <div id="ampControls" class="controls amp-controls"></div>
+  </div>
+  <div class="amp-utility"><b>CHIMERA 유틸리티</b><span class="muted">원본 헤드의 Gain / Master와 별도 · 상태 저장만</span>
+    <label>INPUT TRIM <input id="ampInputTrim" type="number" min="-24" max="24" step="0.1" value="0"> dB</label>
+    <label>LANE LEVEL <input id="ampLaneLevel" type="number" min="-24" max="24" step="0.1" value="0"> dB</label>
+  </div>
+  <details class="amp-notes"><summary>출처 · 캡처 범위 · 미구현 항목</summary><p id="ampNote"></p><p id="ampScope"></p><p id="ampOmissions"></p><div id="ampSources" class="source-links"></div></details>
+  <p class="editor-meta">노브는 0–100% 위치만 저장합니다. 테이퍼·공장 기본값·회로·A2 재현도 검증이 아니며, 아직 DSP에 연결되지 않았습니다. 입력 잭·채널 선택은 경로를 지정하는 UI입니다.</p>
+  <div id="ampStatus" role="status" aria-live="polite"></div>
+</section>

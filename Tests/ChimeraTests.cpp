@@ -7,6 +7,7 @@
 #include "ReferenceTests.h"
 #include "StudioTests.h"
 #include "FactoryPresetTests.h"
+#include "AmpCatalogTests.h"
 
 namespace {
 void require(bool ok, const char* message)
@@ -160,6 +161,7 @@ int main()
     std::cout << std::unitbuf;
     try
     {
+        ampCatalogTests::run();
         for (const double sr : {44100.0,48000.0,96000.0,192000.0})
         {
             checkBandTone(sr); checkRouting(sr); smoke(sr);

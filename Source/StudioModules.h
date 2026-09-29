@@ -10,7 +10,7 @@ public:
     void prepare(const juce::dsp::ProcessSpec& spec) {rate=spec.sampleRate;mix.reset(rate,.015);makeup.reset(rate,.02);mix.setCurrentAndTargetValue(0);makeup.setCurrentAndTargetValue(1);reset();}
     void reset() {power=reductionDb=memory=0;meterGain=1;mix.setCurrentAndTargetValue(mix.getTargetValue());}
     float reduction() const {return -juce::Decibels::gainToDecibels(juce::jmax(1e-6f,meterGain));}
-    void process(juce::AudioBuffer<float>& buffer,bool enabled,float threshold,float ratio,float attackMs,float releaseMs,float outputDb,int character=0) {
+    void process(juce::AudioBuffer<float>& buffer,bool enabled,float threshold,float ratio,float attackMs,float releaseMs,float outputDb,int character=0,bool legacyFetBlend=true) {
         mix.setTargetValue(enabled ? 1.f : 0.f);makeup.setTargetValue(juce::Decibels::decibelsToGain(outputDb));
         const float detector=float(std::exp(-1/(rate*(character==3 ? .00005 : character==4 ? .018 : character==1 ? .00015 : character==2 ? .025 : .01))));
         const float attack=float(std::exp(-1/(rate*.001*juce::jmax(.05f,character==3 ? attackMs*.035f : character==4 ? attackMs*1.8f : character==1 ? attackMs*.08f : attackMs))));
@@ -28,7 +28,7 @@ public:
             // Program-dependent recovery is evaluated per sample, not once per host block.
             const float recovery=character==4 ? float(std::exp(-1/(rate*releaseSeconds*(1.f+.25f*memory)))) : character==2 ? float(std::exp(-1/(rate*releaseSeconds*(1.f+.12f*reductionDb)))) : release;
             const float coefficient=target>reductionDb ? attack : recovery;reductionDb=coefficient*reductionDb+(1-coefficient)*target;
-            const float compressed=juce::Decibels::decibelsToGain(-reductionDb),parallel=character==3 ? .12f+.88f*compressed : compressed;
+            const float compressed=juce::Decibels::decibelsToGain(-reductionDb),parallel=character==3 && legacyFetBlend ? .12f+.88f*compressed : compressed;
             const float wet=mix.getNextValue(),gain=1+wet*(parallel*makeup.getNextValue()-1);
             // Meter applied compression including bypass/parallel blend, excluding makeup.
             meterGain=1+wet*(parallel-1);

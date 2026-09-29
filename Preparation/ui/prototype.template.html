@@ -1,0 +1,144 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Chimera · Original Controls · Five-slot Lab</title>
+<style>
+:root{color-scheme:dark;--bg:#101216;--panel:#1b1f25;--line:#353b44;--ink:#eef0f2;--muted:#a8b0bb;--accent:#e4b777}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif}button,input,select{font:inherit}button,select,input[type=number],input[type=search]{background:#252b33;color:var(--ink);border:1px solid var(--line);border-radius:6px;padding:7px 10px}button{cursor:pointer}button:hover:not(:disabled){border-color:var(--accent)}button:disabled{opacity:.35;cursor:default}button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}main{width:100%;max-width:1320px;padding:28px;margin:auto}.top{display:flex;justify-content:space-between;align-items:center;gap:16px}h1{font-size:30px;letter-spacing:.1em;margin:0}h2{font-size:19px;margin:0 0 12px}.eyebrow{letter-spacing:.2em;color:var(--accent);font-size:11px}.muted{color:var(--muted)}.badge{padding:5px 10px;border:1px solid #765f42;border-radius:40px;color:var(--accent);white-space:nowrap}.notice{margin:22px 0 16px;padding:12px 15px;border-left:3px solid var(--accent);background:var(--panel)}.toolbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:18px}.spacer{flex:1}.route{display:flex;align-items:center;gap:12px;padding:14px;background:var(--panel);border:1px solid var(--line);border-radius:10px;margin:16px 0}.route .flow{flex:1;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.board{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px;padding:16px;background:#15191f;border:1px solid var(--line);border-radius:12px}.pedal{min-width:0;height:304px;display:flex;flex-direction:column;border:1px solid #4a4f58;border-radius:9px;background:linear-gradient(155deg,#333a43,#20262e);padding:14px;position:relative;box-shadow:0 5px 12px #0004}.pedal.selected{outline:2px solid var(--accent);outline-offset:2px}.pedal.off{background:linear-gradient(155deg,#292d32,#202329)}.slot{font-size:11px;color:var(--muted);display:flex;justify-content:space-between;align-items:center}.slot button{font-size:11px;padding:3px 6px}.name{font-weight:700;font-size:16px;line-height:1.35;min-height:46px;margin:16px 0 6px;overflow-wrap:anywhere}.category{font-size:10px;letter-spacing:.15em;color:var(--accent)}.summary{font-size:11px;color:var(--muted);line-height:1.7;flex:1;margin:12px 0;overflow:hidden}.summary div{display:flex;justify-content:space-between;gap:5px}.pedal .open{width:100%;font-size:12px}.switchrow{display:flex;align-items:center;justify-content:space-between;margin-top:12px}.led{width:8px;height:8px;border-radius:50%;background:#73856a;box-shadow:0 0 7px #82997688}.off .led{background:#555;box-shadow:none}.bypass{font-size:11px;padding:4px 9px}.empty{justify-content:center;align-items:center;background:transparent;border-style:dashed}.empty .plus{font-size:28px;background:none;padding:10px 26px}.manage{display:flex;justify-content:space-between;align-items:center;gap:12px;margin:17px 0}.manage .actions{display:flex;gap:7px;flex-wrap:wrap}.legend{font-size:12px;color:var(--muted)}#status{min-height:42px;padding:10px 0;color:var(--accent)}footer{font-size:12px;color:var(--muted);border-top:1px solid var(--line);margin-top:18px;padding-top:18px}dialog{width:min(820px,92vw);max-height:82vh;background:var(--panel);color:var(--ink);border:1px solid var(--line);border-radius:12px;padding:22px}dialog::backdrop{background:#000a}.dialoghead{display:flex;align-items:flex-start;justify-content:space-between;gap:18px;margin-bottom:15px}.filterbar{display:flex;gap:8px;margin-bottom:12px}.filterbar input{flex:1;min-width:0}.results{display:grid;grid-template-columns:1fr 1fr;gap:8px;max-height:47vh;overflow:auto}.result{text-align:left;padding:12px}.result span{display:block;font-size:11px;color:var(--muted)}.controls{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}.control{min-width:0;border:1px solid var(--line);border-radius:8px;padding:12px}.control label{display:block;font-size:12px;margin-bottom:9px}.control small{font-size:10px;color:var(--muted)}.control input[type=range]{width:100%;accent-color:var(--accent)}.control input[type=number],.control select{width:100%;padding:5px}.control .value{font-size:11px;color:var(--accent)}.editor-meta{font-size:12px;color:var(--muted);margin-bottom:15px}input[type=file]{display:none}.midi{margin-top:18px;padding-top:12px;border-top:1px solid var(--line);display:flex;gap:8px;align-items:center;flex-wrap:wrap}.midi input{width:65px}#midiStatus{font-size:12px;color:var(--muted)}
+@media(max-width:1000px){main{padding:16px}.board{gap:8px;padding:10px}.pedal{padding:10px}.name{font-size:14px}.top h1{font-size:25px}}@media(max-width:700px){main{padding:9px}.board{gap:5px;padding:7px}.pedal{padding:7px;height:270px}.name{font-size:11px}.summary{font-size:10px}.slot{font-size:10px}.slot button{font-size:10px;padding:2px}.controls{grid-template-columns:1fr 1fr}.category{font-size:9px}.manage{align-items:flex-start;flex-direction:column}.route{flex-wrap:wrap}.top{flex-wrap:wrap}}
+.control-group{grid-column:1/-1;margin:8px 0 0;font-size:12px;letter-spacing:.08em;color:var(--accent)}
+.dial{height:42px;width:42px;border-radius:50%;margin:0 auto 8px;background:radial-gradient(circle at 35% 25%,#6b7580,#242930 67%);border:2px solid #56616d;box-shadow:0 3px 6px #0007;position:relative;transform:rotate(var(--angle))}.dial:after{content:'';position:absolute;top:3px;left:calc(50% - 1px);height:13px;width:2px;background:#f2d2a0}
+#panelNotes{margin-top:15px}#legacyStore{border-top:1px solid var(--line);padding:12px 0;font-size:12px;color:var(--muted)}#legacyStore summary{cursor:pointer}#legacyValues{font:12px/1.8 monospace;padding:10px;overflow-wrap:anywhere}.source-links{display:flex;gap:12px;flex-wrap:wrap}.source-links a{color:var(--accent)}.meter-note{padding:8px;border:1px dashed var(--line)}
+</style></head><body><main>
+<div class="top"><div><div class="eyebrow">SPECTRALFORGE / PREPARATION LAB</div><h1>CHIMERA</h1><div class="muted">Five-slot pedalboard · 기존 25종 원본 조작부 개정판</div></div><span class="badge">NO AUDIO · 실제 플러그인 아님</span></div>
+<div class="notice">보드는 최대 <b>5개</b>. 종류와 순서는 자유롭게 선택합니다. 이 화면은 조절값만 저장하며, 원본 조작부 정의만 반영합니다. 기존·신규 모델 모두 실제 소리와 노브의 회로 반응은 연결되지 않았습니다.</div>
+<div class="toolbar"><button id="undo">실행 취소</button><button id="redo">다시 실행</button><button id="legacy">기존 5종 배치</button><label>기존 계열 점검 <select id="auditFamily"><option value="">선택…</option><option value="comp">컴프 5종</option><option value="filter">필터 5종</option><option value="fuzz">퍼즈 5종</option><option value="boost">부스트 5종</option><option value="drive">드라이브 5종</option></select></label><span class="spacer"></span><button id="save">상태 저장 (.cbp)</button><button id="load">상태 열기</button><input id="file" type="file" accept=".cbp,text/plain"></div>
+<div class="route"><b>INPUT</b><span class="flow" id="flow"></span><b>AMP / CAB → POST</b></div>
+<div class="toolbar"><label>화면 모드 <select id="mode"><option>Classic</option><option>Dual</option><option selected>Matrix</option></select></label><label id="taplabel">LOW 분기 <select id="tap"></select></label><span class="spacer"></span><span class="badge" id="count">0 / 5</span></div>
+<section class="board" id="board" aria-label="최대 다섯 개의 페달"></section>
+<div class="manage"><span id="selection" class="legend"></span><div class="actions"><button id="left">← 앞</button><button id="right">뒤 →</button><button id="duplicate">복제</button><button id="remove">삭제</button><button id="add">페달 추가</button></div></div>
+<div id="status" role="status" aria-live="polite"></div><footer>사용자 지정 파일만 읽고 저장합니다. 자동 네트워크 요청·오디오 처리·실제 MIDI 수신은 없습니다. MIDI 항목은 연결 상태 저장 테스트용입니다.<br>기존 .chimera / DAW 프로젝트를 열거나 덮어쓰지 않습니다. 제조사 이름은 설계 레퍼런스이며 공식 제휴를 뜻하지 않습니다.</footer>
+</main>
+<dialog id="library"><div class="dialoghead"><div><div class="eyebrow">MODEL LIBRARY</div><h2 id="libraryTitle">모델 선택</h2><span class="muted">모델 선택지는 늘어나도 보드 자리는 다섯 개입니다.</span></div><button id="closeLibrary" aria-label="라이브러리 닫기">닫기</button></div><div class="filterbar"><input id="search" type="search" placeholder="이름 / 레퍼런스 검색" aria-label="모델 검색"><select id="category" aria-label="카테고리"><option value="">전체 종류</option></select></div><div class="results" id="results"></div></dialog>
+<dialog id="editor"><div class="dialoghead"><div><div class="eyebrow">MODEL-SPECIFIC CONTROLS / NO AUDIO</div><h2 id="editorTitle"></h2></div><button id="closeEditor">닫기</button></div><div id="editorMeta" class="editor-meta"></div><div id="controls" class="controls"></div><div id="panelNotes" class="editor-meta"></div><details id="legacyStore"><summary>기존 프로젝트 값 — 별도 보존 / 원본 노브에 자동 대응하지 않음</summary><div id="legacyValues"></div></details><div class="midi"><label>CC <input id="cc" type="number" min="0" max="127" value="74"></label><select id="midiControl" aria-label="MIDI 대상 컨트롤"></select><button id="bind">연결 상태 저장</button><span id="midiStatus"></span></div></dialog>
+<script>__STATE_JS__</script><script>__CONTROL_JS__</script><script id="catalog-data" type="application/json">__CATALOG__</script>
+<script>
+'use strict';
+const catalog=JSON.parse(document.getElementById('catalog-data').textContent);
+const models=new Map(catalog.models.map(m=>[m.id,m]));
+const {Board,encode,decode}=ChimeraPrep;const board=new Board();window.board=board;
+let selected=null,target=0,editing=null;
+const $=id=>document.getElementById(id),defaults=ChimeraControls.defaults;
+window.controlModels=models;
+const byId=id=>board.state.effects.find(e=>e.id===id);
+function status(message){$('status').textContent=message;}
+function act(fn){try{fn();render();}catch(e){status(e.message);}}
+function seed(legacy=false){
+  let keys=legacy?['legacy.filter.0','legacy.comp.0','legacy.fuzz.0','legacy.boost.0','legacy.drive.0']:
+    ['legacy.comp.0','planned.wah','planned.sd1','planned.jb2','planned.pre-eq'];
+  const effects=keys.map((key,i)=>({id:i+1,model:key,bypass:legacy,parameters:defaults(models.get(key)),midi:{}}));
+  const s={version:1,nextId:6,lowTap:legacy?2:1,engine:'legacy-v1',effects};
+  // Reset/import uses fresh identities within this session, preserving no stale binding.
+  for(const e of s.effects)e.id=board.high++;
+  s.nextId=board.high;board.load(encode(s));selected=board.state.effects[0].id;
+}
+function controlText(c,value){if(!Number.isFinite(value))return '—';return c.kind==='choice'?c.options[value]:c.kind==='toggle'?(value?'ON':'OFF'):c.unit==='position'?`${Math.round(value*100)}%`:String(Number(value.toFixed(3)));}
+function summary(container,e,m){
+  for(const c of m.controls.slice(0,3)){
+    const row=document.createElement('div'),label=document.createElement('span'),value=document.createElement('span');
+    label.textContent=ChimeraControls.displayLabel(c,e.parameters);value.textContent=controlText(c,e.parameters[c.id]);row.append(label,value);container.append(row);
+  }
+  if(m.controls.length>3){const more=document.createElement('small');more.textContent=`외 ${m.controls.length-3}개 · 상세 조절`;container.append(more);}
+}
+function render(){
+  const s=board.state;if(!s.effects.some(e=>e.id===selected))selected=s.effects[0]?.id??null;
+  $('board').replaceChildren();
+  for(let i=0;i<5;i++){
+    const e=s.effects[i],card=document.createElement('article');card.className='pedal';card.dataset.slot=i;
+    if(!e){card.classList.add('empty');const p=document.createElement('button');p.className='plus';p.textContent='+';p.ariaLabel=`슬롯 ${i+1} 모델 추가`;p.onclick=()=>openLibrary(s.effects.length);card.append(p);const t=document.createElement('small');t.textContent=`EMPTY ${i+1}`;card.append(t);}
+    else{
+      const m=models.get(e.model);card.dataset.id=e.id;card.draggable=true;card.classList.toggle('selected',selected===e.id);card.classList.toggle('off',e.bypass);
+      const slot=document.createElement('div');slot.className='slot';slot.textContent=`0${i+1} / ${$('mode').value==='Matrix'?(i<s.lowTap?'LOW 포함':'MID / HIGH'):'PRE'}`;
+      const change=document.createElement('button');change.textContent='교체';change.onclick=event=>{event.stopPropagation();openLibrary(i);};slot.append(change);
+      const name=document.createElement('div');name.className='name';name.textContent=m.name;
+      const category=document.createElement('div');category.className='category';category.textContent=m.category;
+      const sums=document.createElement('div');sums.className='summary';summary(sums,e,m);
+      const open=document.createElement('button');open.className='open';open.textContent='전용 조절부';open.onclick=event=>{event.stopPropagation();selected=e.id;render();openEditor(e.id);};
+      const switchrow=document.createElement('div');switchrow.className='switchrow';const led=document.createElement('span');led.className='led';
+      const bypass=document.createElement('button');bypass.className='bypass';bypass.textContent=e.bypass?'BYPASSED':'ENABLED';bypass.ariaPressed=String(!e.bypass);bypass.onclick=event=>{event.stopPropagation();act(()=>board.bypass(e.id,!e.bypass));};switchrow.append(led,bypass);
+      card.append(slot,name,category,sums,open,switchrow);card.onclick=()=>{selected=e.id;render();};
+      card.ondragstart=event=>event.dataTransfer.setData('text/plain',String(e.id));
+      card.ondragover=event=>event.preventDefault();card.ondrop=event=>{event.preventDefault();const id=Number(event.dataTransfer.getData('text/plain'));act(()=>{const crossed=board.move(id,i);selected=id;status(crossed?'LOW 적용 대상이 변경됐습니다. 분기 위치를 확인하세요.':'순서를 변경했습니다. 설정과 연결은 유지됩니다.');});};
+    }
+    $('board').append(card);
+  }
+  $('count').textContent=`${s.effects.length} / 5`;$('flow').textContent=s.effects.map(e=>models.get(e.model).name).join(' → ')||'비어 있는 PRE';
+  const index=s.effects.findIndex(e=>e.id===selected);$('selection').textContent=selected?`선택: ${models.get(s.effects[index].model).name} · ID ${selected}`:'빈 보드';
+  $('left').disabled=index<=0;$('right').disabled=index<0||index>=s.effects.length-1;$('duplicate').disabled=selected===null||s.effects.length>=5;$('remove').disabled=selected===null;$('add').disabled=s.effects.length>=5;
+  $('undo').disabled=!board.past.length;$('redo').disabled=!board.future.length;
+  $('tap').replaceChildren();for(let n=0;n<=s.effects.length;n++)$('tap').add(new Option(n===0?'모든 페달 전':`${n}번째 페달 뒤`,String(n)));
+  $('tap').value=s.lowTap;$('taplabel').hidden=$('mode').value!=='Matrix';
+}
+function openLibrary(index){target=index;$('libraryTitle').textContent=index<board.state.effects.length?`슬롯 ${index+1} 교체`:'빈 슬롯에 추가';$('search').value='';renderLibrary();$('library').showModal();$('search').focus();}
+function renderLibrary(){
+  $('results').replaceChildren();const search=$('search').value.toLowerCase(),category=$('category').value;
+  const available=catalog.models.filter(m=>m.location==='pre'&&m.controls.length&&(!category||m.category===category)&&(m.name+' '+m.reference).toLowerCase().includes(search));
+  for(const m of available){const b=document.createElement('button');b.className='result';b.textContent=m.name;const t=document.createElement('span');t.textContent=m.category+' · '+(m.hardware_panel?(m.hardware_panel.review_status==='primary_panel_reviewed'?'원본 패널 확인 / DSP 미연결':'원본 패널 검증 보류 / DSP 미연결'):'신규 설계 / DSP 미구현');b.append(t);b.onclick=()=>act(()=>{const s=board.state;selected=target<s.effects.length?board.replace(s.effects[target].id,m.id,defaults(m)):board.add(m.id,defaults(m));$('library').close();status('모델을 배치했습니다. 오디오 처리 없는 시제품입니다.');});$('results').append(b);}
+  if(!available.length)$('results').textContent='검색 결과가 없습니다.';
+}
+function openEditor(id){
+  editing=id;const e=byId(id),m=models.get(e.model),panel=m.hardware_panel;
+  $('editorTitle').textContent=m.name;
+  $('editorMeta').textContent=panel?`${panel.reference} · ${panel.review_status==='primary_panel_reviewed'?'제조사 패널·자료 확인':'원본 1차 자료 추가 확인 필요'} · DSP 미연결`:`${m.reference} · 설계 정의 / DSP 미연결`;
+  $('controls').replaceChildren();$('midiControl').replaceChildren();
+  for(const group of [...new Set(m.controls.map(c=>c.group))]){
+    const title=document.createElement('h3');title.className='control-group';title.textContent=group==='PANEL'||group==='main'?'원본 조작부':group==='INTERNAL'?'내부 스위치 — 외부 노브와 구분':group;
+    $('controls').append(title);
+    for(const c of m.controls.filter(x=>x.group===group)){
+      const cell=document.createElement('div');cell.className='control';cell.dataset.group=group;
+      const label=document.createElement('label');label.textContent=ChimeraControls.displayLabel(c,e.parameters);label.htmlFor='control-'+c.id;cell.append(label);
+      let input;
+      if(c.kind==='choice'){input=document.createElement('select');c.options.forEach((v,i)=>input.add(new Option(v,String(i))));}
+      else if(c.kind==='toggle'){input=document.createElement('select');input.add(new Option('OFF','0'));input.add(new Option('ON','1'));}
+      else{
+        const dial=document.createElement('div');dial.className='dial';dial.ariaHidden='true';dial.style.setProperty('--angle',`${-135+270*(e.parameters[c.id]-c.minimum)/(c.maximum-c.minimum)}deg`);cell.append(dial);
+        input=document.createElement('input');input.type='range';input.min=c.minimum;input.max=c.maximum;input.step=c.step;
+      }
+      input.id='control-'+c.id;input.dataset.control=c.id;input.value=e.parameters[c.id];
+      const value=document.createElement('div');value.className='value';value.textContent=controlText(c,e.parameters[c.id]);
+      input.oninput=()=>{value.textContent=controlText(c,Number(input.value));const dial=cell.querySelector('.dial');if(dial)dial.style.setProperty('--angle',`${-135+270*(Number(input.value)-c.minimum)/(c.maximum-c.minimum)}deg`);};
+      input.onchange=()=>act(()=>{board.set(id,c.id,Number(input.value));if(m.controls.some(x=>x.mode_labels?.selector===c.id))openEditor(id);});
+      cell.append(input,value);const note=document.createElement('small');note.textContent=c.note||(c.unit==='position'?'노브 위치 · 실제 테이퍼 미측정':c.unit||'선택 상태');cell.append(note);
+      $('controls').append(cell);$('midiControl').add(new Option(label.textContent,c.id));
+    }
+  }
+  $('panelNotes').replaceChildren();
+  const caveat=document.createElement('p');caveat.textContent='0–100%는 노브 위치 저장용입니다. 실제 시간·게인 곡선·공장 기본값 또는 회로 반응을 뜻하지 않습니다.';$('panelNotes').append(caveat);
+  if(panel){
+    const n=document.createElement('p');n.textContent=panel.note_ko||panel.note;$('panelNotes').append(n);
+    if(panel.meters.length){const meter=document.createElement('p');meter.className='meter-note';meter.textContent='미터: '+panel.meters.join(' / ')+' · 실측 신호 없음';$('panelNotes').append(meter);}
+    const links=document.createElement('div');links.className='source-links';
+    panel.sources.forEach((url,i)=>{const a=document.createElement('a');a.href=url;a.target='_blank';a.rel='noopener noreferrer';a.textContent=`출처 ${i+1}`;links.append(a);});$('panelNotes').append(links);
+  }
+  $('legacyStore').hidden=!(m.legacy_controls||[]).length;$('legacyStore').open=false;$('legacyValues').replaceChildren();
+  for(const c of m.legacy_controls||[]){const row=document.createElement('div');row.textContent=`${c.id}: ${e.parameters[c.id]} ${c.unit||''}`;$('legacyValues').append(row);}
+  $('midiStatus').textContent=Object.entries(e.midi).map(([cc,key])=>`CC ${cc} → ${key}`).join(', ')||'연결 없음 (상태 저장만)';
+  if(!$('editor').open)$('editor').showModal();
+}
+for(const category of [...new Set(catalog.models.filter(m=>m.location==='pre'&&m.controls.length).map(m=>m.category))].sort())$('category').add(new Option(category,category));
+$('category').onchange=renderLibrary;$('search').oninput=renderLibrary;$('closeLibrary').onclick=()=>$('library').close();$('closeEditor').onclick=()=>$('editor').close();
+$('undo').onclick=()=>act(()=>board.undo());$('redo').onclick=()=>act(()=>board.redo());$('legacy').onclick=()=>act(()=>{seed(true);status('기존 5종의 초기 순서·바이패스 값을 시제품으로 불러왔습니다. 실제 프로젝트 변환은 아닙니다.');});
+$('mode').onchange=render;$('tap').onchange=()=>act(()=>{board.setTap(Number($('tap').value));status('LOW 적용 범위를 변경했습니다. 실제 오디오 분기는 아직 연결되지 않았습니다.');});
+$('left').onclick=()=>act(()=>{const i=board.state.effects.findIndex(e=>e.id===selected);const crossed=board.move(selected,i-1);status(crossed?'LOW 적용 대상이 변경됐습니다.':'앞으로 이동했습니다.');});
+$('right').onclick=()=>act(()=>{const i=board.state.effects.findIndex(e=>e.id===selected);const crossed=board.move(selected,i+1);status(crossed?'LOW 적용 대상이 변경됐습니다.':'뒤로 이동했습니다.');});
+$('duplicate').onclick=()=>act(()=>{selected=board.duplicate(selected);status('복제했습니다. 별도 ID를 사용하며 MIDI 연결은 복사하지 않습니다.');});$('remove').onclick=()=>act(()=>board.remove(selected));$('add').onclick=()=>openLibrary(board.state.effects.length);
+$('bind').onclick=()=>act(()=>{board.bind(editing,Number($('cc').value),$('midiControl').value);$('midiStatus').textContent=Object.entries(byId(editing).midi).map(([cc,key])=>`CC ${cc} → ${key}`).join(', ');});
+$('save').onclick=()=>{const blob=new Blob([encode(board.state)],{type:'text/plain;charset=utf-8'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='chimera-five-slot.cbp';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);status('준비용 상태를 저장했습니다. .chimera 형식이 아닙니다.');};
+$('load').onclick=()=>$('file').click();$('file').onchange=async()=>{const f=$('file').files[0];if(!f)return;try{if(f.size>262144)throw new Error('파일이 너무 큽니다.');const text=await f.text(),s=decode(text);
+  const prepared=ChimeraControls.prepareState(s,models);
+  board.load(encode(prepared.state));render();status(prepared.migrated?`기존 값 ${prepared.migrated}개 페달을 그대로 보존했습니다. 원본 노브는 독립 초기 위치입니다.`:'준비용 상태를 복원했습니다.');}catch(e){status(e.message);}finally{$('file').value='';}};
+$('auditFamily').onchange=()=>act(()=>{
+  const family=$('auditFamily').value;if(!family)return;
+  const effects=Array.from({length:5},(_,i)=>{const m=models.get(`legacy.${family}.${i}`);return {id:board.high++,model:m.id,bypass:false,parameters:defaults(m),midi:{}};});
+  board.load(encode({version:1,nextId:board.high,lowTap:family==='comp'||family==='filter'?5:0,engine:'legacy-v1',effects}));
+  selected=effects[0].id;status('계열별 원본 조작부 점검 배치입니다. 실제 소리는 바뀌지 않습니다.');$('auditFamily').value='';
+});
+seed();board.past=[];board.future=[];render();status('다섯 슬롯에서 선택·교체·이동·저장·복원을 테스트할 수 있습니다.');
+</script></body></html>

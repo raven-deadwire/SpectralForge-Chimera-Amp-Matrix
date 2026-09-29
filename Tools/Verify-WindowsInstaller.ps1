@@ -23,6 +23,9 @@ foreach ($path in @($app, $vst, $startMenu, $registry, $sharedIRs, $companion)) 
     if (Test-Path -LiteralPath $path) { throw "Refusing to overwrite an existing installation: $path" }
 }
 $report = [Collections.Generic.List[string]]::new()
+$success = $false
+$payload = Get-Content -LiteralPath (Join-Path $stagePath "payload-manifest.json") -Raw | ConvertFrom-Json
+$sourceSha = if ($payload.PSObject.Properties.Name -contains "source_sha") { $payload.source_sha } else { (& git rev-parse HEAD).Trim() }
 function Pass([string]$Message) {
     Write-Host "PASS: $Message"
     $report.Add("PASS: $Message")
@@ -36,9 +39,14 @@ function Run-SetupProcess([string]$Executable, [string[]]$Parameters) {
     $process = Start-Process -FilePath $Executable -ArgumentList $Parameters -PassThru -Wait
     Assert ($process.ExitCode -eq 0) "Installer process failed with exit code $($process.ExitCode)"
 }
-function Install([string]$Name, [string]$Destination, [string]$Components) {
-    Run-SetupProcess $installerPath @("/VERYSILENT", "/SUPPRESSMSGBOXES", "/NORESTART", "/SP-", "/LANG=korean",
+function Install([string]$Name, [string]$Destination, [string]$Components, [string]$Vst3Directory = "") {
+    $parameters = @("/VERYSILENT", "/SUPPRESSMSGBOXES", "/NORESTART", "/SP-", "/LANG=korean",
         "/TYPE=custom", "/COMPONENTS=$Components", "/DIR=`"$Destination`"", "/LOG=`"$logPath/$Name.log`"")
+    if ($Vst3Directory) {
+        $parameters += "/VST3DIR=`"$Vst3Directory`""
+        $script:vst = Join-Path $Vst3Directory "SpectralForge Chimera.vst3"
+    }
+    Run-SetupProcess $installerPath $parameters
 }
 function Equal-File([string]$Source, [string]$Destination) {
     Assert (Test-Path -LiteralPath $Destination -PathType Leaf) "Missing installed file: $Destination"
@@ -77,6 +85,9 @@ function Check-Payload([string]$Destination, [bool]$Vst3, [bool]$Standalone, [bo
     Assert (Test-Path -LiteralPath $registry) "Windows uninstall entry is missing"
     $entry = Get-ItemProperty -LiteralPath $registry
     Assert ($entry.DisplayName -eq "SpectralForge Chimera") "Wrong Windows app name"
+    if ($payload.PSObject.Properties.Name -contains "installer_version") {
+        Assert ($entry.DisplayVersion -eq $payload.installer_version) "Candidate installer version differs from its payload"
+    }
     Assert ($entry.InstallLocation.TrimEnd([char]92) -eq $Destination.TrimEnd([char]92)) "Wrong registered install location"
 }
 function Uninstall([string]$Name, [string]$Destination) {
@@ -148,6 +159,17 @@ try {
     $guitarFixture = Join-Path $companion "Guitar/CI Guitar 4x12 SM57.wav"
     Copy-Item -LiteralPath "Assets/IRs/guitar_jensen_sm57.wav" -Destination $guitarFixture
     '{"cabinet":"CI synthetic guitar metadata","diameter_in":"12","microphone":"SM57"}' | Set-Content -LiteralPath ($guitarFixture + ".json")
+    # Synthetic fixtures exercise a private four-file Raven companion without
+    # sending the user's original IR recordings to public CI.
+    $ravenFixtures = @()
+    New-Item -ItemType Directory -Path "$companion/Raven" -Force | Out-Null
+    foreach ($label in @("In", "Out", "Ref", "V30 Comparison")) {
+        $file = Join-Path $companion "Raven/CI Raven $label.wav"
+        Copy-Item -LiteralPath "Assets/IRs/guitar_v30_sm57.wav" -Destination $file
+        @{ cabinet = "CI synthetic Raven $label"; microphone = "SM57"; collection = "Raven" } |
+            ConvertTo-Json | Set-Content -LiteralPath ($file + ".json")
+        $ravenFixtures += $file
+    }
     Install "01-full-install" $app "vst3,standalone,reference"
     Check-Payload $app $true $true $true
     Assert (!(Test-Path -LiteralPath $legacyExe) -and !(Test-Path -LiteralPath $legacyVst)) "Legacy product binaries were not retired"
@@ -159,11 +181,19 @@ try {
     $installedGuitarIR = Join-Path $sharedIRs "Guitar/CI Guitar 4x12 SM57.wav"
     Equal-File $guitarFixture $installedGuitarIR
     Equal-File ($guitarFixture + ".json") ($installedGuitarIR + ".json")
-    foreach ($installedCapture in @($installedIR, $installedGuitarIR)) {
+    $installedRaven = @()
+    foreach ($fixtureFile in $ravenFixtures) {
+        $installed = Join-Path $sharedIRs ("Raven/" + [IO.Path]::GetFileName($fixtureFile))
+        Equal-File $fixtureFile $installed
+        Equal-File ($fixtureFile + ".json") ($installed + ".json")
+        $installedRaven += $installed
+    }
+    foreach ($installedCapture in @($installedIR, $installedGuitarIR) + $installedRaven) {
         & "build/ChimeraUITests_artefacts/Release/ChimeraUITests.exe" --installed-ir-probe $installedCapture
         Assert ($LASTEXITCODE -eq 0) "Application failed to discover, decode or select installed IR: $installedCapture"
     }
     Pass "Companion Bass/Guitar WAVs install recursively, match their source hashes, decode, appear in the cabinet menu and load into a rig"
+    Pass "Four Raven companion fixtures and sidecars install automatically, decode, appear in CAB and load into a rig"
     Pass "Full install: standard VST3 path, app, documentation, shortcuts and uninstall registration; payload hashes match"
 
     # Inspect the imports of all shipped native binaries, not just this runner's installed runtimes.
@@ -198,33 +228,62 @@ try {
     "user-owned IR fixture" | Set-Content -LiteralPath $userIR
     $presetHash = (Get-FileHash -LiteralPath $preset).Hash
     $irHash = (Get-FileHash -LiteralPath $userIR).Hash
+    # An already installed personal capture must not be overwritten by repair.
+    Copy-Item -LiteralPath "Assets/IRs/guitar_jensen_sm57.wav" -Destination $installedRaven[0] -Force
+    $personalCaptureHash = (Get-FileHash -LiteralPath $installedRaven[0]).Hash
     Remove-Item -LiteralPath (Join-Path $app "ReferenceTools/ChimeraRender.exe")
     "damaged documentation fixture" | Set-Content -LiteralPath (Join-Path $app "README.txt")
     Install "02-repair" $app "vst3,standalone,reference"
     Check-Payload $app $true $true $true
     Assert ((Get-FileHash -LiteralPath $preset).Hash -eq $presetHash -and (Get-FileHash -LiteralPath $userIR).Hash -eq $irHash) "Repair modified user files"
+    Assert ((Get-FileHash -LiteralPath $installedRaven[0]).Hash -eq $personalCaptureHash) "Repair overwrote a personal Raven IR"
     Pass "Same-version reinstall repairs files and preserves personal presets/IRs"
     Uninstall "03-full-uninstall" $app
     Equal-File $fixture $installedIR
     Equal-File $guitarFixture $installedGuitarIR
+    Assert ((Get-FileHash -LiteralPath $installedRaven[0]).Hash -eq $personalCaptureHash) "Uninstall removed or changed a personal Raven IR"
     Pass "Personal IR collection is preserved after uninstall"
     Assert ((Get-FileHash -LiteralPath $preset).Hash -eq $presetHash -and (Get-FileHash -LiteralPath $userIR).Hash -eq $irHash) "Uninstall modified user files"
     Pass "Uninstall removes owned binaries, shortcut and Windows registration; preserves user files"
 
     $custom = Join-Path $env:RUNNER_TEMP "Chimera 설치 검증"
     Assert (!(Test-Path -LiteralPath $custom)) "Custom test path already exists"
-    Install "04-vst3-only" $custom "vst3"
+    $customVst3 = Join-Path $env:RUNNER_TEMP "Chimera VST3 설치 검증"
+    Assert (!(Test-Path -LiteralPath $customVst3)) "Custom VST3 test path already exists"
+    Install "04-vst3-only" $custom "vst3" $customVst3
     Check-Payload $custom $true $false $false
+    Pass "Independent custom application and VST3 installation folders accept Unicode paths"
+    Install "04b-vst3-remembered-repair" $custom "vst3"
+    Check-Payload $custom $true $false $false
+    Pass "Repair remembers the selected VST3 folder without a /VST3DIR override"
+    $previousVst = $vst
+    $vstUserFile = Join-Path $previousVst "personal-preserve.txt"
+    "user-owned plugin-folder fixture" | Set-Content -LiteralPath $vstUserFile
+    $vstUserHash = (Get-FileHash -LiteralPath $vstUserFile).Hash
+    $movedVst3 = Join-Path $env:RUNNER_TEMP "Chimera VST3 이동 검증"
+    Install "04c-vst3-path-move" $custom "vst3" $movedVst3
+    Check-Payload $custom $true $false $false
+    Assert (!(Test-Path -LiteralPath (Join-Path $previousVst "Contents/x86_64-win/SpectralForge Chimera.vst3"))) "Changing VST3 folder left the old plugin binary"
+    Assert ((Get-FileHash -LiteralPath $vstUserFile).Hash -eq $vstUserHash) "Changing VST3 folder modified a user file"
+    Pass "Changing the selected VST3 folder retires only its exact old plugin binary and preserves user files"
     Uninstall "05-vst3-uninstall" $custom
+    Assert ((Get-FileHash -LiteralPath $vstUserFile).Hash -eq $vstUserHash) "Uninstall removed a user file from the previous VST3 folder"
     Pass "VST3-only selection and removal; Unicode custom app path"
     Install "06-standalone-only" $custom "standalone"
     Check-Payload $custom $false $true $false
     Check-AppShortcut $custom
     Uninstall "07-standalone-uninstall" $custom
     Pass "Standalone-only selection and removal; no VST3 installed"
+    $success = $true
 } catch {
     $report.Add("FAIL: $($_.Exception.Message)")
     throw
 } finally {
     $report | Set-Content -LiteralPath (Join-Path $logPath "InstallerVerification.txt")
+    @{ success = $success; source_sha = $sourceSha; run_id = $env:GITHUB_RUN_ID;
+       installer = [IO.Path]::GetFileName($installerPath);
+       installer_sha256 = (Get-FileHash -LiteralPath $installerPath -Algorithm SHA256).Hash.ToLowerInvariant();
+       payload_manifest_sha256 = (Get-FileHash -LiteralPath (Join-Path $stagePath "payload-manifest.json") -Algorithm SHA256).Hash.ToLowerInvariant();
+       checks = @($report.ToArray()) } | ConvertTo-Json -Depth 6 |
+        Set-Content -LiteralPath (Join-Path $logPath "InstallerVerification.json") -Encoding utf8
 }

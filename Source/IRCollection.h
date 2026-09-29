@@ -1,6 +1,7 @@
 #pragma once
 #include "IRMetadata.h"
 #include <juce_cryptography/juce_cryptography.h>
+#include <juce_audio_formats/juce_audio_formats.h>
 #include <vector>
 
 namespace spectralforge {
@@ -14,14 +15,56 @@ struct IRCollection {
         bool reference{};
         juce::String menuLabel;
         bool external{};
+        juce::String validationError;
         juce::String displayName() const {return menuLabel.isNotEmpty() ? menuLabel : tags.shortLabel(name);}
-        juce::String details() const {return tags.details(name);}
-        bool ready() const { return factorySource != 0 || file.existsAsFile(); }
+        juce::String details() const {return tags.details(name)+(validationError.isEmpty() ? juce::String{} : "\n\nINVALID FILE: "+validationError);}
+        bool ready() const { return factorySource != 0 || (validationError.isEmpty() && file.existsAsFile()); }
         bool bass() const {
             return tags.values[1].containsIgnoreCase("Ampeg") || tags.values[1].containsIgnoreCase("Bassman")
                 || tags.values[11].startsWithIgnoreCase("Bass") || name.containsIgnoreCase("bass");
         }
     };
+    enum class Instrument {all,bass,guitarOther};
+    enum class Availability {all,ready,factory,installed,missing,external,invalid};
+    struct ScanReport {int examinedFiles{},invalidFiles{};bool truncated{};};
+    static bool matches(const Entry& e,const juce::String& query,const juce::String& inches,Instrument instrument,Availability availability) {
+        const auto text=e.name+" "+e.displayName()+" "+juce::JSON::toString(e.tags.json(),true);
+        if(query.isNotEmpty() && !text.containsIgnoreCase(query)) return false;
+        if(inches.isNotEmpty() && e.tags.values[2]!=inches) return false;
+        if(instrument==Instrument::bass && !e.bass()) return false;
+        if(instrument==Instrument::guitarOther && e.bass()) return false;
+        switch(availability) {
+            case Availability::ready:return e.ready();
+            case Availability::factory:return e.factorySource!=0;
+            case Availability::installed:return e.factorySource==0 && e.ready();
+            case Availability::missing:return !e.ready() && e.validationError.isEmpty();
+            case Availability::external:return e.external && !e.ready() && e.validationError.isEmpty();
+            case Availability::invalid:return e.validationError.isNotEmpty();
+            case Availability::all:return true;
+        }
+        return false;
+    }
+    // Discovery is not proof that a filename contains a usable cabinet IR.
+    // These bounds match the loader; the loader validates again when selected.
+    static juce::String validateFile(const juce::File& file) {
+        if(file.getSize()<44 || file.getSize()>4*1024*1024) return "Use a WAV/AIFF file under 4 MB.";
+        juce::AudioFormatManager formats;formats.registerFormat(new juce::WavAudioFormat(),true);formats.registerFormat(new juce::AiffAudioFormat(),false);
+        auto reader=std::unique_ptr<juce::AudioFormatReader>(formats.createReaderFor(file));
+        if(!reader) return "Cannot decode this WAV/AIFF file.";
+        if(reader->numChannels<1 || reader->numChannels>2 || reader->sampleRate<8000 || reader->sampleRate>384000 || reader->lengthInSamples<8 || reader->lengthInSamples>juce::int64(reader->sampleRate))
+            return "Use mono/stereo, 8-384 kHz, 8 samples to 1 second.";
+        juce::AudioBuffer<float> block((int)reader->numChannels,1024);double energy=0;
+        for(juce::int64 offset=0;offset<reader->lengthInSamples;offset+=1024) {
+            const int samples=(int)juce::jmin(juce::int64(1024),reader->lengthInSamples-offset);
+            if(!reader->read(&block,0,samples,offset,true,true)) return "IR data is incomplete.";
+            for(int c=0;c<block.getNumChannels();++c)for(int n=0;n<samples;++n) {
+                const float value=block.getSample(c,n);
+                if(!std::isfinite(value) || std::abs(value)>32.f) return "IR contains invalid samples.";
+                energy+=double(value)*value;
+            }
+        }
+        return energy<1e-12 ? "IR is silent." : juce::String{};
+    }
     static void labelEntries(std::vector<Entry>& entries) {
         // Repeated microphone positions and equal basenames remain distinct.
         // Disambiguation uses ordinal labels, never private filesystem paths.
@@ -69,10 +112,11 @@ struct IRCollection {
         return userRoot().getChildFile("ir-folders.json").replaceWithText(juce::JSON::toString(paths))
             ? juce::Result::ok() : juce::Result::fail("Cannot save the IR folder preference.");
     }
-    static std::vector<Entry> scan(const std::vector<juce::File>& folders, bool references) {
+    static std::vector<Entry> scan(const std::vector<juce::File>& folders, bool references,ScanReport* report=nullptr) {
+        if(report) *report={};
         std::vector<Entry> result;
         juce::Array<juce::var> catalogEntries;
-        for(const auto* raw:{referenceIRCatalog,externalBassIRCatalog}) {
+        for(const auto* raw:{referenceIRCatalog,externalBassIRCatalog,ravenIRCatalog}) {
             const auto catalog=juce::JSON::parse(raw);
             if(const auto* entries=catalog.getArray())catalogEntries.addArray(*entries);
         }
@@ -89,10 +133,13 @@ struct IRCollection {
             for (const auto& item:juce::RangedDirectoryIterator(folder,true,"*",juce::File::findFiles)) {
                 const auto f=item.getFile();
                 if (!f.hasFileExtension("wav;aif;aiff") || seen.contains(f.getFullPathName())) continue;
-                if (seen.size()>=512) {labelEntries(result);return result;}
+                if (seen.size()>=512) {if(report)report->truncated=true;labelEntries(result);return result;}
                 seen.add(f.getFullPathName());
+                if(report)++report->examinedFiles;
+                const auto validationError=validateFile(f);
+                if(report && validationError.isNotEmpty())++report->invalidFiles;
                 bool matched=false;
-                if (references) {
+                if (references && validationError.isEmpty()) {
                     for (const auto& expected:catalogEntries) {
                         if (expected["file"].toString()!=f.getFileName() || f.getSize()>4*1024*1024) continue;
                         if (juce::SHA256(f).toHexString()!=expected["sha256"].toString()) continue;
@@ -106,7 +153,7 @@ struct IRCollection {
                     const auto json=juce::JSON::parse(sidecar);
                     if (json.isObject()) tags=IRMetadata::fromJSON(json);
                 }
-                result.push_back({f,f.getFileName(),tags,0,false});
+                result.push_back({f,f.getFileName(),tags,0,false,{},false,validationError});
             }
         }
         labelEntries(result);return result;
@@ -120,8 +167,12 @@ struct IRCollection {
         if (zip.getNumEntries()>4096) return juce::Result::fail("The archive contains too many entries.");
         struct Pending { juce::String name; juce::MemoryBlock audio; juce::var tags; };
         std::vector<Pending> pending;
-        const auto catalog=juce::JSON::parse(referenceIRCatalog);
-        for (const auto& expected:*catalog.getArray()) {
+        juce::Array<juce::var> catalogEntries;
+        for(const auto* raw:{referenceIRCatalog,ravenIRCatalog}) {
+            const auto catalog=juce::JSON::parse(raw);
+            if(const auto* entries=catalog.getArray())catalogEntries.addArray(*entries);
+        }
+        for (const auto& expected:catalogEntries) {
             for (int i=0; i<zip.getNumEntries(); ++i) {
                 const auto* entry=zip.getEntry(i);
                 const auto leaf=entry->filename.replaceCharacter('\\','/').fromLastOccurrenceOf("/",false,false);

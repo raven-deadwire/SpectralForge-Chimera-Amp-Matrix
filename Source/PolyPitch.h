@@ -19,8 +19,11 @@ class PolyPitch {
     std::vector<float> window;
     int size{},hop{},inputPosition{},outputPosition{},clock{},channelCount{};
     float ratio{1};
+    bool synthesising{};
+    uint64_t framesProcessed{};
     void frame(Channel& channel)
     {
+        ++framesProcessed;
         using Complex=std::complex<float>;
         constexpr float pi=juce::MathConstants<float>::pi,twoPi=juce::MathConstants<float>::twoPi;
         for(int n=0;n<size;++n) channel.transform[(size_t)n]=Complex(channel.input[(size_t)((inputPosition+n)%size)]*window[(size_t)n],0);
@@ -89,26 +92,38 @@ public:
             for(auto* values:{&channel.previousPhase,&channel.phase,&channel.magnitude,&channel.frequency,&channel.sourcePhase}) values->assign((size_t)size/2+1,0);
             channel.initialised.assign((size_t)size/2+1,0);channel.spectrum.resize((size_t)size);channel.transform.resize((size_t)size);channel.mappedPhase.resize((size_t)size/2+1);channel.peaks.reserve((size_t)size/2+1);
         }
-        inputPosition=outputPosition=clock=0;
+        inputPosition=outputPosition=clock=0;synthesising=false;framesProcessed=0;
     }
     void reset() {
         for(auto& channel:channels) {
             std::fill(channel.input.begin(),channel.input.end(),0);std::fill(channel.ola.begin(),channel.ola.end(),0);
             std::fill(channel.previousPhase.begin(),channel.previousPhase.end(),0);std::fill(channel.phase.begin(),channel.phase.end(),0);std::fill(channel.initialised.begin(),channel.initialised.end(),0);
         }
-        inputPosition=outputPosition=clock=0;
+        inputPosition=outputPosition=clock=0;synthesising=false;framesProcessed=0;
     }
     int latency() const {return size;}
+    uint64_t processedFrames() const {return framesProcessed;}
     void setSemitones(int value) {ratio=std::pow(2.f,float(juce::jlimit(-12,12,value))/12.f);}
-    void process(const juce::AudioBuffer<float>& input,juce::AudioBuffer<float>& output)
+    void process(const juce::AudioBuffer<float>& input,juce::AudioBuffer<float>& output,bool render=true)
     {
+        // Keep the input ring warm without running FFTs when no shifted audio
+        // is audible. Clear old overlap/phase state once, never allocate here.
+        if(!render && synthesising) {
+            for(auto& channel:channels) {
+                std::fill(channel.ola.begin(),channel.ola.end(),0);
+                std::fill(channel.previousPhase.begin(),channel.previousPhase.end(),0);
+                std::fill(channel.phase.begin(),channel.phase.end(),0);
+                std::fill(channel.initialised.begin(),channel.initialised.end(),0);
+            }
+        }
+        synthesising=render;
         for(int n=0;n<input.getNumSamples();++n) {
             for(int c=0;c<channelCount;++c) {
                 auto& channel=channels[(size_t)c];channel.input[(size_t)inputPosition]=input.getSample(c,n);
                 output.setSample(c,n,channel.ola[(size_t)outputPosition]);channel.ola[(size_t)outputPosition]=0;
             }
             inputPosition=(inputPosition+1)%size;outputPosition=(outputPosition+1)%(size*2);
-            if(++clock==hop) {clock=0;for(int c=0;c<channelCount;++c) frame(channels[(size_t)c]);}
+            if(++clock==hop) {clock=0;if(render)for(int c=0;c<channelCount;++c) frame(channels[(size_t)c]);}
         }
     }
 };

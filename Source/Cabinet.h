@@ -1,6 +1,7 @@
 #pragma once
 #include <juce_dsp/juce_dsp.h>
 #include <atomic>
+#include "LifecycleTrace.h"
 
 namespace spectralforge {
 // The worker builds a complete convolution engine. Audio swaps raw ownership;
@@ -40,13 +41,25 @@ private:
     double sr{48000};
     bool on{true};
     int fadeRemaining{}, fadeLength{1};
+    static void destroyKernel(Kernel* kernel)
+    {
+        if (kernel == nullptr) return;
+        const lifecycle::Scope trace("cab.kernel.destroy", kernel);
+        delete kernel; // Includes joining this convolution's private loader.
+    }
 public:
     ~Cab() { clear(); }
     void clear() // Only while processing and the worker are stopped.
     {
-        delete pending.exchange(nullptr); delete retired.exchange(nullptr);
-        delete active; active=nullptr; delete fading; fading=nullptr;
+        const lifecycle::Scope trace("cab.clear", this);
+        destroyKernel(pending.exchange(nullptr)); destroyKernel(retired.exchange(nullptr));
+        destroyKernel(active); active=nullptr; destroyKernel(fading); fading=nullptr;
         activeSource.store(-1); activeGeneration.store(0); fadeRemaining=0;
+    }
+    // Diagnostic query: only after host processing and the IR worker stop.
+    bool hasResources() const noexcept
+    {
+        return pending.load() != nullptr || retired.load() != nullptr || active != nullptr || fading != nullptr;
     }
     void prepare(const juce::dsp::ProcessSpec& spec)
     {
@@ -57,11 +70,11 @@ public:
         enabled.reset(sr,.020); enabled.setCurrentAndTargetValue(on ? 1.f : 0.f);
         fadeLength=juce::jmax(1,int(sr*.050));
     }
-    void publish(std::unique_ptr<Kernel> kernel) { delete pending.exchange(kernel.release()); }
-    void collect() { delete retired.exchange(nullptr); }
+    void publish(std::unique_ptr<Kernel> kernel) { destroyKernel(pending.exchange(kernel.release())); }
+    void collect() { destroyKernel(retired.exchange(nullptr)); }
     void install(std::unique_ptr<Kernel> kernel) // prepareToPlay only
     {
-        delete active; active=kernel.release();
+        destroyKernel(active); active=kernel.release();
         activeSource.store(active->source); activeGeneration.store(active->generation);
     }
     void reset()

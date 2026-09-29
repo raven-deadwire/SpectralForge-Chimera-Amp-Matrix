@@ -3,6 +3,11 @@
 #include "PluginProcessor.h"
 #include "CabinetSelector.h"
 #include "ReleaseSupport.h"
+#include "PedalBoardPanel.h"
+#include "AmpSelector.h"
+#include "AmpNativePanel.h"
+#include "PostNativePanel.h"
+#include "EffectSelectionCatalog.h"
 
 class ChimeraLookAndFeel : public juce::LookAndFeel_V4 {
 public:
@@ -37,6 +42,7 @@ private:
     void browseIR(int,const juce::File&);
     void showInfo();
     void showSupport();
+    void showDiagnostics();
     void trackDialog(juce::DialogWindow*);
     void markPresetCustom();
     void showIRDetails(int);
@@ -44,10 +50,20 @@ private:
     void layoutControls();
     void midiMenu();
     ChimeraProcessor& processor;
+    // Declared before children so their images/peers die first. The last editor
+    // releases native GPU artwork while JUCE and the DLL are still alive.
+    juce::SharedResourcePointer<spectralforge::art::RasterBank> artwork;
     ChimeraLookAndFeel look;
     juce::Component canvas;
+    PedalBoardPanel boardPanel;
+    juce::TextButton gateLocation{"POST GATE"};
+    juce::Label preEngineStatus;
+    std::unique_ptr<BA> gateLocationAttachment;
+    bool lastBoardEnabled{};
     juce::TooltipWindow tooltips{this,600};
-    std::shared_ptr<spectralforge::release::ReleaseSupport> support=std::make_shared<spectralforge::release::ReleaseSupport>();
+    // Updates own a network worker. Ordinary editor open/close must not start
+    // one or join one during host project teardown.
+    std::shared_ptr<spectralforge::release::ReleaseSupport> support;
     juce::Image wordmark,brandEmblem;
     std::vector<juce::Component::SafePointer<juce::DialogWindow>> dialogs;
     std::vector<float> presetValues;
@@ -67,7 +83,7 @@ private:
     juce::TextButton gateOn{"GATE"},pitchOn{"TRANSPOSE"},tunerOn{"TUNER"},tunerMute{"AUTO MUTE"},info{"INFO"};
     std::array<std::unique_ptr<BA>,4> globalButtons;
     juce::TextButton compareA{"A"},compareB{"B"},copyAB{"COPY"},irLibraryButton{"IR LIBRARY"},rigsTab{"RIGS"},preTab{"PRE"},postTab{"POST"};
-    int page{}; // 0: rigs, 1: pedalboard, 2: rack
+    int page{1}; // Open the production five-slot PRE view; RIGS/POST remain one click away.
     juce::Slider lowComp,lowAmpMix;
     juce::Label lowCompLabel,diVoice,diNote;
     std::unique_ptr<SA> lowCompAttachment,lowAmpMixAttachment;
@@ -76,12 +92,13 @@ private:
         juce::Label header,scope,description;
         juce::ComboBox model;
         std::unique_ptr<CA> modelAttachment;
-        juce::TextButton enabled{"ON"};
+        juce::TextButton enabled{"ON"},expand{"ALL"};
         std::array<juce::Slider,5> controls;
         std::array<juce::Label,5> labels;
         std::array<std::unique_ptr<SA>,5> attachments;
         std::unique_ptr<BA> button;
     };
+    std::array<std::unique_ptr<PostNativePanel>,3> postPanels;
     std::array<FXUI,11> effects; // drive, delay, reverb, comp, filter, fuzz, boost, bus, preamp, EQ, chorus
     std::array<int,5> pedalOrder{4,3,5,6,0};
     bool lastEnvelopeFirst{true},lastBoostAfterDrive{};
@@ -89,13 +106,13 @@ private:
     struct LaneUI {
         int lastModel{-1};
         juce::Label header,range,toneLabel,tonePivot,cabStatus,ampReference;
-        juce::ComboBox amp;
+        AmpSelector amp;
+        std::unique_ptr<AmpNativePanel> nativePanel;
         CabinetSelector cabType;
         juce::Slider drive,level,bass,lm,hm,treble,pres,res,bandTone,cabLow,cabHigh;
         std::array<juce::Label,8> knobLabels;
         juce::Label lowLabel,highLabel;
         juce::TextButton mute{"MUTE"},solo{"SOLO"},polarity{"INV"},cabOn{"CAB"},ampOn{"AMP"},load{"IRs"},details{"TAGS"};
-        std::unique_ptr<CA> aa;
         std::array<std::unique_ptr<SA>,8> sa;
         std::unique_ptr<SA> toneAttachment,lowAttachment,highAttachment;
         std::array<std::unique_ptr<BA>,5> buttons;

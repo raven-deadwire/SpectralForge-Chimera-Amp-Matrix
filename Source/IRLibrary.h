@@ -20,7 +20,10 @@ public:
     explicit IRLibrary(std::array<Cab*,3> cabinets);
     ~IRLibrary() override;
     void prepare(const juce::dsp::ProcessSpec&, const std::array<int,3>& sources);
+    void requestStop();
     void stop();
+    // Call only with host processing stopped, e.g. after releaseResources.
+    bool resourcesReleased() const noexcept;
     juce::Result importFile(int lane, const juce::File&);
     juce::String status(int lane) const;
     juce::String userName(int lane) const;

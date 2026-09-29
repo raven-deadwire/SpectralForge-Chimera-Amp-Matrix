@@ -4,6 +4,12 @@
 #include "FXParameters.h"
 #include "IRLibrary.h"
 #include "PerformanceUtilities.h"
+#include "PedalBoardParameters.h"
+#include "PedalBoardDSP.h"
+#include "PostRigGate.h"
+#include "AmpSelectionParameters.h"
+#include "AmpNativeParameters.h"
+#include "PostNativeParameters.h"
 
 class ChimeraProcessor : public juce::AudioProcessor {
 public:
@@ -11,6 +17,8 @@ public:
     ~ChimeraProcessor() override;
     void prepareToPlay(double,int) override;
     void releaseResources() override;
+    // Diagnostic/test query. Host audio processing must already be stopped.
+    bool backgroundResourcesReleased() const noexcept { return tuner.stopped() && library.resourcesReleased(); }
     bool isBusesLayoutSupported(const BusesLayout&) const override;
     void processBlock(juce::AudioBuffer<float>&,juce::MidiBuffer&) override;
     juce::AudioProcessorEditor* createEditor() override;
@@ -39,6 +47,7 @@ public:
     float preCompressorReduction() const {return preReduction.load();}
     float postCompressorReduction() const {return postReduction.load();}
     float postModuleLevel(int position) const {return postPeaks[(size_t)juce::jlimit(0,5,position)].load();}
+    float postNativeMeter(int section) const {return nativePostMeters[(size_t)juce::jlimit(0,2,section)].load();}
     juce::String cabStatus(int lane) const { return library.status(lane); }
     spectralforge::IRMetadata cabMetadata(int lane) const { return library.metadata(lane,(int)state.getRawParameterValue("cabtype"+juce::String(lane+1))->load()); }
     void setCabMetadata(int lane,const spectralforge::IRMetadata& metadata) { library.setMetadata(lane,metadata); }
@@ -60,7 +69,42 @@ public:
     float currentTempo() const {return tempoMeter.load();}
     void tapTempo();
     int pitchLatency() const { return preFX.transpose.latency(); }
+    spectralforge::PedalBoardState pedalBoardState() const { return boardParameters.read(); }
+    void setPedalBoardEnabled(bool enabled);
+    int pedalBoardLatencySamples()const{return pedalBoard.latency(boardParameters.read());}
+    void setPedalModel(int owner,int model);
+    void movePedal(int owner,int direction);
+    bool duplicatePedal(int owner);
+    void undoPedalEdit(bool redo=false);
+    float pedalReduction() const { return boardReduction.load(); }
+    juce::String diagnosticReport() const;
+    int selectedAmpModel(int lane) const noexcept;
+    int selectedAmpChannel(int lane) const noexcept;
+    int selectedAmpNativeRoute(int lane) const noexcept;
+    void setAmpModel(int lane,int model);
+    void setAmpChannel(int lane,int channel);
+    void setAmpNativeRoute(int lane,int route);
+    void activateNativeAmp(int lane);
+    void activateNativePost(int section);
 private:
+    spectralforge::AmpSelectionParameterCache ampSelection;
+    spectralforge::AmpNativeParameterCache nativeAmps;
+    spectralforge::PostNativeParameterCache nativePost;
+    int ampContext(int lane) const noexcept;
+    void seedNativeSelections(bool seedBoard,bool seedAmps=true,bool seedPost=true);
+    void resetAmpSelection();
+    void rememberPedalEdit();
+    void setRawParameter(const juce::String&,float);
+    std::vector<juce::ValueTree> boardUndo,boardRedo;
+    std::atomic<unsigned> boardEditSequence{0};
+    spectralforge::PedalBoardParameterCache boardParameters;
+    spectralforge::PedalBoardDSP pedalBoard;
+    spectralforge::PostRigGate postRigGate;
+    std::atomic<float>* gateAfterRig{};
+    spectralforge::PedalBoardState audioBoard;
+    std::atomic<float> boardReduction{0};
+    std::array<std::atomic<float>,5> stageRms{},stagePeaks{};
+    void measureStage(int,const juce::AudioBuffer<float>&);
     void process(juce::AudioBuffer<float>&);
     juce::ValueTree captureCore();
     void restoreCore(juce::ValueTree);
@@ -92,6 +136,7 @@ private:
     std::atomic<float> inputPeak{0},outputPeak{0},gateGain{1},lowCompGain{0};
     std::atomic<float> preReduction{0},postReduction{0};
     std::array<std::atomic<float>,6> postPeaks{};
+    std::array<std::atomic<float>,3> nativePostMeters{};
     std::atomic<float> cpuAverage{0},cpuPeak{0};
     int maximumBlock{512};
     double rate{48000};

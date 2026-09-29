@@ -1,0 +1,8 @@
+_build/
+__pycache__/
+*.pyc
+catalog.json
+Chimera_FiveSlot_Preview.html
+reports/
+
+/ORIGINAL_AMP_CONTROLS.md
