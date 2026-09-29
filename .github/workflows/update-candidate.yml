@@ -4,6 +4,7 @@ on:
   workflow_dispatch:
 permissions:
   contents: read
+  actions: read
 jobs:
   windows-candidate:
     runs-on: windows-latest
@@ -20,17 +21,56 @@ jobs:
       - name: Check candidate installer scripts
         shell: pwsh
         run: |
-          python -m py_compile Tools/package_installer_candidate.py Tools/Build-PersonalWindowsBundle.py
-          foreach ($script in @("Tools/Build-WindowsInstaller.ps1", "Tools/Verify-WindowsInstaller.ps1")) {
+          python -m py_compile Tools/package_installer_candidate.py Tools/Build-PersonalWindowsBundle.py Tools/prepare_lifecycle_baseline.py
+          foreach ($script in @("Tools/Build-WindowsInstaller.ps1", "Tools/Verify-WindowsInstaller.ps1", "Tools/Trace-Chimera-Session.ps1")) {
             $tokens = $null
             $errors = $null
             [System.Management.Automation.Language.Parser]::ParseFile((Resolve-Path $script).Path, [ref]$tokens, [ref]$errors) | Out-Null
             if ($errors.Count) { throw (($errors | ForEach-Object Message) -join "`n") }
           }
+          $diagnosticsScript = Get-Content Tools/Trace-Chimera-Session.ps1 -Raw
+          $nativeHelper = [regex]::Match($diagnosticsScript, "(?s)Add-Type -TypeDefinition @'\r?\n(.*?)\r?\n'@")
+          if (!$nativeHelper.Success) { throw 'Diagnostic dump helper definition missing' }
+          Add-Type -TypeDefinition $nativeHelper.Groups[1].Value
       - name: Build product and regression checks
         run: cmake --build build --config Release --parallel 2
+      - name: Fetch previously delivered VST3 for shutdown comparison
+        id: baseline_download
+        continue-on-error: true
+        uses: actions/download-artifact@v4
+        with:
+          name: Chimera-update-Windows-candidate
+          run-id: 36498630415
+          github-token: ${{ github.token }}
+          path: build/lifecycle-baseline-download
+      - name: Verify baseline binary provenance
+        if: steps.baseline_download.outcome == 'success'
+        run: python Tools/prepare_lifecycle_baseline.py build/lifecycle-baseline-download build/lifecycle-baseline
+      - name: Observe previous VST3 shutdown behavior
+        id: baseline-lifecycle
+        if: steps.baseline_download.outcome == 'success'
+        continue-on-error: true
+        timeout-minutes: 5
+        shell: pwsh
+        run: |
+          & build/Release/ChimeraVST3LifecycleTests.exe "build/lifecycle-baseline/SpectralForge Chimera.vst3/Contents/x86_64-win/SpectralForge Chimera.vst3" 2>&1 | Tee-Object build/lifecycle-baseline-result.txt
+          exit $LASTEXITCODE
       - name: Execute DSP and actual JUCE UI tests
-        run: ctest --test-dir build -C Release --output-on-failure --no-tests=error
+        shell: pwsh
+        run: |
+          $env:CHIMERA_LIFECYCLE_TRACE = Join-Path (Get-Location) "build/lifecycle-current-trace.log"
+          ctest --test-dir build -C Release --output-on-failure --no-tests=error
+          exit $LASTEXITCODE
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: Chimera-VST3-lifecycle-evidence
+          path: |
+            build/lifecycle-baseline-result.txt
+            build/lifecycle-baseline/baseline-verification.json
+            build/lifecycle-current-trace.log
+            build/Testing/Temporary/LastTest.log
+          if-no-files-found: warn
       - name: Package distinct Windows test build
         run: python Tools/package_update_candidate.py
       - name: Stage exact-commit Windows installer payload
@@ -161,6 +201,8 @@ jobs:
             build/ui-snapshots/Native-*.json
             build/ui-snapshots/Native-Amp-*.png
             build/ui-snapshots/Native-Post-*.png
+            build/ui-snapshots/Support-hosted.png
+            build/ui-snapshots/IR-Raven-reference-library.png
           if-no-files-found: error
   preparation-contracts:
     runs-on: ubuntu-22.04

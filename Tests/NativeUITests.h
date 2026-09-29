@@ -38,6 +38,27 @@ inline void close(juce::Component::SafePointer<juce::DialogWindow> window) {
 inline void inside(juce::Component& root,juce::Component& control,const char* message) {
     require(root.getLocalBounds().contains(root.getLocalArea(&control,control.getLocalBounds())),message);
 }
+inline void postModelPresentation(PostNativePanel& panel,int section,int selected) {
+    auto* model=find<juce::ComboBox>(panel,spectralforge::postNativeModelID(section));
+    require(model && model->getRootMenu(),"POST model menu missing");
+    std::array<int,3> found{};int items=0;
+    for(juce::PopupMenu::MenuItemIterator it(*model->getRootMenu(),false);it.next();) {
+        const auto& item=it.getItem();
+        require(item.subMenu==nullptr && !item.isSectionHeader && !item.isSeparator,"Single-family POST menu has an unnecessary category step");
+        require(item.itemID>=1 && item.itemID<=3 && item.isEnabled,"POST model menu contains an invalid or unavailable model");
+        require(item.text==juce::String::fromUTF8(spectralforge::postNativeModel(section,item.itemID-1).name),"POST dropdown must contain only product aliases");
+        ++found[(size_t)item.itemID-1];++items;
+    }
+    require(items==3 && found[0]==1 && found[1]==1 && found[2]==1,"Flat POST menu omits or duplicates a model");
+    constexpr std::array<const char*,9> names{{"SSL G Series Compressor","Universal Audio 1176LN","Teletronix LA-2A","Neve 1073","Avalon V5","Focusrite ISA One","SSL E Series EQ","Neve 1073","Pultec EQP-1A"}};
+    auto* reference=find<juce::Label>(panel,"postNativeReference"+juce::String(section));
+    require(reference && reference->isVisible() && reference->getText()==names[(size_t)(section*3+selected)],"POST caption must show only the short original model name, without a reference prefix or description");
+    inside(panel,*reference,"POST model caption is outside its rack panel");
+    juce::GlyphArrangement glyphs;glyphs.addLineOfText(reference->getFont(),reference->getText(),0,0);
+    require(glyphs.getBoundingBox(0,-1,true).getWidth()<=reference->getWidth()-10,"Short POST model caption still clips in the rack row");
+    for(auto* child:panel.getChildren())if(child!=reference && child->isVisible())
+        require(!reference->getBounds().intersects(child->getBounds()),"POST model caption overlaps another visible control");
+}
 inline void lowOverview(ChimeraProcessor& processor,ChimeraEditor& editor,juce::Component& canvas,const juce::File& directory) {
     set(processor,"mode",2);settle();for(int lane=0;lane<3;++lane)processor.setAmpModel(lane,lane==0?4:lane==1?15:22);settle();
     for(int scale=0;scale<2;++scale) {
@@ -96,6 +117,7 @@ inline int postPanels(ChimeraProcessor& processor,ChimeraEditor& editor,juce::Co
             for(int model=0;model<3;++model) {
                 compactModel->setSelectedId(model+1,juce::sendNotificationSync);settle();const auto& spec=spectralforge::postNativeModel(section,model);
                 require(compactModel->getText()==spec.name,"POST model list contains a hardware reference");
+                postModelPresentation(*compact,section,model);
                 require((int)processor.parameters().getRawParameterValue(spectralforge::postNativeModelID(section))->load()==model,"POST model did not reach audio state");
                 std::vector<NativeControlView*> overview;views(*compact,overview);int shown=0;
                 for(auto* view:overview)if(view->isVisible()){++shown;inside(*compact,*view,"Compact POST control is clipped");inside(editor,*view,"Compact POST control exceeds scaled editor bounds");}
@@ -103,6 +125,7 @@ inline int postPanels(ChimeraProcessor& processor,ChimeraEditor& editor,juce::Co
                 auto window=open(*compact,"postExpand"+juce::String(section),compact->getComponentID());auto* panel=dynamic_cast<PostNativePanel*>(window->getContentComponent());
                 require(panel && &panel->getLookAndFeel()==&editor.getLookAndFeel(),"Expanded POST lost its original control panel/style");
                 auto* modelBox=find<juce::ComboBox>(*panel,spectralforge::postNativeModelID(section));require(modelBox && modelBox->getSelectedId()==model+1,"POST ALL opened the wrong model");
+                postModelPresentation(*panel,section,model);
                 std::vector<NativeControlView*> all;views(*panel,all);require((int)all.size()==spec.controlCount+2,"POST ALL omitted original controls or software trim/level");
                 for(auto* view:all){require(view->isVisible(),"POST ALL contains a hidden original control");inside(*panel,*view,"POST ALL control exceeds the expanded panel");}
                 for(int c=0;c<spec.controlCount;++c) {
@@ -207,7 +230,7 @@ inline void run(const juce::File& directory){
     lowOverview(processor,editor,*canvas,directory);
     const int postControlCases=postPanels(processor,editor,*canvas,directory);
     dialogTeardown();
-    std::cout<<"PASS native UI: all 23 amplifier panels at 100/75%, "<<channelCases<<" channel cases, "<<controlCases<<" channel/control visibility cases, Matrix LOW priority controls and ALL, 9 POST models / "<<postControlCases<<" controls at 100/75%, six compact rack rows and ALL dialogs, editor teardown and real parameter callbacks\n";
+    std::cout<<"PASS native UI: all 23 amplifier panels at 100/75%, "<<channelCases<<" channel cases, "<<controlCases<<" channel/control visibility cases, Matrix LOW priority controls and ALL, 9 POST models / "<<postControlCases<<" controls at 100/75%, flat POST alias menus and short original model captions, six compact rack rows and ALL dialogs, editor teardown and real parameter callbacks\n";
 }
 }
 inline void runNativeUITests(const juce::File& directory){nativeUITests::run(directory);}

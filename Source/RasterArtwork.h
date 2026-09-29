@@ -2,6 +2,7 @@
 #include <juce_graphics/juce_graphics.h>
 #include "ChimeraArtworkData.h"
 #include "AmpCatalog.h"
+#include "LifecycleTrace.h"
 #include <array>
 
 namespace spectralforge::art {
@@ -106,6 +107,7 @@ inline ModelStyle surfaceStyle(Surface surface) {
 struct RasterBank {
     std::array<juce::Image,static_cast<size_t>(Surface::count)> images;
     RasterBank() {
+        const lifecycle::Scope trace("artwork.bank.create", this);
         constexpr std::array<const char*,static_cast<size_t>(Surface::count)> names{
             "ravenworkbench_jpg","ravenemblem_png","p808_jpg","pcentaur_jpg","prat_jpg","pm87_jpg","pdyna_jpg","pdiamond_jpg","pqtron_jpg","pmutron_jpg","pmuff_jpg","pface_jpg","pbender_jpg","prc_jpg","prange_jpg","pmicro_jpg","aglass_jpg","abrit_jpg","a515_jpg","arect_jpg","amark_jpg","asvt_jpg","agk_jpg","ahybrid_jpg","rsslvca_jpg","r1176_jpg","rla2a_jpg","rn73_jpg","rv5_jpg","risa_jpg","rssleq_jpg","rn73eq_jpg","rpultec_jpg","rce2_jpg","rdimension_jpg","rstone_jpg","rmistress_jpg","reddy_jpg","rpulsar_jpg","r2290_jpg","rre201_jpg","rmemory_jpg","remt_jpg","rlex_jpg","rspring_jpg","cmesa_jpg","campeg_jpg","cbassman_jpg","cdelta_jpg","pfet_jpg","pmu_jpg","pbddi_jpg","pb3k_jpg","pm82_jpg","paw3_jpg","pwool_jpg","pfactory_jpg","pep_jpg","plpb_jpg","achim30_jpg","aorange_jpg","abassman_jpg","asubway_jpg","amatchless_jpg","adumble_jpg","aeich_jpg","acinder_jpg","airon_jpg","afourfold_jpg","aclassictube_jpg","amonolith_jpg","anightharvest_jpg","ahotlead_jpg","abluestorm_jpg","pyellowasym_jpg","pobsession_jpg","pplus_jpg","pdualcircuit_jpg","pmanualwah_jpg","pgraphiceq_jpg","pchorus_jpg","pdimension_jpg","pphase_jpg","pflange_jpg","pvibrato_jpg","ptremolo_jpg","pmonoctave_jpg","pspectraloctave_jpg"
         };
@@ -131,10 +133,16 @@ struct RasterBank {
             }
         }
     }
-    static const RasterBank& get() {static const RasterBank bank;return bank;}
+    ~RasterBank() {
+        const lifecycle::Scope trace("artwork.bank.destroy", this);
+        images.fill({}); // Release all native GPU resources before END is logged.
+    }
 };
 inline void raster(juce::Graphics& g,Surface surface,juce::Rectangle<float> destination,juce::Rectangle<float> viewport={0,0,1,1},bool preserveAspect=false) {
-    const auto& original=RasterBank::get().images[static_cast<size_t>(surface)];
+    // Editors own this shared bank. Never retain native GPU images in a static
+    // singleton until DLL_PROCESS_DETACH, after the JUCE/host UI has shut down.
+    const juce::SharedResourcePointer<RasterBank> bank;
+    const auto& original=bank->images[static_cast<size_t>(surface)];
     if(!original.isValid()) return;
     const auto region=juce::Rectangle<int>(juce::roundToInt(viewport.getX()*original.getWidth()),juce::roundToInt(viewport.getY()*original.getHeight()),juce::roundToInt(viewport.getWidth()*original.getWidth()),juce::roundToInt(viewport.getHeight()*original.getHeight()));
     g.setColour(juce::Colours::white);
@@ -203,7 +211,8 @@ inline void head(juce::Graphics& g,juce::Rectangle<float> r,int model) {
 // the meter/handle section and mounting ears proportional; extend only the
 // undecorated centre fascia. This avoids oval screws and flattened VU meters.
 inline void rack(juce::Graphics& g,juce::Rectangle<float> r,int family,int model) {
-    const auto& source=RasterBank::get().images[static_cast<size_t>(rackStyle(family,model).surface)];
+    const juce::SharedResourcePointer<RasterBank> bank;
+    const auto& source=bank->images[static_cast<size_t>(rackStyle(family,model).surface)];
     if(!source.isValid() || r.isEmpty()) return;
     const int w=source.getWidth(),h=source.getHeight();
     const int leftEnd=juce::roundToInt(w*.36f),rightStart=juce::roundToInt(w*.92f);

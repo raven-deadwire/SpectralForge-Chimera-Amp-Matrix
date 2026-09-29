@@ -36,11 +36,27 @@ ChimeraProcessor::ChimeraProcessor()
     for(int i=0;i<3;++i) for(size_t k=0;k<laneIds.size();++k)
         laneParameters[i][k]=state.getRawParameterValue(juce::String(laneIds[k])+juce::String(i+1));
 }
-ChimeraProcessor::~ChimeraProcessor() { releaseResources(); }
-void ChimeraProcessor::releaseResources() { library.stop(); tuner.stop(); }
+ChimeraProcessor::~ChimeraProcessor()
+{
+    const spectralforge::lifecycle::Scope trace("processor.destroy", this);
+    releaseResources();
+}
+void ChimeraProcessor::releaseResources()
+{
+    const spectralforge::lifecycle::Scope trace("processor.release", this);
+    // The host has stopped processing. Signal both workers before joining
+    // either, then reclaim ALL IR kernels while the plugin is still loaded.
+    // Each juce::dsp::Convolution owns a further background loader: merely
+    // stopping IRLibrary left those threads alive until member destruction.
+    library.requestStop(); tuner.requestStop();
+    library.stop(); tuner.stop();
+    for (int lane=0; lane<3; ++lane) engine.cabinet(lane).clear();
+    jassert(backgroundResourcesReleased());
+}
 void ChimeraProcessor::prepareToPlay(double sr,int block)
 {
-    library.stop(); tuner.stop(); cpuAverage.store(0);cpuPeak.store(0);rate=sr; maximumBlock=juce::jmax(1,block);
+    const spectralforge::lifecycle::Scope trace("processor.prepare", this);
+    releaseResources(); cpuAverage.store(0);cpuPeak.store(0);rate=sr; maximumBlock=juce::jmax(1,block);
     const juce::dsp::ProcessSpec spec{sr,(juce::uint32)maximumBlock,(juce::uint32)getTotalNumOutputChannels()};
     engine.prepare(spec); preFX.prepare(spec); pedalBoard.prepare(spec); postFX.prepare(spec);utilities.prepare(spec); tuner.prepare(sr);
     audioBoard=boardParameters.read();

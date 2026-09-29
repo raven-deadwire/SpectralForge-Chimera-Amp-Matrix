@@ -33,9 +33,10 @@ def stage() -> None:
     release.documents(destination, build)
     for name in ("GRAPHICS_DSP_UPDATE.md", "WINDOWS_SIGNING.md", "ARTWORK_PROMPTS.json",
                  "UPDATE_TEST_BUILD.md", "PEDAL_BOARD_DSP.md", "NEW_AMP_DSP.md",
-                 "AMP_NATIVE_DSP.md", "POST_NATIVE_DSP.md", "RAVEN_IR.md"):
+                 "AMP_NATIVE_DSP.md", "POST_NATIVE_DSP.md", "RAVEN_IR.md", "STUDIO_ONE_TEARDOWN.md"):
         release.copy(ROOT / "docs" / name, destination / name)
     release.copy(ROOT / "Tools/validate_nam.py", destination / "ReferenceTools/validate_nam.py")
+    release.copy(ROOT / "Tools/Trace-Chimera-Session.ps1", destination / "ReferenceTools/Trace-Chimera-Session.ps1")
     release.copy(build / "ChimeraRender_artefacts/Release/ChimeraRender.exe",
                  destination / "ReferenceTools/ChimeraRender.exe")
     release.copy(build / "reference-audio", destination / "reference-audio")

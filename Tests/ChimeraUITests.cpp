@@ -20,7 +20,8 @@ void require(bool ok, const char* message)
 void checkArtwork()
 {
     using namespace spectralforge::art;
-    const auto& images=RasterBank::get().images;
+    const juce::SharedResourcePointer<RasterBank> bank;
+    const auto& images=bank->images;
     require(images.size()==static_cast<size_t>(Surface::count) && images.size()==88,
             "The complete hardware artwork inventory was not embedded");
     for(size_t i=0;i<images.size();++i) {
@@ -57,7 +58,7 @@ void checkArtwork()
     require(heads.size()==size_t(spectralforge::ampModelCount) && pedals.size()==38 && racks.size()==21,"Model artwork mapping does not cover every reference");
     std::set<juce::String> nativeHeads;
     for(int model=spectralforge::legacyAmpModelCount;model<spectralforge::ampModelCount;++model) {
-        require(RasterBank::get().images[(size_t)headStyle(model).surface].isValid(),"New head has no dedicated raster artwork");
+        require(bank->images[(size_t)headStyle(model).surface].isValid(),"New head has no dedicated raster artwork");
         juce::Image image(juce::Image::ARGB,466,170,true);
         // Native Windows images finish their Direct2D frame when Graphics is
         // destroyed. Commit the drawing before PNG encoding or reading pixels.
@@ -325,6 +326,80 @@ void checkProcessor(const juce::File& directory)
     std::cout<<"PASS: global gain, oversized blocks, host latency, tuner mute, embedded IR, A/B and reference recall\n";
 }
 
+void checkProcessorResourceLifetime(const juce::File& directory)
+{
+    const auto fixture=directory.getChildFile("lifecycle-switch-ir.wav");writeIRFixture(fixture,true);
+    auto processor=std::make_unique<ChimeraProcessor>();
+    require(processor->backgroundResourcesReleased(),"New processor already owns background processing resources");
+    set(*processor,"mode",2);set(*processor,"gateon",0);set(*processor,"tuneron",1);set(*processor,"tunermute",0);
+    double slowestRelease=0;
+    for(int cycle=0;cycle<3;++cycle) {
+        const double sampleRate=cycle==0?44100.0:cycle==1?48000.0:96000.0;
+        const int blockSize=128<<cycle;
+        processor->prepareToPlay(sampleRate,blockSize);
+        require(!processor->backgroundResourcesReleased(),"Prepare did not recreate the cabinet/tuner resources");
+        juce::AudioBuffer<float> audio(2,blockSize);juce::MidiBuffer midi;float peak=0;
+        for(int block=0;block<64;++block) {
+            if(block%8==0)for(int lane=0;lane<3;++lane) {
+                if((block/8)%3==2)require(processor->loadIR(lane,fixture).wasOk(),"Lifecycle IR replacement failed");
+                else set(*processor,"cabtype"+juce::String(lane+1),float(1+(block/8+lane)%2));
+            }
+            for(int channel=0;channel<2;++channel)for(int sample=0;sample<blockSize;++sample)
+                audio.setSample(channel,sample,.04f*float(std::sin(juce::MathConstants<double>::twoPi*110*(block*blockSize+sample)/sampleRate)));
+            processor->processBlock(audio,midi);
+            for(int channel=0;channel<2;++channel)for(int sample=0;sample<blockSize;++sample)
+                require(std::isfinite(audio.getSample(channel,sample)),"Reprepared processor produced invalid audio");
+            peak=juce::jmax(peak,audio.getMagnitude(0,blockSize));
+        }
+        require(peak>1.e-6f,"Release/reprepare left the processing path silent");
+        // Queue fresh work just before host processing stops. Neither this
+        // phase nor resource release dispatches UI messages.
+        for(int lane=0;lane<3;++lane)require(processor->loadIR(lane,fixture).wasOk(),"Final lifecycle IR replacement failed");
+        const auto start=juce::Time::getMillisecondCounterHiRes();
+        processor->releaseResources();
+        slowestRelease=juce::jmax(slowestRelease,juce::Time::getMillisecondCounterHiRes()-start);
+        require(processor->backgroundResourcesReleased(),"releaseResources left tuner, IR worker or convolution kernels alive");
+        processor->releaseResources();
+        require(processor->backgroundResourcesReleased(),"Repeated releaseResources recreated background work");
+        for(int lane=0;lane<3;++lane)require(processor->userIRName(lane)==fixture.getFileName(),"Resource release discarded the user's IR state");
+    }
+    require(slowestRelease<2000.0,"Processor release waited too long for background resources");
+    require(processor->backgroundResourcesReleased(),"Processor deletion would inherit active background resources");
+    processor.reset();require(fixture.deleteFile(),"Lifecycle IR fixture could not be removed");
+    std::cout<<"PASS: active tuner/three-lane IR switching, three release/reprepare cycles at 44.1/48/96 kHz, idempotent release and no live background resources before delete; slowest release "<<slowestRelease<<" ms\n";
+}
+
+void checkArtworkLifetime()
+{
+    using Bank=spectralforge::art::RasterBank;
+    using SharedBank=juce::SharedResourcePointer<Bank>;
+    const auto current=[]()->const Bank* {
+        // This temporary observation must not extend the bank's lifetime past
+        // the expression being checked, especially across editor destruction.
+        const auto bank=SharedBank::getSharedObjectWithoutCreating();
+        return bank ? &bank->get() : nullptr;
+    };
+    require(current()==nullptr,"Artwork exists before any editor owns it");
+    auto processorA=std::make_unique<ChimeraProcessor>();
+    auto processorB=std::make_unique<ChimeraProcessor>();
+    auto editorA=std::make_unique<ChimeraEditor>(*processorA);
+    const auto* shared=current();require(shared!=nullptr,"Editor does not retain its artwork resource");
+    auto editorB=std::make_unique<ChimeraEditor>(*processorB);
+    require(current()==shared,"Simultaneous editors decoded separate artwork banks");
+    for(int iteration=0;iteration<3;++iteration) {
+        {const auto image=editorA->createComponentSnapshot(editorA->getLocalBounds());require(image.isValid(),"First editor artwork snapshot failed");}
+        {const auto image=editorB->createComponentSnapshot(editorB->getLocalBounds());require(image.isValid(),"Second editor artwork snapshot failed");}
+        require(current()==shared,"Painting replaced the editor-owned artwork bank");
+    }
+    editorA.reset();
+    require(current()==shared,"Closing one editor released artwork still needed by another editor");
+    {const auto image=editorB->createComponentSnapshot(editorB->getLocalBounds());require(image.isValid(),"Remaining editor lost its artwork");}
+    require(current()==shared,"Remaining editor rebuilt its shared artwork bank");
+    editorB.reset();
+    require(current()==nullptr,"Last editor left native artwork alive for DLL shutdown");
+    std::cout<<"PASS: two editors share one artwork bank across paints; last editor releases it synchronously before GUI/DLL shutdown\n";
+}
+
 void checkEditorLifetime()
 {
     const auto started=juce::Time::getMillisecondCounterHiRes();
@@ -349,6 +424,69 @@ void checkEditorLifetime()
     }
     std::cout<<"PASS: 30 editor/pending-popup/processor lifetime cycles in "
              <<juce::Time::getMillisecondCounterHiRes()-started<<" ms (standalone harness, not a DAW shutdown test)\n";
+}
+
+void checkHostedSupportLifetime(const juce::File& directory)
+{
+    const auto checkHostedPanel=[](juce::Component& panel) {
+        require(panel.getComponentID()=="supportPanel","Hosted Support panel missing its stable identity");
+        auto* updates=dynamic_cast<juce::TextButton*>(panel.findChildWithID("supportUpdates"));
+        require(updates && updates->isVisible() && updates->isEnabled() && updates->getButtonText()=="OPEN RELEASES",
+                "Hosted Support retained the network updater instead of the browser release action");
+        for(const auto* id:{"supportAutomatic","supportDownload","supportReveal","supportCancel"}) {
+            auto* control=panel.findChildWithID(id);
+            require(control && !control->isVisible(),"Hosted Support exposes an automatic check or downloader control");
+        }
+        auto* status=dynamic_cast<juce::TextEditor*>(panel.findChildWithID("supportStatus"));
+        require(status && status->getText().contains("standalone") && status->getText().contains("browser"),
+                "Hosted Support does not explain the available release action");
+        for(auto* child:panel.getChildren())if(child->isVisible()) {
+            require(panel.getLocalBounds().contains(child->getBounds()),"Hosted Support control is outside its compact panel");
+            for(auto* other:panel.getChildren())if(other!=child && other->isVisible())
+                require(!child->getBounds().intersects(other->getBounds()),"Hosted Support controls overlap");
+        }
+    };
+
+    // No service and no message pumping: panel lifetime must be independent of
+    // background update checks and of a still-running host event loop.
+    for(int iteration=0;iteration<24;++iteration) {
+        auto panel=std::make_unique<ChimeraSupportPanel>(nullptr,spectralforge::release::Diagnostics{});
+        checkHostedPanel(*panel);
+        juce::Component::SafePointer<ChimeraSupportPanel> safe(panel.get());
+        panel.reset();require(safe==nullptr,"No-service Support panel did not destroy synchronously");
+    }
+
+    double slowestTeardown=0;
+    for(int iteration=0;iteration<6;++iteration) {
+        auto processor=std::make_unique<ChimeraProcessor>();
+        require(processor->wrapperType!=juce::AudioProcessor::wrapperType_Standalone,"Hosted Support fixture accidentally uses standalone mode");
+        auto editor=std::make_unique<ChimeraEditor>(*processor);
+        auto* canvas=editor->findChildWithID("surface");require(canvas!=nullptr,"Hosted Support editor has no surface");
+        juce::TextButton* settings=nullptr;
+        for(auto* child:canvas->getChildren())if(auto* button=dynamic_cast<juce::TextButton*>(child);button && button->getButtonText()=="SETTINGS")settings=button;
+        require(settings && settings->onClick,"Hosted Support settings action missing");
+        settings->onClick();
+        auto* popup=juce::Component::getCurrentlyModalComponent();require(popup!=nullptr,"Settings did not open its popup");
+        // Complete the real asynchronous popup callback with its Support item.
+        // None of the browser, report, manual or download actions are clicked.
+        popup->exitModalState(6);
+        juce::MessageManager::getInstance()->runDispatchLoopUntil(80);
+        juce::Component::SafePointer<juce::DialogWindow> dialog(nativeUITests::dialog("supportPanel"));
+        require(dialog!=nullptr && dialog->getContentComponent(),"Settings Support action did not open the hosted panel");
+        checkHostedPanel(*dialog->getContentComponent());
+        if(iteration==0)saveSnapshot(*dialog->getContentComponent(),directory,"Support-hosted");
+
+        const auto start=juce::Time::getMillisecondCounterHiRes();
+        editor.reset();
+        require(dialog==nullptr,"Closing a hosted editor left the Support dialog alive without a message pump");
+        processor.reset();
+        const double elapsed=juce::Time::getMillisecondCounterHiRes()-start;
+        slowestTeardown=juce::jmax(slowestTeardown,elapsed);
+        require(elapsed<2000.0,"Hosted Support teardown waited for background work");
+        juce::MessageManager::getInstance()->runDispatchLoopUntil(10);
+    }
+    std::cout<<"PASS: hosted Support browser-only layout, 24 no-service panel lifetimes and 6 real SETTINGS/Support editor teardowns without a message pump; slowest "
+             <<slowestTeardown<<" ms (hosted UI harness, not a Studio One shutdown test)\n";
 }
 }
 int main(int argc, char** argv)
@@ -395,6 +533,8 @@ int main(int argc, char** argv)
             try {run();}
             catch(const std::exception& error) {++suiteFailures;std::cerr<<"FAIL suite "<<name<<": "<<error.what()<<'\n';juce::PopupMenu::dismissAllActiveMenus();juce::MessageManager::getInstance()->runDispatchLoopUntil(30);}
         };
+        runSuite("processor resource lifetime",[&]{checkProcessorResourceLifetime(directory);});
+        runSuite("artwork lifetime",[]{checkArtworkLifetime();});
         runSuite("amp selectors",[]{ampSelectorTests::run();});
         runSuite("amp selection state",[]{ampSelectionStateTests::run();});
         runSuite("pedal menus and power",[]{pedalMenuTests::run();});
@@ -402,6 +542,7 @@ int main(int argc, char** argv)
         runSuite("native panels",[&]{runNativeUITests(directory);});
         runSuite("correction UI",[&]{runCorrectionUITests(directory);});
         runSuite("editor lifetime",[]{checkEditorLifetime();});
+        runSuite("hosted support lifetime",[&]{checkHostedSupportLifetime(directory);});
         runSuite("board state",[&]{runBoardStateTests(directory);});
         // A/B is two complete sound snapshots, not a stereo channel selector.
         {const auto abStorage=std::make_unique<ChimeraProcessor>();auto& ab=*abStorage;compatibilityAudio(ab);ab.prepareToPlay(48000,256);set(ab,"cab1",0);set(ab,"drive1",.2f);set(ab,"preampmodel",2);set(ab,"delayon",0);set(ab,"reverbon",0);set(ab,"inputmode",0);ab.copyComparison();ab.selectComparison(1);set(ab,"drive1",.8f);set(ab,"preampmodel",1);ab.selectComparison(0);
@@ -646,11 +787,28 @@ int main(int argc, char** argv)
             editor.setSize(885,585);juce::MessageManager::getInstance()->runDispatchLoopUntil(80);checkDetailPanel(4);
             saveSnapshot(editor,directory,"Correction-four-knobs-detail-75pct");
             editor.setSize(1180,780);
+            clickBoardButton("BACK TO 5 PEDALS");
+            const int fiveControlModels[]{6,8,12,14,20};
+            for(int owner=0;owner<5;++owner)universal.setPedalModel(owner,fiveControlModels[owner]);
+            set(universal,spectralforge::pedalBypassID(2,12),1);
+            juce::MessageManager::getInstance()->runDispatchLoopUntil(120);
+            for(int scale=0;scale<2;++scale) {
+                editor.setSize(scale?885:1180,scale?585:780);juce::MessageManager::getInstance()->runDispatchLoopUntil(80);
+                for(int owner=0;owner<5;++owner)pedalMenuTests::checkFiveKnobLayout(*board,owner,fiveControlModels[owner],&editor);
+                saveSnapshot(editor,directory,scale?"Correction-PRE-five-controls-75pct":"Correction-PRE-five-controls");
+                clickBoardButton("DETAIL / MIDI");checkDetailPanel(5);
+                pedalMenuTests::checkFiveKnobLayout(*board,0,fiveControlModels[0],&editor);
+                saveSnapshot(editor,directory,scale?"Correction-five-knobs-detail-75pct":"Correction-five-knobs-detail");
+                clickBoardButton("BACK TO 5 PEDALS");
+            }
+            editor.setSize(1180,780);
             std::cout<<"PASS: actual pedal detail/return actions and all 12 EQ controls inside the fixed board at 100/75 percent\n";
             const auto diagnostic=juce::JSON::parse(universal.diagnosticReport());require(diagnostic.isObject()&&diagnostic["stages"].getArray()&&diagnostic["stages"].getArray()->size()==5,"Diagnostic stage snapshot missing");
             require(!universal.diagnosticReport().contains(directory.getFullPathName()),"Diagnostic leaked a user path");
         }
         {auto service=std::make_shared<spectralforge::release::ReleaseSupport>();ChimeraSupportPanel panel(service,{});saveSnapshot(panel,directory,"Support-updates");for(auto* child:panel.getChildren())require(panel.getLocalBounds().contains(child->getBounds()),"Support control outside panel");}
+        require(!juce::SharedResourcePointer<spectralforge::art::RasterBank>::getSharedObjectWithoutCreating(),
+                "UI suites retained an artwork bank past all editor/test scopes");
         std::cout << "PASS: mode controls, text, automation, state recall, legacy recall; PNGs in "
                   << directory.getFullPathName() << '\n';
         require(suiteFailures==0,"One or more independent UI suites failed; see named failures above");

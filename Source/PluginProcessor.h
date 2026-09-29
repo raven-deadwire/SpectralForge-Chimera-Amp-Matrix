@@ -17,6 +17,8 @@ public:
     ~ChimeraProcessor() override;
     void prepareToPlay(double,int) override;
     void releaseResources() override;
+    // Diagnostic/test query. Host audio processing must already be stopped.
+    bool backgroundResourcesReleased() const noexcept { return tuner.stopped() && library.resourcesReleased(); }
     bool isBusesLayoutSupported(const BusesLayout&) const override;
     void processBlock(juce::AudioBuffer<float>&,juce::MidiBuffer&) override;
     juce::AudioProcessorEditor* createEditor() override;

@@ -50,6 +50,9 @@ private:
     void layoutControls();
     void midiMenu();
     ChimeraProcessor& processor;
+    // Declared before children so their images/peers die first. The last editor
+    // releases native GPU artwork while JUCE and the DLL are still alive.
+    juce::SharedResourcePointer<spectralforge::art::RasterBank> artwork;
     ChimeraLookAndFeel look;
     juce::Component canvas;
     PedalBoardPanel boardPanel;

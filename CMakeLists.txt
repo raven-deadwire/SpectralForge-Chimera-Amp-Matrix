@@ -58,6 +58,21 @@ if(WIN32)
   target_compile_definitions(ChimeraUITests PRIVATE JUCE_MODAL_LOOPS_PERMITTED=1)
   target_link_libraries(ChimeraUITests PRIVATE ChimeraAmpMatrix ChimeraArtwork ChimeraManual juce::juce_cryptography juce::juce_audio_utils juce::juce_dsp)
   add_test(NAME ChimeraUITests COMMAND ChimeraUITests "${CMAKE_BINARY_DIR}/ui-snapshots")
+
+  # Exercise the shipped DLL through the real VST3 ABI. No JUCE/Chimera link:
+  # last-instance release and FreeLibrary must tear down all plugin globals.
+  set(CHIMERA_VST3_SDK "${JUCE_SOURCE_DIR}/modules/juce_audio_processors/format_types/VST3_SDK")
+  add_executable(ChimeraVST3LifecycleTests
+    Tests/VST3LifecycleTests.cpp
+    "${CHIMERA_VST3_SDK}/pluginterfaces/base/funknown.cpp"
+    "${CHIMERA_VST3_SDK}/pluginterfaces/base/coreiids.cpp"
+    "${CHIMERA_VST3_SDK}/public.sdk/source/vst/vstinitiids.cpp")
+  target_include_directories(ChimeraVST3LifecycleTests PRIVATE "${CHIMERA_VST3_SDK}")
+  target_link_libraries(ChimeraVST3LifecycleTests PRIVATE ole32 user32)
+  add_dependencies(ChimeraVST3LifecycleTests ChimeraAmpMatrix_VST3)
+  add_test(NAME ChimeraVST3LifecycleTests
+    COMMAND ChimeraVST3LifecycleTests "$<TARGET_FILE:ChimeraAmpMatrix_VST3>")
+  set_tests_properties(ChimeraVST3LifecycleTests PROPERTIES TIMEOUT 260)
 endif()
 
 # Deterministic offline amp renderer for user-owned NAM reference comparisons.

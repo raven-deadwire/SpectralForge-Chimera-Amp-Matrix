@@ -58,6 +58,9 @@ def build(installer, personal, verification, output, catalog=None, folder=None, 
             package.write(receipt, receipt.name)
         if folder == "Raven":
             package.write(root / "docs/RAVEN_IR.md", "RAVEN_IR.md")
+        if (root / "docs/STUDIO_ONE_TEARDOWN.md").is_file():
+            package.write(root / "docs/STUDIO_ONE_TEARDOWN.md", "STUDIO_ONE_TEARDOWN.md")
+            package.write(root / "Tools/Trace-Chimera-Session.ps1", "Tools/Trace-Chimera-Session.ps1")
         package.writestr("IR-file-verification.json", json.dumps({"personal_ir_count": len(captures),
             "factory_ir_count": 2, "installer_sha256": setup_hash,
             "captures": [metadata for _, _, metadata in captures]}, indent=2) + "\n")

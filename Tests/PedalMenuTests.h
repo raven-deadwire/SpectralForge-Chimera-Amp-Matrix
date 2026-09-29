@@ -6,6 +6,28 @@
 #include <stdexcept>
 
 namespace pedalMenuTests {
+inline std::array<juce::Slider*,5> checkFiveKnobLayout(juce::Component& board,int owner,int model,juce::Component* editor=nullptr) {
+    const auto check=[](bool value,const char* reason){if(!value)throw std::runtime_error(reason);};
+    check(spectralforge::pedalModel(model).controlCount==5,"Five-knob layout fixture is not a five-control model");
+    std::array<juce::Slider*,5> knobs{};
+    for(auto* child:board.getChildren())if(auto* slider=dynamic_cast<juce::Slider*>(child);slider && slider->isVisible())
+        for(int control=0;control<5;++control)if(slider->getComponentID()==spectralforge::pedalControlID(owner,model,control)) {
+            check(knobs[(size_t)control]==nullptr,"Five-knob view exposes duplicate controls for one parameter");
+            knobs[(size_t)control]=slider;
+        }
+    for(auto* knob:knobs) {
+        check(knob!=nullptr,"Five-knob view omits a model control");
+        check(board.getLocalBounds().contains(knob->getBounds()),"Five-knob pedal clips outside the board");
+        if(editor)check(editor->getLocalBounds().contains(editor->getLocalArea(knob,knob->getLocalBounds())),"Five-knob pedal clips outside the scaled editor");
+        for(auto* child:board.getChildren())if(child!=knob && child->isVisible())
+            check(!knob->getBounds().intersects(child->getBounds()),"Five-knob pedal overlaps another visible label or control");
+    }
+    check(knobs[0]->getY()==knobs[1]->getY() && knobs[1]->getY()==knobs[2]->getY(),"Five-knob pedal must have three knobs across its top row");
+    check(knobs[0]->getX()<knobs[1]->getX() && knobs[1]->getX()<knobs[2]->getX(),"Five-knob pedal top-row order is incorrect");
+    check(knobs[3]->getY()==knobs[4]->getY() && knobs[3]->getY()>knobs[0]->getBottom(),"Five-knob pedal must have a separate two-knob bottom row");
+    check(knobs[3]->getX()==knobs[0]->getX() && knobs[4]->getX()==knobs[2]->getX(),"Five-knob pedal bottom knobs must align left and right with the centre empty");
+    return knobs;
+}
 inline void run() {
     using namespace spectralforge;
     const auto check=[](bool value,const char* reason){if(!value)throw std::runtime_error(reason);};
@@ -132,6 +154,25 @@ inline void run() {
         check(detailPower->getButtonText()=="OFF" && processor.pedalBoardState().instances[0].bypass,"Detail OFF does not bypass pedal DSP");
         detailPower->triggerClick();settle();close->triggerClick();settle();
     }
+    // Five-control models retain all five live parameters, with the bottom
+    // pair at the outer columns, in both the card and full detail view.
+    int fiveControlModels=0;
+    for(int model=1;model<pedalModelCount;++model)if(pedalModel(model).controlCount==5) {
+        ++fiveControlModels;first->selectMenuResult(model+1);settle();
+        for(int view=0;view<2;++view) {
+            if(view){detail->triggerClick();settle();}
+            const auto knobs=checkFiveKnobLayout(board,0,model);
+            for(int control=0;control<5;++control) {
+                auto* parameter=processor.parameters().getParameter(pedalControlID(0,model,control));
+                check(parameter!=nullptr,"Five-knob model has no host parameter");
+                knobs[(size_t)control]->setValue(parameter->convertFrom0to1(view?.73f:.27f),juce::sendNotificationSync);
+                check(std::abs(processor.parameters().getRawParameterValue(pedalControlID(0,model,control))->load()-knobs[(size_t)control]->getValue())<.002,
+                      "Five-knob card/detail callback does not reach the selected parameter bank");
+            }
+        }
+        close->triggerClick();settle();
+    }
+    check(fiveControlModels==6,"Five-knob regression did not cover every current five-control model");
     // State/automation updates must not activate the compatibility audio path;
     // pressing an actual control key does activate it.
     first->selectMenuResult(28);settle();processor.setPedalBoardEnabled(false);
@@ -155,6 +196,6 @@ inline void run() {
     for(auto* child:board.getChildren())if(auto* slider=dynamic_cast<juce::Slider*>(child);slider && slider->isVisible() && slider->getComponentID()==id)activeControl=slider;
     check(activeControl && activeControl->keyPressed(juce::KeyPress(juce::KeyPress::upKey)),"Pedal keyboard edit was not accepted");
     check(processor.pedalBoardState().enabled,"A deliberate keyboard pedal edit did not activate its audio path");
-    std::cout<<"PASS pedal menus: 39 DSPs in 10 exclusive categories, alias-only lists with separate readable hardware captions, async selection and popup reopen, immediate load/copy without dialogs, ON/OFF, four-control 2 by 2 layouts and user-only board activation\n";
+    std::cout<<"PASS pedal menus: 39 DSPs in 10 exclusive categories, alias-only lists with separate readable hardware captions, async selection and popup reopen, immediate load/copy without dialogs, ON/OFF, four-control 2 by 2 layouts, all six five-control models in 3 + 2 outer-column layouts with real callbacks, and user-only board activation\n";
 }
 }

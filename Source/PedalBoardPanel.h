@@ -258,7 +258,10 @@ public:
             for(int k=0;k<6;++k) {
                 const int count=spectralforge::pedalModel(juce::jmax(0,c.modelId)).controlCount;
                 const bool compact=count>3;
-                const int left=count==4?x+17+(k%2)*107:compact?x+7+(k%3)*70:x+(count==1 || k==2?71:17+k*107);
+                // Five controls keep the lower centre empty: 3 above, 2 at the
+                // outer columns below. Four controls retain their 2 x 2 grid.
+                const int column=count==5&&k==4?2:k%3;
+                const int left=count==4?x+17+(k%2)*107:compact?x+7+column*70:x+(count==1 || k==2?71:17+k*107);
                 const int top=count==4?121+(k/2)*96:compact?121+(k/3)*96:count<3?145:k==2?215:119;
                 const int width=count==4?78:compact?66:78,height=compact?74:76;
                 c.controls[(size_t)k].label.setBounds(left,top,width,18);c.controls[(size_t)k].slider.setBounds(left,top+18,width,height);
@@ -269,8 +272,12 @@ public:
             c.detail.setBounds(x+9,354,107,31);c.bypass.setBounds(x+122,354,89,31);
         }
         for(int k=0;k<spectralforge::pedalMaxControls;++k) {
-            const bool four=detailedModel>=0&&spectralforge::pedalModel(detailedModel).controlCount==4;
-            auto& c=details[(size_t)k];const int x=four?248+(k%2)*370:16+(k%4)*282,y=four?94+(k/2)*139:87+(k/4)*103;
+            const int count=detailedModel>=0?spectralforge::pedalModel(detailedModel).controlCount:0;
+            const bool four=count==4,five=count==5;
+            const int column=five&&k==4?2:k%3;
+            auto& c=details[(size_t)k];
+            const int x=four?248+(k%2)*370:five?160+column*282:16+(k%4)*282;
+            const int y=four?94+(k/2)*139:five?94+(k/3)*139:87+(k/4)*103;
             c.label.setBounds(x,y,190,19);c.slider.setBounds(x+34,y+20,123,79);c.midi.setBounds(x+194,y+42,61,25);
         }
     }

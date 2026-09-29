@@ -11,7 +11,22 @@ IRLibrary::IRLibrary(std::array<Cab*,3> cabinets) : Thread("Chimera IR preparati
     for(int i=0;i<2;++i)if(factory[i])factory[i]->metadata=IRMetadata::factory(i);
 }
 IRLibrary::~IRLibrary() { stop(); }
-void IRLibrary::stop() { signalThreadShouldExit(); notify(); stopThread(-1); }
+void IRLibrary::requestStop()
+{
+    lifecycle::write("ir.stop.requested", this);
+    signalThreadShouldExit(); notify();
+}
+void IRLibrary::stop()
+{
+    const lifecycle::Scope trace("ir.stop", this);
+    requestStop(); stopThread(-1);
+}
+bool IRLibrary::resourcesReleased() const noexcept
+{
+    if (isThreadRunning()) return false;
+    for (const auto* cab : cabs) if (cab->hasResources()) return false;
+    return true;
+}
 std::shared_ptr<IRLibrary::Asset> IRLibrary::decode(const juce::MemoryBlock& bytes, const juce::String& name, juce::String& error)
 {
     error.clear();
@@ -60,6 +75,7 @@ juce::Result IRLibrary::importFile(int lane, const juce::File& file)
 }
 std::unique_ptr<Cab::Kernel> IRLibrary::build(int lane,int source,unsigned generation)
 {
+    const lifecycle::Scope trace("ir.build", this);
     std::shared_ptr<Asset> asset;
     { std::lock_guard<std::mutex> lock(mutex);
       if(source==1 || source==2) asset=factory[(size_t)source-1];
@@ -75,6 +91,7 @@ std::unique_ptr<Cab::Kernel> IRLibrary::build(int lane,int source,unsigned gener
 }
 void IRLibrary::prepare(const juce::dsp::ProcessSpec& settings,const std::array<int,3>& sources)
 {
+    const lifecycle::Scope trace("ir.prepare", this);
     stop(); spec=settings;
     for(int i=0;i<3;++i)
     {
@@ -87,6 +104,7 @@ void IRLibrary::prepare(const juce::dsp::ProcessSpec& settings,const std::array<
 }
 void IRLibrary::run()
 {
+    const lifecycle::Scope trace("ir.worker", this);
     std::array<int,3> built;
     std::array<unsigned,3> versions;
     for(int i=0;i<3;++i) { built[i]=cabs[i]->activeSource.load(); versions[i]=cabs[i]->activeGeneration.load(); }

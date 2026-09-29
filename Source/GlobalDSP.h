@@ -1,6 +1,7 @@
 #pragma once
 #include <juce_dsp/juce_dsp.h>
 #include "PolyPitch.h"
+#include "LifecycleTrace.h"
 #include <atomic>
 #include <array>
 
@@ -116,9 +117,12 @@ class Tuner : private juce::Thread {
 public:
     Tuner() : Thread("Chimera tuner") {}
     ~Tuner() override { stop(); }
-    void stop() { signalThreadShouldExit(); notify(); stopThread(-1); }
+    void requestStop() { lifecycle::write("tuner.stop.requested", this); signalThreadShouldExit(); notify(); }
+    void stop() { const lifecycle::Scope trace("tuner.stop", this); requestStop(); stopThread(-1); }
+    bool stopped() const noexcept { return !isThreadRunning(); }
     void prepare(double rate)
     {
+        const lifecycle::Scope trace("tuner.prepare", this);
         stop(); fifo.reset(); history.fill(0); writeIndex=filled=phase=0; low1=low2=0;
         decimation=juce::jmax(1,juce::roundToInt(rate/12000.0)); analysisRate=rate/decimation;
         coefficient=float(1.0-std::exp(-juce::MathConstants<double>::twoPi*2000.0/rate));
@@ -186,6 +190,7 @@ public:
 private:
     void run() override
     {
+        const lifecycle::Scope trace("tuner.worker", this);
         while(!threadShouldExit())
         {
             bool received=false;

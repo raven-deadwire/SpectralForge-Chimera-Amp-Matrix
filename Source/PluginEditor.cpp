@@ -95,7 +95,6 @@ void ChimeraLookAndFeel::drawRotarySlider(juce::Graphics& g,int x,int y,int widt
 }
 ChimeraEditor::ChimeraEditor(ChimeraProcessor& p) : AudioProcessorEditor(&p),processor(p),boardPanel(p)
 {
-    (void)spectralforge::art::RasterBank::get();
     setLookAndFeel(&look); canvas.setComponentID("surface"); addAndMakeVisible(canvas);
     auto add=[this](juce::Component& component){canvas.addAndMakeVisible(component);};
     add(boardPanel);add(preEngineStatus);add(gateLocation);
@@ -618,7 +617,11 @@ void ChimeraLookAndFeel::drawButtonText(juce::Graphics& g,juce::TextButton& butt
 
 void ChimeraEditor::showSupport()
 {
-    if(!support) support=std::make_shared<spectralforge::release::ReleaseSupport>();
+    // A DAW must never join an HTTP operation while closing its plug-in view.
+    // Keep the downloader in the standalone application; hosted support opens
+    // the release page in the user's browser on an explicit click.
+    if(processor.wrapperType==juce::AudioProcessor::wrapperType_Standalone && !support)
+        support=std::make_shared<spectralforge::release::ReleaseSupport>();
     spectralforge::release::Diagnostics d;
     using Format=spectralforge::release::Diagnostics::Format;
     d.format=processor.wrapperType==juce::AudioProcessor::wrapperType_Standalone ? Format::standalone : processor.wrapperType==juce::AudioProcessor::wrapperType_VST3 ? Format::vst3 : processor.wrapperType==juce::AudioProcessor::wrapperType_AudioUnit ? Format::au : Format::other;
