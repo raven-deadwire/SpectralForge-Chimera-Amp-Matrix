@@ -2,7 +2,7 @@
 
 **SpectralForge Chimera** is a guitar and bass amp & effects suite built around a flexible multi-amp architecture.
 
-**[Download Open Beta 1.1 — Windows / macOS / Linux](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/releases/tag/v1.1.0-beta.1)** · **[한국어 매뉴얼 / English quick reference](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/releases/download/v1.1.0-beta.1/MANUAL.html)**
+**[Download Open Beta 1.1 — Windows / macOS / Linux](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/releases/tag/v1.1.0-beta.1)** · **[Detailed manual · EN / DE / KR](https://raven-deadwire.github.io/RavenForge-Luthier-Intelligence/manual/chimera.html)**
 
 Version `1.1.0-beta.1` includes 23 amp heads, 39 PRE pedal models, the six-module POST rack and 31 factory presets. The offline manual is also included in each installer and available under SETTINGS → Manual. This beta is unsigned on Windows and not Developer ID signed or notarized on macOS.
 
@@ -62,7 +62,7 @@ uses the standard-folder Setup installer. See [MSIX scope and signing](docs/WIND
 
 ## Installation, help and release
 
-- [Download the Korean / English offline manual](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/releases/download/v1.1.0-beta.1/MANUAL.html) — open the downloaded HTML file in a browser for routing, controls, amp/IR use, presets, troubleshooting and support.
+- [Open the detailed EN / DE / KR manual](https://raven-deadwire.github.io/RavenForge-Luthier-Intelligence/manual/chimera.html) — routing, model-family comparisons, illustrated PRE/AMP/POST model cards, IR use, presets, workflows, troubleshooting and support.
 - [Platform installation](docs/INSTALLATION.md) — Windows Setup, macOS universal PKG (app/VST3/AU), Linux x86_64 DEB/TAR.
 - [Beta 1.1 release notes](docs/PUBLISHED_OPEN_BETA_1_1.md), [23 amp controls](docs/AMP_NATIVE_DSP.md), [31 preset guide](docs/PRESETS.md).
 - [Maintainer release checklist](docs/RELEASE_CHECKLIST.md). The `prepare-release.yml` workflow produces draft-ready artifacts and a hash-based update manifest; it never publishes externally.
