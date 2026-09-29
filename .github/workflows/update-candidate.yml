@@ -32,8 +32,8 @@ jobs:
           $nativeHelper = [regex]::Match($diagnosticsScript, "(?s)Add-Type -TypeDefinition @'\r?\n(.*?)\r?\n'@")
           if (!$nativeHelper.Success) { throw 'Diagnostic dump helper definition missing' }
           Add-Type -TypeDefinition $nativeHelper.Groups[1].Value
-      - name: Build product and regression checks
-        run: cmake --build build --config Release --parallel 2
+      - name: Build independent VST3 lifecycle host
+        run: cmake --build build --config Release --target ChimeraVST3LifecycleTests --parallel 2
       - name: Fetch previously delivered VST3 for shutdown comparison
         id: baseline_download
         continue-on-error: true
@@ -55,6 +55,8 @@ jobs:
         run: |
           & build/Release/ChimeraVST3LifecycleTests.exe "build/lifecycle-baseline/SpectralForge Chimera.vst3/Contents/x86_64-win/SpectralForge Chimera.vst3" 2>&1 | Tee-Object build/lifecycle-baseline-result.txt
           exit $LASTEXITCODE
+      - name: Build product and regression checks
+        run: cmake --build build --config Release --parallel 2
       - name: Execute DSP and actual JUCE UI tests
         shell: pwsh
         run: |

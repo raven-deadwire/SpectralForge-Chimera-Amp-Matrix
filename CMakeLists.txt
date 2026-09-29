@@ -69,7 +69,8 @@ if(WIN32)
     "${CHIMERA_VST3_SDK}/public.sdk/source/vst/vstinitiids.cpp")
   target_include_directories(ChimeraVST3LifecycleTests PRIVATE "${CHIMERA_VST3_SDK}")
   target_link_libraries(ChimeraVST3LifecycleTests PRIVATE ole32 user32)
-  add_dependencies(ChimeraVST3LifecycleTests ChimeraAmpMatrix_VST3)
+  # Keep the host independently buildable for baseline protocol checks. The
+  # normal all-target build supplies the plugin used by the CTest below.
   add_test(NAME ChimeraVST3LifecycleTests
     COMMAND ChimeraVST3LifecycleTests "$<TARGET_FILE:ChimeraAmpMatrix_VST3>")
   set_tests_properties(ChimeraVST3LifecycleTests PROPERTIES TIMEOUT 260)

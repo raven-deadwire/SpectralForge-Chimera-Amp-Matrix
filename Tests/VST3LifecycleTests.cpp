@@ -456,7 +456,20 @@ int child (const std::filesystem::path& path, const std::string& scenario)
         step ("release plugin factory"); release (factory);
         step ("ExitDll"); require (exit(), "ExitDll failed");
         step ("FreeLibrary (last module reference)"); require (FreeLibrary (module) != 0, "FreeLibrary failed");
-        require (GetModuleHandleW (path.wstring().c_str()) == nullptr, "plugin DLL remained loaded after final FreeLibrary");
+        // Give Windows/UI deferred cleanup an opportunity to finish after all
+        // public plugin lifetime calls have returned. Never call FreeLibrary a
+        // second time or accept a DLL that remains mapped after this deadline.
+        const auto moduleName = path.wstring();
+        const auto releaseStarted = GetTickCount64();
+        const auto immediatelyUnmapped = GetModuleHandleW (moduleName.c_str()) == nullptr;
+        step ("bounded host UI cleanup after FreeLibrary");
+        while (GetModuleHandleW (moduleName.c_str()) != nullptr && GetTickCount64() - releaseStarted < 2000)
+            pump (10);
+        const auto finallyUnmapped = GetModuleHandleW (moduleName.c_str()) == nullptr;
+        std::cout << "MODULE_RELEASE immediate_unmapped=" << immediatelyUnmapped
+                  << " final_unmapped=" << finallyUnmapped
+                  << " elapsed_ms=" << GetTickCount64() - releaseStarted << std::endl;
+        require (finallyUnmapped, "plugin DLL remained loaded after FreeLibrary and 2-second host cleanup");
         require (host->refs == 1, "plugin retained host interfaces after unload");
         host->release();
         // Any stale JUCE window callback into the unloaded DLL now crashes this

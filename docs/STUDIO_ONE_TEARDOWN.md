@@ -22,8 +22,9 @@
 
 1. 수정 빌드의 VST3를 설치하고 Studio One을 완전히 종료합니다. 이 도구는 실행 중인
    Studio One을 종료하거나 강제로 중지하지 않습니다.
-2. 일반 **64비트 Windows PowerShell**에서 아래 명령을 실행합니다. 관리자 권한은
-   필요하지 않습니다. 실행 파일 경로는 실제 설치 위치로 바꾸세요.
+2. 받은 설치 ZIP을 **전체 압축 해제한 폴더**에서 일반 **64비트 Windows PowerShell**을
+   열고 아래 명령을 실행합니다. 이 폴더에는 `Tools` 폴더와 이 안내 문서가 있습니다.
+   관리자 권한은 필요하지 않습니다. 실행 파일 경로는 실제 설치 위치로 바꾸세요.
 
    ```powershell
    .\Tools\Trace-Chimera-Session.ps1 -HostExecutable 'C:\Program Files\PreSonus\Studio One 8\Studio One.exe'
@@ -38,6 +39,15 @@
    기본 저장 위치는 `문서\Chimera Diagnostics`이며, 화면에 표시된 ZIP이 진단 묶음입니다.
    저장 위치는 `-OutputDirectory 'D:\Chimera Diagnostics'`로 바꿀 수 있습니다.
 
+설치 시 **오프라인 레퍼런스 도구 및 예제 음원** 구성 요소를 선택했다면, 도구는
+앱 설치 폴더의 `ReferenceTools\Trace-Chimera-Session.ps1`에도 있습니다.
+압축 해제 폴더 대신 **앱 설치 폴더**에서 PowerShell을 연 경우 다음 명령을 사용합니다.
+실행 파일 선택 창에서 Studio One을 지정하세요.
+
+```powershell
+.\ReferenceTools\Trace-Chimera-Session.ps1
+```
+
 Chimera 수명 주기 로그에는 준비·작업·종료 이벤트, 스레드/인스턴스 식별자와 시간이
 기록됩니다. 프로젝트 경로, 프리셋 내용, 오디오 샘플은 기록하지 않습니다.
 설정은 도구가 새로 실행한 Studio One 프로세스와 그 자식 프로세스에만 적용됩니다.
@@ -47,6 +57,8 @@ Chimera 수명 주기 로그에는 준비·작업·종료 이벤트, 스레드/�
 ## 멈춘 스레드의 작은 덤프가 필요한 경우
 
 로그만으로 멈춘 지점을 식별하지 못했을 때 다음과 같이 `-CaptureDump`를 추가할 수 있습니다.
+아래 예시는 전체 압축 해제한 설치 ZIP 폴더에서 실행합니다. 설치된 도구를 사용하는
+경우에는 위의 `ReferenceTools` 명령 끝에 같은 옵션을 추가하세요.
 
 ```powershell
 .\Tools\Trace-Chimera-Session.ps1 -CaptureDump
