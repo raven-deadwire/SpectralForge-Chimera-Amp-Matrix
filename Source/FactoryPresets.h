@@ -16,7 +16,7 @@ struct FactoryPreset {
     // Own the values instead of retaining initializer-list backing-array pointers.
     // Signature presets also carry five-slot/native state, so reserve more than
     // the legacy factory table while keeping all values constexpr and bounded.
-    std::array<PresetParameter,96> parameters{};
+    std::array<PresetParameter,128> parameters{};
     size_t parameterCount;
 
     template<size_t N>
@@ -26,7 +26,7 @@ struct FactoryPreset {
         : name(presetName), category(presetCategory), instrument(presetInstrument),
           description(presetDescription), parameterCount(N)
     {
-        static_assert(N <= 96, "Increase preset parameter capacity");
+        static_assert(N <= 128, "Increase preset parameter capacity");
         for(size_t i=0;i<N;++i) parameters[i]=values[i];
     }
 
@@ -39,7 +39,7 @@ struct FactoryPreset {
           description(presetDescription), kind(presetKind), irTargets{ir0,ir1,ir2},
           parameterCount(N)
     {
-        static_assert(N <= 96, "Increase preset parameter capacity");
+        static_assert(N <= 128, "Increase preset parameter capacity");
         for(size_t i=0;i<N;++i) parameters[i]=values[i];
     }
 };
