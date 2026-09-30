@@ -351,10 +351,18 @@ void ChimeraProcessor::applyPresetIRTargets(int index) {
     for(int lane=0;lane<3;++lane) {
         const auto target=juce::String::fromUTF8(spectralforge::presetIRTarget(index,lane));
         if(target.isEmpty())continue;
-        const bool catalogTarget=std::any_of(entries.begin(),entries.end(),[&](const auto& entry){return entry.reference && entry.name==target;});
+        const bool tagged=target.startsWith("tag:");
+        const auto terms=tagged ? juce::StringArray::fromTokens(target.substring(4),"|","") : juce::StringArray{};
+        const bool catalogTarget=!tagged && std::any_of(entries.begin(),entries.end(),[&](const auto& entry){return entry.reference && entry.name==target;});
         const spectralforge::IRCollection::Entry* match=nullptr;
         for(const auto& entry:entries) {
-            if(!entry.ready() || entry.name!=target || (catalogTarget && !entry.reference))continue;
+            if(!entry.ready())continue;
+            bool matches=false;
+            if(tagged) {
+                const auto haystack=entry.name+" "+entry.displayName()+" "+juce::JSON::toString(entry.tags.json(),true);
+                matches=true;for(const auto& term:terms)if(!haystack.containsIgnoreCase(term.trim())){matches=false;break;}
+            } else matches=entry.name==target && (!catalogTarget || entry.reference);
+            if(!matches)continue;
             match=&entry;
             if(entry.reference)break;
         }
