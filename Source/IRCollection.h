@@ -158,11 +158,98 @@ struct IRCollection {
         }
         labelEntries(result);return result;
     }
+    enum class ApprovedPack { none, hartkeHyDrive410, marshall1960BV };
+    static ApprovedPack approvedPack(const juce::File& file) {
+        if(!file.existsAsFile()) return ApprovedPack::none;
+        const auto hash=juce::SHA256(file).toHexString();
+        if(hash=="c95e39e488d293cc786723116e27c590fae8016f7a806749435b3c823a39b50e") return ApprovedPack::hartkeHyDrive410;
+        if(hash=="c78de95fac7d5a4874c77e2bde186f68aefbe8068f043abd7e7f2c7f1b21c9ae") return ApprovedPack::marshall1960BV;
+        return ApprovedPack::none;
+    }
+    static juce::String validateEncodedIR(const juce::MemoryBlock& data) {
+        if(data.getSize()<44 || data.getSize()>4*1024*1024) return "Use a WAV/AIFF file under 4 MB.";
+        juce::AudioFormatManager formats;formats.registerFormat(new juce::WavAudioFormat(),true);formats.registerFormat(new juce::AiffAudioFormat(),false);
+        auto reader=std::unique_ptr<juce::AudioFormatReader>(formats.createReaderFor(std::make_unique<juce::MemoryInputStream>(data,false)));
+        if(!reader) return "Cannot decode this WAV/AIFF file.";
+        if(reader->numChannels<1 || reader->numChannels>2 || reader->sampleRate<8000 || reader->sampleRate>384000 || reader->lengthInSamples<8 || reader->lengthInSamples>juce::int64(reader->sampleRate))
+            return "Use mono/stereo, 8-384 kHz, 8 samples to 1 second.";
+        juce::AudioBuffer<float> block((int)reader->numChannels,1024);double energy=0;
+        for(juce::int64 offset=0;offset<reader->lengthInSamples;offset+=1024) {
+            const int samples=(int)juce::jmin(juce::int64(1024),reader->lengthInSamples-offset);
+            if(!reader->read(&block,0,samples,offset,true,true)) return "IR data is incomplete.";
+            for(int c=0;c<block.getNumChannels();++c)for(int n=0;n<samples;++n) {
+                const float value=block.getSample(c,n);
+                if(!std::isfinite(value) || std::abs(value)>32.f) return "IR contains invalid samples.";
+                energy+=double(value)*value;
+            }
+        }
+        return energy<1e-12 ? "IR is silent." : juce::String{};
+    }
+    static juce::var approvedPackMetadata(ApprovedPack pack,const juce::String& leaf) {
+        auto* object=new juce::DynamicObject();
+        const auto put=[&](const char* key,const juce::String& value){object->setProperty(key,value);};
+        if(pack==ApprovedPack::hartkeHyDrive410) {
+            if(!leaf.startsWith("Hartke HyDrive 410 _ ") || !leaf.endsWithIgnoreCase(".wav")) {delete object;return {};}
+            auto mic=leaf.fromFirstOccurrenceOf("_ ",false,false).upToLastOccurrenceOf(".wav",false,true).trim();
+            auto displayMic=mic.replace("+"," + ");
+            auto detailedMic=displayMic.replace("Beta52","Shure Beta 52").replace("SM57","Shure SM57").replace("KSM44","Shure KSM44");
+            put("speaker","Hartke HyDrive 10-inch hybrid drivers");put("cabinet","Hartke HyDrive 410");put("diameter_in","10");
+            put("microphone",detailedMic);put("author","jorgeosoriobreton");put("source","https://www.tone3000.com/tones/hartke-hydrive-410-cab-ir-66570");
+            put("license","T3K");put("notes","Bass cabinet IR. Creator states the cabinet tweeter was set to ON -6 dB. Exact cone position, distance and angle are undocumented.");
+            put("display_name",juce::String::fromUTF8("Hartke HyDrive 4x10 — ")+displayMic);
+            return juce::var(object);
+        }
+        if(pack==ApprovedPack::marshall1960BV) {
+            auto base=leaf;
+            if(!base.endsWithIgnoreCase(".wav")) {delete object;return {};}
+            base=base.dropLastCharacters(4);
+            juce::StringArray fields;fields.addTokens(base," ","");fields.removeEmptyStrings();
+            if(fields.size()!=5 || fields[0]!="Marshall" || (fields[1]!="G12" && fields[1]!="V30") || (fields[3]!="SM57" && fields[3]!="SM58")) {delete object;return {};}
+            const auto speaker=fields[1]=="G12" ? juce::String("G12T75") : juce::String("Marshall Vintage (V30-family)");
+            put("speaker",speaker);put("cabinet","Marshall 1960BV 4x12");put("diameter_in","12");put("microphone","Shure "+fields[3]);
+            put("position","Speaker "+fields[2]+"; capture position "+fields[4]+" (geometry undocumented)");
+            put("author","jpisoutoftune");put("source","https://www.tone3000.com/tones/marshall-1960bv-v30-and-g12t75-51086");
+            put("license","T3K");put("notes","Guitar cabinet IR. Position number follows the creator filename; physical cone location, distance and angle are undocumented.");
+            put("display_name",juce::String::fromUTF8("Marshall 1960BV ")+speaker+juce::String::fromUTF8(" — ")+fields[3]+" S"+fields[2]+" P"+fields[4]);
+            return juce::var(object);
+        }
+        delete object;return {};
+    }
+    static juce::Result importApprovedPack(const juce::File& file,const juce::File& destination,ApprovedPack pack,int& count) {
+        juce::ZipFile zip(file);const int expected=pack==ApprovedPack::hartkeHyDrive410 ? 7 : 55;
+        if(zip.getNumEntries()>4096) return juce::Result::fail("The archive contains too many entries.");
+        struct Pending {juce::String name;juce::MemoryBlock audio;juce::var metadata;};
+        std::vector<Pending> pending;juce::StringArray seen;
+        for(int i=0;i<zip.getNumEntries();++i) {
+            const auto* entry=zip.getEntry(i);if(!entry)continue;
+            const auto leaf=entry->filename.replaceCharacter('\\','/').fromLastOccurrenceOf("/",false,false);
+            if(!leaf.endsWithIgnoreCase(".wav"))continue;
+            if(leaf.isEmpty() || seen.contains(leaf,true))return juce::Result::fail("The IR pack contains duplicate or invalid filenames.");
+            seen.add(leaf);
+            if(entry->uncompressedSize<44 || entry->uncompressedSize>4*1024*1024)return juce::Result::fail("An IR in this pack has an invalid size.");
+            auto metadata=approvedPackMetadata(pack,leaf);if(!metadata.isObject())return juce::Result::fail("Unexpected IR filename in the approved pack.");
+            std::unique_ptr<juce::InputStream> stream(zip.createStreamForEntry(i));juce::MemoryBlock data;
+            if(!stream || stream->readIntoMemoryBlock(data,entry->uncompressedSize)!=entry->uncompressedSize)return juce::Result::fail("IR pack data is incomplete.");
+            const auto validation=validateEncodedIR(data);if(validation.isNotEmpty())return juce::Result::fail(validation);
+            pending.push_back({leaf,std::move(data),metadata});
+        }
+        if((int)pending.size()!=expected)return juce::Result::fail("The approved IR pack is incomplete.");
+        if(auto result=destination.createDirectory();result.failed())return result;
+        for(const auto& item:pending) {
+            const auto target=destination.getChildFile(item.name);
+            if(!target.replaceWithData(item.audio.getData(),item.audio.getSize()) || !juce::File(target.getFullPathName()+".json").replaceWithText(juce::JSON::toString(item.metadata)))
+                return juce::Result::fail("Could not save the IR pack. Check folder permissions.");
+            ++count;
+        }
+        return juce::Result::ok();
+    }
     // Import only hash-verified catalog IRs; never extract arbitrary ZIP paths,
     // execute files, or copy the NAM weights which can coexist in the personal archive.
     static juce::Result importPersonalPack(const juce::File& file, const juce::File& destination, int& count) {
         count=0;
         if (!file.existsAsFile() || file.getSize()>32*1024*1024) return juce::Result::fail("Choose the personal IR ZIP (maximum 32 MB).");
+        const auto approved=approvedPack(file);
+        if(approved!=ApprovedPack::none)return importApprovedPack(file,destination,approved,count);
         juce::ZipFile zip(file);
         if (zip.getNumEntries()>4096) return juce::Result::fail("The archive contains too many entries.");
         struct Pending { juce::String name; juce::MemoryBlock audio; juce::var tags; };
