@@ -330,16 +330,37 @@ void ChimeraProcessor::tapTempo() {
     auto* parameter=state.getParameter("tempo");parameter->setValueNotifyingHost(parameter->convertTo0to1(float(60000/(sum/count))));state.getParameter("temposync")->setValueNotifyingHost(0);restartClick.store(true);
 }
 void ChimeraProcessor::loadFactoryPreset(int index) {
-    // The shared catalog resets every sound parameter, then applies the preset.
-    // Performance controls, MIDI mappings and user-owned IR assets are retained.
-    // Preserve released preset audio through internal compatibility engines.
-    // The editor always presents the current model panels; a user edit activates
-    // that panel without a modal question or loading the old controls.
-    // An invalid preset index deliberately leaves the current sound unchanged.
+    // Factory presets retain the released compatibility path. Signature presets
+    // intentionally recall the production five-slot board/native rack state and
+    // resolve their user-supplied reference IRs by catalog filename.
+    const bool signature=spectralforge::isSignaturePreset(index);
     if (spectralforge::applyFactoryPreset(index, [this](const char* id, float value) {
         if (auto* parameter = state.getParameter(id))
             parameter->setValueNotifyingHost(parameter->convertTo0to1(value));
-    })) {resetAmpSelection();seedNativeSelections(true);boardUndo.clear();boardRedo.clear();setRawParameter("boardEnabled",0);resetPending.store(true);}
+    })) {
+        boardUndo.clear();boardRedo.clear();
+        if(signature) applyPresetIRTargets(index);
+        else {resetAmpSelection();seedNativeSelections(true);setRawParameter("boardEnabled",0);}
+        resetPending.store(true);
+    }
+}
+
+void ChimeraProcessor::applyPresetIRTargets(int index) {
+    if(!spectralforge::isSignaturePreset(index))return;
+    const auto entries=spectralforge::IRCollection::scan(spectralforge::IRCollection::roots(),true);
+    for(int lane=0;lane<3;++lane) {
+        const auto target=juce::String::fromUTF8(spectralforge::presetIRTarget(index,lane));
+        if(target.isEmpty())continue;
+        const spectralforge::IRCollection::Entry* match=nullptr;
+        for(const auto& entry:entries) {
+            if(!entry.ready() || entry.name!=target)continue;
+            match=&entry;
+            if(entry.reference)break;
+        }
+        if(match && match->factorySource!=0) setRawParameter("cabtype"+juce::String(lane+1),float(match->factorySource));
+        else if(match && match->file.existsAsFile()) loadIR(lane,match->file);
+        else setRawParameter("cabtype"+juce::String(lane+1),0.f);
+    }
 }
 
 int ChimeraProcessor::ampContext(int lane) const noexcept {
