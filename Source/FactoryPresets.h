@@ -146,12 +146,12 @@ inline constexpr std::array<FactoryPreset,34> factoryPresets{{
       {"mode",2},{"x1",165},{"x2",1500},{"output",-10.5f},{"gatethreshold",-59},{"gaterelease",65},{"gatehold",10},
       {"lowcomp",.14f},{"lowampmix",.30f},
       {"amp1",14},{"ampext1",0},{"drive1",0},{"level1",-1.5f},{"bandtone1",-0.5f},{"cab1",1},{"cablow1",35},{"cabhigh1",6500},{"cabtype1",0},
-      {"amp2",8},{"ampext2",0},{"drive2",.24f},{"level2",-2.5f},{"bandtone2",1.2f},{"cab2",1},{"cablow2",90},{"cabhigh2",7800},{"cabtype2",2},
+      {"amp2",6},{"ampext2",0},{"drive2",.24f},{"level2",-2.5f},{"bandtone2",1.2f},{"cab2",1},{"cablow2",90},{"cabhigh2",7800},{"cabtype2",0},
       {"amp3",2},{"ampext3",0},{"drive3",.32f},{"level3",-5.5f},{"bandtone3",1.8f},{"cab3",1},{"cablow3",105},{"cabhigh3",7000},{"cabtype3",0},
       {"nativeAmp_c3_enabled",1},{"nativeAmp_c3_model",14},{"nativeAmp_c3_m14_channel",0},{"nativeAmp_c3_m14_route",0},{"nativeAmp_c3_inputTrim",0},{"nativeAmp_c3_outputLevel",-1.5f},
       {"nativeAmp_c3_m14_hw_gain",.38f},{"nativeAmp_c3_m14_hw_taste",.52f},{"nativeAmp_c3_m14_hw_lo",.48f},{"nativeAmp_c3_m14_hw_lo_mid",.48f},{"nativeAmp_c3_m14_hw_hi_mid",.54f},{"nativeAmp_c3_m14_hw_hi",.54f},{"nativeAmp_c3_m14_hw_master",.50f},{"nativeAmp_c3_m14_hw_mute",0},
-      {"nativeAmp_c4_enabled",1},{"nativeAmp_c4_model",8},{"nativeAmp_c4_m8_channel",1},{"nativeAmp_c4_m8_route",0},{"nativeAmp_c4_inputTrim",0},{"nativeAmp_c4_outputLevel",-2.5f},
-      {"nativeAmp_c4_m8_hw_normal_volume",.50f},{"nativeAmp_c4_m8_hw_top_boost_volume",.35f},{"nativeAmp_c4_m8_hw_top_boost_treble",.60f},{"nativeAmp_c4_m8_hw_top_boost_bass",.42f},{"nativeAmp_c4_m8_hw_tone_cut",.42f},{"nativeAmp_c4_m8_hw_master_volume",.50f},{"nativeAmp_c4_m8_hw_reverb_tone",.50f},{"nativeAmp_c4_m8_hw_reverb_level",0},{"nativeAmp_c4_m8_hw_tremolo_speed",.50f},{"nativeAmp_c4_m8_hw_tremolo_depth",0},
+      {"nativeAmp_c4_enabled",1},{"nativeAmp_c4_model",6},{"nativeAmp_c4_m6_channel",0},{"nativeAmp_c4_m6_route",0},{"nativeAmp_c4_inputTrim",0},{"nativeAmp_c4_outputLevel",-2.5f},
+      {"nativeAmp_c4_m6_hw_volume",.50f},{"nativeAmp_c4_m6_hw_treble",.56f},{"nativeAmp_c4_m6_hw_hi_mid",.62f},{"nativeAmp_c4_m6_hw_lo_mid",.45f},{"nativeAmp_c4_m6_hw_bass",.42f},{"nativeAmp_c4_m6_hw_boost",.50f},{"nativeAmp_c4_m6_hw_pad",0},{"nativeAmp_c4_m6_hw_low_cut",1},{"nativeAmp_c4_m6_hw_mid_cut",0},{"nativeAmp_c4_m6_hw_high_boost",1},{"nativeAmp_c4_m6_hw_low_master",.50f},{"nativeAmp_c4_m6_hw_high_master",.50f},{"nativeAmp_c4_m6_hw_crossover",.50f},{"nativeAmp_c4_m6_hw_biamp",0},
       {"nativeAmp_c5_enabled",1},{"nativeAmp_c5_model",2},{"nativeAmp_c5_m2_channel",0},{"nativeAmp_c5_m2_route",0},{"nativeAmp_c5_inputTrim",0},{"nativeAmp_c5_outputLevel",-5.5f},
       {"nativeAmp_c5_m2_hw_low",.40f},{"nativeAmp_c5_m2_hw_mid",.52f},{"nativeAmp_c5_m2_hw_high",.56f},{"nativeAmp_c5_m2_hw_resonance",.50f},{"nativeAmp_c5_m2_hw_presence",.62f},{"nativeAmp_c5_m2_hw_rhythm_pre_gain",.38f},{"nativeAmp_c5_m2_hw_rhythm_post_gain",.50f},{"nativeAmp_c5_m2_hw_rhythm_bright",0},{"nativeAmp_c5_m2_hw_rhythm_crunch",0},
       {"boardEnabled",1},{"boardLowTap",1},
@@ -166,7 +166,7 @@ inline constexpr std::array<FactoryPreset,34> factoryPresets{{
       {"pn_eq_m0_lmf_gain",-1.2f},{"pn_eq_m0_lmf_frequency",450},{"pn_eq_m0_lmf_q",.8f},{"pn_eq_m0_lf_gain",.3f},{"pn_eq_m0_lf_frequency",90},{"pn_eq_m0_eq_in",1},
       {"choruson",1},{"modmodel",1},{"chorusrate",.18f},{"chorusdepth",.18f},{"chorusmix",.10f},
       {"delayon",0},{"delaymodel",0},{"reverbon",1},{"reverbmodel",0},{"reverbsize",.24f},{"reverbdamping",.62f},{"reverbmix",.06f}
-     }, PresetKind::signature, "", "tag:Vox AC30|Alnico Blue", "Mar1960_Raven_SM57_In.wav"},
+     }, PresetKind::signature, "", "Hartke HyDrive 410 _ SM57.wav", "Mar1960_Raven_SM57_In.wav"},
 
     {"Azhi Dahaka", "SIGNATURE / Deadwire", "Bass", "Deadwire signature: dense centre low-end, compressed foundation and focused upper-mid bite with restrained fizz.",
      {
@@ -194,7 +194,7 @@ inline constexpr std::array<FactoryPreset,34> factoryPresets{{
       {"pn_preamp_native",1},{"pn_preamp_model",0},{"pn_preamp_m0_bypass",0},{"pn_preamp_m0_gain",3},{"pn_preamp_m0_phase",0},{"pn_preamp_m0_softwareTrim",-3},
       {"pn_eq_native",1},{"pn_eq_model",2},{"pn_eq_m2_bypass",0},{"pn_eq_m2_lf_frequency",2},{"pn_eq_m2_lf_boost",2},{"pn_eq_m2_lf_atten",1},{"pn_eq_m2_bandwidth",.65f},{"pn_eq_m2_hf_boost",1.5f},{"pn_eq_m2_hf_frequency",2},{"pn_eq_m2_hf_atten",2},{"pn_eq_m2_hf_atten_frequency",1},{"pn_eq_m2_eq_in",1},
       {"choruson",0},{"delayon",0},{"reverbon",1},{"reverbmodel",0},{"reverbsize",.20f},{"reverbdamping",.65f},{"reverbmix",.05f}
-     }, PresetKind::signature, "", "DYN 421.wav", "tag:Marshall 4x12|G12T-75|SM57"}
+     }, PresetKind::signature, "", "DYN 421.wav", "Marshall G12 1 SM57 3.wav"}
 }};
 inline constexpr int factoryPresetCount = static_cast<int>(factoryPresets.size());
 inline bool isSignaturePreset(int index) {
