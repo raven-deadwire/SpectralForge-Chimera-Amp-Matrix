@@ -49,6 +49,16 @@ int main(int argc,char** argv) {
         require(ravenMissing==4,"Raven three positions or V30 comparison missing from library catalog");
         const auto ravenHints=spectralforge::IRMetadata::filenameHints("Mar1960_Raven_SM57_In.wav");
         require(ravenHints.values[0]=="Celestion G12-100 Raven" && ravenHints.values[4]=="In","Raven filename metadata not recognized");
+        const auto hartkeMeta=C::approvedPackMetadata(C::ApprovedPack::hartkeHyDrive410,"Hartke HyDrive 410 _ SM57.wav");
+        require(hartkeMeta.isObject() && hartkeMeta["cabinet"].toString()=="Hartke HyDrive 410"
+            && hartkeMeta["microphone"].toString()=="Shure SM57"
+            && hartkeMeta["source"].toString().contains("66570"),"Hartke approved-pack metadata mapping failed");
+        const auto marshallMeta=C::approvedPackMetadata(C::ApprovedPack::marshall1960BV,"Marshall G12 1 SM57 3.wav");
+        require(marshallMeta.isObject() && marshallMeta["speaker"].toString()=="G12T75"
+            && marshallMeta["cabinet"].toString()=="Marshall 1960BV 4x12"
+            && marshallMeta["position"].toString().contains("Speaker 1")
+            && marshallMeta["source"].toString().contains("51086"),"Marshall approved-pack metadata mapping failed");
+        require(!C::approvedPackMetadata(C::ApprovedPack::marshall1960BV,"unexpected.wav").isObject(),"Approved pack accepted an unexpected filename");
         const auto fakeZip=root.getChildFile("invalid-raven.zip"),fakeDestination=root.getChildFile("invalid-raven-import");
         {
             juce::ZipFile::Builder builder;builder.addFile(bass,6,"IR/Raven/Mar1960_Raven_SM57_In.wav");
