@@ -16,7 +16,7 @@ struct FactoryPreset {
     // Own the values instead of retaining initializer-list backing-array pointers.
     // Signature presets also carry five-slot/native state, so reserve more than
     // the legacy factory table while keeping all values constexpr and bounded.
-    std::array<PresetParameter,128> parameters{};
+    std::array<PresetParameter,192> parameters{};
     size_t parameterCount;
 
     template<size_t N>
@@ -26,7 +26,7 @@ struct FactoryPreset {
         : name(presetName), category(presetCategory), instrument(presetInstrument),
           description(presetDescription), parameterCount(N)
     {
-        static_assert(N <= 128, "Increase preset parameter capacity");
+        static_assert(N <= 192, "Increase preset parameter capacity");
         for(size_t i=0;i<N;++i) parameters[i]=values[i];
     }
 
@@ -39,7 +39,7 @@ struct FactoryPreset {
           description(presetDescription), kind(presetKind), irTargets{ir0,ir1,ir2},
           parameterCount(N)
     {
-        static_assert(N <= 128, "Increase preset parameter capacity");
+        static_assert(N <= 192, "Increase preset parameter capacity");
         for(size_t i=0;i<N;++i) parameters[i]=values[i];
     }
 };
@@ -119,6 +119,13 @@ inline constexpr std::array<FactoryPreset,34> factoryPresets{{
       {"amp1",14},{"ampext1",0},{"drive1",0},{"level1",0},{"bandtone1",0},{"cab1",1},{"cablow1",70},{"cabhigh1",8000},{"cabtype1",0},
       {"amp2",7},{"ampext2",0},{"drive2",.50f},{"level2",-4},{"bandtone2",0},{"cab2",1},{"cablow2",80},{"cabhigh2",7500},{"cabtype2",0},
       {"amp3",2},{"ampext3",0},{"drive3",.50f},{"level3",-8},{"bandtone3",0},{"cab3",1},{"cablow3",100},{"cabhigh3",6000},{"cabtype3",0},
+      {"nativeAmp_c3_enabled",1},{"nativeAmp_c3_model",14},{"nativeAmp_c3_m14_channel",0},{"nativeAmp_c3_m14_route",0},{"nativeAmp_c3_inputTrim",0},{"nativeAmp_c3_outputLevel",0},
+      {"nativeAmp_c3_m14_hw_gain",.50f},{"nativeAmp_c3_m14_hw_taste",.50f},{"nativeAmp_c3_m14_hw_lo",.50f},{"nativeAmp_c3_m14_hw_lo_mid",.50f},{"nativeAmp_c3_m14_hw_hi_mid",.50f},{"nativeAmp_c3_m14_hw_hi",.50f},{"nativeAmp_c3_m14_hw_master",.50f},{"nativeAmp_c3_m14_hw_mute",0},
+      {"nativeAmp_c4_enabled",1},{"nativeAmp_c4_model",7},{"nativeAmp_c4_m7_channel",0},{"nativeAmp_c4_m7_route",0},{"nativeAmp_c4_inputTrim",0},{"nativeAmp_c4_outputLevel",-4},
+      {"nativeAmp_c4_m7_hw_b7k_master",.50f},{"nativeAmp_c4_m7_hw_b7k_blend",.50f},{"nativeAmp_c4_m7_hw_b7k_level",.50f},{"nativeAmp_c4_m7_hw_b7k_drive",.50f},{"nativeAmp_c4_m7_hw_b7k_bass",.50f},{"nativeAmp_c4_m7_hw_b7k_lo_mids",.50f},{"nativeAmp_c4_m7_hw_b7k_hi_mids",.50f},{"nativeAmp_c4_m7_hw_b7k_treble",.50f},{"nativeAmp_c4_m7_hw_b7k_attack",1},{"nativeAmp_c4_m7_hw_b7k_grunt",1},{"nativeAmp_c4_m7_hw_b7k_lo_frequency",0},{"nativeAmp_c4_m7_hw_b7k_hi_frequency",0},{"nativeAmp_c4_m7_hw_b7k_distortion",1},
+      {"nativeAmp_c4_m7_hw_db751_gain",.50f},{"nativeAmp_c4_m7_hw_db751_bass",.50f},{"nativeAmp_c4_m7_hw_db751_mid",.50f},{"nativeAmp_c4_m7_hw_db751_treble",.50f},{"nativeAmp_c4_m7_hw_db751_master",.50f},{"nativeAmp_c4_m7_hw_db751_deep",0},{"nativeAmp_c4_m7_hw_db751_bright",0},
+      {"nativeAmp_c5_enabled",1},{"nativeAmp_c5_model",2},{"nativeAmp_c5_m2_channel",0},{"nativeAmp_c5_m2_route",0},{"nativeAmp_c5_inputTrim",0},{"nativeAmp_c5_outputLevel",-8},
+      {"nativeAmp_c5_m2_hw_low",.50f},{"nativeAmp_c5_m2_hw_mid",.50f},{"nativeAmp_c5_m2_hw_high",.50f},{"nativeAmp_c5_m2_hw_resonance",.50f},{"nativeAmp_c5_m2_hw_presence",.50f},{"nativeAmp_c5_m2_hw_rhythm_pre_gain",.50f},{"nativeAmp_c5_m2_hw_rhythm_post_gain",.50f},{"nativeAmp_c5_m2_hw_rhythm_bright",0},{"nativeAmp_c5_m2_hw_rhythm_crunch",0},
       {"boardEnabled",1},{"boardLowTap",2},
       {"board0Model",11},{"boardOrder0",0},{"board0_m11_bypass",1},
       {"board0_m11_hw_mode",0},{"board0_m11_hw_sweep",0},{"board0_m11_hw_range",1},{"board0_m11_hw_peak",.50f},{"board0_m11_hw_gain",.50f},{"board0_m11_hw_boost",0},
@@ -141,6 +148,12 @@ inline constexpr std::array<FactoryPreset,34> factoryPresets{{
       {"amp1",14},{"ampext1",0},{"drive1",0},{"level1",-1.5f},{"bandtone1",-0.5f},{"cab1",1},{"cablow1",35},{"cabhigh1",6500},{"cabtype1",0},
       {"amp2",8},{"ampext2",0},{"drive2",.24f},{"level2",-2.5f},{"bandtone2",1.2f},{"cab2",1},{"cablow2",90},{"cabhigh2",7800},{"cabtype2",2},
       {"amp3",2},{"ampext3",0},{"drive3",.32f},{"level3",-5.5f},{"bandtone3",1.8f},{"cab3",1},{"cablow3",105},{"cabhigh3",7000},{"cabtype3",0},
+      {"nativeAmp_c3_enabled",1},{"nativeAmp_c3_model",14},{"nativeAmp_c3_m14_channel",0},{"nativeAmp_c3_m14_route",0},{"nativeAmp_c3_inputTrim",0},{"nativeAmp_c3_outputLevel",-1.5f},
+      {"nativeAmp_c3_m14_hw_gain",.38f},{"nativeAmp_c3_m14_hw_taste",.52f},{"nativeAmp_c3_m14_hw_lo",.48f},{"nativeAmp_c3_m14_hw_lo_mid",.48f},{"nativeAmp_c3_m14_hw_hi_mid",.54f},{"nativeAmp_c3_m14_hw_hi",.54f},{"nativeAmp_c3_m14_hw_master",.50f},{"nativeAmp_c3_m14_hw_mute",0},
+      {"nativeAmp_c4_enabled",1},{"nativeAmp_c4_model",8},{"nativeAmp_c4_m8_channel",1},{"nativeAmp_c4_m8_route",0},{"nativeAmp_c4_inputTrim",0},{"nativeAmp_c4_outputLevel",-2.5f},
+      {"nativeAmp_c4_m8_hw_normal_volume",.50f},{"nativeAmp_c4_m8_hw_top_boost_volume",.35f},{"nativeAmp_c4_m8_hw_top_boost_treble",.60f},{"nativeAmp_c4_m8_hw_top_boost_bass",.42f},{"nativeAmp_c4_m8_hw_tone_cut",.42f},{"nativeAmp_c4_m8_hw_master_volume",.50f},{"nativeAmp_c4_m8_hw_reverb_tone",.50f},{"nativeAmp_c4_m8_hw_reverb_level",0},{"nativeAmp_c4_m8_hw_tremolo_speed",.50f},{"nativeAmp_c4_m8_hw_tremolo_depth",0},
+      {"nativeAmp_c5_enabled",1},{"nativeAmp_c5_model",2},{"nativeAmp_c5_m2_channel",0},{"nativeAmp_c5_m2_route",0},{"nativeAmp_c5_inputTrim",0},{"nativeAmp_c5_outputLevel",-5.5f},
+      {"nativeAmp_c5_m2_hw_low",.40f},{"nativeAmp_c5_m2_hw_mid",.52f},{"nativeAmp_c5_m2_hw_high",.56f},{"nativeAmp_c5_m2_hw_resonance",.50f},{"nativeAmp_c5_m2_hw_presence",.62f},{"nativeAmp_c5_m2_hw_rhythm_pre_gain",.38f},{"nativeAmp_c5_m2_hw_rhythm_post_gain",.50f},{"nativeAmp_c5_m2_hw_rhythm_bright",0},{"nativeAmp_c5_m2_hw_rhythm_crunch",0},
       {"boardEnabled",1},{"boardLowTap",1},
       {"board0Model",9},{"boardOrder0",0},{"board0_m9_bypass",0},{"board0_m9_hw_in",.46f},{"board0_m9_hw_out",.50f},{"board0_m9_hw_dry",.30f},{"board0_m9_hw_ratio",.42f},{"board0_m9_hw_attack",.62f},{"board0_m9_hw_release",.56f},
       {"board1Model",2},{"boardOrder1",1},{"board1_m2_bypass",0},{"board1_m2_hw_gain",.12f},{"board1_m2_hw_treble",.58f},{"board1_m2_hw_output",.68f},
@@ -162,6 +175,16 @@ inline constexpr std::array<FactoryPreset,34> factoryPresets{{
       {"amp1",0},{"ampext1",4},{"ampchannel1_m18",0},{"drive1",0},{"level1",1.5f},{"bandtone1",0},{"cab1",1},{"cablow1",30},{"cabhigh1",5000},{"cabtype1",0},
       {"amp2",7},{"ampext2",0},{"drive2",.55f},{"level2",-5.5f},{"bandtone2",.5f},{"cab2",1},{"cablow2",70},{"cabhigh2",6000},{"cabtype2",0},
       {"amp3",0},{"ampext3",6},{"ampchannel3_m20",0},{"drive3",.38f},{"level3",-8},{"bandtone3",-2.0f},{"cab3",1},{"cablow3",110},{"cabhigh3",5500},{"cabtype3",0},
+      {"nativeAmp_c3_enabled",1},{"nativeAmp_c3_model",18},{"nativeAmp_c3_m18_channel",0},{"nativeAmp_c3_m18_route",0},{"nativeAmp_c3_inputTrim",0},{"nativeAmp_c3_outputLevel",1.5f},
+      {"nativeAmp_c3_m18_hw_gain",.38f},{"nativeAmp_c3_m18_hw_bass",.56f},{"nativeAmp_c3_m18_hw_midrange",.55f},{"nativeAmp_c3_m18_hw_treble",.44f},{"nativeAmp_c3_m18_hw_master",.50f},{"nativeAmp_c3_m18_hw_mid_frequency",2},{"nativeAmp_c3_m18_hw_ultra_hi",0},{"nativeAmp_c3_m18_hw_ultra_lo",0},
+      {"nativeAmp_c4_enabled",1},{"nativeAmp_c4_model",7},{"nativeAmp_c4_m7_channel",0},{"nativeAmp_c4_m7_route",0},{"nativeAmp_c4_inputTrim",0},{"nativeAmp_c4_outputLevel",-5.5f},
+      {"nativeAmp_c4_m7_hw_b7k_master",.50f},{"nativeAmp_c4_m7_hw_b7k_blend",.50f},{"nativeAmp_c4_m7_hw_b7k_level",.50f},{"nativeAmp_c4_m7_hw_b7k_drive",.55f},{"nativeAmp_c4_m7_hw_b7k_bass",.48f},{"nativeAmp_c4_m7_hw_b7k_lo_mids",.55f},{"nativeAmp_c4_m7_hw_b7k_hi_mids",.56f},{"nativeAmp_c4_m7_hw_b7k_treble",.43f},{"nativeAmp_c4_m7_hw_b7k_attack",1},{"nativeAmp_c4_m7_hw_b7k_grunt",1},{"nativeAmp_c4_m7_hw_b7k_lo_frequency",1},{"nativeAmp_c4_m7_hw_b7k_hi_frequency",1},{"nativeAmp_c4_m7_hw_b7k_distortion",1},
+      {"nativeAmp_c4_m7_hw_db751_gain",.50f},{"nativeAmp_c4_m7_hw_db751_bass",.52f},{"nativeAmp_c4_m7_hw_db751_mid",.55f},{"nativeAmp_c4_m7_hw_db751_treble",.45f},{"nativeAmp_c4_m7_hw_db751_master",.50f},{"nativeAmp_c4_m7_hw_db751_deep",0},{"nativeAmp_c4_m7_hw_db751_bright",0},
+      {"nativeAmp_c5_enabled",1},{"nativeAmp_c5_model",20},{"nativeAmp_c5_m20_channel",0},{"nativeAmp_c5_m20_route",0},{"nativeAmp_c5_inputTrim",0},{"nativeAmp_c5_outputLevel",-8},
+      {"nativeAmp_c5_m20_hw_ep_girth",.55f},{"nativeAmp_c5_m20_hw_ep_grind",.62f},{"nativeAmp_c5_m20_hw_ep_gain",.42f},{"nativeAmp_c5_m20_hw_kk_gain1",.50f},{"nativeAmp_c5_m20_hw_kk_gain2",.50f},
+      {"nativeAmp_c5_m20_hw_gain_eq_bass",.45f},{"nativeAmp_c5_m20_hw_gain_eq_middle",.58f},{"nativeAmp_c5_m20_hw_gain_eq_sweep",.55f},{"nativeAmp_c5_m20_hw_gain_eq_treble",.42f},
+      {"nativeAmp_c5_m20_hw_clean_volume",.50f},{"nativeAmp_c5_m20_hw_clean_bass",.50f},{"nativeAmp_c5_m20_hw_clean_middle",.50f},{"nativeAmp_c5_m20_hw_clean_treble",.50f},
+      {"nativeAmp_c5_m20_hw_depth",.55f},{"nativeAmp_c5_m20_hw_presence",.50f},{"nativeAmp_c5_m20_hw_master1",.50f},{"nativeAmp_c5_m20_hw_master2",.50f},{"nativeAmp_c5_m20_hw_master2_select",0},
       {"boardEnabled",1},{"boardLowTap",1},
       {"board0Model",9},{"boardOrder0",0},{"board0_m9_bypass",0},{"board0_m9_hw_in",.52f},{"board0_m9_hw_out",.48f},{"board0_m9_hw_dry",.22f},{"board0_m9_hw_ratio",.58f},{"board0_m9_hw_attack",.54f},{"board0_m9_hw_release",.62f},
       {"board1Model",5},{"boardOrder1",1},{"board1_m5_bypass",0},{"board1_m5_hw_blend",.44f},{"board1_m5_hw_tone",.43f},{"board1_m5_hw_level",.50f},{"board1_m5_hw_drive",.42f},{"board1_m5_hw_grunt",1},{"board1_m5_hw_mid_boost",1},
