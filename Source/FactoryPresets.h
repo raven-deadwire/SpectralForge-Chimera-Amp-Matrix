@@ -166,7 +166,7 @@ inline constexpr std::array<FactoryPreset,34> factoryPresets{{
       {"pn_eq_m0_lmf_gain",-1.2f},{"pn_eq_m0_lmf_frequency",450},{"pn_eq_m0_lmf_q",.8f},{"pn_eq_m0_lf_gain",.3f},{"pn_eq_m0_lf_frequency",90},{"pn_eq_m0_eq_in",1},
       {"choruson",1},{"modmodel",1},{"chorusrate",.18f},{"chorusdepth",.18f},{"chorusmix",.10f},
       {"delayon",0},{"delaymodel",0},{"reverbon",1},{"reverbmodel",0},{"reverbsize",.24f},{"reverbdamping",.62f},{"reverbmix",.06f}
-     }, PresetKind::signature, "", "", "Mar1960_Raven_SM57_In.wav"},
+     }, PresetKind::signature, "", "tag:Vox AC30|Alnico Blue", "Mar1960_Raven_SM57_In.wav"},
 
     {"Azhi Dahaka", "SIGNATURE / Deadwire", "Bass", "Deadwire signature: dense centre low-end, compressed foundation and focused upper-mid bite with restrained fizz.",
      {
@@ -194,7 +194,7 @@ inline constexpr std::array<FactoryPreset,34> factoryPresets{{
       {"pn_preamp_native",1},{"pn_preamp_model",0},{"pn_preamp_m0_bypass",0},{"pn_preamp_m0_gain",3},{"pn_preamp_m0_phase",0},{"pn_preamp_m0_softwareTrim",-3},
       {"pn_eq_native",1},{"pn_eq_model",2},{"pn_eq_m2_bypass",0},{"pn_eq_m2_lf_frequency",2},{"pn_eq_m2_lf_boost",2},{"pn_eq_m2_lf_atten",1},{"pn_eq_m2_bandwidth",.65f},{"pn_eq_m2_hf_boost",1.5f},{"pn_eq_m2_hf_frequency",2},{"pn_eq_m2_hf_atten",2},{"pn_eq_m2_hf_atten_frequency",1},{"pn_eq_m2_eq_in",1},
       {"choruson",0},{"delayon",0},{"reverbon",1},{"reverbmodel",0},{"reverbsize",.20f},{"reverbdamping",.65f},{"reverbmix",.05f}
-     }, PresetKind::signature, "", "DYN 421.wav", "Mar1960_Raven_SM57_Out.wav"}
+     }, PresetKind::signature, "", "DYN 421.wav", "tag:Marshall 4x12|G12T-75|SM57"}
 }};
 inline constexpr int factoryPresetCount = static_cast<int>(factoryPresets.size());
 inline bool isSignaturePreset(int index) {
