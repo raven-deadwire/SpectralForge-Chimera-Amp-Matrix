@@ -162,12 +162,15 @@ ChimeraEditor::ChimeraEditor(ChimeraProcessor& p) : AudioProcessorEditor(&p),pro
     inputMode.setName("Input mode");inputMode.addItemList({"STEREO","MONO L"},1);add(inputMode);inputModeAttachment=std::make_unique<CA>(p.parameters(),"inputmode",inputMode);
     inputMode.setTooltip("MONO L sends the left input to both channels. Stereo preserves separate channels.");
     presets.setName("Preset");
+    presets.getRootMenu()->addSectionHeader("SIGNATURE PRESETS");
+    {juce::PopupMenu group;for(int i=0;i<spectralforge::factoryPresetCount;++i)if(spectralforge::isSignaturePreset(i))group.addItem(i+1,spectralforge::factoryPresets[(size_t)i].name);if(group.getNumItems()>0)presets.getRootMenu()->addSubMenu("Deadwire",group);}
+    presets.getRootMenu()->addSeparator();
     presets.getRootMenu()->addSectionHeader("FACTORY PRESETS");
     const juce::StringArray categories{
         "Guitar / Clean & Ambient","Guitar / Edge & Rock","Guitar / High Gain","Guitar / Lead & Texture",
         "Bass / Clean & Dynamics","Bass / Drive & Texture",
         "Dual / Blend","Dual / Crossover","Matrix / Bass","Matrix / Experimental"};
-    for(const auto& category:categories){juce::PopupMenu group;for(int i=0;i<spectralforge::factoryPresetCount;++i)if(category==spectralforge::factoryPresets[(size_t)i].category)group.addItem(i+1,spectralforge::factoryPresets[(size_t)i].name);if(group.getNumItems()>0)presets.getRootMenu()->addSubMenu(category,group);}
+    for(const auto& category:categories){juce::PopupMenu group;for(int i=0;i<spectralforge::factoryPresetCount;++i)if(!spectralforge::isSignaturePreset(i) && category==spectralforge::factoryPresets[(size_t)i].category)group.addItem(i+1,spectralforge::factoryPresets[(size_t)i].name);if(group.getNumItems()>0)presets.getRootMenu()->addSubMenu(category,group);}
     presets.setText("INIT / CUSTOM",juce::dontSendNotification);add(presets);
     presets.onChange=[this]{if(presets.getSelectedId()>0) {processor.loadFactoryPreset(presets.getSelectedId()-1);presetValues.clear();for(auto* parameter:processor.getParameters())presetValues.push_back(parameter->getValue());presets.setTooltip(spectralforge::factoryPresets[(size_t)(presets.getSelectedId()-1)].description);updateModeUI();}};
     for(auto* button:{&doublerOn,&midi,&tap,&hostTempo,&metronome,&presetPrevious,&presetNext,&presetSave,&presetLoad,&delaySync})add(*button);
