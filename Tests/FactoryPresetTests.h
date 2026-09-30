@@ -99,18 +99,36 @@ inline void run() {
         const auto& preset=factoryPresets[(size_t)index];const auto values=snapshot(index);
         require(names.insert(preset.name).second,"Duplicate factory preset name");
         require(preset.category[0] && preset.instrument[0] && preset.description[0],"Factory preset metadata is incomplete");
-        require(values.size()==baseline.size(),"Factory preset modifies a parameter missing from its sound reset");
+        if(!isSignaturePreset(index)) require(values.size()==baseline.size(),"Factory preset modifies a parameter missing from its sound reset");
+        else {
+            require(values.size()>baseline.size(),"Signature preset did not add production structural state");
+            require(values.at("boardEnabled")>.5f,"Signature preset did not enable the five-slot PRE board");
+            require(values.at("mode")==2,"Deadwire signature preset must use Matrix routing");
+            require(values.at("drive1")==0,"Signature Matrix LOW head drive must stay at zero");
+            require(values.at("lowampmix")>=0 && values.at("lowampmix")<=1,"Signature LOW DI/amp blend is invalid");
+            require(std::string(preset.category)=="SIGNATURE / Deadwire","Signature preset is not in the Deadwire group");
+        }
         require(!values.count("input") && !values.count("inputmode") && !values.count("tempo") && !values.count("temposync") && !values.count("tuneron"),"Factory preset changes performance controls");
         for(int lane=1;lane<=3;++lane) {
             const auto suffix=std::to_string(lane);
             require(values.at("cabtype"+suffix)!=3,"Factory preset depends on a user IR");
             require(values.at("amp"+suffix)>=0 && values.at("amp"+suffix)<ampModelCount,"Factory preset amp is missing");
         }
-        if(values.at("mode")==2) require(values.at("drive1")==0 && values.at("lowampmix")==0,"Matrix preset has hidden LOW drive/blend");
-        const auto peak44=render(index,44100,257),peak48=render(index,48000,127);
-        std::cout<<"MEASURE factory preset "<<index<<" | "<<preset.name<<" | peak44 "<<peak44<<" | peak48 "<<peak48<<'\n';
+        if(values.at("mode")==2) require(values.at("drive1")==0,"Matrix preset has hidden LOW head drive");
+        if(isSignaturePreset(index)) {
+            for(int lane=0;lane<3;++lane) {
+                const auto target=juce::String::fromUTF8(presetIRTarget(index,lane));
+                require(target.length()<128,"Signature preset IR target is unreasonably long");
+            }
+            std::cout<<"MEASURE signature preset "<<index<<" | "<<preset.name<<" | structural state validated\n";
+        } else {
+            const auto peak44=render(index,44100,257),peak48=render(index,48000,127);
+            std::cout<<"MEASURE factory preset "<<index<<" | "<<preset.name<<" | peak44 "<<peak44<<" | peak48 "<<peak48<<'\n';
+        }
     }
     int calls=0;require(!applyFactoryPreset(-1,[&](const char*,float){++calls;}) && !applyFactoryPreset(factoryPresetCount,[&](const char*,float){++calls;}) && calls==0,"Invalid factory preset changes sound");
-    std::cout<<"PASS: "<<factoryPresetCount<<" portable complete factory presets; finite, non-silent, unclipped pluck output at 44.1/48 kHz\n";
+    int signatureCount=0;for(int i=0;i<factoryPresetCount;++i)if(isSignaturePreset(i))++signatureCount;
+    require(signatureCount==3,"Expected exactly three Deadwire signature presets");
+    std::cout<<"PASS: "<<factoryPresetCount-signatureCount<<" portable factory presets + "<<signatureCount<<" Deadwire signature presets\n";
 }
 }
