@@ -351,9 +351,10 @@ void ChimeraProcessor::applyPresetIRTargets(int index) {
     for(int lane=0;lane<3;++lane) {
         const auto target=juce::String::fromUTF8(spectralforge::presetIRTarget(index,lane));
         if(target.isEmpty())continue;
+        const bool catalogTarget=std::any_of(entries.begin(),entries.end(),[&](const auto& entry){return entry.reference && entry.name==target;});
         const spectralforge::IRCollection::Entry* match=nullptr;
         for(const auto& entry:entries) {
-            if(!entry.ready() || entry.name!=target)continue;
+            if(!entry.ready() || entry.name!=target || (catalogTarget && !entry.reference))continue;
             match=&entry;
             if(entry.reference)break;
         }
