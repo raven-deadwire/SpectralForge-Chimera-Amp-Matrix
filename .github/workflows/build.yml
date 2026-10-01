@@ -19,8 +19,9 @@ jobs:
           python-version: "3.12"
       - name: Check release packaging and validation syntax
         run: |
-          python -m py_compile Tools/package_release.py Tools/evaluate_release_gate.py Tools/test_release_gate.py
+          python -m py_compile Tools/package_release.py Tools/evaluate_release_gate.py Tools/test_release_gate.py Tools/evaluate_signature_benchmark.py Tools/test_signature_benchmark.py
           python Tools/test_release_gate.py
+          python Tools/test_signature_benchmark.py
       - name: Check Windows packaging script syntax
         if: runner.os == 'Windows'
         shell: pwsh
