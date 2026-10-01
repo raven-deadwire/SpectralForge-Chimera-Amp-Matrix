@@ -1,0 +1,28 @@
+{
+  "schema":"spectralforge.chimera.signature-benchmark-policy",
+  "schema_version":1,
+  "songs":["crom","wild","azhi"],
+  "metrics":{
+    "crest_db":{"unit":"dB","weight":0.15,"tie":0.30,"min_render_gap":0.20,"shape_fail":0.80,"gap_fail":1.0,"critical":true},
+    "rms_80_200_db":{"unit":"dB","weight":0.15,"tie":0.30,"min_render_gap":0.20,"shape_fail":1.20,"gap_fail":1.0,"critical":true},
+    "side_80_200_pct":{"unit":"pp","weight":0.15,"tie":2.0,"min_render_gap":1.0,"shape_fail":6.0,"gap_fail":5.0,"critical":true},
+    "rms_1500_4000_db":{"unit":"dB","weight":0.10,"tie":0.30,"min_render_gap":0.20,"shape_fail":1.20,"gap_fail":1.0,"critical":true},
+    "side_1500_4000_pct":{"unit":"pp","weight":0.10,"tie":2.0,"min_render_gap":1.0,"shape_fail":6.0,"gap_fail":5.0,"critical":true},
+    "side_4000_8000_pct":{"unit":"pp","weight":0.15,"tie":2.0,"min_render_gap":1.0,"shape_fail":6.0,"gap_fail":5.0,"critical":true},
+    "dr_80_200_db":{"unit":"dB","weight":0.10,"tie":0.30,"min_render_gap":0.20,"shape_fail":1.20,"gap_fail":1.0,"critical":true},
+    "dr_1500_4000_db":{"unit":"dB","weight":0.10,"tie":0.30,"min_render_gap":0.20,"shape_fail":1.20,"gap_fail":1.0,"critical":true}
+  },
+  "reference":{
+    "crom":{"crest_db":9.69,"rms_80_200_db":-15.97,"side_80_200_pct":13.3,"rms_1500_4000_db":-17.39,"side_1500_4000_pct":36.5,"side_4000_8000_pct":42.0,"dr_80_200_db":8.86,"dr_1500_4000_db":3.58},
+    "wild":{"crest_db":10.13,"rms_80_200_db":-16.84,"side_80_200_pct":13.4,"rms_1500_4000_db":-17.09,"side_1500_4000_pct":38.3,"side_4000_8000_pct":45.2,"dr_80_200_db":8.29,"dr_1500_4000_db":4.70},
+    "azhi":{"crest_db":9.55,"rms_80_200_db":-14.43,"side_80_200_pct":6.7,"rms_1500_4000_db":-17.66,"side_1500_4000_pct":41.2,"side_4000_8000_pct":39.8,"dr_80_200_db":6.34,"dr_1500_4000_db":3.95}
+  },
+  "score":{"shape_weight":0.50,"order_weight":0.30,"gap_weight":0.20,"overall_pass":85.0,"critical_metric_min":0.70},
+  "hard_gates":{
+    "H1":{"description":"Azhi 80-200 RMS > Crom > Wild with minimum gaps"},
+    "H2":{"description":"Azhi 80-200 Side at least 3 pp below Crom and Wild"},
+    "H3":{"description":"Wild 4-8k Side > Crom > Azhi with minimum gaps"},
+    "H4":{"description":"Wild crest at least 0.25 dB above Crom and Azhi"}
+  },
+  "secondary_required":3
+}
