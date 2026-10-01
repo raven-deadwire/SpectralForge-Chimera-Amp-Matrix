@@ -2,46 +2,427 @@
   "schema": "spectralforge.chimera.release-policy",
   "schema_version": 1,
   "policy_version": 1,
-  "dependency_satisfied_by": ["PASS","NOT_APPLICABLE"],
-  "release_verdicts": ["PASS","BLOCKED"],
-  "blocker_types": ["DEPENDENCY","NOT_EXECUTED","TEST_FAILURE","ENVIRONMENT","INPUT_MISSING","ARTIFACT_MISSING","STALE_EVIDENCE","REGRESSION","UNKNOWN"],
+  "dependency_satisfied_by": [
+    "PASS",
+    "NOT_APPLICABLE"
+  ],
+  "release_verdicts": [
+    "PASS",
+    "BLOCKED"
+  ],
+  "blocker_types": [
+    "DEPENDENCY",
+    "NOT_EXECUTED",
+    "TEST_FAILURE",
+    "ENVIRONMENT",
+    "INPUT_MISSING",
+    "ARTIFACT_MISSING",
+    "STALE_EVIDENCE",
+    "REGRESSION",
+    "UNKNOWN"
+  ],
   "stages": {
-    "A1":{"name":"Installer consistency","required":true},
-    "A2":{"name":"Signature definition","required":true},
-    "A3":{"name":"Signature APVTS recall","required":true},
-    "A4":{"name":"Factory compatibility","required":true},
-    "A5":{"name":"Hartke IR import","required":true},
-    "A6":{"name":"Marshall IR import","required":true},
-    "A7":{"name":"IR chain of trust","required":true},
-    "A8":{"name":"IR fallback policy","required":true},
-    "A9":{"name":"Signature benchmark calculator","required":true},
-    "A10":{"name":"Signature hard and secondary gates","required":true},
-    "A11":{"name":"Benchmark JSON","required":true},
-    "A12":{"name":"Automated regression tests","required":true},
-    "A13":{"name":"CI final state","required":true},
-    "A14":{"name":"Documentation sync","required":true},
-    "B1":{"name":"Same-DI fixture","required":true},
-    "B2":{"name":"Signature renders","required":true},
-    "B3":{"name":"Audio measurements","required":true},
-    "B4":{"name":"Signature hard gates","required":true},
-    "B5":{"name":"Signature secondary gates","required":true},
-    "B6":{"name":"Signature score verdict","required":true},
-    "B8":{"name":"Listening A/B","required":true},
-    "B10":{"name":"Audio save/restore roundtrip","required":true},
-    "B11":{"name":"Windows host validation","required":true},
-    "B12":{"name":"Studio One 8 validation","required":true},
-    "B13":{"name":"30 minute soak","required":true},
-    "B14":{"name":"Release candidate gate","required":true}
+    "A1": {
+      "name": "Installer consistency",
+      "required": true,
+      "required_checks": [
+        "A1.01",
+        "A1.02",
+        "A1.03",
+        "A1.04",
+        "A1.05",
+        "A1.06"
+      ]
+    },
+    "A2": {
+      "name": "Signature definition",
+      "required": true,
+      "required_checks": [
+        "A2.01",
+        "A2.02",
+        "A2.03",
+        "A2.04",
+        "A2.05",
+        "A2.06",
+        "A2.07",
+        "A2.08"
+      ]
+    },
+    "A3": {
+      "name": "Signature APVTS recall",
+      "required": true,
+      "required_checks": [
+        "A3.01",
+        "A3.02",
+        "A3.03",
+        "A3.04",
+        "A3.05",
+        "A3.06",
+        "A3.07",
+        "A3.08",
+        "A3.09"
+      ]
+    },
+    "A4": {
+      "name": "Factory compatibility",
+      "required": true,
+      "required_checks": [
+        "A4.01",
+        "A4.02",
+        "A4.03",
+        "A4.04",
+        "A4.05"
+      ]
+    },
+    "A5": {
+      "name": "Hartke IR import",
+      "required": true,
+      "required_checks": [
+        "A5.01",
+        "A5.02",
+        "A5.03",
+        "A5.04",
+        "A5.05",
+        "A5.06",
+        "A5.07",
+        "A5.08"
+      ]
+    },
+    "A6": {
+      "name": "Marshall IR import",
+      "required": true,
+      "required_checks": [
+        "A6.01",
+        "A6.02",
+        "A6.03",
+        "A6.04",
+        "A6.05",
+        "A6.06",
+        "A6.07",
+        "A6.08"
+      ]
+    },
+    "A7": {
+      "name": "IR chain of trust",
+      "required": true,
+      "required_checks": [
+        "A7.01",
+        "A7.02",
+        "A7.03",
+        "A7.04",
+        "A7.05",
+        "A7.06",
+        "A7.07"
+      ]
+    },
+    "A8": {
+      "name": "IR fallback policy",
+      "required": true,
+      "required_checks": [
+        "A8.01",
+        "A8.02",
+        "A8.03",
+        "A8.04"
+      ]
+    },
+    "A9": {
+      "name": "Signature benchmark calculator",
+      "required": true,
+      "required_checks": [
+        "A9.01",
+        "A9.02",
+        "A9.03",
+        "A9.04",
+        "A9.05",
+        "A9.06",
+        "A9.07",
+        "A9.08",
+        "A9.09"
+      ]
+    },
+    "A10": {
+      "name": "Signature hard and secondary gates",
+      "required": true,
+      "required_checks": [
+        "A10.01",
+        "A10.02",
+        "A10.03",
+        "A10.04",
+        "A10.05",
+        "A10.06"
+      ]
+    },
+    "A11": {
+      "name": "Benchmark JSON",
+      "required": true,
+      "required_checks": [
+        "A11.01",
+        "A11.02",
+        "A11.03",
+        "A11.04",
+        "A11.05",
+        "A11.06",
+        "A11.07",
+        "A11.08",
+        "A11.09"
+      ]
+    },
+    "A12": {
+      "name": "Automated regression tests",
+      "required": true,
+      "required_checks": [
+        "A12.01",
+        "A12.02",
+        "A12.03",
+        "A12.04",
+        "A12.05",
+        "A12.06",
+        "A12.07"
+      ]
+    },
+    "A13": {
+      "name": "CI final state",
+      "required": true,
+      "required_checks": [
+        "A13.01",
+        "A13.02",
+        "A13.03",
+        "A13.04",
+        "A13.05",
+        "A13.06",
+        "A13.07"
+      ]
+    },
+    "A14": {
+      "name": "Documentation sync",
+      "required": true,
+      "required_checks": [
+        "A14.01",
+        "A14.02",
+        "A14.03",
+        "A14.04",
+        "A14.05",
+        "A14.06",
+        "A14.07"
+      ]
+    },
+    "B1": {
+      "name": "Same-DI fixture",
+      "required": true,
+      "required_checks": [
+        "B1.RESULT"
+      ]
+    },
+    "B2": {
+      "name": "Signature renders",
+      "required": true,
+      "required_checks": [
+        "B2.RESULT"
+      ]
+    },
+    "B3": {
+      "name": "Audio measurements",
+      "required": true,
+      "required_checks": [
+        "B3.RESULT"
+      ]
+    },
+    "B4": {
+      "name": "Signature hard gates",
+      "required": true,
+      "required_checks": [
+        "B4.H1",
+        "B4.H2",
+        "B4.H3",
+        "B4.H4"
+      ]
+    },
+    "B5": {
+      "name": "Signature secondary gates",
+      "required": true,
+      "required_checks": [
+        "B5.RESULT"
+      ]
+    },
+    "B6": {
+      "name": "Signature score verdict",
+      "required": true,
+      "required_checks": [
+        "B6.RESULT"
+      ]
+    },
+    "B8": {
+      "name": "Listening A/B",
+      "required": true,
+      "required_checks": [
+        "B8.RESULT"
+      ]
+    },
+    "B10": {
+      "name": "Audio save/restore roundtrip",
+      "required": true,
+      "required_checks": [
+        "B10.RESULT"
+      ]
+    },
+    "B11": {
+      "name": "Windows host validation",
+      "required": true,
+      "required_checks": [
+        "B11.RESULT"
+      ]
+    },
+    "B12": {
+      "name": "Studio One 8 validation",
+      "required": true,
+      "required_checks": [
+        "B12.RESULT"
+      ]
+    },
+    "B13": {
+      "name": "30 minute soak",
+      "required": true,
+      "required_checks": [
+        "B13.RESULT"
+      ]
+    },
+    "B14": {
+      "name": "Release candidate gate",
+      "required": true,
+      "required_checks": [
+        "B14.RESULT"
+      ]
+    }
   },
   "profiles": {
     "pull_request": {
-      "required_stages":["A1","A2","A3","A4","A5","A6","A7","A8","A9","A10","A11","A12","A13","A14"]
+      "required_stages": [
+        "A1",
+        "A2",
+        "A3",
+        "A4",
+        "A5",
+        "A6",
+        "A7",
+        "A8",
+        "A9",
+        "A10",
+        "A11",
+        "A12",
+        "A13",
+        "A14"
+      ]
     },
     "windows_rc": {
-      "required_stages":["A1","A2","A3","A4","A5","A6","A7","A8","A9","A10","A11","A12","A13","A14","B1","B2","B3","B4","B5","B6","B8","B10","B11","B13","B14"]
+      "required_stages": [
+        "A1",
+        "A2",
+        "A3",
+        "A4",
+        "A5",
+        "A6",
+        "A7",
+        "A8",
+        "A9",
+        "A10",
+        "A11",
+        "A12",
+        "A13",
+        "A14",
+        "B1",
+        "B2",
+        "B3",
+        "B4",
+        "B5",
+        "B6",
+        "B8",
+        "B10",
+        "B11",
+        "B13",
+        "B14"
+      ]
     },
     "full_release": {
-      "required_stages":["A1","A2","A3","A4","A5","A6","A7","A8","A9","A10","A11","A12","A13","A14","B1","B2","B3","B4","B5","B6","B8","B10","B11","B12","B13","B14"]
+      "required_stages": [
+        "A1",
+        "A2",
+        "A3",
+        "A4",
+        "A5",
+        "A6",
+        "A7",
+        "A8",
+        "A9",
+        "A10",
+        "A11",
+        "A12",
+        "A13",
+        "A14",
+        "B1",
+        "B2",
+        "B3",
+        "B4",
+        "B5",
+        "B6",
+        "B8",
+        "B10",
+        "B11",
+        "B12",
+        "B13",
+        "B14"
+      ]
     }
-  }
+  },
+  "hard_gates": [
+    "A1.04",
+    "A1.05",
+    "A1.06",
+    "A3.01",
+    "A3.06",
+    "A3.07",
+    "A3.08",
+    "A4.01",
+    "A4.03",
+    "A4.04",
+    "A4.05",
+    "A5.01",
+    "A5.05",
+    "A5.08",
+    "A6.01",
+    "A6.05",
+    "A6.08",
+    "A7.01",
+    "A7.02",
+    "A7.03",
+    "A7.04",
+    "A7.05",
+    "A7.06",
+    "A7.07",
+    "A8.01",
+    "A8.02",
+    "A8.03",
+    "A12.01",
+    "A12.02",
+    "A12.03",
+    "A12.04",
+    "A12.05",
+    "A12.06",
+    "A12.07",
+    "A13.01",
+    "A13.02",
+    "A13.03",
+    "A13.04",
+    "A13.05",
+    "A13.06",
+    "A13.07",
+    "B4.H1",
+    "B4.H2",
+    "B4.H3",
+    "B4.H4",
+    "B6.RESULT",
+    "B10.RESULT",
+    "B11.RESULT",
+    "B13.RESULT",
+    "B14.RESULT"
+  ]
 }
