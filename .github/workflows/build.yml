@@ -17,8 +17,10 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - name: Check release packaging syntax
-        run: python -m py_compile Tools/package_release.py
+      - name: Check release packaging and validation syntax
+        run: |
+          python -m py_compile Tools/package_release.py Tools/evaluate_release_gate.py Tools/test_release_gate.py
+          python Tools/test_release_gate.py
       - name: Check Windows packaging script syntax
         if: runner.os == 'Windows'
         shell: pwsh
