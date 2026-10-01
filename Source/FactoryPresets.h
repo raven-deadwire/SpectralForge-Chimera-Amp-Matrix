@@ -13,7 +13,7 @@ struct FactoryPreset {
     const char* description;
     PresetKind kind{PresetKind::factory};
     std::array<const char*,3> irTargets{};
-    std::array<const char*,3> irTargetHashes{};
+    std::array<const char*,3> irTargetHashes{"","",""};
     // Own the values instead of retaining initializer-list backing-array pointers.
     // Signature presets also carry five-slot/native state, so reserve more than
     // the legacy factory table while keeping all values constexpr and bounded.
