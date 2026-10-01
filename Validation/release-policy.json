@@ -1,0 +1,47 @@
+{
+  "schema": "spectralforge.chimera.release-policy",
+  "schema_version": 1,
+  "policy_version": 1,
+  "dependency_satisfied_by": ["PASS","NOT_APPLICABLE"],
+  "release_verdicts": ["PASS","BLOCKED"],
+  "blocker_types": ["DEPENDENCY","NOT_EXECUTED","TEST_FAILURE","ENVIRONMENT","INPUT_MISSING","ARTIFACT_MISSING","STALE_EVIDENCE","REGRESSION","UNKNOWN"],
+  "stages": {
+    "A1":{"name":"Installer consistency","required":true},
+    "A2":{"name":"Signature definition","required":true},
+    "A3":{"name":"Signature APVTS recall","required":true},
+    "A4":{"name":"Factory compatibility","required":true},
+    "A5":{"name":"Hartke IR import","required":true},
+    "A6":{"name":"Marshall IR import","required":true},
+    "A7":{"name":"IR chain of trust","required":true},
+    "A8":{"name":"IR fallback policy","required":true},
+    "A9":{"name":"Signature benchmark calculator","required":true},
+    "A10":{"name":"Signature hard and secondary gates","required":true},
+    "A11":{"name":"Benchmark JSON","required":true},
+    "A12":{"name":"Automated regression tests","required":true},
+    "A13":{"name":"CI final state","required":true},
+    "A14":{"name":"Documentation sync","required":true},
+    "B1":{"name":"Same-DI fixture","required":true},
+    "B2":{"name":"Signature renders","required":true},
+    "B3":{"name":"Audio measurements","required":true},
+    "B4":{"name":"Signature hard gates","required":true},
+    "B5":{"name":"Signature secondary gates","required":true},
+    "B6":{"name":"Signature score verdict","required":true},
+    "B8":{"name":"Listening A/B","required":true},
+    "B10":{"name":"Audio save/restore roundtrip","required":true},
+    "B11":{"name":"Windows host validation","required":true},
+    "B12":{"name":"Studio One 8 validation","required":true},
+    "B13":{"name":"30 minute soak","required":true},
+    "B14":{"name":"Release candidate gate","required":true}
+  },
+  "profiles": {
+    "pull_request": {
+      "required_stages":["A1","A2","A3","A4","A5","A6","A7","A8","A9","A10","A11","A12","A13","A14"]
+    },
+    "windows_rc": {
+      "required_stages":["A1","A2","A3","A4","A5","A6","A7","A8","A9","A10","A11","A12","A13","A14","B1","B2","B3","B4","B5","B6","B8","B10","B11","B13","B14"]
+    },
+    "full_release": {
+      "required_stages":["A1","A2","A3","A4","A5","A6","A7","A8","A9","A10","A11","A12","A13","A14","B1","B2","B3","B4","B5","B6","B8","B10","B11","B12","B13","B14"]
+    }
+  }
+}
