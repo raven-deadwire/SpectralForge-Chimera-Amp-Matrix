@@ -21,8 +21,9 @@ jobs:
       - name: Check candidate installer scripts
         shell: pwsh
         run: |
-          python -m py_compile Tools/package_installer_candidate.py Tools/Build-PersonalWindowsBundle.py Tools/prepare_lifecycle_baseline.py Tools/extract_vblank_test_class.py Tools/verify_vblank_failure.py Tools/evaluate_release_gate.py Tools/test_release_gate.py
+          python -m py_compile Tools/package_installer_candidate.py Tools/Build-PersonalWindowsBundle.py Tools/prepare_lifecycle_baseline.py Tools/extract_vblank_test_class.py Tools/verify_vblank_failure.py Tools/evaluate_release_gate.py Tools/test_release_gate.py Tools/evaluate_signature_benchmark.py Tools/test_signature_benchmark.py
           python Tools/test_release_gate.py
+          python Tools/test_signature_benchmark.py
           foreach ($script in @("Tools/Build-WindowsInstaller.ps1", "Tools/Verify-WindowsInstaller.ps1", "Tools/Trace-Chimera-Session.ps1")) {
             $tokens = $null
             $errors = $null
