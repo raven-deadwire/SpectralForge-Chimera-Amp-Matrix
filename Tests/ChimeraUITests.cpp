@@ -9,6 +9,7 @@
 #include "PedalMenuTests.h"
 #include "NativeStateTests.h"
 #include "NativeUITests.h"
+#include <algorithm>
 #include <map>
 #include <iostream>
 #include <set>
