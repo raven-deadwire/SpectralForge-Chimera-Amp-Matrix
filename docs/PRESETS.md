@@ -75,7 +75,7 @@ These three presets are mix-role reconstructions derived from the Deadwire stere
 | Wild Hunt | 165 Hz / 1.5 kHz | Taste Punch / Solid Punch / Tight 515 | MID: Hartke HyDrive 410 — SM57; HIGH: Raven G12-100 — SM57 In |
 | Azhi Dahaka | 135 Hz / 1.2 kHz | Classic Tube / Modern Bass / Night Harvest | MID: Ampeg 8x10 — MD421; HIGH: Marshall 1960BV G12T75 — SM57 S1 P3 |
 
-The Hartke HyDrive 410 TONE3000 ZIP and the Marshall 1960BV V30/G12T75 TONE3000 ZIP are supported by **IMPORT PERSONAL ZIP**. Chimera validates the exact ZIP SHA-256 before extracting them, validates every contained WAV, writes metadata sidecars, and installs 7 Hartke or 55 Marshall captures into the local IR library. The original T3K audio files are not committed to this repository or bundled in public installers.
+The Hartke HyDrive 410 TONE3000 ZIP and the Marshall 1960BV V30/G12T75 TONE3000 ZIP are supported by **IMPORT PERSONAL ZIP**. Chimera validates the exact ZIP SHA-256 before extracting them, validates every contained WAV, writes metadata sidecars (including per-WAV and source-pack SHA-256), and installs 7 Hartke or 55 Marshall captures into the local IR library. The original T3K audio files are not committed to this repository or bundled in public installers. Wild MID and Azhi HIGH also pin the exact selected WAV SHA-256, so a same-name replacement does not satisfy Signature auto-recall.
 
 If a Signature IR target is missing, Chimera does not silently substitute an unrelated factory IR; that lane falls back to Filters only until the intended file is installed.
 
@@ -90,3 +90,7 @@ For compatibility, the original five menu IDs remain Clean Sustain, Tight Rhythm
 ## Validation scope
 
 `Tests/FactoryPresetTests.h` checks metadata, complete sound initialization, valid effect/model selections, portability of cabinet sources and the clean Matrix LOW contract. Its deterministic plucked-string fixture runs all 31 presets through PRE, amplifiers, embedded cabinet convolution, POST and preset output gain at 44.1 and 48 kHz with unequal host block sizes. It requires finite, audible, unclipped output for that calibrated fixture. This is a regression check; listening with real instruments and adjusting input gain remain necessary.
+
+## Signature validation gate
+
+The machine-readable targets and scoring rules live in `Validation/signature-benchmark-policy.json`. The evaluator `Tools/evaluate_signature_benchmark.py` reports PASS, REVISE or INVALID from same-DI render metrics. A high aggregate score cannot override a failed Signature hard gate. General CI completion states and release dependency rules are documented in `VALIDATION_STATUS.md`.
