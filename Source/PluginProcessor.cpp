@@ -1,4 +1,5 @@
 #include "PluginProcessor.h"
+#include <algorithm>
 #include "PluginEditor.h"
 #include "FactoryPresets.h"
 #include "ReleaseInfo.h"
@@ -350,6 +351,7 @@ void ChimeraProcessor::applyPresetIRTargets(int index) {
     const auto entries=spectralforge::IRCollection::scan(spectralforge::IRCollection::roots(),true);
     for(int lane=0;lane<3;++lane) {
         const auto target=juce::String::fromUTF8(spectralforge::presetIRTarget(index,lane));
+        const auto expectedHash=juce::String::fromUTF8(spectralforge::presetIRTargetHash(index,lane));
         if(target.isEmpty())continue;
         const bool tagged=target.startsWith("tag:");
         const auto terms=tagged ? juce::StringArray::fromTokens(target.substring(4),"|","") : juce::StringArray{};
@@ -362,6 +364,8 @@ void ChimeraProcessor::applyPresetIRTargets(int index) {
                 const auto haystack=entry.name+" "+entry.displayName()+" "+juce::JSON::toString(entry.tags.json(),true);
                 matches=true;for(const auto& term:terms)if(!haystack.containsIgnoreCase(term.trim())){matches=false;break;}
             } else matches=entry.name==target && (!catalogTarget || entry.reference);
+            if(matches && expectedHash.isNotEmpty() && entry.factorySource==0)
+                matches=spectralforge::IRCollection::matchesExpectedHash(entry.file,expectedHash);
             if(!matches)continue;
             match=&entry;
             if(entry.reference)break;
