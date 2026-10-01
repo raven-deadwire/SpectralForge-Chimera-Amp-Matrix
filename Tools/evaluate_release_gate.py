@@ -185,18 +185,37 @@ def evaluate_release(policy: dict, waivers: dict, checks: dict[str,dict], profil
                 "blockers":[{"id":stage_id,"type":"ARTIFACT_MISSING","reason":"No validation check report was produced for this required stage"}]
             }
             continue
-        blockers=[r for r in members if r["computed_status"]=="BLOCKED"]
-        statuses=[r["computed_status"] for r in members]
+        required_members=[r for r in members if checks[r["id"]]["policy"].get("required") or checks[r["id"]]["policy"].get("hard_gate")]
+        if not required_members:
+            stage_results[stage_id]={
+                "id":stage_id,"name":policy["stages"].get(stage_id,{}).get("name",stage_id),
+                "computed_status":"BLOCKED",
+                "counts":{"total":len(members),"pass":sum(r["computed_status"]=="PASS" for r in members),"blocked":1,"not_applicable":sum(r["computed_status"]=="NOT_APPLICABLE" for r in members)},
+                "blockers":[{"id":stage_id,"type":"ARTIFACT_MISSING","reason":"Required stage produced no required validation checks"}]
+            }
+            continue
+        blockers=[r for r in required_members if r["computed_status"]=="BLOCKED"]
+        required_statuses=[r["computed_status"] for r in required_members]
+        all_na=all(x=="NOT_APPLICABLE" for x in required_statuses)
+        allow_stage_na=policy["stages"].get(stage_id,{}).get("allow_not_applicable",False)
         if blockers:
             status="BLOCKED"
-        elif all(x=="NOT_APPLICABLE" for x in statuses):
+        elif all_na and not allow_stage_na:
+            status="BLOCKED"
+            blockers=[{
+                "id":stage_id,"stage":stage_id,"name":policy["stages"].get(stage_id,{}).get("name",stage_id),
+                "computed_status":"BLOCKED",
+                "blocker":{"type":"DEPENDENCY","reason":"Required stage cannot be satisfied entirely by NOT_APPLICABLE checks"}
+            }]
+        elif all_na:
             status="NOT_APPLICABLE"
         else:
             status="PASS"
+        statuses=[r["computed_status"] for r in members]
         stage_results[stage_id]={
             "id":stage_id,"name":policy["stages"].get(stage_id,{}).get("name",stage_id),
             "computed_status":status,
-            "counts":{"total":len(members),"pass":statuses.count("PASS"),"blocked":statuses.count("BLOCKED"),"not_applicable":statuses.count("NOT_APPLICABLE")},
+            "counts":{"total":len(members),"pass":statuses.count("PASS"),"blocked":statuses.count("BLOCKED")+(1 if all_na and not allow_stage_na else 0),"not_applicable":statuses.count("NOT_APPLICABLE")},
             "blockers":[{"id":r["id"],**(r.get("blocker") or {})} for r in blockers]
         }
 
