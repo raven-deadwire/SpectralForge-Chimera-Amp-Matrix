@@ -159,11 +159,24 @@ struct IRCollection {
         labelEntries(result);return result;
     }
     enum class ApprovedPack { none, hartkeHyDrive410, marshall1960BV };
+    static juce::String approvedPackHash(ApprovedPack pack) {
+        if(pack==ApprovedPack::hartkeHyDrive410)return "c95e39e488d293cc786723116e27c590fae8016f7a806749435b3c823a39b50e";
+        if(pack==ApprovedPack::marshall1960BV)return "c78de95fac7d5a4874c77e2bde186f68aefbe8068f043abd7e7f2c7f1b21c9ae";
+        return {};
+    }
+    static juce::String approvedPackName(ApprovedPack pack) {
+        if(pack==ApprovedPack::hartkeHyDrive410)return "hartke-hydrive-410";
+        if(pack==ApprovedPack::marshall1960BV)return "marshall-1960bv-v30-g12t75";
+        return {};
+    }
+    static bool matchesExpectedHash(const juce::File& file,const juce::String& expected) {
+        return expected.isEmpty() || (file.existsAsFile() && juce::SHA256(file).toHexString().equalsIgnoreCase(expected));
+    }
     static ApprovedPack approvedPack(const juce::File& file) {
         if(!file.existsAsFile()) return ApprovedPack::none;
         const auto hash=juce::SHA256(file).toHexString();
-        if(hash=="c95e39e488d293cc786723116e27c590fae8016f7a806749435b3c823a39b50e") return ApprovedPack::hartkeHyDrive410;
-        if(hash=="c78de95fac7d5a4874c77e2bde186f68aefbe8068f043abd7e7f2c7f1b21c9ae") return ApprovedPack::marshall1960BV;
+        if(hash==approvedPackHash(ApprovedPack::hartkeHyDrive410)) return ApprovedPack::hartkeHyDrive410;
+        if(hash==approvedPackHash(ApprovedPack::marshall1960BV)) return ApprovedPack::marshall1960BV;
         return ApprovedPack::none;
     }
     static juce::String validateEncodedIR(const juce::MemoryBlock& data) {
@@ -231,6 +244,11 @@ struct IRCollection {
             std::unique_ptr<juce::InputStream> stream(zip.createStreamForEntry(i));juce::MemoryBlock data;
             if(!stream || stream->readIntoMemoryBlock(data,entry->uncompressedSize)!=entry->uncompressedSize)return juce::Result::fail("IR pack data is incomplete.");
             const auto validation=validateEncodedIR(data);if(validation.isNotEmpty())return juce::Result::fail(validation);
+            if(auto* object=metadata.getDynamicObject()) {
+                object->setProperty("audio_sha256",juce::SHA256(data).toHexString());
+                object->setProperty("source_pack_sha256",approvedPackHash(pack));
+                object->setProperty("approved_pack",approvedPackName(pack));
+            }
             pending.push_back({leaf,std::move(data),metadata});
         }
         if((int)pending.size()!=expected)return juce::Result::fail("The approved IR pack is incomplete.");
