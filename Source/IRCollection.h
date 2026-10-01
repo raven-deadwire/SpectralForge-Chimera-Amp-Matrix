@@ -172,6 +172,13 @@ struct IRCollection {
     static bool matchesExpectedHash(const juce::File& file,const juce::String& expected) {
         return expected.isEmpty() || (file.existsAsFile() && juce::SHA256(file).toHexString().equalsIgnoreCase(expected));
     }
+    static void stampApprovedIntegrity(juce::var& metadata,ApprovedPack pack,const juce::MemoryBlock& data) {
+        if(auto* object=metadata.getDynamicObject()) {
+            object->setProperty("audio_sha256",juce::SHA256(data).toHexString());
+            object->setProperty("source_pack_sha256",approvedPackHash(pack));
+            object->setProperty("approved_pack",approvedPackName(pack));
+        }
+    }
     static ApprovedPack approvedPack(const juce::File& file) {
         if(!file.existsAsFile()) return ApprovedPack::none;
         const auto hash=juce::SHA256(file).toHexString();
@@ -244,11 +251,7 @@ struct IRCollection {
             std::unique_ptr<juce::InputStream> stream(zip.createStreamForEntry(i));juce::MemoryBlock data;
             if(!stream || stream->readIntoMemoryBlock(data,entry->uncompressedSize)!=entry->uncompressedSize)return juce::Result::fail("IR pack data is incomplete.");
             const auto validation=validateEncodedIR(data);if(validation.isNotEmpty())return juce::Result::fail(validation);
-            if(auto* object=metadata.getDynamicObject()) {
-                object->setProperty("audio_sha256",juce::SHA256(data).toHexString());
-                object->setProperty("source_pack_sha256",approvedPackHash(pack));
-                object->setProperty("approved_pack",approvedPackName(pack));
-            }
+            stampApprovedIntegrity(metadata,pack,data);
             pending.push_back({leaf,std::move(data),metadata});
         }
         if((int)pending.size()!=expected)return juce::Result::fail("The approved IR pack is incomplete.");
