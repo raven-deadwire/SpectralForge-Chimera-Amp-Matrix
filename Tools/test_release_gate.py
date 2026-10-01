@@ -16,11 +16,11 @@ POLICY={
 }
 WAIVERS={"waivers":[{"id":"W1","check_id":"A.2","scope":{"platform":"windows"},"reason":"not produced","approved":True,"expires":None}]}
 
-def check(cid,*,hard=False,applicable=True,waiver=None,executed=True,exit_code=0,passed=True,commit=COMMIT,deps=None,na="FORBIDDEN"):
+def check(cid,*,hard=False,required=True,applicable=True,waiver=None,executed=True,exit_code=0,passed=True,commit=COMMIT,deps=None,na="FORBIDDEN"):
     return {
         "schema":"spectralforge.chimera.validation.check","schema_version":1,
         "id":cid,"stage":"A","name":cid,"scope":{"platform":"windows"},
-        "policy":{"required":True,"hard_gate":hard,"na_policy":na},
+        "policy":{"required":required,"hard_gate":hard,"na_policy":na},
         "dependencies":deps or [],
         "assertion":{"passed":passed},
         "execution":{"executed":executed,"exit_code":exit_code},
@@ -58,10 +58,18 @@ def run():
     child=next(c for c in result["checks"] if c["id"]=="A.3")
     require(child["computed_status"]=="BLOCKED" and child["reason_code"]=="DEPENDENCY_BLOCKED","blockers must propagate downstream")
 
+    all_na={"A.2":check("A.2",applicable=False,waiver="W1",na="ALLOWED_WITH_REASON")}
+    result=gate.evaluate_release(POLICY,WAIVERS,all_na,"unit",COMMIT)
+    require(result["verdict"]=="BLOCKED" and result["stages"][0]["computed_status"]=="BLOCKED","required stage must not be satisfied entirely by N/A")
+
+    optional_failure={"A.1":check("A.1",hard=True),"A.optional":check("A.optional",required=False,passed=False)}
+    result=gate.evaluate_release(POLICY,WAIVERS,optional_failure,"unit",COMMIT)
+    require(result["verdict"]=="PASS","optional failure must remain visible without blocking a required stage")
+
     missing_stage=gate.evaluate_release(POLICY,WAIVERS,{},"unit",COMMIT)
     require(missing_stage["verdict"]=="BLOCKED" and missing_stage["stages"][0]["counts"]["total"]==0,"missing reports must never become N/A")
 
-    print("PASS: release gate rejects hard-gate N/A, stale evidence, failed assertions, dependency gaps and missing reports; approved scoped N/A remains explicit.")
+    print("PASS: release gate rejects hard-gate N/A, all-N/A required stages, stale evidence, failed required assertions, dependency gaps and missing reports; optional failures do not silently become required.")
 
 if __name__=="__main__":
     run()
