@@ -75,6 +75,7 @@ def blocked(check: dict, reason_code: str, blocker_type: str, message: str, depe
 
 def evaluate_checks(checks: dict[str,dict], policy: dict, waivers: dict, current_commit: str) -> dict[str,dict]:
     active_policy=policy["policy_version"]
+    central_hard=set(policy.get("hard_gates",[]))
     results={}
     visiting=set()
 
@@ -106,7 +107,7 @@ def evaluate_checks(checks: dict[str,dict], policy: dict, waivers: dict, current
 
         applicable=check["applicability"]["applicable"]
         if not applicable:
-            if check["policy"]["hard_gate"] or check["policy"]["na_policy"]=="FORBIDDEN":
+            if check_id in central_hard or check["policy"]["hard_gate"] or check["policy"]["na_policy"]=="FORBIDDEN":
                 result=blocked(check,"NA_FORBIDDEN","DEPENDENCY","NOT_APPLICABLE is forbidden for this check")
             else:
                 approved,waiver_id=waiver_valid(check,waivers)
@@ -176,52 +177,70 @@ def evaluate_release(policy: dict, waivers: dict, checks: dict[str,dict], profil
     results=evaluate_checks(checks,policy,waivers,current_commit)
 
     stage_results={}
+    check_stage={}
+    for stage_id,stage_policy in policy.get("stages",{}).items():
+        for check_id in stage_policy.get("required_checks",[]):
+            if check_id in check_stage and check_stage[check_id]!=stage_id:
+                raise ValidationError(f"Required check {check_id} belongs to multiple stages")
+            check_stage[check_id]=stage_id
+
     for stage_id in required_stages:
+        stage_policy=policy["stages"].get(stage_id,{})
+        expected=list(stage_policy.get("required_checks",[]))
+        if not expected:
+            expected=[cid for cid,doc in checks.items() if doc.get("stage")==stage_id and doc.get("policy",{}).get("required")]
         members=[r for cid,r in results.items() if checks.get(cid,{}).get("stage")==stage_id]
-        if not members:
-            stage_results[stage_id]={
-                "id":stage_id,"name":policy["stages"].get(stage_id,{}).get("name",stage_id),
-                "computed_status":"BLOCKED","counts":{"total":0,"pass":0,"blocked":1,"not_applicable":0},
-                "blockers":[{"id":stage_id,"type":"ARTIFACT_MISSING","reason":"No validation check report was produced for this required stage"}]
-            }
-            continue
-        required_members=[r for r in members if checks[r["id"]]["policy"].get("required") or checks[r["id"]]["policy"].get("hard_gate")]
-        if not required_members:
-            stage_results[stage_id]={
-                "id":stage_id,"name":policy["stages"].get(stage_id,{}).get("name",stage_id),
-                "computed_status":"BLOCKED",
-                "counts":{"total":len(members),"pass":sum(r["computed_status"]=="PASS" for r in members),"blocked":1,"not_applicable":sum(r["computed_status"]=="NOT_APPLICABLE" for r in members)},
-                "blockers":[{"id":stage_id,"type":"ARTIFACT_MISSING","reason":"Required stage produced no required validation checks"}]
-            }
-            continue
+        missing=[cid for cid in expected if cid not in checks]
+        required_members=[results[cid] for cid in expected if cid in results]
         blockers=[r for r in required_members if r["computed_status"]=="BLOCKED"]
+        blocker_rows=[{"id":r["id"],**(r.get("blocker") or {})} for r in blockers]
+        blocker_rows += [{"id":cid,"type":"ARTIFACT_MISSING","reason":"Required validation check report is missing"} for cid in missing]
+
         required_statuses=[r["computed_status"] for r in required_members]
-        all_na=all(x=="NOT_APPLICABLE" for x in required_statuses)
-        allow_stage_na=policy["stages"].get(stage_id,{}).get("allow_not_applicable",False)
-        if blockers:
+        all_na=bool(required_statuses) and not missing and all(x=="NOT_APPLICABLE" for x in required_statuses)
+        allow_stage_na=stage_policy.get("allow_not_applicable",False)
+        if missing or blockers:
             status="BLOCKED"
+        elif not expected:
+            status="BLOCKED"
+            blocker_rows=[{"id":stage_id,"type":"ARTIFACT_MISSING","reason":"Required stage has no policy-owned required checks"}]
         elif all_na and not allow_stage_na:
             status="BLOCKED"
-            blockers=[{
-                "id":stage_id,"stage":stage_id,"name":policy["stages"].get(stage_id,{}).get("name",stage_id),
-                "computed_status":"BLOCKED",
-                "blocker":{"type":"DEPENDENCY","reason":"Required stage cannot be satisfied entirely by NOT_APPLICABLE checks"}
-            }]
+            blocker_rows=[{"id":stage_id,"type":"DEPENDENCY","reason":"Required stage cannot be satisfied entirely by NOT_APPLICABLE checks"}]
         elif all_na:
             status="NOT_APPLICABLE"
         else:
             status="PASS"
+
         statuses=[r["computed_status"] for r in members]
         stage_results[stage_id]={
-            "id":stage_id,"name":policy["stages"].get(stage_id,{}).get("name",stage_id),
+            "id":stage_id,"name":stage_policy.get("name",stage_id),
             "computed_status":status,
-            "counts":{"total":len(members),"pass":statuses.count("PASS"),"blocked":statuses.count("BLOCKED")+(1 if all_na and not allow_stage_na else 0),"not_applicable":statuses.count("NOT_APPLICABLE")},
-            "blockers":[{"id":r["id"],**(r.get("blocker") or {})} for r in blockers]
+            "counts":{"total":len(expected),"pass":sum(results[c]["computed_status"]=="PASS" for c in expected if c in results),
+                      "blocked":len(blocker_rows),"not_applicable":sum(results[c]["computed_status"]=="NOT_APPLICABLE" for c in expected if c in results)},
+            "reported_counts":{"total":len(members),"pass":statuses.count("PASS"),"blocked":statuses.count("BLOCKED"),"not_applicable":statuses.count("NOT_APPLICABLE")},
+            "blockers":blocker_rows
         }
 
-    hard=[r for cid,r in results.items()
-          if checks.get(cid,{}).get("stage") in required_stages and checks.get(cid,{}).get("policy",{}).get("hard_gate")]
-    hard_blocked=[r for r in hard if r["computed_status"]!="PASS"]
+    active_hard=[]
+    hard_blocked=[]
+    for hard_id in policy.get("hard_gates",[]):
+        stage_id=check_stage.get(hard_id,checks.get(hard_id,{}).get("stage"))
+        if stage_id not in required_stages:
+            continue
+        if hard_id not in results:
+            row={"id":hard_id,"stage":stage_id,"name":hard_id,"computed_status":"BLOCKED",
+                 "reason_code":"MISSING_CHECK","dependency_state":"MISSING","applicability_state":"APPLICABLE",
+                 "blocker":{"type":"ARTIFACT_MISSING","reason":"Hard-gate validation report is missing"}}
+        else:
+            row=results[hard_id]
+        active_hard.append(row)
+        if row["computed_status"]!="PASS":
+            hard_blocked.append(row)
+    if not policy.get("hard_gates"):
+        active_hard=[r for cid,r in results.items()
+                     if checks.get(cid,{}).get("stage") in required_stages and checks.get(cid,{}).get("policy",{}).get("hard_gate")]
+        hard_blocked=[r for r in active_hard if r["computed_status"]!="PASS"]
     blocked_stages=[s for s in stage_results.values() if s["computed_status"]=="BLOCKED"]
     verdict="PASS" if not blocked_stages and not hard_blocked else "BLOCKED"
 
@@ -240,7 +259,7 @@ def evaluate_release(policy: dict, waivers: dict, checks: dict[str,dict], profil
             "pass":sum(s["computed_status"]=="PASS" for s in stage_results.values()),
             "blocked":sum(s["computed_status"]=="BLOCKED" for s in stage_results.values()),
             "not_applicable":sum(s["computed_status"]=="NOT_APPLICABLE" for s in stage_results.values())}},
-        "hard_gates":{"total":len(hard),"pass":sum(r["computed_status"]=="PASS" for r in hard),"blocked":len(hard_blocked)},
+        "hard_gates":{"total":len(active_hard),"pass":sum(r["computed_status"]=="PASS" for r in active_hard),"blocked":len(hard_blocked)},
         "checks":[results[k] for k in sorted(results) if checks.get(k,{}).get("stage") in required_stages],
         "stages":[stage_results[k] for k in required_stages],
         "blockers":[{"id":r["id"],**(r.get("blocker") or {})} for r in hard_blocked]
