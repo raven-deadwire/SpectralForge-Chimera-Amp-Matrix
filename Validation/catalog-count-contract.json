@@ -1,0 +1,67 @@
+{
+  "schema": "spectralforge.chimera.catalog-count-contract",
+  "schema_version": 1,
+  "version": "1.1.1",
+  "model_counts": {
+    "amp": 23,
+    "pre": 39,
+    "post": 21,
+    "total": 83
+  },
+  "preset_counts": {
+    "factory": 31,
+    "signature": 3,
+    "total": 34
+  },
+  "pre_board_capacity": 5,
+  "factory_ordinals": [
+    "Clean Sustain",
+    "Tight Rhythm",
+    "Bass Matrix",
+    "Filter Lead",
+    "Fuzz Texture",
+    "Bell Clean",
+    "Edge Chime",
+    "Classic Crunch",
+    "Orange Heavy",
+    "Melodic Death Rhythm",
+    "Melodic Lead",
+    "Ambient Clean",
+    "Finger Round",
+    "Pick Punch",
+    "Slap Studio",
+    "Modern Grind",
+    "Vintage Bass DI",
+    "Wool Bass Fuzz",
+    "Bass Envelope",
+    "G+G Clean / Crunch",
+    "G+G Tight / Wide",
+    "G+B Low Anchor",
+    "G+B Air / Weight",
+    "B+B Warm / Definition",
+    "B+B Clean / Grind",
+    "Low B Foundation",
+    "Pick Attack Matrix",
+    "Spectral Texture",
+    "Matchless Edge",
+    "Dumble Smooth Lead",
+    "EICH Modern Clean"
+  ],
+  "signature_ordinals": [
+    {"index": 31, "name": "Crom Cruach"},
+    {"index": 32, "name": "Wild Hunt"},
+    {"index": 33, "name": "Azhi Dahaka"}
+  ],
+  "sources": {
+    "amp": "Source/AmpCatalog.h",
+    "pre": "Source/PedalBoardCatalog.h",
+    "post": "Source/ModelCatalog.h",
+    "presets": "Source/FactoryPresets.h"
+  },
+  "roadmap": {
+    "target_total": 132,
+    "next_model_window": "2026-10-12",
+    "model_policy": "append-only",
+    "preset_policy": "preserve first 31 Factory ordinals; append new presets"
+  }
+}
