@@ -1,6 +1,6 @@
-# SpectralForge Chimera — Open Beta 1.1 factory presets
+# SpectralForge Chimera — factory and signature presets
 
-The 31 factory presets are starting points for an instrument DI. The menu uses a fixed taxonomy: Guitar (Clean & Ambient / Edge & Rock / High Gain / Lead & Texture), Bass (Clean & Dynamics / Drive & Texture), Dual (Blend / Crossover), and Matrix (Bass / Experimental). Names identify Chimera's own DSP voicings; the amplifier and effect reference names are design influences, not a claim of an exact circuit or captured model.
+The 31 factory presets are starting points for an instrument DI. Three Deadwire Signature presets are appended as a separate `SIGNATURE / Deadwire` group; the original 31 factory ordinals remain unchanged. The menu uses a fixed taxonomy: Guitar (Clean & Ambient / Edge & Rock / High Gain / Lead & Texture), Bass (Clean & Dynamics / Drive & Texture), Dual (Blend / Crossover), and Matrix (Bass / Experimental). Names identify Chimera's own DSP voicings; the amplifier and effect reference names are design influences, not a claim of an exact circuit or captured model.
 
 Set interface gain first. Aim for normal playing peaks around **−12 to −6 dBFS** with Input at 0 dB; lower interface gain if the input clips. Factory output is usually −9 to −11 dB to leave mix headroom. Pickup output, playing and added gain can still change the final level. Match Output when comparing sounds; the presets are not a promise of identical loudness or a mastering limiter.
 
@@ -65,6 +65,20 @@ The LOW band in every factory Matrix preset is a **clean DI foundation**: LOW dr
 | Pick Attack Matrix | 180 Hz / 1.6 kHz | Iron Tube / Modern Bass | Warm mids and clearer pick attack |
 | Spectral Texture | 200 Hz / 1.8 kHz | Chime 30 / Orange Crown | Experimental guitar/bass texture with slow phase and hall |
 
+## Deadwire Signature presets
+
+These three presets are mix-role reconstructions derived from the Deadwire stereo masters, not claims of exact source-track recovery. They use Matrix routing and the production five-slot PRE/native amp/native POST state.
+
+| Signature | Splits | LOW / MID / HIGH | Default external IR targets |
+|---|---|---|---|
+| Crom Cruach | 200 Hz / 1.8 kHz | Taste Punch / Modern Bass / Tight 515 | MID: Ampeg 8x10 — MD421; HIGH: Raven G12-100 — SM57 In |
+| Wild Hunt | 165 Hz / 1.5 kHz | Taste Punch / Solid Punch / Tight 515 | MID: Hartke HyDrive 410 — SM57; HIGH: Raven G12-100 — SM57 In |
+| Azhi Dahaka | 135 Hz / 1.2 kHz | Classic Tube / Modern Bass / Night Harvest | MID: Ampeg 8x10 — MD421; HIGH: Marshall 1960BV G12T75 — SM57 S1 P3 |
+
+The Hartke HyDrive 410 TONE3000 ZIP and the Marshall 1960BV V30/G12T75 TONE3000 ZIP are supported by **IMPORT PERSONAL ZIP**. Chimera validates the exact ZIP SHA-256 before extracting them, validates every contained WAV, writes metadata sidecars (including per-WAV and source-pack SHA-256), and installs 7 Hartke or 55 Marshall captures into the local IR library. The original T3K audio files are not committed to this repository or bundled in public installers. Wild MID and Azhi HIGH also pin the exact selected WAV SHA-256, so a same-name replacement does not satisfy Signature auto-recall.
+
+If a Signature IR target is missing, Chimera does not silently substitute an unrelated factory IR; that lane falls back to Filters only until the intended file is installed.
+
 ## Recall behavior
 
 Loading a factory preset initializes all sound parameters, then applies its sound: amp and effect models, bypass states, tone controls, cabinet source, routing, crossover, gate, oversampling and output. A delay, fuzz, solo, polarity flip or transpose from the preceding sound cannot stay enabled accidentally. The gain section normally returns to **Fuzz → Boost → Drive**; **Dumble Smooth Lead** selects **Fuzz → Drive → Boost** to place its mild lift after Gold Drive. The detector section returns to **Envelope → Compressor**. A boost before a driven amplifier can still add saturation rather than a pure loudness increase.
@@ -76,3 +90,7 @@ For compatibility, the original five menu IDs remain Clean Sustain, Tight Rhythm
 ## Validation scope
 
 `Tests/FactoryPresetTests.h` checks metadata, complete sound initialization, valid effect/model selections, portability of cabinet sources and the clean Matrix LOW contract. Its deterministic plucked-string fixture runs all 31 presets through PRE, amplifiers, embedded cabinet convolution, POST and preset output gain at 44.1 and 48 kHz with unequal host block sizes. It requires finite, audible, unclipped output for that calibrated fixture. This is a regression check; listening with real instruments and adjusting input gain remain necessary.
+
+## Signature validation gate
+
+The machine-readable targets and scoring rules live in `Validation/signature-benchmark-policy.json`. The evaluator `Tools/evaluate_signature_benchmark.py` reports PASS, REVISE or INVALID from same-DI render metrics. A high aggregate score cannot override a failed Signature hard gate. General CI completion states and release dependency rules are documented in `VALIDATION_STATUS.md`.

@@ -9,6 +9,7 @@
 #include "PedalMenuTests.h"
 #include "NativeStateTests.h"
 #include "NativeUITests.h"
+#include <algorithm>
 #include <map>
 #include <iostream>
 #include <set>
@@ -233,9 +234,37 @@ void checkFactoryPresets()
             parameter->setValueNotifyingHost(parameter->convertTo0to1(value)==1.f ? 0.f : 1.f);
         }
         processor.loadFactoryPreset(index);
-        for(const auto& [id,value]:expected)
+        for(const auto& [id,value]:expected) {
+            const bool signatureCab=spectralforge::isSignaturePreset(index)
+                && (id=="cabtype1" || id=="cabtype2" || id=="cabtype3");
+            if(signatureCab) continue;
             if(std::abs(processor.parameters().getRawParameterValue(id)->load()-value)>juce::jmax(1e-4f,std::abs(value)*2e-6f))
                 throw std::runtime_error(std::string("Factory preset host recall mismatch: ")+spectralforge::factoryPresets[(size_t)index].name+" / "+id);
+        }
+        if(spectralforge::isSignaturePreset(index)) {
+            const auto entries=spectralforge::IRCollection::scan(spectralforge::IRCollection::roots(),true);
+            for(int lane=0;lane<3;++lane) {
+                const auto target=juce::String::fromUTF8(spectralforge::presetIRTarget(index,lane));
+                if(target.isEmpty()) continue;
+                const auto expectedHash=juce::String::fromUTF8(spectralforge::presetIRTargetHash(index,lane));
+                const bool catalogTarget=std::any_of(entries.begin(),entries.end(),[&](const auto& entry){return entry.reference && entry.name==target;});
+                const spectralforge::IRCollection::Entry* match=nullptr;
+                for(const auto& entry:entries) {
+                    if(!entry.ready() || entry.name!=target || (catalogTarget && !entry.reference)) continue;
+                    if(expectedHash.isNotEmpty() && entry.factorySource==0
+                        && !spectralforge::IRCollection::matchesExpectedHash(entry.file,expectedHash)) continue;
+                    match=&entry;if(entry.reference)break;
+                }
+                const auto cabId="cabtype"+juce::String(lane+1);
+                if(match && match->factorySource!=0)
+                    require(processor.parameters().getRawParameterValue(cabId)->load()==match->factorySource,"Signature factory IR source was not recalled");
+                else if(match && match->file.existsAsFile()) {
+                    require(processor.parameters().getRawParameterValue(cabId)->load()==3,"Installed Signature IR was not selected");
+                    require(processor.userIRName(lane)==target,"Signature IR resolver selected the wrong installed file");
+                } else
+                    require(processor.parameters().getRawParameterValue(cabId)->load()==0,"Missing or hash-mismatched Signature IR did not fall back to Filters only");
+            }
+        }
         for(const auto& [id,value]:performance)
             require(std::abs(processor.parameters().getRawParameterValue(id)->load()-value)<juce::jmax(1e-4f,std::abs(value)*2e-6f),
                     "Factory preset changed an input/performance preference");
