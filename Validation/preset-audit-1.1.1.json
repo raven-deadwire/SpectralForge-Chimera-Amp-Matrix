@@ -1,0 +1,119 @@
+{
+  "schema": "spectralforge.chimera.preset-audit",
+  "schema_version": 1,
+  "version": "1.1.1",
+  "audited_code_revision": "6ff7d572507ec6ece51e8aaa8cb2f63c62015c2d",
+  "catalog": {
+    "models": {
+      "amp": 23,
+      "pre": 39,
+      "post": 21,
+      "total": 83
+    },
+    "factory_presets": 31,
+    "signature_presets": 3
+  },
+  "ordinal_policy": {
+    "status": "PASS",
+    "evidence": "Source/FactoryPresets.h contains the existing 31 Factory entries followed by Crom Cruach, Wild Hunt and Azhi Dahaka; Validation/catalog-count-contract.json freezes the sequence.",
+    "ci_enforced": false
+  },
+  "checks": {
+    "parameter_ids_and_ranges": {
+      "status": "PASS",
+      "evidence": "ChimeraUITests::checkFactoryPresets resolves every preset parameter through APVTS and rejects unknown/out-of-range values; latest pre-audit head CI was green."
+    },
+    "portable_factory_gain_staging": {
+      "status": "PASS",
+      "evidence": "FactoryPresetTests renders every non-Signature Factory preset at 44.1/48 kHz, requires finite/non-silent output and peak < 0.99."
+    },
+    "signature_gain_staging": {
+      "status": "BLOCKED",
+      "blocker": "Astra same-DI production render/listening evidence is intentionally pending."
+    },
+    "ir_dependency_and_fallback": {
+      "status": "PASS",
+      "evidence": "Portable Factory presets reject user-IR dependency. Signature resolver requires exact target/hash and falls back to Filters Only on missing/hash-mismatched external IR."
+    },
+    "mode_lane_mapping": {
+      "status": "PASS",
+      "evidence": "FactoryPresetTests validates amp indices, Matrix LOW drive=0, Signature Matrix routing and frozen Crom/Wild/Azhi crossover/native-amp mappings."
+    },
+    "state_recall": {
+      "status": "PASS",
+      "evidence": "ChimeraUITests exercises APVTS save/restore, legacy neutral defaults, Factory complete recall, performance-control preservation and Signature IR resolution."
+    },
+    "actual_daw_save_restore": {
+      "status": "BLOCKED",
+      "blocker": "Actual Studio One/Cubase/Sonar host lifecycle and project roundtrip are external runtime validation."
+    },
+    "pre_post_order_state": {
+      "status": "PASS",
+      "evidence": "Preset reset/recall covers preorder/gainorder; Signature structural board/native POST state is included in the preset snapshot and UI/state regression suite."
+    },
+    "stale_alias_reference": {
+      "status": "BLOCKED",
+      "findings": [
+        {
+          "type": "stale-display-alias",
+          "current_catalog_name": "Vintage Valve",
+          "reference": "Fender Super Bassman",
+          "stale_text": "Bassman Valve",
+          "presets": [
+            "Finger Round",
+            "G+B Air / Weight",
+            "B+B Warm / Definition"
+          ],
+          "action": "Update descriptive text only; preserve preset name/ordinal and amp index 10."
+        }
+      ],
+      "blocker": "Descriptive source edit and full catalog/reference-text sweep are not yet CI-enforced."
+    }
+  },
+  "signature_mapping": {
+    "Crom Cruach": {
+      "x1": 200,
+      "x2": 1800,
+      "amps": [
+        "Taste Punch / EICH T900",
+        "Modern Bass",
+        "Tight 515"
+      ],
+      "status": "PASS_CODE_MAPPING"
+    },
+    "Wild Hunt": {
+      "x1": 165,
+      "x2": 1500,
+      "amps": [
+        "Taste Punch / EICH T900",
+        "Solid Punch / GK800RB",
+        "Tight 515"
+      ],
+      "status": "PASS_CODE_MAPPING"
+    },
+    "Azhi Dahaka": {
+      "x1": 135,
+      "x2": 1200,
+      "amps": [
+        "Classic Tube / SVT-CL",
+        "Modern Bass",
+        "Night Harvest / Fortin Evil Pumpkin"
+      ],
+      "status": "PASS_CODE_MAPPING"
+    }
+  },
+  "pending_astra": [
+    "same-DI Signature renders and benchmark",
+    "level-matched listening approval",
+    "actual Studio One 8 / Cubase / Sonar teardown and remove-plugin validation",
+    "30 minute soak",
+    "final RC"
+  ],
+  "next_non_astra": [
+    "Connect catalog-count contract to deterministic CI checker",
+    "Add frozen Factory ordinal regression to C++ tests",
+    "Fix Bassman Valve stale descriptive alias without changing ordinal/state",
+    "Implement validation check producer A1-A14 and connect release-gate workflow",
+    "Continue lifecycle/CPU/transpose/gate/GR regression evidence review"
+  ]
+}
