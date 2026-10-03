@@ -9,7 +9,29 @@ concurrency:
 permissions:
   contents: read
 jobs:
+  validation-contract:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Verify catalog and validation producer contracts
+        run: |
+          python -m py_compile Tools/check_catalog_contract.py Tools/produce_validation_check.py Tools/test_validation_producer.py Tools/seed_validation_reports.py Tools/evaluate_release_gate.py
+          python Tools/check_catalog_contract.py
+          python Tools/test_validation_producer.py
+          python Tools/seed_validation_reports.py --commit "$GITHUB_SHA" --profile pull_request --output build/validation
+      - name: Upload current-commit release-gate evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Chimera-A-stage-release-gate
+          path: build/validation
+          if-no-files-found: error
+
   build:
+    needs: validation-contract
     strategy:
       fail-fast: false
       matrix:
