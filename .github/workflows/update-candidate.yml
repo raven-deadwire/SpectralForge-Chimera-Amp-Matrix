@@ -24,9 +24,13 @@ jobs:
       - name: Check candidate installer scripts
         shell: pwsh
         run: |
-          python -m py_compile Tools/package_installer_candidate.py Tools/Build-PersonalWindowsBundle.py Tools/prepare_lifecycle_baseline.py Tools/extract_vblank_test_class.py Tools/verify_vblank_failure.py Tools/evaluate_release_gate.py Tools/test_release_gate.py Tools/evaluate_signature_benchmark.py Tools/test_signature_benchmark.py
+          python -m py_compile Tools/package_installer_candidate.py Tools/Build-PersonalWindowsBundle.py Tools/prepare_lifecycle_baseline.py Tools/extract_vblank_test_class.py Tools/verify_vblank_failure.py Tools/evaluate_release_gate.py Tools/test_release_gate.py Tools/evaluate_signature_benchmark.py Tools/test_signature_benchmark.py Tools/check_catalog_contract.py Tools/produce_validation_check.py Tools/test_validation_producer.py Tools/seed_validation_reports.py
           python Tools/test_release_gate.py
           python Tools/test_signature_benchmark.py
+          python Tools/check_catalog_contract.py
+          python Tools/test_validation_producer.py
+          $revision = (& git rev-parse HEAD).Trim()
+          python Tools/seed_validation_reports.py --commit $revision --profile pull_request --output build/validation
           foreach ($script in @("Tools/Build-WindowsInstaller.ps1", "Tools/Verify-WindowsInstaller.ps1", "Tools/Trace-Chimera-Session.ps1")) {
             $tokens = $null
             $errors = $null
@@ -37,6 +41,13 @@ jobs:
           $nativeHelper = [regex]::Match($diagnosticsScript, "(?s)Add-Type -TypeDefinition @'\r?\n(.*?)\r?\n'@")
           if (!$nativeHelper.Success) { throw 'Diagnostic dump helper definition missing' }
           Add-Type -TypeDefinition $nativeHelper.Groups[1].Value
+      - name: Upload current-commit release-gate evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Chimera-candidate-A-stage-release-gate
+          path: build/validation
+          if-no-files-found: error
       - name: Build independent shutdown regression probes
         run: cmake --build build --config Release --target ChimeraVST3LifecycleTests ChimeraVBlankFailureTests --parallel 2
       - name: Verify VBlank failure can stop safely
