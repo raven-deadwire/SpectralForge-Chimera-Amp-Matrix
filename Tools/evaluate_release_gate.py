@@ -268,7 +268,7 @@ def evaluate_release(policy: dict, waivers: dict, checks: dict[str,dict], profil
 
 def render_summary(result: dict) -> str:
     lines=[f"# Chimera release gate: {result['verdict']}",
-           "",f"- Profile: \`{result['profile']}\`",f"- Commit: \`{result['revision']['commit_sha']}\`",
+           "",f"- Profile: `{result['profile']}`",f"- Commit: `{result['revision']['commit_sha']}`",
            f"- Checks: {result['counts']['checks']['pass']} PASS / {result['counts']['checks']['blocked']} BLOCKED / {result['counts']['checks']['not_applicable']} NOT_APPLICABLE",
            f"- Hard gates: {result['hard_gates']['pass']} / {result['hard_gates']['total']} PASS","",
            "| Stage | Status | PASS | BLOCKED | N/A |","|---|---|---:|---:|---:|"]
@@ -279,7 +279,7 @@ def render_summary(result: dict) -> str:
         seen=set()
         for item in result["blockers"]:
             if item["id"] in seen: continue
-            seen.add(item["id"]);lines.append(f"- \`{item['id']}\` — {item.get('type','BLOCKED')}: {item.get('reason','Blocked')}")
+            seen.add(item["id"]);lines.append(f"- `{item['id']}` — {item.get('type','BLOCKED')}: {item.get('reason','Blocked')}")
     return "\n".join(lines)+"\n"
 
 def read_checks(folder: Path) -> dict[str,dict]:
