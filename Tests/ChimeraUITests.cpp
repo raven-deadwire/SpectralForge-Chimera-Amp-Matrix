@@ -9,6 +9,7 @@
 #include "PedalMenuTests.h"
 #include "NativeStateTests.h"
 #include "NativeUITests.h"
+#include "UIRefreshTests.h"
 #include <map>
 #include <iostream>
 #include <set>
@@ -528,6 +529,7 @@ int main(int argc, char** argv)
         const auto directory = argc > 1 ? juce::File(argv[1])
                                        : juce::File::getCurrentWorkingDirectory().getChildFile("ui-snapshots");
         require(directory.createDirectory().wasOk(), "Cannot create snapshot directory");
+        if(argc>2 && juce::String(argv[2])=="--ui-refresh-only"){uiRefreshTests::run(directory);return 0;}
         int suiteFailures=0;
         const auto runSuite=[&](const char* name,auto&& run) {
             try {run();}
@@ -539,6 +541,7 @@ int main(int argc, char** argv)
         runSuite("amp selection state",[]{ampSelectionStateTests::run();});
         runSuite("pedal menus and power",[]{pedalMenuTests::run();});
         runSuite("native state",[&]{nativeStateTests::run(directory);});
+        runSuite("UI refresh",[&]{uiRefreshTests::run(directory);});
         runSuite("native panels",[&]{runNativeUITests(directory);});
         runSuite("correction UI",[&]{runCorrectionUITests(directory);});
         runSuite("editor lifetime",[]{checkEditorLifetime();});

@@ -69,6 +69,7 @@ juce::Result IRLibrary::importFile(int lane, const juce::File& file)
     { std::lock_guard<std::mutex> lock(mutex);
       errors[(size_t)lane]=error;
       if(asset) { users[(size_t)lane]=std::move(asset); ++generations[(size_t)lane]; }
+      ++displayGeneration[(size_t)lane];
     }
     if(error.isNotEmpty()) return juce::Result::fail(error);
     notify(); return juce::Result::ok();
@@ -118,7 +119,7 @@ void IRLibrary::run()
             { std::lock_guard<std::mutex> lock(mutex); generation=generations[i]; }
             if(source==built[i] && (source!=3 || generation==versions[i])) continue;
             try { cabs[i]->publish(build(i,source,generation)); }
-            catch(const std::exception&) { std::lock_guard<std::mutex> lock(mutex); errors[i]="IR preparation failed. Previous IR kept."; }
+            catch(const std::exception&) { std::lock_guard<std::mutex> lock(mutex); errors[i]="IR preparation failed. Previous IR kept."; ++displayGeneration[(size_t)i]; }
             built[i]=source; versions[i]=generation;
         }
         wait(20);
@@ -175,6 +176,7 @@ void IRLibrary::restore(const juce::ValueTree& tree)
     { std::lock_guard<std::mutex> lock(mutex);
       users=std::move(restored); errors=std::move(messages);
       for(auto& generation:generations) ++generation;
+      for(auto& generation:displayGeneration) ++generation;
     }
     notify();
 }
@@ -186,6 +188,6 @@ IRMetadata IRLibrary::metadata(int lane,int source) const
 }
 void IRLibrary::setMetadata(int lane,const IRMetadata& metadata)
 {
-    std::lock_guard<std::mutex> lock(mutex);if(lane>=0 && lane<3 && users[(size_t)lane])users[(size_t)lane]->metadata=IRMetadata::fromJSON(metadata.json());
+    std::lock_guard<std::mutex> lock(mutex);if(lane>=0 && lane<3 && users[(size_t)lane]){users[(size_t)lane]->metadata=IRMetadata::fromJSON(metadata.json());++displayGeneration[(size_t)lane];}
 }
 }
