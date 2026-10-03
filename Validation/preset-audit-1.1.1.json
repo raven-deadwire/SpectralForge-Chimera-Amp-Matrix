@@ -2,7 +2,7 @@
   "schema": "spectralforge.chimera.preset-audit",
   "schema_version": 1,
   "version": "1.1.1",
-  "audited_code_revision": "6ff7d572507ec6ece51e8aaa8cb2f63c62015c2d",
+  "audited_code_revision": "automation/1.1.1-non-astra-20261003-v2",
   "catalog": {
     "models": {
       "amp": 23,
@@ -16,7 +16,7 @@
   "ordinal_policy": {
     "status": "PASS",
     "evidence": "Source/FactoryPresets.h contains the existing 31 Factory entries followed by Crom Cruach, Wild Hunt and Azhi Dahaka; Validation/catalog-count-contract.json freezes the sequence.",
-    "ci_enforced": false
+    "ci_enforced": true
   },
   "checks": {
     "parameter_ids_and_ranges": {
@@ -52,22 +52,8 @@
       "evidence": "Preset reset/recall covers preorder/gainorder; Signature structural board/native POST state is included in the preset snapshot and UI/state regression suite."
     },
     "stale_alias_reference": {
-      "status": "BLOCKED",
-      "findings": [
-        {
-          "type": "stale-display-alias",
-          "current_catalog_name": "Vintage Valve",
-          "reference": "Fender Super Bassman",
-          "stale_text": "Bassman Valve",
-          "presets": [
-            "Finger Round",
-            "G+B Air / Weight",
-            "B+B Warm / Definition"
-          ],
-          "action": "Update descriptive text only; preserve preset name/ordinal and amp index 10."
-        }
-      ],
-      "blocker": "Descriptive source edit and full catalog/reference-text sweep are not yet CI-enforced."
+      "status": "PASS",
+      "evidence": "Finger Round, G+B Air / Weight and B+B Warm / Definition now use the active Vintage Valve catalog name in descriptive text. Tools/check_catalog_contract.py rejects reintroduction of the stale Bassman Valve alias; names, ordinals and amp index 10 are unchanged."
     }
   },
   "signature_mapping": {
@@ -110,10 +96,8 @@
     "final RC"
   ],
   "next_non_astra": [
-    "Connect catalog-count contract to deterministic CI checker",
     "Add frozen Factory ordinal regression to C++ tests",
-    "Fix Bassman Valve stale descriptive alias without changing ordinal/state",
-    "Implement validation check producer A1-A14 and connect release-gate workflow",
+    "Replace A1-A14 unclaimed BLOCKED baselines with concrete per-check producers",
     "Continue lifecycle/CPU/transpose/gate/GR regression evidence review"
   ]
 }
