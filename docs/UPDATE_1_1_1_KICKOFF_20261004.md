@@ -54,3 +54,14 @@ The terminal has no GitHub credentials, so publication uses the connected
 GitHub app. Its commit metadata may differ from the local commits; the complete
 Git tree must match before opening the Draft PR. CI results must be checked at
 the resulting remote commit, not inferred from the earlier local evidence.
+
+Published review: [Draft PR #10](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/pull/10),
+stacked on PR #7. Initial remote commit `cfab2a6` has the exact local tree
+`e0010ecfbb8d833cbcba8720335275e7869245fa`. Build run 37135391488 and candidate
+run 37135391502 started. The candidate's preparation check found the new E670FE
+panel missing from its separate silent-prototype inventory; the follow-up adds
+it and preserves disabled legacy Ironball recall. That prototype now stores
+24 amp descriptors / 81 total descriptors, with 23 active amps; its historical
+FX inventory is not the production AMP/PRE/POST catalog. Locally, 73 descriptor
+tests and 30 amplifier-state cases pass. Actual CI completion is still pending;
+the PR and Actions logs track the latest head and results.

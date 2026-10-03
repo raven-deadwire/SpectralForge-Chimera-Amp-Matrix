@@ -45,7 +45,7 @@
   }
   for(const type of ['existing_dsp','not_implemented']){
     const group=document.createElement('optgroup');group.label=type==='existing_dsp'?'기존 15종 — 패널 재개발':'추가 대상 — DSP 미구현';
-    for(const m of amps.values())if(m.status===type)group.append(new Option(m.name+' / '+m.amp_panel.reference,m.id));$('ampModel').append(group);
+    for(const m of amps.values())if(m.status===type){const option=new Option(m.name+' / '+m.amp_panel.reference,m.id);option.disabled=m.active===false;group.append(option);}$('ampModel').append(group);
   }
   $('ampModel').onchange=()=>act(()=>rig.choose($('ampModel').value),'앰프별 이전 설정을 유지합니다.');
   $('ampChannel').onchange=()=>act(()=>rig.channel($('ampChannel').value),'다른 채널의 값은 그대로 보존됩니다.');

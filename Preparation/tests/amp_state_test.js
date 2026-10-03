@@ -14,7 +14,7 @@ test('mode changes preserve hidden lane banks',()=>{const r=make();r.setMode('Ma
 test('Chimera output level never changes native master',()=>{const r=make();r.choose('planned.amp.svt-cl');const old=r.current().parameters;r.trim('laneLevel',-8);assert.deepEqual(r.current().parameters,old);});
 test('native master never changes lane trim',()=>{const r=make();r.choose('planned.amp.svt-cl');r.trim('laneLevel',-8);r.set('hw.master',.9);assert.equal(r.current().utility.laneLevel,-8);});
 test('input jack selection stores independently',()=>{const r=make();r.route(1);assert.equal(r.current().route,1);assert.equal(r.current().parameters['hw.normal.bright'],0);});
-test('all 23 panel defaults validate',()=>{const r=make();for(const id of models.keys()){r.choose(id);assert(validate(r.state,models));}});
+test('all 24 serialized panel defaults validate',()=>{const r=make();assert.equal(models.size,24);for(const id of models.keys()){r.choose(id);assert(validate(r.state,models));}});
 test('roundtrip contains channel values and independent utilities',()=>{const r=make();r.choose('legacy.amp.4');r.set('hw.lead.drive',.71);r.trim('inputTrim',4);const other=make();other.load(r.export());assert.deepEqual(other.state,r.state);});
 test('malformed JSON rejected atomically',()=>{const r=make(),before=r.state;assert.throws(()=>r.load('{'));assert.deepEqual(r.state,before);});
 test('old pedal format cannot be mistaken for amps',()=>{const r=make();assert.throws(()=>r.load(JSON.stringify({version:1,effects:[]})));});

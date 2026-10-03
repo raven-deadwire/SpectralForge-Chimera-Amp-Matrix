@@ -12,9 +12,12 @@ class AmpCatalogTests(unittest.TestCase):
         self.catalog=build_catalog()
         self.amps={m['id']:m for m in self.catalog['models'] if m['location']=='rig'}
     def keys(self, mid):return {c['id']:c for c in self.amps[mid]['controls']}
-    def test_23_amp_targets_without_inventory_inflation(self):
-        self.assertEqual(len(self.amps),23)
-        self.assertEqual(len(self.catalog['models']),80)
+    def test_23_active_24_serialized_amp_targets(self):
+        self.assertEqual(len(self.amps),24)
+        self.assertEqual(sum(m.get('active',True) for m in self.amps.values()),23)
+        self.assertFalse(self.amps['planned.amp.engl']['active'])
+        self.assertTrue(self.amps['planned.amp.engl-e670fe']['active'])
+        self.assertEqual(len(self.catalog['models']),81)
     def test_all_existing_and_planned_have_model_specific_panels(self):
         self.assertEqual(set(self.amps),set(amp_panels()))
         for m in self.amps.values():self.assertTrue(m['controls']);self.assertTrue(m['amp_panel']['channels'])
@@ -99,6 +102,13 @@ class AmpCatalogTests(unittest.TestCase):
     def test_engl_not_savage_and_shared_eq(self):
         m=self.amps['planned.amp.engl'];self.assertIn('Ironball E606',m['amp_panel']['reference'])
         self.assertEqual(self.keys(m['id'])['hw.bass']['channels'],[])
+    def test_e670fe_distinct_five_paths_and_unverified_response(self):
+        m=self.amps['planned.amp.engl-e670fe'];p=m['amp_panel']
+        self.assertEqual(len(p['channels']),5)
+        self.assertEqual(len(m['controls']),32)
+        self.assertEqual(p['review_status'],PARTIAL)
+        self.assertFalse(p['circuit_response_verified'])
+        self.assertNotIn('hw.driver.gain',self.keys(m['id']))
     def test_diezel_four_channels(self):
         p=self.amps['planned.amp.diezel-vh4']['amp_panel'];self.assertEqual(len(p['channels']),4)
         self.assertIn('hw.deep',self.keys('planned.amp.diezel-vh4'))
