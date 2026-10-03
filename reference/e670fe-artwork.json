@@ -1,0 +1,9 @@
+{
+  "asset": "Assets/Artwork/aspecialedition.jpg",
+  "alpha": "Assets/Artwork/aspecialedition-alpha.png",
+  "method": "built-in image_gen",
+  "reference_role": "airon.jpg used for project material/style consistency only",
+  "prompt": "Original full-size premium German multi-channel amplifier chassis; straight-on black tolex, hexagonal grille with amber valves, two chrome rails, broad blank brushed dark silver lower panel, no text/knobs/switches/logos; transparent background.",
+  "source_png_sha256": "e422e1dfd23749bd8b028b4408fea2dfd1b4ef65a72dd11c08bf80f7284d4a92",
+  "encoding": "RGB JPEG plus original alpha plane; no content edit"
+}

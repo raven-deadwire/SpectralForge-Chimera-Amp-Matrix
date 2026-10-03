@@ -25,6 +25,8 @@ jobs:
           python -m py_compile Tools/package_release.py Tools/evaluate_release_gate.py Tools/test_release_gate.py Tools/evaluate_signature_benchmark.py Tools/test_signature_benchmark.py
           python Tools/test_release_gate.py
           python Tools/test_signature_benchmark.py
+          python Tools/check_catalog_contract.py
+          python Tools/test_validation_producer.py
       - name: Check Windows packaging script syntax
         if: runner.os == 'Windows'
         shell: pwsh

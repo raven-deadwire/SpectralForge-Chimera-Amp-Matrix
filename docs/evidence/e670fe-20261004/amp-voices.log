@@ -1,0 +1,3 @@
+PASS: 24 serialized / 23 active Chimera heads, preserved 15-value legacy host range
+MEASURE 24 amp voices: block residual 1.49012e-06, stereo residual 0, minimum RMS-matched new-voice residual 0.187914
+PASS: amp voices at 44.1/48/96 kHz, 1x/4x/8x oversampling, 17/512 sample blocks, stereo isolation, EQ corners and invalid indices

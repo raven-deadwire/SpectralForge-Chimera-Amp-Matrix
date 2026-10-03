@@ -1,6 +1,6 @@
 # Models and reference workflow
 
-SpectralForge Chimera Open Beta 1.0 has **46 selectable effect variants: 25 PRE pedals and 21 POST rack models**, alongside fifteen amplifier voices. These are original algorithms with hardware-informed controls and artwork, not licensed circuit models or verified replicas. Choosing a model changes processing as well as its appearance. A/B and project recall include the selection; see the automation compatibility note below when upgrading older test projects.
+SpectralForge Chimera 1.1.1 candidate exposes **60 selectable effect variants: 39 PRE pedal DSPs (plus the Empty slot) and 21 POST rack models**, alongside **23 active amplifier voices (24 serialized including legacy Ironball)**. These are original algorithms with hardware-informed controls and artwork, not licensed circuit models or verified replicas. Choosing a model changes processing as well as its appearance. The PRE board can host up to five independent owners at once; A/B and project recall include model-specific banks. See the compatibility note below for the boundary between the preserved legacy parameter set and appended structural/model parameters.
 
 | Module | Choices | Actual processing differences |
 |---|---|---|
@@ -8,7 +8,11 @@ SpectralForge Chimera Open Beta 1.0 has **46 selectable effect variants: 25 PRE 
 | Envelope | Q Sweep / Tron Band / Reverse Sweep / Bass Envelope / Dynamic Wah | Rising low-pass, rising band-pass, falling low-pass, band-pass with retained dry lows, fast vocal-band sweep |
 | Fuzz | Big Sustain / Round Face / Bender / Wool Bass / Gated Factory | Dense clipping, asymmetric soft clipping, gated edge, bass-weighted gating, stronger asymmetric gating |
 | Boost | RC Clean / Treble Lift / Micro Lift / EP Lift / Linear Power | Broad shelves, 650 Hz low-cut, full-band lift, low-mid emphasis with softened top, mild broadband contour |
-| Drive | Green 808 / Gold Drive / Rodent / Bass DI / Micro Bass | Soft clip, clean/asymmetric blend, hard clip, bass-preserving drive with mid scoop, clean lows with upper-band clipping |
+| Drive / distortion | Green 808 / Gold Drive / Rodent / Bass DI / Micro Bass / Yellow Asym / Obsession / Plus Drive / Dual Circuit | The original five voices plus four independent oversampled drive circuits; OCD peak mode changes the algorithm and JB-2 exposes solo/toggle/serial/parallel routing |
+| PRE wah | Manual Wah | Smoothed swept band-pass with range and resonance controls |
+| PRE equalizer | Graphic EQ | Ten peak bands plus independent input/output gain |
+| PRE modulation | Classic Chorus / Spatial Chorus / Stone Phase / Tidal Flange / Drift Vibrato / Pulse Tremolo | Six independent PRE modulation instances using the product's original modulation algorithms |
+| PRE pitch / octave | Mono Octaver / Spectral Octaver | Tracking-divider mono sub-octaves and STFT spectral octave processing; spectral mode adds frame latency |
 | Bus compressor | Console VCA / FET 76 / Opto Level | Linked RMS, fast peak, program-dependent recovery |
 | Preamp | N73 Colour / V5 Pure / ISA Blue | Asymmetry, headroom and bandwidth at 4x oversampling |
 | EQ | Console E / N73 Shelves / Passive Tube | 80/8k, 110/12k, 60/10k shelves; broad passive-style mid |
@@ -18,9 +22,9 @@ SpectralForge Chimera Open Beta 1.0 has **46 selectable effect variants: 25 PRE 
 
 The controls are deliberately consistent within each module. No claim is made that every knob range or circuit topology matches the referenced hardware. The six rack modules run exactly once after merge. Matrix LOW keeps its clean tap before Fuzz/Boost/Drive, compresses the low band, and blends the DI with the selected amp/cab. Head drive is fixed at zero; the DI delay matches the head algorithmic latency. Gate and Transpose remain global on every page.
 
-## PRE references and order
+## PRE references, board inventory and order
 
-Each PRE family has five choices. The first three retain their existing raw project indices; the final two are appended.
+The current five-slot PRE board has **40 catalog entries including Empty, of which 39 are implemented DSP models**. The original five families still account for 25 models and retain their existing model banks. Four additional drive references, Manual Wah, PRE Graphic EQ, six PRE modulation variants and two octave processors are appended as independent owner/model banks rather than by renumbering the legacy families.
 
 | Family | Reference 1 | Reference 2 | Reference 3 | Added reference 4 | Added reference 5 |
 |---|---|---|---|---|---|
@@ -30,6 +34,19 @@ Each PRE family has five choices. The first three retain their existing raw proj
 | Boost | Xotic RC Booster | Dallas Rangemaster | MXR Micro Amp | Xotic EP Booster | EHX LPB-1 |
 | Drive | Ibanez TS808 | Klon Centaur | Pro Co RAT | Tech 21 SansAmp Bass Driver DI | Darkglass Microtubes B3K |
 
+Additional current PRE references are:
+
+| Product alias | Hardware/reference target | Current implementation boundary |
+|---|---|---|
+| Yellow Asym | BOSS SD-1 | Independent oversampled asymmetric-clipping path with Drive/Tone/Level; hardware/capture calibration is not established |
+| Obsession | Fulltone OCD v2 | Independent oversampled drive path with Volume/Drive/Tone and HP/LP peak switch; exact revision response is not capture-verified |
+| Plus Drive | MXR Distortion+ M104 | Independent oversampled hard-clipping path with Distortion/Output; not a renamed RAT/DOD path |
+| Dual Circuit | BOSS/JHS JB-2 | Separate BOSS/JHS paths with solo selection, both serial orders and parallel sum; physical circuit correspondence remains unverified |
+| Manual Wah | Original DSP / wah reference | Smoothed swept band-pass; no hardware certification |
+| Graphic EQ | Original DSP | Ten bands from 31.25 Hz to 16 kHz plus input/output gain |
+| PRE modulation | CE-2 / Dimension / Small Stone / Electric Mistress / Eddy / Pulsar reference families | Six PRE instances of the original modulation algorithms |
+| Mono Octaver / Spectral Octaver | Tracking-divider / experimental spectral pitch references | Mono /2 and /4 tracking plus STFT octave processing; not circuit replicas |
+
 New instances default to **TOUCH: Envelope -> Compressor -> Fuzz -> Boost -> Overdrive**. The envelope detector then receives the playing dynamics before PRE compression. **SUSTAIN: Compressor -> Envelope -> Fuzz -> Boost -> Overdrive** remains selectable for a more level-controlled detector input. Both follow global Gate/Transpose, so those utilities can still affect the signal that reaches the envelope. Old states without the order parameter restore Compressor first.
 
 Fuzz precedes Boost/Overdrive so those stages can shape its output and subsequent amp drive. This is an in-plugin signal-order decision. Pickup loading, pedal input impedance and the guitar-volume interaction of a physical early-chain Fuzz Face are not simulated; moving a digital module cannot establish that circuit behavior. A separate gain-order selector switches Fuzz → Boost → Overdrive (default) to Fuzz → Overdrive → Boost. After-drive boost can lift level if the downstream amp has headroom; it does not guarantee a clean solo lift. Use lane LEVEL or OUTPUT after the amp for final level. General drag-and-drop reordering is not implemented.
@@ -38,13 +55,19 @@ The new Bass DI and Micro Bass algorithms preserve more low-frequency content th
 
 ## Amplifier reference boundary
 
-The original eight voices are Glass, Brit Edge, Tight 515, Wide Rect, Liquid Lead, Iron Tube, Solid Punch and Modern Bass. Their fixed NAM reference captures, input-calibration gaps and held-out comparison results are documented in [NAM_REFERENCE_RESULTS.md](NAM_REFERENCE_RESULTS.md). Modern Bass uses a B7K Ultra **plus Aguilar DB751** reference chain, not an isolated Darkglass head. Reference artwork does not establish circuit accuracy or a hardware-fidelity pass.
+The original eight voices are Glass, Brit Edge, Tight 515, Wide Rect, Liquid Lead, Iron Tube, Solid Punch and Modern Bass. Their fixed NAM reference captures, input-calibration gaps and held-out comparison results are documented in [NAM_REFERENCE_RESULTS.md](NAM_REFERENCE_RESULTS.md). Modern Bass uses a B7K Ultra **plus Aguilar DB751** reference chain, not an isolated Darkglass head.
 
-Seven appended voices — Chime 30, Orange Crown, Bassman Valve, Subway Clean, Match Chime, Silk ODS and Taste Punch — have independent algorithmic voicing. Matchless and Dumble reference captures are explicitly identified clones; no hardware-equivalence claim is made. An exact EICH T900 NAM was not found. See [AMP_VOICES_OPEN_BETA.md](AMP_VOICES_OPEN_BETA.md) for all fifteen model/reference mappings and limits. The fixed NAM comparison results remain evidence for the original eight only.
+Seven earlier appended voices — Chime 30, Orange Crown, Vintage Valve, Metro Clean, Prism Chime, Silk Lead and Taste Punch — bring the preserved legacy host-choice bank to **15 models**. Eight later models are appended without rescaling that legacy choice parameter: **Cinder 120 / ZUTA GBG120, Iron Compact / ENGL Ironball E606, Fourfold / Diezel VH4, Classic Tube / Ampeg SVT-CL, Monolith / SUNN Model T, Night Harvest / Fortin Evil Pumpkin, Hot Lead / Soldano SLO-100 and Blue Storm / Bogner Uberschall Rev Blue**.
+
+Special Edition / ENGL E670FE is appended as model 23 with 32 native controls and five paths. Iron Compact / Ironball at 16 is retained for legacy recall and removed from the new-selection menu. E670FE calibration and Tube Driver EQ ownership remain pending; see `E670FE_IMPLEMENTATION.md`.
 
 ## Test-project compatibility
 
-Saved raw model indices 0-2 continue to select the original choices. Expanding PRE choice parameters from three to five values changes the conversion between a normalized host automation value and a choice index. Amp choices likewise expand from eight to fifteen while original raw indices 0–7 remain stable. Older DAW automation lanes may therefore select a different model even when ordinary project-state recall is correct. Review and re-record model-selection automation after upgrading an older test build. This is a compatibility limitation of the current test parameter layout, not a claim of complete automation compatibility.
+The original amplifier host choice parameters remain exactly **15 legacy choices** with their existing normalized positions and automation meaning. Models 15–22 are selected through appended structural/native parameters, so old amp automation is not silently rescaled to 23 choices. E670FE native banks are appended after the entire released POST layout; no legacy index or parameter ordinal is reused. Channel/input-route selectors for appended/native amps are structural and non-automatable; native control IDs are appended under stable `nativeAmp_c{context}_m{model}_...` namespaces.
+
+The five-slot PRE board similarly uses fixed owner/model/control IDs. Board enable, model selection, order and LOW-tap structure are non-automatable; model-specific control and bypass banks remain separate, and binary project/A/B tests preserve inactive banks. A pre-board legacy project keeps its compatibility audio path and raw legacy PRE parameters until the user deliberately activates/edits the board.
+
+These are processor/APVTS compatibility guarantees exercised by the repository tests. They do **not** establish correctness of every pre-existing automation lane in an external DAW, and they do not substitute for current Windows host/session validation.
 
 ## CPU meter
 
@@ -62,21 +85,13 @@ IR remains on its amplifier lane. The CAB menu directly lists installed files, g
 
 A sidecar named exactly `filename.wav.json` supplies confirmed fields. The examples in `reference/ir-tags` match the selected TONE3000 files. Copy the matching sidecar beside your downloaded WAV. Recognized filenames use the source catalog with a filename-association warning; verify the recorded SHA256 for exact identity. Other files receive only identifiable filename hints. The selected reference exposes its source page. Unknown distance, off-axis angle, unit model or diameter stays blank. A 4x12 means four 12-inch speakers; it says nothing about mic distance. Close-mic descriptions without a number are not converted into invented centimeters.
 
-The personal collection contains **13 WAV captures**, in addition to the two embedded factory IRs:
+The reference catalogs currently describe **30 external/private capture files** in addition to the two embedded factory IRs: 26 entries in `reference/ir-catalog.json` plus four entries in `reference/raven-ir-catalog.json`. The Raven set contains three Celestion G12-100 Raven positions (SM57 In / Out / Ref) and one Marshall 1960 V30 comparison file from The other John Browne.
 
-| Capture group | WAV files | Classification | Known distinctions |
-|---|---:|---|---|
-| Mesa Traditional 4x12 / Celestion V30 | 3 | Guitar, 12-inch | SM57 plus two M201 grille distances; documented unit/cone positions |
-| Peavey Delta Blues 1x15 / Celestion Fullback | 1 | Guitar, 15-inch | AT4050, center, filename states 1 inch with unspecified distance datum |
-| Ampeg 8x10 | 1 | Bass, 10-inch | MD421; unit model and mic geometry undocumented |
-| 1970 Fender Bassman 2x15 / CTS | 1 | Bass, 15-inch | SM57, upper unit, cone position; numerical distance and angle undocumented |
-| Mesa standard-size slant 4x12 / Eminence Karnivore | 7 | Guitar, 12-inch | Filename labels Fredman, V7x, SM57, M160, 421, 906 Flat and i5 |
+A catalog row or sidecar is **not** audio availability. Public source/CI include the two redistributable factory IRs and metadata; external/private captures become Ready only when the matching WAV is present and passes the recorded SHA-256. The collection and importer reject corrupt/silent files and hash-mismatched catalog imports. Generic embedded-user-IR save/restore is tested, while Raven-specific private-pack import is only fully exercised when the external ZIP is supplied to the test harness.
 
-The Fullback is not labeled a bass cabinet merely because it is 15 inches. For Karnivore, the creator identifies a speaker in the slanted section of a standard-size Mesa 4x12; microphone identities are filename-derived. The Fredman label does not confirm a particular microphone pair or angle. Exact cone location, distance and off-axis angle remain unknown. `reference/ir-catalog.json` records source, creator, license, exact file hash, frame count and known capture conditions.
+The Raven metadata records 48 kHz mono PCM24, 9,601-frame files and exact SHA-256 values, but the public repository does not contain those WAVs. The recorded source does not include public-product redistribution permission, so Raven remains a private-import/reference asset unless separate rights are obtained. Unknown cabinet suffix, exact mic distance/angle, source normalization and phase processing remain explicitly unfilled rather than inferred.
 
-TONE3000 files were obtained through the user's signed-in browser. They are not embedded in the public plugin binary or repository. The **private full installer ZIP** includes the actual 13 WAVs and sidecars in `Chimera-Personal-IRs`; extract the entire ZIP and keep that folder beside Setup for automatic installation. A bare public CI installer contains only the two redistributable CC BY factory IRs plus reference metadata. Catalog names and sidecars alone do not supply the other audio files.
-
-Existing installations can import the updated personal ZIP through IMPORT PERSONAL ZIP, or add the extracted IR folder through ADD FOLDER. The importer accepts catalog-matched SHA-256 audio, ignores NAM files, and writes canonical metadata. All 13 personal WAVs plus the two factory assets should be available after the full personal pack is installed. Personal IRs are embedded in saved projects; creator permission is required before including restricted capture data in a public distribution or factory preset.
+Personal/user IR audio that is actually loaded is embedded in saved projects and A/B snapshots. Metadata, hashes and source URLs document provenance; they do not by themselves grant redistribution rights.
 
 ## Official design references
 

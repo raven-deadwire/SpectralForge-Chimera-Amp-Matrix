@@ -69,7 +69,7 @@ void checkArtwork()
         require(nativeHeads.insert(digest).second,"New heads share an identical fascia");
         require(image.getPixelAt(image.getWidth()/2,image.getHeight()/2).getAlpha()>0,"Native head artwork is empty");
     }
-    require(nativeHeads.size()==8,"Missing new amp artwork");
+    require(nativeHeads.size()==size_t(spectralforge::ampModelCount-spectralforge::legacyAmpModelCount),"Missing new amp artwork");
     for(auto surface:pedals)require(!heads.count(surface) && !racks.count(surface),"A pedal is using amp or rack artwork");
     for(auto surface:racks)require(!heads.count(surface),"A rack is using amplifier artwork");
     std::cout<<"PASS: "<<images.size()<<" decoded visible rasters; "<<heads.size()<<" unique heads, 38 PRE enclosures (39 models), 21 unique POST surfaces\n";

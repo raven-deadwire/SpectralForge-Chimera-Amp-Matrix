@@ -228,6 +228,7 @@ public:
     void set(AmpModel m, float d) {
         if(useNativeControls)return; // Retain the previous legacy circuit during its exit fade.
         m = static_cast<AmpModel>(juce::jlimit(0, ampModelCount - 1, static_cast<int>(m)));
+        if(ampRequiresNative(static_cast<int>(m))) {setNative(defaultAmpNativeState(static_cast<int>(m)));return;}
         if(model!=m){model=m;nativeChannelValue=newAmpDefaultChannel(static_cast<int>(model));voiceTone();captureLow.reset();captureMid.reset();captureHigh.reset();}
         if(isNewAmpModel(static_cast<int>(model)))for(auto& path:paths)path.newAmp.set(static_cast<int>(model),nativeChannelValue);
         drive = juce::jlimit(0.f, 1.f, d);
@@ -240,7 +241,7 @@ public:
     }
     int nativeChannel() const { return nativeChannelValue; }
     void setNative(const AmpNativeState& state) {
-        useNativeControls=state.enabled;nativeMix.setTargetValue(useNativeControls?1.f:0.f);
+        useNativeControls=state.enabled||ampRequiresNative(state.model);nativeMix.setTargetValue(useNativeControls?1.f:0.f);
         if(useNativeControls)for(auto& path:paths)path.setNative(state);
     }
     void setOversampling(int choice)

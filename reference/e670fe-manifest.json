@@ -1,0 +1,36 @@
+{
+  "schema": "spectralforge.chimera.reference-manifest",
+  "schema_version": 1,
+  "model_id": 23,
+  "alias": "Special Edition",
+  "exact_model_revision": "ENGL E670FE Special Edition Founders Edition; output tube calibration not yet selected",
+  "grade": "C",
+  "scope": "document",
+  "calibration": {
+    "status": "BLOCKED",
+    "reason": "No exact E670FE calibrated capture file was obtained or measured"
+  },
+  "signal_chain": "Documentary control scope only; no audio signal chain established",
+  "sha256": "58c8331abcd09db38e55daf55b19b37ff739a967dc30032c6115c4540488bb29",
+  "source": "https://www.engl-amps.com/wp-content/uploads/2024/01/E670FE-OM-2-FE-Special-Edition.pdf",
+  "redistribution_boundary": "Manual and external captures excluded from binaries/repository. Authored DSP coefficients only.",
+  "control_scope": {
+    "main_channels": [
+      "Clean",
+      "Crunch",
+      "Lead I",
+      "Lead II"
+    ],
+    "alternate_path": "Tube Driver with T.D. EQ toggle",
+    "modern_classic": "four main channels only",
+    "mega_lo_punch": "four main channels only",
+    "driver_gain": "absent; not invented"
+  },
+  "unresolved": [
+    "Exact T.D. EQ physical tone-control ownership and taper; current insertion response is authored",
+    "Multiple operating point gain/phase/dynamic calibration",
+    "EL34 versus 6L6 exact revision binding",
+    "same-DI listening and actual Windows DAW acceptance"
+  ],
+  "secondary_reference_policy": "Original E670, Savage and Powerball remain distinct B candidates, never substitute A anchors"
+}

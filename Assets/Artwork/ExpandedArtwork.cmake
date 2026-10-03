@@ -23,4 +23,5 @@ list(APPEND CHIMERA_MODEL_ARTWORK
     ptremolo
     pmonoctave
     pspectraloctave
+    aspecialedition
 )

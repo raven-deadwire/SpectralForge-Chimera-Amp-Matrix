@@ -77,7 +77,8 @@
         "version": "1.1.1",
         "total": 83,
         "window": "2026-10-02/2026-10-11",
-        "new_models": 0
+        "new_models": 0,
+        "exception": "E670FE appended at 23 replaces active Ironball 16; Ironball DSP/state retained as legacy."
       },
       {
         "version": "1.2",
@@ -151,5 +152,14 @@
       }
     ]
   },
-  "reference_manifest_contract": "Validation/reference-manifest-contract.json"
+  "reference_manifest_contract": "Validation/reference-manifest-contract.json",
+  "serialized_model_counts": {
+    "amp": 24,
+    "pre": 39,
+    "post": 21,
+    "total": 84
+  },
+  "legacy_amp_indices": [
+    16
+  ]
 }

@@ -24,7 +24,9 @@ inline void addAmpNativeParameters(juce::AudioProcessorValueTreeState::Parameter
         layout.add(std::make_unique<juce::AudioParameterInt>(juce::ParameterID{ampNativeModelID(context),1},prefix+"model",0,255,2,structural));
         for(auto pair:{std::pair{ampNativeInputTrimID(context),"software input trim"},std::pair{ampNativeOutputLevelID(context),"software output level"}})
             layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{pair.first,1},prefix+pair.second,juce::NormalisableRange<float>(-24.f,24.f,.01f),0.f));
-        for(int model=0;model<ampModelCount;++model) {
+        // Freeze the released six-context ordering. New models must be added
+        // AFTER the complete released layout (including POST), not here.
+        for(int model=0;model<releasedNativeAmpModelCount;++model) {
             const auto& panel=ampNativePanel(model);const auto name=prefix+ampInfo(model).name+" ";
             // Fixed raw reserved range does not renormalize host data when a
             // panel revision gains another channel or an input route.
@@ -37,6 +39,21 @@ inline void addAmpNativeParameters(juce::AudioProcessorValueTreeState::Parameter
             }
         }
     }
+}
+inline void appendNewAmpNativeParameters(juce::AudioProcessorValueTreeState::ParameterLayout& layout) {
+    const auto structural=juce::AudioParameterIntAttributes().withAutomatable(false);
+    for(int model=releasedNativeAmpModelCount;model<ampModelCount;++model)
+        for(int context=0;context<ampNativeContextCount;++context) {
+            const auto& panel=ampNativePanel(model);
+            const auto name=juce::String(ampNativeContextNames[context])+" native "+ampInfo(model).name+" ";
+            layout.add(std::make_unique<juce::AudioParameterInt>(juce::ParameterID{ampNativeChannelID(context,model),1},name+"channel",0,15,panel.defaultChannel,structural));
+            layout.add(std::make_unique<juce::AudioParameterInt>(juce::ParameterID{ampNativeRouteID(context,model),1},name+"input route",0,15,0,structural));
+            for(size_t c=0;c<panel.controls.size();++c) {
+                const auto& k=panel.controls[c];
+                layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{ampNativeControlID(context,model,int(c)),1},name+k.label,
+                    juce::NormalisableRange<float>(k.minimum,k.maximum,k.kind==AmpNativeControlKind::knob?.001f:1.f),k.initial));
+            }
+        }
 }
 struct AmpNativeParameterCache {
     std::array<std::atomic<float>*,ampNativeContextCount> enabled{},models{},inputTrim{},outputLevel{},solo{};
@@ -59,7 +76,7 @@ struct AmpNativeParameterCache {
         context=juce::jlimit(0,ampNativeContextCount-1,context);const auto c=(size_t)context;
         const int raw=(int)std::round(juce::jlimit(0.f,255.f,value(models[c],2.f)));
         auto s=defaultAmpNativeState(raw<ampModelCount?raw:2);const auto m=(size_t)s.model;
-        s.soloEnabled=value(solo[c],0.f)>.5f;s.enabled=value(enabled[c],0.f)>.5f;s.channel=(int)std::round(juce::jlimit(0.f,15.f,value(channels[c][m],(float)s.channel)));
+        s.soloEnabled=value(solo[c],0.f)>.5f;s.enabled=ampRequiresNative(s.model)||value(enabled[c],0.f)>.5f;s.channel=(int)std::round(juce::jlimit(0.f,15.f,value(channels[c][m],(float)s.channel)));
         s.inputRoute=(int)std::round(juce::jlimit(0.f,15.f,value(routes[c][m],0)));
         s.inputTrimDb=juce::jlimit(-24.f,24.f,value(inputTrim[c],0));s.outputLevelDb=juce::jlimit(-24.f,24.f,value(outputLevel[c],0));
         for(size_t k=0;k<ampNativePanel(s.model).controls.size();++k)s.values[k]=value(controls[c][m][k],s.values[k]);

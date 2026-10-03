@@ -1,0 +1,8 @@
+PASS catalog 24 serialized / 23 active models, 380 controls, six contexts
+PASS sample-rates/channel routes=153 peak=0.826977 allocations=0
+CONTROL_RESPONSE count=380 failures=0 minimum=1.42221e-05 at=15:gate_threshold
+PASS inactive channel controls isolated=448 output level ratio=1.99526
+PASS old/native engine transition first difference=0.000458091 allocations=0
+PASS trim_gate_residual=0 hidden_tank_difference=0 hidden_tank_reference=6.89683e-09 first15_coeff_edit_residual=0 edited_difference_energy=58.9349 transition_peak=0.172631
+PASS integrated native oversampling paths=96
+PASS AmpNativeTests
