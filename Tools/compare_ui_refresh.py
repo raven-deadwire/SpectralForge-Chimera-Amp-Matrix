@@ -51,6 +51,8 @@ def compare(baseline, candidate):
     return dict(baseline_revision=baseline['source_revision'], candidate_revision=candidate['source_revision'],
                 parameters_preserved='PASS', synthetic_audio_identity='PASS' if len(hashes)==1 and counts=={1500} else 'BLOCKED',
                 audio_hashes=sorted(hashes), scenes=scenes,
+                callback_timing_nonregression='BLOCKED',
+                callback_timing_reason='Short shared-runner measurements include deadline misses and increases in some candidate p99/miss counts. Unchanged source and bit-identical output do not prove timing non-regression.',
                 ui_75_percent_stretch='BLOCKED',
                 windows_daw_and_30_minute_soak='BLOCKED',
                 scope='Matched Linux/X11 or Windows probe only. UI CPU is message-thread time including processor/APVTS timers; no driver/display-server CPU. Synthetic audio equality is not a real DAW deadline guarantee.')
