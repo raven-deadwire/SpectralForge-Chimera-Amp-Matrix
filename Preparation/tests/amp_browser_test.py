@@ -33,7 +33,7 @@ def run(executable):
         def inventory():
             assert page.locator('#ampModel option').count()==24
             assert page.locator('#ampModel option:not(:disabled)').count()==23
-            assert page.locator('#ampModel option[value="planned.amp.engl"]').is_disabled()
+            assert page.locator('#ampModel option[value="planned.amp.engl"]').evaluate("e => e.disabled && e.matches(':disabled')")
             for mid in page.locator('#ampModel option:not(:disabled)').evaluate_all('(es)=>es.map(e=>e.value)'):
                 choose(mid);assert page.locator('#ampControls .control').count()>0
             page.evaluate("ampRig.choose('planned.amp.engl');renderAmp()")
