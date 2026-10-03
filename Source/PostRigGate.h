@@ -22,14 +22,14 @@ public:
         reset();
     }
     void reset() {detector.reset();alignment.reset();envelope.clear();detectedSamples=0;lastGain=1;}
-    void detect(const juce::AudioBuffer<float>& cleanInput,bool enabled,float thresholdDb,float releaseMs,float holdMs,int delaySamples)
+    void detect(const juce::AudioBuffer<float>& cleanInput,bool enabled,float thresholdDb,float releaseMs,float holdMs,int delaySamples,float rangeDb=NoiseGate::fullRangeDb)
     {
         jassert(cleanInput.getNumSamples()<=envelope.getNumSamples());
         jassert(delaySamples>=0 && delaySamples<=maximumDelay);
         detectedSamples=juce::jmin(cleanInput.getNumSamples(),envelope.getNumSamples());
         // The processor chunks host buffers to its prepared maximum size.
         if(detectedSamples!=cleanInput.getNumSamples()) {detectedSamples=0;return;}
-        detector.detect(cleanInput,envelope.getWritePointer(0),enabled,thresholdDb,releaseMs,holdMs);
+        detector.detect(cleanInput,envelope.getWritePointer(0),enabled,thresholdDb,releaseMs,holdMs,rangeDb);
         alignment.setDelay(float(juce::jlimit(0,maximumDelay,delaySamples)));
         for(int n=0;n<detectedSamples;++n) {
             alignment.pushSample(0,envelope.getSample(0,n));

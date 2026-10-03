@@ -176,3 +176,17 @@ foreach(native AmpNative PostNative)
   target_link_libraries(Chimera${native}Tests PRIVATE juce::juce_dsp juce::juce_audio_basics PUBLIC juce::juce_recommended_config_flags)
   add_test(NAME Chimera${native}Tests COMMAND Chimera${native}Tests)
 endforeach()
+
+# Actual processor/APVTS gate routing, state and automation regression (no editor required).
+juce_add_console_app(ChimeraGateProcessorTests PRODUCT_NAME "Chimera Gate Processor Tests")
+target_sources(ChimeraGateProcessorTests PRIVATE Tests/GateProcessorTests.cpp)
+target_include_directories(ChimeraGateProcessorTests PRIVATE Source)
+target_link_libraries(ChimeraGateProcessorTests PRIVATE ChimeraAmpMatrix ChimeraArtwork ChimeraManual juce::juce_cryptography juce::juce_audio_utils juce::juce_dsp)
+add_test(NAME ChimeraGateProcessorTests COMMAND ChimeraGateProcessorTests)
+
+juce_add_console_app(ChimeraGateTests PRODUCT_NAME "Chimera Gate Tests")
+target_sources(ChimeraGateTests PRIVATE Tests/GateTests.cpp)
+target_include_directories(ChimeraGateTests PRIVATE Source)
+target_compile_definitions(ChimeraGateTests PRIVATE JUCE_USE_CURL=0 JUCE_WEB_BROWSER=0)
+target_link_libraries(ChimeraGateTests PRIVATE juce::juce_dsp juce::juce_audio_basics PUBLIC juce::juce_recommended_config_flags)
+add_test(NAME ChimeraGateTests COMMAND ChimeraGateTests)
