@@ -1,0 +1,119 @@
+{
+  "schema": "spectralforge.chimera.astra-run",
+  "schema_version": 1,
+  "run_date_kst": "2026-10-04",
+  "scope": "1.1.1 stabilization and E670FE exception",
+  "reviewed_commit": "d2f17ab8a1b41c6f5330416cda1f628cfded6f62",
+  "dependencies": {
+    "main": "fe3656521046be79f99a62857976021c07ec398b",
+    "signature_pr_7": "8fdc279efe7450dac5289ea9cc7d83203134ca3d",
+    "e670fe_pr_10": "d2f17ab8a1b41c6f5330416cda1f628cfded6f62",
+    "non_astra_head": "ba58c8e0625b06477cbfe14f1acd481625bd63ee",
+    "integration_note": "PR 10 is stacked on PR 7. The non-Astra branch advanced independently after the E670FE branch point; do not overwrite either branch. Reconcile its CI ownership and preset-alias fixes after PR 10 stabilizes."
+  },
+  "reference_evidence": [
+    {
+      "item": "ENGL E670FE Special Edition Founders Edition operating manual",
+      "grade": "C",
+      "scope": "Documentary topology and control ownership only",
+      "url": "https://www.engl-amps.com/wp-content/uploads/2024/01/E670FE-OM-2-FE-Special-Edition.pdf",
+      "sha256": "58c8331abcd09db38e55daf55b19b37ff739a967dc30032c6115c4540488bb29",
+      "rights_boundary": "Not redistributed in product or repository",
+      "result": "PASS",
+      "observations": [
+        "Four main channels are mutually exclusive with the Tube Driver path.",
+        "T.D. EQ is associated with the Tube Driver path; no independent Driver gain is documented.",
+        "Gain Boost, Mid Shift and Bright belong to Clean/Crunch; Hi Gain, Contour and Mid Edge belong to Lead I/II.",
+        "Modern/Classic and Mega Lo Punch apply to the four main channels, while Presence A/B, Master A/B and Depth Boost are power/output functions."
+      ]
+    },
+    {
+      "item": "Exact E670FE calibrated head-only capture",
+      "grade": "ungraded",
+      "result": "BLOCKED",
+      "reason": "No exact-revision file with source rights, SHA-256, signal chain, input/output calibration and multiple operating points was available.",
+      "unblock": "Provide an authorized exact E670FE head/pre-cab capture set with revision, chain, calibration, operating points, file hashes and redistribution boundary."
+    }
+  ],
+  "implementation_review": {
+    "result": "REVISE",
+    "passed": [
+      "E670FE is appended at serialized model index 23.",
+      "Ironball remains at index 16 with existing native IDs and DSP; it is disabled only for new selection.",
+      "Active AMP count remains 23 while serialized AMP count is 24 and active total remains 83.",
+      "Five mutually exclusive channel/path states and 32 E670FE controls are stored in all six routing contexts.",
+      "No Driver gain or selectable output-valve control was invented.",
+      "Released native models 0-22 have byte-identical fixed-fixture output in the committed evidence."
+    ],
+    "revise": [
+      "T.D. EQ response is authored and its physical ownership/taper is unresolved; keep E2.TD_EQ fail-closed.",
+      "Internal E670FE reverb and channel-scoped noise gate are delegated to global Chimera modules, so this candidate must not claim complete panel-behavior coverage.",
+      "Exact-capture fit, level/phase/latency calibration and listening remain absent; do not claim fidelity PASS."
+    ]
+  },
+  "measurement_evidence": {
+    "committed_linux_fixture": {
+      "result": "PASS_LIMITED",
+      "coverage": "24 amp voices; 380 native controls; 448 inactive-control isolation checks; 96 oversampling paths; no callback allocations",
+      "limits": "Synthetic fixtures only; not same-DI, exact-capture or actual DAW evidence."
+    },
+    "github_ci_at_observation": {
+      "linux": "PASS",
+      "preparation_contracts": "PASS",
+      "windows": "IN_PROGRESS",
+      "macos": "IN_PROGRESS",
+      "windows_candidate": "IN_PROGRESS",
+      "build_run": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/37135861541",
+      "candidate_run": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/37135861581"
+    },
+    "transpose": {
+      "result": "REVISE",
+      "latency_samples": {
+        "44100": 2048,
+        "48000": 2048,
+        "96000": 4096
+      },
+      "latency_ms": {
+        "44100": 46.44,
+        "48000": 42.67,
+        "96000": 42.67
+      },
+      "reason": "Current STFT window latency is unsuitable for the requested live P0 target; existing sine accuracy tests do not establish low-tuned DI transient clarity or acceptable CPU."
+    }
+  },
+  "preset_and_host_gates": [
+    {
+      "item": "Factory 31 and Deadwire Bass Signature 3 identity/state",
+      "result": "PASS_STRUCTURAL",
+      "evidence": "PR 10 retains PR 7 preset definitions; ordinals and names are unchanged.",
+      "limits": "Same-DI audio, IR hash comparison and listening are still pending."
+    },
+    {
+      "item": "Deadwire Guitar Signature v1 four presets",
+      "result": "BLOCKED",
+      "reason": "No committed full-state presets, fixed guitar DI set or before/after renders exist on the reviewed head.",
+      "unblock": "Append the four exact song-title presets with complete APVTS/native/IR metadata, then render the fixed solo, palm-mute, tremolo/chug and sustained-chord fixtures raw and loudness-matched."
+    },
+    {
+      "item": "Studio One 8, Cubase and Sonar close/exit plus 30-minute soak",
+      "result": "BLOCKED",
+      "reason": "No actual host session was available. The VST3 lifecycle harness is not a DAW PASS.",
+      "unblock": "Install the exact-head Windows artifact and capture project close, editor close, plugin removal, save/reopen, host exit and 30-minute soak evidence in each available host."
+    },
+    {
+      "item": "Same-DI level, phase, latency, CPU, IR A/B and listening",
+      "result": "BLOCKED",
+      "reason": "No authorized DI fixture/render bundle was available in this run.",
+      "unblock": "Supply or commit hashes for the fixed DI and allowed IR fixtures, then record raw and loudness-matched measurements separately from listening notes."
+    }
+  ],
+  "non_astra_handoff": [
+    "Keep PR 10 and the advancing non-Astra branch independent until their CI heads are stable; do not reset either branch.",
+    "Carry forward the non-Astra CI ownership map and preset-alias fixes when reconciling PR 10.",
+    "Add fail-closed checks for E2.TD_EQ, E2.CALIBRATION and E2.SAME_DI; generic build success must not satisfy them.",
+    "Treat Transpose latency/low-tuned artifact/CPU and gate Range as independent P0 work; neither is blocked by missing Astra capture quota.",
+    "Preserve Factory 31 and Bass Signature 3 ordinals/IDs; append Guitar Signature v1 only after complete state and fixture evidence exists."
+  ],
+  "verdict": "REVISE",
+  "release_verdict": "BLOCKED"
+}
