@@ -23,6 +23,7 @@ ChimeraProcessor::ChimeraProcessor()
     ampSelection.bind(state);
     nativeAmps.bind(state);nativePost.bind(state);
     gateAfterRig=state.getRawParameterValue("gateAfterRig");
+    gateRangeDb=state.getRawParameterValue("gateRangeDb");
     const std::array<const char*,extraCount> extraIds{"dualtype","dualblend","dualcross","inputmode","doubleron","doublertime","tempo","temposync","metronome"};
     for(size_t i=0;i<extraIds.size();++i)extras[i]=state.getRawParameterValue(extraIds[i]);
     lowCompParameter=state.getRawParameterValue("lowcomp");lowAmpMixParameter=state.getRawParameterValue("lowampmix");
@@ -142,17 +143,17 @@ void ChimeraProcessor::process(juce::AudioBuffer<float>& buffer)
         if(before==boardEditSequence.load(std::memory_order_acquire)) audioBoard=candidate;
     }
     const bool gateAtOutput=gateAfterRig->load()>.5f;
+    const float gateRange=gateRangeDb->load();
     const int preLatency=audioBoard.enabled ? pedalBoard.latency(audioBoard)+(pitching ? preFX.transpose.latency() : 0) : preFX.latency(pitching);
-    postRigGate.detect(buffer,value(gateOn)>.5f,value(threshold),value(release),value(hold),preLatency+engine.latency());
+    postRigGate.detect(buffer,value(gateOn)>.5f,value(threshold),value(release),value(hold),preLatency+engine.latency(),gateRange);
     if(audioBoard.enabled) {
-        preFX.gate.process(buffer,!gateAtOutput && value(gateOn)>.5f,value(threshold),value(release),value(hold));
+        preFX.gate.process(buffer,!gateAtOutput && value(gateOn)>.5f,value(threshold),value(release),value(hold),gateRange);
         preFX.transpose.process(buffer,pitching,(int)value(semitones));
         pedalBoard.process(buffer,audioBoard);
-    } else preFX.process(buffer,!gateAtOutput && value(gateOn)>.5f,value(threshold),value(release),value(hold),pitching,(int)value(semitones),fx);
+    } else preFX.process(buffer,!gateAtOutput && value(gateOn)>.5f,value(threshold),value(release),value(hold),pitching,(int)value(semitones),fx,gateRange);
     boardReduction.store(audioBoard.enabled ? pedalBoard.compressorReduction() : 0.f);
     preReduction.store(audioBoard.enabled ? pedalBoard.compressorReduction() : preFX.compressor.reduction());
     measureStage(1,buffer);
-    gateGain.store(gateAtOutput ? postRigGate.reduction() : preFX.gate.reduction());
     const int latency=postFX.latency()+engine.latency()+(audioBoard.enabled ? pedalBoard.latency(audioBoard)+(pitching ? preFX.transpose.latency() : 0) : preFX.latency(pitching));
     if(getLatencySamples()!=latency) setLatencySamples(latency);
     engine.setOversampling((int)value(os));
@@ -175,6 +176,7 @@ void ChimeraProcessor::process(juce::AudioBuffer<float>& buffer)
     engine.process(buffer,(spectralforge::RoutingMode)(int)value(mode),dualCross ? extras[dualFrequency]->load() : value(x1),value(x2),lanes,audioBoard.enabled ? &pedalBoard.cleanOutput() : &preFX.cleanOutput(),dualCross,extras[dualBlend]->load());
     lowCompGain.store(engine.lowReduction());
     if(gateAtOutput)postRigGate.apply(buffer);
+    gateGain.store(gateAtOutput ? postRigGate.reduction() : preFX.gate.reduction());
     measureStage(2,buffer);
     postFX.process(buffer,fx);
     measureStage(3,buffer);
@@ -242,6 +244,13 @@ juce::AudioProcessorValueTreeState::ParameterLayout ChimeraProcessor::layout(){j
     spectralforge::addAmpSelectionParameters(p);
     spectralforge::addAmpNativeParameters(p);
     spectralforge::addPostNativeParameters(p);
+    // Append after ALL released parameters, including native model banks.
+    // Version hint 2 also keeps this after the released AU hint-1 parameters.
+    p.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{"gateRangeDb",2},"Gate range",
+        juce::NormalisableRange<float>{0.f,spectralforge::NoiseGate::fullRangeDb,.1f},spectralforge::NoiseGate::fullRangeDb,
+        juce::AudioParameterFloatAttributes()
+            .withStringFromValueFunction([](float v,int) {return v>=spectralforge::NoiseGate::fullRangeDb ? juce::String("Full") : juce::String(v,1)+" dB";})
+            .withValueFromStringFunction([](const juce::String& text) {return text.trim().equalsIgnoreCase("Full") ? spectralforge::NoiseGate::fullRangeDb : text.getFloatValue();})));
 return p;
 }
 
@@ -280,6 +289,8 @@ void ChimeraProcessor::restoreCore(juce::ValueTree restored)
         if(id.isEmpty() || restored.getChildWithProperty("id",id).isValid()) continue;
         auto* parameter=state.getParameter(id);if(!parameter) continue;
         float value=parameter->convertFrom0to1(parameter->getDefaultValue());
+        // Missing gateRangeDb uses its Full default, including old A/B slots.
+        // Never inherit the current session's finite floor during migration.
         if(id.startsWith("cabtype") || id=="gateon" || id=="output" || id=="lowcomp" || id=="preorder" || id=="gainorder" || id=="boardEnabled") value=0;
         if((id.startsWith("nativeAmp_")&&id.endsWith("_enabled")) || (id.startsWith("pn_")&&id.endsWith("_native")))value=0;
         juce::ValueTree item("PARAM");item.setProperty("id",id,nullptr);item.setProperty("value",value,nullptr);restored.appendChild(item,nullptr);

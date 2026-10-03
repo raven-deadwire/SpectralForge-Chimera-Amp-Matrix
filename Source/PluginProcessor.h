@@ -101,6 +101,7 @@ private:
     spectralforge::PedalBoardDSP pedalBoard;
     spectralforge::PostRigGate postRigGate;
     std::atomic<float>* gateAfterRig{};
+    std::atomic<float>* gateRangeDb{};
     spectralforge::PedalBoardState audioBoard;
     std::atomic<float> boardReduction{0};
     std::array<std::atomic<float>,5> stageRms{},stagePeaks{};

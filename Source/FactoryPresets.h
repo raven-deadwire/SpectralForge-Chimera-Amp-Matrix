@@ -100,9 +100,9 @@ inline constexpr int factoryPresetCount = static_cast<int>(factoryPresets.size()
 // Full sound initialization keeps preset recall independent of the previous
 // sound. Performance controls (input gain/routing, tempo, click and tuner),
 // external IR assets, MIDI mapping and A/B snapshots remain the caller's state.
-inline constexpr std::array<PresetParameter,16> factoryGlobalDefaults{{
+inline constexpr std::array<PresetParameter,17> factoryGlobalDefaults{{
     {"mode",0},{"x1",150},{"x2",1200},{"output",-9},{"gateon",1},
-    {"gatethreshold",-65},{"gaterelease",80},{"gatehold",20},
+    {"gatethreshold",-65},{"gaterelease",80},{"gatehold",20},{"gateRangeDb",96},
     {"transposeon",0},{"transpose",0},{"oversampling",2},{"lowcomp",0},
     {"lowampmix",0},{"dualtype",0},{"dualblend",.5f},{"dualcross",350}
 }};

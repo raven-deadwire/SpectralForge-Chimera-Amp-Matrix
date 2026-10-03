@@ -194,14 +194,16 @@ ChimeraEditor::ChimeraEditor(ChimeraProcessor& p) : AudioProcessorEditor(&p),pro
     add(x1Label); add(x2Label); setupSlider(x1,"LOW / MID"," Hz"); setupSlider(x2,"MID / HIGH"," Hz"); add(x1); add(x2);
     auto& state=p.parameters(); ma=std::make_unique<CA>(state,"mode",mode); qa=std::make_unique<CA>(state,"oversampling",quality);
     a1=std::make_unique<SA>(state,"x1",x1); a2=std::make_unique<SA>(state,"x2",x2);
-    const std::array<const char*,7> globalIds{"input","gatethreshold","gaterelease","gatehold","transpose","tunerref","output"};
-    const std::array<const char*,7> globalNames{"Input gain","Gate threshold","Gate release","Gate hold","Transpose semitones","Tuner reference","Output gain"};
-    const std::array<const char*,7> suffix{" dB"," dB"," ms"," ms"," st"," Hz"," dB"};
-    for(size_t i=0;i<7;++i)
+    const std::array<const char*,8> globalIds{"input","gatethreshold","gaterelease","gatehold","transpose","tunerref","output","gateRangeDb"};
+    const std::array<const char*,8> globalNames{"Input gain","Gate threshold","Gate release","Gate hold","Transpose semitones","Tuner reference","Output gain","Gate range"};
+    const std::array<const char*,8> suffix{" dB"," dB"," ms"," ms"," st"," Hz"," dB",""};
+    for(size_t i=0;i<globalSliders.size();++i)
     {
         setupSlider(globalSliders[i],globalNames[i],suffix[i]); add(globalSliders[i]);
         globalAttachments[i]=std::make_unique<SA>(state,globalIds[i],globalSliders[i]);
     }
+    globalSliders[7].setComponentID("gateRangeDb");
+    globalSliders[7].setTooltip("Closed-gate attenuation: 0 dB = unity; finite dB = limited reduction; Full = release toward silence (legacy default). Applies at the selected PRE or POST GATE position.");
     for(const auto i:{0,4,6}) {globalSliders[(size_t)i].setSliderStyle(juce::Slider::RotaryHorizontalVerticalDrag);globalSliders[(size_t)i].setTextBoxStyle(juce::Slider::TextBoxBelow,false,104,22);globalSliders[(size_t)i].getProperties().set("knobStyle",3);}
     globalSliders[4].setNumDecimalPlacesToDisplay(0); globalSliders[5].setNumDecimalPlacesToDisplay(0);
     globalSliders[2].setNumDecimalPlacesToDisplay(0); globalSliders[3].setNumDecimalPlacesToDisplay(0);
@@ -464,7 +466,7 @@ void ChimeraEditor::paint(juce::Graphics& g)
     const std::array<juce::Rectangle<float>,5> panels{{{20,80,138,168},{170,80,254,168},{436,80,176,168},{624,80,326,168},{962,80,198,168}}};
     for(auto box:panels) { g.setColour(panel.withAlpha(.88f)); g.fillRoundedRectangle(box,5); g.setColour(line); g.drawRoundedRectangle(box,5,1); }
     text(g,"INPUT",32,91,104,24,12.f,ink);
-    text(g,"THRESH",182,126,63,26,10.f); text(g,"RELEASE",182,160,64,26,10.f); text(g,"HOLD",308,160,54,26,10.f);
+    text(g,"THRESH",182,126,63,26,10.f); text(g,"RELEASE",182,151,64,20,10.f); text(g,"HOLD",308,151,54,20,10.f); text(g,"RANGE",182,201,63,26,10.f);
     text(g,"OUTPUT",976,91,152,24,12.f,ink);
     meter(g,processor.inputMeter(),141,126,6,93); meter(g,processor.outputMeter(),1142,126,6,93);
     text(g,juce::String(juce::Decibels::gainToDecibels(processor.inputMeter(),-90.f),1)+" dBFS",32,210,106,22,11.f,processor.inputMeter()>=1 ? juce::Colours::salmon : muted);
@@ -539,9 +541,10 @@ void ChimeraEditor::layoutControls()
     gateOn.setBounds(182,93,78,24); pitchOn.setBounds(450,93,148,24); tunerOn.setBounds(20,750,64,25);tunerMute.setBounds(965,273,112,25);
     globalSliders[0].setBounds(30,115,106,92);
     globalSliders[1].setBounds(244,126,167,28);
-    globalSliders[2].setBounds(180,184,111,27); globalSliders[3].setBounds(306,184,106,27);
+    globalSliders[2].setBounds(180,173,111,27); globalSliders[3].setBounds(306,173,106,27);
+    globalSliders[7].setBounds(244,201,167,26);
     globalSliders[4].setBounds(448,123,152,85); globalSliders[5].setBounds(799,273,140,25); globalSliders[6].setBounds(974,115,159,92);
-    gateStatus.setBounds(180,217,232,22); pitchStatus.setBounds(447,212,158,29);
+    gateStatus.setBounds(180,228,232,18); pitchStatus.setBounds(447,212,158,29);
     inputMode.setBounds(638,107,108,26);presets.setBounds(756,107,180,26);presetPrevious.setBounds(638,144,28,25);presetNext.setBounds(670,144,28,25);presetSave.setBounds(706,144,107,25);presetLoad.setBounds(821,144,115,25);
     doublerOn.setBounds(638,190,91,26);doublerTime.setBounds(741,190,195,26);
     midi.setBounds(91,750,61,25);tap.setBounds(160,750,44,25);tempo.setBounds(211,750,128,25);hostTempo.setBounds(347,750,58,25);metronome.setBounds(413,750,82,25);
