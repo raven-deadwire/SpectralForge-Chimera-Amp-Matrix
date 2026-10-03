@@ -300,6 +300,43 @@ class AmpNativeDSP {
             const int b=c==0?0:5;config.scalar[0]=gain(a(b));config.scalar[2]=volume(a(c==0?4:10));config.scalar[3]=volume(a(11));
             eq(c==0,a(b+1),a(b+2),a(b+3),70,450,3000);if(c==1){presence(a(9),1700);add(false,2,70,3,.7f);}
             config.stages=c==0?2:4;config.stageGain={2.3f,2.5f,1.8f,1.4f,1,1};config.sag=.27f;config.powerDrive=1.5f;hp=c==0?24:34;lp=c==0?14400:10300;break; }
+        case 23: { // E670FE functional prototype, NOT a measured circuit fit.
+            const auto v=[&s](std::string_view key){return ampNativeValue(s,key);};
+            const bool driver=c==4, classic=!driver && v("hw.character")>.5f;
+            config.sag=classic?.18f:.07f;config.powerDrive=1.4f;
+            config.scalar[3]=volume(v(v("hw.master_select")>.5f?"hw.master_b":"hw.master_a"));
+            presence(v(v("hw.presence_select")>.5f?"hw.presence_b":"hw.presence_a"),2800);
+            if(v("hw.depth_boost")>.5f)add(false,2,85,4,.8f);
+            if(driver) {
+                // Preamp defeat has no main-channel gain/volume or voicing.
+                config.stages=1;config.eqAfter=0;config.stageGain={1.15f,1,1,1,1,1};
+                hp=18;lp=18000;config.sag=.07f;
+                // Fixed passive-style insertion response is explicitly an
+                // authored placeholder until T.D. EQ ownership is verified.
+                if(v("hw.tube_eq")>.5f){add(true,2,600,-3,.65f);add(true,4,4200,-1.5f);}
+            } else {
+                constexpr const char* gains[]{"hw.clean.gain","hw.crunch.gain","hw.lead1.gain","hw.lead2.gain"};
+                constexpr const char* trebles[]{"hw.clean.treble","hw.crunch.treble","hw.lead1.treble","hw.lead2.treble"};
+                constexpr const char* volumes[]{"hw.clean.volume","hw.crunch.volume","hw.lead1.volume","hw.lead2.volume"};
+                const float g=v(gains[c]);config.scalar[0]=gain(g);config.scalar[2]=volume(v(volumes[c]));
+                config.stages=c==0?2:c==1?3:c==2?4:5;
+                config.stageGain={1.8f,1.65f,1.8f,1.4f,1.15f,1};
+                hp=c==0?24.f:classic?38.f:65.f;lp=classic?11500.f:15000.f;
+                config.stageBias[1]=classic?-.15f:-.27f;
+                if(c<2) {
+                    config.scalar[0]*=v("hw.gain_boost")>.5f?1.9f:1.f;
+                    eq(true,v("hw.clean_eq.bass"),v("hw.clean_eq.middle"),v(trebles[c]),95,650,3500);
+                    bright=v("hw.bright")*(1-g)*7;
+                    if(v("hw.mid_shift")>.5f){add(true,2,400,-3,.65f);add(true,2,1350,2,.8f);}
+                } else {
+                    config.scalar[1]=v("hw.hi_gain")>.5f?2.1f:1.f;
+                    eq(false,v("hw.lead_eq.bass"),v("hw.lead_eq.middle"),v(trebles[c]),90,650,3500);
+                    if(v("hw.contour")>.5f)add(false,2,300,4,.7f);
+                    if(v("hw.mid_edge")>.5f)add(false,2,1200,3.5f,.7f);
+                }
+                if(v("hw.mega_lo_punch")>.5f){add(true,3,95,3);add(false,2,85,1.5f,.8f);}
+            }
+            break; }
         default:break;
         }
         if(bright!=0)add(true,4,1700,bright);

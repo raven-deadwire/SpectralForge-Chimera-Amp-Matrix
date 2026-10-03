@@ -243,6 +243,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout ChimeraProcessor::layout(){j
     spectralforge::addAmpSelectionParameters(p);
     spectralforge::addAmpNativeParameters(p);
     spectralforge::addPostNativeParameters(p);
+    spectralforge::appendNewAmpNativeParameters(p);
 return p;
 }
 
@@ -400,7 +401,10 @@ int ChimeraProcessor::selectedAmpNativeRoute(int lane) const noexcept {
 void ChimeraProcessor::activateNativeAmp(int lane) {
     if(lane<0 || lane>=3)return;
     const int context=ampContext(lane);const auto native=nativeAmps.read(context);
-    if(native.enabled)return;
+    if(native.enabled) {
+        if(spectralforge::ampRequiresNative(native.model))setRawParameter(spectralforge::ampNativeEnabledID(context),1.f);
+        return;
+    }
     const int model=ampSelection.model(lane);const auto selection=nativeSelectionFromLegacy(model,ampSelection.channel(lane,model));
     setRawParameter(spectralforge::ampNativeModelID(context),float(model));
     setRawParameter(spectralforge::ampNativeChannelID(context,model),float(selection.first));
@@ -450,7 +454,7 @@ void ChimeraProcessor::setAmpModel(int lane,int model) {
         // host automation write alone never deactivates an explicit new model.
         setRawParameter("amp"+juce::String(lane+1),float(model));
         setRawParameter(spectralforge::ampExtensionID(lane),0.f);
-    } else {
+    } else if(model<spectralforge::releasedNativeAmpModelCount) {
         setRawParameter(spectralforge::ampExtensionID(lane),float(model-spectralforge::legacyAmpModelCount+1));
     }
 }
@@ -462,7 +466,7 @@ void ChimeraProcessor::setAmpChannel(int lane,int channel) {
     setRawParameter(spectralforge::ampNativeChannelID(ampContext(lane),model),float(channel));
     if(model==19)setRawParameter(spectralforge::ampChannelID(lane,model),float(selectedAmpNativeRoute(lane)));
     else if(model==21) {if(channel==1)setRawParameter(spectralforge::ampChannelID(lane,model),0.f);}
-    else if(model>=spectralforge::legacyAmpModelCount && channel<spectralforge::newAmpChannelCount(model))setRawParameter(spectralforge::ampChannelID(lane,model),float(channel));
+    else if(spectralforge::isNewAmpModel(model) && channel<spectralforge::newAmpChannelCount(model))setRawParameter(spectralforge::ampChannelID(lane,model),float(channel));
 }
 void ChimeraProcessor::setAmpNativeRoute(int lane,int route) {
     if(lane<0 || lane>=3)return;

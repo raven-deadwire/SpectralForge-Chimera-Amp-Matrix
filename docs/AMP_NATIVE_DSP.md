@@ -31,7 +31,7 @@ This revision connects the 23 amplifier panel definitions in `Preparation/amp_co
 | Silk Lead | 11 | Clean / OD; separate OD Drive and Ratio; shared tone and voicing |
 | Taste Punch | 8 | Gain, Taste contour, four-band EQ, Master and Mute |
 | Cinder 120 | 42 | Four independent panels and buttons; common power, gate and solo |
-| Iron Compact | 12 | Clean / Lead; shared EQ; boost, reverb and power soak |
+| Iron Compact (legacy recall) | 12 | Clean / Lead; shared EQ; boost, reverb and power soak |
 | Fourfold | 23 | Four independent gain/EQ/volume banks; shared power section |
 | Classic Tube | 8 | Gain / Master; five-position mid selection and ultra switches |
 | Monolith | 6 | Normal / Brilliant / jumped routes with separate input volumes |
@@ -40,6 +40,11 @@ This revision connects the 23 amplifier panel definitions in `Preparation/amp_co
 | Blue Storm | 12 | Clean / Lead, separate panels and lead presence; shared master |
 
 The counts include controls stored for inactive channels; the editor displays the current channel's controls together with shared controls.
+
+The 1.1.1 candidate appends **Special Edition / E670FE**, 32 controls and five paths.
+The catalog is now **24 serialized / 23 active models, 380 controls**; previous
+measurements below remain historical. See `E670FE_IMPLEMENTATION.md` for new
+evidence, append-only parameter ordering and pending reference gates.
 
 ## Audio integration
 

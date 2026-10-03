@@ -42,6 +42,12 @@ preset_total = int(preset_count_match.group(1))
 signature_count = len(re.findall(r"\},\s*PresetKind::signature,", presets))
 factory_count = preset_total - signature_count
 
+serialized_count = amp_count
+legacy_indices = CONTRACT.get("legacy_amp_indices", [])
+assert legacy_indices == [16] and "legacyHiddenAmpIndex = static_cast<int>(AmpModel::ironCompact)" in amp
+assert all(0 <= i < serialized_count for i in legacy_indices)
+amp_count -= len(legacy_indices)
+assert serialized_count == CONTRACT["serialized_model_counts"]["amp"]
 actual = {"amp": amp_count, "pre": pre_count, "post": post_count, "total": amp_count + pre_count + post_count}
 expected = CONTRACT["model_counts"]
 assert actual == expected, f"model count contract mismatch: expected {expected}, got {actual}"

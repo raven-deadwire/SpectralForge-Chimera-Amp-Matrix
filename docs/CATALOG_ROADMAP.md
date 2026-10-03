@@ -1,6 +1,6 @@
 # Chimera catalog roadmap
 
-Current 1.1.1 production baseline is AMP 23 + PRE 39 + POST 21 = 83 models. The machine-readable count contract is Validation/catalog-count-contract.json.
+Current 1.1.1 production baseline is AMP 23 + PRE 39 + POST 21 = 83 models. The 2026-10-04 E670FE exception keeps active AMP23 by retiring Ironball from new selection while preserving its DSP/state: serialized AMP24. The machine-readable count contract is Validation/catalog-count-contract.json.
 
 Existing 31 Factory preset ordinals remain fixed. Crom Cruach, Wild Hunt and Azhi Dahaka remain the three appended Deadwire Signature presets. New model IDs, parameter IDs and presets are append-only.
 

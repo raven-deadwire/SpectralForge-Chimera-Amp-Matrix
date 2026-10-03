@@ -1,7 +1,7 @@
 {
   "schema": "spectralforge.chimera.release-policy",
   "schema_version": 1,
-  "policy_version": 1,
+  "policy_version": 2,
   "dependency_satisfied_by": [
     "PASS",
     "NOT_APPLICABLE"
@@ -292,6 +292,24 @@
       "required_checks": [
         "B14.RESULT"
       ]
+    },
+    "E1": {
+      "name": "E670FE implementation and legacy compatibility",
+      "required": true,
+      "required_checks": [
+        "E1.DSP",
+        "E1.STATE_UI",
+        "E1.LEGACY"
+      ]
+    },
+    "E2": {
+      "name": "E670FE reference and sound acceptance",
+      "required": true,
+      "required_checks": [
+        "E2.TD_EQ",
+        "E2.CALIBRATION",
+        "E2.SAME_DI"
+      ]
     }
   },
   "profiles": {
@@ -310,7 +328,8 @@
         "A11",
         "A12",
         "A13",
-        "A14"
+        "A14",
+        "E1"
       ]
     },
     "windows_rc": {
@@ -339,7 +358,9 @@
         "B10",
         "B11",
         "B13",
-        "B14"
+        "B14",
+        "E1",
+        "E2"
       ]
     },
     "full_release": {
@@ -369,7 +390,9 @@
         "B11",
         "B12",
         "B13",
-        "B14"
+        "B14",
+        "E1",
+        "E2"
       ]
     }
   },
@@ -423,6 +446,12 @@
     "B10.RESULT",
     "B11.RESULT",
     "B13.RESULT",
-    "B14.RESULT"
+    "B14.RESULT",
+    "E1.DSP",
+    "E1.STATE_UI",
+    "E1.LEGACY",
+    "E2.TD_EQ",
+    "E2.CALIBRATION",
+    "E2.SAME_DI"
   ]
 }
