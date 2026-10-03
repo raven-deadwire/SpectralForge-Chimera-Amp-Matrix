@@ -13,6 +13,8 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
@@ -22,7 +24,7 @@ jobs:
           python Tools/check_catalog_contract.py
           python Tools/check_ci_validation_map.py
           python Tools/test_validation_producer.py
-          python Tools/seed_validation_reports.py --commit "$GITHUB_SHA" --profile pull_request --output build/validation
+          python Tools/seed_validation_reports.py --commit "${{ github.event.pull_request.head.sha || github.sha }}" --profile pull_request --output build/validation
       - name: Upload current-commit release-gate evidence
         if: always()
         uses: actions/upload-artifact@v4
