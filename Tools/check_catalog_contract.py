@@ -50,6 +50,10 @@ expected_presets = CONTRACT["preset_counts"]
 actual_presets = {"factory": factory_count, "signature": signature_count, "total": preset_total}
 assert actual_presets == expected_presets, f"preset count contract mismatch: expected {expected_presets}, got {actual_presets}"
 assert CONTRACT["pre_board_capacity"] == 5, "PRE board capacity contract changed"
+assert "Bassman Valve" not in presets, "Preset descriptions retain the stale pre-catalog Bassman Valve alias"
+for preset_name in ("Finger Round", "G+B Air / Weight", "B+B Warm / Definition"):
+    assert re.search(r'\{"' + re.escape(preset_name) + r'"[^\n]+"[^\n]*Vintage Valve', presets), \
+        f"{preset_name} no longer names the active Vintage Valve catalog model"
 
 print(
     f"PASS: Chimera catalog contract {actual['total']} models = AMP {amp_count} + PRE {pre_count} + POST {post_count}; "
