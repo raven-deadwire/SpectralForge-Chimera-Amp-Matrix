@@ -58,11 +58,25 @@
       "limits": "Synthetic fixtures only; not same-DI, exact-capture or actual DAW evidence."
     },
     "github_ci_at_observation": {
+      "observed_at_kst": "2026-10-04T01:29:00+09:00",
       "linux": "PASS",
+      "macos": "PASS",
       "preparation_contracts": "PASS",
-      "windows": "IN_PROGRESS",
-      "macos": "IN_PROGRESS",
-      "windows_candidate": "IN_PROGRESS",
+      "windows": "FAIL",
+      "windows_candidate": "FAIL",
+      "common_failure": "ChimeraUITests: The complete hardware artwork inventory was not embedded",
+      "diagnosis": "The E670FE branch appends aspecialedition to Surface, RasterBank names/alphaNames and CHIMERA_MODEL_ARTWORK, making Surface::count 89. Tests/ChimeraUITests.cpp still requires images.size()==88 after already checking equality with Surface::count, so both Windows jobs fail on a stale hard-coded assertion before packaging.",
+      "passing_scope": [
+        "All non-UI CTest targets passed on Windows, including ChimeraVST3LifecycleTests, ChimeraReleaseTests, ChimeraStabilityTests, ChimeraNewAmpTests, ChimeraAmpNativeTests and ChimeraPostNativeTests.",
+        "VST3 lifecycle harness passed, but this is not Studio One, Cubase or Sonar evidence."
+      ],
+      "candidate_cpu_observation": {
+        "average_percent": 14.756,
+        "peak_percent": 17.1191,
+        "qualification": "Runner-specific ChimeraUITests observation only; not a release CPU acceptance result."
+      },
+      "packaging": "BLOCKED because the failed Windows test skipped candidate assembly, installer build and package verification.",
+      "unblock": "Update the intentional artwork inventory contract from 88 to 89 (or derive it from an independently maintained manifest), rerun both Windows workflows, then require installer/package verification to pass.",
       "build_run": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/37135861541",
       "candidate_run": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/37135861581"
     },
@@ -89,6 +103,12 @@
       "limits": "Same-DI audio, IR hash comparison and listening are still pending."
     },
     {
+      "item": "Windows candidate UI and installer/package gate",
+      "result": "BLOCKED",
+      "reason": "Both PR 10 Windows workflows stopped at the stale 88-artwork assertion; candidate assembly and installer/package verification were skipped.",
+      "unblock": "Correct the expected inventory to 89, rerun both workflows at the same head, and retain the resulting UI snapshot, lifecycle, installer and package evidence."
+    },
+    {
       "item": "Deadwire Guitar Signature v1 four presets",
       "result": "BLOCKED",
       "reason": "No committed full-state presets, fixed guitar DI set or before/after renders exist on the reviewed head.",
@@ -108,6 +128,7 @@
     }
   ],
   "non_astra_handoff": [
+    "Fix Tests/ChimeraUITests.cpp artwork inventory expectation from 88 to 89 on PR 10 (the embedded Surface/RasterBank/CMake manifests already include E670FE), then rerun Open Beta and Candidate Windows workflows; do not treat the current artifact uploads as installer evidence.",
     "Keep PR 10 and the advancing non-Astra branch independent until their CI heads are stable; do not reset either branch.",
     "Carry forward the non-Astra CI ownership map and preset-alias fixes when reconciling PR 10.",
     "Add fail-closed checks for E2.TD_EQ, E2.CALIBRATION and E2.SAME_DI; generic build success must not satisfy them.",
