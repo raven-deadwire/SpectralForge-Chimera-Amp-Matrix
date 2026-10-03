@@ -80,15 +80,28 @@ target_compile_definitions(ChimeraTests PRIVATE JUCE_USE_CURL=0 JUCE_WEB_BROWSER
 target_link_libraries(ChimeraTests PRIVATE ChimeraIRs juce::juce_data_structures juce::juce_dsp juce::juce_audio_basics juce::juce_audio_formats PUBLIC juce::juce_recommended_config_flags)
 add_test(NAME ChimeraTests COMMAND ChimeraTests)
 
+# Optional real-peer UI probe on Linux (run with xvfb-run) and Windows.
+# The same harness can be copied onto an unmodified source revision for A/B.
+option(CHIMERA_UI_PROBES "Build UI CPU probe and portable editor regressions" OFF)
+if(CHIMERA_UI_PROBES)
+  target_compile_definitions(ChimeraAmpMatrix PUBLIC JUCE_MODAL_LOOPS_PERMITTED=1)
+  juce_add_console_app(ChimeraUIRefreshProbe PRODUCT_NAME "Chimera UI Refresh Probe")
+  target_sources(ChimeraUIRefreshProbe PRIVATE Tests/UIRefreshProbe.cpp)
+  target_include_directories(ChimeraUIRefreshProbe PRIVATE Source)
+  target_link_libraries(ChimeraUIRefreshProbe PRIVATE ChimeraAmpMatrix ChimeraArtwork ChimeraManual juce::juce_cryptography juce::juce_audio_utils juce::juce_dsp)
+endif()
+
 # Run the actual editor/state code and render snapshots on the user's target OS.
-if(WIN32)
+if(WIN32 OR CHIMERA_UI_PROBES)
   juce_add_console_app(ChimeraUITests PRODUCT_NAME "Chimera UI Tests")
   target_sources(ChimeraUITests PRIVATE Tests/ChimeraUITests.cpp)
   target_include_directories(ChimeraUITests PRIVATE Source)
   target_compile_definitions(ChimeraUITests PRIVATE JUCE_MODAL_LOOPS_PERMITTED=1)
   target_link_libraries(ChimeraUITests PRIVATE ChimeraAmpMatrix ChimeraArtwork ChimeraManual juce::juce_cryptography juce::juce_audio_utils juce::juce_dsp)
   add_test(NAME ChimeraUITests COMMAND ChimeraUITests "${CMAKE_BINARY_DIR}/ui-snapshots")
+endif()
 
+if(WIN32)
   # Exercise the shipped DLL through the real VST3 ABI. No JUCE/Chimera link:
   # last-instance release and FreeLibrary must tear down all plugin globals.
   set(CHIMERA_VST3_SDK "${JUCE_SOURCE_DIR}/modules/juce_audio_processors/format_types/VST3_SDK")

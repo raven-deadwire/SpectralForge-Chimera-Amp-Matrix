@@ -28,6 +28,7 @@ public:
     void resized() override;
     bool isInterestedInFileDrag(const juce::StringArray&) override;
     void filesDropped(const juce::StringArray&,int,int) override;
+    uint64_t metadataRefreshCount() const noexcept {return metadataReads;}
 private:
     using CA=juce::AudioProcessorValueTreeState::ComboBoxAttachment;
     using SA=juce::AudioProcessorValueTreeState::SliderAttachment;
@@ -36,6 +37,19 @@ private:
     void updateModeUI();
     void updateBandLabels();
     void updateHardwareStyles();
+    void refreshVisibleState();
+    void refreshMeters();
+    void repaintDesign(juce::Rectangle<int>);
+    bool stateDirty{true};
+    unsigned presetCheckTick{};
+    uint64_t metadataReads{};
+    spectralforge::ui::Changed<std::array<double,4>> bandKey;
+    spectralforge::ui::Changed<std::array<double,3>> tempoKey;
+    spectralforge::ui::Changed<std::array<int,2>> inputMeterKey,outputMeterKey;
+    spectralforge::ui::Changed<std::array<float,3>> tunerKey;
+    spectralforge::ui::Changed<int> lowMeterKey;
+    std::array<spectralforge::ui::Changed<std::array<int,2>>,3> postMeterKeys;
+    spectralforge::ui::Changed<juce::String> cpuText,transportText,gateText,pitchText;
     void setupSlider(juce::Slider&,const juce::String&,const juce::String& suffix={});
     void loadIR(int);
     void chooseIR(int,bool folder);
@@ -89,6 +103,7 @@ private:
     std::unique_ptr<SA> lowCompAttachment,lowAmpMixAttachment;
     struct FXUI {
         int lastModel{-1};
+        spectralforge::ui::Changed<bool> power;
         juce::Label header,scope,description;
         juce::ComboBox model;
         std::unique_ptr<CA> modelAttachment;
@@ -105,6 +120,9 @@ private:
     static constexpr std::array<int,6> rackOrder{7,8,9,10,1,2};
     struct LaneUI {
         int lastModel{-1};
+        spectralforge::ui::Changed<std::array<uint64_t,6>> cabKey;
+        spectralforge::IRMetadata metadata;
+        juce::String status;
         juce::Label header,range,toneLabel,tonePivot,cabStatus,ampReference;
         AmpSelector amp;
         std::unique_ptr<AmpNativePanel> nativePanel;
