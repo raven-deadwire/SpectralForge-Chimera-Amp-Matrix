@@ -585,7 +585,7 @@ inline constexpr AmpNativeControl nativeControls_23[]={
  {"hw.gain_boost","GAIN BOOST","VOICING",AmpNativeControlKind::toggle,3,nativeOptions_23_16,0.0f,0.f,1.0f},
  {"hw.mid_shift","MID SHIFT","VOICING",AmpNativeControlKind::toggle,3,nativeOptions_23_17,0.0f,0.f,1.0f},
  {"hw.bright","BRIGHT","VOICING",AmpNativeControlKind::toggle,3,nativeOptions_23_18,0.0f,0.f,1.0f},
- {"hw.hi_gain","HI GAIN","VOICING",AmpNativeControlKind::toggle,12,nativeOptions_23_19,0.0f,0.f,1.0f},
+ {"hw.hi_gain","HI GAIN","VOICING",AmpNativeControlKind::toggle,12,nativeOptions_23_19,1.0f,0.f,1.0f},
  {"hw.contour","CONTOUR","VOICING",AmpNativeControlKind::toggle,12,nativeOptions_23_20,0.0f,0.f,1.0f},
  {"hw.mid_edge","MID EDGE","VOICING",AmpNativeControlKind::toggle,12,nativeOptions_23_21,0.0f,0.f,1.0f},
  {"hw.character","CHARACTER","VOICING",AmpNativeControlKind::choice,15,nativeOptions_23_22,0.0f,0.f,1.0f},

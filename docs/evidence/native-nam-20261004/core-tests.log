@@ -26,7 +26,7 @@ AMP_DYNAMIC model=19 ratio=1.34976
 AMP_DYNAMIC model=20 ratio=1.19163
 AMP_DYNAMIC model=21 ratio=1.08304
 AMP_DYNAMIC model=22 ratio=1.11814
-AMP_DYNAMIC model=23 ratio=1.02495
+AMP_DYNAMIC model=23 ratio=1.06904
 MEASURE oversampling 1x: fifth-harmonic foldback = -20.2039 dBc
 MEASURE oversampling 2x: fifth-harmonic foldback = -101.956 dBc
 MEASURE oversampling 4x: fifth-harmonic foldback = -106.279 dBc

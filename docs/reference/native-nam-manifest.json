@@ -131,9 +131,17 @@
       "sha256": "25ee2f97166d57e33fbb50a399f281d64d0f9a2349b22d31ae1618c8d7ae179b",
       "state": {
         "channel": 1,
-        "controls": {}
+        "controls": {
+          "hw.lead.pre_gain": 0.4,
+          "hw.lead.post_gain": 0.1,
+          "hw.low": 0.7,
+          "hw.mid": 0.3,
+          "hw.high": 0.7,
+          "hw.resonance": 0.5,
+          "hw.presence": 0.8
+        }
       },
-      "qualification": "",
+      "qualification": "6505 1992 Original whole-head SRL load, tone setting 6 (not gain 6). Author supplies Pre 4, Bass 7, Mid 3, Treble 7, Post 1, Resonance 5, Presence 8; normalized by 10.",
       "url": "https://www.tone3000.com/tones/peavey-6505-1992-original-lead-mesa-4x12-load-amp-head-72177",
       "input_level_dbu": 11.5,
       "metadata": {
@@ -156,7 +164,8 @@
         "trainer": "TONE3000",
         "input_level_dbu": 11.5,
         "output_level_dbu": 11.7
-      }
+      },
+      "fit_eligible": true
     },
     {
       "index": 3,
@@ -968,9 +977,11 @@
       "sha256": "a755958f9dfead962acfd4133091f97ab1deb8c7d48bf6ca4f2e3d94d8ab466f",
       "state": {
         "channel": 0,
-        "controls": {}
+        "controls": {
+          "hw.ch1.gain": 0.5
+        }
       },
-      "qualification": "",
+      "qualification": "VH4 EL34 whole-head DI with Mesa 4x12 OS speaker load; primary fit. Numeric knob settings unavailable; explicit nominal channel gain 0.5, not claimed capture setting.",
       "url": "https://www.tone3000.com/tones/diezel-vh4-64455",
       "input_level_dbu": 18.995,
       "metadata": {
@@ -993,7 +1004,8 @@
         "trainer": "TONE3000",
         "input_level_dbu": 18.995,
         "output_level_dbu": 13.195
-      }
+      },
+      "verified_source_url": "https://www.tone3000.com/tones/diezel-vh4-64455"
     },
     {
       "index": 17,
@@ -1002,9 +1014,11 @@
       "sha256": "502142f58b893fa8ab74c6d39aa094e17cb65a155f17312b59e59760c8227279",
       "state": {
         "channel": 1,
-        "controls": {}
+        "controls": {
+          "hw.ch2.gain": 0.5
+        }
       },
-      "qualification": "",
+      "qualification": "VH4 EL34 whole-head DI with Mesa 4x12 OS speaker load; primary fit. Numeric knob settings unavailable; explicit nominal channel gain 0.5, not claimed capture setting.",
       "url": "https://www.tone3000.com/tones/diezel-vh4-64455",
       "input_level_dbu": 18.995,
       "metadata": {
@@ -1027,7 +1041,8 @@
         "trainer": "TONE3000",
         "input_level_dbu": 18.995,
         "output_level_dbu": 13.195
-      }
+      },
+      "verified_source_url": "https://www.tone3000.com/tones/diezel-vh4-64455"
     },
     {
       "index": 17,
@@ -1036,9 +1051,11 @@
       "sha256": "c98039d7a29142bf8ab4f97eeebfa89bbeae066a384ac29fd9abd5f2927956b6",
       "state": {
         "channel": 2,
-        "controls": {}
+        "controls": {
+          "hw.ch3.gain": 0.5
+        }
       },
-      "qualification": "",
+      "qualification": "VH4 EL34 whole-head DI with Mesa 4x12 OS speaker load; primary fit. Numeric knob settings unavailable; explicit nominal channel gain 0.5, not claimed capture setting.",
       "url": "https://www.tone3000.com/tones/diezel-vh4-64455",
       "input_level_dbu": 18.995,
       "metadata": {
@@ -1061,7 +1078,8 @@
         "trainer": "TONE3000",
         "input_level_dbu": 18.995,
         "output_level_dbu": 13.195
-      }
+      },
+      "verified_source_url": "https://www.tone3000.com/tones/diezel-vh4-64455"
     },
     {
       "index": 17,
@@ -1070,9 +1088,11 @@
       "sha256": "77b0876b6e394bfbb080664dd64a6b4696a28dae5ae9a85db05e3eaf9689b6ae",
       "state": {
         "channel": 2,
-        "controls": {}
+        "controls": {
+          "hw.ch3.gain": 0.5
+        }
       },
-      "qualification": "",
+      "qualification": "VH4 EL34 whole-head DI with Mesa 4x12 OS speaker load; primary fit. Numeric knob settings unavailable; explicit nominal channel gain 0.5, not claimed capture setting.",
       "url": "https://www.tone3000.com/tones/diezel-vh4-64455",
       "input_level_dbu": 18.995,
       "metadata": {
@@ -1095,7 +1115,8 @@
         "trainer": "TONE3000",
         "input_level_dbu": 18.995,
         "output_level_dbu": 13.195
-      }
+      },
+      "verified_source_url": "https://www.tone3000.com/tones/diezel-vh4-64455"
     },
     {
       "index": 17,
@@ -1104,9 +1125,11 @@
       "sha256": "2ec85fabb0f4a7d1478b4cd9da7651a2a36b5aaaf4756aa0508cddda8c47114d",
       "state": {
         "channel": 3,
-        "controls": {}
+        "controls": {
+          "hw.ch4.gain": 0.5
+        }
       },
-      "qualification": "",
+      "qualification": "VH4 EL34 whole-head DI with Mesa 4x12 OS speaker load; primary fit. Numeric knob settings unavailable; explicit nominal channel gain 0.5, not claimed capture setting.",
       "url": "https://www.tone3000.com/tones/diezel-vh4-64455",
       "input_level_dbu": 18.995,
       "metadata": {
@@ -1129,7 +1152,8 @@
         "trainer": "TONE3000",
         "input_level_dbu": 18.995,
         "output_level_dbu": 13.195
-      }
+      },
+      "verified_source_url": "https://www.tone3000.com/tones/diezel-vh4-64455"
     },
     {
       "index": 20,
@@ -2118,27 +2142,4486 @@
         "gear_model": "Sunn Model T",
         "tone_type": "does it doom",
         "gear_type": "amp"
-      }
+      },
+      "fit_eligible": false
+    },
+    {
+      "index": 23,
+      "channel": 0,
+      "file": "ENGL-E670/Engl E670 FE EL34 - Ch1 - Clean Bright.nam",
+      "sha256": "e7a64c2237f11a0e15eb035d7c1d147bd4d55ea9975ae89b9221e48ce54d7774",
+      "state": {
+        "channel": 0,
+        "controls": {
+          "hw.clean.gain": 0.5,
+          "hw.bright": 1.0,
+          "hw.gain_boost": 0.0
+        }
+      },
+      "qualification": "User-supplied FE EL34 reference. Channel and named gain/bright mode mapped; undisclosed numeric knobs use explicit nominal 0.5 gain and panel defaults. Scooped/Fat/Boosted Mids descriptors are not asserted to identify a specific switch. Absolute input calibration absent.",
+      "url": "https://www.tone3000.com/tones/engl-e670-se-fe-el34-5613",
+      "model_url": "https://api.tone3000.com/storage/v1/object/public/models/2f32ee0d4d222235_a2.nam",
+      "input_level_dbu": null,
+      "metadata": {
+        "date": {
+          "year": 2026,
+          "month": 5,
+          "day": 17,
+          "hour": 0,
+          "minute": 34,
+          "second": 2
+        },
+        "loudness": -13.964285850524902,
+        "gain": 0.30916261210219254,
+        "name": "Engl E670 FE EL34 - Ch1 - Clean Bright",
+        "modeled_by": "Petr Canov",
+        "gear_make": "Engl E670 SE-FE EL34",
+        "gear_model": "Engl E670 SE-FE EL34",
+        "tone_type": "2010s",
+        "gear_type": "amp"
+      },
+      "fit_eligible": true
+    },
+    {
+      "index": 23,
+      "channel": 2,
+      "file": "ENGL-E670/Engl E670 FE EL34 - Ch3 - HiGain.nam",
+      "sha256": "8154007d38179d67a960f852593d1a390e9e2fbb6123c7a60d0205692b2d0d9a",
+      "state": {
+        "channel": 2,
+        "controls": {
+          "hw.lead1.gain": 0.5,
+          "hw.hi_gain": 1.0
+        }
+      },
+      "qualification": "User-supplied FE EL34 reference. Channel and named gain/bright mode mapped; undisclosed numeric knobs use explicit nominal 0.5 gain and panel defaults. Scooped/Fat/Boosted Mids descriptors are not asserted to identify a specific switch. Absolute input calibration absent.",
+      "url": "https://www.tone3000.com/tones/engl-e670-se-fe-el34-5613",
+      "model_url": "https://api.tone3000.com/storage/v1/object/public/models/b9d677232d6a86e1_a2.nam",
+      "input_level_dbu": null,
+      "metadata": {
+        "date": {
+          "year": 2026,
+          "month": 5,
+          "day": 17,
+          "hour": 0,
+          "minute": 34,
+          "second": 5
+        },
+        "loudness": -14.415050506591797,
+        "gain": 0.7993859388466129,
+        "gear_make": "Engl E670 SE-FE EL34",
+        "gear_model": "Engl E670 SE-FE EL34",
+        "tone_type": "2010s",
+        "gear_type": "amp"
+      },
+      "fit_eligible": true
+    },
+    {
+      "index": 23,
+      "channel": 3,
+      "file": "ENGL-E670/Engl E670 FE EL34 - Ch4 - HiGain Boosted Mids.nam",
+      "sha256": "cc4bbf9667aecf926fbbc6d7982a22ed84b50a6540e26332017236b879279647",
+      "state": {
+        "channel": 3,
+        "controls": {
+          "hw.lead2.gain": 0.5,
+          "hw.hi_gain": 1.0
+        }
+      },
+      "qualification": "User-supplied FE EL34 reference. Channel and named gain/bright mode mapped; undisclosed numeric knobs use explicit nominal 0.5 gain and panel defaults. Scooped/Fat/Boosted Mids descriptors are not asserted to identify a specific switch. Absolute input calibration absent.",
+      "url": "https://www.tone3000.com/tones/engl-e670-se-fe-el34-5613",
+      "model_url": "https://api.tone3000.com/storage/v1/object/public/models/039cb5349a8719dc_a2.nam",
+      "input_level_dbu": null,
+      "metadata": {
+        "date": {
+          "year": 2026,
+          "month": 5,
+          "day": 17,
+          "hour": 0,
+          "minute": 33,
+          "second": 45
+        },
+        "loudness": -14.091188430786133,
+        "gain": 0.8824770123355129,
+        "name": "Engl E670 FE EL34 - Ch4 - HiGain Boosted Mids",
+        "modeled_by": "Petr Canov",
+        "gear_make": "Engl E670 SE-FE EL34",
+        "gear_model": "Engl E670 SE-FE EL34",
+        "tone_type": "2010s",
+        "gear_type": "amp"
+      },
+      "fit_eligible": true
+    },
+    {
+      "index": 23,
+      "channel": 2,
+      "file": "ENGL-E670/Engl E670 FE EL34 - Ch3 - Crunch.nam",
+      "sha256": "2984107cc7d0862f7d15d517b0ada28dcd248a61fb06e641d8530186525afaa4",
+      "state": {
+        "channel": 2,
+        "controls": {
+          "hw.lead1.gain": 0.5,
+          "hw.hi_gain": 0.0
+        }
+      },
+      "qualification": "User-supplied FE EL34 reference. Channel and named gain/bright mode mapped; undisclosed numeric knobs use explicit nominal 0.5 gain and panel defaults. Scooped/Fat/Boosted Mids descriptors are not asserted to identify a specific switch. Absolute input calibration absent.",
+      "url": "https://www.tone3000.com/tones/engl-e670-se-fe-el34-5613",
+      "model_url": "https://api.tone3000.com/storage/v1/object/public/models/4e161129561eb42f_a2.nam",
+      "input_level_dbu": null,
+      "metadata": {
+        "date": {
+          "year": 2026,
+          "month": 5,
+          "day": 17,
+          "hour": 0,
+          "minute": 34,
+          "second": 1
+        },
+        "loudness": -15.872642517089844,
+        "gain": 0.7488680026245847,
+        "gear_make": "Engl E670 SE-FE EL34",
+        "gear_model": "Engl E670 SE-FE EL34",
+        "tone_type": "2010s",
+        "gear_type": "amp"
+      },
+      "fit_eligible": true
+    },
+    {
+      "index": 23,
+      "channel": 3,
+      "file": "ENGL-E670/Engl E670 FE EL34 - Ch4 - Crunch.nam",
+      "sha256": "4d8ae2c9f73bd7c14461dbe8cfd5e24372365f838653ef9ad41453e0670dd899",
+      "state": {
+        "channel": 3,
+        "controls": {
+          "hw.lead2.gain": 0.5,
+          "hw.hi_gain": 0.0
+        }
+      },
+      "qualification": "User-supplied FE EL34 reference. Channel and named gain/bright mode mapped; undisclosed numeric knobs use explicit nominal 0.5 gain and panel defaults. Scooped/Fat/Boosted Mids descriptors are not asserted to identify a specific switch. Absolute input calibration absent.",
+      "url": "https://www.tone3000.com/tones/engl-e670-se-fe-el34-5613",
+      "model_url": "https://api.tone3000.com/storage/v1/object/public/models/16362e795a9bcb24_a2.nam",
+      "input_level_dbu": null,
+      "metadata": {
+        "date": {
+          "year": 2026,
+          "month": 5,
+          "day": 17,
+          "hour": 0,
+          "minute": 34,
+          "second": 1
+        },
+        "loudness": -16.152606964111328,
+        "gain": 0.832455931487931,
+        "name": "Engl E670 FE EL34 - Ch4 - Crunch",
+        "modeled_by": "Petr Canov",
+        "gear_make": "Engl E670 SE-FE EL34",
+        "gear_model": "Engl E670 SE-FE EL34",
+        "tone_type": "2010s",
+        "gear_type": "amp"
+      },
+      "fit_eligible": true
+    },
+    {
+      "index": 23,
+      "channel": 1,
+      "file": "ENGL-E670/Engl E670 FE EL34 - Ch2 - Crunch.nam",
+      "sha256": "28be864d0f040d29bad0589503f2551027cce9ec1f82e5b5dc22224be645965c",
+      "state": {
+        "channel": 1,
+        "controls": {
+          "hw.crunch.gain": 0.5,
+          "hw.bright": 0.0,
+          "hw.gain_boost": 0.0
+        }
+      },
+      "qualification": "User-supplied FE EL34 reference. Channel and named gain/bright mode mapped; undisclosed numeric knobs use explicit nominal 0.5 gain and panel defaults. Scooped/Fat/Boosted Mids descriptors are not asserted to identify a specific switch. Absolute input calibration absent.",
+      "url": "https://www.tone3000.com/tones/engl-e670-se-fe-el34-5613",
+      "model_url": "https://api.tone3000.com/storage/v1/object/public/models/d42d2587b7b7aca2_a2.nam",
+      "input_level_dbu": null,
+      "metadata": {
+        "date": {
+          "year": 2026,
+          "month": 5,
+          "day": 17,
+          "hour": 0,
+          "minute": 34,
+          "second": 9
+        },
+        "loudness": -15.438596725463867,
+        "gain": 0.8106466446186454,
+        "name": "Engl E670 FE EL34 - Ch2 - Crunch",
+        "modeled_by": "Petr Canov",
+        "gear_make": "Engl E670 SE-FE EL34",
+        "gear_model": "Engl E670 SE-FE EL34",
+        "tone_type": "2010s",
+        "gear_type": "amp"
+      },
+      "fit_eligible": true
+    },
+    {
+      "index": 23,
+      "channel": 1,
+      "file": "ENGL-E670/Engl E670 FE EL34 - Ch2 - Crunch Higain.nam",
+      "sha256": "38e1bbb685967fbefe1339ca9a1860536bfc1aaabc17a5d7603eaf3a7aae7c0d",
+      "state": {
+        "channel": 1,
+        "controls": {
+          "hw.crunch.gain": 0.5,
+          "hw.bright": 0.0,
+          "hw.gain_boost": 1.0
+        }
+      },
+      "qualification": "User-supplied FE EL34 reference. Channel and named gain/bright mode mapped; undisclosed numeric knobs use explicit nominal 0.5 gain and panel defaults. Scooped/Fat/Boosted Mids descriptors are not asserted to identify a specific switch. Absolute input calibration absent.",
+      "url": "https://www.tone3000.com/tones/engl-e670-se-fe-el34-5613",
+      "model_url": "https://api.tone3000.com/storage/v1/object/public/models/6c79b7baefe3576c_a2.nam",
+      "input_level_dbu": null,
+      "metadata": {
+        "date": {
+          "year": 2026,
+          "month": 5,
+          "day": 17,
+          "hour": 0,
+          "minute": 34,
+          "second": 6
+        },
+        "loudness": -14.367376327514648,
+        "gain": 0.7924952632517399,
+        "name": "Engl E670 FE EL34 - Ch2 - Crunch Higain",
+        "modeled_by": "Petr Canov",
+        "gear_make": "Engl E670 SE-FE EL34",
+        "gear_model": "Engl E670 SE-FE EL34",
+        "tone_type": "2010s",
+        "gear_type": "amp"
+      },
+      "fit_eligible": true
+    },
+    {
+      "index": 23,
+      "channel": 2,
+      "file": "ENGL-E670/Engl E670 FE EL34 - Ch3 - HiGain Scooped.nam",
+      "sha256": "944ab69218849fad5abfa5685fd87e3b0c1f410921849e3b8cd09d0d8edd6a9d",
+      "state": {
+        "channel": 2,
+        "controls": {
+          "hw.lead1.gain": 0.5,
+          "hw.hi_gain": 1.0
+        }
+      },
+      "qualification": "User-supplied FE EL34 reference. Channel and named gain/bright mode mapped; undisclosed numeric knobs use explicit nominal 0.5 gain and panel defaults. Scooped/Fat/Boosted Mids descriptors are not asserted to identify a specific switch. Absolute input calibration absent.",
+      "url": "https://www.tone3000.com/tones/engl-e670-se-fe-el34-5613",
+      "model_url": "https://api.tone3000.com/storage/v1/object/public/models/4406072baf4c8172_a2.nam",
+      "input_level_dbu": null,
+      "metadata": {
+        "date": {
+          "year": 2026,
+          "month": 5,
+          "day": 17,
+          "hour": 0,
+          "minute": 33,
+          "second": 46
+        },
+        "loudness": -16.385562896728516,
+        "gain": 0.795356118553428,
+        "gear_make": "Engl E670 SE-FE EL34",
+        "gear_model": "Engl E670 SE-FE EL34",
+        "tone_type": "2010s",
+        "gear_type": "amp"
+      },
+      "fit_eligible": true
+    },
+    {
+      "index": 23,
+      "channel": 3,
+      "file": "ENGL-E670/Engl E670 FE EL34 - Ch4 - HiGain.nam",
+      "sha256": "28032bee99fbc6552c40ed96f2fcefdfbddc97b3625ef2bbd41879202a47ee76",
+      "state": {
+        "channel": 3,
+        "controls": {
+          "hw.lead2.gain": 0.5,
+          "hw.hi_gain": 1.0
+        }
+      },
+      "qualification": "User-supplied FE EL34 reference. Channel and named gain/bright mode mapped; undisclosed numeric knobs use explicit nominal 0.5 gain and panel defaults. Scooped/Fat/Boosted Mids descriptors are not asserted to identify a specific switch. Absolute input calibration absent.",
+      "url": "https://www.tone3000.com/tones/engl-e670-se-fe-el34-5613",
+      "model_url": "https://api.tone3000.com/storage/v1/object/public/models/075cb30565e2fb76_a2.nam",
+      "input_level_dbu": null,
+      "metadata": {
+        "date": {
+          "year": 2026,
+          "month": 5,
+          "day": 17,
+          "hour": 0,
+          "minute": 34,
+          "second": 3
+        },
+        "loudness": -14.827933311462402,
+        "gain": 0.838677576467734,
+        "name": "Engl E670 FE EL34 - Ch4 - HiGain",
+        "modeled_by": "Petr Canov",
+        "gear_make": "Engl E670 SE-FE EL34",
+        "gear_model": "Engl E670 SE-FE EL34",
+        "tone_type": "2010s",
+        "gear_type": "amp"
+      },
+      "fit_eligible": true
+    },
+    {
+      "index": 23,
+      "channel": 0,
+      "file": "ENGL-E670/Engl E670 FE EL34 - Ch1 - Clean Fat.nam",
+      "sha256": "b86a4c201eeb1b0517c42591facac8b9c4cad89e85e3ea2eefb06e413aeff307",
+      "state": {
+        "channel": 0,
+        "controls": {
+          "hw.clean.gain": 0.5,
+          "hw.bright": 0.0,
+          "hw.gain_boost": 0.0
+        }
+      },
+      "qualification": "User-supplied FE EL34 reference. Channel and named gain/bright mode mapped; undisclosed numeric knobs use explicit nominal 0.5 gain and panel defaults. Scooped/Fat/Boosted Mids descriptors are not asserted to identify a specific switch. Absolute input calibration absent.",
+      "url": "https://www.tone3000.com/tones/engl-e670-se-fe-el34-5613",
+      "model_url": "https://api.tone3000.com/storage/v1/object/public/models/be34d596083631ec_a2.nam",
+      "input_level_dbu": null,
+      "metadata": {
+        "date": {
+          "year": 2026,
+          "month": 5,
+          "day": 17,
+          "hour": 0,
+          "minute": 34,
+          "second": 5
+        },
+        "loudness": -14.510823249816895,
+        "gain": 0.13361458539306065,
+        "name": "Engl E670 FE EL34 - Ch1 - Clean Fat",
+        "modeled_by": "Petr Canov",
+        "gear_make": "Engl E670 SE-FE EL34",
+        "gear_model": "Engl E670 SE-FE EL34",
+        "tone_type": "2010s",
+        "gear_type": "amp"
+      },
+      "fit_eligible": true
+    },
+    {
+      "index": 23,
+      "channel": 3,
+      "file": "ENGL-E670/ENGL Ch 4.nam",
+      "sha256": "1ea5f723290123f8ba2131e178f417a2d4ce12d6331879ed6f8c03b14990781c",
+      "state": {
+        "channel": 3,
+        "controls": {
+          "hw.lead2.gain": 0.5,
+          "hw.hi_gain": 1
+        }
+      },
+      "qualification": "User-supplied 2011 6L6 E670 variant, not FE EL34; secondary comparison only, excluded from coefficient fit. CH3 per author except CH4 filename. Published knob units are ambiguous, so explicit nominal gain 0.5 is used.",
+      "url": "https://www.tone3000.com/tones/engl-se-e670-6l6-36768",
+      "model_url": "https://api.tone3000.com/storage/v1/object/public/models/1d1ndx41xc2.nam",
+      "input_level_dbu": 14.24,
+      "metadata": {
+        "date": {
+          "day": 21,
+          "hour": 0,
+          "year": 2026,
+          "month": 9,
+          "minute": 13,
+          "second": 45
+        },
+        "gain": 0.8130262658826438,
+        "name": "ENGL Ch 4",
+        "trainer": "TONE3000",
+        "loudness": -10.029261286671758,
+        "gear_make": "ENGL SE E670 6L6 100w - 2011",
+        "gear_type": "amp",
+        "tone_type": "high gain",
+        "gear_model": "ENGL SE E670 6L6 100w - 2011",
+        "modeled_by": "tepp",
+        "input_level_dbu": 14.24
+      },
+      "fit_eligible": false
+    },
+    {
+      "index": 23,
+      "channel": 2,
+      "file": "ENGL-E670/ENGL SE V2.nam",
+      "sha256": "4da970bfde642d6d9f44343226931185d97a2f31a8667441c6566801d4014e9b",
+      "state": {
+        "channel": 2,
+        "controls": {
+          "hw.lead1.gain": 0.5,
+          "hw.hi_gain": 1
+        }
+      },
+      "qualification": "User-supplied 2011 6L6 E670 variant, not FE EL34; secondary comparison only, excluded from coefficient fit. CH3 per author except CH4 filename. Published knob units are ambiguous, so explicit nominal gain 0.5 is used.",
+      "url": "https://www.tone3000.com/tones/engl-se-e670-6l6-36768",
+      "model_url": "https://api.tone3000.com/storage/v1/object/public/models/ou2z1qjve7j.nam",
+      "input_level_dbu": 14.24,
+      "metadata": {
+        "date": {
+          "day": 4,
+          "hour": 20,
+          "year": 2026,
+          "month": 9,
+          "minute": 50,
+          "second": 58
+        },
+        "gain": 0.8340222103229786,
+        "name": "ENGL SE V2",
+        "trainer": "TONE3000",
+        "loudness": -12.579657320229781,
+        "gear_make": "ENGL SE E670 6L6 100w - 2011",
+        "gear_type": "amp",
+        "tone_type": "high gain",
+        "gear_model": "ENGL SE E670 6L6 100w - 2011",
+        "modeled_by": "tepp",
+        "input_level_dbu": 14.24
+      },
+      "fit_eligible": false
+    },
+    {
+      "index": 23,
+      "channel": 2,
+      "file": "ENGL-E670/ENGL - Thick.nam",
+      "sha256": "008a1a1fabf04f387773774a512eee61c7d544a75625a8ef17ffa5b6684072db",
+      "state": {
+        "channel": 2,
+        "controls": {
+          "hw.lead1.gain": 0.5,
+          "hw.hi_gain": 1
+        }
+      },
+      "qualification": "User-supplied 2011 6L6 E670 variant, not FE EL34; secondary comparison only, excluded from coefficient fit. CH3 per author except CH4 filename. Published knob units are ambiguous, so explicit nominal gain 0.5 is used.",
+      "url": "https://www.tone3000.com/tones/engl-se-e670-6l6-36768",
+      "model_url": "https://api.tone3000.com/storage/v1/object/public/models/to4ohv77rxm.nam",
+      "input_level_dbu": 14.24,
+      "metadata": {
+        "date": {
+          "day": 4,
+          "hour": 14,
+          "year": 2026,
+          "month": 9,
+          "minute": 59,
+          "second": 1
+        },
+        "gain": 0.7958090363815782,
+        "name": "ENGL - Thick",
+        "trainer": "TONE3000",
+        "loudness": -13.121524052511633,
+        "gear_make": "ENGL SE E670 6L6 100w - 2011",
+        "gear_type": "amp",
+        "tone_type": "high gain",
+        "gear_model": "ENGL SE E670 6L6 100w - 2011",
+        "modeled_by": "tepp",
+        "input_level_dbu": 14.24
+      },
+      "fit_eligible": false
+    },
+    {
+      "index": 23,
+      "channel": 2,
+      "file": "ENGL-E670/ENGL - Bite.nam",
+      "sha256": "4bb5972f671df6ac4254d5de07f407f8c9fe0d7797c74462ce9f9bdcf4f5862c",
+      "state": {
+        "channel": 2,
+        "controls": {
+          "hw.lead1.gain": 0.5,
+          "hw.hi_gain": 1
+        }
+      },
+      "qualification": "User-supplied 2011 6L6 E670 variant, not FE EL34; secondary comparison only, excluded from coefficient fit. CH3 per author except CH4 filename. Published knob units are ambiguous, so explicit nominal gain 0.5 is used.",
+      "url": "https://www.tone3000.com/tones/engl-se-e670-6l6-36768",
+      "model_url": "https://api.tone3000.com/storage/v1/object/public/models/jur85uruxp.nam",
+      "input_level_dbu": 14.24,
+      "metadata": {
+        "date": {
+          "day": 4,
+          "hour": 14,
+          "year": 2026,
+          "month": 9,
+          "minute": 42,
+          "second": 11
+        },
+        "gain": 0.8119850361058251,
+        "name": "ENGL - Bite",
+        "trainer": "TONE3000",
+        "loudness": -12.099393724433057,
+        "gear_make": "ENGL SE E670 6L6 100w - 2011",
+        "gear_type": "amp",
+        "tone_type": "high gain",
+        "gear_model": "ENGL SE E670 6L6 100w - 2011",
+        "modeled_by": "tepp",
+        "input_level_dbu": 14.24
+      },
+      "fit_eligible": false
+    },
+    {
+      "index": 23,
+      "channel": 2,
+      "file": "ENGL-E670/ENGL SE.nam",
+      "sha256": "6c5e74925d975bdfe7ace16955c9451019b2bb727a84389806a9347b288c4041",
+      "state": {
+        "channel": 2,
+        "controls": {
+          "hw.lead1.gain": 0.5,
+          "hw.hi_gain": 1
+        }
+      },
+      "qualification": "User-supplied 2011 6L6 E670 variant, not FE EL34; secondary comparison only, excluded from coefficient fit. CH3 per author except CH4 filename. Published knob units are ambiguous, so explicit nominal gain 0.5 is used.",
+      "url": "https://www.tone3000.com/tones/engl-se-e670-6l6-36768",
+      "model_url": "https://api.tone3000.com/storage/v1/object/public/models/yzeahyodnki_a2.nam",
+      "input_level_dbu": null,
+      "metadata": {
+        "date": {
+          "year": 2026,
+          "month": 5,
+          "day": 9,
+          "hour": 19,
+          "minute": 12,
+          "second": 12
+        },
+        "loudness": -17.787263870239258,
+        "gain": 0.818134596260626,
+        "name": "ENGL SE",
+        "modeled_by": "tepp",
+        "training": {
+          "data": {
+            "checks": {
+              "passed": true,
+              "version": 3
+            },
+            "latency": {
+              "manual": null,
+              "calibration": {
+                "delays": [
+                  121
+                ],
+                "warnings": {
+                  "matches_lookahead": false,
+                  "disagreement_too_high": false
+                },
+                "recommended": 120,
+                "safety_factor": 1,
+                "algorithm_version": 1
+              }
+            }
+          },
+          "settings": {
+            "ignore_checks": false
+          },
+          "validation_esr": 0.019706891792539535
+        },
+        "gear_make": "ENGL SE E670 6L6 100w - 2011",
+        "gear_model": "ENGL SE E670 6L6 100w - 2011",
+        "tone_type": "high gain",
+        "gear_type": "amp"
+      },
+      "fit_eligible": false
+    },
+    {
+      "index": 23,
+      "channel": 2,
+      "file": "ENGL-E670/VA SE670 01.nam",
+      "sha256": "f3297b6fd3329eb3d687292e6f727d2a1f905b51064f4e27f6e28123c5e09504",
+      "state": {
+        "channel": 2,
+        "controls": {
+          "hw.lead1.gain": 0.5,
+          "hw.hi_gain": 1
+        }
+      },
+      "qualification": "User-supplied FE EL34 DI; input calibration 8 dBu. Channel and numeric knobs are unspecified; compared on nominal Lead I with Hi Gain, excluded from channel-specific fit.",
+      "url": "https://www.tone3000.com/tones/engl-e670fe-special-edition-65128",
+      "model_url": "https://api.tone3000.com/storage/v1/object/public/models/dfjr0jj1xha_a2.nam",
+      "input_level_dbu": 8,
+      "metadata": {
+        "date": {
+          "year": 2026,
+          "month": 5,
+          "day": 15,
+          "hour": 18,
+          "minute": 45,
+          "second": 28
+        },
+        "loudness": -11.917255401611328,
+        "gain": 0.8180278529147901,
+        "input_level_dbu": 8,
+        "output_level_dbu": 15,
+        "name": "VA SE670 01",
+        "modeled_by": "vicaudio",
+        "training": {
+          "data": {
+            "checks": {
+              "passed": true,
+              "version": 3
+            },
+            "latency": {
+              "manual": null,
+              "calibration": {
+                "delays": [
+                  28
+                ],
+                "warnings": {
+                  "matches_lookahead": false,
+                  "disagreement_too_high": false
+                },
+                "recommended": 27,
+                "safety_factor": 1,
+                "algorithm_version": 1
+              }
+            }
+          },
+          "settings": {
+            "ignore_checks": false
+          },
+          "validation_esr": 0.006586922202769742
+        },
+        "gear_make": "Engl E670 SE-FE EL34",
+        "gear_model": "Engl E670 SE-FE EL34",
+        "tone_type": "engle670",
+        "gear_type": "amp"
+      },
+      "fit_eligible": false
+    },
+    {
+      "index": 18,
+      "channel": 0,
+      "file": "SVT-CL/AmpegSVT - Hi IN - Gain 2.nam",
+      "sha256": "755f2e9b112829065cf614f253dc0ebdf3cc20c0f345756a2ac5858cf667fe66",
+      "state": {
+        "channel": 0,
+        "controls": {
+          "hw.gain": 0.2,
+          "hw.bass": 0.6,
+          "hw.midrange": 0.6,
+          "hw.treble": 0.6,
+          "hw.mid_frequency": 0,
+          "hw.ultra_hi": 1
+        }
+      },
+      "qualification": "User-selected modified SVT-CL whole-head gain sweep. Not a stock amplifier. Gain number/10, Bass/Mid/Treble 0.6, 220 Hz, Ultra Hi on per author; master unspecified uses panel default. Digital -6 dB capture calibration is not an absolute input dBu value.",
+      "url": "https://www.tone3000.com/tones/ampeg-svt-cl-gain-stages-84925",
+      "model_url": "https://api.tone3000.com/storage/v1/object/public/models/2wki6tdiy1a.nam",
+      "input_level_dbu": null,
+      "metadata": {
+        "date": {
+          "year": 2026,
+          "month": 8,
+          "day": 22,
+          "hour": 10,
+          "minute": 56,
+          "second": 44
+        },
+        "loudness": -19.396546389709542,
+        "gain": 0.1634138261900194,
+        "name": "AmpegSVT - Hi IN - Gain 2",
+        "modeled_by": "deathblossomaudio",
+        "gear_type": "amp",
+        "gear_make": "Ampeg SVT",
+        "gear_model": "Ampeg SVT",
+        "tone_type": "ampeg",
+        "trainer": "TONE3000"
+      },
+      "fit_eligible": true
+    },
+    {
+      "index": 18,
+      "channel": 0,
+      "file": "SVT-CL/AmpegSVT - Hi IN - Gain 4.nam",
+      "sha256": "1e1ddb89bd7bd2766d01f21255ca063b76786b4f8e10e13b9ea2d3df2a32d167",
+      "state": {
+        "channel": 0,
+        "controls": {
+          "hw.gain": 0.4,
+          "hw.bass": 0.6,
+          "hw.midrange": 0.6,
+          "hw.treble": 0.6,
+          "hw.mid_frequency": 0,
+          "hw.ultra_hi": 1
+        }
+      },
+      "qualification": "User-selected modified SVT-CL whole-head gain sweep. Not a stock amplifier. Gain number/10, Bass/Mid/Treble 0.6, 220 Hz, Ultra Hi on per author; master unspecified uses panel default. Digital -6 dB capture calibration is not an absolute input dBu value.",
+      "url": "https://www.tone3000.com/tones/ampeg-svt-cl-gain-stages-84925",
+      "model_url": "https://api.tone3000.com/storage/v1/object/public/models/khpzm4xyty.nam",
+      "input_level_dbu": null,
+      "metadata": {
+        "date": {
+          "year": 2026,
+          "month": 8,
+          "day": 22,
+          "hour": 10,
+          "minute": 56,
+          "second": 45
+        },
+        "loudness": -22.362109814224794,
+        "gain": 0.48683359122171593,
+        "name": "AmpegSVT - Hi IN - Gain 4",
+        "modeled_by": "deathblossomaudio",
+        "gear_type": "amp",
+        "gear_make": "Ampeg SVT",
+        "gear_model": "Ampeg SVT",
+        "tone_type": "ampeg",
+        "trainer": "TONE3000"
+      },
+      "fit_eligible": true
+    },
+    {
+      "index": 18,
+      "channel": 0,
+      "file": "SVT-CL/AmpegSVT - Hi IN - Gain 3.nam",
+      "sha256": "9eeba63c3a31e9bc1adbd2576c537c2b193a129e9f6ea8e2e73d57a4a915e3c5",
+      "state": {
+        "channel": 0,
+        "controls": {
+          "hw.gain": 0.30000000000000004,
+          "hw.bass": 0.6,
+          "hw.midrange": 0.6,
+          "hw.treble": 0.6,
+          "hw.mid_frequency": 0,
+          "hw.ultra_hi": 1
+        }
+      },
+      "qualification": "User-selected modified SVT-CL whole-head gain sweep. Not a stock amplifier. Gain number/10, Bass/Mid/Treble 0.6, 220 Hz, Ultra Hi on per author; master unspecified uses panel default. Digital -6 dB capture calibration is not an absolute input dBu value.",
+      "url": "https://www.tone3000.com/tones/ampeg-svt-cl-gain-stages-84925",
+      "model_url": "https://api.tone3000.com/storage/v1/object/public/models/u6ueqm8z2w.nam",
+      "input_level_dbu": null,
+      "metadata": {
+        "date": {
+          "year": 2026,
+          "month": 8,
+          "day": 22,
+          "hour": 10,
+          "minute": 54,
+          "second": 3
+        },
+        "loudness": -22.77744550727946,
+        "gain": 0.3917336535350342,
+        "name": "AmpegSVT - Hi IN - Gain 3",
+        "modeled_by": "deathblossomaudio",
+        "gear_type": "amp",
+        "gear_make": "Ampeg SVT",
+        "gear_model": "Ampeg SVT",
+        "tone_type": "ampeg",
+        "trainer": "TONE3000"
+      },
+      "fit_eligible": true
+    },
+    {
+      "index": 18,
+      "channel": 0,
+      "file": "SVT-CL/AmpegSVT - Hi IN - Gain 5.nam",
+      "sha256": "4e14519e2e3512abe15f51ca789d9d725c0b78d088cf9136b0a92ab32fca6db8",
+      "state": {
+        "channel": 0,
+        "controls": {
+          "hw.gain": 0.5,
+          "hw.bass": 0.6,
+          "hw.midrange": 0.6,
+          "hw.treble": 0.6,
+          "hw.mid_frequency": 0,
+          "hw.ultra_hi": 1
+        }
+      },
+      "qualification": "User-selected modified SVT-CL whole-head gain sweep. Not a stock amplifier. Gain number/10, Bass/Mid/Treble 0.6, 220 Hz, Ultra Hi on per author; master unspecified uses panel default. Digital -6 dB capture calibration is not an absolute input dBu value.",
+      "url": "https://www.tone3000.com/tones/ampeg-svt-cl-gain-stages-84925",
+      "model_url": "https://api.tone3000.com/storage/v1/object/public/models/82d60n6j2m7.nam",
+      "input_level_dbu": null,
+      "metadata": {
+        "date": {
+          "year": 2026,
+          "month": 8,
+          "day": 22,
+          "hour": 10,
+          "minute": 56,
+          "second": 43
+        },
+        "loudness": -22.265590235918957,
+        "gain": 0.5487162872113253,
+        "name": "AmpegSVT - Hi IN - Gain 5",
+        "modeled_by": "deathblossomaudio",
+        "gear_type": "amp",
+        "gear_make": "Ampeg SVT",
+        "gear_model": "Ampeg SVT",
+        "tone_type": "ampeg",
+        "trainer": "TONE3000"
+      },
+      "fit_eligible": true
+    },
+    {
+      "index": 18,
+      "channel": 0,
+      "file": "SVT-CL/AmpegSVT - Hi IN - Gain 8.nam",
+      "sha256": "95509a7a3c10cc023c627e6b63298be742e27567db31bea77f5343bbb4629616",
+      "state": {
+        "channel": 0,
+        "controls": {
+          "hw.gain": 0.8,
+          "hw.bass": 0.6,
+          "hw.midrange": 0.6,
+          "hw.treble": 0.6,
+          "hw.mid_frequency": 0,
+          "hw.ultra_hi": 1
+        }
+      },
+      "qualification": "User-selected modified SVT-CL whole-head gain sweep. Not a stock amplifier. Gain number/10, Bass/Mid/Treble 0.6, 220 Hz, Ultra Hi on per author; master unspecified uses panel default. Digital -6 dB capture calibration is not an absolute input dBu value.",
+      "url": "https://www.tone3000.com/tones/ampeg-svt-cl-gain-stages-84925",
+      "model_url": "https://api.tone3000.com/storage/v1/object/public/models/i0l5zq0l85h.nam",
+      "input_level_dbu": null,
+      "metadata": {
+        "date": {
+          "year": 2026,
+          "month": 8,
+          "day": 22,
+          "hour": 10,
+          "minute": 56,
+          "second": 42
+        },
+        "loudness": -22.163418157725843,
+        "gain": 0.7773628428760121,
+        "name": "AmpegSVT - Hi IN - Gain 8",
+        "modeled_by": "deathblossomaudio",
+        "gear_type": "amp",
+        "gear_make": "Ampeg SVT",
+        "gear_model": "Ampeg SVT",
+        "tone_type": "ampeg",
+        "trainer": "TONE3000"
+      },
+      "fit_eligible": true
+    },
+    {
+      "index": 18,
+      "channel": 0,
+      "file": "SVT-CL/AmpegSVT - Hi IN - Gain 6.nam",
+      "sha256": "5316b96ee223a62bd38c5562875c01b0c9b7e25ccb81fd7f2ac6c9dddf0faa93",
+      "state": {
+        "channel": 0,
+        "controls": {
+          "hw.gain": 0.6000000000000001,
+          "hw.bass": 0.6,
+          "hw.midrange": 0.6,
+          "hw.treble": 0.6,
+          "hw.mid_frequency": 0,
+          "hw.ultra_hi": 1
+        }
+      },
+      "qualification": "User-selected modified SVT-CL whole-head gain sweep. Not a stock amplifier. Gain number/10, Bass/Mid/Treble 0.6, 220 Hz, Ultra Hi on per author; master unspecified uses panel default. Digital -6 dB capture calibration is not an absolute input dBu value.",
+      "url": "https://www.tone3000.com/tones/ampeg-svt-cl-gain-stages-84925",
+      "model_url": "https://api.tone3000.com/storage/v1/object/public/models/p7juthzqjro.nam",
+      "input_level_dbu": null,
+      "metadata": {
+        "date": {
+          "year": 2026,
+          "month": 8,
+          "day": 22,
+          "hour": 10,
+          "minute": 56,
+          "second": 46
+        },
+        "loudness": -22.30170631965374,
+        "gain": 0.6130375736185706,
+        "name": "AmpegSVT - Hi IN - Gain 6",
+        "modeled_by": "deathblossomaudio",
+        "gear_type": "amp",
+        "gear_make": "Ampeg SVT",
+        "gear_model": "Ampeg SVT",
+        "tone_type": "ampeg",
+        "trainer": "TONE3000"
+      },
+      "fit_eligible": true
+    },
+    {
+      "index": 18,
+      "channel": 0,
+      "file": "SVT-CL/AmpegSVT - Hi IN - Gain 7.nam",
+      "sha256": "74b832daaa9ef9c4e2fcce9e0bc64a7954e6974b97700ff23cbff0dd652923ce",
+      "state": {
+        "channel": 0,
+        "controls": {
+          "hw.gain": 0.7000000000000001,
+          "hw.bass": 0.6,
+          "hw.midrange": 0.6,
+          "hw.treble": 0.6,
+          "hw.mid_frequency": 0,
+          "hw.ultra_hi": 1
+        }
+      },
+      "qualification": "User-selected modified SVT-CL whole-head gain sweep. Not a stock amplifier. Gain number/10, Bass/Mid/Treble 0.6, 220 Hz, Ultra Hi on per author; master unspecified uses panel default. Digital -6 dB capture calibration is not an absolute input dBu value.",
+      "url": "https://www.tone3000.com/tones/ampeg-svt-cl-gain-stages-84925",
+      "model_url": "https://api.tone3000.com/storage/v1/object/public/models/9rody3uq886.nam",
+      "input_level_dbu": null,
+      "metadata": {
+        "date": {
+          "year": 2026,
+          "month": 8,
+          "day": 22,
+          "hour": 10,
+          "minute": 56,
+          "second": 45
+        },
+        "loudness": -22.152366605001646,
+        "gain": 0.7031235239518752,
+        "name": "AmpegSVT - Hi IN - Gain 7",
+        "modeled_by": "deathblossomaudio",
+        "gear_type": "amp",
+        "gear_make": "Ampeg SVT",
+        "gear_model": "Ampeg SVT",
+        "tone_type": "ampeg",
+        "trainer": "TONE3000"
+      },
+      "fit_eligible": true
+    },
+    {
+      "index": 18,
+      "channel": 0,
+      "file": "SVT-CL/AmpegSVT - Hi IN - Gain 9.nam",
+      "sha256": "850b4e3ba8cf55da9cb849302798f688509f7bd090aa8bed7d63bf1d8bdf8888",
+      "state": {
+        "channel": 0,
+        "controls": {
+          "hw.gain": 0.9,
+          "hw.bass": 0.6,
+          "hw.midrange": 0.6,
+          "hw.treble": 0.6,
+          "hw.mid_frequency": 0,
+          "hw.ultra_hi": 1
+        }
+      },
+      "qualification": "User-selected modified SVT-CL whole-head gain sweep. Not a stock amplifier. Gain number/10, Bass/Mid/Treble 0.6, 220 Hz, Ultra Hi on per author; master unspecified uses panel default. Digital -6 dB capture calibration is not an absolute input dBu value.",
+      "url": "https://www.tone3000.com/tones/ampeg-svt-cl-gain-stages-84925",
+      "model_url": "https://api.tone3000.com/storage/v1/object/public/models/ms4dj9zy48l.nam",
+      "input_level_dbu": null,
+      "metadata": {
+        "date": {
+          "year": 2026,
+          "month": 8,
+          "day": 22,
+          "hour": 10,
+          "minute": 56,
+          "second": 49
+        },
+        "loudness": -22.124026346007984,
+        "gain": 0.8065032366325796,
+        "name": "AmpegSVT - Hi IN - Gain 9",
+        "modeled_by": "deathblossomaudio",
+        "gear_type": "amp",
+        "gear_make": "Ampeg SVT",
+        "gear_model": "Ampeg SVT",
+        "tone_type": "ampeg",
+        "trainer": "TONE3000"
+      },
+      "fit_eligible": true
+    },
+    {
+      "index": 18,
+      "channel": 0,
+      "file": "SVT-CL/AmpegSVT - Hi IN - Gain 1 .nam",
+      "sha256": "0e9d02fa3aadf8e10d75075a7c6d16c83eb1db09cc3b36d1dfcfb5897bac056f",
+      "state": {
+        "channel": 0,
+        "controls": {
+          "hw.gain": 0.1,
+          "hw.bass": 0.6,
+          "hw.midrange": 0.6,
+          "hw.treble": 0.6,
+          "hw.mid_frequency": 0,
+          "hw.ultra_hi": 1
+        }
+      },
+      "qualification": "User-selected modified SVT-CL whole-head gain sweep. Not a stock amplifier. Gain number/10, Bass/Mid/Treble 0.6, 220 Hz, Ultra Hi on per author; master unspecified uses panel default. Digital -6 dB capture calibration is not an absolute input dBu value.",
+      "url": "https://www.tone3000.com/tones/ampeg-svt-cl-gain-stages-84925",
+      "model_url": "https://api.tone3000.com/storage/v1/object/public/models/aowlpl4inv4.nam",
+      "input_level_dbu": null,
+      "metadata": {
+        "date": {
+          "year": 2026,
+          "month": 8,
+          "day": 22,
+          "hour": 10,
+          "minute": 57,
+          "second": 0
+        },
+        "loudness": -17.182875927896177,
+        "gain": 0,
+        "name": "AmpegSVT - Hi IN - Gain 1 ",
+        "modeled_by": "deathblossomaudio",
+        "gear_type": "amp",
+        "gear_make": "Ampeg SVT",
+        "gear_model": "Ampeg SVT",
+        "tone_type": "ampeg",
+        "trainer": "TONE3000"
+      },
+      "fit_eligible": true
+    },
+    {
+      "index": 18,
+      "channel": 0,
+      "file": "SVT-CL/SVT DIRTY PUSHED.nam",
+      "sha256": "384d53e242e66ce73e431d3469dda81edaf7bbd332d048f0485bf8c30a7b6823",
+      "state": {
+        "channel": 0,
+        "controls": {
+          "hw.gain": 0.9
+        }
+      },
+      "qualification": "User-selected preamp-only reference; power stage absent. Secondary full-native comparison only, excluded from coefficient fit. Numeric settings are unspecified; Clean/Pushed/Dirty use explicit nominal gain 0.3/0.45/0.6/0.75/0.9 for the comparison, not claimed capture settings.",
+      "url": "https://www.tone3000.com/tones/ampeg-svt-cl-bass-head-45809",
+      "model_url": "https://api.tone3000.com/storage/v1/object/public/models/xq66z36685_a2.nam",
+      "input_level_dbu": null,
+      "metadata": {
+        "date": {
+          "year": 2026,
+          "month": 5,
+          "day": 7,
+          "hour": 15,
+          "minute": 15,
+          "second": 42
+        },
+        "loudness": -12.682735443115234,
+        "gain": 0.6398911142441657,
+        "name": "SVT DIRTY PUSHED",
+        "modeled_by": "deathblossomaudio",
+        "training": {
+          "data": {
+            "checks": {
+              "passed": true,
+              "version": 3
+            },
+            "latency": {
+              "manual": null,
+              "calibration": {
+                "delays": [
+                  -4
+                ],
+                "warnings": {
+                  "matches_lookahead": false,
+                  "disagreement_too_high": false
+                },
+                "recommended": -5,
+                "safety_factor": 1,
+                "algorithm_version": 1
+              }
+            }
+          },
+          "settings": {
+            "ignore_checks": false
+          },
+          "validation_esr": 0.0019600377130407857
+        },
+        "gear_make": "AMPEG SVT-CL",
+        "gear_model": "AMPEG SVT-CL",
+        "tone_type": "ampeg",
+        "gear_type": "amp"
+      },
+      "fit_eligible": false
+    },
+    {
+      "index": 18,
+      "channel": 0,
+      "file": "SVT-CL/SVT DIRTY.nam",
+      "sha256": "38c6830c081ff9433184c1a16f9edb79d1d9090950eba1933c5163e2fc688ebc",
+      "state": {
+        "channel": 0,
+        "controls": {
+          "hw.gain": 0.75
+        }
+      },
+      "qualification": "User-selected preamp-only reference; power stage absent. Secondary full-native comparison only, excluded from coefficient fit. Numeric settings are unspecified; Clean/Pushed/Dirty use explicit nominal gain 0.3/0.45/0.6/0.75/0.9 for the comparison, not claimed capture settings.",
+      "url": "https://www.tone3000.com/tones/ampeg-svt-cl-bass-head-45809",
+      "model_url": "https://api.tone3000.com/storage/v1/object/public/models/6mdw2kzijp_a2.nam",
+      "input_level_dbu": null,
+      "metadata": {
+        "date": {
+          "year": 2026,
+          "month": 5,
+          "day": 7,
+          "hour": 15,
+          "minute": 15,
+          "second": 55
+        },
+        "loudness": -12.989734649658203,
+        "gain": 0.4975573180389384,
+        "name": "SVT DIRTY",
+        "modeled_by": "deathblossomaudio",
+        "training": {
+          "data": {
+            "checks": {
+              "passed": true,
+              "version": 3
+            },
+            "latency": {
+              "manual": null,
+              "calibration": {
+                "delays": [
+                  -4
+                ],
+                "warnings": {
+                  "matches_lookahead": false,
+                  "disagreement_too_high": false
+                },
+                "recommended": -5,
+                "safety_factor": 1,
+                "algorithm_version": 1
+              }
+            }
+          },
+          "settings": {
+            "ignore_checks": false
+          },
+          "validation_esr": 0.0010407134869748174
+        },
+        "gear_make": "AMPEG SVT-CL",
+        "gear_model": "AMPEG SVT-CL",
+        "tone_type": "ampeg",
+        "gear_type": "amp"
+      },
+      "fit_eligible": false
+    },
+    {
+      "index": 18,
+      "channel": 0,
+      "file": "SVT-CL/SVT CLEAN PUSHED.nam",
+      "sha256": "a3cfa342af33ffd72a3be48d12192c4a70cf48503b47a6d6fa64fab5c775ae4e",
+      "state": {
+        "channel": 0,
+        "controls": {
+          "hw.gain": 0.45
+        }
+      },
+      "qualification": "User-selected preamp-only reference; power stage absent. Secondary full-native comparison only, excluded from coefficient fit. Numeric settings are unspecified; Clean/Pushed/Dirty use explicit nominal gain 0.3/0.45/0.6/0.75/0.9 for the comparison, not claimed capture settings.",
+      "url": "https://www.tone3000.com/tones/ampeg-svt-cl-bass-head-45809",
+      "model_url": "https://api.tone3000.com/storage/v1/object/public/models/5ciiulzwbpr_a2.nam",
+      "input_level_dbu": null,
+      "metadata": {
+        "date": {
+          "year": 2026,
+          "month": 5,
+          "day": 7,
+          "hour": 15,
+          "minute": 15,
+          "second": 37
+        },
+        "loudness": -12.848200798034668,
+        "gain": 0.5774699760690524,
+        "name": "SVT CLEAN PUSHED",
+        "modeled_by": "deathblossomaudio",
+        "training": {
+          "data": {
+            "checks": {
+              "passed": true,
+              "version": 3
+            },
+            "latency": {
+              "manual": null,
+              "calibration": {
+                "delays": [
+                  -4
+                ],
+                "warnings": {
+                  "matches_lookahead": false,
+                  "disagreement_too_high": false
+                },
+                "recommended": -5,
+                "safety_factor": 1,
+                "algorithm_version": 1
+              }
+            }
+          },
+          "settings": {
+            "ignore_checks": false
+          },
+          "validation_esr": 0.0006831601326533644
+        },
+        "gear_make": "AMPEG SVT-CL",
+        "gear_model": "AMPEG SVT-CL",
+        "tone_type": "ampeg",
+        "gear_type": "amp"
+      },
+      "fit_eligible": false
+    },
+    {
+      "index": 18,
+      "channel": 0,
+      "file": "SVT-CL/SVT PUSHED.nam",
+      "sha256": "c6b721587747b9ec868a0fc265055ddc4ed9f41bc9c74681ac666d28ff92ae58",
+      "state": {
+        "channel": 0,
+        "controls": {
+          "hw.gain": 0.6
+        }
+      },
+      "qualification": "User-selected preamp-only reference; power stage absent. Secondary full-native comparison only, excluded from coefficient fit. Numeric settings are unspecified; Clean/Pushed/Dirty use explicit nominal gain 0.3/0.45/0.6/0.75/0.9 for the comparison, not claimed capture settings.",
+      "url": "https://www.tone3000.com/tones/ampeg-svt-cl-bass-head-45809",
+      "model_url": "https://api.tone3000.com/storage/v1/object/public/models/xfj2avdyq4c_a2.nam",
+      "input_level_dbu": null,
+      "metadata": {
+        "date": {
+          "year": 2026,
+          "month": 5,
+          "day": 7,
+          "hour": 15,
+          "minute": 15,
+          "second": 42
+        },
+        "loudness": -12.789815902709961,
+        "gain": 0.5854073176013981,
+        "name": "SVT PUSHED",
+        "modeled_by": "deathblossomaudio",
+        "training": {
+          "data": {
+            "checks": {
+              "passed": true,
+              "version": 3
+            },
+            "latency": {
+              "manual": null,
+              "calibration": {
+                "delays": [
+                  -4
+                ],
+                "warnings": {
+                  "matches_lookahead": false,
+                  "disagreement_too_high": false
+                },
+                "recommended": -5,
+                "safety_factor": 1,
+                "algorithm_version": 1
+              }
+            }
+          },
+          "settings": {
+            "ignore_checks": false
+          },
+          "validation_esr": 0.0007336315072461504
+        },
+        "gear_make": "AMPEG SVT-CL",
+        "gear_model": "AMPEG SVT-CL",
+        "tone_type": "ampeg",
+        "gear_type": "amp"
+      },
+      "fit_eligible": false
+    },
+    {
+      "index": 18,
+      "channel": 0,
+      "file": "SVT-CL/SVT CLEAN.nam",
+      "sha256": "367faf46f93e80dc2f02381c6e7b581870edae57bf9509e12d594adeb3a96ace",
+      "state": {
+        "channel": 0,
+        "controls": {
+          "hw.gain": 0.3
+        }
+      },
+      "qualification": "User-selected preamp-only reference; power stage absent. Secondary full-native comparison only, excluded from coefficient fit. Numeric settings are unspecified; Clean/Pushed/Dirty use explicit nominal gain 0.3/0.45/0.6/0.75/0.9 for the comparison, not claimed capture settings.",
+      "url": "https://www.tone3000.com/tones/ampeg-svt-cl-bass-head-45809",
+      "model_url": "https://api.tone3000.com/storage/v1/object/public/models/7d86dr42iet_a2.nam",
+      "input_level_dbu": null,
+      "metadata": {
+        "date": {
+          "year": 2026,
+          "month": 5,
+          "day": 7,
+          "hour": 15,
+          "minute": 15,
+          "second": 47
+        },
+        "loudness": -13.256630897521973,
+        "gain": 0.4307966835324458,
+        "name": "SVT CLEAN",
+        "modeled_by": "deathblossomaudio",
+        "training": {
+          "data": {
+            "checks": {
+              "passed": true,
+              "version": 3
+            },
+            "latency": {
+              "manual": null,
+              "calibration": {
+                "delays": [
+                  -4
+                ],
+                "warnings": {
+                  "matches_lookahead": false,
+                  "disagreement_too_high": false
+                },
+                "recommended": -5,
+                "safety_factor": 1,
+                "algorithm_version": 1
+              }
+            }
+          },
+          "settings": {
+            "ignore_checks": false
+          },
+          "validation_esr": 0.0004108425406093954
+        },
+        "gear_make": "AMPEG SVT-CL",
+        "gear_model": "AMPEG SVT-CL",
+        "tone_type": "ampeg",
+        "gear_type": "amp"
+      },
+      "fit_eligible": false
+    },
+    {
+      "index": 19,
+      "channel": 0,
+      "file": "SUNN-1998/Model T - Crunchy Rock G5, T just below 6, B and M just above 3, V5, P6.nam",
+      "sha256": "80fef37a96d2c8ac2af7d721804560b7343d94c75ff466f7b1fa55ea4c327f75",
+      "state": {
+        "channel": 0,
+        "input_route": 0,
+        "controls": {
+          "hw.normal": 0.5,
+          "hw.brilliant": 0.5,
+          "hw.bass": 0.31,
+          "hw.midrange": 0.31,
+          "hw.treble": 0.59,
+          "hw.master": 0.5
+        }
+      },
+      "qualification": "User-selected 1998 reissue whole-head reference; different circuit/gain channels from the retained 1970s native panel. Common tone controls mapped by filename; reissue Gain maps nominally to Normal/Brilliant and Volume to Master, NORMAL route. Reissue Presence is not represented. A broad voicing correction, not revision-equivalence calibration.",
+      "url": "https://www.tone3000.com/tones/1998-sunn-model-t-reissue-13705",
+      "model_url": "https://api.tone3000.com/storage/v1/object/public/models/3faky8gb1yc_a2.nam",
+      "input_level_dbu": null,
+      "metadata": {
+        "date": {
+          "year": 2026,
+          "month": 5,
+          "day": 5,
+          "hour": 8,
+          "minute": 35,
+          "second": 10
+        },
+        "loudness": -14.431093215942383,
+        "gain": 0.7956532848650514,
+        "name": "Model T - Crunchy Rock G5, T just below 6, B and M just above 3, V5, P6",
+        "modeled_by": "maestrodimusica",
+        "training": {
+          "data": {
+            "checks": {
+              "passed": true,
+              "version": 3
+            },
+            "latency": {
+              "manual": null,
+              "calibration": {
+                "delays": [
+                  0
+                ],
+                "warnings": {
+                  "matches_lookahead": false,
+                  "disagreement_too_high": false
+                },
+                "recommended": -1,
+                "safety_factor": 1,
+                "algorithm_version": 1
+              }
+            }
+          },
+          "settings": {
+            "ignore_checks": false
+          },
+          "validation_esr": 0.004188678907646326
+        },
+        "gear_make": "Sunn Model T",
+        "gear_model": "Sunn Model T",
+        "tone_type": "clean",
+        "gear_type": "amp"
+      },
+      "fit_eligible": true
+    },
+    {
+      "index": 19,
+      "channel": 0,
+      "file": "SUNN-1998/Model T - Low Gain-Mid Vol G2, T5, B5, M5, V5, P7.nam",
+      "sha256": "7865318dbdc8936e3c2d85a78bfc9e4c450ded6c5a8cbe2b30ea8f10cd311454",
+      "state": {
+        "channel": 0,
+        "input_route": 0,
+        "controls": {
+          "hw.normal": 0.2,
+          "hw.brilliant": 0.2,
+          "hw.bass": 0.5,
+          "hw.midrange": 0.5,
+          "hw.treble": 0.5,
+          "hw.master": 0.5
+        }
+      },
+      "qualification": "User-selected 1998 reissue whole-head reference; different circuit/gain channels from the retained 1970s native panel. Common tone controls mapped by filename; reissue Gain maps nominally to Normal/Brilliant and Volume to Master, NORMAL route. Reissue Presence is not represented. A broad voicing correction, not revision-equivalence calibration.",
+      "url": "https://www.tone3000.com/tones/1998-sunn-model-t-reissue-13705",
+      "model_url": "https://api.tone3000.com/storage/v1/object/public/models/doeatzobf2_a2.nam",
+      "input_level_dbu": null,
+      "metadata": {
+        "date": {
+          "year": 2026,
+          "month": 5,
+          "day": 5,
+          "hour": 8,
+          "minute": 35,
+          "second": 8
+        },
+        "loudness": -14.148859977722168,
+        "gain": 0.7335565730648803,
+        "name": "Model T - Low Gain-Mid Vol G2, T5, B5, M5, V5, P7",
+        "modeled_by": "maestrodimusica",
+        "training": {
+          "data": {
+            "checks": {
+              "passed": true,
+              "version": 3
+            },
+            "latency": {
+              "manual": null,
+              "calibration": {
+                "delays": [
+                  0
+                ],
+                "warnings": {
+                  "matches_lookahead": false,
+                  "disagreement_too_high": false
+                },
+                "recommended": -1,
+                "safety_factor": 1,
+                "algorithm_version": 1
+              }
+            }
+          },
+          "settings": {
+            "ignore_checks": false
+          },
+          "validation_esr": 0.0009444362606188417
+        },
+        "gear_make": "Sunn Model T",
+        "gear_model": "Sunn Model T",
+        "tone_type": "clean",
+        "gear_type": "amp"
+      },
+      "fit_eligible": true
+    },
+    {
+      "index": 19,
+      "channel": 0,
+      "file": "SUNN-1998/Model T - Mid Gain-Mid Vol G5, T5, B5, M5, V5, P7.nam",
+      "sha256": "f821526e6090cb0832c9affc4bc41f89515d01a2ff8bb2c8010cca36aaf18894",
+      "state": {
+        "channel": 0,
+        "input_route": 0,
+        "controls": {
+          "hw.normal": 0.5,
+          "hw.brilliant": 0.5,
+          "hw.bass": 0.5,
+          "hw.midrange": 0.5,
+          "hw.treble": 0.5,
+          "hw.master": 0.5
+        }
+      },
+      "qualification": "User-selected 1998 reissue whole-head reference; different circuit/gain channels from the retained 1970s native panel. Common tone controls mapped by filename; reissue Gain maps nominally to Normal/Brilliant and Volume to Master, NORMAL route. Reissue Presence is not represented. A broad voicing correction, not revision-equivalence calibration.",
+      "url": "https://www.tone3000.com/tones/1998-sunn-model-t-reissue-13705",
+      "model_url": "https://api.tone3000.com/storage/v1/object/public/models/712r3fk6opq_a2.nam",
+      "input_level_dbu": null,
+      "metadata": {
+        "date": {
+          "year": 2026,
+          "month": 5,
+          "day": 5,
+          "hour": 8,
+          "minute": 34,
+          "second": 53
+        },
+        "loudness": -14.560165405273438,
+        "gain": 0.785571489559185,
+        "name": "Model T - Mid Gain-Mid Vol G5, T5, B5, M5, V5, P7",
+        "modeled_by": "maestrodimusica",
+        "training": {
+          "data": {
+            "checks": {
+              "passed": true,
+              "version": 3
+            },
+            "latency": {
+              "manual": null,
+              "calibration": {
+                "delays": [
+                  0
+                ],
+                "warnings": {
+                  "matches_lookahead": false,
+                  "disagreement_too_high": false
+                },
+                "recommended": -1,
+                "safety_factor": 1,
+                "algorithm_version": 1
+              }
+            }
+          },
+          "settings": {
+            "ignore_checks": false
+          },
+          "validation_esr": 0.004951482182217212
+        },
+        "gear_make": "Sunn Model T",
+        "gear_model": "Sunn Model T",
+        "tone_type": "clean",
+        "gear_type": "amp"
+      },
+      "fit_eligible": true
+    },
+    {
+      "index": 19,
+      "channel": 0,
+      "file": "SUNN-1998/Model T - High Gain-Mid Vol G10, T5, B5, M5, V5, P7.nam",
+      "sha256": "917a1ff7b1150594ef50636375b4a644b85b9769218a942ed68b8443f887d44d",
+      "state": {
+        "channel": 0,
+        "input_route": 0,
+        "controls": {
+          "hw.normal": 1.0,
+          "hw.brilliant": 1.0,
+          "hw.bass": 0.5,
+          "hw.midrange": 0.5,
+          "hw.treble": 0.5,
+          "hw.master": 0.5
+        }
+      },
+      "qualification": "User-selected 1998 reissue whole-head reference; different circuit/gain channels from the retained 1970s native panel. Common tone controls mapped by filename; reissue Gain maps nominally to Normal/Brilliant and Volume to Master, NORMAL route. Reissue Presence is not represented. A broad voicing correction, not revision-equivalence calibration.",
+      "url": "https://www.tone3000.com/tones/1998-sunn-model-t-reissue-13705",
+      "model_url": "https://api.tone3000.com/storage/v1/object/public/models/d8fcnrdwvf_a2.nam",
+      "input_level_dbu": null,
+      "metadata": {
+        "date": {
+          "year": 2026,
+          "month": 5,
+          "day": 5,
+          "hour": 8,
+          "minute": 35,
+          "second": 3
+        },
+        "loudness": -13.173523902893066,
+        "gain": 0.72040115749583,
+        "name": "Model T - High Gain-Mid Vol G10, T5, B5, M5, V5, P7",
+        "modeled_by": "maestrodimusica",
+        "training": {
+          "data": {
+            "checks": {
+              "passed": true,
+              "version": 3
+            },
+            "latency": {
+              "manual": null,
+              "calibration": {
+                "delays": [
+                  2
+                ],
+                "warnings": {
+                  "matches_lookahead": false,
+                  "disagreement_too_high": false
+                },
+                "recommended": 1,
+                "safety_factor": 1,
+                "algorithm_version": 1
+              }
+            }
+          },
+          "settings": {
+            "ignore_checks": false
+          },
+          "validation_esr": 0.00861293277112952
+        },
+        "gear_make": "Sunn Model T",
+        "gear_model": "Sunn Model T",
+        "tone_type": "clean",
+        "gear_type": "amp"
+      },
+      "fit_eligible": true
+    },
+    {
+      "index": 19,
+      "channel": 0,
+      "file": "SUNN-1998/Model T - Doom Settings G10, T6.5, B8.5, M7.5, V6.5, P7.5.nam",
+      "sha256": "b4c56a8f50c758327eb847a853d581850b035327f443d3f4a2d62fa02dac204e",
+      "state": {
+        "channel": 0,
+        "input_route": 0,
+        "controls": {
+          "hw.normal": 1.0,
+          "hw.brilliant": 1.0,
+          "hw.bass": 0.85,
+          "hw.midrange": 0.75,
+          "hw.treble": 0.65,
+          "hw.master": 0.65
+        }
+      },
+      "qualification": "User-selected 1998 reissue whole-head reference; different circuit/gain channels from the retained 1970s native panel. Common tone controls mapped by filename; reissue Gain maps nominally to Normal/Brilliant and Volume to Master, NORMAL route. Reissue Presence is not represented. A broad voicing correction, not revision-equivalence calibration.",
+      "url": "https://www.tone3000.com/tones/1998-sunn-model-t-reissue-13705",
+      "model_url": "https://api.tone3000.com/storage/v1/object/public/models/ryy8huwnd4s_a2.nam",
+      "input_level_dbu": null,
+      "metadata": {
+        "date": {
+          "year": 2026,
+          "month": 5,
+          "day": 5,
+          "hour": 8,
+          "minute": 35,
+          "second": 13
+        },
+        "loudness": -11.498556137084961,
+        "gain": 0.8406185089267363,
+        "name": "Model T - Doom Settings G10, T6.5, B8.5, M7.5, V6.5, P7.5",
+        "modeled_by": "maestrodimusica",
+        "training": {
+          "data": {
+            "checks": {
+              "passed": true,
+              "version": 3
+            },
+            "latency": {
+              "manual": null,
+              "calibration": {
+                "delays": [
+                  3
+                ],
+                "warnings": {
+                  "matches_lookahead": false,
+                  "disagreement_too_high": false
+                },
+                "recommended": 2,
+                "safety_factor": 1,
+                "algorithm_version": 1
+              }
+            }
+          },
+          "settings": {
+            "ignore_checks": false
+          },
+          "validation_esr": 0.015851904203980537
+        },
+        "gear_make": "Sunn Model T",
+        "gear_model": "Sunn Model T",
+        "tone_type": "clean",
+        "gear_type": "amp"
+      },
+      "fit_eligible": true
+    },
+    {
+      "index": 19,
+      "channel": 0,
+      "file": "SUNN-1998/Model T - Drive Pedal Platform.nam",
+      "sha256": "f576eae98864df60a68a1b1253729c5bab8968e3ba82252a8999e2b99f38a9ef",
+      "state": {
+        "channel": 0,
+        "input_route": 0,
+        "controls": {
+          "hw.normal": 0.5,
+          "hw.brilliant": 0.5,
+          "hw.bass": 0.5,
+          "hw.midrange": 0.5,
+          "hw.treble": 0.5,
+          "hw.master": 0.5
+        }
+      },
+      "qualification": "User-selected 1998 reissue whole-head reference; different circuit/gain channels from the retained 1970s native panel. Common tone controls mapped by filename; reissue Gain maps nominally to Normal/Brilliant and Volume to Master, NORMAL route. Reissue Presence is not represented. A broad voicing correction, not revision-equivalence calibration. Numeric settings unspecified; nominal 0.5 state for secondary comparison only, excluded from fit.",
+      "url": "https://www.tone3000.com/tones/1998-sunn-model-t-reissue-13705",
+      "model_url": "https://api.tone3000.com/storage/v1/object/public/models/veoc40rzd7a_a2.nam",
+      "input_level_dbu": null,
+      "metadata": {
+        "date": {
+          "year": 2026,
+          "month": 5,
+          "day": 5,
+          "hour": 8,
+          "minute": 35,
+          "second": 9
+        },
+        "loudness": -20.98036766052246,
+        "gain": 0.7745172332295294,
+        "name": "Model T - Drive Pedal Platform",
+        "modeled_by": "maestrodimusica",
+        "training": {
+          "data": {
+            "checks": {
+              "passed": true,
+              "version": 3
+            },
+            "latency": {
+              "manual": null,
+              "calibration": {
+                "delays": [
+                  0
+                ],
+                "warnings": {
+                  "matches_lookahead": false,
+                  "disagreement_too_high": false
+                },
+                "recommended": -1,
+                "safety_factor": 1,
+                "algorithm_version": 1
+              }
+            }
+          },
+          "settings": {
+            "ignore_checks": false
+          },
+          "validation_esr": 0.0012334514602021496
+        },
+        "gear_make": "Sunn Model T",
+        "gear_model": "Sunn Model T",
+        "tone_type": "clean",
+        "gear_type": "amp"
+      },
+      "fit_eligible": false
+    },
+    {
+      "index": 19,
+      "channel": 0,
+      "file": "SUNN-1998/Model T - Warm Zen Lead.nam",
+      "sha256": "2d062e5511ec0632d092697e4143e25100cee4e8047573bd58fa26920e897f06",
+      "state": {
+        "channel": 0,
+        "input_route": 0,
+        "controls": {
+          "hw.normal": 0.5,
+          "hw.brilliant": 0.5,
+          "hw.bass": 0.5,
+          "hw.midrange": 0.5,
+          "hw.treble": 0.5,
+          "hw.master": 0.5
+        }
+      },
+      "qualification": "User-selected 1998 reissue whole-head reference; different circuit/gain channels from the retained 1970s native panel. Common tone controls mapped by filename; reissue Gain maps nominally to Normal/Brilliant and Volume to Master, NORMAL route. Reissue Presence is not represented. A broad voicing correction, not revision-equivalence calibration. Numeric settings unspecified; nominal 0.5 state for secondary comparison only, excluded from fit.",
+      "url": "https://www.tone3000.com/tones/1998-sunn-model-t-reissue-13705",
+      "model_url": "https://api.tone3000.com/storage/v1/object/public/models/7shlp05oua7_a2.nam",
+      "input_level_dbu": null,
+      "metadata": {
+        "date": {
+          "year": 2026,
+          "month": 5,
+          "day": 5,
+          "hour": 8,
+          "minute": 35,
+          "second": 16
+        },
+        "loudness": -15.931764602661133,
+        "gain": 0.828354604610966,
+        "name": "Model T - Warm Zen Lead",
+        "modeled_by": "maestrodimusica",
+        "training": {
+          "data": {
+            "checks": {
+              "passed": true,
+              "version": 3
+            },
+            "latency": {
+              "manual": null,
+              "calibration": {
+                "delays": [
+                  1
+                ],
+                "warnings": {
+                  "matches_lookahead": false,
+                  "disagreement_too_high": false
+                },
+                "recommended": 0,
+                "safety_factor": 1,
+                "algorithm_version": 1
+              }
+            }
+          },
+          "settings": {
+            "ignore_checks": false
+          },
+          "validation_esr": 0.0039204072985623934
+        },
+        "gear_make": "Sunn Model T",
+        "gear_model": "Sunn Model T",
+        "tone_type": "clean",
+        "gear_type": "amp"
+      },
+      "fit_eligible": false
+    },
+    {
+      "index": 19,
+      "channel": 0,
+      "file": "SUNN-1998/Model T - EJ Lead.nam",
+      "sha256": "30a18ec33c03740b344b3f58016a0db6f02adcebc67681c85f694e7275c55171",
+      "state": {
+        "channel": 0,
+        "input_route": 0,
+        "controls": {
+          "hw.normal": 0.5,
+          "hw.brilliant": 0.5,
+          "hw.bass": 0.5,
+          "hw.midrange": 0.5,
+          "hw.treble": 0.5,
+          "hw.master": 0.5
+        }
+      },
+      "qualification": "User-selected 1998 reissue whole-head reference; different circuit/gain channels from the retained 1970s native panel. Common tone controls mapped by filename; reissue Gain maps nominally to Normal/Brilliant and Volume to Master, NORMAL route. Reissue Presence is not represented. A broad voicing correction, not revision-equivalence calibration. Numeric settings unspecified; nominal 0.5 state for secondary comparison only, excluded from fit.",
+      "url": "https://www.tone3000.com/tones/1998-sunn-model-t-reissue-13705",
+      "model_url": "https://api.tone3000.com/storage/v1/object/public/models/4xacu0aymhj_a2.nam",
+      "input_level_dbu": null,
+      "metadata": {
+        "date": {
+          "year": 2026,
+          "month": 5,
+          "day": 5,
+          "hour": 8,
+          "minute": 35,
+          "second": 19
+        },
+        "loudness": -16.016677856445312,
+        "gain": 0.8478736644462309,
+        "name": "Model T - EJ Lead",
+        "modeled_by": "maestrodimusica",
+        "training": {
+          "data": {
+            "checks": {
+              "passed": true,
+              "version": 3
+            },
+            "latency": {
+              "manual": null,
+              "calibration": {
+                "delays": [
+                  6
+                ],
+                "warnings": {
+                  "matches_lookahead": false,
+                  "disagreement_too_high": false
+                },
+                "recommended": 5,
+                "safety_factor": 1,
+                "algorithm_version": 1
+              }
+            }
+          },
+          "settings": {
+            "ignore_checks": false
+          },
+          "validation_esr": 0.0028308468871693897
+        },
+        "gear_make": "Sunn Model T",
+        "gear_model": "Sunn Model T",
+        "tone_type": "clean",
+        "gear_type": "amp"
+      },
+      "fit_eligible": false
+    },
+    {
+      "index": 19,
+      "channel": 0,
+      "file": "SUNN-1998/Model T - Crunchier Mids Rock.nam",
+      "sha256": "a6781bd30552ea9b305612c10bcf9266a35104b8f98eebd341a2c22ec76c1218",
+      "state": {
+        "channel": 0,
+        "input_route": 0,
+        "controls": {
+          "hw.normal": 0.5,
+          "hw.brilliant": 0.5,
+          "hw.bass": 0.5,
+          "hw.midrange": 0.5,
+          "hw.treble": 0.5,
+          "hw.master": 0.5
+        }
+      },
+      "qualification": "User-selected 1998 reissue whole-head reference; different circuit/gain channels from the retained 1970s native panel. Common tone controls mapped by filename; reissue Gain maps nominally to Normal/Brilliant and Volume to Master, NORMAL route. Reissue Presence is not represented. A broad voicing correction, not revision-equivalence calibration. Numeric settings unspecified; nominal 0.5 state for secondary comparison only, excluded from fit.",
+      "url": "https://www.tone3000.com/tones/1998-sunn-model-t-reissue-13705",
+      "model_url": "https://api.tone3000.com/storage/v1/object/public/models/0yfgx3nl4se_a2.nam",
+      "input_level_dbu": null,
+      "metadata": {
+        "date": {
+          "year": 2026,
+          "month": 5,
+          "day": 5,
+          "hour": 8,
+          "minute": 35,
+          "second": 10
+        },
+        "loudness": -12.431960105895996,
+        "gain": 0.781924251957013,
+        "name": "Model T - Crunchier Mids Rock",
+        "modeled_by": "maestrodimusica",
+        "training": {
+          "data": {
+            "checks": {
+              "passed": true,
+              "version": 3
+            },
+            "latency": {
+              "manual": null,
+              "calibration": {
+                "delays": [
+                  1
+                ],
+                "warnings": {
+                  "matches_lookahead": false,
+                  "disagreement_too_high": false
+                },
+                "recommended": 0,
+                "safety_factor": 1,
+                "algorithm_version": 1
+              }
+            }
+          },
+          "settings": {
+            "ignore_checks": false
+          },
+          "validation_esr": 0.0032897773525774154
+        },
+        "gear_make": "Sunn Model T",
+        "gear_model": "Sunn Model T",
+        "tone_type": "clean",
+        "gear_type": "amp"
+      },
+      "fit_eligible": false
+    },
+    {
+      "index": 19,
+      "channel": 0,
+      "file": "SUNN-1998/Model T - Crunchier Rock.nam",
+      "sha256": "15c0830e371401f152c98ccee093663e353f1b5c75ee8933ebe08ea86bdaf54e",
+      "state": {
+        "channel": 0,
+        "input_route": 0,
+        "controls": {
+          "hw.normal": 0.5,
+          "hw.brilliant": 0.5,
+          "hw.bass": 0.5,
+          "hw.midrange": 0.5,
+          "hw.treble": 0.5,
+          "hw.master": 0.5
+        }
+      },
+      "qualification": "User-selected 1998 reissue whole-head reference; different circuit/gain channels from the retained 1970s native panel. Common tone controls mapped by filename; reissue Gain maps nominally to Normal/Brilliant and Volume to Master, NORMAL route. Reissue Presence is not represented. A broad voicing correction, not revision-equivalence calibration. Numeric settings unspecified; nominal 0.5 state for secondary comparison only, excluded from fit.",
+      "url": "https://www.tone3000.com/tones/1998-sunn-model-t-reissue-13705",
+      "model_url": "https://api.tone3000.com/storage/v1/object/public/models/1usvrpi07tb_a2.nam",
+      "input_level_dbu": null,
+      "metadata": {
+        "date": {
+          "year": 2026,
+          "month": 5,
+          "day": 5,
+          "hour": 8,
+          "minute": 35,
+          "second": 8
+        },
+        "loudness": -13.842411041259766,
+        "gain": 0.7811413578957784,
+        "name": "Model T - Crunchier Rock",
+        "modeled_by": "maestrodimusica",
+        "training": {
+          "data": {
+            "checks": {
+              "passed": true,
+              "version": 3
+            },
+            "latency": {
+              "manual": null,
+              "calibration": {
+                "delays": [
+                  0
+                ],
+                "warnings": {
+                  "matches_lookahead": false,
+                  "disagreement_too_high": false
+                },
+                "recommended": -1,
+                "safety_factor": 1,
+                "algorithm_version": 1
+              }
+            }
+          },
+          "settings": {
+            "ignore_checks": false
+          },
+          "validation_esr": 0.003820134310182251
+        },
+        "gear_make": "Sunn Model T",
+        "gear_model": "Sunn Model T",
+        "tone_type": "clean",
+        "gear_type": "amp"
+      },
+      "fit_eligible": false
+    },
+    {
+      "index": 2,
+      "channel": 0,
+      "file": "Peavey-Extended/PEAVEY 5150 II RHYTHM.nam",
+      "sha256": "3e048623a3939789914d4b03413ff67243f1d8e2de02b2541edadaa3e1d1b289",
+      "state": {
+        "channel": 0,
+        "controls": {
+          "hw.rhythm.pre_gain": 0.5
+        }
+      },
+      "qualification": "Modified 5150 II rhythm preamp-only, all knobs noon per author; no power stage. Secondary comparison, not coefficient fit. Crunch switch undocumented uses native default.",
+      "url": "https://www.tone3000.com/tones/peavey-5150-ii-35142",
+      "model_url": "https://api.tone3000.com/storage/v1/object/public/models/jfl557xt6wk_a2.nam",
+      "input_level_dbu": null,
+      "metadata": {
+        "date": {
+          "year": 2026,
+          "month": 5,
+          "day": 8,
+          "hour": 4,
+          "minute": 43,
+          "second": 41
+        },
+        "loudness": -17.06504249572754,
+        "gain": 0.8836288208996238,
+        "name": "PEAVEY 5150 II",
+        "modeled_by": "mitchellpaulbarker",
+        "training": {
+          "data": {
+            "checks": {
+              "passed": true,
+              "version": 3
+            },
+            "latency": {
+              "manual": null,
+              "calibration": {
+                "delays": [
+                  25
+                ],
+                "warnings": {
+                  "matches_lookahead": false,
+                  "disagreement_too_high": false
+                },
+                "recommended": 24,
+                "safety_factor": 1,
+                "algorithm_version": 1
+              }
+            }
+          },
+          "settings": {
+            "ignore_checks": false
+          },
+          "validation_esr": 0.007546254849298717
+        },
+        "gear_make": "Peavey 5150",
+        "gear_model": "Peavey 5150",
+        "tone_type": "metal",
+        "gear_type": "amp"
+      },
+      "fit_eligible": false
+    },
+    {
+      "index": 2,
+      "channel": 1,
+      "file": "Peavey-Extended/5150BL R GAIN #1.nam",
+      "sha256": "72101919d459a83261aaed70e7ac202beee1c4cb4e44991a5d50079c4ec34d74",
+      "state": {
+        "channel": 1,
+        "controls": {
+          "hw.lead.pre_gain": 0.5
+        }
+      },
+      "qualification": "5150 Block Letter preamp-only; all knobs noon per author. Numbered labels are not gain settings. Secondary comparison, not whole-head coefficient fit.",
+      "url": "https://www.tone3000.com/tones/5150-block-letter-44664",
+      "model_url": "https://api.tone3000.com/storage/v1/object/public/models/z0oqwgpslyb_a2.nam",
+      "input_level_dbu": null,
+      "metadata": {
+        "date": {
+          "year": 2026,
+          "month": 5,
+          "day": 8,
+          "hour": 1,
+          "minute": 48,
+          "second": 13
+        },
+        "loudness": -11.419363975524902,
+        "gain": 0.7773404665339071,
+        "name": "5150BL R GAIN 1",
+        "modeled_by": "deathblossomaudio",
+        "training": {
+          "data": {
+            "checks": {
+              "passed": true,
+              "version": 3
+            },
+            "latency": {
+              "manual": null,
+              "calibration": {
+                "delays": [
+                  2
+                ],
+                "warnings": {
+                  "matches_lookahead": false,
+                  "disagreement_too_high": false
+                },
+                "recommended": 1,
+                "safety_factor": 1,
+                "algorithm_version": 1
+              }
+            }
+          },
+          "settings": {
+            "ignore_checks": false
+          },
+          "validation_esr": 0.002696544841636795
+        },
+        "gear_make": "Peavey 5150",
+        "gear_model": "Peavey 5150",
+        "tone_type": "metal",
+        "gear_type": "amp"
+      },
+      "fit_eligible": false
+    },
+    {
+      "index": 2,
+      "channel": 1,
+      "file": "Peavey-Extended/5150BL R GAIN #2.nam",
+      "sha256": "ef1b1803266868c68909686c667e846b67afccbd6a290298a711612a196f6592",
+      "state": {
+        "channel": 1,
+        "controls": {
+          "hw.lead.pre_gain": 0.5
+        }
+      },
+      "qualification": "5150 Block Letter preamp-only; all knobs noon per author. Numbered labels are not gain settings. Secondary comparison, not whole-head coefficient fit.",
+      "url": "https://www.tone3000.com/tones/5150-block-letter-44664",
+      "model_url": "https://api.tone3000.com/storage/v1/object/public/models/ypadonnky2_a2.nam",
+      "input_level_dbu": null,
+      "metadata": {
+        "date": {
+          "year": 2026,
+          "month": 5,
+          "day": 8,
+          "hour": 3,
+          "minute": 14,
+          "second": 43
+        },
+        "loudness": -11.669922828674316,
+        "gain": 0.8213004704106576,
+        "name": "5150BL R GAIN 2",
+        "modeled_by": "deathblossomaudio",
+        "training": {
+          "data": {
+            "checks": {
+              "passed": true,
+              "version": 3
+            },
+            "latency": {
+              "manual": null,
+              "calibration": {
+                "delays": [
+                  2
+                ],
+                "warnings": {
+                  "matches_lookahead": false,
+                  "disagreement_too_high": false
+                },
+                "recommended": 1,
+                "safety_factor": 1,
+                "algorithm_version": 1
+              }
+            }
+          },
+          "settings": {
+            "ignore_checks": false
+          },
+          "validation_esr": 0.006598282989536189
+        },
+        "gear_make": "Peavey 5150",
+        "gear_model": "Peavey 5150",
+        "tone_type": "metal",
+        "gear_type": "amp"
+      },
+      "fit_eligible": false
+    },
+    {
+      "index": 2,
+      "channel": 1,
+      "file": "Peavey-Extended/5150BL R GAIN #3.nam",
+      "sha256": "947af3c31bbe42bc80bc257b1a88012c8472558da8b04a29da5ff96c3e2002ae",
+      "state": {
+        "channel": 1,
+        "controls": {
+          "hw.lead.pre_gain": 0.5
+        }
+      },
+      "qualification": "5150 Block Letter preamp-only; all knobs noon per author. Numbered labels are not gain settings. Secondary comparison, not whole-head coefficient fit.",
+      "url": "https://www.tone3000.com/tones/5150-block-letter-44664",
+      "model_url": "https://api.tone3000.com/storage/v1/object/public/models/3a56cn0twet_a2.nam",
+      "input_level_dbu": null,
+      "metadata": {
+        "date": {
+          "year": 2026,
+          "month": 5,
+          "day": 8,
+          "hour": 3,
+          "minute": 14,
+          "second": 43
+        },
+        "loudness": -12.017359733581543,
+        "gain": 0.8204758698391406,
+        "name": "5150BL R GAIN 3",
+        "modeled_by": "deathblossomaudio",
+        "training": {
+          "data": {
+            "checks": {
+              "passed": true,
+              "version": 3
+            },
+            "latency": {
+              "manual": null,
+              "calibration": {
+                "delays": [
+                  2
+                ],
+                "warnings": {
+                  "matches_lookahead": false,
+                  "disagreement_too_high": false
+                },
+                "recommended": 1,
+                "safety_factor": 1,
+                "algorithm_version": 1
+              }
+            }
+          },
+          "settings": {
+            "ignore_checks": false
+          },
+          "validation_esr": 0.009070643481761832
+        },
+        "gear_make": "Peavey 5150",
+        "gear_model": "Peavey 5150",
+        "tone_type": "metal",
+        "gear_type": "amp"
+      },
+      "fit_eligible": false
+    },
+    {
+      "index": 2,
+      "channel": 0,
+      "file": "Peavey-Extended/5150BL G CRUNCH #1.nam",
+      "sha256": "5fb4b6d322c7846bbe5a35adef133bd3a8d661132fe71bdd56402fc763e98e6e",
+      "state": {
+        "channel": 0,
+        "controls": {
+          "hw.rhythm.crunch": 1,
+          "hw.rhythm.pre_gain": 0.5
+        }
+      },
+      "qualification": "5150 Block Letter preamp-only; all knobs noon per author. Numbered labels are not gain settings. Secondary comparison, not whole-head coefficient fit.",
+      "url": "https://www.tone3000.com/tones/5150-block-letter-44664",
+      "model_url": "https://api.tone3000.com/storage/v1/object/public/models/d1b5sbdpuv7_a2.nam",
+      "input_level_dbu": null,
+      "metadata": {
+        "date": {
+          "year": 2026,
+          "month": 5,
+          "day": 8,
+          "hour": 3,
+          "minute": 14,
+          "second": 27
+        },
+        "loudness": -13.069586753845215,
+        "gain": 0.5174012785318945,
+        "name": "5150BL G CRUNCH",
+        "modeled_by": "deathblossomaudio",
+        "training": {
+          "data": {
+            "checks": {
+              "passed": true,
+              "version": 3
+            },
+            "latency": {
+              "manual": null,
+              "calibration": {
+                "delays": [
+                  3
+                ],
+                "warnings": {
+                  "matches_lookahead": false,
+                  "disagreement_too_high": false
+                },
+                "recommended": 2,
+                "safety_factor": 1,
+                "algorithm_version": 1
+              }
+            }
+          },
+          "settings": {
+            "ignore_checks": false
+          },
+          "validation_esr": 0.000453312675684851
+        },
+        "gear_make": "Peavey 5150",
+        "gear_model": "Peavey 5150",
+        "tone_type": "metal",
+        "gear_type": "amp"
+      },
+      "fit_eligible": false
+    },
+    {
+      "index": 2,
+      "channel": 0,
+      "file": "Peavey-Extended/5150BL G CRUNCH #2.nam",
+      "sha256": "81c0635e9e29bb51147a5083631eb6040ae5237c13b9afaf8fe40a2d4c378ccd",
+      "state": {
+        "channel": 0,
+        "controls": {
+          "hw.rhythm.crunch": 1,
+          "hw.rhythm.pre_gain": 0.5
+        }
+      },
+      "qualification": "5150 Block Letter preamp-only; all knobs noon per author. Numbered labels are not gain settings. Secondary comparison, not whole-head coefficient fit.",
+      "url": "https://www.tone3000.com/tones/5150-block-letter-44664",
+      "model_url": "https://api.tone3000.com/storage/v1/object/public/models/t9xhe14v3c9_a2.nam",
+      "input_level_dbu": null,
+      "metadata": {
+        "date": {
+          "year": 2026,
+          "month": 5,
+          "day": 8,
+          "hour": 3,
+          "minute": 14,
+          "second": 40
+        },
+        "loudness": -12.35755443572998,
+        "gain": 0.6647365973385803,
+        "name": "5150BL G CRUNCH 2",
+        "modeled_by": "deathblossomaudio",
+        "training": {
+          "data": {
+            "checks": {
+              "passed": true,
+              "version": 3
+            },
+            "latency": {
+              "manual": null,
+              "calibration": {
+                "delays": [
+                  3
+                ],
+                "warnings": {
+                  "matches_lookahead": false,
+                  "disagreement_too_high": false
+                },
+                "recommended": 2,
+                "safety_factor": 1,
+                "algorithm_version": 1
+              }
+            }
+          },
+          "settings": {
+            "ignore_checks": false
+          },
+          "validation_esr": 0.001002863724546205
+        },
+        "gear_make": "Peavey 5150",
+        "gear_model": "Peavey 5150",
+        "tone_type": "metal",
+        "gear_type": "amp"
+      },
+      "fit_eligible": false
+    },
+    {
+      "index": 2,
+      "channel": 0,
+      "file": "Peavey-Extended/PEAVEY 6505PLUS GREEN CRUNCH 1.nam",
+      "sha256": "e2663f50872aeaa737a2c080770fcbdd3e885be8ddfef4b25feceb96a8f2887e",
+      "state": {
+        "channel": 0,
+        "controls": {
+          "hw.rhythm.crunch": 1,
+          "hw.rhythm.pre_gain": 0.5
+        }
+      },
+      "qualification": "6505+ preamp-only per description; page makes/models also lists 6534. Explicit nominal gain 0.5 because numeric settings are unknown. Secondary comparison, no whole-head coefficient fit.",
+      "url": "https://www.tone3000.com/tones/peavey-6505-54763",
+      "model_url": "https://api.tone3000.com/storage/v1/object/public/models/2dlsgulwrun_a2.nam",
+      "input_level_dbu": null,
+      "metadata": {
+        "date": {
+          "year": 2026,
+          "month": 5,
+          "day": 8,
+          "hour": 3,
+          "minute": 14,
+          "second": 39
+        },
+        "loudness": -17.005664825439453,
+        "gain": 0.8253166257272466,
+        "name": "PEAVEY 6505PLUS GREEN CRUNCH 1",
+        "modeled_by": "deathblossomaudio",
+        "training": {
+          "data": {
+            "checks": {
+              "passed": true,
+              "version": 3
+            },
+            "latency": {
+              "manual": null,
+              "calibration": {
+                "delays": [
+                  12
+                ],
+                "warnings": {
+                  "matches_lookahead": false,
+                  "disagreement_too_high": false
+                },
+                "recommended": 11,
+                "safety_factor": 1,
+                "algorithm_version": 1
+              }
+            }
+          },
+          "settings": {
+            "ignore_checks": false
+          },
+          "validation_esr": 0.00791684048518621
+        },
+        "gear_make": "PEAVEY 6534",
+        "gear_model": "PEAVEY 6534",
+        "tone_type": "peavey",
+        "gear_type": "amp"
+      },
+      "fit_eligible": false
+    },
+    {
+      "index": 2,
+      "channel": 0,
+      "file": "Peavey-Extended/PEAVEY 6505PLUS GREEN CRUNCH 3.nam",
+      "sha256": "d6d7727588676ee2e75c7b143178a6cb5b7b923cde9fb992cdef1215ac9624ba",
+      "state": {
+        "channel": 0,
+        "controls": {
+          "hw.rhythm.crunch": 1,
+          "hw.rhythm.pre_gain": 0.5
+        }
+      },
+      "qualification": "6505+ preamp-only per description; page makes/models also lists 6534. Explicit nominal gain 0.5 because numeric settings are unknown. Secondary comparison, no whole-head coefficient fit.",
+      "url": "https://www.tone3000.com/tones/peavey-6505-54763",
+      "model_url": "https://api.tone3000.com/storage/v1/object/public/models/px0ddm1ghi_a2.nam",
+      "input_level_dbu": null,
+      "metadata": {
+        "date": {
+          "year": 2026,
+          "month": 5,
+          "day": 8,
+          "hour": 3,
+          "minute": 14,
+          "second": 46
+        },
+        "loudness": -16.70077896118164,
+        "gain": 0.8283358587278644,
+        "name": "PEAVEY 6505PLUS GREEN CRUNCH 3",
+        "modeled_by": "deathblossomaudio",
+        "training": {
+          "data": {
+            "checks": {
+              "passed": true,
+              "version": 3
+            },
+            "latency": {
+              "manual": null,
+              "calibration": {
+                "delays": [
+                  12
+                ],
+                "warnings": {
+                  "matches_lookahead": false,
+                  "disagreement_too_high": false
+                },
+                "recommended": 11,
+                "safety_factor": 1,
+                "algorithm_version": 1
+              }
+            }
+          },
+          "settings": {
+            "ignore_checks": false
+          },
+          "validation_esr": 0.012412203260593951
+        },
+        "gear_make": "PEAVEY 6534",
+        "gear_model": "PEAVEY 6534",
+        "tone_type": "peavey",
+        "gear_type": "amp"
+      },
+      "fit_eligible": false
+    },
+    {
+      "index": 2,
+      "channel": 0,
+      "file": "Peavey-Extended/PEAVEY 6505PLUS GREEN CRUNCH 2.nam",
+      "sha256": "495aa30e0328a06fc2a2c3f2e498b8de3f4185498605a65bb2620269cd145454",
+      "state": {
+        "channel": 0,
+        "controls": {
+          "hw.rhythm.crunch": 1,
+          "hw.rhythm.pre_gain": 0.5
+        }
+      },
+      "qualification": "6505+ preamp-only per description; page makes/models also lists 6534. Explicit nominal gain 0.5 because numeric settings are unknown. Secondary comparison, no whole-head coefficient fit.",
+      "url": "https://www.tone3000.com/tones/peavey-6505-54763",
+      "model_url": "https://api.tone3000.com/storage/v1/object/public/models/quarfdrzl1l_a2.nam",
+      "input_level_dbu": null,
+      "metadata": {
+        "date": {
+          "year": 2026,
+          "month": 5,
+          "day": 8,
+          "hour": 3,
+          "minute": 14,
+          "second": 51
+        },
+        "loudness": -16.849029541015625,
+        "gain": 0.8313282796965008,
+        "name": "PEAVEY 6505PLUS GREEN CRUNCH 2",
+        "modeled_by": "deathblossomaudio",
+        "training": {
+          "data": {
+            "checks": {
+              "passed": true,
+              "version": 3
+            },
+            "latency": {
+              "manual": null,
+              "calibration": {
+                "delays": [
+                  12
+                ],
+                "warnings": {
+                  "matches_lookahead": false,
+                  "disagreement_too_high": false
+                },
+                "recommended": 11,
+                "safety_factor": 1,
+                "algorithm_version": 1
+              }
+            }
+          },
+          "settings": {
+            "ignore_checks": false
+          },
+          "validation_esr": 0.011096889809360293
+        },
+        "gear_make": "PEAVEY 6534",
+        "gear_model": "PEAVEY 6534",
+        "tone_type": "peavey",
+        "gear_type": "amp"
+      },
+      "fit_eligible": false
+    },
+    {
+      "index": 2,
+      "channel": 1,
+      "file": "Peavey-Extended/PEAVEY 6505PLUS RED RHYTHM CHUGGER.nam",
+      "sha256": "51ff955de0ea83b386d9534bc08702e061a3aedbbd45f283014362eeceb71c07",
+      "state": {
+        "channel": 1,
+        "controls": {
+          "hw.lead.pre_gain": 0.5
+        }
+      },
+      "qualification": "6505+ preamp-only per description; page makes/models also lists 6534. Explicit nominal gain 0.5 because numeric settings are unknown. Secondary comparison, no whole-head coefficient fit.",
+      "url": "https://www.tone3000.com/tones/peavey-6505-54763",
+      "model_url": "https://api.tone3000.com/storage/v1/object/public/models/ltr7vi9ax69_a2.nam",
+      "input_level_dbu": null,
+      "metadata": {
+        "date": {
+          "year": 2026,
+          "month": 5,
+          "day": 8,
+          "hour": 3,
+          "minute": 14,
+          "second": 46
+        },
+        "loudness": -17.09515953063965,
+        "gain": 0.8481692830870045,
+        "name": "PEAVEY 6505PLUS RED RHYTHM CHUGGER",
+        "modeled_by": "deathblossomaudio",
+        "training": {
+          "data": {
+            "checks": {
+              "passed": true,
+              "version": 3
+            },
+            "latency": {
+              "manual": null,
+              "calibration": {
+                "delays": [
+                  15
+                ],
+                "warnings": {
+                  "matches_lookahead": false,
+                  "disagreement_too_high": false
+                },
+                "recommended": 14,
+                "safety_factor": 1,
+                "algorithm_version": 1
+              }
+            }
+          },
+          "settings": {
+            "ignore_checks": false
+          },
+          "validation_esr": 0.018524559967685254
+        },
+        "gear_make": "PEAVEY 6534",
+        "gear_model": "PEAVEY 6534",
+        "tone_type": "peavey",
+        "gear_type": "amp"
+      },
+      "fit_eligible": false
+    },
+    {
+      "index": 2,
+      "channel": 1,
+      "file": "Peavey-Extended/PEAVEY 6505PLUS RED RHYTHM 2.nam",
+      "sha256": "0f255875777a8b618c68da3973178046ce0664f5ecdfa71fab55d4f38b813582",
+      "state": {
+        "channel": 1,
+        "controls": {
+          "hw.lead.pre_gain": 0.5
+        }
+      },
+      "qualification": "6505+ preamp-only per description; page makes/models also lists 6534. Explicit nominal gain 0.5 because numeric settings are unknown. Secondary comparison, no whole-head coefficient fit.",
+      "url": "https://www.tone3000.com/tones/peavey-6505-54763",
+      "model_url": "https://api.tone3000.com/storage/v1/object/public/models/8hnphvapec5_a2.nam",
+      "input_level_dbu": null,
+      "metadata": {
+        "date": {
+          "year": 2026,
+          "month": 5,
+          "day": 8,
+          "hour": 3,
+          "minute": 14,
+          "second": 29
+        },
+        "loudness": -17.224075317382812,
+        "gain": 0.8534980363679496,
+        "name": "PEAVEY 6505PLUS RED RHYTHM 2",
+        "modeled_by": "deathblossomaudio",
+        "training": {
+          "data": {
+            "checks": {
+              "passed": true,
+              "version": 3
+            },
+            "latency": {
+              "manual": null,
+              "calibration": {
+                "delays": [
+                  14
+                ],
+                "warnings": {
+                  "matches_lookahead": false,
+                  "disagreement_too_high": false
+                },
+                "recommended": 13,
+                "safety_factor": 1,
+                "algorithm_version": 1
+              }
+            }
+          },
+          "settings": {
+            "ignore_checks": false
+          },
+          "validation_esr": 0.01016450065507348
+        },
+        "gear_make": "PEAVEY 6534",
+        "gear_model": "PEAVEY 6534",
+        "tone_type": "peavey",
+        "gear_type": "amp"
+      },
+      "fit_eligible": false
+    },
+    {
+      "index": 2,
+      "channel": 1,
+      "file": "Peavey-Extended/PEAVEY 6505PLUS RED RHYTHM 1.nam",
+      "sha256": "1ead287d6348441229cea289c80f609a54c84f49cd43c4684e0ae2cb805fbe77",
+      "state": {
+        "channel": 1,
+        "controls": {
+          "hw.lead.pre_gain": 0.5
+        }
+      },
+      "qualification": "6505+ preamp-only per description; page makes/models also lists 6534. Explicit nominal gain 0.5 because numeric settings are unknown. Secondary comparison, no whole-head coefficient fit.",
+      "url": "https://www.tone3000.com/tones/peavey-6505-54763",
+      "model_url": "https://api.tone3000.com/storage/v1/object/public/models/lm4y7359jhl_a2.nam",
+      "input_level_dbu": null,
+      "metadata": {
+        "date": {
+          "year": 2026,
+          "month": 5,
+          "day": 8,
+          "hour": 3,
+          "minute": 14,
+          "second": 42
+        },
+        "loudness": -17.45430564880371,
+        "gain": 0.8362957178906828,
+        "name": "PEAVEY 6505PLUS RED RHYTHM 1",
+        "modeled_by": "deathblossomaudio",
+        "training": {
+          "data": {
+            "checks": {
+              "passed": true,
+              "version": 3
+            },
+            "latency": {
+              "manual": null,
+              "calibration": {
+                "delays": [
+                  14
+                ],
+                "warnings": {
+                  "matches_lookahead": false,
+                  "disagreement_too_high": false
+                },
+                "recommended": 13,
+                "safety_factor": 1,
+                "algorithm_version": 1
+              }
+            }
+          },
+          "settings": {
+            "ignore_checks": false
+          },
+          "validation_esr": 0.009273748935978841
+        },
+        "gear_make": "PEAVEY 6534",
+        "gear_model": "PEAVEY 6534",
+        "tone_type": "peavey",
+        "gear_type": "amp"
+      },
+      "fit_eligible": false
+    },
+    {
+      "index": 2,
+      "channel": 1,
+      "file": "Peavey-Extended/6505+ - RED - GAIN 4.nam",
+      "sha256": "5279ea4c6287e9bd3ce6a7711bbbf22e42d454c14452dfc9d1830655c41d3ab0",
+      "state": {
+        "channel": 1,
+        "controls": {
+          "hw.lead.pre_gain": 0.4
+        }
+      },
+      "qualification": "6534+ EL34 / 6505+ variant whole-head gain sweep, EQ noon, gain label/10. Different power-tube variant; secondary comparison, excluded from original-6505 coefficient fit. Digital -6 dB level is not absolute input dBu.",
+      "url": "https://www.tone3000.com/tones/peavey-6534-full-gain-captures-69891",
+      "model_url": "https://api.tone3000.com/storage/v1/object/public/models/p5akf4loe89.nam",
+      "input_level_dbu": null,
+      "metadata": {
+        "date": {
+          "year": 2026,
+          "month": 6,
+          "day": 7,
+          "hour": 14,
+          "minute": 24,
+          "second": 51
+        },
+        "loudness": -11.64255202488308,
+        "gain": 0.8145687645568256,
+        "name": "6505+ - RED - GAIN 4",
+        "modeled_by": "deathblossomaudio",
+        "gear_type": "amp",
+        "gear_make": "PEAVEY 6505 PLUS",
+        "gear_model": "PEAVEY 6505 PLUS",
+        "tone_type": "peavey",
+        "trainer": "TONE3000"
+      },
+      "fit_eligible": false
+    },
+    {
+      "index": 2,
+      "channel": 0,
+      "file": "Peavey-Extended/6505+ - GREEN - GAIN 9.nam",
+      "sha256": "614f0b7dc913de551ba9c40be472911cf1dd2fbc04d435a8d77867a72f77b413",
+      "state": {
+        "channel": 0,
+        "controls": {
+          "hw.rhythm.crunch": 1,
+          "hw.rhythm.pre_gain": 0.9
+        }
+      },
+      "qualification": "6534+ EL34 / 6505+ variant whole-head gain sweep, EQ noon, gain label/10. Different power-tube variant; secondary comparison, excluded from original-6505 coefficient fit. Digital -6 dB level is not absolute input dBu.",
+      "url": "https://www.tone3000.com/tones/peavey-6534-full-gain-captures-69891",
+      "model_url": "https://api.tone3000.com/storage/v1/object/public/models/5wvy8sgw6c.nam",
+      "input_level_dbu": null,
+      "metadata": {
+        "date": {
+          "year": 2026,
+          "month": 6,
+          "day": 7,
+          "hour": 15,
+          "minute": 24,
+          "second": 12
+        },
+        "loudness": -11.86682258126844,
+        "gain": 0.8052449347140643,
+        "name": "6505+ - GREEN - GAIN 9",
+        "modeled_by": "deathblossomaudio",
+        "gear_type": "amp",
+        "gear_make": "PEAVEY 6505 PLUS",
+        "gear_model": "PEAVEY 6505 PLUS",
+        "tone_type": "peavey",
+        "trainer": "TONE3000"
+      },
+      "fit_eligible": false
+    },
+    {
+      "index": 2,
+      "channel": 1,
+      "file": "Peavey-Extended/6505+ - RED - GAIN 3.nam",
+      "sha256": "b94304112c256453299936f428ddb40f56fd0a10ffdd9a864ae22240e089587e",
+      "state": {
+        "channel": 1,
+        "controls": {
+          "hw.lead.pre_gain": 0.3
+        }
+      },
+      "qualification": "6534+ EL34 / 6505+ variant whole-head gain sweep, EQ noon, gain label/10. Different power-tube variant; secondary comparison, excluded from original-6505 coefficient fit. Digital -6 dB level is not absolute input dBu.",
+      "url": "https://www.tone3000.com/tones/peavey-6534-full-gain-captures-69891",
+      "model_url": "https://api.tone3000.com/storage/v1/object/public/models/trnh6fw39s.nam",
+      "input_level_dbu": null,
+      "metadata": {
+        "date": {
+          "year": 2026,
+          "month": 6,
+          "day": 7,
+          "hour": 15,
+          "minute": 24,
+          "second": 12
+        },
+        "loudness": -11.641323488091494,
+        "gain": 0.816658993218572,
+        "name": "6505+ - RED - GAIN 3",
+        "modeled_by": "deathblossomaudio",
+        "gear_type": "amp",
+        "gear_make": "PEAVEY 6505 PLUS",
+        "gear_model": "PEAVEY 6505 PLUS",
+        "tone_type": "peavey",
+        "trainer": "TONE3000"
+      },
+      "fit_eligible": false
+    },
+    {
+      "index": 2,
+      "channel": 0,
+      "file": "Peavey-Extended/6505+ - GREEN - GAIN MAX.nam",
+      "sha256": "c90c438c2c35733c6eb4bd2e12f95667f33db161552c989ea412fa861fe026fd",
+      "state": {
+        "channel": 0,
+        "controls": {
+          "hw.rhythm.crunch": 1,
+          "hw.rhythm.pre_gain": 1
+        }
+      },
+      "qualification": "6534+ EL34 / 6505+ variant whole-head gain sweep, EQ noon, gain label/10. Different power-tube variant; secondary comparison, excluded from original-6505 coefficient fit. Digital -6 dB level is not absolute input dBu.",
+      "url": "https://www.tone3000.com/tones/peavey-6534-full-gain-captures-69891",
+      "model_url": "https://api.tone3000.com/storage/v1/object/public/models/2r9e1gsluci.nam",
+      "input_level_dbu": null,
+      "metadata": {
+        "date": {
+          "day": 7,
+          "hour": 14,
+          "year": 2026,
+          "month": 6,
+          "minute": 27,
+          "second": 39
+        },
+        "gain": 0.8121792943789098,
+        "name": "6505+ - GREEN - GAIN MAX",
+        "trainer": "TONE3000",
+        "loudness": -11.941878783856698,
+        "gear_make": "PEAVEY 6505 PLUS",
+        "gear_type": "amp",
+        "tone_type": "peavey",
+        "gear_model": "PEAVEY 6505 PLUS",
+        "modeled_by": "deathblossomaudio"
+      },
+      "fit_eligible": false
+    },
+    {
+      "index": 2,
+      "channel": 0,
+      "file": "Peavey-Extended/6505+ - GREEN - GAIN 3.nam",
+      "sha256": "6ced3ae6bff9f1e953ef21aa011bb66d55b95c68e868ab862c1baf6c0ae35e04",
+      "state": {
+        "channel": 0,
+        "controls": {
+          "hw.rhythm.crunch": 1,
+          "hw.rhythm.pre_gain": 0.3
+        }
+      },
+      "qualification": "6534+ EL34 / 6505+ variant whole-head gain sweep, EQ noon, gain label/10. Different power-tube variant; secondary comparison, excluded from original-6505 coefficient fit. Digital -6 dB level is not absolute input dBu.",
+      "url": "https://www.tone3000.com/tones/peavey-6534-full-gain-captures-69891",
+      "model_url": "https://api.tone3000.com/storage/v1/object/public/models/4ic0a002t1v.nam",
+      "input_level_dbu": null,
+      "metadata": {
+        "date": {
+          "year": 2026,
+          "month": 6,
+          "day": 7,
+          "hour": 14,
+          "minute": 27,
+          "second": 38
+        },
+        "loudness": -12.026741002566952,
+        "gain": 0.5943616770436104,
+        "name": "6505+ - GREEN - GAIN 3",
+        "modeled_by": "deathblossomaudio",
+        "gear_type": "amp",
+        "gear_make": "PEAVEY 6505 PLUS",
+        "gear_model": "PEAVEY 6505 PLUS",
+        "tone_type": "peavey",
+        "trainer": "TONE3000"
+      },
+      "fit_eligible": false
+    },
+    {
+      "index": 2,
+      "channel": 1,
+      "file": "Peavey-Extended/6505+ - RED - GAIN 2.nam",
+      "sha256": "d0f386979c23283e1c1c4f7e1acf90903ec02dde1bae4ea0791cd0ca58951d5c",
+      "state": {
+        "channel": 1,
+        "controls": {
+          "hw.lead.pre_gain": 0.2
+        }
+      },
+      "qualification": "6534+ EL34 / 6505+ variant whole-head gain sweep, EQ noon, gain label/10. Different power-tube variant; secondary comparison, excluded from original-6505 coefficient fit. Digital -6 dB level is not absolute input dBu.",
+      "url": "https://www.tone3000.com/tones/peavey-6534-full-gain-captures-69891",
+      "model_url": "https://api.tone3000.com/storage/v1/object/public/models/y0tpl56mwmq.nam",
+      "input_level_dbu": null,
+      "metadata": {
+        "date": {
+          "year": 2026,
+          "month": 6,
+          "day": 7,
+          "hour": 14,
+          "minute": 27,
+          "second": 37
+        },
+        "loudness": -11.573350496367963,
+        "gain": 0.8129907251301284,
+        "name": "6505+ - RED - GAIN 2",
+        "modeled_by": "deathblossomaudio",
+        "gear_type": "amp",
+        "gear_make": "PEAVEY 6505 PLUS",
+        "gear_model": "PEAVEY 6505 PLUS",
+        "tone_type": "peavey",
+        "trainer": "TONE3000"
+      },
+      "fit_eligible": false
+    },
+    {
+      "index": 2,
+      "channel": 0,
+      "file": "Peavey-Extended/6505+ - GREEN - GAIN 7.nam",
+      "sha256": "176817b0fb3dfba3d020bd2657fcf7049e065f764822b779e1361e671860b4a9",
+      "state": {
+        "channel": 0,
+        "controls": {
+          "hw.rhythm.crunch": 1,
+          "hw.rhythm.pre_gain": 0.7
+        }
+      },
+      "qualification": "6534+ EL34 / 6505+ variant whole-head gain sweep, EQ noon, gain label/10. Different power-tube variant; secondary comparison, excluded from original-6505 coefficient fit. Digital -6 dB level is not absolute input dBu.",
+      "url": "https://www.tone3000.com/tones/peavey-6534-full-gain-captures-69891",
+      "model_url": "https://api.tone3000.com/storage/v1/object/public/models/2372o2g4jsb.nam",
+      "input_level_dbu": null,
+      "metadata": {
+        "date": {
+          "year": 2026,
+          "month": 6,
+          "day": 7,
+          "hour": 14,
+          "minute": 27,
+          "second": 37
+        },
+        "loudness": -11.733779501197175,
+        "gain": 0.7687225777001141,
+        "name": "6505+ - GREEN - GAIN 7",
+        "modeled_by": "deathblossomaudio",
+        "gear_type": "amp",
+        "gear_make": "PEAVEY 6505 PLUS",
+        "gear_model": "PEAVEY 6505 PLUS",
+        "tone_type": "peavey",
+        "trainer": "TONE3000"
+      },
+      "fit_eligible": false
+    },
+    {
+      "index": 2,
+      "channel": 1,
+      "file": "Peavey-Extended/6505+ - RED - GAIN 6.nam",
+      "sha256": "26ea7148798b3979ddf0da013d03681fa810e71d8a98f3803eaca0798e3ef894",
+      "state": {
+        "channel": 1,
+        "controls": {
+          "hw.lead.pre_gain": 0.6
+        }
+      },
+      "qualification": "6534+ EL34 / 6505+ variant whole-head gain sweep, EQ noon, gain label/10. Different power-tube variant; secondary comparison, excluded from original-6505 coefficient fit. Digital -6 dB level is not absolute input dBu.",
+      "url": "https://www.tone3000.com/tones/peavey-6534-full-gain-captures-69891",
+      "model_url": "https://api.tone3000.com/storage/v1/object/public/models/9cja47l3oif.nam",
+      "input_level_dbu": null,
+      "metadata": {
+        "date": {
+          "year": 2026,
+          "month": 6,
+          "day": 7,
+          "hour": 14,
+          "minute": 27,
+          "second": 42
+        },
+        "loudness": -11.863931578297858,
+        "gain": 0.8126823059328201,
+        "name": "6505+ - RED - GAIN 6",
+        "modeled_by": "deathblossomaudio",
+        "gear_type": "amp",
+        "gear_make": "PEAVEY 6505 PLUS",
+        "gear_model": "PEAVEY 6505 PLUS",
+        "tone_type": "peavey",
+        "trainer": "TONE3000"
+      },
+      "fit_eligible": false
+    },
+    {
+      "index": 2,
+      "channel": 0,
+      "file": "Peavey-Extended/6505+ - GREEN - GAIN 5.nam",
+      "sha256": "8614bb7c47f8d837a6ecb2db1a4ea7b2f67cfff8af182e921eeef5df939d29ce",
+      "state": {
+        "channel": 0,
+        "controls": {
+          "hw.rhythm.crunch": 1,
+          "hw.rhythm.pre_gain": 0.5
+        }
+      },
+      "qualification": "6534+ EL34 / 6505+ variant whole-head gain sweep, EQ noon, gain label/10. Different power-tube variant; secondary comparison, excluded from original-6505 coefficient fit. Digital -6 dB level is not absolute input dBu.",
+      "url": "https://www.tone3000.com/tones/peavey-6534-full-gain-captures-69891",
+      "model_url": "https://api.tone3000.com/storage/v1/object/public/models/8q9i3ddvtb.nam",
+      "input_level_dbu": null,
+      "metadata": {
+        "date": {
+          "year": 2026,
+          "month": 6,
+          "day": 7,
+          "hour": 14,
+          "minute": 53,
+          "second": 10
+        },
+        "loudness": -11.774096825450187,
+        "gain": 0.7152397970005515,
+        "name": "6505+ - GREEN - GAIN 5",
+        "modeled_by": "deathblossomaudio",
+        "gear_type": "amp",
+        "gear_make": "PEAVEY 6505 PLUS",
+        "gear_model": "PEAVEY 6505 PLUS",
+        "tone_type": "peavey",
+        "trainer": "TONE3000"
+      },
+      "fit_eligible": false
+    },
+    {
+      "index": 2,
+      "channel": 1,
+      "file": "Peavey-Extended/6505+ - RED - GAIN MAX.nam",
+      "sha256": "524218d0ab0eb467d42399295e46255dfa400a63d4c361ded3039433914b2191",
+      "state": {
+        "channel": 1,
+        "controls": {
+          "hw.lead.pre_gain": 1
+        }
+      },
+      "qualification": "6534+ EL34 / 6505+ variant whole-head gain sweep, EQ noon, gain label/10. Different power-tube variant; secondary comparison, excluded from original-6505 coefficient fit. Digital -6 dB level is not absolute input dBu.",
+      "url": "https://www.tone3000.com/tones/peavey-6534-full-gain-captures-69891",
+      "model_url": "https://api.tone3000.com/storage/v1/object/public/models/6hjlg1mvupx.nam",
+      "input_level_dbu": null,
+      "metadata": {
+        "date": {
+          "day": 7,
+          "hour": 14,
+          "year": 2026,
+          "month": 6,
+          "minute": 27,
+          "second": 56
+        },
+        "gain": 0.8200612759786863,
+        "name": "6505+ - RED - GAIN MAX",
+        "trainer": "TONE3000",
+        "loudness": -12.306944062890166,
+        "gear_make": "PEAVEY 6505 PLUS",
+        "gear_type": "amp",
+        "tone_type": "peavey",
+        "gear_model": "PEAVEY 6505 PLUS",
+        "modeled_by": "deathblossomaudio"
+      },
+      "fit_eligible": false
+    },
+    {
+      "index": 2,
+      "channel": 1,
+      "file": "Peavey-Extended/6505+ - RED - GAIN 7.nam",
+      "sha256": "dac2d5557836db9ba51b28e7c41acde2ef0554599029c2a40a6617d45a5ec90b",
+      "state": {
+        "channel": 1,
+        "controls": {
+          "hw.lead.pre_gain": 0.7
+        }
+      },
+      "qualification": "6534+ EL34 / 6505+ variant whole-head gain sweep, EQ noon, gain label/10. Different power-tube variant; secondary comparison, excluded from original-6505 coefficient fit. Digital -6 dB level is not absolute input dBu.",
+      "url": "https://www.tone3000.com/tones/peavey-6534-full-gain-captures-69891",
+      "model_url": "https://api.tone3000.com/storage/v1/object/public/models/fhwv1ab7btk.nam",
+      "input_level_dbu": null,
+      "metadata": {
+        "date": {
+          "year": 2026,
+          "month": 6,
+          "day": 7,
+          "hour": 14,
+          "minute": 53,
+          "second": 35
+        },
+        "loudness": -11.9739351172462,
+        "gain": 0.8102196143096013,
+        "name": "6505+ - RED - GAIN 7",
+        "modeled_by": "deathblossomaudio",
+        "gear_type": "amp",
+        "gear_make": "PEAVEY 6505 PLUS",
+        "gear_model": "PEAVEY 6505 PLUS",
+        "tone_type": "peavey",
+        "trainer": "TONE3000"
+      },
+      "fit_eligible": false
+    },
+    {
+      "index": 2,
+      "channel": 1,
+      "file": "Peavey-Extended/6505+ - RED - GAIN 9.nam",
+      "sha256": "04086ba14ca9de2506368b0549d35ce3bde8e0bec5234a491ef9b31da21fe802",
+      "state": {
+        "channel": 1,
+        "controls": {
+          "hw.lead.pre_gain": 0.9
+        }
+      },
+      "qualification": "6534+ EL34 / 6505+ variant whole-head gain sweep, EQ noon, gain label/10. Different power-tube variant; secondary comparison, excluded from original-6505 coefficient fit. Digital -6 dB level is not absolute input dBu.",
+      "url": "https://www.tone3000.com/tones/peavey-6534-full-gain-captures-69891",
+      "model_url": "https://api.tone3000.com/storage/v1/object/public/models/vwg4cbvavgf.nam",
+      "input_level_dbu": null,
+      "metadata": {
+        "date": {
+          "year": 2026,
+          "month": 6,
+          "day": 7,
+          "hour": 14,
+          "minute": 27,
+          "second": 58
+        },
+        "loudness": -12.160682971454637,
+        "gain": 0.81307455982457,
+        "name": "6505+ - RED - GAIN 9",
+        "modeled_by": "deathblossomaudio",
+        "gear_type": "amp",
+        "gear_make": "PEAVEY 6505 PLUS",
+        "gear_model": "PEAVEY 6505 PLUS",
+        "tone_type": "peavey",
+        "trainer": "TONE3000"
+      },
+      "fit_eligible": false
+    },
+    {
+      "index": 2,
+      "channel": 1,
+      "file": "Peavey-Extended/6505+ - RED - GAIN 5.nam",
+      "sha256": "398687391f86d56601a6259cecdee541c628cc1627651d9395bc83196c31203e",
+      "state": {
+        "channel": 1,
+        "controls": {
+          "hw.lead.pre_gain": 0.5
+        }
+      },
+      "qualification": "6534+ EL34 / 6505+ variant whole-head gain sweep, EQ noon, gain label/10. Different power-tube variant; secondary comparison, excluded from original-6505 coefficient fit. Digital -6 dB level is not absolute input dBu.",
+      "url": "https://www.tone3000.com/tones/peavey-6534-full-gain-captures-69891",
+      "model_url": "https://api.tone3000.com/storage/v1/object/public/models/j7ilzzxlj0s.nam",
+      "input_level_dbu": null,
+      "metadata": {
+        "date": {
+          "year": 2026,
+          "month": 6,
+          "day": 7,
+          "hour": 14,
+          "minute": 56,
+          "second": 0
+        },
+        "loudness": -11.785179684629936,
+        "gain": 0.8149497983862141,
+        "name": "6505+ - RED - GAIN 5",
+        "modeled_by": "deathblossomaudio",
+        "gear_type": "amp",
+        "gear_make": "PEAVEY 6505 PLUS",
+        "gear_model": "PEAVEY 6505 PLUS",
+        "tone_type": "peavey",
+        "trainer": "TONE3000"
+      },
+      "fit_eligible": false
+    },
+    {
+      "index": 2,
+      "channel": 0,
+      "file": "Peavey-Extended/6505+ - GREEN - GAIN 6.nam",
+      "sha256": "af3b42aa7fcb00abe2eeda1f1bfaf349a94e5a8ab54667f1ecdbe220c6ef5888",
+      "state": {
+        "channel": 0,
+        "controls": {
+          "hw.rhythm.crunch": 1,
+          "hw.rhythm.pre_gain": 0.6
+        }
+      },
+      "qualification": "6534+ EL34 / 6505+ variant whole-head gain sweep, EQ noon, gain label/10. Different power-tube variant; secondary comparison, excluded from original-6505 coefficient fit. Digital -6 dB level is not absolute input dBu.",
+      "url": "https://www.tone3000.com/tones/peavey-6534-full-gain-captures-69891",
+      "model_url": "https://api.tone3000.com/storage/v1/object/public/models/ejggbsnz93b.nam",
+      "input_level_dbu": null,
+      "metadata": {
+        "date": {
+          "year": 2026,
+          "month": 6,
+          "day": 7,
+          "hour": 15,
+          "minute": 24,
+          "second": 19
+        },
+        "loudness": -11.740611869268369,
+        "gain": 0.7437416119005129,
+        "name": "6505+ - GREEN - GAIN 6",
+        "modeled_by": "deathblossomaudio",
+        "gear_type": "amp",
+        "gear_make": "PEAVEY 6505 PLUS",
+        "gear_model": "PEAVEY 6505 PLUS",
+        "tone_type": "peavey",
+        "trainer": "TONE3000"
+      },
+      "fit_eligible": false
+    },
+    {
+      "index": 2,
+      "channel": 0,
+      "file": "Peavey-Extended/6505+ - GREEN - GAIN 1.nam",
+      "sha256": "b12cdf24b35f81caa75d792979af76f642541dbab9c3a93d0fe8c571cf11b06f",
+      "state": {
+        "channel": 0,
+        "controls": {
+          "hw.rhythm.crunch": 1,
+          "hw.rhythm.pre_gain": 0.1
+        }
+      },
+      "qualification": "6534+ EL34 / 6505+ variant whole-head gain sweep, EQ noon, gain label/10. Different power-tube variant; secondary comparison, excluded from original-6505 coefficient fit. Digital -6 dB level is not absolute input dBu.",
+      "url": "https://www.tone3000.com/tones/peavey-6534-full-gain-captures-69891",
+      "model_url": "https://api.tone3000.com/storage/v1/object/public/models/odn5gso0r4.nam",
+      "input_level_dbu": null,
+      "metadata": {
+        "date": {
+          "year": 2026,
+          "month": 6,
+          "day": 7,
+          "hour": 14,
+          "minute": 53,
+          "second": 15
+        },
+        "loudness": -13.39320480220104,
+        "gain": 0.3185894683467239,
+        "name": "6505+ - GREEN - GAIN 1",
+        "modeled_by": "deathblossomaudio",
+        "gear_type": "amp",
+        "gear_make": "PEAVEY 6505 PLUS",
+        "gear_model": "PEAVEY 6505 PLUS",
+        "tone_type": "peavey",
+        "trainer": "TONE3000"
+      },
+      "fit_eligible": false
+    },
+    {
+      "index": 2,
+      "channel": 0,
+      "file": "Peavey-Extended/6505+ - GREEN - GAIN 4.nam",
+      "sha256": "967964f34603aa8046fba93dc574ced2fdfd90b6ca7a2a08a77aba42f811c5ec",
+      "state": {
+        "channel": 0,
+        "controls": {
+          "hw.rhythm.crunch": 1,
+          "hw.rhythm.pre_gain": 0.4
+        }
+      },
+      "qualification": "6534+ EL34 / 6505+ variant whole-head gain sweep, EQ noon, gain label/10. Different power-tube variant; secondary comparison, excluded from original-6505 coefficient fit. Digital -6 dB level is not absolute input dBu.",
+      "url": "https://www.tone3000.com/tones/peavey-6534-full-gain-captures-69891",
+      "model_url": "https://api.tone3000.com/storage/v1/object/public/models/xr7vqglqz4k.nam",
+      "input_level_dbu": null,
+      "metadata": {
+        "date": {
+          "year": 2026,
+          "month": 6,
+          "day": 7,
+          "hour": 14,
+          "minute": 56,
+          "second": 12
+        },
+        "loudness": -11.876659578206116,
+        "gain": 0.663926513413777,
+        "name": "6505+ - GREEN - GAIN 4",
+        "modeled_by": "deathblossomaudio",
+        "gear_type": "amp",
+        "gear_make": "PEAVEY 6505 PLUS",
+        "gear_model": "PEAVEY 6505 PLUS",
+        "tone_type": "peavey",
+        "trainer": "TONE3000"
+      },
+      "fit_eligible": false
+    },
+    {
+      "index": 2,
+      "channel": 1,
+      "file": "Peavey-Extended/6505+ - RED - GAIN 8.nam",
+      "sha256": "71d04f5782ae5944371c57fc0eb9b6a8438b1a1afa78bdf13749ae4c7576eb46",
+      "state": {
+        "channel": 1,
+        "controls": {
+          "hw.lead.pre_gain": 0.8
+        }
+      },
+      "qualification": "6534+ EL34 / 6505+ variant whole-head gain sweep, EQ noon, gain label/10. Different power-tube variant; secondary comparison, excluded from original-6505 coefficient fit. Digital -6 dB level is not absolute input dBu.",
+      "url": "https://www.tone3000.com/tones/peavey-6534-full-gain-captures-69891",
+      "model_url": "https://api.tone3000.com/storage/v1/object/public/models/uaamh6a1mua.nam",
+      "input_level_dbu": null,
+      "metadata": {
+        "date": {
+          "year": 2026,
+          "month": 6,
+          "day": 7,
+          "hour": 14,
+          "minute": 56,
+          "second": 0
+        },
+        "loudness": -12.041340743086277,
+        "gain": 0.8097955190564723,
+        "name": "6505+ - RED - GAIN 8",
+        "modeled_by": "deathblossomaudio",
+        "gear_type": "amp",
+        "gear_make": "PEAVEY 6505 PLUS",
+        "gear_model": "PEAVEY 6505 PLUS",
+        "tone_type": "peavey",
+        "trainer": "TONE3000"
+      },
+      "fit_eligible": false
+    },
+    {
+      "index": 2,
+      "channel": 0,
+      "file": "Peavey-Extended/6505+ - GREEN - GAIN 2.nam",
+      "sha256": "f3f0a04c84418019f04b8984c07463d4b04a3dad5ccb5c31ee7061cbe7af6588",
+      "state": {
+        "channel": 0,
+        "controls": {
+          "hw.rhythm.crunch": 1,
+          "hw.rhythm.pre_gain": 0.2
+        }
+      },
+      "qualification": "6534+ EL34 / 6505+ variant whole-head gain sweep, EQ noon, gain label/10. Different power-tube variant; secondary comparison, excluded from original-6505 coefficient fit. Digital -6 dB level is not absolute input dBu.",
+      "url": "https://www.tone3000.com/tones/peavey-6534-full-gain-captures-69891",
+      "model_url": "https://api.tone3000.com/storage/v1/object/public/models/oif70kyz0so.nam",
+      "input_level_dbu": null,
+      "metadata": {
+        "date": {
+          "year": 2026,
+          "month": 6,
+          "day": 7,
+          "hour": 14,
+          "minute": 55,
+          "second": 56
+        },
+        "loudness": -12.39004164442741,
+        "gain": 0.4818513932788684,
+        "name": "6505+ - GREEN - GAIN 2",
+        "modeled_by": "deathblossomaudio",
+        "gear_type": "amp",
+        "gear_make": "PEAVEY 6505 PLUS",
+        "gear_model": "PEAVEY 6505 PLUS",
+        "tone_type": "peavey",
+        "trainer": "TONE3000"
+      },
+      "fit_eligible": false
+    },
+    {
+      "index": 2,
+      "channel": 1,
+      "file": "Peavey-Extended/6505+ - RED - GAIN 1.nam",
+      "sha256": "e0e3f08c6810ee68d6f96e48fa5117ea32ef1024d5c808d20d09ae51a3414de5",
+      "state": {
+        "channel": 1,
+        "controls": {
+          "hw.lead.pre_gain": 0.1
+        }
+      },
+      "qualification": "6534+ EL34 / 6505+ variant whole-head gain sweep, EQ noon, gain label/10. Different power-tube variant; secondary comparison, excluded from original-6505 coefficient fit. Digital -6 dB level is not absolute input dBu.",
+      "url": "https://www.tone3000.com/tones/peavey-6534-full-gain-captures-69891",
+      "model_url": "https://api.tone3000.com/storage/v1/object/public/models/6y99uhdq2kg.nam",
+      "input_level_dbu": null,
+      "metadata": {
+        "date": {
+          "year": 2026,
+          "month": 6,
+          "day": 7,
+          "hour": 14,
+          "minute": 56,
+          "second": 17
+        },
+        "loudness": -11.493759686354178,
+        "gain": 0.7939910341132307,
+        "name": "6505+ - RED - GAIN 1",
+        "modeled_by": "deathblossomaudio",
+        "gear_type": "amp",
+        "gear_make": "PEAVEY 6505 PLUS",
+        "gear_model": "PEAVEY 6505 PLUS",
+        "tone_type": "peavey",
+        "trainer": "TONE3000"
+      },
+      "fit_eligible": false
+    },
+    {
+      "index": 2,
+      "channel": 0,
+      "file": "Peavey-Extended/6505+ - GREEN - GAIN 8.nam",
+      "sha256": "65de5b02e881b1f8a37c38b818ff895e6821be609ebc2181144c8738ac57679f",
+      "state": {
+        "channel": 0,
+        "controls": {
+          "hw.rhythm.crunch": 1,
+          "hw.rhythm.pre_gain": 0.8
+        }
+      },
+      "qualification": "6534+ EL34 / 6505+ variant whole-head gain sweep, EQ noon, gain label/10. Different power-tube variant; secondary comparison, excluded from original-6505 coefficient fit. Digital -6 dB level is not absolute input dBu.",
+      "url": "https://www.tone3000.com/tones/peavey-6534-full-gain-captures-69891",
+      "model_url": "https://api.tone3000.com/storage/v1/object/public/models/3hul24c0qma.nam",
+      "input_level_dbu": null,
+      "metadata": {
+        "date": {
+          "year": 2026,
+          "month": 6,
+          "day": 7,
+          "hour": 15,
+          "minute": 21,
+          "second": 51
+        },
+        "loudness": -11.797720866214906,
+        "gain": 0.7890858732927601,
+        "name": "6505+ - GREEN - GAIN 8",
+        "modeled_by": "deathblossomaudio",
+        "gear_type": "amp",
+        "gear_make": "PEAVEY 6505 PLUS",
+        "gear_model": "PEAVEY 6505 PLUS",
+        "tone_type": "peavey",
+        "trainer": "TONE3000"
+      },
+      "fit_eligible": false
+    },
+    {
+      "index": 2,
+      "channel": 1,
+      "file": "Peavey-Original-EVH/[AMP] PV6505-OG1992-Mes2x12-LEAD Mirroring - DI.nam",
+      "sha256": "ea4ee91c200116346dc024ccd82af6496109a79c138db643b807048380292db9",
+      "state": {
+        "channel": 1,
+        "controls": {
+          "hw.lead.pre_gain": 0.5
+        }
+      },
+      "qualification": "6505 1992 Original whole-head DI capture with named speaker load; no microphone/cab IR. Primary original-family fit. Numeric knob settings are not available in the page/NAM metadata; explicit nominal gain 0.5 used, not claimed to reproduce named settings.",
+      "url": "https://www.tone3000.com/tones/peavey-6505-1992-original-64607",
+      "model_url": "https://api.tone3000.com/storage/v1/object/public/models/jvbczrryh2r.nam",
+      "input_level_dbu": 18.995,
+      "metadata": {
+        "date": {
+          "year": 2026,
+          "month": 6,
+          "day": 10,
+          "hour": 12,
+          "minute": 37,
+          "second": 18
+        },
+        "loudness": -15.704865354733037,
+        "gain": 0.7643956235519181,
+        "name": "[AMP] PV6505-OG1992-Mes2x12-LEAD Mirroring - DI",
+        "modeled_by": "2dor",
+        "gear_type": "amp",
+        "gear_make": "Peavey 5150",
+        "gear_model": "Peavey 5150",
+        "tone_type": "crunch",
+        "trainer": "TONE3000",
+        "input_level_dbu": 18.995,
+        "output_level_dbu": 13.195
+      },
+      "fit_eligible": true
+    },
+    {
+      "index": 2,
+      "channel": 1,
+      "file": "Peavey-Original-EVH/[AMP] PV6505-OG1992-Mes4x12-LEAD Pink Gator - DI.nam",
+      "sha256": "7b81e765f5e096e6b49d90a6b677a2692873e61f969b1335e58c93d2d12e3a78",
+      "state": {
+        "channel": 1,
+        "controls": {
+          "hw.lead.pre_gain": 0.5
+        }
+      },
+      "qualification": "6505 1992 Original whole-head DI capture with named speaker load; no microphone/cab IR. Primary original-family fit. Numeric knob settings are not available in the page/NAM metadata; explicit nominal gain 0.5 used, not claimed to reproduce named settings.",
+      "url": "https://www.tone3000.com/tones/peavey-6505-1992-original-64607",
+      "model_url": "https://api.tone3000.com/storage/v1/object/public/models/3mx5hgeks3o.nam",
+      "input_level_dbu": 18.995,
+      "metadata": {
+        "date": {
+          "year": 2026,
+          "month": 6,
+          "day": 10,
+          "hour": 12,
+          "minute": 9,
+          "second": 7
+        },
+        "loudness": -15.465493870094313,
+        "gain": 0.8617533562845304,
+        "name": "[AMP] PV6505-OG1992-Mes4x12-LEAD Pink Gator - DI",
+        "modeled_by": "2dor",
+        "gear_type": "amp",
+        "gear_make": "Peavey 5150",
+        "gear_model": "Peavey 5150",
+        "tone_type": "crunch",
+        "trainer": "TONE3000",
+        "input_level_dbu": 18.995,
+        "output_level_dbu": 13.195
+      },
+      "fit_eligible": true
+    },
+    {
+      "index": 2,
+      "channel": 1,
+      "file": "Peavey-Original-EVH/[AMP] PV6505-OG1992-Mar4x12-LEAD Sneap - DI.nam",
+      "sha256": "077fa1047db3c52086b19721773c73177004c383a43cea64bea496c460f6e04d",
+      "state": {
+        "channel": 1,
+        "controls": {
+          "hw.lead.pre_gain": 0.5
+        }
+      },
+      "qualification": "6505 1992 Original whole-head DI capture with named speaker load; no microphone/cab IR. Primary original-family fit. Numeric knob settings are not available in the page/NAM metadata; explicit nominal gain 0.5 used, not claimed to reproduce named settings.",
+      "url": "https://www.tone3000.com/tones/peavey-6505-1992-original-64607",
+      "model_url": "https://api.tone3000.com/storage/v1/object/public/models/b4xsuyd59vm.nam",
+      "input_level_dbu": 18.995,
+      "metadata": {
+        "date": {
+          "year": 2026,
+          "month": 6,
+          "day": 10,
+          "hour": 12,
+          "minute": 14,
+          "second": 55
+        },
+        "loudness": -15.381265812965118,
+        "gain": 0.6760475381388951,
+        "name": "[AMP] PV6505-OG1992-Mar4x12-LEAD Sneap - DI",
+        "modeled_by": "2dor",
+        "gear_type": "amp",
+        "gear_make": "Peavey 5150",
+        "gear_model": "Peavey 5150",
+        "tone_type": "crunch",
+        "trainer": "TONE3000",
+        "input_level_dbu": 18.995,
+        "output_level_dbu": 13.195
+      },
+      "fit_eligible": true
+    },
+    {
+      "index": 2,
+      "channel": 1,
+      "file": "Peavey-Original-EVH/[AMP] PV6505-OG1992-Mar4x12-LEAD Eddie settings #05 - DI.nam",
+      "sha256": "6394c5f1e23bdbd79175433cac7404184bdb37872365699fb72eed8b6f872b29",
+      "state": {
+        "channel": 1,
+        "controls": {
+          "hw.lead.pre_gain": 0.5
+        }
+      },
+      "qualification": "6505 1992 Original whole-head DI capture with named speaker load; no microphone/cab IR. Primary original-family fit. Numeric knob settings are not available in the page/NAM metadata; explicit nominal gain 0.5 used, not claimed to reproduce named settings.",
+      "url": "https://www.tone3000.com/tones/peavey-6505-1992-original-64607",
+      "model_url": "https://api.tone3000.com/storage/v1/object/public/models/zytg3mocuyq.nam",
+      "input_level_dbu": 18.995,
+      "metadata": {
+        "date": {
+          "year": 2026,
+          "month": 6,
+          "day": 10,
+          "hour": 12,
+          "minute": 21,
+          "second": 5
+        },
+        "loudness": -13.872594585343489,
+        "gain": 0.7815380062975877,
+        "name": "[AMP] PV6505-OG1992-Mar4x12-LEAD Eddie settings #05 - DI",
+        "modeled_by": "2dor",
+        "gear_type": "amp",
+        "gear_make": "Peavey 5150",
+        "gear_model": "Peavey 5150",
+        "tone_type": "crunch",
+        "trainer": "TONE3000",
+        "input_level_dbu": 18.995,
+        "output_level_dbu": 13.195
+      },
+      "fit_eligible": true
+    },
+    {
+      "index": 2,
+      "channel": 1,
+      "file": "Peavey-Original-EVH/[AMP] PV6505-OG1992-Mes2x12-LEAD Legend - DI.nam",
+      "sha256": "eefc9e9a92c0ca32b7ace2ad2a65b03934a7680aca16e3fa5e8065a9343c15f3",
+      "state": {
+        "channel": 1,
+        "controls": {
+          "hw.lead.pre_gain": 0.5
+        }
+      },
+      "qualification": "6505 1992 Original whole-head DI capture with named speaker load; no microphone/cab IR. Primary original-family fit. Numeric knob settings are not available in the page/NAM metadata; explicit nominal gain 0.5 used, not claimed to reproduce named settings.",
+      "url": "https://www.tone3000.com/tones/peavey-6505-1992-original-64607",
+      "model_url": "https://api.tone3000.com/storage/v1/object/public/models/m3fbvwqogva.nam",
+      "input_level_dbu": 18.995,
+      "metadata": {
+        "date": {
+          "year": 2026,
+          "month": 6,
+          "day": 10,
+          "hour": 12,
+          "minute": 30,
+          "second": 52
+        },
+        "loudness": -12.720306137633504,
+        "gain": 0.6493622686002221,
+        "name": "[AMP] PV6505-OG1992-Mes2x12-LEAD Legend - DI",
+        "modeled_by": "2dor",
+        "gear_type": "amp",
+        "gear_make": "Peavey 5150",
+        "gear_model": "Peavey 5150",
+        "tone_type": "crunch",
+        "trainer": "TONE3000",
+        "input_level_dbu": 18.995,
+        "output_level_dbu": 13.195
+      },
+      "fit_eligible": true
+    },
+    {
+      "index": 2,
+      "channel": 1,
+      "file": "Peavey-Original-EVH/[AMP] PV6505-OG1992-Mes4x12-LEAD Ending Heartbrake - DI.nam",
+      "sha256": "e80e2017b11de8b78464f40462ed3d2ea60b63a855c782ee004d0afba1f22b5a",
+      "state": {
+        "channel": 1,
+        "controls": {
+          "hw.lead.pre_gain": 0.5
+        }
+      },
+      "qualification": "6505 1992 Original whole-head DI capture with named speaker load; no microphone/cab IR. Primary original-family fit. Numeric knob settings are not available in the page/NAM metadata; explicit nominal gain 0.5 used, not claimed to reproduce named settings.",
+      "url": "https://www.tone3000.com/tones/peavey-6505-1992-original-64607",
+      "model_url": "https://api.tone3000.com/storage/v1/object/public/models/ci5n89o2lzb.nam",
+      "input_level_dbu": 18.995,
+      "metadata": {
+        "date": {
+          "year": 2026,
+          "month": 6,
+          "day": 10,
+          "hour": 12,
+          "minute": 18,
+          "second": 16
+        },
+        "loudness": -13.498945793720768,
+        "gain": 0.7554137289876183,
+        "name": "[AMP] PV6505-OG1992-Mes4x12-LEAD Ending Heartbrake - DI",
+        "modeled_by": "2dor",
+        "gear_type": "amp",
+        "gear_make": "Peavey 5150",
+        "gear_model": "Peavey 5150",
+        "tone_type": "crunch",
+        "trainer": "TONE3000",
+        "input_level_dbu": 18.995,
+        "output_level_dbu": 13.195
+      },
+      "fit_eligible": true
+    },
+    {
+      "index": 2,
+      "channel": 0,
+      "file": "Peavey-Original-EVH/[PRE] PV6505-OG1992-RHYT Wishful Dreamin.nam",
+      "sha256": "a854ee83219dad857324e372355704c8d0bec8b1aabce2836553f75e71a5d9eb",
+      "state": {
+        "channel": 0,
+        "controls": {
+          "hw.rhythm.pre_gain": 0.5
+        }
+      },
+      "qualification": "6505 1992 Original rhythm preamp-only; secondary comparison, excluded from whole-head fit. Numeric knob settings are not available in the page/NAM metadata; explicit nominal gain 0.5 used, not claimed to reproduce named settings.",
+      "url": "https://www.tone3000.com/tones/peavey-6505-1992-original-64607",
+      "model_url": "https://api.tone3000.com/storage/v1/object/public/models/033eb9xx9fk7.nam",
+      "input_level_dbu": 18.995,
+      "metadata": {
+        "date": {
+          "year": 2026,
+          "month": 6,
+          "day": 10,
+          "hour": 12,
+          "minute": 19,
+          "second": 23
+        },
+        "loudness": -36.42618722891573,
+        "gain": 0.8463038458751028,
+        "name": "[PRE] PV6505-OG1992-RHYT Wishful Dreamin",
+        "modeled_by": "2dor",
+        "gear_type": "amp",
+        "gear_make": "Peavey 5150",
+        "gear_model": "Peavey 5150",
+        "tone_type": "crunch",
+        "trainer": "TONE3000",
+        "input_level_dbu": 18.995,
+        "output_level_dbu": 13.195
+      },
+      "fit_eligible": false
+    },
+    {
+      "index": 2,
+      "channel": 1,
+      "file": "Peavey-Original-EVH/APP-EVH-Stealth100-Dialled.nam",
+      "sha256": "c7e78646e8b2a7d6e447518fd8e2208e13196dd8ac131544560107a9490cfd8b",
+      "state": {
+        "channel": 1,
+        "controls": {
+          "hw.lead.pre_gain": 0.5
+        }
+      },
+      "qualification": "EVH 5150III Stealth 100W RED channel; separate amplifier generation, secondary comparison only. Dialled settings unspecified; explicit nominal gain 0.5, not claimed capture setting.",
+      "url": "https://www.tone3000.com/tones/app-evh-5150iii-stealth-100w-28245",
+      "model_url": "https://api.tone3000.com/storage/v1/object/public/models/q6obvmdwaqd_a2.nam",
+      "input_level_dbu": 13,
+      "metadata": {
+        "date": {
+          "year": 2026,
+          "month": 5,
+          "day": 7,
+          "hour": 18,
+          "minute": 25,
+          "second": 20
+        },
+        "loudness": -13.650713920593262,
+        "gain": 0.8592355820299712,
+        "input_level_dbu": 13,
+        "name": "APP-EVH-Stealth100-Dialled",
+        "modeled_by": "ampspedalspickups",
+        "training": {
+          "data": {
+            "checks": {
+              "passed": true,
+              "version": 3
+            },
+            "latency": {
+              "manual": null,
+              "calibration": {
+                "delays": [
+                  -8
+                ],
+                "warnings": {
+                  "matches_lookahead": false,
+                  "disagreement_too_high": false
+                },
+                "recommended": -9,
+                "safety_factor": 1,
+                "algorithm_version": 1
+              }
+            }
+          },
+          "settings": {
+            "ignore_checks": false
+          },
+          "validation_esr": 0.02238737710422734
+        },
+        "gear_make": "EVH 5150 III Stealth 100W",
+        "gear_model": "EVH 5150 III Stealth 100W",
+        "tone_type": "modern metal",
+        "gear_type": "amp"
+      },
+      "fit_eligible": false
+    },
+    {
+      "index": 2,
+      "channel": 1,
+      "file": "Peavey-Original-EVH/APP-EVH-Stealth100-Noon.nam",
+      "sha256": "e8c2e90a9b416178df91c5542f01580fa11457a3d13589149ee537f1b6af43bd",
+      "state": {
+        "channel": 1,
+        "controls": {
+          "hw.lead.pre_gain": 0.5
+        }
+      },
+      "qualification": "EVH 5150III Stealth 100W RED channel; separate amplifier generation, secondary comparison only. Noon settings per author.",
+      "url": "https://www.tone3000.com/tones/app-evh-5150iii-stealth-100w-28245",
+      "model_url": "https://api.tone3000.com/storage/v1/object/public/models/frnquew4c2s_a2.nam",
+      "input_level_dbu": 13,
+      "metadata": {
+        "date": {
+          "year": 2026,
+          "month": 5,
+          "day": 7,
+          "hour": 18,
+          "minute": 25,
+          "second": 26
+        },
+        "loudness": -13.642837524414062,
+        "gain": 0.8355651258971066,
+        "input_level_dbu": 13,
+        "name": "APP-EVH-Stealth-100",
+        "modeled_by": "ampspedalspickups",
+        "training": {
+          "data": {
+            "checks": {
+              "passed": true,
+              "version": 3
+            },
+            "latency": {
+              "manual": null,
+              "calibration": {
+                "delays": [
+                  -8
+                ],
+                "warnings": {
+                  "matches_lookahead": false,
+                  "disagreement_too_high": false
+                },
+                "recommended": -9,
+                "safety_factor": 1,
+                "algorithm_version": 1
+              }
+            }
+          },
+          "settings": {
+            "ignore_checks": false
+          },
+          "validation_esr": 0.0202804413525359
+        },
+        "gear_make": "EVH 5150 III Stealth 100W",
+        "gear_model": "EVH 5150 III Stealth 100W",
+        "tone_type": "modern metal",
+        "gear_type": "amp"
+      },
+      "fit_eligible": false
+    },
+    {
+      "index": 17,
+      "channel": 3,
+      "file": "VH4-Extended/Diezel CH 4 Rhythm 2.nam",
+      "sha256": "1d15a8654d96e402268f5c756027cff4fdf165d86942e32570ceb979887a30dd",
+      "state": {
+        "channel": 3,
+        "controls": {
+          "hw.ch4.gain": 0.5
+        }
+      },
+      "qualification": "VH4 preamp-only; secondary full-native comparison, excluded from whole-head coefficient fit. Numeric knob settings unspecified; explicit nominal channel gain 0.5. Numbered capture names are not gain-knob positions.",
+      "url": "https://www.tone3000.com/tones/diezel-vh4-53749",
+      "model_url": "https://api.tone3000.com/storage/v1/object/public/models/lhi9vu1a1y_a2.nam",
+      "input_level_dbu": null,
+      "metadata": {
+        "date": {
+          "year": 2026,
+          "month": 5,
+          "day": 7,
+          "hour": 15,
+          "minute": 15,
+          "second": 41
+        },
+        "loudness": -17.39015769958496,
+        "gain": 0.8286449703561531,
+        "name": "Diezel CH 4 Rhythm 2",
+        "modeled_by": "deathblossomaudio",
+        "training": {
+          "data": {
+            "checks": {
+              "passed": true,
+              "version": 3
+            },
+            "latency": {
+              "manual": null,
+              "calibration": {
+                "delays": [
+                  5
+                ],
+                "warnings": {
+                  "matches_lookahead": false,
+                  "disagreement_too_high": false
+                },
+                "recommended": 4,
+                "safety_factor": 1,
+                "algorithm_version": 1
+              }
+            }
+          },
+          "settings": {
+            "ignore_checks": false
+          },
+          "validation_esr": 0.006247178814855342
+        },
+        "gear_make": "Diezel VH4 EL34",
+        "gear_model": "Diezel VH4 EL34",
+        "tone_type": "diezel",
+        "gear_type": "amp"
+      },
+      "fit_eligible": false
+    },
+    {
+      "index": 17,
+      "channel": 3,
+      "file": "VH4-Extended/Diezel CH 4 Rhythm 1.nam",
+      "sha256": "6d849cba0d6ae136fc374852eb6e8de54f49ecb72a9fed465d7036b6fc6fc130",
+      "state": {
+        "channel": 3,
+        "controls": {
+          "hw.ch4.gain": 0.5
+        }
+      },
+      "qualification": "VH4 preamp-only; secondary full-native comparison, excluded from whole-head coefficient fit. Numeric knob settings unspecified; explicit nominal channel gain 0.5. Numbered capture names are not gain-knob positions.",
+      "url": "https://www.tone3000.com/tones/diezel-vh4-53749",
+      "model_url": "https://api.tone3000.com/storage/v1/object/public/models/wamdgc648a_a2.nam",
+      "input_level_dbu": null,
+      "metadata": {
+        "date": {
+          "year": 2026,
+          "month": 5,
+          "day": 7,
+          "hour": 15,
+          "minute": 15,
+          "second": 54
+        },
+        "loudness": -17.623384475708008,
+        "gain": 0.8787518599066472,
+        "name": "Diezel CH 4 Rhythm 1",
+        "modeled_by": "deathblossomaudio",
+        "training": {
+          "data": {
+            "checks": {
+              "passed": true,
+              "version": 3
+            },
+            "latency": {
+              "manual": null,
+              "calibration": {
+                "delays": [
+                  5
+                ],
+                "warnings": {
+                  "matches_lookahead": false,
+                  "disagreement_too_high": false
+                },
+                "recommended": 4,
+                "safety_factor": 1,
+                "algorithm_version": 1
+              }
+            }
+          },
+          "settings": {
+            "ignore_checks": false
+          },
+          "validation_esr": 0.0036414894669979827
+        },
+        "gear_make": "Diezel VH4 EL34",
+        "gear_model": "Diezel VH4 EL34",
+        "tone_type": "diezel",
+        "gear_type": "amp"
+      },
+      "fit_eligible": false
+    },
+    {
+      "index": 17,
+      "channel": 1,
+      "file": "VH4-Extended/Diezel CH 2 Crunch 3.nam",
+      "sha256": "863a7a07b761d678b3216fc8c62cf7b634c1977b5c544b650ae8060797629eef",
+      "state": {
+        "channel": 1,
+        "controls": {
+          "hw.ch2.gain": 0.5
+        }
+      },
+      "qualification": "VH4 preamp-only; secondary full-native comparison, excluded from whole-head coefficient fit. Numeric knob settings unspecified; explicit nominal channel gain 0.5. Numbered capture names are not gain-knob positions.",
+      "url": "https://www.tone3000.com/tones/diezel-vh4-53749",
+      "model_url": "https://api.tone3000.com/storage/v1/object/public/models/iv35ogjvtm_a2.nam",
+      "input_level_dbu": null,
+      "metadata": {
+        "date": {
+          "year": 2026,
+          "month": 5,
+          "day": 7,
+          "hour": 15,
+          "minute": 15,
+          "second": 47
+        },
+        "loudness": -17.048999786376953,
+        "gain": 0.8091786595768796,
+        "name": "Diezel CH 2 Crunch 3",
+        "modeled_by": "deathblossomaudio",
+        "training": {
+          "data": {
+            "checks": {
+              "passed": true,
+              "version": 3
+            },
+            "latency": {
+              "manual": null,
+              "calibration": {
+                "delays": [
+                  3
+                ],
+                "warnings": {
+                  "matches_lookahead": false,
+                  "disagreement_too_high": false
+                },
+                "recommended": 2,
+                "safety_factor": 1,
+                "algorithm_version": 1
+              }
+            }
+          },
+          "settings": {
+            "ignore_checks": false
+          },
+          "validation_esr": 0.005908421122808329
+        },
+        "gear_make": "Diezel VH4 EL34",
+        "gear_model": "Diezel VH4 EL34",
+        "tone_type": "diezel",
+        "gear_type": "amp"
+      },
+      "fit_eligible": false
+    },
+    {
+      "index": 17,
+      "channel": 1,
+      "file": "VH4-Extended/Diezel CH 2 Crunch 2.nam",
+      "sha256": "0206d086f88e189378b378debe307db6aa29eb906bceb90b400a2b3e95459cf3",
+      "state": {
+        "channel": 1,
+        "controls": {
+          "hw.ch2.gain": 0.5
+        }
+      },
+      "qualification": "VH4 preamp-only; secondary full-native comparison, excluded from whole-head coefficient fit. Numeric knob settings unspecified; explicit nominal channel gain 0.5. Numbered capture names are not gain-knob positions.",
+      "url": "https://www.tone3000.com/tones/diezel-vh4-53749",
+      "model_url": "https://api.tone3000.com/storage/v1/object/public/models/vlmn6rispje_a2.nam",
+      "input_level_dbu": null,
+      "metadata": {
+        "date": {
+          "year": 2026,
+          "month": 5,
+          "day": 7,
+          "hour": 15,
+          "minute": 15,
+          "second": 45
+        },
+        "loudness": -17.182016372680664,
+        "gain": 0.8671026022651019,
+        "name": "Diezel CH 2 Crunch 2",
+        "modeled_by": "deathblossomaudio",
+        "training": {
+          "data": {
+            "checks": {
+              "passed": true,
+              "version": 3
+            },
+            "latency": {
+              "manual": null,
+              "calibration": {
+                "delays": [
+                  -3
+                ],
+                "warnings": {
+                  "matches_lookahead": false,
+                  "disagreement_too_high": false
+                },
+                "recommended": -4,
+                "safety_factor": 1,
+                "algorithm_version": 1
+              }
+            }
+          },
+          "settings": {
+            "ignore_checks": false
+          },
+          "validation_esr": 0.003050125811926626
+        },
+        "gear_make": "Diezel VH4 EL34",
+        "gear_model": "Diezel VH4 EL34",
+        "tone_type": "diezel",
+        "gear_type": "amp"
+      },
+      "fit_eligible": false
+    },
+    {
+      "index": 17,
+      "channel": 1,
+      "file": "VH4-Extended/Diezel CH 2 Crunch 1.nam",
+      "sha256": "8ac08dc72fc1b1b156c98a4e14c965dfde9528fd3e5eb4b6d5eb68f00d011eb9",
+      "state": {
+        "channel": 1,
+        "controls": {
+          "hw.ch2.gain": 0.5
+        }
+      },
+      "qualification": "VH4 preamp-only; secondary full-native comparison, excluded from whole-head coefficient fit. Numeric knob settings unspecified; explicit nominal channel gain 0.5. Numbered capture names are not gain-knob positions.",
+      "url": "https://www.tone3000.com/tones/diezel-vh4-53749",
+      "model_url": "https://api.tone3000.com/storage/v1/object/public/models/6gl5ux8ib66_a2.nam",
+      "input_level_dbu": null,
+      "metadata": {
+        "date": {
+          "year": 2026,
+          "month": 5,
+          "day": 7,
+          "hour": 15,
+          "minute": 15,
+          "second": 51
+        },
+        "loudness": -17.005765914916992,
+        "gain": 0.825418778191045,
+        "name": "Diezel CH 2 Crunch 1",
+        "modeled_by": "deathblossomaudio",
+        "training": {
+          "data": {
+            "checks": {
+              "passed": true,
+              "version": 3
+            },
+            "latency": {
+              "manual": null,
+              "calibration": {
+                "delays": [
+                  -3
+                ],
+                "warnings": {
+                  "matches_lookahead": false,
+                  "disagreement_too_high": false
+                },
+                "recommended": -4,
+                "safety_factor": 1,
+                "algorithm_version": 1
+              }
+            }
+          },
+          "settings": {
+            "ignore_checks": false
+          },
+          "validation_esr": 0.0021567109484413086
+        },
+        "gear_make": "Diezel VH4 EL34",
+        "gear_model": "Diezel VH4 EL34",
+        "tone_type": "diezel",
+        "gear_type": "amp"
+      },
+      "fit_eligible": false
+    },
+    {
+      "index": 17,
+      "channel": 3,
+      "file": "VH4-Extended/Diezel CH 4 Rhythm 3.nam",
+      "sha256": "df3f630a2e65ac6c0d6b3c9f62e3022a482fb9f1ea12a3619964319fe648077f",
+      "state": {
+        "channel": 3,
+        "controls": {
+          "hw.ch4.gain": 0.5
+        }
+      },
+      "qualification": "VH4 preamp-only; secondary full-native comparison, excluded from whole-head coefficient fit. Numeric knob settings unspecified; explicit nominal channel gain 0.5. Numbered capture names are not gain-knob positions.",
+      "url": "https://www.tone3000.com/tones/diezel-vh4-53749",
+      "model_url": "https://api.tone3000.com/storage/v1/object/public/models/14awfttv2wfl_a2.nam",
+      "input_level_dbu": null,
+      "metadata": {
+        "date": {
+          "year": 2026,
+          "month": 5,
+          "day": 7,
+          "hour": 15,
+          "minute": 16,
+          "second": 4
+        },
+        "loudness": -16.827762603759766,
+        "gain": 0.7572155919986933,
+        "name": "Diezel CH 4 Rhythm 3",
+        "modeled_by": "deathblossomaudio",
+        "training": {
+          "data": {
+            "checks": {
+              "passed": true,
+              "version": 3
+            },
+            "latency": {
+              "manual": null,
+              "calibration": {
+                "delays": [
+                  5
+                ],
+                "warnings": {
+                  "matches_lookahead": false,
+                  "disagreement_too_high": false
+                },
+                "recommended": 4,
+                "safety_factor": 1,
+                "algorithm_version": 1
+              }
+            }
+          },
+          "settings": {
+            "ignore_checks": false
+          },
+          "validation_esr": 0.015238835865888268
+        },
+        "gear_make": "Diezel VH4 EL34",
+        "gear_model": "Diezel VH4 EL34",
+        "tone_type": "diezel",
+        "gear_type": "amp"
+      },
+      "fit_eligible": false
+    },
+    {
+      "index": 17,
+      "channel": 3,
+      "file": "VH4-Extended/[PRE] DiZLVH4-CH4 Beyond All.nam",
+      "sha256": "a58f364d6eea68202eba177f6932f8446137947a5ac438abd4f8e42de1037cba",
+      "state": {
+        "channel": 3,
+        "controls": {
+          "hw.ch4.gain": 0.5
+        }
+      },
+      "qualification": "VH4 preamp-only; secondary full-native comparison, excluded from whole-head coefficient fit. Numeric knob settings unspecified; explicit nominal channel gain 0.5. Numbered capture names are not gain-knob positions.",
+      "url": "https://www.tone3000.com/tones/diezel-vh4-64455",
+      "model_url": "https://api.tone3000.com/storage/v1/object/public/models/m6ik33xftc.nam",
+      "input_level_dbu": 18.995,
+      "metadata": {
+        "date": {
+          "year": 2026,
+          "month": 6,
+          "day": 10,
+          "hour": 1,
+          "minute": 54,
+          "second": 25
+        },
+        "loudness": -24.790412829906167,
+        "gain": 0.8563995291703352,
+        "name": "[PRE] DiZLVH4-CH4 Beyond All",
+        "modeled_by": "2dor",
+        "gear_type": "amp",
+        "gear_make": "Diezel VH4",
+        "gear_model": "Diezel VH4",
+        "tone_type": "clean to mean",
+        "trainer": "TONE3000",
+        "input_level_dbu": 18.995,
+        "output_level_dbu": 13.195
+      },
+      "fit_eligible": false
+    },
+    {
+      "index": 17,
+      "channel": 2,
+      "file": "VH4-Extended/[PRE] DiZLVH4-CH3 Tell Me.nam",
+      "sha256": "4881860b867a8f7ed32e5be2bcbc9e3a71708b1a91f80303f6ee268363c53277",
+      "state": {
+        "channel": 2,
+        "controls": {
+          "hw.ch3.gain": 0.5
+        }
+      },
+      "qualification": "VH4 preamp-only; secondary full-native comparison, excluded from whole-head coefficient fit. Numeric knob settings unspecified; explicit nominal channel gain 0.5. Numbered capture names are not gain-knob positions.",
+      "url": "https://www.tone3000.com/tones/diezel-vh4-64455",
+      "model_url": "https://api.tone3000.com/storage/v1/object/public/models/n7qev7pvoz.nam",
+      "input_level_dbu": 18.995,
+      "metadata": {
+        "date": {
+          "year": 2026,
+          "month": 6,
+          "day": 10,
+          "hour": 1,
+          "minute": 44,
+          "second": 26
+        },
+        "loudness": -28.735466447345992,
+        "gain": 0.9529713527410436,
+        "name": "[PRE] DiZLVH4-CH3 Tell Me",
+        "modeled_by": "2dor",
+        "gear_type": "amp",
+        "gear_make": "Diezel VH4",
+        "gear_model": "Diezel VH4",
+        "tone_type": "clean to mean",
+        "trainer": "TONE3000",
+        "input_level_dbu": 18.995,
+        "output_level_dbu": 13.195
+      },
+      "fit_eligible": false
+    },
+    {
+      "index": 17,
+      "channel": 1,
+      "file": "VH4-Extended/[PRE] DiZLVH4-CH2 Rich Cannibal.nam",
+      "sha256": "c667ce1ef874adc0c0db44b53b86ec449312c31ec45d0968a4bed85e144f981f",
+      "state": {
+        "channel": 1,
+        "controls": {
+          "hw.ch2.gain": 0.5
+        }
+      },
+      "qualification": "VH4 preamp-only; secondary full-native comparison, excluded from whole-head coefficient fit. Numeric knob settings unspecified; explicit nominal channel gain 0.5. Numbered capture names are not gain-knob positions.",
+      "url": "https://www.tone3000.com/tones/diezel-vh4-64455",
+      "model_url": "https://api.tone3000.com/storage/v1/object/public/models/39zjuwr1zrl.nam",
+      "input_level_dbu": 18.995,
+      "metadata": {
+        "date": {
+          "year": 2026,
+          "month": 6,
+          "day": 10,
+          "hour": 2,
+          "minute": 22,
+          "second": 19
+        },
+        "loudness": -27.7082475906765,
+        "gain": 1,
+        "name": "[PRE] DiZLVH4-CH2 Rich Cannibal",
+        "modeled_by": "2dor",
+        "gear_type": "amp",
+        "gear_make": "Diezel VH4",
+        "gear_model": "Diezel VH4",
+        "tone_type": "clean to mean",
+        "trainer": "TONE3000",
+        "input_level_dbu": 18.995,
+        "output_level_dbu": 13.195
+      },
+      "fit_eligible": false
     }
   ],
   "unavailable": [
     {
       "index": 14,
       "reason": "No exact EICH T900 NAM obtained."
-    },
-    {
-      "index": 18,
-      "reason": "Located captures are modified SVT-CL, preamp-only or include cabinet; no stock full-head reference obtained."
-    },
-    {
-      "index": 23,
-      "reason": "No exact E670FE NAM obtained; Ironball is not a substitute."
     }
   ],
   "excluded": [
     {
       "index": 16,
       "reason": "Discarded model; explicitly excluded by user."
+    }
+  ],
+  "excluded_sources": [
+    {
+      "file": "AmpegSVT - B7K.nam",
+      "url": "https://www.tone3000.com/tones/ampeg-svt-cl-gain-stages-84925",
+      "reason": "Additional pedal/composite chain, not isolated SVT-CL."
+    },
+    {
+      "file": "SVT SANS BRIGHT DRIVE.nam",
+      "url": "https://www.tone3000.com/tones/ampeg-svt-cl-bass-head-45809",
+      "reason": "Additional pedal/composite chain, not isolated SVT-CL."
+    },
+    {
+      "file": "SVT DARKGLASS SHREDED .nam",
+      "url": "https://www.tone3000.com/tones/ampeg-svt-cl-bass-head-45809",
+      "reason": "Additional pedal/composite chain, not isolated SVT-CL."
+    },
+    {
+      "file": "SVT SANS ROCK DRIVE.nam",
+      "url": "https://www.tone3000.com/tones/ampeg-svt-cl-bass-head-45809",
+      "reason": "Additional pedal/composite chain, not isolated SVT-CL."
+    },
+    {
+      "file": "SVT SANS SUBDRIVE.nam",
+      "url": "https://www.tone3000.com/tones/ampeg-svt-cl-bass-head-45809",
+      "reason": "Additional pedal/composite chain, not isolated SVT-CL."
+    },
+    {
+      "file": "SVT SANS HAIRY DRIVE.nam",
+      "url": "https://www.tone3000.com/tones/ampeg-svt-cl-bass-head-45809",
+      "reason": "Additional pedal/composite chain, not isolated SVT-CL."
+    },
+    {
+      "file": "SVT SANS HYPE MY D.I.nam",
+      "url": "https://www.tone3000.com/tones/ampeg-svt-cl-bass-head-45809",
+      "reason": "Additional pedal/composite chain, not isolated SVT-CL."
+    },
+    {
+      "file": "SVT DARKGLASS SHRED MY D.I.nam",
+      "url": "https://www.tone3000.com/tones/ampeg-svt-cl-bass-head-45809",
+      "reason": "Additional pedal/composite chain, not isolated SVT-CL."
+    },
+    {
+      "file": "VA Merciless Drive L4",
+      "url": "https://www.tone3000.com/tones/engl-e670fe-special-edition-65128",
+      "reason": "Standalone pedal, not an amp."
+    },
+    {
+      "file": "Model T - Power Amp Only, Presence on 7.nam",
+      "url": "https://www.tone3000.com/tones/1998-sunn-model-t-reissue-13705",
+      "reason": "Power amp only; not a whole-head reference."
+    },
+    {
+      "file": "Peavey-Extended/5150BL R GAIN #4 + OD808.nam",
+      "url": "https://www.tone3000.com/tones/5150-block-letter-44664",
+      "reason": "Pedal/boosted/processed composite or power-only capture; not isolated whole amp comparison."
+    },
+    {
+      "file": "Peavey-Extended/6505+ - RED - MIX READY (FULL PROCESSING).nam",
+      "url": "https://www.tone3000.com/tones/peavey-6534-full-gain-captures-69891",
+      "reason": "Pedal/boosted/processed composite or power-only capture; not isolated whole amp comparison."
+    },
+    {
+      "file": "Peavey-Extended/6505+ - RED - MIX READY TS808 (FULL PROCESSING).nam",
+      "url": "https://www.tone3000.com/tones/peavey-6534-full-gain-captures-69891",
+      "reason": "Pedal/boosted/processed composite or power-only capture; not isolated whole amp comparison."
+    },
+    {
+      "file": "Peavey-Extended/IBANEZ TS808.nam",
+      "url": "https://www.tone3000.com/tones/peavey-6534-full-gain-captures-69891",
+      "reason": "Pedal/boosted/processed composite or power-only capture; not isolated whole amp comparison."
+    },
+    {
+      "file": "Peavey-Extended/6505+ - RED -  TS808 GAIN 6.nam",
+      "url": "https://www.tone3000.com/tones/peavey-6534-full-gain-captures-69891",
+      "reason": "Pedal/boosted/processed composite or power-only capture; not isolated whole amp comparison."
+    },
+    {
+      "file": "Peavey-Original-EVH/[POW] PV6505-OG1992-Mes2x12 Reso@7 Pres@7 - DI.nam",
+      "url": "https://www.tone3000.com/tones/peavey-6505-1992-original-64607",
+      "reason": "Pedal/boosted/processed composite or power-only capture; not isolated whole amp comparison."
+    },
+    {
+      "file": "Peavey-Original-EVH/[POW] PV6505-OG1992-Mar4x12 Reso@7 Pres@7 - DI.nam",
+      "url": "https://www.tone3000.com/tones/peavey-6505-1992-original-64607",
+      "reason": "Pedal/boosted/processed composite or power-only capture; not isolated whole amp comparison."
+    },
+    {
+      "file": "Peavey-Original-EVH/[POW] PV6505-OG1992-Mes4x12 Reso@7 Pres@7 - DI.nam",
+      "url": "https://www.tone3000.com/tones/peavey-6505-1992-original-64607",
+      "reason": "Pedal/boosted/processed composite or power-only capture; not isolated whole amp comparison."
+    },
+    {
+      "file": "VH4-Extended/Diezel CH 4 Rhythm TS808 2.nam",
+      "url": "https://www.tone3000.com/tones/diezel-vh4-53749",
+      "reason": "Boosted composite or power-only capture."
+    },
+    {
+      "file": "VH4-Extended/Diezel CH 4 Rhythm TS808 1.nam",
+      "url": "https://www.tone3000.com/tones/diezel-vh4-53749",
+      "reason": "Boosted composite or power-only capture."
+    },
+    {
+      "file": "VH4-Extended/[POW] DiZLVH4 EL34 Juice #50 - DI.nam",
+      "url": "https://www.tone3000.com/tones/diezel-vh4-64455",
+      "reason": "Boosted composite or power-only capture."
+    },
+    {
+      "file": "VH4-Extended/[POW] DiZLVH4 EL34 Juice #33 - DI.nam",
+      "url": "https://www.tone3000.com/tones/diezel-vh4-64455",
+      "reason": "Boosted composite or power-only capture."
     }
   ]
 }

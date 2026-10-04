@@ -1,27 +1,27 @@
-PRESET_LEVEL,31,Crom Cruach,-26.5813,-10.1076,-1.5
-PRESET_HOT,31,-7.55156
+PRESET_LEVEL,31,Crom Cruach,-26.3541,-10.5346,-1.5
+PRESET_HOT,31,-9.61464
 PERFORMANCE_RECALL preset=31 repeat=0 id=input requested=3 before_raw=3 before_normalized=0.5625 snapshot_raw=3 after_raw=3 after_normalized=0.5625
 PERFORMANCE_RECALL preset=31 repeat=0 id=tempo requested=143 before_raw=143 before_normalized=0.514999986 snapshot_raw=143 after_raw=143 after_normalized=0.514999986
 PERFORMANCE_RECALL preset=31 repeat=1 id=input requested=3 before_raw=3 before_normalized=0.5625 snapshot_raw=3 after_raw=3 after_normalized=0.5625
 PERFORMANCE_RECALL preset=31 repeat=1 id=tempo requested=143 before_raw=143 before_normalized=0.514999986 snapshot_raw=143 after_raw=143 after_normalized=0.514999986
-PRESET_LEVEL,32,Wild Hunt,-29.8618,-9.64782,-13
-PRESET_HOT,32,-9.79975
+PRESET_LEVEL,32,Wild Hunt,-29.6702,-10.0916,-12.5
+PRESET_HOT,32,-10.2299
 PERFORMANCE_RECALL preset=32 repeat=0 id=input requested=3 before_raw=3 before_normalized=0.5625 snapshot_raw=3 after_raw=3 after_normalized=0.5625
 PERFORMANCE_RECALL preset=32 repeat=0 id=tempo requested=143 before_raw=143 before_normalized=0.514999986 snapshot_raw=143 after_raw=143 after_normalized=0.514999986
 PERFORMANCE_RECALL preset=32 repeat=1 id=input requested=3 before_raw=3 before_normalized=0.5625 snapshot_raw=3 after_raw=3 after_normalized=0.5625
 PERFORMANCE_RECALL preset=32 repeat=1 id=tempo requested=143 before_raw=143 before_normalized=0.514999986 snapshot_raw=143 after_raw=143 after_normalized=0.514999986
-PRESET_LEVEL,33,Azhi Dahaka,-26.1178,-11.4148,-2
-PRESET_HOT,33,-8.23511
+PRESET_LEVEL,33,Azhi Dahaka,-26.1329,-11.3889,-2
+PRESET_HOT,33,-8.24362
 PERFORMANCE_RECALL preset=33 repeat=0 id=input requested=3 before_raw=3 before_normalized=0.5625 snapshot_raw=3 after_raw=3 after_normalized=0.5625
 PERFORMANCE_RECALL preset=33 repeat=0 id=tempo requested=143 before_raw=143 before_normalized=0.514999986 snapshot_raw=143 after_raw=143 after_normalized=0.514999986
 PERFORMANCE_RECALL preset=33 repeat=1 id=input requested=3 before_raw=3 before_normalized=0.5625 snapshot_raw=3 after_raw=3 after_normalized=0.5625
 PERFORMANCE_RECALL preset=33 repeat=1 id=tempo requested=143 before_raw=143 before_normalized=0.514999986 snapshot_raw=143 after_raw=143 after_normalized=0.514999986
 PRESET_LEVEL,34,A Path To Alsatia,-26.1203,-12.8813,-4.5
 PRESET_HOT,34,-13.0937
-PRESET_LEVEL,35,Feel My Wrath,-25.8858,-12.5006,-5.5
-PRESET_HOT,35,-13.0633
-PRESET_LEVEL,36,Blackhearted,-26.2375,-12.8542,-5.5
-PRESET_HOT,36,-11.3303
+PRESET_LEVEL,35,Feel My Wrath,-25.3115,-11.555,-5.5
+PRESET_HOT,35,-12.6178
+PRESET_LEVEL,36,Blackhearted,-25.7358,-12.0238,-5.5
+PRESET_HOT,36,-10.357
 PRESET_LEVEL,37,Dark Matters of Throne,-26.2111,-14.3131,-2
 PRESET_HOT,37,-12.3158
 PRESET_LEVEL,0,Clean Sustain,-25.9581,-10.6888,6.5
@@ -60,8 +60,8 @@ PERFORMANCE_RECALL preset=28 repeat=0 id=input requested=3 before_raw=3 before_n
 PERFORMANCE_RECALL preset=28 repeat=0 id=tempo requested=143 before_raw=143 before_normalized=0.514999986 snapshot_raw=143 after_raw=143 after_normalized=0.514999986
 PERFORMANCE_RECALL preset=28 repeat=1 id=input requested=3 before_raw=3 before_normalized=0.5625 snapshot_raw=3 after_raw=3 after_normalized=0.5625
 PERFORMANCE_RECALL preset=28 repeat=1 id=tempo requested=143 before_raw=143 before_normalized=0.514999986 snapshot_raw=143 after_raw=143 after_normalized=0.514999986
-PRESET_LEVEL,1,Tight Rhythm,-25.947,-12.685,-5
-PRESET_HOT,1,-12.3756
+PRESET_LEVEL,1,Tight Rhythm,-27.3133,-14.0188,-5
+PRESET_HOT,1,-13.8007
 PERFORMANCE_RECALL preset=1 repeat=0 id=input requested=3 before_raw=3 before_normalized=0.5625 snapshot_raw=3 after_raw=3 after_normalized=0.5625
 PERFORMANCE_RECALL preset=1 repeat=0 id=tempo requested=143 before_raw=143 before_normalized=0.514999986 snapshot_raw=143 after_raw=143 after_normalized=0.514999986
 PERFORMANCE_RECALL preset=1 repeat=1 id=input requested=3 before_raw=3 before_normalized=0.5625 snapshot_raw=3 after_raw=3 after_normalized=0.5625
@@ -72,8 +72,8 @@ PERFORMANCE_RECALL preset=8 repeat=0 id=input requested=3 before_raw=3 before_no
 PERFORMANCE_RECALL preset=8 repeat=0 id=tempo requested=143 before_raw=143 before_normalized=0.514999986 snapshot_raw=143 after_raw=143 after_normalized=0.514999986
 PERFORMANCE_RECALL preset=8 repeat=1 id=input requested=3 before_raw=3 before_normalized=0.5625 snapshot_raw=3 after_raw=3 after_normalized=0.5625
 PERFORMANCE_RECALL preset=8 repeat=1 id=tempo requested=143 before_raw=143 before_normalized=0.514999986 snapshot_raw=143 after_raw=143 after_normalized=0.514999986
-PRESET_LEVEL,9,Melodic Death Rhythm,-25.7698,-11.8659,-7
-PRESET_HOT,9,-11.7712
+PRESET_LEVEL,9,Melodic Death Rhythm,-27.3813,-13.4229,-7
+PRESET_HOT,9,-13.3141
 PERFORMANCE_RECALL preset=9 repeat=0 id=input requested=3 before_raw=3 before_normalized=0.5625 snapshot_raw=3 after_raw=3 after_normalized=0.5625
 PERFORMANCE_RECALL preset=9 repeat=0 id=tempo requested=143 before_raw=143 before_normalized=0.514999986 snapshot_raw=143 after_raw=143 after_normalized=0.514999986
 PERFORMANCE_RECALL preset=9 repeat=1 id=input requested=3 before_raw=3 before_normalized=0.5625 snapshot_raw=3 after_raw=3 after_normalized=0.5625
@@ -156,8 +156,8 @@ PERFORMANCE_RECALL preset=19 repeat=0 id=input requested=3 before_raw=3 before_n
 PERFORMANCE_RECALL preset=19 repeat=0 id=tempo requested=143 before_raw=143 before_normalized=0.514999986 snapshot_raw=143 after_raw=143 after_normalized=0.514999986
 PERFORMANCE_RECALL preset=19 repeat=1 id=input requested=3 before_raw=3 before_normalized=0.5625 snapshot_raw=3 after_raw=3 after_normalized=0.5625
 PERFORMANCE_RECALL preset=19 repeat=1 id=tempo requested=143 before_raw=143 before_normalized=0.514999986 snapshot_raw=143 after_raw=143 after_normalized=0.514999986
-PRESET_LEVEL,20,G+G Tight / Wide,-26.1238,-12.5986,-6
-PRESET_HOT,20,-12.4901
+PRESET_LEVEL,20,G+G Tight / Wide,-27.0681,-13.7788,-6
+PRESET_HOT,20,-13.6905
 PERFORMANCE_RECALL preset=20 repeat=0 id=input requested=3 before_raw=3 before_normalized=0.5625 snapshot_raw=3 after_raw=3 after_normalized=0.5625
 PERFORMANCE_RECALL preset=20 repeat=0 id=tempo requested=143 before_raw=143 before_normalized=0.514999986 snapshot_raw=143 after_raw=143 after_normalized=0.514999986
 PERFORMANCE_RECALL preset=20 repeat=1 id=input requested=3 before_raw=3 before_normalized=0.5625 snapshot_raw=3 after_raw=3 after_normalized=0.5625
@@ -168,8 +168,8 @@ PERFORMANCE_RECALL preset=23 repeat=0 id=input requested=3 before_raw=3 before_n
 PERFORMANCE_RECALL preset=23 repeat=0 id=tempo requested=143 before_raw=143 before_normalized=0.514999986 snapshot_raw=143 after_raw=143 after_normalized=0.514999986
 PERFORMANCE_RECALL preset=23 repeat=1 id=input requested=3 before_raw=3 before_normalized=0.5625 snapshot_raw=3 after_raw=3 after_normalized=0.5625
 PERFORMANCE_RECALL preset=23 repeat=1 id=tempo requested=143 before_raw=143 before_normalized=0.514999986 snapshot_raw=143 after_raw=143 after_normalized=0.514999986
-PRESET_LEVEL,21,G+B Low Anchor,-25.8314,-11.6362,-6
-PRESET_HOT,21,-7.74312
+PRESET_LEVEL,21,G+B Low Anchor,-26.2985,-12.3119,-6
+PRESET_HOT,21,-8.19041
 PERFORMANCE_RECALL preset=21 repeat=0 id=input requested=3 before_raw=3 before_normalized=0.5625 snapshot_raw=3 after_raw=3 after_normalized=0.5625
 PERFORMANCE_RECALL preset=21 repeat=0 id=tempo requested=143 before_raw=143 before_normalized=0.514999986 snapshot_raw=143 after_raw=143 after_normalized=0.514999986
 PERFORMANCE_RECALL preset=21 repeat=1 id=input requested=3 before_raw=3 before_normalized=0.5625 snapshot_raw=3 after_raw=3 after_normalized=0.5625
@@ -212,8 +212,8 @@ PERFORMANCE_RECALL preset=27 repeat=1 id=input requested=3 before_raw=3 before_n
 PERFORMANCE_RECALL preset=27 repeat=1 id=tempo requested=143 before_raw=143 before_normalized=0.514999986 snapshot_raw=143 after_raw=143 after_normalized=0.514999986
 PASS factory recall and category navigation: 38 presets (synthetic fixture only)
 PASS full-state A Path To Alsatia parameters=3891 audio_delta=0 energy=21.5336 synthetic only
-PASS full-state Feel My Wrath parameters=3891 audio_delta=0 energy=64.6849 synthetic only
-PASS full-state Blackhearted parameters=3891 audio_delta=0 energy=45.6767 synthetic only
+PASS full-state Feel My Wrath parameters=3891 audio_delta=0 energy=72.1512 synthetic only
+PASS full-state Blackhearted parameters=3891 audio_delta=0 energy=54.2263 synthetic only
 PASS full-state Dark Matters of Throne parameters=3891 audio_delta=0 energy=48.5344 synthetic only
 MEASURE unity mode=0 board=0 delta_db=-0.00172043 zero_shift_reported=24
 MEASURE unity mode=1 board=0 delta_db=-0.00172043 zero_shift_reported=24

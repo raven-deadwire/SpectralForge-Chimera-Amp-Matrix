@@ -1,0 +1,567 @@
+{
+  "engl": {
+    "input_sweep": [
+      {
+        "model": 23,
+        "channel": 0,
+        "selected_input_db": 0,
+        "options": [
+          {
+            "input_db": -12,
+            "curve_error_db": 1.1176972965372447
+          },
+          {
+            "input_db": -6,
+            "curve_error_db": 0.7946712582164287
+          },
+          {
+            "input_db": 0,
+            "curve_error_db": 0.6103381213965545
+          },
+          {
+            "input_db": 3,
+            "curve_error_db": 1.1783119633935482
+          },
+          {
+            "input_db": 6,
+            "curve_error_db": 1.982733984362915
+          },
+          {
+            "input_db": 9,
+            "curve_error_db": 2.8899816214161236
+          },
+          {
+            "input_db": 12,
+            "curve_error_db": 3.863793266412701
+          }
+        ]
+      },
+      {
+        "model": 23,
+        "channel": 1,
+        "selected_input_db": 12,
+        "options": [
+          {
+            "input_db": -12,
+            "curve_error_db": 11.623560234329819
+          },
+          {
+            "input_db": -6,
+            "curve_error_db": 11.003094206540533
+          },
+          {
+            "input_db": 0,
+            "curve_error_db": 9.896459424040176
+          },
+          {
+            "input_db": 3,
+            "curve_error_db": 9.114139464566435
+          },
+          {
+            "input_db": 6,
+            "curve_error_db": 8.162723931661983
+          },
+          {
+            "input_db": 9,
+            "curve_error_db": 7.051973117983729
+          },
+          {
+            "input_db": 12,
+            "curve_error_db": 5.818484560994631
+          }
+        ]
+      },
+      {
+        "model": 23,
+        "channel": 2,
+        "selected_input_db": -6,
+        "options": [
+          {
+            "input_db": -12,
+            "curve_error_db": 3.2500912661142642
+          },
+          {
+            "input_db": -6,
+            "curve_error_db": 2.3163559769428197
+          },
+          {
+            "input_db": 0,
+            "curve_error_db": 3.1065143145902625
+          },
+          {
+            "input_db": 3,
+            "curve_error_db": 3.5751068329132556
+          },
+          {
+            "input_db": 6,
+            "curve_error_db": 3.9495690941134782
+          },
+          {
+            "input_db": 9,
+            "curve_error_db": 4.215990044040592
+          },
+          {
+            "input_db": 12,
+            "curve_error_db": 4.388897388947607
+          }
+        ]
+      },
+      {
+        "model": 23,
+        "channel": 3,
+        "selected_input_db": -6,
+        "options": [
+          {
+            "input_db": -12,
+            "curve_error_db": 2.4044679266801654
+          },
+          {
+            "input_db": -6,
+            "curve_error_db": 1.6948639228338174
+          },
+          {
+            "input_db": 0,
+            "curve_error_db": 2.5245858543088087
+          },
+          {
+            "input_db": 3,
+            "curve_error_db": 2.9289697036264477
+          },
+          {
+            "input_db": 6,
+            "curve_error_db": 3.237282049778211
+          },
+          {
+            "input_db": 9,
+            "curve_error_db": 3.451661930591885
+          },
+          {
+            "input_db": 12,
+            "curve_error_db": 3.5904661921245973
+          }
+        ]
+      }
+    ],
+    "tone_fit": [
+      {
+        "model": 23,
+        "channel": 0,
+        "gains_db": [
+          -0.26,
+          -6.0,
+          6.0
+        ],
+        "level_db": 1.94,
+        "heldout_before_db": 9.140410354714104,
+        "heldout_after_db": 3.7503804490424537,
+        "accepted": true
+      },
+      {
+        "model": 23,
+        "channel": 1,
+        "gains_db": [
+          -6.0,
+          -6.0,
+          6.0
+        ],
+        "level_db": -1.11,
+        "heldout_before_db": 12.873748437085458,
+        "heldout_after_db": 6.436783360055809,
+        "accepted": true
+      },
+      {
+        "model": 23,
+        "channel": 2,
+        "gains_db": [
+          -6.0,
+          -6.0,
+          6.0
+        ],
+        "level_db": 3.72,
+        "heldout_before_db": 8.984398712377349,
+        "heldout_after_db": 4.314207130916557,
+        "accepted": true
+      },
+      {
+        "model": 23,
+        "channel": 3,
+        "gains_db": [
+          -6.0,
+          -6.0,
+          6.0
+        ],
+        "level_db": 3.58,
+        "heldout_before_db": 8.20050071751007,
+        "heldout_after_db": 3.9929890671763295,
+        "accepted": true
+      }
+    ]
+  },
+  "svt": {
+    "input_sweep": [
+      {
+        "model": 18,
+        "channel": 0,
+        "selected_input_db": 0,
+        "options": [
+          {
+            "input_db": -12,
+            "curve_error_db": 2.861927168213695
+          },
+          {
+            "input_db": -6,
+            "curve_error_db": 1.7755296238399572
+          },
+          {
+            "input_db": 0,
+            "curve_error_db": 1.5226731766479376
+          },
+          {
+            "input_db": 3,
+            "curve_error_db": 2.271311525436615
+          },
+          {
+            "input_db": 6,
+            "curve_error_db": 3.28751950058092
+          },
+          {
+            "input_db": 9,
+            "curve_error_db": 4.403953884362859
+          },
+          {
+            "input_db": 12,
+            "curve_error_db": 5.54310986630002
+          }
+        ]
+      }
+    ],
+    "tone_fit": [
+      {
+        "model": 18,
+        "channel": 0,
+        "gains_db": [
+          2.98,
+          0.3,
+          4.91
+        ],
+        "level_db": -0.81,
+        "heldout_before_db": 5.063953183915427,
+        "heldout_after_db": 3.0304979063022977,
+        "accepted": true
+      }
+    ]
+  },
+  "sunn": {
+    "input_sweep": [
+      {
+        "model": 19,
+        "channel": 0,
+        "selected_input_db": 12,
+        "options": [
+          {
+            "input_db": -12,
+            "curve_error_db": 10.817287199738475
+          },
+          {
+            "input_db": -6,
+            "curve_error_db": 9.532025158089658
+          },
+          {
+            "input_db": 0,
+            "curve_error_db": 8.045820258138392
+          },
+          {
+            "input_db": 3,
+            "curve_error_db": 7.226191145962113
+          },
+          {
+            "input_db": 6,
+            "curve_error_db": 6.3602558809997465
+          },
+          {
+            "input_db": 9,
+            "curve_error_db": 5.479657299901134
+          },
+          {
+            "input_db": 12,
+            "curve_error_db": 4.628920727381268
+          }
+        ]
+      }
+    ],
+    "tone_fit": [
+      {
+        "model": 19,
+        "channel": 0,
+        "gains_db": [
+          3.61,
+          1.69,
+          6.0
+        ],
+        "level_db": -4.65,
+        "heldout_before_db": 7.714633623842117,
+        "heldout_after_db": 5.211532579293919,
+        "accepted": true
+      }
+    ]
+  },
+  "peavey": {
+    "input_sweep": [
+      {
+        "model": 2,
+        "channel": 1,
+        "selected_input_db": 12,
+        "options": [
+          {
+            "input_db": -12,
+            "curve_error_db": 6.047226519309328
+          },
+          {
+            "input_db": -6,
+            "curve_error_db": 3.7820337314510213
+          },
+          {
+            "input_db": 0,
+            "curve_error_db": 2.064781737458208
+          },
+          {
+            "input_db": 3,
+            "curve_error_db": 1.4542127393292574
+          },
+          {
+            "input_db": 6,
+            "curve_error_db": 1.0020107147305295
+          },
+          {
+            "input_db": 9,
+            "curve_error_db": 0.6859815786740612
+          },
+          {
+            "input_db": 12,
+            "curve_error_db": 0.47843247898344005
+          }
+        ]
+      }
+    ],
+    "tone_fit": [
+      {
+        "model": 2,
+        "channel": 1,
+        "gains_db": [
+          2.93,
+          -5.95,
+          5.64
+        ],
+        "level_db": 0.9,
+        "heldout_before_db": 5.169755422921612,
+        "heldout_after_db": 4.738154549373277,
+        "accepted": true
+      }
+    ]
+  },
+  "vh4": {
+    "input_sweep": [
+      {
+        "model": 17,
+        "channel": 0,
+        "selected_input_db": 0,
+        "options": [
+          {
+            "input_db": -12,
+            "curve_error_db": 2.314133930187338
+          },
+          {
+            "input_db": -6,
+            "curve_error_db": 1.9872568461101434
+          },
+          {
+            "input_db": 0,
+            "curve_error_db": 1.9182563500543424
+          },
+          {
+            "input_db": 3,
+            "curve_error_db": 2.3412489115078343
+          },
+          {
+            "input_db": 6,
+            "curve_error_db": 3.0501766735117126
+          },
+          {
+            "input_db": 9,
+            "curve_error_db": 3.9409546220085985
+          },
+          {
+            "input_db": 12,
+            "curve_error_db": 4.970239586038912
+          }
+        ]
+      },
+      {
+        "model": 17,
+        "channel": 1,
+        "selected_input_db": 12,
+        "options": [
+          {
+            "input_db": -12,
+            "curve_error_db": 13.195946041364943
+          },
+          {
+            "input_db": -6,
+            "curve_error_db": 12.589435999776846
+          },
+          {
+            "input_db": 0,
+            "curve_error_db": 11.488884440918602
+          },
+          {
+            "input_db": 3,
+            "curve_error_db": 10.697760185769079
+          },
+          {
+            "input_db": 6,
+            "curve_error_db": 9.715596968511559
+          },
+          {
+            "input_db": 9,
+            "curve_error_db": 8.55685178081091
+          },
+          {
+            "input_db": 12,
+            "curve_error_db": 7.2827091491298805
+          }
+        ]
+      },
+      {
+        "model": 17,
+        "channel": 2,
+        "selected_input_db": 9,
+        "options": [
+          {
+            "input_db": -12,
+            "curve_error_db": 7.565707694301936
+          },
+          {
+            "input_db": -6,
+            "curve_error_db": 4.888656512251606
+          },
+          {
+            "input_db": 0,
+            "curve_error_db": 2.5973404473547257
+          },
+          {
+            "input_db": 3,
+            "curve_error_db": 1.7638037272249665
+          },
+          {
+            "input_db": 6,
+            "curve_error_db": 1.2333902237933145
+          },
+          {
+            "input_db": 9,
+            "curve_error_db": 1.0406958105880182
+          },
+          {
+            "input_db": 12,
+            "curve_error_db": 1.0681943381115913
+          }
+        ]
+      },
+      {
+        "model": 17,
+        "channel": 3,
+        "selected_input_db": -6,
+        "options": [
+          {
+            "input_db": -12,
+            "curve_error_db": 3.7887977828991417
+          },
+          {
+            "input_db": -6,
+            "curve_error_db": 2.5882097609863077
+          },
+          {
+            "input_db": 0,
+            "curve_error_db": 3.2603666204379773
+          },
+          {
+            "input_db": 3,
+            "curve_error_db": 3.798056993991049
+          },
+          {
+            "input_db": 6,
+            "curve_error_db": 4.268198237944051
+          },
+          {
+            "input_db": 9,
+            "curve_error_db": 4.625871676985719
+          },
+          {
+            "input_db": 12,
+            "curve_error_db": 4.870780673936678
+          }
+        ]
+      }
+    ],
+    "tone_fit": [
+      {
+        "model": 17,
+        "channel": 0,
+        "gains_db": [
+          -6.0,
+          -5.55,
+          6.0
+        ],
+        "level_db": 3.04,
+        "heldout_before_db": 11.517561039439984,
+        "heldout_after_db": 5.47081110256092,
+        "accepted": true
+      },
+      {
+        "model": 17,
+        "channel": 1,
+        "gains_db": [
+          6.0,
+          -6.0,
+          2.37
+        ],
+        "level_db": -4.07,
+        "heldout_before_db": 5.4308594424398295,
+        "heldout_after_db": 4.683479316202718,
+        "accepted": true
+      },
+      {
+        "model": 17,
+        "channel": 2,
+        "gains_db": [
+          -6.0,
+          -6.0,
+          6.0
+        ],
+        "level_db": 2.58,
+        "heldout_before_db": 7.634944173649073,
+        "heldout_after_db": 4.208872627852719,
+        "accepted": true
+      },
+      {
+        "model": 17,
+        "channel": 3,
+        "gains_db": [
+          -6.0,
+          -6.0,
+          6.0
+        ],
+        "level_db": 3.74,
+        "heldout_before_db": 9.962730388523534,
+        "heldout_after_db": 4.886096226416835,
+        "accepted": true
+      }
+    ]
+  },
+  "notes": [
+    "Primary captures only; secondary preamp/variants excluded from fitting.",
+    "SUNN uses user-selected 1998 reissue; SVT-CL uses modified head.",
+    "E670 Lead I/II final output compensation is 3 dB lower than the fit proposal for headroom.",
+    "Sweeps use neutral per-model calibration, except ENGL/SVT/SUNN whose previous coefficients were identity.",
+    "Final applied coefficients are in calibration.json; final candidate and manifest hashes are in tone.json and gain.json."
+  ]
+}

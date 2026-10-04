@@ -1,10 +1,10 @@
-# 1.1.1 release identity extension
+# 1.1.2 release identity extension
 
-`VERSION` remains the only numeric product version source. `RELEASE_CHANNEL` selects `beta.1` for the prepared 1.1.1 candidate, so the package and in-app identity are `1.1.1-beta.1`; `preview` retains the exact-SHA suffix for development builds. CMake, native resources, manifests and Setup read this contract. Configured build metadata also checks the package version to reject a stale channel build.
+`VERSION` remains the only numeric product version source. `RELEASE_CHANNEL` selects `beta.1` for the prepared 1.1.2 candidate, so the package and in-app identity are `1.1.2-beta.1`; `preview` retains the exact-SHA suffix for development builds. CMake, native resources, manifests and Setup read this contract. Configured build metadata also checks the package version to reject a stale channel build.
 
 # Candidate version authority
 
-`VERSION` is the numeric product version source (currently 1.1.1). A preview
+`VERSION` is the numeric product version source (currently 1.1.2). A preview
 package identity is derived as `<VERSION>-preview.<first 10 source SHA chars>`.
 The full 40-character SHA remains the provenance check; ten characters are only
 the display/build ID. The existing AppId, VST3 identity and user-data paths stay
@@ -34,8 +34,8 @@ Setup, then failed the installed registry/payload comparison. Previously:
 | Inno preview label and package filename | validated `/DPackageVersion` and optional BuildId |
 | MSIX / macOS / Debian current build packages | same numeric source and derived package identity |
 
-Numeric Windows versions are `1.1.1` (`1.1.1.0` in PE/MSIX resources); preview
-identity is `1.1.1-preview.SHA`. Registry DisplayVersion deliberately remains
+Numeric Windows versions are `1.1.2` (`1.1.2.0` in PE/MSIX resources); preview
+identity is `1.1.2-preview.SHA`. Registry DisplayVersion deliberately remains
 the numeric product version, while AppVerName, manifests and Settings identify
 the preview. No release/tag is created by either candidate workflow.
 

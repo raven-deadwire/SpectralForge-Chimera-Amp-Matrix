@@ -3,22 +3,22 @@
     {
       "index": 31,
       "name": "Crom Cruach",
-      "rms_dbfs": -26.5813,
-      "peak_dbfs": -10.1076,
+      "rms_dbfs": -26.3541,
+      "peak_dbfs": -10.5346,
       "output_db": -1.5
     },
     {
       "index": 32,
       "name": "Wild Hunt",
-      "rms_dbfs": -29.8618,
-      "peak_dbfs": -9.64782,
-      "output_db": -13.0
+      "rms_dbfs": -29.6702,
+      "peak_dbfs": -10.0916,
+      "output_db": -12.5
     },
     {
       "index": 33,
       "name": "Azhi Dahaka",
-      "rms_dbfs": -26.1178,
-      "peak_dbfs": -11.4148,
+      "rms_dbfs": -26.1329,
+      "peak_dbfs": -11.3889,
       "output_db": -2.0
     },
     {
@@ -31,15 +31,15 @@
     {
       "index": 35,
       "name": "Feel My Wrath",
-      "rms_dbfs": -25.8858,
-      "peak_dbfs": -12.5006,
+      "rms_dbfs": -25.3115,
+      "peak_dbfs": -11.555,
       "output_db": -5.5
     },
     {
       "index": 36,
       "name": "Blackhearted",
-      "rms_dbfs": -26.2375,
-      "peak_dbfs": -12.8542,
+      "rms_dbfs": -25.7358,
+      "peak_dbfs": -12.0238,
       "output_db": -5.5
     },
     {
@@ -94,8 +94,8 @@
     {
       "index": 1,
       "name": "Tight Rhythm",
-      "rms_dbfs": -25.947,
-      "peak_dbfs": -12.685,
+      "rms_dbfs": -27.3133,
+      "peak_dbfs": -14.0188,
       "output_db": -5.0
     },
     {
@@ -108,8 +108,8 @@
     {
       "index": 9,
       "name": "Melodic Death Rhythm",
-      "rms_dbfs": -25.7698,
-      "peak_dbfs": -11.8659,
+      "rms_dbfs": -27.3813,
+      "peak_dbfs": -13.4229,
       "output_db": -7.0
     },
     {
@@ -206,8 +206,8 @@
     {
       "index": 20,
       "name": "G+G Tight / Wide",
-      "rms_dbfs": -26.1238,
-      "peak_dbfs": -12.5986,
+      "rms_dbfs": -27.0681,
+      "peak_dbfs": -13.7788,
       "output_db": -6.0
     },
     {
@@ -220,8 +220,8 @@
     {
       "index": 21,
       "name": "G+B Low Anchor",
-      "rms_dbfs": -25.8314,
-      "peak_dbfs": -11.6362,
+      "rms_dbfs": -26.2985,
+      "peak_dbfs": -12.3119,
       "output_db": -6.0
     },
     {
@@ -268,12 +268,12 @@
     }
   ],
   "hot_peak_dbfs": [
-    -7.55156,
-    -9.79975,
-    -8.23511,
+    -9.61464,
+    -10.2299,
+    -8.24362,
     -13.0937,
-    -13.0633,
-    -11.3303,
+    -12.6178,
+    -10.357,
     -12.3158,
     -6.85078,
     -9.77755,
@@ -281,9 +281,9 @@
     -15.1968,
     -9.3659,
     -9.87195,
-    -12.3756,
+    -13.8007,
     -13.0819,
-    -11.7712,
+    -13.3141,
     -9.82923,
     -13.8883,
     -13.6321,
@@ -297,9 +297,9 @@
     -11.7872,
     -4.80792,
     -9.08894,
-    -12.4901,
+    -13.6905,
     -8.94516,
-    -7.74312,
+    -8.19041,
     -10.4543,
     -7.3611,
     -8.21692,

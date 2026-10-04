@@ -130,10 +130,15 @@ void bassEQSpecificationRanges() {
 }
 void highGainDefaults() {
     require(defaultAmpNativeState(15).channel==2,"ZUTA must start on CH3");
+    const auto engl=defaultAmpNativeState(23);
+    require(engl.values[size_t(ampNativeControlIndex(23,"hw.hi_gain"))]==1,"E670 must start in Hi Gain mode");
     // Weak pickup/decaying-note input, not just a loud test tone. Measure
     // distortion and compression separately so output boost cannot pass.
-    for(int model:{2,3,4,9,15,17,20,21,22,23}) {
-        auto state=defaultAmpNativeState(model);
+    struct Channel {int model,channel;};
+    for(const auto f:{Channel{2,-1},{3,-1},{4,-1},{9,-1},{15,-1},{15,3},
+                       {17,-1},{17,3},{20,-1},{20,1},{21,-1},{22,-1},{23,-1},{23,3}}) {
+        const int model=f.model;auto state=defaultAmpNativeState(model);
+        if(f.channel>=0)state.channel=f.channel;
         std::array<double,3> energy{};double thd=0;
         for(int level=0;level<3;++level) {
             AmpNativeDSP dsp;dsp.prepare(192000);dsp.set(state);dsp.reset();
@@ -149,7 +154,7 @@ void highGainDefaults() {
             if(level==1){double h=0;for(int k=2;k<=12;++k)h+=re[size_t(k)]*re[size_t(k)]+im[size_t(k)]*im[size_t(k)];thd=std::sqrt(h/(re[1]*re[1]+im[1]*im[1]));}
         }
         const double growth=10*std::log10(energy[2]/energy[0]);
-        std::cout<<"GAIN_DEFAULT model="<<model<<" weak_thd="<<thd<<" growth_db="<<growth<<'\n';
+        std::cout<<"GAIN_DEFAULT model="<<model<<" channel="<<state.channel<<" weak_thd="<<thd<<" growth_db="<<growth<<'\n';
         require(thd>.28,"High-gain default loses saturation on weak notes");
         require(growth>0 && growth<6.,"High-gain default must stay monotonic with at least 4:1 compression over a 24 dB input range");
     }

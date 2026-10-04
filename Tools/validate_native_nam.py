@@ -36,7 +36,7 @@ def main():
     def case(pair):
         i,item=pair;model=args.models/item['file'];assert digest(model)==item['sha256'],model
         data=json.loads(model.read_text());cal=data.get('metadata',{}).get('input_level_dbu');g=10**((11.5-cal)/20) if cal is not None else 1
-        result={'case':i,'model':item['index'],'channel':item['channel'],'file':item['file'],'sha256':item['sha256'],'qualification':item['qualification'],'state':item['state'],'input_gain_db':float(20*np.log10(g)),'absolute_input_calibration':cal is not None,'measurements':{}}
+        result={'case':i,'model':item['index'],'channel':item['channel'],'file':item['file'],'sha256':item['sha256'],'qualification':item['qualification'],'fit_eligible':item.get('fit_eligible',True),'state':item['state'],'input_gain_db':float(20*np.log10(g)),'absolute_input_calibration':cal is not None,'measurements':{}}
         state=args.out/f'{i}-state.json';state.write_text(json.dumps(item['state']))
         for kind,dry in waves.items():
             base=args.out/f'{i}-{kind}';inp=Path(str(base)+'-nam-input.wav');wavfile.write(inp,SR,(dry*g).astype('float32'));nam=Path(str(base)+'-nam.wav')
@@ -54,7 +54,8 @@ def main():
         contours=[]
         groups=sorted(set((r['model'],r['channel'])for r in rows))
         for model,ch in groups:
-            cases=[r for r in rows if r['model']==model and r['channel']==ch]
+            cases=[r for r in rows if r['model']==model and r['channel']==ch and r['fit_eligible']]
+            if not cases:continue
             pairs=[(read(args.out/f'{r["case"]}-pluck-nam.wav'),read(args.out/f'{r["case"]}-pluck-candidate.wav'))for r in cases]
             gains=fit_many(pairs);ratios=[np.sqrt(np.sum(read(args.out/f'{r["case"]}-pluck-baseline.wav')**2)/np.sum(contour(b,gains)**2))for r,(a,b) in zip(cases,pairs)];trim=float(np.round(20*np.log10(np.exp(np.mean(np.log(ratios)))),2))
             errors=[]
@@ -62,7 +63,7 @@ def main():
                 for kind in waves:
                     base=args.out/f'{r["case"]}-{kind}';a=read(str(base)+'-nam.wav');b=read(str(base)+'-candidate.wav');r['measurements'][kind]['proposed']=metrics(a,contour(b,gains))
                 errors.append((r['measurements']['chord']['candidate']['log_spectrum_rms_db'],r['measurements']['chord']['proposed']['log_spectrum_rms_db']))
-            before,after=np.mean(errors,axis=0);accepted=bool(after<before*.95 and model!=19)
+            before,after=np.mean(errors,axis=0);accepted=bool(after<before*.95)
             contours.append({'model':model,'channel':ch,'gains_db':gains.tolist(),'level_db':trim,'heldout_before_db':float(before),'heldout_after_db':float(after),'accepted':accepted})
         (args.out/'contours.json').write_text(json.dumps(contours,indent=2)+'\n')
     report={'manifest_sha256':digest(args.manifest),'nam_core_commit':manifest['nam_core_commit'],'baseline_binary_sha256':digest(args.baseline),'candidate_binary_sha256':digest(args.candidate),'renderer':'actual Amp native path, 4x oversampling, no IR','fixture':'validate_nam.fixture; pluck training / held-out chord; 11.5 dBu common input when calibration known','unavailable':manifest['unavailable'],'excluded':manifest['excluded'],'cases':rows}

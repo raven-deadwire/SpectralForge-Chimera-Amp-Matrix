@@ -38,7 +38,7 @@ inline constexpr std::array<float,38> factoryOutputDb{{
     -4.0f, // 29: Dumble Smooth Lead
     4.0f, // 30: EICH Modern Clean
     -1.5f, // 31: Crom Cruach
-    -13.0f, // 32: Wild Hunt
+    -12.5f, // 32: Wild Hunt
     -2.0f, // 33: Azhi Dahaka
     -4.5f, // 34: A Path To Alsatia
     -5.5f, // 35: Feel My Wrath

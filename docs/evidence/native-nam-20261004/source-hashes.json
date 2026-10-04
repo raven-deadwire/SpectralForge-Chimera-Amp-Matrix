@@ -1,7 +1,7 @@
 {
   "Source/AmpCatalog.h": "068a7f9d7ddd4754ea2e9c5d45fcf407b931cfba7419366f00919051973707ac",
-  "Source/AmpNativeCalibration.h": "719ec11c7caed3ea0b39a463ea33a02621ea0214a60ff088eb4d3e2b48e3ae3a",
-  "Source/AmpNativeCatalog.h": "da845f5a59e69e0042bfc81062eb9196ad70b7a1403d10c461f1c5318783d06d",
+  "Source/AmpNativeCalibration.h": "f51d54a73d609af82ed46713d7b5ebce7f671472c400ea765864b032b438f5ad",
+  "Source/AmpNativeCatalog.h": "b4ced2252a20c7564a05cb81494eaffbfa55def2ffd22e596bb2702d75e2c7c8",
   "Source/AmpNativeDSP.h": "3be9e6486f4a0e2c8d92b21d7f116f2d2fe901d947cbef2a669ac2090eb8a775",
   "Source/AmpNativePanel.h": "72756218c869cd5bd56657ff0a212b8d386b3d9320f7614c455a4b6731504ab2",
   "Source/AmpNativeParameters.h": "0ca2234721a19eff37cdd16c0e953a14b663363a65589fcd8e35a98fe5828917",
@@ -16,7 +16,7 @@
   "Source/FXChain.h": "e241c054a6a39cf48b6081fc072281b588a6b622fbe9cabf4588ceb67149d077",
   "Source/FXParameters.h": "4c2d2b318aed5e11268257db792e2d3a6658f9b0fa9eba6fb62f9b4936796d39",
   "Source/FactoryNativeVoicing.h": "2a05f34d3050c5cc82875cafeadde41e7b5a2aafc199de2b1eacb2773cbed800",
-  "Source/FactoryPresetLevels.h": "ca9ba9ecd2a5f16e9d5b991630373e6c273e2922b877b44d40d43c42571992ce",
+  "Source/FactoryPresetLevels.h": "36edddfa982c6e1c58ef6ea4e23c73cf35f3a4e1259f574e1a0c7ca829d32eb9",
   "Source/FactoryPresets.h": "cd1d0c1016cc353e92f8727b0936ce15b95d461c0c2944183d4d528633d100db",
   "Source/GlobalDSP.h": "645b38c7909f26ef4435bfc51fcbbe3b8cdb0130a93740fff6ece8c64a3b042e",
   "Source/GuitarSignaturePresets.h": "188b6efd6e1e124645cbaceb6819d3de292a618659f126cd5ea2e2f42a0e784b",
@@ -60,7 +60,7 @@
   "Source/PluginProcessor.cpp": "5aba7d52130e2ac318ab782d5ee866c96c26032089b1585325ccc81c483b758b",
   "Source/ReleaseSupport.cpp": "f7b4f056a4b30df068e6e28ff0fe42b5c82a95912826d4ace46b41968cbaae98",
   "Tests/RenderAmp.cpp": "1e094c3bde830a7a774173c2a762b9b9de0353b690bac0b0a5ee557c12fe806d",
-  "Tools/validate_native_nam.py": "50db51df3b36a5791ea3bc02e321745eded01cd9c128f8507d599d1de02ecd97",
-  "Tools/validate_native_gain.py": "b4aa3f772f07afde9801cb8f82c6c9a8dbdbf9356bfb9de0ee67c165069c17c7",
-  "docs/reference/native-nam-manifest.json": "b9f27e3881a8e3e4579c08b0dd5ddefe64c605a07ae08163c9eff3d580f4f054"
+  "Tools/validate_native_nam.py": "513da5907997ab9725bff6f8555ddac41701bb620c73983f769a403f686014b1",
+  "Tools/validate_native_gain.py": "55795bd098c6b917dc31fa72b4bebb3dc63a607b215874885a03eabe27b58079",
+  "docs/reference/native-nam-manifest.json": "df895168e34d13ac9cd38c95b775570fc48a5a1b6c5f12616d01e498455024f1"
 }

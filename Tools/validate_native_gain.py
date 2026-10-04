@@ -37,11 +37,11 @@ def main():
         i,r=pair;model=args.models/r['file'];assert sha(model)==r['sha256'];cal=r['input_level_dbu'];g=10**((11.5-cal)/20)if cal is not None else 1
         inp=args.out/f'{i}-input.wav';out=args.out/f'{i}-nam.wav';wavfile.write(inp,SR,(x*g).astype('float32'));key=sha(model)+sha(inp);stamp=Path(str(out)+'.sha256')
         if not out.exists() or not stamp.exists() or stamp.read_text()!=key:run([args.nam_render,'--slim',1,model,inp,out]);stamp.write_text(key)
-        row={'case':i,'model':r['index'],'channel':r['channel'],'file':r['file'],'state':r['state'],'sha256':r['sha256'],'input_calibration_known':cal is not None,'nam':response(read(out))}
+        row={'case':i,'model':r['index'],'channel':r['channel'],'file':r['file'],'state':r['state'],'sha256':r['sha256'],'fit_eligible':r.get('fit_eligible',True),'qualification':r['qualification'],'input_calibration_known':cal is not None,'nam':response(read(out))}
         for label,exe in [('baseline',args.baseline),('candidate',args.candidate)]:row[label]=native(r['index'],r['state'],f'{i}-{label}',exe)
         print('GAIN',i,r['index'],r['channel'],flush=True);return row
     with concurrent.futures.ThreadPoolExecutor(max_workers=2)as pool:rows=list(pool.map(compare,enumerate(m['amps'])))
-    # All active defaults, including the three models without exact NAM files.
+    # All active defaults, including models without exact NAM files.
     defaults=[]
     for model in range(24):
         if model==16:continue
