@@ -21,6 +21,11 @@
   ],
   "files": [
     {
+      "path": "ci-verification.json",
+      "bytes": 2077,
+      "sha256": "1819f7fcd7f3d627dd9e5fec00773c3e5cccf7a8f8c5ed8d44d9fb7bd906366b"
+    },
+    {
       "path": "guitar-0.xml",
       "bytes": 213301,
       "sha256": "cf689f9f568988d0be348c6a525cbb9ad3a4c64b705820b8b7d6e382310c0bc8"
@@ -39,6 +44,16 @@
       "path": "guitar-3.xml",
       "bytes": 213308,
       "sha256": "96767281cf384c1744447fd0326cdfbc666d5df4439586a306d91cf3852f5e8e"
+    },
+    {
+      "path": "linux-final-ctest-inventory.json",
+      "bytes": 10353,
+      "sha256": "e6bba202728f030ed61763c396275efd0cda375dda16076867f90a9b6968ee1b"
+    },
+    {
+      "path": "linux-final-ctest-results.xml",
+      "bytes": 14130,
+      "sha256": "a5c06da4bc20aea82173affd252d9bf9aa4091e74f7f57395dae5531c9099730"
     },
     {
       "path": "linux-package-verification.txt",
@@ -61,9 +76,49 @@
       "sha256": "b8066e29a3a2ca1af55b3d0e857d2bf819db4d357d1173c5cf2778b38f7404e7"
     },
     {
+      "path": "local-portable-gate-results.xml",
+      "bytes": 1474,
+      "sha256": "f3e62585c54e3881979f6cfa08cf4b0708cdae38f93bd5c4bf2f0646b287e62c"
+    },
+    {
       "path": "local-release-gate.json",
       "bytes": 70599,
       "sha256": "29a0d3578ee825c4e42c56e2a180eb63add4773b4ee2c3ba8c3a76bb9a734363"
+    },
+    {
+      "path": "macos-final-ctest-inventory.json",
+      "bytes": 10398,
+      "sha256": "53da33988f45577eebdef1ea4a502c9ebda452e6adc8f254016deb780a2d20bb"
+    },
+    {
+      "path": "macos-final-ctest-results.xml",
+      "bytes": 14130,
+      "sha256": "1194f514623a3c8530d70762604196d131b193e62d70097c576938ef42fe39f9"
+    },
+    {
+      "path": "tuner-focus-baseline-probe.cpp",
+      "bytes": 11328,
+      "sha256": "d9ababbad9cd170f6a8931c56e497a312e70524fe116cecbad37d4384038579f"
+    },
+    {
+      "path": "tuner-focus-baseline.json",
+      "bytes": 5563,
+      "sha256": "3679520ac069db7ee0bfe1dfe0926351c9b8f29f421cd5d16f73e31dd4e98ae5"
+    },
+    {
+      "path": "tuner-focus-candidate.json",
+      "bytes": 5536,
+      "sha256": "a31dd1c5a8535caddfb67b467f5eca687d3d93e463c195f829b25b31353674c4"
+    },
+    {
+      "path": "tuner-focus-comparison.json",
+      "bytes": 1387,
+      "sha256": "272c794606e39cfc3420a00684d0958487c86a6d6c7e257a6b7084eeb43a8ca7"
+    },
+    {
+      "path": "tuner-focus-probe-final.log",
+      "bytes": 684,
+      "sha256": "87942e40e0aac7ca848daee08d76d0d91ced13fa704856589f9565c33198bf2c"
     },
     {
       "path": "ui-baseline.json",
@@ -84,6 +139,56 @@
       "path": "ui-probe.log",
       "bytes": 4485,
       "sha256": "06542ee7d24b2670beb4518f1eb5b148eb7480a014a0d6d2f55fd748bcfc4cf9"
+    },
+    {
+      "path": "windows-candidate-ctest-results.xml",
+      "bytes": 16927,
+      "sha256": "a6e4ad73e91164288635e1ffa6c76b39d43025ba69e9900cb414c513166d41ad"
+    },
+    {
+      "path": "windows-candidate-final-ctest-inventory.json",
+      "bytes": 11587,
+      "sha256": "0732755a40012054b134811c623c3760f01790960c0dd2207b2e1e43fce0245c"
+    },
+    {
+      "path": "windows-candidate-final-ctest-results.xml",
+      "bytes": 16928,
+      "sha256": "d71ad8758bd032fbe84f23a1ef3a4c162175d84b5483d09cb8cbdb52a3d396ba"
+    },
+    {
+      "path": "windows-candidate-full-tests.log",
+      "bytes": 80616,
+      "sha256": "90ffd87c6293ca1b4440e7d87b7979bde2862117e4378fa8093c1855d16c1f56"
+    },
+    {
+      "path": "windows-candidate-installer-verification.json",
+      "bytes": 2066,
+      "sha256": "6134493bd12ca794ec4cf4b1eb1017607357b127346a273ce8dec5978f5e81d3"
+    },
+    {
+      "path": "windows-final-ctest-inventory.json",
+      "bytes": 11587,
+      "sha256": "0732755a40012054b134811c623c3760f01790960c0dd2207b2e1e43fce0245c"
+    },
+    {
+      "path": "windows-final-ctest-results.xml",
+      "bytes": 16927,
+      "sha256": "32241f7c450ce05e41fc7696d9a49397bc1d85c71d71717f1b9b3a570db33f0e"
+    },
+    {
+      "path": "windows-final-installer-parts-manifest.json",
+      "bytes": 3121,
+      "sha256": "1bbb1131f8f98beb830ac64645cc5c088b93b24818392ebf60f245c4e673b272"
+    },
+    {
+      "path": "windows-final-installer-verification.json",
+      "bytes": 2066,
+      "sha256": "e36bc71d70819a6f239117e2083cb806a3d94b08fed0012a6526828801c97b36"
+    },
+    {
+      "path": "windows-final-lifecycle-tests.log",
+      "bytes": 80638,
+      "sha256": "a3c331e7fcbac486d2222e49f00a4d24ad6513cc0e1c7ec126c5f44484bb7d62"
     }
   ],
   "ui_cpu_probe": {
@@ -104,5 +209,6 @@
     "version_label": "Existing 1.1.0-beta.1 packaging label; smoke test only, not a 1.1.1 release",
     "installation_performed": false,
     "public_release": false
-  }
+  },
+  "final_ci_commit": "e046292c6c85eb5f9a2361b7b80fc398ea38d428"
 }

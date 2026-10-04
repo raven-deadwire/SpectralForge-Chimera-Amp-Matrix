@@ -1,0 +1,52 @@
+{
+  "source_sha": "e046292c6c85eb5f9a2361b7b80fc398ea38d428",
+  "run_id": "37173235834",
+  "filename": "SpectralForge-Chimera-update-e046292c6c-win64-Setup.exe",
+  "bytes": 42761958,
+  "sha256": "ef079c2cecd2b96ac8e1d699023f4ec247706e7032d3d290b78303c4a21ec66a",
+  "parts": [
+    {
+      "name": "SpectralForge-Chimera-update-e046292c6c-win64-Setup.exe.part1",
+      "bytes": 20971520,
+      "sha256": "bda4212be9c4a30fad1fe6852a7cf70aee597645333ac06f601e5ec67540b7a3"
+    },
+    {
+      "name": "SpectralForge-Chimera-update-e046292c6c-win64-Setup.exe.part2",
+      "bytes": 20971520,
+      "sha256": "8f4290c1e94f8f0bb226989dc23be0a000981c5e3ce904089a5f218cf94ffbc6"
+    },
+    {
+      "name": "SpectralForge-Chimera-update-e046292c6c-win64-Setup.exe.part3",
+      "bytes": 818918,
+      "sha256": "3bb35a441a30711e384dbea6a1077fdcb5c56f778ed2e9efcc82087b3046e873"
+    }
+  ],
+  "publisher_signed": false,
+  "published_release": false,
+  "installer_verification": {
+    "run_id": "37173235834",
+    "success": true,
+    "source_sha": "e046292c6c85eb5f9a2361b7b80fc398ea38d428",
+    "installer": "SpectralForge-Chimera-update-e046292c6c-win64-Setup.exe",
+    "checks": [
+      "PASS: Product rename retires only exact old executable/VST3 binaries and preserves personal preset bytes",
+      "PASS: Companion Bass/Guitar WAVs install recursively, match their source hashes, decode, appear in the cabinet menu and load into a rig",
+      "PASS: Four Raven companion fixtures and sidecars install automatically, decode, appear in CAB and load into a rig",
+      "PASS: Full install: standard VST3 path, app, documentation, shortcuts and uninstall registration; payload hashes match",
+      "PASS: Standalone, VST3 and reference renderer use the static MSVC runtime",
+      "PASS: Installed VST3 loads through the Windows loader and exports GetPluginFactory",
+      "PASS: Start Menu shortcut launches the installed app and its window: C:\\Program Files\\SpectralForge\\Chimera Amp Matrix\\SpectralForge Chimera.exe",
+      "PASS: Same-version reinstall repairs files and preserves personal presets/IRs",
+      "PASS: Personal IR collection is preserved after uninstall",
+      "PASS: Uninstall removes owned binaries, shortcut and Windows registration; preserves user files",
+      "PASS: Independent custom application and VST3 installation folders accept Unicode paths",
+      "PASS: Repair remembers the selected VST3 folder without a /VST3DIR override",
+      "PASS: Changing the selected VST3 folder retires only its exact old plugin binary and preserves user files",
+      "PASS: VST3-only selection and removal; Unicode custom app path",
+      "PASS: Start Menu shortcut launches the installed app and its window: D:\\a\\_temp\\Chimera \uc124\uce58 \uac80\uc99d\\SpectralForge Chimera.exe",
+      "PASS: Standalone-only selection and removal; no VST3 installed"
+    ],
+    "payload_manifest_sha256": "ea909ff854622f56e9eb22253ffe353399b432732a946da1b7f67f71362dfe01",
+    "installer_sha256": "ef079c2cecd2b96ac8e1d699023f4ec247706e7032d3d290b78303c4a21ec66a"
+  }
+}

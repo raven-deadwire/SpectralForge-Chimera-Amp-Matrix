@@ -1,0 +1,1189 @@
+Start testing: Oct 04 03:29 Coordinated Universal Time
+----------------------------------------------------------
+1/16 Testing: ChimeraVBlankFailureTests
+1/16 Test: ChimeraVBlankFailureTests
+Command: "C:/hostedtoolcache/windows/Python/3.12.10/x64/python3.exe" "D:/a/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/Tools/verify_vblank_failure.py" "--baseline" "D:/a/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build/Release/ChimeraVBlankBaselineProbe.exe" "--patched" "D:/a/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build/Release/ChimeraVBlankPatchedProbe.exe" "--extraction-report" "D:/a/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build/vblank-test-generated/extraction.json" "--report" "D:/a/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build/vblank-failure-verification.json"
+Directory: D:/a/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build
+"ChimeraVBlankFailureTests" start time: Oct 04 03:29 Coordinated Universal Time
+Output:
+----------------------------------------------------------
+PASS baseline/always-fail: expected destructor hang
+PASS baseline/success: shutdown 2.0224 ms
+PASS baseline/mixed: shutdown 15.7813 ms
+PASS patched/always-fail: shutdown 2.0379 ms
+PASS patched/success: shutdown 15.8836 ms
+PASS patched/mixed: shutdown 15.8939 ms
+<end of output>
+Test time =   2.85 sec
+----------------------------------------------------------
+Test Passed.
+"ChimeraVBlankFailureTests" end time: Oct 04 03:29 Coordinated Universal Time
+"ChimeraVBlankFailureTests" time elapsed: 00:00:02
+----------------------------------------------------------
+
+2/16 Testing: ChimeraTests
+2/16 Test: ChimeraTests
+Command: "D:/a/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build/ChimeraTests_artefacts/Release/ChimeraTests.exe"
+Directory: D:/a/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build
+"ChimeraTests" start time: Oct 04 03:29 Coordinated Universal Time
+Output:
+----------------------------------------------------------
+PASS: 24 serialized / 23 active Chimera heads, preserved 15-value legacy host range
+PASS 44100 Hz: band response, routing isolation, live EQ, all amp models
+PASS 48000 Hz: band response, routing isolation, live EQ, all amp models
+PASS 96000 Hz: band response, routing isolation, live EQ, all amp models
+PASS 192000 Hz: band response, routing isolation, live EQ, all amp models
+MEASURE oversampling 1x: fifth-harmonic foldback = -20.2039 dBc
+MEASURE oversampling 2x: fifth-harmonic foldback = -101.942 dBc
+MEASURE oversampling 4x: fifth-harmonic foldback = -106.286 dBc
+MEASURE oversampling 8x: fifth-harmonic foldback = -106.458 dBc
+MEASURE 24 amp voices: block residual 1.49012e-06, stereo residual 0, minimum RMS-matched new-voice residual 0.187906
+PASS: amp voices at 44.1/48/96 kHz, 1x/4x/8x oversampling, 17/512 sample blocks, stereo isolation, EQ corners and invalid indices
+MEASURE tuner 25.96 Hz: -0.000188253 cents
+MEASURE tuner 30.87 Hz: 0.000154032 cents
+MEASURE tuner 41.203 Hz: 0.000123097 cents
+MEASURE tuner 55 Hz: -0.000120075 cents
+MEASURE tuner 82.407 Hz: 0.000432117 cents
+MEASURE tuner 110 Hz: -0.00228143 cents
+MEASURE tuner 220 Hz: 0.00636397 cents
+MEASURE tuner 440 Hz: -0.180362 cents
+MEASURE tuner 880 Hz: 0.955295 cents
+MEASURE tuner 1200 Hz: 0.0114471 cents
+MEASURE tuner 1390 Hz: 2.84654 cents
+MEASURE pitch latency at 44100 Hz = 2048 samples
+MEASURE pitch latency at 48000 Hz = 2048 samples
+MEASURE pitch latency at 96000 Hz = 4096 samples
+MEASURE transpose -12 st: target 110 Hz, dry leakage -54.7617 dB; target amplitude 0.0978368; RMS 0.138342
+MEASURE pitch accuracy: 0.17326 cents
+MEASURE transpose -5 st: target 164.814 Hz, dry leakage -41.7544 dB; target amplitude 0.0992853; RMS 0.140403
+MEASURE pitch accuracy: 0.0700759 cents
+MEASURE transpose 7 st: target 329.628 Hz, dry leakage -52.2491 dB; target amplitude 0.0532151; RMS 0.0752634
+MEASURE pitch accuracy: -0.0390746 cents
+MEASURE transpose 12 st: target 440 Hz, dry leakage -61.2811 dB; target amplitude 0.0458444; RMS 0.0648489
+MEASURE pitch accuracy: -0.025216 cents
+PASS: amplifier signatures/DC/dynamics, anti-aliasing, gate, tuner, transpose, embedded IR and lane isolation
+MEASURE LOW DI vs maximum pre drive / amp / cab, 1x: null 0
+MEASURE LOW DI vs maximum pre drive / amp / cab, 2x: null 0
+MEASURE LOW DI vs maximum pre drive / amp / cab, 4x: null 0
+MEASURE LOW DI vs maximum pre drive / amp / cab, 8x: null 0
+MEASURE dry impulse 44100 Hz / 1x: 18 samples (reported = measured)
+MEASURE dry impulse 44100 Hz / 2x: 18 samples (reported = measured)
+MEASURE dry impulse 44100 Hz / 4x: 18 samples (reported = measured)
+MEASURE dry impulse 44100 Hz / 8x: 18 samples (reported = measured)
+MEASURE dry impulse 48000 Hz / 1x: 18 samples (reported = measured)
+MEASURE dry impulse 48000 Hz / 2x: 18 samples (reported = measured)
+MEASURE dry impulse 48000 Hz / 4x: 18 samples (reported = measured)
+MEASURE dry impulse 48000 Hz / 8x: 18 samples (reported = measured)
+MEASURE dry impulse 96000 Hz / 1x: 18 samples (reported = measured)
+MEASURE dry impulse 96000 Hz / 2x: 18 samples (reported = measured)
+MEASURE dry impulse 96000 Hz / 4x: 18 samples (reported = measured)
+MEASURE dry impulse 96000 Hz / 8x: 18 samples (reported = measured)
+MEASURE dry impulse 192000 Hz / 1x: 18 samples (reported = measured)
+MEASURE dry impulse 192000 Hz / 2x: 18 samples (reported = measured)
+MEASURE dry impulse 192000 Hz / 4x: 18 samples (reported = measured)
+MEASURE dry impulse 192000 Hz / 8x: 18 samples (reported = measured)
+MEASURE LOW DI/amp blend 44100 Hz / 1x: endpoint interpolation null 0; drive fixed at zero
+MEASURE LOW DI/amp blend 44100 Hz / 2x: endpoint interpolation null 0; drive fixed at zero
+MEASURE LOW DI/amp blend 44100 Hz / 4x: endpoint interpolation null 0; drive fixed at zero
+MEASURE LOW DI/amp blend 44100 Hz / 8x: endpoint interpolation null 0; drive fixed at zero
+MEASURE LOW DI/amp blend 96000 Hz / 1x: endpoint interpolation null 0; drive fixed at zero
+MEASURE LOW DI/amp blend 96000 Hz / 2x: endpoint interpolation null 0; drive fixed at zero
+MEASURE LOW DI/amp blend 96000 Hz / 4x: endpoint interpolation null 0; drive fixed at zero
+MEASURE LOW DI/amp blend 96000 Hz / 8x: endpoint interpolation null 0; drive fixed at zero
+MEASURE LOW COMP 0: reduction -0 dB, steady RMS law 0 dB
+MEASURE LOW COMP 0.35: reduction 6.8685 dB, steady RMS law 6.78082 dB
+MEASURE LOW COMP 0.8: reduction 21.952 dB, steady RMS law 21.8472 dB
+MEASURE crossover 44100 Hz / 60 / 500: sum ripple 1.0013e-05 dB; allpass phase error 9.82679e-05 deg
+MEASURE crossover 44100 Hz / 150 / 1200: sum ripple 6.68696e-06 dB; allpass phase error 3.3208e-05 deg
+MEASURE crossover 44100 Hz / 350 / 4000: sum ripple 2.53219e-06 dB; allpass phase error 1.19067e-05 deg
+MEASURE crossover 48000 Hz / 60 / 500: sum ripple 6.23107e-06 dB; allpass phase error 5.35285e-05 deg
+MEASURE crossover 48000 Hz / 150 / 1200: sum ripple 3.59742e-06 dB; allpass phase error 3.62178e-05 deg
+MEASURE crossover 48000 Hz / 350 / 4000: sum ripple 3.71436e-06 dB; allpass phase error 2.99338e-05 deg
+MEASURE crossover 96000 Hz / 60 / 500: sum ripple 1.58462e-05 dB; allpass phase error 4.95882e-05 deg
+MEASURE crossover 96000 Hz / 150 / 1200: sum ripple 7.33849e-06 dB; allpass phase error 3.05577e-05 deg
+MEASURE crossover 96000 Hz / 350 / 4000: sum ripple 4.37468e-06 dB; allpass phase error 2.13361e-05 deg
+MEASURE crossover 192000 Hz / 60 / 500: sum ripple 8.02611e-06 dB; allpass phase error 5.06092e-05 deg
+MEASURE crossover 192000 Hz / 150 / 1200: sum ripple 9.85e-06 dB; allpass phase error 5.7514e-05 deg
+MEASURE crossover 192000 Hz / 350 / 4000: sum ripple 1.06509e-05 dB; allpass phase error 5.88732e-05 deg
+MEASURE moving crossovers: block-size null 0; serial allpass null 7.45058e-08; level difference -5.87402e-10 dB
+MEASURE 1x Classic vs identical Dual merge, post=0: null 0
+MEASURE 1x Classic vs identical Dual merge, post=1: null 0
+MEASURE 2x Classic vs identical Dual merge, post=0: null 0
+MEASURE 2x Classic vs identical Dual merge, post=1: null 0
+MEASURE 4x Classic vs identical Dual merge, post=0: null 0
+MEASURE 4x Classic vs identical Dual merge, post=1: null 0
+MEASURE 8x Classic vs identical Dual merge, post=0: null 0
+MEASURE 8x Classic vs identical Dual merge, post=1: null 0
+PASS: crossover sum/phase/level automation, block independence, lane/oversampling/merge alignment and global post scope
+MEASURE fixed reference: A/A null 0, matched A/B level -1.03544e-06 dB, residual RMS 0.000422375
+MEASURE compressor 0 block-size null 0
+MEASURE compressor 1 block-size null 0
+MEASURE compressor 2 block-size null 0
+MEASURE compressor 3 block-size null 0
+MEASURE compressor 4 block-size null 0
+MEASURE automated drive block-size null 0
+MEASURE drive 0 DC mean 4.64455e-07
+MEASURE drive 1 DC mean 7.51787e-07
+MEASURE drive 2 DC mean 8.42887e-08
+MEASURE drive 3 DC mean 2.85438e-06
+MEASURE drive 4 DC mean -2.37757e-06
+MEASURE FX return-to-bypass 44100 Hz: dry null 0; PRE GR -0; POST GR -0
+MEASURE FX return-to-bypass 48000 Hz: dry null 0; PRE GR -0; POST GR -0
+MEASURE FX return-to-bypass 96000 Hz: dry null 0; PRE GR -0; POST GR -0
+MEASURE FX return-to-bypass 192000 Hz: dry null 0; PRE GR -0; POST GR -0
+PASS: sample-clock smoothing, stereo separation, DC removal, bypass return and real rack meters
+MEASURE preamp 0 tone automation: initial/settled 0.0113743/0.46581; block null 0; return null 0
+MEASURE preamp 1 tone automation: initial/settled 0.00101912/0.0677539; block null 0; return null 0
+MEASURE preamp 2 tone automation: initial/settled 0.0035145/0.162867; block null 0; return null 0
+MEASURE fuzz 0 tone automation: initial/settled 0.0229944/0.906598; block null 0; return null 0
+MEASURE fuzz 1 tone automation: initial/settled 0.00984845/0.56976; block null 0; return null 0
+MEASURE fuzz 2 tone automation: initial/settled 0.0317832/1.00864; block null 0; return null 0
+MEASURE fuzz 3 tone automation: initial/settled 0.00900283/0.608307; block null 0; return null 0
+MEASURE fuzz 4 tone automation: initial/settled 0.0393066/1.16252; block null 0; return null 0
+PASS: all eight fuzz/preamp voices preserve stereo and smooth tone automation across host block sizes
+MEASURE gain order 0 at 44100 Hz: block null 0 at 0
+MEASURE gain order 1 at 44100 Hz: block null 0 at 0
+MEASURE gain order 0 at 96000 Hz: block null 0 at 0
+MEASURE gain order 1 at 96000 Hz: block null 0 at 0
+PASS: both gain orders change saturation/level, preserve clean DI and latency, stereo isolation and 17/511-sample block independence
+PASS: both detector orders affect dynamics, preserve Matrix clean tap and fixed latency
+MEASURE all FX bypass at startup: exact dry impulse at 18 samples
+MEASURE effect module 0: enabled/bypass residual RMS 0.120051
+MEASURE effect module 1: enabled/bypass residual RMS 0.0281113
+MEASURE effect module 2: enabled/bypass residual RMS 0.10435
+MEASURE effect module 3: enabled/bypass residual RMS 0.230308
+MEASURE effect module 4: enabled/bypass residual RMS 0.393299
+MEASURE effect module 5: enabled/bypass residual RMS 0.0862075
+MEASURE effect module 6: enabled/bypass residual RMS 0.0363079
+MEASURE effect module 7: enabled/bypass residual RMS 0.163215
+MEASURE effect module 8: enabled/bypass residual RMS 0.0827965
+MEASURE effect module 9: enabled/bypass residual RMS 0.071832
+MEASURE effect module 10: enabled/bypass residual RMS 0.0296337
+MEASURE COMPRESSOR model pairs: minimum residual 0.00545606
+MEASURE ENVELOPE model pairs: minimum residual 0.0644335
+MEASURE FUZZ model pairs: minimum residual 0.0124747
+MEASURE BOOST model pairs: minimum residual 0.00161201
+MEASURE DRIVE model pairs: minimum residual 0.297665
+MEASURE BUS COMP model pairs: minimum residual 0.0130947
+MEASURE PREAMP model pairs: minimum residual 0.00977546
+MEASURE EQUALIZER model pairs: minimum residual 0.0503705
+MEASURE MODULATION model pairs: minimum residual 0.046472
+MEASURE DELAY model pairs: minimum residual 0.0147227
+MEASURE REVERB model pairs: minimum residual 0.0319988
+PASS: 46 distinct selectable models; stereo model changes and tails at 44.1/96 kHz
+MEASURE Dual blend null 0, crossover/allpass null 1.49012e-08, block-size null 0
+PASS: eleven independent FX modules, Dual blend/crossover and metronome
+MEASURE factory preset 0 | Clean Sustain | peak44 0.0130232 | peak48 0.013598
+MEASURE factory preset 1 | Tight Rhythm | peak44 0.0373441 | peak48 0.0388589
+MEASURE factory preset 2 | Bass Matrix | peak44 0.0981471 | peak48 0.0981562
+MEASURE factory preset 3 | Filter Lead | peak44 0.0220044 | peak48 0.0234712
+MEASURE factory preset 4 | Fuzz Texture | peak44 0.0116809 | peak48 0.0124783
+MEASURE factory preset 5 | Bell Clean | peak44 0.026038 | peak48 0.0271849
+MEASURE factory preset 6 | Edge Chime | peak44 0.0602059 | peak48 0.0640423
+MEASURE factory preset 7 | Classic Crunch | peak44 0.035366 | peak48 0.038663
+MEASURE factory preset 8 | Orange Heavy | peak44 0.0666026 | peak48 0.0701987
+MEASURE factory preset 9 | Melodic Death Rhythm | peak44 0.0336617 | peak48 0.0351615
+MEASURE factory preset 10 | Melodic Lead | peak44 0.0421714 | peak48 0.0447411
+MEASURE factory preset 11 | Ambient Clean | peak44 0.00801357 | peak48 0.00876356
+MEASURE factory preset 12 | Finger Round | peak44 0.046311 | peak48 0.0471229
+MEASURE factory preset 13 | Pick Punch | peak44 0.121205 | peak48 0.120988
+MEASURE factory preset 14 | Slap Studio | peak44 0.109717 | peak48 0.108153
+MEASURE factory preset 15 | Modern Grind | peak44 0.121267 | peak48 0.118972
+MEASURE factory preset 16 | Vintage Bass DI | peak44 0.0591222 | peak48 0.0591322
+MEASURE factory preset 17 | Wool Bass Fuzz | peak44 0.0703366 | peak48 0.0703487
+MEASURE factory preset 18 | Bass Envelope | peak44 0.0883798 | peak48 0.088116
+MEASURE factory preset 19 | G+G Clean / Crunch | peak44 0.00969375 | peak48 0.0101638
+MEASURE factory preset 20 | G+G Tight / Wide | peak44 0.0218248 | peak48 0.0233088
+MEASURE factory preset 21 | G+B Low Anchor | peak44 0.0887183 | peak48 0.088725
+MEASURE factory preset 22 | G+B Air / Weight | peak44 0.0343869 | peak48 0.0346612
+MEASURE factory preset 23 | B+B Warm / Definition | peak44 0.0626977 | peak48 0.0619458
+MEASURE factory preset 24 | B+B Clean / Grind | peak44 0.0903985 | peak48 0.0903441
+MEASURE factory preset 25 | Low B Foundation | peak44 0.097967 | peak48 0.0979831
+MEASURE factory preset 26 | Pick Attack Matrix | peak44 0.0900924 | peak48 0.0900912
+MEASURE factory preset 27 | Spectral Texture | peak44 0.0732187 | peak48 0.0733033
+MEASURE factory preset 28 | Matchless Edge | peak44 0.0476495 | peak48 0.050987
+MEASURE factory preset 29 | Dumble Smooth Lead | peak44 0.0475518 | peak48 0.05039
+MEASURE factory preset 30 | EICH Modern Clean | peak44 0.0681509 | peak48 0.0680963
+MEASURE signature preset 31 | Crom Cruach | structural state validated
+MEASURE signature preset 32 | Wild Hunt | structural state validated
+MEASURE signature preset 33 | Azhi Dahaka | structural state validated
+PASS: 31 portable factory presets + 3 Deadwire signature presets
+<end of output>
+Test time =  38.29 sec
+----------------------------------------------------------
+Test Passed.
+"ChimeraTests" end time: Oct 04 03:29 Coordinated Universal Time
+"ChimeraTests" time elapsed: 00:00:38
+----------------------------------------------------------
+
+3/16 Testing: ChimeraUITests
+3/16 Test: ChimeraUITests
+Command: "D:/a/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build/ChimeraUITests_artefacts/Release/ChimeraUITests.exe" "D:/a/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build/ui-snapshots"
+Directory: D:/a/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build
+"ChimeraUITests" start time: Oct 04 03:29 Coordinated Universal Time
+Output:
+----------------------------------------------------------
+PASS: active tuner/three-lane IR switching, three release/reprepare cycles at 44.1/48/96 kHz, idempotent release and no live background resources before delete; slowest release 80.0365 ms
+PASS: two editors share one artwork bank across paints; last editor releases it synchronously before GUI/DLL shutdown
+PASS: 23 amps exactly once, Chimera names only, new choices selectable; pending asynchronous amp/channel selection retained; popup cancellation and reopening
+PASS: legacy amp normalized/index/label compatibility; 8 appended models; independent lane/channel banks; binary and A/B recall; old-state and factory migration
+PASS pedal menus: 39 DSPs in 10 exclusive categories, alias-only lists with separate readable hardware captions, async selection and popup reopen, immediate load/copy without dialogs, ON/OFF, four-control 2 by 2 layouts, all six five-control models in 3 + 2 outer-column layouts with real callbacks, and user-only board activation
+PASS: six native amp contexts, all native banks, POST nine models, binary/A-B recall and immediate pedal bank recall
+PASS UI refresh: stable state/metadata, hidden panels/editor, deferred model change, detached ALL windows, live meters, metadata-only invalidation, scaling 75/100/125/150 and parameter preservation
+PASS native UI: all 23 amplifier panels at 100/75%, 102 channel cases, 1976 channel/control visibility cases, Matrix LOW priority controls and ALL, 9 POST models / 144 controls at 100/75%, flat POST alias menus and short original model captions, six compact rack rows and ALL dialogs, editor teardown and real parameter callbacks
+PASS correction UI: directly editable five-slot PRE after fresh/old recall, alias-only amp menus with visible reference captions, 8 editor-to-audio DSP selections, native channel callbacks and isolated Matrix lane selectors; minimum RMS-matched processor residual 0.11605
+PASS: 30 editor/pending-popup/processor lifetime cycles in 59913.5 ms (standalone harness, not a DAW shutdown test)
+PASS: hosted Support browser-only layout, 24 no-service panel lifetimes and 6 real SETTINGS/Support editor teardowns without a message pump; slowest 45.2938 ms (hosted UI harness, not a Studio One shutdown test)
+BEGIN universal PRE state checks; Processor size 203648 bytes (heap-owned like plugin instances)
+PASS board state: APVTS owner identity, move, independent duplicate, Empty, capacity and invalid-model guards
+PASS board state: Processor undo and redo restore structural snapshots
+PASS board state: Actual Processor binary state round trip of the universal board
+PASS board state: A/B board snapshots and both saved comparison slots
+PASS board state: Old project seeds current five-slot models/order/ON-OFF, preserves compatibility audio and raw parameters
+PASS board state: MIDI learn, moved owner, independent duplication, binary recall and explicit replacement retirement
+PASS board state: Poly host latency/bypass/delete, zero-frame mono, factory-visible pedal state and silent bank recall
+PASS universal PRE Processor/APVTS: state, A/B, MIDI, legacy, owner identity, capacity, undo/redo
+MEASURE CPU: 15.0577 percent average, 20.4248 percent peak (this runner)
+PASS: 89 decoded visible rasters; 24 unique heads, 38 PRE enclosures (39 models), 21 unique POST surfaces
+PASS: all factory preset host IDs/ranges, complete recall, performance preservation and invalid-index isolation
+PASS: global gain, oversized blocks, host latency, tuner mute, embedded IR, A/B and reference recall
+PASS: bass reference visibility, missing-file state, source metadata and invalid ZIP rejection
+PASS: actual pedal detail/return actions and all 12 EQ controls inside the fixed board at 100/75 percent
+PASS: mode controls, text, automation, state recall, legacy recall; PNGs in D:\a\SpectralForge-Chimera-Amp-Matrix\SpectralForge-Chimera-Amp-Matrix\build\ui-snapshots
+<end of output>
+Test time = 166.84 sec
+----------------------------------------------------------
+Test Passed.
+"ChimeraUITests" end time: Oct 04 03:32 Coordinated Universal Time
+"ChimeraUITests" time elapsed: 00:02:46
+----------------------------------------------------------
+
+4/16 Testing: ChimeraVST3LifecycleTests
+4/16 Test: ChimeraVST3LifecycleTests
+Command: "D:/a/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build/Release/ChimeraVST3LifecycleTests.exe" "D:/a/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build/ChimeraAmpMatrix_artefacts/Release/VST3/SpectralForge Chimera.vst3/Contents/x86_64-win/SpectralForge Chimera.vst3"
+Directory: D:/a/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build
+"ChimeraVST3LifecycleTests" start time: Oct 04 03:32 Coordinated Universal Time
+Output:
+----------------------------------------------------------
+SCENARIO headless
+STAGE LoadLibrary/InitDll/GetPluginFactory
+STAGE create component/controller
+STAGE state roundtrip and prepare
+PARAMETERS 5972 automated=3
+STAGE audio worker start/process/stop
+STAGE audio worker stopped
+STAGE deactivate component
+STAGE disconnect controller/component
+STAGE terminate/release controller first
+STAGE terminate/release component last
+STAGE instance destroyed
+STAGE release plugin factory
+STAGE ExitDll
+STAGE FreeLibrary (last module reference)
+STAGE bounded host UI cleanup after FreeLibrary
+MODULE_RELEASE immediate_unmapped=1 final_unmapped=1 elapsed_ms=0
+STAGE pump host after module unload
+PASS round=1 scenario=headless
+PASS scenario=headless exit=0 elapsed_ms=578
+SCENARIO editor-pumping
+STAGE LoadLibrary/InitDll/GetPluginFactory
+STAGE create component/controller
+STAGE state roundtrip and prepare
+PARAMETERS 5972 automated=3
+STAGE attach real HWND editor
+STAGE audio worker start/process/stop
+STAGE audio worker stopped
+STAGE remove editor without pumping pending messages
+STAGE deactivate component
+STAGE disconnect controller/component
+STAGE terminate/release controller first
+STAGE terminate/release component last
+STAGE instance destroyed
+STAGE release plugin factory
+STAGE ExitDll
+STAGE FreeLibrary (last module reference)
+STAGE bounded host UI cleanup after FreeLibrary
+MODULE_RELEASE immediate_unmapped=0 final_unmapped=1 elapsed_ms=16
+STAGE pump host after module unload
+PASS round=1 scenario=editor-pumping
+PASS scenario=editor-pumping exit=0 elapsed_ms=2875
+SCENARIO editor-pending
+STAGE LoadLibrary/InitDll/GetPluginFactory
+STAGE create component/controller
+STAGE state roundtrip and prepare
+PARAMETERS 5972 automated=3
+STAGE attach real HWND editor
+STAGE audio worker start/process/stop
+STAGE audio worker stopped
+STAGE remove editor without pumping pending messages
+STAGE deactivate component
+STAGE disconnect controller/component
+STAGE terminate/release controller first
+STAGE terminate/release component last
+STAGE instance destroyed
+STAGE release plugin factory
+STAGE ExitDll
+STAGE FreeLibrary (last module reference)
+STAGE bounded host UI cleanup after FreeLibrary
+MODULE_RELEASE immediate_unmapped=0 final_unmapped=1 elapsed_ms=16
+STAGE pump host after module unload
+PASS round=1 scenario=editor-pending
+PASS scenario=editor-pending exit=0 elapsed_ms=2875
+SCENARIO multiple-instances
+STAGE LoadLibrary/InitDll/GetPluginFactory
+STAGE create component/controller
+STAGE state roundtrip and prepare
+PARAMETERS 5972 automated=3
+STAGE attach real HWND editor
+STAGE audio worker start/process/stop
+STAGE audio worker stopped
+STAGE create component/controller
+STAGE state roundtrip and prepare
+PARAMETERS 5972 automated=3
+STAGE attach real HWND editor
+STAGE audio worker start/process/stop
+STAGE audio worker stopped
+STAGE create component/controller
+STAGE state roundtrip and prepare
+PARAMETERS 5972 automated=3
+STAGE attach real HWND editor
+STAGE audio worker start/process/stop
+STAGE audio worker stopped
+STAGE remove editor without pumping pending messages
+STAGE deactivate component
+STAGE disconnect controller/component
+STAGE terminate/release controller first
+STAGE terminate/release component last
+STAGE instance destroyed
+STAGE remove editor without pumping pending messages
+STAGE deactivate component
+STAGE disconnect controller/component
+STAGE terminate/release component first
+STAGE terminate/release controller last
+STAGE instance destroyed
+STAGE remove editor without pumping pending messages
+STAGE deactivate component
+STAGE disconnect controller/component
+STAGE terminate/release controller first
+STAGE terminate/release component last
+STAGE instance destroyed
+STAGE release plugin factory
+STAGE ExitDll
+STAGE FreeLibrary (last module reference)
+STAGE bounded host UI cleanup after FreeLibrary
+MODULE_RELEASE immediate_unmapped=0 final_unmapped=1 elapsed_ms=16
+STAGE pump host after module unload
+PASS round=1 scenario=multiple-instances
+PASS scenario=multiple-instances exit=0 elapsed_ms=4125
+SCENARIO reopen-project
+STAGE LoadLibrary/InitDll/GetPluginFactory
+STAGE create component/controller
+STAGE state roundtrip and prepare
+PARAMETERS 5972 automated=3
+STAGE attach real HWND editor
+STAGE audio worker start/process/stop
+STAGE audio worker stopped
+STAGE remove editor without pumping pending messages
+STAGE deactivate component
+STAGE disconnect controller/component
+STAGE terminate/release controller first
+STAGE terminate/release component last
+STAGE instance destroyed
+STAGE release plugin factory
+STAGE ExitDll
+STAGE FreeLibrary (last module reference)
+STAGE bounded host UI cleanup after FreeLibrary
+MODULE_RELEASE immediate_unmapped=0 final_unmapped=1 elapsed_ms=15
+STAGE pump host after module unload
+PASS round=1 scenario=reopen-project
+STAGE LoadLibrary/InitDll/GetPluginFactory
+STAGE create component/controller
+STAGE state roundtrip and prepare
+PARAMETERS 5972 automated=3
+STAGE attach real HWND editor
+STAGE audio worker start/process/stop
+STAGE audio worker stopped
+STAGE remove editor without pumping pending messages
+STAGE deactivate component
+STAGE disconnect controller/component
+STAGE terminate/release component first
+STAGE terminate/release controller last
+STAGE instance destroyed
+STAGE release plugin factory
+STAGE ExitDll
+STAGE FreeLibrary (last module reference)
+STAGE bounded host UI cleanup after FreeLibrary
+MODULE_RELEASE immediate_unmapped=0 final_unmapped=1 elapsed_ms=16
+STAGE pump host after module unload
+PASS round=2 scenario=reopen-project
+STAGE LoadLibrary/InitDll/GetPluginFactory
+STAGE create component/controller
+STAGE state roundtrip and prepare
+PARAMETERS 5972 automated=3
+STAGE attach real HWND editor
+STAGE audio worker start/process/stop
+STAGE audio worker stopped
+STAGE remove editor without pumping pending messages
+STAGE deactivate component
+STAGE disconnect controller/component
+STAGE terminate/release controller first
+STAGE terminate/release component last
+STAGE instance destroyed
+STAGE release plugin factory
+STAGE ExitDll
+STAGE FreeLibrary (last module reference)
+STAGE bounded host UI cleanup after FreeLibrary
+MODULE_RELEASE immediate_unmapped=0 final_unmapped=1 elapsed_ms=16
+STAGE pump host after module unload
+PASS round=3 scenario=reopen-project
+PASS scenario=reopen-project exit=0 elapsed_ms=8219
+SCENARIO live-remove-controller-first
+STAGE LoadLibrary/InitDll/GetPluginFactory
+STAGE create component/controller
+STAGE state roundtrip and prepare
+PARAMETERS 5972 automated=3
+STAGE attach real HWND editor
+STAGE audio worker start/process/stop
+STAGE audio worker stopped
+STAGE create component/controller
+STAGE state roundtrip and prepare
+PARAMETERS 5972 automated=3
+STAGE attach real HWND editor
+STAGE audio worker start/process/stop
+STAGE audio worker stopped
+STAGE create component/controller
+STAGE state roundtrip and prepare
+PARAMETERS 5972 automated=3
+STAGE attach real HWND editor
+STAGE audio worker start/process/stop
+STAGE audio worker stopped
+STAGE live project remove opened victim; retain factory and peers
+STAGE remove editor without pumping pending messages
+STAGE deactivate component
+STAGE disconnect controller/component
+STAGE terminate/release controller first
+STAGE terminate/release component last
+STAGE instance destroyed
+STAGE survivor audio after live removal
+STAGE audio worker start/process/stop
+STAGE audio worker stopped
+STAGE survivor save and restore after live removal
+STAGE remove editor without pumping pending messages
+STAGE attach real HWND editor
+STAGE survivor audio after live removal
+STAGE audio worker start/process/stop
+STAGE audio worker stopped
+STAGE survivor save and restore after live removal
+STAGE remove editor without pumping pending messages
+STAGE attach real HWND editor
+STAGE create component/controller
+STAGE state roundtrip and prepare
+PARAMETERS 5972 automated=3
+STAGE attach real HWND editor
+STAGE live project remove opened victim; retain factory and peers
+STAGE remove editor without pumping pending messages
+STAGE deactivate component
+STAGE disconnect controller/component
+STAGE terminate/release controller first
+STAGE terminate/release component last
+STAGE instance destroyed
+STAGE survivor audio after live removal
+STAGE audio worker start/process/stop
+STAGE audio worker stopped
+STAGE survivor save and restore after live removal
+STAGE remove editor without pumping pending messages
+STAGE attach real HWND editor
+STAGE survivor audio after live removal
+STAGE audio worker start/process/stop
+STAGE audio worker stopped
+STAGE survivor save and restore after live removal
+STAGE remove editor without pumping pending messages
+STAGE attach real HWND editor
+STAGE create component/controller
+STAGE state roundtrip and prepare
+PARAMETERS 5972 automated=3
+STAGE attach real HWND editor
+STAGE live project remove opened victim; retain factory and peers
+STAGE remove editor without pumping pending messages
+STAGE deactivate component
+STAGE disconnect controller/component
+STAGE terminate/release controller first
+STAGE terminate/release component last
+STAGE instance destroyed
+STAGE survivor audio after live removal
+STAGE audio worker start/process/stop
+STAGE audio worker stopped
+STAGE survivor save and restore after live removal
+STAGE remove editor without pumping pending messages
+STAGE attach real HWND editor
+STAGE survivor audio after live removal
+STAGE audio worker start/process/stop
+STAGE audio worker stopped
+STAGE survivor save and restore after live removal
+STAGE remove editor without pumping pending messages
+STAGE attach real HWND editor
+STAGE create component/controller
+STAGE state roundtrip and prepare
+PARAMETERS 5972 automated=3
+STAGE attach real HWND editor
+PASS live removal cycles=3 peers=2 scenario=live-remove-controller-first
+STAGE remove editor without pumping pending messages
+STAGE deactivate component
+STAGE disconnect controller/component
+STAGE terminate/release controller first
+STAGE terminate/release component last
+STAGE instance destroyed
+STAGE remove editor without pumping pending messages
+STAGE deactivate component
+STAGE disconnect controller/component
+STAGE terminate/release component first
+STAGE terminate/release controller last
+STAGE instance destroyed
+STAGE remove editor without pumping pending messages
+STAGE deactivate component
+STAGE disconnect controller/component
+STAGE terminate/release controller first
+STAGE terminate/release component last
+STAGE instance destroyed
+STAGE release plugin factory
+STAGE ExitDll
+STAGE FreeLibrary (last module reference)
+STAGE bounded host UI cleanup after FreeLibrary
+MODULE_RELEASE immediate_unmapped=0 final_unmapped=1 elapsed_ms=15
+STAGE pump host after module unload
+PASS round=1 scenario=live-remove-controller-first
+PASS scenario=live-remove-controller-first exit=0 elapsed_ms=9234
+SCENARIO live-remove-component-first
+STAGE LoadLibrary/InitDll/GetPluginFactory
+STAGE create component/controller
+STAGE state roundtrip and prepare
+PARAMETERS 5972 automated=3
+STAGE attach real HWND editor
+STAGE audio worker start/process/stop
+STAGE audio worker stopped
+STAGE create component/controller
+STAGE state roundtrip and prepare
+PARAMETERS 5972 automated=3
+STAGE attach real HWND editor
+STAGE audio worker start/process/stop
+STAGE audio worker stopped
+STAGE create component/controller
+STAGE state roundtrip and prepare
+PARAMETERS 5972 automated=3
+STAGE attach real HWND editor
+STAGE audio worker start/process/stop
+STAGE audio worker stopped
+STAGE live project remove opened victim; retain factory and peers
+STAGE remove editor without pumping pending messages
+STAGE deactivate component
+STAGE disconnect controller/component
+STAGE terminate/release component first
+STAGE terminate/release controller last
+STAGE instance destroyed
+STAGE survivor audio after live removal
+STAGE audio worker start/process/stop
+STAGE audio worker stopped
+STAGE survivor save and restore after live removal
+STAGE remove editor without pumping pending messages
+STAGE attach real HWND editor
+STAGE survivor audio after live removal
+STAGE audio worker start/process/stop
+STAGE audio worker stopped
+STAGE survivor save and restore after live removal
+STAGE remove editor without pumping pending messages
+STAGE attach real HWND editor
+STAGE create component/controller
+STAGE state roundtrip and prepare
+PARAMETERS 5972 automated=3
+STAGE attach real HWND editor
+STAGE live project remove opened victim; retain factory and peers
+STAGE remove editor without pumping pending messages
+STAGE deactivate component
+STAGE disconnect controller/component
+STAGE terminate/release component first
+STAGE terminate/release controller last
+STAGE instance destroyed
+STAGE survivor audio after live removal
+STAGE audio worker start/process/stop
+STAGE audio worker stopped
+STAGE survivor save and restore after live removal
+STAGE remove editor without pumping pending messages
+STAGE attach real HWND editor
+STAGE survivor audio after live removal
+STAGE audio worker start/process/stop
+STAGE audio worker stopped
+STAGE survivor save and restore after live removal
+STAGE remove editor without pumping pending messages
+STAGE attach real HWND editor
+STAGE create component/controller
+STAGE state roundtrip and prepare
+PARAMETERS 5972 automated=3
+STAGE attach real HWND editor
+STAGE live project remove opened victim; retain factory and peers
+STAGE remove editor without pumping pending messages
+STAGE deactivate component
+STAGE disconnect controller/component
+STAGE terminate/release component first
+STAGE terminate/release controller last
+STAGE instance destroyed
+STAGE survivor audio after live removal
+STAGE audio worker start/process/stop
+STAGE audio worker stopped
+STAGE survivor save and restore after live removal
+STAGE remove editor without pumping pending messages
+STAGE attach real HWND editor
+STAGE survivor audio after live removal
+STAGE audio worker start/process/stop
+STAGE audio worker stopped
+STAGE survivor save and restore after live removal
+STAGE remove editor without pumping pending messages
+STAGE attach real HWND editor
+STAGE create component/controller
+STAGE state roundtrip and prepare
+PARAMETERS 5972 automated=3
+STAGE attach real HWND editor
+PASS live removal cycles=3 peers=2 scenario=live-remove-component-first
+STAGE remove editor without pumping pending messages
+STAGE deactivate component
+STAGE disconnect controller/component
+STAGE terminate/release controller first
+STAGE terminate/release component last
+STAGE instance destroyed
+STAGE remove editor without pumping pending messages
+STAGE deactivate component
+STAGE disconnect controller/component
+STAGE terminate/release component first
+STAGE terminate/release controller last
+STAGE instance destroyed
+STAGE remove editor without pumping pending messages
+STAGE deactivate component
+STAGE disconnect controller/component
+STAGE terminate/release controller first
+STAGE terminate/release component last
+STAGE instance destroyed
+STAGE release plugin factory
+STAGE ExitDll
+STAGE FreeLibrary (last module reference)
+STAGE bounded host UI cleanup after FreeLibrary
+MODULE_RELEASE immediate_unmapped=0 final_unmapped=1 elapsed_ms=15
+STAGE pump host after module unload
+PASS round=1 scenario=live-remove-component-first
+PASS scenario=live-remove-component-first exit=0 elapsed_ms=9359
+VST3 lifecycle scenarios: 7/7 passed
+<end of output>
+Test time =  37.28 sec
+----------------------------------------------------------
+Test Passed.
+"ChimeraVST3LifecycleTests" end time: Oct 04 03:33 Coordinated Universal Time
+"ChimeraVST3LifecycleTests" time elapsed: 00:00:37
+----------------------------------------------------------
+
+5/16 Testing: ChimeraReleaseTests
+5/16 Test: ChimeraReleaseTests
+Command: "D:/a/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build/ChimeraReleaseTests_artefacts/Release/ChimeraReleaseTests.exe"
+Directory: D:/a/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build
+"ChimeraReleaseTests" start time: Oct 04 03:33 Coordinated Universal Time
+Output:
+----------------------------------------------------------
+Release support: SemVer, manifest, platform, URL, draft and privacy checks passed.
+<end of output>
+Test time =   0.03 sec
+----------------------------------------------------------
+Test Passed.
+"ChimeraReleaseTests" end time: Oct 04 03:33 Coordinated Universal Time
+"ChimeraReleaseTests" time elapsed: 00:00:00
+----------------------------------------------------------
+
+6/16 Testing: ChimeraStabilityTests
+6/16 Test: ChimeraStabilityTests
+Command: "D:/a/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build/ChimeraStabilityTests_artefacts/Release/ChimeraStabilityTests.exe"
+Directory: D:/a/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build
+"ChimeraStabilityTests" start time: Oct 04 03:33 Coordinated Universal Time
+Output:
+----------------------------------------------------------
+PASS: exact bypass and latency-matched zero semitones; 3 rates x 2 layouts x 4 block sizes, no FFT frames
+PASS: bypass/zero/shift/re-engagement transitions across 3 rates and 4 intervals
+PASS outgoing ratio retained during bypass fade: 3 rates x 4 shifts
+PASS: 30 active tuner prepare/stop/destruct cycles, 122.334 ms
+PASS: optional post-rig gate clean detector, stereo gain, residual-noise attenuation, exact 0/37/2048-sample alignment and POST delay tails; legacy gate equivalence
+MEASURE pitch 400 stereo blocks/256 samples at 44100 Hz: bypass 4.5999 ms, zero 4.995 ms, active -5 174.363 ms; algorithm delay 2048 samples (CPU timings are local, not a Windows DAW benchmark)
+MEASURE pitch 400 stereo blocks/256 samples at 48000 Hz: bypass 4.6015 ms, zero 4.6341 ms, active -5 175.248 ms; algorithm delay 2048 samples (CPU timings are local, not a Windows DAW benchmark)
+MEASURE pitch 400 stereo blocks/256 samples at 96000 Hz: bypass 4.5267 ms, zero 4.5576 ms, active -5 176.858 ms; algorithm delay 4096 samples (CPU timings are local, not a Windows DAW benchmark)
+<end of output>
+Test time =   2.28 sec
+----------------------------------------------------------
+Test Passed.
+"ChimeraStabilityTests" end time: Oct 04 03:33 Coordinated Universal Time
+"ChimeraStabilityTests" time elapsed: 00:00:02
+----------------------------------------------------------
+
+7/16 Testing: ChimeraPedalBoardTests
+7/16 Test: ChimeraPedalBoardTests
+Command: "D:/a/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build/ChimeraPedalBoardTests_artefacts/Release/ChimeraPedalBoardTests.exe"
+Directory: D:/a/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build
+"ChimeraPedalBoardTests" start time: Oct 04 03:33 Coordinated Universal Time
+Output:
+----------------------------------------------------------
+PASS PRE board 44100 Hz: 39 available DSPs, Empty/LOW latency, selected poly latency and bypass alignment
+PASS PRE board 48000 Hz: 39 available DSPs, Empty/LOW latency, selected poly latency and bypass alignment
+PASS PRE board 96000 Hz: 39 available DSPs, Empty/LOW latency, selected poly latency and bypass alignment
+PASS PRE board: duplicate owners, reorder identity, LOW membership, dedicated controls, JB-2 routes, capacity invariant
+<end of output>
+Test time =   1.79 sec
+----------------------------------------------------------
+Test Passed.
+"ChimeraPedalBoardTests" end time: Oct 04 03:33 Coordinated Universal Time
+"ChimeraPedalBoardTests" time elapsed: 00:00:01
+----------------------------------------------------------
+
+8/16 Testing: ChimeraIRCollectionTests
+8/16 Test: ChimeraIRCollectionTests
+Command: "D:/a/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build/ChimeraIRCollectionTests_artefacts/Release/ChimeraIRCollectionTests.exe"
+Directory: D:/a/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build
+"ChimeraIRCollectionTests" start time: Oct 04 03:33 Coordinated Universal Time
+Output:
+----------------------------------------------------------
+PASS: independent instrument/status/diameter filters, missing/external/factory separation, Raven capture metadata and hash rejection, corrupt/silent file rejection, duplicate-root suppression, explicit 512 vs 513 scan limit
+<end of output>
+Test time =   0.87 sec
+----------------------------------------------------------
+Test Passed.
+"ChimeraIRCollectionTests" end time: Oct 04 03:33 Coordinated Universal Time
+"ChimeraIRCollectionTests" time elapsed: 00:00:00
+----------------------------------------------------------
+
+9/16 Testing: ChimeraNewAmpTests
+9/16 Test: ChimeraNewAmpTests
+Command: "D:/a/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build/ChimeraNewAmpTests_artefacts/Release/ChimeraNewAmpTests.exe"
+Directory: D:/a/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build
+"ChimeraNewAmpTests" start time: Oct 04 03:33 Coordinated Universal Time
+Output:
+----------------------------------------------------------
+PASS: stable 0..14 indices; eight appended models, 20 native channels, defaults, names and channel clamping
+MEASURE new amp matrix: 160 rate/channel/OS cases, three stereo/block arrangements each; peak 0.947821, partition residual 1.2517e-06, stereo residual 0
+PASS: all native channels, 48/96 kHz, 1x/2x/4x/8x, 64/257 samples, finite bounds, silence, stereo isolation and tone/drive corners
+MEASURE minimum RMS-matched residual: default voices 0.348632, native channels 0.399384, drive .05/.95 0.0809263
+PASS: native channels and new default voices differ beyond output level; drive changes waveform shape
+MEASURE reset residual 0, maximum conditioned-history residual 0.97407, worst recovered residual/cold RMS 3.9208e-05
+PASS: exact reset, signal-history response and two-second recovery for all native channels at .8/1 drive (combined filter/nonlinear state; not isolated sag measurement)
+PASS: repeated host parameter updates preserve samples; rapid native-channel changes stay bounded and reset installs the final route
+MEASURE sustained 997 Hz loud/quiet RMS ratio: minimum 1.07909, maximum 13.1344; maximum loud-output DC 9.66613e-05
+PASS: all 20 native routes preserve the integrated 1.05 < loud/quiet RMS < 21 and DC < .001 gates at full drive
+<end of output>
+Test time =  13.12 sec
+----------------------------------------------------------
+Test Passed.
+"ChimeraNewAmpTests" end time: Oct 04 03:33 Coordinated Universal Time
+"ChimeraNewAmpTests" time elapsed: 00:00:13
+----------------------------------------------------------
+
+10/16 Testing: ChimeraPedalOctaverTests
+10/16 Test: ChimeraPedalOctaverTests
+Command: "D:/a/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build/ChimeraPedalOctaverTests_artefacts/Release/ChimeraPedalOctaverTests.exe"
+Directory: D:/a/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build
+"ChimeraPedalOctaverTests" start time: Oct 04 03:33 Coordinated Universal Time
+Output:
+----------------------------------------------------------
+pitch rate=44100 channels=1 input=55 voice=1 mono=27.5 poly=27.5 polyLevel=0.10997
+pitch rate=44100 channels=1 input=55 voice=2 mono=13.75 poly=110 polyLevel=0.0853125
+pitch rate=44100 channels=1 input=110 voice=1 mono=55 poly=55 polyLevel=0.151127
+pitch rate=44100 channels=1 input=110 voice=2 mono=27.5 poly=220 polyLevel=0.0983065
+pitch rate=44100 channels=1 input=220 voice=1 mono=110 poly=110 polyLevel=0.0998477
+pitch rate=44100 channels=1 input=220 voice=2 mono=55 poly=440 polyLevel=0.093994
+pitch rate=44100 channels=1 input=440 voice=1 mono=220 poly=220 polyLevel=0.193348
+pitch rate=44100 channels=1 input=440 voice=2 mono=110 poly=880 polyLevel=0.08553
+chord rate=44100 channels=1 target=110 peak=110 amplitude=0.032038
+chord rate=44100 channels=1 target=138.591 peak=138.591 amplitude=0.0779729
+chord rate=44100 channels=1 target=164.814 peak=164.814 amplitude=0.0539753
+chord rate=44100 channels=1 target=440 peak=440 amplitude=0.0313134
+chord rate=44100 channels=1 target=554.365 peak=554.365 amplitude=0.0326429
+chord rate=44100 channels=1 target=659.255 peak=659.255 amplitude=0.0300445
+PASS octavers 44100 Hz / 1 ch; spectral latency=2048 samples
+pitch rate=44100 channels=2 input=55 voice=1 mono=27.5 poly=27.5 polyLevel=0.10997
+pitch rate=44100 channels=2 input=55 voice=2 mono=13.75 poly=110 polyLevel=0.0853125
+pitch rate=44100 channels=2 input=110 voice=1 mono=55 poly=55 polyLevel=0.151127
+pitch rate=44100 channels=2 input=110 voice=2 mono=27.5 poly=220 polyLevel=0.0983065
+pitch rate=44100 channels=2 input=220 voice=1 mono=110 poly=110 polyLevel=0.0998477
+pitch rate=44100 channels=2 input=220 voice=2 mono=55 poly=440 polyLevel=0.093994
+pitch rate=44100 channels=2 input=440 voice=1 mono=220 poly=220 polyLevel=0.193348
+pitch rate=44100 channels=2 input=440 voice=2 mono=110 poly=880 polyLevel=0.08553
+chord rate=44100 channels=2 target=110 peak=110 amplitude=0.032038
+chord rate=44100 channels=2 target=138.591 peak=138.591 amplitude=0.0779729
+chord rate=44100 channels=2 target=164.814 peak=164.814 amplitude=0.0539753
+chord rate=44100 channels=2 target=440 peak=440 amplitude=0.0313134
+chord rate=44100 channels=2 target=554.365 peak=554.365 amplitude=0.0326429
+chord rate=44100 channels=2 target=659.255 peak=659.255 amplitude=0.0300445
+PASS octavers 44100 Hz / 2 ch; spectral latency=2048 samples
+pitch rate=48000 channels=1 input=55 voice=1 mono=27.5 poly=27.5 polyLevel=0.10596
+pitch rate=48000 channels=1 input=55 voice=2 mono=13.75 poly=110 polyLevel=0.088127
+pitch rate=48000 channels=1 input=110 voice=1 mono=55 poly=55 polyLevel=0.174295
+pitch rate=48000 channels=1 input=110 voice=2 mono=27.5 poly=220 polyLevel=0.0897957
+pitch rate=48000 channels=1 input=220 voice=1 mono=110 poly=110 polyLevel=0.109067
+pitch rate=48000 channels=1 input=220 voice=2 mono=55 poly=440 polyLevel=0.0867146
+pitch rate=48000 channels=1 input=440 voice=1 mono=220 poly=220 polyLevel=0.118551
+pitch rate=48000 channels=1 input=440 voice=2 mono=110 poly=880 polyLevel=0.0935319
+chord rate=48000 channels=1 target=110 peak=110 amplitude=0.0373878
+chord rate=48000 channels=1 target=138.591 peak=138.591 amplitude=0.0712999
+chord rate=48000 channels=1 target=164.814 peak=164.814 amplitude=0.0346481
+chord rate=48000 channels=1 target=440 peak=440 amplitude=0.0288619
+chord rate=48000 channels=1 target=554.365 peak=554.365 amplitude=0.0321271
+chord rate=48000 channels=1 target=659.255 peak=659.255 amplitude=0.03323
+PASS octavers 48000 Hz / 1 ch; spectral latency=2048 samples
+pitch rate=48000 channels=2 input=55 voice=1 mono=27.5 poly=27.5 polyLevel=0.10596
+pitch rate=48000 channels=2 input=55 voice=2 mono=13.75 poly=110 polyLevel=0.088127
+pitch rate=48000 channels=2 input=110 voice=1 mono=55 poly=55 polyLevel=0.174295
+pitch rate=48000 channels=2 input=110 voice=2 mono=27.5 poly=220 polyLevel=0.0897957
+pitch rate=48000 channels=2 input=220 voice=1 mono=110 poly=110 polyLevel=0.109067
+pitch rate=48000 channels=2 input=220 voice=2 mono=55 poly=440 polyLevel=0.0867146
+pitch rate=48000 channels=2 input=440 voice=1 mono=220 poly=220 polyLevel=0.118551
+pitch rate=48000 channels=2 input=440 voice=2 mono=110 poly=880 polyLevel=0.0935319
+chord rate=48000 channels=2 target=110 peak=110 amplitude=0.0373878
+chord rate=48000 channels=2 target=138.591 peak=138.591 amplitude=0.0712999
+chord rate=48000 channels=2 target=164.814 peak=164.814 amplitude=0.0346481
+chord rate=48000 channels=2 target=440 peak=440 amplitude=0.0288619
+chord rate=48000 channels=2 target=554.365 peak=554.365 amplitude=0.0321271
+chord rate=48000 channels=2 target=659.255 peak=659.255 amplitude=0.03323
+PASS octavers 48000 Hz / 2 ch; spectral latency=2048 samples
+pitch rate=96000 channels=1 input=55 voice=1 mono=27.5 poly=27.5 polyLevel=0.10596
+pitch rate=96000 channels=1 input=55 voice=2 mono=13.75 poly=110 polyLevel=0.088127
+pitch rate=96000 channels=1 input=110 voice=1 mono=55 poly=55 polyLevel=0.174295
+pitch rate=96000 channels=1 input=110 voice=2 mono=27.5 poly=220 polyLevel=0.0897957
+pitch rate=96000 channels=1 input=220 voice=1 mono=110 poly=110 polyLevel=0.109067
+pitch rate=96000 channels=1 input=220 voice=2 mono=55 poly=440 polyLevel=0.0867146
+pitch rate=96000 channels=1 input=440 voice=1 mono=220 poly=220 polyLevel=0.118551
+pitch rate=96000 channels=1 input=440 voice=2 mono=110 poly=880 polyLevel=0.0935319
+chord rate=96000 channels=1 target=110 peak=110 amplitude=0.0373878
+chord rate=96000 channels=1 target=138.591 peak=138.591 amplitude=0.0712999
+chord rate=96000 channels=1 target=164.814 peak=164.814 amplitude=0.0346481
+chord rate=96000 channels=1 target=440 peak=440 amplitude=0.0288619
+chord rate=96000 channels=1 target=554.365 peak=554.365 amplitude=0.0321271
+chord rate=96000 channels=1 target=659.255 peak=659.255 amplitude=0.03323
+PASS octavers 96000 Hz / 1 ch; spectral latency=4096 samples
+pitch rate=96000 channels=2 input=55 voice=1 mono=27.5 poly=27.5 polyLevel=0.10596
+pitch rate=96000 channels=2 input=55 voice=2 mono=13.75 poly=110 polyLevel=0.088127
+pitch rate=96000 channels=2 input=110 voice=1 mono=55 poly=55 polyLevel=0.174295
+pitch rate=96000 channels=2 input=110 voice=2 mono=27.5 poly=220 polyLevel=0.0897957
+pitch rate=96000 channels=2 input=220 voice=1 mono=110 poly=110 polyLevel=0.109067
+pitch rate=96000 channels=2 input=220 voice=2 mono=55 poly=440 polyLevel=0.0867146
+pitch rate=96000 channels=2 input=440 voice=1 mono=220 poly=220 polyLevel=0.118551
+pitch rate=96000 channels=2 input=440 voice=2 mono=110 poly=880 polyLevel=0.0935319
+chord rate=96000 channels=2 target=110 peak=110 amplitude=0.0373878
+chord rate=96000 channels=2 target=138.591 peak=138.591 amplitude=0.0712999
+chord rate=96000 channels=2 target=164.814 peak=164.814 amplitude=0.0346481
+chord rate=96000 channels=2 target=440 peak=440 amplitude=0.0288619
+chord rate=96000 channels=2 target=554.365 peak=554.365 amplitude=0.0321271
+chord rate=96000 channels=2 target=659.255 peak=659.255 amplitude=0.03323
+PASS octavers 96000 Hz / 2 ch; spectral latency=4096 samples
+<end of output>
+Test time =   7.40 sec
+----------------------------------------------------------
+Test Passed.
+"ChimeraPedalOctaverTests" end time: Oct 04 03:33 Coordinated Universal Time
+"ChimeraPedalOctaverTests" time elapsed: 00:00:07
+----------------------------------------------------------
+
+11/16 Testing: ChimeraAmpNativeTests
+11/16 Test: ChimeraAmpNativeTests
+Command: "D:/a/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build/ChimeraAmpNativeTests_artefacts/Release/ChimeraAmpNativeTests.exe"
+Directory: D:/a/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build
+"ChimeraAmpNativeTests" start time: Oct 04 03:33 Coordinated Universal Time
+Output:
+----------------------------------------------------------
+PASS catalog 24 serialized / 23 active models, 380 controls, six contexts
+PASS sample-rates/channel routes=153 peak=0.826977 allocations=0
+CONTROL_RESPONSE count=380 failures=0 minimum=1.42221e-05 at=15:gate_threshold
+PASS inactive channel controls isolated=448 output level ratio=1.99526
+PASS old/native engine transition first difference=0.000458091 allocations=0
+PASS trim_gate_residual=0 hidden_tank_difference=0 hidden_tank_reference=6.89683e-09 first15_coeff_edit_residual=0 edited_difference_energy=58.9349 transition_peak=0.172631
+PASS integrated native oversampling paths=96
+PASS AmpNativeTests
+<end of output>
+Test time =  10.29 sec
+----------------------------------------------------------
+Test Passed.
+"ChimeraAmpNativeTests" end time: Oct 04 03:33 Coordinated Universal Time
+"ChimeraAmpNativeTests" time elapsed: 00:00:10
+----------------------------------------------------------
+
+12/16 Testing: ChimeraPostNativeTests
+12/16 Test: ChimeraPostNativeTests
+Command: "D:/a/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build/ChimeraPostNativeTests_artefacts/Release/ChimeraPostNativeTests.exe"
+Directory: D:/a/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build
+"ChimeraPostNativeTests" start time: Oct 04 03:33 Coordinated Universal Time
+Output:
+----------------------------------------------------------
+control 0/0 threshold residual=0.152395
+control 0/0 makeup residual=0.300884
+control 0/0 attack residual=0.0117342
+control 0/0 release residual=0.0110012
+control 0/0 ratio residual=0.0315487
+control 0/0 compressor_in residual=0.126444
+control 0/0 fade_rate residual=0.0100569
+control 0/0 auto_fade residual=0.00102324
+control 0/1 input residual=0.148959
+control 0/1 output residual=0.312522
+control 0/1 attack residual=0.0146242
+control 0/1 release residual=0.0385164
+control 0/1 attack_off residual=0.551554
+control 0/1 ratio residual=0.00957947
+control 0/2 gain residual=0.286101
+control 0/2 peak_reduction residual=0.152504
+control 0/2 mode residual=0.0111841
+control 0/2 r37 residual=0.00604627
+control 1/0 gain residual=2.00092
+control 1/0 phase residual=0.335118
+control 1/1 input residual=1.04729
+control 1/1 boost residual=6.10977
+control 1/1 tone residual=0.12279
+control 1/1 tone_in residual=0.102044
+control 1/1 high_cut residual=0.158283
+control 1/1 phase residual=0.896083
+control 1/1 pad residual=0.403038
+control 1/2 input residual=0.111762
+control 1/2 gain residual=0.157678
+control 1/2 gain_range residual=1.1446
+control 1/2 trim residual=0.440891
+control 1/2 phase residual=0.103504
+control 1/2 high_pass residual=0.0482192
+control 1/2 instrument_gain residual=2.87829
+control 2/0 hf_gain residual=0.120856
+control 2/0 hf_frequency residual=0.0618352
+control 2/0 hf_bell residual=0.0425592
+control 2/0 hmf_gain residual=0.124853
+control 2/0 hmf_frequency residual=0.0953109
+control 2/0 hmf_q residual=0.074122
+control 2/0 lmf_gain residual=0.278298
+control 2/0 lmf_frequency residual=0.0809827
+control 2/0 lmf_q residual=0.0782738
+control 2/0 lf_gain residual=0.389003
+control 2/0 lf_frequency residual=0.132746
+control 2/0 lf_bell residual=0.132566
+control 2/0 black residual=0.0243831
+control 2/0 eq_in residual=0.118527
+control 2/1 hf_gain residual=0.0679893
+control 2/1 mf_gain residual=0.136724
+control 2/1 mf_frequency residual=0.0472533
+control 2/1 lf_gain residual=0.19622
+control 2/1 lf_frequency residual=0.159646
+control 2/1 high_pass residual=0.155241
+control 2/1 eq_in residual=0.0734526
+control 2/2 lf_frequency residual=0.0445731
+control 2/2 lf_boost residual=0.0474135
+control 2/2 lf_atten residual=0.105868
+control 2/2 bandwidth residual=0.0388537
+control 2/2 hf_boost residual=0.0463283
+control 2/2 hf_frequency residual=0.0172447
+control 2/2 hf_atten residual=0.0547503
+control 2/2 hf_atten_frequency residual=0.0276118
+control 2/2 eq_in residual=0.0364931
+POST native PASS: models=9 audio_controls=64 meter_controls=3 min_control_residual=0.00102324 rate_switch_stress_blocks=288 peak=53.0753 stereo_leak=0
+<end of output>
+Test time =   0.85 sec
+----------------------------------------------------------
+Test Passed.
+"ChimeraPostNativeTests" end time: Oct 04 03:33 Coordinated Universal Time
+"ChimeraPostNativeTests" time elapsed: 00:00:00
+----------------------------------------------------------
+
+13/16 Testing: ChimeraGateProcessorTests
+13/16 Test: ChimeraGateProcessorTests
+Command: "D:/a/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build/ChimeraGateProcessorTests_artefacts/Release/ChimeraGateProcessorTests.exe"
+Directory: D:/a/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build
+"ChimeraGateProcessorTests" start time: Oct 04 03:33 Coordinated Universal Time
+Output:
+----------------------------------------------------------
+PASS legacy parameter contract: 3686 entries SHA256 1de9d010b4267088d80a6922105b047ae0c9e142e3b931c000129d6befa3523f numeric_rounding_differences=0; append-only gateRangeDb
+PASS binary state, legacy missing-field migration, A/B, factory reset, host gestures and MIDI automation recall
+MEASURE high-gain mode=0 board=0 native=0 range24_db=-23.9999 full_db=-300 (floor -300 dB)
+MEASURE high-gain mode=0 board=0 native=1 range24_db=-23.9999 full_db=-300 (floor -300 dB)
+PASS actual processor synthetic hiss: mode 0 board 0; pre/post, Full/24 dB, compatibility/native high gain
+MEASURE high-gain mode=0 board=1 native=0 range24_db=-23.9999 full_db=-300 (floor -300 dB)
+MEASURE high-gain mode=0 board=1 native=1 range24_db=-23.9999 full_db=-300 (floor -300 dB)
+PASS actual processor synthetic hiss: mode 0 board 1; pre/post, Full/24 dB, compatibility/native high gain
+MEASURE high-gain mode=1 board=0 native=0 range24_db=-23.9999 full_db=-300 (floor -300 dB)
+MEASURE high-gain mode=1 board=0 native=1 range24_db=-23.9999 full_db=-300 (floor -300 dB)
+PASS actual processor synthetic hiss: mode 1 board 0; pre/post, Full/24 dB, compatibility/native high gain
+MEASURE high-gain mode=1 board=1 native=0 range24_db=-23.9999 full_db=-300 (floor -300 dB)
+MEASURE high-gain mode=1 board=1 native=1 range24_db=-23.9999 full_db=-300 (floor -300 dB)
+PASS actual processor synthetic hiss: mode 1 board 1; pre/post, Full/24 dB, compatibility/native high gain
+MEASURE high-gain mode=2 board=0 native=0 range24_db=-23.9999 full_db=-300 (floor -300 dB)
+MEASURE high-gain mode=2 board=0 native=1 range24_db=-23.9999 full_db=-300 (floor -300 dB)
+PASS actual processor synthetic hiss: mode 2 board 0; pre/post, Full/24 dB, compatibility/native high gain
+MEASURE high-gain mode=2 board=1 native=0 range24_db=-23.9999 full_db=-300 (floor -300 dB)
+MEASURE high-gain mode=2 board=1 native=1 range24_db=-23.9999 full_db=-300 (floor -300 dB)
+PASS actual processor synthetic hiss: mode 2 board 1; pre/post, Full/24 dB, compatibility/native high gain
+PASS actual processor POST delay and reverb tails remain audible with Full gate closed
+<end of output>
+Test time =  10.25 sec
+----------------------------------------------------------
+Test Passed.
+"ChimeraGateProcessorTests" end time: Oct 04 03:34 Coordinated Universal Time
+"ChimeraGateProcessorTests" time elapsed: 00:00:10
+----------------------------------------------------------
+
+14/16 Testing: ChimeraGateTests
+14/16 Test: ChimeraGateTests
+Command: "D:/a/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build/ChimeraGateTests_artefacts/Release/ChimeraGateTests.exe"
+Directory: D:/a/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build
+"ChimeraGateTests" start time: Oct 04 03:34 Coordinated Universal Time
+Output:
+----------------------------------------------------------
+PASS Gate DSP 44100 Hz / 64: timing, range, hysteresis, palm mute, sustain/rolloff, hiss, stereo and latency alignment
+PASS Gate DSP 44100 Hz / 128: timing, range, hysteresis, palm mute, sustain/rolloff, hiss, stereo and latency alignment
+PASS Gate DSP 44100 Hz / 256: timing, range, hysteresis, palm mute, sustain/rolloff, hiss, stereo and latency alignment
+PASS Gate DSP 48000 Hz / 64: timing, range, hysteresis, palm mute, sustain/rolloff, hiss, stereo and latency alignment
+PASS Gate DSP 48000 Hz / 128: timing, range, hysteresis, palm mute, sustain/rolloff, hiss, stereo and latency alignment
+PASS Gate DSP 48000 Hz / 256: timing, range, hysteresis, palm mute, sustain/rolloff, hiss, stereo and latency alignment
+PASS Gate DSP 96000 Hz / 64: timing, range, hysteresis, palm mute, sustain/rolloff, hiss, stereo and latency alignment
+PASS Gate DSP 96000 Hz / 128: timing, range, hysteresis, palm mute, sustain/rolloff, hiss, stereo and latency alignment
+PASS Gate DSP 96000 Hz / 256: timing, range, hysteresis, palm mute, sustain/rolloff, hiss, stereo and latency alignment
+PASS default Full equivalence and smoothed Range/bypass automation
+<end of output>
+Test time =   0.40 sec
+----------------------------------------------------------
+Test Passed.
+"ChimeraGateTests" end time: Oct 04 03:34 Coordinated Universal Time
+"ChimeraGateTests" time elapsed: 00:00:00
+----------------------------------------------------------
+
+15/16 Testing: ChimeraIntegratedProcessorTests
+15/16 Test: ChimeraIntegratedProcessorTests
+Command: "D:/a/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build/ChimeraIntegratedProcessorTests_artefacts/Release/ChimeraIntegratedProcessorTests.exe" "D:/a/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build/signature-snapshots"
+Directory: D:/a/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build
+"ChimeraIntegratedProcessorTests" start time: Oct 04 03:34 Coordinated Universal Time
+Output:
+----------------------------------------------------------
+PASS full-state A Path To Alsatia parameters=3891 audio_delta=0 energy=9.5094 synthetic only
+PASS full-state Feel My Wrath parameters=3891 audio_delta=0 energy=10.781 synthetic only
+PASS full-state Blackhearted parameters=3891 audio_delta=0 energy=11.3013 synthetic only
+PASS full-state Dark Matters of Throne parameters=3891 audio_delta=0 energy=11.6672 synthetic only
+MEASURE unity mode=0 board=0 delta_db=-0.00172043 zero_shift_reported=24
+MEASURE unity mode=1 board=0 delta_db=-0.00172043 zero_shift_reported=24
+MEASURE unity mode=2 board=0 delta_db=0.000571425 zero_shift_reported=24
+MEASURE unity mode=0 board=1 delta_db=0.000745477 zero_shift_reported=42
+MEASURE unity mode=1 board=1 delta_db=0.000745477 zero_shift_reported=42
+MEASURE unity mode=2 board=1 delta_db=-0.0014693 zero_shift_reported=42
+PASS processor pedal GR model=6 active and bypass
+PASS processor pedal GR model=7 active and bypass
+PASS processor pedal GR model=8 active and bypass
+PASS processor pedal GR model=9 active and bypass
+PASS processor pedal GR model=10 active and bypass
+<end of output>
+Test time =   9.89 sec
+----------------------------------------------------------
+Test Passed.
+"ChimeraIntegratedProcessorTests" end time: Oct 04 03:34 Coordinated Universal Time
+"ChimeraIntegratedProcessorTests" time elapsed: 00:00:09
+----------------------------------------------------------
+
+16/16 Testing: ChimeraPitchRegressionTests
+16/16 Test: ChimeraPitchRegressionTests
+Command: "D:/a/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build/ChimeraPitchRegressionTests_artefacts/Release/ChimeraPitchRegressionTests.exe"
+Directory: D:/a/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build
+"ChimeraPitchRegressionTests" start time: Oct 04 03:34 Coordinated Universal Time
+Output:
+----------------------------------------------------------
+fixture=synthetic_sine_0.2_L_negative0.65_R frequency=27.5Hz duration=1.5s analysis_last=0.75s; CPU is shared-runner evidence only
+MEASURE rate=44100 block=64 shift=-12 nominal_latency=2048 baseline_target_db=-7.50147 candidate_target_db=-2.12611 baseline_p99_us=521.1 candidate_p95_us=407.1 candidate_p99_us=642.3
+MEASURE rate=44100 block=64 shift=-5 nominal_latency=2048 baseline_target_db=-6.00529 candidate_target_db=-0.629683 baseline_p99_us=434.4 candidate_p95_us=429.9 candidate_p99_us=440
+MEASURE rate=44100 block=64 shift=-2 nominal_latency=2048 baseline_target_db=-5.7183 candidate_target_db=-0.342763 baseline_p99_us=461.3 candidate_p95_us=443.3 candidate_p99_us=463
+MEASURE rate=44100 block=64 shift=-1 nominal_latency=2048 baseline_target_db=-5.60194 candidate_target_db=-0.226412 baseline_p99_us=453.8 candidate_p95_us=442 candidate_p99_us=447.3
+MEASURE rate=44100 block=64 shift=0 nominal_latency=2048 baseline_target_db=-0.179764 candidate_target_db=-0.179764 baseline_p99_us=432 candidate_p95_us=419 candidate_p99_us=431.2
+MEASURE rate=44100 block=64 shift=1 nominal_latency=2048 baseline_target_db=-0.160436 candidate_target_db=-0.160436 baseline_p99_us=684.8 candidate_p95_us=437.4 candidate_p99_us=446.1
+MEASURE rate=44100 block=64 shift=2 nominal_latency=2048 baseline_target_db=-0.273159 candidate_target_db=-0.273159 baseline_p99_us=444.7 candidate_p95_us=433.9 candidate_p99_us=440.4
+MEASURE rate=44100 block=64 shift=5 nominal_latency=2048 baseline_target_db=-1.09223 candidate_target_db=-1.09223 baseline_p99_us=428.6 candidate_p95_us=424.5 candidate_p99_us=613.2
+MEASURE rate=44100 block=64 shift=12 nominal_latency=2048 baseline_target_db=-4.93338 candidate_target_db=-4.93338 baseline_p99_us=374 candidate_p95_us=361.4 candidate_p99_us=369.3
+MEASURE rate=44100 block=128 shift=-12 nominal_latency=2048 baseline_target_db=-7.50147 candidate_target_db=-2.12611 baseline_p99_us=412.6 candidate_p95_us=410.6 candidate_p99_us=421.3
+MEASURE rate=44100 block=128 shift=-5 nominal_latency=2048 baseline_target_db=-6.00529 candidate_target_db=-0.629683 baseline_p99_us=452.1 candidate_p95_us=438.6 candidate_p99_us=554.4
+MEASURE rate=44100 block=128 shift=-2 nominal_latency=2048 baseline_target_db=-5.7183 candidate_target_db=-0.342763 baseline_p99_us=449.4 candidate_p95_us=442.7 candidate_p99_us=450.7
+MEASURE rate=44100 block=128 shift=-1 nominal_latency=2048 baseline_target_db=-5.60194 candidate_target_db=-0.226412 baseline_p99_us=450.3 candidate_p95_us=445.5 candidate_p99_us=461.7
+MEASURE rate=44100 block=128 shift=0 nominal_latency=2048 baseline_target_db=-0.179764 candidate_target_db=-0.179764 baseline_p99_us=436.9 candidate_p95_us=421.5 candidate_p99_us=441.3
+MEASURE rate=44100 block=128 shift=1 nominal_latency=2048 baseline_target_db=-0.160436 candidate_target_db=-0.160436 baseline_p99_us=455.1 candidate_p95_us=443.6 candidate_p99_us=461.7
+MEASURE rate=44100 block=128 shift=2 nominal_latency=2048 baseline_target_db=-0.273159 candidate_target_db=-0.273159 baseline_p99_us=479.6 candidate_p95_us=437.4 candidate_p99_us=450.7
+MEASURE rate=44100 block=128 shift=5 nominal_latency=2048 baseline_target_db=-1.09223 candidate_target_db=-1.09223 baseline_p99_us=448.5 candidate_p95_us=434.6 candidate_p99_us=542.9
+MEASURE rate=44100 block=128 shift=12 nominal_latency=2048 baseline_target_db=-4.93338 candidate_target_db=-4.93338 baseline_p99_us=376 candidate_p95_us=368.1 candidate_p99_us=449.6
+MEASURE rate=44100 block=256 shift=-12 nominal_latency=2048 baseline_target_db=-7.49922 candidate_target_db=-2.12387 baseline_p99_us=651.3 candidate_p95_us=410.8 candidate_p99_us=421
+MEASURE rate=44100 block=256 shift=-5 nominal_latency=2048 baseline_target_db=-6.02934 candidate_target_db=-0.653726 baseline_p99_us=451.3 candidate_p95_us=440.2 candidate_p99_us=449.2
+MEASURE rate=44100 block=256 shift=-2 nominal_latency=2048 baseline_target_db=-5.6914 candidate_target_db=-0.315818 baseline_p99_us=694.5 candidate_p95_us=661.2 candidate_p99_us=677.4
+MEASURE rate=44100 block=256 shift=-1 nominal_latency=2048 baseline_target_db=-5.57743 candidate_target_db=-0.201884 baseline_p99_us=456.8 candidate_p95_us=451.3 candidate_p99_us=511.3
+MEASURE rate=44100 block=256 shift=0 nominal_latency=2048 baseline_target_db=-0.209913 candidate_target_db=-0.209913 baseline_p99_us=439.2 candidate_p95_us=715.5 candidate_p99_us=777.1
+MEASURE rate=44100 block=256 shift=1 nominal_latency=2048 baseline_target_db=-0.177711 candidate_target_db=-0.177711 baseline_p99_us=629.7 candidate_p95_us=450.1 candidate_p99_us=470.9
+MEASURE rate=44100 block=256 shift=2 nominal_latency=2048 baseline_target_db=-0.299611 candidate_target_db=-0.299611 baseline_p99_us=460.8 candidate_p95_us=446 candidate_p99_us=457.3
+MEASURE rate=44100 block=256 shift=5 nominal_latency=2048 baseline_target_db=-1.12324 candidate_target_db=-1.12324 baseline_p99_us=679.9 candidate_p95_us=430.1 candidate_p99_us=445.9
+MEASURE rate=44100 block=256 shift=12 nominal_latency=2048 baseline_target_db=-4.9051 candidate_target_db=-4.9051 baseline_p99_us=389.6 candidate_p95_us=375.7 candidate_p99_us=405.3
+MEASURE rate=48000 block=64 shift=-12 nominal_latency=2048 baseline_target_db=-9.39877 candidate_target_db=-2.59496 baseline_p99_us=406.3 candidate_p95_us=412.5 candidate_p99_us=639.6
+MEASURE rate=48000 block=64 shift=-5 nominal_latency=2048 baseline_target_db=-7.78725 candidate_target_db=-0.982668 baseline_p99_us=433.4 candidate_p95_us=430.1 candidate_p99_us=440.6
+MEASURE rate=48000 block=64 shift=-2 nominal_latency=2048 baseline_target_db=-7.39678 candidate_target_db=-0.592724 baseline_p99_us=449.7 candidate_p95_us=440 candidate_p99_us=459.1
+MEASURE rate=48000 block=64 shift=-1 nominal_latency=2048 baseline_target_db=-7.24683 candidate_target_db=-0.442802 baseline_p99_us=609.1 candidate_p95_us=439.8 candidate_p99_us=448.5
+MEASURE rate=48000 block=64 shift=0 nominal_latency=2048 baseline_target_db=-0.384887 candidate_target_db=-0.384887 baseline_p99_us=429.9 candidate_p95_us=417.9 candidate_p99_us=423.4
+MEASURE rate=48000 block=64 shift=1 nominal_latency=2048 baseline_target_db=-0.312391 candidate_target_db=-0.312391 baseline_p99_us=680.1 candidate_p95_us=436.4 candidate_p99_us=446
+MEASURE rate=48000 block=64 shift=2 nominal_latency=2048 baseline_target_db=-0.441095 candidate_target_db=-0.441095 baseline_p99_us=438.3 candidate_p95_us=432.1 candidate_p99_us=445.5
+MEASURE rate=48000 block=64 shift=5 nominal_latency=2048 baseline_target_db=-0.953517 candidate_target_db=-0.953517 baseline_p99_us=428 candidate_p95_us=424.5 candidate_p99_us=657.9
+MEASURE rate=48000 block=64 shift=12 nominal_latency=2048 baseline_target_db=-3.26454 candidate_target_db=-3.26454 baseline_p99_us=365.3 candidate_p95_us=355.3 candidate_p99_us=367.4
+MEASURE rate=48000 block=128 shift=-12 nominal_latency=2048 baseline_target_db=-9.39572 candidate_target_db=-2.59193 baseline_p99_us=407.3 candidate_p95_us=407.6 candidate_p99_us=418.3
+MEASURE rate=48000 block=128 shift=-5 nominal_latency=2048 baseline_target_db=-7.7941 candidate_target_db=-0.989469 baseline_p99_us=449 candidate_p95_us=433.4 candidate_p99_us=444.4
+MEASURE rate=48000 block=128 shift=-2 nominal_latency=2048 baseline_target_db=-7.38148 candidate_target_db=-0.577401 baseline_p99_us=464.5 candidate_p95_us=444.8 candidate_p99_us=457.1
+MEASURE rate=48000 block=128 shift=-1 nominal_latency=2048 baseline_target_db=-7.24416 candidate_target_db=-0.44017 baseline_p99_us=686.5 candidate_p95_us=444.6 candidate_p99_us=458.9
+MEASURE rate=48000 block=128 shift=0 nominal_latency=2048 baseline_target_db=-0.390619 candidate_target_db=-0.390619 baseline_p99_us=439.9 candidate_p95_us=427.4 candidate_p99_us=503.1
+MEASURE rate=48000 block=128 shift=1 nominal_latency=2048 baseline_target_db=-0.327536 candidate_target_db=-0.327536 baseline_p99_us=676 candidate_p95_us=437.7 candidate_p99_us=452.1
+MEASURE rate=48000 block=128 shift=2 nominal_latency=2048 baseline_target_db=-0.455496 candidate_target_db=-0.455496 baseline_p99_us=447.6 candidate_p95_us=430.7 candidate_p99_us=445.1
+MEASURE rate=48000 block=128 shift=5 nominal_latency=2048 baseline_target_db=-0.961408 candidate_target_db=-0.961408 baseline_p99_us=435.4 candidate_p95_us=659.8 candidate_p99_us=673.9
+MEASURE rate=48000 block=128 shift=12 nominal_latency=2048 baseline_target_db=-3.26535 candidate_target_db=-3.26535 baseline_p99_us=368.3 candidate_p95_us=364.6 candidate_p99_us=374.2
+MEASURE rate=48000 block=256 shift=-12 nominal_latency=2048 baseline_target_db=-9.37944 candidate_target_db=-2.57571 baseline_p99_us=414.8 candidate_p95_us=415.5 candidate_p99_us=423.1
+MEASURE rate=48000 block=256 shift=-5 nominal_latency=2048 baseline_target_db=-7.79217 candidate_target_db=-0.987504 baseline_p99_us=478.8 candidate_p95_us=605.2 candidate_p99_us=685.9
+MEASURE rate=48000 block=256 shift=-2 nominal_latency=2048 baseline_target_db=-7.35656 candidate_target_db=-0.55257 baseline_p99_us=472.4 candidate_p95_us=444.3 candidate_p99_us=451.1
+MEASURE rate=48000 block=256 shift=-1 nominal_latency=2048 baseline_target_db=-7.2574 candidate_target_db=-0.453509 baseline_p99_us=695.2 candidate_p95_us=447.5 candidate_p99_us=459.1
+MEASURE rate=48000 block=256 shift=0 nominal_latency=2048 baseline_target_db=-0.381383 candidate_target_db=-0.381383 baseline_p99_us=454 candidate_p95_us=428.7 candidate_p99_us=448.2
+MEASURE rate=48000 block=256 shift=1 nominal_latency=2048 baseline_target_db=-0.352013 candidate_target_db=-0.352013 baseline_p99_us=518.5 candidate_p95_us=478.6 candidate_p99_us=674.2
+MEASURE rate=48000 block=256 shift=2 nominal_latency=2048 baseline_target_db=-0.46836 candidate_target_db=-0.46836 baseline_p99_us=452.5 candidate_p95_us=469.7 candidate_p99_us=615.5
+MEASURE rate=48000 block=256 shift=5 nominal_latency=2048 baseline_target_db=-0.95051 candidate_target_db=-0.95051 baseline_p99_us=485.6 candidate_p95_us=660.3 candidate_p99_us=680.1
+MEASURE rate=48000 block=256 shift=12 nominal_latency=2048 baseline_target_db=-3.29177 candidate_target_db=-3.29177 baseline_p99_us=375.2 candidate_p95_us=544.5 candidate_p99_us=569.2
+MEASURE rate=96000 block=64 shift=-12 nominal_latency=4096 baseline_target_db=-9.39878 candidate_target_db=-2.59497 baseline_p99_us=790.4 candidate_p95_us=780.3 candidate_p99_us=808.7
+MEASURE rate=96000 block=64 shift=-5 nominal_latency=4096 baseline_target_db=-7.78728 candidate_target_db=-0.982699 baseline_p99_us=843.7 candidate_p95_us=827.2 candidate_p99_us=1283.2
+MEASURE rate=96000 block=64 shift=-2 nominal_latency=4096 baseline_target_db=-7.39673 candidate_target_db=-0.592679 baseline_p99_us=878.5 candidate_p95_us=850.6 candidate_p99_us=876
+MEASURE rate=96000 block=64 shift=-1 nominal_latency=4096 baseline_target_db=-7.2468 candidate_target_db=-0.442778 baseline_p99_us=871.4 candidate_p95_us=854.2 candidate_p99_us=866.5
+MEASURE rate=96000 block=64 shift=0 nominal_latency=4096 baseline_target_db=-0.384873 candidate_target_db=-0.384873 baseline_p99_us=824.1 candidate_p95_us=801 candidate_p99_us=821.9
+MEASURE rate=96000 block=64 shift=1 nominal_latency=4096 baseline_target_db=-0.312441 candidate_target_db=-0.312441 baseline_p99_us=869.8 candidate_p95_us=850.4 candidate_p99_us=871.2
+MEASURE rate=96000 block=64 shift=2 nominal_latency=4096 baseline_target_db=-0.441165 candidate_target_db=-0.441165 baseline_p99_us=901.1 candidate_p95_us=843.3 candidate_p99_us=861.7
+MEASURE rate=96000 block=64 shift=5 nominal_latency=4096 baseline_target_db=-0.953507 candidate_target_db=-0.953507 baseline_p99_us=842.9 candidate_p95_us=816 candidate_p99_us=846.7
+MEASURE rate=96000 block=64 shift=12 nominal_latency=4096 baseline_target_db=-3.26453 candidate_target_db=-3.26453 baseline_p99_us=715.8 candidate_p95_us=691.2 candidate_p99_us=718.1
+MEASURE rate=96000 block=128 shift=-12 nominal_latency=4096 baseline_target_db=-9.39878 candidate_target_db=-2.59497 baseline_p99_us=792.4 candidate_p95_us=786.5 candidate_p99_us=1255.9
+MEASURE rate=96000 block=128 shift=-5 nominal_latency=4096 baseline_target_db=-7.78728 candidate_target_db=-0.982699 baseline_p99_us=843.3 candidate_p95_us=831.2 candidate_p99_us=852.2
+MEASURE rate=96000 block=128 shift=-2 nominal_latency=4096 baseline_target_db=-7.39673 candidate_target_db=-0.592679 baseline_p99_us=877 candidate_p95_us=856.1 candidate_p99_us=874.1
+MEASURE rate=96000 block=128 shift=-1 nominal_latency=4096 baseline_target_db=-7.2468 candidate_target_db=-0.442778 baseline_p99_us=880 candidate_p95_us=859.9 candidate_p99_us=880
+MEASURE rate=96000 block=128 shift=0 nominal_latency=4096 baseline_target_db=-0.384873 candidate_target_db=-0.384873 baseline_p99_us=1050.4 candidate_p95_us=804 candidate_p99_us=824
+MEASURE rate=96000 block=128 shift=1 nominal_latency=4096 baseline_target_db=-0.312441 candidate_target_db=-0.312441 baseline_p99_us=881.1 candidate_p95_us=861.7 candidate_p99_us=1094.8
+MEASURE rate=96000 block=128 shift=2 nominal_latency=4096 baseline_target_db=-0.441165 candidate_target_db=-0.441165 baseline_p99_us=859.8 candidate_p95_us=853.5 candidate_p99_us=1016.5
+MEASURE rate=96000 block=128 shift=5 nominal_latency=4096 baseline_target_db=-0.953507 candidate_target_db=-0.953507 baseline_p99_us=834.4 candidate_p95_us=824.9 candidate_p99_us=1269.5
+MEASURE rate=96000 block=128 shift=12 nominal_latency=4096 baseline_target_db=-3.26453 candidate_target_db=-3.26453 baseline_p99_us=710.8 candidate_p95_us=691.3 candidate_p99_us=705.2
+MEASURE rate=96000 block=256 shift=-12 nominal_latency=4096 baseline_target_db=-9.39572 candidate_target_db=-2.59193 baseline_p99_us=1243.5 candidate_p95_us=791 candidate_p99_us=805.2
+MEASURE rate=96000 block=256 shift=-5 nominal_latency=4096 baseline_target_db=-7.79411 candidate_target_db=-0.989485 baseline_p99_us=1068.8 candidate_p95_us=853.8 candidate_p99_us=912
+MEASURE rate=96000 block=256 shift=-2 nominal_latency=4096 baseline_target_db=-7.38143 candidate_target_db=-0.577357 baseline_p99_us=910.6 candidate_p95_us=872.4 candidate_p99_us=897.1
+MEASURE rate=96000 block=256 shift=-1 nominal_latency=4096 baseline_target_db=-7.24416 candidate_target_db=-0.440169 baseline_p99_us=891.9 candidate_p95_us=908.9 candidate_p99_us=1334
+MEASURE rate=96000 block=256 shift=0 nominal_latency=4096 baseline_target_db=-0.390579 candidate_target_db=-0.390579 baseline_p99_us=826 candidate_p95_us=822.3 candidate_p99_us=877.2
+MEASURE rate=96000 block=256 shift=1 nominal_latency=4096 baseline_target_db=-0.32759 candidate_target_db=-0.32759 baseline_p99_us=914.2 candidate_p95_us=885.1 candidate_p99_us=998.9
+MEASURE rate=96000 block=256 shift=2 nominal_latency=4096 baseline_target_db=-0.455557 candidate_target_db=-0.455557 baseline_p99_us=904.4 candidate_p95_us=875.3 candidate_p99_us=1146.1
+MEASURE rate=96000 block=256 shift=5 nominal_latency=4096 baseline_target_db=-0.96137 candidate_target_db=-0.96137 baseline_p99_us=859 candidate_p95_us=825.8 candidate_p99_us=862.1
+MEASURE rate=96000 block=256 shift=12 nominal_latency=4096 baseline_target_db=-3.26539 candidate_target_db=-3.26539 baseline_p99_us=749.9 candidate_p95_us=712.5 candidate_p99_us=756.8
+MEASURE impulse rate=44100 shift=-12 latency=2048 centroid_samples=2047.97 energy5_95_samples=1535:2560 smear_ms=23.2426
+MEASURE impulse rate=44100 shift=-2 latency=2048 centroid_samples=2045.29 energy5_95_samples=1280:2769 smear_ms=33.7642
+MEASURE impulse rate=44100 shift=2 latency=2048 centroid_samples=2051.42 energy5_95_samples=1339:2746 smear_ms=31.9048
+MEASURE impulse rate=44100 shift=12 latency=2048 centroid_samples=2068.04 energy5_95_samples=1152:2176 smear_ms=23.22
+MEASURE impulse rate=48000 shift=-12 latency=2048 centroid_samples=2047.97 energy5_95_samples=1535:2560 smear_ms=21.3542
+MEASURE impulse rate=48000 shift=-2 latency=2048 centroid_samples=2045.29 energy5_95_samples=1280:2769 smear_ms=31.0208
+MEASURE impulse rate=48000 shift=2 latency=2048 centroid_samples=2051.42 energy5_95_samples=1339:2746 smear_ms=29.3125
+MEASURE impulse rate=48000 shift=12 latency=2048 centroid_samples=2068.04 energy5_95_samples=1152:2176 smear_ms=21.3333
+MEASURE impulse rate=96000 shift=-12 latency=4096 centroid_samples=4095.97 energy5_95_samples=3071:5120 smear_ms=21.3438
+MEASURE impulse rate=96000 shift=-2 latency=4096 centroid_samples=4086.07 energy5_95_samples=2775:5538 smear_ms=28.7812
+MEASURE impulse rate=96000 shift=2 latency=4096 centroid_samples=4115.9 energy5_95_samples=2810:5492 smear_ms=27.9375
+MEASURE impulse rate=96000 shift=12 latency=4096 centroid_samples=4136.13 energy5_95_samples=2304:4352 smear_ms=21.3333
+PASS low-bin target-energy correction and unchanged positive/unity raw mappings; live latency / real DI / stereo image / listening acceptance BLOCKED
+<end of output>
+Test time =  25.23 sec
+----------------------------------------------------------
+Test Passed.
+"ChimeraPitchRegressionTests" end time: Oct 04 03:34 Coordinated Universal Time
+"ChimeraPitchRegressionTests" time elapsed: 00:00:25
+----------------------------------------------------------
+
+End testing: Oct 04 03:34 Coordinated Universal Time

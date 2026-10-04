@@ -25,5 +25,35 @@
     "level1_midpoint_expected": -6,
     "actual_level1_midpoint": -6.000000477
   },
-  "contract_tolerance": "4 float epsilon units scaled by frozen parameter domain/span, plus 5e-10 serialization rounding; exact IDs/order/version/steps/automation; original frozen SHA retained"
+  "contract_tolerance": "4 float epsilon units scaled by frozen parameter domain/span, plus 5e-10 serialization rounding; exact IDs/order/version/steps/automation; original frozen SHA retained",
+  "final": {
+    "commit": "e046292c6c85eb5f9a2361b7b80fc398ea38d428",
+    "matrix_run": 37173235885,
+    "candidate_run": 37173235834,
+    "all_jobs": "success",
+    "ctest": {
+      "windows": 16,
+      "windows_candidate": 16,
+      "macos": 14,
+      "linux": 14
+    },
+    "complete_junit_inventory": "PASS",
+    "macos_numeric_rounding_differences": 193,
+    "legacy_au_version_hints": {
+      "0": 142,
+      "1": 3544,
+      "appended": 2
+    },
+    "windows_installer_checks": 16,
+    "windows_installer_sha256": "ef079c2cecd2b96ac8e1d699023f4ec247706e7032d3d290b78303c4a21ec66a",
+    "windows_installer_filename": "SpectralForge-Chimera-update-e046292c6c-win64-Setup.exe",
+    "macos_universal_package": "PASS",
+    "linux_packages": "PASS",
+    "release_verdict": "BLOCKED",
+    "actual_daw_acceptance": false,
+    "real_di_acceptance": false,
+    "pitch_under_10ms": false,
+    "callback_timing_nonregression": "BLOCKED",
+    "e670fe_capture_calibration": "BLOCKED"
+  }
 }
