@@ -1,0 +1,26 @@
+{
+  "payload_manifest_sha256": "07b8a17c9b8d8d41b36de16463b31fbf8fb36d4b6a49497d035a4a3005a46e6c",
+  "checks": [
+    "PASS: Product rename retires only exact old executable/VST3 binaries and preserves personal preset bytes",
+    "PASS: Companion Bass/Guitar WAVs install recursively, match their source hashes, decode, appear in the cabinet menu and load into a rig",
+    "PASS: Four Raven companion fixtures and sidecars install automatically, decode, appear in CAB and load into a rig",
+    "PASS: Full install: standard VST3 path, app, documentation, shortcuts and uninstall registration; payload hashes match",
+    "PASS: Standalone, VST3 and reference renderer use the static MSVC runtime",
+    "PASS: Installed VST3 loads through the Windows loader and exports GetPluginFactory",
+    "PASS: Start Menu shortcut launches the installed app and its window: C:\\Program Files\\SpectralForge\\Chimera Amp Matrix\\SpectralForge Chimera.exe",
+    "PASS: Same-version reinstall repairs files and preserves personal presets/IRs",
+    "PASS: Personal IR collection is preserved after uninstall",
+    "PASS: Uninstall removes owned binaries, shortcut and Windows registration; preserves user files",
+    "PASS: Independent custom application and VST3 installation folders accept Unicode paths",
+    "PASS: Repair remembers the selected VST3 folder without a /VST3DIR override",
+    "PASS: Changing the selected VST3 folder retires only its exact old plugin binary and preserves user files",
+    "PASS: VST3-only selection and removal; Unicode custom app path",
+    "PASS: Start Menu shortcut launches the installed app and its window: D:\\a\\_temp\\Chimera 설치 검증\\SpectralForge Chimera.exe",
+    "PASS: Standalone-only selection and removal; no VST3 installed"
+  ],
+  "installer": "SpectralForge-Chimera-update-cf19179eb5-win64-Setup.exe",
+  "success": true,
+  "source_sha": "cf19179eb589704e13ead81c5a7a4bf977707846",
+  "installer_sha256": "0b286139053de5f8688e12d6869a9bb57f0e7e4c0a394e81b481142a946315c6",
+  "run_id": "37170303337"
+}

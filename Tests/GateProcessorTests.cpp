@@ -1,7 +1,9 @@
 #include <juce_cryptography/juce_cryptography.h>
 #include "PluginProcessor.h"
 #include "GateUITests.h"
+#include "Fixtures/ReleasedParameterContract.h"
 #include <iostream>
+#include <limits>
 #include <stdexcept>
 
 namespace {
@@ -18,20 +20,47 @@ void parameterContract(ChimeraProcessor& p)
     for(auto* raw:p.getParameters()) {
         auto* parameter=dynamic_cast<juce::RangedAudioParameter*>(raw);require(parameter!=nullptr,"Parameter has no ID/range");
         if (parameter->getParameterIndex() >= 3686) break;
+        require(std::isfinite(parameter->getDefaultValue()) && std::isfinite(parameter->convertFrom0to1(0.f))
+                && std::isfinite(parameter->convertFrom0to1(.5f)) && std::isfinite(parameter->convertFrom0to1(1.f)),"Non-finite released parameter mapping");
         manifest+=juce::String(count++)+"|"+parameter->paramID+"|"+juce::String(parameter->getVersionHint())+"|"
             +juce::String(parameter->getDefaultValue(),9)+"|"+juce::String(parameter->getNumSteps())+"|"
             +juce::String(parameter->convertFrom0to1(0.f),9)+"|"+juce::String(parameter->convertFrom0to1(.5f),9)+"|"
             +juce::String(parameter->convertFrom0to1(1.f),9)+"|"+juce::String(int(parameter->isAutomatable()))+"\n";
     }
     const auto digest=juce::SHA256(manifest.toRawUTF8(),manifest.getNumBytesAsUTF8()).toHexString();
-    require(digest=="1de9d010b4267088d80a6922105b047ae0c9e142e3b931c000129d6befa3523f","Released parameter ID/order/version/default/range/automation contract changed");
+    const juce::String frozen(releasedParameterContract);
+    require(juce::SHA256(frozen.toRawUTF8(),frozen.getNumBytesAsUTF8()).toHexString()
+            =="1de9d010b4267088d80a6922105b047ae0c9e142e3b931c000129d6befa3523f","Frozen released contract fixture changed");
+    const auto actualRows=juce::StringArray::fromLines(manifest),expectedRows=juce::StringArray::fromLines(frozen);
+    require(actualRows.size()==expectedRows.size(),"Released parameter count changed");
+    int numericDifferences=0;
+    for(int row=0;row<expectedRows.size();++row) {
+        if(expectedRows[row].isEmpty()){require(actualRows[row].isEmpty(),"Unexpected contract row");continue;}
+        const auto actual=juce::StringArray::fromTokens(actualRows[row],"|",{});
+        const auto expected=juce::StringArray::fromTokens(expectedRows[row],"|",{});
+        require(actual.size()==9 && expected.size()==9,"Malformed parameter contract row");
+        for(int field=0;field<9;++field) {
+            if(field==3 || (field>=5 && field<=7)) {
+                // JUCE skew conversion uses exp/log. ARM and x86 libm/FMA may
+                // round the same float mapping differently; preserve numeric
+                // semantics without relying on nine-decimal string identity.
+                const double a=actual[field].getDoubleValue(),e=expected[field].getDoubleValue();
+                const double tolerance=5e-10+4*double(std::numeric_limits<float>::epsilon())*std::abs(e);
+                if(std::abs(a-e)>tolerance) {
+                    std::cerr<<"Contract mismatch "<<expected[1]<<" field="<<field<<" expected="<<expected[field]<<" actual="<<actual[field]<<'\n';
+                    require(false,"Released default/range numeric contract changed");
+                }
+                if(a!=e){++numericDifferences;if(numericDifferences<=8)std::cout<<"ROUNDING "<<expected[1]<<" field="<<field<<" expected="<<expected[field]<<" actual="<<actual[field]<<'\n';}
+            } else require(actual[field]==expected[field],"Released ID/order/version/steps/automation contract changed");
+        }
+    }
     auto* range=p.parameters().getParameter("gateRangeDb");
     require(range && range->getParameterIndex()==3890 && count==3686 && p.getParameters().size()==3891,"Range must follow the 204 E670FE parameters without changing released ordinals");
     require(range->getVersionHint()==2 && range->isAutomatable(),"Range AU version hint/automation changed");
     require(range->getText(1,0)=="Full" && range->getValueForText("Full")==1.f,"Host Full text does not round-trip");
     require(std::abs(range->convertFrom0to1(range->getValueForText("24 dB"))-24)<.01f,"Host dB text does not parse");
     require(get(p,"gateRangeDb")==96,"New-session default is not legacy Full");
-    std::cout<<"PASS legacy parameter contract: "<<count<<" entries SHA256 "<<digest<<"; append-only gateRangeDb\n";
+    std::cout<<"PASS legacy parameter contract: "<<count<<" entries SHA256 "<<digest<<" numeric_rounding_differences="<<numericDifferences<<"; append-only gateRangeDb\n";
 }
 void stateAndAutomation(ChimeraProcessor& p)
 {

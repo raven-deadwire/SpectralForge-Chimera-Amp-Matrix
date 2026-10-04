@@ -1,0 +1,21 @@
+{
+  "commit": "cf19179eb589704e13ead81c5a7a4bf977707846",
+  "candidate_run": 37170303337,
+  "candidate_verdict": "success",
+  "windows_ctest": {
+    "passed": 16,
+    "configured": 16
+  },
+  "live_removal": [
+    "controller-first: 3 cycles, 2 surviving peers, PASS",
+    "component-first: 3 cycles, 2 surviving peers, PASS"
+  ],
+  "initial_matrix_run": 37170303339,
+  "linux": "success",
+  "macos": "13/14 passed; GateProcessor legacy textual numeric hash mismatch; portable numeric fixture follow-up f15b55a994c22d1d4fa3e4f8673e6c0d4bdfd9a8 pending",
+  "new_ci_runs": [
+    37171503067,
+    37171503094
+  ],
+  "synthetic_and_harness_only": true
+}
