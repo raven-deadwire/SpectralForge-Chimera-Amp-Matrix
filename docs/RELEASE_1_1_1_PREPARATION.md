@@ -1,6 +1,6 @@
 # Open Beta 1.1.1 — release preparation
 
-Status: publication authorized by the user on 2026-10-04 at 15:11 KST, conditional on completed validation. The later AMP/PRE/POST and complete factory-bank corrections supersede the previously built candidate. Release remains BLOCKED until the final source and required manual evidence pass. No additional publication approval is required.
+Status: publication authorized by the user on 2026-10-04 at 15:11 KST, conditional on completed validation. The later AMP/PRE/POST and complete factory-bank corrections supersede the previously built candidate. At 2026-10-04 21:24 KST the user explicitly confirmed that the previously listed manual checks were completed. Manual beta acceptance is recorded as owner-reported; no raw measurements or host-version matrix are inferred. Final-source automated CI and package/provenance checks remain required. No additional publication approval is required.
 
 ## Identity
 
@@ -23,8 +23,8 @@ Additional user-requested scope: lead/high-gain saturation, native factory AMP/P
 1. Require successful Windows/macOS/Linux builds and complete configured CTest inventories on the final source commit; compare exact SHA, not just a green earlier run.
 2. Require Windows Setup install/repair/uninstall, version-resource/registry checks, Defender scan, and macOS/Linux package verification. Preserve personal presets/IRs and the existing plugin identity.
 3. Verify the five packages, SHA256SUMS, update-beta.json, payload manifests and candidate-source.json agree on version, source and bytes.
-4. Evaluate the policy v4 `beta_1_1_1` profile with current-commit evidence. DAW close/remove/reopen, audio callback timing, real DI/level/Gate listening and E670FE reference acceptance are still outstanding unless new concrete evidence is supplied. The user's general satisfactory-function feedback does not certify untested cases.
-5. Review [release notes](OPEN_BETA_RELEASE_NOTES.md), including the transpose limitation and unconfirmed commercial-DAW shutdown resolution, before public release.
+4. Keep policy v4 `beta_1_1_1` machine-readable evidence separate from the owner's 21:24 KST manual beta acceptance. The owner confirmed the previously requested DAW close/remove/reopen/soak, DI/Gate/E670FE and timing checks. Record this as owner attestation; do not fabricate numeric reports or claim that CI performed those checks.
+5. Review [release notes](OPEN_BETA_RELEASE_NOTES.md), including the transpose limitation and the scope of owner-reported host acceptance, before public release.
 
 The existing `publish-beta11.yml` / `publish_beta11.py` and old release branch are pinned to the already published 1.1.0 beta. Do not use them to publish 1.1.1 or replace old assets. Prepare the 1.1.1 publication action only for the accepted exact source and verified artifact; the user’s conditional publication instruction is already recorded above.
 

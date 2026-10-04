@@ -5,6 +5,10 @@ Policy: `Validation/release-policy.json` v4, profile `beta_1_1_1`.
 
 This checklist is fail-closed. A missing artifact, unavailable DAW, missing DI, or stale commit is **BLOCKED**, not PASS. The only deferred 1.1.1 items are `I2.PITCH_LIVE` and `I2.PITCH_DI`; they remain tracked by `transpose_followup`.
 
+## Owner manual acceptance — 2026-10-04 21:24 KST
+
+The release owner confirmed that the previously requested manual checks were completed and had already authorized publication. Sections 3–5 are accepted for this beta on that owner report. No additional upload of raw DI, host logs or reference measurements is a prerequisite requested from the owner. Unchecked evidence-retention items below are not fabricated as completed; this record does not supply numeric measurements, a host-version matrix or universal hardware certification. Final-source automated builds and package checks still must pass before publication.
+
 ## 1. Freeze one exact source
 
 - [ ] Choose one final source SHA after all 1.1.1 fixes, documentation and publisher changes are integrated.
