@@ -134,6 +134,8 @@ target_sources(ChimeraRender PRIVATE Tests/RenderAmp.cpp)
 target_include_directories(ChimeraRender PRIVATE Source)
 target_compile_definitions(ChimeraRender PRIVATE JUCE_USE_CURL=0 JUCE_WEB_BROWSER=0)
 target_link_libraries(ChimeraRender PRIVATE juce::juce_dsp juce::juce_audio_formats PUBLIC juce::juce_recommended_config_flags)
+add_test(NAME ChimeraNativeRendererTests
+  COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/Tests/test_native_renderer.py" "$<TARGET_FILE:ChimeraRender>")
 
 # Update metadata parsing and SHA256 checks are offline and run on every platform.
 juce_add_console_app(ChimeraReleaseTests PRODUCT_NAME "Chimera Release Tests")

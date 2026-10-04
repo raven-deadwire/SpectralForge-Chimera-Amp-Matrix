@@ -61,13 +61,14 @@ void voiceFactoryNative(int index,Getter get,Setter set) {
         const float treble=position(tone.treble+get("treble"+suffix)/48.f),presence=tone.presence;
         const auto k=[&](const char* key,float value){const int c=ampNativeControlIndex(model,key);jassert(c>=0);if(c>=0)s.values[size_t(c)]=value;};
         const auto eq=[&](const char* b,const char* m,const char* t){k(b,bass);k(m,mid);k(t,treble);};
-        const float highGain=juce::jlimit(.4f,.72f,.35f+.5f*drive);
+        const bool heavy=index==1||index==3||index==8||index==9||index==10||index==20;
+        const float highGain=heavy?juce::jlimit(.68f,.82f,.55f+.5f*drive):juce::jlimit(.4f,.72f,.35f+.5f*drive);
         switch(model) {
         case 0:k("hw.normal.volume",.42f+.3f*drive);eq("hw.normal.bass","hw.normal.middle","hw.normal.treble");break;
         case 1:k("hw.high_treble",.25f+.65f*drive);eq("hw.bass","hw.middle","hw.treble");k("hw.presence",presence);break;
         case 2:s.channel=1;k("hw.lead.pre_gain",highGain);eq("hw.low","hw.mid","hw.high");k("hw.presence",presence);k("hw.resonance",tone.resonance);break;
         case 3:s.channel=2;k("hw.ch3.gain",highGain);k("hw.ch3.mode",2);eq("hw.ch3.bass","hw.ch3.mid","hw.ch3.treble");k("hw.ch3.presence",presence);break;
-        case 4:s.channel=2;k("hw.lead.gain",highGain);k("hw.lead.drive",.56f);eq("hw.lead.bass","hw.lead.middle","hw.lead.treble");k("hw.lead.presence",presence);k("hw.reverb",0);break;
+        case 4:s.channel=2;k("hw.lead.gain",highGain);k("hw.lead.drive",heavy?.65f:.56f);eq("hw.lead.bass","hw.lead.middle","hw.lead.treble");k("hw.lead.presence",presence);k("hw.reverb",0);break;
         case 5:k("hw.ch1.volume",.4f+.5f*drive);eq("hw.ch1.bass","hw.ch1.midrange","hw.ch1.treble");break;
         case 6:k("hw.volume",.45f);k("hw.boost",drive*.6f);eq("hw.bass","hw.lo_mid","hw.treble");k("hw.hi_mid",position(tone.mid+get("highmid"+suffix)/48.f));break;
         case 7:k("hw.b7k.distortion",1);k("hw.b7k.drive",.3f+.5f*drive);k("hw.b7k.blend",.55f);eq("hw.b7k.bass","hw.b7k.lo_mids","hw.b7k.treble");k("hw.b7k.hi_mids",position(tone.mid+get("highmid"+suffix)/48.f));break;

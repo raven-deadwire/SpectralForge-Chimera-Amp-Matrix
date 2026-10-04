@@ -1,0 +1,204 @@
+PASS: 24 serialized / 23 active Chimera heads, preserved 15-value legacy host range
+PASS 44100 Hz: band response, routing isolation, live EQ, all amp models
+PASS 48000 Hz: band response, routing isolation, live EQ, all amp models
+PASS 96000 Hz: band response, routing isolation, live EQ, all amp models
+PASS 192000 Hz: band response, routing isolation, live EQ, all amp models
+AMP_DYNAMIC model=0 ratio=17.9233
+AMP_DYNAMIC model=1 ratio=6.30965
+AMP_DYNAMIC model=2 ratio=1.83853
+AMP_DYNAMIC model=3 ratio=2.33048
+AMP_DYNAMIC model=4 ratio=1.55997
+AMP_DYNAMIC model=5 ratio=6.29493
+AMP_DYNAMIC model=6 ratio=11.5285
+AMP_DYNAMIC model=7 ratio=7.41055
+AMP_DYNAMIC model=8 ratio=6.11386
+AMP_DYNAMIC model=9 ratio=2.01783
+AMP_DYNAMIC model=10 ratio=9.54512
+AMP_DYNAMIC model=11 ratio=16.6128
+AMP_DYNAMIC model=12 ratio=6.83465
+AMP_DYNAMIC model=13 ratio=2.38846
+AMP_DYNAMIC model=14 ratio=19.2007
+AMP_DYNAMIC model=15 ratio=1.12567
+AMP_DYNAMIC model=16 ratio=1.10106
+AMP_DYNAMIC model=17 ratio=1.14677
+AMP_DYNAMIC model=18 ratio=3.2631
+AMP_DYNAMIC model=19 ratio=1.34976
+AMP_DYNAMIC model=20 ratio=1.19163
+AMP_DYNAMIC model=21 ratio=1.08304
+AMP_DYNAMIC model=22 ratio=1.11814
+AMP_DYNAMIC model=23 ratio=1.06904
+MEASURE oversampling 1x: fifth-harmonic foldback = -20.2039 dBc
+MEASURE oversampling 2x: fifth-harmonic foldback = -101.956 dBc
+MEASURE oversampling 4x: fifth-harmonic foldback = -106.279 dBc
+MEASURE oversampling 8x: fifth-harmonic foldback = -106.452 dBc
+MEASURE 24 amp voices: block residual 1.49012e-06, stereo residual 0, minimum RMS-matched new-voice residual 0.187914
+PASS: amp voices at 44.1/48/96 kHz, 1x/4x/8x oversampling, 17/512 sample blocks, stereo isolation, EQ corners and invalid indices
+MEASURE tuner 25.96 Hz: -0.000188253 cents
+MEASURE tuner 30.87 Hz: 0.000154032 cents
+MEASURE tuner 41.203 Hz: 0.000123097 cents
+MEASURE tuner 55 Hz: -0.000120075 cents
+MEASURE tuner 82.407 Hz: 0.000432117 cents
+MEASURE tuner 110 Hz: -0.00228143 cents
+MEASURE tuner 220 Hz: 0.00636397 cents
+MEASURE tuner 440 Hz: -0.180362 cents
+MEASURE tuner 880 Hz: 0.955295 cents
+MEASURE tuner 1200 Hz: 0.0114471 cents
+MEASURE tuner 1390 Hz: 2.84654 cents
+MEASURE pitch latency at 44100 Hz = 2048 samples
+MEASURE pitch latency at 48000 Hz = 2048 samples
+MEASURE pitch latency at 96000 Hz = 4096 samples
+MEASURE transpose -12 st: target 110 Hz, dry leakage -54.7617 dB; target amplitude 0.0978368; RMS 0.138342
+MEASURE pitch accuracy: 0.17326 cents
+MEASURE transpose -5 st: target 164.814 Hz, dry leakage -41.7544 dB; target amplitude 0.0992853; RMS 0.140403
+MEASURE pitch accuracy: 0.0700759 cents
+MEASURE transpose 7 st: target 329.628 Hz, dry leakage -52.2491 dB; target amplitude 0.053215; RMS 0.0752632
+MEASURE pitch accuracy: -0.0390746 cents
+MEASURE transpose 12 st: target 440 Hz, dry leakage -61.2811 dB; target amplitude 0.0458444; RMS 0.0648489
+MEASURE pitch accuracy: -0.025216 cents
+PASS: amplifier signatures/DC/dynamics, anti-aliasing, gate, tuner, transpose, embedded IR and lane isolation
+MEASURE LOW DI vs maximum pre drive / amp / cab, 1x: null 0
+MEASURE LOW DI vs maximum pre drive / amp / cab, 2x: null 0
+MEASURE LOW DI vs maximum pre drive / amp / cab, 4x: null 0
+MEASURE LOW DI vs maximum pre drive / amp / cab, 8x: null 0
+MEASURE dry impulse 44100 Hz / 1x: 18 samples (reported = measured)
+MEASURE dry impulse 44100 Hz / 2x: 18 samples (reported = measured)
+MEASURE dry impulse 44100 Hz / 4x: 18 samples (reported = measured)
+MEASURE dry impulse 44100 Hz / 8x: 18 samples (reported = measured)
+MEASURE dry impulse 48000 Hz / 1x: 18 samples (reported = measured)
+MEASURE dry impulse 48000 Hz / 2x: 18 samples (reported = measured)
+MEASURE dry impulse 48000 Hz / 4x: 18 samples (reported = measured)
+MEASURE dry impulse 48000 Hz / 8x: 18 samples (reported = measured)
+MEASURE dry impulse 96000 Hz / 1x: 18 samples (reported = measured)
+MEASURE dry impulse 96000 Hz / 2x: 18 samples (reported = measured)
+MEASURE dry impulse 96000 Hz / 4x: 18 samples (reported = measured)
+MEASURE dry impulse 96000 Hz / 8x: 18 samples (reported = measured)
+MEASURE dry impulse 192000 Hz / 1x: 18 samples (reported = measured)
+MEASURE dry impulse 192000 Hz / 2x: 18 samples (reported = measured)
+MEASURE dry impulse 192000 Hz / 4x: 18 samples (reported = measured)
+MEASURE dry impulse 192000 Hz / 8x: 18 samples (reported = measured)
+MEASURE LOW DI/amp blend 44100 Hz / 1x: endpoint interpolation null 0; drive fixed at zero
+MEASURE LOW DI/amp blend 44100 Hz / 2x: endpoint interpolation null 0; drive fixed at zero
+MEASURE LOW DI/amp blend 44100 Hz / 4x: endpoint interpolation null 0; drive fixed at zero
+MEASURE LOW DI/amp blend 44100 Hz / 8x: endpoint interpolation null 0; drive fixed at zero
+MEASURE LOW DI/amp blend 96000 Hz / 1x: endpoint interpolation null 0; drive fixed at zero
+MEASURE LOW DI/amp blend 96000 Hz / 2x: endpoint interpolation null 0; drive fixed at zero
+MEASURE LOW DI/amp blend 96000 Hz / 4x: endpoint interpolation null 0; drive fixed at zero
+MEASURE LOW DI/amp blend 96000 Hz / 8x: endpoint interpolation null 0; drive fixed at zero
+MEASURE LOW COMP 0: reduction -0 dB, steady RMS law 0 dB
+MEASURE LOW COMP 0.35: reduction 6.8685 dB, steady RMS law 6.78082 dB
+MEASURE LOW COMP 0.8: reduction 21.952 dB, steady RMS law 21.8472 dB
+MEASURE crossover 44100 Hz / 60 / 500: sum ripple 1.0013e-05 dB; allpass phase error 9.82679e-05 deg
+MEASURE crossover 44100 Hz / 150 / 1200: sum ripple 6.68696e-06 dB; allpass phase error 3.3208e-05 deg
+MEASURE crossover 44100 Hz / 350 / 4000: sum ripple 2.53219e-06 dB; allpass phase error 1.19067e-05 deg
+MEASURE crossover 48000 Hz / 60 / 500: sum ripple 6.23107e-06 dB; allpass phase error 5.35285e-05 deg
+MEASURE crossover 48000 Hz / 150 / 1200: sum ripple 3.59742e-06 dB; allpass phase error 3.62178e-05 deg
+MEASURE crossover 48000 Hz / 350 / 4000: sum ripple 3.71436e-06 dB; allpass phase error 2.99338e-05 deg
+MEASURE crossover 96000 Hz / 60 / 500: sum ripple 1.58462e-05 dB; allpass phase error 4.95882e-05 deg
+MEASURE crossover 96000 Hz / 150 / 1200: sum ripple 7.33849e-06 dB; allpass phase error 3.05577e-05 deg
+MEASURE crossover 96000 Hz / 350 / 4000: sum ripple 4.37468e-06 dB; allpass phase error 2.13361e-05 deg
+MEASURE crossover 192000 Hz / 60 / 500: sum ripple 8.02611e-06 dB; allpass phase error 5.06092e-05 deg
+MEASURE crossover 192000 Hz / 150 / 1200: sum ripple 9.85e-06 dB; allpass phase error 5.7514e-05 deg
+MEASURE crossover 192000 Hz / 350 / 4000: sum ripple 1.06509e-05 dB; allpass phase error 5.88732e-05 deg
+MEASURE moving crossovers: block-size null 0; serial allpass null 7.45058e-08; level difference -5.87402e-10 dB
+MEASURE 1x Classic vs identical Dual merge, post=0: null 0
+MEASURE 1x Classic vs identical Dual merge, post=1: null 0
+MEASURE 2x Classic vs identical Dual merge, post=0: null 0
+MEASURE 2x Classic vs identical Dual merge, post=1: null 0
+MEASURE 4x Classic vs identical Dual merge, post=0: null 0
+MEASURE 4x Classic vs identical Dual merge, post=1: null 0
+MEASURE 8x Classic vs identical Dual merge, post=0: null 0
+MEASURE 8x Classic vs identical Dual merge, post=1: null 0
+PASS: crossover sum/phase/level automation, block independence, lane/oversampling/merge alignment and global post scope
+MEASURE fixed reference: A/A null 0, matched A/B level -1.03544e-06 dB, residual RMS 0.000422376
+MEASURE compressor 0 block-size null 0
+MEASURE compressor 1 block-size null 0
+MEASURE compressor 2 block-size null 0
+MEASURE compressor 3 block-size null 0
+MEASURE compressor 4 block-size null 0
+MEASURE automated drive block-size null 0
+MEASURE drive 0 DC mean -1.11536e-07
+MEASURE drive 1 DC mean 3.50462e-07
+MEASURE drive 2 DC mean 2.94001e-07
+MEASURE drive 3 DC mean -8.53431e-07
+MEASURE drive 4 DC mean 3.55364e-06
+MEASURE FX return-to-bypass 44100 Hz: dry null 0; PRE GR -0; POST GR -0
+MEASURE FX return-to-bypass 48000 Hz: dry null 0; PRE GR -0; POST GR -0
+MEASURE FX return-to-bypass 96000 Hz: dry null 0; PRE GR -0; POST GR -0
+MEASURE FX return-to-bypass 192000 Hz: dry null 0; PRE GR -0; POST GR -0
+PASS: sample-clock smoothing, stereo separation, DC removal, bypass return and real rack meters
+MEASURE preamp 0 tone automation: initial/settled 0.0113743/0.46581; block null 0; return null 0
+MEASURE preamp 1 tone automation: initial/settled 0.00101909/0.0677539; block null 0; return null 0
+MEASURE preamp 2 tone automation: initial/settled 0.0035145/0.162866; block null 0; return null 0
+MEASURE fuzz 0 tone automation: initial/settled 0.0229944/0.906598; block null 0; return null 0
+MEASURE fuzz 1 tone automation: initial/settled 0.00984845/0.56976; block null 0; return null 0
+MEASURE fuzz 2 tone automation: initial/settled 0.0317832/1.00864; block null 0; return null 0
+MEASURE fuzz 3 tone automation: initial/settled 0.00900283/0.608307; block null 0; return null 0
+MEASURE fuzz 4 tone automation: initial/settled 0.0393066/1.16252; block null 0; return null 0
+PASS: all eight fuzz/preamp voices preserve stereo and smooth tone automation across host block sizes
+MEASURE gain order 0 at 44100 Hz: block null 0 at 0
+MEASURE gain order 1 at 44100 Hz: block null 0 at 0
+MEASURE gain order 0 at 96000 Hz: block null 0 at 0
+MEASURE gain order 1 at 96000 Hz: block null 0 at 0
+PASS: both gain orders change saturation/level, preserve clean DI and latency, stereo isolation and 17/511-sample block independence
+PASS: both detector orders affect dynamics, preserve Matrix clean tap and fixed latency
+MEASURE all FX bypass at startup: exact dry impulse at 18 samples
+MEASURE effect module 0: enabled/bypass residual RMS 0.120051
+MEASURE effect module 1: enabled/bypass residual RMS 0.0281113
+MEASURE effect module 2: enabled/bypass residual RMS 0.10435
+MEASURE effect module 3: enabled/bypass residual RMS 0.230308
+MEASURE effect module 4: enabled/bypass residual RMS 0.393299
+MEASURE effect module 5: enabled/bypass residual RMS 0.0862075
+MEASURE effect module 6: enabled/bypass residual RMS 0.0363079
+MEASURE effect module 7: enabled/bypass residual RMS 0.163215
+MEASURE effect module 8: enabled/bypass residual RMS 0.0827965
+MEASURE effect module 9: enabled/bypass residual RMS 0.071832
+MEASURE effect module 10: enabled/bypass residual RMS 0.0296337
+MEASURE COMPRESSOR model pairs: minimum residual 0.00545606
+MEASURE ENVELOPE model pairs: minimum residual 0.0644335
+MEASURE FUZZ model pairs: minimum residual 0.0124747
+MEASURE BOOST model pairs: minimum residual 0.00161201
+MEASURE DRIVE model pairs: minimum residual 0.297665
+MEASURE BUS COMP model pairs: minimum residual 0.0130947
+MEASURE PREAMP model pairs: minimum residual 0.00977546
+MEASURE EQUALIZER model pairs: minimum residual 0.0503705
+MEASURE MODULATION model pairs: minimum residual 0.046472
+MEASURE DELAY model pairs: minimum residual 0.0147227
+MEASURE REVERB model pairs: minimum residual 0.0319988
+PASS: 46 distinct selectable models; stereo model changes and tails at 44.1/96 kHz
+MEASURE Dual blend null 0, crossover/allpass null 1.49012e-08, block-size null 0
+PASS: eleven independent FX modules, Dual blend/crossover and metronome
+MEASURE factory preset 0 | Clean Sustain | peak44 0.0130232 | peak48 0.013598
+MEASURE factory preset 1 | Tight Rhythm | peak44 0.037344 | peak48 0.038859
+MEASURE factory preset 2 | Bass Matrix | peak44 0.0981471 | peak48 0.0981562
+MEASURE factory preset 3 | Filter Lead | peak44 0.0220045 | peak48 0.0234712
+MEASURE factory preset 4 | Fuzz Texture | peak44 0.0116809 | peak48 0.0124783
+MEASURE factory preset 5 | Bell Clean | peak44 0.026038 | peak48 0.027185
+MEASURE factory preset 6 | Edge Chime | peak44 0.0602062 | peak48 0.0640422
+MEASURE factory preset 7 | Classic Crunch | peak44 0.035366 | peak48 0.038663
+MEASURE factory preset 8 | Orange Heavy | peak44 0.0666022 | peak48 0.0701981
+MEASURE factory preset 9 | Melodic Death Rhythm | peak44 0.0336616 | peak48 0.0351615
+MEASURE factory preset 10 | Melodic Lead | peak44 0.0421711 | peak48 0.0447409
+MEASURE factory preset 11 | Ambient Clean | peak44 0.00801357 | peak48 0.00876345
+MEASURE factory preset 12 | Finger Round | peak44 0.0463106 | peak48 0.0471217
+MEASURE factory preset 13 | Pick Punch | peak44 0.121208 | peak48 0.120989
+MEASURE factory preset 14 | Slap Studio | peak44 0.109717 | peak48 0.108153
+MEASURE factory preset 15 | Modern Grind | peak44 0.121263 | peak48 0.118972
+MEASURE factory preset 16 | Vintage Bass DI | peak44 0.0591297 | peak48 0.0591396
+MEASURE factory preset 17 | Wool Bass Fuzz | peak44 0.0703346 | peak48 0.0703593
+MEASURE factory preset 18 | Bass Envelope | peak44 0.0883792 | peak48 0.0881204
+MEASURE factory preset 19 | G+G Clean / Crunch | peak44 0.00969379 | peak48 0.0101638
+MEASURE factory preset 20 | G+G Tight / Wide | peak44 0.0218247 | peak48 0.0233088
+MEASURE factory preset 21 | G+B Low Anchor | peak44 0.0887405 | peak48 0.0887205
+MEASURE factory preset 22 | G+B Air / Weight | peak44 0.0343873 | peak48 0.0346611
+MEASURE factory preset 23 | B+B Warm / Definition | peak44 0.0626977 | peak48 0.0619467
+MEASURE factory preset 24 | B+B Clean / Grind | peak44 0.0904114 | peak48 0.090357
+MEASURE factory preset 25 | Low B Foundation | peak44 0.0979677 | peak48 0.0979836
+MEASURE factory preset 26 | Pick Attack Matrix | peak44 0.0900923 | peak48 0.0900917
+MEASURE factory preset 27 | Spectral Texture | peak44 0.0732187 | peak48 0.0733033
+MEASURE factory preset 28 | Matchless Edge | peak44 0.0476494 | peak48 0.0509867
+MEASURE factory preset 29 | Dumble Smooth Lead | peak44 0.0475515 | peak48 0.0503901
+MEASURE factory preset 30 | EICH Modern Clean | peak44 0.0681542 | peak48 0.0680927
+MEASURE signature preset 31 | Crom Cruach | structural state validated
+MEASURE signature preset 32 | Wild Hunt | structural state validated
+MEASURE signature preset 33 | Azhi Dahaka | structural state validated
+PASS: 31 portable factory presets + 3 Deadwire signature presets

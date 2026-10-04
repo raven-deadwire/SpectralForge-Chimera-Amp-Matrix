@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Only the explicitly deferred transpose goals may leave the 1.1.1 beta gate."""
+"""Only the explicitly deferred transpose goals may leave the current beta gate."""
 import copy
 import json
 from pathlib import Path
@@ -18,7 +18,7 @@ def check_ids(profile):
             for cid in POLICY['stages'][stage]['required_checks']}
 
 def run():
-    beta = check_ids('beta_1_1_1')
+    beta = check_ids(POLICY['release_scope']['profile'])
     full = check_ids('full_release')
     assert full - beta == DEFERRED and not beta - full
     assert check_ids('transpose_followup') == DEFERRED
@@ -35,16 +35,16 @@ def run():
             failure_type=None, failure_message=None)
         checks[cid] = producer.build_report(POLICY, args)
     waivers = {'waivers': []}
-    assert gate.evaluate_release(POLICY, waivers, checks, 'beta_1_1_1', COMMIT)['ready']
+    assert gate.evaluate_release(POLICY, waivers, checks, POLICY['release_scope']['profile'], COMMIT)['ready']
     assert not gate.evaluate_release(POLICY, waivers, checks, 'full_release', COMMIT)['ready']
     followup = gate.evaluate_release(POLICY, waivers, checks, 'transpose_followup', COMMIT)
     assert not followup['ready'] and all(c['computed_status'] == 'BLOCKED' for c in followup['checks'])
     for cid in set(POLICY['hard_gates']) & beta:
         failed = copy.deepcopy(checks)
         failed[cid]['assertion']['passed'] = False
-        assert not gate.evaluate_release(POLICY, waivers, failed, 'beta_1_1_1', COMMIT)['ready'], cid
+        assert not gate.evaluate_release(POLICY, waivers, failed, POLICY['release_scope']['profile'], COMMIT)['ready'], cid
         del failed[cid]
-        assert not gate.evaluate_release(POLICY, waivers, failed, 'beta_1_1_1', COMMIT)['ready'], cid
+        assert not gate.evaluate_release(POLICY, waivers, failed, POLICY['release_scope']['profile'], COMMIT)['ready'], cid
     print('PASS: only two authorized transpose goals are deferred; DSP regression, host, timing and all other hard gates fail closed.')
 
 if __name__ == '__main__':

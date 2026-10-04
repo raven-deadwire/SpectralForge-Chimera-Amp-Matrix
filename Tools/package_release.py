@@ -59,10 +59,11 @@ def documents(destination: Path, build: Path) -> None:
     for name in ("MANUAL.html", "OPEN_BETA_RELEASE_NOTES.md", "THIRD_PARTY_NOTICES.md",
                  "AMP_VALIDATION.md", "AMP_VOICES_OPEN_BETA.md", "OPEN_BETA_NAM_VALIDATION.md", "PRESETS.md", "EXTERNAL_BASS_IRS.md", "UPDATES.md", "MODELS_AND_REFERENCE.md", "FX_AND_IR_DESIGN.md",
                  "WINDOWS_INSTALL.txt", "INSTALLATION.md", "NAM_REFERENCE_RESULTS.md",
-                 "STUDIO_ONE_TEARDOWN.md", "AMP_NATIVE_DSP.md", "POST_NATIVE_DSP.md", "PEDAL_BOARD_DSP.md", "VALIDATION_STATUS.md"):
+                 "STUDIO_ONE_TEARDOWN.md", "NATIVE_NAM_CALIBRATION.md", "AMP_NATIVE_DSP.md", "POST_NATIVE_DSP.md", "PEDAL_BOARD_DSP.md", "VALIDATION_STATUS.md"):
         copy(ROOT / "docs" / name, destination / name)
     copy(build / "Testing/Temporary/LastTest.log", destination / "Verification.txt")
     copy(ROOT / "docs/reference", destination / "reference")
+    copy(ROOT / "docs/evidence/native-nam-20261004", destination / "evidence/native-nam-20261004")
 
 
 def verify_stage(stage: Path, required: list[str], *, version: dict | None = None) -> None:

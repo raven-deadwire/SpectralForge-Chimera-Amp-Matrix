@@ -14,6 +14,28 @@ void set(ChimeraProcessor& p,const juce::String& id,float value)
     parameter->setValueNotifyingHost(parameter->convertTo0to1(value));
 }
 float get(ChimeraProcessor& p,const juce::String& id) {return p.parameters().getRawParameterValue(id)->load();}
+// Only new-session defaults approved for the 1.1.2 calibration patch may change.
+// Keep the historical fixture intact; saved values, IDs and ranges stay frozen.
+struct Default112 { const char* suffix; double oldValue,newValue; };
+constexpr Default112 defaults112[] {
+    {"m2_hw_lead_pre_gain",.5,.68}, {"m3_hw_ch2_gain",.5,.65},
+    {"m3_hw_ch3_gain",.5,.68}, {"m3_hw_ch2_mode",0,.5}, {"m3_hw_ch3_mode",0,1},
+    {"m4_hw_lead_gain",.5,.72}, {"m4_hw_lead_drive",.5,.65},
+    {"m9_hw_dirty_gain",.5,.66}, {"m15_ch3_gain",.5,.78}, {"m15_ch4_gain",.5,.68},
+    {"m15_channel",0,2./15.}, {"m17_hw_ch3_gain",.5,.78}, {"m17_hw_ch4_gain",.5,.72},
+    {"m20_hw_ep_gain",.5,.72}, {"m20_hw_kk_gain1",.5,.68}, {"m20_hw_kk_gain2",.5,.62},
+    {"m21_hw_overdrive_preamp",.5,.72}, {"m22_hw_lead_gain",.5,.70}
+};
+const Default112* approvedDefault112(const juce::String& id)
+{
+    static constexpr Default112 legacyZuta {"",0,2./3.};
+    for(int bank=1;bank<=3;++bank) {
+        if(id=="ampchannel"+juce::String(bank)+"_m15")return &legacyZuta;
+    }
+    for(int bank=0;bank<6;++bank)for(const auto& entry:defaults112)
+        if(id=="nativeAmp_c"+juce::String(bank)+"_"+entry.suffix)return &entry;
+    return nullptr;
+}
 void parameterContract(ChimeraProcessor& p)
 {
     juce::String manifest;int count=0;
@@ -34,7 +56,7 @@ void parameterContract(ChimeraProcessor& p)
             =="1de9d010b4267088d80a6922105b047ae0c9e142e3b931c000129d6befa3523f","Frozen released contract fixture changed");
     const auto actualRows=juce::StringArray::fromLines(manifest),expectedRows=juce::StringArray::fromLines(frozen);
     require(actualRows.size()==expectedRows.size(),"Released parameter count changed");
-    int numericDifferences=0;
+    int numericDifferences=0,approvedDefaults=0;
     for(int row=0;row<expectedRows.size();++row) {
         if(expectedRows[row].isEmpty()){require(actualRows[row].isEmpty(),"Unexpected contract row");continue;}
         const auto actual=juce::StringArray::fromTokens(actualRows[row],"|",{});
@@ -45,7 +67,12 @@ void parameterContract(ChimeraProcessor& p)
                 // JUCE skew conversion uses exp/log. ARM and x86 libm/FMA may
                 // round the same float mapping differently; preserve numeric
                 // semantics without relying on nine-decimal string identity.
-                const double a=actual[field].getDoubleValue(),e=expected[field].getDoubleValue();
+                const double a=actual[field].getDoubleValue();
+                double e=expected[field].getDoubleValue();
+                if(field==3)if(const auto* change=approvedDefault112(expected[1])) {
+                    require(std::abs(e-change->oldValue)<1.e-6,"Approved default no longer matches its released value");
+                    e=change->newValue;++approvedDefaults;
+                }
                 // Near zero, cancellation/FMA error scales with the domain,
                 // not the result (e.g. ARM bass midpoint -2.68e-7 vs x86 0).
                 // Normalized defaults have a unit domain; range samples use
@@ -54,20 +81,21 @@ void parameterContract(ChimeraProcessor& p)
                 const double scale=field==3 ? 1. : std::max({std::abs(lo),std::abs(hi),std::abs(hi-lo)});
                 const double tolerance=5e-10+4*double(std::numeric_limits<float>::epsilon())*scale;
                 if(std::abs(a-e)>tolerance) {
-                    std::cerr<<"Contract mismatch "<<expected[1]<<" field="<<field<<" expected="<<expected[field]<<" actual="<<actual[field]<<'\n';
+                    std::cerr<<"Contract mismatch "<<expected[1]<<" field="<<field<<" expected="<<juce::String(e,9)<<" actual="<<actual[field]<<'\n';
                     require(false,"Released default/range numeric contract changed");
                 }
-                if(a!=e){++numericDifferences;if(numericDifferences<=8)std::cout<<"ROUNDING "<<expected[1]<<" field="<<field<<" expected="<<expected[field]<<" actual="<<actual[field]<<'\n';}
+                if(a!=e){++numericDifferences;if(numericDifferences<=8)std::cout<<"ROUNDING "<<expected[1]<<" field="<<field<<" expected="<<juce::String(e,9)<<" actual="<<actual[field]<<'\n';}
             } else require(actual[field]==expected[field],"Released ID/order/version/steps/automation contract changed");
         }
     }
+    require(approvedDefaults==6*int(std::size(defaults112))+3,"Approved default coverage changed");
     auto* range=p.parameters().getParameter("gateRangeDb");
     require(range && range->getParameterIndex()==3890 && count==3686 && p.getParameters().size()==3891,"Range must follow the 204 E670FE parameters without changing released ordinals");
     require(range->getVersionHint()==2 && range->isAutomatable(),"Range AU version hint/automation changed");
     require(range->getText(1,0)=="Full" && range->getValueForText("Full")==1.f,"Host Full text does not round-trip");
     require(std::abs(range->convertFrom0to1(range->getValueForText("24 dB"))-24)<.01f,"Host dB text does not parse");
     require(get(p,"gateRangeDb")==96,"New-session default is not legacy Full");
-    std::cout<<"PASS legacy parameter contract: "<<count<<" entries SHA256 "<<digest<<" numeric_rounding_differences="<<numericDifferences<<"; append-only gateRangeDb\n";
+    std::cout<<"PASS legacy parameter contract: "<<count<<" entries SHA256 "<<digest<<" approved_112_defaults="<<approvedDefaults<<" numeric_rounding_differences="<<numericDifferences<<"; append-only gateRangeDb\n";
 }
 void stateAndAutomation(ChimeraProcessor& p)
 {
@@ -75,7 +103,13 @@ void stateAndAutomation(ChimeraProcessor& p)
     const std::array<const char*,6> ids{"gateon","gatethreshold","gaterelease","gatehold","gateAfterRig","gateRangeDb"};
     const std::array<float,6> values{1,-51,137,43,1,24};
     for(size_t i=0;i<ids.size();++i)set(p,ids[i],values[i]);
+    // Existing projects keep CH1 and their exact old gain even though new sessions
+    // now start on CH3 and use stronger high-gain defaults.
+    set(p,"ampchannel1_m15",0);set(p,"nativeAmp_c0_m15_channel",0);
+    set(p,"nativeAmp_c0_m2_hw_lead_pre_gain",.5f);
     juce::MemoryBlock saved;p.getStateInformation(saved);r.setStateInformation(saved.getData(),int(saved.getSize()));
+    require(get(r,"ampchannel1_m15")==0 && get(r,"nativeAmp_c0_m15_channel")==0
+            && get(r,"nativeAmp_c0_m2_hw_lead_pre_gain")==.5f,"New defaults overwrote saved amp settings");
     for(size_t i=0;i<ids.size();++i)require(std::abs(get(r,ids[i])-values[i])<.011f,"Gate state did not round-trip");
     auto xml=juce::AudioProcessor::getXmlFromBinary(saved.getData(),int(saved.getSize()));
     auto old=juce::ValueTree::fromXml(*xml);old.removeChild(old.getChildWithProperty("id","gateRangeDb"),nullptr);

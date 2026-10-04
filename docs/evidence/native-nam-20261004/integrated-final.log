@@ -1,0 +1,228 @@
+PRESET_LEVEL,31,Crom Cruach,-26.3541,-10.5346,-1.5
+PRESET_HOT,31,-9.61464
+PERFORMANCE_RECALL preset=31 repeat=0 id=input requested=3 before_raw=3 before_normalized=0.5625 snapshot_raw=3 after_raw=3 after_normalized=0.5625
+PERFORMANCE_RECALL preset=31 repeat=0 id=tempo requested=143 before_raw=143 before_normalized=0.514999986 snapshot_raw=143 after_raw=143 after_normalized=0.514999986
+PERFORMANCE_RECALL preset=31 repeat=1 id=input requested=3 before_raw=3 before_normalized=0.5625 snapshot_raw=3 after_raw=3 after_normalized=0.5625
+PERFORMANCE_RECALL preset=31 repeat=1 id=tempo requested=143 before_raw=143 before_normalized=0.514999986 snapshot_raw=143 after_raw=143 after_normalized=0.514999986
+PRESET_LEVEL,32,Wild Hunt,-29.6702,-10.0916,-12.5
+PRESET_HOT,32,-10.2299
+PERFORMANCE_RECALL preset=32 repeat=0 id=input requested=3 before_raw=3 before_normalized=0.5625 snapshot_raw=3 after_raw=3 after_normalized=0.5625
+PERFORMANCE_RECALL preset=32 repeat=0 id=tempo requested=143 before_raw=143 before_normalized=0.514999986 snapshot_raw=143 after_raw=143 after_normalized=0.514999986
+PERFORMANCE_RECALL preset=32 repeat=1 id=input requested=3 before_raw=3 before_normalized=0.5625 snapshot_raw=3 after_raw=3 after_normalized=0.5625
+PERFORMANCE_RECALL preset=32 repeat=1 id=tempo requested=143 before_raw=143 before_normalized=0.514999986 snapshot_raw=143 after_raw=143 after_normalized=0.514999986
+PRESET_LEVEL,33,Azhi Dahaka,-26.1329,-11.3889,-2
+PRESET_HOT,33,-8.24362
+PERFORMANCE_RECALL preset=33 repeat=0 id=input requested=3 before_raw=3 before_normalized=0.5625 snapshot_raw=3 after_raw=3 after_normalized=0.5625
+PERFORMANCE_RECALL preset=33 repeat=0 id=tempo requested=143 before_raw=143 before_normalized=0.514999986 snapshot_raw=143 after_raw=143 after_normalized=0.514999986
+PERFORMANCE_RECALL preset=33 repeat=1 id=input requested=3 before_raw=3 before_normalized=0.5625 snapshot_raw=3 after_raw=3 after_normalized=0.5625
+PERFORMANCE_RECALL preset=33 repeat=1 id=tempo requested=143 before_raw=143 before_normalized=0.514999986 snapshot_raw=143 after_raw=143 after_normalized=0.514999986
+PRESET_LEVEL,34,A Path To Alsatia,-26.1203,-12.8813,-4.5
+PRESET_HOT,34,-13.0937
+PRESET_LEVEL,35,Feel My Wrath,-25.3115,-11.555,-5.5
+PRESET_HOT,35,-12.6178
+PRESET_LEVEL,36,Blackhearted,-25.7358,-12.0238,-5.5
+PRESET_HOT,36,-10.357
+PRESET_LEVEL,37,Dark Matters of Throne,-26.2111,-14.3131,-2
+PRESET_HOT,37,-12.3158
+PRESET_LEVEL,0,Clean Sustain,-25.9581,-10.6888,6.5
+PRESET_HOT,0,-6.85078
+PERFORMANCE_RECALL preset=0 repeat=0 id=input requested=3 before_raw=3 before_normalized=0.5625 snapshot_raw=3 after_raw=3 after_normalized=0.5625
+PERFORMANCE_RECALL preset=0 repeat=0 id=tempo requested=143 before_raw=143 before_normalized=0.514999986 snapshot_raw=143 after_raw=143 after_normalized=0.514999986
+PERFORMANCE_RECALL preset=0 repeat=1 id=input requested=3 before_raw=3 before_normalized=0.5625 snapshot_raw=3 after_raw=3 after_normalized=0.5625
+PERFORMANCE_RECALL preset=0 repeat=1 id=tempo requested=143 before_raw=143 before_normalized=0.514999986 snapshot_raw=143 after_raw=143 after_normalized=0.514999986
+PRESET_LEVEL,5,Bell Clean,-25.9956,-12.5017,-1.5
+PRESET_HOT,5,-9.77755
+PERFORMANCE_RECALL preset=5 repeat=0 id=input requested=3 before_raw=3 before_normalized=0.5625 snapshot_raw=3 after_raw=3 after_normalized=0.5625
+PERFORMANCE_RECALL preset=5 repeat=0 id=tempo requested=143 before_raw=143 before_normalized=0.514999986 snapshot_raw=143 after_raw=143 after_normalized=0.514999986
+PERFORMANCE_RECALL preset=5 repeat=1 id=input requested=3 before_raw=3 before_normalized=0.5625 snapshot_raw=3 after_raw=3 after_normalized=0.5625
+PERFORMANCE_RECALL preset=5 repeat=1 id=tempo requested=143 before_raw=143 before_normalized=0.514999986 snapshot_raw=143 after_raw=143 after_normalized=0.514999986
+PRESET_LEVEL,11,Ambient Clean,-25.9931,-11.1149,11.5
+PRESET_HOT,11,-6.68935
+PERFORMANCE_RECALL preset=11 repeat=0 id=input requested=3 before_raw=3 before_normalized=0.5625 snapshot_raw=3 after_raw=3 after_normalized=0.5625
+PERFORMANCE_RECALL preset=11 repeat=0 id=tempo requested=143 before_raw=143 before_normalized=0.514999986 snapshot_raw=143 after_raw=143 after_normalized=0.514999986
+PERFORMANCE_RECALL preset=11 repeat=1 id=input requested=3 before_raw=3 before_normalized=0.5625 snapshot_raw=3 after_raw=3 after_normalized=0.5625
+PERFORMANCE_RECALL preset=11 repeat=1 id=tempo requested=143 before_raw=143 before_normalized=0.514999986 snapshot_raw=143 after_raw=143 after_normalized=0.514999986
+PRESET_LEVEL,6,Edge Chime,-25.8505,-15.5955,-5.5
+PRESET_HOT,6,-15.1968
+PERFORMANCE_RECALL preset=6 repeat=0 id=input requested=3 before_raw=3 before_normalized=0.5625 snapshot_raw=3 after_raw=3 after_normalized=0.5625
+PERFORMANCE_RECALL preset=6 repeat=0 id=tempo requested=143 before_raw=143 before_normalized=0.514999986 snapshot_raw=143 after_raw=143 after_normalized=0.514999986
+PERFORMANCE_RECALL preset=6 repeat=1 id=input requested=3 before_raw=3 before_normalized=0.5625 snapshot_raw=3 after_raw=3 after_normalized=0.5625
+PERFORMANCE_RECALL preset=6 repeat=1 id=tempo requested=143 before_raw=143 before_normalized=0.514999986 snapshot_raw=143 after_raw=143 after_normalized=0.514999986
+PRESET_LEVEL,7,Classic Crunch,-27.3355,-9.96844,-2.5
+PRESET_HOT,7,-9.3659
+PERFORMANCE_RECALL preset=7 repeat=0 id=input requested=3 before_raw=3 before_normalized=0.5625 snapshot_raw=3 after_raw=3 after_normalized=0.5625
+PERFORMANCE_RECALL preset=7 repeat=0 id=tempo requested=143 before_raw=143 before_normalized=0.514999986 snapshot_raw=143 after_raw=143 after_normalized=0.514999986
+PERFORMANCE_RECALL preset=7 repeat=1 id=input requested=3 before_raw=3 before_normalized=0.5625 snapshot_raw=3 after_raw=3 after_normalized=0.5625
+PERFORMANCE_RECALL preset=7 repeat=1 id=tempo requested=143 before_raw=143 before_normalized=0.514999986 snapshot_raw=143 after_raw=143 after_normalized=0.514999986
+PRESET_LEVEL,28,Matchless Edge,-25.9688,-12.1704,-2.5
+PRESET_HOT,28,-9.87195
+PERFORMANCE_RECALL preset=28 repeat=0 id=input requested=3 before_raw=3 before_normalized=0.5625 snapshot_raw=3 after_raw=3 after_normalized=0.5625
+PERFORMANCE_RECALL preset=28 repeat=0 id=tempo requested=143 before_raw=143 before_normalized=0.514999986 snapshot_raw=143 after_raw=143 after_normalized=0.514999986
+PERFORMANCE_RECALL preset=28 repeat=1 id=input requested=3 before_raw=3 before_normalized=0.5625 snapshot_raw=3 after_raw=3 after_normalized=0.5625
+PERFORMANCE_RECALL preset=28 repeat=1 id=tempo requested=143 before_raw=143 before_normalized=0.514999986 snapshot_raw=143 after_raw=143 after_normalized=0.514999986
+PRESET_LEVEL,1,Tight Rhythm,-27.3133,-14.0188,-5
+PRESET_HOT,1,-13.8007
+PERFORMANCE_RECALL preset=1 repeat=0 id=input requested=3 before_raw=3 before_normalized=0.5625 snapshot_raw=3 after_raw=3 after_normalized=0.5625
+PERFORMANCE_RECALL preset=1 repeat=0 id=tempo requested=143 before_raw=143 before_normalized=0.514999986 snapshot_raw=143 after_raw=143 after_normalized=0.514999986
+PERFORMANCE_RECALL preset=1 repeat=1 id=input requested=3 before_raw=3 before_normalized=0.5625 snapshot_raw=3 after_raw=3 after_normalized=0.5625
+PERFORMANCE_RECALL preset=1 repeat=1 id=tempo requested=143 before_raw=143 before_normalized=0.514999986 snapshot_raw=143 after_raw=143 after_normalized=0.514999986
+PRESET_LEVEL,8,Orange Heavy,-26.0913,-13.1049,-5
+PRESET_HOT,8,-13.0819
+PERFORMANCE_RECALL preset=8 repeat=0 id=input requested=3 before_raw=3 before_normalized=0.5625 snapshot_raw=3 after_raw=3 after_normalized=0.5625
+PERFORMANCE_RECALL preset=8 repeat=0 id=tempo requested=143 before_raw=143 before_normalized=0.514999986 snapshot_raw=143 after_raw=143 after_normalized=0.514999986
+PERFORMANCE_RECALL preset=8 repeat=1 id=input requested=3 before_raw=3 before_normalized=0.5625 snapshot_raw=3 after_raw=3 after_normalized=0.5625
+PERFORMANCE_RECALL preset=8 repeat=1 id=tempo requested=143 before_raw=143 before_normalized=0.514999986 snapshot_raw=143 after_raw=143 after_normalized=0.514999986
+PRESET_LEVEL,9,Melodic Death Rhythm,-27.3813,-13.4229,-7
+PRESET_HOT,9,-13.3141
+PERFORMANCE_RECALL preset=9 repeat=0 id=input requested=3 before_raw=3 before_normalized=0.5625 snapshot_raw=3 after_raw=3 after_normalized=0.5625
+PERFORMANCE_RECALL preset=9 repeat=0 id=tempo requested=143 before_raw=143 before_normalized=0.514999986 snapshot_raw=143 after_raw=143 after_normalized=0.514999986
+PERFORMANCE_RECALL preset=9 repeat=1 id=input requested=3 before_raw=3 before_normalized=0.5625 snapshot_raw=3 after_raw=3 after_normalized=0.5625
+PERFORMANCE_RECALL preset=9 repeat=1 id=tempo requested=143 before_raw=143 before_normalized=0.514999986 snapshot_raw=143 after_raw=143 after_normalized=0.514999986
+PRESET_LEVEL,3,Filter Lead,-25.8149,-10.6956,-4
+PRESET_HOT,3,-9.82923
+PERFORMANCE_RECALL preset=3 repeat=0 id=input requested=3 before_raw=3 before_normalized=0.5625 snapshot_raw=3 after_raw=3 after_normalized=0.5625
+PERFORMANCE_RECALL preset=3 repeat=0 id=tempo requested=143 before_raw=143 before_normalized=0.514999986 snapshot_raw=143 after_raw=143 after_normalized=0.514999986
+PERFORMANCE_RECALL preset=3 repeat=1 id=input requested=3 before_raw=3 before_normalized=0.5625 snapshot_raw=3 after_raw=3 after_normalized=0.5625
+PERFORMANCE_RECALL preset=3 repeat=1 id=tempo requested=143 before_raw=143 before_normalized=0.514999986 snapshot_raw=143 after_raw=143 after_normalized=0.514999986
+PRESET_LEVEL,4,Fuzz Texture,-26.0365,-14.0012,6.5
+PRESET_HOT,4,-13.8883
+PERFORMANCE_RECALL preset=4 repeat=0 id=input requested=3 before_raw=3 before_normalized=0.5625 snapshot_raw=3 after_raw=3 after_normalized=0.5625
+PERFORMANCE_RECALL preset=4 repeat=0 id=tempo requested=143 before_raw=143 before_normalized=0.514999986 snapshot_raw=143 after_raw=143 after_normalized=0.514999986
+PERFORMANCE_RECALL preset=4 repeat=1 id=input requested=3 before_raw=3 before_normalized=0.5625 snapshot_raw=3 after_raw=3 after_normalized=0.5625
+PERFORMANCE_RECALL preset=4 repeat=1 id=tempo requested=143 before_raw=143 before_normalized=0.514999986 snapshot_raw=143 after_raw=143 after_normalized=0.514999986
+PRESET_LEVEL,10,Melodic Lead,-25.7989,-13.5535,-3
+PRESET_HOT,10,-13.6321
+PERFORMANCE_RECALL preset=10 repeat=0 id=input requested=3 before_raw=3 before_normalized=0.5625 snapshot_raw=3 after_raw=3 after_normalized=0.5625
+PERFORMANCE_RECALL preset=10 repeat=0 id=tempo requested=143 before_raw=143 before_normalized=0.514999986 snapshot_raw=143 after_raw=143 after_normalized=0.514999986
+PERFORMANCE_RECALL preset=10 repeat=1 id=input requested=3 before_raw=3 before_normalized=0.5625 snapshot_raw=3 after_raw=3 after_normalized=0.5625
+PERFORMANCE_RECALL preset=10 repeat=1 id=tempo requested=143 before_raw=143 before_normalized=0.514999986 snapshot_raw=143 after_raw=143 after_normalized=0.514999986
+PRESET_LEVEL,29,Dumble Smooth Lead,-26.074,-13.3246,-4
+PRESET_HOT,29,-13.0618
+PERFORMANCE_RECALL preset=29 repeat=0 id=input requested=3 before_raw=3 before_normalized=0.5625 snapshot_raw=3 after_raw=3 after_normalized=0.5625
+PERFORMANCE_RECALL preset=29 repeat=0 id=tempo requested=143 before_raw=143 before_normalized=0.514999986 snapshot_raw=143 after_raw=143 after_normalized=0.514999986
+PERFORMANCE_RECALL preset=29 repeat=1 id=input requested=3 before_raw=3 before_normalized=0.5625 snapshot_raw=3 after_raw=3 after_normalized=0.5625
+PERFORMANCE_RECALL preset=29 repeat=1 id=tempo requested=143 before_raw=143 before_normalized=0.514999986 snapshot_raw=143 after_raw=143 after_normalized=0.514999986
+PRESET_LEVEL,12,Finger Round,-26.0289,-11.2933,-12
+PRESET_HOT,12,-9.85987
+PERFORMANCE_RECALL preset=12 repeat=0 id=input requested=3 before_raw=3 before_normalized=0.5625 snapshot_raw=3 after_raw=3 after_normalized=0.5625
+PERFORMANCE_RECALL preset=12 repeat=0 id=tempo requested=143 before_raw=143 before_normalized=0.514999986 snapshot_raw=143 after_raw=143 after_normalized=0.514999986
+PERFORMANCE_RECALL preset=12 repeat=1 id=input requested=3 before_raw=3 before_normalized=0.5625 snapshot_raw=3 after_raw=3 after_normalized=0.5625
+PERFORMANCE_RECALL preset=12 repeat=1 id=tempo requested=143 before_raw=143 before_normalized=0.514999986 snapshot_raw=143 after_raw=143 after_normalized=0.514999986
+PRESET_LEVEL,13,Pick Punch,-28.8543,-10.1827,-6
+PRESET_HOT,13,-8.98024
+PERFORMANCE_RECALL preset=13 repeat=0 id=input requested=3 before_raw=3 before_normalized=0.5625 snapshot_raw=3 after_raw=3 after_normalized=0.5625
+PERFORMANCE_RECALL preset=13 repeat=0 id=tempo requested=143 before_raw=143 before_normalized=0.514999986 snapshot_raw=143 after_raw=143 after_normalized=0.514999986
+PERFORMANCE_RECALL preset=13 repeat=1 id=input requested=3 before_raw=3 before_normalized=0.5625 snapshot_raw=3 after_raw=3 after_normalized=0.5625
+PERFORMANCE_RECALL preset=13 repeat=1 id=tempo requested=143 before_raw=143 before_normalized=0.514999986 snapshot_raw=143 after_raw=143 after_normalized=0.514999986
+PRESET_LEVEL,14,Slap Studio,-25.9249,-12.5099,2
+PRESET_HOT,14,-8.52199
+PERFORMANCE_RECALL preset=14 repeat=0 id=input requested=3 before_raw=3 before_normalized=0.5625 snapshot_raw=3 after_raw=3 after_normalized=0.5625
+PERFORMANCE_RECALL preset=14 repeat=0 id=tempo requested=143 before_raw=143 before_normalized=0.514999986 snapshot_raw=143 after_raw=143 after_normalized=0.514999986
+PERFORMANCE_RECALL preset=14 repeat=1 id=input requested=3 before_raw=3 before_normalized=0.5625 snapshot_raw=3 after_raw=3 after_normalized=0.5625
+PERFORMANCE_RECALL preset=14 repeat=1 id=tempo requested=143 before_raw=143 before_normalized=0.514999986 snapshot_raw=143 after_raw=143 after_normalized=0.514999986
+PRESET_LEVEL,30,EICH Modern Clean,-26.9058,-10.0243,4
+PRESET_HOT,30,-8.45503
+PERFORMANCE_RECALL preset=30 repeat=0 id=input requested=3 before_raw=3 before_normalized=0.5625 snapshot_raw=3 after_raw=3 after_normalized=0.5625
+PERFORMANCE_RECALL preset=30 repeat=0 id=tempo requested=143 before_raw=143 before_normalized=0.514999986 snapshot_raw=143 after_raw=143 after_normalized=0.514999986
+PERFORMANCE_RECALL preset=30 repeat=1 id=input requested=3 before_raw=3 before_normalized=0.5625 snapshot_raw=3 after_raw=3 after_normalized=0.5625
+PERFORMANCE_RECALL preset=30 repeat=1 id=tempo requested=143 before_raw=143 before_normalized=0.514999986 snapshot_raw=143 after_raw=143 after_normalized=0.514999986
+PRESET_LEVEL,15,Modern Grind,-26.1147,-11.7004,-10.5
+PRESET_HOT,15,-10.4989
+PERFORMANCE_RECALL preset=15 repeat=0 id=input requested=3 before_raw=3 before_normalized=0.5625 snapshot_raw=3 after_raw=3 after_normalized=0.5625
+PERFORMANCE_RECALL preset=15 repeat=0 id=tempo requested=143 before_raw=143 before_normalized=0.514999986 snapshot_raw=143 after_raw=143 after_normalized=0.514999986
+PERFORMANCE_RECALL preset=15 repeat=1 id=input requested=3 before_raw=3 before_normalized=0.5625 snapshot_raw=3 after_raw=3 after_normalized=0.5625
+PERFORMANCE_RECALL preset=15 repeat=1 id=tempo requested=143 before_raw=143 before_normalized=0.514999986 snapshot_raw=143 after_raw=143 after_normalized=0.514999986
+PRESET_LEVEL,16,Vintage Bass DI,-27.6005,-10.0954,-10.5
+PRESET_HOT,16,-8.21474
+PERFORMANCE_RECALL preset=16 repeat=0 id=input requested=3 before_raw=3 before_normalized=0.5625 snapshot_raw=3 after_raw=3 after_normalized=0.5625
+PERFORMANCE_RECALL preset=16 repeat=0 id=tempo requested=143 before_raw=143 before_normalized=0.514999986 snapshot_raw=143 after_raw=143 after_normalized=0.514999986
+PERFORMANCE_RECALL preset=16 repeat=1 id=input requested=3 before_raw=3 before_normalized=0.5625 snapshot_raw=3 after_raw=3 after_normalized=0.5625
+PERFORMANCE_RECALL preset=16 repeat=1 id=tempo requested=143 before_raw=143 before_normalized=0.514999986 snapshot_raw=143 after_raw=143 after_normalized=0.514999986
+PRESET_LEVEL,17,Wool Bass Fuzz,-25.9599,-14.0683,-7.5
+PRESET_HOT,17,-11.7872
+PERFORMANCE_RECALL preset=17 repeat=0 id=input requested=3 before_raw=3 before_normalized=0.5625 snapshot_raw=3 after_raw=3 after_normalized=0.5625
+PERFORMANCE_RECALL preset=17 repeat=0 id=tempo requested=143 before_raw=143 before_normalized=0.514999986 snapshot_raw=143 after_raw=143 after_normalized=0.514999986
+PERFORMANCE_RECALL preset=17 repeat=1 id=input requested=3 before_raw=3 before_normalized=0.5625 snapshot_raw=3 after_raw=3 after_normalized=0.5625
+PERFORMANCE_RECALL preset=17 repeat=1 id=tempo requested=143 before_raw=143 before_normalized=0.514999986 snapshot_raw=143 after_raw=143 after_normalized=0.514999986
+PRESET_LEVEL,18,Bass Envelope,-26.1047,-10.9699,7
+PRESET_HOT,18,-4.80792
+PERFORMANCE_RECALL preset=18 repeat=0 id=input requested=3 before_raw=3 before_normalized=0.5625 snapshot_raw=3 after_raw=3 after_normalized=0.5625
+PERFORMANCE_RECALL preset=18 repeat=0 id=tempo requested=143 before_raw=143 before_normalized=0.514999986 snapshot_raw=143 after_raw=143 after_normalized=0.514999986
+PERFORMANCE_RECALL preset=18 repeat=1 id=input requested=3 before_raw=3 before_normalized=0.5625 snapshot_raw=3 after_raw=3 after_normalized=0.5625
+PERFORMANCE_RECALL preset=18 repeat=1 id=tempo requested=143 before_raw=143 before_normalized=0.514999986 snapshot_raw=143 after_raw=143 after_normalized=0.514999986
+PRESET_LEVEL,19,G+G Clean / Crunch,-26.8116,-10.0538,8.5
+PRESET_HOT,19,-9.08894
+PERFORMANCE_RECALL preset=19 repeat=0 id=input requested=3 before_raw=3 before_normalized=0.5625 snapshot_raw=3 after_raw=3 after_normalized=0.5625
+PERFORMANCE_RECALL preset=19 repeat=0 id=tempo requested=143 before_raw=143 before_normalized=0.514999986 snapshot_raw=143 after_raw=143 after_normalized=0.514999986
+PERFORMANCE_RECALL preset=19 repeat=1 id=input requested=3 before_raw=3 before_normalized=0.5625 snapshot_raw=3 after_raw=3 after_normalized=0.5625
+PERFORMANCE_RECALL preset=19 repeat=1 id=tempo requested=143 before_raw=143 before_normalized=0.514999986 snapshot_raw=143 after_raw=143 after_normalized=0.514999986
+PRESET_LEVEL,20,G+G Tight / Wide,-27.0681,-13.7788,-6
+PRESET_HOT,20,-13.6905
+PERFORMANCE_RECALL preset=20 repeat=0 id=input requested=3 before_raw=3 before_normalized=0.5625 snapshot_raw=3 after_raw=3 after_normalized=0.5625
+PERFORMANCE_RECALL preset=20 repeat=0 id=tempo requested=143 before_raw=143 before_normalized=0.514999986 snapshot_raw=143 after_raw=143 after_normalized=0.514999986
+PERFORMANCE_RECALL preset=20 repeat=1 id=input requested=3 before_raw=3 before_normalized=0.5625 snapshot_raw=3 after_raw=3 after_normalized=0.5625
+PERFORMANCE_RECALL preset=20 repeat=1 id=tempo requested=143 before_raw=143 before_normalized=0.514999986 snapshot_raw=143 after_raw=143 after_normalized=0.514999986
+PRESET_LEVEL,23,B+B Warm / Definition,-26.8695,-10.2012,-4.5
+PRESET_HOT,23,-8.94516
+PERFORMANCE_RECALL preset=23 repeat=0 id=input requested=3 before_raw=3 before_normalized=0.5625 snapshot_raw=3 after_raw=3 after_normalized=0.5625
+PERFORMANCE_RECALL preset=23 repeat=0 id=tempo requested=143 before_raw=143 before_normalized=0.514999986 snapshot_raw=143 after_raw=143 after_normalized=0.514999986
+PERFORMANCE_RECALL preset=23 repeat=1 id=input requested=3 before_raw=3 before_normalized=0.5625 snapshot_raw=3 after_raw=3 after_normalized=0.5625
+PERFORMANCE_RECALL preset=23 repeat=1 id=tempo requested=143 before_raw=143 before_normalized=0.514999986 snapshot_raw=143 after_raw=143 after_normalized=0.514999986
+PRESET_LEVEL,21,G+B Low Anchor,-26.2985,-12.3119,-6
+PRESET_HOT,21,-8.19041
+PERFORMANCE_RECALL preset=21 repeat=0 id=input requested=3 before_raw=3 before_normalized=0.5625 snapshot_raw=3 after_raw=3 after_normalized=0.5625
+PERFORMANCE_RECALL preset=21 repeat=0 id=tempo requested=143 before_raw=143 before_normalized=0.514999986 snapshot_raw=143 after_raw=143 after_normalized=0.514999986
+PERFORMANCE_RECALL preset=21 repeat=1 id=input requested=3 before_raw=3 before_normalized=0.5625 snapshot_raw=3 after_raw=3 after_normalized=0.5625
+PERFORMANCE_RECALL preset=21 repeat=1 id=tempo requested=143 before_raw=143 before_normalized=0.514999986 snapshot_raw=143 after_raw=143 after_normalized=0.514999986
+PRESET_LEVEL,22,G+B Air / Weight,-26.0248,-12.8775,-11
+PRESET_HOT,22,-10.4543
+PERFORMANCE_RECALL preset=22 repeat=0 id=input requested=3 before_raw=3 before_normalized=0.5625 snapshot_raw=3 after_raw=3 after_normalized=0.5625
+PERFORMANCE_RECALL preset=22 repeat=0 id=tempo requested=143 before_raw=143 before_normalized=0.514999986 snapshot_raw=143 after_raw=143 after_normalized=0.514999986
+PERFORMANCE_RECALL preset=22 repeat=1 id=input requested=3 before_raw=3 before_normalized=0.5625 snapshot_raw=3 after_raw=3 after_normalized=0.5625
+PERFORMANCE_RECALL preset=22 repeat=1 id=tempo requested=143 before_raw=143 before_normalized=0.514999986 snapshot_raw=143 after_raw=143 after_normalized=0.514999986
+PRESET_LEVEL,24,B+B Clean / Grind,-26.0181,-11.2582,-7
+PRESET_HOT,24,-7.3611
+PERFORMANCE_RECALL preset=24 repeat=0 id=input requested=3 before_raw=3 before_normalized=0.5625 snapshot_raw=3 after_raw=3 after_normalized=0.5625
+PERFORMANCE_RECALL preset=24 repeat=0 id=tempo requested=143 before_raw=143 before_normalized=0.514999986 snapshot_raw=143 after_raw=143 after_normalized=0.514999986
+PERFORMANCE_RECALL preset=24 repeat=1 id=input requested=3 before_raw=3 before_normalized=0.5625 snapshot_raw=3 after_raw=3 after_normalized=0.5625
+PERFORMANCE_RECALL preset=24 repeat=1 id=tempo requested=143 before_raw=143 before_normalized=0.514999986 snapshot_raw=143 after_raw=143 after_normalized=0.514999986
+PRESET_LEVEL,2,Bass Matrix,-25.7678,-11.68,-4.5
+PRESET_HOT,2,-8.21692
+PERFORMANCE_RECALL preset=2 repeat=0 id=input requested=3 before_raw=3 before_normalized=0.5625 snapshot_raw=3 after_raw=3 after_normalized=0.5625
+PERFORMANCE_RECALL preset=2 repeat=0 id=tempo requested=143 before_raw=143 before_normalized=0.514999986 snapshot_raw=143 after_raw=143 after_normalized=0.514999986
+PERFORMANCE_RECALL preset=2 repeat=1 id=input requested=3 before_raw=3 before_normalized=0.5625 snapshot_raw=3 after_raw=3 after_normalized=0.5625
+PERFORMANCE_RECALL preset=2 repeat=1 id=tempo requested=143 before_raw=143 before_normalized=0.514999986 snapshot_raw=143 after_raw=143 after_normalized=0.514999986
+PRESET_LEVEL,25,Low B Foundation,-25.8689,-12.3039,-5.5
+PRESET_HOT,25,-8.77786
+PERFORMANCE_RECALL preset=25 repeat=0 id=input requested=3 before_raw=3 before_normalized=0.5625 snapshot_raw=3 after_raw=3 after_normalized=0.5625
+PERFORMANCE_RECALL preset=25 repeat=0 id=tempo requested=143 before_raw=143 before_normalized=0.514999986 snapshot_raw=143 after_raw=143 after_normalized=0.514999986
+PERFORMANCE_RECALL preset=25 repeat=1 id=input requested=3 before_raw=3 before_normalized=0.5625 snapshot_raw=3 after_raw=3 after_normalized=0.5625
+PERFORMANCE_RECALL preset=25 repeat=1 id=tempo requested=143 before_raw=143 before_normalized=0.514999986 snapshot_raw=143 after_raw=143 after_normalized=0.514999986
+PRESET_LEVEL,26,Pick Attack Matrix,-27.8722,-10.2385,-7.5
+PRESET_HOT,26,-8.28232
+PERFORMANCE_RECALL preset=26 repeat=0 id=input requested=3 before_raw=3 before_normalized=0.5625 snapshot_raw=3 after_raw=3 after_normalized=0.5625
+PERFORMANCE_RECALL preset=26 repeat=0 id=tempo requested=143 before_raw=143 before_normalized=0.514999986 snapshot_raw=143 after_raw=143 after_normalized=0.514999986
+PERFORMANCE_RECALL preset=26 repeat=1 id=input requested=3 before_raw=3 before_normalized=0.5625 snapshot_raw=3 after_raw=3 after_normalized=0.5625
+PERFORMANCE_RECALL preset=26 repeat=1 id=tempo requested=143 before_raw=143 before_normalized=0.514999986 snapshot_raw=143 after_raw=143 after_normalized=0.514999986
+PRESET_LEVEL,27,Spectral Texture,-26.0349,-13.5918,0.5
+PRESET_HOT,27,-6.60423
+PERFORMANCE_RECALL preset=27 repeat=0 id=input requested=3 before_raw=3 before_normalized=0.5625 snapshot_raw=3 after_raw=3 after_normalized=0.5625
+PERFORMANCE_RECALL preset=27 repeat=0 id=tempo requested=143 before_raw=143 before_normalized=0.514999986 snapshot_raw=143 after_raw=143 after_normalized=0.514999986
+PERFORMANCE_RECALL preset=27 repeat=1 id=input requested=3 before_raw=3 before_normalized=0.5625 snapshot_raw=3 after_raw=3 after_normalized=0.5625
+PERFORMANCE_RECALL preset=27 repeat=1 id=tempo requested=143 before_raw=143 before_normalized=0.514999986 snapshot_raw=143 after_raw=143 after_normalized=0.514999986
+PASS factory recall and category navigation: 38 presets (synthetic fixture only)
+PASS full-state A Path To Alsatia parameters=3891 audio_delta=0 energy=21.5336 synthetic only
+PASS full-state Feel My Wrath parameters=3891 audio_delta=0 energy=72.1512 synthetic only
+PASS full-state Blackhearted parameters=3891 audio_delta=0 energy=54.2263 synthetic only
+PASS full-state Dark Matters of Throne parameters=3891 audio_delta=0 energy=48.5344 synthetic only
+MEASURE unity mode=0 board=0 delta_db=-0.00172043 zero_shift_reported=24
+MEASURE unity mode=1 board=0 delta_db=-0.00172043 zero_shift_reported=24
+MEASURE unity mode=2 board=0 delta_db=0.000571436 zero_shift_reported=24
+MEASURE unity mode=0 board=1 delta_db=0.000745477 zero_shift_reported=42
+MEASURE unity mode=1 board=1 delta_db=0.000745477 zero_shift_reported=42
+MEASURE unity mode=2 board=1 delta_db=-0.00146929 zero_shift_reported=42
+PASS processor pedal GR model=6 active and bypass
+PASS processor pedal GR model=7 active and bypass
+PASS processor pedal GR model=8 active and bypass
+PASS processor pedal GR model=9 active and bypass
+PASS processor pedal GR model=10 active and bypass

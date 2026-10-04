@@ -65,22 +65,22 @@ inline juce::ValueTree guitarSignatureSnapshot(juce::AudioProcessorValueTreeStat
         jassertfalse;
     };
     if(song==0) {
-        amp(1,21,1,0);amp(2,4,2,0);knob(1,21,"hw.overdrive.preamp",.58f);
+        amp(1,21,1,0);amp(2,4,2,0);knob(1,21,"hw.overdrive.preamp",.72f);
         pedal(0,9);pedal(1,2);control(1,2,0,.16f);control(1,2,1,.52f);control(1,2,2,.57f);
         post(0,1);postControl(0,1,"input",-8);postControl(0,1,"attack",.2f);postControl(0,1,"release",.55f);set(postNativeLevelID(0,1),11.f);
         post(2,1);postControl(2,1,"mf_frequency",2);postControl(2,1,"mf_gain",1.5f);postControl(2,1,"high_pass",2);
         set("delayon",1);set("delaymodel",0);set("delaysync",0);set("delaytime",320);set("delaymix",.16f);set("delayfeedback",.22f);
         set("reverbon",1);set("reverbmodel",0);set("reverbmix",.10f);set("reverbsize",.35f);
     } else if(song==1) {
-        amp(1,17,2,0);amp(2,2,1,0);knob(1,17,"hw.ch3.gain",.48f);knob(2,2,"hw.lead.pre_gain",.52f);
+        amp(1,17,2,0);amp(2,2,1,0);
         pedal(0,26);control(0,26,0,.10f);control(0,26,1,.55f);control(0,26,2,.58f);
         post(0,0,true);postControl(0,0,"threshold",-6);postControl(0,0,"ratio",0);postControl(0,0,"attack",5);
     } else {
         amp(3,0,0,0);amp(4,song==2?17:22,song==2?2:1,-2);amp(5,20,0,-4);
-        knob(5,20,"hw.ep.gain",.43f);knob(5,20,"hw.gain_eq.bass",.36f);knob(5,20,"hw.presence",.44f);
-        if(song==2) {knob(4,17,"hw.ch3.gain",.50f);pedal(0,26);control(0,26,0,.08f);control(0,26,1,.55f);control(0,26,2,.56f);
+        knob(5,20,"hw.gain_eq.bass",.36f);knob(5,20,"hw.presence",.44f);
+        if(song==2) {pedal(0,26);control(0,26,0,.08f);control(0,26,1,.55f);control(0,26,2,.56f);
             post(2,0);postControl(2,0,"lmf_frequency",350);postControl(2,0,"lmf_gain",-2);postControl(2,0,"hmf_frequency",2200);postControl(2,0,"hmf_gain",1);set(postNativeLevelID(2,0),-3.5f);
-        } else {knob(4,22,"hw.lead.gain",.48f);pedal(0,27);control(0,27,0,.52f);control(0,27,1,.18f);control(0,27,2,.48f);
+        } else {pedal(0,27);control(0,27,0,.52f);control(0,27,1,.18f);control(0,27,2,.48f);
             post(1,0);postControl(1,0,"gain",3);set(postNativeLevelID(1,0),-5);
             post(2,2);postControl(2,2,"lf_frequency",3);postControl(2,2,"lf_boost",1);postControl(2,2,"lf_atten",1.5f);postControl(2,2,"hf_atten",2);set(postNativeLevelID(2,2),-6.5f);
         }
@@ -88,19 +88,19 @@ inline juce::ValueTree guitarSignatureSnapshot(juce::AudioProcessorValueTreeStat
     // Song roles have authored amp EQ/timing, not inherited noon controls.
     if(song==0) {
         knob(1,21,"hw.bass",.41f);knob(1,21,"hw.middle",.64f);knob(1,21,"hw.treble",.57f);knob(1,21,"hw.presence",.46f);knob(1,21,"hw.depth",.44f);
-        knob(2,4,"hw.lead.gain",.55f);knob(2,4,"hw.lead.drive",.48f);knob(2,4,"hw.lead.bass",.30f);knob(2,4,"hw.lead.middle",.60f);knob(2,4,"hw.lead.treble",.64f);knob(2,4,"hw.lead.presence",.38f);
+        knob(2,4,"hw.lead.gain",.72f);knob(2,4,"hw.lead.drive",.65f);knob(2,4,"hw.lead.bass",.30f);knob(2,4,"hw.lead.middle",.60f);knob(2,4,"hw.lead.treble",.64f);knob(2,4,"hw.lead.presence",.38f);
         control(0,9,0,.40f);control(0,9,1,.54f);control(0,9,2,.28f);control(0,9,3,.20f);control(0,9,4,.22f);control(0,9,5,.50f);
         postControl(2,1,"lf_gain",-1.f);postControl(2,1,"hf_gain",-.5f);
     } else if(song==1) {
-        knob(1,17,"hw.ch3.gain",.55f);knob(1,17,"hw.ch3.bass",.43f);knob(1,17,"hw.ch3.middle",.48f);knob(1,17,"hw.ch3.treble",.55f);knob(1,17,"hw.presence",.56f);knob(1,17,"hw.deep",.58f);
-        knob(2,2,"hw.lead.pre_gain",.58f);knob(2,2,"hw.low",.36f);knob(2,2,"hw.mid",.61f);knob(2,2,"hw.high",.53f);knob(2,2,"hw.presence",.50f);knob(2,2,"hw.resonance",.51f);
+        knob(1,17,"hw.ch3.gain",.76f);knob(1,17,"hw.ch3.bass",.43f);knob(1,17,"hw.ch3.middle",.48f);knob(1,17,"hw.ch3.treble",.55f);knob(1,17,"hw.presence",.56f);knob(1,17,"hw.deep",.58f);
+        knob(2,2,"hw.lead.pre_gain",.68f);knob(2,2,"hw.low",.36f);knob(2,2,"hw.mid",.61f);knob(2,2,"hw.high",.53f);knob(2,2,"hw.presence",.50f);knob(2,2,"hw.resonance",.51f);
     } else {
-        knob(5,20,"hw.ep.gain",song==2?.48f:.51f);knob(5,20,"hw.ep.girth",.42f);knob(5,20,"hw.ep.grind",.57f);
+        knob(5,20,"hw.ep.gain",song==2?.74f:.72f);knob(5,20,"hw.ep.girth",.42f);knob(5,20,"hw.ep.grind",.57f);
         knob(5,20,"hw.gain_eq.bass",song==2?.28f:.30f);knob(5,20,"hw.gain_eq.middle",.61f);knob(5,20,"hw.gain_eq.sweep",song==2?.58f:.52f);knob(5,20,"hw.gain_eq.treble",.44f);knob(5,20,"hw.depth",song==2?.35f:.41f);
         if(song==2) {
-            knob(4,17,"hw.ch3.gain",.58f);knob(4,17,"hw.ch3.bass",.38f);knob(4,17,"hw.ch3.middle",.57f);knob(4,17,"hw.ch3.treble",.61f);knob(4,17,"hw.presence",.57f);knob(4,17,"hw.deep",.42f);
+            knob(4,17,"hw.ch3.gain",.78f);knob(4,17,"hw.ch3.bass",.38f);knob(4,17,"hw.ch3.middle",.57f);knob(4,17,"hw.ch3.treble",.61f);knob(4,17,"hw.presence",.57f);knob(4,17,"hw.deep",.42f);
         } else {
-            knob(4,22,"hw.lead.gain",.57f);knob(4,22,"hw.lead.bass",.44f);knob(4,22,"hw.lead.middle",.61f);knob(4,22,"hw.lead.treble",.47f);knob(4,22,"hw.lead.presence",.46f);
+            knob(4,22,"hw.lead.gain",.70f);knob(4,22,"hw.lead.bass",.44f);knob(4,22,"hw.lead.middle",.61f);knob(4,22,"hw.lead.treble",.47f);knob(4,22,"hw.lead.presence",.46f);
         }
     }
     auto metadata=juce::ValueTree("GUITAR_SIGNATURE");
