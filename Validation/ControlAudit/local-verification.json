@@ -26,6 +26,13 @@
   "notes": [
     "Local binary revision text identifies the base commit; code bytes are identified by source-sha256.json, not by that displayed revision.",
     "Final-source Windows/macOS/Linux CI and all required manual evidence remain required.",
-    "Do not reuse these results as real-DI, DAW, callback timing, installer or reference acceptance evidence."
-  ]
+    "Do not reuse these results as real-DI, DAW, callback timing, installer or reference acceptance evidence.",
+    "After the 15-test run, the portable UI harness include and PRE text formatter attachment order were corrected. The UI target rebuilt and its headless control-format checks passed; production DSP and the 15 executed-test sources are unchanged."
+  ],
+  "supplementary_gui": {
+    "build": "PASS: ChimeraUITests with CHIMERA_UI_PROBES=ON",
+    "headless_control_format": "PASS: AMP/PRE/POST text roundtrip and host values",
+    "full_windowed_ui": "NOT_EXECUTED: active display server unavailable locally",
+    "evidence": "control-format.log"
+  }
 }

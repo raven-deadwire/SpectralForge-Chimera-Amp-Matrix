@@ -3,6 +3,7 @@
 #include "HardwareArtwork.h"
 #include "SupportPanel.h"
 #include "FactoryPresets.h"
+#include "FactoryNativeVoicing.h"
 #include "BoardStateUITests.h"
 #include "AmpSelectorTests.h"
 #include "AmpSelectionStateTests.h"
@@ -211,6 +212,25 @@ void checkState()
     for (int i=1;i<=3;++i)
         require(restored.parameters().getRawParameterValue("bandtone"+juce::String(i))->load() == 0.0f,
                 "Legacy state inherited a non-neutral Matrix tone");
+}
+void checkControlNumbering() {
+    const auto p=std::make_unique<ChimeraProcessor>();
+    p->setPedalModel(0,26);p->setPedalModel(1,6);
+    PedalBoardPanel board(*p);
+    auto* pre=nativeUITests::find<juce::Slider>(board,spectralforge::pedalControlID(0,26,0));
+    require(pre&&pre->getTextFromValue(.5)=="5.0","PRE position display was overwritten by its attachment");
+    require(std::abs(pre->getValueFromText("7.5")-.75)<1.e-6,"PRE position text changes normalized mapping");
+    auto* ratio=nativeUITests::find<juce::Slider>(board,spectralforge::pedalControlID(1,6,3));
+    require(ratio&&ratio->getTextFromValue(1)=="8:1"&&ratio->getValueFromText("8:1")==1,"PRE discrete labels/text do not roundtrip");
+    NativeControlView amp;
+    const auto id=spectralforge::ampNativeControlID(0,2,7);
+    amp.bind(p->parameters(),id,"PRE GAIN","TEST",0,{},0,1,.001,0);amp.showHardwarePosition();
+    require(amp.slider.getTextFromValue(.5)=="5.0"&&std::abs(amp.slider.getValueFromText("7.5")-.75)<1.e-6,"AMP position text changes normalized mapping");
+    set(*p,id,.23f);require(std::abs(amp.slider.getValue()-.23)<1.e-6,"AMP display scale changed the host value");
+    NativeControlView timing;
+    timing.bind(p->parameters(),spectralforge::postNativeControlID(0,1,2),"ATTACK","TEST",0,{},0,1,.001,0);timing.showHardwarePosition(1,7);
+    require(timing.slider.getTextFromValue(.5)=="4.0"&&std::abs(timing.slider.getValueFromText("7")-1)<1.e-6,"1176 timing position text changes normalized mapping");
+    std::cout<<"PASS: AMP/PRE/POST display and text-entry mappings preserve host values\n";
 }
 void checkFactoryPresets()
 {
@@ -564,6 +584,7 @@ int main(int argc, char** argv)
         const auto directory = argc > 1 ? juce::File(argv[1])
                                        : juce::File::getCurrentWorkingDirectory().getChildFile("ui-snapshots");
         require(directory.createDirectory().wasOk(), "Cannot create snapshot directory");
+        if(argc>2 && juce::String(argv[2])=="--control-format-only"){checkControlNumbering();return 0;}
         require(juce::Desktop::getInstance().getDisplays().getPrimaryDisplay()!=nullptr,
                 "Native UI regression requires an active display server and window manager");
         if(argc>2 && juce::String(argv[2])=="--ui-refresh-only"){uiRefreshTests::run(directory);return 0;}
@@ -593,6 +614,7 @@ int main(int argc, char** argv)
         }
         checkArtwork();
         checkState();
+        checkControlNumbering();
         checkFactoryPresets();
         checkProcessor(directory);
         {const auto folder=directory.getChildFile("ir-browser-fixture");require(folder.createDirectory().wasOk(),"Cannot create IR collection fixture");const auto guitar=folder.getChildFile("TEST V30 4x12 SM57.wav"),bass=folder.getChildFile("TEST Bass 8x10 MD421.wav");writeIRFixture(guitar);writeIRFixture(bass,true);checkDecodedIR(guitar);checkDecodedIR(bass);juce::File picked;

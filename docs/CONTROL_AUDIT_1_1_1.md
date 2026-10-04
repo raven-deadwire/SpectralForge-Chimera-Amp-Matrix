@@ -17,7 +17,7 @@ Native AMP and normalized PRE knobs now display a `0..10` position rather than
 an unexplained fraction. POST 1176 timing displays `1..7`; Pultec continuous
 positions display `0..10`. Frequency/dB controls retain their units. Display
 conversion does not change parameter IDs, ordinals, defaults or normalized
-host mappings. These position scales are not measured hardware-pot tapers.
+host mappings. These position scales are not measured hardware-pot tapers. PRE formatting is installed after the JUCE attachment, which otherwise overwrote it. A separate compiled UI target/headless test checks AMP/PRE/POST text entry and host-value roundtrips; full windowed UI remains delegated to Windows CI.
 
 ## Concrete corrections
 
