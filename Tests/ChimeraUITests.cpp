@@ -229,6 +229,11 @@ void checkFactoryPresets()
                 throw std::runtime_error(std::string("Preset parameter is outside its host range: ")+id);
             expected[id]=value;
         }),"Factory preset metadata rejected a valid index");
+        // Current factory recall deliberately revoices the legacy recipes and
+        // initializes all native banks. Compare the actual full sound contract.
+        const auto nativeSnapshot=spectralforge::factoryNativeSnapshot(processor.parameters(),index);
+        for(auto child:nativeSnapshot)if(child.hasProperty("id")&&!spectralforge::factoryPerformanceParameter(child["id"].toString()))
+            expected[child["id"].toString().toStdString()]=float(child["value"]);
         // Every module and latent control starts at an unrelated extreme;
         // processor recall must clear previous solos, polarity, FX and pitch.
         for(const auto& [id,value]:expected) {

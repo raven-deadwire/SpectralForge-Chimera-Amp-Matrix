@@ -1,4 +1,5 @@
 #include "GuitarSignaturePresets.h"
+#include "FactoryNativeVoicing.h"
 #include "PluginProcessor.h"
 #include <algorithm>
 #include "PluginEditor.h"
@@ -344,8 +345,11 @@ void ChimeraProcessor::tapTempo() {
     auto* parameter=state.getParameter("tempo");parameter->setValueNotifyingHost(parameter->convertTo0to1(float(60000/(sum/count))));state.getParameter("temposync")->setValueNotifyingHost(0);restartClick.store(true);
 }
 void ChimeraProcessor::loadFactoryPreset(int index) {
-    if(spectralforge::isGuitarSignature(index)) {
-        const auto snapshot=spectralforge::guitarSignatureSnapshot(state,index-spectralforge::factoryPresetCount);
+    if(index<0 || index>=spectralforge::selectablePresetCount)return;
+    {
+        const auto snapshot=spectralforge::isGuitarSignature(index)
+            ? spectralforge::guitarSignatureSnapshot(state,index-spectralforge::factoryPresetCount)
+            : spectralforge::factoryNativeSnapshot(state,index);
         state.replaceState(snapshot);
         // Canonicalize host values as well as APVTS values. Bool/choice adapters
         // may already cache the snapped value of a noncanonical host write and
@@ -354,21 +358,8 @@ void ChimeraProcessor::loadFactoryPreset(int index) {
             const auto node=snapshot.getChildWithProperty("id",parameter->paramID);
             parameter->setValueNotifyingHost(parameter->convertTo0to1(float(node.getProperty("value"))));
         }
-        boardUndo.clear();boardRedo.clear();resetPending.store(true);return;
-    }
-    if(index>=0 && index<spectralforge::factoryPresetCount)
-        state.state.removeChild(state.state.getChildWithName("GUITAR_SIGNATURE"),nullptr);
-    // Factory presets retain the released compatibility path. Signature presets
-    // intentionally recall the production five-slot board/native rack state and
-    // resolve their user-supplied reference IRs by catalog filename.
-    const bool signature=spectralforge::isSignaturePreset(index);
-    if (spectralforge::applyFactoryPreset(index, [this](const char* id, float value) {
-        if (auto* parameter = state.getParameter(id))
-            parameter->setValueNotifyingHost(parameter->convertTo0to1(value));
-    })) {
         boardUndo.clear();boardRedo.clear();
-        if(signature) applyPresetIRTargets(index);
-        else {resetAmpSelection();seedNativeSelections(true);setRawParameter("boardEnabled",0);}
+        if(spectralforge::isSignaturePreset(index))applyPresetIRTargets(index);
         resetPending.store(true);
     }
 }

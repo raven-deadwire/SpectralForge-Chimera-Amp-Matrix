@@ -52,6 +52,7 @@ public:
                 control->bind(processor.parameters(),spectralforge::ampNativeControlID(context,model,(int)i),juce::String::fromUTF8(spec.label),juce::String::fromUTF8(spec.group),
                               spec.kind==spectralforge::AmpNativeControlKind::knob?0:spec.kind==spectralforge::AmpNativeControlKind::choice?1:2,
                               options,spec.minimum,spec.maximum,spec.kind==spectralforge::AmpNativeControlKind::knob?.001:1.,spectralforge::art::headStyle(model).knobStyle);
+                if(spec.kind==spectralforge::AmpNativeControlKind::knob)control->showHardwarePosition();
                 control->activate=[this]{processor.activateNativeAmp(lane);};content.addAndMakeVisible(*control);controls.push_back(std::move(control));
             }
             for(int i=0;i<2;++i) {

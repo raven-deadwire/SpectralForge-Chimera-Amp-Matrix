@@ -60,6 +60,13 @@ public:
                 control->bind(processor.parameters(),spectralforge::postNativeControlID(section,currentModel,i),juce::String::fromUTF8(c.label),c.connected?"PANEL":"HARDWARE ONLY",
                     c.kind==spectralforge::PostNativeControlKind::knob?0:c.kind==spectralforge::PostNativeControlKind::choice?1:2,
                     juce::StringArray::fromTokens(juce::String::fromUTF8(c.options),"|",{}),c.minimum,c.maximum,c.interval,spectralforge::art::rackStyle(section+7,currentModel).knobStyle);
+                if(c.kind==spectralforge::PostNativeControlKind::knob) {
+                    const juce::String key(c.id);
+                    if(section==0&&currentModel==1&&(key=="attack"||key=="release"))control->showHardwarePosition(1,7);
+                    else if(section==2&&currentModel==2)control->showHardwarePosition();
+                    else if(key.contains("frequency"))control->slider.setTextValueSuffix(" Hz");
+                    else if(key.contains("gain")||key=="input"||key=="output"||key=="makeup"||key=="trim")control->slider.setTextValueSuffix(" dB");
+                }
                 control->setEnabled(c.connected);const auto note=juce::String::fromUTF8(c.note).replace("Digital implementation range; hardware taper uncalibrated.","").trim();const auto tooltip=juce::String::fromUTF8(c.label)+(note.isEmpty()?"":"\n"+note);control->label.setTooltip(tooltip);control->slider.setTooltip(tooltip);control->choice.setTooltip(tooltip);control->toggle.setTooltip(tooltip);
                 control->activate=[this]{processor.activateNativePost(section);};content.addAndMakeVisible(*control);controls.push_back(std::move(control));
             }

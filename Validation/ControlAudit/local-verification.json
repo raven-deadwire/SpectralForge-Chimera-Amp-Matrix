@@ -1,0 +1,31 @@
+{
+  "schema": "spectralforge.chimera.control-audit",
+  "schema_version": 1,
+  "date": "2026-10-04",
+  "base_commit": "36224fc7299c2c1cb9d388bebda77c31861b735c",
+  "working_tree_modified": true,
+  "source_identity": "source-sha256.json",
+  "build": "Linux x86_64 Release, JUCE 8.0.8, CMake product build",
+  "ctest": {
+    "passed": 15,
+    "failed": 0,
+    "ui_probes_enabled": false,
+    "windows_tests_executed_locally": false
+  },
+  "preset_count": 38,
+  "nominal_rms_range_dbfs": [
+    -29.1824,
+    -26.0237
+  ],
+  "nominal_peak_max_dbfs": -10.0209,
+  "plus_6db_input_peak_max_dbfs": -6.90992,
+  "fixture": "48 kHz / 128 samples; six harmonic-rich plucks, B30.87 to98Hz bass or E82.41 to246.94Hz guitar; 1.2s; synthetic only",
+  "manual_acceptance": "NOT_EXECUTED",
+  "hardware_response_matching": "NOT_CERTIFIED",
+  "release_gate": "BLOCKED",
+  "notes": [
+    "Local binary revision text identifies the base commit; code bytes are identified by source-sha256.json, not by that displayed revision.",
+    "Final-source Windows/macOS/Linux CI and all required manual evidence remain required.",
+    "Do not reuse these results as real-DI, DAW, callback timing, installer or reference acceptance evidence."
+  ]
+}

@@ -1,0 +1,34 @@
+PASS catalog 24 serialized / 23 active models, 380 controls, six contexts
+BASS_EQ_SPAN model=5 key=hw.ch1.midrange db=40.0006
+BASS_EQ_SPAN model=11 key=hw.lo_mid db=24.0002
+BASS_EQ_SPAN model=11 key=hw.hi_mid db=24.0001
+BASS_EQ_SPAN model=14 key=hw.lo_mid db=24.0004
+GAIN_RANGE model=2 channel=1 thd_low=0.00723872 thd_mid=0.358886
+GAIN_RANGE model=3 channel=2 thd_low=0.0136376 thd_mid=0.392325
+GAIN_RANGE model=4 channel=2 thd_low=0.0202056 thd_mid=0.349572
+GAIN_RANGE model=9 channel=1 thd_low=0.00796716 thd_mid=0.352769
+GAIN_RANGE model=13 channel=1 thd_low=0.00750521 thd_mid=0.312492
+GAIN_RANGE model=15 channel=2 thd_low=0.00714122 thd_mid=0.356169
+GAIN_RANGE model=17 channel=2 thd_low=0.00183545 thd_mid=0.330743
+GAIN_RANGE model=20 channel=0 thd_low=0.00955254 thd_mid=0.327949
+GAIN_RANGE model=21 channel=1 thd_low=0.0060356 thd_mid=0.396829
+GAIN_RANGE model=22 channel=1 thd_low=0.00696648 thd_mid=0.406308
+GAIN_RANGE model=23 channel=2 thd_low=0.00140174 thd_mid=0.34821
+CONTROL_RESPONSE count=380 failures=0 minimum=1.42221e-05 at=15:gate_threshold
+PASS inactive channel controls isolated=448 output level ratio=1.99526
+PASS PRE controls=154 explicitly_unavailable=7
+PASS PRE board 44100 Hz: 39 available DSPs, Empty/LOW latency, selected poly latency and bypass alignment
+PASS PRE board 48000 Hz: 39 available DSPs, Empty/LOW latency, selected poly latency and bypass alignment
+PASS PRE board 96000 Hz: 39 available DSPs, Empty/LOW latency, selected poly latency and bypass alignment
+PASS PRE board: duplicate owners, reorder identity, LOW membership, dedicated controls, JB-2 routes, capacity invariant
+PASS spatial POST: 12 models, 36 controls
+PASS full-state A Path To Alsatia parameters=3891 audio_delta=0 energy=22.6938 synthetic only
+PASS full-state Feel My Wrath parameters=3891 audio_delta=0 energy=44.693 synthetic only
+PASS full-state Blackhearted parameters=3891 audio_delta=0 energy=57.2738 synthetic only
+PASS full-state Dark Matters of Throne parameters=3891 audio_delta=0 energy=54.4567 synthetic only
+MEASURE unity mode=0 board=0 delta_db=-0.00172043 zero_shift_reported=24
+MEASURE unity mode=1 board=0 delta_db=-0.00172043 zero_shift_reported=24
+MEASURE unity mode=2 board=0 delta_db=0.000571436 zero_shift_reported=24
+MEASURE unity mode=0 board=1 delta_db=0.000745477 zero_shift_reported=42
+MEASURE unity mode=1 board=1 delta_db=0.000745477 zero_shift_reported=42
+MEASURE unity mode=2 board=1 delta_db=-0.00146929 zero_shift_reported=42

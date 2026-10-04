@@ -1,5 +1,7 @@
 #include "PluginProcessor.h"
 #include "GuitarSignaturePresets.h"
+#include "FactoryNativeVoicing.h"
+#include "PresetOrder.h"
 #include <iostream>
 #include <stdexcept>
 
@@ -9,19 +11,58 @@ void set(ChimeraProcessor& p,const juce::String& id,float value) {
     auto* parameter=p.parameters().getParameter(id);require(parameter!=nullptr,"Unknown preset/test parameter");
     parameter->setValueNotifyingHost(parameter->convertTo0to1(value));
 }
-std::vector<float> render(ChimeraProcessor& p) {
+std::vector<float> render(ChimeraProcessor& p,bool bass=false,int blocks=120) {
     p.prepareToPlay(48000,128);juce::AudioBuffer<float> b(2,128);juce::MidiBuffer midi;std::vector<float> result;
-    for(int block=0;block<120;++block) {
+    for(int block=0;block<blocks;++block) {
         for(int n=0;n<128;++n) {
             const double t=double(block*128+n)/48000;
-            const float envelope=(block%24)<18?1.f:.05f;
-            const float x=envelope*float(.10*std::sin(juce::MathConstants<double>::twoPi*110*t)+.04*std::sin(juce::MathConstants<double>::twoPi*165*t));
+            // Six plucks spanning low B/E through upper strings. A harmonic-rich
+            // deterministic fixture checks gain staging, not real-DI acceptance.
+            constexpr double bassNotes[]{30.8677,41.2034,55.,73.4162,30.8677,98.};
+            constexpr double guitarNotes[]{82.4069,110.,146.8324,196.,82.4069,246.9417};
+            const double noteTime=std::fmod(t,.2),fundamental=(bass?bassNotes:guitarNotes)[int(t/.2)%6];
+            const float envelope=float(std::min(1.,noteTime/.003)*(.08+.92*std::exp(-noteTime*12)));
+            float x=0;for(int harmonic=1;harmonic<=8;++harmonic)
+                x+=envelope*.16f/float(harmonic)*std::sin(float(juce::MathConstants<double>::twoPi*fundamental*harmonic*noteTime));
             b.setSample(0,n,x);b.setSample(1,n,-.7f*x);
         }
         p.processBlock(b,midi);
         for(int c=0;c<2;++c)for(int n=0;n<128;++n) {const auto x=b.getSample(c,n);require(std::isfinite(x) && std::abs(x)<4,"Signature output invalid/unbounded");result.push_back(x);}
     }
     p.releaseResources();return result;
+}
+void factoryBank(bool measureOnly) {
+    using namespace spectralforge;
+    std::array<bool,selectablePresetCount> seen{};
+    for(const int index:presetDisplayOrder()) {
+        require(index>=0&&index<selectablePresetCount&&!seen[size_t(index)],"Preset display order is not a permutation");seen[size_t(index)]=true;
+        require(adjacentPreset(adjacentPreset(index,1),-1)==index,"Preset navigation disagrees with category order");
+        const auto a=std::make_unique<ChimeraProcessor>(),b=std::make_unique<ChimeraProcessor>();
+        for(auto* raw:a->getParameters())if(auto* p=dynamic_cast<juce::RangedAudioParameter*>(raw))
+            if(!factoryPerformanceParameter(p->paramID))p->setValueNotifyingHost(.81f);
+        a->loadFactoryPreset(index);b->loadFactoryPreset(index);
+        for(int i=0;i<a->getParameters().size();++i)require(std::abs(a->getParameters()[i]->getValue()-b->getParameters()[i]->getValue())<1e-6,"Factory recall inherited a prior sound bank");
+        if(index<31) {
+            const int mode=int(a->parameters().getRawParameterValue("mode")->load());
+            for(int lane=0;lane<(mode==0?1:mode==1?2:3);++lane)require(a->parameters().getRawParameterValue(ampNativeEnabledID(ampNativeContext(mode,lane)))->load()>.5f,"Factory amp still uses a different engine from its panel");
+            for(int section=0;section<3;++section)require(a->parameters().getRawParameterValue(postNativeModeID(section))->load()>.5f,"Factory POST still uses a different engine from its panel");
+            require(a->parameters().getRawParameterValue("boardEnabled")->load()>.5f,"Factory PRE still uses a different engine from its panel");
+        }
+        const bool bass=index<factoryPresetCount&&juce::String(factoryPresets[size_t(index)].instrument).contains("Bass");
+        const auto audio=render(*a,bass,450);double energy=0;float peak=0;
+        for(float x:audio){energy+=double(x)*x;peak=std::max(peak,std::abs(x));}
+        const double rmsDb=10*std::log10(energy/audio.size()),peakDb=20*std::log10(peak);
+        const auto* name=isGuitarSignature(index)?guitarSignatures[size_t(index-factoryPresetCount)].name:factoryPresets[size_t(index)].name;
+        std::cout<<"PRESET_LEVEL,"<<index<<","<<name<<","<<rmsDb<<","<<peakDb<<","<<a->parameters().getRawParameterValue("output")->load()<<'\n';
+        if(measureOnly&&(index==1||index==14||index==31))std::cout<<"PRESET_DIAGNOSTIC "<<index<<" "<<a->diagnosticReport()<<'\n';
+        if(!measureOnly){require(peak<.34f,"Factory preset lacks 9 dB nominal peak headroom");require(rmsDb>-30,"Factory preset is unexpectedly quiet on the synthetic pluck fixture");}
+        set(*b,"input",6);const auto hot=render(*b,bass,450);float hotPeak=0;
+        for(float x:hot)hotPeak=std::max(hotPeak,std::abs(x));
+        std::cout<<"PRESET_HOT,"<<index<<","<<20*std::log10(hotPeak)<<'\n';
+        require(hotPeak<.95f,"Factory preset clips the +6 dB input pluck fixture");
+        if(index<factoryPresetCount){set(*a,"input",3);set(*a,"tempo",143);a->loadFactoryPreset(index);require(a->parameters().getRawParameterValue("input")->load()==3&&a->parameters().getRawParameterValue("tempo")->load()==143,"Factory recall overwrote performance settings");}
+    }
+    std::cout<<"PASS factory recall and category navigation: "<<selectablePresetCount<<" presets (synthetic fixture only)\n";
 }
 void signatures(const juce::File& directory) {
     require(directory.createDirectory().wasOk(),"Cannot create signature evidence directory");
@@ -78,6 +119,6 @@ void gainAndGR() {
 }
 int main(int argc,char** argv) {
     juce::ScopedJuceInitialiser_GUI init;
-    try {signatures(juce::File(argc>1?argv[1]:"/tmp/chimera-signatures"));gainAndGR();}
+    try {const bool measureOnly=argc>2&&juce::String(argv[2])=="--measure-presets";factoryBank(measureOnly);if(!measureOnly){signatures(juce::File(argc>1?argv[1]:"/tmp/chimera-signatures"));gainAndGR();}}
     catch(const std::exception& error){std::cerr<<"FAIL "<<error.what()<<'\n';return 1;}
 }

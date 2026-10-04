@@ -55,6 +55,12 @@ public:
     void setCompact(bool value) {
         compact=value;slider.setTextBoxStyle(compact?juce::Slider::TextBoxRight:juce::Slider::TextBoxBelow,false,compact?62:82,18);resized();
     }
+    void showHardwarePosition(double displayMin=0,double displayMax=10) {
+        const double lo=slider.getMinimum(),hi=slider.getMaximum();
+        slider.textFromValueFunction=[=](double value){return juce::String(displayMin+(value-lo)/(hi-lo)*(displayMax-displayMin),1);};
+        slider.valueFromTextFunction=[=](const juce::String& text){return lo+(text.getDoubleValue()-displayMin)/(displayMax-displayMin)*(hi-lo);};
+        slider.updateText();
+    }
 private:
     int type{};bool dragging{},compact{};juce::StringArray labels;
     std::unique_ptr<juce::ParameterAttachment> attachment;

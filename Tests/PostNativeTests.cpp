@@ -19,8 +19,34 @@ Result render(int s,int m,PostNativeBank bank,int blockSize=128,double rate=4800
 }
 double difference(const Result& a,const Result& b){double sum=0;for(size_t i=4000;i<a.samples.size();++i){const double d=a.samples[i]-b.samples[i];sum+=d*d;}return std::sqrt(sum/(a.samples.size()-4000));}
 PostNativeBank usefulBank(int s,int m){auto b=defaultPostNativeState().sections[s].banks[m];b.bypass=false;if(s==0&&m==0){b.values[0]=-30;b.values[8]=1;}if(s==0&&m==1)b.values[0]=12;if(s==0&&m==2)b.values[1]=70;if(s==1&&m==1){b.values[1]=4;b.values[3]=1;}if(s==1&&m==2){b.values[0]=0;b.values[1]=2;}if(s==2&&m==0){b.values[0]=7;b.values[3]=9;b.values[6]=-8;b.values[9]=7;}if(s==2&&m==1){b.values[0]=7;b.values[1]=-8;b.values[3]=7;}if(s==2&&m==2){b.values[1]=6;b.values[2]=5;b.values[4]=7;b.values[6]=6;}return b;}
+Result spatial(int family,int model,std::array<float,3> values) {
+    ModulationModule mod;EchoModule echo;SpaceModule space;const juce::dsp::ProcessSpec spec{48000,128,2};
+    mod.prepare(spec);echo.prepare(spec);space.prepare(spec);juce::AudioBuffer<float>b(2,128);Result result;
+    for(int offset=0;offset<96000;offset+=128) {
+        for(int n=0;n<128;++n){const auto x=signal(offset+n,48000);b.setSample(0,n,x);b.setSample(1,n,-x*.6f);}
+        if(family==0)mod.process(b,true,model,values[0],values[1],values[2]);
+        if(family==1)echo.process(b,true,model,values[0],values[1],values[2]);
+        if(family==2)space.process(b,true,model,values[0],values[1],values[2]);
+        for(int n=0;n<128;++n){const float x=b.getSample(0,n);check(std::isfinite(x)&&std::abs(x)<4,"Spatial POST unstable");result.samples.push_back(x);}
+    }
+    return result;
+}
+void spatialControls() {
+    const std::array<std::array<float,3>,3> defaults{{{{.7f,.5f,.3f}},{{220,.35f,.3f}},{{.5f,.5f,.3f}}}};
+    const std::array<std::array<float,3>,3> low{{{{.05f,0,0}},{{20,0,0}},{{0,0,0}}}};
+    const std::array<std::array<float,3>,3> high{{{{5,1,.7f}},{{1000,.85f,.6f}},{{1,1,.6f}}}};
+    int count=0;
+    for(int family=0;family<3;++family)for(int model=0;model<(family==0?6:3);++model)for(int control=0;control<3;++control) {
+        auto a=defaults[size_t(family)],b=a;a[size_t(control)]=low[size_t(family)][size_t(control)];b[size_t(control)]=high[size_t(family)][size_t(control)];
+        const double delta=difference(spatial(family,model,a),spatial(family,model,b));
+        std::cout<<"SPATIAL_CONTROL family="<<family<<" model="<<model<<" control="<<control<<" residual="<<delta<<'\n';
+        check(delta>1e-6,"Spatial POST control is unresponsive");++count;
+    }
+    std::cout<<"PASS spatial POST: 12 models, "<<count<<" controls\n";
+}
 }
 int main(){try{
+    spatialControls();
     // Model controls may share words with utility controls. Every generated
     // host ID, including disabled hardware controls, must remain independent.
     std::set<std::string> ids;

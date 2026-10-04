@@ -121,6 +121,10 @@ class PedalBoardPanel final : public juce::Component, private juce::Timer {
         c.slider.setTooltip(spec.connected ? spec.label : "This hardware function is unavailable in the plugin.");
         const auto names=juce::StringArray::fromTokens(spec.choices,"|",{});
         if(juce::String(spec.choices).isNotEmpty()) c.slider.textFromValueFunction=[names](double value){return names[juce::jlimit(0,names.size()-1,juce::roundToInt(value))];};
+        else if(spec.minimum==0 && spec.maximum==1) {
+            c.slider.textFromValueFunction=[](double value){return juce::String(value*10.,1);};
+            c.slider.valueFromTextFunction=[](const juce::String& text){return text.getDoubleValue()/10.;};
+        }
         const auto id=spectralforge::pedalControlID(owner,model,index);c.slider.setComponentID(id);
         c.attachment=std::make_unique<SA>(processor.parameters(),id,c.slider);
         c.midi.onClick=[this,id]{processor.learnMidi(id);notice.setText("Move a MIDI controller to bind this instance/control.",juce::dontSendNotification);};

@@ -99,5 +99,8 @@
     "Add frozen Factory ordinal regression to C++ tests",
     "Replace A1-A14 unclaimed BLOCKED baselines with concrete per-check producers",
     "Continue lifecycle/CPU/transpose/gate/GR regression evidence review"
-  ]
+  ],
+  "audit_status": "HISTORICAL_SUPERSEDED",
+  "superseded_by": "ControlAudit/local-verification.json",
+  "supersession_note": "The prior candidate checks below are historical; they do not validate the current 38-preset native voicing correction."
 }

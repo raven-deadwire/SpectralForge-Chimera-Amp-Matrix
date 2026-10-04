@@ -1,3 +1,4 @@
+#include "PresetOrder.h"
 #include "GuitarSignaturePresets.h"
 #include "PluginEditor.h"
 #include "DiagnosticsPanel.h"
@@ -164,20 +165,20 @@ ChimeraEditor::ChimeraEditor(ChimeraProcessor& p) : AudioProcessorEditor(&p),pro
     inputMode.setName("Input mode");inputMode.addItemList({"STEREO","MONO L"},1);add(inputMode);inputModeAttachment=std::make_unique<CA>(p.parameters(),"inputmode",inputMode);
     inputMode.setTooltip("MONO L sends the left input to both channels. Stereo preserves separate channels.");
     presets.setName("Preset");
-    presets.getRootMenu()->addSectionHeader("SIGNATURE PRESETS");
-    {juce::PopupMenu group;for(int i=0;i<spectralforge::factoryPresetCount;++i)if(spectralforge::isSignaturePreset(i))group.addItem(i+1,spectralforge::factoryPresets[(size_t)i].name);if(group.getNumItems()>0)presets.getRootMenu()->addSubMenu("Deadwire",group);}
-    {juce::PopupMenu group;for(size_t i=0;i<spectralforge::guitarSignatures.size();++i)group.addItem(spectralforge::factoryPresetCount+int(i)+1,spectralforge::guitarSignatures[i].name);presets.getRootMenu()->addSubMenu("Raven / Guitar",group);}
-    presets.getRootMenu()->addSeparator();
-    presets.getRootMenu()->addSectionHeader("FACTORY PRESETS");
-    const juce::StringArray categories{
-        "Guitar / Clean & Ambient","Guitar / Edge & Rock","Guitar / High Gain","Guitar / Lead & Texture",
-        "Bass / Clean & Dynamics","Bass / Drive & Texture",
-        "Dual / Blend","Dual / Crossover","Matrix / Bass","Matrix / Experimental"};
-    for(const auto& category:categories){juce::PopupMenu group;for(int i=0;i<spectralforge::factoryPresetCount;++i)if(!spectralforge::isSignaturePreset(i) && category==spectralforge::factoryPresets[(size_t)i].category)group.addItem(i+1,spectralforge::factoryPresets[(size_t)i].name);if(group.getNumItems()>0)presets.getRootMenu()->addSubMenu(category,group);}
+    for(size_t groupIndex=0;groupIndex<spectralforge::presetCategoryOrder.size();++groupIndex) {
+        if(groupIndex==0)presets.getRootMenu()->addSectionHeader("SIGNATURE PRESETS");
+        if(groupIndex==2){presets.getRootMenu()->addSeparator();presets.getRootMenu()->addSectionHeader("FACTORY PRESETS");}
+        const juce::String category=spectralforge::presetCategoryOrder[groupIndex];juce::PopupMenu group;
+        for(const int index:spectralforge::presetDisplayOrder())if(spectralforge::selectablePresetCategory(index)==category) {
+            const auto* name=spectralforge::isGuitarSignature(index)?spectralforge::guitarSignatures[size_t(index-spectralforge::factoryPresetCount)].name:spectralforge::factoryPresets[size_t(index)].name;
+            group.addItem(index+1,name);
+        }
+        if(group.getNumItems()>0)presets.getRootMenu()->addSubMenu(groupIndex<2?category.fromFirstOccurrenceOf(" / ",false,false):category,group);
+    }
     presets.setText("INIT / CUSTOM",juce::dontSendNotification);add(presets);
     presets.onChange=[this]{if(presets.getSelectedId()>0) {processor.loadFactoryPreset(presets.getSelectedId()-1);presetValues.clear();for(auto* parameter:processor.getParameters())presetValues.push_back(parameter->getValue());presets.setTooltip(spectralforge::selectablePresetDescription(presets.getSelectedId()-1));updateModeUI();}};
     for(auto* button:{&doublerOn,&midi,&tap,&hostTempo,&metronome,&presetPrevious,&presetNext,&presetSave,&presetLoad,&delaySync})add(*button);
-    presetPrevious.onClick=[this]{presets.setSelectedId(presets.getSelectedId()<=1 ? spectralforge::selectablePresetCount : presets.getSelectedId()-1);};presetNext.onClick=[this]{presets.setSelectedId(presets.getSelectedId()>=spectralforge::selectablePresetCount ? 1 : presets.getSelectedId()+1);};
+    presetPrevious.onClick=[this]{presets.setSelectedId(spectralforge::adjacentPreset(presets.getSelectedId()-1,-1)+1);};presetNext.onClick=[this]{presets.setSelectedId(spectralforge::adjacentPreset(presets.getSelectedId()-1,1)+1);};
     presetSave.onClick=[this]{referenceFile(true);};presetLoad.onClick=[this]{referenceFile(false);};tap.onClick=[this]{processor.tapTempo();};midi.onClick=[this]{midiMenu();};
     dualType.setName("Dual type");dualType.addItemList({"BLEND","CROSSOVER"},1);add(dualType);dualTypeAttachment=std::make_unique<CA>(p.parameters(),"dualtype",dualType);dualType.onChange=[this]{updateModeUI();};
     const std::array<juce::Slider*,4> sliders{&doublerTime,&tempo,&dualBlend,&dualFrequency};const std::array<const char*,4> sliderIds{"doublertime","tempo","dualblend","dualcross"};const std::array<const char*,4> sliderSuffix{" ms"," BPM",""," Hz"};
