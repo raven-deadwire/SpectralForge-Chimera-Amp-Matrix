@@ -2,6 +2,7 @@
 #include "PluginProcessor.h"
 #include <stdexcept>
 #include <iostream>
+#include <vector>
 
 // Run with the real Processor/APVTS on the Windows UI-test target. These are
 // state/identity assertions, not hardware-tone or DAW certification.
@@ -141,6 +142,52 @@ inline void run(const juce::File& outputDirectory) {
         mark("MIDI learn, moved owner, independent duplication, binary recall and explicit replacement retirement");
     }
     {
+        const auto pStorage=std::make_unique<ChimeraProcessor>();auto& p=*pStorage;
+        set(p,"boardEnabled",1);
+        constexpr int models[]{28,29};
+        std::array<std::vector<float>,2> bankA;
+        for(int owner=0;owner<2;++owner) {
+            const int model=models[owner];p.setPedalModel(owner,model);
+            set(p,pedalBypassID(owner,model),owner==0?0.f:1.f);
+            const auto& specModel=pedalModel(model);
+            for(int c=0;c<specModel.controlCount;++c) {
+                const auto& spec=specModel.controls[(size_t)c];
+                const float fraction=.17f+.09f*float(c%7);
+                set(p,pedalControlID(owner,model,c),spec.minimum+(spec.maximum-spec.minimum)*fraction);
+                bankA[(size_t)owner].push_back(raw(p,pedalControlID(owner,model,c)));
+            }
+        }
+        const auto selectedA=p.pedalBoardState();
+        const auto bytes=save(p);const auto recalledStorage=std::make_unique<ChimeraProcessor>();auto& recalled=*recalledStorage;load(recalled,bytes);
+        equal(recalled.pedalBoardState(),selectedA,"M104/JB-2 binary round trip changed selected board state");
+        for(int owner=0;owner<2;++owner)for(int c=0;c<(int)bankA[(size_t)owner].size();++c)
+            require(std::abs(raw(recalled,pedalControlID(owner,models[owner],c))-bankA[(size_t)owner][(size_t)c])<1.e-5f,
+                    "M104/JB-2 binary round trip lost a dedicated control bank");
+        mark("M104/JB-2 dedicated binary state round trip");
+
+        p.setPedalModel(0,26);p.setPedalModel(1,27);p.setPedalModel(0,28);p.setPedalModel(1,29);
+        for(int owner=0;owner<2;++owner)for(int c=0;c<(int)bankA[(size_t)owner].size();++c)
+            require(std::abs(raw(p,pedalControlID(owner,models[owner],c))-bankA[(size_t)owner][(size_t)c])<1.e-5f,
+                    "M104/JB-2 replacement/return lost its inactive model bank");
+        mark("M104/JB-2 replacement and return preserves inactive banks");
+
+        const auto a=p.pedalBoardState();
+        p.selectComparison(1);
+        for(int owner=0;owner<2;++owner) {
+            const int model=models[owner];p.setPedalModel(owner,model);
+            const auto& spec=pedalModel(model).controls[0];
+            set(p,pedalControlID(owner,model,0),spec.maximum);
+            set(p,pedalBypassID(owner,model),owner==0?1.f:0.f);
+        }
+        const auto b=p.pedalBoardState();
+        p.selectComparison(0);equal(p.pedalBoardState(),a,"M104/JB-2 A/B failed to restore slot A");
+        p.selectComparison(1);equal(p.pedalBoardState(),b,"M104/JB-2 A/B failed to restore slot B");
+        const auto ab=save(p);const auto recalledABStorage=std::make_unique<ChimeraProcessor>();auto& recalledAB=*recalledABStorage;load(recalledAB,ab);
+        equal(recalledAB.pedalBoardState(),b,"M104/JB-2 project recall lost selected A/B slot");
+        recalledAB.selectComparison(0);equal(recalledAB.pedalBoardState(),a,"M104/JB-2 project recall lost inactive A/B slot");
+        mark("M104/JB-2 dedicated A/B and project recall");
+    }
+    {
         const auto storage=std::make_unique<ChimeraProcessor>();auto& p=*storage;
         p.setRateAndBufferSizeDetails(48000,256);p.prepareToPlay(48000,256);
         const int originalTotal=p.getLatencySamples(),originalBoard=p.pedalBoardLatencySamples();
@@ -155,7 +202,7 @@ inline void run(const juce::File& outputDirectory) {
         require(p.getLatencySamples()==originalTotal,"Mono octave inherited the poly frame delay");
         set(p,pedalControlID(0,38,1),.613f);
         p.loadFactoryPreset(0);
-        require(!p.pedalBoardState().enabled,"Factory compatibility sound unexpectedly changed audio paths");
+        require(p.pedalBoardState().enabled,"Factory native PRE recall did not activate the visible universal board");
         constexpr int familyFirst[]{6,11,16,21,1};
         constexpr const char* familyModel[]{"compmodel","filtermodel","fuzzmodel","boostmodel","drivemodel"};
         constexpr const char* enabled[]{"precompon","filteron","fuzzon","booston","preon"};
