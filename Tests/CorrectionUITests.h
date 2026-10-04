@@ -155,8 +155,8 @@ inline void run(const juce::File& directory) {
             require(processor.selectedAmpChannel(0)==index,"Channel selection did not reach actual amplifier DSP state");
         }
         auto* reference=dynamic_cast<juce::Label*>(find(*canvas,"ampreference1"));
-        require(reference && reference->isVisible() && reference->getText()==juce::String("REFERENCE: ")+spectralforge::ampInfo(model).reference,
-                "Reference name was removed from the selected amplifier display");
+        require(reference && reference->isVisible() && reference->getText()==juce::String::fromUTF8(spectralforge::ampInfo(model).reference),
+                "Selected amplifier caption must retain its original model name without a prefix");
     }
     snapshot(editor,directory,"Correction-new-amp-channels");
 

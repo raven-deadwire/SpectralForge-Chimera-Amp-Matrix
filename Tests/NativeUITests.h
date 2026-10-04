@@ -202,7 +202,7 @@ inline void run(const juce::File& directory){
             auto* panel=find<AmpNativePanel>(*canvas,"ampNativePanel1");require(panel!=nullptr,"Native amplifier panel missing");auto* channel=find<juce::ComboBox>(*panel,"ampChannel1");
             const auto& spec=spectralforge::ampNativePanel(model);
             require(channel && channel->isVisible()==(spec.channels.size()>1),"Native UI single-channel selector not hidden");
-            auto* reference=find<juce::Label>(*canvas,"ampreference1");require(reference && reference->isVisible() && reference->getText()==juce::String("REFERENCE: ")+spectralforge::ampInfo(model).reference,"Native original reference missing outside alias list");
+            auto* reference=find<juce::Label>(*canvas,"ampreference1");require(reference && reference->isVisible() && reference->getText()==juce::String::fromUTF8(spectralforge::ampInfo(model).reference),"Native amp caption must show only the original model name outside the alias list");
             require(selector->getText()==spectralforge::ampInfo(model).name,"Native amp list exposes original reference name");
             require(canvas->getLocalBounds().contains(panel->getBounds()),"Native amp panel exceeds editor bounds");
             for(int ch=0;ch<(int)spec.channels.size();++ch){

@@ -676,7 +676,7 @@ int main(int argc, char** argv)
                 for(int model=0;model<spectralforge::ampModelCount;++model) {
                     processor.setAmpModel(0,model);juce::MessageManager::getInstance()->runDispatchLoopUntil(80);
                     auto* reference=dynamic_cast<juce::Label*>(editor.findChildWithID("surface")->findChildWithID("ampreference1"));
-                    require(reference && reference->isVisible() && reference->getText()==juce::String("REFERENCE: ")+spectralforge::ampInfo(model).reference,"Selected amp reference caption did not follow model selection");
+                    require(reference && reference->isVisible() && reference->getText()==juce::String::fromUTF8(spectralforge::ampInfo(model).reference),"Selected amp caption must show only the original model name after selection");
                     saveSnapshot(editor,directory,"Head-"+juce::String(model+1));
                 }
                 processor.setAmpModel(0,original);
