@@ -76,17 +76,24 @@ existing Factory31, bass signatures3 or guitar signatures4. Development tests
 cover control response, weak-note gain, stereo isolation, state roundtrip,
 inactive-context preservation, block partitioning and allocation behavior.
 
-Reference hypotheses remain Meshuggah-family CLANK, VH4 CRUSH, Uberschall
-**Twin Jet** IMPACT, Omega Granophyre ROT and Matamp GT1 BLOOM. Existing Fortin
-Evil Pumpkin or Uberschall Rev Blue references do not establish those exact
-anchors. No hardware-match or completed reference-validation claim is made.
+Reference roles remain Meshuggah-family CLANK, VH4 CRUSH, Uberschall **Twin Jet**
+IMPACT, Omega Granophyre ROT and Matamp GT1 BLOOM. The October 5 follow-up acquired
+and measured 26 distinct NAM files from those five named families against the
+actual development wrapper. See [Náströnd reference comparison](NASTROND_REFERENCE_COMPARISON.md).
+Meshuggah captures include cabinets; an exact head-only anchor is still missing.
+Granophyre physical provenance is uploader-asserted, and only the VH4 set has
+absolute input calibration metadata. The observations show strong default
+saturation but unresolved harmonic and spectral differences. They do not certify
+five-head hardware matching or final musical acceptance. Evil Pumpkin and
+Uberschall Rev Blue are not substituted for the requested anchors.
 
 ## Remaining work, reconciled against current code
 
 | Priority | Item | Actual status / next action |
 |---|---|---|
 | 1.2 | Náströnd integration | Finish catalog, processor routing, production panel, state/undo/A-B and five Original preset wiring; then host and listening acceptance |
-| 1.2 | Gain acceptance | Owner's screenshot settings recorded; instrument-DI comparisons and listening acceptance remain separate from synthetic regressions |
+| 1.2 | Gain acceptance | 26 NAM / 17 Original states compared; default gain already saturates strongly but reference-character differences remain. Instrument-DI comparisons and listening acceptance are pending |
+| 1.2 | Original reference coverage | Meshuggah head-only NAM and Granophyre physical provenance still needed; retain missing input calibration for four families |
 | Validation | Exact reference coverage | EICH T900 exact NAM remains missing; retain the recorded limitation |
 | Validation | Existing AMP references | 1.1.2 reviewed 174 distinct NAM files across 22 families. Preserve provenance; ZUTA whole-head/amp+cab metadata conflict is not erased |
 | Validation | Hardware/control fidelity | Exact tapers, revision identity and physical circuit equivalence remain unverified where already qualified |

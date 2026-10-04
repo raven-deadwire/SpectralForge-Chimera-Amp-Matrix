@@ -63,6 +63,12 @@ target_compile_definitions(ChimeraOriginalAmpIntegrationTests PRIVATE JUCE_USE_C
 target_link_libraries(ChimeraOriginalAmpIntegrationTests PRIVATE juce::juce_audio_utils juce::juce_dsp PUBLIC juce::juce_recommended_config_flags)
 add_test(NAME ChimeraOriginalAmpIntegrationTests COMMAND ChimeraOriginalAmpIntegrationTests)
 
+juce_add_console_app(ChimeraOriginalAmpRender PRODUCT_NAME "Chimera Original Amp Render")
+target_sources(ChimeraOriginalAmpRender PRIVATE Tests/RenderOriginalAmp.cpp)
+target_include_directories(ChimeraOriginalAmpRender PRIVATE Source)
+target_compile_definitions(ChimeraOriginalAmpRender PRIVATE JUCE_USE_CURL=0 JUCE_WEB_BROWSER=0)
+target_link_libraries(ChimeraOriginalAmpRender PRIVATE juce::juce_dsp juce::juce_audio_formats PUBLIC juce::juce_recommended_config_flags)
+
 # Compile the actual upstream/patched VBlankThread class with a deterministic
 # failing DXGI output. This runs on every platform without a physical display.
 find_package(Python3 3.9 REQUIRED COMPONENTS Interpreter)
@@ -147,6 +153,8 @@ target_compile_definitions(ChimeraRender PRIVATE JUCE_USE_CURL=0 JUCE_WEB_BROWSE
 target_link_libraries(ChimeraRender PRIVATE juce::juce_dsp juce::juce_audio_formats PUBLIC juce::juce_recommended_config_flags)
 add_test(NAME ChimeraNativeRendererTests
   COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/Tests/test_native_renderer.py" "$<TARGET_FILE:ChimeraRender>")
+add_test(NAME ChimeraOriginalRendererTests
+  COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/Tests/test_original_renderer.py" "$<TARGET_FILE:ChimeraOriginalAmpRender>")
 
 # Update metadata parsing and SHA256 checks are offline and run on every platform.
 juce_add_console_app(ChimeraReleaseTests PRODUCT_NAME "Chimera Release Tests")
