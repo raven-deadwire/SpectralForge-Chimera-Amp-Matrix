@@ -41,6 +41,11 @@
       "sha256": "96767281cf384c1744447fd0326cdfbc666d5df4439586a306d91cf3852f5e8e"
     },
     {
+      "path": "linux-package-verification.txt",
+      "bytes": 6631,
+      "sha256": "4d52f3117874b61b5aa8ff25237963488adb827e6038c7b889fcaf5030589988"
+    },
+    {
       "path": "local-ctest-inventory.json",
       "bytes": 9073,
       "sha256": "496c1a4377212b25415a790ba8a3208ea7ed534db7a3edf67efe70f1c98c40e7"
@@ -88,5 +93,16 @@
     "callback_timing_nonregression": "BLOCKED",
     "shared_runner": true,
     "baseline_repeat_overlap": "Short local relink overlapped baseline repeat; timing is not isolated acceptance."
+  },
+  "linux_package_smoke": {
+    "result": "PASS",
+    "checks": [
+      "deb extraction hashes equal standalone/VST3/manual",
+      "explicit Debian dependencies",
+      "no unresolved builder libraries"
+    ],
+    "version_label": "Existing 1.1.0-beta.1 packaging label; smoke test only, not a 1.1.1 release",
+    "installation_performed": false,
+    "public_release": false
   }
 }
