@@ -60,7 +60,16 @@ void factoryBank(bool measureOnly) {
         for(float x:hot)hotPeak=std::max(hotPeak,std::abs(x));
         std::cout<<"PRESET_HOT,"<<index<<","<<20*std::log10(hotPeak)<<'\n';
         require(hotPeak<.95f,"Factory preset clips the +6 dB input pluck fixture");
-        if(index<factoryPresetCount){set(*a,"input",3);set(*a,"tempo",143);a->loadFactoryPreset(index);require(a->parameters().getRawParameterValue("input")->load()==3&&a->parameters().getRawParameterValue("tempo")->load()==143,"Factory recall overwrote performance settings");}
+        if(index<factoryPresetCount) {
+            set(*a,"input",3);set(*a,"tempo",143);
+            const float inputBefore=a->parameters().getRawParameterValue("input")->load();
+            const float tempoBefore=a->parameters().getRawParameterValue("tempo")->load();
+            a->loadFactoryPreset(index);
+            const float inputAfter=a->parameters().getRawParameterValue("input")->load();
+            const float tempoAfter=a->parameters().getRawParameterValue("tempo")->load();
+            require(std::abs(inputAfter-inputBefore)<1.e-4f && std::abs(tempoAfter-tempoBefore)<1.e-3f,
+                    "Factory recall overwrote performance settings");
+        }
     }
     std::cout<<"PASS factory recall and category navigation: "<<selectablePresetCount<<" presets (synthetic fixture only)\n";
 }
