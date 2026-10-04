@@ -2,7 +2,6 @@
 #include "PluginProcessor.h"
 #include <stdexcept>
 #include <iostream>
-#include <vector>
 
 // Run with the real Processor/APVTS on the Windows UI-test target. These are
 // state/identity assertions, not hardware-tone or DAW certification.
@@ -30,6 +29,89 @@ inline void sendCC(ChimeraProcessor& p,int cc,int value) {
 }
 inline juce::MemoryBlock save(ChimeraProcessor& p) {juce::MemoryBlock bytes;p.getStateInformation(bytes);return bytes;}
 inline void load(ChimeraProcessor& p,const juce::MemoryBlock& bytes) {p.setStateInformation(bytes.getData(),(int)bytes.getSize());}
+
+// Explicit fixtures keep these models from being covered only incidentally by
+// the generic board tests. Check raw inactive banks as well as selected controls.
+template<size_t ControlCount,typename Mark>
+inline void checkModelRecall(int model,const char* name,
+                            const std::array<float,ControlCount>& a,
+                            const std::array<float,ControlCount>& b,Mark&& mark) {
+    using namespace spectralforge;
+    constexpr int owner=0,replacement=26;
+    require(pedalModel(model).controlCount==int(ControlCount),"Dedicated pedal state fixture control count changed");
+    const auto writeBank=[&](ChimeraProcessor& p,const auto& values) {
+        p.setPedalModel(owner,model);
+        for(size_t c=0;c<ControlCount;++c)set(p,pedalControlID(owner,model,int(c)),values[c]);
+    };
+    const auto expectBank=[&](ChimeraProcessor& p,const auto& values,bool active,const char* phase) {
+        const auto board=p.pedalBoardState();
+        require(board.instances[owner].model==(active?model:replacement),"Dedicated pedal state selected model changed");
+        for(size_t c=0;c<ControlCount;++c) {
+            const auto id=pedalControlID(owner,model,int(c));
+            if(!(std::abs(raw(p,id)-values[c])<1.e-5f) ||
+               (active && !(std::abs(board.instances[owner].controls[c]-values[c])<1.e-5f)))
+                throw std::runtime_error((juce::String(name)+" "+phase+": "+id+" was not restored").toStdString());
+        }
+    };
+    const auto replace=[&](ChimeraProcessor& p,float drive) {
+        p.setPedalModel(owner,replacement);
+        set(p,pedalControlID(owner,replacement,0),drive);
+    };
+    const auto storage=std::make_unique<ChimeraProcessor>();auto& p=*storage;
+    writeBank(p,a);expectBank(p,a,true,"fixture A");
+    {
+        const auto expected=p.pedalBoardState();
+        const auto bytes=save(p);const auto recalled=std::make_unique<ChimeraProcessor>();load(*recalled,bytes);
+        equal(recalled->pedalBoardState(),expected,"Dedicated pedal binary recall changed board state");
+        expectBank(*recalled,a,true,"binary round trip");
+    }
+    mark(juce::String(name)+": all controls survive active binary round trip");
+
+    replace(p,.937f);expectBank(p,a,false,"replacement");
+    p.setPedalModel(owner,model);expectBank(p,a,true,"replacement return");
+    mark(juce::String(name)+": replacement and return restore every control");
+
+    replace(p,.937f);
+    {
+        const auto expected=p.pedalBoardState();const auto bytes=save(p);
+        const auto recalled=std::make_unique<ChimeraProcessor>();load(*recalled,bytes);
+        equal(recalled->pedalBoardState(),expected,"Dedicated inactive-bank recall changed replacement pedal");
+        expectBank(*recalled,a,false,"inactive binary round trip");
+        recalled->setPedalModel(owner,model);expectBank(*recalled,a,true,"return after inactive binary recall");
+    }
+    mark(juce::String(name)+": inactive binary bank and return survive fresh-processor recall");
+
+    // Store distinct banks while another model is selected in both A and B.
+    // Returning after each snapshot also checks persistence of boardBankUsed.
+    p.selectComparison(1);writeBank(p,b);expectBank(p,b,true,"fixture B");
+    replace(p,.063f);
+    p.selectComparison(0);expectBank(p,a,false,"inactive snapshot A");
+    p.selectComparison(1);expectBank(p,b,false,"inactive snapshot B");
+    {
+        const auto bytes=save(p);const auto recalled=std::make_unique<ChimeraProcessor>();load(*recalled,bytes);
+        require(recalled->comparisonSlot()==1,"Dedicated inactive-bank recall lost selected B slot");
+        expectBank(*recalled,b,false,"saved inactive snapshot B");
+        recalled->setPedalModel(owner,model);expectBank(*recalled,b,true,"return from saved inactive B");
+        recalled->selectComparison(0);expectBank(*recalled,a,false,"saved inactive snapshot A");
+        recalled->setPedalModel(owner,model);expectBank(*recalled,a,true,"return from saved inactive A");
+    }
+    p.selectComparison(0);p.setPedalModel(owner,model);expectBank(p,a,true,"active snapshot A");
+    const auto boardA=p.pedalBoardState();
+    p.selectComparison(1);p.setPedalModel(owner,model);expectBank(p,b,true,"active snapshot B");
+    const auto boardB=p.pedalBoardState();
+    p.selectComparison(0);equal(p.pedalBoardState(),boardA,"Dedicated A/B lost active board A");
+    p.selectComparison(1);equal(p.pedalBoardState(),boardB,"Dedicated A/B lost active board B");
+    {
+        const auto bytes=save(p);const auto recalled=std::make_unique<ChimeraProcessor>();load(*recalled,bytes);
+        require(recalled->comparisonSlot()==1,"Dedicated active-bank recall lost selected B slot");
+        equal(recalled->pedalBoardState(),boardB,"Dedicated binary A/B lost board B");
+        expectBank(*recalled,b,true,"saved active snapshot B");
+        recalled->selectComparison(0);equal(recalled->pedalBoardState(),boardA,"Dedicated binary A/B lost board A");
+        expectBank(*recalled,a,true,"saved active snapshot A");
+        recalled->selectComparison(1);expectBank(*recalled,b,true,"saved active snapshot B revisit");
+    }
+    mark(juce::String(name)+": distinct active/inactive A/B banks and both serialized snapshots");
+}
 
 inline void run(const juce::File& outputDirectory) {
     using namespace spectralforge;
@@ -97,6 +179,13 @@ inline void run(const juce::File& outputDirectory) {
         recalledAB.selectComparison(0);equal(recalledAB.pedalBoardState(),expected,"Project recall lost inactive board A");
         mark("A/B board snapshots and both saved comparison slots");
     }
+    checkModelRecall(28,"M104 (model 28, 2 controls)",
+                     std::array<float,2>{.173f,.829f},std::array<float,2>{.746f,.218f},mark);
+    // BOSS drive/tone/level, JHS drive/tone/level, MODE, FOOT SWITCH.
+    // Exercise toggle mode/BOSS in A and parallel/JHS in B with distinct knobs.
+    checkModelRecall(29,"JB-2 (model 29, 8 controls including mode/toggle)",
+                     std::array<float,8>{.137f,.248f,.359f,.461f,.572f,.683f,2.f,1.f},
+                     std::array<float,8>{.863f,.752f,.641f,.539f,.428f,.317f,5.f,0.f},mark);
     {
         const auto pStorage=std::make_unique<ChimeraProcessor>();auto& p=*pStorage;set(p,"preon",1);set(p,"predrive",.27f);set(p,"gainorder",1);
         set(p,"boardEnabled",1);p.setPedalModel(0,26);set(p,"boardLowTap",5);
@@ -142,52 +231,6 @@ inline void run(const juce::File& outputDirectory) {
         mark("MIDI learn, moved owner, independent duplication, binary recall and explicit replacement retirement");
     }
     {
-        const auto pStorage=std::make_unique<ChimeraProcessor>();auto& p=*pStorage;
-        set(p,"boardEnabled",1);
-        constexpr int models[]{28,29};
-        std::array<std::vector<float>,2> bankA;
-        for(int owner=0;owner<2;++owner) {
-            const int model=models[owner];p.setPedalModel(owner,model);
-            set(p,pedalBypassID(owner,model),owner==0?0.f:1.f);
-            const auto& specModel=pedalModel(model);
-            for(int c=0;c<specModel.controlCount;++c) {
-                const auto& spec=specModel.controls[(size_t)c];
-                const float fraction=.17f+.09f*float(c%7);
-                set(p,pedalControlID(owner,model,c),spec.minimum+(spec.maximum-spec.minimum)*fraction);
-                bankA[(size_t)owner].push_back(raw(p,pedalControlID(owner,model,c)));
-            }
-        }
-        const auto selectedA=p.pedalBoardState();
-        const auto bytes=save(p);const auto recalledStorage=std::make_unique<ChimeraProcessor>();auto& recalled=*recalledStorage;load(recalled,bytes);
-        equal(recalled.pedalBoardState(),selectedA,"M104/JB-2 binary round trip changed selected board state");
-        for(int owner=0;owner<2;++owner)for(int c=0;c<(int)bankA[(size_t)owner].size();++c)
-            require(std::abs(raw(recalled,pedalControlID(owner,models[owner],c))-bankA[(size_t)owner][(size_t)c])<1.e-5f,
-                    "M104/JB-2 binary round trip lost a dedicated control bank");
-        mark("M104/JB-2 dedicated binary state round trip");
-
-        p.setPedalModel(0,26);p.setPedalModel(1,27);p.setPedalModel(0,28);p.setPedalModel(1,29);
-        for(int owner=0;owner<2;++owner)for(int c=0;c<(int)bankA[(size_t)owner].size();++c)
-            require(std::abs(raw(p,pedalControlID(owner,models[owner],c))-bankA[(size_t)owner][(size_t)c])<1.e-5f,
-                    "M104/JB-2 replacement/return lost its inactive model bank");
-        mark("M104/JB-2 replacement and return preserves inactive banks");
-
-        const auto a=p.pedalBoardState();
-        p.selectComparison(1);
-        for(int owner=0;owner<2;++owner) {
-            const int model=models[owner];p.setPedalModel(owner,model);
-            const auto& spec=pedalModel(model).controls[0];
-            set(p,pedalControlID(owner,model,0),spec.maximum);
-            set(p,pedalBypassID(owner,model),owner==0?1.f:0.f);
-        }
-        const auto b=p.pedalBoardState();
-        p.selectComparison(0);equal(p.pedalBoardState(),a,"M104/JB-2 A/B failed to restore slot A");
-        p.selectComparison(1);equal(p.pedalBoardState(),b,"M104/JB-2 A/B failed to restore slot B");
-        const auto ab=save(p);const auto recalledABStorage=std::make_unique<ChimeraProcessor>();auto& recalledAB=*recalledABStorage;load(recalledAB,ab);
-        equal(recalledAB.pedalBoardState(),b,"M104/JB-2 project recall lost selected A/B slot");
-        recalledAB.selectComparison(0);equal(recalledAB.pedalBoardState(),a,"M104/JB-2 project recall lost inactive A/B slot");
-        mark("M104/JB-2 dedicated A/B and project recall");
-    }
-    {
         const auto storage=std::make_unique<ChimeraProcessor>();auto& p=*storage;
         p.setRateAndBufferSizeDetails(48000,256);p.prepareToPlay(48000,256);
         const int originalTotal=p.getLatencySamples(),originalBoard=p.pedalBoardLatencySamples();
@@ -201,28 +244,32 @@ inline void run(const juce::File& outputDirectory) {
         p.setPedalModel(0,38);sendCC(p,119,0);
         require(p.getLatencySamples()==originalTotal,"Mono octave inherited the poly frame delay");
         set(p,pedalControlID(0,38,1),.613f);
+        set(p,pedalBypassID(0,38),1);
+        set(p,"boardEnabled",0);
         const auto userStateBeforeFactory=save(p);
-        auto* inactiveParameter=p.parameters().getParameter(pedalControlID(0,38,1));
-        require(inactiveParameter!=nullptr,"Mono octave bank parameter absent");
-        const float factoryInactiveDefault=inactiveParameter->convertFrom0to1(inactiveParameter->getDefaultValue());
-        require(std::abs(factoryInactiveDefault-.613f)>1.e-3f,"Dirty factory fixture must differ from the native default");
         p.loadFactoryPreset(0);
-        require(p.pedalBoardState().enabled,"Factory native PRE recall did not activate the visible universal board");
+        require(p.pedalBoardState().enabled,"Native factory sound did not activate the five-slot board");
         constexpr int familyFirst[]{6,11,16,21,1};
         constexpr const char* familyModel[]{"compmodel","filtermodel","fuzzmodel","boostmodel","drivemodel"};
         constexpr const char* enabled[]{"precompon","filteron","fuzzon","booston","preon"};
         const auto factoryBoard=p.pedalBoardState();
+        std::array<int,5> expectedOrder{0,1,2,3,4};
+        if(raw(p,"preorder")>.5f)std::swap(expectedOrder[0],expectedOrder[1]);
+        if(raw(p,"gainorder")>.5f)std::swap(expectedOrder[3],expectedOrder[4]);
+        require(factoryBoard.order==expectedOrder && factoryBoard.lowTap==2,"Native factory sound did not initialize visible order/LOW tap");
         for(int owner=0;owner<5;++owner) {
             const auto& instance=factoryBoard.instances[(size_t)owner];
             require(instance.model==familyFirst[owner]+int(raw(p,familyModel[owner])),"Factory sound did not populate the visible pedal selection");
             require(instance.bypass==(raw(p,enabled[owner])<.5f),"Factory sound did not populate the visible pedal ON/OFF state");
         }
-        require(std::abs(raw(p,pedalControlID(0,38,1))-factoryInactiveDefault)<1.e-5f,"Factory recall inherited a dirty inactive pedal bank");
+        require(std::abs(raw(p,pedalControlID(0,38,1))-.613f)<1.e-5f,"Factory sound erased an inactive user's pedal bank");
+        require(raw(p,pedalBypassID(0,38))>.5f,"Factory sound erased an inactive user's pedal bypass");
         p.setPedalModel(0,38);
-        require(p.pedalBoardState().enabled && std::abs(p.pedalBoardState().instances[0].controls[1]-factoryInactiveDefault)<1.e-5f,"Direct selection did not recall the factory-initialized pedal bank");
+        // Explicit user selection intentionally turns the chosen pedal on.
+        require(p.pedalBoardState().enabled && !p.pedalBoardState().instances[0].bypass && std::abs(p.pedalBoardState().instances[0].controls[1]-.613f)<1.e-5f,"Direct selection did not activate and recall the saved inactive pedal bank");
         load(p,userStateBeforeFactory);
-        require(p.pedalBoardState().instances[0].model==38 && std::abs(p.pedalBoardState().instances[0].controls[1]-.613f)<1.e-5f,"Factory recall prevented restoration of the saved user pedal bank");
-        mark("Poly host latency/bypass/delete, zero-frame mono, clean factory banks and saved user-state restoration");
+        require(!p.pedalBoardState().enabled && p.pedalBoardState().instances[0].model==38 && p.pedalBoardState().instances[0].bypass && std::abs(p.pedalBoardState().instances[0].controls[1]-.613f)<1.e-5f,"Factory recall prevented restoration of the saved user pedal bank");
+        mark("Poly host latency/bypass/delete, zero-frame mono, native factory activation/model/bypass/order and inactive bank recall");
     }
     auto* report=new juce::DynamicObject();report->setProperty("status","PASS");
     report->setProperty("scope","Native Processor/APVTS state and identity assertions; no external DAW or hardware-fidelity claim");

@@ -117,6 +117,7 @@ jobs:
           name: Chimera-Windows-UI-snapshots
           path: |
             build/ui-snapshots/*.png
+            build/ui-snapshots/Board-State-Verification.json
             !build/ui-snapshots/Head-*.png
             !build/ui-snapshots/PRE-models-*.png
             !build/ui-snapshots/POST-models-*.png

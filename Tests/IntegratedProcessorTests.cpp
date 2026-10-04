@@ -4,6 +4,10 @@
 #include "PresetOrder.h"
 #include <iostream>
 #include <stdexcept>
+#include <iomanip>
+#include <limits>
+#include <map>
+#include <set>
 
 namespace {
 void require(bool ok,const char* message) {if(!ok)throw std::runtime_error(message);}
@@ -31,6 +35,46 @@ std::vector<float> render(ChimeraProcessor& p,bool bass=false,int blocks=120) {
     }
     p.releaseResources();return result;
 }
+// General factory recalls preserve the actual host/APVTS performance values.
+// A decimal request is not necessarily exactly representable after JUCE's
+// interval snap (e.g. input=3 may be 2.99999928 with fused multiply-add).
+void performanceRecall(ChimeraProcessor& p,int index) {
+    using namespace spectralforge;
+    const std::map<juce::String,float> requested{{"input",3},{"inputmode",1},{"tempo",143},
+        {"temposync",1},{"metronome",1},{"tuneron",1},{"tunermute",0},{"tunerref",442}};
+    struct Value {float raw,normalised;};
+    std::map<juce::String,Value> before;
+    for(const auto& [id,value]:requested) {
+        set(p,id,value);auto* parameter=p.parameters().getParameter(id);
+        const float actual=p.parameters().getRawParameterValue(id)->load();
+        const auto& range=parameter->getNormalisableRange();
+        const float tolerance=2*std::numeric_limits<float>::epsilon()*std::max(1.f,range.end-range.start);
+        require(std::abs(actual-value)<=tolerance,"Performance fixture did not reach the requested setting");
+        before[id]={actual,parameter->getValue()};
+    }
+    const auto snapshot=factoryNativeSnapshot(p.parameters(),index);
+    for(int repeat=0;repeat<2;++repeat) {
+        p.loadFactoryPreset(index);
+        for(const auto& [id,value]:before) {
+            const float afterRaw=p.parameters().getRawParameterValue(id)->load();
+            const float afterNormalised=p.parameters().getParameter(id)->getValue();
+            if(id=="input" || id=="tempo") {
+                const auto precision=std::cout.precision();
+                std::cout<<std::setprecision(std::numeric_limits<float>::max_digits10)
+                    <<"PERFORMANCE_RECALL preset="<<index<<" repeat="<<repeat<<" id="<<id
+                    <<" requested="<<requested.at(id)<<" before_raw="<<value.raw
+                    <<" before_normalized="<<value.normalised
+                    <<" snapshot_raw="<<float(snapshot.getChildWithProperty("id",id)["value"])
+                    <<" after_raw="<<afterRaw<<" after_normalized="<<afterNormalised<<'\n';
+                std::cout.precision(precision);
+            }
+            // No tolerance here: compare the actual values before recall, not
+            // integer literals. Even a one-ULP recall drift must be diagnosed.
+            require(afterRaw==value.raw && afterNormalised==value.normalised,
+                    "Factory recall changed an actual raw/normalized performance value");
+        }
+    }
+}
 void factoryBank(bool measureOnly) {
     using namespace spectralforge;
     std::array<bool,selectablePresetCount> seen{};
@@ -40,8 +84,29 @@ void factoryBank(bool measureOnly) {
         const auto a=std::make_unique<ChimeraProcessor>(),b=std::make_unique<ChimeraProcessor>();
         for(auto* raw:a->getParameters())if(auto* p=dynamic_cast<juce::RangedAudioParameter*>(raw))
             if(!factoryPerformanceParameter(p->paramID))p->setValueNotifyingHost(.81f);
+        std::map<juce::String,float> previous;
+        for(auto* raw:a->getParameters())if(auto* p=dynamic_cast<juce::RangedAudioParameter*>(raw))
+            previous[p->paramID]=p->convertTo0to1(a->parameters().getRawParameterValue(p->paramID)->load());
         a->loadFactoryPreset(index);b->loadFactoryPreset(index);
-        for(int i=0;i<a->getParameters().size();++i)require(std::abs(a->getParameters()[i]->getValue()-b->getParameters()[i]->getValue())<1e-6,"Factory recall inherited a prior sound bank");
+        std::set<juce::String> inactive;
+        if(index<factoryPresetCount)for(int owner=0;owner<pedalBoardCapacity;++owner) {
+            const int selected=a->pedalBoardState().instances[size_t(owner)].model;
+            for(int model=0;model<pedalModelCount;++model)if(model!=selected) {
+                inactive.insert(pedalBypassID(owner,model));
+                for(int c=0;c<pedalModel(model).controlCount;++c)inactive.insert(pedalControlID(owner,model,c));
+            }
+        }
+        for(int i=0;i<a->getParameters().size();++i) {
+            auto* p=dynamic_cast<juce::RangedAudioParameter*>(a->getParameters()[i]);
+            require(p!=nullptr,"Factory test expected a ranged parameter");
+            const bool preserved=inactive.count(p->paramID)!=0;
+            const float expected=preserved?previous.at(p->paramID):b->getParameters()[i]->getValue();
+            if(std::abs(p->getValue()-expected)>=1e-6f) {
+                std::cerr<<"FACTORY_STATE preset="<<index<<" id="<<p->paramID<<" inactive="<<preserved
+                    <<" actual="<<p->getValue()<<" expected="<<expected<<'\n';
+                require(false,preserved?"Factory recall erased an inactive PRE bank":"Factory recall inherited a prior sound bank");
+            }
+        }
         if(index<31) {
             const int mode=int(a->parameters().getRawParameterValue("mode")->load());
             for(int lane=0;lane<(mode==0?1:mode==1?2:3);++lane)require(a->parameters().getRawParameterValue(ampNativeEnabledID(ampNativeContext(mode,lane)))->load()>.5f,"Factory amp still uses a different engine from its panel");
@@ -49,7 +114,9 @@ void factoryBank(bool measureOnly) {
             require(a->parameters().getRawParameterValue("boardEnabled")->load()>.5f,"Factory PRE still uses a different engine from its panel");
         }
         const bool bass=index<factoryPresetCount&&juce::String(factoryPresets[size_t(index)].instrument).contains("Bass");
-        const auto audio=render(*a,bass,450);double energy=0;float peak=0;
+        const auto audio=render(*a,bass,450),clean=render(*b,bass,450);double energy=0;float peak=0;
+        require(audio.size()==clean.size(),"Factory audio fixture size differs");
+        for(size_t i=0;i<audio.size();++i)require(std::abs(audio[i]-clean[i])<1e-6f,"Inactive PRE bank changed factory audio");
         for(float x:audio){energy+=double(x)*x;peak=std::max(peak,std::abs(x));}
         const double rmsDb=10*std::log10(energy/audio.size()),peakDb=20*std::log10(peak);
         const auto* name=isGuitarSignature(index)?guitarSignatures[size_t(index-factoryPresetCount)].name:factoryPresets[size_t(index)].name;
@@ -60,16 +127,7 @@ void factoryBank(bool measureOnly) {
         for(float x:hot)hotPeak=std::max(hotPeak,std::abs(x));
         std::cout<<"PRESET_HOT,"<<index<<","<<20*std::log10(hotPeak)<<'\n';
         require(hotPeak<.95f,"Factory preset clips the +6 dB input pluck fixture");
-        if(index<factoryPresetCount) {
-            set(*a,"input",3);set(*a,"tempo",143);
-            const float inputBefore=a->parameters().getRawParameterValue("input")->load();
-            const float tempoBefore=a->parameters().getRawParameterValue("tempo")->load();
-            a->loadFactoryPreset(index);
-            const float inputAfter=a->parameters().getRawParameterValue("input")->load();
-            const float tempoAfter=a->parameters().getRawParameterValue("tempo")->load();
-            require(std::abs(inputAfter-inputBefore)<1.e-4f && std::abs(tempoAfter-tempoBefore)<1.e-3f,
-                    "Factory recall overwrote performance settings");
-        }
+        if(index<factoryPresetCount)performanceRecall(*a,index);
     }
     std::cout<<"PASS factory recall and category navigation: "<<selectablePresetCount<<" presets (synthetic fixture only)\n";
 }
