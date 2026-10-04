@@ -1,7 +1,9 @@
+#include "GuitarSignaturePresets.h"
 #include "PluginEditor.h"
 #include "HardwareArtwork.h"
 #include "SupportPanel.h"
 #include "FactoryPresets.h"
+#include "FactoryNativeVoicing.h"
 #include "BoardStateUITests.h"
 #include "AmpSelectorTests.h"
 #include "AmpSelectionStateTests.h"
@@ -9,6 +11,8 @@
 #include "PedalMenuTests.h"
 #include "NativeStateTests.h"
 #include "NativeUITests.h"
+#include <algorithm>
+#include "UIRefreshTests.h"
 #include <map>
 #include <iostream>
 #include <set>
@@ -22,7 +26,7 @@ void checkArtwork()
     using namespace spectralforge::art;
     const juce::SharedResourcePointer<RasterBank> bank;
     const auto& images=bank->images;
-    require(images.size()==static_cast<size_t>(Surface::count) && images.size()==88,
+    require(images.size()==static_cast<size_t>(Surface::count) && images.size()==89,
             "The complete hardware artwork inventory was not embedded");
     for(size_t i=0;i<images.size();++i) {
         const auto& asset=images[i];
@@ -68,7 +72,7 @@ void checkArtwork()
         require(nativeHeads.insert(digest).second,"New heads share an identical fascia");
         require(image.getPixelAt(image.getWidth()/2,image.getHeight()/2).getAlpha()>0,"Native head artwork is empty");
     }
-    require(nativeHeads.size()==8,"Missing new amp artwork");
+    require(nativeHeads.size()==size_t(spectralforge::ampModelCount-spectralforge::legacyAmpModelCount),"Missing new amp artwork");
     for(auto surface:pedals)require(!heads.count(surface) && !racks.count(surface),"A pedal is using amp or rack artwork");
     for(auto surface:racks)require(!heads.count(surface),"A rack is using amplifier artwork");
     std::cout<<"PASS: "<<images.size()<<" decoded visible rasters; "<<heads.size()<<" unique heads, 38 PRE enclosures (39 models), 21 unique POST surfaces\n";
@@ -209,6 +213,25 @@ void checkState()
         require(restored.parameters().getRawParameterValue("bandtone"+juce::String(i))->load() == 0.0f,
                 "Legacy state inherited a non-neutral Matrix tone");
 }
+void checkControlNumbering() {
+    const auto p=std::make_unique<ChimeraProcessor>();
+    p->setPedalModel(0,26);p->setPedalModel(1,6);
+    PedalBoardPanel board(*p);
+    auto* pre=nativeUITests::find<juce::Slider>(board,spectralforge::pedalControlID(0,26,0));
+    require(pre&&pre->getTextFromValue(.5)=="5.0","PRE position display was overwritten by its attachment");
+    require(std::abs(pre->getValueFromText("7.5")-.75)<1.e-6,"PRE position text changes normalized mapping");
+    auto* ratio=nativeUITests::find<juce::Slider>(board,spectralforge::pedalControlID(1,6,3));
+    require(ratio&&ratio->getTextFromValue(1)=="8:1"&&ratio->getValueFromText("8:1")==1,"PRE discrete labels/text do not roundtrip");
+    NativeControlView amp;
+    const auto id=spectralforge::ampNativeControlID(0,2,7);
+    amp.bind(p->parameters(),id,"PRE GAIN","TEST",0,{},0,1,.001,0);amp.showHardwarePosition();
+    require(amp.slider.getTextFromValue(.5)=="5.0"&&std::abs(amp.slider.getValueFromText("7.5")-.75)<1.e-6,"AMP position text changes normalized mapping");
+    set(*p,id,.23f);require(std::abs(amp.slider.getValue()-.23)<1.e-6,"AMP display scale changed the host value");
+    NativeControlView timing;
+    timing.bind(p->parameters(),spectralforge::postNativeControlID(0,1,2),"ATTACK","TEST",0,{},0,1,.001,0);timing.showHardwarePosition(1,7);
+    require(timing.slider.getTextFromValue(.5)=="4.0"&&std::abs(timing.slider.getValueFromText("7")-1)<1.e-6,"1176 timing position text changes normalized mapping");
+    std::cout<<"PASS: AMP/PRE/POST display and text-entry mappings preserve host values\n";
+}
 void checkFactoryPresets()
 {
     const auto processorStorage=std::make_unique<ChimeraProcessor>();auto& processor=*processorStorage;
@@ -226,20 +249,63 @@ void checkFactoryPresets()
                 throw std::runtime_error(std::string("Preset parameter is outside its host range: ")+id);
             expected[id]=value;
         }),"Factory preset metadata rejected a valid index");
+        // Current factory recall deliberately revoices the legacy recipes and
+        // initializes selected native banks. Inactive PRE banks remain session state.
+        const auto nativeSnapshot=spectralforge::factoryNativeSnapshot(processor.parameters(),index);
+        for(auto child:nativeSnapshot)if(child.hasProperty("id")&&!spectralforge::factoryPerformanceParameter(child["id"].toString()))
+            expected[child["id"].toString().toStdString()]=float(child["value"]);
         // Every module and latent control starts at an unrelated extreme;
         // processor recall must clear previous solos, polarity, FX and pitch.
         for(const auto& [id,value]:expected) {
             auto* parameter=processor.parameters().getParameter(id);
             parameter->setValueNotifyingHost(parameter->convertTo0to1(value)==1.f ? 0.f : 1.f);
         }
+        // Inactive PRE controls/bypasses preserve the dirty values just written;
+        // visible (even bypassed) model banks must still recall authored values.
+        for(int owner=0;owner<spectralforge::pedalBoardCapacity;++owner) {
+            const int selected=int(float(nativeSnapshot.getChildWithProperty("id",spectralforge::pedalModelID(owner))["value"]));
+            const auto preserve=[&](const juce::String& id) {expected[id.toStdString()]=processor.parameters().getRawParameterValue(id)->load();};
+            for(int model=0;model<spectralforge::pedalModelCount;++model)if(model!=selected) {
+                preserve(spectralforge::pedalBypassID(owner,model));
+                for(int c=0;c<spectralforge::pedalModel(model).controlCount;++c)preserve(spectralforge::pedalControlID(owner,model,c));
+            }
+        }
         processor.loadFactoryPreset(index);
-        for(const auto& [id,value]:expected)
+        for(const auto& [id,value]:expected) {
+            const bool signatureCab=spectralforge::isSignaturePreset(index)
+                && (id=="cabtype1" || id=="cabtype2" || id=="cabtype3");
+            if(signatureCab) continue;
             if(std::abs(processor.parameters().getRawParameterValue(id)->load()-value)>juce::jmax(1e-4f,std::abs(value)*2e-6f))
                 throw std::runtime_error(std::string("Factory preset host recall mismatch: ")+spectralforge::factoryPresets[(size_t)index].name+" / "+id);
+        }
+        if(spectralforge::isSignaturePreset(index)) {
+            const auto entries=spectralforge::IRCollection::scan(spectralforge::IRCollection::roots(),true);
+            for(int lane=0;lane<3;++lane) {
+                const auto target=juce::String::fromUTF8(spectralforge::presetIRTarget(index,lane));
+                if(target.isEmpty()) continue;
+                const auto expectedHash=juce::String::fromUTF8(spectralforge::presetIRTargetHash(index,lane));
+                const bool catalogTarget=std::any_of(entries.begin(),entries.end(),[&](const auto& entry){return entry.reference && entry.name==target;});
+                const spectralforge::IRCollection::Entry* match=nullptr;
+                for(const auto& entry:entries) {
+                    if(!entry.ready() || entry.name!=target || (catalogTarget && !entry.reference)) continue;
+                    if(expectedHash.isNotEmpty() && entry.factorySource==0
+                        && !spectralforge::IRCollection::matchesExpectedHash(entry.file,expectedHash)) continue;
+                    match=&entry;if(entry.reference)break;
+                }
+                const auto cabId="cabtype"+juce::String(lane+1);
+                if(match && match->factorySource!=0)
+                    require(processor.parameters().getRawParameterValue(cabId)->load()==match->factorySource,"Signature factory IR source was not recalled");
+                else if(match && match->file.existsAsFile()) {
+                    require(processor.parameters().getRawParameterValue(cabId)->load()==3,"Installed Signature IR was not selected");
+                    require(processor.userIRName(lane)==target,"Signature IR resolver selected the wrong installed file");
+                } else
+                    require(processor.parameters().getRawParameterValue(cabId)->load()==0,"Missing or hash-mismatched Signature IR did not fall back to Filters only");
+            }
+        }
         for(const auto& [id,value]:performance)
             require(std::abs(processor.parameters().getRawParameterValue(id)->load()-value)<juce::jmax(1e-4f,std::abs(value)*2e-6f),
                     "Factory preset changed an input/performance preference");
-        processor.loadFactoryPreset(-1);processor.loadFactoryPreset(spectralforge::factoryPresetCount);
+        processor.loadFactoryPreset(-1);processor.loadFactoryPreset(spectralforge::selectablePresetCount);
         for(const auto& [id,value]:expected)
             require(std::abs(processor.parameters().getRawParameterValue(id)->load()-value)<juce::jmax(1e-4f,std::abs(value)*2e-6f),
                     "Invalid preset ID reset or changed the current sound");
@@ -528,6 +594,10 @@ int main(int argc, char** argv)
         const auto directory = argc > 1 ? juce::File(argv[1])
                                        : juce::File::getCurrentWorkingDirectory().getChildFile("ui-snapshots");
         require(directory.createDirectory().wasOk(), "Cannot create snapshot directory");
+        if(argc>2 && juce::String(argv[2])=="--control-format-only"){checkControlNumbering();return 0;}
+        require(juce::Desktop::getInstance().getDisplays().getPrimaryDisplay()!=nullptr,
+                "Native UI regression requires an active display server and window manager");
+        if(argc>2 && juce::String(argv[2])=="--ui-refresh-only"){uiRefreshTests::run(directory);return 0;}
         int suiteFailures=0;
         const auto runSuite=[&](const char* name,auto&& run) {
             try {run();}
@@ -539,6 +609,7 @@ int main(int argc, char** argv)
         runSuite("amp selection state",[]{ampSelectionStateTests::run();});
         runSuite("pedal menus and power",[]{pedalMenuTests::run();});
         runSuite("native state",[&]{nativeStateTests::run(directory);});
+        runSuite("UI refresh",[&]{uiRefreshTests::run(directory);});
         runSuite("native panels",[&]{runNativeUITests(directory);});
         runSuite("correction UI",[&]{runCorrectionUITests(directory);});
         runSuite("editor lifetime",[]{checkEditorLifetime();});
@@ -553,6 +624,7 @@ int main(int argc, char** argv)
         }
         checkArtwork();
         checkState();
+        checkControlNumbering();
         checkFactoryPresets();
         checkProcessor(directory);
         {const auto folder=directory.getChildFile("ir-browser-fixture");require(folder.createDirectory().wasOk(),"Cannot create IR collection fixture");const auto guitar=folder.getChildFile("TEST V30 4x12 SM57.wav"),bass=folder.getChildFile("TEST Bass 8x10 MD421.wav");writeIRFixture(guitar);writeIRFixture(bass,true);checkDecodedIR(guitar);checkDecodedIR(bass);juce::File picked;
@@ -641,7 +713,7 @@ int main(int argc, char** argv)
                 for(int model=0;model<spectralforge::ampModelCount;++model) {
                     processor.setAmpModel(0,model);juce::MessageManager::getInstance()->runDispatchLoopUntil(80);
                     auto* reference=dynamic_cast<juce::Label*>(editor.findChildWithID("surface")->findChildWithID("ampreference1"));
-                    require(reference && reference->isVisible() && reference->getText()==juce::String("REFERENCE: ")+spectralforge::ampInfo(model).reference,"Selected amp reference caption did not follow model selection");
+                    require(reference && reference->isVisible() && reference->getText()==juce::String::fromUTF8(spectralforge::ampInfo(model).reference),"Selected amp caption must show only the original model name after selection");
                     saveSnapshot(editor,directory,"Head-"+juce::String(model+1));
                 }
                 processor.setAmpModel(0,original);

@@ -128,11 +128,12 @@ inline void run(const juce::File& directory) {
     }
     processor.setRateAndBufferSizeDetails(48000,256);
     clickTab(*canvas,"RIGS");auto& amp=selector(*canvas,0);
-    require(amp.getNumItems()==23,"Editor does not expose all twenty-three amplifiers");
+    require(amp.getNumItems()==spectralforge::ampModelCount,"Editor recall inventory incomplete");
     require(amp.selectMenuResult(3),"Cannot select legacy reference voice through the actual editor");settle();
     std::vector<std::vector<float>> voices;voices.push_back(render(processor));
     double smallestResidual=100.;
-    for(int model=15;model<23;++model) {
+    for(int model=15;model<spectralforge::ampModelCount;++model) {
+        if(!spectralforge::ampIsActive(model))continue;
         require(amp.selectMenuResult(model+1),"New amplifier cannot be selected in the product editor");settle();
         require(processor.selectedAmpModel(0)==model && amp.getSelectedId()==model+1,
                 "New amplifier menu selection did not reach the actual AudioProcessor");
@@ -154,8 +155,8 @@ inline void run(const juce::File& directory) {
             require(processor.selectedAmpChannel(0)==index,"Channel selection did not reach actual amplifier DSP state");
         }
         auto* reference=dynamic_cast<juce::Label*>(find(*canvas,"ampreference1"));
-        require(reference && reference->isVisible() && reference->getText()==juce::String("REFERENCE: ")+spectralforge::ampInfo(model).reference,
-                "Reference name was removed from the selected amplifier display");
+        require(reference && reference->isVisible() && reference->getText()==juce::String::fromUTF8(spectralforge::ampInfo(model).reference),
+                "Selected amplifier caption must retain its original model name without a prefix");
     }
     snapshot(editor,directory,"Correction-new-amp-channels");
 

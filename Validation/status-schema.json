@@ -1,0 +1,54 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://spectralforge.local/chimera/validation-check-v1.schema.json",
+  "title": "SpectralForge Chimera validation check",
+  "type": "object",
+  "required": ["schema","schema_version","id","stage","name","policy","dependencies","execution","evidence","applicability"],
+  "properties": {
+    "schema": {"const": "spectralforge.chimera.validation.check"},
+    "schema_version": {"const": 1},
+    "id": {"type":"string","minLength":1},
+    "stage": {"type":"string","minLength":1},
+    "name": {"type":"string","minLength":1},
+    "scope": {"type":"object"},
+    "policy": {
+      "type":"object",
+      "required":["required","hard_gate","na_policy"],
+      "properties":{
+        "required":{"type":"boolean"},
+        "hard_gate":{"type":"boolean"},
+        "na_policy":{"enum":["FORBIDDEN","ALLOWED_WITH_REASON"]}
+      },
+      "additionalProperties":true
+    },
+    "dependencies":{"type":"array","items":{"type":"string"},"uniqueItems":true},
+    "assertion":{
+      "type":["object","null"],
+      "properties":{"passed":{"type":"boolean"}},
+      "additionalProperties":true
+    },
+    "execution":{
+      "type":"object",
+      "required":["executed"],
+      "properties":{"executed":{"type":"boolean"},"exit_code":{"type":["integer","null"]}},
+      "additionalProperties":true
+    },
+    "evidence":{
+      "type":"object",
+      "properties":{
+        "commit_sha":{"type":["string","null"]},
+        "policy_version":{"type":["integer","null"]},
+        "fixture_sha256":{"type":["string","null"]}
+      },
+      "additionalProperties":true
+    },
+    "applicability":{
+      "type":"object",
+      "required":["applicable"],
+      "properties":{"applicable":{"type":"boolean"},"waiver_id":{"type":["string","null"]}},
+      "additionalProperties":true
+    },
+    "failure":{"type":["object","null"]}
+  },
+  "additionalProperties":true
+}

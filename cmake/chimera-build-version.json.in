@@ -1,0 +1,1 @@
+{"product_version": "@PROJECT_VERSION@", "source_sha": "@CHIMERA_SOURCE_SHA@", "version": "@CHIMERA_PACKAGE_VERSION@"}

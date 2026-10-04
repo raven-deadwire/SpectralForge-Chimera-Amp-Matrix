@@ -1,0 +1,70 @@
+{
+  "baseline_source": "fe3656521046be79f99a62857976021c07ec398b",
+  "candidate_source": "bf1e7da83614a5260c7eda869a3f26de40e83823",
+  "recorded_utc": "2026-10-03T16:18:33.363140+00:00",
+  "platform": "Linux-6.18.44-x86_64-with-glibc2.39",
+  "compiler": "g++ (Ubuntu 13.3.0-6ubuntu2~24.04) 13.3.0",
+  "build_type": "Release",
+  "juce_commit": "d6181bde38d858c283c3b7bf699ce6340c050b5d",
+  "display": "Xvfb 2560x1600x24 + Openbox; sequential runs; no concurrent build/test",
+  "baseline_binary_sha256": "dfffbf99041e80708098d1dc76146a3f2b253ab8e9464a374bba9e8f3974d806",
+  "candidate_binary_sha256": "7f0031793bd95f342158a3b4c70329dc98061ee4fd6af953a7c598aaffbcea04",
+  "harness_sha256": "f0f7fc384507b282da81139558f36b3d3bfb22c2c2a1e287797395f19624a323",
+  "baseline_harness_sha256": "f0f7fc384507b282da81139558f36b3d3bfb22c2c2a1e287797395f19624a323",
+  "configure_time_embedded_revision": "fe36565210 (candidate compiled before commit; source matches candidate_source)",
+  "unchanged_callback_dsp_parameter_sources": {
+    "Source/PluginProcessor.cpp": {
+      "baseline_sha256": "9a655b7a276030885e21d6e4c3512ebe636880b0cb609ec55d0dd2a0073e44f5",
+      "candidate_sha256": "9a655b7a276030885e21d6e4c3512ebe636880b0cb609ec55d0dd2a0073e44f5"
+    },
+    "Source/ChimeraDSP.h": {
+      "baseline_sha256": "bcaa3d7f37ff6c6238b32f60ba81c0f6c0c5f7ee257f6ea1b249448e3dfdb4eb",
+      "candidate_sha256": "bcaa3d7f37ff6c6238b32f60ba81c0f6c0c5f7ee257f6ea1b249448e3dfdb4eb"
+    },
+    "Source/FXChain.h": {
+      "baseline_sha256": "9f67db2f7be5539c2106b59e972e1d5d63ce230d03ae272e8b23c5b4b38da123",
+      "candidate_sha256": "9f67db2f7be5539c2106b59e972e1d5d63ce230d03ae272e8b23c5b4b38da123"
+    },
+    "Source/GlobalDSP.h": {
+      "baseline_sha256": "281f5bed735890baeb84bd1e3d238abdad5ef63178712acf079ef335e713f0ea",
+      "candidate_sha256": "281f5bed735890baeb84bd1e3d238abdad5ef63178712acf079ef335e713f0ea"
+    },
+    "Source/PolyPitch.h": {
+      "baseline_sha256": "bc54762a2e890581c4120c40db089f593df57b1e293fa42e3ff1358ca25a87b2",
+      "candidate_sha256": "bc54762a2e890581c4120c40db089f593df57b1e293fa42e3ff1358ca25a87b2"
+    },
+    "Source/AmpNativeParameters.h": {
+      "baseline_sha256": "d564e15dd87568d370aa1bca5551059f1a31575c0642d131f15e2bdbe8abdb64",
+      "candidate_sha256": "d564e15dd87568d370aa1bca5551059f1a31575c0642d131f15e2bdbe8abdb64"
+    },
+    "Source/PostNativeParameters.h": {
+      "baseline_sha256": "625dd64cd8dd2802dd670ccd765b471abcc6a2b22365691bf07bd7d3710e51d9",
+      "candidate_sha256": "625dd64cd8dd2802dd670ccd765b471abcc6a2b22365691bf07bd7d3710e51d9"
+    }
+  },
+  "files": {
+    "baseline.json": "006e8597674f3898b3c69c3f660ef4746c21c399a78753f6e1385595df9ca75f",
+    "stability.log": "82417829294a16b5e4ffd6b4cc34438185372be75ecaf26e6f527ecacc74cacc",
+    "candidate.json": "7d82e2a98d5d2531b17a38c7a7ba2678f328e2377e8a35a7777daa1518c6d2c1",
+    "scaling-75.png": "52cc217b8efa2b0aed757fca098552a19c995a80ffd156290ae776a17dab543b",
+    "scaling-150.png": "cfbb1e7c6fd2b1828a4b29017f4b490c03174745d4e2327aeec63181d3898836",
+    "comparison.json": "411b45ae00a46050f6d64d527ba197310c5b1eaa46b27fe516eb33474fed6c7d",
+    "proposed-pr.json": "2ce17ee24271018437a6573e24087ce46935986b53dad239bb3463c8a394ce66",
+    "ui-regression.log": "99749385cee54d1bc0f9e2a210442afd6014fd48d17f5765f493cec02b05a2cf"
+  },
+  "checks": {
+    "ui_refresh_regression": "PASS",
+    "full_native_ui_suite": "PASS",
+    "dsp_stability": "PASS",
+    "synthetic_audio_identity": "PASS",
+    "audio_callback_source_unchanged": "PASS",
+    "audio_callback_timing_nonregression": "BLOCKED",
+    "windows_vst3_daw_30_minute_soak": "BLOCKED",
+    "ui_75_percent_stretch": "BLOCKED",
+    "embedded_webview_removal": "NOT_APPLICABLE"
+  },
+  "report_formatting": "JUCE JSON line endings normalised to LF; numeric values unchanged",
+  "remote_main_verified": "fe3656521046be79f99a62857976021c07ec398b",
+  "uploaded_implementation_commit": "2eea78c3a08fa5a9c56ee303ded4bdca7d3b02ad",
+  "measured_and_uploaded_implementation_tree": "7dda4148fd677d5b832d09b34c14fe61a38b1583"
+}

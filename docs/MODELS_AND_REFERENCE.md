@@ -1,6 +1,6 @@
 # Models and reference workflow
 
-SpectralForge Chimera current `main` exposes **60 selectable effect variants: 39 PRE pedal DSPs (plus the Empty slot) and 21 POST rack models**, alongside **23 amplifier voices**. These are original algorithms with hardware-informed controls and artwork, not licensed circuit models or verified replicas. Choosing a model changes processing as well as its appearance. The PRE board can host up to five independent owners at once; A/B and project recall include model-specific banks. See the compatibility note below for the boundary between the preserved legacy parameter set and appended structural/model parameters.
+SpectralForge Chimera 1.1.1 candidate exposes **60 selectable effect variants: 39 PRE pedal DSPs (plus the Empty slot) and 21 POST rack models**, alongside **23 active amplifier voices (24 serialized including legacy Ironball)**. These are original algorithms with hardware-informed controls and artwork, not licensed circuit models or verified replicas. Choosing a model changes processing as well as its appearance. The PRE board can host up to five independent owners at once; A/B and project recall include model-specific banks. See the compatibility note below for the boundary between the preserved legacy parameter set and appended structural/model parameters.
 
 | Module | Choices | Actual processing differences |
 |---|---|---|
@@ -59,9 +59,11 @@ The original eight voices are Glass, Brit Edge, Tight 515, Wide Rect, Liquid Lea
 
 Seven earlier appended voices — Chime 30, Orange Crown, Vintage Valve, Metro Clean, Prism Chime, Silk Lead and Taste Punch — bring the preserved legacy host-choice bank to **15 models**. Eight later models are appended without rescaling that legacy choice parameter: **Cinder 120 / ZUTA GBG120, Iron Compact / ENGL Ironball E606, Fourfold / Diezel VH4, Classic Tube / Ampeg SVT-CL, Monolith / SUNN Model T, Night Harvest / Fortin Evil Pumpkin, Hot Lead / Soldano SLO-100 and Blue Storm / Bogner Uberschall Rev Blue**.
 
-All 23 models now have native panel definitions and autho## Test-project compatibility
+Special Edition / ENGL E670FE is appended as model 23 with 32 native controls and five paths. Iron Compact / Ironball at 16 is retained for legacy recall and removed from the new-selection menu. E670FE calibration and Tube Driver EQ ownership remain pending; see `E670FE_IMPLEMENTATION.md`.
 
-The original amplifier host choice parameters remain exactly **15 legacy choices** with their existing normalized positions and automation meaning. Models 15–22 are selected through appended structural/native parameters, so old amp automation is not silently rescaled to 23 choices. Channel/input-route selectors for appended/native amps are structural and non-automatable; native control IDs are appended under stable `nativeAmp_c{context}_m{model}_...` namespaces.
+## Test-project compatibility
+
+The original amplifier host choice parameters remain exactly **15 legacy choices** with their existing normalized positions and automation meaning. Models 15–22 are selected through appended structural/native parameters, so old amp automation is not silently rescaled to 23 choices. E670FE native banks are appended after the entire released POST layout; no legacy index or parameter ordinal is reused. Channel/input-route selectors for appended/native amps are structural and non-automatable; native control IDs are appended under stable `nativeAmp_c{context}_m{model}_...` namespaces.
 
 The five-slot PRE board similarly uses fixed owner/model/control IDs. Board enable, model selection, order and LOW-tap structure are non-automatable; model-specific control and bypass banks remain separate, and binary project/A/B tests preserve inactive banks. A pre-board legacy project keeps its compatibility audio path and raw legacy PRE parameters until the user deliberately activates/edits the board.
 

@@ -2,6 +2,7 @@
 #include "PluginProcessor.h"
 #include "HardwareArtwork.h"
 #include "EffectSelectionCatalog.h"
+#include "UIRefresh.h"
 
 // The five slots edit the real APVTS model banks. Selection and copying happen
 // immediately; bank ownership, MIDI state and undo remain processor operations.
@@ -55,6 +56,8 @@ class PedalBoardPanel final : public juce::Component, private juce::Timer {
     std::unique_ptr<BA> detailBypassAttachment;
     int detailedOwner{-1},detailedModel{-1};
     bool syncing{};
+    spectralforge::ui::Changed<std::array<int,18>> refreshKey;
+    spectralforge::ui::Changed<int> reductionKey;
     static void stylePowerButton(juce::TextButton& button,bool modelPresent,bool bypassed) {
         const bool active=modelPresent&&!bypassed;
         button.getProperties().set("pedalPower",true);
@@ -116,10 +119,20 @@ class PedalBoardPanel final : public juce::Component, private juce::Timer {
         c.slider.getProperties().set("brightFace",showMidi?false:artwork.brightFace);
         c.slider.setEnabled(spec.connected);c.midi.setEnabled(spec.connected);
         c.slider.setTooltip(spec.connected ? spec.label : "This hardware function is unavailable in the plugin.");
-        const auto names=juce::StringArray::fromTokens(spec.choices,"|",{});
-        if(juce::String(spec.choices).isNotEmpty()) c.slider.textFromValueFunction=[names](double value){return names[juce::jlimit(0,names.size()-1,juce::roundToInt(value))];};
+        // SliderAttachment installs its own text functions. Apply panel units
+        // after attachment so host normalization cannot overwrite the display.
         const auto id=spectralforge::pedalControlID(owner,model,index);c.slider.setComponentID(id);
         c.attachment=std::make_unique<SA>(processor.parameters(),id,c.slider);
+        const auto names=juce::StringArray::fromTokens(spec.choices,"|",{});
+        if(juce::String(spec.choices).isNotEmpty()) {
+            c.slider.textFromValueFunction=[names](double value){return names[juce::jlimit(0,names.size()-1,juce::roundToInt(value))];};
+            c.slider.valueFromTextFunction=[names](const juce::String& text){const int i=names.indexOf(text,true);return i>=0?double(i):text.getDoubleValue();};
+        }
+        else if(spec.minimum==0 && spec.maximum==1) {
+            c.slider.textFromValueFunction=[](double value){return juce::String(value*10.,1);};
+            c.slider.valueFromTextFunction=[](const juce::String& text){return text.getDoubleValue()/10.;};
+        }
+        c.slider.updateText();
         c.midi.onClick=[this,id]{processor.learnMidi(id);notice.setText("Move a MIDI controller to bind this instance/control.",juce::dontSendNotification);};
     }
     void showDetails(int owner) {
@@ -134,13 +147,18 @@ class PedalBoardPanel final : public juce::Component, private juce::Timer {
         }
         refresh();resized();repaint();
     }
-    void timerCallback() override {refresh();}
-    void refresh() {
-        if(!isVisible())return;
-        const auto state=processor.pedalBoardState();syncing=true;
+    void timerCallback() override {refresh(false);}
+    void refresh(bool force=true) {
+        if(!spectralforge::ui::visible(*this)){refreshKey.dirty=true;return;}
+        if(reductionKey.update(spectralforge::ui::tenth(processor.pedalReduction())))repaint(838,5,96,29);
+        const auto state=processor.pedalBoardState();
+        const bool matrix=processor.parameters().getRawParameterValue("mode")->load()==2;
+        std::array<int,18> key{{matrix?1:0,detailedOwner,detailedModel}};
+        for(size_t i=0;i<5;++i){key[3+i*3]=state.order[i];key[4+i*3]=state.instances[i].model;key[5+i*3]=state.instances[i].bypass?1:0;}
+        if(!refreshKey.update(key) && !force)return;
+        syncing=true;
         if(detailedOwner>=0 && state.instances[(size_t)detailedOwner].model!=detailedModel) {syncing=false;showDetails(-1);return;}
         bool layoutChanged=false;int count=0;for(const auto& e:state.instances)if(e.model)++count;
-        const bool matrix=processor.parameters().getRawParameterValue("mode")->load()==2;
         tap.setEnabled(matrix);tapLabel.setText(matrix ? "LOW TAP after slot" : "LOW TAP / Matrix only",juce::dontSendNotification);
         for(int position=0;position<5;++position) {
             auto& card=cards[(size_t)position];const int owner=state.order[(size_t)position],model=state.instances[(size_t)owner].model;

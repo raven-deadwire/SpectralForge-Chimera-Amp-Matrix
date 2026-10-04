@@ -1,8 +1,8 @@
-# SpectralForge Chimera — Open Beta 1.1 updates and support
+# SpectralForge Chimera — Open Beta 1.1.1 updates and support
 
 Hosted VST3/AU opens the official releases page without creating an HTTP update worker. Automatic update checks and verified downloads described below apply to Standalone.
 
-The installed binary version is `1.1.0-beta.1`; the release tag is `v1.1.0-beta.1`.
+The prepared binary version is `1.1.1-beta.1`; the intended release tag is `v1.1.1-beta.1`. Publication is pending. The 1.1.0 manifest below is a historical example, not the current candidate identity.
 The existing plugin IDs and `SpectralForge/Chimera` data directory remain compatible.
 
 ## User behavior
@@ -48,7 +48,7 @@ Only the fixed repository is queried:
 
 The highest semantic version among non-draft `beta`, `rc` and final releases with
 an `update-beta.json` asset is selected. Tags must start with `v`; beta.10 sorts
-later than beta.2. Final 1.0.0 sorts later than 1.1.0-beta.1. Alpha releases are not
+later than beta.2. Final 1.1.0 sorts later than 1.1.0-beta.1. Alpha releases are not
 offered on this channel. Assets and release pages must belong to the same exact
 repository and tag. A draft release cannot be discovered until it is published.
 An empty published release list is displayed as no published update; a missing or
@@ -133,3 +133,4 @@ validation against a known fixture, same-size corruption rejection and URL-encod
 privacy-limited issue drafts. Public-channel availability, actual CDN downloads,
 OS package installation and code signing must additionally be verified during
 release staging; these offline tests do not claim to perform those operations.
+

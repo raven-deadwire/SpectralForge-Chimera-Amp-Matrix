@@ -48,16 +48,22 @@ AmpNativeState audibleControlState(int model,int control) {
     if(model==15){set(s,"presence",.8f);for(int ch=1;ch<=4;++ch)set(s,"ch"+std::to_string(ch)+".gate",1);}
     if(model==18)set(s,"hw.midrange",.8f);
     if(model==20){set(s,"hw.gain_eq.middle",.8f);set(s,"hw.master1",.3f);set(s,"hw.master2",.8f);if(std::string_view(k.key)=="hw.master2")set(s,"hw.master2_select",1);}
+    if(model==23){
+        set(s,"hw.master_a",.3f);set(s,"hw.master_b",.7f);
+        set(s,"hw.presence_a",.2f);set(s,"hw.presence_b",.8f);
+        if(std::string_view(k.key)=="hw.master_b")set(s,"hw.master_select",1);
+        if(std::string_view(k.key)=="hw.presence_b")set(s,"hw.presence_select",1);
+    }
     return s;
 }
 void catalog() {
     size_t count=0;for(int m=0;m<ampModelCount;++m){const auto& p=ampNativePanel(m);require(!p.controls.empty()&&p.controls.size()<=maxAmpNativeControls,"Native panel dimensions");require(p.defaultChannel<(int)p.channels.size(),"Native defaultchannel");
         auto s=defaultAmpNativeState(m);for(size_t c=0;c<p.controls.size();++c){const auto& k=p.controls[c];require(k.minimum<=k.initial&&k.initial<=k.maximum,"Native initial range");require(ampNativeControlIndex(m,k.key)==(int)c,"Duplicate native key");require(k.channelMask>0,"Invisible native control");require(s.values[c]==k.initial,"Native state default");++count;}}
-    require(count==348,"Native control count changed without review");
+    require(count==380,"Native control count changed without review");
     require(ampNativeContext(0,0)==0&&ampNativeContext(1,0)==1&&ampNativeContext(1,1)==2&&ampNativeContext(2,0)==3&&ampNativeContext(2,1)==4&&ampNativeContext(2,2)==5,"Six context identity");
     require(ampNativePanel(21).channels.size()==2,"Hot Lead normal route missing");
     auto bad=defaultAmpNativeState(3);bad.channel=99;bad.inputRoute=-99;bad.values[0]=NAN;bad.inputTrimDb=INFINITY;sanitiseAmpNativeState(bad);require(bad.channel==2&&bad.inputRoute==0&&bad.values[0]==ampNativePanel(3).controls[0].initial&&bad.inputTrimDb==0,"Native invalid values not sanitized");
-    std::cout<<"PASS catalog 23 models, 348 controls, six contexts\n";
+    std::cout<<"PASS catalog 24 serialized / 23 active models, 380 controls, six contexts\n";
 }
 void controlResponses() {
     size_t tested=0,failed=0;double minimum=1e9;std::string least;
@@ -102,5 +108,53 @@ void integration() {
     for(int model=0;model<ampModelCount;++model)for(int os=0;os<4;++os){Amp amp;amp.prepare({48000,128,2});auto s=defaultAmpNativeState(model);amp.set(static_cast<AmpModel>(model),.5f);amp.setNative(s);amp.setOversampling(os);amp.reset();juce::AudioBuffer<float> b(2,128);double energy=0;for(int block=0;block<24;++block){for(int n=0;n<128;++n){b.setSample(0,n,sample(block*128+n,48000));b.setSample(1,n,0);}amp.process(b);for(int n=0;n<128;++n){const auto v=b.getSample(0,n);require(std::isfinite(v)&&std::abs(v)<64,"Integrated native sample invalid");require(std::abs(b.getSample(1,n))<1.e-8f,"Integrated stereo crossfeed");energy+=v*v;}}require(energy>1.e-12,"Integrated native signal absent");++paths;}
     std::cout<<"PASS integrated native oversampling paths="<<paths<<"\n";
 }
+void bassEQSpecificationRanges() {
+    // Small-signal tone measurements keep nonlinear stages out of this check.
+    // The end-to-end difference checks published boost/cut span, not curve fit.
+    struct Case {int model;const char* key;float frequency;float span;};
+    for(const auto f:{Case{5,"hw.ch1.midrange",800,40},Case{11,"hw.lo_mid",520,24},Case{11,"hw.hi_mid",1200,24},Case{14,"hw.lo_mid",250,24}}) {
+        std::array<double,2> measured{};
+        for(int end=0;end<2;++end) {
+            auto s=defaultAmpNativeState(f.model);s.channel=0;set(s,f.key,float(end));
+            if(f.model==5)set(s,"hw.ch1.mid_frequency",1);
+            if(f.model==11){set(s,"hw.voicing",0);set(s,"hw.high_pass",0);set(s,"hw.lo_mid_frequency",float(std::log(520./150.)/std::log(1800./150.)));set(s,"hw.hi_mid_frequency",float(std::log(1200./300.)/std::log(5000./300.)));}
+            AmpNativeDSP dsp;dsp.prepare(48000);dsp.set(s);dsp.reset();double energy=0;
+            for(int n=0;n<48000;++n){const float y=dsp.tick(1.e-5f*std::sin(float(2*pi*f.frequency*n/48000)),0);if(n>=24000)energy+=double(y)*y;}
+            measured[size_t(end)]=energy;
+        }
+        const double span=10*std::log10(measured[1]/measured[0]);
+        std::cout<<"BASS_EQ_SPAN model="<<f.model<<" key="<<f.key<<" db="<<span<<'\n';
+        require(std::abs(span-f.span)<.6,"Bass active EQ span differs from documented range");
+    }
 }
-int main(){try{catalog();routingAndRealtime();controlResponses();channelIsolationAndSoftwareLevels();engineTransition();require(ampNativeTransitionTests::run()==0,"Native trim/reverb/coefficient transitions failed");integration();std::cout<<"PASS AmpNativeTests\n";return 0;}catch(const std::exception& e){allocationWatch=false;std::cerr<<"FAIL "<<e.what()<<"\n";return 1;}}
+void highGainRange() {
+    require(ampNativeDetail::preampGain(0,36)==0,"Amp gain pot minimum is not closed");
+    require(std::abs(ampNativeDetail::preampGain(.5f,36)-ampNativeDetail::db(18))<1.e-4f,"Gain midpoint was recentered to unity");
+    struct Fixture {int model,channel;const char* gain;};
+    const Fixture fixtures[]{{2,1,"hw.lead.pre_gain"},{3,2,"hw.ch3.gain"},{4,2,"hw.lead.gain"},{9,1,"hw.dirty.gain"},
+        {13,1,"hw.od.drive"},{15,2,"ch3.gain"},{17,2,"hw.ch3.gain"},
+        {20,0,"hw.ep.gain"},{21,1,"hw.overdrive.preamp"},{22,1,"hw.lead.gain"},{23,2,"hw.lead1.gain"}};
+    for(const auto& f:fixtures) {
+        auto s=defaultAmpNativeState(f.model);s.channel=f.channel;
+        const int control=ampNativeControlIndex(f.model,f.gain);require(control>=0,"Unknown gain regression fixture key");
+        if(f.model==3)set(s,"hw.ch3.mode",2);
+        std::array<double,2> measured{};
+        for(int setting=0;setting<2;++setting) {
+            s.values[size_t(control)]=setting?.5f:.1f;
+            AmpNativeDSP dsp;dsp.prepare(192000);dsp.set(s);dsp.reset();
+            std::array<double,13> re{},im{};
+            for(int n=0;n<192000;++n) {
+                const double phase=2*pi*400*n/192000;
+                const float y=dsp.tick(float(std::pow(10.,-24./20.)*std::sin(phase)),0);
+                if(n>=96000&&n%4==0)for(int h=1;h<=12;++h){re[size_t(h)]+=y*std::cos(h*phase);im[size_t(h)]+=y*std::sin(h*phase);}
+            }
+            double harmonics=0;for(int h=2;h<=12;++h)harmonics+=re[size_t(h)]*re[size_t(h)]+im[size_t(h)]*im[size_t(h)];
+            measured[size_t(setting)]=std::sqrt(harmonics/(re[1]*re[1]+im[1]*im[1]));
+        }
+        std::cout<<"GAIN_RANGE model="<<f.model<<" channel="<<f.channel<<" thd_low="<<measured[0]<<" thd_mid="<<measured[1]<<'\n';
+        require(measured[1]>.20,"Lead/high-gain channel lacks saturation at a weak input");
+        require(measured[1]>measured[0]+.005,"Preamp gain does not increase distortion over its lower travel");
+    }
+}
+}
+int main(){try{catalog();bassEQSpecificationRanges();highGainRange();routingAndRealtime();controlResponses();channelIsolationAndSoftwareLevels();engineTransition();require(ampNativeTransitionTests::run()==0,"Native trim/reverb/coefficient transitions failed");integration();std::cout<<"PASS AmpNativeTests\n";return 0;}catch(const std::exception& e){allocationWatch=false;std::cerr<<"FAIL "<<e.what()<<"\n";return 1;}}

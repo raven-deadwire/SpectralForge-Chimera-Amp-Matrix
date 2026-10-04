@@ -14,6 +14,12 @@ inline float pole(double rate, float hz) noexcept { return float(-std::expm1(-6.
 inline float soft(float x) noexcept { return x / std::sqrt(1.f + x * x); }
 inline float volume(float p) noexcept { return p * p * 4.f; } // centre = unity, zero = silence
 inline float gain(float p) noexcept { return db((p - .5f) * 36.f); }
+// Amp gain pots start at silence and open into the amplified signal. The
+// midpoint is +rangeDb/2, not a shared 0 dB centre. Active EQ/software trims
+// remain bipolar. This authored audio taper is not a measured hardware fit.
+inline float preampGain(float p,float rangeDb) noexcept {
+    return db(rangeDb)*std::pow(std::clamp(p,0.f,1.f),rangeDb/12.0411998f);
+}
 inline float tone(float p, float range = 12.f) noexcept { return (p - .5f) * 2.f * range; }
 inline float frequency(float p, float low, float high) noexcept { return low * std::pow(high / low, p); }
 template<class State> bool solo(const State& s) noexcept {
@@ -216,8 +222,8 @@ class AmpNativeDSP {
             config.powerBias=a(33)>.5f?.11f:.018f;config.scalar[4]=a(31)>.5f?.82f:1;config.reverb=a(35)*.55f;hp=42;lp=a(32)>.5f?12700:9200;break; }
         case 5: {
             hp=10;lp=9000;config.sag=.2f;config.stageGain={2.7f,1.5f,1,1,1,1};config.scalar[0]=volume(a(c==0?0:7));
-            if(c==0){constexpr float f[]{220,800,3000};eq(true,a(3),a(2),a(1),45,f[int(a(5))],4000,13);bright=a(4)*5;const int mode=int(a(6));if(mode==0)hp=80;else if(mode==2){preLow=6;add(true,2,450,-5,.7f);}}
-            else {add(true,3,45,tone(a(9),13));add(true,4,4000,tone(a(8),13));bright=a(10)*5;preLow=a(11)*6;if(a(11)>.5f)add(true,2,450,-5,.7f);}
+            if(c==0){constexpr float f[]{220,800,3000};add(true,3,40,tone(a(3),12));add(true,2,f[int(a(5))],tone(a(2),20),.7f);add(true,4,4000,tone(a(1),12));bright=a(4)*5;const int mode=int(a(6));if(mode==0)hp=80;else if(mode==2){preLow=6;add(true,2,450,-5,.7f);}}
+            else {add(true,3,40,tone(a(9),12));add(true,4,4000,tone(a(8),12));bright=a(10)*5;preLow=a(11)*6;if(a(11)>.5f)add(true,2,450,-5,.7f);}
             if(r==1)bright+=4;config.powerDrive=1.35f;break; }
         case 6: { // GK: 4-band input EQ, boost before two separate output bands.
             config.topology=2;config.stages=2;config.scalar[0]=volume(a(0));config.scalar[1]=1+a(5)*5;config.scalar[8]=a(6)>.5f?db(-10):1;
@@ -226,10 +232,12 @@ class AmpNativeDSP {
         case 7: { // B7K drive/blend/EQ -> DB751 gain/EQ/power, in that order.
             config.topology=3;config.hybridMaster=volume(a(0));config.hybridBlend=a(1);config.hybridLevel=volume(a(2));config.hybridDrive=gain(a(3))*5;config.hybridDistortion=a(12)>.5f;
             constexpr float lo[]{250,500,1000},hi[]{750,1500,3000};
-            add(true,3,70,tone(a(4),12));add(true,2,lo[int(a(10))],tone(a(5),12),.75f);add(true,2,hi[int(a(11))],tone(a(6),12),.75f);add(true,4,5000,tone(a(7),12));
+            add(true,3,100,tone(a(4),12));add(true,2,lo[int(a(10))],tone(a(5),12),.75f);add(true,2,hi[int(a(11))],tone(a(6),12),.75f);add(true,4,5000,tone(a(7),12));
             // Attack/Grunt affect only the clipped branch, never the clean blend.
             config.scalar[6]=db((a(8)-1)*6);config.scalar[7]=db((a(9)-1)*6);
-            config.scalar[0]=gain(a(13));config.scalar[3]=volume(a(17));eq(false,a(14),a(15),a(16),50,650,4000,12);add(false,3,55,a(18)*5);add(false,4,3800,a(19)*5);
+            config.scalar[0]=gain(a(13));config.scalar[3]=volume(a(17));
+            add(false,3,40,tone(a(14),12));add(false,2,750,tone(a(15),12),.7f);add(false,4,4000,tone(a(16),a(16)<.5f?7.f:12.f));
+            add(false,3,55,a(18)*5);add(false,4,3800,a(19)*5);
             config.stageGain={2.3f,1.35f,1,1,1,1};hp=12;lp=14000;config.sag=.09f;config.eqAfter=0;break; }
         case 8: {
             config.scalar[0]=volume(a(c==0?0:1));config.scalar[3]=volume(a(5));config.stages=c==0?2:3;config.stageGain={2.4f,1.8f,1.2f,1,1,1};
@@ -246,8 +254,14 @@ class AmpNativeDSP {
             else {config.scalar[0]=gain(a(4));config.scalar[5]=a(5);config.scalar[2]=volume(a(6));eq(false,a(7),a(9),a(10),55,frequency(a(8),150,2500),3500);preLow=a(13)*6;bright=a(14)*6;config.stages=3;}
             hp=10;lp=9000;config.sag=.17f;break; }
         case 11: {
-            config.scalar[0]=gain(a(0));hp=frequency(a(1),25,150);const float voice=a(2);add(true,3,65,voice*5);add(true,2,550,-voice*8,.65f);add(true,4,3500,voice*4);
-            add(false,3,40,tone(a(3),12));add(false,2,frequency(a(4),150,1800),tone(a(5),15),.85f);add(false,2,frequency(a(6),300,5000),tone(a(7),15),.85f);add(false,4,5000,tone(a(8),12));
+            // D-800+: fixed two-pole 22 Hz + variable two-pole high pass,
+            // followed by gain and voicing. Butterworth approximation, not a
+            // measured hardware fit. The combined -3 dB range is 30..150 Hz.
+            config.scalar[0]=gain(a(0));hp=22;config.eqAfter=0;
+            const float cutoff=frequency(a(1),30,150);
+            add(true,0,cutoff*std::pow(1.f-2.f*std::pow(22.f/cutoff,4.f),.25f));
+            const float voice=a(2);add(true,3,65,voice*5);add(true,2,550,-voice*8,.65f);add(true,4,3500,voice*4);
+            add(false,3,40,tone(a(3),12));add(false,2,frequency(a(4),150,1800),tone(a(5),12),.85f);add(false,2,frequency(a(6),300,5000),tone(a(7),12),.85f);add(false,4,5000,tone(a(8),12));
             config.scalar[3]=volume(a(9));preLow=a(10)*5;bright=a(11)*5;config.mute=a(12)>.5f;config.scalar[8]=a(13)>.5f?db(-10):1;config.stageGain={1.15f,1.02f,1,1,1,1};config.sag=.008f;lp=18000;break; }
         case 12: {
             config.scalar[0]=volume(a(c==0?0:3));config.scalar[3]=a(7)>.5f?1.6f:volume(a(6));
@@ -300,13 +314,71 @@ class AmpNativeDSP {
             const int b=c==0?0:5;config.scalar[0]=gain(a(b));config.scalar[2]=volume(a(c==0?4:10));config.scalar[3]=volume(a(11));
             eq(c==0,a(b+1),a(b+2),a(b+3),70,450,3000);if(c==1){presence(a(9),1700);add(false,2,70,3,.7f);}
             config.stages=c==0?2:4;config.stageGain={2.3f,2.5f,1.8f,1.4f,1,1};config.sag=.27f;config.powerDrive=1.5f;hp=c==0?24:34;lp=c==0?14400:10300;break; }
+        case 23: { // E670FE functional prototype, NOT a measured circuit fit.
+            const auto v=[&s](std::string_view key){return ampNativeValue(s,key);};
+            const bool driver=c==4, classic=!driver && v("hw.character")>.5f;
+            config.sag=classic?.18f:.07f;config.powerDrive=1.4f;
+            config.scalar[3]=volume(v(v("hw.master_select")>.5f?"hw.master_b":"hw.master_a"));
+            presence(v(v("hw.presence_select")>.5f?"hw.presence_b":"hw.presence_a"),2800);
+            if(v("hw.depth_boost")>.5f)add(false,2,85,4,.8f);
+            if(driver) {
+                // Preamp defeat has no main-channel gain/volume or voicing.
+                config.stages=1;config.eqAfter=0;config.stageGain={1.15f,1,1,1,1,1};
+                hp=18;lp=18000;config.sag=.07f;
+                // Fixed passive-style insertion response is explicitly an
+                // authored placeholder until T.D. EQ ownership is verified.
+                if(v("hw.tube_eq")>.5f){add(true,2,600,-3,.65f);add(true,4,4200,-1.5f);}
+            } else {
+                constexpr const char* gains[]{"hw.clean.gain","hw.crunch.gain","hw.lead1.gain","hw.lead2.gain"};
+                constexpr const char* trebles[]{"hw.clean.treble","hw.crunch.treble","hw.lead1.treble","hw.lead2.treble"};
+                constexpr const char* volumes[]{"hw.clean.volume","hw.crunch.volume","hw.lead1.volume","hw.lead2.volume"};
+                const float g=v(gains[c]);config.scalar[0]=gain(g);config.scalar[2]=volume(v(volumes[c]));
+                config.stages=c==0?2:c==1?3:c==2?4:5;
+                config.stageGain={1.8f,1.65f,1.8f,1.4f,1.15f,1};
+                hp=c==0?24.f:classic?38.f:65.f;lp=classic?11500.f:15000.f;
+                config.stageBias[1]=classic?-.15f:-.27f;
+                if(c<2) {
+                    config.scalar[0]*=v("hw.gain_boost")>.5f?1.9f:1.f;
+                    eq(true,v("hw.clean_eq.bass"),v("hw.clean_eq.middle"),v(trebles[c]),95,650,3500);
+                    bright=v("hw.bright")*(1-g)*7;
+                    if(v("hw.mid_shift")>.5f){add(true,2,400,-3,.65f);add(true,2,1350,2,.8f);}
+                } else {
+                    config.scalar[1]=v("hw.hi_gain")>.5f?2.1f:1.f;
+                    eq(false,v("hw.lead_eq.bass"),v("hw.lead_eq.middle"),v(trebles[c]),90,650,3500);
+                    if(v("hw.contour")>.5f)add(false,2,300,4,.7f);
+                    if(v("hw.mid_edge")>.5f)add(false,2,1200,3.5f,.7f);
+                }
+                if(v("hw.mega_lo_punch")>.5f){add(true,3,95,3);add(false,2,85,1.5f,.8f);}
+            }
+            break; }
+        default:break;
+        }
+        // Replace the generic +/-18 dB taper only in drive channels. Fixed
+        // interstage gain sustains decaying notes before the power/output stage.
+        // Dividing out the old scalar retains mode/boost multipliers above.
+        const auto driveChannel=[&](float knob,float rangeDb,float interDb) {
+            config.scalar[0]*=preampGain(knob,rangeDb)/gain(knob);
+            config.scalar[1]*=db(interDb);
+        };
+        switch(s.model) {
+        case 2: if(c==1)driveChannel(a(7),36,6);break;
+        case 3: if(c>0){const int b=c*7,mode=int(a(b+6));driveChannel(a(b),mode==0?12.f:mode==1?28.f:36.f,mode==0?0.f:6.f);}break;
+        case 4: if(c==2){driveChannel(a(13),30,0);config.scalar[1]=preampGain(a(17),16);}break;
+        case 9: if(c==1)driveChannel(a(3),32,6);break;
+        case 13: if(c==1){config.scalar[1]=preampGain(a(8),32);}break;
+        case 15: if(c>=2)driveChannel(a(c*9),c==2?32.f:40.f,c==2?6.f:8.f);break;
+        case 17: if(c>=2)driveChannel(a(c*5),c==2?36.f:40.f,c==2?6.f:8.f);break;
+        case 20: if(c<2){driveChannel(a(c==0?2:3),36,6);if(c==1)config.scalar[1]=preampGain(a(4),16);}break;
+        case 21: if(c==1)driveChannel(a(2),36,6);break;
+        case 22: if(c==1)driveChannel(a(5),36,6);break;
+        case 23: if(c==2||c==3)driveChannel(ampNativeValue(s,c==2?"hw.lead1.gain":"hw.lead2.gain"),c==2?40.f:44.f,8);break;
         default:break;
         }
         if(bright!=0)add(true,4,1700,bright);
         if(preLow!=0)add(true,3,85,preLow);
         config.input=D::make(rate,0,hp);config.output=D::make(rate,1,lp);
         config.lowPower=D::make(rate,3,85,0);config.highPower=D::make(rate,4,3000,0);
-        for(int i=0;i<6;++i){config.stageHP[size_t(i)]=pole(rate,hp*(i==0?.65f:(1+.25f*i)));config.stageLP[size_t(i)]=pole(rate,lp*(1.45f-.06f*i));if(config.stageBias[size_t(i)]==0)config.stageBias[size_t(i)]=(i%2?-.07f:.06f)+float(s.model%4)*.013f;}
+        for(int i=0;i<6;++i){config.stageHP[size_t(i)]=s.model==11?0.f:pole(rate,hp*(i==0?.65f:(1+.25f*i)));config.stageLP[size_t(i)]=pole(rate,lp*(1.45f-.06f*i));if(config.stageBias[size_t(i)]==0)config.stageBias[size_t(i)]=(i%2?-.07f:.06f)+float(s.model%4)*.013f;}
         parallelPole=pole(rate,s.model==20?480.f:800.f);crossoverPole=pole(rate,config.crossover);
         verbDamping=pole(channels[0].spring.internalRate,1800+config.reverbTone*6500);verbOutput=pole(rate,1500+config.reverbTone*5500);phaseStep=float(6.283185307179586*config.tremRate/rate);
     }

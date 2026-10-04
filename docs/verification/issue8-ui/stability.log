@@ -1,0 +1,8 @@
+Internal ctest changing into directory: /workspace/scratch/014e4ebdb8d0/chimera/build
+Test project /workspace/scratch/014e4ebdb8d0/chimera/build
+    Start 5: ChimeraStabilityTests
+1/1 Test #5: ChimeraStabilityTests ............   Passed    1.25 sec
+
+100% tests passed, 0 tests failed out of 1
+
+Total Test time (real) =   1.25 sec

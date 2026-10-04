@@ -10,10 +10,10 @@ public:
     void prepare(const juce::dsp::ProcessSpec& spec) {rate=spec.sampleRate;mix.reset(rate,.015);makeup.reset(rate,.02);mix.setCurrentAndTargetValue(0);makeup.setCurrentAndTargetValue(1);reset();}
     void reset() {power=reductionDb=memory=0;meterGain=1;mix.setCurrentAndTargetValue(mix.getTargetValue());}
     float reduction() const {return -juce::Decibels::gainToDecibels(juce::jmax(1e-6f,meterGain));}
-    void process(juce::AudioBuffer<float>& buffer,bool enabled,float threshold,float ratio,float attackMs,float releaseMs,float outputDb,int character=0,bool legacyFetBlend=true) {
+    void process(juce::AudioBuffer<float>& buffer,bool enabled,float threshold,float ratio,float attackMs,float releaseMs,float outputDb,int character=0,bool legacyFetBlend=true,bool directTiming=false) {
         mix.setTargetValue(enabled ? 1.f : 0.f);makeup.setTargetValue(juce::Decibels::decibelsToGain(outputDb));
-        const float detector=float(std::exp(-1/(rate*(character==3 ? .00005 : character==4 ? .018 : character==1 ? .00015 : character==2 ? .025 : .01))));
-        const float attack=float(std::exp(-1/(rate*.001*juce::jmax(.05f,character==3 ? attackMs*.035f : character==4 ? attackMs*1.8f : character==1 ? attackMs*.08f : attackMs))));
+        const float detector=float(std::exp(-1/(rate*(directTiming ? .000005 : character==3 ? .00005 : character==4 ? .018 : character==1 ? .00015 : character==2 ? .025 : .01))));
+        const float attack=float(std::exp(-1/(rate*.001*juce::jmax(directTiming?.02f:.05f,directTiming?attackMs:character==3 ? attackMs*.035f : character==4 ? attackMs*1.8f : character==1 ? attackMs*.08f : attackMs))));
         const float releaseSeconds=.001f*juce::jmax(10.f,releaseMs);
         const float release=float(std::exp(-1/(rate*releaseSeconds)));
         const float memoryPole=float(std::exp(-1/(rate*.4)));
@@ -22,7 +22,7 @@ public:
             power=detector*power+(1-detector)*maximum;
             const float over=10*std::log10(juce::jmax(power,1e-12f))-threshold;
             const float knee=character==4 ? 18.f : character==3 ? 3.f : character==1 ? 2.f : character==2 ? 12.f : 6.f;
-            const float effectiveRatio=character==4 ? 1.f+(ratio-1.f)*(.25f+.75f*juce::jlimit(0.f,1.f,(over+9)/30)) : character==3 ? ratio*1.2f : character==2 ? ratio*.65f : ratio;
+            const float effectiveRatio=directTiming?ratio:character==4 ? 1.f+(ratio-1.f)*(.25f+.75f*juce::jlimit(0.f,1.f,(over+9)/30)) : character==3 ? ratio*1.2f : character==2 ? ratio*.65f : ratio;
             const float soft=over<-knee*.5f ? 0 : over>knee*.5f ? over : (over+knee*.5f)*(over+knee*.5f)/(2*knee),target=soft*(1-1/juce::jmax(1.f,effectiveRatio));
             memory=memoryPole*memory+(1-memoryPole)*reductionDb;
             // Program-dependent recovery is evaluated per sample, not once per host block.

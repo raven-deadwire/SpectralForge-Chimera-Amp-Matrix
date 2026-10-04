@@ -20,10 +20,11 @@ inline void run() {
         ++found[(size_t)item.itemID-1];
         if(item.isTicked){check(item.itemID==8,"Wrong amp ticked");++ticked;}
     }
-    for(int count:found)check(count==1,"Amp is duplicated or missing in categories");
+    for(int model=0;model<ampModelCount;++model)check(found[(size_t)model]==(ampIsActive(model)?1:0),"Active amp duplicated/missing or legacy amp offered");
+    check(!selector.selectMenuResult(17),"Legacy Ironball offered for new selection");
     check(ticked==1,"Selected amp duplicated across categories");
     check(!selector.selectMenuResult(1001)&&selector.getSelectedId()==8,"Invalid result changed selection");
-    check(selector.selectMenuResult(23)&&selector.getSelectedId()==23,"New DSP not selectable");
+    check(selector.selectMenuResult(24)&&selector.getSelectedId()==24,"E670FE not selectable");
     // Reproduce a timer refresh between the user changing the displayed value
     // and JUCE delivering its pending onChange callback.
     const auto pendingSelection=[&check](StableAmpComboBox& control,bool keyboard) {

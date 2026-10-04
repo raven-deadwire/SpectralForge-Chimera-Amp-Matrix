@@ -2,6 +2,9 @@ name: Chimera update candidate
 on:
   pull_request:
   workflow_dispatch:
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 permissions:
   contents: read
   actions: read
@@ -16,13 +19,25 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+      - name: Check version contract before native build
+        run: python Tests/test_packaging_version.py
       - name: Configure
         run: cmake -S . -B build -A x64 -DCMAKE_BUILD_TYPE=Release
       - name: Check candidate installer scripts
         shell: pwsh
         run: |
-          python -m py_compile Tools/package_installer_candidate.py Tools/Build-PersonalWindowsBundle.py Tools/prepare_lifecycle_baseline.py Tools/extract_vblank_test_class.py Tools/verify_vblank_failure.py
-          foreach ($script in @("Tools/Build-WindowsInstaller.ps1", "Tools/Verify-WindowsInstaller.ps1", "Tools/Trace-Chimera-Session.ps1")) {
+          python -m py_compile Tools/package_installer_candidate.py Tools/Build-PersonalWindowsBundle.py Tools/prepare_lifecycle_baseline.py Tools/extract_vblank_test_class.py Tools/verify_vblank_failure.py Tools/evaluate_release_gate.py Tools/test_release_gate.py Tools/evaluate_signature_benchmark.py Tools/test_signature_benchmark.py Tools/check_catalog_contract.py Tools/check_ci_validation_map.py Tools/produce_validation_check.py Tools/test_validation_producer.py Tools/seed_validation_reports.py Tools/analyze_callback_pairs.py Tools/run_paired_callback_probe.py Tools/test_callback_timing_protocol.py
+          python Tools/test_release_gate.py
+          python Tools/test_release_scope.py
+          python Tools/test_signature_benchmark.py
+          python Tools/check_catalog_contract.py
+          python Tools/check_ci_validation_map.py
+          python Tools/test_validation_producer.py
+          python Tools/test_ctest_validation.py
+          python Tools/test_callback_timing_protocol.py
+          $revision = (& git rev-parse HEAD).Trim()
+          python Tools/seed_validation_reports.py --commit $revision --profile pull_request --output build/validation
+          foreach ($script in @("Tools/Build-WindowsInstaller.ps1", "Tools/Windows-VersionContract.ps1", "Tools/Verify-WindowsInstaller.ps1", "Tools/Trace-Chimera-Session.ps1")) {
             $tokens = $null
             $errors = $null
             [System.Management.Automation.Language.Parser]::ParseFile((Resolve-Path $script).Path, [ref]$tokens, [ref]$errors) | Out-Null
@@ -32,6 +47,13 @@ jobs:
           $nativeHelper = [regex]::Match($diagnosticsScript, "(?s)Add-Type -TypeDefinition @'\r?\n(.*?)\r?\n'@")
           if (!$nativeHelper.Success) { throw 'Diagnostic dump helper definition missing' }
           Add-Type -TypeDefinition $nativeHelper.Groups[1].Value
+      - name: Upload current-commit release-gate evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Chimera-candidate-A-stage-release-gate
+          path: build/validation
+          if-no-files-found: error
       - name: Build independent shutdown regression probes
         run: cmake --build build --config Release --target ChimeraVST3LifecycleTests ChimeraVBlankFailureTests --parallel 2
       - name: Verify VBlank failure can stop safely
@@ -62,7 +84,7 @@ jobs:
         id: baseline-lifecycle
         if: steps.baseline_download.outcome == 'success'
         continue-on-error: true
-        timeout-minutes: 5
+        timeout-minutes: 7
         shell: pwsh
         run: |
           & build/Release/ChimeraVST3LifecycleTests.exe "build/lifecycle-baseline/SpectralForge Chimera.vst3/Contents/x86_64-win/SpectralForge Chimera.vst3" 2>&1 | Tee-Object build/lifecycle-baseline-result.txt
@@ -82,7 +104,8 @@ jobs:
         shell: pwsh
         run: |
           $env:CHIMERA_LIFECYCLE_TRACE = Join-Path (Get-Location) "build/lifecycle-current-trace.log"
-          ctest --test-dir build -C Release --output-on-failure --no-tests=error
+          ctest --test-dir build -C Release --show-only=json-v1 > build/ctest-inventory.json
+          ctest --test-dir build -C Release --output-on-failure --no-tests=error --output-junit ctest-results.xml
           exit $LASTEXITCODE
       - uses: actions/upload-artifact@v4
         if: always()
@@ -94,6 +117,21 @@ jobs:
             build/lifecycle-current-trace.log
             build/Testing/Temporary/LastTest.log
           if-no-files-found: warn
+      - name: Produce combined-candidate CTest evidence
+        if: always()
+        shell: bash
+        run: python Tools/produce_ctest_validation.py --commit "$(git rev-parse HEAD)" --platform windows --junit build/ctest-results.xml --inventory build/ctest-inventory.json --output build/validation-current
+      - name: Upload combined-candidate validation and signatures
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Chimera-candidate-integration-validation
+          path: |
+            build/validation-current
+            build/ctest-results.xml
+            build/ctest-inventory.json
+            build/signature-snapshots
+          if-no-files-found: warn
       - name: Package distinct Windows test build
         run: python Tools/package_update_candidate.py
       - name: Stage exact-commit Windows installer payload
@@ -104,7 +142,7 @@ jobs:
           $buildId = ((& git rev-parse HEAD).Trim()).Substring(0, 10)
           ./Tools/Build-WindowsInstaller.ps1 -Stage installer-candidate/payload -OutputDirectory installer-candidate -BuildId $buildId
       - name: Verify selected paths, installed app, VST3, repair and uninstall
-        timeout-minutes: 5
+        timeout-minutes: 7
         shell: pwsh
         run: |
           $buildId = ((& git rev-parse HEAD).Trim()).Substring(0, 10)

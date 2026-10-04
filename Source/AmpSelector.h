@@ -28,6 +28,7 @@ class AmpSelector final : public StableAmpComboBox {
 public:
     AmpSelector() {
         addItemList(spectralforge::ampNames(),1);
+        setItemEnabled(spectralforge::legacyHiddenAmpIndex+1,false);
         setTooltip("Select a Chimera amplifier. Every head is available on any lane.");
     }
     juce::PopupMenu browsingMenu() const {
@@ -35,14 +36,14 @@ public:
         juce::PopupMenu menu;
         for(const auto& category:ampRoleChoices) {
             juce::PopupMenu group;
-            for(int i=0;i<ampModelCount;++i)if(ampPrimaryRoles[(size_t)i]==category.role)
+            for(int i=0;i<ampModelCount;++i)if(ampIsActive(i) && ampPrimaryRoles[(size_t)i]==category.role)
                 group.addItem(i+1,ampInfo(i).name,true,getSelectedId()==i+1);
             menu.addSubMenu(category.label,group);
         }
         return menu;
     }
     bool selectMenuResult(int id) {
-        if(spectralforge::ampIndexFromMenuId(id)<0)return false;
+        if(!spectralforge::ampIsActive(spectralforge::ampIndexFromMenuId(id)))return false;
         setSelectedId(id,juce::sendNotificationSync);
         return true;
     }

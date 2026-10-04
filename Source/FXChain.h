@@ -128,8 +128,8 @@ public:
     void reset() {gate.reset();transpose.reset();compressor.reset();envelope.reset();fuzz.reset();boost.reset();drive.reset();cleanAlignment.reset();}
     const juce::AudioBuffer<float>& cleanOutput() const {return clean;}
     int latency(bool pitchEnabled) const {return fuzz.latency()+drive.latency()+(pitchEnabled ? transpose.latency() : 0);}
-    void process(juce::AudioBuffer<float>& buffer,bool gateOn,float threshold,float release,float hold,bool pitchOn,int semitones,const FXState& state) {
-        gate.process(buffer,gateOn,threshold,release,hold);transpose.process(buffer,pitchOn,semitones);
+    void process(juce::AudioBuffer<float>& buffer,bool gateOn,float threshold,float release,float hold,bool pitchOn,int semitones,const FXState& state,float gateRangeDb=NoiseGate::fullRangeDb) {
+        gate.process(buffer,gateOn,threshold,release,hold,gateRangeDb);transpose.process(buffer,pitchOn,semitones);
         const auto compress=[&]{compressor.process(buffer,state.preCompOn,-12-30*state.preComp,1+5*state.preComp,state.preAttack,140,state.preLevel,state.models[3]);};
         const auto filter=[&]{envelope.process(buffer,state.filterOn,state.filterSense,state.filterQ,state.filterMix,state.models[4]);};
         if(state.envelopeFirst) {filter();compress();} else {compress();filter();}

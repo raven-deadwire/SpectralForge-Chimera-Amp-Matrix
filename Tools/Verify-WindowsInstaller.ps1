@@ -1,6 +1,6 @@
 ﻿param(
-    [string]$Installer = "dist/SpectralForge-Chimera-1.1.0-beta.1-win64-Setup.exe",
-    [string]$Stage = "dist/SpectralForge-Chimera-1.1.0-beta.1-win64",
+    [string]$Installer = "",
+    [string]$Stage = "",
     [string]$LogDirectory = "build/installer-verification"
 )
 $ErrorActionPreference = "Stop"
@@ -9,6 +9,13 @@ Set-StrictMode -Version Latest
 if ($env:GITHUB_ACTIONS -ne "true" -or !$IsWindows -or ![Environment]::Is64BitProcess) {
     throw "Installer verification is restricted to an ephemeral x64 Windows GitHub runner."
 }
+$versionTool = Join-Path $PSScriptRoot "chimera_version.py"
+$identityJson = & python $versionTool
+if ($LASTEXITCODE -ne 0) { throw "Cannot resolve the source product version." }
+$identity = $identityJson | ConvertFrom-Json
+if (!$Stage) { $Stage = "dist/SpectralForge-Chimera-$($identity.version)-win64" }
+if (!$Installer) { $Installer = "dist/SpectralForge-Chimera-$($identity.version)-win64-Setup.exe" }
+. (Join-Path $PSScriptRoot "Windows-VersionContract.ps1")
 $installerPath = (Resolve-Path -LiteralPath $Installer).Path
 $stagePath = (Resolve-Path -LiteralPath $Stage).Path
 New-Item -ItemType Directory -Force -Path $LogDirectory | Out-Null
@@ -24,6 +31,7 @@ foreach ($path in @($app, $vst, $startMenu, $registry, $sharedIRs, $companion)) 
 }
 $report = [Collections.Generic.List[string]]::new()
 $success = $false
+$observedVersions = [Collections.Generic.List[string]]::new()
 $payload = Get-Content -LiteralPath (Join-Path $stagePath "payload-manifest.json") -Raw | ConvertFrom-Json
 $sourceSha = if ($payload.PSObject.Properties.Name -contains "source_sha") { $payload.source_sha } else { (& git rev-parse HEAD).Trim() }
 function Pass([string]$Message) {
@@ -85,9 +93,12 @@ function Check-Payload([string]$Destination, [bool]$Vst3, [bool]$Standalone, [bo
     Assert (Test-Path -LiteralPath $registry) "Windows uninstall entry is missing"
     $entry = Get-ItemProperty -LiteralPath $registry
     Assert ($entry.DisplayName -eq "SpectralForge Chimera") "Wrong Windows app name"
-    if ($payload.PSObject.Properties.Name -contains "installer_version") {
-        Assert ($entry.DisplayVersion -eq $payload.installer_version) "Candidate installer version differs from its payload"
-    }
+    Assert ($entry.DisplayVersion -ceq $payload.installer_version) "Candidate installer version differs from its payload: registry=$($entry.DisplayVersion), payload=$($payload.installer_version)"
+    if ($Standalone) { Assert-ChimeraBinaryVersion $exe $payload.product_version }
+    if ($Vst3) { Assert-ChimeraBinaryVersion (Join-Path $vst "Contents/x86_64-win/SpectralForge Chimera.vst3") $payload.product_version }
+    if ($Reference) { Assert-ChimeraBinaryVersion (Join-Path $Destination "ReferenceTools/ChimeraRender.exe") $payload.product_version }
+    $observedVersions.Add($entry.DisplayVersion)
+    Pass "Installed DisplayVersion=$($entry.DisplayVersion) and selected binary versions match $($payload.version)"
     Assert ($entry.InstallLocation.TrimEnd([char]92) -eq $Destination.TrimEnd([char]92)) "Wrong registered install location"
 }
 function Uninstall([string]$Name, [string]$Destination) {
@@ -140,6 +151,10 @@ function Check-AppShortcut([string]$Destination) {
     }
 }
 try {
+    & python $versionTool --manifest (Join-Path $stagePath "payload-manifest.json")
+    Assert ($LASTEXITCODE -eq 0) "Installer payload version/source contract failed"
+    Assert-ChimeraBinaryVersion $installerPath $payload.product_version
+    Pass "Setup version resources match source/payload product version $($payload.product_version)"
     # Simulate the owned binaries from the previous product name. Keep unrelated
     # personal files alongside them to exercise the exact legacy migration scope.
     $legacyExe = Join-Path $app "Chimera Amp Matrix.exe"
@@ -281,6 +296,9 @@ try {
 } finally {
     $report | Set-Content -LiteralPath (Join-Path $logPath "InstallerVerification.txt")
     @{ success = $success; source_sha = $sourceSha; run_id = $env:GITHUB_RUN_ID;
+       version = $payload.version; product_version = $payload.product_version;
+       installer_version = $payload.installer_version; build_id = $payload.build_id;
+       observed_display_versions = @($observedVersions.ToArray());
        installer = [IO.Path]::GetFileName($installerPath);
        installer_sha256 = (Get-FileHash -LiteralPath $installerPath -Algorithm SHA256).Hash.ToLowerInvariant();
        payload_manifest_sha256 = (Get-FileHash -LiteralPath (Join-Path $stagePath "payload-manifest.json") -Algorithm SHA256).Hash.ToLowerInvariant();

@@ -1,0 +1,32 @@
+{
+  "schema": "spectralforge.chimera.focused-run",
+  "baseline_commit": "9df4493",
+  "juce_commit": "d6181bde38d858c283c3b7bf699ce6340c050b5d",
+  "platform": "Linux x86_64",
+  "compiler": "g++ -std=c++20 -O2 -DNDEBUG",
+  "tested_source_sha256": {
+    "Source/AmpCatalog.h": "068a7f9d7ddd4754ea2e9c5d45fcf407b931cfba7419366f00919051973707ac",
+    "Source/AmpNativeCatalog.h": "1d3c8425fc82d9425dd1d02fe9a4d2f8c4a22687ba3c59015dffae648b31f5bf",
+    "Source/AmpNativeDSP.h": "cb7fba613759dc427ee2d326ac2777bea877d7de2480fbb31670b5534d91a345",
+    "Source/Amplifier.h": "67ea06291ac61c561fb011a883f26d76aceca3c31c8028526bc4ed6a7fb8f254",
+    "Tests/AmpNativeTests.cpp": "3643c46c715919148444108eeeeafd411e8968dd551f0d663bfe0c117226953f",
+    "Tests/AmpVoiceTests.h": "3e5e798c3b407687e6e17c52a280ec76f3e007bcb2d0d7672608185ca2ea7e0b"
+  },
+  "legacy_comparison": {
+    "models": "0-22, all native channels",
+    "input": "8192 samples/channel, 0.2*sin(n*0.05), 48 kHz",
+    "comparison": "byte identical",
+    "sha256": "e4883aaf161588fb6c664b8c42d7575bda89429630811cc309d7acc20cd96c93"
+  },
+  "syntax_only": [
+    "Tests/ChimeraUITests.cpp",
+    "Source/PluginProcessor.cpp",
+    "Source/PluginEditor.cpp"
+  ],
+  "not_executed": [
+    "Windows runtime/UI/binary-state tests",
+    "actual Studio One/Cubase/Sonar",
+    "same-DI listening",
+    "exact E670FE capture calibration"
+  ]
+}

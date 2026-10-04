@@ -9,12 +9,13 @@ inline void require(bool value,const char* text) {if(!value)throw std::runtime_e
 inline float difference(const std::vector<float>& a,const std::vector<float>& b) {
     require(a.size()==b.size(),"PRE render size mismatch");float peak=0;for(size_t i=0;i<a.size();++i)peak=juce::jmax(peak,std::abs(a[i]-b[i]));return peak;
 }
-inline std::vector<float> render(spectralforge::PedalBoardDSP& board,spectralforge::PedalBoardState state,double rate,int block=256,int blocks=70) {
+inline std::vector<float> render(spectralforge::PedalBoardDSP& board,spectralforge::PedalBoardState state,double rate,int block=256,int blocks=70,bool transient=false) {
     juce::AudioBuffer<float> b(2,block);std::vector<float> result;
     for(int k=0;k<blocks;++k) {
         for(int n=0;n<block;++n) {
             const double t=(k*block+n)/rate;
-            const float x=float(.1*std::sin(juce::MathConstants<double>::twoPi*311*t)+.07*std::sin(juce::MathConstants<double>::twoPi*2177*t));
+            const float envelope=transient?float(.025+.975*std::exp(-std::fmod(t,.08)*100)):1.f;
+            const float x=envelope*float(.1*std::sin(juce::MathConstants<double>::twoPi*311*t)+.07*std::sin(juce::MathConstants<double>::twoPi*2177*t));
             b.setSample(0,n,x);b.setSample(1,n,x*.7f);
         }
         board.process(b,state);
@@ -25,6 +26,41 @@ inline std::vector<float> render(spectralforge::PedalBoardDSP& board,spectralfor
 }
 inline void run() {
     using namespace spectralforge;
+    // Exercise every connected control, not just one representative per family.
+    // Conditional controls are tested in the route where they actually operate.
+    int audited=0,unavailable=0,unresponsive=0;
+    for(int model=1;model<pedalModelCount;++model) {
+        const auto& spec=pedalModel(model);
+        for(int control=0;control<spec.controlCount;++control) {
+            if(!spec.controls[(size_t)control].connected){++unavailable;continue;}
+            PedalBoardDSP a,b;for(auto* dsp:{&a,&b})dsp->prepare({48000,256,2});
+            PedalBoardState low;low.instances[0]=defaultPedalInstance(model);auto& instance=low.instances[0];
+            if(model==4){instance.controls[3]=.8f;instance.controls[4]=.8f;}
+            if(model==8)instance.controls[1]=.8f;
+            if(model==29)instance.controls[6]=control==7?2.f:control<3?1.f:0.f;
+            auto high=low;instance.controls[(size_t)control]=spec.controls[(size_t)control].minimum;
+            high.instances[0].controls[(size_t)control]=spec.controls[(size_t)control].maximum;
+            const float delta=difference(render(a,low,48000,256,70,true),render(b,high,48000,256,70,true));
+            std::cout<<"AUDIT PRE model="<<model<<" control="<<spec.controls[(size_t)control].id<<" delta="<<delta<<'\n';
+            if(delta<=1e-6f)++unresponsive;++audited;
+        }
+    }
+    require(unresponsive==0,"Connected PRE control has no response in its active route");
+    std::cout<<"PASS PRE controls="<<audited<<" explicitly_unavailable="<<unavailable<<'\n';
+    {
+        PedalBoardDSP a,b;for(auto* dsp:{&a,&b})dsp->prepare({48000,256,2});
+        PedalBoardState flat;flat.instances[0]=defaultPedalInstance(4);flat.instances[0].controls[1]=0;
+        auto eq=flat;eq.instances[0].controls[3]=1;
+        require(difference(render(a,flat,48000),render(b,eq,48000))>.01f,"BDDI Blend=0 incorrectly bypasses active EQ");
+    }
+    {
+        PedalBoardDSP a,b;for(auto* dsp:{&a,&b})dsp->prepare({48000,256,2});
+        PedalBoardState state;state.instances[0]=defaultPedalInstance(9);state.instances[0].controls[1]=0;state.instances[0].controls[2]=1;
+        auto dry=state;dry.instances[0].bypass=true;
+        const auto output=render(a,state,48000),reference=render(b,dry,48000);
+        const float boost=juce::Decibels::decibelsToGain(9.f);
+        for(size_t i=0;i<output.size();++i)require(std::abs(output[i]-boost*reference[i])<1e-4f,"Cali76 OUT=0 removed or attenuated independent DRY path");
+    }
     for(const double rate:{44100.,48000.,96000.}) {
         PedalBoardDSP board;board.prepare({rate,256,2});PedalBoardState state;state.enabled=true;
         // Empty slots execute only the fixed transport delay. LOW and full range

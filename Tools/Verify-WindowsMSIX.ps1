@@ -1,11 +1,15 @@
 param(
-    [string]$Package = "dist/msix/Chimera-1.1.0.0-x64-review-unsigned.msix",
+    [string]$Package = "",
     [string]$OutputDirectory = "build/msix-verification"
 )
 $ErrorActionPreference = "Stop"
 Set-StrictMode -Version Latest
 # Install/remove tests are confined to a disposable CI runner, never a customer's PC.
 if ($env:GITHUB_ACTIONS -ne "true") { throw "MSIX install verification must run in disposable GitHub Actions Windows CI." }
+$identityJson = & python (Join-Path $PSScriptRoot "chimera_version.py")
+if ($LASTEXITCODE -ne 0) { throw "Cannot resolve the source product version." }
+$buildIdentity = $identityJson | ConvertFrom-Json
+if (!$Package) { $Package = "dist/msix/Chimera-$($buildIdentity.product_version).0-x64-review-unsigned.msix" }
 $packagePath = (Resolve-Path -LiteralPath $Package).Path
 New-Item -ItemType Directory -Path $OutputDirectory -Force | Out-Null
 $outputPath = (Resolve-Path -LiteralPath $OutputDirectory).Path
@@ -37,7 +41,7 @@ try {
     if (@(Get-ChildItem -LiteralPath $unpacked -Recurse -File | Where-Object { $_.Extension -in ".vst3", ".nam", ".wav" }).Count) {
         throw "Standalone MSIX must not imply global VST3 registration or bundle private captures."
     }
-    $sourceExe = "dist/SpectralForge-Chimera-1.1.0-beta.1-win64/Standalone/SpectralForge Chimera.exe"
+    $sourceExe = "dist/SpectralForge-Chimera-$($buildIdentity.version)-win64/Standalone/SpectralForge Chimera.exe"
     if ((Get-FileHash -LiteralPath "$unpacked/App/SpectralForge Chimera.exe").Hash -ne (Get-FileHash -LiteralPath $sourceExe).Hash) {
         throw "Packaged app differs from the DSP/UI-validated standalone."
     }

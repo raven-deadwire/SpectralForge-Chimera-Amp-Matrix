@@ -95,13 +95,12 @@ class PedalEffectInstance {
     void processCompressor(juce::AudioBuffer<float>& b,const PedalInstanceState& s) {
         const auto& p=s.controls;float threshold=-24,ratio=4,attack=5,release=140,input=1,output=1,dryLevel=0;
         const int character=s.model-6;
-        if(s.model==6) {const std::array<float,4> ratios{4,8,12,20};ratio=ratios[(size_t)juce::jlimit(0,3,juce::roundToInt(p[3]))];attack=.02f+.78f*p[1];release=40*std::pow(20.f,p[0]);input=juce::Decibels::decibelsToGain(-12+36*p[4]);output=gain(p[2]);}
+        if(s.model==6) {const std::array<float,4> ratios{4,8,12,20};ratio=ratios[(size_t)juce::jlimit(0,3,juce::roundToInt(p[3]))];attack=.02f+.78f*p[1];release=50*std::pow(22.f,p[0]);input=juce::Decibels::decibelsToGain(-12+36*p[4]);output=gain(p[2]);}
         else if(s.model==7) {threshold=-6-42*p[1];ratio=4;attack=5;release=180;output=gain(p[0]);}
         else if(s.model==8) {threshold=-8-36*p[0];ratio=2+6*p[0];attack=12;release=200;output=gain(p[2]);}
-        else if(s.model==9) {input=juce::Decibels::decibelsToGain(-12+36*p[0]);output=gain(p[1]);dryLevel=p[2];ratio=4+16*p[3];attack=.1f+29.9f*p[4];release=40*std::pow(20.f,p[5]);}
+        else if(s.model==9) {input=juce::Decibels::decibelsToGain(-12+36*p[0]);output=gain(p[1]);dryLevel=juce::Decibels::decibelsToGain(9.f)*p[2]*p[2]*p[2];ratio=4+16*p[3];attack=4.8f*std::pow(.2f/4.8f,p[4]);release=398.f*std::pow(69.5f/398.f,p[5]);}
         else {const std::array<float,5> recovery{8000,4000,600,400,200};input=juce::Decibels::decibelsToGain(-12+36*p[0]);threshold=-6-36*p[2];attack=5+65*p[3];release=recovery[(size_t)juce::jlimit(0,4,juce::roundToInt(p[4]))];output=gain(p[5]);ratio=p[6]>.5f?12.f:3.f;}
-        b.applyGain(input);compressor.process(b,true,threshold,ratio,attack,release,0,character,false);appliedGR=compressor.reduction();
-        if(dryLevel>0)for(int c=0;c<b.getNumChannels();++c)b.addFrom(c,0,source,c,0,b.getNumSamples(),dryLevel);
+        b.applyGain(input);compressor.process(b,true,threshold,ratio,attack,release,0,character,false,s.model==6||s.model==9);appliedGR=compressor.reduction();
         if(s.model==8) {
             const float tilt=p[3]>.5f?(p[1]-.5f)*12:0;
             equalize(b,0,C::makeLowShelf(rate,900,.707f,juce::Decibels::decibelsToGain(-tilt)));
@@ -109,6 +108,8 @@ class PedalEffectInstance {
             equalize(b,2,C::makeLowPass(rate,juce::jmin(float(rate*.45),p[4]>.5f?4800.f:float(rate*.45))));
         }
         volume(b,output);
+        // Cali76 OUT and DRY are independent parallel level controls.
+        if(dryLevel>0)for(int c=0;c<b.getNumChannels();++c)b.addFrom(c,0,source,c,0,b.getNumSamples(),dryLevel);
     }
     void processEnvelope(juce::AudioBuffer<float>& b,const PedalInstanceState& s) {
         const auto& p=s.controls;int mode=0;bool reverse=false;float low=160,span=24,sensitivity=.5f,q=1.5f,release=.11f,dryLevel=0,fxLevel=1;
@@ -137,11 +138,13 @@ class PedalEffectInstance {
             if(s.model==5)equalize(b,0,C::makeLowShelf(rate,100,.707f,p[4]>.5f?2.f:1.f));
             drive.process(b,state);
             if(s.model==4) {
+                // BDDI v2: Blend bypasses the SansAmp section, but the active
+                // three-band EQ and Level must still affect the direct signal.
+                equalize(b,3,C::makeHighShelf(rate,6000,.707f,juce::Decibels::decibelsToGain((p[5]-.5f)*12)));
+                for(int c=0;c<b.getNumChannels();++c)for(int n=0;n<b.getNumSamples();++n)b.setSample(c,n,b.getSample(c,n)*p[1]+dry.getSample(c,n)*(1-p[1]));
                 equalize(b,0,C::makeLowShelf(rate,p[8]>.5f?80.f:40.f,.707f,juce::Decibels::decibelsToGain((p[4]-.5f)*24)));
                 equalize(b,1,C::makePeakFilter(rate,p[7]>.5f?1000.f:500.f,.8f,juce::Decibels::decibelsToGain((p[3]-.5f)*24)));
                 equalize(b,2,C::makeHighShelf(rate,3500,.707f,juce::Decibels::decibelsToGain((p[2]-.5f)*24)));
-                equalize(b,3,C::makeHighShelf(rate,6000,.707f,juce::Decibels::decibelsToGain((p[5]-.5f)*12)));
-                for(int c=0;c<b.getNumChannels();++c)for(int n=0;n<b.getNumSamples();++n)b.setSample(c,n,b.getSample(c,n)*p[1]+dry.getSample(c,n)*(1-p[1]));
             } else if(s.model==5) {
                 equalize(b,1,C::makePeakFilter(rate,1000,.7f,p[5]>.5f?2.f:1.f));
                 volume(b,gain(level));

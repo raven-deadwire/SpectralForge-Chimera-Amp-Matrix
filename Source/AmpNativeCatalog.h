@@ -553,6 +553,55 @@ inline constexpr AmpNativeControl nativeControls_22[]={
 inline constexpr const char* nativeChannels_22[]={"CLEAN","LEAD"};
 inline constexpr const char* nativeChannelKeys_22[]={"clean","lead"};
 inline constexpr const char* nativeRoutes_22[]={"INPUT"};
+inline constexpr const char* nativeOptions_23_16[]={"OFF","ON"};
+inline constexpr const char* nativeOptions_23_17[]={"OFF","ON"};
+inline constexpr const char* nativeOptions_23_18[]={"OFF","ON"};
+inline constexpr const char* nativeOptions_23_19[]={"OFF","ON"};
+inline constexpr const char* nativeOptions_23_20[]={"OFF","ON"};
+inline constexpr const char* nativeOptions_23_21[]={"OFF","ON"};
+inline constexpr const char* nativeOptions_23_22[]={"MODERN","CLASSIC"};
+inline constexpr const char* nativeOptions_23_25[]={"A","B"};
+inline constexpr const char* nativeOptions_23_28[]={"A","B"};
+inline constexpr const char* nativeOptions_23_29[]={"OFF","ON"};
+inline constexpr const char* nativeOptions_23_30[]={"OFF","ON"};
+inline constexpr const char* nativeOptions_23_31[]={"OFF","ON"};
+inline constexpr AmpNativeControl nativeControls_23[]={
+ {"hw.clean.gain","GAIN","CLEAN",AmpNativeControlKind::knob,1,{},0.5f,0.f,1.0f},
+ {"hw.clean.treble","TREBLE","CLEAN",AmpNativeControlKind::knob,1,{},0.5f,0.f,1.0f},
+ {"hw.clean.volume","VOLUME","CLEAN",AmpNativeControlKind::knob,1,{},0.5f,0.f,1.0f},
+ {"hw.crunch.gain","GAIN","CRUNCH",AmpNativeControlKind::knob,2,{},0.5f,0.f,1.0f},
+ {"hw.crunch.treble","TREBLE","CRUNCH",AmpNativeControlKind::knob,2,{},0.5f,0.f,1.0f},
+ {"hw.crunch.volume","VOLUME","CRUNCH",AmpNativeControlKind::knob,2,{},0.5f,0.f,1.0f},
+ {"hw.lead1.gain","GAIN","LEAD I",AmpNativeControlKind::knob,4,{},0.5f,0.f,1.0f},
+ {"hw.lead1.treble","TREBLE","LEAD I",AmpNativeControlKind::knob,4,{},0.5f,0.f,1.0f},
+ {"hw.lead1.volume","VOLUME","LEAD I",AmpNativeControlKind::knob,4,{},0.5f,0.f,1.0f},
+ {"hw.lead2.gain","GAIN","LEAD II",AmpNativeControlKind::knob,8,{},0.5f,0.f,1.0f},
+ {"hw.lead2.treble","TREBLE","LEAD II",AmpNativeControlKind::knob,8,{},0.5f,0.f,1.0f},
+ {"hw.lead2.volume","VOLUME","LEAD II",AmpNativeControlKind::knob,8,{},0.5f,0.f,1.0f},
+ {"hw.clean_eq.bass","BASS","CLEAN / CRUNCH EQ",AmpNativeControlKind::knob,3,{},0.5f,0.f,1.0f},
+ {"hw.clean_eq.middle","MIDDLE","CLEAN / CRUNCH EQ",AmpNativeControlKind::knob,3,{},0.5f,0.f,1.0f},
+ {"hw.lead_eq.bass","BASS","LEAD EQ",AmpNativeControlKind::knob,12,{},0.5f,0.f,1.0f},
+ {"hw.lead_eq.middle","MIDDLE","LEAD EQ",AmpNativeControlKind::knob,12,{},0.5f,0.f,1.0f},
+ {"hw.gain_boost","GAIN BOOST","VOICING",AmpNativeControlKind::toggle,3,nativeOptions_23_16,0.0f,0.f,1.0f},
+ {"hw.mid_shift","MID SHIFT","VOICING",AmpNativeControlKind::toggle,3,nativeOptions_23_17,0.0f,0.f,1.0f},
+ {"hw.bright","BRIGHT","VOICING",AmpNativeControlKind::toggle,3,nativeOptions_23_18,0.0f,0.f,1.0f},
+ {"hw.hi_gain","HI GAIN","VOICING",AmpNativeControlKind::toggle,12,nativeOptions_23_19,0.0f,0.f,1.0f},
+ {"hw.contour","CONTOUR","VOICING",AmpNativeControlKind::toggle,12,nativeOptions_23_20,0.0f,0.f,1.0f},
+ {"hw.mid_edge","MID EDGE","VOICING",AmpNativeControlKind::toggle,12,nativeOptions_23_21,0.0f,0.f,1.0f},
+ {"hw.character","CHARACTER","VOICING",AmpNativeControlKind::choice,15,nativeOptions_23_22,0.0f,0.f,1.0f},
+ {"hw.presence_a","PRESENCE A","POWER",AmpNativeControlKind::knob,31,{},0.5f,0.f,1.0f},
+ {"hw.presence_b","PRESENCE B","POWER",AmpNativeControlKind::knob,31,{},0.5f,0.f,1.0f},
+ {"hw.presence_select","PRESENCE","POWER",AmpNativeControlKind::choice,31,nativeOptions_23_25,0.0f,0.f,1.0f},
+ {"hw.master_a","MASTER A","POWER",AmpNativeControlKind::knob,31,{},0.5f,0.f,1.0f},
+ {"hw.master_b","MASTER B","POWER",AmpNativeControlKind::knob,31,{},0.5f,0.f,1.0f},
+ {"hw.master_select","MASTER","POWER",AmpNativeControlKind::choice,31,nativeOptions_23_28,0.0f,0.f,1.0f},
+ {"hw.depth_boost","DEPTH BOOST","POWER",AmpNativeControlKind::toggle,31,nativeOptions_23_29,0.0f,0.f,1.0f},
+ {"hw.mega_lo_punch","MEGA LO PUNCH","VOICING",AmpNativeControlKind::toggle,15,nativeOptions_23_30,0.0f,0.f,1.0f},
+ {"hw.tube_eq","T.D. EQ","TUBE DRIVER",AmpNativeControlKind::toggle,16,nativeOptions_23_31,0.0f,0.f,1.0f},
+};
+inline constexpr const char* nativeChannels_23[]={"CLEAN","CRUNCH","LEAD I","LEAD II","TUBE DRIVER"};
+inline constexpr const char* nativeChannelKeys_23[]={"clean","crunch","lead1","lead2","driver"};
+inline constexpr const char* nativeRoutes_23[]={"INPUT"};
 inline constexpr std::array<AmpNativePanel,ampModelCount> ampNativePanels{{
  {"Fender '65 Twin Reverb reissue","primary_core_reviewed",nativeControls_0,nativeChannels_0,nativeChannelKeys_0,nativeRoutes_0,0},
  {"Marshall JTM45 2245 reissue","primary_core_reviewed",nativeControls_1,nativeChannels_1,nativeChannelKeys_1,nativeRoutes_1,0},
@@ -577,6 +626,7 @@ inline constexpr std::array<AmpNativePanel,ampModelCount> ampNativePanels{{
  {"Fortin Evil Pumpkin \u2014 2023 panel","partial_primary_review",nativeControls_20,nativeChannels_20,nativeChannelKeys_20,nativeRoutes_20,0},
  {"Soldano SLO-100 Classic panel target / LTD capture revision pending","partial_primary_review",nativeControls_21,nativeChannels_21,nativeChannelKeys_21,nativeRoutes_21,1},
  {"Bogner Uberschall Rev Blue \u2014 target panel","primary_panel_pending",nativeControls_22,nativeChannels_22,nativeChannelKeys_22,nativeRoutes_22,1},
+ {"ENGL E670FE Special Edition Founders Edition","partial_primary_review",nativeControls_23,nativeChannels_23,nativeChannelKeys_23,nativeRoutes_23,2},
 }};
 inline const AmpNativePanel& ampNativePanel(int model) noexcept { return ampNativePanels[(size_t)juce::jlimit(0,ampModelCount-1,model)]; }
 inline int ampNativeContext(int mode,int lane) noexcept { return mode==0?0:mode==1?1+juce::jlimit(0,1,lane):3+juce::jlimit(0,2,lane); }

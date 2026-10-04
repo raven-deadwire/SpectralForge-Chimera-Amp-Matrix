@@ -1,4 +1,7 @@
+#include "GuitarSignaturePresets.h"
+#include "FactoryNativeVoicing.h"
 #include "PluginProcessor.h"
+#include <algorithm>
 #include "PluginEditor.h"
 #include "FactoryPresets.h"
 #include "ReleaseInfo.h"
@@ -23,6 +26,7 @@ ChimeraProcessor::ChimeraProcessor()
     ampSelection.bind(state);
     nativeAmps.bind(state);nativePost.bind(state);
     gateAfterRig=state.getRawParameterValue("gateAfterRig");
+    gateRangeDb=state.getRawParameterValue("gateRangeDb");
     const std::array<const char*,extraCount> extraIds{"dualtype","dualblend","dualcross","inputmode","doubleron","doublertime","tempo","temposync","metronome"};
     for(size_t i=0;i<extraIds.size();++i)extras[i]=state.getRawParameterValue(extraIds[i]);
     lowCompParameter=state.getRawParameterValue("lowcomp");lowAmpMixParameter=state.getRawParameterValue("lowampmix");
@@ -142,17 +146,17 @@ void ChimeraProcessor::process(juce::AudioBuffer<float>& buffer)
         if(before==boardEditSequence.load(std::memory_order_acquire)) audioBoard=candidate;
     }
     const bool gateAtOutput=gateAfterRig->load()>.5f;
+    const float gateRange=gateRangeDb->load();
     const int preLatency=audioBoard.enabled ? pedalBoard.latency(audioBoard)+(pitching ? preFX.transpose.latency() : 0) : preFX.latency(pitching);
-    postRigGate.detect(buffer,value(gateOn)>.5f,value(threshold),value(release),value(hold),preLatency+engine.latency());
+    postRigGate.detect(buffer,value(gateOn)>.5f,value(threshold),value(release),value(hold),preLatency+engine.latency(),gateRange);
     if(audioBoard.enabled) {
-        preFX.gate.process(buffer,!gateAtOutput && value(gateOn)>.5f,value(threshold),value(release),value(hold));
+        preFX.gate.process(buffer,!gateAtOutput && value(gateOn)>.5f,value(threshold),value(release),value(hold),gateRange);
         preFX.transpose.process(buffer,pitching,(int)value(semitones));
         pedalBoard.process(buffer,audioBoard);
-    } else preFX.process(buffer,!gateAtOutput && value(gateOn)>.5f,value(threshold),value(release),value(hold),pitching,(int)value(semitones),fx);
+    } else preFX.process(buffer,!gateAtOutput && value(gateOn)>.5f,value(threshold),value(release),value(hold),pitching,(int)value(semitones),fx,gateRange);
     boardReduction.store(audioBoard.enabled ? pedalBoard.compressorReduction() : 0.f);
     preReduction.store(audioBoard.enabled ? pedalBoard.compressorReduction() : preFX.compressor.reduction());
     measureStage(1,buffer);
-    gateGain.store(gateAtOutput ? postRigGate.reduction() : preFX.gate.reduction());
     const int latency=postFX.latency()+engine.latency()+(audioBoard.enabled ? pedalBoard.latency(audioBoard)+(pitching ? preFX.transpose.latency() : 0) : preFX.latency(pitching));
     if(getLatencySamples()!=latency) setLatencySamples(latency);
     engine.setOversampling((int)value(os));
@@ -175,6 +179,7 @@ void ChimeraProcessor::process(juce::AudioBuffer<float>& buffer)
     engine.process(buffer,(spectralforge::RoutingMode)(int)value(mode),dualCross ? extras[dualFrequency]->load() : value(x1),value(x2),lanes,audioBoard.enabled ? &pedalBoard.cleanOutput() : &preFX.cleanOutput(),dualCross,extras[dualBlend]->load());
     lowCompGain.store(engine.lowReduction());
     if(gateAtOutput)postRigGate.apply(buffer);
+    gateGain.store(gateAtOutput ? postRigGate.reduction() : preFX.gate.reduction());
     measureStage(2,buffer);
     postFX.process(buffer,fx);
     measureStage(3,buffer);
@@ -242,6 +247,14 @@ juce::AudioProcessorValueTreeState::ParameterLayout ChimeraProcessor::layout(){j
     spectralforge::addAmpSelectionParameters(p);
     spectralforge::addAmpNativeParameters(p);
     spectralforge::addPostNativeParameters(p);
+    spectralforge::appendNewAmpNativeParameters(p);
+    // Append after ALL released parameters, including native model banks.
+    // Version hint 2 also keeps this after the released AU hint-1 parameters.
+    p.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{"gateRangeDb",2},"Gate range",
+        juce::NormalisableRange<float>{0.f,spectralforge::NoiseGate::fullRangeDb,.1f},spectralforge::NoiseGate::fullRangeDb,
+        juce::AudioParameterFloatAttributes()
+            .withStringFromValueFunction([](float v,int) {return v>=spectralforge::NoiseGate::fullRangeDb ? juce::String("Full") : juce::String(v,1)+" dB";})
+            .withValueFromStringFunction([](const juce::String& text) {return text.trim().equalsIgnoreCase("Full") ? spectralforge::NoiseGate::fullRangeDb : text.getFloatValue();})));
 return p;
 }
 
@@ -280,6 +293,8 @@ void ChimeraProcessor::restoreCore(juce::ValueTree restored)
         if(id.isEmpty() || restored.getChildWithProperty("id",id).isValid()) continue;
         auto* parameter=state.getParameter(id);if(!parameter) continue;
         float value=parameter->convertFrom0to1(parameter->getDefaultValue());
+        // Missing gateRangeDb uses its Full default, including old A/B slots.
+        // Never inherit the current session's finite floor during migration.
         if(id.startsWith("cabtype") || id=="gateon" || id=="output" || id=="lowcomp" || id=="preorder" || id=="gainorder" || id=="boardEnabled") value=0;
         if((id.startsWith("nativeAmp_")&&id.endsWith("_enabled")) || (id.startsWith("pn_")&&id.endsWith("_native")))value=0;
         juce::ValueTree item("PARAM");item.setProperty("id",id,nullptr);item.setProperty("value",value,nullptr);restored.appendChild(item,nullptr);
@@ -330,16 +345,53 @@ void ChimeraProcessor::tapTempo() {
     auto* parameter=state.getParameter("tempo");parameter->setValueNotifyingHost(parameter->convertTo0to1(float(60000/(sum/count))));state.getParameter("temposync")->setValueNotifyingHost(0);restartClick.store(true);
 }
 void ChimeraProcessor::loadFactoryPreset(int index) {
-    // The shared catalog resets every sound parameter, then applies the preset.
-    // Performance controls, MIDI mappings and user-owned IR assets are retained.
-    // Preserve released preset audio through internal compatibility engines.
-    // The editor always presents the current model panels; a user edit activates
-    // that panel without a modal question or loading the old controls.
-    // An invalid preset index deliberately leaves the current sound unchanged.
-    if (spectralforge::applyFactoryPreset(index, [this](const char* id, float value) {
-        if (auto* parameter = state.getParameter(id))
-            parameter->setValueNotifyingHost(parameter->convertTo0to1(value));
-    })) {resetAmpSelection();seedNativeSelections(true);boardUndo.clear();boardRedo.clear();setRawParameter("boardEnabled",0);resetPending.store(true);}
+    if(index<0 || index>=spectralforge::selectablePresetCount)return;
+    {
+        const auto snapshot=spectralforge::isGuitarSignature(index)
+            ? spectralforge::guitarSignatureSnapshot(state,index-spectralforge::factoryPresetCount)
+            : spectralforge::factoryNativeSnapshot(state,index);
+        state.replaceState(snapshot);
+        // Canonicalize host values as well as APVTS values. Bool/choice adapters
+        // may already cache the snapped value of a noncanonical host write and
+        // suppress an otherwise identical replaceState update.
+        for(auto* raw:getParameters())if(auto* parameter=dynamic_cast<juce::RangedAudioParameter*>(raw)) {
+            const auto node=snapshot.getChildWithProperty("id",parameter->paramID);
+            parameter->setValueNotifyingHost(parameter->convertTo0to1(float(node.getProperty("value"))));
+        }
+        boardUndo.clear();boardRedo.clear();
+        if(spectralforge::isSignaturePreset(index))applyPresetIRTargets(index);
+        resetPending.store(true);
+    }
+}
+
+void ChimeraProcessor::applyPresetIRTargets(int index) {
+    if(!spectralforge::isSignaturePreset(index))return;
+    const auto entries=spectralforge::IRCollection::scan(spectralforge::IRCollection::roots(),true);
+    for(int lane=0;lane<3;++lane) {
+        const auto target=juce::String::fromUTF8(spectralforge::presetIRTarget(index,lane));
+        const auto expectedHash=juce::String::fromUTF8(spectralforge::presetIRTargetHash(index,lane));
+        if(target.isEmpty())continue;
+        const bool tagged=target.startsWith("tag:");
+        const auto terms=tagged ? juce::StringArray::fromTokens(target.substring(4),"|","") : juce::StringArray{};
+        const bool catalogTarget=!tagged && std::any_of(entries.begin(),entries.end(),[&](const auto& entry){return entry.reference && entry.name==target;});
+        const spectralforge::IRCollection::Entry* match=nullptr;
+        for(const auto& entry:entries) {
+            if(!entry.ready())continue;
+            bool matches=false;
+            if(tagged) {
+                const auto haystack=entry.name+" "+entry.displayName()+" "+juce::JSON::toString(entry.tags.json(),true);
+                matches=true;for(const auto& term:terms)if(!haystack.containsIgnoreCase(term.trim())){matches=false;break;}
+            } else matches=entry.name==target && (!catalogTarget || entry.reference);
+            if(matches && expectedHash.isNotEmpty() && entry.factorySource==0)
+                matches=spectralforge::IRCollection::matchesExpectedHash(entry.file,expectedHash);
+            if(!matches)continue;
+            match=&entry;
+            if(entry.reference)break;
+        }
+        if(match && match->factorySource!=0) setRawParameter("cabtype"+juce::String(lane+1),float(match->factorySource));
+        else if(match && match->file.existsAsFile()) loadIR(lane,match->file);
+        else setRawParameter("cabtype"+juce::String(lane+1),0.f);
+    }
 }
 
 int ChimeraProcessor::ampContext(int lane) const noexcept {
@@ -366,7 +418,10 @@ int ChimeraProcessor::selectedAmpNativeRoute(int lane) const noexcept {
 void ChimeraProcessor::activateNativeAmp(int lane) {
     if(lane<0 || lane>=3)return;
     const int context=ampContext(lane);const auto native=nativeAmps.read(context);
-    if(native.enabled)return;
+    if(native.enabled) {
+        if(spectralforge::ampRequiresNative(native.model))setRawParameter(spectralforge::ampNativeEnabledID(context),1.f);
+        return;
+    }
     const int model=ampSelection.model(lane);const auto selection=nativeSelectionFromLegacy(model,ampSelection.channel(lane,model));
     setRawParameter(spectralforge::ampNativeModelID(context),float(model));
     setRawParameter(spectralforge::ampNativeChannelID(context,model),float(selection.first));
@@ -416,7 +471,7 @@ void ChimeraProcessor::setAmpModel(int lane,int model) {
         // host automation write alone never deactivates an explicit new model.
         setRawParameter("amp"+juce::String(lane+1),float(model));
         setRawParameter(spectralforge::ampExtensionID(lane),0.f);
-    } else {
+    } else if(model<spectralforge::releasedNativeAmpModelCount) {
         setRawParameter(spectralforge::ampExtensionID(lane),float(model-spectralforge::legacyAmpModelCount+1));
     }
 }
@@ -428,7 +483,7 @@ void ChimeraProcessor::setAmpChannel(int lane,int channel) {
     setRawParameter(spectralforge::ampNativeChannelID(ampContext(lane),model),float(channel));
     if(model==19)setRawParameter(spectralforge::ampChannelID(lane,model),float(selectedAmpNativeRoute(lane)));
     else if(model==21) {if(channel==1)setRawParameter(spectralforge::ampChannelID(lane,model),0.f);}
-    else if(model>=spectralforge::legacyAmpModelCount && channel<spectralforge::newAmpChannelCount(model))setRawParameter(spectralforge::ampChannelID(lane,model),float(channel));
+    else if(spectralforge::isNewAmpModel(model) && channel<spectralforge::newAmpChannelCount(model))setRawParameter(spectralforge::ampChannelID(lane,model),float(channel));
 }
 void ChimeraProcessor::setAmpNativeRoute(int lane,int route) {
     if(lane<0 || lane>=3)return;
