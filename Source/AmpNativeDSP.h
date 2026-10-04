@@ -1,5 +1,6 @@
 #pragma once
 #include "AmpNativeCatalog.h"
+#include "AmpNativeCalibration.h"
 #include <algorithm>
 #include <array>
 #include <cmath>
@@ -8,7 +9,8 @@
 namespace spectralforge {
 namespace ampNativeDetail {
 // Authored reduced-order circuits. Panel topology and control functions are
-// represented explicitly; coefficients/tapers are not measured hardware fits.
+// represented explicitly. The input/output capture calibration is measured
+// against fixed NAM references; circuit coefficients/tapers are authored.
 inline float db(float value) noexcept { return std::pow(10.f, value * .05f); }
 inline float pole(double rate, float hz) noexcept { return float(-std::expm1(-6.283185307179586 * std::min(double(hz), rate * .44) / rate)); }
 inline float soft(float x) noexcept { return x / std::sqrt(1.f + x * x); }
@@ -110,9 +112,10 @@ struct Config {
     std::array<Coeff,8> pre{};
     std::array<Coeff,12> post{};
     Coeff input{}, output{}, lowPower{}, highPower{};
+    std::array<Coeff,3> captureContour{};
     std::array<float,6> stageGain{{1.8f,1.2f,1.2f,1.2f,1.1f,1.f}};
     std::array<float,6> stageHP{}, stageLP{}, stageBias{};
-    std::array<float,11> scalar{{1,1,1,1,1,0,1,1,1,1,1}}; // pre/inter/channel/global/attenuation/blend/normal/bright/aux/input trim/output level
+    std::array<float,12> scalar{{1,1,1,1,1,0,1,1,1,1,1,1}}; // pre/inter/channel/global/attenuation/blend/normal/bright/aux/input trim/output level/capture level
     float powerDrive{1.3f}, sag{.15f}, blocking{.05f}, powerBias{.02f};
     float reverb{}, reverbTone{.5f}, reverbDecay{.73f}, tremRate{4}, tremDepth{};
     float gateThreshold{}, crossover{800}, resonanceHz{90}, presenceHz{2700};
@@ -129,14 +132,16 @@ struct Channel {
     Coeff inputCoeff{},outputCoeff{},inputDelta{},outputDelta{};
     int preCount{},postCount{},coefficientRemaining{},coefficientPhase{};
     Filter input, output, powerLow, powerHigh;
+    std::array<Filter,3> captureContour{};
+    std::array<Coeff,3> captureCoeff{},captureDelta{};
     RC parallelLow, crossover, hybridLow, reservoirLow, dc;
     Spring spring;
-    std::array<float,11> scalar{};
+    std::array<float,12> scalar{};
     float supply{}, detector{}, gate{1}, phase{};
     float hybridDrive{1},hybridLevel{1},hybridBlend{.5f},hybridMaster{1},highMaster{1},lowMaster{1},reverb{},tremDepth{};
     int smoothRemaining{};
     void finishCoefficients(const Config& target) noexcept {
-        preCoeff=target.pre;postCoeff=target.post;inputCoeff=target.input;outputCoeff=target.output;
+        captureCoeff=target.captureContour;preCoeff=target.pre;postCoeff=target.post;inputCoeff=target.input;outputCoeff=target.output;
         preCount=target.preCount;postCount=target.postCount;coefficientRemaining=coefficientPhase=0;
     }
     void scheduleCoefficients(const Config& target,double rate) noexcept {
@@ -146,6 +151,7 @@ struct Channel {
         // while their storage keeps advancing until the transition completes.
         coefficientRemaining=std::max(1,int(std::round(rate*.020/16.)));
         coefficientPhase=0;const double steps=coefficientRemaining;
+        for(size_t i=0;i<captureCoeff.size();++i)captureDelta[i]=target.captureContour[i].difference(captureCoeff[i],steps);
         inputDelta=target.input.difference(inputCoeff,steps);outputDelta=target.output.difference(outputCoeff,steps);
         for(size_t i=0;i<preCoeff.size();++i)preDelta[i]=target.pre[i].difference(preCoeff[i],steps);
         for(size_t i=0;i<postCoeff.size();++i)postDelta[i]=target.post[i].difference(postCoeff[i],steps);
@@ -155,12 +161,13 @@ struct Channel {
         if(coefficientRemaining==0||++coefficientPhase<16)return;
         coefficientPhase=0;
         if(--coefficientRemaining==0){finishCoefficients(target);return;}
+        for(size_t i=0;i<captureCoeff.size();++i)captureCoeff[i].advance(captureDelta[i]);
         inputCoeff.advance(inputDelta);outputCoeff.advance(outputDelta);
         for(int i=0;i<preCount;++i)preCoeff[size_t(i)].advance(preDelta[size_t(i)]);
         for(int i=0;i<postCount;++i)postCoeff[size_t(i)].advance(postDelta[size_t(i)]);
     }
     void clear(const Config& c) noexcept {
-        stage={};pre={};post={};input={};output={};powerLow={};powerHigh={};parallelLow={};crossover={};hybridLow={};reservoirLow={};dc={};
+        stage={};pre={};post={};input={};output={};powerLow={};powerHigh={};captureContour={};parallelLow={};crossover={};hybridLow={};reservoirLow={};dc={};
         spring.reset();scalar=c.scalar;smoothRemaining=0;supply=detector=phase=0;gate=1;hybridDrive=c.hybridDrive;hybridLevel=c.hybridLevel;hybridBlend=c.hybridBlend;hybridMaster=c.hybridMaster;highMaster=c.highMaster;lowMaster=c.lowMaster;reverb=c.reverb;tremDepth=c.tremDepth;
         finishCoefficients(c);
     }
@@ -377,6 +384,13 @@ class AmpNativeDSP {
         if(bright!=0)add(true,4,1700,bright);
         if(preLow!=0)add(true,3,85,preLow);
         config.input=D::make(rate,0,hp);config.output=D::make(rate,1,lp);
+        // Fixed broad capture correction, scoped to measured channels. Model/channel
+        // changes are crossfaded by Amp::Path. The composite B7K correction is
+        // engaged only with distortion, and slews with the other coefficients.
+        const auto correction=s.model==7 && a(12)<.5f?NativeCaptureCalibration{}:nativeCaptureCalibration(s.model,s.channel);
+        config.captureContour={D::make(rate,3,100,correction.lowDb),D::make(rate,2,500,correction.midDb,.65f),D::make(rate,4,2000,correction.highDb)};
+        config.scalar[11]=db(correction.levelDb);
+        config.scalar[8]*=db(correction.inputDb);
         config.lowPower=D::make(rate,3,85,0);config.highPower=D::make(rate,4,3000,0);
         for(int i=0;i<6;++i){config.stageHP[size_t(i)]=s.model==11?0.f:pole(rate,hp*(i==0?.65f:(1+.25f*i)));config.stageLP[size_t(i)]=pole(rate,lp*(1.45f-.06f*i));if(config.stageBias[size_t(i)]==0)config.stageBias[size_t(i)]=(i%2?-.07f:.06f)+float(s.model%4)*.013f;}
         parallelPole=pole(rate,s.model==20?480.f:800.f);crossoverPole=pole(rate,config.crossover);
@@ -436,6 +450,8 @@ public:
         const float supply=1.f/(1.f+p.sag*c.supply);
         x=supply*(soft(x*p.powerDrive/(std::max(.3f,supply))+p.powerBias)-soft(p.powerBias));
         x=c.output.tick(x,c.outputCoeff);x=c.dc.high(x,dcPole);
+        for(size_t i=0;i<c.captureContour.size();++i)x=c.captureContour[i].tick(x,c.captureCoeff[i]);
+        x*=c.scalar[11];
         if(p.reverbPresent)x+=c.reverb*c.spring.tick(x,verbDamping,verbOutput,p.reverbDecay);
         c.phase+=phaseStep;if(c.phase>=6.283185307179586f)c.phase-=6.283185307179586f;
         if(c.tremDepth>1.e-6f)x*=1.f-c.tremDepth*(.5f+.5f*std::sin(c.phase));

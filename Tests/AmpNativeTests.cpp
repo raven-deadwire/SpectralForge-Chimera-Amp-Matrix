@@ -77,9 +77,10 @@ void controlResponses() {
 void routingAndRealtime() {
     size_t routes=0;float peak=0;
     for(double rate:{44100.,48000.,96000.})for(int m=0;m<ampModelCount;++m)for(int ch=0;ch<(int)ampNativePanel(m).channels.size();++ch){auto s=defaultAmpNativeState(m);s.channel=ch;AmpNativeDSP dsp;dsp.prepare(rate);dsp.set(s);dsp.reset();
-        double energy=0;allocationWatch=true;for(int n=0;n<4096;++n){const float y=dsp.tick(sample(n,rate),0);energy+=double(y)*y;peak=std::max(peak,std::abs(y));}allocationWatch=false;require(energy>1.e-12&&std::isfinite(energy),"Silent/invalid native channel");
+        double energy=0;float routePeak=0;allocationWatch=true;for(int n=0;n<4096;++n){const float y=dsp.tick(sample(n,rate),0);energy+=double(y)*y;peak=std::max(peak,std::abs(y));routePeak=std::max(routePeak,std::abs(y));}allocationWatch=false;if(routePeak>=3.5f)std::cout<<"NATIVE_HEADROOM model="<<m<<" channel="<<ch<<" peak="<<routePeak<<" rate="<<rate<<'\n';require(energy>1.e-12&&std::isfinite(energy),"Silent/invalid native channel");
         bool extremesFinite=true;for(size_t c=0;c<ampNativePanel(m).controls.size();++c){s.values[c]=ampNativePanel(m).controls[c].maximum;allocationWatch=true;dsp.set(s);for(int n=0;n<16;++n){const float y=dsp.tick(.05f,0);extremesFinite=extremesFinite&&std::isfinite(y)&&std::abs(y)<64.f;}allocationWatch=false;}require(extremesFinite,"Native extremes invalid");++routes;
     }
+    require(peak<3.5f,"Native default hits the output protection clamp");
     require(watchedAllocations==0,"Native set/tick allocated after prepare");
     for(int m:{0,1,5,8,10,12,19}){auto a=defaultAmpNativeState(m);const auto x=render(a);for(int r=1;r<(int)ampNativePanel(m).routes.size();++r){auto b=a;b.inputRoute=r;require(difference(x,render(b))>1.e-6,"Unresponsive input route");}}
     for(int m=0;m<ampModelCount;++m){const auto& p=ampNativePanel(m);if(p.channels.size()<2)continue;auto a=defaultAmpNativeState(m);a.channel=0;if(m==5)set(a,"hw.ch1.midrange",.8f);const auto x=render(a);for(int ch=1;ch<(int)p.channels.size();++ch){auto b=a;b.channel=ch;require(difference(x,render(b))>1.e-6,"Identical native channels "+std::to_string(m));}}
@@ -127,6 +128,33 @@ void bassEQSpecificationRanges() {
         require(std::abs(span-f.span)<.6,"Bass active EQ span differs from documented range");
     }
 }
+void highGainDefaults() {
+    require(defaultAmpNativeState(15).channel==2,"ZUTA must start on CH3");
+    // Weak pickup/decaying-note input, not just a loud test tone. Measure
+    // distortion and compression separately so output boost cannot pass.
+    for(int model:{2,3,4,9,15,17,20,21,22,23}) {
+        auto state=defaultAmpNativeState(model);
+        std::array<double,3> energy{};double thd=0;
+        for(int level=0;level<3;++level) {
+            AmpNativeDSP dsp;dsp.prepare(192000);dsp.set(state);dsp.reset();
+            const double amplitude=std::pow(10.,(-48.+12*level)/20.);
+            std::array<double,13> re{},im{};
+            for(int n=0;n<192000;++n) {
+                const double phase=2*pi*400*n/192000;const float y=dsp.tick(float(amplitude*std::sin(phase)),0);
+                if(n>=96000 && n%4==0) {
+                    energy[size_t(level)]+=double(y)*y;
+                    if(level==1)for(int h=1;h<=12;++h){re[size_t(h)]+=y*std::cos(h*phase);im[size_t(h)]+=y*std::sin(h*phase);}
+                }
+            }
+            if(level==1){double h=0;for(int k=2;k<=12;++k)h+=re[size_t(k)]*re[size_t(k)]+im[size_t(k)]*im[size_t(k)];thd=std::sqrt(h/(re[1]*re[1]+im[1]*im[1]));}
+        }
+        const double growth=10*std::log10(energy[2]/energy[0]);
+        std::cout<<"GAIN_DEFAULT model="<<model<<" weak_thd="<<thd<<" growth_db="<<growth<<'\n';
+        require(thd>.28,"High-gain default loses saturation on weak notes");
+        require(growth>0 && growth<6.,"High-gain default must stay monotonic with at least 4:1 compression over a 24 dB input range");
+    }
+}
+
 void highGainRange() {
     require(ampNativeDetail::preampGain(0,36)==0,"Amp gain pot minimum is not closed");
     require(std::abs(ampNativeDetail::preampGain(.5f,36)-ampNativeDetail::db(18))<1.e-4f,"Gain midpoint was recentered to unity");
@@ -157,4 +185,4 @@ void highGainRange() {
     }
 }
 }
-int main(){try{catalog();bassEQSpecificationRanges();highGainRange();routingAndRealtime();controlResponses();channelIsolationAndSoftwareLevels();engineTransition();require(ampNativeTransitionTests::run()==0,"Native trim/reverb/coefficient transitions failed");integration();std::cout<<"PASS AmpNativeTests\n";return 0;}catch(const std::exception& e){allocationWatch=false;std::cerr<<"FAIL "<<e.what()<<"\n";return 1;}}
+int main(){try{catalog();bassEQSpecificationRanges();highGainRange();highGainDefaults();routingAndRealtime();controlResponses();channelIsolationAndSoftwareLevels();engineTransition();require(ampNativeTransitionTests::run()==0,"Native trim/reverb/coefficient transitions failed");integration();std::cout<<"PASS AmpNativeTests\n";return 0;}catch(const std::exception& e){allocationWatch=false;std::cerr<<"FAIL "<<e.what()<<"\n";return 1;}}

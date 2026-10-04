@@ -90,3 +90,7 @@ Physical mains/standby, service bias, physical speaker loads, wiring, MIDI hardw
 These are synthetic numerical and state-isolation checks. They verify functioning controls, routing, bounded processing and regressions; they do not measure hardware matching or establish Studio One behavior. Processor state restoration, UI and Windows integration are separate release gates.
 
 Final focused source hashes and command/output logs are recorded in the build evidence. The native DSP header tested here has SHA256 `24c8f25063e3625655bae071c4d6a224e915b86eeccd965f913598472d8e7df2`.
+
+## Native NAM calibration candidate
+
+The all-active-model comparison, reference gaps, gain defaults and measured native-path corrections are recorded in [NATIVE_NAM_CALIBRATION.md](NATIVE_NAM_CALIBRATION.md). Ironball is retired and excluded from that calibration.

@@ -15,7 +15,7 @@ inline constexpr int newAmpChannelCount(int model)
 }
 inline constexpr int newAmpDefaultChannel(int model)
 {
-    constexpr std::array<int, 8> defaults{{0, 1, 2, 0, 2, 0, 0, 1}};
+    constexpr std::array<int, 8> defaults{{2, 1, 2, 0, 2, 0, 0, 1}};
     return isNewAmpModel(model) ? defaults[(size_t)(model - 15)] : 0;
 }
 inline const char* newAmpChannelName(int model, int channel)

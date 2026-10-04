@@ -1,0 +1,33 @@
+PASS catalog 24 serialized / 23 active models, 380 controls, six contexts
+BASS_EQ_SPAN model=5 key=hw.ch1.midrange db=40.0006
+BASS_EQ_SPAN model=11 key=hw.lo_mid db=24.0042
+BASS_EQ_SPAN model=11 key=hw.hi_mid db=24.0046
+BASS_EQ_SPAN model=14 key=hw.lo_mid db=24.0004
+GAIN_RANGE model=2 channel=1 thd_low=0.0984498 thd_mid=0.84289
+GAIN_RANGE model=3 channel=2 thd_low=0.0337178 thd_mid=0.860835
+GAIN_RANGE model=4 channel=2 thd_low=0.105261 thd_mid=0.38229
+GAIN_RANGE model=9 channel=1 thd_low=0.115185 thd_mid=0.676277
+GAIN_RANGE model=13 channel=1 thd_low=0.00742875 thd_mid=0.313326
+GAIN_RANGE model=15 channel=2 thd_low=0.00965985 thd_mid=0.724905
+GAIN_RANGE model=17 channel=2 thd_low=0.0355771 thd_mid=0.813199
+GAIN_RANGE model=20 channel=0 thd_low=0.0139506 thd_mid=0.687601
+GAIN_RANGE model=21 channel=1 thd_low=0.00738925 thd_mid=0.629795
+GAIN_RANGE model=22 channel=1 thd_low=0.00945843 thd_mid=0.773345
+GAIN_RANGE model=23 channel=2 thd_low=0.00140174 thd_mid=0.34821
+GAIN_DEFAULT model=2 weak_thd=0.824307 growth_db=1.03994
+GAIN_DEFAULT model=3 weak_thd=0.828777 growth_db=1.60343
+GAIN_DEFAULT model=4 weak_thd=0.376354 growth_db=0.274278
+GAIN_DEFAULT model=9 weak_thd=0.656786 growth_db=0.82315
+GAIN_DEFAULT model=15 weak_thd=0.68762 growth_db=3.11965
+GAIN_DEFAULT model=17 weak_thd=0.809886 growth_db=1.23918
+GAIN_DEFAULT model=20 weak_thd=0.657254 growth_db=1.53078
+GAIN_DEFAULT model=21 weak_thd=0.605955 growth_db=1.77172
+GAIN_DEFAULT model=22 weak_thd=0.736791 growth_db=2.02685
+GAIN_DEFAULT model=23 weak_thd=0.339492 growth_db=0.87966
+PASS sample-rates/channel routes=153 peak=2.88085 allocations=0
+CONTROL_RESPONSE count=380 failures=0 minimum=9.14307e-06 at=15:gate_threshold
+PASS inactive channel controls isolated=448 output level ratio=1.99526
+PASS old/native engine transition first difference=0.000458091 allocations=0
+PASS trim_gate_residual=0 hidden_tank_difference=0 hidden_tank_reference=1.18507e-08 first15_coeff_edit_residual=0 edited_difference_energy=53.7931 transition_peak=0.197179
+PASS integrated native oversampling paths=96
+PASS AmpNativeTests

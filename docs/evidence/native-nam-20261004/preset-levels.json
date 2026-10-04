@@ -1,0 +1,310 @@
+{
+  "presets": [
+    {
+      "index": 31,
+      "name": "Crom Cruach",
+      "rms_dbfs": -26.5813,
+      "peak_dbfs": -10.1076,
+      "output_db": -1.5
+    },
+    {
+      "index": 32,
+      "name": "Wild Hunt",
+      "rms_dbfs": -29.8618,
+      "peak_dbfs": -9.64782,
+      "output_db": -13.0
+    },
+    {
+      "index": 33,
+      "name": "Azhi Dahaka",
+      "rms_dbfs": -26.1178,
+      "peak_dbfs": -11.4148,
+      "output_db": -2.0
+    },
+    {
+      "index": 34,
+      "name": "A Path To Alsatia",
+      "rms_dbfs": -26.1203,
+      "peak_dbfs": -12.8813,
+      "output_db": -4.5
+    },
+    {
+      "index": 35,
+      "name": "Feel My Wrath",
+      "rms_dbfs": -25.8858,
+      "peak_dbfs": -12.5006,
+      "output_db": -5.5
+    },
+    {
+      "index": 36,
+      "name": "Blackhearted",
+      "rms_dbfs": -26.2375,
+      "peak_dbfs": -12.8542,
+      "output_db": -5.5
+    },
+    {
+      "index": 37,
+      "name": "Dark Matters of Throne",
+      "rms_dbfs": -26.2111,
+      "peak_dbfs": -14.3131,
+      "output_db": -2.0
+    },
+    {
+      "index": 0,
+      "name": "Clean Sustain",
+      "rms_dbfs": -25.9581,
+      "peak_dbfs": -10.6888,
+      "output_db": 6.5
+    },
+    {
+      "index": 5,
+      "name": "Bell Clean",
+      "rms_dbfs": -25.9956,
+      "peak_dbfs": -12.5017,
+      "output_db": -1.5
+    },
+    {
+      "index": 11,
+      "name": "Ambient Clean",
+      "rms_dbfs": -25.9931,
+      "peak_dbfs": -11.1149,
+      "output_db": 11.5
+    },
+    {
+      "index": 6,
+      "name": "Edge Chime",
+      "rms_dbfs": -25.8505,
+      "peak_dbfs": -15.5955,
+      "output_db": -5.5
+    },
+    {
+      "index": 7,
+      "name": "Classic Crunch",
+      "rms_dbfs": -27.3355,
+      "peak_dbfs": -9.96844,
+      "output_db": -2.5
+    },
+    {
+      "index": 28,
+      "name": "Matchless Edge",
+      "rms_dbfs": -25.9688,
+      "peak_dbfs": -12.1704,
+      "output_db": -2.5
+    },
+    {
+      "index": 1,
+      "name": "Tight Rhythm",
+      "rms_dbfs": -25.947,
+      "peak_dbfs": -12.685,
+      "output_db": -5.0
+    },
+    {
+      "index": 8,
+      "name": "Orange Heavy",
+      "rms_dbfs": -26.0913,
+      "peak_dbfs": -13.1049,
+      "output_db": -5.0
+    },
+    {
+      "index": 9,
+      "name": "Melodic Death Rhythm",
+      "rms_dbfs": -25.7698,
+      "peak_dbfs": -11.8659,
+      "output_db": -7.0
+    },
+    {
+      "index": 3,
+      "name": "Filter Lead",
+      "rms_dbfs": -25.8149,
+      "peak_dbfs": -10.6956,
+      "output_db": -4.0
+    },
+    {
+      "index": 4,
+      "name": "Fuzz Texture",
+      "rms_dbfs": -26.0365,
+      "peak_dbfs": -14.0012,
+      "output_db": 6.5
+    },
+    {
+      "index": 10,
+      "name": "Melodic Lead",
+      "rms_dbfs": -25.7989,
+      "peak_dbfs": -13.5535,
+      "output_db": -3.0
+    },
+    {
+      "index": 29,
+      "name": "Dumble Smooth Lead",
+      "rms_dbfs": -26.074,
+      "peak_dbfs": -13.3246,
+      "output_db": -4.0
+    },
+    {
+      "index": 12,
+      "name": "Finger Round",
+      "rms_dbfs": -26.0289,
+      "peak_dbfs": -11.2933,
+      "output_db": -12.0
+    },
+    {
+      "index": 13,
+      "name": "Pick Punch",
+      "rms_dbfs": -28.8543,
+      "peak_dbfs": -10.1827,
+      "output_db": -6.0
+    },
+    {
+      "index": 14,
+      "name": "Slap Studio",
+      "rms_dbfs": -25.9249,
+      "peak_dbfs": -12.5099,
+      "output_db": 2.0
+    },
+    {
+      "index": 30,
+      "name": "EICH Modern Clean",
+      "rms_dbfs": -26.9058,
+      "peak_dbfs": -10.0243,
+      "output_db": 4.0
+    },
+    {
+      "index": 15,
+      "name": "Modern Grind",
+      "rms_dbfs": -26.1147,
+      "peak_dbfs": -11.7004,
+      "output_db": -10.5
+    },
+    {
+      "index": 16,
+      "name": "Vintage Bass DI",
+      "rms_dbfs": -27.6005,
+      "peak_dbfs": -10.0954,
+      "output_db": -10.5
+    },
+    {
+      "index": 17,
+      "name": "Wool Bass Fuzz",
+      "rms_dbfs": -25.9599,
+      "peak_dbfs": -14.0683,
+      "output_db": -7.5
+    },
+    {
+      "index": 18,
+      "name": "Bass Envelope",
+      "rms_dbfs": -26.1047,
+      "peak_dbfs": -10.9699,
+      "output_db": 7.0
+    },
+    {
+      "index": 19,
+      "name": "G+G Clean / Crunch",
+      "rms_dbfs": -26.8116,
+      "peak_dbfs": -10.0538,
+      "output_db": 8.5
+    },
+    {
+      "index": 20,
+      "name": "G+G Tight / Wide",
+      "rms_dbfs": -26.1238,
+      "peak_dbfs": -12.5986,
+      "output_db": -6.0
+    },
+    {
+      "index": 23,
+      "name": "B+B Warm / Definition",
+      "rms_dbfs": -26.8695,
+      "peak_dbfs": -10.2012,
+      "output_db": -4.5
+    },
+    {
+      "index": 21,
+      "name": "G+B Low Anchor",
+      "rms_dbfs": -25.8314,
+      "peak_dbfs": -11.6362,
+      "output_db": -6.0
+    },
+    {
+      "index": 22,
+      "name": "G+B Air / Weight",
+      "rms_dbfs": -26.0248,
+      "peak_dbfs": -12.8775,
+      "output_db": -11.0
+    },
+    {
+      "index": 24,
+      "name": "B+B Clean / Grind",
+      "rms_dbfs": -26.0181,
+      "peak_dbfs": -11.2582,
+      "output_db": -7.0
+    },
+    {
+      "index": 2,
+      "name": "Bass Matrix",
+      "rms_dbfs": -25.7678,
+      "peak_dbfs": -11.68,
+      "output_db": -4.5
+    },
+    {
+      "index": 25,
+      "name": "Low B Foundation",
+      "rms_dbfs": -25.8689,
+      "peak_dbfs": -12.3039,
+      "output_db": -5.5
+    },
+    {
+      "index": 26,
+      "name": "Pick Attack Matrix",
+      "rms_dbfs": -27.8722,
+      "peak_dbfs": -10.2385,
+      "output_db": -7.5
+    },
+    {
+      "index": 27,
+      "name": "Spectral Texture",
+      "rms_dbfs": -26.0349,
+      "peak_dbfs": -13.5918,
+      "output_db": 0.5
+    }
+  ],
+  "hot_peak_dbfs": [
+    -7.55156,
+    -9.79975,
+    -8.23511,
+    -13.0937,
+    -13.0633,
+    -11.3303,
+    -12.3158,
+    -6.85078,
+    -9.77755,
+    -6.68935,
+    -15.1968,
+    -9.3659,
+    -9.87195,
+    -12.3756,
+    -13.0819,
+    -11.7712,
+    -9.82923,
+    -13.8883,
+    -13.6321,
+    -13.0618,
+    -9.85987,
+    -8.98024,
+    -8.52199,
+    -8.45503,
+    -10.4989,
+    -8.21474,
+    -11.7872,
+    -4.80792,
+    -9.08894,
+    -12.4901,
+    -8.94516,
+    -7.74312,
+    -10.4543,
+    -7.3611,
+    -8.21692,
+    -8.77786,
+    -8.28232,
+    -6.60423
+  ]
+}

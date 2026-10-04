@@ -1,0 +1,2144 @@
+{
+  "schema": 1,
+  "nam_core_commit": "0b3d3c97b0859a3a8c92a8628c4dd89a25eb5842",
+  "source_commit": "6fc857e387694ff5323956420e3190c997b166b9",
+  "reference_input_dbu": 11.5,
+  "amps": [
+    {
+      "index": 0,
+      "channel": 1,
+      "file": "Chimera-NAM-IR-personal/NAM-reference/SLAMMIN_FNDR_DUOVERB_V_V5_CRANKED_S.nam",
+      "sha256": "98b69400de5d674a7b6bdc6c267b2cb82a250ba99829fa42a7d8b02f9224985a",
+      "state": {
+        "channel": 1,
+        "controls": {}
+      },
+      "qualification": "",
+      "url": "https://www.tone3000.com/tones/fender-twin-reverb-65-blackface-ri-45968",
+      "input_level_dbu": 18.18,
+      "metadata": {
+        "date": {
+          "year": 2026,
+          "month": 5,
+          "day": 14,
+          "hour": 8,
+          "minute": 9,
+          "second": 6
+        },
+        "loudness": -21.404953002929688,
+        "gain": 0.8680872558516431,
+        "input_level_dbu": 18.18,
+        "output_level_dbu": 18.16,
+        "name": "SLAMMIN_FNDR_DUOVERB_V_V5_CRANKED",
+        "modeled_by": "slamminmofo",
+        "training": {
+          "data": {
+            "checks": {
+              "passed": false,
+              "version": 4
+            },
+            "latency": {
+              "manual": 0,
+              "calibration": {
+                "delays": [
+                  1
+                ],
+                "warnings": {
+                  "matches_lookahead": false,
+                  "disagreement_too_high": false
+                },
+                "recommended": 0,
+                "safety_factor": 1,
+                "algorithm_version": 1
+              }
+            }
+          },
+          "settings": {
+            "ignore_checks": true
+          },
+          "validation_esr": 0.017721128160567992
+        },
+        "gear_make": "Fender Twin Reverb 65 Blackface Reissue",
+        "gear_model": "Fender Twin Reverb 65 Blackface Reissue",
+        "tone_type": "clean",
+        "gear_type": "amp"
+      }
+    },
+    {
+      "index": 1,
+      "channel": 0,
+      "file": "Chimera-NAM-IR-personal/NAM-reference/SLAMMIN_MARSHALL_J45_V5_LOCUT_P5_S.nam",
+      "sha256": "a2457b6891a30a0bfcdfde9931396fb3a1df33ae718f43f5e0740e6ff7ffd8e6",
+      "state": {
+        "channel": 0,
+        "controls": {}
+      },
+      "qualification": "",
+      "url": "https://www.tone3000.com/tones/marshall-jtm-45-hyper-accuracy-33505",
+      "input_level_dbu": 12.2418,
+      "metadata": {
+        "date": {
+          "year": 2026,
+          "month": 5,
+          "day": 25,
+          "hour": 9,
+          "minute": 6,
+          "second": 51
+        },
+        "loudness": -21.600711822509766,
+        "gain": 0.8550368803966162,
+        "input_level_dbu": 12.2418,
+        "output_level_dbu": 12.2418,
+        "name": "SLAMMIN_MARSHALL_J45_V5_LOCUT_P5_S",
+        "modeled_by": "slamminmofo",
+        "training": {
+          "data": {
+            "checks": {
+              "passed": false,
+              "version": 4
+            },
+            "latency": {
+              "manual": 0,
+              "calibration": {
+                "delays": [
+                  1
+                ],
+                "warnings": {
+                  "matches_lookahead": false,
+                  "disagreement_too_high": false
+                },
+                "recommended": 0,
+                "safety_factor": 1,
+                "algorithm_version": 1
+              }
+            }
+          },
+          "settings": {
+            "ignore_checks": true
+          },
+          "validation_esr": 0.007922640509849517
+        },
+        "gear_make": "Marshall JTM 45 Reissue",
+        "gear_model": "Marshall JTM 45 Reissue",
+        "tone_type": "1950s",
+        "gear_type": "amp"
+      }
+    },
+    {
+      "index": 2,
+      "channel": 1,
+      "file": "Chimera-NAM-IR-personal/NAM-reference/DI 6505 1992 Ld - 6 - SRL.nam",
+      "sha256": "25ee2f97166d57e33fbb50a399f281d64d0f9a2349b22d31ae1618c8d7ae179b",
+      "state": {
+        "channel": 1,
+        "controls": {}
+      },
+      "qualification": "",
+      "url": "https://www.tone3000.com/tones/peavey-6505-1992-original-lead-mesa-4x12-load-amp-head-72177",
+      "input_level_dbu": 11.5,
+      "metadata": {
+        "date": {
+          "year": 2026,
+          "month": 6,
+          "day": 16,
+          "hour": 5,
+          "minute": 12,
+          "second": 14
+        },
+        "loudness": -17.073450439198037,
+        "gain": 0.7816576609826933,
+        "name": "DI 6505 1992 Ld - 6 - SRL",
+        "modeled_by": "outmodedelectronics",
+        "gear_type": "amp",
+        "gear_make": "T3K-Null",
+        "gear_model": "T3K-Null",
+        "tone_type": "T3K-Null",
+        "trainer": "TONE3000",
+        "input_level_dbu": 11.5,
+        "output_level_dbu": 11.7
+      }
+    },
+    {
+      "index": 3,
+      "channel": 2,
+      "file": "Chimera-NAM-IR-personal/NAM-reference/DI MBDR MW Red Mdn - 2 - SRL.nam",
+      "sha256": "70be3912f6a3fa8f3473c76aa0ba97b534d6524c4b27e48c379cebe30f577f86",
+      "state": {
+        "channel": 2,
+        "controls": {
+          "hw.ch3.mode": 2
+        }
+      },
+      "qualification": "",
+      "url": "https://www.tone3000.com/tones/mesa-dual-rectifier-mw-red-modern-mesa-4x12-load-amp-head-69212",
+      "input_level_dbu": 11.5,
+      "metadata": {
+        "date": {
+          "day": 3,
+          "hour": 17,
+          "year": 2026,
+          "month": 6,
+          "minute": 20,
+          "second": 34
+        },
+        "gain": 0.7760753343191665,
+        "name": "DI MBDR MW Red Mdn - 2 - SRL",
+        "trainer": "TONE3000",
+        "loudness": -22.32073960450958,
+        "gear_make": "T3K-Null",
+        "gear_type": "amp",
+        "tone_type": "T3K-Null",
+        "gear_model": "T3K-Null",
+        "modeled_by": "outmodedelectronics",
+        "input_level_dbu": 11.5,
+        "output_level_dbu": 11.7
+      }
+    },
+    {
+      "index": 4,
+      "channel": 2,
+      "file": "Chimera-NAM-IR-personal/NAM-reference/KDM-Slammin_MKIV_44 Petrucci Lead 1 S.nam",
+      "sha256": "d62c5e72e0c447bd0043e602d98b0172dc3d5a049bbd87646171eabc12ed8174",
+      "state": {
+        "channel": 2,
+        "controls": {}
+      },
+      "qualification": "",
+      "url": "https://www.tone3000.com/tones/mesa-boogie-mark-iv-lead-hyper-accuracy-6406",
+      "input_level_dbu": 9,
+      "metadata": {
+        "date": {
+          "year": 2026,
+          "month": 5,
+          "day": 15,
+          "hour": 2,
+          "minute": 51,
+          "second": 21
+        },
+        "loudness": -12.980875968933105,
+        "gain": 0.8197795126843476,
+        "input_level_dbu": 9,
+        "output_level_dbu": 9,
+        "name": "KDM SLAMMIN MESA/BOOGIE MARK IV",
+        "modeled_by": "MADE BY KDM TRAINED BY SLAMMIN MOFO",
+        "training": {
+          "data": {
+            "checks": {
+              "passed": true,
+              "version": 3
+            },
+            "latency": {
+              "manual": null,
+              "calibration": {
+                "delays": [
+                  5
+                ],
+                "warnings": {
+                  "matches_lookahead": false,
+                  "disagreement_too_high": false
+                },
+                "recommended": 4,
+                "safety_factor": 1,
+                "algorithm_version": 1
+              }
+            }
+          },
+          "settings": {
+            "ignore_checks": false
+          },
+          "validation_esr": 0.015933307642303964
+        },
+        "gear_make": "Mesa Boogie Mark IV",
+        "gear_model": "Mesa Boogie Mark IV",
+        "tone_type": "djent",
+        "gear_type": "amp"
+      }
+    },
+    {
+      "index": 5,
+      "channel": 0,
+      "file": "Chimera-NAM-IR-personal/NAM-reference/Ampeg SVT-VR Classic (Normal).nam",
+      "sha256": "d38bc67a62c2aeca8bcd8907f9e7f2d05da257be870a5fbee408c8b73e90a61c",
+      "state": {
+        "channel": 0,
+        "controls": {}
+      },
+      "qualification": "",
+      "url": "https://www.tone3000.com/tones/ampeg-svt-vr-classic-55132",
+      "input_level_dbu": null,
+      "metadata": {
+        "date": {
+          "year": 2026,
+          "month": 5,
+          "day": 10,
+          "hour": 1,
+          "minute": 6,
+          "second": 47
+        },
+        "loudness": -10.251737594604492,
+        "gain": 0.03397113539339135,
+        "name": "Ampeg SVT-VR Classic (Normal)",
+        "modeled_by": "johnjones4032",
+        "training": {
+          "data": {
+            "checks": {
+              "passed": true,
+              "version": 3
+            },
+            "latency": {
+              "manual": null,
+              "calibration": {
+                "delays": [
+                  1
+                ],
+                "warnings": {
+                  "matches_lookahead": false,
+                  "disagreement_too_high": false
+                },
+                "recommended": 0,
+                "safety_factor": 1,
+                "algorithm_version": 1
+              }
+            }
+          },
+          "settings": {
+            "ignore_checks": false
+          },
+          "validation_esr": 0.00014369510094988064
+        },
+        "gear_make": "t3k-unset",
+        "gear_model": "t3k-unset",
+        "tone_type": "bass",
+        "gear_type": "amp"
+      }
+    },
+    {
+      "index": 6,
+      "channel": 0,
+      "file": "Chimera-NAM-IR-personal/NAM-reference/GALLIEN KRUEGER - RB800 - G3.0.nam",
+      "sha256": "5e6faea88886bfc97bfeaf0ed84792ef3525c6778c6656e637a7fc17031b8b69",
+      "state": {
+        "channel": 0,
+        "controls": {}
+      },
+      "qualification": "",
+      "url": "https://www.tone3000.com/tones/gallien-krueger-rb800-070-2694",
+      "input_level_dbu": null,
+      "metadata": {
+        "date": {
+          "year": 2026,
+          "month": 5,
+          "day": 15,
+          "hour": 2,
+          "minute": 54,
+          "second": 28
+        },
+        "loudness": -12.2926664352417,
+        "gain": 0.4867047897086596,
+        "gear_make": "Gallien Krueger - RB800",
+        "gear_model": "Gallien Krueger - RB800",
+        "tone_type": "1980s",
+        "gear_type": "amp"
+      }
+    },
+    {
+      "index": 7,
+      "channel": 0,
+      "file": "Chimera-NAM-IR-personal/NAM-reference/Darkglass Drive - Microtubes B7K Ultra - No Cab.nam",
+      "sha256": "a8678f16e5befa0dfa648c714188a79b8d88e79ceba3da3b7b5e6465f13c83b6",
+      "state": {
+        "channel": 0,
+        "controls": {
+          "hw.b7k.distortion": 1
+        }
+      },
+      "qualification": "Composite B7K + DB751 chain; not an isolated amp capture Distortion engaged for the driven reference; absolute input calibration and knob positions unavailable.",
+      "url": "https://www.tone3000.com/tones/darkglass-b7k-ultra-amp-head-64043",
+      "input_level_dbu": null,
+      "metadata": {
+        "date": {
+          "year": 2026,
+          "month": 5,
+          "day": 20,
+          "hour": 22,
+          "minute": 25,
+          "second": 13
+        },
+        "loudness": -38.79020309448242,
+        "gain": 0.4799587153182897,
+        "name": "Darkglass Drive - Microtubes B7K Ultra - no cab",
+        "modeled_by": "elmeri",
+        "training": {
+          "data": {
+            "checks": {
+              "passed": true,
+              "version": 3
+            },
+            "latency": {
+              "manual": null,
+              "calibration": {
+                "delays": [
+                  0
+                ],
+                "warnings": {
+                  "matches_lookahead": false,
+                  "disagreement_too_high": false
+                },
+                "recommended": -1,
+                "safety_factor": 1,
+                "algorithm_version": 1
+              }
+            }
+          },
+          "settings": {
+            "ignore_checks": false
+          },
+          "validation_esr": 0.03059333784630491
+        },
+        "gear_make": "Darkglass B7K Ultra",
+        "gear_model": "Darkglass B7K Ultra",
+        "tone_type": "overdrive",
+        "gear_type": "amp"
+      }
+    },
+    {
+      "index": 8,
+      "channel": 1,
+      "file": "Expanded-NAM/SLAMMIN_VOX_AC30_TB_V5_TC4_B5_T5_NOON_S.nam",
+      "sha256": "334971cd13ce21511a5cca291106abcacca22e72c012aeff96fbecd08e104c6d",
+      "state": {
+        "channel": 1,
+        "controls": {
+          "hw.tone_cut": 0.4
+        }
+      },
+      "qualification": "Actual VOX AC30 CH head; Suhr Reactive Load; master maximum, attenuator disabled, effects off.",
+      "url": "https://www.tone3000.com/tones/vox-ac30-ch-hyper-accuracy-31267",
+      "input_level_dbu": 12.2418,
+      "metadata": {
+        "date": {
+          "year": 2026,
+          "month": 5,
+          "day": 25,
+          "hour": 4,
+          "minute": 16,
+          "second": 17
+        },
+        "loudness": -19.73196792602539,
+        "gain": 0.8396227064771035,
+        "input_level_dbu": 12.2418,
+        "output_level_dbu": 12.2418,
+        "name": "SLAMMIN_VOX_AC30_TB_V5_TC4_B5_T5_NOON_S",
+        "modeled_by": "slamminmofo",
+        "training": {
+          "data": {
+            "checks": {
+              "passed": false,
+              "version": 4
+            },
+            "latency": {
+              "manual": 0,
+              "calibration": {
+                "delays": [
+                  1
+                ],
+                "warnings": {
+                  "matches_lookahead": false,
+                  "disagreement_too_high": false
+                },
+                "recommended": 0,
+                "safety_factor": 1,
+                "algorithm_version": 1
+              }
+            }
+          },
+          "settings": {
+            "ignore_checks": true
+          },
+          "validation_esr": 0.007232834725475362
+        },
+        "gear_make": "VOX AC30 CH",
+        "gear_model": "VOX AC30 CH",
+        "tone_type": "voxc30",
+        "gear_type": "amp"
+      }
+    },
+    {
+      "index": 9,
+      "channel": 1,
+      "file": "Expanded-NAM/Rockerverb 50 MKIII Head Only.nam",
+      "sha256": "bafe2834a16ad1c0604a6f425c254fbe77cd502f8e0df9fa89fe51564b1f188b",
+      "state": {
+        "channel": 1,
+        "controls": {
+          "hw.dirty.gain": 0.55,
+          "hw.dirty.treble": 0.6,
+          "hw.dirty.volume": 0.4
+        }
+      },
+      "qualification": "Actual Orange Rockerverb 50 MKIII head; Torpedo Captor; no cabinet.",
+      "url": "https://www.tone3000.com/tones/orange-rockerverb-50-mkiii-head-94818",
+      "input_level_dbu": null,
+      "metadata": {
+        "date": {
+          "year": 2026,
+          "month": 9,
+          "day": 22,
+          "hour": 20,
+          "minute": 10,
+          "second": 28
+        },
+        "loudness": -17.13093582339537,
+        "gain": 0.8504451501256325,
+        "name": "Rockerverb 50 MKIII Head Only",
+        "modeled_by": "hlrossato",
+        "gear_type": "amp",
+        "gear_make": "Orange Rockerverb 50 MKIII",
+        "gear_model": "Orange Rockerverb 50 MKIII",
+        "tone_type": "punk rock",
+        "trainer": "TONE3000"
+      }
+    },
+    {
+      "index": 10,
+      "channel": 1,
+      "file": "Expanded-NAM/FENDER SUPER BASSMAN.nam",
+      "sha256": "4c0d5d9daf48fe46189a1e360f0621dd4a4fe442a8fa00e722b849b9552d4aad",
+      "state": {
+        "channel": 1,
+        "controls": {}
+      },
+      "qualification": "Actual Fender Super Bassman 300W head DI-out capture; not the power-stage speaker output.",
+      "url": "https://www.tone3000.com/tones/fender-super-bassman-74042",
+      "input_level_dbu": null,
+      "metadata": {
+        "date": {
+          "year": 2026,
+          "month": 7,
+          "day": 2,
+          "hour": 12,
+          "minute": 23,
+          "second": 7
+        },
+        "loudness": -15.824094194468977,
+        "gain": 0.28326265882659235,
+        "name": "FENDER SUPER BASSMAN",
+        "modeled_by": "payday",
+        "gear_type": "amp",
+        "gear_make": "FENDER SUPER BASSMAN 2011",
+        "gear_model": "FENDER SUPER BASSMAN 2011",
+        "tone_type": "rock",
+        "trainer": "TONE3000"
+      }
+    },
+    {
+      "index": 11,
+      "channel": 0,
+      "file": "Expanded-NAM/Mesa Subway D800+ DI Flat.nam",
+      "sha256": "2e26aaff8dd10cd46179d94c8c16fe6da6d6ff522843216eae324d7adc9ce319",
+      "state": {
+        "channel": 0,
+        "controls": {
+          "hw.voicing": 0,
+          "hw.high_pass": 0
+        }
+      },
+      "qualification": "Actual Mesa Subway D-800+ DI output; plus model, not the base D-800.",
+      "url": "https://www.tone3000.com/tones/mesa-subway-d-800-di-flat-41431",
+      "input_level_dbu": null,
+      "metadata": {
+        "date": {
+          "year": 2026,
+          "month": 5,
+          "day": 13,
+          "hour": 11,
+          "minute": 15,
+          "second": 28
+        },
+        "loudness": -26.06747055053711,
+        "gain": 0.02642583109915762,
+        "name": "Mesa Subway D800+ DI Flat",
+        "modeled_by": "markhopkinsbass",
+        "training": {
+          "data": {
+            "checks": {
+              "passed": true,
+              "version": 3
+            },
+            "latency": {
+              "manual": null,
+              "calibration": {
+                "delays": [
+                  -82
+                ],
+                "warnings": {
+                  "matches_lookahead": false,
+                  "disagreement_too_high": false
+                },
+                "recommended": -83,
+                "safety_factor": 1,
+                "algorithm_version": 1
+              }
+            }
+          },
+          "settings": {
+            "ignore_checks": false
+          },
+          "validation_esr": 0.007254081027372767
+        },
+        "gear_make": "Mesa Subway D-800 Plus 2017",
+        "gear_model": "Mesa Subway D-800 Plus 2017",
+        "tone_type": "clean bass amp",
+        "gear_type": "amp"
+      }
+    },
+    {
+      "index": 12,
+      "channel": 1,
+      "file": "Expanded-NAM/DC30 Ch2 BRT Cut2 vol 35.nam",
+      "sha256": "a1c8adb4961ae01052f21f2fab98209a3e78ecbf0c81f0d54deaf13979e291f0",
+      "state": {
+        "channel": 1,
+        "controls": {
+          "hw.ch2.volume": 0.35,
+          "hw.cut": 0.2,
+          "hw.master_bypass": 1,
+          "hw.ch2.tone": 1
+        },
+        "input_route": 1
+      },
+      "qualification": "Ceriatone DC30 physical CLONE of Matchless DC30; different construction/transformers. Not an original Matchless hardware capture.",
+      "url": "https://www.tone3000.com/tones/matchless-dc30-clone-4638",
+      "input_level_dbu": null,
+      "metadata": {
+        "date": {
+          "year": 2026,
+          "month": 5,
+          "day": 15,
+          "hour": 6,
+          "minute": 28,
+          "second": 28
+        },
+        "loudness": -13.105400085449219,
+        "gain": 0.789357801414729,
+        "name": "Matchless DC30 clone",
+        "modeled_by": "Tor KV",
+        "gear_make": "Ceriatone DC30",
+        "gear_model": "Ceriatone DC30",
+        "tone_type": "breakup",
+        "gear_type": "amp"
+      }
+    },
+    {
+      "index": 13,
+      "channel": 1,
+      "file": "Expanded-NAM/SLAMMIN_DUMBLE_FORD_OD_SMOOTH_2_S.nam",
+      "sha256": "1d8b64dcb94672e409d4c32f8851b11475651959452fe437230c43f8ce678a50",
+      "state": {
+        "channel": 1,
+        "controls": {}
+      },
+      "qualification": "Creators physical ODS #102 Robben Ford CLONE; not a verified original Alexander Dumble amplifier. Original Smooth capture unavailable; new Smooth 2 reference, separately hashed.",
+      "url": "https://www.tone3000.com/tones/dumble-ods-102-ford-hyper-accuracy-30435",
+      "input_level_dbu": 12.2418,
+      "metadata": {
+        "date": {
+          "year": 2026,
+          "month": 5,
+          "day": 25,
+          "hour": 4,
+          "minute": 16,
+          "second": 16
+        },
+        "loudness": -20.72749137878418,
+        "gain": 0.8143313473998816,
+        "input_level_dbu": 12.2418,
+        "output_level_dbu": 12.2418,
+        "name": "SLAMMIN_DUMBLE_FORD_OD_SMOOTH_2_S",
+        "modeled_by": "slamminmofo",
+        "training": {
+          "data": {
+            "checks": {
+              "passed": false,
+              "version": 4
+            },
+            "latency": {
+              "manual": 0,
+              "calibration": {
+                "delays": [
+                  1
+                ],
+                "warnings": {
+                  "matches_lookahead": false,
+                  "disagreement_too_high": false
+                },
+                "recommended": 0,
+                "safety_factor": 1,
+                "algorithm_version": 1
+              }
+            }
+          },
+          "settings": {
+            "ignore_checks": true
+          },
+          "validation_esr": 0.004175935937781983
+        },
+        "gear_make": "Dumble Overdrive Special 102 Ford",
+        "gear_model": "Dumble Overdrive Special 102 Ford",
+        "tone_type": "crunch",
+        "gear_type": "amp"
+      }
+    },
+    {
+      "index": 15,
+      "channel": 0,
+      "file": "Chimera_Reference_Assets_20260928/NAM/zuta-gbg120/[AMP] Zoota.GBG12O-Mar412-CH1 Big Hairy Breakup - DI.nam",
+      "sha256": "fcf9326e0b9e7977784a8b4c1dfe23ae17bce59ac9ad8ec3960c7c18e00868f2",
+      "state": {
+        "channel": 0,
+        "controls": {}
+      },
+      "qualification": "Author describes whole head DI; NAM gear_type=amp_cab conflict unresolved.",
+      "url": "https://www.tone3000.com/tones/zuta-gbg120-77452",
+      "input_level_dbu": 18.995,
+      "metadata": {
+        "date": {
+          "year": 2026,
+          "month": 7,
+          "day": 20,
+          "hour": 21,
+          "minute": 39,
+          "second": 21
+        },
+        "loudness": -10.827125880481214,
+        "gain": 0.886492585370598,
+        "name": "[AMP] Zoota.GBG12O-Mar412-CH1 Big Hairy Breakup - DI",
+        "modeled_by": "2dor",
+        "gear_type": "amp_cab",
+        "gear_make": "T3K-Null",
+        "gear_model": "T3K-Null",
+        "tone_type": "T3K-Null",
+        "trainer": "TONE3000",
+        "input_level_dbu": 18.995,
+        "output_level_dbu": 13.195
+      }
+    },
+    {
+      "index": 15,
+      "channel": 1,
+      "file": "Chimera_Reference_Assets_20260928/NAM/zuta-gbg120/[AMP] Zoota.GBG12O-Mar412-CH2 Transylvanian Clay - DI.nam",
+      "sha256": "63fec98ddaaa23b85e4e914e13a96b5b3ef02bff9480e78030aca74014beacd9",
+      "state": {
+        "channel": 1,
+        "controls": {}
+      },
+      "qualification": "Author describes whole head DI; NAM gear_type=amp_cab conflict unresolved.",
+      "url": "https://www.tone3000.com/tones/zuta-gbg120-77452",
+      "input_level_dbu": 18.995,
+      "metadata": {
+        "date": {
+          "year": 2026,
+          "month": 7,
+          "day": 20,
+          "hour": 14,
+          "minute": 9,
+          "second": 23
+        },
+        "loudness": -12.824030673093361,
+        "gain": 0.964551893060319,
+        "name": "[AMP] Zoota.GBG12O-Mar412-CH2 Transylvanian Clay - DI",
+        "modeled_by": "2dor",
+        "gear_type": "amp_cab",
+        "gear_make": "T3K-Null",
+        "gear_model": "T3K-Null",
+        "tone_type": "T3K-Null",
+        "trainer": "TONE3000",
+        "input_level_dbu": 18.995,
+        "output_level_dbu": 13.195
+      }
+    },
+    {
+      "index": 15,
+      "channel": 2,
+      "file": "Chimera_Reference_Assets_20260928/NAM/zuta-gbg120/[AMP] Zoota.GBG12O-Mar412-CH3 Huge Favorite - DI.nam",
+      "sha256": "37305b2154ab3774e4ec619cec2f7d361667753d9f1a22cd0d2d9301c779fa86",
+      "state": {
+        "channel": 2,
+        "controls": {}
+      },
+      "qualification": "Author describes whole head DI; NAM gear_type=amp_cab conflict unresolved.",
+      "url": "https://www.tone3000.com/tones/zuta-gbg120-77452",
+      "input_level_dbu": 18.995,
+      "metadata": {
+        "date": {
+          "year": 2026,
+          "month": 7,
+          "day": 20,
+          "hour": 14,
+          "minute": 35,
+          "second": 39
+        },
+        "loudness": -15.601326902641503,
+        "gain": 0.8794697215084826,
+        "name": "[AMP] Zoota.GBG12O-Mar412-CH3 Huge Favorite - DI",
+        "modeled_by": "2dor",
+        "gear_type": "amp_cab",
+        "gear_make": "T3K-Null",
+        "gear_model": "T3K-Null",
+        "tone_type": "T3K-Null",
+        "trainer": "TONE3000",
+        "input_level_dbu": 18.995,
+        "output_level_dbu": 13.195
+      }
+    },
+    {
+      "index": 15,
+      "channel": 3,
+      "file": "Chimera_Reference_Assets_20260928/NAM/zuta-gbg120/[AMP] Zoota.GBG12O-Mar412-CH4 Uno Grande - DI.nam",
+      "sha256": "a17fd26d69510fd05606e88291ce9b814e60ed143de808ac017cb0ebec58df80",
+      "state": {
+        "channel": 3,
+        "controls": {}
+      },
+      "qualification": "Author describes whole head DI; NAM gear_type=amp_cab conflict unresolved.",
+      "url": "https://www.tone3000.com/tones/zuta-gbg120-77452",
+      "input_level_dbu": 18.995,
+      "metadata": {
+        "date": {
+          "year": 2026,
+          "month": 7,
+          "day": 20,
+          "hour": 8,
+          "minute": 23,
+          "second": 22
+        },
+        "loudness": -15.923807148661199,
+        "gain": 0.8463901749601918,
+        "name": "[AMP] Zoota.GBG12O-Mar412-CH4 Uno Grande - DI",
+        "modeled_by": "2dor",
+        "gear_type": "amp_cab",
+        "gear_make": "T3K-Null",
+        "gear_model": "T3K-Null",
+        "tone_type": "T3K-Null",
+        "trainer": "TONE3000",
+        "input_level_dbu": 18.995,
+        "output_level_dbu": 13.195
+      }
+    },
+    {
+      "index": 15,
+      "channel": 0,
+      "file": "Chimera_Reference_Assets_20260928/NAM/zuta-gbg120/[AMP] Zoota.GBG12O-Mes412-CH1 Big Hairy Breakup - DI.nam",
+      "sha256": "7bdcbc41c77123b1c0e05dd648e9a74b99dd013971bb93e544dba6d483cab3fd",
+      "state": {
+        "channel": 0,
+        "controls": {}
+      },
+      "qualification": "Author describes whole head DI; NAM gear_type=amp_cab conflict unresolved.",
+      "url": "https://www.tone3000.com/tones/zuta-gbg120-77452",
+      "input_level_dbu": 18.995,
+      "metadata": {
+        "date": {
+          "year": 2026,
+          "month": 7,
+          "day": 15,
+          "hour": 9,
+          "minute": 4,
+          "second": 56
+        },
+        "loudness": -12.603775263903952,
+        "gain": 0.8376832884667095,
+        "name": "[AMP] Zoota.GBG12O-Mes412-CH1 Big Hairy Breakup - DI",
+        "modeled_by": "2dor",
+        "gear_type": "amp_cab",
+        "gear_make": "T3K-Null",
+        "gear_model": "T3K-Null",
+        "tone_type": "T3K-Null",
+        "trainer": "TONE3000",
+        "input_level_dbu": 18.995,
+        "output_level_dbu": 13.195
+      }
+    },
+    {
+      "index": 15,
+      "channel": 1,
+      "file": "Chimera_Reference_Assets_20260928/NAM/zuta-gbg120/[AMP] Zoota.GBG12O-Mes412-CH2 Transylvanian Clay - DI.nam",
+      "sha256": "164ad3f7062a8e659e4fe019bc66a10f730c1157b5b3f71958738e1f076e70c1",
+      "state": {
+        "channel": 1,
+        "controls": {}
+      },
+      "qualification": "Author describes whole head DI; NAM gear_type=amp_cab conflict unresolved.",
+      "url": "https://www.tone3000.com/tones/zuta-gbg120-77452",
+      "input_level_dbu": 18.995,
+      "metadata": {
+        "date": {
+          "year": 2026,
+          "month": 7,
+          "day": 14,
+          "hour": 7,
+          "minute": 23,
+          "second": 10
+        },
+        "loudness": -14.115488077899826,
+        "gain": 0.9592016291544528,
+        "name": "[AMP] Zoota.GBG12O-Mes412-CH2 Transylvanian Clay - DI",
+        "modeled_by": "2dor",
+        "gear_type": "amp_cab",
+        "gear_make": "T3K-Null",
+        "gear_model": "T3K-Null",
+        "tone_type": "T3K-Null",
+        "trainer": "TONE3000",
+        "input_level_dbu": 18.995,
+        "output_level_dbu": 13.195
+      }
+    },
+    {
+      "index": 15,
+      "channel": 2,
+      "file": "Chimera_Reference_Assets_20260928/NAM/zuta-gbg120/[AMP] Zoota.GBG12O-Mes412-CH3 Huge Favorite - DI.nam",
+      "sha256": "0793a37585fd52a8302f0a95081cf143f2ab5d31a56cefaaa0ff2adbda68138a",
+      "state": {
+        "channel": 2,
+        "controls": {}
+      },
+      "qualification": "Author describes whole head DI; NAM gear_type=amp_cab conflict unresolved.",
+      "url": "https://www.tone3000.com/tones/zuta-gbg120-77452",
+      "input_level_dbu": 18.995,
+      "metadata": {
+        "date": {
+          "year": 2026,
+          "month": 7,
+          "day": 14,
+          "hour": 12,
+          "minute": 9,
+          "second": 29
+        },
+        "loudness": -15.46852407187374,
+        "gain": 0.8610189597800856,
+        "name": "[AMP] Zoota.GBG12O-Mes412-CH3 Huge Favorite - DI",
+        "modeled_by": "2dor",
+        "gear_type": "amp_cab",
+        "gear_make": "T3K-Null",
+        "gear_model": "T3K-Null",
+        "tone_type": "T3K-Null",
+        "trainer": "TONE3000",
+        "input_level_dbu": 18.995,
+        "output_level_dbu": 13.195
+      }
+    },
+    {
+      "index": 15,
+      "channel": 3,
+      "file": "Chimera_Reference_Assets_20260928/NAM/zuta-gbg120/[AMP] Zoota.GBG12O-Mes412-CH4 Uno Grande - DI.nam",
+      "sha256": "2f8adccc1e18b1be9b76a984e65929ccedf6a109a647dc04dc24be5394c5808c",
+      "state": {
+        "channel": 3,
+        "controls": {}
+      },
+      "qualification": "Author describes whole head DI; NAM gear_type=amp_cab conflict unresolved.",
+      "url": "https://www.tone3000.com/tones/zuta-gbg120-77452",
+      "input_level_dbu": 18.995,
+      "metadata": {
+        "date": {
+          "year": 2026,
+          "month": 7,
+          "day": 20,
+          "hour": 7,
+          "minute": 13,
+          "second": 50
+        },
+        "loudness": -15.293276003031007,
+        "gain": 0.7954205401044223,
+        "name": "[AMP] Zoota.GBG12O-Mes412-CH4 Uno Grande - DI",
+        "modeled_by": "2dor",
+        "gear_type": "amp_cab",
+        "gear_make": "T3K-Null",
+        "gear_model": "T3K-Null",
+        "tone_type": "T3K-Null",
+        "trainer": "TONE3000",
+        "input_level_dbu": 18.995,
+        "output_level_dbu": 13.195
+      }
+    },
+    {
+      "index": 17,
+      "channel": 0,
+      "file": "Chimera_Reference_Assets_20260928/NAM/diezel-vh4/[AMP] DiZLVH4-CH1 Breakup - DI.nam",
+      "sha256": "a755958f9dfead962acfd4133091f97ab1deb8c7d48bf6ca4f2e3d94d8ab466f",
+      "state": {
+        "channel": 0,
+        "controls": {}
+      },
+      "qualification": "",
+      "url": "https://www.tone3000.com/tones/diezel-vh4-64455",
+      "input_level_dbu": 18.995,
+      "metadata": {
+        "date": {
+          "year": 2026,
+          "month": 6,
+          "day": 10,
+          "hour": 2,
+          "minute": 28,
+          "second": 49
+        },
+        "loudness": -14.033546429077644,
+        "gain": 0.6787658827116811,
+        "name": "[AMP] DiZLVH4-CH1 Breakup - DI",
+        "modeled_by": "2dor",
+        "gear_type": "amp",
+        "gear_make": "Diezel VH4",
+        "gear_model": "Diezel VH4",
+        "tone_type": "clean to mean",
+        "trainer": "TONE3000",
+        "input_level_dbu": 18.995,
+        "output_level_dbu": 13.195
+      }
+    },
+    {
+      "index": 17,
+      "channel": 1,
+      "file": "Chimera_Reference_Assets_20260928/NAM/diezel-vh4/[AMP] DiZLVH4-CH2 Those Bones - DI.nam",
+      "sha256": "502142f58b893fa8ab74c6d39aa094e17cb65a155f17312b59e59760c8227279",
+      "state": {
+        "channel": 1,
+        "controls": {}
+      },
+      "qualification": "",
+      "url": "https://www.tone3000.com/tones/diezel-vh4-64455",
+      "input_level_dbu": 18.995,
+      "metadata": {
+        "date": {
+          "year": 2026,
+          "month": 6,
+          "day": 10,
+          "hour": 1,
+          "minute": 33,
+          "second": 38
+        },
+        "loudness": -24.51653588498467,
+        "gain": 0.8905119580225346,
+        "name": "[AMP] DiZLVH4-CH2 Those Bones - DI",
+        "modeled_by": "2dor",
+        "gear_type": "amp",
+        "gear_make": "Diezel VH4",
+        "gear_model": "Diezel VH4",
+        "tone_type": "clean to mean",
+        "trainer": "TONE3000",
+        "input_level_dbu": 18.995,
+        "output_level_dbu": 13.195
+      }
+    },
+    {
+      "index": 17,
+      "channel": 2,
+      "file": "Chimera_Reference_Assets_20260928/NAM/diezel-vh4/[AMP] DiZLVH4-CH3 Physics - DI.nam",
+      "sha256": "c98039d7a29142bf8ab4f97eeebfa89bbeae066a384ac29fd9abd5f2927956b6",
+      "state": {
+        "channel": 2,
+        "controls": {}
+      },
+      "qualification": "",
+      "url": "https://www.tone3000.com/tones/diezel-vh4-64455",
+      "input_level_dbu": 18.995,
+      "metadata": {
+        "date": {
+          "year": 2026,
+          "month": 6,
+          "day": 10,
+          "hour": 2,
+          "minute": 27,
+          "second": 24
+        },
+        "loudness": -20.083398384425127,
+        "gain": 0.8668710384990231,
+        "name": "[AMP] DiZLVH4-CH3 Physics - DI",
+        "modeled_by": "2dor",
+        "gear_type": "amp",
+        "gear_make": "Diezel VH4",
+        "gear_model": "Diezel VH4",
+        "tone_type": "clean to mean",
+        "trainer": "TONE3000",
+        "input_level_dbu": 18.995,
+        "output_level_dbu": 13.195
+      }
+    },
+    {
+      "index": 17,
+      "channel": 2,
+      "file": "Chimera_Reference_Assets_20260928/NAM/diezel-vh4/[AMP] DiZLVH4-CH3 Potty Time - DI.nam",
+      "sha256": "77b0876b6e394bfbb080664dd64a6b4696a28dae5ae9a85db05e3eaf9689b6ae",
+      "state": {
+        "channel": 2,
+        "controls": {}
+      },
+      "qualification": "",
+      "url": "https://www.tone3000.com/tones/diezel-vh4-64455",
+      "input_level_dbu": 18.995,
+      "metadata": {
+        "date": {
+          "year": 2026,
+          "month": 6,
+          "day": 10,
+          "hour": 1,
+          "minute": 52,
+          "second": 4
+        },
+        "loudness": -17.23232489200564,
+        "gain": 0.8914825768716791,
+        "name": "[AMP] DiZLVH4-CH3 Potty Time - DI",
+        "modeled_by": "2dor",
+        "gear_type": "amp",
+        "gear_make": "Diezel VH4",
+        "gear_model": "Diezel VH4",
+        "tone_type": "clean to mean",
+        "trainer": "TONE3000",
+        "input_level_dbu": 18.995,
+        "output_level_dbu": 13.195
+      }
+    },
+    {
+      "index": 17,
+      "channel": 3,
+      "file": "Chimera_Reference_Assets_20260928/NAM/diezel-vh4/[AMP] DiZLVH4-CH4 Lead the Way - DI.nam",
+      "sha256": "2ec85fabb0f4a7d1478b4cd9da7651a2a36b5aaaf4756aa0508cddda8c47114d",
+      "state": {
+        "channel": 3,
+        "controls": {}
+      },
+      "qualification": "",
+      "url": "https://www.tone3000.com/tones/diezel-vh4-64455",
+      "input_level_dbu": 18.995,
+      "metadata": {
+        "date": {
+          "year": 2026,
+          "month": 6,
+          "day": 10,
+          "hour": 1,
+          "minute": 59,
+          "second": 57
+        },
+        "loudness": -12.880222727669981,
+        "gain": 0.837965352992276,
+        "name": "[AMP] DiZLVH4-CH4 Lead the Way - DI",
+        "modeled_by": "2dor",
+        "gear_type": "amp",
+        "gear_make": "Diezel VH4",
+        "gear_model": "Diezel VH4",
+        "tone_type": "clean to mean",
+        "trainer": "TONE3000",
+        "input_level_dbu": 18.995,
+        "output_level_dbu": 13.195
+      }
+    },
+    {
+      "index": 20,
+      "channel": 0,
+      "file": "Fortin-Evil-Pumpkin/[AMP] FRTN.EVL.PMPKN-Mar4x12-EP Jason Chugs - DI.nam",
+      "sha256": "82ec4908ec2491567803396b68c6ca8aa1616734fe377e8d57da3f3f510fb4b4",
+      "state": {
+        "channel": 0,
+        "controls": {}
+      },
+      "qualification": "",
+      "url": "https://www.tone3000.com/tones/fortin-evil-pumpkin-66260",
+      "input_level_dbu": 18.995,
+      "metadata": {
+        "date": {
+          "year": 2026,
+          "month": 6,
+          "day": 11,
+          "hour": 2,
+          "minute": 6,
+          "second": 10
+        },
+        "loudness": -13.415120203146946,
+        "gain": 0.7895683904688658,
+        "name": "[AMP] FRTN.EVL.PMPKN-Mar4x12-EP Jason Chugs - DI",
+        "modeled_by": "2dor",
+        "gear_type": "amp",
+        "gear_make": "Fortin",
+        "gear_model": "Fortin",
+        "tone_type": "fortin",
+        "trainer": "TONE3000",
+        "input_level_dbu": 18.995,
+        "output_level_dbu": 13.195
+      }
+    },
+    {
+      "index": 20,
+      "channel": 0,
+      "file": "Fortin-Evil-Pumpkin/[AMP] FRTN.EVL.PMPKN-Mar4x12-EP Jason's Settings - DI.nam",
+      "sha256": "57d4f45ba2f7612a86a9e8ceb235593075fa8208943e4839d31184f0c514847f",
+      "state": {
+        "channel": 0,
+        "controls": {}
+      },
+      "qualification": "",
+      "url": "https://www.tone3000.com/tones/fortin-evil-pumpkin-66260",
+      "input_level_dbu": 18.995,
+      "metadata": {
+        "date": {
+          "year": 2026,
+          "month": 6,
+          "day": 11,
+          "hour": 1,
+          "minute": 14,
+          "second": 28
+        },
+        "loudness": -13.944928042629355,
+        "gain": 0.7919350310751786,
+        "name": "[AMP] FRTN.EVL.PMPKN-Mar4x12-EP Jason's Settings - DI",
+        "modeled_by": "2dor",
+        "gear_type": "amp",
+        "gear_make": "Fortin",
+        "gear_model": "Fortin",
+        "tone_type": "fortin",
+        "trainer": "TONE3000",
+        "input_level_dbu": 18.995,
+        "output_level_dbu": 13.195
+      }
+    },
+    {
+      "index": 20,
+      "channel": 1,
+      "file": "Fortin-Evil-Pumpkin/[AMP] FRTN.EVL.PMPKN-Mar4x12-KK Jason Leads - DI.nam",
+      "sha256": "532ecb0c8f5a5f3f3960ed5ceda3dbf2767ee7dce08c2c04638abeac9e07e906",
+      "state": {
+        "channel": 1,
+        "controls": {}
+      },
+      "qualification": "",
+      "url": "https://www.tone3000.com/tones/fortin-evil-pumpkin-66260",
+      "input_level_dbu": 18.995,
+      "metadata": {
+        "date": {
+          "year": 2026,
+          "month": 6,
+          "day": 11,
+          "hour": 0,
+          "minute": 49,
+          "second": 16
+        },
+        "loudness": -15.312638707405545,
+        "gain": 0.8519060024461539,
+        "name": "[AMP] FRTN.EVL.PMPKN-Mar4x12-KK Jason Leads - DI",
+        "modeled_by": "2dor",
+        "gear_type": "amp",
+        "gear_make": "Fortin",
+        "gear_model": "Fortin",
+        "tone_type": "fortin",
+        "trainer": "TONE3000",
+        "input_level_dbu": 18.995,
+        "output_level_dbu": 13.195
+      }
+    },
+    {
+      "index": 20,
+      "channel": 1,
+      "file": "Fortin-Evil-Pumpkin/[AMP] FRTN.EVL.PMPKN-Mar4x12-KK Jason's Settings - DI.nam",
+      "sha256": "3cbd7f4746cbdef5654614bc3c880dbac1fe61b3f31604d43de037d8be595f97",
+      "state": {
+        "channel": 1,
+        "controls": {}
+      },
+      "qualification": "",
+      "url": "https://www.tone3000.com/tones/fortin-evil-pumpkin-66260",
+      "input_level_dbu": 18.995,
+      "metadata": {
+        "date": {
+          "year": 2026,
+          "month": 6,
+          "day": 11,
+          "hour": 1,
+          "minute": 38,
+          "second": 2
+        },
+        "loudness": -14.670147979066206,
+        "gain": 0.8809435271815043,
+        "name": "[AMP] FRTN.EVL.PMPKN-Mar4x12-KK Jason's Settings - DI",
+        "modeled_by": "2dor",
+        "gear_type": "amp",
+        "gear_make": "Fortin",
+        "gear_model": "Fortin",
+        "tone_type": "fortin",
+        "trainer": "TONE3000",
+        "input_level_dbu": 18.995,
+        "output_level_dbu": 13.195
+      }
+    },
+    {
+      "index": 20,
+      "channel": 0,
+      "file": "Fortin-Evil-Pumpkin/[AMP] FRTN.EVL.PMPKN-Mes4x12-EP Jason Chugs - DI.nam",
+      "sha256": "4a6efc44fb04fe7facf2241f6c87388c0e712f75f7030f326e3ef6d13202d459",
+      "state": {
+        "channel": 0,
+        "controls": {}
+      },
+      "qualification": "",
+      "url": "https://www.tone3000.com/tones/fortin-evil-pumpkin-66260",
+      "input_level_dbu": 18.995,
+      "metadata": {
+        "date": {
+          "year": 2026,
+          "month": 6,
+          "day": 11,
+          "hour": 2,
+          "minute": 18,
+          "second": 59
+        },
+        "loudness": -13.105889463095263,
+        "gain": 0.8068324063440434,
+        "name": "[AMP] FRTN.EVL.PMPKN-Mes4x12-EP Jason Chugs - DI",
+        "modeled_by": "2dor",
+        "gear_type": "amp",
+        "gear_make": "Fortin",
+        "gear_model": "Fortin",
+        "tone_type": "fortin",
+        "trainer": "TONE3000",
+        "input_level_dbu": 18.995,
+        "output_level_dbu": 13.195
+      }
+    },
+    {
+      "index": 20,
+      "channel": 0,
+      "file": "Fortin-Evil-Pumpkin/[AMP] FRTN.EVL.PMPKN-Mes4x12-EP Jason's Settings - DI.nam",
+      "sha256": "4a9e027103430eda3f12f9ea3ccb6aa895e7e40fea7e7ecfaf1593d1880fe92c",
+      "state": {
+        "channel": 0,
+        "controls": {}
+      },
+      "qualification": "",
+      "url": "https://www.tone3000.com/tones/fortin-evil-pumpkin-66260",
+      "input_level_dbu": 18.995,
+      "metadata": {
+        "date": {
+          "year": 2026,
+          "month": 6,
+          "day": 11,
+          "hour": 0,
+          "minute": 56,
+          "second": 15
+        },
+        "loudness": -13.742529104993604,
+        "gain": 0.820837243544586,
+        "name": "[AMP] FRTN.EVL.PMPKN-Mes4x12-EP Jason's Settings - DI",
+        "modeled_by": "2dor",
+        "gear_type": "amp",
+        "gear_make": "Fortin",
+        "gear_model": "Fortin",
+        "tone_type": "fortin",
+        "trainer": "TONE3000",
+        "input_level_dbu": 18.995,
+        "output_level_dbu": 13.195
+      }
+    },
+    {
+      "index": 20,
+      "channel": 1,
+      "file": "Fortin-Evil-Pumpkin/[AMP] FRTN.EVL.PMPKN-Mes4x12-KK Jason Leads - DI.nam",
+      "sha256": "fda3a3fc7e1b2f0dbde4133c9647d846413786aac499cb7f0d2db7bfa1a4c04b",
+      "state": {
+        "channel": 1,
+        "controls": {}
+      },
+      "qualification": "",
+      "url": "https://www.tone3000.com/tones/fortin-evil-pumpkin-66260",
+      "input_level_dbu": 18.995,
+      "metadata": {
+        "date": {
+          "year": 2026,
+          "month": 6,
+          "day": 11,
+          "hour": 1,
+          "minute": 16,
+          "second": 19
+        },
+        "loudness": -14.76939327147375,
+        "gain": 0.864065914457233,
+        "name": "[AMP] FRTN.EVL.PMPKN-Mes4x12-KK Jason Leads - DI",
+        "modeled_by": "2dor",
+        "gear_type": "amp",
+        "gear_make": "Fortin",
+        "gear_model": "Fortin",
+        "tone_type": "fortin",
+        "trainer": "TONE3000",
+        "input_level_dbu": 18.995,
+        "output_level_dbu": 13.195
+      }
+    },
+    {
+      "index": 20,
+      "channel": 1,
+      "file": "Fortin-Evil-Pumpkin/[AMP] FRTN.EVL.PMPKN-Mes4x12-KK Jason's Settings - DI.nam",
+      "sha256": "6da638a41d8077c563d2f92382e96d547c0cc4778b837f604ec41884fd42824d",
+      "state": {
+        "channel": 1,
+        "controls": {}
+      },
+      "qualification": "",
+      "url": "https://www.tone3000.com/tones/fortin-evil-pumpkin-66260",
+      "input_level_dbu": 18.995,
+      "metadata": {
+        "date": {
+          "year": 2026,
+          "month": 6,
+          "day": 11,
+          "hour": 1,
+          "minute": 26,
+          "second": 53
+        },
+        "loudness": -13.898935112595112,
+        "gain": 0.8522893494735849,
+        "name": "[AMP] FRTN.EVL.PMPKN-Mes4x12-KK Jason's Settings - DI",
+        "modeled_by": "2dor",
+        "gear_type": "amp",
+        "gear_make": "Fortin",
+        "gear_model": "Fortin",
+        "tone_type": "fortin",
+        "trainer": "TONE3000",
+        "input_level_dbu": 18.995,
+        "output_level_dbu": 13.195
+      }
+    },
+    {
+      "index": 21,
+      "channel": 0,
+      "file": "Expanded-NAM/[AMP] SLO100-NRM-CLN Journeyvan - DI.nam",
+      "sha256": "a8b783768752fd939d52cabceb184da28bcf6561cab05a372b7b6dfb6e39daa2",
+      "state": {
+        "channel": 0,
+        "controls": {
+          "hw.normal.mode": 0
+        }
+      },
+      "qualification": "BAD reissue capture; earlier LTD revision not established",
+      "url": "https://www.tone3000.com/tones/soldano-slo-100-6l6-community-pack-amp-head-64436",
+      "input_level_dbu": 18.995,
+      "metadata": {
+        "date": {
+          "year": 2026,
+          "month": 6,
+          "day": 9,
+          "hour": 16,
+          "minute": 42,
+          "second": 38
+        },
+        "loudness": -13.410151172527456,
+        "gain": 0.168463725530663,
+        "name": "[AMP] SLO100-NRM-CLN Journeyvan - DI",
+        "modeled_by": "2dor",
+        "gear_type": "amp",
+        "gear_make": "SLO100",
+        "gear_model": "SLO100",
+        "tone_type": "clean to mean",
+        "trainer": "TONE3000",
+        "input_level_dbu": 18.995,
+        "output_level_dbu": 13.195
+      }
+    },
+    {
+      "index": 21,
+      "channel": 0,
+      "file": "Expanded-NAM/[AMP] SLO100-NRM-CRN Thing of Joy #01 - DI.nam",
+      "sha256": "727ea77c5c71e53527a24d32826a3c8d45c7271a5c1571001873ab6a8df26f60",
+      "state": {
+        "channel": 0,
+        "controls": {
+          "hw.normal.mode": 1
+        }
+      },
+      "qualification": "BAD reissue capture; earlier LTD revision not established",
+      "url": "https://www.tone3000.com/tones/soldano-slo-100-6l6-community-pack-amp-head-64436",
+      "input_level_dbu": 18.995,
+      "metadata": {
+        "date": {
+          "year": 2026,
+          "month": 6,
+          "day": 9,
+          "hour": 17,
+          "minute": 26,
+          "second": 27
+        },
+        "loudness": -12.467475153170755,
+        "gain": 0.8389709000134201,
+        "name": "[AMP] SLO100-NRM-CRN Thing of Joy #01 - DI",
+        "modeled_by": "2dor",
+        "gear_type": "amp",
+        "gear_make": "SLO100",
+        "gear_model": "SLO100",
+        "tone_type": "clean to mean",
+        "trainer": "TONE3000",
+        "input_level_dbu": 18.995,
+        "output_level_dbu": 13.195
+      }
+    },
+    {
+      "index": 21,
+      "channel": 1,
+      "file": "Expanded-NAM/[AMP] SLO100-OVD The King - DI.nam",
+      "sha256": "a232d1cb7614ce260fa32816d203ce7b89b18af260917da4f24a38cd1c1046d7",
+      "state": {
+        "channel": 1,
+        "controls": {}
+      },
+      "qualification": "BAD reissue capture; earlier LTD revision not established",
+      "url": "https://www.tone3000.com/tones/soldano-slo-100-6l6-community-pack-amp-head-64436",
+      "input_level_dbu": 18.995,
+      "metadata": {
+        "date": {
+          "year": 2026,
+          "month": 6,
+          "day": 9,
+          "hour": 16,
+          "minute": 36,
+          "second": 55
+        },
+        "loudness": -15.883976863277647,
+        "gain": 0.8644936660189508,
+        "name": "[AMP] SLO100-OVD The King - DI",
+        "modeled_by": "2dor",
+        "gear_type": "amp",
+        "gear_make": "SLO100",
+        "gear_model": "SLO100",
+        "tone_type": "clean to mean",
+        "trainer": "TONE3000",
+        "input_level_dbu": 18.995,
+        "output_level_dbu": 13.195
+      }
+    },
+    {
+      "index": 22,
+      "channel": 0,
+      "file": "Expanded-NAM/[AMP] UBER.BLUE-Mar412-CLEAN Cookie - DI.nam",
+      "sha256": "fd33fcbd5cb7fbe7b420c4e3a69139facc245533540969b0d9d1a9cda046eee3",
+      "state": {
+        "channel": 0,
+        "controls": {}
+      },
+      "qualification": "",
+      "url": "https://www.tone3000.com/tones/bogner-uberschall-rev-blue-e34l-amp-head-79751",
+      "input_level_dbu": 18.995,
+      "metadata": {
+        "date": {
+          "year": 2026,
+          "month": 8,
+          "day": 7,
+          "hour": 15,
+          "minute": 57,
+          "second": 14
+        },
+        "loudness": -16.292393565771295,
+        "gain": 0.21744111731455304,
+        "name": "[AMP] UBER.BLUE-Mar412-CLEAN Cookie - DI",
+        "modeled_by": "2dor",
+        "gear_type": "amp_cab",
+        "gear_make": "T3K-Null",
+        "gear_model": "T3K-Null",
+        "tone_type": "T3K-Null",
+        "trainer": "TONE3000",
+        "input_level_dbu": 18.995,
+        "output_level_dbu": 13.195
+      }
+    },
+    {
+      "index": 22,
+      "channel": 0,
+      "file": "Expanded-NAM/[AMP] UBER.BLUE-Mar412-CLEAN Instant gratification - DI.nam",
+      "sha256": "e7bf0ef74d50e1ec5c69da46be312aeb0ddeb10f9feecb231f3e879bfd3dc6e2",
+      "state": {
+        "channel": 0,
+        "controls": {}
+      },
+      "qualification": "",
+      "url": "https://www.tone3000.com/tones/bogner-uberschall-rev-blue-e34l-amp-head-79751",
+      "input_level_dbu": 18.995,
+      "metadata": {
+        "date": {
+          "year": 2026,
+          "month": 8,
+          "day": 7,
+          "hour": 14,
+          "minute": 16,
+          "second": 37
+        },
+        "loudness": -16.200840356943978,
+        "gain": 0.3101883624637372,
+        "name": "[AMP] UBER.BLUE-Mar412-CLEAN Instant gratification - DI",
+        "modeled_by": "2dor",
+        "gear_type": "amp_cab",
+        "gear_make": "T3K-Null",
+        "gear_model": "T3K-Null",
+        "tone_type": "T3K-Null",
+        "trainer": "TONE3000",
+        "input_level_dbu": 18.995,
+        "output_level_dbu": 13.195
+      }
+    },
+    {
+      "index": 22,
+      "channel": 0,
+      "file": "Expanded-NAM/[AMP] UBER.BLUE-Mar412-CLEAN Noon - DI.nam",
+      "sha256": "ba58b67f616c22dbbe8cba9887d83f6473a3c60ab843d4533fcb236ec966f6c8",
+      "state": {
+        "channel": 0,
+        "controls": {}
+      },
+      "qualification": "",
+      "url": "https://www.tone3000.com/tones/bogner-uberschall-rev-blue-e34l-amp-head-79751",
+      "input_level_dbu": 18.995,
+      "metadata": {
+        "date": {
+          "year": 2026,
+          "month": 8,
+          "day": 7,
+          "hour": 14,
+          "minute": 51,
+          "second": 57
+        },
+        "loudness": -18.400189119912547,
+        "gain": 0.13356025196316063,
+        "name": "[AMP] UBER.BLUE-Mar412-CLEAN Noon - DI",
+        "modeled_by": "2dor",
+        "gear_type": "amp_cab",
+        "gear_make": "T3K-Null",
+        "gear_model": "T3K-Null",
+        "tone_type": "T3K-Null",
+        "trainer": "TONE3000",
+        "input_level_dbu": 18.995,
+        "output_level_dbu": 13.195
+      }
+    },
+    {
+      "index": 22,
+      "channel": 1,
+      "file": "Expanded-NAM/[AMP] UBER.BLUE-Mar412-LEAD Anthem - DI.nam",
+      "sha256": "b87f80151edba641d6f8c41b08a030b7f50a26ea5ea20a29debd075c3e54ec18",
+      "state": {
+        "channel": 1,
+        "controls": {}
+      },
+      "qualification": "",
+      "url": "https://www.tone3000.com/tones/bogner-uberschall-rev-blue-e34l-amp-head-79751",
+      "input_level_dbu": 18.995,
+      "metadata": {
+        "date": {
+          "year": 2026,
+          "month": 8,
+          "day": 7,
+          "hour": 17,
+          "minute": 16,
+          "second": 41
+        },
+        "loudness": -15.062541652536716,
+        "gain": 0.8720226954417174,
+        "name": "[AMP] UBER.BLUE-Mar412-LEAD Anthem - DI",
+        "modeled_by": "2dor",
+        "gear_type": "amp_cab",
+        "gear_make": "T3K-Null",
+        "gear_model": "T3K-Null",
+        "tone_type": "T3K-Null",
+        "trainer": "TONE3000",
+        "input_level_dbu": 18.995,
+        "output_level_dbu": 13.195
+      }
+    },
+    {
+      "index": 22,
+      "channel": 1,
+      "file": "Expanded-NAM/[AMP] UBER.BLUE-Mar412-LEAD Basher - DI.nam",
+      "sha256": "ec47c856e5fd6278f673ca2afa10cfa22607f30df64328afa1f03102f02e3214",
+      "state": {
+        "channel": 1,
+        "controls": {}
+      },
+      "qualification": "",
+      "url": "https://www.tone3000.com/tones/bogner-uberschall-rev-blue-e34l-amp-head-79751",
+      "input_level_dbu": 18.995,
+      "metadata": {
+        "date": {
+          "year": 2026,
+          "month": 8,
+          "day": 7,
+          "hour": 19,
+          "minute": 16,
+          "second": 39
+        },
+        "loudness": -14.932728259221484,
+        "gain": 0.8706445404678653,
+        "name": "[AMP] UBER.BLUE-Mar412-LEAD Basher - DI",
+        "modeled_by": "2dor",
+        "gear_type": "amp_cab",
+        "gear_make": "T3K-Null",
+        "gear_model": "T3K-Null",
+        "tone_type": "T3K-Null",
+        "trainer": "TONE3000",
+        "input_level_dbu": 18.995,
+        "output_level_dbu": 13.195
+      }
+    },
+    {
+      "index": 22,
+      "channel": 1,
+      "file": "Expanded-NAM/[AMP] UBER.BLUE-Mar412-LEAD Blue Lights - DI.nam",
+      "sha256": "79910031161d1a6850173a6bee284dec88994a037deccd7af121123de33ea4c4",
+      "state": {
+        "channel": 1,
+        "controls": {}
+      },
+      "qualification": "",
+      "url": "https://www.tone3000.com/tones/bogner-uberschall-rev-blue-e34l-amp-head-79751",
+      "input_level_dbu": 18.995,
+      "metadata": {
+        "date": {
+          "year": 2026,
+          "month": 8,
+          "day": 7,
+          "hour": 17,
+          "minute": 33,
+          "second": 43
+        },
+        "loudness": -15.71313206204082,
+        "gain": 0.8702105521160897,
+        "name": "[AMP] UBER.BLUE-Mar412-LEAD Blue Lights - DI",
+        "modeled_by": "2dor",
+        "gear_type": "amp_cab",
+        "gear_make": "T3K-Null",
+        "gear_model": "T3K-Null",
+        "tone_type": "T3K-Null",
+        "trainer": "TONE3000",
+        "input_level_dbu": 18.995,
+        "output_level_dbu": 13.195
+      }
+    },
+    {
+      "index": 22,
+      "channel": 1,
+      "file": "Expanded-NAM/[AMP] UBER.BLUE-Mar412-LEAD Clover - DI.nam",
+      "sha256": "7cdf8a13641fcd29427be15952721feca5178a7bc23a3f268692d3969d5e5728",
+      "state": {
+        "channel": 1,
+        "controls": {}
+      },
+      "qualification": "",
+      "url": "https://www.tone3000.com/tones/bogner-uberschall-rev-blue-e34l-amp-head-79751",
+      "input_level_dbu": 18.995,
+      "metadata": {
+        "date": {
+          "year": 2026,
+          "month": 8,
+          "day": 7,
+          "hour": 16,
+          "minute": 34,
+          "second": 21
+        },
+        "loudness": -19.097799093859372,
+        "gain": 0.8957745210768447,
+        "name": "[AMP] UBER.BLUE-Mar412-LEAD Clover - DI",
+        "modeled_by": "2dor",
+        "gear_type": "amp_cab",
+        "gear_make": "T3K-Null",
+        "gear_model": "T3K-Null",
+        "tone_type": "T3K-Null",
+        "trainer": "TONE3000",
+        "input_level_dbu": 18.995,
+        "output_level_dbu": 13.195
+      }
+    },
+    {
+      "index": 22,
+      "channel": 1,
+      "file": "Expanded-NAM/[AMP] UBER.BLUE-Mar412-LEAD Cookie - DI.nam",
+      "sha256": "5823df032e18434ebb1137390059f4f37bb7f7c43366441fb04bb5c11ddb8985",
+      "state": {
+        "channel": 1,
+        "controls": {}
+      },
+      "qualification": "",
+      "url": "https://www.tone3000.com/tones/bogner-uberschall-rev-blue-e34l-amp-head-79751",
+      "input_level_dbu": 18.995,
+      "metadata": {
+        "date": {
+          "year": 2026,
+          "month": 8,
+          "day": 7,
+          "hour": 15,
+          "minute": 41,
+          "second": 37
+        },
+        "loudness": -17.76322220954113,
+        "gain": 0.8756653735997755,
+        "name": "[AMP] UBER.BLUE-Mar412-LEAD Cookie - DI",
+        "modeled_by": "2dor",
+        "gear_type": "amp_cab",
+        "gear_make": "T3K-Null",
+        "gear_model": "T3K-Null",
+        "tone_type": "T3K-Null",
+        "trainer": "TONE3000",
+        "input_level_dbu": 18.995,
+        "output_level_dbu": 13.195
+      }
+    },
+    {
+      "index": 22,
+      "channel": 1,
+      "file": "Expanded-NAM/[AMP] UBER.BLUE-Mar412-LEAD Darkness - DI.nam",
+      "sha256": "c765ea474771db1395091e09003fdceab12d8b4233f456f2988690aba607557e",
+      "state": {
+        "channel": 1,
+        "controls": {}
+      },
+      "qualification": "",
+      "url": "https://www.tone3000.com/tones/bogner-uberschall-rev-blue-e34l-amp-head-79751",
+      "input_level_dbu": 18.995,
+      "metadata": {
+        "date": {
+          "year": 2026,
+          "month": 8,
+          "day": 7,
+          "hour": 18,
+          "minute": 45,
+          "second": 27
+        },
+        "loudness": -16.393710319956266,
+        "gain": 0.8798048263709114,
+        "name": "[AMP] UBER.BLUE-Mar412-LEAD Darkness - DI",
+        "modeled_by": "2dor",
+        "gear_type": "amp_cab",
+        "gear_make": "T3K-Null",
+        "gear_model": "T3K-Null",
+        "tone_type": "T3K-Null",
+        "trainer": "TONE3000",
+        "input_level_dbu": 18.995,
+        "output_level_dbu": 13.195
+      }
+    },
+    {
+      "index": 22,
+      "channel": 1,
+      "file": "Expanded-NAM/[AMP] UBER.BLUE-Mar412-LEAD Glazed - DI.nam",
+      "sha256": "b7e56441cf437ffdc6850e742f9c1109c2f727d05c47dee9bcbfda650a987b6a",
+      "state": {
+        "channel": 1,
+        "controls": {}
+      },
+      "qualification": "",
+      "url": "https://www.tone3000.com/tones/bogner-uberschall-rev-blue-e34l-amp-head-79751",
+      "input_level_dbu": 18.995,
+      "metadata": {
+        "date": {
+          "year": 2026,
+          "month": 8,
+          "day": 7,
+          "hour": 16,
+          "minute": 37,
+          "second": 59
+        },
+        "loudness": -17.889937075770902,
+        "gain": 0.895720757750007,
+        "name": "[AMP] UBER.BLUE-Mar412-LEAD Glazed - DI",
+        "modeled_by": "2dor",
+        "gear_type": "amp_cab",
+        "gear_make": "T3K-Null",
+        "gear_model": "T3K-Null",
+        "tone_type": "T3K-Null",
+        "trainer": "TONE3000",
+        "input_level_dbu": 18.995,
+        "output_level_dbu": 13.195
+      }
+    },
+    {
+      "index": 22,
+      "channel": 1,
+      "file": "Expanded-NAM/[AMP] UBER.BLUE-Mar412-LEAD Holly Rocks - DI.nam",
+      "sha256": "e7fd99ce548a6712ff18dd3af62604ba10206e8acf7a659fb60779f2dc82a1de",
+      "state": {
+        "channel": 1,
+        "controls": {}
+      },
+      "qualification": "",
+      "url": "https://www.tone3000.com/tones/bogner-uberschall-rev-blue-e34l-amp-head-79751",
+      "input_level_dbu": 18.995,
+      "metadata": {
+        "date": {
+          "year": 2026,
+          "month": 8,
+          "day": 7,
+          "hour": 19,
+          "minute": 1,
+          "second": 20
+        },
+        "loudness": -15.444419811667384,
+        "gain": 0.8754236847095406,
+        "name": "[AMP] UBER.BLUE-Mar412-LEAD Holly Rocks - DI",
+        "modeled_by": "2dor",
+        "gear_type": "amp_cab",
+        "gear_make": "T3K-Null",
+        "gear_model": "T3K-Null",
+        "tone_type": "T3K-Null",
+        "trainer": "TONE3000",
+        "input_level_dbu": 18.995,
+        "output_level_dbu": 13.195
+      }
+    },
+    {
+      "index": 22,
+      "channel": 1,
+      "file": "Expanded-NAM/[AMP] UBER.BLUE-Mar412-LEAD Instant gratification - DI.nam",
+      "sha256": "ba7c0de439ca8d672b38c222e1f0f04026708183d55fb75bec8d86fbef0c3484",
+      "state": {
+        "channel": 1,
+        "controls": {}
+      },
+      "qualification": "",
+      "url": "https://www.tone3000.com/tones/bogner-uberschall-rev-blue-e34l-amp-head-79751",
+      "input_level_dbu": 18.995,
+      "metadata": {
+        "date": {
+          "year": 2026,
+          "month": 8,
+          "day": 7,
+          "hour": 14,
+          "minute": 40,
+          "second": 35
+        },
+        "loudness": -15.324019492656781,
+        "gain": 0.87636381460011,
+        "name": "[AMP] UBER.BLUE-Mar412-LEAD Instant gratification - DI",
+        "modeled_by": "2dor",
+        "gear_type": "amp_cab",
+        "gear_make": "T3K-Null",
+        "gear_model": "T3K-Null",
+        "tone_type": "T3K-Null",
+        "trainer": "TONE3000",
+        "input_level_dbu": 18.995,
+        "output_level_dbu": 13.195
+      }
+    },
+    {
+      "index": 22,
+      "channel": 1,
+      "file": "Expanded-NAM/[AMP] UBER.BLUE-Mar412-LEAD Noon - DI.nam",
+      "sha256": "75a0135333df439294cbb0f4224665fc31c8b11f8d1310357b9d04cc4ad2b608",
+      "state": {
+        "channel": 1,
+        "controls": {}
+      },
+      "qualification": "",
+      "url": "https://www.tone3000.com/tones/bogner-uberschall-rev-blue-e34l-amp-head-79751",
+      "input_level_dbu": 18.995,
+      "metadata": {
+        "date": {
+          "year": 2026,
+          "month": 8,
+          "day": 7,
+          "hour": 13,
+          "minute": 48,
+          "second": 36
+        },
+        "loudness": -15.248622486007338,
+        "gain": 0.871680950795865,
+        "name": "[AMP] UBER.BLUE-Mar412-LEAD Noon - DI",
+        "modeled_by": "2dor",
+        "gear_type": "amp_cab",
+        "gear_make": "T3K-Null",
+        "gear_model": "T3K-Null",
+        "tone_type": "T3K-Null",
+        "trainer": "TONE3000",
+        "input_level_dbu": 18.995,
+        "output_level_dbu": 13.195
+      }
+    },
+    {
+      "index": 22,
+      "channel": 1,
+      "file": "Expanded-NAM/[AMP] UBER.BLUE-Mar412-LEAD Rosemary - DI.nam",
+      "sha256": "b251d10ffe8618a6817cf0fd673c0de80a84aaed89e0a13cf4c1e68a2f1b2dee",
+      "state": {
+        "channel": 1,
+        "controls": {}
+      },
+      "qualification": "",
+      "url": "https://www.tone3000.com/tones/bogner-uberschall-rev-blue-e34l-amp-head-79751",
+      "input_level_dbu": 18.995,
+      "metadata": {
+        "date": {
+          "year": 2026,
+          "month": 8,
+          "day": 7,
+          "hour": 18,
+          "minute": 35,
+          "second": 43
+        },
+        "loudness": -17.099556161863802,
+        "gain": 0.8598069980178534,
+        "name": "[AMP] UBER.BLUE-Mar412-LEAD Rosemary - DI",
+        "modeled_by": "2dor",
+        "gear_type": "amp_cab",
+        "gear_make": "T3K-Null",
+        "gear_model": "T3K-Null",
+        "tone_type": "T3K-Null",
+        "trainer": "TONE3000",
+        "input_level_dbu": 18.995,
+        "output_level_dbu": 13.195
+      }
+    },
+    {
+      "index": 22,
+      "channel": 1,
+      "file": "Expanded-NAM/[AMP] UBER.BLUE-Mar412-LEAD Striptaser - DI.nam",
+      "sha256": "9eea7571d0527ace2b2352b1676189e19ecd037c4b960828ab94aa6751794271",
+      "state": {
+        "channel": 1,
+        "controls": {}
+      },
+      "qualification": "",
+      "url": "https://www.tone3000.com/tones/bogner-uberschall-rev-blue-e34l-amp-head-79751",
+      "input_level_dbu": 18.995,
+      "metadata": {
+        "date": {
+          "year": 2026,
+          "month": 8,
+          "day": 3,
+          "hour": 11,
+          "minute": 53,
+          "second": 19
+        },
+        "loudness": -16.195142422455742,
+        "gain": 0.8776856670866163,
+        "name": "[AMP] UBER.BLUE-Mar412-LEAD Striptaser - DI",
+        "modeled_by": "2dor",
+        "gear_type": "amp_cab",
+        "gear_make": "T3K-Null",
+        "gear_model": "T3K-Null",
+        "tone_type": "T3K-Null",
+        "trainer": "TONE3000",
+        "input_level_dbu": 18.995,
+        "output_level_dbu": 13.195
+      }
+    },
+    {
+      "index": 22,
+      "channel": 1,
+      "file": "Expanded-NAM/[AMP] UBER.BLUE-Mes412-LEAD Striptaser - DI.nam",
+      "sha256": "86189a1e0f0cdcafa3ed45886272da8e0431363c7db51565dd7d3ae672b368a2",
+      "state": {
+        "channel": 1,
+        "controls": {}
+      },
+      "qualification": "",
+      "url": "https://www.tone3000.com/tones/bogner-uberschall-rev-blue-e34l-amp-head-79751",
+      "input_level_dbu": 18.995,
+      "metadata": {
+        "date": {
+          "year": 2026,
+          "month": 8,
+          "day": 3,
+          "hour": 11,
+          "minute": 45,
+          "second": 35
+        },
+        "loudness": -16.54868436346904,
+        "gain": 0.884012316239386,
+        "name": "[AMP] UBER.BLUE-Mes412-LEAD Striptaser - DI",
+        "modeled_by": "2dor",
+        "gear_type": "amp_cab",
+        "gear_make": "T3K-Null",
+        "gear_model": "T3K-Null",
+        "tone_type": "T3K-Null",
+        "trainer": "TONE3000",
+        "input_level_dbu": 18.995,
+        "output_level_dbu": 13.195
+      }
+    },
+    {
+      "index": 19,
+      "channel": 0,
+      "file": "Expanded-NAM/Sunn Lucky Number 7 Capture No Cab.nam",
+      "sha256": "e82d934b11e7661f4e3a83f7c45b99d10ca6754a0d46098d6f41e72f36980890",
+      "state": {
+        "channel": 0,
+        "controls": {
+          "hw.normal": 0.7,
+          "hw.brilliant": 0.7,
+          "hw.bass": 0.7,
+          "hw.midrange": 0.7,
+          "hw.treble": 0.7,
+          "hw.master": 0.7
+        }
+      },
+      "qualification": "Capture generation unspecified; not verified against the 1970s target. Comparison only, no correction applied.",
+      "url": "https://www.tone3000.com/tones/sunn-model-t-of-doom-head-only-38567",
+      "input_level_dbu": 12,
+      "metadata": {
+        "date": {
+          "year": 2026,
+          "month": 5,
+          "day": 11,
+          "hour": 2,
+          "minute": 7,
+          "second": 55
+        },
+        "loudness": -16.874855041503906,
+        "gain": 0.8619612784654309,
+        "input_level_dbu": 12,
+        "output_level_dbu": 10,
+        "name": "Sunn Lucky Number 7 Capture No Cab",
+        "modeled_by": "anthonygaroutte",
+        "training": {
+          "data": {
+            "checks": {
+              "passed": true,
+              "version": 3
+            },
+            "latency": {
+              "manual": null,
+              "calibration": {
+                "delays": [
+                  -3
+                ],
+                "warnings": {
+                  "matches_lookahead": false,
+                  "disagreement_too_high": false
+                },
+                "recommended": -4,
+                "safety_factor": 1,
+                "algorithm_version": 1
+              }
+            }
+          },
+          "settings": {
+            "ignore_checks": false
+          },
+          "validation_esr": 0.010918051024124263
+        },
+        "gear_make": "Sunn Model T",
+        "gear_model": "Sunn Model T",
+        "tone_type": "does it doom",
+        "gear_type": "amp"
+      }
+    }
+  ],
+  "unavailable": [
+    {
+      "index": 14,
+      "reason": "No exact EICH T900 NAM obtained."
+    },
+    {
+      "index": 18,
+      "reason": "Located captures are modified SVT-CL, preamp-only or include cabinet; no stock full-head reference obtained."
+    },
+    {
+      "index": 23,
+      "reason": "No exact E670FE NAM obtained; Ironball is not a substitute."
+    }
+  ],
+  "excluded": [
+    {
+      "index": 16,
+      "reason": "Discarded model; explicitly excluded by user."
+    }
+  ]
+}

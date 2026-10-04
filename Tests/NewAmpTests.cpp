@@ -13,7 +13,7 @@
 namespace {
 using namespace spectralforge;
 constexpr std::array<int, 8> channelCounts{{4, 2, 4, 1, 3, 3, 1, 2}};
-constexpr std::array<int, 8> defaultChannels{{0, 1, 2, 0, 2, 0, 0, 1}};
+constexpr std::array<int, 8> defaultChannels{{2, 1, 2, 0, 2, 0, 0, 1}};
 void require(bool condition, const std::string& message)
 {
     if (!condition) throw std::runtime_error(message);

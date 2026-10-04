@@ -1,0 +1,10 @@
+PASS: stable 0..14 indices; eight appended models, 20 native channels, defaults, names and channel clamping
+MEASURE new amp matrix: 160 rate/channel/OS cases, three stereo/block arrangements each; peak 0.947821, partition residual 1.2517e-06, stereo residual 0
+PASS: all native channels, 48/96 kHz, 1x/2x/4x/8x, 64/257 samples, finite bounds, silence, stereo isolation and tone/drive corners
+MEASURE minimum RMS-matched residual: default voices 0.265863, native channels 0.399384, drive .05/.95 0.0809263
+PASS: native channels and new default voices differ beyond output level; drive changes waveform shape
+MEASURE reset residual 0, maximum conditioned-history residual 0.97407, worst recovered residual/cold RMS 3.9208e-05
+PASS: exact reset, signal-history response and two-second recovery for all native channels at .8/1 drive (combined filter/nonlinear state; not isolated sag measurement)
+PASS: repeated host parameter updates preserve samples; rapid native-channel changes stay bounded and reset installs the final route
+MEASURE sustained 997 Hz loud/quiet RMS ratio: minimum 1.07909, maximum 13.1344; maximum loud-output DC 9.66613e-05
+PASS: all 20 native routes preserve the integrated 1.05 < loud/quiet RMS < 21 and DC < .001 gates at full drive
