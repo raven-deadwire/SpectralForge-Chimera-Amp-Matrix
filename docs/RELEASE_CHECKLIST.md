@@ -1,3 +1,9 @@
+# 1.1.1 preparation
+
+Use [RELEASE_1_1_1_PREPARATION.md](RELEASE_1_1_1_PREPARATION.md) and policy v4 profile `beta_1_1_1`. Transpose improvement goals are deferred by the user; other release gates remain required.
+
+The previous publication instructions below describe the already published 1.1.0 beta and must not be used to publish 1.1.1.
+
 # Open Beta 1.1 release handoff
 
 Target: **SpectralForge Chimera**, `1.1.0-beta.1`, tag `v1.1.0-beta.1`.
@@ -39,3 +45,4 @@ The macOS universal job pins `macos-15`; the macOS 14 hosted image enters schedu
 ## Authorized Beta 1.1 publication
 
 Push the reviewed versioned source to `release/open-beta-1.1`. `publish-beta11.yml` runs the existing three-platform build, packaging and validation gates, then verifies the exact run/commit/artifact SHA-256 and publishes `v1.1.0-beta.1` as a prerelease. Existing tags and assets are never replaced. Personal IR/NAM bundles remain excluded. The prior Beta 1.0 publisher remains pinned to its original release and is not reused as a build target.
+

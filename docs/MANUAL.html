@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>SpectralForge Chimera — Open Beta 1.1 Manual</title>
+<title>SpectralForge Chimera — Open Beta 1.1.1 Manual</title>
 <style>
 :root{color-scheme:dark;--bg:#0d1115;--panel:#171d23;--panel2:#202831;--fg:#edf1f4;--muted:#aeb9c2;--line:#34414c;--gold:#d9bd7d;--blue:#a9d2e8;--warn:#e5bc75}
 *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.68 system-ui,-apple-system,"Segoe UI","Noto Sans KR",sans-serif}
@@ -27,7 +27,7 @@ footer{border-top:1px solid var(--line);margin-top:58px;padding-top:22px;color:v
 </style>
 </head>
 <body><main>
-<header><div class="topbar"><div><div class="eyebrow">SPECTRALFORGE · RAVENFORGE LUTHIER INTELLIGENCE</div><h1>CHIMERA</h1><p class="lead" data-k="subtitle"></p><p class="small">Open Beta 1.1 · <code>1.1.0-beta.1</code> · <span data-k="counts"></span></p></div>
+<header><div class="topbar"><div><div class="eyebrow">SPECTRALFORGE · RAVENFORGE LUTHIER INTELLIGENCE</div><h1>CHIMERA</h1><p class="lead" data-k="subtitle"></p><p class="small">Open Beta 1.1.1 · <code>1.1.1-beta.1</code> · <span data-k="counts"></span></p></div>
 <div class="languages" aria-label="Language"><button class="lang-btn" data-lang="en">EN</button><button class="lang-btn" data-lang="de">DE</button><button class="lang-btn" data-lang="ko">KR</button></div></div></header>
 <nav><a href="#quick" data-k="navQuick"></a><a href="#install" data-x="navInstall"></a><a href="#operation" data-x="navOperation"></a><a href="#signal" data-k="navSignal"></a><a href="#compare" data-k="navCompare"></a><a href="#pre" data-k="navPre"></a><a href="#amps" data-k="navAmp"></a><a href="#post" data-k="navPost"></a><a href="#ir" data-k="navIr"></a><a href="#workflows" data-k="navWorkflow"></a><a href="#preset" data-k="navPreset"></a><a href="#global" data-k="navGlobal"></a><a href="#host" data-x="navHost"></a><a href="#diag" data-k="navDiag"></a><a href="#limits" data-k="navLimits"></a></nav>
 <p class="note" data-k="referenceNote"></p>
@@ -47,7 +47,7 @@ footer{border-top:1px solid var(--line);margin-top:58px;padding-top:22px;color:v
 <section id="host"><h2 data-x="hostTitle"></h2><p class="section-intro" data-x="hostIntro"></p><h3 data-x="hostCheckTitle"></h3><div id="hostCheckBody"></div><h3 data-x="updateTitle"></h3><div id="updateBody"></div><h3 data-x="bugTitle"></h3><div id="bugBody"></div></section>
 <section id="diag"><h2 data-k="diagTitle"></h2><div id="diagBody"></div></section>
 <section id="limits"><h2 data-k="limitsTitle"></h2><div id="limitsBody"></div></section>
-<footer><p>SpectralForge Chimera · Open Beta 1.1 · <code>1.1.0-beta.1</code><br>Copyright © 2026 RavenForge Luthier Intelligence. All rights reserved.<br><span data-k="footer"></span></p></footer>
+<footer><p>SpectralForge Chimera · Open Beta 1.1.1 · <code>1.1.1-beta.1</code><br>Copyright © 2026 RavenForge Luthier Intelligence. All rights reserved.<br><span data-k="footer"></span></p></footer>
 </main>
 <script>
 (function(){
@@ -166,7 +166,7 @@ requirements:[
 ['Display','The editor is 1180 × 780 at 100%. 75% mode is approximately 885 × 585; 1280 × 800 or larger is a practical minimum display recommendation, with 1920 × 1080 or larger preferred.'],
 ['Memory','No certified hard RAM minimum has been established. 8 GB system RAM is a practical baseline; 16 GB or more is recommended for normal DAW projects, multiple Chimera instances and large sample-based sessions.'],
 ['CPU recommendation','A modern 64-bit CPU with strong single-core performance and 4 or more cores is a practical baseline. 6–8 or more cores provide more session headroom for multiple plugin instances; macOS Intel remains supported, while Apple Silicon generally offers more real-time headroom.'],
-['Storage','Open Beta 1.1 installer downloads are about 40 MB on Windows/Linux and 125 MB on macOS. Keep additional free space for installation, update copies, user IRs and DAW projects; 500 MB free beyond the installer is a practical minimum reserve.'],
+['Storage','Open Beta 1.1.1 installer downloads are about 40 MB on Windows/Linux and 125 MB on macOS. Keep additional free space for installation, update copies, user IRs and DAW projects; 500 MB free beyond the installer is a practical minimum reserve.'],
 ['Audio I/O','For live guitar/bass/vocal input, use an audio interface or system audio device with a stable low-latency driver/API. Physical microphone gain and +48 V remain functions of the interface, not Chimera.']
 ],
 performance:[
@@ -384,7 +384,7 @@ requirements:[
 ['화면','100% UI는 1180 × 780, 75%는 약 885 × 585입니다. 실사용 기준 최소 1280 × 800 정도를 권장하고, 1920 × 1080 이상이면 가장 편합니다.'],
 ['메모리','공식적으로 인증된 최소 RAM은 아직 정하지 않았습니다. 시스템 RAM 8 GB를 실사용 기준선으로 보고, 일반 DAW 프로젝트·다중 Chimera 인스턴스·샘플 기반 작업에는 16 GB 이상을 권장합니다.'],
 ['CPU 권장','강한 single-core 성능을 가진 현대적인 64-bit CPU와 4코어 이상을 실사용 기준선으로 봅니다. 여러 Chimera 인스턴스를 사용할 경우 6–8코어 이상이 유리합니다. macOS Intel도 지원하지만 실시간 여유는 대체로 Apple Silicon 쪽이 더 큽니다.'],
-['저장공간','Open Beta 1.1 다운로드 크기는 Windows/Linux 약 40 MB, macOS 약 125 MB입니다. 설치·업데이트 복사본·User IR·DAW 프로젝트를 위해 installer 외에 최소 약 500 MB 이상의 여유 공간을 두는 것을 권장합니다.'],
+['저장공간','Open Beta 1.1.1 다운로드 크기는 Windows/Linux 약 40 MB, macOS 약 125 MB입니다. 설치·업데이트 복사본·User IR·DAW 프로젝트를 위해 installer 외에 최소 약 500 MB 이상의 여유 공간을 두는 것을 권장합니다.'],
 ['오디오 I/O','기타·베이스·보컬을 실시간 입력하려면 안정적인 저지연 드라이버/API를 지원하는 오디오 인터페이스 또는 시스템 오디오 장치를 사용합니다. 실제 마이크 게인과 +48 V는 Chimera가 아니라 인터페이스가 담당합니다.']
 ],
 performance:[
@@ -1184,7 +1184,7 @@ const CANDIDATE111={
  ['Blackhearted','데쓰메탈 리듬 · Matrix 140 Hz / 1.8 kHz','Clean LOW + Fourfold MID + Night Harvest HIGH → Console Four EQ. Yellow Asym은 MID/HIGH에 적용됩니다.'],
  ['Dark Matters of Throne','데쓰메탈 리듬 · Matrix 160 Hz / 1.5 kHz','Clean LOW + Blue Storm MID + Night Harvest HIGH → Iron Colour · Passive Tube EQ. Obsession은 MID/HIGH에 적용됩니다.']],
  recall:'Raven / Guitar 메뉴에서 선택합니다. 전체 파라미터를 초기화하므로 이전 페달·앰프·POST 설정이 남지 않습니다. INPUT, tempo, tuner도 초기값으로 돌아갑니다. 같은 내장 V30/SM57 IR로 시작하며 상태 파일과 A/B에 곡 ID와 IR 정보가 저장됩니다. 레벨은 합성 입력으로만 예비 보정했습니다.',
- pitch:'Transpose는 저역 에너지 계산과 바이패스 잔향의 피치 유지가 수정됐습니다. 지속 연주의 FFT 창 지연은 아직 44.1 kHz 46.4 ms, 48/96 kHz 42.7 ms입니다. 라이브 10 ms 목표와 실제 DI의 어택·코드 분리도는 검증 중입니다.',
+ pitch:'Transpose는 저역 에너지 계산과 바이패스 잔향의 피치 유지가 수정됐습니다. 지속 연주의 FFT 창 지연은 아직 44.1 kHz 46.4 ms, 48/96 kHz 42.7 ms입니다. 저지연·음질 개선은 1.1.1 이후 장기 과제입니다. 베이스 B현 −2반음에서 음의 몸통과 연속 어택이 뭉개진다는 실연 피드백이 있습니다. 해당 연주에서는 Transpose를 끄고 실제 튜닝을 사용하세요.',
  gain:'레벨 비교 전 INPUT/OUTPUT와 각 앰프의 OUTPUT LEVEL을 확인하세요. 기본 OUTPUT은 −6 dB, 일반 Factory recall은 −9 dB부터 시작합니다. native 앰프에서는 소프트웨어 OUTPUT LEVEL이 유효합니다. GR은 컴프레서 내부 감쇠량이며 dry blend와 출력 노브까지 포함한 총 레벨 변화가 아닙니다.'},
  en:{note:'Integrated 1.1.1 test candidate. Guitar signatures are starting points pending isolated-DI listening and actual DAW acceptance. Factory 31 and Bass Signature 3 remain unchanged.',headers:['Song','Role / mode','PRE · AMP · POST'],rows:[
  ['A Path To Alsatia','Power-metal solo · Dual','Studio FET → Gold Drive → Hot Lead / Liquid Lead → FET Limiter · Inductor EQ · 229 Delay · Plate'],
@@ -1192,7 +1192,7 @@ const CANDIDATE111={
  ['Blackhearted','Death-metal rhythm · Matrix 140 Hz / 1.8 kHz','Clean LOW + Fourfold MID + Night Harvest HIGH → Console Four EQ. Yellow Asym feeds MID/HIGH.'],
  ['Dark Matters of Throne','Death-metal rhythm · Matrix 160 Hz / 1.5 kHz','Clean LOW + Blue Storm MID + Night Harvest HIGH → Iron Colour · Passive Tube EQ. Obsession feeds MID/HIGH.']],
  recall:'Select Raven / Guitar. Complete parameter initialization clears prior pedal, amp and POST banks, and also resets INPUT, tempo and tuner. All four start with the same embedded V30/SM57 IR. Song identity and IR metadata survive state files and A/B. Initial level compensation uses synthetic input only.',
- pitch:'Transpose corrects low-bin energy accounting and retains the outgoing ratio during bypass fades. Steady-state FFT window delay remains 46.4 ms at 44.1 kHz and 42.7 ms at 48/96 kHz. The live 10 ms target, real-DI transient clarity and chord separation remain under validation.',
+ pitch:'Transpose corrects low-bin energy accounting and retains the outgoing ratio during bypass fades. Steady-state FFT window delay remains 46.4 ms at 44.1 kHz and 42.7 ms at 48/96 kHz. Latency and sound-quality improvements are deferred beyond 1.1.1. Bass B-string playing at -2 semitones has been reported to lose note body and attack separation. Turn Transpose off and retune when this affects your playing.',
  gain:'Check INPUT/OUTPUT and each native amp OUTPUT LEVEL before level matching. Default OUTPUT is −6 dB; ordinary Factory recall starts at −9 dB. Native amps use their software OUTPUT LEVEL. GR reports internal compressor attenuation, excluding dry blend and output gain.'},
  de:{note:'Integrierter Testkandidat für 1.1.1. Die Gitarren-Signatures sind Ausgangspunkte; DI-Hörvergleich und echte DAW-Prüfung stehen aus. Factory 31 und Bass Signature 3 bleiben erhalten.',headers:['Song','Rolle / Modus','PRE · AMP · POST'],rows:[
  ['A Path To Alsatia','Power-Metal-Solo · Dual','Studio FET → Gold Drive → Hot Lead / Liquid Lead → FET Limiter · Inductor EQ · 229 Delay · Plate'],
@@ -1200,7 +1200,7 @@ const CANDIDATE111={
  ['Blackhearted','Death-Metal-Rhythmus · Matrix 140 Hz / 1,8 kHz','Clean LOW + Fourfold MID + Night Harvest HIGH → Console Four EQ. Yellow Asym bearbeitet MID/HIGH.'],
  ['Dark Matters of Throne','Death-Metal-Rhythmus · Matrix 160 Hz / 1,5 kHz','Clean LOW + Blue Storm MID + Night Harvest HIGH → Iron Colour · Passive Tube EQ. Obsession bearbeitet MID/HIGH.']],
  recall:'Im Menü Raven / Guitar wählen. Alle Parameter werden initialisiert, einschließlich inaktiver Pedal-, Amp- und POST-Bänke sowie INPUT, Tempo und Tuner. Alle vier beginnen mit derselben internen V30/SM57-IR. Song-ID und IR-Metadaten bleiben in Zustandsdateien und A/B erhalten. Die vorläufige Pegelkorrektur basiert ausschließlich auf synthetischen Signalen.',
- pitch:'Transpose korrigiert die Energie tiefer FFT-Bins und behält beim Bypass-Ausblenden das ausgehende Pitch-Verhältnis bei. Die laufende FFT-Fensterverzögerung bleibt 46,4 ms bei 44,1 kHz und 42,7 ms bei 48/96 kHz. Das Live-Ziel von 10 ms sowie DI-Transienten und Akkordtrennung sind noch in Prüfung.',
+ pitch:'Transpose korrigiert die Energie tiefer FFT-Bins und behält beim Bypass-Ausblenden das ausgehende Pitch-Verhältnis bei. Die laufende FFT-Fensterverzögerung bleibt 46,4 ms bei 44,1 kHz und 42,7 ms bei 48/96 kHz. Verbesserungen an Latenz und Klangqualität werden nach 1.1.1 langfristig weitergeführt. Bei der Bass-H-Saite und -2 Halbtönen wurden verschmierte Töne und Anschläge gemeldet. Bei hörbaren Problemen Transpose ausschalten und das Instrument umstimmen.',
  gain:'Vor dem Pegelvergleich INPUT/OUTPUT und OUTPUT LEVEL des nativen Amps prüfen. OUTPUT startet standardmäßig bei −6 dB; normale Factory-Presets beginnen bei −9 dB. Native Amps verwenden ihren Software-OUTPUT-LEVEL. GR zeigt die interne Kompressorabsenkung ohne Dry-Blend und Ausgangsverstärkung.'}
 };
 

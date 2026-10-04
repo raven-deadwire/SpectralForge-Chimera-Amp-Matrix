@@ -1,4 +1,4 @@
-name: Open Beta 1.1 Build and Test
+name: Open Beta 1.1.1 Build and Test
 on:
   pull_request:
   workflow_dispatch:
@@ -43,13 +43,19 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+      - name: Resolve source version
+        shell: bash
+        run: echo "CHIMERA_PACKAGE_VERSION=$(python Tools/chimera_version.py --field version)" >> "$GITHUB_ENV"
       - name: Check release packaging and validation syntax
         run: |
           python -m py_compile Tools/package_release.py Tools/evaluate_release_gate.py Tools/test_release_gate.py Tools/evaluate_signature_benchmark.py Tools/test_signature_benchmark.py
           python Tools/test_release_gate.py
+          python Tools/test_release_scope.py
           python Tools/test_signature_benchmark.py
           python Tools/check_catalog_contract.py
           python Tools/test_validation_producer.py
@@ -219,10 +225,10 @@ jobs:
         if: runner.os == 'Windows'
         uses: actions/upload-artifact@v4
         with:
-          name: SpectralForge-Chimera-1.1.0-beta.1-win64
+          name: SpectralForge-Chimera-${{ env.CHIMERA_PACKAGE_VERSION }}-win64
           path: |
-            dist/SpectralForge-Chimera-1.1.0-beta.1-win64.zip
-            dist/SpectralForge-Chimera-1.1.0-beta.1-win64.zip.sha256.txt
+            dist/SpectralForge-Chimera-${{ env.CHIMERA_PACKAGE_VERSION }}-win64.zip
+            dist/SpectralForge-Chimera-${{ env.CHIMERA_PACKAGE_VERSION }}-win64.zip.sha256.txt
           if-no-files-found: error
           compression-level: 0
 
@@ -230,10 +236,10 @@ jobs:
         if: runner.os == 'Windows'
         uses: actions/upload-artifact@v4
         with:
-          name: SpectralForge-Chimera-1.1.0-beta.1-win64-Setup
+          name: SpectralForge-Chimera-${{ env.CHIMERA_PACKAGE_VERSION }}-win64-Setup
           path: |
-            dist/SpectralForge-Chimera-1.1.0-beta.1-win64-Setup.exe
-            dist/SpectralForge-Chimera-1.1.0-beta.1-win64-Setup.exe.sha256.txt
+            dist/SpectralForge-Chimera-${{ env.CHIMERA_PACKAGE_VERSION }}-win64-Setup.exe
+            dist/SpectralForge-Chimera-${{ env.CHIMERA_PACKAGE_VERSION }}-win64-Setup.exe.sha256.txt
             docs/WINDOWS_INSTALL.txt
             build/installer-verification/InstallerVerification.txt
           if-no-files-found: error
@@ -252,10 +258,10 @@ jobs:
         if: runner.os == 'macOS'
         uses: actions/upload-artifact@v4
         with:
-          name: SpectralForge-Chimera-1.1.0-beta.1-macos-universal
+          name: SpectralForge-Chimera-${{ env.CHIMERA_PACKAGE_VERSION }}-macos-universal
           path: |
-            dist/SpectralForge-Chimera-1.1.0-beta.1-macos-universal.pkg
-            dist/SpectralForge-Chimera-1.1.0-beta.1-macos-universal.pkg.sha256.txt
+            dist/SpectralForge-Chimera-${{ env.CHIMERA_PACKAGE_VERSION }}-macos-universal.pkg
+            dist/SpectralForge-Chimera-${{ env.CHIMERA_PACKAGE_VERSION }}-macos-universal.pkg.sha256.txt
             dist/macOS-package-verification.txt
           if-no-files-found: error
           compression-level: 0
@@ -264,12 +270,12 @@ jobs:
         if: runner.os == 'Linux'
         uses: actions/upload-artifact@v4
         with:
-          name: SpectralForge-Chimera-1.1.0-beta.1-linux-x86_64
+          name: SpectralForge-Chimera-${{ env.CHIMERA_PACKAGE_VERSION }}-linux-x86_64
           path: |
-            dist/SpectralForge-Chimera-1.1.0-beta.1-linux-x86_64.deb
-            dist/SpectralForge-Chimera-1.1.0-beta.1-linux-x86_64.deb.sha256.txt
-            dist/SpectralForge-Chimera-1.1.0-beta.1-linux-x86_64.tar.gz
-            dist/SpectralForge-Chimera-1.1.0-beta.1-linux-x86_64.tar.gz.sha256.txt
+            dist/SpectralForge-Chimera-${{ env.CHIMERA_PACKAGE_VERSION }}-linux-x86_64.deb
+            dist/SpectralForge-Chimera-${{ env.CHIMERA_PACKAGE_VERSION }}-linux-x86_64.deb.sha256.txt
+            dist/SpectralForge-Chimera-${{ env.CHIMERA_PACKAGE_VERSION }}-linux-x86_64.tar.gz
+            dist/SpectralForge-Chimera-${{ env.CHIMERA_PACKAGE_VERSION }}-linux-x86_64.tar.gz.sha256.txt
             dist/Linux-package-verification.txt
           if-no-files-found: error
           compression-level: 0
@@ -279,12 +285,17 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+      - name: Resolve source version
+        shell: bash
+        run: echo "CHIMERA_PACKAGE_VERSION=$(python Tools/chimera_version.py --field version)" >> "$GITHUB_ENV"
       - uses: actions/download-artifact@v4
         with:
-          pattern: SpectralForge-Chimera-1.1.0-beta.1-*
+          pattern: SpectralForge-Chimera-${{ env.CHIMERA_PACKAGE_VERSION }}-*
           path: candidate
           merge-multiple: true
       - name: Assemble update manifest from verified installers
@@ -309,18 +320,20 @@ jobs:
         shell: bash
         run: |
           python - <<'PY'
-          import json, os
+          import json, os, sys
+          sys.path.insert(0, "Tools")
+          import chimera_version
           from pathlib import Path
           Path('candidate/candidate-source.json').write_text(json.dumps({
-              'version': '1.1.0-beta.1', 'tag': 'v1.1.0-beta.1',
-              'revision': os.environ['GITHUB_SHA'], 'runId': os.environ['GITHUB_RUN_ID'],
+              'version': chimera_version.identity()['version'], 'tag': 'v' + chimera_version.identity()['version'],
+              'revision': chimera_version.revision(), 'runId': os.environ['GITHUB_RUN_ID'],
               'published': False, 'publisherSigned': False, 'macOSNotarized': False
           }, indent=2) + '\n')
           PY
       - name: Upload concrete draft-ready release files
         uses: actions/upload-artifact@v4
         with:
-          name: SpectralForge-Chimera-Open-Beta-1.1-Release-Candidate
+          name: SpectralForge-Chimera-Open-Beta-1.1.1-Release-Candidate
           path: |
             candidate/*.exe
             candidate/*.pkg

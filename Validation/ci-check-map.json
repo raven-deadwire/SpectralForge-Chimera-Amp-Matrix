@@ -1,7 +1,7 @@
 {
   "schema": "spectralforge.chimera.ci-check-map",
   "schema_version": 1,
-  "policy_version": 3,
+  "policy_version": 4,
   "checks": {
     "A12.01": {
       "name": "Portable core and preset regression",
@@ -85,7 +85,7 @@
       "name": "Exact-source release candidate assembly",
       "producer": "workflow:assemble-candidate",
       "platform": "all",
-      "artifact": "SpectralForge-Chimera-Open-Beta-1.1-Release-Candidate"
+      "artifact": "SpectralForge-Chimera-Open-Beta-1.1.1-Release-Candidate"
     },
     "I1.PITCH": {
       "name": "Low-bin energy and unchanged raw mapping",

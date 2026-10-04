@@ -19,6 +19,8 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+      - name: Check version contract before native build
+        run: python Tests/test_packaging_version.py
       - name: Configure
         run: cmake -S . -B build -A x64 -DCMAKE_BUILD_TYPE=Release
       - name: Check candidate installer scripts
@@ -26,6 +28,7 @@ jobs:
         run: |
           python -m py_compile Tools/package_installer_candidate.py Tools/Build-PersonalWindowsBundle.py Tools/prepare_lifecycle_baseline.py Tools/extract_vblank_test_class.py Tools/verify_vblank_failure.py Tools/evaluate_release_gate.py Tools/test_release_gate.py Tools/evaluate_signature_benchmark.py Tools/test_signature_benchmark.py Tools/check_catalog_contract.py Tools/check_ci_validation_map.py Tools/produce_validation_check.py Tools/test_validation_producer.py Tools/seed_validation_reports.py
           python Tools/test_release_gate.py
+          python Tools/test_release_scope.py
           python Tools/test_signature_benchmark.py
           python Tools/check_catalog_contract.py
           python Tools/check_ci_validation_map.py
@@ -33,7 +36,7 @@ jobs:
           python Tools/test_ctest_validation.py
           $revision = (& git rev-parse HEAD).Trim()
           python Tools/seed_validation_reports.py --commit $revision --profile pull_request --output build/validation
-          foreach ($script in @("Tools/Build-WindowsInstaller.ps1", "Tools/Verify-WindowsInstaller.ps1", "Tools/Trace-Chimera-Session.ps1")) {
+          foreach ($script in @("Tools/Build-WindowsInstaller.ps1", "Tools/Windows-VersionContract.ps1", "Tools/Verify-WindowsInstaller.ps1", "Tools/Trace-Chimera-Session.ps1")) {
             $tokens = $null
             $errors = $null
             [System.Management.Automation.Language.Parser]::ParseFile((Resolve-Path $script).Path, [ref]$tokens, [ref]$errors) | Out-Null

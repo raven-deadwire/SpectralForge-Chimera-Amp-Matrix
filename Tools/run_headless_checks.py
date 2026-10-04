@@ -10,6 +10,7 @@ import hashlib
 import json
 import pathlib
 import subprocess
+import sys
 import time
 
 p = argparse.ArgumentParser()
@@ -19,6 +20,14 @@ p.add_argument('--source', type=pathlib.Path, default=pathlib.Path(__file__).res
 a = p.parse_args()
 src, out, juce = a.source.resolve(), a.output.resolve(), a.juce.resolve()
 out.mkdir(parents=True, exist_ok=True)
+sys.path.insert(0, str(src / 'Tools'))
+import chimera_version
+build_identity = chimera_version.identity(src)
+version_header = (src / 'cmake/ChimeraBuildVersion.h.in').read_text()
+version_header = version_header.replace('@PROJECT_VERSION@', build_identity['product_version'])
+version_header = version_header.replace('@CHIMERA_PACKAGE_VERSION@', build_identity['version'])
+version_header = version_header.replace('@CHIMERA_PACKAGE_DISPLAY@', chimera_version.display_version(src, build_identity['source_sha']))
+(out / 'ChimeraBuildVersion.h').write_text(version_header)
 flags = ['g++', '-std=c++20', '-O2', '-pthread', '-DNDEBUG', '-DJUCE_GLOBAL_MODULE_SETTINGS_INCLUDED=1',
          '-DJUCE_STANDALONE_APPLICATION=1', '-DJUCE_USE_CURL=0', '-DJUCE_WEB_BROWSER=0',
          '-I'+str(juce/'modules'), '-I'+str(src/'Source'), '-I'+str(out)]
@@ -26,6 +35,7 @@ records = []
 def git_output(*args):
     return subprocess.check_output(['git', *args], cwd=src, text=True).strip()
 source_files = [path for folder in ['Source','Tests','Tools'] for path in sorted((src/folder).rglob('*')) if path.is_file() and '__pycache__' not in path.parts]
+source_files += [src / 'VERSION', src / 'cmake/ChimeraBuildVersion.h.in']
 provenance = {'commit': git_output('rev-parse','HEAD'), 'tree':git_output('rev-parse','HEAD^{tree}'),
               'working_tree_clean_at_start':not git_output('status','--porcelain'),
               'source_sha256':{str(path.relative_to(src)):hashlib.sha256(path.read_bytes()).hexdigest() for path in source_files},
