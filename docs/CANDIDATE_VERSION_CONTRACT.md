@@ -44,6 +44,13 @@ resources on every install/repair. Its JSON receipt records version identity,
 observed DisplayVersions, binary hash, source SHA and run ID. Transfer requires
 that same version identity in the successful receipt.
 
+JUCE 8.0.8 `extras/Build/juce_build_tools/utils/juce_ResourceRc.cpp` emits a fixed
+FILEVERSION and a ProductVersion string, but omits fixed PRODUCTVERSION. The
+Windows checker therefore requires matching numeric file fields and the actual
+product-version string, and validates fixed product fields when populated (as
+Inno does). Zeroed absent fields are not treated as the JUCE product version.
+PowerShell fixtures cover both layouts and reject stale/missing/mixed fields.
+
 The common build workflow resolves filenames from the same preview identity
 and checks out the PR head explicitly. Its current packages no longer claim
 the historical 1.1.0-beta.1 identity. Historical publishing scripts retain their
