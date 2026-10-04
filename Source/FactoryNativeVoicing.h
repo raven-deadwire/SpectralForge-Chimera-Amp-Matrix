@@ -143,6 +143,7 @@ inline bool factoryPerformanceParameter(const juce::String& id) {
 inline juce::ValueTree factoryNativeSnapshot(juce::AudioProcessorValueTreeState& state,int index) {
     if(index<0 || index>=factoryPresetCount)return {};
     auto snapshot=state.copyState();
+    const auto previous=snapshot.createCopy();
     snapshot.removeChild(snapshot.getChildWithName("GUITAR_SIGNATURE"),nullptr);
     for(auto* raw:state.processor.getParameters())if(auto* p=dynamic_cast<juce::RangedAudioParameter*>(raw)) {
         if(factoryPerformanceParameter(p->paramID))continue;
@@ -153,6 +154,20 @@ inline juce::ValueTree factoryNativeSnapshot(juce::AudioProcessorValueTreeState&
     const auto set=[&](const juce::String& id,float value){auto* p=state.getParameter(id);jassert(p);if(p)snapshot.getChildWithProperty("id",id).setProperty("value",p->convertFrom0to1(p->convertTo0to1(value)),nullptr);};
     const auto get=[&](const juce::String& id){const auto node=snapshot.getChildWithProperty("id",id);jassert(node.isValid());return float(node.getProperty("value"));};
     applyFactoryPreset(index,set);voiceFactoryNative(index,get,set);set("output",factoryOutputDb[size_t(index)]);
+    // Recall owns the selected PRE banks (including bypassed visible pedals),
+    // but another model's saved controls still belong to the session. Restore
+    // only inactive PRE banks after the complete native sound initialization.
+    for(int owner=0;owner<pedalBoardCapacity;++owner) {
+        const int selected=int(get(pedalModelID(owner)));
+        for(int model=0;model<pedalModelCount;++model)if(model!=selected) {
+            const auto preserve=[&](const juce::String& id) {
+                const auto old=previous.getChildWithProperty("id",id);
+                if(old.isValid())snapshot.getChildWithProperty("id",id).setProperty("value",old["value"],nullptr);
+            };
+            preserve(pedalBypassID(owner,model));
+            for(int c=0;c<pedalModel(model).controlCount;++c)preserve(pedalControlID(owner,model,c));
+        }
+    }
     return snapshot;
 }
 } // namespace spectralforge

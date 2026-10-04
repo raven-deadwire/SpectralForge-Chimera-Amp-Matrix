@@ -250,7 +250,7 @@ void checkFactoryPresets()
             expected[id]=value;
         }),"Factory preset metadata rejected a valid index");
         // Current factory recall deliberately revoices the legacy recipes and
-        // initializes all native banks. Compare the actual full sound contract.
+        // initializes selected native banks. Inactive PRE banks remain session state.
         const auto nativeSnapshot=spectralforge::factoryNativeSnapshot(processor.parameters(),index);
         for(auto child:nativeSnapshot)if(child.hasProperty("id")&&!spectralforge::factoryPerformanceParameter(child["id"].toString()))
             expected[child["id"].toString().toStdString()]=float(child["value"]);
@@ -259,6 +259,16 @@ void checkFactoryPresets()
         for(const auto& [id,value]:expected) {
             auto* parameter=processor.parameters().getParameter(id);
             parameter->setValueNotifyingHost(parameter->convertTo0to1(value)==1.f ? 0.f : 1.f);
+        }
+        // Inactive PRE controls/bypasses preserve the dirty values just written;
+        // visible (even bypassed) model banks must still recall authored values.
+        for(int owner=0;owner<spectralforge::pedalBoardCapacity;++owner) {
+            const int selected=int(float(nativeSnapshot.getChildWithProperty("id",spectralforge::pedalModelID(owner))["value"]));
+            const auto preserve=[&](const juce::String& id) {expected[id.toStdString()]=processor.parameters().getRawParameterValue(id)->load();};
+            for(int model=0;model<spectralforge::pedalModelCount;++model)if(model!=selected) {
+                preserve(spectralforge::pedalBypassID(owner,model));
+                for(int c=0;c<spectralforge::pedalModel(model).controlCount;++c)preserve(spectralforge::pedalControlID(owner,model,c));
+            }
         }
         processor.loadFactoryPreset(index);
         for(const auto& [id,value]:expected) {

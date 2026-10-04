@@ -154,21 +154,29 @@ inline void run(const juce::File& outputDirectory) {
         p.setPedalModel(0,38);sendCC(p,119,0);
         require(p.getLatencySamples()==originalTotal,"Mono octave inherited the poly frame delay");
         set(p,pedalControlID(0,38,1),.613f);
+        set(p,pedalBypassID(0,38),1);
+        set(p,"boardEnabled",0);
         p.loadFactoryPreset(0);
-        require(!p.pedalBoardState().enabled,"Factory compatibility sound unexpectedly changed audio paths");
+        require(p.pedalBoardState().enabled,"Native factory sound did not activate the five-slot board");
         constexpr int familyFirst[]{6,11,16,21,1};
         constexpr const char* familyModel[]{"compmodel","filtermodel","fuzzmodel","boostmodel","drivemodel"};
         constexpr const char* enabled[]{"precompon","filteron","fuzzon","booston","preon"};
         const auto factoryBoard=p.pedalBoardState();
+        std::array<int,5> expectedOrder{0,1,2,3,4};
+        if(raw(p,"preorder")>.5f)std::swap(expectedOrder[0],expectedOrder[1]);
+        if(raw(p,"gainorder")>.5f)std::swap(expectedOrder[3],expectedOrder[4]);
+        require(factoryBoard.order==expectedOrder && factoryBoard.lowTap==2,"Native factory sound did not initialize visible order/LOW tap");
         for(int owner=0;owner<5;++owner) {
             const auto& instance=factoryBoard.instances[(size_t)owner];
             require(instance.model==familyFirst[owner]+int(raw(p,familyModel[owner])),"Factory sound did not populate the visible pedal selection");
             require(instance.bypass==(raw(p,enabled[owner])<.5f),"Factory sound did not populate the visible pedal ON/OFF state");
         }
         require(std::abs(raw(p,pedalControlID(0,38,1))-.613f)<1.e-5f,"Factory sound erased an inactive user's pedal bank");
+        require(raw(p,pedalBypassID(0,38))>.5f,"Factory sound erased an inactive user's pedal bypass");
         p.setPedalModel(0,38);
-        require(p.pedalBoardState().enabled && std::abs(p.pedalBoardState().instances[0].controls[1]-.613f)<1.e-5f,"Direct selection did not activate and recall the saved pedal bank");
-        mark("Poly host latency/bypass/delete, zero-frame mono, factory-visible pedal state and silent bank recall");
+        // Explicit user selection intentionally turns the chosen pedal on.
+        require(p.pedalBoardState().enabled && !p.pedalBoardState().instances[0].bypass && std::abs(p.pedalBoardState().instances[0].controls[1]-.613f)<1.e-5f,"Direct selection did not activate and recall the saved inactive pedal bank");
+        mark("Poly host latency/bypass/delete, zero-frame mono, native factory activation/model/bypass/order and inactive bank recall");
     }
     auto* report=new juce::DynamicObject();report->setProperty("status","PASS");
     report->setProperty("scope","Native Processor/APVTS state and identity assertions; no external DAW or hardware-fidelity claim");

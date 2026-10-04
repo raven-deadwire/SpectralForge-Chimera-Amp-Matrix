@@ -25,7 +25,7 @@ host mappings. These position scales are not measured hardware-pot tapers. PRE f
 |---|---|---|
 | Lead / high gain | Common pre-gain mapping provided -18..+18 dB, including attenuation over the lower half | Selected lead/high-gain channels now use a closed-at-zero audio taper with amplified midpoint/full settings and stronger interstage drive; output trim remains separate. Eleven weak-input THD fixtures check increased saturation and remaining control travel. |
 | Bass signature / guitar rhythm | Tight 515 recipes selected Rhythm despite lead/high-gain intent | Crom Cruach, Wild Hunt and the second Feel My Wrath lane now explicitly select Lead. |
-| Factory recall | 31 general presets used legacy DSP while the visible knobs edited independent native banks | Full sound snapshot, explicit native AMP/PRE/POST voicings, all latent banks reset; no first-edit switch to unrelated defaults. |
+| Factory recall | 31 general presets used legacy DSP while the visible knobs edited independent native banks | Full sound snapshot, explicit native AMP/PRE/POST voicings, selected PRE banks initialized and inactive PRE controls/bypasses preserved; no first-edit switch to unrelated defaults. |
 | Preset levels | Blanket -9/-10/-11 dB output trims lacked per-preset level matching | All 38 presets have individually measured end-of-chain trims. Nominal six-note plucks and +6 dB input checks preserve peak headroom; values are in `Source/FactoryPresetLevels.h`. |
 | Wild Hunt | ISA LINE gain position 0 caused 20 dB attenuation | Select LINE position 20 for unity through this model, then set the measured final output trim. |
 | Factory Variable Mu | Converted input setting added an unintended 3 dB attenuation | Factory input starts at the model's unity position; compression and output remain separately authored. |
@@ -113,3 +113,29 @@ DAW close/remove/reopen and soak, callback timing acceptance, real-DI/level/Gate
 listening, and E670FE reference captures/acceptance are still missing. Synthetic
 pluck/THD tests cannot replace those gates. The user's 15:11 KST conditional
 publication authorization is fulfilled as authorization, not as test evidence.
+
+## Factory recall regression correction
+
+The Windows failure on `76658cef289bfe2110d8cde92ae74ca09b768219`
+first hit an obsolete assertion that a new factory recall disables the board.
+The native contract enables it and authors the visible models, bypasses, order
+and LOW tap. The next assertion exposed a real inactive PRE bank reset: general
+factory snapshots now restore only unselected owner/model controls and bypasses
+after native initialization. Selected banks, AMP/POST initialization and all 38
+voicings/output trims remain intact. Guitar signatures retain their existing
+full-state snapshot contract.
+
+The macOS failure compared raw performance values directly to integer requests.
+JUCE snaps these parameters to 0.01 intervals; fused multiply-add can represent
+input `3` as `2.99999928` before recall. The processor regression now logs requested,
+before-raw, before-normalized, snapshot-raw, after-raw and after-normalized values
+for input/tempo at `max_digits10`. All eight preserved performance parameters
+must retain their actual raw and normalized values exactly over two recalls.
+No tolerance was added to the before/after preservation assertion, and no
+parameter ranges, defaults or production canonicalization were changed.
+
+Dirty/clean recall checks cover all 38 sounds. They require active sound state
+to converge, every inactive general-factory PRE bank to retain its previous
+value, and both renders to agree within 1e-6 per sample. A fresh exact-head
+matrix plus candidate (including installer creation, install/repair/uninstall
+and SHA-256 provenance) must pass before this correction is release evidence.
