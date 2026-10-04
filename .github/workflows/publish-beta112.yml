@@ -39,6 +39,7 @@ jobs:
             test "$ACCEPTED_SHA" = "$GITHUB_SHA"
             test "${#ACCEPTED_SHA}" -eq 40
           fi
+          test ! -f RELEASE_REVIEW_PENDING
           test "$(python Tools/chimera_version.py --field version)" = "1.1.2-beta.1"
           test "$(cat VERSION)" = "1.1.2"
           test "$(cat RELEASE_CHANNEL)" = "beta.1"
