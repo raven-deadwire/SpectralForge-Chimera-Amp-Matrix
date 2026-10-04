@@ -5,8 +5,10 @@
 function Assert-ChimeraVersionInfo($Info, [string]$Expected, [string]$Path) {
     $fileVersion = "$($Info.FileMajorPart).$($Info.FileMinorPart).$($Info.FileBuildPart).$($Info.FilePrivatePart)"
     $productFixed = "$($Info.ProductMajorPart).$($Info.ProductMinorPart).$($Info.ProductBuildPart).$($Info.ProductPrivatePart)"
+    # Inno pads StringFileInfo values when updating the prebuilt Setup loader.
+    $productText = ([string]$Info.ProductVersion).TrimEnd([char[]]@([char]32, [char]0))
     if ($fileVersion -cne "$Expected.0" -or
-        $Info.ProductVersion -cnotin @($Expected, "$Expected.0") -or
+        $productText -cnotin @($Expected, "$Expected.0") -or
         ($productFixed -cne "0.0.0.0" -and $productFixed -cne "$Expected.0")) {
         throw "Binary version differs from payload: $Path; file=$fileVersion product=$($Info.ProductVersion) fixedProduct=$productFixed expected=$Expected.0"
     }
