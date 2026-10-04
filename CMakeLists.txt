@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 3.22)
-project(ChimeraAmpMatrix VERSION 1.1.0 LANGUAGES C CXX)
+include(cmake/ChimeraVersion.cmake)
+project(ChimeraAmpMatrix VERSION ${CHIMERA_PRODUCT_VERSION} LANGUAGES C CXX)
 set(CMAKE_CXX_STANDARD 20)
 if(MSVC)
   add_compile_options(/utf-8)
@@ -27,11 +28,16 @@ endforeach()
 juce_add_binary_data(ChimeraArtwork HEADER_NAME ChimeraArtworkData.h NAMESPACE ChimeraArtworkData SOURCES ${CHIMERA_ARTWORK})
 juce_add_binary_data(ChimeraManual HEADER_NAME ChimeraManualData.h NAMESPACE ChimeraManualData SOURCES docs/MANUAL.html)
 target_include_directories(ChimeraAmpMatrix PUBLIC Source)
-execute_process(COMMAND git rev-parse --short=10 HEAD WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
-  OUTPUT_VARIABLE CHIMERA_BUILD_REVISION OUTPUT_STRIP_TRAILING_WHITESPACE ERROR_QUIET)
-if(NOT CHIMERA_BUILD_REVISION)
+execute_process(COMMAND git rev-parse HEAD WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
+  OUTPUT_VARIABLE CHIMERA_SOURCE_SHA OUTPUT_STRIP_TRAILING_WHITESPACE ERROR_QUIET)
+if(CHIMERA_SOURCE_SHA)
+  string(SUBSTRING "${CHIMERA_SOURCE_SHA}" 0 10 CHIMERA_BUILD_REVISION)
+else()
   set(CHIMERA_BUILD_REVISION "source-archive")
 endif()
+configure_file(cmake/ChimeraBuildVersion.h.in generated/ChimeraBuildVersion.h @ONLY)
+configure_file(cmake/chimera-build-version.json.in chimera-build-version.json @ONLY)
+include_directories("${CMAKE_BINARY_DIR}/generated")
 target_compile_definitions(ChimeraAmpMatrix PRIVATE CHIMERA_BUILD_REVISION="${CHIMERA_BUILD_REVISION}")
 target_sources(ChimeraAmpMatrix PRIVATE Source/CabinetSelector.h Source/ReleaseSupport.cpp Source/ReleaseSupport.h Source/ReleaseInfo.h)
 target_sources(ChimeraAmpMatrix PRIVATE Source/IRLibrary.cpp Source/IRLibrary.h Source/Amplifier.h Source/Cabinet.h Source/GlobalDSP.h Source/PolyPitch.h Source/FXChain.h Source/LowCompressor.h Source/StudioModules.h Source/PerformanceUtilities.h Source/FXParameters.h Source/ModelCatalog.h Source/SpatialModules.h Source/IRMetadata.h Source/IRReferenceCatalog.h Source/HardwareArtwork.h Source/RasterArtwork.h Source/IRCollection.h Source/IRBrowserPanel.h Source/PluginProcessor.cpp Source/PluginProcessor.h Source/PluginEditor.cpp Source/PluginEditor.h Source/ChimeraDSP.h Source/MatrixTone.h)
@@ -48,6 +54,8 @@ enable_testing()
 # Compile the actual upstream/patched VBlankThread class with a deterministic
 # failing DXGI output. This runs on every platform without a physical display.
 find_package(Python3 3.9 REQUIRED COMPONENTS Interpreter)
+add_test(NAME ChimeraPackagingVersionTests
+  COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/Tests/test_packaging_version.py")
 find_package(Threads REQUIRED)
 set(CHIMERA_VBLANK_TEST_DIR "${CMAKE_BINARY_DIR}/vblank-test-generated")
 execute_process(
