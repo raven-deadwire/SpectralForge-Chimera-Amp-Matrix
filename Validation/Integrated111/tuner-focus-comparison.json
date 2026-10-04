@@ -1,0 +1,34 @@
+{
+  "source_baseline": "fe3656521046be79f99a62857976021c07ec398b",
+  "source_candidate_tree": "04cdb6dbe053e0a76c08517562308866101f0ee8",
+  "scope": "Focused 30-second synthetic audio windows, 3 repeats per closed/tuner scene; shared Linux X11 runner. Rebuilt baseline source with common existing JUCE 8.0.8 module objects and current embedded resources (extra unused artwork/manual); not an independently packaged historical binary.",
+  "parameters_unchanged": "PASS",
+  "synthetic_audio_identity": "PASS",
+  "audio_hashes": [
+    "bbecee6d10bfac4b"
+  ],
+  "rows": [
+    {
+      "scene": "closed_audio",
+      "baseline_ui_percent": 1.248417649296175,
+      "candidate_ui_percent": 1.291259705864601,
+      "baseline_p99_us": 1208.625,
+      "candidate_p99_us": 1117.68,
+      "baseline_deadline_misses": 45,
+      "candidate_deadline_misses": 30,
+      "callbacks_per_side": 33750
+    },
+    {
+      "scene": "meter_tuner",
+      "baseline_ui_percent": 72.39873199060553,
+      "candidate_ui_percent": 9.181688040930911,
+      "baseline_p99_us": 861.784,
+      "candidate_p99_us": 873.863,
+      "baseline_deadline_misses": 16,
+      "candidate_deadline_misses": 26,
+      "callbacks_per_side": 33750
+    }
+  ],
+  "callback_timing_nonregression": "BLOCKED",
+  "reason": "Shared runner, nonzero deadline misses; short and longer probes do not grant real DAW/live latency acceptance."
+}

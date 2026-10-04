@@ -28,7 +28,8 @@ void parameterContract(ChimeraProcessor& p)
             +juce::String(parameter->convertFrom0to1(1.f),9)+"|"+juce::String(int(parameter->isAutomatable()))+"\n";
     }
     const auto digest=juce::SHA256(manifest.toRawUTF8(),manifest.getNumBytesAsUTF8()).toHexString();
-    const juce::String frozen(releasedParameterContract);
+    juce::String frozen;
+    for(const auto* chunk:releasedParameterContractChunks)frozen+=chunk;
     require(juce::SHA256(frozen.toRawUTF8(),frozen.getNumBytesAsUTF8()).toHexString()
             =="1de9d010b4267088d80a6922105b047ae0c9e142e3b931c000129d6befa3523f","Frozen released contract fixture changed");
     const auto actualRows=juce::StringArray::fromLines(manifest),expectedRows=juce::StringArray::fromLines(frozen);
@@ -45,7 +46,13 @@ void parameterContract(ChimeraProcessor& p)
                 // round the same float mapping differently; preserve numeric
                 // semantics without relying on nine-decimal string identity.
                 const double a=actual[field].getDoubleValue(),e=expected[field].getDoubleValue();
-                const double tolerance=5e-10+4*double(std::numeric_limits<float>::epsilon())*std::abs(e);
+                // Near zero, cancellation/FMA error scales with the domain,
+                // not the result (e.g. ARM bass midpoint -2.68e-7 vs x86 0).
+                // Normalized defaults have a unit domain; range samples use
+                // their frozen endpoints/span. No host structure is relaxed.
+                const double lo=expected[5].getDoubleValue(),hi=expected[7].getDoubleValue();
+                const double scale=field==3 ? 1. : std::max({std::abs(lo),std::abs(hi),std::abs(hi-lo)});
+                const double tolerance=5e-10+4*double(std::numeric_limits<float>::epsilon())*scale;
                 if(std::abs(a-e)>tolerance) {
                     std::cerr<<"Contract mismatch "<<expected[1]<<" field="<<field<<" expected="<<expected[field]<<" actual="<<actual[field]<<'\n';
                     require(false,"Released default/range numeric contract changed");

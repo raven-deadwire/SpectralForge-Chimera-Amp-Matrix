@@ -6,9 +6,9 @@
 	skipped="0"
 	hostname=""
 	time="8"
-	timestamp="2026-10-04T11:36:12"
+	timestamp="2026-10-04T12:09:12"
 	>
-	<testcase name="ChimeraGateProcessorTests" classname="ChimeraGateProcessorTests" time="8.21876" status="run">
+	<testcase name="ChimeraGateProcessorTests" classname="ChimeraGateProcessorTests" time="8.21009" status="run">
 		<properties/>
 		<system-out>PASS legacy parameter contract: 3686 entries SHA256 1de9d010b4267088d80a6922105b047ae0c9e142e3b931c000129d6befa3523f numeric_rounding_differences=0; append-only gateRangeDb
 PASS binary state, legacy missing-field migration, A/B, factory reset, host gestures and MIDI automation recall
