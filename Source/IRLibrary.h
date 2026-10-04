@@ -29,6 +29,13 @@ public:
     juce::String userName(int lane) const;
     IRMetadata metadata(int lane, int source) const;
     void setMetadata(int lane, const IRMetadata&);
+    // UI invalidation only. Existing cabinet atomics cover asynchronous kernel
+    // activation; metadata/error revisions are written off the audio callback.
+    std::array<uint64_t,4> displayRevision(int lane) const noexcept {
+        const auto i=(size_t)lane;
+        return {displayGeneration[i].load(),(uint64_t)cabs[i]->requestedSource.load(),
+            (uint64_t)cabs[i]->activeSource.load(),(uint64_t)cabs[i]->activeGeneration.load()};
+    }
     juce::ValueTree save() const;
     void restore(const juce::ValueTree&);
     static std::shared_ptr<Asset> decode(const juce::MemoryBlock&, const juce::String&, juce::String& error);
@@ -39,6 +46,7 @@ private:
     std::array<std::shared_ptr<Asset>,3> users;
     std::array<std::shared_ptr<Asset>,2> factory;
     std::array<unsigned,3> generations{1,1,1};
+    std::array<std::atomic<uint64_t>,3> displayGeneration{};
     std::array<juce::String,3> errors;
     mutable std::mutex mutex;
     juce::dsp::ProcessSpec spec{48000,512,2};

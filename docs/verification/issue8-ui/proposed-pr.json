@@ -1,0 +1,10 @@
+{
+  "repository": "raven-deadwire/SpectralForge-Chimera-Amp-Matrix",
+  "base": "main",
+  "head": "codex/issue-8-ui-refresh",
+  "draft": true,
+  "title": "perf(ui): dirty visible panels and scoped meter repaint (Issue #8)",
+  "body": "Related to #8. This is the first native editor UI CPU optimisation; the issue and host release gates remain open.\n\nThe 25 Hz timer previously refreshed hidden native panels and unchanged metadata and invalidated the complete editor. Separate visible model/state dirty keys from periodic meters, cache cabinet metadata using non-audio revisions, preserve independent ALL windows, and invalidate only changed meter/LED regions. The PRE board uses structural dirty state and a separate GR rectangle. No processBlock/DSP/parameter-layout changes or new audio-thread listeners.\n\nMatched Release/JUCE 8.0.8/Linux Xvfb+Openbox measurements, 3 repeats per scene (one CPU core = 100%): RIGS idle 49.30% -> 2.26%; POST meters 55.05% -> 10.28%; tab switching 64.86% -> 24.56%. Idle editor paints fall to zero after warmup. All 78 runs preserve parameters; all 30 fixed-length synthetic audio renders are bit-identical by FNV64.\n\nFull native UI regression and ChimeraStabilityTests PASS. Some candidate callback p99/deadline counts increase, including the closed-editor control. Audio timing non-regression remains BLOCKED; output identity is not a timing guarantee. Windows VST3 DAW close/exit and 30-minute soak remain BLOCKED. The overall 75% UI CPU claim remains STRETCH/BLOCKED. JUCE_WEB_BROWSER=0 already applies; webview removal is NOT_APPLICABLE.\n\nSee docs/ISSUE8_UI_REFRESH.md and docs/verification/issue8-ui for raw repeats, absolute CPU, callback tails/misses, source/binary/harness hashes, logs, scale screenshots and reproduction commands. This draft does not publish a release or close Issue #8.\n",
+  "publication_status": "USER_APPROVED_FOR_BRANCH_UPLOAD_AND_DRAFT_PR",
+  "approval_reason": "User explicitly approved branch upload and Draft PR creation on 2026-10-04 (Asia/Seoul)."
+}

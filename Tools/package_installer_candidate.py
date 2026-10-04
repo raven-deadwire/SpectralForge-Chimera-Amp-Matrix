@@ -67,12 +67,12 @@ def stage() -> None:
         "VST3 폴더를 변경하면 이전 설치 경로의 제품 바이너리만 정리합니다.\n"
         "코드서명 전 테스트 설치 파일입니다. SHA256과 동봉된 검사 결과를 확인하세요.\n",
         encoding="utf-8")
-    release.VERSION = f"1.0.1-preview.{sha[:10]}"
+    release.VERSION = f"1.1.0-preview.{sha[:10]}"
     release.verify_stage(destination, ["Standalone/SpectralForge Chimera.exe", "MANUAL.html",
         "Verification.txt", "VST3/SpectralForge Chimera.vst3/Contents/x86_64-win/SpectralForge Chimera.vst3"])
     path = destination / "payload-manifest.json"
     manifest = json.loads(path.read_text(encoding="utf-8"))
-    manifest.update(source_sha=sha, run_id=os.environ.get("GITHUB_RUN_ID"), installer_version="1.0.1",
+    manifest.update(source_sha=sha, run_id=os.environ.get("GITHUB_RUN_ID"), installer_version="1.1.0",
                     published_release=False, publisher_signed=False, personal_ir_audio_bundled=False)
     path.write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
     print(json.dumps({"stage": str(destination), "source_sha": sha, "build_id": sha[:10]}))

@@ -78,13 +78,14 @@ def build_catalog():
         models.append(dict(id=f"legacy.amp.{index}",name=name,reference=reference,category="AMP",location="rig",
                            status="existing_dsp",controls_status="native_panel_pending",controls=[],
                            legacy=dict(raw_index=index),sources=[REPO+"Source/AmpCatalog.h"],audio_in_prototype=False))
-    planned_amps=[("zuta-gbg120","ZUTA GBG120","required"),("engl","ENGL — exact model pending","required"),
+    planned_amps=[("zuta-gbg120","ZUTA GBG120","required"),("engl","Iron Compact / ENGL Ironball (legacy)","required"),
                   ("diezel-vh4","Diezel VH4 — reference pending","required"),("svt-cl","Ampeg SVT-CL","required"),
                   ("fortin","Fortin Evil Pumpkin","candidate"),("soldano","Soldano SLO-100 LTD OD","candidate"),
-                  ("bogner","Bogner Uberschall Rev Blue","candidate"),("sunn","SUNN — Model T under review","required")]
+                  ("bogner","Bogner Uberschall Rev Blue","candidate"),("sunn","SUNN — Model T under review","required"),
+                  ("engl-e670fe","Special Edition / ENGL E670FE","required")]
     for key,name,priority in planned_amps:
         models.append(dict(id="planned.amp."+key,name=name,reference=name,category="AMP",location="rig",
-                           status="not_implemented",priority=priority,controls_status="native_panel_pending",controls=[],sources=[],audio_in_prototype=False))
+                           status="not_implemented",priority=priority,active=key!="engl",controls_status="native_panel_pending",controls=[],sources=[],audio_in_prototype=False))
     def add(key,name,category,controls,source=None,status="documented_labels_unimplemented_dsp"):
         models.append(dict(id="planned."+key,name=name,reference=name,category=category,location="pre",status="not_implemented",
                            controls_status=status,controls=controls,sources=[source] if source else [],audio_in_prototype=False))

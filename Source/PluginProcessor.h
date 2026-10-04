@@ -50,6 +50,7 @@ public:
     float postNativeMeter(int section) const {return nativePostMeters[(size_t)juce::jlimit(0,2,section)].load();}
     juce::String cabStatus(int lane) const { return library.status(lane); }
     spectralforge::IRMetadata cabMetadata(int lane) const { return library.metadata(lane,(int)state.getRawParameterValue("cabtype"+juce::String(lane+1))->load()); }
+    std::array<uint64_t,4> cabDisplayRevision(int lane) const noexcept {return library.displayRevision(lane);}
     void setCabMetadata(int lane,const spectralforge::IRMetadata& metadata) { library.setMetadata(lane,metadata); }
     float inputMeter() const { return inputPeak.load(); }
     float outputMeter() const { return outputPeak.load(); }
@@ -93,6 +94,7 @@ private:
     int ampContext(int lane) const noexcept;
     void seedNativeSelections(bool seedBoard,bool seedAmps=true,bool seedPost=true);
     void resetAmpSelection();
+    void applyPresetIRTargets(int index);
     void rememberPedalEdit();
     void setRawParameter(const juce::String&,float);
     std::vector<juce::ValueTree> boardUndo,boardRedo;
@@ -101,6 +103,7 @@ private:
     spectralforge::PedalBoardDSP pedalBoard;
     spectralforge::PostRigGate postRigGate;
     std::atomic<float>* gateAfterRig{};
+    std::atomic<float>* gateRangeDb{};
     spectralforge::PedalBoardState audioBoard;
     std::atomic<float> boardReduction{0};
     std::array<std::atomic<float>,5> stageRms{},stagePeaks{};

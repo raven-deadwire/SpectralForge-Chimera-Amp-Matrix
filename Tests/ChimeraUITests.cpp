@@ -1,3 +1,4 @@
+#include "GuitarSignaturePresets.h"
 #include "PluginEditor.h"
 #include "HardwareArtwork.h"
 #include "SupportPanel.h"
@@ -9,6 +10,8 @@
 #include "PedalMenuTests.h"
 #include "NativeStateTests.h"
 #include "NativeUITests.h"
+#include <algorithm>
+#include "UIRefreshTests.h"
 #include <map>
 #include <iostream>
 #include <set>
@@ -22,7 +25,7 @@ void checkArtwork()
     using namespace spectralforge::art;
     const juce::SharedResourcePointer<RasterBank> bank;
     const auto& images=bank->images;
-    require(images.size()==static_cast<size_t>(Surface::count) && images.size()==88,
+    require(images.size()==static_cast<size_t>(Surface::count) && images.size()==89,
             "The complete hardware artwork inventory was not embedded");
     for(size_t i=0;i<images.size();++i) {
         const auto& asset=images[i];
@@ -68,7 +71,7 @@ void checkArtwork()
         require(nativeHeads.insert(digest).second,"New heads share an identical fascia");
         require(image.getPixelAt(image.getWidth()/2,image.getHeight()/2).getAlpha()>0,"Native head artwork is empty");
     }
-    require(nativeHeads.size()==8,"Missing new amp artwork");
+    require(nativeHeads.size()==size_t(spectralforge::ampModelCount-spectralforge::legacyAmpModelCount),"Missing new amp artwork");
     for(auto surface:pedals)require(!heads.count(surface) && !racks.count(surface),"A pedal is using amp or rack artwork");
     for(auto surface:racks)require(!heads.count(surface),"A rack is using amplifier artwork");
     std::cout<<"PASS: "<<images.size()<<" decoded visible rasters; "<<heads.size()<<" unique heads, 38 PRE enclosures (39 models), 21 unique POST surfaces\n";
@@ -233,13 +236,41 @@ void checkFactoryPresets()
             parameter->setValueNotifyingHost(parameter->convertTo0to1(value)==1.f ? 0.f : 1.f);
         }
         processor.loadFactoryPreset(index);
-        for(const auto& [id,value]:expected)
+        for(const auto& [id,value]:expected) {
+            const bool signatureCab=spectralforge::isSignaturePreset(index)
+                && (id=="cabtype1" || id=="cabtype2" || id=="cabtype3");
+            if(signatureCab) continue;
             if(std::abs(processor.parameters().getRawParameterValue(id)->load()-value)>juce::jmax(1e-4f,std::abs(value)*2e-6f))
                 throw std::runtime_error(std::string("Factory preset host recall mismatch: ")+spectralforge::factoryPresets[(size_t)index].name+" / "+id);
+        }
+        if(spectralforge::isSignaturePreset(index)) {
+            const auto entries=spectralforge::IRCollection::scan(spectralforge::IRCollection::roots(),true);
+            for(int lane=0;lane<3;++lane) {
+                const auto target=juce::String::fromUTF8(spectralforge::presetIRTarget(index,lane));
+                if(target.isEmpty()) continue;
+                const auto expectedHash=juce::String::fromUTF8(spectralforge::presetIRTargetHash(index,lane));
+                const bool catalogTarget=std::any_of(entries.begin(),entries.end(),[&](const auto& entry){return entry.reference && entry.name==target;});
+                const spectralforge::IRCollection::Entry* match=nullptr;
+                for(const auto& entry:entries) {
+                    if(!entry.ready() || entry.name!=target || (catalogTarget && !entry.reference)) continue;
+                    if(expectedHash.isNotEmpty() && entry.factorySource==0
+                        && !spectralforge::IRCollection::matchesExpectedHash(entry.file,expectedHash)) continue;
+                    match=&entry;if(entry.reference)break;
+                }
+                const auto cabId="cabtype"+juce::String(lane+1);
+                if(match && match->factorySource!=0)
+                    require(processor.parameters().getRawParameterValue(cabId)->load()==match->factorySource,"Signature factory IR source was not recalled");
+                else if(match && match->file.existsAsFile()) {
+                    require(processor.parameters().getRawParameterValue(cabId)->load()==3,"Installed Signature IR was not selected");
+                    require(processor.userIRName(lane)==target,"Signature IR resolver selected the wrong installed file");
+                } else
+                    require(processor.parameters().getRawParameterValue(cabId)->load()==0,"Missing or hash-mismatched Signature IR did not fall back to Filters only");
+            }
+        }
         for(const auto& [id,value]:performance)
             require(std::abs(processor.parameters().getRawParameterValue(id)->load()-value)<juce::jmax(1e-4f,std::abs(value)*2e-6f),
                     "Factory preset changed an input/performance preference");
-        processor.loadFactoryPreset(-1);processor.loadFactoryPreset(spectralforge::factoryPresetCount);
+        processor.loadFactoryPreset(-1);processor.loadFactoryPreset(spectralforge::selectablePresetCount);
         for(const auto& [id,value]:expected)
             require(std::abs(processor.parameters().getRawParameterValue(id)->load()-value)<juce::jmax(1e-4f,std::abs(value)*2e-6f),
                     "Invalid preset ID reset or changed the current sound");
@@ -528,6 +559,9 @@ int main(int argc, char** argv)
         const auto directory = argc > 1 ? juce::File(argv[1])
                                        : juce::File::getCurrentWorkingDirectory().getChildFile("ui-snapshots");
         require(directory.createDirectory().wasOk(), "Cannot create snapshot directory");
+        require(juce::Desktop::getInstance().getDisplays().getPrimaryDisplay()!=nullptr,
+                "Native UI regression requires an active display server and window manager");
+        if(argc>2 && juce::String(argv[2])=="--ui-refresh-only"){uiRefreshTests::run(directory);return 0;}
         int suiteFailures=0;
         const auto runSuite=[&](const char* name,auto&& run) {
             try {run();}
@@ -539,6 +573,7 @@ int main(int argc, char** argv)
         runSuite("amp selection state",[]{ampSelectionStateTests::run();});
         runSuite("pedal menus and power",[]{pedalMenuTests::run();});
         runSuite("native state",[&]{nativeStateTests::run(directory);});
+        runSuite("UI refresh",[&]{uiRefreshTests::run(directory);});
         runSuite("native panels",[&]{runNativeUITests(directory);});
         runSuite("correction UI",[&]{runCorrectionUITests(directory);});
         runSuite("editor lifetime",[]{checkEditorLifetime();});

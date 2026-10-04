@@ -31,10 +31,15 @@ def run(executable):
             page.locator('#pedalTab').click();assert page.locator('.pedal').count()==5;assert page.locator('#ampLab').is_hidden()
         test('separate AMP tab preserves compact five-slot pedal board',tabs)
         def inventory():
-            assert page.locator('#ampModel option').count()==23
-            for mid in page.locator('#ampModel option').evaluate_all('(es)=>es.map(e=>e.value)'):
+            assert page.locator('#ampModel option').count()==24
+            assert page.locator('#ampModel option:not(:disabled)').count()==23
+            assert page.locator('#ampModel option[value="planned.amp.engl"]').evaluate("e => e.disabled && e.matches(':disabled')")
+            for mid in page.locator('#ampModel option:not(:disabled)').evaluate_all('(es)=>es.map(e=>e.value)'):
                 choose(mid);assert page.locator('#ampControls .control').count()>0
-        test('all 23 model targets render without missing controls',inventory)
+            page.evaluate("ampRig.choose('planned.amp.engl');renderAmp()")
+            assert current()['model']=='planned.amp.engl'
+            assert page.locator('#ampControls .control').count()>0
+        test('23 active targets render and legacy Ironball still recalls',inventory)
         def jtm():
             choose('legacy.amp.1');labels=page.locator('#ampControls label').all_text_contents()
             assert len(labels)==6;assert not any(x=='MASTER' for x in labels)

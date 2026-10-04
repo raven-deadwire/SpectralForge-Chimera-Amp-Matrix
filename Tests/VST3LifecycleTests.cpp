@@ -403,7 +403,8 @@ int child (const std::filesystem::path& path, const std::string& scenario)
     require (CoInitializeEx (nullptr, COINIT_APARTMENTTHREADED) == S_OK, "initialize COM");
     const bool editor = scenario != "headless";
     const bool pumping = scenario == "editor-pumping";
-    const bool multi = scenario == "multiple-instances";
+    const bool liveRemoval = scenario == "live-remove-controller-first" || scenario == "live-remove-component-first";
+    const bool multi = scenario == "multiple-instances" || liveRemoval;
     const int rounds = scenario == "reopen-project" ? 3 : 1;
     for (int round = 0; round < rounds; ++round)
     {
@@ -448,6 +449,44 @@ int child (const std::filesystem::path& path, const std::string& scenario)
             worker.join(); // parent process watchdog catches UI/audio deadlocks
             if (error != nullptr) std::rethrow_exception (error);
             instances.push_back (std::move (instance));
+        }
+        if (liveRemoval)
+        {
+            // Delete one previously opened instance while the factory, module
+            // and two peers remain alive. No pumping hides the removal call.
+            const bool controllerFirst = scenario == "live-remove-controller-first";
+            for (int cycle = 0; cycle < 3; ++cycle)
+            {
+                step ("live project remove opened victim; retain factory and peers");
+                instances[0]->destroy (controllerFirst);
+                instances[0].reset();
+                require (GetModuleHandleW (path.c_str()) != nullptr, "live removal unloaded peer module");
+                pump (100); // stale victim callbacks must fail in this child
+                for (size_t peer = 1; peer < instances.size(); ++peer)
+                {
+                    step ("survivor audio after live removal");
+                    std::exception_ptr error;
+                    std::thread worker ([&] { try { instances[peer]->process(); } catch (...) { error = std::current_exception(); } });
+                    worker.join();
+                    if (error) std::rethrow_exception (error);
+                    step ("survivor save and restore after live removal");
+                    auto* state = new Stream;
+                    require (instances[peer]->component->getState (state) == kResultOk && !state->bytes.empty(), "survivor save");
+                    state->position = 0;
+                    require (instances[peer]->component->setState (state) == kResultOk, "survivor restore");
+                    state->position = 0;
+                    require (instances[peer]->controller->setComponentState (state) == kResultOk, "survivor controller restore");
+                    require (state->refs == 1, "survivor retained state stream");
+                    state->release();
+                    instances[peer]->closeEditor();
+                    instances[peer]->openEditor (*host);
+                }
+                // Recreate in the same project/factory, then delete it again.
+                instances[0] = std::make_unique<Instance>();
+                instances[0]->create (factory, componentClass, *host);
+                instances[0]->openEditor (*host);
+            }
+            std::cout << "PASS live removal cycles=3 peers=2 scenario=" << scenario << std::endl;
         }
         // After normal operation, project close must not require the host to
         // pump messages between remove/deactivate/terminate/release calls.
@@ -502,7 +541,7 @@ int wmain (int argc, wchar_t** argv)
         std::array<wchar_t, 32768> executable {};
         require (GetModuleFileNameW (nullptr, executable.data(), static_cast<DWORD> (executable.size())) != 0, "get harness path");
         int failures = 0;
-        for (const auto* scenario : { L"headless", L"editor-pumping", L"editor-pending", L"multiple-instances", L"reopen-project" })
+        for (const auto* scenario : { L"headless", L"editor-pumping", L"editor-pending", L"multiple-instances", L"reopen-project", L"live-remove-controller-first", L"live-remove-component-first" })
         {
             const std::wstring name (scenario);
             std::cout << "SCENARIO " << std::string (name.begin(), name.end()) << std::endl;
@@ -528,7 +567,7 @@ int wmain (int argc, wchar_t** argv)
             std::cout << (exitCode == 0 ? "PASS" : "FAIL") << " scenario=" << std::string (name.begin(), name.end())
                       << " exit=" << exitCode << " elapsed_ms=" << GetTickCount64() - started << std::endl;
         }
-        std::cout << "VST3 lifecycle scenarios: " << 5 - failures << "/5 passed" << std::endl;
+        std::cout << "VST3 lifecycle scenarios: " << 7 - failures << "/7 passed" << std::endl;
         return failures == 0 ? 0 : 1;
     }
     catch (const std::exception& error)

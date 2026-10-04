@@ -258,6 +258,34 @@ def amp_panels():
         note='SUNN 추가는 필수이며 Model T는 우선 조사안입니다. Normal/Brilliant 입력 볼륨과 톤·Master 대상 정의만 준비했습니다. 원형 세대·패널 확인 전 확정 원본 조작부라고 표시하지 않습니다. 리이슈/JFET 페달/클론으로 대체하지 않습니다.',
         omitted='Exact generation, original panel and input-jumper wiring require primary material. No invented Presence, modes or power controls added.',
         routes=['NORMAL — target','BRILLIANT — target','JUMPED — target'])
+    # Append E670FE; never relabel the released Ironball panel at model 16.
+    se = []
+    for ch, label in [('clean','CLEAN'),('crunch','CRUNCH'),('lead1','LEAD I'),('lead2','LEAD II')]:
+        se += knobs(f'hw.{ch}.','gain treble volume',label,[ch])
+    se += knobs('hw.clean_eq.','bass middle','CLEAN / CRUNCH EQ',['clean','crunch'])
+    se += knobs('hw.lead_eq.','bass middle','LEAD EQ',['lead1','lead2'])
+    for key, label, channels in [
+        ('gain_boost','GAIN BOOST',['clean','crunch']),
+        ('mid_shift','MID SHIFT',['clean','crunch']),
+        ('bright','BRIGHT',['clean','crunch']),
+        ('hi_gain','HI GAIN',['lead1','lead2']),
+        ('contour','CONTOUR',['lead1','lead2']),
+        ('mid_edge','MID EDGE',['lead1','lead2'])]:
+        se += [toggle('hw.'+key,label,'VOICING',channels)]
+    se += [choice('hw.character','CHARACTER',['MODERN','CLASSIC'],'VOICING',['clean','crunch','lead1','lead2'])]
+    se += knobs('hw.','presence_a presence_b','POWER')
+    se += [choice('hw.presence_select','PRESENCE',['A','B'],'POWER')]
+    se += knobs('hw.','master_a master_b','POWER')
+    se += [choice('hw.master_select','MASTER',['A','B'],'POWER'),toggle('hw.depth_boost','DEPTH BOOST','POWER')]
+    se += [toggle('hw.mega_lo_punch','MEGA LO PUNCH','VOICING',['clean','crunch','lead1','lead2'])]
+    se += [toggle('hw.tube_eq','T.D. EQ','TUBE DRIVER',['driver'])]
+    p['planned.amp.engl-e670fe'] = panel('ENGL E670FE Special Edition Founders Edition',se,
+        ['https://www.engl-amps.com/wp-content/uploads/2024/01/E670FE-OM-2-FE-Special-Edition.pdf'],
+        [('clean','CLEAN'),('crunch','CRUNCH'),('lead1','LEAD I'),('lead2','LEAD II'),('driver','TUBE DRIVER')],
+        initial='lead1',review=PARTIAL,
+        note='E670FE core controls from the official manual. Tube Driver replaces the four main paths; no invented Driver gain. All coefficients are authored, not capture-calibrated.',
+        omitted='Internal reverb/noise gate and external loop/MIDI hardware are delegated to Chimera FX/global controls. Tube Driver EQ uses an authored passive-style insertion response; physical tone-control ownership/taper remains unverified. No selectable output-tube type or E670/Savage/Powerball equivalence is claimed.',
+        scope='C Documentary for named functions; T.D. EQ insertion and all sonic coefficients remain pending exact E670FE validation.')
     return p
 
 

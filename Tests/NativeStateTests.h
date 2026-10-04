@@ -18,6 +18,17 @@ inline void run(const juce::File& directory) {
     const auto storage=std::make_unique<ChimeraProcessor>();auto& p=*storage;
     const auto recalledStorage=std::make_unique<ChimeraProcessor>();auto& recalled=*recalledStorage;
     juce::StringArray checked;
+    // Released host ordinals (including POST) precede all new E670FE banks.
+    bool sawAppended=false;int appended=0;
+    for(auto* parameter:p.getParameters()) {
+        const auto* id=dynamic_cast<juce::AudioProcessorParameterWithID*>(parameter);
+        require(id!=nullptr,"Parameter lacks a stable ID");
+        const bool isNew=id->paramID.startsWith("nativeAmp_") && id->paramID.contains("_m23_");
+        if(isNew){require(parameter->getParameterIndex()==3686+appended,"E670FE appended ordinal moved");sawAppended=true;++appended;}
+        else if(id->paramID=="gateRangeDb")require(appended==204 && parameter->getParameterIndex()==3890,"Gate Range must follow the complete E670FE bank");
+        else require(!sawAppended,"E670FE inserted ahead of a released host parameter");
+    }
+    require(appended==6*(32+2),"E670FE six-context parameter bank incomplete");
     std::set<std::string> hostIDs;
     for(auto* parameter:p.getParameters()) {
         const auto* identified=dynamic_cast<juce::AudioProcessorParameterWithID*>(parameter);
@@ -106,6 +117,46 @@ inline void run(const juce::File& directory) {
     recalled.setAmpNativeRoute(0,1);recalled.setAmpChannel(0,0);
     require(get(recalled,ampChannelID(0,19))==1.f,"Single-channel selection overwrote the Model T compatibility input route");
     checked.add("Old Model T input routes and SLO overdrive project to the correct native channel/input without changing POST banks");
+    // Exercise every E670FE channel in all six contexts through binary recall.
+    for(int channel=0;channel<5;++channel) {
+        for(int mode=0;mode<3;++mode) {
+            set(p,"mode",float(mode));
+            for(int lane=0;lane<=mode;++lane) {
+                const int context=ampNativeContext(mode,lane);
+                p.setAmpModel(lane,23);p.setAmpChannel(lane,channel);
+                for(int control=0;control<32;++control) {
+                    const auto& k=ampNativePanel(23).controls[(size_t)control];
+                    set(p,ampNativeControlID(context,23,control),k.kind==AmpNativeControlKind::knob ? .12f+.1f*context : float((channel+context)%2));
+                }
+            }
+        }
+        p.getStateInformation(bytes);recalled.setStateInformation(bytes.getData(),int(bytes.getSize()));
+        for(int mode=0;mode<3;++mode) {
+            set(recalled,"mode",float(mode));
+            for(int lane=0;lane<=mode;++lane) {
+                const int context=ampNativeContext(mode,lane);
+                require(recalled.selectedAmpModel(lane)==23 && recalled.selectedAmpChannel(lane)==channel,"E670FE binary recall lost model/channel");
+                for(int control=0;control<32;++control) {
+                    const auto id=ampNativeControlID(context,23,control);
+                    require(std::abs(get(p,id)-get(recalled,id))<1.e-5f,"E670FE recall lost a control bank");
+                }
+                recalled.setAmpModel(lane,16);recalled.setAmpModel(lane,23);
+                require(recalled.selectedAmpChannel(lane)==channel,"Ironball return overwrote E670FE bank");
+                set(recalled,ampNativeEnabledID(context),0);
+                require(recalled.selectedAmpModel(lane)==23,"Native-only model fell through to legacy engine");
+            }
+        }
+    }
+    set(p,"mode",0);p.setAmpModel(0,16);p.setAmpChannel(0,1);
+    set(p,ampNativeControlID(0,16,0),.219f);
+    p.getStateInformation(bytes);recalled.setStateInformation(bytes.getData(),int(bytes.getSize()));
+    require(recalled.selectedAmpModel(0)==16 && recalled.selectedAmpChannel(0)==1,"Retired Ironball session changed model/channel");
+    require(std::abs(get(recalled,ampNativeControlID(0,16,0))-.219f)<1.e-5f,"Ironball bank changed on recall");
+    p.selectComparison(0);p.setAmpModel(0,16);p.copyComparison();
+    p.selectComparison(1);p.setAmpModel(0,23);p.setAmpChannel(0,4);
+    p.selectComparison(0);require(p.selectedAmpModel(0)==16,"A/B lost legacy Ironball");
+    p.selectComparison(1);require(p.selectedAmpModel(0)==23 && p.selectedAmpChannel(0)==4,"A/B lost E670FE Tube Driver");
+    checked.add("E670FE append-only host ordering, 6 contexts x 5 channels binary recall, control banks, Ironball return/recall and A/B");
     juce::DynamicObject::Ptr report=new juce::DynamicObject();report->setProperty("checks",checked);report->setProperty("ampContexts",6);report->setProperty("ampModels",ampModelCount);report->setProperty("postModels",9);
     require(directory.getChildFile("Native-State-Verification.json").replaceWithText(juce::JSON::toString(juce::var(report.get()),true)),"Could not write native state evidence");
     std::cout<<"PASS: six native amp contexts, all native banks, POST nine models, binary/A-B recall and immediate pedal bank recall\n";

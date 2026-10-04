@@ -14,8 +14,8 @@ class CatalogTests(unittest.TestCase):
         self.assertEqual(sum(m["location"]=="pre" for m in old),25)
         self.assertEqual(sum(m["location"]=="post" for m in old),21)
     def test_all_requested_additions_present(self):
-        self.assertEqual(len(self.models),80)
-        for key in ("zuta-gbg120","engl","diezel-vh4","svt-cl","sunn"):
+        self.assertEqual(len(self.models),81)
+        for key in ("zuta-gbg120","engl","engl-e670fe","diezel-vh4","svt-cl","sunn"):
             self.assertEqual(self.models["planned.amp."+key]["priority"],"required")
     def test_distortion_plus_has_no_fictional_tone(self):
         self.assertEqual([c["id"] for c in self.models["planned.distortion-plus"]["controls"]],["distortion","output"])

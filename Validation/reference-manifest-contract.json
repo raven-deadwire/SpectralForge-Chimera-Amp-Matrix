@@ -1,0 +1,8 @@
+{
+  "schema": "spectralforge.chimera.reference-manifest-contract",
+  "schema_version": 1,
+  "grades": ["A", "B", "C", "Original"],
+  "required_fields": ["exact_model_revision", "scope", "calibration", "signal_chain", "sha256", "source", "redistribution_boundary"],
+  "allowed_scopes": ["head", "preamp", "Amp+Cab", "pedal", "rack", "IR", "document", "original-design"],
+  "direct_reamping": false
+}

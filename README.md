@@ -4,7 +4,7 @@
 
 **[Download Open Beta 1.1 — Windows / macOS / Linux](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/releases/tag/v1.1.0-beta.1)** · **[Detailed manual · EN / DE / KR](https://raven-deadwire.github.io/RavenForge-Luthier-Intelligence/manual/chimera.html)**
 
-Version `1.1.0-beta.1` includes 23 amp heads, 39 PRE pedal models, the six-module POST rack and 31 factory presets. The offline manual is also included in each installer and available under SETTINGS → Manual. This beta is unsigned on Windows and not Developer ID signed or notarized on macOS.
+Version `1.1.0-beta.1` includes 23 amp heads, 39 PRE pedal models, the six-module POST rack and 31 factory presets. The current development branch also appends three Deadwire Signature presets without changing the original factory ordinals. The offline manual is also included in each installer and available under SETTINGS → Manual. This beta is unsigned on Windows and not Developer ID signed or notarized on macOS.
 
 It works as a conventional single-amp simulator in **Classic Mode**, blends two complete amp rigs or splits low/high in **Dual Mode**, or splits the instrument signal into multiple frequency bands in **Matrix Mode**, blending a compressed LOW DI with a selectable head/cab beneath independent MID/HIGH rigs.
 
@@ -29,7 +29,7 @@ Implemented signal path: **input/gate/transpose -> PRE pedalboard -> rigs/cabine
 - A/B snapshots and Save/Load reference files include parameters and embedded IRs. Repeatable synthetic DI and RMS-matched amp/cab A/B WAVs accompany Windows builds.
 - Two embedded factory IRs, plus a WAV/AIFF loader, direct installed-file CAB menu and drag-and-drop per rig. Personal and external captures require local import and are not included in the public release. User IR audio is embedded in the DAW project, so moving the original file does not break recall. Cabinet bypass, cuts, status, mute/solo and polarity are exposed.
 - Global input/output gain and peak meters; gate threshold/hold/release; polyphonic transpose (-12 to +12 semitones); tuner with A4 calibration and auto-mute.
-- 31 recommended starting presets grouped by instrument and playing role, and file-based references, input Stereo/Mono L, stereo Doubler; bottom tuner, persistent MIDI CC Learn, Tap/manual/host BPM and a practice metronome. Delay can follow quarter-note tempo.
+- 31 recommended factory starting presets plus a separate three-preset Deadwire Signature group in the current development branch, and file-based references, input Stereo/Mono L, stereo Doubler; bottom tuner, persistent MIDI CC Learn, Tap/manual/host BPM and a practice metronome. Delay can follow quarter-note tempo.
 - User-supplied emblem icon, newly generated SpectralForge/CHIMERA wordmark, model-specific generated hardware imagery with live native controls, continuous resizing and 75/100/125/150% size choices. All audio controls expose host automation and project recall; older normalized PRE model-selection automation needs review after the three-to-five-choice expansion.
 
 Amp names describe target voicings. **Hardware reproduction accuracy has not been established.** See [validation scope and limits](docs/AMP_VALIDATION.md), [six new NAM comparisons](docs/OPEN_BETA_NAM_VALIDATION.md), [third-party credits](docs/THIRD_PARTY_NOTICES.md) and the test log included in Windows packages. See the [IR placement, effects references and mode decisions](docs/FX_AND_IR_DESIGN.md).

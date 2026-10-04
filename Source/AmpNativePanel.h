@@ -4,6 +4,7 @@
 #include "NativeControlView.h"
 #include "HardwareArtwork.h"
 #include "AmpSelector.h"
+#include "UIRefresh.h"
 
 class AmpNativePanel final : public juce::Component {
 public:
@@ -21,7 +22,18 @@ public:
         input.onChange=[this]{input.acceptSelection();processor.setAmpNativeRoute(lane,input.getSelectedId()-1);};
     }
     ~AmpNativePanel() override {if(dialog)delete dialog.getComponent();setLookAndFeel(nullptr);}
+    // The ALL window has independent visibility from its owning tab.
+    void refreshIfNeeded() {
+        if(dialog)if(auto* full=dynamic_cast<AmpNativePanel*>(dialog->getContentComponent()))full->refreshIfNeeded();
+        if(!spectralforge::ui::visible(*this)){refreshKey.dirty=true;return;}
+        const std::array<int,5> key{{(int)processor.parameters().getRawParameterValue("mode")->load(),
+            (int)processor.parameters().getRawParameterValue("dualtype")->load(),processor.selectedAmpModel(lane),
+            processor.selectedAmpChannel(lane),processor.selectedAmpNativeRoute(lane)}};
+        if(refreshKey.update(key))refresh();
+    }
+    uint64_t stateRefreshCount() const noexcept {return refreshCount;}
     void refresh() {
+        ++refreshCount;
         const int mode=(int)processor.parameters().getRawParameterValue("mode")->load();
         const bool split=mode==2 || (mode==1 && processor.parameters().getRawParameterValue("dualtype")->load()>.5f);
         const int nextContext=spectralforge::ampNativeContext(mode,lane),nextModel=processor.selectedAmpModel(lane);
@@ -72,7 +84,6 @@ public:
             }
             viewport.setViewPosition(0,0);resized();
         }
-        if(dialog)if(auto* full=dynamic_cast<AmpNativePanel*>(dialog->getContentComponent()))full->refresh();
     }
     void resized() override {
         const int shown=(channel.isVisible()?1:0)+(input.isVisible()?1:0);
@@ -87,6 +98,8 @@ public:
         content.setSize(available,juce::jmax(viewport.getHeight(),((visible+columns-1)/columns)*103));
     }
 private:
+    spectralforge::ui::Changed<std::array<int,5>> refreshKey;
+    uint64_t refreshCount{};
     ChimeraProcessor& processor;int lane{},context{-1},model{-1},currentChannel{-1};bool detailed{},currentSplit{},lowOverview{};
     juce::TextButton expand;juce::Component::SafePointer<juce::DialogWindow> dialog;
     juce::Label channelLabel,inputLabel;StableAmpComboBox channel,input;

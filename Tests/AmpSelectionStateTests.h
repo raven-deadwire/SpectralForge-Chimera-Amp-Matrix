@@ -55,7 +55,7 @@ inline void run() {
     p.setAmpModel(1,15);p.setAmpChannel(1,1);
     p.setAmpModel(2,22);p.setAmpChannel(2,0);
     require(p.selectedAmpChannel(0)==3 && p.selectedAmpChannel(1)==1 && p.selectedAmpChannel(2)==0,"Amp channel banks leak between lanes");
-    p.setAmpModel(0,23);p.setAmpModel(-1,1);p.setAmpChannel(3,0);
+    p.setAmpModel(0,ampModelCount);p.setAmpModel(-1,1);p.setAmpChannel(3,0);
     require(p.selectedAmpModel(0)==15 && p.selectedAmpChannel(0)==3,"Invalid amp API input mutated a valid lane");
 
     juce::MemoryBlock saved;

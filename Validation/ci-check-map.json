@@ -1,0 +1,115 @@
+{
+  "schema": "spectralforge.chimera.ci-check-map",
+  "schema_version": 1,
+  "policy_version": 3,
+  "checks": {
+    "A12.01": {
+      "name": "Portable core and preset regression",
+      "producer": "ctest:ChimeraTests",
+      "platform": "all",
+      "artifact": "LastTest.log"
+    },
+    "A12.02": {
+      "name": "Transpose, gate and tail stability regression",
+      "producer": "ctest:ChimeraStabilityTests",
+      "platform": "all",
+      "artifact": "LastTest.log"
+    },
+    "A12.03": {
+      "name": "Universal PRE board regression",
+      "producer": "ctest:ChimeraPedalBoardTests",
+      "platform": "all",
+      "artifact": "LastTest.log"
+    },
+    "A12.04": {
+      "name": "IR collection, integrity and fallback regression",
+      "producer": "ctest:ChimeraIRCollectionTests",
+      "platform": "all",
+      "artifact": "LastTest.log"
+    },
+    "A12.05": {
+      "name": "Appended amp topology and legacy preservation regression",
+      "producer": "ctest:ChimeraNewAmpTests",
+      "platform": "all",
+      "artifact": "LastTest.log"
+    },
+    "A12.06": {
+      "name": "Native amp control and DSP regression",
+      "producer": "ctest:ChimeraAmpNativeTests",
+      "platform": "all",
+      "artifact": "LastTest.log"
+    },
+    "A12.07": {
+      "name": "Native POST control, state and DSP regression",
+      "producer": "ctest:ChimeraPostNativeTests",
+      "platform": "all",
+      "artifact": "LastTest.log"
+    },
+    "A13.01": {
+      "name": "Windows full CTest matrix",
+      "producer": "workflow:build/windows",
+      "platform": "windows",
+      "artifact": "Chimera-DSP-verification-Windows"
+    },
+    "A13.02": {
+      "name": "Linux full CTest matrix",
+      "producer": "workflow:build/linux",
+      "platform": "linux",
+      "artifact": "Chimera-DSP-verification-Linux"
+    },
+    "A13.03": {
+      "name": "macOS universal full CTest matrix",
+      "producer": "workflow:build/macos",
+      "platform": "macos",
+      "artifact": "Chimera-DSP-verification-macOS"
+    },
+    "A13.04": {
+      "name": "Windows installer install, repair and uninstall",
+      "producer": "workflow:Verify-WindowsInstaller",
+      "platform": "windows",
+      "artifact": "Chimera-Windows-installer-verification"
+    },
+    "A13.05": {
+      "name": "Windows MSIX deployment and activation",
+      "producer": "workflow:Verify-WindowsMSIX",
+      "platform": "windows",
+      "artifact": "Chimera-Windows-MSIX-verification"
+    },
+    "A13.06": {
+      "name": "Windows distribution Defender scan",
+      "producer": "workflow:Scan-WindowsArtifacts",
+      "platform": "windows",
+      "artifact": "Chimera-Windows-security-report"
+    },
+    "A13.07": {
+      "name": "Exact-source release candidate assembly",
+      "producer": "workflow:assemble-candidate",
+      "platform": "all",
+      "artifact": "SpectralForge-Chimera-Open-Beta-1.1-Release-Candidate"
+    },
+    "I1.PITCH": {
+      "name": "Low-bin energy and unchanged raw mapping",
+      "producer": "ctest:ChimeraPitchRegressionTests",
+      "platform": "all",
+      "artifact": "ctest-results.xml"
+    },
+    "I1.GATE": {
+      "name": "Combined Range manifest, state and routing",
+      "producer": "ctest:ChimeraGateProcessorTests",
+      "platform": "all",
+      "artifact": "ctest-results.xml"
+    },
+    "I1.STATE_GAIN_GR": {
+      "name": "Full Guitar state, unity level and compressor GR",
+      "producer": "ctest:ChimeraIntegratedProcessorTests",
+      "platform": "all",
+      "artifact": "ctest-results.xml"
+    },
+    "I1.LIVE_REMOVE": {
+      "name": "Live project deletion with surviving peers",
+      "producer": "ctest:ChimeraVST3LifecycleTests",
+      "platform": "windows",
+      "artifact": "ctest-results.xml"
+    }
+  }
+}

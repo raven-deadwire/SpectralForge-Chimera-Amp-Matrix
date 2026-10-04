@@ -1,4 +1,5 @@
 #pragma once
+#include "GateUITests.h"
 #include "PluginEditor.h"
 #include "AmpNativeParameters.h"
 #include "PostNativeCatalog.h"
@@ -184,6 +185,7 @@ inline void dialogTeardown() {
 }
 inline void run(const juce::File& directory){
     auto storage=std::make_unique<ChimeraProcessor>();auto& processor=*storage;ChimeraEditor editor(processor);auto* canvas=editor.findChildWithID("surface");require(canvas!=nullptr,"Native UI canvas missing");
+    checkGateUI(processor,editor,directory);
     auto* gateLocation=find<juce::TextButton>(*canvas,"gateAfterRig");require(gateLocation!=nullptr,"POST GATE control missing");
     const bool originalGateLocation=processor.parameters().getRawParameterValue("gateAfterRig")->load()>.5f;
     gateLocation->triggerClick();settle();require((processor.parameters().getRawParameterValue("gateAfterRig")->load()>.5f)!=originalGateLocation,"POST GATE button does not toggle the audio parameter");
@@ -194,7 +196,9 @@ inline void run(const juce::File& directory){
     int channelCases=0,controlCases=0;
     for(int scale=0;scale<2;++scale){editor.setSize(scale?885:1180,scale?585:780);settle();
         for(int model=0;model<spectralforge::ampModelCount;++model){
-            require(selector->selectMenuResult(model+1),"Native model selection failed");settle();
+            if(spectralforge::ampIsActive(model))require(selector->selectMenuResult(model+1),"Native model selection failed");
+            else processor.setAmpModel(0,model); // Legacy recall still displays its original panel.
+            settle();
             auto* panel=find<AmpNativePanel>(*canvas,"ampNativePanel1");require(panel!=nullptr,"Native amplifier panel missing");auto* channel=find<juce::ComboBox>(*panel,"ampChannel1");
             const auto& spec=spectralforge::ampNativePanel(model);
             require(channel && channel->isVisible()==(spec.channels.size()>1),"Native UI single-channel selector not hidden");
