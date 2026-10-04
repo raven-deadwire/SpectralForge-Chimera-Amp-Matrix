@@ -28,7 +28,8 @@ void parameterContract(ChimeraProcessor& p)
             +juce::String(parameter->convertFrom0to1(1.f),9)+"|"+juce::String(int(parameter->isAutomatable()))+"\n";
     }
     const auto digest=juce::SHA256(manifest.toRawUTF8(),manifest.getNumBytesAsUTF8()).toHexString();
-    const juce::String frozen(releasedParameterContract);
+    juce::String frozen;
+    for(const auto* chunk:releasedParameterContractChunks)frozen+=chunk;
     require(juce::SHA256(frozen.toRawUTF8(),frozen.getNumBytesAsUTF8()).toHexString()
             =="1de9d010b4267088d80a6922105b047ae0c9e142e3b931c000129d6befa3523f","Frozen released contract fixture changed");
     const auto actualRows=juce::StringArray::fromLines(manifest),expectedRows=juce::StringArray::fromLines(frozen);
