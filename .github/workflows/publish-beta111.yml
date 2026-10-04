@@ -1,0 +1,64 @@
+name: Build and publish Open Beta 1.1.1
+on:
+  workflow_dispatch:
+    inputs:
+      source_sha:
+        description: Exact accepted 40-character source SHA
+        required: true
+        type: string
+      confirm:
+        description: Type publish-v1.1.1-beta.1 after all manual release gates pass
+        required: true
+        type: string
+permissions:
+  contents: read
+  actions: read
+jobs:
+  preflight:
+    if: github.repository == 'raven-deadwire/SpectralForge-Chimera-Amp-Matrix' && github.ref == 'refs/heads/release/open-beta-1.1.1'
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Require exact accepted source and explicit release confirmation
+        shell: bash
+        env:
+          ACCEPTED_SHA: ${{ inputs.source_sha }}
+          CONFIRM: ${{ inputs.confirm }}
+        run: |
+          test "$CONFIRM" = "publish-v1.1.1-beta.1"
+          test "$ACCEPTED_SHA" = "$GITHUB_SHA"
+          test "${#ACCEPTED_SHA}" -eq 40
+          test "$(python Tools/chimera_version.py --field version)" = "1.1.1-beta.1"
+          test "$(cat VERSION)" = "1.1.1"
+          test "$(cat RELEASE_CHANNEL)" = "beta.1"
+          git diff --exit-code
+  verified-builds:
+    needs: preflight
+    uses: ./.github/workflows/build.yml
+  publish:
+    concurrency:
+      group: publish-chimera-v1.1.1-beta.1
+      cancel-in-progress: false
+    needs: verified-builds
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    permissions:
+      contents: write
+      actions: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verify this exact run's packages and publish Open Beta 1.1.1
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python Tools/publish_beta111.py
