@@ -46,7 +46,13 @@ void parameterContract(ChimeraProcessor& p)
                 // round the same float mapping differently; preserve numeric
                 // semantics without relying on nine-decimal string identity.
                 const double a=actual[field].getDoubleValue(),e=expected[field].getDoubleValue();
-                const double tolerance=5e-10+4*double(std::numeric_limits<float>::epsilon())*std::abs(e);
+                // Near zero, cancellation/FMA error scales with the domain,
+                // not the result (e.g. ARM bass midpoint -2.68e-7 vs x86 0).
+                // Normalized defaults have a unit domain; range samples use
+                // their frozen endpoints/span. No host structure is relaxed.
+                const double lo=expected[5].getDoubleValue(),hi=expected[7].getDoubleValue();
+                const double scale=field==3 ? 1. : std::max({std::abs(lo),std::abs(hi),std::abs(hi-lo)});
+                const double tolerance=5e-10+4*double(std::numeric_limits<float>::epsilon())*scale;
                 if(std::abs(a-e)>tolerance) {
                     std::cerr<<"Contract mismatch "<<expected[1]<<" field="<<field<<" expected="<<expected[field]<<" actual="<<actual[field]<<'\n';
                     require(false,"Released default/range numeric contract changed");
