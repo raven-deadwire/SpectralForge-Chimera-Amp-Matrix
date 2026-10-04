@@ -1,0 +1,400 @@
+{
+  "backtraceGraph" : 
+  {
+    "commands" : 
+    [
+      "add_test"
+    ],
+    "files" : 
+    [
+      "/workspace/scratch/cffaf9d3f882/chimera/CMakeLists.txt"
+    ],
+    "nodes" : 
+    [
+      {
+        "file" : 0
+      },
+      {
+        "command" : 0,
+        "file" : 0,
+        "line" : 68,
+        "parent" : 0
+      },
+      {
+        "file" : 0
+      },
+      {
+        "command" : 0,
+        "file" : 0,
+        "line" : 81,
+        "parent" : 2
+      },
+      {
+        "file" : 0
+      },
+      {
+        "command" : 0,
+        "file" : 0,
+        "line" : 101,
+        "parent" : 4
+      },
+      {
+        "file" : 0
+      },
+      {
+        "command" : 0,
+        "file" : 0,
+        "line" : 138,
+        "parent" : 6
+      },
+      {
+        "file" : 0
+      },
+      {
+        "command" : 0,
+        "file" : 0,
+        "line" : 145,
+        "parent" : 8
+      },
+      {
+        "file" : 0
+      },
+      {
+        "command" : 0,
+        "file" : 0,
+        "line" : 152,
+        "parent" : 10
+      },
+      {
+        "file" : 0
+      },
+      {
+        "command" : 0,
+        "file" : 0,
+        "line" : 159,
+        "parent" : 12
+      },
+      {
+        "file" : 0
+      },
+      {
+        "command" : 0,
+        "file" : 0,
+        "line" : 175,
+        "parent" : 14
+      },
+      {
+        "file" : 0
+      },
+      {
+        "command" : 0,
+        "file" : 0,
+        "line" : 182,
+        "parent" : 16
+      },
+      {
+        "file" : 0
+      },
+      {
+        "command" : 0,
+        "file" : 0,
+        "line" : 190,
+        "parent" : 18
+      },
+      {
+        "file" : 0
+      },
+      {
+        "command" : 0,
+        "file" : 0,
+        "line" : 190,
+        "parent" : 20
+      },
+      {
+        "file" : 0
+      },
+      {
+        "command" : 0,
+        "file" : 0,
+        "line" : 198,
+        "parent" : 22
+      },
+      {
+        "file" : 0
+      },
+      {
+        "command" : 0,
+        "file" : 0,
+        "line" : 205,
+        "parent" : 24
+      },
+      {
+        "file" : 0
+      },
+      {
+        "command" : 0,
+        "file" : 0,
+        "line" : 212,
+        "parent" : 26
+      },
+      {
+        "file" : 0
+      },
+      {
+        "command" : 0,
+        "file" : 0,
+        "line" : 219,
+        "parent" : 28
+      }
+    ]
+  },
+  "kind" : "ctestInfo",
+  "tests" : 
+  [
+    {
+      "backtrace" : 1,
+      "command" : 
+      [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3.12",
+        "/workspace/scratch/cffaf9d3f882/chimera/Tools/verify_vblank_failure.py",
+        "--baseline",
+        "/workspace/scratch/cffaf9d3f882/chimera/build/ChimeraVBlankBaselineProbe",
+        "--patched",
+        "/workspace/scratch/cffaf9d3f882/chimera/build/ChimeraVBlankPatchedProbe",
+        "--extraction-report",
+        "/workspace/scratch/cffaf9d3f882/chimera/build/vblank-test-generated/extraction.json",
+        "--report",
+        "/workspace/scratch/cffaf9d3f882/chimera/build/vblank-failure-verification.json"
+      ],
+      "name" : "ChimeraVBlankFailureTests",
+      "properties" : 
+      [
+        {
+          "name" : "TIMEOUT",
+          "value" : 20.0
+        },
+        {
+          "name" : "WORKING_DIRECTORY",
+          "value" : "/workspace/scratch/cffaf9d3f882/chimera/build"
+        }
+      ]
+    },
+    {
+      "backtrace" : 3,
+      "command" : 
+      [
+        "/workspace/scratch/cffaf9d3f882/chimera/build/ChimeraTests_artefacts/Release/ChimeraTests"
+      ],
+      "name" : "ChimeraTests",
+      "properties" : 
+      [
+        {
+          "name" : "WORKING_DIRECTORY",
+          "value" : "/workspace/scratch/cffaf9d3f882/chimera/build"
+        }
+      ]
+    },
+    {
+      "backtrace" : 5,
+      "command" : 
+      [
+        "/workspace/scratch/cffaf9d3f882/chimera/build/ChimeraUITests_artefacts/Release/ChimeraUITests",
+        "/workspace/scratch/cffaf9d3f882/chimera/build/ui-snapshots"
+      ],
+      "name" : "ChimeraUITests",
+      "properties" : 
+      [
+        {
+          "name" : "WORKING_DIRECTORY",
+          "value" : "/workspace/scratch/cffaf9d3f882/chimera/build"
+        }
+      ]
+    },
+    {
+      "backtrace" : 7,
+      "command" : 
+      [
+        "/workspace/scratch/cffaf9d3f882/chimera/build/ChimeraReleaseTests_artefacts/Release/ChimeraReleaseTests"
+      ],
+      "name" : "ChimeraReleaseTests",
+      "properties" : 
+      [
+        {
+          "name" : "WORKING_DIRECTORY",
+          "value" : "/workspace/scratch/cffaf9d3f882/chimera/build"
+        }
+      ]
+    },
+    {
+      "backtrace" : 9,
+      "command" : 
+      [
+        "/workspace/scratch/cffaf9d3f882/chimera/build/ChimeraStabilityTests_artefacts/Release/ChimeraStabilityTests"
+      ],
+      "name" : "ChimeraStabilityTests",
+      "properties" : 
+      [
+        {
+          "name" : "WORKING_DIRECTORY",
+          "value" : "/workspace/scratch/cffaf9d3f882/chimera/build"
+        }
+      ]
+    },
+    {
+      "backtrace" : 11,
+      "command" : 
+      [
+        "/workspace/scratch/cffaf9d3f882/chimera/build/ChimeraPedalBoardTests_artefacts/Release/ChimeraPedalBoardTests"
+      ],
+      "name" : "ChimeraPedalBoardTests",
+      "properties" : 
+      [
+        {
+          "name" : "WORKING_DIRECTORY",
+          "value" : "/workspace/scratch/cffaf9d3f882/chimera/build"
+        }
+      ]
+    },
+    {
+      "backtrace" : 13,
+      "command" : 
+      [
+        "/workspace/scratch/cffaf9d3f882/chimera/build/ChimeraIRCollectionTests_artefacts/Release/ChimeraIRCollectionTests"
+      ],
+      "name" : "ChimeraIRCollectionTests",
+      "properties" : 
+      [
+        {
+          "name" : "WORKING_DIRECTORY",
+          "value" : "/workspace/scratch/cffaf9d3f882/chimera/build"
+        }
+      ]
+    },
+    {
+      "backtrace" : 15,
+      "command" : 
+      [
+        "/workspace/scratch/cffaf9d3f882/chimera/build/ChimeraNewAmpTests_artefacts/Release/ChimeraNewAmpTests"
+      ],
+      "name" : "ChimeraNewAmpTests",
+      "properties" : 
+      [
+        {
+          "name" : "WORKING_DIRECTORY",
+          "value" : "/workspace/scratch/cffaf9d3f882/chimera/build"
+        }
+      ]
+    },
+    {
+      "backtrace" : 17,
+      "command" : 
+      [
+        "/workspace/scratch/cffaf9d3f882/chimera/build/ChimeraPedalOctaverTests_artefacts/Release/ChimeraPedalOctaverTests"
+      ],
+      "name" : "ChimeraPedalOctaverTests",
+      "properties" : 
+      [
+        {
+          "name" : "WORKING_DIRECTORY",
+          "value" : "/workspace/scratch/cffaf9d3f882/chimera/build"
+        }
+      ]
+    },
+    {
+      "backtrace" : 19,
+      "command" : 
+      [
+        "/workspace/scratch/cffaf9d3f882/chimera/build/ChimeraAmpNativeTests_artefacts/Release/ChimeraAmpNativeTests"
+      ],
+      "name" : "ChimeraAmpNativeTests",
+      "properties" : 
+      [
+        {
+          "name" : "WORKING_DIRECTORY",
+          "value" : "/workspace/scratch/cffaf9d3f882/chimera/build"
+        }
+      ]
+    },
+    {
+      "backtrace" : 21,
+      "command" : 
+      [
+        "/workspace/scratch/cffaf9d3f882/chimera/build/ChimeraPostNativeTests_artefacts/Release/ChimeraPostNativeTests"
+      ],
+      "name" : "ChimeraPostNativeTests",
+      "properties" : 
+      [
+        {
+          "name" : "WORKING_DIRECTORY",
+          "value" : "/workspace/scratch/cffaf9d3f882/chimera/build"
+        }
+      ]
+    },
+    {
+      "backtrace" : 23,
+      "command" : 
+      [
+        "/workspace/scratch/cffaf9d3f882/chimera/build/ChimeraGateProcessorTests_artefacts/Release/ChimeraGateProcessorTests"
+      ],
+      "name" : "ChimeraGateProcessorTests",
+      "properties" : 
+      [
+        {
+          "name" : "WORKING_DIRECTORY",
+          "value" : "/workspace/scratch/cffaf9d3f882/chimera/build"
+        }
+      ]
+    },
+    {
+      "backtrace" : 25,
+      "command" : 
+      [
+        "/workspace/scratch/cffaf9d3f882/chimera/build/ChimeraGateTests_artefacts/Release/ChimeraGateTests"
+      ],
+      "name" : "ChimeraGateTests",
+      "properties" : 
+      [
+        {
+          "name" : "WORKING_DIRECTORY",
+          "value" : "/workspace/scratch/cffaf9d3f882/chimera/build"
+        }
+      ]
+    },
+    {
+      "backtrace" : 27,
+      "command" : 
+      [
+        "/workspace/scratch/cffaf9d3f882/chimera/build/ChimeraIntegratedProcessorTests_artefacts/Release/ChimeraIntegratedProcessorTests",
+        "/workspace/scratch/cffaf9d3f882/chimera/build/signature-snapshots"
+      ],
+      "name" : "ChimeraIntegratedProcessorTests",
+      "properties" : 
+      [
+        {
+          "name" : "WORKING_DIRECTORY",
+          "value" : "/workspace/scratch/cffaf9d3f882/chimera/build"
+        }
+      ]
+    },
+    {
+      "backtrace" : 29,
+      "command" : 
+      [
+        "/workspace/scratch/cffaf9d3f882/chimera/build/ChimeraPitchRegressionTests_artefacts/Release/ChimeraPitchRegressionTests"
+      ],
+      "name" : "ChimeraPitchRegressionTests",
+      "properties" : 
+      [
+        {
+          "name" : "WORKING_DIRECTORY",
+          "value" : "/workspace/scratch/cffaf9d3f882/chimera/build"
+        }
+      ]
+    }
+  ],
+  "version" : 
+  {
+    "major" : 1,
+    "minor" : 0
+  }
+}

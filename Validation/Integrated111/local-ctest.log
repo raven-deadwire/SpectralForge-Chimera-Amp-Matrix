@@ -1,0 +1,35 @@
+Test project /workspace/scratch/cffaf9d3f882/chimera/build
+      Start  3: ChimeraUITests
+      Start  2: ChimeraTests
+ 1/15 Test  #2: ChimeraTests ......................   Passed   35.34 sec
+      Start  8: ChimeraNewAmpTests
+ 2/15 Test  #8: ChimeraNewAmpTests ................   Passed    9.73 sec
+      Start 15: ChimeraPitchRegressionTests
+ 3/15 Test #15: ChimeraPitchRegressionTests .......   Passed   16.00 sec
+      Start 14: ChimeraIntegratedProcessorTests
+ 4/15 Test #14: ChimeraIntegratedProcessorTests ...   Passed    7.10 sec
+      Start 10: ChimeraAmpNativeTests
+ 5/15 Test #10: ChimeraAmpNativeTests .............   Passed    6.64 sec
+      Start  9: ChimeraPedalOctaverTests
+ 6/15 Test  #9: ChimeraPedalOctaverTests ..........   Passed    6.64 sec
+      Start 12: ChimeraGateProcessorTests
+ 7/15 Test #12: ChimeraGateProcessorTests .........   Passed    8.21 sec
+      Start  1: ChimeraVBlankFailureTests
+ 8/15 Test  #1: ChimeraVBlankFailureTests .........   Passed    2.12 sec
+      Start  6: ChimeraPedalBoardTests
+ 9/15 Test  #6: ChimeraPedalBoardTests ............   Passed    1.30 sec
+      Start  5: ChimeraStabilityTests
+10/15 Test  #5: ChimeraStabilityTests .............   Passed    1.46 sec
+      Start 11: ChimeraPostNativeTests
+11/15 Test #11: ChimeraPostNativeTests ............   Passed    0.60 sec
+      Start 13: ChimeraGateTests
+12/15 Test #13: ChimeraGateTests ..................   Passed    0.27 sec
+      Start  7: ChimeraIRCollectionTests
+13/15 Test  #7: ChimeraIRCollectionTests ..........   Passed    0.12 sec
+      Start  4: ChimeraReleaseTests
+14/15 Test  #4: ChimeraReleaseTests ...............   Passed    0.01 sec
+15/15 Test  #3: ChimeraUITests ....................   Passed  112.41 sec
+
+100% tests passed out of 15
+
+Total Test time (real) = 112.41 sec

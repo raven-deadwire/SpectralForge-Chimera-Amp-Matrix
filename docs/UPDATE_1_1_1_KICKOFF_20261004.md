@@ -1,5 +1,14 @@
 # 1.1.1 immediate kickoff — 2026-10-04 KST
 
+> Integration update: [Draft PR #14](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/pull/14)
+> combines the E670FE/Bass, Gate Range, UI refresh and producer/review branches.
+> All four Guitar Signatures are implemented with complete 3891-parameter
+> snapshots. Linux full CTest passed 15/15. Pitch low-bin energy and outgoing
+> bypass fades are corrected; <=10 ms latency and actual DI/DAW acceptance are
+> still blocked. Release policy is now v3. The original kickoff status below is
+> historical; see `INTEGRATION_1_1_1_20261004.md` for the current implementation
+> and `Validation/Integrated111` for local evidence.
+
 User direction: prioritize E670FE, begin the entire 1.1.1 scope including the
 Astra track immediately. E670FE is the sole exception to the frozen-model rule;
 later 1.2+ expansion dates and the active 132-model target are unchanged.

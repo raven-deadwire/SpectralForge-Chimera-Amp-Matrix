@@ -1,0 +1,92 @@
+{
+  "schema": "spectralforge.chimera.integrated111.local",
+  "implementation_tree": "04cdb6dbe053e0a76c08517562308866101f0ee8",
+  "local_source_commit": "87f21ad1eafb6f930b72c2ea1692f19502d5e141",
+  "published_implementation_commit": "30c24b4abae384b6f03c92e0ba144dae8ff38906",
+  "platform": "Linux Release/JUCE 8.0.8, native X11 peer, optional UI probes ON",
+  "ctest": {
+    "passed": 15,
+    "configured": 15,
+    "seconds": 112.41
+  },
+  "full_guitar_snapshots": {
+    "count": 4,
+    "parameters_each": 3891,
+    "synthetic_audio_max_delta": 0
+  },
+  "limitations": [
+    "Local CMake embedded build revision was configured before the final integration (78ea67bc6c); source code was rebuilt, but embedded diagnostic revision was not refreshed. Published-commit CI is authoritative for exact commit-stamped binaries.",
+    "Synthetic-only evidence; commercial DAW, real DI, <=10 ms latency and E670FE captures/calibration remain unaccepted.",
+    "First run had two empty local link outputs; relinking and full rerun passed."
+  ],
+  "files": [
+    {
+      "path": "guitar-0.xml",
+      "bytes": 213301,
+      "sha256": "cf689f9f568988d0be348c6a525cbb9ad3a4c64b705820b8b7d6e382310c0bc8"
+    },
+    {
+      "path": "guitar-1.xml",
+      "bytes": 213226,
+      "sha256": "f42688472c300c27b40702163fb434f2b67ddfc41e9a20bf0f0714b877db57f8"
+    },
+    {
+      "path": "guitar-2.xml",
+      "bytes": 213289,
+      "sha256": "1c9fa12ac7272c14f922ea71acc26e9b32d9a6d2a98a9c7ccf685e01a992482b"
+    },
+    {
+      "path": "guitar-3.xml",
+      "bytes": 213308,
+      "sha256": "96767281cf384c1744447fd0326cdfbc666d5df4439586a306d91cf3852f5e8e"
+    },
+    {
+      "path": "local-ctest-inventory.json",
+      "bytes": 9073,
+      "sha256": "496c1a4377212b25415a790ba8a3208ea7ed534db7a3edf67efe70f1c98c40e7"
+    },
+    {
+      "path": "local-ctest-results.xml",
+      "bytes": 15394,
+      "sha256": "c98a137ea424826a25b560ed4ea305d1bedcedf33f6a7ac4470083782a1bb7c2"
+    },
+    {
+      "path": "local-ctest.log",
+      "bytes": 1796,
+      "sha256": "b8066e29a3a2ca1af55b3d0e857d2bf819db4d357d1173c5cf2778b38f7404e7"
+    },
+    {
+      "path": "local-release-gate.json",
+      "bytes": 70599,
+      "sha256": "29a0d3578ee825c4e42c56e2a180eb63add4773b4ee2c3ba8c3a76bb9a734363"
+    },
+    {
+      "path": "ui-baseline.json",
+      "bytes": 24955,
+      "sha256": "03a3112de2016feda099d86be212126081c375c2fb3b5d27ac5692021ad5d8fd"
+    },
+    {
+      "path": "ui-candidate.json",
+      "bytes": 24777,
+      "sha256": "acd74dae2392abeab23f7f6115dc4c776c94b4caeb437a7ddba757500be48415"
+    },
+    {
+      "path": "ui-comparison.json",
+      "bytes": 7164,
+      "sha256": "82bca25af3809b5951850a43f7f6a498b6b3f7b116913bd28a3801fce18b08b6"
+    },
+    {
+      "path": "ui-probe.log",
+      "bytes": 4485,
+      "sha256": "06542ee7d24b2670beb4518f1eb5b148eb7480a014a0d6d2f55fd748bcfc4cf9"
+    }
+  ],
+  "ui_cpu_probe": {
+    "scenes": 13,
+    "repeats_each": 3,
+    "synthetic_audio_identity": "PASS",
+    "callback_timing_nonregression": "BLOCKED",
+    "shared_runner": true,
+    "baseline_repeat_overlap": "Short local relink overlapped baseline repeat; timing is not isolated acceptance."
+  }
+}

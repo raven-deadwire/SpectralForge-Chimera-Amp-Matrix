@@ -1,0 +1,2657 @@
+{
+  "schema": "spectralforge.chimera.release-gate",
+  "schema_version": 1,
+  "policy_version": 3,
+  "profile": "pull_request",
+  "revision": {
+    "commit_sha": "87f21ad1eafb6f930b72c2ea1692f19502d5e141"
+  },
+  "verdict": "BLOCKED",
+  "ready": false,
+  "counts": {
+    "checks": {
+      "total": 107,
+      "pass": 11,
+      "blocked": 96,
+      "not_applicable": 0
+    },
+    "stages": {
+      "total": 16,
+      "pass": 1,
+      "blocked": 15,
+      "not_applicable": 0
+    }
+  },
+  "hard_gates": {
+    "total": 48,
+    "pass": 11,
+    "blocked": 37
+  },
+  "checks": [
+    {
+      "id": "A1.01",
+      "stage": "A1",
+      "name": "Installer consistency / A1.01",
+      "computed_status": "BLOCKED",
+      "reason_code": "NOT_EXECUTED",
+      "dependency_state": "SATISFIED",
+      "applicability_state": "APPLICABLE",
+      "blocker": {
+        "type": "NOT_EXECUTED",
+        "reason": "Required validation was not executed"
+      }
+    },
+    {
+      "id": "A1.02",
+      "stage": "A1",
+      "name": "Installer consistency / A1.02",
+      "computed_status": "BLOCKED",
+      "reason_code": "NOT_EXECUTED",
+      "dependency_state": "SATISFIED",
+      "applicability_state": "APPLICABLE",
+      "blocker": {
+        "type": "NOT_EXECUTED",
+        "reason": "Required validation was not executed"
+      }
+    },
+    {
+      "id": "A1.03",
+      "stage": "A1",
+      "name": "Installer consistency / A1.03",
+      "computed_status": "BLOCKED",
+      "reason_code": "NOT_EXECUTED",
+      "dependency_state": "SATISFIED",
+      "applicability_state": "APPLICABLE",
+      "blocker": {
+        "type": "NOT_EXECUTED",
+        "reason": "Required validation was not executed"
+      }
+    },
+    {
+      "id": "A1.04",
+      "stage": "A1",
+      "name": "Installer consistency / A1.04",
+      "computed_status": "BLOCKED",
+      "reason_code": "NOT_EXECUTED",
+      "dependency_state": "SATISFIED",
+      "applicability_state": "APPLICABLE",
+      "blocker": {
+        "type": "NOT_EXECUTED",
+        "reason": "Required validation was not executed"
+      }
+    },
+    {
+      "id": "A1.05",
+      "stage": "A1",
+      "name": "Installer consistency / A1.05",
+      "computed_status": "BLOCKED",
+      "reason_code": "NOT_EXECUTED",
+      "dependency_state": "SATISFIED",
+      "applicability_state": "APPLICABLE",
+      "blocker": {
+        "type": "NOT_EXECUTED",
+        "reason": "Required validation was not executed"
+      }
+    },
+    {
+      "id": "A1.06",
+      "stage": "A1",
+      "name": "Installer consistency / A1.06",
+      "computed_status": "BLOCKED",
+      "reason_code": "NOT_EXECUTED",
+      "dependency_state": "SATISFIED",
+      "applicability_state": "APPLICABLE",
+      "blocker": {
+        "type": "NOT_EXECUTED",
+        "reason": "Required validation was not executed"
+      }
+    },
+    {
+      "id": "A10.01",
+      "stage": "A10",
+      "name": "Signature hard and secondary gates / A10.01",
+      "computed_status": "BLOCKED",
+      "reason_code": "NOT_EXECUTED",
+      "dependency_state": "SATISFIED",
+      "applicability_state": "APPLICABLE",
+      "blocker": {
+        "type": "NOT_EXECUTED",
+        "reason": "Required validation was not executed"
+      }
+    },
+    {
+      "id": "A10.02",
+      "stage": "A10",
+      "name": "Signature hard and secondary gates / A10.02",
+      "computed_status": "BLOCKED",
+      "reason_code": "NOT_EXECUTED",
+      "dependency_state": "SATISFIED",
+      "applicability_state": "APPLICABLE",
+      "blocker": {
+        "type": "NOT_EXECUTED",
+        "reason": "Required validation was not executed"
+      }
+    },
+    {
+      "id": "A10.03",
+      "stage": "A10",
+      "name": "Signature hard and secondary gates / A10.03",
+      "computed_status": "BLOCKED",
+      "reason_code": "NOT_EXECUTED",
+      "dependency_state": "SATISFIED",
+      "applicability_state": "APPLICABLE",
+      "blocker": {
+        "type": "NOT_EXECUTED",
+        "reason": "Required validation was not executed"
+      }
+    },
+    {
+      "id": "A10.04",
+      "stage": "A10",
+      "name": "Signature hard and secondary gates / A10.04",
+      "computed_status": "BLOCKED",
+      "reason_code": "NOT_EXECUTED",
+      "dependency_state": "SATISFIED",
+      "applicability_state": "APPLICABLE",
+      "blocker": {
+        "type": "NOT_EXECUTED",
+        "reason": "Required validation was not executed"
+      }
+    },
+    {
+      "id": "A10.05",
+      "stage": "A10",
+      "name": "Signature hard and secondary gates / A10.05",
+      "computed_status": "BLOCKED",
+      "reason_code": "NOT_EXECUTED",
+      "dependency_state": "SATISFIED",
+      "applicability_state": "APPLICABLE",
+      "blocker": {
+        "type": "NOT_EXECUTED",
+        "reason": "Required validation was not executed"
+      }
+    },
+    {
+      "id": "A10.06",
+      "stage": "A10",
+      "name": "Signature hard and secondary gates / A10.06",
+      "computed_status": "BLOCKED",
+      "reason_code": "NOT_EXECUTED",
+      "dependency_state": "SATISFIED",
+      "applicability_state": "APPLICABLE",
+      "blocker": {
+        "type": "NOT_EXECUTED",
+        "reason": "Required validation was not executed"
+      }
+    },
+    {
+      "id": "A11.01",
+      "stage": "A11",
+      "name": "Benchmark JSON / A11.01",
+      "computed_status": "BLOCKED",
+      "reason_code": "NOT_EXECUTED",
+      "dependency_state": "SATISFIED",
+      "applicability_state": "APPLICABLE",
+      "blocker": {
+        "type": "NOT_EXECUTED",
+        "reason": "Required validation was not executed"
+      }
+    },
+    {
+      "id": "A11.02",
+      "stage": "A11",
+      "name": "Benchmark JSON / A11.02",
+      "computed_status": "BLOCKED",
+      "reason_code": "NOT_EXECUTED",
+      "dependency_state": "SATISFIED",
+      "applicability_state": "APPLICABLE",
+      "blocker": {
+        "type": "NOT_EXECUTED",
+        "reason": "Required validation was not executed"
+      }
+    },
+    {
+      "id": "A11.03",
+      "stage": "A11",
+      "name": "Benchmark JSON / A11.03",
+      "computed_status": "BLOCKED",
+      "reason_code": "NOT_EXECUTED",
+      "dependency_state": "SATISFIED",
+      "applicability_state": "APPLICABLE",
+      "blocker": {
+        "type": "NOT_EXECUTED",
+        "reason": "Required validation was not executed"
+      }
+    },
+    {
+      "id": "A11.04",
+      "stage": "A11",
+      "name": "Benchmark JSON / A11.04",
+      "computed_status": "BLOCKED",
+      "reason_code": "NOT_EXECUTED",
+      "dependency_state": "SATISFIED",
+      "applicability_state": "APPLICABLE",
+      "blocker": {
+        "type": "NOT_EXECUTED",
+        "reason": "Required validation was not executed"
+      }
+    },
+    {
+      "id": "A11.05",
+      "stage": "A11",
+      "name": "Benchmark JSON / A11.05",
+      "computed_status": "BLOCKED",
+      "reason_code": "NOT_EXECUTED",
+      "dependency_state": "SATISFIED",
+      "applicability_state": "APPLICABLE",
+      "blocker": {
+        "type": "NOT_EXECUTED",
+        "reason": "Required validation was not executed"
+      }
+    },
+    {
+      "id": "A11.06",
+      "stage": "A11",
+      "name": "Benchmark JSON / A11.06",
+      "computed_status": "BLOCKED",
+      "reason_code": "NOT_EXECUTED",
+      "dependency_state": "SATISFIED",
+      "applicability_state": "APPLICABLE",
+      "blocker": {
+        "type": "NOT_EXECUTED",
+        "reason": "Required validation was not executed"
+      }
+    },
+    {
+      "id": "A11.07",
+      "stage": "A11",
+      "name": "Benchmark JSON / A11.07",
+      "computed_status": "BLOCKED",
+      "reason_code": "NOT_EXECUTED",
+      "dependency_state": "SATISFIED",
+      "applicability_state": "APPLICABLE",
+      "blocker": {
+        "type": "NOT_EXECUTED",
+        "reason": "Required validation was not executed"
+      }
+    },
+    {
+      "id": "A11.08",
+      "stage": "A11",
+      "name": "Benchmark JSON / A11.08",
+      "computed_status": "BLOCKED",
+      "reason_code": "NOT_EXECUTED",
+      "dependency_state": "SATISFIED",
+      "applicability_state": "APPLICABLE",
+      "blocker": {
+        "type": "NOT_EXECUTED",
+        "reason": "Required validation was not executed"
+      }
+    },
+    {
+      "id": "A11.09",
+      "stage": "A11",
+      "name": "Benchmark JSON / A11.09",
+      "computed_status": "BLOCKED",
+      "reason_code": "NOT_EXECUTED",
+      "dependency_state": "SATISFIED",
+      "applicability_state": "APPLICABLE",
+      "blocker": {
+        "type": "NOT_EXECUTED",
+        "reason": "Required validation was not executed"
+      }
+    },
+    {
+      "id": "A12.01",
+      "stage": "A12",
+      "name": "Portable core and preset regression",
+      "computed_status": "PASS",
+      "reason_code": "VERIFIED",
+      "dependency_state": "SATISFIED",
+      "applicability_state": "APPLICABLE",
+      "blocker": null
+    },
+    {
+      "id": "A12.02",
+      "stage": "A12",
+      "name": "Transpose, gate and tail stability regression",
+      "computed_status": "PASS",
+      "reason_code": "VERIFIED",
+      "dependency_state": "SATISFIED",
+      "applicability_state": "APPLICABLE",
+      "blocker": null
+    },
+    {
+      "id": "A12.03",
+      "stage": "A12",
+      "name": "Universal PRE board regression",
+      "computed_status": "PASS",
+      "reason_code": "VERIFIED",
+      "dependency_state": "SATISFIED",
+      "applicability_state": "APPLICABLE",
+      "blocker": null
+    },
+    {
+      "id": "A12.04",
+      "stage": "A12",
+      "name": "IR collection, integrity and fallback regression",
+      "computed_status": "PASS",
+      "reason_code": "VERIFIED",
+      "dependency_state": "SATISFIED",
+      "applicability_state": "APPLICABLE",
+      "blocker": null
+    },
+    {
+      "id": "A12.05",
+      "stage": "A12",
+      "name": "Appended amp topology and legacy preservation regression",
+      "computed_status": "PASS",
+      "reason_code": "VERIFIED",
+      "dependency_state": "SATISFIED",
+      "applicability_state": "APPLICABLE",
+      "blocker": null
+    },
+    {
+      "id": "A12.06",
+      "stage": "A12",
+      "name": "Native amp control and DSP regression",
+      "computed_status": "PASS",
+      "reason_code": "VERIFIED",
+      "dependency_state": "SATISFIED",
+      "applicability_state": "APPLICABLE",
+      "blocker": null
+    },
+    {
+      "id": "A12.07",
+      "stage": "A12",
+      "name": "Native POST control, state and DSP regression",
+      "computed_status": "PASS",
+      "reason_code": "VERIFIED",
+      "dependency_state": "SATISFIED",
+      "applicability_state": "APPLICABLE",
+      "blocker": null
+    },
+    {
+      "id": "A13.01",
+      "stage": "A13",
+      "name": "CI final state / A13.01",
+      "computed_status": "BLOCKED",
+      "reason_code": "NOT_EXECUTED",
+      "dependency_state": "SATISFIED",
+      "applicability_state": "APPLICABLE",
+      "blocker": {
+        "type": "NOT_EXECUTED",
+        "reason": "Required validation was not executed"
+      }
+    },
+    {
+      "id": "A13.02",
+      "stage": "A13",
+      "name": "Linux full CTest matrix",
+      "computed_status": "PASS",
+      "reason_code": "VERIFIED",
+      "dependency_state": "SATISFIED",
+      "applicability_state": "APPLICABLE",
+      "blocker": null
+    },
+    {
+      "id": "A13.03",
+      "stage": "A13",
+      "name": "CI final state / A13.03",
+      "computed_status": "BLOCKED",
+      "reason_code": "NOT_EXECUTED",
+      "dependency_state": "SATISFIED",
+      "applicability_state": "APPLICABLE",
+      "blocker": {
+        "type": "NOT_EXECUTED",
+        "reason": "Required validation was not executed"
+      }
+    },
+    {
+      "id": "A13.04",
+      "stage": "A13",
+      "name": "CI final state / A13.04",
+      "computed_status": "BLOCKED",
+      "reason_code": "NOT_EXECUTED",
+      "dependency_state": "SATISFIED",
+      "applicability_state": "APPLICABLE",
+      "blocker": {
+        "type": "NOT_EXECUTED",
+        "reason": "Required validation was not executed"
+      }
+    },
+    {
+      "id": "A13.05",
+      "stage": "A13",
+      "name": "CI final state / A13.05",
+      "computed_status": "BLOCKED",
+      "reason_code": "NOT_EXECUTED",
+      "dependency_state": "SATISFIED",
+      "applicability_state": "APPLICABLE",
+      "blocker": {
+        "type": "NOT_EXECUTED",
+        "reason": "Required validation was not executed"
+      }
+    },
+    {
+      "id": "A13.06",
+      "stage": "A13",
+      "name": "CI final state / A13.06",
+      "computed_status": "BLOCKED",
+      "reason_code": "NOT_EXECUTED",
+      "dependency_state": "SATISFIED",
+      "applicability_state": "APPLICABLE",
+      "blocker": {
+        "type": "NOT_EXECUTED",
+        "reason": "Required validation was not executed"
+      }
+    },
+    {
+      "id": "A13.07",
+      "stage": "A13",
+      "name": "CI final state / A13.07",
+      "computed_status": "BLOCKED",
+      "reason_code": "NOT_EXECUTED",
+      "dependency_state": "SATISFIED",
+      "applicability_state": "APPLICABLE",
+      "blocker": {
+        "type": "NOT_EXECUTED",
+        "reason": "Required validation was not executed"
+      }
+    },
+    {
+      "id": "A14.01",
+      "stage": "A14",
+      "name": "Documentation sync / A14.01",
+      "computed_status": "BLOCKED",
+      "reason_code": "NOT_EXECUTED",
+      "dependency_state": "SATISFIED",
+      "applicability_state": "APPLICABLE",
+      "blocker": {
+        "type": "NOT_EXECUTED",
+        "reason": "Required validation was not executed"
+      }
+    },
+    {
+      "id": "A14.02",
+      "stage": "A14",
+      "name": "Documentation sync / A14.02",
+      "computed_status": "BLOCKED",
+      "reason_code": "NOT_EXECUTED",
+      "dependency_state": "SATISFIED",
+      "applicability_state": "APPLICABLE",
+      "blocker": {
+        "type": "NOT_EXECUTED",
+        "reason": "Required validation was not executed"
+      }
+    },
+    {
+      "id": "A14.03",
+      "stage": "A14",
+      "name": "Documentation sync / A14.03",
+      "computed_status": "BLOCKED",
+      "reason_code": "NOT_EXECUTED",
+      "dependency_state": "SATISFIED",
+      "applicability_state": "APPLICABLE",
+      "blocker": {
+        "type": "NOT_EXECUTED",
+        "reason": "Required validation was not executed"
+      }
+    },
+    {
+      "id": "A14.04",
+      "stage": "A14",
+      "name": "Documentation sync / A14.04",
+      "computed_status": "BLOCKED",
+      "reason_code": "NOT_EXECUTED",
+      "dependency_state": "SATISFIED",
+      "applicability_state": "APPLICABLE",
+      "blocker": {
+        "type": "NOT_EXECUTED",
+        "reason": "Required validation was not executed"
+      }
+    },
+    {
+      "id": "A14.05",
+      "stage": "A14",
+      "name": "Documentation sync / A14.05",
+      "computed_status": "BLOCKED",
+      "reason_code": "NOT_EXECUTED",
+      "dependency_state": "SATISFIED",
+      "applicability_state": "APPLICABLE",
+      "blocker": {
+        "type": "NOT_EXECUTED",
+        "reason": "Required validation was not executed"
+      }
+    },
+    {
+      "id": "A14.06",
+      "stage": "A14",
+      "name": "Documentation sync / A14.06",
+      "computed_status": "BLOCKED",
+      "reason_code": "NOT_EXECUTED",
+      "dependency_state": "SATISFIED",
+      "applicability_state": "APPLICABLE",
+      "blocker": {
+        "type": "NOT_EXECUTED",
+        "reason": "Required validation was not executed"
+      }
+    },
+    {
+      "id": "A14.07",
+      "stage": "A14",
+      "name": "Documentation sync / A14.07",
+      "computed_status": "BLOCKED",
+      "reason_code": "NOT_EXECUTED",
+      "dependency_state": "SATISFIED",
+      "applicability_state": "APPLICABLE",
+      "blocker": {
+        "type": "NOT_EXECUTED",
+        "reason": "Required validation was not executed"
+      }
+    },
+    {
+      "id": "A2.01",
+      "stage": "A2",
+      "name": "Signature definition / A2.01",
+      "computed_status": "BLOCKED",
+      "reason_code": "NOT_EXECUTED",
+      "dependency_state": "SATISFIED",
+      "applicability_state": "APPLICABLE",
+      "blocker": {
+        "type": "NOT_EXECUTED",
+        "reason": "Required validation was not executed"
+      }
+    },
+    {
+      "id": "A2.02",
+      "stage": "A2",
+      "name": "Signature definition / A2.02",
+      "computed_status": "BLOCKED",
+      "reason_code": "NOT_EXECUTED",
+      "dependency_state": "SATISFIED",
+      "applicability_state": "APPLICABLE",
+      "blocker": {
+        "type": "NOT_EXECUTED",
+        "reason": "Required validation was not executed"
+      }
+    },
+    {
+      "id": "A2.03",
+      "stage": "A2",
+      "name": "Signature definition / A2.03",
+      "computed_status": "BLOCKED",
+      "reason_code": "NOT_EXECUTED",
+      "dependency_state": "SATISFIED",
+      "applicability_state": "APPLICABLE",
+      "blocker": {
+        "type": "NOT_EXECUTED",
+        "reason": "Required validation was not executed"
+      }
+    },
+    {
+      "id": "A2.04",
+      "stage": "A2",
+      "name": "Signature definition / A2.04",
+      "computed_status": "BLOCKED",
+      "reason_code": "NOT_EXECUTED",
+      "dependency_state": "SATISFIED",
+      "applicability_state": "APPLICABLE",
+      "blocker": {
+        "type": "NOT_EXECUTED",
+        "reason": "Required validation was not executed"
+      }
+    },
+    {
+      "id": "A2.05",
+      "stage": "A2",
+      "name": "Signature definition / A2.05",
+      "computed_status": "BLOCKED",
+      "reason_code": "NOT_EXECUTED",
+      "dependency_state": "SATISFIED",
+      "applicability_state": "APPLICABLE",
+      "blocker": {
+        "type": "NOT_EXECUTED",
+        "reason": "Required validation was not executed"
+      }
+    },
+    {
+      "id": "A2.06",
+      "stage": "A2",
+      "name": "Signature definition / A2.06",
+      "computed_status": "BLOCKED",
+      "reason_code": "NOT_EXECUTED",
+      "dependency_state": "SATISFIED",
+      "applicability_state": "APPLICABLE",
+      "blocker": {
+        "type": "NOT_EXECUTED",
+        "reason": "Required validation was not executed"
+      }
+    },
+    {
+      "id": "A2.07",
+      "stage": "A2",
+      "name": "Signature definition / A2.07",
+      "computed_status": "BLOCKED",
+      "reason_code": "NOT_EXECUTED",
+      "dependency_state": "SATISFIED",
+      "applicability_state": "APPLICABLE",
+      "blocker": {
+        "type": "NOT_EXECUTED",
+        "reason": "Required validation was not executed"
+      }
+    },
+    {
+      "id": "A2.08",
+      "stage": "A2",
+      "name": "Signature definition / A2.08",
+      "computed_status": "BLOCKED",
+      "reason_code": "NOT_EXECUTED",
+      "dependency_state": "SATISFIED",
+      "applicability_state": "APPLICABLE",
+      "blocker": {
+        "type": "NOT_EXECUTED",
+        "reason": "Required validation was not executed"
+      }
+    },
+    {
+      "id": "A3.01",
+      "stage": "A3",
+      "name": "Signature APVTS recall / A3.01",
+      "computed_status": "BLOCKED",
+      "reason_code": "NOT_EXECUTED",
+      "dependency_state": "SATISFIED",
+      "applicability_state": "APPLICABLE",
+      "blocker": {
+        "type": "NOT_EXECUTED",
+        "reason": "Required validation was not executed"
+      }
+    },
+    {
+      "id": "A3.02",
+      "stage": "A3",
+      "name": "Signature APVTS recall / A3.02",
+      "computed_status": "BLOCKED",
+      "reason_code": "NOT_EXECUTED",
+      "dependency_state": "SATISFIED",
+      "applicability_state": "APPLICABLE",
+      "blocker": {
+        "type": "NOT_EXECUTED",
+        "reason": "Required validation was not executed"
+      }
+    },
+    {
+      "id": "A3.03",
+      "stage": "A3",
+      "name": "Signature APVTS recall / A3.03",
+      "computed_status": "BLOCKED",
+      "reason_code": "NOT_EXECUTED",
+      "dependency_state": "SATISFIED",
+      "applicability_state": "APPLICABLE",
+      "blocker": {
+        "type": "NOT_EXECUTED",
+        "reason": "Required validation was not executed"
+      }
+    },
+    {
+      "id": "A3.04",
+      "stage": "A3",
+      "name": "Signature APVTS recall / A3.04",
+      "computed_status": "BLOCKED",
+      "reason_code": "NOT_EXECUTED",
+      "dependency_state": "SATISFIED",
+      "applicability_state": "APPLICABLE",
+      "blocker": {
+        "type": "NOT_EXECUTED",
+        "reason": "Required validation was not executed"
+      }
+    },
+    {
+      "id": "A3.05",
+      "stage": "A3",
+      "name": "Signature APVTS recall / A3.05",
+      "computed_status": "BLOCKED",
+      "reason_code": "NOT_EXECUTED",
+      "dependency_state": "SATISFIED",
+      "applicability_state": "APPLICABLE",
+      "blocker": {
+        "type": "NOT_EXECUTED",
+        "reason": "Required validation was not executed"
+      }
+    },
+    {
+      "id": "A3.06",
+      "stage": "A3",
+      "name": "Signature APVTS recall / A3.06",
+      "computed_status": "BLOCKED",
+      "reason_code": "NOT_EXECUTED",
+      "dependency_state": "SATISFIED",
+      "applicability_state": "APPLICABLE",
+      "blocker": {
+        "type": "NOT_EXECUTED",
+        "reason": "Required validation was not executed"
+      }
+    },
+    {
+      "id": "A3.07",
+      "stage": "A3",
+      "name": "Signature APVTS recall / A3.07",
+      "computed_status": "BLOCKED",
+      "reason_code": "NOT_EXECUTED",
+      "dependency_state": "SATISFIED",
+      "applicability_state": "APPLICABLE",
+      "blocker": {
+        "type": "NOT_EXECUTED",
+        "reason": "Required validation was not executed"
+      }
+    },
+    {
+      "id": "A3.08",
+      "stage": "A3",
+      "name": "Signature APVTS recall / A3.08",
+      "computed_status": "BLOCKED",
+      "reason_code": "NOT_EXECUTED",
+      "dependency_state": "SATISFIED",
+      "applicability_state": "APPLICABLE",
+      "blocker": {
+        "type": "NOT_EXECUTED",
+        "reason": "Required validation was not executed"
+      }
+    },
+    {
+      "id": "A3.09",
+      "stage": "A3",
+      "name": "Signature APVTS recall / A3.09",
+      "computed_status": "BLOCKED",
+      "reason_code": "NOT_EXECUTED",
+      "dependency_state": "SATISFIED",
+      "applicability_state": "APPLICABLE",
+      "blocker": {
+        "type": "NOT_EXECUTED",
+        "reason": "Required validation was not executed"
+      }
+    },
+    {
+      "id": "A4.01",
+      "stage": "A4",
+      "name": "Factory compatibility / A4.01",
+      "computed_status": "BLOCKED",
+      "reason_code": "NOT_EXECUTED",
+      "dependency_state": "SATISFIED",
+      "applicability_state": "APPLICABLE",
+      "blocker": {
+        "type": "NOT_EXECUTED",
+        "reason": "Required validation was not executed"
+      }
+    },
+    {
+      "id": "A4.02",
+      "stage": "A4",
+      "name": "Factory compatibility / A4.02",
+      "computed_status": "BLOCKED",
+      "reason_code": "NOT_EXECUTED",
+      "dependency_state": "SATISFIED",
+      "applicability_state": "APPLICABLE",
+      "blocker": {
+        "type": "NOT_EXECUTED",
+        "reason": "Required validation was not executed"
+      }
+    },
+    {
+      "id": "A4.03",
+      "stage": "A4",
+      "name": "Factory compatibility / A4.03",
+      "computed_status": "BLOCKED",
+      "reason_code": "NOT_EXECUTED",
+      "dependency_state": "SATISFIED",
+      "applicability_state": "APPLICABLE",
+      "blocker": {
+        "type": "NOT_EXECUTED",
+        "reason": "Required validation was not executed"
+      }
+    },
+    {
+      "id": "A4.04",
+      "stage": "A4",
+      "name": "Factory compatibility / A4.04",
+      "computed_status": "BLOCKED",
+      "reason_code": "NOT_EXECUTED",
+      "dependency_state": "SATISFIED",
+      "applicability_state": "APPLICABLE",
+      "blocker": {
+        "type": "NOT_EXECUTED",
+        "reason": "Required validation was not executed"
+      }
+    },
+    {
+      "id": "A4.05",
+      "stage": "A4",
+      "name": "Factory compatibility / A4.05",
+      "computed_status": "BLOCKED",
+      "reason_code": "NOT_EXECUTED",
+      "dependency_state": "SATISFIED",
+      "applicability_state": "APPLICABLE",
+      "blocker": {
+        "type": "NOT_EXECUTED",
+        "reason": "Required validation was not executed"
+      }
+    },
+    {
+      "id": "A5.01",
+      "stage": "A5",
+      "name": "Hartke IR import / A5.01",
+      "computed_status": "BLOCKED",
+      "reason_code": "NOT_EXECUTED",
+      "dependency_state": "SATISFIED",
+      "applicability_state": "APPLICABLE",
+      "blocker": {
+        "type": "NOT_EXECUTED",
+        "reason": "Required validation was not executed"
+      }
+    },
+    {
+      "id": "A5.02",
+      "stage": "A5",
+      "name": "Hartke IR import / A5.02",
+      "computed_status": "BLOCKED",
+      "reason_code": "NOT_EXECUTED",
+      "dependency_state": "SATISFIED",
+      "applicability_state": "APPLICABLE",
+      "blocker": {
+        "type": "NOT_EXECUTED",
+        "reason": "Required validation was not executed"
+      }
+    },
+    {
+      "id": "A5.03",
+      "stage": "A5",
+      "name": "Hartke IR import / A5.03",
+      "computed_status": "BLOCKED",
+      "reason_code": "NOT_EXECUTED",
+      "dependency_state": "SATISFIED",
+      "applicability_state": "APPLICABLE",
+      "blocker": {
+        "type": "NOT_EXECUTED",
+        "reason": "Required validation was not executed"
+      }
+    },
+    {
+      "id": "A5.04",
+      "stage": "A5",
+      "name": "Hartke IR import / A5.04",
+      "computed_status": "BLOCKED",
+      "reason_code": "NOT_EXECUTED",
+      "dependency_state": "SATISFIED",
+      "applicability_state": "APPLICABLE",
+      "blocker": {
+        "type": "NOT_EXECUTED",
+        "reason": "Required validation was not executed"
+      }
+    },
+    {
+      "id": "A5.05",
+      "stage": "A5",
+      "name": "Hartke IR import / A5.05",
+      "computed_status": "BLOCKED",
+      "reason_code": "NOT_EXECUTED",
+      "dependency_state": "SATISFIED",
+      "applicability_state": "APPLICABLE",
+      "blocker": {
+        "type": "NOT_EXECUTED",
+        "reason": "Required validation was not executed"
+      }
+    },
+    {
+      "id": "A5.06",
+      "stage": "A5",
+      "name": "Hartke IR import / A5.06",
+      "computed_status": "BLOCKED",
+      "reason_code": "NOT_EXECUTED",
+      "dependency_state": "SATISFIED",
+      "applicability_state": "APPLICABLE",
+      "blocker": {
+        "type": "NOT_EXECUTED",
+        "reason": "Required validation was not executed"
+      }
+    },
+    {
+      "id": "A5.07",
+      "stage": "A5",
+      "name": "Hartke IR import / A5.07",
+      "computed_status": "BLOCKED",
+      "reason_code": "NOT_EXECUTED",
+      "dependency_state": "SATISFIED",
+      "applicability_state": "APPLICABLE",
+      "blocker": {
+        "type": "NOT_EXECUTED",
+        "reason": "Required validation was not executed"
+      }
+    },
+    {
+      "id": "A5.08",
+      "stage": "A5",
+      "name": "Hartke IR import / A5.08",
+      "computed_status": "BLOCKED",
+      "reason_code": "NOT_EXECUTED",
+      "dependency_state": "SATISFIED",
+      "applicability_state": "APPLICABLE",
+      "blocker": {
+        "type": "NOT_EXECUTED",
+        "reason": "Required validation was not executed"
+      }
+    },
+    {
+      "id": "A6.01",
+      "stage": "A6",
+      "name": "Marshall IR import / A6.01",
+      "computed_status": "BLOCKED",
+      "reason_code": "NOT_EXECUTED",
+      "dependency_state": "SATISFIED",
+      "applicability_state": "APPLICABLE",
+      "blocker": {
+        "type": "NOT_EXECUTED",
+        "reason": "Required validation was not executed"
+      }
+    },
+    {
+      "id": "A6.02",
+      "stage": "A6",
+      "name": "Marshall IR import / A6.02",
+      "computed_status": "BLOCKED",
+      "reason_code": "NOT_EXECUTED",
+      "dependency_state": "SATISFIED",
+      "applicability_state": "APPLICABLE",
+      "blocker": {
+        "type": "NOT_EXECUTED",
+        "reason": "Required validation was not executed"
+      }
+    },
+    {
+      "id": "A6.03",
+      "stage": "A6",
+      "name": "Marshall IR import / A6.03",
+      "computed_status": "BLOCKED",
+      "reason_code": "NOT_EXECUTED",
+      "dependency_state": "SATISFIED",
+      "applicability_state": "APPLICABLE",
+      "blocker": {
+        "type": "NOT_EXECUTED",
+        "reason": "Required validation was not executed"
+      }
+    },
+    {
+      "id": "A6.04",
+      "stage": "A6",
+      "name": "Marshall IR import / A6.04",
+      "computed_status": "BLOCKED",
+      "reason_code": "NOT_EXECUTED",
+      "dependency_state": "SATISFIED",
+      "applicability_state": "APPLICABLE",
+      "blocker": {
+        "type": "NOT_EXECUTED",
+        "reason": "Required validation was not executed"
+      }
+    },
+    {
+      "id": "A6.05",
+      "stage": "A6",
+      "name": "Marshall IR import / A6.05",
+      "computed_status": "BLOCKED",
+      "reason_code": "NOT_EXECUTED",
+      "dependency_state": "SATISFIED",
+      "applicability_state": "APPLICABLE",
+      "blocker": {
+        "type": "NOT_EXECUTED",
+        "reason": "Required validation was not executed"
+      }
+    },
+    {
+      "id": "A6.06",
+      "stage": "A6",
+      "name": "Marshall IR import / A6.06",
+      "computed_status": "BLOCKED",
+      "reason_code": "NOT_EXECUTED",
+      "dependency_state": "SATISFIED",
+      "applicability_state": "APPLICABLE",
+      "blocker": {
+        "type": "NOT_EXECUTED",
+        "reason": "Required validation was not executed"
+      }
+    },
+    {
+      "id": "A6.07",
+      "stage": "A6",
+      "name": "Marshall IR import / A6.07",
+      "computed_status": "BLOCKED",
+      "reason_code": "NOT_EXECUTED",
+      "dependency_state": "SATISFIED",
+      "applicability_state": "APPLICABLE",
+      "blocker": {
+        "type": "NOT_EXECUTED",
+        "reason": "Required validation was not executed"
+      }
+    },
+    {
+      "id": "A6.08",
+      "stage": "A6",
+      "name": "Marshall IR import / A6.08",
+      "computed_status": "BLOCKED",
+      "reason_code": "NOT_EXECUTED",
+      "dependency_state": "SATISFIED",
+      "applicability_state": "APPLICABLE",
+      "blocker": {
+        "type": "NOT_EXECUTED",
+        "reason": "Required validation was not executed"
+      }
+    },
+    {
+      "id": "A7.01",
+      "stage": "A7",
+      "name": "IR chain of trust / A7.01",
+      "computed_status": "BLOCKED",
+      "reason_code": "NOT_EXECUTED",
+      "dependency_state": "SATISFIED",
+      "applicability_state": "APPLICABLE",
+      "blocker": {
+        "type": "NOT_EXECUTED",
+        "reason": "Required validation was not executed"
+      }
+    },
+    {
+      "id": "A7.02",
+      "stage": "A7",
+      "name": "IR chain of trust / A7.02",
+      "computed_status": "BLOCKED",
+      "reason_code": "NOT_EXECUTED",
+      "dependency_state": "SATISFIED",
+      "applicability_state": "APPLICABLE",
+      "blocker": {
+        "type": "NOT_EXECUTED",
+        "reason": "Required validation was not executed"
+      }
+    },
+    {
+      "id": "A7.03",
+      "stage": "A7",
+      "name": "IR chain of trust / A7.03",
+      "computed_status": "BLOCKED",
+      "reason_code": "NOT_EXECUTED",
+      "dependency_state": "SATISFIED",
+      "applicability_state": "APPLICABLE",
+      "blocker": {
+        "type": "NOT_EXECUTED",
+        "reason": "Required validation was not executed"
+      }
+    },
+    {
+      "id": "A7.04",
+      "stage": "A7",
+      "name": "IR chain of trust / A7.04",
+      "computed_status": "BLOCKED",
+      "reason_code": "NOT_EXECUTED",
+      "dependency_state": "SATISFIED",
+      "applicability_state": "APPLICABLE",
+      "blocker": {
+        "type": "NOT_EXECUTED",
+        "reason": "Required validation was not executed"
+      }
+    },
+    {
+      "id": "A7.05",
+      "stage": "A7",
+      "name": "IR chain of trust / A7.05",
+      "computed_status": "BLOCKED",
+      "reason_code": "NOT_EXECUTED",
+      "dependency_state": "SATISFIED",
+      "applicability_state": "APPLICABLE",
+      "blocker": {
+        "type": "NOT_EXECUTED",
+        "reason": "Required validation was not executed"
+      }
+    },
+    {
+      "id": "A7.06",
+      "stage": "A7",
+      "name": "IR chain of trust / A7.06",
+      "computed_status": "BLOCKED",
+      "reason_code": "NOT_EXECUTED",
+      "dependency_state": "SATISFIED",
+      "applicability_state": "APPLICABLE",
+      "blocker": {
+        "type": "NOT_EXECUTED",
+        "reason": "Required validation was not executed"
+      }
+    },
+    {
+      "id": "A7.07",
+      "stage": "A7",
+      "name": "IR chain of trust / A7.07",
+      "computed_status": "BLOCKED",
+      "reason_code": "NOT_EXECUTED",
+      "dependency_state": "SATISFIED",
+      "applicability_state": "APPLICABLE",
+      "blocker": {
+        "type": "NOT_EXECUTED",
+        "reason": "Required validation was not executed"
+      }
+    },
+    {
+      "id": "A8.01",
+      "stage": "A8",
+      "name": "IR fallback policy / A8.01",
+      "computed_status": "BLOCKED",
+      "reason_code": "NOT_EXECUTED",
+      "dependency_state": "SATISFIED",
+      "applicability_state": "APPLICABLE",
+      "blocker": {
+        "type": "NOT_EXECUTED",
+        "reason": "Required validation was not executed"
+      }
+    },
+    {
+      "id": "A8.02",
+      "stage": "A8",
+      "name": "IR fallback policy / A8.02",
+      "computed_status": "BLOCKED",
+      "reason_code": "NOT_EXECUTED",
+      "dependency_state": "SATISFIED",
+      "applicability_state": "APPLICABLE",
+      "blocker": {
+        "type": "NOT_EXECUTED",
+        "reason": "Required validation was not executed"
+      }
+    },
+    {
+      "id": "A8.03",
+      "stage": "A8",
+      "name": "IR fallback policy / A8.03",
+      "computed_status": "BLOCKED",
+      "reason_code": "NOT_EXECUTED",
+      "dependency_state": "SATISFIED",
+      "applicability_state": "APPLICABLE",
+      "blocker": {
+        "type": "NOT_EXECUTED",
+        "reason": "Required validation was not executed"
+      }
+    },
+    {
+      "id": "A8.04",
+      "stage": "A8",
+      "name": "IR fallback policy / A8.04",
+      "computed_status": "BLOCKED",
+      "reason_code": "NOT_EXECUTED",
+      "dependency_state": "SATISFIED",
+      "applicability_state": "APPLICABLE",
+      "blocker": {
+        "type": "NOT_EXECUTED",
+        "reason": "Required validation was not executed"
+      }
+    },
+    {
+      "id": "A9.01",
+      "stage": "A9",
+      "name": "Signature benchmark calculator / A9.01",
+      "computed_status": "BLOCKED",
+      "reason_code": "NOT_EXECUTED",
+      "dependency_state": "SATISFIED",
+      "applicability_state": "APPLICABLE",
+      "blocker": {
+        "type": "NOT_EXECUTED",
+        "reason": "Required validation was not executed"
+      }
+    },
+    {
+      "id": "A9.02",
+      "stage": "A9",
+      "name": "Signature benchmark calculator / A9.02",
+      "computed_status": "BLOCKED",
+      "reason_code": "NOT_EXECUTED",
+      "dependency_state": "SATISFIED",
+      "applicability_state": "APPLICABLE",
+      "blocker": {
+        "type": "NOT_EXECUTED",
+        "reason": "Required validation was not executed"
+      }
+    },
+    {
+      "id": "A9.03",
+      "stage": "A9",
+      "name": "Signature benchmark calculator / A9.03",
+      "computed_status": "BLOCKED",
+      "reason_code": "NOT_EXECUTED",
+      "dependency_state": "SATISFIED",
+      "applicability_state": "APPLICABLE",
+      "blocker": {
+        "type": "NOT_EXECUTED",
+        "reason": "Required validation was not executed"
+      }
+    },
+    {
+      "id": "A9.04",
+      "stage": "A9",
+      "name": "Signature benchmark calculator / A9.04",
+      "computed_status": "BLOCKED",
+      "reason_code": "NOT_EXECUTED",
+      "dependency_state": "SATISFIED",
+      "applicability_state": "APPLICABLE",
+      "blocker": {
+        "type": "NOT_EXECUTED",
+        "reason": "Required validation was not executed"
+      }
+    },
+    {
+      "id": "A9.05",
+      "stage": "A9",
+      "name": "Signature benchmark calculator / A9.05",
+      "computed_status": "BLOCKED",
+      "reason_code": "NOT_EXECUTED",
+      "dependency_state": "SATISFIED",
+      "applicability_state": "APPLICABLE",
+      "blocker": {
+        "type": "NOT_EXECUTED",
+        "reason": "Required validation was not executed"
+      }
+    },
+    {
+      "id": "A9.06",
+      "stage": "A9",
+      "name": "Signature benchmark calculator / A9.06",
+      "computed_status": "BLOCKED",
+      "reason_code": "NOT_EXECUTED",
+      "dependency_state": "SATISFIED",
+      "applicability_state": "APPLICABLE",
+      "blocker": {
+        "type": "NOT_EXECUTED",
+        "reason": "Required validation was not executed"
+      }
+    },
+    {
+      "id": "A9.07",
+      "stage": "A9",
+      "name": "Signature benchmark calculator / A9.07",
+      "computed_status": "BLOCKED",
+      "reason_code": "NOT_EXECUTED",
+      "dependency_state": "SATISFIED",
+      "applicability_state": "APPLICABLE",
+      "blocker": {
+        "type": "NOT_EXECUTED",
+        "reason": "Required validation was not executed"
+      }
+    },
+    {
+      "id": "A9.08",
+      "stage": "A9",
+      "name": "Signature benchmark calculator / A9.08",
+      "computed_status": "BLOCKED",
+      "reason_code": "NOT_EXECUTED",
+      "dependency_state": "SATISFIED",
+      "applicability_state": "APPLICABLE",
+      "blocker": {
+        "type": "NOT_EXECUTED",
+        "reason": "Required validation was not executed"
+      }
+    },
+    {
+      "id": "A9.09",
+      "stage": "A9",
+      "name": "Signature benchmark calculator / A9.09",
+      "computed_status": "BLOCKED",
+      "reason_code": "NOT_EXECUTED",
+      "dependency_state": "SATISFIED",
+      "applicability_state": "APPLICABLE",
+      "blocker": {
+        "type": "NOT_EXECUTED",
+        "reason": "Required validation was not executed"
+      }
+    },
+    {
+      "id": "E1.DSP",
+      "stage": "E1",
+      "name": "E670FE implementation and legacy compatibility / E1.DSP",
+      "computed_status": "BLOCKED",
+      "reason_code": "NOT_EXECUTED",
+      "dependency_state": "SATISFIED",
+      "applicability_state": "APPLICABLE",
+      "blocker": {
+        "type": "NOT_EXECUTED",
+        "reason": "Required validation was not executed"
+      }
+    },
+    {
+      "id": "E1.LEGACY",
+      "stage": "E1",
+      "name": "E670FE implementation and legacy compatibility / E1.LEGACY",
+      "computed_status": "BLOCKED",
+      "reason_code": "NOT_EXECUTED",
+      "dependency_state": "SATISFIED",
+      "applicability_state": "APPLICABLE",
+      "blocker": {
+        "type": "NOT_EXECUTED",
+        "reason": "Required validation was not executed"
+      }
+    },
+    {
+      "id": "E1.STATE_UI",
+      "stage": "E1",
+      "name": "E670FE implementation and legacy compatibility / E1.STATE_UI",
+      "computed_status": "BLOCKED",
+      "reason_code": "NOT_EXECUTED",
+      "dependency_state": "SATISFIED",
+      "applicability_state": "APPLICABLE",
+      "blocker": {
+        "type": "NOT_EXECUTED",
+        "reason": "Required validation was not executed"
+      }
+    },
+    {
+      "id": "I1.GATE",
+      "stage": "I1",
+      "name": "Combined Range manifest, state and routing",
+      "computed_status": "PASS",
+      "reason_code": "VERIFIED",
+      "dependency_state": "SATISFIED",
+      "applicability_state": "APPLICABLE",
+      "blocker": null
+    },
+    {
+      "id": "I1.LIVE_REMOVE",
+      "stage": "I1",
+      "name": "Combined 1.1.1 synthetic integration / I1.LIVE_REMOVE",
+      "computed_status": "BLOCKED",
+      "reason_code": "NOT_EXECUTED",
+      "dependency_state": "SATISFIED",
+      "applicability_state": "APPLICABLE",
+      "blocker": {
+        "type": "NOT_EXECUTED",
+        "reason": "Required validation was not executed"
+      }
+    },
+    {
+      "id": "I1.PITCH",
+      "stage": "I1",
+      "name": "Low-bin energy and unchanged raw mapping",
+      "computed_status": "PASS",
+      "reason_code": "VERIFIED",
+      "dependency_state": "SATISFIED",
+      "applicability_state": "APPLICABLE",
+      "blocker": null
+    },
+    {
+      "id": "I1.STATE_GAIN_GR",
+      "stage": "I1",
+      "name": "Full Guitar state, unity level and compressor GR",
+      "computed_status": "PASS",
+      "reason_code": "VERIFIED",
+      "dependency_state": "SATISFIED",
+      "applicability_state": "APPLICABLE",
+      "blocker": null
+    }
+  ],
+  "stages": [
+    {
+      "id": "A1",
+      "name": "Installer consistency",
+      "computed_status": "BLOCKED",
+      "counts": {
+        "total": 6,
+        "pass": 0,
+        "blocked": 6,
+        "not_applicable": 0
+      },
+      "reported_counts": {
+        "total": 6,
+        "pass": 0,
+        "blocked": 6,
+        "not_applicable": 0
+      },
+      "blockers": [
+        {
+          "id": "A1.01",
+          "type": "NOT_EXECUTED",
+          "reason": "Required validation was not executed"
+        },
+        {
+          "id": "A1.02",
+          "type": "NOT_EXECUTED",
+          "reason": "Required validation was not executed"
+        },
+        {
+          "id": "A1.03",
+          "type": "NOT_EXECUTED",
+          "reason": "Required validation was not executed"
+        },
+        {
+          "id": "A1.04",
+          "type": "NOT_EXECUTED",
+          "reason": "Required validation was not executed"
+        },
+        {
+          "id": "A1.05",
+          "type": "NOT_EXECUTED",
+          "reason": "Required validation was not executed"
+        },
+        {
+          "id": "A1.06",
+          "type": "NOT_EXECUTED",
+          "reason": "Required validation was not executed"
+        }
+      ]
+    },
+    {
+      "id": "A2",
+      "name": "Signature definition",
+      "computed_status": "BLOCKED",
+      "counts": {
+        "total": 8,
+        "pass": 0,
+        "blocked": 8,
+        "not_applicable": 0
+      },
+      "reported_counts": {
+        "total": 8,
+        "pass": 0,
+        "blocked": 8,
+        "not_applicable": 0
+      },
+      "blockers": [
+        {
+          "id": "A2.01",
+          "type": "NOT_EXECUTED",
+          "reason": "Required validation was not executed"
+        },
+        {
+          "id": "A2.02",
+          "type": "NOT_EXECUTED",
+          "reason": "Required validation was not executed"
+        },
+        {
+          "id": "A2.03",
+          "type": "NOT_EXECUTED",
+          "reason": "Required validation was not executed"
+        },
+        {
+          "id": "A2.04",
+          "type": "NOT_EXECUTED",
+          "reason": "Required validation was not executed"
+        },
+        {
+          "id": "A2.05",
+          "type": "NOT_EXECUTED",
+          "reason": "Required validation was not executed"
+        },
+        {
+          "id": "A2.06",
+          "type": "NOT_EXECUTED",
+          "reason": "Required validation was not executed"
+        },
+        {
+          "id": "A2.07",
+          "type": "NOT_EXECUTED",
+          "reason": "Required validation was not executed"
+        },
+        {
+          "id": "A2.08",
+          "type": "NOT_EXECUTED",
+          "reason": "Required validation was not executed"
+        }
+      ]
+    },
+    {
+      "id": "A3",
+      "name": "Signature APVTS recall",
+      "computed_status": "BLOCKED",
+      "counts": {
+        "total": 9,
+        "pass": 0,
+        "blocked": 9,
+        "not_applicable": 0
+      },
+      "reported_counts": {
+        "total": 9,
+        "pass": 0,
+        "blocked": 9,
+        "not_applicable": 0
+      },
+      "blockers": [
+        {
+          "id": "A3.01",
+          "type": "NOT_EXECUTED",
+          "reason": "Required validation was not executed"
+        },
+        {
+          "id": "A3.02",
+          "type": "NOT_EXECUTED",
+          "reason": "Required validation was not executed"
+        },
+        {
+          "id": "A3.03",
+          "type": "NOT_EXECUTED",
+          "reason": "Required validation was not executed"
+        },
+        {
+          "id": "A3.04",
+          "type": "NOT_EXECUTED",
+          "reason": "Required validation was not executed"
+        },
+        {
+          "id": "A3.05",
+          "type": "NOT_EXECUTED",
+          "reason": "Required validation was not executed"
+        },
+        {
+          "id": "A3.06",
+          "type": "NOT_EXECUTED",
+          "reason": "Required validation was not executed"
+        },
+        {
+          "id": "A3.07",
+          "type": "NOT_EXECUTED",
+          "reason": "Required validation was not executed"
+        },
+        {
+          "id": "A3.08",
+          "type": "NOT_EXECUTED",
+          "reason": "Required validation was not executed"
+        },
+        {
+          "id": "A3.09",
+          "type": "NOT_EXECUTED",
+          "reason": "Required validation was not executed"
+        }
+      ]
+    },
+    {
+      "id": "A4",
+      "name": "Factory compatibility",
+      "computed_status": "BLOCKED",
+      "counts": {
+        "total": 5,
+        "pass": 0,
+        "blocked": 5,
+        "not_applicable": 0
+      },
+      "reported_counts": {
+        "total": 5,
+        "pass": 0,
+        "blocked": 5,
+        "not_applicable": 0
+      },
+      "blockers": [
+        {
+          "id": "A4.01",
+          "type": "NOT_EXECUTED",
+          "reason": "Required validation was not executed"
+        },
+        {
+          "id": "A4.02",
+          "type": "NOT_EXECUTED",
+          "reason": "Required validation was not executed"
+        },
+        {
+          "id": "A4.03",
+          "type": "NOT_EXECUTED",
+          "reason": "Required validation was not executed"
+        },
+        {
+          "id": "A4.04",
+          "type": "NOT_EXECUTED",
+          "reason": "Required validation was not executed"
+        },
+        {
+          "id": "A4.05",
+          "type": "NOT_EXECUTED",
+          "reason": "Required validation was not executed"
+        }
+      ]
+    },
+    {
+      "id": "A5",
+      "name": "Hartke IR import",
+      "computed_status": "BLOCKED",
+      "counts": {
+        "total": 8,
+        "pass": 0,
+        "blocked": 8,
+        "not_applicable": 0
+      },
+      "reported_counts": {
+        "total": 8,
+        "pass": 0,
+        "blocked": 8,
+        "not_applicable": 0
+      },
+      "blockers": [
+        {
+          "id": "A5.01",
+          "type": "NOT_EXECUTED",
+          "reason": "Required validation was not executed"
+        },
+        {
+          "id": "A5.02",
+          "type": "NOT_EXECUTED",
+          "reason": "Required validation was not executed"
+        },
+        {
+          "id": "A5.03",
+          "type": "NOT_EXECUTED",
+          "reason": "Required validation was not executed"
+        },
+        {
+          "id": "A5.04",
+          "type": "NOT_EXECUTED",
+          "reason": "Required validation was not executed"
+        },
+        {
+          "id": "A5.05",
+          "type": "NOT_EXECUTED",
+          "reason": "Required validation was not executed"
+        },
+        {
+          "id": "A5.06",
+          "type": "NOT_EXECUTED",
+          "reason": "Required validation was not executed"
+        },
+        {
+          "id": "A5.07",
+          "type": "NOT_EXECUTED",
+          "reason": "Required validation was not executed"
+        },
+        {
+          "id": "A5.08",
+          "type": "NOT_EXECUTED",
+          "reason": "Required validation was not executed"
+        }
+      ]
+    },
+    {
+      "id": "A6",
+      "name": "Marshall IR import",
+      "computed_status": "BLOCKED",
+      "counts": {
+        "total": 8,
+        "pass": 0,
+        "blocked": 8,
+        "not_applicable": 0
+      },
+      "reported_counts": {
+        "total": 8,
+        "pass": 0,
+        "blocked": 8,
+        "not_applicable": 0
+      },
+      "blockers": [
+        {
+          "id": "A6.01",
+          "type": "NOT_EXECUTED",
+          "reason": "Required validation was not executed"
+        },
+        {
+          "id": "A6.02",
+          "type": "NOT_EXECUTED",
+          "reason": "Required validation was not executed"
+        },
+        {
+          "id": "A6.03",
+          "type": "NOT_EXECUTED",
+          "reason": "Required validation was not executed"
+        },
+        {
+          "id": "A6.04",
+          "type": "NOT_EXECUTED",
+          "reason": "Required validation was not executed"
+        },
+        {
+          "id": "A6.05",
+          "type": "NOT_EXECUTED",
+          "reason": "Required validation was not executed"
+        },
+        {
+          "id": "A6.06",
+          "type": "NOT_EXECUTED",
+          "reason": "Required validation was not executed"
+        },
+        {
+          "id": "A6.07",
+          "type": "NOT_EXECUTED",
+          "reason": "Required validation was not executed"
+        },
+        {
+          "id": "A6.08",
+          "type": "NOT_EXECUTED",
+          "reason": "Required validation was not executed"
+        }
+      ]
+    },
+    {
+      "id": "A7",
+      "name": "IR chain of trust",
+      "computed_status": "BLOCKED",
+      "counts": {
+        "total": 7,
+        "pass": 0,
+        "blocked": 7,
+        "not_applicable": 0
+      },
+      "reported_counts": {
+        "total": 7,
+        "pass": 0,
+        "blocked": 7,
+        "not_applicable": 0
+      },
+      "blockers": [
+        {
+          "id": "A7.01",
+          "type": "NOT_EXECUTED",
+          "reason": "Required validation was not executed"
+        },
+        {
+          "id": "A7.02",
+          "type": "NOT_EXECUTED",
+          "reason": "Required validation was not executed"
+        },
+        {
+          "id": "A7.03",
+          "type": "NOT_EXECUTED",
+          "reason": "Required validation was not executed"
+        },
+        {
+          "id": "A7.04",
+          "type": "NOT_EXECUTED",
+          "reason": "Required validation was not executed"
+        },
+        {
+          "id": "A7.05",
+          "type": "NOT_EXECUTED",
+          "reason": "Required validation was not executed"
+        },
+        {
+          "id": "A7.06",
+          "type": "NOT_EXECUTED",
+          "reason": "Required validation was not executed"
+        },
+        {
+          "id": "A7.07",
+          "type": "NOT_EXECUTED",
+          "reason": "Required validation was not executed"
+        }
+      ]
+    },
+    {
+      "id": "A8",
+      "name": "IR fallback policy",
+      "computed_status": "BLOCKED",
+      "counts": {
+        "total": 4,
+        "pass": 0,
+        "blocked": 4,
+        "not_applicable": 0
+      },
+      "reported_counts": {
+        "total": 4,
+        "pass": 0,
+        "blocked": 4,
+        "not_applicable": 0
+      },
+      "blockers": [
+        {
+          "id": "A8.01",
+          "type": "NOT_EXECUTED",
+          "reason": "Required validation was not executed"
+        },
+        {
+          "id": "A8.02",
+          "type": "NOT_EXECUTED",
+          "reason": "Required validation was not executed"
+        },
+        {
+          "id": "A8.03",
+          "type": "NOT_EXECUTED",
+          "reason": "Required validation was not executed"
+        },
+        {
+          "id": "A8.04",
+          "type": "NOT_EXECUTED",
+          "reason": "Required validation was not executed"
+        }
+      ]
+    },
+    {
+      "id": "A9",
+      "name": "Signature benchmark calculator",
+      "computed_status": "BLOCKED",
+      "counts": {
+        "total": 9,
+        "pass": 0,
+        "blocked": 9,
+        "not_applicable": 0
+      },
+      "reported_counts": {
+        "total": 9,
+        "pass": 0,
+        "blocked": 9,
+        "not_applicable": 0
+      },
+      "blockers": [
+        {
+          "id": "A9.01",
+          "type": "NOT_EXECUTED",
+          "reason": "Required validation was not executed"
+        },
+        {
+          "id": "A9.02",
+          "type": "NOT_EXECUTED",
+          "reason": "Required validation was not executed"
+        },
+        {
+          "id": "A9.03",
+          "type": "NOT_EXECUTED",
+          "reason": "Required validation was not executed"
+        },
+        {
+          "id": "A9.04",
+          "type": "NOT_EXECUTED",
+          "reason": "Required validation was not executed"
+        },
+        {
+          "id": "A9.05",
+          "type": "NOT_EXECUTED",
+          "reason": "Required validation was not executed"
+        },
+        {
+          "id": "A9.06",
+          "type": "NOT_EXECUTED",
+          "reason": "Required validation was not executed"
+        },
+        {
+          "id": "A9.07",
+          "type": "NOT_EXECUTED",
+          "reason": "Required validation was not executed"
+        },
+        {
+          "id": "A9.08",
+          "type": "NOT_EXECUTED",
+          "reason": "Required validation was not executed"
+        },
+        {
+          "id": "A9.09",
+          "type": "NOT_EXECUTED",
+          "reason": "Required validation was not executed"
+        }
+      ]
+    },
+    {
+      "id": "A10",
+      "name": "Signature hard and secondary gates",
+      "computed_status": "BLOCKED",
+      "counts": {
+        "total": 6,
+        "pass": 0,
+        "blocked": 6,
+        "not_applicable": 0
+      },
+      "reported_counts": {
+        "total": 6,
+        "pass": 0,
+        "blocked": 6,
+        "not_applicable": 0
+      },
+      "blockers": [
+        {
+          "id": "A10.01",
+          "type": "NOT_EXECUTED",
+          "reason": "Required validation was not executed"
+        },
+        {
+          "id": "A10.02",
+          "type": "NOT_EXECUTED",
+          "reason": "Required validation was not executed"
+        },
+        {
+          "id": "A10.03",
+          "type": "NOT_EXECUTED",
+          "reason": "Required validation was not executed"
+        },
+        {
+          "id": "A10.04",
+          "type": "NOT_EXECUTED",
+          "reason": "Required validation was not executed"
+        },
+        {
+          "id": "A10.05",
+          "type": "NOT_EXECUTED",
+          "reason": "Required validation was not executed"
+        },
+        {
+          "id": "A10.06",
+          "type": "NOT_EXECUTED",
+          "reason": "Required validation was not executed"
+        }
+      ]
+    },
+    {
+      "id": "A11",
+      "name": "Benchmark JSON",
+      "computed_status": "BLOCKED",
+      "counts": {
+        "total": 9,
+        "pass": 0,
+        "blocked": 9,
+        "not_applicable": 0
+      },
+      "reported_counts": {
+        "total": 9,
+        "pass": 0,
+        "blocked": 9,
+        "not_applicable": 0
+      },
+      "blockers": [
+        {
+          "id": "A11.01",
+          "type": "NOT_EXECUTED",
+          "reason": "Required validation was not executed"
+        },
+        {
+          "id": "A11.02",
+          "type": "NOT_EXECUTED",
+          "reason": "Required validation was not executed"
+        },
+        {
+          "id": "A11.03",
+          "type": "NOT_EXECUTED",
+          "reason": "Required validation was not executed"
+        },
+        {
+          "id": "A11.04",
+          "type": "NOT_EXECUTED",
+          "reason": "Required validation was not executed"
+        },
+        {
+          "id": "A11.05",
+          "type": "NOT_EXECUTED",
+          "reason": "Required validation was not executed"
+        },
+        {
+          "id": "A11.06",
+          "type": "NOT_EXECUTED",
+          "reason": "Required validation was not executed"
+        },
+        {
+          "id": "A11.07",
+          "type": "NOT_EXECUTED",
+          "reason": "Required validation was not executed"
+        },
+        {
+          "id": "A11.08",
+          "type": "NOT_EXECUTED",
+          "reason": "Required validation was not executed"
+        },
+        {
+          "id": "A11.09",
+          "type": "NOT_EXECUTED",
+          "reason": "Required validation was not executed"
+        }
+      ]
+    },
+    {
+      "id": "A12",
+      "name": "Automated regression tests",
+      "computed_status": "PASS",
+      "counts": {
+        "total": 7,
+        "pass": 7,
+        "blocked": 0,
+        "not_applicable": 0
+      },
+      "reported_counts": {
+        "total": 7,
+        "pass": 7,
+        "blocked": 0,
+        "not_applicable": 0
+      },
+      "blockers": []
+    },
+    {
+      "id": "A13",
+      "name": "CI final state",
+      "computed_status": "BLOCKED",
+      "counts": {
+        "total": 7,
+        "pass": 1,
+        "blocked": 6,
+        "not_applicable": 0
+      },
+      "reported_counts": {
+        "total": 7,
+        "pass": 1,
+        "blocked": 6,
+        "not_applicable": 0
+      },
+      "blockers": [
+        {
+          "id": "A13.01",
+          "type": "NOT_EXECUTED",
+          "reason": "Required validation was not executed"
+        },
+        {
+          "id": "A13.03",
+          "type": "NOT_EXECUTED",
+          "reason": "Required validation was not executed"
+        },
+        {
+          "id": "A13.04",
+          "type": "NOT_EXECUTED",
+          "reason": "Required validation was not executed"
+        },
+        {
+          "id": "A13.05",
+          "type": "NOT_EXECUTED",
+          "reason": "Required validation was not executed"
+        },
+        {
+          "id": "A13.06",
+          "type": "NOT_EXECUTED",
+          "reason": "Required validation was not executed"
+        },
+        {
+          "id": "A13.07",
+          "type": "NOT_EXECUTED",
+          "reason": "Required validation was not executed"
+        }
+      ]
+    },
+    {
+      "id": "A14",
+      "name": "Documentation sync",
+      "computed_status": "BLOCKED",
+      "counts": {
+        "total": 7,
+        "pass": 0,
+        "blocked": 7,
+        "not_applicable": 0
+      },
+      "reported_counts": {
+        "total": 7,
+        "pass": 0,
+        "blocked": 7,
+        "not_applicable": 0
+      },
+      "blockers": [
+        {
+          "id": "A14.01",
+          "type": "NOT_EXECUTED",
+          "reason": "Required validation was not executed"
+        },
+        {
+          "id": "A14.02",
+          "type": "NOT_EXECUTED",
+          "reason": "Required validation was not executed"
+        },
+        {
+          "id": "A14.03",
+          "type": "NOT_EXECUTED",
+          "reason": "Required validation was not executed"
+        },
+        {
+          "id": "A14.04",
+          "type": "NOT_EXECUTED",
+          "reason": "Required validation was not executed"
+        },
+        {
+          "id": "A14.05",
+          "type": "NOT_EXECUTED",
+          "reason": "Required validation was not executed"
+        },
+        {
+          "id": "A14.06",
+          "type": "NOT_EXECUTED",
+          "reason": "Required validation was not executed"
+        },
+        {
+          "id": "A14.07",
+          "type": "NOT_EXECUTED",
+          "reason": "Required validation was not executed"
+        }
+      ]
+    },
+    {
+      "id": "E1",
+      "name": "E670FE implementation and legacy compatibility",
+      "computed_status": "BLOCKED",
+      "counts": {
+        "total": 3,
+        "pass": 0,
+        "blocked": 3,
+        "not_applicable": 0
+      },
+      "reported_counts": {
+        "total": 3,
+        "pass": 0,
+        "blocked": 3,
+        "not_applicable": 0
+      },
+      "blockers": [
+        {
+          "id": "E1.DSP",
+          "type": "NOT_EXECUTED",
+          "reason": "Required validation was not executed"
+        },
+        {
+          "id": "E1.STATE_UI",
+          "type": "NOT_EXECUTED",
+          "reason": "Required validation was not executed"
+        },
+        {
+          "id": "E1.LEGACY",
+          "type": "NOT_EXECUTED",
+          "reason": "Required validation was not executed"
+        }
+      ]
+    },
+    {
+      "id": "I1",
+      "name": "Combined 1.1.1 synthetic integration",
+      "computed_status": "BLOCKED",
+      "counts": {
+        "total": 4,
+        "pass": 3,
+        "blocked": 1,
+        "not_applicable": 0
+      },
+      "reported_counts": {
+        "total": 4,
+        "pass": 3,
+        "blocked": 1,
+        "not_applicable": 0
+      },
+      "blockers": [
+        {
+          "id": "I1.LIVE_REMOVE",
+          "type": "NOT_EXECUTED",
+          "reason": "Required validation was not executed"
+        }
+      ]
+    }
+  ],
+  "blockers": [
+    {
+      "id": "A1.04",
+      "type": "NOT_EXECUTED",
+      "reason": "Required validation was not executed"
+    },
+    {
+      "id": "A1.05",
+      "type": "NOT_EXECUTED",
+      "reason": "Required validation was not executed"
+    },
+    {
+      "id": "A1.06",
+      "type": "NOT_EXECUTED",
+      "reason": "Required validation was not executed"
+    },
+    {
+      "id": "A3.01",
+      "type": "NOT_EXECUTED",
+      "reason": "Required validation was not executed"
+    },
+    {
+      "id": "A3.06",
+      "type": "NOT_EXECUTED",
+      "reason": "Required validation was not executed"
+    },
+    {
+      "id": "A3.07",
+      "type": "NOT_EXECUTED",
+      "reason": "Required validation was not executed"
+    },
+    {
+      "id": "A3.08",
+      "type": "NOT_EXECUTED",
+      "reason": "Required validation was not executed"
+    },
+    {
+      "id": "A4.01",
+      "type": "NOT_EXECUTED",
+      "reason": "Required validation was not executed"
+    },
+    {
+      "id": "A4.03",
+      "type": "NOT_EXECUTED",
+      "reason": "Required validation was not executed"
+    },
+    {
+      "id": "A4.04",
+      "type": "NOT_EXECUTED",
+      "reason": "Required validation was not executed"
+    },
+    {
+      "id": "A4.05",
+      "type": "NOT_EXECUTED",
+      "reason": "Required validation was not executed"
+    },
+    {
+      "id": "A5.01",
+      "type": "NOT_EXECUTED",
+      "reason": "Required validation was not executed"
+    },
+    {
+      "id": "A5.05",
+      "type": "NOT_EXECUTED",
+      "reason": "Required validation was not executed"
+    },
+    {
+      "id": "A5.08",
+      "type": "NOT_EXECUTED",
+      "reason": "Required validation was not executed"
+    },
+    {
+      "id": "A6.01",
+      "type": "NOT_EXECUTED",
+      "reason": "Required validation was not executed"
+    },
+    {
+      "id": "A6.05",
+      "type": "NOT_EXECUTED",
+      "reason": "Required validation was not executed"
+    },
+    {
+      "id": "A6.08",
+      "type": "NOT_EXECUTED",
+      "reason": "Required validation was not executed"
+    },
+    {
+      "id": "A7.01",
+      "type": "NOT_EXECUTED",
+      "reason": "Required validation was not executed"
+    },
+    {
+      "id": "A7.02",
+      "type": "NOT_EXECUTED",
+      "reason": "Required validation was not executed"
+    },
+    {
+      "id": "A7.03",
+      "type": "NOT_EXECUTED",
+      "reason": "Required validation was not executed"
+    },
+    {
+      "id": "A7.04",
+      "type": "NOT_EXECUTED",
+      "reason": "Required validation was not executed"
+    },
+    {
+      "id": "A7.05",
+      "type": "NOT_EXECUTED",
+      "reason": "Required validation was not executed"
+    },
+    {
+      "id": "A7.06",
+      "type": "NOT_EXECUTED",
+      "reason": "Required validation was not executed"
+    },
+    {
+      "id": "A7.07",
+      "type": "NOT_EXECUTED",
+      "reason": "Required validation was not executed"
+    },
+    {
+      "id": "A8.01",
+      "type": "NOT_EXECUTED",
+      "reason": "Required validation was not executed"
+    },
+    {
+      "id": "A8.02",
+      "type": "NOT_EXECUTED",
+      "reason": "Required validation was not executed"
+    },
+    {
+      "id": "A8.03",
+      "type": "NOT_EXECUTED",
+      "reason": "Required validation was not executed"
+    },
+    {
+      "id": "A13.01",
+      "type": "NOT_EXECUTED",
+      "reason": "Required validation was not executed"
+    },
+    {
+      "id": "A13.03",
+      "type": "NOT_EXECUTED",
+      "reason": "Required validation was not executed"
+    },
+    {
+      "id": "A13.04",
+      "type": "NOT_EXECUTED",
+      "reason": "Required validation was not executed"
+    },
+    {
+      "id": "A13.05",
+      "type": "NOT_EXECUTED",
+      "reason": "Required validation was not executed"
+    },
+    {
+      "id": "A13.06",
+      "type": "NOT_EXECUTED",
+      "reason": "Required validation was not executed"
+    },
+    {
+      "id": "A13.07",
+      "type": "NOT_EXECUTED",
+      "reason": "Required validation was not executed"
+    },
+    {
+      "id": "E1.DSP",
+      "type": "NOT_EXECUTED",
+      "reason": "Required validation was not executed"
+    },
+    {
+      "id": "E1.STATE_UI",
+      "type": "NOT_EXECUTED",
+      "reason": "Required validation was not executed"
+    },
+    {
+      "id": "E1.LEGACY",
+      "type": "NOT_EXECUTED",
+      "reason": "Required validation was not executed"
+    },
+    {
+      "id": "I1.LIVE_REMOVE",
+      "type": "NOT_EXECUTED",
+      "reason": "Required validation was not executed"
+    },
+    {
+      "id": "A1.01",
+      "type": "NOT_EXECUTED",
+      "reason": "Required validation was not executed"
+    },
+    {
+      "id": "A1.02",
+      "type": "NOT_EXECUTED",
+      "reason": "Required validation was not executed"
+    },
+    {
+      "id": "A1.03",
+      "type": "NOT_EXECUTED",
+      "reason": "Required validation was not executed"
+    },
+    {
+      "id": "A2.01",
+      "type": "NOT_EXECUTED",
+      "reason": "Required validation was not executed"
+    },
+    {
+      "id": "A2.02",
+      "type": "NOT_EXECUTED",
+      "reason": "Required validation was not executed"
+    },
+    {
+      "id": "A2.03",
+      "type": "NOT_EXECUTED",
+      "reason": "Required validation was not executed"
+    },
+    {
+      "id": "A2.04",
+      "type": "NOT_EXECUTED",
+      "reason": "Required validation was not executed"
+    },
+    {
+      "id": "A2.05",
+      "type": "NOT_EXECUTED",
+      "reason": "Required validation was not executed"
+    },
+    {
+      "id": "A2.06",
+      "type": "NOT_EXECUTED",
+      "reason": "Required validation was not executed"
+    },
+    {
+      "id": "A2.07",
+      "type": "NOT_EXECUTED",
+      "reason": "Required validation was not executed"
+    },
+    {
+      "id": "A2.08",
+      "type": "NOT_EXECUTED",
+      "reason": "Required validation was not executed"
+    },
+    {
+      "id": "A3.02",
+      "type": "NOT_EXECUTED",
+      "reason": "Required validation was not executed"
+    },
+    {
+      "id": "A3.03",
+      "type": "NOT_EXECUTED",
+      "reason": "Required validation was not executed"
+    },
+    {
+      "id": "A3.04",
+      "type": "NOT_EXECUTED",
+      "reason": "Required validation was not executed"
+    },
+    {
+      "id": "A3.05",
+      "type": "NOT_EXECUTED",
+      "reason": "Required validation was not executed"
+    },
+    {
+      "id": "A3.09",
+      "type": "NOT_EXECUTED",
+      "reason": "Required validation was not executed"
+    },
+    {
+      "id": "A4.02",
+      "type": "NOT_EXECUTED",
+      "reason": "Required validation was not executed"
+    },
+    {
+      "id": "A5.02",
+      "type": "NOT_EXECUTED",
+      "reason": "Required validation was not executed"
+    },
+    {
+      "id": "A5.03",
+      "type": "NOT_EXECUTED",
+      "reason": "Required validation was not executed"
+    },
+    {
+      "id": "A5.04",
+      "type": "NOT_EXECUTED",
+      "reason": "Required validation was not executed"
+    },
+    {
+      "id": "A5.06",
+      "type": "NOT_EXECUTED",
+      "reason": "Required validation was not executed"
+    },
+    {
+      "id": "A5.07",
+      "type": "NOT_EXECUTED",
+      "reason": "Required validation was not executed"
+    },
+    {
+      "id": "A6.02",
+      "type": "NOT_EXECUTED",
+      "reason": "Required validation was not executed"
+    },
+    {
+      "id": "A6.03",
+      "type": "NOT_EXECUTED",
+      "reason": "Required validation was not executed"
+    },
+    {
+      "id": "A6.04",
+      "type": "NOT_EXECUTED",
+      "reason": "Required validation was not executed"
+    },
+    {
+      "id": "A6.06",
+      "type": "NOT_EXECUTED",
+      "reason": "Required validation was not executed"
+    },
+    {
+      "id": "A6.07",
+      "type": "NOT_EXECUTED",
+      "reason": "Required validation was not executed"
+    },
+    {
+      "id": "A8.04",
+      "type": "NOT_EXECUTED",
+      "reason": "Required validation was not executed"
+    },
+    {
+      "id": "A9.01",
+      "type": "NOT_EXECUTED",
+      "reason": "Required validation was not executed"
+    },
+    {
+      "id": "A9.02",
+      "type": "NOT_EXECUTED",
+      "reason": "Required validation was not executed"
+    },
+    {
+      "id": "A9.03",
+      "type": "NOT_EXECUTED",
+      "reason": "Required validation was not executed"
+    },
+    {
+      "id": "A9.04",
+      "type": "NOT_EXECUTED",
+      "reason": "Required validation was not executed"
+    },
+    {
+      "id": "A9.05",
+      "type": "NOT_EXECUTED",
+      "reason": "Required validation was not executed"
+    },
+    {
+      "id": "A9.06",
+      "type": "NOT_EXECUTED",
+      "reason": "Required validation was not executed"
+    },
+    {
+      "id": "A9.07",
+      "type": "NOT_EXECUTED",
+      "reason": "Required validation was not executed"
+    },
+    {
+      "id": "A9.08",
+      "type": "NOT_EXECUTED",
+      "reason": "Required validation was not executed"
+    },
+    {
+      "id": "A9.09",
+      "type": "NOT_EXECUTED",
+      "reason": "Required validation was not executed"
+    },
+    {
+      "id": "A10.01",
+      "type": "NOT_EXECUTED",
+      "reason": "Required validation was not executed"
+    },
+    {
+      "id": "A10.02",
+      "type": "NOT_EXECUTED",
+      "reason": "Required validation was not executed"
+    },
+    {
+      "id": "A10.03",
+      "type": "NOT_EXECUTED",
+      "reason": "Required validation was not executed"
+    },
+    {
+      "id": "A10.04",
+      "type": "NOT_EXECUTED",
+      "reason": "Required validation was not executed"
+    },
+    {
+      "id": "A10.05",
+      "type": "NOT_EXECUTED",
+      "reason": "Required validation was not executed"
+    },
+    {
+      "id": "A10.06",
+      "type": "NOT_EXECUTED",
+      "reason": "Required validation was not executed"
+    },
+    {
+      "id": "A11.01",
+      "type": "NOT_EXECUTED",
+      "reason": "Required validation was not executed"
+    },
+    {
+      "id": "A11.02",
+      "type": "NOT_EXECUTED",
+      "reason": "Required validation was not executed"
+    },
+    {
+      "id": "A11.03",
+      "type": "NOT_EXECUTED",
+      "reason": "Required validation was not executed"
+    },
+    {
+      "id": "A11.04",
+      "type": "NOT_EXECUTED",
+      "reason": "Required validation was not executed"
+    },
+    {
+      "id": "A11.05",
+      "type": "NOT_EXECUTED",
+      "reason": "Required validation was not executed"
+    },
+    {
+      "id": "A11.06",
+      "type": "NOT_EXECUTED",
+      "reason": "Required validation was not executed"
+    },
+    {
+      "id": "A11.07",
+      "type": "NOT_EXECUTED",
+      "reason": "Required validation was not executed"
+    },
+    {
+      "id": "A11.08",
+      "type": "NOT_EXECUTED",
+      "reason": "Required validation was not executed"
+    },
+    {
+      "id": "A11.09",
+      "type": "NOT_EXECUTED",
+      "reason": "Required validation was not executed"
+    },
+    {
+      "id": "A14.01",
+      "type": "NOT_EXECUTED",
+      "reason": "Required validation was not executed"
+    },
+    {
+      "id": "A14.02",
+      "type": "NOT_EXECUTED",
+      "reason": "Required validation was not executed"
+    },
+    {
+      "id": "A14.03",
+      "type": "NOT_EXECUTED",
+      "reason": "Required validation was not executed"
+    },
+    {
+      "id": "A14.04",
+      "type": "NOT_EXECUTED",
+      "reason": "Required validation was not executed"
+    },
+    {
+      "id": "A14.05",
+      "type": "NOT_EXECUTED",
+      "reason": "Required validation was not executed"
+    },
+    {
+      "id": "A14.06",
+      "type": "NOT_EXECUTED",
+      "reason": "Required validation was not executed"
+    },
+    {
+      "id": "A14.07",
+      "type": "NOT_EXECUTED",
+      "reason": "Required validation was not executed"
+    }
+  ]
+}
