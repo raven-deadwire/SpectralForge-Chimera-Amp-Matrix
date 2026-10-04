@@ -56,8 +56,21 @@ expected_presets = CONTRACT["preset_counts"]
 actual_presets = {"factory": factory_count, "signature": signature_count, "total": preset_total}
 assert actual_presets == expected_presets, f"preset count contract mismatch: expected {expected_presets}, got {actual_presets}"
 assert CONTRACT["pre_board_capacity"] == 5, "PRE board capacity contract changed"
+assert "Bassman Valve" not in presets, "Preset descriptions retain the stale pre-catalog Bassman Valve alias"
+for preset_name in ("Finger Round", "G+B Air / Weight", "B+B Warm / Definition"):
+    assert re.search(r'\{"' + re.escape(preset_name) + r'"[^\n]+"[^\n]*Vintage Valve', presets), \
+        f"{preset_name} no longer names the active Vintage Valve catalog model"
 
 print(
     f"PASS: Chimera catalog contract {actual['total']} models = AMP {amp_count} + PRE {pre_count} + POST {post_count}; "
     f"presets {factory_count}+{signature_count}"
 )
+
+# Guitar signatures live in a separate append-only full-state bank.
+guitar = read("Source/GuitarSignaturePresets.h")
+names = re.findall(r'\{"raven\.[^"]+","([^"]+)"', guitar)
+assert names == ["A Path To Alsatia", "Feel My Wrath", "Blackhearted", "Dark Matters of Throne"]
+assert "selectablePresetCount=factoryPresetCount+int(guitarSignatures.size())" in guitar
+import hashlib
+assert hashlib.sha256((ROOT / "Assets/IRs/guitar_v30_sm57.wav").read_bytes()).hexdigest() in guitar
+print("PASS: four append-only full-state Guitar Signatures and exact embedded V30 SHA-256")

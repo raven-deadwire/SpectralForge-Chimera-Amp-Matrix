@@ -1,0 +1,80 @@
+{
+  "scope": "Issue #8 Gate P1 local candidate verification; not real instrument or DAW acceptance",
+  "baseline_commit": "fe3656521046be79f99a62857976021c07ec398b",
+  "tested_revision_kind": "pre-publication working tree; exact tested files identified below",
+  "recorded_at_utc": "2026-10-03T16:12:17.509957+00:00",
+  "platform": "Linux-6.18.44-x86_64-with-glibc2.39",
+  "cpu": "AMD EPYC 9V74",
+  "compiler": "g++ (Ubuntu 13.3.0-6ubuntu2~24.04) 13.3.0",
+  "juce_version": "8.0.8",
+  "build_type": "Release",
+  "host": "offline JUCE AudioProcessor / Linux Xvfb for UI; no DAW",
+  "source_sha256": {
+    "CMakeLists.txt": "6c0ee9c269d0ceb29575da34cfd9086579d05f96edd2dd8c6714e1437118ac91",
+    "Source/FXChain.h": "e241c054a6a39cf48b6081fc072281b588a6b622fbe9cabf4588ceb67149d077",
+    "Source/FactoryPresets.h": "b9333ee57bbd176e3412a11196cd25ef9d473a4a0bd27ae05d73386b6f3fd1f6",
+    "Source/GlobalDSP.h": "eaa62d31745fa9a7b76351ce26270f088a110fa19e5e5200c437ce0d2ab16f78",
+    "Source/PluginEditor.cpp": "0e8db85907abb9a809c22e1d362be779c03e83e91c5177324371e4d315d60262",
+    "Source/PluginEditor.h": "c98a745885e2a19d83be88a78fe5552e7de4b88493632f4da46090faef24233d",
+    "Source/PluginProcessor.cpp": "b2cfb2575c588f087d1e23204f2648ffca9be5629f546559d39b7f46fb089ded",
+    "Source/PluginProcessor.h": "90b121c2af763aabdae041197abf4139457e43c533316f43b24932290154c6bb",
+    "Source/PostRigGate.h": "0948431ee443b202b3dc3cbc7734891521bdc7d794135465b0e6e464c5e23a4c",
+    "Tests/GateProcessorTests.cpp": "31d199baca7e18cf887786ba0d67e5a8d6f21a3984fccf550583132cdb3c2da2",
+    "Tests/GateTests.cpp": "47bf51766ab3f0ca19e8e8ec19556622033ac866cb08e6958cbe0ff8660ff0dc",
+    "Tests/GateUITests.h": "79883e4b0732d2860ce6a8627e5834ca380bfb4286339ec24b2b6b0c7b78ba99",
+    "Tests/LegacyNoiseGate.h": "5d7bf61565f85109ac12743c945db21cb48c5d86e6e6b7ed7c1908d8ad2c06d8",
+    "Tests/NativeUITests.h": "3a60799f82c702affd9815b523c66b91e3f2f28c3d04f1b1c8f37c347300486d"
+  },
+  "source_fingerprint_sha256": "75603be24301bb5ac84a1fdea539fcd63d1b36f651e710e5b94c64d47f195fbe",
+  "fixture_kind": "deterministic synthetic inputs defined in GateTests.cpp and GateProcessorTests.cpp; no recorded instrument DI",
+  "baseline_parameter_count": 3686,
+  "baseline_parameter_manifest_sha256": "1de9d010b4267088d80a6922105b047ae0c9e142e3b931c000129d6befa3523f",
+  "new_parameter": {
+    "id": "gateRangeDb",
+    "index": 3686,
+    "version_hint": 2,
+    "range": [
+      0,
+      96
+    ],
+    "interval": 0.1,
+    "default": 96,
+    "full_sentinel": 96
+  },
+  "results": {
+    "scoped_ctest": {
+      "status": "PASS",
+      "tests": 4,
+      "failures": 0,
+      "artifact": "local-ctest.log"
+    },
+    "processor_measurements": {
+      "status": "PASS",
+      "artifact": "processor-measurements.log",
+      "cases": 12,
+      "range24_measured_db": -23.9999,
+      "full_ratio_db": "<= -300 dB numerical report floor; not a physical noise-floor measurement"
+    },
+    "ui_attachment_scales": {
+      "status": "PASS",
+      "scales_percent": [
+        75,
+        100,
+        125
+      ],
+      "backend": "Xvfb; not native Windows"
+    },
+    "real_instrument_listening": {
+      "status": "BLOCKED",
+      "reason": "No isolated DI/listening evidence."
+    },
+    "windows_daw_automation_recall_lifecycle": {
+      "status": "BLOCKED",
+      "reason": "No Studio One 8/Cubase/Sonar session evidence."
+    },
+    "windows_macos_ci": {
+      "status": "BLOCKED",
+      "reason": "Pending exact-commit PR CI at time of local record."
+    }
+  }
+}

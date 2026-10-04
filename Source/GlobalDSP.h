@@ -12,17 +12,25 @@ class NoiseGate {
     int holdCounter{};
     bool open{true};
 public:
+    // 0..95.9 dB is a finite attenuation floor. 96 is the Full sentinel:
+    // the original zero target, approached with the existing release curve.
+    static constexpr float fullRangeDb=96.f;
+    static float closedGain(float rangeDb) noexcept
+    {
+        if(!std::isfinite(rangeDb) || rangeDb>=fullRangeDb) return 0.f;
+        return juce::Decibels::decibelsToGain(-juce::jmax(0.f,rangeDb));
+    }
     void prepare(double sr) { rate=sr; reset(); }
     void reset() { detector=0; gain=1; holdCounter=0; open=true; }
     float reduction() const { return gain; }
-    void process(juce::AudioBuffer<float>& buffer,bool enabled,float thresholdDb,float releaseMs,float holdMs)
-    { processInternal(buffer,&buffer,nullptr,enabled,thresholdDb,releaseMs,holdMs); }
+    void process(juce::AudioBuffer<float>& buffer,bool enabled,float thresholdDb,float releaseMs,float holdMs,float rangeDb=fullRangeDb)
+    { processInternal(buffer,&buffer,nullptr,enabled,thresholdDb,releaseMs,holdMs,rangeDb); }
     // The same input detector can control a later gain stage without altering
     // the clean signal or deriving its envelope from distortion-generated noise.
-    void detect(const juce::AudioBuffer<float>& buffer,float* envelope,bool enabled,float thresholdDb,float releaseMs,float holdMs)
-    { processInternal(buffer,nullptr,envelope,enabled,thresholdDb,releaseMs,holdMs); }
+    void detect(const juce::AudioBuffer<float>& buffer,float* envelope,bool enabled,float thresholdDb,float releaseMs,float holdMs,float rangeDb=fullRangeDb)
+    { processInternal(buffer,nullptr,envelope,enabled,thresholdDb,releaseMs,holdMs,rangeDb); }
 private:
-    void processInternal(const juce::AudioBuffer<float>& buffer,juce::AudioBuffer<float>* output,float* envelope,bool enabled,float thresholdDb,float releaseMs,float holdMs)
+    void processInternal(const juce::AudioBuffer<float>& buffer,juce::AudioBuffer<float>* output,float* envelope,bool enabled,float thresholdDb,float releaseMs,float holdMs,float rangeDb)
     {
         const float threshold=juce::Decibels::decibelsToGain(thresholdDb);
         const float closeThreshold=threshold*.501187f; // 6 dB hysteresis
@@ -30,6 +38,7 @@ private:
         const float attack=float(std::exp(-1.0/(rate*.0005)));
         const float release=float(std::exp(-1.0/(rate*juce::jmax(5.f,releaseMs)*.001)));
         const int holdSamples=int(rate*holdMs*.001);
+        const float floor=closedGain(rangeDb);
         for(int n=0;n<buffer.getNumSamples();++n)
         {
             float peak=0;
@@ -41,7 +50,7 @@ private:
                 if(holdCounter>0) --holdCounter;
                 else open=false;
             }
-            const float target=(!enabled || open) ? 1.f : 0.f;
+            const float target=(!enabled || open) ? 1.f : floor;
             const float coefficient=target>gain ? attack : release;
             gain=target+(gain-target)*coefficient;
             if(envelope) envelope[n]=gain;
@@ -85,8 +94,10 @@ public:
         aligned.makeCopyOf(buffer,true);
         juce::dsp::AudioBlock<float> dryBlock(aligned);
         juce::dsp::ProcessContextReplacing<float> context(dryBlock); dryDelay.process(context);
-        stretch.setSemitones(semitones);
         const bool needsShift=enabled && semitones!=0;
+        // Keep the outgoing ratio until its wet fade finishes. Bypass/zero
+        // must not inject unity/new-ratio frames into the old OLA tail.
+        if(needsShift) stretch.setSemitones(semitones);
         if(!needsShift) wet.setTargetValue(0.f);
         const bool render=needsShift || wet.isSmoothing() || wet.getCurrentValue()>0.f;
         if(render && !wasRendering) warmupSamples=delaySamples;

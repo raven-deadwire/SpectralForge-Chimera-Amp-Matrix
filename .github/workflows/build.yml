@@ -9,7 +9,33 @@ concurrency:
 permissions:
   contents: read
 jobs:
+  validation-contract:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Verify catalog and validation producer contracts
+        run: |
+          python -m py_compile Tools/check_catalog_contract.py Tools/check_ci_validation_map.py Tools/produce_validation_check.py Tools/test_validation_producer.py Tools/seed_validation_reports.py Tools/evaluate_release_gate.py
+          python Tools/check_catalog_contract.py
+          python Tools/check_ci_validation_map.py
+          python Tools/test_validation_producer.py
+          python Tools/test_ctest_validation.py
+          python Tools/seed_validation_reports.py --commit "${{ github.event.pull_request.head.sha || github.sha }}" --profile pull_request --output build/validation
+      - name: Upload current-commit release-gate evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Chimera-A-stage-release-gate
+          path: build/validation
+          if-no-files-found: error
+
   build:
+    needs: validation-contract
     strategy:
       fail-fast: false
       matrix:
@@ -27,6 +53,7 @@ jobs:
           python Tools/test_signature_benchmark.py
           python Tools/check_catalog_contract.py
           python Tools/test_validation_producer.py
+          python Tools/test_ctest_validation.py
       - name: Check Windows packaging script syntax
         if: runner.os == 'Windows'
         shell: pwsh
@@ -46,7 +73,26 @@ jobs:
         if: runner.os == 'macOS'
         run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_OSX_ARCHITECTURES="arm64;x86_64" -DCMAKE_OSX_DEPLOYMENT_TARGET=12.0
       - run: cmake --build build --config Release --parallel 2
-      - run: ctest --test-dir build -C Release --output-on-failure
+      - name: Record configured CTest inventory
+        run: ctest --test-dir build -C Release --show-only=json-v1 > build/ctest-inventory.json
+      - run: ctest --test-dir build -C Release --output-on-failure --no-tests=error --output-junit ctest-results.xml
+      - name: Produce current-commit CTest validation evidence
+        if: always()
+        shell: bash
+        run: |
+          case "${{ runner.os }}" in Windows) platform=windows;; Linux) platform=linux;; macOS) platform=macos;; esac
+          python Tools/produce_ctest_validation.py --commit "$(git rev-parse HEAD)" --platform "$platform" --junit build/ctest-results.xml --inventory build/ctest-inventory.json --output build/validation
+      - name: Upload concrete CTest and full-state signature evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Chimera-integration-validation-${{ runner.os }}
+          path: |
+            build/validation
+            build/ctest-results.xml
+            build/ctest-inventory.json
+            build/signature-snapshots
+          if-no-files-found: warn
 
       - name: Upload DSP verification
         if: always()

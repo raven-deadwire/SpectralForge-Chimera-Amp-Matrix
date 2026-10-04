@@ -62,6 +62,19 @@ void pitchTransitions()
     }
     std::cout<<"PASS: bypass/zero/shift/re-engagement transitions across 3 rates and 4 intervals\n";
 }
+void pitchOutgoingRatio()
+{
+    for(double rate:{44100.,48000.,96000.})for(int shift:{-12,-2,2,12}) {
+        spectralforge::Transposer a,b;a.prepare({rate,128,2});b.prepare({rate,128,2});
+        juce::AudioBuffer<float> left(2,128),right(2,128);
+        for(int block=0;block<120;++block) {
+            for(int c=0;c<2;++c)for(int n=0;n<128;++n)left.setSample(c,n,signal(block*128+n,c,rate));
+            right.makeCopyOf(left);a.process(left,block<90,shift);b.process(right,block<90,block<90?shift:0);
+            for(int c=0;c<2;++c)for(int n=0;n<128;++n)require(left.getSample(c,n)==right.getSample(c,n),"Bypass request retuned outgoing wet OLA tail");
+        }
+    }
+    std::cout<<"PASS outgoing ratio retained during bypass fade: 3 rates x 4 shifts\n";
+}
 void tunerLifetime()
 {
     const auto started=juce::Time::getMillisecondCounterHiRes();
@@ -149,6 +162,6 @@ void pitchCost()
 }
 int main()
 {
-    try {pitchDryPaths();pitchTransitions();tunerLifetime();postRigGate();pitchCost();return 0;}
+    try {pitchDryPaths();pitchTransitions();pitchOutgoingRatio();tunerLifetime();postRigGate();pitchCost();return 0;}
     catch(const std::exception& error) {std::cerr<<"FAIL: "<<error.what()<<'\n';return 1;}
 }

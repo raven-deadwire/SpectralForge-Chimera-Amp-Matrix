@@ -1,3 +1,4 @@
+#include "GuitarSignaturePresets.h"
 #include "PluginEditor.h"
 #include "HardwareArtwork.h"
 #include "SupportPanel.h"
@@ -10,6 +11,7 @@
 #include "NativeStateTests.h"
 #include "NativeUITests.h"
 #include <algorithm>
+#include "UIRefreshTests.h"
 #include <map>
 #include <iostream>
 #include <set>
@@ -23,7 +25,7 @@ void checkArtwork()
     using namespace spectralforge::art;
     const juce::SharedResourcePointer<RasterBank> bank;
     const auto& images=bank->images;
-    require(images.size()==static_cast<size_t>(Surface::count) && images.size()==88,
+    require(images.size()==static_cast<size_t>(Surface::count) && images.size()==89,
             "The complete hardware artwork inventory was not embedded");
     for(size_t i=0;i<images.size();++i) {
         const auto& asset=images[i];
@@ -268,7 +270,7 @@ void checkFactoryPresets()
         for(const auto& [id,value]:performance)
             require(std::abs(processor.parameters().getRawParameterValue(id)->load()-value)<juce::jmax(1e-4f,std::abs(value)*2e-6f),
                     "Factory preset changed an input/performance preference");
-        processor.loadFactoryPreset(-1);processor.loadFactoryPreset(spectralforge::factoryPresetCount);
+        processor.loadFactoryPreset(-1);processor.loadFactoryPreset(spectralforge::selectablePresetCount);
         for(const auto& [id,value]:expected)
             require(std::abs(processor.parameters().getRawParameterValue(id)->load()-value)<juce::jmax(1e-4f,std::abs(value)*2e-6f),
                     "Invalid preset ID reset or changed the current sound");
@@ -557,6 +559,9 @@ int main(int argc, char** argv)
         const auto directory = argc > 1 ? juce::File(argv[1])
                                        : juce::File::getCurrentWorkingDirectory().getChildFile("ui-snapshots");
         require(directory.createDirectory().wasOk(), "Cannot create snapshot directory");
+        require(juce::Desktop::getInstance().getDisplays().getPrimaryDisplay()!=nullptr,
+                "Native UI regression requires an active display server and window manager");
+        if(argc>2 && juce::String(argv[2])=="--ui-refresh-only"){uiRefreshTests::run(directory);return 0;}
         int suiteFailures=0;
         const auto runSuite=[&](const char* name,auto&& run) {
             try {run();}
@@ -568,6 +573,7 @@ int main(int argc, char** argv)
         runSuite("amp selection state",[]{ampSelectionStateTests::run();});
         runSuite("pedal menus and power",[]{pedalMenuTests::run();});
         runSuite("native state",[&]{nativeStateTests::run(directory);});
+        runSuite("UI refresh",[&]{uiRefreshTests::run(directory);});
         runSuite("native panels",[&]{runNativeUITests(directory);});
         runSuite("correction UI",[&]{runCorrectionUITests(directory);});
         runSuite("editor lifetime",[]{checkEditorLifetime();});

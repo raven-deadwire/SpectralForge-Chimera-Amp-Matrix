@@ -1,0 +1,27 @@
+PASS: active tuner/three-lane IR switching, three release/reprepare cycles at 44.1/48/96 kHz, idempotent release and no live background resources before delete; slowest release 61.156 ms
+PASS: two editors share one artwork bank across paints; last editor releases it synchronously before GUI/DLL shutdown
+PASS: 23 amps exactly once, Chimera names only, new choices selectable; pending asynchronous amp/channel selection retained; popup cancellation and reopening
+PASS: legacy amp normalized/index/label compatibility; 8 appended models; independent lane/channel banks; binary and A/B recall; old-state and factory migration
+PASS pedal menus: 39 DSPs in 10 exclusive categories, alias-only lists with separate readable hardware captions, async selection and popup reopen, immediate load/copy without dialogs, ON/OFF, four-control 2 by 2 layouts, all six five-control models in 3 + 2 outer-column layouts with real callbacks, and user-only board activation
+PASS: six native amp contexts, all native banks, POST nine models, binary/A-B recall and immediate pedal bank recall
+PASS UI refresh: stable state/metadata, hidden panels/editor, deferred model change, detached ALL windows, live meters, metadata-only invalidation, scaling 75/100/125/150 and parameter preservation
+PASS native UI: all 23 amplifier panels at 100/75%, 92 channel cases, 1656 channel/control visibility cases, Matrix LOW priority controls and ALL, 9 POST models / 144 controls at 100/75%, flat POST alias menus and short original model captions, six compact rack rows and ALL dialogs, editor teardown and real parameter callbacks
+PASS correction UI: directly editable five-slot PRE after fresh/old recall, alias-only amp menus with visible reference captions, 8 editor-to-audio DSP selections, native channel callbacks and isolated Matrix lane selectors; minimum RMS-matched processor residual 0.291942
+PASS: 30 editor/pending-popup/processor lifetime cycles in 30555.6 ms (standalone harness, not a DAW shutdown test)
+PASS: hosted Support browser-only layout, 24 no-service panel lifetimes and 6 real SETTINGS/Support editor teardowns without a message pump; slowest 11.387 ms (hosted UI harness, not a Studio One shutdown test)
+BEGIN universal PRE state checks; Processor size 201184 bytes (heap-owned like plugin instances)
+PASS board state: APVTS owner identity, move, independent duplicate, Empty, capacity and invalid-model guards
+PASS board state: Processor undo and redo restore structural snapshots
+PASS board state: Actual Processor binary state round trip of the universal board
+PASS board state: A/B board snapshots and both saved comparison slots
+PASS board state: Old project seeds current five-slot models/order/ON-OFF, preserves compatibility audio and raw parameters
+PASS board state: MIDI learn, moved owner, independent duplication, binary recall and explicit replacement retirement
+PASS board state: Poly host latency/bypass/delete, zero-frame mono, factory-visible pedal state and silent bank recall
+PASS universal PRE Processor/APVTS: state, A/B, MIDI, legacy, owner identity, capacity, undo/redo
+MEASURE CPU: 14.1076 percent average, 16.5105 percent peak (this runner)
+PASS: 88 decoded visible rasters; 23 unique heads, 38 PRE enclosures (39 models), 21 unique POST surfaces
+PASS: all factory preset host IDs/ranges, complete recall, performance preservation and invalid-index isolation
+PASS: global gain, oversized blocks, host latency, tuner mute, embedded IR, A/B and reference recall
+PASS: bass reference visibility, missing-file state, source metadata and invalid ZIP rejection
+PASS: actual pedal detail/return actions and all 12 EQ controls inside the fixed board at 100/75 percent
+PASS: mode controls, text, automation, state recall, legacy recall; PNGs in /workspace/scratch/014e4ebdb8d0/chimera/build/ui-refresh-snapshots

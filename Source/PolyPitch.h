@@ -42,7 +42,11 @@ class PolyPitch {
             const float actual=float(b)+residual/step;
             const float mapped=b*ratio; const int first=(int)mapped;
             const float fraction=mapped-first;
-            if(first>0 && first<bins-1) inputEnergy+=double(magnitude)*magnitude;
+            // A downshifted low bin may land partly below bin 1. Its
+            // surviving side still enters the output; excluding that source
+            // from the energy reference spuriously attenuates bass notes.
+            if((first>0 && first<bins-1) || (fraction>0.f && first+1>0 && first+1<bins-1))
+                inputEnergy+=double(magnitude)*magnitude;
             for(int side=0;side<2;++side) {
                 const int destination=first+side;
                 if(destination<1 || destination>=bins-1) continue;

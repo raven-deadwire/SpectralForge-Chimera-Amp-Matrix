@@ -88,7 +88,7 @@ inline constexpr std::array<FactoryPreset,34> factoryPresets{{
      {{"amp1",4},{"drive1",.44f},{"bass1",-1},{"lowmid1",1},{"highmid1",2},{"treble1",-1},{"presence1",1},{"cablow1",95},{"cabhigh1",7000},{"delayon",1},{"delaymodel",2},{"delaytime",360},{"delayfeedback",.24f},{"delaymix",.15f},{"reverbon",1},{"reverbmix",.09f},{"gatethreshold",-70},{"gaterelease",180},{"output",-10}}},
     {"Ambient Clean", "Guitar / Clean & Ambient", "Guitar", "Glass clean with stereo Dimension, tape repeats and hall; spacious layered parts.",
      {{"amp1",0},{"drive1",.1f},{"cabtype1",2},{"cabhigh1",8500},{"precompon",1},{"compmodel",4},{"precomp",.18f},{"choruson",1},{"modmodel",1},{"chorusdepth",.22f},{"chorusmix",.18f},{"delayon",1},{"delaymodel",1},{"delaytime",440},{"delayfeedback",.32f},{"delaymix",.22f},{"reverbon",1},{"reverbmodel",1},{"reverbsize",.66f},{"reverbmix",.22f},{"gatethreshold",-75}}},
-    {"Finger Round", "Bass / Clean & Dynamics", "Bass", "Warm Bassman Valve with optical levelling and a 35 Hz low cut; fingerstyle foundation.",
+    {"Finger Round", "Bass / Clean & Dynamics", "Bass", "Warm Vintage Valve with optical levelling and a 35 Hz low cut; fingerstyle foundation.",
      {{"amp1",10},{"drive1",.12f},{"cabtype1",0},{"cablow1",35},{"cabhigh1",5800},{"bass1",1},{"lowmid1",1.5f},{"treble1",-1.5f},{"precompon",1},{"compmodel",2},{"precomp",.2f},{"precompattack",20},{"gatethreshold",-75}}},
     {"Pick Punch", "Bass / Clean & Dynamics", "Bass", "Solid Punch with FET peak control and upper-mid definition; clear picked rock bass.",
      {{"amp1",6},{"drive1",.2f},{"cabtype1",0},{"cablow1",35},{"cabhigh1",6500},{"bass1",.5f},{"lowmid1",-.5f},{"highmid1",2},{"treble1",-.5f},{"precompon",1},{"compmodel",3},{"precomp",.2f},{"precompattack",12},{"gatethreshold",-70}}},
@@ -108,9 +108,9 @@ inline constexpr std::array<FactoryPreset,34> factoryPresets{{
      {{"mode",1},{"dualtype",0},{"dualblend",.35f},{"amp1",2},{"drive1",.38f},{"amp2",3},{"drive2",.3f},{"level2",-2},{"bass1",-1.5f},{"bass2",-2},{"highmid1",1},{"cablow1",85},{"cablow2",95},{"cabhigh1",7000},{"cabhigh2",6500},{"preon",1},{"predrive",.04f},{"pretone",5000},{"prelevel",-2},{"output",-11}}},
     {"G+B Low Anchor", "Dual / Crossover", "Bass / Low-tuned Guitar", "Crossover at 220 Hz: clean Subway lows and Tight 515 upper-band grit from one input.",
      {{"mode",1},{"dualtype",1},{"dualcross",220},{"dualblend",.5f},{"amp1",11},{"drive1",.06f},{"cabtype1",0},{"cablow1",30},{"cabhigh1",7000},{"amp2",2},{"drive2",.3f},{"level2",-6},{"cabtype2",1},{"cablow2",100},{"cabhigh2",6500},{"output",-10}}},
-    {"G+B Air / Weight", "Dual / Crossover", "Bass / Guitar", "Crossover at 320 Hz: Bassman Valve weight and Chime 30 air; shared input, complementary bands.",
+    {"G+B Air / Weight", "Dual / Crossover", "Bass / Guitar", "Crossover at 320 Hz: Vintage Valve weight and Chime 30 air; shared input, complementary bands.",
      {{"mode",1},{"dualtype",1},{"dualcross",320},{"dualblend",.5f},{"amp1",10},{"drive1",.12f},{"cabtype1",0},{"cablow1",32},{"cabhigh1",6000},{"amp2",8},{"drive2",.24f},{"level2",-3},{"cabtype2",2},{"cablow2",90},{"cabhigh2",8000},{"highmid2",1},{"output",-10}}},
-    {"B+B Warm / Definition", "Dual / Blend", "Bass", "Parallel Bassman Valve body and Subway Clean definition; finger or pick articulation.",
+    {"B+B Warm / Definition", "Dual / Blend", "Bass", "Parallel Vintage Valve body and Subway Clean definition; finger or pick articulation.",
      {{"mode",1},{"dualtype",0},{"dualblend",.4f},{"amp1",10},{"drive1",.15f},{"cabtype1",0},{"cablow1",32},{"cabhigh1",4800},{"amp2",11},{"drive2",.06f},{"cabtype2",0},{"cablow2",35},{"cabhigh2",8000},{"highmid2",1.5f},{"level2",-1},{"precompon",1},{"compmodel",0},{"precomp",.16f},{"precompattack",18},{"gatethreshold",-73}}},
     {"B+B Clean / Grind", "Dual / Crossover", "Bass", "Crossover at 250 Hz: Subway Clean lows and Modern Bass grind; low B stays defined.",
      {{"mode",1},{"dualtype",1},{"dualcross",250},{"dualblend",.5f},{"amp1",11},{"drive1",.05f},{"cabtype1",0},{"cablow1",28},{"cabhigh1",6500},{"amp2",7},{"drive2",.5f},{"level2",-5},{"cabtype2",0},{"cablow2",70},{"cabhigh2",6000},{"highmid2",1.5f},{"output",-10}}},
@@ -227,9 +227,9 @@ inline const char* presetIRTargetHash(int index,int lane) {
 // Full sound initialization keeps preset recall independent of the previous
 // sound. Performance controls (input gain/routing, tempo, click and tuner),
 // external IR assets, MIDI mapping and A/B snapshots remain the caller's state.
-inline constexpr std::array<PresetParameter,16> factoryGlobalDefaults{{
+inline constexpr std::array<PresetParameter,17> factoryGlobalDefaults{{
     {"mode",0},{"x1",150},{"x2",1200},{"output",-9},{"gateon",1},
-    {"gatethreshold",-65},{"gaterelease",80},{"gatehold",20},
+    {"gatethreshold",-65},{"gaterelease",80},{"gatehold",20},{"gateRangeDb",96},
     {"transposeon",0},{"transpose",0},{"oversampling",2},{"lowcomp",0},
     {"lowampmix",0},{"dualtype",0},{"dualblend",.5f},{"dualcross",350}
 }};

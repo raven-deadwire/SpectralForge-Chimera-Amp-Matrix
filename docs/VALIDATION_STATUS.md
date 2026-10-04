@@ -34,3 +34,18 @@ Approved ZIP import writes `audio_sha256`, `source_pack_sha256` and `approved_pa
 ## Signature benchmark verdict
 
 The benchmark compares the three renders as a relative shape, not as exact source-track reconstruction. It computes raw deltas, per-metric common bias, centered deltas, shape RMSE, pairwise order and gap errors, then applies the frozen weighted score. All four hard gates must pass, at least three of four secondary gates must pass, overall score must be at least 85, and every critical metric score must be at least 0.70. DSP-invalid renders return INVALID; otherwise a failed target returns REVISE rather than PASS.
+
+## Integrated 1.1.1 policy v3
+
+Policy v3 retains all v2 E670FE gates and adds I1 synthetic integration
+(pitch low-bin regression, combined Gate, full Guitar state/unity/GR, Windows
+live removal) plus I2 release-only real-input/host acceptance. I2 covers live
+pitch latency, isolated-DI transient/chord quality, Gate instrument listening,
+UI/audio timing and live removal in actual DAWs. These hard gates accept PASS
+only. Historical v1/v2 artifacts stay historical and cannot certify v3.
+
+CTest now emits JUnit and a configured-test inventory. The producer claims only
+executed passing cases, rejects missing/skipped/duplicate/unconfigured cases,
+and stamps the source HEAD, policy and JUnit SHA. A platform matrix requires
+all configured tests. Missing DI/DAW/calibration/installer evidence remains
+BLOCKED; successful synthetic CTest cannot satisfy I2, B-host or E2 checks.

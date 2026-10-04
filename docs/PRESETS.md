@@ -94,3 +94,26 @@ For compatibility, the original five menu IDs remain Clean Sustain, Tight Rhythm
 ## Signature validation gate
 
 The machine-readable targets and scoring rules live in `Validation/signature-benchmark-policy.json`. The evaluator `Tools/evaluate_signature_benchmark.py` reports PASS, REVISE or INVALID from same-DI render metrics. A high aggregate score cannot override a failed Signature hard gate. General CI completion states and release dependency rules are documented in `VALIDATION_STATUS.md`.
+
+## Raven Guitar Signature v1 — 1.1.1 candidate
+
+A separate bank appends menu IDs 35–38 after Factory31/Bass3; all original IDs
+and definitions remain stable. These are authored starting points from the
+agreed song roles. Isolated DI/listening and actual DAW acceptance are pending.
+
+| Song | Routing | PRE | Native amps | POST |
+|---|---|---|---|---|
+| A Path To Alsatia | Dual Blend, 38% B | Studio FET → Gold Drive | Hot Lead overdrive + Liquid Lead lead | FET Limiter → Inductor EQ → 229 Delay → Plate |
+| Feel My Wrath | Dual Blend, 30% B | Yellow Asym | Fourfold CH3 + Tight 515 | Dry; Console VCA saved bypassed |
+| Blackhearted | Matrix 140 / 1800 Hz | Yellow Asym after LOW tap | Clean LOW + Fourfold CH3 MID + Night Harvest GAIN I HIGH | Console Four EQ; dry space |
+| Dark Matters of Throne | Matrix 160 / 1500 Hz | Obsession after LOW tap | Clean LOW + Blue Storm lead MID + Night Harvest GAIN I HIGH | Iron Colour → Passive Tube EQ; dry space |
+
+Recall builds a complete 3,891-parameter APVTS snapshot, including inactive model
+banks, with canonical bool/choice host values. INPUT/tempo/tuner reset too.
+Session MIDI mappings, imported assets and alternate A/B slots remain session
+resources. Metadata includes stable song ID, format v1, embedded V30 filename
+and WAV SHA-256. Binary state and A/B retain it. XML snapshots are produced by
+ChimeraIntegratedProcessorTests and uploaded by CI. No copyrighted external IR
+is embedded. The same built-in V30/SM57 is the controlled starting point for all
+four. POST software levels compensate only the measured synthetic fixture;
+actual DI loudness matching is still a release requirement.

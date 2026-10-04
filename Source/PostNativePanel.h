@@ -4,6 +4,7 @@
 #include "NativeControlView.h"
 #include "AmpSelector.h"
 #include "HardwareArtwork.h"
+#include "UIRefresh.h"
 
 class PostNativePanel final : public juce::Component {
 public:
@@ -26,7 +27,17 @@ public:
     }
     ~PostNativePanel() override {if(dialog)delete dialog.getComponent();setLookAndFeel(nullptr);}
     int selectedModel() const noexcept {return currentModel<0?0:currentModel;}
+    void refreshIfNeeded() {
+        if(dialog)if(auto* full=dynamic_cast<PostNativePanel*>(dialog->getContentComponent()))full->refreshIfNeeded();
+        if(!spectralforge::ui::visible(*this)){refreshKey.dirty=true;return;}
+        const int next=(int)processor.parameters().getRawParameterValue(spectralforge::postNativeModelID(section))->load();
+        if(refreshKey.update(next))refresh();
+        else refreshMeter();
+    }
+    uint64_t stateRefreshCount() const noexcept {return refreshCount;}
+    uint64_t meterRefreshCount() const noexcept {return meterCount;}
     void refresh() {
+        ++refreshCount;
         const auto* selected=processor.parameters().getRawParameterValue(spectralforge::postNativeModelID(section));
         const int nextModel=selected?juce::jlimit(0,2,(int)selected->load()):0;
         if(currentModel!=nextModel) {
@@ -71,15 +82,19 @@ public:
             viewport.setViewPosition(0,0);resized();repaint();
         }
         model.syncSelectedId(nextModel+1);
+        refreshMeter();
+    }
+    void refreshMeter() {
+        ++meterCount;
         juce::String label="OUT ",unit=" dBFS";bool meterOff=false;
         const auto meterChoice=[this](int control){if(const auto* p=processor.parameters().getRawParameterValue(spectralforge::postNativeControlID(section,currentModel,control)))return(int)p->load();return 0;};
         if(section==0){label="GR ";unit=" dB";
             if(currentModel==1){const int mode=meterChoice(6);meterOff=mode==3;if(mode==1 || mode==2){label=mode==1?"+4 ":"+8 ";unit=" VU";}}
             if(currentModel==2){const int mode=meterChoice(3);if(mode!=1){label=mode==0?"+4 ":"+10 ";unit=" VU";}}
         }else if(section==1 && currentModel==2)label=meterChoice(11)?"POST ":"INPUT ";
-        meterLabel.setText(meterOff?"METER OFF":label+juce::String(processor.postNativeMeter(section),1)+unit,juce::dontSendNotification);
-        meterLabel.setTooltip(unit==" VU"?"Digital VU reference: +4 dBu = -18 dBFS. Hardware meter calibration is not reproduced.":"Live processor meter");
-        if(dialog)if(auto* full=dynamic_cast<PostNativePanel*>(dialog->getContentComponent()))full->refresh();
+        const auto caption=meterOff?juce::String("METER OFF"):label+juce::String(processor.postNativeMeter(section),1)+unit;
+        if(meterText.update(caption))meterLabel.setText(caption,juce::dontSendNotification);
+        if(meterUnit.update(unit))meterLabel.setTooltip(unit==" VU"?"Digital VU reference: +4 dBu = -18 dBFS. Hardware meter calibration is not reproduced.":"Live processor meter");
     }
     void paint(juce::Graphics& g) override {
         if(!detailed) {
@@ -111,6 +126,9 @@ public:
         content.setSize(available,juce::jmax(viewport.getHeight(),(((int)controls.size()+columns-1)/columns)*103));
     }
 private:
+    spectralforge::ui::Changed<int> refreshKey;
+    spectralforge::ui::Changed<juce::String> meterText,meterUnit;
+    uint64_t refreshCount{},meterCount{};
     ChimeraProcessor& processor;int section{},currentModel{-1};bool detailed{};StableAmpComboBox model;juce::TextButton bypass,expand;
     juce::Component::SafePointer<juce::DialogWindow> dialog;
     juce::Label title,reference,meterLabel;juce::Viewport viewport;juce::Component content;

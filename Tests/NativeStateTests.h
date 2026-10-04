@@ -24,7 +24,8 @@ inline void run(const juce::File& directory) {
         const auto* id=dynamic_cast<juce::AudioProcessorParameterWithID*>(parameter);
         require(id!=nullptr,"Parameter lacks a stable ID");
         const bool isNew=id->paramID.startsWith("nativeAmp_") && id->paramID.contains("_m23_");
-        if(isNew){sawAppended=true;++appended;}
+        if(isNew){require(parameter->getParameterIndex()==3686+appended,"E670FE appended ordinal moved");sawAppended=true;++appended;}
+        else if(id->paramID=="gateRangeDb")require(appended==204 && parameter->getParameterIndex()==3890,"Gate Range must follow the complete E670FE bank");
         else require(!sawAppended,"E670FE inserted ahead of a released host parameter");
     }
     require(appended==6*(32+2),"E670FE six-context parameter bank incomplete");
