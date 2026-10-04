@@ -54,7 +54,7 @@ jobs:
         run: echo "CHIMERA_PACKAGE_VERSION=$(python Tools/chimera_version.py --field version)" >> "$GITHUB_ENV"
       - name: Check release packaging and validation syntax
         run: |
-          python -m py_compile Tools/package_release.py Tools/evaluate_release_gate.py Tools/test_release_gate.py Tools/evaluate_signature_benchmark.py Tools/test_signature_benchmark.py
+          python -m py_compile Tools/package_release.py Tools/publish_beta111.py Tools/evaluate_release_gate.py Tools/test_release_gate.py Tools/evaluate_signature_benchmark.py Tools/test_signature_benchmark.py
           python Tools/test_release_gate.py
           python Tools/test_release_scope.py
           python Tools/test_signature_benchmark.py
