@@ -7,9 +7,12 @@ from pathlib import Path
 import shutil
 import subprocess
 import zipfile
+import chimera_version
 
 root=Path(__file__).resolve().parents[1]
 sha=subprocess.check_output(['git','rev-parse','HEAD'],cwd=root,text=True).strip()
+version=chimera_version.identity(root,sha)
+chimera_version.validate_build(root/'build',version)
 out=root/'candidate';out.mkdir(exist_ok=True)
 stage=out/('Chimera-update-'+sha[:10]);stage.mkdir()
 art=root/'build/ChimeraAmpMatrix_artefacts/Release'
@@ -47,7 +50,7 @@ and close Chimera and all DAWs before replacing a plugin binary.
 
 """,encoding='utf-8')
 shutil.copy2(root/'build/Testing/Temporary/LastTest.log',stage/'CTest.log')
-manifest={'kind':'experimental-Windows-test-build','source_sha':sha,'run_id':os.environ.get('GITHUB_RUN_ID'),
+manifest={**version,'kind':'experimental-Windows-test-build','run_id':os.environ.get('GITHUB_RUN_ID'),
           'run_attempt':os.environ.get('GITHUB_RUN_ATTEMPT'),'published_release':False,'publisher_signed':False,
           'daw_verified':False,'files':[]}
 for file in sorted(stage.rglob('*')):

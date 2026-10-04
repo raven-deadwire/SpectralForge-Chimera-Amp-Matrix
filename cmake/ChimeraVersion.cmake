@@ -1,0 +1,13 @@
+# Read the same source consumed by Python packaging and Windows Setup.
+file(READ "${CMAKE_CURRENT_LIST_DIR}/../VERSION" CHIMERA_PRODUCT_VERSION)
+string(STRIP "${CHIMERA_PRODUCT_VERSION}" CHIMERA_PRODUCT_VERSION)
+if(NOT CHIMERA_PRODUCT_VERSION MATCHES "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)$")
+  message(FATAL_ERROR "VERSION must contain exactly major.minor.patch")
+endif()
+string(REPLACE "." ";" CHIMERA_VERSION_PARTS "${CHIMERA_PRODUCT_VERSION}")
+foreach(part IN LISTS CHIMERA_VERSION_PARTS)
+  if(part GREATER 65535)
+    message(FATAL_ERROR "VERSION components must fit Windows version resources")
+  endif()
+endforeach()
+set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS "${CMAKE_CURRENT_LIST_DIR}/../VERSION")

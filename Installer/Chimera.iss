@@ -5,15 +5,19 @@
 #ifndef OutputPath
   #error OutputPath must be supplied by the build script
 #endif
+#ifndef ProductVersion
+  #error ProductVersion must come from the validated source/payload contract
+#endif
+#ifndef PackageVersion
+  #error PackageVersion must come from the validated source/payload contract
+#endif
 #define ProductName "SpectralForge Chimera"
 #ifdef BuildId
-  #define ProductVersion "1.1.0"
-  #define ProductRelease "Preview " + BuildId
+  #define ProductRelease PackageVersion
   #define OutputName "SpectralForge-Chimera-update-" + BuildId + "-win64-Setup"
 #else
-  #define ProductVersion "1.1.0"
-  #define ProductRelease "Open Beta 1.1"
-  #define OutputName "SpectralForge-Chimera-1.1.0-beta.1-win64-Setup"
+  #define ProductRelease PackageVersion
+  #define OutputName "SpectralForge-Chimera-" + PackageVersion + "-win64-Setup"
 #endif
 
 [Setup]

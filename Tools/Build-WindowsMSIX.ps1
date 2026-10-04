@@ -1,13 +1,19 @@
 param(
-    [string]$Stage = "dist/SpectralForge-Chimera-1.1.0-beta.1-win64",
+    [string]$Stage = "",
     [string]$OutputDirectory = "dist/msix",
     [ValidateSet("Review", "Store", "Signed")][string]$Mode = "Review",
     [string]$IdentityFile,
-    [string]$Version = "1.1.0.0",
+    [string]$Version = "",
     [string]$CertificateThumbprint = $env:CHIMERA_SIGNING_THUMBPRINT
 )
 $ErrorActionPreference = "Stop"
 Set-StrictMode -Version Latest
+$identityJson = & python (Join-Path $PSScriptRoot "chimera_version.py")
+if ($LASTEXITCODE -ne 0) { throw "Cannot resolve the source product version." }
+$buildIdentity = $identityJson | ConvertFrom-Json
+if (!$Stage) { $Stage = "dist/SpectralForge-Chimera-$($buildIdentity.version)-win64" }
+if (!$Version) { $Version = "$($buildIdentity.product_version).0" }
+if ($Version -cne "$($buildIdentity.product_version).0") { throw "MSIX version differs from source product version." }
 $publisherDisplayName = "RavenForge Luthier Intelligence"
 $packageName = "RavenForge.ChimeraAmpMatrix.Review"
 $publisher = "CN=$publisherDisplayName"
