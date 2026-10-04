@@ -50,6 +50,10 @@ Windows checker therefore requires matching numeric file fields and the actual
 product-version string, and validates fixed product fields when populated (as
 Inno does). Zeroed absent fields are not treated as the JUCE product version.
 PowerShell fixtures cover both layouts and reject stale/missing/mixed fields.
+Inno pads ProductVersion strings in its prebuilt loader; only trailing resource
+padding (space/NUL) is removed before comparison. Registry DisplayVersion is
+still compared directly. The Windows pre-build test also compiles a small real
+Inno Setup (never executes it) and checks its emitted PE resources.
 
 The common build workflow resolves filenames from the same preview identity
 and checks out the PR head explicitly. Its current packages no longer claim

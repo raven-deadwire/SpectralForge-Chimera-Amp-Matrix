@@ -152,6 +152,7 @@ configure_file(cmake/chimera-build-version.json.in chimera-build-version.json @O
                                 capture_output=True, text=True)
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
         self.assertIn("PASS: JUCE and Inno resources accepted", result.stdout)
+        self.assertIn("PASS: actual Inno Setup loader version resources match", result.stdout)
 
     def run_windows_builder(self, *args):
         return subprocess.run(["pwsh", "-NoProfile", "-File", str(ROOT / "Tools/Build-WindowsInstaller.ps1"),
