@@ -2,7 +2,7 @@
 
 This work audits the **23 active amp models** against locally held NAM references. Ironball (serialized ID 16) is retired and is explicitly excluded from calibration. Its compatibility slot remains intact for existing projects.
 
-**This patch does not establish an all-model fidelity pass.** Twenty-two model families have 145 distinct reference files available (84 primary, 61 secondary). EICH T900 remains without an exact NAM reference. ENGL E670FE uses the supplied FE EL34 captures; SVT-CL uses the supplied modified head, and SUNN uses the supplied 1998 reissue. These last two do not certify stock SVT-CL or 1970s SUNN circuit equivalence. Existing 1.1.1 hardware/listening acceptance does not certify this new voicing.
+**This patch does not establish an all-model fidelity pass.** Twenty-two model families have 174 distinct reference files available (88 primary, 86 secondary). EICH T900 remains without an exact NAM reference. ENGL E670FE uses the supplied FE EL34 captures; SVT-CL uses the supplied modified head, and SUNN uses the supplied 1998 reissue. These last two do not certify stock SVT-CL or 1970s SUNN circuit equivalence. Existing 1.1.1 hardware/listening acceptance does not certify this new voicing.
 
 ## Implementation
 
@@ -34,9 +34,10 @@ Input-response probes use 100, 400 and 1200 Hz sines at −48, −36, −24 and 
 - Silk Lead: physical ODS #102-style clone. The old `OD_SMOOTH_S` file was unavailable; the separately hashed `OD_SMOOTH_2_S` is explicitly a new reference, not a byte-identical revalidation of the old file.
 - ZUTA: the author describes whole-head DI while NAM metadata says `amp_cab`. That conflict remains unresolved. Both load variants and all four channels are compared.
 - VH4: five `[AMP]` whole-head DI files drive the fit. Fresh downloads from the supplied source are SHA-256 identical to the original five and are counted once. Nine preamp-only references are secondary comparisons. TS808, power-only and multi-amp blends are excluded. Unspecified gains use explicit nominal 0.5.
-- Fortin: whole-head EP/KK files only, two load variants. No claim is made for the unmeasured clean channel.
+- Fortin: twelve whole-head EP/KK/CLEAN captures across two loads are primary. Four CLEAN captures were added from the supplied page; one KK preamp-only capture is secondary, with power-only files excluded. Named settings lack verified numeric knobs; EP/KK compares each version’s native defaults, while CLEAN uses nominal volume 0.5.
 - SLO-100: calibrated BAD reissue. The prior LTD revision is not established.
-- Bogner: single Uberschall Rev Blue head references. The three-amplifier BLEND archive is excluded.
+- Bogner: sixteen Uberschall Rev Blue whole-head references are primary. Twenty Ecstasy Synergy + Ceriatone King Kong power-section captures and four unboosted Ecstasy 101B Red preamp captures are separate, secondary comparisons. Ecstasy is a different circuit; it does not fit the Uberschall coefficients or add a new amp model. The TS808 capture and three-amplifier BLEND archive are excluded.
+- Fresh downloads from the final Fortin/ZUTA/Uberschall links match 32 previously used files by SHA-256; these are counted once.
 - SUNN: the supplied 1998 Model T reissue is a different circuit from the retained 1970s panel. Five numeric-setting whole-head captures drive broad voicing calibration; five unnamed-setting captures and the old generation-unresolved “Lucky Number 7” are secondary. One source gain maps to both native input volumes; its presence control has no one-to-one panel mapping. This is the user-selected voicing basis, not a revision-equivalence claim.
 - SVT-CL: nine whole-head gain stages from the supplied modified SVT-CL drive the fit (bias/preamp modifications, EQ 6, 220 Hz, Ultra Hi on). Five preamp-only captures are secondary. Stock-head equivalence is not established. Digital capture-level labels do not supply absolute input dBu.
 - ENGL: ten E670FE EL34 channel/Hi Gain captures drive the fit. Five 2011 6L6 SE captures and one FE capture with unidentified channel are secondary; the Merciless pedal is excluded. Unknown switch/knob settings remain nominal. Named Fat/Scooped/Boosted Mids do not imply an undocumented switch position.
@@ -72,7 +73,7 @@ Chords are the held-out stimulus. Lower log-spectrum error is better; these are 
 |---|---:|---:|---:|---|
 | Glass / Twin | 1/0 | 13.92 → 4.70 | 13.92 → 4.70 | Compared and adjusted |
 | Brit Edge / JTM45 | 1/0 | 9.05 → 3.51 | 9.05 → 3.51 | Compared and adjusted |
-| Tight 515 / 6505 | 7/35 | 9.30 → 6.79 | 7.50 → 4.73 | Whole-head primary; preamp/variants secondary |
+| Tight 515 / 6505 | 7/35 | 9.21 → 6.79 | 6.92 → 4.73 | Whole-head primary; preamp/variants secondary |
 | Wide Rect / Dual Rectifier | 1/0 | 9.64 → 4.27 | 9.64 → 4.27 | Compared and adjusted |
 | Liquid Lead / Mark IV | 1/0 | 9.67 → 6.08 | 9.67 → 6.08 | Compared and adjusted |
 | Iron Tube / SVT-VR | 1/0 | 2.82 → 2.63 | 2.82 → 2.63 | Compared and adjusted |
@@ -89,9 +90,9 @@ Chords are the held-out stimulus. Lower log-spectrum error is better; these are 
 | Fourfold / VH4 | 5/9 | 10.02 → 5.31 | 9.47 → 4.69 | Whole-head primary; preamp/variants secondary |
 | Classic Tube / SVT-CL | 9/5 | 5.81 → 3.91 | 5.06 → 3.03 | Modified whole-head primary; preamp secondary |
 | Monolith / SUNN | 5/6 | 10.90 → 5.04 | 12.81 → 5.22 | 1998 reissue voicing; 1970s panel differs |
-| Night Harvest / Fortin | 8/0 | 8.24 → 4.24 | 8.24 → 4.24 | Compared and adjusted |
+| Night Harvest / Fortin | 12/1 | 10.02 → 4.87 | 10.12 → 4.96 | Compared and adjusted |
 | Hot Lead / SLO100 | 3/0 | 7.55 → 4.29 | 7.55 → 4.29 | Compared and adjusted |
-| Blue Storm / Uberschall | 16/0 | 7.27 → 4.30 | 7.27 → 4.30 | Compared and adjusted |
+| Blue Storm / Uberschall | 16/24 | 7.53 → 4.46 | 7.27 → 4.30 | Compared and adjusted |
 | Special Edition / E670FE | 10/6 | 8.77 → 4.84 | 9.37 → 4.54 | FE EL34 primary; 6L6/unknown secondary |
 
 At −36 dBFS peak / 400 Hz, the **actual defaults** produce the following THD (harmonics 2–12 divided by fundamental). The separate compression measurement prevents output gain from masquerading as saturation.

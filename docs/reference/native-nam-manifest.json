@@ -730,7 +730,8 @@
         "trainer": "TONE3000",
         "input_level_dbu": 18.995,
         "output_level_dbu": 13.195
-      }
+      },
+      "verified_source_url": "https://www.tone3000.com/tones/zuta-gbg120-77452"
     },
     {
       "index": 15,
@@ -764,7 +765,8 @@
         "trainer": "TONE3000",
         "input_level_dbu": 18.995,
         "output_level_dbu": 13.195
-      }
+      },
+      "verified_source_url": "https://www.tone3000.com/tones/zuta-gbg120-77452"
     },
     {
       "index": 15,
@@ -798,7 +800,8 @@
         "trainer": "TONE3000",
         "input_level_dbu": 18.995,
         "output_level_dbu": 13.195
-      }
+      },
+      "verified_source_url": "https://www.tone3000.com/tones/zuta-gbg120-77452"
     },
     {
       "index": 15,
@@ -832,7 +835,8 @@
         "trainer": "TONE3000",
         "input_level_dbu": 18.995,
         "output_level_dbu": 13.195
-      }
+      },
+      "verified_source_url": "https://www.tone3000.com/tones/zuta-gbg120-77452"
     },
     {
       "index": 15,
@@ -866,7 +870,8 @@
         "trainer": "TONE3000",
         "input_level_dbu": 18.995,
         "output_level_dbu": 13.195
-      }
+      },
+      "verified_source_url": "https://www.tone3000.com/tones/zuta-gbg120-77452"
     },
     {
       "index": 15,
@@ -900,7 +905,8 @@
         "trainer": "TONE3000",
         "input_level_dbu": 18.995,
         "output_level_dbu": 13.195
-      }
+      },
+      "verified_source_url": "https://www.tone3000.com/tones/zuta-gbg120-77452"
     },
     {
       "index": 15,
@@ -934,7 +940,8 @@
         "trainer": "TONE3000",
         "input_level_dbu": 18.995,
         "output_level_dbu": 13.195
-      }
+      },
+      "verified_source_url": "https://www.tone3000.com/tones/zuta-gbg120-77452"
     },
     {
       "index": 15,
@@ -968,7 +975,8 @@
         "trainer": "TONE3000",
         "input_level_dbu": 18.995,
         "output_level_dbu": 13.195
-      }
+      },
+      "verified_source_url": "https://www.tone3000.com/tones/zuta-gbg120-77452"
     },
     {
       "index": 17,
@@ -1164,7 +1172,7 @@
         "channel": 0,
         "controls": {}
       },
-      "qualification": "",
+      "qualification": "Fortin Evil Pumpkin EP/KK whole-head DI, two speaker loads. Named numeric knob settings unavailable; comparison uses each version's native defaults (stronger after patch), not a matched hardware knob claim.",
       "url": "https://www.tone3000.com/tones/fortin-evil-pumpkin-66260",
       "input_level_dbu": 18.995,
       "metadata": {
@@ -1187,7 +1195,8 @@
         "trainer": "TONE3000",
         "input_level_dbu": 18.995,
         "output_level_dbu": 13.195
-      }
+      },
+      "verified_source_url": "https://www.tone3000.com/tones/fortin-evil-pumpkin-66260"
     },
     {
       "index": 20,
@@ -1198,7 +1207,7 @@
         "channel": 0,
         "controls": {}
       },
-      "qualification": "",
+      "qualification": "Fortin Evil Pumpkin EP/KK whole-head DI, two speaker loads. Named numeric knob settings unavailable; comparison uses each version's native defaults (stronger after patch), not a matched hardware knob claim.",
       "url": "https://www.tone3000.com/tones/fortin-evil-pumpkin-66260",
       "input_level_dbu": 18.995,
       "metadata": {
@@ -1221,7 +1230,8 @@
         "trainer": "TONE3000",
         "input_level_dbu": 18.995,
         "output_level_dbu": 13.195
-      }
+      },
+      "verified_source_url": "https://www.tone3000.com/tones/fortin-evil-pumpkin-66260"
     },
     {
       "index": 20,
@@ -1232,7 +1242,7 @@
         "channel": 1,
         "controls": {}
       },
-      "qualification": "",
+      "qualification": "Fortin Evil Pumpkin EP/KK whole-head DI, two speaker loads. Named numeric knob settings unavailable; comparison uses each version's native defaults (stronger after patch), not a matched hardware knob claim.",
       "url": "https://www.tone3000.com/tones/fortin-evil-pumpkin-66260",
       "input_level_dbu": 18.995,
       "metadata": {
@@ -1255,7 +1265,8 @@
         "trainer": "TONE3000",
         "input_level_dbu": 18.995,
         "output_level_dbu": 13.195
-      }
+      },
+      "verified_source_url": "https://www.tone3000.com/tones/fortin-evil-pumpkin-66260"
     },
     {
       "index": 20,
@@ -1266,7 +1277,7 @@
         "channel": 1,
         "controls": {}
       },
-      "qualification": "",
+      "qualification": "Fortin Evil Pumpkin EP/KK whole-head DI, two speaker loads. Named numeric knob settings unavailable; comparison uses each version's native defaults (stronger after patch), not a matched hardware knob claim.",
       "url": "https://www.tone3000.com/tones/fortin-evil-pumpkin-66260",
       "input_level_dbu": 18.995,
       "metadata": {
@@ -1289,7 +1300,8 @@
         "trainer": "TONE3000",
         "input_level_dbu": 18.995,
         "output_level_dbu": 13.195
-      }
+      },
+      "verified_source_url": "https://www.tone3000.com/tones/fortin-evil-pumpkin-66260"
     },
     {
       "index": 20,
@@ -1300,7 +1312,7 @@
         "channel": 0,
         "controls": {}
       },
-      "qualification": "",
+      "qualification": "Fortin Evil Pumpkin EP/KK whole-head DI, two speaker loads. Named numeric knob settings unavailable; comparison uses each version's native defaults (stronger after patch), not a matched hardware knob claim.",
       "url": "https://www.tone3000.com/tones/fortin-evil-pumpkin-66260",
       "input_level_dbu": 18.995,
       "metadata": {
@@ -1323,7 +1335,8 @@
         "trainer": "TONE3000",
         "input_level_dbu": 18.995,
         "output_level_dbu": 13.195
-      }
+      },
+      "verified_source_url": "https://www.tone3000.com/tones/fortin-evil-pumpkin-66260"
     },
     {
       "index": 20,
@@ -1334,7 +1347,7 @@
         "channel": 0,
         "controls": {}
       },
-      "qualification": "",
+      "qualification": "Fortin Evil Pumpkin EP/KK whole-head DI, two speaker loads. Named numeric knob settings unavailable; comparison uses each version's native defaults (stronger after patch), not a matched hardware knob claim.",
       "url": "https://www.tone3000.com/tones/fortin-evil-pumpkin-66260",
       "input_level_dbu": 18.995,
       "metadata": {
@@ -1357,7 +1370,8 @@
         "trainer": "TONE3000",
         "input_level_dbu": 18.995,
         "output_level_dbu": 13.195
-      }
+      },
+      "verified_source_url": "https://www.tone3000.com/tones/fortin-evil-pumpkin-66260"
     },
     {
       "index": 20,
@@ -1368,7 +1382,7 @@
         "channel": 1,
         "controls": {}
       },
-      "qualification": "",
+      "qualification": "Fortin Evil Pumpkin EP/KK whole-head DI, two speaker loads. Named numeric knob settings unavailable; comparison uses each version's native defaults (stronger after patch), not a matched hardware knob claim.",
       "url": "https://www.tone3000.com/tones/fortin-evil-pumpkin-66260",
       "input_level_dbu": 18.995,
       "metadata": {
@@ -1391,7 +1405,8 @@
         "trainer": "TONE3000",
         "input_level_dbu": 18.995,
         "output_level_dbu": 13.195
-      }
+      },
+      "verified_source_url": "https://www.tone3000.com/tones/fortin-evil-pumpkin-66260"
     },
     {
       "index": 20,
@@ -1402,7 +1417,7 @@
         "channel": 1,
         "controls": {}
       },
-      "qualification": "",
+      "qualification": "Fortin Evil Pumpkin EP/KK whole-head DI, two speaker loads. Named numeric knob settings unavailable; comparison uses each version's native defaults (stronger after patch), not a matched hardware knob claim.",
       "url": "https://www.tone3000.com/tones/fortin-evil-pumpkin-66260",
       "input_level_dbu": 18.995,
       "metadata": {
@@ -1425,7 +1440,8 @@
         "trainer": "TONE3000",
         "input_level_dbu": 18.995,
         "output_level_dbu": 13.195
-      }
+      },
+      "verified_source_url": "https://www.tone3000.com/tones/fortin-evil-pumpkin-66260"
     },
     {
       "index": 21,
@@ -1565,7 +1581,8 @@
         "trainer": "TONE3000",
         "input_level_dbu": 18.995,
         "output_level_dbu": 13.195
-      }
+      },
+      "verified_source_url": "https://www.tone3000.com/tones/bogner-uberschall-79751"
     },
     {
       "index": 22,
@@ -1599,7 +1616,8 @@
         "trainer": "TONE3000",
         "input_level_dbu": 18.995,
         "output_level_dbu": 13.195
-      }
+      },
+      "verified_source_url": "https://www.tone3000.com/tones/bogner-uberschall-79751"
     },
     {
       "index": 22,
@@ -1633,7 +1651,8 @@
         "trainer": "TONE3000",
         "input_level_dbu": 18.995,
         "output_level_dbu": 13.195
-      }
+      },
+      "verified_source_url": "https://www.tone3000.com/tones/bogner-uberschall-79751"
     },
     {
       "index": 22,
@@ -1667,7 +1686,8 @@
         "trainer": "TONE3000",
         "input_level_dbu": 18.995,
         "output_level_dbu": 13.195
-      }
+      },
+      "verified_source_url": "https://www.tone3000.com/tones/bogner-uberschall-79751"
     },
     {
       "index": 22,
@@ -1701,7 +1721,8 @@
         "trainer": "TONE3000",
         "input_level_dbu": 18.995,
         "output_level_dbu": 13.195
-      }
+      },
+      "verified_source_url": "https://www.tone3000.com/tones/bogner-uberschall-79751"
     },
     {
       "index": 22,
@@ -1735,7 +1756,8 @@
         "trainer": "TONE3000",
         "input_level_dbu": 18.995,
         "output_level_dbu": 13.195
-      }
+      },
+      "verified_source_url": "https://www.tone3000.com/tones/bogner-uberschall-79751"
     },
     {
       "index": 22,
@@ -1769,7 +1791,8 @@
         "trainer": "TONE3000",
         "input_level_dbu": 18.995,
         "output_level_dbu": 13.195
-      }
+      },
+      "verified_source_url": "https://www.tone3000.com/tones/bogner-uberschall-79751"
     },
     {
       "index": 22,
@@ -1803,7 +1826,8 @@
         "trainer": "TONE3000",
         "input_level_dbu": 18.995,
         "output_level_dbu": 13.195
-      }
+      },
+      "verified_source_url": "https://www.tone3000.com/tones/bogner-uberschall-79751"
     },
     {
       "index": 22,
@@ -1837,7 +1861,8 @@
         "trainer": "TONE3000",
         "input_level_dbu": 18.995,
         "output_level_dbu": 13.195
-      }
+      },
+      "verified_source_url": "https://www.tone3000.com/tones/bogner-uberschall-79751"
     },
     {
       "index": 22,
@@ -1871,7 +1896,8 @@
         "trainer": "TONE3000",
         "input_level_dbu": 18.995,
         "output_level_dbu": 13.195
-      }
+      },
+      "verified_source_url": "https://www.tone3000.com/tones/bogner-uberschall-79751"
     },
     {
       "index": 22,
@@ -1905,7 +1931,8 @@
         "trainer": "TONE3000",
         "input_level_dbu": 18.995,
         "output_level_dbu": 13.195
-      }
+      },
+      "verified_source_url": "https://www.tone3000.com/tones/bogner-uberschall-79751"
     },
     {
       "index": 22,
@@ -1939,7 +1966,8 @@
         "trainer": "TONE3000",
         "input_level_dbu": 18.995,
         "output_level_dbu": 13.195
-      }
+      },
+      "verified_source_url": "https://www.tone3000.com/tones/bogner-uberschall-79751"
     },
     {
       "index": 22,
@@ -1973,7 +2001,8 @@
         "trainer": "TONE3000",
         "input_level_dbu": 18.995,
         "output_level_dbu": 13.195
-      }
+      },
+      "verified_source_url": "https://www.tone3000.com/tones/bogner-uberschall-79751"
     },
     {
       "index": 22,
@@ -2007,7 +2036,8 @@
         "trainer": "TONE3000",
         "input_level_dbu": 18.995,
         "output_level_dbu": 13.195
-      }
+      },
+      "verified_source_url": "https://www.tone3000.com/tones/bogner-uberschall-79751"
     },
     {
       "index": 22,
@@ -2041,7 +2071,8 @@
         "trainer": "TONE3000",
         "input_level_dbu": 18.995,
         "output_level_dbu": 13.195
-      }
+      },
+      "verified_source_url": "https://www.tone3000.com/tones/bogner-uberschall-79751"
     },
     {
       "index": 22,
@@ -2075,7 +2106,8 @@
         "trainer": "TONE3000",
         "input_level_dbu": 18.995,
         "output_level_dbu": 13.195
-      }
+      },
+      "verified_source_url": "https://www.tone3000.com/tones/bogner-uberschall-79751"
     },
     {
       "index": 19,
@@ -6498,6 +6530,1205 @@
         "output_level_dbu": 13.195
       },
       "fit_eligible": false
+    },
+    {
+      "index": 20,
+      "channel": 2,
+      "file": "Final-HighGain-Refs/[AMP] FRTN.EVL.PMPKN-Mar4x12-CLN Homecoming - DI.nam",
+      "sha256": "5619fc0d8c30642d40a1e5ff5d166aa2e8fa070d855e5b070d531289cb9e4d50",
+      "state": {
+        "channel": 2,
+        "controls": {
+          "hw.clean.volume": 0.5
+        }
+      },
+      "qualification": "Whole-head Fortin Evil Pumpkin CLEAN reference, two speaker loads; primary fit. Author numeric settings unavailable; native clean volume 0.5 is nominal, not a verified knob match.",
+      "url": "https://www.tone3000.com/tones/fortin-evil-pumpkin-66260",
+      "model_url": "https://api.tone3000.com/storage/v1/object/public/models/axl7fgojc5.nam",
+      "input_level_dbu": 18.995,
+      "metadata": {
+        "date": {
+          "year": 2026,
+          "month": 6,
+          "day": 11,
+          "hour": 0,
+          "minute": 33,
+          "second": 36
+        },
+        "loudness": -13.493052428988703,
+        "gain": 0.8971941086592011,
+        "name": "[AMP] FRTN.EVL.PMPKN-Mar4x12-CLN Homecoming - DI",
+        "modeled_by": "2dor",
+        "gear_type": "amp",
+        "gear_make": "Fortin",
+        "gear_model": "Fortin",
+        "tone_type": "fortin",
+        "trainer": "TONE3000",
+        "input_level_dbu": 18.995,
+        "output_level_dbu": 13.195
+      },
+      "fit_eligible": true
+    },
+    {
+      "index": 20,
+      "channel": 2,
+      "file": "Final-HighGain-Refs/[AMP] FRTN.EVL.PMPKN-Mes4x12-CLN Homecoming - DI.nam",
+      "sha256": "6d6c5ef58420ce312d6d4c7825759963d93100c4b2f0604ce03bbdc196aa7153",
+      "state": {
+        "channel": 2,
+        "controls": {
+          "hw.clean.volume": 0.5
+        }
+      },
+      "qualification": "Whole-head Fortin Evil Pumpkin CLEAN reference, two speaker loads; primary fit. Author numeric settings unavailable; native clean volume 0.5 is nominal, not a verified knob match.",
+      "url": "https://www.tone3000.com/tones/fortin-evil-pumpkin-66260",
+      "model_url": "https://api.tone3000.com/storage/v1/object/public/models/47fsqefx7t9.nam",
+      "input_level_dbu": 18.995,
+      "metadata": {
+        "date": {
+          "year": 2026,
+          "month": 6,
+          "day": 11,
+          "hour": 0,
+          "minute": 21,
+          "second": 14
+        },
+        "loudness": -13.537022818091494,
+        "gain": 0.9065391359534863,
+        "name": "[AMP] FRTN.EVL.PMPKN-Mes4x12-CLN Homecoming - DI",
+        "modeled_by": "2dor",
+        "gear_type": "amp",
+        "gear_make": "Fortin",
+        "gear_model": "Fortin",
+        "tone_type": "fortin",
+        "trainer": "TONE3000",
+        "input_level_dbu": 18.995,
+        "output_level_dbu": 13.195
+      },
+      "fit_eligible": true
+    },
+    {
+      "index": 20,
+      "channel": 2,
+      "file": "Final-HighGain-Refs/[AMP] FRTN.EVL.PMPKN-Mes4x12-CLN Jason's Settings - DI.nam",
+      "sha256": "862e52d9e96f95a707318e2997c33d3c44c135bc6046d0bd6391fba5677f355f",
+      "state": {
+        "channel": 2,
+        "controls": {
+          "hw.clean.volume": 0.5
+        }
+      },
+      "qualification": "Whole-head Fortin Evil Pumpkin CLEAN reference, two speaker loads; primary fit. Author numeric settings unavailable; native clean volume 0.5 is nominal, not a verified knob match.",
+      "url": "https://www.tone3000.com/tones/fortin-evil-pumpkin-66260",
+      "model_url": "https://api.tone3000.com/storage/v1/object/public/models/9jlwt3cyc5.nam",
+      "input_level_dbu": 18.995,
+      "metadata": {
+        "date": {
+          "year": 2026,
+          "month": 6,
+          "day": 11,
+          "hour": 0,
+          "minute": 30,
+          "second": 18
+        },
+        "loudness": -13.889260264476805,
+        "gain": 0.8917154070864663,
+        "name": "[AMP] FRTN.EVL.PMPKN-Mes4x12-CLN Jason's Settings - DI",
+        "modeled_by": "2dor",
+        "gear_type": "amp",
+        "gear_make": "Fortin",
+        "gear_model": "Fortin",
+        "tone_type": "fortin",
+        "trainer": "TONE3000",
+        "input_level_dbu": 18.995,
+        "output_level_dbu": 13.195
+      },
+      "fit_eligible": true
+    },
+    {
+      "index": 20,
+      "channel": 2,
+      "file": "Final-HighGain-Refs/[AMP] FRTN.EVL.PMPKN-Mar4x12-CLN Jason's Settings - DI.nam",
+      "sha256": "e1c57de0130e8b351397db6a4d6217e09bf8e920c22b5d24e6eb5e0641239706",
+      "state": {
+        "channel": 2,
+        "controls": {
+          "hw.clean.volume": 0.5
+        }
+      },
+      "qualification": "Whole-head Fortin Evil Pumpkin CLEAN reference, two speaker loads; primary fit. Author numeric settings unavailable; native clean volume 0.5 is nominal, not a verified knob match.",
+      "url": "https://www.tone3000.com/tones/fortin-evil-pumpkin-66260",
+      "model_url": "https://api.tone3000.com/storage/v1/object/public/models/spjen5c0v7.nam",
+      "input_level_dbu": 18.995,
+      "metadata": {
+        "date": {
+          "year": 2026,
+          "month": 6,
+          "day": 11,
+          "hour": 1,
+          "minute": 5,
+          "second": 11
+        },
+        "loudness": -14.62483777290312,
+        "gain": 0.9099773234169174,
+        "name": "[AMP] FRTN.EVL.PMPKN-Mar4x12-CLN Jason's Settings - DI",
+        "modeled_by": "2dor",
+        "gear_type": "amp",
+        "gear_make": "Fortin",
+        "gear_model": "Fortin",
+        "tone_type": "fortin",
+        "trainer": "TONE3000",
+        "input_level_dbu": 18.995,
+        "output_level_dbu": 13.195
+      },
+      "fit_eligible": true
+    },
+    {
+      "index": 20,
+      "channel": 1,
+      "file": "Final-HighGain-Refs/[PRE] FRTN.EVL.PMPKN-KK Confused.nam",
+      "sha256": "e181ee5d8a83466e92b006eb761d00fdb7853f3df303d0995c51e396851c8f53",
+      "state": {
+        "channel": 1,
+        "controls": {
+          "hw.kk.gain1": 0.5,
+          "hw.kk.gain2": 0.5
+        }
+      },
+      "qualification": "Fortin KK preamp-only; secondary comparison with full native chain, not coefficient fit. Nominal gain1/gain2 0.5; named setting has no verified numeric mapping.",
+      "url": "https://www.tone3000.com/tones/fortin-evil-pumpkin-66260",
+      "model_url": "https://api.tone3000.com/storage/v1/object/public/models/kc6b3m7pfol.nam",
+      "input_level_dbu": 18.995,
+      "metadata": {
+        "date": {
+          "year": 2026,
+          "month": 6,
+          "day": 11,
+          "hour": 1,
+          "minute": 18,
+          "second": 45
+        },
+        "loudness": -14.270240681151297,
+        "gain": 0.8359406687750132,
+        "name": "[PRE] FRTN.EVL.PMPKN-KK Confused",
+        "modeled_by": "2dor",
+        "gear_type": "amp",
+        "gear_make": "Fortin",
+        "gear_model": "Fortin",
+        "tone_type": "fortin",
+        "trainer": "TONE3000",
+        "input_level_dbu": 18.995,
+        "output_level_dbu": 13.195
+      },
+      "fit_eligible": false
+    },
+    {
+      "index": 22,
+      "channel": 1,
+      "file": "Final-HighGain-Refs/[AMP] SYN-Ceri.KK100 Bogner Ecstasy Red #09 - DI.nam",
+      "sha256": "e5e31357ca8907d2b0625a8e5e01b991097cfb32cd228884989b3f42c29afcbc",
+      "state": {
+        "channel": 1,
+        "controls": {
+          "hw.lead.gain": 0.5
+        }
+      },
+      "qualification": "Bogner Ecstasy Synergy module into Ceriatone King Kong 100W power section, DI load capture. Different amplifier/circuit from Uberschall. Secondary high-gain comparison only at explicit native lead gain 0.5; no Ecstasy-to-Uberschall coefficient fit or new Ecstasy amp model. Numbered capture names are not gain positions.",
+      "url": "https://www.tone3000.com/tones/bogner-ecstasy-synergy-100w-6166",
+      "model_url": "https://api.tone3000.com/storage/v1/object/public/models/c4rqse8rhuc.nam",
+      "input_level_dbu": 13,
+      "metadata": {
+        "date": {
+          "year": 2026,
+          "month": 6,
+          "day": 6,
+          "hour": 21,
+          "minute": 9,
+          "second": 4
+        },
+        "loudness": -13.16488477570058,
+        "gain": 0.8314547853113542,
+        "name": "[AMP] SYN-Ceri.KK100 Bogner Ecstasy Red #09 - DI",
+        "modeled_by": "2dor",
+        "gear_type": "amp",
+        "gear_make": "Bogner",
+        "gear_model": "Bogner",
+        "tone_type": "crunch",
+        "trainer": "TONE3000",
+        "input_level_dbu": 13,
+        "output_level_dbu": 13
+      },
+      "fit_eligible": false
+    },
+    {
+      "index": 22,
+      "channel": 1,
+      "file": "Final-HighGain-Refs/[AMP] SYN-Ceri.KK100 Bogner Ecstasy Blue #03 - DI.nam",
+      "sha256": "5736c0cb71a0f9d3d5d7a5a5d63f43872997912e1a97972a3e271f03ac020fcd",
+      "state": {
+        "channel": 1,
+        "controls": {
+          "hw.lead.gain": 0.5
+        }
+      },
+      "qualification": "Bogner Ecstasy Synergy module into Ceriatone King Kong 100W power section, DI load capture. Different amplifier/circuit from Uberschall. Secondary high-gain comparison only at explicit native lead gain 0.5; no Ecstasy-to-Uberschall coefficient fit or new Ecstasy amp model. Numbered capture names are not gain positions.",
+      "url": "https://www.tone3000.com/tones/bogner-ecstasy-synergy-100w-6166",
+      "model_url": "https://api.tone3000.com/storage/v1/object/public/models/qf513114y0r.nam",
+      "input_level_dbu": 13,
+      "metadata": {
+        "date": {
+          "year": 2026,
+          "month": 6,
+          "day": 6,
+          "hour": 20,
+          "minute": 58,
+          "second": 29
+        },
+        "loudness": -9.178476712826447,
+        "gain": 0.7983172465166685,
+        "name": "[AMP] SYN-Ceri.KK100 Bogner Ecstasy Blue #03 - DI",
+        "modeled_by": "2dor",
+        "gear_type": "amp",
+        "gear_make": "Bogner",
+        "gear_model": "Bogner",
+        "tone_type": "crunch",
+        "trainer": "TONE3000",
+        "input_level_dbu": 13,
+        "output_level_dbu": 13
+      },
+      "fit_eligible": false
+    },
+    {
+      "index": 22,
+      "channel": 1,
+      "file": "Final-HighGain-Refs/[AMP] SYN-Ceri.KK100 Bogner Ecstasy Red #06 - DI.nam",
+      "sha256": "ca41d21ce81f24e9d755675d3de0556f684cc29273968c015f367ba890f87f2e",
+      "state": {
+        "channel": 1,
+        "controls": {
+          "hw.lead.gain": 0.5
+        }
+      },
+      "qualification": "Bogner Ecstasy Synergy module into Ceriatone King Kong 100W power section, DI load capture. Different amplifier/circuit from Uberschall. Secondary high-gain comparison only at explicit native lead gain 0.5; no Ecstasy-to-Uberschall coefficient fit or new Ecstasy amp model. Numbered capture names are not gain positions.",
+      "url": "https://www.tone3000.com/tones/bogner-ecstasy-synergy-100w-6166",
+      "model_url": "https://api.tone3000.com/storage/v1/object/public/models/zfbczfafcx.nam",
+      "input_level_dbu": 13,
+      "metadata": {
+        "date": {
+          "year": 2026,
+          "month": 6,
+          "day": 6,
+          "hour": 20,
+          "minute": 52,
+          "second": 5
+        },
+        "loudness": -13.27668910598089,
+        "gain": 0.8187482097139939,
+        "name": "[AMP] SYN-Ceri.KK100 Bogner Ecstasy Red #06 - DI",
+        "modeled_by": "2dor",
+        "gear_type": "amp",
+        "gear_make": "Bogner",
+        "gear_model": "Bogner",
+        "tone_type": "crunch",
+        "trainer": "TONE3000",
+        "input_level_dbu": 13,
+        "output_level_dbu": 13
+      },
+      "fit_eligible": false
+    },
+    {
+      "index": 22,
+      "channel": 1,
+      "file": "Final-HighGain-Refs/[AMP] SYN-Ceri.KK100 Bogner Ecstasy Blue #04 - DI.nam",
+      "sha256": "4506bf76e31ab6d09a4997883e18e87746a4025349799e7afe9aa238e24e2130",
+      "state": {
+        "channel": 1,
+        "controls": {
+          "hw.lead.gain": 0.5
+        }
+      },
+      "qualification": "Bogner Ecstasy Synergy module into Ceriatone King Kong 100W power section, DI load capture. Different amplifier/circuit from Uberschall. Secondary high-gain comparison only at explicit native lead gain 0.5; no Ecstasy-to-Uberschall coefficient fit or new Ecstasy amp model. Numbered capture names are not gain positions.",
+      "url": "https://www.tone3000.com/tones/bogner-ecstasy-synergy-100w-6166",
+      "model_url": "https://api.tone3000.com/storage/v1/object/public/models/mses5oz2gge.nam",
+      "input_level_dbu": 13,
+      "metadata": {
+        "date": {
+          "year": 2026,
+          "month": 6,
+          "day": 6,
+          "hour": 20,
+          "minute": 56,
+          "second": 39
+        },
+        "loudness": -9.631976653833815,
+        "gain": 0.7913715768546442,
+        "name": "[AMP] SYN-Ceri.KK100 Bogner Ecstasy Blue #04 - DI",
+        "modeled_by": "2dor",
+        "gear_type": "amp",
+        "gear_make": "Bogner",
+        "gear_model": "Bogner",
+        "tone_type": "crunch",
+        "trainer": "TONE3000",
+        "input_level_dbu": 13,
+        "output_level_dbu": 13
+      },
+      "fit_eligible": false
+    },
+    {
+      "index": 22,
+      "channel": 1,
+      "file": "Final-HighGain-Refs/[AMP] SYN-Ceri.KK100 Bogner Ecstasy Red #02 - DI.nam",
+      "sha256": "85b5e5f32368788d2975f69e391931f710f30de1f627bf16e33bfb17cdcb175d",
+      "state": {
+        "channel": 1,
+        "controls": {
+          "hw.lead.gain": 0.5
+        }
+      },
+      "qualification": "Bogner Ecstasy Synergy module into Ceriatone King Kong 100W power section, DI load capture. Different amplifier/circuit from Uberschall. Secondary high-gain comparison only at explicit native lead gain 0.5; no Ecstasy-to-Uberschall coefficient fit or new Ecstasy amp model. Numbered capture names are not gain positions.",
+      "url": "https://www.tone3000.com/tones/bogner-ecstasy-synergy-100w-6166",
+      "model_url": "https://api.tone3000.com/storage/v1/object/public/models/rkzrjrr3hy.nam",
+      "input_level_dbu": 13,
+      "metadata": {
+        "date": {
+          "year": 2026,
+          "month": 6,
+          "day": 6,
+          "hour": 21,
+          "minute": 14,
+          "second": 31
+        },
+        "loudness": -14.795686624822434,
+        "gain": 0.8597226863991999,
+        "name": "[AMP] SYN-Ceri.KK100 Bogner Ecstasy Red #02 - DI",
+        "modeled_by": "2dor",
+        "gear_type": "amp",
+        "gear_make": "Bogner",
+        "gear_model": "Bogner",
+        "tone_type": "crunch",
+        "trainer": "TONE3000",
+        "input_level_dbu": 13,
+        "output_level_dbu": 13
+      },
+      "fit_eligible": false
+    },
+    {
+      "index": 22,
+      "channel": 1,
+      "file": "Final-HighGain-Refs/[AMP] SYN-Ceri.KK100 Bogner Ecstasy Red #11 - DI.nam",
+      "sha256": "4ed8548bf2046727bdeb61594276c24bead021019443ba9c32106997da8e7e93",
+      "state": {
+        "channel": 1,
+        "controls": {
+          "hw.lead.gain": 0.5
+        }
+      },
+      "qualification": "Bogner Ecstasy Synergy module into Ceriatone King Kong 100W power section, DI load capture. Different amplifier/circuit from Uberschall. Secondary high-gain comparison only at explicit native lead gain 0.5; no Ecstasy-to-Uberschall coefficient fit or new Ecstasy amp model. Numbered capture names are not gain positions.",
+      "url": "https://www.tone3000.com/tones/bogner-ecstasy-synergy-100w-6166",
+      "model_url": "https://api.tone3000.com/storage/v1/object/public/models/zc3arke4wx.nam",
+      "input_level_dbu": 13,
+      "metadata": {
+        "date": {
+          "year": 2026,
+          "month": 6,
+          "day": 6,
+          "hour": 21,
+          "minute": 17,
+          "second": 34
+        },
+        "loudness": -12.768272415021423,
+        "gain": 0.8100211064235777,
+        "name": "[AMP] SYN-Ceri.KK100 Bogner Ecstasy Red #11 - DI",
+        "modeled_by": "2dor",
+        "gear_type": "amp",
+        "gear_make": "Bogner",
+        "gear_model": "Bogner",
+        "tone_type": "crunch",
+        "trainer": "TONE3000",
+        "input_level_dbu": 13,
+        "output_level_dbu": 13
+      },
+      "fit_eligible": false
+    },
+    {
+      "index": 22,
+      "channel": 1,
+      "file": "Final-HighGain-Refs/[AMP] SYN-Ceri.KK100 Bogner Ecstasy Red #07 - DI.nam",
+      "sha256": "53eb9d83910a078524a3414773130c396a286426551778c814930066e6ad86de",
+      "state": {
+        "channel": 1,
+        "controls": {
+          "hw.lead.gain": 0.5
+        }
+      },
+      "qualification": "Bogner Ecstasy Synergy module into Ceriatone King Kong 100W power section, DI load capture. Different amplifier/circuit from Uberschall. Secondary high-gain comparison only at explicit native lead gain 0.5; no Ecstasy-to-Uberschall coefficient fit or new Ecstasy amp model. Numbered capture names are not gain positions.",
+      "url": "https://www.tone3000.com/tones/bogner-ecstasy-synergy-100w-6166",
+      "model_url": "https://api.tone3000.com/storage/v1/object/public/models/0l26cxoscba.nam",
+      "input_level_dbu": 13,
+      "metadata": {
+        "date": {
+          "year": 2026,
+          "month": 6,
+          "day": 6,
+          "hour": 21,
+          "minute": 1,
+          "second": 50
+        },
+        "loudness": -13.899795244515097,
+        "gain": 0.8025447170106352,
+        "name": "[AMP] SYN-Ceri.KK100 Bogner Ecstasy Red #07 - DI",
+        "modeled_by": "2dor",
+        "gear_type": "amp",
+        "gear_make": "Bogner",
+        "gear_model": "Bogner",
+        "tone_type": "crunch",
+        "trainer": "TONE3000",
+        "input_level_dbu": 13,
+        "output_level_dbu": 13
+      },
+      "fit_eligible": false
+    },
+    {
+      "index": 22,
+      "channel": 1,
+      "file": "Final-HighGain-Refs/[AMP] SYN-Ceri.KK100 Bogner Ecstasy Blue #08 - DI.nam",
+      "sha256": "8496134d23d15c0203f6a382a096cc5b86457376cdcd4f54fad0961ca626bf60",
+      "state": {
+        "channel": 1,
+        "controls": {
+          "hw.lead.gain": 0.5
+        }
+      },
+      "qualification": "Bogner Ecstasy Synergy module into Ceriatone King Kong 100W power section, DI load capture. Different amplifier/circuit from Uberschall. Secondary high-gain comparison only at explicit native lead gain 0.5; no Ecstasy-to-Uberschall coefficient fit or new Ecstasy amp model. Numbered capture names are not gain positions.",
+      "url": "https://www.tone3000.com/tones/bogner-ecstasy-synergy-100w-6166",
+      "model_url": "https://api.tone3000.com/storage/v1/object/public/models/31pvnjno7ip.nam",
+      "input_level_dbu": 13,
+      "metadata": {
+        "date": {
+          "year": 2026,
+          "month": 6,
+          "day": 6,
+          "hour": 21,
+          "minute": 6,
+          "second": 41
+        },
+        "loudness": -12.936270565641381,
+        "gain": 0.8210335424846928,
+        "name": "[AMP] SYN-Ceri.KK100 Bogner Ecstasy Blue #08 - DI",
+        "modeled_by": "2dor",
+        "gear_type": "amp",
+        "gear_make": "Bogner",
+        "gear_model": "Bogner",
+        "tone_type": "crunch",
+        "trainer": "TONE3000",
+        "input_level_dbu": 13,
+        "output_level_dbu": 13
+      },
+      "fit_eligible": false
+    },
+    {
+      "index": 22,
+      "channel": 1,
+      "file": "Final-HighGain-Refs/[AMP] SYN-Ceri.KK100 Bogner Ecstasy Red #05 - DI.nam",
+      "sha256": "939aa8fae04b0f3b6308d667f990c9bb662585c97e9ab64edb0de36d07047cd4",
+      "state": {
+        "channel": 1,
+        "controls": {
+          "hw.lead.gain": 0.5
+        }
+      },
+      "qualification": "Bogner Ecstasy Synergy module into Ceriatone King Kong 100W power section, DI load capture. Different amplifier/circuit from Uberschall. Secondary high-gain comparison only at explicit native lead gain 0.5; no Ecstasy-to-Uberschall coefficient fit or new Ecstasy amp model. Numbered capture names are not gain positions.",
+      "url": "https://www.tone3000.com/tones/bogner-ecstasy-synergy-100w-6166",
+      "model_url": "https://api.tone3000.com/storage/v1/object/public/models/kbm3if5juub.nam",
+      "input_level_dbu": 13,
+      "metadata": {
+        "date": {
+          "year": 2026,
+          "month": 6,
+          "day": 6,
+          "hour": 21,
+          "minute": 35,
+          "second": 20
+        },
+        "loudness": -14.886344292770719,
+        "gain": 0.8035584150976884,
+        "name": "[AMP] SYN-Ceri.KK100 Bogner Ecstasy Red #05 - DI",
+        "modeled_by": "2dor",
+        "gear_type": "amp",
+        "gear_make": "Bogner",
+        "gear_model": "Bogner",
+        "tone_type": "crunch",
+        "trainer": "TONE3000",
+        "input_level_dbu": 13,
+        "output_level_dbu": 13
+      },
+      "fit_eligible": false
+    },
+    {
+      "index": 22,
+      "channel": 1,
+      "file": "Final-HighGain-Refs/[AMP] SYN-Ceri.KK100 Bogner Ecstasy Blue #07 - DI.nam",
+      "sha256": "52b354b55d736dfa93591211e40997b9c30d2a9a3ad95cbfea9b895b27bc993e",
+      "state": {
+        "channel": 1,
+        "controls": {
+          "hw.lead.gain": 0.5
+        }
+      },
+      "qualification": "Bogner Ecstasy Synergy module into Ceriatone King Kong 100W power section, DI load capture. Different amplifier/circuit from Uberschall. Secondary high-gain comparison only at explicit native lead gain 0.5; no Ecstasy-to-Uberschall coefficient fit or new Ecstasy amp model. Numbered capture names are not gain positions.",
+      "url": "https://www.tone3000.com/tones/bogner-ecstasy-synergy-100w-6166",
+      "model_url": "https://api.tone3000.com/storage/v1/object/public/models/4ldg7kh3cxx.nam",
+      "input_level_dbu": 13,
+      "metadata": {
+        "date": {
+          "year": 2026,
+          "month": 6,
+          "day": 6,
+          "hour": 21,
+          "minute": 24,
+          "second": 25
+        },
+        "loudness": -12.725814991758696,
+        "gain": 0.8441818101199362,
+        "name": "[AMP] SYN-Ceri.KK100 Bogner Ecstasy Blue #07 - DI",
+        "modeled_by": "2dor",
+        "gear_type": "amp",
+        "gear_make": "Bogner",
+        "gear_model": "Bogner",
+        "tone_type": "crunch",
+        "trainer": "TONE3000",
+        "input_level_dbu": 13,
+        "output_level_dbu": 13
+      },
+      "fit_eligible": false
+    },
+    {
+      "index": 22,
+      "channel": 1,
+      "file": "Final-HighGain-Refs/[AMP] SYN-Ceri.KK100 Bogner Ecstasy Blue #02 - DI.nam",
+      "sha256": "742fe94e7e547042f76053c598b8453d902621e92824c7eb7e51ed429a257765",
+      "state": {
+        "channel": 1,
+        "controls": {
+          "hw.lead.gain": 0.5
+        }
+      },
+      "qualification": "Bogner Ecstasy Synergy module into Ceriatone King Kong 100W power section, DI load capture. Different amplifier/circuit from Uberschall. Secondary high-gain comparison only at explicit native lead gain 0.5; no Ecstasy-to-Uberschall coefficient fit or new Ecstasy amp model. Numbered capture names are not gain positions.",
+      "url": "https://www.tone3000.com/tones/bogner-ecstasy-synergy-100w-6166",
+      "model_url": "https://api.tone3000.com/storage/v1/object/public/models/mvty3r7602s.nam",
+      "input_level_dbu": 13,
+      "metadata": {
+        "date": {
+          "year": 2026,
+          "month": 6,
+          "day": 6,
+          "hour": 21,
+          "minute": 7,
+          "second": 59
+        },
+        "loudness": -10.904150888409292,
+        "gain": 0.8193775286382607,
+        "name": "[AMP] SYN-Ceri.KK100 Bogner Ecstasy Blue #02 - DI",
+        "modeled_by": "2dor",
+        "gear_type": "amp",
+        "gear_make": "Bogner",
+        "gear_model": "Bogner",
+        "tone_type": "crunch",
+        "trainer": "TONE3000",
+        "input_level_dbu": 13,
+        "output_level_dbu": 13
+      },
+      "fit_eligible": false
+    },
+    {
+      "index": 22,
+      "channel": 1,
+      "file": "Final-HighGain-Refs/[AMP] SYN-Ceri.KK100 Bogner Ecstasy Red #01 - DI.nam",
+      "sha256": "5e15d35c78a4b60f9b4d31c47fc389070f1ef279ca817348537c1ce8a41a3ab0",
+      "state": {
+        "channel": 1,
+        "controls": {
+          "hw.lead.gain": 0.5
+        }
+      },
+      "qualification": "Bogner Ecstasy Synergy module into Ceriatone King Kong 100W power section, DI load capture. Different amplifier/circuit from Uberschall. Secondary high-gain comparison only at explicit native lead gain 0.5; no Ecstasy-to-Uberschall coefficient fit or new Ecstasy amp model. Numbered capture names are not gain positions.",
+      "url": "https://www.tone3000.com/tones/bogner-ecstasy-synergy-100w-6166",
+      "model_url": "https://api.tone3000.com/storage/v1/object/public/models/ukelivsev6q.nam",
+      "input_level_dbu": 13,
+      "metadata": {
+        "date": {
+          "year": 2026,
+          "month": 6,
+          "day": 6,
+          "hour": 21,
+          "minute": 20,
+          "second": 8
+        },
+        "loudness": -11.486836806548158,
+        "gain": 0.8073516974393957,
+        "name": "[AMP] SYN-Ceri.KK100 Bogner Ecstasy Red #01 - DI",
+        "modeled_by": "2dor",
+        "gear_type": "amp",
+        "gear_make": "Bogner",
+        "gear_model": "Bogner",
+        "tone_type": "crunch",
+        "trainer": "TONE3000",
+        "input_level_dbu": 13,
+        "output_level_dbu": 13
+      },
+      "fit_eligible": false
+    },
+    {
+      "index": 22,
+      "channel": 1,
+      "file": "Final-HighGain-Refs/[AMP] SYN-Ceri.KK100 Bogner Ecstasy Red #12 - DI.nam",
+      "sha256": "8940de4ede371b2a23df0e46dd7bff0946f493941edefc28031cbce8a876823f",
+      "state": {
+        "channel": 1,
+        "controls": {
+          "hw.lead.gain": 0.5
+        }
+      },
+      "qualification": "Bogner Ecstasy Synergy module into Ceriatone King Kong 100W power section, DI load capture. Different amplifier/circuit from Uberschall. Secondary high-gain comparison only at explicit native lead gain 0.5; no Ecstasy-to-Uberschall coefficient fit or new Ecstasy amp model. Numbered capture names are not gain positions.",
+      "url": "https://www.tone3000.com/tones/bogner-ecstasy-synergy-100w-6166",
+      "model_url": "https://api.tone3000.com/storage/v1/object/public/models/g65edsxko2o.nam",
+      "input_level_dbu": 13,
+      "metadata": {
+        "date": {
+          "year": 2026,
+          "month": 6,
+          "day": 6,
+          "hour": 21,
+          "minute": 32,
+          "second": 31
+        },
+        "loudness": -14.243722339790505,
+        "gain": 0.7979713165144893,
+        "name": "[AMP] SYN-Ceri.KK100 Bogner Ecstasy Red #12 - DI",
+        "modeled_by": "2dor",
+        "gear_type": "amp",
+        "gear_make": "Bogner",
+        "gear_model": "Bogner",
+        "tone_type": "crunch",
+        "trainer": "TONE3000",
+        "input_level_dbu": 13,
+        "output_level_dbu": 13
+      },
+      "fit_eligible": false
+    },
+    {
+      "index": 22,
+      "channel": 1,
+      "file": "Final-HighGain-Refs/[AMP] SYN-Ceri.KK100 Bogner Ecstasy Blue #01 - DI.nam",
+      "sha256": "cfaae2c77c8ab68d53b70c694edb14a93342f3ddbb110d4a7007543d8c0606f4",
+      "state": {
+        "channel": 1,
+        "controls": {
+          "hw.lead.gain": 0.5
+        }
+      },
+      "qualification": "Bogner Ecstasy Synergy module into Ceriatone King Kong 100W power section, DI load capture. Different amplifier/circuit from Uberschall. Secondary high-gain comparison only at explicit native lead gain 0.5; no Ecstasy-to-Uberschall coefficient fit or new Ecstasy amp model. Numbered capture names are not gain positions.",
+      "url": "https://www.tone3000.com/tones/bogner-ecstasy-synergy-100w-6166",
+      "model_url": "https://api.tone3000.com/storage/v1/object/public/models/uhwxblm6gg8.nam",
+      "input_level_dbu": 13,
+      "metadata": {
+        "date": {
+          "year": 2026,
+          "month": 6,
+          "day": 6,
+          "hour": 21,
+          "minute": 42,
+          "second": 31
+        },
+        "loudness": -10.66891777762637,
+        "gain": 0.829106263052313,
+        "name": "[AMP] SYN-Ceri.KK100 Bogner Ecstasy Blue #01 - DI",
+        "modeled_by": "2dor",
+        "gear_type": "amp",
+        "gear_make": "Bogner",
+        "gear_model": "Bogner",
+        "tone_type": "crunch",
+        "trainer": "TONE3000",
+        "input_level_dbu": 13,
+        "output_level_dbu": 13
+      },
+      "fit_eligible": false
+    },
+    {
+      "index": 22,
+      "channel": 1,
+      "file": "Final-HighGain-Refs/[AMP] SYN-Ceri.KK100 Bogner Ecstasy Red #08 - DI.nam",
+      "sha256": "f5df788a68bb1459d2af5460f0a45af60885bc844b6fa7bad9ca309bb4675b5f",
+      "state": {
+        "channel": 1,
+        "controls": {
+          "hw.lead.gain": 0.5
+        }
+      },
+      "qualification": "Bogner Ecstasy Synergy module into Ceriatone King Kong 100W power section, DI load capture. Different amplifier/circuit from Uberschall. Secondary high-gain comparison only at explicit native lead gain 0.5; no Ecstasy-to-Uberschall coefficient fit or new Ecstasy amp model. Numbered capture names are not gain positions.",
+      "url": "https://www.tone3000.com/tones/bogner-ecstasy-synergy-100w-6166",
+      "model_url": "https://api.tone3000.com/storage/v1/object/public/models/8lfkavxi66v.nam",
+      "input_level_dbu": 13,
+      "metadata": {
+        "date": {
+          "year": 2026,
+          "month": 6,
+          "day": 6,
+          "hour": 21,
+          "minute": 32,
+          "second": 10
+        },
+        "loudness": -12.443281406037777,
+        "gain": 0.8040420893403217,
+        "name": "[AMP] SYN-Ceri.KK100 Bogner Ecstasy Red #08 - DI",
+        "modeled_by": "2dor",
+        "gear_type": "amp",
+        "gear_make": "Bogner",
+        "gear_model": "Bogner",
+        "tone_type": "crunch",
+        "trainer": "TONE3000",
+        "input_level_dbu": 13,
+        "output_level_dbu": 13
+      },
+      "fit_eligible": false
+    },
+    {
+      "index": 22,
+      "channel": 1,
+      "file": "Final-HighGain-Refs/[AMP] SYN-Ceri.KK100 Bogner Ecstasy Blue #05 - DI.nam",
+      "sha256": "c2c8be6a81257e396b520538d0dfdc1cbd735e95b225374f211fcfc69b402c3f",
+      "state": {
+        "channel": 1,
+        "controls": {
+          "hw.lead.gain": 0.5
+        }
+      },
+      "qualification": "Bogner Ecstasy Synergy module into Ceriatone King Kong 100W power section, DI load capture. Different amplifier/circuit from Uberschall. Secondary high-gain comparison only at explicit native lead gain 0.5; no Ecstasy-to-Uberschall coefficient fit or new Ecstasy amp model. Numbered capture names are not gain positions.",
+      "url": "https://www.tone3000.com/tones/bogner-ecstasy-synergy-100w-6166",
+      "model_url": "https://api.tone3000.com/storage/v1/object/public/models/99v1bi12lef.nam",
+      "input_level_dbu": 13,
+      "metadata": {
+        "date": {
+          "year": 2026,
+          "month": 6,
+          "day": 6,
+          "hour": 21,
+          "minute": 26,
+          "second": 15
+        },
+        "loudness": -12.91369043640528,
+        "gain": 0.8490475608593975,
+        "name": "[AMP] SYN-Ceri.KK100 Bogner Ecstasy Blue #05 - DI",
+        "modeled_by": "2dor",
+        "gear_type": "amp",
+        "gear_make": "Bogner",
+        "gear_model": "Bogner",
+        "tone_type": "crunch",
+        "trainer": "TONE3000",
+        "input_level_dbu": 13,
+        "output_level_dbu": 13
+      },
+      "fit_eligible": false
+    },
+    {
+      "index": 22,
+      "channel": 1,
+      "file": "Final-HighGain-Refs/[AMP] SYN-Ceri.KK100 Bogner Ecstasy Red #10 - DI.nam",
+      "sha256": "1c40f05560a74ef2362ecf7ef9e12c313f0a36034f85cdbece04283903c669a0",
+      "state": {
+        "channel": 1,
+        "controls": {
+          "hw.lead.gain": 0.5
+        }
+      },
+      "qualification": "Bogner Ecstasy Synergy module into Ceriatone King Kong 100W power section, DI load capture. Different amplifier/circuit from Uberschall. Secondary high-gain comparison only at explicit native lead gain 0.5; no Ecstasy-to-Uberschall coefficient fit or new Ecstasy amp model. Numbered capture names are not gain positions.",
+      "url": "https://www.tone3000.com/tones/bogner-ecstasy-synergy-100w-6166",
+      "model_url": "https://api.tone3000.com/storage/v1/object/public/models/whtmfw3otoa.nam",
+      "input_level_dbu": 13,
+      "metadata": {
+        "date": {
+          "year": 2026,
+          "month": 6,
+          "day": 6,
+          "hour": 21,
+          "minute": 58,
+          "second": 38
+        },
+        "loudness": -13.41250608011293,
+        "gain": 0.8033351491467414,
+        "name": "[AMP] SYN-Ceri.KK100 Bogner Ecstasy Red #10 - DI",
+        "modeled_by": "2dor",
+        "gear_type": "amp",
+        "gear_make": "Bogner",
+        "gear_model": "Bogner",
+        "tone_type": "crunch",
+        "trainer": "TONE3000",
+        "input_level_dbu": 13,
+        "output_level_dbu": 13
+      },
+      "fit_eligible": false
+    },
+    {
+      "index": 22,
+      "channel": 1,
+      "file": "Final-HighGain-Refs/[AMP] SYN-Ceri.KK100 Bogner Ecstasy Red #04 - DI.nam",
+      "sha256": "591bef8db0c9a57b474a6ec33f3161cac3996551b384f591f4e6d39ac59f988f",
+      "state": {
+        "channel": 1,
+        "controls": {
+          "hw.lead.gain": 0.5
+        }
+      },
+      "qualification": "Bogner Ecstasy Synergy module into Ceriatone King Kong 100W power section, DI load capture. Different amplifier/circuit from Uberschall. Secondary high-gain comparison only at explicit native lead gain 0.5; no Ecstasy-to-Uberschall coefficient fit or new Ecstasy amp model. Numbered capture names are not gain positions.",
+      "url": "https://www.tone3000.com/tones/bogner-ecstasy-synergy-100w-6166",
+      "model_url": "https://api.tone3000.com/storage/v1/object/public/models/zgdoub0g7n8.nam",
+      "input_level_dbu": 13,
+      "metadata": {
+        "date": {
+          "year": 2026,
+          "month": 6,
+          "day": 6,
+          "hour": 21,
+          "minute": 44,
+          "second": 43
+        },
+        "loudness": -12.793266597948163,
+        "gain": 0.8064207859649721,
+        "name": "[AMP] SYN-Ceri.KK100 Bogner Ecstasy Red #04 - DI",
+        "modeled_by": "2dor",
+        "gear_type": "amp",
+        "gear_make": "Bogner",
+        "gear_model": "Bogner",
+        "tone_type": "crunch",
+        "trainer": "TONE3000",
+        "input_level_dbu": 13,
+        "output_level_dbu": 13
+      },
+      "fit_eligible": false
+    },
+    {
+      "index": 22,
+      "channel": 1,
+      "file": "Final-HighGain-Refs/[AMP] SYN-Ceri.KK100 Bogner Ecstasy Red #03 - DI.nam",
+      "sha256": "0ef3a6578650b7d58f28af68a8c3bd27fc1188a8f8e08d5508f7677f012d905f",
+      "state": {
+        "channel": 1,
+        "controls": {
+          "hw.lead.gain": 0.5
+        }
+      },
+      "qualification": "Bogner Ecstasy Synergy module into Ceriatone King Kong 100W power section, DI load capture. Different amplifier/circuit from Uberschall. Secondary high-gain comparison only at explicit native lead gain 0.5; no Ecstasy-to-Uberschall coefficient fit or new Ecstasy amp model. Numbered capture names are not gain positions.",
+      "url": "https://www.tone3000.com/tones/bogner-ecstasy-synergy-100w-6166",
+      "model_url": "https://api.tone3000.com/storage/v1/object/public/models/e82fj0x278d.nam",
+      "input_level_dbu": 13,
+      "metadata": {
+        "date": {
+          "year": 2026,
+          "month": 6,
+          "day": 6,
+          "hour": 21,
+          "minute": 51,
+          "second": 59
+        },
+        "loudness": -12.824559304784152,
+        "gain": 0.8368609756829642,
+        "name": "[AMP] SYN-Ceri.KK100 Bogner Ecstasy Red #03 - DI",
+        "modeled_by": "2dor",
+        "gear_type": "amp",
+        "gear_make": "Bogner",
+        "gear_model": "Bogner",
+        "tone_type": "crunch",
+        "trainer": "TONE3000",
+        "input_level_dbu": 13,
+        "output_level_dbu": 13
+      },
+      "fit_eligible": false
+    },
+    {
+      "index": 22,
+      "channel": 1,
+      "file": "Final-HighGain-Refs/[AMP] SYN-Ceri.KK100 Bogner Ecstasy Blue #06 - DI.nam",
+      "sha256": "fad2187125e0d858f2f3db393cf39f31af5bfc9e7213b43878ea025a1631a226",
+      "state": {
+        "channel": 1,
+        "controls": {
+          "hw.lead.gain": 0.5
+        }
+      },
+      "qualification": "Bogner Ecstasy Synergy module into Ceriatone King Kong 100W power section, DI load capture. Different amplifier/circuit from Uberschall. Secondary high-gain comparison only at explicit native lead gain 0.5; no Ecstasy-to-Uberschall coefficient fit or new Ecstasy amp model. Numbered capture names are not gain positions.",
+      "url": "https://www.tone3000.com/tones/bogner-ecstasy-synergy-100w-6166",
+      "model_url": "https://api.tone3000.com/storage/v1/object/public/models/1rzmcibectq.nam",
+      "input_level_dbu": 13,
+      "metadata": {
+        "date": {
+          "year": 2026,
+          "month": 6,
+          "day": 6,
+          "hour": 21,
+          "minute": 35,
+          "second": 10
+        },
+        "loudness": -12.292470453363821,
+        "gain": 0.8438174876513924,
+        "name": "[AMP] SYN-Ceri.KK100 Bogner Ecstasy Blue #06 - DI",
+        "modeled_by": "2dor",
+        "gear_type": "amp",
+        "gear_make": "Bogner",
+        "gear_model": "Bogner",
+        "tone_type": "crunch",
+        "trainer": "TONE3000",
+        "input_level_dbu": 13,
+        "output_level_dbu": 13
+      },
+      "fit_eligible": false
+    },
+    {
+      "index": 22,
+      "channel": 1,
+      "file": "Final-HighGain-Refs/BOGNER 101B CRUNCH #1.nam",
+      "sha256": "74b0376df07fcd03ca614dff842df64fd84fa457e8690400e76a1e759a4c5256",
+      "state": {
+        "channel": 1,
+        "controls": {
+          "hw.lead.gain": 0.5
+        }
+      },
+      "qualification": "Bogner Ecstasy 101B Red Bright 1 / Class A preamp-only per author. Different amplifier/circuit from Uberschall. Secondary high-gain comparison only at explicit native lead gain 0.5; no Ecstasy-to-Uberschall coefficient fit or new Ecstasy amp model. Numbered capture names are not gain positions.",
+      "url": "https://www.tone3000.com/tones/bogner-ecstasy-101b-red-channel-45482",
+      "model_url": "https://api.tone3000.com/storage/v1/object/public/models/ccymaugo2ra_a2.nam",
+      "input_level_dbu": null,
+      "metadata": {
+        "date": {
+          "year": 2026,
+          "month": 5,
+          "day": 8,
+          "hour": 21,
+          "minute": 3,
+          "second": 39
+        },
+        "loudness": -13.9662504196167,
+        "gain": 0.7837614992477978,
+        "name": "BOGNER 101B CRUNCH #1",
+        "modeled_by": "deathblossomaudio",
+        "training": {
+          "data": {
+            "checks": {
+              "passed": true,
+              "version": 3
+            },
+            "latency": {
+              "manual": null,
+              "calibration": {
+                "delays": [
+                  17
+                ],
+                "warnings": {
+                  "matches_lookahead": false,
+                  "disagreement_too_high": false
+                },
+                "recommended": 16,
+                "safety_factor": 1,
+                "algorithm_version": 1
+              }
+            }
+          },
+          "settings": {
+            "ignore_checks": false
+          },
+          "validation_esr": 0.0024894432608717995
+        },
+        "gear_make": "Bogner Ecstasy 101B",
+        "gear_model": "Bogner Ecstasy 101B",
+        "tone_type": "bogner",
+        "gear_type": "amp"
+      },
+      "fit_eligible": false
+    },
+    {
+      "index": 22,
+      "channel": 1,
+      "file": "Final-HighGain-Refs/BOGNER 101B CRUNCH #3.nam",
+      "sha256": "4994a9382032749394862f6b397e2cfbd29bbcc4ffa586b3a65b1451937db5e6",
+      "state": {
+        "channel": 1,
+        "controls": {
+          "hw.lead.gain": 0.5
+        }
+      },
+      "qualification": "Bogner Ecstasy 101B Red Bright 1 / Class A preamp-only per author. Different amplifier/circuit from Uberschall. Secondary high-gain comparison only at explicit native lead gain 0.5; no Ecstasy-to-Uberschall coefficient fit or new Ecstasy amp model. Numbered capture names are not gain positions.",
+      "url": "https://www.tone3000.com/tones/bogner-ecstasy-101b-red-channel-45482",
+      "model_url": "https://api.tone3000.com/storage/v1/object/public/models/i8l3horfs3f_a2.nam",
+      "input_level_dbu": null,
+      "metadata": {
+        "date": {
+          "year": 2026,
+          "month": 5,
+          "day": 8,
+          "hour": 21,
+          "minute": 3,
+          "second": 39
+        },
+        "loudness": -14.07193374633789,
+        "gain": 0.8058125104943954,
+        "name": "BOGNER 101B CRUNCH #3",
+        "modeled_by": "deathblossomaudio",
+        "training": {
+          "data": {
+            "checks": {
+              "passed": true,
+              "version": 3
+            },
+            "latency": {
+              "manual": null,
+              "calibration": {
+                "delays": [
+                  16
+                ],
+                "warnings": {
+                  "matches_lookahead": false,
+                  "disagreement_too_high": false
+                },
+                "recommended": 15,
+                "safety_factor": 1,
+                "algorithm_version": 1
+              }
+            }
+          },
+          "settings": {
+            "ignore_checks": false
+          },
+          "validation_esr": 0.004317266558876113
+        },
+        "gear_make": "Bogner Ecstasy 101B",
+        "gear_model": "Bogner Ecstasy 101B",
+        "tone_type": "bogner",
+        "gear_type": "amp"
+      },
+      "fit_eligible": false
+    },
+    {
+      "index": 22,
+      "channel": 1,
+      "file": "Final-HighGain-Refs/BOGNER 101B CRUNCH #2.nam",
+      "sha256": "f5a5dd97fdff81d00c7289df95fb26d08e3505da490283ba1e0425cd787bd0a9",
+      "state": {
+        "channel": 1,
+        "controls": {
+          "hw.lead.gain": 0.5
+        }
+      },
+      "qualification": "Bogner Ecstasy 101B Red Bright 1 / Class A preamp-only per author. Different amplifier/circuit from Uberschall. Secondary high-gain comparison only at explicit native lead gain 0.5; no Ecstasy-to-Uberschall coefficient fit or new Ecstasy amp model. Numbered capture names are not gain positions.",
+      "url": "https://www.tone3000.com/tones/bogner-ecstasy-101b-red-channel-45482",
+      "model_url": "https://api.tone3000.com/storage/v1/object/public/models/ho2rlnfr9v_a2.nam",
+      "input_level_dbu": null,
+      "metadata": {
+        "date": {
+          "year": 2026,
+          "month": 5,
+          "day": 8,
+          "hour": 21,
+          "minute": 3,
+          "second": 47
+        },
+        "loudness": -14.044124603271484,
+        "gain": 0.8033567735474392,
+        "name": "BOGNER 101B CRUNCH #2",
+        "modeled_by": "deathblossomaudio",
+        "training": {
+          "data": {
+            "checks": {
+              "passed": true,
+              "version": 3
+            },
+            "latency": {
+              "manual": null,
+              "calibration": {
+                "delays": [
+                  17
+                ],
+                "warnings": {
+                  "matches_lookahead": false,
+                  "disagreement_too_high": false
+                },
+                "recommended": 16,
+                "safety_factor": 1,
+                "algorithm_version": 1
+              }
+            }
+          },
+          "settings": {
+            "ignore_checks": false
+          },
+          "validation_esr": 0.003504588776562768
+        },
+        "gear_make": "Bogner Ecstasy 101B",
+        "gear_model": "Bogner Ecstasy 101B",
+        "tone_type": "bogner",
+        "gear_type": "amp"
+      },
+      "fit_eligible": false
+    },
+    {
+      "index": 22,
+      "channel": 1,
+      "file": "Final-HighGain-Refs/BOGNER 101B RHYTHM #1.nam",
+      "sha256": "e50377ebe943637f046aa5f8e369ccaf17ba6de0cb60e580c7c81e57564995d9",
+      "state": {
+        "channel": 1,
+        "controls": {
+          "hw.lead.gain": 0.5
+        }
+      },
+      "qualification": "Bogner Ecstasy 101B Red Bright 1 / Class A preamp-only per author. Different amplifier/circuit from Uberschall. Secondary high-gain comparison only at explicit native lead gain 0.5; no Ecstasy-to-Uberschall coefficient fit or new Ecstasy amp model. Numbered capture names are not gain positions.",
+      "url": "https://www.tone3000.com/tones/bogner-ecstasy-101b-red-channel-45482",
+      "model_url": "https://api.tone3000.com/storage/v1/object/public/models/0gn9hslhnuko_a2.nam",
+      "input_level_dbu": null,
+      "metadata": {
+        "date": {
+          "year": 2026,
+          "month": 5,
+          "day": 8,
+          "hour": 21,
+          "minute": 4,
+          "second": 0
+        },
+        "loudness": -12.692904472351074,
+        "gain": 0.8696426546872874,
+        "name": "BOGNER 101B RHYTHM #1",
+        "modeled_by": "deathblossomaudio",
+        "training": {
+          "data": {
+            "checks": {
+              "passed": true,
+              "version": 3
+            },
+            "latency": {
+              "manual": null,
+              "calibration": {
+                "delays": [
+                  15
+                ],
+                "warnings": {
+                  "matches_lookahead": false,
+                  "disagreement_too_high": false
+                },
+                "recommended": 14,
+                "safety_factor": 1,
+                "algorithm_version": 1
+              }
+            }
+          },
+          "settings": {
+            "ignore_checks": false
+          },
+          "validation_esr": 0.006873242086343847
+        },
+        "gear_make": "Bogner Ecstasy 101B",
+        "gear_model": "Bogner Ecstasy 101B",
+        "tone_type": "bogner",
+        "gear_type": "amp"
+      },
+      "fit_eligible": false
     }
   ],
   "unavailable": [
@@ -6622,6 +7853,186 @@
       "file": "VH4-Extended/[POW] DiZLVH4 EL34 Juice #33 - DI.nam",
       "url": "https://www.tone3000.com/tones/diezel-vh4-64455",
       "reason": "Boosted composite or power-only capture."
+    },
+    {
+      "file": "Final-HighGain-Refs/[POW] FRTN.EVL.PMPKN-Mar4x12 Dep@9 Pres@3 - DI.nam",
+      "url": "https://www.tone3000.com/tones/fortin-evil-pumpkin-66260",
+      "reason": "Power-only or TS808-boosted composite; not isolated amplifier comparison."
+    },
+    {
+      "file": "Final-HighGain-Refs/[POW] FRTN.EVL.PMPKN-Mes4x12 Dep@9 Pres@3 - DI.nam",
+      "url": "https://www.tone3000.com/tones/fortin-evil-pumpkin-66260",
+      "reason": "Power-only or TS808-boosted composite; not isolated amplifier comparison."
+    },
+    {
+      "file": "Final-HighGain-Refs/BOGNER 101B RHYTHM #2 TS808.nam",
+      "url": "https://www.tone3000.com/tones/bogner-ecstasy-101b-red-channel-45482",
+      "reason": "Power-only or TS808-boosted composite; not isolated amplifier comparison."
     }
-  ]
+  ],
+  "additional_source_recheck": {
+    "date": "2026-10-05 KST",
+    "duplicates_verified": [
+      {
+        "file": "Fortin-Evil-Pumpkin/[AMP] FRTN.EVL.PMPKN-Mes4x12-EP Jason Chugs - DI.nam",
+        "sha256": "4a6efc44fb04fe7facf2241f6c87388c0e712f75f7030f326e3ef6d13202d459",
+        "source_url": "https://www.tone3000.com/tones/fortin-evil-pumpkin-66260"
+      },
+      {
+        "file": "Fortin-Evil-Pumpkin/[AMP] FRTN.EVL.PMPKN-Mar4x12-EP Jason Chugs - DI.nam",
+        "sha256": "82ec4908ec2491567803396b68c6ca8aa1616734fe377e8d57da3f3f510fb4b4",
+        "source_url": "https://www.tone3000.com/tones/fortin-evil-pumpkin-66260"
+      },
+      {
+        "file": "Fortin-Evil-Pumpkin/[AMP] FRTN.EVL.PMPKN-Mes4x12-EP Jason's Settings - DI.nam",
+        "sha256": "4a9e027103430eda3f12f9ea3ccb6aa895e7e40fea7e7ecfaf1593d1880fe92c",
+        "source_url": "https://www.tone3000.com/tones/fortin-evil-pumpkin-66260"
+      },
+      {
+        "file": "Fortin-Evil-Pumpkin/[AMP] FRTN.EVL.PMPKN-Mar4x12-EP Jason's Settings - DI.nam",
+        "sha256": "57d4f45ba2f7612a86a9e8ceb235593075fa8208943e4839d31184f0c514847f",
+        "source_url": "https://www.tone3000.com/tones/fortin-evil-pumpkin-66260"
+      },
+      {
+        "file": "Fortin-Evil-Pumpkin/[AMP] FRTN.EVL.PMPKN-Mar4x12-KK Jason Leads - DI.nam",
+        "sha256": "532ecb0c8f5a5f3f3960ed5ceda3dbf2767ee7dce08c2c04638abeac9e07e906",
+        "source_url": "https://www.tone3000.com/tones/fortin-evil-pumpkin-66260"
+      },
+      {
+        "file": "Fortin-Evil-Pumpkin/[AMP] FRTN.EVL.PMPKN-Mes4x12-KK Jason Leads - DI.nam",
+        "sha256": "fda3a3fc7e1b2f0dbde4133c9647d846413786aac499cb7f0d2db7bfa1a4c04b",
+        "source_url": "https://www.tone3000.com/tones/fortin-evil-pumpkin-66260"
+      },
+      {
+        "file": "Fortin-Evil-Pumpkin/[AMP] FRTN.EVL.PMPKN-Mar4x12-KK Jason's Settings - DI.nam",
+        "sha256": "3cbd7f4746cbdef5654614bc3c880dbac1fe61b3f31604d43de037d8be595f97",
+        "source_url": "https://www.tone3000.com/tones/fortin-evil-pumpkin-66260"
+      },
+      {
+        "file": "Fortin-Evil-Pumpkin/[AMP] FRTN.EVL.PMPKN-Mes4x12-KK Jason's Settings - DI.nam",
+        "sha256": "6da638a41d8077c563d2f92382e96d547c0cc4778b837f604ec41884fd42824d",
+        "source_url": "https://www.tone3000.com/tones/fortin-evil-pumpkin-66260"
+      },
+      {
+        "file": "Chimera_Reference_Assets_20260928/NAM/zuta-gbg120/[AMP] Zoota.GBG12O-Mar412-CH1 Big Hairy Breakup - DI.nam",
+        "sha256": "fcf9326e0b9e7977784a8b4c1dfe23ae17bce59ac9ad8ec3960c7c18e00868f2",
+        "source_url": "https://www.tone3000.com/tones/zuta-gbg120-77452"
+      },
+      {
+        "file": "Chimera_Reference_Assets_20260928/NAM/zuta-gbg120/[AMP] Zoota.GBG12O-Mar412-CH3 Huge Favorite - DI.nam",
+        "sha256": "37305b2154ab3774e4ec619cec2f7d361667753d9f1a22cd0d2d9301c779fa86",
+        "source_url": "https://www.tone3000.com/tones/zuta-gbg120-77452"
+      },
+      {
+        "file": "Chimera_Reference_Assets_20260928/NAM/zuta-gbg120/[AMP] Zoota.GBG12O-Mar412-CH2 Transylvanian Clay - DI.nam",
+        "sha256": "63fec98ddaaa23b85e4e914e13a96b5b3ef02bff9480e78030aca74014beacd9",
+        "source_url": "https://www.tone3000.com/tones/zuta-gbg120-77452"
+      },
+      {
+        "file": "Chimera_Reference_Assets_20260928/NAM/zuta-gbg120/[AMP] Zoota.GBG12O-Mar412-CH4 Uno Grande - DI.nam",
+        "sha256": "a17fd26d69510fd05606e88291ce9b814e60ed143de808ac017cb0ebec58df80",
+        "source_url": "https://www.tone3000.com/tones/zuta-gbg120-77452"
+      },
+      {
+        "file": "Chimera_Reference_Assets_20260928/NAM/zuta-gbg120/[AMP] Zoota.GBG12O-Mes412-CH4 Uno Grande - DI.nam",
+        "sha256": "2f8adccc1e18b1be9b76a984e65929ccedf6a109a647dc04dc24be5394c5808c",
+        "source_url": "https://www.tone3000.com/tones/zuta-gbg120-77452"
+      },
+      {
+        "file": "Chimera_Reference_Assets_20260928/NAM/zuta-gbg120/[AMP] Zoota.GBG12O-Mes412-CH1 Big Hairy Breakup - DI.nam",
+        "sha256": "7bdcbc41c77123b1c0e05dd648e9a74b99dd013971bb93e544dba6d483cab3fd",
+        "source_url": "https://www.tone3000.com/tones/zuta-gbg120-77452"
+      },
+      {
+        "file": "Chimera_Reference_Assets_20260928/NAM/zuta-gbg120/[AMP] Zoota.GBG12O-Mes412-CH3 Huge Favorite - DI.nam",
+        "sha256": "0793a37585fd52a8302f0a95081cf143f2ab5d31a56cefaaa0ff2adbda68138a",
+        "source_url": "https://www.tone3000.com/tones/zuta-gbg120-77452"
+      },
+      {
+        "file": "Chimera_Reference_Assets_20260928/NAM/zuta-gbg120/[AMP] Zoota.GBG12O-Mes412-CH2 Transylvanian Clay - DI.nam",
+        "sha256": "164ad3f7062a8e659e4fe019bc66a10f730c1157b5b3f71958738e1f076e70c1",
+        "source_url": "https://www.tone3000.com/tones/zuta-gbg120-77452"
+      },
+      {
+        "file": "Expanded-NAM/[AMP] UBER.BLUE-Mar412-LEAD Basher - DI.nam",
+        "sha256": "ec47c856e5fd6278f673ca2afa10cfa22607f30df64328afa1f03102f02e3214",
+        "source_url": "https://www.tone3000.com/tones/bogner-uberschall-79751"
+      },
+      {
+        "file": "Expanded-NAM/[AMP] UBER.BLUE-Mar412-LEAD Holly Rocks - DI.nam",
+        "sha256": "e7fd99ce548a6712ff18dd3af62604ba10206e8acf7a659fb60779f2dc82a1de",
+        "source_url": "https://www.tone3000.com/tones/bogner-uberschall-79751"
+      },
+      {
+        "file": "Expanded-NAM/[AMP] UBER.BLUE-Mar412-LEAD Darkness - DI.nam",
+        "sha256": "c765ea474771db1395091e09003fdceab12d8b4233f456f2988690aba607557e",
+        "source_url": "https://www.tone3000.com/tones/bogner-uberschall-79751"
+      },
+      {
+        "file": "Expanded-NAM/[AMP] UBER.BLUE-Mar412-LEAD Rosemary - DI.nam",
+        "sha256": "b251d10ffe8618a6817cf0fd673c0de80a84aaed89e0a13cf4c1e68a2f1b2dee",
+        "source_url": "https://www.tone3000.com/tones/bogner-uberschall-79751"
+      },
+      {
+        "file": "Expanded-NAM/[AMP] UBER.BLUE-Mar412-LEAD Blue Lights - DI.nam",
+        "sha256": "79910031161d1a6850173a6bee284dec88994a037deccd7af121123de33ea4c4",
+        "source_url": "https://www.tone3000.com/tones/bogner-uberschall-79751"
+      },
+      {
+        "file": "Expanded-NAM/[AMP] UBER.BLUE-Mar412-LEAD Anthem - DI.nam",
+        "sha256": "b87f80151edba641d6f8c41b08a030b7f50a26ea5ea20a29debd075c3e54ec18",
+        "source_url": "https://www.tone3000.com/tones/bogner-uberschall-79751"
+      },
+      {
+        "file": "Expanded-NAM/[AMP] UBER.BLUE-Mar412-LEAD Glazed - DI.nam",
+        "sha256": "b7e56441cf437ffdc6850e742f9c1109c2f727d05c47dee9bcbfda650a987b6a",
+        "source_url": "https://www.tone3000.com/tones/bogner-uberschall-79751"
+      },
+      {
+        "file": "Expanded-NAM/[AMP] UBER.BLUE-Mar412-LEAD Clover - DI.nam",
+        "sha256": "7cdf8a13641fcd29427be15952721feca5178a7bc23a3f268692d3969d5e5728",
+        "source_url": "https://www.tone3000.com/tones/bogner-uberschall-79751"
+      },
+      {
+        "file": "Expanded-NAM/[AMP] UBER.BLUE-Mar412-CLEAN Cookie - DI.nam",
+        "sha256": "fd33fcbd5cb7fbe7b420c4e3a69139facc245533540969b0d9d1a9cda046eee3",
+        "source_url": "https://www.tone3000.com/tones/bogner-uberschall-79751"
+      },
+      {
+        "file": "Expanded-NAM/[AMP] UBER.BLUE-Mar412-LEAD Cookie - DI.nam",
+        "sha256": "5823df032e18434ebb1137390059f4f37bb7f7c43366441fb04bb5c11ddb8985",
+        "source_url": "https://www.tone3000.com/tones/bogner-uberschall-79751"
+      },
+      {
+        "file": "Expanded-NAM/[AMP] UBER.BLUE-Mar412-CLEAN Instant gratification - DI.nam",
+        "sha256": "e7bf0ef74d50e1ec5c69da46be312aeb0ddeb10f9feecb231f3e879bfd3dc6e2",
+        "source_url": "https://www.tone3000.com/tones/bogner-uberschall-79751"
+      },
+      {
+        "file": "Expanded-NAM/[AMP] UBER.BLUE-Mar412-LEAD Instant gratification - DI.nam",
+        "sha256": "ba7c0de439ca8d672b38c222e1f0f04026708183d55fb75bec8d86fbef0c3484",
+        "source_url": "https://www.tone3000.com/tones/bogner-uberschall-79751"
+      },
+      {
+        "file": "Expanded-NAM/[AMP] UBER.BLUE-Mar412-CLEAN Noon - DI.nam",
+        "sha256": "ba58b67f616c22dbbe8cba9887d83f6473a3c60ab843d4533fcb236ec966f6c8",
+        "source_url": "https://www.tone3000.com/tones/bogner-uberschall-79751"
+      },
+      {
+        "file": "Expanded-NAM/[AMP] UBER.BLUE-Mar412-LEAD Noon - DI.nam",
+        "sha256": "75a0135333df439294cbb0f4224665fc31c8b11f8d1310357b9d04cc4ad2b608",
+        "source_url": "https://www.tone3000.com/tones/bogner-uberschall-79751"
+      },
+      {
+        "file": "Expanded-NAM/[AMP] UBER.BLUE-Mar412-LEAD Striptaser - DI.nam",
+        "sha256": "9eea7571d0527ace2b2352b1676189e19ecd037c4b960828ab94aa6751794271",
+        "source_url": "https://www.tone3000.com/tones/bogner-uberschall-79751"
+      },
+      {
+        "file": "Expanded-NAM/[AMP] UBER.BLUE-Mes412-LEAD Striptaser - DI.nam",
+        "sha256": "86189a1e0f0cdcafa3ed45886272da8e0431363c7db51565dd7d3ae672b368a2",
+        "source_url": "https://www.tone3000.com/tones/bogner-uberschall-79751"
+      }
+    ]
+  }
 }

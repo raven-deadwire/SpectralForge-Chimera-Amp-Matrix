@@ -41,6 +41,7 @@ inline constexpr NativeCaptureCalibration nativeCaptureCalibration(int model,int
     if(model==17 && channel==1)return {6.00f,-6.00f,2.37f,-4.07f,12.00f};
     if(model==17 && channel==2)return {-6.00f,-6.00f,6.00f,2.58f,9.00f};
     if(model==17 && channel==3)return {-6.00f,-6.00f,6.00f,3.74f,-6.00f};
+    if(model==20 && channel==2)return {4.05f,-6.00f,6.00f,-6.07f,12.00f};
     return {};
 }
 } // namespace spectralforge

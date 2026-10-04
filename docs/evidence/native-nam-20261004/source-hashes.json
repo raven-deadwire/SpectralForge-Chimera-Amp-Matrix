@@ -1,6 +1,6 @@
 {
   "Source/AmpCatalog.h": "068a7f9d7ddd4754ea2e9c5d45fcf407b931cfba7419366f00919051973707ac",
-  "Source/AmpNativeCalibration.h": "f51d54a73d609af82ed46713d7b5ebce7f671472c400ea765864b032b438f5ad",
+  "Source/AmpNativeCalibration.h": "87f01c0e4e465f6161431bcc58d7d0d2d162f76527656db88f05b4a6685d0cb1",
   "Source/AmpNativeCatalog.h": "b4ced2252a20c7564a05cb81494eaffbfa55def2ffd22e596bb2702d75e2c7c8",
   "Source/AmpNativeDSP.h": "3be9e6486f4a0e2c8d92b21d7f116f2d2fe901d947cbef2a669ac2090eb8a775",
   "Source/AmpNativePanel.h": "72756218c869cd5bd56657ff0a212b8d386b3d9320f7614c455a4b6731504ab2",
@@ -62,5 +62,5 @@
   "Tests/RenderAmp.cpp": "1e094c3bde830a7a774173c2a762b9b9de0353b690bac0b0a5ee557c12fe806d",
   "Tools/validate_native_nam.py": "513da5907997ab9725bff6f8555ddac41701bb620c73983f769a403f686014b1",
   "Tools/validate_native_gain.py": "55795bd098c6b917dc31fa72b4bebb3dc63a607b215874885a03eabe27b58079",
-  "docs/reference/native-nam-manifest.json": "df895168e34d13ac9cd38c95b775570fc48a5a1b6c5f12616d01e498455024f1"
+  "docs/reference/native-nam-manifest.json": "5589dc30d9b3da085ca22362f9a0020f6d1e643c24e1a895f67d67816c606f9d"
 }

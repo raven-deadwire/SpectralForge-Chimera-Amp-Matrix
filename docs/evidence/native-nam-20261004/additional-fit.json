@@ -563,5 +563,59 @@
     "E670 Lead I/II final output compensation is 3 dB lower than the fit proposal for headroom.",
     "Sweeps use neutral per-model calibration, except ENGL/SVT/SUNN whose previous coefficients were identity.",
     "Final applied coefficients are in calibration.json; final candidate and manifest hashes are in tone.json and gain.json."
-  ]
+  ],
+  "fortin_clean": {
+    "input_sweep": [
+      {
+        "model": 20,
+        "channel": 2,
+        "selected_input_db": 12,
+        "options": [
+          {
+            "input_db": -12,
+            "curve_error_db": 5.611833337687397
+          },
+          {
+            "input_db": -6,
+            "curve_error_db": 5.426508306799301
+          },
+          {
+            "input_db": 0,
+            "curve_error_db": 4.975758783415616
+          },
+          {
+            "input_db": 3,
+            "curve_error_db": 4.6433023648797445
+          },
+          {
+            "input_db": 6,
+            "curve_error_db": 4.296222246653574
+          },
+          {
+            "input_db": 9,
+            "curve_error_db": 4.007324632338848
+          },
+          {
+            "input_db": 12,
+            "curve_error_db": 3.853508636958699
+          }
+        ]
+      }
+    ],
+    "tone_fit": [
+      {
+        "model": 20,
+        "channel": 2,
+        "gains_db": [
+          4.05,
+          -6.0,
+          6.0
+        ],
+        "level_db": -6.07,
+        "heldout_before_db": 10.531268761045668,
+        "heldout_after_db": 6.412952480649597,
+        "accepted": true
+      }
+    ]
+  }
 }
