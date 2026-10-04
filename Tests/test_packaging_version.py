@@ -146,6 +146,13 @@ configure_file(cmake/chimera-build-version.json.in chimera-build-version.json @O
             self.write("payload/" + file)
         self.write("payload/payload-manifest.json", json.dumps(manifest))
 
+    @unittest.skipUnless(sys.platform == "win32", "PowerShell resource fixtures run in Windows CI")
+    def test_windows_juce_and_inno_resource_layouts(self):
+        result = subprocess.run(["pwsh", "-NoProfile", "-File", str(ROOT / "Tests/Test-WindowsVersionContract.ps1")],
+                                capture_output=True, text=True)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertIn("PASS: JUCE and Inno resources accepted", result.stdout)
+
     def run_windows_builder(self, *args):
         return subprocess.run(["pwsh", "-NoProfile", "-File", str(ROOT / "Tools/Build-WindowsInstaller.ps1"),
                                "-Stage", str(self.root / "payload"),
