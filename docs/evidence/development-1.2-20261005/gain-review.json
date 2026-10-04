@@ -1,0 +1,181 @@
+{
+  "fixture": "PRE/native AMP, 48 kHz, 4x; 150/300/600 Hz; -54/-24 dBFS peak; envelope sweep bypassed only in gain probe",
+  "reference_scope": "Tight RHYTHM and Dual lower-drive examples have separate targets; Dual offscreen knobs use explicit released 1.1.2 assumptions, not recovered screenshot settings",
+  "references": {
+    "GAIN_REFERENCE": {
+      "weak_thd": 0.461301,
+      "saturation_ratio": 0.862484,
+      "growth_db": 0.0374776
+    },
+    "GAIN_TIGHT_REFERENCE": {
+      "weak_thd": 0.124535,
+      "saturation_ratio": 0.444461,
+      "growth_db": 0.302125
+    },
+    "GAIN_DUAL_REFERENCE_0": {
+      "weak_thd": 0.251227,
+      "saturation_ratio": 0.569237,
+      "growth_db": 0.549699
+    },
+    "GAIN_DUAL_REFERENCE_1": {
+      "weak_thd": 0.20075,
+      "saturation_ratio": 0.676596,
+      "growth_db": 0.653952
+    }
+  },
+  "paths": [
+    {
+      "index": 1,
+      "lane": 0,
+      "model": 2,
+      "weak_thd": 0.124532,
+      "saturation_ratio": 0.444451,
+      "growth_db": 0.302133,
+      "result": "PASS"
+    },
+    {
+      "index": 3,
+      "lane": 0,
+      "model": 1,
+      "weak_thd": 0.576477,
+      "saturation_ratio": 0.841754,
+      "growth_db": 0.123581,
+      "result": "PASS"
+    },
+    {
+      "index": 4,
+      "lane": 0,
+      "model": 0,
+      "weak_thd": 0.348555,
+      "saturation_ratio": 0.852523,
+      "growth_db": 0.219329,
+      "result": "PASS"
+    },
+    {
+      "index": 8,
+      "lane": 0,
+      "model": 9,
+      "weak_thd": 0.407864,
+      "saturation_ratio": 0.871771,
+      "growth_db": -0.053241,
+      "result": "PASS"
+    },
+    {
+      "index": 9,
+      "lane": 0,
+      "model": 2,
+      "weak_thd": 0.4613,
+      "saturation_ratio": 0.862483,
+      "growth_db": 0.0374764,
+      "result": "PASS"
+    },
+    {
+      "index": 10,
+      "lane": 0,
+      "model": 4,
+      "weak_thd": 0.373611,
+      "saturation_ratio": 0.955068,
+      "growth_db": 0.0012956,
+      "result": "PASS"
+    },
+    {
+      "index": 20,
+      "lane": 0,
+      "model": 2,
+      "weak_thd": 0.41185,
+      "saturation_ratio": 0.770533,
+      "growth_db": 0.129281,
+      "result": "PASS"
+    },
+    {
+      "index": 20,
+      "lane": 1,
+      "model": 3,
+      "weak_thd": 0.235506,
+      "saturation_ratio": 0.67677,
+      "growth_db": -0.150427,
+      "result": "PASS"
+    },
+    {
+      "index": 29,
+      "lane": 0,
+      "model": 13,
+      "weak_thd": 0.414902,
+      "saturation_ratio": 0.924857,
+      "growth_db": 0.0962955,
+      "result": "PASS"
+    },
+    {
+      "index": 34,
+      "lane": 0,
+      "model": 21,
+      "weak_thd": 0.393521,
+      "saturation_ratio": 0.925645,
+      "growth_db": 0.0155315,
+      "result": "PASS"
+    },
+    {
+      "index": 34,
+      "lane": 1,
+      "model": 4,
+      "weak_thd": 0.380015,
+      "saturation_ratio": 1.00108,
+      "growth_db": -0.0203662,
+      "result": "PASS"
+    },
+    {
+      "index": 35,
+      "lane": 0,
+      "model": 17,
+      "weak_thd": 0.432453,
+      "saturation_ratio": 0.896224,
+      "growth_db": 0.0257521,
+      "result": "PASS"
+    },
+    {
+      "index": 35,
+      "lane": 1,
+      "model": 2,
+      "weak_thd": 0.506491,
+      "saturation_ratio": 0.973023,
+      "growth_db": 0.000880729,
+      "result": "PASS"
+    },
+    {
+      "index": 36,
+      "lane": 1,
+      "model": 17,
+      "weak_thd": 0.450123,
+      "saturation_ratio": 0.922367,
+      "growth_db": 0.0176819,
+      "result": "PASS"
+    },
+    {
+      "index": 36,
+      "lane": 2,
+      "model": 20,
+      "weak_thd": 0.425843,
+      "saturation_ratio": 0.907615,
+      "growth_db": 0.0204684,
+      "result": "PASS"
+    },
+    {
+      "index": 37,
+      "lane": 1,
+      "model": 22,
+      "weak_thd": 0.519562,
+      "saturation_ratio": 0.981652,
+      "growth_db": 0.0500423,
+      "result": "PASS"
+    },
+    {
+      "index": 37,
+      "lane": 2,
+      "model": 20,
+      "weak_thd": 0.43386,
+      "saturation_ratio": 0.953037,
+      "growth_db": 0.0232316,
+      "result": "PASS"
+    }
+  ]
+}

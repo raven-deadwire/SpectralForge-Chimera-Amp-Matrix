@@ -1,0 +1,3 @@
+PASS actual JUCE panel preset attachment and inactive-bank isolation
+PASS 84 appended development parameters and six-context state
+PASS 12 JUCE oversampling routes; partition residual=0 peak=0.295335

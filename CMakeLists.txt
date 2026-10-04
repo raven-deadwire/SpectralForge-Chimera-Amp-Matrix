@@ -52,6 +52,17 @@ target_compile_definitions(ChimeraAmpMatrix PUBLIC JUCE_WEB_BROWSER=0 JUCE_USE_C
 target_link_libraries(ChimeraAmpMatrix PRIVATE ChimeraIRs ChimeraArtwork ChimeraManual juce::juce_cryptography juce::juce_audio_utils juce::juce_dsp PUBLIC juce::juce_recommended_config_flags juce::juce_recommended_warning_flags)
 enable_testing()
 
+# 1.2 development engine: isolated tests, no production model/parameter changes.
+add_executable(ChimeraOriginalAmpTests Tests/OriginalAmpTests.cpp)
+target_include_directories(ChimeraOriginalAmpTests PRIVATE Source)
+add_test(NAME ChimeraOriginalAmpTests COMMAND ChimeraOriginalAmpTests)
+juce_add_console_app(ChimeraOriginalAmpIntegrationTests PRODUCT_NAME "Chimera Original Amp Tests")
+target_sources(ChimeraOriginalAmpIntegrationTests PRIVATE Tests/OriginalAmpIntegrationTests.cpp)
+target_include_directories(ChimeraOriginalAmpIntegrationTests PRIVATE Source)
+target_compile_definitions(ChimeraOriginalAmpIntegrationTests PRIVATE JUCE_USE_CURL=0 JUCE_WEB_BROWSER=0)
+target_link_libraries(ChimeraOriginalAmpIntegrationTests PRIVATE juce::juce_audio_utils juce::juce_dsp PUBLIC juce::juce_recommended_config_flags)
+add_test(NAME ChimeraOriginalAmpIntegrationTests COMMAND ChimeraOriginalAmpIntegrationTests)
+
 # Compile the actual upstream/patched VBlankThread class with a deterministic
 # failing DXGI output. This runs on every platform without a physical display.
 find_package(Python3 3.9 REQUIRED COMPONENTS Interpreter)

@@ -1,0 +1,145 @@
+#pragma once
+#include "OriginalAmpDefinition.h"
+
+namespace spectralforge::original {
+namespace detail {
+constexpr double pi=3.14159265358979323846;
+inline double pole(double rate,double hz) noexcept { return -std::expm1(-2*pi*std::clamp(hz,2.,rate*.44)/rate); }
+inline double timePole(double rate,double seconds) noexcept { return -std::expm1(-1/(rate*seconds)); }
+struct RC {
+    double z{};
+    double low(double x,double a) noexcept { z+=a*(x-z); return z; }
+    double high(double x,double a) noexcept { return x-low(x,a); }
+};
+struct Coeff {
+    double b0{1},b1{},b2{},a1{},a2{};
+    static Coeff peak(double rate,double hz,double amount) noexcept {
+        const double w=2*pi*std::clamp(hz,10.,rate*.44)/rate, a=std::pow(10.,amount/40.);
+        const double alpha=std::sin(w)/1.4, c=std::cos(w), d=1+alpha/a;
+        return {(1+alpha*a)/d,-2*c/d,(1-alpha*a)/d,-2*c/d,(1-alpha/a)/d};
+    }
+};
+struct Filter {
+    double z1{},z2{};
+    double tick(double x,const Coeff& c) noexcept { const double y=c.b0*x+z1;z1=c.b1*x-c.a1*y+z2;z2=c.b2*x-c.a2*y;return y; }
+};
+struct GainCell {
+    RC coupling,bandwidth;
+    double biasMemory{},blockingMemory{};
+    double tick(double x,const GainCellDefinition& d,double crush,double rot,
+                double hp,double lp,double charge,double recover,double biasPole) noexcept {
+        const double v=std::clamp(x*d.drive*(.65+crush*1.25),-40.,40.);
+        const double demand=std::max(0.,v-.65);
+        blockingMemory+=(demand>blockingMemory?charge:recover)*(demand-blockingMemory);
+        biasMemory+=biasPole*(v/(1+std::abs(v))-biasMemory);
+        const double point=d.bias+rot*(.25*biasMemory-.08*blockingMemory);
+        const double y=std::tanh(v+point)-std::tanh(point);
+        return bandwidth.low(coupling.high(y,hp),lp);
+    }
+};
+}
+
+// Allocation-free sample core. prepare() takes the *oversampled* sample rate.
+// set(), reset() and tick() are audio-thread operations; callers hand over a
+// coherent state snapshot instead of mutating this object from a UI thread.
+class OriginalAmpDSP {
+    struct Config {
+        std::array<double,4> hp{},lp{};
+        detail::Coeff middle;
+        double gain{},bass{},treble{},presence{},depth{},master{},clank{},crush{},impact{},rot{},bloom{};
+        double tightenPole{},rotRecovery{},bloomRadius{},bloomCos{},bloomFeed{};
+    };
+    struct Channel {
+        std::array<detail::GainCell,4> cells;
+        detail::RC input,tightener,bass,treble,feedbackLow,presence,output,dc,sagLow;
+        detail::Filter middle;
+        State current;
+        Config config;
+        double fast{},slow{},sag{},feedback{},bloom1{},bloom2{};
+        int remaining{},phase{};
+    };
+    Definition definition=nastrond;
+    State target;
+    std::array<Channel,2> channels{};
+    double rate=48000,inputPole{},outputPole{},bassPole{},treblePole{},presencePole{},dcPole{};
+    double fastPole{},slowPole{},sagAttack{},sagRelease{},chargePole{},biasPole{},depthPole{};
+    int smoothing=960;
+
+    Config configure(const State& s) const noexcept {
+        using C=Control;Config c;
+        c.gain=8*double(s[C::gain])*s[C::gain];
+        c.bass=std::pow(10.,(s[C::bass]-.5)*18/20)-1;
+        c.treble=std::pow(10.,(s[C::treble]-.5)*18/20)-1;
+        c.middle=detail::Coeff::peak(rate,s[C::midFrequency],(s[C::middle]-.5)*20);
+        c.presence=(s[C::presence]-.5)*1.4;c.depth=s[C::depth];
+        c.master=double(s[C::master])*s[C::master]*1.5;
+        c.clank=s[C::clank];c.crush=s[C::crush];c.impact=s[C::impact];c.rot=s[C::rot];c.bloom=s[C::bloom];
+        c.tightenPole=detail::pole(rate,75+200*c.clank);
+        c.rotRecovery=detail::timePole(rate,.012+.16*c.rot);
+        c.bloomRadius=std::exp(-1/(rate*(.012+.19*c.bloom)));
+        c.bloomCos=2*c.bloomRadius*std::cos(2*detail::pi*160/rate);
+        c.bloomFeed=2*(1-c.bloomRadius)*std::sin(2*detail::pi*160/rate);
+        for(std::size_t i=0;i<4;++i){c.hp[i]=detail::pole(rate,definition.stages[i].couplingHz);c.lp[i]=detail::pole(rate,definition.stages[i].bandwidthHz);}
+        return c;
+    }
+public:
+    void prepare(double sampleRate,const Definition& d=nastrond) noexcept {
+        definition=d;rate=std::isfinite(sampleRate)?std::clamp(sampleRate,8000.,768000.):48000.;
+        smoothing=std::max(1,int(rate*definition.smoothingSeconds));
+        inputPole=detail::pole(rate,d.inputHighPassHz);outputPole=detail::pole(rate,d.outputLowPassHz);
+        bassPole=detail::pole(rate,180);treblePole=detail::pole(rate,2300);presencePole=detail::pole(rate,3200);
+        dcPole=detail::pole(rate,8);depthPole=detail::pole(rate,120);
+        fastPole=detail::timePole(rate,.001);slowPole=detail::timePole(rate,.035);
+        sagAttack=detail::timePole(rate,.010);sagRelease=detail::timePole(rate,.120);
+        chargePole=detail::timePole(rate,.002);biasPole=detail::timePole(rate,.045);
+        reset();
+    }
+    void set(State s) noexcept {
+        s.sanitise();if(s==target)return;target=s;
+        for(auto& c:channels)c.remaining=smoothing;
+    }
+    void reset() noexcept {
+        channels={};for(auto& c:channels){c.current=target;c.config=configure(target);}
+    }
+    const State& state() const noexcept { return target; }
+    float tick(float input,int channel) noexcept {
+        if(channel<0||channel>=2)return 0;
+        auto& c=channels[std::size_t(channel)];
+        if(c.remaining>0){
+            for(std::size_t i=0;i<controlCount;++i)c.current.values[i]+=(target.values[i]-c.current.values[i])/float(c.remaining);
+            --c.remaining;
+            if((++c.phase%16)==0 || c.remaining==0)c.config=configure(c.current);
+        }
+        const auto& p=c.config;
+        double x=std::isfinite(input)?std::clamp(double(input),-16.,16.):0.;
+        x=c.input.high(x,inputPole);
+        c.fast+=fastPole*(std::abs(x)-c.fast);c.slow+=slowPole*(std::abs(x)-c.slow);
+        const double tighten=p.clank*(.30+.60*std::clamp(c.slow*5.,0.,1.));
+        x-=tighten*c.tightener.low(x,p.tightenPole);
+        x*=p.gain;
+        for(std::size_t i=0;i<4;++i)
+            x=c.cells[i].tick(x,definition.stages[i],p.crush,p.rot,p.hp[i],p.lp[i],chargePole,p.rotRecovery,biasPole);
+        x+=p.bass*c.bass.low(x,bassPole);
+        x=c.middle.tick(x,p.middle);
+        x+=p.treble*c.treble.high(x,treblePole);
+        // IMPACT changes post-distortion LF drive and feedback damping, not
+        // input gain. CRUSH controls the serial cells before the tone stack.
+        const double low=c.feedbackLow.low(x,depthPole);
+        const double attack=std::clamp((c.fast-c.slow)*18.,0.,1.);
+        x+=low*p.depth*(.15+p.impact*(.75+.6*attack));
+        const double demand=std::abs(x);
+        c.sag+=(demand>c.sag?sagAttack:sagRelease)*(demand-c.sag);
+        const double supply=1/(1+(.04+.22*p.bloom)*c.sag);
+        x=std::tanh((x-c.feedback*(.14-.09*p.impact))*supply*(1+.8*p.crush));
+        c.feedback=x;
+        x+=p.presence*c.presence.high(x,presencePole);
+        // Stable damped LF resonator: BLOOM controls decay independently of
+        // IMPACT's initial LF drive. At zero input it releases to silence.
+        const double bloomInput=c.sagLow.low(x,bassPole);
+        const double resonant=p.bloomFeed*bloomInput+p.bloomCos*c.bloom1-p.bloomRadius*p.bloomRadius*c.bloom2;
+        c.bloom2=c.bloom1;c.bloom1=resonant;
+        x+=.7*p.bloom*resonant;
+        return float(c.dc.high(c.output.low(x,outputPole),dcPole)*p.master);
+    }
+};
+} // namespace spectralforge::original

@@ -1,0 +1,39 @@
+id,preset,role,review_action,baseline_rms_dbfs,candidate_rms_dbfs,candidate_peak_dbfs,hot_input_peak_dbfs,final_output_trim_db,validation
+0,Clean Sustain,Guitar / Clean & Ambient,Retain role after full-chain recall/headroom audit,-25.9581,-25.9581,-10.6888,-6.85078,6.5,PASS synthetic; DI listening pending
+1,Tight Rhythm,Guitar / High Gain,Revoice PRE/AMP and rebalance output,-27.3133,-25.8035,-15.8833,-15.89,-12.0,PASS synthetic; DI listening pending
+2,Bass Matrix,Matrix / Bass,Retain role after full-chain recall/headroom audit,-25.7678,-25.7678,-11.68,-8.21692,-4.5,PASS synthetic; DI listening pending
+3,Filter Lead,Guitar / Lead & Texture,Revoice PRE/AMP and rebalance output,-25.8149,-26.0395,-14.8731,-14.8798,-10.0,PASS synthetic; DI listening pending
+4,Fuzz Texture,Guitar / Lead & Texture,Revoice PRE/AMP and rebalance output,-26.0365,-26.131,-13.9966,-13.9897,-2.5,PASS synthetic; DI listening pending
+5,Bell Clean,Guitar / Clean & Ambient,Retain role after full-chain recall/headroom audit,-25.9956,-25.9956,-12.5017,-9.77755,-1.5,PASS synthetic; DI listening pending
+6,Edge Chime,Guitar / Edge & Rock,Retain role after full-chain recall/headroom audit,-25.8505,-25.8505,-15.5955,-15.1968,-5.5,PASS synthetic; DI listening pending
+7,Classic Crunch,Guitar / Edge & Rock,Retain role after full-chain recall/headroom audit,-27.3355,-27.3355,-9.96844,-9.3659,-2.5,PASS synthetic; DI listening pending
+8,Orange Heavy,Guitar / High Gain,Revoice PRE/AMP and rebalance output,-26.0913,-26.0427,-14.3794,-14.4222,-10.5,PASS synthetic; DI listening pending
+9,Melodic Death Rhythm,Guitar / High Gain,Revoice PRE/AMP and rebalance output,-27.3813,-25.8169,-14.1956,-14.1475,-9.0,PASS synthetic; DI listening pending
+10,Melodic Lead,Guitar / Lead & Texture,Revoice PRE/AMP and rebalance output,-25.7989,-25.7658,-13.5297,-13.4831,-4.5,PASS synthetic; DI listening pending
+11,Ambient Clean,Guitar / Clean & Ambient,Retain role after full-chain recall/headroom audit,-25.9931,-25.9931,-11.1149,-6.68935,11.5,PASS synthetic; DI listening pending
+12,Finger Round,Bass / Clean & Dynamics,Retain role after full-chain recall/headroom audit,-26.0289,-26.0289,-11.2933,-9.85987,-12.0,PASS synthetic; DI listening pending
+13,Pick Punch,Bass / Clean & Dynamics,Retain role after full-chain recall/headroom audit,-28.8543,-28.8543,-10.1827,-8.98024,-6.0,PASS synthetic; DI listening pending
+14,Slap Studio,Bass / Clean & Dynamics,Retain role after full-chain recall/headroom audit,-25.9249,-25.9249,-12.5099,-8.52199,2.0,PASS synthetic; DI listening pending
+15,Modern Grind,Bass / Drive & Texture,Retain role after full-chain recall/headroom audit,-26.1147,-26.1147,-11.7004,-10.4989,-10.5,PASS synthetic; DI listening pending
+16,Vintage Bass DI,Bass / Drive & Texture,Retain role after full-chain recall/headroom audit,-27.6005,-27.6005,-10.0954,-8.21474,-10.5,PASS synthetic; DI listening pending
+17,Wool Bass Fuzz,Bass / Drive & Texture,Retain role after full-chain recall/headroom audit,-25.9599,-25.9599,-14.0683,-11.7872,-7.5,PASS synthetic; DI listening pending
+18,Bass Envelope,Bass / Drive & Texture,Retain role after full-chain recall/headroom audit,-26.1047,-26.1047,-10.9699,-4.80792,7.0,PASS synthetic; DI listening pending
+19,G+G Clean / Crunch,Dual / Blend,Retain role after full-chain recall/headroom audit,-26.8116,-26.8116,-10.0538,-9.08894,8.5,PASS synthetic; DI listening pending
+20,G+G Tight / Wide,Dual / Blend,Revoice PRE/AMP and rebalance output,-27.0681,-25.6935,-14.5906,-14.6166,-9.0,PASS synthetic; DI listening pending
+21,G+B Low Anchor,Dual / Crossover,Retain role after full-chain recall/headroom audit,-26.2985,-26.2985,-12.3119,-8.19041,-6.0,PASS synthetic; DI listening pending
+22,G+B Air / Weight,Dual / Crossover,Retain role after full-chain recall/headroom audit,-26.0248,-26.0248,-12.8775,-10.4543,-11.0,PASS synthetic; DI listening pending
+23,B+B Warm / Definition,Dual / Blend,Retain role after full-chain recall/headroom audit,-26.8695,-26.8695,-10.2012,-8.94516,-4.5,PASS synthetic; DI listening pending
+24,B+B Clean / Grind,Dual / Crossover,Retain role after full-chain recall/headroom audit,-26.0181,-26.0181,-11.2582,-7.3611,-7.0,PASS synthetic; DI listening pending
+25,Low B Foundation,Matrix / Bass,Retain role after full-chain recall/headroom audit,-25.8689,-25.8689,-12.3039,-8.77786,-5.5,PASS synthetic; DI listening pending
+26,Pick Attack Matrix,Matrix / Bass,Retain role after full-chain recall/headroom audit,-27.8722,-27.8722,-10.2385,-8.28232,-7.5,PASS synthetic; DI listening pending
+27,Spectral Texture,Matrix / Experimental,Retain role after full-chain recall/headroom audit,-26.0349,-26.0349,-13.5918,-6.60423,0.5,PASS synthetic; DI listening pending
+28,Matchless Edge,Guitar / Edge & Rock,Retain role after full-chain recall/headroom audit,-25.9688,-25.9688,-12.1704,-9.87195,-2.5,PASS synthetic; DI listening pending
+29,Dumble Smooth Lead,Guitar / Lead & Texture,Revoice PRE/AMP and rebalance output,-26.074,-25.9407,-12.3475,-12.7562,-6.0,PASS synthetic; DI listening pending
+30,Modern Clean,Bass / Clean & Dynamics,Rename to Modern Clean; retain clean voicing,-26.9058,-26.9058,-10.0243,-8.45503,4.0,PASS synthetic; DI listening pending
+31,Crom Cruach,SIGNATURE / Deadwire,Retain role after full-chain recall/headroom audit,-26.3541,-26.3541,-10.5346,-9.61464,-1.5,PASS synthetic; DI listening pending
+32,Wild Hunt,SIGNATURE / Deadwire,Retain role after full-chain recall/headroom audit,-29.6702,-29.6702,-10.0916,-10.2299,-12.5,PASS synthetic; DI listening pending
+33,Azhi Dahaka,SIGNATURE / Deadwire,Retain role after full-chain recall/headroom audit,-26.1329,-26.1329,-11.3889,-8.24362,-2.0,PASS synthetic; DI listening pending
+34,A Path To Alsatia,Guitar Signature / lead,Revoice PRE/AMP and rebalance output,-26.1203,-26.1913,-13.1556,-13.1576,-4.5,PASS synthetic; DI listening pending
+35,Feel My Wrath,Guitar Signature / high gain,Revoice PRE/AMP and rebalance output,-25.3115,-25.7208,-12.1614,-11.9192,-5.5,PASS synthetic; DI listening pending
+36,Blackhearted,Guitar Signature / high gain,Revoice PRE/AMP and rebalance output,-25.7358,-26.0728,-12.9109,-10.9881,-6.5,PASS synthetic; DI listening pending
+37,Dark Matters of Throne,Guitar Signature / high gain,Revoice PRE/AMP and rebalance output,-26.2111,-25.8553,-13.7071,-11.8185,-2.0,PASS synthetic; DI listening pending

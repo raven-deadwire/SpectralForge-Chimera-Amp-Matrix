@@ -1,8 +1,8 @@
 # SpectralForge Chimera — factory and signature presets
 
-The 31 factory presets are starting points for an instrument DI. Three Deadwire Signature presets are appended as a separate `SIGNATURE / Deadwire` group; the original 31 factory ordinals remain unchanged. The menu uses a fixed taxonomy: Guitar (Clean & Ambient / Edge & Rock / High Gain / Lead & Texture), Bass (Clean & Dynamics / Drive & Texture), Dual (Blend / Crossover), and Matrix (Bass / Experimental). Names identify Chimera's own DSP voicings; the amplifier and effect reference names are design influences, not a claim of an exact circuit or captured model.
+The 31 factory presets are starting points for an instrument DI. Three bass signatures and four guitar signatures are appended; the original 31 factory ordinals remain unchanged. ID30 is displayed as Modern Clean. The menu uses a fixed taxonomy: Guitar (Clean & Ambient / Edge & Rock / High Gain / Lead & Texture), Bass (Clean & Dynamics / Drive & Texture), Dual (Blend / Crossover), and Matrix (Bass / Experimental). Names identify Chimera's own DSP voicings; the amplifier and effect reference names are design influences, not a claim of an exact circuit or captured model.
 
-Set interface gain first. Aim for normal playing peaks around **−12 to −6 dBFS** with Input at 0 dB; lower interface gain if the input clips. Factory output is usually −9 to −11 dB to leave mix headroom. Pickup output, playing and added gain can still change the final level. Match Output when comparing sounds; the presets are not a promise of identical loudness or a mastering limiter.
+Set interface gain first. Aim for normal playing peaks around **−12 to −6 dBFS** with Input at 0 dB; lower interface gain if the input clips. Each preset has its own final output trim, measured separately from its drive settings. Pickup output, playing and added gain can still change the final level. Match Output when comparing sounds; the presets are not a promise of identical loudness or a mastering limiter.
 
 ## Guitar presets
 
@@ -14,13 +14,13 @@ Set interface gain first. Aim for normal playing peaks around **−12 to −6 dB
 | Edge Chime | Edge & Rock | Chime 30, mild EP Lift | Jensen; touch-sensitive breakup |
 | Matchless Edge | Edge & Rock | Match Chime (Matchless DC-30 influence), light optical control, spring | Jensen; articulate boutique chime |
 | Classic Crunch | Edge & Rock | Brit Edge, Treble Lift, short spring | V30; classic rock rhythm |
-| Tight Rhythm | High gain | Tight 515, low-cut clean boost | V30; dry, controlled metal rhythm |
-| Orange Heavy | High gain | Orange Crown, full low mids | V30; heavy rock and slower riffs |
-| Melodic Death Rhythm | High gain | Tight 515, low-drive Green 808, focused upper mids | V30; fast low-tuned rhythm |
+| Tight Rhythm | High gain | Tight 515 RHYTHM 7.6 / POST 6.3, BRIGHT/CRUNCH, Optical, Green Drive 10/10/10 | V30; dense, controlled metal rhythm |
+| Orange Heavy | High gain | Orange Crown DIRTY 7.6, Studio FET, Treble Lift, Green Drive 10/10/5 | V30; dense heavy rhythm |
+| Melodic Death Rhythm | High gain | Tight 515 LEAD 8.6 / POST 4.0, Variable Mu, Treble Lift, Green Drive 3/6/5 | V30; saturated low-tuned rhythm |
 | Melodic Lead | Lead & Texture | Liquid Lead, dark delay, plate | V30; melodic solos |
 | Dumble Smooth Lead | Lead & Texture | Silk ODS (Dumble Overdrive Special influence), Gold Drive then boost, dark delay | V30; smooth, expressive lead |
-| Filter Lead | Lead & Texture | Brit Edge, pick-responsive filter, mild drive | V30; filter lead with a quarter-note delay at the current tempo |
-| Fuzz Texture | Lead & Texture | Big Sustain, Glass, chorus, plate | V30; sustaining fuzz layers |
+| Filter Lead | Lead & Texture | Brit Edge, pick-responsive filter, Treble Lift and stronger Green Drive | V30; saturated filter lead with tempo-following delay |
+| Fuzz Texture | Lead & Texture | Micro Lift before Big Sustain, Glass, chorus, plate | V30; sustaining fuzz layers |
 
 ## Bass presets
 
@@ -29,7 +29,7 @@ These presets select **Filters only**, with a 28–35 Hz low cut and an upper cu
 | Preset | Category | Main sound | Use |
 |---|---|---|---|
 | Finger Round | Clean & Dynamics | Bassman Valve, optical levelling | Warm fingerstyle foundation |
-| EICH Modern Clean | Clean & Dynamics | Taste Punch (EICH T900 influence), mild VCA | Broad, clear modern bass foundation |
+| Modern Clean | Clean & Dynamics | Taste Punch, mild VCA | Broad, clear modern bass foundation |
 | Pick Punch | Clean & Dynamics | Solid Punch, FET control, upper mids | Clear picked rock bass |
 | Slap Studio | Clean & Dynamics | Subway Clean, VCA control, mild low-mid scoop | Slap with controlled peaks |
 | Modern Grind | Drive & Texture | Modern Bass and Micro Bass | Aggressive upper harmonics with retained lows |
@@ -46,7 +46,7 @@ Dual means **one input signal feeding two amplifier rigs**. “Guitar + Bass” 
 | Preset | Pair | Routing | Starting point |
 |---|---|---|---|
 | G+G Clean / Crunch | Glass + Brit Edge | Blend, 35% Rig B | Clean definition with crunch underneath |
-| G+G Tight / Wide | Tight 515 + Wide Rect | Blend, 35% Rig B | Tight metal rhythm with a broader second rig |
+| G+G Tight / Wide | Tight 515 LEAD + Wide Rect CH3/SOLO | Blend, 35% Rig B | Shared Variable Mu, Treble Lift and Green Drive; dense dual rhythm |
 | G+B Low Anchor | Subway Clean + Tight 515 | Crossover, 220 Hz | Clean bass foundation and guitar-head upper grit |
 | G+B Air / Weight | Bassman Valve + Chime 30 | Crossover, 320 Hz | Warm weight below the split and brighter upper articulation |
 | B+B Warm / Definition | Bassman Valve + Subway Clean | Blend, 40% Rig B | Round bass body plus clean definition |
@@ -81,7 +81,7 @@ If a Signature IR target is missing, Chimera does not silently substitute an unr
 
 ## Recall behavior
 
-Loading a factory preset initializes all sound parameters, then applies its sound: amp and effect models, bypass states, tone controls, cabinet source, routing, crossover, gate, oversampling and output. A delay, fuzz, solo, polarity flip or transpose from the preceding sound cannot stay enabled accidentally. The gain section normally returns to **Fuzz → Boost → Drive**; **Dumble Smooth Lead** selects **Fuzz → Drive → Boost** to place its mild lift after Gold Drive. The detector section returns to **Envelope → Compressor**. A boost before a driven amplifier can still add saturation rather than a pure loudness increase.
+Loading a factory preset initializes all sound parameters, then applies its sound: amp and effect models, bypass states, tone controls, cabinet source, routing, crossover, gate, oversampling and output. A delay, fuzz, solo, polarity flip or transpose from the preceding sound cannot stay enabled accidentally. The gain section normally returns to **Fuzz → Boost → Drive**; **Dumble Smooth Lead** selects **Fuzz → Drive → Boost**, and **Fuzz Texture** puts its Micro Lift before the fuzz. The detector order follows the authored recipe. A boost before a driven amplifier adds saturation as well as level.
 
 Input gain/mode, tempo/host-follow, click, tuner settings and MIDI assignments are preserved. All factory presets turn the doubler and transpose off. **Filter Lead** uses the retained current tempo; other delays use their stored millisecond value. Imported IR assets remain available, but a factory preset never selects User IR. Save a user preset if you want to keep a custom IR, parameter changes and chosen routing.
 
@@ -95,10 +95,10 @@ For compatibility, the original five menu IDs remain Clean Sustain, Tight Rhythm
 
 The machine-readable targets and scoring rules live in `Validation/signature-benchmark-policy.json`. The evaluator `Tools/evaluate_signature_benchmark.py` reports PASS, REVISE or INVALID from same-DI render metrics. A high aggregate score cannot override a failed Signature hard gate. General CI completion states and release dependency rules are documented in `VALIDATION_STATUS.md`.
 
-## Raven Guitar Signature v1 — 1.1.1 candidate
+## Raven Guitar Signature v1
 
 A separate bank appends menu IDs 35–38 after Factory31/Bass3; all original IDs
-and definitions remain stable. These are authored starting points from the
+remain stable. The 1.2 development branch strengthens their PRE/AMP gain while retaining the
 agreed song roles. Isolated DI/listening and actual DAW acceptance are pending.
 
 | Song | Routing | PRE | Native amps | POST |

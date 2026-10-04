@@ -1,0 +1,102 @@
+#include "OriginalAmpDSP.h"
+#include <atomic>
+#include <cstdlib>
+#include <iostream>
+#include <limits>
+#include <new>
+#include <stdexcept>
+#include <vector>
+
+namespace { bool watch=false;std::size_t allocations=0; }
+void* operator new(std::size_t n) {if(watch)++allocations;if(auto* p=std::malloc(std::max(n,std::size_t{1})))return p;throw std::bad_alloc();}
+void* operator new[](std::size_t n){return ::operator new(n);}
+void operator delete(void* p) noexcept {std::free(p);}
+void operator delete[](void* p) noexcept {std::free(p);}
+void operator delete(void* p,std::size_t) noexcept {std::free(p);}
+void operator delete[](void* p,std::size_t) noexcept {std::free(p);}
+using namespace spectralforge::original;
+void require(bool ok,const char* message){if(!ok)throw std::runtime_error(message);}
+float stimulus(int n,double rate) {const double t=n/rate;return float(.04*std::exp(-std::fmod(t,.19)*9)*(std::sin(2*detail::pi*73.416*t)+.4*std::sin(2*detail::pi*220*t)+.2*std::sin(2*detail::pi*997*t)));}
+std::vector<float> render(State state,int count=24000) {
+    OriginalAmpDSP dsp;dsp.prepare(48000);dsp.set(state);dsp.reset();std::vector<float> out(std::size_t(count),0.f);
+    for(int n=0;n<count;++n)out[std::size_t(n)]=dsp.tick(stimulus(n,48000),0);
+    return out;
+}
+double rms(const std::vector<float>& x) {double e=0;for(auto v:x)e+=double(v)*v;return std::sqrt(e/x.size());}
+double matchedDifference(const std::vector<float>& a,const std::vector<float>& b) {
+    const double ar=rms(a),br=rms(b);double e=0;
+    for(std::size_t n=0;n<a.size();++n)e+=std::pow(a[n]/ar-b[n]/br,2);
+    return std::sqrt(e/a.size());
+}
+void defaults() {
+    OriginalAmpDSP dsp;constexpr int rate=192000;std::array<double,3> energy{};double thd=0;
+    for(int level=0;level<3;++level) {
+        dsp.prepare(rate);dsp.reset();std::array<double,13> re{},im{};
+        for(int n=0;n<rate;++n) {
+            const double phase=2*detail::pi*400*n/rate;
+            const float y=dsp.tick(float(std::pow(10.,(-48+level*12)/20.)*std::sin(phase)),0);
+            if(n>=rate/2 && n%4==0){energy[std::size_t(level)]+=double(y)*y;
+                if(level==1)for(int h=1;h<=12;++h){re[std::size_t(h)]+=y*std::cos(h*phase);im[std::size_t(h)]+=y*std::sin(h*phase);}}
+        }
+        if(level==1){double e=0;for(int h=2;h<=12;++h)e+=re[std::size_t(h)]*re[std::size_t(h)]+im[std::size_t(h)]*im[std::size_t(h)];thd=std::sqrt(e/(re[1]*re[1]+im[1]*im[1]));}
+    }
+    const double growth=10*std::log10(energy[2]/energy[0]);
+    std::cout<<"DEFAULT_GAIN weak_thd="<<thd<<" growth_db="<<growth<<'\n';
+    require(thd>.28 && growth>0 && growth<6,"Default must produce high gain on weak input independently of output volume");
+    State low,high;low[Control::gain]=.08f;high[Control::gain]=.72f;
+    require(matchedDifference(render(low),render(high))>.05,"Gain only changes volume");
+}
+void controlsAndPresets() {
+    std::array<std::vector<float>,5> derivatives;
+    for(std::size_t i=0;i<controlCount;++i) {
+        State lo,hi;lo.values[i]=controls[i].minimum;hi.values[i]=controls[i].maximum;
+        const auto a=render(lo),b=render(hi);
+        if(i==std::size_t(Control::master)||i==std::size_t(Control::gain)){require(rms(a)<1.e-10&&rms(b)>.005,"Closed gain/master does not mute");continue;}
+        const double difference=matchedDifference(a,b);
+        std::cout<<"CONTROL "<<controls[i].id<<" matched_residual="<<difference<<'\n';
+        require(difference>.002,"Control has no level-independent response");
+        if(i>=8){const double ar=rms(a),br=rms(b);auto& d=derivatives[i-8];d.resize(a.size());for(std::size_t n=0;n<a.size();++n)d[n]=float(b[n]/br-a[n]/ar);}
+    }
+    for(std::size_t a=0;a<5;++a)for(std::size_t b=a+1;b<5;++b) {
+        double dot=0,aa=0,bb=0;for(std::size_t n=0;n<derivatives[a].size();++n){const auto x=derivatives[a][n],y=derivatives[b][n];dot+=double(x)*y;aa+=double(x)*x;bb+=double(y)*y;}
+        const double cosine=dot/std::sqrt(aa*bb);
+        std::cout<<"MACRO_RESPONSE "<<controls[a+8].id<<'/'<<controls[b+8].id<<" cosine="<<cosine<<'\n';
+        require(std::abs(cosine)<.995,"Two macros collapse to the same normalized response");
+    }
+    for(std::size_t a=0;a<presets.size();++a)for(std::size_t b=a+1;b<presets.size();++b)
+        require(matchedDifference(render(presets[a].state),render(presets[b].state))>.005,"Original presets are only different labels/levels");
+}
+void realtimeAndState() {
+    float peak=0;
+    for(double rate:{44100.,48000.,96000.})for(int os:{1,2,4,8}) {
+        OriginalAmpDSP dsp;dsp.prepare(rate*os);State state;
+        watch=true;
+        for(int n=0;n<20000;++n) {
+            if(n%4000==0){state.values[std::size_t(n/4000)+8]=float((n/4000)%2);dsp.set(state);}
+            const float left=dsp.tick(stimulus(n,rate*os),0),right=dsp.tick(0,1);
+            if(!std::isfinite(left)||std::abs(left)>4||std::abs(right)>1.e-10f){watch=false;throw std::runtime_error("Nonfinite/unsafe output or stereo crosstalk");}
+            peak=std::max(peak,std::abs(left));
+        }
+        dsp.reset();watch=false;
+        for(int n=0;n<512;++n)require(dsp.tick(0,0)==0,"Reset carries stale audio");
+    }
+    require(allocations==0,"set/reset/tick allocated");
+    for(int corner=0;corner<3;++corner) {
+        State state;for(std::size_t i=0;i<controlCount;++i)state.values[i]=corner==0?controls[i].maximum:corner==1?controls[i].minimum:(i%2?controls[i].maximum:controls[i].minimum);
+        state[Control::gain]=1;state[Control::master]=1;
+        OriginalAmpDSP extreme;extreme.prepare(48000);extreme.set(state);extreme.reset();
+        float tail=0;
+        for(int n=0;n<144000;++n) {
+            const float y=extreme.tick(n<48000?8*stimulus(n,48000):0,0);
+            require(std::isfinite(y)&&std::abs(y)<4,"Extreme controls exceed headroom");
+            if(n>140000)tail=std::max(tail,std::abs(y));
+        }
+        require(tail<.001f,"Bias/blocking/bloom memory does not decay to silence");
+    }
+    State bad;bad.values.fill(std::numeric_limits<float>::quiet_NaN());OriginalAmpDSP dsp;dsp.prepare(48000);dsp.set(bad);dsp.reset();
+    require(dsp.state()==State{},"Nonfinite controls do not recover defaults");
+    require(std::isfinite(dsp.tick(std::numeric_limits<float>::infinity(),0)),"Nonfinite input poisons state");
+    const auto a=render(State{}),b=render(State{});require(a==b,"Fresh-instance render is nondeterministic");
+    std::cout<<"REALTIME 12 rate/factor routes peak="<<peak<<" allocations="<<allocations<<'\n';
+}
+int main(){try{defaults();controlsAndPresets();realtimeAndState();std::cout<<"PASS OriginalAmp development core; musical/reference acceptance remains pending\n";return 0;}catch(const std::exception& e){std::cerr<<"FAIL "<<e.what()<<'\n';return 1;}}

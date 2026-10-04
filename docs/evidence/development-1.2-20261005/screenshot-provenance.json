@@ -1,0 +1,67 @@
+{
+  "kind": "owner-supplied settings screenshots, not audio",
+  "received_kst": "2026-10-05",
+  "presets_identified_by": "owner; UI labels read CUSTOM",
+  "screenshots": [
+    {
+      "preset": "Melodic Death Rhythm",
+      "uploaded_name": "image(20261004-165107).png",
+      "sha256": "7bd57bad149f3da511870b2c982aae0ff3372e6c56ecd662077e40c1f488fb2f"
+    },
+    {
+      "preset": "Melodic Death Rhythm",
+      "uploaded_name": "image(20261004-165130).png",
+      "sha256": "3a98c7c9319e17769c85b3f95fddea03ead493ff52e01d0642f08049de93ce9f"
+    },
+    {
+      "preset": "Melodic Death Rhythm",
+      "uploaded_name": "image(20261004-165224).png",
+      "sha256": "4f6312409cd023dd023833e53ffa8ef1e93e332becfbd67a413f7d63d088273a"
+    },
+    {
+      "preset": "Orange Heavy",
+      "uploaded_name": "image(20261004-165745).png",
+      "sha256": "0c6770e95c12937f85b88418fd7c63e519c17fab5baa408e82adeaed3cedbada"
+    },
+    {
+      "preset": "Orange Heavy",
+      "uploaded_name": "image(20261004-165758).png",
+      "sha256": "931a6c449bd094c518480b048b5c8563f5f7c11b34057758817d65b417b2c14f"
+    },
+    {
+      "preset": "Orange Heavy",
+      "uploaded_name": "image(20261004-165811).png",
+      "sha256": "3b7e9928cba4707246d19e25e73ef5b32502d0be18a614efdcec74a365e443ed"
+    },
+    {
+      "preset": "Tight Rhythm",
+      "uploaded_name": "image(20261004-170408).png",
+      "sha256": "2d2a865339f209f48812dcfb927ad673a3745e02265f1d65a14098ff45d19396"
+    },
+    {
+      "preset": "Tight Rhythm",
+      "uploaded_name": "image(20261004-170432).png",
+      "sha256": "69c564271c267256905bdb425950fce5610b057c3e63b0fa639e53f7a0314a30"
+    },
+    {
+      "preset": "Tight Rhythm",
+      "uploaded_name": "image(20261004-170439).png",
+      "sha256": "826248302a4adbca182e611606ddf77bcc429f76f656c9d4d310446f068e4f95"
+    },
+    {
+      "preset": "G+G Tight / Wide",
+      "uploaded_name": "image(20261004-170719).png",
+      "sha256": "312e4c2c01b4abf0f9206b22fd81203da1c9b2209055abe8548bdab11fc0541a"
+    },
+    {
+      "preset": "G+G Tight / Wide",
+      "uploaded_name": "image(20261004-170733).png",
+      "sha256": "ed835e73db610a223c90cefa847581f36f5228654f49083258f7fb960ed6e170"
+    },
+    {
+      "preset": "G+G Tight / Wide",
+      "uploaded_name": "image(20261004-170746).png",
+      "sha256": "4db2f31074ede09c65b4cbc131c0f08bdb4c570866b9d6240504a00f3f16e0b3"
+    }
+  ]
+}

@@ -1,0 +1,24 @@
+DEFAULT_GAIN weak_thd=0.399883 growth_db=0.619744
+CONTROL bass matched_residual=0.700165
+CONTROL middle matched_residual=0.696266
+CONTROL treble matched_residual=0.373148
+CONTROL mid_frequency matched_residual=0.0667938
+CONTROL presence matched_residual=0.229015
+CONTROL depth matched_residual=0.180858
+CONTROL clank matched_residual=0.271368
+CONTROL crush matched_residual=0.753581
+CONTROL impact matched_residual=0.122813
+CONTROL rot matched_residual=0.12707
+CONTROL bloom matched_residual=0.0338032
+MACRO_RESPONSE clank/crush cosine=-0.293283
+MACRO_RESPONSE clank/impact cosine=-0.577769
+MACRO_RESPONSE clank/rot cosine=0.000537606
+MACRO_RESPONSE clank/bloom cosine=-0.117548
+MACRO_RESPONSE crush/impact cosine=0.438008
+MACRO_RESPONSE crush/rot cosine=-0.008764
+MACRO_RESPONSE crush/bloom cosine=-0.430284
+MACRO_RESPONSE impact/rot cosine=-0.0358429
+MACRO_RESPONSE impact/bloom cosine=-0.401167
+MACRO_RESPONSE rot/bloom cosine=0.0773017
+REALTIME 12 rate/factor routes peak=0.323443 allocations=0
+PASS OriginalAmp development core; musical/reference acceptance remains pending

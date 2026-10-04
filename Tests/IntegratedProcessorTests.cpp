@@ -88,6 +88,13 @@ void factoryBank(bool measureOnly) {
         for(auto* raw:a->getParameters())if(auto* p=dynamic_cast<juce::RangedAudioParameter*>(raw))
             previous[p->paramID]=p->convertTo0to1(a->parameters().getRawParameterValue(p->paramID)->load());
         a->loadFactoryPreset(index);b->loadFactoryPreset(index);
+        // Diagnostic mode can render the current header-defined voicing while
+        // iterating with a cached DSP library. The normal regression always
+        // exercises the actual production loadFactoryPreset entry point.
+        if(measureOnly)for(auto* processor:{a.get(),b.get()})
+            processor->parameters().replaceState(isGuitarSignature(index)
+                ?guitarSignatureSnapshot(processor->parameters(),index-factoryPresetCount)
+                :factoryNativeSnapshot(processor->parameters(),index));
         std::set<juce::String> inactive;
         if(index<factoryPresetCount)for(int owner=0;owner<pedalBoardCapacity;++owner) {
             const int selected=a->pedalBoardState().instances[size_t(owner)].model;
@@ -184,8 +191,13 @@ void gainAndGR() {
     }
 }
 }
+#include "PresetGainTests.h"
 int main(int argc,char** argv) {
     juce::ScopedJuceInitialiser_GUI init;
-    try {const bool measureOnly=argc>2&&juce::String(argv[2])=="--measure-presets";factoryBank(measureOnly);if(!measureOnly){signatures(juce::File(argc>1?argv[1]:"/tmp/chimera-signatures"));gainAndGR();}}
+    try {
+        if(argc>1&&juce::String(argv[1])=="--measure-gain"){presetGainTests::run(true);return 0;}
+        const bool measureOnly=argc>2&&juce::String(argv[2])=="--measure-presets";factoryBank(measureOnly);
+        if(!measureOnly){signatures(juce::File(argc>1?argv[1]:"/tmp/chimera-signatures"));gainAndGR();presetGainTests::run(false);}
+    }
     catch(const std::exception& error){std::cerr<<"FAIL "<<error.what()<<'\n';return 1;}
 }
