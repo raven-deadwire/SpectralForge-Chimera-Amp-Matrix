@@ -201,6 +201,11 @@ inline void run(const juce::File& outputDirectory) {
         p.setPedalModel(0,38);sendCC(p,119,0);
         require(p.getLatencySamples()==originalTotal,"Mono octave inherited the poly frame delay");
         set(p,pedalControlID(0,38,1),.613f);
+        const auto userStateBeforeFactory=save(p);
+        auto* inactiveParameter=p.parameters().getParameter(pedalControlID(0,38,1));
+        require(inactiveParameter!=nullptr,"Mono octave bank parameter absent");
+        const float factoryInactiveDefault=inactiveParameter->convertFrom0to1(inactiveParameter->getDefaultValue());
+        require(std::abs(factoryInactiveDefault-.613f)>1.e-3f,"Dirty factory fixture must differ from the native default");
         p.loadFactoryPreset(0);
         require(p.pedalBoardState().enabled,"Factory native PRE recall did not activate the visible universal board");
         constexpr int familyFirst[]{6,11,16,21,1};
@@ -212,10 +217,12 @@ inline void run(const juce::File& outputDirectory) {
             require(instance.model==familyFirst[owner]+int(raw(p,familyModel[owner])),"Factory sound did not populate the visible pedal selection");
             require(instance.bypass==(raw(p,enabled[owner])<.5f),"Factory sound did not populate the visible pedal ON/OFF state");
         }
-        require(std::abs(raw(p,pedalControlID(0,38,1))-.613f)<1.e-5f,"Factory sound erased an inactive user's pedal bank");
+        require(std::abs(raw(p,pedalControlID(0,38,1))-factoryInactiveDefault)<1.e-5f,"Factory recall inherited a dirty inactive pedal bank");
         p.setPedalModel(0,38);
-        require(p.pedalBoardState().enabled && std::abs(p.pedalBoardState().instances[0].controls[1]-.613f)<1.e-5f,"Direct selection did not activate and recall the saved pedal bank");
-        mark("Poly host latency/bypass/delete, zero-frame mono, factory-visible pedal state and silent bank recall");
+        require(p.pedalBoardState().enabled && std::abs(p.pedalBoardState().instances[0].controls[1]-factoryInactiveDefault)<1.e-5f,"Direct selection did not recall the factory-initialized pedal bank");
+        load(p,userStateBeforeFactory);
+        require(p.pedalBoardState().instances[0].model==38 && std::abs(p.pedalBoardState().instances[0].controls[1]-.613f)<1.e-5f,"Factory recall prevented restoration of the saved user pedal bank");
+        mark("Poly host latency/bypass/delete, zero-frame mono, clean factory banks and saved user-state restoration");
     }
     auto* report=new juce::DynamicObject();report->setProperty("status","PASS");
     report->setProperty("scope","Native Processor/APVTS state and identity assertions; no external DAW or hardware-fidelity claim");
