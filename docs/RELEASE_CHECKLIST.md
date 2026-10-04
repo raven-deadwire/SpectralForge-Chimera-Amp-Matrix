@@ -1,48 +1,103 @@
-# 1.1.1 preparation
+# Open Beta 1.1.1 release checklist
 
-Use [RELEASE_1_1_1_PREPARATION.md](RELEASE_1_1_1_PREPARATION.md) and policy v4 profile `beta_1_1_1`. Transpose improvement goals are deferred by the user; other release gates remain required.
+Target: **SpectralForge Chimera 1.1.1-beta.1**.  
+Policy: `Validation/release-policy.json` v4, profile `beta_1_1_1`.
 
-The previous publication instructions below describe the already published 1.1.0 beta and must not be used to publish 1.1.1.
+This checklist is fail-closed. A missing artifact, unavailable DAW, missing DI, or stale commit is **BLOCKED**, not PASS. The only deferred 1.1.1 items are `I2.PITCH_LIVE` and `I2.PITCH_DI`; they remain tracked by `transpose_followup`.
 
-# Open Beta 1.1 release handoff
+## 1. Freeze one exact source
 
-Target: **SpectralForge Chimera**, `1.1.0-beta.1`, tag `v1.1.0-beta.1`.
-The preparation workflows create downloadable build artifacts only. They do not create tags, draft releases or public releases.
+- [ ] Choose one final source SHA after all 1.1.1 fixes, documentation and publisher changes are integrated.
+- [ ] Confirm `VERSION=1.1.1`, `RELEASE_CHANNEL=beta.1`, package version `1.1.1-beta.1`.
+- [ ] Do not reuse a green workflow from an older SHA.
+- [ ] Keep released parameter IDs/ranges/defaults, plugin identity and installer AppId stable.
 
-## Candidate preparation
+## 2. Automated integration gates
 
-1. Review the source diff and brand assets. Confirm plugin unique IDs, state types and installer AppId are unchanged.
-2. Push the reviewed revision to the open development PR, or run **Open Beta 1.1 · Prepare release candidate** on the exact intended revision. Both routes build all three platforms and assemble one candidate without publishing.
-3. Require green Windows, macOS and Linux jobs and the aggregate manifest job. Do not reuse binaries from a different commit or an earlier run.
-4. Inspect Windows UI galleries at minimum/default size. Confirm all text and control targets, amp references, short IR titles, and rack aspect ratio.
-5. Check DSP, installer, MSIX-review and Defender reports. MSIX is not a downloadable public installer. Do not treat a missing report as a pass.
-6. Read third-party notices and factory IR provenance. Confirm no personal capture data appears in installer payloads.
-7. Download the aggregate candidate artifact. Recompute `SHA256SUMS.txt` and compare each manifest asset's filename, size, hash, repository, tag and architecture.
-8. Perform actual instrument listening and DAW smoke tests listed in the release notes. Record hardware, OS, host version and pass/fail; resolve remaining release blockers.
+- [ ] Windows full configured CTest inventory PASS.
+- [ ] macOS universal full configured CTest inventory PASS.
+- [ ] Linux full configured CTest inventory PASS.
+- [ ] Universal PRE factory recall matches the visible native board contract.
+- [ ] M104 / Distortion+ and JB-2 dedicated binary, inactive-bank, A/B and project-recall regressions PASS.
+- [ ] Gate Range, full Guitar state/gain/GR, pitch synthetic regression and Windows live-instance removal PASS.
+- [ ] Paired callback diagnostic protocol tests PASS. Diagnostic PASS does not by itself satisfy real callback acceptance.
 
-## Concrete publication package
+## 3. Product-quality audio acceptance
 
-- `SpectralForge-Chimera-1.1.0-beta.1-win64-Setup.exe`
-- `SpectralForge-Chimera-1.1.0-beta.1-macos-universal.pkg`
-- `SpectralForge-Chimera-1.1.0-beta.1-linux-x86_64.deb`
-- Optional Windows portable ZIP and Linux TAR.GZ, with their runtime/install documentation
-- `SHA256SUMS.txt`, per-file SHA256 sidecars, `update-beta.json`
-- `OPEN_BETA_RELEASE_NOTES.md`, `INSTALLATION.md`, `MANUAL.html`, `THIRD_PARTY_NOTICES.md`
-- Matching verification reports, with remaining limitations stated
+Use fixed, hashed guitar and bass DI. Record raw measurements separately from listening notes.
 
-Keep an unsigned status label unless publisher signing is actually completed and verified. Mac ad-hoc signatures are not notarization. If binaries are signed later, regenerate every affected hash and `update-beta.json` from the final bytes and rerun relevant verification.
+- [ ] Level-match baseline/candidate before tonal judgement.
+- [ ] Check clean, crunch, lead/high-gain and bass models for pick attack, palm-mute recovery, low-end tightness, chord separation, gain compression and volume-rolloff response.
+- [ ] Check the four Guitar signatures and Deadwire Bass signatures in their intended musical roles.
+- [ ] Check Gate pre/post with isolated guitar and bass DI: hiss attenuation, fast palm mute, sustain, volume rolloff, chatter/pumping and attack loss.
+- [ ] Complete E670FE reference acceptance: T.D. EQ ownership/response, calibration boundary and same-DI comparison.
+- [ ] Compare representative tones against a current commercial reference such as Neural DSP under the same DI/IR/loudness conditions. The goal is release-quality feel and mix usability, not superficial EQ matching.
 
-## Publish only after release authorization
+Transpose low-latency/real-DI quality is not a 1.1.1 release blocker, but the known ~43–46 ms STFT latency and low-B / -2 semitone smearing limitation must remain disclosed.
 
-Create a prerelease for the exact commit and tag, upload the reviewed assets, and include release notes and unsigned/notarization status. Do not mark beta as the stable/latest release inadvertently. Once assets are public, check the updater from the preceding beta/build: discovery, download, cancellation, checksum rejection, and install handoff after session save. The update manifest URLs intentionally point at the future official tag; no server claim is made until publication succeeds.
+## 4. Commercial host acceptance
 
-For a rollback, unpublish/replace the incorrect release only through a deliberate maintainer action. Do not silently reuse the same version with different bytes; issue a new beta version and regenerate manifests.
+At minimum use the exact final Windows VST3 in Studio One 8. Cubase and Sonar evidence should be retained when available because Issue #3 was reported there.
+
+- [ ] Scan/load plugin.
+- [ ] Open and close the editor repeatedly.
+- [ ] Remove a UI-opened instance while another instance remains alive.
+- [ ] Save, close and reopen the project.
+- [ ] Write/read automation for existing parameters and Gate Range.
+- [ ] A/B and user/factory preset recall.
+- [ ] Close project after editor use.
+- [ ] Exit the DAW after editor use.
+- [ ] 30-minute soak with editing, preset changes, playback and repeated UI open/close.
+- [ ] No freeze, deadlock, crash, stuck process or silent state corruption.
+
+## 5. Callback / performance acceptance
+
+- [ ] Run the paired A/B -> B/A callback probe with the closed-editor control.
+- [ ] Retain raw per-pair reports, source/binary SHA-256, p99 and deadline-miss deltas.
+- [ ] Separate runner scheduling noise from candidate-specific movement.
+- [ ] Confirm acceptable behavior on a controlled audio workstation; synthetic/shared-runner diagnosis alone does not satisfy `I2.UI_AUDIO_TIMING`.
+
+## 6. Exact-source packages
+
+After all code/test fixes are on the final SHA:
+
+- [ ] Windows Setup build PASS.
+- [ ] Windows install / repair / uninstall PASS.
+- [ ] Windows Defender scan PASS.
+- [ ] Unsigned MSIX review verification PASS where applicable.
+- [ ] macOS universal PKG verification PASS.
+- [ ] Linux DEB and TAR.GZ verification PASS.
+- [ ] Aggregate `SpectralForge-Chimera-Open-Beta-1.1.1-Release-Candidate` exists for the same SHA.
+- [ ] `SHA256SUMS.txt`, sidecars, `update-beta.json`, payload manifests and `candidate-source.json` all agree on bytes, version, tag, run ID and revision.
+- [ ] No private NAM / personal IR payload leaked into public packages.
+
+Expected public binaries:
+
+- `SpectralForge-Chimera-1.1.1-beta.1-win64-Setup.exe`
+- `SpectralForge-Chimera-1.1.1-beta.1-win64.zip`
+- `SpectralForge-Chimera-1.1.1-beta.1-macos-universal.pkg`
+- `SpectralForge-Chimera-1.1.1-beta.1-linux-x86_64.deb`
+- `SpectralForge-Chimera-1.1.1-beta.1-linux-x86_64.tar.gz`
+
+## 7. Publication lock
+
+1. Fast-forward/create `release/open-beta-1.1.1` only to the accepted final SHA.
+2. Run **Build and publish Open Beta 1.1.1** manually on that branch.
+3. Supply the exact 40-character accepted SHA.
+4. Enter `publish-v1.1.1-beta.1` only after the retained manual and automated gates above are accepted.
+5. The workflow rebuilds all three platforms on that exact SHA before publication.
+6. The publisher refuses mismatched candidate revision/run ID/version/hash, an existing divergent tag/release, missing assets, or private capture content.
+7. Never move or replace an existing public tag/assets with different bytes. Issue a new beta version instead.
+
+## 8. Post-public verification
+
+- [ ] Release is a prerelease, not latest/stable.
+- [ ] Public tag resolves to the accepted source SHA.
+- [ ] Five binary package hashes match the reviewed candidate.
+- [ ] Public download URLs in `update-beta.json` resolve to the published assets.
+- [ ] Previous beta updater discovers the new beta, rejects checksum mismatch, supports cancellation, and hands off installation only after session save.
+- [ ] Release notes clearly retain unsigned/notarization status and the known Transpose and commercial-DAW validation boundaries.
 
 ## Builder maintenance
 
-The macOS universal job pins `macos-15`; the macOS 14 hosted image enters scheduled brownouts in October 2026 and retires on 2026-11-02 ([official runner notice](https://github.com/actions/runner-images/issues/13518)). The Linux binary builder intentionally remains Ubuntu 22.04 for its glibc baseline; migrate it to a newer hosted runner with a pinned Ubuntu 22.04 build container before that hosted image retires on 2027-04-17 ([official runner notice](https://github.com/actions/runner-images/issues/14254)). The artifact-only aggregation job uses Ubuntu 24.04 and does not influence binary compatibility.
-
-## Authorized Beta 1.1 publication
-
-Push the reviewed versioned source to `release/open-beta-1.1`. `publish-beta11.yml` runs the existing three-platform build, packaging and validation gates, then verifies the exact run/commit/artifact SHA-256 and publishes `v1.1.0-beta.1` as a prerelease. Existing tags and assets are never replaced. Personal IR/NAM bundles remain excluded. The prior Beta 1.0 publisher remains pinned to its original release and is not reused as a build target.
-
+The binary matrix currently uses macOS 15, Ubuntu 22.04 and Windows latest. Keep the Linux compatibility baseline intentional when GitHub-hosted images change. macOS ad-hoc code seals are not Developer ID signing/notarization, and unsigned Windows packages must not be presented as publisher-signed.
