@@ -75,9 +75,9 @@ import hashlib
 assert hashlib.sha256((ROOT / "Assets/IRs/guitar_v30_sm57.wav").read_bytes()).hexdigest() in guitar
 print("PASS: four append-only full-state Guitar Signatures and exact embedded V30 SHA-256")
 
-original = read("Source/OriginalAmpDefinition.h")
-original_names = re.findall(r'\{"original\.nastrond\.[^"]+","([^"]+)"', original)
-assert original_names == ["Fenrir", "Surtr", "Níðhöggr", "Fimbulvetr", "Ragnarök"], original_names
+original = read("Source/OriginalPresets.h")
+original_names = re.findall(r'\{"original\.rig\.nastrond\.[^"]+","([^"]+)"', original)
+assert original_names == ["Thall Rhythm", "Molten Lead", "Rotten Grind", "Sludge Mass", "Slam Impact"], original_names
 assert len(original_names) == CONTRACT["original_preset_count"]
 assert preset_total + len(names) + len(original_names) == CONTRACT["selectable_preset_count"]
-print("PASS: five Original presets; 43 selectable presets with previous indices preserved")
+print("PASS: five rebuilt Original full rigs; 43 selectable presets with previous indices preserved")

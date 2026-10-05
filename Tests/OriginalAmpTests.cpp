@@ -182,6 +182,31 @@ void channelVoicing() {
         require(tail<.001f,"Channel maximum does not release to silence");
     }
     for(int a=0;a<channelCount;++a)for(int b=a+1;b<channelCount;++b)
-        require(matchedDifference(audio[std::size_t(a)],audio[std::size_t(b)])>.02,"Same knobs on two channels differ only by output level");
+        require(matchedDifference(audio[std::size_t(a)],audio[std::size_t(b)])>.25,"Same-knob channels collapse to a weak variant after level matching");
 }
-int main(){try{defaults();controlsAndPresets();macroVoicing();realtimeAndState();movingPowerVoicing();channelVoicing();std::cout<<"PASS OriginalAmp development core; musical/reference acceptance remains pending\n";return 0;}catch(const std::exception& e){std::cerr<<"FAIL "<<e.what()<<'\n';return 1;}}
+void drivenChannelSeparation() {
+    // The old 2% residual check admitted channels the owner could barely
+    // distinguish. Check level-matched low chords even after a strong common
+    // drive stage, at two input levels; never substitute output gain for voice.
+    constexpr int rate=192000,count=rate/2;
+    for(float level:{.012f,.12f}) {
+        std::array<std::vector<float>,channelCount> audio;
+        for(int channel=0;channel<channelCount;++channel) {
+            OriginalAmpDSP dsp;dsp.prepare(rate);dsp.set(channelState(channel));dsp.reset();
+            auto& out=audio[size_t(channel)];out.reserve(count/4);
+            for(int n=0;n<count;++n) {
+                const double t=double(n)/rate,local=std::fmod(t,.25),envelope=local<.16?std::exp(-18*local):0;
+                const double chord=std::sin(2*detail::pi*61.735*t)+.5*std::sin(2*detail::pi*92.499*t)+.35*std::sin(2*detail::pi*155.56*t);
+                const float y=dsp.tick(float(.2*std::tanh(20*level*envelope*chord)),0);
+                require(std::isfinite(y),"Driven channel output is nonfinite");
+                if(n%4==0)out.push_back(y);
+            }
+        }
+        double minimum=10;
+        for(int a=0;a<channelCount;++a)for(int b=a+1;b<channelCount;++b)
+            minimum=std::min(minimum,matchedDifference(audio[size_t(a)],audio[size_t(b)]));
+        std::cout<<"DRIVEN_CHANNEL_SEPARATION input="<<level<<" minimum_matched_residual="<<minimum<<'\n';
+        require(minimum>.25,"Strong common PRE drive erased the channel distinction");
+    }
+}
+int main(){try{defaults();controlsAndPresets();macroVoicing();realtimeAndState();movingPowerVoicing();channelVoicing();drivenChannelSeparation();std::cout<<"PASS OriginalAmp development core; musical/reference acceptance remains pending\n";return 0;}catch(const std::exception& e){std::cerr<<"FAIL "<<e.what()<<'\n';return 1;}}

@@ -203,13 +203,23 @@ void originalProduction() {
         const auto x=render(*a),y=render(*b);double energy=0;float delta=0;
         for(size_t n=0;n<x.size();++n){delta=std::max(delta,std::abs(x[n]-y[n]));energy+=x[n]*x[n];}
         require(delta<1e-6f&&energy>1e-5,"Original preset project roundtrip changed audio");
-        a->copyComparison();a->selectComparison(1);set(*a,ampNativeControlID(0,firstOriginalAmpModel,0,preset),.1f);a->selectComparison(0);
-        require(std::abs(a->parameters().getRawParameterValue(ampNativeControlID(0,firstOriginalAmpModel,0,preset))->load()-original::channelState(preset)[original::Control::gain])<.001f,"Original A/B lost the authored gain");
+        const int mode=int(a->parameters().getRawParameterValue("mode")->load());
+        const auto gainId=ampNativeControlID(ampNativeContext(mode,0),firstOriginalAmpModel,0,a->selectedAmpChannel(0));
+        const float authoredGain=a->parameters().getRawParameterValue(gainId)->load();
+        a->copyComparison();a->selectComparison(1);set(*a,gainId,.1f);a->selectComparison(0);
+        require(std::abs(a->parameters().getRawParameterValue(gainId)->load()-authoredGain)<.001f,"Original A/B lost the authored gain");
+        const auto board=a->pedalBoardState();
+        require(board.enabled && board.instances[0].model!=0 && !board.instances[0].bypass,"Original rig is missing its authored PRE chain");
+        require(a->parameters().getRawParameterValue(postNativeBypassID(2,preset==1?1:preset==3?2:0))->load()<.5f,"Original rig is missing its native POST EQ");
+        require(juce::String(selectablePresetName(originalPresetStart+preset))!=juce::String::fromUTF8(original::channelNames[preset]),"Old channel-named factory example remains selectable");
+        if(preset==2)require(mode==1 && a->selectedAmpChannel(0)==2 && a->selectedAmpChannel(1)==4 && a->parameters().getRawParameterValue("dualtype")->load()==1,"Grind rig lost its Nidhoggr/Ragnarok crossover Dual routing");
+        if(preset==4)require(mode==2 && a->selectedAmpChannel(0)==0 && a->selectedAmpChannel(1)==3 && a->selectedAmpChannel(2)==4 && board.lowTap==1,"Slam rig lost split PRE or its LOW/MID/HIGH channel roles");
     }
     // A pre-1.2 project must get declared defaults, never the last edited bank.
     auto old=b->parameters().copyState();
     for(int i=old.getNumChildren()-1;i>=0;--i){const auto id=old.getChild(i).getProperty("id").toString();if(id.startsWith("originalAmp_")||(id.startsWith("nativeAmp_") && id.contains("_m24_")))old.removeChild(i,nullptr);}
-    old.getChildWithProperty("id",ampNativeModelID(0)).setProperty("value",2,nullptr);
+    // New rigs can end in Matrix: make every context a valid pre-Original selection.
+    for(int c=0;c<ampNativeContextCount;++c)old.getChildWithProperty("id",ampNativeModelID(c)).setProperty("value",2,nullptr);
     juce::AudioProcessor::copyXmlToBinary(*old.createXml(),bytes);b->setStateInformation(bytes.getData(),int(bytes.getSize()));
     require(b->selectedAmpModel(0)==2,"Old project selection changed during Original migration");
     for(int c=0;c<ampNativeContextCount;++c)require(std::abs(b->parameters().getRawParameterValue(ampNativeControlID(c,firstOriginalAmpModel,0))->load()-.5f)<.001f && b->parameters().getRawParameterValue(originalResponseID(c,0))->load()>.5f,"Pre-Original project inherited a stale Original voice");

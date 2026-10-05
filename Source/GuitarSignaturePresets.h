@@ -18,12 +18,12 @@ inline constexpr std::array<GuitarSignature,4> guitarSignatures{{
 inline constexpr int selectablePresetCount=factoryPresetCount+int(guitarSignatures.size())+originalPresetCount;
 inline bool isGuitarSignature(int index) { return index>=factoryPresetCount && index<originalPresetStart; }
 inline const char* selectablePresetName(int index) {
-    if(isOriginalPreset(index))return original::presets[size_t(index-originalPresetStart)].name;
+    if(isOriginalPreset(index))return originalRigPresets[size_t(index-originalPresetStart)].name;
     if(isGuitarSignature(index))return guitarSignatures[size_t(index-factoryPresetCount)].name;
     return index>=0&&index<factoryPresetCount?factoryPresets[size_t(index)].name:"";
 }
 inline const char* selectablePresetDescription(int index) {
-    if(isOriginalPreset(index))return original::presets[size_t(index-originalPresetStart)].role;
+    if(isOriginalPreset(index))return originalRigPresets[size_t(index-originalPresetStart)].role;
     if(isGuitarSignature(index))return guitarSignatures[size_t(index-factoryPresetCount)].description;
     return index>=0 && index<factoryPresetCount ? factoryPresets[size_t(index)].description : "";
 }

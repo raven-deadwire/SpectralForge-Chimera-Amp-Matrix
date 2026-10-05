@@ -47,6 +47,7 @@ public:
         const bool split=mode==2 || (mode==1 && processor.parameters().getRawParameterValue("dualtype")->load()>.5f);
         const int nextContext=spectralforge::ampNativeContext(mode,lane),nextModel=processor.selectedAmpModel(lane);
         const auto& panel=spectralforge::ampNativePanel(nextModel);
+        channel.setTooltip(nextModel==spectralforge::firstOriginalAmpModel ? "Each channel remembers its own knobs. First selection uses defaults; switching back restores your edits. RESET CHANNEL is explicit." : "Select the amplifier channel.");
         resetChannel.setVisible(detailed && nextModel==spectralforge::firstOriginalAmpModel);
         if(nextContext!=context || nextModel!=model || split!=currentSplit || (nextModel==spectralforge::firstOriginalAmpModel && currentChannel!=processor.selectedAmpChannel(lane))) {
             context=nextContext;model=nextModel;currentSplit=split;lowOverview=!detailed && mode==2 && lane==0;currentChannel=-1;controls.clear();

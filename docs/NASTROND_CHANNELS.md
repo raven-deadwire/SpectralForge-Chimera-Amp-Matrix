@@ -1,5 +1,7 @@
 # Náströnd five-channel high-gain revision
 
+Historical first revision. The later channel-separation and rebuilt-rig update is documented in [NASTROND_CHANNEL_FEEDBACK.md](NASTROND_CHANNEL_FEEDBACK.md).
+
 2026-10-05. Built on `be4df6d8ebe7f28d7e140bc8254963e6dd42f1a7` in draft PR #20.
 
 The owner supplied a strong Dual preset and clarified that this should be an
