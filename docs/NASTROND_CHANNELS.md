@@ -122,6 +122,17 @@ all five Original channels at 100%/75%, reset and actual callbacks.
 Nominal Original factory peaks are −10.986 to −11.662 dBFS; the +6 dB input
 probe remains below −11.095 dBFS. These are synthetic gain-staging checks.
 
+## CI contract correction
+
+The first CI revision (`540ff7c8a4`) passed 18 of 19 Linux CTests. The gate
+processor test still expected a total of 3,981 parameters, before the new
+342 channel parameters. Its expected total is now 4,323. The frozen 3,686-entry
+host contract, gate ordinal 3,890, AU version hint and automation checks remain
+strict. This correction changes the regression expectation only; the measured
+DSP, channel mappings, UI and artwork remain unchanged. The rebuilt local gate
+processor test passes, including the released host contract, state/automation,
+all three routing modes, high-gain hiss reduction and POST tails.
+
 ## Head artwork
 
 The original ornate Norse head design is retained: serpents, wing/root relief,
