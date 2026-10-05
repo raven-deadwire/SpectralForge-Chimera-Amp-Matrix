@@ -11,6 +11,13 @@ that player's A2 import and playback path does not expose additional model
 conditioning controls. One file per channel does not remove the user's
 parametric-model requirement. That requirement remains unsupported here.
 
+**Accuracy gate blocker:** the finite-memory audit of the delivered v0.2
+captures proves that the existing worst-window ESR <=0.02 gate cannot be met
+by any bare A2 weights on several retained tail windows. This is a conflict
+between the initial gate and the target architecture, not evidence that more
+epochs will eventually pass. The threshold and release status remain unchanged.
+See [the audit and the available design choices](ACCURACY-BLOCKER.md).
+
 ## Frozen sources
 
 | Component | Revision |
