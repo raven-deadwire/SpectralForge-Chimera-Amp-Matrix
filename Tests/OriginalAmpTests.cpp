@@ -66,6 +66,42 @@ void controlsAndPresets() {
     for(std::size_t a=0;a<presets.size();++a)for(std::size_t b=a+1;b<presets.size();++b)
         require(matchedDifference(render(presets[a].state),render(presets[b].state))>.005,"Original presets are only different labels/levels");
 }
+void macroVoicing() {
+    // Check audible properties independently of raw output level. The two
+    // inputs differ by 20 dB; neither relies on one envelope-detector threshold.
+    constexpr int rate=192000,window=rate/2;
+    struct Features {double fundamental{},evenOdd{},tail{};};
+    for(auto macro:{Control::impact,Control::rot,Control::bloom})for(double input:{.004,.04}) {
+        std::array<Features,2> measured{};
+        for(int knob=0;knob<2;++knob) {
+            State state;state[macro]=float(knob);OriginalAmpDSP dsp;dsp.prepare(rate);dsp.set(state);dsp.reset();
+            std::array<double,13> re{},im{};double energy=0,tail=0;
+            for(int n=0;n<rate*3/2;++n) {
+                const double phase=2*detail::pi*(macro==Control::rot?400:80)*n/rate;
+                double x=input*std::sin(phase);
+                if(macro!=Control::rot)x+=input*.4*std::sin(2*detail::pi*2000*n/rate);
+                const double y=dsp.tick(n<rate?float(x):0,0);
+                if(n>=window&&n<rate){energy+=y*y;
+                    for(int h=1;h<=12;++h){re[std::size_t(h)]+=y*std::cos(h*phase);im[std::size_t(h)]+=y*std::sin(h*phase);}}
+                if(n>=rate+rate/20&&n<rate+3*rate/20)tail+=y*y;
+            }
+            double odd=0,even=0;
+            for(int h=2;h<=12;++h)(h%2?odd:even)+=re[std::size_t(h)]*re[std::size_t(h)]+im[std::size_t(h)]*im[std::size_t(h)];
+            measured[std::size_t(knob)]={std::sqrt((re[1]*re[1]+im[1]*im[1])/(energy*window)),
+                                       std::sqrt(even/odd),std::sqrt(5*tail/energy)};
+        }
+        const auto& lo=measured[0];const auto& hi=measured[1];
+        std::cout<<"VOICING "<<controls[std::size_t(macro)].id<<" input="<<input
+                 <<" fundamental_ratio="<<hi.fundamental/lo.fundamental
+                 <<" even_odd_ratio="<<hi.evenOdd/lo.evenOdd<<" tail="<<hi.tail<<'\n';
+        if(macro==Control::impact)require(hi.fundamental>lo.fundamental*1.2,"IMPACT lost LF weight after saturation");
+        if(macro==Control::rot)require(hi.evenOdd>lo.evenOdd*2,"ROT lost asymmetric harmonic response");
+        if(macro==Control::bloom){
+            require(hi.fundamental>lo.fundamental*1.4,"BLOOM lost broad LF response");
+            require(hi.tail>lo.tail*2&&hi.tail<.006,"BLOOM lost decay or leaves a dominant ringing tail");
+        }
+    }
+}
 void realtimeAndState() {
     float peak=0;
     for(double rate:{44100.,48000.,96000.})for(int os:{1,2,4,8}) {
@@ -99,4 +135,4 @@ void realtimeAndState() {
     const auto a=render(State{}),b=render(State{});require(a==b,"Fresh-instance render is nondeterministic");
     std::cout<<"REALTIME 12 rate/factor routes peak="<<peak<<" allocations="<<allocations<<'\n';
 }
-int main(){try{defaults();controlsAndPresets();realtimeAndState();std::cout<<"PASS OriginalAmp development core; musical/reference acceptance remains pending\n";return 0;}catch(const std::exception& e){std::cerr<<"FAIL "<<e.what()<<'\n';return 1;}}
+int main(){try{defaults();controlsAndPresets();macroVoicing();realtimeAndState();std::cout<<"PASS OriginalAmp development core; musical/reference acceptance remains pending\n";return 0;}catch(const std::exception& e){std::cerr<<"FAIL "<<e.what()<<'\n';return 1;}}

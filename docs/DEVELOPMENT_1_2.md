@@ -87,12 +87,19 @@ saturation but unresolved harmonic and spectral differences. They do not certify
 five-head hardware matching or final musical acceptance. Evil Pumpkin and
 Uberschall Rev Blue are not substituted for the requested anchors.
 
+The subsequent [reference-informed voicing revision](NASTROND_VOICING.md) retains
+default GAIN 7.2, strengthens IMPACT/ROT/BLOOM behavior, and fits a bounded broad
+contour on plucks from four eligible head-reference families. Independent
+synthetic chords show 35–43% smaller average spectrum differences. The final
+26-NAM / 17-state comparison is complete; local core/integration/renderer tests pass.
+This remains a development checkpoint, not instrument-DI or listening acceptance.
+
 ## Remaining work, reconciled against current code
 
 | Priority | Item | Actual status / next action |
 |---|---|---|
 | 1.2 | Náströnd integration | Finish catalog, processor routing, production panel, state/undo/A-B and five Original preset wiring; then host and listening acceptance |
-| 1.2 | Gain acceptance | 26 NAM / 17 Original states compared; default gain already saturates strongly but reference-character differences remain. Instrument-DI comparisons and listening acceptance are pending |
+| 1.2 | Gain acceptance | Reference-informed DSP voicing applied; default gain retained and 26 NAM / 17 states remeasured. Synthetic held-out spectrum differences reduced; instrument-DI comparisons and listening acceptance remain pending |
 | 1.2 | Original reference coverage | Meshuggah head-only NAM and Granophyre physical provenance still needed; retain missing input calibration for four families |
 | Validation | Exact reference coverage | EICH T900 exact NAM remains missing; retain the recorded limitation |
 | Validation | Existing AMP references | 1.1.2 reviewed 174 distinct NAM files across 22 families. Preserve provenance; ZUTA whole-head/amp+cab metadata conflict is not erased |

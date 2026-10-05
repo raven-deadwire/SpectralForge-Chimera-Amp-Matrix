@@ -13,10 +13,20 @@ struct RC {
 };
 struct Coeff {
     double b0{1},b1{},b2{},a1{},a2{};
-    static Coeff peak(double rate,double hz,double amount) noexcept {
+    static Coeff peak(double rate,double hz,double amount,double q=.7) noexcept {
         const double w=2*pi*std::clamp(hz,10.,rate*.44)/rate, a=std::pow(10.,amount/40.);
-        const double alpha=std::sin(w)/1.4, c=std::cos(w), d=1+alpha/a;
+        const double alpha=std::sin(w)/(2*q), c=std::cos(w), d=1+alpha/a;
         return {(1+alpha*a)/d,-2*c/d,(1-alpha*a)/d,-2*c/d,(1-alpha/a)/d};
+    }
+    static Coeff shelf(double rate,double hz,double amount,bool high) noexcept {
+        const double w=2*pi*std::clamp(hz,10.,rate*.44)/rate,a=std::pow(10.,amount/40.);
+        const double c=std::cos(w),b=std::sqrt(a)*std::sin(w)/.707;
+        if(high){const double d=(a+1)-(a-1)*c+b;
+            return {a*((a+1)+(a-1)*c+b)/d,-2*a*((a-1)+(a+1)*c)/d,
+                    a*((a+1)+(a-1)*c-b)/d,2*((a-1)-(a+1)*c)/d,((a+1)-(a-1)*c-b)/d};}
+        const double d=(a+1)+(a-1)*c+b;
+        return {a*((a+1)-(a-1)*c+b)/d,2*a*((a-1)-(a+1)*c)/d,
+                a*((a+1)-(a-1)*c-b)/d,-2*((a-1)+(a+1)*c)/d,((a+1)+(a-1)*c-b)/d};
     }
 };
 struct Filter {
@@ -32,7 +42,10 @@ struct GainCell {
         const double demand=std::max(0.,v-.65);
         blockingMemory+=(demand>blockingMemory?charge:recover)*(demand-blockingMemory);
         biasMemory+=biasPole*(v/(1+std::abs(v))-biasMemory);
-        const double point=d.bias+rot*(.25*biasMemory-.08*blockingMemory);
+        // Alternate the static operating point between gain cells. ROT changes
+        // even harmonics as well as recovery, with bounded blocking bias.
+        const double polarity=d.bias<0 ? -1. : 1.;
+        const double point=d.bias+rot*(polarity*.20+.20*biasMemory-.16*std::tanh(.5*blockingMemory));
         const double y=std::tanh(v+point)-std::tanh(point);
         return bandwidth.low(coupling.high(y,hp),lp);
     }
@@ -51,8 +64,9 @@ class OriginalAmpDSP {
     };
     struct Channel {
         std::array<detail::GainCell,4> cells;
-        detail::RC input,tightener,bass,treble,feedbackLow,presence,output,dc,sagLow;
+        detail::RC input,tightener,bass,treble,feedbackLow,impactLow,impactSub,presence,output,dc,sagLow;
         detail::Filter middle;
+        std::array<detail::Filter,3> voicing;
         State current;
         Config config;
         double fast{},slow{},sag{},feedback{},bloom1{},bloom2{};
@@ -61,6 +75,7 @@ class OriginalAmpDSP {
     Definition definition=nastrond;
     State target;
     std::array<Channel,2> channels{};
+    std::array<detail::Coeff,3> voicing{};
     double rate=48000,inputPole{},outputPole{},bassPole{},treblePole{},presencePole{},dcPole{};
     double fastPole{},slowPole{},sagAttack{},sagRelease{},chargePole{},biasPole{},depthPole{};
     int smoothing=960;
@@ -72,14 +87,17 @@ class OriginalAmpDSP {
         c.treble=std::pow(10.,(s[C::treble]-.5)*18/20)-1;
         c.middle=detail::Coeff::peak(rate,s[C::midFrequency],(s[C::middle]-.5)*20);
         c.presence=(s[C::presence]-.5)*1.4;c.depth=s[C::depth];
-        c.master=double(s[C::master])*s[C::master]*1.5;
+        // Preserve the pre-voicing default pluck RMS; this trim is after drive.
+        c.master=double(s[C::master])*s[C::master]*1.5*.886;
         c.clank=s[C::clank];c.crush=s[C::crush];c.impact=s[C::impact];c.rot=s[C::rot];c.bloom=s[C::bloom];
         c.tightenPole=detail::pole(rate,75+200*c.clank);
         c.rotRecovery=detail::timePole(rate,.012+.16*c.rot);
-        c.bloomRadius=std::exp(-1/(rate*(.012+.19*c.bloom)));
-        c.bloomCos=2*c.bloomRadius*std::cos(2*detail::pi*160/rate);
-        c.bloomFeed=2*(1-c.bloomRadius)*std::sin(2*detail::pi*160/rate);
-        for(std::size_t i=0;i<4;++i){c.hp[i]=detail::pole(rate,definition.stages[i].couplingHz);c.lp[i]=detail::pole(rate,definition.stages[i].bandwidthHz);}
+        const double bloomHz=95+40*c.bloom;
+        c.bloomRadius=std::exp(-1/(rate*(.004+.04*c.bloom)));
+        c.bloomCos=2*c.bloomRadius*std::cos(2*detail::pi*bloomHz/rate);
+        c.bloomFeed=2*(1-c.bloomRadius)*std::sin(2*detail::pi*bloomHz/rate);
+        const double coupling=.8+.4*c.clank-.45*c.bloom;
+        for(std::size_t i=0;i<4;++i){c.hp[i]=detail::pole(rate,definition.stages[i].couplingHz*coupling);c.lp[i]=detail::pole(rate,definition.stages[i].bandwidthHz);}
         return c;
     }
 public:
@@ -92,6 +110,11 @@ public:
         fastPole=detail::timePole(rate,.001);slowPole=detail::timePole(rate,.035);
         sagAttack=detail::timePole(rate,.010);sagRelease=detail::timePole(rate,.120);
         chargePole=detail::timePole(rate,.002);biasPole=detail::timePole(rate,.045);
+        // Bounded broad contour fitted to equally weighted head-reference
+        // families; Meshuggah amp+cab is excluded. See NASTROND_VOICING.md.
+        voicing={detail::Coeff::shelf(rate,100,1.95,false),
+                 detail::Coeff::peak(rate,500,-2.11,.65),
+                 detail::Coeff::shelf(rate,2000,6.,true)};
         reset();
     }
     void set(State s) noexcept {
@@ -125,21 +148,30 @@ public:
         // IMPACT changes post-distortion LF drive and feedback damping, not
         // input gain. CRUSH controls the serial cells before the tone stack.
         const double low=c.feedbackLow.low(x,depthPole);
-        const double attack=std::clamp((c.fast-c.slow)*18.,0.,1.);
-        x+=low*p.depth*(.15+p.impact*(.75+.6*attack));
+        const double attack=std::clamp((c.fast-c.slow)/std::max(c.slow,.0001),0.,1.);
+        x+=low*p.depth*(.15+.6*p.impact);
         const double demand=std::abs(x);
         c.sag+=(demand>c.sag?sagAttack:sagRelease)*(demand-c.sag);
         const double supply=1/(1+(.04+.22*p.bloom)*c.sag);
         x=std::tanh((x-c.feedback*(.14-.09*p.impact))*supply*(1+.8*p.crush));
         c.feedback=x;
+        // Keep the resonant feedback response audible after power saturation.
+        // Subsonic content is excluded; attack gain is bounded and level-relative.
+        const double body=c.impactLow.low(x,depthPole);
+        x+=p.depth*p.impact*(.8+.4*attack)*(body-c.impactSub.low(body,inputPole));
         x+=p.presence*c.presence.high(x,presencePole);
         // Stable damped LF resonator: BLOOM controls decay independently of
         // IMPACT's initial LF drive. At zero input it releases to silence.
         const double bloomInput=c.sagLow.low(x,bassPole);
         const double resonant=p.bloomFeed*bloomInput+p.bloomCos*c.bloom1-p.bloomRadius*p.bloomRadius*c.bloom2;
         c.bloom2=c.bloom1;c.bloom1=resonant;
-        x+=.7*p.bloom*resonant;
-        return float(c.dc.high(c.output.low(x,outputPole),dcPole)*p.master);
+        x+=.25*p.bloom*resonant;
+        for(std::size_t i=0;i<voicing.size();++i)x=c.voicing[i].tick(x,voicing[i]);
+        const double output=c.dc.high(c.output.low(x,outputPole),dcPole)*p.master;
+        // The contour can overshoot at maximum EQ/depth/master. Leave normal
+        // preset levels untouched and bend extreme peaks into a bounded rail.
+        const double magnitude=std::abs(output);
+        return float(magnitude<=1.5 ? output : std::copysign(1.5+2*std::tanh((magnitude-1.5)/2),output));
     }
 };
 } // namespace spectralforge::original

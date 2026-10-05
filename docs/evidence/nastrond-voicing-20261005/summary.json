@@ -1,0 +1,128 @@
+{
+  "baseline_commit": "87683f753a18de96102bc9676fa5800a7e83aa81",
+  "baseline_comparison_sha256": "ea68bef09bdfd5d369741feb9c7e7d4ce5054d5b4a70e41230c7218f816bc945",
+  "final_comparison_sha256": "48eaec3e78e2977929dbfccdbdf936476624bd60f201ee794022ddeb9799f9bc",
+  "fit_manifest": "fit.json",
+  "families": {
+    "vh4": {
+      "before": {
+        "model_ids": [
+          569473,
+          569474,
+          569477
+        ],
+        "mean_db": 6.864977490697374,
+        "min_db": 6.666317082147496,
+        "max_db": 7.259418256981184
+      },
+      "after": {
+        "model_ids": [
+          569473,
+          569474,
+          569477
+        ],
+        "mean_db": 4.173954455613411,
+        "min_db": 4.023875031055323,
+        "max_db": 4.345748290840559
+      },
+      "reduction_percent": 39.19929874104506
+    },
+    "twinjet": {
+      "before": {
+        "model_ids": [
+          652436,
+          652437
+        ],
+        "mean_db": 6.862714875456382,
+        "min_db": 6.716932419447854,
+        "max_db": 7.008497331464908
+      },
+      "after": {
+        "model_ids": [
+          652436,
+          652437
+        ],
+        "mean_db": 3.9246687325543492,
+        "min_db": 3.8544454468132505,
+        "max_db": 3.9948920182954484
+      },
+      "reduction_percent": 42.81171804775945
+    },
+    "granophyre": {
+      "before": {
+        "model_ids": [
+          403977,
+          421075,
+          421074
+        ],
+        "mean_db": 8.436142569615678,
+        "min_db": 8.053963959724953,
+        "max_db": 8.906047093675221
+      },
+      "after": {
+        "model_ids": [
+          403977,
+          421075,
+          421074
+        ],
+        "mean_db": 4.786609748550505,
+        "min_db": 4.48469287423422,
+        "max_db": 5.153042257572059
+      },
+      "reduction_percent": 43.26068212988289
+    },
+    "matamp": {
+      "before": {
+        "model_ids": [
+          614727,
+          561845,
+          543854
+        ],
+        "mean_db": 5.198802251680308,
+        "min_db": 4.669493865133006,
+        "max_db": 6.185023320302427
+      },
+      "after": {
+        "model_ids": [
+          614727,
+          561845,
+          543854
+        ],
+        "mean_db": 3.3699945113567833,
+        "min_db": 3.2004222797582225,
+        "max_db": 3.7024028030147185
+      },
+      "reduction_percent": 35.177482269736934
+    }
+  },
+  "default_levels": {
+    "before": {
+      "pluck": {
+        "rms_dbfs": -14.157018638937483,
+        "peak_dbfs": -9.478365555114538,
+        "first_note_sustain_attack_db": -0.6697567660515741
+      },
+      "chord": {
+        "rms_dbfs": -13.55150041282191,
+        "peak_dbfs": -9.626864457537161,
+        "first_note_sustain_attack_db": -0.38453677878825115
+      }
+    },
+    "after": {
+      "pluck": {
+        "rms_dbfs": -14.15717371577766,
+        "peak_dbfs": -7.002558480947116,
+        "first_note_sustain_attack_db": -1.262233228613085
+      },
+      "chord": {
+        "rms_dbfs": -14.058044785482494,
+        "peak_dbfs": -5.572878408489497,
+        "first_note_sustain_attack_db": -0.46719473526973815
+      }
+    }
+  },
+  "original_peak_dbfs_max": -4.6947038647827215,
+  "current_default_gain": 0.72,
+  "baseline_reproduction_max_response_rms_difference_db": 0.0,
+  "qualification": "Synthetic held-out chord spectrum; not hardware equivalence or owner listening acceptance. Meshuggah amp+cab excluded from contour; Granophyre physical provenance unverified."
+}

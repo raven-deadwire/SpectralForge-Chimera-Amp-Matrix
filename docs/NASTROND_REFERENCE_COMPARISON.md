@@ -72,6 +72,9 @@ These are distances between different authored tones, not a required cloning sco
 
 This checkpoint records the measured baseline for subsequent voicing work. The source under test is the isolated development module; production integration and release acceptance are still pending.
 
+Follow-up: [reference-informed voicing and remeasurement](NASTROND_VOICING.md)
+records the subsequent DSP revision. The tables above remain the original baseline.
+
 ## Reproduction and evidence
 
 Build `ChimeraOriginalAmpRender` with the project’s JUCE/CMake setup. Download inputs into a private directory outside the repository, then run:

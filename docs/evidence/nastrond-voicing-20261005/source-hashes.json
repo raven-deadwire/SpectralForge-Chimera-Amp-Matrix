@@ -1,0 +1,28 @@
+{
+  "baseline_commit": "87683f753a18de96102bc9676fa5800a7e83aa81",
+  "nam_core_commit": "0b3d3c97b0859a3a8c92a8628c4dd89a25eb5842",
+  "sources": {
+    "Source/OriginalAmpDSP.h": "65ed3930a88f6e430fb26ff33ac006fa4d6d878c78b8d859e6016e2e0c88f926",
+    "Source/OriginalAmpDefinition.h": "776b43a8871c5f9155bb687615ba0539f04f3a489f02db1287335c2e57b3d4e6",
+    "Source/OriginalAmpProcessor.h": "f1b725e9dc67dbcba9ed57890a91f1694f2cbfc0a4745e644eaf7c70ed1ee7e1",
+    "Tests/OriginalAmpTests.cpp": "80f878f3527c268140ab06956ce2c28ddecffa76d1c1b980b583ae368e8c741f",
+    "Tests/OriginalAmpIntegrationTests.cpp": "1cb2da45d4c9465380a28be45a78f20a7713361e5aaaaf1bf9fb0da9b9e2a5d8",
+    "Tests/RenderOriginalAmp.cpp": "464f7d34c7bcee3a91c8e0ca3b5370815ec99e50e13bc6188435e6d3ef82a942",
+    "Tests/test_original_renderer.py": "0c8f798419b14d94be3272c8a51708e75618230e1f0685708bb90ecc2416d19e",
+    "Tools/compare_original_nam.py": "84a233bf2167b015de950b469a0888a8ea45993e40f62b9df966d13698a04488",
+    "Tools/fit_original_voicing.py": "4a7cd888fd3759d3d199528d812ebc413fe55b1b9ca3d71d72ae47b5e8e18324",
+    "Tools/validate_nam.py": "82ff42d4c41041f35ba7e4e2fd81c5e29652861042f0643fc52f1286fa2fad88",
+    "docs/reference/nastrond-nam-manifest.json": "e59704cafb912ba685770f761dd99f7943cc4766120a1dcaa422abaa0500d833"
+  },
+  "evidence": {
+    "comparison.json": "48eaec3e78e2977929dbfccdbdf936476624bd60f201ee794022ddeb9799f9bc",
+    "comparison.log": "f0d2a8a1b3d4d62e7e259074e76670606246cedf5fb2ed0fcd569307a6f89527",
+    "ctest.log": "8e67661a250e3d3b3cbe3448408e469607ad2f749065f822032ec542b57bf993",
+    "fit.json": "755bf5d5034aa2847912f913605f68c07fc4c84daaa6046b1abe66139bdb3c5b",
+    "gain-summary.csv": "3d8a752097b9b8bd22eaf581126a5fdf11bef87d815e79dd238e2669f2bffe5a",
+    "structural.patch": "441a3b29215e2b1c95b13c70da2993b663f03a2f10f4a2b7935e6386ac4a2437",
+    "summary.json": "68f163902240d2de5c6cf97aed91fe9c91107dd86eb9217e5e0fd2a00d2a3fc0"
+  },
+  "original_renderer_sha256": "84761765adaf72d16283a0fb8461e837a6a4486deec6e8dcd7a006771d8898f6",
+  "nam_renderer_sha256": "907e31cd4d5d97ea4d4f424fec5dafe909ded03ab94a74d7a3f9202e1774d6b7"
+}
