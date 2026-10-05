@@ -29,7 +29,7 @@ jobs:
       EXACT_SOURCE: ${{ github.event.pull_request.head.sha || github.sha }}
       PROFILE: ${{ inputs.profile || 'smoke' }}
       FULL_STEPS: ${{ inputs.steps || 5000 }}
-      EVIDENCE: ${{ runner.temp }}/nam-evidence
+      EVIDENCE: ${{ github.workspace }}/build-nam-evidence
       OMP_NUM_THREADS: '2'
       MKL_NUM_THREADS: '2'
       PYTHONDONTWRITEBYTECODE: '1'
