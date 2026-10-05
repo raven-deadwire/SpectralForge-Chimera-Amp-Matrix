@@ -1,0 +1,898 @@
+{
+  "schema": 1,
+  "reference_count": 26,
+  "original_states": 17,
+  "protocol": "Unchanged digital input and NAM outputs; RMS-matched Welch 65-8000 Hz; each target capture must improve by >=0.1 dB from macro 0 to 1 on both synthetic pluck and chord. No hardware-match threshold.",
+  "default_rms_drift_from_incoming_db": {
+    "pluck": 0.0,
+    "chord": 0.0
+  },
+  "groups": {
+    "crush": {
+      "family": "vh4",
+      "model_ids": [
+        569473,
+        569474,
+        569477
+      ],
+      "measurements": {
+        "baseline": {
+          "pluck": {
+            "mean_scores_db": {
+              "default": 13.01072105072886,
+              "crush_0": 19.073713502295945,
+              "crush_1": 10.800580485402916
+            },
+            "per_reference": [
+              {
+                "model_id": 569473,
+                "scores_db": {
+                  "default": 12.645633826244241,
+                  "crush_0": 18.73691749120083,
+                  "crush_1": 10.339132846527821
+                },
+                "endpoint_improvement_db": 8.39778464467301
+              },
+              {
+                "model_id": 569474,
+                "scores_db": {
+                  "default": 11.804267293156359,
+                  "crush_0": 17.55924570800957,
+                  "crush_1": 9.66965394715691
+                },
+                "endpoint_improvement_db": 7.88959176085266
+              },
+              {
+                "model_id": 569477,
+                "scores_db": {
+                  "default": 14.582262032785977,
+                  "crush_0": 20.924977307677437,
+                  "crush_1": 12.392954662524017
+                },
+                "endpoint_improvement_db": 8.53202264515342
+              }
+            ]
+          },
+          "chord": {
+            "mean_scores_db": {
+              "default": 6.864977490697374,
+              "crush_0": 14.997269310794424,
+              "crush_1": 5.353593677634808
+            },
+            "per_reference": [
+              {
+                "model_id": 569473,
+                "scores_db": {
+                  "default": 7.259418256981184,
+                  "crush_0": 15.556614610460604,
+                  "crush_1": 5.646046006655741
+                },
+                "endpoint_improvement_db": 9.910568603804863
+              },
+              {
+                "model_id": 569474,
+                "scores_db": {
+                  "default": 6.666317082147496,
+                  "crush_0": 14.541803311517347,
+                  "crush_1": 5.317579699072923
+                },
+                "endpoint_improvement_db": 9.224223612444423
+              },
+              {
+                "model_id": 569477,
+                "scores_db": {
+                  "default": 6.6691971329634425,
+                  "crush_0": 14.893390010405321,
+                  "crush_1": 5.097155327175758
+                },
+                "endpoint_improvement_db": 9.796234683229564
+              }
+            ]
+          }
+        },
+        "incoming": {
+          "pluck": {
+            "mean_scores_db": {
+              "default": 10.183860271427047,
+              "crush_0": 15.253088726103035,
+              "crush_1": 7.941576291754478
+            },
+            "per_reference": [
+              {
+                "model_id": 569473,
+                "scores_db": {
+                  "default": 9.773333304298271,
+                  "crush_0": 14.971843102584012,
+                  "crush_1": 7.371777779877026
+                },
+                "endpoint_improvement_db": 7.600065322706986
+              },
+              {
+                "model_id": 569474,
+                "scores_db": {
+                  "default": 9.112331798715884,
+                  "crush_0": 13.771221127923512,
+                  "crush_1": 7.06069652719457
+                },
+                "endpoint_improvement_db": 6.7105246007289425
+              },
+              {
+                "model_id": 569477,
+                "scores_db": {
+                  "default": 11.665915711266987,
+                  "crush_0": 17.016201947801584,
+                  "crush_1": 9.392254568191838
+                },
+                "endpoint_improvement_db": 7.623947379609746
+              }
+            ]
+          },
+          "chord": {
+            "mean_scores_db": {
+              "default": 4.173954455613411,
+              "crush_0": 10.448541871142579,
+              "crush_1": 3.7352945389382675
+            },
+            "per_reference": [
+              {
+                "model_id": 569473,
+                "scores_db": {
+                  "default": 4.152240044944351,
+                  "crush_0": 10.940867374124805,
+                  "crush_1": 3.3638607845390216
+                },
+                "endpoint_improvement_db": 7.577006589585784
+              },
+              {
+                "model_id": 569474,
+                "scores_db": {
+                  "default": 4.345748290840559,
+                  "crush_0": 10.101980179386672,
+                  "crush_1": 4.051510263954917
+                },
+                "endpoint_improvement_db": 6.050469915431755
+              },
+              {
+                "model_id": 569477,
+                "scores_db": {
+                  "default": 4.023875031055323,
+                  "crush_0": 10.302778059916262,
+                  "crush_1": 3.7905125683208634
+                },
+                "endpoint_improvement_db": 6.512265491595398
+              }
+            ]
+          }
+        },
+        "candidate": {
+          "pluck": {
+            "mean_scores_db": {
+              "default": 10.183860271427047,
+              "crush_0": 15.253088726103035,
+              "crush_1": 7.941576291754478
+            },
+            "per_reference": [
+              {
+                "model_id": 569473,
+                "scores_db": {
+                  "default": 9.773333304298271,
+                  "crush_0": 14.971843102584012,
+                  "crush_1": 7.371777779877026
+                },
+                "endpoint_improvement_db": 7.600065322706986
+              },
+              {
+                "model_id": 569474,
+                "scores_db": {
+                  "default": 9.112331798715884,
+                  "crush_0": 13.771221127923512,
+                  "crush_1": 7.06069652719457
+                },
+                "endpoint_improvement_db": 6.7105246007289425
+              },
+              {
+                "model_id": 569477,
+                "scores_db": {
+                  "default": 11.665915711266987,
+                  "crush_0": 17.016201947801584,
+                  "crush_1": 9.392254568191838
+                },
+                "endpoint_improvement_db": 7.623947379609746
+              }
+            ]
+          },
+          "chord": {
+            "mean_scores_db": {
+              "default": 4.173954455613411,
+              "crush_0": 10.448541871142579,
+              "crush_1": 3.7352945389382675
+            },
+            "per_reference": [
+              {
+                "model_id": 569473,
+                "scores_db": {
+                  "default": 4.152240044944351,
+                  "crush_0": 10.940867374124805,
+                  "crush_1": 3.3638607845390216
+                },
+                "endpoint_improvement_db": 7.577006589585784
+              },
+              {
+                "model_id": 569474,
+                "scores_db": {
+                  "default": 4.345748290840559,
+                  "crush_0": 10.101980179386672,
+                  "crush_1": 4.051510263954917
+                },
+                "endpoint_improvement_db": 6.050469915431755
+              },
+              {
+                "model_id": 569477,
+                "scores_db": {
+                  "default": 4.023875031055323,
+                  "crush_0": 10.302778059916262,
+                  "crush_1": 3.7905125683208634
+                },
+                "endpoint_improvement_db": 6.512265491595398
+              }
+            ]
+          }
+        }
+      }
+    },
+    "impact": {
+      "family": "twinjet",
+      "model_ids": [
+        652436,
+        652437
+      ],
+      "measurements": {
+        "baseline": {
+          "pluck": {
+            "mean_scores_db": {
+              "default": 10.619657554123282,
+              "impact_0": 10.729911418255709,
+              "impact_1": 10.562820294913642
+            },
+            "per_reference": [
+              {
+                "model_id": 652436,
+                "scores_db": {
+                  "default": 10.967084860529273,
+                  "impact_0": 11.077987632155955,
+                  "impact_1": 10.910214997049371
+                },
+                "endpoint_improvement_db": 0.16777263510658358
+              },
+              {
+                "model_id": 652437,
+                "scores_db": {
+                  "default": 10.272230247717292,
+                  "impact_0": 10.381835204355463,
+                  "impact_1": 10.215425592777914
+                },
+                "endpoint_improvement_db": 0.1664096115775493
+              }
+            ]
+          },
+          "chord": {
+            "mean_scores_db": {
+              "default": 6.862714875456382,
+              "impact_0": 6.8951326223557405,
+              "impact_1": 6.84521379881785
+            },
+            "per_reference": [
+              {
+                "model_id": 652436,
+                "scores_db": {
+                  "default": 7.008497331464908,
+                  "impact_0": 7.040708253882758,
+                  "impact_1": 6.99132479999563
+                },
+                "endpoint_improvement_db": 0.049383453887127615
+              },
+              {
+                "model_id": 652437,
+                "scores_db": {
+                  "default": 6.716932419447854,
+                  "impact_0": 6.749556990828723,
+                  "impact_1": 6.699102797640071
+                },
+                "endpoint_improvement_db": 0.05045419318865196
+              }
+            ]
+          }
+        },
+        "incoming": {
+          "pluck": {
+            "mean_scores_db": {
+              "default": 7.967986826251275,
+              "impact_0": 7.4873262565912855,
+              "impact_1": 8.240098739419885
+            },
+            "per_reference": [
+              {
+                "model_id": 652436,
+                "scores_db": {
+                  "default": 8.212459094696097,
+                  "impact_0": 7.687775918041046,
+                  "impact_1": 8.503531712600472
+                },
+                "endpoint_improvement_db": -0.8157557945594256
+              },
+              {
+                "model_id": 652437,
+                "scores_db": {
+                  "default": 7.723514557806454,
+                  "impact_0": 7.286876595141525,
+                  "impact_1": 7.9766657662392975
+                },
+                "endpoint_improvement_db": -0.6897891710977726
+              }
+            ]
+          },
+          "chord": {
+            "mean_scores_db": {
+              "default": 3.9246687325543492,
+              "impact_0": 3.7917685489748783,
+              "impact_1": 4.041736192463972
+            },
+            "per_reference": [
+              {
+                "model_id": 652436,
+                "scores_db": {
+                  "default": 3.9948920182954484,
+                  "impact_0": 3.8376951536974926,
+                  "impact_1": 4.124176457494421
+                },
+                "endpoint_improvement_db": -0.2864813037969287
+              },
+              {
+                "model_id": 652437,
+                "scores_db": {
+                  "default": 3.8544454468132505,
+                  "impact_0": 3.7458419442522635,
+                  "impact_1": 3.9592959274335224
+                },
+                "endpoint_improvement_db": -0.21345398318125897
+              }
+            ]
+          }
+        },
+        "candidate": {
+          "pluck": {
+            "mean_scores_db": {
+              "default": 7.967986826251275,
+              "impact_0": 9.11784709756055,
+              "impact_1": 7.574771749947979
+            },
+            "per_reference": [
+              {
+                "model_id": 652436,
+                "scores_db": {
+                  "default": 8.212459094696097,
+                  "impact_0": 9.41584481331637,
+                  "impact_1": 7.797113471998661
+                },
+                "endpoint_improvement_db": 1.6187313413177096
+              },
+              {
+                "model_id": 652437,
+                "scores_db": {
+                  "default": 7.723514557806454,
+                  "impact_0": 8.819849381804726,
+                  "impact_1": 7.352430027897299
+                },
+                "endpoint_improvement_db": 1.4674193539074274
+              }
+            ]
+          },
+          "chord": {
+            "mean_scores_db": {
+              "default": 3.9246687325543492,
+              "impact_0": 4.926939605791542,
+              "impact_1": 3.659948428280713
+            },
+            "per_reference": [
+              {
+                "model_id": 652436,
+                "scores_db": {
+                  "default": 3.9948920182954484,
+                  "impact_0": 5.040492790330638,
+                  "impact_1": 3.7049148666211758
+                },
+                "endpoint_improvement_db": 1.335577923709462
+              },
+              {
+                "model_id": 652437,
+                "scores_db": {
+                  "default": 3.8544454468132505,
+                  "impact_0": 4.813386421252446,
+                  "impact_1": 3.61498198994025
+                },
+                "endpoint_improvement_db": 1.1984044313121958
+              }
+            ]
+          }
+        }
+      }
+    },
+    "rot": {
+      "family": "granophyre",
+      "model_ids": [
+        403977,
+        421075,
+        421074
+      ],
+      "measurements": {
+        "baseline": {
+          "pluck": {
+            "mean_scores_db": {
+              "default": 13.362470142331683,
+              "rot_0": 13.675180350582158,
+              "rot_1": 12.579178813750534
+            },
+            "per_reference": [
+              {
+                "model_id": 403977,
+                "scores_db": {
+                  "default": 14.243315690990274,
+                  "rot_0": 14.577472653043557,
+                  "rot_1": 13.481138812892926
+                },
+                "endpoint_improvement_db": 1.0963338401506313
+              },
+              {
+                "model_id": 421075,
+                "scores_db": {
+                  "default": 12.630935451238742,
+                  "rot_0": 12.924585305729005,
+                  "rot_1": 11.837531493490733
+                },
+                "endpoint_improvement_db": 1.0870538122382722
+              },
+              {
+                "model_id": 421074,
+                "scores_db": {
+                  "default": 13.213159284766034,
+                  "rot_0": 13.523483092973914,
+                  "rot_1": 12.418866134867946
+                },
+                "endpoint_improvement_db": 1.104616958105968
+              }
+            ]
+          },
+          "chord": {
+            "mean_scores_db": {
+              "default": 8.436142569615678,
+              "rot_0": 8.503864579214545,
+              "rot_1": 8.175853576329997
+            },
+            "per_reference": [
+              {
+                "model_id": 403977,
+                "scores_db": {
+                  "default": 8.906047093675221,
+                  "rot_0": 8.977351416048172,
+                  "rot_1": 8.640425501833928
+                },
+                "endpoint_improvement_db": 0.33692591421424467
+              },
+              {
+                "model_id": 421075,
+                "scores_db": {
+                  "default": 8.053963959724953,
+                  "rot_0": 8.120296182192446,
+                  "rot_1": 7.793928076893162
+                },
+                "endpoint_improvement_db": 0.3263681052992835
+              },
+              {
+                "model_id": 421074,
+                "scores_db": {
+                  "default": 8.348416655446858,
+                  "rot_0": 8.413946139403015,
+                  "rot_1": 8.093207150262902
+                },
+                "endpoint_improvement_db": 0.32073898914011245
+              }
+            ]
+          }
+        },
+        "incoming": {
+          "pluck": {
+            "mean_scores_db": {
+              "default": 10.258664557665515,
+              "rot_0": 10.220015517590761,
+              "rot_1": 10.403169905722512
+            },
+            "per_reference": [
+              {
+                "model_id": 403977,
+                "scores_db": {
+                  "default": 11.025738998361678,
+                  "rot_0": 10.98126957690606,
+                  "rot_1": 11.1795425622017
+                },
+                "endpoint_improvement_db": -0.19827298529563997
+              },
+              {
+                "model_id": 421075,
+                "scores_db": {
+                  "default": 9.614707027100827,
+                  "rot_0": 9.576870620405119,
+                  "rot_1": 9.75759239458244
+                },
+                "endpoint_improvement_db": -0.1807217741773215
+              },
+              {
+                "model_id": 421074,
+                "scores_db": {
+                  "default": 10.135547647534038,
+                  "rot_0": 10.101906355461107,
+                  "rot_1": 10.272374760383395
+                },
+                "endpoint_improvement_db": -0.17046840492228732
+              }
+            ]
+          },
+          "chord": {
+            "mean_scores_db": {
+              "default": 4.7866097485505055,
+              "rot_0": 4.832557765738052,
+              "rot_1": 4.704812818248073
+            },
+            "per_reference": [
+              {
+                "model_id": 403977,
+                "scores_db": {
+                  "default": 5.153042257572059,
+                  "rot_0": 5.1982855037310705,
+                  "rot_1": 5.073270973269715
+                },
+                "endpoint_improvement_db": 0.12501453046135502
+              },
+              {
+                "model_id": 421075,
+                "scores_db": {
+                  "default": 4.48469287423422,
+                  "rot_0": 4.5301070433002755,
+                  "rot_1": 4.401981486538073
+                },
+                "endpoint_improvement_db": 0.12812555676220239
+              },
+              {
+                "model_id": 421074,
+                "scores_db": {
+                  "default": 4.722094113845237,
+                  "rot_0": 4.769280750182809,
+                  "rot_1": 4.639185994936432
+                },
+                "endpoint_improvement_db": 0.13009475524637715
+              }
+            ]
+          }
+        },
+        "candidate": {
+          "pluck": {
+            "mean_scores_db": {
+              "default": 10.258664557665515,
+              "rot_0": 10.895198911006535,
+              "rot_1": 9.470384514345012
+            },
+            "per_reference": [
+              {
+                "model_id": 403977,
+                "scores_db": {
+                  "default": 11.025738998361678,
+                  "rot_0": 11.696439256261973,
+                  "rot_1": 10.176418062526524
+                },
+                "endpoint_improvement_db": 1.5200211937354489
+              },
+              {
+                "model_id": 421075,
+                "scores_db": {
+                  "default": 9.614707027100827,
+                  "rot_0": 10.221634194597652,
+                  "rot_1": 8.878816214004255
+                },
+                "endpoint_improvement_db": 1.3428179805933969
+              },
+              {
+                "model_id": 421074,
+                "scores_db": {
+                  "default": 10.135547647534038,
+                  "rot_0": 10.767523282159981,
+                  "rot_1": 9.355919266504259
+                },
+                "endpoint_improvement_db": 1.4116040156557226
+              }
+            ]
+          },
+          "chord": {
+            "mean_scores_db": {
+              "default": 4.7866097485505055,
+              "rot_0": 5.407091664247233,
+              "rot_1": 4.038429973724319
+            },
+            "per_reference": [
+              {
+                "model_id": 403977,
+                "scores_db": {
+                  "default": 5.153042257572059,
+                  "rot_0": 5.808851927403703,
+                  "rot_1": 4.323814769468721
+                },
+                "endpoint_improvement_db": 1.4850371579349817
+              },
+              {
+                "model_id": 421075,
+                "scores_db": {
+                  "default": 4.48469287423422,
+                  "rot_0": 5.07685461757386,
+                  "rot_1": 3.8015173933452653
+                },
+                "endpoint_improvement_db": 1.2753372242285943
+              },
+              {
+                "model_id": 421074,
+                "scores_db": {
+                  "default": 4.722094113845237,
+                  "rot_0": 5.3355684477641345,
+                  "rot_1": 3.98995775835897
+                },
+                "endpoint_improvement_db": 1.3456106894051647
+              }
+            ]
+          }
+        }
+      }
+    },
+    "bloom": {
+      "family": "matamp",
+      "model_ids": [
+        614727,
+        561845,
+        543854
+      ],
+      "measurements": {
+        "baseline": {
+          "pluck": {
+            "mean_scores_db": {
+              "default": 7.684577901054868,
+              "bloom_0": 7.5907807496673225,
+              "bloom_1": 7.800705874004755
+            },
+            "per_reference": [
+              {
+                "model_id": 614727,
+                "scores_db": {
+                  "default": 8.665636563448391,
+                  "bloom_0": 8.561521834888769,
+                  "bloom_1": 8.796297602783834
+                },
+                "endpoint_improvement_db": -0.2347757678950657
+              },
+              {
+                "model_id": 561845,
+                "scores_db": {
+                  "default": 7.272761364214723,
+                  "bloom_0": 7.183932916441637,
+                  "bloom_1": 7.381986131567549
+                },
+                "endpoint_improvement_db": -0.19805321512591245
+              },
+              {
+                "model_id": 543854,
+                "scores_db": {
+                  "default": 7.11533577550149,
+                  "bloom_0": 7.026887497671562,
+                  "bloom_1": 7.223833887662879
+                },
+                "endpoint_improvement_db": -0.19694638999131708
+              }
+            ]
+          },
+          "chord": {
+            "mean_scores_db": {
+              "default": 5.198802251680308,
+              "bloom_0": 5.092545480965132,
+              "bloom_1": 5.363818509782703
+            },
+            "per_reference": [
+              {
+                "model_id": 614727,
+                "scores_db": {
+                  "default": 6.185023320302427,
+                  "bloom_0": 6.0746790259193695,
+                  "bloom_1": 6.355723417042232
+                },
+                "endpoint_improvement_db": -0.2810443911228626
+              },
+              {
+                "model_id": 561845,
+                "scores_db": {
+                  "default": 4.669493865133006,
+                  "bloom_0": 4.56539091496114,
+                  "bloom_1": 4.831531003745547
+                },
+                "endpoint_improvement_db": -0.2661400887844074
+              },
+              {
+                "model_id": 543854,
+                "scores_db": {
+                  "default": 4.741889569605491,
+                  "bloom_0": 4.637566502014886,
+                  "bloom_1": 4.904201108560332
+                },
+                "endpoint_improvement_db": -0.2666346065454457
+              }
+            ]
+          }
+        },
+        "incoming": {
+          "pluck": {
+            "mean_scores_db": {
+              "default": 5.258968381556354,
+              "bloom_0": 5.911509402135911,
+              "bloom_1": 3.7033834422570275
+            },
+            "per_reference": [
+              {
+                "model_id": 614727,
+                "scores_db": {
+                  "default": 5.947936320835091,
+                  "bloom_0": 6.644786542689231,
+                  "bloom_1": 4.0738689763057945
+                },
+                "endpoint_improvement_db": 2.5709175663834367
+              },
+              {
+                "model_id": 561845,
+                "scores_db": {
+                  "default": 5.02423116066613,
+                  "bloom_0": 5.630075063223314,
+                  "bloom_1": 3.539971611089537
+                },
+                "endpoint_improvement_db": 2.090103452133777
+              },
+              {
+                "model_id": 543854,
+                "scores_db": {
+                  "default": 4.80473766316784,
+                  "bloom_0": 5.459666600495188,
+                  "bloom_1": 3.4963097393757514
+                },
+                "endpoint_improvement_db": 1.9633568611194367
+              }
+            ]
+          },
+          "chord": {
+            "mean_scores_db": {
+              "default": 3.3699945113567833,
+              "bloom_0": 3.3317839643355343,
+              "bloom_1": 3.3216659989326263
+            },
+            "per_reference": [
+              {
+                "model_id": 614727,
+                "scores_db": {
+                  "default": 3.7024028030147185,
+                  "bloom_0": 3.6363387619839243,
+                  "bloom_1": 3.7050051828109427
+                },
+                "endpoint_improvement_db": -0.06866642082701846
+              },
+              {
+                "model_id": 561845,
+                "scores_db": {
+                  "default": 3.2071584512974094,
+                  "bloom_0": 3.179431412139983,
+                  "bloom_1": 3.141790011940719
+                },
+                "endpoint_improvement_db": 0.03764140019926421
+              },
+              {
+                "model_id": 543854,
+                "scores_db": {
+                  "default": 3.2004222797582225,
+                  "bloom_0": 3.1795817188826954,
+                  "bloom_1": 3.1182028020462176
+                },
+                "endpoint_improvement_db": 0.06137891683647778
+              }
+            ]
+          }
+        },
+        "candidate": {
+          "pluck": {
+            "mean_scores_db": {
+              "default": 5.258968381556354,
+              "bloom_0": 5.732938066090277,
+              "bloom_1": 3.768316171067481
+            },
+            "per_reference": [
+              {
+                "model_id": 614727,
+                "scores_db": {
+                  "default": 5.947936320835091,
+                  "bloom_0": 6.418371591301798,
+                  "bloom_1": 4.267207940787306
+                },
+                "endpoint_improvement_db": 2.1511636505144924
+              },
+              {
+                "model_id": 561845,
+                "scores_db": {
+                  "default": 5.02423116066613,
+                  "bloom_0": 5.475377305176374,
+                  "bloom_1": 3.552982748804565
+                },
+                "endpoint_improvement_db": 1.9223945563718088
+              },
+              {
+                "model_id": 543854,
+                "scores_db": {
+                  "default": 4.80473766316784,
+                  "bloom_0": 5.305065301792658,
+                  "bloom_1": 3.484757823610572
+                },
+                "endpoint_improvement_db": 1.8203074781820865
+              }
+            ]
+          },
+          "chord": {
+            "mean_scores_db": {
+              "default": 3.3699945113567833,
+              "bloom_0": 3.629925457754969,
+              "bloom_1": 2.9412568324689423
+            },
+            "per_reference": [
+              {
+                "model_id": 614727,
+                "scores_db": {
+                  "default": 3.7024028030147185,
+                  "bloom_0": 3.872752374772586,
+                  "bloom_1": 3.5095716945867115
+                },
+                "endpoint_improvement_db": 0.36318068018587457
+              },
+              {
+                "model_id": 561845,
+                "scores_db": {
+                  "default": 3.2071584512974094,
+                  "bloom_0": 3.5110175258229783,
+                  "bloom_1": 2.6615043321050176
+                },
+                "endpoint_improvement_db": 0.8495131937179607
+              },
+              {
+                "model_id": 543854,
+                "scores_db": {
+                  "default": 3.2004222797582225,
+                  "bloom_0": 3.5060064726693434,
+                  "bloom_1": 2.6526944707150983
+                },
+                "endpoint_improvement_db": 0.8533120019542451
+              }
+            ]
+          }
+        }
+      }
+    }
+  },
+  "status": {
+    "synthetic_endpoint_direction": "PASS",
+    "clank_amp_only_reference": "BLOCKED: Meshuggah captures include cabinet",
+    "instrument_di_listening": "NOT_RUN",
+    "hardware_matching": "BLOCKED",
+    "final_voicing": "BLOCKED: owner instrument-DI listening required"
+  },
+  "failures": [],
+  "comparison_sha256": {
+    "baseline": "ea68bef09bdfd5d369741feb9c7e7d4ce5054d5b4a70e41230c7218f816bc945",
+    "incoming": "48eaec3e78e2977929dbfccdbdf936476624bd60f201ee794022ddeb9799f9bc",
+    "candidate": "ca5b57704467cbd9db72650bd41b961ce8e1de86cf51e3fe5667a958081e6ff6"
+  }
+}

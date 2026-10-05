@@ -1,0 +1,176 @@
+{
+  "sample_rate": 48000,
+  "duration_seconds": 1.2,
+  "stereo": true,
+  "method": "FFmpeg ebur128 gated integrated loudness, common V30 cabinet, same knobs; bare or Thall PRE/POST.",
+  "limits": "Synthetic plucks only; integrated loudness is fixture-specific, not a real-DI or listening acceptance.",
+  "ffmpeg_version": "ffmpeg version 6.1.1-3ubuntu5 Copyright (c) 2000-2023 the FFmpeg developers",
+  "before_source": "c041521f11fdbd6a7f54e5b63a607d324089b616",
+  "source_sha256": {
+    "Source/OriginalAmpDefinition.h": "edf22de4734d189551d5a68b9ca84738f25ab0623a8bb6ada9519d105933f62b",
+    "Source/OriginalPresets.h": "bcc02b3df08021f0c0e48ef497e839c7515ab542cbfff0757e26faf1556c827c",
+    "Tests/IntegratedProcessorTests.cpp": "0d9025162a36931acaad9e219efeb96f6bfd526fa83a262fd1ecf4c797793632"
+  },
+  "measurements": [
+    {
+      "version": "before",
+      "probe": "cab_fenrir",
+      "sha256": "7832ec13de8433f1b1f96dba3b5ba9b2aebf168b086f2b86bda361a96c629e1c",
+      "integrated_lufs": -14.6,
+      "rms_dbfs": -16.75052486924319,
+      "sample_peak_dbfs": -1.261741042137146
+    },
+    {
+      "version": "before",
+      "probe": "cab_fimbulvetr",
+      "sha256": "8ee333093987052a1ea17154668ced248f418154de8c31c3bb8e1e4edc3cc30a",
+      "integrated_lufs": -14.4,
+      "rms_dbfs": -16.66731837677713,
+      "sample_peak_dbfs": -5.594969749450684
+    },
+    {
+      "version": "before",
+      "probe": "cab_nidhoggr",
+      "sha256": "766aa8e8dff0e4f51ab484c08653e49e979bfdad12ff08b232e697d0376f6826",
+      "integrated_lufs": -14.2,
+      "rms_dbfs": -16.594593189779218,
+      "sample_peak_dbfs": -4.653051376342773
+    },
+    {
+      "version": "before",
+      "probe": "cab_ragnarok",
+      "sha256": "44054fd3157515727b302e6b324ffef529415b38f15a4f3e31433918ed7e28bd",
+      "integrated_lufs": -14.8,
+      "rms_dbfs": -17.800466879831525,
+      "sample_peak_dbfs": -0.22377291321754456
+    },
+    {
+      "version": "before",
+      "probe": "cab_surtr",
+      "sha256": "c3206ede07ea07c6c3ea5f4e69367212d15a8d7b4171610ff6933e49bc5f6fe9",
+      "integrated_lufs": -14.5,
+      "rms_dbfs": -16.712678894612903,
+      "sample_peak_dbfs": -4.525261878967285
+    },
+    {
+      "version": "before",
+      "probe": "driven_fenrir",
+      "sha256": "b4522200b794d7e0cb56662c84b1918da7825c9350a27c87e7cdf658d5896683",
+      "integrated_lufs": -12.1,
+      "rms_dbfs": -16.68151949284039,
+      "sample_peak_dbfs": -2.625044345855713
+    },
+    {
+      "version": "before",
+      "probe": "driven_fimbulvetr",
+      "sha256": "20418fe6a5f95d51dbda2666445ff2f2bb8a6fb3517c06b38ccd24fe1af1f9cc",
+      "integrated_lufs": -15.1,
+      "rms_dbfs": -18.50463448171219,
+      "sample_peak_dbfs": -7.331700325012207
+    },
+    {
+      "version": "before",
+      "probe": "driven_nidhoggr",
+      "sha256": "b2fb555735139ab2f881539f37abd0e00ea8e3f2be7e0c23cd4581b2f52750a3",
+      "integrated_lufs": -14.4,
+      "rms_dbfs": -18.294533815077227,
+      "sample_peak_dbfs": -5.542486190795898
+    },
+    {
+      "version": "before",
+      "probe": "driven_ragnarok",
+      "sha256": "856f8ce3a334bf83ffb26213c7d5f82b4e46ea5e204f656c3d2e8f5bde1b9a26",
+      "integrated_lufs": -13.4,
+      "rms_dbfs": -17.994485873048173,
+      "sample_peak_dbfs": -2.037249803543091
+    },
+    {
+      "version": "before",
+      "probe": "driven_surtr",
+      "sha256": "ff5c71031e7519f7bd8c803d64fccf2b1c08766581aaeacd7ee35ffec1423ab2",
+      "integrated_lufs": -15.1,
+      "rms_dbfs": -18.30108908677428,
+      "sample_peak_dbfs": -6.6851091384887695
+    },
+    {
+      "version": "after",
+      "probe": "cab_fenrir",
+      "sha256": "7832ec13de8433f1b1f96dba3b5ba9b2aebf168b086f2b86bda361a96c629e1c",
+      "integrated_lufs": -14.6,
+      "rms_dbfs": -16.75052486924319,
+      "sample_peak_dbfs": -1.261741042137146
+    },
+    {
+      "version": "after",
+      "probe": "cab_fimbulvetr",
+      "sha256": "15266812bb5d2490bc59546d2f782d75ba36447d178d5c52c901150cb0ef893a",
+      "integrated_lufs": -14.3,
+      "rms_dbfs": -17.239979214152985,
+      "sample_peak_dbfs": -3.6037063598632812
+    },
+    {
+      "version": "after",
+      "probe": "cab_nidhoggr",
+      "sha256": "da40e544f84ccf131c53eb81206ff31a8ebb91c0a67e691cc49cd9343ab3b4fe",
+      "integrated_lufs": -12.4,
+      "rms_dbfs": -15.046207234637734,
+      "sample_peak_dbfs": -2.2189505100250244
+    },
+    {
+      "version": "after",
+      "probe": "cab_ragnarok",
+      "sha256": "fcaba7603ba0aa6c71fddc1bd59917453294bab26298b4f8637dfab5aaaf3c54",
+      "integrated_lufs": -14.3,
+      "rms_dbfs": -17.33626435081065,
+      "sample_peak_dbfs": -0.9518890976905823
+    },
+    {
+      "version": "after",
+      "probe": "cab_surtr",
+      "sha256": "641adc827bbab8110cfbffd5fc96f7fe7d8abff6fa208c1094c4204f3045b45f",
+      "integrated_lufs": -13.1,
+      "rms_dbfs": -15.737007539586399,
+      "sample_peak_dbfs": -1.5255100727081299
+    },
+    {
+      "version": "after",
+      "probe": "driven_fenrir",
+      "sha256": "b4522200b794d7e0cb56662c84b1918da7825c9350a27c87e7cdf658d5896683",
+      "integrated_lufs": -12.1,
+      "rms_dbfs": -16.68151949284039,
+      "sample_peak_dbfs": -2.625044345855713
+    },
+    {
+      "version": "after",
+      "probe": "driven_fimbulvetr",
+      "sha256": "02ee24585274eee90b067260af4d0485c6a8ec17e2dcaeb3aaa3e0a424fc6752",
+      "integrated_lufs": -12.9,
+      "rms_dbfs": -17.399323720945187,
+      "sample_peak_dbfs": -2.7815773487091064
+    },
+    {
+      "version": "after",
+      "probe": "driven_nidhoggr",
+      "sha256": "721127bccb6449ce6d0a5d2a726215645e04ba5c9380ebf6e7ea8892b16ba863",
+      "integrated_lufs": -13.1,
+      "rms_dbfs": -17.41536336379822,
+      "sample_peak_dbfs": -3.9767050743103027
+    },
+    {
+      "version": "after",
+      "probe": "driven_ragnarok",
+      "sha256": "e4acf89290458c1c7f2e2cc8322e4ddc2f239a8a7d6528b88a2823acbcb9c161",
+      "integrated_lufs": -13.0,
+      "rms_dbfs": -17.594170419642154,
+      "sample_peak_dbfs": -2.7269768714904785
+    },
+    {
+      "version": "after",
+      "probe": "driven_surtr",
+      "sha256": "5242aecf3abebcd5f641cfbf10b40de7c7d0aaf7795e146cfa42939f0097be35",
+      "integrated_lufs": -13.2,
+      "rms_dbfs": -17.273574349853607,
+      "sample_peak_dbfs": -3.8054957389831543
+    }
+  ]
+}

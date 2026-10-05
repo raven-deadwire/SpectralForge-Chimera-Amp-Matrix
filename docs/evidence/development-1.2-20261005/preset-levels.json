@@ -1,0 +1,308 @@
+{
+  "presets": [
+    {
+      "index": 0,
+      "name": "Clean Sustain",
+      "rms_dbfs": -25.9581,
+      "peak_dbfs": -10.6888,
+      "output_db": 6.5,
+      "hot_peak_dbfs": -6.85078
+    },
+    {
+      "index": 1,
+      "name": "Tight Rhythm",
+      "rms_dbfs": -25.8035,
+      "peak_dbfs": -15.8833,
+      "output_db": -12.0,
+      "hot_peak_dbfs": -15.89
+    },
+    {
+      "index": 2,
+      "name": "Bass Matrix",
+      "rms_dbfs": -25.7678,
+      "peak_dbfs": -11.68,
+      "output_db": -4.5,
+      "hot_peak_dbfs": -8.21692
+    },
+    {
+      "index": 3,
+      "name": "Filter Lead",
+      "rms_dbfs": -26.0395,
+      "peak_dbfs": -14.8731,
+      "output_db": -10.0,
+      "hot_peak_dbfs": -14.8798
+    },
+    {
+      "index": 4,
+      "name": "Fuzz Texture",
+      "rms_dbfs": -26.131,
+      "peak_dbfs": -13.9966,
+      "output_db": -2.5,
+      "hot_peak_dbfs": -13.9897
+    },
+    {
+      "index": 5,
+      "name": "Bell Clean",
+      "rms_dbfs": -25.9956,
+      "peak_dbfs": -12.5017,
+      "output_db": -1.5,
+      "hot_peak_dbfs": -9.77755
+    },
+    {
+      "index": 6,
+      "name": "Edge Chime",
+      "rms_dbfs": -25.8505,
+      "peak_dbfs": -15.5955,
+      "output_db": -5.5,
+      "hot_peak_dbfs": -15.1968
+    },
+    {
+      "index": 7,
+      "name": "Classic Crunch",
+      "rms_dbfs": -27.3355,
+      "peak_dbfs": -9.96844,
+      "output_db": -2.5,
+      "hot_peak_dbfs": -9.3659
+    },
+    {
+      "index": 8,
+      "name": "Orange Heavy",
+      "rms_dbfs": -26.0427,
+      "peak_dbfs": -14.3794,
+      "output_db": -10.5,
+      "hot_peak_dbfs": -14.4222
+    },
+    {
+      "index": 9,
+      "name": "Melodic Death Rhythm",
+      "rms_dbfs": -25.8169,
+      "peak_dbfs": -14.1956,
+      "output_db": -9.0,
+      "hot_peak_dbfs": -14.1475
+    },
+    {
+      "index": 10,
+      "name": "Melodic Lead",
+      "rms_dbfs": -25.7658,
+      "peak_dbfs": -13.5297,
+      "output_db": -4.5,
+      "hot_peak_dbfs": -13.4831
+    },
+    {
+      "index": 11,
+      "name": "Ambient Clean",
+      "rms_dbfs": -25.9931,
+      "peak_dbfs": -11.1149,
+      "output_db": 11.5,
+      "hot_peak_dbfs": -6.68935
+    },
+    {
+      "index": 12,
+      "name": "Finger Round",
+      "rms_dbfs": -26.0289,
+      "peak_dbfs": -11.2933,
+      "output_db": -12.0,
+      "hot_peak_dbfs": -9.85987
+    },
+    {
+      "index": 13,
+      "name": "Pick Punch",
+      "rms_dbfs": -28.8543,
+      "peak_dbfs": -10.1827,
+      "output_db": -6.0,
+      "hot_peak_dbfs": -8.98024
+    },
+    {
+      "index": 14,
+      "name": "Slap Studio",
+      "rms_dbfs": -25.9249,
+      "peak_dbfs": -12.5099,
+      "output_db": 2.0,
+      "hot_peak_dbfs": -8.52199
+    },
+    {
+      "index": 15,
+      "name": "Modern Grind",
+      "rms_dbfs": -26.1147,
+      "peak_dbfs": -11.7004,
+      "output_db": -10.5,
+      "hot_peak_dbfs": -10.4989
+    },
+    {
+      "index": 16,
+      "name": "Vintage Bass DI",
+      "rms_dbfs": -27.6005,
+      "peak_dbfs": -10.0954,
+      "output_db": -10.5,
+      "hot_peak_dbfs": -8.21474
+    },
+    {
+      "index": 17,
+      "name": "Wool Bass Fuzz",
+      "rms_dbfs": -25.9599,
+      "peak_dbfs": -14.0683,
+      "output_db": -7.5,
+      "hot_peak_dbfs": -11.7872
+    },
+    {
+      "index": 18,
+      "name": "Bass Envelope",
+      "rms_dbfs": -26.1047,
+      "peak_dbfs": -10.9699,
+      "output_db": 7.0,
+      "hot_peak_dbfs": -4.80792
+    },
+    {
+      "index": 19,
+      "name": "G+G Clean / Crunch",
+      "rms_dbfs": -26.8116,
+      "peak_dbfs": -10.0538,
+      "output_db": 8.5,
+      "hot_peak_dbfs": -9.08894
+    },
+    {
+      "index": 20,
+      "name": "G+G Tight / Wide",
+      "rms_dbfs": -25.6935,
+      "peak_dbfs": -14.5906,
+      "output_db": -9.0,
+      "hot_peak_dbfs": -14.6166
+    },
+    {
+      "index": 21,
+      "name": "G+B Low Anchor",
+      "rms_dbfs": -26.2985,
+      "peak_dbfs": -12.3119,
+      "output_db": -6.0,
+      "hot_peak_dbfs": -8.19041
+    },
+    {
+      "index": 22,
+      "name": "G+B Air / Weight",
+      "rms_dbfs": -26.0248,
+      "peak_dbfs": -12.8775,
+      "output_db": -11.0,
+      "hot_peak_dbfs": -10.4543
+    },
+    {
+      "index": 23,
+      "name": "B+B Warm / Definition",
+      "rms_dbfs": -26.8695,
+      "peak_dbfs": -10.2012,
+      "output_db": -4.5,
+      "hot_peak_dbfs": -8.94516
+    },
+    {
+      "index": 24,
+      "name": "B+B Clean / Grind",
+      "rms_dbfs": -26.0181,
+      "peak_dbfs": -11.2582,
+      "output_db": -7.0,
+      "hot_peak_dbfs": -7.3611
+    },
+    {
+      "index": 25,
+      "name": "Low B Foundation",
+      "rms_dbfs": -25.8689,
+      "peak_dbfs": -12.3039,
+      "output_db": -5.5,
+      "hot_peak_dbfs": -8.77786
+    },
+    {
+      "index": 26,
+      "name": "Pick Attack Matrix",
+      "rms_dbfs": -27.8722,
+      "peak_dbfs": -10.2385,
+      "output_db": -7.5,
+      "hot_peak_dbfs": -8.28232
+    },
+    {
+      "index": 27,
+      "name": "Spectral Texture",
+      "rms_dbfs": -26.0349,
+      "peak_dbfs": -13.5918,
+      "output_db": 0.5,
+      "hot_peak_dbfs": -6.60423
+    },
+    {
+      "index": 28,
+      "name": "Matchless Edge",
+      "rms_dbfs": -25.9688,
+      "peak_dbfs": -12.1704,
+      "output_db": -2.5,
+      "hot_peak_dbfs": -9.87195
+    },
+    {
+      "index": 29,
+      "name": "Dumble Smooth Lead",
+      "rms_dbfs": -25.9407,
+      "peak_dbfs": -12.3475,
+      "output_db": -6.0,
+      "hot_peak_dbfs": -12.7562
+    },
+    {
+      "index": 30,
+      "name": "Modern Clean",
+      "rms_dbfs": -26.9058,
+      "peak_dbfs": -10.0243,
+      "output_db": 4.0,
+      "hot_peak_dbfs": -8.45503
+    },
+    {
+      "index": 31,
+      "name": "Crom Cruach",
+      "rms_dbfs": -26.3541,
+      "peak_dbfs": -10.5346,
+      "output_db": -1.5,
+      "hot_peak_dbfs": -9.61464
+    },
+    {
+      "index": 32,
+      "name": "Wild Hunt",
+      "rms_dbfs": -29.6702,
+      "peak_dbfs": -10.0916,
+      "output_db": -12.5,
+      "hot_peak_dbfs": -10.2299
+    },
+    {
+      "index": 33,
+      "name": "Azhi Dahaka",
+      "rms_dbfs": -26.1329,
+      "peak_dbfs": -11.3889,
+      "output_db": -2.0,
+      "hot_peak_dbfs": -8.24362
+    },
+    {
+      "index": 34,
+      "name": "A Path To Alsatia",
+      "rms_dbfs": -26.1913,
+      "peak_dbfs": -13.1556,
+      "output_db": -4.5,
+      "hot_peak_dbfs": -13.1576
+    },
+    {
+      "index": 35,
+      "name": "Feel My Wrath",
+      "rms_dbfs": -25.7208,
+      "peak_dbfs": -12.1614,
+      "output_db": -5.5,
+      "hot_peak_dbfs": -11.9192
+    },
+    {
+      "index": 36,
+      "name": "Blackhearted",
+      "rms_dbfs": -26.0728,
+      "peak_dbfs": -12.9109,
+      "output_db": -6.5,
+      "hot_peak_dbfs": -10.9881
+    },
+    {
+      "index": 37,
+      "name": "Dark Matters of Throne",
+      "rms_dbfs": -25.8553,
+      "peak_dbfs": -13.7071,
+      "output_db": -2.0,
+      "hot_peak_dbfs": -11.8185
+    }
+  ]
+}

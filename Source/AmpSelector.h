@@ -37,7 +37,7 @@ public:
         for(const auto& category:ampRoleChoices) {
             juce::PopupMenu group;
             for(int i=0;i<ampModelCount;++i)if(ampIsActive(i) && ampPrimaryRoles[(size_t)i]==category.role)
-                group.addItem(i+1,ampInfo(i).name,true,getSelectedId()==i+1);
+                group.addItem(i+1,juce::String::fromUTF8(ampInfo(i).name),true,getSelectedId()==i+1);
             menu.addSubMenu(category.label,group);
         }
         return menu;

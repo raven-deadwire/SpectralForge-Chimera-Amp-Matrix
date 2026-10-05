@@ -55,6 +55,20 @@ void voiceFactoryNative(int index,Getter get,Setter set) {
         const int model=int(get("amp"+suffix)),context=ampNativeContext(mode,lane);
         auto s=defaultAmpNativeState(model);const float drive=get("drive"+suffix);
         s.outputLevelDb=get("level"+suffix);
+        // Unity global OUTPUT: lift the quiet clean/mixed rigs at the amp's
+        // visible output stage; reserve room for the louder bass transients.
+        switch(index) {
+            case 0:s.outputLevelDb+=6;break;
+            case 18:s.outputLevelDb+=7;break;
+            case 19:s.outputLevelDb+=9;break;
+            case 30:s.outputLevelDb+=4;break;
+            case 12:s.outputLevelDb-=4;break;
+            case 15:s.outputLevelDb-=2;break;
+            case 16:s.outputLevelDb-=4;break;
+            case 22:s.outputLevelDb-=2;break;
+            case 24:s.outputLevelDb-=1;break;
+            default:break;
+        }
         const auto tone=factoryTones[size_t(index)];
         const auto position=[](float x){return juce::jlimit(.2f,.8f,x);};
         const float bass=position(tone.bass+get("bass"+suffix)/48.f),mid=position(tone.mid+(get("lowmid"+suffix)+get("highmid"+suffix))/96.f);
@@ -65,26 +79,31 @@ void voiceFactoryNative(int index,Getter get,Setter set) {
         const float highGain=heavy?juce::jlimit(.68f,.82f,.55f+.5f*drive):juce::jlimit(.4f,.72f,.35f+.5f*drive);
         switch(model) {
         case 0:k("hw.normal.volume",.42f+.3f*drive);eq("hw.normal.bass","hw.normal.middle","hw.normal.treble");break;
-        case 1:k("hw.high_treble",.25f+.65f*drive);eq("hw.bass","hw.middle","hw.treble");k("hw.presence",presence);break;
-        case 2:s.channel=1;k("hw.lead.pre_gain",highGain);eq("hw.low","hw.mid","hw.high");k("hw.presence",presence);k("hw.resonance",tone.resonance);break;
-        case 3:s.channel=2;k("hw.ch3.gain",highGain);k("hw.ch3.mode",2);eq("hw.ch3.bass","hw.ch3.mid","hw.ch3.treble");k("hw.ch3.presence",presence);break;
-        case 4:s.channel=2;k("hw.lead.gain",highGain);k("hw.lead.drive",heavy?.65f:.56f);eq("hw.lead.bass","hw.lead.middle","hw.lead.treble");k("hw.lead.presence",presence);k("hw.reverb",0);break;
+        case 1:k("hw.high_treble",index==3?.95f:.25f+.65f*drive);eq("hw.bass","hw.middle","hw.treble");k("hw.presence",presence);break;
+        case 2:s.channel=1;k("hw.lead.pre_gain",heavy?(index==9?.86f:.88f):highGain);if(heavy)k("hw.lead.post_gain",.40f);eq("hw.low","hw.mid","hw.high");k("hw.presence",presence);k("hw.resonance",tone.resonance);break;
+        case 3:s.channel=2;k("hw.ch3.gain",heavy?.88f:highGain);k("hw.ch3.mode",2);eq("hw.ch3.bass","hw.ch3.mid","hw.ch3.treble");k("hw.ch3.presence",presence);break;
+        case 4:s.channel=2;k("hw.lead.gain",heavy?.88f:highGain);k("hw.lead.drive",heavy?.80f:.56f);eq("hw.lead.bass","hw.lead.middle","hw.lead.treble");k("hw.lead.presence",presence);k("hw.reverb",0);break;
         case 5:k("hw.ch1.volume",.4f+.5f*drive);eq("hw.ch1.bass","hw.ch1.midrange","hw.ch1.treble");break;
         case 6:k("hw.volume",.45f);k("hw.boost",drive*.6f);eq("hw.bass","hw.lo_mid","hw.treble");k("hw.hi_mid",position(tone.mid+get("highmid"+suffix)/48.f));break;
         case 7:k("hw.b7k.distortion",1);k("hw.b7k.drive",.3f+.5f*drive);k("hw.b7k.blend",.55f);eq("hw.b7k.bass","hw.b7k.lo_mids","hw.b7k.treble");k("hw.b7k.hi_mids",position(tone.mid+get("highmid"+suffix)/48.f));break;
         case 8:s.channel=drive<.1f?0:1;k(s.channel==0?"hw.normal.volume":"hw.top_boost.volume",.35f+.65f*drive);k("hw.top_boost.bass",bass);k("hw.top_boost.treble",treble);k("hw.tone_cut",index==5?.36f:.43f);k("hw.reverb_level",0);k("hw.tremolo_depth",0);break;
-        case 9:s.channel=1;k("hw.dirty.gain",highGain);eq("hw.dirty.bass","hw.dirty.middle","hw.dirty.treble");k("hw.reverb",0);break;
+        case 9:s.channel=1;k("hw.dirty.gain",heavy?.90f:highGain);eq("hw.dirty.bass","hw.dirty.middle","hw.dirty.treble");k("hw.reverb",0);break;
         case 10:s.channel=0;k("hw.vintage.volume",.42f+.45f*drive);eq("hw.vintage.bass","hw.vintage.mid","hw.vintage.treble");break;
         case 11:k("hw.input",.5f);k("hw.high_pass",0);k("hw.voicing",index==14?.20f:.08f);k("hw.lo_mid_frequency",index==14?.28f:.40f);k("hw.hi_mid_frequency",index==14?.67f:.52f);eq("hw.bass","hw.lo_mid","hw.treble");k("hw.hi_mid",position(tone.mid+get("highmid"+suffix)/48.f));break;
         case 12:s.channel=0;k("hw.ch1.volume",.3f+.65f*drive);k("hw.ch1.bass",bass);k("hw.ch1.treble",treble);k("hw.cut",.40f);break;
-        case 13:s.channel=1;k("hw.volume",.5f);k("hw.od.drive",highGain);k("hw.od.ratio",.5f);eq("hw.bass","hw.middle","hw.treble");k("hw.presence",presence);break;
+        case 13:s.channel=1;k("hw.volume",index==29?.65f:.5f);k("hw.od.drive",index==29?.94f:highGain);k("hw.od.ratio",index==29?.65f:.5f);eq("hw.bass","hw.middle","hw.treble");k("hw.presence",presence);break;
         case 14:k("hw.gain",.46f);k("hw.taste",.46f);k("hw.lo",bass);k("hw.lo_mid",mid);k("hw.hi_mid",position(tone.mid+get("highmid"+suffix)/48.f));k("hw.hi",treble);break;
         default:break;
         }
+        if(index==1) {s.channel=0;k("hw.rhythm.pre_gain",.76f);k("hw.rhythm.post_gain",.63f);k("hw.rhythm.bright",1);k("hw.rhythm.crunch",1);}
+        if(index==20)k(model==2?"hw.lead.pre_gain":"hw.ch3.gain",.95f);
+        if(index==9) {k("hw.low",1);k("hw.mid",.5f);k("hw.high",.5f);k("hw.presence",.5f);k("hw.resonance",.5f);}
+        if(index==8) {k("hw.dirty.gain",.76f);k("hw.dirty.treble",.50f);k("hw.dirty.middle",.62f);k("hw.dirty.bass",.43f);k("hw.dirty.volume",.5f);k("hw.attenuator",.52f);}
         sanitiseAmpNativeState(s);
         set(ampNativeEnabledID(context),1);set(ampNativeModelID(context),float(model));
+        if(index==20&&lane==1)set(ampNativeSoloID(context),1);
         set(ampNativeChannelID(context,model),float(s.channel));set(ampNativeRouteID(context,model),float(s.inputRoute));
-        set(ampNativeInputTrimID(context),0);set(ampNativeOutputLevelID(context),s.outputLevelDb);
+        set(ampNativeInputTrimID(context),index==3?24.f:index==20?3.f:0.f);set(ampNativeOutputLevelID(context),s.outputLevelDb);
         for(size_t c=0;c<ampNativePanel(model).controls.size();++c)set(ampNativeControlID(context,model,int(c)),s.values[c]);
     }
     set("boardEnabled",1);set("boardLowTap",2);
@@ -111,6 +130,54 @@ void voiceFactoryNative(int index,Getter get,Setter set) {
     }
     if(get("preorder")>.5f){set(pedalOrderID(0),1);set(pedalOrderID(1),0);}
     if(get("gainorder")>.5f){set(pedalOrderID(3),4);set(pedalOrderID(4),3);}
+    // 2026-10-04 owner reference: Melodic Death Rhythm at 5150 LEAD 8.6,
+    // POST 4.0 with Variable Mu -> Treble Lift 5 -> Green Drive 3/6/5.
+    // Match drive before the amp; final output trims must not stand in for gain.
+    const auto pedal=[&](int owner,int model,std::initializer_list<float> values) {
+        set(pedalModelID(owner),float(model));set(pedalBypassID(owner,model),0);
+        const auto p=defaultPedalInstance(model);
+        for(int c=0;c<pedalModel(model).controlCount;++c)set(pedalControlID(owner,model,c),p.controls[size_t(c)]);
+        int c=0;for(float value:values)set(pedalControlID(owner,model,c++),value);
+    };
+    if(index==9) {
+        pedal(0,10,{});pedal(3,22,{.5f});pedal(4,1,{.30f,.60f,.50f});
+    } else if(index==8) {
+        // Owner's Orange Heavy reference: FET 4/5.4/2.8/2/2.2/5,
+        // Treble Lift 5, Green Drive 10/10/5, Dirty gain 7.6.
+        pedal(0,9,{.40f,.54f,.28f,.20f,.22f,.50f});
+        pedal(3,22,{.50f});pedal(4,1,{1.f,1.f,.50f});
+    } else if(index==1) {
+        // Tight Rhythm screenshot uses the RHYTHM channel with BRIGHT/CRUNCH,
+        // Optical 5/10/5 + EQ/HIGH CUT and Green Drive 10/10/10.
+        pedal(0,8,{.50f,1.f,.50f,1.f,1.f});
+        pedal(3,22,{.50f});set(pedalBypassID(3,22),1);
+        pedal(4,1,{1.f,1.f,1.f});set("gateAfterRig",1);
+    } else if(index==20) {
+        // Dual Tight / Wide: shared Mu -> Treble Lift -> Green Drive;
+        // retain 65:35 and the Rectifier's visible SOLO footswitch.
+        pedal(0,10,{});pedal(3,22,{.50f});pedal(4,1,{.04f,.68f,.45f});
+    } else if(index==10) {
+        pedal(4,1,{.30f,.60f,.60f});
+    } else if(index==3) {
+        pedal(3,22,{.50f});pedal(4,1,{.70f,.60f,1.f});
+    } else if(index==4) {
+        // Sustain the existing fuzz texture even as the picked note decays.
+        pedal(2,16,{.50f,.40f,.90f});
+        pedal(3,23,{1.f}); // Micro Lift before fuzz, not an output-volume fix.
+        set(pedalOrderID(2),3);set(pedalOrderID(3),2);
+    } else if(index==29) {
+        pedal(4,2,{.35f,.60f,.65f});
+    }
+    if(index==1||index==8||index==9||index==20) {
+        set("cablow1",85);set("cabhigh1",index==1?7200.f:index==20?7000.f:6800.f);
+        set("gatethreshold",-65);set("gaterelease",80);set("gatehold",20);
+        set(pedalOrderID(0),1);set(pedalOrderID(1),0); // bypassed Q Sweep, then COMP
+        set("buscompon",1);set("busmodel",0);set("busthreshold",index==1?-14.f:-18.f);
+        set("busratio",index==1?2.f:4.f);set("busmakeup",index==1?4.2f:3.5f);
+        set("preampon",1);set("preampmodel",index==8?2.f:0.f);set("preampdrive",5);
+        set("eqon",1);set("eqmodel",index==8?2.f:0.f);
+        set("eqlow",0);set("eqmid",0);set("eqhigh",0);
+    }
     // Factory rack voicings are explicit native banks, including bypassed ones.
     // Spatial effects retain their single engine and existing authored settings.
     constexpr const char* postModels[]{"busmodel","preampmodel","eqmodel"};
@@ -132,7 +199,16 @@ void voiceFactoryNative(int index,Getter get,Setter set) {
             if(model==1){k("lf_gain",get("eqlow"));k("lf_frequency",2);k("mf_gain",get("eqmid"));k("mf_frequency",2);k("hf_gain",get("eqhigh"));}
             if(model==2){k("lf_frequency",2);k("lf_boost",std::max(0.f,get("eqlow")));k("lf_atten",std::max(0.f,-get("eqlow")));k("hf_boost",std::max(0.f,get("eqhigh")));k("hf_atten",std::max(0.f,-get("eqhigh")));}
         }
+        // Ambient Clean keeps its low-drive Glass character. Gentle POST VCA
+        // levelling restores the dry body before Dimension / tape / hall.
+        if(index==11&&section==0) {
+            k("threshold",-24);k("ratio",0);k("attack",4);k("release",2);k("makeup",12);
+        }
+        if(section==1&&(index==1||index==9||index==20)){k("gain",3);k("phase",1);bank.levelDb=-5;}
+        if(section==1&&index==8){k("input",2);k("gain",2);k("trim",3.5f);k("instrument_gain",10);bank.levelDb=0;}
+        if(section==2&&index==8)k("lf_frequency",0);
         set(postNativeModeID(section),1);set(postNativeModelID(section),float(model));set(postNativeBypassID(section,model),get(postOn[section])>.5f?0.f:1.f);
+        if(index==11&&section==0)set(postNativeBypassID(section,model),0);
         set(postNativeTrimID(section,model),bank.trimDb);set(postNativeLevelID(section,model),bank.levelDb);
         for(int c=0;c<spec.controlCount;++c)set(postNativeControlID(section,model,c),bank.values[c]);
     }
@@ -146,6 +222,7 @@ inline juce::ValueTree factoryNativeSnapshot(juce::AudioProcessorValueTreeState&
     auto snapshot=state.copyState();
     const auto previous=snapshot.createCopy();
     snapshot.removeChild(snapshot.getChildWithName("GUITAR_SIGNATURE"),nullptr);
+    snapshot.removeChild(snapshot.getChildWithName("ORIGINAL_PRESET"),nullptr);
     for(auto* raw:state.processor.getParameters())if(auto* p=dynamic_cast<juce::RangedAudioParameter*>(raw)) {
         if(factoryPerformanceParameter(p->paramID))continue;
         auto node=snapshot.getChildWithProperty("id",p->paramID);

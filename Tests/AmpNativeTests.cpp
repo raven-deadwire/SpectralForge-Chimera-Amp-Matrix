@@ -59,11 +59,11 @@ AmpNativeState audibleControlState(int model,int control) {
 void catalog() {
     size_t count=0;for(int m=0;m<ampModelCount;++m){const auto& p=ampNativePanel(m);require(!p.controls.empty()&&p.controls.size()<=maxAmpNativeControls,"Native panel dimensions");require(p.defaultChannel<(int)p.channels.size(),"Native defaultchannel");
         auto s=defaultAmpNativeState(m);for(size_t c=0;c<p.controls.size();++c){const auto& k=p.controls[c];require(k.minimum<=k.initial&&k.initial<=k.maximum,"Native initial range");require(ampNativeControlIndex(m,k.key)==(int)c,"Duplicate native key");require(k.channelMask>0,"Invisible native control");require(s.values[c]==k.initial,"Native state default");++count;}}
-    require(count==380,"Native control count changed without review");
+    require(count==393,"Native control count changed without review");
     require(ampNativeContext(0,0)==0&&ampNativeContext(1,0)==1&&ampNativeContext(1,1)==2&&ampNativeContext(2,0)==3&&ampNativeContext(2,1)==4&&ampNativeContext(2,2)==5,"Six context identity");
     require(ampNativePanel(21).channels.size()==2,"Hot Lead normal route missing");
     auto bad=defaultAmpNativeState(3);bad.channel=99;bad.inputRoute=-99;bad.values[0]=NAN;bad.inputTrimDb=INFINITY;sanitiseAmpNativeState(bad);require(bad.channel==2&&bad.inputRoute==0&&bad.values[0]==ampNativePanel(3).controls[0].initial&&bad.inputTrimDb==0,"Native invalid values not sanitized");
-    std::cout<<"PASS catalog 24 serialized / 23 active models, 380 controls, six contexts\n";
+    std::cout<<"PASS catalog 25 serialized / 24 active models, 393 controls, six contexts\n";
 }
 void controlResponses() {
     size_t tested=0,failed=0;double minimum=1e9;std::string least;

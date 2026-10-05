@@ -22,7 +22,12 @@ def run():
     full = check_ids('full_release')
     assert full - beta == DEFERRED and not beta - full
     assert check_ids('transpose_followup') == DEFERRED
-    assert POLICY['release_scope']['version'] == chimera_version.identity(ROOT, COMMIT)['version']
+    scope=POLICY['release_scope']
+    if scope.get('channel') == 'preview':
+        assert chimera_version.release_channel(ROOT) == 'preview'
+        assert scope['version'] == chimera_version.product_version(ROOT)
+    else:
+        assert scope['version'] == chimera_version.identity(ROOT, COMMIT)['version']
     assert set(POLICY['release_scope']['deferred_checks']) == DEFERRED
     assert {'I1.PITCH', 'I2.UI_AUDIO_TIMING', 'I2.LIVE_REMOVE_DAW', 'I2.GATE_DI',
             'B12.RESULT', 'E2.SAME_DI'} <= beta

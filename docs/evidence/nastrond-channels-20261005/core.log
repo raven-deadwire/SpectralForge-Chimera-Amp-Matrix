@@ -1,0 +1,36 @@
+DEFAULT_GAIN weak_thd=0.598595 growth_db=1.3064
+CONTROL bass matched_residual=0.755047
+CONTROL middle matched_residual=0.62148
+CONTROL treble matched_residual=0.383749
+CONTROL mid_frequency matched_residual=0.0559939
+CONTROL presence matched_residual=0.239642
+CONTROL depth matched_residual=0.325006
+CONTROL clank matched_residual=0.975495
+CONTROL crush matched_residual=0.84375
+CONTROL impact matched_residual=0.597308
+CONTROL rot matched_residual=0.17486
+CONTROL bloom matched_residual=0.902442
+MACRO_RESPONSE clank/crush cosine=-0.562492
+MACRO_RESPONSE clank/impact cosine=-0.761601
+MACRO_RESPONSE clank/rot cosine=0.472348
+MACRO_RESPONSE clank/bloom cosine=-0.970648
+MACRO_RESPONSE crush/impact cosine=0.563144
+MACRO_RESPONSE crush/rot cosine=-0.262379
+MACRO_RESPONSE crush/bloom cosine=0.5017
+MACRO_RESPONSE impact/rot cosine=-0.271805
+MACRO_RESPONSE impact/bloom cosine=0.713899
+MACRO_RESPONSE rot/bloom cosine=-0.496288
+VOICING impact input=0.004 fundamental_ratio=1.32189 even_odd_ratio=1.50187 tail=0.00118086
+VOICING impact input=0.04 fundamental_ratio=1.25267 even_odd_ratio=1.01931 tail=0.000924915
+VOICING rot input=0.004 fundamental_ratio=0.997233 even_odd_ratio=8.61661 tail=0.00190324
+VOICING rot input=0.04 fundamental_ratio=0.940849 even_odd_ratio=3.71312 tail=0.00349876
+VOICING bloom input=0.004 fundamental_ratio=2.24196 even_odd_ratio=0.248012 tail=0.00247353
+VOICING bloom input=0.04 fundamental_ratio=2.04741 even_odd_ratio=0.675878 tail=0.00211816
+REALTIME 12 rate/factor routes peak=0.590372 allocations=0
+PASS simultaneous macro retargeting at 12 rate/factor routes; allocations=0
+CHANNEL Fenrir upper_travel_residual=0.912078
+CHANNEL Surtr upper_travel_residual=0.714596
+CHANNEL Níðhöggr upper_travel_residual=0.746511
+CHANNEL Fimbulvetr upper_travel_residual=0.497934
+CHANNEL Ragnarök upper_travel_residual=0.828932
+PASS OriginalAmp development core; musical/reference acceptance remains pending

@@ -1,6 +1,7 @@
 #pragma once
 #include "AmpNativeCatalog.h"
 #include "AmpNativeCalibration.h"
+#include "OriginalAmpDSP.h"
 #include <algorithm>
 #include <array>
 #include <cmath>
@@ -179,6 +180,7 @@ class AmpNativeDSP {
     ampNativeDetail::Config config;
     std::array<ampNativeDetail::Channel,2> channels;
     AmpNativeState current{};
+    original::OriginalAmpDSP originalAmp;
     double rate{48000};
     bool valid{};
     float smooth{}, gridAttack{}, gridRelease{}, cathodeRate{}, supplyAttack{}, supplyRelease{}, gateAttack{},gateRelease{}, dcPole{}, parallelPole{}, crossoverPole{}, verbDamping{},verbOutput{}, phaseStep{};
@@ -195,6 +197,7 @@ class AmpNativeDSP {
     void configure(const AmpNativeState& s) noexcept {
         using namespace ampNativeDetail;
         config={};config.model=s.model;config.channel=s.channel;config.solo=solo(s);config.scalar[9]=db(s.inputTrimDb);config.scalar[10]=db(s.outputLevelDb);
+        if(s.model==firstOriginalAmpModel){original::State state;state.channel=s.channel;state.modern=s.originalModern;for(size_t i=0;i<original::controlCount;++i)state.values[i]=s.values[i];originalAmp.set(state);return;}
         const int c=s.channel,r=s.inputRoute;
         config.reverbPresent=(s.model==0&&c==1)||s.model==4||s.model==8||s.model==9||s.model==16;
         const auto a=[&s](int i){return s.values[size_t(i)];};
@@ -401,11 +404,12 @@ public:
         rate=std::isfinite(sampleRate)?std::max(8000.,sampleRate):48000.;
         smooth=float(-std::expm1(-1./(rate*.012)));gridAttack=float(-std::expm1(-1./(rate*.0008)));gridRelease=float(-std::expm1(-1./(rate*.045)));cathodeRate=float(-std::expm1(-1./(rate*.012)));
         supplyAttack=float(-std::expm1(-1./(rate*.006)));supplyRelease=float(-std::expm1(-1./(rate*.15)));gateAttack=float(-std::expm1(-1./(rate*.002)));gateRelease=float(-std::expm1(-1./(rate*.075)));dcPole=ampNativeDetail::pole(rate,5);
+        originalAmp.prepare(rate);
         for(auto& c:channels)c.spring.prepare(rate);
         if(!valid)current=defaultAmpNativeState(0);
         configure(current);valid=true;reset();
     }
-    void reset() noexcept {for(auto& c:channels)c.clear(config);}
+    void reset() noexcept {for(auto& c:channels)c.clear(config);originalAmp.reset();}
     void set(const AmpNativeState& state) noexcept {
         AmpNativeState s=state;sanitiseAmpNativeState(s);if(valid&&s==current)return;
         const bool changedModel=!valid||s.model!=current.model;current=s;configure(s);valid=true;
@@ -424,6 +428,7 @@ public:
         slew(c.hybridDrive,p.hybridDrive);slew(c.hybridLevel,p.hybridLevel);slew(c.hybridBlend,p.hybridBlend);slew(c.hybridMaster,p.hybridMaster);slew(c.highMaster,p.highMaster);slew(c.lowMaster,p.lowMaster);slew(c.reverb,p.reverb);slew(c.tremDepth,p.tremDepth);
         if(--c.smoothRemaining==0){c.scalar=p.scalar;c.hybridDrive=p.hybridDrive;c.hybridLevel=p.hybridLevel;c.hybridBlend=p.hybridBlend;c.hybridMaster=p.hybridMaster;c.highMaster=p.highMaster;c.lowMaster=p.lowMaster;c.reverb=p.reverb;c.tremDepth=p.tremDepth;}
         }
+        if(p.model==firstOriginalAmpModel)return originalAmp.tick(sample*c.scalar[9],stereoChannel)*c.scalar[10];
         const float trimmed=std::clamp(sample*c.scalar[9],-8.f,8.f);
         const float absolute=std::abs(trimmed);c.detector+=(absolute>c.detector?gateAttack:gateRelease)*(absolute-c.detector);
         const float gateTarget=p.gateThreshold<=0?1.f:std::clamp((c.detector/p.gateThreshold-.35f)/.65f,0.f,1.f);

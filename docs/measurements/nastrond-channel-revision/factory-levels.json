@@ -1,0 +1,45 @@
+{
+  "fixture": "IntegratedProcessorTests six-note harmonic plucks, 48 kHz/128, 450 blocks; hot input +6 dB",
+  "presets": [
+    {
+      "index": 38,
+      "name": "Thall Rhythm",
+      "rms_dbfs": -24.885,
+      "peak_dbfs": -10.8481,
+      "output_db": -10.0,
+      "hot_input_peak_dbfs": -10.2609
+    },
+    {
+      "index": 39,
+      "name": "Molten Lead",
+      "rms_dbfs": -23.3452,
+      "peak_dbfs": -11.0407,
+      "output_db": -1.5,
+      "hot_input_peak_dbfs": -10.8108
+    },
+    {
+      "index": 40,
+      "name": "Rotten Grind",
+      "rms_dbfs": -24.2177,
+      "peak_dbfs": -10.9918,
+      "output_db": -7.0,
+      "hot_input_peak_dbfs": -11.1967
+    },
+    {
+      "index": 41,
+      "name": "Sludge Mass",
+      "rms_dbfs": -23.8055,
+      "peak_dbfs": -14.6122,
+      "output_db": -1.0,
+      "hot_input_peak_dbfs": -14.283
+    },
+    {
+      "index": 42,
+      "name": "Slam Impact",
+      "rms_dbfs": -25.9257,
+      "peak_dbfs": -11.203,
+      "output_db": -11.5,
+      "hot_input_peak_dbfs": -10.9816
+    }
+  ]
+}

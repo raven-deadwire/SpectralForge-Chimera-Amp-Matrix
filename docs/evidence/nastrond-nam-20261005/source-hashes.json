@@ -1,0 +1,17 @@
+{
+  "base_commit": "f844c1ae502982cda035f1c91d43146403ff176f",
+  "source_sha256": {
+    "Source/OriginalAmpDefinition.h": "776b43a8871c5f9155bb687615ba0539f04f3a489f02db1287335c2e57b3d4e6",
+    "Source/OriginalAmpDSP.h": "ed125541f9eb54f55b6d29212514e0d81957d62ba0361102a048367eebf5d43a",
+    "Source/OriginalAmpProcessor.h": "f1b725e9dc67dbcba9ed57890a91f1694f2cbfc0a4745e644eaf7c70ed1ee7e1",
+    "Tests/RenderOriginalAmp.cpp": "464f7d34c7bcee3a91c8e0ca3b5370815ec99e50e13bc6188435e6d3ef82a942",
+    "Tests/test_original_renderer.py": "0c8f798419b14d94be3272c8a51708e75618230e1f0685708bb90ecc2416d19e",
+    "Tools/compare_original_nam.py": "84a233bf2167b015de950b469a0888a8ea45993e40f62b9df966d13698a04488",
+    "Tools/fetch_nastrond_references.py": "031c4e266f34092cd807ddd90052631e1ea68c1df2c051aaac6440e2c831751e",
+    "Tools/validate_nam.py": "82ff42d4c41041f35ba7e4e2fd81c5e29652861042f0643fc52f1286fa2fad88",
+    "CMakeLists.txt": "a8ae9fd4aed38341c4d267b9d863bce457797de927cae655ed516b2082b8de7a",
+    "docs/reference/nastrond-nam-manifest.json": "e59704cafb912ba685770f761dd99f7943cc4766120a1dcaa422abaa0500d833"
+  },
+  "comparison_sha256": "ea68bef09bdfd5d369741feb9c7e7d4ce5054d5b4a70e41230c7218f816bc945",
+  "nam_core_commit": "0b3d3c97b0859a3a8c92a8628c4dd89a25eb5842"
+}

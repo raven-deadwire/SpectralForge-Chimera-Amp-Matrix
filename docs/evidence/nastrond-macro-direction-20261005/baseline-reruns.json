@@ -1,0 +1,221 @@
+{
+  "note": "Both baseline source versions were rebuilt and all 17 Original states rerendered. NAM models, cached output hashes and render keys were checked. Candidate reference NAM outputs were freshly rendered once and match these same outputs. Archived reports are reused because every audio hash reproduces exactly.",
+  "reruns": {
+    "original-baseline-full": {
+      "source_commit": "87683f753a18de96102bc9676fa5800a7e83aa81",
+      "rerun_comparison_sha256": "ea68bef09bdfd5d369741feb9c7e7d4ce5054d5b4a70e41230c7218f816bc945",
+      "archived_comparison_sha256": "ea68bef09bdfd5d369741feb9c7e7d4ce5054d5b4a70e41230c7218f816bc945",
+      "original_renderer_sha256": "0466adbc86ebe3068bc9c722bd5aa90c633bf4193108c9a8ee1485ccd49a4416",
+      "all_original_audio_hashes_equal": {
+        "default": true,
+        "gain_max": true,
+        "fenrir": true,
+        "surtr": true,
+        "nidhoggr": true,
+        "fimbulvetr": true,
+        "ragnarok": true,
+        "clank_0": true,
+        "clank_1": true,
+        "crush_0": true,
+        "crush_1": true,
+        "impact_0": true,
+        "impact_1": true,
+        "rot_0": true,
+        "rot_1": true,
+        "bloom_0": true,
+        "bloom_1": true
+      },
+      "all_reference_audio_hashes_equal": {
+        "735033": {
+          "digital_equal": true
+        },
+        "735012": {
+          "digital_equal": true
+        },
+        "734757": {
+          "digital_equal": true
+        },
+        "734756": {
+          "digital_equal": true
+        },
+        "734717": {
+          "digital_equal": true
+        },
+        "734449": {
+          "digital_equal": true
+        },
+        "420066": {
+          "digital_equal": true
+        },
+        "420065": {
+          "digital_equal": true
+        },
+        "569473": {
+          "digital_equal": true,
+          "metadata_11_5_dbu": true
+        },
+        "569474": {
+          "digital_equal": true,
+          "metadata_11_5_dbu": true
+        },
+        "569477": {
+          "digital_equal": true,
+          "metadata_11_5_dbu": true
+        },
+        "652432": {
+          "digital_equal": true
+        },
+        "652433": {
+          "digital_equal": true
+        },
+        "652434": {
+          "digital_equal": true
+        },
+        "652435": {
+          "digital_equal": true
+        },
+        "652436": {
+          "digital_equal": true
+        },
+        "652437": {
+          "digital_equal": true
+        },
+        "403977": {
+          "digital_equal": true
+        },
+        "421075": {
+          "digital_equal": true
+        },
+        "421074": {
+          "digital_equal": true
+        },
+        "614727": {
+          "digital_equal": true
+        },
+        "614703": {
+          "digital_equal": true
+        },
+        "561845": {
+          "digital_equal": true
+        },
+        "561843": {
+          "digital_equal": true
+        },
+        "543855": {
+          "digital_equal": true
+        },
+        "543854": {
+          "digital_equal": true
+        }
+      }
+    },
+    "incoming-full": {
+      "source_commit": "54eded7e3d666c866787b742bf249ee9f7f6d4cf",
+      "rerun_comparison_sha256": "48eaec3e78e2977929dbfccdbdf936476624bd60f201ee794022ddeb9799f9bc",
+      "archived_comparison_sha256": "48eaec3e78e2977929dbfccdbdf936476624bd60f201ee794022ddeb9799f9bc",
+      "original_renderer_sha256": "84761765adaf72d16283a0fb8461e837a6a4486deec6e8dcd7a006771d8898f6",
+      "all_original_audio_hashes_equal": {
+        "default": true,
+        "gain_max": true,
+        "fenrir": true,
+        "surtr": true,
+        "nidhoggr": true,
+        "fimbulvetr": true,
+        "ragnarok": true,
+        "clank_0": true,
+        "clank_1": true,
+        "crush_0": true,
+        "crush_1": true,
+        "impact_0": true,
+        "impact_1": true,
+        "rot_0": true,
+        "rot_1": true,
+        "bloom_0": true,
+        "bloom_1": true
+      },
+      "all_reference_audio_hashes_equal": {
+        "735033": {
+          "digital_equal": true
+        },
+        "735012": {
+          "digital_equal": true
+        },
+        "734757": {
+          "digital_equal": true
+        },
+        "734756": {
+          "digital_equal": true
+        },
+        "734717": {
+          "digital_equal": true
+        },
+        "734449": {
+          "digital_equal": true
+        },
+        "420066": {
+          "digital_equal": true
+        },
+        "420065": {
+          "digital_equal": true
+        },
+        "569473": {
+          "digital_equal": true,
+          "metadata_11_5_dbu": true
+        },
+        "569474": {
+          "digital_equal": true,
+          "metadata_11_5_dbu": true
+        },
+        "569477": {
+          "digital_equal": true,
+          "metadata_11_5_dbu": true
+        },
+        "652432": {
+          "digital_equal": true
+        },
+        "652433": {
+          "digital_equal": true
+        },
+        "652434": {
+          "digital_equal": true
+        },
+        "652435": {
+          "digital_equal": true
+        },
+        "652436": {
+          "digital_equal": true
+        },
+        "652437": {
+          "digital_equal": true
+        },
+        "403977": {
+          "digital_equal": true
+        },
+        "421075": {
+          "digital_equal": true
+        },
+        "421074": {
+          "digital_equal": true
+        },
+        "614727": {
+          "digital_equal": true
+        },
+        "614703": {
+          "digital_equal": true
+        },
+        "561845": {
+          "digital_equal": true
+        },
+        "561843": {
+          "digital_equal": true
+        },
+        "543855": {
+          "digital_equal": true
+        },
+        "543854": {
+          "digital_equal": true
+        }
+      }
+    }
+  }
+}

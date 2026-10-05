@@ -286,6 +286,13 @@ def amp_panels():
         note='E670FE core controls from the official manual. Tube Driver replaces the four main paths; no invented Driver gain. All coefficients are authored, not capture-calibrated.',
         omitted='Internal reverb/noise gate and external loop/MIDI hardware are delegated to Chimera FX/global controls. Tube Driver EQ uses an authored passive-style insertion response; physical tone-control ownership/taper remains unverified. No selectable output-tube type or E670/Savage/Powerball equivalence is claimed.',
         scope='C Documentary for named functions; T.D. EQ insertion and all sonic coefficients remain pending exact E670FE validation.')
+    # Retain the released 1.1.2 default-gain calibration on regeneration.
+    defaults = {'legacy.amp.2': {'hw.lead.pre_gain': 0.68}, 'legacy.amp.3': {'hw.ch2.gain': 0.65, 'hw.ch2.mode': 1, 'hw.ch3.gain': 0.68, 'hw.ch3.mode': 2}, 'legacy.amp.4': {'hw.lead.gain': 0.72, 'hw.lead.drive': 0.65}, 'legacy.amp.9': {'hw.dirty.gain': 0.66}, 'planned.amp.zuta-gbg120': {'ch3.gain': 0.78, 'ch4.gain': 0.68}, 'planned.amp.diezel-vh4': {'hw.ch3.gain': 0.78, 'hw.ch4.gain': 0.72}, 'planned.amp.fortin': {'hw.ep.gain': 0.72, 'hw.kk.gain1': 0.68, 'hw.kk.gain2': 0.62}, 'planned.amp.soldano': {'hw.overdrive.preamp': 0.72}, 'planned.amp.bogner': {'hw.lead.gain': 0.7}, 'planned.amp.engl-e670fe': {'hw.lead1.gain': 0.72, 'hw.lead2.gain': 0.68, 'hw.hi_gain': 1}}
+    for key, values in defaults.items():
+        for control in p[key]["controls"]:
+            if control["id"] in values:
+                control["initial"] = values[control["id"]]
+    p["planned.amp.zuta-gbg120"]["initial_channel"] = p["planned.amp.zuta-gbg120"]["channels"][2]["id"]
     return p
 
 

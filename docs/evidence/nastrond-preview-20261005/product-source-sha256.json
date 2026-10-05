@@ -1,0 +1,13 @@
+{
+  "Source/AmpCatalog.h": "269d66eee5d42815d5d23350f118014fb6816b7fcf01c0f73f8a9a86e2b7703e",
+  "Source/AmpNativeCatalog.h": "acd6de103cd1fa66ab6768bc0c69815a4a7cee9d5ab039524bcb4082223a421d",
+  "Source/AmpNativeDSP.h": "1455291b7b87a78b819935884de3443a09e840152d3b718ae560856e0f9a1ee6",
+  "Source/AmpNativeParameters.h": "7e952447f18f85d46e116d4bc03c10dd87baa163b12125cb11246cc500b349f0",
+  "Source/OriginalAmpDefinition.h": "46e4af9eb3c80f5fd1afb82638847ac83cdb0623a64b789da3017c0c54631e93",
+  "Source/OriginalAmpDSP.h": "65ed3930a88f6e430fb26ff33ac006fa4d6d878c78b8d859e6016e2e0c88f926",
+  "Source/OriginalPresets.h": "b24b3c3ff2677afb21cd7e9313e3fdebf1c85bb2f76448c117ea7f8e093d91ae",
+  "Source/FactoryPresetLevels.h": "e1c5b5b7de97ec22cb693e3f471b2d6de1f8434bce7d166a9c09f8727c81f3fc",
+  "Source/PluginProcessor.cpp": "f3e83f92b7964fff2185e8059fb48ad10801b4d71531527e1c26867f1f755848",
+  "Source/PluginEditor.cpp": "8fbb160af025453e49a4f3d9bcaed8b7c1a00e253027efe8568aa1726ab4e2b6",
+  "Source/PresetOrder.h": "36389c041b7102778b850200ab086e0ccb1828a98e4c8f7d18830ac72a8675a7"
+}

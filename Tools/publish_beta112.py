@@ -78,7 +78,7 @@ def prepare_assets(candidate, head, run_id):
     for name in ("OPEN_BETA_RELEASE_NOTES.md", "STUDIO_ONE_TEARDOWN.md", "AMP_NATIVE_DSP.md",
                  "POST_NATIVE_DSP.md", "PEDAL_BOARD_DSP.md", "EXTERNAL_BASS_IRS.md",
                  "NATIVE_NAM_CALIBRATION.md"):
-        assets[name] = ROOT / "docs" / name
+        assets[name] = ROOT / "docs" / ("OPEN_BETA_1_1_2_RELEASE_NOTES.md" if name == "OPEN_BETA_RELEASE_NOTES.md" else name)
     assets["Trace-Chimera-Session.ps1"] = ROOT / "Tools/Trace-Chimera-Session.ps1"
     assets["COPYRIGHT.txt"] = ROOT / "COPYRIGHT.txt"
     for name, path in assets.items():

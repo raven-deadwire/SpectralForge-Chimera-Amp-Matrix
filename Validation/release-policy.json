@@ -501,6 +501,40 @@
         "I1",
         "I2"
       ]
+    },
+    "beta_1_2": {
+      "required_stages": [
+        "A1",
+        "A2",
+        "A3",
+        "A4",
+        "A5",
+        "A6",
+        "A7",
+        "A8",
+        "A9",
+        "A10",
+        "A11",
+        "A12",
+        "A13",
+        "A14",
+        "B1",
+        "B2",
+        "B3",
+        "B4",
+        "B5",
+        "B6",
+        "B8",
+        "B10",
+        "B11",
+        "B12",
+        "B13",
+        "B14",
+        "E1",
+        "E2",
+        "I1",
+        "I2"
+      ]
     }
   },
   "hard_gates": [
@@ -571,15 +605,16 @@
     "I2.LIVE_REMOVE_DAW"
   ],
   "release_scope": {
-    "version": "1.1.2-beta.1",
-    "profile": "beta_1_1_2",
-    "decision_at": "2026-10-05T00:17:10+09:00",
-    "authorization": "User requested immediate 1.1.2 day-one publication after the current calibration verification. Previously deferred transpose goals remain deferred; no additional validation checks are removed.",
+    "version": "1.2.0-beta.1",
+    "profile": "beta_1_2",
+    "decision_at": "2026-10-05T19:10:16+09:00",
+    "authorization": "Owner instructed release after the final Fenrir-relative level and Fimbulvetr clarity corrections. Open Beta publication is authorized once final-source build, regression, installer and package-provenance gates pass. This is not a new measured DI or DAW listening attestation; existing hard gates and disclosed limitations remain.",
     "deferred_checks": [
       "I2.PITCH_LIVE",
       "I2.PITCH_DI"
     ],
     "tracking": "docs/TRANSPOSE_LONG_TERM.md",
-    "status_semantics": "Deferred is not PASS or NOT_APPLICABLE; the transpose_followup profile still requires evidence. All other acceptance gates are retained."
+    "status_semantics": "Deferred is not PASS or NOT_APPLICABLE; the transpose_followup profile still requires evidence. All other acceptance gates are retained.",
+    "channel": "beta.1"
   }
 }

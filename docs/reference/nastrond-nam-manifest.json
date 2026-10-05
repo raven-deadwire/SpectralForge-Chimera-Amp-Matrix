@@ -1,0 +1,1176 @@
+{
+  "schema": 1,
+  "acquired_date_kst": "2026-10-05",
+  "source_commit": "f844c1ae502982cda035f1c91d43146403ff176f",
+  "nam_core_commit": "0b3d3c97b0859a3a8c92a8628c4dd89a25eb5842",
+  "license": "T3K; NAM files are local measurement inputs, not included in repository or redistributed.",
+  "references": [
+    {
+      "family": "meshuggah",
+      "tone_id": 86564,
+      "model_id": 735033,
+      "name": "Fortin unboosted bright",
+      "url": "https://www.tone3000.com/tones/fortin-meshuggah-86564",
+      "model_url": "https://api.tone3000.com/storage/v1/object/public/models/t90ltuv9abm.nam",
+      "file": "86564/735033.nam",
+      "sha256": "e717907206eccf51cd7ab62c6245889e435118f9298a714b92e954486827ce1d",
+      "metadata": {
+        "date": {
+          "year": 2026,
+          "month": 8,
+          "day": 28,
+          "hour": 16,
+          "minute": 29,
+          "second": 31
+        },
+        "loudness": -19.93206819519591,
+        "gain": 0.8711674119162848,
+        "name": "Fortin unboosted bright",
+        "modeled_by": "cutia283",
+        "gear_type": "amp_cab",
+        "gear_make": "Fortin Meshuggah Plexi",
+        "gear_model": "Fortin Meshuggah Plexi",
+        "tone_type": "metal",
+        "trainer": "TONE3000"
+      },
+      "architecture": "SlimmableContainer",
+      "sample_rate": 48000,
+      "role": "CLANK",
+      "capture_scope": "amp_cab",
+      "boosted": false,
+      "gain_group": "mid_gain_noon",
+      "absolute_input_calibration": false,
+      "head_timbre_comparison_eligible": false,
+      "qualification": "Publisher identifies Fortin Meshuggah Plexi; full-rig/cab included. No exact head-only reference acquired. Only capture-chain dynamics can be measured; amp-only spectral validation blocked. No input calibration.",
+      "page_snapshot_sha256": "de98866d54003bd71d9829ab1f7d214741715479789af2f8c2de3b979dd75392"
+    },
+    {
+      "family": "meshuggah",
+      "tone_id": 86564,
+      "model_id": 735012,
+      "name": "Fortin Meshuggah",
+      "url": "https://www.tone3000.com/tones/fortin-meshuggah-86564",
+      "model_url": "https://api.tone3000.com/storage/v1/object/public/models/0dcbks89mpd.nam",
+      "file": "86564/735012.nam",
+      "sha256": "35e11bc7edda5c67c73a2dff5db30e9db8f390fde722e58d9036321e9cd954aa",
+      "metadata": {
+        "date": {
+          "year": 2026,
+          "month": 8,
+          "day": 28,
+          "hour": 16,
+          "minute": 10,
+          "second": 59
+        },
+        "loudness": -20.057282968223813,
+        "gain": 0.8246880854622256,
+        "name": "Fortin Meshuggah",
+        "modeled_by": "cutia283",
+        "gear_type": "amp_cab",
+        "gear_make": "Fortin Meshuggah Plexi",
+        "gear_model": "Fortin Meshuggah Plexi",
+        "tone_type": "metal",
+        "trainer": "TONE3000"
+      },
+      "architecture": "SlimmableContainer",
+      "sample_rate": 48000,
+      "role": "CLANK",
+      "capture_scope": "amp_cab",
+      "boosted": false,
+      "gain_group": "mid_gain_noon",
+      "absolute_input_calibration": false,
+      "head_timbre_comparison_eligible": false,
+      "qualification": "Publisher identifies Fortin Meshuggah Plexi; full-rig/cab included. No exact head-only reference acquired. Only capture-chain dynamics can be measured; amp-only spectral validation blocked. No input calibration.",
+      "page_snapshot_sha256": "de98866d54003bd71d9829ab1f7d214741715479789af2f8c2de3b979dd75392"
+    },
+    {
+      "family": "meshuggah",
+      "tone_id": 86564,
+      "model_id": 734757,
+      "name": "Fortin boosted st 9 orange cab",
+      "url": "https://www.tone3000.com/tones/fortin-meshuggah-86564",
+      "model_url": "https://api.tone3000.com/storage/v1/object/public/models/5wnc08jalog.nam",
+      "file": "86564/734757.nam",
+      "sha256": "513925fa99eeaf5f848a11df8d94bbe9981c3dfb838b04f8f657b70f0c95a478",
+      "metadata": {
+        "date": {
+          "day": 28,
+          "hour": 11,
+          "year": 2026,
+          "month": 8,
+          "minute": 32,
+          "second": 37
+        },
+        "gain": 0.8241390563982831,
+        "name": "Fortin boosted st 9 orange cab",
+        "trainer": "TONE3000",
+        "loudness": -21.98256640167405,
+        "gear_make": "T3K-Null",
+        "gear_type": "amp_cab",
+        "tone_type": "T3K-Null",
+        "gear_model": "T3K-Null",
+        "modeled_by": "cutia283"
+      },
+      "architecture": "SlimmableContainer",
+      "sample_rate": 48000,
+      "role": "CLANK",
+      "capture_scope": "amp_cab",
+      "boosted": true,
+      "gain_group": "boosted_context",
+      "absolute_input_calibration": false,
+      "head_timbre_comparison_eligible": false,
+      "qualification": "Publisher identifies Fortin Meshuggah Plexi; full-rig/cab included. No exact head-only reference acquired. Only capture-chain dynamics can be measured; amp-only spectral validation blocked. No input calibration.",
+      "page_snapshot_sha256": "de98866d54003bd71d9829ab1f7d214741715479789af2f8c2de3b979dd75392"
+    },
+    {
+      "family": "meshuggah",
+      "tone_id": 86564,
+      "model_id": 734756,
+      "name": "Fortin boosted st9",
+      "url": "https://www.tone3000.com/tones/fortin-meshuggah-86564",
+      "model_url": "https://api.tone3000.com/storage/v1/object/public/models/vem04m2gkur.nam",
+      "file": "86564/734756.nam",
+      "sha256": "fc38845890ad144108e5bb3e9d79a02c3f4b167beff2b59b4708618e436104ee",
+      "metadata": {
+        "date": {
+          "day": 28,
+          "hour": 11,
+          "year": 2026,
+          "month": 8,
+          "minute": 21,
+          "second": 48
+        },
+        "gain": 0.8053366216605629,
+        "name": "Fortin boosted st9",
+        "trainer": "TONE3000",
+        "loudness": -21.473668355803266,
+        "gear_make": "T3K-Null",
+        "gear_type": "amp_cab",
+        "tone_type": "T3K-Null",
+        "gear_model": "T3K-Null",
+        "modeled_by": "cutia283"
+      },
+      "architecture": "SlimmableContainer",
+      "sample_rate": 48000,
+      "role": "CLANK",
+      "capture_scope": "amp_cab",
+      "boosted": true,
+      "gain_group": "boosted_context",
+      "absolute_input_calibration": false,
+      "head_timbre_comparison_eligible": false,
+      "qualification": "Publisher identifies Fortin Meshuggah Plexi; full-rig/cab included. No exact head-only reference acquired. Only capture-chain dynamics can be measured; amp-only spectral validation blocked. No input calibration.",
+      "page_snapshot_sha256": "de98866d54003bd71d9829ab1f7d214741715479789af2f8c2de3b979dd75392"
+    },
+    {
+      "family": "meshuggah",
+      "tone_id": 86564,
+      "model_id": 734717,
+      "name": "Fortin mids",
+      "url": "https://www.tone3000.com/tones/fortin-meshuggah-86564",
+      "model_url": "https://api.tone3000.com/storage/v1/object/public/models/jvppzrtpwk.nam",
+      "file": "86564/734717.nam",
+      "sha256": "84593022ea49fc3fb9a623f0327f268f09e1bdbdeaf6c0f449de9a635a741791",
+      "metadata": {
+        "date": {
+          "day": 28,
+          "hour": 11,
+          "year": 2026,
+          "month": 8,
+          "minute": 7,
+          "second": 22
+        },
+        "gain": 0.8175946499411779,
+        "name": "Fortin mids",
+        "trainer": "TONE3000",
+        "loudness": -20.668969556731287,
+        "gear_make": "T3K-Null",
+        "gear_type": "amp_cab",
+        "tone_type": "T3K-Null",
+        "gear_model": "T3K-Null",
+        "modeled_by": "cutia283"
+      },
+      "architecture": "SlimmableContainer",
+      "sample_rate": 48000,
+      "role": "CLANK",
+      "capture_scope": "amp_cab",
+      "boosted": false,
+      "gain_group": "mid_gain_noon",
+      "absolute_input_calibration": false,
+      "head_timbre_comparison_eligible": false,
+      "qualification": "Publisher identifies Fortin Meshuggah Plexi; full-rig/cab included. No exact head-only reference acquired. Only capture-chain dynamics can be measured; amp-only spectral validation blocked. No input calibration.",
+      "page_snapshot_sha256": "de98866d54003bd71d9829ab1f7d214741715479789af2f8c2de3b979dd75392"
+    },
+    {
+      "family": "meshuggah",
+      "tone_id": 86564,
+      "model_id": 734449,
+      "name": "Fortin slight scoop",
+      "url": "https://www.tone3000.com/tones/fortin-meshuggah-86564",
+      "model_url": "https://api.tone3000.com/storage/v1/object/public/models/bmpfhkghvtj.nam",
+      "file": "86564/734449.nam",
+      "sha256": "0d146a2f08fe93281203ac6d6cdae8d0226050c98bcb4f8eef46487707cccb8d",
+      "metadata": {
+        "date": {
+          "day": 28,
+          "hour": 9,
+          "year": 2026,
+          "month": 8,
+          "minute": 47,
+          "second": 36
+        },
+        "gain": 0.8252604517333181,
+        "name": "Fortin slight scoop",
+        "trainer": "TONE3000",
+        "loudness": -20.386849960213073,
+        "gear_make": "T3K-Null",
+        "gear_type": "amp_cab",
+        "tone_type": "T3K-Null",
+        "gear_model": "T3K-Null",
+        "modeled_by": "cutia283"
+      },
+      "architecture": "SlimmableContainer",
+      "sample_rate": 48000,
+      "role": "CLANK",
+      "capture_scope": "amp_cab",
+      "boosted": false,
+      "gain_group": "mid_gain_noon",
+      "absolute_input_calibration": false,
+      "head_timbre_comparison_eligible": false,
+      "qualification": "Publisher identifies Fortin Meshuggah Plexi; full-rig/cab included. No exact head-only reference acquired. Only capture-chain dynamics can be measured; amp-only spectral validation blocked. No input calibration.",
+      "page_snapshot_sha256": "de98866d54003bd71d9829ab1f7d214741715479789af2f8c2de3b979dd75392"
+    },
+    {
+      "family": "meshuggah",
+      "tone_id": 1621,
+      "model_id": 420066,
+      "name": "Fortin Meshuggah  2",
+      "url": "https://www.tone3000.com/tones/fortin-meshuggah-plexi-dark-clouds--1621",
+      "model_url": "https://api.tone3000.com/storage/v1/object/public/models/45bb09ed43704fc5_a2.nam",
+      "file": "1621/420066.nam",
+      "sha256": "6172344806af0b685d3d5e1833d8c0133bccc3b8a23b0624837f296453f2da0d",
+      "metadata": {
+        "date": {
+          "year": 2026,
+          "month": 5,
+          "day": 15,
+          "hour": 2,
+          "minute": 54,
+          "second": 9
+        },
+        "loudness": -25.9981689453125,
+        "gain": 0.8448156995198751,
+        "gear_make": "Fortin Meshuggah Plexi",
+        "gear_model": "Fortin Meshuggah Plexi",
+        "tone_type": "guitar",
+        "gear_type": "full-rig"
+      },
+      "architecture": "SlimmableContainer",
+      "sample_rate": 48000.0,
+      "role": "CLANK",
+      "capture_scope": "amp_cab",
+      "boosted": false,
+      "gain_group": "heavy_context",
+      "absolute_input_calibration": false,
+      "head_timbre_comparison_eligible": false,
+      "qualification": "Publisher identifies Fortin Meshuggah Plexi; full-rig/cab included. No exact head-only reference acquired. Only capture-chain dynamics can be measured; amp-only spectral validation blocked. No input calibration.",
+      "page_snapshot_sha256": "81fcd3e2a14c983f3bf618c3046354eedb43304b0490ed4a09fa7a69dbe99b8a"
+    },
+    {
+      "family": "meshuggah",
+      "tone_id": 1621,
+      "model_id": 420065,
+      "name": "Fortin Meshuggah 1",
+      "url": "https://www.tone3000.com/tones/fortin-meshuggah-plexi-dark-clouds--1621",
+      "model_url": "https://api.tone3000.com/storage/v1/object/public/models/27bf8ddca32453a7_a2.nam",
+      "file": "1621/420065.nam",
+      "sha256": "16919929d49c5071cd3aff03245881f63711ab2684220f7e1d9a702d139fddb6",
+      "metadata": {
+        "date": {
+          "year": 2026,
+          "month": 5,
+          "day": 15,
+          "hour": 2,
+          "minute": 54,
+          "second": 9
+        },
+        "loudness": -25.89124298095703,
+        "gain": 0.8520359401002988,
+        "gear_make": "Fortin Meshuggah Plexi",
+        "gear_model": "Fortin Meshuggah Plexi",
+        "tone_type": "guitar",
+        "gear_type": "full-rig"
+      },
+      "architecture": "SlimmableContainer",
+      "sample_rate": 48000.0,
+      "role": "CLANK",
+      "capture_scope": "amp_cab",
+      "boosted": false,
+      "gain_group": "heavy_context",
+      "absolute_input_calibration": false,
+      "head_timbre_comparison_eligible": false,
+      "qualification": "Publisher identifies Fortin Meshuggah Plexi; full-rig/cab included. No exact head-only reference acquired. Only capture-chain dynamics can be measured; amp-only spectral validation blocked. No input calibration.",
+      "page_snapshot_sha256": "81fcd3e2a14c983f3bf618c3046354eedb43304b0490ed4a09fa7a69dbe99b8a"
+    },
+    {
+      "family": "vh4",
+      "tone_id": 64455,
+      "model_id": 569473,
+      "name": "[AMP] DiZLVH4-CH3 Potty Time - DI",
+      "url": "https://www.tone3000.com/tones/diezel-vh4-64455",
+      "model_url": "https://api.tone3000.com/storage/v1/object/public/models/r7pvl9d8o3n.nam",
+      "file": "64455/569473.nam",
+      "sha256": "77b0876b6e394bfbb080664dd64a6b4696a28dae5ae9a85db05e3eaf9689b6ae",
+      "metadata": {
+        "date": {
+          "year": 2026,
+          "month": 6,
+          "day": 10,
+          "hour": 1,
+          "minute": 52,
+          "second": 4
+        },
+        "loudness": -17.23232489200564,
+        "gain": 0.8914825768716791,
+        "name": "[AMP] DiZLVH4-CH3 Potty Time - DI",
+        "modeled_by": "2dor",
+        "gear_type": "amp",
+        "gear_make": "Diezel VH4",
+        "gear_model": "Diezel VH4",
+        "tone_type": "clean to mean",
+        "trainer": "TONE3000",
+        "input_level_dbu": 18.995,
+        "output_level_dbu": 13.195
+      },
+      "architecture": "SlimmableContainer",
+      "sample_rate": 48000,
+      "role": "CRUSH",
+      "capture_scope": "amp_head",
+      "boosted": false,
+      "gain_group": "high_gain",
+      "absolute_input_calibration": true,
+      "head_timbre_comparison_eligible": true,
+      "qualification": "Publisher identifies complete VH4 EL34 DI under speaker load. CH3/CH4 references only; numeric knob settings not available. Input/output calibration embedded in NAM.",
+      "page_snapshot_sha256": "3eaed5a2d75ae74cdc4cda723486cbef21038a228e445e059692f5df5b2c76ce"
+    },
+    {
+      "family": "vh4",
+      "tone_id": 64455,
+      "model_id": 569474,
+      "name": "[AMP] DiZLVH4-CH3 Physics - DI",
+      "url": "https://www.tone3000.com/tones/diezel-vh4-64455",
+      "model_url": "https://api.tone3000.com/storage/v1/object/public/models/63wkketwkuk.nam",
+      "file": "64455/569474.nam",
+      "sha256": "c98039d7a29142bf8ab4f97eeebfa89bbeae066a384ac29fd9abd5f2927956b6",
+      "metadata": {
+        "date": {
+          "year": 2026,
+          "month": 6,
+          "day": 10,
+          "hour": 2,
+          "minute": 27,
+          "second": 24
+        },
+        "loudness": -20.083398384425127,
+        "gain": 0.8668710384990231,
+        "name": "[AMP] DiZLVH4-CH3 Physics - DI",
+        "modeled_by": "2dor",
+        "gear_type": "amp",
+        "gear_make": "Diezel VH4",
+        "gear_model": "Diezel VH4",
+        "tone_type": "clean to mean",
+        "trainer": "TONE3000",
+        "input_level_dbu": 18.995,
+        "output_level_dbu": 13.195
+      },
+      "architecture": "SlimmableContainer",
+      "sample_rate": 48000,
+      "role": "CRUSH",
+      "capture_scope": "amp_head",
+      "boosted": false,
+      "gain_group": "high_gain",
+      "absolute_input_calibration": true,
+      "head_timbre_comparison_eligible": true,
+      "qualification": "Publisher identifies complete VH4 EL34 DI under speaker load. CH3/CH4 references only; numeric knob settings not available. Input/output calibration embedded in NAM.",
+      "page_snapshot_sha256": "3eaed5a2d75ae74cdc4cda723486cbef21038a228e445e059692f5df5b2c76ce"
+    },
+    {
+      "family": "vh4",
+      "tone_id": 64455,
+      "model_id": 569477,
+      "name": "[AMP] DiZLVH4-CH4 Lead the Way - DI",
+      "url": "https://www.tone3000.com/tones/diezel-vh4-64455",
+      "model_url": "https://api.tone3000.com/storage/v1/object/public/models/tvcq71whyl.nam",
+      "file": "64455/569477.nam",
+      "sha256": "2ec85fabb0f4a7d1478b4cd9da7651a2a36b5aaaf4756aa0508cddda8c47114d",
+      "metadata": {
+        "date": {
+          "year": 2026,
+          "month": 6,
+          "day": 10,
+          "hour": 1,
+          "minute": 59,
+          "second": 57
+        },
+        "loudness": -12.880222727669981,
+        "gain": 0.837965352992276,
+        "name": "[AMP] DiZLVH4-CH4 Lead the Way - DI",
+        "modeled_by": "2dor",
+        "gear_type": "amp",
+        "gear_make": "Diezel VH4",
+        "gear_model": "Diezel VH4",
+        "tone_type": "clean to mean",
+        "trainer": "TONE3000",
+        "input_level_dbu": 18.995,
+        "output_level_dbu": 13.195
+      },
+      "architecture": "SlimmableContainer",
+      "sample_rate": 48000,
+      "role": "CRUSH",
+      "capture_scope": "amp_head",
+      "boosted": false,
+      "gain_group": "high_gain",
+      "absolute_input_calibration": true,
+      "head_timbre_comparison_eligible": true,
+      "qualification": "Publisher identifies complete VH4 EL34 DI under speaker load. CH3/CH4 references only; numeric knob settings not available. Input/output calibration embedded in NAM.",
+      "page_snapshot_sha256": "3eaed5a2d75ae74cdc4cda723486cbef21038a228e445e059692f5df5b2c76ce"
+    },
+    {
+      "family": "twinjet",
+      "tone_id": 74483,
+      "model_id": 652432,
+      "name": "Uberschall Twin Jet CH1 + Merciless Drive",
+      "url": "https://www.tone3000.com/tones/bogner-uberschall-twin-jet-kt88-74483",
+      "model_url": "https://api.tone3000.com/storage/v1/object/public/models/vrwq61r7b4m.nam",
+      "file": "74483/652432.nam",
+      "sha256": "4eae7a2435a93487a4dd6191a32b8b7b6b801fc0e3890e4475a82b57a9ef7228",
+      "metadata": {
+        "date": {
+          "day": 5,
+          "hour": 13,
+          "year": 2026,
+          "month": 7,
+          "minute": 57,
+          "second": 38
+        },
+        "gain": 0.8217268538444807,
+        "name": "Uberschall Twin Jet CH1 + Merciless Drive",
+        "trainer": "TONE3000",
+        "loudness": -17.10902786877196,
+        "gear_make": "Vic Audio Merciless Drive Pedal",
+        "gear_type": "amp",
+        "tone_type": "metal",
+        "gear_model": "Vic Audio Merciless Drive Pedal",
+        "modeled_by": "petrc"
+      },
+      "architecture": "SlimmableContainer",
+      "sample_rate": 48000,
+      "role": "IMPACT",
+      "capture_scope": "amp_head",
+      "boosted": true,
+      "gain_group": "boosted_context",
+      "absolute_input_calibration": false,
+      "head_timbre_comparison_eligible": true,
+      "qualification": "Publisher identifies Twin Jet KT88; CH1 is crunch, CH2 is high gain. Boosted and unboosted cases separated. NAM gear_make/model incorrectly names Merciless Drive even in unboosted cases; page and model names supply attribution. Input calibration and knob positions unavailable.",
+      "page_snapshot_sha256": "dfcd65370c42cc36748bcbe2a3075fc3ef1500d9b19aee63daa02f0d0439dc25"
+    },
+    {
+      "family": "twinjet",
+      "tone_id": 74483,
+      "model_id": 652433,
+      "name": "Uberschall Twin Jet CH1",
+      "url": "https://www.tone3000.com/tones/bogner-uberschall-twin-jet-kt88-74483",
+      "model_url": "https://api.tone3000.com/storage/v1/object/public/models/ufloky5qlbl.nam",
+      "file": "74483/652433.nam",
+      "sha256": "67678a73070f5c6cad9561f301547864c64504cf02b9bc6871b75233dd50152b",
+      "metadata": {
+        "date": {
+          "day": 5,
+          "hour": 13,
+          "year": 2026,
+          "month": 7,
+          "minute": 57,
+          "second": 27
+        },
+        "gain": 0.8179532133102363,
+        "name": "Uberschall Twin Jet CH1",
+        "trainer": "TONE3000",
+        "loudness": -16.424479930118174,
+        "gear_make": "Vic Audio Merciless Drive Pedal",
+        "gear_type": "amp",
+        "tone_type": "metal",
+        "gear_model": "Vic Audio Merciless Drive Pedal",
+        "modeled_by": "petrc"
+      },
+      "architecture": "SlimmableContainer",
+      "sample_rate": 48000,
+      "role": "IMPACT",
+      "capture_scope": "amp_head",
+      "boosted": false,
+      "gain_group": "context",
+      "absolute_input_calibration": false,
+      "head_timbre_comparison_eligible": true,
+      "qualification": "Publisher identifies Twin Jet KT88; CH1 is crunch, CH2 is high gain. Boosted and unboosted cases separated. NAM gear_make/model incorrectly names Merciless Drive even in unboosted cases; page and model names supply attribution. Input calibration and knob positions unavailable.",
+      "page_snapshot_sha256": "dfcd65370c42cc36748bcbe2a3075fc3ef1500d9b19aee63daa02f0d0439dc25"
+    },
+    {
+      "family": "twinjet",
+      "tone_id": 74483,
+      "model_id": 652434,
+      "name": "Uberschall Twin Jet CH2 v1 + Merciless Drive",
+      "url": "https://www.tone3000.com/tones/bogner-uberschall-twin-jet-kt88-74483",
+      "model_url": "https://api.tone3000.com/storage/v1/object/public/models/gfqjdh2hjuw.nam",
+      "file": "74483/652434.nam",
+      "sha256": "8f5151c7b6217a44511212042d920a9ef9f53254dee1eb8402bfd0a012bf6adb",
+      "metadata": {
+        "date": {
+          "day": 5,
+          "hour": 13,
+          "year": 2026,
+          "month": 7,
+          "minute": 57,
+          "second": 31
+        },
+        "gain": 0.8326740776518013,
+        "name": "Uberschall Twin Jet CH2 v1 + Merciless Drive",
+        "trainer": "TONE3000",
+        "loudness": -18.483722993458006,
+        "gear_make": "Vic Audio Merciless Drive Pedal",
+        "gear_type": "amp",
+        "tone_type": "metal",
+        "gear_model": "Vic Audio Merciless Drive Pedal",
+        "modeled_by": "petrc"
+      },
+      "architecture": "SlimmableContainer",
+      "sample_rate": 48000,
+      "role": "IMPACT",
+      "capture_scope": "amp_head",
+      "boosted": true,
+      "gain_group": "boosted_context",
+      "absolute_input_calibration": false,
+      "head_timbre_comparison_eligible": true,
+      "qualification": "Publisher identifies Twin Jet KT88; CH1 is crunch, CH2 is high gain. Boosted and unboosted cases separated. NAM gear_make/model incorrectly names Merciless Drive even in unboosted cases; page and model names supply attribution. Input calibration and knob positions unavailable.",
+      "page_snapshot_sha256": "dfcd65370c42cc36748bcbe2a3075fc3ef1500d9b19aee63daa02f0d0439dc25"
+    },
+    {
+      "family": "twinjet",
+      "tone_id": 74483,
+      "model_id": 652435,
+      "name": "Uberschall Twin Jet CH2 v2 + ST9Pro+",
+      "url": "https://www.tone3000.com/tones/bogner-uberschall-twin-jet-kt88-74483",
+      "model_url": "https://api.tone3000.com/storage/v1/object/public/models/kmwlyjdq9go.nam",
+      "file": "74483/652435.nam",
+      "sha256": "5b0cc81861ff877002c7968c59f68583a70a8adad62679d93d264dc9f5e5a2df",
+      "metadata": {
+        "date": {
+          "day": 5,
+          "hour": 13,
+          "year": 2026,
+          "month": 7,
+          "minute": 55,
+          "second": 54
+        },
+        "gain": 0.8287159615266834,
+        "name": "Uberschall Twin Jet CH2 v2 + ST9Pro+",
+        "trainer": "TONE3000",
+        "loudness": -18.33703543408555,
+        "gear_make": "Vic Audio Merciless Drive Pedal",
+        "gear_type": "amp",
+        "tone_type": "metal",
+        "gear_model": "Vic Audio Merciless Drive Pedal",
+        "modeled_by": "petrc"
+      },
+      "architecture": "SlimmableContainer",
+      "sample_rate": 48000,
+      "role": "IMPACT",
+      "capture_scope": "amp_head",
+      "boosted": true,
+      "gain_group": "boosted_context",
+      "absolute_input_calibration": false,
+      "head_timbre_comparison_eligible": true,
+      "qualification": "Publisher identifies Twin Jet KT88; CH1 is crunch, CH2 is high gain. Boosted and unboosted cases separated. NAM gear_make/model incorrectly names Merciless Drive even in unboosted cases; page and model names supply attribution. Input calibration and knob positions unavailable.",
+      "page_snapshot_sha256": "dfcd65370c42cc36748bcbe2a3075fc3ef1500d9b19aee63daa02f0d0439dc25"
+    },
+    {
+      "family": "twinjet",
+      "tone_id": 74483,
+      "model_id": 652436,
+      "name": "Uberschall Twin Jet CH2 v2",
+      "url": "https://www.tone3000.com/tones/bogner-uberschall-twin-jet-kt88-74483",
+      "model_url": "https://api.tone3000.com/storage/v1/object/public/models/xzx9svtn9ms.nam",
+      "file": "74483/652436.nam",
+      "sha256": "2ccd6a777cf5052fdb1454100d624017542881f163c25a15d3e51b53d0787c45",
+      "metadata": {
+        "date": {
+          "day": 5,
+          "hour": 13,
+          "year": 2026,
+          "month": 7,
+          "minute": 57,
+          "second": 31
+        },
+        "gain": 0.8551111992063195,
+        "name": "Uberschall Twin Jet CH2 v2",
+        "trainer": "TONE3000",
+        "loudness": -18.102749540182216,
+        "gear_make": "Vic Audio Merciless Drive Pedal",
+        "gear_type": "amp",
+        "tone_type": "metal",
+        "gear_model": "Vic Audio Merciless Drive Pedal",
+        "modeled_by": "petrc"
+      },
+      "architecture": "SlimmableContainer",
+      "sample_rate": 48000,
+      "role": "IMPACT",
+      "capture_scope": "amp_head",
+      "boosted": false,
+      "gain_group": "high_gain",
+      "absolute_input_calibration": false,
+      "head_timbre_comparison_eligible": true,
+      "qualification": "Publisher identifies Twin Jet KT88; CH1 is crunch, CH2 is high gain. Boosted and unboosted cases separated. NAM gear_make/model incorrectly names Merciless Drive even in unboosted cases; page and model names supply attribution. Input calibration and knob positions unavailable.",
+      "page_snapshot_sha256": "dfcd65370c42cc36748bcbe2a3075fc3ef1500d9b19aee63daa02f0d0439dc25"
+    },
+    {
+      "family": "twinjet",
+      "tone_id": 74483,
+      "model_id": 652437,
+      "name": "Uberschall Twin Jet CH2 v1",
+      "url": "https://www.tone3000.com/tones/bogner-uberschall-twin-jet-kt88-74483",
+      "model_url": "https://api.tone3000.com/storage/v1/object/public/models/0pok7hbon8sm.nam",
+      "file": "74483/652437.nam",
+      "sha256": "822f2a0cb2e3bbb9bafa76c68b95132fa93bfacc803afa95815ae235d5c5fda1",
+      "metadata": {
+        "date": {
+          "day": 5,
+          "hour": 13,
+          "year": 2026,
+          "month": 7,
+          "minute": 55,
+          "second": 51
+        },
+        "gain": 0.865563112426896,
+        "name": "Uberschall Twin Jet CH2 v1",
+        "trainer": "TONE3000",
+        "loudness": -18.773883553682047,
+        "gear_make": "Vic Audio Merciless Drive Pedal",
+        "gear_type": "amp",
+        "tone_type": "metal",
+        "gear_model": "Vic Audio Merciless Drive Pedal",
+        "modeled_by": "petrc"
+      },
+      "architecture": "SlimmableContainer",
+      "sample_rate": 48000,
+      "role": "IMPACT",
+      "capture_scope": "amp_head",
+      "boosted": false,
+      "gain_group": "high_gain",
+      "absolute_input_calibration": false,
+      "head_timbre_comparison_eligible": true,
+      "qualification": "Publisher identifies Twin Jet KT88; CH1 is crunch, CH2 is high gain. Boosted and unboosted cases separated. NAM gear_make/model incorrectly names Merciless Drive even in unboosted cases; page and model names supply attribution. Input calibration and knob positions unavailable.",
+      "page_snapshot_sha256": "dfcd65370c42cc36748bcbe2a3075fc3ef1500d9b19aee63daa02f0d0439dc25"
+    },
+    {
+      "family": "granophyre",
+      "tone_id": 39398,
+      "model_id": 403977,
+      "name": "amp omega test nam 1(2)",
+      "url": "https://www.tone3000.com/tones/omega-granophyre-kt88-39398",
+      "model_url": "https://api.tone3000.com/storage/v1/object/public/models/7s6tiqmiim_a2.nam",
+      "file": "39398/403977.nam",
+      "sha256": "986aac486c935d0716bcb9cf314b660b7daa20c5f884e166dfb1bd35272ccd7a",
+      "metadata": {
+        "date": {
+          "year": 2026,
+          "month": 5,
+          "day": 12,
+          "hour": 15,
+          "minute": 5,
+          "second": 34
+        },
+        "loudness": -18.322853088378906,
+        "gain": 0.8250436064218697,
+        "name": "amp omega test nam 1(2)",
+        "modeled_by": "palsuabcd",
+        "training": {
+          "data": {
+            "checks": {
+              "passed": true,
+              "version": 3
+            },
+            "latency": {
+              "manual": null,
+              "calibration": {
+                "delays": [
+                  -1
+                ],
+                "warnings": {
+                  "matches_lookahead": false,
+                  "disagreement_too_high": false
+                },
+                "recommended": -2,
+                "safety_factor": 1,
+                "algorithm_version": 1
+              }
+            }
+          },
+          "settings": {
+            "ignore_checks": false
+          },
+          "validation_esr": 0.04260741519125351
+        },
+        "gear_make": "Omega Granophyre KT88",
+        "gear_model": "Omega Granophyre KT88",
+        "tone_type": "t3k-unset",
+        "gear_type": "amp"
+      },
+      "architecture": "SlimmableContainer",
+      "sample_rate": 48000.0,
+      "role": "ROT",
+      "capture_scope": "amp_head",
+      "boosted": false,
+      "gain_group": "unspecified_gain",
+      "absolute_input_calibration": false,
+      "head_timbre_comparison_eligible": true,
+      "qualification": "Publisher labels Omega Granophyre amp head. Capture chain, physical hardware provenance, gain settings and input calibration are not documented; identity is uploader-asserted, not independently verified.",
+      "page_snapshot_sha256": "70790eadd16025c1c6801d6851c13f832a0eb31a327bc54cce245acbb3da9df9"
+    },
+    {
+      "family": "granophyre",
+      "tone_id": 39716,
+      "model_id": 421075,
+      "name": "Omega Granophyre  2000 epochs ",
+      "url": "https://www.tone3000.com/tones/omega-granophyre-2000-epochs-39716",
+      "model_url": "https://api.tone3000.com/storage/v1/object/public/models/xpyopfwym5n_a2.nam",
+      "file": "39716/421075.nam",
+      "sha256": "4847b582fd60b4845fbeffc00295ade20af22729259bd1f545a507b22086fbe1",
+      "metadata": {
+        "date": {
+          "year": 2026,
+          "month": 5,
+          "day": 15,
+          "hour": 2,
+          "minute": 59,
+          "second": 51
+        },
+        "loudness": -18.54427719116211,
+        "gain": 0.8236827086764793,
+        "training": {
+          "data": {
+            "checks": {
+              "passed": true,
+              "version": 3
+            },
+            "latency": {
+              "manual": null,
+              "calibration": {
+                "delays": [
+                  -1
+                ],
+                "warnings": {
+                  "matches_lookahead": false,
+                  "disagreement_too_high": false
+                },
+                "recommended": -2,
+                "safety_factor": 1,
+                "algorithm_version": 1
+              }
+            }
+          },
+          "settings": {
+            "ignore_checks": false
+          },
+          "validation_esr": 0.05432315116888067
+        },
+        "gear_make": "Omega Ampworks Granophyre",
+        "gear_model": "Omega Ampworks Granophyre",
+        "tone_type": "t3k-unset",
+        "gear_type": "amp"
+      },
+      "architecture": "SlimmableContainer",
+      "sample_rate": 48000.0,
+      "role": "ROT",
+      "capture_scope": "amp_head",
+      "boosted": false,
+      "gain_group": "unspecified_gain",
+      "absolute_input_calibration": false,
+      "head_timbre_comparison_eligible": true,
+      "qualification": "Publisher labels Omega Granophyre amp head. Capture chain, physical hardware provenance, gain settings and input calibration are not documented; identity is uploader-asserted, not independently verified.",
+      "page_snapshot_sha256": "9ff6b9219297d5f93d599de802ee25de2feda4652aff566577a271d9cac9304e"
+    },
+    {
+      "family": "granophyre",
+      "tone_id": 39716,
+      "model_id": 421074,
+      "name": "Omega test 100 epochs",
+      "url": "https://www.tone3000.com/tones/omega-granophyre-2000-epochs-39716",
+      "model_url": "https://api.tone3000.com/storage/v1/object/public/models/o978slj7ote_a2.nam",
+      "file": "39716/421074.nam",
+      "sha256": "7f689370c4ac77ac7598efcbb0dbf26c1660857979518e85b082952188a115a9",
+      "metadata": {
+        "date": {
+          "year": 2026,
+          "month": 5,
+          "day": 15,
+          "hour": 2,
+          "minute": 59,
+          "second": 51
+        },
+        "loudness": -18.538846969604492,
+        "gain": 0.8154731732576068,
+        "name": "amp omega test nam 1(2)",
+        "modeled_by": "palsuabcd",
+        "training": {
+          "data": {
+            "checks": {
+              "passed": true,
+              "version": 3
+            },
+            "latency": {
+              "manual": null,
+              "calibration": {
+                "delays": [
+                  -1
+                ],
+                "warnings": {
+                  "matches_lookahead": false,
+                  "disagreement_too_high": false
+                },
+                "recommended": -2,
+                "safety_factor": 1,
+                "algorithm_version": 1
+              }
+            }
+          },
+          "settings": {
+            "ignore_checks": false
+          },
+          "validation_esr": 0.04260741519125351
+        },
+        "gear_make": "Omega Ampworks Granophyre",
+        "gear_model": "Omega Ampworks Granophyre",
+        "tone_type": "t3k-unset",
+        "gear_type": "amp"
+      },
+      "architecture": "SlimmableContainer",
+      "sample_rate": 48000.0,
+      "role": "ROT",
+      "capture_scope": "amp_head",
+      "boosted": false,
+      "gain_group": "unspecified_gain",
+      "absolute_input_calibration": false,
+      "head_timbre_comparison_eligible": true,
+      "qualification": "Publisher labels Omega Granophyre amp head. Capture chain, physical hardware provenance, gain settings and input calibration are not documented; identity is uploader-asserted, not independently verified.",
+      "page_snapshot_sha256": "9ff6b9219297d5f93d599de802ee25de2feda4652aff566577a271d9cac9304e"
+    },
+    {
+      "family": "matamp",
+      "tone_id": 68501,
+      "model_id": 614727,
+      "name": "Voice 3 Gain 10 Bass 10 Mid 7 Treble 6.5 Presence 6 Master 4",
+      "url": "https://www.tone3000.com/tones/matamp-gt1-mk-iii-100w-mv-mode-max-gain-68501",
+      "model_url": "https://api.tone3000.com/storage/v1/object/public/models/fyp3rsc1etw.nam",
+      "file": "68501/614727.nam",
+      "sha256": "f9ddb7e7df4f975db959f94a77919614c894e866937b81ceb43010d55707d521",
+      "metadata": {
+        "date": {
+          "year": 2026,
+          "month": 6,
+          "day": 24,
+          "hour": 12,
+          "minute": 21,
+          "second": 44
+        },
+        "loudness": -16.705282804135475,
+        "gain": 0.8082666967637536,
+        "name": "Voice 3 Gain 10 Bass 10 Mid 7 Treble 6.5 Presence 6 Master 4",
+        "modeled_by": "sohighrecording",
+        "gear_type": "amp",
+        "gear_make": "Matamp GT1 mk III 100W MV Mode",
+        "gear_model": "Matamp GT1 mk III 100W MV Mode",
+        "tone_type": "doom",
+        "trainer": "TONE3000"
+      },
+      "architecture": "SlimmableContainer",
+      "sample_rate": 48000,
+      "role": "BLOOM",
+      "capture_scope": "amp_head",
+      "boosted": false,
+      "gain_group": "high_gain",
+      "absolute_input_calibration": false,
+      "head_timbre_comparison_eligible": true,
+      "qualification": "Publisher identifies GT1 mkIII MV mode, direct output via modified Captor 8. Voice 3/4 and gain positions follow individual model names. Half/max and Auto A2 variants kept separate. Input calibration unavailable.",
+      "page_snapshot_sha256": "da0c98b3e131e7b2da2e51f11d15ec8cdabde56953c2e70d9ceccedb9d182d94"
+    },
+    {
+      "family": "matamp",
+      "tone_id": 68501,
+      "model_id": 614703,
+      "name": "Voice 3 Gain 4 Bass 10 Mid 7 Treble 6.5 Presence 6 Master 4",
+      "url": "https://www.tone3000.com/tones/matamp-gt1-mk-iii-100w-mv-mode-max-gain-68501",
+      "model_url": "https://api.tone3000.com/storage/v1/object/public/models/9145mhqvzrl.nam",
+      "file": "68501/614703.nam",
+      "sha256": "8b41cb4cdfc85f0d1d86ed187fa7fad489b47086aa30241df68aa3fed0ed6c9d",
+      "metadata": {
+        "date": {
+          "year": 2026,
+          "month": 6,
+          "day": 24,
+          "hour": 12,
+          "minute": 7,
+          "second": 33
+        },
+        "loudness": -16.537782623498508,
+        "gain": 0.46342481491296345,
+        "name": "Voice 3 Gain 4 Bass 10 Mid 7 Treble 6.5 Presence 6 Master 4",
+        "modeled_by": "sohighrecording",
+        "gear_type": "amp",
+        "gear_make": "Matamp GT1 mk III 100W MV Mode",
+        "gear_model": "Matamp GT1 mk III 100W MV Mode",
+        "tone_type": "doom",
+        "trainer": "TONE3000"
+      },
+      "architecture": "SlimmableContainer",
+      "sample_rate": 48000,
+      "role": "BLOOM",
+      "capture_scope": "amp_head",
+      "boosted": false,
+      "gain_group": "context",
+      "absolute_input_calibration": false,
+      "head_timbre_comparison_eligible": true,
+      "qualification": "Publisher identifies GT1 mkIII MV mode, direct output via modified Captor 8. Voice 3/4 and gain positions follow individual model names. Half/max and Auto A2 variants kept separate. Input calibration unavailable.",
+      "page_snapshot_sha256": "da0c98b3e131e7b2da2e51f11d15ec8cdabde56953c2e70d9ceccedb9d182d94"
+    },
+    {
+      "family": "matamp",
+      "tone_id": 68501,
+      "model_id": 561845,
+      "name": "Matamp GT1 mkIII 2025 MV-mode Max Gain Voice 4 - Torpedo Captor",
+      "url": "https://www.tone3000.com/tones/matamp-gt1-mk-iii-100w-mv-mode-max-gain-68501",
+      "model_url": "https://api.tone3000.com/storage/v1/object/public/models/cc9a59ao3l.nam",
+      "file": "68501/561845.nam",
+      "sha256": "b7a8cabbfe76405e91aab13fd4eda34328aac973ff1ee0d7948260d2de68d66f",
+      "metadata": {
+        "date": {
+          "year": 2026,
+          "month": 6,
+          "day": 5,
+          "hour": 10,
+          "minute": 32,
+          "second": 49
+        },
+        "loudness": -17.31168524159331,
+        "gain": 0.8146830522800571,
+        "name": "Matamp GT1 mkIII 2025 MV-mode Max Gain Voice 4 - Torpedo Captor",
+        "modeled_by": "sohighrecording",
+        "gear_type": "amp",
+        "gear_make": "Matamp GT1 mk III 100W MV Mode",
+        "gear_model": "Matamp GT1 mk III 100W MV Mode",
+        "tone_type": "doom",
+        "trainer": "TONE3000"
+      },
+      "architecture": "SlimmableContainer",
+      "sample_rate": 48000,
+      "role": "BLOOM",
+      "capture_scope": "amp_head",
+      "boosted": false,
+      "gain_group": "high_gain",
+      "absolute_input_calibration": false,
+      "head_timbre_comparison_eligible": true,
+      "qualification": "Publisher identifies GT1 mkIII MV mode, direct output via modified Captor 8. Voice 3/4 and gain positions follow individual model names. Half/max and Auto A2 variants kept separate. Input calibration unavailable.",
+      "page_snapshot_sha256": "da0c98b3e131e7b2da2e51f11d15ec8cdabde56953c2e70d9ceccedb9d182d94"
+    },
+    {
+      "family": "matamp",
+      "tone_id": 68501,
+      "model_id": 561843,
+      "name": "Matamp GT1 mkIII 2025 MV-mode Half Gain Voice 4 - Torpedo Captor",
+      "url": "https://www.tone3000.com/tones/matamp-gt1-mk-iii-100w-mv-mode-max-gain-68501",
+      "model_url": "https://api.tone3000.com/storage/v1/object/public/models/sf2i7snij9c.nam",
+      "file": "68501/561843.nam",
+      "sha256": "4d27a4509f32ae66963a87575d1caf98b55fd77fc93ecc880e9a7174389c26ea",
+      "metadata": {
+        "date": {
+          "year": 2026,
+          "month": 6,
+          "day": 5,
+          "hour": 10,
+          "minute": 31,
+          "second": 52
+        },
+        "loudness": -17.56181348082324,
+        "gain": 0.3704457179973168,
+        "name": "Matamp GT1 mkIII 2025 MV-mode Half Gain Voice 4 - Torpedo Captor",
+        "modeled_by": "sohighrecording",
+        "gear_type": "amp",
+        "gear_make": "Matamp GT1 mk III 100W MV Mode",
+        "gear_model": "Matamp GT1 mk III 100W MV Mode",
+        "tone_type": "doom",
+        "trainer": "TONE3000"
+      },
+      "architecture": "SlimmableContainer",
+      "sample_rate": 48000,
+      "role": "BLOOM",
+      "capture_scope": "amp_head",
+      "boosted": false,
+      "gain_group": "context",
+      "absolute_input_calibration": false,
+      "head_timbre_comparison_eligible": true,
+      "qualification": "Publisher identifies GT1 mkIII MV mode, direct output via modified Captor 8. Voice 3/4 and gain positions follow individual model names. Half/max and Auto A2 variants kept separate. Input calibration unavailable.",
+      "page_snapshot_sha256": "da0c98b3e131e7b2da2e51f11d15ec8cdabde56953c2e70d9ceccedb9d182d94"
+    },
+    {
+      "family": "matamp",
+      "tone_id": 68501,
+      "model_id": 543855,
+      "name": "(Auto A2) Matamp GT1 mkIII 2025 MV-mode Half Gain Voice 4 - Torpedo Captor",
+      "url": "https://www.tone3000.com/tones/matamp-gt1-mk-iii-100w-mv-mode-max-gain-68501",
+      "model_url": "https://api.tone3000.com/storage/v1/object/public/models/f2g4dqe7mll_a2.nam",
+      "file": "68501/543855.nam",
+      "sha256": "f663460e68bcfa0d713e2e350a40d0b07260145fc3fa7e91cc2ecaa77055ff82",
+      "metadata": {
+        "date": {
+          "day": 1,
+          "hour": 23,
+          "year": 2026,
+          "month": 6,
+          "minute": 18,
+          "second": 23
+        },
+        "gain": 0.3781294221745517,
+        "name": "(Auto A2) Matamp GT1 mkIII 2025 MV-mode Half Gain Voice 4 - Torpedo Captor",
+        "loudness": -17.619338989257812,
+        "training": {
+          "data": {
+            "checks": {
+              "passed": true,
+              "version": 3
+            },
+            "latency": {
+              "manual": null,
+              "calibration": {
+                "delays": [
+                  36
+                ],
+                "warnings": {
+                  "not_detected": false,
+                  "matches_lookahead": false,
+                  "disagreement_too_high": false
+                },
+                "recommended": 35,
+                "safety_factor": 1,
+                "algorithm_version": 1
+              }
+            }
+          },
+          "settings": {
+            "ignore_checks": false
+          },
+          "validation_esr": 0.000879567544273484
+        },
+        "gear_make": "Matamp GT1 mk III 100W MV Mode",
+        "gear_type": "amp",
+        "tone_type": "doom",
+        "gear_model": "Matamp GT1 mk III 100W MV Mode",
+        "modeled_by": "sohighrecording"
+      },
+      "architecture": "SlimmableContainer",
+      "sample_rate": 48000,
+      "role": "BLOOM",
+      "capture_scope": "amp_head",
+      "boosted": false,
+      "gain_group": "context",
+      "absolute_input_calibration": false,
+      "head_timbre_comparison_eligible": true,
+      "qualification": "Publisher identifies GT1 mkIII MV mode, direct output via modified Captor 8. Voice 3/4 and gain positions follow individual model names. Half/max and Auto A2 variants kept separate. Input calibration unavailable.",
+      "page_snapshot_sha256": "da0c98b3e131e7b2da2e51f11d15ec8cdabde56953c2e70d9ceccedb9d182d94"
+    },
+    {
+      "family": "matamp",
+      "tone_id": 68501,
+      "model_id": 543854,
+      "name": "(Auto A2) Matamp GT1 mkIII 2025 MV-mode Max Gain Voice 4 - Torpedo Captor",
+      "url": "https://www.tone3000.com/tones/matamp-gt1-mk-iii-100w-mv-mode-max-gain-68501",
+      "model_url": "https://api.tone3000.com/storage/v1/object/public/models/h8tdj579t1k_a2.nam",
+      "file": "68501/543854.nam",
+      "sha256": "35865fb73543222710c9b84efa7e89f532f870dcb6438abc992792b0d414956e",
+      "metadata": {
+        "date": {
+          "day": 1,
+          "hour": 23,
+          "year": 2026,
+          "month": 6,
+          "minute": 18,
+          "second": 23
+        },
+        "gain": 0.8197711728493219,
+        "name": "(Auto A2) Matamp GT1 mkIII 2025 MV-mode Max Gain Voice 4 - Torpedo Captor",
+        "loudness": -17.451513290405273,
+        "training": {
+          "data": {
+            "checks": {
+              "passed": true,
+              "version": 3
+            },
+            "latency": {
+              "manual": null,
+              "calibration": {
+                "delays": [
+                  34
+                ],
+                "warnings": {
+                  "not_detected": false,
+                  "matches_lookahead": false,
+                  "disagreement_too_high": false
+                },
+                "recommended": 33,
+                "safety_factor": 1,
+                "algorithm_version": 1
+              }
+            }
+          },
+          "settings": {
+            "ignore_checks": false
+          },
+          "validation_esr": 0.0064906564071809374
+        },
+        "gear_make": "Matamp GT1 mk III 100W MV Mode",
+        "gear_type": "amp",
+        "tone_type": "doom",
+        "gear_model": "Matamp GT1 mk III 100W MV Mode",
+        "modeled_by": "sohighrecording"
+      },
+      "architecture": "SlimmableContainer",
+      "sample_rate": 48000,
+      "role": "BLOOM",
+      "capture_scope": "amp_head",
+      "boosted": false,
+      "gain_group": "high_gain",
+      "absolute_input_calibration": false,
+      "head_timbre_comparison_eligible": true,
+      "qualification": "Publisher identifies GT1 mkIII MV mode, direct output via modified Captor 8. Voice 3/4 and gain positions follow individual model names. Half/max and Auto A2 variants kept separate. Input calibration unavailable.",
+      "page_snapshot_sha256": "da0c98b3e131e7b2da2e51f11d15ec8cdabde56953c2e70d9ceccedb9d182d94"
+    }
+  ],
+  "missing": [
+    "Fortin Meshuggah exact head-only NAM with documented capture chain",
+    "Absolute input calibration for Meshuggah, Twin Jet, Granophyre and Matamp captures",
+    "Independent physical hardware provenance for Granophyre uploads"
+  ],
+  "excluded_alternatives": [
+    {
+      "url": "https://www.tone3000.com/tones/custom-meshuggah-amp-amp-head-64750",
+      "reason": "DAW EQ/waveshaping creation, not the original amp"
+    },
+    {
+      "url": "https://www.tone3000.com/tones/yerasov-meshuggah-33",
+      "reason": "Modified Yerasov clone, not original Fortin head"
+    },
+    {
+      "url": "https://www.tone3000.com/tones/salvation-audio-unnamed-fortin-meshuggah-31452",
+      "reason": "Different preamp reconstruction, not original Fortin head"
+    },
+    {
+      "url": "https://damyfx.eu/product/fortin-meshuggah-2-0/",
+      "reason": "Paid full-rig pack; also does not close exact head-only gap; not purchased"
+    }
+  ]
+}

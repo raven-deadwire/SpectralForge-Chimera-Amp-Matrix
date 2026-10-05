@@ -1,0 +1,43 @@
+{
+  "before_source": "c041521f11fdbd6a7f54e5b63a607d324089b616",
+  "method": "1.5\u20134 kHz / 200\u2013600 Hz energy ratio; 48 kHz; 4096 Hann, 2048 hop, average frame power; paired renderer provenance in channel-separation.json",
+  "fenrir_all_six_byte_identical": true,
+  "probes": [
+    {
+      "probe": "chord-0.012",
+      "before_db": -17.735345809179726,
+      "after_db": -11.751992504203596,
+      "delta_db": 5.983353304976131
+    },
+    {
+      "probe": "chord-0.12",
+      "before_db": -10.561021221714624,
+      "after_db": -4.898676880242805,
+      "delta_db": 5.662344341471819
+    },
+    {
+      "probe": "driven-0.012",
+      "before_db": -13.23150571469418,
+      "after_db": -10.412585895133336,
+      "delta_db": 2.8189198195608434
+    },
+    {
+      "probe": "driven-0.12",
+      "before_db": -7.758427987506287,
+      "after_db": -0.9465236739954576,
+      "delta_db": 6.811904313510829
+    },
+    {
+      "probe": "pluck-0.012",
+      "before_db": -18.103367704892555,
+      "after_db": -13.35885603164778,
+      "delta_db": 4.744511673244775
+    },
+    {
+      "probe": "pluck-0.12",
+      "before_db": -11.30246367595473,
+      "after_db": -7.8994997378001,
+      "delta_db": 3.40296393815463
+    }
+  ]
+}

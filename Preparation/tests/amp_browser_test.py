@@ -79,7 +79,10 @@ def run(executable):
             assert '핵심' in page.locator('#ampReview').inner_text()
         test('EICH Taste has its own control',eich)
         def zuta():
-            choose('planned.amp.zuta-gbg120');set_control('ch1.gain',.16)
+            choose('planned.amp.zuta-gbg120')
+            assert page.locator('#ampChannel').input_value()=='ch3'
+            assert current()['parameters']['ch3.gain']==.78
+            page.locator('#ampChannel').select_option('ch1');set_control('ch1.gain',.16)
             assert page.locator('[data-amp-control="ch1.low_cut"]').count()==1
             page.locator('#ampChannel').select_option('ch4');set_control('ch4.gain',.88)
             assert page.locator('[data-amp-control="ch4.tight"]').count()==1

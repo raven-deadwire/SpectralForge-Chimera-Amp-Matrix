@@ -16,6 +16,10 @@ class PublicationInputs(unittest.TestCase):
         self.tmp = tempfile.TemporaryDirectory()
         self.addCleanup(self.tmp.cleanup)
         self.root = Path(self.tmp.name)
+        # This publisher and its release notes are intentionally frozen at1.1.2.
+        # Regression fixtures must not adopt a later development branch VERSION.
+        identity = patch.object(publisher, 'VERSION', '1.1.2-beta.1')
+        identity.start(); self.addCleanup(identity.stop)
         self.version = publisher.VERSION
         self.prefix = f'SpectralForge-Chimera-{self.version}-'
         self.release_url = f'https://github.com/{publisher.transport.REPO}/releases/tag/v{self.version}'
@@ -53,6 +57,15 @@ class PublicationInputs(unittest.TestCase):
         self.assertIn(self.version,notes)
         self.assertIn('NATIVE_NAM_CALIBRATION.md',assets)
         self.assertEqual(sum(name.startswith(self.prefix) for name in assets),5)
+
+    def test_rejects_preview_before_any_publication_request(self):
+        with patch.dict(publisher.os.environ, {'GITHUB_SHA': HEAD}), \
+             patch.object(publisher, 'IDENTITY', {'product_version': '1.2.0'}), \
+             patch.object(publisher, 'VERSION', '1.2.0-preview.'+HEAD[:10]), \
+             patch.object(publisher.transport, 'GitHub') as api:
+            with self.assertRaisesRegex(RuntimeError, 'pinned to Open Beta 1.1.2'):
+                publisher.main()
+            api.assert_not_called()
 
     def test_rejects_stale_source_or_run(self):
         for key,value in [('revision','b'*40),('runId','124'),('version','1.1.1-beta.1'),('published',True)]:

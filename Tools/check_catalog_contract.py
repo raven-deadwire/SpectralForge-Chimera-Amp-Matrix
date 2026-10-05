@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Verify the frozen Chimera 1.1.1 catalog-count contract against source catalogs."""
+"""Verify the current Chimera append-only catalog-count contract against source catalogs."""
 from __future__ import annotations
 import json
 import re
@@ -70,7 +70,14 @@ print(
 guitar = read("Source/GuitarSignaturePresets.h")
 names = re.findall(r'\{"raven\.[^"]+","([^"]+)"', guitar)
 assert names == ["A Path To Alsatia", "Feel My Wrath", "Blackhearted", "Dark Matters of Throne"]
-assert "selectablePresetCount=factoryPresetCount+int(guitarSignatures.size())" in guitar
+assert "selectablePresetCount=factoryPresetCount+int(guitarSignatures.size())+originalPresetCount" in guitar
 import hashlib
 assert hashlib.sha256((ROOT / "Assets/IRs/guitar_v30_sm57.wav").read_bytes()).hexdigest() in guitar
 print("PASS: four append-only full-state Guitar Signatures and exact embedded V30 SHA-256")
+
+original = read("Source/OriginalPresets.h")
+original_names = re.findall(r'\{"original\.rig\.nastrond\.[^"]+","([^"]+)"', original)
+assert original_names == ["Thall Rhythm", "Molten Lead", "Rotten Grind", "Sludge Mass", "Slam Impact"], original_names
+assert len(original_names) == CONTRACT["original_preset_count"]
+assert preset_total + len(names) + len(original_names) == CONTRACT["selectable_preset_count"]
+print("PASS: five rebuilt Original full rigs; 43 selectable presets with previous indices preserved")

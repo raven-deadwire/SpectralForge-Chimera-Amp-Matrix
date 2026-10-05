@@ -15,7 +15,7 @@ inline void run() {
         if(item.itemID==0)continue;
         check(item.itemID>=1&&item.itemID<=ampModelCount,"Non-product target in amp selector");
         check(item.isEnabled,"Selectable DSP unexpectedly disabled");
-        check(item.text==ampInfo(item.itemID-1).name,"Selector exposes reference or extra name");
+        check(item.text==juce::String::fromUTF8(ampInfo(item.itemID-1).name),"Selector exposes reference or extra name");
         for(const auto& info:ampCatalog)check(!item.text.containsIgnoreCase(info.reference),"Original amplifier name exposed");
         ++found[(size_t)item.itemID-1];
         if(item.isTicked){check(item.itemID==8,"Wrong amp ticked");++ticked;}
@@ -63,6 +63,6 @@ inline void run() {
         check(!popup.isPopupActive(),"Amp popup cancellation left the base menu-active flag stuck");
     }
     popup.removeFromDesktop();
-    std::cout<<"PASS: 23 amps exactly once, Chimera names only, new choices selectable; pending asynchronous amp/channel selection retained; popup cancellation and reopening\n";
+    std::cout<<"PASS: 24 active amps exactly once, Chimera names only, new choices selectable; pending asynchronous amp/channel selection retained; popup cancellation and reopening\n";
 }
 }

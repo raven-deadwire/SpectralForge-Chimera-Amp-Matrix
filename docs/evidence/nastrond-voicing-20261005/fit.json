@@ -1,0 +1,437 @@
+{
+  "protocol": "Equal family weight; 42 logarithmic bands 65-8000 Hz; pluck fit / held-out chord; identical digital input; independent reference output offsets; +/-6 dB bound; Granophyre provenance unverified; Meshuggah amp+cab excluded",
+  "comparison_sha256": "72c9a00bd476281320d49254aee92ff12b6b57a1eeedacdb392347301ac2d457",
+  "manifest_sha256": "e59704cafb912ba685770f761dd99f7943cc4766120a1dcaa422abaa0500d833",
+  "pre_contour_audio_sha256": "4fc517a94e76d2390b36674a3bd32d37548d2b6ad63bcf7d503b38b681d781f7",
+  "baseline_audio_sha256": "18d274e8b66941cc094995a088b447810f974d384bd94d1907753ef869cafaa8",
+  "pre_contour_renderer_sha256": "8425b4827cad792eddfd41ccac2597cbe0af7154b8be4ab004523b3214586f80",
+  "nam_renderer_sha256": "907e31cd4d5d97ea4d4f424fec5dafe909ded03ab94a74d7a3f9202e1774d6b7",
+  "gains_db": [
+    1.95,
+    -2.11,
+    6.0
+  ],
+  "output_trim_db": -1.0517958186905385,
+  "output_multiplier": 0.8859520330170858,
+  "caveat": "Offline contour is a proposal; validate the implemented oversampled DSP separately. Synthetic inputs do not certify instrument feel or hardware equivalence.",
+  "references": [
+    {
+      "family": "vh4",
+      "model_id": 569473,
+      "measurements": {
+        "pluck": {
+          "pre_contour": {
+            "reference_rms_dbfs": -16.22052476554623,
+            "match_gain_db": -3.069005194622677,
+            "lag_samples": -34,
+            "correlation": -0.7374228209119308,
+            "log_spectrum_rms_db": 13.085200731044146
+          },
+          "proposed": {
+            "reference_rms_dbfs": -16.22052476554623,
+            "match_gain_db": -3.1153019452992736,
+            "lag_samples": -48,
+            "correlation": -0.7522030384359305,
+            "log_spectrum_rms_db": 9.764333743162108
+          }
+        },
+        "chord": {
+          "pre_contour": {
+            "reference_rms_dbfs": -18.242559275734237,
+            "match_gain_db": -5.334543624466318,
+            "lag_samples": -13,
+            "correlation": -0.6023813090638209,
+            "log_spectrum_rms_db": 7.5940324872793745
+          },
+          "proposed": {
+            "reference_rms_dbfs": -18.242559275734237,
+            "match_gain_db": -5.2377486869202885,
+            "lag_samples": -8,
+            "correlation": -0.5411935103027483,
+            "log_spectrum_rms_db": 4.147220301591002
+          }
+        }
+      }
+    },
+    {
+      "family": "vh4",
+      "model_id": 569474,
+      "measurements": {
+        "pluck": {
+          "pre_contour": {
+            "reference_rms_dbfs": -16.7653497010917,
+            "match_gain_db": -3.6138301301681457,
+            "lag_samples": -28,
+            "correlation": -0.6911697287257256,
+            "log_spectrum_rms_db": 12.136751864107069
+          },
+          "proposed": {
+            "reference_rms_dbfs": -16.7653497010917,
+            "match_gain_db": -3.660126880844744,
+            "lag_samples": -38,
+            "correlation": -0.7028454501085311,
+            "log_spectrum_rms_db": 9.104744301354161
+          }
+        },
+        "chord": {
+          "pre_contour": {
+            "reference_rms_dbfs": -19.67745607575793,
+            "match_gain_db": -6.769440424490013,
+            "lag_samples": -12,
+            "correlation": -0.5773854715869189,
+            "log_spectrum_rms_db": 6.932434495133709
+          },
+          "proposed": {
+            "reference_rms_dbfs": -19.67745607575793,
+            "match_gain_db": -6.672645486943985,
+            "lag_samples": -9,
+            "correlation": -0.5363669550721902,
+            "log_spectrum_rms_db": 4.34439580959552
+          }
+        }
+      }
+    },
+    {
+      "family": "vh4",
+      "model_id": 569477,
+      "measurements": {
+        "pluck": {
+          "pre_contour": {
+            "reference_rms_dbfs": -15.736490484478763,
+            "match_gain_db": -2.584970913555209,
+            "lag_samples": 27,
+            "correlation": -0.5825587262397993,
+            "log_spectrum_rms_db": 15.249027927830792
+          },
+          "proposed": {
+            "reference_rms_dbfs": -15.736490484478763,
+            "match_gain_db": -2.6312676642318067,
+            "lag_samples": 26,
+            "correlation": -0.5649615441548341,
+            "log_spectrum_rms_db": 11.65550801859972
+          }
+        },
+        "chord": {
+          "pre_contour": {
+            "reference_rms_dbfs": -14.418378358209868,
+            "match_gain_db": -1.510362706941949,
+            "lag_samples": 18,
+            "correlation": -0.5308269874391529,
+            "log_spectrum_rms_db": 7.04242575344072
+          },
+          "proposed": {
+            "reference_rms_dbfs": -14.418378358209868,
+            "match_gain_db": -1.4135677693959208,
+            "lag_samples": 20,
+            "correlation": -0.509451383460058,
+            "log_spectrum_rms_db": 4.021097959606111
+          }
+        }
+      }
+    },
+    {
+      "family": "twinjet",
+      "model_id": 652436,
+      "measurements": {
+        "pluck": {
+          "pre_contour": {
+            "reference_rms_dbfs": -19.468193715087992,
+            "match_gain_db": -6.316674144164437,
+            "lag_samples": -39,
+            "correlation": -0.5800776669166586,
+            "log_spectrum_rms_db": 11.221856855551733
+          },
+          "proposed": {
+            "reference_rms_dbfs": -19.468193715087992,
+            "match_gain_db": -6.362970894841035,
+            "lag_samples": -48,
+            "correlation": -0.5569033882611787,
+            "log_spectrum_rms_db": 8.204358298862454
+          }
+        },
+        "chord": {
+          "pre_contour": {
+            "reference_rms_dbfs": -20.35320418759897,
+            "match_gain_db": -7.44518853633105,
+            "lag_samples": -11,
+            "correlation": -0.4616056355313475,
+            "log_spectrum_rms_db": 7.444348636689272
+          },
+          "proposed": {
+            "reference_rms_dbfs": -20.35320418759897,
+            "match_gain_db": -7.348393598785021,
+            "lag_samples": -12,
+            "correlation": -0.37626751969483596,
+            "log_spectrum_rms_db": 3.989773684552089
+          }
+        }
+      }
+    },
+    {
+      "family": "twinjet",
+      "model_id": 652437,
+      "measurements": {
+        "pluck": {
+          "pre_contour": {
+            "reference_rms_dbfs": -19.493461065919135,
+            "match_gain_db": -6.341941494995579,
+            "lag_samples": -38,
+            "correlation": -0.5843598458807834,
+            "log_spectrum_rms_db": 10.510210233078181
+          },
+          "proposed": {
+            "reference_rms_dbfs": -19.493461065919135,
+            "match_gain_db": -6.388238245672177,
+            "lag_samples": -45,
+            "correlation": -0.5639545668519731,
+            "log_spectrum_rms_db": 7.716238107266836
+          }
+        },
+        "chord": {
+          "pre_contour": {
+            "reference_rms_dbfs": -20.64049829306795,
+            "match_gain_db": -7.732482641800033,
+            "lag_samples": -11,
+            "correlation": -0.4774883439932882,
+            "log_spectrum_rms_db": 7.147911775821453
+          },
+          "proposed": {
+            "reference_rms_dbfs": -20.64049829306795,
+            "match_gain_db": -7.6356877042540034,
+            "lag_samples": -12,
+            "correlation": -0.39804917059790723,
+            "log_spectrum_rms_db": 3.8500366777967776
+          }
+        }
+      }
+    },
+    {
+      "family": "granophyre",
+      "model_id": 403977,
+      "measurements": {
+        "pluck": {
+          "pre_contour": {
+            "reference_rms_dbfs": -19.102871843653478,
+            "match_gain_db": -5.951352272729925,
+            "lag_samples": 0,
+            "correlation": 0.6203689379034587,
+            "log_spectrum_rms_db": 14.739375972988972
+          },
+          "proposed": {
+            "reference_rms_dbfs": -19.102871843653478,
+            "match_gain_db": -5.997649023406522,
+            "lag_samples": -10,
+            "correlation": 0.6797926016226891,
+            "log_spectrum_rms_db": 11.01519985750185
+          }
+        },
+        "chord": {
+          "pre_contour": {
+            "reference_rms_dbfs": -20.72054267035243,
+            "match_gain_db": -7.812527019084513,
+            "lag_samples": -10,
+            "correlation": 0.5574967051392592,
+            "log_spectrum_rms_db": 9.260962887694411
+          },
+          "proposed": {
+            "reference_rms_dbfs": -20.72054267035243,
+            "match_gain_db": -7.715732081538484,
+            "lag_samples": -6,
+            "correlation": 0.5888567376893684,
+            "log_spectrum_rms_db": 5.144699052917374
+          }
+        }
+      }
+    },
+    {
+      "family": "granophyre",
+      "model_id": 421075,
+      "measurements": {
+        "pluck": {
+          "pre_contour": {
+            "reference_rms_dbfs": -19.076880318031627,
+            "match_gain_db": -5.925360747108074,
+            "lag_samples": -10,
+            "correlation": 0.6529477053223409,
+            "log_spectrum_rms_db": 13.020277538561308
+          },
+          "proposed": {
+            "reference_rms_dbfs": -19.076880318031627,
+            "match_gain_db": -5.971657497784673,
+            "lag_samples": -10,
+            "correlation": 0.7094092633034923,
+            "log_spectrum_rms_db": 9.605203771464703
+          }
+        },
+        "chord": {
+          "pre_contour": {
+            "reference_rms_dbfs": -20.83631883937038,
+            "match_gain_db": -7.928303188102462,
+            "lag_samples": -10,
+            "correlation": 0.5903774220626515,
+            "log_spectrum_rms_db": 8.40814127017768
+          },
+          "proposed": {
+            "reference_rms_dbfs": -20.83631883937038,
+            "match_gain_db": -7.831508250556435,
+            "lag_samples": -6,
+            "correlation": 0.6139775431942132,
+            "log_spectrum_rms_db": 4.4776770514293815
+          }
+        }
+      }
+    },
+    {
+      "family": "granophyre",
+      "model_id": 421074,
+      "measurements": {
+        "pluck": {
+          "pre_contour": {
+            "reference_rms_dbfs": -19.182628644637752,
+            "match_gain_db": -6.031109073714198,
+            "lag_samples": -5,
+            "correlation": 0.6339422729989622,
+            "log_spectrum_rms_db": 13.624897916945205
+          },
+          "proposed": {
+            "reference_rms_dbfs": -19.182628644637752,
+            "match_gain_db": -6.077405824390796,
+            "lag_samples": -10,
+            "correlation": 0.6949738343255683,
+            "log_spectrum_rms_db": 10.125829466772904
+          }
+        },
+        "chord": {
+          "pre_contour": {
+            "reference_rms_dbfs": -20.936916425106467,
+            "match_gain_db": -8.02890077383855,
+            "lag_samples": -10,
+            "correlation": 0.5770179998773683,
+            "log_spectrum_rms_db": 8.696464969221491
+          },
+          "proposed": {
+            "reference_rms_dbfs": -20.936916425106467,
+            "match_gain_db": -7.932105836292522,
+            "lag_samples": -6,
+            "correlation": 0.6066198900833268,
+            "log_spectrum_rms_db": 4.7146384876102685
+          }
+        }
+      }
+    },
+    {
+      "family": "matamp",
+      "model_id": 614727,
+      "measurements": {
+        "pluck": {
+          "pre_contour": {
+            "reference_rms_dbfs": -17.14375055608439,
+            "match_gain_db": -3.992230985160838,
+            "lag_samples": -84,
+            "correlation": 0.6952132401994899,
+            "log_spectrum_rms_db": 8.785881561879021
+          },
+          "proposed": {
+            "reference_rms_dbfs": -17.14375055608439,
+            "match_gain_db": -4.038527735837435,
+            "lag_samples": 29,
+            "correlation": -0.6641366585742713,
+            "log_spectrum_rms_db": 5.9415771098210115
+          }
+        },
+        "chord": {
+          "pre_contour": {
+            "reference_rms_dbfs": -18.52389944103541,
+            "match_gain_db": -5.6158837897674925,
+            "lag_samples": 15,
+            "correlation": -0.7083570126572211,
+            "log_spectrum_rms_db": 6.452646812261133
+          },
+          "proposed": {
+            "reference_rms_dbfs": -18.52389944103541,
+            "match_gain_db": -5.519088852221464,
+            "lag_samples": 16,
+            "correlation": -0.7377458423130552,
+            "log_spectrum_rms_db": 3.701656783138358
+          }
+        }
+      }
+    },
+    {
+      "family": "matamp",
+      "model_id": 561845,
+      "measurements": {
+        "pluck": {
+          "pre_contour": {
+            "reference_rms_dbfs": -17.69084718766055,
+            "match_gain_db": -4.539327616736995,
+            "lag_samples": 11,
+            "correlation": -0.8357208223698468,
+            "log_spectrum_rms_db": 7.4865162202974025
+          },
+          "proposed": {
+            "reference_rms_dbfs": -17.69084718766055,
+            "match_gain_db": -4.585624367413592,
+            "lag_samples": 8,
+            "correlation": -0.8631665607718152,
+            "log_spectrum_rms_db": 5.019991515238294
+          }
+        },
+        "chord": {
+          "pre_contour": {
+            "reference_rms_dbfs": -18.575916150366155,
+            "match_gain_db": -5.667900499098239,
+            "lag_samples": 5,
+            "correlation": -0.8559119495698424,
+            "log_spectrum_rms_db": 4.96118382737657
+          },
+          "proposed": {
+            "reference_rms_dbfs": -18.575916150366155,
+            "match_gain_db": -5.5711055615522085,
+            "lag_samples": 6,
+            "correlation": -0.8663178451145017,
+            "log_spectrum_rms_db": 3.212394567847983
+          }
+        }
+      }
+    },
+    {
+      "family": "matamp",
+      "model_id": 543854,
+      "measurements": {
+        "pluck": {
+          "pre_contour": {
+            "reference_rms_dbfs": -17.763244697543886,
+            "match_gain_db": -4.611725126620333,
+            "lag_samples": 12,
+            "correlation": -0.8320279352060954,
+            "log_spectrum_rms_db": 7.268427398636831
+          },
+          "proposed": {
+            "reference_rms_dbfs": -17.763244697543886,
+            "match_gain_db": -4.65802187729693,
+            "lag_samples": 8,
+            "correlation": -0.8604618198712382,
+            "log_spectrum_rms_db": 4.800423041333569
+          }
+        },
+        "chord": {
+          "pre_contour": {
+            "reference_rms_dbfs": -18.64886943349752,
+            "match_gain_db": -5.7408537822296015,
+            "lag_samples": 5,
+            "correlation": -0.8542702955944608,
+            "log_spectrum_rms_db": 5.018654899936532
+          },
+          "proposed": {
+            "reference_rms_dbfs": -18.64886943349752,
+            "match_gain_db": -5.64405884468357,
+            "lag_samples": 6,
+            "correlation": -0.866625790639127,
+            "log_spectrum_rms_db": 3.2053821944463223
+          }
+        }
+      }
+    }
+  ]
+}

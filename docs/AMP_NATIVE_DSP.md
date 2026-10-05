@@ -42,9 +42,20 @@ This revision connects the 23 amplifier panel definitions in `Preparation/amp_co
 The counts include controls stored for inactive channels; the editor displays the current channel's controls together with shared controls.
 
 The 1.1.1 candidate appends **Special Edition / E670FE**, 32 controls and five paths.
-The catalog is now **24 serialized / 23 active models, 380 controls**; previous
+That checkpoint had **24 serialized / 23 active models, 380 controls**; previous
 measurements below remain historical. See `E670FE_IMPLEMENTATION.md` for new
 evidence, append-only parameter ordering and pending reference gates.
+
+## 1.2 Preview Original integration
+
+Náströnd appends model24 with 13 shared-definition controls, single channel and
+input. The preview contains **25 serialized / 24 active amps, 393 stored
+controls**. Its authored Original DSP runs in the same production oversampler;
+software input/output trims remain outside that core. Six contexts append 90
+parameters after Gate Range, preserving the first 3,891 host positions. MID FREQ
+uses 300–1800 Hz with an 850 Hz centre. The previous hardware panel defaults,
+including ZUTA channel3 and high-gain defaults, are now reproducible from the
+catalog generator. See `NASTROND_PREVIEW.md` for integration evidence.
 
 ## Audio integration
 

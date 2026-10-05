@@ -19,7 +19,7 @@ endif()
 juce_add_plugin(ChimeraAmpMatrix COMPANY_NAME "RavenForge Luthier Intelligence" COMPANY_COPYRIGHT "Copyright © 2026 RavenForge Luthier Intelligence. All rights reserved." BUNDLE_ID audio.spectralforge.chimera IS_SYNTH FALSE NEEDS_MIDI_INPUT TRUE NEEDS_MIDI_OUTPUT FALSE IS_MIDI_EFFECT FALSE COPY_PLUGIN_AFTER_BUILD FALSE MICROPHONE_PERMISSION_ENABLED TRUE MICROPHONE_PERMISSION_TEXT "SpectralForge Chimera uses audio input to process your guitar or bass." PLUGIN_MANUFACTURER_CODE SpFg PLUGIN_CODE Chm1 FORMATS ${CHIMERA_FORMATS} PRODUCT_NAME "SpectralForge Chimera" ICON_BIG "Assets/Artwork/spectralforge-emblem.png" ICON_SMALL "Assets/Artwork/spectralforge-emblem.png")
 juce_add_binary_data(ChimeraIRs HEADER_NAME ChimeraIRData.h NAMESPACE ChimeraIRData SOURCES Assets/IRs/guitar_v30_sm57.wav Assets/IRs/guitar_jensen_sm57.wav)
 # Explicit production assets: abandoned trial encodings are never embedded.
-set(CHIMERA_ARTWORK Assets/Artwork/raven-workbench.jpg Assets/Artwork/raven-emblem.png Assets/Artwork/spectralforge-emblem.png Assets/Artwork/chimera-wordmark.png)
+set(CHIMERA_ARTWORK Assets/Artwork/raven-workbench.jpg Assets/Artwork/raven-emblem.png Assets/Artwork/spectralforge-emblem.png Assets/Artwork/chimera-wordmark.png Assets/Artwork/anastrond.png)
 set(CHIMERA_MODEL_ARTWORK p808 pcentaur prat pm87 pdyna pdiamond pqtron pmutron pmuff pface pbender prc prange pmicro aglass abrit a515 arect amark asvt agk ahybrid rsslvca r1176 rla2a rn73 rv5 risa rssleq rn73eq rpultec rce2 rdimension rstone rmistress reddy rpulsar r2290 rre201 rmemory remt rlex rspring cmesa campeg cbassman cdelta pfet pmu pbddi pb3k pm82 paw3 pwool pfactory pep plpb achim30 aorange abassman asubway amatchless adumble aeich)
 include(Assets/Artwork/ExpandedArtwork.cmake OPTIONAL)
 foreach(model IN LISTS CHIMERA_MODEL_ARTWORK)
@@ -51,6 +51,23 @@ endif()
 target_compile_definitions(ChimeraAmpMatrix PUBLIC JUCE_WEB_BROWSER=0 JUCE_USE_CURL=${CHIMERA_USE_CURL} JUCE_LOAD_CURL_SYMBOLS_LAZILY=0 JUCE_VST3_CAN_REPLACE_VST2=0)
 target_link_libraries(ChimeraAmpMatrix PRIVATE ChimeraIRs ChimeraArtwork ChimeraManual juce::juce_cryptography juce::juce_audio_utils juce::juce_dsp PUBLIC juce::juce_recommended_config_flags juce::juce_recommended_warning_flags)
 enable_testing()
+
+# 1.2 Original engine: isolated core tests alongside the production native route.
+add_executable(ChimeraOriginalAmpTests Tests/OriginalAmpTests.cpp)
+target_include_directories(ChimeraOriginalAmpTests PRIVATE Source)
+add_test(NAME ChimeraOriginalAmpTests COMMAND ChimeraOriginalAmpTests)
+juce_add_console_app(ChimeraOriginalAmpIntegrationTests PRODUCT_NAME "Chimera Original Amp Tests")
+target_sources(ChimeraOriginalAmpIntegrationTests PRIVATE Tests/OriginalAmpIntegrationTests.cpp)
+target_include_directories(ChimeraOriginalAmpIntegrationTests PRIVATE Source)
+target_compile_definitions(ChimeraOriginalAmpIntegrationTests PRIVATE JUCE_USE_CURL=0 JUCE_WEB_BROWSER=0)
+target_link_libraries(ChimeraOriginalAmpIntegrationTests PRIVATE juce::juce_audio_utils juce::juce_dsp PUBLIC juce::juce_recommended_config_flags)
+add_test(NAME ChimeraOriginalAmpIntegrationTests COMMAND ChimeraOriginalAmpIntegrationTests)
+
+juce_add_console_app(ChimeraOriginalAmpRender PRODUCT_NAME "Chimera Original Amp Render")
+target_sources(ChimeraOriginalAmpRender PRIVATE Tests/RenderOriginalAmp.cpp)
+target_include_directories(ChimeraOriginalAmpRender PRIVATE Source)
+target_compile_definitions(ChimeraOriginalAmpRender PRIVATE JUCE_USE_CURL=0 JUCE_WEB_BROWSER=0)
+target_link_libraries(ChimeraOriginalAmpRender PRIVATE juce::juce_dsp juce::juce_audio_formats PUBLIC juce::juce_recommended_config_flags)
 
 # Compile the actual upstream/patched VBlankThread class with a deterministic
 # failing DXGI output. This runs on every platform without a physical display.
@@ -136,6 +153,8 @@ target_compile_definitions(ChimeraRender PRIVATE JUCE_USE_CURL=0 JUCE_WEB_BROWSE
 target_link_libraries(ChimeraRender PRIVATE juce::juce_dsp juce::juce_audio_formats PUBLIC juce::juce_recommended_config_flags)
 add_test(NAME ChimeraNativeRendererTests
   COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/Tests/test_native_renderer.py" "$<TARGET_FILE:ChimeraRender>")
+add_test(NAME ChimeraOriginalRendererTests
+  COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/Tests/test_original_renderer.py" "$<TARGET_FILE:ChimeraOriginalAmpRender>")
 
 # Update metadata parsing and SHA256 checks are offline and run on every platform.
 juce_add_console_app(ChimeraReleaseTests PRODUCT_NAME "Chimera Release Tests")

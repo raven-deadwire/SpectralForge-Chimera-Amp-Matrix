@@ -1,0 +1,15 @@
+{
+  "Source/OriginalAmpDSP.h": "1a87fc3c0ff42df849c22a1d7347793b1b71285377a8a2603ece211cbd807ee9",
+  "Source/OriginalAmpDefinition.h": "18ebc55574c7aff9b8593b6fe8b3f122a30bed13310b4dc04b37abe896f8b283",
+  "Source/OriginalAmpPanel.h": "7fc01cbc872f83dab74f86e6a207e0878a1d08d9ce7bcdcdac1084ed790c905c",
+  "Source/OriginalAmpProcessor.h": "f1b725e9dc67dbcba9ed57890a91f1694f2cbfc0a4745e644eaf7c70ed1ee7e1",
+  "Source/OriginalAmpState.h": "386a3c41a7ef5f43f8407d8593c0d93b1ed6116df22d59ba59d66536ad0aa19d",
+  "Source/OriginalPresets.h": "47253721bd13ac6cfc609044cdf3e4fd0394c5c8f6e3487ec8260020a85a4a0c",
+  "Source/AmpNativeDSP.h": "3f53d3fd64b31fc0d746e5fbcf059bb86d335084b4280a41c96c336aec9a1b60",
+  "Source/AmpNativeParameters.h": "1d4d8665e8a673dfb420479cd82f2cd05e7fb915bedb315d2944a96a28387f93",
+  "Tests/RenderOriginalAmp.cpp": "9241e80dc4879e2fd4642679a30fca623b592c2ac550e0a87e8ac72a1d1622a0",
+  "Assets/Artwork/anastrond.png": "7f5aa9e22e5c72d43dd85b13cb2c4c9a7f8f4ae57fc09030d4413e282c15078b",
+  "Assets/Promo/nastrond-nam-cover.png": "bf209ea9f03fb7d56fec2cbff8a20ea58b6130d85ff1099eb86b4ecfbdc4005e",
+  "renderer": "34e21def8113c73d63eded1858548e14e2565c50210558159a628a4286d31bbf",
+  "Tests/GateProcessorTests.cpp": "6e3489894dae93e4cd411e1ce88f2afc4dced5178fdd151edb602f84b6424f09"
+}

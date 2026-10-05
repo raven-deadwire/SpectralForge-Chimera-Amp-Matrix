@@ -1,17 +1,17 @@
-# Open Beta 1.1.2 day-one release
+# Open Beta 1.2 release
 
-The owner explicitly instructed on 2026-10-05 at 00:17 KST: release this work immediately as the 1.1.2 day-one patch once verification completes. Publication is authorized; no additional approval is required. The known NAM coverage limits remain disclosed, not marked PASS.
+The owner authorized release after the final channel-level and Fimbulvetr clarity corrections on 2026-10-05 at 19:10 KST. No additional publication approval is required. This is publication authorization, not a new measured instrument-DI or commercial-DAW attestation.
 
-## Required final-source gates
+## Final-source gates
 
-- `VERSION=1.1.2`, `RELEASE_CHANNEL=beta.1`, package/tag `1.1.2-beta.1` / `v1.1.2-beta.1`.
-- Final-source Windows, macOS universal and Linux build/CTest/package checks all succeed.
-- The exact-source `Chimera update candidate` workflow succeeds, including preparation contracts, Windows installed app/VST3, custom paths, repair and uninstall.
-- Five binary packages, matching SHA-256 sidecars, three-platform update manifest, manual and candidate provenance are verified before public publication.
-- No NAM weights or personal IR/audio are in the public packages. Existing tags and assets are never overwritten.
-- Read `NATIVE_NAM_CALIBRATION.md`: 22 families / 174 distinct NAM files compared, 22 families corrected; EICH T900 remains without an exact NAM. Supplied modified SVT-CL and 1998 SUNN references do not establish stock/1970s circuit equivalence. Synthetic evidence is not human listening acceptance.
-- Verify the public tag, all assets, updater discovery and homepage/manual links after publishing.
+- VERSION 1.2.0, RELEASE_CHANNEL beta.1; package/tag 1.2.0-beta.1 / v1.2.0-beta.1.
+- Windows, macOS universal and Linux build/CTest/package jobs plus release-candidate assembly all succeed on the exact source SHA.
+- The exact-source Windows candidate/preparation workflow succeeds, including install, launch, VST3 loading, custom paths, repair, uninstall and Defender checks.
+- Five binary packages, SHA-256 sidecars, three-platform update manifest, manual and source/run provenance agree before publication.
+- No personal IRs, NAM weights or capture audio in public packages. Do not overwrite old tags/assets.
+- Publish only from release/open-beta-1.2.0. publish_beta12.py reuses immutable artifacts of the latest successful exact-head build; stale, pending or failed verification cannot fall back to an older run.
+- Verify the public tag/assets, update discovery and homepage/manual links after publication.
 
-`publish-beta112.yml` builds the exact release-branch SHA and publishes only after the required checks. It is pinned to `release/open-beta-1.1.2`. The previous 1.1.1 checklist and owner attestation remain historical in `RELEASE_1_1_1_CHECKLIST.md` and `RELEASE_1_1_1_PREPARATION.md`.
+Release-policy hard gates remain in place. The separate full_release verdict and outstanding DI/host/reference checks are not relabeled PASS. The existing two deferred transpose goals remain tracked separately. Open Beta retains the documented transpose, signing, notarization and reference limitations.
 
-Transpose delay/smearing, Windows publisher signing and macOS notarization remain disclosed limitations. Existing native sessions can change tone after updating even though stored parameter values remain unchanged.
+Historical 1.1.2 release notes are preserved in OPEN_BETA_1_1_2_RELEASE_NOTES.md; its publisher remains pinned to 1.1.2.

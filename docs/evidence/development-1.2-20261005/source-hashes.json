@@ -1,0 +1,25 @@
+{
+  "base_commit": "a9cfb68035688c3f9d356bd4c6ba27587e27da92",
+  "local_integrated_binary_sha256": "4892c9018c1c4cc50b13299132297a2282f9148e1bdd2a71f948f5e7061c9900",
+  "source_sha256": {
+    "CMakeLists.txt": "b4f0ba54662e8ec1c44d30ad469abdd6363a0dc4a0475130e5ccacccf8821708",
+    "Source/FactoryNativeVoicing.h": "09e69156cbe39a237ee9f9ed67d3f48b0b597be2aa85259fe3889b76de132e91",
+    "Source/FactoryPresets.h": "7c56b6a0df6a8d0f34718f39c071444fe101778087aff721c45d01d3461c0597",
+    "Source/FactoryPresetLevels.h": "a67157820b212e4a39ffc3ea985ddceb9d9c880ecf5af0adc2439615f7f7577a",
+    "Source/GuitarSignaturePresets.h": "4f8e5066fe5916241e4ab2649dccadf80b43e9d8fc2be54bdeff27ffa9ad14ef",
+    "Source/OriginalAmpDefinition.h": "776b43a8871c5f9155bb687615ba0539f04f3a489f02db1287335c2e57b3d4e6",
+    "Source/OriginalAmpDSP.h": "ed125541f9eb54f55b6d29212514e0d81957d62ba0361102a048367eebf5d43a",
+    "Source/OriginalAmpProcessor.h": "f1b725e9dc67dbcba9ed57890a91f1694f2cbfc0a4745e644eaf7c70ed1ee7e1",
+    "Source/OriginalAmpState.h": "73e12a8a37ab092eeb9f295eb31bb052f837f52508df093ef03abc1fee39ccdb",
+    "Source/OriginalAmpPanel.h": "7fc01cbc872f83dab74f86e6a207e0878a1d08d9ce7bcdcdac1084ed790c905c",
+    "Source/PluginProcessor.cpp": "5aba7d52130e2ac318ab782d5ee866c96c26032089b1585325ccc81c483b758b",
+    "Source/PluginEditor.cpp": "2b14a61cf3739cb521d9ea64ae54dee2f0bfa4352f25c5dbfea8a1bb3c090243",
+    "Source/AmpNativeDSP.h": "3be9e6486f4a0e2c8d92b21d7f116f2d2fe901d947cbef2a669ac2090eb8a775",
+    "Source/AmpNativeCalibration.h": "87f01c0e4e465f6161431bcc58d7d0d2d162f76527656db88f05b4a6685d0cb1",
+    "Tests/IntegratedProcessorTests.cpp": "ce975af6c8972cf44c88b0894b9965448827108bef7caf466017dbc61a53511c",
+    "Tests/PresetGainTests.h": "36b33637eb3f6bec4117f5b6cff2476e358c8d551ac7863b85062e28999838d0",
+    "Tests/OriginalAmpTests.cpp": "791621bb510a07c7f0f69eff8283767e13124de8dbda63e5fa1327ee274b8085",
+    "Tests/OriginalAmpIntegrationTests.cpp": "1cb2da45d4c9465380a28be45a78f20a7713361e5aaaaf1bf9fb0da9b9e2a5d8",
+    "Validation/catalog-count-contract.json": "cc0df66e145251748bd9cc088ef0feadc965a49df21dc34453bc63145f81a0bf"
+  }
+}

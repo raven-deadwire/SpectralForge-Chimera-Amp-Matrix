@@ -1,0 +1,9 @@
+Test project /tmp/chimera-12-config
+    Start 1: ChimeraOriginalAmpTests
+1/2 Test #1: ChimeraOriginalAmpTests ..............   Passed    0.90 sec
+    Start 2: ChimeraOriginalAmpIntegrationTests
+2/2 Test #2: ChimeraOriginalAmpIntegrationTests ...   Passed    0.20 sec
+
+100% tests passed out of 2
+
+Total Test time (real) =   1.10 sec
