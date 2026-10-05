@@ -3,7 +3,58 @@
 2026-10-05. Initial revision based on PR #20 head `e8f3887`;
 level/clarity follow-up based on `5e65009`.
 
-## Level and clarity follow-up
+## Open Beta 1.2 final level / clarity correction
+
+The owner still heard Fenrir above the other channels after `c041521` and
+requested further Fimbulvetr clarity, followed by release. This revision keeps
+Fenrir unchanged and measures the full cabinet/PRE/POST path with frequency
+weighting, since unweighted RMS alone missed its driven loudness advantage.
+
+| Common Thall PRE/POST path | c041521 LUFS | Revised LUFS |
+|---|---:|---:|
+| Fenrir | -12.1 | -12.1 |
+| Surtr | -15.1 | -13.2 |
+| Níðhöggr | -14.4 | -13.1 |
+| Fimbulvetr | -15.1 | -12.9 |
+| Ragnarök | -13.4 | -13.0 |
+
+FFmpeg R128 integrated spread falls from 3.0 to 1.1 LU on the same 1.2-second
+synthetic plucks. The cabinet-only spread is 2.2 LU; channel character, input,
+and compression affect balance, so these are fixture-specific measurements.
+The regression gate uses separately calculated, ungated 48 kHz K-weighted
+stereo power: below 2.5 dB bare and 1.6 dB with the common PRE/POST chain.
+This is not a claim of identical loudness on all playing or a listening PASS.
+See [full loudness data](measurements/nastrond-release-clarity/channel-loudness.json)
+and `Tools/measure_original_channel_loudness.py` for packing and metering.
+
+Fimbulvetr gets less pre-distortion low-mid emphasis, wider interstage bandwidth,
+less high-frequency attenuation, and a more open transient response. Its slower
+300 ms supply recovery remains. Six paired 4x JUCE probes show a further
+2.82–6.81 dB rise in 1.5–4 kHz energy relative to 200–600 Hz versus `c041521`.
+Fenrir's six renders remain byte-identical. Surtr and Níðhöggr receive stronger
+upper-mid/edge contours, while Ragnarök gets more level with a moderated
+transient boost. Preamp gain controls and the extreme-output soft rail remain.
+The minimum RMS-matched channel residual is 0.285 and minimum 14-band spectral
+distance is 1.399 dB across these probes; tonal differences are not represented
+as a listening approval. See [paired renders](measurements/nastrond-release-clarity/channel-separation.json).
+
+All 43 factory OUTPUT controls remain at 0 dB. Thall BLOOM 7.5, Molten ROT 7.5,
+Slam Low DI Comp 0.5 / DI-AMP 75%, and Ambient Clean's POST output recovery stay
+in place. Rotten Grind and Slam Impact each use -2.5 dB at the visible POST EQ
+output to reserve peak headroom after the amp-level correction. Channel knobs
+retain their individual banks when switching channels; RESET CHANNEL is explicit.
+Recall a factory preset to load the revised rig; saved sessions keep their controls.
+
+The final local production regression passes all 43 normal/+6 dB input recalls,
+six Original dispatch contexts, 30 channel banks / 390 controls, signature
+recall, and all 17 high-gain paths. The standalone core and 12-route JUCE wrapper
+checks also pass. Public packages require the same source's complete three-OS
+CI and Windows install/repair/uninstall gates before publication.
+
+The sections below describe earlier revisions and retain their historical
+measurements. Their trims and unweighted-RMS spread gates are superseded above.
+
+## Earlier unity-output revision (historical)
 
 Every one of the 43 factory entries now recalls OUTPUT at 0 dB. This means
 unity gain at the output knob, not normalization to 0 dBFS. Existing saved

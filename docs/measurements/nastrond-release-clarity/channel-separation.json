@@ -1,0 +1,1322 @@
+{
+  "sample_rate": 48000,
+  "oversampling": 4,
+  "input_levels": [
+    0.012,
+    0.12
+  ],
+  "probe_duration_seconds": 2,
+  "band_edges_hz": [
+    60.0,
+    84.29276632755514,
+    118.4211742525303,
+    166.36747282505368,
+    233.7262418558023,
+    328.3571914894799,
+    461.3022669032503,
+    648.0740698407863,
+    910.4659355339503,
+    1279.094872552702,
+    1796.974086714315,
+    2524.5319464680274,
+    3546.663024167958,
+    4982.633958979499,
+    7000.0
+  ],
+  "spectral_method": "14 energy bands, 4096 Hann / 2048 hop, normalized band power, -70 dB floor; RMS dB-profile distance",
+  "limits": "Synthetic inputs, including a generic tanh pre-drive probe. No real DI, no NAM rerun and no hardware/listening PASS. Synthetic fixtures informed revision.",
+  "renderers": {
+    "before": {
+      "path": "/tmp/chimera-clarity-baseline/ChimeraOriginalAmpRender",
+      "sha256": "e615662aa1346e586945cb4bc744b89c6c60d523294a4876a53b77f17db6ee86"
+    },
+    "after": {
+      "path": "/workspace/scratch/11deaaecaf2f/chimera/build/ChimeraOriginalAmpRender_artefacts/Release/ChimeraOriginalAmpRender",
+      "sha256": "25bae84386130bac7126480058803b98c9f1a9dc6931bb3b0a1f8782245cd283"
+    }
+  },
+  "inputs": {
+    "pluck-0.012": "cc1e5b73bff9bc7a554fc7ae2f22a045775f8d87bc8adfb9ae5f2164a5fbc6e4",
+    "pluck-0.12": "e4f55c3370bcd5c164d1f06167a443cd7ee71c110526c420779a84dd0ba03ee9",
+    "chord-0.012": "31063ff00081dfae5906324f3805cfb529864978d0ec3dfffdd9c906b11d95e0",
+    "chord-0.12": "ce0e99e22dccd24586e4df1bcd0330a9b39e248a220f036f89bdd058d454c678",
+    "driven-0.012": "7eca235cf06b71a8105460b3a41b96b18dd34412bc65d0e3d92af57a9d6b1a6b",
+    "driven-0.12": "8ee186793ca5b15591cf7a1c63315068732bab8f4cd31f9e661146ecfd08fbd0"
+  },
+  "summary": {
+    "before": {
+      "minimum_matched_residual": 0.4160787764618096,
+      "minimum_spectral_distance_db": 1.644282742150516,
+      "mean_spectral_distance_db": 6.3113092927342285
+    },
+    "after": {
+      "minimum_matched_residual": 0.28501099949093445,
+      "minimum_spectral_distance_db": 1.3994480705235108,
+      "mean_spectral_distance_db": 5.6868886171258435
+    }
+  },
+  "levels": [
+    {
+      "version": "before",
+      "probe": "pluck-0.012",
+      "channel": "fenrir",
+      "rms_dbfs": -5.104190557233026,
+      "peak_dbfs": 8.780931852179606
+    },
+    {
+      "version": "before",
+      "probe": "pluck-0.012",
+      "channel": "surtr",
+      "rms_dbfs": -1.5174031735936542,
+      "peak_dbfs": 4.137652647464826
+    },
+    {
+      "version": "before",
+      "probe": "pluck-0.012",
+      "channel": "nidhoggr",
+      "rms_dbfs": -2.009392104770718,
+      "peak_dbfs": 3.353210448487733
+    },
+    {
+      "version": "before",
+      "probe": "pluck-0.012",
+      "channel": "fimbulvetr",
+      "rms_dbfs": 0.08941664670355137,
+      "peak_dbfs": 6.404625498578983
+    },
+    {
+      "version": "before",
+      "probe": "pluck-0.012",
+      "channel": "ragnarok",
+      "rms_dbfs": 3.2344887425589386,
+      "peak_dbfs": 10.238805171848318
+    },
+    {
+      "version": "before",
+      "probe": "pluck-0.12",
+      "channel": "fenrir",
+      "rms_dbfs": -3.5709549266992524,
+      "peak_dbfs": 9.775137409609943
+    },
+    {
+      "version": "before",
+      "probe": "pluck-0.12",
+      "channel": "surtr",
+      "rms_dbfs": -0.6414087840326794,
+      "peak_dbfs": 5.258079908587815
+    },
+    {
+      "version": "before",
+      "probe": "pluck-0.12",
+      "channel": "nidhoggr",
+      "rms_dbfs": -1.0893330912423629,
+      "peak_dbfs": 6.933699728082068
+    },
+    {
+      "version": "before",
+      "probe": "pluck-0.12",
+      "channel": "fimbulvetr",
+      "rms_dbfs": 1.2088088387729328,
+      "peak_dbfs": 6.1149453157888045
+    },
+    {
+      "version": "before",
+      "probe": "pluck-0.12",
+      "channel": "ragnarok",
+      "rms_dbfs": 4.304606343962101,
+      "peak_dbfs": 10.486070601635989
+    },
+    {
+      "version": "before",
+      "probe": "chord-0.012",
+      "channel": "fenrir",
+      "rms_dbfs": -5.1177988698010335,
+      "peak_dbfs": 9.020781889293565
+    },
+    {
+      "version": "before",
+      "probe": "chord-0.012",
+      "channel": "surtr",
+      "rms_dbfs": -1.5354750179497691,
+      "peak_dbfs": 4.774229018718125
+    },
+    {
+      "version": "before",
+      "probe": "chord-0.012",
+      "channel": "nidhoggr",
+      "rms_dbfs": -2.0027392592736404,
+      "peak_dbfs": 3.3549916436166654
+    },
+    {
+      "version": "before",
+      "probe": "chord-0.012",
+      "channel": "fimbulvetr",
+      "rms_dbfs": -0.319595762523344,
+      "peak_dbfs": 6.255489041357474
+    },
+    {
+      "version": "before",
+      "probe": "chord-0.012",
+      "channel": "ragnarok",
+      "rms_dbfs": 2.3133174318515826,
+      "peak_dbfs": 10.339530770509606
+    },
+    {
+      "version": "before",
+      "probe": "chord-0.12",
+      "channel": "fenrir",
+      "rms_dbfs": -3.280420218090792,
+      "peak_dbfs": 9.713612836313287
+    },
+    {
+      "version": "before",
+      "probe": "chord-0.12",
+      "channel": "surtr",
+      "rms_dbfs": -1.0579306132289614,
+      "peak_dbfs": 4.904154434638906
+    },
+    {
+      "version": "before",
+      "probe": "chord-0.12",
+      "channel": "nidhoggr",
+      "rms_dbfs": -1.5231734599388405,
+      "peak_dbfs": 6.864274070439443
+    },
+    {
+      "version": "before",
+      "probe": "chord-0.12",
+      "channel": "fimbulvetr",
+      "rms_dbfs": 0.49681128478190184,
+      "peak_dbfs": 6.187793155122207
+    },
+    {
+      "version": "before",
+      "probe": "chord-0.12",
+      "channel": "ragnarok",
+      "rms_dbfs": 3.232348426224601,
+      "peak_dbfs": 10.655268163346111
+    },
+    {
+      "version": "before",
+      "probe": "driven-0.012",
+      "channel": "fenrir",
+      "rms_dbfs": -3.5136636380883166,
+      "peak_dbfs": 9.653893794289552
+    },
+    {
+      "version": "before",
+      "probe": "driven-0.012",
+      "channel": "surtr",
+      "rms_dbfs": -1.035869315975696,
+      "peak_dbfs": 5.401615741778248
+    },
+    {
+      "version": "before",
+      "probe": "driven-0.012",
+      "channel": "nidhoggr",
+      "rms_dbfs": -1.3732747443687099,
+      "peak_dbfs": 3.278477404450762
+    },
+    {
+      "version": "before",
+      "probe": "driven-0.012",
+      "channel": "fimbulvetr",
+      "rms_dbfs": 0.9450529456624074,
+      "peak_dbfs": 6.150272575878169
+    },
+    {
+      "version": "before",
+      "probe": "driven-0.012",
+      "channel": "ragnarok",
+      "rms_dbfs": 3.665350999817698,
+      "peak_dbfs": 10.54155298753516
+    },
+    {
+      "version": "before",
+      "probe": "driven-0.12",
+      "channel": "fenrir",
+      "rms_dbfs": -3.5451473739359622,
+      "peak_dbfs": 9.963026205583681
+    },
+    {
+      "version": "before",
+      "probe": "driven-0.12",
+      "channel": "surtr",
+      "rms_dbfs": -0.36282672301372476,
+      "peak_dbfs": 4.858111621598688
+    },
+    {
+      "version": "before",
+      "probe": "driven-0.12",
+      "channel": "nidhoggr",
+      "rms_dbfs": -0.944485608132133,
+      "peak_dbfs": 7.803113783276773
+    },
+    {
+      "version": "before",
+      "probe": "driven-0.12",
+      "channel": "fimbulvetr",
+      "rms_dbfs": 1.312142327318869,
+      "peak_dbfs": 6.160193455968207
+    },
+    {
+      "version": "before",
+      "probe": "driven-0.12",
+      "channel": "ragnarok",
+      "rms_dbfs": 4.817923578482289,
+      "peak_dbfs": 10.756308189920018
+    },
+    {
+      "version": "after",
+      "probe": "pluck-0.012",
+      "channel": "fenrir",
+      "rms_dbfs": -5.104190557233026,
+      "peak_dbfs": 8.780931852179606
+    },
+    {
+      "version": "after",
+      "probe": "pluck-0.012",
+      "channel": "surtr",
+      "rms_dbfs": -0.6290004917851029,
+      "peak_dbfs": 7.145086502776563
+    },
+    {
+      "version": "after",
+      "probe": "pluck-0.012",
+      "channel": "nidhoggr",
+      "rms_dbfs": -0.8858801743836504,
+      "peak_dbfs": 5.882699520406262
+    },
+    {
+      "version": "after",
+      "probe": "pluck-0.012",
+      "channel": "fimbulvetr",
+      "rms_dbfs": -0.8493655771370024,
+      "peak_dbfs": 6.28313466093765
+    },
+    {
+      "version": "after",
+      "probe": "pluck-0.012",
+      "channel": "ragnarok",
+      "rms_dbfs": 3.6855246199723295,
+      "peak_dbfs": 9.935232372106709
+    },
+    {
+      "version": "after",
+      "probe": "pluck-0.12",
+      "channel": "fenrir",
+      "rms_dbfs": -3.5709549266992524,
+      "peak_dbfs": 9.775137409609943
+    },
+    {
+      "version": "after",
+      "probe": "pluck-0.12",
+      "channel": "surtr",
+      "rms_dbfs": 0.31269815827359115,
+      "peak_dbfs": 7.560643130583347
+    },
+    {
+      "version": "after",
+      "probe": "pluck-0.12",
+      "channel": "nidhoggr",
+      "rms_dbfs": -0.03442482687267387,
+      "peak_dbfs": 9.0882763292615
+    },
+    {
+      "version": "after",
+      "probe": "pluck-0.12",
+      "channel": "fimbulvetr",
+      "rms_dbfs": 0.43425985828035746,
+      "peak_dbfs": 7.89602091860846
+    },
+    {
+      "version": "after",
+      "probe": "pluck-0.12",
+      "channel": "ragnarok",
+      "rms_dbfs": 4.752871643056194,
+      "peak_dbfs": 10.403697877798521
+    },
+    {
+      "version": "after",
+      "probe": "chord-0.012",
+      "channel": "fenrir",
+      "rms_dbfs": -5.1177988698010335,
+      "peak_dbfs": 9.020781889293565
+    },
+    {
+      "version": "after",
+      "probe": "chord-0.012",
+      "channel": "surtr",
+      "rms_dbfs": -0.6362451543974917,
+      "peak_dbfs": 7.3937306792062
+    },
+    {
+      "version": "after",
+      "probe": "chord-0.012",
+      "channel": "nidhoggr",
+      "rms_dbfs": -0.8608133582647661,
+      "peak_dbfs": 5.786830400191853
+    },
+    {
+      "version": "after",
+      "probe": "chord-0.012",
+      "channel": "fimbulvetr",
+      "rms_dbfs": -1.2614020644901331,
+      "peak_dbfs": 6.372095891752468
+    },
+    {
+      "version": "after",
+      "probe": "chord-0.012",
+      "channel": "ragnarok",
+      "rms_dbfs": 2.7228989966245036,
+      "peak_dbfs": 10.126720240942923
+    },
+    {
+      "version": "after",
+      "probe": "chord-0.12",
+      "channel": "fenrir",
+      "rms_dbfs": -3.280420218090792,
+      "peak_dbfs": 9.713612836313287
+    },
+    {
+      "version": "after",
+      "probe": "chord-0.12",
+      "channel": "surtr",
+      "rms_dbfs": -0.10052962416691552,
+      "peak_dbfs": 8.205409713268853
+    },
+    {
+      "version": "after",
+      "probe": "chord-0.12",
+      "channel": "nidhoggr",
+      "rms_dbfs": -0.3600529291023573,
+      "peak_dbfs": 9.064168505107673
+    },
+    {
+      "version": "after",
+      "probe": "chord-0.12",
+      "channel": "fimbulvetr",
+      "rms_dbfs": -0.2945125537045663,
+      "peak_dbfs": 7.907368305303372
+    },
+    {
+      "version": "after",
+      "probe": "chord-0.12",
+      "channel": "ragnarok",
+      "rms_dbfs": 3.7109294575874285,
+      "peak_dbfs": 10.523960781457236
+    },
+    {
+      "version": "after",
+      "probe": "driven-0.012",
+      "channel": "fenrir",
+      "rms_dbfs": -3.5136636380883166,
+      "peak_dbfs": 9.653893794289552
+    },
+    {
+      "version": "after",
+      "probe": "driven-0.012",
+      "channel": "surtr",
+      "rms_dbfs": -0.10136557306314758,
+      "peak_dbfs": 6.953066110411203
+    },
+    {
+      "version": "after",
+      "probe": "driven-0.012",
+      "channel": "nidhoggr",
+      "rms_dbfs": -0.290488700416098,
+      "peak_dbfs": 6.997780552322229
+    },
+    {
+      "version": "after",
+      "probe": "driven-0.012",
+      "channel": "fimbulvetr",
+      "rms_dbfs": 0.13610179729798894,
+      "peak_dbfs": 6.976409381607917
+    },
+    {
+      "version": "after",
+      "probe": "driven-0.012",
+      "channel": "ragnarok",
+      "rms_dbfs": 4.117653743429071,
+      "peak_dbfs": 10.389723139803307
+    },
+    {
+      "version": "after",
+      "probe": "driven-0.12",
+      "channel": "fenrir",
+      "rms_dbfs": -3.5451473739359622,
+      "peak_dbfs": 9.963026205583681
+    },
+    {
+      "version": "after",
+      "probe": "driven-0.12",
+      "channel": "surtr",
+      "rms_dbfs": 0.6459513972311568,
+      "peak_dbfs": 8.44425322415349
+    },
+    {
+      "version": "after",
+      "probe": "driven-0.12",
+      "channel": "nidhoggr",
+      "rms_dbfs": 0.11497193122378631,
+      "peak_dbfs": 9.554379632827066
+    },
+    {
+      "version": "after",
+      "probe": "driven-0.12",
+      "channel": "fimbulvetr",
+      "rms_dbfs": 0.6379323312238484,
+      "peak_dbfs": 9.712924482183672
+    },
+    {
+      "version": "after",
+      "probe": "driven-0.12",
+      "channel": "ragnarok",
+      "rms_dbfs": 5.265425974573887,
+      "peak_dbfs": 10.722404884744076
+    }
+  ],
+  "pairs": [
+    {
+      "version": "before",
+      "probe": "pluck-0.012",
+      "pair": "fenrir/surtr",
+      "matched_residual": 1.3636291589189142,
+      "spectral_distance_db": 3.7598817197383263
+    },
+    {
+      "version": "before",
+      "probe": "pluck-0.012",
+      "pair": "fenrir/nidhoggr",
+      "matched_residual": 1.5451181263193081,
+      "spectral_distance_db": 6.85111443718493
+    },
+    {
+      "version": "before",
+      "probe": "pluck-0.012",
+      "pair": "fenrir/fimbulvetr",
+      "matched_residual": 1.6301486148816344,
+      "spectral_distance_db": 12.459682139687935
+    },
+    {
+      "version": "before",
+      "probe": "pluck-0.012",
+      "pair": "fenrir/ragnarok",
+      "matched_residual": 1.582173486479012,
+      "spectral_distance_db": 7.28032329934116
+    },
+    {
+      "version": "before",
+      "probe": "pluck-0.012",
+      "pair": "surtr/nidhoggr",
+      "matched_residual": 0.57985944525059,
+      "spectral_distance_db": 5.256407474031105
+    },
+    {
+      "version": "before",
+      "probe": "pluck-0.012",
+      "pair": "surtr/fimbulvetr",
+      "matched_residual": 1.1298686921167036,
+      "spectral_distance_db": 11.884263307262811
+    },
+    {
+      "version": "before",
+      "probe": "pluck-0.012",
+      "pair": "surtr/ragnarok",
+      "matched_residual": 0.7630967631778519,
+      "spectral_distance_db": 5.2591719633235625
+    },
+    {
+      "version": "before",
+      "probe": "pluck-0.012",
+      "pair": "nidhoggr/fimbulvetr",
+      "matched_residual": 0.8324321480152314,
+      "spectral_distance_db": 7.344022454227854
+    },
+    {
+      "version": "before",
+      "probe": "pluck-0.012",
+      "pair": "nidhoggr/ragnarok",
+      "matched_residual": 0.4160787764618096,
+      "spectral_distance_db": 4.990965258843155
+    },
+    {
+      "version": "before",
+      "probe": "pluck-0.012",
+      "pair": "fimbulvetr/ragnarok",
+      "matched_residual": 0.5712265905677723,
+      "spectral_distance_db": 10.514131731629243
+    },
+    {
+      "version": "before",
+      "probe": "pluck-0.12",
+      "pair": "fenrir/surtr",
+      "matched_residual": 1.4668805078770766,
+      "spectral_distance_db": 5.475344890418902
+    },
+    {
+      "version": "before",
+      "probe": "pluck-0.12",
+      "pair": "fenrir/nidhoggr",
+      "matched_residual": 1.6144896711197463,
+      "spectral_distance_db": 11.793190308092413
+    },
+    {
+      "version": "before",
+      "probe": "pluck-0.12",
+      "pair": "fenrir/fimbulvetr",
+      "matched_residual": 1.7007702057500065,
+      "spectral_distance_db": 11.282525060564494
+    },
+    {
+      "version": "before",
+      "probe": "pluck-0.12",
+      "pair": "fenrir/ragnarok",
+      "matched_residual": 1.6812012971015304,
+      "spectral_distance_db": 9.234401941196317
+    },
+    {
+      "version": "before",
+      "probe": "pluck-0.12",
+      "pair": "surtr/nidhoggr",
+      "matched_residual": 0.5751715390337993,
+      "spectral_distance_db": 6.859339745484054
+    },
+    {
+      "version": "before",
+      "probe": "pluck-0.12",
+      "pair": "surtr/fimbulvetr",
+      "matched_residual": 1.2483583659105815,
+      "spectral_distance_db": 6.237129179636729
+    },
+    {
+      "version": "before",
+      "probe": "pluck-0.12",
+      "pair": "surtr/ragnarok",
+      "matched_residual": 0.8633248090793675,
+      "spectral_distance_db": 5.053826135544043
+    },
+    {
+      "version": "before",
+      "probe": "pluck-0.12",
+      "pair": "nidhoggr/fimbulvetr",
+      "matched_residual": 0.9397761417076137,
+      "spectral_distance_db": 1.644282742150516
+    },
+    {
+      "version": "before",
+      "probe": "pluck-0.12",
+      "pair": "nidhoggr/ragnarok",
+      "matched_residual": 0.5337821541195282,
+      "spectral_distance_db": 5.191296921597442
+    },
+    {
+      "version": "before",
+      "probe": "pluck-0.12",
+      "pair": "fimbulvetr/ragnarok",
+      "matched_residual": 0.6205799970032418,
+      "spectral_distance_db": 4.928460640279053
+    },
+    {
+      "version": "before",
+      "probe": "chord-0.012",
+      "pair": "fenrir/surtr",
+      "matched_residual": 1.4228572590032436,
+      "spectral_distance_db": 2.9457532202683665
+    },
+    {
+      "version": "before",
+      "probe": "chord-0.012",
+      "pair": "fenrir/nidhoggr",
+      "matched_residual": 1.5986093286805925,
+      "spectral_distance_db": 5.828132651827362
+    },
+    {
+      "version": "before",
+      "probe": "chord-0.012",
+      "pair": "fenrir/fimbulvetr",
+      "matched_residual": 1.6948876606582104,
+      "spectral_distance_db": 9.04555289927375
+    },
+    {
+      "version": "before",
+      "probe": "chord-0.012",
+      "pair": "fenrir/ragnarok",
+      "matched_residual": 1.6680560585912836,
+      "spectral_distance_db": 6.877479998439075
+    },
+    {
+      "version": "before",
+      "probe": "chord-0.012",
+      "pair": "surtr/nidhoggr",
+      "matched_residual": 0.5522285277763826,
+      "spectral_distance_db": 3.8094297962078056
+    },
+    {
+      "version": "before",
+      "probe": "chord-0.012",
+      "pair": "surtr/fimbulvetr",
+      "matched_residual": 1.0870871728616274,
+      "spectral_distance_db": 8.320066907599264
+    },
+    {
+      "version": "before",
+      "probe": "chord-0.012",
+      "pair": "surtr/ragnarok",
+      "matched_residual": 0.7987835221839243,
+      "spectral_distance_db": 4.905843563659083
+    },
+    {
+      "version": "before",
+      "probe": "chord-0.012",
+      "pair": "nidhoggr/fimbulvetr",
+      "matched_residual": 0.8096140733497873,
+      "spectral_distance_db": 6.0562737176494945
+    },
+    {
+      "version": "before",
+      "probe": "chord-0.012",
+      "pair": "nidhoggr/ragnarok",
+      "matched_residual": 0.5281116235742729,
+      "spectral_distance_db": 3.290113762117636
+    },
+    {
+      "version": "before",
+      "probe": "chord-0.012",
+      "pair": "fimbulvetr/ragnarok",
+      "matched_residual": 0.5617368200276537,
+      "spectral_distance_db": 7.847011411795132
+    },
+    {
+      "version": "before",
+      "probe": "chord-0.12",
+      "pair": "fenrir/surtr",
+      "matched_residual": 1.5193354109934551,
+      "spectral_distance_db": 4.1544666988189425
+    },
+    {
+      "version": "before",
+      "probe": "chord-0.12",
+      "pair": "fenrir/nidhoggr",
+      "matched_residual": 1.6454684019370105,
+      "spectral_distance_db": 6.502670350147276
+    },
+    {
+      "version": "before",
+      "probe": "chord-0.12",
+      "pair": "fenrir/fimbulvetr",
+      "matched_residual": 1.7443438969510858,
+      "spectral_distance_db": 7.097090127441174
+    },
+    {
+      "version": "before",
+      "probe": "chord-0.12",
+      "pair": "fenrir/ragnarok",
+      "matched_residual": 1.7321903216098768,
+      "spectral_distance_db": 7.975359418847009
+    },
+    {
+      "version": "before",
+      "probe": "chord-0.12",
+      "pair": "surtr/nidhoggr",
+      "matched_residual": 0.5246813689358636,
+      "spectral_distance_db": 3.257271821228054
+    },
+    {
+      "version": "before",
+      "probe": "chord-0.12",
+      "pair": "surtr/fimbulvetr",
+      "matched_residual": 1.0834235838753494,
+      "spectral_distance_db": 3.157362490400248
+    },
+    {
+      "version": "before",
+      "probe": "chord-0.12",
+      "pair": "surtr/ragnarok",
+      "matched_residual": 0.8487071593001235,
+      "spectral_distance_db": 4.9546426873054665
+    },
+    {
+      "version": "before",
+      "probe": "chord-0.12",
+      "pair": "nidhoggr/fimbulvetr",
+      "matched_residual": 0.8612324371385915,
+      "spectral_distance_db": 3.2011136418421717
+    },
+    {
+      "version": "before",
+      "probe": "chord-0.12",
+      "pair": "nidhoggr/ragnarok",
+      "matched_residual": 0.6498837908735853,
+      "spectral_distance_db": 3.1779602950642722
+    },
+    {
+      "version": "before",
+      "probe": "chord-0.12",
+      "pair": "fimbulvetr/ragnarok",
+      "matched_residual": 0.6027626024762035,
+      "spectral_distance_db": 3.995055797546972
+    },
+    {
+      "version": "before",
+      "probe": "driven-0.012",
+      "pair": "fenrir/surtr",
+      "matched_residual": 1.4246981506501446,
+      "spectral_distance_db": 3.811294447689792
+    },
+    {
+      "version": "before",
+      "probe": "driven-0.012",
+      "pair": "fenrir/nidhoggr",
+      "matched_residual": 1.5807369088171959,
+      "spectral_distance_db": 9.020319837863566
+    },
+    {
+      "version": "before",
+      "probe": "driven-0.012",
+      "pair": "fenrir/fimbulvetr",
+      "matched_residual": 1.6636167030846558,
+      "spectral_distance_db": 11.757602572570153
+    },
+    {
+      "version": "before",
+      "probe": "driven-0.012",
+      "pair": "fenrir/ragnarok",
+      "matched_residual": 1.6358634775984464,
+      "spectral_distance_db": 7.641999628234658
+    },
+    {
+      "version": "before",
+      "probe": "driven-0.012",
+      "pair": "surtr/nidhoggr",
+      "matched_residual": 0.5777135174476387,
+      "spectral_distance_db": 6.058649403566814
+    },
+    {
+      "version": "before",
+      "probe": "driven-0.012",
+      "pair": "surtr/fimbulvetr",
+      "matched_residual": 1.1764481881011257,
+      "spectral_distance_db": 8.81651192472825
+    },
+    {
+      "version": "before",
+      "probe": "driven-0.012",
+      "pair": "surtr/ragnarok",
+      "matched_residual": 0.8392073402191955,
+      "spectral_distance_db": 4.987966280389464
+    },
+    {
+      "version": "before",
+      "probe": "driven-0.012",
+      "pair": "nidhoggr/fimbulvetr",
+      "matched_residual": 0.8895378553429486,
+      "spectral_distance_db": 3.6270159611428574
+    },
+    {
+      "version": "before",
+      "probe": "driven-0.012",
+      "pair": "nidhoggr/ragnarok",
+      "matched_residual": 0.5276635708908576,
+      "spectral_distance_db": 5.230533727677546
+    },
+    {
+      "version": "before",
+      "probe": "driven-0.012",
+      "pair": "fimbulvetr/ragnarok",
+      "matched_residual": 0.5619414020618373,
+      "spectral_distance_db": 7.353291436195437
+    },
+    {
+      "version": "before",
+      "probe": "driven-0.12",
+      "pair": "fenrir/surtr",
+      "matched_residual": 1.5188558016750748,
+      "spectral_distance_db": 6.4250110140426315
+    },
+    {
+      "version": "before",
+      "probe": "driven-0.12",
+      "pair": "fenrir/nidhoggr",
+      "matched_residual": 1.6316096773865771,
+      "spectral_distance_db": 10.966958886803903
+    },
+    {
+      "version": "before",
+      "probe": "driven-0.12",
+      "pair": "fenrir/fimbulvetr",
+      "matched_residual": 1.7377064506409345,
+      "spectral_distance_db": 9.49996169858486
+    },
+    {
+      "version": "before",
+      "probe": "driven-0.12",
+      "pair": "fenrir/ragnarok",
+      "matched_residual": 1.7280168348244367,
+      "spectral_distance_db": 10.75173372354826
+    },
+    {
+      "version": "before",
+      "probe": "driven-0.12",
+      "pair": "surtr/nidhoggr",
+      "matched_residual": 0.49522180574327446,
+      "spectral_distance_db": 5.479460646932712
+    },
+    {
+      "version": "before",
+      "probe": "driven-0.12",
+      "pair": "surtr/fimbulvetr",
+      "matched_residual": 1.2397874521599694,
+      "spectral_distance_db": 3.6302752679453834
+    },
+    {
+      "version": "before",
+      "probe": "driven-0.12",
+      "pair": "surtr/ragnarok",
+      "matched_residual": 0.8337560719026613,
+      "spectral_distance_db": 5.1434189143233136
+    },
+    {
+      "version": "before",
+      "probe": "driven-0.12",
+      "pair": "nidhoggr/fimbulvetr",
+      "matched_residual": 0.9711958225157628,
+      "spectral_distance_db": 2.687951926666836
+    },
+    {
+      "version": "before",
+      "probe": "driven-0.12",
+      "pair": "nidhoggr/ragnarok",
+      "matched_residual": 0.5423655412647397,
+      "spectral_distance_db": 2.9242137793568617
+    },
+    {
+      "version": "before",
+      "probe": "driven-0.12",
+      "pair": "fimbulvetr/ragnarok",
+      "matched_residual": 0.6299033489505733,
+      "spectral_distance_db": 3.165973878077869
+    },
+    {
+      "version": "after",
+      "probe": "pluck-0.012",
+      "pair": "fenrir/surtr",
+      "matched_residual": 1.3469062404417689,
+      "spectral_distance_db": 4.953176128936736
+    },
+    {
+      "version": "after",
+      "probe": "pluck-0.012",
+      "pair": "fenrir/nidhoggr",
+      "matched_residual": 1.516837674488743,
+      "spectral_distance_db": 5.646419437670542
+    },
+    {
+      "version": "after",
+      "probe": "pluck-0.012",
+      "pair": "fenrir/fimbulvetr",
+      "matched_residual": 1.537838945579339,
+      "spectral_distance_db": 8.066162010676454
+    },
+    {
+      "version": "after",
+      "probe": "pluck-0.012",
+      "pair": "fenrir/ragnarok",
+      "matched_residual": 1.5804458181308034,
+      "spectral_distance_db": 7.344031730710195
+    },
+    {
+      "version": "after",
+      "probe": "pluck-0.012",
+      "pair": "surtr/nidhoggr",
+      "matched_residual": 0.5530158116010031,
+      "spectral_distance_db": 5.477988350993328
+    },
+    {
+      "version": "after",
+      "probe": "pluck-0.012",
+      "pair": "surtr/fimbulvetr",
+      "matched_residual": 0.6263684961492557,
+      "spectral_distance_db": 9.12509505519618
+    },
+    {
+      "version": "after",
+      "probe": "pluck-0.012",
+      "pair": "surtr/ragnarok",
+      "matched_residual": 0.7615054451095158,
+      "spectral_distance_db": 5.720768081011959
+    },
+    {
+      "version": "after",
+      "probe": "pluck-0.012",
+      "pair": "nidhoggr/fimbulvetr",
+      "matched_residual": 0.2854995543313241,
+      "spectral_distance_db": 4.427244734915137
+    },
+    {
+      "version": "after",
+      "probe": "pluck-0.012",
+      "pair": "nidhoggr/ragnarok",
+      "matched_residual": 0.4539340716794285,
+      "spectral_distance_db": 4.314394070357041
+    },
+    {
+      "version": "after",
+      "probe": "pluck-0.012",
+      "pair": "fimbulvetr/ragnarok",
+      "matched_residual": 0.3666669787237264,
+      "spectral_distance_db": 5.882356153361924
+    },
+    {
+      "version": "after",
+      "probe": "pluck-0.12",
+      "pair": "fenrir/surtr",
+      "matched_residual": 1.4581525211656639,
+      "spectral_distance_db": 4.417897646114217
+    },
+    {
+      "version": "after",
+      "probe": "pluck-0.12",
+      "pair": "fenrir/nidhoggr",
+      "matched_residual": 1.600881908920361,
+      "spectral_distance_db": 10.095968696780808
+    },
+    {
+      "version": "after",
+      "probe": "pluck-0.12",
+      "pair": "fenrir/fimbulvetr",
+      "matched_residual": 1.6518512016233597,
+      "spectral_distance_db": 11.25557262396718
+    },
+    {
+      "version": "after",
+      "probe": "pluck-0.12",
+      "pair": "fenrir/ragnarok",
+      "matched_residual": 1.6791681468802344,
+      "spectral_distance_db": 9.159644137092663
+    },
+    {
+      "version": "after",
+      "probe": "pluck-0.12",
+      "pair": "surtr/nidhoggr",
+      "matched_residual": 0.5508348603452001,
+      "spectral_distance_db": 6.649632612363096
+    },
+    {
+      "version": "after",
+      "probe": "pluck-0.12",
+      "pair": "surtr/fimbulvetr",
+      "matched_residual": 0.690563488687593,
+      "spectral_distance_db": 7.600784921081079
+    },
+    {
+      "version": "after",
+      "probe": "pluck-0.12",
+      "pair": "surtr/ragnarok",
+      "matched_residual": 0.8659386279553847,
+      "spectral_distance_db": 5.132162845086546
+    },
+    {
+      "version": "after",
+      "probe": "pluck-0.12",
+      "pair": "nidhoggr/fimbulvetr",
+      "matched_residual": 0.31787825794107516,
+      "spectral_distance_db": 3.100752699656177
+    },
+    {
+      "version": "after",
+      "probe": "pluck-0.12",
+      "pair": "nidhoggr/ragnarok",
+      "matched_residual": 0.5621537633202512,
+      "spectral_distance_db": 4.208836592928302
+    },
+    {
+      "version": "after",
+      "probe": "pluck-0.12",
+      "pair": "fimbulvetr/ragnarok",
+      "matched_residual": 0.38041019622023037,
+      "spectral_distance_db": 3.9259710127411194
+    },
+    {
+      "version": "after",
+      "probe": "chord-0.012",
+      "pair": "fenrir/surtr",
+      "matched_residual": 1.4141691739163182,
+      "spectral_distance_db": 4.339182511849574
+    },
+    {
+      "version": "after",
+      "probe": "chord-0.012",
+      "pair": "fenrir/nidhoggr",
+      "matched_residual": 1.569618492367689,
+      "spectral_distance_db": 5.036471069184541
+    },
+    {
+      "version": "after",
+      "probe": "chord-0.012",
+      "pair": "fenrir/fimbulvetr",
+      "matched_residual": 1.6077738283818026,
+      "spectral_distance_db": 6.540893801611568
+    },
+    {
+      "version": "after",
+      "probe": "chord-0.012",
+      "pair": "fenrir/ragnarok",
+      "matched_residual": 1.6658222427231972,
+      "spectral_distance_db": 6.835922306872049
+    },
+    {
+      "version": "after",
+      "probe": "chord-0.012",
+      "pair": "surtr/nidhoggr",
+      "matched_residual": 0.5317964941423737,
+      "spectral_distance_db": 3.458084595666508
+    },
+    {
+      "version": "after",
+      "probe": "chord-0.012",
+      "pair": "surtr/fimbulvetr",
+      "matched_residual": 0.6193691713147069,
+      "spectral_distance_db": 7.279201291961801
+    },
+    {
+      "version": "after",
+      "probe": "chord-0.012",
+      "pair": "surtr/ragnarok",
+      "matched_residual": 0.7969718136841023,
+      "spectral_distance_db": 5.127178860763904
+    },
+    {
+      "version": "after",
+      "probe": "chord-0.012",
+      "pair": "nidhoggr/fimbulvetr",
+      "matched_residual": 0.3393972457273024,
+      "spectral_distance_db": 4.503006722747427
+    },
+    {
+      "version": "after",
+      "probe": "chord-0.012",
+      "pair": "nidhoggr/ragnarok",
+      "matched_residual": 0.5612223569229671,
+      "spectral_distance_db": 3.2479758558340324
+    },
+    {
+      "version": "after",
+      "probe": "chord-0.012",
+      "pair": "fimbulvetr/ragnarok",
+      "matched_residual": 0.3994222965624848,
+      "spectral_distance_db": 4.477278715229478
+    },
+    {
+      "version": "after",
+      "probe": "chord-0.12",
+      "pair": "fenrir/surtr",
+      "matched_residual": 1.5105104935831362,
+      "spectral_distance_db": 3.426364036648408
+    },
+    {
+      "version": "after",
+      "probe": "chord-0.12",
+      "pair": "fenrir/nidhoggr",
+      "matched_residual": 1.619685039548365,
+      "spectral_distance_db": 5.308462497836958
+    },
+    {
+      "version": "after",
+      "probe": "chord-0.12",
+      "pair": "fenrir/fimbulvetr",
+      "matched_residual": 1.6840353142404378,
+      "spectral_distance_db": 5.9676313305033934
+    },
+    {
+      "version": "after",
+      "probe": "chord-0.12",
+      "pair": "fenrir/ragnarok",
+      "matched_residual": 1.7299127311261087,
+      "spectral_distance_db": 7.97980768960103
+    },
+    {
+      "version": "after",
+      "probe": "chord-0.12",
+      "pair": "surtr/nidhoggr",
+      "matched_residual": 0.5199228768023014,
+      "spectral_distance_db": 2.1784670469399923
+    },
+    {
+      "version": "after",
+      "probe": "chord-0.12",
+      "pair": "surtr/fimbulvetr",
+      "matched_residual": 0.6237733515447196,
+      "spectral_distance_db": 3.2349834738738172
+    },
+    {
+      "version": "after",
+      "probe": "chord-0.12",
+      "pair": "surtr/ragnarok",
+      "matched_residual": 0.8423160723305367,
+      "spectral_distance_db": 5.107931995307372
+    },
+    {
+      "version": "after",
+      "probe": "chord-0.12",
+      "pair": "nidhoggr/fimbulvetr",
+      "matched_residual": 0.4253433736789081,
+      "spectral_distance_db": 2.5846580504039602
+    },
+    {
+      "version": "after",
+      "probe": "chord-0.12",
+      "pair": "nidhoggr/ragnarok",
+      "matched_residual": 0.6812296716405356,
+      "spectral_distance_db": 4.030503218855062
+    },
+    {
+      "version": "after",
+      "probe": "chord-0.12",
+      "pair": "fimbulvetr/ragnarok",
+      "matched_residual": 0.4479043895580393,
+      "spectral_distance_db": 2.510884259868519
+    },
+    {
+      "version": "after",
+      "probe": "driven-0.012",
+      "pair": "fenrir/surtr",
+      "matched_residual": 1.4119458669232727,
+      "spectral_distance_db": 3.676200979825023
+    },
+    {
+      "version": "after",
+      "probe": "driven-0.012",
+      "pair": "fenrir/nidhoggr",
+      "matched_residual": 1.5615902588753512,
+      "spectral_distance_db": 7.442493233717214
+    },
+    {
+      "version": "after",
+      "probe": "driven-0.012",
+      "pair": "fenrir/fimbulvetr",
+      "matched_residual": 1.6001391388991346,
+      "spectral_distance_db": 9.55330174299804
+    },
+    {
+      "version": "after",
+      "probe": "driven-0.012",
+      "pair": "fenrir/ragnarok",
+      "matched_residual": 1.634704376908701,
+      "spectral_distance_db": 7.630491851521672
+    },
+    {
+      "version": "after",
+      "probe": "driven-0.012",
+      "pair": "surtr/nidhoggr",
+      "matched_residual": 0.5558877272082612,
+      "spectral_distance_db": 6.118482571448011
+    },
+    {
+      "version": "after",
+      "probe": "driven-0.012",
+      "pair": "surtr/fimbulvetr",
+      "matched_residual": 0.6436828770095481,
+      "spectral_distance_db": 8.215565994531467
+    },
+    {
+      "version": "after",
+      "probe": "driven-0.012",
+      "pair": "surtr/ragnarok",
+      "matched_residual": 0.8380262392873303,
+      "spectral_distance_db": 5.141342945403956
+    },
+    {
+      "version": "after",
+      "probe": "driven-0.012",
+      "pair": "nidhoggr/fimbulvetr",
+      "matched_residual": 0.28501099949093445,
+      "spectral_distance_db": 3.5938466356932794
+    },
+    {
+      "version": "after",
+      "probe": "driven-0.012",
+      "pair": "nidhoggr/ragnarok",
+      "matched_residual": 0.558114625244413,
+      "spectral_distance_db": 4.573717749546647
+    },
+    {
+      "version": "after",
+      "probe": "driven-0.012",
+      "pair": "fimbulvetr/ragnarok",
+      "matched_residual": 0.4048951644484044,
+      "spectral_distance_db": 4.9624565356963215
+    },
+    {
+      "version": "after",
+      "probe": "driven-0.12",
+      "pair": "fenrir/surtr",
+      "matched_residual": 1.5082153652735908,
+      "spectral_distance_db": 5.423479988654554
+    },
+    {
+      "version": "after",
+      "probe": "driven-0.12",
+      "pair": "fenrir/nidhoggr",
+      "matched_residual": 1.6188700631450559,
+      "spectral_distance_db": 9.356365034691452
+    },
+    {
+      "version": "after",
+      "probe": "driven-0.12",
+      "pair": "fenrir/fimbulvetr",
+      "matched_residual": 1.6867456001918346,
+      "spectral_distance_db": 10.536185044871443
+    },
+    {
+      "version": "after",
+      "probe": "driven-0.12",
+      "pair": "fenrir/ragnarok",
+      "matched_residual": 1.7239718014601324,
+      "spectral_distance_db": 10.884196374043999
+    },
+    {
+      "version": "after",
+      "probe": "driven-0.12",
+      "pair": "surtr/nidhoggr",
+      "matched_residual": 0.4798881838250644,
+      "spectral_distance_db": 4.907013773266184
+    },
+    {
+      "version": "after",
+      "probe": "driven-0.12",
+      "pair": "surtr/fimbulvetr",
+      "matched_residual": 0.6825768986371831,
+      "spectral_distance_db": 5.6910517829465075
+    },
+    {
+      "version": "after",
+      "probe": "driven-0.12",
+      "pair": "surtr/ragnarok",
+      "matched_residual": 0.8369191229852148,
+      "spectral_distance_db": 5.973145514384669
+    },
+    {
+      "version": "after",
+      "probe": "driven-0.12",
+      "pair": "nidhoggr/fimbulvetr",
+      "matched_residual": 0.3957723152368148,
+      "spectral_distance_db": 3.3768726962393383
+    },
+    {
+      "version": "after",
+      "probe": "driven-0.12",
+      "pair": "nidhoggr/ragnarok",
+      "matched_residual": 0.5746631125731255,
+      "spectral_distance_db": 3.0779096343471966
+    },
+    {
+      "version": "after",
+      "probe": "driven-0.12",
+      "pair": "fimbulvetr/ragnarok",
+      "matched_residual": 0.3289281383897671,
+      "spectral_distance_db": 1.3994480705235108
+    }
+  ]
+}

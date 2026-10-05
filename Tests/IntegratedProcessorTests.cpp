@@ -301,10 +301,25 @@ void ownerOriginalReference(const juce::File& source,const juce::File& directory
         std::cout<<"OWNER_FULL_RIG,"<<name<<","<<10*std::log10(energy/audio.size())<<","<<20*std::log10(peak)<<"\n";
     }
 }
-// Compare audible channel levels through one common bundled cabinet, both
-// without pedals and with the same hot PRE/POST chain. Do not normalize the
-// raw amp before the cabinet: different spectral balances lose different energy.
-void originalChannelLevelProbe(const juce::File& directory) {
+// 48 kHz K-weighted stereo power, without R128 integration/gating. The short
+// fixture uses every sample; an independent FFmpeg R128 probe is also recorded.
+// Coefficients: https://ffmpeg.org/doxygen/4.1/f__ebur128_8c.html (PRE/RLB).
+double channelWeightedPower(const std::vector<float>& audio) {
+    using Filter=juce::dsp::IIR::Filter<double>;
+    using Coefficients=juce::dsp::IIR::Coefficients<double>;
+    double energy=0;
+    for(size_t channel=0;channel<2;++channel) {
+        Filter shelf(new Coefficients(1.53512485958697,-2.69169618940638,1.19839281085285,1.,-1.69065929318241,.73248077421585));
+        Filter highpass(new Coefficients(1.,-2.,1.,1.,-1.99004745483398,.99007225036621));
+        for(size_t block=0;block<audio.size();block+=256)for(size_t n=0;n<128;++n) {
+            const double y=highpass.processSample(shelf.processSample(audio[block+channel*128+n]));energy+=y*y;
+        }
+    }
+    return -.691+10*std::log10(energy/(audio.size()/2));
+}
+// Compare the same cabinet with bare and hot PRE/POST paths. Unweighted RMS
+// alone hid the owner's remaining Fenrir advantage under driven conditions.
+void originalChannelLevelProbe(const juce::File& directory,bool enforceBalance=true) {
     using namespace spectralforge;directory.createDirectory();
     for(bool driven:{false,true}) {
       double minimum=100,maximum=-100;
@@ -322,10 +337,12 @@ void originalChannelLevelProbe(const juce::File& directory) {
         for(float v:audio){energy+=double(v)*v;peak=std::max(peak,std::abs(v));}
         const auto name=juce::String(driven?"driven_":"cab_")+original::channelKeys[channel];
         require(directory.getChildFile(name+".f32").replaceWithData(audio.data(),audio.size()*sizeof(float)),"Cannot write channel level render");
-        const double rmsDb=10*std::log10(energy/audio.size());minimum=std::min(minimum,rmsDb);maximum=std::max(maximum,rmsDb);
-        std::cout<<"CHANNEL_LEVEL,"<<name<<","<<rmsDb<<","<<20*std::log10(peak)<<"\n";
+        const double rmsDb=10*std::log10(energy/audio.size()),weighted=channelWeightedPower(audio);
+        minimum=std::min(minimum,weighted);maximum=std::max(maximum,weighted);
+        if(enforceBalance)require(peak<1,"Default channel overloads its cabinet path");
+        std::cout<<"CHANNEL_LEVEL,"<<name<<","<<rmsDb<<","<<20*std::log10(peak)<<","<<weighted<<"\n";
       }
-      require(maximum-minimum<(driven?2.5:2.0),"Channel level spread exceeds the Fenrir-referenced cabinet target");
+      if(enforceBalance)require(maximum-minimum<(driven?1.6:2.5),"K-weighted channel spread exceeds the bare/driven cabinet target");
     }
 }
 void gainAndGR() {
@@ -358,7 +375,7 @@ void gainAndGR() {
 int main(int argc,char** argv) {
     juce::ScopedJuceInitialiser_GUI init;
     try {
-        if(argc==3&&juce::String(argv[1])=="--original-channel-levels"){originalChannelLevelProbe(juce::File(argv[2]));return 0;}
+        if(argc==3&&juce::String(argv[1])=="--original-channel-levels"){originalChannelLevelProbe(juce::File(argv[2]),false);return 0;}
         if(argc==4&&juce::String(argv[1])=="--owner-original-reference"){ownerOriginalReference(juce::File(argv[2]),juce::File(argv[3]));return 0;}
         if(argc>1&&juce::String(argv[1])=="--original-production-only"){originalProduction();originalChannels();return 0;}
         if(argc>1&&juce::String(argv[1])=="--measure-gain"){presetGainTests::run(true);return 0;}

@@ -1,0 +1,56 @@
+name: Publish verified Open Beta 1.2
+on:
+  push:
+    branches: [release/open-beta-1.2.0]
+  workflow_dispatch:
+    inputs:
+      source_sha:
+        description: Exact accepted 40-character source SHA
+        required: true
+        type: string
+      confirm:
+        description: Type publish-v1.2.0-beta.1
+        required: true
+        type: string
+permissions:
+  contents: read
+  actions: read
+concurrency:
+  group: publish-chimera-v1.2.0-beta.1
+  cancel-in-progress: false
+jobs:
+  publish:
+    if: github.repository == 'raven-deadwire/SpectralForge-Chimera-Amp-Matrix' && github.ref == 'refs/heads/release/open-beta-1.2.0'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    permissions:
+      contents: write
+      actions: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Check authorized release identity
+        env:
+          ACCEPTED_SHA: ${{ inputs.source_sha }}
+          CONFIRM: ${{ inputs.confirm }}
+        run: |
+          # Owner authorized release after final channel/clarity corrections
+          # on 2026-10-05 at 19:10 KST. Exact-source gates remain required.
+          if [ "$GITHUB_EVENT_NAME" = "workflow_dispatch" ]; then
+            test "$CONFIRM" = "publish-v1.2.0-beta.1"
+            test "$ACCEPTED_SHA" = "$GITHUB_SHA"
+            test "${#ACCEPTED_SHA}" -eq 40
+          fi
+          test ! -f RELEASE_REVIEW_PENDING
+          test "$(python Tools/chimera_version.py --field version)" = "1.2.0-beta.1"
+          git diff --exit-code
+          python Tools/test_publish_beta12.py
+      - name: Verify exact-source packages and publish
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python Tools/publish_beta12.py

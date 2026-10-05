@@ -97,7 +97,7 @@ inline juce::ValueTree originalPresetSnapshot(juce::AudioProcessorValueTreeState
             pedal(0,27,{.72f,.28f,.65f,0});
             pedal(1,8,{.50f,.50f,.50f,1,1});
             post(1,0);postKnob(1,0,"gain",2);
-            post(2,0);set(postNativeLevelID(2,0),-1.5f);postKnob(2,0,"lf_frequency",80);postKnob(2,0,"lf_gain",-6);
+            post(2,0);set(postNativeLevelID(2,0),-2.5f);postKnob(2,0,"lf_frequency",80);postKnob(2,0,"lf_gain",-6);
             postKnob(2,0,"lmf_frequency",600);postKnob(2,0,"lmf_gain",-3.36f);
             postKnob(2,0,"hmf_frequency",2000);postKnob(2,0,"hmf_gain",4.5f);
             break;
@@ -116,7 +116,7 @@ inline juce::ValueTree originalPresetSnapshot(juce::AudioProcessorValueTreeState
             post(0,0);postKnob(0,0,"threshold",-18);postKnob(0,0,"ratio",1);
             postKnob(0,0,"attack",4);postKnob(0,0,"release",1);postKnob(0,0,"makeup",0);
             post(1,0);postKnob(1,0,"gain",2);
-            post(2,0);postKnob(2,0,"lf_frequency",80);postKnob(2,0,"lf_gain",-8.89f);
+            post(2,0);set(postNativeLevelID(2,0),-2.5f);postKnob(2,0,"lf_frequency",80);postKnob(2,0,"lf_gain",-8.89f);
             postKnob(2,0,"lmf_frequency",600);postKnob(2,0,"lmf_gain",-3.36f);
             postKnob(2,0,"hmf_frequency",2000);postKnob(2,0,"hmf_gain",6.02f);
             break;

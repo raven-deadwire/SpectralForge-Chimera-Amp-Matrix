@@ -1,8 +1,11 @@
 # 1.2 development and remaining updates
 
-Status: integrated 1.2 Preview candidate, 2026-10-05 KST. Public release remains
-**1.1.2-beta.1** (source `88b62738fdbd9bcdca34f7b6e1092d6ed411eb94`, merged
-main `a9cfb68035688c3f9d356bd4c6ba27587e27da92`). This branch is not a 1.2 release.
+Status: Open Beta 1.2 release preparation, 2026-10-05 KST. The owner authorized
+publication at 19:10 KST after the final channel-level and Fimbulvetr clarity
+corrections. VERSION is 1.2.0 and RELEASE_CHANNEL is beta.1. Final-source
+platform, installer and immutable-package verification is required before
+publishing. Earlier preview measurements below are historical checkpoints;
+current channel/preset corrections are in NASTROND_CHANNEL_FEEDBACK.md.
 
 ## Immediate preset correction
 

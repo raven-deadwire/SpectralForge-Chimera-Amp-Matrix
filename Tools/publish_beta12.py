@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Publish Beta 1.1.2 only from the successful build jobs of this exact release run.
+"""Publish Beta 1.2 only from successful verification of this exact source SHA.
 
 Reuse the established draft/upload/hash/public-discovery implementation. Never
 replace old assets, move existing tags, or include personal capture bundles.
@@ -16,8 +16,8 @@ import chimera_version
 ROOT = Path(__file__).resolve().parents[1]
 IDENTITY = chimera_version.identity(ROOT)
 VERSION = IDENTITY["version"]
-TITLE = "SpectralForge Chimera — Open Beta 1.1.2 · Day-one patch"
-BRANCH = "release/open-beta-1.1.2"
+TITLE = "SpectralForge Chimera — Open Beta 1.2 · Náströnd"
+BRANCH = "release/open-beta-1.2.0"
 ARTIFACT_NAME = f"SpectralForge-Chimera-{VERSION}-Release-Candidate"
 SUFFIXES = ("win64-Setup.exe", "win64.zip", "macos-universal.pkg",
             "linux-x86_64.deb", "linux-x86_64.tar.gz")
@@ -77,8 +77,8 @@ def prepare_assets(candidate, head, run_id):
     assets = {name: candidate / name for name in sorted(names | set(DOCUMENTS))}
     for name in ("OPEN_BETA_RELEASE_NOTES.md", "STUDIO_ONE_TEARDOWN.md", "AMP_NATIVE_DSP.md",
                  "POST_NATIVE_DSP.md", "PEDAL_BOARD_DSP.md", "EXTERNAL_BASS_IRS.md",
-                 "NATIVE_NAM_CALIBRATION.md"):
-        assets[name] = ROOT / "docs" / ("OPEN_BETA_1_1_2_RELEASE_NOTES.md" if name == "OPEN_BETA_RELEASE_NOTES.md" else name)
+                 "NATIVE_NAM_CALIBRATION.md", "NASTROND_CHANNEL_FEEDBACK.md"):
+        assets[name] = ROOT / "docs" / name
     assets["Trace-Chimera-Session.ps1"] = ROOT / "Tools/Trace-Chimera-Session.ps1"
     assets["COPYRIGHT.txt"] = ROOT / "COPYRIGHT.txt"
     for name, path in assets.items():
@@ -88,19 +88,32 @@ def prepare_assets(candidate, head, run_id):
     return notes, assets
 
 
+def verified_run(runs, head, events):
+    matches = [run for run in runs if run["head_sha"] == head and run["event"] in events]
+    require(bool(matches), "Exact-source verification run is missing")
+    latest = max(matches, key=lambda run: run["id"])
+    require(latest["status"] == "completed" and latest["conclusion"] == "success",
+            "Latest exact-source verification run has not passed")
+    return latest["id"]
+
+
 def main():
     head = os.environ["GITHUB_SHA"]
-    require(IDENTITY["product_version"] == "1.1.2" and VERSION == "1.1.2-beta.1", "Publisher is pinned to Open Beta 1.1.2 identity")
-    run_id = int(os.environ["GITHUB_RUN_ID"])
+    require(IDENTITY["product_version"] == "1.2.0" and VERSION == "1.2.0-beta.1", "Publisher is pinned to Open Beta 1.2 identity")
+    publication_run_id = int(os.environ["GITHUB_RUN_ID"])
     require(os.environ["GITHUB_REPOSITORY"] == transport.REPO
             and os.environ["GITHUB_REF"] == "refs/heads/" + BRANCH,
-            "Publication requires the authorized Beta 1.1.2 branch")
+            "Publication requires the authorized Beta 1.2 branch")
     api = transport.GitHub()
-    run = api.json(f"/actions/runs/{run_id}")
+    run = api.json(f"/actions/runs/{publication_run_id}")
     require(run["head_sha"] == head and run["head_branch"] == BRANCH
             and run["event"] in ("push", "workflow_dispatch"), "Release workflow identity mismatch")
     current = api.json("/git/ref/heads/" + BRANCH)
     require(current["object"]["sha"] == head, "A newer release source supersedes this build")
+    # Reuse immutable artifacts from the already verified exact-head build.
+    # No rebuild, relabeling, stale-head fallback or missing-platform fallback.
+    builds = api.json(f"/actions/workflows/build.yml/runs?head_sha={head}&per_page=100")["workflow_runs"]
+    run_id = verified_run(builds, head, ("pull_request", "workflow_dispatch"))
     jobs = api.pages(f"/actions/runs/{run_id}/jobs", "jobs")
     for suffix in ("build (windows-latest)", "build (ubuntu-22.04)", "build (macos-15)", "assemble-candidate"):
         matches = [job for job in jobs if job["name"].split(" / ")[-1] == suffix]
@@ -109,10 +122,8 @@ def main():
     # The distinct Setup workflow also exercises preparation contracts and real
     # install/repair/uninstall. Its exact head must pass before publication.
     candidate_runs = api.json(f"/actions/workflows/update-candidate.yml/runs?head_sha={head}&event=pull_request&per_page=100")["workflow_runs"]
-    accepted = [run for run in candidate_runs if run["head_sha"] == head
-                and run["status"] == "completed" and run["conclusion"] == "success"]
-    require(bool(accepted), "Exact-source Windows candidate/preparation workflow has not passed")
-    candidate_jobs = api.pages(f"/actions/runs/{accepted[0]['id']}/jobs", "jobs")
+    candidate_run_id = verified_run(candidate_runs, head, ("pull_request",))
+    candidate_jobs = api.pages(f"/actions/runs/{candidate_run_id}/jobs", "jobs")
     for name in ("windows-candidate", "preparation-contracts"):
         matches = [job for job in candidate_jobs if job["name"] == name]
         require(len(matches) == 1 and matches[0]["status"] == "completed"
@@ -132,7 +143,7 @@ def main():
     transport.DOWNLOAD_URL = f"https://github.com/{transport.REPO}/releases/download/v{VERSION}/"
     transport.ARCHIVE_SIZE = artifact["size_in_bytes"]
     transport.ARCHIVE_SHA = artifact["digest"].split(":", 1)[1]
-    with tempfile.TemporaryDirectory(prefix="chimera-beta112-") as temporary:
+    with tempfile.TemporaryDirectory(prefix="chimera-beta12-") as temporary:
         working = Path(temporary)
         archive = working / "candidate.zip"
         api.download(f"/actions/artifacts/{artifact['id']}/zip", archive)
@@ -146,7 +157,7 @@ def main():
         print(f"Published and publicly verified: {release['html_url']}")
         if os.environ.get("GITHUB_STEP_SUMMARY"):
             with open(os.environ["GITHUB_STEP_SUMMARY"], "a") as stream:
-                stream.write(f"## Open Beta 1.1.2 published\n\n{release['html_url']}\n\nSource `{head}`; all three platform builds and package checks passed.\n")
+                stream.write(f"## Open Beta 1.2 published\n\n{release['html_url']}\n\nSource `{head}`; all three platform builds and package checks passed.\n")
 
 
 if __name__ == "__main__":
