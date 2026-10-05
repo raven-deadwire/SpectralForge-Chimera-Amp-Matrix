@@ -23,7 +23,8 @@ def eq_for(name):
 
 def main():
     ap=argparse.ArgumentParser();ap.add_argument('--data',type=Path,required=True);ap.add_argument('--run',type=Path,required=True)
-    ap.add_argument('--out',type=Path,required=True);ap.add_argument('--tool',type=Path,required=True);args=ap.parse_args()
+    ap.add_argument('--out',type=Path,required=True);ap.add_argument('--tool',type=Path,required=True)
+    ap.add_argument('--comparison',type=Path);ap.add_argument('--compatibility',type=Path);args=ap.parse_args()
     torch.set_num_threads(2)
     if args.out.exists() and any(args.out.iterdir()):raise RuntimeError('Package output must be empty')
     for d in ['NAM','TONE3000-Presets','Settings','Validation','Audio','Training']:(args.out/d).mkdir(parents=True,exist_ok=True)
@@ -106,6 +107,18 @@ def main():
       'actual_GUI_DAW_test':'not performed; unmodified engine, EQ, A2 import predicate and preset APIs tested offline',
       'status':'TEST_BUILD_PENDING_ACCEPTANCE'}
     report['numerical_accuracy_pass']=all(r['validation']['window_esr_median']<=.005 and r['validation']['window_esr_p95']<=.01 and r['validation']['window_esr_worst']<=.02 and abs(r['validation']['rms_error_db'])<=.5 and abs(r['validation']['peak_error_db'])<=1 and r['silence_dbfs']<=-80 for r in reports.values())
+    comparison=json.loads(args.comparison.read_text()) if args.comparison else None
+    if comparison:
+        for input_report in comparison['inputs'].values():
+            for name,row in input_report['channels'].items():
+                if row['candidate']['model_sha256']!=digest(args.run/f'Nastrond-{name}.nam'):
+                    raise RuntimeError('Comparison does not belong to this model export')
+        report['final_test']='Reserved synthetic test and external official NAM V3 evaluated; see comparison.json'
+        report['all_channels_improved_on_both_inputs']=comparison['all_channels_improved_on_both_inputs']
+        shutil.copy2(args.comparison,args.out/'Validation'/'comparison.json')
+    if args.compatibility:
+        shutil.copy2(args.compatibility,args.out/'Validation'/'compatibility.json')
+    report['internally_parametric_NAM']='unsupported_by_target; external EQ does not implement this requirement'
     write_json(args.out/'Validation'/'validation.json',report)
     shutil.copy2(args.data/'channel-settings.json',args.out/'Settings'/'native-channel-settings.json')
     shutil.copy2(args.data/'manifest.json',args.out/'Validation'/'capture-manifest.json')
@@ -134,7 +147,7 @@ def main():
       '| 채널 | 전체 검증 ESR | 구간 ESR 중앙값 | 구간 ESR p95 |','| --- | ---: | ---: | ---: |']
     for name,r in reports.items():
         v=r['validation'];lines.append(f'| {name} | {v["esr"]:.6f} | {v["window_esr_median"]:.6f} | {v["window_esr_p95"]:.6f} |')
-    lines+=['','ESR은 낮을수록 오차가 작습니다. “음색 유사도 퍼센트”를 뜻하지 않습니다. 합성 신호로 학습·검증했으며, 최종 테스트 신호는 아직 사용하지 않았습니다.',
+    lines+=['','ESR은 낮을수록 오차가 작습니다. “음색 유사도 퍼센트”를 뜻하지 않습니다. '+('학습·체크포인트 선택에서 제외한 합성 테스트와 NAM 공식 V3 입력으로 이전 모델과 비교했습니다. 상세 결과는 `Validation/comparison.json`에 있습니다.' if comparison else '합성 신호로 학습·검증했으며, 최종 테스트 신호는 아직 사용하지 않았습니다.'),
       '',f'설계상 수치 기준 전체 통과: {"예" if report["numerical_accuracy_pass"] else "아니오 — 정식 릴리즈 승인 전 추가 개선 필요"}. 상세 수치와 미완료 항목은 `Validation/validation.json`에 있습니다.','',
       '`Audio/*Native-left-NAM-right.wav`는 왼쪽 원본 DSP, 오른쪽 NAM 비교입니다. `*TONE3000-EQ.wav`는 채널 EQ와 고정 출력 보정을 적용한 합성 테스트 음원입니다. 모두 캐비닛 없는 앰프 신호입니다.','',
       '캡처는 Chimera v1.2.0-beta.1의 실제 4배 오버샘플링 앰프 경로를 사용했습니다. 원본의 지연을 유지해 인과적인 학습 대상으로 만들었습니다. 채널별 고정 출력 보정은 비교용 원본 DSP에도 똑같이 적용했습니다. 입력 드라이브는 바꾸지 않았습니다. TONE3000의 Normalize를 다시 켜면 이 출력 보정 효과가 달라집니다.','',
@@ -142,6 +155,14 @@ def main():
       'NAM 학습기: https://github.com/sdatkinson/neural-amp-modeler',
       'TONE3000 플레이어: https://github.com/tone-3000/tone3000-plugin','',
       'Náströnd/Chimera: RavenForge Luthier Intelligence. NAM 및 TONE3000과의 제휴·공식 인증을 뜻하지 않습니다.']
+    lines+=['','## 지원 범위','',
+      '현재 확인한 TONE3000은 A2 모델과 외부 파라메트릭 EQ를 지원합니다. 모델 내부의 게인·톤 노브가 가변되는 패러매틱 NAM 요구는 이 플레이어에서 충족되지 않습니다. 이 패키지를 패러매틱 NAM으로 표기하지 않습니다.',
+      '음량 보정은 디지털 RMS 균형이며, 실제 하드웨어 전압을 측정한 dBu 캘리브레이션이 아닙니다. 재생 검증 조건은 48 kHz, 플레이어 추가 오버샘플링 없음입니다.']
+    if comparison:
+        lines+=['','## 이전 버전과 별도 입력 비교','','| 입력 | 채널 | 이전 ESR | 새 ESR | 오차 감소 |','| --- | --- | ---: | ---: | ---: |']
+        for label,entry in comparison['inputs'].items():
+            for name,row in entry['channels'].items():
+                lines.append(f'| {label} | {name} | {row["baseline"]["esr"]:.6f} | {row["candidate"]["esr"]:.6f} | {row["esr_reduction_percent"]:.1f}% |')
     (args.out/'README-KO.md').write_text('\n'.join(lines)+'\n')
     sums=[f'{digest(p)}  {p.relative_to(args.out).as_posix()}' for p in sorted(args.out.rglob('*')) if p.is_file()]
     (args.out/'SHA256SUMS').write_text('\n'.join(sums)+'\n')
