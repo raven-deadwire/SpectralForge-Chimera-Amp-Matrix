@@ -43,6 +43,7 @@ footer{border-top:1px solid var(--line);margin-top:58px;padding-top:22px;color:v
 <section id="ir"><h2 data-k="irTitle"></h2><div id="irBody"></div><h3 data-x="irLibraryTitle"></h3><div id="irDetailBody"></div><h3 data-x="irCreditsTitle"></h3><div id="irCreditsBody"></div></section>
 <section id="workflows"><h2 data-k="workflowTitle"></h2><div id="workflowBody" class="workflow-grid"></div></section>
 <section id="preset"><h2 data-k="presetTitle"></h2><div id="presetBody"></div><h3 data-x="presetListTitle"></h3><div id="presetTable"></div><h3 data-x="recallTitle"></h3><div id="recallBody"></div></section>
+<section id="nastrond"><h2>1.2 Preview · Náströnd</h2><div id="nastrondBody"></div></section>
 <section id="candidate111"><h2>1.1.2 · Guitar signatures</h2><div id="candidate111Body"></div></section>
 <section id="global"><h2 data-k="globalTitle"></h2><div id="globalBody"></div></section>
 <section id="host"><h2 data-x="hostTitle"></h2><p class="section-intro" data-x="hostIntro"></p><h3 data-x="hostCheckTitle"></h3><div id="hostCheckBody"></div><h3 data-x="updateTitle"></h3><div id="updateBody"></div><h3 data-x="bugTitle"></h3><div id="bugBody"></div></section>
@@ -56,13 +57,13 @@ footer{border-top:1px solid var(--line);margin-top:58px;padding-top:22px;color:v
 const ASSET='https://raw.githubusercontent.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/main/Assets/Artwork/';
 const L={
 en:{
-subtitle:'Detailed user manual · Guitar & bass amp matrix / effects suite',counts:'23 amp models · 39 PRE models · 21 POST models · 31 factory presets',
+subtitle:'Detailed user manual · Guitar & bass amp matrix / effects suite',counts:'24 amp models · 39 PRE models · 21 POST models · 31 factory presets',
 navQuick:'Quick start',navSignal:'Signal & routing',navCompare:'Model-family comparison',navPre:'PRE 39',navAmp:'AMP 23',navPost:'POST 21',navIr:'Cab / IR',navWorkflow:'Workflows',navPreset:'Presets / A·B',navGlobal:'Global controls',navDiag:'Diagnostics',navLimits:'Beta scope',
 referenceNote:'Model names and hardware references describe design direction. They do not imply licensing, manufacturer endorsement, circuit-level reproduction or verified hardware equivalence.',
 quickTitle:'01 · Quick start',signalTitle:'04 · Signal flow and routing',compareTitle:'05 · Model-family differences',compareIntro:'Choose the family before the individual model. PRE defines what reaches the amp, the amp defines the core identity, Cabinet/IR strongly shapes the audible spectrum, and POST finishes dynamics, colour, movement and space.',
 preFamilyTitle:'PRE families',ampFamilyTitle:'Amplifier families',postFamilyTitle:'POST families',stageTitle:'PRE / AMP / CAB / POST — different jobs',
 preTitle:'06 · PRE — 5-slot pedalboard / 39 models',preIntro:'Five slots can be filled, duplicated and reordered. During this beta, stop transport before model replacement or reorder when possible.',
-ampTitle:'07 · Amplifiers — 23 models',ampIntro:'Models are grouped by primary role for browsing, but every amp can be selected in every rig lane. Model-specific channels and input routes appear where implemented.',
+ampTitle:'07 · Amplifiers — 24 models',ampIntro:'Models are grouped by primary role for browsing, but every amp can be selected in every rig lane. Model-specific channels and input routes appear where implemented.',
 postTitle:'08 · POST Rack — 21 models',postIntro:'POST processes the merged rig once. Use it for overall dynamics, colour, final EQ, modulation, delay and reverb.',
 irTitle:'09 · Cabinet / IR',workflowTitle:'10 · Practical workflows',presetTitle:'11 · Factory presets / A·B / Save',globalTitle:'12 · Global controls',diagTitle:'14 · Diagnostics and troubleshooting',limitsTitle:'15 · Open Beta scope and known limits',
 
@@ -85,13 +86,13 @@ workflows:[
 ]
 },
 de:{
-subtitle:'Ausführliches Benutzerhandbuch · Gitarren- und Bass-Amp-Matrix / Effektsuite',counts:'23 Amp-Modelle · 39 PRE-Modelle · 21 POST-Modelle · 31 Werks-Presets',
+subtitle:'Ausführliches Benutzerhandbuch · Gitarren- und Bass-Amp-Matrix / Effektsuite',counts:'24 Amp-Modelle · 39 PRE-Modelle · 21 POST-Modelle · 31 Werks-Presets',
 navQuick:'Schnellstart',navSignal:'Signal & Routing',navCompare:'Modellgruppen',navPre:'PRE 39',navAmp:'AMP 23',navPost:'POST 21',navIr:'Cab / IR',navWorkflow:'Praxisbeispiele',navPreset:'Presets / A·B',navGlobal:'Globale Funktionen',navDiag:'Diagnose',navLimits:'Beta-Umfang',
 referenceNote:'Modellnamen und Hardware-Referenzen beschreiben die gestalterische Richtung. Sie bedeuten keine Lizenzierung, Herstellerfreigabe, Schaltungsreproduktion oder bestätigte Hardware-Gleichheit.',
 quickTitle:'01 · Schnellstart',signalTitle:'04 · Signalfluss und Routing',compareTitle:'05 · Unterschiede der Modellgruppen',compareIntro:'Zuerst die Modellgruppe wählen, dann das Einzelmodell. PRE bestimmt das Signal am Amp-Eingang, der Amp prägt die Grundidentität, Cabinet/IR formt das hörbare Spektrum stark und POST vollendet Dynamik, Klangfarbe, Bewegung und Raum.',
 preFamilyTitle:'PRE-Gruppen',ampFamilyTitle:'Amp-Gruppen',postFamilyTitle:'POST-Gruppen',stageTitle:'PRE / AMP / CAB / POST — unterschiedliche Aufgaben',
 preTitle:'06 · PRE — 5-Slot-Pedalboard / 39 Modelle',preIntro:'Fünf Slots lassen sich belegen, duplizieren und neu anordnen. Modellwechsel und Reihenfolge sollten während dieser Beta möglichst bei gestopptem Transport geändert werden.',
-ampTitle:'07 · Verstärker — 23 Modelle',ampIntro:'Die Auswahl gruppiert Modelle nach Hauptrolle; jeder Amp kann dennoch in jeder Rig-Spur verwendet werden. Modellspezifische Kanäle und Eingangswege erscheinen, sofern implementiert.',
+ampTitle:'07 · Verstärker — 24 Modelle',ampIntro:'Die Auswahl gruppiert Modelle nach Hauptrolle; jeder Amp kann dennoch in jeder Rig-Spur verwendet werden. Modellspezifische Kanäle und Eingangswege erscheinen, sofern implementiert.',
 postTitle:'08 · POST-Rack — 21 Modelle',postIntro:'POST bearbeitet das zusammengeführte Rig einmal. Hier werden Gesamtdynamik, Farbe, EQ, Modulation, Delay und Reverb eingestellt.',
 irTitle:'09 · Cabinet / IR',workflowTitle:'10 · Praktische Workflows',presetTitle:'11 · Werks-Presets / A·B / Speichern',globalTitle:'12 · Globale Funktionen',diagTitle:'14 · Diagnose und Fehlerbehebung',limitsTitle:'15 · Open-Beta-Umfang und bekannte Grenzen',
 
@@ -114,13 +115,13 @@ workflows:[
 ]
 },
 ko:{
-subtitle:'상세 사용자 매뉴얼 · 기타·베이스 Amp Matrix / Effects Suite',counts:'앰프 23종 · PRE 39종 · POST 21종 · 팩토리 프리셋 31개',
+subtitle:'상세 사용자 매뉴얼 · 기타·베이스 Amp Matrix / Effects Suite',counts:'앰프 24종 · PRE 39종 · POST 21종 · 팩토리 프리셋 31개',
 navQuick:'빠른 시작',navSignal:'신호 / 라우팅',navCompare:'모델군 비교',navPre:'PRE 39',navAmp:'AMP 23',navPost:'POST 21',navIr:'Cab / IR',navWorkflow:'사용 예시',navPreset:'프리셋 / A·B',navGlobal:'공통 기능',navDiag:'진단',navLimits:'베타 범위',
 referenceNote:'모델명과 하드웨어 레퍼런스는 설계 방향을 설명합니다. 제조사 제휴·인증, 회로 단위 복제, 실물과의 측정 일치를 의미하지 않습니다.',
 quickTitle:'01 · 빠른 시작',signalTitle:'04 · 신호 흐름과 라우팅',compareTitle:'05 · 모델군별 차이',compareIntro:'개별 모델을 고르기 전에 먼저 모델군의 역할을 정하면 빠릅니다. PRE는 앰프에 들어가는 신호를 만들고, AMP는 기본 정체성을 만들며, Cabinet/IR은 실제 들리는 스펙트럼을 크게 결정하고, POST는 다이내믹·색채·움직임·공간을 마무리합니다.',
 preFamilyTitle:'PRE 모델군',ampFamilyTitle:'AMP 모델군',postFamilyTitle:'POST 모델군',stageTitle:'PRE / AMP / CAB / POST 역할 차이',
 preTitle:'06 · PRE — 5-slot Pedalboard / 39 Models',preIntro:'5개 슬롯 안에서 모델을 선택·복제·재배열할 수 있습니다. 베타에서는 모델 교체·순서 변경 같은 구조 편집은 가능하면 재생을 멈춘 뒤 수행하십시오.',
-ampTitle:'07 · Amplifier — 23 Models',ampIntro:'앰프는 탐색 편의를 위해 하나의 대표 역할로 분류되지만 모든 rig lane에서 선택할 수 있습니다. 모델별 채널과 입력 경로가 구현된 경우 해당 selector가 표시됩니다.',
+ampTitle:'07 · Amplifier — 24 Models',ampIntro:'앰프는 탐색 편의를 위해 하나의 대표 역할로 분류되지만 모든 rig lane에서 선택할 수 있습니다. 모델별 채널과 입력 경로가 구현된 경우 해당 selector가 표시됩니다.',
 postTitle:'08 · POST Rack — 21 Models',postIntro:'POST는 합산된 리그를 한 번 처리합니다. 전체 다이내믹·컬러·최종 EQ를 정리한 뒤 모듈레이션·딜레이·리버브로 움직임과 공간을 완성합니다.',
 irTitle:'09 · Cabinet / IR',workflowTitle:'10 · 실전 사용 예시',presetTitle:'11 · Factory Presets / A·B / Save',globalTitle:'12 · 공통 기능',diagTitle:'14 · Diagnostics / Troubleshooting',limitsTitle:'15 · Open Beta 범위와 알려진 한계',
 
@@ -498,7 +499,8 @@ const AMP_ROUTES=[
 ['Monolith','SINGLE','NORMAL · BRILLIANT · JUMPED'],
 ['Night Harvest','GAIN I / GAIN II / CLEAN','INPUT'],
 ['Hot Lead','NORMAL / OVERDRIVE','INPUT'],
-['Blue Storm','CLEAN / LEAD','INPUT']
+['Blue Storm','CLEAN / LEAD','INPUT'],
+['Náströnd','SINGLE','INPUT']
 ];
 
 const PRESETS={
@@ -702,7 +704,8 @@ const AMP=[
 ['Crunch','Monolith','SUNN Model T','amonolith.jpg','Heavy crunch','Massive low mids, open breakup','Doom, sludge, fuzz platform','Normal/Brilliant · B/M/T · Master · Jumped'],
 ['High-Gain','Night Harvest','Fortin Evil Pumpkin','anightharvest.jpg','Extreme modern gain','Fast, aggressive attack','Djent / precision rhythm','Gain I/Gain II/Clean · Girth/Grind · Sweep EQ · Presence/Depth'],
 ['Lead','Hot Lead','Soldano SLO-100','ahotlead.jpg','Lead / high gain','Smooth top, long sustain','Hard rock / metal lead','Normal/Overdrive · Preamp/Master · shared EQ · Presence/Depth'],
-['High-Gain','Blue Storm','Bogner Uberschall Rev Blue','abluestorm.jpg','Dense high gain','Massive dense low mids','Low-tuned wall tone','Clean/Lead · Gain/EQ/Volume · Master']
+['High-Gain','Blue Storm','Bogner Uberschall Rev Blue','abluestorm.jpg','Dense high gain','Massive dense low mids','Low-tuned wall tone','Clean/Lead · Gain/EQ/Volume · Master'],
+['Original','Náströnd','SpectralForge Original','','Five-character high gain','Tight attack, dense sustain, tunable bloom','Metal rhythm, lead, low tuning','GAIN · BASS · MID · TREBLE · MID FREQ · PRESENCE · DEPTH · MASTER · CLANK · CRUSH · IMPACT · ROT · BLOOM']
 ];
 
 const POST=[
@@ -856,7 +859,7 @@ function renderModels(target,data){
  document.querySelector(target).innerHTML=groups.map(g=>{
    const rows=data.filter(x=>x[0]===g);
    return '<div class="model-group"><h3>'+esc(g)+' <span class="group-count">· '+rows.length+'</span></h3><div class="model-grid">'+rows.map(x=>
-   '<article class="model-card"><img loading="lazy" decoding="async" src="'+ASSET+encodeURIComponent(x[3]).replace(/%2F/g,'/')+'" alt="'+esc(x[1]+' — '+x[2])+'"><div><h4>'+esc(x[1])+'</h4><div class="ref">'+esc(x[2])+'</div><dl>'+
+   '<article class="model-card">'+(x[3]?'<img loading="lazy" decoding="async" src="'+ASSET+encodeURIComponent(x[3]).replace(/%2F/g,'/')+'" alt="'+esc(x[1]+' — '+x[2])+'">':'<div style="height:110px;display:grid;place-content:center;background:#202522;color:#b9cbb7;text-align:center;letter-spacing:3px">NÁSTRÖND<br><small>SPECTRALFORGE ORIGINAL</small></div>')+'<div><h4>'+esc(x[1])+'</h4><div class="ref">'+esc(x[2])+'</div><dl>'+
    '<dt>'+esc(L[lang].labels.role)+'</dt><dd>'+esc(loc(x[4]))+'</dd>'+
    '<dt>'+esc(L[lang].labels.character)+'</dt><dd>'+esc(loc(x[5]))+'</dd>'+
    '<dt>'+esc(L[lang].labels.use)+'</dt><dd>'+esc(loc(x[6]))+'</dd>'+
@@ -1246,6 +1249,13 @@ function render(){
  document.getElementById('stageTable').innerHTML=table(
    lang==='ko'?['Stage','핵심 질문','담당 요소','우선순위']:lang==='de'?['Stage','Kernfrage','Bearbeitet','Priorität']:['Stage','Core question','Handles','Priority'],
    stages[lang],false);
+
+ const originalNotes={
+ ko:['Náströnd는 SpectralForge Original 하이게인 앰프입니다. AMP 선택 또는 Factory → Original / Náströnd에서 시작하세요. 기본 GAIN은 7.2입니다.', 'CLANK는 타이트한 어택, CRUSH는 압축과 밀도, IMPACT는 저역 충격, ROT는 비대칭 질감, BLOOM은 느리게 퍼지는 저역 반응을 조절합니다. MID FREQ는 300–1800 Hz이며 기본값은 850 Hz입니다.', 'Fenrir · Surtr · Níðhöggr · Fimbulvetr · Ragnarök 다섯 프리셋을 더해 전체 프리셋은 43개입니다. Surtr에는 딜레이와 리버브가 포함됩니다. ALL에서 13개 앰프 컨트롤을 모두 볼 수 있습니다.', '1.2 Preview는 청음 테스트용입니다. 원본 NAM 대조와 합성 신호 검증을 진행했으며, 실제 기타 DI와 청음에 따른 최종 톤 평가는 계속됩니다.'],
+ en:['Náströnd is a SpectralForge Original high-gain amp. Select it in AMP or open Factory → Original / Náströnd. Default GAIN is 7.2.', 'CLANK shapes tight attack, CRUSH compression and density, IMPACT low-end punch, ROT asymmetric texture, and BLOOM the slower low-end response. MID FREQ spans 300–1800 Hz and defaults to 850 Hz.', 'Fenrir, Surtr, Níðhöggr, Fimbulvetr and Ragnarök bring the bank to 43 presets. Surtr includes delay and reverb. ALL exposes all 13 amp controls.', '1.2 Preview is for listening tests. Original NAM comparisons and synthetic regression checks are complete; final instrument-DI and listening acceptance remains open.'],
+ de:['Náströnd ist ein SpectralForge Original High-Gain-Amp. Wählen Sie AMP oder Factory → Original / Náströnd. GAIN startet bei 7,2.', 'CLANK formt den straffen Anschlag, CRUSH Kompression und Dichte, IMPACT den Bassdruck, ROT asymmetrische Textur und BLOOM die langsamere Bassreaktion. MID FREQ reicht von 300 bis 1800 Hz, Standard 850 Hz.', 'Fenrir, Surtr, Níðhöggr, Fimbulvetr und Ragnarök erweitern die Bank auf 43 Presets. Surtr enthält Delay und Reverb. ALL zeigt alle 13 Amp-Regler.', '1.2 Preview dient Hörtests. Original-NAM-Vergleiche und synthetische Regressionen sind abgeschlossen; die abschließende Bewertung mit Instrument-DI und Hörtests bleibt offen.']
+ };
+ document.getElementById('nastrondBody').innerHTML=bullets(originalNotes[lang]);
  renderModels('#preModels',PRE);renderModels('#ampModels',AMP);renderModels('#postModels',POST);
  document.getElementById('ampRouteBody').innerHTML=table(
    lang==='ko'?['모델','채널','입력 경로']:lang==='de'?['Modell','Kanäle','Eingangswege']:['Model','Channels','Input routes'],AMP_ROUTES);

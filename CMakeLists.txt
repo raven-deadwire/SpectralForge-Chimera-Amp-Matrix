@@ -52,7 +52,7 @@ target_compile_definitions(ChimeraAmpMatrix PUBLIC JUCE_WEB_BROWSER=0 JUCE_USE_C
 target_link_libraries(ChimeraAmpMatrix PRIVATE ChimeraIRs ChimeraArtwork ChimeraManual juce::juce_cryptography juce::juce_audio_utils juce::juce_dsp PUBLIC juce::juce_recommended_config_flags juce::juce_recommended_warning_flags)
 enable_testing()
 
-# 1.2 development engine: isolated tests, no production model/parameter changes.
+# 1.2 Original engine: isolated core tests alongside the production native route.
 add_executable(ChimeraOriginalAmpTests Tests/OriginalAmpTests.cpp)
 target_include_directories(ChimeraOriginalAmpTests PRIVATE Source)
 add_test(NAME ChimeraOriginalAmpTests COMMAND ChimeraOriginalAmpTests)

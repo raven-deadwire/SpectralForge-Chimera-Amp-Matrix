@@ -6,7 +6,7 @@
 #include <string_view>
 
 namespace spectralforge::original {
-// Development engine, deliberately independent of the released native catalog.
+// Shared Original definition for the production native route and isolated harness.
 // Values are authored starting points, not recovered hardware coefficients.
 enum class Control : std::size_t {
     gain, bass, middle, treble, midFrequency, presence, depth, master,

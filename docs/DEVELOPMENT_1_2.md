@@ -1,6 +1,6 @@
 # 1.2 development and remaining updates
 
-Status: development checkpoint, 2026-10-05 KST. Public release remains
+Status: integrated 1.2 Preview candidate, 2026-10-05 KST. Public release remains
 **1.1.2-beta.1** (source `88b62738fdbd9bcdca34f7b6e1092d6ed411eb94`, merged
 main `a9cfb68035688c3f9d356bd4c6ba27587e27da92`). This branch is not a 1.2 release.
 
@@ -59,17 +59,21 @@ The 26 presets without gain revoicing retain their prior fixture levels within
 0.001 dB, including the renamed Modern Clean. The complete per-preset review and
 source hashes are in [development evidence](evidence/development-1.2-20261005/README.md).
 
-## Náströnd implemented in the development module
+## Náströnd integrated in the 1.2 Preview
 
-| Area | Implemented | Production integration still required |
+| Area | Preview implementation | Remaining acceptance |
 |---|---|---|
-| Definition | Independent `OriginalAmpDefinition`, stable ID and 13 controls | Append catalog selector/model ID; active total 83 → 84 only at integration |
-| DSP | Four serial nonlinear cells, interstage coupling, dynamic tightening, bias/blocking memory, power response, feedback, sag and bloom | Final musical voicing and reference-informed review |
-| Controls | GAIN/BASS/MID/TREBLE/MID FREQ/PRESENCE/DEPTH/MASTER; CLANK/CRUSH/IMPACT/ROT/BLOOM | Match final production panel/artwork and contextual visibility |
-| Processing | Stereo, smoothing, 1x/2x/4x/8x JUCE wrapper, bounded block chunks, zero allocation after prepare | Production engine selection, latency handoff, real-host/CPU checks |
-| State | Six contexts, 84 append-only development parameters, versioned codec | Append after all released parameters; full-rig undo/A-B/preset wiring |
-| UI | Real JUCE development panel with attachments and five preset recalls | Place panel in the product's RIG selection and preset navigation |
-| Original presets | Fenrir, Surtr, Níðhöggr, Fimbulvetr, Ragnarök | Final level calibration and production recall tests |
+| Catalog | Append-only model ID24, 24 active amps / 84 active models | Public release remains separate |
+| DSP | Same reference-informed Original core in the production native oversampler | Instrument-DI listening and real-host CPU |
+| Controls / UI | 13 controls, Hz MID FREQ, Original head artwork, compact and ALL panels | Owner evaluation |
+| Routing | Classic, both Dual lanes and all three Matrix bands; existing latency and switching path | Target DAW audition |
+| State | 90 appended production parameters; prior 3,891 indices unchanged | Old project smoke test in target DAW |
+| Presets | Five complete Original rigs at indices38–42; 43 selectable presets | Instrument-specific adjustment |
+
+Production uses the native bank's existing engine switch, plus 13 Original
+controls and two structural selector parameters per context. The isolated
+84-parameter development harness remains a separate test fixture, not the
+production parameter layout. See [Preview integration](NASTROND_PREVIEW.md).
 
 The five Original presets are five sounds of one amp. They do not replace the
 existing Factory31, bass signatures3 or guitar signatures4. Development tests
@@ -98,7 +102,7 @@ This remains a development checkpoint, not instrument-DI or listening acceptance
 
 | Priority | Item | Actual status / next action |
 |---|---|---|
-| 1.2 | Náströnd integration | Finish catalog, processor routing, production panel, state/undo/A-B and five Original preset wiring; then host and listening acceptance |
+| 1.2 | Náströnd integration | Catalog, routing, production panel, saved state/A-B and five presets connected. Complete exact-commit installer verification and owner listening |
 | 1.2 | Gain acceptance | Reference-informed DSP voicing applied; default gain retained and 26 NAM / 17 states remeasured. Synthetic held-out spectrum differences reduced; instrument-DI comparisons and listening acceptance remain pending |
 | 1.2 | Original reference coverage | Meshuggah head-only NAM and Granophyre physical provenance still needed; retain missing input calibration for four families |
 | Validation | Exact reference coverage | EICH T900 exact NAM remains missing; retain the recorded limitation |
@@ -127,9 +131,9 @@ Ironball is retired from new selection; keep serialized ID16 for saved sessions.
 | 1.10 | Synth Layer | 132 |
 | 2.0 | Integration / RC | 132 |
 
-The owner authorized early 1.2 development on October 5 KST. The saved roadmap's
-October 12 production-model boundary remains intact: this checkpoint does not
-register Náströnd in the released catalog, change the release feed or publish
-new installers. The existing five-pedal limit and released parameter identities
-remain unchanged. Current active production count is AMP23 + PRE39 + POST21 = 83,
-with 24 serialized AMP IDs including retired Ironball.
+The owner authorized continuing through a test installer on October 5 KST.
+That instruction permits early production integration for this 1.2 Preview.
+Public release, update feed and homepage promotion remain separate. The
+five-pedal limit and all released parameter identities remain unchanged.
+Preview active count is AMP24 + PRE39 + POST21 = 84, with 25 serialized AMP IDs
+including retired Ironball. No original NAM weights are bundled in the product.

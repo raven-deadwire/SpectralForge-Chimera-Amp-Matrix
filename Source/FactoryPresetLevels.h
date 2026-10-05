@@ -5,7 +5,7 @@ namespace spectralforge {
 // Target about -26 dBFS RMS, with at least 10 dB nominal peak headroom.
 // These are conservative synthetic gain-staging values, not DI/LUFS acceptance.
 // Kept separate from legacy recipes and saved-project parameter defaults.
-inline constexpr std::array<float,38> factoryOutputDb{{
+inline constexpr std::array<float,43> factoryOutputDb{{
     6.5f, // 0: Clean Sustain
     -12.0f, // 1: Tight Rhythm
     -4.5f, // 2: Bass Matrix
@@ -44,5 +44,10 @@ inline constexpr std::array<float,38> factoryOutputDb{{
     -5.5f, // 35: Feel My Wrath
     -6.5f, // 36: Blackhearted
     -2.0f, // 37: Dark Matters of Throne
+    2.5f, // 38: Fenrir (Original)
+    4.0f, // 39: Surtr (Original)
+    3.0f, // 40: Níðhöggr (Original)
+    3.5f, // 41: Fimbulvetr (Original)
+    1.5f, // 42: Ragnarök (Original)
 }};
 } // namespace spectralforge

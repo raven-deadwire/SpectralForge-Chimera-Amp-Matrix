@@ -168,10 +168,10 @@ ChimeraEditor::ChimeraEditor(ChimeraProcessor& p) : AudioProcessorEditor(&p),pro
     for(size_t groupIndex=0;groupIndex<spectralforge::presetCategoryOrder.size();++groupIndex) {
         if(groupIndex==0)presets.getRootMenu()->addSectionHeader("SIGNATURE PRESETS");
         if(groupIndex==2){presets.getRootMenu()->addSeparator();presets.getRootMenu()->addSectionHeader("FACTORY PRESETS");}
-        const juce::String category=spectralforge::presetCategoryOrder[groupIndex];juce::PopupMenu group;
+        const auto category=juce::String::fromUTF8(spectralforge::presetCategoryOrder[groupIndex]);juce::PopupMenu group;
         for(const int index:spectralforge::presetDisplayOrder())if(spectralforge::selectablePresetCategory(index)==category) {
-            const auto* name=spectralforge::isGuitarSignature(index)?spectralforge::guitarSignatures[size_t(index-spectralforge::factoryPresetCount)].name:spectralforge::factoryPresets[size_t(index)].name;
-            group.addItem(index+1,name);
+            const auto* name=spectralforge::selectablePresetName(index);
+            group.addItem(index+1,juce::String::fromUTF8(name));
         }
         if(group.getNumItems()>0)presets.getRootMenu()->addSubMenu(groupIndex<2?category.fromFirstOccurrenceOf(" / ",false,false):category,group);
     }

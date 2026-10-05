@@ -11,7 +11,7 @@ inline juce::String ampNativeSoloID(int context) { return ampNativePrefix(contex
 inline juce::String ampNativeModelID(int context) { return ampNativePrefix(context)+"_model"; }
 inline juce::String ampNativeChannelID(int context,int model) { return ampNativePrefix(context)+"_m"+juce::String(model)+"_channel"; }
 inline juce::String ampNativeRouteID(int context,int model) { return ampNativePrefix(context)+"_m"+juce::String(model)+"_route"; }
-inline juce::String ampNativeControlID(int context,int model,int control) { return ampNativePrefix(context)+"_m"+juce::String(model)+"_"+juce::String(ampNativePanel(model).controls[(size_t)control].key).replaceCharacter('.','_'); }
+inline juce::String ampNativeControlID(int context,int model,int control) { if(model==firstOriginalAmpModel)return "originalAmp_c"+juce::String(context)+"_nastrond_"+original::controls[(size_t)control].id;return ampNativePrefix(context)+"_m"+juce::String(model)+"_"+juce::String(ampNativePanel(model).controls[(size_t)control].key).replaceCharacter('.','_'); }
 inline juce::String ampNativeInputTrimID(int context) { return ampNativePrefix(context)+"_inputTrim"; }
 inline juce::String ampNativeOutputLevelID(int context) { return ampNativePrefix(context)+"_outputLevel"; }
 inline constexpr const char* ampNativeContextNames[]{"Classic","Dual A","Dual B","Matrix Low","Matrix Mid","Matrix High"};
@@ -27,7 +27,7 @@ inline void addAmpNativeParameters(juce::AudioProcessorValueTreeState::Parameter
         // Freeze the released six-context ordering. New models must be added
         // AFTER the complete released layout (including POST), not here.
         for(int model=0;model<releasedNativeAmpModelCount;++model) {
-            const auto& panel=ampNativePanel(model);const auto name=prefix+ampInfo(model).name+" ";
+            const auto& panel=ampNativePanel(model);const auto name=prefix+juce::String::fromUTF8(ampInfo(model).name)+" ";
             // Fixed raw reserved range does not renormalize host data when a
             // panel revision gains another channel or an input route.
             layout.add(std::make_unique<juce::AudioParameterInt>(juce::ParameterID{ampNativeChannelID(context,model),1},name+"channel",0,15,panel.defaultChannel,structural));
@@ -40,18 +40,19 @@ inline void addAmpNativeParameters(juce::AudioProcessorValueTreeState::Parameter
         }
     }
 }
-inline void appendNewAmpNativeParameters(juce::AudioProcessorValueTreeState::ParameterLayout& layout) {
+inline void appendNewAmpNativeParameters(juce::AudioProcessorValueTreeState::ParameterLayout& layout, int first=releasedNativeAmpModelCount, int last=firstOriginalAmpModel) {
     const auto structural=juce::AudioParameterIntAttributes().withAutomatable(false);
-    for(int model=releasedNativeAmpModelCount;model<ampModelCount;++model)
+    for(int model=first;model<last;++model)
         for(int context=0;context<ampNativeContextCount;++context) {
             const auto& panel=ampNativePanel(model);
-            const auto name=juce::String(ampNativeContextNames[context])+" native "+ampInfo(model).name+" ";
-            layout.add(std::make_unique<juce::AudioParameterInt>(juce::ParameterID{ampNativeChannelID(context,model),1},name+"channel",0,15,panel.defaultChannel,structural));
-            layout.add(std::make_unique<juce::AudioParameterInt>(juce::ParameterID{ampNativeRouteID(context,model),1},name+"input route",0,15,0,structural));
+            const auto name=juce::String(ampNativeContextNames[context])+" native "+juce::String::fromUTF8(ampInfo(model).name)+" ";
+            layout.add(std::make_unique<juce::AudioParameterInt>(juce::ParameterID{ampNativeChannelID(context,model),model>=firstOriginalAmpModel?3:1},name+"channel",0,15,panel.defaultChannel,structural));
+            layout.add(std::make_unique<juce::AudioParameterInt>(juce::ParameterID{ampNativeRouteID(context,model),model>=firstOriginalAmpModel?3:1},name+"input route",0,15,0,structural));
             for(size_t c=0;c<panel.controls.size();++c) {
                 const auto& k=panel.controls[c];
-                layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{ampNativeControlID(context,model,int(c)),1},name+k.label,
-                    juce::NormalisableRange<float>(k.minimum,k.maximum,k.kind==AmpNativeControlKind::knob?.001f:1.f),k.initial));
+                auto range=juce::NormalisableRange<float>(k.minimum,k.maximum,k.kind==AmpNativeControlKind::knob?.001f:1.f);
+                if(model==firstOriginalAmpModel && c==size_t(original::Control::midFrequency))range.setSkewForCentre(850);
+                layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{ampNativeControlID(context,model,int(c)),model>=firstOriginalAmpModel?3:1},name+k.label,range,k.initial));
             }
         }
 }

@@ -75,10 +75,11 @@ void performanceRecall(ChimeraProcessor& p,int index) {
         }
     }
 }
-void factoryBank(bool measureOnly) {
+void factoryBank(bool measureOnly,bool originalOnly=false) {
     using namespace spectralforge;
     std::array<bool,selectablePresetCount> seen{};
     for(const int index:presetDisplayOrder()) {
+        if(originalOnly&&!isOriginalPreset(index))continue;
         require(index>=0&&index<selectablePresetCount&&!seen[size_t(index)],"Preset display order is not a permutation");seen[size_t(index)]=true;
         require(adjacentPreset(adjacentPreset(index,1),-1)==index,"Preset navigation disagrees with category order");
         const auto a=std::make_unique<ChimeraProcessor>(),b=std::make_unique<ChimeraProcessor>();
@@ -92,7 +93,7 @@ void factoryBank(bool measureOnly) {
         // iterating with a cached DSP library. The normal regression always
         // exercises the actual production loadFactoryPreset entry point.
         if(measureOnly)for(auto* processor:{a.get(),b.get()})
-            processor->parameters().replaceState(isGuitarSignature(index)
+            processor->parameters().replaceState(isOriginalPreset(index)?originalPresetSnapshot(processor->parameters(),index-originalPresetStart):isGuitarSignature(index)
                 ?guitarSignatureSnapshot(processor->parameters(),index-factoryPresetCount)
                 :factoryNativeSnapshot(processor->parameters(),index));
         std::set<juce::String> inactive;
@@ -126,7 +127,7 @@ void factoryBank(bool measureOnly) {
         for(size_t i=0;i<audio.size();++i)require(std::abs(audio[i]-clean[i])<1e-6f,"Inactive PRE bank changed factory audio");
         for(float x:audio){energy+=double(x)*x;peak=std::max(peak,std::abs(x));}
         const double rmsDb=10*std::log10(energy/audio.size()),peakDb=20*std::log10(peak);
-        const auto* name=isGuitarSignature(index)?guitarSignatures[size_t(index-factoryPresetCount)].name:factoryPresets[size_t(index)].name;
+        const auto* name=selectablePresetName(index);
         std::cout<<"PRESET_LEVEL,"<<index<<","<<name<<","<<rmsDb<<","<<peakDb<<","<<a->parameters().getRawParameterValue("output")->load()<<'\n';
         if(measureOnly&&(index==1||index==14||index==31))std::cout<<"PRESET_DIAGNOSTIC "<<index<<" "<<a->diagnosticReport()<<'\n';
         if(!measureOnly){require(peak<.34f,"Factory preset lacks 9 dB nominal peak headroom");require(rmsDb>-30,"Factory preset is unexpectedly quiet on the synthetic pluck fixture");}
@@ -165,6 +166,55 @@ void signatures(const juce::File& directory) {
         std::cout<<"PASS full-state "<<spectralforge::guitarSignatures[size_t(song)].name<<" parameters="<<params<<" audio_delta="<<delta<<" energy="<<energy<<" synthetic only\n";
     }
 }
+void originalProduction() {
+    using namespace spectralforge;
+    // The product dispatch must preserve the measured Original core, without
+    // accidentally adding a legacy/native reference EQ or a second drive stage.
+    double worst=0;
+    for(double rate:{44100.,48000.,192000.,384000.})for(int preset=0;preset<originalPresetCount;++preset) {
+        auto state=defaultAmpNativeState(firstOriginalAmpModel);
+        const auto voice=original::presets[size_t(preset)].state;
+        for(size_t c=0;c<original::controlCount;++c)state.values[c]=voice.values[c];
+        AmpNativeDSP product;original::OriginalAmpDSP reference;
+        product.prepare(rate);product.set(state);product.reset();reference.prepare(rate);reference.set(voice);reference.reset();
+        for(int n=0;n<12000;++n)for(int channel=0;channel<2;++channel) {
+            const float x=channel?.013f*std::sin(float(n*.039)):.027f*std::sin(float(n*.071));
+            worst=std::max(worst,double(std::abs(product.tick(x,channel)-reference.tick(x,channel))));
+        }
+    }
+    require(worst<1e-7,"Production Original dispatch changes the calibrated core");
+    const auto a=std::make_unique<ChimeraProcessor>(),b=std::make_unique<ChimeraProcessor>();
+    for(int context=0;context<ampNativeContextCount;++context) {
+        const int mode=context==0?0:context<3?1:2,lane=context==0?0:context<3?context-1:context-3;
+        set(*a,"mode",float(mode));a->setAmpModel(lane,firstOriginalAmpModel);
+        for(size_t c=0;c<original::controlCount;++c) {
+            const auto& spec=original::controls[c];const float value=spec.minimum+(spec.maximum-spec.minimum)*(.2f+.1f*context);
+            set(*a,ampNativeControlID(context,firstOriginalAmpModel,int(c)),value);
+        }
+    }
+    juce::MemoryBlock bytes;a->getStateInformation(bytes);b->setStateInformation(bytes.getData(),int(bytes.getSize()));
+    for(int mode=0;mode<3;++mode){set(*b,"mode",float(mode));for(int lane=0;lane<mode+1;++lane)require(b->selectedAmpModel(lane)==firstOriginalAmpModel,"Original model missing from a saved routing context");}
+    for(int context=0;context<ampNativeContextCount;++context)for(size_t c=0;c<original::controlCount;++c) {
+        const auto id=ampNativeControlID(context,firstOriginalAmpModel,int(c));
+        require(a->parameters().getRawParameterValue(id)->load()==b->parameters().getRawParameterValue(id)->load(),"Original inactive context control changed on restore");
+    }
+    for(int preset=0;preset<originalPresetCount;++preset) {
+        a->loadFactoryPreset(originalPresetStart+preset);a->getStateInformation(bytes);b->setStateInformation(bytes.getData(),int(bytes.getSize()));
+        const auto x=render(*a),y=render(*b);double energy=0;float delta=0;
+        for(size_t n=0;n<x.size();++n){delta=std::max(delta,std::abs(x[n]-y[n]));energy+=x[n]*x[n];}
+        require(delta<1e-6f&&energy>1e-5,"Original preset project roundtrip changed audio");
+        a->copyComparison();a->selectComparison(1);set(*a,ampNativeControlID(0,firstOriginalAmpModel,0),.1f);a->selectComparison(0);
+        require(std::abs(a->parameters().getRawParameterValue(ampNativeControlID(0,firstOriginalAmpModel,0))->load()-original::presets[size_t(preset)].state[original::Control::gain])<.001f,"Original A/B lost the authored gain");
+    }
+    // A pre-1.2 project must get declared defaults, never the last edited bank.
+    auto old=b->parameters().copyState();
+    for(int i=old.getNumChildren()-1;i>=0;--i){const auto id=old.getChild(i).getProperty("id").toString();if(id.startsWith("originalAmp_")||(id.startsWith("nativeAmp_") && id.contains("_m24_")))old.removeChild(i,nullptr);}
+    old.getChildWithProperty("id",ampNativeModelID(0)).setProperty("value",2,nullptr);
+    juce::AudioProcessor::copyXmlToBinary(*old.createXml(),bytes);b->setStateInformation(bytes.getData(),int(bytes.getSize()));
+    require(b->selectedAmpModel(0)==2,"Old project selection changed during Original migration");
+    for(int c=0;c<ampNativeContextCount;++c)require(std::abs(b->parameters().getRawParameterValue(ampNativeControlID(c,firstOriginalAmpModel,0))->load()-.72f)<.001f,"Old project inherited stale Original gain");
+    std::cout<<"PASS Original product dispatch residual="<<worst<<"; six contexts, five preset audio roundtrips, A/B and pre-1.2 migration\n";
+}
 void gainAndGR() {
     for(bool board:{false,true})for(int mode:{0,1,2}) {
         const auto p=std::make_unique<ChimeraProcessor>();
@@ -195,9 +245,11 @@ void gainAndGR() {
 int main(int argc,char** argv) {
     juce::ScopedJuceInitialiser_GUI init;
     try {
+        if(argc>1&&juce::String(argv[1])=="--original-production-only"){originalProduction();return 0;}
         if(argc>1&&juce::String(argv[1])=="--measure-gain"){presetGainTests::run(true);return 0;}
-        const bool measureOnly=argc>2&&juce::String(argv[2])=="--measure-presets";factoryBank(measureOnly);
-        if(!measureOnly){signatures(juce::File(argc>1?argv[1]:"/tmp/chimera-signatures"));gainAndGR();presetGainTests::run(false);}
+        const bool originalOnly=argc>2&&juce::String(argv[2])=="--measure-original";
+        const bool measureOnly=originalOnly||(argc>2&&juce::String(argv[2])=="--measure-presets");factoryBank(measureOnly,originalOnly);
+        if(!measureOnly){originalProduction();signatures(juce::File(argc>1?argv[1]:"/tmp/chimera-signatures"));gainAndGR();presetGainTests::run(false);}
     }
     catch(const std::exception& error){std::cerr<<"FAIL "<<error.what()<<'\n';return 1;}
 }

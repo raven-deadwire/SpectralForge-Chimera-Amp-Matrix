@@ -115,3 +115,5 @@ python Tools/fit_original_voicing.py --manifest docs/reference/nastrond-nam-mani
 NAM weights and rendered audio remain private measurement inputs and are not
 distributed. Next acceptance work is actual low-tuned guitar DI, common-cab
 listening, and production integration; this checkpoint does not release 1.2.
+
+The subsequent production integration is recorded in [1.2 Preview](NASTROND_PREVIEW.md). The measurements above describe the unchanged core, independently of the added product routing and preset output trims.

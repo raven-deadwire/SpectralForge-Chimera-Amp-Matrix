@@ -255,6 +255,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout ChimeraProcessor::layout(){j
         juce::AudioParameterFloatAttributes()
             .withStringFromValueFunction([](float v,int) {return v>=spectralforge::NoiseGate::fullRangeDb ? juce::String("Full") : juce::String(v,1)+" dB";})
             .withValueFromStringFunction([](const juce::String& text) {return text.trim().equalsIgnoreCase("Full") ? spectralforge::NoiseGate::fullRangeDb : text.getFloatValue();})));
+    spectralforge::appendNewAmpNativeParameters(p,spectralforge::firstOriginalAmpModel,spectralforge::ampModelCount);
 return p;
 }
 
@@ -347,7 +348,9 @@ void ChimeraProcessor::tapTempo() {
 void ChimeraProcessor::loadFactoryPreset(int index) {
     if(index<0 || index>=spectralforge::selectablePresetCount)return;
     {
-        const auto snapshot=spectralforge::isGuitarSignature(index)
+        const auto snapshot=spectralforge::isOriginalPreset(index)
+            ? spectralforge::originalPresetSnapshot(state,index-spectralforge::originalPresetStart)
+            : spectralforge::isGuitarSignature(index)
             ? spectralforge::guitarSignatureSnapshot(state,index-spectralforge::factoryPresetCount)
             : spectralforge::factoryNativeSnapshot(state,index);
         state.replaceState(snapshot);

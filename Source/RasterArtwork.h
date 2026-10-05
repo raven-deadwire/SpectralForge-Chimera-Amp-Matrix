@@ -8,7 +8,7 @@
 namespace spectralforge::art {
 // Every selectable hardware reference has an original material/trim render.
 // Two Mu-Tron directions share their physical enclosure, not unrelated skins.
-enum class Surface { workbench, emblem, p808, pcentaur, prat, pm87, pdyna, pdiamond, pqtron, pmutron, pmuff, pface, pbender, prc, prange, pmicro, aglass, abrit, a515, arect, amark, asvt, agk, ahybrid, rsslvca, r1176, rla2a, rn73, rv5, risa, rssleq, rn73eq, rpultec, rce2, rdimension, rstone, rmistress, reddy, rpulsar, r2290, rre201, rmemory, remt, rlex, rspring, cmesa, campeg, cbassman, cdelta, pfet, pmu, pbddi, pb3k, pm82, paw3, pwool, pfactory, pep, plpb, achim30, aorange, abassman, asubway, amatchless, adumble, aeich, acinder, airon, afourfold, aclassictube, amonolith, anightharvest, ahotlead, abluestorm, pyellowasym, pobsession, pplus, pdualcircuit, pmanualwah, pgraphiceq, pchorus, pdimension, pphase, pflange, pvibrato, ptremolo, pmonoctave, pspectraloctave, aspecialedition, count, cabEight=campeg, cabFour=cmesa, cabTwo=cbassman };
+enum class Surface { workbench, emblem, p808, pcentaur, prat, pm87, pdyna, pdiamond, pqtron, pmutron, pmuff, pface, pbender, prc, prange, pmicro, aglass, abrit, a515, arect, amark, asvt, agk, ahybrid, rsslvca, r1176, rla2a, rn73, rv5, risa, rssleq, rn73eq, rpultec, rce2, rdimension, rstone, rmistress, reddy, rpulsar, r2290, rre201, rmemory, remt, rlex, rspring, cmesa, campeg, cbassman, cdelta, pfet, pmu, pbddi, pb3k, pm82, paw3, pwool, pfactory, pep, plpb, achim30, aorange, abassman, asubway, amatchless, adumble, aeich, acinder, airon, afourfold, aclassictube, amonolith, anightharvest, ahotlead, abluestorm, pyellowasym, pobsession, pplus, pdualcircuit, pmanualwah, pgraphiceq, pchorus, pdimension, pphase, pflange, pvibrato, ptremolo, pmonoctave, pspectraloctave, aspecialedition, anastrond, count, cabEight=campeg, cabFour=cmesa, cabTwo=cbassman };
 // Keep values stable: the editor styles working JUCE knobs from this palette.
 enum KnobStyle { black=0, cream=1, silver=2, gold=3, chrome=4, ssl=5, red=6, yellow=7, neve=8 };
 struct ModelStyle { Surface surface; int knobStyle; bool brightFace; };
@@ -101,7 +101,8 @@ inline ModelStyle surfaceStyle(Surface surface) {
         {Surface::ptremolo,cream,false},
         {Surface::pmonoctave,cream,false},
         {Surface::pspectraloctave,cream,false},
-        {Surface::aspecialedition,silver,false}
+        {Surface::aspecialedition,silver,false},
+        {Surface::anastrond,silver,false}
     }};
     return styles[static_cast<size_t>(surface)];
 }
@@ -116,6 +117,7 @@ struct RasterBank {
             nullptr,nullptr,"p808alpha_png","pcentauralpha_png","pratalpha_png","pm87alpha_png","pdynaalpha_png","pdiamondalpha_png","pqtronalpha_png","pmutronalpha_png","pmuffalpha_png","pfacealpha_png","pbenderalpha_png","prcalpha_png","prangealpha_png","pmicroalpha_png","aglassalpha_png","abritalpha_png","a515alpha_png","arectalpha_png","amarkalpha_png","asvtalpha_png","agkalpha_png","ahybridalpha_png","rsslvcaalpha_png","r1176alpha_png","rla2aalpha_png","rn73alpha_png","rv5alpha_png","risaalpha_png","rssleqalpha_png","rn73eqalpha_png","rpultecalpha_png","rce2alpha_png","rdimensionalpha_png","rstonealpha_png","rmistressalpha_png","reddyalpha_png","rpulsaralpha_png","r2290alpha_png","rre201alpha_png","rmemoryalpha_png","remtalpha_png","rlexalpha_png","rspringalpha_png","cmesaalpha_png","campegalpha_png","cbassmanalpha_png","cdeltaalpha_png","pfetalpha_png","pmualpha_png","pbddialpha_png","pb3kalpha_png","pm82alpha_png","paw3alpha_png","pwoolalpha_png","pfactoryalpha_png","pepalpha_png","plpbalpha_png","achim30alpha_png","aorangealpha_png","abassmanalpha_png","asubwayalpha_png","amatchlessalpha_png","adumblealpha_png","aeichalpha_png","acinderalpha_png","aironalpha_png","afourfoldalpha_png","aclassictubealpha_png","amonolithalpha_png","anightharvestalpha_png","ahotleadalpha_png","abluestormalpha_png","pyellowasymalpha_png","pobsessionalpha_png","pplusalpha_png","pdualcircuitalpha_png","pmanualwahalpha_png","pgraphiceqalpha_png","pchorusalpha_png","pdimensionalpha_png","pphasealpha_png","pflangealpha_png","pvibratoalpha_png","ptremoloalpha_png","pmonoctavealpha_png","pspectraloctavealpha_png","aspecialeditionalpha_png"
         };
         for(size_t i=0;i<names.size();++i) {
+            if(!names[i])continue;
             int size=0;
             const auto* bytes=ChimeraArtworkData::getNamedResource(names[i],size);
             if(bytes) images[i]=juce::ImageFileFormat::loadFrom(bytes,static_cast<size_t>(size));
@@ -133,6 +135,22 @@ struct RasterBank {
                     colourPixels.setPixelColour(x,y,colourPixels.getPixelColour(x,y).withAlpha(alphaPixels.getPixelColour(x,y).getRed()));
             }
         }
+        // Code-drawn Original chassis: no borrowed reference-head artwork.
+        auto& original=images[static_cast<size_t>(Surface::anastrond)];
+        original=juce::Image(juce::Image::ARGB,960,350,true);
+        juce::Graphics g(original);
+        g.setColour(juce::Colour(0xff101718));g.fillRoundedRectangle(12,24,936,304,18);
+        g.setGradientFill({juce::Colour(0xff384244),28,40,juce::Colour(0xff131a1c),28,308,false});g.fillRoundedRectangle(28,40,904,272,9);
+        g.setColour(juce::Colour(0xff879f97));g.drawRoundedRectangle(28,40,904,272,9,2);
+        g.setColour(juce::Colour(0xff0b1011));g.fillRect(52,61,856,173);
+        g.setColour(juce::Colour(0xff293738));for(int x=57;x<906;x+=12)g.drawLine(float(x),65,float(x-24),230,2);
+        g.setColour(juce::Colour(0xff192527));g.fillRoundedRectangle(251,98,458,98,4);
+        g.setColour(juce::Colour(0xffc7d9d0));g.setFont(juce::FontOptions(48.f,juce::Font::bold));
+        g.drawText(juce::String::fromUTF8("NÁSTRÖND"),251,107,458,62,juce::Justification::centred);
+        g.setFont(juce::FontOptions(12.f));g.drawText("S P E C T R A L F O R G E   O R I G I N A L",251,173,458,17,juce::Justification::centred);
+        g.setColour(juce::Colour(0xffa0b4aa));g.drawLine(53,249,905,249,1);
+        g.setFont(juce::FontOptions(14.f));g.drawText("CLANK     CRUSH     IMPACT     ROT     BLOOM",53,262,854,23,juce::Justification::centred);
+        for(int x:{41,913})for(int y:{54,298}){g.setColour(juce::Colour(0xff6e7c7b));g.fillEllipse(float(x),float(y),7,7);}
     }
     ~RasterBank() {
         const lifecycle::Scope trace("artwork.bank.destroy", this);
@@ -178,7 +196,7 @@ inline ModelStyle headStyle(int model) {
         Surface::abassman,Surface::asubway,Surface::amatchless,Surface::adumble,Surface::aeich,
         Surface::acinder,Surface::airon,Surface::afourfold,Surface::aclassictube,
         Surface::amonolith,Surface::anightharvest,Surface::ahotlead,Surface::abluestorm,
-        Surface::aspecialedition};
+        Surface::aspecialedition,Surface::anastrond};
     return surfaceStyle(heads[static_cast<size_t>(juce::jlimit(0,ampModelCount-1,model))]);
 }
 // Every active board model has its own appropriate material/chassis artwork.

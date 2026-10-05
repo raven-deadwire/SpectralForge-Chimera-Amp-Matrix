@@ -1,0 +1,44 @@
+index,preset,fixture_rms_dbfs,fixture_peak_dbfs,output_trim_db
+31,Crom Cruach,-26.3541,-10.5346,-1.5
+32,Wild Hunt,-29.6702,-10.0916,-12.5
+33,Azhi Dahaka,-26.1329,-11.3889,-2
+34,A Path To Alsatia,-26.1913,-13.1556,-4.5
+35,Feel My Wrath,-25.7208,-12.1614,-5.5
+36,Blackhearted,-26.0728,-12.9109,-6.5
+37,Dark Matters of Throne,-25.8553,-13.7071,-2
+0,Clean Sustain,-25.9581,-10.6888,6.5
+5,Bell Clean,-25.9956,-12.5017,-1.5
+11,Ambient Clean,-25.9931,-11.1149,11.5
+6,Edge Chime,-25.8505,-15.5955,-5.5
+7,Classic Crunch,-27.3355,-9.96844,-2.5
+28,Matchless Edge,-25.9688,-12.1704,-2.5
+1,Tight Rhythm,-25.8035,-15.8833,-12
+8,Orange Heavy,-26.0427,-14.3794,-10.5
+9,Melodic Death Rhythm,-25.8169,-14.1956,-9
+3,Filter Lead,-26.0395,-14.8731,-10
+4,Fuzz Texture,-26.131,-13.9966,-2.5
+10,Melodic Lead,-25.7658,-13.5297,-4.5
+29,Dumble Smooth Lead,-25.9407,-12.3475,-6
+12,Finger Round,-26.0289,-11.2933,-12
+13,Pick Punch,-28.8543,-10.1827,-6
+14,Slap Studio,-25.9249,-12.5099,2
+30,Modern Clean,-26.9058,-10.0243,4
+15,Modern Grind,-26.1147,-11.7004,-10.5
+16,Vintage Bass DI,-27.6005,-10.0954,-10.5
+17,Wool Bass Fuzz,-25.9599,-14.0683,-7.5
+18,Bass Envelope,-26.1047,-10.9699,7
+19,G+G Clean / Crunch,-26.8116,-10.0538,8.5
+20,G+G Tight / Wide,-25.6935,-14.5906,-9
+23,B+B Warm / Definition,-26.8695,-10.2012,-4.5
+21,G+B Low Anchor,-26.2985,-12.3119,-6
+22,G+B Air / Weight,-26.0248,-12.8775,-11
+24,B+B Clean / Grind,-26.0181,-11.2582,-7
+2,Bass Matrix,-25.7678,-11.68,-4.5
+25,Low B Foundation,-25.8689,-12.3039,-5.5
+26,Pick Attack Matrix,-27.8722,-10.2385,-7.5
+27,Spectral Texture,-26.0349,-13.5918,0.5
+38,Fenrir,-26.0415,-12.7573,2.5
+39,Surtr,-26.0054,-12.0181,4
+40,Níðhöggr,-26.1168,-12.7325,3
+41,Fimbulvetr,-25.8944,-12.7429,3.5
+42,Ragnarök,-26.2433,-13.1017,1.5

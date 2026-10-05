@@ -203,7 +203,7 @@ inline void run(const juce::File& directory){
             const auto& spec=spectralforge::ampNativePanel(model);
             require(channel && channel->isVisible()==(spec.channels.size()>1),"Native UI single-channel selector not hidden");
             auto* reference=find<juce::Label>(*canvas,"ampreference1");require(reference && reference->isVisible() && reference->getText()==juce::String::fromUTF8(spectralforge::ampInfo(model).reference),"Native amp caption must show only the original model name outside the alias list");
-            require(selector->getText()==spectralforge::ampInfo(model).name,"Native amp list exposes original reference name");
+            require(selector->getText()==juce::String::fromUTF8(spectralforge::ampInfo(model).name),"Native amp list exposes original reference name");
             require(canvas->getLocalBounds().contains(panel->getBounds()),"Native amp panel exceeds editor bounds");
             for(int ch=0;ch<(int)spec.channels.size();++ch){
                 channel->setSelectedId(ch+1,juce::sendNotificationSync);settle(45);require(processor.selectedAmpChannel(0)==ch,"Original amplifier channel callback not connected");++channelCases;
@@ -224,6 +224,14 @@ inline void run(const juce::File& directory){
                 require(std::abs(processor.parameters().getRawParameterValue(id)->load()-value)<.002,"Native knob did not reach its host parameter");
                 require(processor.parameters().getRawParameterValue(spectralforge::ampNativeEnabledID(0))->load()>.5f,"Native gesture did not activate the model bank");break;
             }
+            if(model==spectralforge::firstOriginalAmpModel) {
+                const auto hzID=spectralforge::ampNativeControlID(0,model,int(spectralforge::original::Control::midFrequency));
+                auto* frequency=find<juce::Slider>(*panel,hzID);require(frequency && frequency->getTextFromValue(850).contains("850"),"Original MID FREQ display is not in Hz");
+                frequency->setValue(1100,juce::sendNotificationSync);require(std::abs(processor.parameters().getRawParameterValue(hzID)->load()-1100)<.01f,"Original MID FREQ edit is disconnected");
+                frequency->setValue(850,juce::sendNotificationSync);set(processor,spectralforge::ampNativeControlID(0,model,0),.72f);
+                snapshot(editor,directory,scale?"Nastrond-75pct":"Nastrond-Classic");
+                if(!scale){auto window=open(*panel,"ampExpand1","ampNativePanel1");snapshot(*window->getContentComponent(),directory,"Nastrond-Controls");close(window);}
+            }
         }
     }
     editor.setSize(1180,780);processor.setAmpModel(0,15);settle();snapshot(editor,directory,"Native-Amp-Classic");
@@ -234,7 +242,7 @@ inline void run(const juce::File& directory){
     lowOverview(processor,editor,*canvas,directory);
     const int postControlCases=postPanels(processor,editor,*canvas,directory);
     dialogTeardown();
-    std::cout<<"PASS native UI: all 23 amplifier panels at 100/75%, "<<channelCases<<" channel cases, "<<controlCases<<" channel/control visibility cases, Matrix LOW priority controls and ALL, 9 POST models / "<<postControlCases<<" controls at 100/75%, flat POST alias menus and short original model captions, six compact rack rows and ALL dialogs, editor teardown and real parameter callbacks\n";
+    std::cout<<"PASS native UI: all 25 serialized amplifier panels at 100/75%, "<<channelCases<<" channel cases, "<<controlCases<<" channel/control visibility cases, Matrix LOW priority controls and ALL, 9 POST models / "<<postControlCases<<" controls at 100/75%, flat POST alias menus and short original model captions, six compact rack rows and ALL dialogs, editor teardown and real parameter callbacks\n";
 }
 }
 inline void runNativeUITests(const juce::File& directory){nativeUITests::run(directory);}

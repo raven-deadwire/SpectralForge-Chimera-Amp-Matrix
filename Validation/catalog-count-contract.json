@@ -1,12 +1,12 @@
 {
   "schema": "spectralforge.chimera.catalog-count-contract",
   "schema_version": 1,
-  "version": "1.1.1",
+  "version": "1.2",
   "model_counts": {
-    "amp": 23,
+    "amp": 24,
     "pre": 39,
     "post": 21,
-    "total": 83
+    "total": 84
   },
   "preset_counts": {
     "factory": 31,
@@ -65,7 +65,8 @@
     "amp": "Source/AmpCatalog.h",
     "pre": "Source/PedalBoardCatalog.h",
     "post": "Source/ModelCatalog.h",
-    "presets": "Source/FactoryPresets.h"
+    "presets": "Source/FactoryPresets.h",
+    "original_presets": "Source/OriginalAmpDefinition.h"
   },
   "roadmap": {
     "target_total": 132,
@@ -150,16 +151,19 @@
         "window": "2027-05-10/2027-06-04",
         "new_models": 0
       }
-    ]
+    ],
+    "preview_authorization": "2026-10-05: owner requested completing integration through a test installer; public release date remains separate."
   },
   "reference_manifest_contract": "Validation/reference-manifest-contract.json",
   "serialized_model_counts": {
-    "amp": 24,
+    "amp": 25,
     "pre": 39,
     "post": 21,
-    "total": 84
+    "total": 85
   },
   "legacy_amp_indices": [
     16
-  ]
+  ],
+  "original_preset_count": 5,
+  "selectable_preset_count": 43
 }

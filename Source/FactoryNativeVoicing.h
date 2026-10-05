@@ -202,6 +202,7 @@ inline juce::ValueTree factoryNativeSnapshot(juce::AudioProcessorValueTreeState&
     auto snapshot=state.copyState();
     const auto previous=snapshot.createCopy();
     snapshot.removeChild(snapshot.getChildWithName("GUITAR_SIGNATURE"),nullptr);
+    snapshot.removeChild(snapshot.getChildWithName("ORIGINAL_PRESET"),nullptr);
     for(auto* raw:state.processor.getParameters())if(auto* p=dynamic_cast<juce::RangedAudioParameter*>(raw)) {
         if(factoryPerformanceParameter(p->paramID))continue;
         auto node=snapshot.getChildWithProperty("id",p->paramID);
