@@ -139,6 +139,11 @@ The refinement trainer supports an explicit learning-rate restart and records
 batch size, supervised frames and schedule per stage. Existing model/data
 identity checks still apply. Preserve the original checkpoint and its exported
 models so the next build can be compared against the delivered baseline.
+The finishing stage can use `--loss-normalization channel` for mean squared
+error with a fixed per-channel energy scale, rather than reweighting every
+excerpt by its own energy. `--validation-selection full` evaluates the full
+validation signal with the same zero-input bias centering used at export.
+Changing selection metrics re-scores stored checkpoints before comparing them.
 
 `capture_probe.py` renders an independently sourced input with the exact
 renderer hash and channel settings used by the training capture. The NAM

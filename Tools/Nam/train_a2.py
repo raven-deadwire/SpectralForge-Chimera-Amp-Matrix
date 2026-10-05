@@ -40,12 +40,19 @@ def scores(pred,ref,skip=6347):
       'peak_error_db':float(20*np.log10(max(np.max(np.abs(p)),1e-20)/max(np.max(np.abs(r)),1e-20))),
       'residual_rms_dbfs':float(10*np.log10(max(m,1e-20)))} for p,r,e,m in zip(np.atleast_2d(pred),np.atleast_2d(ref),np.atleast_1d(energy),np.atleast_1d(mse))]
 
+def centered_prediction(model,x):
+    result=predict(model,x)
+    with torch.inference_mode():dc=model(torch.zeros(1,model.receptive_field+1),pad_start=False).numpy()[0,...,-1]
+    return result-np.asarray(dc)[...,None]
+
 def main():
     ap=argparse.ArgumentParser();ap.add_argument('--data',type=Path,required=True);ap.add_argument('--out',type=Path,required=True)
     ap.add_argument('--trainer',type=Path,required=True);ap.add_argument('--steps',type=int,default=5000)
     ap.add_argument('--batch',type=int,default=2);ap.add_argument('--threads',type=int,default=4);ap.add_argument('--frames',type=int,default=2048)
     ap.add_argument('--lr',type=float,default=.004);ap.add_argument('--lr-half-life',type=float,default=2000)
     ap.add_argument('--lr-origin',type=int,default=0)
+    ap.add_argument('--loss-normalization',choices=['window','channel'],default='window')
+    ap.add_argument('--validation-selection',choices=['window','full'],default='window')
     ap.add_argument('--resume',action='store_true');args=ap.parse_args()
     torch.set_num_threads(args.threads);torch.manual_seed(6405);rng=np.random.default_rng(6405)
     template=json.loads((args.trainer/'nam/train/_resources/config_model_packed.json').read_text())['net']['config']['submodels'][-1]['config']
@@ -59,22 +66,32 @@ def main():
       'trainer_commit':'0072676419459f5d39e36f5b9fd4172f28d62cbf','target_player_commit':'ef6f178ae1ac6412b55fec6f058d86e640e5aaaf',
       'training_target_gain':gain,'export':'undo training gain in head_scale; fixed silence-bias correction; independent A2-Full WaveNets',
       'source':source,'receptive_field':rf,'torch':torch.__version__,'python':platform.python_version(),'batch':args.batch,'frames':args.frames,'seed':6405,'threads':args.threads,
-      'learning_rate':{'initial':args.lr,'half_life_steps':args.lr_half_life,'origin_step':args.lr_origin}}
+      'learning_rate':{'initial':args.lr,'half_life_steps':args.lr_half_life,'origin_step':args.lr_origin},
+      'loss_normalization':args.loss_normalization,'validation_selection':args.validation_selection}
     write_json(args.out/'training-config.json',train_cfg)
     x=np.load(args.data/'train/input.npy');ys=np.stack([np.load(args.data/'train'/f'{v[0]}.npy') for v in VOICES])
     vx=np.load(args.data/'validation/input.npy');vy=np.stack([np.load(args.data/'validation'/f'{v[0]}.npy') for v in VOICES])
+    channel_power=torch.tensor(np.mean(ys.astype(np.float64)**2,axis=1)*gain**2,dtype=torch.float32)[None].clamp_min(.0001)
     opt=torch.optim.Adam(model.parameters(),lr=.004,weight_decay=3.17e-7);start=0;best=[float('inf')]*5;weights=[None]*5;best_steps=[0]*5
     if args.resume:
         ck=torch.load(args.out/'checkpoint.pt',map_location='cpu',weights_only=False)
         if ck['identity']!=identity:raise RuntimeError('Resume identity mismatch')
         model.load_state_dict(ck['model']);opt.load_state_dict(ck['optimizer']);start=ck['step'];best=ck['best'];weights=ck['best_weights'];best_steps=ck['best_steps']
         rng.bit_generator.state=ck['rng'];torch.set_rng_state(ck['torch_rng'])
+        if ck.get('validation_selection','window')!=args.validation_selection:
+            if args.validation_selection!='full':raise RuntimeError('Changing full selection back to excerpts is not supported')
+            # Re-score saved states on the new selection metric before comparing.
+            # Never compare excerpt ESR values with full-signal ESR values.
+            for i,state in enumerate(weights):
+                sub=model.extract_submodel(i).eval();sub.load_state_dict(state)
+                best[i]=scores(centered_prediction(sub,vx)/gain,vy[i])[0]['esr']
     elif (args.out/'checkpoint.pt').exists():raise RuntimeError('Use --resume or a fresh output directory')
     for group in opt.param_groups:group['lr']=args.lr*(.5**(max(0,start-args.lr_origin)/args.lr_half_life))
     stages_path=args.out/'training-stages.json'
     stages=json.loads(stages_path.read_text()) if stages_path.exists() else []
     if args.steps>start:
-        stages.append({'start':start,'end':args.steps,'batch':args.batch,'frames':args.frames,'learning_rate':train_cfg['learning_rate']})
+        stages.append({'start':start,'end':args.steps,'batch':args.batch,'frames':args.frames,'learning_rate':train_cfg['learning_rate'],
+          'loss_normalization':args.loss_normalization,'validation_selection':args.validation_selection})
         write_json(stages_path,stages)
     t=time.monotonic();losses=[]
     print(json.dumps({'stage':'start','rf':rf,'channels':[v[0] for v in VOICES],'start_step':start}),flush=True)
@@ -82,7 +99,8 @@ def main():
         model.train();st=rng.integers(rf,len(x)-args.frames,args.batch)
         xx=torch.from_numpy(np.stack([x[s-rf+1:s+args.frames] for s in st]))
         yy=torch.from_numpy(np.stack([ys[:,s:s+args.frames] for s in st]))*gain
-        pred=model(xx,pad_start=False);power=yy.square().mean(dim=-1).clamp_min(.0001)
+        pred=model(xx,pad_start=False)
+        power=yy.square().mean(dim=-1).clamp_min(.0001) if args.loss_normalization=='window' else channel_power
         loss=((pred-yy).square().mean(dim=-1)/power).mean()
         loss+=.1*((pred.mean(dim=-1)-yy.mean(dim=-1)).square()/power).mean()
         if not torch.isfinite(loss):raise RuntimeError('Nonfinite training loss')
@@ -91,16 +109,21 @@ def main():
         if step%100==0:
             print(json.dumps({'step':step,'loss':float(np.mean(losses[-100:])),'elapsed_seconds':round(time.monotonic()-t,2)}),flush=True)
         if step%500==0 or step==args.steps:
-            # Fixed diverse excerpts select checkpoints without touching the test input.
+            # Selection never touches either independent test input.
             vals=[]
-            for s in [rf,6*48000,12*48000,18*48000,22*48000]:
-                with torch.inference_mode():p=model(torch.from_numpy(vx[s-rf+1:s+8192].copy())[None],pad_start=False).numpy()[0]/gain
-                vals.append(scores(p,vy[:,s:s+8192],skip=0))
-            means=[float(np.mean([r[i]['esr'] for r in vals])) for i in range(5)]
+            if args.validation_selection=='full':
+                prediction=centered_prediction(model,vx)/gain
+                means=[row['esr'] for row in scores(prediction,vy)]
+            else:
+                for s in [rf,6*48000,12*48000,18*48000,22*48000]:
+                    with torch.inference_mode():p=model(torch.from_numpy(vx[s-rf+1:s+8192].copy())[None],pad_start=False).numpy()[0]/gain
+                    vals.append(scores(p,vy[:,s:s+8192],skip=0))
+                means=[float(np.mean([r[i]['esr'] for r in vals])) for i in range(5)]
             for i,score in enumerate(means):
                 if score<best[i]:best[i]=score;best_steps[i]=step;weights[i]=copy.deepcopy(model.extract_submodel(i).state_dict())
             write_json(args.out/f'validation-step-{step}.json',{'esr_by_channel':dict(zip([v[0] for v in VOICES],means)),'windows':vals,'best_steps':best_steps})
-            torch.save({'identity':identity,'model':model.state_dict(),'optimizer':opt.state_dict(),'step':step,'best':best,'best_weights':weights,'best_steps':best_steps,'rng':rng.bit_generator.state,'torch_rng':torch.get_rng_state()},args.out/'checkpoint.pt')
+            torch.save({'identity':identity,'model':model.state_dict(),'optimizer':opt.state_dict(),'step':step,'best':best,'best_weights':weights,'best_steps':best_steps,'rng':rng.bit_generator.state,'torch_rng':torch.get_rng_state(),
+              'validation_selection':args.validation_selection},args.out/'checkpoint.pt')
             print(json.dumps({'step':step,'validation_esr':dict(zip([v[0] for v in VOICES],means)),'best_steps':best_steps}),flush=True)
     results={}
     for i,(name,character,_) in enumerate(VOICES):

@@ -42,7 +42,7 @@ def main():
             meta={'name':'Náströnd '+name,'modeled_by':'RavenForge Luthier Intelligence','gear_type':'amp',
               'source_commit':manifest['source']['source_commit'],'character':character,'channel':ch,
               'capture_output_pad_db':-20,'cabinet_included':False,'source_kind':'software amp DSP',
-              'status':'TEST_BUILD_PENDING_LISTENING_ACCEPTANCE'}
+              'status':'TEST_BUILD_PENDING_FIDELITY_AND_LISTENING_ACCEPTANCE','internally_parametric':False}
             original.export(args.out/'NAM',basename='Nastrond-'+name,include_snapshot=False,other_metadata=meta)
             path=args.out/'NAM'/f'Nastrond-{name}.nam'
             vx.tofile(raw);write_json(job_file,{'block_size':64,'normalize':False,'eq':eq_for(name)})
@@ -115,6 +115,11 @@ def main():
                     raise RuntimeError('Comparison does not belong to this model export')
         report['final_test']='Reserved synthetic test and external official NAM V3 evaluated; see comparison.json'
         report['all_channels_improved_on_both_inputs']=comparison['all_channels_improved_on_both_inputs']
+        report['validation_accuracy_pass']=report['numerical_accuracy_pass']
+        report['independent_test_accuracy_pass']=all(row['candidate']['window_median']<=.005 and row['candidate']['window_p95']<=.01 and
+          row['candidate']['window_worst']<=.02 and abs(row['candidate']['rms_error_db'])<=.5 and abs(row['candidate']['peak_error_db'])<=1
+          for entry in comparison['inputs'].values() for row in entry['channels'].values())
+        report['numerical_accuracy_pass']=report['validation_accuracy_pass'] and report['independent_test_accuracy_pass']
         shutil.copy2(args.comparison,args.out/'Validation'/'comparison.json')
     if args.compatibility:
         shutil.copy2(args.compatibility,args.out/'Validation'/'compatibility.json')
