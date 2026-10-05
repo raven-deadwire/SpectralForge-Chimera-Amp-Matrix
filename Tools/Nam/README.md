@@ -76,7 +76,55 @@ Out remain 0 dB (encoded as 0.5 by TONE3000), Mix is 100%, and the independent
 global EQ/gate/pitch/spread are disabled. Playing dynamics and frequency
 content can still change relative loudness. Add a cabinet IR after the amp.
 
-## Build
+## GitHub Actions evidence
+
+`NAM exact-source validation` (`.github/workflows/nam-validation.yml`) runs on
+every PR at the **PR head SHA**, not the synthetic merge ref. The standalone
+`Tools/Nam` CMake project explicitly builds both `ChimeraNamRender` and
+`ChimeraTone3000Tool`; the product's default `CHIMERA_BUILD_NAM_TOOLS=OFF` is
+unchanged. JUCE, trainer, player and NAM core commits are locked in
+`ci-sources.json`, including verification of all recursive gitlink checkouts.
+The renderer's transitive DSP headers must still match the frozen release.
+
+PR smoke uses two seconds per split and two optimizer steps for all five
+**full-size A2** models. It checks the grouped-convolution output/gradients
+against upstream, native captures, official NAM export/import, the real
+TONE3000 A2 gate/engine, six-band POST EQ, preset serialization, and playback
+from the preset's embedded NAM/EQ after restoration. A passing smoke means
+the pipeline is compatible; its deliberately untrained models can fail all
+fidelity targets. Accuracy is reported separately, never marked approved.
+
+For the expensive path, select **Run workflow → profile: full** (the manual
+Actions UI becomes available once this workflow exists on the default branch),
+select the intended ref, and set optimizer steps, default 5000. This uses the
+96/24/24/8-second capture protocol and a bounded Ubuntu CPU job. It starts
+fresh and preserves the optimizer/RNG/best-state checkpoint for later trusted
+local resume. It does not launch automatically, allocate a paid GPU or alter
+the current `quality_profile.py` gate. Historical all-relative measurements
+and the [A2 memory audit](ACCURACY-BLOCKER.md) remain diagnostic evidence.
+The full job fails if any validation/held-out numerical target fails.
+
+Each run uploads one `NAM-{profile}-{full SHA}-{run id}-{attempt}` evidence
+artifact with 30-day retention, including on failure:
+
+- Exact pipeline/dependency trees, capture headers, renderer/tool hashes,
+  CMake configuration, resolved Python environment and build/run logs.
+- All captured inputs/targets and audio hashes, training configuration,
+  stages, checkpoint, official roundtrip results and five final `.nam` files.
+- Five embedded `.t3kpreset` files, validation/comparison JSON, synthetic
+  native/NAM stereo A/B and target-EQ audio.
+- `acceptance.json`, a complete file hash manifest and `SHA256SUMS`.
+
+Setup or execution failure preserves **partial** evidence and remains FAIL;
+missing outputs cannot pass. Source/audio mismatch aborts acceptance. The
+held-out synthetic split is evaluated only after checkpoint selection and
+export, using the current profile's frozen v0.2 reference scale and thresholds. No
+recorded instrument DI is represented by these synthetic signals.
+`release_approved` is always false; `instrument_DI_listening` and
+`GUI_DAW_acceptance` stay **BLOCKED**, even if all numerical checks pass.
+The workflow has read-only repository permissions and publishes no models.
+
+## Local build
 
 Clone the pinned trainer and the target player's recursive submodules. Install
 the trainer's dependencies in a virtual environment. Use the pinned trainer as

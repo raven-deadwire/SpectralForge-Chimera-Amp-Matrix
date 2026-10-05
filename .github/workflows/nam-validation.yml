@@ -1,0 +1,122 @@
+name: NAM exact-source validation
+
+on:
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      profile:
+        description: Smoke compatibility or full training (neither grants release approval)
+        type: choice
+        options: [smoke, full]
+        default: smoke
+      steps:
+        description: Full training optimizer steps (1..50000); unchanged fidelity gates apply
+        type: number
+        default: 5000
+
+permissions:
+  contents: read
+
+concurrency:
+  group: nam-${{ github.event.pull_request.number || github.ref }}-${{ inputs.profile || 'smoke' }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  nam:
+    runs-on: ubuntu-24.04
+    timeout-minutes: ${{ inputs.profile == 'full' && 350 || 35 }}
+    env:
+      EXACT_SOURCE: ${{ github.event.pull_request.head.sha || github.sha }}
+      PROFILE: ${{ inputs.profile || 'smoke' }}
+      FULL_STEPS: ${{ inputs.steps || 5000 }}
+      EVIDENCE: ${{ runner.temp }}/nam-evidence
+      OMP_NUM_THREADS: '2'
+      MKL_NUM_THREADS: '2'
+      PYTHONDONTWRITEBYTECODE: '1'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.EXACT_SOURCE }}
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Resolve immutable dependency pins
+        id: pins
+        shell: bash
+        run: |
+          mkdir -p "$EVIDENCE/logs"
+          python - <<'PY' >> "$GITHUB_OUTPUT"
+          import json
+          from pathlib import Path
+          lock = json.loads(Path('Tools/Nam/ci-sources.json').read_text())
+          for name in ('juce', 'trainer', 'player'):
+              print(f'{name}_repository={lock[name]["repository"]}')
+              print(f'{name}_commit={lock[name]["commit"]}')
+          PY
+      - uses: actions/checkout@v4
+        with:
+          repository: ${{ steps.pins.outputs.juce_repository }}
+          ref: ${{ steps.pins.outputs.juce_commit }}
+          path: .nam-deps/juce
+          persist-credentials: false
+      - uses: actions/checkout@v4
+        with:
+          repository: ${{ steps.pins.outputs.trainer_repository }}
+          ref: ${{ steps.pins.outputs.trainer_commit }}
+          path: .nam-deps/trainer
+          persist-credentials: false
+      - uses: actions/checkout@v4
+        with:
+          repository: ${{ steps.pins.outputs.player_repository }}
+          ref: ${{ steps.pins.outputs.player_commit }}
+          submodules: recursive
+          path: .nam-deps/player
+          persist-credentials: false
+      - name: Verify frozen source and dependency trees before compilation
+        run: python Tools/Nam/ci_sources.py --deps .nam-deps --expected-source "$EXACT_SOURCE" --out "$EVIDENCE/source.json"
+      - name: Install build and Python dependencies
+        shell: bash
+        run: |
+          set -o pipefail
+          sudo apt-get update
+          sudo apt-get install -y ninja-build libasound2-dev libfreetype6-dev libfontconfig1-dev libx11-dev libxcomposite-dev libxcursor-dev libxext-dev libxinerama-dev libxrandr-dev libxrender-dev libglu1-mesa-dev libportaudio2
+          python -m pip install torch==2.8.0 --index-url https://download.pytorch.org/whl/cpu
+          python -m pip install -r Tools/Nam/requirements-ci.txt
+          python -m pip install --no-deps .nam-deps/trainer
+          python -m pip freeze > "$EVIDENCE/python-environment.txt"
+          echo "PYTHONPATH=$GITHUB_WORKSPACE/.nam-deps/trainer" >> "$GITHUB_ENV"
+      - name: Build both real offline tools from pinned dependencies
+        shell: bash
+        run: |
+          set -o pipefail
+          cmake -S Tools/Nam -B build-nam -G Ninja -DCMAKE_BUILD_TYPE=Release \
+            -DCHIMERA_JUCE_SOURCE="$GITHUB_WORKSPACE/.nam-deps/juce" \
+            -DCHIMERA_TONE3000_SOURCE="$GITHUB_WORKSPACE/.nam-deps/player" 2>&1 | tee "$EVIDENCE/logs/configure.log"
+          cmake --build build-nam --parallel 2 --target ChimeraNamRender ChimeraTone3000Tool 2>&1 | tee "$EVIDENCE/logs/build.log"
+          cp build-nam/CMakeCache.txt "$EVIDENCE/CMakeCache.txt"
+      - name: Exercise failure gates
+        run: python -m unittest discover -s Tools/Nam -p test_ci.py -v
+      - name: Capture, A2 roundtrip, target import, EQ and preset audio restore
+        # The shorter inner deadline leaves time to preserve partial checkpoints on timeout.
+        timeout-minutes: ${{ inputs.profile == 'full' && 310 || 18 }}
+        shell: bash
+        run: |
+          python Tools/Nam/ci_pipeline.py --profile "$PROFILE" --steps "$FULL_STEPS" \
+            --expected-source "$EXACT_SOURCE" --deps "$GITHUB_WORKSPACE/.nam-deps" \
+            --renderer "$GITHUB_WORKSPACE/build-nam/ChimeraNamRender_artefacts/Release/ChimeraNamRender" \
+            --tool "$GITHUB_WORKSPACE/build-nam/ChimeraTone3000Tool_artefacts/Release/ChimeraTone3000Tool" \
+            --out "$EVIDENCE"
+      - name: Seal complete or failed diagnostic evidence
+        if: always()
+        run: python Tools/Nam/ci_pipeline.py --seal-only --profile "$PROFILE" --expected-source "$EXACT_SOURCE" --out "$EVIDENCE"
+      - name: Preserve exact-source evidence (never a release approval)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: NAM-${{ env.PROFILE }}-${{ env.EXACT_SOURCE }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ env.EVIDENCE }}
+          if-no-files-found: error
+          retention-days: 30
+          compression-level: 1

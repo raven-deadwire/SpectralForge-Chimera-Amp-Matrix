@@ -88,10 +88,29 @@ void render(const char* modelPath,const char* inputPath,const char* outputPath,c
     {"normalize",job.value("normalize",false)},{"normalization_gain",gain},{"callback_p99_seconds",p99},{"p99_budget_ratio",p99*48000/block},{"deadline_misses",misses},
     {"eq",Json::parse(juce::JSON::toString(eq.toVar()).toStdString())}}).dump()<<'\n';
 }
+void renderPreset(const char* presetPath,const char* inputPath,const char* outputPath) {
+  inspectPreset(juce::File(presetPath));
+  auto tree=t3k::presetfile::read(juce::File(presetPath));
+  auto block=tree.getChildWithName("ChainSnapshot").getChildWithName("ChainBlocks").getChild(0);
+  if(!bool(block["enabled"]) || double(block["mix"])!=1.0 ||
+     double(block["inputGain"])!=0.5 || double(block["outputGain"])!=0.5)
+    throw std::runtime_error("Unexpected preset routing/gains");
+  auto data=block.getChildWithName("ModelCache").getChild(0)["data"];
+  const auto* bytes=data.getBinaryData();
+  juce::TemporaryFile embedded(".nam");
+  if(!bytes || !embedded.getFile().replaceWithData(bytes->getData(),bytes->getSize()))
+    throw std::runtime_error("Cannot restore embedded NAM");
+  BlockEq eq;eq.restoreFromValueTree(block.getChildWithName("Eq"));
+  Json job={{"block_size",64},{"normalize",bool(block["normalize"])},
+    {"eq",Json::parse(juce::JSON::toString(eq.toVar()).toStdString())}};
+  const auto modelPath=embedded.getFile().getFullPathName().toStdString();
+  render(modelPath.c_str(),inputPath,outputPath,job);
+}
 }
 int main(int argc,char** argv) try {
+  if(argc==5 && std::string(argv[1])=="render-preset"){renderPreset(argv[2],argv[3],argv[4]);return 0;}
   if(argc==3 && std::string(argv[1])=="inspect"){std::cout<<inspectPreset(juce::File(argv[2])).dump()<<'\n';return 0;}
   if(argc==5 && std::string(argv[1])=="preset"){preset(argv[2],argv[3],readJson(argv[4]));return 0;}
   if(argc==6 && std::string(argv[1])=="render"){render(argv[2],argv[3],argv[4],readJson(argv[5]));return 0;}
-  throw std::runtime_error("Usage: tool render model input output job | preset model output job | inspect preset");
+  throw std::runtime_error("Usage: tool render model input output job | preset model output job | inspect preset | render-preset preset input output");
 } catch(const std::exception& e){std::cerr<<e.what()<<'\n';return 1;}

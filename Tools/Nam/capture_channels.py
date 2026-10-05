@@ -20,7 +20,9 @@ VOICES=[
 
 def main():
     ap=argparse.ArgumentParser();ap.add_argument('--renderer',type=Path,required=True);ap.add_argument('--out',type=Path,required=True)
-    ap.add_argument('--workers',type=int,default=4);ap.add_argument('--train-seconds',type=float,default=96);args=ap.parse_args()
+    ap.add_argument('--workers',type=int,default=4);ap.add_argument('--train-seconds',type=float,default=96)
+    ap.add_argument('--smoke-seconds',type=float,help='Shorten all splits for CI only; never a fidelity qualification');args=ap.parse_args()
+    if args.smoke_seconds is not None and args.smoke_seconds < 2:raise ValueError('Smoke splits must be at least two seconds')
     if args.out.exists() and any(args.out.iterdir()):raise RuntimeError('Output directory must be empty')
     args.out.mkdir(parents=True,exist_ok=True);catalog=json.loads(subprocess.check_output([str(args.renderer),'--catalog'],text=True))
     source_root=Path(__file__).resolve().parents[2];headers=[];pending=['Source/Amplifier.h']
@@ -40,6 +42,7 @@ def main():
       'input_trim_db':0,'output_trim_db':0,'cabinet':False,'pre_post_effects':False,'input_kind':'synthetic; not recorded instrument DI'}
     jobs=[]
     for i,(split,seconds) in enumerate([('train',args.train_seconds),('validation',24),('test',24),('audition',8)]):
+        if args.smoke_seconds is not None:seconds=args.smoke_seconds
         d=args.out/split;d.mkdir();x=signal(640500+i*1703,seconds)
         np.save(d/'input.npy',x);x.tofile(d/'input.f32');sf.write(d/'input.wav',x,48000,subtype='FLOAT')
         for ch,(name,character,values) in enumerate(VOICES):

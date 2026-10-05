@@ -161,7 +161,7 @@ def main():
           'channel':i,'cabinet_included':False,'head_bias_correction_output_units':dc})
         path=args.out/f'Nastrond-{name}.nam';obj=json.loads(path.read_text());restored=init_from_nam(obj).eval()
         with torch.inference_mode():delta=float((sub(torch.from_numpy(vx[:32768]))-restored(torch.from_numpy(vx[:32768]))).abs().max())
-        if delta>1e-6:raise RuntimeError('NAM roundtrip changed output')
+        if not np.isfinite(delta) or delta>1e-6:raise RuntimeError('NAM roundtrip changed output')
         prediction=predict(restored,vx);stats=scores(prediction,vy[i])[0]
         windows=[]
         for s in range(rf,len(vx)-4096,4096):
