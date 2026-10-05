@@ -1,6 +1,52 @@
 # Náströnd channel character and full-rig revision
 
-2026-10-05, based on PR #20 head `e8f3887`.
+2026-10-05. Initial revision based on PR #20 head `e8f3887`;
+level/clarity follow-up based on `5e65009`.
+
+## Level and clarity follow-up
+
+Every one of the 43 factory entries now recalls OUTPUT at 0 dB. This means
+unity gain at the output knob, not normalization to 0 dBFS. Existing saved
+projects retain their stored controls; recall loads the revised factory values.
+
+Fenrir's DSP is unchanged. Surtr / Níðhöggr / Fimbulvetr / Ragnarök receive
++3 / +2.5 / +8 / +8 dB at the modern channel output stage. The same bundled
+V30 and default knobs produce -16.75 / -16.71 / -16.59 / -16.67 / -17.80 dBFS
+RMS: a 1.21 dB spread. The common hot PRE/POST rig spans 1.83 dB.
+The extreme-output soft rail remains in place; preamp gain is not reduced.
+
+Fimbulvetr retains its slower supply response, while wider interstage
+bandwidth, less low-mid emphasis and less treble attenuation reduce the
+muffled balance. Paired 4x renders show 4.25–6.93 dB more 1.5–4 kHz energy
+relative to 200–600 Hz across six synthetic probes. Fenrir's six renders are
+byte-identical to `5e65009`. The modern channel pair residual stays above
+0.416; these are synthetic measurements, not a listening approval.
+
+Requested starts: Thall Rhythm BLOOM 7.5; Molten Lead ROT 7.5;
+Slam Impact Low DI Comp 0.5 and DI/AMP mix 75%.
+Thall/Slam POST VCA makeup is now 0 dB to leave space for the stronger
+channel levels; Rotten Grind uses a visible -1.5 dB POST EQ output level.
+
+Ambient Clean keeps the low-drive Glass amp and receives an enabled POST
+Console VCA: threshold -24 dB, 2:1, attack 10 ms, release 0.6 s, makeup
++12 dB. With OUTPUT 0 dB, it measures -25.70 dBFS RMS / -10.83 dBFS peak;
+the +6 dB input probe peaks at -7.78 dBFS. Its previous RMS was -25.99 dBFS
+with OUTPUT +11.5 dB. Dimension, tape delay and hall remain in the rig.
+
+Other quiet rigs gain level at their visible native amp output: Clean Sustain
++6 dB, Bass Envelope +7 dB, G+G Clean/Crunch +9 dB, Modern Clean +4 dB.
+Peak-heavy bass rigs reserve headroom there: Finger Round -4 dB, Modern
+Grind -2 dB, Vintage Bass DI -4 dB, G+B Air/Weight -2 dB and B+B Clean/Grind
+-1 dB. Wild Hunt uses -3.5 dB at the visible POST EQ output. These are
+specific stage adjustments, not the previous master trim table relocated.
+The high-gain presets keep their PRE and amp drive settings.
+
+Regression checks require all 43 recalls at OUTPUT 0 dB, nominal and +6 dB
+input peaks below 0.95 linear, RMS above -30 dBFS, the requested knob values,
+and cabinet-referenced channel spreads below 2 dB bare / 2.5 dB driven.
+The initial revision measurements below are historical and precede this
+louder unity-output follow-up.
+
 
 The owner reported that the five channels were too similar, asked for a
 clear channel-knob policy, and requested replacement PRE / amp / POST presets.

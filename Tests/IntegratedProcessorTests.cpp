@@ -121,6 +121,7 @@ void factoryBank(bool measureOnly,bool originalOnly=false) {
             for(int section=0;section<3;++section)require(a->parameters().getRawParameterValue(postNativeModeID(section))->load()>.5f,"Factory POST still uses a different engine from its panel");
             require(a->parameters().getRawParameterValue("boardEnabled")->load()>.5f,"Factory PRE still uses a different engine from its panel");
         }
+        require(std::abs(a->parameters().getRawParameterValue("output")->load())<1e-5f,"Factory recall must start at OUTPUT 0 dB");
         const bool bass=index<factoryPresetCount&&juce::String(factoryPresets[size_t(index)].instrument).contains("Bass");
         const auto audio=render(*a,bass,450),clean=render(*b,bass,450);double energy=0;float peak=0;
         require(audio.size()==clean.size(),"Factory audio fixture size differs");
@@ -130,11 +131,11 @@ void factoryBank(bool measureOnly,bool originalOnly=false) {
         const auto* name=selectablePresetName(index);
         std::cout<<"PRESET_LEVEL,"<<index<<","<<name<<","<<rmsDb<<","<<peakDb<<","<<a->parameters().getRawParameterValue("output")->load()<<'\n';
         if(measureOnly&&(index==1||index==14||index==31))std::cout<<"PRESET_DIAGNOSTIC "<<index<<" "<<a->diagnosticReport()<<'\n';
-        if(!measureOnly){require(peak<.34f,"Factory preset lacks 9 dB nominal peak headroom");require(rmsDb>-30,"Factory preset is unexpectedly quiet on the synthetic pluck fixture");}
+        if(!measureOnly){require(peak<.95f,"Factory preset clips at unity OUTPUT");require(rmsDb>-30,"Factory preset is unexpectedly quiet on the synthetic pluck fixture");}
         set(*b,"input",6);const auto hot=render(*b,bass,450);float hotPeak=0;
         for(float x:hot)hotPeak=std::max(hotPeak,std::abs(x));
         std::cout<<"PRESET_HOT,"<<index<<","<<20*std::log10(hotPeak)<<'\n';
-        require(hotPeak<.95f,"Factory preset clips the +6 dB input pluck fixture");
+        if(!measureOnly)require(hotPeak<.95f,"Factory preset clips the +6 dB input pluck fixture");
         if(index<factoryPresetCount)performanceRecall(*a,index);
     }
     std::cout<<"PASS factory recall and category navigation: "<<selectablePresetCount<<" presets (synthetic fixture only)\n";
@@ -212,6 +213,10 @@ void originalProduction() {
         require(board.enabled && board.instances[0].model!=0 && !board.instances[0].bypass,"Original rig is missing its authored PRE chain");
         require(a->parameters().getRawParameterValue(postNativeBypassID(2,preset==1?1:preset==3?2:0))->load()<.5f,"Original rig is missing its native POST EQ");
         require(juce::String(selectablePresetName(originalPresetStart+preset))!=juce::String::fromUTF8(original::channelNames[preset]),"Old channel-named factory example remains selectable");
+        const auto knob=[&](original::Control c){return a->parameters().getRawParameterValue(ampNativeControlID(ampNativeContext(mode,0),firstOriginalAmpModel,int(c),a->selectedAmpChannel(0)))->load();};
+        if(preset==0)require(knob(original::Control::bloom)>=.749f,"Thall Rhythm BLOOM must start at 7.5 or higher");
+        if(preset==1)require(knob(original::Control::rot)>=.749f,"Molten Lead ROT must start at 7.5 or higher");
+        if(preset==4)require(std::abs(a->parameters().getRawParameterValue("lowcomp")->load()-.5f)<.001f && std::abs(a->parameters().getRawParameterValue("lowampmix")->load()-.75f)<.001f,"Slam Impact LOW DI COMP / DI-AMP mix changed");
         if(preset==2)require(mode==1 && a->selectedAmpChannel(0)==2 && a->selectedAmpChannel(1)==4 && a->parameters().getRawParameterValue("dualtype")->load()==1,"Grind rig lost its Nidhoggr/Ragnarok crossover Dual routing");
         if(preset==4)require(mode==2 && a->selectedAmpChannel(0)==0 && a->selectedAmpChannel(1)==3 && a->selectedAmpChannel(2)==4 && board.lowTap==1,"Slam rig lost split PRE or its LOW/MID/HIGH channel roles");
     }
@@ -296,6 +301,33 @@ void ownerOriginalReference(const juce::File& source,const juce::File& directory
         std::cout<<"OWNER_FULL_RIG,"<<name<<","<<10*std::log10(energy/audio.size())<<","<<20*std::log10(peak)<<"\n";
     }
 }
+// Compare audible channel levels through one common bundled cabinet, both
+// without pedals and with the same hot PRE/POST chain. Do not normalize the
+// raw amp before the cabinet: different spectral balances lose different energy.
+void originalChannelLevelProbe(const juce::File& directory) {
+    using namespace spectralforge;directory.createDirectory();
+    for(bool driven:{false,true}) {
+      double minimum=100,maximum=-100;
+      for(int channel=0;channel<original::channelCount;++channel) {
+        const auto p=std::make_unique<ChimeraProcessor>();p->loadFactoryPreset(originalPresetStart);
+        set(*p,"output",0);set(*p,"gateon",0);
+        if(!driven) {
+            set(*p,"boardEnabled",0);
+            for(int section=0;section<3;++section)for(int model=0;model<3;++model)set(*p,postNativeBypassID(section,model),1);
+        }
+        set(*p,ampNativeChannelID(0,firstOriginalAmpModel),float(channel));
+        const auto voice=original::channelState(channel);
+        for(size_t c=0;c<original::controlCount;++c)set(*p,ampNativeControlID(0,firstOriginalAmpModel,int(c),channel),voice.values[c]);
+        const auto audio=render(*p,false,450);double energy=0;float peak=0;
+        for(float v:audio){energy+=double(v)*v;peak=std::max(peak,std::abs(v));}
+        const auto name=juce::String(driven?"driven_":"cab_")+original::channelKeys[channel];
+        require(directory.getChildFile(name+".f32").replaceWithData(audio.data(),audio.size()*sizeof(float)),"Cannot write channel level render");
+        const double rmsDb=10*std::log10(energy/audio.size());minimum=std::min(minimum,rmsDb);maximum=std::max(maximum,rmsDb);
+        std::cout<<"CHANNEL_LEVEL,"<<name<<","<<rmsDb<<","<<20*std::log10(peak)<<"\n";
+      }
+      require(maximum-minimum<(driven?2.5:2.0),"Channel level spread exceeds the Fenrir-referenced cabinet target");
+    }
+}
 void gainAndGR() {
     for(bool board:{false,true})for(int mode:{0,1,2}) {
         const auto p=std::make_unique<ChimeraProcessor>();
@@ -326,12 +358,13 @@ void gainAndGR() {
 int main(int argc,char** argv) {
     juce::ScopedJuceInitialiser_GUI init;
     try {
+        if(argc==3&&juce::String(argv[1])=="--original-channel-levels"){originalChannelLevelProbe(juce::File(argv[2]));return 0;}
         if(argc==4&&juce::String(argv[1])=="--owner-original-reference"){ownerOriginalReference(juce::File(argv[2]),juce::File(argv[3]));return 0;}
         if(argc>1&&juce::String(argv[1])=="--original-production-only"){originalProduction();originalChannels();return 0;}
         if(argc>1&&juce::String(argv[1])=="--measure-gain"){presetGainTests::run(true);return 0;}
         const bool originalOnly=argc>2&&juce::String(argv[2])=="--measure-original";
         const bool measureOnly=originalOnly||(argc>2&&juce::String(argv[2])=="--measure-presets");factoryBank(measureOnly,originalOnly);
-        if(!measureOnly){originalProduction();originalChannels();signatures(juce::File(argc>1?argv[1]:"/tmp/chimera-signatures"));gainAndGR();presetGainTests::run(false);}
+        if(!measureOnly){originalProduction();originalChannels();originalChannelLevelProbe(juce::File(argc>1?argv[1]:"/tmp/chimera-signatures").getChildFile("channel-levels"));signatures(juce::File(argc>1?argv[1]:"/tmp/chimera-signatures"));gainAndGR();presetGainTests::run(false);}
     }
     catch(const std::exception& error){std::cerr<<"FAIL "<<error.what()<<'\n';return 1;}
 }

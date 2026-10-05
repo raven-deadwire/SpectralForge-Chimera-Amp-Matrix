@@ -55,6 +55,20 @@ void voiceFactoryNative(int index,Getter get,Setter set) {
         const int model=int(get("amp"+suffix)),context=ampNativeContext(mode,lane);
         auto s=defaultAmpNativeState(model);const float drive=get("drive"+suffix);
         s.outputLevelDb=get("level"+suffix);
+        // Unity global OUTPUT: lift the quiet clean/mixed rigs at the amp's
+        // visible output stage; reserve room for the louder bass transients.
+        switch(index) {
+            case 0:s.outputLevelDb+=6;break;
+            case 18:s.outputLevelDb+=7;break;
+            case 19:s.outputLevelDb+=9;break;
+            case 30:s.outputLevelDb+=4;break;
+            case 12:s.outputLevelDb-=4;break;
+            case 15:s.outputLevelDb-=2;break;
+            case 16:s.outputLevelDb-=4;break;
+            case 22:s.outputLevelDb-=2;break;
+            case 24:s.outputLevelDb-=1;break;
+            default:break;
+        }
         const auto tone=factoryTones[size_t(index)];
         const auto position=[](float x){return juce::jlimit(.2f,.8f,x);};
         const float bass=position(tone.bass+get("bass"+suffix)/48.f),mid=position(tone.mid+(get("lowmid"+suffix)+get("highmid"+suffix))/96.f);
@@ -185,10 +199,16 @@ void voiceFactoryNative(int index,Getter get,Setter set) {
             if(model==1){k("lf_gain",get("eqlow"));k("lf_frequency",2);k("mf_gain",get("eqmid"));k("mf_frequency",2);k("hf_gain",get("eqhigh"));}
             if(model==2){k("lf_frequency",2);k("lf_boost",std::max(0.f,get("eqlow")));k("lf_atten",std::max(0.f,-get("eqlow")));k("hf_boost",std::max(0.f,get("eqhigh")));k("hf_atten",std::max(0.f,-get("eqhigh")));}
         }
+        // Ambient Clean keeps its low-drive Glass character. Gentle POST VCA
+        // levelling restores the dry body before Dimension / tape / hall.
+        if(index==11&&section==0) {
+            k("threshold",-24);k("ratio",0);k("attack",4);k("release",2);k("makeup",12);
+        }
         if(section==1&&(index==1||index==9||index==20)){k("gain",3);k("phase",1);bank.levelDb=-5;}
         if(section==1&&index==8){k("input",2);k("gain",2);k("trim",3.5f);k("instrument_gain",10);bank.levelDb=0;}
         if(section==2&&index==8)k("lf_frequency",0);
         set(postNativeModeID(section),1);set(postNativeModelID(section),float(model));set(postNativeBypassID(section,model),get(postOn[section])>.5f?0.f:1.f);
+        if(index==11&&section==0)set(postNativeBypassID(section,model),0);
         set(postNativeTrimID(section,model),bank.trimDb);set(postNativeLevelID(section,model),bank.levelDb);
         for(int c=0;c<spec.controlCount;++c)set(postNativeControlID(section,model,c),bank.values[c]);
     }

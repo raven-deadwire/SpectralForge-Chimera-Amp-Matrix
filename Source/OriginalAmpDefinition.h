@@ -116,12 +116,12 @@ inline constexpr std::array<ChannelCharacter,channelCount> channelCharacters{{
     // Fenrir: early bite, lean interstage lows, fast and firm recovery.
     {{{{1.35f,.85f,.62f,.55f}},1.75f,1.12f,.65f,.35f},1600,3,-3,1200,1,.5f,-2,4,.004f,.045f,.55f,.20f,.30f,5.5f},
     // Surtr: distributed compression, forward vocal mids, rounded top.
-    {{{{.95f,1.40f,1.55f,1.25f}},1.05f,.85f,.85f,1.8f},750,2,0,700,5,-3,1,0,.008f,.160f,1,.12f,.03f,-.8f},
+    {{{{.95f,1.40f,1.55f,1.25f}},1.05f,.85f,.85f,1.8f},750,2,0,700,5,-3,1,0,.008f,.160f,1,.12f,.03f,2.2f},
     // Nidhoggr: uneven stage drive and pronounced asymmetric recovery.
-    {{{{.75f,1.75f,.55f,1.80f}},.70f,.68f,4.f,.70f},1100,-2,-1.5f,950,-2.5f,1.2f,2,2,.006f,.090f,2.4f,.07f,-.08f,-1.1f},
-    // Fimbulvetr: low coupling corners, broad body and yielding supply.
-    {{{{1.05f,.70f,.75f,.65f}},.36f,.62f,1.8f,3.f},300,3,5,430,5,-5,3,-2,.018f,.300f,1.8f,.04f,-.15f,-5.f},
+    {{{{.75f,1.75f,.55f,1.80f}},.70f,.68f,4.f,.70f},1100,-2,-1.5f,950,-2.5f,1.2f,2,2,.006f,.090f,2.4f,.07f,-.08f,1.4f},
+    // Fimbulvetr: broad body and yielding supply, with open upper mids.
+    {{{{1.05f,.70f,.75f,.65f}},.55f,.85f,1.8f,3.f},400,1,2,650,2,-1.5f,1,.5f,.018f,.300f,1.8f,.04f,-.15f,3.f},
     // Ragnarok: late-stage saturation, deep hit and stiff supply recovery.
-    {{{{.85f,.85f,1.50f,1.80f}},.90f,1.10f,1.3f,.20f},2200,2,4,600,-3.5f,0,-2,1,.003f,.055f,.75f,.22f,.55f,-5.f}
+    {{{{.85f,.85f,1.50f,1.80f}},.90f,1.10f,1.3f,.20f},2200,2,4,600,-3.5f,0,-2,1,.003f,.055f,.75f,.22f,.55f,3.f}
 }};
 } // namespace spectralforge::original

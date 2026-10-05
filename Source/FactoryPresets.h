@@ -176,7 +176,7 @@ inline constexpr std::array<FactoryPreset,34> factoryPresets{{
       {"board3Model",0},{"boardOrder3",3},{"board4Model",0},{"boardOrder4",4},
       {"pn_bus_native",1},{"pn_bus_model",0},{"pn_bus_m0_bypass",0},{"pn_bus_m0_threshold",-16},{"pn_bus_m0_makeup",1},{"pn_bus_m0_attack",3},{"pn_bus_m0_release",4},{"pn_bus_m0_ratio",0},{"pn_bus_m0_compressor_in",1},
       {"pn_preamp_native",1},{"pn_preamp_model",2},{"pn_preamp_m2_bypass",0},{"pn_preamp_m2_input",1},{"pn_preamp_m2_gain",2},{"pn_preamp_m2_trim",0},{"pn_preamp_m2_phase",0},{"pn_preamp_m2_high_pass",0},
-      {"pn_eq_native",1},{"pn_eq_model",0},{"pn_eq_m0_bypass",0},
+      {"pn_eq_native",1},{"pn_eq_model",0},{"pn_eq_m0_bypass",0},{"pn_eq_m0_softwareLevel",-3.5f},
       {"pn_eq_m0_hf_gain",.5f},{"pn_eq_m0_hf_frequency",7500},{"pn_eq_m0_hmf_gain",1.8f},{"pn_eq_m0_hmf_frequency",2200},{"pn_eq_m0_hmf_q",1.1f},
       {"pn_eq_m0_lmf_gain",-1.2f},{"pn_eq_m0_lmf_frequency",450},{"pn_eq_m0_lmf_q",.8f},{"pn_eq_m0_lf_gain",.3f},{"pn_eq_m0_lf_frequency",90},{"pn_eq_m0_eq_in",1},
       {"choruson",1},{"modmodel",1},{"chorusrate",.18f},{"chorusdepth",.18f},{"chorusmix",.10f},

@@ -29,8 +29,8 @@ inline original::State originalRigVoice(int preset,int lane) {
     if(preset==4)channel=lane==0?0:lane==1?3:4;
     auto s=original::channelState(channel);
     switch(preset) {
-        case 0:s[C::gain]=.68f;s[C::bass]=.42f;s[C::middle]=.56f;s[C::treble]=.53f;s[C::clank]=.62f;s[C::bloom]=.30f;break;
-        case 1:s[C::gain]=.65f;s[C::middle]=.64f;s[C::midFrequency]=950;s[C::presence]=.42f;s[C::crush]=.60f;s[C::rot]=.30f;s[C::bloom]=.43f;break;
+        case 0:s[C::gain]=.68f;s[C::bass]=.42f;s[C::middle]=.56f;s[C::treble]=.53f;s[C::clank]=.62f;s[C::bloom]=.75f;break;
+        case 1:s[C::gain]=.65f;s[C::middle]=.64f;s[C::midFrequency]=950;s[C::presence]=.42f;s[C::crush]=.60f;s[C::rot]=.75f;s[C::bloom]=.43f;break;
         case 2:s[C::gain]=lane==0?.72f:.68f;s[C::bass]=.43f;s[C::middle]=lane==0?.47f:.56f;s[C::rot]=lane==0?.68f:.28f;s[C::bloom]=.40f;break;
         case 3:s[C::gain]=.68f;s[C::bass]=.54f;s[C::middle]=.58f;s[C::treble]=.44f;s[C::presence]=.38f;s[C::clank]=.28f;s[C::bloom]=.65f;break;
         case 4:s[C::gain]=lane==1?.68f:.72f;s[C::bass]=lane==0?.58f:.42f;s[C::middle]=.52f;s[C::depth]=lane==0?.65f:.44f;s[C::impact]=lane==2?.75f:.65f;s[C::crush]=.72f;s[C::clank]=lane==1?.50f:.78f;s[C::rot]=lane==1?.70f:.60f;s[C::bloom]=lane==1?.70f:.45f;break;
@@ -80,7 +80,7 @@ inline juce::ValueTree originalPresetSnapshot(juce::AudioProcessorValueTreeState
             pedal(0,1,{.35f,.90f,.85f});
             pedal(1,8,{.40f,.50f,.50f,1,1});
             post(0,0);postKnob(0,0,"threshold",-18);postKnob(0,0,"ratio",1);
-            postKnob(0,0,"attack",4);postKnob(0,0,"release",1);postKnob(0,0,"makeup",1.5f);
+            postKnob(0,0,"attack",4);postKnob(0,0,"release",1);postKnob(0,0,"makeup",0);
             post(2,0);postKnob(2,0,"lf_frequency",80);postKnob(2,0,"lf_gain",-6);
             postKnob(2,0,"lmf_frequency",600);postKnob(2,0,"lmf_gain",-3.36f);
             postKnob(2,0,"hmf_frequency",2000);postKnob(2,0,"hmf_gain",4.5f);
@@ -97,7 +97,7 @@ inline juce::ValueTree originalPresetSnapshot(juce::AudioProcessorValueTreeState
             pedal(0,27,{.72f,.28f,.65f,0});
             pedal(1,8,{.50f,.50f,.50f,1,1});
             post(1,0);postKnob(1,0,"gain",2);
-            post(2,0);postKnob(2,0,"lf_frequency",80);postKnob(2,0,"lf_gain",-6);
+            post(2,0);set(postNativeLevelID(2,0),-1.5f);postKnob(2,0,"lf_frequency",80);postKnob(2,0,"lf_gain",-6);
             postKnob(2,0,"lmf_frequency",600);postKnob(2,0,"lmf_gain",-3.36f);
             postKnob(2,0,"hmf_frequency",2000);postKnob(2,0,"hmf_gain",4.5f);
             break;
@@ -111,10 +111,10 @@ inline juce::ValueTree originalPresetSnapshot(juce::AudioProcessorValueTreeState
         case 4:
             pedal(0,1,{.50f,1,1});
             pedal(1,8,{.50f,.50f,.50f,1,1});
-            set("x1",350);set("x2",1200);set("lowcomp",1);set("lowampmix",1);
+            set("x1",350);set("x2",1200);set("lowcomp",.5f);set("lowampmix",.75f);
             set("level1",0);set("level2",0);set("level3",-1.5f);
             post(0,0);postKnob(0,0,"threshold",-18);postKnob(0,0,"ratio",1);
-            postKnob(0,0,"attack",4);postKnob(0,0,"release",1);postKnob(0,0,"makeup",3.5f);
+            postKnob(0,0,"attack",4);postKnob(0,0,"release",1);postKnob(0,0,"makeup",0);
             post(1,0);postKnob(1,0,"gain",2);
             post(2,0);postKnob(2,0,"lf_frequency",80);postKnob(2,0,"lf_gain",-8.89f);
             postKnob(2,0,"lmf_frequency",600);postKnob(2,0,"lmf_gain",-3.36f);

@@ -47,8 +47,9 @@ B uses GAIN 0.72, MASTER 0.695, all five macros at 1.0 and MID FREQ 1800 Hz.
 Its inactive Classic bank is not used as the target. Factory examples use
 the same PRE starting chain and built-in cabinets; the owner's private
 embedded IRs are not redistributed. Níðhöggr's example uses Dual A/B.
-Factory output trims provide headroom after the drive; they do not reduce
-preamp saturation.
+All 43 factory presets now start at OUTPUT 0 dB. Visible amp/POST stages
+set their operating levels without reducing preamp saturation. Ambient Clean
+uses POST Console VCA makeup; see NASTROND_CHANNEL_FEEDBACK.md.
 
 ## Recall and use
 
