@@ -19,16 +19,18 @@ inline void run(const juce::File& directory) {
     const auto recalledStorage=std::make_unique<ChimeraProcessor>();auto& recalled=*recalledStorage;
     juce::StringArray checked;
     // Released host ordinals (including POST) precede all new E670FE banks.
-    bool sawAppended=false;int appended=0,originalCount=0;
+    bool sawAppended=false;int appended=0,originalCount=0,channelCount=0;
     for(auto* parameter:p.getParameters()) {
         const auto* id=dynamic_cast<juce::AudioProcessorParameterWithID*>(parameter);
         require(id!=nullptr,"Parameter lacks a stable ID");
         const bool isNew=id->paramID.startsWith("nativeAmp_") && id->paramID.contains("_m23_");
         if(isNew){require(parameter->getParameterIndex()==3686+appended,"E670FE appended ordinal moved");sawAppended=true;++appended;}
         else if(id->paramID=="gateRangeDb")require(appended==204 && parameter->getParameterIndex()==3890,"Gate Range must follow the complete E670FE bank");
+        else if(id->paramID.startsWith("originalAmp_") && id->paramID.contains("_ch")){require(parameter->getParameterIndex()==3981+channelCount && parameter->getVersionHint()==4,"Original channel bank moved released ordinals");++channelCount;}
         else if(id->paramID.startsWith("originalAmp_") || (id->paramID.startsWith("nativeAmp_") && id->paramID.contains("_m24_"))){require(parameter->getParameterIndex()==3891+originalCount && parameter->getVersionHint()==3,"Original parameter moved ahead of released parameters");++originalCount;}
         else require(!sawAppended,"E670FE inserted ahead of a released host parameter");
     }
+    require(channelCount==342,"Original channel bank incomplete");
     require(originalCount==90,"Original six-context bank incomplete");
     require(appended==6*(32+2),"E670FE six-context parameter bank incomplete");
     std::set<std::string> hostIDs;

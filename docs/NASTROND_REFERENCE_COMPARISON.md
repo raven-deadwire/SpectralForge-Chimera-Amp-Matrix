@@ -87,3 +87,7 @@ python Tools/compare_original_nam.py --manifest docs/reference/nastrond-nam-mani
 ```
 
 [Reference manifest](reference/nastrond-nam-manifest.json) · [Full results](evidence/nastrond-nam-20261005/comparison.json) · [Gain CSV](evidence/nastrond-nam-20261005/gain-summary.csv) · [Source hashes](evidence/nastrond-nam-20261005/source-hashes.json) · [CTest](evidence/nastrond-nam-20261005/renderer-ctest.log)
+
+The subsequent [five-channel high-gain revision](NASTROND_CHANNELS.md) adds the
+owner-requested channel banks and stronger midpoint; earlier tables above remain
+frozen baseline evidence.

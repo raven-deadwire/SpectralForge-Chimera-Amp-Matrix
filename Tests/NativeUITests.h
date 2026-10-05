@@ -86,13 +86,13 @@ inline void lowOverview(ChimeraProcessor& processor,ChimeraEditor& editor,juce::
             channel->setSelectedId(ch+1,juce::sendNotificationSync);settle(40);
             require(processor.selectedAmpChannel(0)==ch,"Matrix LOW ALL channel callback is disconnected");
             for(int control=0;control<(int)spec.controls.size();++control) {
-                auto* view=find<NativeControlView>(*full,spectralforge::ampNativeControlID(context,model,control)+"_control");
+                auto* view=find<NativeControlView>(*full,spectralforge::ampNativeControlID(context,model,control,ch)+"_control");
                 require(view && view->isVisible()==spectralforge::ampNativeControlVisible(model,control,ch),"Matrix LOW ALL omitted an original amplifier control");
             }
         }
         bool edited=false;
         for(int control=0;control<(int)spec.controls.size() && !edited;++control)if(spec.controls[(size_t)control].kind==spectralforge::AmpNativeControlKind::knob && spectralforge::ampNativeControlVisible(model,control,processor.selectedAmpChannel(0))) {
-            const auto id=spectralforge::ampNativeControlID(context,model,control);auto* slider=find<juce::Slider>(*full,id);
+            const auto id=spectralforge::ampNativeControlID(context,model,control,processor.selectedAmpChannel(0));auto* slider=find<juce::Slider>(*full,id);
             const auto& range=processor.parameters().getParameter(id)->getNormalisableRange();slider->setValue(range.start+(range.end-range.start)*.57,juce::sendNotificationSync);
             require(std::abs(processor.parameters().getRawParameterValue(id)->load()-slider->getValue())<.002,"Matrix LOW ALL native knob did not reach the selected bank");edited=true;
         }
@@ -208,7 +208,7 @@ inline void run(const juce::File& directory){
             for(int ch=0;ch<(int)spec.channels.size();++ch){
                 channel->setSelectedId(ch+1,juce::sendNotificationSync);settle(45);require(processor.selectedAmpChannel(0)==ch,"Original amplifier channel callback not connected");++channelCases;
                 for(int control=0;control<(int)spec.controls.size();++control){
-                    const auto id=spectralforge::ampNativeControlID(0,model,control);auto* view=find<NativeControlView>(*panel,id+"_control");
+                    const auto id=spectralforge::ampNativeControlID(0,model,control,ch);auto* view=find<NativeControlView>(*panel,id+"_control");
                     require(view!=nullptr,"Original amplifier control was not constructed");
                     require(view->label.getText()==juce::String::fromUTF8(spec.controls[(size_t)control].label),"Native amplifier label has invalid UTF-8 decoding");
                     require(view->isVisible()==spectralforge::ampNativeControlVisible(model,control,ch),"Wrong channel-specific controls visible");
@@ -219,18 +219,23 @@ inline void run(const juce::File& directory){
             // and write its actual host parameter, including at 75% scale.
             const int ch=processor.selectedAmpChannel(0);
             for(int c=0;c<(int)spec.controls.size();++c)if(spec.controls[(size_t)c].kind==spectralforge::AmpNativeControlKind::knob && spectralforge::ampNativeControlVisible(model,c,ch)){
-                const auto id=spectralforge::ampNativeControlID(0,model,c);auto* knob=find<juce::Slider>(*panel,id);require(knob!=nullptr,"Native knob missing");
+                const auto id=spectralforge::ampNativeControlID(0,model,c,ch);auto* knob=find<juce::Slider>(*panel,id);require(knob!=nullptr,"Native knob missing");
                 set(processor,spectralforge::ampNativeEnabledID(0),0);const double value=knob->getValue()>.6?.23:.77;knob->setValue(value,juce::sendNotificationSync);
                 require(std::abs(processor.parameters().getRawParameterValue(id)->load()-value)<.002,"Native knob did not reach its host parameter");
                 require(processor.parameters().getRawParameterValue(spectralforge::ampNativeEnabledID(0))->load()>.5f,"Native gesture did not activate the model bank");break;
             }
             if(model==spectralforge::firstOriginalAmpModel) {
-                const auto hzID=spectralforge::ampNativeControlID(0,model,int(spectralforge::original::Control::midFrequency));
+                const auto hzID=spectralforge::ampNativeControlID(0,model,int(spectralforge::original::Control::midFrequency),ch);
                 auto* frequency=find<juce::Slider>(*panel,hzID);require(frequency && frequency->getTextFromValue(850).contains("850"),"Original MID FREQ display is not in Hz");
                 frequency->setValue(1100,juce::sendNotificationSync);require(std::abs(processor.parameters().getRawParameterValue(hzID)->load()-1100)<.01f,"Original MID FREQ edit is disconnected");
-                frequency->setValue(850,juce::sendNotificationSync);set(processor,spectralforge::ampNativeControlID(0,model,0),.72f);
+                frequency->setValue(850,juce::sendNotificationSync);set(processor,spectralforge::ampNativeControlID(0,model,0,ch),.5f);
                 snapshot(editor,directory,scale?"Nastrond-75pct":"Nastrond-Classic");
-                if(!scale){auto window=open(*panel,"ampExpand1","ampNativePanel1");snapshot(*window->getContentComponent(),directory,"Nastrond-Controls");close(window);}
+                if(!scale){auto window=open(*panel,"ampExpand1","ampNativePanel1");
+                    auto* reset=find<juce::TextButton>(*window->getContentComponent(),"ampResetChannel1");require(reset && reset->isVisible(),"Original full panel has no channel reset");
+                    const auto gainID=spectralforge::ampNativeControlID(0,model,0,ch),responseID=spectralforge::originalResponseID(0,ch);
+                    set(processor,gainID,.17f);set(processor,responseID,0);reset->triggerClick();settle();
+                    require(std::abs(processor.parameters().getRawParameterValue(gainID)->load()-.5f)<.001f && processor.parameters().getRawParameterValue(responseID)->load()>.5f,"Channel reset did not restore its current factory voice");
+                    snapshot(*window->getContentComponent(),directory,"Nastrond-Controls");close(window);}
             }
         }
     }

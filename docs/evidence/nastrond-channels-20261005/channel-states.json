@@ -1,0 +1,126 @@
+{
+  "channel_fenrir": {
+    "channel": 0
+  },
+  "channel_fenrir_gain_max": {
+    "channel": 0,
+    "controls": {
+      "gain": 1
+    }
+  },
+  "channel_fenrir_clank_0": {
+    "channel": 0,
+    "controls": {
+      "clank": 0
+    }
+  },
+  "channel_fenrir_clank_1": {
+    "channel": 0,
+    "controls": {
+      "clank": 1
+    }
+  },
+  "channel_surtr": {
+    "channel": 1
+  },
+  "channel_surtr_gain_max": {
+    "channel": 1,
+    "controls": {
+      "gain": 1
+    }
+  },
+  "channel_surtr_crush_0": {
+    "channel": 1,
+    "controls": {
+      "crush": 0
+    }
+  },
+  "channel_surtr_crush_1": {
+    "channel": 1,
+    "controls": {
+      "crush": 1
+    }
+  },
+  "channel_nidhoggr": {
+    "channel": 2
+  },
+  "channel_nidhoggr_gain_max": {
+    "channel": 2,
+    "controls": {
+      "gain": 1
+    }
+  },
+  "channel_nidhoggr_rot_0": {
+    "channel": 2,
+    "controls": {
+      "rot": 0
+    }
+  },
+  "channel_nidhoggr_rot_1": {
+    "channel": 2,
+    "controls": {
+      "rot": 1
+    }
+  },
+  "channel_fimbulvetr": {
+    "channel": 3
+  },
+  "channel_fimbulvetr_gain_max": {
+    "channel": 3,
+    "controls": {
+      "gain": 1
+    }
+  },
+  "channel_fimbulvetr_bloom_0": {
+    "channel": 3,
+    "controls": {
+      "bloom": 0
+    }
+  },
+  "channel_fimbulvetr_bloom_1": {
+    "channel": 3,
+    "controls": {
+      "bloom": 1
+    }
+  },
+  "channel_ragnarok": {
+    "channel": 4
+  },
+  "channel_ragnarok_gain_max": {
+    "channel": 4,
+    "controls": {
+      "gain": 1
+    }
+  },
+  "channel_ragnarok_impact_0": {
+    "channel": 4,
+    "controls": {
+      "impact": 0
+    }
+  },
+  "channel_ragnarok_impact_1": {
+    "channel": 4,
+    "controls": {
+      "impact": 1
+    }
+  },
+  "owner_dual_a": {
+    "controls": {
+      "gain": 1,
+      "master": 0.695,
+      "bloom": 0.3
+    }
+  },
+  "owner_dual_b": {
+    "controls": {
+      "gain": 0.72,
+      "master": 0.695,
+      "clank": 1,
+      "crush": 1,
+      "impact": 1,
+      "rot": 1,
+      "bloom": 1,
+      "mid_frequency": 1800
+    }
+  }
+}

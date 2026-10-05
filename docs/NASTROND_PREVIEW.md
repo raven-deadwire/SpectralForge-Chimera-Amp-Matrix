@@ -74,3 +74,7 @@ pluck fixture, with at least12.02 dB nominal peak headroom. Output trims are
 All43 preset recalls and17 existing high-gain paths passed. Product-core dispatch
 residual is0. See [local evidence](evidence/nastrond-preview-20261005/README.md);
 exact-commit CI and installer checks accompany the downloadable candidate.
+
+The subsequent [five-channel high-gain revision](NASTROND_CHANNELS.md) adds the
+owner-requested channel banks and stronger midpoint; earlier tables above remain
+frozen baseline evidence.

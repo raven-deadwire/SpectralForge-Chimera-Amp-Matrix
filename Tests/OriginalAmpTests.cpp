@@ -145,6 +145,7 @@ void movingPowerVoicing() {
         watch=true;
         for(int n=0;n<count;++n) {
             if(n%period==0){
+                state.channel=(n/period)%channelCount;state.modern=true;
                 for(std::size_t i=8;i<controlCount;++i)
                     state.values[i]=float(((n/period)+int(i))%2);
                 dsp.set(state);
@@ -158,4 +159,29 @@ void movingPowerVoicing() {
     require(allocations==0,"Moving power voicing allocated");
     std::cout<<"PASS simultaneous macro retargeting at 12 rate/factor routes; allocations="<<allocations<<'\n';
 }
-int main(){try{defaults();controlsAndPresets();macroVoicing();realtimeAndState();movingPowerVoicing();std::cout<<"PASS OriginalAmp development core; musical/reference acceptance remains pending\n";return 0;}catch(const std::exception& e){std::cerr<<"FAIL "<<e.what()<<'\n';return 1;}}
+void channelVoicing() {
+    std::array<std::vector<float>,channelCount> audio;
+    for(int channel=0;channel<channelCount;++channel) {
+        auto midpoint=channelState(channel);audio[std::size_t(channel)]=render(midpoint);
+        require(midpoint[Control::gain]==.5f && midpoint[Control::master]==.5f,"Channel operating point must leave upward knob travel");
+        auto upper=midpoint;upper[Control::gain]=1;
+        const double travel=matchedDifference(audio[std::size_t(channel)],render(upper));
+        std::cout<<"CHANNEL "<<channelNames[channel]<<" upper_travel_residual="<<travel<<'\n';
+        require(travel>.015,"Upper half of gain/crush is only output level or already exhausted");
+        for(std::size_t macro=8;macro<controlCount;++macro) {
+            auto low=midpoint,high=midpoint;low.values[macro]=0;high.values[macro]=1;
+            require(matchedDifference(render(low),render(high))>.01,"Channel macro has no level-independent travel");
+        }
+        auto extreme=midpoint;for(std::size_t i=0;i<controlCount;++i)extreme.values[i]=controls[i].maximum;
+        OriginalAmpDSP dsp;dsp.prepare(48000);dsp.set(extreme);dsp.reset();float tail=0;
+        for(int n=0;n<144000;++n) {
+            const float y=dsp.tick(n<48000?8*stimulus(n,48000):0,0);
+            require(std::isfinite(y)&&std::abs(y)<4,"Channel maximum is unbounded");
+            if(n>140000)tail=std::max(tail,std::abs(y));
+        }
+        require(tail<.001f,"Channel maximum does not release to silence");
+    }
+    for(int a=0;a<channelCount;++a)for(int b=a+1;b<channelCount;++b)
+        require(matchedDifference(audio[std::size_t(a)],audio[std::size_t(b)])>.02,"Same knobs on two channels differ only by output level");
+}
+int main(){try{defaults();controlsAndPresets();macroVoicing();realtimeAndState();movingPowerVoicing();channelVoicing();std::cout<<"PASS OriginalAmp development core; musical/reference acceptance remains pending\n";return 0;}catch(const std::exception& e){std::cerr<<"FAIL "<<e.what()<<'\n';return 1;}}

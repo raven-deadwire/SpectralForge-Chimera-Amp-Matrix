@@ -36,9 +36,12 @@ def main():
         output.write_bytes(fenrir + b'stale data')
         assert render({}) == default, 'Output did not replace previous render exactly'
         assert render({'controls': {'gain': .1}}) != default, 'Gain override did not change the sound'
+        channels = [render({'channel': channel}) for channel in range(5)]
+        assert len(set(channels)) == 5, 'Channel selector does not change the DSP'
+        assert render({'channel': 0, 'controls': {'gain': 1}}) != channels[0], 'No gain travel above channel midpoint'
         last = output.read_bytes()
         for config, code in [({'preset': 'missing'}, 4), ({'controls': {'typo': .5}}, 5),
-                             ({'controls': {'gain': 2}}, 5)]:
+                             ({'controls': {'gain': 2}}, 5), ({'channel': 5}, 4), ({'channel': -1}, 4)]:
             assert render(config, code) == last, 'Invalid state modified previous output'
     print('PASS original renderer preset/gain routing, deterministic replacement, finite float output and invalid-state rejection')
 

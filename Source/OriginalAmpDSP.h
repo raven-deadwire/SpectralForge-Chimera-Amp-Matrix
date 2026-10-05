@@ -58,6 +58,8 @@ struct GainCell {
 class OriginalAmpDSP {
     struct Config {
         std::array<double,4> hp{},lp{};
+        std::array<GainCellDefinition,4> stages;
+        double sagScale=1;
         detail::Coeff middle;
         std::array<detail::Coeff,5> voicing;
         double gain{},bass{},treble{},presence{},depth{},master{},clank{},crush{},impact{},rot{},bloom{};
@@ -69,6 +71,8 @@ class OriginalAmpDSP {
         detail::Filter middle;
         std::array<detail::Filter,5> voicing;
         State current;
+        std::array<double,channelCount> voiceMix{};
+        double modernMix=0;
         Config config;
         double fast{},slow{},sag{},feedback{},bloom1{},bloom2{};
         int remaining{},phase{};
@@ -80,16 +84,41 @@ class OriginalAmpDSP {
     double fastPole{},slowPole{},sagAttack{},sagRelease{},chargePole{},biasPole{},depthPole{};
     int smoothing=960;
 
-    Config configure(const State& s) const noexcept {
+    Config configure(const State& s,const std::array<double,channelCount>& mix,double modern) const noexcept {
         using C=Control;Config c;
-        c.gain=8*double(s[C::gain])*s[C::gain];
+        double couplingScale=0,bandwidthScale=0,asymmetryScale=0;c.sagScale=0;
+        std::array<double,4> driveScale{};
+        for(int voice=0;voice<channelCount;++voice) {
+            const auto& v=channelVoices[std::size_t(voice)];const auto w=mix[std::size_t(voice)];
+            couplingScale+=w*v.coupling;bandwidthScale+=w*v.bandwidth;asymmetryScale+=w*v.asymmetry;c.sagScale+=w*v.sag;
+            for(std::size_t stage=0;stage<4;++stage)driveScale[stage]+=w*v.drive[stage];
+        }
+        c.stages=definition.stages;
+        for(std::size_t stage=0;stage<4;++stage){c.stages[stage].drive*=float(driveScale[stage]);c.stages[stage].bias*=float(asymmetryScale);}
+        // Piecewise response keeps zero usable, places the owner's operating
+        // point at noon, and reserves the upper half for additional drive.
+        const auto taper=[](double value,double midpoint,double maximum){return value<=.5 ? value*2*midpoint : midpoint+(value-.5)*2*(maximum-midpoint);};
+        const auto response=[&](double value,double midpoint,double maximum){return value+modern*(taper(value,midpoint,maximum)-value);};
+        const auto gain=response(s[C::gain],1.,1.6);
+        c.gain=8*gain*gain;
+        // With an OD in front the first cell is already saturated at noon.
+        // The upper GAIN half therefore also drives the later cells, retaining
+        // useful travel on the owner's boosted chain instead of louder input
+        // into the same already-flat first-stage transfer.
+        const double upperDrive=modern*std::max(0.,double(s[C::gain])-.5)*2;
+        for(std::size_t stage=1;stage<4;++stage)c.stages[stage].drive*=float(1+upperDrive*(.25+.20*double(stage)));
         c.bass=std::pow(10.,(s[C::bass]-.5)*18/20)-1;
         c.treble=std::pow(10.,(s[C::treble]-.5)*18/20)-1;
         c.middle=detail::Coeff::peak(rate,s[C::midFrequency],(s[C::middle]-.5)*20);
         c.presence=(s[C::presence]-.5)*1.4;c.depth=s[C::depth];
         // Preserve the pre-voicing default pluck RMS; this trim is after drive.
-        c.master=double(s[C::master])*s[C::master]*1.5*.886;
+        const auto master=response(s[C::master],.695,1.);
+        c.master=master*master*1.5*.886;
         c.clank=s[C::clank];c.crush=s[C::crush];c.impact=s[C::impact];c.rot=s[C::rot];c.bloom=s[C::bloom];
+        std::array<double,5> midpoint{};
+        for(int voice=0;voice<channelCount;++voice)for(std::size_t macro=0;macro<5;++macro)midpoint[macro]+=mix[std::size_t(voice)]*channelMidpoints[std::size_t(voice)][macro];
+        c.clank=response(c.clank,midpoint[0],1.18);c.crush=response(c.crush,midpoint[1],1.65);
+        c.impact=response(c.impact,midpoint[2],1.55);c.rot=response(c.rot,midpoint[3],1.5);c.bloom=response(c.bloom,midpoint[4],1.5);
         c.tightenPole=detail::pole(rate,75+200*c.clank);
         c.rotRecovery=detail::timePole(rate,.012+.16*c.rot);
         const double bloomHz=95+40*c.bloom;
@@ -100,17 +129,20 @@ class OriginalAmpDSP {
         // IMPACT focuses the LF hit below the low-mid congestion; BLOOM adds
         // low-mid body and relaxes the upper mids without increasing stage gain.
         // ROT retains its asymmetric cells and exposes their upper harmonics.
+        // The modern high-gain midpoint already supplies upper harmonics: keep
+        // IMPACT on the LF shelf/notch and use a gentler ROT shelf to avoid
+        // overshooting the chord references. Legacy response stays exact.
         // Use the stored float defaults so the neutral contour stays exact.
         const double impact=c.impact-controls[std::size_t(C::impact)].initial;
         const double bloom=c.bloom-controls[std::size_t(C::bloom)].initial;
         const double rot=c.rot-controls[std::size_t(C::rot)].initial;
-        c.voicing={detail::Coeff::shelf(rate,100,1.95+4*impact,false),
+        c.voicing={detail::Coeff::shelf(rate,100,1.95+(4+modern)*impact,false),
                    detail::Coeff::peak(rate,500,-2.11,.65),
-                   detail::Coeff::shelf(rate,2000,6.+3*impact+3*rot,true),
-                   detail::Coeff::peak(rate,180,-5*impact+3*bloom,.8),
+                   detail::Coeff::shelf(rate,2000,6.+3*(1-modern)*impact+(3-modern)*rot,true),
+                   detail::Coeff::peak(rate,180,-(5+modern)*impact+3*bloom,.8),
                    detail::Coeff::peak(rate,1400,-3*bloom,.6)};
         const double coupling=.8+.4*c.clank-.45*c.bloom;
-        for(std::size_t i=0;i<4;++i){c.hp[i]=detail::pole(rate,definition.stages[i].couplingHz*coupling);c.lp[i]=detail::pole(rate,definition.stages[i].bandwidthHz);}
+        for(std::size_t i=0;i<4;++i){c.hp[i]=detail::pole(rate,definition.stages[i].couplingHz*coupling*couplingScale);c.lp[i]=detail::pole(rate,definition.stages[i].bandwidthHz*bandwidthScale);}
         return c;
     }
 public:
@@ -130,7 +162,7 @@ public:
         for(auto& c:channels)c.remaining=smoothing;
     }
     void reset() noexcept {
-        channels={};for(auto& c:channels){c.current=target;c.config=configure(target);}
+        channels={};for(auto& c:channels){c.current=target;c.voiceMix[std::size_t(target.channel)]=1;c.modernMix=target.modern?1:0;c.config=configure(target,c.voiceMix,c.modernMix);}
     }
     const State& state() const noexcept { return target; }
     float tick(float input,int channel) noexcept {
@@ -138,18 +170,20 @@ public:
         auto& c=channels[std::size_t(channel)];
         if(c.remaining>0){
             for(std::size_t i=0;i<controlCount;++i)c.current.values[i]+=(target.values[i]-c.current.values[i])/float(c.remaining);
+            for(int voice=0;voice<channelCount;++voice)c.voiceMix[std::size_t(voice)]+=((voice==target.channel?1.:0.)-c.voiceMix[std::size_t(voice)])/c.remaining;
+            c.modernMix+=((target.modern?1.:0.)-c.modernMix)/c.remaining;
             --c.remaining;
-            if((++c.phase%16)==0 || c.remaining==0)c.config=configure(c.current);
+            if((++c.phase%16)==0 || c.remaining==0)c.config=configure(c.current,c.voiceMix,c.modernMix);
         }
         const auto& p=c.config;
         double x=std::isfinite(input)?std::clamp(double(input),-16.,16.):0.;
         x=c.input.high(x,inputPole);
         c.fast+=fastPole*(std::abs(x)-c.fast);c.slow+=slowPole*(std::abs(x)-c.slow);
-        const double tighten=p.clank*(.30+.60*std::clamp(c.slow*5.,0.,1.));
+        const double tighten=std::min(.95,p.clank*(.30+.60*std::clamp(c.slow*5.,0.,1.)));
         x-=tighten*c.tightener.low(x,p.tightenPole);
         x*=p.gain;
         for(std::size_t i=0;i<4;++i)
-            x=c.cells[i].tick(x,definition.stages[i],p.crush,p.rot,p.hp[i],p.lp[i],chargePole,p.rotRecovery,biasPole);
+            x=c.cells[i].tick(x,p.stages[i],p.crush,p.rot,p.hp[i],p.lp[i],chargePole,p.rotRecovery,biasPole);
         x+=p.bass*c.bass.low(x,bassPole);
         x=c.middle.tick(x,p.middle);
         x+=p.treble*c.treble.high(x,treblePole);
@@ -160,7 +194,7 @@ public:
         x+=low*p.depth*(.15+.6*p.impact);
         const double demand=std::abs(x);
         c.sag+=(demand>c.sag?sagAttack:sagRelease)*(demand-c.sag);
-        const double supply=1/(1+(.04+.22*p.bloom)*c.sag);
+        const double supply=1/(1+(.04+.22*p.bloom)*c.sag*p.sagScale);
         x=std::tanh((x-c.feedback*(.14-.09*p.impact))*supply*(1+.8*p.crush));
         c.feedback=x;
         // Keep the resonant feedback response audible after power saturation.

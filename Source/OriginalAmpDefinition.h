@@ -13,6 +13,9 @@ enum class Control : std::size_t {
     clank, crush, impact, rot, bloom, count
 };
 constexpr std::size_t controlCount = std::size_t(Control::count);
+constexpr int channelCount=5;
+inline constexpr const char* channelNames[]{"Fenrir","Surtr","Níðhöggr","Fimbulvetr","Ragnarök"};
+inline constexpr const char* channelKeys[]{"fenrir","surtr","nidhoggr","fimbulvetr","ragnarok"};
 struct ControlDefinition { const char* id; const char* label; float minimum, maximum, initial; };
 inline constexpr std::array<ControlDefinition, controlCount> controls{{
     {"gain","GAIN",0,1,.72f}, {"bass","BASS",0,1,.5f},
@@ -25,11 +28,14 @@ inline constexpr std::array<ControlDefinition, controlCount> controls{{
 }};
 struct State {
     std::array<float, controlCount> values{};
+    int channel=0;
+    bool modern=false;
     constexpr State() { for(std::size_t i=0;i<controlCount;++i) values[i]=controls[i].initial; }
     float& operator[](Control c) noexcept { return values[std::size_t(c)]; }
     float operator[](Control c) const noexcept { return values[std::size_t(c)]; }
     bool operator==(const State&) const = default;
     void sanitise() noexcept {
+        channel=std::clamp(channel,0,channelCount-1);
         for(std::size_t i=0;i<controlCount;++i)
             values[i]=std::isfinite(values[i]) ? std::clamp(values[i],controls[i].minimum,controls[i].maximum) : controls[i].initial;
     }
@@ -57,12 +63,44 @@ constexpr State presetState(float gain,float clank,float crush,float impact,floa
     s.values[std::size_t(Control::bloom)]=bloom;
     return s;
 }
-// These are one amp's snapshots, never five models or Deadwire replacements.
+// Frozen v1 snapshots for backwards-compatible offline measurement.
 inline constexpr std::array<Preset,5> presets{{
     {"original.nastrond.fenrir.v1","Fenrir","Tight low-tuned rhythm",presetState(.72f,.85f,.55f,.65f,.15f,.10f)},
     {"original.nastrond.surtr.v1","Surtr","Dense sustained lead",presetState(.78f,.55f,.90f,.45f,.30f,.25f)},
     {"original.nastrond.nidhoggr.v1","Níðhöggr","Asymmetric decaying grind",presetState(.76f,.40f,.55f,.50f,.90f,.45f)},
     {"original.nastrond.fimbulvetr.v1","Fimbulvetr","Broad low-mid sustain",presetState(.70f,.20f,.45f,.45f,.45f,.95f)},
     {"original.nastrond.ragnarok.v1","Ragnarök","Heavy transient impact",presetState(.78f,.70f,.80f,.95f,.60f,.50f)}
+}};
+// Frozen v1 snapshots above remain readable by the measurement harness. The
+// product now has five actual channels, each with its own 13-knob memory.
+// These starting levels follow the owner's Dual high-gain reference: no channel
+// should require an almost-maxed control panel just to enter the intended range.
+constexpr State channelState(int channel) {
+    State s;
+    s.channel=channel;s.modern=true;
+    s.values[std::size_t(Control::gain)]=.5f;
+    s.values[std::size_t(Control::master)]=.5f;
+    for(std::size_t i=0;i<5;++i)s.values[std::size_t(Control::clank)+i]=.5f;
+    return s;
+}
+// The owner's strong Dual sound is the midpoint, not the upper endpoint.
+// Rows express each channel's effective CLANK/CRUSH/IMPACT/ROT/BLOOM at noon.
+inline constexpr std::array<std::array<float,5>,channelCount> channelMidpoints{{
+    {{1.f,1.f,1.f,.55f,.65f}}, {{.85f,1.15f,1.f,.70f,.85f}},
+    {{1.f,1.10f,1.f,1.f,1.f}}, {{.70f,1.05f,.95f,.85f,1.15f}},
+    {{1.f,1.15f,1.15f,.95f,.95f}}
+}};
+struct ChannelVoice {
+    std::array<float,4> drive;
+    float coupling,bandwidth,asymmetry,sag;
+};
+// Fenrir retains the v1 transfer function for old sessions. Other channels alter
+// the interstage network and power response independently of the visible knobs.
+inline constexpr std::array<ChannelVoice,channelCount> channelVoices{{
+    {{{1,1,1,1}},1,1,1,1},
+    {{{1.12f,1.15f,1.08f,1}},.90f,.93f,1,1.15f},
+    {{{1,1.05f,1.10f,1.05f}},.83f,.90f,1.65f,1.15f},
+    {{{1.12f,1.08f,1.03f,1}},.65f,.83f,1.15f,1.45f},
+    {{{1.05f,1.10f,1.10f,1.15f}},1.08f,1.03f,1.20f,.70f}
 }};
 } // namespace spectralforge::original

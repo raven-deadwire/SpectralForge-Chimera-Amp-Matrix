@@ -44,10 +44,10 @@ inline constexpr std::array<float,43> factoryOutputDb{{
     -5.5f, // 35: Feel My Wrath
     -6.5f, // 36: Blackhearted
     -2.0f, // 37: Dark Matters of Throne
-    2.5f, // 38: Fenrir (Original)
-    4.0f, // 39: Surtr (Original)
-    3.0f, // 40: Níðhöggr (Original)
-    3.5f, // 41: Fimbulvetr (Original)
-    1.5f, // 42: Ragnarök (Original)
+    -4.5f, // 38: Fenrir (Original)
+    -3.0f, // 39: Surtr (Original)
+    -4.5f, // 40: Níðhöggr (Original)
+    -3.5f, // 41: Fimbulvetr (Original)
+    -5.5f, // 42: Ragnarök (Original)
 }};
 } // namespace spectralforge

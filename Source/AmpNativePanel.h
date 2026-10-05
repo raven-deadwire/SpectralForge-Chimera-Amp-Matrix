@@ -20,6 +20,15 @@ public:
         expand.onClick=[this]{if(dialog){dialog->toFront(true);return;}auto* full=new AmpNativePanel(processor,lane,true);full->setLookAndFeel(&getLookAndFeel());full->setSize(920,480);full->refresh();juce::DialogWindow::LaunchOptions options;options.content.setOwned(full);options.dialogTitle=juce::String::fromUTF8(spectralforge::ampInfo(model).name)+" / "+juce::String::fromUTF8(spectralforge::ampInfo(model).reference);options.dialogBackgroundColour=juce::Colour(0xff171b1b);options.useNativeTitleBar=true;options.escapeKeyTriggersCloseButton=true;options.resizable=false;options.componentToCentreAround=this;dialog=options.launchAsync();};
         channel.onChange=[this]{channel.acceptSelection();processor.setAmpChannel(lane,channel.getSelectedId()-1);refresh();};
         input.onChange=[this]{input.acceptSelection();processor.setAmpNativeRoute(lane,input.getSelectedId()-1);};
+        addAndMakeVisible(resetChannel);resetChannel.setButtonText("RESET CHANNEL");resetChannel.setComponentID("ampResetChannel"+juce::String(lane+1));
+        resetChannel.setTooltip("Restore this channel's factory voice and knobs. Other channels, PRE, cabinets and POST are kept.");
+        resetChannel.onClick=[this]{
+            if(model!=spectralforge::firstOriginalAmpModel)return;
+            const auto set=[this](const juce::String& id,float value){if(auto* p=processor.parameters().getParameter(id)){p->beginChangeGesture();p->setValueNotifyingHost(p->convertTo0to1(value));p->endChangeGesture();}};
+            const auto voice=spectralforge::original::channelState(currentChannel);
+            for(size_t c=0;c<spectralforge::original::controlCount;++c)set(spectralforge::ampNativeControlID(context,model,int(c),currentChannel),voice.values[c]);
+            set(spectralforge::originalResponseID(context,currentChannel),1);processor.activateNativeAmp(lane);
+        };
     }
     ~AmpNativePanel() override {if(dialog)delete dialog.getComponent();setLookAndFeel(nullptr);}
     // The ALL window has independent visibility from its owning tab.
@@ -38,7 +47,8 @@ public:
         const bool split=mode==2 || (mode==1 && processor.parameters().getRawParameterValue("dualtype")->load()>.5f);
         const int nextContext=spectralforge::ampNativeContext(mode,lane),nextModel=processor.selectedAmpModel(lane);
         const auto& panel=spectralforge::ampNativePanel(nextModel);
-        if(nextContext!=context || nextModel!=model || split!=currentSplit) {
+        resetChannel.setVisible(detailed && nextModel==spectralforge::firstOriginalAmpModel);
+        if(nextContext!=context || nextModel!=model || split!=currentSplit || (nextModel==spectralforge::firstOriginalAmpModel && currentChannel!=processor.selectedAmpChannel(lane))) {
             context=nextContext;model=nextModel;currentSplit=split;lowOverview=!detailed && mode==2 && lane==0;currentChannel=-1;controls.clear();
             channel.clear(juce::dontSendNotification);input.clear(juce::dontSendNotification);
             for(size_t i=0;i<panel.channels.size();++i)channel.addItem(juce::String::fromUTF8(panel.channels[i]),(int)i+1);
@@ -49,7 +59,7 @@ public:
             for(size_t i=0;i<panel.controls.size();++i) {
                 auto control=std::make_unique<NativeControlView>();const auto& spec=panel.controls[i];juce::StringArray options;
                 for(const auto* option:spec.options)options.add(juce::String::fromUTF8(option));
-                control->bind(processor.parameters(),spectralforge::ampNativeControlID(context,model,(int)i),juce::String::fromUTF8(spec.label),juce::String::fromUTF8(spec.group),
+                control->bind(processor.parameters(),spectralforge::ampNativeControlID(context,model,(int)i,processor.selectedAmpChannel(lane)),juce::String::fromUTF8(spec.label),juce::String::fromUTF8(spec.group),
                               spec.kind==spectralforge::AmpNativeControlKind::knob?0:spec.kind==spectralforge::AmpNativeControlKind::choice?1:2,
                               options,spec.minimum,spec.maximum,spec.kind==spectralforge::AmpNativeControlKind::knob?.001:1.,spectralforge::art::headStyle(model).knobStyle);
                 if(spec.kind==spectralforge::AmpNativeControlKind::knob) {
@@ -91,7 +101,8 @@ public:
     }
     void resized() override {
         const int shown=(channel.isVisible()?1:0)+(input.isVisible()?1:0);
-        const int half=(getWidth()-(detailed?0:42))/juce::jmax(1,shown);
+        const int half=(getWidth()-(resetChannel.isVisible()?132:detailed?0:42))/juce::jmax(1,shown);
+        resetChannel.setBounds(getWidth()-129,14,126,24);
         channelLabel.setBounds(3,0,half-7,13);inputLabel.setBounds((channel.isVisible()?half:0)+3,0,half-7,13);
         channel.setBounds(3,14,half-8,24);input.setBounds((channel.isVisible()?half:0)+3,14,half-8,24);
         expand.setBounds(getWidth()-41,shown?14:0,38,24);
@@ -105,7 +116,7 @@ private:
     spectralforge::ui::Changed<std::array<int,5>> refreshKey;
     uint64_t refreshCount{};
     ChimeraProcessor& processor;int lane{},context{-1},model{-1},currentChannel{-1};bool detailed{},currentSplit{},lowOverview{};
-    juce::TextButton expand;juce::Component::SafePointer<juce::DialogWindow> dialog;
+    juce::TextButton expand,resetChannel;juce::Component::SafePointer<juce::DialogWindow> dialog;
     juce::Label channelLabel,inputLabel;StableAmpComboBox channel,input;
     juce::Viewport viewport;juce::Component content;std::vector<std::unique_ptr<NativeControlView>> controls;
 };

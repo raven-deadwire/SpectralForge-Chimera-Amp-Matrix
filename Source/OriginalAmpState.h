@@ -25,11 +25,12 @@ inline void appendParameters(juce::AudioProcessorValueTreeState::ParameterLayout
 // Reusable non-RT state codec. Unknown future versions are rejected without
 // partially changing the destination. A missing subtree is an old session.
 inline juce::ValueTree save(const Banks& banks) {
-    juce::ValueTree root("ORIGINAL_AMPS");root.setProperty("version",1,nullptr);
+    juce::ValueTree root("ORIGINAL_AMPS");root.setProperty("version",2,nullptr);
     for(int i=0;i<contextCount;++i) {
         juce::ValueTree node("CONTEXT");node.setProperty("index",i,nullptr);node.setProperty("model","original.nastrond.v1",nullptr);
         node.setProperty("enabled",banks[std::size_t(i)].enabled,nullptr);
         auto state=banks[std::size_t(i)].state;state.sanitise();
+        node.setProperty("channel",state.channel,nullptr);node.setProperty("modern",state.modern,nullptr);
         for(std::size_t c=0;c<controlCount;++c)node.setProperty(controls[c].id,state.values[c],nullptr);
         root.appendChild(node,nullptr);
     }
@@ -37,13 +38,14 @@ inline juce::ValueTree save(const Banks& banks) {
 }
 inline bool restore(const juce::ValueTree& root,Banks& destination) {
     if(!root.isValid()){destination={};return true;}
-    if(!root.hasType("ORIGINAL_AMPS") || int(root.getProperty("version",0))!=1 || root.getNumChildren()!=contextCount)return false;
+    if(!root.hasType("ORIGINAL_AMPS") || (int(root.getProperty("version",0))<1 || int(root.getProperty("version",0))>2) || root.getNumChildren()!=contextCount)return false;
     Banks next;std::array<bool,contextCount> seen{};
     for(const auto& node:root) {
         const int index=int(node.getProperty("index",-1));
         if(!node.hasType("CONTEXT") || index<0 || index>=contextCount || seen[std::size_t(index)] || node.getProperty("model").toString()!="original.nastrond.v1")return false;
         seen[std::size_t(index)]=true;auto& b=next[std::size_t(index)];
         b.enabled=bool(node.getProperty("enabled",false));
+        b.state.channel=int(node.getProperty("channel",0));b.state.modern=bool(node.getProperty("modern",false));
         for(std::size_t c=0;c<controlCount;++c) {
             const auto value=node.getProperty(controls[c].id);
             if(!value.isDouble()&&!value.isInt()&&!value.isInt64())return false;

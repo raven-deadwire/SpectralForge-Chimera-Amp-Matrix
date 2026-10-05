@@ -256,6 +256,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout ChimeraProcessor::layout(){j
             .withStringFromValueFunction([](float v,int) {return v>=spectralforge::NoiseGate::fullRangeDb ? juce::String("Full") : juce::String(v,1)+" dB";})
             .withValueFromStringFunction([](const juce::String& text) {return text.trim().equalsIgnoreCase("Full") ? spectralforge::NoiseGate::fullRangeDb : text.getFloatValue();})));
     spectralforge::appendNewAmpNativeParameters(p,spectralforge::firstOriginalAmpModel,spectralforge::ampModelCount);
+    spectralforge::appendOriginalChannelParameters(p);
 return p;
 }
 
@@ -264,7 +265,7 @@ juce::ValueTree ChimeraProcessor::captureCore()
     auto saved=state.copyState();
     saved.removeChild(saved.getChildWithName("USER_IRS"),nullptr);
     saved.removeChild(saved.getChildWithName("COMPARISONS"),nullptr);
-    saved.appendChild(library.save(),nullptr); saved.setProperty("schemaVersion",8,nullptr);
+    saved.appendChild(library.save(),nullptr); saved.setProperty("schemaVersion",9,nullptr);
     return saved;
 }
 void ChimeraProcessor::getStateInformation(juce::MemoryBlock& data)
@@ -287,6 +288,7 @@ void ChimeraProcessor::restoreCore(juce::ValueTree restored)
     const bool missingNative=!restored.getChildWithProperty("id",spectralforge::ampNativeModelID(0)).isValid();
     const bool missingPost=!restored.getChildWithProperty("id",spectralforge::postNativeModelID(0)).isValid();
     const bool missingBoard=!restored.getChildWithProperty("id",spectralforge::pedalModelID(0)).isValid();
+    const bool hasOriginalV1=restored.getChildWithProperty("id",spectralforge::ampNativeControlID(0,spectralforge::firstOriginalAmpModel,0)).isValid();
     const auto defaults=state.copyState();
     for(auto child:defaults)
     {
@@ -294,6 +296,12 @@ void ChimeraProcessor::restoreCore(juce::ValueTree restored)
         if(id.isEmpty() || restored.getChildWithProperty("id",id).isValid()) continue;
         auto* parameter=state.getParameter(id);if(!parameter) continue;
         float value=parameter->convertFrom0to1(parameter->getDefaultValue());
+        // Old single-channel snapshots retain their exact transfer and saved
+        // knob values. New inactive channels start with the new response.
+        if(hasOriginalV1 && id.startsWith("originalAmp_") && id.endsWith("_ch0_response"))value=0;
+        if(hasOriginalV1 && id.startsWith("originalAmp_") && !id.contains("_ch"))for(size_t c=0;c<spectralforge::original::controlCount;++c)
+            for(int context=0;context<spectralforge::ampNativeContextCount;++context)
+                if(id==spectralforge::ampNativeControlID(context,spectralforge::firstOriginalAmpModel,int(c)))value=spectralforge::original::controls[c].initial;
         // Missing gateRangeDb uses its Full default, including old A/B slots.
         // Never inherit the current session's finite floor during migration.
         if(id.startsWith("cabtype") || id=="gateon" || id=="output" || id=="lowcomp" || id=="preorder" || id=="gainorder" || id=="boardEnabled") value=0;

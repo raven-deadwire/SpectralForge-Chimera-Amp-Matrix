@@ -1,0 +1,50 @@
+{
+  "preset_sha256": "344643de08ddf4c700577f5230d7b7afd0e22adcbb0c4f67ce4264545ca2c06d",
+  "fixture": "IntegratedProcessorTests render: six synthetic guitar notes, 8 harmonics, 48 kHz, 128-sample blocks, 450 blocks, stereo",
+  "private_ir_included_only_in_local_render": true,
+  "real_instrument_di": false,
+  "owner_v1_rms_dbfs": -15.971384797320887,
+  "owner_v1_peak_dbfs": -5.939669260185703,
+  "cases": {
+    "fenrir": {
+      "midpoint_rms_dbfs": -16.61144440538132,
+      "midpoint_peak_dbfs": -8.03154570466611,
+      "gain_max_rms_dbfs": -16.605301148437,
+      "gain_travel_rms_matched_residual": 0.034722217528956115,
+      "midpoint_sha256": "176a69544e67249abd6b0feb04e634c0aa51293cbecff63dd64fb6773cfa7260",
+      "gain_max_sha256": "d4d671f41966fefc889e0cbf54affdb68c046d1a6c43f85a3e0c63fc176b625c"
+    },
+    "surtr": {
+      "midpoint_rms_dbfs": -16.64519741649764,
+      "midpoint_peak_dbfs": -7.945670901504319,
+      "gain_max_rms_dbfs": -16.642053999900305,
+      "gain_travel_rms_matched_residual": 0.02149098694935388,
+      "midpoint_sha256": "b0b7c9d8d8ff329594d22a6df03118fe7e3f8977d217f5f620c25a993917950c",
+      "gain_max_sha256": "2c0f4b5a3b287f8e183e81fed734a342fa53e1e4645d621e17b8964b9099b7ad"
+    },
+    "nidhoggr": {
+      "midpoint_rms_dbfs": -16.867589871486754,
+      "midpoint_peak_dbfs": -8.004194960332327,
+      "gain_max_rms_dbfs": -16.862301853187343,
+      "gain_travel_rms_matched_residual": 0.029582833974880013,
+      "midpoint_sha256": "06ef1ea4cfaa6b179f22355d517fcb3ffc0fe095f200764b14816914f95904ec",
+      "gain_max_sha256": "3946451d7f96cdbc5d1fcf36e3d42f921d37f66b4174673b0ddb459d26191139"
+    },
+    "fimbulvetr": {
+      "midpoint_rms_dbfs": -17.08411937453182,
+      "midpoint_peak_dbfs": -8.311037925214062,
+      "gain_max_rms_dbfs": -17.080736432995398,
+      "gain_travel_rms_matched_residual": 0.022870514565986395,
+      "midpoint_sha256": "791fc832bf04eafd1d7e7a4949a2ed8c5e215aae66f77b67fc6a73def021d467",
+      "gain_max_sha256": "507bbb83b89336abe32678c3f1c5c943b524db46466a4ba4a22f322d15899086"
+    },
+    "ragnarok": {
+      "midpoint_rms_dbfs": -16.675496328396164,
+      "midpoint_peak_dbfs": -7.987762255189391,
+      "gain_max_rms_dbfs": -16.675397069232012,
+      "gain_travel_rms_matched_residual": 0.030993681741208187,
+      "midpoint_sha256": "2648ea7664bb00ffed1bcb1aafc086671bf583aeb3b672b1e06f82a7069ffa34",
+      "gain_max_sha256": "43bd289140e21465fc3efb8c234776e85e308bfb30ac971cac0ab596bedf1896"
+    }
+  }
+}

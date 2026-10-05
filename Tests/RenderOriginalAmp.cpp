@@ -25,6 +25,12 @@ int main(int argc, char** argv) {
             if (config["preset"].toString() == preset.id) { state = preset.state; found = true; }
         if (!found) return 4;
     }
+    if(config.hasProperty("channel")) {
+        const int channel=int(config["channel"]);
+        if(channel<0 || channel>=channelCount)return 4;
+        state=channelState(channel);
+    }
+    if(config.hasProperty("modern"))state.modern=bool(config["modern"]);
     if (auto* values = config["controls"].getDynamicObject()) {
         for (const auto& item : values->getProperties()) {
             bool found = false;

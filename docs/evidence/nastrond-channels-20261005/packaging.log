@@ -1,0 +1,16 @@
+test_beta_identity_and_malformed_channels (__main__.PackagingVersionTests.test_beta_identity_and_malformed_channels) ... ok
+test_candidate_stage_inventory_and_versions_without_global_mutation (__main__.PackagingVersionTests.test_candidate_stage_inventory_and_versions_without_global_mutation) ... ok
+test_cmake_project_and_generated_product_identity (__main__.PackagingVersionTests.test_cmake_project_and_generated_product_identity) ... ok
+test_identity_uses_source_version_and_exact_sha (__main__.PackagingVersionTests.test_identity_uses_source_version_and_exact_sha) ... ok
+test_rejects_malformed_and_windows_overflow_versions (__main__.PackagingVersionTests.test_rejects_malformed_and_windows_overflow_versions) ... ok
+test_rejects_old_missing_mixed_or_wrong_head_payload (__main__.PackagingVersionTests.test_rejects_old_missing_mixed_or_wrong_head_payload) ... ok
+test_rejects_stale_configured_build_before_staging (__main__.PackagingVersionTests.test_rejects_stale_configured_build_before_staging) ... ok
+test_repository_consumers_require_version_contract (__main__.PackagingVersionTests.test_repository_consumers_require_version_contract) ... ok
+test_windows_builder_rejects_mixed_or_missing_payload_version (__main__.PackagingVersionTests.test_windows_builder_rejects_mixed_or_missing_payload_version) ... skipped 'actual PowerShell builder regression runs in Windows CI'
+test_windows_builder_rejects_relabelled_binary (__main__.PackagingVersionTests.test_windows_builder_rejects_relabelled_binary) ... skipped 'actual Windows PE resource check runs in Windows CI'
+test_windows_juce_and_inno_resource_layouts (__main__.PackagingVersionTests.test_windows_juce_and_inno_resource_layouts) ... skipped 'PowerShell resource fixtures run in Windows CI'
+
+----------------------------------------------------------------------
+Ran 11 tests in 0.331s
+
+OK (skipped=3)

@@ -605,11 +605,11 @@ inline constexpr const char* nativeChannelKeys_23[]={"clean","crunch","lead1","l
 inline constexpr const char* nativeRoutes_23[]={"INPUT"};
 inline constexpr auto nativeOriginalControls=[] {
     std::array<AmpNativeControl,original::controlCount> result{};
-    for(size_t i=0;i<result.size();++i){const auto& c=original::controls[i];result[i]={c.id,c.label,i<8?"AMPLIFIER":"CHARACTER",AmpNativeControlKind::knob,1,{},c.initial,c.minimum,c.maximum};}
+    for(size_t i=0;i<result.size();++i){const auto& c=original::controls[i];result[i]={c.id,c.label,i<8?"AMPLIFIER":"CHARACTER",AmpNativeControlKind::knob,31,{},original::channelState(0).values[i],c.minimum,c.maximum};}
     return result;
 }();
-inline constexpr const char* nativeOriginalChannels[]={"SINGLE"};
-inline constexpr const char* nativeOriginalKeys[]={"single"};
+inline constexpr auto& nativeOriginalChannels=original::channelNames;
+inline constexpr auto& nativeOriginalKeys=original::channelKeys;
 inline constexpr const char* nativeOriginalRoutes[]={"INPUT"};
 inline constexpr std::array<AmpNativePanel,ampModelCount> ampNativePanels{{
  {"Fender '65 Twin Reverb reissue","primary_core_reviewed",nativeControls_0,nativeChannels_0,nativeChannelKeys_0,nativeRoutes_0,0},
@@ -641,7 +641,7 @@ inline constexpr std::array<AmpNativePanel,ampModelCount> ampNativePanels{{
 inline const AmpNativePanel& ampNativePanel(int model) noexcept { return ampNativePanels[(size_t)juce::jlimit(0,ampModelCount-1,model)]; }
 inline int ampNativeContext(int mode,int lane) noexcept { return mode==0?0:mode==1?1+juce::jlimit(0,1,lane):3+juce::jlimit(0,2,lane); }
 inline bool ampNativeControlVisible(int model,int control,int channel) noexcept { const auto& p=ampNativePanel(model); return control>=0 && control<(int)p.controls.size() && channel>=0 && channel<(int)p.channels.size() && (p.controls[(size_t)control].channelMask & (1u<<channel))!=0; }
-struct AmpNativeState { bool enabled{},soloEnabled{}; int model{},channel{},inputRoute{}; float inputTrimDb{},outputLevelDb{}; std::array<float,maxAmpNativeControls> values{}; bool operator==(const AmpNativeState&) const = default; };
+struct AmpNativeState { bool enabled{},soloEnabled{},originalModern{true}; int model{},channel{},inputRoute{}; float inputTrimDb{},outputLevelDb{}; std::array<float,maxAmpNativeControls> values{}; bool operator==(const AmpNativeState&) const = default; };
 inline AmpNativeState defaultAmpNativeState(int model) noexcept { AmpNativeState s; s.enabled=true;s.model=juce::jlimit(0,ampModelCount-1,model);const auto& p=ampNativePanel(s.model);s.channel=p.defaultChannel;for(size_t c=0;c<p.controls.size();++c)s.values[c]=p.controls[c].initial;return s; }
 inline void sanitiseAmpNativeState(AmpNativeState& s) noexcept { s.inputTrimDb=std::isfinite(s.inputTrimDb)?juce::jlimit(-24.f,24.f,s.inputTrimDb):0.f;s.outputLevelDb=std::isfinite(s.outputLevelDb)?juce::jlimit(-24.f,24.f,s.outputLevelDb):0.f;s.model=juce::jlimit(0,ampModelCount-1,s.model);const auto& p=ampNativePanel(s.model);s.channel=juce::jlimit(0,(int)p.channels.size()-1,s.channel);s.inputRoute=juce::jlimit(0,(int)p.routes.size()-1,s.inputRoute);for(size_t c=0;c<p.controls.size();++c){const auto& k=p.controls[c];auto& v=s.values[c];v=std::isfinite(v)?juce::jlimit(k.minimum,k.maximum,v):k.initial;if(k.kind!=AmpNativeControlKind::knob)v=std::round(v);}}
 inline int ampNativeControlIndex(int model,std::string_view key) noexcept { const auto& p=ampNativePanel(model);for(size_t i=0;i<p.controls.size();++i)if(key==p.controls[i].key)return(int)i;return -1; }

@@ -141,3 +141,7 @@ ctest --test-dir /path/to/build -R 'ChimeraOriginal(AmpTests|AmpIntegrationTests
 NAM weights and rendered audio are not committed. Actual low-tuned instrument
 DI and common-cab listening remain the next acceptance step. **No hardware-match
 or final-voicing PASS is assigned.**
+
+The subsequent [five-channel high-gain revision](NASTROND_CHANNELS.md) adds the
+owner-requested channel banks and stronger midpoint; earlier tables above remain
+frozen baseline evidence.

@@ -58,7 +58,7 @@ void stateTests(bool ui,const char* imagePath) {
     require(a.state.getRawParameterValue("old")->load()==oldValue,"Original bank changed unrelated parameter");
     auto tree=save(banks);Banks restored;require(restore(tree,restored),"Six-context codec restore");
     for(int i=0;i<contextCount;++i)require(banks[std::size_t(i)].state==restored[std::size_t(i)].state&&banks[std::size_t(i)].enabled==restored[std::size_t(i)].enabled,"Context state leaked");
-    tree.setProperty("version",2,nullptr);require(!restore(tree,restored),"Unknown state schema accepted");
+    tree.setProperty("version",3,nullptr);require(!restore(tree,restored),"Unknown state schema accepted");
     require(restored[2].state==banks[2].state,"Rejected state partially mutated destination");
     tree=save(banks);tree.getChild(1).setProperty("index",0,nullptr);require(!restore(tree,restored),"Duplicate context accepted");
     require(restore({},restored)&&!restored[0].enabled&&restored[0].state==State{},"Old session did not get disabled default bank");

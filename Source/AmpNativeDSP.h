@@ -197,7 +197,7 @@ class AmpNativeDSP {
     void configure(const AmpNativeState& s) noexcept {
         using namespace ampNativeDetail;
         config={};config.model=s.model;config.channel=s.channel;config.solo=solo(s);config.scalar[9]=db(s.inputTrimDb);config.scalar[10]=db(s.outputLevelDb);
-        if(s.model==firstOriginalAmpModel){original::State state;for(size_t i=0;i<original::controlCount;++i)state.values[i]=s.values[i];originalAmp.set(state);return;}
+        if(s.model==firstOriginalAmpModel){original::State state;state.channel=s.channel;state.modern=s.originalModern;for(size_t i=0;i<original::controlCount;++i)state.values[i]=s.values[i];originalAmp.set(state);return;}
         const int c=s.channel,r=s.inputRoute;
         config.reverbPresent=(s.model==0&&c==1)||s.model==4||s.model==8||s.model==9||s.model==16;
         const auto a=[&s](int i){return s.values[size_t(i)];};

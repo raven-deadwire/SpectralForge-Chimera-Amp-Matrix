@@ -87,6 +87,7 @@ def main():
     for name in ['models','manifest','nam-render','original-render','out']:
         parser.add_argument('--'+name, type=Path, required=True)
     parser.add_argument('--workers', type=int, default=2)
+    parser.add_argument('--states', type=Path, help='Additional named renderer states, retaining the frozen v1 suite')
     args = parser.parse_args()
     args.out.mkdir(parents=True, exist_ok=True)
     manifest = json.loads(args.manifest.read_text())
@@ -98,6 +99,13 @@ def main():
     for macro in ['clank','crush','impact','rot','bloom']:
         for value in [0,1]:
             states[f'{macro}_{value}'] = {'controls': {macro: value}}
+    if args.states:
+        extra = json.loads(args.states.read_text())
+        if not isinstance(extra, dict) or any(not name.replace('_', '').isalnum() for name in extra):
+            raise ValueError('Additional states need safe nonempty names')
+        if set(states).intersection(extra):
+            raise ValueError('Additional states must not replace frozen v1 states')
+        states.update(extra)
     originals, original_audio = {}, {}
     for name, state in states.items():
         config = args.out/(name+'.json')
