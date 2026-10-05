@@ -46,7 +46,7 @@ void preset(const char* modelPath,const char* outputPath,const Json& job) {
   juce::ValueTree p("T3KPreset");set(p,"schemaVersion",1);set(p,"id",uid);set(p,"name",name);
   juce::ValueTree snap("ChainSnapshot");set(snap,"stereoEnabled",false);set(snap,"branchSide","left");set(snap,"branchAfterBlockId","");
   juce::ValueTree left("ChainBlocks"),right("RightChainBlocks"),block("ChainBlock");
-  set(block,"id",uid+"-amp");set(block,"type","nam");set(block,"enabled",true);set(block,"normalize",true);
+  set(block,"id",uid+"-amp");set(block,"type","nam");set(block,"enabled",true);set(block,"normalize",job.value("normalize",true));
   set(block,"slimSize",1.0);set(block,"inputGain",0.5);set(block,"outputGain",0.5);set(block,"mix",1.0);set(block,"toneId",0);set(block,"activeModelId",1);
   Json tone={{"id",0},{"local",true},{"title",name.toStdString()},{"format","nam"},{"gear","amp"},
     {"models",Json::array({{{"id",1},{"name",name.toStdString()},{"model_url",""},{"gear","amp"}}})}};

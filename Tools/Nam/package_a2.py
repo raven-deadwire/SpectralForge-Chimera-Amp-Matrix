@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Export calibrated A2 captures, actual TONE3000 presets, and measured reports."""
-import argparse, json, shutil, subprocess, tempfile, uuid
+import argparse, json, math, shutil, subprocess, tempfile, uuid
 from pathlib import Path
 import numpy as np
 import soundfile as sf
@@ -35,16 +35,31 @@ def main():
         temp=Path(temporary);raw=temp/'input.f32';rendered=temp/'output.f32';job_file=temp/'job.json'
         for ch,(name,character,_) in enumerate(VOICES):
             original=init_from_nam(json.loads((args.run/f'Nastrond-{name}.nam').read_text())).eval()
-            # One identical -20 dB output pad on all captures gives TONE3000's
-            # loudness metadata a useful range without altering drive/character.
+            # Start with safe headroom, then calibrate each fixed output scale
+            # on the same validation input through the actual target EQ.
             original._net._head_scale*=capture_pad
             meta={'name':'Náströnd '+name,'modeled_by':'RavenForge Luthier Intelligence','gear_type':'amp',
               'source_commit':manifest['source']['source_commit'],'character':character,'channel':ch,
               'capture_output_pad_db':-20,'cabinet_included':False,'source_kind':'software amp DSP',
               'status':'TEST_BUILD_PENDING_LISTENING_ACCEPTANCE'}
             original.export(args.out/'NAM',basename='Nastrond-'+name,include_snapshot=False,other_metadata=meta)
-            path=args.out/'NAM'/f'Nastrond-{name}.nam';model=init_from_nam(json.loads(path.read_text())).eval()
-            py=predict(model,vx);reference=np.load(args.data/'validation'/f'{name}.npy')*capture_pad
+            path=args.out/'NAM'/f'Nastrond-{name}.nam'
+            vx.tofile(raw);write_json(job_file,{'block_size':64,'normalize':False,'eq':eq_for(name)})
+            subprocess.check_output([str(args.tool),'render',str(path),str(raw),str(rendered),str(job_file)],text=True)
+            calibration=np.fromfile(rendered,dtype='<f4')[original.receptive_field:]
+            calibration_gain=.1/math.sqrt(float(np.mean(calibration.astype(np.float64)**2)))
+            output_scale=capture_pad*calibration_gain
+            original._net._head_scale*=calibration_gain
+            meta.update({'capture_output_pad_db':20*math.log10(output_scale),'level_calibration':
+              {'input':'shared synthetic validation input','eq':'included TONE3000 POST EQ','target_rms_dbfs':-20,
+               'gain_after_initial_pad':calibration_gain,'normalize_in_preset':False}})
+            original.export(args.out/'NAM',basename='Nastrond-'+name,include_snapshot=False,other_metadata=meta)
+            model=init_from_nam(json.loads(path.read_text())).eval()
+            subprocess.check_output([str(args.tool),'render',str(path),str(raw),str(rendered),str(job_file)],text=True)
+            measured=np.fromfile(rendered,dtype='<f4')[model.receptive_field:].astype(np.float64)
+            calibrated_rms_db=10*math.log10(float(np.mean(measured**2)))
+            if abs(calibrated_rms_db+20)>.01:raise RuntimeError('Final EQ level calibration failed')
+            py=predict(model,vx);reference=np.load(args.data/'validation'/f'{name}.npy')*output_scale
             stat=scores(py,reference)[0];windows=[]
             for s in range(model.receptive_field,len(vx)-4096,4096):
                 if np.mean(reference[s:s+4096]**2)>1e-8:windows.append(scores(py[s:s+4096],reference[s:s+4096],0)[0]['esr'])
@@ -63,27 +78,29 @@ def main():
             silence_db=float(10*np.log10(max(float(np.mean(quiet**2)),1e-20)))
             # Encode and read back through TONE3000's own preset APIs.
             job={'name':'Nastrond '+name+' Character','id':str(uuid.uuid5(uuid.NAMESPACE_URL,'ravenforge/nastrond/a2/'+name)),
-                 'block_size':64,'normalize':True,'eq':eq_for(name)}
+                 'block_size':64,'normalize':False,'eq':eq_for(name)}
             settings=args.out/'Settings'/f'{name}.json';write_json(settings,job)
             preset=args.out/'TONE3000-Presets'/f'Nastrond-{name}.t3kpreset'
             state=json.loads(subprocess.check_output([str(args.tool),'preset',str(path),str(preset),str(settings)],text=True))
             # Ensure real serializer did not coerce away our intended EQ type/values.
             got=state['blocks'][0]['eq']
+            if state['blocks'][0]['normalize']:raise RuntimeError('Preset would override fixed level calibration')
             for expected,actual in zip(job['eq']['bands'],got['bands']):
                 if expected['type']!=actual['type'] or any(abs(expected[k]-actual[k])>1e-5 for k in ['freqHz','gainDb','q']):
                     raise RuntimeError('Preset EQ changed while serializing')
             ax.tofile(raw)
             eq_runtime=json.loads(subprocess.check_output([str(args.tool),'render',str(path),str(raw),str(rendered),str(settings)],text=True))
             audition=np.fromfile(rendered,dtype='<f4')
-            native=np.load(args.data/'audition'/f'{name}.npy')*capture_pad
+            native=np.load(args.data/'audition'/f'{name}.npy')*output_scale
             sf.write(args.out/'Audio'/f'{name}-Native-left-NAM-right.wav',np.stack([native,cpp],axis=1),48000,subtype='PCM_24')
             sf.write(args.out/'Audio'/f'{name}-TONE3000-EQ.wav',audition,48000,subtype='FLOAT')
             reports[name]={'character':character,'model_sha256':digest(path),'preset_sha256':digest(preset),
-              'validation':stat,'python_tone3000_parity':parity,'silence_dbfs':silence_db,'engine':runtime,'preset':state,'eq_engine':eq_runtime}
+              'validation':stat,'python_tone3000_parity':parity,'silence_dbfs':silence_db,'engine':runtime,'preset':state,'eq_engine':eq_runtime,
+              'reference_output_scale':output_scale,'level_calibration':dict(meta['level_calibration'],measured_final_rms_dbfs=calibrated_rms_db)}
             print(json.dumps({'channel':name,'validation_esr':stat['esr'],'parity_dbfs':parity['residual_rms_dbfs'],'silence_dbfs':silence_db}),flush=True)
     report={'channels':reports,'source':manifest['source'],'target_player_commit':train['target_player_commit'],
       'target_core_commit':'1f42f88535884450104b8711d7595019afa0495b','format':'NAM 0.7.0, bare A2-Full WaveNet; 5 independent captures',
-      'reference_output_pad_db':-20,'eq':'TONE3000 6-band POST EQ in presets; not baked into NAM',
+      'reference_output_scale':'same fixed channel scale as NAM, recorded per channel','eq':'TONE3000 6-band POST EQ in presets; not baked into NAM',
       'thresholds':{'window_esr_median':.005,'window_esr_p95':.01,'window_esr_worst':.02,'rms_error_db':.5,'peak_error_db':1,'silence_dbfs':-80},
       'final_test':'reserved; validation-based test build','real_DI_listening':'not performed: no recorded instrument DI available',
       'actual_GUI_DAW_test':'not performed; unmodified engine, EQ, A2 import predicate and preset APIs tested offline',
@@ -98,12 +115,12 @@ def main():
     lines=['# Náströnd — TONE3000 A2 테스트 패키지','',
       '채널 캐릭터를 강조한 독립 NAM 5개와 TONE3000 파라메트릭 EQ 프리셋 5개입니다. 앰프 헤드 캡처이며 캐비닛 IR은 포함하지 않습니다.','',
       '## 사용 방법','',
-      '1. `NAM` 폴더의 `.nam` 파일을 TONE3000의 빈 블록으로 드래그합니다. 폴더 전체를 넣으면 Model에서 5개 채널을 선택할 수 있습니다.',
+      '1. `NAM` 폴더의 `.nam` 파일을 TONE3000의 빈 블록으로 드래그합니다. 폴더 전체를 넣으면 Model에서 5개 채널을 선택할 수 있습니다. 파일에 고정 출력 보정이 있으므로 Normalize는 끕니다.',
       '2. 앰프 뒤에 원하는 캐비닛 IR을 추가합니다.',
       '3. EQ까지 적용하려면 `TONE3000-Presets`의 `.t3kpreset` 파일을 TONE3000의 사용자 Presets 폴더에 복사하고 플러그인 창을 다시 엽니다.',
       '4. Your Presets에서 채널을 선택합니다. NAM 데이터와 6밴드 POST EQ가 프리셋 안에 포함되어 있어 오프라인으로 불러올 수 있습니다.','',
       '프리셋 위치: Windows `%APPDATA%/TONE3000/Presets`, macOS `~/Library/Application Support/TONE3000/Presets`, Linux `~/.config/TONE3000/Presets`.','',
-      '입력·출력은 0 dB, Mix는 100%, Normalize는 켜져 있습니다. 글로벌 EQ·피치·스프레드·게이트는 꺼져 있습니다. A2-Full 단일 모델이며 별도의 Lite 모델은 포함하지 않습니다.','',
+      '입력·출력은 0 dB, Mix는 100%, Normalize는 꺼져 있습니다. 같은 검증 입력과 채널별 POST EQ를 기준으로 -20 dBFS RMS가 되도록 NAM의 고정 출력 스케일을 보정했습니다. 연주와 음역에 따른 음량 차이는 남을 수 있습니다. 글로벌 EQ·피치·스프레드·게이트는 꺼져 있습니다. A2-Full 단일 모델이며 별도의 Lite 모델은 포함하지 않습니다.','',
       '## 채널','',
       '| 파일 | 강조한 캐릭터 |','| --- | --- |',
       '| Fenrir | 타이트한 저역과 선명한 어택·클랭크 |',
@@ -119,8 +136,8 @@ def main():
         v=r['validation'];lines.append(f'| {name} | {v["esr"]:.6f} | {v["window_esr_median"]:.6f} | {v["window_esr_p95"]:.6f} |')
     lines+=['','ESR은 낮을수록 오차가 작습니다. “음색 유사도 퍼센트”를 뜻하지 않습니다. 합성 신호로 학습·검증했으며, 최종 테스트 신호는 아직 사용하지 않았습니다.',
       '',f'설계상 수치 기준 전체 통과: {"예" if report["numerical_accuracy_pass"] else "아니오 — 정식 릴리즈 승인 전 추가 개선 필요"}. 상세 수치와 미완료 항목은 `Validation/validation.json`에 있습니다.','',
-      '`Audio/*Native-left-NAM-right.wav`는 왼쪽 원본 DSP, 오른쪽 NAM 비교입니다. `*TONE3000-EQ.wav`는 Normalize와 채널 EQ를 적용한 합성 테스트 음원입니다. 모두 캐비닛 없는 앰프 신호입니다.','',
-      '캡처는 Chimera v1.2.0-beta.1의 실제 4배 오버샘플링 앰프 경로를 사용했습니다. 원본의 지연을 유지해 인과적인 학습 대상으로 만들었습니다. 모델의 출력에 동일한 -20 dB 패드를 두어 헤드룸을 확보했으며, 이 스케일은 학습 검증 기준에도 동일하게 적용했습니다. 입력 드라이브는 바꾸지 않았습니다.','',
+      '`Audio/*Native-left-NAM-right.wav`는 왼쪽 원본 DSP, 오른쪽 NAM 비교입니다. `*TONE3000-EQ.wav`는 채널 EQ와 고정 출력 보정을 적용한 합성 테스트 음원입니다. 모두 캐비닛 없는 앰프 신호입니다.','',
+      '캡처는 Chimera v1.2.0-beta.1의 실제 4배 오버샘플링 앰프 경로를 사용했습니다. 원본의 지연을 유지해 인과적인 학습 대상으로 만들었습니다. 채널별 고정 출력 보정은 비교용 원본 DSP에도 똑같이 적용했습니다. 입력 드라이브는 바꾸지 않았습니다. TONE3000의 Normalize를 다시 켜면 이 출력 보정 효과가 달라집니다.','',
       'TONE3000 문서: https://www.tone3000.com/guides/tone3000-plugin',
       'NAM 학습기: https://github.com/sdatkinson/neural-amp-modeler',
       'TONE3000 플레이어: https://github.com/tone-3000/tone3000-plugin','',

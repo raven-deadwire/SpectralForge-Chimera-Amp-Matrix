@@ -58,13 +58,15 @@ signals, with disjoint seeds. They are not recorded instrument DI. Source
 headers, executable and audio hashes are recorded; the transitive local DSP
 headers are compared to the frozen release before capture.
 
-Training uses a common 0.1 numerical target scale. The final package retains a
-fixed -20 dB output pad on every channel so floating-point source headroom is
-usable in TONE3000's loudness-normalization range. Input drive and tone are
-unchanged. The reference in every final accuracy calculation uses the same
-pad. Normalize is enabled, per-block/global In and Out are 0 dB (encoded as
-0.5 by TONE3000), Mix is 100%, and the independent global EQ/gate/pitch/spread
-are disabled in the included presets. Add a cabinet IR after the amp block.
+Training uses a common 0.1 numerical target scale. Final files then receive a
+fixed per-channel output calibration: the shared validation input through each
+channel's actual TONE3000 POST EQ measures -20 dBFS RMS. This preserves input
+drive and avoids relying on sine-based normalization to balance different
+channel responses. The native reference receives exactly the same fixed gain
+in all accuracy comparisons. Normalize is disabled; per-block/global In and
+Out remain 0 dB (encoded as 0.5 by TONE3000), Mix is 100%, and the independent
+global EQ/gate/pitch/spread are disabled. Playing dynamics and frequency
+content can still change relative loudness. Add a cabinet IR after the amp.
 
 ## Build
 
