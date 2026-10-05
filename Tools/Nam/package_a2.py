@@ -9,6 +9,7 @@ from nam.models._from_nam import init_from_nam
 from train_a2 import predict, scores
 from common import digest, write_json
 from capture_channels import VOICES
+from quality_profile import PROFILE, fidelity
 
 def eq_for(name):
     # Real TONE3000 BlockEq roles: shelf/cut, four bells, shelf/cut.
@@ -97,7 +98,8 @@ def main():
             sf.write(args.out/'Audio'/f'{name}-TONE3000-EQ.wav',audition,48000,subtype='FLOAT')
             reports[name]={'character':character,'model_sha256':digest(path),'preset_sha256':digest(preset),
               'validation':stat,'python_tone3000_parity':parity,'silence_dbfs':silence_db,'engine':runtime,'preset':state,'eq_engine':eq_runtime,
-              'reference_output_scale':output_scale,'level_calibration':dict(meta['level_calibration'],measured_final_rms_dbfs=calibrated_rms_db)}
+              'reference_output_scale':output_scale,'level_calibration':dict(meta['level_calibration'],measured_final_rms_dbfs=calibrated_rms_db),
+              'tone3000_fidelity':fidelity(py/output_scale,reference/output_scale,name)}
             print(json.dumps({'channel':name,'validation_esr':stat['esr'],'parity_dbfs':parity['residual_rms_dbfs'],'silence_dbfs':silence_db}),flush=True)
     report={'channels':reports,'source':manifest['source'],'target_player_commit':train['target_player_commit'],
       'target_core_commit':'1f42f88535884450104b8711d7595019afa0495b','format':'NAM 0.7.0, bare A2-Full WaveNet; 5 independent captures',
@@ -105,10 +107,12 @@ def main():
       'thresholds':{'window_esr_median':.005,'window_esr_p95':.01,'window_esr_worst':.02,'rms_error_db':.5,'peak_error_db':1,'silence_dbfs':-80},
       'final_test':'reserved; validation-based test build','real_DI_listening':'not performed: no recorded instrument DI available',
       'actual_GUI_DAW_test':'not performed; unmodified engine, EQ, A2 import predicate and preset APIs tested offline',
-      'status':'TEST_BUILD_PENDING_ACCEPTANCE'}
-    report['numerical_accuracy_pass']=all(r['validation']['window_esr_median']<=.005 and r['validation']['window_esr_p95']<=.01 and r['validation']['window_esr_worst']<=.02 and abs(r['validation']['rms_error_db'])<=.5 and abs(r['validation']['peak_error_db'])<=1 and r['silence_dbfs']<=-80 for r in reports.values())
+      'status':'TEST_BUILD_PENDING_ACCEPTANCE','quality_profile':PROFILE}
+    report['legacy_all_relative_validation_pass']=all(r['validation']['window_esr_median']<=.005 and r['validation']['window_esr_p95']<=.01 and r['validation']['window_esr_worst']<=.02 and abs(r['validation']['rms_error_db'])<=.5 and abs(r['validation']['peak_error_db'])<=1 and r['silence_dbfs']<=-80 for r in reports.values())
+    report['numerical_accuracy_pass']=all(r['tone3000_fidelity']['fidelity_pass'] and r['silence_dbfs']<=PROFILE['steady_silence_rms_max_dbfs'] and r['python_tone3000_parity']['pass'] for r in reports.values())
     comparison=json.loads(args.comparison.read_text()) if args.comparison else None
     if comparison:
+        if comparison.get('quality_profile')!=PROFILE:raise RuntimeError('Comparison quality profile mismatch')
         for input_report in comparison['inputs'].values():
             for name,row in input_report['channels'].items():
                 if row['candidate']['model_sha256']!=digest(args.run/f'Nastrond-{name}.nam'):
@@ -116,8 +120,7 @@ def main():
         report['final_test']='Reserved synthetic test and external official NAM V3 evaluated; see comparison.json'
         report['all_channels_improved_on_both_inputs']=comparison['all_channels_improved_on_both_inputs']
         report['validation_accuracy_pass']=report['numerical_accuracy_pass']
-        report['independent_test_accuracy_pass']=all(row['candidate']['window_median']<=.005 and row['candidate']['window_p95']<=.01 and
-          row['candidate']['window_worst']<=.02 and abs(row['candidate']['rms_error_db'])<=.5 and abs(row['candidate']['peak_error_db'])<=1
+        report['independent_test_accuracy_pass']=all(row['candidate']['tone3000_fidelity']['fidelity_pass']
           for entry in comparison['inputs'].values() for row in entry['channels'].values())
         report['numerical_accuracy_pass']=report['validation_accuracy_pass'] and report['independent_test_accuracy_pass']
         shutil.copy2(args.comparison,args.out/'Validation'/'comparison.json')
@@ -125,6 +128,7 @@ def main():
         shutil.copy2(args.compatibility,args.out/'Validation'/'compatibility.json')
     report['internally_parametric_NAM']='unsupported_by_target; external EQ does not implement this requirement'
     write_json(args.out/'Validation'/'validation.json',report)
+    write_json(args.out/'Validation'/'quality-profile.json',PROFILE)
     shutil.copy2(args.data/'channel-settings.json',args.out/'Settings'/'native-channel-settings.json')
     shutil.copy2(args.data/'manifest.json',args.out/'Validation'/'capture-manifest.json')
     for file in ['checkpoint.pt','training-config.json','training-stages.json']:
@@ -149,9 +153,10 @@ def main():
       'NAM에는 각 채널의 고정 앰프 세팅이 담겨 있습니다. 추가 조절은 TONE3000의 입력 게인과 파라메트릭 EQ로 합니다. Chimera의 13개 노브를 NAM 내부에서 가변 재현하는 모델은 아닙니다.','',
       '## 검증 상태','',
       'TONE3000의 A2 판별, 실제 재생 엔진, EQ 및 프리셋 저장/복원 코드로 검증했습니다. 아직 테스트 빌드이며, 실제 악기 DI 청취와 GUI/DAW 실사용 검증은 완료되지 않았습니다.','',
-      '| 채널 | 전체 검증 ESR | 구간 ESR 중앙값 | 구간 ESR p95 |','| --- | ---: | ---: | ---: |']
+      'TONE3000 호환을 유지하기로 한 결정에 따라 연주 구간과 미세한 잔향의 평가를 분리했습니다. 아래 수치는 TONE3000의 공식 인증 규격이 아닌 프로젝트 제작 기준입니다. 원본 RMS -60 dBFS 이상인 구간은 ESR 중앙값 0.005·p95 0.01·최대 0.02 이하를 요구합니다. 그보다 작은 구간은 잔차 RMS -70 dBFS·피크 -60 dBFS 이하를 요구합니다. 분류 레벨은 v0.2 기준으로 고정해, 새 파일의 출력 보정으로 평가 구간이 달라지지 않습니다.','',
+      '| 채널 | 전체 검증 ESR | 연주 구간 ESR 중앙값 | 연주 구간 ESR p95 |','| --- | ---: | ---: | ---: |']
     for name,r in reports.items():
-        v=r['validation'];lines.append(f'| {name} | {v["esr"]:.6f} | {v["window_esr_median"]:.6f} | {v["window_esr_p95"]:.6f} |')
+        v=r['validation'];q=r['tone3000_fidelity'];lines.append(f'| {name} | {v["esr"]:.6f} | {q["active_median"]:.6f} | {q["active_p95"]:.6f} |')
     lines+=['','ESR은 낮을수록 오차가 작습니다. “음색 유사도 퍼센트”를 뜻하지 않습니다. '+('학습·체크포인트 선택에서 제외한 합성 테스트와 NAM 공식 V3 입력으로 이전 모델과 비교했습니다. 상세 결과는 `Validation/comparison.json`에 있습니다.' if comparison else '합성 신호로 학습·검증했으며, 최종 테스트 신호는 아직 사용하지 않았습니다.'),
       '',f'설계상 수치 기준 전체 통과: {"예" if report["numerical_accuracy_pass"] else "아니오 — 정식 릴리즈 승인 전 추가 개선 필요"}. 상세 수치와 미완료 항목은 `Validation/validation.json`에 있습니다.','',
       '`Audio/*Native-left-NAM-right.wav`는 왼쪽 원본 DSP, 오른쪽 NAM 비교입니다. `*TONE3000-EQ.wav`는 채널 EQ와 고정 출력 보정을 적용한 합성 테스트 음원입니다. 모두 캐비닛 없는 앰프 신호입니다.','',

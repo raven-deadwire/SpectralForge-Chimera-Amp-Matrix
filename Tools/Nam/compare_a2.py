@@ -7,8 +7,9 @@ from scipy.signal import butter,sosfilt
 from common import digest,write_json
 from capture_channels import VOICES
 from train_a2 import scores
+from quality_profile import PROFILE, fidelity
 
-def metrics(pred,ref):
+def metrics(pred,ref,channel):
     result=scores(pred,ref)[0];windows=[]
     for s in range(6347,len(ref)-4096,4096):
         if np.mean(ref[s:s+4096]**2)>1e-6:windows.append(scores(pred[s:s+4096],ref[s:s+4096],0)[0]['esr'])
@@ -19,6 +20,7 @@ def metrics(pred,ref):
         pp=sosfilt(filt,pred)[6347:];rr=sosfilt(filt,ref)[6347:]
         bands[f'{lo}-{hi}Hz']=float(10*np.log10(max(np.mean(pp**2),1e-20)/max(np.mean(rr**2),1e-20)))
     result['band_rms_error_db']=bands
+    result['tone3000_fidelity']=fidelity(pred,ref,channel)
     return result
 
 def main():
@@ -29,7 +31,7 @@ def main():
     report={'baseline':str(a.baseline),'candidate':str(a.candidate),'source_commit':'d93560445c78552768a0ed592e5ec62c3c648fb6',
       'protocol':'Frozen exported checkpoints; no time alignment, fitted gain, normalization or EQ. Native output units for both versions.',
       'external_provenance':json.loads((a.external/'manifest.json').read_text()),'inputs':{},
-      'listening':'not performed in a DAW; numerical comparisons only'}
+      'listening':'not performed in a DAW; numerical comparisons only','quality_profile':PROFILE}
     with tempfile.TemporaryDirectory() as td:
         temp=Path(td);raw=temp/'input.f32';job=temp/'job.json';write_json(job,{'normalize':False,'block_size':64})
         for label,folder in [('unseen_synthetic',a.data/'test'),('official_NAM_v3',a.external)]:
@@ -40,7 +42,7 @@ def main():
                 for version,models in [('baseline',a.baseline),('candidate',a.candidate)]:
                     nam=models/('Nastrond-'+name+'.nam')
                     runtime=json.loads(subprocess.check_output([str(a.tool),'render',str(nam),str(raw),str(out),str(job)],text=True))
-                    y=np.fromfile(out,dtype='<f4');result=metrics(y,ref);result['model_sha256']=digest(nam);result['engine']=runtime
+                    y=np.fromfile(out,dtype='<f4');result=metrics(y,ref,name);result['model_sha256']=digest(nam);result['engine']=runtime
                     if label=='official_NAM_v3':
                         result['sections']={}
                         for section,start,end in [('opening_example',.2,9),('chirps',12.15,15),('noise',15.15,17),('program_material',17.15,180.5),('closing_example',181.15,190)]:

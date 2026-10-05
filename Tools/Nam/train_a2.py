@@ -13,6 +13,7 @@ from nam.models.wavenet._packed_conv import PackedConv1dBase
 from nam.models._from_nam import init_from_nam
 from common import digest, write_json
 from capture_channels import VOICES
+from quality_profile import PROFILE, fidelity
 
 def enable_grouped(model):
     def grouped(self,x):
@@ -53,7 +54,11 @@ def main():
     ap.add_argument('--lr-origin',type=int,default=0)
     ap.add_argument('--loss-normalization',choices=['window','channel'],default='window')
     ap.add_argument('--validation-selection',choices=['window','full'],default='window')
+    ap.add_argument('--warm-start',type=Path,help='Initialize from a prior run with the same architecture and frozen native source; reset optimizer and re-score validation')
+    ap.add_argument('--tail-fraction',type=float,default=0.,help='Fraction of training windows drawn from the final captured decay')
     ap.add_argument('--resume',action='store_true');args=ap.parse_args()
+    if args.resume and args.warm_start:raise ValueError('Choose resume or warm-start')
+    if not 0<=args.tail_fraction<=.25:raise ValueError('Tail fraction must be between 0 and .25')
     torch.set_num_threads(args.threads);torch.manual_seed(6405);rng=np.random.default_rng(6405)
     template=json.loads((args.trainer/'nam/train/_resources/config_model_packed.json').read_text())['net']['config']['submodels'][-1]['config']
     cfg={'sample_rate':48000,'submodels':[{'name':v[0],'config':copy.deepcopy(template)} for v in VOICES]}
@@ -67,7 +72,9 @@ def main():
       'training_target_gain':gain,'export':'undo training gain in head_scale; fixed silence-bias correction; independent A2-Full WaveNets',
       'source':source,'receptive_field':rf,'torch':torch.__version__,'python':platform.python_version(),'batch':args.batch,'frames':args.frames,'seed':6405,'threads':args.threads,
       'learning_rate':{'initial':args.lr,'half_life_steps':args.lr_half_life,'origin_step':args.lr_origin},
-      'loss_normalization':args.loss_normalization,'validation_selection':args.validation_selection}
+      'loss_normalization':args.loss_normalization,'validation_selection':args.validation_selection,
+      'quality_profile':PROFILE,'tail_fraction':args.tail_fraction,
+      'warm_start':None if args.warm_start is None else {'run':str(args.warm_start),'checkpoint_sha256':digest(args.warm_start/'checkpoint.pt')}}
     write_json(args.out/'training-config.json',train_cfg)
     x=np.load(args.data/'train/input.npy');ys=np.stack([np.load(args.data/'train'/f'{v[0]}.npy') for v in VOICES])
     vx=np.load(args.data/'validation/input.npy');vy=np.stack([np.load(args.data/'validation'/f'{v[0]}.npy') for v in VOICES])
@@ -86,17 +93,31 @@ def main():
                 sub=model.extract_submodel(i).eval();sub.load_state_dict(state)
                 best[i]=scores(centered_prediction(sub,vx)/gain,vy[i])[0]['esr']
     elif (args.out/'checkpoint.pt').exists():raise RuntimeError('Use --resume or a fresh output directory')
+    elif args.warm_start:
+        prior=json.loads((args.warm_start/'training-config.json').read_text())
+        if prior['config']!=cfg or prior['source']!=source or prior['training_target_gain']!=gain:
+            raise RuntimeError('Warm-start architecture, capture source, or scale mismatch')
+        ck=torch.load(args.warm_start/'checkpoint.pt',map_location='cpu',weights_only=False)
+        for i,state in enumerate(ck['best_weights']):
+            sub=model.extract_submodel(i).eval();sub.load_state_dict(state);model.import_submodel(i,sub)
+            best[i]=scores(centered_prediction(sub,vx)/gain,vy[i])[0]['esr']
+            weights[i]=copy.deepcopy(state)
+        # Zero denotes the warm-start candidate, not a newly trained checkpoint.
+        best_steps=[0]*5
     for group in opt.param_groups:group['lr']=args.lr*(.5**(max(0,start-args.lr_origin)/args.lr_half_life))
     stages_path=args.out/'training-stages.json'
     stages=json.loads(stages_path.read_text()) if stages_path.exists() else []
     if args.steps>start:
         stages.append({'start':start,'end':args.steps,'batch':args.batch,'frames':args.frames,'learning_rate':train_cfg['learning_rate'],
-          'loss_normalization':args.loss_normalization,'validation_selection':args.validation_selection})
+          'loss_normalization':args.loss_normalization,'validation_selection':args.validation_selection,'tail_fraction':args.tail_fraction})
         write_json(stages_path,stages)
     t=time.monotonic();losses=[]
     print(json.dumps({'stage':'start','rf':rf,'channels':[v[0] for v in VOICES],'start_step':start}),flush=True)
     for step in range(start+1,args.steps+1):
         model.train();st=rng.integers(rf,len(x)-args.frames,args.batch)
+        for j in range(args.batch):
+            if rng.random()<args.tail_fraction:
+                st[j]=rng.integers(max(rf,len(x)-round(.8*48000)),len(x)-args.frames)
         xx=torch.from_numpy(np.stack([x[s-rf+1:s+args.frames] for s in st]))
         yy=torch.from_numpy(np.stack([ys[:,s:s+args.frames] for s in st]))*gain
         pred=model(xx,pad_start=False)
@@ -121,9 +142,12 @@ def main():
                 means=[float(np.mean([r[i]['esr'] for r in vals])) for i in range(5)]
             for i,score in enumerate(means):
                 if score<best[i]:best[i]=score;best_steps[i]=step;weights[i]=copy.deepcopy(model.extract_submodel(i).state_dict())
-            write_json(args.out/f'validation-step-{step}.json',{'esr_by_channel':dict(zip([v[0] for v in VOICES],means)),'windows':vals,'best_steps':best_steps})
+            profile_metrics={v[0]:fidelity(prediction[i],vy[i],v[0]) for i,v in enumerate(VOICES)} if args.validation_selection=='full' else None
+            write_json(args.out/f'validation-step-{step}.json',{'esr_by_channel':dict(zip([v[0] for v in VOICES],means)),'windows':vals,'best_steps':best_steps,'tone3000_fidelity':profile_metrics})
+            checkpoint_temporary=args.out/'checkpoint.pt.tmp'
             torch.save({'identity':identity,'model':model.state_dict(),'optimizer':opt.state_dict(),'step':step,'best':best,'best_weights':weights,'best_steps':best_steps,'rng':rng.bit_generator.state,'torch_rng':torch.get_rng_state(),
-              'validation_selection':args.validation_selection},args.out/'checkpoint.pt')
+              'validation_selection':args.validation_selection},checkpoint_temporary)
+            checkpoint_temporary.replace(args.out/'checkpoint.pt')
             print(json.dumps({'step':step,'validation_esr':dict(zip([v[0] for v in VOICES],means)),'best_steps':best_steps}),flush=True)
     results={}
     for i,(name,character,_) in enumerate(VOICES):
@@ -145,9 +169,10 @@ def main():
         stats.update({'selected_step':best_steps[i],'validation_window_esr_median':float(np.median(windows)),
           'validation_window_esr_p95':float(np.quantile(windows,.95)),'validation_window_esr_worst':float(max(windows)),
           'official_roundtrip_max_abs':delta,'sha256':digest(path),'head_bias_correction':dc})
+        stats['tone3000_fidelity']=fidelity(prediction,vy[i],name)
         results[name]=stats;np.save(args.out/f'{name}-validation.npy',prediction)
     write_json(args.out/'validation.json',{'channels':results,'thresholds':{'median_esr':.005,'p95_esr':.01,'worst_esr':.02},
-      'input':'unseen synthetic validation excitation','test':'reserved until validation qualifies','real_DI':'not supplied',
+      'quality_profile':PROFILE,'input':'unseen synthetic validation excitation','test':'independent comparison is a separate step','real_DI':'not supplied',
       'status':'TEST_BUILD_PENDING_ACCEPTANCE'})
     print(json.dumps({'stage':'exported','channels':results}),flush=True)
 

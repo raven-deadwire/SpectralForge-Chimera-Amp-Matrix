@@ -1,5 +1,10 @@
 # Náströnd A2 accuracy: measured blocker
 
+Subsequent user decision: keep TONE3000. The new project profile in
+`quality_profile.py` preserves active-window ESR limits and assesses quiet
+decay by absolute residual. The historical proof and numbers below remain
+valid for the original all-relative gate; they are not the revised policy.
+
 The existing accuracy gate cannot be fully satisfied by a bare TONE3000 A2
 model at 48 kHz, regardless of additional training. This is an error in the
 initial architecture/gate pairing. It is not a failure of the user's request

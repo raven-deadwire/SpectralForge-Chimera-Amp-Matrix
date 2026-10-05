@@ -11,12 +11,11 @@ that player's A2 import and playback path does not expose additional model
 conditioning controls. One file per channel does not remove the user's
 parametric-model requirement. That requirement remains unsupported here.
 
-**Accuracy gate blocker:** the finite-memory audit of the delivered v0.2
-captures proves that the existing worst-window ESR <=0.02 gate cannot be met
-by any bare A2 weights on several retained tail windows. This is a conflict
-between the initial gate and the target architecture, not evidence that more
-epochs will eventually pass. The threshold and release status remain unchanged.
-See [the audit and the available design choices](ACCURACY-BLOCKER.md).
+**Target decision:** after the [finite-memory audit](ACCURACY-BLOCKER.md),
+the user chose to retain TONE3000 compatibility. `quality_profile.py` keeps the
+original active-audio ESR limits and evaluates very quiet decay using absolute
+residual limits. This is a project policy, not an official TONE3000 certification.
+The v0.2 files fail the revised policy as well; no release approval is implied.
 
 ## Frozen sources
 
@@ -132,9 +131,27 @@ EQ frequencies, gains, Q, roles and input/output values are checked after
 serialization. TONE3000's normalization rule is reproduced with its -18 dB
 default target, valid metadata range, and +/-12 dB adjustment clamp.
 
-Accuracy targets remain median window ESR <=0.005, p95 <=0.01, worst <=0.02,
-absolute RMS error <=0.5 dB, peak error <=1 dB, silence <=-80 dBFS and Python/C++
-residual RMS <=-80 dBFS. Reports explicitly record failures. Smoke timing during
+Accuracy for active windows remains median ESR <=0.005, p95 <=0.01 and worst
+<=0.02. A window is active when the **reference** RMS is at least -60 dBFS
+under the frozen v0.2 per-channel output scale. Quieter windows require residual
+RMS <=-70 dBFS and residual peak <=-60 dBFS. The RMS residual must therefore
+stay at least 10 dB below the active/quiet boundary, while the peak condition
+catches brief excursions. These are numerical production tolerances, not
+claims of perceptual inaudibility. The window is 4,096 samples; skipping the
+first 6,347 samples is unchanged. Every quiet window is assessed, including
+true zero input; none is silently discarded.
+
+Full-signal ESR must also be below 0.01, applying the excellent-result range
+in [TONE3000's capture guide](https://www.tone3000.com/guides/capture-your-gear-with-nam-dry-wet)
+to our separately defined validation and independent inputs. This is not a
+claim that our test input or metric aggregation is the service's exact test.
+
+The anchor is independent of candidate loudness and final EQ level matching:
+turning down a candidate cannot move reference windows into the quiet class.
+Global RMS error <=0.5 dB, peak error <=1 dB, steady silence <=-80 dBFS and
+Python/C++ residual RMS <=-80 dBFS also remain required. Reports explicitly
+record both the historical all-relative metrics and the current profile.
+Smoke timing during
 training is not a ten-minute dedicated real-time qualification. Actual GUI/DAW
 loading, saved-session restoration, and recorded-DI listening remain separate
 acceptance steps. No public model release or homepage update is performed by
@@ -151,6 +168,34 @@ error with a fixed per-channel energy scale, rather than reweighting every
 excerpt by its own energy. `--validation-selection full` evaluates the full
 validation signal with the same zero-input bias centering used at export.
 Changing selection metrics re-scores stored checkpoints before comparing them.
+
+`--warm-start /path/to/prior-run` starts a new optimizer from the prior run's
+best channel weights. It requires the same architecture, numerical target
+scale and frozen native source, and re-scores all initial weights on the new
+run's validation input. Its checkpoint hash is recorded. This is distinct from
+`--resume`, whose dataset identity must match. A larger training capture can
+therefore reuse learned weights without pretending it is the original run.
+`--tail-fraction` optionally reserves part of training for the actual captured
+final decay; it never manufactures mismatched input/target pairs.
+
+For sustained refinement in the Linux production workspace, `continue_a2.py`
+runs bounded stages under an exclusive file lock, with atomic progress and
+checkpoint writes. It stops for independent evaluation when all validation
+fidelity criteria pass, for review on errors or less than 1% improvement across
+five stages, or at its explicit step budget. It never changes acceptance
+limits or automatically releases models. A caller must complete engine and
+independent-input tests after `READY_FOR_INDEPENDENT_TESTS`.
+
+```sh
+PYTHONPATH=/absolute/path/to/neural-amp-modeler python Tools/Nam/continue_a2.py \
+  --data /absolute/path/to/480-second-data --run /absolute/path/to/longrun \
+  --trainer /absolute/path/to/neural-amp-modeler \
+  --warm-start /absolute/path/to/prior-run --max-steps 60000 --chunk 2000
+```
+
+The 480-second training capture keeps the original validation, final-test and
+audition input/target hashes unchanged. Reusing old weights is recorded as a
+warm start; optimizer steps restart from zero for this larger-data run.
 
 `capture_probe.py` renders an independently sourced input with the exact
 renderer hash and channel settings used by the training capture. The NAM
