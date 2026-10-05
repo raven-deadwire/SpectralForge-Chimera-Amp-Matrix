@@ -14,6 +14,8 @@ from nam.models._from_nam import init_from_nam
 from common import digest, write_json
 from capture_channels import VOICES
 from quality_profile import PROFILE, fidelity
+from a2_recipe import (RECIPE, A2TrainingLoss, training_output_gains,
+    rescale_output_head, steps_per_virtual_epoch, virtual_epoch_learning_rate)
 
 def enable_grouped(model):
     def grouped(self,x):
@@ -52,6 +54,7 @@ def main():
     ap.add_argument('--batch',type=int,default=2);ap.add_argument('--threads',type=int,default=4);ap.add_argument('--frames',type=int,default=2048)
     ap.add_argument('--lr',type=float,default=.004);ap.add_argument('--lr-half-life',type=float,default=2000)
     ap.add_argument('--lr-origin',type=int,default=0)
+    ap.add_argument('--recipe',choices=['legacy','official-a2'],default='legacy')
     ap.add_argument('--loss-normalization',choices=['window','channel'],default='window')
     ap.add_argument('--validation-selection',choices=['window','full'],default='window')
     ap.add_argument('--warm-start',type=Path,help='Initialize from a prior run with the same architecture and frozen native source; reset optimizer and re-score validation')
@@ -63,26 +66,43 @@ def main():
     template=json.loads((args.trainer/'nam/train/_resources/config_model_packed.json').read_text())['net']['config']['submodels'][-1]['config']
     cfg={'sample_rate':48000,'submodels':[{'name':v[0],'config':copy.deepcopy(template)} for v in VOICES]}
     model=PackedWaveNet.init_from_config(copy.deepcopy(cfg));enable_grouped(model)
-    gain=.1;rf=model.receptive_field
-    identity=hashlib.sha256((digest(args.data/'manifest.json')+json.dumps(cfg,sort_keys=True)+'causal_raw_gain0.1_grouped_v1').encode()).hexdigest()
+    rf=model.receptive_field
+    x=np.load(args.data/'train/input.npy');ys=np.stack([np.load(args.data/'train'/f'{v[0]}.npy') for v in VOICES])
+    gains=training_output_gains(ys) if args.recipe=='official-a2' else np.full(len(VOICES),.1)
+    gain_tensor=torch.tensor(gains,dtype=torch.float32)[None,:,None]
+    epoch_steps=steps_per_virtual_epoch(len(x),rf,args.frames,args.batch)
+    recipe_identity='causal_raw_gain0.1_grouped_v1' if args.recipe=='legacy' else 'official_a2_train_rms_v1'+json.dumps(gains.tolist())
+    if args.recipe=='official-a2':
+        recipe_identity+=json.dumps({'recipe':RECIPE,'batch':args.batch,'frames':args.frames,
+          'initial_lr':args.lr,'virtual_epoch_steps':epoch_steps,'tail_fraction':args.tail_fraction},sort_keys=True)
+    identity=hashlib.sha256((digest(args.data/'manifest.json')+json.dumps(cfg,sort_keys=True)+recipe_identity).encode()).hexdigest()
     args.out.mkdir(parents=True,exist_ok=True)
     source=json.loads((args.data/'manifest.json').read_text())['source']
     train_cfg={'dataset_sha256':digest(args.data/'manifest.json'),'identity':identity,'config':cfg,'sample_rate':48000,
       'trainer_commit':'0072676419459f5d39e36f5b9fd4172f28d62cbf','target_player_commit':'ef6f178ae1ac6412b55fec6f058d86e640e5aaaf',
-      'training_target_gain':gain,'export':'undo training gain in head_scale; fixed silence-bias correction; independent A2-Full WaveNets',
+      'training_target_gain':gains.tolist() if args.recipe=='official-a2' else .1,'export':'undo training gain in head_scale; fixed silence-bias correction; independent A2-Full WaveNets',
       'source':source,'receptive_field':rf,'torch':torch.__version__,'python':platform.python_version(),'batch':args.batch,'frames':args.frames,'seed':6405,'threads':args.threads,
       'learning_rate':{'initial':args.lr,'half_life_steps':args.lr_half_life,'origin_step':args.lr_origin},
       'loss_normalization':args.loss_normalization,'validation_selection':args.validation_selection,
+      'recipe':args.recipe,'recipe_details':RECIPE if args.recipe=='official-a2' else {'loss':'normalized MSE + .1 normalized DC','clip_gradient_norm':5.},
+      'sampling':'seeded random crops; matched across comparison arms, not upstream shuffled nonoverlapping epochs',
+      'virtual_epoch_steps':epoch_steps,
       'quality_profile':PROFILE,'tail_fraction':args.tail_fraction,
       'warm_start':None if args.warm_start is None else {'run':str(args.warm_start),'checkpoint_sha256':digest(args.warm_start/'checkpoint.pt')}}
-    write_json(args.out/'training-config.json',train_cfg)
-    x=np.load(args.data/'train/input.npy');ys=np.stack([np.load(args.data/'train'/f'{v[0]}.npy') for v in VOICES])
+    if args.recipe=='official-a2':
+        train_cfg['learning_rate']={'initial':args.lr,'gamma':.994,'virtual_epoch_steps':epoch_steps,'schedule':'step at completed virtual epoch; random crop adaptation'}
+        train_cfg['loss_normalization']='train-only output RMS -18dBFS; summed per-channel unnormalized MSE + .0005 MRSTFT'
     vx=np.load(args.data/'validation/input.npy');vy=np.stack([np.load(args.data/'validation'/f'{v[0]}.npy') for v in VOICES])
-    channel_power=torch.tensor(np.mean(ys.astype(np.float64)**2,axis=1)*gain**2,dtype=torch.float32)[None].clamp_min(.0001)
+    channel_power=torch.tensor([np.mean(y.astype(np.float64)**2)*g**2 for y,g in zip(ys,gains)],dtype=torch.float32)[None].clamp_min(.0001)
+    recipe_loss=A2TrainingLoss() if args.recipe=='official-a2' else None
+    def learning_rate(step):
+        if args.recipe=='official-a2':return virtual_epoch_learning_rate(step,epoch_steps,initial=args.lr)
+        return args.lr*(.5**(max(0,step-args.lr_origin)/args.lr_half_life))
     opt=torch.optim.Adam(model.parameters(),lr=.004,weight_decay=3.17e-7);start=0;best=[float('inf')]*5;weights=[None]*5;best_steps=[0]*5
     if args.resume:
         ck=torch.load(args.out/'checkpoint.pt',map_location='cpu',weights_only=False)
         if ck['identity']!=identity:raise RuntimeError('Resume identity mismatch')
+        if ck.get('recipe','legacy')!=args.recipe:raise RuntimeError('Resume recipe mismatch')
         model.load_state_dict(ck['model']);opt.load_state_dict(ck['optimizer']);start=ck['step'];best=ck['best'];weights=ck['best_weights'];best_steps=ck['best_steps']
         rng.bit_generator.state=ck['rng'];torch.set_rng_state(ck['torch_rng'])
         if ck.get('validation_selection','window')!=args.validation_selection:
@@ -91,67 +111,89 @@ def main():
             # Never compare excerpt ESR values with full-signal ESR values.
             for i,state in enumerate(weights):
                 sub=model.extract_submodel(i).eval();sub.load_state_dict(state)
-                best[i]=scores(centered_prediction(sub,vx)/gain,vy[i])[0]['esr']
+                best[i]=scores(centered_prediction(sub,vx)/gains[i],vy[i])[0]['esr']
     elif (args.out/'checkpoint.pt').exists():raise RuntimeError('Use --resume or a fresh output directory')
     elif args.warm_start:
         prior=json.loads((args.warm_start/'training-config.json').read_text())
-        if prior['config']!=cfg or prior['source']!=source or prior['training_target_gain']!=gain:
-            raise RuntimeError('Warm-start architecture, capture source, or scale mismatch')
+        if prior['config']!=cfg or prior['source']!=source:
+            raise RuntimeError('Warm-start architecture or capture source mismatch')
+        prior_gains=np.broadcast_to(np.asarray(prior['training_target_gain'],dtype=np.float64),gains.shape)
         ck=torch.load(args.warm_start/'checkpoint.pt',map_location='cpu',weights_only=False)
+        if ck['identity']!=prior['identity']:raise RuntimeError('Warm-start checkpoint/config identity mismatch')
+        raw_deltas=[]
         for i,state in enumerate(ck['best_weights']):
-            sub=model.extract_submodel(i).eval();sub.load_state_dict(state);model.import_submodel(i,sub)
-            best[i]=scores(centered_prediction(sub,vx)/gain,vy[i])[0]['esr']
-            weights[i]=copy.deepcopy(state)
+            sub=model.extract_submodel(i).eval();sub.load_state_dict(state)
+            with torch.inference_mode():before=sub(torch.from_numpy(x[:32768].copy()))/prior_gains[i]
+            rescale_output_head(sub,prior_gains[i],gains[i])
+            with torch.inference_mode():after=sub(torch.from_numpy(x[:32768].copy()))/gains[i]
+            delta=float((before-after).abs().max());raw_deltas.append(delta)
+            if not np.isfinite(delta) or delta>1e-5:raise RuntimeError('Warm-start output reparameterization changed physical prediction')
+            model.import_submodel(i,sub)
+            best[i]=scores(centered_prediction(sub,vx)/gains[i],vy[i])[0]['esr']
+            weights[i]=copy.deepcopy(sub.state_dict())
         # Zero denotes the warm-start candidate, not a newly trained checkpoint.
         best_steps=[0]*5
-    for group in opt.param_groups:group['lr']=args.lr*(.5**(max(0,start-args.lr_origin)/args.lr_half_life))
+        write_json(args.out/'initialization.json',{'source_checkpoint_sha256':digest(args.warm_start/'checkpoint.pt'),
+          'source_checkpoint_step':ck['step'],'source_selected_steps':ck['best_steps'],'optimizer':'reset identically in comparison arms',
+          'raw_prediction_max_abs_delta':dict(zip([v[0] for v in VOICES],raw_deltas)),
+          'initial_validation_esr':dict(zip([v[0] for v in VOICES],best)),'gains':gains.tolist(),'seed':6405})
+    # Failed identity checks must not overwrite a recoverable run's configuration.
+    write_json(args.out/'training-config.json',train_cfg)
+    for group in opt.param_groups:group['lr']=learning_rate(start)
     stages_path=args.out/'training-stages.json'
     stages=json.loads(stages_path.read_text()) if stages_path.exists() else []
     if args.steps>start:
         stages.append({'start':start,'end':args.steps,'batch':args.batch,'frames':args.frames,'learning_rate':train_cfg['learning_rate'],
-          'loss_normalization':args.loss_normalization,'validation_selection':args.validation_selection,'tail_fraction':args.tail_fraction})
+          'loss_normalization':train_cfg['loss_normalization'],'validation_selection':args.validation_selection,'tail_fraction':args.tail_fraction,'recipe':args.recipe})
         write_json(stages_path,stages)
-    t=time.monotonic();losses=[]
+    t=time.monotonic();losses=[];crop_digest=hashlib.sha256()
     print(json.dumps({'stage':'start','rf':rf,'channels':[v[0] for v in VOICES],'start_step':start}),flush=True)
     for step in range(start+1,args.steps+1):
         model.train();st=rng.integers(rf,len(x)-args.frames,args.batch)
         for j in range(args.batch):
             if rng.random()<args.tail_fraction:
                 st[j]=rng.integers(max(rf,len(x)-round(.8*48000)),len(x)-args.frames)
+        crop_digest.update(st.astype('<i8').tobytes())
         xx=torch.from_numpy(np.stack([x[s-rf+1:s+args.frames] for s in st]))
-        yy=torch.from_numpy(np.stack([ys[:,s:s+args.frames] for s in st]))*gain
+        yy=torch.from_numpy(np.stack([ys[:,s:s+args.frames] for s in st]))*gain_tensor
         pred=model(xx,pad_start=False)
-        power=yy.square().mean(dim=-1).clamp_min(.0001) if args.loss_normalization=='window' else channel_power
-        loss=((pred-yy).square().mean(dim=-1)/power).mean()
-        loss+=.1*((pred.mean(dim=-1)-yy.mean(dim=-1)).square()/power).mean()
+        if recipe_loss is not None:loss=recipe_loss(pred,yy)
+        else:
+            power=yy.square().mean(dim=-1).clamp_min(.0001) if args.loss_normalization=='window' else channel_power
+            loss=((pred-yy).square().mean(dim=-1)/power).mean()
+            loss+=.1*((pred.mean(dim=-1)-yy.mean(dim=-1)).square()/power).mean()
         if not torch.isfinite(loss):raise RuntimeError('Nonfinite training loss')
-        opt.zero_grad();loss.backward();torch.nn.utils.clip_grad_norm_(model.parameters(),5.);opt.step();model.apply_mask();losses.append(float(loss.detach()))
-        for group in opt.param_groups:group['lr']=args.lr*(.5**(max(0,step-args.lr_origin)/args.lr_half_life))
+        opt.zero_grad();loss.backward()
+        if args.recipe=='legacy':torch.nn.utils.clip_grad_norm_(model.parameters(),5.)
+        opt.step();model.apply_mask();losses.append(float(loss.detach()))
+        for group in opt.param_groups:group['lr']=learning_rate(step)
         if step%100==0:
-            print(json.dumps({'step':step,'loss':float(np.mean(losses[-100:])),'elapsed_seconds':round(time.monotonic()-t,2)}),flush=True)
+            print(json.dumps({'step':step,'loss':float(np.mean(losses[-100:])),'elapsed_seconds':round(time.monotonic()-t,2),
+              'learning_rate':learning_rate(step),'last_loss_components':recipe_loss.last_components if recipe_loss is not None else None}),flush=True)
         if step%500==0 or step==args.steps:
             # Selection never touches either independent test input.
             vals=[]
             if args.validation_selection=='full':
-                prediction=centered_prediction(model,vx)/gain
+                prediction=centered_prediction(model,vx)/gains[:,None]
                 means=[row['esr'] for row in scores(prediction,vy)]
             else:
                 for s in [rf,6*48000,12*48000,18*48000,22*48000]:
-                    with torch.inference_mode():p=model(torch.from_numpy(vx[s-rf+1:s+8192].copy())[None],pad_start=False).numpy()[0]/gain
+                    with torch.inference_mode():p=model(torch.from_numpy(vx[s-rf+1:s+8192].copy())[None],pad_start=False).numpy()[0]/gains[:,None]
                     vals.append(scores(p,vy[:,s:s+8192],skip=0))
                 means=[float(np.mean([r[i]['esr'] for r in vals])) for i in range(5)]
             for i,score in enumerate(means):
                 if score<best[i]:best[i]=score;best_steps[i]=step;weights[i]=copy.deepcopy(model.extract_submodel(i).state_dict())
             profile_metrics={v[0]:fidelity(prediction[i],vy[i],v[0]) for i,v in enumerate(VOICES)} if args.validation_selection=='full' else None
-            write_json(args.out/f'validation-step-{step}.json',{'esr_by_channel':dict(zip([v[0] for v in VOICES],means)),'windows':vals,'best_steps':best_steps,'tone3000_fidelity':profile_metrics})
+            write_json(args.out/f'validation-step-{step}.json',{'esr_by_channel':dict(zip([v[0] for v in VOICES],means)),'windows':vals,'best_steps':best_steps,'tone3000_fidelity':profile_metrics,
+              'crop_schedule_sha256':crop_digest.hexdigest(),'crop_schedule_start_step':start,'identity':identity,'checkpoint_step':step,'recipe':args.recipe})
             checkpoint_temporary=args.out/'checkpoint.pt.tmp'
             torch.save({'identity':identity,'model':model.state_dict(),'optimizer':opt.state_dict(),'step':step,'best':best,'best_weights':weights,'best_steps':best_steps,'rng':rng.bit_generator.state,'torch_rng':torch.get_rng_state(),
-              'validation_selection':args.validation_selection},checkpoint_temporary)
+              'validation_selection':args.validation_selection,'recipe':args.recipe},checkpoint_temporary)
             checkpoint_temporary.replace(args.out/'checkpoint.pt')
             print(json.dumps({'step':step,'validation_esr':dict(zip([v[0] for v in VOICES],means)),'best_steps':best_steps}),flush=True)
     results={}
     for i,(name,character,_) in enumerate(VOICES):
-        sub=model.extract_submodel(i).eval();sub.load_state_dict(weights[i]);sub._net._head_scale/=gain
+        sub=model.extract_submodel(i).eval();sub.load_state_dict(weights[i]);sub._net._head_scale/=gains[i]
         # A fixed final bias correction enforces the known zero-input steady state.
         with torch.inference_mode():dc=float(sub(torch.zeros(rf+512),pad_start=False)[-1])
         with torch.no_grad():sub._net._layer_arrays[-1]._head_rechannel.bias.sub_(dc/sub._net._head_scale)
@@ -173,7 +215,8 @@ def main():
         results[name]=stats;np.save(args.out/f'{name}-validation.npy',prediction)
     write_json(args.out/'validation.json',{'channels':results,'thresholds':{'median_esr':.005,'p95_esr':.01,'worst_esr':.02},
       'quality_profile':PROFILE,'input':'unseen synthetic validation excitation','test':'independent comparison is a separate step','real_DI':'not supplied',
-      'status':'TEST_BUILD_PENDING_ACCEPTANCE'})
+      'status':'TEST_BUILD_PENDING_ACCEPTANCE','checkpoint_step':args.steps,'identity':identity,'recipe':args.recipe,
+      'crop_schedule_sha256':crop_digest.hexdigest(),'crop_schedule_start_step':start})
     print(json.dumps({'stage':'exported','channels':results}),flush=True)
 
 if __name__=='__main__':main()

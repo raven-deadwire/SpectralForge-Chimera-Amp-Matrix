@@ -66,7 +66,11 @@ signals, with disjoint seeds. They are not recorded instrument DI. Source
 headers, executable and audio hashes are recorded; the transitive local DSP
 headers are compared to the frozen release before capture.
 
-Training uses a common 0.1 numerical target scale. Final files then receive a
+The legacy trainer uses a common 0.1 numerical target scale. The optional
+`--recipe official-a2` instead computes each channel's -18 dBFS RMS gain from
+**training output only**, and undoes it on export. Neither option changes input
+drive, the captured target, the frozen evaluation scale, or the player's
+Normalize setting. The historical v0.2 package received a
 fixed per-channel output calibration: the shared validation input through each
 channel's actual TONE3000 POST EQ measures -20 dBFS RMS. This preserves input
 drive and avoids relying on metadata-based normalization to balance different
@@ -75,6 +79,62 @@ in all accuracy comparisons. Normalize is disabled; per-block/global In and
 Out remain 0 dB (encoded as 0.5 by TONE3000), Mix is 100%, and the independent
 global EQ/gate/pitch/spread are disabled. Playing dynamics and frequency
 content can still change relative loudness. Add a cabinet IR after the amp.
+
+## Controlled recipe refinement and recovery
+
+The current local refinement data has **480 seconds of training**; its
+validation/test/audition audio hashes are unchanged from the original capture.
+The default CLI/CI capture remains 96 seconds. Do not substitute the held-out
+splits or official NAM V3 evaluation recording for training data.
+
+`a2_recipe.py` uses the pinned trainer's actual MRSTFT implementation: sum each
+independent channel's MSE plus 0.0005 MRSTFT, with no DC term or gradient
+clipping. Adam starts at 0.004 with weight decay 3.17e-7. The 0.994 decay is
+applied per virtual epoch, **not per optimizer step** (702 updates for this
+480-second dataset, batch 4, 8192-frame crops). The comparison keeps seeded
+random crops identical between arms. This sampler, batch size, and fixed
+silence-bias correction are project adaptations; this is not a claim to have
+replicated every part of TONE3000's cloud training service.
+
+A controlled warm start imports the same channel states into both arms, resets
+both optimizers, and rescales each final linear head to preserve physical raw
+output under the new numerical gain. `initialization.json` records the source
+checkpoint hash, gains, initial validation ESR, and measured output delta.
+`crop_schedule_sha256` records the actual training crop sequence for each stage.
+The new recipe's identity includes its loss and scheduler-defining options;
+changing these requires a new, explicit warm-start run. The existing recipe
+remains available for comparison and legacy checkpoint recovery.
+
+Compare **current-state** `validation-step-N.json` as well as best-selected
+`validation.json`. A retained initial model is not evidence that additional
+training improved that channel. Recipe comparison changes normalization, loss,
+gradient clipping, and learning-rate schedule together; it cannot isolate one
+of them as the cause of an improvement or regression.
+
+```sh
+PYTHONPATH=/absolute/path/to/neural-amp-modeler python Tools/Nam/continue_a2.py \
+  --data /absolute/path/to/data-v03 --run /absolute/path/to/new-official-run \
+  --trainer /absolute/path/to/neural-amp-modeler \
+  --warm-start /absolute/path/to/frozen-comparison-source \
+  --recipe official-a2 --tail-fraction .05 --chunk 500 --max-stages 1
+```
+
+Run the legacy arm in a different directory with `--recipe legacy`, using the
+same warm-start source, crop options, and update count. A bounded coordinator
+invocation now defaults to **one verified stage**. Before `PAUSED_AFTER_STAGE`,
+it checks fresh checkpoint/validation/export evidence, selected steps and model
+hashes. Preserve the checkpoint and reports before another invocation. The
+child inherits the nonblocking `fcntl` lock; `RUNNING` text or a PID alone is
+not liveness evidence. Caught termination is `INTERRUPTED`; unexplained process
+loss keeps its cause unknown. Unique log names preserve interrupted attempts.
+`--max-stages 0` explicitly restores the older continuous loop, but starting a
+background process is never proof that it will survive the execution session.
+
+Loss/gradient parity with upstream, normalization/export invariance and the
+bounded coordinator's failure paths are covered by `test_a2_recipe.py` and
+`test_continue_a2.py`. Passing these checks is software verification only;
+`quality_profile.py`, independent TONE3000-engine validation and listening
+requirements still apply unchanged.
 
 ## GitHub Actions evidence
 
