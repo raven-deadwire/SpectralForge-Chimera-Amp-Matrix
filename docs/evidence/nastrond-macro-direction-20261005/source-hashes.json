@@ -1,0 +1,33 @@
+{
+  "parent_commit": "54eded7e3d666c866787b742bf249ee9f7f6d4cf",
+  "request_baseline_commit": "87683f753a18de96102bc9676fa5800a7e83aa81",
+  "sources": {
+    "Source/OriginalAmpDSP.h": "072aa6854597db3803bea14d46ef442d83d0c1b1f341f220d9a730de294ec223",
+    "Source/OriginalAmpDefinition.h": "46e4af9eb3c80f5fd1afb82638847ac83cdb0623a64b789da3017c0c54631e93",
+    "Source/OriginalAmpProcessor.h": "f1b725e9dc67dbcba9ed57890a91f1694f2cbfc0a4745e644eaf7c70ed1ee7e1",
+    "Tests/OriginalAmpTests.cpp": "8b407736198e52fd98c5a5442f61dd047cab4343ffabea32d5712f49a3d6ca64",
+    "Tests/OriginalAmpIntegrationTests.cpp": "1cb2da45d4c9465380a28be45a78f20a7713361e5aaaaf1bf9fb0da9b9e2a5d8",
+    "Tests/RenderOriginalAmp.cpp": "464f7d34c7bcee3a91c8e0ca3b5370815ec99e50e13bc6188435e6d3ef82a942",
+    "Tests/test_original_renderer.py": "0c8f798419b14d94be3272c8a51708e75618230e1f0685708bb90ecc2416d19e",
+    "Tools/compare_original_nam.py": "84a233bf2167b015de950b469a0888a8ea45993e40f62b9df966d13698a04488",
+    "Tools/audit_nastrond_macros.py": "a3e5193c70467c8c270491793cc5822c67e5e03077d0ee2e03366f7fcd2a47b9",
+    "Tools/validate_nam.py": "82ff42d4c41041f35ba7e4e2fd81c5e29652861042f0643fc52f1286fa2fad88",
+    "docs/reference/nastrond-nam-manifest.json": "e59704cafb912ba685770f761dd99f7943cc4766120a1dcaa422abaa0500d833"
+  },
+  "evidence": {
+    "ctest.log": "a6cc977dd4a6722a529812b489ed178b5cae965741717c95c978cfee9f712615",
+    "comparison.json": "ca5b57704467cbd9db72650bd41b961ce8e1de86cf51e3fe5667a958081e6ff6",
+    "measured-renderer-regression.log": "4d8f6e21ce51a2ec43ffaa4a2c72710c8a23c8daa159239c296d439d4b73107d",
+    "gain-summary.csv": "4bbb6865658372d7402518b02b4f39c0cdd1fcbeb25fe3fde504b884374435a7",
+    "baseline-reruns.json": "a259513728894b99f45857cf78645ea9b945a271a99963023d857cd54d999ff8",
+    "comparison.log": "2f543e2f25589aad3f767b5627dbe0bec4a29ec461fffc405e18be63b56d378a",
+    "summary.json": "e7162b7dca50bedc940e94944a1cf031c35b1beb553c2debe4327a53f62dc5a1"
+  },
+  "original_renderer_sha256": "3fbb6bcf326752ba4f64e1bf949bb51c3a3598f7f04d3ad3d2daee653c5127aa",
+  "nam_renderer_sha256": "907e31cd4d5d97ea4d4f424fec5dafe909ded03ab94a74d7a3f9202e1774d6b7",
+  "nam_core_commit": "0b3d3c97b0859a3a8c92a8628c4dd89a25eb5842",
+  "juce_version": "8.0.8",
+  "compiler": "c++ (Ubuntu 13.3.0-6ubuntu2~24.04) 13.3.0",
+  "build": "Comparison renderer compiled from final source with the existing Release JUCE 8.0.8 module objects; its exact executable passed test_original_renderer.py. A fresh CMake build independently ran the three repository CTests from the same final source.",
+  "cmake_renderer_sha256": "fc29a69399c5bafc748cb333c25d284f2b79a4c2d2c7cd8c12b66a38ca5198ee"
+}

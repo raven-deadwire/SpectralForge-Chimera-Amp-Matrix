@@ -135,4 +135,27 @@ void realtimeAndState() {
     const auto a=render(State{}),b=render(State{});require(a==b,"Fresh-instance render is nondeterministic");
     std::cout<<"REALTIME 12 rate/factor routes peak="<<peak<<" allocations="<<allocations<<'\n';
 }
-int main(){try{defaults();controlsAndPresets();macroVoicing();realtimeAndState();std::cout<<"PASS OriginalAmp development core; musical/reference acceptance remains pending\n";return 0;}catch(const std::exception& e){std::cerr<<"FAIL "<<e.what()<<'\n';return 1;}}
+void movingPowerVoicing() {
+    // Retarget all five macros before their 20 ms ramps finish. This exercises
+    // the newly moving power filters with live filter state, not just endpoints.
+    for(double rate:{44100.,48000.,96000.})for(int os:{1,2,4,8}) {
+        const double processingRate=rate*os;
+        OriginalAmpDSP dsp;dsp.prepare(processingRate);State state;
+        const int count=int(processingRate*.12),period=std::max(1,int(processingRate*.007));
+        watch=true;
+        for(int n=0;n<count;++n) {
+            if(n%period==0){
+                for(std::size_t i=8;i<controlCount;++i)
+                    state.values[i]=float(((n/period)+int(i))%2);
+                dsp.set(state);
+            }
+            const float y=dsp.tick(4*stimulus(n,processingRate),0);
+            if(!std::isfinite(y)||std::abs(y)>=4){watch=false;throw std::runtime_error("Moving power voicing became unstable");}
+        }
+        dsp.set(State{});dsp.reset();watch=false;
+        for(int n=0;n<512;++n)require(dsp.tick(0,0)==0,"Power-voicing filters retain audio after reset");
+    }
+    require(allocations==0,"Moving power voicing allocated");
+    std::cout<<"PASS simultaneous macro retargeting at 12 rate/factor routes; allocations="<<allocations<<'\n';
+}
+int main(){try{defaults();controlsAndPresets();macroVoicing();realtimeAndState();movingPowerVoicing();std::cout<<"PASS OriginalAmp development core; musical/reference acceptance remains pending\n";return 0;}catch(const std::exception& e){std::cerr<<"FAIL "<<e.what()<<'\n';return 1;}}

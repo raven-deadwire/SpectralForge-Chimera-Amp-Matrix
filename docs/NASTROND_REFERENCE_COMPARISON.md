@@ -74,6 +74,8 @@ This checkpoint records the measured baseline for subsequent voicing work. The s
 
 Follow-up: [reference-informed voicing and remeasurement](NASTROND_VOICING.md)
 records the subsequent DSP revision. The tables above remain the original baseline.
+The next [macro-direction pass](NASTROND_MACRO_DIRECTION.md) compares this baseline,
+the first voicing revision, and the revised IMPACT/BLOOM/ROT mapping on the same NAMs.
 
 ## Reproduction and evidence
 

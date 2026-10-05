@@ -1,5 +1,9 @@
 # Náströnd reference-informed voicing checkpoint
 
+Subsequent checkpoint: [macro-direction voicing pass](NASTROND_MACRO_DIRECTION.md)
+preserves this default response and corrects IMPACT/BLOOM/ROT endpoint direction.
+The measurements below remain the first-pass historical record.
+
 2026-10-05 KST. Development-only follow-up to the [26-NAM baseline](NASTROND_REFERENCE_COMPARISON.md)
 at `87683f753a18de96102bc9676fa5800a7e83aa81`. This is one original amp, not five
 hardware clones. Default GAIN remains **7.2**, and all five authored preset gain

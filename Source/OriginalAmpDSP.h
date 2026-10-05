@@ -59,6 +59,7 @@ class OriginalAmpDSP {
     struct Config {
         std::array<double,4> hp{},lp{};
         detail::Coeff middle;
+        std::array<detail::Coeff,5> voicing;
         double gain{},bass{},treble{},presence{},depth{},master{},clank{},crush{},impact{},rot{},bloom{};
         double tightenPole{},rotRecovery{},bloomRadius{},bloomCos{},bloomFeed{};
     };
@@ -66,7 +67,7 @@ class OriginalAmpDSP {
         std::array<detail::GainCell,4> cells;
         detail::RC input,tightener,bass,treble,feedbackLow,impactLow,impactSub,presence,output,dc,sagLow;
         detail::Filter middle;
-        std::array<detail::Filter,3> voicing;
+        std::array<detail::Filter,5> voicing;
         State current;
         Config config;
         double fast{},slow{},sag{},feedback{},bloom1{},bloom2{};
@@ -75,7 +76,6 @@ class OriginalAmpDSP {
     Definition definition=nastrond;
     State target;
     std::array<Channel,2> channels{};
-    std::array<detail::Coeff,3> voicing{};
     double rate=48000,inputPole{},outputPole{},bassPole{},treblePole{},presencePole{},dcPole{};
     double fastPole{},slowPole{},sagAttack{},sagRelease{},chargePole{},biasPole{},depthPole{};
     int smoothing=960;
@@ -96,6 +96,19 @@ class OriginalAmpDSP {
         c.bloomRadius=std::exp(-1/(rate*(.004+.04*c.bloom)));
         c.bloomCos=2*c.bloomRadius*std::cos(2*detail::pi*bloomHz/rate);
         c.bloomFeed=2*(1-c.bloomRadius)*std::sin(2*detail::pi*bloomHz/rate);
+        // Macro-dependent power voicing, centred on the existing defaults.
+        // IMPACT focuses the LF hit below the low-mid congestion; BLOOM adds
+        // low-mid body and relaxes the upper mids without increasing stage gain.
+        // ROT retains its asymmetric cells and exposes their upper harmonics.
+        // Use the stored float defaults so the neutral contour stays exact.
+        const double impact=c.impact-controls[std::size_t(C::impact)].initial;
+        const double bloom=c.bloom-controls[std::size_t(C::bloom)].initial;
+        const double rot=c.rot-controls[std::size_t(C::rot)].initial;
+        c.voicing={detail::Coeff::shelf(rate,100,1.95+4*impact,false),
+                   detail::Coeff::peak(rate,500,-2.11,.65),
+                   detail::Coeff::shelf(rate,2000,6.+3*impact+3*rot,true),
+                   detail::Coeff::peak(rate,180,-5*impact+3*bloom,.8),
+                   detail::Coeff::peak(rate,1400,-3*bloom,.6)};
         const double coupling=.8+.4*c.clank-.45*c.bloom;
         for(std::size_t i=0;i<4;++i){c.hp[i]=detail::pole(rate,definition.stages[i].couplingHz*coupling);c.lp[i]=detail::pole(rate,definition.stages[i].bandwidthHz);}
         return c;
@@ -110,11 +123,6 @@ public:
         fastPole=detail::timePole(rate,.001);slowPole=detail::timePole(rate,.035);
         sagAttack=detail::timePole(rate,.010);sagRelease=detail::timePole(rate,.120);
         chargePole=detail::timePole(rate,.002);biasPole=detail::timePole(rate,.045);
-        // Bounded broad contour fitted to equally weighted head-reference
-        // families; Meshuggah amp+cab is excluded. See NASTROND_VOICING.md.
-        voicing={detail::Coeff::shelf(rate,100,1.95,false),
-                 detail::Coeff::peak(rate,500,-2.11,.65),
-                 detail::Coeff::shelf(rate,2000,6.,true)};
         reset();
     }
     void set(State s) noexcept {
@@ -166,7 +174,7 @@ public:
         const double resonant=p.bloomFeed*bloomInput+p.bloomCos*c.bloom1-p.bloomRadius*p.bloomRadius*c.bloom2;
         c.bloom2=c.bloom1;c.bloom1=resonant;
         x+=.25*p.bloom*resonant;
-        for(std::size_t i=0;i<voicing.size();++i)x=c.voicing[i].tick(x,voicing[i]);
+        for(std::size_t i=0;i<p.voicing.size();++i)x=c.voicing[i].tick(x,p.voicing[i]);
         const double output=c.dc.high(c.output.low(x,outputPole),dcPole)*p.master;
         // The contour can overshoot at maximum EQ/depth/master. Leave normal
         // preset levels untouched and bend extreme peaks into a bounded rail.
