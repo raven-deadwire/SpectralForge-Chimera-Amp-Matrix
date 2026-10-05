@@ -6,7 +6,7 @@ import subprocess
 import tempfile
 import unittest
 
-from ci_pipeline import NAMES, THRESHOLDS, numeric_pass, seal, verify_dataset
+from ci_pipeline import NAMES, THRESHOLDS, numeric_pass, seal, verify_dataset, verify_training
 from ci_sources import LOCK, check_checkout, sha256
 
 
@@ -86,6 +86,38 @@ class EvidenceTests(unittest.TestCase):
             (root / 'acceptance.json').write_text(json.dumps({'status': 'PASS', 'release_approved': True}))
             seal(root, 'a' * 40, 'smoke')
             self.assertFalse(json.loads((root / 'acceptance.json').read_text())['release_approved'])
+
+    def test_training_requires_matching_dataset_models_and_checkpoint(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            (root / 'data').mkdir()
+            run = root / 'run'
+            run.mkdir()
+            manifest = {'source': {'source_commit': LOCK['capture']}}
+            (root / 'data/manifest.json').write_text(json.dumps(manifest))
+            config = {'dataset_sha256': sha256(root / 'data/manifest.json'), 'source': manifest['source'],
+                      'trainer_commit': LOCK['trainer']['commit'], 'target_player_commit': LOCK['player']['commit']}
+            (run / 'training-config.json').write_text(json.dumps(config))
+            checkpoint = run / 'checkpoint.pt'
+            checkpoint.write_bytes(b'checkpoint fixture; never deserialized')
+            rows = {}
+            for name in NAMES:
+                path = run / f'Nastrond-{name}.nam'
+                path.write_text(name)
+                rows[name] = {'sha256': sha256(path), 'official_roundtrip_max_abs': 0.}
+            (run / 'validation.json').write_text(json.dumps({'channels': rows}))
+            verify_training(root, manifest)
+            checkpoint.unlink()
+            with self.assertRaisesRegex(RuntimeError, 'checkpoint'):
+                verify_training(root, manifest)
+            checkpoint.write_bytes(b'checkpoint fixture')
+            (run / 'Nastrond-Fenrir.nam').write_text('wrong export')
+            with self.assertRaisesRegex(RuntimeError, 'hash mismatch'):
+                verify_training(root, manifest)
+            config['source'] = {'source_commit': 'wrong'}
+            (run / 'training-config.json').write_text(json.dumps(config))
+            with self.assertRaisesRegex(RuntimeError, 'source mismatch'):
+                verify_training(root, manifest)
 
 
 if __name__ == '__main__':

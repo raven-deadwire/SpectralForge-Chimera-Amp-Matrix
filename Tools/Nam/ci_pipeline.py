@@ -48,6 +48,23 @@ def verify_dataset(data):
     return manifest
 
 
+def verify_training(out, manifest):
+    run = out / 'run'
+    config = json.loads((run / 'training-config.json').read_text())
+    require(config['dataset_sha256'] == sha256(out / 'data/manifest.json'), 'Training dataset identity mismatch')
+    require(config['source'] == manifest['source'], 'Training capture source mismatch')
+    require(config['trainer_commit'] == LOCK['trainer']['commit'] and
+            config['target_player_commit'] == LOCK['player']['commit'], 'Training dependency mismatch')
+    require((run / 'checkpoint.pt').is_file(), 'Missing training checkpoint')
+    validation = json.loads((run / 'validation.json').read_text())
+    require(set(validation['channels']) == set(NAMES), 'Missing training channel')
+    for name in NAMES:
+        row = validation['channels'][name]
+        require(row['sha256'] == sha256(run / f'Nastrond-{name}.nam'), 'Training model hash mismatch')
+        delta = row['official_roundtrip_max_abs']
+        require(math.isfinite(delta) and delta <= 1e-6, 'Official A2 roundtrip failed')
+
+
 def command(out, label, argv):
     with (out / 'logs' / (label + '.log')).open('w') as log:
         log.write(json.dumps([str(v) for v in argv]) + '\n')
@@ -209,9 +226,11 @@ def main():
             '--threads', '2', '--batch', '1' if a.profile == 'smoke' else '2', '--frames', '256' if a.profile == 'smoke' else '2048',
             '--validation-selection', 'full'])
         verify_dataset(out / 'data')
+        verify_training(out, manifest)
         command(out, 'package', [sys.executable, script / 'package_a2.py', '--data', out / 'data', '--run', out / 'run',
             '--out', out / 'package', '--tool', a.tool])
         result = compare_package(out, a.tool)
+        require((out / 'package/Training/checkpoint.pt').is_file(), 'Packaged checkpoint missing')
         require(verify(a.deps, a.expected_source) == current, 'Source changed during pipeline')
         verify_dataset(out / 'data')
         status.update(compatibility='PASS', accuracy='PASS' if result['numerical_accuracy_pass'] else 'FAIL',

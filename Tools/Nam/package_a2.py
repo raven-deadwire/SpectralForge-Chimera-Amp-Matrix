@@ -94,7 +94,9 @@ def main():
             eq_runtime=json.loads(subprocess.check_output([str(args.tool),'render',str(path),str(raw),str(rendered),str(settings)],text=True))
             audition=np.fromfile(rendered,dtype='<f4')
             native=np.load(args.data/'audition'/f'{name}.npy')*output_scale
-            sf.write(args.out/'Audio'/f'{name}-Native-left-NAM-right.wav',np.stack([native,cpp],axis=1),48000,subtype='PCM_24')
+            # Diagnostic comparisons must retain over-range samples from an
+            # inaccurate model's calibration rather than silently PCM-clip them.
+            sf.write(args.out/'Audio'/f'{name}-Native-left-NAM-right.wav',np.stack([native,cpp],axis=1),48000,subtype='FLOAT')
             sf.write(args.out/'Audio'/f'{name}-TONE3000-EQ.wav',audition,48000,subtype='FLOAT')
             reports[name]={'character':character,'model_sha256':digest(path),'preset_sha256':digest(preset),
               'validation':stat,'python_tone3000_parity':parity,'silence_dbfs':silence_db,'engine':runtime,'preset':state,'eq_engine':eq_runtime,
