@@ -4,7 +4,7 @@
 Packing is a CPU training optimization only. Export extracts five separate
 WaveNets through upstream's official API; there is no channel interpolation.
 """
-import argparse, copy, hashlib, json, time, types
+import argparse, copy, hashlib, json, platform, time, types
 from pathlib import Path
 import numpy as np
 import torch
@@ -44,6 +44,8 @@ def main():
     ap=argparse.ArgumentParser();ap.add_argument('--data',type=Path,required=True);ap.add_argument('--out',type=Path,required=True)
     ap.add_argument('--trainer',type=Path,required=True);ap.add_argument('--steps',type=int,default=5000)
     ap.add_argument('--batch',type=int,default=2);ap.add_argument('--threads',type=int,default=4);ap.add_argument('--frames',type=int,default=2048)
+    ap.add_argument('--lr',type=float,default=.004);ap.add_argument('--lr-half-life',type=float,default=2000)
+    ap.add_argument('--lr-origin',type=int,default=0)
     ap.add_argument('--resume',action='store_true');args=ap.parse_args()
     torch.set_num_threads(args.threads);torch.manual_seed(6405);rng=np.random.default_rng(6405)
     template=json.loads((args.trainer/'nam/train/_resources/config_model_packed.json').read_text())['net']['config']['submodels'][-1]['config']
@@ -56,7 +58,8 @@ def main():
     train_cfg={'dataset_sha256':digest(args.data/'manifest.json'),'identity':identity,'config':cfg,'sample_rate':48000,
       'trainer_commit':'0072676419459f5d39e36f5b9fd4172f28d62cbf','target_player_commit':'ef6f178ae1ac6412b55fec6f058d86e640e5aaaf',
       'training_target_gain':gain,'export':'undo training gain in head_scale; fixed silence-bias correction; independent A2-Full WaveNets',
-      'source':source,'receptive_field':rf,'torch':torch.__version__,'batch':args.batch,'frames':args.frames,'seed':6405,'threads':args.threads}
+      'source':source,'receptive_field':rf,'torch':torch.__version__,'python':platform.python_version(),'batch':args.batch,'frames':args.frames,'seed':6405,'threads':args.threads,
+      'learning_rate':{'initial':args.lr,'half_life_steps':args.lr_half_life,'origin_step':args.lr_origin}}
     write_json(args.out/'training-config.json',train_cfg)
     x=np.load(args.data/'train/input.npy');ys=np.stack([np.load(args.data/'train'/f'{v[0]}.npy') for v in VOICES])
     vx=np.load(args.data/'validation/input.npy');vy=np.stack([np.load(args.data/'validation'/f'{v[0]}.npy') for v in VOICES])
@@ -67,6 +70,12 @@ def main():
         model.load_state_dict(ck['model']);opt.load_state_dict(ck['optimizer']);start=ck['step'];best=ck['best'];weights=ck['best_weights'];best_steps=ck['best_steps']
         rng.bit_generator.state=ck['rng'];torch.set_rng_state(ck['torch_rng'])
     elif (args.out/'checkpoint.pt').exists():raise RuntimeError('Use --resume or a fresh output directory')
+    for group in opt.param_groups:group['lr']=args.lr*(.5**(max(0,start-args.lr_origin)/args.lr_half_life))
+    stages_path=args.out/'training-stages.json'
+    stages=json.loads(stages_path.read_text()) if stages_path.exists() else []
+    if args.steps>start:
+        stages.append({'start':start,'end':args.steps,'batch':args.batch,'frames':args.frames,'learning_rate':train_cfg['learning_rate']})
+        write_json(stages_path,stages)
     t=time.monotonic();losses=[]
     print(json.dumps({'stage':'start','rf':rf,'channels':[v[0] for v in VOICES],'start_step':start}),flush=True)
     for step in range(start+1,args.steps+1):
@@ -78,7 +87,7 @@ def main():
         loss+=.1*((pred.mean(dim=-1)-yy.mean(dim=-1)).square()/power).mean()
         if not torch.isfinite(loss):raise RuntimeError('Nonfinite training loss')
         opt.zero_grad();loss.backward();torch.nn.utils.clip_grad_norm_(model.parameters(),5.);opt.step();model.apply_mask();losses.append(float(loss.detach()))
-        for group in opt.param_groups:group['lr']=.004*(.5**(step/2000))
+        for group in opt.param_groups:group['lr']=args.lr*(.5**(max(0,step-args.lr_origin)/args.lr_half_life))
         if step%100==0:
             print(json.dumps({'step':step,'loss':float(np.mean(losses[-100:])),'elapsed_seconds':round(time.monotonic()-t,2)}),flush=True)
         if step%500==0 or step==args.steps:

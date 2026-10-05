@@ -6,8 +6,10 @@ Chimera's shipping interface. `CHIMERA_BUILD_NAM_TOOLS` defaults to `OFF`.
 
 The current deliverable is a **test build**, pending the accuracy and listening
 checks recorded in its reports. It is not a release approval. The original
-single parametric-NAM experiment was superseded by the user's request for one
-NAM per channel and TONE3000 as the target player.
+single parametric-NAM experiment cannot satisfy the specified TONE3000 player:
+that player's A2 import and playback path does not expose additional model
+conditioning controls. One file per channel does not remove the user's
+parametric-model requirement. That requirement remains unsupported here.
 
 ## Frozen sources
 
@@ -18,7 +20,7 @@ NAM per channel and TONE3000 as the target player.
 | sdatkinson/neural-amp-modeler | `0072676419459f5d39e36f5b9fd4172f28d62cbf` |
 | tone-3000/tone3000-plugin | `ef6f178ae1ac6412b55fec6f058d86e640e5aaaf` |
 | TONE3000's NAM core | `1f42f88535884450104b8711d7595019afa0495b` |
-| Python runtime used | Python 3.11, PyTorch 2.8.0 CPU |
+| Python runtime used | Python 3.12, PyTorch 2.8.0 CPU |
 
 The target plugin's local-import gate accepts only A2 shapes. A legacy A1
 WaveNet or a ConcatWaveNet parametric fork is not a substitute. Each exported
@@ -26,8 +28,8 @@ file is the official 8-channel A2-Full WaveNet (23 layers, 12,145 weights,
 6,347-sample receptive field at 48 kHz). There is no separately trained Lite
 tier in these files. TONE3000 explicitly accepts a bare A2 WaveNet.
 
-The user's requested parametric control is implemented by the target player's
-six-band POST EQ. Each `.t3kpreset` embeds its NAM bytes and its EQ settings;
+The target player's six-band POST EQ is external processing, not an
+implementation of internally parametric NAM. Each `.t3kpreset` embeds its NAM bytes and its EQ settings;
 no TONE3000 account or uploaded model URL is needed to load the preset offline.
 The 13 original amp controls are fixed capture settings, documented in the
 package. The EQ does not claim to reproduce those amp controls.
@@ -61,7 +63,7 @@ headers are compared to the frozen release before capture.
 Training uses a common 0.1 numerical target scale. Final files then receive a
 fixed per-channel output calibration: the shared validation input through each
 channel's actual TONE3000 POST EQ measures -20 dBFS RMS. This preserves input
-drive and avoids relying on sine-based normalization to balance different
+drive and avoids relying on metadata-based normalization to balance different
 channel responses. The native reference receives exactly the same fixed gain
 in all accuracy comparisons. Normalize is disabled; per-block/global In and
 Out remain 0 dB (encoded as 0.5 by TONE3000), Mix is 100%, and the independent
@@ -130,6 +132,38 @@ training is not a ten-minute dedicated real-time qualification. Actual GUI/DAW
 loading, saved-session restoration, and recorded-DI listening remain separate
 acceptance steps. No public model release or homepage update is performed by
 this pipeline.
+
+## Refinement and independent evaluation
+
+The refinement trainer supports an explicit learning-rate restart and records
+batch size, supervised frames and schedule per stage. Existing model/data
+identity checks still apply. Preserve the original checkpoint and its exported
+models so the next build can be compared against the delivered baseline.
+
+`capture_probe.py` renders an independently sourced input with the exact
+renderer hash and channel settings used by the training capture. The NAM
+project's official `v3_0_0.wav` is available from its GUI's documented download
+link; its published strong MD5 is `36cd1af62985c2fac3e654333e36431e`.
+For this refinement the entire 190-second input is evaluation-only. It is not
+used for training, optimizer changes, checkpoint selection or level matching.
+Do not distribute third-party input audio as part of this pack.
+
+`compare_a2.py` compares the two frozen exported model sets on the reserved
+24-second synthetic test and the external V3 input through the actual target
+engine. It reports ESR, window distributions, level/peak errors and four
+frequency-band level errors without fitted gain or time alignment. External
+signal sections are reported separately. This is numerical evaluation, not
+a claim that recorded-instrument listening or host GUI acceptance passed.
+
+`history_probe.py` constructs two different past histories followed by the
+same input to measure one finite-memory representation bound. Its result is
+specific to that constructed pair and must not be generalized to other
+inputs or used to excuse a failing fidelity measurement.
+
+Level calibration here means a fixed digital RMS balance. It is not a measured
+hardware input/output dBu calibration. Playback checks use 48 kHz and no
+additional player oversampling; the captured source itself includes native
+4x oversampling.
 
 Upstream NAM and TONE3000 are their respective authors' projects. Their source
 and dependency licenses apply; no affiliation or endorsement is implied.
