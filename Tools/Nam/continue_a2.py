@@ -162,6 +162,8 @@ def trainer_command(args, end, checkpoint):
     if args.recipe != 'official-a2':
         cmd += ['--lr', '.001', '--lr-half-life', '10000', '--lr-origin', '0',
                 '--loss-normalization', 'channel']
+    if getattr(args, 'learning_rate', None) is not None:
+        cmd += ['--lr', str(args.learning_rate)]
     tail_fraction = args.tail_fraction if args.tail_fraction is not None else (.05 if args.recipe != 'official-a2' else None)
     if tail_fraction is not None:
         cmd += ['--tail-fraction', str(tail_fraction)]
@@ -181,6 +183,8 @@ def main():
                    help='Optional trainer recipe; omission preserves the legacy objective')
     p.add_argument('--tail-fraction', type=float,
                    help='Optional matched-data override; default legacy .05, official-a2 0')
+    p.add_argument('--learning-rate', type=float,
+                   help='Experimental LR override; changing an official recipe identity requires a fresh warm start')
     p.add_argument('--max-stages', type=int, default=1,
                    help='Verified stages in this invocation (default 1; 0 keeps running until a stop condition)')
     args = p.parse_args()
@@ -188,6 +192,8 @@ def main():
         raise ValueError('Positive step/thread budgets and nonnegative --max-stages required')
     if args.tail_fraction is not None and not 0 <= args.tail_fraction <= .25:
         raise ValueError('Tail fraction must be between 0 and .25')
+    if args.learning_rate is not None and (not math.isfinite(args.learning_rate) or args.learning_rate <= 0):
+        raise ValueError('Learning-rate override must be finite and positive')
     args.run.mkdir(parents=True, exist_ok=True)
     lock = (args.run/'coordinator.lock').open('a+')
     try:

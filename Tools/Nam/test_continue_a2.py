@@ -175,6 +175,11 @@ class CoordinatorTests(unittest.TestCase):
         args.tail_fraction = .05
         matched = coordinator.trainer_command(args, 2000, Path('/nonexistent-checkpoint'))
         self.assertEqual(matched[matched.index('--tail-fraction')+1], '0.05')
+        args.learning_rate = .001
+        reduced = coordinator.trainer_command(args, 500, Path('/nonexistent-checkpoint'))
+        self.assertEqual(reduced[reduced.index('--lr')+1], '0.001')
+        self.assertNotIn('--loss-normalization', reduced)
+        args.learning_rate = None
         args.tail_fraction = None
         args.recipe = None
         legacy = coordinator.trainer_command(args, 2000, Path('/nonexistent-checkpoint'))

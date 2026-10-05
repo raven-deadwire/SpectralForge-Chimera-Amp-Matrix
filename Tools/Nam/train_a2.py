@@ -103,6 +103,9 @@ def main():
         ck=torch.load(args.out/'checkpoint.pt',map_location='cpu',weights_only=False)
         if ck['identity']!=identity:raise RuntimeError('Resume identity mismatch')
         if ck.get('recipe','legacy')!=args.recipe:raise RuntimeError('Resume recipe mismatch')
+        prior_config=json.loads((args.out/'training-config.json').read_text())
+        if prior_config['identity']!=ck['identity']:raise RuntimeError('Resume checkpoint/config identity mismatch')
+        train_cfg['warm_start']=prior_config.get('warm_start')
         model.load_state_dict(ck['model']);opt.load_state_dict(ck['optimizer']);start=ck['step'];best=ck['best'];weights=ck['best_weights'];best_steps=ck['best_steps']
         rng.bit_generator.state=ck['rng'];torch.set_rng_state(ck['torch_rng'])
         if ck.get('validation_selection','window')!=args.validation_selection:

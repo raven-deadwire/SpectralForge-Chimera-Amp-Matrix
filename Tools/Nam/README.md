@@ -130,6 +130,14 @@ loss keeps its cause unknown. Unique log names preserve interrupted attempts.
 `--max-stages 0` explicitly restores the older continuous loop, but starting a
 background process is never proof that it will survive the execution session.
 
+`--learning-rate` provides an explicit experimental override. For example,
+`--recipe official-a2 --learning-rate .001` retains the upstream objective and
+normalization while testing a lower warm-start learning rate. It is not the
+upstream default. Use a separate directory and the same frozen source/crops.
+`summarize_recipes.py --comparison <directory>` verifies the completed legacy
+and official-a2 evidence before writing a report. `--candidate official-a2-lr001`
+compares the named lower-LR arm against legacy and writes separate reports.
+
 Loss/gradient parity with upstream, normalization/export invariance and the
 bounded coordinator's failure paths are covered by `test_a2_recipe.py` and
 `test_continue_a2.py`. Passing these checks is software verification only;
