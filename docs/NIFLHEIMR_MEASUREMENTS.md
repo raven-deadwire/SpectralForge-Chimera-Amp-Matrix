@@ -158,3 +158,37 @@ Actual bass DI, common IR/level-matched listening, musical acceptance, commercia
 DAW lifecycle, Windows/macOS product acceptance and target-hardware CPU approval
 remain explicit `PENDING_MANUAL_EVIDENCE`. Neither this harness nor its CI job can
 promote `release_approved`, even if every technical measurement completes.
+
+## WAV publication integrity
+
+The October 7 long-route investigation reproduced a complete CH1 after close
+(2,062,394 bytes, SHA `903a8e17…`) becoming an earlier-content prefix **before**
+directory publication. A second diagnostic captured its file identifier changing
+from `1711382` to `1711386`, with 1,904,698 bytes at pre-publish, post-publish and
+parent first read. The renderer never reopens CH1 for writing after close. This
+local evidence identifies pathname replacement outside the closed writer; it
+does not identify the external actor or establish an OS-wide rename defect.
+See `Validation/niflheimr-publication-reproduction.json` for both reproductions.
+
+Each channel now writes to a `.wav.writing` file, flushes/closes it, verifies the
+expected float-WAV length, then moves the completed file to its immutable WAV
+name. Every boundary emits a machine-readable `NIFLHEIMR_IO` line: `post_flush`,
+`post_file_publish`, `pre_publish`, and `post_publish`. Each records size, actual
+bytes hashed, SHA256, size after hashing, and a diagnostic file identifier.
+The latter is informational (identifiers need not be portable/stable across
+filesystems); content and length must agree at every boundary. An unexpected
+change fails immediately, without waiting, retrying, rerendering, or accepting
+a shorter WAV. Incomplete renderer directories are retained as `.failed-*`.
+
+The parent records its **first** read in each route's `io-observations.json`,
+including expected length and renderer observations. The verified byte buffer
+also supplies spectral analysis, eliminating a second unverified file read.
+A mismatch preserves those original bytes as `.first-read.bin` and prevents
+completed measurement evidence. This is a file-integrity contract, not an
+alias-quality or CPU-performance acceptance gate.
+
+The regression repeats the formerly failing 96 kHz / 8x / GAIN 0.75 / BLEND 1
+stereo 3001 Hz standard-length route (257,792 frames) in three fresh renderer
+processes. It checks all five channels and every publication/read boundary;
+a separate deliberately truncated fixture verifies first-read preservation
+and rejection. Neither test authenticates an instrument DI or approves release.

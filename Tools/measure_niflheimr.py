@@ -114,8 +114,9 @@ def float_wav(path, rate, samples):
     Path(path).write_bytes(b"RIFF" + struct.pack("<I", len(chunks) + 4) + b"WAVE" + chunks)
 
 
-def read_wav(path):
-    raw = Path(path).read_bytes()
+def read_wav(path, *, raw=None):
+    if raw is None:
+        raw = Path(path).read_bytes()
     if raw[:4] != b"RIFF" or raw[8:12] != b"WAVE" or len(raw) != struct.unpack_from("<I", raw, 4)[0] + 8:
         raise ValueError("Invalid RIFF output")
     pos, audio, fmt = 12, None, None
@@ -130,6 +131,25 @@ def read_wav(path):
     if fmt is None or fmt[0] != 3 or fmt[5] != 32 or audio is None or not np.isfinite(audio).all():
         raise ValueError("Expected finite float32 WAV")
     return fmt[2], audio.reshape(-1, fmt[1])
+
+
+def read_output(path, row, expected_bytes, observations):
+    """One read supplies both integrity verification and spectral analysis."""
+    before = path.stat()
+    raw = path.read_bytes()
+    observation = {"phase": "parent_first_read", "file": path.name,
+                   "bytes": before.st_size, "bytes_read": len(raw), "file_identifier": str(before.st_ino),
+                   "post_read_bytes": path.stat().st_size,
+                   "sha256": hashlib.sha256(raw).hexdigest(), "expected_bytes": expected_bytes}
+    observations.append(observation)
+    # Write before raising so the very first parent read survives a failed run.
+    save_json(path.parent / "io-observations.json", observations)
+    if (observation["sha256"] != row["sha256"] or
+            any(observation[key] != expected_bytes for key in ("bytes", "bytes_read", "post_read_bytes"))):
+        (path.parent / (path.name + ".first-read.bin")).write_bytes(raw)
+        raise ValueError(f"Output integrity mismatch: {path}; expected={row['sha256']}; "
+                         f"actual={observation['sha256']}; bytes={len(raw)}; expected_bytes={expected_bytes}")
+    return raw
 
 
 def spectrum(samples):
@@ -351,6 +371,8 @@ def execute(args):
             if process.returncode:
                 raise RuntimeError(f"Renderer failed: {route}\n{process.stdout}\n{process.stderr}")
             manifest = json.loads((out / "manifest.json").read_text(encoding="utf-8"))
+            observations = [json.loads(line[len("NIFLHEIMR_IO "):]) for line in process.stdout.splitlines()
+                            if line.startswith("NIFLHEIMR_IO ")]
             verify_manifest(manifest, source, input_path, rate, factor, block)
             if "build" in evidence and evidence["build"] != manifest["build"]:
                 raise ValueError("Build identity changed during measurement")
@@ -358,9 +380,8 @@ def execute(args):
             evidence["compiled_source_hashes"] = manifest["source_hashes"]
             for row in manifest["outputs"]:
                 wav = out / row["file"]
-                actual_hash = digest(wav)
-                if actual_hash != row["sha256"]:
-                    raise ValueError(f"Output hash mismatch: {route}/{row['file']}; expected={row['sha256']}; actual={actual_hash}; bytes={wav.stat().st_size}")
+                raw = read_output(wav, row, 58 + manifest["output_frames"] * manifest["audio_channels"] * 4,
+                                  observations)
                 if len(row["controls"]) != 14 or abs(row["controls"]["gain"] - gain) > 1e-6 or row["controls"]["blend"] != config["blend"]:
                     raise ValueError("Resolved controls do not match requested route")
                 if kind == "cpu" and (len(row["cpu"]["repetitions"]) != config["repeats"] or
@@ -376,7 +397,7 @@ def execute(args):
                     entry["summary"] = summarize_cpu(row["cpu"])
                     evidence["cpu"].append(entry)
                 else:
-                    actual_rate, audio = read_wav(wav)
+                    actual_rate, audio = read_wav(wav, raw=raw)
                     if actual_rate != rate or audio.shape[1] != 2:
                         raise ValueError("Unexpected render format")
                     offset = settle + row["latency_samples"]

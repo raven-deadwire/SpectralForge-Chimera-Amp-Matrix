@@ -35,6 +35,28 @@ using namespace spectralforge;
 void require(bool condition, const juce::String& message) {
     if (!condition) throw std::runtime_error(message.toStdString());
 }
+juce::var observeFile(const juce::File& file, const char* phase, const juce::String& logicalName = {}) {
+    auto row = std::make_unique<juce::DynamicObject>();
+    row->setProperty("phase", phase);
+    row->setProperty("file", logicalName.isEmpty() ? file.getFileName() : logicalName);
+    row->setProperty("physical_filename", file.getFileName());
+    row->setProperty("bytes", file.getSize());
+    row->setProperty("file_identifier", juce::String(file.getFileIdentifier()));
+    auto input = file.createInputStream();
+    require(input != nullptr && input->openedOk(), "Cannot inspect output WAV.");
+    row->setProperty("sha256", juce::SHA256(*input).toHexString());
+    row->setProperty("bytes_read", input->getPosition());
+    row->setProperty("post_read_bytes", file.getSize());
+    const juce::var result(row.release());
+    std::cout << "NIFLHEIMR_IO " << juce::JSON::toString(result, true) << std::endl;
+    return result;
+}
+void verifyObservation(const juce::var& row, juce::int64 expectedBytes, const juce::String& expectedHash = {}) {
+    require(juce::int64(row["bytes"]) == expectedBytes && juce::int64(row["bytes_read"]) == expectedBytes
+            && juce::int64(row["post_read_bytes"]) == expectedBytes
+            && (expectedHash.isEmpty() || row["sha256"].toString() == expectedHash),
+            "Output integrity mismatch at " + row["phase"].toString() + ": " + row["file"].toString());
+}
 void usage() {
     std::cout << "Usage: ChimeraNiflheimrRender input.wav NEW-output-directory\n"
                  "  [--oversampling 1|2|4|8] [--block-size 1..8192]\n"
@@ -234,12 +256,15 @@ juce::var render(const Options& options, const juce::File& staging, juce::AudioF
     const auto index = state.channel;
     const auto filename = "CH" + juce::String(index + 1) + "-" + juce::String(niflheimr::channelKeys[index]) + ".wav";
     const auto output = staging.getChildFile(filename);
+    // Keep the final WAV name immutable: an observer must never see it growing.
+    // Closing a stream alone cannot protect a live pathname from replacement.
+    const auto writing = staging.getChildFile(filename + ".writing");
     Amp amp;
     amp.prepare({reader.sampleRate, juce::uint32(options.block), reader.numChannels});
     amp.setNative(state);
     amp.setOversampling(options.factor == 1 ? 0 : options.factor == 2 ? 1 : options.factor == 4 ? 2 : 3);
     amp.reset();
-    FloatWav wav(output, int(reader.numChannels), int(reader.sampleRate), outputFrames, options.block);
+    FloatWav wav(writing, int(reader.numChannels), int(reader.sampleRate), outputFrames, options.block);
     juce::AudioBuffer<float> buffer(int(reader.numChannels), options.block);
     double peak = 0, energy = 0;
     juce::int64 overUnity = 0;
@@ -262,12 +287,18 @@ juce::var render(const Options& options, const juce::File& staging, juce::AudioF
         wav.write(buffer);
     }
     wav.finish();
+    const auto expectedBytes = juce::int64(58) + juce::int64(outputFrames) * reader.numChannels * 4;
+    const auto observation = observeFile(writing, "post_flush", filename);
+    verifyObservation(observation, expectedBytes);
+    require(!output.exists() && writing.moveFileTo(output), "Cannot publish complete WAV.");
+    verifyObservation(observeFile(output, "post_file_publish"), expectedBytes, observation["sha256"].toString());
     auto result = std::make_unique<juce::DynamicObject>();
     result->setProperty("channel_index", index);
     result->setProperty("channel_name", juce::String(niflheimr::channelNames[index]));
     result->setProperty("channel_key", juce::String(niflheimr::channelKeys[index]));
     result->setProperty("file", filename);
-    result->setProperty("sha256", juce::SHA256(output).toHexString());
+    result->setProperty("sha256", observation["sha256"]);
+    result->setProperty("post_flush", observation);
     result->setProperty("latency_samples", amp.latency());
     result->setProperty("peak", peak);
     result->setProperty("rms", std::sqrt(energy / (double(outputFrames) * reader.numChannels)));
@@ -334,13 +365,26 @@ int main(int argc, char** argv) {
         manifest->setProperty("outputs", outputs);
         const auto text = juce::JSON::toString(juce::var(manifest.release()), true);
         require(staging.getChildFile("manifest.json").replaceWithText(text), "Cannot write manifest.");
+        for (const auto& row : outputs)
+            verifyObservation(observeFile(staging.getChildFile(row["file"].toString()), "pre_publish"),
+                              58 + frames * reader->numChannels * 4, row["sha256"].toString());
         require(!options.destination.exists() && staging.moveFileTo(options.destination), "Cannot publish output directory.");
+        staging = options.destination;
+        for (const auto& row : outputs)
+            verifyObservation(observeFile(options.destination.getChildFile(row["file"].toString()), "post_publish"),
+                              58 + frames * reader->numChannels * 4, row["sha256"].toString());
         staging = juce::File{};
         std::cout << "Rendered 5 Niflheimr channels: " << options.destination.getFullPathName()
                   << "\nHead-only prototype renders; musical acceptance remains pending.\n";
         return 0;
     } catch (const std::exception& error) {
-        if (staging.exists()) staging.deleteRecursively();
+        if (staging.exists()) {
+            const auto name = staging.getFileName();
+            const auto failed = staging.getSiblingFile(name.contains(".partial-")
+                ? name.replace(".partial-", ".failed-") : name + ".failed-" + juce::Uuid().toString());
+            const auto preserved = staging.moveFileTo(failed) ? failed : staging;
+            std::cerr << "Incomplete render preserved: " << preserved.getFullPathName() << '\n';
+        }
         std::cerr << "FAIL " << error.what() << '\n';
         return 1;
     }
