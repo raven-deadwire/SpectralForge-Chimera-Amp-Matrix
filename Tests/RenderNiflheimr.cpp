@@ -1,4 +1,6 @@
 #include "Amplifier.h"
+#include "NiflheimrMeasurementBuild.h"
+#include <chrono>
 #include <juce_audio_formats/juce_audio_formats.h>
 #include <juce_cryptography/juce_cryptography.h>
 #include <algorithm>
@@ -38,6 +40,8 @@ void usage() {
                  "  [--oversampling 1|2|4|8] [--block-size 1..8192]\n"
                  "  [--controls controls.json] [--tail-seconds 0..10]\n"
                  "  [--input-kind supplied|synthetic]\n"
+                 "  [--benchmark-repeats 0..30] [--benchmark-blocks 16..8192]\n"
+                 "  [--benchmark-warmup-blocks 1..8192]\n"
                  "controls.json: {\"controls\": {\"gain\": 0.5, \"blend\": 0.65}}\n"
                  "All five channels receive identical audio and control overrides.\n"
                  "Outputs are head-only float WAVs, without Cab/IR, PRE or POST.\n";
@@ -53,6 +57,7 @@ double number(const juce::String& value, const char* option) {
 struct Options {
     juce::File input, destination, controls;
     int factor = 4, block = 256;
+    int repeats = 0, measuredBlocks = 512, warmupBlocks = 512;
     double tail = .5;
     juce::String inputKind = "supplied";
 };
@@ -68,7 +73,15 @@ Options parse(int argc, char** argv) {
         require(!seen.contains(key), "Duplicate option " + key);
         seen.add(key);
         const juce::String value(argv[i + 1]);
-        if (key == "--oversampling") {
+        if (key == "--benchmark-repeats" || key == "--benchmark-blocks" || key == "--benchmark-warmup-blocks") {
+            const auto n = number(value, key.toRawUTF8());
+            const int low = key == "--benchmark-repeats" ? 0 : key == "--benchmark-blocks" ? 16 : 1;
+            const int high = key == "--benchmark-repeats" ? 30 : 8192;
+            require(n >= low && n <= high && n == std::floor(n), "Invalid benchmark integer: " + key);
+            if (key == "--benchmark-repeats") options.repeats = int(n);
+            else if (key == "--benchmark-blocks") options.measuredBlocks = int(n);
+            else options.warmupBlocks = int(n);
+        } else if (key == "--oversampling") {
             const auto n = number(value, "--oversampling");
             require(n == 1 || n == 2 || n == 4 || n == 8, "Oversampling must be 1, 2, 4 or 8.");
             options.factor = int(n);
@@ -154,6 +167,68 @@ public:
         stream.reset();
     }
 };
+// Fresh production wrapper per repetition; all reads/copies/statistics are outside
+// the measured region. Timings include scheduler interruptions and clock overhead.
+// This is an offline head benchmark, not an audio-device callback or DAW test.
+juce::var benchmark(const Options& options, juce::AudioFormatReader& reader,
+                    const AmpNativeState& state) {
+    if (options.repeats == 0) return {};
+    juce::ScopedNoDenormals noDenormals;
+    using Clock = std::chrono::steady_clock;
+    require(Clock::is_steady, "Benchmark requires a monotonic clock.");
+    juce::AudioBuffer<float> source(int(reader.numChannels), int(reader.lengthInSamples));
+    require(reader.read(&source, 0, source.getNumSamples(), 0, true, reader.numChannels == 2), "Benchmark source read failed.");
+    juce::Array<juce::var> repetitions;
+    for (int repetition = 0; repetition < options.repeats; ++repetition) {
+        Amp amp;
+        amp.prepare({reader.sampleRate, juce::uint32(options.block), reader.numChannels});
+        amp.setNative(state);
+        amp.setOversampling(options.factor == 1 ? 0 : options.factor == 2 ? 1 : options.factor == 4 ? 2 : 3);
+        amp.reset();
+        juce::AudioBuffer<float> buffer(int(reader.numChannels), options.block);
+        std::vector<double> timings(std::size_t(options.measuredBlocks), 0.0);
+        double checksum = 0;
+        int cursor = 0;
+        for (int block = -options.warmupBlocks; block < options.measuredBlocks; ++block) {
+            for (int n = 0; n < options.block; ++n) {
+                for (int channel = 0; channel < buffer.getNumChannels(); ++channel)
+                    buffer.setSample(channel, n, source.getSample(channel, cursor));
+                cursor = (cursor + 1) % source.getNumSamples();
+            }
+            if (block < 0) amp.process(buffer);
+            else {
+                const auto start = Clock::now();
+                amp.process(buffer);
+                const auto stop = Clock::now();
+                timings[std::size_t(block)] = std::chrono::duration<double, std::micro>(stop - start).count();
+            }
+            for (int channel = 0; channel < buffer.getNumChannels(); ++channel)
+                for (int n = 0; n < options.block; ++n) {
+                    const double value = buffer.getSample(channel, n);
+                    require(std::isfinite(value), "Benchmark produced nonfinite output.");
+                    checksum += value * value;
+                }
+        }
+        juce::Array<juce::var> raw;
+        for (const auto us : timings) raw.add(us);
+        auto row = std::make_unique<juce::DynamicObject>();
+        row->setProperty("repeat", repetition);
+        row->setProperty("block_us", raw);
+        row->setProperty("output_energy_checksum", checksum);
+        repetitions.add(juce::var(row.release()));
+    }
+    auto result = std::make_unique<juce::DynamicObject>();
+    result->setProperty("protocol", "production-process-steady-clock.v1");
+    result->setProperty("clock", "std::chrono::steady_clock");
+    result->setProperty("denormals", "juce::ScopedNoDenormals");
+    result->setProperty("clock_period_seconds", double(Clock::period::num) / double(Clock::period::den));
+    result->setProperty("timed_scope", "Amp::process only; buffer copy, file I/O, setup, checksum and statistics excluded");
+    result->setProperty("warmup_blocks_per_repeat", options.warmupBlocks);
+    result->setProperty("measured_blocks_per_repeat", options.measuredBlocks);
+    result->setProperty("block_budget_us", 1.0e6 * options.block / reader.sampleRate);
+    result->setProperty("repetitions", repetitions);
+    return juce::var(result.release());
+}
 juce::var render(const Options& options, const juce::File& staging, juce::AudioFormatReader& reader,
                  const AmpNativeState& state, int outputFrames) {
     const auto index = state.channel;
@@ -200,6 +275,7 @@ juce::var render(const Options& options, const juce::File& staging, juce::AudioF
     auto settings = std::make_unique<juce::DynamicObject>();
     for (std::size_t i = 0; i < niflheimr::controlCount; ++i) settings->setProperty(niflheimr::controls[i].id, state.values[i]);
     result->setProperty("controls", juce::var(settings.release()));
+    if (options.repeats > 0) result->setProperty("cpu", benchmark(options, reader, state));
     return juce::var(result.release());
 }
 } // namespace
@@ -231,6 +307,8 @@ int main(int argc, char** argv) {
         auto manifest = std::make_unique<juce::DynamicObject>();
         manifest->setProperty("schema", "spectralforge.niflheimr.head-render.v1");
         manifest->setProperty("configured_git_head", CHIMERA_NIFLHEIMR_GIT_HEAD);
+        manifest->setProperty("build", juce::JSON::parse(CHIMERA_NIFLHEIMR_BUILD_JSON));
+        manifest->setProperty("release_approved", false);
         auto sourceHashes = std::make_unique<juce::DynamicObject>();
         sourceHashes->setProperty("NiflheimrDSP.h", CHIMERA_NIFLHEIMR_CORE_SHA256);
         sourceHashes->setProperty("NiflheimrDefinition.h", CHIMERA_NIFLHEIMR_DEFINITION_SHA256);

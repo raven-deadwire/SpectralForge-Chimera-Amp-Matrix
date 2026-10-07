@@ -55,6 +55,7 @@ def floats(path):
 def verify(directory, source, channel_count, frames, factor=4):
     manifest = json.loads((directory / 'manifest.json').read_text())
     assert manifest['schema'] == 'spectralforge.niflheimr.head-render.v1'
+    assert manifest['release_approved'] is False
     head = manifest['configured_git_head']
     assert head in ('', 'source-archive') or (len(head) == 40 and all(c in '0123456789abcdef' for c in head))
     for name in ['NiflheimrDSP.h', 'NiflheimrDefinition.h', 'Amplifier.h']:
@@ -131,7 +132,9 @@ def main():
         run(mono, baseline, success=False)
         assert (baseline / 'manifest.json').read_bytes() == before, 'Existing render was modified'
         cases = [('--oversampling', '3'), ('--block-size', '0'), ('--block-size', '2.5'),
-                 ('--tail-seconds', 'nan'), ('--bogus', '1'), ('--input-kind', 'real-di')]
+                 ('--tail-seconds', 'nan'), ('--bogus', '1'), ('--input-kind', 'real-di'),
+                 ('--benchmark-repeats', '-1'), ('--benchmark-blocks', 'nan'),
+                 ('--benchmark-warmup-blocks', '0'), ('--benchmark-repeats', '1.5')]
         for index, options in enumerate(cases):
             destination = root / f'reject-option-{index}'
             run(mono, destination, *options, success=False)

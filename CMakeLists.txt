@@ -83,6 +83,19 @@ set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS
 file(SHA256 "${CMAKE_CURRENT_SOURCE_DIR}/Source/NiflheimrDSP.h" CHIMERA_NIFLHEIMR_CORE_SHA256)
 file(SHA256 "${CMAKE_CURRENT_SOURCE_DIR}/Source/NiflheimrDefinition.h" CHIMERA_NIFLHEIMR_DEFINITION_SHA256)
 file(SHA256 "${CMAKE_CURRENT_SOURCE_DIR}/Source/Amplifier.h" CHIMERA_NIFLHEIMR_WRAPPER_SHA256)
+# Measurement provenance also covers the native dispatcher and all source headers.
+file(GLOB CHIMERA_NIFLHEIMR_HEADERS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/Source/*.h")
+set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS ${CHIMERA_NIFLHEIMR_HEADERS} Tests/RenderNiflheimr.cpp)
+set(CHIMERA_NIFLHEIMR_HEADER_DIGESTS "")
+foreach(header IN LISTS CHIMERA_NIFLHEIMR_HEADERS)
+  file(SHA256 "${header}" digest)
+  get_filename_component(name "${header}" NAME)
+  string(APPEND CHIMERA_NIFLHEIMR_HEADER_DIGESTS "${name}:${digest}\n")
+endforeach()
+string(SHA256 CHIMERA_NIFLHEIMR_HEADER_SET_SHA256 "${CHIMERA_NIFLHEIMR_HEADER_DIGESTS}")
+file(SHA256 "${CMAKE_CURRENT_SOURCE_DIR}/Tests/RenderNiflheimr.cpp" CHIMERA_NIFLHEIMR_RENDERER_SHA256)
+configure_file(cmake/NiflheimrMeasurementBuild.h.in generated/NiflheimrMeasurementBuild.h @ONLY)
+target_compile_definitions(ChimeraNiflheimrRender PRIVATE CHIMERA_MEASUREMENT_CONFIG="$<CONFIG>")
 # Bind the renderer translation unit only: changing a voicing must not rebuild
 # every JUCE module solely because a source fingerprint changed.
 set_property(SOURCE Tests/RenderNiflheimr.cpp APPEND PROPERTY COMPILE_DEFINITIONS
@@ -287,3 +300,16 @@ target_include_directories(ChimeraPitchRegressionTests PRIVATE Source)
 target_compile_definitions(ChimeraPitchRegressionTests PRIVATE JUCE_USE_CURL=0 JUCE_WEB_BROWSER=0)
 target_link_libraries(ChimeraPitchRegressionTests PRIVATE juce::juce_dsp juce::juce_audio_basics PUBLIC juce::juce_recommended_config_flags)
 add_test(NAME ChimeraPitchRegressionTests COMMAND ChimeraPitchRegressionTests)
+
+# Optional measurement contracts: normal product builds do not need NumPy.
+option(CHIMERA_ENABLE_NIFLHEIMR_MEASUREMENTS "Enable NumPy measurement harness tests" OFF)
+if(CHIMERA_ENABLE_NIFLHEIMR_MEASUREMENTS)
+  execute_process(COMMAND "${Python3_EXECUTABLE}" -c "import numpy"
+    RESULT_VARIABLE CHIMERA_NUMPY_RESULT)
+  if(NOT CHIMERA_NUMPY_RESULT EQUAL 0)
+    message(FATAL_ERROR "Niflheimr measurements require NumPy in the selected Python interpreter")
+  endif()
+  add_test(NAME ChimeraNiflheimrMeasurementTests
+    COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/Tests/test_niflheimr_measurements.py" "$<TARGET_FILE:ChimeraNiflheimrRender>")
+  set_tests_properties(ChimeraNiflheimrMeasurementTests PROPERTIES TIMEOUT 300)
+endif()

@@ -210,3 +210,11 @@ not an exact-head CI or release verdict.
 Native UI execution is blocked in this environment because no active display
 server/window manager is available. Windows/macOS CI, native UI and actual DAW
 acceptance remain separate. The local catalogue/preparation checks also pass.
+
+## Repeatable alias/CPU investigation
+
+[`NIFLHEIMR_MEASUREMENTS.md`](NIFLHEIMR_MEASUREMENTS.md) specifies the automated
+production-render spectrum and process-time harness, numerical controls,
+versioned JSON evidence, raw timings, full spectra and provenance-compatible
+regression comparisons. These are descriptive synthetic head-only measurements.
+They do not promote `release_approved` or satisfy the manual acceptance above.
