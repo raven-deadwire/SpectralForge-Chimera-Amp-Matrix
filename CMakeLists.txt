@@ -63,6 +63,35 @@ target_compile_definitions(ChimeraOriginalAmpIntegrationTests PRIVATE JUCE_USE_C
 target_link_libraries(ChimeraOriginalAmpIntegrationTests PRIVATE juce::juce_audio_utils juce::juce_dsp PUBLIC juce::juce_recommended_config_flags)
 add_test(NAME ChimeraOriginalAmpIntegrationTests COMMAND ChimeraOriginalAmpIntegrationTests)
 
+# Niflheimr development core and real native-route evidence. These technical
+# gates do not replace instrument-DI/Cab listening or authorize publication.
+add_executable(ChimeraNiflheimrCoreTests Tests/NiflheimrCoreTests.cpp)
+target_include_directories(ChimeraNiflheimrCoreTests PRIVATE Source)
+add_test(NAME ChimeraNiflheimrCoreTests COMMAND ChimeraNiflheimrCoreTests)
+juce_add_console_app(ChimeraNiflheimrIntegrationTests PRODUCT_NAME "Chimera Niflheimr Integration Tests")
+target_sources(ChimeraNiflheimrIntegrationTests PRIVATE Tests/NiflheimrIntegrationTests.cpp)
+target_include_directories(ChimeraNiflheimrIntegrationTests PRIVATE Source)
+target_compile_definitions(ChimeraNiflheimrIntegrationTests PRIVATE JUCE_USE_CURL=0 JUCE_WEB_BROWSER=0)
+target_link_libraries(ChimeraNiflheimrIntegrationTests PRIVATE juce::juce_audio_processors juce::juce_dsp PUBLIC juce::juce_recommended_config_flags)
+add_test(NAME ChimeraNiflheimrIntegrationTests COMMAND ChimeraNiflheimrIntegrationTests)
+juce_add_console_app(ChimeraNiflheimrRender PRODUCT_NAME "Chimera Niflheimr Render")
+target_sources(ChimeraNiflheimrRender PRIVATE Tests/RenderNiflheimr.cpp)
+target_include_directories(ChimeraNiflheimrRender PRIVATE Source)
+target_compile_definitions(ChimeraNiflheimrRender PRIVATE JUCE_USE_CURL=0 JUCE_WEB_BROWSER=0)
+set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS
+  Source/NiflheimrDSP.h Source/NiflheimrDefinition.h Source/Amplifier.h)
+file(SHA256 "${CMAKE_CURRENT_SOURCE_DIR}/Source/NiflheimrDSP.h" CHIMERA_NIFLHEIMR_CORE_SHA256)
+file(SHA256 "${CMAKE_CURRENT_SOURCE_DIR}/Source/NiflheimrDefinition.h" CHIMERA_NIFLHEIMR_DEFINITION_SHA256)
+file(SHA256 "${CMAKE_CURRENT_SOURCE_DIR}/Source/Amplifier.h" CHIMERA_NIFLHEIMR_WRAPPER_SHA256)
+# Bind the renderer translation unit only: changing a voicing must not rebuild
+# every JUCE module solely because a source fingerprint changed.
+set_property(SOURCE Tests/RenderNiflheimr.cpp APPEND PROPERTY COMPILE_DEFINITIONS
+  CHIMERA_NIFLHEIMR_GIT_HEAD="${CHIMERA_SOURCE_SHA}"
+  CHIMERA_NIFLHEIMR_CORE_SHA256="${CHIMERA_NIFLHEIMR_CORE_SHA256}"
+  CHIMERA_NIFLHEIMR_DEFINITION_SHA256="${CHIMERA_NIFLHEIMR_DEFINITION_SHA256}"
+  CHIMERA_NIFLHEIMR_WRAPPER_SHA256="${CHIMERA_NIFLHEIMR_WRAPPER_SHA256}")
+target_link_libraries(ChimeraNiflheimrRender PRIVATE juce::juce_dsp juce::juce_audio_formats juce::juce_cryptography PUBLIC juce::juce_recommended_config_flags)
+
 juce_add_console_app(ChimeraOriginalAmpRender PRODUCT_NAME "Chimera Original Amp Render")
 target_sources(ChimeraOriginalAmpRender PRIVATE Tests/RenderOriginalAmp.cpp)
 target_include_directories(ChimeraOriginalAmpRender PRIVATE Source)
@@ -125,6 +154,7 @@ if(WIN32 OR CHIMERA_UI_PROBES)
   target_compile_definitions(ChimeraUITests PRIVATE JUCE_MODAL_LOOPS_PERMITTED=1)
   target_link_libraries(ChimeraUITests PRIVATE ChimeraAmpMatrix ChimeraArtwork ChimeraManual juce::juce_cryptography juce::juce_audio_utils juce::juce_dsp)
   add_test(NAME ChimeraUITests COMMAND ChimeraUITests "${CMAKE_BINARY_DIR}/ui-snapshots")
+  add_test(NAME ChimeraNativeStateTests COMMAND ChimeraUITests --native-state-only "${CMAKE_BINARY_DIR}/native-state")
 endif()
 
 if(WIN32)
@@ -155,6 +185,8 @@ add_test(NAME ChimeraNativeRendererTests
   COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/Tests/test_native_renderer.py" "$<TARGET_FILE:ChimeraRender>")
 add_test(NAME ChimeraOriginalRendererTests
   COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/Tests/test_original_renderer.py" "$<TARGET_FILE:ChimeraOriginalAmpRender>")
+add_test(NAME ChimeraNiflheimrRendererTests
+  COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/Tests/test_niflheimr_renderer.py" "$<TARGET_FILE:ChimeraNiflheimrRender>")
 
 # Update metadata parsing and SHA256 checks are offline and run on every platform.
 juce_add_console_app(ChimeraReleaseTests PRODUCT_NAME "Chimera Release Tests")

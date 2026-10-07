@@ -255,8 +255,9 @@ juce::AudioProcessorValueTreeState::ParameterLayout ChimeraProcessor::layout(){j
         juce::AudioParameterFloatAttributes()
             .withStringFromValueFunction([](float v,int) {return v>=spectralforge::NoiseGate::fullRangeDb ? juce::String("Full") : juce::String(v,1)+" dB";})
             .withValueFromStringFunction([](const juce::String& text) {return text.trim().equalsIgnoreCase("Full") ? spectralforge::NoiseGate::fullRangeDb : text.getFloatValue();})));
-    spectralforge::appendNewAmpNativeParameters(p,spectralforge::firstOriginalAmpModel,spectralforge::ampModelCount);
+    spectralforge::appendNewAmpNativeParameters(p,spectralforge::firstOriginalAmpModel,spectralforge::niflheimrAmpModel);
     spectralforge::appendOriginalChannelParameters(p);
+    spectralforge::appendNiflheimrParameters(p);
 return p;
 }
 

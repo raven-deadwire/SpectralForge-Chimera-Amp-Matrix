@@ -162,6 +162,7 @@ class Amp {
     bool useNativeControls{};
     float drive{.35f};
     int selected{2}, previous{2}, fadeRemaining{}, fadeLength{1}, delaySamples{};
+    int preparedBlockSize{1}, preparedChannels{2};
     void voiceTone() {
         const auto& shape=referenceContours[(size_t)model];using C=juce::dsp::IIR::ArrayCoefficients<float>;
         *voiceLow.state=C::makeLowShelf(sr,juce::jmin(100.,sr*.4),.707f,juce::Decibels::decibelsToGain(shape[0]));
@@ -182,6 +183,8 @@ public:
     void prepare(const juce::dsp::ProcessSpec& spec)
     {
         sr = spec.sampleRate;
+        preparedBlockSize=juce::jmax(1,int(spec.maximumBlockSize));
+        preparedChannels=int(spec.numChannels);
         delaySamples = 0;
         for (int i = 0; i < 4; ++i)
         {
@@ -286,6 +289,25 @@ public:
         *res.state=C::makePeakFilter(sr,hz(rf),1.1f,juce::Decibels::decibelsToGain(resonance));
     }
     void process(juce::AudioBuffer<float>& buffer, bool useFullRangeTone = true, bool ampEnabled = true)
+    {
+        if(buffer.getNumSamples()==0)return;
+        if(buffer.getNumChannels()!=preparedChannels || preparedChannels<1 || preparedChannels>2){buffer.clear();return;}
+        // A host may exceed its prepare hint. Non-owning stereo views keep all
+        // oversamplers/scratch buffers within their prepared capacity, without
+        // allocating on the callback or resetting filter/transition histories.
+        if(buffer.getNumSamples()>preparedBlockSize) {
+            for(int offset=0;offset<buffer.getNumSamples();offset+=preparedBlockSize) {
+                float* data[2]{};
+                for(int c=0;c<preparedChannels;++c)data[c]=buffer.getWritePointer(c)+offset;
+                juce::AudioBuffer<float> part(data,preparedChannels,juce::jmin(preparedBlockSize,buffer.getNumSamples()-offset));
+                processBlock(part,useFullRangeTone,ampEnabled);
+            }
+            return;
+        }
+        processBlock(buffer,useFullRangeTone,ampEnabled);
+    }
+private:
+    void processBlock(juce::AudioBuffer<float>& buffer, bool useFullRangeTone, bool ampEnabled)
     {
         dry.makeCopyOf(buffer,true);juce::dsp::AudioBlock<float> dryBlock(dry);juce::dsp::ProcessContextReplacing<float> dryContext(dryBlock);bypassDelay.process(dryContext);
         const auto& voice = ampVoices[(size_t)model];

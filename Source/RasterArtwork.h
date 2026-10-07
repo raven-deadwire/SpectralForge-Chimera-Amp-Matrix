@@ -8,7 +8,7 @@
 namespace spectralforge::art {
 // Every selectable hardware reference has an original material/trim render.
 // Two Mu-Tron directions share their physical enclosure, not unrelated skins.
-enum class Surface { workbench, emblem, p808, pcentaur, prat, pm87, pdyna, pdiamond, pqtron, pmutron, pmuff, pface, pbender, prc, prange, pmicro, aglass, abrit, a515, arect, amark, asvt, agk, ahybrid, rsslvca, r1176, rla2a, rn73, rv5, risa, rssleq, rn73eq, rpultec, rce2, rdimension, rstone, rmistress, reddy, rpulsar, r2290, rre201, rmemory, remt, rlex, rspring, cmesa, campeg, cbassman, cdelta, pfet, pmu, pbddi, pb3k, pm82, paw3, pwool, pfactory, pep, plpb, achim30, aorange, abassman, asubway, amatchless, adumble, aeich, acinder, airon, afourfold, aclassictube, amonolith, anightharvest, ahotlead, abluestorm, pyellowasym, pobsession, pplus, pdualcircuit, pmanualwah, pgraphiceq, pchorus, pdimension, pphase, pflange, pvibrato, ptremolo, pmonoctave, pspectraloctave, aspecialedition, anastrond, count, cabEight=campeg, cabFour=cmesa, cabTwo=cbassman };
+enum class Surface { workbench, emblem, p808, pcentaur, prat, pm87, pdyna, pdiamond, pqtron, pmutron, pmuff, pface, pbender, prc, prange, pmicro, aglass, abrit, a515, arect, amark, asvt, agk, ahybrid, rsslvca, r1176, rla2a, rn73, rv5, risa, rssleq, rn73eq, rpultec, rce2, rdimension, rstone, rmistress, reddy, rpulsar, r2290, rre201, rmemory, remt, rlex, rspring, cmesa, campeg, cbassman, cdelta, pfet, pmu, pbddi, pb3k, pm82, paw3, pwool, pfactory, pep, plpb, achim30, aorange, abassman, asubway, amatchless, adumble, aeich, acinder, airon, afourfold, aclassictube, amonolith, anightharvest, ahotlead, abluestorm, pyellowasym, pobsession, pplus, pdualcircuit, pmanualwah, pgraphiceq, pchorus, pdimension, pphase, pflange, pvibrato, ptremolo, pmonoctave, pspectraloctave, aspecialedition, anastrond, aniflheimr, count, cabEight=campeg, cabFour=cmesa, cabTwo=cbassman };
 // Keep values stable: the editor styles working JUCE knobs from this palette.
 enum KnobStyle { black=0, cream=1, silver=2, gold=3, chrome=4, ssl=5, red=6, yellow=7, neve=8 };
 struct ModelStyle { Surface surface; int knobStyle; bool brightFace; };
@@ -102,9 +102,21 @@ inline ModelStyle surfaceStyle(Surface surface) {
         {Surface::pmonoctave,cream,false},
         {Surface::pspectraloctave,cream,false},
         {Surface::aspecialedition,silver,false},
-        {Surface::anastrond,silver,false}
+        {Surface::anastrond,silver,false},
+        {Surface::aniflheimr,silver,false}
     }};
     return styles[static_cast<size_t>(surface)];
+}
+// Provisional functional fascia; final product artwork follows voicing acceptance.
+inline void drawNiflheimrPrototype(juce::Graphics& g,juce::Rectangle<float> r) {
+    const auto face=r.reduced(r.getWidth()*.035f,r.getHeight()*.10f);
+    g.setColour(juce::Colour(0xff171e24));g.fillRoundedRectangle(face,6.f);
+    g.setColour(juce::Colour(0xff687b88));g.drawRoundedRectangle(face,6.f,1.5f);
+    g.setColour(juce::Colour(0xffd6e0e7));
+    g.setFont(juce::FontOptions(juce::jlimit(12.f,24.f,face.getHeight()*.16f),juce::Font::bold));
+    g.drawText("NIFLHEIMR",face.reduced(12).toNearestInt(),juce::Justification::centredTop);
+    g.setFont(juce::FontOptions(juce::jlimit(9.f,13.f,face.getHeight()*.095f)));
+    g.drawText("SPECTRALFORGE",face.reduced(12).toNearestInt(),juce::Justification::centredBottom);
 }
 struct RasterBank {
     std::array<juce::Image,static_cast<size_t>(Surface::count)> images;
@@ -135,7 +147,9 @@ struct RasterBank {
                     colourPixels.setPixelColour(x,y,colourPixels.getPixelColour(x,y).withAlpha(alphaPixels.getPixelColour(x,y).getRed()));
             }
         }
-
+        auto& prototype=images[static_cast<size_t>(Surface::aniflheimr)];
+        prototype=juce::Image(juce::Image::ARGB,960,350,true);
+        {juce::Graphics g(prototype);drawNiflheimrPrototype(g,{0,0,960,350});}
     }
     ~RasterBank() {
         const lifecycle::Scope trace("artwork.bank.destroy", this);
@@ -181,7 +195,7 @@ inline ModelStyle headStyle(int model) {
         Surface::abassman,Surface::asubway,Surface::amatchless,Surface::adumble,Surface::aeich,
         Surface::acinder,Surface::airon,Surface::afourfold,Surface::aclassictube,
         Surface::amonolith,Surface::anightharvest,Surface::ahotlead,Surface::abluestorm,
-        Surface::aspecialedition,Surface::anastrond};
+        Surface::aspecialedition,Surface::anastrond,Surface::aniflheimr};
     return surfaceStyle(heads[static_cast<size_t>(juce::jlimit(0,ampModelCount-1,model))]);
 }
 // Every active board model has its own appropriate material/chassis artwork.
@@ -208,8 +222,7 @@ inline void pedal(juce::Graphics& g,juce::Rectangle<float> r,int family,int mode
     raster(g,pedalStyle(family,model).surface,r);
 }
 inline void head(juce::Graphics& g,juce::Rectangle<float> r,int model) {
-    // All 23 heads use the same photographic material rendering and alpha-cutout
-    // pipeline. Reference/model labels and live knobs remain real UI controls.
+    // Production reference/model labels and live knobs remain real UI controls.
     raster(g,headStyle(model).surface,r,{0,0,1,1},true);
 }
 // A compact rack has a much wider aspect ratio than its source render. Keep

@@ -26,7 +26,7 @@ void checkArtwork()
     using namespace spectralforge::art;
     const juce::SharedResourcePointer<RasterBank> bank;
     const auto& images=bank->images;
-    require(images.size()==static_cast<size_t>(Surface::count) && images.size()==90,
+    require(images.size()==static_cast<size_t>(Surface::count) && images.size()==91,
             "The complete hardware artwork inventory was not embedded");
     for(size_t i=0;i<images.size();++i) {
         const auto& asset=images[i];
@@ -561,6 +561,14 @@ int main(int argc, char** argv)
     juce::ScopedJuceInitialiser_GUI initialiseGUI;
     try
     {
+        // Processor serialization is independent of a native window/display.
+        // Keep this a separately named test; it does not satisfy the UI gate.
+        if(argc==3 && juce::String(argv[1])=="--native-state-only") {
+            const juce::File directory(argv[2]);
+            require(directory.createDirectory().wasOk(),"Cannot create native state evidence directory");
+            nativeStateTests::run(directory);
+            return 0;
+        }
         if(argc==3 && juce::String(argv[1])=="--installed-ir-probe") {
             checkInstalledIR(juce::File(argv[2]));
             std::cout<<"PASS: installed personal IR discovered, audio decoded, selected in the cabinet menu and loaded into a rig\n";return 0;

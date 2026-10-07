@@ -3,10 +3,10 @@
   "schema_version": 1,
   "version": "1.2",
   "model_counts": {
-    "amp": 24,
+    "amp": 25,
     "pre": 39,
     "post": 21,
-    "total": 84
+    "total": 85
   },
   "preset_counts": {
     "factory": 31,
@@ -156,14 +156,15 @@
   },
   "reference_manifest_contract": "Validation/reference-manifest-contract.json",
   "serialized_model_counts": {
-    "amp": 25,
+    "amp": 26,
     "pre": 39,
     "post": 21,
-    "total": 85
+    "total": 86
   },
   "legacy_amp_indices": [
     16
   ],
   "original_preset_count": 5,
-  "selectable_preset_count": 43
+  "selectable_preset_count": 43,
+  "development_scope": "Niflheimr native prototype appended; no public release or listening acceptance implied."
 }
