@@ -49,10 +49,10 @@ def reverse_migration(text):
 
 class WorkflowContracts(unittest.TestCase):
     def test_existing_workflows_preserve_every_other_byte(self):
-        baseline = json.loads((ROOT / 'Tools/fixtures/node24-workflows.json').read_text())
+        baseline = json.loads((ROOT / 'Tools/fixtures/node24-workflows.json').read_text(encoding="utf-8"))
         for name, digest in baseline['workflows'].items():
             with self.subTest(workflow=name):
-                current = (ROOT / '.github/workflows' / name).read_text()
+                current = (ROOT / '.github/workflows' / name).read_text(encoding="utf-8")
                 self.assertEqual(hashlib.sha256(reverse_migration(current).encode()).hexdigest(), digest,
                     'Only action pins, explicit Node cache opt-out and the singleton layout adapter may change')
         actual = {p.name for p in (ROOT / '.github/workflows').glob('*.yml')}
@@ -60,7 +60,7 @@ class WorkflowContracts(unittest.TestCase):
 
     def test_supported_actions_and_unchanged_cache_credentials(self):
         for file in sorted((ROOT / '.github/workflows').glob('*.yml')):
-            doc = yaml.safe_load(file.read_text())
+            doc = yaml.safe_load(file.read_text(encoding="utf-8"))
             for job in doc['jobs'].values():
                 for step in job.get('steps', []):
                     action, _, version = step.get('uses', '').partition('@')
@@ -77,10 +77,10 @@ class WorkflowContracts(unittest.TestCase):
                         if action == 'actions/setup-node':
                             self.assertIs(inputs.get('package-manager-cache'), False)
                             self.assertEqual(str(inputs['node-version']), '22')
-            self.assertNotRegex(file.read_text(), r'(FORCE_JAVASCRIPT_ACTIONS_TO_NODE24|ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION)')
+            self.assertNotRegex(file.read_text(encoding="utf-8"), r'(FORCE_JAVASCRIPT_ACTIONS_TO_NODE24|ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION)')
 
     def test_evidence_downloads_preserve_single_and_multiple_paths(self):
-        doc = yaml.safe_load((ROOT / '.github/workflows/build.yml').read_text())
+        doc = yaml.safe_load((ROOT / '.github/workflows/build.yml').read_text(encoding="utf-8"))
         job = doc['jobs'].get('consolidate-release-gate')
         if job is None:
             self.skipTest('Consolidator exists only on the release-gate branch')
@@ -89,7 +89,7 @@ class WorkflowContracts(unittest.TestCase):
         self.assertEqual(downloads[0]['with'], {'pattern': 'Chimera-release-evidence-*',
             'path': 'release-inputs', 'merge-multiple': False})
         self.assertTrue(all('continue-on-error' not in s for s in job['steps']))
-        self.assertIn(LAYOUT_STEP, (ROOT / '.github/workflows/build.yml').read_text())
+        self.assertIn(LAYOUT_STEP, (ROOT / '.github/workflows/build.yml').read_text(encoding="utf-8"))
 
     def test_layout_restores_api_name_and_preserves_unexpected_bundles(self):
         import tempfile
