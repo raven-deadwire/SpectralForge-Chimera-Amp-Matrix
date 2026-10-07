@@ -1,0 +1,511 @@
+{
+  "schema": "spectralforge.niflheimr.local-measurement-summary.v1",
+  "implementation_commit": "8630d99bb7514321f0d3f9ff3a1a8ac868846900",
+  "implementation_tree": "41641397c3d24f6af995904546663e80bd6b60f1",
+  "measurement_source": {
+    "head": "0a13036097ea7574e9468dbc2ec75a0ffda86e66",
+    "tree": "096aae5b465cadfd5b7f484aa3931b408fca00a4",
+    "tracked_worktree_status": "A  .github/workflows/niflheimr-measurements.yml\nM  CMakeLists.txt\nM  Tests/RenderNiflheimr.cpp\nA  Tests/test_niflheimr_measurements.py\nM  Tests/test_niflheimr_renderer.py\nA  Tools/measure_niflheimr.py\nA  cmake/NiflheimrMeasurementBuild.h.in\nA  docs/NIFLHEIMR_MEASUREMENTS.md\nM  docs/NIFLHEIMR_NATIVE_PROTOTYPE.md",
+    "harness_sha256": "fdf1a8d0b173c04db4d9fd8c41e2157efdbceec851745cea1c995ec4a4c07858",
+    "renderer_binary_sha256": "aefa386c0a8946c2d5f285d8cdf66b5797a587d586289c365623650607c306e2"
+  },
+  "note": "Local modified-source execution from the stated parent HEAD; source/header, renderer and harness fingerprints identify measured code. Not an exact-head CI or target-hardware acceptance result.",
+  "configuration": {
+    "rates": [
+      48000
+    ],
+    "gains": [
+      0.5,
+      0.75,
+      1.0
+    ],
+    "factors": [
+      1,
+      2,
+      4,
+      8
+    ],
+    "blocks": [
+      64,
+      256
+    ],
+    "tones_hz": [
+      6011
+    ],
+    "fft_frames": 8192,
+    "settle_seconds": 1.0,
+    "repeats": 2,
+    "measured_blocks": 64,
+    "warmup_blocks": 384,
+    "profile": "smoke",
+    "blend": 1.0,
+    "input_peak_dbfs": -12.0,
+    "audio_channels": 2,
+    "alias_block_size": 256,
+    "max_fold_order": 127,
+    "guard_bins": 2,
+    "order_seed": 731
+  },
+  "build": {
+    "configuration": "Release",
+    "compiler_id": "GNU",
+    "compiler_version": "13.3.0",
+    "cxx_flags": "",
+    "release_flags": "-O3 -DNDEBUG",
+    "debug_flags": "-g",
+    "relwithdebinfo_flags": "-O2 -g -DNDEBUG",
+    "minsize_flags": "-Os -DNDEBUG",
+    "recommended_config_flags": true,
+    "cmake_version": "4.4.4",
+    "cxx_standard": "20",
+    "osx_architectures": "",
+    "msvc_runtime": "",
+    "juce_version": 524296,
+    "system": "Linux",
+    "processor": "x86_64",
+    "source_header_set_sha256": "dc97a80cc7ec06e98e94e8cff929a03347730be8c8a0009c41b353316c34f97c",
+    "renderer_sha256": "32898bb0588201a242032827d82200c78f08127004b508a63e273094987ccf10"
+  },
+  "environment": {
+    "machine_label": "codex-linux-x86_64",
+    "cpu_model": "AMD EPYC 9V74 80-Core Processor",
+    "machine": "x86_64",
+    "system": "Linux",
+    "os_release": "6.18.44",
+    "os_version": "#1 SMP Sat Sep 26 20:02:31 UTC 2026",
+    "logical_cpus": 9,
+    "affinity": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8
+    ],
+    "power_governor": null,
+    "cgroup_cpu_max": "800000 100000",
+    "load_average_start": [
+      0.314453125,
+      0.77783203125,
+      0.68798828125
+    ],
+    "python": "3.12.14",
+    "numpy": "2.3.5",
+    "ci": {
+      "CI": null,
+      "GITHUB_ACTIONS": null,
+      "GITHUB_RUN_ID": null,
+      "GITHUB_RUN_ATTEMPT": null,
+      "GITHUB_JOB": null,
+      "GITHUB_SHA": null,
+      "RUNNER_OS": null,
+      "RUNNER_ARCH": null,
+      "ImageOS": null,
+      "ImageVersion": null
+    },
+    "scheduling": "ordinary offline process; no realtime priority or CPU isolation requested",
+    "load_average_end": [
+      0.5859375,
+      0.80078125,
+      0.69970703125
+    ]
+  },
+  "compiled_source_hashes": {
+    "NiflheimrDSP.h": "07532a179721bce0f6f1878b6ac761ed11404d55c446140f42282f009fa894dd",
+    "NiflheimrDefinition.h": "998a58fd792846382173f5b21c36b389d753cfd4439ed7483b0e64b8cfdfc634",
+    "Amplifier.h": "492edbef00302dbe933bb85ab54d4ffe226a45830c0d813386ac37ae79a18f4d"
+  },
+  "status": "MEASURED_TECHNICAL_ONLY",
+  "release_approved": false,
+  "manual_acceptance": {
+    "instrument_di_same_ir_listening": "PENDING_MANUAL_EVIDENCE",
+    "musical_acceptance": "PENDING_MANUAL_EVIDENCE",
+    "commercial_daw_lifecycle": "PENDING_MANUAL_EVIDENCE",
+    "target_hardware_cpu_acceptance": "PENDING_MANUAL_EVIDENCE",
+    "windows_macos_product_acceptance": "PENDING_MANUAL_EVIDENCE"
+  },
+  "completed_bounded_counts": {
+    "alias_routes": 60,
+    "cpu_routes": 120,
+    "cpu_repetitions": 240,
+    "raw_timed_blocks": 15360
+  },
+  "completed_bounded_evidence_sha256": "6d31e7b3a54d1886d679489582e7d9f6a49b4dee1933c5c49cd32616dc724dff",
+  "completed_bounded_elapsed_seconds": 25.943034752999665,
+  "range_note": "Ranges pool the documented rates/GAINs/tones or block sizes; inspect full per-route evidence before comparing. Alias candidate energy is not isolated total alias distortion. CPU times are descriptive, with no hard speed gate.",
+  "ranges": [
+    {
+      "channel_key": "death_grind",
+      "oversampling": 1,
+      "alias_dbc": {
+        "min": -26.761385160746514,
+        "max": -14.359213932040007
+      },
+      "residual_dbc": {
+        "min": -26.761385160741803,
+        "max": -14.35312791384349
+      },
+      "cpu_median_us": {
+        "min": 26.01425,
+        "max": 107.275
+      }
+    },
+    {
+      "channel_key": "death_grind",
+      "oversampling": 2,
+      "alias_dbc": {
+        "min": -48.831533019129665,
+        "max": -21.235536960939314
+      },
+      "residual_dbc": {
+        "min": -48.83153301637121,
+        "max": -21.227821677820074
+      },
+      "cpu_median_us": {
+        "min": 51.89125,
+        "max": 214.88774999999998
+      }
+    },
+    {
+      "channel_key": "death_grind",
+      "oversampling": 4,
+      "alias_dbc": {
+        "min": -50.37512801776312,
+        "max": -28.126072966381003
+      },
+      "residual_dbc": {
+        "min": -50.37512801338306,
+        "max": -28.10668913562256
+      },
+      "cpu_median_us": {
+        "min": 103.1565,
+        "max": 431.21325
+      }
+    },
+    {
+      "channel_key": "death_grind",
+      "oversampling": 8,
+      "alias_dbc": {
+        "min": -50.30999862933572,
+        "max": -36.5755027211389
+      },
+      "residual_dbc": {
+        "min": -50.309998624461585,
+        "max": -36.48775449901793
+      },
+      "cpu_median_us": {
+        "min": 200.45375,
+        "max": 850.1855
+      }
+    },
+    {
+      "channel_key": "industrial_bite",
+      "oversampling": 1,
+      "alias_dbc": {
+        "min": -15.172169789308839,
+        "max": -14.688291375689968
+      },
+      "residual_dbc": {
+        "min": -15.171829981611928,
+        "max": -14.563639028244875
+      },
+      "cpu_median_us": {
+        "min": 11.926,
+        "max": 48.2855
+      }
+    },
+    {
+      "channel_key": "industrial_bite",
+      "oversampling": 2,
+      "alias_dbc": {
+        "min": -22.800304220753198,
+        "max": -21.7576053081702
+      },
+      "residual_dbc": {
+        "min": -22.79938427854649,
+        "max": -21.473445482056242
+      },
+      "cpu_median_us": {
+        "min": 23.916,
+        "max": 97.08449999999999
+      }
+    },
+    {
+      "channel_key": "industrial_bite",
+      "oversampling": 4,
+      "alias_dbc": {
+        "min": -30.638636024337654,
+        "max": -28.362231614392574
+      },
+      "residual_dbc": {
+        "min": -30.636105469098712,
+        "max": -27.77606925989101
+      },
+      "cpu_median_us": {
+        "min": 46.5985,
+        "max": 188.4955
+      }
+    },
+    {
+      "channel_key": "industrial_bite",
+      "oversampling": 8,
+      "alias_dbc": {
+        "min": -41.06904285888939,
+        "max": -35.229600159542784
+      },
+      "residual_dbc": {
+        "min": -41.06136264252072,
+        "max": -33.933476989905785
+      },
+      "cpu_median_us": {
+        "min": 91.42625,
+        "max": 377.11875
+      }
+    },
+    {
+      "channel_key": "modern_tight",
+      "oversampling": 1,
+      "alias_dbc": {
+        "min": -16.121835298172666,
+        "max": -11.405543160864394
+      },
+      "residual_dbc": {
+        "min": -16.12183529816851,
+        "max": -11.39266209311791
+      },
+      "cpu_median_us": {
+        "min": 13.53075,
+        "max": 59.126999999999995
+      }
+    },
+    {
+      "channel_key": "modern_tight",
+      "oversampling": 2,
+      "alias_dbc": {
+        "min": -26.861975080777707,
+        "max": -19.967815909321452
+      },
+      "residual_dbc": {
+        "min": -26.86197508073567,
+        "max": -19.913086591951263
+      },
+      "cpu_median_us": {
+        "min": 26.8935,
+        "max": 116.5015
+      }
+    },
+    {
+      "channel_key": "modern_tight",
+      "oversampling": 4,
+      "alias_dbc": {
+        "min": -44.76274855517406,
+        "max": -28.518141961124286
+      },
+      "residual_dbc": {
+        "min": -44.7627485533276,
+        "max": -28.303078442597815
+      },
+      "cpu_median_us": {
+        "min": 51.04775,
+        "max": 220.4615
+      }
+    },
+    {
+      "channel_key": "modern_tight",
+      "oversampling": 8,
+      "alias_dbc": {
+        "min": -79.61383601529633,
+        "max": -36.04260132057221
+      },
+      "residual_dbc": {
+        "min": -79.61383086230555,
+        "max": -35.38734365719103
+      },
+      "cpu_median_us": {
+        "min": 97.17474999999999,
+        "max": 433.61699999999996
+      }
+    },
+    {
+      "channel_key": "slam_impact",
+      "oversampling": 1,
+      "alias_dbc": {
+        "min": -12.172276504366055,
+        "max": -9.317473713111664
+      },
+      "residual_dbc": {
+        "min": -12.17227495936537,
+        "max": -9.282580350222911
+      },
+      "cpu_median_us": {
+        "min": 13.58325,
+        "max": 56.3605
+      }
+    },
+    {
+      "channel_key": "slam_impact",
+      "oversampling": 2,
+      "alias_dbc": {
+        "min": -23.615684952270957,
+        "max": -16.17751842532599
+      },
+      "residual_dbc": {
+        "min": -23.61567363485801,
+        "max": -16.0903026829584
+      },
+      "cpu_median_us": {
+        "min": 26.317500000000003,
+        "max": 112.58275
+      }
+    },
+    {
+      "channel_key": "slam_impact",
+      "oversampling": 4,
+      "alias_dbc": {
+        "min": -38.231225867776615,
+        "max": -22.87538677720938
+      },
+      "residual_dbc": {
+        "min": -38.23119308653092,
+        "max": -22.667489454276172
+      },
+      "cpu_median_us": {
+        "min": 51.19775,
+        "max": 215.19074999999998
+      }
+    },
+    {
+      "channel_key": "slam_impact",
+      "oversampling": 8,
+      "alias_dbc": {
+        "min": -40.887243059883204,
+        "max": -30.218908184194337
+      },
+      "residual_dbc": {
+        "min": -40.88720814779262,
+        "max": -29.62875441974639
+      },
+      "cpu_median_us": {
+        "min": 96.24350000000001,
+        "max": 428.87475
+      }
+    },
+    {
+      "channel_key": "sludge_mass",
+      "oversampling": 1,
+      "alias_dbc": {
+        "min": -20.433862127501847,
+        "max": -13.80261106785973
+      },
+      "residual_dbc": {
+        "min": -20.4338621270052,
+        "max": -13.78679285162336
+      },
+      "cpu_median_us": {
+        "min": 14.882249999999999,
+        "max": 67.2345
+      }
+    },
+    {
+      "channel_key": "sludge_mass",
+      "oversampling": 2,
+      "alias_dbc": {
+        "min": -35.45066585999061,
+        "max": -20.767038107772073
+      },
+      "residual_dbc": {
+        "min": -35.45066585369763,
+        "max": -20.729816341615965
+      },
+      "cpu_median_us": {
+        "min": 28.99125,
+        "max": 133.92025
+      }
+    },
+    {
+      "channel_key": "sludge_mass",
+      "oversampling": 4,
+      "alias_dbc": {
+        "min": -37.921848880968845,
+        "max": -27.767758048759575
+      },
+      "residual_dbc": {
+        "min": -37.92184887478588,
+        "max": -27.66039792354804
+      },
+      "cpu_median_us": {
+        "min": 58.3485,
+        "max": 253.68925000000002
+      }
+    },
+    {
+      "channel_key": "sludge_mass",
+      "oversampling": 8,
+      "alias_dbc": {
+        "min": -45.5056897820974,
+        "max": -34.975334793551895
+      },
+      "residual_dbc": {
+        "min": -45.50492085724629,
+        "max": -34.659750278641006
+      },
+      "cpu_median_us": {
+        "min": 109.51875,
+        "max": 491.84525
+      }
+    }
+  ],
+  "previous_failed_attempt": {
+    "last_started_route": "alias-sr96000-g1-os8-b256-t6011",
+    "status": "FAILED_OUTPUT_HASH_MISMATCH",
+    "release_approved": false,
+    "reproduction": "All five hashes matched on standalone reproduction; original failing bytes were removed by the old temporary-directory cleanup. Root cause not established. Failed-run preservation added; the initial attempt is not acceptance evidence."
+  },
+  "measurement_ci": {
+    "source": "8630d99bb7514321f0d3f9ff3a1a8ac868846900",
+    "run_id": 37623275651,
+    "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/37623275651",
+    "linux": "SUCCESS",
+    "windows": "SUCCESS",
+    "macos": "SUCCESS",
+    "scope": "head-only renderer and measurement contracts; not DAW acceptance"
+  },
+  "local_tests": {
+    "ChimeraNiflheimrRendererTests": "PASS",
+    "ChimeraNiflheimrMeasurementTests": "PASS",
+    "catalogue_contract": "PASS"
+  },
+  "real_repeat_comparison": {
+    "status": "DESCRIPTIVE_COMPARISON_ONLY",
+    "route_count": 10,
+    "baseline_sha256": "5be6cc3c6ab14f651f00b5e67d60745365093f0c8b804208293febe999b5caf7",
+    "candidate_sha256": "54b89c4a892ee2db4c5f600f8290facbabebc3dee44e2b3b2e12a771933ad28d",
+    "release_approved": false
+  },
+  "standard_measurement": {
+    "status": "BLOCKED_OUTPUT_FILE_TRUNCATION",
+    "release_approved": false,
+    "failure": {
+      "status": "FAILED_NOT_ACCEPTANCE_EVIDENCE",
+      "release_approved": false,
+      "error": "Output hash mismatch: alias-sr96000-g0.75-os8-b256-t3001/CH1-modern_tight.wav; expected=903a8e177314ea35ff0fd649b2336d00e8b46de2a954d601152217eb7166fd5e; actual=67bb6b657ec77058b84d7f890384dd2f3af0a3f08bf7371524782a1e88d8ae35; bytes=829498"
+    },
+    "actual_wav_bytes": 829498,
+    "declared_wav_bytes": 2062394,
+    "root_cause": "UNRESOLVED",
+    "completed_evidence_available": false,
+    "truncation_diagnosis": {
+      "truncated_bytes": 829498,
+      "reproduced_bytes": 2062394,
+      "truncated_file_matches_prefix_of_reproduction": true,
+      "reproduction_sha256": "903a8e177314ea35ff0fd649b2336d00e8b46de2a954d601152217eb7166fd5e",
+      "original_renderer_manifest_sha256": "903a8e177314ea35ff0fd649b2336d00e8b46de2a954d601152217eb7166fd5e",
+      "reproduction_matches_original_full_hash": true,
+      "root_cause": "UNRESOLVED",
+      "release_approved": false
+    }
+  }
+}
