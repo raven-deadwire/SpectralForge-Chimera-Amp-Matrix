@@ -7,6 +7,7 @@ See docs/NIFLHEIMR_MEASUREMENTS.md for units, limitations and comparison rules.
 from __future__ import annotations
 
 import argparse
+from contextlib import contextmanager
 from datetime import datetime, timezone
 import hashlib
 import itertools
@@ -16,6 +17,7 @@ import os
 from pathlib import Path
 import platform
 import random
+import shutil
 import struct
 import subprocess
 import sys
@@ -38,6 +40,29 @@ def digest(path):
 
 def save_json(path, data):
     Path(path).write_text(json.dumps(data, ensure_ascii=False, indent=2, allow_nan=False) + "\n", encoding="utf-8")
+
+
+@contextmanager
+def measurement_stage(destination):
+    stage = Path(tempfile.mkdtemp(prefix=destination.name + ".partial-", dir=destination.parent))
+    try:
+        yield stage
+    except Exception as error:
+        failed = stage.with_name(stage.name.replace(".partial-", ".failed-"))
+        save_json(stage / "failure.json", {"status": "FAILED_NOT_ACCEPTANCE_EVIDENCE",
+                  "release_approved": False, "error": str(error)})
+        stage.rename(failed)
+        raise RuntimeError(f"{error}; diagnostic files preserved at {failed}") from error
+    finally:
+        if stage.exists():
+            shutil.rmtree(stage)
+
+
+def header_fingerprint(directory):
+    # WindowsPath ordering folds case; CMake's list is case-sensitive. Specify
+    # the portable ordering explicitly, independently of host path semantics.
+    records = "".join(f"{p.name}:{digest(p)}\n" for p in sorted(directory.glob("*.h"), key=lambda p: p.name))
+    return hashlib.sha256(records.encode()).hexdigest()
 
 
 def command(*args):
@@ -278,8 +303,7 @@ def execute(args):
                 "alias": [], "cpu": [], "execution_order": [], "files": {}}
     started = time.monotonic()
     destination.parent.mkdir(parents=True, exist_ok=True)
-    with tempfile.TemporaryDirectory(prefix=destination.name + ".partial-", dir=destination.parent) as temp:
-        stage = Path(temp)
+    with measurement_stage(destination) as stage:
         (stage / "inputs").mkdir()
         (stage / "spectra").mkdir()
         (stage / "runs").mkdir()
@@ -334,8 +358,15 @@ def execute(args):
             evidence["compiled_source_hashes"] = manifest["source_hashes"]
             for row in manifest["outputs"]:
                 wav = out / row["file"]
-                if digest(wav) != row["sha256"]:
-                    raise ValueError("Output hash mismatch")
+                actual_hash = digest(wav)
+                if actual_hash != row["sha256"]:
+                    raise ValueError(f"Output hash mismatch: {route}/{row['file']}; expected={row['sha256']}; actual={actual_hash}; bytes={wav.stat().st_size}")
+                if len(row["controls"]) != 14 or abs(row["controls"]["gain"] - gain) > 1e-6 or row["controls"]["blend"] != config["blend"]:
+                    raise ValueError("Resolved controls do not match requested route")
+                if kind == "cpu" and (len(row["cpu"]["repetitions"]) != config["repeats"] or
+                        row["cpu"]["warmup_blocks_per_repeat"] != config["warmup_blocks"] or
+                        row["cpu"]["measured_blocks_per_repeat"] != config["measured_blocks"]):
+                    raise ValueError("Incomplete CPU repetition coverage")
                 identifier = route + "-" + row["channel_key"]
                 entry = {"id": identifier, "channel_key": row["channel_key"], "channel_name": row["channel_name"],
                          "rate": rate, "gain": gain, "oversampling": factor, "block_size": block,
@@ -401,8 +432,7 @@ def verify_manifest(manifest, source, input_path, rate, factor, block):
     for name, expected in manifest["source_hashes"].items():
         if digest(ROOT / "Source" / name) != expected:
             raise ValueError("Stale renderer source: " + name)
-    header_list = "".join(f"{p.name}:{digest(p)}\n" for p in sorted((ROOT / "Source").glob("*.h")))
-    if hashlib.sha256(header_list.encode()).hexdigest() != manifest["build"]["source_header_set_sha256"]:
+    if header_fingerprint(ROOT / "Source") != manifest["build"]["source_header_set_sha256"]:
         raise ValueError("Stale renderer source-header set")
     if digest(ROOT / "Tests/RenderNiflheimr.cpp") != manifest["build"]["renderer_sha256"]:
         raise ValueError("Stale renderer measurement code")

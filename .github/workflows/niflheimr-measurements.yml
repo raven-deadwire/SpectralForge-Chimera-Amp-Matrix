@@ -61,5 +61,6 @@ jobs:
           name: Niflheimr-measurements-${{ runner.os }}-${{ github.event.pull_request.head.sha || github.sha }}
           path: |
             build-measurements/evidence
+            build-measurements/evidence.failed-*
             build-measurements/Testing/Temporary/LastTest.log
           if-no-files-found: error

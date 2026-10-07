@@ -143,7 +143,10 @@ protocol, full configuration/provenance, per-route `alias`/`cpu` arrays, compari
 manual acceptance and an SHA-256 inventory of all supporting files. Each render
 manifest holds raw CPU arrays and fourteen controls per channel. Results are
 written in staging and published only after all requested routes complete;
-invalid/stale/nonfinite/incomplete runs fail without a success evidence file.
+invalid/stale/nonfinite/incomplete runs fail without publishing the destination.
+A separate `.failed-*` directory retains diagnostics, original files and
+`failure.json` with `FAILED_NOT_ACCEPTANCE_EVIDENCE`; failed measurements are
+never silently retried or converted into a technical success.
 
 The dedicated `Niflheimr technical measurements` workflow runs smoke on relevant
 PR changes and accepts smoke/standard manual dispatch on Linux/Windows/macOS.

@@ -18,6 +18,28 @@ RENDERER = Path(sys.argv.pop(1)).resolve() if len(sys.argv) > 1 and not sys.argv
 
 
 class NumericalControls(unittest.TestCase):
+    def test_header_fingerprint_has_platform_independent_order(self):
+        with tempfile.TemporaryDirectory() as temp:
+            directory = Path(temp)
+            for name in ('beta.h', 'Alpha.h', 'Zed.h'):
+                (directory / name).write_bytes(name.encode())
+            records = ''.join(f'{name}:{m.digest(directory / name)}\n' for name in ('Alpha.h', 'Zed.h', 'beta.h'))
+            self.assertEqual(m.header_fingerprint(directory), hashlib.sha256(records.encode()).hexdigest())
+
+    def test_failed_run_preserves_diagnostics_without_success_evidence(self):
+        with tempfile.TemporaryDirectory() as temp:
+            destination = Path(temp) / 'result'
+            with self.assertRaisesRegex(RuntimeError, 'diagnostic files preserved'):
+                with m.measurement_stage(destination) as stage:
+                    (stage / 'probe.wav').write_bytes(b'fixture')
+                    raise ValueError('deliberate hash mismatch')
+            self.assertFalse(destination.exists())
+            failed = next(Path(temp).glob('result.failed-*'))
+            self.assertEqual((failed / 'probe.wav').read_bytes(), b'fixture')
+            report = json.loads((failed / 'failure.json').read_text())
+            self.assertIs(report['release_approved'], False)
+            self.assertEqual(report['status'], 'FAILED_NOT_ACCEPTANCE_EVIDENCE')
+
     def test_linear_and_true_inband_harmonics_are_not_foldback(self):
         n, k = 32768, 2051
         t = 2 * np.pi * k * np.arange(n) / n
