@@ -34,12 +34,12 @@ jobs:
       MKL_NUM_THREADS: '2'
       PYTHONDONTWRITEBYTECODE: '1'
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           ref: ${{ env.EXACT_SOURCE }}
           fetch-depth: 0
           persist-credentials: false
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: '3.12'
       - name: Resolve immutable dependency pins
@@ -55,19 +55,19 @@ jobs:
               print(f'{name}_repository={lock[name]["repository"]}')
               print(f'{name}_commit={lock[name]["commit"]}')
           PY
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           repository: ${{ steps.pins.outputs.juce_repository }}
           ref: ${{ steps.pins.outputs.juce_commit }}
           path: .nam-deps/juce
           persist-credentials: false
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           repository: ${{ steps.pins.outputs.trainer_repository }}
           ref: ${{ steps.pins.outputs.trainer_commit }}
           path: .nam-deps/trainer
           persist-credentials: false
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           repository: ${{ steps.pins.outputs.player_repository }}
           ref: ${{ steps.pins.outputs.player_commit }}
@@ -113,7 +113,7 @@ jobs:
         run: python Tools/Nam/ci_pipeline.py --seal-only --profile "$PROFILE" --expected-source "$EXACT_SOURCE" --out "$EVIDENCE"
       - name: Preserve exact-source evidence (never a release approval)
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: NAM-${{ env.PROFILE }}-${{ env.EXACT_SOURCE }}-${{ github.run_id }}-${{ github.run_attempt }}
           path: ${{ env.EVIDENCE }}
