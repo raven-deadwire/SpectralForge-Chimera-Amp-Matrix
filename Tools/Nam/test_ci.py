@@ -75,6 +75,7 @@ class EvidenceTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as td:
             root = Path(td)
             (root / 'checkpoint.pt').write_bytes(b'partial-checkpoint')
+            (root / 'trigger.json').write_text(json.dumps({'profile': 'full', 'reason': 'maintainer-label'}))
             seal(root, 'a' * 40, 'full')
             result = json.loads((root / 'acceptance.json').read_text())
             self.assertEqual(result['status'], 'FAIL')
@@ -83,6 +84,7 @@ class EvidenceTests(unittest.TestCase):
             self.assertEqual(result['GUI_DAW_acceptance'], 'BLOCKED')
             manifest = json.loads((root / 'artifact-manifest.json').read_text())
             self.assertEqual(manifest['files']['checkpoint.pt'], sha256(root / 'checkpoint.pt'))
+            self.assertEqual(manifest['files']['trigger.json'], sha256(root / 'trigger.json'))
             (root / 'acceptance.json').write_text(json.dumps({'status': 'PASS', 'release_approved': True}))
             seal(root, 'a' * 40, 'smoke')
             self.assertFalse(json.loads((root / 'acceptance.json').read_text())['release_approved'])

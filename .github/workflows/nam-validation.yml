@@ -2,6 +2,7 @@ name: NAM exact-source validation
 
 on:
   pull_request:
+    types: [opened, synchronize, reopened, labeled]
   workflow_dispatch:
     inputs:
       profile:
@@ -17,18 +18,44 @@ on:
 permissions:
   contents: read
 
-concurrency:
-  group: nam-${{ github.event.pull_request.number || github.ref }}-${{ inputs.profile || 'smoke' }}
-  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
-
 jobs:
-  nam:
+  trigger:
     runs-on: ubuntu-24.04
-    timeout-minutes: ${{ inputs.profile == 'full' && 350 || 35 }}
+    timeout-minutes: 5
+    outputs:
+      decision: ${{ steps.select.outputs.decision }}
     env:
-      EXACT_SOURCE: ${{ github.event.pull_request.head.sha || github.sha }}
-      PROFILE: ${{ inputs.profile || 'smoke' }}
-      FULL_STEPS: ${{ inputs.steps || 5000 }}
+      PYTHONDONTWRITEBYTECODE: '1'
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - run: python -m pip install PyYAML==6.0.3
+      - name: Verify trigger contracts before any training
+        run: python -m unittest discover -s Tools/Nam -p test_ci_trigger.py -v
+      - name: Select smoke or explicitly authorized full training
+        id: select
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python Tools/Nam/ci_trigger.py
+  nam:
+    needs: trigger
+    if: fromJSON(needs.trigger.outputs.decision).enabled
+    runs-on: ubuntu-24.04
+    timeout-minutes: ${{ fromJSON(needs.trigger.outputs.decision).job_minutes }}
+    concurrency:
+      group: nam-${{ github.event.pull_request.number || github.ref }}-${{ fromJSON(needs.trigger.outputs.decision).profile }}
+      # Ordinary updates replace smoke only; never interrupt a full run's sealing.
+      cancel-in-progress: ${{ fromJSON(needs.trigger.outputs.decision).profile == 'smoke' && github.event_name == 'pull_request' }}
+    env:
+      EXACT_SOURCE: ${{ fromJSON(needs.trigger.outputs.decision).exact_source }}
+      PROFILE: ${{ fromJSON(needs.trigger.outputs.decision).profile }}
+      FULL_STEPS: ${{ fromJSON(needs.trigger.outputs.decision).steps }}
+      TRIGGER_DECISION: ${{ needs.trigger.outputs.decision }}
       EVIDENCE: ${{ github.workspace }}/build-nam-evidence
       OMP_NUM_THREADS: '2'
       MKL_NUM_THREADS: '2'
@@ -49,7 +76,10 @@ jobs:
           mkdir -p "$EVIDENCE/logs"
           python - <<'PY' >> "$GITHUB_OUTPUT"
           import json
+          import os
           from pathlib import Path
+          # Included in the existing evidence manifest and SHA256SUMS at sealing.
+          Path(os.environ['EVIDENCE'], 'trigger.json').write_text(os.environ['TRIGGER_DECISION'] + '\n')
           lock = json.loads(Path('Tools/Nam/ci-sources.json').read_text())
           for name in ('juce', 'trainer', 'player'):
               print(f'{name}_repository={lock[name]["repository"]}')
@@ -100,7 +130,7 @@ jobs:
         run: python -m unittest discover -s Tools/Nam -p test_ci.py -v
       - name: Capture, A2 roundtrip, target import, EQ and preset audio restore
         # The shorter inner deadline leaves time to preserve partial checkpoints on timeout.
-        timeout-minutes: ${{ inputs.profile == 'full' && 310 || 18 }}
+        timeout-minutes: ${{ fromJSON(needs.trigger.outputs.decision).pipeline_minutes }}
         shell: bash
         run: |
           python Tools/Nam/ci_pipeline.py --profile "$PROFILE" --steps "$FULL_STEPS" \

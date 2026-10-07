@@ -162,12 +162,35 @@ from the preset's embedded NAM/EQ after restoration. A passing smoke means
 the pipeline is compatible; its deliberately untrained models can fail all
 fidelity targets. Accuracy is reported separately, never marked approved.
 
-For the expensive path, select **Run workflow → profile: full** (the manual
-Actions UI becomes available once this workflow exists on the default branch),
-select the intended ref, and set optimizer steps, default 5000. This uses the
+Before merge, a maintainer with repository **write/maintain/admin** permission
+can add the exact **`nam-full-training`** label to this same-repository PR to
+request one full run at the **head SHA in that `labeled` event**, with 5000
+optimizer steps. Create the label first if it does not exist, then apply it
+through GitHub's UI or an authenticated maintainer API client. A label applied
+by a workflow's `GITHUB_TOKEN` does not trigger another workflow.
+
+Only that label's **new `labeled` event** opts in. Keeping it on the PR does
+not opt future commits in: `opened`, `synchronize` and `reopened` always run
+smoke, and unrelated label events skip training. To request another full run
+after reviewing the intended head, remove and reapply the label explicitly.
+The event sender's live repository permission is checked, not the PR author's
+association. Fork full runs, insufficient permissions and failed permission
+lookups are rejected before training. No `pull_request_target` or write token
+is used. Smoke and full have separate concurrency groups; ordinary updates
+do not cancel a full run, and new full requests do not cancel an active full.
+
+After the workflow exists on the default branch, **Run workflow → profile:
+full** remains available with the intended ref and configurable optimizer steps
+(default 5000). Both full paths retain two build/capture/training threads, a
+350-minute job limit and a 310-minute pipeline limit to leave sealing time.
+Trigger contracts run in a short preflight before any dependency build or
+training. The selected profile, source, budget and permission decision are
+preserved as `trigger.json` inside the existing sealed evidence.
+
+Full training uses the
 96/24/24/8-second capture protocol and a bounded Ubuntu CPU job. It starts
 fresh and preserves the optimizer/RNG/best-state checkpoint for later trusted
-local resume. It does not launch automatically, allocate a paid GPU or alter
+local resume. It requires explicit opt-in, does not allocate a paid GPU or alter
 the current `quality_profile.py` gate. Historical all-relative measurements
 and the [A2 memory audit](ACCURACY-BLOCKER.md) remain diagnostic evidence.
 The full job fails if any validation/held-out numerical target fails.

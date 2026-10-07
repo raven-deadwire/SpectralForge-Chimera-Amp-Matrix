@@ -2,7 +2,7 @@
   "source": "a4b744f9b65dc98eff50b7429e77ea91d7141e5e",
   "workflows": {
     "build.yml": "a03002de7dafbc8faa6ebb20b468b955b1be566e8ad0adba3e94fa264d2fefa1",
-    "nam-validation.yml": "5ffe371e066bd7004f12876dbc019244483a66bc90b96aaa1644c306c36afa63",
+    "nam-validation.yml": "c7555237c7a7d7b68b88bd69c83579835147c4d0e51dee13a403fe632ec5236a",
     "prepare-release.yml": "2d37593a981c09ade690bb83e3afc2c02cf8e572af0e84a62353764bc35b3b23",
     "publish-beta11.yml": "70e1950bd42da9e06911dd9dbdaeaee5de3356c0d0df2733a50ae569004a395d",
     "publish-beta111.yml": "16f8aaa304d8d4e70cc3d630f7b437f544414d1052dba1ac79d0ea3a6a0ade2f",
@@ -12,5 +12,12 @@
     "update-candidate.yml": "098ce72032ecfad45158ab2fde7e2c583b41f18b7b047f4e36bd4ce1e7d6d869",
     "update-copyright.yml": "c6f04cda0c195d0600de7d3644eed073e4a2a514efa6e6ab45795d9dd571207c",
     "windows-download-audit.yml": "4da5265b4a3a5bca93cd72ce840239cde8e3498f9b590f6dd1dfe5a289f512de"
+  },
+  "approved_workflow_changes": {
+    "nam-validation.yml": {
+      "parent": "e0ddfc6447e6355b1f187272f0be5ac30f2a2ae1",
+      "previous_sha256": "5ffe371e066bd7004f12876dbc019244483a66bc90b96aaa1644c306c36afa63",
+      "reason": "Explicit maintainer label opt-in with tested event selection; exact source, resource bounds and sealing preserved. Other workflow baselines unchanged."
+    }
   }
 }
