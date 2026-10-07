@@ -85,7 +85,7 @@
       "name": "Exact-source release candidate assembly",
       "producer": "workflow:assemble-candidate",
       "platform": "all",
-      "artifact": "SpectralForge-Chimera-Open-Beta-1.1.1-Release-Candidate"
+      "artifact": "SpectralForge-Chimera-<source-version>-Release-Candidate"
     },
     "I1.PITCH": {
       "name": "Low-bin energy and unchanged raw mapping",
@@ -110,6 +110,58 @@
       "producer": "ctest:ChimeraVST3LifecycleTests",
       "platform": "windows",
       "artifact": "ctest-results.xml"
+    },
+    "E1.DSP": {
+      "name": "E670FE native DSP and control coverage",
+      "producer": "ctest-contract:E1.DSP",
+      "platform": "all",
+      "artifact": "ctest-results.xml + LastTest.log",
+      "tests": {
+        "ChimeraAmpNativeTests": [
+          "PASS catalog 25 serialized / 24 active models, 393 controls, six contexts",
+          "CONTROL_RESPONSE count=393 failures=0 minimum=\\S+ at=\\S+",
+          "GAIN_RANGE model=23 channel=2 thd_low=\\S+ thd_mid=\\S+",
+          "GAIN_DEFAULT model=23 channel=2 weak_thd=\\S+ growth_db=\\S+",
+          "GAIN_DEFAULT model=23 channel=3 weak_thd=\\S+ growth_db=\\S+",
+          "PASS sample-rates/channel routes=168 peak=\\S+ allocations=0",
+          "PASS inactive channel controls isolated=448 output level ratio=\\S+",
+          "PASS integrated native oversampling paths=100",
+          "PASS AmpNativeTests"
+        ]
+      },
+      "definition_source": "docs/E670FE_IMPLEMENTATION.md#compatibility"
+    },
+    "E1.STATE_UI": {
+      "name": "E670FE six-context state and native UI coverage",
+      "producer": "ctest-contract:E1.STATE_UI",
+      "platform": "windows",
+      "artifact": "ctest-results.xml + LastTest.log",
+      "tests": {
+        "ChimeraUITests": [
+          "PASS: six native amp contexts, all native banks, POST nine models, binary/A-B recall and immediate pedal bank recall",
+          "PASS native UI: all 25 serialized amplifier panels at 100/75%, 112 channel cases, 2106 channel/control visibility cases, Matrix LOW priority controls and ALL, 9 POST models / 144 controls at 100/75%, flat POST alias menus and short original model captions, six compact rack rows and ALL dialogs, editor teardown and real parameter callbacks"
+        ]
+      },
+      "definition_source": "docs/E670FE_IMPLEMENTATION.md#compatibility"
+    },
+    "E1.LEGACY": {
+      "name": "E670FE append-only and legacy compatibility",
+      "producer": "ctest-contract:E1.LEGACY",
+      "platform": "all",
+      "artifact": "ctest-results.xml + LastTest.log",
+      "tests": {
+        "ChimeraGateProcessorTests": [
+          "PASS legacy parameter contract: 3686 entries SHA256 [0-9a-f]{64} approved_112_defaults=111 numeric_rounding_differences=\\d+; append-only gateRangeDb",
+          "PASS binary state, legacy missing-field migration, A/B, factory reset, host gestures and MIDI automation recall"
+        ]
+      },
+      "windows_tests": {
+        "ChimeraUITests": [
+          "PASS: six native amp contexts, all native banks, POST nine models, binary/A-B recall and immediate pedal bank recall",
+          "PASS: legacy amp normalized/index/label compatibility; 8 appended models; independent lane/channel banks; binary and A/B recall; old-state and factory migration"
+        ]
+      },
+      "definition_source": "docs/E670FE_IMPLEMENTATION.md#compatibility"
     }
   }
 }

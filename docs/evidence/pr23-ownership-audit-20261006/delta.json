@@ -1,0 +1,126 @@
+{
+  "schema": "spectralforge.chimera.release-evidence-audit",
+  "schema_version": 1,
+  "historical_replay_only": true,
+  "publication_approved": false,
+  "source_sha": "47c7bf7412baa41de66f5b4ae41bafc410bde5ca",
+  "run_id": "37429791345",
+  "run_attempt": "1",
+  "artifact_id": 11398430615,
+  "artifact_sha256": "51d5368622a13d8537444b13a81030162e962012371c11b6eee3844e74235f22",
+  "profile": "beta_1_2",
+  "policy_version": 4,
+  "policy_sha256": "1b0be65ccd6df3164a691693ec2d3054bb28b37c52929492ea354cd488e6bb8c",
+  "before": {
+    "counts": {
+      "checks": {
+        "total": 128,
+        "pass": 18,
+        "blocked": 110,
+        "not_applicable": 0
+      },
+      "stages": {
+        "total": 30,
+        "pass": 3,
+        "blocked": 27,
+        "not_applicable": 0
+      }
+    },
+    "hard_gates": {
+      "total": 63,
+      "pass": 18,
+      "blocked": 45
+    },
+    "verdict": "BLOCKED",
+    "ready": false
+  },
+  "after": {
+    "counts": {
+      "checks": {
+        "total": 128,
+        "pass": 21,
+        "blocked": 107,
+        "not_applicable": 0
+      },
+      "stages": {
+        "total": 30,
+        "pass": 4,
+        "blocked": 26,
+        "not_applicable": 0
+      }
+    },
+    "hard_gates": {
+      "total": 63,
+      "pass": 21,
+      "blocked": 42
+    },
+    "verdict": "BLOCKED",
+    "ready": false
+  },
+  "classification_counts": {
+    "UNDEFINED_NUMBERED_ASSERTION": 86,
+    "EXTERNAL_INPUT_REFERENCE_OR_ACCEPTANCE": 21,
+    "AUTO_CONNECT_NOW": 3
+  },
+  "changed_checks": [
+    {
+      "id": "E1.DSP",
+      "before": "BLOCKED",
+      "after": "PASS"
+    },
+    {
+      "id": "E1.LEGACY",
+      "before": "BLOCKED",
+      "after": "PASS"
+    },
+    {
+      "id": "E1.STATE_UI",
+      "before": "BLOCKED",
+      "after": "PASS"
+    }
+  ],
+  "evidence_manifests": [
+    {
+      "kind": "windows",
+      "manifest_sha256": "4be439cb0b51e7cf0b545ae8ebe039bcc340a1efa274c1566357763bc4485b78",
+      "revision": {
+        "commit_sha": "47c7bf7412baa41de66f5b4ae41bafc410bde5ca",
+        "run_id": "37429791345",
+        "run_attempt": "1"
+      }
+    },
+    {
+      "kind": "linux",
+      "manifest_sha256": "6e738c1b6fd7321faf3bd536b322a044b17159fca682181ebfcd69bd6c57a3a5",
+      "revision": {
+        "commit_sha": "47c7bf7412baa41de66f5b4ae41bafc410bde5ca",
+        "run_id": "37429791345",
+        "run_attempt": "1"
+      }
+    },
+    {
+      "kind": "macos",
+      "manifest_sha256": "d2bd319670c730383a7829fbf546fcfc64d9f113cb48641b7fed8bb8b2269266",
+      "revision": {
+        "commit_sha": "47c7bf7412baa41de66f5b4ae41bafc410bde5ca",
+        "run_id": "37429791345",
+        "run_attempt": "1"
+      }
+    },
+    {
+      "kind": "assembly",
+      "manifest_sha256": "474451bbfa99b773a03bbd6f9cf26313699b487b861aa165002f8c0be8a13001",
+      "revision": {
+        "commit_sha": "47c7bf7412baa41de66f5b4ae41bafc410bde5ca",
+        "run_id": "37429791345",
+        "run_attempt": "1"
+      }
+    }
+  ],
+  "producer_errors": [],
+  "limitations": [
+    "Historical evidence replay estimates mapping delta only; new patch commit requires a fresh exact-source workflow run.",
+    "No B, E2, I2 or undefined numbered A assertion is promoted.",
+    "No policy, threshold, waiver or deferred-check changes."
+  ]
+}

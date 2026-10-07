@@ -9,6 +9,8 @@ import os
 from pathlib import Path
 import tempfile
 import zipfile
+import evaluate_release_gate as release_gate
+import release_evidence
 
 import publish_open_beta as transport
 import chimera_version
@@ -29,7 +31,7 @@ sha256 = transport.sha256
 
 
 def prepare_assets(candidate, head, run_id):
-    source = json.loads((candidate / "candidate-source.json").read_text())
+    source = json.loads((candidate / "candidate-source.json").read_text(encoding="utf-8"))
     require(source["version"] == VERSION and source["tag"] == "v" + VERSION
             and source["revision"] == head and str(source["runId"]) == str(run_id)
             and source["published"] is False and source["publisherSigned"] is False
@@ -46,7 +48,7 @@ def prepare_assets(candidate, head, run_id):
         require(sha256(candidate / name) == digest, f"Binary checksum mismatch: {name}")
         sidecar = (candidate / (name + ".sha256.txt")).read_text(encoding="utf-8-sig").split()
         require(sidecar[0].lower() == digest, f"Sidecar checksum mismatch: {name}")
-    manifest = json.loads((candidate / "update-beta.json").read_text())
+    manifest = json.loads((candidate / "update-beta.json").read_text(encoding="utf-8"))
     require(manifest["schema"] == 1 and manifest["version"] == VERSION
             and manifest["channel"] == "beta" and manifest["releaseUrl"] == transport.RELEASE_URL,
             "Update manifest identity mismatch")
@@ -83,7 +85,7 @@ def prepare_assets(candidate, head, run_id):
     assets["COPYRIGHT.txt"] = ROOT / "COPYRIGHT.txt"
     for name, path in assets.items():
         require(path.is_file() and path.stat().st_size > 0, f"Missing public file: {name}")
-    notes = assets["OPEN_BETA_RELEASE_NOTES.md"].read_text().strip()
+    notes = assets["OPEN_BETA_RELEASE_NOTES.md"].read_text(encoding="utf-8").strip()
     require(VERSION in notes and "Studio One" in notes, "Incomplete release notes")
     return notes, assets
 
@@ -95,6 +97,68 @@ def verified_run(runs, head, events):
     require(latest["status"] == "completed" and latest["conclusion"] == "success",
             "Latest exact-source verification run has not passed")
     return latest["id"]
+
+
+def verify_release_gate_archive(archive, head, profile, run_id, run_attempt):
+    """Recompute the consolidated gate with this source's policy before publishing."""
+    try:
+        policy = release_gate.load_json(ROOT / "Validation/release-policy.json")
+        with zipfile.ZipFile(archive) as bundle:
+            require(bundle.testzip() is None, "Release-gate ZIP failed CRC verification")
+            names = bundle.namelist()
+            require(len(names) == len(set(names)), "Duplicate release-gate ZIP entries")
+            matches = [name for name in names if Path(name).name == "release-gate.json"]
+            require(len(matches) == 1, "Expected one release-gate.json in validation artifact")
+            def read_json(name):
+                return json.loads(bundle.read(name).decode("utf-8-sig"),
+                    object_pairs_hook=release_gate.unique_object,
+                    parse_constant=release_gate.invalid_constant)
+            verdict = read_json(matches[0])
+            expected_revision = release_evidence.identity(head, run_id, run_attempt)
+            require(isinstance(verdict, dict) and
+                    verdict.get("schema") == "spectralforge.chimera.release-gate" and
+                    type(verdict.get("schema_version")) is int and verdict["schema_version"] == 1 and
+                    verdict.get("profile") == profile and
+                    verdict.get("revision") == expected_revision and
+                    verdict.get("policy_version") == policy["policy_version"],
+                    "Release-gate identity mismatch")
+            require(verdict.get("producer", {}).get("name") == "consolidate_release_gate" and
+                    verdict["producer"].get("errors") == [], "Release gate has no valid consolidator provenance")
+            root = Path(matches[0]).parent
+            checks = {}
+            for name in names:
+                if Path(name).parent != root / "checks" or not name.endswith(".json"):
+                    continue
+                check = read_json(name)
+                release_gate.validate_check(check, name)
+                require(check["id"] not in checks, "Duplicate release check")
+                # Source and policy binding cannot be disabled inside a report.
+                require(check["evidence"].get("commit_sha") == head and
+                        check["evidence"].get("policy_version") == policy["policy_version"] and
+                        check["policy"].get("requires_current_commit") is True and
+                        check["policy"].get("requires_policy_version") is True,
+                        "Release check identity mismatch")
+                stage, _ = release_evidence.producer.locate_check(policy, check["id"])
+                require(check["stage"] == stage and check["policy"].get("required") is True
+                        and check["policy"].get("hard_gate") is (check["id"] in policy["hard_gates"]),
+                        "Release check policy mismatch")
+                checks[check["id"]] = check
+            expected = {cid for stage in policy["profiles"][profile]["required_stages"]
+                        for cid in policy["stages"][stage]["required_checks"]}
+            require(set(checks) == expected, "Release check inventory mismatch")
+            computed = release_gate.evaluate_release(policy,
+                release_gate.load_json(ROOT / "Validation/waivers.json"), checks, profile, head)
+            for field in ("verdict", "ready", "counts", "hard_gates", "checks", "stages", "blockers"):
+                require(json.dumps(verdict.get(field), sort_keys=True) == json.dumps(computed[field], sort_keys=True),
+                        "Release-gate summary differs from check evidence")
+            require(computed["verdict"] == "PASS" and computed["ready"] is True
+                    and computed["counts"]["checks"]["blocked"] == 0
+                    and computed["hard_gates"]["blocked"] == 0 and not computed["blockers"],
+                    "Release-gate verdict is not PASS")
+    except (KeyError, TypeError, ValueError, AttributeError, release_gate.ValidationError,
+            zipfile.BadZipFile) as exc:
+        raise RuntimeError("Malformed release-gate artifact") from exc
+    return verdict
 
 
 def main():
@@ -114,8 +178,11 @@ def main():
     # No rebuild, relabeling, stale-head fallback or missing-platform fallback.
     builds = api.json(f"/actions/workflows/build.yml/runs?head_sha={head}&per_page=100")["workflow_runs"]
     run_id = verified_run(builds, head, ("pull_request", "workflow_dispatch"))
+    build_run = api.json(f"/actions/runs/{run_id}")
+    require(build_run["head_sha"] == head, "Build run source mismatch")
+    run_attempt = build_run["run_attempt"]
     jobs = api.pages(f"/actions/runs/{run_id}/jobs", "jobs")
-    for suffix in ("build (windows-latest)", "build (ubuntu-22.04)", "build (macos-15)", "assemble-candidate"):
+    for suffix in ("build (windows-latest)", "build (ubuntu-22.04)", "build (macos-15)", "assemble-candidate", "consolidate-release-gate"):
         matches = [job for job in jobs if job["name"].split(" / ")[-1] == suffix]
         require(len(matches) == 1 and matches[0]["status"] == "completed"
                 and matches[0]["conclusion"] == "success", f"Required build gate failed: {suffix}")
@@ -129,6 +196,15 @@ def main():
         require(len(matches) == 1 and matches[0]["status"] == "completed"
                 and matches[0]["conclusion"] == "success", f"Candidate gate failed: {name}")
     artifacts = api.pages(f"/actions/runs/{run_id}/artifacts", "artifacts")
+    gate_matches = [artifact for artifact in artifacts
+                    if artifact["name"] == "Chimera-A-stage-release-gate"]
+    require(len(gate_matches) == 1, "Expected one exact-source release-gate artifact")
+    gate_artifact = gate_matches[0]
+    require(not gate_artifact["expired"]
+            and gate_artifact["workflow_run"]["head_sha"] == head
+            and gate_artifact["workflow_run"]["id"] == run_id
+            and gate_artifact.get("digest", "").startswith("sha256:"),
+            "Release-gate artifact provenance mismatch")
     matches = [artifact for artifact in artifacts if artifact["name"] == ARTIFACT_NAME]
     require(len(matches) == 1, "Expected one release candidate artifact")
     artifact = matches[0]
@@ -145,6 +221,11 @@ def main():
     transport.ARCHIVE_SHA = artifact["digest"].split(":", 1)[1]
     with tempfile.TemporaryDirectory(prefix="chimera-beta12-") as temporary:
         working = Path(temporary)
+        gate_archive = working / "release-gate.zip"
+        api.download(f"/actions/artifacts/{gate_artifact['id']}/zip", gate_archive)
+        require(sha256(gate_archive) == gate_artifact["digest"].split(":", 1)[1],
+                "Release-gate artifact digest mismatch")
+        verify_release_gate_archive(gate_archive, head, "beta_1_2", run_id, run_attempt)
         archive = working / "candidate.zip"
         api.download(f"/actions/artifacts/{artifact['id']}/zip", archive)
         candidate = working / "candidate"

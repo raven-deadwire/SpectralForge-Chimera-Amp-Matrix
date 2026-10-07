@@ -7,6 +7,8 @@ import unittest
 import zipfile
 from unittest.mock import patch
 import publish_beta12 as publisher
+import release_evidence as evidence
+import evaluate_release_gate as gate
 
 HEAD = 'a' * 40
 RUN = 123
@@ -51,6 +53,54 @@ class PublicationInputs(unittest.TestCase):
             name=self.prefix+suffix; line=publisher.sha256(self.root/name)+'  '+name+'\n'
             lines.append(line);(self.root/(name+'.sha256.txt')).write_text(line)
         (self.root/'SHA256SUMS.txt').write_text(''.join(lines))
+
+    def gate_archive(self, **changes):
+        policy, _ = evidence.configuration()
+        checks = {cid: evidence.make_report(policy, cid, HEAD, passed=True)
+                  for stage in policy['profiles']['beta_1_2']['required_stages']
+                  for cid in policy['stages'][stage]['required_checks']}
+        # Fabricated complete evidence is confined to this positive test fixture.
+        verdict = gate.evaluate_release(policy, {'waivers': []}, checks, 'beta_1_2', HEAD)
+        verdict['revision'] = evidence.identity(HEAD, RUN, 1)
+        verdict['producer'] = {'name': 'consolidate_release_gate', 'errors': []}
+        verdict.update(changes)
+        path = self.root / 'release-gate.zip'
+        with zipfile.ZipFile(path, 'w') as archive:
+            archive.writestr('validation/release-gate.json', json.dumps(verdict))
+            for cid, report in checks.items():
+                archive.writestr('validation/checks/' + cid + '.json', json.dumps(report))
+        return path
+
+    def test_accepts_exact_source_pass_release_gate(self):
+        verdict = publisher.verify_release_gate_archive(
+            self.gate_archive(), HEAD, 'beta_1_2', RUN, 1)
+        self.assertEqual(verdict['verdict'], 'PASS')
+
+    def test_rejects_blocked_stale_or_wrong_profile_release_gate(self):
+        cases = (
+            {'verdict': 'BLOCKED', 'ready': False,
+             'counts': {'checks': {'blocked': 1}},
+             'hard_gates': {'blocked': 1},
+             'blockers': [{'id': 'B12.RESULT'}]},
+            {'revision': {'commit_sha': 'b' * 40}},
+            {'profile': 'pull_request'},
+        )
+        for changes in cases:
+            with self.subTest(changes=changes), self.assertRaises(RuntimeError):
+                publisher.verify_release_gate_archive(
+                    self.gate_archive(**changes), HEAD, 'beta_1_2', RUN, 1)
+
+    def test_rejects_missing_or_duplicate_release_gate(self):
+        path = self.root / 'release-gate.zip'
+        with zipfile.ZipFile(path, 'w') as archive:
+            archive.writestr('unrelated.json', '{}')
+        with self.assertRaises(RuntimeError):
+            publisher.verify_release_gate_archive(path, HEAD, 'beta_1_2', RUN, 1)
+        with zipfile.ZipFile(path, 'w') as archive:
+            archive.writestr('one/release-gate.json', '{}')
+            archive.writestr('two/release-gate.json', '{}')
+        with self.assertRaises(RuntimeError):
+            publisher.verify_release_gate_archive(path, HEAD, 'beta_1_2', RUN, 1)
 
     def test_accepts_complete_current_inputs(self):
         notes,assets=publisher.prepare_assets(self.root,HEAD,RUN)
