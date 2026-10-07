@@ -1,0 +1,147 @@
+6/21 Testing: ChimeraUITests
+6/21 Test: ChimeraUITests
+Command: "D:/a/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build/ChimeraUITests_artefacts/Release/ChimeraUITests.exe" "D:/a/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build/ui-snapshots"
+Directory: D:/a/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build
+"ChimeraUITests" start time: Oct 06 07:49 Coordinated Universal Time
+Output:
+----------------------------------------------------------
+PASS: active tuner/three-lane IR switching, three release/reprepare cycles at 44.1/48/96 kHz, idempotent release and no live background resources before delete; slowest release 73.4272 ms
+PASS: two editors share one artwork bank across paints; last editor releases it synchronously before GUI/DLL shutdown
+PASS: 24 active amps exactly once, Chimera names only, new choices selectable; pending asynchronous amp/channel selection retained; popup cancellation and reopening
+PASS: legacy amp normalized/index/label compatibility; 8 appended models; independent lane/channel banks; binary and A/B recall; old-state and factory migration
+PASS pedal menus: 39 DSPs in 10 exclusive categories, alias-only lists with separate readable hardware captions, async selection and popup reopen, immediate load/copy without dialogs, ON/OFF, four-control 2 by 2 layouts, all six five-control models in 3 + 2 outer-column layouts with real callbacks, and user-only board activation
+PASS: six native amp contexts, all native banks, POST nine models, binary/A-B recall and immediate pedal bank recall
+PASS UI refresh: stable state/metadata, hidden panels/editor, deferred model change, detached ALL windows, live meters, metadata-only invalidation, scaling 75/100/125/150 and parameter preservation
+PASS native UI: all 25 serialized amplifier panels at 100/75%, 112 channel cases, 2106 channel/control visibility cases, Matrix LOW priority controls and ALL, 9 POST models / 144 controls at 100/75%, flat POST alias menus and short original model captions, six compact rack rows and ALL dialogs, editor teardown and real parameter callbacks
+PASS correction UI: directly editable five-slot PRE after fresh/old recall, alias-only amp menus with visible reference captions, 8 editor-to-audio DSP selections, native channel callbacks and isolated Matrix lane selectors; minimum RMS-matched processor residual 0.398215
+PASS: 30 editor/pending-popup/processor lifetime cycles in 73892.4 ms (standalone harness, not a DAW shutdown test)
+PASS: hosted Support browser-only layout, 24 no-service panel lifetimes and 6 real SETTINGS/Support editor teardowns without a message pump; slowest 52.2669 ms (hosted UI harness, not a Studio One shutdown test)
+BEGIN universal PRE state checks; Processor size 209120 bytes (heap-owned like plugin instances)
+PASS board state: APVTS owner identity, move, independent duplicate, Empty, capacity and invalid-model guards
+PASS board state: Processor undo and redo restore structural snapshots
+PASS board state: Actual Processor binary state round trip of the universal board
+PASS board state: A/B board snapshots and both saved comparison slots
+PASS board state: M104 (model 28, 2 controls): all controls survive active binary round trip
+PASS board state: M104 (model 28, 2 controls): replacement and return restore every control
+PASS board state: M104 (model 28, 2 controls): inactive binary bank and return survive fresh-processor recall
+PASS board state: M104 (model 28, 2 controls): distinct active/inactive A/B banks and both serialized snapshots
+PASS board state: JB-2 (model 29, 8 controls including mode/toggle): all controls survive active binary round trip
+PASS board state: JB-2 (model 29, 8 controls including mode/toggle): replacement and return restore every control
+PASS board state: JB-2 (model 29, 8 controls including mode/toggle): inactive binary bank and return survive fresh-processor recall
+PASS board state: JB-2 (model 29, 8 controls including mode/toggle): distinct active/inactive A/B banks and both serialized snapshots
+PASS board state: Old project seeds current five-slot models/order/ON-OFF, preserves compatibility audio and raw parameters
+PASS board state: MIDI learn, moved owner, independent duplication, binary recall and explicit replacement retirement
+PASS board state: Poly host latency/bypass/delete, zero-frame mono, native factory activation/model/bypass/order and inactive bank recall
+PASS universal PRE Processor/APVTS: state, A/B, MIDI, legacy, owner identity, capacity, undo/redo
+MEASURE CPU: 17.1015 percent average, 17.6494 percent peak (this runner)
+PASS: 90 decoded visible rasters; 25 unique heads, 38 PRE enclosures (39 models), 21 unique POST surfaces
+PASS: AMP/PRE/POST display and text-entry mappings preserve host values
+PASS: all factory preset host IDs/ranges, complete recall, performance preservation and invalid-index isolation
+PASS: global gain, oversized blocks, host latency, tuner mute, embedded IR, A/B and reference recall
+PASS: bass reference visibility, missing-file state, source metadata and invalid ZIP rejection
+PASS: actual pedal detail/return actions and all 12 EQ controls inside the fixed board at 100/75 percent
+PASS: mode controls, text, automation, state recall, legacy recall; PNGs in D:\a\SpectralForge-Chimera-Amp-Matrix\SpectralForge-Chimera-Amp-Matrix\build\ui-snapshots
+<end of output>
+Test time = 236.27 sec
+----------------------------------------------------------
+Test Passed.
+"ChimeraUITests" end time: Oct 06 07:53 Coordinated Universal Time
+"ChimeraUITests" time elapsed: 00:03:56
+----------------------------------------------------------
+
+16/21 Testing: ChimeraAmpNativeTests
+16/21 Test: ChimeraAmpNativeTests
+Command: "D:/a/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build/ChimeraAmpNativeTests_artefacts/Release/ChimeraAmpNativeTests.exe"
+Directory: D:/a/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build
+"ChimeraAmpNativeTests" start time: Oct 06 07:54 Coordinated Universal Time
+Output:
+----------------------------------------------------------
+PASS catalog 25 serialized / 24 active models, 393 controls, six contexts
+BASS_EQ_SPAN model=5 key=hw.ch1.midrange db=40.0006
+BASS_EQ_SPAN model=11 key=hw.lo_mid db=24.0042
+BASS_EQ_SPAN model=11 key=hw.hi_mid db=24.0046
+BASS_EQ_SPAN model=14 key=hw.lo_mid db=24.0004
+GAIN_RANGE model=2 channel=1 thd_low=0.0972533 thd_mid=0.81798
+GAIN_RANGE model=3 channel=2 thd_low=0.0337178 thd_mid=0.860835
+GAIN_RANGE model=4 channel=2 thd_low=0.105261 thd_mid=0.38229
+GAIN_RANGE model=9 channel=1 thd_low=0.115185 thd_mid=0.676277
+GAIN_RANGE model=13 channel=1 thd_low=0.00742875 thd_mid=0.313326
+GAIN_RANGE model=15 channel=2 thd_low=0.00965985 thd_mid=0.724905
+GAIN_RANGE model=17 channel=2 thd_low=0.0193037 thd_mid=0.790712
+GAIN_RANGE model=20 channel=0 thd_low=0.0139506 thd_mid=0.687601
+GAIN_RANGE model=21 channel=1 thd_low=0.00738925 thd_mid=0.629795
+GAIN_RANGE model=22 channel=1 thd_low=0.00945843 thd_mid=0.773345
+GAIN_RANGE model=23 channel=2 thd_low=0.00254538 thd_mid=0.751669
+GAIN_DEFAULT model=2 channel=1 weak_thd=0.80028 growth_db=0.978443
+GAIN_DEFAULT model=3 channel=2 weak_thd=0.828777 growth_db=1.60343
+GAIN_DEFAULT model=4 channel=2 weak_thd=0.376354 growth_db=0.274278
+GAIN_DEFAULT model=9 channel=1 weak_thd=0.656786 growth_db=0.82315
+GAIN_DEFAULT model=15 channel=2 weak_thd=0.68762 growth_db=3.11965
+GAIN_DEFAULT model=15 channel=3 weak_thd=0.7739 growth_db=0.93054
+GAIN_DEFAULT model=17 channel=2 weak_thd=0.786268 growth_db=1.49877
+GAIN_DEFAULT model=17 channel=3 weak_thd=0.429451 growth_db=1.48826
+GAIN_DEFAULT model=20 channel=0 weak_thd=0.657254 growth_db=1.53078
+GAIN_DEFAULT model=20 channel=1 weak_thd=0.792002 growth_db=0.62125
+GAIN_DEFAULT model=21 channel=1 weak_thd=0.605955 growth_db=1.77172
+GAIN_DEFAULT model=22 channel=1 weak_thd=0.736791 growth_db=2.02685
+GAIN_DEFAULT model=23 channel=2 weak_thd=0.724144 growth_db=2.52072
+GAIN_DEFAULT model=23 channel=3 weak_thd=0.637891 growth_db=1.60853
+PASS sample-rates/channel routes=168 peak=3.43593 allocations=0
+CONTROL_RESPONSE count=393 failures=0 minimum=9.14307e-06 at=15:gate_threshold
+PASS inactive channel controls isolated=448 output level ratio=1.99526
+PASS old/native engine transition first difference=0.000458091 allocations=0
+PASS trim_gate_residual=0 hidden_tank_difference=0 hidden_tank_reference=1.18507e-08 first15_coeff_edit_residual=0 edited_difference_energy=53.7931 transition_peak=0.197179
+PASS integrated native oversampling paths=100
+PASS AmpNativeTests
+<end of output>
+Test time =  16.25 sec
+----------------------------------------------------------
+Test Passed.
+"ChimeraAmpNativeTests" end time: Oct 06 07:55 Coordinated Universal Time
+"ChimeraAmpNativeTests" time elapsed: 00:00:16
+----------------------------------------------------------
+
+18/21 Testing: ChimeraGateProcessorTests
+18/21 Test: ChimeraGateProcessorTests
+Command: "D:/a/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build/ChimeraGateProcessorTests_artefacts/Release/ChimeraGateProcessorTests.exe"
+Directory: D:/a/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build
+"ChimeraGateProcessorTests" start time: Oct 06 07:55 Coordinated Universal Time
+Output:
+----------------------------------------------------------
+ROUNDING ampchannel1_m15 field=3 expected=0.666666667 actual=0.666666687
+ROUNDING ampchannel2_m15 field=3 expected=0.666666667 actual=0.666666687
+ROUNDING ampchannel3_m15 field=3 expected=0.666666667 actual=0.666666687
+ROUNDING nativeAmp_c0_m2_hw_lead_pre_gain field=3 expected=0.680000000 actual=0.680000007
+ROUNDING nativeAmp_c0_m3_hw_ch2_gain field=3 expected=0.650000000 actual=0.650000036
+ROUNDING nativeAmp_c0_m3_hw_ch3_gain field=3 expected=0.680000000 actual=0.680000007
+ROUNDING nativeAmp_c0_m4_hw_lead_gain field=3 expected=0.720000000 actual=0.720000029
+ROUNDING nativeAmp_c0_m4_hw_lead_drive field=3 expected=0.650000000 actual=0.650000036
+PASS legacy parameter contract: 3686 entries SHA256 c035babc58914c0270e1b5eefb02881a50b88af8b609401d4d391792437e170c approved_112_defaults=111 numeric_rounding_differences=99; append-only gateRangeDb
+PASS binary state, legacy missing-field migration, A/B, factory reset, host gestures and MIDI automation recall
+MEASURE high-gain mode=0 board=0 native=0 range24_db=-23.9999 full_db=-300 (floor -300 dB)
+MEASURE high-gain mode=0 board=0 native=1 range24_db=-23.9999 full_db=-300 (floor -300 dB)
+PASS actual processor synthetic hiss: mode 0 board 0; pre/post, Full/24 dB, compatibility/native high gain
+MEASURE high-gain mode=0 board=1 native=0 range24_db=-23.9999 full_db=-300 (floor -300 dB)
+MEASURE high-gain mode=0 board=1 native=1 range24_db=-23.9999 full_db=-300 (floor -300 dB)
+PASS actual processor synthetic hiss: mode 0 board 1; pre/post, Full/24 dB, compatibility/native high gain
+MEASURE high-gain mode=1 board=0 native=0 range24_db=-23.9999 full_db=-300 (floor -300 dB)
+MEASURE high-gain mode=1 board=0 native=1 range24_db=-23.9999 full_db=-300 (floor -300 dB)
+PASS actual processor synthetic hiss: mode 1 board 0; pre/post, Full/24 dB, compatibility/native high gain
+MEASURE high-gain mode=1 board=1 native=0 range24_db=-23.9999 full_db=-300 (floor -300 dB)
+MEASURE high-gain mode=1 board=1 native=1 range24_db=-23.9999 full_db=-300 (floor -300 dB)
+PASS actual processor synthetic hiss: mode 1 board 1; pre/post, Full/24 dB, compatibility/native high gain
+MEASURE high-gain mode=2 board=0 native=0 range24_db=-23.9999 full_db=-300 (floor -300 dB)
+MEASURE high-gain mode=2 board=0 native=1 range24_db=-23.9999 full_db=-300 (floor -300 dB)
+PASS actual processor synthetic hiss: mode 2 board 0; pre/post, Full/24 dB, compatibility/native high gain
+MEASURE high-gain mode=2 board=1 native=0 range24_db=-23.9999 full_db=-300 (floor -300 dB)
+MEASURE high-gain mode=2 board=1 native=1 range24_db=-23.9999 full_db=-300 (floor -300 dB)
+PASS actual processor synthetic hiss: mode 2 board 1; pre/post, Full/24 dB, compatibility/native high gain
+PASS actual processor POST delay and reverb tails remain audible with Full gate closed
+<end of output>
+Test time =  10.46 sec
+----------------------------------------------------------
+Test Passed.
+"ChimeraGateProcessorTests" end time: Oct 06 07:55 Coordinated Universal Time
+"ChimeraGateProcessorTests" time elapsed: 00:00:10
+----------------------------------------------------------
+
