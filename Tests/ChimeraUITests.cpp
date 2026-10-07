@@ -598,7 +598,7 @@ int main(int argc, char** argv)
                             button->onClick();
                 saveSnapshot(*editor,directory,"Niflheimr-software-mode-"+juce::String(mode));
             }
-            IRBrowserPanel browser([](juce::File,int){});
+            const auto browserStorage=std::make_unique<IRBrowserPanel>([](juce::File,int){});auto& browser=*browserStorage;
             saveSnapshot(browser,directory,"IR-library-software");
             std::cout<<"PASS software Niflheimr/IR review images; native-window acceptance is separate\n";
             return 0;
@@ -642,6 +642,7 @@ int main(int argc, char** argv)
         if(argc>2 && juce::String(argv[2])=="--ui-refresh-only"){uiRefreshTests::run(directory);return 0;}
         int suiteFailures=0;
         const auto runSuite=[&](const char* name,auto&& run) {
+            std::cout<<"RUN suite "<<name<<std::endl;
             try {run();}
             catch(const std::exception& error) {++suiteFailures;std::cerr<<"FAIL suite "<<name<<": "<<error.what()<<'\n';juce::PopupMenu::dismissAllActiveMenus();juce::MessageManager::getInstance()->runDispatchLoopUntil(30);}
         };
@@ -672,14 +673,14 @@ int main(int argc, char** argv)
         {const auto folder=directory.getChildFile("ir-browser-fixture");require(folder.createDirectory().wasOk(),"Cannot create IR collection fixture");const auto guitar=folder.getChildFile("TEST V30 4x12 SM57.wav"),bass=folder.getChildFile("TEST Bass 8x10 MD421.wav");writeIRFixture(guitar);writeIRFixture(bass,true);checkDecodedIR(guitar);checkDecodedIR(bass);juce::File picked;
          const auto librarySettings=folder.getChildFile("test-library.json");
          for(const auto& fixture:{guitar,bass}) {auto metadata=spectralforge::IRMetadata::filenameHints(fixture.getFileName());metadata.instrument=fixture==bass ? spectralforge::IRMetadata::Instrument::bass : spectralforge::IRMetadata::Instrument::guitar;require(juce::File(fixture.getFullPathName()+".json").replaceWithText(juce::JSON::toString(metadata.json())),"Cannot write instrument fixture");}
-         IRBrowserPanel browser(folder,[&](juce::File file){picked=file;},librarySettings);auto* size=dynamic_cast<juce::ComboBox*>(browser.findChildWithID("irdiameter"));auto* list=dynamic_cast<juce::ListBox*>(browser.findChildWithID("irlist"));auto* search=dynamic_cast<juce::TextEditor*>(browser.findChildWithID("irsearch"));require(size && list && search,"IR collection controls missing");
+         const auto browserStorage=std::make_unique<IRBrowserPanel>(folder,[&](juce::File file){picked=file;},librarySettings);auto& browser=*browserStorage;auto* size=dynamic_cast<juce::ComboBox*>(browser.findChildWithID("irdiameter"));auto* list=dynamic_cast<juce::ListBox*>(browser.findChildWithID("irlist"));auto* search=dynamic_cast<juce::TextEditor*>(browser.findChildWithID("irsearch"));require(size && list && search,"IR collection controls missing");
          size->setSelectedId(3,juce::sendNotificationSync);require(list->getListBoxModel()->getNumRows()==1,"10-inch IR filter did not isolate bass fixture");list->selectRow(0);dynamic_cast<juce::TextButton*>(browser.findChildWithID("irload"))->onClick();require(picked==bass,"IR collection loaded wrong file");checkDecodedIR(picked);
          search->setText("SM57");search->onTextChange();require(list->getListBoxModel()->getNumRows()==0,"Mic filter ignored diameter selection");search->clear();search->onTextChange();size->setSelectedId(1,juce::sendNotificationSync);saveSnapshot(browser,directory,"IR-collection");
          auto* instrument=dynamic_cast<juce::ComboBox*>(browser.findChildWithID("irkind"));auto* availability=dynamic_cast<juce::ComboBox*>(browser.findChildWithID("iravailability"));require(instrument && availability,"Independent IR filters missing");
          instrument->setSelectedId(2,juce::sendNotificationSync);availability->setSelectedId(4,juce::sendNotificationSync);require(list->getListBoxModel()->getNumRows()==1,"Installed bass filter does not combine independently");
          availability->setSelectedId(5,juce::sendNotificationSync);require(list->getListBoxModel()->getNumRows()==0 && instrument->getSelectedId()==2,"Availability selection reset instrument or included installed files");
          availability->setSelectedId(1,juce::sendNotificationSync);instrument->setSelectedId(1,juce::sendNotificationSync);
-         auto tags=spectralforge::IRMetadata::filenameHints(bass.getFileName());IRDetailsPanel details(tags,true,[](spectralforge::IRMetadata){});saveSnapshot(details,directory,"IR-details");
+         auto tags=spectralforge::IRMetadata::filenameHints(bass.getFileName());const auto detailsStorage=std::make_unique<IRDetailsPanel>(tags,true,[](spectralforge::IRMetadata){});auto& details=*detailsStorage;saveSnapshot(details,directory,"IR-details");
          CabinetSelector selector;selector.refresh({folder},librarySettings);require(selector.installedCount()==2,"Cabinet menu must expose both actual WAV fixtures");
          int choices=0,browses=0;selector.selected=[&](juce::File file,int source){require(source==3 && (file==guitar || file==bass),"Installed cabinet selection changed a host enum index");checkDecodedIR(file);++choices;};selector.browse=[&]{++browses;};
          for(int id=100;id<102;++id) {selector.setSelectedId(id,juce::sendNotificationAsync);selector.sync(1,{});juce::MessageManager::getInstance()->runDispatchLoopUntil(20);}
@@ -702,7 +703,7 @@ int main(int argc, char** argv)
          require(list->getListBoxModel()->getNumRows()==0 && list->getSelectedRow()==-1 && !removeIR->isEnabled() && !dynamic_cast<juce::TextButton*>(browser.findChildWithID("irload"))->isEnabled(),"Removed selection remained actionable");
          require(bass.existsAsFile() && picked==bass,"Library removal deleted source or changed loaded IR");
          selector.refresh({folder},librarySettings);require(selector.installedCount()==1 && selector.getText()==spectralforge::IRMetadata::filenameHints(bass.getFileName()).shortLabel(bass.getFileName()),"Cabinet menu retained removed file or cleared project IR");
-         {IRBrowserPanel reopened(folder,[](juce::File){},librarySettings);auto* reopenedList=dynamic_cast<juce::ListBox*>(reopened.findChildWithID("irlist"));require(reopenedList && reopenedList->getListBoxModel()->getNumRows()==1,"Removal lost when library reopened");saveSnapshot(reopened,directory,"IR-personal-removal");}
+         {const auto reopenedStorage=std::make_unique<IRBrowserPanel>(folder,[](juce::File){},librarySettings);auto& reopened=*reopenedStorage;auto* reopenedList=dynamic_cast<juce::ListBox*>(reopened.findChildWithID("irlist"));require(reopenedList && reopenedList->getListBoxModel()->getNumRows()==1,"Removal lost when library reopened");saveSnapshot(reopened,directory,"IR-personal-removal");}
          require(spectralforge::IRCollection::rememberFile(bass,spectralforge::IRMetadata::Instrument::bass,librarySettings).wasOk(),"Cannot re-add removed IR");
          const auto duplicates=folder.getChildFile("duplicates");require(duplicates.createDirectory().wasOk(),"Cannot create duplicate IR fixture");
          const auto sameName=duplicates.getChildFile(bass.getFileName());writeIRFixture(sameName);
@@ -713,7 +714,7 @@ int main(int argc, char** argv)
          require(folder.deleteRecursively(),"Cannot remove browser fixtures");}
 
         {
-            IRBrowserPanel browser([](juce::File,int){});
+            const auto browserStorage=std::make_unique<IRBrowserPanel>([](juce::File,int){});auto& browser=*browserStorage;
             auto* kind=dynamic_cast<juce::ComboBox*>(browser.findChildWithID("irkind"));
             auto* list=dynamic_cast<juce::ListBox*>(browser.findChildWithID("irlist"));
             require(kind && list,"Reference library controls missing");
@@ -761,7 +762,9 @@ int main(int argc, char** argv)
         for (int mode=0;mode<3;++mode)
         {
             set(processor,"mode",static_cast<float>(mode));
-            ChimeraEditor editor(processor);
+            // Keep large UI fixtures off the executable's Windows stack. main
+            // remains live while all nested UI suites construct their editors.
+            const auto editorStorage=std::make_unique<ChimeraEditor>(processor);auto& editor=*editorStorage;
             for(auto* child:editor.findChildWithID("surface")->getChildren())
                 if(auto* button=dynamic_cast<juce::TextButton*>(child);button && button->getButtonText()=="RIGS")button->triggerClick();
             // Exercise the real asynchronous UI event loop. Sleeping the message
@@ -866,7 +869,7 @@ int main(int argc, char** argv)
         {
             const auto universalStorage=std::make_unique<ChimeraProcessor>();auto& universal=*universalStorage;universal.prepareToPlay(48000,256);
             const int models[]{30,6,26,27,31};for(int i=0;i<5;++i)universal.setPedalModel(i,models[i]);set(universal,"boardEnabled",1);
-            ChimeraEditor editor(universal);auto* canvas=editor.findChildWithID("surface");require(canvas,"Missing editor surface");
+            const auto editorStorage=std::make_unique<ChimeraEditor>(universal);auto& editor=*editorStorage;auto* canvas=editor.findChildWithID("surface");require(canvas,"Missing editor surface");
             for(auto* child:canvas->getChildren())if(auto* button=dynamic_cast<juce::TextButton*>(child);button&&button->getButtonText()=="PRE")button->triggerClick();
             for(int mode=0;mode<3;++mode) {
                 set(universal,"mode",float(mode));juce::MessageManager::getInstance()->runDispatchLoopUntil(180);

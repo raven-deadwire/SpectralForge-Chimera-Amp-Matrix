@@ -184,7 +184,9 @@ inline void dialogTeardown() {
     editor.reset();settle();for(auto window:windows)require(window==nullptr,"Editor destruction left an ALL window or live parameter attachment");
 }
 inline void run(const juce::File& directory){
-    auto storage=std::make_unique<ChimeraProcessor>();auto& processor=*storage;ChimeraEditor editor(processor);auto* canvas=editor.findChildWithID("surface");require(canvas!=nullptr,"Native UI canvas missing");
+    auto storage=std::make_unique<ChimeraProcessor>();auto& processor=*storage;
+    auto editorStorage=std::make_unique<ChimeraEditor>(processor);auto& editor=*editorStorage;
+    auto* canvas=editor.findChildWithID("surface");require(canvas!=nullptr,"Native UI canvas missing");
     checkGateUI(processor,editor,directory);
     auto* gateLocation=find<juce::TextButton>(*canvas,"gateAfterRig");require(gateLocation!=nullptr,"POST GATE control missing");
     const bool originalGateLocation=processor.parameters().getRawParameterValue("gateAfterRig")->load()>.5f;

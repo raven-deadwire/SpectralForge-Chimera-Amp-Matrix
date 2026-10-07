@@ -223,7 +223,7 @@ int main(int argc,char** argv)
     juce::ScopedJuceInitialiser_GUI init;
     try {
         if(argc==3 && juce::String(argv[1])=="--ui") {
-            const auto storage=std::make_unique<ChimeraProcessor>();ChimeraEditor editor(*storage);
+            const auto storage=std::make_unique<ChimeraProcessor>();const auto editorStorage=std::make_unique<ChimeraEditor>(*storage);auto& editor=*editorStorage;
             const juce::File directory{juce::String(argv[2])};require(directory.createDirectory().wasOk(),"Cannot create snapshot directory");
             checkGateUI(*storage,editor,directory);std::cout<<"PASS Gate UI at 75/100/125 percent scale\n";return 0;
         }
