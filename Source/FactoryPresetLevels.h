@@ -3,7 +3,7 @@
 namespace spectralforge {
 // Every factory recall starts at unity OUTPUT. Musical level is authored in
 // the visible amp / POST stages; saved projects retain their stored OUTPUT.
-inline constexpr std::array<float,43> factoryOutputDb{{
+inline constexpr std::array<float,48> factoryOutputDb{{
     0.0f, // 0: Clean Sustain
     0.0f, // 1: Tight Rhythm
     0.0f, // 2: Bass Matrix
@@ -47,5 +47,10 @@ inline constexpr std::array<float,43> factoryOutputDb{{
     0.0f, // 40: Rotten Grind (Original)
     0.0f, // 41: Sludge Mass (Original)
     0.0f, // 42: Slam Impact (Original)
+    0.0f, // 43: Frostline Precision (Niflheimr Original)
+    0.0f, // 44: Carrion Barrage (Niflheimr Original)
+    0.0f, // 45: Foundry Pulse (Niflheimr Original)
+    0.0f, // 46: Jötunn Hammer (Niflheimr Original)
+    0.0f, // 47: Mirebound Monolith (Niflheimr Original)
 }};
 } // namespace spectralforge

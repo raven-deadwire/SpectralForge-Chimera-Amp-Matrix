@@ -357,7 +357,9 @@ void ChimeraProcessor::tapTempo() {
 void ChimeraProcessor::loadFactoryPreset(int index) {
     if(index<0 || index>=spectralforge::selectablePresetCount)return;
     {
-        const auto snapshot=spectralforge::isOriginalPreset(index)
+        const auto snapshot=spectralforge::isNiflheimrPreset(index)
+            ? spectralforge::niflheimrPresetSnapshot(state,index-spectralforge::niflheimrPresetStart)
+            : spectralforge::isOriginalPreset(index)
             ? spectralforge::originalPresetSnapshot(state,index-spectralforge::originalPresetStart)
             : spectralforge::isGuitarSignature(index)
             ? spectralforge::guitarSignatureSnapshot(state,index-spectralforge::factoryPresetCount)

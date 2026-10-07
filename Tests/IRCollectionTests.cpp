@@ -21,7 +21,9 @@ int main(int argc,char** argv) {
         require(root.createDirectory().wasOk(),"Cannot create scan fixture directory");
         const auto bass=root.getChildFile("Bass cabinet 10.wav"),guitar=root.getChildFile("Guitar cabinet 12.wav"),bad=root.getChildFile("Corrupt bass.wav"),silent=root.getChildFile("Silent.wav");
         writeIR(bass);writeIR(guitar);writeIR(silent,true);bad.replaceWithText("This is not audio");
-        auto tags=spectralforge::IRMetadata::filenameHints(bass.getFileName());tags.values[2]="10";
+        auto tags=spectralforge::IRMetadata::filenameHints(bass.getFileName());tags.values[2]="10";tags.instrument=spectralforge::IRMetadata::Instrument::bass;
+        auto guitarTags=spectralforge::IRMetadata{};guitarTags.instrument=spectralforge::IRMetadata::Instrument::guitar;
+        juce::File(guitar.getFullPathName()+".json").replaceWithText(juce::JSON::toString(guitarTags.json()));
         juce::File(bass.getFullPathName()+".json").replaceWithText(juce::JSON::toString(tags.json()));
         C::ScanReport report;const auto entries=C::scan({root,root},false,&report);
         require(entries.size()==4 && report.examinedFiles==4 && report.invalidFiles==2 && !report.truncated,"Scan counts or duplicate root handling incorrect");
@@ -32,7 +34,7 @@ int main(int argc,char** argv) {
             if(C::matches(e,{},{},C::Instrument::all,C::Availability::invalid)) {++invalid;require(!e.ready() && e.details().contains("INVALID FILE"),"Invalid file is loadable or lacks reason");}
         }
         require(bassReady==1 && guitarReady==1 && invalid==2,"Instrument/availability/diameter filters are not independent");
-        auto missing=C::Entry{};missing.name="Bass reference.wav";missing.external=true;
+        auto missing=C::Entry{};missing.name="Bass reference.wav";missing.external=true;missing.tags.instrument=spectralforge::IRMetadata::Instrument::bass;
         require(C::matches(missing,{},{},C::Instrument::bass,C::Availability::missing),"Missing bass reference hidden");
         require(C::matches(missing,{},{},C::Instrument::bass,C::Availability::external),"External bass download hidden");
         require(!C::matches(missing,{},{},C::Instrument::bass,C::Availability::ready),"Missing bass reference shown as ready");
@@ -89,6 +91,52 @@ int main(int argc,char** argv) {
             }
             require(ravenReady==4 && ready==6,"Private Raven library scan did not restore four imports plus two factory captures");
             std::cout<<"PASS: private Raven ZIP imported four hash-verified WAVs; library scan found six ready captures including factory IRs\n";
+        }
+        {
+            using M=spectralforge::IRMetadata;using P=spectralforge::IRUserPreferences;
+            const auto folder=root.getChildFile("personal"),other=root.getChildFile("other-personal");
+            require(folder.createDirectory().wasOk() && other.createDirectory().wasOk(),"Cannot create user-library fixtures");
+            const auto a=folder.getChildFile("capture.wav"),b=other.getChildFile("capture.wav"),settings=root.getChildFile("library.json");
+            writeIR(a);writeIR(b);const auto originalHash=juce::SHA256(a).toHexString();
+            auto items=C::scan({folder,other},false,nullptr,settings);
+            require(items.size()==2 && items[0].tags.instrument==M::Instrument::unspecified && !C::matches(items[0],{},{},C::Instrument::guitarOther,C::Availability::ready),"Unknown personal IR silently classified as guitar");
+            require(M::filenameHints("Bass 8x10.wav").instrument==M::Instrument::unspecified,"Filename guessed personal instrument type");
+            require(P::update(folder,"folders","bass",false,false,settings).wasOk(),"Cannot assign folder instrument");
+            items=C::scan({folder,other},false,nullptr,settings);
+            require(items[0].bass() && !items[1].bass(),"Folder classification leaked across equal basenames");
+            require(C::classify(items[0],M::Instrument::guitar,settings).wasOk(),"Cannot override existing user IR classification");
+            items=C::scan({folder,other},false,nullptr,settings);
+            require(items[0].tags.instrument==M::Instrument::guitar,"Per-file instrument did not override folder or survive scan");
+            require(C::classify(items[0],M::Instrument::unspecified,settings).wasOk(),"Cannot reset instrument to unspecified");
+            items=C::scan({folder,other},false,nullptr,settings);
+            require(items[0].tags.instrument==M::Instrument::unspecified,"Explicit unspecified incorrectly inherited folder type");
+            require(C::remove(items[0],settings).wasOk(),"Cannot remove imported IR");
+            items=C::scan({folder,other},false,nullptr,settings);
+            require(items.size()==1 && items[0].file==b && a.existsAsFile() && juce::SHA256(a).toHexString()==originalHash,"Remove deleted source data, failed persistence, or removed equal basename");
+            require(C::remove(references[0],settings).failed() && C::classify(references[0],M::Instrument::bass,settings).failed(),"Factory IR can be removed or reclassified");
+            require(C::rememberFile(a,M::Instrument::bass,settings).wasOk(),"Cannot re-add removed standalone IR");
+            items=C::scan({},true,nullptr,settings);int standalone=0;
+            for(const auto& item:items)if(item.file==a){require(item.bass(),"Explicit standalone bass type lost");++standalone;}
+            require(standalone==1,"OPEN IR did not register standalone file");
+            items=C::scan({folder},true,nullptr,settings);standalone=0;for(const auto& item:items)if(item.file==a)++standalone;
+            require(standalone==1,"Standalone file duplicated by folder discovery");
+            auto metadata=M{};P::apply(P::read(settings),a,metadata);
+            require(M::fromJSON(metadata.json()).instrument==M::Instrument::bass,"Instrument lost in embedded preset metadata roundtrip");
+            auto copy=metadata;copy.values[11]="Bass cabinet";copy.instrument=M::Instrument::guitar;
+            require(M::fromJSON(copy.json()).instrument==M::Instrument::guitar,"Legacy notes overrode explicit instrument");
+            const auto corrupt=root.getChildFile("broken-preferences.json");corrupt.replaceWithText("broken");
+            require(C::rememberFile(a,M::Instrument::bass,corrupt).failed() && corrupt.loadFileAsString()=="broken","Corrupt preferences overwritten");
+            require(C::rememberFile(bad,M::Instrument::bass,settings).failed(),"Invalid audio registered as a standalone IR");
+            const auto autoSettings=root.getChildFile("auto-library.json");
+            require(C::rememberFile(bass,M::Instrument::unspecified,autoSettings,true).wasOk(),"Auto import failed");
+            auto autoItems=C::scan({},true,nullptr,autoSettings);bool preserved=false;
+            for(const auto& item:autoItems)if(item.file==bass)preserved=item.bass();
+            require(preserved,"Default import overwrote existing sidecar Bass type");
+            require(C::rememberFile(a,M::Instrument::unspecified,autoSettings,true).wasOk(),"Unknown auto import failed");
+            autoItems=C::scan({},true,nullptr,autoSettings);bool unknown=false;
+            for(const auto& item:autoItems)if(item.file==a)unknown=item.tags.instrument==M::Instrument::unspecified;
+            require(unknown,"Auto import guessed an unspecified personal file type");
+            std::cout<<"PASS: unspecified personal IRs, explicit persistent classification, folder/file precedence, equal-basename isolation, non-destructive remove/re-add, factory protection and embedded metadata roundtrip\n";
         }
         const auto capped=root.getChildFile("large");require(capped.createDirectory().wasOk(),"Cannot create capped scan folder");
         for(int i=0;i<512;++i)require(bass.copyFileTo(capped.getChildFile("IR-"+juce::String(i)+".wav")),"Cannot create scan limit fixture");

@@ -66,7 +66,8 @@
     "pre": "Source/PedalBoardCatalog.h",
     "post": "Source/ModelCatalog.h",
     "presets": "Source/FactoryPresets.h",
-    "original_presets": "Source/OriginalAmpDefinition.h"
+    "original_presets": "Source/OriginalPresets.h",
+    "niflheimr_original_presets": "Source/NiflheimrPresets.h"
   },
   "roadmap": {
     "target_total": 132,
@@ -165,6 +166,14 @@
     16
   ],
   "original_preset_count": 5,
-  "selectable_preset_count": 43,
+  "niflheimr_original_preset_count": 5,
+  "niflheimr_original_preset_ordinals": [
+    {"index": 43, "name": "Frostline Precision"},
+    {"index": 44, "name": "Carrion Barrage"},
+    {"index": 45, "name": "Foundry Pulse"},
+    {"index": 46, "name": "Jötunn Hammer"},
+    {"index": 47, "name": "Mirebound Monolith"}
+  ],
+  "selectable_preset_count": 48,
   "development_scope": "Niflheimr native prototype appended; no public release or listening acceptance implied."
 }

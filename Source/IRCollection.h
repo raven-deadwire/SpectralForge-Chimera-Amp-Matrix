@@ -1,5 +1,6 @@
 #pragma once
 #include "IRMetadata.h"
+#include "IRUserPreferences.h"
 #include <juce_cryptography/juce_cryptography.h>
 #include <juce_audio_formats/juce_audio_formats.h>
 #include <vector>
@@ -19,12 +20,10 @@ struct IRCollection {
         juce::String displayName() const {return menuLabel.isNotEmpty() ? menuLabel : tags.shortLabel(name);}
         juce::String details() const {return tags.details(name)+(validationError.isEmpty() ? juce::String{} : "\n\nINVALID FILE: "+validationError);}
         bool ready() const { return factorySource != 0 || (validationError.isEmpty() && file.existsAsFile()); }
-        bool bass() const {
-            return tags.values[1].containsIgnoreCase("Ampeg") || tags.values[1].containsIgnoreCase("Bassman")
-                || tags.values[11].startsWithIgnoreCase("Bass") || name.containsIgnoreCase("bass");
-        }
+        bool removable() const { return factorySource==0 && file!=juce::File{}; }
+        bool bass() const {return tags.instrument==IRMetadata::Instrument::bass;}
     };
-    enum class Instrument {all,bass,guitarOther};
+    enum class Instrument {all,bass,guitarOther,unspecified};
     enum class Availability {all,ready,factory,installed,missing,external,invalid};
     struct ScanReport {int examinedFiles{},invalidFiles{};bool truncated{};};
     static bool matches(const Entry& e,const juce::String& query,const juce::String& inches,Instrument instrument,Availability availability) {
@@ -32,7 +31,8 @@ struct IRCollection {
         if(query.isNotEmpty() && !text.containsIgnoreCase(query)) return false;
         if(inches.isNotEmpty() && e.tags.values[2]!=inches) return false;
         if(instrument==Instrument::bass && !e.bass()) return false;
-        if(instrument==Instrument::guitarOther && e.bass()) return false;
+        if(instrument==Instrument::guitarOther && e.tags.instrument!=IRMetadata::Instrument::guitar) return false;
+        if(instrument==Instrument::unspecified && e.tags.instrument!=IRMetadata::Instrument::unspecified) return false;
         switch(availability) {
             case Availability::ready:return e.ready();
             case Availability::factory:return e.factorySource!=0;
@@ -112,50 +112,70 @@ struct IRCollection {
         return userRoot().getChildFile("ir-folders.json").replaceWithText(juce::JSON::toString(paths))
             ? juce::Result::ok() : juce::Result::fail("Cannot save the IR folder preference.");
     }
-    static std::vector<Entry> scan(const std::vector<juce::File>& folders, bool references,ScanReport* report=nullptr) {
+    static juce::Result classify(const Entry& entry,IRMetadata::Instrument instrument,const juce::File& preferences=IRUserPreferences::file()) {
+        if(!entry.removable())return juce::Result::fail("Only imported IRs can be classified.");
+        return IRUserPreferences::update(entry.file,"files",IRMetadata::instrumentKey(instrument),false,false,preferences);
+    }
+    static juce::Result remove(const Entry& entry,const juce::File& preferences=IRUserPreferences::file()) {
+        if(!entry.removable())return juce::Result::fail("Factory and uninstalled reference IRs cannot be removed.");
+        return IRUserPreferences::update(entry.file,"files",{},true,false,preferences,entry.reference ? entry.name : juce::String{});
+    }
+    static juce::Result rememberFile(const juce::File& file,IRMetadata::Instrument instrument,const juce::File& preferences=IRUserPreferences::file(),bool keepExisting=false) {
+        const auto error=validateFile(file);if(error.isNotEmpty())return juce::Result::fail(error);
+        return IRUserPreferences::update(file,"files",keepExisting ? juce::String{} : IRMetadata::instrumentKey(instrument),false,true,preferences);
+    }
+    static std::vector<Entry> scan(const std::vector<juce::File>& folders, bool references,ScanReport* report=nullptr,
+                                   const juce::File& preferences=IRUserPreferences::file()) {
         if(report) *report={};
         std::vector<Entry> result;
+        const auto settings=IRUserPreferences::read(preferences);
+        juce::StringArray hiddenReferences;
+        const auto records=settings.getProperty("files",{});
+        if(const auto* rows=records.getArray())for(const auto& row:*rows)
+            if((bool)row.getProperty("hidden",false))hiddenReferences.add(row.getProperty("reference",{}).toString());
         juce::Array<juce::var> catalogEntries;
         for(const auto* raw:{referenceIRCatalog,externalBassIRCatalog,ravenIRCatalog}) {
             const auto catalog=juce::JSON::parse(raw);
             if(const auto* entries=catalog.getArray())catalogEntries.addArray(*entries);
         }
         if (references) {
-            for (int i=0; i<2; ++i) {
+            for (int i=0; i<2; ++i)
                 result.push_back({{},IRMetadata::factoryFilename(i),IRMetadata::factory(i),i+1,false});
-            }
-            for(const auto& entry:catalogEntries)
+            for(const auto& entry:catalogEntries)if(!hiddenReferences.contains(entry["file"].toString()))
                 result.push_back({{},entry["file"].toString(),IRMetadata::fromJSON(entry),0,true,{},(bool)entry["external"]});
         }
         juce::StringArray seen;
-        for (const auto& folder:folders) {
-            if (!folder.isDirectory()) continue;
-            for (const auto& item:juce::RangedDirectoryIterator(folder,true,"*",juce::File::findFiles)) {
-                const auto f=item.getFile();
-                if (!f.hasFileExtension("wav;aif;aiff") || seen.contains(f.getFullPathName())) continue;
-                if (seen.size()>=512) {if(report)report->truncated=true;labelEntries(result);return result;}
-                seen.add(f.getFullPathName());
-                if(report)++report->examinedFiles;
-                const auto validationError=validateFile(f);
-                if(report && validationError.isNotEmpty())++report->invalidFiles;
-                bool matched=false;
-                if (references && validationError.isEmpty()) {
-                    for (const auto& expected:catalogEntries) {
-                        if (expected["file"].toString()!=f.getFileName() || f.getSize()>4*1024*1024) continue;
-                        if (juce::SHA256(f).toHexString()!=expected["sha256"].toString()) continue;
-                        for (auto& row:result) if (row.reference && row.name==f.getFileName()) { row.file=f; matched=true; break; }
+        const auto addFile=[&](const juce::File& f) {
+            if(!f.existsAsFile() || !f.hasFileExtension("wav;aif;aiff") || seen.contains(IRUserPreferences::identity(f)) || IRUserPreferences::hidden(settings,f))return true;
+            if(seen.size()>=512) {if(report)report->truncated=true;return false;}
+            seen.add(IRUserPreferences::identity(f));
+            if(report)++report->examinedFiles;
+            const auto validationError=validateFile(f);
+            if(report && validationError.isNotEmpty())++report->invalidFiles;
+            if(references && validationError.isEmpty()) {
+                for(const auto& expected:catalogEntries) {
+                    if(expected["file"].toString()!=f.getFileName() || juce::SHA256(f).toHexString()!=expected["sha256"].toString())continue;
+                    for(auto& row:result)if(row.reference && row.name==f.getFileName()) {
+                        row.file=f;IRUserPreferences::apply(settings,f,row.tags);return true;
                     }
                 }
-                if (matched) continue;
-                auto tags=IRMetadata::filenameHints(f.getFileName());
-                const auto sidecar=juce::File(f.getFullPathName()+".json");
-                if (sidecar.existsAsFile() && sidecar.getSize()<=16384) {
-                    const auto json=juce::JSON::parse(sidecar);
-                    if (json.isObject()) tags=IRMetadata::fromJSON(json);
-                }
-                result.push_back({f,f.getFileName(),tags,0,false,{},false,validationError});
             }
+            auto tags=IRMetadata::filenameHints(f.getFileName());
+            const auto sidecar=juce::File(f.getFullPathName()+".json");
+            if(sidecar.existsAsFile() && sidecar.getSize()<=16384) {
+                const auto json=juce::JSON::parse(sidecar);
+                if(json.isObject())tags=IRMetadata::fromJSON(json);
+            }
+            IRUserPreferences::apply(settings,f,tags);
+            result.push_back({f,f.getFileName(),tags,0,false,{},false,validationError});
+            return true;
+        };
+        for(const auto& folder:folders) {
+            if(!folder.isDirectory())continue;
+            for(const auto& item:juce::RangedDirectoryIterator(folder,true,"*",juce::File::findFiles))
+                if(!addFile(item.getFile())) {labelEntries(result);return result;}
         }
+        if(references)for(const auto& file:IRUserPreferences::standaloneFiles(settings))if(!addFile(file))break;
         labelEntries(result);return result;
     }
     enum class ApprovedPack { none, hartkeHyDrive410, marshall1960BV };

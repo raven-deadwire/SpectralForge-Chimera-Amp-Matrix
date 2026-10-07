@@ -14,8 +14,9 @@ enum class Control : std::size_t {
 constexpr std::size_t controlCount = std::size_t(Control::count);
 constexpr int channelCount = 5;
 inline constexpr const char* channelNames[]{
-    "Modern Tight", "Death Grind", "Industrial Bite", "Slam Impact", "Sludge Mass"
+    "Hrímfaxi", "Garmr", "Nidavellir", "Ymir", "Hel"
 };
+// Saved keys and channel ordinals are compatibility identifiers, not UI names.
 inline constexpr const char* channelKeys[]{
     "modern_tight", "death_grind", "industrial_bite", "slam_impact", "sludge_mass"
 };

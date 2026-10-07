@@ -8,11 +8,12 @@ class IRBrowserPanel : public juce::Component, private juce::ListBoxModel {
     std::vector<size_t> visible;
     std::vector<juce::File> folders;
     bool libraryMode{};
+    juce::File preferences{spectralforge::IRUserPreferences::file()};
     juce::TextEditor search;
-    juce::ComboBox diameter,kind,availability;
+    juce::ComboBox diameter,kind,availability,importType,selectedType;
     spectralforge::IRCollection::ScanReport scanReport;
     juce::ListBox list{"IR library",this};
-    juce::TextButton load{"LOAD INTO RIG"},importPack{"IMPORT PERSONAL ZIP"},addFolder{"ADD FOLDER"},oneFile{"OPEN IR"},source{"SOURCE PAGE"},bassPack{"GET BASS IRS"};
+    juce::TextButton load{"LOAD INTO RIG"},addFolder{"ADD FOLDER"},oneFile{"OPEN IR"},source{"SOURCE PAGE"},remove{"REMOVE FROM LIST"};
     juce::Label status;
     juce::TextEditor captureDetails;
     std::unique_ptr<juce::FileChooser> chooser;
@@ -34,11 +35,13 @@ class IRBrowserPanel : public juce::Component, private juce::ListBoxModel {
         g.drawText(e.displayName(),24,4,width-32,22,juce::Justification::centredLeft);
         g.setColour(juce::Colour(0xffa6aaa7)); g.setFont(juce::FontOptions(10.5f));
         const auto badge=e.factorySource ? "FACTORY" : e.validationError.isNotEmpty() ? "INVALID FILE" : e.ready() ? "INSTALLED" : e.external ? "EXTERNAL / DOWNLOAD" : "IMPORT REQUIRED";
-        g.drawText(juce::String(badge)+" / "+(e.bass()?"BASS":"GUITAR / OTHER")+" / "+e.tags.values[4],24,28,width-32,height-30,juce::Justification::centredLeft);
+        g.drawText(juce::String(badge)+" / "+spectralforge::IRMetadata::instrumentLabel(e.tags.instrument)+" / "+e.tags.values[4],24,28,width-32,height-30,juce::Justification::centredLeft);
     }
     void selectedRowsChanged(int) override {
         const auto* e=selection(); load.setEnabled(e && e->ready());
         source.setEnabled(e && e->tags.values[9].startsWith("https://"));
+        remove.setEnabled(e && e->removable());selectedType.setEnabled(e && e->removable());
+        selectedType.setSelectedId(e ? (int)e->tags.instrument+1 : 0,juce::dontSendNotification);
         source.setButtonText(e && e->external && !e->ready() ? "GET FROM CREATOR" : "SOURCE PAGE");
         captureDetails.setText(e ? ((e->external && !e->ready()) ? juce::String("External download: open GET FROM CREATOR, download and extract the original ZIP, then ADD FOLDER. No audio is bundled or downloaded by Chimera.\n\n") : juce::String{})+e->details() : "Select an IR to inspect the original filename and full capture details.",false);repaint();
     }
@@ -66,18 +69,32 @@ class IRBrowserPanel : public juce::Component, private juce::ListBoxModel {
         status.setText(summary,juce::dontSendNotification);
         selectedRowsChanged(-1);
     }
-    void refresh() { entries=spectralforge::IRCollection::scan(folders,libraryMode,&scanReport); filter(); }
-    void choose(int action) {
-        chooser=std::make_unique<juce::FileChooser>(action==0 ? "Import Chimera personal IR ZIP" : action==1 ? "Add an IR folder" : "Open cabinet IR",juce::File{},action==0 ? "*.zip" : action==1 ? "" : "*.wav;*.aif;*.aiff");
+    void refresh(const juce::File& preserve={}) {
+        entries=spectralforge::IRCollection::scan(folders,libraryMode,&scanReport,preferences);filter();
+        if(preserve!=juce::File{})for(size_t i=0;i<visible.size();++i)if(entries[visible[i]].file==preserve){list.selectRow((int)i);break;}
+    }
+    void showFailure(const juce::Result& result) {
+        if(result.failed())juce::AlertWindow::showMessageBoxAsync(juce::MessageBoxIconType::WarningIcon,"IR library",result.getErrorMessage(),"OK",this);
+    }
+    void choose(bool folder) {
+        chooser=std::make_unique<juce::FileChooser>(folder ? "Add an IR folder" : "Open cabinet IR",juce::File{},folder ? "" : "*.wav;*.aif;*.aiff");
+        const bool keepExisting=importType.getSelectedId()==1;
+        const auto instrument=importType.getSelectedId()==2 ? spectralforge::IRMetadata::Instrument::bass : importType.getSelectedId()==3 ? spectralforge::IRMetadata::Instrument::guitar : spectralforge::IRMetadata::Instrument::unspecified;
         const juce::Component::SafePointer<IRBrowserPanel> safe(this);
-        chooser->launchAsync(juce::FileBrowserComponent::openMode|(action==1 ? juce::FileBrowserComponent::canSelectDirectories : juce::FileBrowserComponent::canSelectFiles),[safe,action](const juce::FileChooser& choice) {
-            if(!safe || choice.getResult()==juce::File{}) return;
-            const auto file=choice.getResult(); juce::Result result=juce::Result::ok();
-            if(action==0) {int count=0;result=spectralforge::IRCollection::importPersonalPack(file,spectralforge::IRCollection::userRoot().getChildFile("IRs"),count);}
-            else if(action==1) result=spectralforge::IRCollection::rememberFolder(file);
-            else {safe->selected(file,0);if(auto* window=safe->findParentComponentOfClass<juce::DialogWindow>()) window->exitModalState(0);return;}
-            if(result.failed()) juce::AlertWindow::showMessageBoxAsync(juce::MessageBoxIconType::WarningIcon,"IR library",result.getErrorMessage(),"OK",safe);
-            safe->folders=spectralforge::IRCollection::roots();safe->refresh();
+        chooser->launchAsync(juce::FileBrowserComponent::openMode|(folder ? juce::FileBrowserComponent::canSelectDirectories : juce::FileBrowserComponent::canSelectFiles),[safe,folder,instrument,keepExisting](const juce::FileChooser& choice) {
+            if(!safe || choice.getResult()==juce::File{})return;
+            const auto file=choice.getResult();juce::Result result=juce::Result::ok();
+            if(folder) {
+                result=spectralforge::IRUserPreferences::update(file,"folders",keepExisting ? juce::String{} : spectralforge::IRMetadata::instrumentKey(instrument),false,false,safe->preferences);
+                if(result.wasOk())result=spectralforge::IRCollection::rememberFolder(file);
+            } else result=spectralforge::IRCollection::rememberFile(file,instrument,safe->preferences,keepExisting);
+            safe->showFailure(result);
+            if(result.failed())return;
+            safe->folders=spectralforge::IRCollection::roots();safe->refresh(file);
+            if(!folder) {
+                safe->selected(file,0);
+                if(auto* window=safe->findParentComponentOfClass<juce::DialogWindow>())window->exitModalState(0);
+            }
         });
     }
     void initialise() {
@@ -85,28 +102,46 @@ class IRBrowserPanel : public juce::Component, private juce::ListBoxModel {
         search.setComponentID("irsearch");diameter.setComponentID("irdiameter");kind.setComponentID("irkind");availability.setComponentID("iravailability");load.setComponentID("irload");list.setComponentID("irlist");status.setComponentID("irstatus");
         search.setTextToShowWhenEmpty("Speaker, mic, cone position or creator",juce::Colours::grey);search.onTextChange=[this]{filter();};
         diameter.addItemList({"All sizes","8 in","10 in","12 in","15 in","18 in"},1);diameter.setSelectedId(1);diameter.onChange=[this]{filter();};
-        kind.addItemList({"All instruments","Bass","Guitar / other"},1);kind.setSelectedId(1);kind.onChange=[this]{filter();};
+        kind.addItemList({"All instruments","Bass","Guitar","Unspecified"},1);kind.setSelectedId(1);kind.onChange=[this]{filter();};
         availability.addItemList({"All statuses","Ready to load","Factory","Installed files","Missing files","External download","Invalid files"},1);availability.setSelectedId(1);availability.onChange=[this]{filter();};
         for(juce::Component* c:std::initializer_list<juce::Component*>{&search,&diameter,&kind,&availability,&list,&load,&status,&source}) addAndMakeVisible(c);
         addAndMakeVisible(captureDetails);captureDetails.setComponentID("ircapturedetails");captureDetails.setMultiLine(true);captureDetails.setReadOnly(true);captureDetails.setScrollbarsShown(true);captureDetails.setCaretVisible(false);
         captureDetails.setColour(juce::TextEditor::backgroundColourId,juce::Colour(0xff252827));captureDetails.setColour(juce::TextEditor::textColourId,juce::Colour(0xffe2dbcc));captureDetails.setColour(juce::TextEditor::outlineColourId,juce::Colours::transparentBlack);captureDetails.setFont(juce::FontOptions(11.f));
-        if(libraryMode) for(auto* c:{&importPack,&addFolder,&oneFile,&bassPack}) addAndMakeVisible(c);
-        bassPack.setComponentID("irbassdownload");bassPack.setTooltip("Opens Shift Line's official free bass IR pack page. Download, extract the ZIP, then ADD FOLDER. These IRs are not bundled with Chimera.");
-        bassPack.onClick=[]{juce::URL("https://shift-line.com/irpackbass").launchInDefaultBrowser();};
-        importPack.onClick=[this]{choose(0);};addFolder.onClick=[this]{choose(1);};oneFile.onClick=[this]{choose(2);};
+        if(libraryMode)for(juce::Component* c:std::initializer_list<juce::Component*>{&addFolder,&oneFile,&importType})addAndMakeVisible(c);
+        importType.setComponentID("irimporttype");importType.addItemList({"Import: keep existing type","Import as: Bass","Import as: Guitar","Import as: Unspecified"},1);importType.setSelectedId(1);
+        importType.setTooltip("Keep existing metadata by default; unknown files stay unspecified. Choose Bass or Guitar to classify the next file or folder. Individual files can be reclassified below.");
+        addFolder.setComponentID("iraddfolder");oneFile.setComponentID("iropenfile");
+        addFolder.onClick=[this]{choose(true);};oneFile.onClick=[this]{choose(false);};
+        addAndMakeVisible(selectedType);selectedType.setComponentID("irselectedtype");
+        selectedType.addItemList({"Type: Unspecified","Type: Bass","Type: Guitar"},1);selectedType.setTextWhenNothingSelected("Select an imported IR");
+        selectedType.onChange=[this] {
+            if(const auto* e=selection()) {
+                const auto file=e->file;
+                const auto result=spectralforge::IRCollection::classify(*e,(spectralforge::IRMetadata::Instrument)juce::jmax(0,selectedType.getSelectedId()-1),preferences);
+                showFailure(result);refresh(file);
+            }
+        };
+        addAndMakeVisible(remove);remove.setComponentID("irremove");
+        remove.setTooltip("Remove this imported IR from the library and cabinet menu. The original file and IR audio already loaded in a project are kept. OPEN IR can add it again.");
+        remove.onClick=[this] {
+            if(const auto* e=selection()) {
+                const auto result=spectralforge::IRCollection::remove(*e,preferences);showFailure(result);
+                if(result.wasOk()){refresh();status.setText("Removed from list. Original file and loaded project IR kept.",juce::dontSendNotification);}
+            }
+        };
         source.onClick=[this]{if(const auto* e=selection()) if(e->tags.values[9].startsWith("https://"))juce::URL(e->tags.values[9]).launchInDefaultBrowser();};
         list.setRowHeight(59);list.setColour(juce::ListBox::backgroundColourId,juce::Colour(0xff171919));
         load.onClick=[this]{commit();};status.setColour(juce::Label::textColourId,juce::Colour(0xffa6aaa7));status.setFont(juce::FontOptions(11.f));
-        setSize(1000,590);refresh();
+        setSize(1000,630);refresh();
     }
 public:
     ~IRBrowserPanel() override { setLookAndFeel(nullptr); }
     explicit IRBrowserPanel(std::function<void(juce::File,int)> callback):folders(spectralforge::IRCollection::roots()),libraryMode(true),selected(std::move(callback)) {initialise();}
-    IRBrowserPanel(const juce::File& folder,std::function<void(juce::File)> callback):folders{folder},selected([callback=std::move(callback)](juce::File file,int){callback(file);}) {initialise();}
+    IRBrowserPanel(const juce::File& folder,std::function<void(juce::File)> callback,const juce::File& settings=spectralforge::IRUserPreferences::file()):folders{folder},preferences(settings),selected([callback=std::move(callback)](juce::File file,int){callback(file);}) {initialise();}
     void paint(juce::Graphics& g) override {
         g.fillAll(juce::Colour(0xff101212));g.setColour(juce::Colour(0xffd4c7ad));g.setFont(juce::FontOptions(22.f));
         g.drawText("CABINET LIBRARY",20,14,255,32,juce::Justification::centredLeft);
-        g.setColour(juce::Colour(0xff252827));g.fillRoundedRectangle(722,105,258,422,5);
+        g.setColour(juce::Colour(0xff252827));g.fillRoundedRectangle(722,105,258,462,5);
         if(const auto* e=selection()) {
             spectralforge::art::cabinet(g,{789,118,124,146},e->tags);
             g.setFont(juce::FontOptions(11.f));g.setColour(juce::Colour(0xffaaa89f));
@@ -114,10 +149,9 @@ public:
         } else {g.setFont(juce::FontOptions(13.f));g.setColour(juce::Colour(0xffb7b5ae));g.drawFittedText("Select a cabinet to inspect its speaker, microphone and capture position.",744,164,213,100,juce::Justification::centred,4);}
     }
     void resized() override {
-        importPack.setBounds(472,19,193,27);addFolder.setBounds(675,19,147,27);oneFile.setBounds(832,19,148,27);
-        bassPack.setBounds(285,19,160,27);
+        importType.setBounds(430,19,235,27);addFolder.setBounds(675,19,147,27);oneFile.setBounds(832,19,148,27);
         search.setBounds(20,64,350,28);diameter.setBounds(380,64,110,28);kind.setBounds(500,64,190,28);availability.setBounds(700,64,280,28);
-        list.setBounds(20,105,685,422);status.setBounds(20,535,565,44);source.setBounds(598,541,180,28);load.setBounds(790,541,190,28);
-        captureDetails.setBounds(732,292,238,225);
+        list.setBounds(20,105,685,462);status.setBounds(20,575,565,44);source.setBounds(598,581,180,28);load.setBounds(790,581,190,28);
+        selectedType.setBounds(732,292,238,28);captureDetails.setBounds(732,330,238,190);remove.setBounds(732,530,238,27);
     }
 };

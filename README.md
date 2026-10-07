@@ -29,7 +29,7 @@ Implemented signal path: **input/gate/transpose -> PRE pedalboard -> rigs/cabine
 - A/B snapshots and Save/Load reference files include parameters and embedded IRs. Repeatable synthetic DI and RMS-matched amp/cab A/B WAVs accompany Windows builds.
 - Two embedded factory IRs, plus a WAV/AIFF loader, direct installed-file CAB menu and drag-and-drop per rig. Personal and external captures require local import and are not included in the public release. User IR audio is embedded in the DAW project, so moving the original file does not break recall. Cabinet bypass, cuts, status, mute/solo and polarity are exposed.
 - Global input/output gain and peak meters; gate threshold/range/hold/release; polyphonic transpose (-12 to +12 semitones); tuner with A4 calibration and auto-mute.
-- 31 recommended factory starting presets, three Deadwire bass signatures and four guitar signatures and five Original Náströnd rigs, plus file-based references, input Stereo/Mono L, stereo Doubler; bottom tuner, persistent MIDI CC Learn, Tap/manual/host BPM and a practice metronome. Delay can follow quarter-note tempo.
+- 31 recommended factory starting presets, three Deadwire bass signatures, four guitar signatures, five Original Náströnd rigs and five Original Niflheimr bass rigs, plus file-based references, input Stereo/Mono L, stereo Doubler; bottom tuner, persistent MIDI CC Learn, Tap/manual/host BPM and a practice metronome. Delay can follow quarter-note tempo.
 - User-supplied emblem icon, newly generated SpectralForge/CHIMERA wordmark, model-specific generated hardware imagery with live native controls, continuous resizing and 75/100/125/150% size choices. All audio controls expose host automation and project recall; older normalized PRE model-selection automation needs review after the three-to-five-choice expansion.
 
 Amp names describe target voicings. **Hardware reproduction accuracy has not been established.** See [validation scope and limits](docs/AMP_VALIDATION.md), [six new NAM comparisons](docs/OPEN_BETA_NAM_VALIDATION.md), [third-party credits](docs/THIRD_PARTY_NOTICES.md) and the test log included in Windows packages. See the [IR placement, effects references and mode decisions](docs/FX_AND_IR_DESIGN.md).
@@ -41,8 +41,8 @@ and racks keep rectangular layouts, interpreting each reference's material,
 panel and knob details. The two Mu-Tron modes intentionally share one body.
 
 IR LIBRARY distinguishes the two factory IRs and documented external/personal
-capture metadata. Missing catalog entries cannot be loaded. Import your own IR
-ZIP or extracted folder to make additional captures available. The public installer
+capture metadata. Missing catalog entries cannot be loaded. Add WAV/AIFF files
+with **OPEN IR** or an extracted folder with **ADD FOLDER**. The public installer
 includes only the two licensed factory audio assets and reference metadata.
 Personal capture data is not in this repository or the release downloads.
 See [installation instructions](docs/INSTALLATION.md)

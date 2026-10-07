@@ -165,6 +165,7 @@ void saveSnapshot(juce::Component& editor, const juce::File& directory,
     const auto file = directory.getChildFile(name + ".png");
     auto output = file.createOutputStream();
     require(output != nullptr, "Cannot create UI snapshot");
+    require(output->setPosition(0) && output->truncate().wasOk(), "Cannot replace UI snapshot");
     juce::PNGImageFormat format;
     require(format.writeImageToStream(editor.createComponentSnapshot(editor.getLocalBounds(),true,scale),*output),
             "Cannot write UI snapshot");
@@ -569,6 +570,39 @@ int main(int argc, char** argv)
             nativeStateTests::run(directory);
             return 0;
         }
+        if(argc==3 && juce::String(argv[1])=="--artwork-only") {
+            // Decodes the actual embedded resources and exercises the production
+            // head painter without claiming a native-window UI acceptance pass.
+            checkArtwork();
+            const juce::File directory(argv[2]);
+            require(directory.createDirectory().wasOk(),"Cannot create artwork evidence directory");
+            juce::Image rendered(juce::Image::ARGB,960,350,true);
+            {juce::Graphics graphics(rendered);spectralforge::art::head(graphics,{0,0,960,350},spectralforge::niflheimrAmpModel);}
+            const auto output=directory.getChildFile("Niflheimr-embedded-head.png").createOutputStream();
+            require(output && juce::PNGImageFormat().writeImageToStream(rendered,*output),"Cannot save embedded Niflheimr head");
+            return 0;
+        }
+        if(argc==3 && juce::String(argv[1])=="--niflheimr-snapshots") {
+            // Software component paints are review images, not native-peer,
+            // mouse interaction or DAW-host acceptance evidence.
+            const juce::File directory(argv[2]);
+            require(directory.createDirectory().wasOk(),"Cannot create Niflheimr review directory");
+            for(int mode=0;mode<3;++mode) {
+                auto processor=std::make_unique<ChimeraProcessor>();
+                set(*processor,"mode",float(mode));
+                for(int lane=0;lane<=mode;++lane)processor->setAmpModel(lane,spectralforge::niflheimrAmpModel);
+                auto editor=std::make_unique<ChimeraEditor>(*processor);
+                if(auto* surface=editor->findChildWithID("surface"))
+                    for(auto* child:surface->getChildren())
+                        if(auto* button=dynamic_cast<juce::TextButton*>(child);button && button->getButtonText()=="RIGS" && button->onClick)
+                            button->onClick();
+                saveSnapshot(*editor,directory,"Niflheimr-software-mode-"+juce::String(mode));
+            }
+            IRBrowserPanel browser([](juce::File,int){});
+            saveSnapshot(browser,directory,"IR-library-software");
+            std::cout<<"PASS software Niflheimr/IR review images; native-window acceptance is separate\n";
+            return 0;
+        }
         if(argc==3 && juce::String(argv[1])=="--installed-ir-probe") {
             checkInstalledIR(juce::File(argv[2]));
             std::cout<<"PASS: installed personal IR discovered, audio decoded, selected in the cabinet menu and loaded into a rig\n";return 0;
@@ -636,7 +670,9 @@ int main(int argc, char** argv)
         checkFactoryPresets();
         checkProcessor(directory);
         {const auto folder=directory.getChildFile("ir-browser-fixture");require(folder.createDirectory().wasOk(),"Cannot create IR collection fixture");const auto guitar=folder.getChildFile("TEST V30 4x12 SM57.wav"),bass=folder.getChildFile("TEST Bass 8x10 MD421.wav");writeIRFixture(guitar);writeIRFixture(bass,true);checkDecodedIR(guitar);checkDecodedIR(bass);juce::File picked;
-         IRBrowserPanel browser(folder,[&](juce::File file){picked=file;});auto* size=dynamic_cast<juce::ComboBox*>(browser.findChildWithID("irdiameter"));auto* list=dynamic_cast<juce::ListBox*>(browser.findChildWithID("irlist"));auto* search=dynamic_cast<juce::TextEditor*>(browser.findChildWithID("irsearch"));require(size && list && search,"IR collection controls missing");
+         const auto librarySettings=folder.getChildFile("test-library.json");
+         for(const auto& fixture:{guitar,bass}) {auto metadata=spectralforge::IRMetadata::filenameHints(fixture.getFileName());metadata.instrument=fixture==bass ? spectralforge::IRMetadata::Instrument::bass : spectralforge::IRMetadata::Instrument::guitar;require(juce::File(fixture.getFullPathName()+".json").replaceWithText(juce::JSON::toString(metadata.json())),"Cannot write instrument fixture");}
+         IRBrowserPanel browser(folder,[&](juce::File file){picked=file;},librarySettings);auto* size=dynamic_cast<juce::ComboBox*>(browser.findChildWithID("irdiameter"));auto* list=dynamic_cast<juce::ListBox*>(browser.findChildWithID("irlist"));auto* search=dynamic_cast<juce::TextEditor*>(browser.findChildWithID("irsearch"));require(size && list && search,"IR collection controls missing");
          size->setSelectedId(3,juce::sendNotificationSync);require(list->getListBoxModel()->getNumRows()==1,"10-inch IR filter did not isolate bass fixture");list->selectRow(0);dynamic_cast<juce::TextButton*>(browser.findChildWithID("irload"))->onClick();require(picked==bass,"IR collection loaded wrong file");checkDecodedIR(picked);
          search->setText("SM57");search->onTextChange();require(list->getListBoxModel()->getNumRows()==0,"Mic filter ignored diameter selection");search->clear();search->onTextChange();size->setSelectedId(1,juce::sendNotificationSync);saveSnapshot(browser,directory,"IR-collection");
          auto* instrument=dynamic_cast<juce::ComboBox*>(browser.findChildWithID("irkind"));auto* availability=dynamic_cast<juce::ComboBox*>(browser.findChildWithID("iravailability"));require(instrument && availability,"Independent IR filters missing");
@@ -644,16 +680,30 @@ int main(int argc, char** argv)
          availability->setSelectedId(5,juce::sendNotificationSync);require(list->getListBoxModel()->getNumRows()==0 && instrument->getSelectedId()==2,"Availability selection reset instrument or included installed files");
          availability->setSelectedId(1,juce::sendNotificationSync);instrument->setSelectedId(1,juce::sendNotificationSync);
          auto tags=spectralforge::IRMetadata::filenameHints(bass.getFileName());IRDetailsPanel details(tags,true,[](spectralforge::IRMetadata){});saveSnapshot(details,directory,"IR-details");
-         CabinetSelector selector;selector.refresh({folder});require(selector.installedCount()==2,"Cabinet menu must expose both actual WAV fixtures");
+         CabinetSelector selector;selector.refresh({folder},librarySettings);require(selector.installedCount()==2,"Cabinet menu must expose both actual WAV fixtures");
          int choices=0,browses=0;selector.selected=[&](juce::File file,int source){require(source==3 && (file==guitar || file==bass),"Installed cabinet selection changed a host enum index");checkDecodedIR(file);++choices;};selector.browse=[&]{++browses;};
          for(int id=100;id<102;++id) {selector.setSelectedId(id,juce::sendNotificationAsync);selector.sync(1,{});juce::MessageManager::getInstance()->runDispatchLoopUntil(20);}
          require(choices==2,"Parameter polling erased an asynchronous cabinet selection");
          selector.setSelectedId(4,juce::sendNotificationSync);require(browses==1 && choices==2,"An empty Project IR must open the library instead of silently selecting an empty slot");
-         selector.sync(3,"Embedded take.wav");selector.refresh({folder});require(selector.getText()=="Embedded take","Refreshing the cabinet list lost an embedded project IR name");
+         selector.sync(3,"Embedded take.wav");selector.refresh({folder},librarySettings);require(selector.getText()=="Embedded take","Refreshing the cabinet list lost an embedded project IR name");
          selector.setSelectedId(9000,juce::sendNotificationSync);require(browses==2 && selector.getText()=="Embedded take","Browsing erased the currently loaded IR label");
          int stableSource=-1;selector.selected=[&](juce::File file,int source){require(file==juce::File{},"A built-in cabinet selection unexpectedly returned a path");stableSource=source;};
          selector.setSelectedId(4,juce::sendNotificationSync);require(stableSource==3 && selector.getText()=="Embedded take","Reselecting the current Project IR erased its name");
          for(int id=1;id<=3;++id) {selector.setSelectedId(id,juce::sendNotificationSync);require(stableSource==id-1,"Built-in cabinet automation indices changed");}
+         auto* selectedType=dynamic_cast<juce::ComboBox*>(browser.findChildWithID("irselectedtype"));auto* removeIR=dynamic_cast<juce::TextButton*>(browser.findChildWithID("irremove"));
+         require(selectedType && removeIR,"Imported IR type/removal controls missing");
+         search->setText("MD421",false);search->onTextChange();list->selectRow(0);
+         require(selectedType->isEnabled() && removeIR->isEnabled() && selectedType->getSelectedId()==2,"Imported bass type is not editable");
+         selectedType->setSelectedId(3,juce::sendNotificationSync);
+         instrument->setSelectedId(2,juce::sendNotificationSync);require(list->getListBoxModel()->getNumRows()==0,"Reclassified guitar remained in bass filter");
+         instrument->setSelectedId(3,juce::sendNotificationSync);require(list->getListBoxModel()->getNumRows()==1,"Explicit guitar type did not reach filter");list->selectRow(0);
+         selectedType->setSelectedId(2,juce::sendNotificationSync);instrument->setSelectedId(2,juce::sendNotificationSync);list->selectRow(0);
+         selector.sync(3,bass.getFileName());removeIR->onClick();
+         require(list->getListBoxModel()->getNumRows()==0 && list->getSelectedRow()==-1 && !removeIR->isEnabled() && !dynamic_cast<juce::TextButton*>(browser.findChildWithID("irload"))->isEnabled(),"Removed selection remained actionable");
+         require(bass.existsAsFile() && picked==bass,"Library removal deleted source or changed loaded IR");
+         selector.refresh({folder},librarySettings);require(selector.installedCount()==1 && selector.getText()==spectralforge::IRMetadata::filenameHints(bass.getFileName()).shortLabel(bass.getFileName()),"Cabinet menu retained removed file or cleared project IR");
+         {IRBrowserPanel reopened(folder,[](juce::File){},librarySettings);auto* reopenedList=dynamic_cast<juce::ListBox*>(reopened.findChildWithID("irlist"));require(reopenedList && reopenedList->getListBoxModel()->getNumRows()==1,"Removal lost when library reopened");saveSnapshot(reopened,directory,"IR-personal-removal");}
+         require(spectralforge::IRCollection::rememberFile(bass,spectralforge::IRMetadata::Instrument::bass,librarySettings).wasOk(),"Cannot re-add removed IR");
          const auto duplicates=folder.getChildFile("duplicates");require(duplicates.createDirectory().wasOk(),"Cannot create duplicate IR fixture");
          const auto sameName=duplicates.getChildFile(bass.getFileName());writeIRFixture(sameName);
          const auto compact=spectralforge::IRCollection::scan({folder},false);juce::StringArray compactNames;
@@ -682,7 +732,11 @@ int main(int argc, char** argv)
             require(available==2 && karnivore==7 && bass==27,"Missing catalog WAVs were counted as installed or capture inventory changed");
             for(const auto& row:all) if(row.reference) require(row.tags.values[9].startsWith("https://"),"Reference source fields are shifted");
             for(const auto& row:all)if(row.external)require(!row.ready() && row.file==juce::File{},"An external reference falsely claims an installed WAV");
-            require(browser.findChildWithID("irbassdownload")!=nullptr,"Official external bass download button missing");
+            require(browser.findChildWithID("irbassdownload")==nullptr,"Removed GET BASS IRS control is still present");
+            for(int i=0;i<browser.getNumChildComponents();++i)if(auto* button=dynamic_cast<juce::TextButton*>(browser.getChildComponent(i)))require(!button->getButtonText().containsIgnoreCase("ZIP"),"Removed personal ZIP import control is still present");
+            require(browser.findChildWithID("irimporttype") && browser.findChildWithID("iraddfolder") && browser.findChildWithID("iropenfile"),"Native file/folder import or type selector missing");
+            kind->setSelectedId(3,juce::sendNotificationSync);list->selectRow(0);
+            require(!dynamic_cast<juce::TextButton*>(browser.findChildWithID("irremove"))->isEnabled() && !dynamic_cast<juce::ComboBox*>(browser.findChildWithID("irselectedtype"))->isEnabled(),"Factory IR removal or reclassification enabled");
             kind->setSelectedId(1,juce::sendNotificationSync);
             auto* search=dynamic_cast<juce::TextEditor*>(browser.findChildWithID("irsearch"));require(search!=nullptr,"IR search missing");
             search->setText("Raven",false);search->onTextChange();

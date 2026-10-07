@@ -131,6 +131,87 @@ void protectedLow() {
     }
     std::cout<<"PROTECTED_LOW probes="<<probes<<" min_ratio="<<minimum<<" max_ratio="<<maximum<<'\n';
 }
+// Synthetic probes isolate three mechanisms that a waveform-difference test
+// cannot: bass-driven intermodulation, generated low-mid harmonics, and the
+// first hit versus a following gap. They are technical regressions only.
+enum class ClarityProbe { twoTone, upperOnly, bassOnly, mutedRiff };
+std::vector<float> clarityRender(State state,ClarityProbe probe) {
+    constexpr double rate=48000;
+    NiflheimrDSP dsp; dsp.prepare(rate); dsp.set(state); dsp.reset();
+    std::vector<float> audio(96000);
+    for(int n=0;n<96000;++n) {
+        const double t=n/rate;
+        const double bass=.16*std::sin(2*detail::pi*40*t);
+        const double upper=.025*std::sin(2*detail::pi*1000*t);
+        double x=probe==ClarityProbe::twoTone?bass+upper:
+                 probe==ClarityProbe::upperOnly?upper:bass;
+        if(probe==ClarityProbe::mutedRiff) {
+            const double local=std::fmod(t,.125);
+            const double envelope=local<.075?std::exp(-40*local):0.;
+            x=envelope*(.75*bass+.05*std::sin(2*detail::pi*240*t)+upper);
+        }
+        audio[std::size_t(n)]=dsp.tick(float(x),0);
+    }
+    return audio;
+}
+double settledMagnitude(const std::vector<float>& audio,double hz) {
+    double real=0,imaginary=0;
+    for(std::size_t n=48000;n<audio.size();++n) {
+        const double phase=2*detail::pi*hz*double(n)/48000;
+        real+=audio[n]*std::cos(phase); imaginary+=audio[n]*std::sin(phase);
+    }
+    return 2*std::hypot(real,imaginary)/48000;
+}
+void clarityWithoutGainLoss() {
+    for(int ch:{1,3,4}) for(float gain:{.5f,.75f,1.f}) {
+        auto state=channelState(ch); state[Control::blend]=1; state[Control::gain]=gain;
+        const auto together=clarityRender(state,ClarityProbe::twoTone);
+        const auto upper=clarityRender(state,ClarityProbe::upperOnly);
+        const auto bass=clarityRender(state,ClarityProbe::bassOnly);
+        auto interaction=together;
+        for(std::size_t n=0;n<interaction.size();++n)
+            interaction[n]-=upper[n]+bass[n];
+        double sidebands=0,lowMid=0,harmonics=0,upperEnergy=0;
+        for(int hz=600;hz<=1400;hz+=40) if(hz!=1000)
+            sidebands+=std::pow(settledMagnitude(interaction,hz),2);
+        for(int hz=160;hz<=480;hz+=40)
+            lowMid+=std::pow(settledMagnitude(bass,hz),2);
+        for(int hz=2000;hz<=20000;hz+=1000)
+            harmonics+=std::pow(settledMagnitude(upper,hz),2);
+        for(std::size_t n=48000;n<upper.size();++n)
+            upperEnergy+=double(upper[n])*upper[n];
+        const double imd=std::sqrt(sidebands)/settledMagnitude(together,1000);
+        const double mud=std::sqrt(lowMid)/settledMagnitude(bass,40);
+        const double thd=std::sqrt(harmonics)/settledMagnitude(upper,1000);
+        const double upperRms=std::sqrt(upperEnergy/48000);
+        std::cout<<"CLARITY "<<channelKeys[ch]<<" gain="<<gain<<" imd="<<imd
+                 <<" bass_lowmid="<<mud<<" upper_thd="<<thd<<" upper_rms="<<upperRms<<'\n';
+        // These tolerances leave headroom beyond the measured correction.
+        // The previous full-residual drive fails the IMD and low-mid bounds.
+        require(imd<.035,"Bass fundamental again modulates the driven upper band");
+        require(mud<(gain==.5f?.003:.015),"Bass-only probe generates excess 160-480 Hz energy");
+        // Prevent satisfying clarity bounds by muting or linearising the voice.
+        require(thd>.07&&upperRms>.085,"Clarity correction loses nonlinear drive or output strength");
+        if(gain!=.5f) continue;
+        const auto riff=clarityRender(state,ClarityProbe::mutedRiff);
+        double hitEnergy=0,sustainEnergy=0,tailEnergy=0;
+        int hits=0,sustains=0,tails=0;
+        for(std::size_t n=24000;n<riff.size();++n) {
+            const auto local=n%6000; const double e=double(riff[n])*riff[n];
+            if(local<576) { hitEnergy+=e; ++hits; }
+            if(local>=1440&&local<2880) { sustainEnergy+=e; ++sustains; }
+            if(local>=3840) { tailEnergy+=e; ++tails; }
+        }
+        const double hit=std::sqrt(hitEnergy/hits),sustain=std::sqrt(sustainEnergy/sustains);
+        const double tail=std::sqrt(tailEnergy/tails);
+        std::cout<<"TRANSIENT "<<channelKeys[ch]<<" hit_sustain="<<hit/sustain
+                 <<" gap_hit="<<tail/hit<<'\n';
+        const double minimumHit=ch==3?2.5:1.5;
+        require(hit/sustain>minimumHit,"First-hit energy regressed relative to sustained body");
+        require(tail/hit<.016,"Muted gap retains excessive nonlinear/filter tail");
+    }
+    std::cout<<"PASS synthetic clarity/drive regressions; instrument-DI listening remains pending\n";
+}
 void highInternalRateTiming() {
     // This caught a real 768 kHz cap: prepare(192000*8) silently doubled every
     // filter corner and changed every time constant at the production rate.
@@ -191,7 +272,8 @@ void realtimeAndStability() {
 }
 int main() {
     try {
-        cleanAndBlend(); channelStructureAndGain(); protectedLow(); highInternalRateTiming(); realtimeAndStability();
+        cleanAndBlend(); channelStructureAndGain(); protectedLow(); clarityWithoutGainLoss();
+        highInternalRateTiming(); realtimeAndStability();
         std::cout<<"PASS Niflheimr prototype contracts; real DI, alias, CPU and musical acceptance pending\n";
         return 0;
     } catch(const std::exception& e) { std::cerr<<"FAIL "<<e.what()<<'\n'; return 1; }

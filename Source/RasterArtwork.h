@@ -107,26 +107,15 @@ inline ModelStyle surfaceStyle(Surface surface) {
     }};
     return styles[static_cast<size_t>(surface)];
 }
-// Provisional functional fascia; final product artwork follows voicing acceptance.
-inline void drawNiflheimrPrototype(juce::Graphics& g,juce::Rectangle<float> r) {
-    const auto face=r.reduced(r.getWidth()*.035f,r.getHeight()*.10f);
-    g.setColour(juce::Colour(0xff171e24));g.fillRoundedRectangle(face,6.f);
-    g.setColour(juce::Colour(0xff687b88));g.drawRoundedRectangle(face,6.f,1.5f);
-    g.setColour(juce::Colour(0xffd6e0e7));
-    g.setFont(juce::FontOptions(juce::jlimit(12.f,24.f,face.getHeight()*.16f),juce::Font::bold));
-    g.drawText("NIFLHEIMR",face.reduced(12).toNearestInt(),juce::Justification::centredTop);
-    g.setFont(juce::FontOptions(juce::jlimit(9.f,13.f,face.getHeight()*.095f)));
-    g.drawText("SPECTRALFORGE",face.reduced(12).toNearestInt(),juce::Justification::centredBottom);
-}
 struct RasterBank {
     std::array<juce::Image,static_cast<size_t>(Surface::count)> images;
     RasterBank() {
         const lifecycle::Scope trace("artwork.bank.create", this);
         constexpr std::array<const char*,static_cast<size_t>(Surface::count)> names{
-            "ravenworkbench_jpg","ravenemblem_png","p808_jpg","pcentaur_jpg","prat_jpg","pm87_jpg","pdyna_jpg","pdiamond_jpg","pqtron_jpg","pmutron_jpg","pmuff_jpg","pface_jpg","pbender_jpg","prc_jpg","prange_jpg","pmicro_jpg","aglass_jpg","abrit_jpg","a515_jpg","arect_jpg","amark_jpg","asvt_jpg","agk_jpg","ahybrid_jpg","rsslvca_jpg","r1176_jpg","rla2a_jpg","rn73_jpg","rv5_jpg","risa_jpg","rssleq_jpg","rn73eq_jpg","rpultec_jpg","rce2_jpg","rdimension_jpg","rstone_jpg","rmistress_jpg","reddy_jpg","rpulsar_jpg","r2290_jpg","rre201_jpg","rmemory_jpg","remt_jpg","rlex_jpg","rspring_jpg","cmesa_jpg","campeg_jpg","cbassman_jpg","cdelta_jpg","pfet_jpg","pmu_jpg","pbddi_jpg","pb3k_jpg","pm82_jpg","paw3_jpg","pwool_jpg","pfactory_jpg","pep_jpg","plpb_jpg","achim30_jpg","aorange_jpg","abassman_jpg","asubway_jpg","amatchless_jpg","adumble_jpg","aeich_jpg","acinder_jpg","airon_jpg","afourfold_jpg","aclassictube_jpg","amonolith_jpg","anightharvest_jpg","ahotlead_jpg","abluestorm_jpg","pyellowasym_jpg","pobsession_jpg","pplus_jpg","pdualcircuit_jpg","pmanualwah_jpg","pgraphiceq_jpg","pchorus_jpg","pdimension_jpg","pphase_jpg","pflange_jpg","pvibrato_jpg","ptremolo_jpg","pmonoctave_jpg","pspectraloctave_jpg","aspecialedition_jpg","anastrond_png"
+            "ravenworkbench_jpg","ravenemblem_png","p808_jpg","pcentaur_jpg","prat_jpg","pm87_jpg","pdyna_jpg","pdiamond_jpg","pqtron_jpg","pmutron_jpg","pmuff_jpg","pface_jpg","pbender_jpg","prc_jpg","prange_jpg","pmicro_jpg","aglass_jpg","abrit_jpg","a515_jpg","arect_jpg","amark_jpg","asvt_jpg","agk_jpg","ahybrid_jpg","rsslvca_jpg","r1176_jpg","rla2a_jpg","rn73_jpg","rv5_jpg","risa_jpg","rssleq_jpg","rn73eq_jpg","rpultec_jpg","rce2_jpg","rdimension_jpg","rstone_jpg","rmistress_jpg","reddy_jpg","rpulsar_jpg","r2290_jpg","rre201_jpg","rmemory_jpg","remt_jpg","rlex_jpg","rspring_jpg","cmesa_jpg","campeg_jpg","cbassman_jpg","cdelta_jpg","pfet_jpg","pmu_jpg","pbddi_jpg","pb3k_jpg","pm82_jpg","paw3_jpg","pwool_jpg","pfactory_jpg","pep_jpg","plpb_jpg","achim30_jpg","aorange_jpg","abassman_jpg","asubway_jpg","amatchless_jpg","adumble_jpg","aeich_jpg","acinder_jpg","airon_jpg","afourfold_jpg","aclassictube_jpg","amonolith_jpg","anightharvest_jpg","ahotlead_jpg","abluestorm_jpg","pyellowasym_jpg","pobsession_jpg","pplus_jpg","pdualcircuit_jpg","pmanualwah_jpg","pgraphiceq_jpg","pchorus_jpg","pdimension_jpg","pphase_jpg","pflange_jpg","pvibrato_jpg","ptremolo_jpg","pmonoctave_jpg","pspectraloctave_jpg","aspecialedition_jpg","anastrond_png","aniflheimr_png"
         };
         constexpr std::array<const char*,static_cast<size_t>(Surface::count)> alphaNames{
-            nullptr,nullptr,"p808alpha_png","pcentauralpha_png","pratalpha_png","pm87alpha_png","pdynaalpha_png","pdiamondalpha_png","pqtronalpha_png","pmutronalpha_png","pmuffalpha_png","pfacealpha_png","pbenderalpha_png","prcalpha_png","prangealpha_png","pmicroalpha_png","aglassalpha_png","abritalpha_png","a515alpha_png","arectalpha_png","amarkalpha_png","asvtalpha_png","agkalpha_png","ahybridalpha_png","rsslvcaalpha_png","r1176alpha_png","rla2aalpha_png","rn73alpha_png","rv5alpha_png","risaalpha_png","rssleqalpha_png","rn73eqalpha_png","rpultecalpha_png","rce2alpha_png","rdimensionalpha_png","rstonealpha_png","rmistressalpha_png","reddyalpha_png","rpulsaralpha_png","r2290alpha_png","rre201alpha_png","rmemoryalpha_png","remtalpha_png","rlexalpha_png","rspringalpha_png","cmesaalpha_png","campegalpha_png","cbassmanalpha_png","cdeltaalpha_png","pfetalpha_png","pmualpha_png","pbddialpha_png","pb3kalpha_png","pm82alpha_png","paw3alpha_png","pwoolalpha_png","pfactoryalpha_png","pepalpha_png","plpbalpha_png","achim30alpha_png","aorangealpha_png","abassmanalpha_png","asubwayalpha_png","amatchlessalpha_png","adumblealpha_png","aeichalpha_png","acinderalpha_png","aironalpha_png","afourfoldalpha_png","aclassictubealpha_png","amonolithalpha_png","anightharvestalpha_png","ahotleadalpha_png","abluestormalpha_png","pyellowasymalpha_png","pobsessionalpha_png","pplusalpha_png","pdualcircuitalpha_png","pmanualwahalpha_png","pgraphiceqalpha_png","pchorusalpha_png","pdimensionalpha_png","pphasealpha_png","pflangealpha_png","pvibratoalpha_png","ptremoloalpha_png","pmonoctavealpha_png","pspectraloctavealpha_png","aspecialeditionalpha_png",nullptr
+            nullptr,nullptr,"p808alpha_png","pcentauralpha_png","pratalpha_png","pm87alpha_png","pdynaalpha_png","pdiamondalpha_png","pqtronalpha_png","pmutronalpha_png","pmuffalpha_png","pfacealpha_png","pbenderalpha_png","prcalpha_png","prangealpha_png","pmicroalpha_png","aglassalpha_png","abritalpha_png","a515alpha_png","arectalpha_png","amarkalpha_png","asvtalpha_png","agkalpha_png","ahybridalpha_png","rsslvcaalpha_png","r1176alpha_png","rla2aalpha_png","rn73alpha_png","rv5alpha_png","risaalpha_png","rssleqalpha_png","rn73eqalpha_png","rpultecalpha_png","rce2alpha_png","rdimensionalpha_png","rstonealpha_png","rmistressalpha_png","reddyalpha_png","rpulsaralpha_png","r2290alpha_png","rre201alpha_png","rmemoryalpha_png","remtalpha_png","rlexalpha_png","rspringalpha_png","cmesaalpha_png","campegalpha_png","cbassmanalpha_png","cdeltaalpha_png","pfetalpha_png","pmualpha_png","pbddialpha_png","pb3kalpha_png","pm82alpha_png","paw3alpha_png","pwoolalpha_png","pfactoryalpha_png","pepalpha_png","plpbalpha_png","achim30alpha_png","aorangealpha_png","abassmanalpha_png","asubwayalpha_png","amatchlessalpha_png","adumblealpha_png","aeichalpha_png","acinderalpha_png","aironalpha_png","afourfoldalpha_png","aclassictubealpha_png","amonolithalpha_png","anightharvestalpha_png","ahotleadalpha_png","abluestormalpha_png","pyellowasymalpha_png","pobsessionalpha_png","pplusalpha_png","pdualcircuitalpha_png","pmanualwahalpha_png","pgraphiceqalpha_png","pchorusalpha_png","pdimensionalpha_png","pphasealpha_png","pflangealpha_png","pvibratoalpha_png","ptremoloalpha_png","pmonoctavealpha_png","pspectraloctavealpha_png","aspecialeditionalpha_png",nullptr,nullptr
         };
         for(size_t i=0;i<names.size();++i) {
             if(!names[i])continue;
@@ -147,9 +136,6 @@ struct RasterBank {
                     colourPixels.setPixelColour(x,y,colourPixels.getPixelColour(x,y).withAlpha(alphaPixels.getPixelColour(x,y).getRed()));
             }
         }
-        auto& prototype=images[static_cast<size_t>(Surface::aniflheimr)];
-        prototype=juce::Image(juce::Image::ARGB,960,350,true);
-        {juce::Graphics g(prototype);drawNiflheimrPrototype(g,{0,0,960,350});}
     }
     ~RasterBank() {
         const lifecycle::Scope trace("artwork.bank.destroy", this);

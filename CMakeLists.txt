@@ -19,7 +19,7 @@ endif()
 juce_add_plugin(ChimeraAmpMatrix COMPANY_NAME "RavenForge Luthier Intelligence" COMPANY_COPYRIGHT "Copyright © 2026 RavenForge Luthier Intelligence. All rights reserved." BUNDLE_ID audio.spectralforge.chimera IS_SYNTH FALSE NEEDS_MIDI_INPUT TRUE NEEDS_MIDI_OUTPUT FALSE IS_MIDI_EFFECT FALSE COPY_PLUGIN_AFTER_BUILD FALSE MICROPHONE_PERMISSION_ENABLED TRUE MICROPHONE_PERMISSION_TEXT "SpectralForge Chimera uses audio input to process your guitar or bass." PLUGIN_MANUFACTURER_CODE SpFg PLUGIN_CODE Chm1 FORMATS ${CHIMERA_FORMATS} PRODUCT_NAME "SpectralForge Chimera" ICON_BIG "Assets/Artwork/spectralforge-emblem.png" ICON_SMALL "Assets/Artwork/spectralforge-emblem.png")
 juce_add_binary_data(ChimeraIRs HEADER_NAME ChimeraIRData.h NAMESPACE ChimeraIRData SOURCES Assets/IRs/guitar_v30_sm57.wav Assets/IRs/guitar_jensen_sm57.wav)
 # Explicit production assets: abandoned trial encodings are never embedded.
-set(CHIMERA_ARTWORK Assets/Artwork/raven-workbench.jpg Assets/Artwork/raven-emblem.png Assets/Artwork/spectralforge-emblem.png Assets/Artwork/chimera-wordmark.png Assets/Artwork/anastrond.png)
+set(CHIMERA_ARTWORK Assets/Artwork/raven-workbench.jpg Assets/Artwork/raven-emblem.png Assets/Artwork/spectralforge-emblem.png Assets/Artwork/chimera-wordmark.png Assets/Artwork/anastrond.png Assets/Artwork/aniflheimr.png)
 set(CHIMERA_MODEL_ARTWORK p808 pcentaur prat pm87 pdyna pdiamond pqtron pmutron pmuff pface pbender prc prange pmicro aglass abrit a515 arect amark asvt agk ahybrid rsslvca r1176 rla2a rn73 rv5 risa rssleq rn73eq rpultec rce2 rdimension rstone rmistress reddy rpulsar r2290 rre201 rmemory remt rlex rspring cmesa campeg cbassman cdelta pfet pmu pbddi pb3k pm82 paw3 pwool pfactory pep plpb achim30 aorange abassman asubway amatchless adumble aeich)
 include(Assets/Artwork/ExpandedArtwork.cmake OPTIONAL)
 foreach(model IN LISTS CHIMERA_MODEL_ARTWORK)
@@ -219,6 +219,14 @@ target_include_directories(ChimeraIRCollectionTests PRIVATE Source)
 target_compile_definitions(ChimeraIRCollectionTests PRIVATE JUCE_USE_CURL=0 JUCE_WEB_BROWSER=0)
 target_link_libraries(ChimeraIRCollectionTests PRIVATE juce::juce_audio_formats juce::juce_cryptography PUBLIC juce::juce_recommended_config_flags)
 add_test(NAME ChimeraIRCollectionTests COMMAND ChimeraIRCollectionTests)
+
+# Removing an imported entry must not change the audio embedded in a session.
+juce_add_console_app(ChimeraIRLibraryTests PRODUCT_NAME "Chimera IR Library Tests")
+target_sources(ChimeraIRLibraryTests PRIVATE Tests/IRLibraryTests.cpp Source/IRLibrary.cpp)
+target_include_directories(ChimeraIRLibraryTests PRIVATE Source)
+target_compile_definitions(ChimeraIRLibraryTests PRIVATE JUCE_USE_CURL=0 JUCE_WEB_BROWSER=0)
+target_link_libraries(ChimeraIRLibraryTests PRIVATE ChimeraIRs juce::juce_data_structures juce::juce_dsp juce::juce_audio_formats juce::juce_cryptography PUBLIC juce::juce_recommended_config_flags)
+add_test(NAME ChimeraIRLibraryTests COMMAND ChimeraIRLibraryTests)
 
 # On-demand validation for user-owned IR files. Requires explicit CLI inputs;
 # this is not a zero-input CTest or a source of redistributable capture assets.

@@ -74,7 +74,7 @@ inline double knee(double x) noexcept {
 class NiflheimrDSP {
     enum Parameter : std::size_t {
         gain,upperGain,mass,fang,fold,thrust,blend,master,lowPole,edgePole,
-        fastPole,slowAttackPole,slowReleasePole,bodyPole,edgeOutputPole,parameterCount
+        fastPole,slowAttackPole,slowReleasePole,bodyPole,edgeOutputPole,driveHighPole,parameterCount
     };
     struct Config {
         std::array<double,parameterCount> p{};
@@ -86,7 +86,9 @@ class NiflheimrDSP {
     };
     struct Dirty {
         std::array<detail::RC,3> coupling{},bandwidth{};
+        std::array<detail::RC,2> driveHighPass{};
         detail::RC body,edge,dc;
+        detail::Filter bodyContour;
         std::array<detail::Filter,4> lowProtection{};
         double fast{},slow{};
     };
@@ -102,6 +104,7 @@ class NiflheimrDSP {
     std::array<Channel,2> channels{};
     double rate=48000,inputPole{},dirtyDCPole{};
     std::array<double,3> couplingPole{},bandwidthPole{};
+    std::array<detail::Coeff,channelCount> bodyContourCoeffs{};
     std::array<detail::Coeff,4> protectionCoeffs{};
     int smoothing=960;
 
@@ -119,12 +122,15 @@ class NiflheimrDSP {
         p[fastPole]=detail::timePole(rate,.0007);
         // THRUST changes recovery and transient transmission together. Channel
         // timing is intentionally distinct even with identical panel settings.
-        const double attack[]{.002,.008,.004,.001,.030};
-        const double release[]{.035,.115,.090,.028,.240};
+        const double attack[]{.002,.003,.004,.001,.030};
+        const double release[]{.035,.045,.090,.018,.240};
         p[slowAttackPole]=detail::timePole(rate,attack[s.channel]);
         p[slowReleasePole]=detail::timePole(rate,release[s.channel]*(1.35-.7*s[C::thrust]));
         p[bodyPole]=detail::pole(rate,170+210*s[C::mass]);
         p[edgeOutputPole]=detail::pole(rate,4000+4000*s[C::fang]);
+        const double driveCutoff[]{0,210,0,270,170};
+        // Extra upper-GAIN saturation must not reintroduce bass-driven mush.
+        p[driveHighPole]=detail::pole(rate,driveCutoff[s.channel]*(1+1.2*p[upperGain]));
         c.tone={detail::Coeff::shelf(rate,120,(s[C::bass]-.5)*24,false),
                 detail::Coeff::peak(rate,s[C::midFrequency],(s[C::middle]-.5)*24,.75),
                 detail::Coeff::shelf(rate,2400,(s[C::treble]-.5)*24,true),
@@ -136,7 +142,16 @@ class NiflheimrDSP {
     double processDirty(Dirty& d,double body,double edge,const Config& c) noexcept {
         const auto& p=c.p;
         const double residual=body+edge;
-        const double level=std::abs(residual);
+        // Garmr/Ymir/Hel previously drove their nonlinear cells with leaked
+        // fundamental energy. Protecting LOW only AFTER clipping cannot undo
+        // the resulting upper-band intermodulation or bass-driven compression.
+        // Condition BODY before both drive and envelope detection; EDGE retains
+        // its articulation. The original residual is restored below as before.
+        // Hrímfaxi and Nidavellir retain their accepted signal paths.
+        if(target.channel==1||target.channel==3||target.channel==4)
+            for(auto& filter:d.driveHighPass)
+                body=filter.high(body,p[driveHighPole]);
+        const double level=std::abs(body+edge);
         d.fast+=p[fastPole]*(level-d.fast);
         d.slow+=(level>d.slow?p[slowAttackPole]:p[slowReleasePole])*(level-d.slow);
         const double attack=std::clamp((d.fast-d.slow)/std::max(1.e-8,d.fast),0.,1.);
@@ -154,7 +169,7 @@ class NiflheimrDSP {
                 y*=1+.25*hit*attack;
                 break;
             }
-            case 1: { // Three serial asymmetric stages and interstage networks.
+            case 1: { // Garmr: three serial asymmetric stages; tight grind.
                 double v=(body+edge)*g*.7/(1+2.8*d.slow*(1.2-hit));
                 const double drives[]{1.,1.3+3.0*f+.8*p[upperGain],1.6+2.7*f+1.2*p[upperGain]};
                 const double biases[]{.10+.20*bite,-.18-.14*f,.07+.22*bite};
@@ -162,7 +177,7 @@ class NiflheimrDSP {
                     v=detail::asymmetric(v*drives[i],biases[i]);
                     v=d.bandwidth[i].low(d.coupling[i].high(v,couplingPole[i]),bandwidthPole[i]);
                 }
-                y=.18*v*(1+.08*hit*attack);
+                y=.18*v*(1+.20*hit*attack)+.12*edge;
                 break;
             }
             case 2: { // Clean centre with a separate, narrowly driven upper path.
@@ -175,17 +190,17 @@ class NiflheimrDSP {
                 y=centre+.22*e*(1+.35*hit*attack);
                 break;
             }
-            case 3: { // Parallel hard-knee/round paths with transient drive relief.
+            case 3: { // Ymir: parallel knees with short, percussive recovery.
                 const double relief=1/(1+3*hit*attack);
                 const double v=(body+edge)*g*relief;
                 const double hard=detail::knee(v*(.8+.7*bite));
                 const double round=detail::asymmetric(v*(.45+.9*f),.13+.2*f);
                 const double hardMix=.68-.35*f;
                 y=.20*(hardMix*hard+(1-hardMix)*round)*(1+.55*hit*attack);
-                y+=.5*hit*attack*residual; // first hit, not an added resonant tail.
+                y+=.5*hit*attack*(body+edge); // conditioned first hit, no bass pumping.
                 break;
             }
-            default: { // Wide BODY fuzz; slow compression and asymmetric knees.
+            default: { // Hel: asymmetric mid-body fuzz; separate articulated EDGE.
                 const double supply=1/(1+4.5*d.slow*(.5+f)*(1-.35*hit));
                 double v=body*g*(.8+1.6*f)*supply;
                 v=v>=0?detail::knee(v):.68*detail::knee(v/.68);
@@ -199,6 +214,8 @@ class NiflheimrDSP {
         }
         // Remove rectification DC inside DIRTY, before adding the common LOW.
         y=d.dc.high(y,dirtyDCPole);
+        if(target.channel==1||target.channel==3||target.channel==4)
+            y=d.bodyContour.tick(y,bodyContourCoeffs[std::size_t(target.channel)]);
         // Band-limit the nonlinear DIFFERENCE, not the entire DIRTY signal.
         // Keep the original residual below this steep transition, so strong
         // clipping cannot amplify leaked sub-bass in opposition to the LOW.
@@ -221,6 +238,11 @@ public:
         inputPole=detail::pole(rate,10); dirtyDCPole=detail::pole(rate,8);
         couplingPole={detail::pole(rate,45),detail::pole(rate,95),detail::pole(rate,65)};
         bandwidthPole={detail::pole(rate,5800),detail::pole(rate,4800),detail::pole(rate,6500)};
+        // Wet-only low-mid contours retain each voice's density while removing
+        // its broad masking region. CLEAN and the common LOW remain untouched.
+        bodyContourCoeffs={detail::Coeff{},detail::Coeff::peak(rate,300,-4.5,.8),
+                           detail::Coeff{},detail::Coeff::peak(rate,260,-4.,.9),
+                           detail::Coeff::peak(rate,340,-3.5,.7)};
         protectionCoeffs={detail::Coeff::highPass(rate,180,.509795579104159),
                           detail::Coeff::highPass(rate,180,.601344886935045),
                           detail::Coeff::highPass(rate,180,.899976223136416),
