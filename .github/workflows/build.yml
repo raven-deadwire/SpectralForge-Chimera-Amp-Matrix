@@ -31,6 +31,7 @@ jobs:
           python Tools/test_publish_beta112.py
           python Tools/test_publish_beta12.py
           python Tools/test_callback_timing_protocol.py
+          python Tools/test_ui_gallery_contract.py
           python Tools/seed_validation_reports.py --commit "${{ github.event.pull_request.head.sha || github.sha }}" --profile pull_request --output build/validation
       - name: Upload current-commit release-gate evidence
         if: always()
@@ -71,6 +72,7 @@ jobs:
           python Tools/test_publish_beta112.py
           python Tools/test_publish_beta12.py
           python Tools/test_callback_timing_protocol.py
+          python Tools/test_ui_gallery_contract.py
       - name: Prove Windows release-check shell fails closed
         id: release_check_fail_closed_probe
         if: runner.os == 'Windows'
@@ -143,9 +145,9 @@ jobs:
             build/ui-snapshots/*.png
             build/ui-snapshots/Board-State-Verification.json
             !build/ui-snapshots/Head-*.png
-            !build/ui-snapshots/PRE-models-*.png
-            !build/ui-snapshots/POST-models-*.png
-            !build/ui-snapshots/PRE-*-first.png
+            !build/ui-snapshots/PRE-types-*.png
+            !build/ui-snapshots/POST-native-*.png
+            !build/ui-snapshots/POST-fx-*.png
           if-no-files-found: warn
 
       - name: Upload Windows head artwork gallery
@@ -156,16 +158,20 @@ jobs:
           path: build/ui-snapshots/Head-*.png
           if-no-files-found: warn
 
+      - name: Verify Windows pedal and rack gallery completeness
+        if: runner.os == 'Windows' && always()
+        run: python Tools/check_ui_gallery.py build/ui-snapshots
+
       - name: Upload Windows pedal and rack gallery
         if: runner.os == 'Windows' && always()
         uses: actions/upload-artifact@v6
         with:
           name: Chimera-Windows-Pedal-Rack-gallery
           path: |
-            build/ui-snapshots/PRE-models-*.png
-            build/ui-snapshots/POST-models-*.png
-            build/ui-snapshots/PRE-*-first.png
-          if-no-files-found: warn
+            build/ui-snapshots/PRE-types-*.png
+            build/ui-snapshots/POST-native-*.png
+            build/ui-snapshots/POST-fx-*.png
+          if-no-files-found: error
 
       - name: Stage Windows open beta payload
         id: package_windows
