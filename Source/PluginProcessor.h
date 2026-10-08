@@ -47,6 +47,11 @@ public:
     juce::Result loadMicIR(int lane,int slot,const juce::File& file);
     juce::String micName(int lane,int slot) const { return library.userName(lane+3*slot); }
     juce::String micStatus(int lane,int slot) const { return library.status(lane+3*slot); }
+    spectralforge::IRMetadata micMetadata(int lane,int slot) const {
+        const int source=(int)state.getRawParameterValue((slot ? "cabBtype" : "cabtype")+juce::String(lane+1))->load();
+        return library.metadata(lane+3*slot,source);
+    }
+    std::array<uint64_t,4> micDisplayRevision(int lane,int slot) const noexcept {return library.displayRevision(lane+3*slot);}
     juce::String userIRName(int lane) const {return library.userName(lane);}
     float preCompressorReduction() const {return preReduction.load();}
     float postCompressorReduction() const {return postReduction.load();}
