@@ -115,12 +115,18 @@ inline float raw(ChimeraProcessor& processor,const juce::String& id) {
     return processor.parameters().getRawParameterValue(id)->load();
 }
 
-// A native peer makes isShowing() and keyboard focus exercise the same paths
-// as a real popup. Linux CI already runs this existing CAB suite under Xvfb.
+// Native interactions require an initialized display and an actual peer.
+// Fail before JUCE popup centering can dereference an empty display list.
 struct Showing {
     juce::Component& component;
     explicit Showing(juce::Component& value):component(value) {
+        const auto* display=juce::Desktop::getInstance().getDisplays().getPrimaryDisplay();
+        require(display!=nullptr && !display->userArea.isEmpty(),
+            "CAB native interaction tests require a primary display; on Linux run with Xvfb and a window manager");
         component.addToDesktop(juce::ComponentPeer::windowIsTemporary);
+        const auto* peer=component.getPeer();
+        require(peer!=nullptr && peer->getNativeHandle()!=nullptr,
+            "CAB interaction fixture failed to create a native window handle");
         component.setVisible(true);
         require(component.isShowing(),"CAB interaction fixture has no visible native peer");
     }
