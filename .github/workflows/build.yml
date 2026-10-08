@@ -51,6 +51,10 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+      - name: Verify offline signing contracts (no credentials)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: ./Tests/Test-WindowsSigningContract.ps1
       - name: Resolve source version
         shell: bash
         run: echo "CHIMERA_PACKAGE_VERSION=$(python Tools/chimera_version.py --field version)" >> "$GITHUB_ENV"
@@ -158,19 +162,6 @@ jobs:
       - name: Package and verify Linux installers
         if: runner.os == 'Linux'
         run: python Tools/package_release.py linux
-
-      - name: Verify signed release cannot fall back to unsigned
-        if: runner.os == 'Windows'
-        shell: pwsh
-        run: |
-          $rejected = $false
-          try { ./Tools/Build-WindowsInstaller.ps1 -Sign -CertificateThumbprint "" }
-          catch {
-            if ($_.Exception.Message -notmatch "verified public code-signing certificate is required") { throw }
-            $rejected = $true
-          }
-          if (!$rejected) { throw "Signed build accepted a missing signing identity" }
-          Write-Host "PASS: signed distribution is blocked without a verified publisher certificate"
 
       - name: Build Windows installer
         if: runner.os == 'Windows'

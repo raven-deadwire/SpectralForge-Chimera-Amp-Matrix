@@ -4,12 +4,29 @@ param(
     [string]$BuildId = "",
     [switch]$Sign,
     [string]$CertificateThumbprint = $env:CHIMERA_SIGNING_THUMBPRINT,
-    [string]$ExpectedPublisher = "RavenForge Luthier Intelligence"
+    [ValidateSet('Certificate', 'ArtifactSigning')][string]$SigningProvider = $(if ($env:CHIMERA_SIGNING_PROVIDER) { $env:CHIMERA_SIGNING_PROVIDER } else { 'Certificate' }),
+    [string]$ExpectedPublisher = $(if ($env:CHIMERA_SIGNING_PUBLISHER) { $env:CHIMERA_SIGNING_PUBLISHER } else { 'RavenForge Luthier Intelligence' }),
+    [string]$ExpectedSubject = $env:CHIMERA_SIGNING_SUBJECT,
+    [string]$ArtifactSigningDlib = $env:CHIMERA_ARTIFACT_SIGNING_DLIB,
+    [string]$ArtifactSigningMetadata = $env:CHIMERA_ARTIFACT_SIGNING_METADATA,
+    [string]$TimestampUrl = $env:CHIMERA_SIGNING_TIMESTAMP_URL
 )
 $ErrorActionPreference = "Stop"
 Set-StrictMode -Version Latest
-if ($Sign -and $CertificateThumbprint -notmatch '^[0-9A-Fa-f]{40}$') {
-    throw "A verified public code-signing certificate is required for a signed release."
+. (Join-Path $PSScriptRoot 'Windows-SigningContract.ps1')
+if ($Sign) {
+    Assert-ChimeraSigningContext
+    $signingArguments = @{
+        SigningProvider = $SigningProvider; CertificateThumbprint = $CertificateThumbprint
+        ExpectedPublisher = $ExpectedPublisher; ExpectedSubject = $ExpectedSubject
+        ArtifactSigningDlib = $ArtifactSigningDlib; ArtifactSigningMetadata = $ArtifactSigningMetadata
+        TimestampUrl = $TimestampUrl
+    }
+    $configuration = Get-ChimeraSigningConfiguration @signingArguments
+    # Resolve relative paths once; Inno uses its own working directory.
+    $signingArguments.ArtifactSigningDlib = $configuration.ArtifactSigningDlib
+    $signingArguments.ArtifactSigningMetadata = $configuration.ArtifactSigningMetadata
+    $signingArguments.TimestampUrl = $configuration.TimestampUrl
 }
 $versionTool = Join-Path $PSScriptRoot "chimera_version.py"
 $identityJson = & python $versionTool
@@ -55,9 +72,10 @@ if ($BuildId) {
     $outputName = "SpectralForge-Chimera-update-$BuildId-win64-Setup.exe"
 }
 if ($Sign) {
+    Assert-ChimeraUnsignedPayload $stagePath
     $signScript = (Resolve-Path -LiteralPath (Join-Path $PSScriptRoot "Sign-WindowsArtifact.ps1")).Path
     $binaries = @(Get-ChildItem -LiteralPath $stagePath -File -Recurse | Where-Object { $_.Extension -in ".exe", ".dll", ".vst3" } | Select-Object -ExpandProperty FullName)
-    & $signScript -Path $binaries -CertificateThumbprint $CertificateThumbprint -ExpectedPublisher $ExpectedPublisher
+    & $signScript -Path $binaries @signingArguments
     # Signing changes bytes. Refresh the stage inventory after signatures, before
     # Inno embeds it, so installed documentation describes the actual payload.
     $payloadManifest = Join-Path $stagePath "payload-manifest.json"
@@ -69,19 +87,39 @@ if ($Sign) {
     }
     $payload | ConvertTo-Json -Depth 6 | Set-Content -LiteralPath $payloadManifest -Encoding utf8
     # Pass only non-secret identity metadata to Inno's signing subprocess.
-    $env:CHIMERA_SIGNING_THUMBPRINT = $CertificateThumbprint
-    $env:CHIMERA_SIGNING_PUBLISHER = $ExpectedPublisher
+    $signingEnvironment = @{
+        CHIMERA_SIGNING_PROVIDER = $SigningProvider
+        CHIMERA_SIGNING_THUMBPRINT = $CertificateThumbprint
+        CHIMERA_SIGNING_PUBLISHER = $ExpectedPublisher
+        CHIMERA_SIGNING_SUBJECT = $ExpectedSubject
+        CHIMERA_ARTIFACT_SIGNING_DLIB = $configuration.ArtifactSigningDlib
+        CHIMERA_ARTIFACT_SIGNING_METADATA = $configuration.ArtifactSigningMetadata
+        CHIMERA_SIGNING_TIMESTAMP_URL = $configuration.TimestampUrl
+    }
     $pwsh = (Get-Process -Id $PID).Path
     $compilerArguments += "/DSignRelease"
-    $compilerArguments += ('/SChimeraRelease=$q{0}$q -NoProfile -File $q{1}$q -ExpectedPublisher $q{2}$q -Path $f' -f $pwsh, $signScript, $ExpectedPublisher)
+    $compilerArguments += ('/SChimeraRelease=$q{0}$q -NoProfile -File $q{1}$q -Path $f' -f $pwsh.Replace('$', '$$'), $signScript.Replace('$', '$$'))
 }
-& $iscc @compilerArguments $script
-if ($LASTEXITCODE -ne 0) { throw "Inno Setup failed with exit code $LASTEXITCODE" }
+$previousEnvironment = @{}
+try {
+    if ($Sign) {
+        foreach ($key in $signingEnvironment.Keys) {
+            $previousEnvironment[$key] = [Environment]::GetEnvironmentVariable($key, 'Process')
+            [Environment]::SetEnvironmentVariable($key, $signingEnvironment[$key], 'Process')
+        }
+    }
+    & $iscc @compilerArguments $script
+    if ($LASTEXITCODE -ne 0) { throw "Inno Setup failed with exit code $LASTEXITCODE" }
+} finally {
+    foreach ($key in $previousEnvironment.Keys) {
+        [Environment]::SetEnvironmentVariable($key, $previousEnvironment[$key], 'Process')
+    }
+}
 $installer = Join-Path $outputPath $outputName
 if (!(Test-Path -LiteralPath $installer)) { throw "Installer compiler did not produce the expected Setup executable." }
 Assert-ChimeraBinaryVersion $installer $identity.product_version
 if ($Sign) {
-    & $signScript -Path $installer -CertificateThumbprint $CertificateThumbprint -ExpectedPublisher $ExpectedPublisher -VerifyOnly
+    & $signScript -Path $installer @signingArguments -VerifyOnly
 }
 $hash = (Get-FileHash -LiteralPath $installer -Algorithm SHA256).Hash.ToLowerInvariant()
 "$hash  $([IO.Path]::GetFileName($installer))" | Set-Content -LiteralPath ($installer + ".sha256.txt")
