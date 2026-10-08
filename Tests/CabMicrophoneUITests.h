@@ -24,10 +24,20 @@ inline int itemContaining(const juce::ComboBox& menu,const juce::String& text,
     throw std::runtime_error("Missing microphone menu choice: "+text.toStdString()+" / "+capture.toStdString());
 }
 
-inline void tickPanel() {
-    // Let the production 10-Hz timer become due, without enabling modal loops.
-    juce::Thread::sleep(150);
-    juce::Timer::callPendingTimersSynchronously();
+template<class Predicate> bool dispatchUntil(Predicate ready,int timeoutMs=2000) {
+    auto* messages=juce::MessageManager::getInstance();
+    require(messages->isThisTheMessageThread(),"Microphone UI test must dispatch on the message thread");
+    // JUCE decrements timer countdowns only on its timer thread. That thread
+    // can be waiting for an older queued timer message when CAB registers its
+    // timer, so sleeping and synchronously calling due timers once can miss
+    // CAB entirely. Pump the real platform queue until the production update
+    // arrives, with a deadline rather than an assumed callback time.
+    const auto started=juce::Time::getMillisecondCounterHiRes();
+    while(!ready()) {
+        if(juce::Time::getMillisecondCounterHiRes()-started>=timeoutMs)return false;
+        if(!messages->runDispatchLoopUntil(10))return false;
+    }
+    return true;
 }
 
 inline void snapshot(juce::Component& component,const juce::File& directory,const char* name) {
@@ -97,7 +107,13 @@ inline void sameNameReplacement(const juce::File& folder,const juce::File& scree
         // Optional screenshots show the actual prepared synthetic captures,
         // rather than the decoder's pending status before audio preparation.
         if(screenshots!=juce::File{})processor->prepareToPlay(48000,128);
-        tickPanel();
+        const bool updated=dispatchUntil([&] {
+            return micB.getText().contains("Ribbon 121") && referenceB.getText()=="Royer R-121";
+        });
+        if(!updated)std::cerr<<"Mic B display deadline: alias='"<<micB.getText()
+            <<"', reference='"<<referenceB.getText()<<"', metadata='"<<processor->micMetadata(0,1).values[3]
+            <<"', source="<<processor->parameters().getRawParameterValue("cabBtype1")->load()
+            <<", revision="<<processor->micDisplayRevision(0,1)[0]<<'\n';
         require(micB.getText().contains("Ribbon 121") && referenceB.getText()=="Royer R-121",
                 "Same-name Mic B replacement left stale alias/reference");
         require(micA.getText().contains("Dynamic 57") && referenceA.getText()=="Shure SM57",

@@ -252,6 +252,7 @@ add_test(NAME ChimeraCabPanelTests COMMAND ChimeraCabPanelTests)
 juce_add_console_app(ChimeraCabPanelStateTests PRODUCT_NAME "Chimera CAB Panel State Tests")
 target_sources(ChimeraCabPanelStateTests PRIVATE Tests/CabPanelStateTests.cpp)
 target_include_directories(ChimeraCabPanelStateTests PRIVATE Source)
+target_compile_definitions(ChimeraCabPanelStateTests PRIVATE JUCE_MODAL_LOOPS_PERMITTED=1)
 target_link_libraries(ChimeraCabPanelStateTests PRIVATE ChimeraAmpMatrix ChimeraArtwork ChimeraManual juce::juce_cryptography juce::juce_audio_utils juce::juce_dsp)
 add_test(NAME ChimeraCabPanelStateTests COMMAND ChimeraCabPanelStateTests "${CMAKE_BINARY_DIR}/cab-panel.png")
 
