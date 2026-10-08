@@ -56,11 +56,13 @@ int main(int argc, char** argv) {
             // Replace all cabinet lanes with the same IR and the same cuts.
             // This is a controlled cabinet variant, not the filters-only original.
             for(int lane=0;lane<3;++lane){
-                require(processor->loadIR(lane,ir).wasOk(),"Cannot import common IR");
+                const auto imported=processor->loadIR(lane,ir);
+                require(imported.wasOk(),"Cannot import common IR: "+imported.getErrorMessage());
                 set(*processor,"cab"+juce::String(lane+1),1);
                 set(*processor,"cablow"+juce::String(lane+1),20);
                 set(*processor,"cabhigh"+juce::String(lane+1),20000);
             }
+            require(processor->selectedAmpModel(0)==spectralforge::niflheimrAmpModel && processor->selectedAmpChannel(0)==channel,"Native channel selection mismatch");
             processor->prepareToPlay(reader->sampleRate,block); // synchronously installs kernels
             const int frames=int(reader->lengthInSamples+std::llround(reader->sampleRate*2));
             const auto filename="CH"+juce::String(channel+1)+".wav";

@@ -47,7 +47,8 @@ Record mono, dry bass DI without amp/cab, gate, compressor, EQ, pitch shift or
 normalization. Keep instrument volume/tone/pickup selection, tuning, string age,
 playing technique, interface and hardware gain in a take note. Do not change
 interface gain between passages. Use 48 kHz PCM16/24/32 or float32 WAV; the common
-IR must already be at the same rate. No hidden resampling is applied. Maximum
+IR must already be at the same rate and meet the production import limits
+(8 samples to 1 second, maximum 4 MB). No hidden resampling is applied. Maximum
 input duration is ten minutes. Avoid clipping at acquisition.
 
 Apply `input_gain_db` **once** to the DI, then write the immutable prepared float

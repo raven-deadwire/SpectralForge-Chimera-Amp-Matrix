@@ -329,6 +329,6 @@ target_compile_definitions(ChimeraNiflheimrRigRender PRIVATE
   CHIMERA_NIFLHEIMR_PROCESSOR_SHA256="${CHIMERA_NIFLHEIMR_PROCESSOR_SHA256}")
 if(CHIMERA_ENABLE_NIFLHEIMR_MEASUREMENTS)
   add_test(NAME ChimeraNiflheimrAuditionTests COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/Tests/test_niflheimr_audition.py")
-  add_test(NAME ChimeraNiflheimrAuditionRouteTests COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/Tests/test_niflheimr_audition.py" "$<TARGET_FILE:ChimeraNiflheimrRender>" "$<TARGET_FILE:ChimeraNiflheimrRigRender>")
+  add_test(NAME ChimeraNiflheimrAuditionRouteTests COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/Tests/test_niflheimr_audition.py" "$<TARGET_FILE:ChimeraNiflheimrRender>" "$<TARGET_FILE:ChimeraNiflheimrRigRender>" "${CMAKE_BINARY_DIR}/audition-route-evidence")
   set_tests_properties(ChimeraNiflheimrAuditionRouteTests PROPERTIES TIMEOUT 300)
 endif()

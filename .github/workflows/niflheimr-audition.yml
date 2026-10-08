@@ -41,6 +41,7 @@ jobs:
         with:
           name: Niflheimr-audition-contracts-${{ runner.os }}-${{ github.event.pull_request.head.sha }}
           path: |
+            build-audition/audition-route-evidence
             build-audition/Testing/Temporary/LastTest.log
             build-audition/ChimeraNiflheimrRender_artefacts/Release/*
             build-audition/ChimeraNiflheimrRigRender_artefacts/Release/*

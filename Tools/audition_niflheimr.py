@@ -118,6 +118,8 @@ def execute(config_path, output, head, rig, baseline_head=None, baseline_rig=Non
     ir_rate, ir = load_audio(paths['ir'])
     if rate != config['sample_rate'] or ir_rate != rate:
         raise ValueError('DI and common IR must already have the configured sample rate; no hidden resampling')
+    if not 8 <= len(ir) <= rate or paths['ir'].stat().st_size > 4 * 1024 * 1024:
+        raise ValueError('Production IR requires 8 samples to 1 second, maximum 4 MB')
     if not np.isfinite(di).all() or not np.isfinite(ir).all() or np.max(np.abs(ir)) < 1e-9:
         raise ValueError('Nonfinite audio or silent IR')
     if di.shape[1] != 1:
@@ -151,7 +153,7 @@ def execute(config_path, output, head, rig, baseline_head=None, baseline_rig=Non
                 result = subprocess.run(command, capture_output=True, text=True, timeout=1800)
                 (stage / (revision + '-' + mode + '.log')).write_text(result.stdout + result.stderr, encoding='utf-8')
                 if result.returncode:
-                    raise ValueError('Renderer failed: ' + revision + '-' + mode)
+                    raise ValueError('Renderer failed: ' + revision + '-' + mode + f' (exit {result.returncode}): ' + result.stderr[-2000:])
                 manifest = json.loads((dest / 'manifest.json').read_text(encoding='utf-8'))
                 if manifest['input_sha256'] != digest(stage / 'input.wav') or len(manifest['outputs']) != 5:
                     raise ValueError('Renderer input/route identity mismatch')

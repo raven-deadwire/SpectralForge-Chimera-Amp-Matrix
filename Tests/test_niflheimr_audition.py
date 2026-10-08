@@ -20,7 +20,7 @@ class AuditionTests(unittest.TestCase):
         t = np.arange(9600) / 48000
         di = (.12 * np.sin(2 * np.pi * 55 * t))[:, None]
         a.write_float(root / 'di.wav', 48000, di)
-        a.write_float(root / 'ir.wav', 48000, np.array([[1.], [.2], [-.1]]))
+        a.write_float(root / 'ir.wav', 48000, np.pad(np.array([[1.], [.2], [-.1]]), ((0, 29), (0, 0))))
         a.save_json(root / 'config.json', config)
         return config
 
@@ -86,10 +86,15 @@ class AuditionTests(unittest.TestCase):
 
 
 if __name__ == '__main__':
-    if len(sys.argv) == 3:
+    if len(sys.argv) in (3, 4):
         # Optional real-binary route test: short synthetic WAV and identity-like
         # IR exercise installation, complete presets and all three output scopes.
-        with tempfile.TemporaryDirectory() as tmp:
+        from contextlib import nullcontext
+        evidence = Path(sys.argv[3]) if len(sys.argv) == 4 else None
+        if evidence is not None:
+            evidence.mkdir(parents=True, exist_ok=True)
+        context = nullcontext(tempfile.mkdtemp(prefix='synthetic-', dir=evidence)) if evidence else tempfile.TemporaryDirectory()
+        with context as tmp:
             root = Path(tmp);AuditionTests().fixture(root)
             a.execute(root / 'config.json', root / 'run', sys.argv[1], sys.argv[2])
             r = json.loads((root / 'run/report.json').read_text())
