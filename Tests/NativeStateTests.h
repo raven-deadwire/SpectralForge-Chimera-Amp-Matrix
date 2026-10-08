@@ -19,18 +19,22 @@ inline void run(const juce::File& directory) {
     const auto recalledStorage=std::make_unique<ChimeraProcessor>();auto& recalled=*recalledStorage;
     juce::StringArray checked;
     // Released host ordinals (including POST) precede all new E670FE banks.
-    bool sawAppended=false;int appended=0,originalCount=0,channelCount=0;
+    bool sawAppended=false;int appended=0,originalCount=0,channelCount=0,niflheimrCount=0;
     for(auto* parameter:p.getParameters()) {
         const auto* id=dynamic_cast<juce::AudioProcessorParameterWithID*>(parameter);
         require(id!=nullptr,"Parameter lacks a stable ID");
         const bool isNew=id->paramID.startsWith("nativeAmp_") && id->paramID.contains("_m23_");
-        if(isNew){require(parameter->getParameterIndex()==3686+appended,"E670FE appended ordinal moved");sawAppended=true;++appended;}
+        const bool isNiflheimr=(id->paramID.startsWith("originalAmp_") && id->paramID.contains("_niflheimr_ch"))
+            || (id->paramID.startsWith("nativeAmp_") && id->paramID.contains("_m25_"));
+        if(isNiflheimr){require(parameter->getParameterIndex()==4323+niflheimrCount && parameter->getVersionHint()==5,"Niflheimr must append after all released channel parameters");++niflheimrCount;}
+        else if(isNew){require(parameter->getParameterIndex()==3686+appended,"E670FE appended ordinal moved");sawAppended=true;++appended;}
         else if(id->paramID=="gateRangeDb")require(appended==204 && parameter->getParameterIndex()==3890,"Gate Range must follow the complete E670FE bank");
         else if(id->paramID.startsWith("originalAmp_") && id->paramID.contains("_ch")){require(parameter->getParameterIndex()==3981+channelCount && parameter->getVersionHint()==4,"Original channel bank moved released ordinals");++channelCount;}
         else if(id->paramID.startsWith("originalAmp_") || (id->paramID.startsWith("nativeAmp_") && id->paramID.contains("_m24_"))){require(parameter->getParameterIndex()==3891+originalCount && parameter->getVersionHint()==3,"Original parameter moved ahead of released parameters");++originalCount;}
         else require(!sawAppended,"E670FE inserted ahead of a released host parameter");
     }
     require(channelCount==342,"Original channel bank incomplete");
+    require(niflheimrCount==6*(2+5*14),"Niflheimr six-context five-channel bank incomplete");
     require(originalCount==90,"Original six-context bank incomplete");
     require(appended==6*(32+2),"E670FE six-context parameter bank incomplete");
     std::set<std::string> hostIDs;
@@ -161,6 +165,54 @@ inline void run(const juce::File& directory) {
     p.selectComparison(0);require(p.selectedAmpModel(0)==16,"A/B lost legacy Ironball");
     p.selectComparison(1);require(p.selectedAmpModel(0)==23 && p.selectedAmpChannel(0)==4,"A/B lost E670FE Tube Driver");
     checked.add("E670FE append-only host ordering, 6 contexts x 5 channels binary recall, control banks, Ironball return/recall and A/B");
+    // Every Niflheimr channel owns fourteen memories in all routing contexts.
+    // Use distinct values to expose accidentally shared or aliased storage.
+    AmpNativeParameterCache niflheimrCache;niflheimrCache.bind(p.parameters());
+    for(int mode=0;mode<3;++mode) {
+        set(p,"mode",float(mode));
+        for(int lane=0;lane<=mode;++lane) {
+            const int context=ampNativeContext(mode,lane);p.setAmpModel(lane,niflheimrAmpModel);
+            for(int channel=0;channel<niflheimr::channelCount;++channel) {
+                p.setAmpChannel(lane,channel);
+                for(size_t control=0;control<niflheimr::controlCount;++control) {
+                    const auto& k=niflheimr::controls[control];
+                    const float fraction=.1f+.09f*context+.05f*channel+.003f*float(control);
+                    set(p,ampNativeControlID(context,niflheimrAmpModel,int(control),channel),k.minimum+(k.maximum-k.minimum)*fraction);
+                }
+            }
+            for(int channel=0;channel<niflheimr::channelCount;++channel) {
+                p.setAmpChannel(lane,channel);const auto current=niflheimrCache.read(context);
+                require(current.model==niflheimrAmpModel && current.channel==channel,"Niflheimr selection did not reach DSP cache");
+                for(size_t control=0;control<niflheimr::controlCount;++control)
+                    require(std::abs(current.values[control]-get(p,ampNativeControlID(context,niflheimrAmpModel,int(control),channel)))<1.e-4f,"Niflheimr DSP cache reads another channel's memory");
+            }
+            p.setAmpModel(lane,firstOriginalAmpModel);p.setAmpModel(lane,niflheimrAmpModel);
+            require(p.selectedAmpChannel(lane)==4,"Niflheimr inactive model lost its selected channel");
+        }
+    }
+    p.getStateInformation(bytes);recalled.setStateInformation(bytes.getData(),int(bytes.getSize()));
+    for(int context=0;context<ampNativeContextCount;++context)for(int channel=0;channel<niflheimr::channelCount;++channel)
+        for(size_t control=0;control<niflheimr::controlCount;++control) {
+            const auto id=ampNativeControlID(context,niflheimrAmpModel,int(control),channel);
+            require(std::abs(get(p,id)-get(recalled,id))<1.e-4f,"Niflheimr binary project recall changed a channel memory");
+        }
+    set(p,"mode",0);p.selectComparison(0);p.setAmpModel(0,niflheimrAmpModel);p.setAmpChannel(0,2);
+    const auto blendID=ampNativeControlID(0,niflheimrAmpModel,int(niflheimr::Control::blend),2);
+    set(p,blendID,.31f);p.copyComparison();p.selectComparison(1);set(p,blendID,.87f);p.setAmpChannel(0,4);
+    p.selectComparison(0);require(p.selectedAmpModel(0)==niflheimrAmpModel && p.selectedAmpChannel(0)==2 && std::abs(get(p,blendID)-.31f)<1.e-4f,"Niflheimr A/B lost channel A or its blend");
+    p.selectComparison(1);require(p.selectedAmpChannel(0)==4 && std::abs(get(p,blendID)-.87f)<1.e-4f,"Niflheimr A/B lost inactive channel B memory");
+    auto preNiflheimr=p.parameters().copyState();
+    for(int i=preNiflheimr.getNumChildren()-1;i>=0;--i) {
+        const auto id=preNiflheimr.getChild(i).getProperty("id").toString();
+        if((id.startsWith("originalAmp_") && id.contains("_niflheimr_ch"))
+            || (id.startsWith("nativeAmp_") && id.contains("_m25_")))preNiflheimr.removeChild(i,nullptr);
+    }
+    const auto preNiflheimrXml=preNiflheimr.createXml();juce::AudioProcessor::copyXmlToBinary(*preNiflheimrXml,bytes);
+    recalled.setStateInformation(bytes.getData(),int(bytes.getSize()));
+    for(int context=0;context<ampNativeContextCount;++context)for(int channel=0;channel<niflheimr::channelCount;++channel)
+        for(size_t control=0;control<niflheimr::controlCount;++control)
+            require(std::abs(get(recalled,ampNativeControlID(context,niflheimrAmpModel,int(control),channel))-niflheimr::controls[control].initial)<.0011f,"Pre-Niflheimr state inherited stale channel values");
+    checked.add("Niflheimr appended 432 parameters preserve all prior host ordinals; 6 contexts x 5 channels x 14 independent controls survive DSP-cache selection, binary/A-B recall and missing-bank migration");
     juce::DynamicObject::Ptr report=new juce::DynamicObject();report->setProperty("checks",checked);report->setProperty("ampContexts",6);report->setProperty("ampModels",ampModelCount);report->setProperty("postModels",9);
     require(directory.getChildFile("Native-State-Verification.json").replaceWithText(juce::JSON::toString(juce::var(report.get()),true)),"Could not write native state evidence");
     std::cout<<"PASS: six native amp contexts, all native banks, POST nine models, binary/A-B recall and immediate pedal bank recall\n";

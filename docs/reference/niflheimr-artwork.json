@@ -1,0 +1,55 @@
+{
+  "schema": 1,
+  "date": "2026-10-07",
+  "key": "aniflheimr",
+  "category": "native-amp-head",
+  "product": "SpectralForge Niflheimr",
+  "generator": "built-in image_gen",
+  "file": "Assets/Artwork/aniflheimr.png",
+  "source_generated_file": "exec-124f835a-f196-42e1-906e-b8460b196f27.png",
+  "size": [
+    2172,
+    724
+  ],
+  "bytes": 2802445,
+  "sha256": "7353348db811981e4cda66d7669e5d616f3e70d86a945f160b0e131afc69c1f0",
+  "encoding": "Original generated RGBA PNG copied without image transformations. Genuine alpha transparency preserved.",
+  "resource": "aniflheimr_png",
+  "surface": "Surface::aniflheimr",
+  "knob": "silver",
+  "bright": false,
+  "prompt": "Edit this exact image with ONE tiny localized addition only. There are currently SIX silver rotary knobs in each of the TWO rows. KEEP ALL TWELVE EXISTING KNOBS ABSOLUTELY UNCHANGED AND IN PLACE. Add ONE new matching silver rotary knob in the empty space immediately to the LEFT of the upper row, centered approximately at x=25.1% of canvas width, y=70.5% of canvas height. Add ONE new matching silver rotary knob directly below it, immediately to the LEFT of the lower row, centered approximately x=25.1% width, y=82% height. These two added knobs form a new leftmost column, giving seven columns and two rows. Do NOT remove, relocate, resize, repaint, or redistribute ANY existing knob. Existing column centers are approximately 32%,39%,46%,53%,60%,67% of width; just add the missing 25% column. Exactly two additions. The rest of the head must remain unchanged including five channel buttons, names, ravens, silver panels, blue lights, jack, toggle, handle, and transparent background. Preserve original canvas and full silhouette.",
+  "integration": [
+    "Bundled by CMake CHIMERA_ARTWORK and loaded by RasterBank as RGBA.",
+    "Replaces drawNiflheimrPrototype; no code-drawn fallback.",
+    "Uses existing aspect-preserving head() render path for Classic, Dual and Matrix.",
+    "Decorative hardware is baked into the head image: fourteen knobs in two rows, five channel buttons, input jack, blue LED and toggle. Operational channel selection and parameter controls remain existing JUCE components."
+  ],
+  "inspection": {
+    "text": "NIFLHEIMR / SPECTRALFORGE",
+    "alpha_range": [
+      0,
+      255
+    ],
+    "baked_controls": true,
+    "channel_names_baked": false,
+    "visual_qa": "Final generated asset inspected: fourteen silver rotary knobs in two rows of seven, five channel buttons, input jack, blue indicator and toggle; Norse ravens/knotwork, NIFLHEIMR / SPECTRALFORGE branding, ice-blue grille and transparent cutout retained.",
+    "knob_rows": [
+      7,
+      7
+    ],
+    "channel_buttons": 5,
+    "input_jack": true,
+    "blue_indicator_led": true,
+    "toggle_switch": true
+  },
+  "edit_provenance": {
+    "previous_repository_asset": {
+      "source_generated_file": "exec-87941e84-b8a2-4e43-aa97-3c101a7b5797.png",
+      "sha256": "1137eefb2c846fe0310e83a8046d060254f7b3399a80805a2a975ebba78fdd6b"
+    },
+    "final_edit_reference": "exec-733e8393-82c7-44bd-82d0-9d7475722c6a.png",
+    "earlier_edit_summary": "Earlier image_gen edits used the original Niflheimr asset as the target and anastrond.png as a style reference to add two rows of knobs, five channel buttons, an input jack, blue LED and toggle while preserving the silver/black/ice-blue design and product branding. Intermediate knob counts were corrected in the final localized edit. The prompt field records the exact final edit prompt.",
+    "transparent_background": true
+  }
+}

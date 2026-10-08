@@ -184,7 +184,9 @@ inline void dialogTeardown() {
     editor.reset();settle();for(auto window:windows)require(window==nullptr,"Editor destruction left an ALL window or live parameter attachment");
 }
 inline void run(const juce::File& directory){
-    auto storage=std::make_unique<ChimeraProcessor>();auto& processor=*storage;ChimeraEditor editor(processor);auto* canvas=editor.findChildWithID("surface");require(canvas!=nullptr,"Native UI canvas missing");
+    auto storage=std::make_unique<ChimeraProcessor>();auto& processor=*storage;
+    auto editorStorage=std::make_unique<ChimeraEditor>(processor);auto& editor=*editorStorage;
+    auto* canvas=editor.findChildWithID("surface");require(canvas!=nullptr,"Native UI canvas missing");
     checkGateUI(processor,editor,directory);
     auto* gateLocation=find<juce::TextButton>(*canvas,"gateAfterRig");require(gateLocation!=nullptr,"POST GATE control missing");
     const bool originalGateLocation=processor.parameters().getRawParameterValue("gateAfterRig")->load()>.5f;
@@ -237,6 +239,37 @@ inline void run(const juce::File& directory){
                     require(std::abs(processor.parameters().getRawParameterValue(gainID)->load()-.5f)<.001f && processor.parameters().getRawParameterValue(responseID)->load()>.5f,"Channel reset did not restore its current factory voice");
                     snapshot(*window->getContentComponent(),directory,"Nastrond-Controls");close(window);}
             }
+            if(model==spectralforge::niflheimrAmpModel) {
+                using C=spectralforge::niflheimr::Control;
+                const auto hzID=spectralforge::ampNativeControlID(0,model,int(C::midFrequency),ch);
+                const auto blendID=spectralforge::ampNativeControlID(0,model,int(C::blend),ch);
+                auto* frequency=find<juce::Slider>(*panel,hzID);auto* blend=find<juce::Slider>(*panel,blendID);
+                require(frequency && frequency->getTextFromValue(650).contains("650") && frequency->getTextFromValue(650).contains("Hz"),"Niflheimr MID FREQ display is not in Hz");
+                require(blend && blend->getTextFromValue(.65)=="65%","Niflheimr BLEND display is not a percentage");
+                frequency->setValue(1120,juce::sendNotificationSync);blend->setValue(.82,juce::sendNotificationSync);
+                require(std::abs(processor.parameters().getRawParameterValue(hzID)->load()-1120)<.01f && std::abs(processor.parameters().getRawParameterValue(blendID)->load()-.82f)<.001f,"Niflheimr frequency/blend edits are disconnected");
+                snapshot(editor,directory,scale?"Niflheimr-75pct":"Niflheimr-Classic");
+                if(!scale) {
+                    auto window=open(*panel,"ampExpand1","ampNativePanel1");auto& full=*window->getContentComponent();
+                    constexpr int order[]{0,1,2,4,3,5,6,8,9,10,11,12,13,7};
+                    int topY=-1,bottomY=-1,previousX=-1;
+                    for(int position=0;position<14;++position) {
+                        auto* view=find<NativeControlView>(full,spectralforge::ampNativeControlID(0,model,order[position],ch)+"_control");
+                        require(view && view->isVisible(),"Niflheimr full panel missing a visible control");
+                        if(position==0)topY=view->getY();if(position==7){bottomY=view->getY();previousX=-1;}
+                        require(view->getY()==(position<7?topY:bottomY) && view->getX()>previousX,"Niflheimr full panel does not follow the specified two-row control order");
+                        previousX=view->getX();
+                    }
+                    require(bottomY>topY,"Niflheimr second knob row overlaps the first");
+                    auto* reset=find<juce::TextButton>(full,"ampResetChannel1");require(reset && reset->isVisible(),"Niflheimr full panel has no channel reset");
+                    const auto inactiveID=spectralforge::ampNativeControlID(0,model,int(C::blend),0);set(processor,inactiveID,.19f);
+                    reset->triggerClick();settle();
+                    for(size_t control=0;control<spectralforge::niflheimr::controlCount;++control)
+                        require(std::abs(processor.parameters().getRawParameterValue(spectralforge::ampNativeControlID(0,model,int(control),ch))->load()-spectralforge::niflheimr::controls[control].initial)<.0011f,"Niflheimr reset did not restore all fourteen current-channel controls");
+                    require(std::abs(processor.parameters().getRawParameterValue(inactiveID)->load()-.19f)<.001f,"Niflheimr channel reset changed an inactive channel");
+                    snapshot(full,directory,"Niflheimr-Controls");close(window);
+                }
+            }
         }
     }
     editor.setSize(1180,780);processor.setAmpModel(0,15);settle();snapshot(editor,directory,"Native-Amp-Classic");
@@ -247,7 +280,7 @@ inline void run(const juce::File& directory){
     lowOverview(processor,editor,*canvas,directory);
     const int postControlCases=postPanels(processor,editor,*canvas,directory);
     dialogTeardown();
-    std::cout<<"PASS native UI: all 25 serialized amplifier panels at 100/75%, "<<channelCases<<" channel cases, "<<controlCases<<" channel/control visibility cases, Matrix LOW priority controls and ALL, 9 POST models / "<<postControlCases<<" controls at 100/75%, flat POST alias menus and short original model captions, six compact rack rows and ALL dialogs, editor teardown and real parameter callbacks\n";
+    std::cout<<"PASS native UI: all "<<spectralforge::ampModelCount<<" serialized amplifier panels at 100/75%, "<<channelCases<<" channel cases, "<<controlCases<<" channel/control visibility cases, Matrix LOW priority controls and ALL, 9 POST models / "<<postControlCases<<" controls at 100/75%, flat POST alias menus and short original model captions, six compact rack rows and ALL dialogs, editor teardown and real parameter callbacks\n";
 }
 }
 inline void runNativeUITests(const juce::File& directory){nativeUITests::run(directory);}

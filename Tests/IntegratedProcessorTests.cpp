@@ -93,7 +93,7 @@ void factoryBank(bool measureOnly,bool originalOnly=false) {
         // iterating with a cached DSP library. The normal regression always
         // exercises the actual production loadFactoryPreset entry point.
         if(measureOnly)for(auto* processor:{a.get(),b.get()})
-            processor->parameters().replaceState(isOriginalPreset(index)?originalPresetSnapshot(processor->parameters(),index-originalPresetStart):isGuitarSignature(index)
+            processor->parameters().replaceState(isNiflheimrPreset(index)?niflheimrPresetSnapshot(processor->parameters(),index-niflheimrPresetStart):isOriginalPreset(index)?originalPresetSnapshot(processor->parameters(),index-originalPresetStart):isGuitarSignature(index)
                 ?guitarSignatureSnapshot(processor->parameters(),index-factoryPresetCount)
                 :factoryNativeSnapshot(processor->parameters(),index));
         std::set<juce::String> inactive;
@@ -122,7 +122,7 @@ void factoryBank(bool measureOnly,bool originalOnly=false) {
             require(a->parameters().getRawParameterValue("boardEnabled")->load()>.5f,"Factory PRE still uses a different engine from its panel");
         }
         require(std::abs(a->parameters().getRawParameterValue("output")->load())<1e-5f,"Factory recall must start at OUTPUT 0 dB");
-        const bool bass=index<factoryPresetCount&&juce::String(factoryPresets[size_t(index)].instrument).contains("Bass");
+        const bool bass=isNiflheimrPreset(index)||(index<factoryPresetCount&&juce::String(factoryPresets[size_t(index)].instrument).contains("Bass"));
         const auto audio=render(*a,bass,450),clean=render(*b,bass,450);double energy=0;float peak=0;
         require(audio.size()==clean.size(),"Factory audio fixture size differs");
         for(size_t i=0;i<audio.size();++i)require(std::abs(audio[i]-clean[i])<1e-6f,"Inactive PRE bank changed factory audio");
@@ -372,16 +372,18 @@ void gainAndGR() {
 }
 }
 #include "PresetGainTests.h"
+#include "NiflheimrPresetTests.h"
 int main(int argc,char** argv) {
     juce::ScopedJuceInitialiser_GUI init;
     try {
+        if(argc==3&&juce::String(argv[1])=="--niflheimr-presets"){niflheimrPresetTests::run(juce::File(argv[2]));return 0;}
         if(argc==3&&juce::String(argv[1])=="--original-channel-levels"){originalChannelLevelProbe(juce::File(argv[2]),false);return 0;}
         if(argc==4&&juce::String(argv[1])=="--owner-original-reference"){ownerOriginalReference(juce::File(argv[2]),juce::File(argv[3]));return 0;}
         if(argc>1&&juce::String(argv[1])=="--original-production-only"){originalProduction();originalChannels();return 0;}
         if(argc>1&&juce::String(argv[1])=="--measure-gain"){presetGainTests::run(true);return 0;}
         const bool originalOnly=argc>2&&juce::String(argv[2])=="--measure-original";
         const bool measureOnly=originalOnly||(argc>2&&juce::String(argv[2])=="--measure-presets");factoryBank(measureOnly,originalOnly);
-        if(!measureOnly){originalProduction();originalChannels();originalChannelLevelProbe(juce::File(argc>1?argv[1]:"/tmp/chimera-signatures").getChildFile("channel-levels"));signatures(juce::File(argc>1?argv[1]:"/tmp/chimera-signatures"));gainAndGR();presetGainTests::run(false);}
+        if(!measureOnly){originalProduction();originalChannels();originalChannelLevelProbe(juce::File(argc>1?argv[1]:"/tmp/chimera-signatures").getChildFile("channel-levels"));signatures(juce::File(argc>1?argv[1]:"/tmp/chimera-signatures"));gainAndGR();presetGainTests::run(false);niflheimrPresetTests::run(juce::File(argc>1?argv[1]:"/tmp/chimera-signatures").getChildFile("niflheimr-presets"));}
     }
     catch(const std::exception& error){std::cerr<<"FAIL "<<error.what()<<'\n';return 1;}
 }

@@ -1,4 +1,5 @@
 #include "IRLibrary.h"
+#include "IRUserPreferences.h"
 #include "ChimeraIRData.h"
 
 namespace spectralforge {
@@ -66,6 +67,7 @@ juce::Result IRLibrary::importFile(int lane, const juce::File& file)
     else asset=decode(bytes,file.getFileName(),error);
     if(asset) {const auto sidecar=juce::File(file.getFullPathName()+".json");
         if(sidecar.existsAsFile() && sidecar.getSize()<=16384) {const auto json=juce::JSON::parse(sidecar);if(json.isObject())asset->metadata=IRMetadata::fromJSON(json);}}
+    if(asset)IRUserPreferences::apply(IRUserPreferences::read(),file,asset->metadata);
     { std::lock_guard<std::mutex> lock(mutex);
       errors[(size_t)lane]=error;
       if(asset) { users[(size_t)lane]=std::move(asset); ++generations[(size_t)lane]; }

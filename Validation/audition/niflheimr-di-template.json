@@ -1,0 +1,18 @@
+{
+  "di": null,
+  "ir": null,
+  "sample_rate": 48000,
+  "input_gain_db": 0,
+  "oversampling": 4,
+  "block_size": 256,
+  "controls": {"gain": 0.65, "bass": 0.5, "middle": 0.5, "treble": 0.5, "mid_frequency": 650, "presence": 0.5, "depth": 0.5, "master": 0.5, "mass": 0.5, "split": 0.5, "fang": 0.5, "fold": 0.5, "thrust": 0.5, "blend": 0.65},
+  "target_rms_dbfs": -24,
+  "peak_ceiling_dbfs": -3,
+  "blind_seed": 2408,
+  "segments": [
+    {"id": "fast-repeat", "start_seconds": 0, "end_seconds": 8, "purpose": "160-220 BPM repeated low notes, hard stops, death/grind"},
+    {"id": "low-interval", "start_seconds": 8, "end_seconds": 16, "purpose": "low B/A alternating notes and string crossings; slam impact and separation"},
+    {"id": "attack-dynamics", "start_seconds": 16, "end_seconds": 24, "purpose": "soft/hard isolated notes, pick/finger attack"},
+    {"id": "sustain-rest", "start_seconds": 24, "end_seconds": 36, "purpose": "long low notes followed by rests; Hel body, decay and next-note separation"}
+  ]
+}

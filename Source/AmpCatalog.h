@@ -7,7 +7,7 @@ namespace spectralforge {
 enum class AmpModel : int {
     glass, britEdge, tight515, wideRect, liquidLead, ironTube, solidPunch, modernBass,
     chime30, orangeCrown, bassmanValve, subwayClean, matchChime, silkODS, tastePunch,
-    zutaCinder, ironCompact, fourChannel, classicTube, sunMonolith, evilHarvest, hotLead, blueStorm, specialEdition, nastrond, count
+    zutaCinder, ironCompact, fourChannel, classicTube, sunMonolith, evilHarvest, hotLead, blueStorm, specialEdition, nastrond, niflheimr, count
 };
 inline constexpr int legacyAmpModelCount = 15;
 inline constexpr int ampModelCount = static_cast<int>(AmpModel::count);
@@ -15,6 +15,7 @@ inline constexpr int ampModelCount = static_cast<int>(AmpModel::count);
 // Ironball remains recallable but is retired from the active selection menu.
 inline constexpr int releasedNativeAmpModelCount = 23;
 inline constexpr int firstOriginalAmpModel = static_cast<int>(AmpModel::nastrond);
+inline constexpr int niflheimrAmpModel = static_cast<int>(AmpModel::niflheimr);
 inline constexpr int legacyHiddenAmpIndex = static_cast<int>(AmpModel::ironCompact);
 inline constexpr int activeAmpModelCount = ampModelCount - 1;
 constexpr bool ampIsActive(int model) { return model>=0 && model<ampModelCount && model!=legacyHiddenAmpIndex; }
@@ -45,7 +46,8 @@ inline constexpr std::array<AmpInfo, ampModelCount> ampCatalog{{
     {"Hot Lead", "Soldano SLO-100", "Overdrive voice / singing sustain", false},
     {"Blue Storm", "Bogner Uberschall Rev Blue", "Clean and lead / dense low mids", false},
     {"Special Edition", "ENGL E670FE Founders Edition", "Five paths / Modern and Classic voicing", false},
-    {"Náströnd", "SpectralForge Original", "Five-character high gain / tight attack and broad sustain", false}
+    {"Náströnd", "SpectralForge Original", "Five-character high gain / tight attack and broad sustain", false},
+    {"Niflheimr", "SpectralForge Original", "Five-channel metal bass / protected lows and independent clean blend", true}
 }};
 // Search metadata stays separate from the single primary category shown in the menu.
 // The original host parameter continues to use exactly 15 choices.
@@ -84,7 +86,8 @@ inline constexpr std::array<unsigned,ampModelCount> ampRoleTags{{
     AmpRole::lead|AmpRole::highGain,
     AmpRole::clean|AmpRole::highGain,
     AmpRole::clean|AmpRole::crunch|AmpRole::lead|AmpRole::highGain,
-    AmpRole::lead|AmpRole::highGain
+    AmpRole::lead|AmpRole::highGain,
+    AmpRole::clean|AmpRole::highGain|AmpRole::bass
 }};
 constexpr bool ampMatches(int index,AmpRole role=AmpRole::any,AmpInstrument instrument=AmpInstrument::any) {
     if(index<0 || index>=ampModelCount)return false;
@@ -101,7 +104,7 @@ inline constexpr std::array<AmpRole,ampModelCount> ampPrimaryRoles{{
     AmpRole::crunch, AmpRole::highGain, AmpRole::bass, AmpRole::bass,
     AmpRole::clean, AmpRole::lead, AmpRole::bass,
     AmpRole::highGain, AmpRole::highGain, AmpRole::highGain, AmpRole::bass,
-    AmpRole::crunch, AmpRole::highGain, AmpRole::lead, AmpRole::highGain, AmpRole::highGain, AmpRole::highGain
+    AmpRole::crunch, AmpRole::highGain, AmpRole::lead, AmpRole::highGain, AmpRole::highGain, AmpRole::highGain, AmpRole::bass
 }};
 inline const char* ampPrimaryRoleName(int model) {
     const auto role=ampPrimaryRoles[(size_t)juce::jlimit(0,ampModelCount-1,model)];

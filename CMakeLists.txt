@@ -19,7 +19,7 @@ endif()
 juce_add_plugin(ChimeraAmpMatrix COMPANY_NAME "RavenForge Luthier Intelligence" COMPANY_COPYRIGHT "Copyright © 2026 RavenForge Luthier Intelligence. All rights reserved." BUNDLE_ID audio.spectralforge.chimera IS_SYNTH FALSE NEEDS_MIDI_INPUT TRUE NEEDS_MIDI_OUTPUT FALSE IS_MIDI_EFFECT FALSE COPY_PLUGIN_AFTER_BUILD FALSE MICROPHONE_PERMISSION_ENABLED TRUE MICROPHONE_PERMISSION_TEXT "SpectralForge Chimera uses audio input to process your guitar or bass." PLUGIN_MANUFACTURER_CODE SpFg PLUGIN_CODE Chm1 FORMATS ${CHIMERA_FORMATS} PRODUCT_NAME "SpectralForge Chimera" ICON_BIG "Assets/Artwork/spectralforge-emblem.png" ICON_SMALL "Assets/Artwork/spectralforge-emblem.png")
 juce_add_binary_data(ChimeraIRs HEADER_NAME ChimeraIRData.h NAMESPACE ChimeraIRData SOURCES Assets/IRs/guitar_v30_sm57.wav Assets/IRs/guitar_jensen_sm57.wav)
 # Explicit production assets: abandoned trial encodings are never embedded.
-set(CHIMERA_ARTWORK Assets/Artwork/raven-workbench.jpg Assets/Artwork/raven-emblem.png Assets/Artwork/spectralforge-emblem.png Assets/Artwork/chimera-wordmark.png Assets/Artwork/anastrond.png)
+set(CHIMERA_ARTWORK Assets/Artwork/raven-workbench.jpg Assets/Artwork/raven-emblem.png Assets/Artwork/spectralforge-emblem.png Assets/Artwork/chimera-wordmark.png Assets/Artwork/anastrond.png Assets/Artwork/aniflheimr.png)
 set(CHIMERA_MODEL_ARTWORK p808 pcentaur prat pm87 pdyna pdiamond pqtron pmutron pmuff pface pbender prc prange pmicro aglass abrit a515 arect amark asvt agk ahybrid rsslvca r1176 rla2a rn73 rv5 risa rssleq rn73eq rpultec rce2 rdimension rstone rmistress reddy rpulsar r2290 rre201 rmemory remt rlex rspring cmesa campeg cbassman cdelta pfet pmu pbddi pb3k pm82 paw3 pwool pfactory pep plpb achim30 aorange abassman asubway amatchless adumble aeich)
 include(Assets/Artwork/ExpandedArtwork.cmake OPTIONAL)
 foreach(model IN LISTS CHIMERA_MODEL_ARTWORK)
@@ -62,6 +62,49 @@ target_include_directories(ChimeraOriginalAmpIntegrationTests PRIVATE Source)
 target_compile_definitions(ChimeraOriginalAmpIntegrationTests PRIVATE JUCE_USE_CURL=0 JUCE_WEB_BROWSER=0)
 target_link_libraries(ChimeraOriginalAmpIntegrationTests PRIVATE juce::juce_audio_utils juce::juce_dsp PUBLIC juce::juce_recommended_config_flags)
 add_test(NAME ChimeraOriginalAmpIntegrationTests COMMAND ChimeraOriginalAmpIntegrationTests)
+
+# Niflheimr development core and real native-route evidence. These technical
+# gates do not replace instrument-DI/Cab listening or authorize publication.
+add_executable(ChimeraNiflheimrCoreTests Tests/NiflheimrCoreTests.cpp)
+target_include_directories(ChimeraNiflheimrCoreTests PRIVATE Source)
+add_test(NAME ChimeraNiflheimrCoreTests COMMAND ChimeraNiflheimrCoreTests)
+juce_add_console_app(ChimeraNiflheimrIntegrationTests PRODUCT_NAME "Chimera Niflheimr Integration Tests")
+target_sources(ChimeraNiflheimrIntegrationTests PRIVATE Tests/NiflheimrIntegrationTests.cpp)
+target_include_directories(ChimeraNiflheimrIntegrationTests PRIVATE Source)
+target_compile_definitions(ChimeraNiflheimrIntegrationTests PRIVATE JUCE_USE_CURL=0 JUCE_WEB_BROWSER=0)
+target_link_libraries(ChimeraNiflheimrIntegrationTests PRIVATE juce::juce_audio_processors juce::juce_dsp PUBLIC juce::juce_recommended_config_flags)
+add_test(NAME ChimeraNiflheimrIntegrationTests COMMAND ChimeraNiflheimrIntegrationTests)
+juce_add_console_app(ChimeraNiflheimrRender PRODUCT_NAME "Chimera Niflheimr Render")
+target_sources(ChimeraNiflheimrRender PRIVATE Tests/RenderNiflheimr.cpp)
+target_include_directories(ChimeraNiflheimrRender PRIVATE Source)
+target_compile_definitions(ChimeraNiflheimrRender PRIVATE JUCE_USE_CURL=0 JUCE_WEB_BROWSER=0)
+set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS
+  Source/NiflheimrDSP.h Source/NiflheimrDefinition.h Source/Amplifier.h)
+file(SHA256 "${CMAKE_CURRENT_SOURCE_DIR}/Source/NiflheimrDSP.h" CHIMERA_NIFLHEIMR_CORE_SHA256)
+file(SHA256 "${CMAKE_CURRENT_SOURCE_DIR}/Source/NiflheimrDefinition.h" CHIMERA_NIFLHEIMR_DEFINITION_SHA256)
+file(SHA256 "${CMAKE_CURRENT_SOURCE_DIR}/Source/Amplifier.h" CHIMERA_NIFLHEIMR_WRAPPER_SHA256)
+# Measurement provenance also covers the native dispatcher and all source headers.
+file(GLOB CHIMERA_NIFLHEIMR_HEADERS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/Source/*.h")
+set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS ${CHIMERA_NIFLHEIMR_HEADERS} Tests/RenderNiflheimr.cpp)
+list(SORT CHIMERA_NIFLHEIMR_HEADERS CASE SENSITIVE)
+set(CHIMERA_NIFLHEIMR_HEADER_DIGESTS "")
+foreach(header IN LISTS CHIMERA_NIFLHEIMR_HEADERS)
+  file(SHA256 "${header}" digest)
+  get_filename_component(name "${header}" NAME)
+  string(APPEND CHIMERA_NIFLHEIMR_HEADER_DIGESTS "${name}:${digest}\n")
+endforeach()
+string(SHA256 CHIMERA_NIFLHEIMR_HEADER_SET_SHA256 "${CHIMERA_NIFLHEIMR_HEADER_DIGESTS}")
+file(SHA256 "${CMAKE_CURRENT_SOURCE_DIR}/Tests/RenderNiflheimr.cpp" CHIMERA_NIFLHEIMR_RENDERER_SHA256)
+configure_file(cmake/NiflheimrMeasurementBuild.h.in generated/NiflheimrMeasurementBuild.h @ONLY)
+target_compile_definitions(ChimeraNiflheimrRender PRIVATE CHIMERA_MEASUREMENT_CONFIG="$<CONFIG>")
+# Bind the renderer translation unit only: changing a voicing must not rebuild
+# every JUCE module solely because a source fingerprint changed.
+set_property(SOURCE Tests/RenderNiflheimr.cpp APPEND PROPERTY COMPILE_DEFINITIONS
+  CHIMERA_NIFLHEIMR_GIT_HEAD="${CHIMERA_SOURCE_SHA}"
+  CHIMERA_NIFLHEIMR_CORE_SHA256="${CHIMERA_NIFLHEIMR_CORE_SHA256}"
+  CHIMERA_NIFLHEIMR_DEFINITION_SHA256="${CHIMERA_NIFLHEIMR_DEFINITION_SHA256}"
+  CHIMERA_NIFLHEIMR_WRAPPER_SHA256="${CHIMERA_NIFLHEIMR_WRAPPER_SHA256}")
+target_link_libraries(ChimeraNiflheimrRender PRIVATE juce::juce_dsp juce::juce_audio_formats juce::juce_cryptography PUBLIC juce::juce_recommended_config_flags)
 
 juce_add_console_app(ChimeraOriginalAmpRender PRODUCT_NAME "Chimera Original Amp Render")
 target_sources(ChimeraOriginalAmpRender PRIVATE Tests/RenderOriginalAmp.cpp)
@@ -125,6 +168,7 @@ if(WIN32 OR CHIMERA_UI_PROBES)
   target_compile_definitions(ChimeraUITests PRIVATE JUCE_MODAL_LOOPS_PERMITTED=1)
   target_link_libraries(ChimeraUITests PRIVATE ChimeraAmpMatrix ChimeraArtwork ChimeraManual juce::juce_cryptography juce::juce_audio_utils juce::juce_dsp)
   add_test(NAME ChimeraUITests COMMAND ChimeraUITests "${CMAKE_BINARY_DIR}/ui-snapshots")
+  add_test(NAME ChimeraNativeStateTests COMMAND ChimeraUITests --native-state-only "${CMAKE_BINARY_DIR}/native-state")
 endif()
 
 if(WIN32)
@@ -155,6 +199,8 @@ add_test(NAME ChimeraNativeRendererTests
   COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/Tests/test_native_renderer.py" "$<TARGET_FILE:ChimeraRender>")
 add_test(NAME ChimeraOriginalRendererTests
   COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/Tests/test_original_renderer.py" "$<TARGET_FILE:ChimeraOriginalAmpRender>")
+add_test(NAME ChimeraNiflheimrRendererTests
+  COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/Tests/test_niflheimr_renderer.py" "$<TARGET_FILE:ChimeraNiflheimrRender>")
 
 # Update metadata parsing and SHA256 checks are offline and run on every platform.
 juce_add_console_app(ChimeraReleaseTests PRODUCT_NAME "Chimera Release Tests")
@@ -187,6 +233,14 @@ target_include_directories(ChimeraIRCollectionTests PRIVATE Source)
 target_compile_definitions(ChimeraIRCollectionTests PRIVATE JUCE_USE_CURL=0 JUCE_WEB_BROWSER=0)
 target_link_libraries(ChimeraIRCollectionTests PRIVATE juce::juce_audio_formats juce::juce_cryptography PUBLIC juce::juce_recommended_config_flags)
 add_test(NAME ChimeraIRCollectionTests COMMAND ChimeraIRCollectionTests)
+
+# Removing an imported entry must not change the audio embedded in a session.
+juce_add_console_app(ChimeraIRLibraryTests PRODUCT_NAME "Chimera IR Library Tests")
+target_sources(ChimeraIRLibraryTests PRIVATE Tests/IRLibraryTests.cpp Source/IRLibrary.cpp)
+target_include_directories(ChimeraIRLibraryTests PRIVATE Source)
+target_compile_definitions(ChimeraIRLibraryTests PRIVATE JUCE_USE_CURL=0 JUCE_WEB_BROWSER=0)
+target_link_libraries(ChimeraIRLibraryTests PRIVATE ChimeraIRs juce::juce_data_structures juce::juce_dsp juce::juce_audio_formats juce::juce_cryptography PUBLIC juce::juce_recommended_config_flags)
+add_test(NAME ChimeraIRLibraryTests COMMAND ChimeraIRLibraryTests)
 
 # On-demand validation for user-owned IR files. Requires explicit CLI inputs;
 # this is not a zero-input CTest or a source of redistributable capture assets.
@@ -247,3 +301,34 @@ target_include_directories(ChimeraPitchRegressionTests PRIVATE Source)
 target_compile_definitions(ChimeraPitchRegressionTests PRIVATE JUCE_USE_CURL=0 JUCE_WEB_BROWSER=0)
 target_link_libraries(ChimeraPitchRegressionTests PRIVATE juce::juce_dsp juce::juce_audio_basics PUBLIC juce::juce_recommended_config_flags)
 add_test(NAME ChimeraPitchRegressionTests COMMAND ChimeraPitchRegressionTests)
+
+# Optional measurement contracts: normal product builds do not need NumPy.
+option(CHIMERA_ENABLE_NIFLHEIMR_MEASUREMENTS "Enable NumPy measurement harness tests" OFF)
+if(CHIMERA_ENABLE_NIFLHEIMR_MEASUREMENTS)
+  execute_process(COMMAND "${Python3_EXECUTABLE}" -c "import numpy"
+    RESULT_VARIABLE CHIMERA_NUMPY_RESULT)
+  if(NOT CHIMERA_NUMPY_RESULT EQUAL 0)
+    message(FATAL_ERROR "Niflheimr measurements require NumPy in the selected Python interpreter")
+  endif()
+  add_test(NAME ChimeraNiflheimrMeasurementTests
+    COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/Tests/test_niflheimr_measurements.py" "$<TARGET_FILE:ChimeraNiflheimrRender>")
+  set_tests_properties(ChimeraNiflheimrMeasurementTests PROPERTIES TIMEOUT 300)
+endif()
+
+# Controlled DI audition through the production processor and common cabinet.
+juce_add_console_app(ChimeraNiflheimrRigRender PRODUCT_NAME "Chimera Niflheimr Rig Render")
+target_sources(ChimeraNiflheimrRigRender PRIVATE Tests/RenderNiflheimrRig.cpp)
+target_include_directories(ChimeraNiflheimrRigRender PRIVATE Source)
+target_compile_definitions(ChimeraNiflheimrRigRender PRIVATE CHIMERA_MEASUREMENT_CONFIG="$<CONFIG>" CHIMERA_NIFLHEIMR_GIT_HEAD="${CHIMERA_SOURCE_SHA}")
+target_link_libraries(ChimeraNiflheimrRigRender PRIVATE ChimeraAmpMatrix ChimeraArtwork ChimeraManual juce::juce_cryptography juce::juce_audio_utils juce::juce_dsp)
+file(SHA256 "${CMAKE_CURRENT_SOURCE_DIR}/Tests/RenderNiflheimrRig.cpp" CHIMERA_NIFLHEIMR_RIG_RENDERER_SHA256)
+file(SHA256 "${CMAKE_CURRENT_SOURCE_DIR}/Source/PluginProcessor.cpp" CHIMERA_NIFLHEIMR_PROCESSOR_SHA256)
+set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS Tests/RenderNiflheimrRig.cpp Source/PluginProcessor.cpp)
+target_compile_definitions(ChimeraNiflheimrRigRender PRIVATE
+  CHIMERA_NIFLHEIMR_RIG_RENDERER_SHA256="${CHIMERA_NIFLHEIMR_RIG_RENDERER_SHA256}"
+  CHIMERA_NIFLHEIMR_PROCESSOR_SHA256="${CHIMERA_NIFLHEIMR_PROCESSOR_SHA256}")
+if(CHIMERA_ENABLE_NIFLHEIMR_MEASUREMENTS)
+  add_test(NAME ChimeraNiflheimrAuditionTests COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/Tests/test_niflheimr_audition.py")
+  add_test(NAME ChimeraNiflheimrAuditionRouteTests COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/Tests/test_niflheimr_audition.py" "$<TARGET_FILE:ChimeraNiflheimrRender>" "$<TARGET_FILE:ChimeraNiflheimrRigRender>" "${CMAKE_BINARY_DIR}/audition-route-evidence")
+  set_tests_properties(ChimeraNiflheimrAuditionRouteTests PROPERTIES TIMEOUT 300)
+endif()

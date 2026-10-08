@@ -6,14 +6,29 @@
 
 namespace spectralforge {
 struct IRMetadata {
+    enum class Instrument { unspecified, bass, guitar };
+    Instrument instrument{Instrument::unspecified};
+    static Instrument parseInstrument(const juce::String& text) {
+        return text.equalsIgnoreCase("bass") ? Instrument::bass : text.equalsIgnoreCase("guitar") ? Instrument::guitar : Instrument::unspecified;
+    }
+    static const char* instrumentKey(Instrument value) {
+        return value==Instrument::bass ? "bass" : value==Instrument::guitar ? "guitar" : "unspecified";
+    }
+    static const char* instrumentLabel(Instrument value) {
+        return value==Instrument::bass ? "BASS" : value==Instrument::guitar ? "GUITAR" : "UNSPECIFIED";
+    }
     static constexpr std::array<const char*,12> keys{"speaker","cabinet","diameter_in","microphone","position","distance","angle","preamp","author","source","license","notes"};
     static constexpr std::array<const char*,12> labels{"Speaker model","Cabinet / configuration","Speaker diameter (in)","Microphone","Position on cone / unit","Distance from grille","Off-axis angle","Mic preamp","Creator","Source URL","License","Provenance / notes"};
     std::array<juce::String,12> values;
     // Display text is presentation metadata, never an asset ID or a host parameter.
     juce::String displayLabel;
     juce::String sourceFilename,sourceHash,preparation;
-    juce::var json() const {auto* object=new juce::DynamicObject();for(size_t i=0;i<keys.size();++i)object->setProperty(keys[i],values[i]);if(displayLabel.isNotEmpty())object->setProperty("display_name",displayLabel);if(sourceFilename.isNotEmpty())object->setProperty("original_file",sourceFilename);if(sourceHash.isNotEmpty())object->setProperty("original_sha256",sourceHash);if(preparation.isNotEmpty())object->setProperty("processing",preparation);return object;}
-    static IRMetadata fromJSON(const juce::var& json) {IRMetadata result;for(size_t i=0;i<keys.size();++i)result.values[i]=json.getProperty(keys[i],{}).toString().substring(0,i==11 ? 2048 : 512);result.displayLabel=json.getProperty("display_name",{}).toString().substring(0,96);result.sourceFilename=leafName(json.getProperty("original_file",{}).toString()).substring(0,512);result.sourceHash=json.getProperty("original_sha256",{}).toString().substring(0,64);result.preparation=json.getProperty("processing",{}).toString().substring(0,1024);return result;}
+    juce::var json() const {auto* object=new juce::DynamicObject();object->setProperty("instrument",instrumentKey(instrument));for(size_t i=0;i<keys.size();++i)object->setProperty(keys[i],values[i]);if(displayLabel.isNotEmpty())object->setProperty("display_name",displayLabel);if(sourceFilename.isNotEmpty())object->setProperty("original_file",sourceFilename);if(sourceHash.isNotEmpty())object->setProperty("original_sha256",sourceHash);if(preparation.isNotEmpty())object->setProperty("processing",preparation);return object;}
+    static IRMetadata fromJSON(const juce::var& json) {IRMetadata result;for(size_t i=0;i<keys.size();++i)result.values[i]=json.getProperty(keys[i],{}).toString().substring(0,i==11 ? 2048 : 512);result.displayLabel=json.getProperty("display_name",{}).toString().substring(0,96);result.sourceFilename=leafName(json.getProperty("original_file",{}).toString()).substring(0,512);result.sourceHash=json.getProperty("original_sha256",{}).toString().substring(0,64);result.preparation=json.getProperty("processing",{}).toString().substring(0,1024);
+        if(json.hasProperty("instrument"))result.instrument=parseInstrument(json["instrument"].toString());
+        else if(result.values[11].startsWithIgnoreCase("Bass"))result.instrument=Instrument::bass;
+        else if(result.values[11].startsWithIgnoreCase("Guitar") || result.values[11].startsWithIgnoreCase("Factory guitar"))result.instrument=Instrument::guitar;
+        return result;}
     static juce::String leafName(const juce::String& name) {return name.replaceCharacter('\\','/').fromLastOccurrenceOf("/",false,false).replaceCharacters("\r\n\t","   ").trim();}
     static juce::String boundedLabel(const juce::String& text,int maximum=56) {const auto clean=text.replaceCharacters("\r\n\t","   ").trim();return clean.length()>maximum ? clean.substring(0,maximum-1).trimEnd()+juce::String::fromUTF8("\xe2\x80\xa6") : clean;}
     juce::String shortLabel(const juce::String& filename) const {
@@ -30,7 +45,7 @@ struct IRMetadata {
         return boundedLabel(leaf.replaceCharacter('_',' '));
     }
     juce::String details(const juce::String& filename) const {
-        juce::String text="File: "+leafName(filename);
+        juce::String text="File: "+leafName(filename)+"\nInstrument: "+instrumentLabel(instrument);
         if(sourceFilename.isNotEmpty())text+="\nSource WAV: "+sourceFilename;
         if(sourceHash.isNotEmpty())text+="\nSource SHA-256: "+sourceHash;
         if(preparation.isNotEmpty())text+="\nPreparation: "+preparation;
@@ -39,7 +54,7 @@ struct IRMetadata {
     }
     static juce::String factoryFilename(int index) {return index==0 ? "Engl Celestion V30 SM57 center-01.wav" : "Jensen Cab SM57 center.wav";}
     static IRMetadata factory(int index) {
-        IRMetadata m;m.displayLabel=index==0 ? juce::String::fromUTF8("V30 — SM57") : juce::String::fromUTF8("Jensen — SM57");
+        IRMetadata m;m.instrument=Instrument::guitar;m.displayLabel=index==0 ? juce::String::fromUTF8("V30 — SM57") : juce::String::fromUTF8("Jensen — SM57");
         m.values[0]=index==0 ? "Celestion Vintage 30" : "Jensen (model unspecified)";
         m.values[1]=index==0 ? "ENGL (configuration unspecified)" : "Unspecified";m.values[3]="Shure SM57";m.values[4]="Center";
         m.values[8]="jesterdyne";m.values[9]=index==0 ? "https://freesound.org/s/116735/" : "https://freesound.org/s/116743/";m.values[10]="CC BY 4.0";m.values[11]="Factory guitar IR. Original audio unchanged. Distance, angle and speaker diameter are not documented by this asset.";

@@ -4,10 +4,12 @@ The IR Library includes metadata and original-file hashes for the **Shift Line B
 
 ## Download and load
 
-1. Open **IR LIBRARY → GET BASS IRS**. This opens the creator's official page: https://shift-line.com/irpackbass
+1. In **IR LIBRARY**, select a missing Shift Line reference and choose **GET FROM CREATOR**. This opens the creator's official page: https://shift-line.com/irpackbass
 2. Download the original Bass IR Pack from that page and extract its ZIP.
-3. In Chimera, choose **ADD FOLDER** and select the extracted folder.
+3. In Chimera, choose **ADD FOLDER** and select the extracted folder. The default **Import: keep existing type** preserves known Bass metadata; use **Import as: Bass** to assign it explicitly. **OPEN IR** adds an individual WAV/AIFF instead.
 4. The library checks the original filenames and SHA-256 hashes. Matching rows become **INSTALLED**. Choose an IR and **LOAD INTO RIG**, or select it from the rig cabinet menu.
+
+Use **Type** on a selected imported entry to correct its classification. **REMOVE FROM LIST** removes it from the library and cabinet menu; the source file and IR audio already loaded in a project/A·B are preserved. **OPEN IR** can add the file again.
 
 Chimera does not download files in the background or upload user IRs. Its Project IR slot embeds the selected WAV in the user's local preset/project; the four existing cabinet-source automation values remain unchanged. Follow the creator's terms when sharing presets containing third-party IRs.
 

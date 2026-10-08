@@ -25,16 +25,16 @@ public:
             }
         };
     }
-    void refresh(const std::vector<juce::File>& roots=spectralforge::IRCollection::roots()) {
+    void refresh(const std::vector<juce::File>& roots=spectralforge::IRCollection::roots(),const juce::File& preferences=spectralforge::IRUserPreferences::file()) {
         clear(juce::dontSendNotification);files.clear();labels.clear();details.clear();
         addSectionHeading("BUILT IN");
         addItem("Filters only",1);addItem("V30 / SM57",2);addItem("Jensen / SM57",3);
         addItem("Project IR",4);
-        const auto entries=spectralforge::IRCollection::scan(roots,true);
-        for(bool bass:{true,false}) {
+        const auto entries=spectralforge::IRCollection::scan(roots,true,nullptr,preferences);
+        for(const auto instrument:{spectralforge::IRMetadata::Instrument::bass,spectralforge::IRMetadata::Instrument::guitar,spectralforge::IRMetadata::Instrument::unspecified}) {
             bool heading=false;
-            for(const auto& entry:entries) if(!entry.factorySource && entry.ready() && entry.bass()==bass) {
-                if(!heading) {addSeparator();addSectionHeading(bass ? "INSTALLED / BASS" : "INSTALLED / GUITAR + OTHER");heading=true;}
+            for(const auto& entry:entries) if(!entry.factorySource && entry.ready() && entry.tags.instrument==instrument) {
+                if(!heading) {addSeparator();addSectionHeading(juce::String("INSTALLED / ")+spectralforge::IRMetadata::instrumentLabel(instrument));heading=true;}
                 addItem(entry.displayName(),100+(int)files.size());files.push_back(entry.file);
                 labels.add(entry.displayName());details.add(entry.details());
             }
