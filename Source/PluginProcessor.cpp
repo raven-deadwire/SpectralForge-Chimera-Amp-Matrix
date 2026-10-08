@@ -281,7 +281,15 @@ for(int i=1;i<=3;++i) {
     p.add(std::make_unique<juce::AudioParameterFloat>("cabblend"+n,"Mic A/B blend "+n,0.f,1.f,0.f));
     for(const auto* slot:{"A","B"}) {
         const auto id=juce::String("cab")+slot;
-        p.add(std::make_unique<juce::AudioParameterFloat>(id+"gain"+n,id+" level "+n,-24.f,12.f,0.f));
+        // Preserve the existing linear host mapping, but make its unity point
+        // exact. Fused multiply-add can otherwise turn the default 2/3 into
+        // a small nonzero dB value on arm64 during project migration.
+        juce::NormalisableRange<float> gainRange{-24.f,12.f,
+            [](float start,float end,float normalised) {
+                return normalised == (0.f-start)/(end-start) ? 0.f : start+(end-start)*normalised;
+            },
+            [](float start,float end,float value) {return (value-start)/(end-start);}};
+        p.add(std::make_unique<juce::AudioParameterFloat>(id+"gain"+n,id+" level "+n,gainRange,0.f));
         p.add(std::make_unique<juce::AudioParameterFloat>(id+"delay"+n,id+" delay ms "+n,0.f,20.f,0.f));
         p.add(std::make_unique<juce::AudioParameterBool>(id+"invert"+n,id+" polarity "+n,false));
     }
@@ -320,6 +328,8 @@ void ChimeraProcessor::restoreCore(juce::ValueTree restored)
     const bool missingPost=!restored.getChildWithProperty("id",spectralforge::postNativeModelID(0)).isValid();
     const bool missingBoard=!restored.getChildWithProperty("id",spectralforge::pedalModelID(0)).isValid();
     const bool hasOriginalV1=restored.getChildWithProperty("id",spectralforge::ampNativeControlID(0,spectralforge::firstOriginalAmpModel,0)).isValid();
+    // Enumerate registered parameters via the current tree, but obtain every
+    // missing value from the parameter definition, never from the session.
     const auto defaults=state.copyState();
     for(auto child:defaults)
     {
