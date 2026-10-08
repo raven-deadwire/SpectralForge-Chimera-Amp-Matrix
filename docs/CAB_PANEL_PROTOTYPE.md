@@ -30,7 +30,7 @@ are possible in Matrix; CPU/DAW acceptance on target hardware remains separate.
 
 Project and comparison snapshots embed each slot's original encoded bytes and
 metadata. USER_IRS retains lane 0–2, with optional slot=0 (A) or slot=1 (B);
-legacy children with no slot mean A. Removing a file from the user library never
+legacy children with no slot mean A. New project snapshots use schemaVersion 10. Removing a file from the user library never
 removes loaded audio. An invalid import preserves the prior asset in that slot.
 Embedded project/preset export can contain privately licensed audio: this PR's
 public tests use only author-generated impulse fixtures and never private packs.
@@ -49,6 +49,10 @@ Existing ChimeraTests and IRLibraryTests remain regression gates.
 artifact allowlist contains only logs and a synthetic-panel screenshot.
 
 For local user-owned WAV/AIFF verification, use existing `ChimeraValidateExternalIR`
-with explicit file arguments. No Origin audio is committed or fetched by CI.
+with explicit file arguments. `ChimeraCabPanelTests user-A.wav user-B.wav`
+executes the two-mic contracts with user-owned files. For production routing/restore,
+`ChimeraCabPanelStateTests private-snapshot.png user-A.wav user-B.wav` makes temporary
+copies and deletes only those copies before project restoration. Keep these private
+runs outside CI and public artifact paths. No Origin audio is committed or fetched by CI.
 This implementation's synthetic native loading is distinct from testing all 291
 Origin WAVs, actual guitar/bass DI listening, native-window UX and commercial DAWs.

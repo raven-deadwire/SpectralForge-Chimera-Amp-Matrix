@@ -81,7 +81,7 @@ class CabPanel : public juce::Component, private juce::Timer {
     void timerCallback() override {
         for(int i=0;i<2;++i) {
             auto& slot=slots[i];
-            slot.status.setText(processor.micStatus(lane,i),juce::dontSendNotification);
+            slot.status.setText(processor.micStatus(lane,i),juce::dontSendNotification);slot.status.setTooltip(processor.micStatus(lane,i));
             const auto name=processor.micName(lane,i);
             const int source=int(processor.parameters().getRawParameterValue((i ? "cabBtype" : "cabtype")+juce::String(lane+1))->load());
             if(source!=displayedSource[i] || name!=displayedName[i]) {
@@ -118,6 +118,8 @@ public:
             s.polarity=std::make_unique<BA>(processor.parameters(),prefix+"invert"+n,s.invert);
         }
         blendLabel.setText("Mic A  <  Linear blend  >  Mic B",juce::dontSendNotification);addAndMakeVisible(blendLabel);addAndMakeVisible(blend);
+        blend.textFromValueFunction=[](double value){return juce::String(value*100.0,1)+"% B";};
+        blend.valueFromTextFunction=[](const juce::String& text){return text.getDoubleValue()*.01;};
         blend.setSliderStyle(juce::Slider::LinearHorizontal);blend.setTextBoxStyle(juce::Slider::TextBoxRight,false,80,24);
         blendAttachment=std::make_unique<SA>(processor.parameters(),"cabblend"+n,blend);
         refresh();timerCallback();setSize(900,450);startTimerHz(10);

@@ -21,15 +21,20 @@ std::vector<float> render(spectralforge::Cab& cab,const juce::dsp::ProcessSpec& 
     return result;
 }
 float difference(const std::vector<float>& a,const std::vector<float>& b){float d=0;for(size_t i=0;i<a.size();++i)d=std::max(d,std::abs(a[i]-b[i]));return d;}
-int main(){
+int main(int argc,char** argv){
     auto folder=juce::File::getSpecialLocation(juce::File::tempDirectory).getNonexistentChildFile("cab-panel-fixtures",{},false);
     struct Cleanup{juce::File f;~Cleanup(){f.deleteRecursively();}} cleanup{folder};
     try {
         require(folder.createDirectory().wasOk(),"fixture directory");
         // Deliberately misleading directory: the native decoder must read 48k headers.
-        auto a=folder.getChildFile("44.1kHz-A.wav"),b=folder.getChildFile("B.wav");fixture(a,48000,1,0);fixture(b,96000,2,12);
+        auto a=folder.getChildFile("44.1kHz-A.wav"),b=folder.getChildFile("B.wav");if(argc==3) {
+            a=juce::File::getCurrentWorkingDirectory().getChildFile(argv[1]);b=juce::File::getCurrentWorkingDirectory().getChildFile(argv[2]);
+        } else {require(argc==1,"usage: ChimeraCabPanelTests [user-IR-A user-IR-B]");fixture(a,48000,1,0);fixture(b,96000,2,12);}
         juce::MemoryBlock bytes;a.loadFileAsData(bytes);juce::String error;
-        require(spectralforge::IRLibrary::decode(bytes,a.getFileName(),error)->rate==48000,"header sample rate");
+        const auto decoded=spectralforge::IRLibrary::decode(bytes,a.getFileName(),error);require(decoded!=nullptr,"A decoder");
+        if(argc==1)require(decoded->rate==48000,"header sample rate");
+        std::cout<<"INPUT A "<<a.getFileName()<<" / "<<decoded->rate<<" Hz / "<<decoded->samples.getNumSamples()<<" frames\n";
+        std::cout<<"INPUT B "<<b.getFileName()<<"\n";
         for(double rate:{44100.,48000.,96000.})for(int channels:{1,2})for(int block:{64,256}) {
             juce::dsp::ProcessSpec spec{rate,(juce::uint32)block,(juce::uint32)channels};
             std::array<spectralforge::Cab,3> cabs;for(auto& c:cabs)c.prepare(spec);
