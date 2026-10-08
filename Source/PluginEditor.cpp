@@ -1,4 +1,4 @@
-#include "CabPanel.h"
+#include "CabRoom.h"
 #include "PresetOrder.h"
 #include "GuitarSignaturePresets.h"
 #include "PluginEditor.h"
@@ -33,6 +33,29 @@ void meter(juce::Graphics& g,float gain,int x,int y,int width,int height)
     const float value=juce::jlimit(0.f,1.f,(juce::Decibels::gainToDecibels(gain,-60.f)+60.f)/60.f);
     g.setColour(gain>=1.f ? juce::Colour(0xfff26a5f) : accent);
     g.fillRoundedRectangle(float(x),float(y)+height*(1.f-value),float(width),height*value,2.f);
+}
+void fitCabinetWindow(juce::Component::SafePointer<juce::DialogWindow> window,int remainingChecks=40)
+{
+    if(window==nullptr || !window->isShowing())return;
+    if(auto* peer=window->getPeer();peer!=nullptr && peer->getFrameSizeIfPresent()) {
+        // LaunchOptions centres the client before enabling the native title
+        // bar. Once the OS reports that frame, fit the complete window into
+        // the selected display. JUCE supplies the frame and coordinate/DPI
+        // conversions; the CAB workspace already fits its content uniformly.
+        struct WholeWindowConstrainer final : juce::ComponentBoundsConstrainer {
+            void checkBounds(juce::Rectangle<int>& bounds,const juce::Rectangle<int>&,
+                             const juce::Rectangle<int>& limits,bool,bool,bool,bool) override {
+                bounds=bounds.constrainedWithin(limits);
+            }
+        } constrainer;
+        constrainer.setBoundsForComponent(window.getComponent(),window->getBounds(),false,false,false,false);
+        return;
+    }
+    // Some window managers report decorations asynchronously. This is a
+    // bounded creation-time correction, not a constraint on later user drags.
+    if(remainingChecks>0)juce::Timer::callAfterDelay(25,[window,remainingChecks] {
+        fitCabinetWindow(window,remainingChecks-1);
+    });
 }
 }
 ChimeraLookAndFeel::ChimeraLookAndFeel()
@@ -101,6 +124,10 @@ ChimeraEditor::ChimeraEditor(ChimeraProcessor& p) : AudioProcessorEditor(&p),pro
 {
     setLookAndFeel(&look); canvas.setComponentID("surface"); addAndMakeVisible(canvas);
     auto add=[this](juce::Component& component){canvas.addAndMakeVisible(component);};
+    add(rigControls);
+    rigControls.setComponentID("cabRigControls");
+    rigControls.setTooltip("Switch between the shared cabinet room and amplifier controls. The sound is unchanged.");
+    rigControls.onClick=[this]{showRigControls=!showRigControls;updateModeUI();};
     add(boardPanel);add(preEngineStatus);add(gateLocation);
     gateLocation.setComponentID("gateAfterRig");preEngineStatus.setComponentID("preEngineStatus");
     preEngineStatus.setFont(juce::FontOptions(11.f));preEngineStatus.setColour(juce::Label::textColourId,ink);
@@ -249,7 +276,7 @@ ChimeraEditor::ChimeraEditor(ChimeraProcessor& p) : AudioProcessorEditor(&p),pro
         lane.cabType.setName("Cabinet "+n);lane.cabType.setComponentID("cabinet"+n);add(lane.cabType);
         lane.cabType.selected=[this,i,n](juce::File file,int source) {
             if(file!=juce::File{}) processor.loadIR(i,file);
-            else {auto* p=processor.parameters().getParameter("cabtype"+n);p->beginChangeGesture();p->setValueNotifyingHost(p->convertTo0to1(float(source)));p->endChangeGesture();}
+            else {auto* model=processor.parameters().getParameter(spectralforge::originalCabID(i,"Aon"));model->beginChangeGesture();model->setValueNotifyingHost(0);model->endChangeGesture();auto* p=processor.parameters().getParameter("cabtype"+n);p->beginChangeGesture();p->setValueNotifyingHost(p->convertTo0to1(float(source)));p->endChangeGesture();}
             timerCallback();
         };
         lane.cabType.browse=[this,i]{loadIR(i);};lane.cabType.refresh();
@@ -265,11 +292,8 @@ ChimeraEditor::ChimeraEditor(ChimeraProcessor& p) : AudioProcessorEditor(&p),pro
         lane.mute.setTooltip("Mute this active rig"); lane.solo.setTooltip("Solo this active rig"); lane.polarity.setTooltip("Invert this rig's polarity");
         lane.cabOn.setTooltip("Enable or bypass this rig's IR and cabinet cuts");
         add(lane.details);lane.details.setComponentID("irtags"+n);lane.details.onClick=[this,i]{showIRDetails(i);};lane.details.setTooltip("Inspect or edit speaker, diameter, microphone, position, distance and provenance.");
-        add(lane.load); lane.load.setButtonText("PANEL"); lane.load.onClick=[this,i]{
-            juce::DialogWindow::LaunchOptions options;options.content.setOwned(new CabPanel(processor,i));
-            options.dialogTitle="Chimera / CAB Panel";options.dialogBackgroundColour=background;
-            options.useNativeTitleBar=true;options.escapeKeyTriggersCloseButton=true;options.componentToCentreAround=this;trackDialog(options.launchAsync());
-        }; lane.load.setTooltip("Open the cabinet library. Add WAV/AIFF files or folders, set their instrument type, or remove imported entries from the list.");
+        add(lane.load); lane.load.setButtonText("PANEL");lane.load.onClick=[this,i]{openCabWorkspace(i);};
+        lane.load.setTooltip("Open the cabinet room, large cabinet/microphone editor and separate IR Loader.");
     }
     for(int i=0;i<3;++i){postPanels[(size_t)i]=std::make_unique<PostNativePanel>(processor,i);add(*postPanels[(size_t)i]);}
     for(int position=3;position<6;++position){const int family=rackOrder[(size_t)position];auto& button=effects[(size_t)family].expand;add(button);button.setComponentID("postExpand"+juce::String(position));button.setTooltip("Open all rack controls");button.onClick=[this,family]{auto* full=new RackEffectDetailPanel(processor,family);full->setLookAndFeel(&look);juce::DialogWindow::LaunchOptions options;options.content.setOwned(full);options.dialogTitle=juce::String("CHIMERA / ")+spectralforge::modelFamilies[(size_t)family].category;options.dialogBackgroundColour=panel;options.useNativeTitleBar=true;options.escapeKeyTriggersCloseButton=true;options.resizable=false;options.componentToCentreAround=this;trackDialog(options.launchAsync());};}
@@ -292,6 +316,15 @@ void ChimeraEditor::loadIR(int lane)
         else safe->processor.loadIR(lane,file);safe->timerCallback();}));
     options.dialogTitle="SpectralForge Chimera / Cabinet library / Rig "+juce::String(lane+1);options.dialogBackgroundColour=background;
     options.useNativeTitleBar=true;options.escapeKeyTriggersCloseButton=true;options.resizable=false;options.componentToCentreAround=this;trackDialog(options.launchAsync());
+}
+void ChimeraEditor::openCabWorkspace(int lane,bool focusRequested)
+{
+    juce::DialogWindow::LaunchOptions options;
+    options.content.setOwned(new CabWorkspace(processor,lane,focusRequested));
+    options.dialogTitle="Chimera / Cabinet Room";options.dialogBackgroundColour=background;
+    options.useNativeTitleBar=true;options.escapeKeyTriggersCloseButton=true;options.resizable=false;
+    options.componentToCentreAround=this;
+    auto* window=options.launchAsync();trackDialog(window);fitCabinetWindow(window);
 }
 void ChimeraEditor::chooseIR(int lane,bool folder)
 {
@@ -366,7 +399,9 @@ void ChimeraEditor::refreshVisibleState()
         if(lane.cabKey.update(key) || stateDirty) {
             lane.metadata=processor.cabMetadata(i);++metadataReads;
             lane.status=(lastMode==2 && i==0 ? juce::String{} : active?juce::String{}:juce::String("BYPASSED | "))+processor.cabStatus(i);
-            lane.cabType.sync(source,processor.userIRName(i));
+            const bool modeled=processor.parameters().getRawParameterValue(spectralforge::originalCabID(i,"Aon"))->load()>.5f;
+            lane.cabType.sync(source,processor.userIRName(i),modeled ? lane.metadata.displayLabel : juce::String{});
+            lane.details.setEnabled(!modeled);
             lane.cabStatus.setText(lane.status,juce::dontSendNotification);
             lane.cabStatus.setTooltip(lane.status+"\n"+lane.metadata.summary());
             lane.cabLow.setEnabled(active);lane.cabHigh.setEnabled(active);
@@ -491,9 +526,19 @@ void ChimeraEditor::updateModeUI()
     preEngineStatus.setText("5-SLOT PRE  /  select a pedal by type; drag controls to shape each instance",juce::dontSendNotification);
     boardPanel.setVisible(page==1);
     preOrder.setVisible(false);gainOrder.setVisible(false);
-    lastMode=(int)processor.parameters().getRawParameterValue("mode")->load();
+    const int nextMode=(int)processor.parameters().getRawParameterValue("mode")->load();
+    if(nextMode!=lastMode)showRigControls=false;
+    lastMode=nextMode;
     lastDualCross=dualType.getSelectedId()==2;lastTuner=tunerOn.getToggleState();
     const bool matrix=lastMode==2,split=matrix || (lastMode==1 && lastDualCross); const int count=lastMode==0 ? 1 : lastMode==1 ? 2 : 3;
+    const bool roomVisible=page==0 && lastMode!=0 && !showRigControls;
+    if(roomVisible && !cabRoom) {
+        cabRoom=std::make_unique<CabRoomOverview>(processor);canvas.addAndMakeVisible(*cabRoom);
+        cabRoom->onCabinetSelected=[this](int lane){openCabWorkspace(lane,true);};
+    }
+    if(cabRoom) {cabRoom->setVisible(roomVisible);if(roomVisible)cabRoom->refreshState();}
+    rigControls.setVisible(page==0 && lastMode!=0);
+    rigControls.setButtonText(showRigControls ? "CABINET ROOM" : "RIG CONTROLS");
     x1.setVisible(matrix && page==0 && !lastTuner); x2.setVisible(matrix && page==0 && !lastTuner); x1Label.setVisible(matrix && page==0 && !lastTuner); x2Label.setVisible(matrix && page==0 && !lastTuner);
     rigsTab.setToggleState(page==0,juce::dontSendNotification);preTab.setToggleState(page==1,juce::dontSendNotification);postTab.setToggleState(page==2,juce::dontSendNotification);
     for(size_t i=0;i<effects.size();++i) {
@@ -505,7 +550,7 @@ void ChimeraEditor::updateModeUI()
     for(juce::Component* c:std::initializer_list<juce::Component*>{&lowComp,&lowCompLabel,&lowAmpMix,&diVoice}) c->setVisible(false);
     for(int i=0;i<3;++i)
     {
-        auto& lane=lanes[i]; const bool show=i<count && page==0;
+        auto& lane=lanes[i]; const bool show=i<count && page==0 && !roomVisible;
         for(juce::Component* c : std::initializer_list<juce::Component*>{&lane.header,&lane.range,&lane.ampReference,&lane.amp,&lane.ampOn,&lane.mute,&lane.solo,&lane.polarity,&lane.cabOn,&lane.load,&lane.details,&lane.cabType,&lane.cabLow,&lane.cabHigh,&lane.lowLabel,&lane.highLabel,&lane.cabStatus}) c->setVisible(show);
         lane.nativePanel->setVisible(show);lane.nativePanel->refreshIfNeeded();
         auto controls=lane.controls();
@@ -570,7 +615,7 @@ void ChimeraEditor::paint(juce::Graphics& g)
             const float amount=juce::jlimit(0.f,1.f,(juce::Decibels::gainToDecibels(level,-60.f)+60.f)/60.f);
             for(int segment=0;segment<16;++segment){g.setColour(segment<float(amount*16)?(level>=1?juce::Colour(0xffe49b73):juce::Colour(0xffa5c1a0)):line);g.fillRect(326.f+segment*6,y+35,4.f,5.f);}
         }
-    } else if(page==0) {
+    } else if(page==0 && !(cabRoom && cabRoom->isVisible())) {
         const int count=lastMode==0 ? 1 : lastMode==1 ? 2 : 3;const int width=(1140-14*(count-1))/count;
         for(int i=0;i<count;++i) {
             const float x=float(20+i*(width+14));const auto& lane=lanes[(size_t)i];const bool di=lastMode==2 && i==0;
@@ -604,6 +649,8 @@ void ChimeraEditor::resized()
 }
 void ChimeraEditor::layoutControls()
 {
+    if(cabRoom)cabRoom->setBounds(20,330,1140,412);
+    rigControls.setBounds(1017,309,143,20);
     preEngineStatus.setBounds(20,298,1140,27);boardPanel.setBounds(20,330,1140,415);
     gateLocation.setBounds(298,93,113,23);
     preOrder.setBounds(585,268,257,28);gainOrder.setBounds(852,268,308,28);

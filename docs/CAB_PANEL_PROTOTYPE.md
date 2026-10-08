@@ -7,7 +7,21 @@ The library browser retains Open IR, Add Folder, instrument tags and Remove from
 Unknown generic imports remain selectable without requiring naming conventions.
 Origin-style cabinet labels are filename associations only. The selector preserves
 full capture filenames, including Bright/Medium/Dark and prepared Mix labels.
-No Position/Distance control or inferred physical coordinates are presented.
+Fixed IRs do not expose inferred physical coordinates. This branch also adds the
+separate [Original / Modeled v1 path](ORIGINAL_CAB_DSP_V1.md): guitar 4x12 and bass
+4x10, independently selected units and microphones, modeled Position/Distance,
+rear structure and optional tweeter. Those controls do not remike a loaded capture.
+Enable each modeled slot explicitly in the lower section of PANEL; legacy states
+leave both off. Names are provisional and the model is not a measured hardware clone.
+
+The [microphone catalog](CAB_MICROPHONE_CATALOG.md) defines 20 identities: 9
+dynamics, 3 ribbons and 8 condensers, including the original condenser Chimera
+Strike. Available captures are grouped by microphone family and show their alias
+plus full filename; the selected reference appears in smaller text beneath it.
+IR LIBRARY can filter all 20 identities, with an Other / mixed / unspecified
+route for remaining imports. A filter with no matching capture cannot load audio.
+The catalog adds no independent microphone DSP or bundled responses. Loaded
+Mic A/B metadata supplies the display after project recall and same-name imports.
 
 ## Signal and compatibility
 
@@ -64,7 +78,11 @@ hashes/dangling references, and exact serialized overflow with destination and
 comparison preservation. Audio equality remains max difference <1e-6 with nonzero
 energy in Classic, Dual Blend/Crossover and Matrix, including dirty legacy restore.
 Existing ChimeraTests and IRLibraryTests remain regression gates.
-`.github/workflows/cab-panel.yml` runs all four on Linux/Windows/macOS. Its explicit
+ChimeraIRCollectionTests also checks the 20-entry microphone identity contract,
+conservative filename matching, metadata precedence and microphone filtering.
+The state suite covers same-name Mic B replacement, embedded microphone metadata,
+grouped capture selection and empty-filter LOAD safety with synthetic fixtures.
+`.github/workflows/cab-panel.yml` runs all five on Linux/Windows/macOS. Its explicit
 artifact allowlist contains only logs and a synthetic-panel screenshot.
 
 For local user-owned WAV/AIFF verification, use existing `ChimeraValidateExternalIR`

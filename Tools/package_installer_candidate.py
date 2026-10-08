@@ -7,6 +7,7 @@ or replacing a beta release/tag. Personal IR audio is supplied only beside Setup
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import os
 from pathlib import Path
@@ -17,6 +18,48 @@ import package_release as release
 import chimera_version
 
 ROOT = Path(__file__).resolve().parents[1]
+TRANSFER_PART_BYTES = 20 * 1024 * 1024
+TRANSFER_MAX_PARTS = 8
+
+
+def write_transfer_parts(artifact: Path, output: Path, expected_sha256: str) -> list[dict]:
+    """Split verified bytes within the exact capacity uploaded by the workflow.
+
+    Both Setup and portable ZIP use this contract. Reject before writing when a
+    file exceeds eight 20 MiB parts; never leave a publishable truncated set.
+    """
+    expected_bytes = artifact.stat().st_size
+    if expected_bytes <= 0 or expected_bytes > TRANSFER_MAX_PARTS * TRANSFER_PART_BYTES:
+        raise RuntimeError(f"Candidate must fit 1..{TRANSFER_MAX_PARTS} transfer artifacts "
+                           f"of at most {TRANSFER_PART_BYTES} bytes each")
+    output.mkdir(parents=True, exist_ok=False)
+    records = []
+    total_bytes = 0
+    digest = hashlib.sha256()
+    try:
+        with artifact.open("rb") as stream:
+            for index in range(1, TRANSFER_MAX_PARTS + 1):
+                data = stream.read(TRANSFER_PART_BYTES)
+                if not data:
+                    break
+                folder = output / f"part-{index}"
+                folder.mkdir()
+                path = folder / f"{artifact.name}.part{index}"
+                path.write_bytes(data)
+                records.append({"name": path.name, "bytes": path.stat().st_size,
+                                "sha256": release.sha256(path)})
+                digest.update(data)
+                total_bytes += len(data)
+            if stream.read(1):
+                raise RuntimeError("Candidate grew beyond the configured transfer capacity")
+        if total_bytes != expected_bytes or digest.hexdigest() != expected_sha256:
+            raise RuntimeError("Candidate bytes changed after checksum verification")
+    except Exception:
+        # This directory was created by this call, so stale partial output
+        # cannot be mistaken for a complete later candidate attempt.
+        shutil.rmtree(output)
+        raise
+    return records
 
 
 def revision() -> str:
@@ -92,22 +135,12 @@ def transfer() -> None:
     chimera_version.validate_manifest(receipt, chimera_version.identity(ROOT, sha))
     if not receipt["success"] or receipt["source_sha"] != sha or receipt["installer_sha256"] != digest:
         raise RuntimeError("Installer verification does not match this exact source/binary")
-    data = artifact.read_bytes()
-    size = 20 * 1024 * 1024
-    if len(data) > 4 * size:
-        raise RuntimeError("Installer needs more than the configured four transfer artifacts")
-    records = []
     output = ROOT / "installer-transfer"
-    for index, offset in enumerate(range(0, len(data), size), 1):
-        folder = output / f"part-{index}"
-        folder.mkdir(parents=True, exist_ok=False)
-        path = folder / f"{artifact.name}.part{index}"
-        path.write_bytes(data[offset:offset + size])
-        records.append({"name": path.name, "bytes": path.stat().st_size, "sha256": release.sha256(path)})
+    records = write_transfer_parts(artifact, output, digest)
     metadata = output / "metadata"
     metadata.mkdir(parents=True)
     manifest = {"source_sha": sha, "run_id": os.environ.get("GITHUB_RUN_ID"), "filename": artifact.name,
-                "bytes": len(data), "sha256": digest, "parts": records, "publisher_signed": False,
+                "bytes": sum(part["bytes"] for part in records), "sha256": digest, "parts": records, "publisher_signed": False,
                 "published_release": False, "installer_verification": receipt}
     (metadata / "installer-parts-manifest.json").write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
     for path in (checksum, evidence / "InstallerVerification.txt", evidence / "InstallerVerification.json",

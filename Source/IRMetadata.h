@@ -3,6 +3,7 @@
 #include <array>
 #include <regex>
 #include "IRReferenceCatalog.h"
+#include "MicrophoneCatalog.h"
 
 namespace spectralforge {
 struct IRMetadata {
@@ -23,6 +24,16 @@ struct IRMetadata {
     // Display text is presentation metadata, never an asset ID or a host parameter.
     juce::String displayLabel;
     juce::String sourceFilename,sourceHash,preparation;
+    // A catalog association is display metadata, not an audio model or proof of
+    // the hardware used. Explicit capture metadata takes priority over filenames.
+    const micCatalog::Model* microphoneModel(const juce::String& filename={}) const {
+        return values[3].isNotEmpty() ? micCatalog::identify(values[3]) : micCatalog::fromFilename(filename);
+    }
+    juce::String microphoneReference(const juce::String& filename={}) const {
+        if(const auto* model=microphoneModel(filename))
+            return model->original ? "Chimera original / Condenser" : model->reference;
+        return values[3].isNotEmpty() ? values[3] : "Microphone not specified";
+    }
     juce::var json() const {auto* object=new juce::DynamicObject();object->setProperty("instrument",instrumentKey(instrument));for(size_t i=0;i<keys.size();++i)object->setProperty(keys[i],values[i]);if(displayLabel.isNotEmpty())object->setProperty("display_name",displayLabel);if(sourceFilename.isNotEmpty())object->setProperty("original_file",sourceFilename);if(sourceHash.isNotEmpty())object->setProperty("original_sha256",sourceHash);if(preparation.isNotEmpty())object->setProperty("processing",preparation);return object;}
     static IRMetadata fromJSON(const juce::var& json) {IRMetadata result;for(size_t i=0;i<keys.size();++i)result.values[i]=json.getProperty(keys[i],{}).toString().substring(0,i==11 ? 2048 : 512);result.displayLabel=json.getProperty("display_name",{}).toString().substring(0,96);result.sourceFilename=leafName(json.getProperty("original_file",{}).toString()).substring(0,512);result.sourceHash=json.getProperty("original_sha256",{}).toString().substring(0,64);result.preparation=json.getProperty("processing",{}).toString().substring(0,1024);
         if(json.hasProperty("instrument"))result.instrument=parseInstrument(json["instrument"].toString());
@@ -50,6 +61,7 @@ struct IRMetadata {
         if(sourceHash.isNotEmpty())text+="\nSource SHA-256: "+sourceHash;
         if(preparation.isNotEmpty())text+="\nPreparation: "+preparation;
         for(size_t i=0;i<values.size();++i)if(values[i].isNotEmpty())text+="\n"+juce::String(labels[i])+": "+values[i];
+        if(const auto* model=microphoneModel(filename))text+="\nResponse: "+juce::String(micCatalog::responseLabel(*model));
         return text;
     }
     static juce::String factoryFilename(int index) {return index==0 ? "Engl Celestion V30 SM57 center-01.wav" : "Jensen Cab SM57 center.wav";}
@@ -71,7 +83,8 @@ struct IRMetadata {
         IRMetadata result;std::smatch match;const auto s=name.toStdString();
         if(std::regex_search(s,match,std::regex("([12468])x(8|10|12|15|18)([^0-9]|$)",std::regex::icase))){result.values[1]=juce::String(match[1].str()+"x"+match[2].str());result.values[2]=juce::String(match[2].str());}
         if(name.containsIgnoreCase("V30"))result.values[0]="Celestion Vintage 30";
-        for(const auto* mic:{"SM57","SM7B","MD421","MD441","M201","AT4050","AT2020","AT2021","R121","R10","M160","RE20","KM184"})if(name.containsIgnoreCase(mic))result.values[3]=mic;
+        if(const auto* model=micCatalog::fromFilename(name))
+            result.values[3]=model->original ? model->alias : model->reference;
         if(name.containsIgnoreCase("center") || name.containsIgnoreCase("centre"))result.values[4]="Center (filename hint)";
         else if(name.containsIgnoreCase("edge"))result.values[4]="Edge (filename hint)";
         result.values[11]="Filename hints only. Verify against the creator's capture notes; blank fields are unknown.";

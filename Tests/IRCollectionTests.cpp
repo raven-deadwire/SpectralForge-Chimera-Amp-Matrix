@@ -1,4 +1,5 @@
 #include "IRCollection.h"
+#include "MicrophoneCatalogTests.h"
 #include <iostream>
 #include <stdexcept>
 namespace {
@@ -17,6 +18,7 @@ int main(int argc,char** argv) {
     const auto root=juce::File::getSpecialLocation(juce::File::tempDirectory).getNonexistentChildFile("Chimera-IR-scan",{},false);
     struct Cleanup {juce::File root;~Cleanup(){root.deleteRecursively();}} cleanup{root};
     try {
+        runMicrophoneCatalogTests();
         using C=spectralforge::IRCollection;
         require(root.createDirectory().wasOk(),"Cannot create scan fixture directory");
         const auto bass=root.getChildFile("Bass cabinet 10.wav"),guitar=root.getChildFile("Guitar cabinet 12.wav"),bad=root.getChildFile("Corrupt bass.wav"),silent=root.getChildFile("Silent.wav");
@@ -34,6 +36,23 @@ int main(int argc,char** argv) {
             if(C::matches(e,{},{},C::Instrument::all,C::Availability::invalid)) {++invalid;require(!e.ready() && e.details().contains("INVALID FILE"),"Invalid file is loadable or lacks reason");}
         }
         require(bassReady==1 && guitarReady==1 && invalid==2,"Instrument/availability/diameter filters are not independent");
+        {
+            auto capture=C::Entry{};capture.file=guitar;capture.name="Cab_SM57.wav";
+            capture.tags.values[3]="Audio-Technica AT4050 (creator tag)";
+            const auto original=juce::JSON::toString(capture.tags.json());
+            require(C::matches(capture,"Condenser 4050",{},C::Instrument::all,C::Availability::ready,"condenser-4050")
+                && !C::matches(capture,{},{},C::Instrument::all,C::Availability::all,"dynamic-57"),
+                "Explicit microphone metadata did not override a conflicting filename or alias search failed");
+            require(juce::JSON::toString(capture.tags.json())==original,"Catalog matching rewrote capture provenance");
+            capture.tags.values[3]="Audix i5";
+            require(C::matches(capture,{},{},C::Instrument::all,C::Availability::ready,"other")
+                && !C::matches(capture,{},{},C::Instrument::all,C::Availability::ready,"chimera-strike"),
+                "Non-roster capture was hidden or mislabeled as a Chimera original");
+            capture.tags.values[3]="Chimera Strike";capture.file=juce::File{};
+            require(C::matches(capture,{},{},C::Instrument::all,C::Availability::missing,"chimera-strike")
+                && !C::matches(capture,{},{},C::Instrument::all,C::Availability::ready,"chimera-strike"),
+                "A catalog identity made a missing microphone capture loadable");
+        }
         auto missing=C::Entry{};missing.name="Bass reference.wav";missing.external=true;missing.tags.instrument=spectralforge::IRMetadata::Instrument::bass;
         require(C::matches(missing,{},{},C::Instrument::bass,C::Availability::missing),"Missing bass reference hidden");
         require(C::matches(missing,{},{},C::Instrument::bass,C::Availability::external),"External bass download hidden");

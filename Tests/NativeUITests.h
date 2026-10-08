@@ -1,6 +1,7 @@
 #pragma once
 #include "GateUITests.h"
 #include "PluginEditor.h"
+#include "RigViewTestHelpers.h"
 #include "AmpNativeParameters.h"
 #include "PostNativeCatalog.h"
 #include <iostream>
@@ -62,6 +63,7 @@ inline void postModelPresentation(PostNativePanel& panel,int section,int selecte
 }
 inline void lowOverview(ChimeraProcessor& processor,ChimeraEditor& editor,juce::Component& canvas,const juce::File& directory) {
     set(processor,"mode",2);settle();for(int lane=0;lane<3;++lane)processor.setAmpModel(lane,lane==0?4:lane==1?15:22);settle();
+    rigViewTests::showControls(canvas);
     for(int scale=0;scale<2;++scale) {
         editor.setSize(scale?885:1180,scale?585:780);settle();
         auto* panel=find<AmpNativePanel>(canvas,"ampNativePanel1");require(panel!=nullptr,"Matrix LOW panel missing");

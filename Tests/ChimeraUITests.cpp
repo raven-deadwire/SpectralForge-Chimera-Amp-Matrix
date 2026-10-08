@@ -773,8 +773,15 @@ int main(int argc, char** argv)
             // Exercise the real asynchronous UI event loop. Sleeping the message
             // thread can prevent parameter notifications and timers from settling.
             juce::MessageManager::getInstance()->runDispatchLoopUntil(150);
-            checkControls(editor,mode);
             const juce::String name = mode == 0 ? "Classic" : mode == 1 ? "Dual" : "Matrix";
+            if(mode>0) {
+                auto* canvas=editor.findChildWithID("surface");
+                auto* room=canvas->findChildWithID("cabRoomOverview");
+                require(room && room->isVisible(),"Dual/Matrix RIGS must initially display the cabinet room");
+                saveSnapshot(editor,directory,name+"-cabinet-room");
+                rigViewTests::showControls(*canvas);
+            }
+            checkControls(editor,mode);
             saveSnapshot(editor,directory,name);
             if(mode==0) {
                 const int original=processor.selectedAmpModel(0);

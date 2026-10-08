@@ -12,6 +12,7 @@ inline void run(const juce::File& directory) {
     auto& canvas=*editor.findChildWithID("surface");
     std::cout<<"RUN UI refresh: idle state and page transitions\n"<<std::flush;
     set(p,"mode",2);tab(canvas,"RIGS");settle(150);
+    rigViewTests::showControls(canvas);
     auto* amp=find<AmpNativePanel>(canvas,"ampNativePanel1");
     auto* post=find<PostNativePanel>(canvas,"postNativePanel0");
     require(amp && post,"Refresh test panels missing");

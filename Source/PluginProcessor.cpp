@@ -22,6 +22,7 @@ ChimeraProcessor::ChimeraProcessor()
     : AudioProcessor(BusesProperties().withInput("Input",juce::AudioChannelSet::stereo(),true)
                                       .withOutput("Output",juce::AudioChannelSet::stereo(),true))
 {
+    originalCabParameters.bind(state);
     const std::array<const char*,10> cabIds{"cabblend","cabAgain","cabAdelay","cabAinvert","cabBgain","cabBdelay","cabBinvert","cabBlow","cabBhigh","cabBtype"};
     for(int i=0;i<3;++i) for(size_t j=0;j<cabIds.size();++j) cabPanelParameters[i][j]=state.getRawParameterValue(juce::String(cabIds[j])+juce::String(i+1));
     clearMidi();
@@ -73,6 +74,7 @@ void ChimeraProcessor::prepareToPlay(double sr,int block)
     std::array<int,3> sources{};
     for(int i=0;i<3;++i) sources[i]=(int)laneParameters[i][16]->load();
     for(int i=0;i<3;++i) engine.cabinet(i).secondMic()->requestedSource.store(int(cabPanelParameters[i][9]->load()));
+    syncOriginalCabRequests();
     library.prepare(spec,sources);
     inputGain.reset(sr,.020); outputGain.reset(sr,.020); tuningMute.reset(sr,.005);
     inputGain.setCurrentAndTargetValue(juce::Decibels::decibelsToGain(globals[input]->load()));
@@ -164,6 +166,7 @@ void ChimeraProcessor::process(juce::AudioBuffer<float>& buffer)
     const int latency=postFX.latency()+engine.latency()+(audioBoard.enabled ? pedalBoard.latency(audioBoard)+(pitching ? preFX.transpose.latency() : 0) : preFX.latency(pitching));
     if(getLatencySamples()!=latency) setLatencySamples(latency);
     engine.setOversampling((int)value(os));
+    syncOriginalCabRequests();
     std::array<spectralforge::LaneState,3> lanes{};
     for(int i=0;i<3;++i)
     {
@@ -218,7 +221,7 @@ juce::Result ChimeraProcessor::loadMicIR(int lane,int slot,const juce::File& fil
     if(slot==0) return loadIR(lane,file);
     if(lane<0 || lane>2 || slot!=1) return juce::Result::fail("Invalid mic slot");
     auto result=library.importFile(lane+3,file);
-    if(result.wasOk()) { setRawParameter("cabBtype"+juce::String(lane+1),3.f); engine.cabinet(lane).secondMic()->requestedSource.store(3); }
+    if(result.wasOk()) { setRawParameter(spectralforge::originalCabID(lane,"Bon"),0); setRawParameter("cabBtype"+juce::String(lane+1),3.f); engine.cabinet(lane).secondMic()->requestedSource.store(3); }
     return result;
 }
 juce::Result ChimeraProcessor::loadIR(int lane,const juce::File& file)
@@ -226,6 +229,7 @@ juce::Result ChimeraProcessor::loadIR(int lane,const juce::File& file)
     const auto result=library.importFile(lane,file);
     if(result.wasOk())
     {
+        setRawParameter(spectralforge::originalCabID(lane,"Aon"),0);
         auto* parameter=state.getParameter("cabtype"+juce::String(lane+1));
         parameter->beginChangeGesture(); parameter->setValueNotifyingHost(parameter->convertTo0to1(3)); parameter->endChangeGesture();
         engine.cabinet(lane).requestedSource.store(3);
@@ -305,7 +309,16 @@ for(int i=1;i<=3;++i) {
     p.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{"cabBlow"+n,6},"Mic B low cut "+n,juce::NormalisableRange<float>{20.f,500.f},70.f));
     p.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{"cabBhigh"+n,6},"Mic B high cut "+n,juce::NormalisableRange<float>{1500.f,20000.f},9000.f));
 }
+spectralforge::appendOriginalCabParameters(p);
 return p;
+}
+
+void ChimeraProcessor::syncOriginalCabRequests()
+{
+    for(int i=0;i<3;++i) {
+        engine.cabinet(i).requestedModel.store(originalCabParameters.read(i,0));
+        engine.cabinet(i).secondMic()->requestedModel.store(originalCabParameters.read(i,1));
+    }
 }
 
 juce::ValueTree ChimeraProcessor::captureCore()
@@ -365,7 +378,7 @@ void ChimeraProcessor::restoreCore(juce::ValueTree restored)
         juce::ValueTree item("PARAM");item.setProperty("id",id,nullptr);item.setProperty("value",value,nullptr);restored.appendChild(item,nullptr);
     }
     library.restore(restored.getChildWithName("USER_IRS"));restored.removeChild(restored.getChildWithName("USER_IRS"),nullptr);
-    restored.removeChild(restored.getChildWithName("COMPARISONS"),nullptr);state.replaceState(restored);resetPending.store(true);
+    restored.removeChild(restored.getChildWithName("COMPARISONS"),nullptr);state.replaceState(restored);syncOriginalCabRequests();resetPending.store(true);
     if(missingNative || missingPost || missingBoard)seedNativeSelections(missingBoard,missingNative,missingPost);
     for(int i=0;i<3;++i) { engine.cabinet(i).requestedSource.store((int)laneParameters[i][16]->load()); engine.cabinet(i).secondMic()->requestedSource.store(int(cabPanelParameters[i][9]->load())); }
 }
