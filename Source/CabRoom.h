@@ -259,7 +259,17 @@ public:
     }
     void resized() override {
         room.setBounds(0,44,getWidth(),juce::jmax(1,getHeight()-44));
-        if(panel)panel->setBounds(0,44,getWidth(),juce::jmax(1,getHeight()-44));
+        if(panel) {
+            // Native dialogs may be constrained by the current monitor. Keep
+            // both fixed CAB layouts intact and let JUCE transform painting
+            // and pointer coordinates together into the available viewport.
+            const juce::Rectangle<float> area(0.f,44.f,float(juce::jmax(1,getWidth())),
+                                               float(juce::jmax(1,getHeight()-44)));
+            const float scale=juce::jmin(1.f,area.getWidth()/1040.f,area.getHeight()/748.f);
+            panel->setBounds(0,0,1040,748);
+            panel->setTransform(juce::AffineTransform::scale(scale).translated(
+                area.getCentreX()-520.f*scale,area.getCentreY()-374.f*scale));
+        }
         back.setBounds(14,8,94,28);
         breadcrumb.setBounds(back.isVisible() ? 121 : 18,8,getWidth()-(back.isVisible() ? 139 : 36),28);
     }

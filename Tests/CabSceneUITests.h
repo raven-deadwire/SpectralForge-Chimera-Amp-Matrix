@@ -193,23 +193,102 @@ inline void physicalGeometry(CabScene& scene) {
     }
 }
 
-inline void mouseDrag(CabScene& scene,int slot,juce::Point<float> target,bool distanceOnly=false) {
+inline void mouseDrag(CabScene& scene,int slot,juce::Point<float> target,bool distanceOnly=false,
+                      juce::Component* inputSurface=nullptr) {
     auto& node=component<juce::Component>(scene,slot ? "ocab1_Bimage" : "ocab1_Aimage");
     const auto start=scene.microphoneAnchor(slot).translated(7.f,12.f);
-    require(scene.getComponentAt(start.roundToInt())==&node,"Visible microphone capsule cannot receive a pointer gesture");
+    auto& surface=inputSurface ? *inputSurface : static_cast<juce::Component&>(scene);
+    require(surface.getComponentAt(surface.getLocalPoint(&scene,start).roundToInt())==&node,
+        "Visible microphone capsule cannot receive a pointer gesture through its workspace transform");
     const auto source=juce::Desktop::getInstance().getMainMouseSource();
     const auto time=juce::Time::getCurrentTime();
     const juce::ModifierKeys modifiers(juce::ModifierKeys::leftButtonModifier
         | (distanceOnly ? juce::ModifierKeys::shiftModifier : 0));
+    const auto local=[&](juce::Point<float> point){return node.getLocalPoint(&surface,surface.getLocalPoint(&scene,point));};
     const auto event=[&](juce::Point<float> point,bool dragged) {
-        return juce::MouseEvent(source,node.getLocalPoint(&scene,point),modifiers,1.f,0.f,0.f,0.f,0.f,
-            &node,&node,juce::Time::getCurrentTime(),node.getLocalPoint(&scene,start),time,1,dragged);
+        return juce::MouseEvent(source,local(point),modifiers,1.f,0.f,0.f,0.f,0.f,
+            &node,&node,juce::Time::getCurrentTime(),local(start),time,1,dragged);
     };
     node.mouseDown(event(start,false));
     require(scene.isDragging(),"Mic node mouseDown did not begin the real host gesture");
     node.mouseDrag(event(target,true));
     node.mouseUp(event(target,true));
     require(!scene.isDragging(),"Mic node mouseUp left a drag active");
+}
+
+inline void workspaceControlBounds(CabWorkspace& workspace,int lane) {
+    auto& panel=component<CabPanel>(workspace,"cabFocusedPanel");
+    require(!workspace.isRoomView() && panel.isShowing(),"CAB bounds fixture has no visible focused panel");
+    const auto available=workspace.getLocalBounds().toFloat().withTrimmedTop(44.f);
+    const auto displayed=workspace.getLocalArea(&panel,panel.getLocalBounds().toFloat());
+    require(!displayed.isEmpty() && available.expanded(.51f).contains(displayed),
+        "Focused CAB panel is clipped by the native workspace or its navigation header");
+    require(std::abs(displayed.getWidth()/float(panel.getWidth())
+        -displayed.getHeight()/float(panel.getHeight()))<.0001f,
+        "Constrained native CAB popup distorts the focused panel aspect ratio");
+    const auto check=[&](juce::Component& control) {
+        const auto bounds=workspace.getLocalArea(&control,control.getLocalBounds().toFloat());
+        if(bounds.isEmpty() || !available.expanded(.51f).contains(bounds)
+            || !displayed.expanded(.51f).contains(bounds))
+            throw std::runtime_error("Constrained CAB popup clips essential control: "+control.getComponentID().toStdString());
+    };
+    std::function<void(juce::Component&)> visit=[&](juce::Component& parent) {
+        for(auto* child:parent.getChildren())if(child->isVisible()) {
+            if(dynamic_cast<juce::Slider*>(child) || dynamic_cast<juce::ComboBox*>(child)
+                || dynamic_cast<juce::Button*>(child) || dynamic_cast<juce::Label*>(child))check(*child);
+            visit(*child);
+        }
+    };
+    visit(panel);
+    auto& blend=component<juce::Slider>(panel,("cabblend"+juce::String(lane+1)).toRawUTF8());
+    check(blend);
+    const auto blendBounds=workspace.getLocalArea(&blend,blend.getLocalBounds().toFloat());
+    if(panel.getView()==CabPanel::View::cabinet)for(const auto* suffix:{"design","rear","tweeter"}) {
+        auto* control=findComponent(panel,spectralforge::originalCabID(lane,suffix));
+        require(control!=nullptr && control->isShowing(),"Constrained CAB popup lost an enclosure control");
+        check(*control);
+        require(!blendBounds.intersects(workspace.getLocalArea(control,control->getLocalBounds().toFloat())),
+            "Constrained CAB popup overlaps enclosure controls with the mic blend");
+    }
+}
+
+inline void constrainedWorkspace(const juce::File& screenshots) {
+    auto processor=std::make_unique<ChimeraProcessor>();
+    automate(*processor,"mode",2);automate(*processor,"ocab1_Aon",1);automate(*processor,"ocab1_Bon",1);
+    automate(*processor,"ocab1_Bunit",3);
+    CabWorkspace workspace(*processor,0,true);workspace.setSize(1000,657);Showing showing(workspace);
+    auto& panel=component<CabPanel>(workspace,"cabFocusedPanel");
+    auto& scene=component<CabScene>(panel,"cabScene1");
+    workspaceControlBounds(workspace,0);
+    {
+        const auto values=parameterValues(*processor);HostEvents events(*processor);
+        const auto projection=scene.microphoneAnchor(0)-scene.coneTarget(0);
+        mouseDrag(scene,0,scene.speakerCentre(1).translated(scene.speakerRadius()*.583f,0.f)
+            +projection+juce::Point<float>(7.f,12.f),false,&workspace);
+        require(raw(*processor,"ocab1_Aunit")==1 && std::abs(raw(*processor,"ocab1_Aposition")-.583f)<.00051f,
+            "Scaled workspace pointer mapping changed the intended mic unit or cone position");
+        unchangedExcept(*processor,values,{"ocab1_Aunit","ocab1_Aposition"});
+        events.expect({"ocab1_Aunit","ocab1_Aposition"});
+    }
+    {
+        const auto values=parameterValues(*processor);HostEvents events(*processor);
+        mouseDrag(scene,0,scene.microphoneAnchor(0).translated(7.f,1212.f),true,&workspace);
+        require(raw(*processor,"ocab1_Adistance")==60,"Scaled workspace Shift-drag did not preserve the distance boundary");
+        unchangedExcept(*processor,values,{"ocab1_Adistance"});events.expect({"ocab1_Adistance"});
+    }
+    snapshot(workspace,screenshots,"cab-visual-workspace-constrained.png");
+    navigationUnchanged(*processor,[&] {
+        click(component<juce::Button>(panel,"cabViewIRLoader"),[&]{return panel.getView()==CabPanel::View::irLoader;});
+        workspaceControlBounds(workspace,0);
+        snapshot(workspace,screenshots,"cab-visual-workspace-constrained-ir-loader.png");
+        click(component<juce::Button>(panel,"cabViewCabinet"),[&]{return panel.getView()==CabPanel::View::cabinet;});
+        workspaceControlBounds(workspace,0);
+        click(component<juce::Button>(workspace,"cabBackToRoom"),[&]{return workspace.isRoomView();});
+        auto& room=component<CabRoomOverview>(workspace,"cabRoomOverview");
+        click(component<juce::Button>(room,"cabRoomRig1"),[&]{return !workspace.isRoomView() && workspace.focusedRig()==0;});
+        workspaceControlBounds(workspace,0);
+    });
+    std::cout<<"PASS constrained CAB workspace: 1000x657 control containment, uniform artwork, enclosure/blend separation, transformed mic/Shift gestures and view-only IR/back navigation\n";
 }
 
 inline void sceneInteractions(const juce::File& folder,const juce::File& screenshots) {
@@ -483,8 +562,15 @@ inline void editorNavigation(const juce::File& screenshots) {
             auto* workspace=dynamic_cast<CabWorkspace*>(window->getContentComponent());
             require(workspace && !workspace->isRoomView() && workspace->focusedRig()==mode,
                 "Main room cabinet click opened another rig or stopped at the room overview");
+            const auto* display=juce::Desktop::getInstance().getDisplays().getDisplayForRect(window->getScreenBounds());
+            require(display && display->userArea.contains(window->getScreenBounds())
+                && window->getLocalBounds().contains(window->getLocalArea(workspace,workspace->getLocalBounds())),
+                "Native CAB popup or its content extends beyond the available monitor/window area");
+            workspaceControlBounds(*workspace,mode);
+            std::cout<<"NATIVE CAB popup: workspace="<<workspace->getWidth()<<"x"<<workspace->getHeight()<<" rig="<<mode+1<<"\n";
             auto& focused=component<CabPanel>(*workspace,"cabFocusedPanel");
-            focused.setView(CabPanel::View::irLoader);focused.setView(CabPanel::View::cabinet);
+            focused.setView(CabPanel::View::irLoader);workspaceControlBounds(*workspace,mode);
+            focused.setView(CabPanel::View::cabinet);workspaceControlBounds(*workspace,mode);
             if(mode==2)snapshot(*workspace,screenshots,"cab-visual-editor-focused-rig3.png");
             auto& back=component<juce::Button>(*workspace,"cabBackToRoom");
             click(back,[&]{return workspace->isRoomView();});
@@ -509,6 +595,7 @@ inline void editorNavigation(const juce::File& screenshots) {
 }
 
 inline void run(const juce::File& folder,const juce::File& screenshots) {
-    sceneInteractions(folder,screenshots);roomNavigation(screenshots);editorNavigation(screenshots);
+    sceneInteractions(folder,screenshots);roomNavigation(screenshots);
+    constrainedWorkspace(screenshots);editorNavigation(screenshots);
 }
 }
