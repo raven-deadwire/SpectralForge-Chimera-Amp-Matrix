@@ -314,3 +314,21 @@ if(CHIMERA_ENABLE_NIFLHEIMR_MEASUREMENTS)
     COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/Tests/test_niflheimr_measurements.py" "$<TARGET_FILE:ChimeraNiflheimrRender>")
   set_tests_properties(ChimeraNiflheimrMeasurementTests PROPERTIES TIMEOUT 300)
 endif()
+
+# Controlled DI audition through the production processor and common cabinet.
+juce_add_console_app(ChimeraNiflheimrRigRender PRODUCT_NAME "Chimera Niflheimr Rig Render")
+target_sources(ChimeraNiflheimrRigRender PRIVATE Tests/RenderNiflheimrRig.cpp)
+target_include_directories(ChimeraNiflheimrRigRender PRIVATE Source)
+target_compile_definitions(ChimeraNiflheimrRigRender PRIVATE CHIMERA_MEASUREMENT_CONFIG="$<CONFIG>" CHIMERA_NIFLHEIMR_GIT_HEAD="${CHIMERA_SOURCE_SHA}")
+target_link_libraries(ChimeraNiflheimrRigRender PRIVATE ChimeraAmpMatrix ChimeraArtwork ChimeraManual juce::juce_cryptography juce::juce_audio_utils juce::juce_dsp)
+file(SHA256 "${CMAKE_CURRENT_SOURCE_DIR}/Tests/RenderNiflheimrRig.cpp" CHIMERA_NIFLHEIMR_RIG_RENDERER_SHA256)
+file(SHA256 "${CMAKE_CURRENT_SOURCE_DIR}/Source/PluginProcessor.cpp" CHIMERA_NIFLHEIMR_PROCESSOR_SHA256)
+set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS Tests/RenderNiflheimrRig.cpp Source/PluginProcessor.cpp)
+target_compile_definitions(ChimeraNiflheimrRigRender PRIVATE
+  CHIMERA_NIFLHEIMR_RIG_RENDERER_SHA256="${CHIMERA_NIFLHEIMR_RIG_RENDERER_SHA256}"
+  CHIMERA_NIFLHEIMR_PROCESSOR_SHA256="${CHIMERA_NIFLHEIMR_PROCESSOR_SHA256}")
+if(CHIMERA_ENABLE_NIFLHEIMR_MEASUREMENTS)
+  add_test(NAME ChimeraNiflheimrAuditionTests COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/Tests/test_niflheimr_audition.py")
+  add_test(NAME ChimeraNiflheimrAuditionRouteTests COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/Tests/test_niflheimr_audition.py" "$<TARGET_FILE:ChimeraNiflheimrRender>" "$<TARGET_FILE:ChimeraNiflheimrRigRender>")
+  set_tests_properties(ChimeraNiflheimrAuditionRouteTests PROPERTIES TIMEOUT 300)
+endif()
