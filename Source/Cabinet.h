@@ -15,7 +15,9 @@ public:
         uint64_t modelKey{};
         bool hasIR{true};
         Kernel(juce::AudioBuffer<float> samples, double rate, const juce::dsp::ProcessSpec& spec,
-               int type, unsigned revision, uint64_t model=0) : source(type), generation(revision), modelKey(model)
+               int type, unsigned revision, uint64_t model=0)
+            : convolution(juce::dsp::Convolution::NonUniform{model ? 256 : 0}),
+              source(type), generation(revision), modelKey(model)
         {
             convolution.loadImpulseResponse(std::move(samples), rate, juce::dsp::Convolution::Stereo::yes,
                 juce::dsp::Convolution::Trim::no, model ? juce::dsp::Convolution::Normalise::no : juce::dsp::Convolution::Normalise::yes);

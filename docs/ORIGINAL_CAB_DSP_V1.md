@@ -49,6 +49,9 @@ The practical acoustic approximations and authored voicing must still be auditio
   170 ms FFT period, truncated to 85 ms with a 20% tail taper. A smooth Nyquist taper
   limits the sampled bandwidth. Band-limited propagation can have small pre-ringing;
   this is not a claim of a strictly causal continuous-time wave solver.
+- Model kernels use a zero-latency two-stage convolution with a 256-sample head;
+  fixed captures retain the original uniform partitioning. Impulse-output residual
+  against the generated kernel must be < 3e-6 with zero reported processing latency.
 - Model kernels disable JUCE normalization and trimming, preserving natural relative
   distance gain and arrival phase. Existing fixed IR normalization remains unchanged.
   Acoustic arrival is part of the response, not additional reported host latency;
@@ -96,6 +99,9 @@ Numeric thresholds are encoded in tests, independent of whether a run passes:
   checks include the new 39 parameters, retaining all prior expectations.
 - Callback p50/p99/max and deadline misses are recorded for six mic paths plus swaps.
   A predeclared runner guard requires CAB-only p99 < one audio-block period.
+  The benchmark uses the same no-denormals scope as production processBlock.
+  POSIX thread CPU p99 is also diagnostic; -1 means unavailable on Windows. It does
+  not replace or waive the wall-time/deadline gate.
   Deadline misses are still reported, not hidden by that p99 guard. This is
   **not target-hardware approval** and
   not a universal realtime-safety claim. No silent deadline waiver changes.
