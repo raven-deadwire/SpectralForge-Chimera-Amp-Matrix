@@ -288,7 +288,15 @@ for(int i=1;i<=3;++i) {
             [](float start,float end,float normalised) {
                 return normalised == (0.f-start)/(end-start) ? 0.f : start+(end-start)*normalised;
             },
-            [](float start,float end,float value) {return (value-start)/(end-start);}};
+            [](float start,float end,float value) {return (value-start)/(end-start);},
+            [](float start,float end,float value) {
+                // Keep the original 0.01 dB grid and clamping. Its multiply-add
+                // can also leave a residue at unity; canonicalize only that bin.
+                const juce::NormalisableRange<float> legacy{start,end,.01f};
+                const float step=std::floor((value-start)/.01f+.5f);
+                return step==std::floor((0.f-start)/.01f+.5f) ? 0.f : legacy.snapToLegalValue(value);
+            }};
+        gainRange.interval=.01f;
         p.add(std::make_unique<juce::AudioParameterFloat>(id+"gain"+n,id+" level "+n,gainRange,0.f));
         p.add(std::make_unique<juce::AudioParameterFloat>(id+"delay"+n,id+" delay ms "+n,0.f,20.f,0.f));
         p.add(std::make_unique<juce::AudioParameterBool>(id+"invert"+n,id+" polarity "+n,false));

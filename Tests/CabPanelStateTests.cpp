@@ -95,11 +95,14 @@ int main(int argc,char** argv){juce::ScopedJuceInitialiser_GUI gui;auto folder=j
     for(int lane=1;lane<=3;++lane)for(const auto* prefix:{"cabAgain","cabBgain"}) {
         auto* parameter=p->parameters().getParameter(juce::String(prefix)+juce::String(lane));
         for(float value:{-24.f,-20.f,-3.f,0.f,6.f,12.f}) {
-            check(parameter->convertTo0to1(value)==(value+24.f)/36.f,"CAB gain automation compatibility");
+            const juce::NormalisableRange<float> legacyRange{-24.f,12.f,.01f};
+            check(parameter->getNormalisableRange().interval==legacyRange.interval,"CAB gain grid compatibility");
+            const float expectedNormalised=value==0 ? 24.f/36.f : legacyRange.convertTo0to1(legacyRange.snapToLegalValue(value));
+            check(parameter->convertTo0to1(value)==expectedNormalised,"CAB gain automation compatibility");
             if(value==0) {
                 const float unity=parameter->convertTo0to1(value);
                 check(parameter->convertFrom0to1(unity)==0,"exact unity mapping");
-                const float adjacent=std::nextafter(unity,1.f);
+                const float adjacent=parameter->convertTo0to1(.01f);
                 check(parameter->convertFrom0to1(adjacent)>0,"adjacent gain automation retained");
                 std::cout<<"legacy FMA unity residual "<<std::fma(36.f,unity,-24.f)<<" dB; canonical unity 0 dB\n";
             }
