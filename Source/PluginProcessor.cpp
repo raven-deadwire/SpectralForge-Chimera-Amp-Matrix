@@ -277,8 +277,8 @@ juce::AudioProcessorValueTreeState::ParameterLayout ChimeraProcessor::layout(){j
     spectralforge::appendNiflheimrParameters(p);
 for(int i=1;i<=3;++i) {
     const auto n=juce::String(i);
-    p.add(std::make_unique<juce::AudioParameterChoice>("cabBtype"+n,"Mic B source "+n,juce::StringArray{"Filters only","V30 / SM57","Jensen / SM57","User IR"},0));
-    p.add(std::make_unique<juce::AudioParameterFloat>("cabblend"+n,"Mic A/B blend "+n,0.f,1.f,0.f));
+    p.add(std::make_unique<juce::AudioParameterChoice>(juce::ParameterID{"cabBtype"+n,6},"Mic B source "+n,juce::StringArray{"Filters only","V30 / SM57","Jensen / SM57","User IR"},0));
+    p.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{"cabblend"+n,6},"Mic A/B blend "+n,0.f,1.f,0.f));
     for(const auto* slot:{"A","B"}) {
         const auto id=juce::String("cab")+slot;
         // Preserve the existing linear host mapping, but make its unity point
@@ -297,12 +297,12 @@ for(int i=1;i<=3;++i) {
                 return step==std::floor((0.f-start)/.01f+.5f) ? 0.f : legacy.snapToLegalValue(value);
             }};
         gainRange.interval=.01f;
-        p.add(std::make_unique<juce::AudioParameterFloat>(id+"gain"+n,id+" level "+n,gainRange,0.f));
-        p.add(std::make_unique<juce::AudioParameterFloat>(id+"delay"+n,id+" delay ms "+n,0.f,20.f,0.f));
-        p.add(std::make_unique<juce::AudioParameterBool>(id+"invert"+n,id+" polarity "+n,false));
+        p.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{id+"gain"+n,6},id+" level "+n,gainRange,0.f));
+        p.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{id+"delay"+n,6},id+" delay ms "+n,0.f,20.f,0.f));
+        p.add(std::make_unique<juce::AudioParameterBool>(juce::ParameterID{id+"invert"+n,6},id+" polarity "+n,false));
     }
-    p.add(std::make_unique<juce::AudioParameterFloat>("cabBlow"+n,"Mic B low cut "+n,20.f,500.f,70.f));
-    p.add(std::make_unique<juce::AudioParameterFloat>("cabBhigh"+n,"Mic B high cut "+n,1500.f,20000.f,9000.f));
+    p.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{"cabBlow"+n,6},"Mic B low cut "+n,20.f,500.f,70.f));
+    p.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{"cabBhigh"+n,6},"Mic B high cut "+n,1500.f,20000.f,9000.f));
 }
 return p;
 }
