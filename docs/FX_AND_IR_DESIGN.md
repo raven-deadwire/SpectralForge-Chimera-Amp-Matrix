@@ -12,7 +12,27 @@ TAP averages up to four recent intervals and returns to manual tempo. HOST follo
 
 ## IR decision
 
-IR stays inline with its amplifier lane: source, bypass, LOAD/drop, cuts and filename/status. The DSP stays **amp -> IR -> merge** regardless of visible page. This keeps two cabinet assignments visible when comparing Dual rigs or Matrix MID/HIGH. A separate cabinet page, as in the Neural Archetype workflow, becomes useful with multiple mic/IR slots, blend and explicit delay/phase tools; it adds navigation without a benefit for the present single-slot loader. No empty cabinet page is included.
+**Shipped single-slot baseline:** IR stays inline with its amplifier lane:
+source, bypass, LOAD/drop, cuts and filename/status. The DSP stays
+**amp -> IR -> merge** regardless of visible page. This keeps two cabinet
+assignments visible when comparing Dual rigs or Matrix MID/HIGH.
+
+**Approved roadmap addition, 2026-10-08:** add a dedicated CAB editing page with
+two mic/IR slots per lane, measured position/distance, blend, level/pan, polarity
+and delay tools. Retain an inline lane summary that opens the matching CAB view.
+This new multi-mic scope now supplies the benefit that was absent from an empty
+single-slot cabinet page. It is planned for the 1.3.x cycle and is not implemented
+by this documentation change. Reuse the convolution backend and preserve
+amp -> CAB -> merge, existing cabinet-source automation and saved audio.
+
+Factory mic movement requires an actual measured coordinate bank. Single
+external WAV/AIFF files retain fixed-position USER IR controls, not invented
+mic coordinates. Carry forward PR #24's OPEN IR / ADD FOLDER, instrument
+classification and persistent REMOVE FROM LIST behavior, including source-file
+and embedded-project preservation. The old ZIP/download instructions later in
+this document describe the shipped baseline, not the future primary workflow.
+See [CAB panel roadmap](CABINET_PANEL_ROADMAP.md) for target dates, the 7-guitar /
+5-bass / 8-mic inventory, data dependencies and acceptance.
 
 Matrix LOW has COMP, LEVEL, BAND TONE and a reduction meter, plus the selected amp/cab and a DI/AMP blend. Its clean low band is compressed before branching into DI and amp/cab paths. The blend uses constant-sum gain and defaults to 0% AMP. The head Drive control is hidden and fixed at zero in this mode; stored Classic/Dual drive remains intact. The selected head can still color the low band at zero drive. Amp/cab loading remains available for this optional branch.
 

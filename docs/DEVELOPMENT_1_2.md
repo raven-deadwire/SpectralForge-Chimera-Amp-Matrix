@@ -1,5 +1,32 @@
 # 1.2 development and remaining updates
 
+## Current roadmap update — 2026-10-08 KST
+
+Open Beta 1.2 was [published on 2026-10-05](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/releases/tag/v1.2.0-beta.1).
+Versions 1.1.1, 1.1.2 and 1.2 must not be rescheduled as unshipped work.
+The historical checkpoint below retains the evidence and limitations recorded
+on October 5; it is not the current release status.
+
+Add **1.3.x CAB panel** as a shared feature alongside the Niflheimr cycle:
+per-lane two-microphone editing, measured position/distance, blend/phase tools
+and preserved personal IR management. Target 7 guitar cabinets, 5 bass cabinets
+and 8 shared mic types, separately counted from the 132-model roadmap.
+See [CAB scope, target dates, inventory and acceptance](CABINET_PANEL_ROADMAP.md).
+
+| CAB milestone | Internal target, KST |
+|---|---|
+| Specification and capture-bank feasibility | 2026-10-08–10-11 |
+| Two-slot engine, state migration and CAB panel | 2026-10-12–10-25 |
+| Qualified-grid alpha and factory starting presets | 2026-10-26–11-08 |
+| Niflheimr integration, product validation and 1.3.x candidate | 2026-11-09–12-04 |
+
+The daily development and weekday Astra queues both include this workstream.
+Dates depend on qualified audio assets and evidence; independent work continues
+when a particular input is missing. PR #24's current Niflheimr/IR work is a
+dependency to inspect and preserve, not an already merged implementation.
+
+## Historical 1.2 checkpoint — 2026-10-05
+
 Status: Open Beta 1.2 release preparation, 2026-10-05 KST. The owner authorized
 publication at 19:10 KST after the final channel-level and Fimbulvetr clarity
 corrections. VERSION is 1.2.0 and RELEASE_CHANNEL is beta.1. Final-source
@@ -101,7 +128,7 @@ synthetic chords show 35–43% smaller average spectrum differences. The final
 26-NAM / 17-state comparison is complete; local core/integration/renderer tests pass.
 This remains a development checkpoint, not instrument-DI or listening acceptance.
 
-## Remaining work, reconciled against current code
+## Historical remaining work at the October 5 checkpoint
 
 | Priority | Item | Actual status / next action |
 |---|---|---|
@@ -121,12 +148,13 @@ Historical issue text is not a fresh blocker: M104/JB-2 save/restore checks,
 Gate Range, UI refresh improvements and VBlank shutdown fixes already exist.
 Ironball is retired from new selection; keep serialized ID16 for saved sessions.
 
-## Version scope
+## Version scope, with October 8 CAB addition
 
 | Version | Scope | Target total models |
 |---|---|---:|
 | 1.2 | Náströnd | 84 |
 | 1.3 | Niflheimr bass amp | 85 |
+| 1.3.x | CAB panel + qualified factory cabinet/mic banks | 85 |
 | 1.4 / 1.5 | PRE expansion A / B | 91 / 97 |
 | 1.6 | Reference AMP expansion | 102 |
 | 1.7 / 1.8 | POST dynamics/tone / motion/space | 111 / 120 |
