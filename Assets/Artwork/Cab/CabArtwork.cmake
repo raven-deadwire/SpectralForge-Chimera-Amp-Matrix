@@ -28,4 +28,5 @@ list(APPEND CHIMERA_ARTWORK
   "${CMAKE_CURRENT_LIST_DIR}/mic-condenser-201-fet.png"
   "${CMAKE_CURRENT_LIST_DIR}/mic-condenser-67.png"
   "${CMAKE_CURRENT_LIST_DIR}/mic-chimera-strike.png"
+  "${CMAKE_CURRENT_LIST_DIR}/room-studio.png"
 )

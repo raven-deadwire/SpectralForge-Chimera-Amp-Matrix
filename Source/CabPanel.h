@@ -6,9 +6,41 @@
 
 // Fixed IR choices and an explicitly separate original modeled path.
 class CabPanel : public juce::Component, private juce::Timer {
+public:
+    enum class View { cabinet,irLoader };
+private:
     using SA=juce::AudioProcessorValueTreeState::SliderAttachment;
     using BA=juce::AudioProcessorValueTreeState::ButtonAttachment;
-    spectralforge::art::DialogLook look;
+    class CabinetLook : public spectralforge::art::DialogLook {
+    public:
+        CabinetLook() {
+            setColour(juce::Slider::textBoxBackgroundColourId,juce::Colours::transparentBlack);
+            setColour(juce::Slider::textBoxOutlineColourId,juce::Colours::transparentBlack);
+            setColour(juce::Slider::textBoxTextColourId,juce::Colour(0xffe4e2dc));
+            setColour(juce::Slider::trackColourId,juce::Colour(0xff565b59));
+            setColour(juce::Slider::thumbColourId,juce::Colour(0xffc4ad84));
+            setColour(juce::Slider::backgroundColourId,juce::Colour(0xff2a2e2e));
+        }
+        void drawRotarySlider(juce::Graphics& g,int x,int y,int width,int height,float position,
+                             float start,float end,juce::Slider& slider) override {
+            const auto area=juce::Rectangle<float>(float(x),float(y),float(width),float(height)).reduced(7.f);
+            const auto centre=area.getCentre();const float radius=juce::jmin(area.getWidth(),area.getHeight())*.5f;
+            const bool slotB=slider.getComponentID().contains("B");
+            const auto ink=juce::Colour(slotB ? 0xffc4a678 : 0xffaec2c7).withMultipliedAlpha(slider.isEnabled() ? 1.f : .27f);
+            juce::Path track;track.addCentredArc(centre.x,centre.y,radius,radius,0.f,start,end,true);
+            g.setColour(juce::Colour(0xff333738));g.strokePath(track,juce::PathStrokeType(3.f,juce::PathStrokeType::curved,juce::PathStrokeType::rounded));
+            juce::Path value;const float angle=start+(end-start)*position;
+            value.addCentredArc(centre.x,centre.y,radius,radius,0.f,start,angle,true);
+            g.setColour(ink);g.strokePath(value,juce::PathStrokeType(2.5f,juce::PathStrokeType::curved,juce::PathStrokeType::rounded));
+            const float inner=radius*.78f;
+            g.setGradientFill({juce::Colour(0xff343839),centre.x,centre.y-inner,juce::Colour(0xff171a1b),centre.x,centre.y+inner,false});
+            g.fillEllipse(centre.x-inner,centre.y-inner,inner*2.f,inner*2.f);
+            g.setColour(juce::Colour(0xff414647));g.drawEllipse(centre.x-inner,centre.y-inner,inner*2.f,inner*2.f,1.f);
+            g.setColour(ink);
+            g.drawLine(centre.x+std::sin(angle)*inner*.36f,centre.y-std::cos(angle)*inner*.36f,
+                centre.x+std::sin(angle)*inner*.88f,centre.y-std::cos(angle)*inner*.88f,2.f);
+        }
+    } look;
     std::unique_ptr<OriginalCabControls> originalControls;
     ChimeraProcessor& processor;
     int lane;
@@ -52,6 +84,8 @@ class CabPanel : public juce::Component, private juce::Timer {
     std::array<std::vector<int>,2> choices;
     juce::Slider blend;
     juce::Label heading,blendLabel;
+    juce::TextButton cabinetTab{"CABINET"},irLoaderTab{"IR LOADER"};
+    View currentView{View::cabinet};
     std::unique_ptr<SA> blendAttachment;
     juce::Component::SafePointer<juce::DialogWindow> browser;
     std::array<int,2> displayedSource{-1,-1};
@@ -165,12 +199,46 @@ class CabPanel : public juce::Component, private juce::Timer {
         }
     }
 public:
+    View getView() const noexcept {return currentView;}
+    void finishInteraction() {if(originalControls)originalControls->getScene().endMicDrag();}
+    void selectInternalView() {setView(View::cabinet);}
+    void setView(View next) {
+        currentView=next;const bool internal=next==View::cabinet;
+        cabinetTab.setToggleState(internal,juce::dontSendNotification);
+        irLoaderTab.setToggleState(!internal,juce::dontSendNotification);
+        if(originalControls) {
+            if(!internal)finishInteraction();
+            originalControls->setVisible(internal);
+        }
+        for(auto& s:slots) {
+            for(juce::Component* c:std::initializer_list<juce::Component*>{&s.reference,&s.provenance,&s.cabinet,&s.microphone,&s.browse,&s.cabinetImage,&s.microphoneImage})
+                c->setVisible(!internal);
+            s.title.setFont(juce::FontOptions(internal ? 11.f : 13.f,juce::Font::bold));
+            for(int i=0;i<4;++i) {
+                const bool rotary=internal && i<2;
+                auto& control=s.sliders[size_t(i)];
+                control.setSliderStyle(rotary ? juce::Slider::RotaryHorizontalVerticalDrag : juce::Slider::LinearHorizontal);
+                control.setTextBoxStyle(rotary ? juce::Slider::TextBoxBelow : juce::Slider::TextBoxRight,false,rotary ? 72 : internal ? 54 : 80,21);
+                s.labels[size_t(i)].setJustificationType(rotary ? juce::Justification::centred : juce::Justification::centredLeft);
+                s.labels[size_t(i)].setFont(juce::FontOptions(internal ? 10.f : 12.f));
+            }
+        }
+        resized();repaint();
+    }
     CabPanel(ChimeraProcessor& p,int rig,const std::vector<juce::File>& folders=spectralforge::IRCollection::roots(),
              const juce::File& settings=spectralforge::IRUserPreferences::file()):processor(p),lane(rig),roots(folders),preferences(settings) {
         setLookAndFeel(&look);
         const auto n=juce::String(lane+1);
         heading.setText("CABINET / RIG "+n,juce::dontSendNotification);addAndMakeVisible(heading);
         heading.setFont(juce::FontOptions(19.f,juce::Font::bold));
+        for(auto* tab:{&cabinetTab,&irLoaderTab}) {
+            addAndMakeVisible(*tab);tab->setClickingTogglesState(false);
+            tab->setColour(juce::TextButton::buttonColourId,juce::Colour(0xff1a1d1e));
+            tab->setColour(juce::TextButton::buttonOnColourId,juce::Colour(0xff39382f));
+            tab->setColour(juce::TextButton::textColourOnId,juce::Colour(0xffe4cfaa));
+        }
+        cabinetTab.setComponentID("cabViewCabinet");irLoaderTab.setComponentID("cabViewIRLoader");
+        cabinetTab.onClick=[this]{setView(View::cabinet);};irLoaderTab.onClick=[this]{setView(View::irLoader);};
         for(int i=0;i<2;++i) {
             auto& s=slots[i];s.title.setText(i ? "MIC B" : "MIC A",juce::dontSendNotification);
             for(juce::Component* c:std::initializer_list<juce::Component*>{&s.title,&s.status,&s.reference,&s.provenance,&s.cabinet,&s.microphone,&s.browse,&s.invert})addAndMakeVisible(c);
@@ -222,32 +290,66 @@ public:
         blend.textFromValueFunction=[](double value){return juce::String(value*100.0,1)+"% B";};
         blend.valueFromTextFunction=[](const juce::String& text){return text.getDoubleValue()*.01;};blend.updateText();
         originalControls=std::make_unique<OriginalCabControls>(processor,lane);addAndMakeVisible(*originalControls);
-        refresh();timerCallback();setSize(1040,748);startTimerHz(10);
+        refresh();timerCallback();setSize(1040,748);setView(View::cabinet);startTimerHz(10);
     }
     ~CabPanel() override {stopTimer();if(browser)delete browser.getComponent();setLookAndFeel(nullptr);}
+    void visibilityChanged() override {if(!isShowing())finishInteraction();}
     void paint(juce::Graphics& g) override {
-        g.setGradientFill({juce::Colour(0xff17212a),0,0,juce::Colour(0xff10181f),0,float(getHeight()),false});g.fillAll();
-        g.setColour(juce::Colour(0xffc4a678));g.fillRect(16,43,44,2);
-        const int width=(getWidth()-48)/2;
-        for(int i=0;i<2;++i) {
-            const auto area=juce::Rectangle<float>(float(16+i*(width+16)),350.f,float(width),float(getHeight()-406));
-            g.setColour(juce::Colour(0xff19232b));g.fillRoundedRectangle(area,8.f);
-            g.setColour(juce::Colour(i ? 0xffa58961 : 0xff568fa4).withAlpha(.55f));g.drawRoundedRectangle(area.reduced(.5f),8.f,1.f);
+        g.setGradientFill({juce::Colour(0xff1b1e1f),0,0,juce::Colour(0xff121516),0,float(getHeight()),false});g.fillAll();
+        g.setColour(juce::Colour(0xffc4a678));g.fillRect(16,43,44,1);
+        g.setColour(juce::Colour(0xff3a3e3c));g.drawHorizontalLine(49,16.f,float(getWidth()-16));
+        if(currentView==View::irLoader) {
+            const int width=(getWidth()-48)/2;
+            for(int i=0;i<2;++i) {
+                const auto area=juce::Rectangle<float>(float(16+i*(width+16)),75.f,float(width),float(getHeight()-137));
+                g.setColour(juce::Colour(0xff1b2428));g.fillRoundedRectangle(area,8.f);
+                g.setColour(juce::Colour(i ? 0xffa58961 : 0xff568fa4).withAlpha(.55f));g.drawRoundedRectangle(area.reduced(.5f),8.f,1.f);
+            }
+        } else {
+            const int side=OriginalCabControls::sideWidth(getWidth());
+            g.setColour(juce::Colour(0xff4a4e4d).withAlpha(.36f));
+            g.drawVerticalLine(side+6,83.f,605.f);g.drawVerticalLine(getWidth()-side-6,83.f,605.f);
+            for(const int x:{20,getWidth()-side}) {
+                g.drawHorizontalLine(345,float(x),float(x+side-20));
+                g.drawHorizontalLine(465,float(x),float(x+side-20));
+            }
         }
+        g.setColour(juce::Colour(0xff343939));g.drawHorizontalLine(getHeight()-57,20.f,float(getWidth()-20));
     }
     void resized() override {
-        heading.setBounds(16,9,getWidth()-32,31);
-        if(originalControls)originalControls->setBounds(16,54,getWidth()-32,282);
-        const int width=(getWidth()-48)/2;
-        for(int i=0;i<2;++i) {
-            auto& s=slots[i];const int x=16+i*(width+16),y=350;
-            s.title.setBounds(x+12,y+7,width-24,24);s.provenance.setBounds(x+12,y+30,width-24,20);
-            s.cabinetImage.setBounds(x+12,y+60,80,78);s.microphoneImage.setBounds(x+99,y+49,53,98);
-            s.cabinet.setBounds(x+166,y+56,width-178,28);s.microphone.setBounds(x+166,y+93,width-178,28);
-            s.reference.setBounds(x+166,y+125,width-178,22);
-            s.browse.setBounds(x+12,y+153,132,27);s.invert.setBounds(x+156,y+153,116,27);
-            for(int k=0;k<4;++k){s.labels[k].setBounds(x+12,y+191+k*29,118,25);s.sliders[k].setBounds(x+132,y+191+k*29,width-144,25);}
-            s.status.setBounds(x+12,getHeight()-93,width-24,34);
+        heading.setBounds(16,9,285,31);
+        cabinetTab.setBounds(getWidth()/2-141,11,136,28);irLoaderTab.setBounds(getWidth()/2+5,11,136,28);
+        if(originalControls)originalControls->setBounds(0,52,getWidth(),622);
+        if(currentView==View::irLoader) {
+            const int width=(getWidth()-48)/2;
+            for(int i=0;i<2;++i) {
+                auto& s=slots[size_t(i)];const int x=16+i*(width+16),y=75;
+                s.title.setBounds(x+16,y+12,width-32,24);s.provenance.setBounds(x+16,y+39,width-32,22);
+                s.cabinetImage.setBounds(x+16,y+79,112,117);s.microphoneImage.setBounds(x+137,y+67,58,139);
+                s.cabinet.setBounds(x+210,y+81,width-226,28);s.microphone.setBounds(x+210,y+121,width-226,28);
+                s.reference.setBounds(x+210,y+156,width-226,44);
+                s.browse.setBounds(x+16,y+225,140,29);s.invert.setBounds(x+171,y+225,116,29);
+                for(int k=0;k<4;++k) {
+                    s.labels[size_t(k)].setBounds(x+16,y+283+k*56,118,26);
+                    s.sliders[size_t(k)].setBounds(x+140,y+283+k*56,width-156,26);
+                }
+                s.status.setBounds(x+16,y+536,width-32,47);
+            }
+        } else {
+            const int side=OriginalCabControls::sideWidth(getWidth());
+            for(int i=0;i<2;++i) {
+                auto& s=slots[size_t(i)];const int x=i ? getWidth()-side : 20,width=side-20,knob=(width-8)/2;
+                s.title.setBounds(x,59,width,24);
+                for(int k=0;k<2;++k) {
+                    s.sliders[size_t(k)].setBounds(x-1+k*(knob+8),350,knob,91);
+                    s.labels[size_t(k)].setBounds(x-1+k*(knob+8),442,knob,19);
+                }
+                for(int k=2;k<4;++k) {
+                    s.labels[size_t(k)].setBounds(x,475+(k-2)*50,width,19);
+                    s.sliders[size_t(k)].setBounds(x,495+(k-2)*50,width,26);
+                }
+                s.invert.setBounds(x,582,width,27);s.status.setBounds(x,615,width,49);
+            }
         }
         blendLabel.setBounds(20,getHeight()-42,215,28);blend.setBounds(235,getHeight()-42,getWidth()-255,28);
     }

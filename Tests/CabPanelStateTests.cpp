@@ -2,6 +2,7 @@
 #include "IRStateAssets.h"
 #include "CabMicrophoneUITests.h"
 #include "CabIntegratedUITests.h"
+#include "CabSceneUITests.h"
 #include <iostream>
 #include <stdexcept>
 #include <vector>
@@ -115,6 +116,8 @@ int main(int argc,char** argv){juce::ScopedJuceInitialiser_GUI gui;auto folder=j
         ? juce::File::getCurrentWorkingDirectory().getChildFile(argv[1]).getParentDirectory() : juce::File{});
     cabIntegratedUITests::run(folder.getChildFile("integrated-ui"),argc>1
         ? juce::File::getCurrentWorkingDirectory().getChildFile(argv[1]).getParentDirectory() : juce::File{});
+    cabSceneUITests::run(folder.getChildFile("scene-ui"),argc>1
+        ? juce::File::getCurrentWorkingDirectory().getChildFile(argv[1]).getParentDirectory() : juce::File{});
     check(!juce::SharedResourcePointer<spectralforge::cabArt::Bank>::getSharedObjectWithoutCreating(),
         "CAB artwork survives the final panel owner");
     std::cout<<"PASS CAB artwork lifetime: every image released after the last panel closes\n";
@@ -129,6 +132,7 @@ int main(int argc,char** argv){juce::ScopedJuceInitialiser_GUI gui;auto folder=j
     for(int mode=0;mode<3;++mode){for(int dual=0;dual<(mode==1?2:1);++dual){set(*p,"mode",float(mode));set(*p,"dualtype",float(dual));p->getStateInformation(saved);auto original=render(*p);auto restored=std::make_unique<ChimeraProcessor>();dirtyCab(*restored);restored->setStateInformation(saved.getData(),int(saved.getSize()));equal(original,render(*restored));check(restored->micName(2,1)=="B.wav","Mic B filename restore");std::cout<<"PASS routing "<<mode<<" dual "<<dual<<" embedded project\n";}}
     p->copyComparison();set(*p,"cabblend1",.9f);p->selectComparison(1);check(std::abs(p->parameters().getRawParameterValue("cabblend1")->load()-.31f)<1e-6f,"A/B snapshot parameter restore");check(p->micName(0,1)=="B.wav","A/B embedded Mic B");
     if(argc>1){p->prepareToPlay(48000,128);CabPanel panel(*p,0);
+        panel.setView(CabPanel::View::irLoader);
         auto* polarity=dynamic_cast<juce::TextButton*>(panel.findChildWithID("cabBinvert1"));
         check(polarity && polarity->getClickingTogglesState(),"polarity click interaction");
         polarity->setToggleState(false,juce::sendNotification);check(p->parameters().getRawParameterValue("cabBinvert1")->load()==0,"polarity UI binding");

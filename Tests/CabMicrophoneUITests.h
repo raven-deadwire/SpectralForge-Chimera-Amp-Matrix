@@ -10,8 +10,17 @@ inline void require(bool value,const char* message) {
     if(!value)throw std::runtime_error(message);
 }
 
+inline juce::Component* findComponent(juce::Component& parent,const juce::String& id) {
+    juce::Component* result=parent.getComponentID()==id ? &parent : nullptr;
+    for(auto* child:parent.getChildren())if(auto* found=findComponent(*child,id)) {
+        if(result)throw std::runtime_error("Duplicate CAB component identity: "+id.toStdString());
+        result=found;
+    }
+    return result;
+}
+
 template<class T> T& component(juce::Component& parent,const char* id) {
-    auto* result=dynamic_cast<T*>(parent.findChildWithID(id));
+    auto* result=dynamic_cast<T*>(findComponent(parent,id));
     if(!result)throw std::runtime_error("Missing microphone UI component: "+std::string(id));
     return *result;
 }
@@ -87,6 +96,7 @@ inline void sameNameReplacement(const juce::File& folder,const juce::File& scree
         require(processor->loadMicIR(0,0,a).wasOk() && processor->loadMicIR(0,1,first).wasOk(),
                 "Cannot load independent microphone metadata fixtures");
         CabPanel panel(*processor,0,{folder},settings);
+        panel.setView(CabPanel::View::irLoader);
         auto& micA=component<juce::ComboBox>(panel,"cabAmic1");
         auto& micB=component<juce::ComboBox>(panel,"cabBmic1");
         auto& referenceA=component<juce::Label>(panel,"cabAreference1");
@@ -130,6 +140,7 @@ inline void sameNameReplacement(const juce::File& folder,const juce::File& scree
         auto restored=std::make_unique<ChimeraProcessor>();
         restored->setStateInformation(state.getData(),int(state.getSize()));
         CabPanel panel(*restored,0,{folder},settings);
+        panel.setView(CabPanel::View::irLoader);
         require(restored->micName(0,1)=="capture.wav" && restored->micMetadata(0,1).values[3]=="Royer R-121",
                 "Embedded Mic B metadata lost after deleting equal-basename sources");
         require(component<juce::ComboBox>(panel,"cabBmic1").getText().contains("Ribbon 121")
@@ -160,6 +171,7 @@ inline void groupedSelectionAndFilter(const juce::File& folder,const juce::File&
     {
         auto processor=std::make_unique<ChimeraProcessor>();
         CabPanel panel(*processor,0,{folder},settings);
+        panel.setView(CabPanel::View::irLoader);
         // Browsing another cabinet clears its mic reference. Choosing the
         // already-active factory capture must restore it even if source=1 did
         // not change and no user-asset revision was generated.
@@ -256,6 +268,7 @@ inline void duplicateLabels(const juce::File& folder) {
     require(originals[0]!=originals[1],"Duplicate-name fixtures must have distinct audio payloads");
     auto processor=std::make_unique<ChimeraProcessor>();
     CabPanel panel(*processor,0,{folder},folder.getChildFile("library.json"));
+    panel.setView(CabPanel::View::irLoader);
     auto& cabinet=component<juce::ComboBox>(panel,"cabBcabinet1");
     auto& microphone=component<juce::ComboBox>(panel,"cabBmic1");
     std::array<bool,2> selected{};

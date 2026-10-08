@@ -55,6 +55,7 @@ inline Asset capturedMicrophone(const micCatalog::Model* model) {
 
 struct Bank {
     std::array<juce::Image,assetCount> images;
+    std::array<juce::Rectangle<int>,assetCount> contentBounds;
     Bank() {
         const lifecycle::Scope trace("cab.artwork.create",this);
         // All decode work happens when a CAB UI takes ownership on the message
@@ -73,6 +74,18 @@ struct Bank {
                         juce::jmax(1,juce::roundToInt(decoded.getHeight()*scale)),juce::Graphics::highResamplingQuality);
                 }
                 images[i]=std::move(decoded);
+                if(images[i].isValid()) {
+                    // Trim only for scene placement. The embedded file and the
+                    // catalog thumbnail keep their original pixels and identity.
+                    const juce::Image::BitmapData pixels(images[i],juce::Image::BitmapData::readOnly);
+                    int left=pixels.width,top=pixels.height,right=0,bottom=0;
+                    for(int y=0;y<pixels.height;++y)for(int x=0;x<pixels.width;++x)
+                        if(pixels.getPixelColour(x,y).getAlpha()>32) {
+                            left=juce::jmin(left,x);top=juce::jmin(top,y);
+                            right=juce::jmax(right,x+1);bottom=juce::jmax(bottom,y+1);
+                        }
+                    contentBounds[i]=right>left && bottom>top ? juce::Rectangle<int>(left,top,right-left,bottom-top) : images[i].getBounds();
+                }
             }
         }
     }
@@ -97,6 +110,7 @@ class View : public juce::Component {
     Asset selected{Asset::count};
     juce::String emptyText{"IR"};
     float opacity{1.f};
+    bool trimArtwork{};
 public:
     View() {
         setInterceptsMouseClicks(false,false);setWantsKeyboardFocus(false);
@@ -106,6 +120,15 @@ public:
     bool hasImage() const noexcept {
         const auto index=static_cast<size_t>(selected);
         return index<assetCount && bank->images[index].isValid();
+    }
+    void setTrimArtwork(bool trim) {if(trimArtwork!=trim){trimArtwork=trim;repaint();}}
+    juce::Rectangle<float> artworkBounds() const noexcept {
+        const auto index=static_cast<size_t>(selected);
+        const auto area=getLocalBounds().toFloat().reduced(2.f);
+        if(index>=assetCount || !bank->images[index].isValid())return area;
+        const auto source=trimArtwork ? bank->contentBounds[index] : bank->images[index].getBounds();
+        const float scale=juce::jmin(area.getWidth()/float(source.getWidth()),area.getHeight()/float(source.getHeight()));
+        return juce::Rectangle<float>(float(source.getWidth())*scale,float(source.getHeight())*scale).withCentre(area.getCentre());
     }
     void setAsset(Asset next,const juce::String& description,const juce::String& fallback="IR") {
         setTitle(description);setDescription(description);
@@ -125,7 +148,8 @@ public:
             neutral(g,getLocalBounds().toFloat(),emptyText);return;
         }
         g.setImageResamplingQuality(juce::Graphics::mediumResamplingQuality);
-        g.drawImage(bank->images[index],getLocalBounds().toFloat().reduced(2.f),juce::RectanglePlacement::centred);
+        const auto source=trimArtwork ? bank->images[index].getClippedImage(bank->contentBounds[index]) : bank->images[index];
+        g.drawImage(source,getLocalBounds().toFloat().reduced(2.f),juce::RectanglePlacement::centred);
     }
 };
 }

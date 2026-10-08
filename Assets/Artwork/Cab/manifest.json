@@ -274,5 +274,25 @@
       "alpha_min": 0,
       "alpha_max": 255
     }
+  ],
+  "scenery": [
+    {
+      "file": "room-studio.png",
+      "bytes": 1985738,
+      "sha256": "d780dad256b2c232d4be970c04881ed4705c26047b286332720161854612dbfe",
+      "width": 2084,
+      "height": 754,
+      "mode": "RGB",
+      "purpose": "Ravenforge cabinet room navigation background",
+      "audio_response": false,
+      "runtime_maximum_bounds": [
+        1152,
+        576
+      ]
+    }
+  ],
+  "room_style_references": [
+    "Assets/Artwork/raven-workbench.jpg",
+    "Assets/Artwork/raven-emblem.png"
   ]
 }

@@ -1,11 +1,13 @@
 #pragma once
 #include "CabMicrophoneUITests.h"
+#include "CabRoom.h"
 
 namespace cabIntegratedUITests {
 using namespace cabMicrophoneUITests;
 inline void artworkResources() {
     using namespace spectralforge::cabArt;
     const juce::SharedResourcePointer<Bank> artwork;
+    require(assetCount==27,"Scenery changed the released equipment artwork enumeration");
     size_t retainedBytes=0;
     for(size_t i=0;i<assetCount;++i) {
         const auto& image=artwork->images[i];
@@ -13,7 +15,12 @@ inline void artworkResources() {
         require(image.hasAlphaChannel(),"CAB product cutouts lost alpha transparency");
         retainedBytes+=size_t(image.getWidth())*size_t(image.getHeight())*4;
     }
-    require(retainedBytes<=16*1024*1024,"CAB artwork retains oversized source PNGs in the editor");
+    const juce::SharedResourcePointer<spectralforge::cabRoom::ArtworkBank> room;
+    require(room->room.isValid() && room->room.getWidth()>0 && room->room.getHeight()>0
+        && room->room.getWidth()<=1152 && room->room.getHeight()<=576,
+        "CAB room scenery is missing, undecodable or retained above its display budget");
+    retainedBytes+=size_t(room->room.getWidth())*size_t(room->room.getHeight())*4;
+    require(retainedBytes<=16*1024*1024,"CAB equipment and room artwork exceed the combined editor RGBA budget");
     std::vector<Asset> matched;
     for(const auto& model:spectralforge::micCatalog::models) {
         const auto asset=capturedMicrophone(&model);
@@ -23,21 +30,26 @@ inline void artworkResources() {
     }
     require(capturedMicrophone(nullptr)==Asset::count,"Unknown/mixed capture was assigned a microphone model");
     require(originalMicrophone(2)!=capturedMicrophone(spectralforge::micCatalog::byId("chimera-strike")),"Detail response uses Chimera Strike artwork");
-    std::cout<<"PASS CAB artwork: 27 embedded transparent assets, stable catalog mapping, retained bytes="<<retainedBytes<<'\n';
+    std::cout<<"PASS CAB artwork: 27 embedded transparent assets, stable catalog mapping and separate room scenery, combined retained RGBA bytes="<<retainedBytes<<'\n';
 }
 
-inline void layout(const CabPanel& panel) {
-    for(auto* child:panel.getChildren())if(child->isVisible()) {
-        require(!child->getBounds().isEmpty() && panel.getLocalBounds().contains(child->getBounds()),"CAB artwork or control outside dialog bounds");
-        if(child->getComponentID().startsWith("originalCabControls"))
-            for(auto* nested:child->getChildren())if(nested->isVisible())
-                require(!nested->getBounds().isEmpty() && child->getLocalBounds().contains(nested->getBounds()),"Original cabinet image or control outside its panel");
-    }
-    for(const auto* slot:{"A","B"}) {
+inline void layout(CabPanel& panel) {
+    std::function<void(juce::Component&)> inspect=[&](juce::Component& parent) {
+        for(auto* child:parent.getChildren())if(child->isVisible()) {
+            if(child->getBounds().isEmpty() || !parent.getLocalBounds().contains(child->getBoundsInParent()))
+                throw std::runtime_error("CAB artwork/control outside its visible panel: "+child->getComponentID().toStdString());
+            if(child->getComponentID().startsWith("originalCabControls") || child->getComponentID().startsWith("cabScene"))
+                inspect(*child);
+        }
+    };
+    inspect(panel);
+    if(panel.getView()==CabPanel::View::irLoader)for(const auto* slot:{"A","B"}) {
         const auto prefix="cab"+juce::String(slot);
-        auto* status=panel.findChildWithID(prefix+"status1");
-        auto* high=panel.findChildWithID(slot[0]=='A' ? "cabhigh1" : "cabBhigh1");
-        require(status && high && !status->getBounds().intersects(high->getBounds()),"CAB status overlaps the last filter control");
+        auto* status=findComponent(panel,prefix+"status1");
+        auto* high=findComponent(panel,slot[0]=='A' ? "cabhigh1" : "cabBhigh1");
+        require(status && high && status->isVisible() && high->isVisible()
+            && !panel.getLocalArea(status,status->getLocalBounds()).intersects(panel.getLocalArea(high,high->getLocalBounds())),
+            "CAB capture status overlaps the last filter control or is hidden in IR LOADER");
     }
 }
 
@@ -134,6 +146,7 @@ inline void run(const juce::File& folder,const juce::File& screenshots) {
     processor->releaseResources();
     // Selecting either a factory capture or a personal capture switches only
     // that slot, even when the engine still reports its previous model request.
+    panel.setView(CabPanel::View::irLoader);
     auto& cabinet=component<juce::ComboBox>(panel,"cabAcabinet1");
     auto& microphone=component<juce::ComboBox>(panel,"cabAmic1");
     cabinet.setSelectedId(itemContaining(cabinet,"Factory V30"),juce::sendNotificationSync);
@@ -166,6 +179,7 @@ inline void run(const juce::File& folder,const juce::File& screenshots) {
     require(capture.deleteFile(),"Delete integration source before restore");
     auto restored=std::make_unique<ChimeraProcessor>();restored->setStateInformation(saved.getData(),int(saved.getSize()));
     CabPanel reopened(*restored,0,{folder},folder.getChildFile("library.json"));
+    reopened.setView(CabPanel::View::irLoader);
     require(component<juce::Label>(reopened,"cabAtitle1").getText().contains("CAPTURED IR")
         && component<juce::Label>(reopened,"cabBtitle1").getText().contains("ORIGINAL MODEL"),"Mixed source identities lost on project reopen");
     require(component<juce::ComboBox>(reopened,"cabAmic1").getText().contains("Chimera Strike"),"Deleted-source catalog identity lost on project reopen");
@@ -181,6 +195,7 @@ inline void run(const juce::File& folder,const juce::File& screenshots) {
         auto captured=std::make_unique<ChimeraProcessor>();
         require(captured->loadMicIR(0,0,dynamic).wasOk() && captured->loadMicIR(0,1,mixed).wasOk(),"Visual capture fixture load failed");
         CabPanel captures(*captured,0,{folder},folder.getChildFile("library.json"));
+        captures.setView(CabPanel::View::irLoader);
         require(component<Image>(captures,"cabAmicImage1").asset()==Asset::dynamic57
             && component<Image>(captures,"cabBmicImage1").asset()==Asset::count,"Mixed capture falsely displays a single microphone model");
         layout(captures);snapshot(captures,screenshots,"cab-visual-captured.png");

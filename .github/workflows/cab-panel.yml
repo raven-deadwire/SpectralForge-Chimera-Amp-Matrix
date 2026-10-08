@@ -8,6 +8,8 @@ on:
       - 'Tests/OriginalCab*'
       - 'Tests/CabMicrophone*'
       - 'Tests/CabIntegrated*'
+      - 'Tests/CabScene*'
+      - 'Tests/RigViewTestHelpers.h'
       - 'Tests/MicrophoneCatalog*'
       - 'Tests/IRCollectionTests.cpp'
       - 'Tests/IRLibraryTests.cpp'

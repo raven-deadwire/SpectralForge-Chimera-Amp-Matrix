@@ -1,127 +1,122 @@
 #pragma once
 #include "PluginProcessor.h"
-#include "CabArtwork.h"
+#include "CabScene.h"
 
-class OriginalCabControls : public juce::Component, private juce::Timer {
+class OriginalCabControls : public juce::Component,private juce::Timer {
     using SA=juce::AudioProcessorValueTreeState::SliderAttachment;
     using CA=juce::AudioProcessorValueTreeState::ComboBoxAttachment;
     using BA=juce::AudioProcessorValueTreeState::ButtonAttachment;
-    juce::Label title, tweeterLabel, speakerLabel;
+    juce::Label tweeterLabel,speakerLabel,sceneHint;
     juce::ComboBox design,rear;
     juce::Slider tweeter;
-    spectralforge::cabArt::View cabinetImage,speakerImage;
+    CabScene scene;
     struct Slot {
         juce::ToggleButton enabled;
         juce::ComboBox mic,unit;
         juce::Slider position,distance;
-        juce::Label positionLabel,distanceLabel;
-        spectralforge::cabArt::View image;
+        juce::Label positionLabel,distanceLabel,mode;
     };
     std::array<Slot,2> slots;
     std::vector<std::unique_ptr<CA>> choices;
     std::vector<std::unique_ptr<SA>> sliders;
     std::vector<std::unique_ptr<BA>> buttons;
     void timerCallback() override {
-        for(int i=0;i<2;++i) {
-            auto& s=slots[i];const bool on=s.enabled.getToggleState();
+        bool any=false;
+        for(auto& s:slots) {
+            const bool on=s.enabled.getToggleState();any=any || on;
             s.mic.setEnabled(on);s.unit.setEnabled(on);s.position.setEnabled(on);s.distance.setEnabled(on);
-            s.image.setAsset(spectralforge::cabArt::originalMicrophone(s.mic.getSelectedId()-1),
-                "Original Mic "+juce::String(i ? "B" : "A")+": "+s.mic.getText());
-            s.image.setActive(on);
+            s.mode.setText(on ? "LIVE CABINET GEOMETRY" : "CAPTURED IR ACTIVE",juce::dontSendNotification);
+            s.mode.setColour(juce::Label::textColourId,juce::Colour(on ? 0xffa9b9b5 : 0xffb99e79));
         }
-        const bool any=slots[0].enabled.getToggleState() || slots[1].enabled.getToggleState();
         design.setEnabled(any);rear.setEnabled(any);tweeter.setEnabled(any);
-        const int selected=design.getSelectedId()-1;
-        cabinetImage.setAsset(spectralforge::cabArt::cabinet(selected),selected==1 ? "Chimera Bass 4x10 cabinet" : "Chimera Guitar 4x12 cabinet");
-        speakerImage.setAsset(spectralforge::cabArt::speaker(selected),selected==1 ? "Original 10-inch bass speaker unit" : "Original 12-inch guitar speaker unit");
-        speakerLabel.setText(selected==1 ? "10\" BASS UNIT" : "12\" GUITAR UNIT",juce::dontSendNotification);
+        speakerLabel.setText(design.getSelectedId()==2 ? "4 x 10\" BASS UNITS" : "4 x 12\" GUITAR UNITS",juce::dontSendNotification);
+        sceneHint.setText(any ? "Drag a microphone to move it  |  Shift-drag for distance" :
+            "Cabinet preview  |  Enable Original Mic A or B to use this cabinet",juce::dontSendNotification);
+        scene.refresh();
     }
 public:
-    ~OriginalCabControls() override {stopTimer();}
-    OriginalCabControls(ChimeraProcessor& processor,int lane) {
+    static int sideWidth(int width) noexcept {return juce::jlimit(164,188,juce::roundToInt(float(width)*.181f));}
+    CabScene& getScene() noexcept {return scene;}
+    const CabScene& getScene() const noexcept {return scene;}
+    ~OriginalCabControls() override {stopTimer();scene.endMicDrag();}
+    OriginalCabControls(ChimeraProcessor& processor,int lane):scene(processor,lane) {
+        setInterceptsMouseClicks(false,true);
         auto& state=processor.parameters();
         auto combo=[&](juce::ComboBox& box,const char* suffix,juce::StringArray items) {
-            addAndMakeVisible(box);box.addItemList(items,1);const auto id=spectralforge::originalCabID(lane,suffix);box.setComponentID(id);
+            addAndMakeVisible(box);box.addItemList(items,1);
+            const auto id=spectralforge::originalCabID(lane,suffix);box.setComponentID(id);
             choices.push_back(std::make_unique<CA>(state,id,box));
         };
-        auto slider=[&](juce::Slider& control,const char* suffix) {
-            addAndMakeVisible(control);control.setSliderStyle(juce::Slider::LinearHorizontal);control.setTextBoxStyle(juce::Slider::TextBoxRight,false,65,24);
-            const auto id=spectralforge::originalCabID(lane,suffix);control.setComponentID(id);sliders.push_back(std::make_unique<SA>(state,id,control));
+        auto slider=[&](juce::Slider& control,const char* suffix,bool rotary=true) {
+            addAndMakeVisible(control);
+            control.setSliderStyle(rotary ? juce::Slider::RotaryHorizontalVerticalDrag : juce::Slider::LinearHorizontal);
+            control.setTextBoxStyle(rotary ? juce::Slider::TextBoxBelow : juce::Slider::TextBoxRight,false,rotary ? 72 : 54,21);
+            const auto id=spectralforge::originalCabID(lane,suffix);control.setComponentID(id);
+            sliders.push_back(std::make_unique<SA>(state,id,control));
         };
-        setComponentID("originalCabControls"+juce::String(lane+1));
-        title.setText("ORIGINAL CABINET",juce::dontSendNotification);addAndMakeVisible(title);
-        title.setFont(juce::FontOptions(13.f,juce::Font::bold));
-        title.setColour(juce::Label::textColourId,juce::Colour(0xffc4a678));
-        for(auto* image:{&cabinetImage,&speakerImage})addAndMakeVisible(*image);
-        cabinetImage.setComponentID("ocab"+juce::String(lane+1)+"_cabinetImage");
-        speakerImage.setComponentID("ocab"+juce::String(lane+1)+"_speakerImage");
-        addAndMakeVisible(speakerLabel);speakerLabel.setFont(juce::FontOptions(10.5f));
-        speakerLabel.setColour(juce::Label::textColourId,juce::Colour(0xff99aab5));
-        speakerLabel.setJustificationType(juce::Justification::centred);
+        setComponentID("originalCabControls"+juce::String(lane+1));addAndMakeVisible(scene);
         combo(design,"design",{"Chimera Guitar 4x12","Chimera Bass 4x10"});
         combo(rear,"rear",{"Closed rear","Open rear"});
-        tweeterLabel.setText("Tweeter",juce::dontSendNotification);addAndMakeVisible(tweeterLabel);slider(tweeter,"tweeter");
+        tweeterLabel.setText("TWEETER",juce::dontSendNotification);addAndMakeVisible(tweeterLabel);
+        tweeterLabel.setFont(juce::FontOptions(10.f,juce::Font::bold));
+        slider(tweeter,"tweeter",false);
         tweeter.textFromValueFunction=[](double value){return juce::String(value*100.,0)+"%";};
         tweeter.valueFromTextFunction=[](const juce::String& text){return text.getDoubleValue()*.01;};tweeter.updateText();
         tweeter.setTooltip("Adds the cabinet's central tweeter. Increase its level for more high-frequency detail.");
+        for(auto* label:{&speakerLabel,&sceneHint}) {
+            addAndMakeVisible(*label);label->setFont(juce::FontOptions(10.5f));
+            label->setColour(juce::Label::textColourId,juce::Colour(0xff8e9697));
+            label->setJustificationType(juce::Justification::centred);
+        }
         for(int i=0;i<2;++i) {
-            auto& s=slots[i];const auto prefix=juce::String(i ? "B" : "A");
-            addAndMakeVisible(s.enabled);s.enabled.setButtonText("Original Mic "+prefix);const auto id=spectralforge::originalCabID(lane,(prefix+"on").toRawUTF8());
-            s.enabled.setTooltip("Use an original microphone response for Mic "+prefix+". Turn off to return to its selected captured IR.");
-            s.enabled.setComponentID(id);buttons.push_back(std::make_unique<BA>(state,id,s.enabled));
+            auto& s=slots[size_t(i)];const auto prefix=juce::String(i ? "B" : "A");
+            addAndMakeVisible(s.enabled);s.enabled.setButtonText("Original Mic "+prefix);
+            const auto id=spectralforge::originalCabID(lane,(prefix+"on").toRawUTF8());s.enabled.setComponentID(id);
+            s.enabled.setTooltip("Use the original cabinet and microphone response for Mic "+prefix+". Turning this off restores its selected captured IR.");
+            buttons.push_back(std::make_unique<BA>(state,id,s.enabled));
             combo(s.mic,(prefix+"mic").toRawUTF8(),{"Attack Dynamic","Body Ribbon","Detail Condenser"});
-            s.mic.setTooltip("Select one of three Chimera original microphone responses.");
+            s.mic.setTooltip("Three Chimera original microphone responses. Captured microphone choices are in IR LOADER.");
             combo(s.unit,(prefix+"unit").toRawUTF8(),{"Unit 1 / upper left","Unit 2 / upper right","Unit 3 / lower left","Unit 4 / lower right"});
             s.unit.setTooltip("Choose which of the cabinet's four identical speaker units this microphone faces.");
             slider(s.position,(prefix+"position").toRawUTF8());slider(s.distance,(prefix+"distance").toRawUTF8());
-            s.positionLabel.setText("Position",juce::dontSendNotification);s.distanceLabel.setText("Distance (cm)",juce::dontSendNotification);
-            addAndMakeVisible(s.positionLabel);addAndMakeVisible(s.distanceLabel);
-            addAndMakeVisible(s.image);s.image.setComponentID("ocab"+juce::String(lane+1)+"_"+prefix+"image");
+            s.positionLabel.setText("POSITION",juce::dontSendNotification);s.distanceLabel.setText("DISTANCE / cm",juce::dontSendNotification);
+            for(auto* label:{&s.positionLabel,&s.distanceLabel,&s.mode}) {
+                addAndMakeVisible(*label);label->setFont(juce::FontOptions(10.f));
+                label->setColour(juce::Label::textColourId,juce::Colour(0xffa8acad));
+                label->setJustificationType(juce::Justification::centred);
+            }
+            s.mode.setComponentID("ocab"+juce::String(lane+1)+"_"+prefix+"mode");
             s.position.textFromValueFunction=[](double value){return juce::String(value*100.,1)+"%";};
             s.position.valueFromTextFunction=[](const juce::String& text){return text.getDoubleValue()*.01;};s.position.updateText();
             s.distance.textFromValueFunction=[](double value){return juce::String(value,1);};s.distance.updateText();
-            s.position.setTooltip("0% = cone centre; 100% = right cone edge. Position changes path lengths and interference from all four units.");
-            s.distance.setTooltip("2-60 cm from the front cone plane. Natural level loss and arrival delay; no automatic alignment or room reverb.");
-            s.mic.onChange=[this]{timerCallback();};
+            s.position.setTooltip("0% = cone centre; 100% = right cone edge. Drag the microphone across a speaker to change this position.");
+            s.distance.setTooltip("2-60 cm from the cone plane. Shift-drag the microphone vertically to change distance; arrival time and natural level change together.");
+            s.mic.onChange=[this]{timerCallback();};s.unit.onChange=[this]{timerCallback();};
+            s.position.onValueChange=[this]{timerCallback();};s.distance.onValueChange=[this]{timerCallback();};
             s.enabled.onClick=[this]{timerCallback();};
         }
-        design.onChange=[this]{timerCallback();};
-        timerCallback();startTimerHz(10);
-    }
-    void paint(juce::Graphics& g) override {
-        const int cabinetWidth=juce::roundToInt(getWidth()*.30f);
-        const int micWidth=(getWidth()-cabinetWidth-24)/2;
-        g.setColour(juce::Colour(0xff1b252d));
-        g.fillRoundedRectangle(0,0,float(cabinetWidth),float(getHeight()),8.f);
-        for(int i=0;i<2;++i) {
-            const float x=float(cabinetWidth+12+i*(micWidth+12));
-            g.fillRoundedRectangle(x,0,float(micWidth),float(getHeight()),8.f);
-        }
-        g.setColour(juce::Colour(0xff31434e));
-        g.drawRoundedRectangle(.5f,.5f,float(cabinetWidth-1),float(getHeight()-1),8.f,1.f);
-        for(int i=0;i<2;++i) {
-            const float x=float(cabinetWidth+12+i*(micWidth+12));
-            g.setColour(juce::Colour(i ? 0xffa58961 : 0xff568fa4).withAlpha(.55f));
-            g.drawRoundedRectangle(x+.5f,.5f,float(micWidth-1),float(getHeight()-1),8.f,1.f);
-        }
+        design.onChange=[this]{timerCallback();};timerCallback();startTimerHz(20);
     }
     void resized() override {
-        const int cabinetWidth=juce::roundToInt(getWidth()*.30f);
-        title.setBounds(12,6,cabinetWidth-24,24);
-        const int heroWidth=juce::roundToInt(cabinetWidth*.55f);
-        cabinetImage.setBounds(10,34,heroWidth,125);
-        speakerImage.setBounds(heroWidth+12,43,cabinetWidth-heroWidth-24,94);
-        speakerLabel.setBounds(heroWidth+12,137,cabinetWidth-heroWidth-24,18);
-        design.setBounds(12,166,cabinetWidth-24,28);rear.setBounds(12,201,cabinetWidth-24,28);
-        tweeterLabel.setBounds(12,242,62,25);tweeter.setBounds(76,242,cabinetWidth-88,25);
-        const int w=(getWidth()-cabinetWidth-24)/2;
+        const int side=sideWidth(getWidth());
+        const int centreX=side+14,centreWidth=getWidth()-2*centreX;
+        scene.setBounds(centreX,6,centreWidth,548);
+        const int designWidth=juce::roundToInt(float(centreWidth)*.40f);
+        const int rearWidth=juce::roundToInt(float(centreWidth)*.23f);
+        design.setBounds(centreX,579,designWidth,28);
+        rear.setBounds(centreX+designWidth+8,579,rearWidth,28);
+        const int tweeterX=centreX+designWidth+rearWidth+24;
+        tweeterLabel.setBounds(tweeterX,579,55,28);
+        tweeter.setBounds(tweeterX+57,579,centreX+centreWidth-tweeterX-57,28);
+        speakerLabel.setBounds(centreX,554,centreWidth,19);
+        sceneHint.setBounds(centreX,607,centreWidth,15);
         for(int i=0;i<2;++i) {
-            auto& s=slots[i];const int x=cabinetWidth+12+i*(w+12);
-            const int imageWidth=juce::roundToInt(w*.27f),controlX=x+imageWidth+18;
-            s.enabled.setBounds(x+10,6,w-20,26);s.image.setBounds(x+10,40,imageWidth,116);
-            s.mic.setBounds(controlX,51,w-imageWidth-30,28);s.unit.setBounds(controlX,96,w-imageWidth-30,28);
-            s.positionLabel.setBounds(x+12,174,92,26);s.position.setBounds(x+106,174,w-118,26);
-            s.distanceLabel.setBounds(x+12,215,92,26);s.distance.setBounds(x+106,215,w-118,26);
+            auto& s=slots[size_t(i)];const int x=i ? getWidth()-side : 20;
+            const int width=side-20,knob=(width-8)/2;
+            s.enabled.setBounds(x,40,width,25);s.mode.setBounds(x,66,width,22);
+            s.mic.setBounds(x,99,width,28);s.unit.setBounds(x,139,width,28);
+            s.position.setBounds(x-1,182,knob,91);s.distance.setBounds(x+knob+8,182,knob,91);
+            s.positionLabel.setBounds(x-1,275,knob,19);s.distanceLabel.setBounds(x+knob+8,275,knob,19);
         }
     }
 };

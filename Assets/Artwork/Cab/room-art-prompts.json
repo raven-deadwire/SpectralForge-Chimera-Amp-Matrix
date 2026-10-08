@@ -1,0 +1,94 @@
+{
+  "schema_version": 1,
+  "tool": "OpenAI built-in image_gen",
+  "created_utc_date": "2026-10-08",
+  "use_case": "precise-object-edit",
+  "description": "Final original Ravenforge recording-room background for SpectralForge Chimera Dual/Matrix overview. The ultra-wide composition fits the main 1140x412 ROOM view while keeping the complete raven relief and floor visible. Amp/cabinet hardware and live UI are rendered separately.",
+  "background": "opaque",
+  "post_processing": "None. The selected ultra-wide generated PNG was copied byte-for-byte without cropping, resizing, compositing, or other image editing.",
+  "reference_role": "Only original project-owned artwork was supplied to the image editing tool. User screenshots informed the initial broad room-overview concept only; their pixels were not copied or edited.",
+  "brand_references": [
+    {
+      "file": "Assets/Artwork/raven-workbench.jpg",
+      "sha256": "1e1e61c751ccd197db91b858a1ec57f68291074ee5bbcd1268e93ce79bb16d22",
+      "role": "Own Ravenforge near-black timber, aged black metal and restrained bronze material/palette reference."
+    },
+    {
+      "file": "Assets/Artwork/raven-emblem.png",
+      "sha256": "0f51cb41e4fdc80ec1377560ae11597fa5ad55c035ffc81a1741e03df5162cf4",
+      "role": "Own wings-raised, head-facing-right raven silhouette and layered metallic feather relief reference."
+    }
+  ],
+  "revisions": [
+    {
+      "id": "initial-empty-studio",
+      "use_case": "product-mockup",
+      "status": "superseded",
+      "output_sha256": "e14040f35644371a33a9876ff6dffc545cb108f3eec506601989afe3d03d24b1",
+      "dimensions": [
+        1672,
+        941
+      ],
+      "references": [],
+      "prompt": "Use case: product-mockup. Asset type: a wide photorealistic EMPTY recording-studio room background for the SpectralForge Chimera audio-plugin ROOM overview. Create a completely ORIGINAL architectural studio interior, with no equipment baked into the image. Wide 16:9 landscape composition, strictly frontal level camera, straight horizontal wall/floor boundary, balanced perspective without fisheye distortion. The rear wall fills about the upper 62 percent of the frame: premium dark walnut vertical acoustic slats with charcoal absorptive recesses, tactile timber grain, sophisticated understated design. Lower 38 percent is a continuous clean warm dark hardwood floor, clear from left to right and from the wall to the camera. Unseen studio lights cast soft warm amber illumination across the wall and gently onto the floor, with enough soft midtone separation to make later black amplifier/cabinet overlays legible. Subtle realistic depth and soft shadows only from the architecture; no dramatic spotlight disks. The scene must leave broad unobstructed placement space across the left, center and right for two or three separate guitar/bass amplifier-and-cabinet stacks to be composited later, with a level floor and no foreground occlusion. The room should feel premium, natural, calm and realistic, with a restrained dark walnut, graphite and warm bronze palette. Professional architectural photography / photorealistic 3D studio render, highly refined materials, slightly subdued contrast for use behind audio-software controls. Absolutely NO amplifiers, speakers, cabinets, microphones, musical instruments, furniture, racks, cables, stands, stage platforms, people, doors, windows, text, logos, icons, interface elements, branded objects or signage. Fill the entire 16:9 canvas with this opaque empty room background; no transparent border and no white margins."
+    },
+    {
+      "id": "ravenforge-16x9",
+      "use_case": "style-transfer",
+      "status": "superseded-by-composition-only-revision",
+      "reason": "User requested a room interior coherent with Ravenforge brand design.",
+      "output_sha256": "9a9f269fbabd1216e7a6b9ddbe29f018f1d60a8e452477414007271cb5b17163",
+      "dimensions": [
+        1672,
+        941
+      ],
+      "references": [
+        {
+          "revision": "initial-empty-studio",
+          "role": "Edit target; retain front camera and clear floor."
+        },
+        {
+          "file": "Assets/Artwork/raven-workbench.jpg",
+          "role": "Palette and materials only."
+        },
+        {
+          "file": "Assets/Artwork/raven-emblem.png",
+          "role": "Wall relief shape and metallic feather treatment."
+        }
+      ],
+      "prompt": "Use case: style-transfer.\nAsset type: opaque wide 16:9 photorealistic background for the Ravenforge Chimera guitar/bass amp plugin ROOM overview.\nInput images: Image 1 is the edit target, our empty recording-room background. Image 2 is our own Ravenforge workbench artwork, used ONLY for palette and material language. Image 3 is our own Ravenforge raven emblem, used as the precise reference for one restrained architectural wall relief.\nPrimary request: revise this room interior to feel unmistakably consistent with our Ravenforge design: a premium real recording room in a dark artisan forge/workshop. Change the warm orange walnut into charcoal blackened timber and aged black steel with subtle worn bronze edges. Keep the image-1 spatial layout, level straight frontal camera, subtle shallow side walls, wall/floor boundary around 62% height, and broad entirely clear lower floor for two or three separate amp-and-cab stacks composited later.\nRear wall: acoustic vertical slats made from blackened wood, tasteful aged black steel structural framing and a few broad dark matte metal panels; detailed physically believable texture, refined practical studio architecture. Add a single modest raised black-metal raven relief centered high on the rear wall, within the upper third: preserve the wings-up, head-facing-right silhouette and layered-feather treatment from image 3, with narrow aged champagne-bronze edges. It should read as subtle built-in brand architecture, not a glowing logo, poster, or oversized decoration.\nFloor: very dark smoked charcoal wood planks, low sheen, visible tactile grain and gentle warm light reflections; smooth and completely clear in the lower 38% of frame.\nLighting: dim but legible premium studio lighting, soft small pools of restrained warm amber illumination grazing the rear wall and floor, integrated physically plausible fixtures. Mostly near-black/charcoal and blackened brown with sparse worn brass/bronze highlights, matching image 2. Avoid uniform orange wash, overly bright gold, or a rustic brown log-cabin mood.\nStyle: sophisticated realistic architectural/product photography, original interior design, credible real-world scale. High detail without busy decoration. Wide composition, opaque image to all edges.\nConstraints: preserve empty staging space and the level front camera. NO amplifiers, cabinets, speakers, microphones, music gear, furniture, benches, cables, stands, people, animals, lettering, numerals, runes, wordmarks, UI controls, borders or watermark. The only emblem is the restrained sculpted raven based on input 3. Do NOT copy the ornamental feather border from image 2. No smoke, fire, sparks, spikes, gothic fantasy scenery, magical glowing effects, industrial clutter, skulls or weapons."
+    },
+    {
+      "id": "ravenforge-ultrawide-final",
+      "use_case": "precise-object-edit",
+      "status": "selected-final",
+      "reason": "Recompose the same room to approximately 2.77:1 so the main 1140x412 ROOM view can show the full raven relief and clear floor without distorting the emblem.",
+      "output_sha256": "d780dad256b2c232d4be970c04881ed4705c26047b286332720161854612dbfe",
+      "dimensions": [
+        2084,
+        754
+      ],
+      "references": [
+        {
+          "revision": "ravenforge-16x9",
+          "role": "Edit target and exact own room style/material reference."
+        }
+      ],
+      "prompt": "Use case: precise-object-edit.\nAsset type: ultra-wide opaque background for the Ravenforge Chimera plugin main ROOM view, displayed at 1140 by 412 pixels.\nInput image: the supplied final Ravenforge room is our own existing room artwork, the edit target and exact style/material reference.\nPrimary request: make a 2.77:1 ULTRA-WIDE architectural composition of this SAME room. Output an ultra-wide 1792 x 648 canvas, or an equivalent width-to-height ratio of approximately 2.77:1. Recompose and widen the room architecture naturally; do not squash or stretch the emblem or timber textures, and do not simply crop the top or floor of the current image.\nPreserve the same charcoal blackened wood acoustic slats, worn blackened steel panels/framing, restrained aged bronze edges, dark smoked plank floor, and physically plausible dim warm amber studio illumination. Preserve the same elegant Ravenforge raven wall relief with wings raised, head facing right and layered black/champagne-bronze feathers. Keep the ENTIRE raven relief clearly visible, modest in size, high at the upper center with comfortable space above its wing tips, all within approximately the top 40% of the image. No change in brand style.\nComposition: strictly level straight frontal camera. Wall/floor boundary is a straight horizontal line at approximately 58–60% of canvas height. The lower 40–42% is entirely clear floor, stretching edge to edge, for two or three separate amp/cab stacks to be composited by software. Keep broad usable staging space across the left, center and right. Realistic refined architectural photography, shallow side-wall depth only, undistorted verticals and natural perspective. Because the canvas is very wide, broaden the wall and floor horizontally while maintaining the emblem's original proportions.\nConstraints: whole ultra-wide canvas filled by this opaque room; no letterboxing or transparent bars. NO amplifiers, cabinets, speakers, microphones, musical instruments, furniture, racks, cables, people, animals, text, runes, extra logos, interface elements or watermark. No smoke, fire, sparks, fantasy scenery or clutter. The one existing raven architectural relief is the only emblem. Keep all significant room geometry and the complete emblem visible together with the clear foreground floor."
+    }
+  ],
+  "assets": [
+    {
+      "file": "room-studio.png",
+      "revision": "ravenforge-ultrawide-final",
+      "sha256": "d780dad256b2c232d4be970c04881ed4705c26047b286332720161854612dbfe",
+      "bytes": 1985738,
+      "dimensions": [
+        2084,
+        754
+      ],
+      "mode": "RGB",
+      "visual_qa": "Complete raven relief visible high at rear center; level front camera; wall/floor boundary approximately 61% of image height; lower approximately 39% clear floor; Ravenforge charcoal/bronze materials and warm practical light; no baked equipment, text or UI."
+    }
+  ]
+}

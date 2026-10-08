@@ -1,5 +1,6 @@
 #pragma once
 #include "PluginEditor.h"
+#include "RigViewTestHelpers.h"
 #include <array>
 #include <cmath>
 #include <iostream>
@@ -162,6 +163,7 @@ inline void run(const juce::File& directory) {
     snapshot(editor,directory,"Correction-new-amp-channels");
 
     set(processor,"mode",2);settle(120);
+    rigViewTests::showControls(*canvas);
     const std::array<int,3> models{15,18,22};
     for(int lane=0;lane<3;++lane) {
         auto& control=selector(*canvas,lane);

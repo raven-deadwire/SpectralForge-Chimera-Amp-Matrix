@@ -1,20 +1,24 @@
-# CAB visual update preview
+# Ravenforge cabinet room update preview
 
-This preview adds cabinet, speaker-unit and microphone illustrations to the integrated CAB panel. The source combines the captured microphone catalog and original spatial CAB work from PRs #29–31 through the locally reviewed integration checkpoint `e74e286828730737efde3eaa75a50dafdb13bfb7`.
+This preview separates the original cabinet editor from the captured IR loader and adds a shared Ravenforge room for Dual and Matrix rigs. The source combines the captured microphone catalog and original spatial CAB work from PRs #29–31 through the locally reviewed integration checkpoint `e74e286828730737efde3eaa75a50dafdb13bfb7`.
 
 ## User-visible behavior
 
-- The original section shows the current Chimera Guitar 4x12 or Chimera Bass 4x10 cabinet, its corresponding 12-inch or 10-inch driver, and independent Mic A/B images.
-- Changing the cabinet or either microphone through its control or host automation updates the corresponding image.
-- Captured IRs use their existing cabinet metadata illustration and their catalog microphone identity. Unknown/mixed microphones retain a neutral IR indicator. A stored capture is visually dimmed while that slot uses an original response.
-- The new panel is 1040 by 748 logical pixels; the visual contract also exercises 900 by 748. Existing control IDs, source values, parameters, independent slots and shared IR state remain.
-- Twenty-seven PNG illustrations are embedded in the application: two cabinets, two drivers, three original-response microphones and twenty captured-microphone identities. They require no external image download or loose image directory after installation.
+- Dual opens two rigs in the same room; Matrix shows LOW, MID and HIGH. Clicking a cabinet opens that rig's enlarged cabinet editor; ROOM returns to the overview. Classic opens its single cabinet directly.
+- The RIGS page defaults to the room in Dual/Matrix. RIG CONTROLS opens the existing amplifier controls; CABINET ROOM returns. The room is created lazily so opening the default PRE page does not decode additional cabinet artwork.
+- The room uses the project's Ravenforge workbench and emblem language: blackened wood, dark metal, aged bronze, restrained amber lighting and a winged raven relief. Equipment is rendered separately and follows the actual selected amp and cabinet source.
+- The CABINET view places the selected amp head above a large Chimera Guitar 4x12 or Bass 4x10 cabinet, with four matching 12-inch or 10-inch driver images. Mic A/B sit in front of the selected physical speaker.
+- Drag an active original microphone to choose its physical unit and centre-to-edge position. Shift-drag changes grille distance. Existing unit, position and distance controls remain available and host automation updates the scene. Each drag uses paired host gestures; leaving the scene closes them.
+- CABINET and IR LOADER are presentation tabs. Opening either tab, selecting a room rig, returning to the room or switching to amp controls preserves all audio parameters, retained IRs and A/B state.
+- IR LOADER keeps the captured-IR cards and their existing cabinet metadata and catalog microphone identity. Unknown/mixed microphones retain a neutral IR indicator. A stored capture is visually dimmed while that slot uses an original response. Original Mic A/B explicitly choose their original response or the retained capture; they are not mute buttons.
+- The focused panel is 1040 by 748 logical pixels; the visual contract also exercises 900 by 748. The room workspace adds a 44-pixel navigation bar. Existing control IDs, source values, parameters, independent slots and shared IR state remain.
+- Twenty-seven equipment PNGs and one separate room background are embedded in the application: two cabinets, two drivers, three original-response microphones and twenty captured-microphone identities. They require no external image download or loose image directory after installation.
 
 Artwork is presentation only. The twenty captured microphone identities remain distinct from the three implemented original responses. These images do not add capture data or change the original v1 acoustic definitions. Chimera Strike remains its own catalog identity; Detail Condenser is not Strike.
 
 ## Resource lifetime
 
-A UI-owned shared image bank decodes and downsamples the embedded PNGs during creation. It retains cabinets at most 640 pixels, drivers 384 and microphones 320; the aggregate retained RGBA estimate must be at most 16 MiB. Drawing and audio processing do not open image files or decode PNGs. Last-owner destruction releases the bank before host graphics teardown.
+A UI-owned shared image bank decodes and downsamples the embedded PNGs during creation. It retains cabinets at most 640 pixels, drivers 384 and microphones 320. A separate shared scenery bank bounds the room image within 1152 by 576 while preserving aspect ratio; the combined equipment/scenery RGBA estimate stays below 16 MiB. Drawing and audio processing do not open image files or decode PNGs. Last-owner destruction releases the banks before host graphics teardown.
 
 ## Update package
 
@@ -24,7 +28,7 @@ The installer and portable artifact transports retain 20 MiB parts and exact byt
 
 ## Verification and remaining scope
 
-The CAB tests verify all embedded resources, independent image changes, host automation, neutral unknown/mixed IR displays, geometry/layout, resource destruction and project recall. Existing state, original-CAB audio, 64 MiB serialized-state budget, legacy migration and callback CPU gates remain unchanged. Public CI screenshots use synthetic test IRs only.
+The CAB tests verify all embedded resources, independent image changes, host automation, neutral unknown/mixed IR displays, physical geometry, mouse/Shift dragging, gesture lifetime, room rig counts, navigation without host notifications, resource destruction and project recall. Existing state, original-CAB audio, 64 MiB serialized-state budget, legacy migration and callback CPU gates remain unchanged. Public CI screenshots use synthetic test IRs only. The room is a navigation view, not a new room-acoustics engine.
 
 Actual instrument-DI listening, full-plugin CPU on the target PC and DAW acceptance remain separate from a verified development installer. Existing local CPU failures from the parent implementation are retained in `docs/CAB_INTEGRATION.md`; they are not converted into a pass by the visual change. `release_approved=false`.
 
