@@ -13,7 +13,7 @@ jobs:
     runs-on: windows-latest
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Retrieve the exact three reported archives from build 127
         shell: pwsh
         env:
@@ -44,7 +44,7 @@ jobs:
         run: ./Tools/Scan-WindowsArtifacts.ps1 -Path audit-inputs -ReportDirectory build/reported-download-security
       - name: Upload inspection reports only
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: Chimera-Reported-Downloads-Security
           path: build/reported-download-security/*
