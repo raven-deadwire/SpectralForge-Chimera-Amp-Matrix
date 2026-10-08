@@ -42,11 +42,11 @@ public:
         addSeparator();addItem("Browse / import IRs...",9000);
         restoreDisplay();
     }
-    void sync(int value,const juce::String& name) {
+    void sync(int value,const juce::String& name,const juce::String& modeled={}) {
         // The editor polls parameters. Do not erase a pending asynchronous menu
         // selection when the host state has not actually changed.
-        if(displayInitialised && value==source && name==currentName) return;
-        source=value;currentName=name;
+        if(displayInitialised && value==source && name==currentName && modeled==modeledLabel) return;
+        source=value;currentName=name;modeledLabel=modeled;
         if(source!=3 || preferredFile.getFileName()!=currentName)preferredFile=juce::File{};
         restoreDisplay();
     }
@@ -62,11 +62,12 @@ private:
             for(size_t i=0;i<files.size();++i)if(files[i].getFileName()==currentName && (preferredFile==juce::File{} || preferredFile==files[i])) {text=labels[(int)i];tooltip=details[(int)i];break;}
             setText(text,juce::dontSendNotification);setTooltip(tooltip);
         } else setTooltip(source==0 ? "Speaker IR bypassed; cabinet filters remain available." : getText());
+        if(modeledLabel.isNotEmpty()){setText(modeledLabel,juce::dontSendNotification);setTooltip("Original modeled cabinet. Select a fixed IR to return Mic A to the captured path, or open PANEL to edit the model.");}
         displayInitialised=true;
     }
     std::vector<juce::File> files;
     juce::StringArray labels,details;
     juce::File preferredFile;
     bool displayInitialised{};
-    int source{1};juce::String currentName;
+    int source{1};juce::String currentName,modeledLabel;
 };

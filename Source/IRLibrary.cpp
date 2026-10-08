@@ -76,7 +76,7 @@ juce::Result IRLibrary::importFile(int lane, const juce::File& file)
     if(error.isNotEmpty()) return juce::Result::fail(error);
     notify(); return juce::Result::ok();
 }
-std::unique_ptr<Cab::Kernel> IRLibrary::build(int lane,int source,unsigned generation)
+std::unique_ptr<Cab::Kernel> IRLibrary::build(int lane,int source,unsigned generation,uint64_t model)
 {
     const lifecycle::Scope trace("ir.build", this);
     std::shared_ptr<Asset> asset;
@@ -86,22 +86,33 @@ std::unique_ptr<Cab::Kernel> IRLibrary::build(int lane,int source,unsigned gener
     }
     juce::AudioBuffer<float> samples;
     double rate=spec.sampleRate;
-    if(asset) { samples.makeCopyOf(asset->samples); rate=asset->rate; }
+    if(model) {
+        auto found=std::find_if(modelCache.begin(),modelCache.end(),[&](const auto& item){return item.key==model;});
+        if(found==modelCache.end()) {
+            auto response=originalCab::generate(originalCab::settings(model),rate);
+            juce::AudioBuffer<float> generated(1,int(response.size()));
+            generated.copyFrom(0,0,response.data(),int(response.size()));
+            if(modelCache.size()==8)modelCache.pop_front();
+            modelCache.push_back({model,std::move(generated)});found=std::prev(modelCache.end());
+        }
+        samples.makeCopyOf(found->samples);
+    }
+    else if(asset) { samples.makeCopyOf(asset->samples); rate=asset->rate; }
     else { samples.setSize(1,1); samples.setSample(0,0,1.f); }
-    auto kernel=std::make_unique<Cab::Kernel>(std::move(samples),rate,spec,source,generation);
-    kernel->hasIR = asset != nullptr;
+    auto kernel=std::make_unique<Cab::Kernel>(std::move(samples),rate,spec,source,generation,model);
+    kernel->hasIR = model != 0 || asset != nullptr;
     return kernel;
 }
 void IRLibrary::prepare(const juce::dsp::ProcessSpec& settings,const std::array<int,3>& sources)
 {
     const lifecycle::Scope trace("ir.prepare", this);
-    stop(); spec=settings;
+    stop(); spec=settings; modelCache.clear();
     for(int i=0;i<6;++i)
     {
         cabs[i]->requestedSource.store((i<3 ? sources[i] : cabs[i]->requestedSource.load()));
         unsigned generation;
         { std::lock_guard<std::mutex> lock(mutex); generation=generations[i]; }
-        cabs[i]->install(build(i,(i<3 ? sources[i] : cabs[i]->requestedSource.load()),generation));
+        cabs[i]->install(build(i,(i<3 ? sources[i] : cabs[i]->requestedSource.load()),generation,cabs[i]->requestedModel.load()));
     }
     startThread();
 }
@@ -109,8 +120,9 @@ void IRLibrary::run()
 {
     const lifecycle::Scope trace("ir.worker", this);
     std::array<int,6> built;
-    std::array<unsigned,6> versions;
-    for(int i=0;i<6;++i) { built[i]=cabs[i]->activeSource.load(); versions[i]=cabs[i]->activeGeneration.load(); }
+    std::array<unsigned,6> versions, rejections{};
+    std::array<uint64_t,6> models{};
+    for(int i=0;i<6;++i) { built[i]=cabs[i]->activeSource.load(); versions[i]=cabs[i]->activeGeneration.load(); models[i]=cabs[i]->activeModel.load(); rejections[i]=cabs[i]->rejectedModels.load(); }
     while(!threadShouldExit())
     {
         for(int i=0;i<6 && !threadShouldExit();++i)
@@ -119,10 +131,19 @@ void IRLibrary::run()
             const int source=cabs[i]->requestedSource.load();
             unsigned generation;
             { std::lock_guard<std::mutex> lock(mutex); generation=generations[i]; }
-            if(source==built[i] && (source!=3 || generation==versions[i])) continue;
-            try { cabs[i]->publish(build(i,source,generation)); }
+            const auto model=cabs[i]->requestedModel.load();
+            const auto rejected=cabs[i]->rejectedModels.load();
+            if(rejected==rejections[i] && source==built[i] && model==models[i] && (source!=3 || generation==versions[i])) continue;
+            try {
+                auto kernel=build(i,source,generation,model);
+                if(threadShouldExit())break;
+                // Coalesce rapid automation; no stale response is published.
+                if(source!=cabs[i]->requestedSource.load() || model!=cabs[i]->requestedModel.load())continue;
+                { std::lock_guard<std::mutex> lock(mutex); if(generation!=generations[i])continue; errors[i].clear(); }
+                cabs[i]->publish(std::move(kernel));
+                built[i]=source; versions[i]=generation; models[i]=model; rejections[i]=rejected;
+            }
             catch(const std::exception&) { std::lock_guard<std::mutex> lock(mutex); errors[i]="IR preparation failed. Previous IR kept."; ++displayGeneration[(size_t)i]; }
-            built[i]=source; versions[i]=generation;
         }
         wait(20);
     }
@@ -137,6 +158,13 @@ juce::String IRLibrary::status(int lane) const
 {
     std::lock_guard<std::mutex> lock(mutex);
     if(errors[lane].isNotEmpty()) return errors[lane];
+    const auto model=cabs[lane]->requestedModel.load();
+    if(model) {
+        const auto p=originalCab::settings(model);
+        return juce::String(p.cabinet ? "Original Bass 4x10 v1" : "Original Guitar 4x12 v1")
+            +" | Modeled / unit "+juce::String(p.unit+1)
+            +(model!=cabs[lane]->activeModel.load() ? " | Preparing..." : " | Ready");
+    }
     const int source=cabs[lane]->requestedSource.load();
     if(source==3 && !users[lane]) return "No user IR loaded. Filters only.";
     const bool loading=cabs[lane]->activeSource.load()!=source ||
@@ -187,6 +215,17 @@ void IRLibrary::restore(const juce::ValueTree& tree)
 IRMetadata IRLibrary::metadata(int lane,int source) const
 {
     std::lock_guard<std::mutex> lock(mutex);if(lane<0 || lane>5)return {};
+    if(const auto model=cabs[lane]->requestedModel.load()) {
+        const auto p=originalCab::settings(model);IRMetadata m;
+        m.instrument=p.cabinet ? IRMetadata::Instrument::bass : IRMetadata::Instrument::guitar;
+        m.displayLabel=p.cabinet ? "Original Bass 4x10 v1" : "Original Guitar 4x12 v1";
+        m.values[0]="Original modeled driver v1";m.values[1]=m.displayLabel;
+        m.values[3]=p.mic==0 ? "Attack dynamic v1" : p.mic==1 ? "Body ribbon v1" : "Detail condenser v1";
+        m.values[4]="Modeled unit "+juce::String(p.unit+1)+", radius "+juce::String(p.position,3);
+        m.values[8]="Chimera original design";
+        m.values[11]="Authored linear acoustic approximation, not a hardware measurement. Distance "+juce::String(p.distanceCm,1)+" cm from cone plane. No third-party IR fitting.";
+        return m;
+    }
     auto asset=source==3 ? users[(size_t)lane] : source==1 || source==2 ? factory[(size_t)source-1] : nullptr;
     return asset ? asset->metadata : IRMetadata{};
 }

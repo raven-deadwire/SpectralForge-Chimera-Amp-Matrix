@@ -1,5 +1,7 @@
 #pragma once
 #include "Cabinet.h"
+#include "OriginalCabModel.h"
+#include <deque>
 #include "IRMetadata.h"
 #include <juce_data_structures/juce_data_structures.h>
 #include <juce_audio_formats/juce_audio_formats.h>
@@ -33,15 +35,17 @@ public:
     // activation; metadata/error revisions are written off the audio callback.
     std::array<uint64_t,4> displayRevision(int lane) const noexcept {
         const auto i=(size_t)lane;
-        return {displayGeneration[i].load(),(uint64_t)cabs[i]->requestedSource.load(),
-            (uint64_t)cabs[i]->activeSource.load(),(uint64_t)cabs[i]->activeGeneration.load()};
+        return {displayGeneration[i].load(),uint64_t(cabs[i]->requestedSource.load()+1) | (cabs[i]->requestedModel.load()<<4),
+            uint64_t(cabs[i]->activeSource.load()+1) | (cabs[i]->activeModel.load()<<4),uint64_t(cabs[i]->activeGeneration.load())};
     }
     juce::ValueTree save() const;
     void restore(const juce::ValueTree&);
     static std::shared_ptr<Asset> decode(const juce::MemoryBlock&, const juce::String&, juce::String& error);
 private:
     void run() override;
-    std::unique_ptr<Cab::Kernel> build(int lane, int source, unsigned generation);
+    std::unique_ptr<Cab::Kernel> build(int lane, int source, unsigned generation, uint64_t model=0);
+    struct CachedModel { uint64_t key; juce::AudioBuffer<float> samples; };
+    std::deque<CachedModel> modelCache; // Eight responses, worker/prepare only; bounded FIFO.
     std::array<Cab*,6> cabs;
     std::array<std::shared_ptr<Asset>,6> users;
     std::array<std::shared_ptr<Asset>,2> factory;

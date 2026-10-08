@@ -1,4 +1,5 @@
 #pragma once
+#include "OriginalCabParameters.h"
 #include <juce_audio_processors/juce_audio_processors.h>
 #include "ChimeraDSP.h"
 #include "FXParameters.h"
@@ -121,6 +122,8 @@ private:
     std::atomic<bool> resetPending{false};
     juce::AudioProcessorValueTreeState state{*this,nullptr,"PARAMS",layout()};
     std::array<std::array<std::atomic<float>*,10>,3> cabPanelParameters{};
+    spectralforge::OriginalCabParameters originalCabParameters;
+    void syncOriginalCabRequests();
     spectralforge::Engine engine;
     spectralforge::IRLibrary library{{&engine.cabinet(0),&engine.cabinet(1),&engine.cabinet(2)}};
     spectralforge::PreFXChain preFX;

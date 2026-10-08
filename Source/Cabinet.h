@@ -12,12 +12,13 @@ public:
         juce::dsp::Convolution convolution;
         int source{};
         unsigned generation{};
+        uint64_t modelKey{};
         bool hasIR{true};
         Kernel(juce::AudioBuffer<float> samples, double rate, const juce::dsp::ProcessSpec& spec,
-               int type, unsigned revision) : source(type), generation(revision)
+               int type, unsigned revision, uint64_t model=0) : source(type), generation(revision), modelKey(model)
         {
             convolution.loadImpulseResponse(std::move(samples), rate, juce::dsp::Convolution::Stereo::yes,
-                juce::dsp::Convolution::Trim::no, juce::dsp::Convolution::Normalise::yes);
+                juce::dsp::Convolution::Trim::no, model ? juce::dsp::Convolution::Normalise::no : juce::dsp::Convolution::Normalise::yes);
             convolution.prepare(spec); // Wait for this IR before it reaches audio.
         }
         void process(juce::AudioBuffer<float>& buffer)
@@ -30,6 +31,9 @@ public:
     };
     std::atomic<int> requestedSource{1}, activeSource{-1};
     std::atomic<unsigned> activeGeneration{0};
+    static_assert(std::atomic<uint64_t>::is_always_lock_free);
+    std::atomic<uint64_t> requestedModel{0}, activeModel{0};
+    std::atomic<unsigned> rejectedModels{0};
 private:
     using Filter = juce::dsp::ProcessorDuplicator<juce::dsp::IIR::Filter<float>, juce::dsp::IIR::Coefficients<float>>;
     Filter hp, lp;
@@ -64,7 +68,7 @@ public:
         destroyKernel(pending.exchange(nullptr)); destroyKernel(retired.exchange(nullptr));
         destroyKernel(active); active=nullptr; destroyKernel(fading); fading=nullptr;
         if(micB) micB->clear();
-        activeSource.store(-1); activeGeneration.store(0); fadeRemaining=0;
+        activeSource.store(-1); activeGeneration.store(0); activeModel.store(0); fadeRemaining=0;
     }
     // Diagnostic query: only after host processing and the IR worker stop.
     bool hasResources() const noexcept
@@ -92,7 +96,7 @@ public:
     void install(std::unique_ptr<Kernel> kernel) // prepareToPlay only
     {
         destroyKernel(active); active=kernel.release();
-        activeSource.store(active->source); activeGeneration.store(active->generation);
+        activeSource.store(active->source); activeGeneration.store(active->generation); activeModel.store(active->modelKey);
     }
     void reset()
     {
@@ -113,9 +117,12 @@ public:
         if(fadeRemaining==0 && retired.load()==nullptr)
             if(auto* next=pending.exchange(nullptr))
             {
-                {
+                // A superseded model may have reached pending after the worker's
+                // final check. Retire it here without freeing or blocking audio.
+                if(next->modelKey!=requestedModel.load()) { retired.store(next); ++rejectedModels; }
+                else {
                     fading=active; active=next;
-                    activeSource.store(next->source); activeGeneration.store(next->generation);
+                    activeSource.store(next->source); activeGeneration.store(next->generation); activeModel.store(next->modelKey);
                     fadeRemaining=fadeLength;
                 }
             }
