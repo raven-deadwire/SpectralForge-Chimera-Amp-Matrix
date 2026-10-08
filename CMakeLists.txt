@@ -242,6 +242,21 @@ target_compile_definitions(ChimeraIRLibraryTests PRIVATE JUCE_USE_CURL=0 JUCE_WE
 target_link_libraries(ChimeraIRLibraryTests PRIVATE ChimeraIRs juce::juce_data_structures juce::juce_dsp juce::juce_audio_formats juce::juce_cryptography PUBLIC juce::juce_recommended_config_flags)
 add_test(NAME ChimeraIRLibraryTests COMMAND ChimeraIRLibraryTests)
 
+juce_add_console_app(ChimeraCabPanelTests PRODUCT_NAME "Chimera CAB Panel Tests")
+target_sources(ChimeraCabPanelTests PRIVATE Tests/CabPanelTests.cpp Source/IRLibrary.cpp)
+target_include_directories(ChimeraCabPanelTests PRIVATE Source)
+target_compile_definitions(ChimeraCabPanelTests PRIVATE JUCE_USE_CURL=0 JUCE_WEB_BROWSER=0)
+target_link_libraries(ChimeraCabPanelTests PRIVATE ChimeraIRs juce::juce_data_structures juce::juce_dsp juce::juce_audio_formats PUBLIC juce::juce_recommended_config_flags)
+add_test(NAME ChimeraCabPanelTests COMMAND ChimeraCabPanelTests)
+
+juce_add_console_app(ChimeraCabPanelStateTests PRODUCT_NAME "Chimera CAB Panel State Tests")
+target_sources(ChimeraCabPanelStateTests PRIVATE Tests/CabPanelStateTests.cpp)
+target_include_directories(ChimeraCabPanelStateTests PRIVATE Source)
+target_link_libraries(ChimeraCabPanelStateTests PRIVATE ChimeraAmpMatrix ChimeraArtwork ChimeraManual juce::juce_cryptography juce::juce_audio_utils juce::juce_dsp)
+add_test(NAME ChimeraCabPanelStateTests COMMAND ChimeraCabPanelStateTests "${CMAKE_BINARY_DIR}/cab-panel.png")
+
+
+
 # On-demand validation for user-owned IR files. Requires explicit CLI inputs;
 # this is not a zero-input CTest or a source of redistributable capture assets.
 juce_add_console_app(ChimeraValidateExternalIR PRODUCT_NAME "Chimera Validate External IR")

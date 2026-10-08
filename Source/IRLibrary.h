@@ -42,12 +42,12 @@ public:
 private:
     void run() override;
     std::unique_ptr<Cab::Kernel> build(int lane, int source, unsigned generation);
-    std::array<Cab*,3> cabs;
-    std::array<std::shared_ptr<Asset>,3> users;
+    std::array<Cab*,6> cabs;
+    std::array<std::shared_ptr<Asset>,6> users;
     std::array<std::shared_ptr<Asset>,2> factory;
-    std::array<unsigned,3> generations{1,1,1};
-    std::array<std::atomic<uint64_t>,3> displayGeneration{};
-    std::array<juce::String,3> errors;
+    std::array<unsigned,6> generations{1,1,1,1,1,1};
+    std::array<std::atomic<uint64_t>,6> displayGeneration{};
+    std::array<juce::String,6> errors;
     mutable std::mutex mutex;
     juce::dsp::ProcessSpec spec{48000,512,2};
 };
