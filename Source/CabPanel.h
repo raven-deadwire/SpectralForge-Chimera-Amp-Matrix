@@ -9,8 +9,10 @@ class CabPanel : public juce::Component, private juce::Timer {
     using BA=juce::AudioProcessorValueTreeState::ButtonAttachment;
     ChimeraProcessor& processor;
     int lane;
+    std::vector<juce::File> roots;
+    juce::File preferences;
     struct Slot {
-        juce::Label title,status;
+        juce::Label title,status,reference;
         juce::ComboBox cabinet, microphone;
         juce::TextButton browse{"IR LIBRARY"}, invert{"POLARITY"};
         std::array<juce::Slider,4> sliders;
@@ -27,6 +29,7 @@ class CabPanel : public juce::Component, private juce::Timer {
     juce::Component::SafePointer<juce::DialogWindow> browser;
     std::array<int,2> displayedSource{-1,-1};
     std::array<juce::String,2> displayedName;
+    std::array<uint64_t,2> displayedMetadataRevision{};
     static juce::String cabinetName(const spectralforge::IRCollection::Entry& e) {
         if(e.factorySource) return e.factorySource==1 ? "Factory V30" : "Factory Jensen";
         // These filename labels describe the user's supplied pack, not hardware verification.
@@ -35,8 +38,8 @@ class CabPanel : public juce::Component, private juce::Timer {
         return e.tags.values[1].isNotEmpty() ? e.tags.values[1] : "User IR / unspecified cabinet";
     }
     static juce::String micName(const spectralforge::IRCollection::Entry& e) {
-        auto name=e.name.upToLastOccurrenceOf(".",false,false);
-        if(name.containsIgnoreCase("Mix")) return "Prepared mix / "+name;
+        const auto name=spectralforge::IRMetadata::leafName(e.name);
+        if(const auto* model=e.tags.microphoneModel(e.name))return juce::String(model->alias)+" / "+name;
         return (e.tags.values[3].isNotEmpty() ? e.tags.values[3]+" / " : juce::String{})+name;
     }
     void setSource(int slot,int source) {
@@ -46,16 +49,35 @@ class CabPanel : public juce::Component, private juce::Timer {
     void populate(int slot) {
         auto& s=slots[slot];s.microphone.clear(juce::dontSendNotification);choices[slot].clear();
         const auto selected=s.cabinet.getText();
-        for(size_t i=0;i<entries.size();++i) if(cabinetName(entries[i])==selected) {
-            choices[slot].push_back(int(i));s.microphone.addItem(micName(entries[i]),int(choices[slot].size()));
+        juce::StringArray captureLabels;
+        for(const auto& entry:entries)captureLabels.add(cabinetName(entry)==selected ? micName(entry) : juce::String{});
+        for(int group=0;group<4;++group) {
+            bool heading=false;
+            for(size_t i=0;i<entries.size();++i) if(cabinetName(entries[i])==selected) {
+                const auto* model=entries[i].tags.microphoneModel(entries[i].name);
+                if((model ? int(model->kind) : 3)!=group)continue;
+                if(!heading) {
+                    if(!choices[slot].empty())s.microphone.addSeparator();
+                    s.microphone.addSectionHeading(group==3 ? "OTHER / MIXED / UNSPECIFIED" :
+                        juce::String(spectralforge::micCatalog::kindLabel(static_cast<spectralforge::micCatalog::Kind>(group))).toUpperCase());
+                    heading=true;
+                }
+                auto label=captureLabels[int(i)];int total=0,ordinal=0;
+                for(size_t j=0;j<entries.size();++j)if(captureLabels[int(j)]==label){++total;if(j<=i)++ordinal;}
+                if(total>1)label+=" ["+juce::String(ordinal)+"]";
+                choices[slot].push_back(int(i));s.microphone.addItem(label,int(choices[slot].size()));
+            }
         }
         s.microphone.setText("Select captured mic / voicing",juce::dontSendNotification);
-        if(s.cabinet.getSelectedId()==1) {setSource(slot,0);s.microphone.setText("No speaker IR",juce::dontSendNotification);}
-        if(s.cabinet.getSelectedId()==2) {setSource(slot,3);s.microphone.setText(processor.micName(lane,slot),juce::dontSendNotification);}
+        s.reference.setText({},juce::dontSendNotification);s.microphone.setTooltip("Select an available captured IR. Each choice preserves its full capture filename.");
+        if(s.cabinet.getSelectedId()==1 || s.cabinet.getSelectedId()==2) {
+            setSource(slot,s.cabinet.getSelectedId()==1 ? 0 : 3);
+            displayedSource[slot]=-1;timerCallback();
+        }
     }
     void refresh() {
         displayedSource={-1,-1};
-        entries=spectralforge::IRCollection::scan(spectralforge::IRCollection::roots(),true);
+        entries=spectralforge::IRCollection::scan(roots,true,nullptr,preferences);
         for(int i=int(entries.size());--i>=0;)if(!entries[size_t(i)].ready())entries.erase(entries.begin()+i);
         juce::StringArray names;for(const auto& e:entries)names.addIfNotAlreadyThere(cabinetName(e));
         for(auto& slot:slots) {
@@ -84,20 +106,36 @@ class CabPanel : public juce::Component, private juce::Timer {
             slot.status.setText(processor.micStatus(lane,i),juce::dontSendNotification);slot.status.setTooltip(processor.micStatus(lane,i));
             const auto name=processor.micName(lane,i);
             const int source=int(processor.parameters().getRawParameterValue((i ? "cabBtype" : "cabtype")+juce::String(lane+1))->load());
-            if(source!=displayedSource[i] || name!=displayedName[i]) {
-                displayedSource[i]=source;displayedName[i]=name;
+            // Asset/metadata revisions also distinguish equal basenames. Kernel
+            // activation alone must not erase a cabinet the user is browsing.
+            const auto metadataRevision=processor.micDisplayRevision(lane,i)[0];
+            if(source!=displayedSource[i] || name!=displayedName[i] || metadataRevision!=displayedMetadataRevision[i]) {
+                displayedSource[i]=source;displayedName[i]=name;displayedMetadataRevision[i]=metadataRevision;
+                const auto metadata=processor.micMetadata(lane,i);
+                const auto captureName=source==1 || source==2 ? spectralforge::IRMetadata::factoryFilename(source-1) : name;
+                const auto* model=metadata.microphoneModel(captureName);
                 slot.cabinet.setText(source==0 ? "Filters only" : source==1 ? "Factory V30" : source==2 ? "Factory Jensen" : "Current project IR",juce::dontSendNotification);
-                slot.microphone.setText(source==0 ? "No speaker IR" : source==1 || source==2 ? "SM57" : name.isEmpty() ? "No IR loaded" : name,juce::dontSendNotification);
+                const auto text=source==0 ? juce::String("No speaker IR") : captureName.isEmpty() ? juce::String("No IR loaded") :
+                    model ? juce::String(model->alias)+(source==3 ? " / "+captureName : juce::String{}) : captureName;
+                slot.microphone.setText(text,juce::dontSendNotification);
+                slot.microphone.setTooltip(source==0 ? "Speaker IR bypassed; cabinet filters remain available." : metadata.details(captureName));
+                slot.reference.setText(source==0 || captureName.isEmpty() ? juce::String{} : metadata.microphoneReference(captureName),juce::dontSendNotification);
+                slot.reference.setTooltip(source==0 || captureName.isEmpty() ? juce::String{} : metadata.details(captureName));
             }
         }
     }
 public:
-    CabPanel(ChimeraProcessor& p,int rig):processor(p),lane(rig) {
+    CabPanel(ChimeraProcessor& p,int rig,const std::vector<juce::File>& folders=spectralforge::IRCollection::roots(),
+             const juce::File& settings=spectralforge::IRUserPreferences::file()):processor(p),lane(rig),roots(folders),preferences(settings) {
         const auto n=juce::String(lane+1);
         heading.setText("CAB PANEL / RIG "+n+"   |   Fixed IR / captured voicing",juce::dontSendNotification);addAndMakeVisible(heading);
         for(int i=0;i<2;++i) {
             auto& s=slots[i];s.title.setText(i ? "MIC B" : "MIC A",juce::dontSendNotification);
-            for(juce::Component* c:std::initializer_list<juce::Component*>{&s.title,&s.status,&s.cabinet,&s.microphone,&s.browse,&s.invert})addAndMakeVisible(c);
+            for(juce::Component* c:std::initializer_list<juce::Component*>{&s.title,&s.status,&s.reference,&s.cabinet,&s.microphone,&s.browse,&s.invert})addAndMakeVisible(c);
+            const auto componentPrefix=juce::String(i ? "cabB" : "cabA");
+            s.cabinet.setComponentID(componentPrefix+"cabinet"+n);s.microphone.setComponentID(componentPrefix+"mic"+n);
+            s.reference.setComponentID(componentPrefix+"reference"+n);s.reference.setFont(juce::FontOptions(11.f));
+            s.reference.setColour(juce::Label::textColourId,juce::Colour(0xffa6b2bb));
             s.cabinet.onChange=[this,i]{populate(i);};
             s.microphone.onChange=[this,i] {
                 const int index=slots[i].microphone.getSelectedId()-1;
@@ -105,6 +143,7 @@ public:
                 const auto& e=entries[size_t(choices[i][size_t(index)])];
                 if(e.factorySource)setSource(i,e.factorySource);
                 else {auto result=processor.loadMicIR(lane,i,e.file);if(result.failed())slots[i].status.setText(result.getErrorMessage(),juce::dontSendNotification);}
+                displayedSource[i]=-1;timerCallback();
             };
             s.browse.onClick=[this,i]{openBrowser(i);};
             const auto prefix=juce::String(i ? "cabB" : "cabA");
@@ -126,7 +165,7 @@ public:
         blend.setComponentID("cabblend"+n);
         blend.textFromValueFunction=[](double value){return juce::String(value*100.0,1)+"% B";};
         blend.valueFromTextFunction=[](const juce::String& text){return text.getDoubleValue()*.01;};blend.updateText();
-        refresh();timerCallback();setSize(900,450);startTimerHz(10);
+        refresh();timerCallback();setSize(900,475);startTimerHz(10);
     }
     ~CabPanel() override {stopTimer();if(browser)delete browser.getComponent();}
     void paint(juce::Graphics& g) override {g.fillAll(juce::Colour(0xff141b22));}
@@ -136,10 +175,11 @@ public:
         for(int i=0;i<2;++i) {
             auto& s=slots[i];const int x=16+i*(width+16);
             s.title.setBounds(x,45,width,25);s.cabinet.setBounds(x,76,width,28);s.microphone.setBounds(x,112,width,28);
-            s.browse.setBounds(x,150,130,27);s.invert.setBounds(x+145,150,110,27);
-            for(int k=0;k<4;++k){s.labels[k].setBounds(x,190+k*36,130,28);s.sliders[k].setBounds(x+132,190+k*36,width-132,28);}
-            s.status.setBounds(x,337,width,35);
+            s.reference.setBounds(x,142,width,22);
+            s.browse.setBounds(x,175,130,27);s.invert.setBounds(x+145,175,110,27);
+            for(int k=0;k<4;++k){s.labels[k].setBounds(x,215+k*36,130,28);s.sliders[k].setBounds(x+132,215+k*36,width-132,28);}
+            s.status.setBounds(x,362,width,35);
         }
-        blendLabel.setBounds(16,380,290,28);blend.setBounds(310,380,getWidth()-326,28);
+        blendLabel.setBounds(16,405,290,28);blend.setBounds(310,405,getWidth()-326,28);
     }
 };

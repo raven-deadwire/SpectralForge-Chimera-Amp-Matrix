@@ -26,8 +26,13 @@ struct IRCollection {
     enum class Instrument {all,bass,guitarOther,unspecified};
     enum class Availability {all,ready,factory,installed,missing,external,invalid};
     struct ScanReport {int examinedFiles{},invalidFiles{};bool truncated{};};
-    static bool matches(const Entry& e,const juce::String& query,const juce::String& inches,Instrument instrument,Availability availability) {
-        const auto text=e.name+" "+e.displayName()+" "+juce::JSON::toString(e.tags.json(),true);
+    static bool matches(const Entry& e,const juce::String& query,const juce::String& inches,Instrument instrument,Availability availability,
+                        const juce::String& microphoneId={}) {
+        const auto* microphone=e.tags.microphoneModel(e.name);
+        if(microphoneId=="other") {if(microphone)return false;}
+        else if(microphoneId.isNotEmpty() && (!microphone || microphoneId!=microphone->id))return false;
+        auto text=e.name+" "+e.displayName()+" "+juce::JSON::toString(e.tags.json(),true);
+        if(microphone)text+=" "+juce::String(microphone->alias)+" "+microphone->reference+" "+micCatalog::kindLabel(microphone->kind);
         if(query.isNotEmpty() && !text.containsIgnoreCase(query)) return false;
         if(inches.isNotEmpty() && e.tags.values[2]!=inches) return false;
         if(instrument==Instrument::bass && !e.bass()) return false;

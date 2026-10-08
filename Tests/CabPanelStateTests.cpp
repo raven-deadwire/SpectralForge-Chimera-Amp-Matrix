@@ -1,5 +1,6 @@
 #include "CabPanel.h"
 #include "IRStateAssets.h"
+#include "CabMicrophoneUITests.h"
 #include <iostream>
 #include <stdexcept>
 #include <vector>
@@ -34,6 +35,8 @@ int main(int argc,char** argv){juce::ScopedJuceInitialiser_GUI gui;auto folder=j
         check(juce::File::getCurrentWorkingDirectory().getChildFile(argv[2]).copyFileTo(a),"private A copy");
         check(juce::File::getCurrentWorkingDirectory().getChildFile(argv[3]).copyFileTo(b),"private B copy");
     } else {check(argc<=2,"usage: ChimeraCabPanelStateTests [snapshot.png [user-IR-A user-IR-B]]");fixture(a,0);fixture(b,18);}
+    cabMicrophoneUITests::run(folder.getChildFile("microphone-ui"),argc>1
+        ? juce::File::getCurrentWorkingDirectory().getChildFile(argv[1]).getParentDirectory() : juce::File{});
     auto p=std::make_unique<ChimeraProcessor>();
     set(*p,"gateon",0);set(*p,"oversampling",0);set(*p,"lowampmix",1);
     for(int lane=0;lane<3;++lane){const auto n=juce::String(lane+1);set(*p,"ampon"+n,0);check(p->loadMicIR(lane,0,a).wasOk() && p->loadMicIR(lane,1,b).wasOk(),"production IR imports");set(*p,"cabblend"+n,.31f+float(lane)*.12f);set(*p,"cabAgain"+n,-3);set(*p,"cabBgain"+n,-5);set(*p,"cabAdelay"+n,.7f);set(*p,"cabBdelay"+n,1.3f);set(*p,"cabBinvert"+n,1);set(*p,"cabBlow"+n,120);set(*p,"cabBhigh"+n,6000);}
