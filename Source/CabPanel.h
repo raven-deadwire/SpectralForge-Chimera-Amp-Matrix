@@ -1,5 +1,6 @@
 #pragma once
 #include "PluginProcessor.h"
+#include "HardwareArtwork.h"
 #include "IRBrowserPanel.h"
 
 // Fixed captured IRs. Voicing labels are choices, never inferred coordinates.
@@ -24,6 +25,8 @@ class CabPanel : public juce::Component, private juce::Timer {
     juce::Label heading,blendLabel;
     std::unique_ptr<SA> blendAttachment;
     juce::Component::SafePointer<juce::DialogWindow> browser;
+    std::array<int,2> displayedSource{-1,-1};
+    std::array<juce::String,2> displayedName;
     static juce::String cabinetName(const spectralforge::IRCollection::Entry& e) {
         if(e.factorySource) return e.factorySource==1 ? "Factory V30" : "Factory Jensen";
         // These filename labels describe the user's supplied pack, not hardware verification.
@@ -51,6 +54,7 @@ class CabPanel : public juce::Component, private juce::Timer {
         if(s.cabinet.getSelectedId()==2) {setSource(slot,3);s.microphone.setText(processor.micName(lane,slot),juce::dontSendNotification);}
     }
     void refresh() {
+        displayedSource={-1,-1};
         entries=spectralforge::IRCollection::scan(spectralforge::IRCollection::roots(),true);
         for(int i=int(entries.size());--i>=0;)if(!entries[size_t(i)].ready())entries.erase(entries.begin()+i);
         juce::StringArray names;for(const auto& e:entries)names.addIfNotAlreadyThere(cabinetName(e));
@@ -75,7 +79,17 @@ class CabPanel : public juce::Component, private juce::Timer {
         browser=options.launchAsync();
     }
     void timerCallback() override {
-        for(int i=0;i<2;++i) slots[i].status.setText(processor.micStatus(lane,i),juce::dontSendNotification);
+        for(int i=0;i<2;++i) {
+            auto& slot=slots[i];
+            slot.status.setText(processor.micStatus(lane,i),juce::dontSendNotification);
+            const auto name=processor.micName(lane,i);
+            const int source=int(processor.parameters().getRawParameterValue((i ? "cabBtype" : "cabtype")+juce::String(lane+1))->load());
+            if(source!=displayedSource[i] || name!=displayedName[i]) {
+                displayedSource[i]=source;displayedName[i]=name;
+                slot.cabinet.setText(source==0 ? "Filters only" : source==1 ? "Factory V30" : source==2 ? "Factory Jensen" : "Current project IR",juce::dontSendNotification);
+                slot.microphone.setText(source==0 ? "No speaker IR" : source==1 || source==2 ? "SM57" : name.isEmpty() ? "No IR loaded" : name,juce::dontSendNotification);
+            }
+        }
     }
 public:
     CabPanel(ChimeraProcessor& p,int rig):processor(p),lane(rig) {
