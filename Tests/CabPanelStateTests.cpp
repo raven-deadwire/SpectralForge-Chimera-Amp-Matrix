@@ -1,5 +1,7 @@
 #include "CabPanel.h"
 #include "IRStateAssets.h"
+#include "CabMicrophoneUITests.h"
+#include "CabIntegratedUITests.h"
 #include <iostream>
 #include <stdexcept>
 #include <vector>
@@ -60,6 +62,19 @@ void originalStateContracts() {
     set(*p,"mode",0);set(*p,"cabblend1",0);const auto before=render(*p);
     set(*p,"ocab1_Aposition",0);const auto after=render(*p);float diff=0;
     for(size_t n=0;n<before.size();++n)diff=std::max(diff,std::abs(before[n]-after[n]));check(diff>1e-5,"position reaches production output");
+    // Each shared/slot control must affect production audio, not just serialize
+    // or update a label. A-only isolates the independently selected microphone.
+    // Off-centre avoids the physical mirror symmetry of identical cone centres.
+    set(*p,"ocab1_Aposition",.63f);
+    for(const auto& change:std::array<std::pair<const char*,float>,6>{{
+            {"design",0},{"rear",0},{"tweeter",.9f},{"Amic",2},{"Aunit",3},{"Adistance",42}}}) {
+        const auto id=spectralforge::originalCabID(0,change.first);
+        const float old=p->parameters().getRawParameterValue(id)->load();
+        const auto baseline=render(*p);set(*p,id,change.second);const auto changed=render(*p);
+        float maximum=0;for(size_t n=0;n<baseline.size();++n)maximum=std::max(maximum,std::abs(baseline[n]-changed[n]));
+        if(maximum<=1e-5f)std::cerr<<"Inaudible control "<<id<<" difference="<<maximum<<'\n';
+        check(maximum>1e-5f,"original control does not reach production audio");set(*p,id,old);
+    }
     CabPanel panel(*p,0);
     // Nested controls remain host-bound and legible in the real CAB panel.
     std::function<juce::Component*(juce::Component&,const juce::String&)> find=[&](juce::Component& root,const juce::String& id)->juce::Component* {
@@ -74,8 +89,15 @@ void originalStateContracts() {
     const auto personal=juce::File::getSpecialLocation(juce::File::tempDirectory).getNonexistentChildFile("original-cab-user-fixture",".wav",false);
     fixture(personal,7);check(p->loadMicIR(0,0,personal).wasOk(),"mixed User IR / original import");check(personal.deleteFile(),"mixed source deletion");
     check(p->parameters().getRawParameterValue("ocab1_Aon")->load()==0 && p->parameters().getRawParameterValue("ocab1_Bon")->load()==1,"import switches only its own slot");
-    set(*p,"cabblend1",.5f);juce::MemoryBlock mixed;p->getStateInformation(mixed);
-    auto mixedRecall=std::make_unique<ChimeraProcessor>();mixedRecall->setStateInformation(mixed.getData(),int(mixed.getSize()));equal(render(*p),render(*mixedRecall));
+    set(*p,"cabblend1",.5f);
+    for(int mode=0;mode<3;++mode)for(int dual=0;dual<(mode==1?2:1);++dual) {
+        set(*p,"mode",float(mode));set(*p,"dualtype",float(dual));juce::MemoryBlock mixed;p->getStateInformation(mixed);
+        auto mixedRecall=std::make_unique<ChimeraProcessor>();mixedRecall->setStateInformation(mixed.getData(),int(mixed.getSize()));equal(render(*p),render(*mixedRecall));
+    }
+    // Comparison recall crosses the actual capture/model boundary with its
+    // original source file already absent.
+    const int mixedSlot=1-p->comparisonSlot();p->copyComparison();const auto mixedAudio=render(*p);set(*p,"ocab1_Aon",1);p->selectComparison(mixedSlot);
+    equal(mixedAudio,render(*p));check(p->parameters().getRawParameterValue("ocab1_Aon")->load()==0,"comparison lost captured source mode");
     // Legacy reset is checked from a deliberately dirty modeled session.
     set(*p,"ocab1_Aon",1);
     auto legacy=p->parameters().copyState();
@@ -89,6 +111,13 @@ int main(int argc,char** argv){juce::ScopedJuceInitialiser_GUI gui;auto folder=j
         check(juce::File::getCurrentWorkingDirectory().getChildFile(argv[2]).copyFileTo(a),"private A copy");
         check(juce::File::getCurrentWorkingDirectory().getChildFile(argv[3]).copyFileTo(b),"private B copy");
     } else {check(argc<=2,"usage: ChimeraCabPanelStateTests [snapshot.png [user-IR-A user-IR-B]]");fixture(a,0);fixture(b,18);}
+    cabMicrophoneUITests::run(folder.getChildFile("microphone-ui"),argc>1
+        ? juce::File::getCurrentWorkingDirectory().getChildFile(argv[1]).getParentDirectory() : juce::File{});
+    cabIntegratedUITests::run(folder.getChildFile("integrated-ui"),argc>1
+        ? juce::File::getCurrentWorkingDirectory().getChildFile(argv[1]).getParentDirectory() : juce::File{});
+    check(!juce::SharedResourcePointer<spectralforge::cabArt::Bank>::getSharedObjectWithoutCreating(),
+        "CAB artwork survives the final panel owner");
+    std::cout<<"PASS CAB artwork lifetime: every image released after the last panel closes\n";
     auto p=std::make_unique<ChimeraProcessor>();
     set(*p,"gateon",0);set(*p,"oversampling",0);set(*p,"lowampmix",1);
     for(int lane=0;lane<3;++lane){const auto n=juce::String(lane+1);set(*p,"ampon"+n,0);check(p->loadMicIR(lane,0,a).wasOk() && p->loadMicIR(lane,1,b).wasOk(),"production IR imports");set(*p,"cabblend"+n,.31f+float(lane)*.12f);set(*p,"cabAgain"+n,-3);set(*p,"cabBgain"+n,-5);set(*p,"cabAdelay"+n,.7f);set(*p,"cabBdelay"+n,1.3f);set(*p,"cabBinvert"+n,1);set(*p,"cabBlow"+n,120);set(*p,"cabBhigh"+n,6000);}

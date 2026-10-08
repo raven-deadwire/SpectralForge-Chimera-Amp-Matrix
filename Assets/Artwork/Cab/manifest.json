@@ -1,0 +1,278 @@
+{
+  "schema": 1,
+  "purpose": "Chimera CAB presentation assets",
+  "artwork_changes_audio": false,
+  "generator": "built-in image_gen",
+  "images": [
+    {
+      "file": "cab-guitar-412.png",
+      "bytes": 3127557,
+      "sha256": "43512324e796688c0c4868d2b2065645ebb6ade52443f79bbc4d64af80dbe3db",
+      "width": 1254,
+      "height": 1254,
+      "mode": "RGBA",
+      "alpha_min": 0,
+      "alpha_max": 255
+    },
+    {
+      "file": "cab-bass-410.png",
+      "bytes": 2958333,
+      "sha256": "0c587b5e2b564cd13997319ee2b0dc00994133e91af8a932dff9e4b209d6951f",
+      "width": 1254,
+      "height": 1254,
+      "mode": "RGBA",
+      "alpha_min": 0,
+      "alpha_max": 255
+    },
+    {
+      "file": "speaker-guitar-12.png",
+      "bytes": 3025402,
+      "sha256": "d71d0e8e21d6113b9c448092320dee5392af8213939af880625ca94b5771ee7d",
+      "width": 1254,
+      "height": 1254,
+      "mode": "RGBA",
+      "alpha_min": 0,
+      "alpha_max": 255
+    },
+    {
+      "file": "speaker-bass-10.png",
+      "bytes": 2494400,
+      "sha256": "7ef410cb0e61ed8ff64080543484273dfacf23649f0ba6c6f66751b4389bb0d8",
+      "width": 1254,
+      "height": 1254,
+      "mode": "RGBA",
+      "alpha_min": 0,
+      "alpha_max": 255
+    },
+    {
+      "file": "mic-attack-dynamic.png",
+      "bytes": 1359048,
+      "sha256": "23bfff36c9227d91118596f183117d80263d0e568b173fa46e1f64374ca33e25",
+      "width": 1024,
+      "height": 1536,
+      "mode": "RGBA",
+      "alpha_min": 0,
+      "alpha_max": 254
+    },
+    {
+      "file": "mic-body-ribbon.png",
+      "bytes": 1473906,
+      "sha256": "31c4c9fe1508c5e238074fab203553e72d5088ebd20965ded49492c7ef43d2a7",
+      "width": 1024,
+      "height": 1536,
+      "mode": "RGBA",
+      "alpha_min": 0,
+      "alpha_max": 254
+    },
+    {
+      "file": "mic-detail-condenser.png",
+      "bytes": 2120017,
+      "sha256": "497dbb48b2abf9e1781971ebf6ff2a9bd35abc2fa3812a9ff5f736dc51ed6fb3",
+      "width": 1024,
+      "height": 1536,
+      "mode": "RGBA",
+      "alpha_min": 0,
+      "alpha_max": 254
+    },
+    {
+      "file": "mic-dynamic-57.png",
+      "bytes": 531913,
+      "sha256": "e4a2e788adffc722789185208fae9469e64b5c0eb52e5c37025cd78c8139cd0d",
+      "width": 1254,
+      "height": 1254,
+      "mode": "RGBA",
+      "alpha_min": 0,
+      "alpha_max": 255
+    },
+    {
+      "file": "mic-dynamic-421.png",
+      "bytes": 1092787,
+      "sha256": "e6f3753d55dee4c11ea03a078984a8c98c23790a8d2faa600a6e327251818e82",
+      "width": 1254,
+      "height": 1254,
+      "mode": "RGBA",
+      "alpha_min": 0,
+      "alpha_max": 255
+    },
+    {
+      "file": "mic-dynamic-441.png",
+      "bytes": 691530,
+      "sha256": "ad9ea01ed5af946d4cc17d05d9cc72a0081ac5e5804b6b831fc41e4baaa45569",
+      "width": 1254,
+      "height": 1254,
+      "mode": "RGBA",
+      "alpha_min": 0,
+      "alpha_max": 255
+    },
+    {
+      "file": "mic-dynamic-906.png",
+      "bytes": 1361182,
+      "sha256": "d4441728bb6764f2b368107f08bc30c95f9d27eba95468e0d0b9002b727e9265",
+      "width": 1254,
+      "height": 1254,
+      "mode": "RGBA",
+      "alpha_min": 0,
+      "alpha_max": 255
+    },
+    {
+      "file": "mic-dynamic-20.png",
+      "bytes": 1049067,
+      "sha256": "4c9ac751747d848fabc6dcbc8e36539bd526a68bb89b7e3d81ab2f5eeeb7e53b",
+      "width": 1254,
+      "height": 1254,
+      "mode": "RGBA",
+      "alpha_min": 0,
+      "alpha_max": 255
+    },
+    {
+      "file": "mic-dynamic-7.png",
+      "bytes": 1061661,
+      "sha256": "83f5f1984b4fd3ab7e285f469276de64f6042cfb1964562fb87486c6021a0398",
+      "width": 1254,
+      "height": 1254,
+      "mode": "RGBA",
+      "alpha_min": 0,
+      "alpha_max": 255
+    },
+    {
+      "file": "mic-dynamic-201.png",
+      "bytes": 466656,
+      "sha256": "27ca5a4607789b1a7dc8c3d4656f3ceaa075bded5cab48614f4d52693158eaf0",
+      "width": 1254,
+      "height": 1254,
+      "mode": "RGBA",
+      "alpha_min": 0,
+      "alpha_max": 255
+    },
+    {
+      "file": "mic-dynamic-88.png",
+      "bytes": 787798,
+      "sha256": "934796beb3a050a6a4cfe245d1c53e2f02c1e473650df7eac22bf04c82b5131b",
+      "width": 1254,
+      "height": 1254,
+      "mode": "RGBA",
+      "alpha_min": 0,
+      "alpha_max": 255
+    },
+    {
+      "file": "mic-dynamic-112.png",
+      "bytes": 1513865,
+      "sha256": "63f65aebd50a806b6ddf3d851269814b99ed6b8fcb596c582e0fb1fb31a1deaa",
+      "width": 1254,
+      "height": 1254,
+      "mode": "RGBA",
+      "alpha_min": 0,
+      "alpha_max": 255
+    },
+    {
+      "file": "mic-ribbon-121.png",
+      "bytes": 544416,
+      "sha256": "af21c581da30ae3630d137405787bf70212c3084ee2bfb8de6ed9bd93db732b2",
+      "width": 1254,
+      "height": 1254,
+      "mode": "RGBA",
+      "alpha_min": 0,
+      "alpha_max": 255
+    },
+    {
+      "file": "mic-ribbon-160.png",
+      "bytes": 584813,
+      "sha256": "dff69a5284fc81d740904eac91efecb2013bd42a4742a9352bd8805861be8292",
+      "width": 1254,
+      "height": 1254,
+      "mode": "RGBA",
+      "alpha_min": 0,
+      "alpha_max": 255
+    },
+    {
+      "file": "mic-ribbon-4038.png",
+      "bytes": 1405466,
+      "sha256": "15bd66666d4e7fc726afcf85ac2dc43d6f9f27e59ea0b55d4195870846549030",
+      "width": 1254,
+      "height": 1254,
+      "mode": "RGBA",
+      "alpha_min": 0,
+      "alpha_max": 255
+    },
+    {
+      "file": "mic-condenser-87.png",
+      "bytes": 899435,
+      "sha256": "3d17a264dd41f08394b3a1ed9d2469795d4bfec7092b498f14c9f0338c269284",
+      "width": 1254,
+      "height": 1254,
+      "mode": "RGBA",
+      "alpha_min": 0,
+      "alpha_max": 255
+    },
+    {
+      "file": "mic-condenser-414.png",
+      "bytes": 1465847,
+      "sha256": "6668e2f764e42c75191845be62594c940b889dcc963576b5c32ab0495e44921d",
+      "width": 1254,
+      "height": 1254,
+      "mode": "RGBA",
+      "alpha_min": 0,
+      "alpha_max": 255
+    },
+    {
+      "file": "mic-condenser-184.png",
+      "bytes": 473490,
+      "sha256": "ef9564e37a4c6929c64beb7e8a49ee14eb38393ae17cf78be4ac9beae143c8ba",
+      "width": 1254,
+      "height": 1254,
+      "mode": "RGBA",
+      "alpha_min": 0,
+      "alpha_max": 255
+    },
+    {
+      "file": "mic-condenser-47-fet.png",
+      "bytes": 1898032,
+      "sha256": "2079e1c6e9416760d6c0d580f8db1d6e50cbfb00f504e8445d0c146da77bcd31",
+      "width": 1254,
+      "height": 1254,
+      "mode": "RGBA",
+      "alpha_min": 0,
+      "alpha_max": 255
+    },
+    {
+      "file": "mic-condenser-4050.png",
+      "bytes": 1075183,
+      "sha256": "00dc8bd82c64ac8415e8dc6e71f82d090699397905de87666bc14e797cc82e91",
+      "width": 1254,
+      "height": 1254,
+      "mode": "RGBA",
+      "alpha_min": 0,
+      "alpha_max": 255
+    },
+    {
+      "file": "mic-condenser-201-fet.png",
+      "bytes": 812588,
+      "sha256": "d8a3b7264baca252267bf0d98d1258ba34fe5731b22d0655ad7c6141a4cff7d1",
+      "width": 1254,
+      "height": 1254,
+      "mode": "RGBA",
+      "alpha_min": 0,
+      "alpha_max": 255
+    },
+    {
+      "file": "mic-condenser-67.png",
+      "bytes": 939664,
+      "sha256": "d16210b3657d8d97e73102d8f3a5b01f1be06a560a058d3595a66c4bfc239d1a",
+      "width": 1254,
+      "height": 1254,
+      "mode": "RGBA",
+      "alpha_min": 0,
+      "alpha_max": 255
+    },
+    {
+      "file": "mic-chimera-strike.png",
+      "bytes": 931315,
+      "sha256": "12f0a16c45f3e64a16e35818aa66344c9bf4c3d35c635b1b57d335b8e3ffa977",
+      "width": 1254,
+      "height": 1254,
+      "mode": "RGBA",
+      "alpha_min": 0,
+      "alpha_max": 255
+    }
+  ]
+}

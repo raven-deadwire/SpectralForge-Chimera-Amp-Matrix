@@ -212,10 +212,10 @@ void IRLibrary::restore(const juce::ValueTree& tree)
     }
     notify();
 }
-IRMetadata IRLibrary::metadata(int lane,int source) const
+IRMetadata IRLibrary::metadata(int lane,int source,bool includeModeled) const
 {
     std::lock_guard<std::mutex> lock(mutex);if(lane<0 || lane>5)return {};
-    if(const auto model=cabs[lane]->requestedModel.load()) {
+    if(const auto model=includeModeled ? cabs[lane]->requestedModel.load() : 0) {
         const auto p=originalCab::settings(model);IRMetadata m;
         m.instrument=p.cabinet ? IRMetadata::Instrument::bass : IRMetadata::Instrument::guitar;
         m.displayLabel=p.cabinet ? "Original Bass 4x10 v1" : "Original Guitar 4x12 v1";

@@ -81,6 +81,12 @@ Switching resets DSP histories/tails and is not gapless tail-preserving preset m
 
 ## IR collection
 
+The CAB panel's [microphone catalog](CAB_MICROPHONE_CATALOG.md) groups actual
+captures under 9 dynamic, 3 ribbon and 8 condenser identities. Chimera Strike is
+the original condenser entry. Aliases and small selected-reference labels do not
+alter the captured response; the IR browser's microphone filter can only load
+matching available files. Other and mixed imports remain accessible.
+
 IR remains on its amplifier lane. The CAB menu directly lists installed files, grouped into bass and guitar/other, in addition to the factory sources. IR LIBRARY and each lane's IRs button open the persistent cabinet collection, with factory and missing/installed reference rows. A catalog entry without its WAV is not an available IR and cannot be loaded. The collection indexes up to 512 WAV/AIFF files, filters by speaker diameter, and searches speaker/microphone/position/creator text. TAGS shows twelve independent capture fields. User tags are editable and are embedded with audio in projects and A/B. Factory tags are read-only.
 
 A sidecar named exactly `filename.wav.json` supplies confirmed fields. The examples in `reference/ir-tags` match the selected TONE3000 files. Copy the matching sidecar beside your downloaded WAV. Recognized filenames use the source catalog with a filename-association warning; verify the recorded SHA256 for exact identity. Other files receive only identifiable filename hints. The selected reference exposes its source page. Unknown distance, off-axis angle, unit model or diameter stays blank. A 4x12 means four 12-inch speakers; it says nothing about mic distance. Close-mic descriptions without a number are not converted into invented centimeters.

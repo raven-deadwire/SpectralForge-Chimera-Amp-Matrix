@@ -24,6 +24,44 @@ function Defender-Command([string[]]$Arguments, [string]$LogName) {
     $output | ForEach-Object { Write-Host "$_" }
     return $result
 }
+function Update-DefenderIntelligence {
+    # Fixed bounded policy; no fallback to stale definitions or skipped scans.
+    $attempts = [Collections.Generic.List[object]]::new()
+    for ($attempt = 1; $attempt -le 3; ++$attempt) {
+        $logName = "SignatureUpdate-$attempt.log"
+        $started = [DateTime]::UtcNow.ToString('o')
+        $exitCode = $null
+        $errorMessage = $null
+        try { $exitCode = Defender-Command @("-SignatureUpdate", "-MMPC") $logName }
+        catch { $errorMessage = $_.Exception.Message }
+        $raw = if (Test-Path -LiteralPath (Join-Path $reportRoot $logName)) {
+            Get-Content -LiteralPath (Join-Path $reportRoot $logName) -Raw
+        } else { "" }
+        $hresults = @([regex]::Matches([string]$raw, '(?i)0x[0-9a-f]{8}') |
+            ForEach-Object { $_.Value.ToLowerInvariant() } | Sort-Object -Unique)
+        $success = $null -ne $exitCode -and $exitCode -eq 0 -and !$errorMessage
+        $cause = if ($success) { "update_completed" }
+            elseif ($hresults -contains "0x80072ee2") { "update_network_timeout" }
+            elseif ($errorMessage) { "update_command_error" }
+            else { "update_error" }
+        $delay = if (!$success -and $attempt -lt 3) { 15 * $attempt } else { 0 }
+        $attempts.Add([pscustomobject]@{
+            Attempt = $attempt; StartedUTC = $started
+            FinishedUTC = [DateTime]::UtcNow.ToString('o')
+            ExitCode = $exitCode; HResults = $hresults; Cause = $cause
+            Error = $errorMessage; Log = $logName; RetryDelaySeconds = $delay
+        })
+        ConvertTo-Json -InputObject @($attempts.ToArray()) -Depth 5 |
+            Set-Content -LiteralPath (Join-Path $reportRoot "SignatureUpdateAttempts.json") -Encoding utf8
+        Note "Defender update attempt $attempt/3: cause=$cause; exit=$exitCode; HRESULT=$($hresults -join ','); error=$errorMessage"
+        if ($success) { return }
+        if ($delay) {
+            Note "Retrying security intelligence update in $delay seconds; malware scan has not started."
+            Start-Sleep -Seconds $delay
+        }
+    }
+    throw "UPDATE_FAILED: Defender security intelligence update failed after 3 attempts. Malware scan NOT_RUN; distribution remains blocked."
+}
 function Inventory([string[]]$Roots) {
     $files = foreach ($root in $Roots) {
         if (Test-Path -LiteralPath $root -PathType Container) {
@@ -73,15 +111,14 @@ try {
     if ($preferences.DisableArchiveScanning -or $preferences.DisableScriptScanning -or $preferences.PUAProtection -ne 1) {
         throw "Required scan settings did not take effect."
     }
-    $update = Defender-Command @("-SignatureUpdate", "-MMPC") "SignatureUpdate.log"
-    if ($update -ne 0) { throw "Defender security intelligence update failed: $update" }
+    Update-DefenderIntelligence
     $status = Get-MpComputerStatus
     $status | Select-Object AMEngineVersion, AMProductVersion, AMServiceEnabled, AMRunningMode,
         AntivirusSignatureVersion, AntivirusSignatureLastUpdated, RealTimeProtectionEnabled |
         ConvertTo-Json | Set-Content -LiteralPath (Join-Path $reportRoot "DefenderStatus.json") -Encoding utf8
     if (!$status.AMServiceEnabled -or !$status.AMEngineVersion -or !$status.AntivirusSignatureVersion -or
         ([DateTime]::UtcNow - $status.AntivirusSignatureLastUpdated.ToUniversalTime()).TotalDays -gt 2) {
-        throw "Defender is not ready with current security intelligence."
+        throw "DEFINITIONS_INVALID: Defender is not ready with current security intelligence. Malware scan NOT_RUN; distribution remains blocked."
     }
     Note "Engine: $($status.AMEngineVersion); signatures: $($status.AntivirusSignatureVersion); updated: $($status.AntivirusSignatureLastUpdated.ToUniversalTime().ToString('o'))"
     Note "Manual custom scans use -DisableRemediation: ignore path exclusions, scan archives, report detections without altering input files."

@@ -29,7 +29,7 @@ public:
     juce::Result importFile(int lane, const juce::File&);
     juce::String status(int lane) const;
     juce::String userName(int lane) const;
-    IRMetadata metadata(int lane, int source) const;
+    IRMetadata metadata(int lane, int source, bool includeModeled=true) const;
     void setMetadata(int lane, const IRMetadata&);
     // UI invalidation only. Existing cabinet atomics cover asynchronous kernel
     // activation; metadata/error revisions are written off the audio callback.
