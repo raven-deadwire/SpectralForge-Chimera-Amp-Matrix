@@ -30,7 +30,62 @@ void neutralCab(ChimeraProcessor& p) {
 void fixture(const juce::File& f,int offset){juce::WavAudioFormat format;auto stream=f.createOutputStream();auto w=std::unique_ptr<juce::AudioFormatWriter>(format.createWriterFor(stream.release(),48000,1,24,{},0));check(w!=nullptr,"writer");juce::AudioBuffer<float> b(1,512);b.clear();b.setSample(0,offset,.5f);b.setSample(0,offset+7,.15f);check(w->writeFromAudioSampleBuffer(b,0,512),"write");}
 std::vector<float> render(ChimeraProcessor& p){p.prepareToPlay(48000,128);juce::AudioBuffer<float> b(2,128);juce::MidiBuffer midi;for(int i=0;i<64;++i){b.clear();p.processBlock(b,midi);}std::vector<float> out;for(int block=0;block<64;++block){for(int c=0;c<2;++c)for(int n=0;n<128;++n)b.setSample(c,n,.05f*std::sin(float(block*128+n)*(.073f+c*.027f)));p.processBlock(b,midi);for(int n=0;n<128;++n)for(int c=0;c<2;++c){check(std::isfinite(b.getSample(c,n)),"finite production output");out.push_back(b.getSample(c,n));}}p.releaseResources();check(p.backgroundResourcesReleased(),"A/B worker and kernel teardown");return out;}
 void equal(const std::vector<float>& a,const std::vector<float>& b){float d=0;double energy=0;check(a.size()==b.size(),"length");for(size_t i=0;i<a.size();++i){d=std::max(d,std::abs(a[i]-b[i]));energy+=a[i]*a[i];}check(energy>1e-8,"audible response");check(d<1e-6f,"production project audio restore");}
-int main(int argc,char** argv){juce::ScopedJuceInitialiser_GUI gui;auto folder=juce::File::getSpecialLocation(juce::File::tempDirectory).getNonexistentChildFile("cab-state-fixture",{},false);struct Cleanup{juce::File f;~Cleanup(){f.deleteRecursively();}} cleanup{folder};try{check(folder.createDirectory().wasOk(),"directory");auto a=folder.getChildFile("A.wav"),b=folder.getChildFile("B.wav");if(argc==4) {
+void originalStateContracts() {
+    auto p=std::make_unique<ChimeraProcessor>();
+    set(*p,"gateon",0);set(*p,"oversampling",0);set(*p,"lowampmix",1);
+    for(int lane=0;lane<3;++lane) {
+        set(*p,"ampon"+juce::String(lane+1),0);
+        auto setModel=[&](const char* suffix,float value){set(*p,spectralforge::originalCabID(lane,suffix),value);};
+        setModel("design",1);setModel("rear",1);setModel("tweeter",.25f);
+        setModel("Aon",1);setModel("Bon",1);setModel("Bmic",2);setModel("Bunit",1);
+        setModel("Aposition",.7f);setModel("Bdistance",23.f);set(*p,"cabblend"+juce::String(lane+1),.4f);
+    }
+    for(int mode=0;mode<3;++mode)for(int dual=0;dual<(mode==1?2:1);++dual) {
+        set(*p,"mode",float(mode));set(*p,"dualtype",float(dual));
+        juce::MemoryBlock data;p->getStateInformation(data);
+        auto restored=std::make_unique<ChimeraProcessor>();restored->setStateInformation(data.getData(),int(data.getSize()));
+        equal(render(*p),render(*restored));
+        check(restored->parameters().getRawParameterValue("ocab1_Bunit")->load()==1,"independent unit restoration");
+        std::cout<<"PASS original CAB production state mode="<<mode<<" dual="<<dual<<'\n';
+    }
+    set(*p,"mode",2);
+    for(int os=0;os<4;++os)for(float lowMix:{0.f,.5f,1.f}) {
+        set(*p,"oversampling",float(os));set(*p,"lowampmix",lowMix);
+        juce::MemoryBlock data;p->getStateInformation(data);auto restored=std::make_unique<ChimeraProcessor>();restored->setStateInformation(data.getData(),int(data.getSize()));equal(render(*p),render(*restored));
+    }
+    std::cout<<"PASS original Matrix low DI 0/50/100 and 1x/2x/4x/8x restoration\n";
+    set(*p,"oversampling",0);set(*p,"lowampmix",1);
+    auto a=render(*p);p->copyComparison();set(*p,"ocab1_Adistance",55);p->selectComparison(1);equal(a,render(*p));
+    // Actual production path, not only generator coefficients.
+    set(*p,"mode",0);set(*p,"cabblend1",0);const auto before=render(*p);
+    set(*p,"ocab1_Aposition",0);const auto after=render(*p);float diff=0;
+    for(size_t n=0;n<before.size();++n)diff=std::max(diff,std::abs(before[n]-after[n]));check(diff>1e-5,"position reaches production output");
+    CabPanel panel(*p,0);
+    // Nested controls remain host-bound and legible in the real CAB panel.
+    std::function<juce::Component*(juce::Component&,const juce::String&)> find=[&](juce::Component& root,const juce::String& id)->juce::Component* {
+        if(root.getComponentID()==id)return &root;for(auto* child:root.getChildren())if(auto* found=find(*child,id))return found;return nullptr;
+    };
+    auto* distance=dynamic_cast<juce::Slider*>(find(panel,"ocab1_Adistance"));check(distance!=nullptr,"modeled distance UI");
+    distance->setValue(33,juce::sendNotificationSync);check(std::abs(p->parameters().getRawParameterValue("ocab1_Adistance")->load()-33)<.11f,"distance UI binding");
+    auto preview=panel.createComponentSnapshot(panel.getLocalBounds());
+    auto output=juce::File::getCurrentWorkingDirectory().getChildFile("original-cab-panel.png").createOutputStream();
+    check(output!=nullptr && output->setPosition(0) && output->truncate().wasOk(),"original screenshot output");
+    juce::PNGImageFormat png;check(png.writeImageToStream(preview,*output),"original screenshot");
+    const auto personal=juce::File::getSpecialLocation(juce::File::tempDirectory).getNonexistentChildFile("original-cab-user-fixture",".wav",false);
+    fixture(personal,7);check(p->loadMicIR(0,0,personal).wasOk(),"mixed User IR / original import");check(personal.deleteFile(),"mixed source deletion");
+    check(p->parameters().getRawParameterValue("ocab1_Aon")->load()==0 && p->parameters().getRawParameterValue("ocab1_Bon")->load()==1,"import switches only its own slot");
+    set(*p,"cabblend1",.5f);juce::MemoryBlock mixed;p->getStateInformation(mixed);
+    auto mixedRecall=std::make_unique<ChimeraProcessor>();mixedRecall->setStateInformation(mixed.getData(),int(mixed.getSize()));equal(render(*p),render(*mixedRecall));
+    // Legacy reset is checked from a deliberately dirty modeled session.
+    set(*p,"ocab1_Aon",1);
+    auto legacy=p->parameters().copyState();
+    for(int n=legacy.getNumChildren();--n>=0;)if(legacy.getChild(n).getProperty("id").toString().startsWith("ocab"))legacy.removeChild(n,nullptr);
+    juce::MemoryBlock old;juce::AudioProcessor::copyXmlToBinary(*legacy.createXml(),old);
+    p->setStateInformation(old.getData(),int(old.getSize()));
+    for(int lane=0;lane<3;++lane)for(const char* suffix:{"Aon","Bon"})check(p->parameters().getRawParameterValue(spectralforge::originalCabID(lane,suffix))->load()==0,"legacy must disable dirty modeled slots");
+    std::cout<<"PASS original A/B comparison, position audio, UI and legacy disable\n";
+}
+int main(int argc,char** argv){juce::ScopedJuceInitialiser_GUI gui;auto folder=juce::File::getSpecialLocation(juce::File::tempDirectory).getNonexistentChildFile("cab-state-fixture",{},false);struct Cleanup{juce::File f;~Cleanup(){f.deleteRecursively();}} cleanup{folder};try{originalStateContracts();check(folder.createDirectory().wasOk(),"directory");auto a=folder.getChildFile("A.wav"),b=folder.getChildFile("B.wav");if(argc==4) {
         check(juce::File::getCurrentWorkingDirectory().getChildFile(argv[2]).copyFileTo(a),"private A copy");
         check(juce::File::getCurrentWorkingDirectory().getChildFile(argv[3]).copyFileTo(b),"private B copy");
     } else {check(argc<=2,"usage: ChimeraCabPanelStateTests [snapshot.png [user-IR-A user-IR-B]]");fixture(a,0);fixture(b,18);}

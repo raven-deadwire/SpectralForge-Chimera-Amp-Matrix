@@ -1,12 +1,14 @@
 #pragma once
 #include "PluginProcessor.h"
+#include "OriginalCabControls.h"
 #include "HardwareArtwork.h"
 #include "IRBrowserPanel.h"
 
-// Fixed captured IRs. Voicing labels are choices, never inferred coordinates.
+// Fixed IR choices and an explicitly separate original modeled path.
 class CabPanel : public juce::Component, private juce::Timer {
     using SA=juce::AudioProcessorValueTreeState::SliderAttachment;
     using BA=juce::AudioProcessorValueTreeState::ButtonAttachment;
+    std::unique_ptr<OriginalCabControls> originalControls;
     ChimeraProcessor& processor;
     int lane;
     struct Slot {
@@ -40,6 +42,8 @@ class CabPanel : public juce::Component, private juce::Timer {
         return (e.tags.values[3].isNotEmpty() ? e.tags.values[3]+" / " : juce::String{})+name;
     }
     void setSource(int slot,int source) {
+        auto* original=processor.parameters().getParameter(spectralforge::originalCabID(lane,slot ? "Bon" : "Aon"));
+        original->beginChangeGesture();original->setValueNotifyingHost(0);original->endChangeGesture();
         auto* p=processor.parameters().getParameter((slot ? "cabBtype" : "cabtype")+juce::String(lane+1));
         p->beginChangeGesture();p->setValueNotifyingHost(p->convertTo0to1(float(source)));p->endChangeGesture();
     }
@@ -94,7 +98,7 @@ class CabPanel : public juce::Component, private juce::Timer {
 public:
     CabPanel(ChimeraProcessor& p,int rig):processor(p),lane(rig) {
         const auto n=juce::String(lane+1);
-        heading.setText("CAB PANEL / RIG "+n+"   |   Fixed IR / captured voicing",juce::dontSendNotification);addAndMakeVisible(heading);
+        heading.setText("CAB PANEL / RIG "+n+"   |   Fixed IR + Original / Modeled",juce::dontSendNotification);addAndMakeVisible(heading);
         for(int i=0;i<2;++i) {
             auto& s=slots[i];s.title.setText(i ? "MIC B" : "MIC A",juce::dontSendNotification);
             for(juce::Component* c:std::initializer_list<juce::Component*>{&s.title,&s.status,&s.cabinet,&s.microphone,&s.browse,&s.invert})addAndMakeVisible(c);
@@ -126,12 +130,14 @@ public:
         blend.setComponentID("cabblend"+n);
         blend.textFromValueFunction=[](double value){return juce::String(value*100.0,1)+"% B";};
         blend.valueFromTextFunction=[](const juce::String& text){return text.getDoubleValue()*.01;};blend.updateText();
-        refresh();timerCallback();setSize(900,450);startTimerHz(10);
+        originalControls=std::make_unique<OriginalCabControls>(processor,lane);addAndMakeVisible(*originalControls);
+        refresh();timerCallback();setSize(900,700);startTimerHz(10);
     }
     ~CabPanel() override {stopTimer();if(browser)delete browser.getComponent();}
     void paint(juce::Graphics& g) override {g.fillAll(juce::Colour(0xff141b22));}
     void resized() override {
         heading.setBounds(16,10,getWidth()-32,30);
+        if(originalControls)originalControls->setBounds(16,435,getWidth()-32,250);
         const int width=(getWidth()-48)/2;
         for(int i=0;i<2;++i) {
             auto& s=slots[i];const int x=16+i*(width+16);

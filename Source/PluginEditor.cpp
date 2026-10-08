@@ -249,7 +249,7 @@ ChimeraEditor::ChimeraEditor(ChimeraProcessor& p) : AudioProcessorEditor(&p),pro
         lane.cabType.setName("Cabinet "+n);lane.cabType.setComponentID("cabinet"+n);add(lane.cabType);
         lane.cabType.selected=[this,i,n](juce::File file,int source) {
             if(file!=juce::File{}) processor.loadIR(i,file);
-            else {auto* p=processor.parameters().getParameter("cabtype"+n);p->beginChangeGesture();p->setValueNotifyingHost(p->convertTo0to1(float(source)));p->endChangeGesture();}
+            else {auto* model=processor.parameters().getParameter(spectralforge::originalCabID(i,"Aon"));model->beginChangeGesture();model->setValueNotifyingHost(0);model->endChangeGesture();auto* p=processor.parameters().getParameter("cabtype"+n);p->beginChangeGesture();p->setValueNotifyingHost(p->convertTo0to1(float(source)));p->endChangeGesture();}
             timerCallback();
         };
         lane.cabType.browse=[this,i]{loadIR(i);};lane.cabType.refresh();
@@ -366,7 +366,9 @@ void ChimeraEditor::refreshVisibleState()
         if(lane.cabKey.update(key) || stateDirty) {
             lane.metadata=processor.cabMetadata(i);++metadataReads;
             lane.status=(lastMode==2 && i==0 ? juce::String{} : active?juce::String{}:juce::String("BYPASSED | "))+processor.cabStatus(i);
-            lane.cabType.sync(source,processor.userIRName(i));
+            const bool modeled=processor.parameters().getRawParameterValue(spectralforge::originalCabID(i,"Aon"))->load()>.5f;
+            lane.cabType.sync(source,processor.userIRName(i),modeled ? lane.metadata.displayLabel : juce::String{});
+            lane.details.setEnabled(!modeled);
             lane.cabStatus.setText(lane.status,juce::dontSendNotification);
             lane.cabStatus.setTooltip(lane.status+"\n"+lane.metadata.summary());
             lane.cabLow.setEnabled(active);lane.cabHigh.setEnabled(active);

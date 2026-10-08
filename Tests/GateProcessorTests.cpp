@@ -94,7 +94,7 @@ void parameterContract(ChimeraProcessor& p)
     // Niflheimr appends six contexts with two selectors and five 14-control banks.
     // CAB then appends ten version-6 controls for each of the three lanes.
     constexpr int cabParameterCount=3*10;
-    constexpr int expectedParameterCount=4323+6*(2+5*14)+cabParameterCount;
+    constexpr int expectedParameterCount=4323+6*(2+5*14)+cabParameterCount+spectralforge::originalCabParameterCount;
     require(range && range->getParameterIndex()==3890 && count==3686 && p.getParameters().size()==expectedParameterCount,"Gate Range ordinal or complete appended channel parameter count changed");
     require(range->getVersionHint()==2 && range->isAutomatable(),"Range AU version hint/automation changed");
     require(range->getText(1,0)=="Full" && range->getValueForText("Full")==1.f,"Host Full text does not round-trip");
