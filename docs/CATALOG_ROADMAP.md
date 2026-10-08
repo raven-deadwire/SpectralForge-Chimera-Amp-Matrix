@@ -18,7 +18,7 @@ New model IDs, parameter IDs and presets are append-only.
 | 1.1.1 / 1.1.2 | Released baseline | 83 |
 | 1.2 | Released Náströnd | 84 |
 | 1.3 | Niflheimr | 85 |
-| 1.3.x | CAB panel and qualified factory cabinet/mic banks | 85 |
+| 1.3.x | Original cabinet/microphone engine + CAB panel; optional Captured banks | 85 |
 | 1.4 | PRE Expansion A | 91 |
 | 1.5 | PRE Expansion B | 97 |
 | 1.6 | Reference AMP Expansion | 102 |
@@ -28,26 +28,39 @@ New model IDs, parameter IDs and presets are append-only.
 | 1.10 | Synth Layer | 132 |
 | 2.0 | Integration / RC | 132 |
 
-## CAB workstream — added 2026-10-08
+## CAB workstream — Original-first revision, 2026-10-08
 
-Replace the primary single-slot IR editing surface with a per-lane CAB panel,
-two independent mic/IR slots, measured position/distance controls and preserved
-USER IR management. Reuse the convolution backend. Target inventory:
-**7 guitar cabinets + 5 bass cabinets; 8 shared microphone types**, subject to
-actual measured-bank availability and redistribution evidence.
+The owner clarified that existing products are to be studied as references,
+then Chimera's cabinet and microphone system is to be independently designed.
+Replace the primary single-slot IR editing surface with a per-lane CAB panel
+and two independent mic/IR paths. **Original / Modeled** is the default factory
+engine; **Captured** and **User IR** remain distinct compatible sources.
 
-Specification and asset feasibility: October 8–11; engine/state/panel prototype:
-October 12–25; qualified-grid alpha: October 26–November 8; Niflheimr-cycle
-integration and candidate validation: November 9–December 4, all KST.
-These are internal targets with explicit asset/validation dependencies, not
-promised public release dates. Existing Niflheimr work continues now.
+Model-based Position/Distance must work without a measured commercial-cabinet
+grid. Captured movement needs qualified measurements; fixed User IR preserves
+its baked-in response. Missing capture data blocks only that bank, not original
+sound-engine implementation or the playable CAB prototype.
+
+First deliver one original guitar cabinet and one original bass cabinet with
+working mic motion, blend and production state/routing. The earlier
+**7 guitar / 5 bass / 8 mic** list remains research and long-term coverage
+inventory, not a first-release count requirement or a one-to-one cloning list.
+Final Original roles and counts follow verified musical differentiation.
+
+Original architecture and reference-use specification: October 8–11;
+playable engine/state/panel prototype: October 12–25; modeled-response refinement,
+role expansion and original starting presets: October 26–November 8;
+Niflheimr-cycle integration and candidate validation: November 9–December 4,
+all KST. These remain internal targets, not promised public release dates.
+Existing Niflheimr work continues now; qualified Captured additions run in parallel.
 
 The 1.4–1.10 model sequence and 132 target do not change. CAB/microphone/IR
-position counts are separate inventory dimensions. Detailed scope, factory
-targets, acquisition boundaries and acceptance:
+position counts are separate inventory dimensions. Detailed scope, reference
+and training boundaries, task ownership and acceptance:
 [CAB panel roadmap](CABINET_PANEL_ROADMAP.md).
 
 The obsolete “no 1.2 model before October 12” hold is superseded by the owner's
 early integration/publication and the actual October 5 release. Sonic
 calibration, listening and real-host acceptance remain evidence-specific and
-are not implied by catalog counts or publication history.
+are not implied by catalog counts or publication history. This documentation
+revision does not implement DSP, execute training or authorize release.

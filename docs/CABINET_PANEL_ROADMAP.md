@@ -1,291 +1,238 @@
 # Cabinet control panel roadmap
 
-Status: **PLANNED**, added at the owner's request on 2026-10-08 KST.
-Delivery target: **1.3.x CAB update**, alongside the Niflheimr cycle.
-This document specifies future work; it does not describe an implemented panel
-or an acquired factory IR collection.
+Status: **DESIGN DIRECTION APPROVED / IMPLEMENTATION PENDING**.
+Updated 2026-10-08 KST after the owner's clarification:
+study existing products, then independently design Chimera's own cabinet and
+microphone engine. Delivery track remains **1.3.x CAB**, alongside Niflheimr.
+This documentation update does not implement DSP, run training or approve a release.
 
-## Product decision
+## Product decision: original design first
 
-Replace the single-file IR loader as the main cabinet-editing surface with a
-dedicated **CAB** panel: choose a cabinet, place two microphones, blend their
-signals, and manage user IRs. Reuse and extend the existing convolution backend.
+**Reference research -> acoustic design requirements -> original DSP ->
+production CAB controls -> technical and musical validation.**
 
-The current published baseline is
-[Open Beta 1.2](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/releases/tag/v1.2.0-beta.1),
-published on 2026-10-05. The 1.1.1, 1.1.2 and 1.2 releases are historical completed
-releases; their remaining documented limitations are follow-up work. At planning
-time main is 15427d5717d30f566de27bd3dcc0eafa459a5563. Niflheimr and improved
-personal IR management are in [PR #24](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/pull/24),
-then at bd617bde00c26ffee3f741862058c909b6b4835c; they are not assumed merged.
+Existing products are research and comparison references, not mandatory
+one-to-one clones or a collection of files to rename. Learn useful response,
+resonance, decay, directivity and microphone-combination behavior, then author
+Chimera-specific cabinet definitions, microphone models and control laws.
 
-CAB is a shared feature, separate from the AMP/PRE/POST/SYNTH model-count
-contract. The existing 1.3 Niflheimr / 1.4–1.10 expansion sequence and final
-132-model target continue. Cabinet types, microphone types, IR positions and
-presets are tracked separately and do not inflate the 132 count.
+The default factory path is **Original / Modeled**. Missing measurements of a
+particular commercial cabinet must not stop original DSP, functional microphone
+movement, or a playable CAB prototype. Do not merely build a UI shell while
+waiting for a licensed grid. Good musical results, safe controls and distinctive
+roles are required; exact hardware matching is a separate evidence claim.
 
-## Target schedule and work ownership
+This revision supersedes the earlier capture-only CAB requirements in the
+October 8 roadmap, development summary, IR design notes, and embedded CAB text
+in the two development/validation task prompts. It does not change their
+non-CAB scope, cadence, legacy compatibility or release requirements.
+The earlier reference inventory is retained below, not silently substituted.
+The prior full plan remains in Git history at af1ad71cf6d279015627ae7f2bb0c869e670bb53.
 
-Dates are internal planning targets in Asia/Seoul, not promised release dates.
-Read the latest branch, release and evidence before each work session; advance
-completed work rather than waiting for an obsolete start date. Fixes and
-Niflheimr work already in progress continue alongside CAB.
+## Three response sources, one panel
 
-| Target window | Non-Astra development | Astra / evidence review | Completion result |
-|---|---|---|---|
-| 2026-10-08–10-11 | Panel/parameter specification, cabinet/mic inventory, asset manifest and acquisition feasibility | Official reference boundaries, coordinate/gain/timing requirements | Reviewed specification and per-asset missing-input list |
-| 2026-10-12–10-25 | Two-slot backend, worker/cache design, old-state migration, CAB page and USER IR view | Gain, stereo, phase and LOW DI design; interpolation prototype | Internal two-mic/IR build; synthetic fixtures are labelled as fixtures |
-| 2026-10-26–11-08 | Connect qualified measured grids; cabinet/mic browser, metadata and factory starting presets | Grid-node accuracy, motion continuity, same-DI comparison and callback cost | CAB alpha using only available, qualified assets |
-| 2026-11-09–12-04 | Integrate with the current Niflheimr line, package verified factory assets and update EN/DE/KR manuals | Guitar/bass listening, target-host lifecycle, full state/A-B and CPU/latency acceptance | 1.3.x candidate with an explicit shipped asset inventory |
-| Before 1.4 PRE Expansion A, or later if a required input is missing | Complete the accepted CAB scope or name the remaining delivery dependency | Preserve unverified items as pending | Publish only through the existing release process |
+| Source | Response and controls | Dependency boundary |
+|---|---|---|
+| Original / Modeled | Independently authored cabinet/speaker response and virtual microphone models. Position and Distance operate within a declared modeled domain. | No measured cabinet grid is required. Mark simulated coordinates and assumptions as modeled, not measured. |
+| Captured | Actual qualified fixed captures or measured grids. Enable continuous movement only where suitable measured coverage and interpolation validation exist. | Missing data or distribution permission blocks that capture bank, not the Original engine. |
+| User IR | Preserve the user's WAV/AIFF and its existing audio. Level, blend, polarity, delay and cuts remain available. | Do not infer a new microphone or physical placement from one baked-in cabinet/mic IR. Extra virtual shaping, if added later, is explicit, off by default and labeled modeled. |
 
-The development automation remains daily at 15:00 KST; the Astra automation
-remains weekdays at 17:00 KST. This CAB workstream participates in both queues.
-A missing grid, redistribution permission or real-DI recording blocks that
-specific asset/acceptance result; it does not halt independent UI, migration,
-backend or fixture work. Do not reclassify synthetic fixtures as factory captures.
+Use stable source-kind and definition-version identities. Never replace a
+saved modeled cabinet with a subsequently acquired capture automatically,
+or rename a captured commercial cabinet as an independently created response.
+Changing implementation kind requires an explicit selection or migration.
 
-The content target below is 12 cabinets and 8 microphone types. Stage the
-working build with qualified combinations first. Record the actual shipped
-count separately; a target row is never evidence of an installed audio asset.
-At the first checkpoint, identify a viable supplier/creator or existing licensed
-grid for each target and revise content dates if none is available.
+## What learning means in this project
 
-## CAB panel scope
+Research, parameter fitting and neural-network training are different actions.
+The owner's direction requires reference-informed design; it does not require
+an ML architecture where an explicit DSP model is more suitable.
 
-| Area | First delivery |
+| Stage | Work | Required record |
+|---|---|---|
+| Reference study | Review official specs, research and appropriately usable audio; compare several references per desired role where available. | Exact source, scope, known/unknown metadata and permitted use. Listening descriptions are not isolated transfer-function measurements. |
+| Acoustic specification | Define desired spectral envelope, resonance/decay, position/distance behavior, phase, low-frequency support and headroom. | Authored targets and tolerances, explicitly separated from measured facts. |
+| Original design | Implement bounded cabinet, speaker and mic definitions and their interacting controls. | Authored parameter definitions, rationale, generator version and reproducible response outputs. |
+| Optional fitting/training | Fit or train only when useful, using an appropriate reviewed dataset; keep validation inputs separate. | Dataset/source hashes, allowed-use decision, preprocessing, fit/training configuration and held-out results. |
+| Product validation | Compare raw and output-level-matched renders on common inputs; assess musical role and realtime behavior. | Technical evidence, listening observations and real-host results reported separately. |
+
+Renaming, converting an IR to coefficients, or fitting weights to it does not
+by itself establish an independent origin or clear its use for distribution.
+Keep reference-only, fit/training-approved and redistribution-approved inputs
+separate. Unknown permissions block that use, not unrelated original design.
+Do not copy product code, artwork, presets or audio into the factory engine.
+
+The user-supplied Origin Effects IR CAB LIBRARY remains a separately sourced
+personal/reference collection, not a cleared factory or training dataset by
+virtue of being uploaded. Use it only within reviewed permissions. Preserve its
+original file identities; Bright/Medium/Dark labels are not physical coordinates.
+No bulk fitting, derivative-bank distribution or neural training on that pack
+is authorized merely by this design decision. No external purchase or contact
+is part of this update.
+
+## First working implementation
+
+Build **one original guitar cabinet and one original bass cabinet** through
+the same production CAB path before expanding the catalog. Working engineering
+identities may describe a guitar 4x12 and bass 4x10 role; final product names
+are a separate decision. They are not Mesa, Darkglass or other hardware clones.
+
+The first result must be playable: Mic A/B selection, modeled position and
+distance, level, blend, polarity, fine delay, cuts and bypass must affect actual
+audio and survive project/A-B restoration. A response generator without product
+integration is an intermediate result, not completion of the CAB panel.
+
+Start with a small set of meaningfully different original microphone roles,
+such as an attack-focused dynamic, body-focused ribbon and bass-definition
+dynamic. Expand only after response and interaction tests establish useful
+differences. Do not relabel eight copies of one EQ as eight microphone models.
+
+## DSP design boundaries
+
+The proposed architecture separates cabinet/speaker definition, microphone
+response and spatial control, then produces a prepared response for each mic.
+These are engineering requirements, not claims of completed physical modeling.
+
+- Model low-frequency resonance and damping, broad response, mid/high resonances
+  and notches, and high-frequency radiation behavior. Do not assume a simple
+  low-frequency piston approximation also captures cone breakup or close-mic
+  high-frequency behavior.
+- Define position and distance jointly with microphone type. Use a declared
+  modeled domain and finite, stable behavior near every boundary. State the
+  reference plane and model assumptions if numerical distance is shown.
+- Treat direct-arrival delay, response phase and user fine delay separately
+  from processing latency. Do not add arbitrary room reverb when Distance moves.
+  Preserve predictable near/far level behavior and expose any compensation policy.
+- A single existing cabinet-plus-mic IR does not uniquely identify its separate
+  cabinet and mic factors. Adding a second mic EQ is not a verified remiking.
+- Author each Original response independently; do not use weighted averages of
+  unrelated captures as proof of an original physical cabinet or positional grid.
+- The first delivery uses a linear response at each fixed control setting.
+  Level-dependent speaker compression/distortion requires a separate dynamic
+  model and is not represented by a single static IR. Do not claim otherwise.
+- Generate/resample/prepare/cache modeled kernels off the audio callback, reuse
+  the existing convolution ownership model, coalesce rapid changes, reject stale
+  generations and crossfade safely. Direct-filter alternatives need the same
+  stability, transition and recall evidence. Do not claim an unmeasured CPU saving.
+
+## Panel and compatibility contract
+
+| Area | Requirement |
 |---|---|
-| Navigation | RIGS / CAB / PRE / POST. A compact CAB summary on each rig opens that lane directly. Global utilities remain available. |
-| Lane context | Classic RIG; Dual A/B; Matrix LOW/MID/HIGH. Preserve a cabinet per lane before merge. |
-| Cabinet selection | Guitar / Bass / User IR categories, with cross-instrument selection allowed. Identify the actual enclosure and speaker separately. |
-| Mic A and Mic B | Independent mic or custom IR, enable, solo/mute, level, polarity and pan/balance. Two-mic blending works with a mono input too. |
-| Position / Distance | Dragging and numerical controls reference measured coordinates. Expose only supported coordinates/ranges for the selected capture bank. |
-| Blend / output | Constant-sum A/B blend, per-mic trim and cabinet output. Identical unity signals should not gain 6 dB at the midpoint. B off retains A's unity output. |
-| Phase tools | Per-mic polarity and explicit fine delay; any automatic alignment is an optional, documented operation. |
-| Cabinet filtering | Preserve lane low/high cuts and bypass. Preserve existing filter placement for legacy states. |
-| Amp association | Offer matching cabinet suggestions plus Cabinet Lock/Unlink; an amp change must not silently replace an explicitly locked selection. |
-| USER IR | OPEN IR, ADD FOLDER, drag/drop, Guitar/Bass/Unspecified assignment and correction, persistent REMOVE FROM LIST. |
-| State | DAW project, .chimera, A/B, automation and MIDI retain all lane, slot, asset and control identities. |
-| Presentation | Original Chimera artwork; a concise selected-reference caption follows the existing product naming policy, without a REFERENCE: prefix. |
+| Navigation | RIGS / CAB / PRE / POST, with a compact lane summary opening the matching CAB context. Global utilities remain available. |
+| Routing | Classic, both Dual modes and Matrix LOW/MID/HIGH retain lane AMP -> CAB -> merge. No global-cab replacement of per-lane processing. |
+| Mic A/B | Two independent mic/IR paths, enable, solo/mute, trim, polarity, pan for mono or explicitly defined balance for stereo. Works with mono input. |
+| Movement | Original uses modeled Position/Distance; Captured uses validated measured coverage; fixed User IR does not pretend to expose measured motion. |
+| Mix | Constant-sum blend and separate cabinet output. Identical unity A/B signals do not gain at midpoint; B disabled retains A unity. Define mute/solo behavior explicitly. |
+| Phase | Mic polarity and fine delay are distinct controls. Automatic alignment, if included, is explicit and never silently changes saved values. |
+| Other controls | Preserve lane cuts/bypass; support cabinet suggestions and Lock/Unlink without overwriting an explicitly locked cabinet. |
+| User collection | OPEN IR, ADD FOLDER, drag/drop, Guitar/Bass/Unspecified correction and persistent REMOVE FROM LIST. Do not restore GET BASS IRS or ADD PERSONAL ZIP. |
+| Names/artwork | Original Chimera names and artwork; exact research references remain in provenance metadata. No false endorsement or unverified exact-clone claim. |
 
-USER IR keeps the original file and embedded project audio when removed from
-the list, following PR #24. Do not restore GET BASS IRS or ADD PERSONAL ZIP to
-the primary workflow. Unknown imports remain Unspecified.
+Retain both existing fixed factory IRs and all personal capture identities.
+Migrate old states to A only, B disabled, unity added trim, zero added mic delay,
+normal mic polarity and unchanged original filters/onset/normalization. Existing
+lane polarity stays at its existing stage; do not invert twice.
 
-A single external WAV/AIFF does not provide a measured position/distance grid.
-Keep its physical mic controls inactive; allow level, pan/balance, polarity,
-delay, cuts and blend. A metadata label such as SM57 does not create other mic
-responses. Previously embedded V30/SM57 and Jensen/SM57 captures retain their original
-fixed audio and identities for legacy recall. New multi-position banks receive
-separate identities.
+Keep the four existing cabinet-source choice values and normalized automation
+mapping unchanged. Append new parameter identities rather than expanding an old
+choice in a way that remaps host automation. Preserve MIDI, .chimera and A/B.
 
-Room, angle, rear-mic, Sub Kick, and continuously adjustable tweeter/port layers
-are follow-up scope. A bass cabinet's actual captured horn setting must still
-be recorded at first delivery. A separate Tweeter/Port control needs suitable
-independent captures and an explicit phase/gain contract.
+Removing an IR from the collection must not delete its source file or invalidate
+already embedded project audio. Use a shared hash-addressed embedded asset table
+and a total serialized-state budget, including metadata and A/B. The reviewed
+processor's 64 MiB state cap and 4 MiB per-import cap need explicit consideration:
+deduplication does not bound genuinely different large files across snapshots.
+Reject a new over-budget operation while retaining the recoverable old state;
+never truncate assets or save a state the reader rejects.
 
-## Factory cabinet development target: 7 guitar + 5 bass
+Version Original definitions and generator behavior so saved sessions do not
+silently change tone with a new model revision. Keep old definitions available
+or provide an equivalent explicit compatibility mechanism and regression proof.
 
-All rows below are **capture/asset targets**, not hardware-clone certification.
-The roles and starting combinations are Chimera design choices to audition.
-Manufacturer sources establish the named hardware specifications, not the
-sound or redistribution rights of an as-yet unacquired Chimera capture.
+Room, angle, rear mic, Sub Kick and separately adjustable tweeter/port layers
+remain later scope. Original horn/port components may be modeled with explicit
+assumptions; Captured horn/port identity must reflect actual capture metadata.
+Neither source may expose a disconnected or misleading control.
 
-Working descriptors are inventory labels, not finalized product names.
-The 57/421/906/121/160/87/20/112 shorthand maps to the microphone table below.
+## Target schedule and task ownership
 
-### Guitar
+The 1.3.x track and existing date windows remain internal planning targets,
+not public delivery promises. Already authorized work may advance earlier;
+neither old start dates nor missing external captures justify stopping it.
 
-| ID | Working descriptor | Physical reference / capture target | Intended coverage | Initial mic set |
-|---|---|---|---|---|
-| G01 | Modern V30 412 | MESA Rectifier Standard OS Straight 4×12, rear-mounted Celestion V30, closed back [G1] | Main modern metal, death/groove and low-tuned Náströnd comparison | 57, 421, 121, 160 |
-| G02 | British 75 412 | Marshall 1960A 4×12, Celestion G12T-75 [G2] | A distinct classic/modern metal rhythm and power-metal lead alternative | 57, 906, 121 |
-| G03 | Greenback 412 | Marshall 1960AX 4×12, Celestion G12M-25 Greenback [G3] | Mid-focused crunch and lead; existing lower-gain amps | 57, 121, 87 |
-| G04 | Dense V30 412 | Orange PPC412 4×12 V30, closed back [G4] | Orange Heavy, sludge/doom and dense rhythm comparisons | 57, 421, 160 |
-| G05 | American Open 212 | Fender '65 Twin Reverb cabinet section, 2×12 Jensen C12K, open back [G5] | Clean, ambient and modulation-friendly coverage | 57, 906, 87 |
-| G06 | Karnivore 412 | Documented custom 4×12 with Eminence Karnivore drivers [G6] | Requested high-gain, down-tuned metal option | 57, 421, 160 |
-| G07 | Raven 412 | Documented custom 4×12 with Celestion G12-100 Raven drivers [G7] | Requested modern high-gain alternative, compared directly with V30/Karnivore | 57, 906, 121 |
+| Target window, Asia/Seoul | Development result | Validation responsibility |
+|---|---|---|
+| 2026-10-08–10-11 | Original response architecture, reference-use register and authored control/role targets. | Separate documented behavior, modeling assumptions and optional fitting inputs. |
+| 2026-10-12–10-25 | Playable original guitar + bass prototype, two mic paths, worker/cache, CAB page and legacy migration. | Verify actual parameter-to-audio response, stability, state, phase and initial CPU costs. Not a UI-only prototype. |
+| 2026-10-26–11-08 | Refine modeled spatial behavior and distinctive cabinet/mic roles; add original starting presets. Captured banks are optional parallel work. | Response-sweep/transition coverage, common-input comparisons, held-out checks where fitting is used, and listening when actual DI is available. |
+| 2026-11-09–12-04 | Niflheimr-line integration, qualified Original factory inventory, manuals and 1.3.x candidate. | Target-hardware CPU, real-host lifecycle, guitar/bass listening and exact-source release evidence. |
 
-G06/G07 require the exact enclosure, speaker complement and revision to be
-documented; the speaker manufacturer pages alone establish neither a cabinet
-model nor a completed capture. The earlier Karnivore and Raven private metadata
-remains useful for research and user import, not automatic factory inclusion.
-G12-100 Raven must not be replaced by G12K-100 or another similarly named driver.
+Both existing task queues already read this document. Their CAB work must use
+this Original-first revision instead of older measured-grid-only instructions.
+The daily development track owns functional engine/UI/state/instrumentation;
+the weekday Astra track owns reference interpretation, voicing and evidence
+review. Missing Astra input does not stop independent implementation. Missing
+real DI/host access still prevents claiming musical/host acceptance.
 
-G01 is the Standard OS target; the existing private Mesa Traditional 4FB capture
-is a different enclosure. G05 is specifically C12K; it does not rename a vintage
-Bassman C12N/C12NA capture. Earlier Framus/G12M and Bassman/Jensen requests remain
-research/import candidates with their own identities. An ENGL V30 multi-position
-bank may extend the collection after comparison; retain the existing embedded
-V30 source independently. Do not count every V30 cabinet or mic position as a
-newly demonstrated sonic role.
+No schedule cadence, unrelated task scope, model-count contract, release policy,
+threshold, waiver, tag, binary version or public release is changed here.
 
-### Bass
+## Reference inventory, not a mandatory cloning or capture checklist
 
-| ID | Working descriptor | Physical reference / capture target | Intended coverage | Initial mic set |
-|---|---|---|---|---|
-| B01 | Classic 810 | Ampeg SVT-810E 8×10, separated sealed chambers [B1] | Classic bass foundation, midrange definition and driven Garmr/Hel comparisons | 20, 421, 112 |
-| B02 | Modern 410 | Darkglass 410 / DG410NE, Eminence neo drivers and P-Audio horn [B2] | Modern extended-range articulation; Hrímfaxi/Nidavellir | 20, 421, 57 |
-| B03 | Reference 212 | Glockenklang Double, 2×12 plus horn [B3] | Clean reference, complex lines and DI blend evaluation | 20, 121, 87 |
-| B04 | Hybrid 410 | Hartke HyDrive HD410, paper/aluminium hybrid drivers and HF unit [B4] | A different attack/upper-mid texture from B02; industrial and picked bass | 20, 421, 57 |
-| B05 | Power 215 | MESA Standard PowerHouse 2×15, front Tri-Port and horn [B5] | Large 15-inch cabinet option for Ymir/Hel and full-range bass comparisons | 20, 112, 121 |
+The previously proposed **7 guitar / 5 bass / 8 mic** lineup is retained as a
+research and long-term coverage inventory. It is not an assertion of acquired
+assets, a compulsory first-release count or a requirement to clone each product.
+Original product roles may draw on multiple references. Keep their authored
+identities distinct from captured hardware names and choose final counts from
+verified differentiation, not branding alone. CAB counts remain outside 132.
 
-B03's preferred comparison candidate is Vanderkley 212MNT. Keep it a distinct
-asset if selected later; do not silently relabel Glockenklang data. Double and
-Double Art also have different HF units. B04 is HD410, not the older HX410.
+| Research group | References retained | Identity constraints |
+|---|---|---|
+| Modern guitar 4x12 | MESA Rectifier Standard OS Straight/V30; Orange PPC412/V30; Bogner 412ST/V30 in the supplied Origin collection | Different enclosures, not interchangeable evidence. Existing Mesa Traditional is not Standard OS. |
+| British guitar | Marshall 1960A/G12T-75; 1960AX/G12M-25; Framus/G12M; Origin's 1960B/G12H55 and 1960A/G12M | Record actual speaker/revision; a 1960A name alone does not prove G12T-75. |
+| Clean/open guitar | Twin '65/Jensen C12K; Bassman/Jensen C12N or C12NA; Origin's Twin/JBL D120F and other vintage combos | JBL, C12K, C12N and C12NA remain distinct. |
+| Requested modern drivers | Eminence Karnivore; Celestion G12-100 Raven | Do not substitute G12K-100 for Raven. Actual enclosure/driver details belong to each capture, not inferred from a speaker page. |
+| Classic bass | Ampeg SVT-810E; separately identified SUNN 200S/215S-family or older 2x15 references | Keep exact era/enclosure/speaker identity and Classic/Heritage differences. |
+| Modern/reference bass | Darkglass DG410NE; Glockenklang Double; Vanderkley 212MNT | Double is not Double Art; document horn/port scope. |
+| Alternate bass | Hartke HyDrive HD410; MESA Standard PowerHouse 2x15; prior personal bass imports | HD410 is not HX410 or PRO2200. Ashdown stays excluded. |
+| Dynamic microphone references | SM57, MD421-II, e906, RE20, D112 MkII | Record revision and switch state where known; original modeled mic names do not claim exact reproduction. |
+| Ribbon/condenser references | R-121, M160, U87 Ai | Pattern, front/rear side, pad/filter and distance matter; missing metadata remains unknown. |
 
-SUNN 200S/215S-family 2×15 is a priority expansion candidate for Hel after exact
-enclosure, era and driver identity are resolved. Existing metadata for a 1968
-SUNN 2×15 does not resolve every physical detail. Keep SUNN distinct from MESA
-B05 and from later Fender-era SUNN models. Existing Shift Line, Traynor,
-Bassman, Hartke PRO 2200 and personal bass imports retain their identities.
-
-The 2×15 format alone does not establish a dark tone, slow transient or greater
-low-frequency extension. Those are capture- and listening-dependent results.
-Likewise, woofer-only close miking does not prove the response of a whole
-horn/port-equipped bass enclosure. Inspect those contributions explicitly.
-
-## Shared microphone pool: 8 types
-
-A mic type is selectable only for cabinet/position combinations present in the
-qualified asset manifest. Eight types does not promise a 12×8 Cartesian library.
-
-| Descriptor | Physical microphone reference | Capture state to record | Planned role |
-|---|---|---|---|
-| Dynamic 57 | Shure SM57, cardioid dynamic [M1] | Exact orientation and distance | Default guitar attack and upper-mid definition |
-| Dynamic 421 | Sennheiser MD421-II, cardioid dynamic [M2] | Five-position bass switch; M/full-range starting capture | Guitar/bass body and lower-mid support |
-| Dynamic 906 | Sennheiser e906, supercardioid dynamic [M3] | Presence switch; Flat starting capture | Alternative guitar presence and rhythm texture |
-| Ribbon 121 | Royer R-121, figure-8 ribbon [M4] | Front/rear side, distance and preamp gain | Body and smoother high-end balance with a dynamic mic |
-| Ribbon 160 | beyerdynamic M160, hypercardioid double ribbon [M5] | Exact orientation and distance | Different ribbon contour for high-gain/lead |
-| Condenser 87 | Neumann U87 Ai, large-diaphragm condenser [M6] | Cardioid starting capture; pad/filter settings | Broad-band clean guitar and bass reference |
-| Dynamic 20 | Electro-Voice RE20, cardioid dynamic with Variable-D [M7] | Bass-tilt switch; flat starting capture | Bass pitch/low-mid reference with restrained proximity effect |
-| Dynamic 112 | AKG D112 MkII, cardioid dynamic [M8] | Exact orientation and distance | Bass low-end weight and attack contrast |
-
-D6, M201TG, i5, V7 X and U67 are later mic candidates; retaining an imported
-capture using one does not make a full factory grid available.
-
-Starting recipes to audition: guitar 57+121, 57+421, 57+160; bass 20+421 and
-20+112. Fix input and playback levels before choosing blend percentages. These
-are starting combinations, not claims of an artist's actual studio settings.
-
-## Data and backend requirements
-
-### Asset acquisition and grid
-
-Prefer existing creator/supplier measurements with explicit permission for
-plugin embedding and redistribution, or separately authorized measurements.
-Do not make owner-operated hardware reamping a prerequisite. Ordinary NAM
-anchors, commercial listening references and downloaded private IRs remain
-separate from the redistributable CAB bank.
-
-Each bank needs exact cabinet/speaker/mic identity, mic switch/pattern, speaker
-selection, radial coordinate, distance reference plane, angle, horn/port state,
-sample rate, length, onset/phase processing, level calibration, original file
-hash, processed file hash, creator and redistribution evidence.
-
-As a sizing example, the initial mic sets above contain 37 cabinet/mic pairs.
-Five radial positions × three measured distances would require 555 IRs before
-extra angle/horn/room variants. This is a workload estimate, not an asset count.
-Use the actual supplier grid and validate its resolution; do not invent evenly
-spaced coordinates for unrelated files. Continuous controls may interpolate
-within qualified cells; node values must reproduce the measured response.
-No extrapolation beyond supported bounds.
-
-The source manifests currently describe two embedded factory IRs; no complete
-licensed bass mic grid is established. Preserve fixed factory assets and user
-imports while new banks are acquired. A free download or verified account is
-not by itself plugin-redistribution permission.
-
-### Engine and timing
-
-At the reviewed source, Source/Cabinet.h already prepares JUCE convolution
-kernels on a worker and crossfades swaps. Extend that ownership/lifecycle model.
-Preserve lane amp → cabinet → merge routing.
-
-- Prepare/decode/resample/interpolate/cache outside the audio callback.
-- Coalesce rapid mic moves; discard stale generations and bound cache/work queues.
-- Reclaim kernels off the audio thread, including close/releaseResources.
-- Benchmark up to six stereo mic paths in three-lane Matrix mode, plus overlapping
-  old/new kernels during changes; this is a path-count bound, not a CPU multiplier.
-- Keep algorithmic latency separate from captured onset and user mic delay.
-  Preserve Matrix LOW DI alignment and never silently trim old IR timing.
-- Current legacy loading uses Trim::no and Normalise::yes. Preserve that sound.
-  New measured banks need a consistent capture-level policy; independent
-  per-position normalization must not erase meaningful distance/mic differences.
-- Specify mono pan versus stereo balance. A centered old stereo IR must retain
-  its existing gain and channel separation.
-
-### State migration
-
-Keep the four existing cabinet-source automation values and parameter ordinals.
-Append new identities; do not expand an old choice range in a way that remaps
-normalized host automation. Migrate each old cabinet to A only, B disabled,
-extra mic delay zero, unity trim and unchanged audio/filters. Preserve existing
-lane polarity at its current stage; initialize new per-mic polarity to normal
-without duplicating the lane inversion.
-
-The current processor rejects states above 64 MiB and each imported IR is
-limited to 4 MiB. Naively serializing six maximum-sized files in the active
-state and both A/B snapshots can approach 96 MiB after base64. Design a shared,
-hash-addressed embedded asset table with per-slot references; verify both
-reused and genuinely distinct large IRs against an explicit total-size budget.
-Enforce the total serialized-state budget, including asset encoding and metadata,
-before accepting an import or state operation that adds assets. If it would exceed
-the supported limit, reject that new operation explicitly and preserve the previous
-recoverable state; never truncate or discard embedded assets, or write a state the
-reader will reject. Deduplication alone does not bound genuinely different A/B
-asset sets. Do not simply raise the parser cap without evaluating project size and
-recall.
+Existing private Raven/Karnivore/Shift Line/Traynor/Bassman/Hartke imports remain
+separate from factory distribution. No personal audio is added by this update.
 
 ## Completion evidence
 
 | Gate | Required result |
 |---|---|
-| Assets | Actual audio, identity, coordinate and gain/timing manifest, hashes and distribution evidence for every shipped combination |
-| Legacy recall | Existing factory/User IR projects and .chimera files retain sound, A/B and automation; imports survive original-file moves |
-| Grid and blend | Measured-node accuracy; continuous movement without clicks, unintended notches or level jumps; documented blend/headroom behavior |
-| Routing | Classic, both Dual modes and Matrix; mono/stereo; LOW DI 0/50/100%; bass-note and crossover phase checks |
-| Realtime cost | Zero callback allocation/blocking in the watched paths; repeated CPU p99/deadline-miss results on stated hardware, including drag/swap load |
-| Lifecycle | UI open/close, instance removal, project/DAW close, repeated prepare/release and worker teardown |
-| Product sound | Same-DI guitar and bass audition with raw and level-matched results; selected Niflheimr and Náströnd presets retain distinct roles |
-| Delivery | Exact-source candidate, installed factory inventory, user IR/preset preservation and EN/DE/KR documentation |
+| Original provenance | Authored definitions/generator versions; approved scope for any fitting/training inputs; reproducible outputs; no unapproved third-party payloads. |
+| Functional sound | Actual production-path cabinet and mic selection/motion/mix response. Authored role-specific targets, not file-count or UI-only success. |
+| Modeled movement | Finite stable response across the declared domain; continuity and meaningful, mic-dependent position/distance effects. No universal center-to-edge rule asserted without evidence. |
+| Captured assets, when included | Real files, capture/source/coordinate/gain/phase metadata, hashes and distribution evidence. Node reproduction and interpolation coverage validated separately. |
+| Legacy | Existing factory/User IR projects preserve audio, automation, MIDI, A/B, original-file independence and modeled-definition revision compatibility. |
+| Routing | Classic, Dual Blend/Crossover and Matrix; mono/stereo; LOW DI 0/50/100%, low-note and crossover interaction. A natural cabinet roll-off is not a unity-DI fidelity requirement. |
+| Realtime | Watched callback allocation/blocking absent; repeatable timing and deadline misses on stated hardware, up to six stereo mic paths plus swap overlap. |
+| Lifecycle | UI open/close, instance removal, project/DAW close, prepare/release and worker teardown. |
+| Musical use | Same-DI guitar/bass raw and level-matched listening; articulate low notes, controlled fizz and distinct useful roles with Náströnd/Niflheimr. |
+| Delivery | Actual qualified factory inventory, installer/user-asset preservation, EN/DE/KR manual and exact-source acceptance through existing release policy. |
 
-Cover at least 44.1/48/96 kHz, practical host buffer sizes and the supported
-amp oversampling modes. A test's numeric acceptance threshold must be defined
-before results are labelled PASS; no guessed global CPU percentage. Physical
-speaker distortion/compression is outside the first linear-IR CAB scope.
+Cover at least 44.1/48/96 kHz, practical buffer sizes and supported amp
+oversampling modes. Define numeric thresholds before assigning PASS. Synthetic
+probes can validate implementation but cannot stand in for unheard instrument DI
+or an unexecuted commercial DAW. No physical-clone, training or release success
+is inferred from this design approval.
 
-## References
+## Technical and source references
 
-Official hardware descriptions below were reviewed on 2026-10-08. Product
-pages document hardware, not Chimera acquisition or capture fidelity.
+- Original-first decision: owner's follow-up instruction, 2026-10-08 KST.
+- Low-frequency electromechanical/acoustic modeling: https://doc.comsol.com/6.3/doc/com.comsol.help.models.aco.lumped_loudspeaker_driver/lumped_loudspeaker_driver.html
+- Limits of lumped/piston speaker treatment: https://doc.comsol.com/6.3/doc/com.comsol.help.aco/aco_ug_pressure.05.045.html
+- UX and fixed custom-IR behavior: https://neuraldsp.com/getting-started/tips-for-using-your-plugin
+- Origin source and terms to review per intended use: https://origineffects.com/product/ir-cab-library/
+- Earlier exact hardware/microphone source list: https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/blob/af1ad71cf6d279015627ae7f2bb0c869e670bb53/docs/CABINET_PANEL_ROADMAP.md#references
 
-- UI: https://neuraldsp.com/getting-started/tips-for-using-your-plugin
-- Bass cab controls: https://neuraldsp.com/manual/darkglass-ultimate
-- G1: https://legacy.mesaboogie.com/cabinets--simulators/guitar-cabinets--simulators/rectifier-series/4x12-recto-standard-oversized-straight.html
-- G2: https://www.marshall.com/us/en/product/1960a-4x12-angled-cabinet?color=black&pid=1007269
-- G3: https://www.marshall.com/my/en/product/1960ax-4x12-angled-cabinet?redirected=1
-- G4: https://orangeamps.com/en-es/products/ppc412
-- G5: https://intl.fender.com/products/65-twin-reverb
-- Open-back enclosure reference: https://www.fender.com/articles/parts-and-accessories/whats-the-difference-between-open-back-and-closed-back-speaker-enclosures
-- G6: https://eminence.com/products/karnivore-by-kristian-kohle
-- G7: https://celestion.com/product/g12-100-raven-2/
-- B1: https://ampeg.com/products/classic/cabs.html
-- B2: https://www.darkglass.com/products/dg410ne
-- B3: https://glockenklang.de/double/
-- B4: https://www.hartke.com/products/cabinets/hydrive-hd-cabinets/hd410/
-- B5: https://rosette.mesaboogie.com/cabinets--simulators/bass-cabinets/powerhouse-series/standard-powerhouse/2x15.html
-- M1: https://www.shure.com/en-US/products/microphones/sm57
-- M2: https://www.sennheiser.com/en-us/catalog/products/mikrofon/md-421-ii/md-421-ii-000984
-- M3: https://docs.cloud.sennheiser.com/en-us/evolution-wired/manual-e906-using.html
-- M4: https://royerlabs.com/r-121/
-- M5: https://europe.beyerdynamic.com/p/m-160
-- M6: https://www.neumann.com/en-us/products/microphones/u-87-ai/
-- M7: https://products.electrovoice.com/product.php/product.php?id=91
-- M8: https://www.akg.com/D112MkII.html?dwvar_D112MkII_color=Black-GLOBAL-Current
-
-Repository evidence: Source/Cabinet.h, Source/ChimeraDSP.h,
-Source/PluginProcessor.cpp, Source/IRLibrary.cpp, docs/THIRD_PARTY_NOTICES.md,
-docs/reference/ir-catalog.json, docs/reference/raven-ir-catalog.json and the
-PR #24 IR browser/collection changes. See also
-[IR/routing design](FX_AND_IR_DESIGN.md) and [catalog roadmap](CATALOG_ROADMAP.md).
+Repository dependencies: Source/Cabinet.h, Source/IRLibrary.cpp,
+Source/PluginProcessor.cpp, existing state/routing tests and current PR #24.
+Read their latest revisions before implementation. This plan does not assert
+that an open branch has merged or that a future prototype already exists.

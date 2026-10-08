@@ -7,23 +7,33 @@ Versions 1.1.1, 1.1.2 and 1.2 must not be rescheduled as unshipped work.
 The historical checkpoint below retains the evidence and limitations recorded
 on October 5; it is not the current release status.
 
-Add **1.3.x CAB panel** as a shared feature alongside the Niflheimr cycle:
-per-lane two-microphone editing, measured position/distance, blend/phase tools
-and preserved personal IR management. Target 7 guitar cabinets, 5 bass cabinets
-and 8 shared mic types, separately counted from the 132-model roadmap.
-See [CAB scope, target dates, inventory and acceptance](CABINET_PANEL_ROADMAP.md).
+The owner's follow-up replaces capture-first planning with **Original-first
+1.3.x CAB development**: study existing products, author an independent cabinet
+and microphone engine, and connect it to the per-lane two-mic CAB panel.
+Original / Modeled Position/Distance does not require external measured grids.
+Captured banks and fixed User IR remain separate supported sources.
+See [authoritative CAB direction and acceptance](CABINET_PANEL_ROADMAP.md).
+
+First build one playable original guitar cabinet and one original bass cabinet,
+with working microphone controls, state and routing. The earlier 7-guitar /
+5-bass / 8-mic list is retained as research and long-term coverage inventory,
+not a compulsory capture list, clone set or first-release count. CAB inventory
+remains separate from the 132-model target.
 
 | CAB milestone | Internal target, KST |
 |---|---|
-| Specification and capture-bank feasibility | 2026-10-08–10-11 |
-| Two-slot engine, state migration and CAB panel | 2026-10-12–10-25 |
-| Qualified-grid alpha and factory starting presets | 2026-10-26–11-08 |
+| Original architecture, reference-use and acoustic-role specification | 2026-10-08–10-11 |
+| Playable original guitar/bass engine, two mic paths, migration and CAB panel | 2026-10-12–10-25 |
+| Modeled-response refinement, role expansion and original presets | 2026-10-26–11-08 |
 | Niflheimr integration, product validation and 1.3.x candidate | 2026-11-09–12-04 |
 
 The daily development and weekday Astra queues both include this workstream.
-Dates depend on qualified audio assets and evidence; independent work continues
-when a particular input is missing. PR #24's current Niflheimr/IR work is a
-dependency to inspect and preserve, not an already merged implementation.
+Missing captures do not postpone the Original engine; optional Captured banks
+retain their own data and distribution dependencies. Actual DI/host evidence
+is still required before claiming musical/host acceptance. PR #24's current
+Niflheimr/IR work is a dependency to inspect and preserve, not an already merged
+implementation. No training, code implementation or release is performed by
+this documentation revision.
 
 ## Historical 1.2 checkpoint — 2026-10-05
 
@@ -154,7 +164,7 @@ Ironball is retired from new selection; keep serialized ID16 for saved sessions.
 |---|---|---:|
 | 1.2 | Náströnd | 84 |
 | 1.3 | Niflheimr bass amp | 85 |
-| 1.3.x | CAB panel + qualified factory cabinet/mic banks | 85 |
+| 1.3.x | Original cabinet/microphone engine + CAB panel; optional Captured banks | 85 |
 | 1.4 / 1.5 | PRE expansion A / B | 91 / 97 |
 | 1.6 | Reference AMP expansion | 102 |
 | 1.7 / 1.8 | POST dynamics/tone / motion/space | 111 / 120 |
