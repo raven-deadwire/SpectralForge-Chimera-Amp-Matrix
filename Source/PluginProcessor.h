@@ -39,6 +39,7 @@ public:
     const juce::String getProgramName(int) override { return {}; }
     void changeProgramName(int,const juce::String&) override {}
     void getStateInformation(juce::MemoryBlock&) override;
+    bool tryGetStateInformation(juce::MemoryBlock&);
     void setStateInformation(const void*,int) override;
     juce::AudioProcessorValueTreeState& parameters() { return state; }
     static juce::AudioProcessorValueTreeState::ParameterLayout layout();

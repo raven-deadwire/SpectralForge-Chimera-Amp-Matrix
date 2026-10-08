@@ -1,6 +1,7 @@
 #include "GuitarSignaturePresets.h"
 #include "FactoryNativeVoicing.h"
 #include "PluginProcessor.h"
+#include "IRStateAssets.h"
 #include <algorithm>
 #include "PluginEditor.h"
 #include "FactoryPresets.h"
@@ -317,16 +318,22 @@ juce::ValueTree ChimeraProcessor::captureCore()
 }
 void ChimeraProcessor::getStateInformation(juce::MemoryBlock& data)
 {
-    auto saved=captureCore();
+    (void)tryGetStateInformation(data);
+}
+bool ChimeraProcessor::tryGetStateInformation(juce::MemoryBlock& data)
+{
+    auto saved=captureCore();const auto core=saved.createCopy();
     juce::ValueTree slots("COMPARISONS");
-    { std::lock_guard<std::mutex> lock(comparisonMutex);
-      const int active=selectedComparison.load();comparisons[(size_t)active]=saved.createCopy();
-      slots.setProperty("active",active,nullptr);
-      for(int i=0;i<2;++i) if(comparisons[(size_t)i].isValid()) {auto slot=comparisons[(size_t)i].createCopy();slot.setProperty("slot",i,nullptr);slots.appendChild(slot,nullptr);}
-    }
+    std::lock_guard<std::mutex> lock(comparisonMutex);
+    const int active=selectedComparison.load();
+    slots.setProperty("active",active,nullptr);
+      for(int i=0;i<2;++i) if(i==active || comparisons[(size_t)i].isValid()) {auto slot=(i==active ? saved : comparisons[(size_t)i]).createCopy();slot.setProperty("slot",i,nullptr);slots.appendChild(slot,nullptr);}
     saved.appendChild(slots,nullptr);
     juce::ValueTree midi("MIDI_MAP");for(int cc=0;cc<128;++cc) {const int index=midiMap[(size_t)cc].load();if(index<0 || index>=getParameters().size())continue;if(auto* parameter=dynamic_cast<juce::AudioProcessorParameterWithID*>(getParameters()[index])) {juce::ValueTree item("CC");item.setProperty("cc",cc,nullptr);item.setProperty("id",parameter->paramID,nullptr);midi.appendChild(item,nullptr);}}
-    saved.appendChild(midi,nullptr);auto xml=saved.createXml();copyXmlToBinary(*xml,data);
+    saved.appendChild(midi,nullptr);
+    if(!spectralforge::irState::serialize(saved,data))return false;
+    comparisons[(size_t)active]=core;
+    return true;
 }
 void ChimeraProcessor::restoreCore(juce::ValueTree restored)
 {
@@ -364,10 +371,12 @@ void ChimeraProcessor::restoreCore(juce::ValueTree restored)
 }
 void ChimeraProcessor::setStateInformation(const void* data,int size)
 {
-    // Three bounded snapshots, each containing up to three <=4 MB IR assets.
+    // Preserve the reader budget for both legacy and pooled projects.
     if(size<=0 || size>64*1024*1024) return;
     auto xml=getXmlFromBinary(data,size);if(!xml || !xml->hasTagName("PARAMS")) return;
-    auto restored=juce::ValueTree::fromXml(*xml);const auto saved=restored.getChildWithName("COMPARISONS");
+    auto restored=juce::ValueTree::fromXml(*xml);
+    if(!spectralforge::irState::unpack(restored))return;
+    const auto saved=restored.getChildWithName("COMPARISONS");
     { std::lock_guard<std::mutex> lock(comparisonMutex);
       comparisons={};selectedComparison.store(juce::jlimit(0,1,(int)saved.getProperty("active",0)));
       for(auto child:saved) {const int slot=(int)child.getProperty("slot",-1);if(slot>=0 && slot<2) comparisons[(size_t)slot]=child.createCopy();}

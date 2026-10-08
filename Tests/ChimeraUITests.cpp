@@ -1,5 +1,6 @@
 #include "GuitarSignaturePresets.h"
 #include "PluginEditor.h"
+#include "IRStateAssets.h"
 #include "HardwareArtwork.h"
 #include "SupportPanel.h"
 #include "FactoryPresets.h"
@@ -377,7 +378,9 @@ void checkProcessor(const juce::File& directory)
     restored.getStateInformation(recalledState);
     const auto recalledXml=juce::AudioProcessor::getXmlFromBinary(recalledState.getData(),(int)recalledState.getSize());
     require(recalledXml!=nullptr,"Recalled project state is invalid");
-    const auto savedIR=juce::ValueTree::fromXml(*recalledXml).getChildWithName("USER_IRS").getChildWithProperty("lane",0);
+    auto recalledTree=juce::ValueTree::fromXml(*recalledXml);
+    require(spectralforge::irState::unpack(recalledTree),"Recalled IR asset table is invalid");
+    const auto savedIR=recalledTree.getChildWithName("USER_IRS").getChildWithProperty("lane",0);
     require(recalledIR.fromBase64Encoding(savedIR.getProperty("data").toString()) && recalledIR==originalIR,
             "Project did not preserve embedded IR bytes after the source file was deleted");
     require(restored.parameters().getRawParameterValue("cabtype1")->load()==3,"IR source selection not recalled");

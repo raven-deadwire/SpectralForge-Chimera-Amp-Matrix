@@ -661,7 +661,7 @@ void ChimeraEditor::referenceFile(bool save)
     chooser->launchAsync(flags,[safe,save](const juce::FileChooser& file){
         if(!safe || file.getResult()==juce::File{}) return;
         juce::MemoryBlock data;bool ok=false;
-        if(save) {safe->processor.getStateInformation(data);ok=file.getResult().withFileExtension(".chimera").replaceWithData(data.getData(),data.getSize());}
+        if(save) {if(safe->processor.tryGetStateInformation(data))ok=file.getResult().withFileExtension(".chimera").replaceWithData(data.getData(),data.getSize());}
         else if(file.getResult().getSize()<=64*1024*1024 && file.getResult().loadFileAsData(data)) {
             auto xml=juce::AudioProcessor::getXmlFromBinary(data.getData(),(int)data.getSize());
             if(xml && xml->hasTagName("PARAMS")) {safe->processor.setStateInformation(data.getData(),(int)data.getSize());ok=true;}

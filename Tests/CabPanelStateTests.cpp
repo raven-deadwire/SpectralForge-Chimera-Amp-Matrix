@@ -1,4 +1,5 @@
 #include "CabPanel.h"
+#include "IRStateAssets.h"
 #include <iostream>
 #include <stdexcept>
 #include <vector>
@@ -36,7 +37,11 @@ int main(int argc,char** argv){juce::ScopedJuceInitialiser_GUI gui;auto folder=j
     auto p=std::make_unique<ChimeraProcessor>();
     set(*p,"gateon",0);set(*p,"oversampling",0);set(*p,"lowampmix",1);
     for(int lane=0;lane<3;++lane){const auto n=juce::String(lane+1);set(*p,"ampon"+n,0);check(p->loadMicIR(lane,0,a).wasOk() && p->loadMicIR(lane,1,b).wasOk(),"production IR imports");set(*p,"cabblend"+n,.31f+float(lane)*.12f);set(*p,"cabAgain"+n,-3);set(*p,"cabBgain"+n,-5);set(*p,"cabAdelay"+n,.7f);set(*p,"cabBdelay"+n,1.3f);set(*p,"cabBinvert"+n,1);set(*p,"cabBlow"+n,120);set(*p,"cabBhigh"+n,6000);}
-    juce::MemoryBlock saved;p->getStateInformation(saved);check(a.deleteFile() && b.deleteFile(),"delete sources");
+    juce::MemoryBlock saved;p->getStateInformation(saved);
+    auto pooled=juce::ValueTree::fromXml(*juce::AudioProcessor::getXmlFromBinary(saved.getData(),int(saved.getSize())));
+    check(pooled.getChildWithName("IR_ASSETS").getNumChildren()==2,"same files pooled across six slots and active comparison");
+    check(!pooled.getChildWithName("USER_IRS").getChild(0).hasProperty("data"),"IR reference has no inline payload");
+    check(a.deleteFile() && b.deleteFile(),"delete sources");
     for(int mode=0;mode<3;++mode){for(int dual=0;dual<(mode==1?2:1);++dual){set(*p,"mode",float(mode));set(*p,"dualtype",float(dual));p->getStateInformation(saved);auto original=render(*p);auto restored=std::make_unique<ChimeraProcessor>();dirtyCab(*restored);restored->setStateInformation(saved.getData(),int(saved.getSize()));equal(original,render(*restored));check(restored->micName(2,1)=="B.wav","Mic B filename restore");std::cout<<"PASS routing "<<mode<<" dual "<<dual<<" embedded project\n";}}
     p->copyComparison();set(*p,"cabblend1",.9f);p->selectComparison(1);check(std::abs(p->parameters().getRawParameterValue("cabblend1")->load()-.31f)<1e-6f,"A/B snapshot parameter restore");check(p->micName(0,1)=="B.wav","A/B embedded Mic B");
     if(argc>1){p->prepareToPlay(48000,128);CabPanel panel(*p,0);
@@ -54,6 +59,7 @@ int main(int argc,char** argv){juce::ScopedJuceInitialiser_GUI gui;auto folder=j
         set(*p,"cabblend"+n,0);set(*p,"cabAgain"+n,0);set(*p,"cabAdelay"+n,0);set(*p,"cabAinvert"+n,0);
     }
     p->getStateInformation(saved);auto legacy=juce::ValueTree::fromXml(*juce::AudioProcessor::getXmlFromBinary(saved.getData(),int(saved.getSize())));
+    check(spectralforge::irState::unpack(legacy),"expand fixture to actual legacy inline format");
     legacy.removeChild(legacy.getChildWithName("COMPARISONS"),nullptr);
     for(int i=legacy.getNumChildren();--i>=0;) {
         auto child=legacy.getChild(i);const auto id=child.getProperty("id").toString();
@@ -109,6 +115,60 @@ int main(int argc,char** argv){juce::ScopedJuceInitialiser_GUI gui;auto folder=j
         }
     }
     std::cout<<"PASS dirty legacy routes, comparison slots, re-save and automation mapping\n";
+
+    // Six distinct original stereo WAVs close to the unchanged 4 MiB import cap.
+    auto large=std::make_unique<ChimeraProcessor>();
+    for(int i=0;i<6;++i) {
+        auto f=folder.getChildFile("large"+juce::String(i)+".wav");
+        juce::WavAudioFormat format;auto stream=f.createOutputStream();
+        auto writer=std::unique_ptr<juce::AudioFormatWriter>(format.createWriterFor(stream.release(),384000,2,32,{},0));
+        check(writer!=nullptr,"large writer");juce::AudioBuffer<float> buffer(2,384000);buffer.clear();
+        buffer.setSample(0,i+1,.5f);buffer.setSample(1,i+20,.25f);
+        check(writer->writeFromAudioSampleBuffer(buffer,0,buffer.getNumSamples()),"large write");writer.reset();
+        // Valid ancillary JUNK padding exercises file-byte limits without
+        // relaxing the existing <=1-second, <=384-kHz decoder contract.
+        auto padding=f.createOutputStream();check(padding!=nullptr,"padding stream");
+        const auto originalSize=f.getSize();const int padBytes=int(4*1024*1024-64-originalSize-8);
+        check(padBytes>0 && padding->setPosition(originalSize),"padding position");
+        padding->write("JUNK",4);padding->writeInt(padBytes);
+        juce::MemoryBlock zeros(size_t(padBytes),true);padding->write(zeros.getData(),zeros.getSize());
+        check(padding->setPosition(4),"RIFF length position");padding->writeInt(4*1024*1024-64-8);padding.reset();
+        check(f.getSize()>4000000 && f.getSize()<=4*1024*1024,"near-limit stereo fixture");
+        check(large->loadMicIR(i%3,i/3,f).wasOk(),"unchanged import cap accepts large IR");
+        check(f.deleteFile(),"large source deletion");
+    }
+    large->copyComparison();large->selectComparison(1);large->copyComparison();
+    juce::MemoryBlock big;check(large->tryGetStateInformation(big),"six distinct assets fit reader budget");
+    auto bigTree=juce::ValueTree::fromXml(*juce::AudioProcessor::getXmlFromBinary(big.getData(),int(big.getSize())));
+    check(bigTree.getChildWithName("IR_ASSETS").getNumChildren()==6,"six hashes across both comparisons");
+    check(big.getSize()<spectralforge::irState::maxStateBytes,"exact serialized budget");
+    auto largeRestored=std::make_unique<ChimeraProcessor>();largeRestored->setStateInformation(big.getData(),int(big.getSize()));
+    for(int slot=0;slot<2;++slot) {largeRestored->selectComparison(slot);for(int i=0;i<6;++i)check(largeRestored->micName(i%3,i/3)=="large"+juce::String(i)+".wav","large assets restore without files in either comparison");}
+    // Corrupt hashes and dangling references reject the whole project before mutation.
+    auto bad=bigTree.createCopy();bad.getChildWithName("IR_ASSETS").getChild(0).setProperty("sha256",juce::String::repeatedString("0",64),nullptr);
+    juce::MemoryBlock malformed;juce::AudioProcessor::copyXmlToBinary(*bad.createXml(),malformed);
+    set(*largeRestored,"cabblend1",.73f);largeRestored->setStateInformation(malformed.getData(),int(malformed.getSize()));
+    check(std::abs(largeRestored->parameters().getRawParameterValue("cabblend1")->load()-.73f)<1e-6f,"hash rejection preserves session");
+    bad=bigTree.createCopy();bad.getChildWithName("IR_ASSETS").removeChild(0,nullptr);
+    juce::AudioProcessor::copyXmlToBinary(*bad.createXml(),malformed);
+    largeRestored->setStateInformation(malformed.getData(),int(malformed.getSize()));
+    check(std::abs(largeRestored->parameters().getRawParameterValue("cabblend1")->load()-.73f)<1e-6f,"dangling reference preserves session");
+    // Force an actual UTF-8 serialized overflow, including multibyte text.
+    check(spectralforge::irState::unpack(bigTree),"expand large test tree");
+    bigTree.setProperty("oversize",juce::String::repeatedString("界",24*1024*1024),nullptr);
+    juce::MemoryBlock retained("keep",4);check(!spectralforge::irState::serialize(bigTree,retained),"oversize save refused");
+    check(retained.getSize()==4 && std::memcmp(retained.getData(),"keep",4)==0,"failed save preserves destination");
+    auto before=largeRestored->parameters().copyState();
+    before.setProperty("oversize",juce::String::repeatedString("x",65*1024*1024),nullptr);
+    largeRestored->parameters().replaceState(before);
+    const auto selected=largeRestored->comparisonSlot();
+    check(!largeRestored->tryGetStateInformation(retained),"processor overflow save refused");
+    check(retained.getSize()==4 && std::memcmp(retained.getData(),"keep",4)==0,"processor destination retained");
+    check(largeRestored->comparisonSlot()==selected,"failed save keeps active comparison");
+    before.removeProperty("oversize",nullptr);largeRestored->parameters().replaceState(before);
+    largeRestored->selectComparison(1-selected);
+    check(largeRestored->micName(0,0)=="large0.wav","failed save keeps inactive comparison assets");
+    std::cout<<"PASS shared hashes, six near-limit stereo files, deleted-file comparisons, hash rejection and exact UTF-8 overflow; bytes="<<big.getSize()<<'\n';
 
     return 0;
 }catch(const std::exception& e){std::cerr<<e.what()<<'\n';return 1;}}

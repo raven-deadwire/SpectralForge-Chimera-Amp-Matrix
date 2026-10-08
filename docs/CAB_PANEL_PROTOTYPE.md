@@ -28,9 +28,23 @@ Buffer/delay storage is allocated at prepare time. Parameter pointers are cached
 Mic B convolution is skipped at a settled zero blend after servicing pending swaps; frozen history is reset before waking it. Up to six active mic paths
 are possible in Matrix; CPU/DAW acceptance on target hardware remains separate.
 
-Project and comparison snapshots embed each slot's original encoded bytes and
-metadata. USER_IRS retains lane 0–2, with optional slot=0 (A) or slot=1 (B);
-legacy children with no slot mean A. New project snapshots use schemaVersion 10. Removing a file from the user library never
+Schema 11 exports contain one root `IR_ASSETS` table. Each ASSET stores the SHA-256
+of the original WAV/AIFF bytes and one base64 payload. Current USER_IRS and both
+COMPARISONS contain `asset` hash references, with independent names and metadata.
+Only referenced assets are exported, so replacing a slot does not accumulate old
+payloads in the file. USER_IRS retains lane 0–2, with slot=0 (A) or slot=1 (B);
+legacy inline-data children and children without slot (A) remain supported.
+All hashes, uniqueness, payload bounds and references are validated before any
+parameter, MIDI map, comparison or library state changes. The original bytes are
+then passed to the unchanged IR decoder; no resampling/normalization rule changed.
+
+`tryGetStateInformation` serializes into a temporary JUCE binary buffer and checks
+its actual byte count, including header, UTF-8 XML and terminator, against 64 MiB.
+A failure leaves the caller's destination and both comparison snapshots intact.
+The JUCE host callback uses the same path; its void API cannot report rejection to
+the host. Explicit reference-file export checks the boolean before writing and
+therefore preserves an existing file on size rejection. The 4 MiB import limit and
+64 MiB read limit remain unchanged. Removing a file from the user library never
 removes loaded audio. An invalid import preserves the prior asset in that slot.
 Embedded project/preset export can contain privately licensed audio: this PR's
 public tests use only author-generated impulse fixtures and never private packs.
@@ -43,7 +57,12 @@ It checks header rate, independent A/B responses, blend, level, polarity, delay,
 filters, invalid-import preservation and embedded two-slot restore.
 `ChimeraCabPanelStateTests` exercises the production processor in Classic, both
 Dual routes and Matrix; project restore after deleting the original files;
-comparison snapshot recall; and a software panel snapshot.
+comparison snapshot recall; and a software panel snapshot. It also requires two
+assets for six reused mic slots, six distinct near-4-MiB stereo WAVs shared across
+both comparison slots, deleted-source restoration, whole-state rejection of corrupt
+hashes/dangling references, and exact serialized overflow with destination and
+comparison preservation. Audio equality remains max difference <1e-6 with nonzero
+energy in Classic, Dual Blend/Crossover and Matrix, including dirty legacy restore.
 Existing ChimeraTests and IRLibraryTests remain regression gates.
 `.github/workflows/cab-panel.yml` runs all four on Linux/Windows/macOS. Its explicit
 artifact allowlist contains only logs and a synthetic-panel screenshot.
