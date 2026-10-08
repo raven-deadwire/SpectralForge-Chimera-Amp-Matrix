@@ -43,6 +43,9 @@ public:
     juce::AudioProcessorValueTreeState& parameters() { return state; }
     static juce::AudioProcessorValueTreeState::ParameterLayout layout();
     juce::Result loadIR(int lane,const juce::File& file);
+    juce::Result loadMicIR(int lane,int slot,const juce::File& file);
+    juce::String micName(int lane,int slot) const { return library.userName(lane+3*slot); }
+    juce::String micStatus(int lane,int slot) const { return library.status(lane+3*slot); }
     juce::String userIRName(int lane) const {return library.userName(lane);}
     float preCompressorReduction() const {return preReduction.load();}
     float postCompressorReduction() const {return postReduction.load();}
@@ -116,6 +119,7 @@ private:
     std::atomic<int> selectedComparison{0};
     std::atomic<bool> resetPending{false};
     juce::AudioProcessorValueTreeState state{*this,nullptr,"PARAMS",layout()};
+    std::array<std::array<std::atomic<float>*,10>,3> cabPanelParameters{};
     spectralforge::Engine engine;
     spectralforge::IRLibrary library{{&engine.cabinet(0),&engine.cabinet(1),&engine.cabinet(2)}};
     spectralforge::PreFXChain preFX;

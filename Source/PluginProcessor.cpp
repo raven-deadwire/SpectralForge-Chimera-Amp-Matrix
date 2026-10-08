@@ -21,6 +21,8 @@ ChimeraProcessor::ChimeraProcessor()
     : AudioProcessor(BusesProperties().withInput("Input",juce::AudioChannelSet::stereo(),true)
                                       .withOutput("Output",juce::AudioChannelSet::stereo(),true))
 {
+    const std::array<const char*,10> cabIds{"cabblend","cabAgain","cabAdelay","cabAinvert","cabBgain","cabBdelay","cabBinvert","cabBlow","cabBhigh","cabBtype"};
+    for(int i=0;i<3;++i) for(size_t j=0;j<cabIds.size();++j) cabPanelParameters[i][j]=state.getRawParameterValue(juce::String(cabIds[j])+juce::String(i+1));
     clearMidi();
     boardParameters.bind(state);
     ampSelection.bind(state);
@@ -69,6 +71,7 @@ void ChimeraProcessor::prepareToPlay(double sr,int block)
     for(auto& meter:nativePostMeters)meter.store(0);
     std::array<int,3> sources{};
     for(int i=0;i<3;++i) sources[i]=(int)laneParameters[i][16]->load();
+    for(int i=0;i<3;++i) engine.cabinet(i).secondMic()->requestedSource.store(int(cabPanelParameters[i][9]->load()));
     library.prepare(spec,sources);
     inputGain.reset(sr,.020); outputGain.reset(sr,.020); tuningMute.reset(sr,.005);
     inputGain.setCurrentAndTargetValue(juce::Decibels::decibelsToGain(globals[input]->load()));
@@ -173,6 +176,12 @@ void ChimeraProcessor::process(juce::AudioBuffer<float>& buffer)
         lane.mute=f(10)>.5f; lane.solo=f(11)>.5f; lane.polarity=f(12)>.5f; lane.cab=f(13)>.5f;
         lane.cabLow=f(14); lane.cabHigh=f(15); lane.ampEnabled=f(17)>.5f;
         engine.cabinet(i).requestedSource.store((int)f(16));
+        auto get=[&](int id){return cabPanelParameters[i][id]->load();};
+        auto& cab=engine.cabinet(i); auto* b=cab.secondMic();
+        cab.blend=get(0);
+        cab.gainDb=get(1); cab.delayMs=get(2); cab.invert=get(3)>.5f;
+        b->gainDb=get(4); b->delayMs=get(5); b->invert=get(6)>.5f;
+        b->setCuts(get(7),get(8)); b->requestedSource.store(int(get(9)));
     }
     lanes[0].lowComp=lowCompParameter->load();lanes[0].lowAmpMix=lowAmpMixParameter->load();
     const bool dualCross=value(mode)==1 && extras[dualType]->load()>.5f;
@@ -202,6 +211,14 @@ void ChimeraProcessor::process(juce::AudioBuffer<float>& buffer)
     }
     outputPeak.store(juce::jmax(peak,outputPeak.load()*meterDecay));
     measureStage(4,buffer);
+}
+juce::Result ChimeraProcessor::loadMicIR(int lane,int slot,const juce::File& file)
+{
+    if(slot==0) return loadIR(lane,file);
+    if(lane<0 || lane>2 || slot!=1) return juce::Result::fail("Invalid mic slot");
+    auto result=library.importFile(lane+3,file);
+    if(result.wasOk()) { setRawParameter("cabBtype"+juce::String(lane+1),3.f); engine.cabinet(lane).secondMic()->requestedSource.store(3); }
+    return result;
 }
 juce::Result ChimeraProcessor::loadIR(int lane,const juce::File& file)
 {
@@ -258,6 +275,19 @@ juce::AudioProcessorValueTreeState::ParameterLayout ChimeraProcessor::layout(){j
     spectralforge::appendNewAmpNativeParameters(p,spectralforge::firstOriginalAmpModel,spectralforge::niflheimrAmpModel);
     spectralforge::appendOriginalChannelParameters(p);
     spectralforge::appendNiflheimrParameters(p);
+for(int i=1;i<=3;++i) {
+    const auto n=juce::String(i);
+    p.add(std::make_unique<juce::AudioParameterChoice>("cabBtype"+n,"Mic B source "+n,juce::StringArray{"Filters only","V30 / SM57","Jensen / SM57","User IR"},0));
+    p.add(std::make_unique<juce::AudioParameterFloat>("cabblend"+n,"Mic A/B blend "+n,0.f,1.f,0.f));
+    for(const auto* slot:{"A","B"}) {
+        const auto id=juce::String("cab")+slot;
+        p.add(std::make_unique<juce::AudioParameterFloat>(id+"gain"+n,id+" level "+n,-24.f,12.f,0.f));
+        p.add(std::make_unique<juce::AudioParameterFloat>(id+"delay"+n,id+" delay ms "+n,0.f,20.f,0.f));
+        p.add(std::make_unique<juce::AudioParameterBool>(id+"invert"+n,id+" polarity "+n,false));
+    }
+    p.add(std::make_unique<juce::AudioParameterFloat>("cabBlow"+n,"Mic B low cut "+n,20.f,500.f,70.f));
+    p.add(std::make_unique<juce::AudioParameterFloat>("cabBhigh"+n,"Mic B high cut "+n,1500.f,20000.f,9000.f));
+}
 return p;
 }
 
@@ -312,7 +342,7 @@ void ChimeraProcessor::restoreCore(juce::ValueTree restored)
     library.restore(restored.getChildWithName("USER_IRS"));restored.removeChild(restored.getChildWithName("USER_IRS"),nullptr);
     restored.removeChild(restored.getChildWithName("COMPARISONS"),nullptr);state.replaceState(restored);resetPending.store(true);
     if(missingNative || missingPost || missingBoard)seedNativeSelections(missingBoard,missingNative,missingPost);
-    for(int i=0;i<3;++i) engine.cabinet(i).requestedSource.store((int)laneParameters[i][16]->load());
+    for(int i=0;i<3;++i) { engine.cabinet(i).requestedSource.store((int)laneParameters[i][16]->load()); engine.cabinet(i).secondMic()->requestedSource.store(int(cabPanelParameters[i][9]->load())); }
 }
 void ChimeraProcessor::setStateInformation(const void* data,int size)
 {

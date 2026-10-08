@@ -1,3 +1,4 @@
+#include "CabPanel.h"
 #include "PresetOrder.h"
 #include "GuitarSignaturePresets.h"
 #include "PluginEditor.h"
@@ -264,7 +265,11 @@ ChimeraEditor::ChimeraEditor(ChimeraProcessor& p) : AudioProcessorEditor(&p),pro
         lane.mute.setTooltip("Mute this active rig"); lane.solo.setTooltip("Solo this active rig"); lane.polarity.setTooltip("Invert this rig's polarity");
         lane.cabOn.setTooltip("Enable or bypass this rig's IR and cabinet cuts");
         add(lane.details);lane.details.setComponentID("irtags"+n);lane.details.onClick=[this,i]{showIRDetails(i);};lane.details.setTooltip("Inspect or edit speaker, diameter, microphone, position, distance and provenance.");
-        add(lane.load); lane.load.onClick=[this,i]{loadIR(i);}; lane.load.setTooltip("Open the cabinet library. Add WAV/AIFF files or folders, set their instrument type, or remove imported entries from the list.");
+        add(lane.load); lane.load.setButtonText("PANEL"); lane.load.onClick=[this,i]{
+            juce::DialogWindow::LaunchOptions options;options.content.setOwned(new CabPanel(processor,i));
+            options.dialogTitle="Chimera / CAB Panel";options.dialogBackgroundColour=background;
+            options.useNativeTitleBar=true;options.escapeKeyTriggersCloseButton=true;options.componentToCentreAround=this;trackDialog(options.launchAsync());
+        }; lane.load.setTooltip("Open the cabinet library. Add WAV/AIFF files or folders, set their instrument type, or remove imported entries from the list.");
     }
     for(int i=0;i<3;++i){postPanels[(size_t)i]=std::make_unique<PostNativePanel>(processor,i);add(*postPanels[(size_t)i]);}
     for(int position=3;position<6;++position){const int family=rackOrder[(size_t)position];auto& button=effects[(size_t)family].expand;add(button);button.setComponentID("postExpand"+juce::String(position));button.setTooltip("Open all rack controls");button.onClick=[this,family]{auto* full=new RackEffectDetailPanel(processor,family);full->setLookAndFeel(&look);juce::DialogWindow::LaunchOptions options;options.content.setOwned(full);options.dialogTitle=juce::String("CHIMERA / ")+spectralforge::modelFamilies[(size_t)family].category;options.dialogBackgroundColour=panel;options.useNativeTitleBar=true;options.escapeKeyTriggersCloseButton=true;options.resizable=false;options.componentToCentreAround=this;trackDialog(options.launchAsync());};}

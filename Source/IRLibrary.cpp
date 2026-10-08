@@ -3,7 +3,7 @@
 #include "ChimeraIRData.h"
 
 namespace spectralforge {
-IRLibrary::IRLibrary(std::array<Cab*,3> cabinets) : Thread("Chimera IR preparation"), cabs(cabinets)
+IRLibrary::IRLibrary(std::array<Cab*,3> cabinets) : Thread("Chimera IR preparation"), cabs{cabinets[0],cabinets[1],cabinets[2],cabinets[0]->secondMic(),cabinets[1]->secondMic(),cabinets[2]->secondMic()}
 {
     juce::String error;
     factory[0]=decode(juce::MemoryBlock(ChimeraIRData::guitar_v30_sm57_wav,ChimeraIRData::guitar_v30_sm57_wavSize),IRMetadata::factoryFilename(0),error);
@@ -59,7 +59,7 @@ std::shared_ptr<IRLibrary::Asset> IRLibrary::decode(const juce::MemoryBlock& byt
 }
 juce::Result IRLibrary::importFile(int lane, const juce::File& file)
 {
-    if(lane<0 || lane>2) return juce::Result::fail("Invalid lane");
+    if(lane<0 || lane>5) return juce::Result::fail("Invalid lane");
     juce::MemoryBlock bytes;
     juce::String error;
     std::shared_ptr<Asset> asset;
@@ -96,24 +96,24 @@ void IRLibrary::prepare(const juce::dsp::ProcessSpec& settings,const std::array<
 {
     const lifecycle::Scope trace("ir.prepare", this);
     stop(); spec=settings;
-    for(int i=0;i<3;++i)
+    for(int i=0;i<6;++i)
     {
-        cabs[i]->requestedSource.store(sources[i]);
+        cabs[i]->requestedSource.store((i<3 ? sources[i] : cabs[i]->requestedSource.load()));
         unsigned generation;
         { std::lock_guard<std::mutex> lock(mutex); generation=generations[i]; }
-        cabs[i]->install(build(i,sources[i],generation));
+        cabs[i]->install(build(i,(i<3 ? sources[i] : cabs[i]->requestedSource.load()),generation));
     }
     startThread();
 }
 void IRLibrary::run()
 {
     const lifecycle::Scope trace("ir.worker", this);
-    std::array<int,3> built;
-    std::array<unsigned,3> versions;
-    for(int i=0;i<3;++i) { built[i]=cabs[i]->activeSource.load(); versions[i]=cabs[i]->activeGeneration.load(); }
+    std::array<int,6> built;
+    std::array<unsigned,6> versions;
+    for(int i=0;i<6;++i) { built[i]=cabs[i]->activeSource.load(); versions[i]=cabs[i]->activeGeneration.load(); }
     while(!threadShouldExit())
     {
-        for(int i=0;i<3 && !threadShouldExit();++i)
+        for(int i=0;i<6 && !threadShouldExit();++i)
         {
             cabs[i]->collect();
             const int source=cabs[i]->requestedSource.load();
@@ -151,10 +151,10 @@ juce::ValueTree IRLibrary::save() const
 {
     juce::ValueTree tree("USER_IRS");
     std::lock_guard<std::mutex> lock(mutex);
-    for(int i=0;i<3;++i) if(users[i])
+    for(int i=0;i<6;++i) if(users[i])
     {
         juce::ValueTree child("IR");
-        child.setProperty("lane",i,nullptr); child.setProperty("name",users[i]->name,nullptr);
+        child.setProperty("lane",i%3,nullptr); child.setProperty("slot",i/3,nullptr); child.setProperty("name",users[i]->name,nullptr);
         child.setProperty("data",users[i]->encoded.toBase64Encoding(),nullptr);
         child.setProperty("metadata",juce::JSON::toString(users[i]->metadata.json(),true),nullptr);
         tree.appendChild(child,nullptr);
@@ -163,12 +163,14 @@ juce::ValueTree IRLibrary::save() const
 }
 void IRLibrary::restore(const juce::ValueTree& tree)
 {
-    std::array<std::shared_ptr<Asset>,3> restored;
-    std::array<juce::String,3> messages;
+    std::array<std::shared_ptr<Asset>,6> restored;
+    std::array<juce::String,6> messages;
     for(auto child:tree)
     {
-        const int lane=(int)child.getProperty("lane",-1);
-        if(lane<0 || lane>2) continue;
+        const int base=(int)child.getProperty("lane",-1), slot=(int)child.getProperty("slot",0);
+        if(base<0 || base>2 || slot<0 || slot>1) continue;
+        const int lane=base+3*slot;
+        if(lane<0 || lane>5) continue;
         const auto encoded=child.getProperty("data").toString();
         juce::MemoryBlock bytes;
         if(encoded.length()>6*1024*1024 || !bytes.fromBase64Encoding(encoded)) messages[lane]="Saved IR is damaged. Filters only.";
@@ -184,12 +186,12 @@ void IRLibrary::restore(const juce::ValueTree& tree)
 }
 IRMetadata IRLibrary::metadata(int lane,int source) const
 {
-    std::lock_guard<std::mutex> lock(mutex);if(lane<0 || lane>2)return {};
+    std::lock_guard<std::mutex> lock(mutex);if(lane<0 || lane>5)return {};
     auto asset=source==3 ? users[(size_t)lane] : source==1 || source==2 ? factory[(size_t)source-1] : nullptr;
     return asset ? asset->metadata : IRMetadata{};
 }
 void IRLibrary::setMetadata(int lane,const IRMetadata& metadata)
 {
-    std::lock_guard<std::mutex> lock(mutex);if(lane>=0 && lane<3 && users[(size_t)lane]){users[(size_t)lane]->metadata=IRMetadata::fromJSON(metadata.json());++displayGeneration[(size_t)lane];}
+    std::lock_guard<std::mutex> lock(mutex);if(lane>=0 && lane<6 && users[(size_t)lane]){users[(size_t)lane]->metadata=IRMetadata::fromJSON(metadata.json());++displayGeneration[(size_t)lane];}
 }
 }
