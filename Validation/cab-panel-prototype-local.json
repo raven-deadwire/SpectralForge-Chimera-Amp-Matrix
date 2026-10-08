@@ -1,0 +1,466 @@
+{
+  "schema": "chimera-cab-panel-local-v1",
+  "date_kst": "2026-10-08",
+  "scope": "Linux native decoder/convolution and production processor with synthetic audio probes; not listening or DAW acceptance",
+  "source_files": [
+    {
+      "path": ".github/workflows/cab-panel.yml",
+      "sha256": "f0e148d9a4db053d33ed54c92be73b7ecbddf30f073110e369427ec905bd2949"
+    },
+    {
+      "path": "CMakeLists.txt",
+      "sha256": "c998192693618f0333b1d033c87d3719791de855d8b0e41b997031af61474fc0"
+    },
+    {
+      "path": "Source/AmpCatalog.h",
+      "sha256": "65873d2064ef7043fd256d4a79107470f040d928dd52c8c8d50f1e8cd39a4c27"
+    },
+    {
+      "path": "Source/AmpNativeCalibration.h",
+      "sha256": "87f01c0e4e465f6161431bcc58d7d0d2d162f76527656db88f05b4a6685d0cb1"
+    },
+    {
+      "path": "Source/AmpNativeCatalog.h",
+      "sha256": "86f2ba1e7bc124148458915540be5dc19e55eca4212094b18ec713ae6bbc631c"
+    },
+    {
+      "path": "Source/AmpNativeDSP.h",
+      "sha256": "252b377c2bec73d6d3911744fd286eaa84b35c06f2e7bf6b0e5ec4c78c5c7ea8"
+    },
+    {
+      "path": "Source/AmpNativePanel.h",
+      "sha256": "d4d71439146485014c406051abc28152fe9b71e876b7c5596162b7474c61c919"
+    },
+    {
+      "path": "Source/AmpNativeParameters.h",
+      "sha256": "fdb6aa8bbf974f3056710ee6c77281b6abec4a96cd608a6511d426c81516bee9"
+    },
+    {
+      "path": "Source/AmpSelectionParameters.h",
+      "sha256": "07c6d02bf3c5a2016876cfd4ba2d12fc430d33e89dbbd47f57c0fc794bc64e3a"
+    },
+    {
+      "path": "Source/AmpSelector.h",
+      "sha256": "ef15cd5b6b09f8257258d786f0650c5307dc98bf7612920e95d34d1f823a43ed"
+    },
+    {
+      "path": "Source/Amplifier.h",
+      "sha256": "492edbef00302dbe933bb85ab54d4ffe226a45830c0d813386ac37ae79a18f4d"
+    },
+    {
+      "path": "Source/CabPanel.h",
+      "sha256": "9269e0a291726e83b5da74b58f54e539e66a0692405b8206f3273368f77c0119"
+    },
+    {
+      "path": "Source/Cabinet.h",
+      "sha256": "9863100d982e2262e3a66e00f24ae4490894cef822631537469a72d00308bc4a"
+    },
+    {
+      "path": "Source/CabinetSelector.h",
+      "sha256": "ff981f32d4099d866b338fe24ae1e974ef9cf8613edf281579c9a8c870ca7314"
+    },
+    {
+      "path": "Source/ChimeraDSP.h",
+      "sha256": "bcaa3d7f37ff6c6238b32f60ba81c0f6c0c5f7ee257f6ea1b249448e3dfdb4eb"
+    },
+    {
+      "path": "Source/DiagnosticsPanel.h",
+      "sha256": "aec913ed04890e156bb78504112f9e139161829a9b49a95404bc26f4481d3942"
+    },
+    {
+      "path": "Source/EffectSelectionCatalog.h",
+      "sha256": "0c8092f530a080a6c587db149a4489eed1d101e705487cc135811776863b28ae"
+    },
+    {
+      "path": "Source/FXChain.h",
+      "sha256": "e241c054a6a39cf48b6081fc072281b588a6b622fbe9cabf4588ceb67149d077"
+    },
+    {
+      "path": "Source/FXParameters.h",
+      "sha256": "4c2d2b318aed5e11268257db792e2d3a6658f9b0fa9eba6fb62f9b4936796d39"
+    },
+    {
+      "path": "Source/FactoryNativeVoicing.h",
+      "sha256": "d75df201d007404e0cb792a0a2e8e3c6d552964bf916a181aedde7917148325a"
+    },
+    {
+      "path": "Source/FactoryPresetLevels.h",
+      "sha256": "21f32a9156ec155a6912226e4726f9def29644b733ce483065113a10fca658e2"
+    },
+    {
+      "path": "Source/FactoryPresets.h",
+      "sha256": "9ef0946adfb25c9a999460efbbc3392c719198c7255c9b26f4e3e5a4df8b0926"
+    },
+    {
+      "path": "Source/GlobalDSP.h",
+      "sha256": "645b38c7909f26ef4435bfc51fcbbe3b8cdb0130a93740fff6ece8c64a3b042e"
+    },
+    {
+      "path": "Source/GuitarSignaturePresets.h",
+      "sha256": "b1fee0102d8c6fb734a0c1e0f4370ce1f7032ac26a2a7516ba712e87eedc762b"
+    },
+    {
+      "path": "Source/HardwareArtwork.h",
+      "sha256": "b9b9c6d890acbef2555f9388c652aa7c21ac1352482e0d0a3aa331487bd69c4d"
+    },
+    {
+      "path": "Source/IRBrowserPanel.h",
+      "sha256": "1e96ad9aca4fec887ef68283da3a7de365556095b2d82f2475a4aa13492e2370"
+    },
+    {
+      "path": "Source/IRCollection.h",
+      "sha256": "58a04fadec1841e2a9a7aa72624a95dd284260dd199a9d627a2d59cbec8305a6"
+    },
+    {
+      "path": "Source/IRLibrary.cpp",
+      "sha256": "e180fe1f7e09a6f5e9fdb05ddc133dfde39dc4404d4e524fb2874218dd366609"
+    },
+    {
+      "path": "Source/IRLibrary.h",
+      "sha256": "bd5c57d1f45d02393060cf6bb1cd7139ace66dcec07bf4c0113802324bc62c28"
+    },
+    {
+      "path": "Source/IRMetadata.h",
+      "sha256": "176236976c5026878a230945cc8070dfdec6f19bf0c84552e5a13a68c82ce8e0"
+    },
+    {
+      "path": "Source/IRReferenceCatalog.h",
+      "sha256": "800cc2e965993e144e5cc83136bd22a54f649713736733cc136701883d8f0068"
+    },
+    {
+      "path": "Source/IRUserPreferences.h",
+      "sha256": "a8376158785c6e4c1bfe715c71c421960e5a6df214da16325318776be3f4f32f"
+    },
+    {
+      "path": "Source/LifecycleTrace.h",
+      "sha256": "2133bde8ac2b3b6aaa2fa7a033960fb8cca13ef9c75dbfd69cf961710463b04f"
+    },
+    {
+      "path": "Source/LowCompressor.h",
+      "sha256": "3f9f307a170e91007ec1f30924099532a94db7b4b80f05f3b216c3a3d2ac2f09"
+    },
+    {
+      "path": "Source/MatrixTone.h",
+      "sha256": "1db1a63a3e4f23be020115740b006eb2558a5becd9711f80ea1caea1e0e66495"
+    },
+    {
+      "path": "Source/ModelCatalog.h",
+      "sha256": "7917cbed59a53630099208122319a933041654668ab300f986cb3fb76f55a695"
+    },
+    {
+      "path": "Source/NativeControlView.h",
+      "sha256": "ea95dbad4d92769c14cb67b52c549d17201c4362c2a1cee92adb3d26d73c0d03"
+    },
+    {
+      "path": "Source/NewAmpDSP.h",
+      "sha256": "35e15da80253d3edfd474990e675e920f8ad2cb23402bb21e45b5fe4f3013337"
+    },
+    {
+      "path": "Source/NiflheimrDSP.h",
+      "sha256": "07532a179721bce0f6f1878b6ac761ed11404d55c446140f42282f009fa894dd"
+    },
+    {
+      "path": "Source/NiflheimrDefinition.h",
+      "sha256": "998a58fd792846382173f5b21c36b389d753cfd4439ed7483b0e64b8cfdfc634"
+    },
+    {
+      "path": "Source/NiflheimrPresets.h",
+      "sha256": "b735adaee918ec67be9ceff2ed49483f63617d17341c44f1f5943a2790e60cdf"
+    },
+    {
+      "path": "Source/OriginalAmpDSP.h",
+      "sha256": "7595c2bf32af62d7b3863d0b9551139d319b7ec3b108a0053b34f6072559de3c"
+    },
+    {
+      "path": "Source/OriginalAmpDefinition.h",
+      "sha256": "edf22de4734d189551d5a68b9ca84738f25ab0623a8bb6ada9519d105933f62b"
+    },
+    {
+      "path": "Source/OriginalAmpPanel.h",
+      "sha256": "7fc01cbc872f83dab74f86e6a207e0878a1d08d9ce7bcdcdac1084ed790c905c"
+    },
+    {
+      "path": "Source/OriginalAmpProcessor.h",
+      "sha256": "f1b725e9dc67dbcba9ed57890a91f1694f2cbfc0a4745e644eaf7c70ed1ee7e1"
+    },
+    {
+      "path": "Source/OriginalAmpState.h",
+      "sha256": "386a3c41a7ef5f43f8407d8593c0d93b1ed6116df22d59ba59d66536ad0aa19d"
+    },
+    {
+      "path": "Source/OriginalPresets.h",
+      "sha256": "bcc02b3df08021f0c0e48ef497e839c7515ab542cbfff0757e26faf1556c827c"
+    },
+    {
+      "path": "Source/PedalBoardCatalog.h",
+      "sha256": "d31b3f315785d06898aa685d8aa93fef134cded51aaed7ca446dca21cde2eb23"
+    },
+    {
+      "path": "Source/PedalBoardDSP.h",
+      "sha256": "22688a0aa364c6a5e148a9a1c94085927484c0168460037a9f74302def1d2329"
+    },
+    {
+      "path": "Source/PedalBoardPanel.h",
+      "sha256": "230fb54863073f7d8dbabe430406ea816941384514fcbf5b7dc150d1c84d199f"
+    },
+    {
+      "path": "Source/PedalBoardParameters.h",
+      "sha256": "f8ab595798fcfcaa3bc62e8aeeeedeb6bceafa8c6877ab97cb6aeeb7a85820f8"
+    },
+    {
+      "path": "Source/PedalOctaverDSP.h",
+      "sha256": "7d522b30c85b75a05de60d5cedda5ef2265c9b8374c73f8a242fc96fec4e2570"
+    },
+    {
+      "path": "Source/PerformanceUtilities.h",
+      "sha256": "4eccbd960e5cbdcf6cad7786000ac925db8c287fbdb45f0ddd005eaa46b00d59"
+    },
+    {
+      "path": "Source/PluginEditor.cpp",
+      "sha256": "d071cff3cf15f35dfbb42e191c7a873a50f2166fb61b39c4767a46f401af386f"
+    },
+    {
+      "path": "Source/PluginEditor.h",
+      "sha256": "3331effd162925a39060b729bd696307c5bcc6ab52cb7d1d279f214e3081f0c2"
+    },
+    {
+      "path": "Source/PluginProcessor.cpp",
+      "sha256": "62aea66d581a72d166dd081fa6b6f6601312e39178a2e909b73b051a2d06a740"
+    },
+    {
+      "path": "Source/PluginProcessor.h",
+      "sha256": "aabe341f2669940bd4f3a1d4c73bfc7b9a0bc3d63c7816d2b3b40aec20fbcefc"
+    },
+    {
+      "path": "Source/PolyPitch.h",
+      "sha256": "2582d15ede1755a9d7cc45ffac27fcff69f0aaf75d6aaf50c2bcb26d7ee27173"
+    },
+    {
+      "path": "Source/PostNativeCatalog.h",
+      "sha256": "bcbf549a1c9c5acbd3c285216c10ae37039d1ff19d2d5561467068eb1933d53d"
+    },
+    {
+      "path": "Source/PostNativeDSP.h",
+      "sha256": "a9a78599c35fb2eabc60ffb394cdb9b910c83259ea54a1b2d001ba5e38643594"
+    },
+    {
+      "path": "Source/PostNativePanel.h",
+      "sha256": "006775306f0ad77f348a0bd6eb682b64059d09948ea3a73db96bb0a93c33a3e4"
+    },
+    {
+      "path": "Source/PostNativeParameters.h",
+      "sha256": "625dd64cd8dd2802dd670ccd765b471abcc6a2b22365691bf07bd7d3710e51d9"
+    },
+    {
+      "path": "Source/PostRigGate.h",
+      "sha256": "0948431ee443b202b3dc3cbc7734891521bdc7d794135465b0e6e464c5e23a4c"
+    },
+    {
+      "path": "Source/PresetOrder.h",
+      "sha256": "9f2253e16fa0455a1f62b24c9f20933521b51ced6f31d2c509dcd4acc57c15f9"
+    },
+    {
+      "path": "Source/RackEffectDetailPanel.h",
+      "sha256": "8c878164d8bffa8ee8315b4e9abb78387a14913cf308e6a34923624932be475f"
+    },
+    {
+      "path": "Source/RasterArtwork.h",
+      "sha256": "6582e546df2508eff8c116b375af4ecb5c3eaa93e79b3dff22df3eadd3408a56"
+    },
+    {
+      "path": "Source/ReleaseInfo.h",
+      "sha256": "d22495bdb45b51a18677adf1b0c56e1f4d05752ad6f5834c8b85e5fb704592e5"
+    },
+    {
+      "path": "Source/ReleaseSupport.cpp",
+      "sha256": "f7b4f056a4b30df068e6e28ff0fe42b5c82a95912826d4ace46b41968cbaae98"
+    },
+    {
+      "path": "Source/ReleaseSupport.h",
+      "sha256": "91200b128fdd3e436f3245a323022f1a2d1933124b2f46f6921ec15d5016c154"
+    },
+    {
+      "path": "Source/SpatialModules.h",
+      "sha256": "9bcd1ba191653bd6e8cce332e10d34ed8fe7fce030cf6fde0f1720ebd02bf22b"
+    },
+    {
+      "path": "Source/StudioModules.h",
+      "sha256": "742daebc22d590976b3186692e9b2c9531cc8f7e0f2066636f2761202bbe12de"
+    },
+    {
+      "path": "Source/SupportPanel.h",
+      "sha256": "9e69c6ab45d35a7b7d91b5bf3877edf34b5cc4794b698e0e2a57358cd211d431"
+    },
+    {
+      "path": "Source/UIRefresh.h",
+      "sha256": "0b697da3ea3f16a55ac31026cc44de058550d8f765e3dab99686c1b429528ff7"
+    },
+    {
+      "path": "Tests/CabPanelStateTests.cpp",
+      "sha256": "c1535100c1f9c1196c998afe3fc65cc5eae81818158493cf1c7e50d3b50cab4f"
+    },
+    {
+      "path": "Tests/CabPanelTests.cpp",
+      "sha256": "b218e3ed0c602bd261d4d68c7415d78bac1cf68b61c84428096cb0b09f1b45f9"
+    },
+    {
+      "path": "Tests/ChimeraTests.cpp",
+      "sha256": "e9b9db17b2db7710183130dc379bff34314c078c37c4ca93e68fb637356b0c3e"
+    },
+    {
+      "path": "Tests/IRLibraryTests.cpp",
+      "sha256": "8649001e337fe7b60a51203de8255850cc1825419873cc29de05929e7a6df5ef"
+    },
+    {
+      "path": "Tests/ValidateExternalIR.cpp",
+      "sha256": "f0723b96a70265fd17d5e5eb9205d3eb262d5eec5295667996fc1d02eaabe260"
+    }
+  ],
+  "source_manifest_sha256": "a97ec79bee1c332d28774e492fababd21f512e2c3ce08352e1bde94889dd1474",
+  "local_suites": {
+    "ChimeraCabPanelTests": "PASS",
+    "ChimeraCabPanelStateTests": "PASS",
+    "ChimeraIRLibraryTests": "PASS",
+    "ChimeraTests": "PASS"
+  },
+  "linux_release_vst3_build": "PASS",
+  "private_origin_pairs": [
+    {
+      "voicing": "Bright",
+      "mics": [
+        "57",
+        "160"
+      ],
+      "input_sha256": [
+        "0e11cc11ba36ba22d8e947027cc6f7c880ffbb0cec722a718443ad60bf508b49",
+        "f957dd8fd6e9e8488c67b468de6417fc2b1747a68c6aae8f3b9718ebac6f73dd"
+      ],
+      "host_cases": 12,
+      "source_unmodified": true,
+      "verdict": "PASS"
+    },
+    {
+      "voicing": "Bright",
+      "mics": [
+        "160",
+        "421"
+      ],
+      "input_sha256": [
+        "f957dd8fd6e9e8488c67b468de6417fc2b1747a68c6aae8f3b9718ebac6f73dd",
+        "c953b2b0fe3d71e4fa61b7149e7b772c0f23851a32261bf0abaaa6e391e7bf00"
+      ],
+      "host_cases": 12,
+      "source_unmodified": true,
+      "verdict": "PASS"
+    },
+    {
+      "voicing": "Medium",
+      "mics": [
+        "57",
+        "160"
+      ],
+      "input_sha256": [
+        "60678dd656d1c36ccaf253d3d5fbc07a1c965af9930a673dd79e12c4dd0c0be7",
+        "f3bd4e281f851361e4dd5e4ec8db6ea04df5921851c31d1249352a98de4c8dac"
+      ],
+      "host_cases": 12,
+      "source_unmodified": true,
+      "verdict": "PASS"
+    },
+    {
+      "voicing": "Medium",
+      "mics": [
+        "160",
+        "421"
+      ],
+      "input_sha256": [
+        "f3bd4e281f851361e4dd5e4ec8db6ea04df5921851c31d1249352a98de4c8dac",
+        "dfb3852d10332ead353513507c3a1ffd252c088673f50286453ed57cb4309565"
+      ],
+      "host_cases": 12,
+      "source_unmodified": true,
+      "verdict": "PASS"
+    },
+    {
+      "voicing": "Dark",
+      "mics": [
+        "57",
+        "160"
+      ],
+      "input_sha256": [
+        "7903787d586b5118733592fd13bc37b584f373aeeb6987df649e521562081e59",
+        "e5469e67d29b7c2fbf7f6a0dea4ef2e4aeacd48f61c0411ca0df71e8ac70ed11"
+      ],
+      "host_cases": 12,
+      "source_unmodified": true,
+      "verdict": "PASS"
+    },
+    {
+      "voicing": "Dark",
+      "mics": [
+        "160",
+        "421"
+      ],
+      "input_sha256": [
+        "e5469e67d29b7c2fbf7f6a0dea4ef2e4aeacd48f61c0411ca0df71e8ac70ed11",
+        "1fbe471b4c8cd162e8239208d7160a9d6e35719401c2f63db888d7399293a0c7"
+      ],
+      "host_cases": 12,
+      "source_unmodified": true,
+      "verdict": "PASS"
+    }
+  ],
+  "private_native_file_probes": [
+    {
+      "filename": "Modern Boutique 4x12 Medium 57.wav",
+      "input_sha256": "60678dd656d1c36ccaf253d3d5fbc07a1c965af9930a673dd79e12c4dd0c0be7",
+      "header_sample_rate": 48000.0,
+      "host_cases": 12,
+      "source_file_unmodified": true,
+      "maximum_restore_difference": 0.0
+    },
+    {
+      "filename": "Modern Boutique 4x12 Medium 160.wav",
+      "input_sha256": "f3bd4e281f851361e4dd5e4ec8db6ea04df5921851c31d1249352a98de4c8dac",
+      "header_sample_rate": 48000.0,
+      "host_cases": 12,
+      "source_file_unmodified": true,
+      "maximum_restore_difference": 0.0
+    },
+    {
+      "filename": "Modern Boutique 4x12 Medium 421.wav",
+      "input_sha256": "dfb3852d10332ead353513507c3a1ffd252c088673f50286453ed57cb4309565",
+      "header_sample_rate": 48000.0,
+      "host_cases": 12,
+      "source_file_unmodified": true,
+      "maximum_restore_difference": 0.0
+    },
+    {
+      "filename": "British Checkerboard 4x12 Medium Mix.wav",
+      "input_sha256": "132047275510b392315ccdf2ff023c9047469d03d436a5926cbff22d97e7f456",
+      "header_sample_rate": 48000.0,
+      "host_cases": 12,
+      "source_file_unmodified": true,
+      "maximum_restore_difference": 0.0
+    }
+  ],
+  "production_real_ir_routes": [
+    "Classic",
+    "Dual Blend",
+    "Dual Crossover",
+    "Matrix"
+  ],
+  "project_original_file_independence": true,
+  "legacy_project_migration": "PASS",
+  "comparison_recall": "PASS",
+  "ui_binding_and_software_snapshot": "PASS",
+  "all_291_origin_native_files": "NOT_RUN",
+  "commercial_daw_lifecycle": "NOT_RUN",
+  "native_window_ux": "NOT_RUN",
+  "instrument_di_listening": "NOT_RUN",
+  "target_cpu_acceptance": "NOT_RUN",
+  "latest_exact_head_ci": "PENDING",
+  "public_payload": "Source/fixture generators and hashes/metrics only. No private IR audio, embedded project data, derived IR coefficients or private renders.",
+  "verdict": "COMPLETED_TECHNICAL_ONLY",
+  "release_approved": false
+}

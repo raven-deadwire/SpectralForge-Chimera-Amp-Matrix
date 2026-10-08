@@ -64,6 +64,15 @@ int main(int argc,char** argv){
             recall.restore(juce::ValueTree::readFromData(serialized.getData(),serialized.getDataSize()));
             restored[0].secondMic()->requestedSource.store(3);recall.prepare(spec,{3,0,0});recall.stop();restored[0].blend=.37f;
             require(difference(before,render(restored[0],spec))<1e-7f,"embedded A/B audio restore");
+            cab.blend=0;micB->requestedSource.store(0);library.prepare(spec,{3,0,0});
+            require(library.importFile(3,b).wasOk(),"muted B async import");micB->requestedSource.store(3);
+            juce::AudioBuffer<float> silence(channels,block);bool ready=false;
+            for(int attempt=0;attempt<2000 && !ready;++attempt) {
+                silence.clear();cab.process(silence);
+                ready=!library.status(3).contains("Preparing IR");
+                if(!ready)juce::Thread::sleep(1);
+            }
+            require(ready && micB->activeSource.load()==3,"muted B must activate without moving blend");library.stop();
             std::cout<<"PASS "<<rate<<" Hz / "<<channels<<" ch / "<<block<<" frames\n";
         }
         return 0;

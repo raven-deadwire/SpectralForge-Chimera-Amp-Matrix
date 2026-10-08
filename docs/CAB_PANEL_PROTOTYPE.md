@@ -25,7 +25,7 @@ normalization/resampling remains in place; source sample rate comes from its hea
 
 The IR worker prepares and retires both lanes' kernels off the audio callback.
 Buffer/delay storage is allocated at prepare time. Parameter pointers are cached.
-Mic B convolution is skipped at a settled zero blend. Up to six active mic paths
+Mic B convolution is skipped at a settled zero blend after servicing pending swaps; frozen history is reset before waking it. Up to six active mic paths
 are possible in Matrix; CPU/DAW acceptance on target hardware remains separate.
 
 Project and comparison snapshots embed each slot's original encoded bytes and

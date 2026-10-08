@@ -43,6 +43,7 @@ private:
     std::unique_ptr<Cab> micB;
     juce::AudioBuffer<float> second, delayBuffer;
     int delayWrite{};
+    bool bWasRunning{};
     juce::SmoothedValue<float> micGain, micBlend, micDelay;
     int fadeRemaining{}, fadeLength{1};
     static void destroyKernel(Kernel* kernel)
@@ -74,6 +75,7 @@ public:
     {
         clear(); sr=spec.sampleRate;
         if(micB) micB->prepare(spec);
+        bWasRunning=false;
         second.setSize((int)spec.numChannels,(int)spec.maximumBlockSize);
         delayBuffer.setSize((int)spec.numChannels,int(sr*.020)+2); delayBuffer.clear(); delayWrite=0;
         micGain.reset(sr,.020); micGain.setCurrentAndTargetValue(1.f);
@@ -96,7 +98,7 @@ public:
     {
         hp.reset(); lp.reset();
         if(micB) micB->reset();
-        delayBuffer.clear(); delayWrite=0;
+        delayBuffer.clear(); delayWrite=0; bWasRunning=false;
         if(active) active->convolution.reset();
         if(fading) fading->convolution.reset();
     }
@@ -118,8 +120,11 @@ public:
                 }
             }
         dry.makeCopyOf(buffer,true);
-        const bool renderB=micB && (blend>0.f || micBlend.getCurrentValue()>0.f);
-        if(renderB) { second.makeCopyOf(buffer,true); micB->process(second); }
+        // Service a muted slot's pending swap so its UI can become ready. Once
+        // settled, skip its convolution; clear frozen history before waking it.
+        const bool renderB=micB && (blend>0.f || micBlend.getCurrentValue()>0.f || micB->pending.load()!=nullptr || micB->fadeRemaining>0);
+        if(renderB) { if(!bWasRunning)micB->reset(); second.makeCopyOf(buffer,true); micB->process(second); }
+        bWasRunning=renderB;
         juce::dsp::AudioBlock<float> block(buffer);
         juce::dsp::ProcessContextReplacing<float> context(block);
         hp.process(context);

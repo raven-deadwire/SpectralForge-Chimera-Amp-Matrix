@@ -115,13 +115,17 @@ public:
                 auto& slider=s.sliders[k];slider.setSliderStyle(juce::Slider::LinearHorizontal);slider.setTextBoxStyle(juce::Slider::TextBoxRight,false,80,24);addAndMakeVisible(slider);
                 s.attachments.push_back(std::make_unique<SA>(processor.parameters(),ids[k],slider));
             }
+            s.invert.setComponentID(prefix+"invert"+n);s.invert.setClickingTogglesState(true);
+            s.invert.setColour(juce::TextButton::buttonOnColourId,juce::Colour(0xff21667a));
+            s.invert.setTooltip("Invert this microphone's signal polarity");
             s.polarity=std::make_unique<BA>(processor.parameters(),prefix+"invert"+n,s.invert);
         }
         blendLabel.setText("Mic A  <  Linear blend  >  Mic B",juce::dontSendNotification);addAndMakeVisible(blendLabel);addAndMakeVisible(blend);
-        blend.textFromValueFunction=[](double value){return juce::String(value*100.0,1)+"% B";};
-        blend.valueFromTextFunction=[](const juce::String& text){return text.getDoubleValue()*.01;};
         blend.setSliderStyle(juce::Slider::LinearHorizontal);blend.setTextBoxStyle(juce::Slider::TextBoxRight,false,80,24);
         blendAttachment=std::make_unique<SA>(processor.parameters(),"cabblend"+n,blend);
+        blend.setComponentID("cabblend"+n);
+        blend.textFromValueFunction=[](double value){return juce::String(value*100.0,1)+"% B";};
+        blend.valueFromTextFunction=[](const juce::String& text){return text.getDoubleValue()*.01;};blend.updateText();
         refresh();timerCallback();setSize(900,450);startTimerHz(10);
     }
     ~CabPanel() override {stopTimer();if(browser)delete browser.getComponent();}

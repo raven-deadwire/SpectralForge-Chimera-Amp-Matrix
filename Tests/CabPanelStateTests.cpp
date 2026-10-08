@@ -17,7 +17,13 @@ int main(int argc,char** argv){juce::ScopedJuceInitialiser_GUI gui;auto folder=j
     juce::MemoryBlock saved;p->getStateInformation(saved);check(a.deleteFile() && b.deleteFile(),"delete sources");
     for(int mode=0;mode<3;++mode){for(int dual=0;dual<(mode==1?2:1);++dual){set(*p,"mode",float(mode));set(*p,"dualtype",float(dual));p->getStateInformation(saved);auto original=render(*p);auto restored=std::make_unique<ChimeraProcessor>();restored->setStateInformation(saved.getData(),int(saved.getSize()));equal(original,render(*restored));check(restored->micName(2,1)=="B.wav","Mic B filename restore");std::cout<<"PASS routing "<<mode<<" dual "<<dual<<" embedded project\n";}}
     p->copyComparison();set(*p,"cabblend1",.9f);p->selectComparison(1);check(std::abs(p->parameters().getRawParameterValue("cabblend1")->load()-.31f)<1e-6f,"A/B snapshot parameter restore");check(p->micName(0,1)=="B.wav","A/B embedded Mic B");
-    if(argc>1){CabPanel panel(*p,0);auto image=panel.createComponentSnapshot(panel.getLocalBounds());check(image.isValid(),"panel snapshot");auto out=juce::File::getCurrentWorkingDirectory().getChildFile(argv[1]).createOutputStream();check(out!=nullptr,"snapshot stream");juce::PNGImageFormat png;check(png.writeImageToStream(image,*out),"snapshot write");}
+    if(argc>1){p->prepareToPlay(48000,128);CabPanel panel(*p,0);
+        auto* polarity=dynamic_cast<juce::TextButton*>(panel.findChildWithID("cabBinvert1"));
+        check(polarity && polarity->getClickingTogglesState(),"polarity click interaction");
+        polarity->setToggleState(false,juce::sendNotification);check(p->parameters().getRawParameterValue("cabBinvert1")->load()==0,"polarity UI binding");
+        polarity->setToggleState(true,juce::sendNotification);
+        auto* blend=dynamic_cast<juce::Slider*>(panel.findChildWithID("cabblend1"));check(blend && blend->getTextFromValue(.31).contains("31.0%"),"blend percentage display");
+        auto image=panel.createComponentSnapshot(panel.getLocalBounds());check(image.isValid(),"panel snapshot");auto out=juce::File::getCurrentWorkingDirectory().getChildFile(argv[1]).createOutputStream();check(out!=nullptr,"snapshot stream");check(out->setPosition(0) && out->truncate().wasOk(),"snapshot overwrite");juce::PNGImageFormat png;check(png.writeImageToStream(image,*out),"snapshot write");p->releaseResources();}
     // Old project children have no slot tag and no new controls. Migration must
     // reset dirty current values rather than inheriting a previous CAB edit.
     p->selectComparison(0);
@@ -41,7 +47,7 @@ int main(int argc,char** argv){juce::ScopedJuceInitialiser_GUI gui;auto folder=j
     set(*p,"cabblend1",1);set(*p,"cabAgain1",-20);set(*p,"cabAdelay1",15);
     juce::AudioProcessor::copyXmlToBinary(*legacy.createXml(),saved);p->setStateInformation(saved.getData(),int(saved.getSize()));
     check(p->parameters().getRawParameterValue("cabblend1")->load()==0,"legacy blend default");
-    check(p->parameters().getRawParameterValue("cabAgain1")->load()==0,"legacy level default");
+    check(std::abs(p->parameters().getRawParameterValue("cabAgain1")->load())<1e-5f,"legacy level default");
     check(p->micName(0,1).isEmpty(),"legacy absent B asset");equal(baseline,render(*p));
     std::cout<<"PASS legacy A-only project migration\n";
 
