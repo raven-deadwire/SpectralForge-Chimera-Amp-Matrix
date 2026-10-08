@@ -1,6 +1,7 @@
 #pragma once
 #include "CabPanel.h"
 #include "CabArtwork.h"
+#include "CabHeadView.h"
 #include "HardwareArtwork.h"
 #include <functional>
 
@@ -29,6 +30,104 @@ inline int rigCount(ChimeraProcessor& processor) {return mode(processor)+1;}
 inline juce::String rigName(int currentMode,int lane) {
     return currentMode==2 ? (lane==0 ? "LOW" : lane==1 ? "MID" : "HIGH") : "RIG "+juce::String(lane+1);
 }
+
+inline juce::String percent(float amount) {
+    const auto value=juce::String(juce::jlimit(0.f,1.f,amount)*100.f,1);
+    return (value.endsWith(".0") ? value.dropLastCharacters(2) : value)+"%";
+}
+struct LowBlendState {
+    float requested{},effective{};
+    bool ampEnabled{true},cabEnabled{true};
+    float diContribution() const {return 1.f-effective;}
+    float cabContribution() const {return cabEnabled ? effective : 0.f;}
+    juce::String ampLabel() const {
+        return !ampEnabled ? "AMP OFF ("+percent(requested)+" SET)" :
+            juce::String(cabEnabled ? "AMP + CAB " : "AMP ")+percent(effective);
+    }
+    juce::String caption() const {
+        return "DI "+percent(diContribution())+" / "+ampLabel()
+            +(ampEnabled && !cabEnabled ? " / CAB OFF" : "");
+    }
+};
+inline LowBlendState lowBlendState(ChimeraProcessor& processor) {
+    auto& parameters=processor.parameters();
+    LowBlendState result;
+    result.requested=juce::jlimit(0.f,1.f,parameters.getRawParameterValue("lowampmix")->load());
+    result.ampEnabled=parameters.getRawParameterValue("ampon1")->load()>.5f;
+    result.cabEnabled=parameters.getRawParameterValue("cab1")->load()>.5f;
+    // Matches ChimeraDSP's existing LOW branch. CAB is processed inside the
+    // amp branch before lowampmix; this view must never apply a second mix.
+    result.effective=result.ampEnabled ? result.requested : 0.f;
+    return result;
+}
+inline float contributionOpacity(float amount) {return .40f+.60f*juce::jlimit(0.f,1.f,amount);}
+
+// One existing host parameter is presented in both room and focused views.
+// The readable cabinet remains editable even when its current contribution is
+// zero. The mic A/B blend below it continues to mix only the two CAB sources.
+class LowBlendControl : public juce::Component {
+    using SA=juce::AudioProcessorValueTreeState::SliderAttachment;
+    spectralforge::art::DialogLook look;
+    ChimeraProcessor& processor;
+    juce::Label di,amp,title;
+    juce::Slider mix;
+    std::unique_ptr<SA> attachment;
+    float displayedMix{-1.f};
+    bool displayedAmp{},displayedCab{};
+public:
+    LowBlendControl(ChimeraProcessor& value,const juce::String& prefix):processor(value) {
+        setComponentID(prefix+"LowBlend");setLookAndFeel(&look);
+        for(auto* label:{&di,&amp,&title}) {
+            addAndMakeVisible(*label);label->setInterceptsMouseClicks(false,false);
+            label->setFont(juce::FontOptions(label==&title ? 10.f : 11.f,juce::Font::bold));
+        }
+        di.setComponentID(prefix+"LowDIPercent");amp.setComponentID(prefix+"LowAmpPercent");
+        title.setComponentID(prefix+"LowBlendLabel");title.setText("LOW BLEND",juce::dontSendNotification);
+        di.setJustificationType(juce::Justification::centredLeft);
+        amp.setJustificationType(juce::Justification::centredRight);title.setJustificationType(juce::Justification::centred);
+        di.setColour(juce::Label::textColourId,juce::Colour(0xffaec2c7));
+        amp.setColour(juce::Label::textColourId,juce::Colour(0xffc4a678));
+        title.setColour(juce::Label::textColourId,juce::Colour(0xffb9b7af));
+        mix.setComponentID(prefix+"LowAmpMix");mix.setName("Matrix LOW DI to AMP and CAB blend");
+        mix.setSliderStyle(juce::Slider::LinearHorizontal);mix.setTextBoxStyle(juce::Slider::NoTextBox,false,0,0);
+        mix.setRange(0,1,.001);mix.setDoubleClickReturnValue(true,0);
+        mix.setScrollWheelEnabled(false);
+        mix.setColour(juce::Slider::backgroundColourId,juce::Colour(0xff3f5358));
+        mix.setColour(juce::Slider::trackColourId,juce::Colour(0xffb29362));
+        mix.setColour(juce::Slider::thumbColourId,juce::Colour(0xffe5d0ac));
+        addAndMakeVisible(mix);
+        attachment=std::make_unique<SA>(processor.parameters(),"lowampmix",mix);
+        mix.textFromValueFunction=[](double v){return percent(float(v))+" AMP + CAB";};
+        mix.valueFromTextFunction=[](const juce::String& text){return text.getDoubleValue()/100.;};
+        mix.onValueChange=[this]{refreshState();};mix.updateText();
+        refreshState();
+    }
+    ~LowBlendControl() override {attachment.reset();setLookAndFeel(nullptr);}
+    void refreshState() {
+        const auto state=lowBlendState(processor);
+        if(displayedMix==state.requested && displayedAmp==state.ampEnabled && displayedCab==state.cabEnabled)return;
+        displayedMix=state.requested;displayedAmp=state.ampEnabled;displayedCab=state.cabEnabled;
+        const auto ampText=state.ampLabel()+(state.ampEnabled && !state.cabEnabled ? " / CAB OFF" : "");
+        di.setText("DI "+percent(state.diContribution()),juce::dontSendNotification);
+        amp.setText(ampText,juce::dontSendNotification);
+        const auto description=state.caption()+". Blend the compressed LOW DI with AMP then CAB. "
+            "Cabinet and mic changes affect the AMP + CAB share; the DI stays dry. "
+            "At 0% you can still edit the cabinet. The separate mic A/B blend stays inside the CAB branch."
+            +(state.ampEnabled ? juce::String{} : " AMP is off; the stored "+percent(state.requested)+" blend is retained.");
+        mix.setTooltip(description);setDescription(description);
+        getProperties().set("lowAmpMix",state.requested);
+        getProperties().set("effectiveAmpMix",state.effective);
+        getProperties().set("diContribution",state.diContribution());
+        getProperties().set("cabContribution",state.cabContribution());
+    }
+    void resized() override {
+        const int half=getWidth()/2;
+        di.setBounds(0,0,half,17);amp.setBounds(half,0,getWidth()-half,17);
+        title.setVisible(getWidth()>=350);
+        title.setBounds(half-48,0,96,17);
+        mix.setBounds(0,17,getWidth(),juce::jmax(1,getHeight()-17));
+    }
+};
 }
 
 // Physical rigs share a single room. Every child is a keyboard-accessible
@@ -36,14 +135,16 @@ inline juce::String rigName(int currentMode,int lane) {
 class CabRoomOverview : public juce::Component, private juce::Timer {
     ChimeraProcessor& processor;
     juce::SharedResourcePointer<spectralforge::cabRoom::ArtworkBank> scenery;
-    juce::SharedResourcePointer<spectralforge::art::RasterBank> heads;
+    juce::SharedResourcePointer<spectralforge::cabHead::Bank> headBank;
     juce::SharedResourcePointer<spectralforge::cabArt::Bank> cabinets;
+    spectralforge::cabRoom::LowBlendControl lowBlend;
     struct RigState {
         int amp{-1},design{-1};
         std::array<int,2> original{{-1,-1}},source{{-1,-1}};
         std::array<std::array<uint64_t,4>,2> revision{};
         std::array<spectralforge::IRMetadata,2> capture;
-        bool cabEnabled{true},ampEnabled{true},muted{},solo{},diOnly{};
+        bool cabEnabled{true},ampEnabled{true},muted{},solo{};
+        float lowAmpMix{1.f},ampContribution{1.f},cabContribution{1.f};
         juce::String name,caption;
     };
     class Rig : public juce::Button {
@@ -68,20 +169,32 @@ class CabRoomOverview : public juce::Component, private juce::Timer {
         const float side=juce::jmin(area.getWidth()*.86f,(floor-12.f)/1.20f);
         const float centre=area.getCentreX();
         const juce::Rectangle<float> cabinetBounds(centre-side*.5f,floor-side*(rig.design==1 ? .9410f : .9593f),side,side);
-        const float cabinetTop=cabinetBounds.getY()+side*(rig.design==1 ? .0510f : .0399f);
-        const juce::Rectangle<float> headBounds(centre-side*.40f,cabinetTop+2.f-side*.267f,side*.8f,side*.267f);
+        const bool original=rig.original[0]>0 || rig.original[1]>0;
+        const auto asset=spectralforge::cabArt::cabinet(rig.design);
+        const auto assetIndex=static_cast<size_t>(asset);
+        const auto& cabinetImage=cabinets->images[assetIndex];
+        auto visibleCabinet=cabinetBounds.reduced(side*.083f,side*.092f);
+        if(original && cabinetImage.isValid()) {
+            const float scale=juce::jmin(cabinetBounds.getWidth()/float(cabinetImage.getWidth()),
+                cabinetBounds.getHeight()/float(cabinetImage.getHeight()));
+            const auto imageOrigin=cabinetBounds.getCentre()-juce::Point<float>(float(cabinetImage.getWidth()),float(cabinetImage.getHeight()))*(scale*.5f);
+            const auto content=cabinets->contentBounds[assetIndex].toFloat();
+            visibleCabinet={imageOrigin.x+content.getX()*scale,imageOrigin.y+content.getY()*scale,
+                content.getWidth()*scale,content.getHeight()*scale};
+        }
+        const auto headBounds=spectralforge::cabHead::boundsAboveCabinet(visibleCabinet);
         // Ground shadows and a small pool of reflected amber light belong to
         // the scene, not to a card behind each piece of equipment.
         g.setColour(gold.withAlpha(hovered ? .13f : .045f));
         g.fillEllipse(centre-side*.56f,floor-16.f,side*1.12f,25.f);
         g.setColour(juce::Colours::black.withAlpha(.62f));g.fillEllipse(centre-side*.47f,floor-9.f,side*.94f,16.f);
-        const bool original=rig.original[0]>0 || rig.original[1]>0;
-        g.beginTransparencyLayer(rig.muted || !rig.cabEnabled || rig.diOnly ? .57f : 1.f);
+        const bool low=currentMode==2 && lane==0;
+        const float cabOpacity=low ? spectralforge::cabRoom::contributionOpacity(rig.cabContribution) : (rig.cabEnabled ? 1.f : .57f);
+        const float ampOpacity=low ? spectralforge::cabRoom::contributionOpacity(rig.ampContribution) : (rig.ampEnabled ? 1.f : .57f);
+        g.beginTransparencyLayer(cabOpacity*(rig.muted ? .57f : 1.f));
         g.setColour(juce::Colours::white);
         if(original) {
-            const auto asset=spectralforge::cabArt::cabinet(rig.design);
-            const auto& image=cabinets->images[static_cast<size_t>(asset)];
-            if(image.isValid())g.drawImage(image,cabinetBounds,juce::RectanglePlacement::centred);
+            if(cabinetImage.isValid())g.drawImage(cabinetImage,cabinetBounds,juce::RectanglePlacement::centred);
             else spectralforge::cabArt::neutral(g,cabinetBounds,"CABINET");
         } else {
             const int slot=rig.source[0]!=0 ? 0 : 1;
@@ -90,8 +203,8 @@ class CabRoomOverview : public juce::Component, private juce::Timer {
             else spectralforge::cabArt::neutral(g,face,"FILTERS");
         }
         g.endTransparencyLayer();
-        g.beginTransparencyLayer(!rig.ampEnabled || rig.muted || rig.diOnly ? .57f : 1.f);
-        spectralforge::art::head(g,headBounds,rig.amp);g.endTransparencyLayer();
+        g.beginTransparencyLayer(ampOpacity*(rig.muted ? .57f : 1.f));
+        spectralforge::cabHead::paint(g,headBounds,rig.amp);g.endTransparencyLayer();
         if(hovered) {
             g.setColour(gold.withAlpha(down ? .95f : .65f));
             const auto corners=cabinetBounds.reduced(side*.065f);
@@ -107,14 +220,15 @@ class CabRoomOverview : public juce::Component, private juce::Timer {
         g.setColour(hovered ? gold : ink);g.setFont(juce::FontOptions(13.f,juce::Font::bold));
         g.drawText(rig.name,labelArea.toNearestInt().withHeight(22),juce::Justification::centred);
         g.setColour(juce::Colour(0xffbab5a9));g.setFont(juce::FontOptions(10.5f));
-        g.drawText(hovered ? "OPEN CABINET  >" : rig.caption,labelArea.toNearestInt().withTrimmedTop(22),juce::Justification::centred);
+        g.drawText(hovered && !low ? "OPEN CABINET  >" : rig.caption,labelArea.toNearestInt().withTrimmedTop(22),juce::Justification::centred);
     }
 public:
     std::function<void(int)> onCabinetSelected;
-    explicit CabRoomOverview(ChimeraProcessor& p):processor(p) {
+    explicit CabRoomOverview(ChimeraProcessor& p):processor(p),lowBlend(p,"cabRoom") {
         setComponentID("cabRoomOverview");setTitle("Chimera cabinet room");
         setDescription("Choose a cabinet to open its speaker and microphone controls.");
         for(int i=0;i<3;++i) {rigs[static_cast<size_t>(i)]=std::make_unique<Rig>(*this,i);addAndMakeVisible(*rigs[static_cast<size_t>(i)]);}
+        addAndMakeVisible(lowBlend);
         refreshState();startTimerHz(12);
     }
     ~CabRoomOverview() override {stopTimer();}
@@ -130,6 +244,8 @@ public:
     void refreshState() {
         const int nextMode=spectralforge::cabRoom::mode(processor);
         if(currentMode!=nextMode) {currentMode=nextMode;resized();repaint();}
+        lowBlend.setVisible(currentMode==2);
+        if(currentMode==2)lowBlend.refreshState();
         for(int i=0;i<3;++i) {
             auto& rig=state[static_cast<size_t>(i)];
             auto& component=*rigs[static_cast<size_t>(i)];
@@ -139,10 +255,16 @@ public:
             const int amp=processor.selectedAmpModel(i),design=juce::roundToInt(read(spectralforge::originalCabID(i,"design")));
             const bool cabEnabled=read("cab"+n)>.5f,ampEnabled=read("ampon"+n)>.5f;
             const bool muted=read("mute"+n)>.5f,solo=read("solo"+n)>.5f;
-            const bool diOnly=currentMode==2 && i==0 && read("lowampmix")<=.0001f;
+            const bool low=currentMode==2 && i==0;
+            const auto blend=spectralforge::cabRoom::lowBlendState(processor);
+            const float requested=low ? blend.requested : 1.f;
+            const float ampContribution=low ? blend.effective : (ampEnabled ? 1.f : 0.f);
+            const float cabContribution=low ? blend.cabContribution() : (cabEnabled ? 1.f : 0.f);
             bool changed=rig.amp!=amp || rig.design!=design || rig.cabEnabled!=cabEnabled || rig.ampEnabled!=ampEnabled
-                || rig.muted!=muted || rig.solo!=solo || rig.diOnly!=diOnly;
-            rig.amp=amp;rig.design=design;rig.cabEnabled=cabEnabled;rig.ampEnabled=ampEnabled;rig.muted=muted;rig.solo=solo;rig.diOnly=diOnly;
+                || rig.muted!=muted || rig.solo!=solo || rig.lowAmpMix!=requested
+                || rig.ampContribution!=ampContribution || rig.cabContribution!=cabContribution;
+            rig.amp=amp;rig.design=design;rig.cabEnabled=cabEnabled;rig.ampEnabled=ampEnabled;rig.muted=muted;rig.solo=solo;
+            rig.lowAmpMix=requested;rig.ampContribution=ampContribution;rig.cabContribution=cabContribution;
             for(int slot=0;slot<2;++slot) {
                 const auto s=static_cast<size_t>(slot);
                 const int original=read(spectralforge::originalCabID(i,slot ? "Bon" : "Aon"))>.5f ? 1 : 0;
@@ -154,18 +276,25 @@ public:
                 }
             }
             const auto name=spectralforge::cabRoom::rigName(currentMode,i)+(solo ? " / SOLO" : "");
-            juce::String caption=muted ? "MUTED" : diOnly ? "CLEAN DI / AMP MIX 0%" : !cabEnabled ? "CABINET BYPASSED" :
+            const juce::String sourceCaption=!cabEnabled ? "CABINET BYPASSED" :
                 rig.original[0] && rig.original[1] ? (design==1 ? "ORIGINAL BASS 4x10" : "ORIGINAL GUITAR 4x12") :
                 rig.original[0] || rig.original[1] ?
                     (rig.source[rig.original[0] ? 1 : 0] ? "ORIGINAL + CAPTURE / A-B" : "ORIGINAL + FILTERS / A-B") :
                 rig.source[0] && rig.source[1] ? "CAPTURED IR / A-B" :
                 rig.source[0] || rig.source[1] ? "CAPTURE + FILTERS / A-B" : "FILTERS ONLY";
+            const juce::String caption=muted ? "MUTED" : low ? blend.caption() : sourceCaption;
             changed=changed || rig.name!=name || rig.caption!=caption;rig.name=name;rig.caption=caption;
             component.setButtonText(name+" / Open cabinet");
-            component.setTooltip(name+" / "+caption+"\nOpen the cabinet view. IR Loader is available in the next screen.");
+            component.setTooltip(name+" / "+caption+"\n"+sourceCaption
+                +"\nOpen the cabinet view. IR Loader is available in the next screen."
+                +(low ? " LOW cabinet controls stay editable at every blend setting; they affect the AMP + CAB share." : ""));
             component.getProperties().set("cabRoomAmpModel",amp);
             component.getProperties().set("cabRoomDesign",design);
             component.getProperties().set("cabRoomSource",caption);
+            component.getProperties().set("cabRoomLowAmpMix",requested);
+            component.getProperties().set("cabRoomEffectiveAmpMix",ampContribution);
+            component.getProperties().set("cabRoomDiContribution",low ? blend.diContribution() : 0.f);
+            component.getProperties().set("cabRoomCabContribution",cabContribution);
             if(changed)component.repaint();
         }
     }
@@ -177,6 +306,8 @@ public:
         const int width=available/count;
         const int top=getHeight()>500 ? 83 : 43;
         for(int i=0;i<3;++i)rigs[static_cast<size_t>(i)]->setBounds(margin+i*(width+gap),top,width,juce::jmax(1,getHeight()-top-12));
+        const int blendWidth=juce::jlimit(180,460,getWidth()/2-24);
+        lowBlend.setBounds(getWidth()-24-blendWidth,3,blendWidth,38);
     }
     void paint(juce::Graphics& g) override {
         g.fillAll(juce::Colour(0xff151714));
@@ -188,7 +319,8 @@ public:
         g.setGradientFill({juce::Colours::black.withAlpha(.42f),0.f,0.f,juce::Colours::black.withAlpha(0.f),0.f,90.f,false});
         g.fillRect(0,0,getWidth(),juce::jmin(90,getHeight()));
         g.setColour(juce::Colour(0xffe5dfd4));g.setFont(juce::FontOptions(14.f,juce::Font::bold));
-        g.drawText(currentMode==2 ? "MATRIX / CABINET ROOM" : currentMode==1 ? "DUAL / CABINET ROOM" : "CABINET ROOM",24,13,getWidth()-48,22,juce::Justification::centredLeft);
+        g.drawText(currentMode==2 ? "MATRIX / CABINET ROOM" : currentMode==1 ? "DUAL / CABINET ROOM" : "CABINET ROOM",24,13,
+            currentMode==2 ? juce::jmax(1,lowBlend.getX()-40) : getWidth()-48,22,juce::Justification::centredLeft);
         if(getHeight()>500) {
             g.setColour(juce::Colour(0xffc6bba8));g.setFont(juce::FontOptions(12.f));
             g.drawText("Select a cabinet to move closer and place its microphones.",24,38,getWidth()-48,22,juce::Justification::centredLeft);
@@ -203,6 +335,7 @@ class CabWorkspace : public juce::Component, private juce::Timer {
     spectralforge::art::DialogLook look;
     ChimeraProcessor& processor;
     CabRoomOverview room;
+    spectralforge::cabRoom::LowBlendControl lowBlend;
     std::unique_ptr<CabPanel> panel;
     juce::TextButton back{"< ROOM"};
     juce::Label breadcrumb;
@@ -212,15 +345,17 @@ class CabWorkspace : public juce::Component, private juce::Timer {
     void updateNavigation() {
         room.setVisible(roomView);if(panel)panel->setVisible(!roomView);
         back.setVisible(!roomView && activeRigCount()>1);
+        lowBlend.setVisible(!roomView && lastMode==2 && focused==0);
+        if(lowBlend.isVisible())lowBlend.refreshState();
         breadcrumb.setText(roomView ? "CHIMERA / CABINET ROOM" :
             "CHIMERA / "+spectralforge::cabRoom::rigName(lastMode,focused)+" / CABINET",juce::dontSendNotification);
         getProperties().set("cabRoomView",roomView);getProperties().set("cabFocusedRig",focused);
         resized();repaint();
     }
 public:
-    explicit CabWorkspace(ChimeraProcessor& p,int initialLane=0,bool focusRequested=false):processor(p),room(p) {
+    explicit CabWorkspace(ChimeraProcessor& p,int initialLane=0,bool focusRequested=false):processor(p),room(p),lowBlend(p,"cabFocused") {
         setLookAndFeel(&look);setComponentID("cabWorkspace");
-        addAndMakeVisible(room);addAndMakeVisible(back);addAndMakeVisible(breadcrumb);
+        addAndMakeVisible(room);addAndMakeVisible(back);addAndMakeVisible(breadcrumb);addAndMakeVisible(lowBlend);
         back.setComponentID("cabBackToRoom");back.setTooltip("Return to the complete room without changing the sound.");
         back.onClick=[this]{showRoom();};room.onCabinetSelected=[this](int lane){focusRig(lane);};
         breadcrumb.setFont(juce::FontOptions(12.f,juce::Font::bold));
@@ -256,6 +391,7 @@ public:
             if(activeRigCount()==1)focusRig(0);else showRoom();
         }
         if(roomView)room.refreshState();
+        else if(lowBlend.isVisible())lowBlend.refreshState();
     }
     void resized() override {
         room.setBounds(0,44,getWidth(),juce::jmax(1,getHeight()-44));
@@ -271,7 +407,10 @@ public:
                 area.getCentreX()-520.f*scale,area.getCentreY()-374.f*scale));
         }
         back.setBounds(14,8,94,28);
-        breadcrumb.setBounds(back.isVisible() ? 121 : 18,8,getWidth()-(back.isVisible() ? 139 : 36),28);
+        const int blendWidth=juce::jlimit(180,460,getWidth()/2-24);
+        lowBlend.setBounds(getWidth()-14-blendWidth,3,blendWidth,38);
+        const int breadcrumbX=back.isVisible() ? 121 : 18;
+        breadcrumb.setBounds(breadcrumbX,8,juce::jmax(1,(lowBlend.isVisible() ? lowBlend.getX()-14 : getWidth()-18)-breadcrumbX),28);
     }
     void paint(juce::Graphics& g) override {
         g.fillAll(juce::Colour(0xff101312));g.setColour(juce::Colour(0xff4b4437));g.drawHorizontalLine(43,0.f,float(getWidth()));

@@ -46,6 +46,19 @@ inline Asset speaker(int design) {return design==1 ? Asset::bassSpeaker : Asset:
 inline Asset originalMicrophone(int role) {
     return role==1 ? Asset::bodyRibbon : role==2 ? Asset::detailCondenser : Asset::attackDynamic;
 }
+// These anchors describe the alpha-trimmed, cabinet-facing illustrations, not
+// another microphone/acoustic model. The capsule is the physical pickup point;
+// mounting hardware and XLR exits are independent of the image rectangle.
+struct MicrophonePresentation {
+    juce::Point<float> capsule,mount,cable;
+    float longestSpeakerRatio;
+    bool sideAddress;
+};
+inline MicrophonePresentation microphonePresentation(int role) {
+    if(role==1)return {{.665f,.255f},{.148f,.630f},{.691f,.990f},.55f,true};
+    if(role==2)return {{.420f,.215f},{.946f,.739f},{.433f,.991f},.55f,true};
+    return {{.076f,.190f},{.604f,.906f},{.964f,.894f},.48f,false};
+}
 inline Asset capturedMicrophone(const micCatalog::Model* model) {
     if(!model)return Asset::count;
     const juce::String wanted="mic-"+juce::String(model->id);
@@ -111,6 +124,7 @@ class View : public juce::Component {
     juce::String emptyText{"IR"};
     float opacity{1.f};
     bool trimArtwork{};
+    juce::Rectangle<float> explicitArea;
 public:
     View() {
         setInterceptsMouseClicks(false,false);setWantsKeyboardFocus(false);
@@ -122,13 +136,35 @@ public:
         return index<assetCount && bank->images[index].isValid();
     }
     void setTrimArtwork(bool trim) {if(trimArtwork!=trim){trimArtwork=trim;repaint();}}
+    // Scene sprites can retain a subpixel capsule anchor while JUCE component
+    // bounds remain integer-valued. Catalog views keep the default inset area.
+    void setArtworkArea(juce::Rectangle<float> area) {
+        if(explicitArea!=area){explicitArea=area;repaint();}
+    }
+    float artworkAspectRatio() const noexcept {
+        const auto index=static_cast<size_t>(selected);
+        if(index>=assetCount || !bank->images[index].isValid())return 1.f;
+        const auto source=trimArtwork ? bank->contentBounds[index] : bank->images[index].getBounds();
+        return float(source.getWidth())/float(juce::jmax(1,source.getHeight()));
+    }
     juce::Rectangle<float> artworkBounds() const noexcept {
         const auto index=static_cast<size_t>(selected);
-        const auto area=getLocalBounds().toFloat().reduced(2.f);
+        const auto area=explicitArea.isEmpty() ? getLocalBounds().toFloat().reduced(2.f) : explicitArea;
         if(index>=assetCount || !bank->images[index].isValid())return area;
         const auto source=trimArtwork ? bank->contentBounds[index] : bank->images[index].getBounds();
         const float scale=juce::jmin(area.getWidth()/float(source.getWidth()),area.getHeight()/float(source.getHeight()));
         return juce::Rectangle<float>(float(source.getWidth())*scale,float(source.getHeight())*scale).withCentre(area.getCentre());
+    }
+    bool isArtworkPoint(juce::Point<float> point) const noexcept {
+        const auto index=static_cast<size_t>(selected);
+        const auto bounds=artworkBounds();
+        if(!bounds.contains(point) || index>=assetCount || !bank->images[index].isValid())return false;
+        const auto source=trimArtwork ? bank->contentBounds[index] : bank->images[index].getBounds();
+        const int x=juce::jlimit(source.getX(),source.getRight()-1,
+            source.getX()+int((point.x-bounds.getX())*float(source.getWidth())/bounds.getWidth()));
+        const int y=juce::jlimit(source.getY(),source.getBottom()-1,
+            source.getY()+int((point.y-bounds.getY())*float(source.getHeight())/bounds.getHeight()));
+        return bank->images[index].getPixelAt(x,y).getAlpha()>48;
     }
     void setAsset(Asset next,const juce::String& description,const juce::String& fallback="IR") {
         setTitle(description);setDescription(description);
@@ -149,7 +185,7 @@ public:
         }
         g.setImageResamplingQuality(juce::Graphics::mediumResamplingQuality);
         const auto source=trimArtwork ? bank->images[index].getClippedImage(bank->contentBounds[index]) : bank->images[index];
-        g.drawImage(source,getLocalBounds().toFloat().reduced(2.f),juce::RectanglePlacement::centred);
+        g.drawImage(source,artworkBounds(),juce::RectanglePlacement::stretchToFit);
     }
 };
 }

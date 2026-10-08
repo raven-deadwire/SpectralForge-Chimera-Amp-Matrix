@@ -34,6 +34,29 @@ void meter(juce::Graphics& g,float gain,int x,int y,int width,int height)
     g.setColour(gain>=1.f ? juce::Colour(0xfff26a5f) : accent);
     g.fillRoundedRectangle(float(x),float(y)+height*(1.f-value),float(width),height*value,2.f);
 }
+void fitCabinetWindow(juce::Component::SafePointer<juce::DialogWindow> window,int remainingChecks=40)
+{
+    if(window==nullptr || !window->isShowing())return;
+    if(auto* peer=window->getPeer();peer!=nullptr && peer->getFrameSizeIfPresent()) {
+        // LaunchOptions centres the client before enabling the native title
+        // bar. Once the OS reports that frame, fit the complete window into
+        // the selected display. JUCE supplies the frame and coordinate/DPI
+        // conversions; the CAB workspace already fits its content uniformly.
+        struct WholeWindowConstrainer final : juce::ComponentBoundsConstrainer {
+            void checkBounds(juce::Rectangle<int>& bounds,const juce::Rectangle<int>&,
+                             const juce::Rectangle<int>& limits,bool,bool,bool,bool) override {
+                bounds=bounds.constrainedWithin(limits);
+            }
+        } constrainer;
+        constrainer.setBoundsForComponent(window.getComponent(),window->getBounds(),false,false,false,false);
+        return;
+    }
+    // Some window managers report decorations asynchronously. This is a
+    // bounded creation-time correction, not a constraint on later user drags.
+    if(remainingChecks>0)juce::Timer::callAfterDelay(25,[window,remainingChecks] {
+        fitCabinetWindow(window,remainingChecks-1);
+    });
+}
 }
 ChimeraLookAndFeel::ChimeraLookAndFeel()
 {
@@ -300,7 +323,8 @@ void ChimeraEditor::openCabWorkspace(int lane,bool focusRequested)
     options.content.setOwned(new CabWorkspace(processor,lane,focusRequested));
     options.dialogTitle="Chimera / Cabinet Room";options.dialogBackgroundColour=background;
     options.useNativeTitleBar=true;options.escapeKeyTriggersCloseButton=true;options.resizable=false;
-    options.componentToCentreAround=this;trackDialog(options.launchAsync());
+    options.componentToCentreAround=this;
+    auto* window=options.launchAsync();trackDialog(window);fitCabinetWindow(window);
 }
 void ChimeraEditor::chooseIR(int lane,bool folder)
 {

@@ -46,33 +46,36 @@
     },
     {
       "file": "mic-attack-dynamic.png",
-      "bytes": 1359048,
-      "sha256": "23bfff36c9227d91118596f183117d80263d0e568b173fa46e1f64374ca33e25",
-      "width": 1024,
-      "height": 1536,
+      "bytes": 1485514,
+      "sha256": "9079ae296fbed2cc7c91e6a16dea4a6b1409e16986d17f778cd198c6a70426b3",
+      "width": 1536,
+      "height": 1024,
       "mode": "RGBA",
       "alpha_min": 0,
-      "alpha_max": 254
+      "alpha_max": 254,
+      "provenance": "scene-mic-refinement-prompts.json"
     },
     {
       "file": "mic-body-ribbon.png",
-      "bytes": 1473906,
-      "sha256": "31c4c9fe1508c5e238074fab203553e72d5088ebd20965ded49492c7ef43d2a7",
+      "bytes": 1511421,
+      "sha256": "65126d1a24df2d61e6133c90ff2512267d8e61266cfec10818ab49b28b998c2a",
       "width": 1024,
       "height": 1536,
       "mode": "RGBA",
       "alpha_min": 0,
-      "alpha_max": 254
+      "alpha_max": 254,
+      "provenance": "scene-mic-refinement-prompts.json"
     },
     {
       "file": "mic-detail-condenser.png",
-      "bytes": 2120017,
-      "sha256": "497dbb48b2abf9e1781971ebf6ff2a9bd35abc2fa3812a9ff5f736dc51ed6fb3",
+      "bytes": 2066405,
+      "sha256": "423286cc38130ef0a2c47295332c9a2c23bddcb7747dd867085a413f067eff8f",
       "width": 1024,
       "height": 1536,
       "mode": "RGBA",
       "alpha_min": 0,
-      "alpha_max": 254
+      "alpha_max": 254,
+      "provenance": "scene-mic-refinement-prompts.json"
     },
     {
       "file": "mic-dynamic-57.png",

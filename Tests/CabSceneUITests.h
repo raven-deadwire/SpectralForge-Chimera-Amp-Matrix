@@ -2,8 +2,11 @@
 #include "CabMicrophoneUITests.h"
 #include "CabScene.h"
 #include "CabRoom.h"
+#include "CabLowBlendAudioTests.h"
 #include "PluginEditor.h"
 #include <atomic>
+#include <iomanip>
+#include <sstream>
 #include <thread>
 
 namespace cabSceneUITests {
@@ -160,6 +163,17 @@ inline void physicalGeometry(CabScene& scene) {
     const auto cabinet=scene.cabinetBounds();
     require(!cabinet.isEmpty() && scene.getLocalBounds().toFloat().contains(cabinet),
         "Central cabinet artwork is outside its scene");
+    spectralforge::cabHead::View* head=nullptr;
+    for(auto* child:scene.getChildren())if(auto* candidate=dynamic_cast<spectralforge::cabHead::View*>(child)) {
+        require(head==nullptr,"Cabinet scene contains multiple amplifier head views");head=candidate;
+    }
+    require(head && head->isVisible(),"Cabinet scene is missing its perspective amplifier head");
+    const auto headBounds=scene.getLocalArea(head,head->getLocalBounds().toFloat());
+    const auto expectedHead=spectralforge::cabHead::boundsAboveCabinet(cabinet);
+    require(scene.getLocalBounds().toFloat().expanded(1.f).contains(headBounds)
+        && headBounds.getTopLeft().getDistanceFrom(expectedHead.getTopLeft())<1.5f
+        && headBounds.getBottomRight().getDistanceFrom(expectedHead.getBottomRight())<1.5f,
+        "Scene amplifier head is not placed on the cabinet's shared support plane");
     const auto upperLeft=scene.speakerCentre(0),upperRight=scene.speakerCentre(1);
     const auto lowerLeft=scene.speakerCentre(2),lowerRight=scene.speakerCentre(3);
     require(upperLeft.x<upperRight.x && lowerLeft.x<lowerRight.x
@@ -186,20 +200,87 @@ inline void physicalGeometry(CabScene& scene) {
         const auto expected=scene.speakerCentre(geometry.unit).translated(geometry.position*radius,0.f);
         require(scene.coneTarget(slot).getDistanceFrom(expected)<.01f,
             "Mic cone target does not reflect the stored physical unit and radial position");
-        auto& node=component<juce::Component>(scene,slot ? "ocab1_Bimage" : "ocab1_Aimage");
-        const auto capsule=scene.getLocalPoint(&node,juce::Point<float>(32.f,float(node.getHeight())*.16f));
-        require(capsule.getDistanceFrom(scene.microphoneAnchor(slot))<1.5f,
-            "Rotated microphone capsule is detached from its physical scene anchor");
+        auto& node=component<spectralforge::cabArt::View>(scene,slot ? "ocab1_Bimage" : "ocab1_Aimage");
+        if(!geometry.enabled) {
+            require(!node.isVisible(),"Captured microphone retains a visible modeled body in the cabinet scene");
+            continue;
+        }
+        const auto visual=scene.micVisualGeometry(slot);
+        const auto artwork=scene.getLocalArea(&node,node.artworkBounds());
+        require(std::isfinite(visual.scale) && visual.scale>0.f && !visual.bodyBounds.isEmpty()
+            && visual.bodyBounds.getTopLeft().getDistanceFrom(artwork.getTopLeft())<2.f
+            && visual.bodyBounds.getBottomRight().getDistanceFrom(artwork.getBottomRight())<2.f,
+            "Rendered microphone sprite is detached from its physical body geometry");
+        require(visual.capsule.getDistanceFrom(scene.microphoneAnchor(slot))<1.5f
+            && visual.bodyBounds.expanded(2.f).contains(visual.capsule)
+            && visual.bodyBounds.expanded(2.f).contains(visual.mount)
+            && visual.bodyBounds.expanded(2.f).contains(visual.cable),
+            "Microphone capsule, mount or cable exit is detached from its actual body");
     }
 }
 
+inline void headSupportGeometry() {
+    const juce::SharedResourcePointer<spectralforge::cabHead::Bank> artwork;
+    for(const auto& face:artwork->faces)
+        require(face.front.isValid() && face.material.isValid() && std::isfinite(face.aspect) && face.aspect>0.f,
+            "A selected amplifier head lost its real fascia or casing material during perspective extraction");
+    int cases=0;
+    for(const auto& cabinet:std::array<juce::Rectangle<float>,3>{{{50.f,140.f,400.f,400.f},
+            {24.f,75.f,220.f,216.f},{84.f,166.f,570.f,551.f}}}) {
+        const auto bounds=spectralforge::cabHead::boundsAboveCabinet(cabinet);
+        require(bounds.getWidth()>0.f && bounds.getHeight()>0.f
+            && bounds.getX()>=cabinet.getX() && bounds.getRight()<=cabinet.getRight(),
+            "Perspective amplifier footprint overhangs its cabinet");
+        for(int model=0;model<spectralforge::ampModelCount;++model) {
+            const auto geometry=spectralforge::cabHead::geometry(bounds,model);
+            require(!geometry.front.isEmpty() && bounds.expanded(.01f).contains(geometry.front)
+                && std::isfinite(geometry.supportY) && geometry.supportY>=cabinet.getY()
+                && geometry.supportY<=cabinet.getY()+cabinet.getWidth()*.07f,
+                "Amplifier front or support plane does not fit the cabinet roof");
+            for(const auto& point:geometry.roof)
+                require(std::isfinite(point.x) && std::isfinite(point.y) && bounds.expanded(.01f).contains(point),
+                    "Perspective amplifier roof escapes its finite head bounds");
+            const auto& backLeft=geometry.roof[0];const auto& backRight=geometry.roof[1];
+            const auto& frontRight=geometry.roof[2];const auto& frontLeft=geometry.roof[3];
+            require(backLeft.x>frontLeft.x && backRight.x<frontRight.x && backRight.x>backLeft.x
+                && backLeft.y<frontLeft.y && backRight.y<frontRight.y,
+                "Amplifier roof fails to recede toward the cabinet's rear perspective");
+            for(const auto& foot:geometry.feet)
+                require(!foot.isEmpty() && bounds.expanded(.01f).contains(foot)
+                    && std::abs(foot.getBottom()-geometry.supportY)<.01f,
+                    "Amplifier foot floats above or penetrates its common support plane");
+            require(!geometry.feet[0].intersects(geometry.feet[1]),"Amplifier feet overlap");
+            ++cases;
+        }
+    }
+    std::cout<<"PASS amplifier perspective: "<<cases<<" model/size cases, cabinet footprint containment, receding roof and shared foot support plane\n";
+}
+
 inline void mouseDrag(CabScene& scene,int slot,juce::Point<float> target,bool distanceOnly=false,
-                      juce::Component* inputSurface=nullptr) {
-    auto& node=component<juce::Component>(scene,slot ? "ocab1_Bimage" : "ocab1_Aimage");
-    const auto start=scene.microphoneAnchor(slot).translated(7.f,12.f);
+                      juce::Component* inputSurface=nullptr,bool bodyGesture=false) {
+    auto& node=component<juce::Component>(scene,bodyGesture ? (slot ? "ocab1_Bimage" : "ocab1_Aimage")
+        : (slot ? "ocab1_BmicHandle" : "ocab1_AmicHandle"));
+    auto start=scene.microphoneHitPoint(slot);
+    if(bodyGesture) {
+        bool found=false;float closest=std::numeric_limits<float>::max();
+        const auto capsule=scene.microphoneAnchor(slot);
+        // Hit actual opaque artwork; transparent padding must not create a
+        // broad invisible rectangle covering another physical microphone.
+        for(int y=0;y<node.getHeight();++y)for(int x=0;x<node.getWidth();++x) {
+            const auto candidate=scene.getLocalPoint(&node,juce::Point<float>(float(x),float(y)));
+            if(node.hitTest(x,y) && scene.getComponentAt(candidate.roundToInt())==&node
+                && candidate.getDistanceSquaredFrom(capsule)<closest) {
+                start=candidate;closest=candidate.getDistanceSquaredFrom(capsule);found=true;
+            }
+        }
+        require(found,"Visible microphone artwork has no directly draggable opaque body");
+    }
+    // The caller specifies the desired capsule destination. Preserve the
+    // actual grab offset of the physical body or independently pickable handle.
+    target+=start-scene.microphoneAnchor(slot);
     auto& surface=inputSurface ? *inputSurface : static_cast<juce::Component&>(scene);
     require(surface.getComponentAt(surface.getLocalPoint(&scene,start).roundToInt())==&node,
-        "Visible microphone capsule cannot receive a pointer gesture through its workspace transform");
+        "Visible microphone handle cannot receive a pointer gesture through its workspace transform");
     const auto source=juce::Desktop::getInstance().getMainMouseSource();
     const auto time=juce::Time::getCurrentTime();
     const juce::ModifierKeys modifiers(juce::ModifierKeys::leftButtonModifier
@@ -240,6 +321,14 @@ inline void workspaceControlBounds(CabWorkspace& workspace,int lane) {
         }
     };
     visit(panel);
+    if(auto* low=findComponent(workspace,"cabFocusedLowBlend");low && low->isShowing()) {
+        const auto header=workspace.getLocalBounds().toFloat().withHeight(44.f);
+        const auto lowBounds=workspace.getLocalArea(low,low->getLocalBounds().toFloat());
+        require(header.contains(lowBounds),"Constrained CAB popup clips the LOW blend header");
+        const auto& back=component<juce::Button>(workspace,"cabBackToRoom");
+        require(!back.isShowing() || !lowBounds.intersects(back.getBounds().toFloat()),
+            "Constrained CAB popup overlaps LOW blend with the ROOM navigation button");
+    }
     auto& blend=component<juce::Slider>(panel,("cabblend"+juce::String(lane+1)).toRawUTF8());
     check(blend);
     const auto blendBounds=workspace.getLocalArea(&blend,blend.getLocalBounds().toFloat());
@@ -264,7 +353,7 @@ inline void constrainedWorkspace(const juce::File& screenshots) {
         const auto values=parameterValues(*processor);HostEvents events(*processor);
         const auto projection=scene.microphoneAnchor(0)-scene.coneTarget(0);
         mouseDrag(scene,0,scene.speakerCentre(1).translated(scene.speakerRadius()*.583f,0.f)
-            +projection+juce::Point<float>(7.f,12.f),false,&workspace);
+            +projection,false,&workspace);
         require(raw(*processor,"ocab1_Aunit")==1 && std::abs(raw(*processor,"ocab1_Aposition")-.583f)<.00051f,
             "Scaled workspace pointer mapping changed the intended mic unit or cone position");
         unchangedExcept(*processor,values,{"ocab1_Aunit","ocab1_Aposition"});
@@ -272,7 +361,7 @@ inline void constrainedWorkspace(const juce::File& screenshots) {
     }
     {
         const auto values=parameterValues(*processor);HostEvents events(*processor);
-        mouseDrag(scene,0,scene.microphoneAnchor(0).translated(7.f,1212.f),true,&workspace);
+        mouseDrag(scene,0,scene.microphoneAnchor(0).translated(0.f,1200.f),true,&workspace);
         require(raw(*processor,"ocab1_Adistance")==60,"Scaled workspace Shift-drag did not preserve the distance boundary");
         unchangedExcept(*processor,values,{"ocab1_Adistance"});events.expect({"ocab1_Adistance"});
     }
@@ -289,6 +378,178 @@ inline void constrainedWorkspace(const juce::File& screenshots) {
         workspaceControlBounds(workspace,0);
     });
     std::cout<<"PASS constrained CAB workspace: 1000x657 control containment, uniform artwork, enclosure/blend separation, transformed mic/Shift gestures and view-only IR/back navigation\n";
+}
+
+inline void lowBlendControls(const juce::File& screenshots) {
+    auto processor=std::make_unique<ChimeraProcessor>();
+    automate(*processor,"mode",2);automate(*processor,"ampon1",1);automate(*processor,"cab1",1);
+    for(int lane=0;lane<3;++lane) {
+        processor->setAmpModel(lane,std::array<int,3>{{25,24,15}}[size_t(lane)]);
+        automate(*processor,spectralforge::originalCabID(lane,"design"),lane==0 ? 1.f : 0.f);
+        automate(*processor,spectralforge::originalCabID(lane,"Aon"),1);
+        automate(*processor,spectralforge::originalCabID(lane,"Bon"),1);
+        automate(*processor,spectralforge::originalCabID(lane,"Bunit"),3);
+    }
+    automate(*processor,"ocab1_Amic",0);automate(*processor,"ocab1_Bmic",1);
+    CabWorkspace workspace(*processor);Showing showing(workspace);
+    auto& room=component<CabRoomOverview>(workspace,"cabRoomOverview");
+    auto& rig=component<juce::Button>(room,"cabRoomRig1");
+    auto& roomSlider=component<juce::Slider>(room,"cabRoomLowAmpMix");
+    auto& roomControl=component<juce::Component>(room,"cabRoomLowBlend");
+    const auto contribution=[&](const char* id){return float(rig.getProperties()[id]);};
+    const std::array<float,5> mixes{{0.f,.25f,.5f,.75f,1.f}};
+    for(const float mix:mixes) {
+        automate(*processor,"lowampmix",mix);
+        require(dispatchUntil([&] {
+            return std::abs(contribution("cabRoomLowAmpMix")-mix)<1e-6f
+                && std::abs(float(roomSlider.getValue())-mix)<1e-6f;
+        }),"Host LOW blend automation did not reach the cabinet room");
+        require(roomSlider.isShowing() && roomSlider.isEnabled() && rig.isEnabled(),
+            "Matrix LOW blend endpoint disabled the slider or cabinet selection");
+        require(std::abs(contribution("cabRoomEffectiveAmpMix")-mix)<1e-6f
+            && std::abs(contribution("cabRoomCabContribution")-mix)<1e-6f
+            && std::abs(contribution("cabRoomDiContribution")-(1.f-mix))<1e-6f,
+            "Matrix LOW room does not represent both sides of the DI / AMP + CAB blend");
+        const int percent=juce::roundToInt(mix*100.f);
+        const auto caption="DI "+juce::String(100-percent)+"% / AMP + CAB "+juce::String(percent)+"%";
+        require(rig.getProperties()["cabRoomSource"].toString()==caption
+            && component<juce::Label>(room,"cabRoomLowDIPercent").getText()=="DI "+juce::String(100-percent)+"%"
+            && component<juce::Label>(room,"cabRoomLowAmpPercent").getText()=="AMP + CAB "+juce::String(percent)+"%",
+            "Matrix LOW caption or endpoint percentages misrepresent the audible blend");
+        const auto filename="cab-visual-room-matrix-low-"+juce::String(percent)+".png";
+        snapshot(workspace,screenshots,filename.toRawUTF8());
+        navigationUnchanged(*processor,[&] {
+            click(rig,[&]{return !workspace.isRoomView() && workspace.focusedRig()==0;});
+            auto& slider=component<juce::Slider>(workspace,"cabFocusedLowAmpMix");
+            require(slider.isShowing() && slider.isEnabled() && std::abs(float(slider.getValue())-mix)<1e-6f,
+                "Focused Matrix LOW did not preserve its existing host blend");
+            auto& panel=component<CabPanel>(workspace,"cabFocusedPanel");
+            auto& scene=component<CabScene>(panel,"cabScene1");
+            require(component<juce::Component>(scene,"ocab1_Aimage").isShowing(),
+                "Matrix LOW DI endpoint made the configured cabinet microphone uneditable");
+            if(percent==50)snapshot(workspace,screenshots,"cab-visual-matrix-low-focused-50.png");
+            click(component<juce::Button>(panel,"cabViewIRLoader"),[&]{return panel.getView()==CabPanel::View::irLoader;});
+            require(slider.isShowing() && std::abs(float(slider.getValue())-mix)<1e-6f,
+                "IR LOADER lost Matrix LOW's DI / AMP + CAB blend control");
+            if(percent==50)snapshot(workspace,screenshots,"cab-visual-matrix-low-ir-loader-50.png");
+            click(component<juce::Button>(workspace,"cabBackToRoom"),[&]{return workspace.isRoomView();});
+        });
+    }
+    // Exercise the attachments through the visible UI controls. These writes
+    // must target the existing LOW parameter, never cabblend1 or a new wet mix.
+    const auto setHostBlend=[&](juce::Slider& slider,double requested,const char* failure) {
+        auto* parameter=processor->parameters().getParameter("lowampmix");
+        require(parameter!=nullptr,"Missing Matrix LOW host blend parameter");
+        const auto& range=parameter->getNormalisableRange();
+        const float legal=range.snapToLegalValue(float(requested));
+        const float expected=parameter->convertFrom0to1(parameter->convertTo0to1(legal));
+        {
+            // setValue alone sends no drag lifecycle. Use JUCE's public
+            // programmatic UI gesture so the real attachment must pair it.
+            juce::Slider::ScopedDragNotification gesture(slider);
+            slider.setValue(requested,juce::sendNotificationSync);
+        }
+        const float actual=raw(*processor,"lowampmix");
+        std::ostringstream diagnostic;
+        diagnostic<<std::setprecision(10)<<"LOW blend "<<slider.getComponentID().toStdString()
+            <<" requested="<<requested<<" literal="<<float(requested)<<" interval="<<range.interval
+            <<" legal="<<legal<<" expected="<<expected<<" actual="<<actual<<" slider="<<slider.getValue();
+        std::cout<<diagnostic.str()<<'\n';
+        // Compare the host's exact legal value, not a decimal float literal:
+        // with the registered .01f interval, snap(.36f) differs by one ULP.
+        if(actual!=expected || slider.getValue()!=double(legal))
+            throw std::runtime_error(std::string(failure)+": "+diagnostic.str());
+    };
+    {
+        const auto values=parameterValues(*processor);HostEvents events(*processor);
+        setHostBlend(roomSlider,.36,"Room LOW slider is not bound to the existing host blend");
+        unchangedExcept(*processor,values,{"lowampmix"});events.expect({"lowampmix"});
+    }
+    require(workspace.focusRig(0),"Cannot focus Matrix LOW blend interaction");
+    {
+        auto& slider=component<juce::Slider>(workspace,"cabFocusedLowAmpMix");
+        const auto values=parameterValues(*processor);HostEvents events(*processor);
+        setHostBlend(slider,.68,"Focused LOW slider is not bound to the room's host parameter");
+        unchangedExcept(*processor,values,{"lowampmix"});events.expect({"lowampmix"});
+    }
+    workspace.showRoom();
+    automate(*processor,"lowampmix",.5f);automate(*processor,"ampon1",0);
+    require(dispatchUntil([&]{return contribution("cabRoomEffectiveAmpMix")==0.f;}),
+        "AMP bypass does not update the Matrix LOW room's effective DI share");
+    require(raw(*processor,"lowampmix")==.5f && contribution("cabRoomLowAmpMix")==.5f
+        && contribution("cabRoomDiContribution")==1.f && contribution("cabRoomCabContribution")==0.f
+        && rig.getProperties()["cabRoomSource"].toString()=="DI 100% / AMP OFF (50% SET)",
+        "AMP bypass discarded the stored LOW blend or showed a false cabinet contribution");
+    automate(*processor,"ampon1",1);automate(*processor,"cab1",0);
+    require(dispatchUntil([&]{return contribution("cabRoomEffectiveAmpMix")==.5f
+        && contribution("cabRoomCabContribution")==0.f;}),"CAB bypass retained a false cabinet contribution");
+    require(raw(*processor,"lowampmix")==.5f && contribution("cabRoomDiContribution")==.5f
+        && rig.getProperties()["cabRoomSource"].toString()=="DI 50% / AMP 50% / CAB OFF",
+        "CAB bypass incorrectly removed the amplifier share from Matrix LOW");
+    automate(*processor,"cab1",1);workspace.refreshState();
+    require(workspace.focusRig(1),"Cannot focus Matrix MID for LOW blend visibility check");
+    require(!component<juce::Slider>(workspace,"cabFocusedLowAmpMix").isShowing(),
+        "Matrix MID exposes the unrelated LOW blend control");
+    automate(*processor,"mode",1);workspace.refreshState();
+    require(!roomControl.isShowing() && !component<juce::Slider>(workspace,"cabFocusedLowAmpMix").isShowing(),
+        "Dual mode exposes the Matrix-only LOW blend");
+    std::cout<<"PASS Matrix LOW cabinet UI: 0/25/50/75/100 contributions, retained bypass values, room/focused host bindings, IR Loader continuity and view-only navigation\n";
+}
+
+inline void micVisualBoundaries(const juce::File& screenshots) {
+    auto processor=std::make_unique<ChimeraProcessor>();
+    automate(*processor,"mode",2);automate(*processor,"ocab1_Aon",1);automate(*processor,"ocab1_Bon",1);
+    CabWorkspace workspace(*processor,0,true);workspace.setSize(1000,657);Showing showing(workspace);
+    auto& panel=component<CabPanel>(workspace,"cabFocusedPanel");
+    auto& scene=component<CabScene>(panel,"cabScene1");
+    const auto verify=[&] {
+        physicalGeometry(scene);
+        const auto available=scene.getLocalBounds().toFloat().expanded(1.f);
+        std::array<juce::Rectangle<float>,2> handles;
+        for(int slot=0;slot<2;++slot) {
+            const auto visual=scene.micVisualGeometry(slot);
+            require(available.contains(visual.bodyBounds),
+                "A legal mic type/unit/position/distance clips the microphone body outside the scene");
+            auto& handle=component<juce::Component>(scene,slot ? "ocab1_BmicHandle" : "ocab1_AmicHandle");
+            handles[size_t(slot)]=scene.getLocalArea(&handle,handle.getLocalBounds().toFloat());
+            require(handle.isShowing() && handle.getWidth()>=24 && handle.getHeight()>=24
+                && available.contains(handles[size_t(slot)]),
+                "A legal mic boundary loses the minimum independently pickable A/B handle");
+            require(workspace.getComponentAt(workspace.getLocalPoint(&scene,scene.microphoneHitPoint(slot)).roundToInt())==&handle,
+                "Coincident A/B microphone placement prevents selecting one microphone through the scaled workspace");
+        }
+        require(!handles[0].intersects(handles[1]),"Coincident microphone A/B handles overlap");
+    };
+    int cases=0;
+    // Both mics deliberately share one target. Every legal endpoint must
+    // retain its true capsule/body geometry and independent pointer access.
+    for(int design=0;design<2;++design)for(int model=0;model<3;++model)for(int unit=0;unit<4;++unit)
+        for(float position:{0.f,1.f})for(float distance:{2.f,60.f}) {
+            automate(*processor,"ocab1_design",float(design));
+            for(const auto* slot:{"A","B"}) {
+                const auto prefix="ocab1_"+juce::String(slot);
+                automate(*processor,prefix+"mic",float(model));automate(*processor,prefix+"unit",float(unit));
+                automate(*processor,prefix+"position",position);automate(*processor,prefix+"distance",distance);
+            }
+            scene.refresh();verify();++cases;
+        }
+    for(const auto* slot:{"A","B"}) {
+        const auto prefix="ocab1_"+juce::String(slot);
+        automate(*processor,prefix+"unit",0);automate(*processor,prefix+"distance",10);
+    }
+    for(int slot:{0,1,0}) {
+        automate(*processor,"ocab1_Aposition",.5f);automate(*processor,"ocab1_Bposition",.5f);scene.refresh();verify();
+        const auto before=parameterValues(*processor);HostEvents events(*processor);
+        const auto projection=scene.microphoneAnchor(slot)-scene.coneTarget(slot);
+        mouseDrag(scene,slot,scene.speakerCentre(0).translated(scene.speakerRadius()*.57f,0.f)+projection,false,&workspace);
+        const auto prefix="ocab1_"+juce::String(slot ? "B" : "A");
+        require(std::abs(raw(*processor,prefix+"position")-.57f)<.00051f,
+            "Overlapping microphone handle drag did not change the intended capsule position");
+        unchangedExcept(*processor,before,{prefix+"unit",prefix+"position"});
+        events.expect({prefix+"unit",prefix+"position"});verify();
+    }
+    snapshot(workspace,screenshots,"cab-visual-microphones-same-speaker.png");
+    std::cout<<"PASS microphone visual geometry: "<<cases<<" paired endpoint configurations, body/capsule/mount/cable alignment, independent coincident handles and transformed host gestures\n";
 }
 
 inline void sceneInteractions(const juce::File& folder,const juce::File& screenshots) {
@@ -309,12 +570,27 @@ inline void sceneInteractions(const juce::File& folder,const juce::File& screens
     tabs(panel,*processor);physicalGeometry(scene);
     snapshot(panel,screenshots,"cab-visual-scene-guitar.png");
     HostEvents events(*processor);
+    {
+        const auto before=parameterValues(*processor);
+        const auto projection=scene.microphoneAnchor(0)-scene.coneTarget(0);
+        mouseDrag(scene,0,scene.speakerCentre(0).translated(scene.speakerRadius()*.36f,0.f)+projection,false,nullptr,true);
+        require(std::abs(raw(*processor,"ocab1_Aposition")-.36f)<.00051f,
+            "Direct opaque microphone body drag did not move its capsule to the requested cone position");
+        unchangedExcept(*processor,before,{"ocab1_Aunit","ocab1_Aposition"});events.expect({"ocab1_Aunit","ocab1_Aposition"});
+    }
+    {
+        events.reset();const auto before=parameterValues(*processor);
+        auto& handle=component<juce::Component>(scene,"ocab1_AmicHandle");
+        require(handle.keyPressed(juce::KeyPress(juce::KeyPress::rightKey)),"Mic handle rejects keyboard cone-position adjustment");
+        require(std::abs(raw(*processor,"ocab1_Aposition")-.37f)<.00051f,"Mic keyboard step does not advance cone position by one percent");
+        unchangedExcept(*processor,before,{"ocab1_Aposition"});events.expect({"ocab1_Aposition"});
+    }
     // The four destinations are an independent physical quadrant contract,
     // including 0.001 radial resolution and preserving where the node was held.
     for(int unit=0;unit<4;++unit) {
         const auto before=parameterValues(*processor);events.reset();
         const auto projection=scene.microphoneAnchor(0)-scene.coneTarget(0);
-        const auto target=scene.speakerCentre(unit).translated(scene.speakerRadius()*.637f,0.f)+projection+juce::Point<float>(7.f,12.f);
+        const auto target=scene.speakerCentre(unit).translated(scene.speakerRadius()*.637f,0.f)+projection;
         mouseDrag(scene,0,target);
         require(raw(*processor,"ocab1_Aunit")==float(unit) && std::abs(raw(*processor,"ocab1_Aposition")-.637f)<.00051f,
             "Dragging Mic A did not reach the intended physical unit and quantized cone position");
@@ -328,7 +604,7 @@ inline void sceneInteractions(const juce::File& folder,const juce::File& screens
     {
         const auto before=parameterValues(*processor);events.reset();
         const auto projection=scene.microphoneAnchor(1)-scene.coneTarget(1);
-        const auto target=scene.speakerCentre(2).translated(scene.speakerRadius()*.31f,0.f)+projection+juce::Point<float>(7.f,12.f);
+        const auto target=scene.speakerCentre(2).translated(scene.speakerRadius()*.31f,0.f)+projection;
         mouseDrag(scene,1,target);
         require(raw(*processor,"ocab1_Bunit")==2 && std::abs(raw(*processor,"ocab1_Bposition")-.31f)<.00051f,
             "Dragging Mic B did not use its own physical geometry");
@@ -337,7 +613,7 @@ inline void sceneInteractions(const juce::File& folder,const juce::File& screens
     }
     for(const auto movement:std::array<std::pair<float,float>,2>{{{1200.f,60.f},{-1200.f,2.f}}}) {
         const auto before=parameterValues(*processor);events.reset();
-        mouseDrag(scene,0,scene.microphoneAnchor(0).translated(7.f,12.f+movement.first),true);
+        mouseDrag(scene,0,scene.microphoneAnchor(0).translated(0.f,movement.first),true);
         require(std::abs(raw(*processor,"ocab1_Adistance")-movement.second)<.051f,"Shift-drag escaped the released 2-60 cm distance range");
         unchangedExcept(*processor,before,{"ocab1_Adistance"});events.expect({"ocab1_Adistance"});
     }
@@ -347,7 +623,7 @@ inline void sceneInteractions(const juce::File& folder,const juce::File& screens
         const auto before=parameterValues(*processor);events.reset();
         const int unit=edge.first<0 ? 0 : 1;
         const auto projection=scene.microphoneAnchor(0)-scene.coneTarget(0);
-        mouseDrag(scene,0,scene.speakerCentre(unit).translated(edge.first,0.f)+projection+juce::Point<float>(7.f,12.f));
+        mouseDrag(scene,0,scene.speakerCentre(unit).translated(edge.first,0.f)+projection);
         require(raw(*processor,"ocab1_Aunit")==float(unit) && raw(*processor,"ocab1_Aposition")==edge.second,
             "Off-cone drag did not clamp to the nearest physical speaker centre/edge");
         unchangedExcept(*processor,before,{"ocab1_Aunit","ocab1_Aposition"});events.expect({"ocab1_Aunit","ocab1_Aposition"});
@@ -360,6 +636,8 @@ inline void sceneInteractions(const juce::File& folder,const juce::File& screens
     require(!scene.isDragging(),"Leaving CABINET left an automation gesture open");
     scene.dragMicTo({-10000.f,10000.f});scene.endMicDrag();
     require(!scene.beginMicDrag(0,{0.f,0.f}),"IR LOADER permits hidden modeled-microphone editing");
+    require(!component<juce::Component>(scene,"ocab1_AmicHandle").keyPressed(juce::KeyPress(juce::KeyPress::rightKey)),
+        "IR LOADER permits hidden microphone keyboard editing");
     unchangedExcept(*processor,beforeHide,{});events.expect({"ocab1_Aunit","ocab1_Aposition"},1,false);
     panel.setView(CabPanel::View::cabinet);
 
@@ -522,6 +800,73 @@ inline juce::DialogWindow* cabinetDialog() {
     return nullptr;
 }
 
+struct NativePopupGeometry {
+    bool showing{},displayAvailable{},clientContained{},contentContained{},frameAvailable{},frameContained{};
+    juce::String description;
+};
+
+inline NativePopupGeometry nativePopupGeometry(juce::DialogWindow& window,CabWorkspace& workspace,
+                                               juce::Component& editor) {
+    NativePopupGeometry result;
+    const auto client=window.getScreenBounds();
+    const auto content=window.getLocalArea(&workspace,workspace.getLocalBounds());
+    const auto* display=juce::Desktop::getInstance().getDisplays().getDisplayForRect(client);
+    result.showing=window.isShowing() && workspace.isShowing();
+    result.displayAvailable=display!=nullptr;
+    result.clientContained=display && display->userArea.contains(client);
+    result.contentContained=window.getLocalBounds().contains(content);
+    result.description="editor="+editor.getScreenBounds().toString()
+        +" window-local="+window.getLocalBounds().toString()+" window-parent="+window.getBounds().toString()
+        +" window-screen="+client.toString()+" workspace-parent="+workspace.getBounds().toString()
+        +" workspace-in-window="+content.toString()+" showing="+juce::String(int(result.showing))
+        +" desktop-scale="+juce::String(static_cast<juce::Component&>(window).getDesktopScaleFactor());
+    if(display)result.description+=" display-user="+display->userArea.toString()
+        +" display-total="+display->totalArea.toString()+" display-scale="+juce::String(display->scale);
+    if(auto* peer=window.getPeer()) {
+        result.description+=" peer="+peer->getBounds().toString()
+            +" peer-scale="+juce::String(peer->getPlatformScaleFactor());
+        if(const auto frame=peer->getFrameSizeIfPresent()) {
+            result.frameAvailable=true;
+            const auto outer=peer->localToGlobal(frame->addedTo(peer->getBounds().withZeroOrigin()).toFloat())
+                /juce::Desktop::getInstance().getGlobalScaleFactor();
+            result.frameContained=display && display->userArea.toFloat().contains(outer);
+            result.description+=" frame="+juce::String(frame->getTop())+","+juce::String(frame->getLeft())
+                +","+juce::String(frame->getBottom())+","+juce::String(frame->getRight())+" outer="+outer.toString();
+        } else result.description+=" frame=PENDING";
+    } else result.description+=" peer=MISSING";
+    result.description+=" client-contained="+juce::String(int(result.clientContained))
+        +" content-contained="+juce::String(int(result.contentContained))
+        +" frame-contained="+juce::String(int(result.frameContained));
+    return result;
+}
+
+inline void nativePopupReady(juce::DialogWindow& window,CabWorkspace& workspace,juce::Component& editor,
+                             const juce::File& screenshots,int rig) {
+    auto geometry=nativePopupGeometry(window,workspace,editor);
+    std::cout<<"NATIVE CAB initial rig="<<rig<<": "<<geometry.description<<'\n';
+    // Dialog creation can precede native title/frame placement. Observe the
+    // real event queue until strict containment holds; never move the fixture,
+    // remove an assertion, or use a fixed delay to hide persistent overflow.
+    const bool ready=dispatchUntil([&] {
+        const auto next=nativePopupGeometry(window,workspace,editor);
+        if(next.description!=geometry.description)
+            std::cout<<"NATIVE CAB geometry rig="<<rig<<": "<<next.description<<'\n';
+        geometry=next;
+        return geometry.showing && geometry.displayAvailable && geometry.clientContained
+            && geometry.contentContained && geometry.frameAvailable && geometry.frameContained;
+    });
+    std::cout<<"NATIVE CAB final rig="<<rig<<": "<<geometry.description<<'\n';
+    if(!ready) {
+        const auto name="cab-visual-native-popup-failed-rig"+juce::String(rig)+".png";
+        snapshot(window,screenshots,name.toRawUTF8());
+    }
+    require(geometry.showing && geometry.displayAvailable,"Native CAB popup never became visible on an available monitor");
+    require(geometry.clientContained,"Native CAB popup client bounds extend beyond the available monitor area");
+    require(geometry.contentContained,"Native CAB popup content extends beyond its window area");
+    require(geometry.frameAvailable,"Native CAB popup never reported its actual native frame dimensions");
+    require(geometry.frameContained,"Native CAB popup outer title/frame extends beyond the available monitor area");
+}
+
 inline void editorNavigation(const juce::File& screenshots) {
     auto processor=std::make_unique<ChimeraProcessor>();
     automate(*processor,"mode",1);
@@ -562,14 +907,12 @@ inline void editorNavigation(const juce::File& screenshots) {
             auto* workspace=dynamic_cast<CabWorkspace*>(window->getContentComponent());
             require(workspace && !workspace->isRoomView() && workspace->focusedRig()==mode,
                 "Main room cabinet click opened another rig or stopped at the room overview");
-            const auto* display=juce::Desktop::getInstance().getDisplays().getDisplayForRect(window->getScreenBounds());
-            require(display && display->userArea.contains(window->getScreenBounds())
-                && window->getLocalBounds().contains(window->getLocalArea(workspace,workspace->getLocalBounds())),
-                "Native CAB popup or its content extends beyond the available monitor/window area");
+            nativePopupReady(*window,*workspace,*editor,screenshots,mode+1);
             workspaceControlBounds(*workspace,mode);
             std::cout<<"NATIVE CAB popup: workspace="<<workspace->getWidth()<<"x"<<workspace->getHeight()<<" rig="<<mode+1<<"\n";
             auto& focused=component<CabPanel>(*workspace,"cabFocusedPanel");
             focused.setView(CabPanel::View::irLoader);workspaceControlBounds(*workspace,mode);
+            if(mode==2)snapshot(*workspace,screenshots,"cab-visual-editor-ir-loader-rig3.png");
             focused.setView(CabPanel::View::cabinet);workspaceControlBounds(*workspace,mode);
             if(mode==2)snapshot(*workspace,screenshots,"cab-visual-editor-focused-rig3.png");
             auto& back=component<juce::Button>(*workspace,"cabBackToRoom");
@@ -595,7 +938,10 @@ inline void editorNavigation(const juce::File& screenshots) {
 }
 
 inline void run(const juce::File& folder,const juce::File& screenshots) {
+    headSupportGeometry();
+    cabLowBlendAudioTests::run();
     sceneInteractions(folder,screenshots);roomNavigation(screenshots);
-    constrainedWorkspace(screenshots);editorNavigation(screenshots);
+    constrainedWorkspace(screenshots);lowBlendControls(screenshots);
+    micVisualBoundaries(screenshots);editorNavigation(screenshots);
 }
 }

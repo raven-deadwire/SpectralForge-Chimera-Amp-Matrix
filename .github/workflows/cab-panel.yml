@@ -9,6 +9,7 @@ on:
       - 'Tests/CabMicrophone*'
       - 'Tests/CabIntegrated*'
       - 'Tests/CabScene*'
+      - 'Tests/CabLowBlend*'
       - 'Tests/RigViewTestHelpers.h'
       - 'Tests/MicrophoneCatalog*'
       - 'Tests/IRCollectionTests.cpp'
