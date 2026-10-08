@@ -201,11 +201,13 @@ def execute(config_path, output, head, rig, baseline_head=None, baseline_rig=Non
             raise ValueError('Original DI/IR changed during render')
         save_json(stage / 'report.json', report)  # separate key; keep hidden during blind listening
         save_json(stage / 'config.json', config)
+        inventory = {str(p.relative_to(stage)): digest(p) for p in sorted(stage.rglob('*')) if p.is_file()}
+        save_json(stage / 'inventory.json', inventory)
         stage.rename(output)
         # Verify the delivered inventory after directory publication.
         try:
-            for row in report['results']:
-                if digest(output / row['file']) != row['sha256']:
+            for filename, expected_hash in inventory.items():
+                if digest(output / filename) != expected_hash:
                     raise ValueError('Published audition WAV changed')
         except Exception:
             output.rename(stage)
