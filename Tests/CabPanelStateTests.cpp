@@ -67,6 +67,17 @@ void originalStateContracts() {
     };
     auto* distance=dynamic_cast<juce::Slider*>(find(panel,"ocab1_Adistance"));check(distance!=nullptr,"modeled distance UI");
     distance->setValue(33,juce::sendNotificationSync);check(std::abs(p->parameters().getRawParameterValue("ocab1_Adistance")->load()-33)<.11f,"distance UI binding");
+    auto preview=panel.createComponentSnapshot(panel.getLocalBounds());
+    auto output=juce::File::getCurrentWorkingDirectory().getChildFile("original-cab-panel.png").createOutputStream();
+    check(output!=nullptr && output->setPosition(0) && output->truncate().wasOk(),"original screenshot output");
+    juce::PNGImageFormat png;check(png.writeImageToStream(preview,*output),"original screenshot");
+    const auto personal=juce::File::getSpecialLocation(juce::File::tempDirectory).getNonexistentChildFile("original-cab-user-fixture",".wav",false);
+    fixture(personal,7);check(p->loadMicIR(0,0,personal).wasOk(),"mixed User IR / original import");check(personal.deleteFile(),"mixed source deletion");
+    check(p->parameters().getRawParameterValue("ocab1_Aon")->load()==0 && p->parameters().getRawParameterValue("ocab1_Bon")->load()==1,"import switches only its own slot");
+    set(*p,"cabblend1",.5f);juce::MemoryBlock mixed;p->getStateInformation(mixed);
+    auto mixedRecall=std::make_unique<ChimeraProcessor>();mixedRecall->setStateInformation(mixed.getData(),int(mixed.getSize()));equal(render(*p),render(*mixedRecall));
+    // Legacy reset is checked from a deliberately dirty modeled session.
+    set(*p,"ocab1_Aon",1);
     auto legacy=p->parameters().copyState();
     for(int n=legacy.getNumChildren();--n>=0;)if(legacy.getChild(n).getProperty("id").toString().startsWith("ocab"))legacy.removeChild(n,nullptr);
     juce::MemoryBlock old;juce::AudioProcessor::copyXmlToBinary(*legacy.createXml(),old);

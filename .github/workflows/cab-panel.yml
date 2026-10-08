@@ -40,4 +40,5 @@ jobs:
           path: |
             build-cab/Testing/Temporary/LastTest.log
             build-cab/cab-panel.png
+            build-cab/original-cab-panel.png
           if-no-files-found: error

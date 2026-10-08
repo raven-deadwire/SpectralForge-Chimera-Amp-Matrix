@@ -46,5 +46,11 @@ int main(){try {
         worst=std::max(worst,std::abs(a-b));
     }
     require(worst<.025,"continuous position response");
+    double distanceWorst=0;p.position=.25;
+    for(int tick=21;tick<=600;++tick)for(double hz:{80.,400.,1500.,5000.,9000.}) {
+        p.distanceCm=(tick-1)*.1;const auto a=response(p,hz);p.distanceCm=tick*.1;const auto b=response(p,hz);distanceWorst=std::max(distanceWorst,std::abs(a-b));
+    }
+    require(distanceWorst<.15,"continuous distance response");
+    std::cout<<"PASS distance_tick_delta="<<distanceWorst<<'\n';
     std::cout<<"PASS boundary_cases="<<cases<<" maximum_magnitude="<<largest<<" position_tick_delta="<<worst<<'\n';return 0;
 }catch(const std::exception& e){std::cerr<<e.what()<<'\n';return 1;}}

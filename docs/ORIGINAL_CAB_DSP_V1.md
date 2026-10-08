@@ -78,7 +78,8 @@ The practical acoustic approximations and authored voicing must still be auditio
 Numeric thresholds are encoded in tests, independent of whether a run passes:
 
 - `ChimeraOriginalCabModelTests`: 864 boundary settings; finite complex response,
-  magnitude < 8; response continuity < .025 per .001 Position step; nonzero kernel,
+  magnitude < 8; response continuity < .025 per .001 Position step and < .15
+  per .1 cm Distance step; nonzero kernel,
   final 10% energy < .001 of total; farther distance lowers energy and moves peak
   > .8 ms for 10 -> 60 cm; selection/motion changes waveform; frozen v1 anchors
   within 1e-10. Tests at 44.1/48/96 kHz.
@@ -94,7 +95,9 @@ Numeric thresholds are encoded in tests, independent of whether a run passes:
 - Existing GateProcessor frozen parameter contract and NativeState appended-order
   checks include the new 39 parameters, retaining all prior expectations.
 - Callback p50/p99/max and deadline misses are recorded for six mic paths plus swaps.
-  Timing is descriptive on the stated runner, **not target-hardware approval** and
+  A predeclared runner guard requires CAB-only p99 < one audio-block period.
+  Deadline misses are still reported, not hidden by that p99 guard. This is
+  **not target-hardware approval** and
   not a universal realtime-safety claim. No silent deadline waiver changes.
 
 Actual instrument DI listening, target-machine CPU budgets, Windows/macOS/DAW

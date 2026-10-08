@@ -44,7 +44,7 @@ int main(){try {
         library.prepare(spec,{0,0,0});
         juce::AudioBuffer<float> audio(channels,block);
         std::array<juce::AudioBuffer<float>,3> laneAudio;for(auto& lane:laneAudio)lane.setSize(channels,block);
-        std::vector<double> times;times.reserve(1200);
+        std::vector<double> times;times.reserve(1600);
         unsigned misses=0;double peak=0,maxStep=0;float previous=0;
         for(int n=0;n<1200;++n) {
             if(n<80)for(auto& c:cabs){a.position=double(n%60)/60;c.requestedModel=originalCab::key(a);b.distanceCm=5+n*.2;c.secondMic()->requestedModel=originalCab::key(b);}
@@ -63,9 +63,25 @@ int main(){try {
             if(!ready)juce::Thread::sleep(1);
         }
         require(ready,"latest generation converges after automation storm");require(peak<2 && maxStep<.3,"bounded swap transition");
-        library.stop();for(auto& c:cabs)c.clear();require(library.resourcesReleased(),"worker teardown");
+        library.stop();
+        // Deterministic worst-case publication: six complete engines ready before
+        // the same callback. Construction is outside the watched/timed callback.
+        a.position=.85;const auto nextKey=originalCab::key(a);const auto wave=originalCab::generate(a,sr);
+        for(auto& c:cabs)for(auto* slot:{&c,c.secondMic()}) {
+            juce::AudioBuffer<float> samples(1,int(wave.size()));samples.copyFrom(0,0,wave.data(),int(wave.size()));
+            slot->requestedModel=nextKey;slot->publish(std::make_unique<Cab::Kernel>(std::move(samples),sr,spec,0,100,nextKey));
+        }
+        for(int n=0;n<400;++n) {
+            for(auto& lane:laneAudio)for(int ch=0;ch<channels;++ch)for(int k=0;k<block;++k)lane.setSample(ch,k,float(.05*std::sin(((n+1200)*block+k)*.07)));
+            const auto start=std::chrono::steady_clock::now();for(int lane=0;lane<3;++lane)process(cabs[lane],laneAudio[lane]);
+            const double us=std::chrono::duration<double,std::micro>(std::chrono::steady_clock::now()-start).count();times.push_back(us);if(us>1e6*block/sr)++misses;
+            for(int k=0;k<block;++k){const auto x=laneAudio[0].getSample(0,k);require(std::isfinite(x),"finite six-slot swap");peak=std::max(peak,std::abs(double(x)));maxStep=std::max(maxStep,std::abs(double(x-previous)));previous=x;}
+        }
+        require(peak<2 && maxStep<.3,"bounded six-slot swap");
+        for(auto& c:cabs)c.clear();require(library.resourcesReleased(),"worker teardown");
         std::sort(times.begin(),times.end());
-        std::cout<<"TIMING sr="<<sr<<" block="<<block<<" channels="<<channels<<" three_cabs_six_mics p50_us="<<times[600]<<" p99_us="<<times[1188]<<" max_us="<<times.back()<<" misses="<<misses<<"/1200 peak="<<peak<<" max_step="<<maxStep<<'\n';
+        require(times[1584]<1e6*block/sr,"CAB-only p99 exceeds one block period (runner CPU gate)");
+        std::cout<<"TIMING sr="<<sr<<" block="<<block<<" channels="<<channels<<" three_cabs_six_mics p50_us="<<times[800]<<" p99_us="<<times[1584]<<" max_us="<<times.back()<<" misses="<<misses<<"/1600 peak="<<peak<<" max_step="<<maxStep<<'\n';
     }
     require(allocations==0 && deletions==0,"callback new/delete observed");
     std::cout<<"PASS callback_new="<<allocations<<" callback_delete="<<deletions<<" (thread-local C++ operators only; not a universal malloc/lock tracer)\n";return 0;

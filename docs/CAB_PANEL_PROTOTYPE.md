@@ -7,7 +7,12 @@ The library browser retains Open IR, Add Folder, instrument tags and Remove from
 Unknown generic imports remain selectable without requiring naming conventions.
 Origin-style cabinet labels are filename associations only. The selector preserves
 full capture filenames, including Bright/Medium/Dark and prepared Mix labels.
-No Position/Distance control or inferred physical coordinates are presented.
+Fixed IRs do not expose inferred physical coordinates. This branch also adds the
+separate [Original / Modeled v1 path](ORIGINAL_CAB_DSP_V1.md): guitar 4x12 and bass
+4x10, independently selected units and microphones, modeled Position/Distance,
+rear structure and optional tweeter. Those controls do not remike a loaded capture.
+Enable each modeled slot explicitly in the lower section of PANEL; legacy states
+leave both off. Names are provisional and the model is not a measured hardware clone.
 
 ## Signal and compatibility
 
