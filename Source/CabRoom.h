@@ -156,8 +156,10 @@ public:
             const auto name=spectralforge::cabRoom::rigName(currentMode,i)+(solo ? " / SOLO" : "");
             juce::String caption=muted ? "MUTED" : diOnly ? "CLEAN DI / AMP MIX 0%" : !cabEnabled ? "CABINET BYPASSED" :
                 rig.original[0] && rig.original[1] ? (design==1 ? "ORIGINAL BASS 4x10" : "ORIGINAL GUITAR 4x12") :
-                rig.original[0] || rig.original[1] ? "ORIGINAL + CAPTURE / A-B" :
-                rig.source[0] || rig.source[1] ? "CAPTURED IR / A-B" : "FILTERS ONLY";
+                rig.original[0] || rig.original[1] ?
+                    (rig.source[rig.original[0] ? 1 : 0] ? "ORIGINAL + CAPTURE / A-B" : "ORIGINAL + FILTERS / A-B") :
+                rig.source[0] && rig.source[1] ? "CAPTURED IR / A-B" :
+                rig.source[0] || rig.source[1] ? "CAPTURE + FILTERS / A-B" : "FILTERS ONLY";
             changed=changed || rig.name!=name || rig.caption!=caption;rig.name=name;rig.caption=caption;
             component.setButtonText(name+" / Open cabinet");
             component.setTooltip(name+" / "+caption+"\nOpen the cabinet view. IR Loader is available in the next screen.");
