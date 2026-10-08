@@ -23,7 +23,7 @@ double threadCPU() {
 #endif
 }
 void require(bool b,const char* m){if(!b)throw std::runtime_error(m);}
-void process(Cab& c,juce::AudioBuffer<float>& b){watch=true;c.process(b);watch=false;}
+void process(Cab& c,juce::AudioBuffer<float>& b){watch=true;c.process(b);watch=false;require(c.transitioningMicCount()<=1,"modeled A/B crossfades must be serialized per rig");}
 std::vector<float> render(Cab& cab,const juce::dsp::ProcessSpec& spec) {
     juce::AudioBuffer<float> b(int(spec.numChannels),int(spec.maximumBlockSize));
     for(int n=0;n<200;++n){b.clear();process(cab,b);}cab.reset();
@@ -74,11 +74,17 @@ int main(){try {
             if(!ready)juce::Thread::sleep(1);
         }
         require(ready,"latest generation converges after automation storm");require(peak<2 && maxStep<.3,"bounded swap transition");
+        // Finish any just-accepted fade before stopping collection. This makes
+        // the following six publications eligible, rather than leaving a retired
+        // engine that could silently suppress the supposed worst-case swap.
+        for(int n=0;n<200;++n)for(auto& c:cabs){audio.clear();process(c,audio);}
+        for(auto& c:cabs)require(c.transitioningMicCount()==0,"pre-publication fades drained");
         library.stop();
-        // Deterministic worst-case publication: six complete engines ready before
-        // the same callback. Construction is outside the watched/timed callback.
+        // Six complete engines ready before the same callback. The actual
+        // scheduler must cap overlap at one fading mic per rig (nine engines).
+        // Construction is outside the watched/timed callback.
         a.position=.85;const auto nextKey=originalCab::key(a);const auto wave=originalCab::generate(a,sr);
-        // Prepared partitioning must reproduce the generated response and add
+        // Prepared convolution must reproduce the generated response and add
         // no processing latency; acoustic arrival remains in the kernel itself.
         juce::AudioBuffer<float> referenceSamples(1,int(wave.size()));referenceSamples.copyFrom(0,0,wave.data(),int(wave.size()));
         Cab::Kernel reference(std::move(referenceSamples),sr,spec,0,1,nextKey);
@@ -88,7 +94,7 @@ int main(){try {
             impulse.clear();if(offset==0)impulse.setSample(0,0,1);watch=true;reference.process(impulse);watch=false;
             for(int k=0;k<block;++k)kernelResidual=std::max(kernelResidual,std::abs(double(impulse.getSample(0,k))-(offset+k<int(wave.size()) ? wave[size_t(offset+k)] : 0)));
         }
-        require(kernelResidual<3e-6,"partitioned kernel differs from generated acoustic response");
+        require(kernelResidual<3e-6,"prepared kernel differs from generated acoustic response");
         for(auto& c:cabs)for(auto* slot:{&c,c.secondMic()}) {
             juce::AudioBuffer<float> samples(1,int(wave.size()));samples.copyFrom(0,0,wave.data(),int(wave.size()));
             slot->requestedModel=nextKey;slot->publish(std::make_unique<Cab::Kernel>(std::move(samples),sr,spec,0,100,nextKey));
@@ -100,6 +106,7 @@ int main(){try {
             for(int k=0;k<block;++k){const auto x=laneAudio[0].getSample(0,k);require(std::isfinite(x),"finite six-slot swap");peak=std::max(peak,std::abs(double(x)));maxStep=std::max(maxStep,std::abs(double(x-previous)));previous=x;}
         }
         require(peak<2 && maxStep<.3,"bounded six-slot swap");
+        for(auto& c:cabs)require(c.activeModel==nextKey && c.secondMic()->activeModel==nextKey,"six queued mic swaps converge");
         for(auto& c:cabs)c.clear();require(library.resourcesReleased(),"worker teardown");
         std::sort(times.begin(),times.end());std::sort(cpuTimes.begin(),cpuTimes.end());
         cpuWithinBudget=cpuWithinBudget && times[1584]<1e6*block/sr;

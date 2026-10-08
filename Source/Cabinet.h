@@ -16,8 +16,7 @@ public:
         bool hasIR{true};
         Kernel(juce::AudioBuffer<float> samples, double rate, const juce::dsp::ProcessSpec& spec,
                int type, unsigned revision, uint64_t model=0)
-            : convolution(juce::dsp::Convolution::NonUniform{model ? 256 : 0}),
-              source(type), generation(revision), modelKey(model)
+            : source(type), generation(revision), modelKey(model)
         {
             convolution.loadImpulseResponse(std::move(samples), rate, juce::dsp::Convolution::Stereo::yes,
                 juce::dsp::Convolution::Trim::no, model ? juce::dsp::Convolution::Normalise::no : juce::dsp::Convolution::Normalise::yes);
@@ -50,6 +49,7 @@ private:
     juce::AudioBuffer<float> second, delayBuffer;
     int delayWrite{};
     bool bWasRunning{};
+    bool preferSecondSwap{};
     juce::SmoothedValue<float> micGain, micBlend, micDelay;
     int fadeRemaining{}, fadeLength{1};
     static void destroyKernel(Kernel* kernel)
@@ -81,7 +81,7 @@ public:
     {
         clear(); sr=spec.sampleRate;
         if(micB) micB->prepare(spec);
-        bWasRunning=false;
+        bWasRunning=false; preferSecondSwap=false;
         second.setSize((int)spec.numChannels,(int)spec.maximumBlockSize);
         delayBuffer.setSize((int)spec.numChannels,int(sr*.020)+2); delayBuffer.clear(); delayWrite=0;
         micGain.reset(sr,.020); micGain.setCurrentAndTargetValue(1.f);
@@ -114,9 +114,18 @@ public:
         *hp.state=juce::dsp::IIR::ArrayCoefficients<float>::makeHighPass(sr,juce::jlimit(10.f,float(sr*.44),low));
         *lp.state=juce::dsp::IIR::ArrayCoefficients<float>::makeLowPass(sr,juce::jlimit(100.f,float(sr*.45),high));
     }
-    void process(juce::AudioBuffer<float>& buffer)
+    // Audio-thread diagnostic; never queried by the worker.
+    int transitioningMicCount() const noexcept {return (fadeRemaining>0 ? 1 : 0)+(micB ? micB->transitioningMicCount() : 0);}
+    void process(juce::AudioBuffer<float>& buffer,bool allowKernelSwap=true)
     {
-        if(fadeRemaining==0 && retired.load()==nullptr)
+        // Model responses are longer than the legacy captures. Serialize A/B
+        // crossfades within each rig: six steady paths plus at most three fading
+        // paths. Keep every sample of the authored response and the 50 ms fade.
+        // No cross-rig owner can get stuck when routing disables another lane.
+        const auto hasModel=[](const Cab& c){return c.requestedModel.load()!=0 || c.activeModel.load()!=0 || (c.fading && c.fading->modelKey!=0);};
+        const bool serialiseModels=micB && (hasModel(*this) || hasModel(*micB));
+        const bool pairAllowsSwap=!serialiseModels || (micB->fadeRemaining==0 && (!preferSecondSwap || micB->pending.load()==nullptr));
+        if(allowKernelSwap && pairAllowsSwap && fadeRemaining==0 && retired.load()==nullptr)
             if(auto* next=pending.exchange(nullptr))
             {
                 // A superseded model may have reached pending after the worker's
@@ -126,13 +135,19 @@ public:
                     fading=active; active=next;
                     activeSource.store(next->source); activeGeneration.store(next->generation); activeModel.store(next->modelKey);
                     fadeRemaining=fadeLength;
+                    if(serialiseModels)preferSecondSwap=true;
                 }
             }
         dry.makeCopyOf(buffer,true);
         // Service a muted slot's pending swap so its UI can become ready. Once
         // settled, skip its convolution; clear frozen history before waking it.
         const bool renderB=micB && (blend>0.f || micBlend.getCurrentValue()>0.f || micB->pending.load()!=nullptr || micB->fadeRemaining>0);
-        if(renderB) { if(!bWasRunning)micB->reset(); second.makeCopyOf(buffer,true); micB->process(second); }
+        if(renderB) {
+            if(!bWasRunning)micB->reset();second.makeCopyOf(buffer,true);
+            const auto* before=micB->active;
+            micB->process(second,!serialiseModels || fadeRemaining==0);
+            if(serialiseModels && before!=micB->active)preferSecondSwap=false;
+        }
         bWasRunning=renderB;
         juce::dsp::AudioBlock<float> block(buffer);
         juce::dsp::ProcessContextReplacing<float> context(block);

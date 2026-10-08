@@ -49,9 +49,10 @@ The practical acoustic approximations and authored voicing must still be auditio
   170 ms FFT period, truncated to 85 ms with a 20% tail taper. A smooth Nyquist taper
   limits the sampled bandwidth. Band-limited propagation can have small pre-ringing;
   this is not a claim of a strictly causal continuous-time wave solver.
-- Model kernels use a zero-latency two-stage convolution with a 256-sample head;
-  fixed captures retain the original uniform partitioning. Impulse-output residual
-  against the generated kernel must be < 3e-6 with zero reported processing latency.
+- Kernels use zero-latency uniform convolution and retain the entire generated
+  response. Impulse-output residual against the generated kernel must be < 3e-6
+  with zero reported processing latency. A two-stage 256-sample-head experiment
+  was rejected after Linux p99 showed expensive tail-computation bursts.
 - Model kernels disable JUCE normalization and trimming, preserving natural relative
   distance gain and arrival phase. Existing fixed IR normalization remains unchanged.
   Acoustic arrival is part of the response, not additional reported host latency;
@@ -66,6 +67,13 @@ The practical acoustic approximations and authored voicing must still be auditio
 - Existing 50 ms linear crossfade and 20 ms controls are reused. New settings take
   effect when preparation completes; this is asynchronous control, not sample-accurate
   spectral automation or a continuous Doppler simulation. Generator throughput is measured separately from callback CPU.
+- When either mic uses a model, only one mic per rig may crossfade at a time;
+  A/B alternate priority when both wait. Six simultaneously published model requests
+  use at most nine convolution engines, not twelve. The second mic waits for the
+  first 50 ms fade. This audio-thread-only scheduling needs no mutex/allocation;
+  there is no cross-rig ownership to stall on a routing change. Fixed-only pairs
+  preserve their existing swap behavior. Audio tests enforce this overlap limit
+  and eventual activation of all six queued kernels; CPU thresholds stay unchanged.
 - The 39 `ocab` host parameters append at indices 4785-4823 with AU version hint 7.
   No prior ID, choice list or normalized source mapping changes. Both modeled switches
   default off, including migration of missing controls in old projects/comparisons.
