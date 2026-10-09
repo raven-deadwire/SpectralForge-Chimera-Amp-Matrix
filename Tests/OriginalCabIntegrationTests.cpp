@@ -47,6 +47,8 @@ void reportPhase(const char* name,const std::vector<double>& times,const std::ve
         <<" p99_us="<<wall[p99]<<" thread_cpu_p99_us="<<cpu[p99]<<" max_us="<<wall.back()<<" misses="<<misses<<'\n';
 }
 int main(int argc,char** argv){try {
+    require(!lifecycle::enabled(),"CAB timing requires lifecycle tracing disabled; run the isolated CTest entries");
+    std::cout<<"TIMING_PROTOCOL lifecycle_trace=disabled measured_blocks=1600 worker_blocks=1200 forced_publication_blocks=400\n";
     const bool expanded=argc==2 && std::string(argv[1])=="--expanded";
     const bool layouts=argc==2 && std::string(argv[1])=="--layouts";
     require(argc==1 || expanded || layouts,"usage: ChimeraOriginalCabIntegrationTests [--expanded | --layouts]");

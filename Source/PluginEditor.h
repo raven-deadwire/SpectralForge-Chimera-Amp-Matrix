@@ -103,7 +103,7 @@ private:
     std::unique_ptr<CabRoomOverview> cabRoom;
     juce::TextButton rigControls{"RIG CONTROLS"};
     bool showRigControls{};
-    int page{1}; // Open the production five-slot PRE view; RIGS/POST remain one click away.
+    int page{0}; // Start on the amp/RIGS view; navigation leaves the signal path unchanged.
     juce::Slider lowComp,lowAmpMix;
     juce::Label lowCompLabel,diVoice,diNote;
     std::unique_ptr<SA> lowCompAttachment,lowAmpMixAttachment;

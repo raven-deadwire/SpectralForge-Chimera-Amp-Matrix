@@ -384,4 +384,17 @@ add_test(NAME ChimeraCabCameraFramingTests COMMAND ChimeraCabCameraFramingTests)
 add_test(NAME ChimeraCabLayoutIntegrationTests COMMAND ChimeraOriginalCabIntegrationTests --layouts)
 add_test(NAME ChimeraCabLayoutStateTests COMMAND ChimeraCabPanelStateTests --layout-only)
 
+# CAB deadline measurements must not inherit opt-in lifecycle file logging.
+# Keep the candidate's shutdown/UI traces, but measure these three callbacks
+# under the same untraced conditions as the product and dedicated CAB jobs.
+# RUN_SERIAL also prevents future CTest parallelism from adding competing tests;
+# the IR worker and forced six-slot swaps inside each test remain enabled.
+set(CHIMERA_CAB_TIMING_TESTS
+  ChimeraOriginalCabIntegrationTests
+  ChimeraCabExpansionIntegrationTests
+  ChimeraCabLayoutIntegrationTests)
+set_tests_properties(${CHIMERA_CAB_TIMING_TESTS} PROPERTIES RUN_SERIAL TRUE)
+set_property(TEST ${CHIMERA_CAB_TIMING_TESTS} APPEND PROPERTY
+  ENVIRONMENT_MODIFICATION "CHIMERA_LIFECYCLE_TRACE=unset:")
+
 add_test(NAME ChimeraCabDriverVisualTests COMMAND ChimeraCabPanelStateTests --visual-only)

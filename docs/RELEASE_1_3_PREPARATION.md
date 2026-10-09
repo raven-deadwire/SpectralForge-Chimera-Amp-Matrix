@@ -56,6 +56,16 @@ The corrected source also passed the strict default five-channel comparison: bar
 
 The public IR source/byte guard passed with exactly two approved embedded assets and no reference entries; its **10** regressions passed. Publisher **21/21**, release preflight **2/2**, and consolidator **26/26** regressions passed. The consolidator replay of the unchanged verified checkpoint bundles changes exactly the two stale E1 requirements and leaves **21 PASS / 107 BLOCKED**, with `ready=false`. Real-source CI and the remaining external/manual acceptance are still required.
 
+## Installer retry: startup view and CAB timing conditions
+
+The retry continues from **6dca3b2dba15d7b00fc2d429b6a7168b50ecb3af**, preserving its measured factory-preset correction and the unchanged strict integrated processor tests. The owner's requested first screen is now the **AMP/RIGS** page (`page = 0`). This is editor navigation only; PRE remains the first audio-processing stage and saved rig parameters are unchanged.
+
+The earlier Candidate workflow enabled `CHIMERA_LIFECYCLE_TRACE` for every CTest process, while Product and dedicated CAB jobs measured without this opt-in file logging. CAB worker/kernel lifecycle events can take a mutex and append to the trace file. The three CAB deadline tests now explicitly remove that variable before process startup and require tracing to be disabled. Other lifecycle and UI tests retain their tracing. `RUN_SERIAL` prevents those three measurements from sharing a CTest parallel slot; the previous failed run was already sequential, so this is a guard for future invocations, not a claimed cause of the previous failure.
+
+The complete 1,600-callback workload remains unchanged: 1,200 callbacks with worker/automation activity and 400 with forced six-slot publication. Sample rates, block sizes, channels, allocation checks and the strict p99 block-period limit are unchanged. This removes a confirmed difference in measurement conditions; it does not prove that logging alone caused the earlier runner's deadline misses. New-source native Product, CAB and Windows Candidate results are still required before installer delivery.
+
+Local validation of the retry passed `Tools/test_ctest_validation.py`, `Tools/check_catalog_contract.py` and `git diff --check`. The CTest evidence producer still rejects failed, skipped, missing, duplicate and unconfigured tests. Catalog checks retain 25 active amps, five PRE slots, 48 selectable presets and the two hash-allowlisted embedded IRs. Native startup/UI, timing and installer execution are pending the new CI run.
+
 ## Validation and remaining acceptance
 
 Local contract results and final-source CI links are recorded in the integration PR after source commit. A version change needs a new build; old package bytes are never relabeled.
