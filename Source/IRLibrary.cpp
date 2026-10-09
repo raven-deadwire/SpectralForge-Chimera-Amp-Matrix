@@ -1,7 +1,7 @@
 #include "IRLibrary.h"
 #include "IRUserPreferences.h"
 #include "ChimeraIRData.h"
-#include "CabExpansionModel.h"
+#include "CabLayoutModel.h"
 
 namespace spectralforge {
 IRLibrary::IRLibrary(std::array<Cab*,3> cabinets) : Thread("Chimera IR preparation"), cabs{cabinets[0],cabinets[1],cabinets[2],cabinets[0]->secondMic(),cabinets[1]->secondMic(),cabinets[2]->secondMic()}
@@ -90,7 +90,7 @@ std::unique_ptr<Cab::Kernel> IRLibrary::build(int lane,int source,unsigned gener
     if(model) {
         auto found=std::find_if(modelCache.begin(),modelCache.end(),[&](const auto& item){return item.key==model;});
         if(found==modelCache.end()) {
-            auto response=cabExpansion::generate(model,rate);
+            auto response=cabLayout::generate(model,rate);
             juce::AudioBuffer<float> generated(1,int(response.size()));
             generated.copyFrom(0,0,response.data(),int(response.size()));
             if(modelCache.size()==8)modelCache.pop_front();
@@ -162,6 +162,12 @@ juce::String IRLibrary::status(int lane) const
     const auto model=cabs[lane]->requestedModel.load();
     if(model) {
         const auto p=originalCab::settings(model);
+        if(model&cabLayout::versionBit) {
+            const auto p3=cabLayout::settings(model);const auto* d=cabExpansion::driver(p3.voice);const auto* mic=cabExpansion::microphone(p3.voice);
+            return juce::String(d ? d->name : "Legacy driver")+" | "+juce::String(cabLayout::count(p3.layout))+"x"+juce::String(cabExpansion::diameter(p3.voice))
+                +" | "+(mic ? mic->name : "Legacy microphone")+" | Unit "+juce::String(cabLayout::effectiveUnit(p3)+1)
+                +(model!=cabs[lane]->activeModel.load() ? " | Preparing..." : " | Ready");
+        }
         if(model&cabExpansion::versionBit) {
             const auto x=cabExpansion::settings(model);const auto* d=cabExpansion::driver(x);const auto* m=cabExpansion::microphone(x);
             return juce::String(d ? d->name : p.cabinet ? "Legacy Bass 4x10" : "Legacy Guitar 4x12")
@@ -224,6 +230,18 @@ IRMetadata IRLibrary::metadata(int lane,int source,bool includeModeled) const
     std::lock_guard<std::mutex> lock(mutex);if(lane<0 || lane>5)return {};
     if(const auto model=includeModeled ? cabs[lane]->requestedModel.load() : 0) {
         const auto p=originalCab::settings(model);IRMetadata m;
+        if(model&cabLayout::versionBit) {
+            const auto p3=cabLayout::settings(model);const auto g=cabLayout::geometry(p3);
+            const auto* d=cabExpansion::driver(p3.voice);const auto* mic=cabExpansion::microphone(p3.voice);
+            m.instrument=cabExpansion::isBass(p3.voice) ? IRMetadata::Instrument::bass : IRMetadata::Instrument::guitar;
+            m.displayLabel=juce::String(d ? d->name : "Legacy driver")+" "+juce::String(g.count)+"x"+juce::String(cabExpansion::diameter(p3.voice));
+            m.values[0]=d ? d->name : "Original modeled driver v1";m.values[1]=m.displayLabel;
+            m.values[3]=mic ? mic->name : "Legacy microphone";
+            m.values[4]="Modeled unit "+juce::String(cabLayout::effectiveUnit(p3)+1)+", radius "+juce::String(p.position,3);
+            m.values[8]="Chimera original design v3";
+            m.values[11]="Independent linear array model; "+juce::String(g.box.volume*1000,1)+" L net volume; "
+                +juce::String(p.distanceCm,1)+" cm. No measured hardware matching, ports or room reverb.";return m;
+        }
         if(model&cabExpansion::versionBit) {
             const auto x=cabExpansion::settings(model);const auto* d=cabExpansion::driver(x);const auto* mic=cabExpansion::microphone(x);
             m.instrument=cabExpansion::isBass(x) ? IRMetadata::Instrument::bass : IRMetadata::Instrument::guitar;

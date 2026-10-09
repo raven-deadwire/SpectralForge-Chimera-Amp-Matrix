@@ -1,5 +1,8 @@
 # CAB speaker and microphone expansion v2
 
+New selectable enclosures are documented in [CAB layout v3](CAB_LAYOUT_V3.md).
+The four-unit limitation below describes the preserved v2 generator.
+
 This development branch adds playable Chimera designs to the existing CAB panel.
 It does not replace v1 sounds or convert captured hardware identities into models.
 No external IR, measured transfer, trained weights or commercial numeric specification

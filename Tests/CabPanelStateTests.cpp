@@ -34,6 +34,7 @@ void fixture(const juce::File& f,int offset){juce::WavAudioFormat format;auto st
 std::vector<float> render(ChimeraProcessor& p){p.prepareToPlay(48000,128);juce::AudioBuffer<float> b(2,128);juce::MidiBuffer midi;for(int i=0;i<64;++i){b.clear();p.processBlock(b,midi);}std::vector<float> out;for(int block=0;block<64;++block){for(int c=0;c<2;++c)for(int n=0;n<128;++n)b.setSample(c,n,.05f*std::sin(float(block*128+n)*(.073f+c*.027f)));p.processBlock(b,midi);for(int n=0;n<128;++n)for(int c=0;c<2;++c){check(std::isfinite(b.getSample(c,n)),"finite production output");out.push_back(b.getSample(c,n));}}p.releaseResources();check(p.backgroundResourcesReleased(),"A/B worker and kernel teardown");return out;}
 void equal(const std::vector<float>& a,const std::vector<float>& b){float d=0;double energy=0;check(a.size()==b.size(),"length");for(size_t i=0;i<a.size();++i){d=std::max(d,std::abs(a[i]-b[i]));energy+=a[i]*a[i];}check(energy>1e-8,"audible response");check(d<1e-6f,"production project audio restore");}
 #include "CabExpansionStateTests.h"
+#include "CabLayoutStateTests.h"
 void originalStateContracts() {
     auto p=std::make_unique<ChimeraProcessor>();
     set(*p,"gateon",0);set(*p,"oversampling",0);set(*p,"lowampmix",1);
@@ -109,7 +110,7 @@ void originalStateContracts() {
     for(int lane=0;lane<3;++lane)for(const char* suffix:{"Aon","Bon"})check(p->parameters().getRawParameterValue(spectralforge::originalCabID(lane,suffix))->load()==0,"legacy must disable dirty modeled slots");
     std::cout<<"PASS original A/B comparison, position audio, UI and legacy disable\n";
 }
-int main(int argc,char** argv){juce::ScopedJuceInitialiser_GUI gui;auto folder=juce::File::getSpecialLocation(juce::File::tempDirectory).getNonexistentChildFile("cab-state-fixture",{},false);struct Cleanup{juce::File f;~Cleanup(){f.deleteRecursively();}} cleanup{folder};try{if(argc==2 && juce::String(argv[1])=="--expansion-only") {expansionStateContracts(juce::File::getCurrentWorkingDirectory());return 0;}originalStateContracts();check(folder.createDirectory().wasOk(),"directory");auto a=folder.getChildFile("A.wav"),b=folder.getChildFile("B.wav");if(argc==4) {
+int main(int argc,char** argv){juce::ScopedJuceInitialiser_GUI gui;auto folder=juce::File::getSpecialLocation(juce::File::tempDirectory).getNonexistentChildFile("cab-state-fixture",{},false);struct Cleanup{juce::File f;~Cleanup(){f.deleteRecursively();}} cleanup{folder};try{if(argc==2 && juce::String(argv[1])=="--layout-only") {layoutStateContracts(juce::File::getCurrentWorkingDirectory());return 0;}if(argc==2 && juce::String(argv[1])=="--expansion-only") {expansionStateContracts(juce::File::getCurrentWorkingDirectory());return 0;}originalStateContracts();check(folder.createDirectory().wasOk(),"directory");auto a=folder.getChildFile("A.wav"),b=folder.getChildFile("B.wav");if(argc==4) {
         check(juce::File::getCurrentWorkingDirectory().getChildFile(argv[2]).copyFileTo(a),"private A copy");
         check(juce::File::getCurrentWorkingDirectory().getChildFile(argv[3]).copyFileTo(b),"private B copy");
     } else {check(argc<=2,"usage: ChimeraCabPanelStateTests [snapshot.png [user-IR-A user-IR-B]]");fixture(a,0);fixture(b,18);}

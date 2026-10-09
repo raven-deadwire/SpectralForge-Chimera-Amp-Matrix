@@ -1,10 +1,26 @@
 #pragma once
 #include "OriginalCabModel.h"
-#include "CabExpansionModel.h"
+#include "CabLayoutModel.h"
 #include <juce_audio_processors/juce_audio_processors.h>
 namespace spectralforge {
 constexpr int originalCabParameterCount=39;
 constexpr int cabExpansionParameterCount=12;
+constexpr int cabLayoutParameterCount=9;
+inline juce::String cabLayoutID(int lane,const char* suffix) {return "lcab"+juce::String(lane+1)+"_"+suffix;}
+inline juce::StringArray cabLayoutNames() {
+    juce::StringArray names{"Legacy 4-unit cabinet"};
+    for(const auto& layout:cabLayout::layouts)names.add(layout.name);return names;
+}
+inline void appendCabLayoutParameters(juce::AudioProcessorValueTreeState::ParameterLayout& p) {
+    for(int lane=0;lane<3;++lane) {
+        const auto add=[&](const char* id,const char* name,const juce::StringArray& items) {
+            p.add(std::make_unique<juce::AudioParameterChoice>(juce::ParameterID{cabLayoutID(lane,id),9},juce::String(name)+" "+juce::String(lane+1),items,0));
+        };
+        add("layout","Cabinet layout v3",cabLayoutNames());
+        add("Aunit","Array unit A v3",{"Unit 1","Unit 2","Unit 3","Unit 4","Unit 5","Unit 6","Unit 7","Unit 8"});
+        add("Bunit","Array unit B v3",{"Unit 1","Unit 2","Unit 3","Unit 4","Unit 5","Unit 6","Unit 7","Unit 8"});
+    }
+}
 inline juce::String originalCabID(int lane,const char* suffix) {return "ocab"+juce::String(lane+1)+"_"+suffix;}
 inline juce::String cabExpansionID(int lane,const char* suffix) {return "xcab"+juce::String(lane+1)+"_"+suffix;}
 inline juce::StringArray expandedDriverNames() {
@@ -50,18 +66,24 @@ inline void appendOriginalCabParameters(juce::AudioProcessorValueTreeState::Para
 struct OriginalCabParameters {
     std::array<std::array<std::atomic<float>*,13>,3> values{};
     std::array<std::array<std::atomic<float>*,4>,3> expansion{};
+    std::array<std::array<std::atomic<float>*,3>,3> layouts{};
     void bind(juce::AudioProcessorValueTreeState& state) {
         constexpr std::array<const char*,13> names{"design","rear","tweeter","Aon","Amic","Aunit","Aposition","Adistance","Bon","Bmic","Bunit","Bposition","Bdistance"};
         for(int lane=0;lane<3;++lane)for(size_t n=0;n<names.size();++n)values[lane][n]=state.getRawParameterValue(originalCabID(lane,names[n]));
         constexpr std::array<const char*,4> extra{"driver","Amic","Bmic","tweeter"};
         for(int lane=0;lane<3;++lane)for(size_t n=0;n<extra.size();++n)expansion[lane][n]=state.getRawParameterValue(cabExpansionID(lane,extra[n]));
+        for(int lane=0;lane<3;++lane) {
+            layouts[lane][0]=state.getRawParameterValue(cabLayoutID(lane,"layout"));
+            layouts[lane][1]=state.getRawParameterValue(cabLayoutID(lane,"Aunit"));
+            layouts[lane][2]=state.getRawParameterValue(cabLayoutID(lane,"Bunit"));
+        }
     }
     uint64_t read(int lane,int slot) const noexcept {
         const auto& v=values[lane];const int offset=slot ? 8 : 3;
         if(v[offset]->load()<.5f)return 0;
         const auto& x=expansion[lane];
-        return cabExpansion::key({{true,int(v[0]->load()),int(v[1]->load()),int(v[offset+1]->load()),int(v[offset+2]->load()),
-            v[2]->load(),v[offset+3]->load(),v[offset+4]->load()},int(x[0]->load()),int(x[1+slot]->load()),int(x[3]->load())});
+        return cabLayout::key({{{true,int(v[0]->load()),int(v[1]->load()),int(v[offset+1]->load()),int(v[offset+2]->load()),
+            v[2]->load(),v[offset+3]->load(),v[offset+4]->load()},int(x[0]->load()),int(x[1+slot]->load()),int(x[3]->load())},int(layouts[lane][0]->load()),int(layouts[lane][1+slot]->load())});
     }
 };
 }

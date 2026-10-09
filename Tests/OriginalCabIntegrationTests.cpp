@@ -1,5 +1,5 @@
 #include "IRLibrary.h"
-#include "CabExpansionModel.h"
+#include "CabLayoutModel.h"
 #include <chrono>
 #include <cstdlib>
 #include <iostream>
@@ -37,8 +37,9 @@ std::vector<float> render(Cab& cab,const juce::dsp::ProcessSpec& spec) {
 double delta(const std::vector<float>& a,const std::vector<float>& b){double d=0;for(size_t n=0;n<a.size();++n)d=std::max(d,std::abs(double(a[n]-b[n])));return d;}
 int main(int argc,char** argv){try {
     const bool expanded=argc==2 && std::string(argv[1])=="--expanded";
-    require(argc==1 || expanded,"usage: ChimeraOriginalCabIntegrationTests [--expanded]");
-    const auto modelKey=[expanded](originalCab::Settings p){return expanded ? cabExpansion::key({p,14,p.mic==1 ? 10 : 20,2}) : originalCab::key(p);};
+    const bool layouts=argc==2 && std::string(argv[1])=="--layouts";
+    require(argc==1 || expanded || layouts,"usage: ChimeraOriginalCabIntegrationTests [--expanded | --layouts]");
+    const auto modelKey=[expanded,layouts](originalCab::Settings p){if(layouts)return cabLayout::key({{p,9,p.mic==1 ? 10 : 20,2},7,p.mic==1 ? 7 : p.unit});return expanded ? cabExpansion::key({p,14,p.mic==1 ? 10 : 20,2}) : originalCab::key(p);};
     const juce::ScopedNoDenormals noDenormals; // Same floating-point mode as processBlock.
     bool cpuWithinBudget=true;
     for(double sr:{44100.,48000.,96000.})for(int block:{64,256})for(int channels:{1,2}) {
@@ -87,7 +88,7 @@ int main(int argc,char** argv){try {
         // Six complete engines ready before the same callback. The actual
         // scheduler must cap overlap at one fading mic per rig (nine engines).
         // Construction is outside the watched/timed callback.
-        a.position=.85;const auto nextKey=modelKey(a);const auto wave=cabExpansion::generate(nextKey,sr);
+        a.position=.85;const auto nextKey=modelKey(a);const auto wave=cabLayout::generate(nextKey,sr);
         // Prepared convolution must reproduce the generated response and add
         // no processing latency; acoustic arrival remains in the kernel itself.
         juce::AudioBuffer<float> referenceSamples(1,int(wave.size()));referenceSamples.copyFrom(0,0,wave.data(),int(wave.size()));
@@ -114,7 +115,7 @@ int main(int argc,char** argv){try {
         for(auto& c:cabs)c.clear();require(library.resourcesReleased(),"worker teardown");
         std::sort(times.begin(),times.end());std::sort(cpuTimes.begin(),cpuTimes.end());
         cpuWithinBudget=cpuWithinBudget && times[1584]<1e6*block/sr;
-        std::cout<<"TIMING engine="<<(expanded ? "expanded-v2" : "original-v1")<<" sr="<<sr<<" block="<<block<<" channels="<<channels<<" three_cabs_six_mics p50_us="<<times[800]<<" p99_us="<<times[1584]<<" thread_cpu_p99_us="<<cpuTimes[1584]<<" max_us="<<times.back()<<" misses="<<misses<<"/1600 kernel_residual="<<kernelResidual<<" peak="<<peak<<" max_step="<<maxStep<<'\n';
+        std::cout<<"TIMING engine="<<(layouts ? "array-v3-8x10" : expanded ? "expanded-v2" : "original-v1")<<" sr="<<sr<<" block="<<block<<" channels="<<channels<<" three_cabs_six_mics p50_us="<<times[800]<<" p99_us="<<times[1584]<<" thread_cpu_p99_us="<<cpuTimes[1584]<<" max_us="<<times.back()<<" misses="<<misses<<"/1600 kernel_residual="<<kernelResidual<<" peak="<<peak<<" max_step="<<maxStep<<'\n';
     }
     require(allocations==0 && deletions==0,"callback new/delete observed");
     std::cout<<"CALLBACK callback_new="<<allocations<<" callback_delete="<<deletions<<" (thread-local C++ operators only; not a universal malloc/lock tracer)\n";
