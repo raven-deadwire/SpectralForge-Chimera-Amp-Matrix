@@ -21,9 +21,12 @@ inline void artworkResources() {
         "CAB room scenery is missing, undecodable or retained above its display budget");
     retainedBytes+=size_t(room->room.getWidth())*size_t(room->room.getHeight())*4;
     for(const auto& image:artwork->frontSpeakers)retainedBytes+=size_t(image.getWidth())*size_t(image.getHeight())*4;
-    for(const auto& skin:artwork->enclosureSkins)
+    for(const auto& skin:artwork->enclosureSkins) {
         for(const auto& image:{skin.grille,skin.roof,skin.grilleOverlay})
             retainedBytes+=size_t(image.getWidth())*size_t(image.getHeight())*4;
+        for(size_t i=1;i<skin.perimeter.size();i+=2)
+            retainedBytes+=size_t(skin.perimeter[i].getWidth())*size_t(skin.perimeter[i].getHeight())*4;
+    }
     require(retainedBytes<=16*1024*1024,"CAB equipment and room artwork exceed the combined editor RGBA budget");
     std::vector<Asset> matched;
     for(const auto& model:spectralforge::micCatalog::models) {

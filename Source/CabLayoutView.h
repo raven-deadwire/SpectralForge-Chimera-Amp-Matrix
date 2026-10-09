@@ -39,21 +39,28 @@ inline juce::Point<float> point(const cabLayout::Geometry& model,juce::Rectangle
 inline float radius(const cabLayout::Geometry& model,juce::Rectangle<float> box) {return float(model.radius/model.box.width)*box.getWidth();}
 struct GroundSupport {std::array<juce::Rectangle<float>,2> feet;float y{};};
 inline GroundSupport groundSupport(juce::Rectangle<float> box) {
-    const float height=juce::jlimit(2.5f,7.5f,box.getWidth()*.022f),width=box.getWidth()*.085f;
+    const float height=juce::jlimit(2.5f,7.5f,box.getWidth()*.022f),width=box.getWidth()*.057f;
     GroundSupport result;result.y=box.getBottom()+height;
-    for(int i=0;i<2;++i)result.feet[size_t(i)]={box.getX()+box.getWidth()*(i ? .785f : .13f),
+    for(int i=0;i<2;++i)result.feet[size_t(i)]={box.getX()+box.getWidth()*(i ? .893f : .05f),
         box.getBottom()-1.f,width,height+1.f};
     return result;
 }
 inline void enclosure(juce::Graphics& g,const cabLayout::Geometry& model,juce::Rectangle<float> box,bool bass) {
+    const juce::SharedResourcePointer<cabArt::Bank> bank;
+    const auto& skin=bank->enclosureSkins[size_t(bass)];
     // The same contact plane anchors both the rubber feet and scene shadows.
+    int footIndex=0;
     for(const auto foot:groundSupport(box).feet) {
         g.setColour(juce::Colour(0xff070a0b));g.fillRoundedRectangle(foot,1.4f);
         g.setColour(juce::Colour(0xff494d46));
         g.drawLine(foot.getX()+1.f,foot.getY()+1.5f,foot.getRight()-1.f,foot.getY()+1.5f,.8f);
+        if(skin.feet[size_t(footIndex)].isValid()) {
+            g.setColour(juce::Colours::white);
+            g.drawImage(skin.feet[size_t(footIndex)],foot,juce::RectanglePlacement::stretchToFit);
+        }
+        ++footIndex;
     }
-    const juce::SharedResourcePointer<cabArt::Bank> bank;
-    cabEnclosureArt::paint(g,bank->enclosureSkins[size_t(bass)],box,baffle(model,box),
+    cabEnclosureArt::paint(g,skin,box,baffle(model,box),
         box.getWidth()/float(model.box.width));
 }
 inline void speakers(juce::Graphics& g,const cabLayout::Geometry& model,juce::Rectangle<float> box,int driver,int legacyDesign=0) {

@@ -47,11 +47,29 @@ inline void run() {
             g.fillAll(juce::Colours::red); // Forbidden parent pixels, outside the crops.
             g.setColour(juce::Colours::blue);g.fillRect(regions.grille);
             g.setColour(juce::Colours::green);g.fillRect(regions.roof);
+            for(size_t i=1;i<regions.perimeter.size();i+=2) {
+                g.setColour(juce::Colour(0xffd0a080));g.fillRect(regions.perimeter[i]);
+            }
         }
         const auto skin=makeSkin(source,bass);
         check(skin.isValid(),"material fixture extraction failed");
         check(skin.grille.getBounds()==juce::Rectangle<int>(36, bass ? 66 : 72)
             && skin.roof.getBounds()==juce::Rectangle<int>(128,20),"material crop dimensions changed");
+        for(size_t i=1;i<skin.perimeter.size();i+=2) {
+            const auto& tile=skin.perimeter[i];
+            check((i==topRail || i==bottomRail ? tile.getWidth() : tile.getHeight())==64,
+                "rail material retained a whole stretched cabinet edge");
+            for(float scale:{.25f,1.f,1.75f}) {
+                juce::Image target(juce::Image::ARGB,192,128,true,*type);
+                {juce::Graphics g(target);fillMaterial(g,tile,{4.f,4.f,184.f,120.f},scale);}
+                for(int y=8;y<120;++y)for(int x=8;x<184;++x) {
+                    const auto pixel=target.getPixelAt(x,y);
+                    check(std::abs(int(pixel.getRed())-208)<=2 && std::abs(int(pixel.getGreen())-160)<=2
+                        && std::abs(int(pixel.getBlue())-128)<=2 && pixel.getAlpha()>=253,
+                        "rail tiling leaked the original cabinet parent bitmap");
+                }
+            }
+        }
         for(bool roof:{false,true}) {
             const auto& tile=roof ? skin.roof : skin.grille;
             const auto expected=roof ? juce::Colours::green : juce::Colours::blue;
@@ -83,8 +101,11 @@ inline void run() {
         check(skin.grille.getPixelAt(18,20)==juce::Colours::blue
             && skin.roof.getPixelAt(64,10)==juce::Colours::green,
             "repeating material still aliases the parent cabinet artwork");
+        for(size_t i=1;i<skin.perimeter.size();i+=2)
+            check(skin.perimeter[i].getPixelAt(10,10)==juce::Colour(0xffd0a080),
+                "rail material still aliases the parent cabinet artwork");
     }
-    std::cout<<"PASS enclosure materials: 24 native/software tiled renders, guitar/bass grille/roof, "
+    std::cout<<"PASS enclosure materials: 72 native/software tiled renders, guitar/bass grille/roof/rails, "
         <<"three scales, no parent pixels and independent cropped storage\n";
 }
 }

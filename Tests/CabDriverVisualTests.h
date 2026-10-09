@@ -76,6 +76,28 @@ inline void shellArtworkContracts(const juce::File& screenshots) {
     juce::Image comparison(juce::Image::ARGB,672,367,true);juce::Graphics g(comparison);
     g.drawImageAt(shells[0],0,0);g.drawImageAt(shells[1],336,0);
     writeImage(comparison,screenshots,"cab-visual-original-shell-materials.png");
+    // All nine cabinets use the same production shell painter at one metre
+    // scale. This evidence makes material stretching on short/wide/tall boxes
+    // visible without scaling each cabinet independently to its card.
+    juce::Image catalog(juce::Image::RGB,960,1080,true);juce::Graphics cg(catalog);
+    cg.fillAll(juce::Colour(0xff181b1b));
+    for(size_t index=0;index<cabLayout::layouts.size();++index) {
+        const auto& entry=cabLayout::layouts[index];
+        cabLayout::Settings settings{};settings.layout=int(index)+1;settings.voice.base.cabinet=int(entry.bass);
+        settings=cabLayout::effectiveSettings(settings);
+        const auto geometry=cabLayout::geometry(settings);constexpr float metres=300.f;
+        const int column=int(index)%3,row=int(index)/3;
+        const float width=float(geometry.box.width)*metres;
+        const float height=float(geometry.box.height+geometry.box.depth*.16)*metres;
+        const juce::Rectangle<float> bounds(column*320.f+(320.f-width)*.5f,row*360.f+320.f-height,width,height);
+        check(geometry.count==entry.columns*entry.rows,"cabinet style catalog has an incorrect driver count");
+        cabLayoutView::enclosure(cg,geometry,bounds,entry.bass);
+        cabLayoutView::speakers(cg,geometry,bounds,settings.voice.driver,int(entry.bass));
+        cabLayoutView::grille(cg,geometry,bounds,entry.bass);
+        cg.setColour(juce::Colour(0xffd9c6a1));cg.setFont(juce::FontOptions(16.f));
+        cg.drawText(entry.name,column*320,row*360+330,320,24,juce::Justification::centred);
+    }
+    writeImage(catalog,screenshots,"cab-visual-full-style-catalog-9.png");
 }
 inline void roomCameraContracts(const juce::File& screenshots) {
     using namespace spectralforge;
@@ -160,6 +182,14 @@ inline void roomCameraContracts(const juce::File& screenshots) {
     check(room.displayedGeometry(0).count==1 && room.displayedGeometry(1).count==6,
         "reported Dual 1x12/6x10 fixture uses the wrong modeled speaker counts");
     snapshot(room,screenshots,"cab-visual-room-dual-112-610-1040x780.png");
+    // The user's original full-cabinet style reference: compare the shells in
+    // its 4x12 / 4x10 layout as well as the current 1x12 / 6x10 composition.
+    set(*p,"lcab1_layout",3);set(*p,"xcab1_driver",0);
+    set(*p,"lcab2_layout",6);set(*p,"xcab2_driver",0);
+    room.refreshState();
+    check(room.displayedGeometry(0).count==4 && room.displayedGeometry(1).count==4,
+        "original-style reference room has the wrong driver layout");
+    snapshot(room,screenshots,"cab-visual-room-dual-original-style-412-410.png");
     std::cout<<"PASS room camera: active-only common scale, 6x10/4x12/4x10 physical proportions, normal/constrained/75% visuals, "
         <<"unused microphone space removed, inactive-rig isolation and stable microphone automation\n";
 }
