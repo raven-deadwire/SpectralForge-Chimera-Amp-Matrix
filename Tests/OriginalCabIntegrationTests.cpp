@@ -39,7 +39,7 @@ int main(int argc,char** argv){try {
     const bool expanded=argc==2 && std::string(argv[1])=="--expanded";
     const bool layouts=argc==2 && std::string(argv[1])=="--layouts";
     require(argc==1 || expanded || layouts,"usage: ChimeraOriginalCabIntegrationTests [--expanded | --layouts]");
-    const auto modelKey=[expanded,layouts](originalCab::Settings p){if(layouts)return cabLayout::key({{p,9,p.mic==1 ? 10 : 20,2},7,p.mic==1 ? 7 : p.unit});return expanded ? cabExpansion::key({p,14,p.mic==1 ? 10 : 20,2}) : originalCab::key(p);};
+    const auto modelKey=[expanded,layouts](originalCab::Settings p){if(layouts)return cabLayout::key({{p,9,p.mic==1 ? 10 : 20,2},7,p.mic==1 ? 7 : p.unit});return expanded ? cabExpansion::key({p,12,p.mic==1 ? 10 : 20,2}) : originalCab::key(p);};
     const juce::ScopedNoDenormals noDenormals; // Same floating-point mode as processBlock.
     bool cpuWithinBudget=true;
     for(double sr:{44100.,48000.,96000.})for(int block:{64,256})for(int channels:{1,2}) {

@@ -8,28 +8,31 @@ constexpr int cabExpansionParameterCount=12;
 constexpr int cabLayoutParameterCount=9;
 inline juce::String cabLayoutID(int lane,const char* suffix) {return "lcab"+juce::String(lane+1)+"_"+suffix;}
 inline juce::StringArray cabLayoutNames() {
-    juce::StringArray names{"Legacy 4-unit cabinet"};
-    for(const auto& layout:cabLayout::layouts)names.add(layout.name);return names;
+    // Choice positions are part of saved projects. Describe their usable
+    // layouts without exposing the implementation's parameter generations.
+    juce::StringArray names{"Guitar 4x12 / Bass 4x10"};
+    for(const auto& layout:cabLayout::layouts)names.add(layout.name);
+    return names;
 }
 inline void appendCabLayoutParameters(juce::AudioProcessorValueTreeState::ParameterLayout& p) {
     for(int lane=0;lane<3;++lane) {
         const auto add=[&](const char* id,const char* name,const juce::StringArray& items) {
             p.add(std::make_unique<juce::AudioParameterChoice>(juce::ParameterID{cabLayoutID(lane,id),9},juce::String(name)+" "+juce::String(lane+1),items,0));
         };
-        add("layout","Cabinet layout v3",cabLayoutNames());
-        add("Aunit","Array unit A v3",{"Unit 1","Unit 2","Unit 3","Unit 4","Unit 5","Unit 6","Unit 7","Unit 8"});
-        add("Bunit","Array unit B v3",{"Unit 1","Unit 2","Unit 3","Unit 4","Unit 5","Unit 6","Unit 7","Unit 8"});
+        add("layout","Cabinet layout",cabLayoutNames());
+        add("Aunit","Cabinet unit A",{"Unit 1","Unit 2","Unit 3","Unit 4","Unit 5","Unit 6","Unit 7","Unit 8"});
+        add("Bunit","Cabinet unit B",{"Unit 1","Unit 2","Unit 3","Unit 4","Unit 5","Unit 6","Unit 7","Unit 8"});
     }
 }
 inline juce::String originalCabID(int lane,const char* suffix) {return "ocab"+juce::String(lane+1)+"_"+suffix;}
 inline juce::String cabExpansionID(int lane,const char* suffix) {return "xcab"+juce::String(lane+1)+"_"+suffix;}
 inline juce::StringArray expandedDriverNames() {
-    juce::StringArray names{"Legacy cabinet unit"};
+    juce::StringArray names{"Chimera speaker"};
     for(const auto& d:cabExpansion::drivers)names.add(d.name);
     return names;
 }
 inline juce::StringArray expandedMicNames() {
-    juce::StringArray names{"Legacy microphone"};
+    juce::StringArray names{"Chimera microphone"};
     for(const auto& m:cabExpansion::microphones)names.add(m.name);
     return names;
 }
@@ -39,10 +42,10 @@ inline void appendCabExpansionParameters(juce::AudioProcessorValueTreeState::Par
             p.add(std::make_unique<juce::AudioParameterChoice>(juce::ParameterID{cabExpansionID(lane,id),8},
                 juce::String(label)+" "+juce::String(lane+1),names,0));
         };
-        add("driver","Speaker design v2",expandedDriverNames());
-        add("Amic","Mic A design v2",expandedMicNames());
-        add("Bmic","Mic B design v2",expandedMicNames());
-        add("tweeter","Tweeter design v2",{"Legacy tweeter","Silk HF","Metal HF","Air HF"});
+        add("driver","Speaker design",expandedDriverNames());
+        add("Amic","Mic A design",expandedMicNames());
+        add("Bmic","Mic B design",expandedMicNames());
+        add("tweeter","Tweeter design",{"Chimera HF","Silk HF","Metal HF","Air HF"});
     }
 }
 inline void appendOriginalCabParameters(juce::AudioProcessorValueTreeState::ParameterLayout& p) {
@@ -50,13 +53,13 @@ inline void appendOriginalCabParameters(juce::AudioProcessorValueTreeState::Para
         auto choice=[&](const char* id,const char* label,juce::StringArray names,int initial=0) {
             p.add(std::make_unique<juce::AudioParameterChoice>(juce::ParameterID{originalCabID(lane,id),7},juce::String(label)+" "+juce::String(lane+1),names,initial));
         };
-        choice("design","Original CAB design",{"Guitar 4x12 / v1","Bass 4x10 / v1"});
-        choice("rear","Original CAB rear",{"Closed","Open"});
-        p.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{originalCabID(lane,"tweeter"),7},"Original tweeter "+juce::String(lane+1),juce::NormalisableRange<float>{0,1,.01f},0));
+        choice("design","Chimera speaker family",{"Chimera Guitar 12","Chimera Bass 10"});
+        choice("rear","Cabinet rear",{"Closed","Open"});
+        p.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{originalCabID(lane,"tweeter"),7},"Tweeter level "+juce::String(lane+1),juce::NormalisableRange<float>{0,1,.01f},0));
         for(const auto* slot:{"A","B"}) {
             const auto prefix=juce::String(slot);
             p.add(std::make_unique<juce::AudioParameterBool>(juce::ParameterID{originalCabID(lane,(prefix+"on").toRawUTF8()),7},"Modeled Mic "+prefix+" "+juce::String(lane+1),false));
-            choice((prefix+"mic").toRawUTF8(),("Modeled Mic "+prefix).toRawUTF8(),{"Attack dynamic / v1","Body ribbon / v1","Detail condenser / v1"});
+            choice((prefix+"mic").toRawUTF8(),("Modeled Mic "+prefix).toRawUTF8(),{"Attack Dynamic","Body Ribbon","Detail Condenser"});
             choice((prefix+"unit").toRawUTF8(),("Speaker unit "+prefix).toRawUTF8(),{"1 / upper left","2 / upper right","3 / lower left","4 / lower right"});
             p.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{originalCabID(lane,(prefix+"position").toRawUTF8()),7},"Position "+prefix+" "+juce::String(lane+1),juce::NormalisableRange<float>{0,1,.001f},.25f));
             p.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{originalCabID(lane,(prefix+"distance").toRawUTF8()),7},"Distance cm "+prefix+" "+juce::String(lane+1),juce::NormalisableRange<float>{2,60,.1f},10));

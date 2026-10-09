@@ -144,10 +144,11 @@ private:
         browser=options.launchAsync();
     }
     void timerCallback() override {
+        bool artworkChanged=false;
         for(int i=0;i<2;++i) {
             auto& slot=slots[i];
             const bool modeled=processor.parameters().getRawParameterValue(spectralforge::originalCabID(lane,i ? "Bon" : "Aon"))->load()>.5f;
-            slot.title.setText(juce::String(i ? "MIC B" : "MIC A")+(modeled ? " / ORIGINAL MODEL" : " / CAPTURED IR"),juce::dontSendNotification);
+            slot.title.setText(juce::String(i ? "MIC B" : "MIC A")+(modeled ? " / CABINET MIC" : " / CAPTURED IR"),juce::dontSendNotification);
             slot.provenance.setText(modeled ? "Stored capture / select an IR to use it" : "Captured cabinet and microphone",juce::dontSendNotification);
             const auto status=processor.micStatus(lane,i);
             slot.status.setText(modeled ? status.replace(" v1","") : status,juce::dontSendNotification);slot.status.setTooltip(status);
@@ -158,6 +159,7 @@ private:
             // activation alone must not erase a cabinet the user is browsing.
             const auto metadataRevision=processor.micDisplayRevision(lane,i)[0];
             if(source!=displayedSource[i] || name!=displayedName[i] || metadataRevision!=displayedMetadataRevision[i] || int(modeled)!=displayedMode[i]) {
+                artworkChanged=true;
                 displayedMode[i]=int(modeled);
                 displayedSource[i]=source;displayedName[i]=name;displayedMetadataRevision[i]=metadataRevision;
                 const auto metadata=processor.micCaptureMetadata(lane,i);
@@ -172,10 +174,11 @@ private:
                 slot.microphone.setText(text,juce::dontSendNotification);
                 slot.microphone.setTooltip(source==0 ? "Speaker IR bypassed; cabinet filters remain available." : metadata.details(captureName));
                 slot.reference.setText(source==0 || captureName.isEmpty() ? juce::String{} : metadata.microphoneReference(captureName)
-                    +(model && model->original ? " / Original model in CABINET" : ""),juce::dontSendNotification);
+                    +(model && model->original ? " / CABINET MIC" : ""),juce::dontSendNotification);
                 slot.reference.setTooltip(source==0 || captureName.isEmpty() ? juce::String{} : metadata.details(captureName));
             }
         }
+        if(artworkChanged && currentView==View::irLoader){resized();repaint();}
     }
 public:
     View getView() const noexcept {return currentView;}
@@ -288,7 +291,7 @@ public:
                 g.setColour(juce::Colour(i ? 0xffa58961 : 0xff568fa4).withAlpha(.55f));g.drawRoundedRectangle(area.reduced(.5f),8.f,1.f);
                 const auto stage=juce::Rectangle<float>(area.getX()+12.f,area.getY()+63.f,area.getWidth()-24.f,206.f);
                 g.setGradientFill({juce::Colour(0xff141d20),stage.getTopLeft(),juce::Colour(0xff303e3d),stage.getBottomRight(),false});g.fillRoundedRectangle(stage,6.f);
-                g.setColour(juce::Colour(0xff6d7f79).withAlpha(.18f));g.drawHorizontalLine(int(stage.getBottom()-35.f),stage.getX()+8.f,stage.getRight()-8.f);
+                g.setColour(juce::Colour(0xff6d7f79).withAlpha(.18f));g.drawHorizontalLine(int(stage.getBottom()-45.f),stage.getX()+8.f,stage.getRight()-8.f);
             }
         } else {
             const int side=OriginalCabControls::sideWidth(getWidth());
@@ -307,13 +310,29 @@ public:
         if(originalControls)originalControls->setBounds(0,52,getWidth(),622);
         if(currentView==View::irLoader) {
             const int width=(getWidth()-48)/2;
+            // One camera for both captures; an 8x10 must remain taller than a
+            // 1x15 and a microphone must retain its own physical dimensions.
+            float stageHeight=1.36f,stageWidth=1.18f;
+            for(const auto& slot:slots) {
+                const auto cabinet=slot.cabinetImage.physicalSize();
+                stageHeight=juce::jmax(stageHeight,cabinet.height+.04f);
+                stageWidth=juce::jmax(stageWidth,cabinet.width+.4f);
+            }
+            const float scale=juce::jmin(152.f/stageHeight,float(width-48)/stageWidth);
             for(int i=0;i<2;++i) {
                 auto& s=slots[size_t(i)];const int x=16+i*(width+16),y=75;
                 s.title.setBounds(x+16,y+12,width-32,24);s.provenance.setBounds(x+16,y+39,width-32,22);
-                const int cabinetWidth=(width-36)*2/3,microphoneX=x+24+cabinetWidth,microphoneWidth=width-cabinetWidth-40;
-                s.cabinetImage.setBounds(x+16,y+68,cabinetWidth,196);
-                s.microphoneImage.setBounds(microphoneX,y+76,microphoneWidth,151);
-                s.microphoneCaption.setBounds(microphoneX,y+231,microphoneWidth,31);
+                const int stageWidthPixels=width-32;
+                s.cabinetImage.setBounds(x+16,y+68,stageWidthPixels,196);
+                s.cabinetImage.setStageScale(scale);
+                s.microphoneImage.setBounds(x+16,y+68,stageWidthPixels,165);
+                const auto cabinet=s.cabinetImage.artworkBounds();
+                const auto microphone=s.microphoneImage.physicalSize();
+                const auto body=juce::Rectangle<float>(microphone.width*scale,microphone.height*scale)
+                    .withPosition(cabinet.getRight()+.10f*scale,cabinet.getCentreY()-microphone.height*scale*.5f);
+                s.microphoneImage.setStage(body,cabinet.getBottom()+.024f*scale,scale);
+                const int captionWidth=juce::jmax(100,stageWidthPixels*3/10);
+                s.microphoneCaption.setBounds(x+16+stageWidthPixels-captionWidth,y+231,captionWidth,31);
                 s.cabinet.setBounds(x+16,y+280,width-32,28);s.microphone.setBounds(x+16,y+317,width-32,28);
                 s.reference.setBounds(x+16,y+347,width-32,22);
                 s.browse.setBounds(x+16,y+378,140,28);s.invert.setBounds(x+171,y+378,116,28);

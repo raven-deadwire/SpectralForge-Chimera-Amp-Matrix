@@ -167,30 +167,54 @@ class CabRoomOverview : public juce::Component, private juce::Timer {
     int currentMode{-1};
     float read(const juce::String& id) const {return processor.parameters().getRawParameterValue(id)->load();}
     void timerCallback() override {if(isShowing())refreshState();}
+    static bool modeled(const RigState& rig) {return rig.original[0]>0 || rig.original[1]>0;}
+    static spectralforge::capturedCabArt::Configuration captureConfiguration(const RigState& rig) {
+        const auto slot=size_t(rig.source[0]!=0 ? 0 : 1);
+        return rig.source[slot] ? spectralforge::capturedCabArt::configuration(rig.capture[slot])
+            : spectralforge::capturedCabArt::Configuration{};
+    }
+    juce::Rectangle<float> stackArea(int lane) const {
+        const auto area=rigs[size_t(lane)]->getLocalBounds().toFloat();
+        const float floor=area.getHeight()-57.f;
+        return {area.getX(),12.f,area.getWidth(),juce::jmax(1.f,floor+12.f)};
+    }
+    float roomScale() const {
+        const auto area=stackArea(0);
+        float scale=spectralforge::cabLayoutView::cameraScale(area),headHeight=0.f;
+        for(const auto& head:spectralforge::cabPhysical::headDimensions)
+            headHeight=juce::jmax(headHeight,head.height+head.depth*spectralforge::cabLayoutView::depthProjection);
+        // Documented captures may exceed our modeled catalogue. Fit the entire
+        // room once so every captured and modeled rig keeps a common metre.
+        for(int lane=0;lane<activeRigCount();++lane)if(!modeled(state[size_t(lane)])) {
+            const auto size=spectralforge::capturedCabArt::dimensions(captureConfiguration(state[size_t(lane)]));
+            scale=juce::jmin(scale,area.getWidth()/(size.width+.56f),
+                area.getHeight()*.90f/(size.height+headHeight+.05f));
+        }
+        return scale;
+    }
+    juce::Rectangle<float> projectedCabinet(int lane) const {
+        const auto& rig=state[size_t(lane)];const auto area=stackArea(lane);const float scale=roomScale();
+        if(modeled(rig))return spectralforge::cabLayoutView::projectAtScale(rig.physicalSettings,area,scale).box;
+        const auto size=spectralforge::capturedCabArt::dimensions(captureConfiguration(rig));
+        const float bottom=area.getBottom()-area.getHeight()*.07f;
+        return {area.getCentreX()-size.width*scale*.5f,bottom-size.height*scale,size.width*scale,size.height*scale};
+    }
     void paintRig(juce::Graphics& g,int lane,juce::Rectangle<float> area,bool hovered,bool down) {
         const auto& rig=state[static_cast<size_t>(lane)];
         const auto gold=juce::Colour(0xffc4a678),ink=juce::Colour(0xffe5dfd4);
         const float floor=area.getHeight()-57.f;
         const float centre=area.getCentreX();
-        const bool original=rig.original[0]>0 || rig.original[1]>0;
-        const float fallbackSide=juce::jmin(area.getWidth()*.86f,(floor-12.f)/1.20f);
-        float fixedHeadWidth=0.f;
-        juce::Rectangle<float> cabinetBounds(centre-fallbackSide*.5f,
-            floor-fallbackSide*(rig.design==1 ? .9410f : .9593f),fallbackSide,fallbackSide);
-        if(original) {
-            // The physical camera is shared with the focused view. Its scale
-            // depends on the layout, never on the chosen driver's diameter.
-            // Reserve the head above the box, with the box resting on the room floor.
-            const juce::Rectangle<float> stackArea(area.getX(),12.f,area.getWidth(),juce::jmax(1.f,floor+12.f));
-            const auto projection=spectralforge::cabLayoutView::project(rig.physicalSettings,stackArea);
-            cabinetBounds=projection.box;fixedHeadWidth=projection.headWidth;
-        }
+        const bool original=modeled(rig);
+        const float scale=roomScale();
+        const auto cabinetBounds=projectedCabinet(lane);
         const float side=cabinetBounds.getWidth();
-        const auto visibleCabinet=original ? cabinetBounds : cabinetBounds.reduced(side*.083f,side*.092f);
-        const auto headBounds=spectralforge::cabHead::boundsAboveCabinet(visibleCabinet,fixedHeadWidth);
+        const float headSupport=original ? cabinetBounds.getY()
+            +(spectralforge::cabLayoutView::baffle(rig.model,cabinetBounds).getY()-cabinetBounds.getY())*.72f
+            : cabinetBounds.getY();
+        const auto headBounds=spectralforge::cabHead::physicalBoundsAboveCabinet(cabinetBounds,scale,rig.amp,headSupport);
         // Ground shadows and a small pool of reflected amber light belong to
         // the scene, not to a card behind each piece of equipment.
-        const float supportY=original ? spectralforge::cabLayoutView::groundSupport(cabinetBounds).y : floor;
+        const float supportY=original ? spectralforge::cabLayoutView::groundSupport(cabinetBounds).y : cabinetBounds.getBottom()+.024f*scale;
         g.setColour(gold.withAlpha(hovered ? .13f : .045f));
         g.fillEllipse(centre-side*.56f,supportY-7.f,side*1.12f,14.f);
         g.setColour(juce::Colours::black.withAlpha(.40f));g.fillEllipse(centre-side*.50f,supportY-4.f,side,10.f);
@@ -201,13 +225,12 @@ class CabRoomOverview : public juce::Component, private juce::Timer {
         g.beginTransparencyLayer(cabOpacity*(rig.muted ? .57f : 1.f));
         g.setColour(juce::Colours::white);
         if(original) {
-            spectralforge::cabLayoutView::enclosure(g,cabinetBounds);
+            spectralforge::cabLayoutView::enclosure(g,rig.model,cabinetBounds);
             spectralforge::cabLayoutView::speakers(g,rig.model,cabinetBounds,rig.driver,rig.design);
         } else {
             const int slot=rig.source[0]!=0 ? 0 : 1;
-            const auto face=cabinetBounds.reduced(side*.083f,side*.092f);
-            if(rig.source[slot]!=0)spectralforge::art::cabinet(g,face,rig.capture[static_cast<size_t>(slot)]);
-            else spectralforge::cabArt::neutral(g,face,"FILTERS");
+            spectralforge::capturedCabArt::paintCabinet(g,cabinetBounds,captureConfiguration(rig),false);
+            if(rig.source[slot]==0)spectralforge::cabArt::neutral(g,cabinetBounds.reduced(7.f),"FILTERS");
         }
         g.endTransparencyLayer();
         g.beginTransparencyLayer(ampOpacity*(rig.muted ? .57f : 1.f));
@@ -246,6 +269,12 @@ public:
     spectralforge::cabLayout::Geometry displayedGeometry(int lane) const {
         return lane>=0 && lane<activeRigCount() ? state[static_cast<size_t>(lane)].model : spectralforge::cabLayout::Geometry{};
     }
+    float displayedScale(int lane) const {
+        return lane>=0 && lane<activeRigCount() ? roomScale() : 0.f;
+    }
+    juce::Rectangle<float> displayedCabinetBounds(int lane) const {
+        return lane>=0 && lane<activeRigCount() ? projectedCabinet(lane) : juce::Rectangle<float>{};
+    }
     bool selectRig(int lane) {
         if(lane<0 || lane>=activeRigCount())return false;
         if(onCabinetSelected)onCabinetSelected(lane);
@@ -256,6 +285,7 @@ public:
         if(currentMode!=nextMode) {currentMode=nextMode;resized();repaint();}
         lowBlend.setVisible(currentMode==2);
         if(currentMode==2)lowBlend.refreshState();
+        bool roomChanged=false;
         for(int i=0;i<3;++i) {
             auto& rig=state[static_cast<size_t>(i)];
             auto& component=*rigs[static_cast<size_t>(i)];
@@ -263,12 +293,13 @@ public:
             if(i>=activeRigCount())continue;
             const auto n=juce::String(i+1);
             const int amp=processor.selectedAmpModel(i),design=juce::roundToInt(read(spectralforge::originalCabID(i,"design")));
-            const int driver=juce::jlimit(0,int(spectralforge::cabExpansion::drivers.size()),
+            const int rawDriver=juce::jlimit(0,int(spectralforge::cabExpansion::drivers.size()),
                 juce::roundToInt(read(spectralforge::cabExpansionID(i,"driver"))));
             const int layout=spectralforge::cabLayout::layoutIndex(juce::roundToInt(read(spectralforge::cabLayoutID(i,"layout"))));
             spectralforge::originalCab::Settings base;base.cabinet=design;
-            const spectralforge::cabLayout::Settings physicalSettings{{base,driver,0,0},layout,0};
-            const bool bass=spectralforge::cabExpansion::isBass(physicalSettings.voice);
+            const auto physicalSettings=spectralforge::cabLayout::effectiveSettings({{base,rawDriver,0,0},layout,0});
+            const int driver=physicalSettings.voice.driver;
+            const bool bass=spectralforge::cabLayout::isBass(physicalSettings);
             const bool cabEnabled=read("cab"+n)>.5f,ampEnabled=read("ampon"+n)>.5f;
             const bool muted=read("mute"+n)>.5f,solo=read("solo"+n)>.5f;
             const bool low=currentMode==2 && i==0;
@@ -295,12 +326,12 @@ public:
                 }
             }
             const auto name=spectralforge::cabRoom::rigName(currentMode,i)+(solo ? " / SOLO" : "");
-            const auto originalCaption=juce::String(bass ? "ORIGINAL BASS " : "ORIGINAL GUITAR ")
+            const auto originalCaption=juce::String(bass ? "BASS " : "GUITAR ")
                 +juce::String(rig.model.count)+"x"+juce::String(spectralforge::cabExpansion::diameter(physicalSettings.voice));
             const juce::String sourceCaption=!cabEnabled ? "CABINET BYPASSED" :
                 rig.original[0] && rig.original[1] ? originalCaption :
                 rig.original[0] || rig.original[1] ?
-                    (rig.source[rig.original[0] ? 1 : 0] ? "ORIGINAL + CAPTURE / A-B" : "ORIGINAL + FILTERS / A-B") :
+                    (rig.source[rig.original[0] ? 1 : 0] ? "CABINET + IR / A-B" : "CABINET + FILTERS / A-B") :
                 rig.source[0] && rig.source[1] ? "CAPTURED IR / A-B" :
                 rig.source[0] || rig.source[1] ? "CAPTURE + FILTERS / A-B" : "FILTERS ONLY";
             const juce::String caption=muted ? "MUTED" : low ? blend.caption() : sourceCaption;
@@ -319,8 +350,9 @@ public:
             component.getProperties().set("cabRoomEffectiveAmpMix",ampContribution);
             component.getProperties().set("cabRoomDiContribution",low ? blend.diContribution() : 0.f);
             component.getProperties().set("cabRoomCabContribution",cabContribution);
-            if(changed)component.repaint();
+            roomChanged=roomChanged || changed;
         }
+        if(roomChanged)for(auto& rig:rigs)rig->repaint();
     }
     void resized() override {
         const int count=activeRigCount();

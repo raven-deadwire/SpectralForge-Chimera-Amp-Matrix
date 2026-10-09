@@ -9,14 +9,18 @@ replicas, a trained model or a claim of hardware fidelity. `release_approved=fal
 
 All 14 speaker designs now have separate authored front elevations, including
 different cone ribs, surrounds, dustcaps, mounting patterns and material finishes.
-The legacy speaker views also face forward. The cabinet baffle is independent of
-the speakers, so resizing a driver cannot leave a baked-in cone behind it.
+Chimera Guitar 12 and Chimera Bass 10 also face forward. The cabinet baffle is
+drawn independently of the speakers, so no second cone is baked into the box.
 
-Each arrangement uses a fixed camera scale across driver changes. Nominal outer
-diameters follow 10/12/15-inch proportions; the active cone radius and pickup
-coordinates remain those of the acoustic model. Changing a driver does not resize
-the selected microphone or amplifier head. The room and focused view use the same geometry and
-cached speaker artwork. This presentation change adds no audio parameters.
+One camera scale is shared across the cabinet catalogue within each view. Nominal
+outer diameters follow the cabinet's fixed 10/12/15-inch specification; the active
+cone radius and pickup coordinates remain those of the acoustic model. Selecting
+another speaker cannot enlarge the cabinet, its holes, the microphone or the amp
+head. Heads and microphones use physical body dimensions instead of a fraction of
+the cabinet's width; their dimension sources and authored assumptions are recorded
+in [head dimensions](CAB_HEAD_DIMENSIONS.md) and
+[microphone dimensions](CAB_MICROPHONE_DIMENSIONS.md). The room and focused view
+use the same geometry and cached speaker artwork. No audio parameters are added.
 
 IR Loader shows enlarged cabinet and microphone artwork independently for A/B.
 Documented capture configurations determine driver counts and diameters. Unknown
@@ -31,8 +35,10 @@ comparison screenshots for visual review.
 
 ## Selectable enclosures
 
-The cabinet selector defaults to **Legacy 4-unit cabinet**, dispatching the
-unchanged v1/v2 generator. New templates use the following authored geometry:
+The four-speaker selection is displayed as **Guitar 4x12** or **Bass 4x10**,
+according to its Guitar/Bass category. The other selections use the following
+authored geometry. Product labels contain category, count and nominal diameter;
+implementation generations are not exposed in the selectors.
 
 | Template | Columns × rows | Width × height × depth (m) | Net volume (L) |
 |---|---:|---|---:|
@@ -46,12 +52,22 @@ unchanged v1/v2 generator. New templates use the following authored geometry:
 | Bass 1×12 | 1 × 1 | 0.49 × 0.52 × 0.39 | 72 |
 | Bass 2×12 | 2 × 1 | 0.77 × 0.49 × 0.40 | 118 |
 
-The two bass 12-inch templates preserve useful configurations for Clarity 12 and
-Chimera Depth 12. Speaker design and enclosure are independent controls. If the
-selected driver's diameter differs from a template's nominal diameter, dimensions
-and spacing scale by their ratio and volume by its cube. The UI shows the actual
-count/diameter and identifies the scaled template; it never calls four 15-inch
-speakers a 4×10. It does not silently replace the selected speaker design.
+Each layout has a fixed instrument category, nominal diameter, enclosure size,
+spacing and volume. A 10-inch cabinet cannot load a 12- or 15-inch speaker. Choosing
+a cabinet keeps a compatible current speaker or loads the first compatible
+speaker; incompatible choices are disabled. Guitar 12-inch layouts accept the
+eight guitar designs. Bass 10-inch layouts accept Foundry 10, Vector 10 and Alloy
+10; bass 12-inch layouts accept Clarity 12 and Chimera Depth 12; Bass 1x15 accepts
+Monolith 15. Chimera Guitar 12 and Chimera Bass 10 are available when their selected
+family matches the layout. The four-speaker category can be changed explicitly
+between Guitar and Bass, which loads its corresponding Chimera speaker.
+
+Stored or automated mismatches resolve at use time to Ember 30 (guitar 12-inch),
+Foundry 10 (bass 10-inch), Clarity 12 (bass 12-inch) or Monolith 15 (bass 15-inch).
+Audio, geometry, captions and the selected image all use that same effective
+speaker. The original stored value is not rewritten by painting or UI timers.
+The four-speaker layout's family follows its explicit Guitar/Bass parameter;
+automating a driver cannot change that cabinet's family or diameter.
 
 All units in one box use the same selected driver. Mic A/B independently address
 any active unit, including the same unit. Numbering is left-to-right, top-to-bottom.
@@ -66,9 +82,10 @@ UI timer writes into host automation.
 The production worker calls its generator. The focused CAB view and each rig's
 room view use the same centres, count, radius and enclosure aspect, with their
 vertical display axis inverted relative to acoustic coordinates. The new enclosure
-is drawn with a front baffle and roof; its amp head shares the existing support
-plane. The legacy acoustic geometry and generator remain intact; its visible
-baffle and driver artwork use the same front-view renderer as the new arrays.
+is drawn with a front baffle and a roof projected from its physical depth; its amp
+head shares the support plane. Valid same-family four-speaker requests retain
+their existing acoustic geometry and generator. Incompatible saved combinations
+now resolve to a fitting speaker before request encoding and rendering.
 
 - Sealed loading is `sqrt(1 + N * Vas / Vb)` with actual driver count and net volume.
   It modifies LF resonance and damping. Open rear removes that sealed loading.
@@ -103,9 +120,12 @@ normalized mappings stay unchanged. Existing `ocab` unit choices remain 0–3; t
 new unit bank is independently 0–7. Layout choices have a fixed 0–9 range. Future
 expansion must not enlarge those ranges and remap normalized automation.
 
-Zero layout means exact v1/v2 key and generator dispatch, regardless of dormant
-new unit values. A missing bank restores to definition defaults instead of dirty
-current-session values. Schema 11, project and comparison recall, the shared IR
+Zero layout retains exact v1/v2 key and generator dispatch for compatible
+same-family requests, regardless of dormant new unit values. Earlier mismatched
+family/diameter combinations intentionally use the fitting fallback instead;
+their former enlarged-box response is not preserved. A missing bank restores to
+definition defaults instead of dirty current-session values. Schema 11, project
+and comparison recall, the shared IR
 asset table and 64 MiB storage budget remain unchanged. Captured IRs do not pass
 through the new generator; Mic A/B can mix an imported capture with a modeled
 array. IR LOADER navigation preserves the layout. Matrix LOW continues to mix DI
@@ -116,10 +136,11 @@ against AMP+CAB; the cabinet's internal A/B blend remains separate.
 Existing suites and thresholds are retained. Four suites are added to the same
 Windows/Linux/macOS CAB workflow:
 
-- `ChimeraCabLayoutModelTests`: all nine geometries, every driver/mic/active-unit
-  combination at rear/position/distance extremes (56,000 cases), coherent-ray
-  equality and interference, net volume/open loading, key round trips, v1/v2
-  bit-identical dispatch, 44.1/48/96 kHz kernels and distance/tail checks.
+- `ChimeraCabLayoutModelTests`: fixed nominal geometry, driver compatibility and
+  fallback across layouts, driver/mic/active-unit combinations at
+  rear/position/distance extremes, coherent-ray equality and interference,
+  net volume/open loading, key round trips, compatible v1/v2 bit-identical
+  dispatch, 44.1/48/96 kHz kernels and distance/tail checks.
 - `ChimeraCabLayoutIntegrationTests`: eight-driver, six-mic, mono/stereo production
   convolution at 44.1/48/96 kHz and 64/256 frames; latest-request convergence,
   prepared impulse equivalence, swap bounds, callback allocation/deletion audit
@@ -128,7 +149,9 @@ Windows/Linux/macOS CAB workflow:
   targets, all routing modes, LOW DI isolation, project/comparison/legacy and
   deleted-source captured-IR recall, append-only host contracts, full array UI
   geometry, all 20 mic illustrations at all unit boundaries, software screenshots,
-  drag host gestures and cancellation on layout automation.
+  drag host gestures and cancellation on layout automation, compatible speaker
+  loading on explicit cabinet choice, disabled incompatible menu items, and
+  parameter-neutral display of restored mismatches.
 - `ChimeraCabDriverVisualTests`: 14 distinct circular speaker fronts, physical
   diameter ratios, fixed mic/head dimensions, all microphone boundary placements,
   room cache ownership, capture images and parameter-neutral IR navigation.
@@ -138,3 +161,22 @@ Model-level gates remain magnitude <8, position tick <0.025, distance tick <0.15
 last-10%-tail energy <0.001, and production impulse residual <3e-6. CPU thresholds
 are not relaxed or converted to advisory status. Timing results describe the
 runner, not a universal DAW performance guarantee.
+
+
+## Fixed-fit and physical-scale validation (2026-10-09)
+
+The fixed-fit revision passes the local Release layout model, layout production
+integration, expanded state, layout state/software geometry, and driver/IR visual
+suites. Coverage includes 270 explicit-layout requests plus all 30 four-unit
+family/driver combinations, 16,800 compatible acoustic boundary cases, 30 invalid
+visual restore cases, 9,600 microphone boundary placements, 14 distinct fronts,
+real microphone dimensions and common room/IR scale. The complete panel suite
+passes integrated capture/state, 78 physical head cases and Matrix LOW isolation
+before stopping at the required native-display precondition. Native drag tests
+remain unverified locally and must pass the desktop CI jobs.
+
+The unchanged CPU gate failed locally in the original and expanded four-unit
+engines; their impulse/swap and zero watched callback allocation/deletion checks
+passed. The new layout engine passed its CPU gate. These local failures are kept
+as failures; no CPU threshold or test gate was relaxed. Exact-revision platform
+CI, installer verification and actual DAW acceptance are separate evidence.

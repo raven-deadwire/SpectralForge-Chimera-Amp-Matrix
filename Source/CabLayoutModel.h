@@ -28,16 +28,45 @@ inline int count(int index) {
     if(!layoutIndex(index))return 4;
     const auto& l=layouts[size_t(layoutIndex(index)-1)];return l.columns*l.rows;
 }
+inline bool isBass(Settings p) {
+    const auto index=layoutIndex(p.layout);
+    return index ? layouts[size_t(index-1)].bass : p.voice.base.cabinet!=0;
+}
+inline int nominalInches(Settings p) {
+    const auto index=layoutIndex(p.layout);
+    return index ? layouts[size_t(index-1)].inches : isBass(p) ? 10 : 12;
+}
+inline bool isDriverCompatible(Settings p) {
+    return p.voice.driver>=0 && p.voice.driver<=int(cabExpansion::drivers.size())
+        && cabExpansion::isBass(p.voice)==isBass(p)
+        && cabExpansion::diameter(p.voice)==nominalInches(p);
+}
+// Resolve a restored or automated mismatch without writing to host parameters.
+// An authored cabinet is a fixed baffle: another speaker cannot enlarge its holes.
+inline Settings effectiveSettings(Settings p) {
+    p.layout=layoutIndex(p.layout);
+    if(!isDriverCompatible(p)) {
+        // The cabinet selector owns the family, including selector zero. A
+        // driver automation change cannot switch its family or mounting size.
+        const bool bass=isBass(p);const int inches=nominalInches(p);
+        for(int driver=1;driver<=int(cabExpansion::drivers.size());++driver) {
+            auto candidate=p;candidate.voice.driver=driver;
+            if(cabExpansion::isBass(candidate.voice)==bass && cabExpansion::diameter(candidate.voice)==inches) {p.voice.driver=driver;break;}
+        }
+    }
+    return p;
+}
 inline int effectiveUnit(Settings p) {return std::clamp(p.layout ? p.unit : p.voice.base.unit,0,count(p.layout)-1);}
 inline uint64_t key(Settings p) {
-    p.layout=layoutIndex(p.layout);
+    p=effectiveSettings(p);
     const auto previous=cabExpansion::key(p.voice);
-    // Dormant v3 selectors never affect a v1/v2 request or its cache identity.
+    // Valid four-unit requests retain their previous cache identity. Incompatible
+    // stored drivers resolve to the fixed four-unit family's supported diameter.
     if(!p.layout)return previous;
     return previous | versionBit | (uint64_t(p.layout)<<47) | (uint64_t(effectiveUnit(p))<<51);
 }
 inline Settings settings(uint64_t k) {
-    return {cabExpansion::settings(k),k&versionBit ? layoutIndex(int((k>>47)&15)) : 0,int((k>>51)&7)};
+    return effectiveSettings({cabExpansion::settings(k),k&versionBit ? layoutIndex(int((k>>47)&15)) : 0,int((k>>51)&7)});
 }
 struct Geometry {
     Enclosure box;
@@ -47,26 +76,26 @@ struct Geometry {
     double radius{};
 };
 inline Geometry geometry(Settings p) {
+    p=effectiveSettings(p);
     const auto* driver=cabExpansion::driver(p.voice);
     const auto& speaker=driver ? driver->speaker : speakers[size_t(p.voice.base.cabinet!=0)];
     Geometry g{};g.radius=speaker.radius;g.count=count(p.layout);
     if(!layoutIndex(p.layout)) {
-        g.box=cabExpansion::enclosure(p.voice);
+        g.box=enclosures[size_t(isBass(p))];
+        if(driver)g.box.vasPerDriver=driver->vas;
         const auto legacy=originalCab::centres(g.box);
         std::copy(legacy.begin(),legacy.end(),g.centres.begin());return g;
     }
     const auto& l=layouts[size_t(layoutIndex(p.layout)-1)];
-    // Keep all 14 driver choices usable: an alternate diameter scales the
-    // complete enclosure and spacing, with net air volume scaling cubically.
-    const double scale=double(cabExpansion::diameter(p.voice))/l.inches;
-    g.box={l.width*scale,l.height*scale,l.depth*scale,l.volume*scale*scale*scale,
+    g.box={l.width,l.height,l.depth,l.volume,
         driver ? driver->vas : enclosures[size_t(p.voice.base.cabinet!=0)].vasPerDriver,0,1.6,0};
-    const double pitch=l.inches*.0254*1.10*scale;
+    const double pitch=l.inches*.0254*1.10;
     for(int row=0;row<l.rows;++row)for(int col=0;col<l.columns;++col)
         g.centres[size_t(row*l.columns+col)]={(col-(l.columns-1)*.5)*pitch,((l.rows-1)*.5-row)*pitch};
     g.horn={0,g.box.height*.44};return g;
 }
 inline Complex driverTransfer(Settings p,double hz,const Geometry& g) {
+    p=effectiveSettings(p);
     const auto* chosen=cabExpansion::driver(p.voice);
     const auto& d=chosen ? chosen->speaker : speakers[size_t(p.voice.base.cabinet!=0)];
     const Complex s{0,2*pi*hz};
@@ -113,6 +142,7 @@ inline Complex response(Settings raw,double hz) {
     return .45*result*pickupResponse;
 }
 inline std::vector<float> generate(uint64_t model,double rate) {
+    model=key(settings(model));
     if(!(model&versionBit))return cabExpansion::generate(model,rate);
     if(!std::isfinite(rate) || rate<8000 || rate>384000)throw std::invalid_argument("Layout CAB sample rate");
     const auto p=settings(model);size_t size=1;while(size<size_t(std::ceil(rate*.170)))size<<=1;

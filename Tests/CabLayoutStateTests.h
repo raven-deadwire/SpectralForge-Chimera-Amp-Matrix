@@ -69,6 +69,49 @@ void layoutStateContracts(const juce::File& screenshots) {
     for(int lane=0;lane<3;++lane)for(const char* suffix:{"layout","Aunit","Bunit"})check(raw(cabLayoutID(lane,suffix))==0,"legacy load inherited dirty v3 selector");
     CabPanel panel(*p,0);panel.setView(CabPanel::View::cabinet);auto& scene=cabMicrophoneUITests::component<CabScene>(panel,"cabScene1");
     auto& layout=cabMicrophoneUITests::component<juce::ComboBox>(panel,"lcab1_layout");auto& unitA=cabMicrophoneUITests::component<juce::ComboBox>(panel,"lcab1_Aunit");
+    auto& controls=cabMicrophoneUITests::component<OriginalCabControls>(panel,"originalCabControls1");
+    auto& driverChoice=cabMicrophoneUITests::component<juce::ComboBox>(panel,"xcab1_driver");
+    auto& family=cabMicrophoneUITests::component<juce::ComboBox>(panel,"ocab1_design");
+    // An explicit cabinet choice loads a fitting unit and notifies the host.
+    // Restored mismatches render the safe effective choice without rewriting
+    // project state or acquiring automation gestures during a refresh.
+    {
+        cabSceneUITests::HostEvents events(*p);
+        for(int selected=1;selected<=9;++selected) {
+            const auto& cabinet=cabLayout::layouts[size_t(selected-1)];
+            const int incompatible=cabinet.bass ? 1 : 13;
+            set(*p,"lcab1_layout",0);set(*p,"xcab1_driver",float(incompatible));controls.refreshState();events.reset();
+            layout.setSelectedId(selected+1,juce::sendNotificationSync);
+            events.expect({"lcab1_layout","xcab1_driver"});
+            cabLayout::Settings actual{};actual.layout=selected;actual.voice.driver=juce::roundToInt(raw("xcab1_driver"));
+            actual.voice.base.cabinet=juce::roundToInt(raw("ocab1_design"));
+            check(cabLayout::isDriverCompatible(actual),"cabinet selection loads an incompatible speaker");
+            check(driverChoice.getSelectedId()==actual.voice.driver+1 && layout.getText()==cabinet.name,"cabinet selection label or speaker mismatch");
+            for(int candidate=0;candidate<=14;++candidate) {
+                auto request=actual;request.voice.driver=candidate;
+                check(driverChoice.isItemEnabled(candidate+1)==cabLayout::isDriverCompatible(request),"incompatible speaker menu item enabled");
+            }
+            events.reset();driverChoice.setSelectedId(incompatible+1,juce::sendNotificationSync);
+            check(raw("xcab1_driver")==actual.voice.driver && driverChoice.getSelectedId()==actual.voice.driver+1,"disabled speaker selection entered cabinet");events.expect();
+            set(*p,"xcab1_driver",float(incompatible));const auto before=cabSceneUITests::parameterValues(*p);events.reset();controls.refreshState();
+            check(driverChoice.getSelectedId()==actual.voice.driver+1 && raw("xcab1_driver")==incompatible,"restored mismatch not displayed safely");
+            cabSceneUITests::unchangedExcept(*p,before,{});events.expect();
+        }
+        set(*p,"lcab1_layout",1);set(*p,"xcab1_driver",6);controls.refreshState();events.reset();
+        layout.setSelectedId(4,juce::sendNotificationSync);events.expect({"lcab1_layout"});
+        check(raw("xcab1_driver")==6 && driverChoice.getText()=="Carnivore 12","compatible speaker lost on cabinet change");
+        set(*p,"lcab1_layout",0);set(*p,"ocab1_design",1);set(*p,"xcab1_driver",13);controls.refreshState();events.reset();
+        check(layout.getText()=="Bass 4x10" && driverChoice.getSelectedId()==10 && raw("xcab1_driver")==13,"four-unit cabinet did not resolve bass diameter");
+        for(int candidate=1;candidate<=14;++candidate)
+            check(driverChoice.isItemEnabled(candidate+1)==(candidate==9 || candidate==10 || candidate==12),"four-unit bass cabinet admits another diameter or family");
+        driverChoice.setSelectedId(2,juce::sendNotificationSync);events.expect();
+        check(raw("xcab1_driver")==13 && driverChoice.getSelectedId()==10,"speaker choice silently changed cabinet family");
+        // Family is a separate explicit choice on the four-unit cabinet.
+        family.setSelectedId(1,juce::sendNotificationSync);events.expect({"ocab1_design","xcab1_driver"});
+        check(raw("xcab1_driver")==0 && layout.getText()=="Guitar 4x12","explicit guitar family did not load its matching speaker");
+        events.reset();family.setSelectedId(2,juce::sendNotificationSync);events.expect({"ocab1_design"});
+        check(raw("ocab1_design")==1 && layout.getText()=="Bass 4x10" && driverChoice.getText()=="Chimera Bass 10","explicit bass family did not load its matching speaker");
+    }
     const std::array<int,9> driver{1,1,1,13,9,9,9,11,14};
     for(int selected=1;selected<=9;++selected) {
         set(*p,"xcab1_driver",float(driver[size_t(selected-1)]));layout.setSelectedId(selected+1,juce::sendNotificationSync);

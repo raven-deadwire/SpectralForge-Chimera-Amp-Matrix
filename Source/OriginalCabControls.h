@@ -6,6 +6,8 @@ class OriginalCabControls : public juce::Component,private juce::Timer {
     using SA=juce::AudioProcessorValueTreeState::SliderAttachment;
     using CA=juce::AudioProcessorValueTreeState::ComboBoxAttachment;
     using BA=juce::AudioProcessorValueTreeState::ButtonAttachment;
+    ChimeraProcessor& processor;
+    int lane;
     juce::Label tweeterLabel,speakerLabel,sceneHint;
     juce::ComboBox design,rear,driver,tweeterDesign,layout;
     juce::Slider tweeter;
@@ -25,8 +27,48 @@ class OriginalCabControls : public juce::Component,private juce::Timer {
         const int selected=int(box.getSelectedIdAsValue().getValue());
         box.changeItemText(id,text);box.setSelectedId(selected,juce::dontSendNotification);
     }
+    spectralforge::cabLayout::Settings requestedSettings() const {
+        auto& state=processor.parameters();spectralforge::cabLayout::Settings result{};
+        result.layout=juce::roundToInt(state.getRawParameterValue(spectralforge::cabLayoutID(lane,"layout"))->load());
+        result.voice.driver=juce::roundToInt(state.getRawParameterValue(spectralforge::cabExpansionID(lane,"driver"))->load());
+        result.voice.base.cabinet=juce::roundToInt(state.getRawParameterValue(spectralforge::originalCabID(lane,"design"))->load());
+        return result;
+    }
+    void choose(const juce::String& id,int selected) {
+        auto* parameter=processor.parameters().getParameter(id);
+        if(juce::roundToInt(parameter->convertFrom0to1(parameter->getValue()))==selected)return;
+        parameter->beginChangeGesture();parameter->setValueNotifyingHost(parameter->convertTo0to1(float(selected)));parameter->endChangeGesture();
+    }
+    void selectLayout() {
+        auto requested=requestedSettings();requested.layout=juce::jmax(0,layout.getSelectedId()-1);
+        const auto compatible=spectralforge::cabLayout::effectiveSettings(requested);
+        choose(spectralforge::cabLayoutID(lane,"layout"),compatible.layout);
+        choose(spectralforge::cabExpansionID(lane,"driver"),compatible.voice.driver);
+        timerCallback();
+    }
+    void selectDriver() {
+        auto requested=requestedSettings();const auto current=spectralforge::cabLayout::effectiveSettings(requested);
+        requested.voice.driver=juce::jmax(0,driver.getSelectedId()-1);
+        if(spectralforge::cabLayout::isDriverCompatible(requested)
+            && spectralforge::cabExpansion::isBass(requested.voice)==spectralforge::cabLayout::isBass(current)
+            && spectralforge::cabExpansion::diameter(requested.voice)==spectralforge::cabLayout::nominalInches(current))
+            choose(spectralforge::cabExpansionID(lane,"driver"),requested.voice.driver);
+        timerCallback();
+    }
+    void selectFamily() {
+        if(requestedSettings().layout==0) {
+            choose(spectralforge::originalCabID(lane,"design"),juce::jmax(0,design.getSelectedId()-1));
+            choose(spectralforge::cabExpansionID(lane,"driver"),0);
+        }
+        timerCallback();
+    }
     void timerCallback() override {
-        const int selectedLayout=juce::jmax(0,layout.getSelectedId()-1);
+        const auto requested=requestedSettings();
+        const auto effective=spectralforge::cabLayout::effectiveSettings(requested);
+        const int selectedLayout=effective.layout;
+        layout.setSelectedId(selectedLayout+1,juce::dontSendNotification);
+        driver.setSelectedId(effective.voice.driver+1,juce::dontSendNotification);
+        design.setSelectedId(spectralforge::cabLayout::isBass(effective) ? 2 : 1,juce::dontSendNotification);
         const int unitCount=spectralforge::cabLayout::count(selectedLayout);
         bool any=false;
         for(auto& s:slots) {
@@ -37,7 +79,7 @@ class OriginalCabControls : public juce::Component,private juce::Timer {
                 renameItem(s.arrayUnit,n,"Unit "+juce::String(n)+(n>unitCount ? " (uses "+juce::String(unitCount)+")" : ""));
             }
             s.response.setEnabled(on);s.mic.setEnabled(on && s.response.getSelectedId()==1);s.unit.setEnabled(on);s.position.setEnabled(on);s.distance.setEnabled(on);
-            s.mode.setText(on ? "LIVE CABINET GEOMETRY" : "CAPTURED IR ACTIVE",juce::dontSendNotification);
+            s.mode.setText(on ? "CABINET MIC ACTIVE" : "CAPTURED IR ACTIVE",juce::dontSendNotification);
             s.mode.setColour(juce::Label::textColourId,juce::Colour(on ? 0xffa9b9b5 : 0xffb99e79));
             const int selected=s.response.getSelectedId()-2;
             if(selected>=0 && selected<int(spectralforge::cabExpansion::microphones.size())) {
@@ -46,38 +88,42 @@ class OriginalCabControls : public juce::Component,private juce::Timer {
                 s.responseLabel.setText(reference && !reference->original ? reference->reference : "Chimera original",juce::dontSendNotification);
                 s.responseLabel.setTooltip("Research reference only. The selected sound is a separately authored Chimera response, not a measured clone.");
             } else {
-                s.responseLabel.setText("Original response v1",juce::dontSendNotification);
+                s.responseLabel.setText("Chimera original",juce::dontSendNotification);
             }
+            renameItem(s.response,1,s.mic.getText());
         }
-        renameItem(design,1,selectedLayout ? "Legacy guitar driver" : "Chimera Guitar 4x12");
-        renameItem(design,2,selectedLayout ? "Legacy bass driver" : "Chimera Bass 4x10");
-        layout.setEnabled(any);design.setEnabled(any && driver.getSelectedId()==1);driver.setEnabled(any);tweeterDesign.setEnabled(any);rear.setEnabled(any);tweeter.setEnabled(any);
-        const int selectedDriver=driver.getSelectedId()-2;
+        renameItem(driver,1,requested.voice.base.cabinet==1 ? "Chimera Bass 10" : "Chimera Guitar 12");
+        auto fourUnit=effective;fourUnit.layout=0;
+        renameItem(layout,1,spectralforge::cabLayout::isBass(fourUnit) ? "Bass 4x10" : "Guitar 4x12");
+        for(int item=0;item<=int(spectralforge::cabExpansion::drivers.size());++item) {
+            auto candidate=requested;candidate.voice.driver=item;
+            driver.setItemEnabled(item+1,spectralforge::cabLayout::isDriverCompatible(candidate)
+                && spectralforge::cabExpansion::isBass(candidate.voice)==spectralforge::cabLayout::isBass(effective)
+                && spectralforge::cabExpansion::diameter(candidate.voice)==spectralforge::cabLayout::nominalInches(effective));
+        }
+        layout.setEnabled(any);design.setEnabled(any && selectedLayout==0);driver.setEnabled(any);tweeterDesign.setEnabled(any);rear.setEnabled(any);tweeter.setEnabled(any);
+        const int selectedDriver=effective.voice.driver-1;
         speakerLabel.setText(selectedDriver>=0 && selectedDriver<int(spectralforge::cabExpansion::drivers.size())
             ? juce::String(unitCount)+" x "+juce::String(spectralforge::cabExpansion::drivers[size_t(selectedDriver)].inches)+"\" / "+spectralforge::cabExpansion::drivers[size_t(selectedDriver)].reference
-            : juce::String(unitCount)+(design.getSelectedId()==2 ? " x 10\" BASS UNITS" : " x 12\" GUITAR UNITS"),juce::dontSendNotification);
-        const int inches=selectedDriver>=0 ? spectralforge::cabExpansion::drivers[size_t(selectedDriver)].inches : design.getSelectedId()==2 ? 10 : 12;
-        for(size_t i=0;i<spectralforge::cabLayout::layouts.size();++i) {
-            const auto& l=spectralforge::cabLayout::layouts[i];
-            renameItem(layout,int(i)+2,juce::String(l.bass ? "Bass " : "Guitar ")+juce::String(l.columns*l.rows)+"x"+juce::String(inches)
-                +(inches!=l.inches ? " / scaled "+juce::String(l.inches)+"-inch box" : ""));
-        }
+            : juce::String(unitCount)+(spectralforge::cabLayout::isBass(effective) ? " x 10\" BASS UNITS" : " x 12\" GUITAR UNITS"),juce::dontSendNotification);
         sceneHint.setText(any ? "Drag a microphone to move it  |  Shift-drag for distance" :
-            "Cabinet preview  |  Enable Original Mic A or B to use this cabinet",juce::dontSendNotification);
+            "Cabinet preview  |  Enable Mic A or B to use this cabinet",juce::dontSendNotification);
         scene.refresh();
     }
 public:
     static int sideWidth(int width) noexcept {return juce::jlimit(164,188,juce::roundToInt(float(width)*.181f));}
     CabScene& getScene() noexcept {return scene;}
     const CabScene& getScene() const noexcept {return scene;}
+    void refreshState() {timerCallback();}
     ~OriginalCabControls() override {stopTimer();scene.endMicDrag();}
-    OriginalCabControls(ChimeraProcessor& processor,int lane):scene(processor,lane) {
+    OriginalCabControls(ChimeraProcessor& processor,int lane):processor(processor),lane(lane),scene(processor,lane) {
         setInterceptsMouseClicks(false,true);
         auto& state=processor.parameters();
         auto combo=[&](juce::ComboBox& box,const char* suffix,juce::StringArray items) {
             addAndMakeVisible(box);box.addItemList(items,1);
             const auto id=spectralforge::originalCabID(lane,suffix);box.setComponentID(id);
-            choices.push_back(std::make_unique<CA>(state,id,box));
+            if(juce::String(suffix)=="design")box.onChange=[this]{selectFamily();};
+            else choices.push_back(std::make_unique<CA>(state,id,box));
         };
         auto slider=[&](juce::Slider& control,const char* suffix,bool rotary=true) {
             addAndMakeVisible(control);
@@ -101,21 +147,27 @@ public:
                 box.addItem(items[i],i+1);
             }
             const auto id=spectralforge::cabExpansionID(lane,suffix);box.setComponentID(id);
-            choices.push_back(std::make_unique<CA>(state,id,box));
-            box.onChange=[this]{timerCallback();};
+            if(juce::String(suffix)=="driver")box.onChange=[this]{selectDriver();};
+            else {
+                choices.push_back(std::make_unique<CA>(state,id,box));
+                box.onChange=[this]{timerCallback();};
+            }
         };
         const auto layoutCombo=[&](juce::ComboBox& box,const char* suffix,const juce::StringArray& names) {
             addAndMakeVisible(box);box.addItemList(names,1);const auto id=spectralforge::cabLayoutID(lane,suffix);
-            box.setComponentID(id);choices.push_back(std::make_unique<CA>(state,id,box));box.onChange=[this]{timerCallback();};
+            box.setComponentID(id);
+            if(juce::String(suffix)=="layout")box.onChange=[this]{selectLayout();};
+            else {choices.push_back(std::make_unique<CA>(state,id,box));box.onChange=[this]{timerCallback();};}
         };
         layoutCombo(layout,"layout",spectralforge::cabLayoutNames());
-        layout.setTooltip("Choose enclosure volume and array. Alternative speaker diameters scale the whole box; the displayed count and diameter describe the actual model. Legacy preserves the previous four-unit response.");
+        layout.setTooltip("Choose a cabinet by speaker count and diameter. A compatible speaker loads with the cabinet.");
         setComponentID("originalCabControls"+juce::String(lane+1));addAndMakeVisible(scene);
-        combo(design,"design",{"Chimera Guitar 4x12","Chimera Bass 4x10"});
+        combo(design,"design",{"Guitar","Bass"});
+        design.setTooltip("Choose Guitar or Bass for the four-speaker cabinet. Other cabinet layouts set this category automatically.");
         combo(rear,"rear",{"Closed rear","Open rear"});
         extra(driver,"driver",spectralforge::expandedDriverNames());
-        driver.setTooltip("Select a Chimera speaker design. The selected cabinet layout scales to its diameter. All units in the box use this design.");
-        extra(tweeterDesign,"tweeter",{"Legacy tweeter","Silk HF","Metal HF","Air HF"});
+        driver.setTooltip("Choose a speaker that fits the cabinet's type and diameter. All units in the cabinet use this speaker.");
+        extra(tweeterDesign,"tweeter",{"Chimera HF","Silk HF","Metal HF","Air HF"});
         tweeterDesign.setTooltip("Independent tweeter design. The TWEETER level controls its contribution; zero is off.");
         tweeterLabel.setText("TWEETER",juce::dontSendNotification);addAndMakeVisible(tweeterLabel);
         tweeterLabel.setFont(juce::FontOptions(10.f,juce::Font::bold));
@@ -130,20 +182,20 @@ public:
         }
         for(int i=0;i<2;++i) {
             auto& s=slots[size_t(i)];const auto prefix=juce::String(i ? "B" : "A");
-            addAndMakeVisible(s.enabled);s.enabled.setButtonText("Original Mic "+prefix);
+            addAndMakeVisible(s.enabled);s.enabled.setButtonText("Mic "+prefix);
             const auto id=spectralforge::originalCabID(lane,(prefix+"on").toRawUTF8());s.enabled.setComponentID(id);
-            s.enabled.setTooltip("Use the original cabinet and microphone response for Mic "+prefix+". Turning this off restores its selected captured IR.");
+            s.enabled.setTooltip("Use the cabinet and microphone model for Mic "+prefix+". Turning this off restores its selected captured IR.");
             buttons.push_back(std::make_unique<BA>(state,id,s.enabled));
             combo(s.mic,(prefix+"mic").toRawUTF8(),{"Attack Dynamic","Body Ribbon","Detail Condenser"});
-            s.mic.setTooltip("The preserved v1 microphone, active when Legacy microphone is selected above.");
+            s.mic.setTooltip("Choose Attack Dynamic, Body Ribbon or Detail Condenser when the Chimera microphone is selected above.");
             extra(s.response,(prefix+"mic").toRawUTF8(),spectralforge::expandedMicNames());
             s.response.setTooltip("Chimera original models: 9 dynamics, 3 ribbons and 8 condensers. Each has its own acoustic response; these are not measured hardware clones.");
             addAndMakeVisible(s.responseLabel);s.responseLabel.setFont(juce::FontOptions(10.f));
             s.responseLabel.setJustificationType(juce::Justification::centred);
             combo(s.unit,(prefix+"unit").toRawUTF8(),{"Unit 1 / upper left","Unit 2 / upper right","Unit 3 / lower left","Unit 4 / lower right"});
-            s.unit.setTooltip("Choose a unit in the preserved four-unit legacy cabinet.");
+            s.unit.setTooltip("Choose the speaker that this microphone picks up.");
             layoutCombo(s.arrayUnit,(prefix+"unit").toRawUTF8(),{"Unit 1","Unit 2","Unit 3","Unit 4","Unit 5","Unit 6","Unit 7","Unit 8"});
-            s.arrayUnit.setTooltip("Choose any unit independently for Mic A or B. Numbering runs left to right, top to bottom. A saved or automated index beyond this layout uses its last unit and remains stored for larger layouts.");
+            s.arrayUnit.setTooltip("Choose a speaker independently for Mic A or B. Numbering runs left to right, top to bottom.");
             slider(s.position,(prefix+"position").toRawUTF8());slider(s.distance,(prefix+"distance").toRawUTF8());
             s.positionLabel.setText("POSITION",juce::dontSendNotification);s.distanceLabel.setText("DISTANCE / cm",juce::dontSendNotification);
             for(auto* label:{&s.positionLabel,&s.distanceLabel,&s.mode}) {
@@ -161,7 +213,7 @@ public:
             s.position.onValueChange=[this]{timerCallback();};s.distance.onValueChange=[this]{timerCallback();};
             s.enabled.onClick=[this]{timerCallback();};
         }
-        design.onChange=[this]{timerCallback();};timerCallback();startTimerHz(20);
+        timerCallback();startTimerHz(20);
     }
     void resized() override {
         const int side=sideWidth(getWidth());

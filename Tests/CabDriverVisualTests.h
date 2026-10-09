@@ -32,6 +32,9 @@ inline void frontSilhouette(const juce::Image& image) {
     check(std::abs(cx-(image.getWidth()-1)*.5)<.75 && std::abs(cy-(image.getHeight()-1)*.5)<.75,
         "front driver axis is displaced from its circular assembly");
 }
+inline int matchingLayout(int driver) {
+    return driver<=8 ? 1 : (driver==9 || driver==10 || driver==12) ? 6 : driver==13 ? 4 : 8;
+}
 }
 
 // Product regressions: compare rendered outputs and independent nominal sizes,
@@ -76,24 +79,37 @@ void driverVisualContracts(const juce::File& screenshots) {
     CabPanel panel(*p,0);panel.setView(CabPanel::View::cabinet);
     auto& scene=component<CabScene>(panel,"cabScene1");
     const std::array<int,3> drivers{{9,11,13}},inches{{10,12,15}};
+    const std::array<int,10> layoutInches{{10,12,12,12,15,10,10,10,12,12}};
     int dimensionCases=0,placementCases=0;
+    float sharedCamera=0,sharedHeadWidth=0;
+    std::array<juce::Point<float>,2> sharedMicSize{};
+    set(*p,"ocab1_design",1);
     for(int layout=0;layout<=9;++layout) {
         set(*p,"lcab1_layout",float(layout));
-        float baseDiameter=0,baseCamera=0,baseHeadWidth=0;
-        std::array<juce::Point<float>,2> baseMicSize{};
+        juce::Rectangle<float> baseCabinet;
         for(size_t d=0;d<drivers.size();++d) {
-            set(*p,"xcab1_driver",float(drivers[d]));scene.refresh();
+            set(*p,"xcab1_driver",float(drivers[d]));
+            const auto state=cabSceneUITests::parameterValues(*p);
+            scene.refresh();
+            check(cabSceneUITests::parameterValues(*p)==state,"resolving an incompatible stored driver rewrites host parameters");
             const float diameter=scene.speakerOuterDiameter();
-            if(d==0) {baseDiameter=diameter;baseCamera=scene.pixelsPerMetre();baseHeadWidth=scene.amplifierBounds().getWidth();}
-            check(std::abs(diameter/baseDiameter-float(inches[d])/10.f)<.0001f,
-                "10/12/15-inch choices do not change the visible driver diameter in physical proportion");
-            check(std::abs(scene.pixelsPerMetre()-baseCamera)<.0001f,"driver selection silently reframes the camera");
-            check(std::abs(scene.amplifierBounds().getWidth()-baseHeadWidth)<.0001f,"changing speaker diameter resizes the amplifier head");
+            if(d==0)baseCabinet=scene.cabinetBounds();
+            if(dimensionCases==0) {sharedCamera=scene.pixelsPerMetre();sharedHeadWidth=scene.amplifierBounds().getWidth();}
+            check(std::abs(diameter/scene.pixelsPerMetre()-float(layoutInches[size_t(layout)])*.0254f)<.00001f,
+                "an incompatible restored driver changes the cabinet's fixed nominal speaker diameter");
+            check(scene.cabinetBounds()==baseCabinet,"an incompatible stored driver resizes the fixed cabinet box");
+            check(std::abs(scene.pixelsPerMetre()-sharedCamera)<.0001f,"driver or cabinet selection silently reframes the camera");
+            check(std::abs(scene.amplifierBounds().getWidth()-sharedHeadWidth)<.0001f,"changing a cabinet resizes the same amplifier head");
+            check(std::abs(scene.amplifierBounds().getWidth()/scene.pixelsPerMetre()
+                    -cabPhysical::head(p->selectedAmpModel(0)).width)<.00001f,
+                "amplifier head width does not use the same physical scale as the cabinet");
+            originalCab::Settings requestedBase{};requestedBase.cabinet=1;
+            const auto effective=cabLayout::effectiveSettings({{requestedBase,drivers[d],0,0},layout,0});
             for(int slot=0;slot<2;++slot) {
                 const auto mic=scene.micVisualGeometry(slot);
                 const juce::Point<float> size{mic.bodyBounds.getWidth(),mic.bodyBounds.getHeight()};
-                if(d==0)baseMicSize[size_t(slot)]=size;
-                check(size.getDistanceFrom(baseMicSize[size_t(slot)])<.01f,"changing speaker diameter resizes the same microphone");
+                if(dimensionCases==0)sharedMicSize[size_t(slot)]=size;
+                check(size.getDistanceFrom(sharedMicSize[size_t(slot)])<.01f,"changing a driver or cabinet resizes the same microphone");
                 check(mic.capsule.getDistanceFrom(scene.microphoneAnchor(slot))<.01f,"driver resize detaches the microphone capsule");
             }
             for(int unit=0;unit<scene.speakerCount();++unit) {
@@ -104,9 +120,30 @@ void driverVisualContracts(const juce::File& screenshots) {
                     "rendered speaker is distorted or ignores its nominal outer diameter");
                 check(bounds.getCentre().getDistanceFrom(scene.speakerCentre(unit))<.01f,"driver front is detached from its acoustic axis");
                 check(scene.baffleBounds().expanded(.01f).contains(bounds),"physical driver extends outside the front baffle");
+                check(view.getProperties()["cabSpeakerStyle"].toString()==cabSpeakerArt::styleKey(effective.voice.driver,int(cabLayout::isBass(effective))),
+                    "incompatible raw driver artwork disagrees with the effective fixed-diameter model");
             }
             ++dimensionCases;
         }
+    }
+
+    // Independent real dimensions: SM57 body is 32 x 157 mm, and its catalog
+    // image is rotated 65 degrees. This compares the actual rendered envelope
+    // against a 12-inch speaker, not against the production dimension table.
+    set(*p,"lcab1_layout",1);set(*p,"xcab1_driver",1);set(*p,"xcab1_Amic",1);
+    juce::Point<float> closeMicSize;
+    for(float distance:{2.f,60.f}) {
+        set(*p,"ocab1_Adistance",distance);scene.refresh();
+        const auto body=scene.micVisualGeometry(0).bodyBounds;
+        const float angle=juce::degreesToRadians(65.f);
+        const float width=.032f*std::cos(angle)+.157f*std::sin(angle);
+        const float height=.032f*std::sin(angle)+.157f*std::cos(angle);
+        check(std::abs(body.getWidth()/scene.speakerOuterDiameter()-width/.3048f)<.0001f
+            && std::abs(body.getHeight()/scene.speakerOuterDiameter()-height/.3048f)<.0001f,
+            "SM57 artwork does not preserve its real dimensions relative to a 12-inch driver");
+        const juce::Point<float> size{body.getWidth(),body.getHeight()};
+        if(distance==2.f)closeMicSize=size;
+        else check(size.getDistanceFrom(closeMicSize)<.01f,"moving a microphone away invents body-size growth");
     }
 
     // Exercise both microphones at opposite boundary units/positions. This also
@@ -142,9 +179,19 @@ void driverVisualContracts(const juce::File& screenshots) {
     std::set<juce::String> styles;
     juce::Image contact(juce::Image::RGB,7*256,2*294,true);juce::Graphics cg(contact);
     cg.fillAll(juce::Colour(0xff181d1d));
-    set(*p,"lcab1_layout",0);
     for(int driver=1;driver<=14;++driver) {
-        set(*p,"xcab1_driver",float(driver));scene.refresh();
+        set(*p,"lcab1_layout",float(matchingLayout(driver)));set(*p,"xcab1_driver",float(driver));
+        set(*p,"xcab1_Amic",1);set(*p,"xcab1_Bmic",20);
+        set(*p,"ocab1_Adistance",10);set(*p,"ocab1_Bdistance",10);
+        const auto state=cabSceneUITests::parameterValues(*p);scene.refresh();
+        check(cabSceneUITests::parameterValues(*p)==state,"compatible driver refresh rewrites host parameters");
+        check(std::abs(scene.pixelsPerMetre()-sharedCamera)<.0001f,"compatible model selection changes common camera scale");
+        check(std::abs(scene.amplifierBounds().getWidth()-sharedHeadWidth)<.0001f,"compatible model selection resizes amplifier head");
+        for(int slot=0;slot<2;++slot) {
+            const auto body=scene.micVisualGeometry(slot).bodyBounds;
+            check(juce::Point<float>(body.getWidth(),body.getHeight()).getDistanceFrom(sharedMicSize[size_t(slot)])<.01f,
+                "compatible model selection resizes microphone body");
+        }
         auto& actual=component<cabArt::View>(scene,"ocab1_speakerImage");
         const auto style=actual.getProperties()["cabSpeakerStyle"].toString();
         check(style.isNotEmpty() && styles.insert(style).second,"driver selection reuses another front-face design identity");
@@ -164,14 +211,16 @@ void driverVisualContracts(const juce::File& screenshots) {
     writeImage(contact,screenshots,"cab-visual-driver-front-designs-14.png");
 
     // Same viewport, mic model and distance across all three diameters.
-    set(*p,"lcab1_layout",6);set(*p,"xcab1_Amic",1);set(*p,"xcab1_Bmic",10);
-    set(*p,"lcab1_Aunit",0);set(*p,"lcab1_Bunit",3);
+    set(*p,"xcab1_Amic",1);set(*p,"xcab1_Bmic",10);
+    set(*p,"lcab1_Aunit",0);set(*p,"lcab1_Bunit",0);
     set(*p,"ocab1_Aposition",.25f);set(*p,"ocab1_Bposition",.25f);
     set(*p,"ocab1_Adistance",10);set(*p,"ocab1_Bdistance",10);
     juce::Image sizes(juce::Image::RGB,scene.getWidth()*3,scene.getHeight()+36,true);juce::Graphics sg(sizes);
     sg.fillAll(juce::Colour(0xff181d1d));
     for(size_t i=0;i<drivers.size();++i) {
-        set(*p,"xcab1_driver",float(drivers[i]));scene.refresh();
+        set(*p,"lcab1_layout",float(matchingLayout(drivers[i])));set(*p,"xcab1_driver",float(drivers[i]));scene.refresh();
+        check(std::abs(scene.speakerOuterDiameter()/scene.pixelsPerMetre()-float(inches[i])*.0254f)<.00001f,
+            "diameter comparison screenshot uses an incompatible cabinet/driver combination");
         const auto state=cabSceneUITests::parameterValues(*p);
         const auto image=scene.createComponentSnapshot(scene.getLocalBounds());
         check(cabSceneUITests::parameterValues(*p)==state,"rendering the changed driver writes host parameters");
@@ -184,27 +233,41 @@ void driverVisualContracts(const juce::File& screenshots) {
     // Room overview must redraw for driver changes within the same family too.
     set(*p,"mode",2);for(int lane=0;lane<3;++lane) {
         set(*p,originalCabID(lane,"Aon"),1);set(*p,originalCabID(lane,"Bon"),1);
-        set(*p,cabLayoutID(lane,"layout"),float(lane==2 ? 7 : 6));
+        set(*p,cabLayoutID(lane,"layout"),float(matchingLayout(drivers[size_t(lane)])));
         set(*p,cabExpansionID(lane,"driver"),float(drivers[size_t(lane)]));
     }
     CabRoomOverview room(*p);room.setSize(1040,620);room.refreshState();
+    const std::array<float,3> roomCabinetWidths{{.62f,.49f,.56f}};
+    const float roomScale=room.displayedScale(0);
+    check(roomScale>0.f,"room has no physical camera scale");
+    for(int lane=0;lane<3;++lane) {
+        check(std::abs(room.displayedScale(lane)-roomScale)<.0001f,"Matrix rig cards use inconsistent pixels per metre");
+        check(std::abs(room.displayedCabinetBounds(lane).getWidth()/roomScale-roomCabinetWidths[size_t(lane)])<.00001f,
+            "room independently fits a cabinet instead of displaying its physical width");
+    }
     auto& card=component<juce::Button>(room,"cabRoomRig1");juce::Image prior;
     for(int driver=1;driver<=14;++driver) {
-        set(*p,"xcab1_driver",float(driver));room.refreshState();
+        set(*p,"lcab1_layout",float(matchingLayout(driver)));set(*p,"xcab1_driver",float(driver));room.refreshState();
         check(int(card.getProperties()["cabRoomDriver"])==driver,"room retains a stale driver selection");
         const auto image=card.createComponentSnapshot(card.getLocalBounds());
         if(prior.isValid())check(greyDifference(prior,image)>.0001,"room does not redraw a changed driver front");
         prior=image;
     }
     for(int layout=0;layout<=9;++layout) {
-        set(*p,"lcab1_layout",float(layout));room.refreshState();
+        set(*p,"lcab1_layout",float(layout));set(*p,"xcab1_driver",13);
+        const auto state=cabSceneUITests::parameterValues(*p);room.refreshState();
+        check(cabSceneUITests::parameterValues(*p)==state,"room mismatch resolution changes stored host parameters");
+        originalCab::Settings requestedBase{};requestedBase.cabinet=1;
+        const auto effective=cabLayout::effectiveSettings({{requestedBase,13,0,0},layout,0});
         check(int(card.getProperties()["cabRoomLayout"])==layout
             && int(card.getProperties()["cabRoomUnitCount"])==cabLayout::count(layout),"room layout/unit count is stale");
+        check(int(card.getProperties()["cabRoomDriver"])==effective.voice.driver,"room shows the raw incompatible driver instead of the effective model");
+        check(std::abs(room.displayedScale(0)-roomScale)<.0001f,"room changes camera scale with selected cabinet layout");
     }
     set(*p,"lcab1_layout",6);set(*p,"xcab1_driver",9);room.refreshState();
     const auto before=cabSceneUITests::parameterValues(*p);
     snapshot(room,screenshots,"cab-visual-driver-room-matrix.png");
     check(cabSceneUITests::parameterValues(*p)==before,"room painting changes audio state");
     std::cout<<"PASS driver visuals: 14 distinct circular fronts, "<<dimensionCases
-        <<" fixed-camera diameter/mic-size cases, "<<placementCases<<" microphone boundary placements and room refresh\n";
+        <<" fixed-diameter restore cases, real microphone scale, "<<placementCases<<" microphone boundary placements and room refresh\n";
 }

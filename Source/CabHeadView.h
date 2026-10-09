@@ -1,4 +1,5 @@
 #pragma once
+#include "CabHeadDimensions.h"
 #include "RasterArtwork.h"
 #include <juce_gui_basics/juce_gui_basics.h>
 #include <array>
@@ -73,35 +74,61 @@ struct Geometry {
     juce::Rectangle<float> handle;
     float supportY{};
 };
+inline constexpr float roofDepthProjection=.16f;
+inline constexpr bool hasTopHandle(int model) noexcept {
+    // Desktop and rack amplifiers have no invented carrying handle on the roof.
+    const auto selected=static_cast<spectralforge::AmpModel>(model);
+    return selected!=spectralforge::AmpModel::solidPunch
+        && selected!=spectralforge::AmpModel::modernBass
+        && selected!=spectralforge::AmpModel::subwayClean
+        && selected!=spectralforge::AmpModel::tastePunch
+        && selected!=spectralforge::AmpModel::zutaCinder;
+}
+inline constexpr float projectedHeight(int model) noexcept {
+    const auto dimensions=spectralforge::cabPhysical::head(model);
+    return dimensions.height+dimensions.depth*roofDepthProjection;
+}
+inline juce::Rectangle<float> physicalBoundsAboveCabinet(juce::Rectangle<float> cabinet,
+                                                        float pixelsPerMetre,int model,float supportY) {
+    const auto dimensions=spectralforge::cabPhysical::head(model);
+    const auto scale=juce::jmax(0.f,pixelsPerMetre);
+    const float width=dimensions.width*scale,height=projectedHeight(model)*scale;
+    return {cabinet.getCentreX()-width*.5f,supportY-height,width,height};
+}
+// Retained for legacy callers only. Production scenes use physicalBoundsAboveCabinet.
 inline juce::Rectangle<float> boundsAboveCabinet(juce::Rectangle<float> cabinet,float fixedWidth=0.f) {
     const float width=fixedWidth>0.f ? fixedWidth : cabinet.getWidth()*.89f;
     return {cabinet.getCentreX()-width*.5f,cabinet.getY()+cabinet.getWidth()*.035f-width*.395f,
         width,width*.395f};
 }
 inline Geometry geometry(juce::Rectangle<float> bounds,int model) {
-    const juce::SharedResourcePointer<Bank> bank;
-    const auto& face=bank->faces[static_cast<size_t>(juce::jlimit(0,spectralforge::ampModelCount-1,model))];
-    const float width=bounds.getWidth(),footHeight=width*.016f,roofDepth=width*.053f;
-    const float side=width*.012f;
-    // Keep the selected fascia's aspect. Very tall legacy images remain inside
-    // the stack's allocated space, including their handle and roof.
-    const float aspect=juce::jmax(1.f,face.aspect);
-    const float availableHeight=bounds.getHeight()-roofDepth-footHeight-width*.018f;
-    const float frontWidth=juce::jmin(width-side*2.f,availableHeight*aspect);
-    const float frontHeight=frontWidth/aspect;
+    const auto selected=juce::jlimit(0,spectralforge::ampModelCount-1,model);
+    const auto dimensions=spectralforge::cabPhysical::head(selected);
+    const float width=juce::jmax(0.f,bounds.getWidth()),scale=width/dimensions.width;
+    const bool handle=hasTopHandle(selected);
+    // Product height is the complete front elevation, including feet/handle.
+    // The elevated camera adds only the separately projected physical depth.
+    // Bitmap alpha bounds are used for texture extraction, never for geometry.
+    const float height=dimensions.height*scale;
+    const float footHeight=juce::jmin(dimensions.height*.10f,handle ? .010f : .006f)*scale;
+    const float handleHeight=handle ? juce::jmin(dimensions.height*.12f,.022f)*scale : 0.f;
+    const float roofDepth=dimensions.depth*roofDepthProjection*scale;
+    const float frontHeight=juce::jmax(0.f,height-footHeight-handleHeight);
     Geometry result;
     result.supportY=bounds.getBottom();
-    result.front={bounds.getCentreX()-frontWidth*.5f,bounds.getBottom()-footHeight-frontHeight,frontWidth,frontHeight};
-    const float backInset=width*.038f;
+    result.front={bounds.getX(),result.supportY-footHeight-frontHeight,width,frontHeight};
+    const float backInset=juce::jmin(dimensions.depth*.07f,dimensions.width*.12f)*scale;
     result.roof={{{bounds.getX()+backInset,result.front.getY()-roofDepth},
         {bounds.getRight()-backInset,result.front.getY()-roofDepth},
         result.front.getTopRight(),result.front.getTopLeft()}};
+    const float footOverlap=juce::jmin(.0025f*scale,frontHeight*.05f);
     for(int i=0;i<2;++i)result.feet[static_cast<size_t>(i)]={bounds.getX()+width*(i ? .80f : .12f),
-        result.front.getBottom()-width*.004f,width*.08f,footHeight+width*.004f};
-    const float handleWidth=width*juce::jlimit(.13f,.46f,face.handleWidth);
-    const float handleHeight=width*juce::jlimit(.014f,.045f,face.handleHeight);
-    result.handle={bounds.getCentreX()-handleWidth*.5f,result.roof[0].y+roofDepth*.44f-handleHeight,
-        handleWidth,handleHeight};
+        result.front.getBottom()-footOverlap,width*.08f,footHeight+footOverlap};
+    if(handle) {
+        const float handleWidth=juce::jmin(.20f,dimensions.width*.36f)*scale;
+        result.handle={bounds.getCentreX()-handleWidth*.5f,result.roof[0].y+roofDepth*.44f-handleHeight,
+            handleWidth,handleHeight};
+    }
     return result;
 }
 inline juce::Path polygon(std::initializer_list<juce::Point<float>> points) {
@@ -148,14 +175,8 @@ inline void paint(juce::Graphics& g,juce::Rectangle<float> bounds,int model) {
     g.setColour(juce::Colour(0xff969b92).withAlpha(.52f));g.drawLine({roof[0],roof[1]},edge);
     g.setColour(juce::Colour(0xff080d0e));g.drawLine({roof[0],roof[3]},edge);g.drawLine({roof[1],roof[2]},edge);
 
-    // Side casing rails have thickness and a different light response from
-    // the photographic fascia. They share the same roof corners.
-    const auto left=polygon({roof[0],roof[3],layout.front.getBottomLeft(),
-        {bounds.getX(),layout.front.getBottom()-width*.012f},{bounds.getX(),layout.front.getY()+width*.006f}});
-    const auto right=polygon({roof[1],roof[2],layout.front.getBottomRight(),
-        {bounds.getRight(),layout.front.getBottom()-width*.012f},{bounds.getRight(),layout.front.getY()+width*.006f}});
-    g.setGradientFill({juce::Colour(0xff414541),bounds.getX(),bounds.getY(),juce::Colour(0xff151a1a),layout.front.getX(),bounds.getBottom(),false});g.fillPath(left);
-    g.setGradientFill({juce::Colour(0xff242a2a),layout.front.getRight(),bounds.getY(),juce::Colour(0xff090e10),bounds.getRight(),bounds.getBottom(),false});g.fillPath(right);
+    // The full frontal shell keeps its measured width. The roof alone recedes;
+    // artificial side rails must not steal width from a compact head's fascia.
     if(face.front.isValid()) {
         g.setColour(juce::Colours::white);g.drawImage(face.front,layout.front,juce::RectanglePlacement::stretchToFit);
     } else {
@@ -164,14 +185,16 @@ inline void paint(juce::Graphics& g,juce::Rectangle<float> bounds,int model) {
     g.setColour(juce::Colours::black.withAlpha(.5f));g.drawLine({layout.front.getBottomLeft(),layout.front.getBottomRight()},edge);
     g.setColour(juce::Colour(0xffa7a997).withAlpha(.24f));g.drawLine({roof[3],roof[2]},edge);
 
-    g.setColour(juce::Colours::black.withAlpha(.5f));
-    g.fillEllipse(layout.handle.getX()-width*.01f,layout.handle.getBottom()-width*.003f,
-        layout.handle.getWidth()+width*.02f,width*.009f);
-    if(face.handle.isValid()) {
-        g.setColour(juce::Colours::white);g.drawImage(face.handle,layout.handle,juce::RectanglePlacement::stretchToFit);
-    } else {
-        g.setColour(juce::Colour(0xff717671));g.drawRoundedRectangle(layout.handle,width*.007f,juce::jmax(1.f,width*.004f));
-        g.setColour(juce::Colour(0xff111717));g.drawRoundedRectangle(layout.handle.translated(0.f,width*.003f),width*.007f,juce::jmax(1.f,width*.004f));
+    if(!layout.handle.isEmpty()) {
+        g.setColour(juce::Colours::black.withAlpha(.5f));
+        g.fillEllipse(layout.handle.getX()-width*.01f,layout.handle.getBottom()-width*.003f,
+            layout.handle.getWidth()+width*.02f,width*.009f);
+        if(face.handle.isValid()) {
+            g.setColour(juce::Colours::white);g.drawImage(face.handle,layout.handle,juce::RectanglePlacement::stretchToFit);
+        } else {
+            g.setColour(juce::Colour(0xff717671));g.drawRoundedRectangle(layout.handle,width*.007f,juce::jmax(1.f,width*.004f));
+            g.setColour(juce::Colour(0xff111717));g.drawRoundedRectangle(layout.handle.translated(0.f,width*.003f),width*.007f,juce::jmax(1.f,width*.004f));
+        }
     }
 }
 class View : public juce::Component {

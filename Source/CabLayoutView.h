@@ -2,30 +2,44 @@
 #include "CabLayoutModel.h"
 #include "CabSpeakerArt.h"
 #include "CabArtwork.h"
+#include "CabHeadDimensions.h"
 
 namespace spectralforge::cabLayoutView {
-// A fixed camera for each enclosure arrangement. Fitting the selected box on
-// every change would cancel its diameter and make the microphone appear to grow.
-struct Projection { juce::Rectangle<float> box; float pixelsPerMetre{},headWidth{}; };
-inline Projection project(cabLayout::Settings selected,juce::Rectangle<float> area) {
-    double maximumWidth=0,maximumStack=0,minimumWidth=100;
-    for(int family=0;family<2;++family)for(int driver=0;driver<=int(cabExpansion::drivers.size());++driver) {
-        auto reference=selected;reference.voice.base.cabinet=family;reference.voice.driver=driver;
-        const auto box=cabLayout::geometry(reference).box;
-        maximumWidth=std::max(maximumWidth,box.width);
-        minimumWidth=std::min(minimumWidth,box.width);
-        maximumStack=std::max(maximumStack,box.height+box.width*.44);
+// One orthographic camera envelope for the catalogue. Every body uses metres;
+// changing the selected layout, speaker or head never changes this world scale.
+inline constexpr float depthProjection=.16f;
+struct Projection { juce::Rectangle<float> box; float pixelsPerMetre{}; };
+inline float cameraScale(juce::Rectangle<float> area) {
+    float maximumWidth=0,maximumStack=0,headHeight=0;
+    for(const auto& head:cabPhysical::headDimensions) {
+        maximumWidth=std::max(maximumWidth,head.width);
+        headHeight=std::max(headHeight,head.height+head.depth*depthProjection);
     }
-    const auto model=cabLayout::geometry(selected);
-    const float scale=juce::jmax(0.f,juce::jmin(area.getWidth()*.70f/float(maximumWidth),
-        area.getHeight()*.84f/float(maximumStack)));
-    const float width=float(model.box.width)*scale,height=float(model.box.height)*scale;
-    const float bottom=area.getBottom()-area.getHeight()*.07f;
-    return {{area.getCentreX()-width*.5f,bottom-height-width*.07f,width,height+width*.07f},scale,float(minimumWidth)*scale*.89f};
+    for(int layout=0;layout<=int(cabLayout::layouts.size());++layout)for(int family=0;family<2;++family) {
+        cabLayout::Settings reference{};reference.layout=layout;reference.voice.base.cabinet=family;
+        const auto box=cabLayout::geometry(reference).box;
+        maximumWidth=std::max(maximumWidth,float(box.width));
+        maximumStack=std::max(maximumStack,float(box.height+box.depth*depthProjection));
+    }
+    // Reserve space for the end-address microphone body, stands and head.
+    return std::max(0.f,std::min(area.getWidth()/(maximumWidth+.56f),
+        area.getHeight()*.90f/(maximumStack+headHeight+.05f)));
 }
-inline juce::Rectangle<float> baffle(juce::Rectangle<float> box) {return box.withTrimmedTop(box.getWidth()*.07f);}
+inline Projection projectAtScale(cabLayout::Settings selected,juce::Rectangle<float> area,float scale) {
+    const auto model=cabLayout::geometry(selected);
+    const float width=float(model.box.width)*scale;
+    const float height=float(model.box.height+model.box.depth*depthProjection)*scale;
+    const float bottom=area.getBottom()-area.getHeight()*.07f;
+    return {{area.getCentreX()-width*.5f,bottom-height,width,height},scale};
+}
+inline Projection project(cabLayout::Settings selected,juce::Rectangle<float> area) {
+    return projectAtScale(selected,area,cameraScale(area));
+}
+inline juce::Rectangle<float> baffle(const cabLayout::Geometry& model,juce::Rectangle<float> box) {
+    return box.withTrimmedTop(float(model.box.depth)*depthProjection*box.getWidth()/float(model.box.width));
+}
 inline juce::Point<float> point(const cabLayout::Geometry& model,juce::Rectangle<float> box,originalCab::Point p) {
-    const auto face=baffle(box);
+    const auto face=baffle(model,box);
     return {face.getCentreX()+float(p.x/model.box.width)*face.getWidth(),face.getCentreY()-float(p.y/model.box.height)*face.getHeight()};
 }
 inline float radius(const cabLayout::Geometry& model,juce::Rectangle<float> box) {return float(model.radius/model.box.width)*box.getWidth();}
@@ -37,8 +51,8 @@ inline GroundSupport groundSupport(juce::Rectangle<float> box) {
         box.getBottom()-1.f,width,height+1.f};
     return result;
 }
-inline void enclosure(juce::Graphics& g,juce::Rectangle<float> box) {
-    const auto face=baffle(box);const float inset=box.getWidth()*.025f;
+inline void enclosure(juce::Graphics& g,const cabLayout::Geometry& model,juce::Rectangle<float> box) {
+    const auto face=baffle(model,box);const float inset=box.getWidth()*.025f;
     // The same contact plane anchors both the rubber feet and scene shadows.
     for(const auto foot:groundSupport(box).feet) {
         g.setColour(juce::Colour(0xff070a0b));g.fillRoundedRectangle(foot,1.4f);

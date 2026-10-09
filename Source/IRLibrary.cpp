@@ -164,17 +164,17 @@ juce::String IRLibrary::status(int lane) const
         const auto p=originalCab::settings(model);
         if(model&cabLayout::versionBit) {
             const auto p3=cabLayout::settings(model);const auto* d=cabExpansion::driver(p3.voice);const auto* mic=cabExpansion::microphone(p3.voice);
-            return juce::String(d ? d->name : "Legacy driver")+" | "+juce::String(cabLayout::count(p3.layout))+"x"+juce::String(cabExpansion::diameter(p3.voice))
-                +" | "+(mic ? mic->name : "Legacy microphone")+" | Unit "+juce::String(cabLayout::effectiveUnit(p3)+1)
+            return juce::String(d ? d->name : p.cabinet ? "Chimera Bass 10" : "Chimera Guitar 12")+" | "+juce::String(cabLayout::count(p3.layout))+"x"+juce::String(cabExpansion::diameter(p3.voice))
+                +" | "+(mic ? mic->name : p.mic==0 ? "Attack Dynamic" : p.mic==1 ? "Body Ribbon" : "Detail Condenser")+" | Unit "+juce::String(cabLayout::effectiveUnit(p3)+1)
                 +(model!=cabs[lane]->activeModel.load() ? " | Preparing..." : " | Ready");
         }
         if(model&cabExpansion::versionBit) {
             const auto x=cabExpansion::settings(model);const auto* d=cabExpansion::driver(x);const auto* m=cabExpansion::microphone(x);
-            return juce::String(d ? d->name : p.cabinet ? "Legacy Bass 4x10" : "Legacy Guitar 4x12")
-                +" | "+(m ? m->name : "Legacy microphone")+" | Unit "+juce::String(p.unit+1)
+            return juce::String(d ? d->name : p.cabinet ? "Chimera Bass 10" : "Chimera Guitar 12")
+                +" | "+(m ? m->name : p.mic==0 ? "Attack Dynamic" : p.mic==1 ? "Body Ribbon" : "Detail Condenser")+" | Unit "+juce::String(p.unit+1)
                 +(model!=cabs[lane]->activeModel.load() ? " | Preparing..." : " | Ready");
         }
-        return juce::String(p.cabinet ? "Original Bass 4x10 v1" : "Original Guitar 4x12 v1")
+        return juce::String(p.cabinet ? "Bass 4x10" : "Guitar 4x12")
             +" | Modeled / unit "+juce::String(p.unit+1)
             +(model!=cabs[lane]->activeModel.load() ? " | Preparing..." : " | Ready");
     }
@@ -234,29 +234,29 @@ IRMetadata IRLibrary::metadata(int lane,int source,bool includeModeled) const
             const auto p3=cabLayout::settings(model);const auto g=cabLayout::geometry(p3);
             const auto* d=cabExpansion::driver(p3.voice);const auto* mic=cabExpansion::microphone(p3.voice);
             m.instrument=cabExpansion::isBass(p3.voice) ? IRMetadata::Instrument::bass : IRMetadata::Instrument::guitar;
-            m.displayLabel=juce::String(d ? d->name : "Legacy driver")+" "+juce::String(g.count)+"x"+juce::String(cabExpansion::diameter(p3.voice));
-            m.values[0]=d ? d->name : "Original modeled driver v1";m.values[1]=m.displayLabel;
-            m.values[3]=mic ? mic->name : "Legacy microphone";
+            m.displayLabel=juce::String(d ? d->name : p.cabinet ? "Chimera Bass 10" : "Chimera Guitar 12")+" "+juce::String(g.count)+"x"+juce::String(cabExpansion::diameter(p3.voice));
+            m.values[0]=d ? d->name : p.cabinet ? "Chimera Bass 10" : "Chimera Guitar 12";m.values[1]=m.displayLabel;
+            m.values[3]=mic ? mic->name : p.mic==0 ? "Attack Dynamic" : p.mic==1 ? "Body Ribbon" : "Detail Condenser";
             m.values[4]="Modeled unit "+juce::String(cabLayout::effectiveUnit(p3)+1)+", radius "+juce::String(p.position,3);
-            m.values[8]="Chimera original design v3";
+            m.values[8]="Chimera original design";
             m.values[11]="Independent linear array model; "+juce::String(g.box.volume*1000,1)+" L net volume; "
                 +juce::String(p.distanceCm,1)+" cm. No measured hardware matching, ports or room reverb.";return m;
         }
         if(model&cabExpansion::versionBit) {
             const auto x=cabExpansion::settings(model);const auto* d=cabExpansion::driver(x);const auto* mic=cabExpansion::microphone(x);
             m.instrument=cabExpansion::isBass(x) ? IRMetadata::Instrument::bass : IRMetadata::Instrument::guitar;
-            m.displayLabel=juce::String(d ? d->name : p.cabinet ? "Legacy Bass" : "Legacy Guitar")+" 4x"+juce::String(cabExpansion::diameter(x));
-            m.values[0]=d ? d->name : "Original modeled driver v1";m.values[1]=m.displayLabel;
-            m.values[3]=mic ? mic->name : p.mic==0 ? "Attack dynamic v1" : p.mic==1 ? "Body ribbon v1" : "Detail condenser v1";
+            m.displayLabel=juce::String(d ? d->name : p.cabinet ? "Chimera Bass 10" : "Chimera Guitar 12")+" 4x"+juce::String(cabExpansion::diameter(x));
+            m.values[0]=d ? d->name : p.cabinet ? "Chimera Bass 10" : "Chimera Guitar 12";m.values[1]=m.displayLabel;
+            m.values[3]=mic ? mic->name : p.mic==0 ? "Attack Dynamic" : p.mic==1 ? "Body Ribbon" : "Detail Condenser";
             m.values[4]="Modeled unit "+juce::String(p.unit+1)+", radius "+juce::String(p.position,3);
-            m.values[8]="Chimera original design v2";
+            m.values[8]="Chimera original design";
             m.values[11]="Independent linear model; not a measured hardware clone. Distance "+juce::String(p.distanceCm,1)+" cm. Four identical drivers; no third-party IR fitting.";
             return m;
         }
         m.instrument=p.cabinet ? IRMetadata::Instrument::bass : IRMetadata::Instrument::guitar;
-        m.displayLabel=p.cabinet ? "Original Bass 4x10 v1" : "Original Guitar 4x12 v1";
-        m.values[0]="Original modeled driver v1";m.values[1]=m.displayLabel;
-        m.values[3]=p.mic==0 ? "Attack dynamic v1" : p.mic==1 ? "Body ribbon v1" : "Detail condenser v1";
+        m.displayLabel=p.cabinet ? "Bass 4x10" : "Guitar 4x12";
+        m.values[0]=p.cabinet ? "Chimera Bass 10" : "Chimera Guitar 12";m.values[1]=m.displayLabel;
+        m.values[3]=p.mic==0 ? "Attack Dynamic" : p.mic==1 ? "Body Ribbon" : "Detail Condenser";
         m.values[4]="Modeled unit "+juce::String(p.unit+1)+", radius "+juce::String(p.position,3);
         m.values[8]="Chimera original design";
         m.values[11]="Authored linear acoustic approximation, not a hardware measurement. Distance "+juce::String(p.distanceCm,1)+" cm from cone plane. No third-party IR fitting.";

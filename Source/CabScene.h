@@ -26,7 +26,7 @@ private:
     int lane;
     int design{-1},ampModel{-1},driverModel{-1},layoutModel{};
     juce::Rectangle<float> arrayBounds;
-    float cameraScale{},headWidth{};
+    float cameraScale{};
     std::array<MicGeometry,2> geometry;
     std::array<MicVisualGeometry,2> visualGeometry;
     std::array<uint64_t,2> displayedKeys{{~uint64_t{},~uint64_t{}}};
@@ -111,11 +111,11 @@ private:
     int layoutValue(const char* suffix) const {
         return int(processor.parameters().getRawParameterValue(spectralforge::cabLayoutID(lane,suffix))->load());
     }
-    int effectiveDesign() const {
-        const auto d=expanded("driver");
-        return d>0 && d<=int(spectralforge::cabExpansion::drivers.size())
-            ? int(spectralforge::cabExpansion::drivers[size_t(d-1)].bass) : int(raw("design"));
+    spectralforge::cabLayout::Settings currentSettings() const {
+        spectralforge::originalCab::Settings base{};base.cabinet=int(raw("design"));
+        return spectralforge::cabLayout::effectiveSettings({{base,expanded("driver"),0,0},layoutValue("layout"),0});
     }
+    int effectiveDesign() const {return int(spectralforge::cabLayout::isBass(currentSettings()));}
     juce::RangedAudioParameter* parameter(int slot,const char* suffix) {
         const auto id=(juce::String(slot ? "B" : "A")+suffix);
         return processor.parameters().getParameter(layoutValue("layout")>0 && juce::String(suffix)=="unit"
@@ -138,7 +138,7 @@ private:
     void updatePlacement() {
         if(getWidth()==0 || getHeight()==0)return;
         const auto projection=spectralforge::cabLayoutView::project(arraySettings(),getLocalBounds().toFloat());
-        arrayBounds=projection.box;cameraScale=projection.pixelsPerMetre;headWidth=projection.headWidth;
+        arrayBounds=projection.box;cameraScale=projection.pixelsPerMetre;
         const auto cab=cabinetBounds();
         // Keep the legacy artwork identity for accessibility/catalog consumers;
         // the modeled baffle and all cones are drawn independently, front-on.
@@ -156,21 +156,23 @@ private:
         foreground.setBounds(getLocalBounds());
         for(int i=0;i<2;++i) {
             auto& node=*microphones[size_t(i)];
-            const float depth=juce::jlimit(0.f,1.f,(geometry[size_t(i)].distanceCm-2.f)/58.f);
             const auto& micGeometry=geometry[size_t(i)];
             auto presentation=micGeometry.expansion>0
                 ? spectralforge::cabArt::expandedMicrophonePresentation(micGeometry.expansion-1)
                 : spectralforge::cabArt::microphonePresentation(micGeometry.model);
-            node.setArtworkRotation(micGeometry.expansion>0 && !presentation.sideAddress ? juce::degreesToRadians(-65.f) : 0.f);
+            const auto dimensions=micGeometry.expansion>0
+                ? spectralforge::cabPhysical::microphone(micGeometry.expansion-1)
+                : spectralforge::cabPhysical::legacyMicrophone(micGeometry.model);
+            node.setPhysicalDimensions(dimensions.width,dimensions.height);
+            const float rotation=micGeometry.expansion>0 && !presentation.sideAddress ? juce::degreesToRadians(-65.f) : 0.f;
+            node.setArtworkRotation(rotation);
             presentation.capsule=node.orientedAnchor(presentation.capsule);
             presentation.mount=node.orientedAnchor(presentation.mount);
             presentation.cable=node.orientedAnchor(presentation.cable);
-            // Mic dimensions use the same fixed world scale as the cabinet.
-            // Changing a driver never changes the microphone or camera size.
-            const float longest=.264f*cameraScale*presentation.longestSpeakerRatio*(1.f+depth*.12f);
-            const float aspect=node.artworkAspectRatio();
-            const float width=aspect>=1.f ? longest : longest*aspect;
-            const float height=aspect>=1.f ? longest/aspect : longest;
+            // The body retains its real envelope at every speaker and distance.
+            const auto physical=juce::Rectangle<float>(dimensions.width,dimensions.height)
+                .transformedBy(juce::AffineTransform::rotation(rotation));
+            const float width=physical.getWidth()*cameraScale,height=physical.getHeight()*cameraScale;
             const auto anchor=microphoneAnchor(i);
             const juce::Rectangle<float> body{anchor.x-width*presentation.capsule.x,
                 anchor.y-height*presentation.capsule.y,width,height};
@@ -184,7 +186,7 @@ private:
                     visual.bodyBounds.getY()+normalised.y*visual.bodyBounds.getHeight()};
             };
             visual.capsule=point(presentation.capsule);visual.mount=point(presentation.mount);
-            visual.cable=point(presentation.cable);visual.scale=longest;
+            visual.cable=point(presentation.cable);visual.scale=std::max(width,height);
             visual.badge=anchor.translated(i ? 30.f : -30.f,-18.f);
             visual.badge.x=juce::jlimit(14.f,float(getWidth())-14.f,visual.badge.x);
             visual.badge.y=juce::jlimit(14.f,float(getHeight())-14.f,visual.badge.y);
@@ -304,7 +306,7 @@ public:
     void refresh() {
         const int nextDesign=effectiveDesign();
         const int nextAmp=processor.selectedAmpModel(lane);
-        const int nextDriver=expanded("driver");
+        const int nextDriver=currentSettings().voice.driver;
         const int nextLayout=layoutValue("layout");
         bool changed=design!=nextDesign || ampModel!=nextAmp || driverModel!=nextDriver || layoutModel!=nextLayout;
         if(draggingSlot>=0 && (design!=nextDesign || driverModel!=nextDriver || layoutModel!=nextLayout))endMicDrag();
@@ -312,12 +314,12 @@ public:
         design=nextDesign;ampModel=nextAmp;driverModel=nextDriver;headImage.setModel(ampModel);
         const auto* selected=driverModel>0 ? &spectralforge::cabExpansion::drivers[size_t(driverModel-1)] : nullptr;
         cabinetImage.setAsset(spectralforge::cabArt::cabinet(design),selected
-            ? juce::String("Chimera 4x")+juce::String(selected->inches)+" / "+selected->name
+            ? juce::String("Chimera ")+juce::String(speakerCount())+"x"+juce::String(selected->inches)+" / "+selected->name
             : design ? "Chimera Bass 4x10 cabinet" : "Chimera Guitar 4x12 cabinet");
         for(auto& image:speakerImages) {
             image.setAsset(spectralforge::cabArt::speaker(design),selected
                 ? juce::String(selected->name)+" / "+juce::String(selected->inches)+"-inch speaker unit"
-                : design ? "Original 10-inch bass speaker unit" : "Original 12-inch guitar speaker unit");
+                : design ? "Chimera 10-inch bass speaker unit" : "Chimera 12-inch guitar speaker unit");
             image.setSpeakerDesign(driverModel);
         }
         bool any=false;
@@ -335,7 +337,7 @@ public:
             auto& image=*microphones[size_t(i)];
             image.setAsset(geo.expansion>0 ? spectralforge::cabArt::capturedMicrophone(spectralforge::micCatalog::byId(
                 spectralforge::cabExpansion::microphones[size_t(geo.expansion-1)].catalogId)) : spectralforge::cabArt::originalMicrophone(geo.model),geo.expansion>0
-                ? spectralforge::cabExpansion::microphones[size_t(geo.expansion-1)].name : "Original Mic "+prefix);
+                ? spectralforge::cabExpansion::microphones[size_t(geo.expansion-1)].name : juce::String(geo.model==0 ? "Attack Dynamic" : geo.model==1 ? "Body Ribbon" : "Detail Condenser"));
             image.setActive(geo.enabled);image.setVisible(geo.enabled);any=any || geo.enabled;
             handles[size_t(i)]->setVisible(geo.enabled);
             if(!geo.enabled && hoveredSlot==i)setHoveredMic(-1);
@@ -347,14 +349,12 @@ public:
     }
     int layoutSelection() const noexcept {return layoutModel;}
     int speakerCount() const {return spectralforge::cabLayout::count(layoutModel);}
-    spectralforge::cabLayout::Settings arraySettings() const {
-        spectralforge::originalCab::Settings base{};base.cabinet=int(raw("design"));
-        return {{base,expanded("driver"),0,0},layoutModel,0};
-    }
+    spectralforge::cabLayout::Settings arraySettings() const {return currentSettings();}
     spectralforge::cabLayout::Geometry arrayGeometry() const {return spectralforge::cabLayout::geometry(arraySettings());}
-    juce::Rectangle<float> baffleBounds() const {return spectralforge::cabLayoutView::baffle(arrayBounds);}
+    juce::Rectangle<float> baffleBounds() const {return spectralforge::cabLayoutView::baffle(arrayGeometry(),arrayBounds);}
     juce::Rectangle<float> cabinetBounds() const {return arrayBounds;}
-    juce::Rectangle<float> amplifierBounds() const {return spectralforge::cabHead::boundsAboveCabinet(arrayBounds,headWidth);}
+    juce::Rectangle<float> amplifierBounds() const {return spectralforge::cabHead::physicalBoundsAboveCabinet(arrayBounds,cameraScale,ampModel,
+        arrayBounds.getY()+(baffleBounds().getY()-arrayBounds.getY())*.72f);}
     juce::Point<float> speakerCentre(int unit) const {
         const auto model=arrayGeometry();
         return spectralforge::cabLayoutView::point(model,arrayBounds,model.centres[size_t(juce::jlimit(0,model.count-1,unit))]);
@@ -393,7 +393,7 @@ public:
         if(!isShowing() || raw(slot ? "Bon" : "Aon")<=.5f
             || effectiveDesign()!=design
             || layoutValue("layout")!=layoutModel
-            || expanded("driver")!=driverModel
+            || currentSettings().voice.driver!=driverModel
             || int(raw(slot ? "Bmic" : "Amic"))!=geometry[size_t(slot)].model
             || expanded(slot ? "Bmic" : "Amic")!=geometry[size_t(slot)].expansion) {
             endMicDrag();refresh();return;
@@ -436,6 +436,6 @@ public:
         g.fillEllipse(cab.getX()+cab.getWidth()*.08f,supportY-2.f,cab.getWidth()*.84f,5.f);
         g.setColour(juce::Colour(0xff5a5c57).withAlpha(.15f));g.drawLine(6.f,h-5.f,w-6.f,h-5.f,1.f);
         g.beginTransparencyLayer(geometry[0].enabled || geometry[1].enabled ? 1.f : .62f);
-        spectralforge::cabLayoutView::enclosure(g,cab);g.endTransparencyLayer();
+        spectralforge::cabLayoutView::enclosure(g,arrayGeometry(),cab);g.endTransparencyLayer();
     }
 };

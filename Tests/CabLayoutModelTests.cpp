@@ -8,16 +8,36 @@ void require(bool ok,const char* message){if(!ok)throw std::runtime_error(messag
 double energy(const std::vector<float>& a){double e=0;for(float f:a){require(std::isfinite(f),"finite kernel");e+=double(f)*f;}return e;}
 int main(){try {
     l::Settings p{{{true,0,0,0,0,0,.63,10},1,20,0},0,7};
-    for(int driver:{0,1,14})for(double rate:{44100.,48000.,96000.}) {
-        p.voice.driver=driver;require(l::key(p)==x::key(p.voice),"legacy request changed");
+    for(int family:{0,1})for(int driver:{0,1,9,10,12})for(double rate:{44100.,48000.,96000.}) {
+        p.voice.base.cabinet=family;p.voice.driver=driver;
+        if(!l::isDriverCompatible(p))continue;
+        require(l::key(p)==x::key(p.voice),"valid four-unit request changed");
         require(l::generate(l::key(p),rate)==x::generate(x::key(p.voice),rate),"v1/v2 kernel changed");
     }
+    for(int family:{0,1})for(int driver=0;driver<=14;++driver) {
+        p.voice.base.cabinet=family;p.voice.driver=driver;const auto effective=l::effectiveSettings(p);
+        const int fallback=family ? 9 : 1,expectedInches=family ? 10 : 12;
+        const bool compatible=!driver || (x::drivers[size_t(driver-1)].bass==(family!=0) && x::drivers[size_t(driver-1)].inches==expectedInches);
+        require(l::isDriverCompatible(p)==compatible && l::isDriverCompatible(effective),"four-unit family / diameter mismatch accepted");
+        require(effective.voice.driver==(compatible ? driver : fallback),"four-unit wrong fallback");
+        require(l::isBass(effective)==(family!=0) && l::nominalInches(effective)==expectedInches,"four-unit driver changed cabinet family");
+        const auto g=l::geometry(p);const auto& authored=v::enclosures[size_t(family)];
+        require(g.box.width==authored.width && g.box.height==authored.height && g.box.depth==authored.depth && g.box.volume==authored.volume,"four-unit mismatch resized cabinet");
+        require(l::key(p)==x::key(effective.voice) && l::settings(x::key(p.voice)).voice.driver==effective.voice.driver,"four-unit mismatch bypasses key resolution");
+        for(double hz:{65.,1500.,6500.})require(l::response(p,hz)==l::response(effective,hz),"four-unit automation changed cabinet family");
+        if(!compatible && (driver==1 || driver==9 || driver==13))
+            require(l::generate(x::key(p.voice),48000)==x::generate(x::key(effective.voice),48000),"restored four-unit kernel retains incompatible driver");
+    }
+    p.voice.base.cabinet=0;
     const std::array<int,9> counts{1,2,4,1,2,4,8,1,2};
     const std::array<int,9> drivers{1,1,1,13,9,9,9,11,14};
-    double largest=0;size_t cases=0;std::set<uint64_t> keys;
+    double largest=0;size_t cases=0,compatibilityCases=0;std::set<uint64_t> keys;
     for(int layout=1;layout<=9;++layout) {
         p.layout=layout;p.voice.driver=drivers[size_t(layout-1)];const auto g=l::geometry(p);
+        const auto& authored=l::layouts[size_t(layout-1)];
+        require(l::isDriverCompatible(p) && l::nominalInches(p)==authored.inches && l::isBass(p)==authored.bass,"authored driver classification");
         require(g.count==counts[size_t(layout-1)] && g.box.volume>0,"authored count / volume");
+        require(g.box.width==authored.width && g.box.height==authored.height && g.box.depth==authored.depth && g.box.volume==authored.volume,"authored dimensions changed");
         require(g.box.volume<g.box.width*g.box.height*g.box.depth,"net volume exceeds exterior");
         for(int unit=0;unit<g.count;++unit) {
             p.unit=unit;require(keys.insert(l::key(p)).second,"request collision");
@@ -52,9 +72,31 @@ int main(){try {
             auto farther=p;farther.voice.base.distanceCm=60;require(energy(l::generate(l::key(farther),rate))<total,"distance attenuation");
         }
     }
+    // Saved values and automation can bypass the UI's compatible-driver menu.
+    // Every such request resolves to a matching driver while keeping raw settings
+    // untouched, fixed cabinet dimensions, and one canonical rendering/DSP key.
+    for(int layout=1;layout<=9;++layout)for(int family=0;family<2;++family)for(int driver=0;driver<=14;++driver) {
+        p={{{true,family,0,0,0,.4,.63,10},driver,20,2},layout,0};
+        const auto stored=p,effective=l::effectiveSettings(p);const auto& authored=l::layouts[size_t(layout-1)];
+        require(p.voice.driver==stored.voice.driver && p.voice.base.cabinet==stored.voice.base.cabinet,"compatibility resolution mutates stored choice");
+        require(l::isDriverCompatible(effective),"mismatch has no compatible fallback");
+        const bool expected=(driver ? x::drivers[size_t(driver-1)].bass : family!=0)==authored.bass
+            && (driver ? x::drivers[size_t(driver-1)].inches : family ? 10 : 12)==authored.inches;
+        require(l::isDriverCompatible(p)==expected,"family / diameter acceptance wrong");
+        if(expected)require(effective.voice.driver==driver,"compatible selected driver replaced");
+        else require(effective.voice.driver==(authored.bass ? authored.inches==15 ? 13 : authored.inches==12 ? 11 : 9 : 1),"fallback is not deterministic");
+        const auto g=l::geometry(p),resolved=l::geometry(effective);
+        require(g.box.width==authored.width && g.box.height==authored.height && g.box.depth==authored.depth && g.box.volume==authored.volume,"driver resized cabinet");
+        require(g.radius==resolved.radius && l::key(p)==l::key(effective),"effective visual and DSP driver disagree");
+        const auto rawKey=x::key(p.voice)|l::versionBit|(uint64_t(layout)<<47);
+        require(l::settings(rawKey).voice.driver==effective.voice.driver,"restored request bypasses compatibility");
+        for(double hz:{65.,1500.,6500.})require(l::response(p,hz)==l::response(effective,hz),"automated mismatch bypasses DSP compatibility");
+        ++compatibilityCases;
+    }
     for(int layout=1;layout<=9;++layout)for(int d=1;d<=14;++d)for(int mic=1;mic<=20;++mic)
     for(int unit=0;unit<l::count(layout);++unit)for(int rear=0;rear<2;++rear)for(double position:{0.,1.})for(double distance:{2.,60.}) {
         p={{{true,0,rear,0,0,1,position,distance},d,mic,3},layout,unit};
+        if(!l::isDriverCompatible(p))continue;
         for(double hz:{30.,300.,3000.,15000.}) {
             auto r=l::response(p,hz);require(std::isfinite(r.real()) && std::isfinite(r.imag()),"finite array boundary");largest=std::max(largest,std::abs(r));
         }++cases;
@@ -70,5 +112,5 @@ int main(){try {
         }
     }
     require(positionStep<.025 && distanceStep<.15,"array control continuity gate");
-    std::cout<<"PASS layouts=9 all_driver_mic_unit_boundaries="<<cases<<" max_magnitude="<<largest<<" position_tick="<<positionStep<<" distance_tick="<<distanceStep<<'\n';return 0;
+    std::cout<<"PASS layouts=9 compatibility_requests="<<compatibilityCases<<" compatible_driver_mic_unit_boundaries="<<cases<<" max_magnitude="<<largest<<" position_tick="<<positionStep<<" distance_tick="<<distanceStep<<'\n';return 0;
 }catch(const std::exception& e){std::cerr<<e.what()<<'\n';return 1;}}
