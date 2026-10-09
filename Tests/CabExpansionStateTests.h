@@ -77,7 +77,7 @@ void expansionStateContracts(const juce::File& screenshots) {
         }
     }
     auto& layout=cabMicrophoneUITests::component<juce::ComboBox>(panel,"lcab1_layout");
-    layout.setSelectedId(2,juce::sendNotificationSync); // Guitar 1x12 accepts Raven 100.
+    layout.setSelectedId(2,juce::sendNotificationSync); // Guitar 1x12 accepts Nocturne 100.
     set(*p,"lcab1_Aunit",0);set(*p,"ocab1_Aposition",.25f);set(*p,"ocab1_Adistance",10);
     drivers.setSelectedId(8,juce::sendNotificationSync);micA.setSelectedId(21,juce::sendNotificationSync);micB.setSelectedId(11,juce::sendNotificationSync);
     check(p->parameters().getRawParameterValue("xcab1_driver")->load()==7 && p->parameters().getRawParameterValue("xcab1_Amic")->load()==20

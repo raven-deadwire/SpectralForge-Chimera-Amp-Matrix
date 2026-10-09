@@ -99,7 +99,7 @@ void layoutStateContracts(const juce::File& screenshots) {
         }
         set(*p,"lcab1_layout",1);set(*p,"xcab1_driver",6);controls.refreshState();events.reset();
         layout.setSelectedId(4,juce::sendNotificationSync);events.expect({"lcab1_layout"});
-        check(raw("xcab1_driver")==6 && driverChoice.getText()=="Carnivore 12","compatible speaker lost on cabinet change");
+        check(raw("xcab1_driver")==6 && driverChoice.getText()=="Crimson 12","compatible speaker lost on cabinet change");
         set(*p,"lcab1_layout",0);set(*p,"ocab1_design",1);set(*p,"xcab1_driver",13);controls.refreshState();events.reset();
         check(layout.getText()=="Bass 4x10" && driverChoice.getSelectedId()==10 && raw("xcab1_driver")==13,"four-unit cabinet did not resolve bass diameter");
         for(int candidate=1;candidate<=14;++candidate)

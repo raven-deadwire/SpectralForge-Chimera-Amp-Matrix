@@ -25,8 +25,8 @@ the three microphone roles are Attack Dynamic, Body Ribbon and Detail Condenser.
 | Verdant 25 | Warm British / G12M-25 |
 | Granite 55 | Low-resonance British / G12H55 |
 | Silver 12 | Clean ceramic / Jensen family |
-| Carnivore 12 | Eminence Karnivore |
-| Raven 100 | Celestion G12-100 Raven, not G12K-100 |
+| Crimson 12 | Eminence Karnivore |
+| Nocturne 100 | Celestion G12-100 Raven, not G12K-100 |
 | Chimera Ruin 12 | Original heavy guitar role |
 
 | Bass speaker | Research role |

@@ -104,7 +104,9 @@ class OriginalCabControls : public juce::Component,private juce::Timer {
         layout.setEnabled(any);design.setEnabled(any && selectedLayout==0);driver.setEnabled(any);tweeterDesign.setEnabled(any);rear.setEnabled(any);tweeter.setEnabled(any);
         const int selectedDriver=effective.voice.driver-1;
         speakerLabel.setText(selectedDriver>=0 && selectedDriver<int(spectralforge::cabExpansion::drivers.size())
-            ? juce::String(unitCount)+" x "+juce::String(spectralforge::cabExpansion::drivers[size_t(selectedDriver)].inches)+"\" / "+spectralforge::cabExpansion::drivers[size_t(selectedDriver)].reference
+            ? juce::String(unitCount)+" x "+juce::String(spectralforge::cabExpansion::drivers[size_t(selectedDriver)].inches)+"\" / "
+                +(selectedDriver==5 ? "Deep low mids, firm attack" : selectedDriver==6 ? "Broad response, tight lows"
+                    : spectralforge::cabExpansion::drivers[size_t(selectedDriver)].reference)
             : juce::String(unitCount)+(spectralforge::cabLayout::isBass(effective) ? " x 10\" BASS UNITS" : " x 12\" GUITAR UNITS"),juce::dontSendNotification);
         sceneHint.setText(any ? "Drag a microphone to move it  |  Shift-drag for distance" :
             "Cabinet preview  |  Enable Mic A or B to use this cabinet",juce::dontSendNotification);
