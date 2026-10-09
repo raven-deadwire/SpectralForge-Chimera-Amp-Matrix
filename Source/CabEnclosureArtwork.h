@@ -5,8 +5,8 @@
 
 namespace spectralforge::cabEnclosureArt {
 // The original cabinet illustrations remain the source of the shell material.
-// Only these inspected, speaker-free rectangles are used. The source centre
-// (including its four cones and, for bass, its fixed horn) is never rendered.
+// Only inspected, speaker-free rectangles are used. The four baked cones
+// are never rendered; the bass horn plate is a separate acoustic-positioned crop.
 // Coordinates refer to the unchanged 1254 x 1254 PNGs in Assets/Artwork/Cab.
 enum Piece { topLeft, topRail, topRight, rightRail, bottomRight, bottomRail,
              bottomLeft, leftRail, pieceCount };
@@ -32,11 +32,11 @@ inline SourceRegions sourceRegions(bool bass) {
 struct Skin {
     std::array<juce::Image,pieceCount> perimeter;
     std::array<juce::Image,2> feet;
-    juce::Image grille,roof,grilleOverlay;
+    juce::Image grille,roof,grilleOverlay,header,horn;
     float sourcePixelsPerMetre{};
     bool bass{};
     bool isValid() const noexcept {
-        if(!grille.isValid() || !roof.isValid() || !grilleOverlay.isValid() || sourcePixelsPerMetre<=0.f)return false;
+        if(!grille.isValid() || !roof.isValid() || !grilleOverlay.isValid() || !header.isValid() || sourcePixelsPerMetre<=0.f)return false;
         for(const auto& image:perimeter)if(!image.isValid())return false;
         return true;
     }
@@ -98,6 +98,12 @@ inline Skin makeSkin(const juce::Image& source,bool bass) {
     skin.feet[1]=clip(bass ? juce::Rectangle<int>(1087,1147,63,36) : juce::Rectangle<int>(1090,1172,67,26));
     skin.grille=clip(regions.grille).createCopy();
     skin.roof=clip(regions.roof).createCopy();
+    // Preserve the complete photographed roof, rolled front edge and metal
+    // cap returns. A tiny grain tile cannot reproduce their original form.
+    // These strips end before any of the baked cones or bass horn begins.
+    skin.header=clip(bass ? juce::Rectangle<int>(63,61,1127,87)
+                          : juce::Rectangle<int>(44,48,1166,110));
+    if(bass)skin.horn=clip({507,536,236,156});
     skin.grilleOverlay=makeGrilleOverlay(skin.grille,bass);
     skin.sourcePixelsPerMetre=float(regions.referenceFrontWidth)*float(source.getWidth())
         /(1254.f*regions.referenceWidthMetres);
@@ -112,16 +118,34 @@ inline void fillMaterial(juce::Graphics& g,const juce::Image& image,
     g.setFillType(texture);g.fillRect(area);
 }
 
-inline void paintFrame(juce::Graphics& g,const Skin& skin,juce::Rectangle<float> face,float pixelsPerMetre) {
+inline float upperInset(juce::Rectangle<float> face,float pixelsPerMetre,bool slant) {
+    return slant ? juce::jmin(pixelsPerMetre*.026f,face.getWidth()*.06f) : 0.f;
+}
+inline juce::Path frontOutline(juce::Rectangle<float> face,float inset,float radius) {
+    juce::Path p;
+    if(inset<=0.f) {p.addRoundedRectangle(face,radius);return p;}
+    const float x=face.getX(),r=face.getRight(),y=face.getY(),b=face.getBottom(),bend=y+face.getHeight()*.46f;
+    p.startNewSubPath(x+inset+radius,y);p.lineTo(r-inset-radius,y);
+    p.quadraticTo(r-inset,y,r-inset,y+radius);
+    p.lineTo(r-inset*.08f,bend-radius);p.quadraticTo(r,bend,r,bend+radius);
+    p.lineTo(r,b-radius);p.quadraticTo(r,b,r-radius,b);
+    p.lineTo(x+radius,b);p.quadraticTo(x,b,x,b-radius);
+    p.lineTo(x,bend+radius);p.quadraticTo(x,bend,x+inset*.08f,bend-radius);
+    p.lineTo(x+inset,y+radius);p.quadraticTo(x+inset,y,x+inset+radius,y);
+    p.closeSubPath();return p;
+}
+
+inline void paintFrame(juce::Graphics& g,const Skin& skin,juce::Rectangle<float> face,float pixelsPerMetre,bool slant=false) {
     if(!skin.isValid() || face.isEmpty() || pixelsPerMetre<=0.f)return;
     const juce::Graphics::ScopedSaveState saved(g);
     const float corner=juce::jmin(pixelsPerMetre*(skin.bass ? .048f : .044f),
         juce::jmin(face.getWidth(),face.getHeight())*.18f);
     const float rail=juce::jmin(pixelsPerMetre*(skin.bass ? .035f : .038f),corner);
     const float x=face.getX(),y=face.getY(),r=face.getRight(),b=face.getBottom();
+    const float inset=upperInset(face,pixelsPerMetre,slant);
     const std::array<juce::Rectangle<float>,pieceCount> destinations{{
-        {x,y,corner,corner}, {x+corner,y,face.getWidth()-corner*2.f,rail},
-        {r-corner,y,corner,corner}, {r-rail,y+corner,rail,face.getHeight()-corner*2.f},
+        {x+inset,y,corner,corner}, {x+inset+corner,y,face.getWidth()-(corner+inset)*2.f,rail},
+        {r-inset-corner,y,corner,corner}, {r-rail,y+corner,rail,face.getHeight()-corner*2.f},
         {r-corner,b-corner,corner,corner}, {x+corner,b-rail,face.getWidth()-corner*2.f,rail},
         {x,b-corner,corner,corner}, {x,y+corner,rail,face.getHeight()-corner*2.f}
     }};
@@ -131,6 +155,20 @@ inline void paintFrame(juce::Graphics& g,const Skin& skin,juce::Rectangle<float>
     for(size_t i=1;i<destinations.size();i+=2) {
         const auto area=destinations[i];const auto& image=skin.perimeter[i];
         const bool horizontal=i==topRail || i==bottomRail;
+        if(slant && !horizontal) {
+            const float bend=y+face.getHeight()*.46f,top=y+corner;
+            const float start=i==leftRail ? x+inset : r-rail-inset;
+            const float end=i==leftRail ? x : r-rail;
+            {
+                const juce::Graphics::ScopedSaveState upper(g);
+                g.addTransform(juce::AffineTransform(1.f,(end-start)/(bend-top),start,0.f,1.f,top));
+                g.setFillType(juce::FillType(image,juce::AffineTransform::scale(rail/float(image.getWidth()),grainScale)));
+                g.fillRect(0.f,0.f,rail,bend-top);
+            }
+            g.setFillType(juce::FillType(image,juce::AffineTransform::scale(rail/float(image.getWidth()),grainScale).translated(end,bend)));
+            g.fillRect(end,bend,rail,b-corner-bend);
+            continue;
+        }
         const auto transform=juce::AffineTransform::scale(
             horizontal ? grainScale : area.getWidth()/float(image.getWidth()),
             horizontal ? area.getHeight()/float(image.getHeight()) : grainScale)
@@ -140,31 +178,30 @@ inline void paintFrame(juce::Graphics& g,const Skin& skin,juce::Rectangle<float>
     g.setColour(juce::Colours::white);
     for(size_t i=0;i<destinations.size();i+=2)
         g.drawImage(skin.perimeter[i],destinations[i],juce::RectanglePlacement::stretchToFit);
-    const auto lip=face.reduced(rail*.93f);
-    // The continuous recessed grille has a dark inner return and a narrow
-    // brass/gunmetal bevel, rather than a bright flat outline around the box.
-    g.setColour(juce::Colours::black.withAlpha(.85f));
-    g.drawRoundedRectangle(lip.reduced(rail*.10f),rail*.13f,juce::jmax(.8f,rail*.18f));
-    g.setColour(juce::Colour(skin.bass ? 0xff878b8c : 0xffab9671).withAlpha(.74f));
-    g.drawRoundedRectangle(lip,rail*.13f,juce::jmax(.55f,pixelsPerMetre*.0012f));
+    // The source rails already contain the rounded leather return and piping.
+    // Do not replace them with an extra synthetic box outline.
 }
 
-inline void paintGrille(juce::Graphics& g,const Skin& skin,juce::Rectangle<float> face,float pixelsPerMetre) {
+inline void paintGrille(juce::Graphics& g,const Skin& skin,juce::Rectangle<float> face,float pixelsPerMetre,bool slant=false) {
     if(!skin.isValid() || face.isEmpty() || pixelsPerMetre<=0.f)return;
     const float corner=juce::jmin(pixelsPerMetre*(skin.bass ? .048f : .044f),
         juce::jmin(face.getWidth(),face.getHeight())*.18f);
     const float rail=juce::jmin(pixelsPerMetre*(skin.bass ? .035f : .038f),corner);
-    fillMaterial(g,skin.grilleOverlay,face.reduced(rail*.82f),pixelsPerMetre/skin.sourcePixelsPerMetre);
+    {
+        const juce::Graphics::ScopedSaveState clip(g);
+        g.reduceClipRegion(frontOutline(face,upperInset(face,pixelsPerMetre,slant),corner*.28f));
+        fillMaterial(g,skin.grilleOverlay,face.reduced(rail*.82f),pixelsPerMetre/skin.sourcePixelsPerMetre);
+    }
     // The grille and frame are in front of the mounted units. Repaint the
     // flange here so large valid drivers cannot erase the cabinet's hardware.
-    paintFrame(g,skin,face,pixelsPerMetre);
+    paintFrame(g,skin,face,pixelsPerMetre,slant);
 }
 
 // The caller owns all camera geometry. Decorative widths also use its common
 // pixels-per-metre scale, so a smaller cabinet does not acquire larger corners
 // or a differently magnified texture. Speaker count and diameter are irrelevant.
 inline void paint(juce::Graphics& g,const Skin& skin,juce::Rectangle<float> box,
-                  juce::Rectangle<float> face,float pixelsPerMetre) {
+                  juce::Rectangle<float> face,float pixelsPerMetre,bool slant=false) {
     if(box.isEmpty() || face.isEmpty() || pixelsPerMetre<=0.f)return;
     const juce::Graphics::ScopedSaveState saved(g);
     g.setImageResamplingQuality(juce::Graphics::highResamplingQuality);
@@ -172,26 +209,21 @@ inline void paint(juce::Graphics& g,const Skin& skin,juce::Rectangle<float> box,
         juce::jmin(face.getWidth(),face.getHeight())*.18f);
     const float rail=juce::jmin(pixelsPerMetre*(skin.bass ? .035f : .038f),corner);
     const float depth=juce::jmax(0.f,face.getY()-box.getY());
-    const float backInset=juce::jmin(pixelsPerMetre*.018f,depth*.5f);
-    juce::Path roof;roof.startNewSubPath(box.getX()+backInset,box.getY());
-    roof.lineTo(box.getRight()-backInset,box.getY());
-    roof.lineTo(face.getRight(),face.getY()+rail*.35f);
-    roof.lineTo(face.getX(),face.getY()+rail*.35f);roof.closeSubPath();
-    g.setColour(juce::Colour(0xff242627));g.fillPath(roof);
-    if(skin.isValid()) {
-        const juce::Graphics::ScopedSaveState clipped(g);g.reduceClipRegion(roof);
-        fillMaterial(g,skin.roof,box.withHeight(depth+rail),pixelsPerMetre/skin.sourcePixelsPerMetre);
-    }
-    g.setGradientFill({juce::Colours::white.withAlpha(.10f),box.getTopLeft(),
-        juce::Colours::black.withAlpha(.16f),face.getTopLeft(),false});g.fillPath(roof);
-    g.setColour(juce::Colour(0xff858788).withAlpha(.42f));
-    g.drawLine(box.getX()+backInset,box.getY(),box.getRight()-backInset,box.getY(),.7f);
-
-    g.setColour(juce::Colour(0xff0b0d0e));g.fillRoundedRectangle(face,corner*.28f);
+    const float inset=upperInset(face,pixelsPerMetre,slant);
+    const auto outline=frontOutline(face,inset,corner*.28f);
+    g.setColour(juce::Colour(0xff0b0d0e));g.fillPath(outline);
     const auto grille=face.reduced(rail*.82f);
-    if(skin.isValid())
+    if(skin.isValid()) {
+        const juce::Graphics::ScopedSaveState clip(g);g.reduceClipRegion(outline);
         fillMaterial(g,skin.grille,grille,pixelsPerMetre/skin.sourcePixelsPerMetre);
-    else {
+        if(slant) {
+            // A soft change in the upper baffle's room-light angle makes the
+            // slant legible without inventing a seam across continuous cloth.
+            const auto upper=face.withHeight(face.getHeight()*.46f);
+            g.setGradientFill({juce::Colours::white.withAlpha(.055f),upper.getTopLeft(),
+                juce::Colours::black.withAlpha(.12f),upper.getBottomLeft(),false});g.fillRect(upper);
+        }
+    } else {
         g.setColour(juce::Colour(skin.bass ? 0xff242a2c : 0xff242320));g.fillRect(grille);
     }
     // Subtle recess shading belongs to the shell, not to a baked speaker face.
@@ -199,6 +231,11 @@ inline void paint(juce::Graphics& g,const Skin& skin,juce::Rectangle<float> box,
         juce::Colours::transparentBlack,grille.getTopLeft().translated(0.f,rail),false});
     g.fillRect(grille.withHeight(rail));
 
-    paintFrame(g,skin,face,pixelsPerMetre);
+    if(skin.header.isValid()) {
+        g.setColour(juce::Colours::white);
+        g.drawImage(skin.header,{box.getX()+inset,box.getY(),box.getWidth()-inset*2.f,depth+rail},
+            juce::RectanglePlacement::stretchToFit);
+    }
+    paintFrame(g,skin,face,pixelsPerMetre,slant);
 }
 }

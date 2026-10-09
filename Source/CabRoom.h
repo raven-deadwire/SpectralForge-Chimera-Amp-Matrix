@@ -150,6 +150,7 @@ class CabRoomOverview : public juce::Component, private juce::Timer {
         std::array<spectralforge::IRMetadata,2> capture;
         bool cabEnabled{true},ampEnabled{true},muted{},solo{};
         float lowAmpMix{1.f},ampContribution{1.f},cabContribution{1.f};
+        float tweeterLevel{};int tweeterKind{};
         juce::String name,caption;
     };
     class Rig : public juce::Button {
@@ -234,6 +235,7 @@ class CabRoomOverview : public juce::Component, private juce::Timer {
             spectralforge::cabLayoutView::enclosure(g,rig.model,cabinetBounds,rig.bass);
             spectralforge::cabLayoutView::speakers(g,rig.model,cabinetBounds,rig.driver,rig.design);
             spectralforge::cabLayoutView::grille(g,rig.model,cabinetBounds,rig.bass);
+            spectralforge::cabLayoutView::tweeter(g,rig.model,cabinetBounds,rig.bass,rig.tweeterLevel,rig.tweeterKind);
         } else {
             const int slot=rig.source[0]!=0 ? 0 : 1;
             spectralforge::capturedCabArt::paintCabinet(g,cabinetBounds,captureConfiguration(rig),false);
@@ -307,7 +309,9 @@ public:
                 juce::roundToInt(read(spectralforge::cabExpansionID(i,"driver"))));
             const int layout=spectralforge::cabLayout::layoutIndex(juce::roundToInt(read(spectralforge::cabLayoutID(i,"layout"))));
             spectralforge::originalCab::Settings base;base.cabinet=design;
-            const auto physicalSettings=spectralforge::cabLayout::effectiveSettings({{base,rawDriver,0,0},layout,0});
+            base.tweeter=read(spectralforge::originalCabID(i,"tweeter"));
+            const int selectedTweeter=juce::jlimit(0,3,juce::roundToInt(read(spectralforge::cabExpansionID(i,"tweeter"))));
+            const auto physicalSettings=spectralforge::cabLayout::effectiveSettings({{base,rawDriver,0,selectedTweeter},layout,0});
             const int driver=physicalSettings.voice.driver;
             const bool bass=spectralforge::cabLayout::isBass(physicalSettings);
             const bool cabEnabled=read("cab"+n)>.5f,ampEnabled=read("ampon"+n)>.5f;
@@ -317,12 +321,16 @@ public:
             const float requested=low ? blend.requested : 1.f;
             const float ampContribution=low ? blend.effective : (ampEnabled ? 1.f : 0.f);
             const float cabContribution=low ? blend.cabContribution() : (cabEnabled ? 1.f : 0.f);
+            const float tweeterLevel=physicalSettings.voice.base.tweeter;
+            const int tweeterKind=physicalSettings.voice.tweeter;
             bool changed=rig.amp!=amp || rig.design!=design || rig.driver!=driver || rig.layout!=layout || rig.bass!=bass
+                || rig.tweeterLevel!=tweeterLevel || rig.tweeterKind!=tweeterKind
                 || rig.cabEnabled!=cabEnabled || rig.ampEnabled!=ampEnabled
                 || rig.muted!=muted || rig.solo!=solo || rig.lowAmpMix!=requested
                 || rig.ampContribution!=ampContribution || rig.cabContribution!=cabContribution;
             rig.amp=amp;rig.design=design;rig.driver=driver;rig.layout=layout;rig.bass=bass;
             rig.physicalSettings=physicalSettings;rig.model=spectralforge::cabLayout::geometry(physicalSettings);
+            rig.tweeterLevel=tweeterLevel;rig.tweeterKind=tweeterKind;
             rig.cabEnabled=cabEnabled;rig.ampEnabled=ampEnabled;rig.muted=muted;rig.solo=solo;
             rig.lowAmpMix=requested;rig.ampContribution=ampContribution;rig.cabContribution=cabContribution;
             for(int slot=0;slot<2;++slot) {

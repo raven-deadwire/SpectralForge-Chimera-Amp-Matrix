@@ -72,6 +72,23 @@ int main(){try {
             auto farther=p;farther.voice.base.distanceCm=60;require(energy(l::generate(l::key(farther),rate))<total,"distance attenuation");
         }
     }
+    // A centre horn is equidistant from all four cone-centred microphones.
+    // Isolate its complex contribution so cone interference cannot conceal a
+    // misplaced horn or a visual-only correction that leaves DSP above it.
+    for(int horn=0;horn<4;++horn)for(double distance:{2.,10.,60.})for(double hz:{3500.,6500.,12000.}) {
+        l::Settings centre{{{true,1,0,0,0,0,0,distance},9,20,horn},6,0};
+        const auto g=l::geometry(centre);
+        require(g.horn.x==0 && g.horn.y==0,"4x10 horn is not between the four cones");
+        v::Complex reference{};
+        for(int unit=0;unit<4;++unit) {
+            centre.unit=unit;const auto off=l::response(centre,hz);
+            auto enabled=centre;enabled.voice.base.tweeter=.65;
+            const auto contribution=l::response(enabled,hz)-off;
+            require(std::abs(contribution)>1e-7,"4x10 enabled horn has no acoustic contribution");
+            if(unit==0)reference=contribution;
+            else require(std::abs(contribution-reference)<1e-12,"4x10 horn propagation disagrees across symmetric microphones");
+        }
+    }
     // The 1.3 large bass cabinet reuses the preview driver model while removing
     // one row. Retain per-driver sealed loading, but use six actual sources and
     // the shorter cabinet's axial mode, not a relabelled eight-driver response.

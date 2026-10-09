@@ -37,6 +37,10 @@ inline juce::Point<float> point(const cabLayout::Geometry& model,juce::Rectangle
     return {face.getCentreX()+float(p.x/model.box.width)*face.getWidth(),face.getCentreY()-float(p.y/model.box.height)*face.getHeight()};
 }
 inline float radius(const cabLayout::Geometry& model,juce::Rectangle<float> box) {return float(model.radius/model.box.width)*box.getWidth();}
+// The authored guitar 4x12 uses the familiar slanted upper baffle. Smaller
+// guitar boxes retain rounded leather returns; bass frames stay straight.
+// This enclosure presentation does not alter the authored acoustic geometry.
+inline bool slantedFront(const cabLayout::Geometry& model,bool bass) {return !bass && model.count==4;}
 struct GroundSupport {std::array<juce::Rectangle<float>,2> feet;float y{};};
 inline GroundSupport groundSupport(juce::Rectangle<float> box) {
     const float height=juce::jlimit(2.5f,7.5f,box.getWidth()*.022f),width=box.getWidth()*.057f;
@@ -61,7 +65,7 @@ inline void enclosure(juce::Graphics& g,const cabLayout::Geometry& model,juce::R
         ++footIndex;
     }
     cabEnclosureArt::paint(g,skin,box,baffle(model,box),
-        box.getWidth()/float(model.box.width));
+        box.getWidth()/float(model.box.width),slantedFront(model,bass));
 }
 inline void speakers(juce::Graphics& g,const cabLayout::Geometry& model,juce::Rectangle<float> box,int driver,int legacyDesign=0) {
     const juce::SharedResourcePointer<cabArt::Bank> bank;
@@ -76,6 +80,26 @@ inline void speakers(juce::Graphics& g,const cabLayout::Geometry& model,juce::Re
 inline void grille(juce::Graphics& g,const cabLayout::Geometry& model,juce::Rectangle<float> box,bool bass) {
     const juce::SharedResourcePointer<cabArt::Bank> bank;
     cabEnclosureArt::paintGrille(g,bank->enclosureSkins[size_t(bass)],baffle(model,box),
-        box.getWidth()/float(model.box.width));
+        box.getWidth()/float(model.box.width),slantedFront(model,bass));
+}
+inline void tweeter(juce::Graphics& g,const cabLayout::Geometry& model,juce::Rectangle<float> box,
+                    bool bass,float level,int kind) {
+    if(level<=0.f)return;
+    const auto centre=point(model,box,model.horn);
+    const float scale=box.getWidth()/float(model.box.width);
+    const juce::SharedResourcePointer<cabArt::Bank> bank;
+    const auto& image=bank->enclosureSkins[1].horn;
+    if(bass && kind==0 && image.isValid()) {
+        const juce::Graphics::ScopedSaveState clip(g);
+        // Use the selected acoustic horn position. Never bake a fixed centre
+        // horn into a different array, or show hardware when HF is disabled.
+        g.reduceClipRegion(baffle(model,box).reduced(.035f*scale).toNearestInt());
+        g.setColour(juce::Colours::white);
+        g.drawImage(image,juce::Rectangle<float>(.126f*scale,.087f*scale).withCentre(centre),
+            juce::RectanglePlacement::stretchToFit);
+    } else {
+        const float radius=box.getWidth()*.024f;
+        g.setColour(juce::Colour(0xffbcc0b9));g.drawEllipse(centre.x-radius,centre.y-radius,radius*2.f,radius*2.f,1.5f);
+    }
 }
 }

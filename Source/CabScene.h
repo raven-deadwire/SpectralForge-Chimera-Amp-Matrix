@@ -229,11 +229,7 @@ private:
                 g.drawText(juce::String(n+1),juce::Rectangle<float>(c.x-speakerRadius()-10,c.y-6,10,12),juce::Justification::centred);
             }
         }
-        if(raw("tweeter")>0) {
-                const auto model=arrayGeometry();const auto face=baffleBounds();
-                const auto horn=juce::Point<float>{face.getCentreX()+float(model.horn.x/model.box.width)*face.getWidth(),face.getCentreY()-float(model.horn.y/model.box.height)*face.getHeight()};
-                const float r=face.getWidth()*.024f;g.setColour(juce::Colour(0xffbcc0b9));g.drawEllipse(horn.x-r,horn.y-r,r*2,r*2,1.5f);
-        }
+        spectralforge::cabLayoutView::tweeter(g,arrayGeometry(),cabinetBounds(),design==1,raw("tweeter"),expanded("tweeter"));
         for(int i=0;i<2;++i)if(geometry[size_t(i)].enabled) {
             const auto& visual=visualGeometry[size_t(i)];
             const auto anchor=visual.capsule,target=coneTarget(i);

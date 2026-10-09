@@ -100,7 +100,9 @@ inline Geometry geometry(Settings p) {
     const double pitch=l.inches*.0254*1.10;
     for(int row=0;row<l.rows;++row)for(int col=0;col<l.columns;++col)
         g.centres[size_t(row*l.columns+col)]={(col-(l.columns-1)*.5)*pitch,((l.rows-1)*.5-row)*pitch};
-    g.horn={0,g.box.height*.44};return g;
+    // The four-driver bass baffle carries its horn between the cones. Both
+    // drawing and acoustic propagation consume this same physical location.
+    g.horn={0,l.bass && l.columns==2 && l.rows==2 ? 0. : g.box.height*.44};return g;
 }
 inline Complex driverTransfer(Settings p,double hz,const Geometry& g) {
     p=effectiveSettings(p);

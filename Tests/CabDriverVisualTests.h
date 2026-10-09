@@ -71,6 +71,22 @@ inline void shellArtworkContracts(const juce::File& screenshots) {
         shells[size_t(family)]=juce::Image(juce::Image::ARGB,336,367,true);
         juce::Graphics g(shells[size_t(family)]);cabLayoutView::enclosure(g,model,box,family==1);
     }
+    const auto face=cabLayoutView::baffle(model,box);
+    const auto rowEdges=[&](const juce::Image& image,float y) {
+        int left=image.getWidth(),right=-1;
+        for(int x=0;x<image.getWidth();++x)if(image.getPixelAt(x,juce::roundToInt(y)).getAlpha()>64) {
+            left=juce::jmin(left,x);right=juce::jmax(right,x);
+        }
+        return juce::Point<int>(left,right);
+    };
+    const auto guitarTop=rowEdges(shells[0],face.getY()+face.getHeight()*.16f);
+    const auto guitarLower=rowEdges(shells[0],face.getY()+face.getHeight()*.65f);
+    const auto bassTop=rowEdges(shells[1],face.getY()+face.getHeight()*.16f);
+    const auto bassLower=rowEdges(shells[1],face.getY()+face.getHeight()*.65f);
+    check(guitarTop.x>guitarLower.x+3 && guitarTop.y<guitarLower.y-3,
+        "guitar 4x12 upper baffle still has a flat rectangular silhouette");
+    check(std::abs(bassTop.x-bassLower.x)<=1 && std::abs(bassTop.y-bassLower.y)<=1,
+        "guitar slant was incorrectly applied to the straight bass enclosure");
     check(greyDifference(shells[0],shells[1])>.004,
         "production enclosure painter still replaces guitar and bass materials with one generic shell");
     juce::Image comparison(juce::Image::ARGB,672,367,true);juce::Graphics g(comparison);
@@ -184,12 +200,49 @@ inline void roomCameraContracts(const juce::File& screenshots) {
     snapshot(room,screenshots,"cab-visual-room-dual-112-610-1040x780.png");
     // The user's original full-cabinet style reference: compare the shells in
     // its 4x12 / 4x10 layout as well as the current 1x12 / 6x10 composition.
-    set(*p,"lcab1_layout",3);set(*p,"xcab1_driver",0);
-    set(*p,"lcab2_layout",6);set(*p,"xcab2_driver",0);
+    set(*p,"lcab1_layout",0);set(*p,"xcab1_driver",0);set(*p,"ocab1_design",0);
+    set(*p,"lcab2_layout",0);set(*p,"xcab2_driver",0);set(*p,"ocab2_design",1);
+    // The supplied reference uses the 515-style tube-window head, not the
+    // cloth-front British head used by the earlier comparison fixture.
+    for(int lane=0;lane<2;++lane)p->setAmpModel(lane,2);
     room.refreshState();
     check(room.displayedGeometry(0).count==4 && room.displayedGeometry(1).count==4,
         "original-style reference room has the wrong driver layout");
+    set(*p,"ocab2_tweeter",0);set(*p,"xcab2_tweeter",0);room.refreshState();
+    const auto withoutHorn=room.createComponentSnapshot(room.getLocalBounds());
+    set(*p,"ocab2_tweeter",.65f);room.refreshState();
+    const auto beforeHornRender=cabSceneUITests::parameterValues(*p);
+    const auto withHorn=room.createComponentSnapshot(room.getLocalBounds());
+    check(greyDifference(withoutHorn,withHorn)>.00005,"room does not display the active original HF horn");
+    check(cabSceneUITests::parameterValues(*p)==beforeHornRender,"horn rendering writes host parameters");
     snapshot(room,screenshots,"cab-visual-room-dual-original-style-412-410.png");
+    // Exercise the current selectable layouts too: a legacy-only screenshot
+    // could hide a misplaced authored 4x10 horn.
+    set(*p,"lcab1_layout",3);set(*p,"xcab1_driver",1);
+    set(*p,"lcab2_layout",6);set(*p,"xcab2_driver",9);room.refreshState();
+    const auto currentBass=room.displayedGeometry(1);
+    const auto currentBox=room.displayedCabinetBounds(1);
+    const auto hornCentre=cabLayoutView::point(currentBass,currentBox,currentBass.horn);
+    const auto face=cabLayoutView::baffle(currentBass,currentBox);
+    check(hornCentre.getDistanceFrom(face.getCentre())<.01f,"current 4x10 horn is not centred between the cones");
+    set(*p,"ocab2_tweeter",0);room.refreshState();
+    const auto currentWithout=room.createComponentSnapshot(room.getLocalBounds());
+    set(*p,"ocab2_tweeter",.65f);room.refreshState();
+    const auto currentBefore=cabSceneUITests::parameterValues(*p);
+    const auto currentWith=room.createComponentSnapshot(room.getLocalBounds());
+    // The local centre must contain visible hardware, not only a change
+    // elsewhere on the cabinet caused by the enabled control.
+    const auto roomHornCentre=hornCentre+room.getRigBounds(1).getPosition().toFloat();
+    const auto centreRegion=juce::Rectangle<int>(int(roomHornCentre.x)-12,int(roomHornCentre.y)-8,24,16);
+    writeImage(currentWithout,screenshots,"cab-visual-current-horn-off.png");
+    writeImage(currentWith,screenshots,"cab-visual-current-horn-on.png");
+    std::cout<<"4x10 centre horn pixel difference="
+        <<greyDifference(currentWithout.getClippedImage(centreRegion),currentWith.getClippedImage(centreRegion))
+        <<" centre="<<roomHornCentre.x<<","<<roomHornCentre.y<<'\n';
+    check(greyDifference(currentWithout.getClippedImage(centreRegion),currentWith.getClippedImage(centreRegion))>.02,
+        "current 4x10 original horn plate is absent at the centre");
+    check(cabSceneUITests::parameterValues(*p)==currentBefore,"current 4x10 horn rendering writes host parameters");
+    snapshot(room,screenshots,"cab-visual-room-current-412-410-centre-horn.png");
     std::cout<<"PASS room camera: active-only common scale, 6x10/4x12/4x10 physical proportions, normal/constrained/75% visuals, "
         <<"unused microphone space removed, inactive-rig isolation and stable microphone automation\n";
 }
