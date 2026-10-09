@@ -364,6 +364,13 @@ target_compile_definitions(ChimeraOriginalCabIntegrationTests PRIVATE JUCE_USE_C
 target_link_libraries(ChimeraOriginalCabIntegrationTests PRIVATE ChimeraIRs juce::juce_data_structures juce::juce_dsp juce::juce_audio_formats PUBLIC juce::juce_recommended_config_flags)
 add_test(NAME ChimeraOriginalCabIntegrationTests COMMAND ChimeraOriginalCabIntegrationTests)
 
+juce_add_console_app(ChimeraOriginalCabRealtimeTests PRODUCT_NAME "Chimera CAB Realtime Regression Tests")
+target_sources(ChimeraOriginalCabRealtimeTests PRIVATE Tests/CabRealtimeRegressionTests.cpp)
+target_include_directories(ChimeraOriginalCabRealtimeTests PRIVATE Source)
+target_compile_definitions(ChimeraOriginalCabRealtimeTests PRIVATE JUCE_USE_CURL=0 JUCE_WEB_BROWSER=0)
+target_link_libraries(ChimeraOriginalCabRealtimeTests PRIVATE juce::juce_dsp PUBLIC juce::juce_recommended_config_flags)
+add_test(NAME ChimeraOriginalCabRealtimeTests COMMAND ChimeraOriginalCabRealtimeTests)
+
 add_test(NAME ChimeraCabExpansionIntegrationTests COMMAND ChimeraOriginalCabIntegrationTests --expanded)
 add_test(NAME ChimeraCabExpansionStateTests COMMAND ChimeraCabPanelStateTests --expansion-only)
 

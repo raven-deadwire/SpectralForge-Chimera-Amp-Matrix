@@ -2,6 +2,7 @@
 #include <juce_dsp/juce_dsp.h>
 #include <atomic>
 #include "LifecycleTrace.h"
+#include "ModeledCabConvolution.h"
 
 namespace spectralforge {
 // The worker builds a complete convolution engine. Audio swaps raw ownership;
@@ -9,7 +10,8 @@ namespace spectralforge {
 class Cab {
 public:
     struct Kernel {
-        juce::dsp::Convolution convolution;
+        std::unique_ptr<juce::dsp::Convolution> convolution;
+        std::unique_ptr<ModeledCabConvolution> modeledStereo;
         int source{};
         unsigned generation{};
         uint64_t modelKey{};
@@ -18,16 +20,31 @@ public:
                int type, unsigned revision, uint64_t model=0)
             : source(type), generation(revision), modelKey(model)
         {
-            convolution.loadImpulseResponse(std::move(samples), rate, juce::dsp::Convolution::Stereo::yes,
+            // These authored responses are already at the processing rate.
+            // Packing the independent stereo streams halves their FFT count
+            // and shares one IR spectrum without changing the response.
+            if(model && spec.numChannels==2 && spec.maximumBlockSize>0 && spec.maximumBlockSize<=128
+                && samples.getNumChannels()==1 && rate==spec.sampleRate) {
+                modeledStereo=std::make_unique<ModeledCabConvolution>(samples,int(spec.maximumBlockSize));
+                return;
+            }
+            convolution=std::make_unique<juce::dsp::Convolution>();
+            convolution->loadImpulseResponse(std::move(samples), rate, juce::dsp::Convolution::Stereo::yes,
                 juce::dsp::Convolution::Trim::no, model ? juce::dsp::Convolution::Normalise::no : juce::dsp::Convolution::Normalise::yes);
-            convolution.prepare(spec); // Wait for this IR before it reaches audio.
+            convolution->prepare(spec); // Wait for this IR before it reaches audio.
+        }
+        int getLatency() const noexcept {return modeledStereo ? modeledStereo->getLatency() : convolution->getLatency();}
+        void reset() noexcept
+        {
+            if(modeledStereo)modeledStereo->reset();else convolution->reset();
         }
         void process(juce::AudioBuffer<float>& buffer)
         {
             if (!hasIR) return;
+            if(modeledStereo) {modeledStereo->process(buffer);return;}
             juce::dsp::AudioBlock<float> block(buffer);
             juce::dsp::ProcessContextReplacing<float> context(block);
-            convolution.process(context);
+            convolution->process(context);
         }
     };
     std::atomic<int> requestedSource{1}, activeSource{-1};
@@ -56,7 +73,7 @@ private:
     {
         if (kernel == nullptr) return;
         const lifecycle::Scope trace("cab.kernel.destroy", kernel);
-        delete kernel; // Includes joining this convolution's private loader.
+        delete kernel; // JUCE fallback kernels also join their private loader.
     }
 public:
     explicit Cab(bool child=false) { if(!child) micB=std::make_unique<Cab>(true); else requestedSource.store(0); }
@@ -105,8 +122,8 @@ public:
         hp.reset(); lp.reset();
         if(micB) micB->reset();
         delayBuffer.clear(); delayWrite=0; bWasRunning=false;
-        if(active) active->convolution.reset();
-        if(fading) fading->convolution.reset();
+        if(active) active->reset();
+        if(fading) fading->reset();
     }
     void enable(bool value) { on=value; enabled.setTargetValue(on ? 1.f : 0.f); }
     void setCuts(float low, float high)
@@ -179,15 +196,34 @@ public:
         if(directMic) {
             // Keep the circular history current even at zero delay, so later
             // delay automation starts from real preceding audio rather than
-            // silence. Only interpolation/gain work is bypassed.
-            for(int n=0;n<buffer.getNumSamples();++n) {
-                const float mix=micBlend.getNextValue();
+            // silence. Copy contiguous spans before mixing, rather than doing
+            // an integer modulo and channel switch for every sample. More than
+            // one wrap is possible with large host blocks at low sample rates.
+            const int samples=buffer.getNumSamples(), size=delayBuffer.getNumSamples();
+            for(int offset=0;offset<samples;) {
+                const int count=juce::jmin(samples-offset,size-delayWrite);
                 for(int c=0;c<buffer.getNumChannels();++c) {
-                    const float sample=buffer.getSample(c,n);
-                    delayBuffer.setSample(c,delayWrite,sample);
-                    if(renderB)buffer.setSample(c,n,(1.f-mix)*sample+mix*second.getSample(c,n));
+                    juce::FloatVectorOperations::copy(delayBuffer.getWritePointer(c,delayWrite),
+                        buffer.getReadPointer(c,offset),count);
                 }
-                delayWrite=(delayWrite+1)%delayBuffer.getNumSamples();
+                offset+=count;delayWrite+=count;
+                if(delayWrite==size)delayWrite=0;
+            }
+            if(micBlend.isSmoothing()) {
+                // Preserve the existing per-sample ramp, including the exact
+                // smoother progression when the second mic is not rendering.
+                for(int n=0;n<samples;++n) {
+                    const float mix=micBlend.getNextValue();
+                    if(renderB)for(int c=0;c<buffer.getNumChannels();++c)
+                        buffer.setSample(c,n,(1.f-mix)*buffer.getSample(c,n)+mix*second.getSample(c,n));
+                }
+            } else if(renderB) {
+                const float mix=micBlend.getCurrentValue();
+                for(int c=0;c<buffer.getNumChannels();++c) {
+                    auto* output=buffer.getWritePointer(c);
+                    juce::FloatVectorOperations::multiply(output,1.f-mix,samples);
+                    juce::FloatVectorOperations::addWithMultiply(output,second.getReadPointer(c),mix,samples);
+                }
             }
         } else {
             for(int n=0;n<buffer.getNumSamples();++n) {
