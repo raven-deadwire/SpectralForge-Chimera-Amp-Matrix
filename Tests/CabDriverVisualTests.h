@@ -36,6 +36,43 @@ inline void frontSilhouette(const juce::Image& image) {
 inline int matchingLayout(int driver) {
     return driver<=8 ? 1 : (driver==9 || driver==10 || driver==12) ? 6 : driver==13 ? 4 : 8;
 }
+inline void hornGrilleContracts(const juce::File& screenshots) {
+    using namespace spectralforge;
+    cabLayout::Settings selected{};selected.layout=6;selected.voice.base.cabinet=1;
+    const auto model=cabLayout::geometry(selected);
+    for(bool native:{false,true})for(float scale:{200.f,400.f,700.f})for(int kind=0;kind<4;++kind) {
+        const auto type=native ? std::unique_ptr<juce::ImageType>(new juce::NativeImageType)
+                               : std::unique_ptr<juce::ImageType>(new juce::SoftwareImageType);
+        const int width=int(std::ceil(float(model.box.width)*scale))+40;
+        const int height=int(std::ceil(float(model.box.height+model.box.depth*.16)*scale))+40;
+        const juce::Rectangle<float> box(20.f,20.f,float(model.box.width)*scale,
+            float(model.box.height+model.box.depth*.16)*scale);
+        juce::Image rear(juce::Image::ARGB,width,height,true,*type),mask(juce::Image::ARGB,width,height,true,*type);
+        {juce::Graphics g(rear);g.fillAll(juce::Colour(0xff111719));cabLayoutView::tweeter(g,model,box,true,.65f,kind);}
+        {juce::Graphics g(mask);cabLayoutView::grille(g,model,box,true);}
+        juce::Image front(juce::Image::ARGB,width,height,true,*type);
+        {juce::Graphics g(front);g.fillAll(juce::Colour(0xff111719));cabLayoutView::frontHardware(g,model,box,true,.65f,kind);}
+        const auto centre=cabLayoutView::point(model,box,model.horn);
+        const auto region=juce::Rectangle<float>(.118f*scale,.080f*scale).withCentre(centre).toNearestInt();
+        const juce::Image::BitmapData rearPixels(rear,juce::Image::BitmapData::readOnly);
+        const juce::Image::BitmapData maskPixels(mask,juce::Image::BitmapData::readOnly);
+        const juce::Image::BitmapData frontPixels(front,juce::Image::BitmapData::readOnly);
+        int wires=0,holes=0;
+        for(int y=region.getY();y<region.getBottom();++y)for(int x=region.getX();x<region.getRight();++x) {
+            const auto back=rearPixels.getPixelColour(x,y),wire=maskPixels.getPixelColour(x,y),actual=frontPixels.getPixelColour(x,y);
+            const float a=wire.getFloatAlpha();
+            const auto blend=[&](int b,int f){return juce::roundToInt((1-a)*float(b)+a*float(f));};
+            check(std::abs(int(actual.getRed())-blend(back.getRed(),wire.getRed()))<=3
+                && std::abs(int(actual.getGreen())-blend(back.getGreen(),wire.getGreen()))<=3
+                && std::abs(int(actual.getBlue())-blend(back.getBlue(),wire.getBlue()))<=3,
+                "HF hardware covers the foreground grille instead of sitting behind it");
+            wires+=wire.getAlpha()>100;holes+=wire.getAlpha()<8;
+        }
+        check(wires>8 && holes>8,"central horn lost continuous grille wires or open apertures");
+        if(!native && scale==700.f && kind==0)writeImage(front,screenshots,"cab-visual-horn-behind-grille-detail.png");
+    }
+    std::cout<<"PASS HF depth: 24 native/software renders, four kinds and three scales, continuous wires and transmissive apertures\n";
+}
 inline void shellArtworkContracts(const juce::File& screenshots) {
     using namespace spectralforge;
     const juce::SharedResourcePointer<cabArt::Bank> bank;
@@ -243,6 +280,11 @@ inline void roomCameraContracts(const juce::File& screenshots) {
         "current 4x10 original horn plate is absent at the centre");
     check(cabSceneUITests::parameterValues(*p)==currentBefore,"current 4x10 horn rendering writes host parameters");
     snapshot(room,screenshots,"cab-visual-room-current-412-410-centre-horn.png");
+    const auto detailBounds=juce::Rectangle<float>(.28f*room.displayedScale(1),.20f*room.displayedScale(1))
+        .withCentre(roomHornCentre).toNearestInt();
+    const auto detailRoom=room.createComponentSnapshot(room.getLocalBounds(),true,3.f);
+    writeImage(detailRoom.getClippedImage({detailBounds.getX()*3,detailBounds.getY()*3,
+        detailBounds.getWidth()*3,detailBounds.getHeight()*3}),screenshots,"cab-visual-room-410-horn-detail.png");
     std::cout<<"PASS room camera: active-only common scale, 6x10/4x12/4x10 physical proportions, normal/constrained/75% visuals, "
         <<"unused microphone space removed, inactive-rig isolation and stable microphone automation\n";
 }
@@ -256,6 +298,7 @@ void driverVisualContracts(const juce::File& screenshots) {
     using namespace cabDriverVisualTests;
     cabEnclosureMaterialTests::run();
     shellArtworkContracts(screenshots);
+    hornGrilleContracts(screenshots);
     // A fresh Dual/Matrix room has no focused panel owning its image bank.
     // Observe without creating, and drop observation handles before repainting.
     {

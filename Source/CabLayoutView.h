@@ -4,6 +4,7 @@
 #include "CabArtwork.h"
 #include "CabHeadDimensions.h"
 #include "CabCameraFraming.h"
+#include "CabHornArtwork.h"
 
 namespace spectralforge::cabLayoutView {
 // Each view frames complete rigs in metres. Room rigs share a single camera
@@ -94,12 +95,22 @@ inline void tweeter(juce::Graphics& g,const cabLayout::Geometry& model,juce::Rec
         // Use the selected acoustic horn position. Never bake a fixed centre
         // horn into a different array, or show hardware when HF is disabled.
         g.reduceClipRegion(baffle(model,box).reduced(.035f*scale).toNearestInt());
-        g.setColour(juce::Colours::white);
-        g.drawImage(image,juce::Rectangle<float>(.126f*scale,.087f*scale).withCentre(centre),
+        const auto plate=juce::Rectangle<float>(.126f*scale,.087f*scale).withCentre(centre);
+        g.setColour(juce::Colours::white.withAlpha(.8f));
+        g.drawImage(image,plate,
             juce::RectanglePlacement::stretchToFit);
+        g.setColour(juce::Colours::white);
+        g.drawImage(bank->hornMouth,plate,juce::RectanglePlacement::stretchToFit);
     } else {
         const float radius=box.getWidth()*.024f;
         g.setColour(juce::Colour(0xffbcc0b9));g.drawEllipse(centre.x-radius,centre.y-radius,radius*2.f,radius*2.f,1.5f);
     }
+}
+// One shared depth order for the room, focus view and evidence renders.
+// Both cone assemblies and HF hardware are behind the same continuous grille.
+inline void frontHardware(juce::Graphics& g,const cabLayout::Geometry& model,juce::Rectangle<float> box,
+                          bool bass,float level,int kind) {
+    tweeter(g,model,box,bass,level,kind);
+    grille(g,model,box,bass);
 }
 }

@@ -21,6 +21,9 @@ inline void artworkResources() {
         "CAB room scenery is missing, undecodable or retained above its display budget");
     retainedBytes+=size_t(room->room.getWidth())*size_t(room->room.getHeight())*4;
     for(const auto& image:artwork->frontSpeakers)retainedBytes+=size_t(image.getWidth())*size_t(image.getHeight())*4;
+    require(artwork->hornMouth.isValid() && artwork->hornMouth.hasAlphaChannel(),
+        "HF mouth cache is missing or has lost its transparent flange boundary");
+    retainedBytes+=size_t(artwork->hornMouth.getWidth())*size_t(artwork->hornMouth.getHeight())*4;
     for(const auto& skin:artwork->enclosureSkins) {
         for(const auto& image:{skin.grille,skin.roof,skin.grilleOverlay})
             retainedBytes+=size_t(image.getWidth())*size_t(image.getHeight())*4;

@@ -6,6 +6,7 @@
 #include "CabSpeakerArt.h"
 #include "CabMicrophoneDimensions.h"
 #include "CabEnclosureArtwork.h"
+#include "CabHornArtwork.h"
 #include <array>
 
 namespace spectralforge::cabArt {
@@ -101,6 +102,7 @@ struct Bank {
     std::array<juce::Rectangle<int>,assetCount> contentBounds;
     std::array<juce::Image,16> frontSpeakers;
     std::array<cabEnclosureArt::Skin,2> enclosureSkins;
+    juce::Image hornMouth;
     Bank() {
         const lifecycle::Scope trace("cab.artwork.create",this);
         // All decode work happens when a CAB UI takes ownership on the message
@@ -138,6 +140,10 @@ struct Bank {
         }
         for(size_t i=0;i<enclosureSkins.size();++i)
             enclosureSkins[i]=cabEnclosureArt::makeSkin(images[i],i==1);
+        // The small HF face is painted once, like the cone assemblies. Keep
+        // curved-path gradients off repeated room/focus paints and timers.
+        hornMouth=juce::Image(juce::Image::ARGB,96,66,true);
+        {juce::Graphics g(hornMouth);cabHornArt::mouth(g,hornMouth.getBounds().toFloat());}
         // Render front geometry once per shared UI bank, not in paint/timers.
         for(size_t i=0;i<frontSpeakers.size();++i) {
             const int driver=i<2 ? 0 : int(i)-1,legacy=i==1 ? 1 : 0;
@@ -155,6 +161,7 @@ struct Bank {
         images.fill({});
         frontSpeakers.fill({});
         enclosureSkins.fill({});
+        hornMouth={};
     }
 };
 
