@@ -43,8 +43,11 @@ struct Skin {
 };
 
 // Called once while CabArtwork::Bank is constructed on the message thread.
-// Clipped images share the decoded source storage. No new PNGs, full-cabinet
-// bitmaps, filesystem reads, or per-frame texture generation are introduced.
+// Perimeter slices share the decoded source storage. Repeating materials own
+// their cropped pixels: JUCE 8.0.8's Direct2D bitmap brush wraps the underlying
+// bitmap, ignoring a subsection's area/offset. Sharing that bitmap would repeat
+// the entire cabinet (including baked cones) across the new baffle/roof.
+// These two small copies are made once, never during paint or audio processing.
 inline Skin makeSkin(const juce::Image& source,bool bass) {
     Skin skin;skin.bass=bass;
     if(!source.isValid())return skin;
@@ -56,7 +59,8 @@ inline Skin makeSkin(const juce::Image& source,bool bass) {
         return source.getClippedImage(juce::Rectangle<int>(left,top,right-left,bottom-top));
     };
     for(size_t i=0;i<skin.perimeter.size();++i)skin.perimeter[i]=clip(regions.perimeter[i]);
-    skin.grille=clip(regions.grille);skin.roof=clip(regions.roof);
+    skin.grille=clip(regions.grille).createCopy();
+    skin.roof=clip(regions.roof).createCopy();
     skin.sourcePixelsPerMetre=float(regions.referenceFrontWidth)*float(source.getWidth())
         /(1254.f*regions.referenceWidthMetres);
     return skin;

@@ -1,5 +1,6 @@
 #pragma once
 #include <set>
+#include "CabEnclosureMaterialTests.h"
 
 namespace cabDriverVisualTests {
 inline void writeImage(const juce::Image& image,const juce::File& folder,const char* name) {
@@ -144,6 +145,7 @@ void driverVisualContracts(const juce::File& screenshots) {
     using namespace spectralforge;
     using namespace cabMicrophoneUITests;
     using namespace cabDriverVisualTests;
+    cabEnclosureMaterialTests::run();
     shellArtworkContracts(screenshots);
     // A fresh Dual/Matrix room has no focused panel owning its image bank.
     // Observe without creating, and drop observation handles before repainting.
