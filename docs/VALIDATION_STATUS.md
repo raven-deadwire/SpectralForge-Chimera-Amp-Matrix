@@ -22,14 +22,15 @@ Evidence is current only when its source commit and policy version match the eva
 
 The release evaluator exits 0 for PASS, 1 for BLOCKED, and 2 when the validation infrastructure or input schema is invalid. The top-level release verdict is never NOT_APPLICABLE.
 
-## Deadwire Signature IR integrity
+## Factory CAB and user IR integrity (1.3)
 
-Reference-catalog targets such as `DYN 421.wav` and Raven G12-100 captures retain catalog SHA verification. The two personal-pack Signature defaults additionally pin the exact WAV bytes:
+All 48 factory presets use the authored modeled CAB recipes in [FACTORY_CAB_VOICING_1_3.md](FACTORY_CAB_VOICING_1_3.md), including the Deadwire Signatures. Authored dry LOW lanes retain CAB bypass. Factory recall applies these settings without searching for external captures or requiring a private filename or hash.
 
-- Wild Hunt MID: `Hartke HyDrive 410 _ SM57.wav` — SHA-256 `caa3be009191b2cd6c2ad1a711fe0f7eddd74c9115e991ab2032159405699d0b`
-- Azhi Dahaka HIGH: `Marshall G12 1 SM57 3.wav` — SHA-256 `d55582bb1f6ed27e0ee03e4ea71006968c2eb36cba93b55338f86b45d42c5cb1`
+The public IR loader includes the two attributed factory recordings listed in [IR_DISTRIBUTION.md](IR_DISTRIBUTION.md). The distribution guard checks their exact WAV bytes and attribution against `Validation/ir-distribution-policy.json` before packaging. Development/private reference catalogs and their download prompts are excluded.
 
-Approved ZIP import writes `audio_sha256`, `source_pack_sha256` and `approved_pack` into each local sidecar. Signature recall requires the pinned filename and WAV hash; a same-name replacement is not silently accepted. Missing or mismatched targets fall back to Filters only.
+Users can select WAV/AIFF files with **OPEN IR** or **ADD FOLDER**. Existing user-file metadata and project-embedded IR audio retain their recall behavior; factory selection does not delete them. Importing audio does not establish redistribution permission or assign private-pack approval. See [EXTERNAL_BASS_IRS.md](EXTERNAL_BASS_IRS.md) for the manual import and sharing contract.
+
+Historical scope: private filename/hash auto-target checks from development source `40d5e8a5ea466eaccc1044ccefce1bd33e6ac222` describe that earlier preset implementation. They do not describe 1.3 factory recall or certify the current release.
 
 ## Signature benchmark verdict
 
