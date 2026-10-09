@@ -71,7 +71,7 @@ Open-back 1×12/2×12 Silver and Verdant designs serve the clean/chime roles. Cl
 
 Bass 6×10 uses six sources in two columns and three rows, with the same 63 cm width and the 94 cm enclosure height authored for the 1.3 model. Its 178.5-litre net volume preserves the former preview's volume per driver while the source positions and enclosure modes follow the six-driver geometry. This is reuse of the existing authored speaker/response model, not a newly trained or measured hardware capture. The factory pickup faces unit 3 (middle left), so it never selects one of the removed 8×10 bottom-row units.
 
-Factory Mic A distances are 6–8 cm and cone positions are 25–42%. Alternate Mic B starts at 10 cm / 50%, disabled. Tweeters are off for warm/vintage/heavy recipes and low-level for the selected modern/clean bass recipes. These are starting settings; both microphones, drivers and cabinet controls remain editable.
+Factory Mic A distances are 6–8 cm. Cone positions are 25–42%, with Thall Rhythm (38) using a centred 0% Strike pickup at 6 cm and −5.0 dB. Its Ruin 12 / closed 4×12 assignment is retained. Alternate Mic B starts at 10 cm / 50%, disabled. Tweeters are off for warm/vintage/heavy recipes and low-level for the selected modern/clean bass recipes. These are starting settings; both microphones, drivers and cabinet controls remain editable.
 
 ## Level evidence
 
@@ -83,7 +83,9 @@ Preparation now installs the saved CAB gain, polarity, delay, blend and bypass b
 
 ### Completed local calibration
 
-The production-recall render completed **48/48** preset checks with all nominal/hot-input limits unchanged. The lowest RMS is **−27.7529 dBFS** (Slap Studio). The largest nominal and +6 dB-input peaks are **−0.734963 / −0.899584 dBFS** (Orange Heavy), both below the 0.95 linear peak limit (approximately −0.4455 dBFS).
+The complete strict default `ChimeraIntegratedProcessorTests` run finished with **exit 0** in **871.09 seconds** at **2026-10-09 16:41:26 UTC**, without diagnostic flags or a preset subset. The production-recall render completed **48/48** nominal and **48/48** hot-input preset checks with all limits unchanged. The lowest RMS is **−27.7529 dBFS** (Slap Studio). The largest nominal and +6 dB-input peaks are **−0.734963 / −0.899584 dBFS** (Orange Heavy), both below the 0.95 linear peak limit (approximately −0.4455 dBFS).
+
+The strict default five-channel CAB comparison also passed with the centred Thall Rhythm pickup. K-weighted spread is **2.32495 dB** without the PRE/POST drive path and **1.54410 dB** with it, within the unchanged **2.5 / 1.6 dB** limits. The largest peak across these ten channel renders is **−0.987072 dBFS**. Only preset 38's microphone position and compensation were changed for this correction; the amp channels and test limits retain their previous definitions.
 
 All five Niflheimr presets also passed binary state and A/B audio round trips with a maximum sample difference of **0**. The separate first-sample CAB regression passed for both microphones, including −12 dB/inverted/4 ms startup, stop/switch/reprepare at −6 dB/7 ms, and the live 20 ms gain ramp.
 
@@ -131,7 +133,7 @@ The microphone gain below applies to each active modeled CAB lane of that preset
 | 35 | -7.3 | -20.2428 | -8.5835 | -8.3011 |
 | 36 | -4.8 | -19.4629 | -7.5506 | -5.9557 |
 | 37 | -4.1 | -22.6936 | -10.7589 | -9.3662 |
-| 38 | -3.0 | -16.2328 | -0.7629 | -2.7460 |
+| 38 | -5.0 | -15.9636 | -0.9595 | -2.4328 |
 | 39 | -6.5 | -17.3265 | -3.7617 | -3.7078 |
 | 40 | -5.7 | -11.9118 | -1.2764 | -1.3732 |
 | 41 | -13.7 | -17.9364 | -8.3666 | -8.8306 |
@@ -147,9 +149,11 @@ Measured source SHA-256:
 - `Source/PluginProcessor.cpp`: `7e7db793b3c7ea079258b133bbf14627e20c3ca807514d87079a3a06e5e5084b`
 - `Source/ChimeraDSP.h`: `ee35949cdf33f3d47b37f98da93ebde0d2df85f7041cea210f083d9030b5aadd`
 - `Source/Cabinet.h`: `af4add9ab5ad3c5da475acfe093e1d3a0f484208578c2124af6c1b14156f157a`
-- `Source/FactoryCabVoicing.h`: `19db58db9c8f3e390cd83b5e81f4a766c4bb3358c07a9f447f60a6ec15d277ce`
+- `Source/FactoryCabVoicing.h`: `4b4fc32933ecd22dbb7168a74da24dfb532b1fc09cc9da1d875afc5c447a23e2`
 
-The complete 48-row calibration comparison has SHA-256 `10ac5164a3d0f047376917c3eafbd813ad6e13843a0e09750d49a095d7c443e7`. The unchanged historical level reference is the Linux product fixture from [run 37903125012](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/37903125012), source `40d5e8a5ea466eaccc1044ccefce1bd33e6ac222`. It is a comparison baseline, not acceptance evidence for the new source.
+The complete 48-row calibration comparison (`pass3-full-level-comparison.csv`) has SHA-256 `7c4671c9ceca65dbf19b1acd26c19923e0cd4cddbf832cf633181ea1d1e4323c`. The unchanged historical level reference is the Linux product fixture from [run 37903125012](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/37903125012), source `40d5e8a5ea466eaccc1044ccefce1bd33e6ac222`. It is a comparison baseline, not acceptance evidence for the new source.
+
+The complete default-suite log (`full-default-pass3.log`) has SHA-256 `9fba2f4f5c4bed35977a3f31cdd65bf9965e3e11a3769eaa9ecfadbbec8945f6`. Its completion record (`full-default-pass3-pass.json`, SHA-256 `7d4351303a87dd491648da01a4709fe1640ca40d120fc7ac8a7268d76e3dff4d`) records exit 0, the measured source header, all 48 nominal / 48 hot / 10 channel rows and five final Niflheimr passes.
 
 ## Source contracts
 

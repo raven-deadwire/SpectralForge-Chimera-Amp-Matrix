@@ -137,7 +137,7 @@ inline constexpr std::array<std::array<float,3>,48> factoryCabLevelDb{{
     {-7.3f,-7.3f,0.f}, // 35: Feel My Wrath
     {0.f,-4.8f,-4.8f}, // 36: Blackhearted
     {0.f,-4.1f,-4.1f}, // 37: Dark Matters of Throne
-    {-3.0f,0.f,0.f}, // 38: Thall Rhythm
+    {-5.0f,0.f,0.f}, // 38: Thall Rhythm
     {-6.5f,0.f,0.f}, // 39: Molten Lead
     {-5.7f,-5.7f,0.f}, // 40: Rotten Grind
     {-13.7f,0.f,0.f}, // 41: Sludge Mass
@@ -157,7 +157,9 @@ void voiceFactoryCab(int index,Getter get,Setter set) {
     for(int lane=0;lane<3;++lane) {
         const auto suffix=juce::String(lane+1);
         const auto tone=factoryCabRigs[size_t(index)][size_t(lane)];
-        const auto& cab=factoryCabSpecs[size_t(tone)];
+        auto cab=factoryCabSpecs[size_t(tone)];
+        // Thall Rhythm's driven channel bank uses a centred Strike pickup.
+        if(index==38 && lane==0)cab.position=0.f;
         const bool active=lane<lanes && tone!=FactoryCabTone::dry && tone!=FactoryCabTone::dryBass;
         const bool bass=cabLayout::layouts[size_t(cab.layout-1)].bass;
         // Source ordinals stay unchanged for host/user IR compatibility. A/B
