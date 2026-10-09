@@ -28,7 +28,7 @@ inline constexpr std::array<Style, 14> styles {{
     {"verdant-25-front",  0xff424c3b,0xff4b4d40,0xff38382e, 3,3,4, 0,.255f,.125f,.014f,Cap::paper,   false,false},
     {"granite-55-front",  0xff555452,0xff48494a,0xff292b2c, 6,2,8, 0,.285f,.096f,.011f,Cap::cloth,   false,false},
     {"silver-12-front",   0xff818990,0xff79786e,0xffb0b6b8, 2,2,6, 0,.295f,.083f,.004f,Cap::alloy,   false,true },
-    {"carnivore-12-front",0xff3c403a,0xff333832,0xff232923,10,1,8, 0,.395f,.108f,.007f,Cap::mesh,    false,false},
+    {"carnivore-12-front",0xff992e35,0xffb52c35,0xff4b151b,10,1,8, 0,.395f,.108f,.007f,Cap::mesh,    false,false},
     {"raven-100-front",   0xff424a51,0xff3c4146,0xff2e343a, 4,2,8,16,.355f,.086f,.015f,Cap::flat,    false,false},
     {"ruin-12-front",     0xff514740,0xff423c37,0xff24282b, 2,3,6,12,.325f,.104f,.010f,Cap::recessed,false,false},
     {"foundry-10-front",  0xff515149,0xff4b4a3f,0xff3a3a31, 3,3,4, 0,.410f,.122f,.009f,Cap::cloth,   false,false},
