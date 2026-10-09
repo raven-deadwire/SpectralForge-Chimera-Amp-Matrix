@@ -105,12 +105,24 @@ void layoutStateContracts(const juce::File& screenshots) {
     set(*p,"lcab1_layout",1);set(*p,"lcab1_Aunit",7);scene.refresh();check(scene.micGeometry(0).unit==0 && raw("lcab1_Aunit")==7,"small-array fallback rewrites automation");
     set(*p,"lcab1_layout",7);scene.refresh();check(scene.micGeometry(0).unit==7,"large-array selection lost");
     panel.setView(CabPanel::View::irLoader);panel.setView(CabPanel::View::cabinet);check(raw("lcab1_layout")==7 && raw("lcab1_Aunit")==7,"IR navigation loses layout");
-    // Native scene gestures are also exercised in CI; no native peer is needed here.
-    panel.setVisible(true);scene.refresh();cabSceneUITests::HostEvents events(*p);
+    std::cout<<"PASS nine layouts: production, routes, LOW DI, project/comparison/legacy/captured-IR recall, host and UI geometry\n";
+#if JUCE_LINUX
+    const auto* display=juce::Desktop::getInstance().getDisplays().getPrimaryDisplay();
+    if(!display || display->userArea.isEmpty()) {
+        const bool ci=juce::SystemStats::getEnvironmentVariable("CI",{}).equalsIgnoreCase("true")
+            || juce::SystemStats::getEnvironmentVariable("GITHUB_ACTIONS",{}).equalsIgnoreCase("true");
+        check(!ci,"CI layout gesture contracts require a primary X11 display; use run_linux_ui_tests.py");
+        std::cout<<"SKIP native array gestures: local Linux has no primary X11 display; DSP/state/UI geometry completed, native CI coverage still required\n";
+        return;
+    }
+#endif
+    // Gesture guards require a showing native component, not only its visible
+    // flag. Use the same real-peer fixture as the existing scene gesture tests.
+    cabSceneUITests::Showing showing(panel);scene.refresh();cabSceneUITests::HostEvents events(*p);
     check(scene.beginMicDrag(0,scene.microphoneHitPoint(0)),"array drag start");
     scene.dragMicTo(scene.microphoneHitPoint(0)+scene.speakerCentre(4)-scene.speakerCentre(7));scene.endMicDrag();
     events.expect({"lcab1_Aunit","ocab1_Aposition"});check(raw("lcab1_Aunit")==4,"drag cannot address fifth unit");
     events.reset();check(scene.beginMicDrag(0,scene.microphoneHitPoint(0)),"array cancel start");set(*p,"lcab1_layout",1);scene.dragMicTo({0,0});
     check(!scene.isDragging(),"layout automation does not cancel drag");events.expect({"lcab1_Aunit","ocab1_Aposition"},1,false,{"lcab1_layout"});
-    std::cout<<"PASS nine layouts: production, routes, LOW DI, project/comparison/legacy/captured-IR recall, host and UI geometry\n";
+    std::cout<<"PASS native array gestures: fifth-unit drag and host layout-change cancellation\n";
 }

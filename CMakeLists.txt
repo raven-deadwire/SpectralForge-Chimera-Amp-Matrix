@@ -372,3 +372,5 @@ target_include_directories(ChimeraCabLayoutModelTests PRIVATE Source)
 add_test(NAME ChimeraCabLayoutModelTests COMMAND ChimeraCabLayoutModelTests)
 add_test(NAME ChimeraCabLayoutIntegrationTests COMMAND ChimeraOriginalCabIntegrationTests --layouts)
 add_test(NAME ChimeraCabLayoutStateTests COMMAND ChimeraCabPanelStateTests --layout-only)
+
+add_test(NAME ChimeraCabDriverVisualTests COMMAND ChimeraCabPanelStateTests --visual-only)

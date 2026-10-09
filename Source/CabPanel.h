@@ -3,6 +3,7 @@
 #include "OriginalCabControls.h"
 #include "HardwareArtwork.h"
 #include "IRBrowserPanel.h"
+#include "CapturedCabArt.h"
 
 // Fixed IR choices and an explicitly separate original modeled path.
 class CabPanel : public juce::Component, private juce::Timer {
@@ -46,33 +47,11 @@ private:
     int lane;
     std::vector<juce::File> roots;
     juce::File preferences;
-    class CapturedCabinetImage : public juce::Component {
-        juce::SharedResourcePointer<spectralforge::art::RasterBank> bank;
-        spectralforge::IRMetadata metadata;
-        int source{};
-        float opacity{1.f};
-    public:
-        CapturedCabinetImage() {setInterceptsMouseClicks(false,false);setWantsKeyboardFocus(false);}
-        void setCapture(const spectralforge::IRMetadata& value,int selected) {
-            metadata=value;source=selected;
-            setTitle(source ? "Captured cabinet: "+metadata.values[1] : "Speaker IR bypassed");
-            repaint();
-        }
-        void setActive(bool active) {
-            const float next=active ? 1.f : .34f;
-            if(opacity==next)return;
-            opacity=next;setAlpha(opacity);
-        }
-        void paint(juce::Graphics& g) override {
-            if(source==0)spectralforge::cabArt::neutral(g,getLocalBounds().toFloat(),"FILTERS");
-            else spectralforge::art::cabinet(g,getLocalBounds().toFloat().reduced(3.f),metadata);
-        }
-    };
     struct Slot {
-        juce::Label title,status,reference,provenance;
+        juce::Label title,status,reference,provenance,microphoneCaption;
         juce::ComboBox cabinet, microphone;
-        CapturedCabinetImage cabinetImage;
-        spectralforge::cabArt::View microphoneImage;
+        spectralforge::capturedCabArt::CabinetView cabinetImage;
+        spectralforge::capturedCabArt::MicrophoneView microphoneImage;
         juce::TextButton browse{"IR LIBRARY"}, invert{"POLARITY"};
         std::array<juce::Slider,4> sliders;
         std::array<juce::Label,4> labels;
@@ -185,8 +164,8 @@ private:
                 const auto captureName=source==1 || source==2 ? spectralforge::IRMetadata::factoryFilename(source-1) : name;
                 const auto* model=metadata.microphoneModel(captureName);
                 slot.cabinetImage.setCapture(metadata,source);
-                slot.microphoneImage.setAsset(source==0 ? spectralforge::cabArt::Asset::count : spectralforge::cabArt::capturedMicrophone(model),
-                    model && source!=0 ? juce::String("Captured microphone: ")+model->alias : "Unspecified captured microphone",source==0 ? "OFF" : "IR MIC");
+                slot.microphoneImage.setCapture(metadata,captureName,source);
+                slot.microphoneCaption.setText(spectralforge::capturedCabArt::microphoneCaption(metadata,captureName,source),juce::dontSendNotification);
                 slot.cabinet.setText(source==0 ? "Filters only" : source==1 ? "Factory V30" : source==2 ? "Factory Jensen" : "Current project IR",juce::dontSendNotification);
                 const auto text=source==0 ? juce::String("No speaker IR") : captureName.isEmpty() ? juce::String("No IR loaded") :
                     model ? juce::String(model->alias)+(source==3 ? " / "+captureName : juce::String{}) : captureName;
@@ -211,7 +190,7 @@ public:
             originalControls->setVisible(internal);
         }
         for(auto& s:slots) {
-            for(juce::Component* c:std::initializer_list<juce::Component*>{&s.reference,&s.provenance,&s.cabinet,&s.microphone,&s.browse,&s.cabinetImage,&s.microphoneImage})
+            for(juce::Component* c:std::initializer_list<juce::Component*>{&s.reference,&s.provenance,&s.cabinet,&s.microphone,&s.browse,&s.cabinetImage,&s.microphoneImage,&s.microphoneCaption})
                 c->setVisible(!internal);
             s.title.setFont(juce::FontOptions(internal ? 11.f : 13.f,juce::Font::bold));
             for(int i=0;i<4;++i) {
@@ -241,10 +220,13 @@ public:
         cabinetTab.onClick=[this]{setView(View::cabinet);};irLoaderTab.onClick=[this]{setView(View::irLoader);};
         for(int i=0;i<2;++i) {
             auto& s=slots[i];s.title.setText(i ? "MIC B" : "MIC A",juce::dontSendNotification);
-            for(juce::Component* c:std::initializer_list<juce::Component*>{&s.title,&s.status,&s.reference,&s.provenance,&s.cabinet,&s.microphone,&s.browse,&s.invert})addAndMakeVisible(c);
+            for(juce::Component* c:std::initializer_list<juce::Component*>{&s.title,&s.status,&s.reference,&s.provenance,&s.cabinet,&s.microphone,&s.browse,&s.invert,&s.microphoneCaption})addAndMakeVisible(c);
             addAndMakeVisible(s.cabinetImage);addAndMakeVisible(s.microphoneImage);
             const auto componentPrefix=juce::String(i ? "cabB" : "cabA");
             s.cabinetImage.setComponentID(componentPrefix+"cabinetImage"+n);s.microphoneImage.setComponentID(componentPrefix+"micImage"+n);
+            s.microphoneCaption.setComponentID(componentPrefix+"micCaption"+n);
+            s.microphoneCaption.setFont(juce::FontOptions(11.f));s.microphoneCaption.setJustificationType(juce::Justification::centred);
+            s.microphoneCaption.setColour(juce::Label::textColourId,juce::Colour(0xffc1c8c1));
             s.cabinet.setComponentID(componentPrefix+"cabinet"+n);s.microphone.setComponentID(componentPrefix+"mic"+n);
             s.reference.setComponentID(componentPrefix+"reference"+n);s.reference.setFont(juce::FontOptions(11.f));
             s.title.setComponentID(componentPrefix+"title"+n);s.provenance.setComponentID(componentPrefix+"provenance"+n);
@@ -304,6 +286,9 @@ public:
                 const auto area=juce::Rectangle<float>(float(16+i*(width+16)),75.f,float(width),float(getHeight()-137));
                 g.setColour(juce::Colour(0xff1b2428));g.fillRoundedRectangle(area,8.f);
                 g.setColour(juce::Colour(i ? 0xffa58961 : 0xff568fa4).withAlpha(.55f));g.drawRoundedRectangle(area.reduced(.5f),8.f,1.f);
+                const auto stage=juce::Rectangle<float>(area.getX()+12.f,area.getY()+63.f,area.getWidth()-24.f,206.f);
+                g.setGradientFill({juce::Colour(0xff141d20),stage.getTopLeft(),juce::Colour(0xff303e3d),stage.getBottomRight(),false});g.fillRoundedRectangle(stage,6.f);
+                g.setColour(juce::Colour(0xff6d7f79).withAlpha(.18f));g.drawHorizontalLine(int(stage.getBottom()-35.f),stage.getX()+8.f,stage.getRight()-8.f);
             }
         } else {
             const int side=OriginalCabControls::sideWidth(getWidth());
@@ -325,15 +310,18 @@ public:
             for(int i=0;i<2;++i) {
                 auto& s=slots[size_t(i)];const int x=16+i*(width+16),y=75;
                 s.title.setBounds(x+16,y+12,width-32,24);s.provenance.setBounds(x+16,y+39,width-32,22);
-                s.cabinetImage.setBounds(x+16,y+79,112,117);s.microphoneImage.setBounds(x+137,y+67,58,139);
-                s.cabinet.setBounds(x+210,y+81,width-226,28);s.microphone.setBounds(x+210,y+121,width-226,28);
-                s.reference.setBounds(x+210,y+156,width-226,44);
-                s.browse.setBounds(x+16,y+225,140,29);s.invert.setBounds(x+171,y+225,116,29);
+                const int cabinetWidth=(width-36)*2/3,microphoneX=x+24+cabinetWidth,microphoneWidth=width-cabinetWidth-40;
+                s.cabinetImage.setBounds(x+16,y+68,cabinetWidth,196);
+                s.microphoneImage.setBounds(microphoneX,y+76,microphoneWidth,151);
+                s.microphoneCaption.setBounds(microphoneX,y+231,microphoneWidth,31);
+                s.cabinet.setBounds(x+16,y+280,width-32,28);s.microphone.setBounds(x+16,y+317,width-32,28);
+                s.reference.setBounds(x+16,y+347,width-32,22);
+                s.browse.setBounds(x+16,y+378,140,28);s.invert.setBounds(x+171,y+378,116,28);
                 for(int k=0;k<4;++k) {
-                    s.labels[size_t(k)].setBounds(x+16,y+283+k*56,118,26);
-                    s.sliders[size_t(k)].setBounds(x+140,y+283+k*56,width-156,26);
+                    s.labels[size_t(k)].setBounds(x+16,y+422+k*38,118,26);
+                    s.sliders[size_t(k)].setBounds(x+140,y+422+k*38,width-156,26);
                 }
-                s.status.setBounds(x+16,y+536,width-32,47);
+                s.status.setBounds(x+16,y+572,width-32,31);
             }
         } else {
             const int side=OriginalCabControls::sideWidth(getWidth());

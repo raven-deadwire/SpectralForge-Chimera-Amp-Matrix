@@ -5,6 +5,30 @@ It keeps all 14 speaker, 20 microphone and three additional tweeter designs.
 These are independently authored **linear reduced-order** designs, not measured
 replicas, a trained model or a claim of hardware fidelity. `release_approved=false`.
 
+## Front-view equipment and IR imagery
+
+All 14 speaker designs now have separate authored front elevations, including
+different cone ribs, surrounds, dustcaps, mounting patterns and material finishes.
+The legacy speaker views also face forward. The cabinet baffle is independent of
+the speakers, so resizing a driver cannot leave a baked-in cone behind it.
+
+Each arrangement uses a fixed camera scale across driver changes. Nominal outer
+diameters follow 10/12/15-inch proportions; the active cone radius and pickup
+coordinates remain those of the acoustic model. Changing a driver does not resize
+the selected microphone or amplifier head. The room and focused view use the same geometry and
+cached speaker artwork. This presentation change adds no audio parameters.
+
+IR Loader shows enlarged cabinet and microphone artwork independently for A/B.
+Documented capture configurations determine driver counts and diameters. Unknown
+cabinet configurations use a closed grille image, and mixed or unspecified
+microphones use explicitly labelled generic illustrations. These pictures do not
+assign an inferred acoustic model or change the loaded IR.
+
+`ChimeraCabDriverVisualTests` checks diameter ratios, fixed microphone dimensions,
+front-facing silhouettes, distinct rendered designs, boundary placement, room
+updates, capture imagery and parameter-neutral navigation. It also generates
+comparison screenshots for visual review.
+
 ## Selectable enclosures
 
 The cabinet selector defaults to **Legacy 4-unit cabinet**, dispatching the
@@ -43,7 +67,8 @@ The production worker calls its generator. The focused CAB view and each rig's
 room view use the same centres, count, radius and enclosure aspect, with their
 vertical display axis inverted relative to acoustic coordinates. The new enclosure
 is drawn with a front baffle and roof; its amp head shares the existing support
-plane. Legacy artwork and legacy geometry remain intact.
+plane. The legacy acoustic geometry and generator remain intact; its visible
+baffle and driver artwork use the same front-view renderer as the new arrays.
 
 - Sealed loading is `sqrt(1 + N * Vas / Vb)` with actual driver count and net volume.
   It modifies LF resonance and damping. Open rear removes that sealed loading.
@@ -88,7 +113,7 @@ against AMP+CAB; the cabinet's internal A/B blend remains separate.
 
 ## Verification contracts
 
-Existing suites and thresholds are retained. Three suites are added to the same
+Existing suites and thresholds are retained. Four suites are added to the same
 Windows/Linux/macOS CAB workflow:
 
 - `ChimeraCabLayoutModelTests`: all nine geometries, every driver/mic/active-unit
@@ -104,6 +129,9 @@ Windows/Linux/macOS CAB workflow:
   deleted-source captured-IR recall, append-only host contracts, full array UI
   geometry, all 20 mic illustrations at all unit boundaries, software screenshots,
   drag host gestures and cancellation on layout automation.
+- `ChimeraCabDriverVisualTests`: 14 distinct circular speaker fronts, physical
+  diameter ratios, fixed mic/head dimensions, all microphone boundary placements,
+  room cache ownership, capture images and parameter-neutral IR navigation.
 
 The pre-existing native-window CAB tests remain enabled in the CI workflow.
 Model-level gates remain magnitude <8, position tick <0.025, distance tick <0.15,

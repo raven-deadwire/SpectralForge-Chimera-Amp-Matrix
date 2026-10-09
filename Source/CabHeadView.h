@@ -73,8 +73,8 @@ struct Geometry {
     juce::Rectangle<float> handle;
     float supportY{};
 };
-inline juce::Rectangle<float> boundsAboveCabinet(juce::Rectangle<float> cabinet) {
-    const float width=cabinet.getWidth()*.89f;
+inline juce::Rectangle<float> boundsAboveCabinet(juce::Rectangle<float> cabinet,float fixedWidth=0.f) {
+    const float width=fixedWidth>0.f ? fixedWidth : cabinet.getWidth()*.89f;
     return {cabinet.getCentreX()-width*.5f,cabinet.getY()+cabinet.getWidth()*.035f-width*.395f,
         width,width*.395f};
 }

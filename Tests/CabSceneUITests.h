@@ -169,7 +169,7 @@ inline void physicalGeometry(CabScene& scene) {
     }
     require(head && head->isVisible(),"Cabinet scene is missing its perspective amplifier head");
     const auto headBounds=scene.getLocalArea(head,head->getLocalBounds().toFloat());
-    const auto expectedHead=spectralforge::cabHead::boundsAboveCabinet(cabinet);
+    const auto expectedHead=scene.amplifierBounds();
     require(scene.getLocalBounds().toFloat().expanded(1.f).contains(headBounds)
         && headBounds.getTopLeft().getDistanceFrom(expectedHead.getTopLeft())<1.5f
         && headBounds.getBottomRight().getDistanceFrom(expectedHead.getBottomRight())<1.5f,

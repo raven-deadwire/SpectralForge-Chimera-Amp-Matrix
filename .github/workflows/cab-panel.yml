@@ -12,6 +12,8 @@ on:
       - 'Tests/CabLowBlend*'
       - 'Tests/CabExpansion*'
       - 'Tests/CabLayout*'
+      - 'Tests/CabDriver*'
+      - 'Tests/CabIRImage*'
       - 'Tests/RigViewTestHelpers.h'
       - 'Tests/MicrophoneCatalog*'
       - 'Tests/IRCollectionTests.cpp'
@@ -44,9 +46,9 @@ jobs:
       - run: cmake -S . -B build-cab -DCMAKE_BUILD_TYPE=Release
       - run: cmake --build build-cab --config Release --target ChimeraCabPanelTests ChimeraCabPanelStateTests ChimeraIRLibraryTests ChimeraIRCollectionTests ChimeraTests ChimeraOriginalCabModelTests ChimeraCabExpansionModelTests ChimeraCabLayoutModelTests ChimeraOriginalCabIntegrationTests ChimeraGateProcessorTests --parallel 2
       - if: runner.os != 'Linux'
-        run: ctest --test-dir build-cab -C Release -R "^(ChimeraCabPanel.*Tests|ChimeraIRLibraryTests|ChimeraIRCollectionTests|ChimeraTests|ChimeraOriginalCab.*Tests|ChimeraCabExpansion.*Tests|ChimeraCabLayout.*Tests|ChimeraGateProcessorTests)$" --output-on-failure --no-tests=error
+        run: ctest --test-dir build-cab -C Release -R "^(ChimeraCabPanel.*Tests|ChimeraIRLibraryTests|ChimeraIRCollectionTests|ChimeraTests|ChimeraOriginalCab.*Tests|ChimeraCabExpansion.*Tests|ChimeraCabLayout.*Tests|ChimeraCabDriver.*Tests|ChimeraGateProcessorTests)$" --output-on-failure --no-tests=error
       - if: runner.os == 'Linux'
-        run: python3 Tools/run_linux_ui_tests.py -- ctest --test-dir build-cab -C Release -R "^(ChimeraCabPanel.*Tests|ChimeraIRLibraryTests|ChimeraIRCollectionTests|ChimeraTests|ChimeraOriginalCab.*Tests|ChimeraCabExpansion.*Tests|ChimeraCabLayout.*Tests|ChimeraGateProcessorTests)$" --output-on-failure --no-tests=error
+        run: python3 Tools/run_linux_ui_tests.py -- ctest --test-dir build-cab -C Release -R "^(ChimeraCabPanel.*Tests|ChimeraIRLibraryTests|ChimeraIRCollectionTests|ChimeraTests|ChimeraOriginalCab.*Tests|ChimeraCabExpansion.*Tests|ChimeraCabLayout.*Tests|ChimeraCabDriver.*Tests|ChimeraGateProcessorTests)$" --output-on-failure --no-tests=error
       # Only synthetic fixtures are generated in these tests. Never upload arbitrary IR/state paths.
       - if: always()
         uses: actions/upload-artifact@v6
