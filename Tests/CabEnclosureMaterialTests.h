@@ -4,8 +4,39 @@
 // Exercise the production tiling operation on both renderers. A software-only
 // component snapshot cannot detect Direct2D wrapping a subsection's parent.
 namespace cabEnclosureMaterialTests {
+inline void transmission() {
+    using namespace spectralforge::cabEnclosureArt;
+    for(bool bass:{false,true})for(bool native:{false,true}) {
+        const auto type=native ? std::unique_ptr<juce::ImageType>(new juce::NativeImageType)
+                               : std::unique_ptr<juce::ImageType>(new juce::SoftwareImageType);
+        juce::Image source(juce::Image::ARGB,16,12,true,*type);
+        {
+            juce::Graphics g(source);g.fillAll(juce::Colours::black);
+            g.setColour(juce::Colour(0xff888888));g.fillRect(0,0,8,12);
+        }
+        const auto overlay=makeGrilleOverlay(source,bass);
+        const auto wire=overlay.getPixelAt(3,6);
+        check(wire.getAlpha()>100 && wire.getAlpha()<255 && overlay.getPixelAt(12,6).getAlpha()==0,
+            "foreground grille lost transmissive apertures or wire texture");
+        {juce::Graphics g(source);g.fillAll(juce::Colours::red);}
+        for(float scale:{.25f,1.f,1.75f}) {
+            juce::Image target(juce::Image::ARGB,112,76,true,*type);
+            {juce::Graphics g(target);fillMaterial(g,overlay,{4.f,4.f,104.f,68.f},scale);}
+            int minimum=255,maximum=0;
+            for(int y=8;y<68;++y)for(int x=8;x<104;++x) {
+                const auto pixel=target.getPixelAt(x,y);
+                minimum=juce::jmin(minimum,int(pixel.getAlpha()));maximum=juce::jmax(maximum,int(pixel.getAlpha()));
+                check(std::abs(int(pixel.getRed())-int(pixel.getGreen()))<=2,
+                    "foreground grille tiling leaked coloured parent pixels");
+            }
+            check(minimum<10 && maximum>100 && maximum<255 && target.getPixelAt(0,0).getAlpha()==0,
+                "foreground grille is opaque, missing or outside its baffle");
+        }
+    }
+}
 inline void run() {
     using namespace spectralforge::cabEnclosureArt;
+    transmission();
     for(bool bass:{false,true})for(bool native:{false,true}) {
         const auto type=native ? std::unique_ptr<juce::ImageType>(new juce::NativeImageType)
                                : std::unique_ptr<juce::ImageType>(new juce::SoftwareImageType);

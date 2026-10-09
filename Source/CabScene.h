@@ -221,6 +221,7 @@ private:
         refresh();return true;
     }
     void paintRigging(juce::Graphics& g) {
+        spectralforge::cabLayoutView::grille(g,arrayGeometry(),cabinetBounds(),design==1);
         if(layoutModel>0) {
             g.setFont(juce::FontOptions(9.f));g.setColour(juce::Colour(0xff899492));
             for(int n=0;n<speakerCount();++n) {

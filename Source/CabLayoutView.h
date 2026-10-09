@@ -66,4 +66,9 @@ inline void speakers(juce::Graphics& g,const cabLayout::Geometry& model,juce::Re
     for(int n=0;n<model.count;++n)g.drawImage(image,
         juce::Rectangle<float>(diameter,diameter).withCentre(point(model,box,model.centres[size_t(n)])),juce::RectanglePlacement::stretchToFit);
 }
+inline void grille(juce::Graphics& g,const cabLayout::Geometry& model,juce::Rectangle<float> box,bool bass) {
+    const juce::SharedResourcePointer<cabArt::Bank> bank;
+    cabEnclosureArt::paintGrille(g,bank->enclosureSkins[size_t(bass)],baffle(model,box),
+        box.getWidth()/float(model.box.width));
+}
 }

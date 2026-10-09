@@ -70,6 +70,25 @@ inline void texture(juce::Graphics& g, float radius, bool woven, bool polished) 
     juce::Path clip;
     clip.addEllipse(circle(radius));
     g.reduceClipRegion(clip);
+    // Irregular fine grain and broad material mottling break the uniform
+    // vector rings. This is rendered once into the shared front cache; it
+    // never adds grain generation to a room repaint or audio callback.
+    juce::uint32 random=0x736f6e65u;
+    const auto next=[&]() {random=random*1664525u+1013904223u;return float((random>>8)&0xffffu)/65535.f;};
+    if(!polished) {
+        for(int i=0;i<96;++i) {
+            const float x=(next()*2.f-1.f)*radius,y=(next()*2.f-1.f)*radius;
+            const float size=(.035f+next()*.13f)*radius;
+            g.setColour((i%2 ? juce::Colours::white : juce::Colours::black).withAlpha(.028f));
+            g.fillEllipse(x,y,size,size*.65f);
+        }
+        for(int i=0;i<2800;++i) {
+            const float x=(next()*2.f-1.f)*radius,y=(next()*2.f-1.f)*radius;
+            const float length=.003f+next()*.012f,angle=next()*juce::MathConstants<float>::twoPi;
+            g.setColour((i%3 ? juce::Colours::black : juce::Colours::white).withAlpha(woven ? .13f : .17f));
+            g.drawLine(x,y,x+std::cos(angle)*length,y+std::sin(angle)*length,.0036f);
+        }
+    }
     if (woven) {
         // A quiet fabric weave, rather than a repeated logo or a colour overlay.
         g.setColour(juce::Colours::white.withAlpha(.055f));
@@ -186,6 +205,13 @@ inline void paint(juce::Graphics& g, juce::Rectangle<float> area, int driver,
     coneGradient.addColour(.88, cone.brighter(s.polished ? .05f : .14f));
     g.setGradientFill(coneGradient);
     g.fillEllipse(detail::circle(coneEdge));
+    // A concave paper cone catches the room light on its lower-left slope;
+    // its cap/outer roll catches it above. Keep the acoustic axis and circular
+    // silhouette fixed while restoring depth instead of a flat radial disk.
+    g.setGradientFill({juce::Colours::white.withAlpha(s.polished ? .24f : .17f),
+        -coneEdge*.52f,coneEdge*.64f,juce::Colours::black.withAlpha(.33f),
+        coneEdge*.53f,-coneEdge*.55f,false});
+    g.fillEllipse(detail::circle(coneEdge));
 
     if (s.facets > 0) {
         for (int facet = 0; facet < s.facets; ++facet) {
@@ -205,8 +231,8 @@ inline void paint(juce::Graphics& g, juce::Rectangle<float> area, int driver,
     for (int rib = 0; rib < s.ribs; ++rib) {
         const float start = s.capRadius + .048f;
         const float r = start + (coneEdge - start - .036f) * float(rib + 1) / float(s.ribs + 1);
-        detail::ring(g, r + s.ribWeight * .58f, juce::Colours::black.withAlpha(.40f), s.ribWeight);
-        detail::ring(g, r - s.ribWeight * .50f, cone.brighter(.26f).withAlpha(.66f), s.ribWeight * .68f);
+        detail::ring(g, r + s.ribWeight * .58f, juce::Colours::black.withAlpha(.31f), s.ribWeight);
+        detail::ring(g, r - s.ribWeight * .50f, cone.brighter(.26f).withAlpha(.43f), s.ribWeight * .68f);
     }
     detail::ring(g, coneEdge, juce::Colours::black.withAlpha(.65f), .012f);
     detail::cap(g, s);

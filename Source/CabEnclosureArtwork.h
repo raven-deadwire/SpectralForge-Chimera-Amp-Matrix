@@ -31,16 +31,40 @@ inline SourceRegions sourceRegions(bool bass) {
 
 struct Skin {
     std::array<juce::Image,pieceCount> perimeter;
-    juce::Image grille,roof;
+    juce::Image grille,roof,grilleOverlay;
     float sourcePixelsPerMetre{};
     bool bass{};
     bool isValid() const noexcept {
-        if(!grille.isValid() || !roof.isValid() || sourcePixelsPerMetre<=0.f)return false;
+        if(!grille.isValid() || !roof.isValid() || !grilleOverlay.isValid() || sourcePixelsPerMetre<=0.f)return false;
         for(const auto& image:perimeter)if(!image.isValid())return false;
         return true;
     }
     const char* key() const noexcept {return bass ? "cab-bass-410-shell" : "cab-guitar-412-shell";}
 };
+
+// Retain the original woven/metal material as a transmissive layer in front
+// of the drivers. Only the inspected empty grille patch is sampled; no baked
+// cones, horn, cabinet outline or alpha-subsection backing bitmap can enter it.
+inline juce::Image makeGrilleOverlay(const juce::Image& tile,bool bass) {
+    if(!tile.isValid())return {};
+    juce::Image result(juce::Image::ARGB,tile.getWidth(),tile.getHeight(),true);
+    const juce::Image::BitmapData source(tile,juce::Image::BitmapData::readOnly);
+    juce::Image::BitmapData target(result,juce::Image::BitmapData::writeOnly);
+    const auto luminance=[](juce::Colour c) {return .2126f*c.getFloatRed()+.7152f*c.getFloatGreen()+.0722f*c.getFloatBlue();};
+    float low=1.f,high=0.f;
+    for(int y=0;y<source.height;++y)for(int x=0;x<source.width;++x) {
+        const float value=luminance(source.getPixelColour(x,y));
+        low=juce::jmin(low,value);high=juce::jmax(high,value);
+    }
+    if(high-low<.01f)return result;
+    for(int y=0;y<source.height;++y)for(int x=0;x<source.width;++x) {
+        const auto colour=source.getPixelColour(x,y);
+        const float wire=juce::jlimit(0.f,1.f,(luminance(colour)-low)/(high-low));
+        const float opacity=std::pow(wire,bass ? .75f : 1.1f)*(bass ? .88f : .67f);
+        target.setPixelColour(x,y,colour.withAlpha(opacity));
+    }
+    return result;
+}
 
 // Called once while CabArtwork::Bank is constructed on the message thread.
 // Perimeter slices share the decoded source storage. Repeating materials own
@@ -61,6 +85,7 @@ inline Skin makeSkin(const juce::Image& source,bool bass) {
     for(size_t i=0;i<skin.perimeter.size();++i)skin.perimeter[i]=clip(regions.perimeter[i]);
     skin.grille=clip(regions.grille).createCopy();
     skin.roof=clip(regions.roof).createCopy();
+    skin.grilleOverlay=makeGrilleOverlay(skin.grille,bass);
     skin.sourcePixelsPerMetre=float(regions.referenceFrontWidth)*float(source.getWidth())
         /(1254.f*regions.referenceWidthMetres);
     return skin;
@@ -72,6 +97,14 @@ inline void fillMaterial(juce::Graphics& g,const juce::Image& image,
     const juce::FillType texture(image,juce::AffineTransform::scale(sourceScale)
         .translated(area.getX(),area.getY()));
     g.setFillType(texture);g.fillRect(area);
+}
+
+inline void paintGrille(juce::Graphics& g,const Skin& skin,juce::Rectangle<float> face,float pixelsPerMetre) {
+    if(!skin.isValid() || face.isEmpty() || pixelsPerMetre<=0.f)return;
+    const float corner=juce::jmin(pixelsPerMetre*(skin.bass ? .048f : .044f),
+        juce::jmin(face.getWidth(),face.getHeight())*.18f);
+    const float rail=juce::jmin(pixelsPerMetre*(skin.bass ? .035f : .038f),corner);
+    fillMaterial(g,skin.grilleOverlay,face.reduced(rail*.82f),pixelsPerMetre/skin.sourcePixelsPerMetre);
 }
 
 // The caller owns all camera geometry. Decorative widths also use its common

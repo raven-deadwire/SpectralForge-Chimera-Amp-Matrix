@@ -111,7 +111,10 @@ struct Bank {
             const auto* bytes=ChimeraArtworkData::getNamedResource(resourceNames[i],size);
             if(bytes && size>0) {
                 auto decoded=juce::ImageFileFormat::loadFrom(bytes,static_cast<size_t>(size));
-                const int maximum=i<2 ? 640 : i<4 ? 384 : 320;
+                // The two oblique legacy driver assets only retain catalog
+                // identity; every visible unit uses the frontal cache below.
+                // Reclaim their unused detail budget without reducing mics.
+                const int maximum=i<2 ? 640 : i<4 ? 128 : 320;
                 const int longest=juce::jmax(decoded.getWidth(),decoded.getHeight());
                 if(longest>maximum) {
                     const double scale=double(maximum)/double(longest);
@@ -143,7 +146,7 @@ struct Bank {
             const float cone=float(driver ? cabExpansion::drivers[size_t(driver-1)].speaker.radius : originalCab::speakers[size_t(legacy)].radius);
             // Bounded front caches keep the complete shared artwork bank
             // below 16 MiB, including the microphone and room textures.
-            auto& image=frontSpeakers[i];image=juce::Image(juce::Image::ARGB,128,128,true);
+            auto& image=frontSpeakers[i];image=juce::Image(juce::Image::ARGB,192,192,true);
             juce::Graphics graphics(image);cabSpeakerArt::paint(graphics,image.getBounds().toFloat(),driver,legacy,cone/outer);
         }
     }

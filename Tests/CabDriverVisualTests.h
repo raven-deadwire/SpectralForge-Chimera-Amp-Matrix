@@ -39,18 +39,33 @@ inline int matchingLayout(int driver) {
 inline void shellArtworkContracts(const juce::File& screenshots) {
     using namespace spectralforge;
     const juce::SharedResourcePointer<cabArt::Bank> bank;
+    cabIntegratedUITests::artworkResources();
     check(bank->enclosureSkins[0].isValid() && bank->enclosureSkins[1].isValid(),
         "original cabinet materials are absent from the shared artwork bank");
     check(!bank->enclosureSkins[0].bass && bank->enclosureSkins[1].bass
         && juce::String(bank->enclosureSkins[0].key())=="cab-guitar-412-shell"
         && juce::String(bank->enclosureSkins[1].key())=="cab-bass-410-shell",
         "guitar and bass shells lost their original material identities");
-    // Use the real scene painter and identical bounds to isolate the two
-    // original shells from speaker choice, lighting and physical camera size.
     cabLayout::Settings selected{};selected.layout=3;
     const auto model=cabLayout::geometry(selected);constexpr float scale=400.f;
     const juce::Rectangle<float> box(20.f,20.f,float(model.box.width)*scale,
         float(model.box.height+model.box.depth*.16)*scale);
+    for(const auto& skin:bank->enclosureSkins) {
+        const auto& tile=skin.grilleOverlay;
+        int low=255,high=0;
+        for(int y=0;y<tile.getHeight();++y)for(int x=0;x<tile.getWidth();++x) {
+            const int alpha=tile.getPixelAt(x,y).getAlpha();low=juce::jmin(low,alpha);high=juce::jmax(high,alpha);
+        }
+        check(low==0 && high>100 && high<255,"original grille lost its open apertures or became an opaque cover");
+        juce::Image before(juce::Image::ARGB,336,367,true);
+        {juce::Graphics g(before);g.fillAll(juce::Colour(0xffb5a390));}
+        auto after=before.createCopy();
+        {juce::Graphics g(after);cabLayoutView::grille(g,model,box,skin.bass);}
+        check(greyDifference(before,after)>.005,"continuous foreground grille does not cover the driver plane");
+        check(after.getPixelAt(0,0)==before.getPixelAt(0,0),"grille escapes the physical front baffle");
+    }
+    // Use the real scene painter and identical bounds to isolate the two
+    // original shells from speaker choice, lighting and physical camera size.
     std::array<juce::Image,2> shells;
     for(int family=0;family<2;++family) {
         shells[size_t(family)]=juce::Image(juce::Image::ARGB,336,367,true);

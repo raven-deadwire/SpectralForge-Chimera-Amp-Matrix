@@ -233,6 +233,7 @@ class CabRoomOverview : public juce::Component, private juce::Timer {
         if(original) {
             spectralforge::cabLayoutView::enclosure(g,rig.model,cabinetBounds,rig.bass);
             spectralforge::cabLayoutView::speakers(g,rig.model,cabinetBounds,rig.driver,rig.design);
+            spectralforge::cabLayoutView::grille(g,rig.model,cabinetBounds,rig.bass);
         } else {
             const int slot=rig.source[0]!=0 ? 0 : 1;
             spectralforge::capturedCabArt::paintCabinet(g,cabinetBounds,captureConfiguration(rig),false);
