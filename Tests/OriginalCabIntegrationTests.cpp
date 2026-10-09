@@ -51,6 +51,12 @@ int main(int argc,char** argv){try {
     const bool layouts=argc==2 && std::string(argv[1])=="--layouts";
     require(argc==1 || expanded || layouts,"usage: ChimeraOriginalCabIntegrationTests [--expanded | --layouts]");
     const auto modelKey=[expanded,layouts](originalCab::Settings p){if(layouts)return cabLayout::key({{p,9,p.mic==1 ? 10 : 20,2},7,p.mic==1 ? 7 : p.unit});return expanded ? cabExpansion::key({p,12,p.mic==1 ? 10 : 20,2}) : originalCab::key(p);};
+    if(layouts) {
+        originalCab::Settings preview{};preview.cabinet=1;preview.mic=1;
+        const auto restored=cabLayout::settings(modelKey(preview));
+        require(cabLayout::geometry(restored).count==6 && cabLayout::effectiveUnit(restored)==5,
+            "production 6x10 / previous bottom-right microphone migration");
+    }
     const juce::ScopedNoDenormals noDenormals; // Same floating-point mode as processBlock.
     bool cpuWithinBudget=true;
     for(double sr:{44100.,48000.,96000.})for(int block:{64,256})for(int channels:{1,2}) {
@@ -124,13 +130,13 @@ int main(int argc,char** argv){try {
         require(peak<2 && maxStep<.3,"bounded six-slot swap");
         for(auto& c:cabs)require(c.activeModel==nextKey && c.secondMic()->activeModel==nextKey,"six queued mic swaps converge");
         for(auto& c:cabs)c.clear();require(library.resourcesReleased(),"worker teardown");
-        std::cout<<"PHASE_CONFIG engine="<<(layouts ? "array-v3-8x10" : expanded ? "expanded-v2" : "original-v1")
+        std::cout<<"PHASE_CONFIG engine="<<(layouts ? "array-v3-6x10" : expanded ? "expanded-v2" : "original-v1")
             <<" sr="<<sr<<" block="<<block<<" channels="<<channels<<'\n';
         reportPhase("worker_and_automation",times,cpuTimes,0,1200,1e6*block/sr);
         reportPhase("forced_six_slot_publication",times,cpuTimes,1200,1600,1e6*block/sr);
         std::sort(times.begin(),times.end());std::sort(cpuTimes.begin(),cpuTimes.end());
         cpuWithinBudget=cpuWithinBudget && times[1584]<1e6*block/sr;
-        std::cout<<"TIMING engine="<<(layouts ? "array-v3-8x10" : expanded ? "expanded-v2" : "original-v1")<<" sr="<<sr<<" block="<<block<<" channels="<<channels<<" three_cabs_six_mics p50_us="<<times[800]<<" p99_us="<<times[1584]<<" thread_cpu_p99_us="<<cpuTimes[1584]<<" max_us="<<times.back()<<" misses="<<misses<<"/1600 kernel_residual="<<kernelResidual<<" peak="<<peak<<" max_step="<<maxStep<<'\n';
+        std::cout<<"TIMING engine="<<(layouts ? "array-v3-6x10" : expanded ? "expanded-v2" : "original-v1")<<" sr="<<sr<<" block="<<block<<" channels="<<channels<<" three_cabs_six_mics p50_us="<<times[800]<<" p99_us="<<times[1584]<<" thread_cpu_p99_us="<<cpuTimes[1584]<<" max_us="<<times.back()<<" misses="<<misses<<"/1600 kernel_residual="<<kernelResidual<<" peak="<<peak<<" max_step="<<maxStep<<'\n';
     }
     require(allocations==0 && deletions==0,"callback new/delete observed");
     std::cout<<"CALLBACK callback_new="<<allocations<<" callback_delete="<<deletions<<" (thread-local C++ operators only; not a universal malloc/lock tracer)\n";

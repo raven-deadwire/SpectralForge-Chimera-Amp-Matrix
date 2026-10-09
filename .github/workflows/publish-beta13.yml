@@ -1,0 +1,75 @@
+name: Review or publish verified Open Beta 1.3
+on:
+  workflow_dispatch:
+    inputs:
+      source_sha:
+        description: Exact 40-character source SHA to review or publish
+        required: true
+        type: string
+      publish:
+        description: Publish only after separate source-specific approval and acceptance
+        required: true
+        default: false
+        type: boolean
+      confirm:
+        description: For publication only, type publish-v1.3.0-beta.1
+        required: false
+        type: string
+permissions:
+  contents: read
+  actions: read
+concurrency:
+  group: publish-chimera-v1.3.0-beta.1
+  cancel-in-progress: false
+jobs:
+  review:
+    if: github.repository == 'raven-deadwire/SpectralForge-Chimera-Amp-Matrix' && !inputs.publish
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - name: Review release scope without publication
+        env:
+          ACCEPTED_SHA: ${{ inputs.source_sha }}
+        run: |
+          test "$ACCEPTED_SHA" = "$GITHUB_SHA"
+          python Tools/test_publish_beta13.py
+          python Tools/publish_beta13.py --dry-run --source-sha "$ACCEPTED_SHA"
+  publish:
+    if: github.repository == 'raven-deadwire/SpectralForge-Chimera-Amp-Matrix' && inputs.publish && github.ref == 'refs/heads/release/open-beta-1.3.0'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    permissions:
+      contents: write
+      actions: read
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - name: Check source and publisher contracts
+        env:
+          ACCEPTED_SHA: ${{ inputs.source_sha }}
+          CONFIRM: ${{ inputs.confirm }}
+        run: |
+          test "$ACCEPTED_SHA" = "$GITHUB_SHA"
+          test "$CONFIRM" = "publish-v1.3.0-beta.1"
+          test ! -f RELEASE_REVIEW_PENDING
+          test "$(python Tools/chimera_version.py --field version)" = "1.3.0-beta.1"
+          git diff --exit-code
+          python Tools/test_publish_beta13.py
+      - name: Require complete exact-source acceptance before publishing
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ACCEPTED_SHA: ${{ inputs.source_sha }}
+          CONFIRM: ${{ inputs.confirm }}
+        run: python Tools/publish_beta13.py --publish --source-sha "$ACCEPTED_SHA" --confirm "$CONFIRM"

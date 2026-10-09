@@ -377,6 +377,10 @@ add_test(NAME ChimeraCabExpansionStateTests COMMAND ChimeraCabPanelStateTests --
 add_executable(ChimeraCabLayoutModelTests Tests/CabLayoutModelTests.cpp)
 target_include_directories(ChimeraCabLayoutModelTests PRIVATE Source)
 add_test(NAME ChimeraCabLayoutModelTests COMMAND ChimeraCabLayoutModelTests)
+add_executable(ChimeraCabCameraFramingTests Tests/CabCameraFramingTests.cpp)
+target_include_directories(ChimeraCabCameraFramingTests PRIVATE Source)
+target_compile_features(ChimeraCabCameraFramingTests PRIVATE cxx_std_20)
+add_test(NAME ChimeraCabCameraFramingTests COMMAND ChimeraCabCameraFramingTests)
 add_test(NAME ChimeraCabLayoutIntegrationTests COMMAND ChimeraOriginalCabIntegrationTests --layouts)
 add_test(NAME ChimeraCabLayoutStateTests COMMAND ChimeraCabPanelStateTests --layout-only)
 

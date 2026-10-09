@@ -535,6 +535,40 @@
         "I1",
         "I2"
       ]
+    },
+    "beta_1_3": {
+      "required_stages": [
+        "A1",
+        "A2",
+        "A3",
+        "A4",
+        "A5",
+        "A6",
+        "A7",
+        "A8",
+        "A9",
+        "A10",
+        "A11",
+        "A12",
+        "A13",
+        "A14",
+        "B1",
+        "B2",
+        "B3",
+        "B4",
+        "B5",
+        "B6",
+        "B8",
+        "B10",
+        "B11",
+        "B12",
+        "B13",
+        "B14",
+        "E1",
+        "E2",
+        "I1",
+        "I2"
+      ]
     }
   },
   "hard_gates": [
@@ -605,16 +639,21 @@
     "I2.LIVE_REMOVE_DAW"
   ],
   "release_scope": {
-    "version": "1.2.0",
-    "profile": "beta_1_2",
-    "decision_at": "2026-10-08T22:11:09+09:00",
-    "authorization": "Owner requested cabinet, speaker and microphone artwork and a Windows update installer. This separately identified CAB preview may be built and delivered after its exact-source installer checks. Public release publication is not part of this request. Existing hard gates and pending real-instrument, target-machine CPU and DAW acceptance remain.",
+    "version": "1.3.0-beta.1",
+    "product_version": "1.3.0",
+    "profile": "beta_1_3",
+    "channel": "beta.1",
+    "decision_at": "2026-10-09T22:33:13+09:00",
+    "authorization": "Owner requested preparation of the current CAB build for release and explicitly selected version 1.3. This authorizes source integration, fixes, candidate builds, release documents and review preparation. Public publication and unexecuted instrument/DAW acceptance are not granted by the preparation request.",
+    "preparation_authorized": true,
+    "publication_authorized": false,
+    "release_approved": false,
+    "status": "PREPARATION_ONLY",
     "deferred_checks": [
       "I2.PITCH_LIVE",
       "I2.PITCH_DI"
     ],
     "tracking": "docs/TRANSPOSE_LONG_TERM.md",
-    "status_semantics": "Deferred is not PASS or NOT_APPLICABLE; the transpose_followup profile still requires evidence. All other acceptance gates are retained.",
-    "channel": "preview"
+    "status_semantics": "Deferred is not PASS or NOT_APPLICABLE; the transpose_followup profile still requires evidence. All other acceptance gates are retained."
   }
 }

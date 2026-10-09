@@ -35,6 +35,107 @@ inline void frontSilhouette(const juce::Image& image) {
 inline int matchingLayout(int driver) {
     return driver<=8 ? 1 : (driver==9 || driver==10 || driver==12) ? 6 : driver==13 ? 4 : 8;
 }
+inline void shellArtworkContracts(const juce::File& screenshots) {
+    using namespace spectralforge;
+    const juce::SharedResourcePointer<cabArt::Bank> bank;
+    check(bank->enclosureSkins[0].isValid() && bank->enclosureSkins[1].isValid(),
+        "original cabinet materials are absent from the shared artwork bank");
+    check(!bank->enclosureSkins[0].bass && bank->enclosureSkins[1].bass
+        && juce::String(bank->enclosureSkins[0].key())=="cab-guitar-412-shell"
+        && juce::String(bank->enclosureSkins[1].key())=="cab-bass-410-shell",
+        "guitar and bass shells lost their original material identities");
+    // Use the real scene painter and identical bounds to isolate the two
+    // original shells from speaker choice, lighting and physical camera size.
+    cabLayout::Settings selected{};selected.layout=3;
+    const auto model=cabLayout::geometry(selected);constexpr float scale=400.f;
+    const juce::Rectangle<float> box(20.f,20.f,float(model.box.width)*scale,
+        float(model.box.height+model.box.depth*.16)*scale);
+    std::array<juce::Image,2> shells;
+    for(int family=0;family<2;++family) {
+        shells[size_t(family)]=juce::Image(juce::Image::ARGB,336,367,true);
+        juce::Graphics g(shells[size_t(family)]);cabLayoutView::enclosure(g,model,box,family==1);
+    }
+    check(greyDifference(shells[0],shells[1])>.004,
+        "production enclosure painter still replaces guitar and bass materials with one generic shell");
+    juce::Image comparison(juce::Image::ARGB,672,367,true);juce::Graphics g(comparison);
+    g.drawImageAt(shells[0],0,0);g.drawImageAt(shells[1],336,0);
+    writeImage(comparison,screenshots,"cab-visual-original-shell-materials.png");
+}
+inline void roomCameraContracts(const juce::File& screenshots) {
+    using namespace spectralforge;
+    using namespace cabMicrophoneUITests;
+    auto p=std::make_unique<ChimeraProcessor>();set(*p,"mode",2);set(*p,"lowampmix",1);
+    const std::array<int,3> layouts{{7,3,6}},drivers{{9,1,9}},amps{{5,2,25}};
+    const std::array<float,3> widths{{.63f,.74f,.62f}},heights{{.94f,.76f,.64f}},depths{{.40f,.36f,.40f}};
+    for(int lane=0;lane<3;++lane) {
+        p->setAmpModel(lane,amps[size_t(lane)]);
+        set(*p,"ampon"+juce::String(lane+1),1);set(*p,"cab"+juce::String(lane+1),1);
+        set(*p,originalCabID(lane,"Aon"),1);set(*p,originalCabID(lane,"Bon"),1);
+        set(*p,cabLayoutID(lane,"layout"),float(layouts[size_t(lane)]));
+        set(*p,cabExpansionID(lane,"driver"),float(drivers[size_t(lane)]));
+    }
+    CabRoomOverview room(*p);
+    for(const auto size:std::array<juce::Point<int>,3>{{{1140,412},{1040,620},{900,560}}}) {
+        room.setSize(size.x,size.y);room.refreshState();
+        const float scale=room.displayedScale(0);
+        check(std::isfinite(scale) && scale>0.f,"active room camera is invalid at a supported viewport");
+        const auto before=cabSceneUITests::parameterValues(*p);
+        cabSceneUITests::HostEvents events(*p);
+        for(int lane=0;lane<3;++lane) {
+            const auto box=room.displayedCabinetBounds(lane),head=room.displayedHeadBounds(lane);
+            const auto area=room.getRigBounds(lane).withPosition(0,0).toFloat();
+            const auto model=room.displayedGeometry(lane);const auto physicalHead=cabPhysical::head(amps[size_t(lane)]);
+            check(std::abs(room.displayedScale(lane)-scale)<.0001f,"room independently enlarges a rig beside the 6x10");
+            check(std::abs(box.getWidth()/scale-widths[size_t(lane)])<.00001f
+                && std::abs(box.getHeight()/scale-heights[size_t(lane)]-depths[size_t(lane)]*.16f)<.00001f,
+                "6x10 / 4x12 / 4x10 room cabinet proportions differ from their physical geometry");
+            check(std::abs(head.getWidth()/scale-physicalHead.width)<.00001f
+                && std::abs(head.getHeight()/scale-physicalHead.height-physicalHead.depth*.16f)<.00001f,
+                "room head does not share its cabinet's physical metre");
+            check(area.contains(box) && area.contains(head),"active stack is clipped by a narrow room lane");
+            check(std::abs(box.getBottom()-room.displayedCabinetBounds(0).getBottom())<.0001f,
+                "room cabinets have different ground baselines");
+            const auto face=cabLayoutView::baffle(model,box);
+            check(std::abs(face.getHeight()/scale-heights[size_t(lane)])<.00001f,
+                "room baffle front height includes an extra scale or roof projection");
+        }
+        check(std::abs(room.displayedCabinetBounds(1).getWidth()/room.displayedCabinetBounds(0).getWidth()-.74f/.63f)<.0001f,
+            "guitar 4x12 is wrongly narrower than the 6x10");
+        check(std::abs(room.displayedCabinetBounds(2).getWidth()/room.displayedCabinetBounds(0).getWidth()-.62f/.63f)<.0001f,
+            "bass 4x10 is wrongly much narrower than the 6x10");
+        snapshot(room,screenshots,("cab-visual-room-610-412-410-"+juce::String(size.x)+"x"+juce::String(size.y)+".png").toRawUTF8());
+        if(size.x==1140)writeImage(room.createComponentSnapshot(room.getLocalBounds(),true,.75f),screenshots,
+            "cab-visual-room-610-412-410-75-percent.png");
+        cabSceneUITests::unchangedExcept(*p,before,{});events.expect();
+    }
+    room.setSize(1040,620);room.refreshState();
+    const float withSix=room.displayedScale(0);
+    check(std::abs(withSix-432.f/1.39784f)<.0001f,
+        "6x10 room does not frame the actual .94 m cabinet plus selected head");
+    check(room.displayedCabinetBounds(1).getWidth()>225.f,
+        "whole-room 4x12 beside 6x10 still loses width to unused microphone space");
+    set(*p,"lcab1_layout",6);room.refreshState();
+    const float withoutSix=room.displayedScale(0);
+    check(withoutSix>withSix*1.10f && room.displayedCabinetBounds(1).getWidth()>240.f,
+        "room without an 6x10 still reserves the catalogue's unused tall-cabinet envelope");
+    const auto cabinet=room.displayedCabinetBounds(1);const auto head=room.displayedHeadBounds(1);
+    for(int mic:{1,3,12,20})for(float distance:{2.f,60.f}) {
+        set(*p,"xcab2_Amic",float(mic));set(*p,"ocab2_Adistance",distance);
+        set(*p,"ocab2_Aposition",distance==2.f ? 0.f : 1.f);set(*p,"lcab2_Aunit",distance==2.f ? 0.f : 3.f);
+        const auto before=cabSceneUITests::parameterValues(*p);room.refreshState();
+        check(room.displayedScale(1)==withoutSix && room.displayedCabinetBounds(1)==cabinet && room.displayedHeadBounds(1)==head,
+            "room camera jitters with microphone identity or placement automation");
+        cabSceneUITests::unchangedExcept(*p,before,{});
+    }
+    snapshot(room,screenshots,"cab-visual-room-410-412-410-active-fit.png");
+    // A stored 6x10 in an inactive lane must not constrain a Dual room.
+    set(*p,"mode",1);set(*p,"lcab3_layout",7);room.refreshState();
+    const float inactiveSix=room.displayedScale(0);
+    set(*p,"lcab3_layout",1);room.refreshState();
+    check(room.displayedScale(0)==inactiveSix,"inactive Matrix HIGH cabinet reframes a Dual room");
+    std::cout<<"PASS room camera: active-only common scale, 6x10/4x12/4x10 physical proportions, normal/constrained/75% visuals, "
+        <<"unused microphone space removed, inactive-rig isolation and stable microphone automation\n";
+}
 }
 
 // Product regressions: compare rendered outputs and independent nominal sizes,
@@ -43,6 +144,7 @@ void driverVisualContracts(const juce::File& screenshots) {
     using namespace spectralforge;
     using namespace cabMicrophoneUITests;
     using namespace cabDriverVisualTests;
+    shellArtworkContracts(screenshots);
     // A fresh Dual/Matrix room has no focused panel owning its image bank.
     // Observe without creating, and drop observation handles before repainting.
     {
@@ -81,8 +183,8 @@ void driverVisualContracts(const juce::File& screenshots) {
     const std::array<int,3> drivers{{9,11,13}},inches{{10,12,15}};
     const std::array<int,10> layoutInches{{10,12,12,12,15,10,10,10,12,12}};
     int dimensionCases=0,placementCases=0;
-    float sharedCamera=0,sharedHeadWidth=0;
-    std::array<juce::Point<float>,2> sharedMicSize{};
+    std::array<float,10> layoutCameras{};
+    std::array<juce::Point<float>,2> referenceMicMetres{};
     set(*p,"ocab1_design",1);
     for(int layout=0;layout<=9;++layout) {
         set(*p,"lcab1_layout",float(layout));
@@ -93,13 +195,12 @@ void driverVisualContracts(const juce::File& screenshots) {
             scene.refresh();
             check(cabSceneUITests::parameterValues(*p)==state,"resolving an incompatible stored driver rewrites host parameters");
             const float diameter=scene.speakerOuterDiameter();
-            if(d==0)baseCabinet=scene.cabinetBounds();
-            if(dimensionCases==0) {sharedCamera=scene.pixelsPerMetre();sharedHeadWidth=scene.amplifierBounds().getWidth();}
+            if(d==0) {baseCabinet=scene.cabinetBounds();layoutCameras[size_t(layout)]=scene.pixelsPerMetre();}
             check(std::abs(diameter/scene.pixelsPerMetre()-float(layoutInches[size_t(layout)])*.0254f)<.00001f,
                 "an incompatible restored driver changes the cabinet's fixed nominal speaker diameter");
             check(scene.cabinetBounds()==baseCabinet,"an incompatible stored driver resizes the fixed cabinet box");
-            check(std::abs(scene.pixelsPerMetre()-sharedCamera)<.0001f,"driver or cabinet selection silently reframes the camera");
-            check(std::abs(scene.amplifierBounds().getWidth()-sharedHeadWidth)<.0001f,"changing a cabinet resizes the same amplifier head");
+            check(std::abs(scene.pixelsPerMetre()-layoutCameras[size_t(layout)])<.0001f,
+                "driver selection reframes an unchanged focused cabinet/head");
             check(std::abs(scene.amplifierBounds().getWidth()/scene.pixelsPerMetre()
                     -cabPhysical::head(p->selectedAmpModel(0)).width)<.00001f,
                 "amplifier head width does not use the same physical scale as the cabinet");
@@ -107,9 +208,11 @@ void driverVisualContracts(const juce::File& screenshots) {
             const auto effective=cabLayout::effectiveSettings({{requestedBase,drivers[d],0,0},layout,0});
             for(int slot=0;slot<2;++slot) {
                 const auto mic=scene.micVisualGeometry(slot);
-                const juce::Point<float> size{mic.bodyBounds.getWidth(),mic.bodyBounds.getHeight()};
-                if(dimensionCases==0)sharedMicSize[size_t(slot)]=size;
-                check(size.getDistanceFrom(sharedMicSize[size_t(slot)])<.01f,"changing a driver or cabinet resizes the same microphone");
+                const juce::Point<float> metres{mic.bodyBounds.getWidth()/scene.pixelsPerMetre(),
+                    mic.bodyBounds.getHeight()/scene.pixelsPerMetre()};
+                if(dimensionCases==0)referenceMicMetres[size_t(slot)]=metres;
+                check(metres.getDistanceFrom(referenceMicMetres[size_t(slot)])<.00001f,
+                    "focused framing changes a microphone's physical dimensions relative to its cabinet");
                 check(mic.capsule.getDistanceFrom(scene.microphoneAnchor(slot))<.01f,"driver resize detaches the microphone capsule");
             }
             for(int unit=0;unit<scene.speakerCount();++unit) {
@@ -126,6 +229,8 @@ void driverVisualContracts(const juce::File& screenshots) {
             ++dimensionCases;
         }
     }
+    check(layoutCameras[1]>layoutCameras[7]*1.25f,
+        "focused 1x12 still reserves the unselected 6x10 envelope instead of fitting its own stack");
 
     // Independent real dimensions: SM57 body is 32 x 157 mm, and its catalog
     // image is rotated 65 degrees. This compares the actual rendered envelope
@@ -147,16 +252,19 @@ void driverVisualContracts(const juce::File& screenshots) {
     }
 
     // Exercise both microphones at opposite boundary units/positions. This also
-    // covers the longest and widest catalog bodies at the smallest camera scale.
+    // covers the longest and widest bodies at every selected-stack camera scale.
     for(int layout=0;layout<=9;++layout)for(const int driver:drivers) {
         set(*p,"lcab1_layout",float(layout));set(*p,"xcab1_driver",float(driver));scene.refresh();
         const int last=scene.speakerCount()-1;
+        const float camera=scene.pixelsPerMetre();const auto cabinet=scene.cabinetBounds();
         for(int mic=1;mic<=20;++mic)for(int unit:{0,last})for(float position:{0.f,1.f})for(float distance:{2.f,60.f}) {
             set(*p,"xcab1_Amic",float(mic));set(*p,"xcab1_Bmic",float(mic));
             set(*p,layout ? "lcab1_Aunit" : "ocab1_Aunit",float(unit));
             set(*p,layout ? "lcab1_Bunit" : "ocab1_Bunit",float(last-unit));
             set(*p,"ocab1_Aposition",position);set(*p,"ocab1_Bposition",1.f-position);
             set(*p,"ocab1_Adistance",distance);set(*p,"ocab1_Bdistance",distance);scene.refresh();
+            check(std::abs(scene.pixelsPerMetre()-camera)<.0001f && scene.cabinetBounds()==cabinet,
+                "microphone identity, unit, position or distance automation reframes the focused camera");
             for(int slot=0;slot<2;++slot) {
                 const auto visual=scene.micVisualGeometry(slot);
                 if(!scene.getLocalBounds().toFloat().contains(visual.bodyBounds))
@@ -185,12 +293,16 @@ void driverVisualContracts(const juce::File& screenshots) {
         set(*p,"ocab1_Adistance",10);set(*p,"ocab1_Bdistance",10);
         const auto state=cabSceneUITests::parameterValues(*p);scene.refresh();
         check(cabSceneUITests::parameterValues(*p)==state,"compatible driver refresh rewrites host parameters");
-        check(std::abs(scene.pixelsPerMetre()-sharedCamera)<.0001f,"compatible model selection changes common camera scale");
-        check(std::abs(scene.amplifierBounds().getWidth()-sharedHeadWidth)<.0001f,"compatible model selection resizes amplifier head");
+        check(std::abs(scene.pixelsPerMetre()-layoutCameras[size_t(matchingLayout(driver))])<.0001f,
+            "compatible driver selection changes its cabinet/head camera scale");
+        check(std::abs(scene.amplifierBounds().getWidth()/scene.pixelsPerMetre()
+            -cabPhysical::head(p->selectedAmpModel(0)).width)<.00001f,
+            "compatible driver selection changes the head's physical width");
         for(int slot=0;slot<2;++slot) {
             const auto body=scene.micVisualGeometry(slot).bodyBounds;
-            check(juce::Point<float>(body.getWidth(),body.getHeight()).getDistanceFrom(sharedMicSize[size_t(slot)])<.01f,
-                "compatible model selection resizes microphone body");
+            check(juce::Point<float>(body.getWidth()/scene.pixelsPerMetre(),body.getHeight()/scene.pixelsPerMetre())
+                .getDistanceFrom(referenceMicMetres[size_t(slot)])<.00001f,
+                "compatible model selection changes the microphone's physical dimensions");
         }
         auto& actual=component<cabArt::View>(scene,"ocab1_speakerImage");
         const auto style=actual.getProperties()["cabSpeakerStyle"].toString();
@@ -262,7 +374,12 @@ void driverVisualContracts(const juce::File& screenshots) {
         check(int(card.getProperties()["cabRoomLayout"])==layout
             && int(card.getProperties()["cabRoomUnitCount"])==cabLayout::count(layout),"room layout/unit count is stale");
         check(int(card.getProperties()["cabRoomDriver"])==effective.voice.driver,"room shows the raw incompatible driver instead of the effective model");
-        check(std::abs(room.displayedScale(0)-roomScale)<.0001f,"room changes camera scale with selected cabinet layout");
+        for(int lane=0;lane<3;++lane) {
+            const float scale=room.displayedScale(lane);const auto model=room.displayedGeometry(lane);
+            check(std::abs(scale-room.displayedScale(0))<.0001f,"room gives a changed cabinet an independent camera scale");
+            check(std::abs(room.displayedCabinetBounds(lane).getWidth()/scale-float(model.box.width))<.00001f,
+                "room layout change distorts the relative physical width");
+        }
     }
     set(*p,"lcab1_layout",6);set(*p,"xcab1_driver",9);room.refreshState();
     const auto before=cabSceneUITests::parameterValues(*p);
@@ -270,4 +387,5 @@ void driverVisualContracts(const juce::File& screenshots) {
     check(cabSceneUITests::parameterValues(*p)==before,"room painting changes audio state");
     std::cout<<"PASS driver visuals: 14 distinct circular fronts, "<<dimensionCases
         <<" fixed-diameter restore cases, real microphone scale, "<<placementCases<<" microphone boundary placements and room refresh\n";
+    roomCameraContracts(screenshots);
 }

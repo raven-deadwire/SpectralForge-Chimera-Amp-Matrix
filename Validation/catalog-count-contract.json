@@ -1,7 +1,7 @@
 {
   "schema": "spectralforge.chimera.catalog-count-contract",
   "schema_version": 1,
-  "version": "1.2",
+  "version": "1.3",
   "model_counts": {
     "amp": 25,
     "pre": 39,
@@ -153,7 +153,7 @@
         "new_models": 0
       }
     ],
-    "preview_authorization": "2026-10-05: owner requested completing integration through a test installer; public release date remains separate."
+    "preview_authorization": "2026-10-09: owner requested current CAB release preparation as version 1.3. Earlier planning windows do not postpone authorized integration; public publication remains separate."
   },
   "reference_manifest_contract": "Validation/reference-manifest-contract.json",
   "serialized_model_counts": {
@@ -168,12 +168,27 @@
   "original_preset_count": 5,
   "niflheimr_original_preset_count": 5,
   "niflheimr_original_preset_ordinals": [
-    {"index": 43, "name": "Frostline Precision"},
-    {"index": 44, "name": "Carrion Barrage"},
-    {"index": 45, "name": "Foundry Pulse"},
-    {"index": 46, "name": "Jötunn Hammer"},
-    {"index": 47, "name": "Mirebound Monolith"}
+    {
+      "index": 43,
+      "name": "Frostline Precision"
+    },
+    {
+      "index": 44,
+      "name": "Carrion Barrage"
+    },
+    {
+      "index": 45,
+      "name": "Foundry Pulse"
+    },
+    {
+      "index": 46,
+      "name": "Jötunn Hammer"
+    },
+    {
+      "index": 47,
+      "name": "Mirebound Monolith"
+    }
   ],
   "selectable_preset_count": 48,
-  "development_scope": "Niflheimr native prototype appended; no public release or listening acceptance implied."
+  "development_scope": "1.3 release preparation: Niflheimr, original CAB engine, 14 speakers, 20 microphones and expanded cabinet layouts. CAB inventory is separate from the 85 active AMP/PRE/POST models; publication and actual listening acceptance remain pending."
 }

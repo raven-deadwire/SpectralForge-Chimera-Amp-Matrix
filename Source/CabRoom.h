@@ -180,17 +180,19 @@ class CabRoomOverview : public juce::Component, private juce::Timer {
     }
     float roomScale() const {
         const auto area=stackArea(0);
-        float scale=spectralforge::cabLayoutView::cameraScale(area),headHeight=0.f;
-        for(const auto& head:spectralforge::cabPhysical::headDimensions)
-            headHeight=juce::jmax(headHeight,head.height+head.depth*spectralforge::cabLayoutView::depthProjection);
-        // Documented captures may exceed our modeled catalogue. Fit the entire
-        // room once so every captured and modeled rig keeps a common metre.
-        for(int lane=0;lane<activeRigCount();++lane)if(!modeled(state[size_t(lane)])) {
-            const auto size=spectralforge::capturedCabArt::dimensions(captureConfiguration(state[size_t(lane)]));
-            scale=juce::jmin(scale,area.getWidth()/(size.width+.56f),
-                area.getHeight()*.90f/(size.height+headHeight+.05f));
+        std::array<spectralforge::cabCamera::Envelope,3> envelopes{};
+        for(int lane=0;lane<activeRigCount();++lane) {
+            const auto& rig=state[size_t(lane)];
+            if(modeled(rig))envelopes[size_t(lane)]=spectralforge::cabLayoutView::stackEnvelope(rig.physicalSettings,rig.amp);
+            else {
+                const auto size=spectralforge::capturedCabArt::dimensions(captureConfiguration(rig));
+                const auto head=spectralforge::cabPhysical::head(rig.amp);
+                envelopes[size_t(lane)]=spectralforge::cabCamera::stack(size.width,size.height,
+                    head.width,head.height+head.depth*spectralforge::cabLayoutView::depthProjection);
+            }
         }
-        return scale;
+        return spectralforge::cabCamera::roomScale(area.getWidth(),area.getHeight(),
+            std::span<const spectralforge::cabCamera::Envelope>(envelopes.data(),size_t(activeRigCount())));
     }
     juce::Rectangle<float> projectedCabinet(int lane) const {
         const auto& rig=state[size_t(lane)];const auto area=stackArea(lane);const float scale=roomScale();
@@ -198,6 +200,13 @@ class CabRoomOverview : public juce::Component, private juce::Timer {
         const auto size=spectralforge::capturedCabArt::dimensions(captureConfiguration(rig));
         const float bottom=area.getBottom()-area.getHeight()*.07f;
         return {area.getCentreX()-size.width*scale*.5f,bottom-size.height*scale,size.width*scale,size.height*scale};
+    }
+    juce::Rectangle<float> projectedHead(int lane) const {
+        const auto& rig=state[size_t(lane)];const auto cabinet=projectedCabinet(lane);
+        const float support=modeled(rig) ? cabinet.getY()
+            +(spectralforge::cabLayoutView::baffle(rig.model,cabinet).getY()-cabinet.getY())*.72f
+            : cabinet.getY();
+        return spectralforge::cabHead::physicalBoundsAboveCabinet(cabinet,roomScale(),rig.amp,support);
     }
     void paintRig(juce::Graphics& g,int lane,juce::Rectangle<float> area,bool hovered,bool down) {
         const auto& rig=state[static_cast<size_t>(lane)];
@@ -208,10 +217,7 @@ class CabRoomOverview : public juce::Component, private juce::Timer {
         const float scale=roomScale();
         const auto cabinetBounds=projectedCabinet(lane);
         const float side=cabinetBounds.getWidth();
-        const float headSupport=original ? cabinetBounds.getY()
-            +(spectralforge::cabLayoutView::baffle(rig.model,cabinetBounds).getY()-cabinetBounds.getY())*.72f
-            : cabinetBounds.getY();
-        const auto headBounds=spectralforge::cabHead::physicalBoundsAboveCabinet(cabinetBounds,scale,rig.amp,headSupport);
+        const auto headBounds=projectedHead(lane);
         // Ground shadows and a small pool of reflected amber light belong to
         // the scene, not to a card behind each piece of equipment.
         const float supportY=original ? spectralforge::cabLayoutView::groundSupport(cabinetBounds).y : cabinetBounds.getBottom()+.024f*scale;
@@ -225,7 +231,7 @@ class CabRoomOverview : public juce::Component, private juce::Timer {
         g.beginTransparencyLayer(cabOpacity*(rig.muted ? .57f : 1.f));
         g.setColour(juce::Colours::white);
         if(original) {
-            spectralforge::cabLayoutView::enclosure(g,rig.model,cabinetBounds);
+            spectralforge::cabLayoutView::enclosure(g,rig.model,cabinetBounds,rig.bass);
             spectralforge::cabLayoutView::speakers(g,rig.model,cabinetBounds,rig.driver,rig.design);
         } else {
             const int slot=rig.source[0]!=0 ? 0 : 1;
@@ -274,6 +280,9 @@ public:
     }
     juce::Rectangle<float> displayedCabinetBounds(int lane) const {
         return lane>=0 && lane<activeRigCount() ? projectedCabinet(lane) : juce::Rectangle<float>{};
+    }
+    juce::Rectangle<float> displayedHeadBounds(int lane) const {
+        return lane>=0 && lane<activeRigCount() ? projectedHead(lane) : juce::Rectangle<float>{};
     }
     bool selectRig(int lane) {
         if(lane<0 || lane>=activeRigCount())return false;

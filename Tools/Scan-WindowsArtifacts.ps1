@@ -82,7 +82,9 @@ function Inventory([string[]]$Roots) {
 }
 Note "RavenForge Luthier Intelligence / Windows artifact malware inspection"
 Note "Started UTC: $([DateTime]::UtcNow.ToString('o'))"
-Note "Source revision: $env:GITHUB_SHA"
+$sourceRevision = (& git -C $PSScriptRoot rev-parse HEAD).Trim()
+if ($LASTEXITCODE -ne 0) { throw "Cannot resolve checked-out scan source." }
+Note "Source revision: $sourceRevision"
 Note "Scope: local Microsoft Defender scan. Not Google Safe Browsing clearance, Store certification, or a guarantee of safety."
 try {
     $roots = @($Path | ForEach-Object { (Resolve-Path -LiteralPath $_).Path })

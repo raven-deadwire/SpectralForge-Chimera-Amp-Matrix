@@ -8,6 +8,8 @@ concurrency:
   cancel-in-progress: true
 permissions:
   contents: read
+env:
+  CHIMERA_SOURCE_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
 jobs:
   validation-contract:
     runs-on: ubuntu-24.04
@@ -19,21 +21,25 @@ jobs:
         with:
           python-version: "3.12"
       - name: Verify catalog and validation producer contracts
+        shell: bash
         run: |
-          python -m py_compile Tools/check_catalog_contract.py Tools/check_ci_validation_map.py Tools/produce_validation_check.py Tools/test_validation_producer.py Tools/seed_validation_reports.py Tools/evaluate_release_gate.py Tools/analyze_callback_pairs.py Tools/run_paired_callback_probe.py Tools/test_callback_timing_protocol.py
+          python -m py_compile Tools/check_catalog_contract.py Tools/check_ci_validation_map.py Tools/produce_validation_check.py Tools/test_validation_producer.py Tools/seed_validation_reports.py Tools/evaluate_release_gate.py Tools/analyze_callback_pairs.py Tools/run_paired_callback_probe.py Tools/test_callback_timing_protocol.py Tools/release_evidence.py Tools/produce_release_evidence.py Tools/consolidate_release_gate.py
           python Tools/check_catalog_contract.py
           python Tools/check_ci_validation_map.py
           python Tools/test_validation_producer.py
           python Tools/test_ctest_validation.py
+          python Tools/test_release_consolidator.py
           python Tools/test_publish_beta112.py
           python Tools/test_publish_beta12.py
+          python Tools/test_publish_beta13.py
+          python Tools/test_release_preflight.py
           python Tools/test_callback_timing_protocol.py
           python Tools/seed_validation_reports.py --commit "${{ github.event.pull_request.head.sha || github.sha }}" --profile pull_request --output build/validation
       - name: Upload current-commit release-gate evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: Chimera-A-stage-release-gate
+          name: Chimera-validation-seed
           path: build/validation
           if-no-files-found: error
 
@@ -55,16 +61,21 @@ jobs:
         shell: bash
         run: echo "CHIMERA_PACKAGE_VERSION=$(python Tools/chimera_version.py --field version)" >> "$GITHUB_ENV"
       - name: Check release packaging and validation syntax
+        # Bash stops at the first failed command on every runner, including Windows.
+        shell: bash
         run: |
-          python -m py_compile Tools/package_release.py Tools/publish_beta111.py Tools/publish_beta112.py Tools/publish_beta12.py Tools/evaluate_release_gate.py Tools/test_release_gate.py Tools/evaluate_signature_benchmark.py Tools/test_signature_benchmark.py
+          python -m py_compile Tools/package_release.py Tools/publish_beta111.py Tools/publish_beta112.py Tools/publish_beta12.py Tools/publish_beta13.py Tools/evaluate_release_gate.py Tools/test_release_gate.py Tools/evaluate_signature_benchmark.py Tools/test_signature_benchmark.py Tools/release_evidence.py Tools/produce_release_evidence.py Tools/consolidate_release_gate.py
           python Tools/test_release_gate.py
           python Tools/test_release_scope.py
           python Tools/test_signature_benchmark.py
           python Tools/check_catalog_contract.py
           python Tools/test_validation_producer.py
           python Tools/test_ctest_validation.py
+          python Tools/test_release_consolidator.py
           python Tools/test_publish_beta112.py
           python Tools/test_publish_beta12.py
+          python Tools/test_publish_beta13.py
+          python Tools/test_release_preflight.py
           python Tools/test_callback_timing_protocol.py
       - name: Check Windows packaging script syntax
         if: runner.os == 'Windows'
@@ -91,9 +102,13 @@ jobs:
       - run: cmake --build build --config Release --parallel 2
       - name: Record configured CTest inventory
         run: ctest --test-dir build -C Release --show-only=json-v1 > build/ctest-inventory.json
-      - if: runner.os != 'Linux'
+      - name: Execute Windows and macOS CTest matrix
+        id: ctest_native
+        if: runner.os != 'Linux'
         run: ctest --test-dir build -C Release --output-on-failure --no-tests=error --output-junit ctest-results.xml
-      - if: runner.os == 'Linux'
+      - name: Execute Linux CTest matrix with display supervision
+        id: ctest_linux
+        if: runner.os == 'Linux'
         run: python3 Tools/run_linux_ui_tests.py -- ctest --test-dir build -C Release --output-on-failure --no-tests=error --output-junit ctest-results.xml
       - name: Produce current-commit CTest validation evidence
         if: always()
@@ -155,14 +170,17 @@ jobs:
           if-no-files-found: warn
 
       - name: Stage Windows open beta payload
+        id: package_windows
         if: runner.os == 'Windows'
         run: python Tools/package_release.py windows
 
       - name: Package and verify macOS universal installer
+        id: package_macos
         if: runner.os == 'macOS'
         run: python Tools/package_release.py macos
 
       - name: Package and verify Linux installers
+        id: package_linux
         if: runner.os == 'Linux'
         run: python Tools/package_release.py linux
 
@@ -185,6 +203,7 @@ jobs:
         run: ./Tools/Build-WindowsInstaller.ps1
 
       - name: Verify Windows install, repair and uninstall
+        id: installer
         if: runner.os == 'Windows'
         timeout-minutes: 3
         shell: pwsh
@@ -206,6 +225,7 @@ jobs:
         run: ./Tools/Build-WindowsMSIX.ps1
 
       - name: Verify MSIX deployment and application activation
+        id: msix
         if: runner.os == 'Windows'
         timeout-minutes: 3
         shell: powershell
@@ -220,6 +240,7 @@ jobs:
           if-no-files-found: warn
 
       - name: Scan Windows distribution with Microsoft Defender
+        id: scan
         if: runner.os == 'Windows'
         timeout-minutes: 10
         shell: pwsh
@@ -294,6 +315,33 @@ jobs:
           if-no-files-found: error
           compression-level: 0
 
+      - name: Preserve exact-source platform release evidence
+        if: always()
+        shell: bash
+        env:
+          CTEST_OUTCOME: ${{ runner.os == 'Linux' && steps.ctest_linux.outcome || steps.ctest_native.outcome }}
+          WINDOWS_PACKAGE: ${{ steps.package_windows.outcome }}
+          LINUX_PACKAGE: ${{ steps.package_linux.outcome }}
+          MACOS_PACKAGE: ${{ steps.package_macos.outcome }}
+          INSTALLER_OUTCOME: ${{ steps.installer.outcome }}
+          MSIX_OUTCOME: ${{ steps.msix.outcome }}
+          SCAN_OUTCOME: ${{ steps.scan.outcome }}
+        run: |
+          case "${{ runner.os }}" in
+            Windows) platform=windows; package="$WINDOWS_PACKAGE";;
+            Linux) platform=linux; package="$LINUX_PACKAGE";;
+            macOS) platform=macos; package="$MACOS_PACKAGE";;
+          esac
+          python Tools/produce_release_evidence.py --commit "$CHIMERA_SOURCE_SHA" --run-id "$GITHUB_RUN_ID" --run-attempt "$GITHUB_RUN_ATTEMPT" --kind "$platform" --ctest "$CTEST_OUTCOME" --package "$package" --installer "$INSTALLER_OUTCOME" --msix "$MSIX_OUTCOME" --scan "$SCAN_OUTCOME" --output build/release-evidence
+      - name: Upload platform release evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Chimera-release-evidence-${{ runner.os == 'Windows' && 'windows' || runner.os == 'Linux' && 'linux' || 'macos' }}
+          path: build/release-evidence
+          if-no-files-found: error
+          overwrite: true
+
   assemble-candidate:
     needs: build
     runs-on: ubuntu-24.04
@@ -313,6 +361,7 @@ jobs:
           path: candidate
           merge-multiple: true
       - name: Assemble update manifest from verified installers
+        id: assemble
         shell: bash
         run: |
           # upload-artifact preserves common-root subdirectories in multi-root uploads.
@@ -331,6 +380,7 @@ jobs:
           python Tools/package_release.py manifest --dist candidate
           cp COPYRIGHT.txt docs/MANUAL.html docs/INSTALLATION.md docs/OPEN_BETA_RELEASE_NOTES.md docs/THIRD_PARTY_NOTICES.md docs/RELEASE_CHECKLIST.md candidate/
       - name: Record exact source revision and publication status
+        id: source
         shell: bash
         run: |
           python - <<'PY'
@@ -342,9 +392,10 @@ jobs:
               'version': chimera_version.identity()['version'], 'tag': 'v' + chimera_version.identity()['version'],
               'revision': chimera_version.revision(), 'runId': os.environ['GITHUB_RUN_ID'],
               'published': False, 'publisherSigned': False, 'macOSNotarized': False
-          }, indent=2) + '\n')
+          }, indent=2) + '\n', encoding='utf-8')
           PY
       - name: Upload concrete draft-ready release files
+        id: upload
         uses: actions/upload-artifact@v4
         with:
           name: SpectralForge-Chimera-${{ env.CHIMERA_PACKAGE_VERSION }}-Release-Candidate
@@ -360,3 +411,59 @@ jobs:
             candidate/*.html
           if-no-files-found: error
           compression-level: 0
+
+      - name: Preserve exact-source assembly evidence
+        if: always()
+        shell: bash
+        env:
+          ASSEMBLE_OUTCOME: ${{ steps.assemble.outcome }}
+          SOURCE_OUTCOME: ${{ steps.source.outcome }}
+          UPLOAD_OUTCOME: ${{ steps.upload.outcome }}
+        run: |
+          python Tools/produce_release_evidence.py --commit "$CHIMERA_SOURCE_SHA" --run-id "$GITHUB_RUN_ID" --run-attempt "$GITHUB_RUN_ATTEMPT" --kind assembly --assemble "$ASSEMBLE_OUTCOME" --source "$SOURCE_OUTCOME" --upload "$UPLOAD_OUTCOME" --output build/release-evidence
+      - name: Upload assembly release evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Chimera-release-evidence-assembly
+          path: build/release-evidence
+          if-no-files-found: error
+          overwrite: true
+
+  consolidate-release-gate:
+    permissions:
+      contents: read
+      actions: read
+    if: always()
+    needs: [validation-contract, build, assemble-candidate]
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.CHIMERA_SOURCE_SHA }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Download this run's evidence without merging platform files
+        uses: actions/download-artifact@v4
+        with:
+          pattern: Chimera-release-evidence-*
+          path: release-inputs
+          merge-multiple: false
+      - name: Compute intended release verdict
+        if: always()
+        shell: bash
+        run: |
+          python Tools/consolidate_release_gate.py --commit "$CHIMERA_SOURCE_SHA" --run-id "$GITHUB_RUN_ID" --run-attempt "$GITHUB_RUN_ATTEMPT" --profile beta_1_3 --inputs release-inputs --output build/release-validation
+      - name: Upload consolidated exact-source verdict
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Chimera-A-stage-release-gate
+          path: build/release-validation
+          if-no-files-found: error
+          overwrite: true
+      - name: Show release eligibility separately from build success
+        if: always()
+        shell: bash
+        run: cat build/release-validation/release-gate.md >> "$GITHUB_STEP_SUMMARY"

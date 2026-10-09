@@ -72,6 +72,14 @@ void layoutStateContracts(const juce::File& screenshots) {
     auto& controls=cabMicrophoneUITests::component<OriginalCabControls>(panel,"originalCabControls1");
     auto& driverChoice=cabMicrophoneUITests::component<juce::ComboBox>(panel,"xcab1_driver");
     auto& family=cabMicrophoneUITests::component<juce::ComboBox>(panel,"ocab1_design");
+    check(layout.getNumItems()==9,"cabinet menu exposes the internal four-unit entry as a duplicate");
+    for(int item=0;item<layout.getNumItems();++item) {
+        check(layout.getItemId(item)==item+2,"unique cabinet menu remaps a released host ordinal");
+        check(!layout.getItemText(item).contains("8x10"),"unshipped 8x10 remains in the current cabinet menu");
+        for(int previous=0;previous<item;++previous)
+            check(layout.getItemText(item)!=layout.getItemText(previous),"cabinet menu contains duplicate type labels");
+    }
+    check(layout.getItemText(6)=="Bass 6x10","6x10 replacement changed its existing layout ordinal");
     // An explicit cabinet choice loads a fitting unit and notifies the host.
     // Restored mismatches render the safe effective choice without rewriting
     // project state or acquiring automation gestures during a refresh.
@@ -80,7 +88,7 @@ void layoutStateContracts(const juce::File& screenshots) {
         for(int selected=1;selected<=9;++selected) {
             const auto& cabinet=cabLayout::layouts[size_t(selected-1)];
             const int incompatible=cabinet.bass ? 1 : 13;
-            set(*p,"lcab1_layout",0);set(*p,"xcab1_driver",float(incompatible));controls.refreshState();events.reset();
+            set(*p,"lcab1_layout",selected==1 ? 2.f : 1.f);set(*p,"xcab1_driver",float(incompatible));controls.refreshState();events.reset();
             layout.setSelectedId(selected+1,juce::sendNotificationSync);
             events.expect({"lcab1_layout","xcab1_driver"});
             cabLayout::Settings actual{};actual.layout=selected;actual.voice.driver=juce::roundToInt(raw("xcab1_driver"));
@@ -108,9 +116,36 @@ void layoutStateContracts(const juce::File& screenshots) {
         check(raw("xcab1_driver")==13 && driverChoice.getSelectedId()==10,"speaker choice silently changed cabinet family");
         // Family is a separate explicit choice on the four-unit cabinet.
         family.setSelectedId(1,juce::sendNotificationSync);events.expect({"ocab1_design","xcab1_driver"});
-        check(raw("xcab1_driver")==0 && layout.getText()=="Guitar 4x12","explicit guitar family did not load its matching speaker");
+        check(raw("xcab1_driver")==0 && layout.getSelectedId()==4 && raw("lcab1_layout")==0
+            && layout.getText()=="Guitar 4x12","explicit guitar family did not preserve the four-unit state under its unique label");
         events.reset();family.setSelectedId(2,juce::sendNotificationSync);events.expect({"ocab1_design"});
-        check(raw("ocab1_design")==1 && layout.getText()=="Bass 4x10" && driverChoice.getText()=="Chimera Bass 10","explicit bass family did not load its matching speaker");
+        check(raw("ocab1_design")==1 && layout.getSelectedId()==7 && raw("lcab1_layout")==0
+            && layout.getText()=="Bass 4x10" && driverChoice.getText()=="Chimera Bass 10","explicit bass family did not preserve the four-unit state under its unique label");
+        for(int bass=0;bass<2;++bass) {
+            set(*p,"lcab1_layout",0);set(*p,"ocab1_design",float(bass));set(*p,"xcab1_driver",0);controls.refreshState();
+            const auto audioBefore=render(*p);events.reset();
+            cabSceneUITests::navigationUnchanged(*p,[&] {
+                controls.refreshState();
+                check(layout.getSelectedId()==(bass ? 7 : 4) && raw("lcab1_layout")==0,
+                    "four-unit display migration rewrites the saved layout ordinal");
+                panel.setView(CabPanel::View::irLoader);panel.setView(CabPanel::View::cabinet);controls.refreshState();
+            });
+            events.expect();equal(audioBefore,render(*p));
+            const auto before=cabSceneUITests::parameterValues(*p);events.reset();
+            layout.setSelectedId(2,juce::sendNotificationSync);
+            if(bass)events.expect({"lcab1_layout","xcab1_driver"});else events.expect({"lcab1_layout"});
+            cabSceneUITests::unchangedExcept(*p,before,bass
+                ? std::initializer_list<juce::String>{"lcab1_layout","xcab1_driver"}
+                : std::initializer_list<juce::String>{"lcab1_layout"});
+            check(raw("lcab1_layout")==1,"explicit visible cabinet choice does not reach its existing ordinal");
+        }
+        for(int explicitLayout:{3,6}) {
+            set(*p,"lcab1_layout",float(explicitLayout));controls.refreshState();events.reset();
+            const auto before=cabSceneUITests::parameterValues(*p);controls.refreshState();
+            check(layout.getSelectedId()==explicitLayout+1 && raw("lcab1_layout")==explicitLayout,
+                "explicit four-speaker template is confused with saved layout zero");
+            cabSceneUITests::unchangedExcept(*p,before,{});events.expect();
+        }
     }
     const std::array<int,9> driver{1,1,1,13,9,9,9,11,14};
     for(int selected=1;selected<=9;++selected) {
@@ -144,9 +179,40 @@ void layoutStateContracts(const juce::File& screenshots) {
     }
     set(*p,"lcab1_layout",7);set(*p,"xcab1_driver",9);set(*p,"lcab2_layout",2);set(*p,"xcab2_driver",1);set(*p,"lcab3_layout",4);set(*p,"xcab3_driver",13);
     room.refreshState();cabMicrophoneUITests::snapshot(room,screenshots,"cab-visual-layout-matrix-room.png");set(*p,"mode",0);
+    // The preview's removed fourth row resolves to the last row in the same
+    // column. Its eight-value automation bank stays byte-for-byte recallable.
+    set(*p,"lcab1_Aunit",6);set(*p,"lcab1_Bunit",7);controls.refreshState();
+    check(scene.speakerCount()==6 && scene.micGeometry(0).unit==4 && scene.micGeometry(1).unit==5,
+        "6x10 preview-state migration does not preserve each microphone's speaker column");
+    check(!unitA.isItemEnabled(7) && !unitA.isItemEnabled(8)
+        && unitA.getItemText(6)=="Unit 7 (uses 5)" && unitA.getItemText(7)=="Unit 8 (uses 6)",
+        "6x10 retained unit labels disagree with their effective audible targets");
+    for(int unit=0;unit<8;++unit) {
+        const auto id="ocab1_speakerImage"+(unit ? juce::String(unit+1) : juce::String());
+        check(cabMicrophoneUITests::component<cabArt::View>(scene,id.toRawUTF8()).isVisible()==(unit<6),
+            "6x10 still renders a seventh or eighth speaker from the preview");
+    }
+    const auto migrated=render(*p);juce::MemoryBlock previewState;
+    check(p->tryGetStateInformation(previewState),"6x10 preview-unit state serialization");
+    {
+        auto previewRecall=std::make_unique<ChimeraProcessor>();
+        previewRecall->setStateInformation(previewState.getData(),int(previewState.getSize()));
+        check(previewRecall->parameters().getRawParameterValue("lcab1_Aunit")->load()==6
+            && previewRecall->parameters().getRawParameterValue("lcab1_Bunit")->load()==7,
+            "6x10 project recall rewrites the preview's serialized unit values");
+        equal(migrated,render(*previewRecall));
+    }
+    set(*p,"lcab1_Aunit",4);set(*p,"lcab1_Bunit",5);equal(migrated,render(*p));
+    set(*p,"lcab1_Aunit",6);set(*p,"lcab1_Bunit",7);
+    {
+        cabSceneUITests::HostEvents migrationEvents(*p);
+        cabSceneUITests::navigationUnchanged(*p,[&] {controls.refreshState();
+            panel.setView(CabPanel::View::irLoader);panel.setView(CabPanel::View::cabinet);});
+        migrationEvents.expect();
+    }
     // Saved out-of-range target is clamped at use time; automation is not rewritten.
     set(*p,"lcab1_layout",1);set(*p,"lcab1_Aunit",7);scene.refresh();check(scene.micGeometry(0).unit==0 && raw("lcab1_Aunit")==7,"small-array fallback rewrites automation");
-    set(*p,"lcab1_layout",7);scene.refresh();check(scene.micGeometry(0).unit==7,"large-array selection lost");
+    set(*p,"lcab1_layout",7);scene.refresh();check(scene.micGeometry(0).unit==5 && raw("lcab1_Aunit")==7,"6x10 fallback target or saved unit lost");
     panel.setView(CabPanel::View::irLoader);panel.setView(CabPanel::View::cabinet);check(raw("lcab1_layout")==7 && raw("lcab1_Aunit")==7,"IR navigation loses layout");
     std::cout<<"PASS nine layouts: production, routes, LOW DI, project/comparison/legacy/captured-IR recall, host and UI geometry\n";
 #if JUCE_LINUX
@@ -163,7 +229,7 @@ void layoutStateContracts(const juce::File& screenshots) {
     // flag. Use the same real-peer fixture as the existing scene gesture tests.
     cabSceneUITests::Showing showing(panel);scene.refresh();cabSceneUITests::HostEvents events(*p);
     check(scene.beginMicDrag(0,scene.microphoneHitPoint(0)),"array drag start");
-    scene.dragMicTo(scene.microphoneHitPoint(0)+scene.speakerCentre(4)-scene.speakerCentre(7));scene.endMicDrag();
+    scene.dragMicTo(scene.microphoneHitPoint(0)+scene.speakerCentre(4)-scene.speakerCentre(5));scene.endMicDrag();
     events.expect({"lcab1_Aunit","ocab1_Aposition"});check(raw("lcab1_Aunit")==4,"drag cannot address fifth unit");
     events.reset();check(scene.beginMicDrag(0,scene.microphoneHitPoint(0)),"array cancel start");set(*p,"lcab1_layout",1);scene.dragMicTo({0,0});
     check(!scene.isDragging(),"layout automation does not cancel drag");events.expect({"lcab1_Aunit","ocab1_Aposition"},1,false,{"lcab1_layout"});

@@ -3,8 +3,9 @@
 
 namespace spectralforge::cabLayout {
 using namespace originalCab;
-// Immutable v3 authored templates. Dimensions in metres, net volume in m^3.
+// Authored v3 templates. Dimensions in metres, net volume in m^3.
 // Values describe our designs, not measurements of the reference products.
+// Release 1.3 replaces the unshipped 8x10 preview at ordinal 7 with a 6x10.
 struct Layout {
     const char* id; const char* name;
     int columns,rows,inches; bool bass;
@@ -17,7 +18,7 @@ inline constexpr std::array<Layout,9> layouts{{
     {"b115-v3","Bass 1x15",1,1,15,true,.56,.60,.43,.112},
     {"b210-v3","Bass 2x10",2,1,10,true,.61,.40,.37,.070},
     {"b410-v3","Bass 4x10",2,2,10,true,.62,.64,.40,.125},
-    {"b810-v3","Bass 8x10",2,4,10,true,.63,1.22,.40,.238},
+    {"b610-v3","Bass 6x10",2,3,10,true,.63,.94,.40,.1785},
     {"b112-v3","Bass 1x12",1,1,12,true,.49,.52,.39,.072},
     {"b212-v3","Bass 2x12",2,1,12,true,.77,.49,.40,.118}
 }};
@@ -56,7 +57,14 @@ inline Settings effectiveSettings(Settings p) {
     }
     return p;
 }
-inline int effectiveUnit(Settings p) {return std::clamp(p.layout ? p.unit : p.voice.base.unit,0,count(p.layout)-1);}
+inline int effectiveUnit(Settings p) {
+    const auto layout=layoutIndex(p.layout);
+    auto unit=layout ? p.unit : p.voice.base.unit;
+    // Preserve the column of the removed bottom row in 8x10 preview states.
+    // Raw automation/state stays untouched; DSP and visuals share this mapping.
+    if(layout==7 && unit>=6)unit=4+std::clamp(unit-6,0,1);
+    return std::clamp(unit,0,count(layout)-1);
+}
 inline uint64_t key(Settings p) {
     p=effectiveSettings(p);
     const auto previous=cabExpansion::key(p.voice);

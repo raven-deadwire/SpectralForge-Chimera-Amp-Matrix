@@ -1,7 +1,8 @@
 # CAB enclosure and array layouts v3
 
-This change is stacked on PR #33, source `10c7c030de20a6b663050cdaaad7672f67ae8c56`.
-It keeps all 14 speaker, 20 microphone and three additional tweeter designs.
+The layout expansion was stacked on PR #33, source `10c7c030de20a6b663050cdaaad7672f67ae8c56`.
+Release 1.3 retains all 14 speaker, 20 microphone and three additional tweeter designs,
+and replaces the unshipped 8×10 modeled preview with a 2-column, 3-row **Bass 6×10**.
 These are independently authored **linear reduced-order** designs, not measured
 replicas, a trained model or a claim of hardware fidelity. `release_approved=false`.
 
@@ -12,7 +13,11 @@ different cone ribs, surrounds, dustcaps, mounting patterns and material finishe
 Chimera Guitar 12 and Chimera Bass 10 also face forward. The cabinet baffle is
 drawn independently of the speakers, so no second cone is baked into the box.
 
-One camera scale is shared across the cabinet catalogue within each view. Nominal
+One physical scale is shared by the active rigs within the room. Room framing fits
+only visible equipment with 0.08 m of side allowance, instead of reserving the
+0.56 m microphone travel margin used by the focused view. No per-rig scale boost
+changes the size ratios. The focused view fits its selected head and cabinet with
+a fixed microphone travel allowance, so moving a microphone cannot reframe it. Nominal
 outer diameters follow the cabinet's fixed 10/12/15-inch specification; the active
 cone radius and pickup coordinates remain those of the acoustic model. Selecting
 another speaker cannot enlarge the cabinet, its holes, the microphone or the amp
@@ -20,7 +25,9 @@ head. Heads and microphones use physical body dimensions instead of a fraction o
 the cabinet's width; their dimension sources and authored assumptions are recorded
 in [head dimensions](CAB_HEAD_DIMENSIONS.md) and
 [microphone dimensions](CAB_MICROPHONE_DIMENSIONS.md). The room and focused view
-use the same geometry and cached speaker artwork. No audio parameters are added.
+use the same geometry and cached speaker artwork. The original cabinet materials,
+trim and corner fittings are restored independently of the driver drawings.
+No audio parameters are added.
 
 IR Loader shows enlarged cabinet and microphone artwork independently for A/B.
 Documented capture configurations determine driver counts and diameters. Unknown
@@ -35,9 +42,10 @@ comparison screenshots for visual review.
 
 ## Selectable enclosures
 
-The four-speaker selection is displayed as **Guitar 4x12** or **Bass 4x10**,
-according to its Guitar/Bass category. The other selections use the following
-authored geometry. Product labels contain category, count and nominal diameter;
+The menu shows each of the following nine configurations once. Stored layout zero
+is displayed through **Guitar 4x12** or **Bass 4x10** according to its Guitar/Bass
+category; merely opening the panel does not rewrite it to an explicit layout.
+The explicit selections use the following authored geometry. Product labels contain category, count and nominal diameter;
 implementation generations are not exposed in the selectors.
 
 | Template | Columns × rows | Width × height × depth (m) | Net volume (L) |
@@ -48,7 +56,7 @@ implementation generations are not exposed in the selectors.
 | Bass 1×15 | 1 × 1 | 0.56 × 0.60 × 0.43 | 112 |
 | Bass 2×10 | 2 × 1 | 0.61 × 0.40 × 0.37 | 70 |
 | Bass 4×10 | 2 × 2 | 0.62 × 0.64 × 0.40 | 125 |
-| Bass 8×10 | 2 × 4 | 0.63 × 1.22 × 0.40 | 238 |
+| Bass 6×10 | 2 × 3 | 0.63 × 0.94 × 0.40 | 178.5 |
 | Bass 1×12 | 1 × 1 | 0.49 × 0.52 × 0.39 | 72 |
 | Bass 2×12 | 2 × 1 | 0.77 × 0.49 × 0.40 | 118 |
 
@@ -72,11 +80,35 @@ automating a driver cannot change that cabinet's family or diameter.
 All units in one box use the same selected driver. Mic A/B independently address
 any active unit, including the same unit. Numbering is left-to-right, top-to-bottom.
 For a smaller array, an out-of-range stored/automated index uses the last available
-unit. The raw value remains stored, so switching back restores the original target.
+unit, except for the 6×10 migration described below. The raw value remains stored,
+so switching back to another layout retains the original target.
 The UI disables unavailable targets and labels the effective fallback. This avoids
 UI timer writes into host automation.
 
 ## Modeled audio and shared geometry
+
+### 1.3 replacement of the 8×10 preview
+
+The large bass cabinet keeps serialized ordinal **7**, now identified as `b610-v3`.
+The other layout ordinals and the normalized 0–9 host range do not move. Its six
+10-inch drivers use the existing speaker parameters, cone-field calculation,
+microphone models and tweeter options. No additional ML training or new hardware
+measurement is claimed. The 1.22 m preview height loses one 0.2794 m row pitch,
+rounded to an authored 0.94 m. Width and depth stay 0.63 m and 0.40 m.
+
+Net volume is 178.5 L, exactly 6/8 of the previous 238 L. This preserves the
+per-driver sealed compliance term `N * Vas / Vb` for the same selected speaker.
+Six sources contribute to the coherent field; the shorter height changes the
+axial mode, edge paths and tweeter position. The result is a new 6×10 response,
+not an assertion that the previous 8×10 audio is unchanged.
+
+Unpublished preview states with layout 7 now select the 6×10. Previous units
+7 and 8 (zero-based 6 and 7) resolve to units 5 and 6 (zero-based 4 and 5), keeping
+the left/right column in the last remaining row. Stored values are untouched;
+the shared `effectiveUnit` resolver is used by DSP and display. Captured/User IR
+8×10 files keep their original audio and capture metadata.
+
+### Shared model
 
 `Source/CabLayoutModel.h` owns both the physical geometry and request encoding.
 The production worker calls its generator. The focused CAB view and each rig's
@@ -106,7 +138,7 @@ now resolve to a fitting speaker before request encoding and rendering.
 
 No mixed driver types within one box, per-unit level/delay, slanted baffle, rotatable
 2×12, arbitrary custom enclosure editor, ports/Helmholtz resonators, partitioned
-8×10 chambers, full boundary-element diffraction, mutual mechanical impedance,
+multi-chamber cabinets, full boundary-element diffraction, mutual mechanical impedance,
 nonlinear excursion, thermal compression or room reflections/reverberation.
 The room scene is a control surface, not an acoustic room simulation. Surface
 quadrature and axial modes are approximations, not a full wave-equation solver.
@@ -124,8 +156,8 @@ Zero layout retains exact v1/v2 key and generator dispatch for compatible
 same-family requests, regardless of dormant new unit values. Earlier mismatched
 family/diameter combinations intentionally use the fitting fallback instead;
 their former enlarged-box response is not preserved. A missing bank restores to
-definition defaults instead of dirty current-session values. Schema 11, project
-and comparison recall, the shared IR
+definition defaults instead of dirty current-session values. The processor's
+existing saved schema value 10, project and comparison recall, the shared IR
 asset table and 64 MiB storage budget remain unchanged. Captured IRs do not pass
 through the new generator; Mic A/B can mix an imported capture with a modeled
 array. IR LOADER navigation preserves the layout. Matrix LOW continues to mix DI
@@ -134,14 +166,14 @@ against AMP+CAB; the cabinet's internal A/B blend remains separate.
 ## Verification contracts
 
 Existing suites and thresholds are retained. Four suites are added to the same
-Windows/Linux/macOS CAB workflow:
+Windows/Linux/macOS CAB workflow, with a fifth camera-framing suite in 1.3:
 
 - `ChimeraCabLayoutModelTests`: fixed nominal geometry, driver compatibility and
   fallback across layouts, driver/mic/active-unit combinations at
   rear/position/distance extremes, coherent-ray equality and interference,
   net volume/open loading, key round trips, compatible v1/v2 bit-identical
   dispatch, 44.1/48/96 kHz kernels and distance/tail checks.
-- `ChimeraCabLayoutIntegrationTests`: eight-driver, six-mic, mono/stereo production
+- `ChimeraCabLayoutIntegrationTests`: six-driver, six-mic, mono/stereo production
   convolution at 44.1/48/96 kHz and 64/256 frames; latest-request convergence,
   prepared impulse equivalence, swap bounds, callback allocation/deletion audit
   and the unchanged p99 one-block-period gate.
@@ -155,6 +187,8 @@ Windows/Linux/macOS CAB workflow:
 - `ChimeraCabDriverVisualTests`: 14 distinct circular speaker fronts, physical
   diameter ratios, fixed mic/head dimensions, all microphone boundary placements,
   room cache ownership, capture images and parameter-neutral IR navigation.
+- `ChimeraCabCameraFramingTests`: active-rig fitting, common physical scale,
+  focused microphone allowance and stable framing over microphone movement.
 
 The pre-existing native-window CAB tests remain enabled in the CI workflow.
 Model-level gates remain magnitude <8, position tick <0.025, distance tick <0.15,
@@ -163,7 +197,7 @@ are not relaxed or converted to advisory status. Timing results describe the
 runner, not a universal DAW performance guarantee.
 
 
-## Fixed-fit and physical-scale validation (2026-10-09)
+## Historical fixed-fit validation before the 1.3 replacement (2026-10-09)
 
 The fixed-fit revision passes the local Release layout model, layout production
 integration, expanded state, layout state/software geometry, and driver/IR visual
@@ -180,3 +214,13 @@ engines; their impulse/swap and zero watched callback allocation/deletion checks
 passed. The new layout engine passed its CPU gate. These local failures are kept
 as failures; no CPU threshold or test gate was relaxed. Exact-revision platform
 CI, installer verification and actual DAW acceptance are separate evidence.
+
+## 1.3 local model verification
+
+The updated pure C++ model suite passes 270 explicit compatibility requests and
+15,840 compatible driver/mic/unit boundary cases. Maximum tested magnitude is
+1.04961, position tick 0.00136444 and distance tick 0.00996308. It checks all
+44.1/48/96 kHz kernels, the six-source coherent field, inherited per-driver sealed
+loading, the changed height mode and column-preserving preview target migration.
+This is model-level evidence; production/native UI and exact-source platform CI
+are separate release checks.

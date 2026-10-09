@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>SpectralForge Chimera — Open Beta 1.2.0 Manual</title>
+<title>SpectralForge Chimera — Open Beta 1.3.0 Manual</title>
 <style>
 :root{color-scheme:dark;--bg:#0d1115;--panel:#171d23;--panel2:#202831;--fg:#edf1f4;--muted:#aeb9c2;--line:#34414c;--gold:#d9bd7d;--blue:#a9d2e8;--warn:#e5bc75}
 *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.68 system-ui,-apple-system,"Segoe UI","Noto Sans KR",sans-serif}
@@ -27,10 +27,11 @@ footer{border-top:1px solid var(--line);margin-top:58px;padding-top:22px;color:v
 </style>
 </head>
 <body><main>
-<header><div class="topbar"><div><div class="eyebrow">SPECTRALFORGE · RAVENFORGE LUTHIER INTELLIGENCE</div><h1>CHIMERA</h1><p class="lead" data-k="subtitle"></p><p class="small">Open Beta 1.2.0 · <code>1.2.0-beta.1</code> · <span data-k="counts"></span></p></div>
+<header><div class="topbar"><div><div class="eyebrow">SPECTRALFORGE · RAVENFORGE LUTHIER INTELLIGENCE</div><h1>CHIMERA</h1><p class="lead" data-k="subtitle"></p><p class="small">Open Beta 1.3.0 · <code>1.3.0-beta.1</code> · <span data-k="counts"></span></p></div>
 <div class="languages" aria-label="Language"><button class="lang-btn" data-lang="en">EN</button><button class="lang-btn" data-lang="de">DE</button><button class="lang-btn" data-lang="ko">KR</button></div></div></header>
 <nav><a href="#quick" data-k="navQuick"></a><a href="#install" data-x="navInstall"></a><a href="#operation" data-x="navOperation"></a><a href="#signal" data-k="navSignal"></a><a href="#compare" data-k="navCompare"></a><a href="#pre" data-k="navPre"></a><a href="#amps" data-k="navAmp"></a><a href="#post" data-k="navPost"></a><a href="#ir" data-k="navIr"></a><a href="#workflows" data-k="navWorkflow"></a><a href="#preset" data-k="navPreset"></a><a href="#global" data-k="navGlobal"></a><a href="#host" data-x="navHost"></a><a href="#diag" data-k="navDiag"></a><a href="#limits" data-k="navLimits"></a></nav>
 <p class="note" data-k="referenceNote"></p>
+<section id="release13"><h2 id="release13Title"></h2><div id="release13Body"></div></section>
 <section id="patch112"><h2>1.1.2 · Day-one patch</h2><div id="patch112Body"></div></section>
 <section id="quick"><h2 data-k="quickTitle"></h2><div id="quickBody"></div></section>
 <section id="install"><h2 data-x="installTitle"></h2><div id="installBody"></div><h3 data-x="requirementsTitle"></h3><p class="section-intro" data-x="requirementsNote"></p><div id="requirementsBody"></div><h3 data-x="performanceTitle"></h3><div id="performanceBody"></div><p class="tip" data-x="performanceTip"></p></section>
@@ -49,7 +50,7 @@ footer{border-top:1px solid var(--line);margin-top:58px;padding-top:22px;color:v
 <section id="host"><h2 data-x="hostTitle"></h2><p class="section-intro" data-x="hostIntro"></p><h3 data-x="hostCheckTitle"></h3><div id="hostCheckBody"></div><h3 data-x="updateTitle"></h3><div id="updateBody"></div><h3 data-x="bugTitle"></h3><div id="bugBody"></div></section>
 <section id="diag"><h2 data-k="diagTitle"></h2><div id="diagBody"></div></section>
 <section id="limits"><h2 data-k="limitsTitle"></h2><div id="limitsBody"></div></section>
-<footer><p>SpectralForge Chimera · Open Beta 1.2.0 · <code>1.2.0-beta.1</code><br>Copyright © 2026 RavenForge Luthier Intelligence. All rights reserved.<br><span data-k="footer"></span></p></footer>
+<footer><p>SpectralForge Chimera · Open Beta 1.3.0 · <code>1.3.0-beta.1</code><br>Copyright © 2026 RavenForge Luthier Intelligence. All rights reserved.<br><span data-k="footer"></span></p></footer>
 </main>
 <script>
 (function(){
@@ -57,13 +58,13 @@ footer{border-top:1px solid var(--line);margin-top:58px;padding-top:22px;color:v
 const ASSET='https://raw.githubusercontent.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/main/Assets/Artwork/';
 const L={
 en:{
-subtitle:'Detailed user manual · Guitar & bass amp matrix / effects suite',counts:'24 amp models · 39 PRE models · 21 POST models · 43 factory & signature presets',
-navQuick:'Quick start',navSignal:'Signal & routing',navCompare:'Model-family comparison',navPre:'PRE 39',navAmp:'AMP 23',navPost:'POST 21',navIr:'Cab / IR',navWorkflow:'Workflows',navPreset:'Presets / A·B',navGlobal:'Global controls',navDiag:'Diagnostics',navLimits:'Beta scope',
+subtitle:'Detailed user manual · Guitar & bass amp matrix / effects suite',counts:'25 active amp models · 39 PRE models · 21 POST models = 85 models · 48 factory & signature presets',
+navQuick:'Quick start',navSignal:'Signal & routing',navCompare:'Model-family comparison',navPre:'PRE 39',navAmp:'AMP 25',navPost:'POST 21',navIr:'Cab / IR',navWorkflow:'Workflows',navPreset:'Presets / A·B',navGlobal:'Global controls',navDiag:'Diagnostics',navLimits:'Beta scope',
 referenceNote:'Model names and hardware references describe design direction. They do not imply licensing, manufacturer endorsement, circuit-level reproduction or verified hardware equivalence.',
 quickTitle:'01 · Quick start',signalTitle:'04 · Signal flow and routing',compareTitle:'05 · Model-family differences',compareIntro:'Choose the family before the individual model. PRE defines what reaches the amp, the amp defines the core identity, Cabinet/IR strongly shapes the audible spectrum, and POST finishes dynamics, colour, movement and space.',
 preFamilyTitle:'PRE families',ampFamilyTitle:'Amplifier families',postFamilyTitle:'POST families',stageTitle:'PRE / AMP / CAB / POST — different jobs',
 preTitle:'06 · PRE — 5-slot pedalboard / 39 models',preIntro:'Five slots can be filled, duplicated and reordered. During this beta, stop transport before model replacement or reorder when possible.',
-ampTitle:'07 · Amplifiers — 24 models',ampIntro:'Models are grouped by primary role for browsing, but every amp can be selected in every rig lane. Model-specific channels and input routes appear where implemented.',
+ampTitle:'07 · Amplifiers — 25 models',ampIntro:'Models are grouped by primary role for browsing, but every amp can be selected in every rig lane. Model-specific channels and input routes appear where implemented.',
 postTitle:'08 · POST Rack — 21 models',postIntro:'POST processes the merged rig once. Use it for overall dynamics, colour, final EQ, modulation, delay and reverb.',
 irTitle:'09 · Cabinet / IR',workflowTitle:'10 · Practical workflows',presetTitle:'11 · Factory presets / A·B / Save',globalTitle:'12 · Global controls',diagTitle:'14 · Diagnostics and troubleshooting',limitsTitle:'15 · Open Beta scope and known limits',
 
@@ -71,8 +72,8 @@ footer:'Third-party product names remain the property of their respective owners
 labels:{reference:'Reference',role:'Role',character:'Character',use:'Recommended use',controls:'Main controls',channels:'Channels / input'},
 quick:['Close the DAW and older Chimera instance before installing or updating. In a DAW insert Chimera as VST3/AU; in Standalone choose the interface in Audio Settings.','Start with MONO L for a single guitar, bass or mono source. Use STEREO only for a true stereo input.','Begin in Classic with a familiar preset. Set interface gain and Chimera INPUT for a healthy signal without clipping.','Choose amp and Cabinet/IR first, then refine PRE gain staging and POST finishing. Level-match A/B comparisons.','Amp oversampling defaults to 4×. If real-time playback breaks up, use 2×/1× or increase the audio buffer.'],
 modes:[['Classic','One full-range amp/cab path','Conventional guitar or bass tones; fastest workflow'],['Dual · Blend','Two full-range rigs mixed together','Tight + wide, clean + crunch, two bass heads'],['Dual · Crossover','LR4 low/high split into two rigs','Clean lows with driven highs; hybrid rigs'],['Matrix','LOW / MID / HIGH; LOW has COMP and DI/AMP blend','Extended range, low tuning, modern bass, complex distortion']],
-ir:['Cabinet processing stays inside each rig lane: Amp → IR → Merge.','CAB selects an installed factory/user IR; BYPASS skips cabinet convolution. WAV/AIFF can be loaded or dropped into a lane.','LOW CUT / HIGH CUT shape the cabinet output. In split modes avoid fighting the crossover with excessively narrow cuts.','MUTE / SOLO / POLARITY help diagnose Dual/Matrix summing. Different IRs are not automatically time/phase aligned.','The public beta includes two redistributable factory IRs and metadata. Personal Raven/TONE3000 captures are not included in the public installer.'],
-preset:['31 factory presets are starting points, not mastered final tones.','Recommended order: nearest preset → input/gate → amp and IR → routing/crossover → PRE → POST → level-match A/B → SAVE AS.','A and B are two complete sound snapshots. COPY duplicates the active snapshot; it is not left/right routing and does not loudness-match automatically.','User IR audio is stored with project/A·B state for recall. Review model-selection automation when opening projects from early test builds.'],
+ir:['Cabinet processing stays inside each rig lane: Amp → CABINET / IR LOADER → Merge.','CABINET combines a speaker, enclosure, tweeter and Mic A/B choices. IR LOADER selects factory/user IRs or loads WAV/AIFF files. BYPASS skips the cabinet stage.','LOW CUT / HIGH CUT shape the cabinet output. In split modes avoid fighting the crossover with excessively narrow cuts.','MUTE / SOLO / POLARITY help diagnose Dual/Matrix summing. Different IRs are not automatically time/phase aligned.','The public beta includes two redistributable factory IRs and metadata. Personal Raven/TONE3000 captures are not included in the public installer.'],
+preset:['The 48 factory and signature presets provide starting points for your instrument and mix.','Recommended order: nearest preset → input/gate → amp and IR → routing/crossover → PRE → POST → level-match A/B → SAVE AS.','A and B are two complete sound snapshots. COPY duplicates the active snapshot; it is not left/right routing and does not loudness-match automatically.','User IR audio is stored with project/A·B state for recall. Review model-selection automation when opening projects from early test builds.'],
 global:[['INPUT / OUTPUT','Internal trims and meters. Fix interface clipping at the interface; use OUTPUT for final level matching.'],['Gate','Threshold (dBFS), Hold/Release (ms), and Range. Range 0 dB = no attenuation; finite values limit the closed-gate reduction; Full releases toward silence (default). Attack is fixed at a 0.5 ms time constant; closing uses 6 dB hysteresis. Lower Threshold or increase Hold/Release when sustain is cut.'],['POST GATE','Detects playing from the clean input but attenuates after rig/cab merge before spatial POST FX. Useful between notes; not a full denoiser while playing.'],['Transpose','−12 to +12 semitones. Adds reported latency and can create artifacts on sharp transients or dense chords.'],['Tuner / Auto Mute','Chromatic tuner reads the original input before Gate/Transpose. A4 is adjustable; Auto Mute silences output while tuning.'],['Oversampling','1× / 2× / 4× / 8× for amp processing; 4× default. Higher values trade CPU for nonlinear quality.'],['Doubler','Short modulated wet delay for stereo width. Check mono compatibility.'],['TAP / BPM / HOST / CLICK','Manual/tap/host tempo and practice click. Delay Sync follows quarter-note tempo; click is not DAW bar-position sync.'],['MIDI Learn','Assign the next received CC to the selected control. Route MIDI through the host or Standalone MIDI input.'],['CPU AVG / PK','Percentage of the audio-block deadline consumed by Chimera, not total system CPU.']],
 diag:['Use SETTINGS → Review / copy / save diagnostics to compare RMS/Peak through INPUT_TRIM, PRE, RIG_GATE, POST and OUTPUT.','If level unexpectedly drops, identify the first stage where RMS/Peak changes instead of compensating only at OUTPUT.','If Dual/Matrix loses lows, solo lanes and inspect polarity, IR onset, blend and crossover. IRs are not auto-aligned.','Spectral Octaver adds roughly 42.7–46.4 ms at supported rates. Bypass preserves alignment; replace the slot with Empty to remove that frame delay.','For high CPU, lower amp oversampling, review Transpose/Spectral Octaver and convolution use, or increase host buffer size.','Beta 1.1 improves JUCE shutdown/resource cleanup. Host shutdown, project-close and plugin-unload behaviour still requires validation in each DAW; Studio One is one previously reported case, not the only host covered by this guidance.'],
 limits:['This is a free open beta and may become a paid product. Free updates/support after beta are not guaranteed.','Windows publisher signing and macOS Developer ID signing/notarization are not complete; OS warnings can appear.','Hardware-reference controls and voicings are authored DSP interpretations. Full real-hardware DI/reamp fidelity certification has not been completed.','Some reference functions remain intentionally unavailable, including AW-3 HUMAN/TEMPO-style modes and independent Variable Mu right-bank/SEP operation.','Structural PRE edits are not certified click-free during playback.','Transpose and spectral pitch processing can add latency and transient/chord artifacts.','IR natural onset and phase are not automatically corrected across lanes.'],
@@ -86,13 +87,13 @@ workflows:[
 ]
 },
 de:{
-subtitle:'Ausführliches Benutzerhandbuch · Gitarren- und Bass-Amp-Matrix / Effektsuite',counts:'24 Amp-Modelle · 39 PRE-Modelle · 21 POST-Modelle · 43 Werks- und Signature-Presets',
-navQuick:'Schnellstart',navSignal:'Signal & Routing',navCompare:'Modellgruppen',navPre:'PRE 39',navAmp:'AMP 23',navPost:'POST 21',navIr:'Cab / IR',navWorkflow:'Praxisbeispiele',navPreset:'Presets / A·B',navGlobal:'Globale Funktionen',navDiag:'Diagnose',navLimits:'Beta-Umfang',
+subtitle:'Ausführliches Benutzerhandbuch · Gitarren- und Bass-Amp-Matrix / Effektsuite',counts:'25 aktive Amp-Modelle · 39 PRE-Modelle · 21 POST-Modelle = 85 Modelle · 48 Werks- und Signature-Presets',
+navQuick:'Schnellstart',navSignal:'Signal & Routing',navCompare:'Modellgruppen',navPre:'PRE 39',navAmp:'AMP 25',navPost:'POST 21',navIr:'Cab / IR',navWorkflow:'Praxisbeispiele',navPreset:'Presets / A·B',navGlobal:'Globale Funktionen',navDiag:'Diagnose',navLimits:'Beta-Umfang',
 referenceNote:'Modellnamen und Hardware-Referenzen beschreiben die gestalterische Richtung. Sie bedeuten keine Lizenzierung, Herstellerfreigabe, Schaltungsreproduktion oder bestätigte Hardware-Gleichheit.',
 quickTitle:'01 · Schnellstart',signalTitle:'04 · Signalfluss und Routing',compareTitle:'05 · Unterschiede der Modellgruppen',compareIntro:'Zuerst die Modellgruppe wählen, dann das Einzelmodell. PRE bestimmt das Signal am Amp-Eingang, der Amp prägt die Grundidentität, Cabinet/IR formt das hörbare Spektrum stark und POST vollendet Dynamik, Klangfarbe, Bewegung und Raum.',
 preFamilyTitle:'PRE-Gruppen',ampFamilyTitle:'Amp-Gruppen',postFamilyTitle:'POST-Gruppen',stageTitle:'PRE / AMP / CAB / POST — unterschiedliche Aufgaben',
 preTitle:'06 · PRE — 5-Slot-Pedalboard / 39 Modelle',preIntro:'Fünf Slots lassen sich belegen, duplizieren und neu anordnen. Modellwechsel und Reihenfolge sollten während dieser Beta möglichst bei gestopptem Transport geändert werden.',
-ampTitle:'07 · Verstärker — 24 Modelle',ampIntro:'Die Auswahl gruppiert Modelle nach Hauptrolle; jeder Amp kann dennoch in jeder Rig-Spur verwendet werden. Modellspezifische Kanäle und Eingangswege erscheinen, sofern implementiert.',
+ampTitle:'07 · Verstärker — 25 Modelle',ampIntro:'Die Auswahl gruppiert Modelle nach Hauptrolle; jeder Amp kann dennoch in jeder Rig-Spur verwendet werden. Modellspezifische Kanäle und Eingangswege erscheinen, sofern implementiert.',
 postTitle:'08 · POST-Rack — 21 Modelle',postIntro:'POST bearbeitet das zusammengeführte Rig einmal. Hier werden Gesamtdynamik, Farbe, EQ, Modulation, Delay und Reverb eingestellt.',
 irTitle:'09 · Cabinet / IR',workflowTitle:'10 · Praktische Workflows',presetTitle:'11 · Werks-Presets / A·B / Speichern',globalTitle:'12 · Globale Funktionen',diagTitle:'14 · Diagnose und Fehlerbehebung',limitsTitle:'15 · Open-Beta-Umfang und bekannte Grenzen',
 
@@ -100,8 +101,8 @@ footer:'Produktnamen Dritter bleiben Eigentum der jeweiligen Rechteinhaber und d
 labels:{reference:'Referenz',role:'Aufgabe',character:'Charakter',use:'Empfohlener Einsatz',controls:'Hauptregler',channels:'Kanäle / Eingang'},
 quick:['DAW und ältere Chimera-Instanzen vor Installation oder Update schließen. In der DAW Chimera als VST3/AU laden; im Standalone das Interface unter Audio Settings wählen.','Für eine einzelne Gitarre, einen Bass oder eine Monoquelle mit MONO L beginnen. STEREO nur für echte Stereoquellen verwenden.','Im Classic-Modus mit einem vertrauten Preset beginnen. Interface-Gain und Chimera INPUT kräftig, aber ohne Clipping einstellen.','Zuerst Amp und Cabinet/IR wählen, danach PRE-Gain-Staging und POST-Finish. A/B immer pegelangepasst vergleichen.','Amp-Oversampling ist standardmäßig 4×. Bei Aussetzern auf 2×/1× reduzieren oder den Audiopuffer erhöhen.'],
 modes:[['Classic','Ein Fullrange-Amp/Cab-Pfad','Konventionelle Gitarren-/Basstöne; schnellster Workflow'],['Dual · Blend','Zwei Fullrange-Rigs werden gemischt','Tight + breit, Clean + Crunch, zwei Bass-Heads'],['Dual · Crossover','LR4-Tief/Hoch-Split in zwei Rigs','Saubere Tiefen mit verzerrten Höhen; Hybrid-Rigs'],['Matrix','LOW / MID / HIGH; LOW mit COMP und DI/AMP-Mix','Extended Range, tiefe Tunings, moderner Bass, komplexe Verzerrung']],
-ir:['Cabinet-Bearbeitung bleibt in jeder Rig-Spur: Amp → IR → Merge.','CAB wählt eine installierte Factory/User-IR; BYPASS umgeht die Cabinet-Convolution. WAV/AIFF lassen sich laden oder in eine Spur ziehen.','LOW CUT / HIGH CUT formen den Cabinet-Ausgang. In Split-Modi die Crossover nicht durch zu enge Filter konterkarieren.','MUTE / SOLO / POLARITY helfen bei Summierungsproblemen in Dual/Matrix. Verschiedene IRs werden nicht automatisch zeitlich oder phasenmäßig ausgerichtet.','Die öffentliche Beta enthält zwei weiterverteilbare Factory-IRs und Metadaten. Persönliche Raven/TONE3000-Captures sind nicht enthalten.'],
-preset:['31 Werks-Presets sind Ausgangspunkte, keine fertig gemasterten Sounds.','Empfohlene Reihenfolge: Preset → Input/Gate → Amp und IR → Routing/Crossover → PRE → POST → A/B pegeln → SAVE AS.','A und B sind zwei vollständige Sound-Snapshots. COPY kopiert den aktiven Zustand; es ist kein Links/Rechts-Routing und führt keinen automatischen Pegelabgleich durch.','User-IR-Audio wird für Recall mit Projekt/A·B-Zustand gespeichert. Modellwahl-Automation aus frühen Test-Builds sollte kontrolliert werden.'],
+ir:['Cabinet-Bearbeitung bleibt in jeder Rig-Spur: Amp → CABINET / IR LOADER → Merge.','CABINET kombiniert Lautsprecher, Gehäuse, Hochtöner und Mic A/B. IR LOADER wählt Factory/User-IRs oder lädt WAV/AIFF. BYPASS umgeht die Cabinet-Stufe.','LOW CUT / HIGH CUT formen den Cabinet-Ausgang. In Split-Modi die Crossover nicht durch zu enge Filter konterkarieren.','MUTE / SOLO / POLARITY helfen bei Summierungsproblemen in Dual/Matrix. Verschiedene IRs werden nicht automatisch zeitlich oder phasenmäßig ausgerichtet.','Die öffentliche Beta enthält zwei weiterverteilbare Factory-IRs und Metadaten. Persönliche Raven/TONE3000-Captures sind nicht enthalten.'],
+preset:['Die 48 Werks- und Signature-Presets bieten Ausgangspunkte für Instrument und Mix.','Empfohlene Reihenfolge: Preset → Input/Gate → Amp und IR → Routing/Crossover → PRE → POST → A/B pegeln → SAVE AS.','A und B sind zwei vollständige Sound-Snapshots. COPY kopiert den aktiven Zustand; es ist kein Links/Rechts-Routing und führt keinen automatischen Pegelabgleich durch.','User-IR-Audio wird für Recall mit Projekt/A·B-Zustand gespeichert. Modellwahl-Automation aus frühen Test-Builds sollte kontrolliert werden.'],
 global:[['INPUT / OUTPUT','Interne Trims und Meter. Interface-Clipping am Interface beheben; OUTPUT für den finalen Pegelabgleich verwenden.'],['Gate','Threshold (dBFS), Hold/Release (ms) und Range. 0 dB = keine Absenkung; endliche Werte begrenzen die Absenkung; Full klingt gegen Stille aus (bisheriger Standard). Attack: feste Zeitkonstante 0,5 ms; Hysterese: 6 dB. Bei abgeschnittenem Sustain Threshold senken oder Hold/Release erhöhen.'],['POST GATE','Erkennt das Spiel am sauberen Eingang und dämpft nach Rig/Cab-Merge vor räumlichen POST-Effekten. Hilft zwischen Noten, ist aber kein vollständiger Denoiser während des Spiels.'],['Transpose','−12 bis +12 Halbtöne. Fügt gemeldete Latenz hinzu und kann bei harten Transienten oder dichten Akkorden Artefakte erzeugen.'],['Tuner / Auto Mute','Chromatisches Stimmgerät vor Gate/Transpose; A4 einstellbar. Auto Mute schaltet den Ausgang beim Stimmen stumm.'],['Oversampling','1× / 2× / 4× / 8× für die Amp-Verarbeitung; Standard 4×. Höhere Werte kosten mehr CPU.'],['Doubler','Kurzes moduliertes Wet-Delay für Stereobreite. Monokompatibilität prüfen.'],['TAP / BPM / HOST / CLICK','Manuelles/Tap/Host-Tempo und Übungs-Klick. Delay Sync folgt Viertelnoten; Click ist keine DAW-Taktpositions-Synchronisation.'],['MIDI Learn','Nächsten empfangenen CC dem gewählten Regler zuweisen. MIDI im Host oder Standalone routen.'],['CPU AVG / PK','Anteil des Audio-Block-Zeitbudgets, den Chimera verbraucht; nicht die gesamte System-CPU.']],
 diag:['Unter SETTINGS → Review / copy / save diagnostics RMS/Peak über INPUT_TRIM, PRE, RIG_GATE, POST und OUTPUT vergleichen.','Bei unerwartetem Pegelverlust die erste Stufe mit RMS/Peak-Änderung suchen, statt nur OUTPUT anzuheben.','Bei fehlenden Tiefen in Dual/Matrix Spuren solo prüfen: Polarität, IR-Onset, Blend und Crossover. IRs werden nicht automatisch ausgerichtet.','Spectral Octaver fügt etwa 42,7–46,4 ms hinzu. Bypass hält die Ausrichtung; Slot auf Empty setzen, um die Frame-Latenz zu entfernen.','Bei hoher CPU Amp-Oversampling senken, Transpose/Spectral Octaver und Convolution prüfen oder Host-Puffer erhöhen.','Beta 1.1 verbessert JUCE-Shutdown und Ressourcenfreigabe. Projektabschluss, Plugin-Unload und Host-Shutdown müssen in jeder DAW separat validiert werden; Studio One ist nur ein bereits gemeldeter Fall.'],
 limits:['Diese offene Beta ist kostenlos und kann später kostenpflichtig werden. Kostenlose Updates/Support nach der Beta sind nicht garantiert.','Windows-Publisher-Signierung und macOS Developer-ID-Signierung/Notarisierung sind noch nicht abgeschlossen; Betriebssystemwarnungen sind möglich.','Hardware-Referenzen sind eigenständige DSP-Interpretationen. Eine vollständige DI/Reamp-Treueprüfung mit realer Hardware ist nicht abgeschlossen.','Einige Referenzfunktionen bleiben absichtlich deaktiviert, darunter AW-3 HUMAN/TEMPO-ähnliche Modi und unabhängiger rechter Variable-Mu-Kanal/SEP.','Strukturänderungen im PRE sind während der Wiedergabe nicht als vollständig klickfrei zertifiziert.','Transpose und spektrale Pitch-Verarbeitung können Latenz und Transienten-/Akkordartefakte erzeugen.','Natürlicher IR-Onset und Phase werden zwischen Spuren nicht automatisch korrigiert.'],
@@ -115,13 +116,13 @@ workflows:[
 ]
 },
 ko:{
-subtitle:'상세 사용자 매뉴얼 · 기타·베이스 Amp Matrix / Effects Suite',counts:'앰프 24종 · PRE 39종 · POST 21종 · 팩토리·시그니처 프리셋 43개',
-navQuick:'빠른 시작',navSignal:'신호 / 라우팅',navCompare:'모델군 비교',navPre:'PRE 39',navAmp:'AMP 23',navPost:'POST 21',navIr:'Cab / IR',navWorkflow:'사용 예시',navPreset:'프리셋 / A·B',navGlobal:'공통 기능',navDiag:'진단',navLimits:'베타 범위',
+subtitle:'상세 사용자 매뉴얼 · 기타·베이스 Amp Matrix / Effects Suite',counts:'활성 앰프 25종 · PRE 39종 · POST 21종 = 총 85종 · 팩토리·시그니처 프리셋 48개',
+navQuick:'빠른 시작',navSignal:'신호 / 라우팅',navCompare:'모델군 비교',navPre:'PRE 39',navAmp:'AMP 25',navPost:'POST 21',navIr:'Cab / IR',navWorkflow:'사용 예시',navPreset:'프리셋 / A·B',navGlobal:'공통 기능',navDiag:'진단',navLimits:'베타 범위',
 referenceNote:'모델명과 하드웨어 레퍼런스는 설계 방향을 설명합니다. 제조사 제휴·인증, 회로 단위 복제, 실물과의 측정 일치를 의미하지 않습니다.',
 quickTitle:'01 · 빠른 시작',signalTitle:'04 · 신호 흐름과 라우팅',compareTitle:'05 · 모델군별 차이',compareIntro:'개별 모델을 고르기 전에 먼저 모델군의 역할을 정하면 빠릅니다. PRE는 앰프에 들어가는 신호를 만들고, AMP는 기본 정체성을 만들며, Cabinet/IR은 실제 들리는 스펙트럼을 크게 결정하고, POST는 다이내믹·색채·움직임·공간을 마무리합니다.',
 preFamilyTitle:'PRE 모델군',ampFamilyTitle:'AMP 모델군',postFamilyTitle:'POST 모델군',stageTitle:'PRE / AMP / CAB / POST 역할 차이',
 preTitle:'06 · PRE — 5-slot Pedalboard / 39 Models',preIntro:'5개 슬롯 안에서 모델을 선택·복제·재배열할 수 있습니다. 베타에서는 모델 교체·순서 변경 같은 구조 편집은 가능하면 재생을 멈춘 뒤 수행하십시오.',
-ampTitle:'07 · Amplifier — 24 Models',ampIntro:'앰프는 탐색 편의를 위해 하나의 대표 역할로 분류되지만 모든 rig lane에서 선택할 수 있습니다. 모델별 채널과 입력 경로가 구현된 경우 해당 selector가 표시됩니다.',
+ampTitle:'07 · Amplifier — 25 Models',ampIntro:'앰프는 탐색 편의를 위해 하나의 대표 역할로 분류되지만 모든 rig lane에서 선택할 수 있습니다. 모델별 채널과 입력 경로가 구현된 경우 해당 selector가 표시됩니다.',
 postTitle:'08 · POST Rack — 21 Models',postIntro:'POST는 합산된 리그를 한 번 처리합니다. 전체 다이내믹·컬러·최종 EQ를 정리한 뒤 모듈레이션·딜레이·리버브로 움직임과 공간을 완성합니다.',
 irTitle:'09 · Cabinet / IR',workflowTitle:'10 · 실전 사용 예시',presetTitle:'11 · Factory Presets / A·B / Save',globalTitle:'12 · 공통 기능',diagTitle:'14 · Diagnostics / Troubleshooting',limitsTitle:'15 · Open Beta 범위와 알려진 한계',
 
@@ -129,8 +130,8 @@ footer:'서드파티 제품명은 각 권리자의 자산이며 해당 모델의
 labels:{reference:'Reference',role:'역할',character:'캐릭터',use:'추천 용도',controls:'주요 컨트롤',channels:'채널 / 입력'},
 quick:['설치·업데이트 전 DAW와 기존 Chimera를 종료합니다. DAW에서는 VST3/AU를 삽입하고 Standalone에서는 Audio Settings에서 인터페이스를 선택합니다.','일반적인 기타·베이스·모노 소스는 MONO L로 시작합니다. 실제 스테레오 소스만 STEREO를 사용합니다.','Classic에서 익숙한 프리셋으로 시작하고 인터페이스 게인과 Chimera INPUT을 클리핑 없이 충분히 확보합니다.','앰프와 Cabinet/IR을 먼저 확정한 뒤 PRE gain staging과 POST를 다듬습니다. A/B는 비슷한 음량으로 맞춰 비교합니다.','앰프 oversampling 기본값은 4×입니다. 실시간 끊김이 있으면 2×/1×로 낮추거나 오디오 버퍼를 늘립니다.'],
 modes:[['Classic','전대역 단일 amp/cab 경로','일반 기타·베이스 톤, 가장 빠른 작업'],['Dual · Blend','전대역 리그 두 개를 혼합','타이트+와이드, 클린+크런치, 두 베이스 헤드'],['Dual · Crossover','LR4로 LOW/HIGH 분할 후 두 리그','클린 저역 + 드라이브 상단, 하이브리드 톤'],['Matrix','LOW / MID / HIGH 3대역. LOW는 COMP와 DI/AMP blend','확장음역, 다운튜닝, 현대 베이스, 복합 디스토션']],
-ir:['Cabinet 처리는 각 rig lane 안에서 Amp → IR → Merge 순서로 유지됩니다.','CAB은 설치된 factory/user IR을 고르고 BYPASS는 cabinet convolution만 우회합니다. WAV/AIFF를 불러오거나 lane에 드롭할 수 있습니다.','LOW CUT / HIGH CUT으로 cab 출력을 정리합니다. 분할 모드에서는 crossover와 겹쳐 지나치게 좁아지지 않게 합니다.','MUTE / SOLO / POLARITY로 Dual/Matrix 합산 문제를 확인합니다. 서로 다른 IR은 자동으로 time/phase alignment하지 않습니다.','공개 베타에는 재배포 가능한 factory IR 두 개와 metadata가 포함됩니다. 개인 Raven/TONE3000 캡처는 공개 설치 파일에 포함되지 않습니다.'],
-preset:['31개 factory preset은 완성된 마스터링 톤이 아니라 시작점입니다.','권장 순서: 목적에 가까운 preset → input/gate → amp와 IR → routing/crossover → PRE → POST → A/B 레벨 매칭 → SAVE AS.','A와 B는 전체 사운드 스냅샷 두 개입니다. COPY는 현재 상태를 반대편으로 복제하며 좌/우 라우팅이나 자동 loudness match 기능이 아닙니다.','User IR 오디오는 프로젝트/A·B 상태에 포함되어 recall됩니다. 초기 테스트 빌드의 model-selection automation은 목록 확장 후 매핑을 확인하십시오.'],
+ir:['Cabinet 처리는 각 rig lane 안에서 Amp → CABINET / IR LOADER → Merge 순서로 유지됩니다.','CABINET에서 스피커·캐비넷·트위터·Mic A/B를 구성합니다. IR LOADER에서는 factory/user IR을 선택하거나 WAV/AIFF를 불러옵니다. BYPASS는 캐비넷 단계를 우회합니다.','LOW CUT / HIGH CUT으로 cab 출력을 정리합니다. 분할 모드에서는 crossover와 겹쳐 지나치게 좁아지지 않게 합니다.','MUTE / SOLO / POLARITY로 Dual/Matrix 합산 문제를 확인합니다. 서로 다른 IR은 자동으로 time/phase alignment하지 않습니다.','공개 베타에는 재배포 가능한 factory IR 두 개와 metadata가 포함됩니다. 개인 Raven/TONE3000 캡처는 공개 설치 파일에 포함되지 않습니다.'],
+preset:['팩토리·시그니처 프리셋 48개를 악기와 믹스에 맞춰 조정하는 시작점으로 사용합니다.','권장 순서: 목적에 가까운 preset → input/gate → amp와 IR → routing/crossover → PRE → POST → A/B 레벨 매칭 → SAVE AS.','A와 B는 전체 사운드 스냅샷 두 개입니다. COPY는 현재 상태를 반대편으로 복제하며 좌/우 라우팅이나 자동 loudness match 기능이 아닙니다.','User IR 오디오는 프로젝트/A·B 상태에 포함되어 recall됩니다. 초기 테스트 빌드의 model-selection automation은 목록 확장 후 매핑을 확인하십시오.'],
 global:[['INPUT / OUTPUT','내부 trim과 미터. 인터페이스 자체 clipping은 인터페이스에서 해결하고 OUTPUT은 최종 level matching에 사용합니다.'],['Gate','Threshold(dBFS), Hold/Release(ms), Range. Range 0 dB는 감쇠 없음, 중간값은 지정 dB만큼 제한 감쇠, Full은 release를 따라 무음으로 닫히는 기존 기본값입니다. Attack은 0.5 ms 시정수 고정, 닫힘은 6 dB hysteresis를 사용합니다. 서스테인이 잘리면 Threshold를 낮추거나 Hold/Release를 늘립니다.'],['POST GATE','깨끗한 입력에서 연주 여부를 검출하고 rig/cab 합산 뒤 공간계 POST 앞에서 감쇄합니다. 음 사이 히스 감소에는 유리하지만 연주 중 노이즈를 제거하는 완전한 denoiser는 아닙니다.'],['Transpose','−12~+12 semitone. 보고 latency가 추가되고 빠른 transient나 복잡한 chord에서 artifact가 생길 수 있습니다.'],['Tuner / Auto Mute','Gate/Transpose 전 원음을 읽는 chromatic tuner. A4 조절 가능, Auto Mute는 튜닝 중 출력을 끕니다.'],['Oversampling','앰프 처리 1× / 2× / 4× / 8×, 기본 4×. 높은 값은 nonlinear 품질과 CPU를 교환합니다.'],['Doubler','짧은 modulated wet delay로 stereo width를 만듭니다. 모노 호환성을 확인하십시오.'],['TAP / BPM / HOST / CLICK','수동/탭/호스트 템포와 연습용 클릭. Delay Sync는 4분음표를 따르며 Click은 DAW 마디 위치 동기화가 아닙니다.'],['MIDI Learn','선택한 컨트롤에 다음 수신 CC를 할당합니다. Host 또는 Standalone에서 MIDI를 라우팅합니다.'],['CPU AVG / PK','전체 PC CPU가 아니라 Chimera가 audio block 시간 예산에서 사용한 비율입니다.']],
 diag:['SETTINGS → Review / copy / save diagnostics에서 INPUT_TRIM, PRE, RIG_GATE, POST, OUTPUT의 RMS/Peak를 비교합니다.','레벨이 갑자기 줄면 OUTPUT으로 무작정 보상하기보다 RMS/Peak가 처음 달라지는 단계를 찾습니다.','Dual/Matrix에서 저역이 사라지면 lane solo 후 polarity, IR onset, blend, crossover를 확인합니다. IR은 자동 정렬되지 않습니다.','Spectral Octaver는 지원 sample rate에서 약 42.7~46.4 ms를 추가합니다. Bypass도 정렬을 유지하며, 이 frame delay를 없애려면 슬롯을 Empty로 바꿉니다.','CPU가 높으면 amp oversampling을 낮추고 Transpose/Spectral Octaver, convolution 사용량을 확인하거나 host buffer를 늘립니다.','Beta 1.1은 JUCE 종료 경로와 자원 정리를 개선했습니다. 프로젝트 닫기·플러그인 언로드·DAW 종료 안정성은 호스트마다 별도 확인이 필요하며, Studio One은 기존 제보 사례 중 하나일 뿐 이 절차의 대상은 모든 DAW입니다.'],
 limits:['현재 무료 Open Beta이며 향후 유료화될 수 있습니다. 베타 이후 무료 업데이트·지원은 보장되지 않습니다.','Windows publisher code signing과 macOS Developer ID 서명/공증은 완료 전이므로 운영체제 경고가 나타날 수 있습니다.','하드웨어 레퍼런스 조작부와 보이싱은 독립 DSP 해석입니다. 전 모델의 실물 DI/reamp fidelity 인증은 완료되지 않았습니다.','AW-3 HUMAN/TEMPO 계열과 Variable Mu 독립 right-bank/SEP 등 일부 원본 기능은 의도적으로 비활성 또는 미구현 상태입니다.','PRE 구조 편집의 완전한 click-free 동작은 재생 중 보증하지 않습니다.','Transpose와 spectral pitch 처리는 latency와 transient/chord artifact를 만들 수 있습니다.','IR의 natural onset과 phase는 lane 사이에서 자동 보정하지 않습니다.'],
@@ -152,7 +153,7 @@ navInstall:'Installation',navOperation:'Operation / state',navHost:'DAW / update
 installTitle:'02 · Installation and first launch',requirementsTitle:'System requirements and recommended configuration',requirementsNote:'Platform/architecture entries below are release-supported requirements. CPU and RAM figures are practical recommendations, not certified hard minimums; actual headroom depends on the DAW, interface driver, sample rate, buffer, routing mode and enabled models.',performanceTitle:'Real-time performance starting points',performanceTip:'For troubleshooting, start at 48 kHz / 256 samples / 2× or 4× amp oversampling with one Chimera instance. Add 8× oversampling, Transpose, Spectral Octaver, multiple IR-heavy rigs and additional plugin instances only after the baseline is stable.',operationTitle:'03 · Interface, PRE editing and saved state',operationIntro:'These controls determine how the current sound is edited, stored, recalled and supported. Structural changes should be deliberate; ordinary continuous controls remain automatable.',
 boardTitle:'Five-slot PRE controls',stateTitle:'Save / A·B / MIDI / interface state',supportTitle:'SETTINGS and support',
 ampRouteTitle:'Amplifier channels and input routes',irLibraryTitle:'IR Library operation and limits',irCreditsTitle:'IR credits and external bass IRs',
-presetListTitle:'43 factory & signature presets',recallTitle:'Preset / A·B recall rules',
+presetListTitle:'48 factory & signature presets',recallTitle:'Preset / A·B recall rules',
 hostTitle:'13 · DAW compatibility, updates and reporting',hostIntro:'Chimera should be diagnosed as a hosted audio plugin, not around one specific DAW. The same checks apply to VST3/AU hosts such as Studio One, Cubase/Nuendo, REAPER, Ableton Live, Bitwig Studio, FL Studio, Logic Pro and other compatible hosts. Mentioning a DAW here does not mean full certification.',
 hostCheckTitle:'Host-wide compatibility checklist',updateTitle:'Updates and privacy',bugTitle:'Bug reports and diagnostic data',
 install:[
@@ -168,7 +169,7 @@ requirements:[
 ['Display','The editor is 1180 × 780 at 100%. 75% mode is approximately 885 × 585; 1280 × 800 or larger is a practical minimum display recommendation, with 1920 × 1080 or larger preferred.'],
 ['Memory','No certified hard RAM minimum has been established. 8 GB system RAM is a practical baseline; 16 GB or more is recommended for normal DAW projects, multiple Chimera instances and large sample-based sessions.'],
 ['CPU recommendation','A modern 64-bit CPU with strong single-core performance and 4 or more cores is a practical baseline. 6–8 or more cores provide more session headroom for multiple plugin instances; macOS Intel remains supported, while Apple Silicon generally offers more real-time headroom.'],
-['Storage','Open Beta 1.2.0 installer sizes are listed on the release download page. Keep additional free space for installation, update copies, user IRs and DAW projects; 500 MB free beyond the installer is a practical minimum reserve.'],
+['Storage','Open Beta 1.3.0 installer sizes are listed on the release download page. Keep additional free space for installation, update copies, user IRs and DAW projects; 500 MB free beyond the installer is a practical minimum reserve.'],
 ['Audio I/O','For live guitar/bass/vocal input, use an audio interface or system audio device with a stable low-latency driver/API. Physical microphone gain and +48 V remain functions of the interface, not Chimera.']
 ],
 performance:[
@@ -262,7 +263,7 @@ navInstall:'Installation',navOperation:'Bedienung / Zustand',navHost:'DAW / Upda
 installTitle:'02 · Installation und erster Start',requirementsTitle:'Systemanforderungen und empfohlene Konfiguration',requirementsNote:'Plattform und Architektur sind bestätigte Release-Anforderungen. CPU- und RAM-Werte sind praktische Empfehlungen, keine zertifizierten Mindestwerte; die tatsächliche Reserve hängt von DAW, Audiotreiber, Sample-Rate, Buffer, Routing und aktiven Modellen ab.',performanceTitle:'Startwerte für Echtzeit-Performance',performanceTip:'Für die Fehlersuche mit 48 kHz / 256 Samples / 2× oder 4× Amp-Oversampling und einer Chimera-Instanz beginnen. 8×, Transpose, Spectral Octaver, mehrere IR-intensive Rigs und weitere Instanzen erst nach einer stabilen Basis hinzufügen.',operationTitle:'03 · Oberfläche, PRE-Bearbeitung und gespeicherter Zustand',operationIntro:'Diese Funktionen bestimmen Bearbeitung, Speicherung, Recall und Support. Strukturänderungen sollten bewusst erfolgen; kontinuierliche Audio-Regler bleiben automatisierbar.',
 boardTitle:'Bedienung des 5-Slot-Pedalboards',stateTitle:'Speichern / A·B / MIDI / Oberfläche',supportTitle:'SETTINGS und Support',
 ampRouteTitle:'Amp-Kanäle und Eingangswege',irLibraryTitle:'IR-Library: Bedienung und Grenzen',irCreditsTitle:'IR-Credits und externe Bass-IRs',
-presetListTitle:'43 Werks- und Signature-Presets',recallTitle:'Preset- / A·B-Recall-Regeln',
+presetListTitle:'48 Werks- und Signature-Presets',recallTitle:'Preset- / A·B-Recall-Regeln',
 hostTitle:'13 · DAW-Kompatibilität, Updates und Fehlerberichte',hostIntro:'Chimera wird als gehostetes Audio-Plugin diagnostiziert, nicht rund um eine einzelne DAW. Dieselben Prüfungen gelten für VST3-/AU-Hosts wie Studio One, Cubase/Nuendo, REAPER, Ableton Live, Bitwig Studio, FL Studio, Logic Pro und andere kompatible Hosts. Eine Erwähnung bedeutet keine vollständige Zertifizierung.',
 hostCheckTitle:'DAW-übergreifende Checkliste',updateTitle:'Updates und Datenschutz',bugTitle:'Fehlerbericht und Diagnosedaten',
 install:[
@@ -278,7 +279,7 @@ requirements:[
 ['Display','Editorgröße bei 100 %: 1180 × 780. Bei 75 % etwa 885 × 585. Praktisch mindestens 1280 × 800, bevorzugt 1920 × 1080 oder größer.'],
 ['Arbeitsspeicher','Kein zertifiziertes hartes RAM-Minimum. 8 GB sind eine praktische Basis; 16 GB oder mehr werden für normale DAW-Projekte, mehrere Chimera-Instanzen und große Sample-Sessions empfohlen.'],
 ['CPU-Empfehlung','Moderner 64-Bit-Prozessor mit guter Single-Core-Leistung und mindestens 4 Kernen als praktische Basis. 6–8 oder mehr Kerne bieten mehr Reserve für mehrere Instanzen; Intel-macOS bleibt unterstützt, Apple Silicon bietet in der Regel mehr Echtzeitreserve.'],
-['Speicherplatz','Die Downloadgrößen von Open Beta 1.2.0 stehen auf der Release-Seite. Zusätzlich Platz für Installation, Updates, User-IRs und Projekte vorsehen; 500 MB Reserve über den Installer hinaus sind ein praktischer Mindestpuffer.'],
+['Speicherplatz','Die Downloadgrößen von Open Beta 1.3.0 stehen auf der Release-Seite. Zusätzlich Platz für Installation, Updates, User-IRs und Projekte vorsehen; 500 MB Reserve über den Installer hinaus sind ein praktischer Mindestpuffer.'],
 ['Audio-I/O','Für Live-Gitarre/Bass/Vocal ein Audiointerface oder System-Audiogerät mit stabilem Low-Latency-Treiber/API verwenden. Physischer Mic-Gain und +48 V gehören zum Interface, nicht zu Chimera.']
 ],
 performance:[
@@ -372,7 +373,7 @@ navInstall:'설치',navOperation:'조작 / 저장',navHost:'DAW / 업데이트',
 installTitle:'02 · 설치와 첫 실행',requirementsTitle:'시스템 요구사항과 권장 사양',requirementsNote:'운영체제와 CPU 아키텍처는 실제 릴리스가 지원하는 조건입니다. CPU·RAM 수치는 공식 최소 벤치마크가 아니라 실사용 권장치이며, 실제 여유는 DAW·오디오 드라이버·sample rate·buffer·routing mode·활성 모델에 따라 달라집니다.',performanceTitle:'실시간 성능 권장 시작값',performanceTip:'문제를 진단할 때는 48 kHz / 256 samples / Amp Oversampling 2× 또는 4× / Chimera 1개 인스턴스로 시작하세요. 이 상태가 안정된 뒤 8×, Transpose, Spectral Octaver, 다중 IR Rig, 추가 Chimera 인스턴스를 하나씩 늘리는 방식이 원인 파악에 가장 좋습니다.',operationTitle:'03 · 인터페이스·PRE 편집·상태 저장',operationIntro:'이 절은 현재 톤을 어떻게 편집하고 저장·복원하며 지원 기능을 사용하는지 설명합니다. 구조 변경은 의도적으로 수행하고, 일반적인 연속 오디오 컨트롤은 호스트 자동화를 사용할 수 있습니다.',
 boardTitle:'5-slot PRE 조작법',stateTitle:'Save / A·B / MIDI / 인터페이스 상태',supportTitle:'SETTINGS와 지원 기능',
 ampRouteTitle:'앰프 채널과 입력 경로',irLibraryTitle:'IR Library 사용법과 제한',irCreditsTitle:'IR 크레딧과 외부 베이스 IR',
-presetListTitle:'Factory Preset 31종',recallTitle:'Preset / A·B Recall 규칙',
+presetListTitle:'팩토리·시그니처 프리셋 48개',recallTitle:'Preset / A·B Recall 규칙',
 hostTitle:'13 · DAW 호환성·업데이트·버그 리포트',hostIntro:'Chimera는 특정 DAW 하나가 아니라 호스트형 오디오 플러그인으로 진단해야 합니다. Studio One, Cubase/Nuendo, REAPER, Ableton Live, Bitwig Studio, FL Studio, Logic Pro 및 기타 호환 VST3/AU 호스트에 같은 절차를 적용합니다. 여기서 DAW 이름을 언급하는 것은 완전한 호환 인증을 뜻하지 않습니다.',
 hostCheckTitle:'모든 DAW에 적용하는 호환성 점검',updateTitle:'업데이트와 개인정보',bugTitle:'버그 리포트와 진단 데이터',
 install:[
@@ -388,7 +389,7 @@ requirements:[
 ['화면','100% UI는 1180 × 780, 75%는 약 885 × 585입니다. 실사용 기준 최소 1280 × 800 정도를 권장하고, 1920 × 1080 이상이면 가장 편합니다.'],
 ['메모리','공식적으로 인증된 최소 RAM은 아직 정하지 않았습니다. 시스템 RAM 8 GB를 실사용 기준선으로 보고, 일반 DAW 프로젝트·다중 Chimera 인스턴스·샘플 기반 작업에는 16 GB 이상을 권장합니다.'],
 ['CPU 권장','강한 single-core 성능을 가진 현대적인 64-bit CPU와 4코어 이상을 실사용 기준선으로 봅니다. 여러 Chimera 인스턴스를 사용할 경우 6–8코어 이상이 유리합니다. macOS Intel도 지원하지만 실시간 여유는 대체로 Apple Silicon 쪽이 더 큽니다.'],
-['저장공간','Open Beta 1.2.0 다운로드 크기는 릴리즈 페이지의 파일별 표시를 확인하세요. 설치·업데이트 복사본·User IR·DAW 프로젝트를 위해 installer 외에 최소 약 500 MB 이상의 여유 공간을 두는 것을 권장합니다.'],
+['저장공간','Open Beta 1.3.0 다운로드 크기는 릴리즈 페이지의 파일별 표시를 확인하세요. 설치·업데이트 복사본·User IR·DAW 프로젝트를 위해 installer 외에 최소 약 500 MB 이상의 여유 공간을 두는 것을 권장합니다.'],
 ['오디오 I/O','기타·베이스·보컬을 실시간 입력하려면 안정적인 저지연 드라이버/API를 지원하는 오디오 인터페이스 또는 시스템 오디오 장치를 사용합니다. 실제 마이크 게인과 +48 V는 Chimera가 아니라 인터페이스가 담당합니다.']
 ],
 performance:[
@@ -503,7 +504,8 @@ const AMP_ROUTES=[
 ['Night Harvest','GAIN I / GAIN II / CLEAN','INPUT'],
 ['Hot Lead','NORMAL / OVERDRIVE','INPUT'],
 ['Blue Storm','CLEAN / LEAD','INPUT'],
-['Náströnd','FENRIR / SURTR / NÍÐHÖGGR / FIMBULVETR / RAGNARÖK','INPUT']
+['Náströnd','FENRIR / SURTR / NÍÐHÖGGR / FIMBULVETR / RAGNARÖK','INPUT'],
+["Niflheimr", "HRÍMFAXI / GARMR / NIDAVELLIR / YMIR / HEL", "INPUT"]
 ];
 
 const PRESETS={
@@ -618,6 +620,322 @@ ko:[
 };
 
 
+const ADDITIONAL_PRESETS_13={
+  "en": [
+    [
+      "Matrix",
+      "Bass Signature",
+      "Crom Cruach",
+      "200 Hz / 1.8 kHz; Taste Punch, Modern Bass and Tight 515 for a defined bass foundation and upper bite."
+    ],
+    [
+      "Matrix",
+      "Bass Signature",
+      "Wild Hunt",
+      "165 Hz / 1.5 kHz; Taste Punch, Solid Punch and Tight 515 for bass weight with a clear attack."
+    ],
+    [
+      "Matrix",
+      "Bass Signature",
+      "Azhi Dahaka",
+      "135 Hz / 1.2 kHz; Classic Tube, Modern Bass and Night Harvest for low weight and aggressive upper texture."
+    ],
+    [
+      "Dual",
+      "Guitar Signature",
+      "A Path To Alsatia",
+      "Power-metal solo: Studio FET and Gold Drive into Hot Lead / Liquid Lead, with delay and plate."
+    ],
+    [
+      "Dual",
+      "Guitar Signature",
+      "Feel My Wrath",
+      "Groove-metal rhythm: Yellow Asym into Fourfold / Tight 515; a dry starting point."
+    ],
+    [
+      "Matrix",
+      "Guitar Signature",
+      "Blackhearted",
+      "Death-metal rhythm: clean LOW with Fourfold MID and Night Harvest HIGH; 140 Hz / 1.8 kHz."
+    ],
+    [
+      "Matrix",
+      "Guitar Signature",
+      "Dark Matters of Throne",
+      "Death-metal rhythm: clean LOW, Blue Storm MID and Night Harvest HIGH; 160 Hz / 1.5 kHz."
+    ],
+    [
+      "Guitar",
+      "Original · Náströnd",
+      "Thall Rhythm",
+      "Fenrir with Green Drive / Optical and a dry Console VCA / Console Four contour."
+    ],
+    [
+      "Guitar",
+      "Original · Náströnd",
+      "Molten Lead",
+      "Surtr with Studio FET / Gold Drive, Inductor EQ, delay and plate for sustained leads."
+    ],
+    [
+      "Dual",
+      "Original · Náströnd",
+      "Rotten Grind",
+      "Níðhöggr / Ragnarök crossover with Obsession, Optical and focused POST bite."
+    ],
+    [
+      "Guitar",
+      "Original · Náströnd",
+      "Sludge Mass",
+      "Fimbulvetr with Vintage Fuzz, PRE Graphic EQ, Passive Tube EQ and a small dark hall."
+    ],
+    [
+      "Matrix",
+      "Original · Náströnd",
+      "Slam Impact",
+      "Fenrir LOW, Fimbulvetr MID and Ragnarök HIGH for a three-band impact rig."
+    ],
+    [
+      "Bass",
+      "Original · Niflheimr",
+      "Frostline Precision",
+      "Hrímfaxi: modern technical/progressive metal with controlled lows, focused PRE EQ and dry POST contour."
+    ],
+    [
+      "Bass",
+      "Original · Niflheimr",
+      "Carrion Barrage",
+      "Garmr: death/grind texture with restrained low mids, clean-low weight and articulate dry mids."
+    ],
+    [
+      "Bass",
+      "Original · Niflheimr",
+      "Foundry Pulse",
+      "Nidavellir: industrial attack with parallel FET compression, focused mids and dry separation."
+    ],
+    [
+      "Bass",
+      "Original · Niflheimr",
+      "Jötunn Hammer",
+      "Ymir: slam/brutal-death impact with controlled sub buildup and a clean-low foundation."
+    ],
+    [
+      "Bass",
+      "Original · Niflheimr",
+      "Mirebound Monolith",
+      "Hel: sludge/doom sustain with gentle optical compression, mid-body fuzz and dark Passive Tube contour."
+    ]
+  ],
+  "de": [
+    [
+      "Matrix",
+      "Bass-Signature",
+      "Crom Cruach",
+      "200 Hz / 1,8 kHz; Taste Punch, Modern Bass und Tight 515 für ein definiertes Fundament und oberen Biss."
+    ],
+    [
+      "Matrix",
+      "Bass-Signature",
+      "Wild Hunt",
+      "165 Hz / 1,5 kHz; Taste Punch, Solid Punch und Tight 515 für Bassgewicht und klaren Anschlag."
+    ],
+    [
+      "Matrix",
+      "Bass-Signature",
+      "Azhi Dahaka",
+      "135 Hz / 1,2 kHz; Classic Tube, Modern Bass und Night Harvest für tiefe Masse und aggressive obere Textur."
+    ],
+    [
+      "Dual",
+      "Gitarren-Signature",
+      "A Path To Alsatia",
+      "Power-Metal-Solo: Studio FET und Gold Drive in Hot Lead / Liquid Lead, mit Delay und Plate."
+    ],
+    [
+      "Dual",
+      "Gitarren-Signature",
+      "Feel My Wrath",
+      "Groove-Metal-Rhythmus: Yellow Asym in Fourfold / Tight 515; trockener Ausgangspunkt."
+    ],
+    [
+      "Matrix",
+      "Gitarren-Signature",
+      "Blackhearted",
+      "Death-Metal-Rhythmus: sauberer LOW, Fourfold MID und Night Harvest HIGH; 140 Hz / 1,8 kHz."
+    ],
+    [
+      "Matrix",
+      "Gitarren-Signature",
+      "Dark Matters of Throne",
+      "Death-Metal-Rhythmus: sauberer LOW, Blue Storm MID und Night Harvest HIGH; 160 Hz / 1,5 kHz."
+    ],
+    [
+      "Guitar",
+      "Original · Náströnd",
+      "Thall Rhythm",
+      "Fenrir mit Green Drive / Optical und trockener Console-VCA-/Console-Four-Kontur."
+    ],
+    [
+      "Guitar",
+      "Original · Náströnd",
+      "Molten Lead",
+      "Surtr mit Studio FET / Gold Drive, Inductor EQ, Delay und Plate für tragende Leads."
+    ],
+    [
+      "Dual",
+      "Original · Náströnd",
+      "Rotten Grind",
+      "Níðhöggr / Ragnarök im Crossover mit Obsession, Optical und fokussiertem POST-Biss."
+    ],
+    [
+      "Guitar",
+      "Original · Náströnd",
+      "Sludge Mass",
+      "Fimbulvetr mit Vintage Fuzz, PRE Graphic EQ, Passive Tube EQ und kleinem dunklem Hall."
+    ],
+    [
+      "Matrix",
+      "Original · Náströnd",
+      "Slam Impact",
+      "Fenrir LOW, Fimbulvetr MID und Ragnarök HIGH für ein druckvolles Dreiband-Rig."
+    ],
+    [
+      "Bass",
+      "Original · Niflheimr",
+      "Frostline Precision",
+      "Hrímfaxi: moderner Technical-/Progressive-Metal mit kontrollierten Tiefen, PRE-EQ-Fokus und trockenem POST."
+    ],
+    [
+      "Bass",
+      "Original · Niflheimr",
+      "Carrion Barrage",
+      "Garmr: Death-/Grind-Textur mit begrenzten Tiefmitten, sauberem Bassfundament und klaren trockenen Mitten."
+    ],
+    [
+      "Bass",
+      "Original · Niflheimr",
+      "Foundry Pulse",
+      "Nidavellir: Industrial-Attack mit paralleler FET-Kompression, Mittenfokus und trockener Trennung."
+    ],
+    [
+      "Bass",
+      "Original · Niflheimr",
+      "Jötunn Hammer",
+      "Ymir: Slam-/Brutal-Death-Impuls mit kontrolliertem Sub-Aufbau und sauberem Tiefenfundament."
+    ],
+    [
+      "Bass",
+      "Original · Niflheimr",
+      "Mirebound Monolith",
+      "Hel: Sludge-/Doom-Sustain mit sanfter optischer Kompression, mittigem Fuzz und dunkler Passive-Tube-Kontur."
+    ]
+  ],
+  "ko": [
+    [
+      "Matrix",
+      "Bass Signature",
+      "Crom Cruach",
+      "200 Hz / 1.8 kHz. Taste Punch·Modern Bass·Tight 515로 베이스 저역과 상단 질감을 구성합니다."
+    ],
+    [
+      "Matrix",
+      "Bass Signature",
+      "Wild Hunt",
+      "165 Hz / 1.5 kHz. Taste Punch·Solid Punch·Tight 515로 저역 무게와 선명한 어택을 구성합니다."
+    ],
+    [
+      "Matrix",
+      "Bass Signature",
+      "Azhi Dahaka",
+      "135 Hz / 1.2 kHz. Classic Tube·Modern Bass·Night Harvest로 저역 무게와 공격적인 상단을 구성합니다."
+    ],
+    [
+      "Dual",
+      "Guitar Signature",
+      "A Path To Alsatia",
+      "파워메탈 솔로. Studio FET·Gold Drive → Hot Lead / Liquid Lead에 딜레이와 플레이트를 더합니다."
+    ],
+    [
+      "Dual",
+      "Guitar Signature",
+      "Feel My Wrath",
+      "그루브 메탈 리듬. Yellow Asym → Fourfold / Tight 515의 드라이한 시작점입니다."
+    ],
+    [
+      "Matrix",
+      "Guitar Signature",
+      "Blackhearted",
+      "데스메탈 리듬. Clean LOW·Fourfold MID·Night Harvest HIGH, 140 Hz / 1.8 kHz입니다."
+    ],
+    [
+      "Matrix",
+      "Guitar Signature",
+      "Dark Matters of Throne",
+      "데스메탈 리듬. Clean LOW·Blue Storm MID·Night Harvest HIGH, 160 Hz / 1.5 kHz입니다."
+    ],
+    [
+      "Guitar",
+      "Original · Náströnd",
+      "Thall Rhythm",
+      "Fenrir에 Green Drive·Optical과 드라이한 Console VCA·Console Four 톤을 조합합니다."
+    ],
+    [
+      "Guitar",
+      "Original · Náströnd",
+      "Molten Lead",
+      "Surtr에 Studio FET·Gold Drive·Inductor EQ·딜레이·플레이트를 더한 서스테인 리드입니다."
+    ],
+    [
+      "Dual",
+      "Original · Náströnd",
+      "Rotten Grind",
+      "Níðhöggr / Ragnarök 크로스오버에 Obsession·Optical과 집중된 POST 어택을 조합합니다."
+    ],
+    [
+      "Guitar",
+      "Original · Náströnd",
+      "Sludge Mass",
+      "Fimbulvetr에 Vintage Fuzz·PRE Graphic EQ·Passive Tube EQ와 작고 어두운 홀을 더합니다."
+    ],
+    [
+      "Matrix",
+      "Original · Náströnd",
+      "Slam Impact",
+      "Fenrir LOW·Fimbulvetr MID·Ragnarök HIGH를 활용하는 3밴드 리그입니다."
+    ],
+    [
+      "Bass",
+      "Original · Niflheimr",
+      "Frostline Precision",
+      "Hrímfaxi 기반 테크니컬·프로그레시브 메탈. 저역을 제어하고 PRE EQ와 드라이한 POST로 윤곽을 잡습니다."
+    ],
+    [
+      "Bass",
+      "Original · Niflheimr",
+      "Carrion Barrage",
+      "Garmr 기반 데스·그라인드. 저중역을 정리하고 깨끗한 저역과 선명한 중역을 유지합니다."
+    ],
+    [
+      "Bass",
+      "Original · Niflheimr",
+      "Foundry Pulse",
+      "Nidavellir 기반 인더스트리얼. 병렬 FET 컴프레션·중역 집중·드라이한 분리감으로 반복 어택을 구성합니다."
+    ],
+    [
+      "Bass",
+      "Original · Niflheimr",
+      "Jötunn Hammer",
+      "Ymir 기반 슬램·브루털 데스. 서브 저역의 누적을 억제하고 클린 저역 위에 충격감을 구성합니다."
+    ],
+    [
+      "Bass",
+      "Original · Niflheimr",
+      "Mirebound Monolith",
+      "Hel 기반 슬러지·둠. 부드러운 옵티컬 컴프레션·중역 퍼즈·어두운 Passive Tube 톤으로 서스테인을 만듭니다."
+    ]
+  ]
+};
+for(const language of ['en','de','ko']) PRESETS[language].push(...ADDITIONAL_PRESETS_13[language]);
+
 const preFamilies={
 en:[['Compressor','Control level/peaks','Changes density and sustain more than distortion','Clean, bass, pre-gain stabilisation','Use when performance dynamics need to be more consistent'],['Boost','Push the next gain stage','Mostly level/EQ, preserves more original character','Amp push, tightening, level lift','Use when you want more from the following stage rather than a new distortion source'],['Overdrive','Moderate clipping + tone shaping','More harmonics and compression','Rock, amp push, bass drive','Use when gain and tonal shaping should interact with the amp'],['Distortion','Stronger self-contained clipping','More saturation and flattening than OD','Hard rock, aggressive rhythm','Use when the pedal should be a primary distortion source'],['Fuzz','Extreme nonlinear texture','Very dense harmonics, gating/compression','Doom, stoner, noise, synth-like bass','Use for texture beyond conventional amp distortion'],['Envelope Filter','Playing-driven filter motion','Highly touch-sensitive sweep','Funk, bass solo, texture','Use when picking dynamics should control the effect'],['Wah','Manual filter motion','Directly movable resonant mid-band','Lead, expression-pedal use','Use when the sweep should be performed manually'],['Equalizer','Pre-amp spectral shaping','Precise frequency correction','Tightening, resonance control, attack shaping','Use to alter what frequencies hit distortion/amp stages'],['Modulation','Time/phase modulation before amp','Width and movement; can change phase relationship','Clean, experimental pre-amp effects','Use when modulation should also interact with amp distortion'],['Pitch / Octave','Generate pitch layers','Sub/octave or polyphonic spectral layers','Synth bass, octave riffs, texture','Choose mono for low latency single notes; spectral for polyphony with latency']],
 de:[['Kompressor','Pegel/Spitzen kontrollieren','Verändert eher Dichte und Sustain als Verzerrung','Clean, Bass, Stabilisierung vor Gain','Wenn die Spieldynamik gleichmäßiger werden soll'],['Boost','Nächste Gain-Stufe antreiben','Vor allem Pegel/EQ, viel Originalcharakter bleibt','Amp-Push, Tightening, Pegelanhebung','Wenn die folgende Stufe stärker arbeiten soll statt einer neuen Distortion'],['Overdrive','Mittlere Verzerrung + Tonformung','Mehr Obertöne und Kompression','Rock, Amp-Push, Bass-Drive','Wenn Gain und Tonformung mit dem Amp interagieren sollen'],['Distortion','Stärkere eigenständige Verzerrung','Mehr Sättigung und Einebnung als OD','Hard Rock, aggressive Rhythmus-Sounds','Wenn das Pedal selbst Hauptquelle der Verzerrung sein soll'],['Fuzz','Extreme nichtlineare Textur','Sehr dichte Obertöne, Gate/Kompression','Doom, Stoner, Noise, Synth-Bass','Für Texturen jenseits klassischer Amp-Verzerrung'],['Envelope Filter','Anschlagsgesteuerte Filterbewegung','Sehr dynamikempfindlicher Sweep','Funk, Bass-Solo, Textur','Wenn die Anschlagsstärke den Effekt steuern soll'],['Wah','Manuelle Filterbewegung','Resonantes Mittenband direkt verschiebbar','Lead, Expression-Pedal','Wenn der Sweep manuell gespielt werden soll'],['Equalizer','Spektrale Formung vor dem Amp','Präzise Frequenzkorrektur','Tightening, Resonanzen, Attack','Wenn bestimmte Frequenzen anders in Gain/Amp gelangen sollen'],['Modulation','Zeit-/Phasenmodulation vor dem Amp','Breite und Bewegung, veränderte Phasenbeziehungen','Clean, experimentelle Vor-Amp-Effekte','Wenn Modulation mit Amp-Verzerrung interagieren soll'],['Pitch / Oktave','Zusätzliche Tonhöhen erzeugen','Sub/Oktave oder polyphone Spektral-Layer','Synth-Bass, Oktavriffs, Textur','Mono für geringe Latenz/Einzelnoten; Spectral für Polyphonie mit Latenz']],
@@ -708,7 +1026,8 @@ const AMP=[
 ['High-Gain','Night Harvest','Fortin Evil Pumpkin','anightharvest.jpg','Extreme modern gain','Fast, aggressive attack','Djent / precision rhythm','Gain I/Gain II/Clean · Girth/Grind · Sweep EQ · Presence/Depth'],
 ['Lead','Hot Lead','Soldano SLO-100','ahotlead.jpg','Lead / high gain','Smooth top, long sustain','Hard rock / metal lead','Normal/Overdrive · Preamp/Master · shared EQ · Presence/Depth'],
 ['High-Gain','Blue Storm','Bogner Uberschall Rev Blue','abluestorm.jpg','Dense high gain','Massive dense low mids','Low-tuned wall tone','Clean/Lead · Gain/EQ/Volume · Master'],
-['High-Gain','Náströnd','SpectralForge Original','anastrond.png','Five-character high gain','Tight attack, dense sustain, tunable bloom','Metal rhythm, lead, low tuning','GAIN · BASS · MID · TREBLE · MID FREQ · PRESENCE · DEPTH · MASTER · CLANK · CRUSH · IMPACT · ROT · BLOOM']
+['High-Gain','Náströnd','SpectralForge Original','anastrond.png','Five-character high gain','Tight attack, dense sustain, tunable bloom','Metal rhythm, lead, low tuning','GAIN · BASS · MID · TREBLE · MID FREQ · PRESENCE · DEPTH · MASTER · CLANK · CRUSH · IMPACT · ROT · BLOOM'],
+["Bass", "Niflheimr", "SpectralForge Original", "aniflheimr.png", "Five-channel Original bass amp", "Clean low foundation with five distinct drive voices", "Technical metal, death/grind, industrial, slam and sludge/doom", "GAIN · BASS · MID · TREBLE · MID FREQ · PRESENCE · DEPTH · MASTER · MASS · SPLIT · FANG · FOLD · THRUST · BLEND"]
 ];
 
 const POST=[
@@ -849,6 +1168,9 @@ const DE={
 'Clean digital delay':'Sauberes Digital-Delay','Clear precise repeats':'Klare präzise Wiederholungen','Metal/lead, rhythmic delay':'Metal/Lead, rhythmisches Delay','Vintage echo':'Vintage-Echo','Filtered repeat, wow/flutter':'Gefilterte Wiederholung, Wow/Flutter','Ambient, vintage lead':'Ambient, Vintage-Lead','Dark analog delay':'Dunkles Analog-Delay','Soft dark repeats':'Weiche dunkle Wiederholungen','Lead depth, texture':'Lead-Tiefe, Textur',
 'Dense plate':'Dichte Plate','Bright, smooth density':'Helle, glatte Dichte','Lead, clean':'Lead, Clean','Large hall':'Große Hall','Deep modulated space':'Tiefe modulierte Räumlichkeit','Ambient, cinematic':'Ambient, cinematisch','Spring reverb':'Federhall','Splashy vintage resonance':'Spritzige Vintage-Resonanz','Clean / crunch':'Clean / Crunch'
 };
+
+Object.assign(KO,{"Five-channel Original bass amp": "5채널 Original 베이스 앰프", "Clean low foundation with five distinct drive voices": "깨끗한 저역 위에 구성하는 다섯 가지 드라이브 성향", "Technical metal, death/grind, industrial, slam and sludge/doom": "테크니컬 메탈·데스/그라인드·인더스트리얼·슬램·슬러지/둠"});
+Object.assign(DE,{"Five-channel Original bass amp": "Original-Bassamp mit fünf Kanälen", "Clean low foundation with five distinct drive voices": "Sauberes Tiefenfundament mit fünf eigenständigen Drive-Stimmen", "Technical metal, death/grind, industrial, slam and sludge/doom": "Technical Metal, Death/Grind, Industrial, Slam und Sludge/Doom"});
 
 function loc(s){ if(lang==='ko')return KO[s]||s; if(lang==='de')return DE[s]||s; return s; }
 let lang=localStorage.getItem('chimeraManualLang')||document.documentElement.lang||'ko';
@@ -1185,7 +1507,7 @@ ko:[
 };
 
 const CANDIDATE111={
- ko:{note:'1.1.2에서 기타 시그니처의 게인과 출력 레벨을 다시 조정했습니다. Factory 31개, Bass Signature 3개, Guitar Signature 4개에 1.2의 Original 5개를 더해 총 43개를 제공합니다. 아래 설정은 연주와 악기에 맞춰 조정하는 시작점입니다.',headers:['곡','역할 / 모드','PRE · AMP · POST'],rows:[
+ ko:{note:'1.1.2에서 기타 시그니처의 게인과 출력 레벨을 다시 조정했습니다. 1.2에서는 Factory 31개, Bass Signature 3개, Guitar Signature 4개에 Original 5개를 더해 총 43개로 확장했습니다. 아래 설정은 연주와 악기에 맞춰 조정하는 시작점입니다.',headers:['곡','역할 / 모드','PRE · AMP · POST'],rows:[
  ['A Path To Alsatia','파워메탈 솔로 · Dual','Studio FET → Gold Drive → Hot Lead / Liquid Lead → FET Limiter · Inductor EQ · 229 Delay · Plate'],
  ['Feel My Wrath','그루브 메탈 리듬 · Dual','Yellow Asym → Fourfold / Tight 515 → Dry. Console VCA는 초기 바이패스이며 필요할 때 약하게 적용합니다.'],
  ['Blackhearted','데쓰메탈 리듬 · Matrix 140 Hz / 1.8 kHz','Clean LOW + Fourfold MID + Night Harvest HIGH → Console Four EQ. Yellow Asym은 MID/HIGH에 적용됩니다.'],
@@ -1193,7 +1515,7 @@ const CANDIDATE111={
  recall:'Raven / Guitar 메뉴에서 선택합니다. 전체 파라미터를 초기화하므로 이전 페달·앰프·POST 설정이 남지 않습니다. INPUT, tempo, tuner도 초기값으로 돌아갑니다. 같은 내장 V30/SM57 IR로 시작하며 상태 파일과 A/B에 곡 ID와 IR 정보가 저장됩니다. 레벨은 합성 입력으로만 예비 보정했습니다.',
  pitch:'Transpose는 저역 에너지 계산과 바이패스 잔향의 피치 유지가 수정됐습니다. 지속 연주의 FFT 창 지연은 아직 44.1 kHz 46.4 ms, 48/96 kHz 42.7 ms입니다. 저지연·음질 개선은 1.1.1 이후 장기 과제입니다. 베이스 B현 −2반음에서 음의 몸통과 연속 어택이 뭉개진다는 실연 피드백이 있습니다. 해당 연주에서는 Transpose를 끄고 실제 튜닝을 사용하세요.',
  gain:'레벨 비교 전 INPUT/OUTPUT와 각 앰프의 OUTPUT LEVEL을 확인하세요. 기본 OUTPUT은 −6 dB이며, Factory recall의 출력 보정은 프리셋마다 다릅니다. native 앰프에서는 소프트웨어 OUTPUT LEVEL이 유효합니다. GR은 컴프레서 내부 감쇠량이며 dry blend와 출력 노브까지 포함한 총 레벨 변화가 아닙니다.'},
- en:{note:'Guitar signature gain and output trims were revised in 1.1.2. The bank contains 31 Factory, three Bass Signature, four Guitar Signature and five new Original presets in 1.2, for 43 in total. These are starting points to adapt to your instrument and playing.',headers:['Song','Role / mode','PRE · AMP · POST'],rows:[
+ en:{note:'Guitar signature gain and output trims were revised in 1.1.2. In Open Beta 1.2, the bank contained 31 Factory, three Bass Signature, four Guitar Signature and five Original presets, for 43 in total. These are starting points to adapt to your instrument and playing.',headers:['Song','Role / mode','PRE · AMP · POST'],rows:[
  ['A Path To Alsatia','Power-metal solo · Dual','Studio FET → Gold Drive → Hot Lead / Liquid Lead → FET Limiter · Inductor EQ · 229 Delay · Plate'],
  ['Feel My Wrath','Groove-metal rhythm · Dual','Yellow Asym → Fourfold / Tight 515 → Dry. Console VCA starts bypassed; enable gently if required.'],
  ['Blackhearted','Death-metal rhythm · Matrix 140 Hz / 1.8 kHz','Clean LOW + Fourfold MID + Night Harvest HIGH → Console Four EQ. Yellow Asym feeds MID/HIGH.'],
@@ -1201,7 +1523,7 @@ const CANDIDATE111={
  recall:'Select Raven / Guitar. Complete parameter initialization clears prior pedal, amp and POST banks, and also resets INPUT, tempo and tuner. All four start with the same embedded V30/SM57 IR. Song identity and IR metadata survive state files and A/B. Initial level compensation uses synthetic input only.',
  pitch:'Transpose corrects low-bin energy accounting and retains the outgoing ratio during bypass fades. Steady-state FFT window delay remains 46.4 ms at 44.1 kHz and 42.7 ms at 48/96 kHz. Latency and sound-quality improvements are deferred beyond 1.1.1. Bass B-string playing at -2 semitones has been reported to lose note body and attack separation. Turn Transpose off and retune when this affects your playing.',
  gain:'Check INPUT/OUTPUT and each native amp OUTPUT LEVEL before level matching. Default OUTPUT is −6 dB; Factory recall uses a preset-specific output trim. Native amps use their software OUTPUT LEVEL. GR reports internal compressor attenuation, excluding dry blend and output gain.'},
- de:{note:'Gain und Ausgangspegel der Gitarren-Signatures wurden in 1.1.2 angepasst. Die Bank enthält 31 Factory-, drei Bass-, vier Gitarren-Signatures und fünf neue Original-Presets in 1.2, insgesamt 43. Sie dienen als Ausgangspunkte für Instrument und Spielweise.',headers:['Song','Rolle / Modus','PRE · AMP · POST'],rows:[
+ de:{note:'Gain und Ausgangspegel der Gitarren-Signatures wurden in 1.1.2 angepasst. Die Bank umfasste in Open Beta 1.2 insgesamt 43 Presets: 31 Factory-, drei Bass-, vier Gitarren-Signatures und fünf Original-Presets. Sie dienen als Ausgangspunkte für Instrument und Spielweise.',headers:['Song','Rolle / Modus','PRE · AMP · POST'],rows:[
  ['A Path To Alsatia','Power-Metal-Solo · Dual','Studio FET → Gold Drive → Hot Lead / Liquid Lead → FET Limiter · Inductor EQ · 229 Delay · Plate'],
  ['Feel My Wrath','Groove-Metal-Rhythmus · Dual','Yellow Asym → Fourfold / Tight 515 → Dry. Console VCA ist zunächst im Bypass; bei Bedarf dezent aktivieren.'],
  ['Blackhearted','Death-Metal-Rhythmus · Matrix 140 Hz / 1,8 kHz','Clean LOW + Fourfold MID + Night Harvest HIGH → Console Four EQ. Yellow Asym bearbeitet MID/HIGH.'],
@@ -1213,7 +1535,39 @@ const CANDIDATE111={
 
 const PATCH112={"ko": ["5150/6505·VH4·Fortin 등 하이게인 기본값과 프리셋을 강화했습니다. ZUTA는 CH3, Rectifier CH3는 Modern으로 시작합니다. 전체 38개 프리셋의 출력 레벨을 다시 조정했습니다.", "활성 23개 모델을 점검하고 22개 모델군의 고유 NAM 174개를 비교했습니다. ENGL FE EL34, 개조 SVT-CL, 1998 SUNN을 제공하신 기준으로 반영했으며 회로·세대 차이는 보고서에 기록했습니다. EICH T900 원본 NAM은 미확보이고, Ironball은 폐기 상태입니다.", "저장된 채널·노브 값은 유지되지만, 수정된 DSP로 기존 세션의 소리가 바뀔 수 있습니다. 새 프리셋 값은 다시 불러올 때 적용됩니다. 교정 측정은 합성 신호에 기반하며 실물 동등성이나 이번 음색의 실제 DI 청음 승인을 의미하지 않습니다."], "en": ["High-gain defaults and presets are stronger, including 5150/6505, VH4 and Fortin. ZUTA starts on CH3; Rectifier CH3 starts in Modern. Output trims were rebalanced across all 38 presets.", "All 23 active models were audited against 174 distinct NAM files across 22 families. Supplied ENGL FE EL34, modified SVT-CL and 1998 SUNN references are incorporated with circuit/revision limits. An exact EICH T900 NAM is still missing. Ironball remains retired.", "Saved channels and controls remain intact, but existing sessions can sound different with the corrected DSP. Recall a preset to load its new values. Calibration uses synthetic signals and does not establish hardware equivalence or new recorded-DI listening acceptance."], "de": ["High-Gain-Grundwerte und Presets wurden verstärkt, darunter 5150/6505, VH4 und Fortin. ZUTA startet auf CH3, Rectifier CH3 im Modern-Modus. Die Ausgangspegel aller 38 Presets wurden neu abgestimmt.", "Alle 23 aktiven Modelle wurden geprüft; 174 verschiedene NAM-Dateien aus 22 Familien wurden verglichen. Die bereitgestellten ENGL-FE-EL34-, modifizierten SVT-CL- und 1998-SUNN-Referenzen wurden unter Beachtung der Schaltungs- und Versionsunterschiede berücksichtigt. Eine exakte EICH-T900-Referenz fehlt weiterhin. Ironball bleibt ausgemustert.", "Gespeicherte Kanäle und Reglerwerte bleiben erhalten; bestehende Sessions können mit dem korrigierten DSP anders klingen. Neue Preset-Werte gelten nach erneutem Laden. Die Kalibrierung verwendet synthetische Signale und belegt weder Hardware-Gleichwertigkeit noch eine neue Hörabnahme mit aufgenommenen DI-Signalen."]};
 
+const RELEASE13={
+  "en": {
+    "title": "1.3 · CAB expansion and Original bass rigs",
+    "items": [
+      "Version 1.3.0-beta.1 provides 25 active amps, 39 PRE models and 21 POST models: 85 models across those sections. The preset bank contains 48 entries: 31 Factory, 3 Bass Signature, 4 Guitar Signature, 5 Náströnd and 5 Niflheimr rigs.",
+      "CABINET offers 14 speaker designs (8 guitar, 6 bass), 20 microphones (9 dynamic, 3 ribbon, 8 condenser), 3 tweeters and 9 explicit layouts. Select a compatible cabinet/speaker pair, then choose Mic A/B and their target units independently.",
+      "Dual and Matrix show the active rigs together; select a cabinet to work on it in detail. All hardware retains one shared physical scale. Matrix LOW blends DI with AMP+CAB, while the cabinet Mic A/B blend controls the two captures.",
+      "Niflheimr adds five bass channels with 14 controls: Hrímfaxi, Garmr, Nidavellir, Ymir and Hel. Use the amplifier control panel to edit the head and the CAB panel to edit its speakers and microphones."
+    ]
+  },
+  "de": {
+    "title": "1.3 · CAB-Erweiterung und Original-Bass-Rigs",
+    "items": [
+      "Version 1.3.0-beta.1 bietet 25 aktive Amps, 39 PRE- und 21 POST-Modelle: insgesamt 85 Modelle in diesen Bereichen. Die Preset-Bank enthält 48 Einträge: 31 Factory-, 3 Bass-Signature-, 4 Guitar-Signature-, 5 Náströnd- und 5 Niflheimr-Rigs.",
+      "CABINET bietet 14 Lautsprechermodelle (8 Gitarre, 6 Bass), 20 Mikrofone (9 dynamische, 3 Bändchen, 8 Kondensatormikrofone), 3 Hochtöner und 9 konkrete Anordnungen. Zuerst eine passende Kombination aus Box und Lautsprecher, dann Mic A/B und die jeweiligen Ziele unabhängig wählen.",
+      "Dual und Matrix zeigen die aktiven Rigs gemeinsam; eine Box auswählen, um sie im Detail zu bearbeiten. Alle Geräte behalten einen gemeinsamen physischen Maßstab. Matrix LOW mischt DI mit AMP+CAB, während der Mic-A/B-Blend die zwei Abnahmen mischt.",
+      "Niflheimr ergänzt fünf Basskanäle mit 14 Reglern: Hrímfaxi, Garmr, Nidavellir, Ymir und Hel. Den Amp über sein Bedienfeld, Lautsprecher und Mikrofone über das CAB-Panel einstellen."
+    ]
+  },
+  "ko": {
+    "title": "1.3 · CAB 확장과 Original 베이스 리그",
+    "items": [
+      "1.3.0-beta.1은 활성 앰프 25종·PRE 39종·POST 21종으로 세 섹션에 총 85종을 제공합니다. 프리셋은 Factory 31개·Bass Signature 3개·Guitar Signature 4개·Náströnd 5개·Niflheimr 5개로 총 48개입니다.",
+      "CABINET은 스피커 14종(기타 8·베이스 6), 마이크 20종(다이나믹 9·리본 3·콘덴서 8), 트위터 3종과 명시적인 레이아웃 9개를 제공합니다. 호환되는 캐비넷·스피커를 고른 뒤 Mic A/B의 종류와 수음 유닛을 각각 지정합니다.",
+      "Dual·Matrix에서는 활성 리그를 함께 보고 캐비넷을 선택해 상세 조작 화면으로 들어갑니다. 장비는 하나의 공통 물리 치수 기준으로 표시됩니다. Matrix LOW는 DI와 AMP+CAB을 혼합하고, CAB의 Mic A/B 블렌드는 두 수음 경로를 혼합합니다.",
+      "Niflheimr에는 Hrímfaxi·Garmr·Nidavellir·Ymir·Hel의 베이스 채널 5개와 컨트롤 14개가 있습니다. 앰프는 기존 AMP 컨트롤 패널에서, 스피커와 마이크는 CAB 패널에서 조절합니다."
+    ]
+  }
+};
+
 function render(){
+ document.getElementById("release13Title").textContent=RELEASE13[lang].title;
+ document.getElementById("release13Body").innerHTML=bullets(RELEASE13[lang].items);
  document.getElementById("patch112Body").innerHTML=bullets(PATCH112[lang]);
  const candidate=CANDIDATE111[lang];
  document.getElementById("candidate111Body").innerHTML='<p class="note">'+esc(candidate.note)+'</p>'+table(candidate.headers,candidate.rows,false)+bullets([candidate.recall,candidate.pitch,candidate.gain]);
@@ -1254,9 +1608,9 @@ function render(){
    stages[lang],false);
 
  const originalNotes={
- ko:['Náströnd는 5개의 실제 채널을 갖춘 SpectralForge Original 하이게인 앰프입니다. Fenrir는 타이트한 어택, Surtr는 중역과 밀도, Níðhöggr는 비대칭 그라인드, Fimbulvetr는 넓고 느린 저역, Ragnarök는 단단한 저역 충격에 집중합니다. 새 채널의 GAIN과 MASTER는 5.0에서 시작합니다.', '각 채널은 13개 노브를 따로 기억합니다. 처음 선택하면 기본값이 보이며, 다시 돌아오면 조정한 값이 복원됩니다. ALL → RESET CHANNEL은 선택한 채널만 초기화합니다. CLANK · CRUSH · IMPACT · ROT · BLOOM은 어느 채널에서도 조절할 수 있습니다.', '기존 채널명 프리셋 5개는 Thall Rhythm · Molten Lead · Rotten Grind · Sludge Mass · Slam Impact로 교체했습니다. PRE부터 CAB·POST까지 새로 구성했으며 Rotten Grind는 Dual, Slam Impact는 Matrix입니다. 전체 43개 프리셋은 OUTPUT 0 dB로 시작합니다. Ambient Clean은 POST Console VCA로 출력을 확보합니다. Thall Rhythm BLOOM과 Molten Lead ROT는 7.5, Slam Impact Low DI Comp는 0.5와 DI/AMP 75%입니다.', 'Náströnd는 1.2 Open Beta에 포함됩니다. 합성 입력에서 채널 분리·안정성·상태 복원을 검증하지만, 새 보이싱의 최종 평가는 실제 악기 DI와 청음으로 진행합니다.'],
- en:['Náströnd is a SpectralForge Original high-gain amp with five real channels: Fenrir for tight attack, Surtr for vocal density, Níðhöggr for asymmetric grind, Fimbulvetr for broad yielding lows, and Ragnarök for a firm low-end hit. New channels start at GAIN and MASTER 5.0.', 'Each channel remembers all 13 knobs separately. Its first selection uses defaults; returning recalls your edits. ALL → RESET CHANNEL resets only the selected channel. CLANK, CRUSH, IMPACT, ROT and BLOOM remain available on every channel.', 'The five channel-named examples are replaced by Thall Rhythm, Molten Lead, Rotten Grind, Sludge Mass and Slam Impact. Each is a new PRE / amp / CAB / POST rig; Rotten Grind uses Dual and Slam Impact uses Matrix. All 43 presets start at OUTPUT 0 dB. Ambient Clean gains level through POST Console VCA. Thall Rhythm BLOOM and Molten Lead ROT start at 7.5; Slam Impact uses Low DI Comp 0.5 and DI/AMP 75%.', 'Náströnd is included in Open Beta 1.2. Synthetic checks cover channel separation, stability and recall; final acceptance of this revised voicing requires real instrument-DI listening.'],
- de:['Náströnd ist ein SpectralForge Original High-Gain-Amp mit fünf echten Kanälen: Fenrir für straffen Anschlag, Surtr für dichte Mitten, Níðhöggr für asymmetrischen Grind, Fimbulvetr für breite, nachgiebige Bässe und Ragnarök für einen festen Bassimpuls. Neue Kanäle starten mit GAIN und MASTER 5,0.', 'Jeder Kanal speichert seine 13 Regler separat. Beim ersten Aufruf erscheinen die Startwerte; beim Zurückschalten werden eigene Einstellungen geladen. ALL → RESET CHANNEL setzt nur den gewählten Kanal zurück. CLANK, CRUSH, IMPACT, ROT und BLOOM bleiben in jedem Kanal verfügbar.', 'Die fünf nach Kanälen benannten Beispiele werden durch Thall Rhythm, Molten Lead, Rotten Grind, Sludge Mass und Slam Impact ersetzt. Jedes Preset umfasst PRE / Amp / CAB / POST; Rotten Grind nutzt Dual und Slam Impact Matrix. Alle 43 Presets starten mit OUTPUT 0 dB. Ambient Clean erhält seinen Pegel über POST Console VCA. Thall Rhythm BLOOM und Molten Lead ROT starten bei 7,5; Slam Impact nutzt Low DI Comp 0,5 und DI/AMP 75 %.', 'Náströnd ist in Open Beta 1.2 enthalten. Synthetische Prüfungen decken Kanalunterschiede, Stabilität und Wiederherstellung ab; die abschließende Bewertung der neuen Klangabstimmung erfolgt mit echten Instrument-DIs und Hörtests.']
+ ko:['Náströnd는 5개의 실제 채널을 갖춘 SpectralForge Original 하이게인 앰프입니다. Fenrir는 타이트한 어택, Surtr는 중역과 밀도, Níðhöggr는 비대칭 그라인드, Fimbulvetr는 넓고 느린 저역, Ragnarök는 단단한 저역 충격에 집중합니다. 새 채널의 GAIN과 MASTER는 5.0에서 시작합니다.', '각 채널은 13개 노브를 따로 기억합니다. 처음 선택하면 기본값이 보이며, 다시 돌아오면 조정한 값이 복원됩니다. ALL → RESET CHANNEL은 선택한 채널만 초기화합니다. CLANK · CRUSH · IMPACT · ROT · BLOOM은 어느 채널에서도 조절할 수 있습니다.', '기존 채널명 프리셋 5개는 Thall Rhythm · Molten Lead · Rotten Grind · Sludge Mass · Slam Impact로 교체했습니다. PRE부터 CAB·POST까지 새로 구성했으며 Rotten Grind는 Dual, Slam Impact는 Matrix입니다. 1.2 당시 전체 43개 프리셋은 OUTPUT 0 dB로 시작했습니다. Ambient Clean은 POST Console VCA로 출력을 확보합니다. Thall Rhythm BLOOM과 Molten Lead ROT는 7.5, Slam Impact Low DI Comp는 0.5와 DI/AMP 75%입니다.', 'Náströnd는 1.2 Open Beta에서 추가됐습니다. 합성 입력에서 채널 분리·안정성·상태 복원을 검증하지만, 새 보이싱의 최종 평가는 실제 악기 DI와 청음으로 진행합니다.'],
+ en:['Náströnd is a SpectralForge Original high-gain amp with five real channels: Fenrir for tight attack, Surtr for vocal density, Níðhöggr for asymmetric grind, Fimbulvetr for broad yielding lows, and Ragnarök for a firm low-end hit. New channels start at GAIN and MASTER 5.0.', 'Each channel remembers all 13 knobs separately. Its first selection uses defaults; returning recalls your edits. ALL → RESET CHANNEL resets only the selected channel. CLANK, CRUSH, IMPACT, ROT and BLOOM remain available on every channel.', 'The five channel-named examples are replaced by Thall Rhythm, Molten Lead, Rotten Grind, Sludge Mass and Slam Impact. Each is a new PRE / amp / CAB / POST rig; Rotten Grind uses Dual and Slam Impact uses Matrix. In Open Beta 1.2, all 43 presets started at OUTPUT 0 dB. Ambient Clean gains level through POST Console VCA. Thall Rhythm BLOOM and Molten Lead ROT start at 7.5; Slam Impact uses Low DI Comp 0.5 and DI/AMP 75%.', 'Náströnd was introduced in Open Beta 1.2. Synthetic checks cover channel separation, stability and recall; final acceptance of this revised voicing requires real instrument-DI listening.'],
+ de:['Náströnd ist ein SpectralForge Original High-Gain-Amp mit fünf echten Kanälen: Fenrir für straffen Anschlag, Surtr für dichte Mitten, Níðhöggr für asymmetrischen Grind, Fimbulvetr für breite, nachgiebige Bässe und Ragnarök für einen festen Bassimpuls. Neue Kanäle starten mit GAIN und MASTER 5,0.', 'Jeder Kanal speichert seine 13 Regler separat. Beim ersten Aufruf erscheinen die Startwerte; beim Zurückschalten werden eigene Einstellungen geladen. ALL → RESET CHANNEL setzt nur den gewählten Kanal zurück. CLANK, CRUSH, IMPACT, ROT und BLOOM bleiben in jedem Kanal verfügbar.', 'Die fünf nach Kanälen benannten Beispiele werden durch Thall Rhythm, Molten Lead, Rotten Grind, Sludge Mass und Slam Impact ersetzt. Jedes Preset umfasst PRE / Amp / CAB / POST; Rotten Grind nutzt Dual und Slam Impact Matrix. In Open Beta 1.2 starteten alle 43 Presets mit OUTPUT 0 dB. Ambient Clean erhält seinen Pegel über POST Console VCA. Thall Rhythm BLOOM und Molten Lead ROT starten bei 7,5; Slam Impact nutzt Low DI Comp 0,5 und DI/AMP 75 %.', 'Náströnd wurde mit Open Beta 1.2 eingeführt. Synthetische Prüfungen decken Kanalunterschiede, Stabilität und Wiederherstellung ab; die abschließende Bewertung der neuen Klangabstimmung erfolgt mit echten Instrument-DIs und Hörtests.']
  };
  document.getElementById('nastrondBody').innerHTML=bullets(originalNotes[lang]);
  renderModels('#preModels',PRE);renderModels('#ampModels',AMP);renderModels('#postModels',POST);
@@ -1285,24 +1639,30 @@ function render(){
  document.getElementById('diagBody').innerHTML=bullets(L[lang].diag);
  document.getElementById('limitsBody').innerHTML=bullets(L[lang].limits);
  const cabLayoutHelp={
-   "ko": [
-      "기타 1×12·2×12·4×12와 베이스 1×15·2×10·4×10·8×10·1×12·2×12 캐비넷을 제공합니다. 먼저 캐비넷을 선택하면 종류와 구경에 맞는 유닛이 로드됩니다. 현재 유닛이 맞으면 그대로 유지하며, 맞지 않는 유닛은 선택할 수 없습니다. 10인치 캐비넷에 12·15인치 유닛을 넣어 캐비넷 크기를 늘리지 않습니다.",
-      "4유닛 캐비넷의 Guitar/Bass 분류를 바꾸면 Guitar 4x12 또는 Bass 4x10과 그에 맞는 Chimera 유닛이 선택됩니다. 저장된 유닛이 캐비넷 규격에 맞지 않으면 해당 규격의 유닛으로 재생하고 표시합니다.",
-      "유닛 번호는 왼쪽에서 오른쪽, 위에서 아래 순서입니다. 작은 배열에서 범위를 벗어난 저장값은 마지막 유닛으로 처리하며 큰 배열로 돌아오면 원래 선택이 복원됩니다.",
-      "캐비넷·유닛·헤드·마이크는 같은 화면 안에서 실제 치수에 따른 비율로 표시됩니다. 유닛을 교체해도 캐비넷이나 마이크 크기가 바뀌지 않습니다. IR LOADER의 A/B 이미지는 캡처 정보에 맞춰 표시하며, 확인되지 않은 캐비넷이나 마이크는 일반 이미지로 구분합니다."
-   ],
-   "en": [
-      "Choose a guitar 1×12, 2×12 or 4×12 cabinet, or a bass 1×15, 2×10, 4×10, 8×10, 1×12 or 2×12 cabinet. Selecting a cabinet keeps a fitting speaker or loads a compatible one. Speakers of another type or diameter are unavailable: a 10-inch cabinet cannot accept 12- or 15-inch speakers, and its box does not grow to fit them.",
-      "The Guitar/Bass category of the four-speaker cabinet selects Guitar 4x12 or Bass 4x10 with its matching Chimera speaker. A saved speaker that does not fit the cabinet is played and displayed using a compatible speaker.",
-      "Units are numbered left to right, top to bottom. An unavailable saved target uses the last unit in a smaller array and returns when a larger array is selected.",
-      "Cabinets, speakers, heads and microphones share physical proportions within each view. Replacing a speaker does not resize the box or microphone. IR LOADER displays independent A/B images from capture information; unidentified cabinets or microphones use labelled generic artwork."
-   ],
-   "de": [
-      "Wähle eine Gitarrenbox mit 1×12, 2×12 oder 4×12 oder eine Bassbox mit 1×15, 2×10, 4×10, 8×10, 1×12 oder 2×12. Beim Boxenwechsel bleibt ein passender Lautsprecher erhalten oder ein passendes Modell wird geladen. Andere Typen und Durchmesser sind nicht wählbar: Eine 10-Zoll-Box nimmt keine 12- oder 15-Zoll-Lautsprecher auf und wird dafür nicht vergrößert.",
-      "Die Kategorie Guitar/Bass der Box mit vier Lautsprechern wählt Guitar 4x12 oder Bass 4x10 mit dem passenden Chimera-Lautsprecher. Ein gespeicherter Lautsprecher, der nicht zur Box passt, wird für Klang und Anzeige durch einen passenden Lautsprecher ersetzt.",
-      "Die Einheiten sind von links nach rechts und von oben nach unten nummeriert. Ein gespeichertes Ziel außerhalb einer kleineren Anordnung nutzt die letzte Einheit; bei einer größeren Anordnung wird das ursprüngliche Ziel wieder verwendet.",
-      "Boxen, Lautsprecher, Verstärkerköpfe und Mikrofone werden innerhalb einer Ansicht in gemeinsamen physischen Proportionen dargestellt. Ein Lautsprecherwechsel verändert weder Boxen- noch Mikrofongröße. IR LOADER zeigt getrennte A/B-Bilder anhand der Aufnahmedaten; unbekannte Boxen oder Mikrofone erhalten gekennzeichnete allgemeine Abbildungen."
-   ]
+  "ko": [
+    "총 9개 레이아웃을 제공합니다. 기타는 1×12·2×12·4×12, 베이스는 1×15·2×10·4×10·6×10·1×12·2×12입니다. 먼저 캐비넷을 선택하면 종류와 구경에 맞는 유닛이 로드됩니다. 호환되는 기존 유닛은 유지되며, 10인치 캐비넷에는 12·15인치 유닛을 선택할 수 없습니다.",
+    "메뉴의 Guitar 4x12는 하나의 항목으로 표시되며 Bass 4x10과 구분됩니다. 베이스 6×10은 2열 × 3행 구조입니다. 저장된 유닛이 캐비넷 규격에 맞지 않으면 호환되는 유닛으로 재생하고 표시합니다.",
+    "유닛 번호는 왼쪽에서 오른쪽, 위에서 아래 순서입니다. 작은 배열에서 범위를 벗어난 저장값은 마지막 유닛으로 처리하며 큰 배열로 돌아오면 원래 선택이 복원됩니다.",
+    "이전 미발매 CAB 프리뷰의 모델링 8×10 설정은 기존 스피커·응답 모델을 활용한 6×10 구성으로 열립니다. 새 6유닛 배열과 설계 용적에 맞춰 응답을 구성합니다. 이전 Mic A/B의 7번 유닛은 5번으로, 8번은 6번으로 같은 열의 마지막 행에 대응하며 원래 저장값은 유지합니다. 불러온 Ampeg/SVT 8×10 IR의 캡처명·메타데이터·오디오는 원래 상태를 유지합니다.",
+    "캐비넷·유닛·헤드·마이크는 한 화면에서 공통 물리 치수 기준으로 표시됩니다. 같은 1 m는 어떤 장비에서도 같은 비율이며, 유닛 교체가 캐비넷이나 마이크 크기를 바꾸지 않습니다. 활성 리그와 켜진 마이크를 기준으로 화면을 맞추므로 사용하지 않는 리그·마이크의 빈 여백 때문에 장비가 축소되지 않습니다.",
+    "각 유닛은 고유한 정면 디자인으로 표시되며 Crimson 12는 빨간색을 유지합니다. IR LOADER의 A/B 이미지는 각각의 캡처 정보에 맞춰 표시하고, 확인되지 않은 캐비넷이나 마이크는 일반 이미지로 구분합니다."
+  ],
+  "en": [
+    "Nine layouts are available: guitar 1×12, 2×12 and 4×12, plus bass 1×15, 2×10, 4×10, 6×10, 1×12 and 2×12. Select the cabinet first to keep a fitting speaker or load a compatible one. Speaker type and diameter must fit; a 10-inch cabinet cannot accept 12- or 15-inch drivers.",
+    "Guitar 4x12 has one menu entry, separate from Bass 4x10. The bass 6×10 uses two columns and three rows. A saved speaker that does not fit the enclosure is played and displayed using a compatible speaker.",
+    "Units are numbered left to right, top to bottom. An unavailable saved target uses the last unit in a smaller array and returns when a larger array is selected.",
+    "Unpublished CAB previews that saved the modeled 8×10 layout now open as a 6×10 reconstruction using the existing speaker/response models with a six-driver layout and its designed enclosure volume. Old Mic A/B target 7 maps to 5 and target 8 maps to 6, keeping the same column in the last row; the stored target values are preserved. Imported Ampeg/SVT 8×10 IR capture names, metadata and recorded audio retain their original identity.",
+    "Cabinets, speakers, heads and microphones share one physical scale within each view: one metre has the same proportion for every object. Replacing a speaker does not resize its box or microphone. Framing follows active rigs and enabled microphones, so unused rigs or disabled microphones do not reserve empty margins.",
+    "Each speaker has its own front-facing design; Crimson 12 retains its red finish. IR LOADER displays independent A/B images from capture information; unidentified cabinets or microphones use labelled generic artwork."
+  ],
+  "de": [
+    "Neun Anordnungen stehen bereit: Gitarrenboxen mit 1×12, 2×12 und 4×12 sowie Bassboxen mit 1×15, 2×10, 4×10, 6×10, 1×12 und 2×12. Zuerst die Box wählen; ein passender Lautsprecher bleibt erhalten oder wird geladen. Typ und Durchmesser müssen passen: Eine 10-Zoll-Box nimmt keine 12- oder 15-Zoll-Lautsprecher auf.",
+    "Guitar 4x12 hat einen eigenen, einmaligen Menüeintrag, getrennt von Bass 4x10. Die Bassbox 6×10 besteht aus zwei Spalten und drei Reihen. Ein gespeicherter Lautsprecher, der nicht zum Gehäuse passt, wird für Klang und Anzeige durch einen passenden Lautsprecher ersetzt.",
+    "Die Einheiten sind von links nach rechts und von oben nach unten nummeriert. Ein gespeichertes Ziel außerhalb einer kleineren Anordnung nutzt die letzte Einheit; bei einer größeren Anordnung wird das ursprüngliche Ziel wieder verwendet.",
+    "Unveröffentlichte CAB-Previews mit gespeicherter modellierter 8×10-Anordnung öffnen jetzt als 6×10-Neukonfiguration der vorhandenen Lautsprecher- und Klangmodelle mit sechs Einheiten und dem dafür ausgelegten Gehäusevolumen. Das frühere Mic-A/B-Ziel 7 wird zu 5 und Ziel 8 zu 6: jeweils die letzte Reihe derselben Spalte. Die gespeicherten Zielwerte bleiben erhalten. Importierte Ampeg/SVT-8×10-IRs behalten ihre Aufnahmenamen, Metadaten und Audiodaten.",
+    "Boxen, Lautsprecher, Verstärkerköpfe und Mikrofone verwenden innerhalb einer Ansicht denselben physischen Maßstab: Ein Meter entspricht bei jedem Objekt demselben Verhältnis. Ein Lautsprecherwechsel verändert weder Boxen- noch Mikrofongröße. Der Bildausschnitt richtet sich nach aktiven Rigs und eingeschalteten Mikrofonen; ungenutzte Rigs oder Mikrofone reservieren keine leeren Ränder.",
+    "Jeder Lautsprecher besitzt eine eigene frontale Darstellung; Crimson 12 behält die rote Oberfläche. IR LOADER zeigt getrennte A/B-Bilder anhand der Aufnahmedaten. Unbekannte Boxen oder Mikrofone erhalten gekennzeichnete allgemeine Abbildungen."
+  ]
 };
  document.getElementById('irBody').innerHTML+='<h4>CAB / Enclosure Layouts</h4>'+bullets(cabLayoutHelp[lang]);
  const cabExpansionHelp={

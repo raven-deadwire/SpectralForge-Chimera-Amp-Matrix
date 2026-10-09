@@ -29,7 +29,7 @@ int main(){try {
             require(l::generate(x::key(p.voice),48000)==x::generate(x::key(effective.voice),48000),"restored four-unit kernel retains incompatible driver");
     }
     p.voice.base.cabinet=0;
-    const std::array<int,9> counts{1,2,4,1,2,4,8,1,2};
+    const std::array<int,9> counts{1,2,4,1,2,4,6,1,2};
     const std::array<int,9> drivers{1,1,1,13,9,9,9,11,14};
     double largest=0;size_t cases=0,compatibilityCases=0;std::set<uint64_t> keys;
     for(int layout=1;layout<=9;++layout) {
@@ -71,6 +71,40 @@ int main(){try {
             require(tail/total<.001,"v3 tail gate");
             auto farther=p;farther.voice.base.distanceCm=60;require(energy(l::generate(l::key(farther),rate))<total,"distance attenuation");
         }
+    }
+    // The 1.3 large bass cabinet reuses the preview driver model while removing
+    // one row. Retain per-driver sealed loading, but use six actual sources and
+    // the shorter cabinet's axial mode, not a relabelled eight-driver response.
+    p={{{true,1,0,0,0,0,.63,10},9,20,0},7,0};
+    const auto six=l::geometry(p);
+    require(six.count==6 && std::string(l::layouts[6].id)=="b610-v3", "6x10 layout identity");
+    require(l::layouts[6].columns==2 && l::layouts[6].rows==3, "6x10 baffle rows");
+    require(six.box.width==.63 && six.box.height==.94 && six.box.depth==.40, "6x10 enclosure dimensions");
+    auto eight=six;eight.count=8;eight.box.height=1.22;eight.box.volume=.238;
+    require(std::abs(six.box.volume-eight.box.volume*6./8.)<1e-12, "6x10 per-driver volume inheritance");
+    require(std::abs(six.count*six.box.vasPerDriver/six.box.volume-eight.count*eight.box.vasPerDriver/eight.box.volume)<1e-12,
+        "6x10 sealed compliance changed without a new driver model");
+    const double pitch=10*.0254*1.10;
+    for(int row=0;row<4;++row)for(int col=0;col<2;++col)
+        eight.centres[size_t(row*2+col)]={(col-.5)*pitch,(1.5-row)*pitch};
+    const auto* inheritedDriver=x::driver(p.voice);const auto* inheritedMic=x::microphone(p.voice);
+    double sourceChange=0,modeChange=0;
+    for(double hz:{80.,180.,400.,800.,1600.,3200.}) {
+        const v::Point pickup{six.centres[0].x+p.voice.base.position*six.radius,six.centres[0].y};
+        v::Complex sixField{},eightField{};
+        for(int n=0;n<six.count;++n)sixField+=x::coneField(hz,inheritedDriver->speaker,six.centres[size_t(n)],pickup,.1,inheritedDriver->coherenceHz,inheritedMic);
+        for(int n=0;n<eight.count;++n)eightField+=x::coneField(hz,inheritedDriver->speaker,eight.centres[size_t(n)],pickup,.1,inheritedDriver->coherenceHz,inheritedMic);
+        sourceChange=std::max(sourceChange,std::abs(sixField-eightField));
+        modeChange=std::max(modeChange,std::abs(l::driverTransfer(p,hz,six)-l::driverTransfer(p,hz,eight)));
+    }
+    require(sourceChange>.01 && modeChange>.001, "6x10 retained eight-driver field or tall enclosure modes");
+    for(int rawUnit=0;rawUnit<8;++rawUnit) {
+        p.unit=rawUnit;const int expectedUnit=rawUnit<6 ? rawUnit : rawUnit-2;
+        const auto before=p;auto resolved=p;resolved.unit=expectedUnit;
+        require(l::effectiveUnit(p)==expectedUnit && l::settings(l::key(p)).unit==expectedUnit, "6x10 preview target migration");
+        require(p.unit==before.unit, "6x10 migration wrote raw state");
+        require(l::key(p)==l::key(resolved), "6x10 visual and DSP target keys differ");
+        for(double hz:{65.,1500.,6500.})require(l::response(p,hz)==l::response(resolved,hz), "6x10 migrated microphone changes column");
     }
     // Saved values and automation can bypass the UI's compatible-driver menu.
     // Every such request resolves to a matching driver while keeping raw settings

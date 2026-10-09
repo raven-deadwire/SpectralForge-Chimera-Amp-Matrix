@@ -40,6 +40,7 @@ class OriginalCabControls : public juce::Component,private juce::Timer {
         parameter->beginChangeGesture();parameter->setValueNotifyingHost(parameter->convertTo0to1(float(selected)));parameter->endChangeGesture();
     }
     void selectLayout() {
+        if(layout.getSelectedId()<2) {timerCallback();return;}
         auto requested=requestedSettings();requested.layout=juce::jmax(0,layout.getSelectedId()-1);
         const auto compatible=spectralforge::cabLayout::effectiveSettings(requested);
         choose(spectralforge::cabLayoutID(lane,"layout"),compatible.layout);
@@ -66,7 +67,10 @@ class OriginalCabControls : public juce::Component,private juce::Timer {
         const auto requested=requestedSettings();
         const auto effective=spectralforge::cabLayout::effectiveSettings(requested);
         const int selectedLayout=effective.layout;
-        layout.setSelectedId(selectedLayout+1,juce::dontSendNotification);
+        // Saved layout zero is the original four-unit cabinet. Present it as
+        // the matching visible type without rewriting its DSP/state identity.
+        const int visibleLayout=selectedLayout ? selectedLayout : spectralforge::cabLayout::isBass(effective) ? 6 : 3;
+        layout.setSelectedId(visibleLayout+1,juce::dontSendNotification);
         driver.setSelectedId(effective.voice.driver+1,juce::dontSendNotification);
         design.setSelectedId(spectralforge::cabLayout::isBass(effective) ? 2 : 1,juce::dontSendNotification);
         const int unitCount=spectralforge::cabLayout::count(selectedLayout);
@@ -76,7 +80,9 @@ class OriginalCabControls : public juce::Component,private juce::Timer {
             s.unit.setVisible(selectedLayout==0);s.arrayUnit.setVisible(selectedLayout>0);s.arrayUnit.setEnabled(on);
             for(int n=1;n<=8;++n) {
                 s.arrayUnit.setItemEnabled(n,n<=unitCount);
-                renameItem(s.arrayUnit,n,"Unit "+juce::String(n)+(n>unitCount ? " (uses "+juce::String(unitCount)+")" : ""));
+                auto target=effective;target.unit=target.voice.base.unit=n-1;
+                renameItem(s.arrayUnit,n,"Unit "+juce::String(n)+(n>unitCount ? " (uses "
+                    +juce::String(spectralforge::cabLayout::effectiveUnit(target)+1)+")" : ""));
             }
             s.response.setEnabled(on);s.mic.setEnabled(on && s.response.getSelectedId()==1);s.unit.setEnabled(on);s.position.setEnabled(on);s.distance.setEnabled(on);
             s.mode.setText(on ? "CABINET MIC ACTIVE" : "CAPTURED IR ACTIVE",juce::dontSendNotification);
@@ -93,8 +99,6 @@ class OriginalCabControls : public juce::Component,private juce::Timer {
             renameItem(s.response,1,s.mic.getText());
         }
         renameItem(driver,1,requested.voice.base.cabinet==1 ? "Chimera Bass 10" : "Chimera Guitar 12");
-        auto fourUnit=effective;fourUnit.layout=0;
-        renameItem(layout,1,spectralforge::cabLayout::isBass(fourUnit) ? "Bass 4x10" : "Guitar 4x12");
         for(int item=0;item<=int(spectralforge::cabExpansion::drivers.size());++item) {
             auto candidate=requested;candidate.voice.driver=item;
             driver.setItemEnabled(item+1,spectralforge::cabLayout::isDriverCompatible(candidate)
@@ -156,9 +160,13 @@ public:
             }
         };
         const auto layoutCombo=[&](juce::ComboBox& box,const char* suffix,const juce::StringArray& names) {
-            addAndMakeVisible(box);box.addItemList(names,1);const auto id=spectralforge::cabLayoutID(lane,suffix);
+            addAndMakeVisible(box);const bool cabinetLayout=juce::String(suffix)=="layout";
+            // Keep the host's ten stored ordinals; expose only the nine unique
+            // current cabinet types. The UI IDs still equal stored value + 1.
+            for(int i=cabinetLayout ? 1 : 0;i<names.size();++i)box.addItem(names[i],i+1);
+            const auto id=spectralforge::cabLayoutID(lane,suffix);
             box.setComponentID(id);
-            if(juce::String(suffix)=="layout")box.onChange=[this]{selectLayout();};
+            if(cabinetLayout)box.onChange=[this]{selectLayout();};
             else {choices.push_back(std::make_unique<CA>(state,id,box));box.onChange=[this]{timerCallback();};}
         };
         layoutCombo(layout,"layout",spectralforge::cabLayoutNames());

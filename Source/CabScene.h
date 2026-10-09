@@ -137,7 +137,7 @@ private:
     }
     void updatePlacement() {
         if(getWidth()==0 || getHeight()==0)return;
-        const auto projection=spectralforge::cabLayoutView::project(arraySettings(),getLocalBounds().toFloat());
+        const auto projection=spectralforge::cabLayoutView::project(arraySettings(),getLocalBounds().toFloat(),ampModel);
         arrayBounds=projection.box;cameraScale=projection.pixelsPerMetre;
         const auto cab=cabinetBounds();
         // Keep the legacy artwork identity for accessibility/catalog consumers;
@@ -327,7 +327,9 @@ public:
             const auto prefix=juce::String(i ? "B" : "A");
             const auto value=[&](const char* suffix){return raw((prefix+suffix).toRawUTF8());};
             auto& geo=geometry[size_t(i)];
-            const int unit=layoutModel>0 ? juce::jlimit(0,speakerCount()-1,layoutValue((prefix+"unit").toRawUTF8())) : int(value("unit"));
+            auto target=arraySettings();target.unit=layoutValue((prefix+"unit").toRawUTF8());
+            target.voice.base.unit=int(value("unit"));
+            const int unit=spectralforge::cabLayout::effectiveUnit(target);
             const MicGeometry next{value("on")>.5f,int(value("mic")),unit,value("position"),value("distance"),expanded((prefix+"mic").toRawUTF8())};
             if(draggingSlot==i && (!next.enabled || geo.model!=next.model || geo.expansion!=next.expansion))endMicDrag();
             geo=next;
@@ -436,6 +438,7 @@ public:
         g.fillEllipse(cab.getX()+cab.getWidth()*.08f,supportY-2.f,cab.getWidth()*.84f,5.f);
         g.setColour(juce::Colour(0xff5a5c57).withAlpha(.15f));g.drawLine(6.f,h-5.f,w-6.f,h-5.f,1.f);
         g.beginTransparencyLayer(geometry[0].enabled || geometry[1].enabled ? 1.f : .62f);
-        spectralforge::cabLayoutView::enclosure(g,arrayGeometry(),cab);g.endTransparencyLayer();
+        spectralforge::cabLayoutView::enclosure(g,arrayGeometry(),cab,
+            spectralforge::cabLayout::isBass(arraySettings()));g.endTransparencyLayer();
     }
 };
