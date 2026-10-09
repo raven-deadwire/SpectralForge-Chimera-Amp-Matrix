@@ -21,6 +21,10 @@ class OriginalCabControls : public juce::Component,private juce::Timer {
     std::vector<std::unique_ptr<CA>> choices;
     std::vector<std::unique_ptr<SA>> sliders;
     std::vector<std::unique_ptr<BA>> buttons;
+    static void renameItem(juce::ComboBox& box,int id,const juce::String& text) {
+        const int selected=int(box.getSelectedIdAsValue().getValue());
+        box.changeItemText(id,text);box.setSelectedId(selected,juce::dontSendNotification);
+    }
     void timerCallback() override {
         const int selectedLayout=juce::jmax(0,layout.getSelectedId()-1);
         const int unitCount=spectralforge::cabLayout::count(selectedLayout);
@@ -30,7 +34,7 @@ class OriginalCabControls : public juce::Component,private juce::Timer {
             s.unit.setVisible(selectedLayout==0);s.arrayUnit.setVisible(selectedLayout>0);s.arrayUnit.setEnabled(on);
             for(int n=1;n<=8;++n) {
                 s.arrayUnit.setItemEnabled(n,n<=unitCount);
-                s.arrayUnit.changeItemText(n,"Unit "+juce::String(n)+(n>unitCount ? " (uses "+juce::String(unitCount)+")" : ""));
+                renameItem(s.arrayUnit,n,"Unit "+juce::String(n)+(n>unitCount ? " (uses "+juce::String(unitCount)+")" : ""));
             }
             s.response.setEnabled(on);s.mic.setEnabled(on && s.response.getSelectedId()==1);s.unit.setEnabled(on);s.position.setEnabled(on);s.distance.setEnabled(on);
             s.mode.setText(on ? "LIVE CABINET GEOMETRY" : "CAPTURED IR ACTIVE",juce::dontSendNotification);
@@ -45,8 +49,8 @@ class OriginalCabControls : public juce::Component,private juce::Timer {
                 s.responseLabel.setText("Original response v1",juce::dontSendNotification);
             }
         }
-        design.changeItemText(1,selectedLayout ? "Legacy guitar driver" : "Chimera Guitar 4x12");
-        design.changeItemText(2,selectedLayout ? "Legacy bass driver" : "Chimera Bass 4x10");
+        renameItem(design,1,selectedLayout ? "Legacy guitar driver" : "Chimera Guitar 4x12");
+        renameItem(design,2,selectedLayout ? "Legacy bass driver" : "Chimera Bass 4x10");
         layout.setEnabled(any);design.setEnabled(any && driver.getSelectedId()==1);driver.setEnabled(any);tweeterDesign.setEnabled(any);rear.setEnabled(any);tweeter.setEnabled(any);
         const int selectedDriver=driver.getSelectedId()-2;
         speakerLabel.setText(selectedDriver>=0 && selectedDriver<int(spectralforge::cabExpansion::drivers.size())
@@ -55,7 +59,7 @@ class OriginalCabControls : public juce::Component,private juce::Timer {
         const int inches=selectedDriver>=0 ? spectralforge::cabExpansion::drivers[size_t(selectedDriver)].inches : design.getSelectedId()==2 ? 10 : 12;
         for(size_t i=0;i<spectralforge::cabLayout::layouts.size();++i) {
             const auto& l=spectralforge::cabLayout::layouts[i];
-            layout.changeItemText(int(i)+2,juce::String(l.bass ? "Bass " : "Guitar ")+juce::String(l.columns*l.rows)+"x"+juce::String(inches)
+            renameItem(layout,int(i)+2,juce::String(l.bass ? "Bass " : "Guitar ")+juce::String(l.columns*l.rows)+"x"+juce::String(inches)
                 +(inches!=l.inches ? " / scaled "+juce::String(l.inches)+"-inch box" : ""));
         }
         sceneHint.setText(any ? "Drag a microphone to move it  |  Shift-drag for distance" :

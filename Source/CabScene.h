@@ -333,7 +333,7 @@ public:
             const MicGeometry next{value("on")>.5f,int(value("mic")),unit,value("position"),value("distance"),expanded((prefix+"mic").toRawUTF8())};
             if(draggingSlot==i && (!next.enabled || geo.model!=next.model || geo.expansion!=next.expansion))endMicDrag();
             geo=next;
-            const spectralforge::originalCab::Settings settings{geo.enabled,design,0,geo.model,geo.unit,0,geo.position,geo.distanceCm};
+            const spectralforge::originalCab::Settings settings{geo.enabled,design,int(raw("rear")),geo.model,geo.unit,raw("tweeter"),geo.position,geo.distanceCm};
             const auto key=spectralforge::cabLayout::key({{settings,expanded("driver"),geo.expansion,expanded("tweeter")},layoutModel,geo.unit});
             changed=changed || displayedKeys[size_t(i)]!=key;displayedKeys[size_t(i)]=key;
             auto& image=*microphones[size_t(i)];
