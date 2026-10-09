@@ -3,6 +3,8 @@
 #include "ChimeraArtworkData.h"
 #include "MicrophoneCatalog.h"
 #include "LifecycleTrace.h"
+#include "CabSpeakerArt.h"
+#include "CabMicrophoneDimensions.h"
 #include <array>
 
 namespace spectralforge::cabArt {
@@ -96,6 +98,7 @@ inline Asset capturedMicrophone(const micCatalog::Model* model) {
 struct Bank {
     std::array<juce::Image,assetCount> images;
     std::array<juce::Rectangle<int>,assetCount> contentBounds;
+    std::array<juce::Image,16> frontSpeakers;
     Bank() {
         const lifecycle::Scope trace("cab.artwork.create",this);
         // All decode work happens when a CAB UI takes ownership on the message
@@ -128,10 +131,22 @@ struct Bank {
                 }
             }
         }
+        // Render front geometry once per shared UI bank, not in paint/timers.
+        for(size_t i=0;i<frontSpeakers.size();++i) {
+            const int driver=i<2 ? 0 : int(i)-1,legacy=i==1 ? 1 : 0;
+            const cabExpansion::Settings settings{{false,legacy},driver,0,0};
+            const float outer=float(cabExpansion::diameter(settings))*.0254f*.5f;
+            const float cone=float(driver ? cabExpansion::drivers[size_t(driver-1)].speaker.radius : originalCab::speakers[size_t(legacy)].radius);
+            // Bounded front caches keep the complete shared artwork bank
+            // below 16 MiB, including the microphone and room textures.
+            auto& image=frontSpeakers[i];image=juce::Image(juce::Image::ARGB,128,128,true);
+            juce::Graphics graphics(image);cabSpeakerArt::paint(graphics,image.getBounds().toFloat(),driver,legacy,cone/outer);
+        }
     }
     ~Bank() {
         const lifecycle::Scope trace("cab.artwork.destroy",this);
         images.fill({});
+        frontSpeakers.fill({});
     }
 };
 
@@ -153,15 +168,27 @@ class View : public juce::Component {
     bool trimArtwork{};
     float rotation{};
     juce::Rectangle<float> explicitArea;
-    juce::Rectangle<float> rotatedSourceBounds() const noexcept {
+    juce::Point<float> physicalDimensions;
+    int speakerDriver{};
+    bool isSpeaker() const noexcept {return selected==Asset::guitarSpeaker || selected==Asset::bassSpeaker;}
+    juce::Point<float> sourceSize() const noexcept {
+        if(physicalDimensions.x>0.f && physicalDimensions.y>0.f)return physicalDimensions;
         const auto index=static_cast<size_t>(selected);
-        if(index>=assetCount || !bank->images[index].isValid())return {0,0,1,1};
+        if(index>=assetCount || !bank->images[index].isValid())return {1.f,1.f};
         const auto source=trimArtwork ? bank->contentBounds[index] : bank->images[index].getBounds();
-        return juce::Rectangle<float>(float(source.getWidth()),float(source.getHeight())).transformedBy(juce::AffineTransform::rotation(rotation));
+        return {float(source.getWidth()),float(source.getHeight())};
+    }
+    juce::Rectangle<float> rotatedSourceBounds() const noexcept {
+        const auto size=sourceSize();
+        return juce::Rectangle<float>(size.x,size.y).transformedBy(juce::AffineTransform::rotation(rotation));
     }
     juce::AffineTransform artworkTransform() const noexcept {
+        const auto index=static_cast<size_t>(selected);
+        const auto pixels=trimArtwork ? bank->contentBounds[index] : bank->images[index].getBounds();
+        const auto size=sourceSize();
         const auto source=rotatedSourceBounds(),destination=artworkBounds();
-        return juce::AffineTransform::rotation(rotation).translated(-source.getX(),-source.getY())
+        return juce::AffineTransform::scale(size.x/float(pixels.getWidth()),size.y/float(pixels.getHeight()))
+            .rotated(rotation).translated(-source.getX(),-source.getY())
             .scaled(destination.getWidth()/source.getWidth(),destination.getHeight()/source.getHeight())
             .translated(destination.getX(),destination.getY());
     }
@@ -171,18 +198,27 @@ public:
         getProperties().set("cabArtworkKey",key(selected));
     }
     Asset asset() const noexcept {return selected;}
+    void setSpeakerDesign(int driver) {
+        const int next=juce::jlimit(0,14,driver);
+        getProperties().set("cabSpeakerStyle",cabSpeakerArt::styleKey(next,selected==Asset::bassSpeaker ? 1 : 0));
+        if(speakerDriver!=next){speakerDriver=next;repaint();}
+    }
     bool hasImage() const noexcept {
         const auto index=static_cast<size_t>(selected);
         return index<assetCount && bank->images[index].isValid();
     }
     void setTrimArtwork(bool trim) {if(trimArtwork!=trim){trimArtwork=trim;repaint();}}
+    void setPhysicalDimensions(float widthMetres,float heightMetres) {
+        const juce::Point<float> next{juce::jmax(0.f,widthMetres),juce::jmax(0.f,heightMetres)};
+        if(physicalDimensions!=next){physicalDimensions=next;repaint();}
+    }
     void setArtworkRotation(float value) {if(rotation!=value){rotation=value;repaint();}}
     juce::Point<float> orientedAnchor(juce::Point<float> point) const noexcept {
         if(rotation==0)return point;
         const auto index=static_cast<size_t>(selected);
         if(index>=assetCount || !bank->images[index].isValid())return point;
-        const auto source=trimArtwork ? bank->contentBounds[index] : bank->images[index].getBounds();
-        const auto rotated=juce::Point<float>(point.x*float(source.getWidth()),point.y*float(source.getHeight())).transformedBy(juce::AffineTransform::rotation(rotation));
+        const auto size=sourceSize();
+        const auto rotated=juce::Point<float>(point.x*size.x,point.y*size.y).transformedBy(juce::AffineTransform::rotation(rotation));
         const auto bounds=rotatedSourceBounds();
         return {(rotated.x-bounds.getX())/bounds.getWidth(),(rotated.y-bounds.getY())/bounds.getHeight()};
     }
@@ -192,17 +228,17 @@ public:
         if(explicitArea!=area){explicitArea=area;repaint();}
     }
     float artworkAspectRatio() const noexcept {
+        if(isSpeaker())return 1.f;
         const auto index=static_cast<size_t>(selected);
         if(index>=assetCount || !bank->images[index].isValid())return 1.f;
-        const auto source=trimArtwork ? bank->contentBounds[index] : bank->images[index].getBounds();
-        if(rotation!=0){const auto bounds=rotatedSourceBounds();return bounds.getWidth()/bounds.getHeight();}
-        return float(source.getWidth())/float(juce::jmax(1,source.getHeight()));
+        const auto bounds=rotatedSourceBounds();return bounds.getWidth()/bounds.getHeight();
     }
     juce::Rectangle<float> artworkBounds() const noexcept {
         const auto index=static_cast<size_t>(selected);
         const auto area=explicitArea.isEmpty() ? getLocalBounds().toFloat().reduced(2.f) : explicitArea;
+        if(isSpeaker()) {const float d=juce::jmin(area.getWidth(),area.getHeight());return juce::Rectangle<float>(d,d).withCentre(area.getCentre());}
         if(index>=assetCount || !bank->images[index].isValid())return area;
-        const auto source=rotation!=0 ? rotatedSourceBounds() : (trimArtwork ? bank->contentBounds[index] : bank->images[index].getBounds()).toFloat();
+        const auto source=rotatedSourceBounds();
         const float scale=juce::jmin(area.getWidth()/float(source.getWidth()),area.getHeight()/float(source.getHeight()));
         return juce::Rectangle<float>(float(source.getWidth())*scale,float(source.getHeight())*scale).withCentre(area.getCentre());
     }
@@ -235,6 +271,11 @@ public:
         opacity=next;setAlpha(opacity);
     }
     void paint(juce::Graphics& g) override {
+        if(isSpeaker()) {
+            const size_t style=speakerDriver>0 ? size_t(speakerDriver+1) : size_t(selected==Asset::bassSpeaker);
+            g.setColour(juce::Colours::white);g.setImageResamplingQuality(juce::Graphics::highResamplingQuality);
+            g.drawImage(bank->frontSpeakers[style],artworkBounds(),juce::RectanglePlacement::stretchToFit);return;
+        }
         const auto index=static_cast<size_t>(selected);
         if(index>=assetCount || !bank->images[index].isValid()) {
             neutral(g,getLocalBounds().toFloat(),emptyText);return;

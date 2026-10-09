@@ -20,6 +20,7 @@ inline void artworkResources() {
         && room->room.getWidth()<=1152 && room->room.getHeight()<=576,
         "CAB room scenery is missing, undecodable or retained above its display budget");
     retainedBytes+=size_t(room->room.getWidth())*size_t(room->room.getHeight())*4;
+    for(const auto& image:artwork->frontSpeakers)retainedBytes+=size_t(image.getWidth())*size_t(image.getHeight())*4;
     require(retainedBytes<=16*1024*1024,"CAB equipment and room artwork exceed the combined editor RGBA budget");
     std::vector<Asset> matched;
     for(const auto& model:spectralforge::micCatalog::models) {
@@ -66,7 +67,7 @@ inline void run(const juce::File& folder,const juce::File& screenshots) {
     const std::array<Frozen,13> frozen{{{"design",0,1,1,0},{"rear",0,1,1,0},{"tweeter",0,1,.01f,0},
         {"Aon",0,1,1,0},{"Amic",0,2,1,0},{"Aunit",0,3,1,0},{"Aposition",0,1,.001f,.25f},{"Adistance",2,60,.1f,10},
         {"Bon",0,1,1,0},{"Bmic",0,2,1,0},{"Bunit",0,3,1,0},{"Bposition",0,1,.001f,.25f},{"Bdistance",2,60,.1f,10}}};
-    require(processor->getParameters().size()==4824+spectralforge::cabExpansionParameterCount,"Integrated host parameter count changed");
+    require(processor->getParameters().size()==4824+spectralforge::cabExpansionParameterCount+spectralforge::cabLayoutParameterCount,"Integrated host parameter count changed");
     for(int lane=0;lane<3;++lane)for(size_t n=0;n<frozen.size();++n) {
         const auto& expected=frozen[n];auto* parameter=state.getParameter(spectralforge::originalCabID(lane,expected.suffix));
         require(parameter && parameter->getParameterIndex()==4785+lane*13+int(n) && parameter->getVersionHint()==7
@@ -121,8 +122,8 @@ inline void run(const juce::File& folder,const juce::File& screenshots) {
     require(dispatchUntil([&]{return cabinetImage.asset()==Asset::guitarCabinet && speakerImage.asset()==Asset::guitarSpeaker
         && micImageA.asset()==Asset::detailCondenser && micImageB.asset()==Asset::bodyRibbon;}),"Guitar cabinet/unit or independent original microphone artwork is stale");
     require(cabinetImage.hasImage() && speakerImage.hasImage() && micImageA.hasImage() && micImageB.hasImage(),"Original CAB images were not decoded before drawing");
-    require(dispatchUntil([&]{return component<juce::Label>(panel,"cabAtitle1").getText().contains("ORIGINAL MODEL")
-        && component<juce::Label>(panel,"cabBtitle1").getText().contains("ORIGINAL MODEL");}),
+    require(dispatchUntil([&]{return component<juce::Label>(panel,"cabAtitle1").getText().contains("CABINET MIC")
+        && component<juce::Label>(panel,"cabBtitle1").getText().contains("CABINET MIC");}),
         "Original microphone artwork and captured-slot status did not converge before the screenshot");
     layout(panel);snapshot(panel,screenshots,"cab-visual-guitar.png");
     design.setSelectedId(2,juce::sendNotificationSync);rear.setSelectedId(2,juce::sendNotificationSync);tweeter.setValue(.42,juce::sendNotificationSync);
@@ -132,7 +133,7 @@ inline void run(const juce::File& folder,const juce::File& screenshots) {
     processor->prepareToPlay(48000,128);
     require(processor->micMetadata(0,0).values[3].contains("Detail"),"Original response metadata not active");
     require(processor->micCaptureMetadata(0,0).values[3]=="Chimera Strike","Modeled metadata overwrote retained capture identity");
-    require(dispatchUntil([&]{return component<juce::Label>(panel,"cabAtitle1").getText().contains("ORIGINAL MODEL");}),"Host model change not displayed");
+    require(dispatchUntil([&]{return component<juce::Label>(panel,"cabAtitle1").getText().contains("CABINET MIC");}),"Host model change not displayed");
     require(component<juce::ComboBox>(panel,"cabAmic1").getText().contains("Chimera Strike")
         && component<juce::Label>(panel,"cabAprovenance1").getText().contains("Stored capture"),"Stored Strike capture presented as the active model");
     require(component<juce::ComboBox>(panel,"cabAmic1").getTooltip().contains("independent original response"),"Strike capture tooltip must distinguish its separate original response");
@@ -160,7 +161,7 @@ inline void run(const juce::File& folder,const juce::File& screenshots) {
     microphone.setSelectedId(itemContaining(microphone,"Chimera Strike"),juce::sendNotificationSync);
     require(raw("ocab1_Aon")==0 && raw("ocab1_Bon")==1 && raw("cabtype1")==3,"Personal capture selection lost mixed-mode independence");
     require(component<juce::Label>(panel,"cabAtitle1").getText().contains("CAPTURED IR"),"Captured source not visibly identified");
-    require(component<juce::Label>(panel,"cabAreference1").getText().contains("Original model in CABINET"),"Strike response status must be visible without a tooltip");
+    require(component<juce::Label>(panel,"cabAreference1").getText().contains("CABINET MIC"),"Strike response status must be visible without a tooltip");
     require(component<Image>(panel,"cabAmicImage1").asset()==Asset::strike,"Chimera Strike capture artwork was not independently selected");
     require(component<juce::Slider>(panel,"cabBhigh1").getTextFromValue(9000)=="9000", "Frequency readout must fit its text box");
     automate("cabblend1",.5f);processor->prepareToPlay(48000,128);
@@ -181,7 +182,7 @@ inline void run(const juce::File& folder,const juce::File& screenshots) {
     CabPanel reopened(*restored,0,{folder},folder.getChildFile("library.json"));
     reopened.setView(CabPanel::View::irLoader);
     require(component<juce::Label>(reopened,"cabAtitle1").getText().contains("CAPTURED IR")
-        && component<juce::Label>(reopened,"cabBtitle1").getText().contains("ORIGINAL MODEL"),"Mixed source identities lost on project reopen");
+        && component<juce::Label>(reopened,"cabBtitle1").getText().contains("CABINET MIC"),"Mixed source identities lost on project reopen");
     require(component<juce::ComboBox>(reopened,"cabAmic1").getText().contains("Chimera Strike"),"Deleted-source catalog identity lost on project reopen");
     for(const auto& parameter:state.copyState()) {
         const auto id=parameter.getProperty("id").toString();

@@ -169,7 +169,7 @@ inline void physicalGeometry(CabScene& scene) {
     }
     require(head && head->isVisible(),"Cabinet scene is missing its perspective amplifier head");
     const auto headBounds=scene.getLocalArea(head,head->getLocalBounds().toFloat());
-    const auto expectedHead=spectralforge::cabHead::boundsAboveCabinet(cabinet);
+    const auto expectedHead=scene.amplifierBounds();
     require(scene.getLocalBounds().toFloat().expanded(1.f).contains(headBounds)
         && headBounds.getTopLeft().getDistanceFrom(expectedHead.getTopLeft())<1.5f
         && headBounds.getBottomRight().getDistanceFrom(expectedHead.getBottomRight())<1.5f,
@@ -224,36 +224,67 @@ inline void headSupportGeometry() {
     for(const auto& face:artwork->faces)
         require(face.front.isValid() && face.material.isValid() && std::isfinite(face.aspect) && face.aspect>0.f,
             "A selected amplifier head lost its real fascia or casing material during perspective extraction");
-    int cases=0;
-    for(const auto& cabinet:std::array<juce::Rectangle<float>,3>{{{50.f,140.f,400.f,400.f},
-            {24.f,75.f,220.f,216.f},{84.f,166.f,570.f,551.f}}}) {
-        const auto bounds=spectralforge::cabHead::boundsAboveCabinet(cabinet);
-        require(bounds.getWidth()>0.f && bounds.getHeight()>0.f
-            && bounds.getX()>=cabinet.getX() && bounds.getRight()<=cabinet.getRight(),
-            "Perspective amplifier footprint overhangs its cabinet");
+    int cases=0,overhangs=0;
+    for(const float pixelsPerMetre:std::array<float,3>{{250.f,500.f,800.f}}) {
+        // At a fixed camera scale the same amplifier must keep its size on both
+        // a narrow 1x10 and a wide array; genuine overhang is allowed.
+        const juce::Rectangle<float> cabinet{50.f,400.f,.38f*pixelsPerMetre,.50f*pixelsPerMetre};
+        const auto wideCabinet=cabinet.withWidth(1.20f*pixelsPerMetre);
+        const float supportY=cabinet.getY()+.025f*pixelsPerMetre;
         for(int model=0;model<spectralforge::ampModelCount;++model) {
+            const auto physical=spectralforge::cabPhysical::head(model);
+            const auto bounds=spectralforge::cabHead::physicalBoundsAboveCabinet(cabinet,pixelsPerMetre,model,supportY);
+            const auto wideBounds=spectralforge::cabHead::physicalBoundsAboveCabinet(wideCabinet,pixelsPerMetre,model,supportY);
+            require(std::abs(bounds.getWidth()-physical.width*pixelsPerMetre)<.01f
+                && std::abs(bounds.getHeight()-(physical.height+physical.depth*.16f)*pixelsPerMetre)<.01f
+                && std::abs(bounds.getCentreX()-cabinet.getCentreX())<.01f
+                && bounds.getWidth()==wideBounds.getWidth()
+                && bounds.getHeight()==wideBounds.getHeight(),
+                "Amplifier dimensions follow the cabinet width or bitmap padding instead of physical scale");
+            if(physical.width>.38f) {
+                require(bounds.getX()<cabinet.getX() && bounds.getRight()>cabinet.getRight(),
+                    "A full-size head was shrunk to prevent its physical overhang on a narrow cabinet");
+                ++overhangs;
+            }
             const auto geometry=spectralforge::cabHead::geometry(bounds,model);
             require(!geometry.front.isEmpty() && bounds.expanded(.01f).contains(geometry.front)
-                && std::isfinite(geometry.supportY) && geometry.supportY>=cabinet.getY()
-                && geometry.supportY<=cabinet.getY()+cabinet.getWidth()*.07f,
-                "Amplifier front or support plane does not fit the cabinet roof");
+                && std::abs(geometry.front.getWidth()-physical.width*pixelsPerMetre)<.01f
+                && std::isfinite(geometry.supportY) && std::abs(geometry.supportY-supportY)<.01f,
+                "Amplifier front or foot plane does not preserve its physical envelope");
+            const float footRise=geometry.supportY-geometry.front.getBottom();
+            require(std::abs(geometry.front.getHeight()+footRise+geometry.handle.getHeight()
+                    -physical.height*pixelsPerMetre)<.01f,
+                "Amplifier body, feet and handle exceed or underfill its published height budget");
             for(const auto& point:geometry.roof)
                 require(std::isfinite(point.x) && std::isfinite(point.y) && bounds.expanded(.01f).contains(point),
                     "Perspective amplifier roof escapes its finite head bounds");
             const auto& backLeft=geometry.roof[0];const auto& backRight=geometry.roof[1];
             const auto& frontRight=geometry.roof[2];const auto& frontLeft=geometry.roof[3];
             require(backLeft.x>frontLeft.x && backRight.x<frontRight.x && backRight.x>backLeft.x
-                && backLeft.y<frontLeft.y && backRight.y<frontRight.y,
-                "Amplifier roof fails to recede toward the cabinet's rear perspective");
+                && backLeft.y<frontLeft.y && backRight.y<frontRight.y
+                && std::abs(frontLeft.y-backLeft.y-physical.depth*.16f*pixelsPerMetre)<.01f,
+                "Amplifier roof does not project its own physical depth at the common camera angle");
             for(const auto& foot:geometry.feet)
                 require(!foot.isEmpty() && bounds.expanded(.01f).contains(foot)
                     && std::abs(foot.getBottom()-geometry.supportY)<.01f,
                     "Amplifier foot floats above or penetrates its common support plane");
             require(!geometry.feet[0].intersects(geometry.feet[1]),"Amplifier feet overlap");
+            if(spectralforge::cabHead::hasTopHandle(model))
+                require(!geometry.handle.isEmpty() && bounds.expanded(.01f).contains(geometry.handle),
+                    "Amplifier carrying handle escapes its physical height envelope");
+            else require(geometry.handle.isEmpty(),"A compact rack/desktop amplifier acquired an invented roof handle");
             ++cases;
         }
+        const auto compact=spectralforge::cabHead::physicalBoundsAboveCabinet(cabinet,pixelsPerMetre,
+            int(spectralforge::AmpModel::tastePunch),supportY);
+        const auto tube=spectralforge::cabHead::physicalBoundsAboveCabinet(cabinet,pixelsPerMetre,
+            int(spectralforge::AmpModel::ironTube),supportY);
+        require(compact.getWidth()<tube.getWidth()*.5f && compact.getHeight()<tube.getHeight()*.3f,
+            "Low-profile desktop bass head was enlarged to the tube-head display envelope");
     }
-    std::cout<<"PASS amplifier perspective: "<<cases<<" model/size cases, cabinet footprint containment, receding roof and shared foot support plane\n";
+    require(overhangs>0,"Head physical-scale audit did not exercise cabinet overhang");
+    std::cout<<"PASS amplifier physical proportions: "<<cases<<" model/camera cases, independent W/H/D, compact formats, "
+        <<overhangs<<" genuine overhangs and shared foot support plane\n";
 }
 
 inline void mouseDrag(CabScene& scene,int slot,juce::Point<float> target,bool distanceOnly=false,

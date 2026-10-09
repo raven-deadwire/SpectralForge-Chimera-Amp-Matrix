@@ -1,5 +1,5 @@
 #include "IRLibrary.h"
-#include "CabExpansionModel.h"
+#include "CabLayoutModel.h"
 #include <chrono>
 #include <cstdlib>
 #include <iostream>
@@ -35,10 +35,22 @@ std::vector<float> render(Cab& cab,const juce::dsp::ProcessSpec& spec) {
     return result;
 }
 double delta(const std::vector<float>& a,const std::vector<float>& b){double d=0;for(size_t n=0;n<a.size();++n)d=std::max(d,std::abs(double(a[n]-b[n])));return d;}
+// Diagnostic partitions of the same 1600 measured callbacks. The acceptance
+// gate below still uses every original sample and the unchanged block budget.
+void reportPhase(const char* name,const std::vector<double>& times,const std::vector<double>& cpuTimes,
+                 size_t first,size_t last,double budget) {
+    std::vector<double> wall(times.begin()+first,times.begin()+last),cpu(cpuTimes.begin()+first,cpuTimes.begin()+last);
+    const auto misses=std::count_if(wall.begin(),wall.end(),[budget](double us){return us>budget;});
+    std::sort(wall.begin(),wall.end());std::sort(cpu.begin(),cpu.end());
+    const auto p99=size_t(double(wall.size())*.99);
+    std::cout<<"PHASE name="<<name<<" blocks="<<wall.size()<<" p50_us="<<wall[wall.size()/2]
+        <<" p99_us="<<wall[p99]<<" thread_cpu_p99_us="<<cpu[p99]<<" max_us="<<wall.back()<<" misses="<<misses<<'\n';
+}
 int main(int argc,char** argv){try {
     const bool expanded=argc==2 && std::string(argv[1])=="--expanded";
-    require(argc==1 || expanded,"usage: ChimeraOriginalCabIntegrationTests [--expanded]");
-    const auto modelKey=[expanded](originalCab::Settings p){return expanded ? cabExpansion::key({p,14,p.mic==1 ? 10 : 20,2}) : originalCab::key(p);};
+    const bool layouts=argc==2 && std::string(argv[1])=="--layouts";
+    require(argc==1 || expanded || layouts,"usage: ChimeraOriginalCabIntegrationTests [--expanded | --layouts]");
+    const auto modelKey=[expanded,layouts](originalCab::Settings p){if(layouts)return cabLayout::key({{p,9,p.mic==1 ? 10 : 20,2},7,p.mic==1 ? 7 : p.unit});return expanded ? cabExpansion::key({p,12,p.mic==1 ? 10 : 20,2}) : originalCab::key(p);};
     const juce::ScopedNoDenormals noDenormals; // Same floating-point mode as processBlock.
     bool cpuWithinBudget=true;
     for(double sr:{44100.,48000.,96000.})for(int block:{64,256})for(int channels:{1,2}) {
@@ -87,12 +99,12 @@ int main(int argc,char** argv){try {
         // Six complete engines ready before the same callback. The actual
         // scheduler must cap overlap at one fading mic per rig (nine engines).
         // Construction is outside the watched/timed callback.
-        a.position=.85;const auto nextKey=modelKey(a);const auto wave=cabExpansion::generate(nextKey,sr);
+        a.position=.85;const auto nextKey=modelKey(a);const auto wave=cabLayout::generate(nextKey,sr);
         // Prepared convolution must reproduce the generated response and add
         // no processing latency; acoustic arrival remains in the kernel itself.
         juce::AudioBuffer<float> referenceSamples(1,int(wave.size()));referenceSamples.copyFrom(0,0,wave.data(),int(wave.size()));
         Cab::Kernel reference(std::move(referenceSamples),sr,spec,0,1,nextKey);
-        require(reference.convolution.getLatency()==0,"modeled convolution adds processing latency");
+        require(reference.getLatency()==0,"modeled convolution adds processing latency");
         juce::AudioBuffer<float> impulse(channels,block);double kernelResidual=0;
         for(int offset=0;offset<int(wave.size())+block;offset+=block) {
             impulse.clear();if(offset==0)impulse.setSample(0,0,1);watch=true;reference.process(impulse);watch=false;
@@ -112,9 +124,13 @@ int main(int argc,char** argv){try {
         require(peak<2 && maxStep<.3,"bounded six-slot swap");
         for(auto& c:cabs)require(c.activeModel==nextKey && c.secondMic()->activeModel==nextKey,"six queued mic swaps converge");
         for(auto& c:cabs)c.clear();require(library.resourcesReleased(),"worker teardown");
+        std::cout<<"PHASE_CONFIG engine="<<(layouts ? "array-v3-8x10" : expanded ? "expanded-v2" : "original-v1")
+            <<" sr="<<sr<<" block="<<block<<" channels="<<channels<<'\n';
+        reportPhase("worker_and_automation",times,cpuTimes,0,1200,1e6*block/sr);
+        reportPhase("forced_six_slot_publication",times,cpuTimes,1200,1600,1e6*block/sr);
         std::sort(times.begin(),times.end());std::sort(cpuTimes.begin(),cpuTimes.end());
         cpuWithinBudget=cpuWithinBudget && times[1584]<1e6*block/sr;
-        std::cout<<"TIMING engine="<<(expanded ? "expanded-v2" : "original-v1")<<" sr="<<sr<<" block="<<block<<" channels="<<channels<<" three_cabs_six_mics p50_us="<<times[800]<<" p99_us="<<times[1584]<<" thread_cpu_p99_us="<<cpuTimes[1584]<<" max_us="<<times.back()<<" misses="<<misses<<"/1600 kernel_residual="<<kernelResidual<<" peak="<<peak<<" max_step="<<maxStep<<'\n';
+        std::cout<<"TIMING engine="<<(layouts ? "array-v3-8x10" : expanded ? "expanded-v2" : "original-v1")<<" sr="<<sr<<" block="<<block<<" channels="<<channels<<" three_cabs_six_mics p50_us="<<times[800]<<" p99_us="<<times[1584]<<" thread_cpu_p99_us="<<cpuTimes[1584]<<" max_us="<<times.back()<<" misses="<<misses<<"/1600 kernel_residual="<<kernelResidual<<" peak="<<peak<<" max_step="<<maxStep<<'\n';
     }
     require(allocations==0 && deletions==0,"callback new/delete observed");
     std::cout<<"CALLBACK callback_new="<<allocations<<" callback_delete="<<deletions<<" (thread-local C++ operators only; not a universal malloc/lock tracer)\n";

@@ -2,6 +2,7 @@
 #include <juce_dsp/juce_dsp.h>
 #include <atomic>
 #include "LifecycleTrace.h"
+#include "ModeledCabConvolution.h"
 
 namespace spectralforge {
 // The worker builds a complete convolution engine. Audio swaps raw ownership;
@@ -9,7 +10,8 @@ namespace spectralforge {
 class Cab {
 public:
     struct Kernel {
-        juce::dsp::Convolution convolution;
+        std::unique_ptr<juce::dsp::Convolution> convolution;
+        std::unique_ptr<ModeledCabConvolution> modeledStereo;
         int source{};
         unsigned generation{};
         uint64_t modelKey{};
@@ -18,16 +20,31 @@ public:
                int type, unsigned revision, uint64_t model=0)
             : source(type), generation(revision), modelKey(model)
         {
-            convolution.loadImpulseResponse(std::move(samples), rate, juce::dsp::Convolution::Stereo::yes,
+            // These authored responses are already at the processing rate.
+            // Packing the independent stereo streams halves their FFT count
+            // and shares one IR spectrum without changing the response.
+            if(model && spec.numChannels==2 && spec.maximumBlockSize>0 && spec.maximumBlockSize<=128
+                && samples.getNumChannels()==1 && rate==spec.sampleRate) {
+                modeledStereo=std::make_unique<ModeledCabConvolution>(samples,int(spec.maximumBlockSize));
+                return;
+            }
+            convolution=std::make_unique<juce::dsp::Convolution>();
+            convolution->loadImpulseResponse(std::move(samples), rate, juce::dsp::Convolution::Stereo::yes,
                 juce::dsp::Convolution::Trim::no, model ? juce::dsp::Convolution::Normalise::no : juce::dsp::Convolution::Normalise::yes);
-            convolution.prepare(spec); // Wait for this IR before it reaches audio.
+            convolution->prepare(spec); // Wait for this IR before it reaches audio.
+        }
+        int getLatency() const noexcept {return modeledStereo ? modeledStereo->getLatency() : convolution->getLatency();}
+        void reset() noexcept
+        {
+            if(modeledStereo)modeledStereo->reset();else convolution->reset();
         }
         void process(juce::AudioBuffer<float>& buffer)
         {
             if (!hasIR) return;
+            if(modeledStereo) {modeledStereo->process(buffer);return;}
             juce::dsp::AudioBlock<float> block(buffer);
             juce::dsp::ProcessContextReplacing<float> context(block);
-            convolution.process(context);
+            convolution->process(context);
         }
     };
     std::atomic<int> requestedSource{1}, activeSource{-1};
@@ -56,7 +73,7 @@ private:
     {
         if (kernel == nullptr) return;
         const lifecycle::Scope trace("cab.kernel.destroy", kernel);
-        delete kernel; // Includes joining this convolution's private loader.
+        delete kernel; // JUCE fallback kernels also join their private loader.
     }
 public:
     explicit Cab(bool child=false) { if(!child) micB=std::make_unique<Cab>(true); else requestedSource.store(0); }
@@ -105,8 +122,8 @@ public:
         hp.reset(); lp.reset();
         if(micB) micB->reset();
         delayBuffer.clear(); delayWrite=0; bWasRunning=false;
-        if(active) active->convolution.reset();
-        if(fading) fading->convolution.reset();
+        if(active) active->reset();
+        if(fading) fading->reset();
     }
     void enable(bool value) { on=value; enabled.setTargetValue(on ? 1.f : 0.f); }
     void setCuts(float low, float high)
@@ -138,7 +155,12 @@ public:
                     if(serialiseModels)preferSecondSwap=true;
                 }
             }
-        dry.makeCopyOf(buffer,true);
+        // The settled enabled path is the overwhelmingly common case. Avoid
+        // copying and blending a dry buffer that cannot contribute; bypass
+        // automation still takes the unchanged smoothed path below.
+        const bool blendDry=enabled.isSmoothing() || enabled.getCurrentValue()!=1.f
+            || enabled.getTargetValue()!=1.f;
+        if(blendDry)dry.makeCopyOf(buffer,true);
         // Service a muted slot's pending swap so its UI can become ready. Once
         // settled, skip its convolution; clear frozen history before waking it.
         const bool renderB=micB && (blend>0.f || micBlend.getCurrentValue()>0.f || micB->pending.load()!=nullptr || micB->fadeRemaining>0);
@@ -169,19 +191,55 @@ public:
         micGain.setTargetValue(juce::Decibels::decibelsToGain(gainDb)*(invert ? -1.f : 1.f));
         micBlend.setTargetValue(blend);
         micDelay.setTargetValue(float(sr*.001)*juce::jlimit(0.f,20.f,delayMs));
-        for(int n=0;n<buffer.getNumSamples();++n) {
-            const float gain=micGain.getNextValue(), mix=micBlend.getNextValue(), delay=micDelay.getNextValue();
-            const int size=delayBuffer.getNumSamples();
-            const int whole=int(delay); const float fraction=delay-whole;
-            const int read=(delayWrite-whole+size)%size, previous=(read-1+size)%size;
-            for(int c=0;c<buffer.getNumChannels();++c) {
-                delayBuffer.setSample(c,delayWrite,buffer.getSample(c,n));
-                const float a=gain*((1.f-fraction)*delayBuffer.getSample(c,read)+fraction*delayBuffer.getSample(c,previous));
-                buffer.setSample(c,n,renderB ? (1.f-mix)*a+mix*second.getSample(c,n) : a);
+        const bool directMic=!micGain.isSmoothing() && !micDelay.isSmoothing()
+            && micGain.getCurrentValue()==1.f && micDelay.getCurrentValue()==0.f;
+        if(directMic) {
+            // Keep the circular history current even at zero delay, so later
+            // delay automation starts from real preceding audio rather than
+            // silence. Copy contiguous spans before mixing, rather than doing
+            // an integer modulo and channel switch for every sample. More than
+            // one wrap is possible with large host blocks at low sample rates.
+            const int samples=buffer.getNumSamples(), size=delayBuffer.getNumSamples();
+            for(int offset=0;offset<samples;) {
+                const int count=juce::jmin(samples-offset,size-delayWrite);
+                for(int c=0;c<buffer.getNumChannels();++c) {
+                    juce::FloatVectorOperations::copy(delayBuffer.getWritePointer(c,delayWrite),
+                        buffer.getReadPointer(c,offset),count);
+                }
+                offset+=count;delayWrite+=count;
+                if(delayWrite==size)delayWrite=0;
             }
-            delayWrite=(delayWrite+1)%size;
+            if(micBlend.isSmoothing()) {
+                // Preserve the existing per-sample ramp, including the exact
+                // smoother progression when the second mic is not rendering.
+                for(int n=0;n<samples;++n) {
+                    const float mix=micBlend.getNextValue();
+                    if(renderB)for(int c=0;c<buffer.getNumChannels();++c)
+                        buffer.setSample(c,n,(1.f-mix)*buffer.getSample(c,n)+mix*second.getSample(c,n));
+                }
+            } else if(renderB) {
+                const float mix=micBlend.getCurrentValue();
+                for(int c=0;c<buffer.getNumChannels();++c) {
+                    auto* output=buffer.getWritePointer(c);
+                    juce::FloatVectorOperations::multiply(output,1.f-mix,samples);
+                    juce::FloatVectorOperations::addWithMultiply(output,second.getReadPointer(c),mix,samples);
+                }
+            }
+        } else {
+            for(int n=0;n<buffer.getNumSamples();++n) {
+                const float gain=micGain.getNextValue(), mix=micBlend.getNextValue(), delay=micDelay.getNextValue();
+                const int size=delayBuffer.getNumSamples();
+                const int whole=int(delay); const float fraction=delay-whole;
+                const int read=(delayWrite-whole+size)%size, previous=(read-1+size)%size;
+                for(int c=0;c<buffer.getNumChannels();++c) {
+                    delayBuffer.setSample(c,delayWrite,buffer.getSample(c,n));
+                    const float a=gain*((1.f-fraction)*delayBuffer.getSample(c,read)+fraction*delayBuffer.getSample(c,previous));
+                    buffer.setSample(c,n,renderB ? (1.f-mix)*a+mix*second.getSample(c,n) : a);
+                }
+                delayWrite=(delayWrite+1)%size;
+            }
         }
-        for(int n=0;n<buffer.getNumSamples();++n)
+        if(blendDry)for(int n=0;n<buffer.getNumSamples();++n)
         {
             const float wet=enabled.getNextValue();
             for(int c=0;c<buffer.getNumChannels();++c)
