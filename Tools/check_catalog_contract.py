@@ -4,6 +4,7 @@ from __future__ import annotations
 import json
 import re
 from pathlib import Path
+from check_ir_distribution import validate_source
 
 ROOT = Path(__file__).resolve().parents[1]
 CONTRACT = json.loads((ROOT / "Validation/catalog-count-contract.json").read_text(encoding="utf-8"))
@@ -71,9 +72,8 @@ guitar = read("Source/GuitarSignaturePresets.h")
 names = re.findall(r'\{"raven\.[^"]+","([^"]+)"', guitar)
 assert names == ["A Path To Alsatia", "Feel My Wrath", "Blackhearted", "Dark Matters of Throne"]
 assert "selectablePresetCount=factoryPresetCount+int(guitarSignatures.size())+originalPresetCount+niflheimrPresetCount" in guitar
-import hashlib
-assert hashlib.sha256((ROOT / "Assets/IRs/guitar_v30_sm57.wav").read_bytes()).hexdigest() in guitar
-print("PASS: four append-only full-state Guitar Signatures and exact embedded V30 SHA-256")
+validate_source(ROOT)
+print("PASS: four append-only full-state Guitar Signatures and two approved embedded IR assets with exact SHA-256")
 
 original = read("Source/OriginalPresets.h")
 original_names = re.findall(r'\{"original\.rig\.nastrond\.[^"]+","([^"]+)"', original)
