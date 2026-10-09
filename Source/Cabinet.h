@@ -138,7 +138,12 @@ public:
                     if(serialiseModels)preferSecondSwap=true;
                 }
             }
-        dry.makeCopyOf(buffer,true);
+        // The settled enabled path is the overwhelmingly common case. Avoid
+        // copying and blending a dry buffer that cannot contribute; bypass
+        // automation still takes the unchanged smoothed path below.
+        const bool blendDry=enabled.isSmoothing() || enabled.getCurrentValue()!=1.f
+            || enabled.getTargetValue()!=1.f;
+        if(blendDry)dry.makeCopyOf(buffer,true);
         // Service a muted slot's pending swap so its UI can become ready. Once
         // settled, skip its convolution; clear frozen history before waking it.
         const bool renderB=micB && (blend>0.f || micBlend.getCurrentValue()>0.f || micB->pending.load()!=nullptr || micB->fadeRemaining>0);
@@ -169,19 +174,36 @@ public:
         micGain.setTargetValue(juce::Decibels::decibelsToGain(gainDb)*(invert ? -1.f : 1.f));
         micBlend.setTargetValue(blend);
         micDelay.setTargetValue(float(sr*.001)*juce::jlimit(0.f,20.f,delayMs));
-        for(int n=0;n<buffer.getNumSamples();++n) {
-            const float gain=micGain.getNextValue(), mix=micBlend.getNextValue(), delay=micDelay.getNextValue();
-            const int size=delayBuffer.getNumSamples();
-            const int whole=int(delay); const float fraction=delay-whole;
-            const int read=(delayWrite-whole+size)%size, previous=(read-1+size)%size;
-            for(int c=0;c<buffer.getNumChannels();++c) {
-                delayBuffer.setSample(c,delayWrite,buffer.getSample(c,n));
-                const float a=gain*((1.f-fraction)*delayBuffer.getSample(c,read)+fraction*delayBuffer.getSample(c,previous));
-                buffer.setSample(c,n,renderB ? (1.f-mix)*a+mix*second.getSample(c,n) : a);
+        const bool directMic=!micGain.isSmoothing() && !micDelay.isSmoothing()
+            && micGain.getCurrentValue()==1.f && micDelay.getCurrentValue()==0.f;
+        if(directMic) {
+            // Keep the circular history current even at zero delay, so later
+            // delay automation starts from real preceding audio rather than
+            // silence. Only interpolation/gain work is bypassed.
+            for(int n=0;n<buffer.getNumSamples();++n) {
+                const float mix=micBlend.getNextValue();
+                for(int c=0;c<buffer.getNumChannels();++c) {
+                    const float sample=buffer.getSample(c,n);
+                    delayBuffer.setSample(c,delayWrite,sample);
+                    if(renderB)buffer.setSample(c,n,(1.f-mix)*sample+mix*second.getSample(c,n));
+                }
+                delayWrite=(delayWrite+1)%delayBuffer.getNumSamples();
             }
-            delayWrite=(delayWrite+1)%size;
+        } else {
+            for(int n=0;n<buffer.getNumSamples();++n) {
+                const float gain=micGain.getNextValue(), mix=micBlend.getNextValue(), delay=micDelay.getNextValue();
+                const int size=delayBuffer.getNumSamples();
+                const int whole=int(delay); const float fraction=delay-whole;
+                const int read=(delayWrite-whole+size)%size, previous=(read-1+size)%size;
+                for(int c=0;c<buffer.getNumChannels();++c) {
+                    delayBuffer.setSample(c,delayWrite,buffer.getSample(c,n));
+                    const float a=gain*((1.f-fraction)*delayBuffer.getSample(c,read)+fraction*delayBuffer.getSample(c,previous));
+                    buffer.setSample(c,n,renderB ? (1.f-mix)*a+mix*second.getSample(c,n) : a);
+                }
+                delayWrite=(delayWrite+1)%size;
+            }
         }
-        for(int n=0;n<buffer.getNumSamples();++n)
+        if(blendDry)for(int n=0;n<buffer.getNumSamples();++n)
         {
             const float wet=enabled.getNextValue();
             for(int c=0;c<buffer.getNumChannels();++c)
