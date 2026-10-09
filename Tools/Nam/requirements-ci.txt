@@ -1,0 +1,14 @@
+# Direct trainer/runtime dependencies. Full resolved environment is archived.
+torch==2.8.0
+numpy==2.2.6
+scipy==1.15.3
+soundfile==0.13.1
+librosa==0.11.0
+matplotlib==3.10.3
+pydantic==2.11.7
+pytorch-lightning==2.5.3
+sounddevice==0.5.2
+tensorboard==2.19.0
+transformers==4.53.2
+tqdm==4.67.1
+wavio==0.0.9

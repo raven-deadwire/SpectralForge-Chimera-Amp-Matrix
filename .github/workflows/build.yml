@@ -12,10 +12,10 @@ jobs:
   validation-contract:
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: "3.12"
       - name: Verify catalog and validation producer contracts
@@ -31,7 +31,7 @@ jobs:
           python Tools/seed_validation_reports.py --commit "${{ github.event.pull_request.head.sha || github.sha }}" --profile pull_request --output build/validation
       - name: Upload current-commit release-gate evidence
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: Chimera-A-stage-release-gate
           path: build/validation
@@ -45,10 +45,10 @@ jobs:
         os: [windows-latest, ubuntu-22.04, macos-15]
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: "3.12"
       - name: Resolve source version
@@ -76,6 +76,10 @@ jobs:
             [System.Management.Automation.Language.Parser]::ParseFile((Resolve-Path $script).Path, [ref]$tokens, [ref]$parseErrors) | Out-Null
             if ($parseErrors.Count) { throw (($parseErrors | ForEach-Object Message) -join "`n") }
           }
+      - name: Verify Defender update retry contracts
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: ./Tools/Test-DefenderUpdate.ps1
       - if: runner.os == 'Linux'
         run: sudo apt-get update && sudo apt-get install -y libasound2-dev libjack-jackd2-dev ladspa-sdk libcurl4-openssl-dev libfreetype6-dev libfontconfig1-dev libx11-dev libxcomposite-dev libxcursor-dev libxext-dev libxinerama-dev libxrandr-dev libxrender-dev libwebkit2gtk-4.1-dev libglu1-mesa-dev mesa-common-dev dpkg-dev
       - name: Configure Windows/Linux
@@ -96,7 +100,7 @@ jobs:
           python Tools/produce_ctest_validation.py --commit "$(git rev-parse HEAD)" --platform "$platform" --junit build/ctest-results.xml --inventory build/ctest-inventory.json --output build/validation
       - name: Upload concrete CTest and full-state signature evidence
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: Chimera-integration-validation-${{ runner.os }}
           path: |
@@ -108,7 +112,7 @@ jobs:
 
       - name: Upload DSP verification
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: Chimera-DSP-verification-${{ runner.os }}
           path: build/Testing/Temporary/LastTest.log
@@ -116,7 +120,7 @@ jobs:
 
       - name: Upload Windows UI verification
         if: runner.os == 'Windows' && always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: Chimera-Windows-UI-snapshots
           path: |
@@ -130,7 +134,7 @@ jobs:
 
       - name: Upload Windows head artwork gallery
         if: runner.os == 'Windows' && always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: Chimera-Windows-Head-gallery
           path: build/ui-snapshots/Head-*.png
@@ -138,7 +142,7 @@ jobs:
 
       - name: Upload Windows pedal and rack gallery
         if: runner.os == 'Windows' && always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: Chimera-Windows-Pedal-Rack-gallery
           path: |
@@ -185,7 +189,7 @@ jobs:
 
       - name: Upload Windows installer verification
         if: runner.os == 'Windows' && always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: Chimera-Windows-installer-verification
           path: |
@@ -206,7 +210,7 @@ jobs:
 
       - name: Upload MSIX verification
         if: runner.os == 'Windows' && always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: Chimera-Windows-MSIX-verification
           path: build/msix-verification/MSIXVerification.txt
@@ -220,7 +224,7 @@ jobs:
 
       - name: Upload Windows security report
         if: runner.os == 'Windows' && always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: Chimera-Windows-security-report
           path: build/windows-security/*
@@ -230,7 +234,7 @@ jobs:
       # This is not a Chrome Safe Browsing verdict or a publisher signature.
       - name: Upload Windows test package
         if: runner.os == 'Windows'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: SpectralForge-Chimera-${{ env.CHIMERA_PACKAGE_VERSION }}-win64
           path: |
@@ -241,7 +245,7 @@ jobs:
 
       - name: Upload Windows installer
         if: runner.os == 'Windows'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: SpectralForge-Chimera-${{ env.CHIMERA_PACKAGE_VERSION }}-win64-Setup
           path: |
@@ -254,7 +258,7 @@ jobs:
 
       - name: Upload MSIX review package
         if: runner.os == 'Windows'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: Chimera-Windows-MSIX-review-unsigned
           path: dist/msix/*
@@ -263,7 +267,7 @@ jobs:
 
       - name: Upload macOS installer
         if: runner.os == 'macOS'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: SpectralForge-Chimera-${{ env.CHIMERA_PACKAGE_VERSION }}-macos-universal
           path: |
@@ -275,7 +279,7 @@ jobs:
 
       - name: Upload Linux installers
         if: runner.os == 'Linux'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: SpectralForge-Chimera-${{ env.CHIMERA_PACKAGE_VERSION }}-linux-x86_64
           path: |
@@ -291,16 +295,16 @@ jobs:
     needs: build
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: "3.12"
       - name: Resolve source version
         shell: bash
         run: echo "CHIMERA_PACKAGE_VERSION=$(python Tools/chimera_version.py --field version)" >> "$GITHUB_ENV"
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v7
         with:
           pattern: SpectralForge-Chimera-${{ env.CHIMERA_PACKAGE_VERSION }}-*
           path: candidate
@@ -338,7 +342,7 @@ jobs:
           }, indent=2) + '\n')
           PY
       - name: Upload concrete draft-ready release files
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: SpectralForge-Chimera-${{ env.CHIMERA_PACKAGE_VERSION }}-Release-Candidate
           path: |
