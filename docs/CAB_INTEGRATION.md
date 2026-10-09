@@ -1,5 +1,8 @@
 # Unified CAB panel
 
+Current expansion: see [CAB speaker/microphone v2](CAB_EXPANSION_V2.md).
+The inventory and validation below describe the earlier v1 checkpoint.
+
 Integrates the catalog from PR #30 (`2636fffe0c3c6da7bf7ad99f0a503ddf25ff2e6e`)
 with PR #31's original spatial engine, including its swap-overlap optimization
 (`a5db0bb8c7755ec3d03bf69b9513bc611bc0f0e8`). Both retain PR #29's schema-11

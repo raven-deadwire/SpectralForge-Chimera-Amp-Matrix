@@ -1,5 +1,8 @@
 # CAB microphone catalog
 
+Current expansion: see [CAB speaker/microphone v2](CAB_EXPANSION_V2.md).
+The inventory and validation below describe the earlier v1 checkpoint.
+
 The approved initial CAB microphone roster is **20 identities: 9 moving-coil
 dynamics, 3 ribbons and 8 condensers**. Nineteen entries identify external
 microphone references; **Chimera Strike** is the one Chimera-original microphone

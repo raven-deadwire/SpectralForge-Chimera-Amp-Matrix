@@ -193,7 +193,7 @@ private:
                 slot.microphone.setText(text,juce::dontSendNotification);
                 slot.microphone.setTooltip(source==0 ? "Speaker IR bypassed; cabinet filters remain available." : metadata.details(captureName));
                 slot.reference.setText(source==0 || captureName.isEmpty() ? juce::String{} : metadata.microphoneReference(captureName)
-                    +(model && model->original ? " / Response not implemented" : ""),juce::dontSendNotification);
+                    +(model && model->original ? " / Original model in CABINET" : ""),juce::dontSendNotification);
                 slot.reference.setTooltip(source==0 || captureName.isEmpty() ? juce::String{} : metadata.details(captureName));
             }
         }
@@ -341,14 +341,14 @@ public:
                 auto& s=slots[size_t(i)];const int x=i ? getWidth()-side : 20,width=side-20,knob=(width-8)/2;
                 s.title.setBounds(x,59,width,24);
                 for(int k=0;k<2;++k) {
-                    s.sliders[size_t(k)].setBounds(x-1+k*(knob+8),350,knob,91);
-                    s.labels[size_t(k)].setBounds(x-1+k*(knob+8),442,knob,19);
+                    s.sliders[size_t(k)].setBounds(x-1+k*(knob+8),390,knob,91);
+                    s.labels[size_t(k)].setBounds(x-1+k*(knob+8),482,knob,19);
                 }
                 for(int k=2;k<4;++k) {
-                    s.labels[size_t(k)].setBounds(x,475+(k-2)*50,width,19);
-                    s.sliders[size_t(k)].setBounds(x,495+(k-2)*50,width,26);
+                    s.labels[size_t(k)].setBounds(x,505+(k-2)*50,width,19);
+                    s.sliders[size_t(k)].setBounds(x,525+(k-2)*50,width,26);
                 }
-                s.invert.setBounds(x,582,width,27);s.status.setBounds(x,615,width,49);
+                s.invert.setBounds(x,607,width,27);s.status.setBounds(x,642,width,42);
             }
         }
         blendLabel.setBounds(20,getHeight()-42,215,28);blend.setBounds(235,getHeight()-42,getWidth()-255,28);

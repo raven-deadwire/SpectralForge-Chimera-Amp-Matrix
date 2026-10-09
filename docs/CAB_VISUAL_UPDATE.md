@@ -1,5 +1,8 @@
 # Ravenforge cabinet room update preview
 
+Current expansion: see [CAB speaker/microphone v2](CAB_EXPANSION_V2.md).
+The inventory and validation below describe the earlier v1 checkpoint.
+
 This preview separates the original cabinet editor from the captured IR loader and adds a shared Ravenforge room for Dual and Matrix rigs. The source combines the captured microphone catalog and original spatial CAB work from PRs #29–31 through the locally reviewed integration checkpoint `e74e286828730737efde3eaa75a50dafdb13bfb7`.
 
 ## User-visible behavior

@@ -16,13 +16,13 @@ struct Model {
 
 // Capture identity and an implemented response are separate capabilities.
 // None of these twenty identities maps to the three original acoustic roles.
-enum class ResponseSupport { capturedIROnly, originalResponsePending };
+enum class ResponseSupport { capturedIROnly, originalResponseAvailable };
 inline constexpr ResponseSupport responseSupport(const Model& model) {
-    return model.original ? ResponseSupport::originalResponsePending : ResponseSupport::capturedIROnly;
+    return model.original ? ResponseSupport::originalResponseAvailable : ResponseSupport::capturedIROnly;
 }
 inline const char* responseLabel(const Model& model) {
-    return responseSupport(model)==ResponseSupport::originalResponsePending
-        ? "Original response not implemented; imported IR audio only."
+    return responseSupport(model)==ResponseSupport::originalResponseAvailable
+        ? "Captured IR audio here; Chimera Strike's independent original response is available in CABINET."
         : "Captured IR only; no independent microphone model.";
 }
 

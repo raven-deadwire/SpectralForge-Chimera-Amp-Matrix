@@ -66,7 +66,7 @@ inline void run(const juce::File& folder,const juce::File& screenshots) {
     const std::array<Frozen,13> frozen{{{"design",0,1,1,0},{"rear",0,1,1,0},{"tweeter",0,1,.01f,0},
         {"Aon",0,1,1,0},{"Amic",0,2,1,0},{"Aunit",0,3,1,0},{"Aposition",0,1,.001f,.25f},{"Adistance",2,60,.1f,10},
         {"Bon",0,1,1,0},{"Bmic",0,2,1,0},{"Bunit",0,3,1,0},{"Bposition",0,1,.001f,.25f},{"Bdistance",2,60,.1f,10}}};
-    require(processor->getParameters().size()==4824,"Integrated host parameter count changed");
+    require(processor->getParameters().size()==4824+spectralforge::cabExpansionParameterCount,"Integrated host parameter count changed");
     for(int lane=0;lane<3;++lane)for(size_t n=0;n<frozen.size();++n) {
         const auto& expected=frozen[n];auto* parameter=state.getParameter(spectralforge::originalCabID(lane,expected.suffix));
         require(parameter && parameter->getParameterIndex()==4785+lane*13+int(n) && parameter->getVersionHint()==7
@@ -135,7 +135,7 @@ inline void run(const juce::File& folder,const juce::File& screenshots) {
     require(dispatchUntil([&]{return component<juce::Label>(panel,"cabAtitle1").getText().contains("ORIGINAL MODEL");}),"Host model change not displayed");
     require(component<juce::ComboBox>(panel,"cabAmic1").getText().contains("Chimera Strike")
         && component<juce::Label>(panel,"cabAprovenance1").getText().contains("Stored capture"),"Stored Strike capture presented as the active model");
-    require(component<juce::ComboBox>(panel,"cabAmic1").getTooltip().contains("not implemented"),"Strike capture tooltip claims response model");
+    require(component<juce::ComboBox>(panel,"cabAmic1").getTooltip().contains("independent original response"),"Strike capture tooltip must distinguish its separate original response");
     // Host automation must update the real controls without a user gesture.
     automate("ocab1_Amic",0);automate("ocab1_Adistance",51.2f);
     require(dispatchUntil([&]{return component<juce::ComboBox>(*controls,"ocab1_Amic").getSelectedId()==1
@@ -160,7 +160,7 @@ inline void run(const juce::File& folder,const juce::File& screenshots) {
     microphone.setSelectedId(itemContaining(microphone,"Chimera Strike"),juce::sendNotificationSync);
     require(raw("ocab1_Aon")==0 && raw("ocab1_Bon")==1 && raw("cabtype1")==3,"Personal capture selection lost mixed-mode independence");
     require(component<juce::Label>(panel,"cabAtitle1").getText().contains("CAPTURED IR"),"Captured source not visibly identified");
-    require(component<juce::Label>(panel,"cabAreference1").getText().contains("Response not implemented"),"Strike response status must be visible without a tooltip");
+    require(component<juce::Label>(panel,"cabAreference1").getText().contains("Original model in CABINET"),"Strike response status must be visible without a tooltip");
     require(component<Image>(panel,"cabAmicImage1").asset()==Asset::strike,"Chimera Strike capture artwork was not independently selected");
     require(component<juce::Slider>(panel,"cabBhigh1").getTextFromValue(9000)=="9000", "Frequency readout must fit its text box");
     automate("cabblend1",.5f);processor->prepareToPlay(48000,128);

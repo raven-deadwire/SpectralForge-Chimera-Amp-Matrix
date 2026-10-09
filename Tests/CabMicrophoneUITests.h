@@ -245,8 +245,8 @@ inline void groupedSelectionAndFilter(const juce::File& folder,const juce::File&
                 "Uncaptured Chimera Strike exposed a ghost or stale load selection");
         require(reference.getText()=="Chimera original / Condenser",
                 "Chimera Strike lost its original condenser identity");
-        require(component<juce::Label>(browser,"irmicrophonesupport").getText().contains("not implemented"),
-                "Strike filter must disclose the missing independent response");
+        require(component<juce::Label>(browser,"irmicrophonesupport").getText().contains("independent original response"),
+                "Strike filter must distinguish captured IR from the separately selectable original response");
         require(component<juce::Label>(browser,"irstatus").getText().containsIgnoreCase("import"),
                 "Empty model filter did not explain capture import");
         load.onClick();require(committed==2,"Empty microphone filter loaded the previous capture");
