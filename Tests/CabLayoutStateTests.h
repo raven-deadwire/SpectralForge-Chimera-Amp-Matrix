@@ -42,13 +42,13 @@ void layoutStateContracts(const juce::File& screenshots) {
         }
     }
     // A changed LOW array has no contribution at the actual DI endpoint.
-    set(*p,"mode",2);set(*p,"lowampmix",0);const auto di=render(*p);set(*p,"lcab1_layout",1);equal(di,render(*p));
+    set(*p,"ampon1",1);set(*p,"mode",2);set(*p,"lowampmix",0);const auto di=render(*p);set(*p,"lcab1_layout",1);equal(di,render(*p));
     set(*p,"lowampmix",1);const auto wet=render(*p);set(*p,"lcab1_layout",7);check(delta(wet,render(*p))>1e-5,"LOW amp+cab branch ignores layout");
     for(float mix:{0.f,.5f,1.f}) {
         set(*p,"lowampmix",mix);juce::MemoryBlock data;check(p->tryGetStateInformation(data),"LOW save");auto recall=std::make_unique<ChimeraProcessor>();
         recall->setStateInformation(data.getData(),int(data.getSize()));equal(render(*p),render(*recall));
     }
-    set(*p,"mode",0);set(*p,"lowampmix",1);const int other=1-p->comparisonSlot();p->copyComparison();const auto before=render(*p);
+    set(*p,"ampon1",0);set(*p,"mode",0);set(*p,"lowampmix",1);const int other=1-p->comparisonSlot();p->copyComparison();const auto before=render(*p);
     set(*p,"lcab1_layout",1);set(*p,"lcab1_Aunit",0);p->selectComparison(other);equal(before,render(*p));
     // Captured A / modeled B survives source deletion, project and comparison recall.
     const auto file=juce::File::getSpecialLocation(juce::File::tempDirectory).getNonexistentChildFile("layout-ir-fixture",".wav",false);
@@ -89,6 +89,18 @@ void layoutStateContracts(const juce::File& screenshots) {
         set(*p,"ocab1_Aposition",.3f);set(*p,"ocab1_Adistance",10);set(*p,"lcab1_Aunit",0);set(*p,"lcab1_Bunit",float(model.count-1));scene.refresh();
         cabIntegratedUITests::layout(panel);cabMicrophoneUITests::snapshot(panel,screenshots,("cab-visual-layout-"+juce::String(selected)+".png").toRawUTF8());
     }
+    set(*p,"mode",2);CabRoomOverview room(*p);room.setBounds(0,0,1000,600);
+    for(int selected=1;selected<=9;++selected) {
+        for(int lane=0;lane<3;++lane) {set(*p,cabLayoutID(lane,"layout"),float(selected));set(*p,cabExpansionID(lane,"driver"),float(driver[size_t(selected-1)]));}
+        room.refreshState();scene.refresh();
+        for(int lane=0;lane<3;++lane) {
+            const auto g=room.displayedGeometry(lane),focused=scene.arrayGeometry();
+            check(g.count==focused.count && g.box.volume==focused.box.volume && g.radius==focused.radius,"room enclosure differs from focused view");
+            for(int unit=0;unit<g.count;++unit)check(g.centres[size_t(unit)].x==focused.centres[size_t(unit)].x && g.centres[size_t(unit)].y==focused.centres[size_t(unit)].y,"room coordinates differ from DSP");
+        }
+    }
+    set(*p,"lcab1_layout",7);set(*p,"xcab1_driver",9);set(*p,"lcab2_layout",2);set(*p,"xcab2_driver",1);set(*p,"lcab3_layout",4);set(*p,"xcab3_driver",13);
+    room.refreshState();cabMicrophoneUITests::snapshot(room,screenshots,"cab-visual-layout-matrix-room.png");set(*p,"mode",0);
     // Saved out-of-range target is clamped at use time; automation is not rewritten.
     set(*p,"lcab1_layout",1);set(*p,"lcab1_Aunit",7);scene.refresh();check(scene.micGeometry(0).unit==0 && raw("lcab1_Aunit")==7,"small-array fallback rewrites automation");
     set(*p,"lcab1_layout",7);scene.refresh();check(scene.micGeometry(0).unit==7,"large-array selection lost");

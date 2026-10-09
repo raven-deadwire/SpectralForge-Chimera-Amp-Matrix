@@ -2,6 +2,7 @@
 #include "PluginProcessor.h"
 #include "CabArtwork.h"
 #include "CabHeadView.h"
+#include "CabLayoutView.h"
 #include <limits>
 
 // A view of the existing original-cabinet geometry. Moving a microphone writes
@@ -355,7 +356,7 @@ public:
         return spectralforge::cabLayout::geometry({{base,expanded("driver"),0,0},layoutModel,0});
     }
     juce::Rectangle<float> baffleBounds() const {
-        return arrayBounds.withTrimmedTop(arrayBounds.getWidth()*.07f);
+        return spectralforge::cabLayoutView::baffle(arrayBounds);
     }
     juce::Rectangle<float> cabinetBounds() const {
         if(layoutModel>0)return arrayBounds;
@@ -363,8 +364,8 @@ public:
     }
     juce::Point<float> speakerCentre(int unit) const {
         if(layoutModel>0) {
-            const auto model=arrayGeometry();const auto face=baffleBounds();const auto c=model.centres[size_t(juce::jlimit(0,model.count-1,unit))];
-            return {face.getCentreX()+float(c.x/model.box.width)*face.getWidth(),face.getCentreY()-float(c.y/model.box.height)*face.getHeight()};
+            const auto model=arrayGeometry();const auto c=model.centres[size_t(juce::jlimit(0,model.count-1,unit))];
+            return spectralforge::cabLayoutView::point(model,arrayBounds,c);
         }
         const auto cab=cabinetBounds();const int u=juce::jlimit(0,3,unit);
         // Artwork anchors are measured within the alpha-trimmed cabinet. Their
@@ -376,7 +377,7 @@ public:
         return {cab.getX()+cab.getWidth()*x,cab.getY()+cab.getHeight()*y};
     }
     float speakerRadius() const {
-        if(layoutModel>0) {const auto g=arrayGeometry();return float(g.radius/g.box.width)*baffleBounds().getWidth();}
+        if(layoutModel>0)return spectralforge::cabLayoutView::radius(arrayGeometry(),arrayBounds);
         return cabinetBounds().getWidth()*(design ? .1686f : .1861f);
     }
     juce::Point<float> coneTarget(int slot) const {
@@ -449,18 +450,6 @@ public:
         g.setColour(juce::Colours::black.withAlpha(.45f));
         g.fillEllipse(cab.getX()-32.f,h-18.f,cab.getWidth()+64.f,25.f);
         g.setColour(juce::Colour(0xff5a5c57).withAlpha(.15f));g.drawLine(6.f,h-5.f,w-6.f,h-5.f,1.f);
-        if(layoutModel>0) {
-            const auto face=baffleBounds();const float inset=cab.getWidth()*.025f;
-            juce::Path roof;roof.startNewSubPath(cab.getX()+inset,cab.getY());roof.lineTo(cab.getRight()-inset,cab.getY());
-            roof.lineTo(face.getRight(),face.getY());roof.lineTo(face.getX(),face.getY());roof.closeSubPath();
-            g.setColour(juce::Colour(0xff3b3c38));g.fillPath(roof);
-            g.setColour(juce::Colour(0xff0b0d0e));g.fillRoundedRectangle(face,5.f);
-            const auto grille=face.reduced(inset);g.setColour(juce::Colour(0xff252927));g.fillRect(grille);
-            g.setColour(juce::Colour(0xff353a36));
-            for(float y=grille.getY();y<grille.getBottom();y+=4.f)g.drawHorizontalLine(int(y),grille.getX(),grille.getRight());
-            g.setColour(juce::Colour(0xff66665a));g.drawRoundedRectangle(face.reduced(1.f),4.f,1.5f);
-            g.setFont(juce::FontOptions(9.f,juce::Font::bold));g.setColour(juce::Colour(0xffc1b68d));
-            g.drawText("CHIMERA",face.withTrimmedTop(face.getHeight()-16).toNearestInt(),juce::Justification::centred);
-        }
+        if(layoutModel>0)spectralforge::cabLayoutView::enclosure(g,cab);
     }
 };

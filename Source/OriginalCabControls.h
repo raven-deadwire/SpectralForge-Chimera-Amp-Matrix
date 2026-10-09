@@ -45,6 +45,8 @@ class OriginalCabControls : public juce::Component,private juce::Timer {
                 s.responseLabel.setText("Original response v1",juce::dontSendNotification);
             }
         }
+        design.changeItemText(1,selectedLayout ? "Legacy guitar driver" : "Chimera Guitar 4x12");
+        design.changeItemText(2,selectedLayout ? "Legacy bass driver" : "Chimera Bass 4x10");
         layout.setEnabled(any);design.setEnabled(any && driver.getSelectedId()==1);driver.setEnabled(any);tweeterDesign.setEnabled(any);rear.setEnabled(any);tweeter.setEnabled(any);
         const int selectedDriver=driver.getSelectedId()-2;
         speakerLabel.setText(selectedDriver>=0 && selectedDriver<int(spectralforge::cabExpansion::drivers.size())

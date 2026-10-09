@@ -2,6 +2,7 @@
 #include "CabPanel.h"
 #include "CabArtwork.h"
 #include "CabHeadView.h"
+#include "CabLayoutView.h"
 #include "HardwareArtwork.h"
 #include <functional>
 
@@ -139,7 +140,8 @@ class CabRoomOverview : public juce::Component, private juce::Timer {
     juce::SharedResourcePointer<spectralforge::cabArt::Bank> cabinets;
     spectralforge::cabRoom::LowBlendControl lowBlend;
     struct RigState {
-        int amp{-1},design{-1};
+        int amp{-1},design{-1},driver{},layout{};
+        spectralforge::cabLayout::Geometry geometry{};
         std::array<int,2> original{{-1,-1}},source{{-1,-1}};
         std::array<std::array<uint64_t,4>,2> revision{};
         std::array<spectralforge::IRMetadata,2> capture;
@@ -168,13 +170,18 @@ class CabRoomOverview : public juce::Component, private juce::Timer {
         const float floor=area.getHeight()-57.f;
         const float side=juce::jmin(area.getWidth()*.86f,(floor-12.f)/1.20f);
         const float centre=area.getCentreX();
-        const juce::Rectangle<float> cabinetBounds(centre-side*.5f,floor-side*(rig.design==1 ? .9410f : .9593f),side,side);
+        juce::Rectangle<float> cabinetBounds(centre-side*.5f,floor-side*(rig.design==1 ? .9410f : .9593f),side,side);
         const bool original=rig.original[0]>0 || rig.original[1]>0;
         const auto asset=spectralforge::cabArt::cabinet(rig.design);
         const auto assetIndex=static_cast<size_t>(asset);
         const auto& cabinetImage=cabinets->images[assetIndex];
         auto visibleCabinet=cabinetBounds.reduced(side*.083f,side*.092f);
-        if(original && cabinetImage.isValid()) {
+        if(original && rig.layout>0) {
+            const auto box=rig.geometry.box;
+            const float scale=juce::jmin(area.getWidth()*.78f/float(box.width),(floor-12.f)/float(box.height+box.width*.44));
+            const float width=float(box.width)*scale,height=float(box.height+box.width*.07)*scale;
+            visibleCabinet={centre-width*.5f,floor-height,width,height};cabinetBounds=visibleCabinet;
+        } else if(original && cabinetImage.isValid()) {
             const float scale=juce::jmin(cabinetBounds.getWidth()/float(cabinetImage.getWidth()),
                 cabinetBounds.getHeight()/float(cabinetImage.getHeight()));
             const auto imageOrigin=cabinetBounds.getCentre()-juce::Point<float>(float(cabinetImage.getWidth()),float(cabinetImage.getHeight()))*(scale*.5f);
@@ -193,7 +200,10 @@ class CabRoomOverview : public juce::Component, private juce::Timer {
         const float ampOpacity=low ? spectralforge::cabRoom::contributionOpacity(rig.ampContribution) : (rig.ampEnabled ? 1.f : .57f);
         g.beginTransparencyLayer(cabOpacity*(rig.muted ? .57f : 1.f));
         g.setColour(juce::Colours::white);
-        if(original) {
+        if(original && rig.layout>0) {
+            spectralforge::cabLayoutView::enclosure(g,visibleCabinet);
+            spectralforge::cabLayoutView::speakers(g,rig.geometry,visibleCabinet,rig.design!=0,*cabinets);
+        } else if(original) {
             if(cabinetImage.isValid())g.drawImage(cabinetImage,cabinetBounds,juce::RectanglePlacement::centred);
             else spectralforge::cabArt::neutral(g,cabinetBounds,"CABINET");
         } else {
@@ -233,6 +243,7 @@ public:
     }
     ~CabRoomOverview() override {stopTimer();}
     int activeRigCount() const {return spectralforge::cabRoom::rigCount(processor);}
+    spectralforge::cabLayout::Geometry displayedGeometry(int lane) const {return state[size_t(juce::jlimit(0,2,lane))].geometry;}
     juce::Rectangle<int> getRigBounds(int lane) const {
         return lane>=0 && lane<activeRigCount() ? rigs[static_cast<size_t>(lane)]->getBounds() : juce::Rectangle<int>{};
     }
@@ -252,7 +263,11 @@ public:
             component.setVisible(i<activeRigCount());
             if(i>=activeRigCount())continue;
             const auto n=juce::String(i+1);
-            const int amp=processor.selectedAmpModel(i),design=juce::roundToInt(read(spectralforge::originalCabID(i,"design")));
+            const int amp=processor.selectedAmpModel(i),legacyDesign=juce::roundToInt(read(spectralforge::originalCabID(i,"design")));
+            const int driver=juce::roundToInt(read(spectralforge::cabExpansionID(i,"driver"))),layout=juce::roundToInt(read(spectralforge::cabLayoutID(i,"layout")));
+            const int design=driver>0 ? int(spectralforge::cabExpansion::drivers[size_t(driver-1)].bass) : legacyDesign;
+            spectralforge::originalCab::Settings base{};base.cabinet=legacyDesign;
+            const spectralforge::cabLayout::Settings model{{base,driver,0,0},layout,0};
             const bool cabEnabled=read("cab"+n)>.5f,ampEnabled=read("ampon"+n)>.5f;
             const bool muted=read("mute"+n)>.5f,solo=read("solo"+n)>.5f;
             const bool low=currentMode==2 && i==0;
@@ -260,9 +275,10 @@ public:
             const float requested=low ? blend.requested : 1.f;
             const float ampContribution=low ? blend.effective : (ampEnabled ? 1.f : 0.f);
             const float cabContribution=low ? blend.cabContribution() : (cabEnabled ? 1.f : 0.f);
-            bool changed=rig.amp!=amp || rig.design!=design || rig.cabEnabled!=cabEnabled || rig.ampEnabled!=ampEnabled
+            bool changed=rig.layout!=layout || rig.driver!=driver || rig.amp!=amp || rig.design!=design || rig.cabEnabled!=cabEnabled || rig.ampEnabled!=ampEnabled
                 || rig.muted!=muted || rig.solo!=solo || rig.lowAmpMix!=requested
                 || rig.ampContribution!=ampContribution || rig.cabContribution!=cabContribution;
+            rig.layout=layout;rig.driver=driver;rig.geometry=spectralforge::cabLayout::geometry(model);
             rig.amp=amp;rig.design=design;rig.cabEnabled=cabEnabled;rig.ampEnabled=ampEnabled;rig.muted=muted;rig.solo=solo;
             rig.lowAmpMix=requested;rig.ampContribution=ampContribution;rig.cabContribution=cabContribution;
             for(int slot=0;slot<2;++slot) {
@@ -277,7 +293,7 @@ public:
             }
             const auto name=spectralforge::cabRoom::rigName(currentMode,i)+(solo ? " / SOLO" : "");
             const juce::String sourceCaption=!cabEnabled ? "CABINET BYPASSED" :
-                rig.original[0] && rig.original[1] ? (design==1 ? "ORIGINAL BASS 4x10" : "ORIGINAL GUITAR 4x12") :
+                rig.original[0] && rig.original[1] ? juce::String(design==1 ? "ORIGINAL BASS " : "ORIGINAL GUITAR ")+juce::String(rig.geometry.count)+"x"+juce::String(spectralforge::cabExpansion::diameter(model.voice)) :
                 rig.original[0] || rig.original[1] ?
                     (rig.source[rig.original[0] ? 1 : 0] ? "ORIGINAL + CAPTURE / A-B" : "ORIGINAL + FILTERS / A-B") :
                 rig.source[0] && rig.source[1] ? "CAPTURED IR / A-B" :
@@ -290,6 +306,8 @@ public:
                 +(low ? " LOW cabinet controls stay editable at every blend setting; they affect the AMP + CAB share." : ""));
             component.getProperties().set("cabRoomAmpModel",amp);
             component.getProperties().set("cabRoomDesign",design);
+            component.getProperties().set("cabRoomLayout",layout);
+            component.getProperties().set("cabRoomUnits",rig.geometry.count);
             component.getProperties().set("cabRoomSource",caption);
             component.getProperties().set("cabRoomLowAmpMix",requested);
             component.getProperties().set("cabRoomEffectiveAmpMix",ampContribution);
