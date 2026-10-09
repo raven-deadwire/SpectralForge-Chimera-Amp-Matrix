@@ -8,6 +8,8 @@ import unittest
 
 from ci_pipeline import NAMES, THRESHOLDS, numeric_pass, seal, verify_dataset, verify_training
 from ci_sources import LOCK, check_checkout, sha256
+# Include recipe regression contracts in the existing CI failure-gate entry point.
+from test_recipe_selection import RecipeTests
 
 
 class EvidenceTests(unittest.TestCase):

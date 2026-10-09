@@ -4,6 +4,7 @@ import argparse
 import json
 import math
 import os
+import shutil
 from pathlib import Path
 import subprocess
 import sys
@@ -31,6 +32,50 @@ def numeric_pass(row):
                and abs(row[key]) <= limit for key, limit in THRESHOLDS.items())
 
 
+def training_plan(profile, steps):
+    if profile == 'smoke':
+        return [('run', 'legacy', 2, None)]
+    if profile != 'full' or not 1 <= steps <= 50000:
+        raise ValueError('Invalid full training request')
+    # Common physical initialization; both arms reset the optimizer and RNG.
+    return [('initialization', 'legacy', 2, None),
+            ('recipes/legacy', 'legacy', steps, 'initialization'),
+            ('recipes/official-a2', 'official-a2', steps, 'initialization')]
+
+
+def accuracy_diagnostics(out):
+    from quality_profile import PROFILE
+    checks = {
+        'active_median': ('active_window_esr_median_max', False, False),
+        'active_p95': ('active_window_esr_p95_max', False, False),
+        'active_worst': ('active_window_esr_worst_max', False, False),
+        'full_esr': ('full_esr_max_exclusive', False, True),
+        'quiet_worst_residual_rms_dbfs': ('quiet_residual_rms_max_dbfs', False, False),
+        'quiet_worst_residual_peak_dbfs': ('quiet_residual_peak_max_dbfs', False, False),
+        'rms_error_db': ('rms_error_max_db', True, False),
+        'peak_error_db': ('peak_error_max_db', True, False),
+    }
+    report = {'quality_profile': PROFILE, 'release_approved': False, 'splits': {}}
+    for split, file in [('validation', 'validation.json'), ('heldout', 'comparison.json')]:
+        rows = json.loads((out / 'package/Validation' / file).read_text())['channels']
+        report['splits'][split] = {}
+        for name in NAMES:
+            quality = rows[name]['tone3000_fidelity']
+            failed = []
+            for metric, (policy, absolute, exclusive) in checks.items():
+                value = quality[metric]
+                comparable = abs(value) if absolute and value is not None else value
+                valid = type(comparable) in (int, float) and math.isfinite(comparable)
+                passed = valid and (comparable < PROFILE[policy] if exclusive else comparable <= PROFILE[policy])
+                if not passed:
+                    failed.append({'metric': metric, 'observed': value, 'limit': PROFILE[policy],
+                                   'absolute': absolute, 'exclusive': exclusive})
+            report['splits'][split][name] = {'fidelity_pass': quality['fidelity_pass'], 'failed_conditions': failed}
+            print(json.dumps({'split': split, 'channel': name, 'failed_conditions': failed}), flush=True)
+    write(out / 'accuracy-diagnostics.json', report)
+    return report
+
+
 def verify_dataset(data):
     manifest = json.loads((data / 'manifest.json').read_text())
     require(manifest['source']['source_commit'] == LOCK['capture'], 'Capture source mismatch')
@@ -48,8 +93,8 @@ def verify_dataset(data):
     return manifest
 
 
-def verify_training(out, manifest):
-    run = out / 'run'
+def verify_training(out, manifest, run=None, expected_steps=None):
+    run = out / 'run' if run is None else run
     config = json.loads((run / 'training-config.json').read_text())
     require(config['dataset_sha256'] == sha256(out / 'data/manifest.json'), 'Training dataset identity mismatch')
     require(config['source'] == manifest['source'], 'Training capture source mismatch')
@@ -57,6 +102,15 @@ def verify_training(out, manifest):
             config['target_player_commit'] == LOCK['player']['commit'], 'Training dependency mismatch')
     require((run / 'checkpoint.pt').is_file(), 'Missing training checkpoint')
     validation = json.loads((run / 'validation.json').read_text())
+    if expected_steps is not None:
+        import torch
+        checkpoint = torch.load(run / 'checkpoint.pt', map_location='cpu', weights_only=False)
+        require(checkpoint['step'] == validation['checkpoint_step'] == expected_steps, 'Training budget mismatch')
+        require(checkpoint['identity'] == validation['identity'] == config['identity'], 'Checkpoint identity mismatch')
+        require(checkpoint['recipe'] == validation['recipe'] == config['recipe'], 'Checkpoint recipe mismatch')
+        require(config['quality_profile'] == validation['quality_profile'], 'Training quality profile mismatch')
+        require(checkpoint['best_steps'] == [validation['channels'][n]['selected_step'] for n in NAMES],
+                'Checkpoint selection mismatch')
     require(set(validation['channels']) == set(NAMES), 'Missing training channel')
     for name in NAMES:
         row = validation['channels'][name]
@@ -221,15 +275,30 @@ def main():
         manifest = verify_dataset(out / 'data')
         require(manifest['source']['source_hashes'] == current['capture_headers'], 'Capture header hash mismatch')
         require(manifest['source']['renderer_sha256'] == sha256(a.renderer), 'Renderer hash mismatch')
-        command(out, 'train', [sys.executable, script / 'train_a2.py', '--data', out / 'data', '--out', out / 'run',
-            '--trainer', a.deps / 'trainer', '--steps', '2' if a.profile == 'smoke' else str(a.steps),
-            '--threads', '2', '--batch', '1' if a.profile == 'smoke' else '2', '--frames', '256' if a.profile == 'smoke' else '2048',
-            '--validation-selection', 'full'])
+        for folder, recipe, steps, warm_start in training_plan(a.profile, a.steps):
+            argv = [sys.executable, script / 'train_a2.py', '--data', out / 'data', '--out', out / folder,
+                '--trainer', a.deps / 'trainer', '--steps', str(steps), '--recipe', recipe,
+                '--threads', '2', '--batch', '1' if a.profile == 'smoke' else '2',
+                '--frames', '256' if a.profile == 'smoke' else '2048', '--validation-selection', 'full']
+            if warm_start:
+                argv += ['--warm-start', out / warm_start]
+            command(out, 'train-' + folder.replace('/', '-'), argv)
+        if a.profile == 'full':
+            from recipe_selection import select_recipe
+            for recipe in ('legacy', 'official-a2'):
+                verify_training(out, manifest, out / 'recipes' / recipe, a.steps)
+            arms = {r: {'config': json.loads((out / 'recipes' / r / 'training-config.json').read_text()),
+                        'validation': json.loads((out / 'recipes' / r / 'validation.json').read_text())}
+                    for r in ('legacy', 'official-a2')}
+            selection = select_recipe(arms)
+            write(out / 'recipe-selection.json', selection)
+            shutil.copytree(out / 'recipes' / selection['selected_recipe'], out / 'run')
         verify_dataset(out / 'data')
         verify_training(out, manifest)
         command(out, 'package', [sys.executable, script / 'package_a2.py', '--data', out / 'data', '--run', out / 'run',
             '--out', out / 'package', '--tool', a.tool])
         result = compare_package(out, a.tool)
+        accuracy_diagnostics(out)
         require((out / 'package/Training/checkpoint.pt').is_file(), 'Packaged checkpoint missing')
         require(verify(a.deps, a.expected_source) == current, 'Source changed during pipeline')
         verify_dataset(out / 'data')
