@@ -134,6 +134,17 @@ inline void roomCameraContracts(const juce::File& screenshots) {
     const float inactiveSix=room.displayedScale(0);
     set(*p,"lcab3_layout",1);room.refreshState();
     check(room.displayedScale(0)==inactiveSix,"inactive Matrix HIGH cabinet reframes a Dual room");
+    // Reproduce the reported room: one guitar driver beside a single six-driver
+    // bass enclosure. Keep this rendered artifact in the native CAB evidence;
+    // generic capture thumbnails cannot verify modeled enclosure composition.
+    room.setSize(1040,780);
+    set(*p,"lcab1_layout",1);set(*p,"xcab1_driver",1);
+    set(*p,"lcab2_layout",7);set(*p,"xcab2_driver",10);
+    for(int lane=0;lane<2;++lane)p->setAmpModel(lane,0);
+    room.refreshState();
+    check(room.displayedGeometry(0).count==1 && room.displayedGeometry(1).count==6,
+        "reported Dual 1x12/6x10 fixture uses the wrong modeled speaker counts");
+    snapshot(room,screenshots,"cab-visual-room-dual-112-610-1040x780.png");
     std::cout<<"PASS room camera: active-only common scale, 6x10/4x12/4x10 physical proportions, normal/constrained/75% visuals, "
         <<"unused microphone space removed, inactive-rig isolation and stable microphone automation\n";
 }
