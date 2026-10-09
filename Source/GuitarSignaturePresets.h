@@ -1,5 +1,6 @@
 #pragma once
 #include "FactoryPresetLevels.h"
+#include "FactoryCabVoicing.h"
 #include "OriginalPresets.h"
 #include "NiflheimrPresets.h"
 #include "FactoryPresets.h"
@@ -33,7 +34,7 @@ inline const char* selectablePresetDescription(int index) {
 
 // Complete APVTS sound snapshot, including inactive model banks. No previous
 // native controls, pedal bypasses, POST values or performance settings leak in.
-// External files/MIDI/A-B are session resources; IR metadata selects built-in V30.
+// External files/MIDI/A-B remain session resources. Factory CAB uses the model.
 inline juce::ValueTree guitarSignatureSnapshot(juce::AudioProcessorValueTreeState& state,int song) {
     if(song<0 || song>=int(guitarSignatures.size()))return {};
     auto snapshot=state.copyState();
@@ -116,10 +117,11 @@ inline juce::ValueTree guitarSignatureSnapshot(juce::AudioProcessorValueTreeStat
     }
     auto metadata=juce::ValueTree("GUITAR_SIGNATURE");
     metadata.setProperty("id",guitarSignatures[size_t(song)].id,nullptr);metadata.setProperty("name",guitarSignatures[size_t(song)].name,nullptr);
-    metadata.setProperty("formatVersion",1,nullptr);metadata.setProperty("acceptance","CANDIDATE_SYNTHETIC_ONLY",nullptr);
-    metadata.setProperty("ir","embedded:guitar_v30_sm57.wav",nullptr);
-    metadata.setProperty("irSha256","ef8d258eee57b2f0fa1e678b4bdf9c8f535f03039172b0831dcc87b0e7d99bd2",nullptr);
+    metadata.setProperty("formatVersion",2,nullptr);metadata.setProperty("acceptance","CANDIDATE_SYNTHETIC_ONLY",nullptr);
+    metadata.setProperty("cabinetPolicy",factoryCabPolicy,nullptr);
     snapshot.removeChild(snapshot.getChildWithName("GUITAR_SIGNATURE"),nullptr);snapshot.appendChild(metadata,nullptr);
+    const auto get=[&](const juce::String& id){return float(snapshot.getChildWithProperty("id",id).getProperty("value"));};
+    voiceFactoryCab(factoryPresetCount+song,get,set);
     return snapshot;
 }
 }

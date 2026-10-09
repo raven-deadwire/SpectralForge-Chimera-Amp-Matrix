@@ -274,35 +274,15 @@ void checkFactoryPresets()
         }
         processor.loadFactoryPreset(index);
         for(const auto& [id,value]:expected) {
-            const bool signatureCab=spectralforge::isSignaturePreset(index)
-                && (id=="cabtype1" || id=="cabtype2" || id=="cabtype3");
-            if(signatureCab) continue;
             if(std::abs(processor.parameters().getRawParameterValue(id)->load()-value)>juce::jmax(1e-4f,std::abs(value)*2e-6f))
                 throw std::runtime_error(std::string("Factory preset host recall mismatch: ")+spectralforge::factoryPresets[(size_t)index].name+" / "+id);
         }
-        if(spectralforge::isSignaturePreset(index)) {
-            const auto entries=spectralforge::IRCollection::scan(spectralforge::IRCollection::roots(),true);
-            for(int lane=0;lane<3;++lane) {
-                const auto target=juce::String::fromUTF8(spectralforge::presetIRTarget(index,lane));
-                if(target.isEmpty()) continue;
-                const auto expectedHash=juce::String::fromUTF8(spectralforge::presetIRTargetHash(index,lane));
-                const bool catalogTarget=std::any_of(entries.begin(),entries.end(),[&](const auto& entry){return entry.reference && entry.name==target;});
-                const spectralforge::IRCollection::Entry* match=nullptr;
-                for(const auto& entry:entries) {
-                    if(!entry.ready() || entry.name!=target || (catalogTarget && !entry.reference)) continue;
-                    if(expectedHash.isNotEmpty() && entry.factorySource==0
-                        && !spectralforge::IRCollection::matchesExpectedHash(entry.file,expectedHash)) continue;
-                    match=&entry;if(entry.reference)break;
-                }
-                const auto cabId="cabtype"+juce::String(lane+1);
-                if(match && match->factorySource!=0)
-                    require(processor.parameters().getRawParameterValue(cabId)->load()==match->factorySource,"Signature factory IR source was not recalled");
-                else if(match && match->file.existsAsFile()) {
-                    require(processor.parameters().getRawParameterValue(cabId)->load()==3,"Installed Signature IR was not selected");
-                    require(processor.userIRName(lane)==target,"Signature IR resolver selected the wrong installed file");
-                } else
-                    require(processor.parameters().getRawParameterValue(cabId)->load()==0,"Missing or hash-mismatched Signature IR did not fall back to Filters only");
-            }
+        for(int lane=0;lane<3;++lane) {
+            require(juce::String::fromUTF8(spectralforge::presetIRTarget(index,lane)).isEmpty()
+                && juce::String::fromUTF8(spectralforge::presetIRTargetHash(index,lane)).isEmpty(),
+                "Public factory preset still resolves an external/private IR");
+            require(processor.parameters().getRawParameterValue("cabtype"+juce::String(lane+1))->load()==0,
+                "Factory modeled CAB retained a captured/user source selection");
         }
         for(const auto& [id,value]:performance)
             require(std::abs(processor.parameters().getRawParameterValue(id)->load()-value)<juce::jmax(1e-4f,std::abs(value)*2e-6f),
@@ -615,15 +595,11 @@ int main(int argc, char** argv)
                 juce::File folder=juce::File::getSpecialLocation(juce::File::tempDirectory).getNonexistentChildFile("Chimera-IR-pack-probe",{},false);
                 ~TemporaryDirectory() {folder.deleteRecursively();}
             } temporary;
-            const bool raven=juce::String(argv[1])=="--raven-ir-pack-probe";
-            const auto catalog=juce::JSON::parse(raven ? spectralforge::ravenIRCatalog : spectralforge::referenceIRCatalog);
-            require(catalog.getArray()!=nullptr,"Reference catalog is invalid");
-            const int expected=catalog.getArray()->size();int listed=2,imported=0;
-            for(const auto* raw:{spectralforge::referenceIRCatalog,spectralforge::externalBassIRCatalog,spectralforge::ravenIRCatalog})listed+=juce::JSON::parse(raw).getArray()->size();
+            int imported=0;
             require(spectralforge::IRCollection::importPersonalPack(juce::File(argv[2]),temporary.folder,imported).wasOk(),"Personal IR ZIP failed import");
-            require(imported==expected,"Personal IR ZIP is missing one or more catalog WAVs");
+            const int expected=imported;require(expected>0,"User IR ZIP contains no validated audio");
             const auto rows=spectralforge::IRCollection::scan({temporary.folder},true);
-            require(rows.size()==(size_t)listed,"Imported IRs were duplicated or lost during catalog resolution");
+            require(rows.size()==size_t(expected+2),"Imported IRs were duplicated or mixed with a private catalog");
             int ready=0;
             for(const auto& row:rows) {if(!row.ready())continue;++ready;if(!row.factorySource)checkDecodedIR(row.file);}
             require(ready==expected+2,"Imported reference remains unavailable or uninstalled audio was counted as ready");
@@ -634,7 +610,7 @@ int main(int argc, char** argv)
             };
             for(int i=0;i<expected;++i)selector.setSelectedId(100+i,juce::sendNotificationSync);
             require(loaded==expected,"Cabinet menu failed to select every imported IR");
-            std::cout<<"PASS: "<<expected<<(raven ? " Raven pack" : " personal")<<" IR WAVs imported, hash matched, decoded and loaded through the cabinet menu; "<<(expected+2)<<" available / "<<rows.size()<<" listed\n";return 0;
+            std::cout<<"PASS: "<<expected<<" user-selected IRs validated, imported, decoded and loaded through the cabinet menu; "<<(expected+2)<<" available / "<<rows.size()<<" listed\n";return 0;
         }
         const auto directory = argc > 1 ? juce::File(argv[1])
                                        : juce::File::getCurrentWorkingDirectory().getChildFile("ui-snapshots");
@@ -681,7 +657,7 @@ int main(int argc, char** argv)
          search->setText("SM57");search->onTextChange();require(list->getListBoxModel()->getNumRows()==0,"Mic filter ignored diameter selection");search->clear();search->onTextChange();size->setSelectedId(1,juce::sendNotificationSync);saveSnapshot(browser,directory,"IR-collection");
          auto* instrument=dynamic_cast<juce::ComboBox*>(browser.findChildWithID("irkind"));auto* availability=dynamic_cast<juce::ComboBox*>(browser.findChildWithID("iravailability"));require(instrument && availability,"Independent IR filters missing");
          instrument->setSelectedId(2,juce::sendNotificationSync);availability->setSelectedId(4,juce::sendNotificationSync);require(list->getListBoxModel()->getNumRows()==1,"Installed bass filter does not combine independently");
-         availability->setSelectedId(5,juce::sendNotificationSync);require(list->getListBoxModel()->getNumRows()==0 && instrument->getSelectedId()==2,"Availability selection reset instrument or included installed files");
+         availability->setSelectedId(7,juce::sendNotificationSync);require(list->getListBoxModel()->getNumRows()==0 && instrument->getSelectedId()==2,"Invalid-file filter reset instrument or included valid files");
          availability->setSelectedId(1,juce::sendNotificationSync);instrument->setSelectedId(1,juce::sendNotificationSync);
          auto tags=spectralforge::IRMetadata::filenameHints(bass.getFileName());const auto detailsStorage=std::make_unique<IRDetailsPanel>(tags,true,[](spectralforge::IRMetadata){});auto& details=*detailsStorage;saveSnapshot(details,directory,"IR-details");
          CabinetSelector selector;selector.refresh({folder},librarySettings);require(selector.installedCount()==2,"Cabinet menu must expose both actual WAV fixtures");
@@ -712,7 +688,9 @@ int main(int argc, char** argv)
          const auto sameName=duplicates.getChildFile(bass.getFileName());writeIRFixture(sameName);
          const auto compact=spectralforge::IRCollection::scan({folder},false);juce::StringArray compactNames;
          for(const auto& entry:compact){require(entry.displayName().length()<=56 && !entry.displayName().contains(folder.getFullPathName()),"IR display label is too long or exposes a path");require(!compactNames.contains(entry.displayName()),"Duplicate IR menu names are ambiguous");compactNames.add(entry.displayName());require(entry.details().contains(entry.file.getFileName()),"Original filename missing from capture details");}
-         const auto reference=spectralforge::IRMetadata::filenameHints("1970 Bassman Cabinet CTS - SM57 Upper - Cone.wav");require(reference.shortLabel("ignored.wav")==juce::String::fromUTF8("Bassman 2x15 CTS — SM57 cone"),"Known IR compact label was not used");
+         auto reference=spectralforge::IRMetadata::filenameHints("1970 Bassman Cabinet CTS - SM57 Upper - Cone.wav");
+         require(reference.values[8].isEmpty() && reference.values[9].isEmpty() && reference.values[10].isEmpty(),"Private capture filename acquired bundled provenance");
+         reference.displayLabel="My cabinet take";require(reference.shortLabel("ignored.wav")=="My cabinet take","User-authored compact label was not preserved");
          require(spectralforge::IRMetadata::leafName("C:\\private\\session\\cab.wav")=="cab.wav","IR restoration leaks Windows paths");
          require(folder.deleteRecursively(),"Cannot remove browser fixtures");}
 
@@ -720,39 +698,44 @@ int main(int argc, char** argv)
             const auto browserStorage=std::make_unique<IRBrowserPanel>([](juce::File,int){});auto& browser=*browserStorage;
             auto* kind=dynamic_cast<juce::ComboBox*>(browser.findChildWithID("irkind"));
             auto* list=dynamic_cast<juce::ListBox*>(browser.findChildWithID("irlist"));
-            require(kind && list,"Reference library controls missing");
+            require(kind && list,"Public IR library controls missing");
             kind->setSelectedId(2,juce::sendNotificationSync);
-            require(list->getListBoxModel()->getNumRows()>=2,"Bass references invisible before import");
-            list->selectRow(0);require(!dynamic_cast<juce::TextButton*>(browser.findChildWithID("irload"))->isEnabled(),"Missing IR incorrectly loadable");
-            saveSnapshot(browser,directory,"IR-bass-reference-library");
+            require(list->getListBoxModel()->getNumRows()==0,"Unapproved bass references remain visible before user import");
+            require(!dynamic_cast<juce::TextButton*>(browser.findChildWithID("irload"))->isEnabled(),"Empty bass library is loadable");
+            saveSnapshot(browser,directory,"IR-public-bass-empty");
             const auto all=spectralforge::IRCollection::scan({},true);
-            const auto catalog=juce::JSON::parse(spectralforge::referenceIRCatalog);const auto* entries=catalog.getArray();
-            require(entries && entries->size()==26,"Expected twenty-six verified personal capture references");
-            const auto external=juce::JSON::parse(spectralforge::externalBassIRCatalog);require(external.getArray() && external.getArray()->size()==12,"Expected twelve external Shift Line references");
-            const auto raven=juce::JSON::parse(spectralforge::ravenIRCatalog);require(raven.getArray() && raven.getArray()->size()==4,"Expected three Raven microphone positions and one V30 comparison");
-            require(all.size()==(size_t)entries->size()+2+external.getArray()->size()+raven.getArray()->size(),"Factory and reference catalog counts disagree");
-            int available=0,karnivore=0,bass=0;
-            for(const auto& row:all) {available+=row.ready();karnivore+=row.tags.values[0].containsIgnoreCase("Karnivore");bass+=row.bass();}
-            require(available==2 && karnivore==7 && bass==27,"Missing catalog WAVs were counted as installed or capture inventory changed");
-            for(const auto& row:all) if(row.reference) require(row.tags.values[9].startsWith("https://"),"Reference source fields are shifted");
-            for(const auto& row:all)if(row.external)require(!row.ready() && row.file==juce::File{},"An external reference falsely claims an installed WAV");
-            require(browser.findChildWithID("irbassdownload")==nullptr,"Removed GET BASS IRS control is still present");
-            for(int i=0;i<browser.getNumChildComponents();++i)if(auto* button=dynamic_cast<juce::TextButton*>(browser.getChildComponent(i)))require(!button->getButtonText().containsIgnoreCase("ZIP"),"Removed personal ZIP import control is still present");
-            require(browser.findChildWithID("irimporttype") && browser.findChildWithID("iraddfolder") && browser.findChildWithID("iropenfile"),"Native file/folder import or type selector missing");
+            require(all.size()==2,"Release catalog contains more than the two attributed factory IRs");
+            for(const auto* raw:{spectralforge::referenceIRCatalog,spectralforge::externalBassIRCatalog,spectralforge::ravenIRCatalog}) {
+                const auto catalog=juce::JSON::parse(raw);
+                require(catalog.getArray() && catalog.getArray()->isEmpty(),"Unapproved capture inventory remains compiled");
+            }
+            for(const auto& row:all)require(row.factorySource>=1 && row.factorySource<=2 && row.ready()
+                && !row.reference && !row.external && row.tags.values[10]=="CC BY 4.0",
+                "Public catalog contains an unavailable, private or unattributed source");
+            require(browser.findChildWithID("irbassdownload")==nullptr,"Private collection download control is present");
+            for(int i=0;i<browser.getNumChildComponents();++i)if(auto* button=dynamic_cast<juce::TextButton*>(browser.getChildComponent(i)))
+                require(!button->getButtonText().containsIgnoreCase("ZIP")
+                    && !button->getButtonText().containsIgnoreCase("GET FROM CREATOR"),"Private pack promotion remains in release loader");
+            auto* statuses=dynamic_cast<juce::ComboBox*>(browser.findChildWithID("iravailability"));
+            require(statuses && statuses->getNumItems()==5,"Public IR status filter advertises unbundled downloads");
+            require(browser.findChildWithID("irimporttype") && browser.findChildWithID("iraddfolder")
+                && browser.findChildWithID("iropenfile"),"Manual file/folder import or type selector missing");
             kind->setSelectedId(3,juce::sendNotificationSync);list->selectRow(0);
-            require(!dynamic_cast<juce::TextButton*>(browser.findChildWithID("irremove"))->isEnabled() && !dynamic_cast<juce::ComboBox*>(browser.findChildWithID("irselectedtype"))->isEnabled(),"Factory IR removal or reclassification enabled");
+            require(!dynamic_cast<juce::TextButton*>(browser.findChildWithID("irremove"))->isEnabled()
+                && !dynamic_cast<juce::ComboBox*>(browser.findChildWithID("irselectedtype"))->isEnabled(),
+                "Factory IR removal or reclassification enabled");
+            saveSnapshot(browser,directory,"IR-public-factory-library");
             kind->setSelectedId(1,juce::sendNotificationSync);
             auto* search=dynamic_cast<juce::TextEditor*>(browser.findChildWithID("irsearch"));require(search!=nullptr,"IR search missing");
             search->setText("Raven",false);search->onTextChange();
-            require(list->getListBoxModel()->getNumRows()==4,"Raven library search does not expose all three positions and comparison");
-            list->selectRow(0);require(!dynamic_cast<juce::TextButton*>(browser.findChildWithID("irload"))->isEnabled(),"Uninstalled Raven capture incorrectly loadable");
-            saveSnapshot(browser,directory,"IR-Raven-reference-library");
+            require(list->getListBoxModel()->getNumRows()==0,"Private reference entries remain in release search");
+            require(!dynamic_cast<juce::TextButton*>(browser.findChildWithID("irload"))->isEnabled(),"Empty private-reference search is loadable");
             const auto invalid=directory.getChildFile("invalid-personal.zip");
             {std::array<char,128> damaged{};juce::ZipFile::Builder zip;zip.addEntry(new juce::MemoryInputStream(damaged.data(),damaged.size(),false),9,"../../DYN 421.wav",juce::Time::getCurrentTime());auto stream=invalid.createOutputStream();require(stream && zip.writeToStream(*stream,nullptr),"Cannot write invalid pack fixture");}
             int count=0;const auto target=directory.getChildFile("pack-import-destination");
             require(spectralforge::IRCollection::importPersonalPack(invalid,target,count).failed() && !target.exists(),"Invalid personal pack was extracted");
             invalid.deleteFile();
-            std::cout<<"PASS: bass reference visibility, missing-file state, source metadata and invalid ZIP rejection\n";
+            std::cout<<"PASS: attributed factory-only catalog, manual import controls, private reference exclusion and invalid ZIP rejection\n";
         }
 
         const auto processorStorage=std::make_unique<ChimeraProcessor>();auto& processor=*processorStorage;

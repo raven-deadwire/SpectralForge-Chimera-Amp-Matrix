@@ -26,10 +26,10 @@ Implemented signal path: **input/gate/transpose -> PRE pedalboard -> rigs/cabine
 - Twenty-five active amplifier models with model-specific controls, channels/input paths and 1x/2x/4x/8x oversampling (4x default). Náströnd retains 13 controls per channel; Niflheimr provides 14 controls and five bass voicings.
 - Matrix LOW: one-knob VCA-style COMP, Level, Band Tone and DI/AMP blend. The compact view prioritizes Band Tone, LOW DI COMP and DI/AMP; ALL exposes the full amplifier controls. Classic/Dual settings are preserved. LOW receives the clean tap before Fuzz/Boost/Overdrive. Its DI and selected amp/cab branch have matching algorithmic delay. MID/HIGH retain Drive, Level and Band Tone. Classic/Dual Blend retain full-range EQ; Dual Crossover uses two Band Tone controls.
 - PRE: five freely arranged slots, 39 models grouped into exclusive categories, immediate selection, duplicate/reorder, and model-specific parameter banks. Pedal reference names are small captions; four knobs use 2×2 and five knobs use 3+2 layouts. Older sessions retain their internal compatibility processing until the new board is edited. POST: Bus Compressor, Preamp, EQ, Modulation, Delay and Reverb in six rows with ALL detail panels; compressor/preamp/EQ choices open directly without an intermediate category.
-- A/B snapshots and Save/Load reference files include parameters and embedded IRs. Repeatable synthetic DI and RMS-matched amp/cab A/B WAVs accompany Windows builds.
-- CABINET provides modeled speakers, enclosure behavior, tweeters and independently selected Mic A/B models and target speakers. IR LOADER provides two embedded factory IRs plus WAV/AIFF import and drag-and-drop per rig. Personal and external captures require local import and are not included in public packages. User IR audio is embedded in the DAW project for recall after moving the original file. Cabinet bypass, cuts, status, mute/solo and polarity are exposed.
+- A/B snapshots and Save/Load reference files include parameters and embedded IRs. Synthetic validation evidence is kept separately from public installer payloads.
+- CABINET provides modeled speakers, enclosure behavior, tweeters and independently selected Mic A/B models and target speakers. IR LOADER provides two embedded factory IRs with verified redistribution licenses plus WAV/AIFF import and drag-and-drop per rig. Unverified external and private capture catalogs are excluded from the public library. User IR audio is embedded in the DAW project for recall after moving the original file. Cabinet bypass, cuts, status, mute/solo and polarity are exposed.
 - Global input/output gain and peak meters; gate threshold/range/hold/release; polyphonic transpose (-12 to +12 semitones); tuner with A4 calibration and auto-mute.
-- 48 presets: 31 factory starting points, three Deadwire bass signatures, four guitar signatures, five Original Náströnd rigs and five Original Niflheimr bass rigs. File-based references, input Stereo/Mono L, stereo Doubler, tuner, persistent MIDI CC Learn, Tap/manual/host BPM and a practice metronome remain available. Delay can follow quarter-note tempo.
+- 48 presets: 31 factory starting points, three Deadwire bass signatures, four guitar signatures, five Original Náströnd rigs and five Original Niflheimr bass rigs. Each now recalls an authored CAB recipe for its rigs while retaining preset IDs, names and bank order; intentional dry-DI lanes keep CAB bypassed. See the [48-preset CAB recipe table](docs/FACTORY_CAB_VOICING_1_3.md). File-based references, input Stereo/Mono L, stereo Doubler, tuner, persistent MIDI CC Learn, Tap/manual/host BPM and a practice metronome remain available. Delay can follow quarter-note tempo.
 - User-supplied emblem icon, SpectralForge/CHIMERA wordmark, model-specific hardware artwork and native control panels, continuous resizing and 75/100/125/150% size choices. Audio controls expose host automation and project recall; older normalized PRE model-selection automation needs review after the three-to-five-choice expansion.
 
 Amp names describe target voicings. **Hardware reproduction accuracy has not been established.** See [validation scope and limits](docs/AMP_VALIDATION.md), [six new NAM comparisons](docs/OPEN_BETA_NAM_VALIDATION.md), [third-party credits](docs/THIRD_PARTY_NOTICES.md) and the test log included in Windows packages. See the [IR placement, effects references and mode decisions](docs/FX_AND_IR_DESIGN.md).
@@ -63,11 +63,20 @@ from the cabinet's Mic A/B blend.
 The next interface update is planned to add direct knob adjustment inside the
 amp-head artwork. Version 1.3 uses the existing amplifier control panels.
 
-IR LIBRARY distinguishes the two factory IRs and documented external/personal
-capture metadata. Missing catalog entries cannot be loaded. Add WAV/AIFF files
-with **OPEN IR** or an extracted folder with **ADD FOLDER**. The public installer
-includes only the two licensed factory audio assets and reference metadata.
-Personal capture data is not in this repository or the release downloads.
+IR LIBRARY starts with **two factory IRs distributed under CC BY 4.0**, plus
+the files you import with **OPEN IR** or an extracted folder with **ADD FOLDER**.
+The public release excludes unverified external/private capture catalogs,
+private research documents and reference-audio payload folders. Existing imported IRs
+and their stored project/A·B audio remain available. See the
+[IR distribution policy](docs/IR_DISTRIBUTION.md).
+
+The 48 factory recipes define **71 active CAB lanes**, including twelve 6×10
+lanes, with six intentional dry LOW lanes. Mic A starts enabled and Mic B is
+configured but disabled; 6×10 recipes target unit 3 in the middle row. Factory
+recall selects the modeled CAB stage without loading A/B IR files. Existing
+project and A/B files continue to restore their own saved parameters and IRs.
+These recipes are authored starting points; final level and listening acceptance
+remain part of release validation. See the [complete recipe overview](docs/FACTORY_CAB_VOICING_1_3.md).
 See [installation instructions](docs/INSTALLATION.md)
 and [graphics/DSP update details](docs/GRAPHICS_DSP_UPDATE.md).
 

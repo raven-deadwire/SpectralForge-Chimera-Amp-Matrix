@@ -72,8 +72,8 @@ footer:'Third-party product names remain the property of their respective owners
 labels:{reference:'Reference',role:'Role',character:'Character',use:'Recommended use',controls:'Main controls',channels:'Channels / input'},
 quick:['Close the DAW and older Chimera instance before installing or updating. In a DAW insert Chimera as VST3/AU; in Standalone choose the interface in Audio Settings.','Start with MONO L for a single guitar, bass or mono source. Use STEREO only for a true stereo input.','Begin in Classic with a familiar preset. Set interface gain and Chimera INPUT for a healthy signal without clipping.','Choose amp and Cabinet/IR first, then refine PRE gain staging and POST finishing. Level-match A/B comparisons.','Amp oversampling defaults to 4×. If real-time playback breaks up, use 2×/1× or increase the audio buffer.'],
 modes:[['Classic','One full-range amp/cab path','Conventional guitar or bass tones; fastest workflow'],['Dual · Blend','Two full-range rigs mixed together','Tight + wide, clean + crunch, two bass heads'],['Dual · Crossover','LR4 low/high split into two rigs','Clean lows with driven highs; hybrid rigs'],['Matrix','LOW / MID / HIGH; LOW has COMP and DI/AMP blend','Extended range, low tuning, modern bass, complex distortion']],
-ir:['Cabinet processing stays inside each rig lane: Amp → CABINET / IR LOADER → Merge.','CABINET combines a speaker, enclosure, tweeter and Mic A/B choices. IR LOADER selects factory/user IRs or loads WAV/AIFF files. BYPASS skips the cabinet stage.','LOW CUT / HIGH CUT shape the cabinet output. In split modes avoid fighting the crossover with excessively narrow cuts.','MUTE / SOLO / POLARITY help diagnose Dual/Matrix summing. Different IRs are not automatically time/phase aligned.','The public beta includes two redistributable factory IRs and metadata. Personal Raven/TONE3000 captures are not included in the public installer.'],
-preset:['The 48 factory and signature presets provide starting points for your instrument and mix.','Recommended order: nearest preset → input/gate → amp and IR → routing/crossover → PRE → POST → level-match A/B → SAVE AS.','A and B are two complete sound snapshots. COPY duplicates the active snapshot; it is not left/right routing and does not loudness-match automatically.','User IR audio is stored with project/A·B state for recall. Review model-selection automation when opening projects from early test builds.'],
+ir:["Cabinet processing stays inside each rig lane: Amp → CABINET / IR LOADER → Merge.", "CABINET combines a speaker, enclosure, tweeter and Mic A/B choices. IR LOADER selects factory/user IRs or loads WAV/AIFF files. BYPASS skips the cabinet stage.", "LOW CUT / HIGH CUT shape the cabinet output. In split modes avoid fighting the crossover with excessively narrow cuts.", "MUTE / SOLO / POLARITY help diagnose Dual/Matrix summing. Different IRs are not automatically time/phase aligned.", "The public IR library contains two verified factory IRs licensed for redistribution. Add your own WAV/AIFF files; unverified external and private capture catalogs are excluded from the public release."],
+preset:["All 48 factory and signature presets now recall modeled CAB recipes for their rigs. Explicit dry-DI lanes keep CAB bypassed; preset IDs, names and bank order stay stable.", "Recommended order: nearest preset → input/gate → amp and CAB → routing/crossover → PRE → POST → level-match A/B → SAVE AS.", "A and B are two complete sound snapshots. COPY duplicates the active snapshot; it is not left/right routing and does not loudness-match automatically.", "User IR audio is stored with project/A·B state for recall. Review model-selection automation when opening projects from early test builds."],
 global:[['INPUT / OUTPUT','Internal trims and meters. Fix interface clipping at the interface; use OUTPUT for final level matching.'],['Gate','Threshold (dBFS), Hold/Release (ms), and Range. Range 0 dB = no attenuation; finite values limit the closed-gate reduction; Full releases toward silence (default). Attack is fixed at a 0.5 ms time constant; closing uses 6 dB hysteresis. Lower Threshold or increase Hold/Release when sustain is cut.'],['POST GATE','Detects playing from the clean input but attenuates after rig/cab merge before spatial POST FX. Useful between notes; not a full denoiser while playing.'],['Transpose','−12 to +12 semitones. Adds reported latency and can create artifacts on sharp transients or dense chords.'],['Tuner / Auto Mute','Chromatic tuner reads the original input before Gate/Transpose. A4 is adjustable; Auto Mute silences output while tuning.'],['Oversampling','1× / 2× / 4× / 8× for amp processing; 4× default. Higher values trade CPU for nonlinear quality.'],['Doubler','Short modulated wet delay for stereo width. Check mono compatibility.'],['TAP / BPM / HOST / CLICK','Manual/tap/host tempo and practice click. Delay Sync follows quarter-note tempo; click is not DAW bar-position sync.'],['MIDI Learn','Assign the next received CC to the selected control. Route MIDI through the host or Standalone MIDI input.'],['CPU AVG / PK','Percentage of the audio-block deadline consumed by Chimera, not total system CPU.']],
 diag:['Use SETTINGS → Review / copy / save diagnostics to compare RMS/Peak through INPUT_TRIM, PRE, RIG_GATE, POST and OUTPUT.','If level unexpectedly drops, identify the first stage where RMS/Peak changes instead of compensating only at OUTPUT.','If Dual/Matrix loses lows, solo lanes and inspect polarity, IR onset, blend and crossover. IRs are not auto-aligned.','Spectral Octaver adds roughly 42.7–46.4 ms at supported rates. Bypass preserves alignment; replace the slot with Empty to remove that frame delay.','For high CPU, lower amp oversampling, review Transpose/Spectral Octaver and convolution use, or increase host buffer size.','Beta 1.1 improves JUCE shutdown/resource cleanup. Host shutdown, project-close and plugin-unload behaviour still requires validation in each DAW; Studio One is one previously reported case, not the only host covered by this guidance.'],
 limits:['This is a free open beta and may become a paid product. Free updates/support after beta are not guaranteed.','Windows publisher signing and macOS Developer ID signing/notarization are not complete; OS warnings can appear.','Hardware-reference controls and voicings are authored DSP interpretations. Full real-hardware DI/reamp fidelity certification has not been completed.','Some reference functions remain intentionally unavailable, including AW-3 HUMAN/TEMPO-style modes and independent Variable Mu right-bank/SEP operation.','Structural PRE edits are not certified click-free during playback.','Transpose and spectral pitch processing can add latency and transient/chord artifacts.','IR natural onset and phase are not automatically corrected across lanes.'],
@@ -101,8 +101,8 @@ footer:'Produktnamen Dritter bleiben Eigentum der jeweiligen Rechteinhaber und d
 labels:{reference:'Referenz',role:'Aufgabe',character:'Charakter',use:'Empfohlener Einsatz',controls:'Hauptregler',channels:'Kanäle / Eingang'},
 quick:['DAW und ältere Chimera-Instanzen vor Installation oder Update schließen. In der DAW Chimera als VST3/AU laden; im Standalone das Interface unter Audio Settings wählen.','Für eine einzelne Gitarre, einen Bass oder eine Monoquelle mit MONO L beginnen. STEREO nur für echte Stereoquellen verwenden.','Im Classic-Modus mit einem vertrauten Preset beginnen. Interface-Gain und Chimera INPUT kräftig, aber ohne Clipping einstellen.','Zuerst Amp und Cabinet/IR wählen, danach PRE-Gain-Staging und POST-Finish. A/B immer pegelangepasst vergleichen.','Amp-Oversampling ist standardmäßig 4×. Bei Aussetzern auf 2×/1× reduzieren oder den Audiopuffer erhöhen.'],
 modes:[['Classic','Ein Fullrange-Amp/Cab-Pfad','Konventionelle Gitarren-/Basstöne; schnellster Workflow'],['Dual · Blend','Zwei Fullrange-Rigs werden gemischt','Tight + breit, Clean + Crunch, zwei Bass-Heads'],['Dual · Crossover','LR4-Tief/Hoch-Split in zwei Rigs','Saubere Tiefen mit verzerrten Höhen; Hybrid-Rigs'],['Matrix','LOW / MID / HIGH; LOW mit COMP und DI/AMP-Mix','Extended Range, tiefe Tunings, moderner Bass, komplexe Verzerrung']],
-ir:['Cabinet-Bearbeitung bleibt in jeder Rig-Spur: Amp → CABINET / IR LOADER → Merge.','CABINET kombiniert Lautsprecher, Gehäuse, Hochtöner und Mic A/B. IR LOADER wählt Factory/User-IRs oder lädt WAV/AIFF. BYPASS umgeht die Cabinet-Stufe.','LOW CUT / HIGH CUT formen den Cabinet-Ausgang. In Split-Modi die Crossover nicht durch zu enge Filter konterkarieren.','MUTE / SOLO / POLARITY helfen bei Summierungsproblemen in Dual/Matrix. Verschiedene IRs werden nicht automatisch zeitlich oder phasenmäßig ausgerichtet.','Die öffentliche Beta enthält zwei weiterverteilbare Factory-IRs und Metadaten. Persönliche Raven/TONE3000-Captures sind nicht enthalten.'],
-preset:['Die 48 Werks- und Signature-Presets bieten Ausgangspunkte für Instrument und Mix.','Empfohlene Reihenfolge: Preset → Input/Gate → Amp und IR → Routing/Crossover → PRE → POST → A/B pegeln → SAVE AS.','A und B sind zwei vollständige Sound-Snapshots. COPY kopiert den aktiven Zustand; es ist kein Links/Rechts-Routing und führt keinen automatischen Pegelabgleich durch.','User-IR-Audio wird für Recall mit Projekt/A·B-Zustand gespeichert. Modellwahl-Automation aus frühen Test-Builds sollte kontrolliert werden.'],
+ir:["Cabinet-Bearbeitung bleibt in jeder Rig-Spur: Amp → CABINET / IR LOADER → Merge.", "CABINET kombiniert Lautsprecher, Gehäuse, Hochtöner und Mic A/B. IR LOADER wählt Factory/User-IRs oder lädt WAV/AIFF. BYPASS umgeht die Cabinet-Stufe.", "LOW CUT / HIGH CUT formen den Cabinet-Ausgang. In Split-Modi die Crossover nicht durch zu enge Filter konterkarieren.", "MUTE / SOLO / POLARITY helfen bei Summierungsproblemen in Dual/Matrix. Verschiedene IRs werden nicht automatisch zeitlich oder phasenmäßig ausgerichtet.", "Die öffentliche IR-Bibliothek enthält zwei geprüfte Factory-IRs mit Weiterverteilungslizenz. Eigene WAV/AIFF-Dateien können importiert werden; ungeprüfte externe und private Aufnahmekataloge gehören nicht zum öffentlichen Release."],
+preset:["Alle 48 Werks- und Signature-Presets laden jetzt modellierte CAB-Konfigurationen für ihre Rigs. Ausdrücklich trockene DI-Spuren umgehen CAB; Preset-IDs, Namen und Bankreihenfolge bleiben erhalten.", "Empfohlene Reihenfolge: Preset → Input/Gate → Amp und CAB → Routing/Crossover → PRE → POST → A/B pegeln → SAVE AS.", "A und B sind zwei vollständige Sound-Snapshots. COPY kopiert den aktiven Zustand; es ist kein Links/Rechts-Routing und führt keinen automatischen Pegelabgleich durch.", "User-IR-Audio wird für Recall mit Projekt/A·B-Zustand gespeichert. Modellwahl-Automation aus frühen Test-Builds sollte kontrolliert werden."],
 global:[['INPUT / OUTPUT','Interne Trims und Meter. Interface-Clipping am Interface beheben; OUTPUT für den finalen Pegelabgleich verwenden.'],['Gate','Threshold (dBFS), Hold/Release (ms) und Range. 0 dB = keine Absenkung; endliche Werte begrenzen die Absenkung; Full klingt gegen Stille aus (bisheriger Standard). Attack: feste Zeitkonstante 0,5 ms; Hysterese: 6 dB. Bei abgeschnittenem Sustain Threshold senken oder Hold/Release erhöhen.'],['POST GATE','Erkennt das Spiel am sauberen Eingang und dämpft nach Rig/Cab-Merge vor räumlichen POST-Effekten. Hilft zwischen Noten, ist aber kein vollständiger Denoiser während des Spiels.'],['Transpose','−12 bis +12 Halbtöne. Fügt gemeldete Latenz hinzu und kann bei harten Transienten oder dichten Akkorden Artefakte erzeugen.'],['Tuner / Auto Mute','Chromatisches Stimmgerät vor Gate/Transpose; A4 einstellbar. Auto Mute schaltet den Ausgang beim Stimmen stumm.'],['Oversampling','1× / 2× / 4× / 8× für die Amp-Verarbeitung; Standard 4×. Höhere Werte kosten mehr CPU.'],['Doubler','Kurzes moduliertes Wet-Delay für Stereobreite. Monokompatibilität prüfen.'],['TAP / BPM / HOST / CLICK','Manuelles/Tap/Host-Tempo und Übungs-Klick. Delay Sync folgt Viertelnoten; Click ist keine DAW-Taktpositions-Synchronisation.'],['MIDI Learn','Nächsten empfangenen CC dem gewählten Regler zuweisen. MIDI im Host oder Standalone routen.'],['CPU AVG / PK','Anteil des Audio-Block-Zeitbudgets, den Chimera verbraucht; nicht die gesamte System-CPU.']],
 diag:['Unter SETTINGS → Review / copy / save diagnostics RMS/Peak über INPUT_TRIM, PRE, RIG_GATE, POST und OUTPUT vergleichen.','Bei unerwartetem Pegelverlust die erste Stufe mit RMS/Peak-Änderung suchen, statt nur OUTPUT anzuheben.','Bei fehlenden Tiefen in Dual/Matrix Spuren solo prüfen: Polarität, IR-Onset, Blend und Crossover. IRs werden nicht automatisch ausgerichtet.','Spectral Octaver fügt etwa 42,7–46,4 ms hinzu. Bypass hält die Ausrichtung; Slot auf Empty setzen, um die Frame-Latenz zu entfernen.','Bei hoher CPU Amp-Oversampling senken, Transpose/Spectral Octaver und Convolution prüfen oder Host-Puffer erhöhen.','Beta 1.1 verbessert JUCE-Shutdown und Ressourcenfreigabe. Projektabschluss, Plugin-Unload und Host-Shutdown müssen in jeder DAW separat validiert werden; Studio One ist nur ein bereits gemeldeter Fall.'],
 limits:['Diese offene Beta ist kostenlos und kann später kostenpflichtig werden. Kostenlose Updates/Support nach der Beta sind nicht garantiert.','Windows-Publisher-Signierung und macOS Developer-ID-Signierung/Notarisierung sind noch nicht abgeschlossen; Betriebssystemwarnungen sind möglich.','Hardware-Referenzen sind eigenständige DSP-Interpretationen. Eine vollständige DI/Reamp-Treueprüfung mit realer Hardware ist nicht abgeschlossen.','Einige Referenzfunktionen bleiben absichtlich deaktiviert, darunter AW-3 HUMAN/TEMPO-ähnliche Modi und unabhängiger rechter Variable-Mu-Kanal/SEP.','Strukturänderungen im PRE sind während der Wiedergabe nicht als vollständig klickfrei zertifiziert.','Transpose und spektrale Pitch-Verarbeitung können Latenz und Transienten-/Akkordartefakte erzeugen.','Natürlicher IR-Onset und Phase werden zwischen Spuren nicht automatisch korrigiert.'],
@@ -130,8 +130,8 @@ footer:'서드파티 제품명은 각 권리자의 자산이며 해당 모델의
 labels:{reference:'Reference',role:'역할',character:'캐릭터',use:'추천 용도',controls:'주요 컨트롤',channels:'채널 / 입력'},
 quick:['설치·업데이트 전 DAW와 기존 Chimera를 종료합니다. DAW에서는 VST3/AU를 삽입하고 Standalone에서는 Audio Settings에서 인터페이스를 선택합니다.','일반적인 기타·베이스·모노 소스는 MONO L로 시작합니다. 실제 스테레오 소스만 STEREO를 사용합니다.','Classic에서 익숙한 프리셋으로 시작하고 인터페이스 게인과 Chimera INPUT을 클리핑 없이 충분히 확보합니다.','앰프와 Cabinet/IR을 먼저 확정한 뒤 PRE gain staging과 POST를 다듬습니다. A/B는 비슷한 음량으로 맞춰 비교합니다.','앰프 oversampling 기본값은 4×입니다. 실시간 끊김이 있으면 2×/1×로 낮추거나 오디오 버퍼를 늘립니다.'],
 modes:[['Classic','전대역 단일 amp/cab 경로','일반 기타·베이스 톤, 가장 빠른 작업'],['Dual · Blend','전대역 리그 두 개를 혼합','타이트+와이드, 클린+크런치, 두 베이스 헤드'],['Dual · Crossover','LR4로 LOW/HIGH 분할 후 두 리그','클린 저역 + 드라이브 상단, 하이브리드 톤'],['Matrix','LOW / MID / HIGH 3대역. LOW는 COMP와 DI/AMP blend','확장음역, 다운튜닝, 현대 베이스, 복합 디스토션']],
-ir:['Cabinet 처리는 각 rig lane 안에서 Amp → CABINET / IR LOADER → Merge 순서로 유지됩니다.','CABINET에서 스피커·캐비넷·트위터·Mic A/B를 구성합니다. IR LOADER에서는 factory/user IR을 선택하거나 WAV/AIFF를 불러옵니다. BYPASS는 캐비넷 단계를 우회합니다.','LOW CUT / HIGH CUT으로 cab 출력을 정리합니다. 분할 모드에서는 crossover와 겹쳐 지나치게 좁아지지 않게 합니다.','MUTE / SOLO / POLARITY로 Dual/Matrix 합산 문제를 확인합니다. 서로 다른 IR은 자동으로 time/phase alignment하지 않습니다.','공개 베타에는 재배포 가능한 factory IR 두 개와 metadata가 포함됩니다. 개인 Raven/TONE3000 캡처는 공개 설치 파일에 포함되지 않습니다.'],
-preset:['팩토리·시그니처 프리셋 48개를 악기와 믹스에 맞춰 조정하는 시작점으로 사용합니다.','권장 순서: 목적에 가까운 preset → input/gate → amp와 IR → routing/crossover → PRE → POST → A/B 레벨 매칭 → SAVE AS.','A와 B는 전체 사운드 스냅샷 두 개입니다. COPY는 현재 상태를 반대편으로 복제하며 좌/우 라우팅이나 자동 loudness match 기능이 아닙니다.','User IR 오디오는 프로젝트/A·B 상태에 포함되어 recall됩니다. 초기 테스트 빌드의 model-selection automation은 목록 확장 후 매핑을 확인하십시오.'],
+ir:["Cabinet 처리는 각 rig lane 안에서 Amp → CABINET / IR LOADER → Merge 순서로 유지됩니다.", "CABINET에서 스피커·캐비넷·트위터·Mic A/B를 구성합니다. IR LOADER에서는 factory/user IR을 선택하거나 WAV/AIFF를 불러옵니다. BYPASS는 캐비넷 단계를 우회합니다.", "LOW CUT / HIGH CUT으로 cab 출력을 정리합니다. 분할 모드에서는 crossover와 겹쳐 지나치게 좁아지지 않게 합니다.", "MUTE / SOLO / POLARITY로 Dual/Matrix 합산 문제를 확인합니다. 서로 다른 IR은 자동으로 time/phase alignment하지 않습니다.", "공개 IR 라이브러리에는 재배포 권한이 확인된 기본 IR 두 개가 포함됩니다. 직접 보유한 WAV/AIFF를 추가할 수 있으며, 검증되지 않은 외부·개인 캡처 목록은 공개 릴리스에서 제외합니다."],
+preset:["팩토리·시그니처 프리셋 48개는 각 리그에 맞춘 모델링 CAB 설정을 불러옵니다. 드라이 DI로 지정된 레인은 CAB을 우회하며 프리셋 ID·이름·뱅크 순서는 유지합니다.", "권장 순서: 목적에 가까운 preset → input/gate → amp와 CAB → routing/crossover → PRE → POST → A/B 레벨 매칭 → SAVE AS.", "A와 B는 전체 사운드 스냅샷 두 개입니다. COPY는 현재 상태를 반대편으로 복제하며 좌/우 라우팅이나 자동 loudness match 기능이 아닙니다.", "User IR 오디오는 프로젝트/A·B 상태에 포함되어 recall됩니다. 초기 테스트 빌드의 model-selection automation은 목록 확장 후 매핑을 확인하십시오."],
 global:[['INPUT / OUTPUT','내부 trim과 미터. 인터페이스 자체 clipping은 인터페이스에서 해결하고 OUTPUT은 최종 level matching에 사용합니다.'],['Gate','Threshold(dBFS), Hold/Release(ms), Range. Range 0 dB는 감쇠 없음, 중간값은 지정 dB만큼 제한 감쇠, Full은 release를 따라 무음으로 닫히는 기존 기본값입니다. Attack은 0.5 ms 시정수 고정, 닫힘은 6 dB hysteresis를 사용합니다. 서스테인이 잘리면 Threshold를 낮추거나 Hold/Release를 늘립니다.'],['POST GATE','깨끗한 입력에서 연주 여부를 검출하고 rig/cab 합산 뒤 공간계 POST 앞에서 감쇄합니다. 음 사이 히스 감소에는 유리하지만 연주 중 노이즈를 제거하는 완전한 denoiser는 아닙니다.'],['Transpose','−12~+12 semitone. 보고 latency가 추가되고 빠른 transient나 복잡한 chord에서 artifact가 생길 수 있습니다.'],['Tuner / Auto Mute','Gate/Transpose 전 원음을 읽는 chromatic tuner. A4 조절 가능, Auto Mute는 튜닝 중 출력을 끕니다.'],['Oversampling','앰프 처리 1× / 2× / 4× / 8×, 기본 4×. 높은 값은 nonlinear 품질과 CPU를 교환합니다.'],['Doubler','짧은 modulated wet delay로 stereo width를 만듭니다. 모노 호환성을 확인하십시오.'],['TAP / BPM / HOST / CLICK','수동/탭/호스트 템포와 연습용 클릭. Delay Sync는 4분음표를 따르며 Click은 DAW 마디 위치 동기화가 아닙니다.'],['MIDI Learn','선택한 컨트롤에 다음 수신 CC를 할당합니다. Host 또는 Standalone에서 MIDI를 라우팅합니다.'],['CPU AVG / PK','전체 PC CPU가 아니라 Chimera가 audio block 시간 예산에서 사용한 비율입니다.']],
 diag:['SETTINGS → Review / copy / save diagnostics에서 INPUT_TRIM, PRE, RIG_GATE, POST, OUTPUT의 RMS/Peak를 비교합니다.','레벨이 갑자기 줄면 OUTPUT으로 무작정 보상하기보다 RMS/Peak가 처음 달라지는 단계를 찾습니다.','Dual/Matrix에서 저역이 사라지면 lane solo 후 polarity, IR onset, blend, crossover를 확인합니다. IR은 자동 정렬되지 않습니다.','Spectral Octaver는 지원 sample rate에서 약 42.7~46.4 ms를 추가합니다. Bypass도 정렬을 유지하며, 이 frame delay를 없애려면 슬롯을 Empty로 바꿉니다.','CPU가 높으면 amp oversampling을 낮추고 Transpose/Spectral Octaver, convolution 사용량을 확인하거나 host buffer를 늘립니다.','Beta 1.1은 JUCE 종료 경로와 자원 정리를 개선했습니다. 프로젝트 닫기·플러그인 언로드·DAW 종료 안정성은 호스트마다 별도 확인이 필요하며, Studio One은 기존 제보 사례 중 하나일 뿐 이 절차의 대상은 모든 DAW입니다.'],
 limits:['현재 무료 Open Beta이며 향후 유료화될 수 있습니다. 베타 이후 무료 업데이트·지원은 보장되지 않습니다.','Windows publisher code signing과 macOS Developer ID 서명/공증은 완료 전이므로 운영체제 경고가 나타날 수 있습니다.','하드웨어 레퍼런스 조작부와 보이싱은 독립 DSP 해석입니다. 전 모델의 실물 DI/reamp fidelity 인증은 완료되지 않았습니다.','AW-3 HUMAN/TEMPO 계열과 Variable Mu 독립 right-bank/SEP 등 일부 원본 기능은 의도적으로 비활성 또는 미구현 상태입니다.','PRE 구조 편집의 완전한 click-free 동작은 재생 중 보증하지 않습니다.','Transpose와 spectral pitch 처리는 latency와 transient/chord artifact를 만들 수 있습니다.','IR의 natural onset과 phase는 lane 사이에서 자동 보정하지 않습니다.'],
@@ -213,20 +213,47 @@ matrix:[
 ['Band Tone','LOW/MID/HIGH use band-oriented tone control. MID/HIGH keep independent drive/amp/cab processing.']
 ],
 irDetail:[
-['Supported files','WAV or AIFF, mono/stereo, 8–384 kHz, 8 samples up to 1 second, under 4 MB per IR. Invalid files are rejected without replacing the previous IR.'],
-['IR LIBRARY','Search by metadata, filter speaker diameter (8/10/12/15/18 in), instrument/status and inspect speaker, microphone, position, distance and provenance.'],
-['Statuses','FACTORY is bundled; INSTALLED is a local usable file; IMPORT REQUIRED/MISSING is metadata without the original audio; EXTERNAL/DOWNLOAD requires the creator file; INVALID FILE failed validation.'],
-['Import / Type','Before OPEN IR or ADD FOLDER, keep existing instrument metadata or choose Bass, Guitar or Unspecified. Unknown files stay Unspecified. Select an imported IR and change Type to reclassify it; library choices persist.'],
-['ADD FOLDER','Registers an extracted IR folder. The collection scans up to 512 audio files; if truncated, use a smaller folder.'],
-['OPEN IR','Loads an individual WAV/AIFF and adds it to the library. SOURCE PAGE / GET FROM CREATOR opens the selected reference page; external IR audio must be downloaded and extracted by the user.'],
-['REMOVE FROM LIST','Removes the selected imported IR from the library and cabinet menu. Original WAV/AIFF files and IR audio already loaded in projects/A·B remain intact. Factory IRs cannot be removed. Use OPEN IR to add a removed file again.'],
-['TAGS / sidecars','A matching filename.wav.json sidecar can provide confirmed metadata. Unknown capture distance/angle remains unknown rather than being guessed.'],
-['Project recall','Loaded user IR audio is embedded in project/A·B state, so moving the original file does not break that saved sound.']
+  [
+    "Supported files",
+    "WAV or AIFF, mono/stereo, 8–384 kHz, 8 samples up to 1 second, under 4 MB per IR. Invalid files are rejected without replacing the previous IR."
+  ],
+  [
+    "IR LIBRARY",
+    "Search by metadata, filter speaker diameter (8/10/12/15/18 in), instrument/status and inspect speaker, microphone, position, distance and provenance."
+  ],
+  [
+    "Statuses",
+    "FACTORY is bundled; INSTALLED is a usable local import; NOT AVAILABLE cannot currently be loaded; INVALID FILE failed validation. Unverified external and private reference rows are not supplied."
+  ],
+  [
+    "Import / Type",
+    "Before OPEN IR or ADD FOLDER, keep existing instrument metadata or choose Bass, Guitar or Unspecified. Unknown files stay Unspecified. Select an imported IR and change Type to reclassify it; library choices persist."
+  ],
+  [
+    "ADD FOLDER",
+    "Registers an extracted IR folder. The collection scans up to 512 audio files; if truncated, use a smaller folder."
+  ],
+  [
+    "OPEN IR",
+    "Loads an individual WAV/AIFF and adds it to the library. SOURCE PAGE opens a link recorded in the selected file metadata, when available; it does not download IR audio."
+  ],
+  [
+    "REMOVE FROM LIST",
+    "Removes the selected imported IR from the library and cabinet menu. Original WAV/AIFF files and IR audio already loaded in projects/A·B remain intact. Factory IRs cannot be removed. Use OPEN IR to add a removed file again."
+  ],
+  [
+    "TAGS / sidecars",
+    "A matching filename.wav.json sidecar can provide confirmed metadata. Unknown capture distance/angle remains unknown rather than being guessed."
+  ],
+  [
+    "Project recall",
+    "Loaded user IR audio is embedded in project/A·B state, so moving the original file does not break that saved sound."
+  ]
 ],
 irCredits:[
-'The two public factory IRs are by jesterdyne and distributed under Creative Commons Attribution 4.0; exact source titles and links are listed in THIRD_PARTY_NOTICES.md.',
-'Shift Line Bass IR Pack is an external free pack. Select its reference entry, open GET FROM CREATOR, download/extract the pack, then use ADD FOLDER. Choose Import as: Bass when needed. Those WAV files are not bundled or downloaded by Chimera.',
-'Personal TONE3000/NAM reference captures are not redistributed in the public release. Respect the source creator and license before sharing a preset/project that contains restricted IR audio.'
+  "The two public factory IRs are by jesterdyne and distributed under Creative Commons Attribution 4.0; exact source titles and links are listed in THIRD_PARTY_NOTICES.md.",
+  "The public library starts with these two factory IRs. Use OPEN IR for a file or ADD FOLDER for your own extracted WAV/AIFF collection. Private capture catalogs, private research documents and reference-audio folders are excluded from public packages.",
+  "Project and A/B recall retain imported IR audio already stored with the state. Imported files remain subject to their creator’s license when sharing a preset or project."
 ],
 recall:[
 'Factory preset loading resets the defined sound path so an old fuzz, delay, solo, polarity flip or transpose does not accidentally remain enabled.',
@@ -323,20 +350,47 @@ matrix:[
 ['Band Tone','LOW/MID/HIGH nutzen bandorientierte Tonregelung; MID/HIGH behalten unabhängige Drive-/Amp-/Cab-Bearbeitung.']
 ],
 irDetail:[
-['Unterstützte Dateien','WAV/AIFF, mono/stereo, 8–384 kHz, 8 Samples bis 1 Sekunde, unter 4 MB pro IR. Ungültige Dateien ersetzen die vorige IR nicht.'],
-['IR LIBRARY','Metadatensuche; Filter nach 8/10/12/15/18 Zoll, Instrument/Status; Details zu Speaker, Mikrofon, Position, Distanz und Herkunft.'],
-['Status','FACTORY = enthalten; INSTALLED = lokal nutzbar; IMPORT REQUIRED/MISSING = Metadaten ohne Audio; EXTERNAL/DOWNLOAD = Creator-Datei nötig; INVALID FILE = Prüfung fehlgeschlagen.'],
-['Import / Type','Vor OPEN IR oder ADD FOLDER vorhandene Instrument-Metadaten behalten oder Bass, Guitar bzw. Unspecified wählen. Unbekannte Dateien bleiben Unspecified. Bei einer ausgewählten importierten IR lässt sich Type ändern; die Bibliothekszuordnung wird gespeichert.'],
-['ADD FOLDER','Entpackten IR-Ordner registrieren. Maximal 512 Audiofiles pro Scan; bei Kürzung kleineren Ordner verwenden.'],
-['OPEN IR','Einzelne WAV/AIFF laden und in die Bibliothek aufnehmen. SOURCE PAGE / GET FROM CREATOR öffnet die gewählte Referenzseite; externe IR-Dateien selbst herunterladen und entpacken.'],
-['REMOVE FROM LIST','Ausgewählte importierte IR aus Bibliothek und Cabinet-Menü entfernen. Originaldateien und bereits in Projekt/A·B geladenes IR-Audio bleiben erhalten. Factory-IRs lassen sich nicht entfernen. Mit OPEN IR kann die Datei erneut hinzugefügt werden.'],
-['TAGS / Sidecars','Passendes filename.wav.json kann bestätigte Metadaten liefern. Unbekannte Distanz/Winkel bleiben unbekannt.'],
-['Projekt-Recall','Geladenes User-IR-Audio wird in Projekt/A·B eingebettet; Verschieben der Originaldatei zerstört den gespeicherten Sound nicht.']
+  [
+    "Unterstützte Dateien",
+    "WAV/AIFF, mono/stereo, 8–384 kHz, 8 Samples bis 1 Sekunde, unter 4 MB pro IR. Ungültige Dateien ersetzen die vorige IR nicht."
+  ],
+  [
+    "IR LIBRARY",
+    "Metadatensuche; Filter nach 8/10/12/15/18 Zoll, Instrument/Status; Details zu Speaker, Mikrofon, Position, Distanz und Herkunft."
+  ],
+  [
+    "Status",
+    "FACTORY = enthalten; INSTALLED = lokal nutzbarer Import; NOT AVAILABLE = derzeit nicht ladbar; INVALID FILE = Prüfung fehlgeschlagen. Ungeprüfte externe und private Referenzeinträge werden nicht mitgeliefert."
+  ],
+  [
+    "Import / Type",
+    "Vor OPEN IR oder ADD FOLDER vorhandene Instrument-Metadaten behalten oder Bass, Guitar bzw. Unspecified wählen. Unbekannte Dateien bleiben Unspecified. Bei einer ausgewählten importierten IR lässt sich Type ändern; die Bibliothekszuordnung wird gespeichert."
+  ],
+  [
+    "ADD FOLDER",
+    "Entpackten IR-Ordner registrieren. Maximal 512 Audiofiles pro Scan; bei Kürzung kleineren Ordner verwenden."
+  ],
+  [
+    "OPEN IR",
+    "Lädt eine einzelne WAV/AIFF-Datei und nimmt sie in die Bibliothek auf. SOURCE PAGE öffnet einen vorhandenen Link aus den Metadaten der gewählten Datei; IR-Audio wird dadurch nicht heruntergeladen."
+  ],
+  [
+    "REMOVE FROM LIST",
+    "Ausgewählte importierte IR aus Bibliothek und Cabinet-Menü entfernen. Originaldateien und bereits in Projekt/A·B geladenes IR-Audio bleiben erhalten. Factory-IRs lassen sich nicht entfernen. Mit OPEN IR kann die Datei erneut hinzugefügt werden."
+  ],
+  [
+    "TAGS / Sidecars",
+    "Passendes filename.wav.json kann bestätigte Metadaten liefern. Unbekannte Distanz/Winkel bleiben unbekannt."
+  ],
+  [
+    "Projekt-Recall",
+    "Geladenes User-IR-Audio wird in Projekt/A·B eingebettet; Verschieben der Originaldatei zerstört den gespeicherten Sound nicht."
+  ]
 ],
 irCredits:[
-'Die zwei öffentlichen Factory-IRs stammen von jesterdyne und stehen unter Creative Commons Attribution 4.0; genaue Titel/Links stehen in THIRD_PARTY_NOTICES.md.',
-'Shift Line Bass IR Pack ist extern und kostenlos. Referenzeintrag auswählen, über GET FROM CREATOR beim Creator laden/entpacken und dann ADD FOLDER verwenden. Bei Bedarf Import as: Bass wählen. Die WAV-Dateien sind nicht in Chimera enthalten und werden nicht automatisch heruntergeladen.',
-'Persönliche TONE3000/NAM-Referenzcaptures werden im öffentlichen Release nicht weitergegeben. Rechte/Lizenz prüfen, bevor ein Projekt/Preset mit eingeschränktem IR-Audio geteilt wird.'
+  "Die beiden öffentlichen Factory-IRs stammen von jesterdyne und werden unter Creative Commons Attribution 4.0 verteilt; genaue Quelltitel und Links stehen in THIRD_PARTY_NOTICES.md.",
+  "Die öffentliche Bibliothek beginnt mit diesen beiden Factory-IRs. OPEN IR lädt eine Datei, ADD FOLDER eine eigene entpackte WAV/AIFF-Sammlung. Private Aufnahmekataloge, private Forschungsdokumente und Ordner mit Referenzaudio sind von öffentlichen Paketen ausgeschlossen.",
+  "Projekt- und A/B-Recall erhalten bereits im Zustand gespeichertes importiertes IR-Audio. Beim Teilen eines Presets oder Projekts gilt weiterhin die Lizenz des jeweiligen Dateierstellers."
 ],
 recall:[
 'Ein Factory-Preset initialisiert den definierten Soundpfad, damit vorheriger Fuzz, Delay, Solo, Polaritätswechsel oder Transpose nicht versehentlich aktiv bleibt.',
@@ -433,20 +487,47 @@ matrix:[
 ['Band Tone','LOW/MID/HIGH는 대역 중심의 tone control을 사용하고, MID/HIGH는 독립적인 drive/amp/cab 처리를 유지합니다.']
 ],
 irDetail:[
-['지원 파일','WAV/AIFF, mono/stereo, 8–384 kHz, 8 samples~최대 1초, IR당 4 MB 미만. 잘못된 파일은 기존 IR을 교체하지 않고 거부합니다.'],
-['IR LIBRARY','metadata 검색, speaker diameter 8/10/12/15/18인치, instrument/status 필터, speaker·mic·position·distance·provenance 상세 정보를 제공합니다.'],
-['상태 표시','FACTORY=동봉, INSTALLED=로컬 사용 가능, IMPORT REQUIRED/MISSING=metadata만 있고 원본 audio 없음, EXTERNAL/DOWNLOAD=제작자 파일 필요, INVALID FILE=검증 실패입니다.'],
-['Import / Type','OPEN IR 또는 ADD FOLDER 전에 기존 악기 분류를 유지하거나 Bass·Guitar·Unspecified를 선택합니다. 분류 정보가 없는 파일은 Unspecified로 표시합니다. 가져온 IR을 선택한 뒤 Type에서 분류를 수정할 수 있으며 라이브러리 설정은 유지됩니다.'],
-['ADD FOLDER','압축을 푼 IR 폴더를 등록합니다. 한 번에 최대 512개 audio file을 스캔하며 초과하면 더 작은 폴더를 사용합니다.'],
-['OPEN IR','WAV/AIFF 한 파일을 불러와 라이브러리에 등록합니다. SOURCE PAGE / GET FROM CREATOR는 선택한 레퍼런스 페이지를 엽니다. 외부 IR은 직접 다운로드하고 압축을 풀어야 합니다.'],
-['REMOVE FROM LIST','선택한 개인 IR을 라이브러리와 캐비넷 목록에서 제거합니다. 원본 WAV/AIFF와 프로젝트/A·B에 이미 불러온 IR 오디오는 보존합니다. Factory IR은 제거할 수 없습니다. 제거한 파일은 OPEN IR로 다시 등록할 수 있습니다.'],
-['TAGS / sidecar','정확히 대응하는 filename.wav.json sidecar로 확인된 metadata를 넣을 수 있습니다. 모르는 거리·각도는 추정해서 채우지 않습니다.'],
-['프로젝트 recall','불러온 user IR audio는 프로젝트/A·B 상태에 embedded되므로 원본 파일을 옮겨도 저장된 사운드는 다시 열 수 있습니다.']
+  [
+    "지원 파일",
+    "WAV/AIFF, mono/stereo, 8–384 kHz, 8 samples~최대 1초, IR당 4 MB 미만. 잘못된 파일은 기존 IR을 교체하지 않고 거부합니다."
+  ],
+  [
+    "IR LIBRARY",
+    "metadata 검색, speaker diameter 8/10/12/15/18인치, instrument/status 필터, speaker·mic·position·distance·provenance 상세 정보를 제공합니다."
+  ],
+  [
+    "상태 표시",
+    "FACTORY는 기본 제공, INSTALLED는 사용 가능한 로컬 파일, NOT AVAILABLE은 현재 로드할 수 없음, INVALID FILE은 파일 검증 실패입니다. 검증되지 않은 외부·개인 레퍼런스 항목은 제공하지 않습니다."
+  ],
+  [
+    "Import / Type",
+    "OPEN IR 또는 ADD FOLDER 전에 기존 악기 분류를 유지하거나 Bass·Guitar·Unspecified를 선택합니다. 분류 정보가 없는 파일은 Unspecified로 표시합니다. 가져온 IR을 선택한 뒤 Type에서 분류를 수정할 수 있으며 라이브러리 설정은 유지됩니다."
+  ],
+  [
+    "ADD FOLDER",
+    "압축을 푼 IR 폴더를 등록합니다. 한 번에 최대 512개 audio file을 스캔하며 초과하면 더 작은 폴더를 사용합니다."
+  ],
+  [
+    "OPEN IR",
+    "WAV/AIFF 한 파일을 불러와 라이브러리에 등록합니다. SOURCE PAGE는 선택한 파일의 메타데이터에 링크가 있으면 해당 페이지를 열며 IR 오디오를 다운로드하지 않습니다."
+  ],
+  [
+    "REMOVE FROM LIST",
+    "선택한 개인 IR을 라이브러리와 캐비넷 목록에서 제거합니다. 원본 WAV/AIFF와 프로젝트/A·B에 이미 불러온 IR 오디오는 보존합니다. Factory IR은 제거할 수 없습니다. 제거한 파일은 OPEN IR로 다시 등록할 수 있습니다."
+  ],
+  [
+    "TAGS / sidecar",
+    "정확히 대응하는 filename.wav.json sidecar로 확인된 metadata를 넣을 수 있습니다. 모르는 거리·각도는 추정해서 채우지 않습니다."
+  ],
+  [
+    "프로젝트 recall",
+    "불러온 user IR audio는 프로젝트/A·B 상태에 embedded되므로 원본 파일을 옮겨도 저장된 사운드는 다시 열 수 있습니다."
+  ]
 ],
 irCredits:[
-'공개 Factory IR 두 개는 jesterdyne 제작이며 Creative Commons Attribution 4.0으로 배포됩니다. 정확한 원본 제목과 링크는 THIRD_PARTY_NOTICES.md에 있습니다.',
-'Shift Line Bass IR Pack은 외부 무료 팩입니다. 해당 레퍼런스를 선택하고 GET FROM CREATOR에서 제작자 페이지를 연 뒤 직접 다운로드·압축 해제하여 ADD FOLDER로 등록합니다. 필요하면 Import as: Bass를 선택합니다. 해당 WAV는 Chimera에 포함되거나 자동 다운로드되지 않습니다.',
-'개인 TONE3000/NAM 레퍼런스 캡처는 공개 릴리스에서 재배포하지 않습니다. 제한된 IR audio가 포함된 프로젝트/프리셋을 공유하기 전 제작자 권한과 라이선스를 확인하십시오.'
+  "기본 IR 두 개는 jesterdyne가 제작했으며 Creative Commons Attribution 4.0으로 배포합니다. 정확한 원본 제목과 링크는 THIRD_PARTY_NOTICES.md에 있습니다.",
+  "공개 라이브러리는 이 기본 IR 두 개로 시작합니다. OPEN IR로 파일을, ADD FOLDER로 직접 준비한 WAV/AIFF 폴더를 등록합니다. 개인 캡처 목록·비공개 연구 문서·레퍼런스 오디오 폴더는 공개 패키지에서 제외합니다.",
+  "프로젝트와 A/B를 다시 열면 상태에 이미 포함된 사용자 IR 오디오가 복원됩니다. 해당 오디오가 담긴 프리셋이나 프로젝트를 공유할 때는 원본 제작자의 라이선스가 적용됩니다."
 ],
 recall:[
 'Factory preset은 정의된 사운드 경로를 초기화한 뒤 적용하므로 이전 fuzz, delay, solo, polarity, transpose 상태가 우연히 남지 않습니다.',
@@ -1512,7 +1593,7 @@ const CANDIDATE111={
  ['Feel My Wrath','그루브 메탈 리듬 · Dual','Yellow Asym → Fourfold / Tight 515 → Dry. Console VCA는 초기 바이패스이며 필요할 때 약하게 적용합니다.'],
  ['Blackhearted','데쓰메탈 리듬 · Matrix 140 Hz / 1.8 kHz','Clean LOW + Fourfold MID + Night Harvest HIGH → Console Four EQ. Yellow Asym은 MID/HIGH에 적용됩니다.'],
  ['Dark Matters of Throne','데쓰메탈 리듬 · Matrix 160 Hz / 1.5 kHz','Clean LOW + Blue Storm MID + Night Harvest HIGH → Iron Colour · Passive Tube EQ. Obsession은 MID/HIGH에 적용됩니다.']],
- recall:'Raven / Guitar 메뉴에서 선택합니다. 전체 파라미터를 초기화하므로 이전 페달·앰프·POST 설정이 남지 않습니다. INPUT, tempo, tuner도 초기값으로 돌아갑니다. 같은 내장 V30/SM57 IR로 시작하며 상태 파일과 A/B에 곡 ID와 IR 정보가 저장됩니다. 레벨은 합성 입력으로만 예비 보정했습니다.',
+ recall:"Raven / Guitar 메뉴에서 선택합니다. 전체 파라미터를 초기화하므로 이전 페달·앰프·POST 설정이 남지 않습니다. INPUT, tempo, tuner도 초기값으로 돌아갑니다. 1.3에서는 각 리그가 전용 모델링 CAB 설정으로 시작합니다. 곡 ID와 CAB 설정은 상태 파일과 A/B에 저장됩니다. 레벨은 합성 입력으로만 예비 보정했습니다.",
  pitch:'Transpose는 저역 에너지 계산과 바이패스 잔향의 피치 유지가 수정됐습니다. 지속 연주의 FFT 창 지연은 아직 44.1 kHz 46.4 ms, 48/96 kHz 42.7 ms입니다. 저지연·음질 개선은 1.1.1 이후 장기 과제입니다. 베이스 B현 −2반음에서 음의 몸통과 연속 어택이 뭉개진다는 실연 피드백이 있습니다. 해당 연주에서는 Transpose를 끄고 실제 튜닝을 사용하세요.',
  gain:'레벨 비교 전 INPUT/OUTPUT와 각 앰프의 OUTPUT LEVEL을 확인하세요. 기본 OUTPUT은 −6 dB이며, Factory recall의 출력 보정은 프리셋마다 다릅니다. native 앰프에서는 소프트웨어 OUTPUT LEVEL이 유효합니다. GR은 컴프레서 내부 감쇠량이며 dry blend와 출력 노브까지 포함한 총 레벨 변화가 아닙니다.'},
  en:{note:'Guitar signature gain and output trims were revised in 1.1.2. In Open Beta 1.2, the bank contained 31 Factory, three Bass Signature, four Guitar Signature and five Original presets, for 43 in total. These are starting points to adapt to your instrument and playing.',headers:['Song','Role / mode','PRE · AMP · POST'],rows:[
@@ -1520,7 +1601,7 @@ const CANDIDATE111={
  ['Feel My Wrath','Groove-metal rhythm · Dual','Yellow Asym → Fourfold / Tight 515 → Dry. Console VCA starts bypassed; enable gently if required.'],
  ['Blackhearted','Death-metal rhythm · Matrix 140 Hz / 1.8 kHz','Clean LOW + Fourfold MID + Night Harvest HIGH → Console Four EQ. Yellow Asym feeds MID/HIGH.'],
  ['Dark Matters of Throne','Death-metal rhythm · Matrix 160 Hz / 1.5 kHz','Clean LOW + Blue Storm MID + Night Harvest HIGH → Iron Colour · Passive Tube EQ. Obsession feeds MID/HIGH.']],
- recall:'Select Raven / Guitar. Complete parameter initialization clears prior pedal, amp and POST banks, and also resets INPUT, tempo and tuner. All four start with the same embedded V30/SM57 IR. Song identity and IR metadata survive state files and A/B. Initial level compensation uses synthetic input only.',
+ recall:"Select Raven / Guitar. Complete parameter initialization clears prior pedal, amp and POST banks, and also resets INPUT, tempo and tuner. In 1.3 each rig starts with its own modeled CAB recipe. Song identity and CAB settings survive state files and A/B. Initial level compensation uses synthetic input only.",
  pitch:'Transpose corrects low-bin energy accounting and retains the outgoing ratio during bypass fades. Steady-state FFT window delay remains 46.4 ms at 44.1 kHz and 42.7 ms at 48/96 kHz. Latency and sound-quality improvements are deferred beyond 1.1.1. Bass B-string playing at -2 semitones has been reported to lose note body and attack separation. Turn Transpose off and retune when this affects your playing.',
  gain:'Check INPUT/OUTPUT and each native amp OUTPUT LEVEL before level matching. Default OUTPUT is −6 dB; Factory recall uses a preset-specific output trim. Native amps use their software OUTPUT LEVEL. GR reports internal compressor attenuation, excluding dry blend and output gain.'},
  de:{note:'Gain und Ausgangspegel der Gitarren-Signatures wurden in 1.1.2 angepasst. Die Bank umfasste in Open Beta 1.2 insgesamt 43 Presets: 31 Factory-, drei Bass-, vier Gitarren-Signatures und fünf Original-Presets. Sie dienen als Ausgangspunkte für Instrument und Spielweise.',headers:['Song','Rolle / Modus','PRE · AMP · POST'],rows:[
@@ -1528,7 +1609,7 @@ const CANDIDATE111={
  ['Feel My Wrath','Groove-Metal-Rhythmus · Dual','Yellow Asym → Fourfold / Tight 515 → Dry. Console VCA ist zunächst im Bypass; bei Bedarf dezent aktivieren.'],
  ['Blackhearted','Death-Metal-Rhythmus · Matrix 140 Hz / 1,8 kHz','Clean LOW + Fourfold MID + Night Harvest HIGH → Console Four EQ. Yellow Asym bearbeitet MID/HIGH.'],
  ['Dark Matters of Throne','Death-Metal-Rhythmus · Matrix 160 Hz / 1,5 kHz','Clean LOW + Blue Storm MID + Night Harvest HIGH → Iron Colour · Passive Tube EQ. Obsession bearbeitet MID/HIGH.']],
- recall:'Im Menü Raven / Guitar wählen. Alle Parameter werden initialisiert, einschließlich inaktiver Pedal-, Amp- und POST-Bänke sowie INPUT, Tempo und Tuner. Alle vier beginnen mit derselben internen V30/SM57-IR. Song-ID und IR-Metadaten bleiben in Zustandsdateien und A/B erhalten. Die vorläufige Pegelkorrektur basiert ausschließlich auf synthetischen Signalen.',
+ recall:"Im Menü Raven / Guitar wählen. Alle Parameter werden initialisiert, einschließlich inaktiver Pedal-, Amp- und POST-Bänke sowie INPUT, Tempo und Tuner. In 1.3 beginnt jedes Rig mit seiner eigenen modellierten CAB-Konfiguration. Song-ID und CAB-Einstellungen bleiben in Zustandsdateien und A/B erhalten. Die vorläufige Pegelkorrektur basiert ausschließlich auf synthetischen Signalen.",
  pitch:'Transpose korrigiert die Energie tiefer FFT-Bins und behält beim Bypass-Ausblenden das ausgehende Pitch-Verhältnis bei. Die laufende FFT-Fensterverzögerung bleibt 46,4 ms bei 44,1 kHz und 42,7 ms bei 48/96 kHz. Verbesserungen an Latenz und Klangqualität werden nach 1.1.1 langfristig weitergeführt. Bei der Bass-H-Saite und -2 Halbtönen wurden verschmierte Töne und Anschläge gemeldet. Bei hörbaren Problemen Transpose ausschalten und das Instrument umstimmen.',
  gain:'Vor dem Pegelvergleich INPUT/OUTPUT und OUTPUT LEVEL des nativen Amps prüfen. OUTPUT startet standardmäßig bei −6 dB; Factory-Presets verwenden individuelle Ausgangspegel. Native Amps verwenden ihren Software-OUTPUT-LEVEL. GR zeigt die interne Kompressorabsenkung ohne Dry-Blend und Ausgangsverstärkung.'}
 };
@@ -1671,6 +1752,52 @@ function render(){
    de:['Die CAB-Erweiterung bietet 8 Gitarren- und 6 Basslautsprecher sowie 20 Mikrofonmodelle: 9 dynamische, 3 Bändchen und 8 Kondensatormikrofone. Crimson 12, Nocturne 100 und Chimera Strike sind enthalten.', 'In CABINET zuerst die Box und einen passenden Lautsprecher, dann Mikrofon und Abnahmeeinheit für A/B unabhängig wählen. Alle Lautsprecher in einer Box sind gleich; beide Mikrofone können dieselbe oder unterschiedliche Einheiten abnehmen. Ziehen ändert die Position, Umschalt-Ziehen den Abstand.', 'Attack Dynamic, Body Ribbon und Detail Condenser lassen sich mit der darunterliegenden Auswahl wechseln. Ein anderes Mikrofonmodell deaktiviert diese Auswahl. Die neuen Antworten sind eigenständige Chimera-Entwürfe, keine gemessenen Hardware-Klone.', 'Silk HF, Metal HF und Air HF wählen den Hochtöner. TWEETER bei 0 % schaltet ihn aus. IR LOADER erhält die Auswahl und gespeicherte IRs. Matrix LOW DI↔AMP+CAB und der Mic-A/B-Blend sind getrennte Mischungen.']
  };
  document.getElementById('irBody').innerHTML+='<h4>CAB / Speaker & Microphone Expansion</h4>'+bullets(cabExpansionHelp[lang]);
+ const factoryCabHelp={
+  "en": {
+    "title": "1.3 · Factory preset CAB recipes",
+    "items": [
+      "All 48 presets have explicit cabinet, speaker, tweeter and microphone settings. Their 71 active CAB lanes include twelve 6×10 lanes; six intentional dry LOW lanes keep CAB bypassed. IDs, names and bank order are unchanged.",
+      "An active CAB starts with Mic A enabled and Mic B disabled. Mic B is already configured for optional blending. A 6×10 recipe targets unit 3 in the middle row; positions, distances and speaker choices are editable.",
+      "Factory recall uses the modeled CAB stage and does not resolve or load A/B IR files. Existing project/A·B files continue to restore their own parameters and embedded IR audio. These authored recipes are starting points, not measured hardware captures."
+    ],
+    "headers": [
+      "Preset example",
+      "Enclosure",
+      "Speaker",
+      "Mic A"
+    ]
+  },
+  "de": {
+    "title": "1.3 · CAB-Konfigurationen der Werkspresets",
+    "items": [
+      "Alle 48 Presets besitzen ausdrückliche Einstellungen für Box, Lautsprecher, Hochtöner und Mikrofone. Ihre 71 aktiven CAB-Spuren umfassen zwölf 6×10-Spuren; sechs bewusst trockene LOW-Spuren umgehen CAB. IDs, Namen und Bankreihenfolge bleiben erhalten.",
+      "Ein aktives CAB startet mit eingeschaltetem Mic A und ausgeschaltetem Mic B. Mic B ist für eine optionale Mischung vorbereitet. Eine 6×10-Konfiguration nimmt Einheit 3 in der mittleren Reihe ab; Positionen, Abstände und Lautsprecher lassen sich bearbeiten.",
+      "Werkspresets verwenden die modellierte CAB-Stufe und lösen oder laden keine A/B-IR-Dateien. Bestehende Projekt-/A·B-Dateien stellen weiterhin ihre eigenen Parameter und eingebettetes IR-Audio wieder her. Die selbst entworfenen Einstellungen sind Ausgangspunkte und keine gemessenen Hardware-Aufnahmen."
+    ],
+    "headers": [
+      "Preset-Beispiel",
+      "Box",
+      "Lautsprecher",
+      "Mic A"
+    ]
+  },
+  "ko": {
+    "title": "1.3 · 팩토리 프리셋 CAB 구성",
+    "items": [
+      "프리셋 48개에 캐비넷·스피커·트위터·마이크 설정을 지정했습니다. 활성 CAB 레인 71개 중 12개가 6×10을 사용하고, 드라이 저역을 위한 LOW 레인 6개는 CAB을 우회합니다. ID·이름·뱅크 순서는 유지합니다.",
+      "활성 CAB은 Mic A를 켜고 Mic B를 끈 상태로 시작합니다. Mic B에도 설정이 준비되어 있어 필요할 때 켜서 혼합할 수 있습니다. 6×10 구성은 가운데 행의 3번 유닛을 수음하며 위치·거리·스피커를 직접 조정할 수 있습니다.",
+      "팩토리 프리셋은 모델링 CAB을 사용하며 A/B IR 파일을 찾거나 불러오지 않습니다. 기존 프로젝트·A/B 파일은 자체 파라미터와 포함된 IR 오디오를 복원합니다. 이 구성은 독자적으로 설계한 시작값이며 실측 하드웨어 캡처가 아닙니다."
+    ],
+    "headers": [
+      "프리셋 예시",
+      "캐비넷",
+      "스피커",
+      "Mic A"
+    ]
+  }
+};
+ const factoryCabExamples=[["Clean Sustain", "1×12 · OPEN", "Silver 12", "Prism 414"], ["Tight Rhythm", "4×12 · CLOSED", "Ember 30", "Needle 57"], ["Finger Round", "1×15 · CLOSED", "Monolith 15", "Anchor 20"], ["Pick Punch", "4×10 · CLOSED", "Alloy 10", "Needle 57"], ["Modern Grind", "6×10 · CLOSED", "Foundry 10", "Hammer 421"], ["Thall Rhythm", "4×12 · CLOSED", "Chimera Ruin 12", "Chimera Strike"]];
+ document.getElementById('irBody').innerHTML+='<h4>'+esc(factoryCabHelp[lang].title)+'</h4>'+bullets(factoryCabHelp[lang].items)+table(factoryCabHelp[lang].headers,factoryCabExamples,false);
  const renderWorkflow=w=>{
    const media=w.images.map(img=>'<figure class="workflow-asset"><img loading="lazy" decoding="async" src="'+ASSET+encodeURIComponent(img[0])+'" alt="'+esc(img[1])+'"><figcaption>'+esc(img[1])+'</figcaption></figure>').join('');
    const steps=w.steps.map(step=>'<div class="workflow-step"><strong>'+esc(step[0])+'</strong><span>'+esc(step[1])+'</span></div>').join('');

@@ -35,7 +35,7 @@ The information hierarchy and visible signal flow were informed by Odeholm Audio
 
 NeuralAmpModelerCore by Steven Atkinson and contributors was used as an external offline renderer, pinned to `0b3d3c97b0859a3a8c92a8628c4dd89a25eb5842`. It is not linked into the plugin. https://github.com/sdatkinson/NeuralAmpModelerCore
 
-T3K NAM/IR files are not embedded or redistributed with the public plugin. Source/creator/hash records and metadata-only sidecars are in `reference`. Original hardware names are descriptive references, not endorsements. TONE3000 sharing terms: https://www.tone3000.com/guides/tone-sharing-guidelines
+Third-party NAM weights, private IR recordings and development capture catalogs are not included in public packages. Offline research records remain outside the shipped payload. Original hardware names are descriptive references, not endorsements.
 
 ## RavenForge interface artwork
 
@@ -45,6 +45,6 @@ workbench background. Generation prompts are in ARTWORK_PROMPTS.json. Hardware i
 are illustrative and do not constitute photographs of the captured equipment. No third-party
 logos or product artwork are included. Native UI controls/text remain separate from images.
 
-## External bass IR source links
+## User-supplied cabinet IRs
 
-Shift Line Bass IR Pack: https://shift-line.com/irpackbass . Chimera contains capture metadata, original-file hashes and a link to the creator's download page; it does not include these twelve WAV files. Software distribution requires the creator's permission. See EXTERNAL_BASS_IRS.md for the user download/import workflow and verification provenance.
+The public loader lists the two factory recordings above and files selected by the user. Development/private/external reference entries and their download prompts are excluded. Importing a WAV/AIFF does not establish redistribution permission. Existing user-file metadata and project-embedded IR audio are preserved. See IR_DISTRIBUTION.md for the exact included-file hashes and EXTERNAL_BASS_IRS.md for manual import.

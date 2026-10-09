@@ -101,9 +101,14 @@ public:
         bWasRunning=false; preferSecondSwap=false;
         second.setSize((int)spec.numChannels,(int)spec.maximumBlockSize);
         delayBuffer.setSize((int)spec.numChannels,int(sr*.020)+2); delayBuffer.clear(); delayWrite=0;
-        micGain.reset(sr,.020); micGain.setCurrentAndTargetValue(1.f);
+        // A prepared/restored state owns its first sample. Ramping from unity
+        // would briefly bypass saved attenuation or start an inverted mic with
+        // positive polarity. Runtime changes retain their 20 ms smoothing.
+        micGain.reset(sr,.020);
+        micGain.setCurrentAndTargetValue(juce::Decibels::decibelsToGain(gainDb)*(invert ? -1.f : 1.f));
         micBlend.reset(sr,.020); micBlend.setCurrentAndTargetValue(blend);
-        micDelay.reset(sr,.020); micDelay.setCurrentAndTargetValue(0.f);
+        micDelay.reset(sr,.020);
+        micDelay.setCurrentAndTargetValue(float(sr*.001)*juce::jlimit(0.f,20.f,delayMs));
         setCuts(70,9000); hp.prepare(spec); lp.prepare(spec);
         alternate.setSize((int)spec.numChannels,(int)spec.maximumBlockSize);
         dry.setSize((int)spec.numChannels,(int)spec.maximumBlockSize);

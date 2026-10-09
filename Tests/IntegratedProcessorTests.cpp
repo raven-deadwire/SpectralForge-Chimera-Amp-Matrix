@@ -1,6 +1,7 @@
 #include "PluginProcessor.h"
 #include "GuitarSignaturePresets.h"
 #include "FactoryNativeVoicing.h"
+#include "FactoryCabVoicing.h"
 #include "PresetOrder.h"
 #include <iostream>
 #include <stdexcept>
@@ -15,7 +16,8 @@ void set(ChimeraProcessor& p,const juce::String& id,float value) {
     auto* parameter=p.parameters().getParameter(id);require(parameter!=nullptr,"Unknown preset/test parameter");
     parameter->setValueNotifyingHost(parameter->convertTo0to1(value));
 }
-std::vector<float> render(ChimeraProcessor& p,bool bass=false,int blocks=120) {
+void factoryCabContract(ChimeraProcessor&,int index,bool rendered);
+std::vector<float> render(ChimeraProcessor& p,bool bass=false,int blocks=120,int factoryIndex=-1) {
     p.prepareToPlay(48000,128);juce::AudioBuffer<float> b(2,128);juce::MidiBuffer midi;std::vector<float> result;
     for(int block=0;block<blocks;++block) {
         for(int n=0;n<128;++n) {
@@ -33,6 +35,7 @@ std::vector<float> render(ChimeraProcessor& p,bool bass=false,int blocks=120) {
         p.processBlock(b,midi);
         for(int c=0;c<2;++c)for(int n=0;n<128;++n) {const auto x=b.getSample(c,n);require(std::isfinite(x) && std::abs(x)<4,"Signature output invalid/unbounded");result.push_back(x);}
     }
+    if(factoryIndex>=0)factoryCabContract(p,factoryIndex,true);
     p.releaseResources();return result;
 }
 // General factory recalls preserve the actual host/APVTS performance values.
@@ -75,13 +78,66 @@ void performanceRecall(ChimeraProcessor& p,int index) {
         }
     }
 }
-void factoryBank(bool measureOnly,bool originalOnly=false) {
+void factoryCabContract(ChimeraProcessor& processor,int index,bool rendered=false) {
+    using namespace spectralforge;
+    const auto value=[&](const juce::String& id) {
+        const auto* parameter=processor.parameters().getRawParameterValue(id);
+        require(parameter!=nullptr,"Factory CAB contract parameter missing");return parameter->load();
+    };
+    const int mode=int(value("mode")),lanes=mode==0?1:mode==1?2:3;
+    const bool dryBass=index==2||index==25||index==26||index==27;
+    const bool dryGuitar=index==36||index==37;
+    if(dryBass||dryGuitar)require(mode==2 && value("lowampmix")==0.f,"Factory CAB voicing changed the exact Matrix LOW dry path");
+    OriginalCabParameters modeled;modeled.bind(processor.parameters());
+    for(int lane=0;lane<3;++lane) {
+        const auto suffix=juce::String(lane+1);
+        const bool active=lane<lanes && !(lane==0 && (dryBass||dryGuitar));
+        require(value("cab"+suffix)==(active?1.f:0.f),"Factory CAB active/bypass policy differs from its routing role");
+        require(value("cabtype"+suffix)==0.f && value("cabBtype"+suffix)==0.f && value("cabblend"+suffix)==0.f,
+                "Factory recall selected a captured IR or an unauthored second mic blend");
+        const int layout=int(value(cabLayoutID(lane,"layout"))),driver=int(value(cabExpansionID(lane,"driver")));
+        require(layout>=1 && layout<=int(cabLayout::layouts.size()) && driver>=1 && driver<=int(cabExpansion::drivers.size()),
+                "Factory CAB omitted its explicit layout or speaker design");
+        const auto& enclosure=cabLayout::layouts[size_t(layout-1)];const auto& speaker=cabExpansion::drivers[size_t(driver-1)];
+        require(enclosure.bass==speaker.bass && enclosure.inches==speaker.inches,
+                "Factory speaker recipe needs an implicit family/diameter fallback");
+        require(int(value(originalCabID(lane,"design")))==(enclosure.bass?1:0),"Factory CAB family control disagrees with its physical layout");
+        for(int slot=0;slot<2;++slot) {
+            const auto letter=juce::String(slot?"B":"A");const bool enabled=active && slot==0;
+            require(value(originalCabID(lane,(letter+"on").toRawUTF8()))==(enabled?1.f:0.f),"Factory modeled mic enable policy is incomplete");
+            const int unit=int(value(cabLayoutID(lane,(letter+"unit").toRawUTF8())));
+            const int mic=int(value(cabExpansionID(lane,(letter+"mic").toRawUTF8())));
+            require(unit>=0 && unit<enclosure.columns*enclosure.rows && mic>=1 && mic<=int(cabExpansion::microphones.size()),
+                    "Factory CAB selected a removed speaker unit or unspecified microphone");
+            require(processor.micName(lane,slot).isEmpty(),"Clean factory recall automatically loaded an external/user IR");
+            const auto key=modeled.read(lane,slot);
+            require((key!=0)==enabled,"Factory CAB controls do not select the modeled DSP path");
+            if(rendered)require(processor.micDisplayRevision(lane,slot)[2]==(uint64_t{1}|(key<<4)),
+                                "Production audio did not install the factory modeled cabinet request");
+        }
+    }
+    // Independent representative recipes cover every snapshot builder. The
+    // full-bank checks above validate compatible, explicit routing for all 48.
+    const auto recipe=[&](int lane,int layout,int driver,int mic) {
+        require(int(value(cabLayoutID(lane,"layout")))==layout && int(value(cabExpansionID(lane,"driver")))==driver
+                && int(value(cabExpansionID(lane,"Amic")))==mic,"Factory CAB starting tone changed without updating its recipe contract");
+    };
+    if(index==0)recipe(0,1,5,14);       // clean guitar, open 1x12
+    if(index==1)recipe(0,3,1,1);        // tight guitar, 4x12
+    if(index==2)recipe(1,7,10,3);       // Matrix dry LOW + modeled 6x10 MID
+    if(index==34)recipe(0,2,1,11);      // guitar signature builder
+    if(index==38)recipe(0,3,8,20);      // Original Nastrond builder
+    if(index==43)recipe(0,6,10,5);      // Original Niflheimr builder
+}
+void factoryBank(bool measureOnly,bool originalOnly=false,bool headerVoicing=false,const std::set<int>& selected={}) {
     using namespace spectralforge;
     std::array<bool,selectablePresetCount> seen{};
+    int measured=0,levelFailures=0;
     for(const int index:presetDisplayOrder()) {
-        if(originalOnly&&!isOriginalPreset(index))continue;
         require(index>=0&&index<selectablePresetCount&&!seen[size_t(index)],"Preset display order is not a permutation");seen[size_t(index)]=true;
         require(adjacentPreset(adjacentPreset(index,1),-1)==index,"Preset navigation disagrees with category order");
+        if((originalOnly&&!isOriginalPreset(index)) || (!selected.empty() && selected.count(index)==0))continue;
+        ++measured;
         const auto a=std::make_unique<ChimeraProcessor>(),b=std::make_unique<ChimeraProcessor>();
         for(auto* raw:a->getParameters())if(auto* p=dynamic_cast<juce::RangedAudioParameter*>(raw))
             if(!factoryPerformanceParameter(p->paramID))p->setValueNotifyingHost(.81f);
@@ -92,7 +148,7 @@ void factoryBank(bool measureOnly,bool originalOnly=false) {
         // Diagnostic mode can render the current header-defined voicing while
         // iterating with a cached DSP library. The normal regression always
         // exercises the actual production loadFactoryPreset entry point.
-        if(measureOnly)for(auto* processor:{a.get(),b.get()})
+        if(headerVoicing)for(auto* processor:{a.get(),b.get()})
             processor->parameters().replaceState(isNiflheimrPreset(index)?niflheimrPresetSnapshot(processor->parameters(),index-niflheimrPresetStart):isOriginalPreset(index)?originalPresetSnapshot(processor->parameters(),index-originalPresetStart):isGuitarSignature(index)
                 ?guitarSignatureSnapshot(processor->parameters(),index-factoryPresetCount)
                 :factoryNativeSnapshot(processor->parameters(),index));
@@ -122,8 +178,9 @@ void factoryBank(bool measureOnly,bool originalOnly=false) {
             require(a->parameters().getRawParameterValue("boardEnabled")->load()>.5f,"Factory PRE still uses a different engine from its panel");
         }
         require(std::abs(a->parameters().getRawParameterValue("output")->load())<1e-5f,"Factory recall must start at OUTPUT 0 dB");
+        factoryCabContract(*a,index);factoryCabContract(*b,index);
         const bool bass=isNiflheimrPreset(index)||(index<factoryPresetCount&&juce::String(factoryPresets[size_t(index)].instrument).contains("Bass"));
-        const auto audio=render(*a,bass,450),clean=render(*b,bass,450);double energy=0;float peak=0;
+        const auto audio=render(*a,bass,450,index),clean=render(*b,bass,450,index);double energy=0;float peak=0;
         require(audio.size()==clean.size(),"Factory audio fixture size differs");
         for(size_t i=0;i<audio.size();++i)require(std::abs(audio[i]-clean[i])<1e-6f,"Inactive PRE bank changed factory audio");
         for(float x:audio){energy+=double(x)*x;peak=std::max(peak,std::abs(x));}
@@ -132,13 +189,19 @@ void factoryBank(bool measureOnly,bool originalOnly=false) {
         std::cout<<"PRESET_LEVEL,"<<index<<","<<name<<","<<rmsDb<<","<<peakDb<<","<<a->parameters().getRawParameterValue("output")->load()<<'\n';
         if(measureOnly&&(index==1||index==14||index==31))std::cout<<"PRESET_DIAGNOSTIC "<<index<<" "<<a->diagnosticReport()<<'\n';
         if(!measureOnly){require(peak<.95f,"Factory preset clips at unity OUTPUT");require(rmsDb>-30,"Factory preset is unexpectedly quiet on the synthetic pluck fixture");}
-        set(*b,"input",6);const auto hot=render(*b,bass,450);float hotPeak=0;
+        set(*b,"input",6);const auto hot=render(*b,bass,450,index);float hotPeak=0;
         for(float x:hot)hotPeak=std::max(hotPeak,std::abs(x));
         std::cout<<"PRESET_HOT,"<<index<<","<<20*std::log10(hotPeak)<<'\n';
+        const bool levelPass=rmsDb>-30 && peak<.95f && hotPeak<.95f;
+        if(!levelPass)++levelFailures;
+        if(measureOnly)std::cout<<"PRESET_GATE,"<<index<<","<<(rmsDb>-30)<<","<<(peak<.95f)<<","<<(hotPeak<.95f)<<'\n';
         if(!measureOnly)require(hotPeak<.95f,"Factory preset clips the +6 dB input pluck fixture");
         if(index<factoryPresetCount)performanceRecall(*a,index);
     }
-    std::cout<<"PASS factory recall and category navigation: "<<selectablePresetCount<<" presets (synthetic fixture only)\n";
+    require(std::all_of(seen.begin(),seen.end(),[](bool value){return value;}),"Preset display order omitted a factory ID");
+    std::cout<<"PASS factory recall, modeled CAB and category navigation: "<<measured<<" presets (synthetic fixture only)\n";
+    if(measureOnly)std::cout<<"PRESET_MEASUREMENT_SUMMARY,"<<measured<<","<<levelFailures<<","<<(headerVoicing?"header-voicing":"production-recall")
+                          <<"; diagnostic only, strict RMS > -30 dBFS and unity/+6 dB peaks < 0.95 remain unchanged\n";
 }
 void signatures(const juce::File& directory) {
     require(directory.createDirectory().wasOk(),"Cannot create signature evidence directory");
@@ -373,16 +436,38 @@ void gainAndGR() {
 }
 #include "PresetGainTests.h"
 #include "NiflheimrPresetTests.h"
+#include "CabPreparedStateTests.h"
 int main(int argc,char** argv) {
     juce::ScopedJuceInitialiser_GUI init;
+    std::cout<<std::unitbuf;
     try {
         if(argc==3&&juce::String(argv[1])=="--niflheimr-presets"){niflheimrPresetTests::run(juce::File(argv[2]));return 0;}
+        if(argc==2&&juce::String(argv[1])=="--cab-prepared-state-only"){cabPreparedStateTests::run();return 0;}
         if(argc==3&&juce::String(argv[1])=="--original-channel-levels"){originalChannelLevelProbe(juce::File(argv[2]),false);return 0;}
         if(argc==4&&juce::String(argv[1])=="--owner-original-reference"){ownerOriginalReference(juce::File(argv[2]),juce::File(argv[3]));return 0;}
         if(argc>1&&juce::String(argv[1])=="--original-production-only"){originalProduction();originalChannels();return 0;}
         if(argc>1&&juce::String(argv[1])=="--measure-gain"){presetGainTests::run(true);return 0;}
-        const bool originalOnly=argc>2&&juce::String(argv[2])=="--measure-original";
-        const bool measureOnly=originalOnly||(argc>2&&juce::String(argv[2])=="--measure-presets");factoryBank(measureOnly,originalOnly);
+        const auto measurement=argc>2?juce::String(argv[2]):juce::String{};
+        const bool originalOnly=measurement=="--measure-original";
+        const bool headerVoicing=originalOnly||measurement=="--measure-presets";
+        const bool measureOnly=headerVoicing||measurement=="--measure-production-presets";
+        require(measurement.isEmpty()||measureOnly,"Unknown integrated processor measurement mode");
+        std::set<int> selected;
+        if(argc>3) {
+            require(measureOnly && argc==4,"Preset subsets are diagnostic only; strict regression always checks the complete bank");
+            const auto option=juce::String(argv[3]);
+            require(option.startsWith("--preset-ids="),"Expected --preset-ids=0,1,... after the measurement mode");
+            const auto ids=option.fromFirstOccurrenceOf("=",false,false);
+            require(ids.isNotEmpty() && !ids.startsWithChar(',') && !ids.endsWithChar(',') && !ids.contains(",,"),"Empty diagnostic preset ID");
+            for(const auto& token:juce::StringArray::fromTokens(ids,",","")) {
+                require(token.isNotEmpty() && token.containsOnly("0123456789"),"Invalid diagnostic preset ID");
+                const int index=token.getIntValue();
+                require(index>=0 && index<spectralforge::selectablePresetCount && selected.insert(index).second,"Diagnostic preset IDs must be unique and in range");
+                require(!originalOnly||spectralforge::isOriginalPreset(index),"Original-only measurement received a different preset bank");
+            }
+        }
+        if(!measureOnly)cabPreparedStateTests::run();
+        factoryBank(measureOnly,originalOnly,headerVoicing,selected);
         if(!measureOnly){originalProduction();originalChannels();originalChannelLevelProbe(juce::File(argc>1?argv[1]:"/tmp/chimera-signatures").getChildFile("channel-levels"));signatures(juce::File(argc>1?argv[1]:"/tmp/chimera-signatures"));gainAndGR();presetGainTests::run(false);niflheimrPresetTests::run(juce::File(argc>1?argv[1]:"/tmp/chimera-signatures").getChildFile("niflheimr-presets"));}
     }
     catch(const std::exception& error){std::cerr<<"FAIL "<<error.what()<<'\n';return 1;}

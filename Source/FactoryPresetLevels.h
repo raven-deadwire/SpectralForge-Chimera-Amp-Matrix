@@ -2,7 +2,7 @@
 #include <array>
 namespace spectralforge {
 // Every factory recall starts at unity OUTPUT. Musical level is authored in
-// the visible amp / POST stages; saved projects retain their stored OUTPUT.
+// the visible amp / CAB / POST stages; saved projects retain their stored OUTPUT.
 inline constexpr std::array<float,48> factoryOutputDb{{
     0.0f, // 0: Clean Sustain
     0.0f, // 1: Tight Rhythm

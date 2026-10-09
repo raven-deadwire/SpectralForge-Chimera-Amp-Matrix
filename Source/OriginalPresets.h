@@ -2,6 +2,7 @@
 #include "OriginalAmpDefinition.h"
 #include "FactoryPresets.h"
 #include "FactoryPresetLevels.h"
+#include "FactoryCabVoicing.h"
 #include "AmpNativeParameters.h"
 #include "PedalBoardParameters.h"
 #include "PostNativeParameters.h"
@@ -11,7 +12,7 @@ inline constexpr int originalPresetStart=factoryPresetCount+4;
 struct OriginalRigPreset {const char* id;const char* name;const char* role;int mode;};
 // Replace the five preview examples in place. Channel names belong in CHANNEL;
 // Owner references informed the hot drive, dry crossover rigs and POST contour.
-// Embedded user IRs are not copied; every factory rig uses the bundled V30.
+// Factory cabinet recipes are modeled and independent of external IR files.
 // These are complete PRE / amp / cabinet / POST rigs with separate identities.
 inline constexpr std::array<OriginalRigPreset,5> originalRigPresets{{
     {"original.rig.nastrond.thall.v3","Thall Rhythm","Fenrir: hot TS808 / Diamond, Console VCA and sculpted Console Four EQ; dry reference-inspired rhythm.",0},
@@ -122,7 +123,10 @@ inline juce::ValueTree originalPresetSnapshot(juce::AudioProcessorValueTreeState
             break;
     }
     juce::ValueTree metadata("ORIGINAL_PRESET");metadata.setProperty("id",rig.id,nullptr);metadata.setProperty("name",juce::String::fromUTF8(rig.name),nullptr);
-    metadata.setProperty("formatVersion",3,nullptr);snapshot.appendChild(metadata,nullptr);
+    metadata.setProperty("formatVersion",4,nullptr);
+    metadata.setProperty("cabinetPolicy",factoryCabPolicy,nullptr);snapshot.appendChild(metadata,nullptr);
+    const auto get=[&](const juce::String& id){return float(snapshot.getChildWithProperty("id",id).getProperty("value"));};
+    voiceFactoryCab(originalPresetStart+preset,get,set);
     return snapshot;
 }
 }

@@ -1,6 +1,7 @@
 #pragma once
 #include "NiflheimrDefinition.h"
 #include "OriginalPresets.h"
+#include "FactoryCabVoicing.h"
 
 namespace spectralforge {
 // Full rigs append after the released Factory/Bass/Guitar/Nastrond banks.
@@ -69,16 +70,15 @@ inline juce::ValueTree niflheimrPresetSnapshot(juce::AudioProcessorValueTreeStat
     const auto voice=niflheimrRigVoice(preset);
     set(ampNativeEnabledID(0),1);set(ampNativeModelID(0),float(niflheimrAmpModel));
     set(ampNativeChannelID(0,niflheimrAmpModel),float(voice.channel));
-    // Linear makeup AFTER the native distortion, measured through the complete
-    // production rig on the 48 kHz low-B/E pluck fixture (+6 dB input included).
-    // Approx. -24.5 dBFS RMS per rig; global OUTPUT stays at its 0 dB contract.
-    // This calibrates usable levels, not perceived loudness or listening approval.
+    // Preserve the authored native amp makeup after distortion. Release 1.3
+    // cabinet compensation lives at the visible mic level in FactoryCabVoicing;
+    // the complete rig is checked with the low-B/E and +6 dB input fixtures.
     constexpr float ampOutputDb[]{7.5f,-2.f,1.f,1.f,-4.5f};
     set(ampNativeInputTrimID(0),0);set(ampNativeOutputLevelID(0),ampOutputDb[preset]);
     for(size_t c=0;c<niflheimr::controlCount;++c)
         set(ampNativeControlID(0,niflheimrAmpModel,int(c),voice.channel),voice.values[c]);
-    // There is no bundled bass IR. Filters-only is an explicit bass-safe rig,
-    // not a substituted guitar V30 and not a dependency on a personal file.
+    // Preserve each channel's bass-safe cuts. The modeled cabinet recipe is
+    // applied below after the complete amp / PRE / POST snapshot is authored.
     constexpr float lowCuts[]{30,32,32,27,28},highCuts[]{6700,5900,6100,5100,3900};
     for(int lane=1;lane<=3;++lane){
         const auto suffix=juce::String(lane);set("cabtype"+suffix,0);set("cab"+suffix,1);
@@ -129,9 +129,11 @@ inline juce::ValueTree niflheimrPresetSnapshot(juce::AudioProcessorValueTreeStat
     const auto& rig=niflheimrRigPresets[size_t(preset)];
     juce::ValueTree metadata("ORIGINAL_PRESET");
     metadata.setProperty("id",rig.id,nullptr);metadata.setProperty("name",juce::String::fromUTF8(rig.name),nullptr);
-    metadata.setProperty("family","niflheimr",nullptr);metadata.setProperty("formatVersion",1,nullptr);
+    metadata.setProperty("family","niflheimr",nullptr);metadata.setProperty("formatVersion",2,nullptr);
     metadata.setProperty("acceptance","GENRE_AUTHORED_AUDITION_PENDING",nullptr);
-    metadata.setProperty("ir","filters-only:bass",nullptr);snapshot.appendChild(metadata,nullptr);
+    metadata.setProperty("cabinetPolicy",factoryCabPolicy,nullptr);snapshot.appendChild(metadata,nullptr);
+    const auto get=[&](const juce::String& id){return float(snapshot.getChildWithProperty("id",id).getProperty("value"));};
+    voiceFactoryCab(niflheimrPresetStart+preset,get,set);
     return snapshot;
 }
 } // namespace spectralforge

@@ -8,6 +8,7 @@ import shutil
 import subprocess
 import zipfile
 import chimera_version
+import check_ir_distribution
 from package_installer_candidate import write_transfer_parts
 
 root=Path(__file__).resolve().parents[1]
@@ -54,6 +55,7 @@ def transfer(archive: Path, digest: str, sha: str, manifest: dict) -> None:
 
 
 def main() -> None:
+    check_ir_distribution.validate_source(root)
     sha=subprocess.check_output(['git','rev-parse','HEAD'],cwd=root,text=True).strip()
     version=chimera_version.identity(root,sha)
     chimera_version.validate_build(root/'build',version)
@@ -68,13 +70,14 @@ def main() -> None:
         if source.is_file() and not source.stat().st_size:raise RuntimeError('Empty product '+str(source))
         if source.is_dir():shutil.copytree(source,stage/source.name)
         else:shutil.copy2(source,stage/source.name)
-    for filename in ['UPDATE_TEST_BUILD.md','PEDAL_BOARD_DSP.md','NEW_AMP_DSP.md','AMP_NATIVE_DSP.md','POST_NATIVE_DSP.md','MANUAL.html','THIRD_PARTY_NOTICES.md']:
+    for filename in ['UPDATE_TEST_BUILD.md','PEDAL_BOARD_DSP.md','NEW_AMP_DSP.md','AMP_NATIVE_DSP.md','POST_NATIVE_DSP.md','MANUAL.html','THIRD_PARTY_NOTICES.md','IR_DISTRIBUTION.md']:
         source=root/'docs'/filename
         if not source.is_file():raise RuntimeError('Missing required test-build document '+str(source))
         shutil.copy2(source,stage/source.name)
     shutil.copy2(root/'COPYRIGHT.txt',stage/'COPYRIGHT.txt')
     (stage/'INSTALLATION.md').write_text(INSTALLATION,encoding='utf-8')
     shutil.copy2(root/'build/Testing/Temporary/LastTest.log',stage/'CTest.log')
+    check_ir_distribution.validate_stage(stage)
     manifest={**version,'kind':'experimental-Windows-test-build','run_id':os.environ.get('GITHUB_RUN_ID'),
               'run_attempt':os.environ.get('GITHUB_RUN_ATTEMPT'),'published_release':False,'publisher_signed':False,
               'daw_verified':False,'files':[]}

@@ -66,7 +66,19 @@ void ChimeraProcessor::prepareToPlay(double sr,int block)
     const spectralforge::lifecycle::Scope trace("processor.prepare", this);
     releaseResources(); cpuAverage.store(0);cpuPeak.store(0);rate=sr; maximumBlock=juce::jmax(1,block);
     const juce::dsp::ProcessSpec spec{sr,(juce::uint32)maximumBlock,(juce::uint32)getTotalNumOutputChannels()};
-    engine.prepare(spec); preFX.prepare(spec); pedalBoard.prepare(spec); postFX.prepare(spec);utilities.prepare(spec); tuner.prepare(sr);
+    // Install the restored panel state before Cab::prepare initializes its
+    // smoothers. This also clears a previous A/B blend/bypass after reprepare;
+    // the normal process() path still smooths live automation as before.
+    for(int i=0;i<3;++i) {
+        const auto get=[&](int id){return cabPanelParameters[i][id]->load();};
+        auto& cab=engine.cabinet(i);auto* b=cab.secondMic();
+        cab.blend=get(0);cab.gainDb=get(1);cab.delayMs=get(2);cab.invert=get(3)>.5f;
+        b->gainDb=get(4);b->delayMs=get(5);b->invert=get(6)>.5f;
+        cab.enable(laneParameters[i][13]->load()>.5f);
+    }
+    std::array<spectralforge::AmpNativeState,3> initialNativeStates{};
+    for(int i=0;i<3;++i)initialNativeStates[(size_t)i]=nativeAmps.read(ampContext(i));
+    engine.prepare(spec,initialNativeStates); preFX.prepare(spec); pedalBoard.prepare(spec); postFX.prepare(spec);utilities.prepare(spec); tuner.prepare(sr);
     audioBoard=boardParameters.read();
     postRigGate.prepare(spec,juce::jmax(preFX.latency(true),pedalBoard.maximumLatency()+preFX.transpose.latency())+engine.latency());
     preReduction.store(0);postReduction.store(0);for(auto& meter:postPeaks)meter.store(0);
@@ -445,38 +457,9 @@ void ChimeraProcessor::loadFactoryPreset(int index) {
             parameter->setValueNotifyingHost(parameter->convertTo0to1(float(node.getProperty("value"))));
         }
         boardUndo.clear();boardRedo.clear();
-        if(spectralforge::isSignaturePreset(index))applyPresetIRTargets(index);
+        // Factory recipes own their modeled CAB. Resolving a user's IR folder
+        // here would bypass that cabinet and make recall machine-dependent.
         resetPending.store(true);
-    }
-}
-
-void ChimeraProcessor::applyPresetIRTargets(int index) {
-    if(!spectralforge::isSignaturePreset(index))return;
-    const auto entries=spectralforge::IRCollection::scan(spectralforge::IRCollection::roots(),true);
-    for(int lane=0;lane<3;++lane) {
-        const auto target=juce::String::fromUTF8(spectralforge::presetIRTarget(index,lane));
-        const auto expectedHash=juce::String::fromUTF8(spectralforge::presetIRTargetHash(index,lane));
-        if(target.isEmpty())continue;
-        const bool tagged=target.startsWith("tag:");
-        const auto terms=tagged ? juce::StringArray::fromTokens(target.substring(4),"|","") : juce::StringArray{};
-        const bool catalogTarget=!tagged && std::any_of(entries.begin(),entries.end(),[&](const auto& entry){return entry.reference && entry.name==target;});
-        const spectralforge::IRCollection::Entry* match=nullptr;
-        for(const auto& entry:entries) {
-            if(!entry.ready())continue;
-            bool matches=false;
-            if(tagged) {
-                const auto haystack=entry.name+" "+entry.displayName()+" "+juce::JSON::toString(entry.tags.json(),true);
-                matches=true;for(const auto& term:terms)if(!haystack.containsIgnoreCase(term.trim())){matches=false;break;}
-            } else matches=entry.name==target && (!catalogTarget || entry.reference);
-            if(matches && expectedHash.isNotEmpty() && entry.factorySource==0)
-                matches=spectralforge::IRCollection::matchesExpectedHash(entry.file,expectedHash);
-            if(!matches)continue;
-            match=&entry;
-            if(entry.reference)break;
-        }
-        if(match && match->factorySource!=0) setRawParameter("cabtype"+juce::String(lane+1),float(match->factorySource));
-        else if(match && match->file.existsAsFile()) loadIR(lane,match->file);
-        else setRawParameter("cabtype"+juce::String(lane+1),0.f);
     }
 }
 

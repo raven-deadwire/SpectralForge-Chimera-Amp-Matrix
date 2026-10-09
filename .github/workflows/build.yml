@@ -23,8 +23,10 @@ jobs:
       - name: Verify catalog and validation producer contracts
         shell: bash
         run: |
-          python -m py_compile Tools/check_catalog_contract.py Tools/check_ci_validation_map.py Tools/produce_validation_check.py Tools/test_validation_producer.py Tools/seed_validation_reports.py Tools/evaluate_release_gate.py Tools/analyze_callback_pairs.py Tools/run_paired_callback_probe.py Tools/test_callback_timing_protocol.py Tools/release_evidence.py Tools/produce_release_evidence.py Tools/consolidate_release_gate.py
+          python -m py_compile Tools/check_catalog_contract.py Tools/check_ci_validation_map.py Tools/produce_validation_check.py Tools/test_validation_producer.py Tools/seed_validation_reports.py Tools/evaluate_release_gate.py Tools/analyze_callback_pairs.py Tools/run_paired_callback_probe.py Tools/test_callback_timing_protocol.py Tools/release_evidence.py Tools/produce_release_evidence.py Tools/consolidate_release_gate.py Tools/check_ir_distribution.py Tests/test_ir_distribution.py
           python Tools/check_catalog_contract.py
+          python Tools/check_ir_distribution.py
+          python Tests/test_ir_distribution.py
           python Tools/check_ci_validation_map.py
           python Tools/test_validation_producer.py
           python Tools/test_ctest_validation.py
@@ -64,11 +66,13 @@ jobs:
         # Bash stops at the first failed command on every runner, including Windows.
         shell: bash
         run: |
-          python -m py_compile Tools/package_release.py Tools/publish_beta111.py Tools/publish_beta112.py Tools/publish_beta12.py Tools/publish_beta13.py Tools/evaluate_release_gate.py Tools/test_release_gate.py Tools/evaluate_signature_benchmark.py Tools/test_signature_benchmark.py Tools/release_evidence.py Tools/produce_release_evidence.py Tools/consolidate_release_gate.py
+          python -m py_compile Tools/package_release.py Tools/publish_beta111.py Tools/publish_beta112.py Tools/publish_beta12.py Tools/publish_beta13.py Tools/evaluate_release_gate.py Tools/test_release_gate.py Tools/evaluate_signature_benchmark.py Tools/test_signature_benchmark.py Tools/release_evidence.py Tools/produce_release_evidence.py Tools/consolidate_release_gate.py Tools/check_ir_distribution.py Tests/test_ir_distribution.py
           python Tools/test_release_gate.py
           python Tools/test_release_scope.py
           python Tools/test_signature_benchmark.py
           python Tools/check_catalog_contract.py
+          python Tools/check_ir_distribution.py
+          python Tests/test_ir_distribution.py
           python Tools/test_validation_producer.py
           python Tools/test_ctest_validation.py
           python Tools/test_release_consolidator.py

@@ -14,7 +14,7 @@ void writeIR(const juce::File& file,bool silent=false) {
     require(writer->writeFromAudioSampleBuffer(samples,0,256),"Cannot write WAV fixture");
 }
 }
-int main(int argc,char** argv) {
+int main() {
     const auto root=juce::File::getSpecialLocation(juce::File::tempDirectory).getNonexistentChildFile("Chimera-IR-scan",{},false);
     struct Cleanup {juce::File root;~Cleanup(){root.deleteRecursively();}} cleanup{root};
     try {
@@ -57,60 +57,62 @@ int main(int argc,char** argv) {
         require(C::matches(missing,{},{},C::Instrument::bass,C::Availability::missing),"Missing bass reference hidden");
         require(C::matches(missing,{},{},C::Instrument::bass,C::Availability::external),"External bass download hidden");
         require(!C::matches(missing,{},{},C::Instrument::bass,C::Availability::ready),"Missing bass reference shown as ready");
-        const auto references=C::scan({},true);
+        const auto references=C::scan({},true,nullptr,root.getChildFile("release-empty-preferences.json"));
         int factories=0;for(const auto& e:references)if(C::matches(e,{},{},C::Instrument::all,C::Availability::factory))++factories;
         require(factories==2,"Factory assets lost or counted as imported files");
-        int ravenMissing=0;juce::StringArray ravenLabels;
-        for(const auto& e:references)if(e.name.startsWith("Mar1960_")) {
-            require(e.reference && e.external && !e.ready(),"Uninstalled Raven capture incorrectly marked as bundled audio");
-            require(e.tags.values[8]=="The other John Browne" && e.tags.values[9].contains("_TzZ_FVMGfg"),"Raven capture provenance lost");
-            require(!ravenLabels.contains(e.displayName()),"Raven microphone positions have duplicate labels");
-            ravenLabels.add(e.displayName());++ravenMissing;
-        }
-        require(ravenMissing==4,"Raven three positions or V30 comparison missing from library catalog");
-        const auto ravenHints=spectralforge::IRMetadata::filenameHints("Mar1960_Raven_SM57_In.wav");
-        require(ravenHints.values[0]=="Celestion G12-100 Raven" && ravenHints.values[4]=="In","Raven filename metadata not recognized");
-        const auto hartkeMeta=C::approvedPackMetadata(C::ApprovedPack::hartkeHyDrive410,"Hartke HyDrive 410 _ SM57.wav");
-        require(hartkeMeta.isObject() && hartkeMeta["cabinet"].toString()=="Hartke HyDrive 410"
-            && hartkeMeta["microphone"].toString()=="Shure SM57"
-            && hartkeMeta["source"].toString().contains("66570"),"Hartke approved-pack metadata mapping failed");
-        const auto marshallMeta=C::approvedPackMetadata(C::ApprovedPack::marshall1960BV,"Marshall G12 1 SM57 3.wav");
-        require(marshallMeta.isObject() && marshallMeta["speaker"].toString()=="G12T75"
-            && marshallMeta["cabinet"].toString()=="Marshall 1960BV 4x12"
-            && marshallMeta["position"].toString().contains("Speaker 1")
-            && marshallMeta["source"].toString().contains("51086"),"Marshall approved-pack metadata mapping failed");
-        require(!C::approvedPackMetadata(C::ApprovedPack::marshall1960BV,"unexpected.wav").isObject(),"Approved pack accepted an unexpected filename");
+        require(references.size()==2,"Release catalog includes an unapproved/private reference capture");
+        for(const auto& e:references)
+            require(e.ready() && !e.reference && !e.external && e.tags.values[10]=="CC BY 4.0",
+                "Release catalog contains an unavailable or unattributed factory entry");
+        const auto formerPrivateHints=spectralforge::IRMetadata::filenameHints("Mar1960_Raven_SM57_In.wav");
+        require(formerPrivateHints.values[8].isEmpty() && formerPrivateHints.values[9].isEmpty()
+            && formerPrivateHints.values[10].isEmpty(),"A private filename inherited bundled provenance");
         const auto bassHash=juce::SHA256(bass).toHexString();
         require(C::matchesExpectedHash(bass,bassHash),"Expected per-IR hash did not match the fixture");
         require(!C::matchesExpectedHash(bass,juce::String::repeatedString("0",64)),"Wrong per-IR hash was accepted");
-        juce::MemoryBlock integrityData;require(bass.loadFileAsData(integrityData),"Cannot read hash fixture");
-        auto stamped=C::approvedPackMetadata(C::ApprovedPack::hartkeHyDrive410,"Hartke HyDrive 410 _ SM57.wav");
-        C::stampApprovedIntegrity(stamped,C::ApprovedPack::hartkeHyDrive410,integrityData);
-        require(stamped["audio_sha256"].toString()==juce::SHA256(integrityData).toHexString()
-            && stamped["source_pack_sha256"].toString()==C::approvedPackHash(C::ApprovedPack::hartkeHyDrive410)
-            && stamped["approved_pack"].toString()=="hartke-hydrive-410","Approved pack sidecar integrity fields were not stamped");
-        const auto fakeZip=root.getChildFile("invalid-raven.zip"),fakeDestination=root.getChildFile("invalid-raven-import");
-        {
-            juce::ZipFile::Builder builder;builder.addFile(bass,6,"IR/Raven/Mar1960_Raven_SM57_In.wav");
-            auto stream=fakeZip.createOutputStream();require(stream!=nullptr && builder.writeToStream(*stream,nullptr),"Cannot create Raven mismatch fixture");
-        }
+        const auto makeArchive=[&](const juce::File& archive,std::initializer_list<std::pair<juce::File,juce::String>> files) {
+            juce::ZipFile::Builder builder;
+            for(const auto& item:files)builder.addFile(item.first,6,item.second);
+            auto stream=archive.createOutputStream();
+            require(stream!=nullptr && builder.writeToStream(*stream,nullptr),"Cannot create user IR archive fixture");
+        };
+        const auto personalZip=root.getChildFile("user-irs.zip"),destination=root.getChildFile("user-import");
+        makeArchive(personalZip,{{bass,"collection/Bass.wav"},{guitar,"collection/Guitar.wav"},{bad,"unused/model.nam"}});
         int imported=0;
-        require(C::importPersonalPack(fakeZip,fakeDestination,imported).failed() && imported==0 && !fakeDestination.exists(),"Raven hash mismatch created an installed capture");
-        // Optional private pack exercises the actual four WAVs without checking
-        // them into the repository or making them a public CI fixture.
-        if(argc>1) {
-            const auto privatePack=juce::File::getCurrentWorkingDirectory().getChildFile(argv[1]);
-            const auto destination=root.getChildFile("raven-import");
-            require(C::importPersonalPack(privatePack,destination,imported).wasOk() && imported==4,"Private Raven pack did not import all four verified captures");
-            const auto restored=C::scan({destination},true);
-            int ravenReady=0,ready=0;
-            for(const auto& e:restored) {
-                if(e.ready())++ready;
-                if(e.name.startsWith("Mar1960_")) {require(e.ready() && e.reference && e.validationError.isEmpty(),"Imported Raven file did not become selectable");++ravenReady;}
-            }
-            require(ravenReady==4 && ready==6,"Private Raven library scan did not restore four imports plus two factory captures");
-            std::cout<<"PASS: private Raven ZIP imported four hash-verified WAVs; library scan found six ready captures including factory IRs\n";
+        require(C::importPersonalPack(personalZip,destination,imported).wasOk() && imported==2,
+            "User-selected generic WAV archive could not be imported");
+        require(!destination.getChildFile("model.nam").exists(),"IR import copied model weights from the archive");
+        const auto importedBass=destination.getChildFile("Bass.wav");
+        require(juce::SHA256(importedBass).toHexString()==bassHash,"User archive import changed original IR bytes");
+        const auto importedMetadata=juce::File(importedBass.getFullPathName()+".json");
+        const auto firstMetadata=juce::JSON::parse(importedMetadata);
+        require(firstMetadata["audio_sha256"].toString()==bassHash
+            && firstMetadata["source_archive_sha256"].toString()==juce::SHA256(personalZip).toHexString()
+            && firstMetadata["license"].toString().isEmpty(),"Generic import fabricated a license or lost byte provenance");
+        require(importedMetadata.replaceWithText("{\"notes\":\"User-owned metadata\"}"),"Cannot author user import tags");
+        require(C::importPersonalPack(personalZip,destination,imported).wasOk() && imported==2
+            && juce::JSON::parse(importedMetadata)["notes"].toString()=="User-owned metadata",
+            "Re-import overwrote existing user IR metadata");
+        const auto installed=C::scan({destination},true,nullptr,root.getChildFile("release-empty-preferences.json"));
+        require(installed.size()==4,"Release library did not show two explicit user imports plus two factory captures");
+        for(const auto& e:installed)require(e.ready() && !e.reference && !e.external,
+            "User import was converted into a private catalog reference");
+        for(int test=0;test<3;++test) {
+            const auto archive=root.getChildFile("rejected-"+juce::String(test)+".zip");
+            const auto output=root.getChildFile("rejected-"+juce::String(test));
+            if(test==0)makeArchive(archive,{{bass,"valid.wav"},{bad,"invalid.wav"}});
+            if(test==1)makeArchive(archive,{{bass,"one/same.wav"},{guitar,"two/SAME.wav"}});
+            if(test==2)makeArchive(archive,{{bass,"../unsafe.wav"}});
+            require(C::importPersonalPack(archive,output,imported).failed() && imported==0 && !output.exists(),
+                "Invalid/duplicate/traversal IR archive wrote a partial import");
         }
+        const auto collision=root.getChildFile("collision");
+        require(collision.createDirectory().wasOk(),"Cannot create import collision fixture");
+        const auto existing=collision.getChildFile("Bass.wav");writeIR(existing,true);
+        const auto before=juce::SHA256(existing).toHexString();
+        require(C::importPersonalPack(personalZip,collision,imported).failed() && imported==0
+            && juce::SHA256(existing).toHexString()==before,"User import overwrote a different existing IR");
+        std::cout<<"PASS: release catalog contains only two attributed factory IRs; generic user import preserves bytes and metadata\n";
         {
             using M=spectralforge::IRMetadata;using P=spectralforge::IRUserPreferences;
             const auto folder=root.getChildFile("personal"),other=root.getChildFile("other-personal");
@@ -164,7 +166,7 @@ int main(int argc,char** argv) {
         require(bass.copyFileTo(capped.getChildFile("IR-extra.wav")),"Cannot create overflow fixture");
         rows=C::scan({capped},false,&report);
         require(rows.size()==512 && report.examinedFiles==512 && report.truncated,"Scan silently omitted files beyond its limit");
-        std::cout<<"PASS: independent instrument/status/diameter filters, missing/external/factory separation, Raven capture metadata and hash rejection, corrupt/silent file rejection, duplicate-root suppression, explicit 512 vs 513 scan limit\n";
+        std::cout<<"PASS: independent instrument/status/diameter filters, public factory-only catalog, explicit user imports, corrupt/silent file rejection, duplicate-root suppression, explicit 512 vs 513 scan limit\n";
         return 0;
     } catch(const std::exception& error) {std::cerr<<"FAIL: "<<error.what()<<'\n';return 1;}
 }

@@ -38,7 +38,7 @@ class IRBrowserPanel : public juce::Component, private juce::ListBoxModel {
         g.setFont(juce::FontOptions(12.f));
         g.drawText(e.displayName(),24,4,width-32,22,juce::Justification::centredLeft);
         g.setColour(juce::Colour(0xffa6aaa7)); g.setFont(juce::FontOptions(10.5f));
-        const auto badge=e.factorySource ? "FACTORY" : e.validationError.isNotEmpty() ? "INVALID FILE" : e.ready() ? "INSTALLED" : e.external ? "EXTERNAL / DOWNLOAD" : "IMPORT REQUIRED";
+        const auto badge=e.factorySource ? "FACTORY" : e.validationError.isNotEmpty() ? "INVALID FILE" : e.ready() ? "INSTALLED" : "NOT AVAILABLE";
         g.drawText(juce::String(badge)+" / "+spectralforge::IRMetadata::instrumentLabel(e.tags.instrument)+" / "+e.tags.values[4],24,28,width-32,height-30,juce::Justification::centredLeft);
     }
     void selectedRowsChanged(int) override {
@@ -46,8 +46,8 @@ class IRBrowserPanel : public juce::Component, private juce::ListBoxModel {
         source.setEnabled(e && e->tags.values[9].startsWith("https://"));
         remove.setEnabled(e && e->removable());selectedType.setEnabled(e && e->removable());
         selectedType.setSelectedId(e ? (int)e->tags.instrument+1 : 0,juce::dontSendNotification);
-        source.setButtonText(e && e->external && !e->ready() ? "GET FROM CREATOR" : "SOURCE PAGE");
-        captureDetails.setText(e ? ((e->external && !e->ready()) ? juce::String("External download: open GET FROM CREATOR, download and extract the original ZIP, then ADD FOLDER. No audio is bundled or downloaded by Chimera.\n\n") : juce::String{})+e->details() : "Select an IR to inspect the original filename and full capture details.",false);repaint();
+        source.setButtonText("SOURCE PAGE");
+        captureDetails.setText(e ? e->details() : "Select an IR to inspect the original filename and full capture details.",false);repaint();
     }
     void listBoxItemDoubleClicked(int,const juce::MouseEvent&) override { commit(); }
     void commit() {
@@ -129,7 +129,8 @@ class IRBrowserPanel : public juce::Component, private juce::ListBoxModel {
         search.setTextToShowWhenEmpty("Speaker, mic, cone position or creator",juce::Colours::grey);search.onTextChange=[this]{filter();};
         diameter.addItemList({"All sizes","8 in","10 in","12 in","15 in","18 in"},1);diameter.setSelectedId(1);diameter.onChange=[this]{filter();};
         kind.addItemList({"All instruments","Bass","Guitar","Unspecified"},1);kind.setSelectedId(1);kind.onChange=[this]{filter();};
-        availability.addItemList({"All statuses","Ready to load","Factory","Installed files","Missing files","External download","Invalid files"},1);availability.setSelectedId(1);availability.onChange=[this]{filter();};
+        availability.addItemList({"All statuses","Ready to load","Factory","Installed files"},1);
+        availability.addItem("Invalid files",7);availability.setSelectedId(1);availability.onChange=[this]{filter();};
         for(juce::Component* c:std::initializer_list<juce::Component*>{&search,&diameter,&kind,&availability,&microphone,&microphoneReference,&list,&load,&status,&source}) addAndMakeVisible(c);
         addAndMakeVisible(captureDetails);captureDetails.setComponentID("ircapturedetails");captureDetails.setMultiLine(true);captureDetails.setReadOnly(true);captureDetails.setScrollbarsShown(true);captureDetails.setCaretVisible(false);
         captureDetails.setColour(juce::TextEditor::backgroundColourId,juce::Colour(0xff252827));captureDetails.setColour(juce::TextEditor::textColourId,juce::Colour(0xffe2dbcc));captureDetails.setColour(juce::TextEditor::outlineColourId,juce::Colours::transparentBlack);captureDetails.setFont(juce::FontOptions(11.f));

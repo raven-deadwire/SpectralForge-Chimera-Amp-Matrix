@@ -30,7 +30,23 @@ The old Windows log also contains two publisher UnicodeDecodeErrors masked by la
 3. Replace the unshipped layout-7 8×10 prototype with a 2×3 Bass 6×10 (0.63 × 0.94 × 0.40 m; 178.5 L), inheriting existing driver/mic models and per-driver sealed loading. Recalculate the six-source field and shorter enclosure modes; raw units 6/7 resolve to 4/5 in the same column. Existing 8×10 captured IRs remain intact.
 4. Frame only displayed rigs, reclaim the unused microphone margin in room view, restore cabinet exterior detail and remove duplicate visible configurations. Retain one common world scale and all existing stored layout ordinals. The deliberately replaced preview 8×10 sound is not preserved.
 5. Produce and consume source/run/attempt-bound validation. The pinned 1.3 publisher recomputes the actual verdict before any public write; preparation scope cannot publish.
-6. Record direct head-front knob control for the next update after 1.3.
+6. Revoice all 48 factory snapshots with explicit modeled CAB recipes while preserving identities and navigation. Use compatible cabinets/speakers/mics, keep six intentional dry LOW paths, and remove machine-dependent private-IR target resolution. Existing saved user projects are not rewritten. See [factory CAB assignments](FACTORY_CAB_VOICING_1_3.md).
+7. Exclude unapproved external/private reference rows from the public IR loader and research/reference audio from release packages. Retain two attributed, hash-allowlisted CC BY 4.0 factory IRs and manual user import/recall. Source and staged-package checks enforce the distribution policy.
+8. Initialize CAB mic gain/polarity/delay/blend/bypass and the complete native amp selection from the saved state before preparing DSP. This removes cold-start differences on fresh/reused processors while retaining live automation smoothing.
+9. Replace the obsolete E1 DSP/UI coverage requirements with the actual larger Niflheimr inventories. Replaying verified checkpoint evidence changes only those two automatic checks to PASS; no missing/manual acceptance is invented. The new final-source run must still produce its own evidence.
+10. Record direct head-front knob control for the next update after 1.3.
+
+## CAB checkpoint
+
+[Draft PR #35](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/pull/35) integrates the CAB baseline and main documentation at **6782e4b6ead29bf4a31243b2e05a535c38e16745**. [CAB run 37942149861](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/37942149861) passed **17/17 tests on each of Windows, macOS and Linux**. The native run includes camera framing, six-driver geometry, state migration, gestures, driver artwork and 75% room layout. The macOS room/gallery snapshots were inspected for cabinet proportions, restored shell detail, overlaps and clipping.
+
+This checkpoint predates the owner's subsequent factory-preset and IR-distribution requirements. Its installer and evidence are not the final 1.3 candidate. The completed revision must rerun product/candidate/CAB validation with those additions.
+
+## Completed local preset and distribution verification
+
+The final local calibration uses the production factory loader, real audio/state code and JUCE 8.0.8. All **48** presets passed dirty/clean recall, modeled CAB contracts, OUTPUT = 0 dB, RMS > −30 dBFS and nominal/+6 dB-input peaks < 0.95, including every initial sample. The five Niflheimr binary and A/B audio round trips have maximum sample error **0**. Both-mic prepared-state and runtime gain-ramp checks passed. [The complete level table and measured source hashes](FACTORY_CAB_VOICING_1_3.md#completed-local-calibration) distinguish this headless local audio evidence from the forthcoming native editor/installer build.
+
+The public IR source/byte guard passed with exactly two approved embedded assets and no reference entries; its **10** regressions passed. Publisher **21/21**, release preflight **2/2**, and consolidator **26/26** regressions passed. The consolidator replay of the unchanged verified checkpoint bundles changes exactly the two stale E1 requirements and leaves **21 PASS / 107 BLOCKED**, with `ready=false`. Real-source CI and the remaining external/manual acceptance are still required.
 
 ## Validation and remaining acceptance
 

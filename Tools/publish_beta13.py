@@ -19,6 +19,7 @@ import tempfile
 import zipfile
 
 import chimera_version
+import check_ir_distribution
 import evaluate_release_gate as gate
 import publish_open_beta as transport
 
@@ -40,7 +41,7 @@ DOCUMENTS = ("SHA256SUMS.txt", "update-beta.json", "MANUAL.html", "INSTALLATION.
              "macOS-package-verification.txt", "Linux-package-verification.txt")
 SOURCE_DOCUMENTS = ("OPEN_BETA_RELEASE_NOTES.md", "STUDIO_ONE_TEARDOWN.md",
                     "AMP_NATIVE_DSP.md", "POST_NATIVE_DSP.md", "PEDAL_BOARD_DSP.md",
-                    "EXTERNAL_BASS_IRS.md", "NATIVE_NAM_CALIBRATION.md",
+                    "EXTERNAL_BASS_IRS.md", "IR_DISTRIBUTION.md",
                     "NASTROND_CHANNEL_FEEDBACK.md", "NIFLHEIMR_NATIVE_PROTOTYPE.md",
                     "CAB_INTEGRATION.md", "CAB_EXPANSION_V2.md", "CAB_LAYOUT_V3.md")
 WORKFLOWS = {
@@ -266,12 +267,7 @@ def prepare_assets(candidate, head, run_id):
     with zipfile.ZipFile(candidate / f"SpectralForge-Chimera-{VERSION}-win64.zip") as archive:
         require(archive.testzip() is None, "Public Windows ZIP failed CRC verification")
         require(len(archive.namelist()) == len(set(archive.namelist())), "Duplicate portable ZIP entries")
-        for name in archive.namelist():
-            parts = PurePosixPath(name).parts
-            require("Chimera-Personal-IRs" not in parts and not name.lower().endswith(".nam"),
-                    "Private capture found in public package")
-            require(not name.lower().endswith((".wav", ".aif", ".aiff")) or "reference-audio" in parts,
-                    "Unexpected external audio in public package")
+        check_ir_distribution.validate_zip_payload(archive)
         payload = parse_json(archive.read("payload-manifest.json").decode("utf-8-sig"))
         require(payload.get("version") == VERSION and payload.get("source_sha") == head,
                 "Portable payload identity mismatch")

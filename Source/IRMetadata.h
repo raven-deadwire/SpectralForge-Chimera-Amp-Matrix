@@ -74,12 +74,8 @@ struct IRMetadata {
     }
     juce::String summary() const {juce::StringArray parts;for(int i:{0,2,3,4})if(values[(size_t)i].isNotEmpty())parts.add(values[(size_t)i]+(i==2 ? " in" : ""));return parts.isEmpty() ? "IR details unknown - add tags" : parts.joinIntoString(" / ");}
     static IRMetadata filenameHints(const juce::String& name) {
-        static const auto catalog=juce::JSON::parse(referenceIRCatalog);
-        static const auto external=juce::JSON::parse(externalBassIRCatalog);
-        static const auto raven=juce::JSON::parse(ravenIRCatalog);
-        if(const auto* entries=raven.getArray())for(const auto& entry:*entries)if(entry.getProperty("file",{}).toString()==name){auto known=fromJSON(entry);known.values[11]+=" Catalog association by filename; verify file hash against the source catalog.";return known;}
-        if(const auto* entries=external.getArray())for(const auto& entry:*entries)if(entry.getProperty("file",{}).toString()==name){auto known=fromJSON(entry);known.values[11]+=" Filename association only; the catalog records the original SHA-256.";return known;}
-        if(const auto* entries=catalog.getArray())for(const auto& entry:*entries)if(entry.getProperty("file",{}).toString()==name){auto known=fromJSON(entry);known.values[11]+=" Catalog association by filename; verify file hash against the source catalog.";return known;}
+        // A matching filename is not provenance or a distribution permission.
+        // Explicit user sidecars are loaded by IRCollection/IRLibrary unchanged.
         IRMetadata result;std::smatch match;const auto s=name.toStdString();
         if(std::regex_search(s,match,std::regex("([12468])x(8|10|12|15|18)([^0-9]|$)",std::regex::icase))){result.values[1]=juce::String(match[1].str()+"x"+match[2].str());result.values[2]=juce::String(match[2].str());}
         if(name.containsIgnoreCase("V30"))result.values[0]="Celestion Vintage 30";

@@ -182,7 +182,21 @@ class PublicationInputs(unittest.TestCase):
         with zipfile.ZipFile(self.candidate / (self.prefix + "win64.zip"), "a") as archive:
             archive.writestr("capture.nam", "private")
         self.refresh_sums()
-        with self.assertRaisesRegex(RuntimeError, "Private capture"):
+        with self.assertRaisesRegex(RuntimeError, "Private model capture"):
+            publisher.prepare_assets(self.candidate, HEAD, RUN)
+
+    def test_reference_audio_folder_cannot_bypass_public_payload_policy(self):
+        with zipfile.ZipFile(self.candidate / (self.prefix + "win64.zip"), "a") as archive:
+            archive.writestr("reference-audio/third-party.wav", b"private audio")
+        self.refresh_sums()
+        with self.assertRaises(RuntimeError):
+            publisher.prepare_assets(self.candidate, HEAD, RUN)
+
+    def test_renamed_wave_cannot_publish_even_with_current_checksums(self):
+        with zipfile.ZipFile(self.candidate / (self.prefix + "win64.zip"), "a") as archive:
+            archive.writestr("Resources/capture.dat", b"RIFF\x24\x00\x00\x00WAVEdata")
+        self.refresh_sums()
+        with self.assertRaises(RuntimeError):
             publisher.prepare_assets(self.candidate, HEAD, RUN)
 
     def test_packaged_notes_must_match_reviewed_source(self):

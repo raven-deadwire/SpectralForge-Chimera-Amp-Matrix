@@ -118,7 +118,6 @@ private:
     int ampContext(int lane) const noexcept;
     void seedNativeSelections(bool seedBoard,bool seedAmps=true,bool seedPost=true);
     void resetAmpSelection();
-    void applyPresetIRTargets(int index);
     void rememberPedalEdit();
     void setRawParameter(const juce::String&,float);
     std::vector<juce::ValueTree> boardUndo,boardRedo;

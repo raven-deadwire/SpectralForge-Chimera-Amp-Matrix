@@ -118,14 +118,14 @@
       "artifact": "ctest-results.xml + LastTest.log",
       "tests": {
         "ChimeraAmpNativeTests": [
-          "PASS catalog 25 serialized / 24 active models, 393 controls, six contexts",
-          "CONTROL_RESPONSE count=393 failures=0 minimum=\\S+ at=\\S+",
+          "PASS catalog 26 serialized / 25 active models, 407 controls, six contexts",
+          "CONTROL_RESPONSE count=407 failures=0 minimum=\\S+ at=\\S+",
           "GAIN_RANGE model=23 channel=2 thd_low=\\S+ thd_mid=\\S+",
           "GAIN_DEFAULT model=23 channel=2 weak_thd=\\S+ growth_db=\\S+",
           "GAIN_DEFAULT model=23 channel=3 weak_thd=\\S+ growth_db=\\S+",
-          "PASS sample-rates/channel routes=168 peak=\\S+ allocations=0",
+          "PASS sample-rates/channel routes=183 peak=\\S+ allocations=0",
           "PASS inactive channel controls isolated=448 output level ratio=\\S+",
-          "PASS integrated native oversampling paths=100",
+          "PASS integrated native oversampling paths=104",
           "PASS AmpNativeTests"
         ]
       },
@@ -139,7 +139,7 @@
       "tests": {
         "ChimeraUITests": [
           "PASS: six native amp contexts, all native banks, POST nine models, binary/A-B recall and immediate pedal bank recall",
-          "PASS native UI: all 25 serialized amplifier panels at 100/75%, 112 channel cases, 2106 channel/control visibility cases, Matrix LOW priority controls and ALL, 9 POST models / 144 controls at 100/75%, flat POST alias menus and short original model captions, six compact rack rows and ALL dialogs, editor teardown and real parameter callbacks"
+          "PASS native UI: all 26 serialized amplifier panels at 100/75%, 122 channel cases, 2246 channel/control visibility cases, Matrix LOW priority controls and ALL, 9 POST models / 144 controls at 100/75%, flat POST alias menus and short original model captions, six compact rack rows and ALL dialogs, editor teardown and real parameter callbacks"
         ]
       },
       "definition_source": "docs/E670FE_IMPLEMENTATION.md#compatibility"

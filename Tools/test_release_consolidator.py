@@ -51,8 +51,9 @@ class Consolidation(unittest.TestCase):
                                    (['ChimeraUITests'] if kind == 'windows' else [])))
                 raw('inventory', {'tests': [{'name': n} for n in tests]})
                 raw('ctest', '<testsuite>' + ''.join('<testcase name="' + n + '" status="run"/>' for n in tests) + '</testsuite>')
-                # Fixed excerpts from run 37429791345, independent of map patterns.
-                raw('dsp_log', (evidence.ROOT / 'Tools/fixtures/e1-ctest.log').read_text(encoding='utf-8'))
+                # Fixed, completed sections from the exact 6782 checkpoint run;
+                # these are independent of the map patterns. See fixtures/README.md.
+                raw('dsp_log', (evidence.ROOT / 'Tools/fixtures/e1-ctest-6782.log').read_text(encoding='utf-8'))
                 if kind == 'windows':
                     raw('installer', {'success': True, 'source_sha': HEAD, 'run_id': RUN,
                         'version': self.policy['release_scope']['version'], 'checks': ['PASS: fixture']})
@@ -137,6 +138,38 @@ class Consolidation(unittest.TestCase):
         for cid in ('E1.DSP', 'E1.STATE_UI', 'E1.LEGACY'):
             self.assertEqual(self.status(result, cid), 'BLOCKED')
         self.assertEqual(self.status(result, 'A12.06'), 'PASS')
+
+    def test_pre_niflheimr_coverage_does_not_certify_current_e1(self):
+        # Real earlier complete output passed the old map, but does not cover
+        # the appended amplifier. Green JUnit must not hide that coverage gap.
+        previous = (evidence.ROOT / 'Tools/fixtures/e1-ctest.log').read_text(encoding='utf-8')
+        self.raw_change('windows', 'dsp_log', lambda _: previous)
+        result, _ = self.run_gate()
+        self.assertEqual(self.status(result, 'E1.DSP'), 'BLOCKED')
+        self.assertEqual(self.status(result, 'E1.STATE_UI'), 'BLOCKED')
+        self.assertEqual(self.status(result, 'E1.LEGACY'), 'PASS')
+        self.assertEqual(result['counts']['checks']['pass'], 19)
+        self.assertEqual(result['counts']['checks']['blocked'], 109)
+
+    def test_current_e1_coverage_totals_remain_exact(self):
+        current = (self.folder('windows') / 'raw/LastTest.log').read_text(encoding='utf-8')
+        cases = {name: True for name in ('ChimeraAmpNativeTests', 'ChimeraUITests')}
+        for cid, before, after in (
+            ('E1.DSP', '26 serialized / 25 active', '25 serialized / 25 active'),
+            ('E1.DSP', '/ 25 active models, 407 controls', '/ 24 active models, 407 controls'),
+            ('E1.DSP', '407 controls, six contexts', '393 controls, six contexts'),
+            ('E1.DSP', 'CONTROL_RESPONSE count=407', 'CONTROL_RESPONSE count=393'),
+            ('E1.DSP', 'sample-rates/channel routes=183', 'sample-rates/channel routes=168'),
+            ('E1.DSP', 'integrated native oversampling paths=104', 'integrated native oversampling paths=100'),
+            ('E1.STATE_UI', 'all 26 serialized amplifier panels', 'all 25 serialized amplifier panels'),
+            ('E1.STATE_UI', '122 channel cases', '112 channel cases'),
+            ('E1.STATE_UI', '2246 channel/control visibility cases', '2106 channel/control visibility cases'),
+        ):
+            with self.subTest(cid=cid, coverage=before):
+                self.assertEqual(current.count(before), 1)
+                self.assertTrue(evidence.contract_passed(self.mapping[cid], 'windows', cases, current))
+                self.assertFalse(evidence.contract_passed(self.mapping[cid], 'windows', cases,
+                                                         current.replace(before, after)))
 
     def test_legacy_runtime_digest_is_diagnostic_not_a_platform_fingerprint(self):
         # The C++ harness validates the frozen fixture hash, every structural
