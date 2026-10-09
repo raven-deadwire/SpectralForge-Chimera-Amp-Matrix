@@ -266,4 +266,5 @@ separate existing hourly condition watch.
 - [CAB source/identity/acceptance boundaries](CABINET_PANEL_ROADMAP.md)
 - [Transpose long-term work](TRANSPOSE_LONG_TERM.md)
 - [1.3 release preparation](RELEASE_1_3_PREPARATION.md)
+- [Exact 1.3 candidate test blockers](RELEASE_1_3_TEST_BLOCKERS_20261010.md)
 
