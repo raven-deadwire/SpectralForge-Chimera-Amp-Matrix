@@ -71,7 +71,7 @@
   },
   "roadmap": {
     "target_total": 132,
-    "next_model_window": "2026-10-12",
+    "next_model_window": "2026-11-30",
     "model_policy": "append-only",
     "preset_policy": "preserve first 31 Factory ordinals; append new presets",
     "version_gates": [
@@ -80,80 +80,167 @@
         "total": 83,
         "window": "2026-10-02/2026-10-11",
         "new_models": 0,
-        "exception": "E670FE appended at 23 replaces active Ironball 16; Ironball DSP/state retained as legacy."
+        "exception": "E670FE appended at 23 replaces active Ironball 16; Ironball DSP/state retained as legacy.",
+        "window_is_historical": true,
+        "status": "released_history"
       },
       {
         "version": "1.2",
         "name": "Náströnd",
         "total": 84,
         "window": "2026-10-12/2026-11-06",
-        "new_models": 1
+        "new_models": 1,
+        "window_is_historical": true,
+        "status": "released_history",
+        "published_on": "2026-10-05"
       },
       {
         "version": "1.3",
         "name": "Niflheimr",
         "total": 85,
         "window": "2026-11-09/2026-12-04",
-        "new_models": 1
+        "new_models": 1,
+        "window_is_historical": true,
+        "status": "integrated_candidate_validation_pending"
+      },
+      {
+        "version": "1.3.1",
+        "name": "Graphical EQ, FFT and signal-path navigation",
+        "total": 85,
+        "window": "2026-10-10/2026-11-01",
+        "new_models": 0,
+        "status": "planned_internal_target"
+      },
+      {
+        "version": "1.3.2",
+        "name": "Dynamic EQ and common dynamics",
+        "total": 85,
+        "window": "2026-11-02/2026-11-27",
+        "new_models": 0,
+        "status": "planned_internal_target"
       },
       {
         "version": "1.4",
-        "name": "PRE Expansion A",
+        "name": "PRE Expansion A and common multiband/routing",
         "total": 91,
-        "window": "2026-12-07/2026-12-18",
-        "new_models": 6
+        "window": "2026-11-30/2027-01-08",
+        "new_models": 6,
+        "status": "planned_internal_target"
       },
       {
         "version": "1.5",
-        "name": "PRE Expansion B",
+        "name": "PRE Expansion B and routing interaction",
         "total": 97,
-        "window": "2026-12-21/2027-01-08",
-        "new_models": 6
+        "window": "2027-01-11/2027-02-05",
+        "new_models": 6,
+        "status": "planned_internal_target"
       },
       {
         "version": "1.6",
-        "name": "Reference AMP Expansion",
+        "name": "Reference AMP Expansion and common saturation",
         "total": 102,
-        "window": "2027-01-11/2027-02-05",
-        "new_models": 5
+        "window": "2027-02-08/2027-03-12",
+        "new_models": 5,
+        "status": "planned_internal_target"
       },
       {
         "version": "1.7",
-        "name": "POST Dynamics & Tone",
+        "name": "POST Dynamics & Tone and common filters",
         "total": 111,
-        "window": "2027-02-08/2027-02-26",
-        "new_models": 9
+        "window": "2027-03-15/2027-04-09",
+        "new_models": 9,
+        "status": "planned_internal_target"
       },
       {
         "version": "1.8",
         "name": "POST Motion & Space",
         "total": 120,
-        "window": "2027-03-01/2027-03-19",
-        "new_models": 9
+        "window": "2027-04-12/2027-05-07",
+        "new_models": 9,
+        "status": "planned_internal_target"
       },
       {
         "version": "1.9",
         "name": "Creative FX",
         "total": 129,
-        "window": "2027-03-22/2027-04-09",
-        "new_models": 9
+        "window": "2027-05-10/2027-06-04",
+        "new_models": 9,
+        "status": "planned_internal_target"
       },
       {
         "version": "1.10",
         "name": "Synth Layer",
         "total": 132,
-        "window": "2027-04-12/2027-05-07",
-        "new_models": 3
+        "window": "2027-06-07/2027-07-16",
+        "new_models": 3,
+        "status": "planned_internal_target"
       },
       {
         "version": "2.0",
         "name": "Integration / RC",
         "total": 132,
-        "window": "2027-05-10/2027-06-04",
-        "new_models": 0
+        "window": "2027-07-19/2027-08-13",
+        "new_models": 0,
+        "status": "planned_internal_target"
       }
     ],
-    "preview_authorization": "2026-10-09: owner requested current CAB release preparation as version 1.3. Earlier planning windows do not postpone authorized integration; public publication remains separate."
+    "preview_authorization": "2026-10-09: owner requested current CAB release preparation as version 1.3. Earlier planning windows do not postpone authorized integration; public publication remains separate.",
+    "updated_at": "2026-10-10",
+    "timezone": "Asia/Seoul",
+    "authoritative_plan": "docs/DEVELOPMENT_ROADMAP_2026_2027.md",
+    "next_common_feature_window": "2026-10-10",
+    "integration_target": "2027-08-13",
+    "date_policy": "Internal work/candidate targets, not guaranteed public release dates. Select work by actual completion, priority and satisfied dependencies; reassess the next four weeks at each checkpoint.",
+    "target_counts": {
+      "pre": 51,
+      "amp": 30,
+      "post": 48,
+      "synth": 3,
+      "total": 132
+    },
+    "count_scope": "132 character models plus separately tracked common processors; CAB, microphones, speakers, presets, modes, bands and repeated instances are separate.",
+    "common_processing_plan": {
+      "status": "planned_not_implemented_by_this_contract",
+      "eq": {
+        "first_version": "1.3.1",
+        "instances": 2,
+        "nodes_per_instance": 12,
+        "positions": [
+          "after_rig_merge_before_post",
+          "after_post_and_width_before_output_trim"
+        ]
+      },
+      "dynamic_eq": {
+        "first_version": "1.3.2",
+        "initial_max_active_nodes_across_all_eq_instances": 4
+      },
+      "multiband_dynamics": {
+        "first_version": "1.4",
+        "initial_bands": 4,
+        "six_band_expansion": "1.5 only after separate performance acceptance"
+      },
+      "saturation": {
+        "first_version": "1.6",
+        "initial_bands": 3
+      },
+      "filter_modulation": {
+        "first_version": "1.7",
+        "initial_filters": 2
+      },
+      "signal_path": {
+        "navigation": "1.3.1",
+        "constrained_order_with_state_and_undo": "1.4",
+        "drag_interaction": "1.5"
+      },
+      "head_controls": {
+        "representative": "1.3.1",
+        "expanded_coverage": "1.3.2"
+      },
+      "studio": {
+        "true_peak_loudness": "1.5 separately gated",
+        "spectral_linear_phase": "1.7 research checkpoint; qualified 2.0 or a separately assigned 2.x release"
+      }
+    }
   },
   "reference_manifest_contract": "Validation/reference-manifest-contract.json",
   "serialized_model_counts": {
@@ -190,5 +277,10 @@
     }
   ],
   "selectable_preset_count": 48,
-  "development_scope": "1.3 release preparation: Niflheimr, original CAB engine, 14 speakers, 20 microphones and expanded cabinet layouts. CAB inventory is separate from the 85 active AMP/PRE/POST models; publication and actual listening acceptance remain pending."
+  "development_scope": "1.3 release preparation: Niflheimr, original CAB engine, 14 speakers, 20 microphones and expanded cabinet layouts. CAB inventory is separate from the 85 active AMP/PRE/POST models; publication and actual listening acceptance remain pending.",
+  "preset_count_scopes": {
+    "preset_counts": "FactoryPresets.h bank only: 31 Factory + 3 Bass Signature = 34",
+    "selectable_preset_count": "All selectable banks: 34 base + 4 Guitar Signature + 5 Nastrond Original + 5 Niflheimr Original = 48"
+  }
 }
+
