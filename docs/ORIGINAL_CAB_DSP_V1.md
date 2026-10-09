@@ -1,5 +1,8 @@
 # Original CAB / linear acoustic prototype v1
 
+Current expansion: see [CAB speaker/microphone v2](CAB_EXPANSION_V2.md).
+The inventory and validation below describe the earlier v1 checkpoint.
+
 Status: working development implementation stacked on PR #29, not a release or
 hardware-match approval. Engineering names **Guitar 4x12 / v1**, **Bass 4x10 / v1**
 and **Attack dynamic / Body ribbon / Detail condenser** are not final branding.

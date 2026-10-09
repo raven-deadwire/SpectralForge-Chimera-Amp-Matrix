@@ -20,8 +20,8 @@ inline void runMicrophoneCatalogTests() {
         condenser+=model.kind==M::Kind::condenser;
         original+=model.original;
         if(model.original) {
-            check(M::responseSupport(model)==M::ResponseSupport::originalResponsePending,
-                "Strike must not claim an implemented independent response");
+            check(M::responseSupport(model)==M::ResponseSupport::originalResponseAvailable,
+                "Strike must advertise its separately selectable original response");
             check(std::string(model.id)=="chimera-strike" && model.kind==M::Kind::condenser
                 && std::string(model.reference).empty(),"Strike must be the original condenser without an external reference");
         } else {

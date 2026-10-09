@@ -1,9 +1,34 @@
 #pragma once
 #include "OriginalCabModel.h"
+#include "CabExpansionModel.h"
 #include <juce_audio_processors/juce_audio_processors.h>
 namespace spectralforge {
 constexpr int originalCabParameterCount=39;
+constexpr int cabExpansionParameterCount=12;
 inline juce::String originalCabID(int lane,const char* suffix) {return "ocab"+juce::String(lane+1)+"_"+suffix;}
+inline juce::String cabExpansionID(int lane,const char* suffix) {return "xcab"+juce::String(lane+1)+"_"+suffix;}
+inline juce::StringArray expandedDriverNames() {
+    juce::StringArray names{"Legacy cabinet unit"};
+    for(const auto& d:cabExpansion::drivers)names.add(d.name);
+    return names;
+}
+inline juce::StringArray expandedMicNames() {
+    juce::StringArray names{"Legacy microphone"};
+    for(const auto& m:cabExpansion::microphones)names.add(m.name);
+    return names;
+}
+inline void appendCabExpansionParameters(juce::AudioProcessorValueTreeState::ParameterLayout& p) {
+    for(int lane=0;lane<3;++lane) {
+        const auto add=[&](const char* id,const char* label,const juce::StringArray& names) {
+            p.add(std::make_unique<juce::AudioParameterChoice>(juce::ParameterID{cabExpansionID(lane,id),8},
+                juce::String(label)+" "+juce::String(lane+1),names,0));
+        };
+        add("driver","Speaker design v2",expandedDriverNames());
+        add("Amic","Mic A design v2",expandedMicNames());
+        add("Bmic","Mic B design v2",expandedMicNames());
+        add("tweeter","Tweeter design v2",{"Legacy tweeter","Silk HF","Metal HF","Air HF"});
+    }
+}
 inline void appendOriginalCabParameters(juce::AudioProcessorValueTreeState::ParameterLayout& p) {
     for(int lane=0;lane<3;++lane) {
         auto choice=[&](const char* id,const char* label,juce::StringArray names,int initial=0) {
@@ -24,15 +49,19 @@ inline void appendOriginalCabParameters(juce::AudioProcessorValueTreeState::Para
 }
 struct OriginalCabParameters {
     std::array<std::array<std::atomic<float>*,13>,3> values{};
+    std::array<std::array<std::atomic<float>*,4>,3> expansion{};
     void bind(juce::AudioProcessorValueTreeState& state) {
         constexpr std::array<const char*,13> names{"design","rear","tweeter","Aon","Amic","Aunit","Aposition","Adistance","Bon","Bmic","Bunit","Bposition","Bdistance"};
         for(int lane=0;lane<3;++lane)for(size_t n=0;n<names.size();++n)values[lane][n]=state.getRawParameterValue(originalCabID(lane,names[n]));
+        constexpr std::array<const char*,4> extra{"driver","Amic","Bmic","tweeter"};
+        for(int lane=0;lane<3;++lane)for(size_t n=0;n<extra.size();++n)expansion[lane][n]=state.getRawParameterValue(cabExpansionID(lane,extra[n]));
     }
     uint64_t read(int lane,int slot) const noexcept {
         const auto& v=values[lane];const int offset=slot ? 8 : 3;
         if(v[offset]->load()<.5f)return 0;
-        return originalCab::key({true,int(v[0]->load()),int(v[1]->load()),int(v[offset+1]->load()),int(v[offset+2]->load()),
-            v[2]->load(),v[offset+3]->load(),v[offset+4]->load()});
+        const auto& x=expansion[lane];
+        return cabExpansion::key({{true,int(v[0]->load()),int(v[1]->load()),int(v[offset+1]->load()),int(v[offset+2]->load()),
+            v[2]->load(),v[offset+3]->load(),v[offset+4]->load()},int(x[0]->load()),int(x[1+slot]->load()),int(x[3]->load())});
     }
 };
 }

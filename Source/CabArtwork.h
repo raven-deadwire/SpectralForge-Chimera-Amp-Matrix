@@ -54,6 +54,33 @@ struct MicrophonePresentation {
     float longestSpeakerRatio;
     bool sideAddress;
 };
+// Anchors are fractions of each alpha-trimmed catalog illustration. End-address
+// bodies rotate towards the cabinet; side-address grilles remain upright.
+inline MicrophonePresentation expandedMicrophonePresentation(int index) {
+    static const std::array<MicrophonePresentation,20> layouts{{
+        {{.5f,.10f},{.5f,.68f},{.5f,.98f},.60f,false},
+        {{.5f,.20f},{.5f,.77f},{.5f,.98f},.78f,false},
+        {{.5f,.16f},{.5f,.80f},{.5f,.98f},.87f,false},
+        {{.48f,.32f},{.5f,.70f},{.5f,.98f},.55f,true},
+        {{.5f,.10f},{.5f,.64f},{.5f,.98f},.82f,false},
+        {{.5f,.18f},{.55f,.75f},{.5f,.98f},.75f,false},
+        {{.5f,.07f},{.5f,.55f},{.5f,.98f},.61f,false},
+        {{.5f,.17f},{.5f,.65f},{.5f,.98f},.69f,false},
+        {{.39f,.37f},{.58f,.77f},{.5f,.98f},.58f,true},
+        {{.5f,.22f},{.5f,.66f},{.5f,.98f},.77f,true},
+        {{.5f,.13f},{.5f,.65f},{.5f,.98f},.59f,false},
+        {{.45f,.30f},{.5f,.72f},{.5f,.98f},.58f,true},
+        {{.5f,.20f},{.5f,.65f},{.5f,.98f},.76f,true},
+        {{.46f,.21f},{.5f,.81f},{.5f,.98f},.60f,true},
+        {{.5f,.035f},{.5f,.70f},{.5f,.98f},.41f,false},
+        {{.47f,.24f},{.5f,.88f},{.5f,.98f},.85f,true},
+        {{.5f,.24f},{.5f,.76f},{.5f,.98f},.70f,true},
+        {{.5f,.20f},{.5f,.70f},{.5f,.98f},.74f,true},
+        {{.5f,.20f},{.5f,.73f},{.5f,.98f},.83f,true},
+        {{.5f,.19f},{.5f,.80f},{.5f,.98f},.68f,true}
+    }};
+    return layouts[size_t(juce::jlimit(0,19,index))];
+}
 inline MicrophonePresentation microphonePresentation(int role) {
     if(role==1)return {{.665f,.255f},{.148f,.630f},{.691f,.990f},.55f,true};
     if(role==2)return {{.420f,.215f},{.946f,.739f},{.433f,.991f},.55f,true};
@@ -124,7 +151,20 @@ class View : public juce::Component {
     juce::String emptyText{"IR"};
     float opacity{1.f};
     bool trimArtwork{};
+    float rotation{};
     juce::Rectangle<float> explicitArea;
+    juce::Rectangle<float> rotatedSourceBounds() const noexcept {
+        const auto index=static_cast<size_t>(selected);
+        if(index>=assetCount || !bank->images[index].isValid())return {0,0,1,1};
+        const auto source=trimArtwork ? bank->contentBounds[index] : bank->images[index].getBounds();
+        return juce::Rectangle<float>(float(source.getWidth()),float(source.getHeight())).transformedBy(juce::AffineTransform::rotation(rotation));
+    }
+    juce::AffineTransform artworkTransform() const noexcept {
+        const auto source=rotatedSourceBounds(),destination=artworkBounds();
+        return juce::AffineTransform::rotation(rotation).translated(-source.getX(),-source.getY())
+            .scaled(destination.getWidth()/source.getWidth(),destination.getHeight()/source.getHeight())
+            .translated(destination.getX(),destination.getY());
+    }
 public:
     View() {
         setInterceptsMouseClicks(false,false);setWantsKeyboardFocus(false);
@@ -136,6 +176,16 @@ public:
         return index<assetCount && bank->images[index].isValid();
     }
     void setTrimArtwork(bool trim) {if(trimArtwork!=trim){trimArtwork=trim;repaint();}}
+    void setArtworkRotation(float value) {if(rotation!=value){rotation=value;repaint();}}
+    juce::Point<float> orientedAnchor(juce::Point<float> point) const noexcept {
+        if(rotation==0)return point;
+        const auto index=static_cast<size_t>(selected);
+        if(index>=assetCount || !bank->images[index].isValid())return point;
+        const auto source=trimArtwork ? bank->contentBounds[index] : bank->images[index].getBounds();
+        const auto rotated=juce::Point<float>(point.x*float(source.getWidth()),point.y*float(source.getHeight())).transformedBy(juce::AffineTransform::rotation(rotation));
+        const auto bounds=rotatedSourceBounds();
+        return {(rotated.x-bounds.getX())/bounds.getWidth(),(rotated.y-bounds.getY())/bounds.getHeight()};
+    }
     // Scene sprites can retain a subpixel capsule anchor while JUCE component
     // bounds remain integer-valued. Catalog views keep the default inset area.
     void setArtworkArea(juce::Rectangle<float> area) {
@@ -145,13 +195,14 @@ public:
         const auto index=static_cast<size_t>(selected);
         if(index>=assetCount || !bank->images[index].isValid())return 1.f;
         const auto source=trimArtwork ? bank->contentBounds[index] : bank->images[index].getBounds();
+        if(rotation!=0){const auto bounds=rotatedSourceBounds();return bounds.getWidth()/bounds.getHeight();}
         return float(source.getWidth())/float(juce::jmax(1,source.getHeight()));
     }
     juce::Rectangle<float> artworkBounds() const noexcept {
         const auto index=static_cast<size_t>(selected);
         const auto area=explicitArea.isEmpty() ? getLocalBounds().toFloat().reduced(2.f) : explicitArea;
         if(index>=assetCount || !bank->images[index].isValid())return area;
-        const auto source=trimArtwork ? bank->contentBounds[index] : bank->images[index].getBounds();
+        const auto source=rotation!=0 ? rotatedSourceBounds() : (trimArtwork ? bank->contentBounds[index] : bank->images[index].getBounds()).toFloat();
         const float scale=juce::jmin(area.getWidth()/float(source.getWidth()),area.getHeight()/float(source.getHeight()));
         return juce::Rectangle<float>(float(source.getWidth())*scale,float(source.getHeight())*scale).withCentre(area.getCentre());
     }
@@ -160,6 +211,11 @@ public:
         const auto bounds=artworkBounds();
         if(!bounds.contains(point) || index>=assetCount || !bank->images[index].isValid())return false;
         const auto source=trimArtwork ? bank->contentBounds[index] : bank->images[index].getBounds();
+        if(rotation!=0) {
+            const auto pixel=point.transformedBy(artworkTransform().inverted());
+            if(pixel.x<0 || pixel.y<0 || pixel.x>=float(source.getWidth()) || pixel.y>=float(source.getHeight()))return false;
+            return bank->images[index].getPixelAt(source.getX()+int(pixel.x),source.getY()+int(pixel.y)).getAlpha()>48;
+        }
         const int x=juce::jlimit(source.getX(),source.getRight()-1,
             source.getX()+int((point.x-bounds.getX())*float(source.getWidth())/bounds.getWidth()));
         const int y=juce::jlimit(source.getY(),source.getBottom()-1,
@@ -185,7 +241,8 @@ public:
         }
         g.setImageResamplingQuality(juce::Graphics::mediumResamplingQuality);
         const auto source=trimArtwork ? bank->images[index].getClippedImage(bank->contentBounds[index]) : bank->images[index];
-        g.drawImage(source,artworkBounds(),juce::RectanglePlacement::stretchToFit);
+        if(rotation!=0)g.drawImageTransformed(source,artworkTransform());
+        else g.drawImage(source,artworkBounds(),juce::RectanglePlacement::stretchToFit);
     }
 };
 }

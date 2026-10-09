@@ -13,6 +13,7 @@ public:
         bool enabled{};
         int model{},unit{};
         float position{.25f},distanceCm{10.f};
+        int expansion{};
     };
     struct MicVisualGeometry {
         juce::Rectangle<float> bodyBounds;
@@ -22,7 +23,7 @@ public:
 private:
     ChimeraProcessor& processor;
     int lane;
-    int design{-1},ampModel{-1};
+    int design{-1},ampModel{-1},driverModel{-1};
     std::array<MicGeometry,2> geometry;
     std::array<MicVisualGeometry,2> visualGeometry;
     std::array<uint64_t,2> displayedKeys{{~uint64_t{},~uint64_t{}}};
@@ -101,6 +102,14 @@ private:
     float raw(const char* suffix) const {
         return processor.parameters().getRawParameterValue(spectralforge::originalCabID(lane,suffix))->load();
     }
+    int expanded(const char* suffix) const {
+        return int(processor.parameters().getRawParameterValue(spectralforge::cabExpansionID(lane,suffix))->load());
+    }
+    int effectiveDesign() const {
+        const auto d=expanded("driver");
+        return d>0 && d<=int(spectralforge::cabExpansion::drivers.size())
+            ? int(spectralforge::cabExpansion::drivers[size_t(d-1)].bass) : int(raw("design"));
+    }
     juce::RangedAudioParameter* parameter(int slot,const char* suffix) {
         return processor.parameters().getParameter(spectralforge::originalCabID(lane,(juce::String(slot ? "B" : "A")+suffix).toRawUTF8()));
     }
@@ -138,9 +147,18 @@ private:
         for(int i=0;i<2;++i) {
             auto& node=*microphones[size_t(i)];
             const float depth=juce::jlimit(0.f,1.f,(geometry[size_t(i)].distanceCm-2.f)/58.f);
-            const auto presentation=spectralforge::cabArt::microphonePresentation(geometry[size_t(i)].model);
+            const auto& micGeometry=geometry[size_t(i)];
+            auto presentation=micGeometry.expansion>0
+                ? spectralforge::cabArt::expandedMicrophonePresentation(micGeometry.expansion-1)
+                : spectralforge::cabArt::microphonePresentation(micGeometry.model);
+            node.setArtworkRotation(micGeometry.expansion>0 && !presentation.sideAddress ? juce::degreesToRadians(-65.f) : 0.f);
+            presentation.capsule=node.orientedAnchor(presentation.capsule);
+            presentation.mount=node.orientedAnchor(presentation.mount);
+            presentation.cable=node.orientedAnchor(presentation.cable);
+            const int driver=expanded("driver");
+            const float diameterScale=driver>0 ? 12.f/float(spectralforge::cabExpansion::drivers[size_t(driver-1)].inches) : design ? 1.2f : 1.f;
             const float longest=speakerRadius()*2.f*presentation.longestSpeakerRatio
-                *(design ? 1.2f : 1.f)*(1.f+depth*.12f);
+                *diameterScale*(1.f+depth*.12f);
             const float aspect=node.artworkAspectRatio();
             const float width=aspect>=1.f ? longest : longest*aspect;
             const float height=aspect>=1.f ? longest/aspect : longest;
@@ -263,26 +281,34 @@ public:
     }
     ~CabScene() override {endMicDrag();}
     void refresh() {
-        const int nextDesign=int(raw("design"));
+        const int nextDesign=effectiveDesign();
         const int nextAmp=processor.selectedAmpModel(lane);
-        bool changed=design!=nextDesign || ampModel!=nextAmp;
-        if(draggingSlot>=0 && design!=nextDesign)endMicDrag();
-        design=nextDesign;ampModel=nextAmp;headImage.setModel(ampModel);
-        cabinetImage.setAsset(spectralforge::cabArt::cabinet(design),design ? "Chimera Bass 4x10 cabinet" : "Chimera Guitar 4x12 cabinet");
-        for(auto& image:speakerImages)image.setAsset(spectralforge::cabArt::speaker(design),design ? "Original 10-inch bass speaker unit" : "Original 12-inch guitar speaker unit");
+        const int nextDriver=expanded("driver");
+        bool changed=design!=nextDesign || ampModel!=nextAmp || driverModel!=nextDriver;
+        if(draggingSlot>=0 && (design!=nextDesign || driverModel!=nextDriver))endMicDrag();
+        design=nextDesign;ampModel=nextAmp;driverModel=nextDriver;headImage.setModel(ampModel);
+        const auto* selected=driverModel>0 ? &spectralforge::cabExpansion::drivers[size_t(driverModel-1)] : nullptr;
+        cabinetImage.setAsset(spectralforge::cabArt::cabinet(design),selected
+            ? juce::String("Chimera 4x")+juce::String(selected->inches)+" / "+selected->name
+            : design ? "Chimera Bass 4x10 cabinet" : "Chimera Guitar 4x12 cabinet");
+        for(auto& image:speakerImages)image.setAsset(spectralforge::cabArt::speaker(design),selected
+            ? juce::String(selected->name)+" / "+juce::String(selected->inches)+"-inch speaker unit"
+            : design ? "Original 10-inch bass speaker unit" : "Original 12-inch guitar speaker unit");
         bool any=false;
         for(int i=0;i<2;++i) {
             const auto prefix=juce::String(i ? "B" : "A");
             const auto value=[&](const char* suffix){return raw((prefix+suffix).toRawUTF8());};
             auto& geo=geometry[size_t(i)];
-            const MicGeometry next{value("on")>.5f,int(value("mic")),int(value("unit")),value("position"),value("distance")};
-            if(draggingSlot==i && (!next.enabled || geo.model!=next.model))endMicDrag();
+            const MicGeometry next{value("on")>.5f,int(value("mic")),int(value("unit")),value("position"),value("distance"),expanded((prefix+"mic").toRawUTF8())};
+            if(draggingSlot==i && (!next.enabled || geo.model!=next.model || geo.expansion!=next.expansion))endMicDrag();
             geo=next;
             const spectralforge::originalCab::Settings settings{geo.enabled,design,0,geo.model,geo.unit,0,geo.position,geo.distanceCm};
-            const auto key=spectralforge::originalCab::key(settings);
+            const auto key=spectralforge::cabExpansion::key({settings,expanded("driver"),geo.expansion,expanded("tweeter")});
             changed=changed || displayedKeys[size_t(i)]!=key;displayedKeys[size_t(i)]=key;
             auto& image=*microphones[size_t(i)];
-            image.setAsset(spectralforge::cabArt::originalMicrophone(geo.model),"Original Mic "+prefix);
+            image.setAsset(geo.expansion>0 ? spectralforge::cabArt::capturedMicrophone(spectralforge::micCatalog::byId(
+                spectralforge::cabExpansion::microphones[size_t(geo.expansion-1)].catalogId)) : spectralforge::cabArt::originalMicrophone(geo.model),geo.expansion>0
+                ? spectralforge::cabExpansion::microphones[size_t(geo.expansion-1)].name : "Original Mic "+prefix);
             image.setActive(geo.enabled);image.setVisible(geo.enabled);any=any || geo.enabled;
             handles[size_t(i)]->setVisible(geo.enabled);
             if(!geo.enabled && hoveredSlot==i)setHoveredMic(-1);
@@ -335,8 +361,10 @@ public:
         // A host/source change can precede the next UI timer tick. Stop before
         // writing even one geometry value after a slot returns to captured IR.
         if(!isShowing() || raw(slot ? "Bon" : "Aon")<=.5f
-            || int(raw("design"))!=design
-            || int(raw(slot ? "Bmic" : "Amic"))!=geometry[size_t(slot)].model) {
+            || effectiveDesign()!=design
+            || expanded("driver")!=driverModel
+            || int(raw(slot ? "Bmic" : "Amic"))!=geometry[size_t(slot)].model
+            || expanded(slot ? "Bmic" : "Amic")!=geometry[size_t(slot)].expansion) {
             endMicDrag();refresh();return;
         }
         if(distanceDrag) {

@@ -1,4 +1,5 @@
 #include "IRLibrary.h"
+#include "CabExpansionModel.h"
 #include <chrono>
 #include <cstdlib>
 #include <iostream>
@@ -34,7 +35,10 @@ std::vector<float> render(Cab& cab,const juce::dsp::ProcessSpec& spec) {
     return result;
 }
 double delta(const std::vector<float>& a,const std::vector<float>& b){double d=0;for(size_t n=0;n<a.size();++n)d=std::max(d,std::abs(double(a[n]-b[n])));return d;}
-int main(){try {
+int main(int argc,char** argv){try {
+    const bool expanded=argc==2 && std::string(argv[1])=="--expanded";
+    require(argc==1 || expanded,"usage: ChimeraOriginalCabIntegrationTests [--expanded]");
+    const auto modelKey=[expanded](originalCab::Settings p){return expanded ? cabExpansion::key({p,14,p.mic==1 ? 10 : 20,2}) : originalCab::key(p);};
     const juce::ScopedNoDenormals noDenormals; // Same floating-point mode as processBlock.
     bool cpuWithinBudget=true;
     for(double sr:{44100.,48000.,96000.})for(int block:{64,256})for(int channels:{1,2}) {
@@ -42,13 +46,13 @@ int main(){try {
         std::array<Cab,3> cabs;for(auto& c:cabs)c.prepare(spec);
         IRLibrary library({&cabs[0],&cabs[1],&cabs[2]});
         originalCab::Settings a{true,1,0,0,0,.3,.25,10},b=a;b.unit=1;b.mic=1;b.distanceCm=18;
-        for(auto& cab:cabs){cab.requestedModel=originalCab::key(a);cab.secondMic()->requestedModel=originalCab::key(b);cab.blend=.5;}
+        for(auto& cab:cabs){cab.requestedModel=modelKey(a);cab.secondMic()->requestedModel=modelKey(b);cab.blend=.5;}
         library.prepare(spec,{0,0,0});library.stop();
         auto& cab=cabs[0];cab.blend=0;const auto outA=render(cab,spec);cab.blend=1;const auto outB=render(cab,spec);
         require(delta(outA,outB)>1e-4,"independent same cabinet / different unit / mic");
         cab.blend=.5;const auto mix=render(cab,spec);auto expected=outA;
         for(size_t n=0;n<expected.size();++n)expected[n]=.5f*(outA[n]+outB[n]);require(delta(mix,expected)<2e-6,"modeled constant-sum blend");
-        cab.secondMic()->requestedModel=originalCab::key(a);library.prepare(spec,{0,0,0});library.stop();
+        cab.secondMic()->requestedModel=modelKey(a);library.prepare(spec,{0,0,0});library.stop();
         require(delta(outA,render(cab,spec))<2e-6,"same unit and same mic unity at midpoint");
         // Six stereo mic paths, including publication overlap and latest-request convergence.
         for(auto& c:cabs)c.blend=.5;
@@ -58,7 +62,7 @@ int main(){try {
         std::vector<double> times,cpuTimes;times.reserve(1600);cpuTimes.reserve(1600);
         unsigned misses=0;double peak=0,maxStep=0;float previous=0;
         for(int n=0;n<1200;++n) {
-            if(n<80)for(auto& c:cabs){a.position=double(n%60)/60;c.requestedModel=originalCab::key(a);b.distanceCm=5+n*.2;c.secondMic()->requestedModel=originalCab::key(b);}
+            if(n<80)for(auto& c:cabs){a.position=double(n%60)/60;c.requestedModel=modelKey(a);b.distanceCm=5+n*.2;c.secondMic()->requestedModel=modelKey(b);}
             for(int ch=0;ch<channels;++ch)for(int k=0;k<block;++k)audio.setSample(ch,k,float(.05*std::sin((n*block+k)*.07)));
             for(auto& lane:laneAudio)lane.makeCopyOf(audio,true);
             const double cpuStart=threadCPU();const auto start=std::chrono::steady_clock::now();
@@ -83,7 +87,7 @@ int main(){try {
         // Six complete engines ready before the same callback. The actual
         // scheduler must cap overlap at one fading mic per rig (nine engines).
         // Construction is outside the watched/timed callback.
-        a.position=.85;const auto nextKey=originalCab::key(a);const auto wave=originalCab::generate(a,sr);
+        a.position=.85;const auto nextKey=modelKey(a);const auto wave=cabExpansion::generate(nextKey,sr);
         // Prepared convolution must reproduce the generated response and add
         // no processing latency; acoustic arrival remains in the kernel itself.
         juce::AudioBuffer<float> referenceSamples(1,int(wave.size()));referenceSamples.copyFrom(0,0,wave.data(),int(wave.size()));
@@ -110,7 +114,7 @@ int main(){try {
         for(auto& c:cabs)c.clear();require(library.resourcesReleased(),"worker teardown");
         std::sort(times.begin(),times.end());std::sort(cpuTimes.begin(),cpuTimes.end());
         cpuWithinBudget=cpuWithinBudget && times[1584]<1e6*block/sr;
-        std::cout<<"TIMING sr="<<sr<<" block="<<block<<" channels="<<channels<<" three_cabs_six_mics p50_us="<<times[800]<<" p99_us="<<times[1584]<<" thread_cpu_p99_us="<<cpuTimes[1584]<<" max_us="<<times.back()<<" misses="<<misses<<"/1600 kernel_residual="<<kernelResidual<<" peak="<<peak<<" max_step="<<maxStep<<'\n';
+        std::cout<<"TIMING engine="<<(expanded ? "expanded-v2" : "original-v1")<<" sr="<<sr<<" block="<<block<<" channels="<<channels<<" three_cabs_six_mics p50_us="<<times[800]<<" p99_us="<<times[1584]<<" thread_cpu_p99_us="<<cpuTimes[1584]<<" max_us="<<times.back()<<" misses="<<misses<<"/1600 kernel_residual="<<kernelResidual<<" peak="<<peak<<" max_step="<<maxStep<<'\n';
     }
     require(allocations==0 && deletions==0,"callback new/delete observed");
     std::cout<<"CALLBACK callback_new="<<allocations<<" callback_delete="<<deletions<<" (thread-local C++ operators only; not a universal malloc/lock tracer)\n";

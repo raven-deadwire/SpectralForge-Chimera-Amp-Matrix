@@ -310,6 +310,7 @@ for(int i=1;i<=3;++i) {
     p.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{"cabBhigh"+n,6},"Mic B high cut "+n,juce::NormalisableRange<float>{1500.f,20000.f},9000.f));
 }
 spectralforge::appendOriginalCabParameters(p);
+spectralforge::appendCabExpansionParameters(p);
 return p;
 }
 
