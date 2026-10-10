@@ -1,4 +1,5 @@
 #pragma once
+#include "NativeMessageLoop.h"
 #include "CabPanel.h"
 #include "IRStateAssets.h"
 #include <array>
@@ -44,7 +45,7 @@ template<class Predicate> bool dispatchUntil(Predicate ready,int timeoutMs=2000)
     const auto started=juce::Time::getMillisecondCounterHiRes();
     while(!ready()) {
         if(juce::Time::getMillisecondCounterHiRes()-started>=timeoutMs)return false;
-        if(!messages->runDispatchLoopUntil(10))return false;
+        if(!chimeraTest::dispatchFor(10))return false;
     }
     return true;
 }

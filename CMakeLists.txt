@@ -169,6 +169,7 @@ if(WIN32 OR CHIMERA_UI_PROBES)
   target_compile_definitions(ChimeraUITests PRIVATE JUCE_MODAL_LOOPS_PERMITTED=1)
   target_link_libraries(ChimeraUITests PRIVATE ChimeraAmpMatrix ChimeraArtwork ChimeraManual juce::juce_cryptography juce::juce_audio_utils juce::juce_dsp)
   add_test(NAME ChimeraUITests COMMAND ChimeraUITests "${CMAKE_BINARY_DIR}/ui-snapshots")
+  add_test(NAME ChimeraSignalPathUITests COMMAND ChimeraUITests "${CMAKE_BINARY_DIR}/signal-path-snapshots" --signal-path-only)
   add_test(NAME ChimeraNativeStateTests COMMAND ChimeraUITests --native-state-only "${CMAKE_BINARY_DIR}/native-state")
 endif()
 
@@ -398,3 +399,28 @@ set_property(TEST ${CHIMERA_CAB_TIMING_TESTS} APPEND PROPERTY
   ENVIRONMENT_MODIFICATION "CHIMERA_LIFECYCLE_TRACE=unset:")
 
 add_test(NAME ChimeraCabDriverVisualTests COMMAND ChimeraCabPanelStateTests --visual-only)
+
+# Static EQ prototype is isolated from release publishing and future dynamics.
+foreach(eqtest GraphicalEQ GraphicalEQUI)
+  juce_add_console_app(Chimera${eqtest}Tests PRODUCT_NAME "Chimera ${eqtest} Tests")
+  target_sources(Chimera${eqtest}Tests PRIVATE Tests/${eqtest}Tests.cpp)
+  target_include_directories(Chimera${eqtest}Tests PRIVATE Source)
+  target_compile_definitions(Chimera${eqtest}Tests PRIVATE JUCE_MODAL_LOOPS_PERMITTED=1)
+  target_link_libraries(Chimera${eqtest}Tests PRIVATE ChimeraAmpMatrix ChimeraArtwork ChimeraManual juce::juce_cryptography juce::juce_audio_utils juce::juce_dsp)
+endforeach()
+add_test(NAME ChimeraGraphicalEQTests COMMAND ChimeraGraphicalEQTests "${CMAKE_BINARY_DIR}/eq-cpu.csv")
+add_test(NAME ChimeraGraphicalEQUITests COMMAND ChimeraGraphicalEQUITests "${CMAKE_BINARY_DIR}")
+set_tests_properties(ChimeraGraphicalEQTests ChimeraGraphicalEQUITests PROPERTIES TIMEOUT 180 RUN_SERIAL TRUE)
+
+# Console UI probes pump AppKit explicitly. Tahoe delays events when the legacy
+# JUCE nested dispatcher waits for a future NSEvent deadline (JUCE issue #1574).
+# Keep this adapter out of all product/plug-in targets and preserve JUCE 8.0.8.
+if(APPLE)
+  enable_language(OBJCXX)
+  foreach(ui_test ChimeraUITests ChimeraCabPanelStateTests ChimeraGraphicalEQUITests)
+    if(TARGET ${ui_test})
+      target_sources(${ui_test} PRIVATE Tests/NativeMessageLoop.mm)
+      set_property(TARGET ${ui_test} PROPERTY OBJCXX_STANDARD 20)
+    endif()
+  endforeach()
+endif()

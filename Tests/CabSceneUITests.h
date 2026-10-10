@@ -139,7 +139,7 @@ struct Showing {
 inline void click(juce::Button& button,const std::function<bool()>& ready) {
     require(button.isVisible() && button.isEnabled(),"CAB navigation button is unavailable");
     button.triggerClick();
-    require(dispatchUntil(ready),"CAB navigation click did not reach its view");
+    if(!dispatchUntil(ready))throw std::runtime_error("CAB navigation click did not reach its view: "+button.getComponentID().toStdString());
 }
 
 inline void tabs(CabPanel& panel,ChimeraProcessor& processor) {
