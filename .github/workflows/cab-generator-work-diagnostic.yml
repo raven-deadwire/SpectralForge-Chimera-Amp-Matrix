@@ -1,17 +1,17 @@
-name: CAB Windows/macOS generator-work diagnostic
+name: CAB Windows generator-work compile-repair diagnostic
 
 on:
   push:
-    branches: ['diagnostic/cab-generator-work-20261011']
+    branches: ['diagnostic/cab-generator-win-macro-20261011']
 
 permissions:
   contents: read
 
 concurrency:
-  group: cab-generator-work-diagnostic-${{ github.ref }}
+  group: cab-generator-win-macro-diagnostic-${{ github.ref }}
   cancel-in-progress: false
 
-# Preserve the same tracked source bytes and exact reviewed patch on both OSes.
+# Preserve the same tracked source bytes and exact reviewed patch for both variants.
 # These Git-only settings do not change compiler flags or measured process state.
 env:
   GIT_CONFIG_COUNT: '2'
@@ -22,13 +22,11 @@ env:
 
 jobs:
   compare:
-    if: github.ref == 'refs/heads/diagnostic/cab-generator-work-20261011'
+    if: github.ref == 'refs/heads/diagnostic/cab-generator-win-macro-20261011'
     strategy:
       fail-fast: false
       matrix:
         include:
-          - os: macos-15
-            minutes: 35
           - os: windows-latest
             minutes: 45
     runs-on: ${{ matrix.os }}
@@ -69,7 +67,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v6
         with:
-          name: CAB-generator-work-${{ runner.os }}-${{ github.sha }}
+          name: CAB-generator-win-macro-${{ runner.os }}-${{ github.sha }}
           path: cab-generator-work-evidence/
           if-no-files-found: error
           retention-days: 90

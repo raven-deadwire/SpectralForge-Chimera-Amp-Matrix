@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Bounded native Windows/macOS CAB generator-work diagnostic; never replaces PR42 acceptance.
+"""Bounded native Windows CAB generator-work compile repair; never replaces PR42 acceptance.
 
 A is untouched 8097. B has only the final root-reviewed source/test overlay.
 The overlay pins stay fail-closed until that exact patch is reviewed. Both retain low worker priority and the existing
@@ -8,6 +8,9 @@ No caller priority, process priority, affinity, power setting, fade, load,
 deadline or tolerance is changed. One ABBA over expanded30 and layouts12, then both separate profile suites per variant.
 The B-only frozen-vs-prepared generator probe runs once after all CAB timings.
 The exact patch, allowed paths and every resulting source SHA are pinned below.
+The first Windows B build failed on the Windows far macro. Only that test
+identifier is repaired here. The completed macOS timing failures are retained;
+this Windows-only comparison does not repeat or supersede that macOS run.
 """
 
 from __future__ import annotations
@@ -32,7 +35,7 @@ sys.dont_write_bytecode = True
 BASE_SHA = "8097ec69594ff728164c77f59e9ea1e39e384643"
 BASE_TREE = "f12b4312f559e86e07c37899691b62858f4a4c3c"
 JUCE_SHA = "d6181bde38d858c283c3b7bf699ce6340c050b5d"
-BRANCH = "refs/heads/diagnostic/cab-generator-work-20261011"
+BRANCH = "refs/heads/diagnostic/cab-generator-win-macro-20261011"
 BUFFERS = (32, 64, 128, 256, 512)
 COMMAND_TIMEOUT = 600
 PRESERVATION_SECONDS = 300
@@ -44,20 +47,21 @@ GUARDS = ("ChimeraIRLibraryTests", "ChimeraOriginalCabRealtimeTests",
 TARGETS = (INTEGRATION, PROFILE, *GUARDS)
 ORDER = (("01-A-reference", "reference"), ("02-B-candidate", "candidate"),
          ("03-B-candidate", "candidate"), ("04-A-reference", "reference"))
-# Generator-only c460b52d was selected by root. ARM, QoS and geometry probes are
-# excluded. The native diagnostic is separate from production acceptance.
+# Generator-only c460b52d plus the test-only far->farResponse repair be2121ab.
+# ARM, QoS and geometry probes are excluded. Production source is unchanged
+# from the first generator diagnostic; this remains separate from acceptance.
 OVERLAY_REVIEWED = True
-REVIEWED_GENERATOR_COMMIT = "c460b52db5464b7641bc954cd95d900c40f54df7"
-REVIEWED_GENERATOR_TREE = "f9f7d36fed7ae60c24be47d8a27f0850b166cd17"
+REVIEWED_GENERATOR_COMMIT = "be2121ab0c4cf52212bc6f0526490e19c1745c68"
+REVIEWED_GENERATOR_TREE = "66ae8de8b62b22b2d51a64d02d85655b989fa94f"
 OVERLAY_PATHS = ("Source/CabExpansionModel.h", "Source/CabLayoutModel.h", "Source/OriginalCabModel.h",
                  "Tests/CabExpansionModelTests.cpp", "Tests/CabPreparedResponseReference.h")
 OVERLAY_FILE = "Tools/cab_generator_work_candidate.diff"
-OVERLAY_SHA256 = "3bdb75cb07933afcbc9521378f6b9a388b51989687e74e717399a353887c8895"
+OVERLAY_SHA256 = "313d5d821be296a230b18c9513d8d7fee2c7077c1997fee0cd47d232ae4e4c36"
 OVERLAY_RESULT_SHA256 = {
     "Source/CabExpansionModel.h": "2e48808d2c48aa274eee458c8cfe5ddf3848affe6fe102bb667309720c2662c4",
     "Source/CabLayoutModel.h": "a2b10ec204ba75edbb92ed803aee9145881715a2109d6e5edc4a5e6daa46d24c",
     "Source/OriginalCabModel.h": "be1cee490481f29c2565dbe13e8dc85052c87aa1d73dbcbc05a1a274b54bf569",
-    "Tests/CabExpansionModelTests.cpp": "659e3cf3504b2efc50ea94fc0164de91e03041b656884790f8294dd0c4d10f61",
+    "Tests/CabExpansionModelTests.cpp": "43865deb23961f102f734d5844603eabdfb6a34573346c0a16c459b068ed6b56",
     "Tests/CabPreparedResponseReference.h": "77ca29a4e348e7c0b29fb9c7c6d8139c784c660a5034f44633767628583e1c0a"
 }
 OVERLAY_ORIGINAL_SHA256 = {
@@ -85,7 +89,7 @@ GENERATOR_FIELDS = (
     "thread_cycles", "thread_cycles_valid", "clock_start_error", "clock_end_error",
     "thread_cpu_start_us", "thread_cpu_end_us", "thread_cycles_start", "thread_cycles_end",
     "fnv1a64", "float_bytes_identical", "waveform")
-JOB_MINUTES = {"Darwin": 35, "Windows": 45}
+JOB_MINUTES = {"Windows": 45}
 WORKLOADS = ("expanded", "layouts")
 SUITE_SPECS = {
     "extended": ("expanded-v2", BUFFERS, "ChimeraCabExtendedTimingTests", False),
@@ -788,6 +792,12 @@ def main():
     manifest = {"schema": 1, "diagnostic_only": True, "base_sha": BASE_SHA, "base_tree": BASE_TREE,
         "harness_sha": args.harness_sha, "started_at": v.utc_now(), "result": "DIAGNOSTIC_INCOMPLETE",
         "acceptance_superseded": False, "order": [name for name, _ in ORDER],
+        "prior_diagnostic": {"run_id": 38086565058,
+            "harness_sha": "98614c53fcf9efffc6276c79023f9b874b1b123a",
+            "generator_commit": "c460b52db5464b7641bc954cd95d900c40f54df7",
+            "windows_candidate": "build_failed_far_macro_no_candidate_measurements",
+            "macos_candidate": "both_normal_expanded_runs_failed_strict_p99_preserved_not_repeated",
+            "repair": "test_identifier_far_to_farResponse_only_production_source_unchanged"},
         "worker_priority": "unchanged_low_for_both_variants", "overlay_sha256": OVERLAY_SHA256,
         "candidate_guard_reference_expected": CANDIDATE_GUARD_RECORDS,
         "workloads_per_abba_entry": list(WORKLOADS),
@@ -816,9 +826,8 @@ def main():
             "Native base QoS readback does not record effective priority, core placement, clock rate or prove a cause."]}
     v.write_json(output / "manifest.json", manifest)
     try:
-        require((native_system == "Darwin" and platform.machine() == "arm64")
-                or (native_system == "Windows" and platform.machine().lower() in ("amd64", "x86_64")),
-                "Requires native macOS arm64 or Windows x64")
+        require(native_system == "Windows" and platform.machine().lower() in ("amd64", "x86_64"),
+                "Compile-repair diagnostic requires native Windows x64")
         require(os.environ.get("GITHUB_REF") == BRANCH, "Diagnostic branch-only execution guard")
         require(os.environ.get("GITHUB_SHA") == args.harness_sha, "Harness argument differs from workflow head")
         job_start = float(os.environ["CAB_GENERATOR_JOB_STARTED_EPOCH"])

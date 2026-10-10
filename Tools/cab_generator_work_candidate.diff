@@ -1,18 +1,3 @@
-From c460b52db5464b7641bc954cd95d900c40f54df7 Mon Sep 17 00:00:00 2001
-From: Codex <codex@openai.com>
-Date: Sun, 11 Oct 2026 05:57:50 +0900
-Subject: [PATCH] Prepare modeled CAB response geometry once per generation
-
-Share request-local speaker, microphone, horn, and enclosure preparation across v1, v2, and v3 while preserving frequency arithmetic and cancellation cadence. Freeze the 8097 generators for independent exact-bit and full-waveform comparisons, and add an opt-in fixed ABBA generator diagnostic without changing acceptance gates.
----
- Source/CabExpansionModel.h           | 106 ++++--
- Source/CabLayoutModel.h              |  76 ++--
- Source/OriginalCabModel.h            |  89 ++++-
- Tests/CabExpansionModelTests.cpp     | 230 +++++++++++-
- Tests/CabPreparedResponseReference.h | 516 +++++++++++++++++++++++++++
- 5 files changed, 938 insertions(+), 79 deletions(-)
- create mode 100644 Tests/CabPreparedResponseReference.h
-
 diff --git a/Source/CabExpansionModel.h b/Source/CabExpansionModel.h
 index a2c3e77..a456c95 100644
 --- a/Source/CabExpansionModel.h
@@ -403,7 +388,7 @@ index d096805..cce2630 100644
      cancellation.checkpoint();
      inverseFFT(spectrum);
 diff --git a/Tests/CabExpansionModelTests.cpp b/Tests/CabExpansionModelTests.cpp
-index a4d4274..fdfef09 100644
+index a4d4274..c8d7266 100644
 --- a/Tests/CabExpansionModelTests.cpp
 +++ b/Tests/CabExpansionModelTests.cpp
 @@ -1,6 +1,12 @@
@@ -665,6 +650,15 @@ index a4d4274..fdfef09 100644
      cancellationContracts();
      std::set<std::string> ids;int guitar=0,bass=0;std::array<int,3> kinds{};
      for(const auto& d:x::drivers){require(ids.insert(d.id).second,"duplicate driver ID");(d.bass?bass:guitar)++;}
+@@ -124,7 +348,7 @@ int main(){try {
+         require(energy(a)>1e-6,"non-silent expansion");
+         double tail=0;for(size_t n=a.size()*9/10;n<a.size();++n)tail+=double(a[n])*a[n];
+         require(tail/energy(a)<.001,"expanded tail decay");
+-        p.base.distanceCm=60;const auto far=x::generate(x::key(p),rate);require(energy(far)<energy(a),"natural distance attenuation");
++        p.base.distanceCm=60;const auto farResponse=x::generate(x::key(p),rate);require(energy(farResponse)<energy(a),"natural distance attenuation");
+         p.base.distanceCm=10;p.base.rear=1;require(difference(a,x::generate(x::key(p),rate))>1e-5,"rear changes expanded audio");
+         p.base.rear=0;p.tweeter=3;require(difference(a,x::generate(x::key(p),rate))>1e-5,"tweeter design changes audio");
+     }
 diff --git a/Tests/CabPreparedResponseReference.h b/Tests/CabPreparedResponseReference.h
 new file mode 100644
 index 0000000..fcbbe62
@@ -1187,6 +1181,3 @@ index 0000000..fcbbe62
 +}
 +}
 +// END frozen CabLayoutModel.h
--- 
-2.51.1
-
