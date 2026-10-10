@@ -14,6 +14,7 @@
 #include "NativeUITests.h"
 #include <algorithm>
 #include "UIRefreshTests.h"
+#include "SignalPathUITests.h"
 #include <map>
 #include <iostream>
 #include <set>
@@ -619,12 +620,14 @@ int main(int argc, char** argv)
         require(juce::Desktop::getInstance().getDisplays().getPrimaryDisplay()!=nullptr,
                 "Native UI regression requires an active display server and window manager");
         if(argc>2 && juce::String(argv[2])=="--ui-refresh-only"){uiRefreshTests::run(directory);return 0;}
+        if(argc>2 && juce::String(argv[2])=="--signal-path-only"){signalPathTests::run(directory);return 0;}
         int suiteFailures=0;
         const auto runSuite=[&](const char* name,auto&& run) {
             std::cout<<"RUN suite "<<name<<std::endl;
             try {run();}
             catch(const std::exception& error) {++suiteFailures;std::cerr<<"FAIL suite "<<name<<": "<<error.what()<<'\n';juce::PopupMenu::dismissAllActiveMenus();juce::MessageManager::getInstance()->runDispatchLoopUntil(30);}
         };
+        runSuite("signal path",[&]{signalPathTests::run(directory);});
         runSuite("processor resource lifetime",[&]{checkProcessorResourceLifetime(directory);});
         runSuite("artwork lifetime",[]{checkArtworkLifetime();});
         runSuite("amp selectors",[]{ampSelectorTests::run();});
