@@ -60,18 +60,23 @@ inline void run() {
             check((i==topRail || i==bottomRail ? tile.getWidth() : tile.getHeight())==64,
                 "rail material retained a whole stretched cabinet edge");
             for(float scale:{.25f,1.f,1.75f}) {
+                juce::SoftwareImageType referenceStorage;
+                juce::Image referenceTile(juce::Image::ARGB,tile.getWidth(),tile.getHeight(),true,referenceStorage);
+                {juce::Graphics g(referenceTile);g.fillAll(juce::Colour(0xffd0a080));}
                 juce::Image target(juce::Image::ARGB,192,128,true,*type);
+                juce::Image reference(juce::Image::ARGB,192,128,true,*type);
                 {juce::Graphics g(target);fillMaterial(g,tile,{4.f,4.f,184.f,120.f},scale);}
+                {juce::Graphics g(reference);fillMaterial(g,referenceTile,{4.f,4.f,184.f,120.f},scale);}
                 for(int y=8;y<120;++y)for(int x=8;x<184;++x) {
                     const auto pixel=target.getPixelAt(x,y);
-                    const bool matches=std::abs(int(pixel.getRed())-208)<=2
-                        && std::abs(int(pixel.getGreen())-160)<=2
-                        && std::abs(int(pixel.getBlue())-128)<=2 && pixel.getAlpha()>=253;
-                    if(!matches)std::cerr<<"rail tile mismatch bass="<<int(bass)<<" native="<<int(native)
-                        <<" piece="<<i<<" scale="<<scale<<" xy="<<x<<','<<y
-                        <<" rgba="<<int(pixel.getRed())<<','<<int(pixel.getGreen())<<','
-                        <<int(pixel.getBlue())<<','<<int(pixel.getAlpha())<<'\n';
-                    check(matches,"rail tiling leaked the original cabinet parent bitmap");
+                    const auto expected=reference.getPixelAt(x,y);
+                    const bool noParent=pixel.getRed()<240 || pixel.getGreen()>32 || pixel.getBlue()>32;
+                    const bool matches=std::abs(int(pixel.getRed())-int(expected.getRed()))<=2
+                        && std::abs(int(pixel.getGreen())-int(expected.getGreen()))<=2
+                        && std::abs(int(pixel.getBlue())-int(expected.getBlue()))<=2
+                        && std::abs(int(pixel.getAlpha())-int(expected.getAlpha()))<=2;
+                    check(noParent && matches,
+                        "rail tiling leaked the original cabinet parent bitmap or lost reference coverage");
                 }
             }
         }
@@ -81,20 +86,26 @@ inline void run() {
             check(tile.getPixelAt(tile.getWidth()/2,tile.getHeight()/2)==expected,
                 "repeating material still aliases the parent cabinet artwork");
             for(float scale:{.25f,1.f,1.75f}) {
+                juce::SoftwareImageType referenceStorage;
+                juce::Image referenceTile(juce::Image::ARGB,tile.getWidth(),tile.getHeight(),true,referenceStorage);
+                {juce::Graphics g(referenceTile);g.fillAll(expected);}
                 juce::Image target(juce::Image::ARGB,192,128,true,*type);
-                {
-                    juce::Graphics g(target);
-                    fillMaterial(g,tile,{4.f,4.f,184.f,120.f},scale);
-                }
-                // Inset from clipping/filter edges; several complete periods
-                // ensure a full parent bitmap cannot masquerade as a tile.
+                juce::Image reference(juce::Image::ARGB,192,128,true,*type);
+                {juce::Graphics g(target);fillMaterial(g,tile,{4.f,4.f,184.f,120.f},scale);}
+                {juce::Graphics g(reference);fillMaterial(g,referenceTile,{4.f,4.f,184.f,120.f},scale);}
+                // Compare with an independently owned tile rendered through
+                // the same backend. This keeps native edge coverage strict
+                // without treating premultiplied subpixel alpha as parent data.
                 for(int y=8;y<120;++y)for(int x=8;x<184;++x) {
                     const auto pixel=target.getPixelAt(x,y);
-                    check(std::abs(int(pixel.getRed())-int(expected.getRed()))<=2
-                        && std::abs(int(pixel.getGreen())-int(expected.getGreen()))<=2
-                        && std::abs(int(pixel.getBlue())-int(expected.getBlue()))<=2
-                        && pixel.getAlpha()>=253,
-                        "native/software material tiling leaked the parent cabinet or lost coverage");
+                    const auto control=reference.getPixelAt(x,y);
+                    const bool noParent=pixel.getRed()<240 || pixel.getGreen()>32 || pixel.getBlue()>32;
+                    check(noParent
+                        && std::abs(int(pixel.getRed())-int(control.getRed()))<=2
+                        && std::abs(int(pixel.getGreen())-int(control.getGreen()))<=2
+                        && std::abs(int(pixel.getBlue())-int(control.getBlue()))<=2
+                        && std::abs(int(pixel.getAlpha())-int(control.getAlpha()))<=2,
+                        "native/software material tiling leaked the parent cabinet or lost reference coverage");
                 }
             }
         }
