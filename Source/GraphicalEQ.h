@@ -86,7 +86,8 @@ public:
     }
     Values values(int band) const noexcept {
         const auto& p=params[(size_t)band];
-        return {p[0]->load()>.5f,p[1]->load(),p[2]->load(),p[3]->load(),int(p[4]->load())};
+        const auto read=[](const std::atomic<float>* v,float fallback){const float f=v->load();return std::isfinite(f)?f:fallback;};
+        return {read(p[0],0)>.5f,std::clamp(read(p[1],1000),20.f,20000.f),std::clamp(read(p[2],0),-24.f,24.f),std::clamp(read(p[3],.70710678f),.1f,18.f),int(std::clamp(read(p[4],0),0.f,6.f))};
     }
     bool isBypassed() const noexcept {return bypass->load()>.5f;}
     double sampleRate() const noexcept {return uiRate.load();}

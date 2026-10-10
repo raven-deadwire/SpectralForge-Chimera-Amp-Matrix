@@ -36,6 +36,8 @@ int main(int argc,char** argv){try {
             auto* on=find<juce::TextButton>(*panel,eqID(e,b,"enabled"));on->triggerClick();settle(5);check(get(*processor,eqID(e,b,"enabled"))==1,"Band activation not connected");
             auto* filter=find<juce::ComboBox>(*panel,eqID(e,b,"type"));filter->setSelectedId(4,juce::sendNotificationSync);check(get(*processor,eqID(e,b,"type"))==3 && !g->isEnabled(),"HP choice / gain applicability");
             filter->setSelectedId(1,juce::sendNotificationSync);
+            if(b==0)for(int t=1;t<=7;++t){filter->setSelectedId(t,juce::sendNotificationSync);check(get(*processor,eqID(e,b,"type"))==float(t-1),"Filter menu did not reach host");}
+            filter->setSelectedId(1,juce::sendNotificationSync);
         }
         selector->setSelectedId(1,juce::sendNotificationSync);const auto start=panel->nodePosition(0),end=start+juce::Point<float>(40,-18);
         panel->mouseDown(mouse(*panel,start,start,false));panel->mouseDrag(mouse(*panel,end,start,true));panel->mouseUp(mouse(*panel,end,start,true));
@@ -49,6 +51,11 @@ int main(int argc,char** argv){try {
         juce::AudioBuffer<float> copy;copy.makeCopyOf(audio);processor->graphicalEQ(0).process(audio);processor->graphicalEQ(1).process(copy);if(k%4==3)settle(50);}
     for(int e=0;e<2;++e){auto* panel=find<GraphicalEQPanel>(*editor,e==0?"toneEQ_panel":"finalEQ_panel");check(panel->fftFrames()>0,"FFT did not update");check(std::abs(panel->spectrumDB(false,43)+20)<.1,"Stereo anti-phase canceled input FFT");check(std::abs(panel->spectrumDB(true,43)+14)<.15,"FFT did not measure actual 6 dB output");std::cout<<"FFT "<<e<<" input="<<panel->spectrumDB(false,43)<<" output="<<panel->spectrumDB(true,43)<<" us="<<panel->lastFFTTimeMicros()<<'\n';}
     for(int percent:{75,100,125,150}){editor->setSize(1180*percent/100,780*percent/100);settle(70);
+        for(int e=0;e<2;++e){auto* panel=find<GraphicalEQPanel>(*editor,e==0?"toneEQ_panel":"finalEQ_panel");const auto local=panel->nodePosition(0);
+            const auto global=editor->getLocalPoint(panel,local);const auto finish=global+juce::Point<float>(float(percent)/10,0);
+            const auto start=panel->getLocalPoint(editor.get(),global),end=panel->getLocalPoint(editor.get(),finish);
+            const float previous=get(*processor,eqID(e,0,"frequency"));panel->mouseDown(mouse(*panel,start,start,false));panel->mouseDrag(mouse(*panel,end,start,true));panel->mouseUp(mouse(*panel,end,start,true));
+            check(get(*processor,eqID(e,0,"frequency"))>previous,"Graph transform drag failed at UI scale");set(*processor,eqID(e,0,"frequency"),previous);}
         for(int e=0;e<2;++e){auto* panel=find<GraphicalEQPanel>(*editor,e==0?"toneEQ_panel":"finalEQ_panel");check(editor->getLocalBounds().contains(editor->getLocalArea(panel,panel->getLocalBounds())),"EQ clipped at scale");for(const char* field:{"frequency","gain","q"}){auto* s=find<juce::Slider>(*panel,eqID(e,0,field));check(editor->getLocalBounds().contains(editor->getLocalArea(s,s->getLocalBounds())),"Numeric controls clipped");}}
         auto output=directory.getChildFile("eq-ui-"+juce::String(percent)+".png").createOutputStream();check(output!=nullptr,"Screenshot output");output->setPosition(0);output->truncate();juce::PNGImageFormat png;check(png.writeImageToStream(editor->createComponentSnapshot(editor->getLocalBounds()),*output),"Screenshot encoding");
         const auto t=juce::Time::getMillisecondCounterHiRes();const auto cpu=std::clock();settle(1000);const double elapsed=juce::Time::getMillisecondCounterHiRes()-t;std::cout<<"UI idle "<<percent<<"% = "<<100000.*double(std::clock()-cpu)/CLOCKS_PER_SEC/elapsed<<"% one core (1 second no audio)\n";

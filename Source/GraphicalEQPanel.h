@@ -48,6 +48,7 @@ public:
             g.setColour(juce::Colour(0xff9baaa8));g.setFont(9);g.drawText(f<1000?juce::String(int(f)):juce::String(f/1000,0)+"k",int(x)-17,int(area.getBottom())+3,34,14,juce::Justification::centred);
         }
         for(int db=-24;db<=24;db+=12) {const auto y=gainY(float(db));g.setColour(juce::Colour(db==0?0xff576768:0xff30393a));g.drawHorizontalLine(int(y),area.getX(),area.getRight());g.setColour(juce::Colour(0xff9baaa8));g.drawText(juce::String(db),2,int(y)-7,32,14,juce::Justification::centredRight);}
+        for(int db:{0,-45,-90})g.drawText(juce::String(db),int(area.getRight())+2,int(area.getBottom()-(db+90)/90.f*area.getHeight())-7,28,14,juce::Justification::centredLeft);
         if(analyzerToggle.getToggleState()) {
             g.saveState();g.reduceClipRegion(area.toNearestInt());
             for(int stream=0;stream<2;++stream) {juce::Path p;bool first=true;for(int x=0;x<int(area.getWidth());++x) {
@@ -84,7 +85,7 @@ private:
     using BA=juce::AudioProcessorValueTreeState::ButtonAttachment;
     using CA=juce::AudioProcessorValueTreeState::ComboBoxAttachment;
     using SA=juce::AudioProcessorValueTreeState::SliderAttachment;
-    juce::Rectangle<float> plot() const {return {40,72,float(getWidth()-58),float(getHeight()-200)};}
+    juce::Rectangle<float> plot() const {return {40,72,float(getWidth()-76),float(getHeight()-200)};}
     float frequencyX(float hz) const {return plot().getX()+plot().getWidth()*std::log(std::clamp(hz,20.f,20000.f)/20)/std::log(1000.f);}
     float xFrequency(float x) const {return 20*std::pow(1000.f,std::clamp((x-plot().getX())/std::max(1.f,plot().getWidth()),0.f,1.f));}
     float gainY(float db) const {return plot().getCentreY()-db/48*plot().getHeight();}
