@@ -1,0 +1,63 @@
+name: CAB macOS ARM spectral MAC diagnostic
+
+on:
+  push:
+    branches: ['diagnostic/cab-macos-arm-mac-20261011']
+
+permissions:
+  contents: read
+
+concurrency:
+  group: cab-macos-arm-mac-diagnostic-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  compare:
+    if: github.ref == 'refs/heads/diagnostic/cab-macos-arm-mac-20261011'
+    runs-on: macos-15
+    timeout-minutes: 35
+    steps:
+      - name: Start the diagnostic budget before checkouts
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import os, time
+          with open(os.environ["GITHUB_ENV"], "a") as stream:
+              stream.write(f"CAB_ARM_MAC_JOB_STARTED_EPOCH={time.time()}\n")
+          PY
+      - name: Check out the diagnostic harness
+        uses: actions/checkout@v5
+        with:
+          ref: ${{ github.sha }}
+          path: diagnostic
+          persist-credentials: false
+      - name: Check out untouched 8097 for A
+        uses: actions/checkout@v5
+        with:
+          ref: 8097ec69594ff728164c77f59e9ea1e39e384643
+          path: variant-reference
+          persist-credentials: false
+      - name: Check out the same 8097 for B's recorded two-file overlay
+        uses: actions/checkout@v5
+        with:
+          ref: 8097ec69594ff728164c77f59e9ea1e39e384643
+          path: variant-simd
+          persist-credentials: false
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - name: Build both variants, then measure one sequential ABBA
+        shell: bash
+        run: |
+          python diagnostic/Tools/run_cab_macos_arm_mac_diagnostic.py \
+            --harness-sha "$GITHUB_SHA" \
+            --reference-source variant-reference --simd-source variant-simd \
+            --build-root cab-macos-arm-mac-build --output cab-macos-arm-mac-evidence
+      - name: Preserve every pass, failure and partial run
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: CAB-macos-ARM-MAC-${{ github.sha }}
+          path: cab-macos-arm-mac-evidence/
+          if-no-files-found: error
+          retention-days: 90

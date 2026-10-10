@@ -1,0 +1,149 @@
+diff --git a/Source/ModeledCabConvolution.h b/Source/ModeledCabConvolution.h
+index b147da5..5042679 100644
+--- a/Source/ModeledCabConvolution.h
++++ b/Source/ModeledCabConvolution.h
+@@ -7,8 +7,47 @@
+ #if defined(_MSC_VER) && (defined(_M_X64) || defined(_M_IX86))
+ #include <xmmintrin.h>
+ #endif
++#if defined(__APPLE__) && defined(__aarch64__)
++#include <arm_neon.h>
++#endif
+ 
+ namespace spectralforge {
++#if defined(__APPLE__) && defined(__aarch64__)
++namespace cab_detail {
++inline void accumulateArmMac(const float* __restrict input,const float* __restrict impulse,
++                             float* __restrict output,int bins) noexcept
++{
++    // Apple Clang already emits eight-bin NEON for the scalar formulation,
++    // but versions each partition loop with repeated pointer-overlap checks.
++    // The three buffers are disjoint. Make the vector work explicit while
++    // retaining that compiler's fused multiply/add/subtract order per bin.
++    // Mono's N/2+1 bins also require unaligned planes and a scalar remainder.
++    const auto four=[=](int i) noexcept {
++        const auto inputReal=vld1q_f32(input+i);
++        const auto inputImag=vld1q_f32(input+bins+i);
++        const auto impulseReal=vld1q_f32(impulse+i);
++        const auto impulseImag=vld1q_f32(impulse+bins+i);
++        const auto outputReal=vld1q_f32(output+i);
++        const auto outputImag=vld1q_f32(output+bins+i);
++        const auto real=vfmsq_f32(vfmaq_f32(outputReal,impulseReal,inputReal),
++                                  impulseImag,inputImag);
++        const auto imag=vfmaq_f32(vfmaq_f32(outputImag,impulseImag,inputReal),
++                                  impulseReal,inputImag);
++        vst1q_f32(output+i,real);
++        vst1q_f32(output+bins+i,imag);
++    };
++    int i=0;
++    for(;i+8<=bins;i+=8) {four(i);four(i+4);}
++    if(i+4<=bins) {four(i);i+=4;}
++    for(;i<bins;++i) {
++        const float re=(output[i]+input[i]*impulse[i])-input[bins+i]*impulse[bins+i];
++        const float im=(output[bins+i]+input[i]*impulse[bins+i])+input[bins+i]*impulse[i];
++        output[i]=re;output[bins+i]=im;
++    }
++}
++}
++#endif
++
+ // A modeled IR is mono and is applied independently to both input channels.
+ // Linearity lets one complex convolution carry left + i * right: its real and
+ // imaginary outputs are the two separate convolutions, not a stereo downmix.
+@@ -89,6 +128,9 @@ private:
+ 
+     void accumulate(const float* __restrict input,const float* __restrict impulse,float* __restrict output) const noexcept
+     {
++#if defined(__APPLE__) && defined(__aarch64__)
++        cab_detail::accumulateArmMac(input,impulse,output,bins);
++#else
+         // Fuse the four previous vector passes: load each input/IR component
+         // once and read/write each output only once per partition. The buffers
+         // are disjoint; restrict makes that contract available to the compiler.
+@@ -120,6 +162,7 @@ private:
+             const float im=(output[bins+i]+input[i]*impulse[bins+i])+input[bins+i]*impulse[i];
+             output[i]=re;output[bins+i]=im;
+         }
++#endif
+     }
+     void sumPartitions(const float* currentInput,bool firstChunk) noexcept
+     {
+diff --git a/Tests/CabRealtimeRegressionTests.cpp b/Tests/CabRealtimeRegressionTests.cpp
+index 9da4823..082b403 100644
+--- a/Tests/CabRealtimeRegressionTests.cpp
++++ b/Tests/CabRealtimeRegressionTests.cpp
+@@ -2,6 +2,8 @@
+ #include "CabLayoutModel.h"
+ #include <iostream>
+ #include <stdexcept>
++#include <cstdint>
++#include <cstring>
+ 
+ namespace {
+ using spectralforge::Cab;
+@@ -11,6 +13,55 @@ namespace layouts=spectralforge::cabLayout;
+ 
+ void require(bool ok,const char* message) {if(!ok)throw std::runtime_error(message);}
+ 
++#if defined(__APPLE__) && defined(__aarch64__)
++void checkArmSpectralMac() {
++    // Independent scalar fused arithmetic checks lane ordering, odd imaginary
++    // plane alignment, vector/tail boundaries and repeated partition sums.
++    // This runs outside every measured callback population.
++    std::uint32_t state=0x54a921d3u;
++    const auto sample=[&]() {
++        state^=state<<13;state^=state>>17;state^=state<<5;
++        const float mantissa=float(int(state&65535u)-32768)/32768.f;
++        return std::ldexp(mantissa,int((state>>16)&15u)-12);
++    };
++    std::uint64_t compared=0;int geometries=0;
++    constexpr float sentinel=-12345.25f;
++    for(int bins:{1,3,4,5,7,8,9,65,128,129,256,257,512,513,1024}) {
++        for(int offset=1;offset<=4;++offset) {
++            std::vector<float> input(size_t(2*bins+8),sentinel),impulse(input.size(),sentinel);
++            std::vector<float> actual(input.size(),sentinel),expected(input.size(),sentinel);
++            for(int i=0;i<2*bins;++i)actual[size_t(offset+i)]=expected[size_t(offset+i)]=sample();
++            for(int partition=0;partition<73;++partition) {
++                for(int i=0;i<2*bins;++i) {
++                    input[size_t(offset+i)]=sample();impulse[size_t(offset+i)]=sample();
++                }
++                const auto inputBefore=input,impulseBefore=impulse;
++                const auto* in=input.data()+offset;
++                const auto* ir=impulse.data()+offset;
++                auto* out=expected.data()+offset;
++                #pragma clang loop vectorize(disable) interleave(disable)
++                for(int i=0;i<bins;++i) {
++                    const float re=std::fma(-in[bins+i],ir[bins+i],std::fma(in[i],ir[i],out[i]));
++                    const float im=std::fma(in[bins+i],ir[i],std::fma(in[i],ir[bins+i],out[bins+i]));
++                    out[i]=re;out[bins+i]=im;
++                }
++                spectralforge::cab_detail::accumulateArmMac(in,ir,actual.data()+offset,bins);
++                require(std::memcmp(actual.data(),expected.data(),actual.size()*sizeof(float))==0,
++                    "ARM spectral MAC differs from scalar fused reference or overwrites a guard");
++                require(std::memcmp(input.data(),inputBefore.data(),input.size()*sizeof(float))==0
++                    && std::memcmp(impulse.data(),impulseBefore.data(),impulse.size()*sizeof(float))==0,
++                    "ARM spectral MAC modifies its input spectra");
++                compared+=std::uint64_t(2*bins);
++            }
++            ++geometries;
++        }
++    }
++    std::cout<<"ARM_SPECTRAL_MAC_REFERENCE geometries="<<geometries
++        <<" partitions=73 float_comparisons="<<compared
++        <<" exact_bits=PASS input_immutable=PASS bounds_guards=PASS\n";
++}
++#endif
++
+ // The reference deliberately retains JUCE's default, zero-latency uniform
+ // convolution. It must not inherit the production Kernel's partition choice.
+ struct UniformReference {
+@@ -442,6 +493,9 @@ double compareSixMicPublications(double rate,int maximum,int channels) {
+ 
+ int main() {try {
+     const juce::ScopedNoDenormals noDenormals;
++#if defined(__APPLE__) && defined(__aarch64__)
++    checkArmSpectralMac();
++#endif
+     Residuals maximum;int cases=0,preparedModelCases=0;
+     for(double rate:{44100.,48000.,96000.}) {
+         const original::Settings base{true,1,1,1,2,.4,.73,18.3};
