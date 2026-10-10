@@ -1,0 +1,75 @@
+name: CAB Windows/macOS residue-bank diagnostic
+
+on:
+  push:
+    branches: ['diagnostic/cab-residue-bank-20261011']
+
+permissions:
+  contents: read
+
+concurrency:
+  group: cab-residue-bank-diagnostic-${{ github.ref }}
+  cancel-in-progress: false
+
+# Preserve the same tracked source bytes and exact reviewed patch on both OSes.
+# These Git-only settings do not change compiler flags or measured process state.
+env:
+  GIT_CONFIG_COUNT: '2'
+  GIT_CONFIG_KEY_0: core.autocrlf
+  GIT_CONFIG_VALUE_0: 'false'
+  GIT_CONFIG_KEY_1: core.eol
+  GIT_CONFIG_VALUE_1: lf
+
+jobs:
+  compare:
+    if: github.ref == 'refs/heads/diagnostic/cab-residue-bank-20261011'
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: macos-15
+            minutes: 35
+          - os: windows-latest
+            minutes: 45
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: ${{ matrix.minutes }}
+    steps:
+      - name: Start the diagnostic budget before checkouts
+        shell: bash
+        run: echo "CAB_RESIDUE_JOB_STARTED_EPOCH=$(date +%s)" >> "$GITHUB_ENV"
+      - name: Check out the diagnostic harness
+        uses: actions/checkout@v5
+        with:
+          ref: ${{ github.sha }}
+          path: diagnostic
+          persist-credentials: false
+      - name: Check out untouched 8097 for A
+        uses: actions/checkout@v5
+        with:
+          ref: 8097ec69594ff728164c77f59e9ea1e39e384643
+          path: variant-reference
+          persist-credentials: false
+      - name: Check out the same 8097 for B's exact recorded overlay
+        uses: actions/checkout@v5
+        with:
+          ref: 8097ec69594ff728164c77f59e9ea1e39e384643
+          path: variant-candidate
+          persist-credentials: false
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - name: Build both variants, then measure sequential expanded and layout ABBA
+        shell: bash
+        run: |
+          python diagnostic/Tools/run_cab_residue_bank_diagnostic.py \
+            --harness-sha "$GITHUB_SHA" \
+            --reference-source variant-reference --candidate-source variant-candidate \
+            --build-root cab-residue-bank-build --output cab-residue-bank-evidence
+      - name: Preserve every pass, failure and partial run
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: CAB-residue-bank-${{ runner.os }}-${{ github.sha }}
+          path: cab-residue-bank-evidence/
+          if-no-files-found: error
+          retention-days: 90
