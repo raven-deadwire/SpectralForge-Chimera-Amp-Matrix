@@ -89,6 +89,14 @@ target-hardware acceptance remain separate from synthetic CI. The two existing
 transpose goals stay deferred under their existing follow-up profile. No
 acceptance threshold, waiver, required stage or manual result is weakened.
 
+The [definition recovery audit](VALIDATION_RECOVERY_1_3.md) traces the original
+numbering and all 86 unresolved IDs. Each consolidated gate also contains
+`validation-inventory.json` and `.csv`, separating owned automation, missing
+definitions, input-dependent processing and manual acceptance using the actual
+gate's source/run/attempt and statuses. `Chimera-recovered-component-evidence`
+contains separately executed calculator contracts; its `policy_claims` is empty
+and it cannot promote an unresolved release check.
+
 ## Offline review
 
 The default invocation performs no network reads or writes and reports missing

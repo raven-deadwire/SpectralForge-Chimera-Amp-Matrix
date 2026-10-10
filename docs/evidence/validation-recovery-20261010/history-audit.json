@@ -1,0 +1,79 @@
+{
+  "kind": "historical_definition_search_not_product_execution",
+  "base_source_sha": "aaa1330dd5cf7d51faf1c45a7cef633b9b118458",
+  "reachable_commit_count": 393,
+  "reachable_commit_list_sha256": "0f5a7bfdea98f5c9a566013b668b045eb6de3fddc76e6dcabb27160f4316b9cb",
+  "history_command": [
+    "git",
+    "log",
+    "--all",
+    "--format=commit %H %s",
+    "--name-only",
+    "-G",
+    "A(1|2|3|4|5|6|7|8|9|10|11|14)[.][0-9]{2}",
+    "--",
+    "*.md",
+    "*.txt",
+    "*.json",
+    "*.py",
+    "*.yml",
+    "*.yaml",
+    "*.cpp",
+    "*.h",
+    "*.html"
+  ],
+  "alternate_id_search": "A[0-9]+[-_][0-9]+",
+  "alternate_id_matches": [],
+  "definition_found_count": 0,
+  "unresolved_legacy_count": 86,
+  "scope_limit": "Reachable refs and text histories in searched-refs.txt; does not assert completeness of deleted/unreachable commits or original external design documents.",
+  "matching_changes": [
+    {
+      "sha": "11ee2419faeecab5bce919965051deef2391a88f",
+      "meaning": "Numeric required IDs/hard gates only, no predicates"
+    },
+    {
+      "sha": "bfa64fd2a8fc8f24e7f9080246b02d80a997bc34",
+      "meaning": "A2.01 generic validation-producer test fixture, no original assertion"
+    },
+    {
+      "sha": "9df4493445106cb60ee79f92e3a9d893d8705a4d",
+      "meaning": "Same generic validation-producer fixture on another history"
+    },
+    {
+      "sha": "2a84001aae6db2717131e7bd89548726be32cfe8",
+      "meaning": "Generated unexecuted validation reports, not definitions"
+    },
+    {
+      "sha": "4d3d2ec944f8a2699451943a9da66102c2f21ea2",
+      "meaning": "Prior audit explicitly documents missing numbered definitions"
+    }
+  ],
+  "github_queries": [
+    {
+      "query": "\"A1.01\"",
+      "issue_results": 0
+    },
+    {
+      "query": "\"A9.01\"",
+      "issue_results": 0
+    },
+    {
+      "query": "\"A14\"",
+      "issue_results": [
+        21
+      ]
+    }
+  ],
+  "pr_discussions_reviewed": [
+    23,
+    35,
+    39
+  ],
+  "context_search": "No original numbered checklist located; returned ART-01/ART-02 acceptance material uses a different ID system and was not assigned to A IDs.",
+  "file_sha256": {
+    "numbered-id-history.txt": "73fbcf79381f065a5042ec793f3674c438f795c688e8aa3cae0ff9a6a1070e26",
+    "policy-comparison.json": "2d1629982e8d0e9ab41130e3f2fcbfb2e3ea97e975dbbb5331605109dccb2b8b",
+    "searched-refs.txt": "bf6f0128485e1acbc8caacbf01c431fd5c5bbdf47ceff30538448c3b5a91d9ce"
+  }
+}

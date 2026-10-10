@@ -1,0 +1,280 @@
+{
+  "schema": "spectralforge.chimera.legacy-check-recovery",
+  "schema_version": 1,
+  "policy_version": 4,
+  "stage_origin": "c499d4cfcda82d87b57023757536e79287232d7e",
+  "number_origin": "11ee2419faeecab5bce919965051deef2391a88f",
+  "numbered_definitions_recovered": 0,
+  "note": "Stage evidence is a research lead, never an ordinal mapping. Original per-ID assertion, process owner and producer remain unconfirmed for all 86 IDs.",
+  "legacy_stages": {
+    "A1": {
+      "count": 6,
+      "process_candidate": "Windows packaging and installer verification",
+      "evidence_paths": [
+        "Tools/Verify-WindowsInstaller.ps1",
+        "Tools/Verify-WindowsMSIX.ps1",
+        "Tools/Scan-WindowsArtifacts.ps1"
+      ],
+      "history": [
+        "d1eb2aa73932b6e2959d033aa1ef2218289db26c"
+      ],
+      "gap": "Recover the six numbered predicates. Existing install/repair/uninstall, MSIX and scan receipts already own A13.04-06; they cannot be reassigned by counting assertions."
+    },
+    "A2": {
+      "count": 8,
+      "process_candidate": "Factory/Signature structural regression",
+      "evidence_paths": [
+        "Tests/FactoryPresetTests.h",
+        "Source/FactoryPresets.h"
+      ],
+      "history": [
+        "4fd060e3656a8769ea8fb159ea8e1f49447f3b48",
+        "211cce77e126be562d95b1d31df1c4a4cc00f0d1"
+      ],
+      "gap": "Structural Matrix, LOW, PRE, metadata, crossover and amp assertions exist, but no mapping to the eight IDs. Private IR targets intentionally changed in 1.3."
+    },
+    "A3": {
+      "count": 9,
+      "process_candidate": "Processor/APVTS and UI state regression",
+      "evidence_paths": [
+        "Tests/NativeStateTests.h",
+        "Tests/IntegratedProcessorTests.cpp",
+        "Tests/CorrectionUITests.h"
+      ],
+      "history": [
+        "30c24b4abae384b6f03c92e0ba144dae8ff38906"
+      ],
+      "gap": "Recover numbered Bass/Guitar, binary/A-B and IR scope. State snapshots and synthetic audio do not establish the nine original predicates."
+    },
+    "A4": {
+      "count": 5,
+      "process_candidate": "Factory compatibility regression",
+      "evidence_paths": [
+        "Tests/FactoryPresetTests.h",
+        "Tests/IntegratedProcessorTests.cpp"
+      ],
+      "history": [
+        "4fd060e3656a8769ea8fb159ea8e1f49447f3b48"
+      ],
+      "gap": "Recover five original compatibility predicates and baseline. Current 48-preset coverage is relevant but not a numbered definition."
+    },
+    "A5": {
+      "count": 8,
+      "process_candidate": "Private Hartke pack import/integrity validation",
+      "evidence_paths": [
+        "Tests/IRCollectionTests.cpp",
+        "Source/IRCollection.h",
+        "docs/IR_DISTRIBUTION.md"
+      ],
+      "history": [
+        "ca0c976443c2dc615afe6555fd36bd36b98c1c89",
+        "4c7688d78869e113a041cb7316f4d23d5ea1a02c"
+      ],
+      "gap": "Historical metadata tests did not prove real ZIP import. 1.3 removed approved-pack auto-import/catalog routes. Recover numbered definitions, original private fixtures and an explicit compatibility decision; do not restore excluded audio or declare N/A."
+    },
+    "A6": {
+      "count": 8,
+      "process_candidate": "Private Marshall pack import/integrity validation",
+      "evidence_paths": [
+        "Tests/IRCollectionTests.cpp",
+        "Source/IRCollection.h",
+        "docs/IR_DISTRIBUTION.md"
+      ],
+      "history": [
+        "ca0c976443c2dc615afe6555fd36bd36b98c1c89",
+        "4c7688d78869e113a041cb7316f4d23d5ea1a02c"
+      ],
+      "gap": "Historical metadata tests did not prove real ZIP import. Recover numbered definitions, private fixtures and scope reconciliation with manual user IR import in 1.3."
+    },
+    "A7": {
+      "count": 7,
+      "process_candidate": "IR provenance and digest verification",
+      "evidence_paths": [
+        "Tests/IRCollectionTests.cpp",
+        "Tools/check_ir_distribution.py",
+        "Validation/ir-distribution-policy.json"
+      ],
+      "history": [
+        "0259cb7e43aa164427a4bed7aeb03a41495be233",
+        "4c7688d78869e113a041cb7316f4d23d5ea1a02c"
+      ],
+      "gap": "Original audio/pack hash sidecar assertions are located, but all seven numbered predicates and original-pack evidence are unconfirmed. Current public payload allowlisting is a different scope."
+    },
+    "A8": {
+      "count": 4,
+      "process_candidate": "Signature IR fallback/state regression",
+      "evidence_paths": [
+        "Tests/CorrectionUITests.h",
+        "Tests/FactoryPresetTests.h",
+        "docs/VALIDATION_STATUS.md"
+      ],
+      "history": [
+        "211cce77e126be562d95b1d31df1c4a4cc00f0d1",
+        "4c7688d78869e113a041cb7316f4d23d5ea1a02c"
+      ],
+      "gap": "Old private target missing/hash-mismatch Filters-only behavior is historical. 1.3 factory recall uses modeled CAB without private resolution. Recover all four predicates and reconcile scope explicitly."
+    },
+    "A9": {
+      "count": 9,
+      "process_candidate": "Signature calculator contract tests",
+      "evidence_paths": [
+        "Tools/evaluate_signature_benchmark.py",
+        "Tools/test_signature_benchmark.py",
+        "Validation/signature-benchmark-policy.json"
+      ],
+      "history": [
+        "156fcf26300bedcbf16166f4af2ec60841cdced8",
+        "ec6a13bcfb570fa322bebfcc0f2ad827d54c52d3",
+        "4b45c489c14e9137fcae2e464250bb1f97b7e382"
+      ],
+      "gap": "Raw deltas, bias, centering, RMSE, pair ordering/gaps and weighted equations survive. Component execution receipts are restored separately; no evidence establishes which equation belongs to which of the nine IDs."
+    },
+    "A10": {
+      "count": 6,
+      "process_candidate": "Signature gate calculator contract tests",
+      "evidence_paths": [
+        "Tools/evaluate_signature_benchmark.py",
+        "Validation/signature-benchmark-policy.json",
+        "docs/VALIDATION_STATUS.md"
+      ],
+      "history": [
+        "156fcf26300bedcbf16166f4af2ec60841cdced8",
+        "ec6a13bcfb570fa322bebfcc0f2ad827d54c52d3"
+      ],
+      "gap": "H1-H4, secondary >=3/4, score >=85 and critical >=0.70 are recoverable. Six ordinal assignments are not; calculator fixtures never satisfy actual B4/B5/B6 acceptance."
+    },
+    "A11": {
+      "count": 9,
+      "process_candidate": "Signature benchmark JSON contract tests",
+      "evidence_paths": [
+        "Tools/evaluate_signature_benchmark.py",
+        "Tools/test_signature_benchmark.py"
+      ],
+      "history": [
+        "ec6a13bcfb570fa322bebfcc0f2ad827d54c52d3",
+        "4b45c489c14e9137fcae2e464250bb1f97b7e382"
+      ],
+      "gap": "Schema, numeric measurement and result structure survive. Recover nine exact predicates, required input/audio provenance and numbering before producing A11 claims."
+    },
+    "A14": {
+      "count": 7,
+      "process_candidate": "Documentation/catalog/language review",
+      "evidence_paths": [
+        "Tools/check_catalog_contract.py",
+        "docs/MANUAL.html",
+        "docs/RELEASE_CHECKLIST.md"
+      ],
+      "history": [
+        "f4aa3c9a654ea2da8a941d0754a4b838bb9ee107"
+      ],
+      "gap": "Recover seven original content/language/version predicates. File presence and catalog checks alone cannot prove complete translation/content sync."
+    }
+  },
+  "external_checks": {
+    "B1.RESULT": [
+      "automated_with_external_input",
+      "Same-DI preparation",
+      "Original guitar/bass DI, approved fixture definition and SHA-256 manifest"
+    ],
+    "B2.RESULT": [
+      "automated_with_external_input",
+      "Signature rendering",
+      "Same input DI plus exact binary/preset/IR identities and rendered WAVs"
+    ],
+    "B3.RESULT": [
+      "automated_with_external_input",
+      "Audio measurement",
+      "Bound render WAVs, measurement procedure, metrics and reference provenance"
+    ],
+    "B4.H1": [
+      "automated_with_external_input",
+      "Signature benchmark evaluator",
+      "Same-DI measured renders; original H1 low-band RMS ordering/minimum gaps"
+    ],
+    "B4.H2": [
+      "automated_with_external_input",
+      "Signature benchmark evaluator",
+      "Same-DI measured renders; original H2 low-band side difference >=3 pp"
+    ],
+    "B4.H3": [
+      "automated_with_external_input",
+      "Signature benchmark evaluator",
+      "Same-DI measured renders; original H3 high-band side order/minimum gaps"
+    ],
+    "B4.H4": [
+      "automated_with_external_input",
+      "Signature benchmark evaluator",
+      "Same-DI measured renders; original H4 Wild crest margin >=0.25 dB"
+    ],
+    "B5.RESULT": [
+      "automated_with_external_input",
+      "Signature benchmark evaluator",
+      "Measured renders with >=3/4 original secondary gates"
+    ],
+    "B6.RESULT": [
+      "automated_with_external_input",
+      "Signature benchmark evaluator",
+      "Bound real renders, all hard gates, score >=85, critical metrics >=0.70"
+    ],
+    "B8.RESULT": [
+      "manual_acceptance",
+      "Listener",
+      "Documented A/B listening against exact binary, DI, presets and render hashes"
+    ],
+    "B10.RESULT": [
+      "automated_with_external_input",
+      "Audio round-trip validation",
+      "Same-DI pre/post save-restore audio and original comparison criteria"
+    ],
+    "B11.RESULT": [
+      "manual_acceptance",
+      "Windows host validation operator",
+      "Named real Windows host/build, plugin hash, session, lifecycle logs and result"
+    ],
+    "B12.RESULT": [
+      "manual_acceptance",
+      "Studio One validation operator",
+      "Studio One 8 exact version, plugin hash, session, lifecycle/reopen/removal evidence"
+    ],
+    "B13.RESULT": [
+      "manual_acceptance",
+      "Target workstation operator",
+      "Actual 30-minute soak, device/driver/buffer details, start/end times and glitch/crash logs"
+    ],
+    "B14.RESULT": [
+      "release_acceptance",
+      "Release reviewer",
+      "Complete candidate, required acceptance evidence and source-specific review"
+    ],
+    "E2.TD_EQ": [
+      "automated_with_external_input",
+      "Reference comparison and reviewer",
+      "Documented T.D. EQ reference and original comparison criteria; E1 is insufficient"
+    ],
+    "E2.CALIBRATION": [
+      "automated_with_external_input",
+      "Reference calibration process",
+      "Exact reference/capture files, hashes, level calibration and comparison measurements"
+    ],
+    "E2.SAME_DI": [
+      "automated_with_external_input",
+      "Reference rendering and listener",
+      "Real DI and matched reference/candidate renders plus sound acceptance"
+    ],
+    "I2.GATE_DI": [
+      "manual_acceptance",
+      "Instrument/player acceptance",
+      "Actual guitar/bass DI gate attack/decay and listening result at the intended settings"
+    ],
+    "I2.UI_AUDIO_TIMING": [
+      "manual_acceptance",
+      "Controlled workstation timing operator",
+      "Target hardware, audio device/driver, UI interaction and paired timing/dropout evidence"
+    ],
+    "I2.LIVE_REMOVE_DAW": [
+      "manual_acceptance",
+      "Commercial DAW lifecycle operator",
+      "Actual DAW deletion/reopen/exit with active playback and surviving peers; host logs"
+    ]
+  }
+}
