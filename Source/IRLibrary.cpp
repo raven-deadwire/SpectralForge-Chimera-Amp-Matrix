@@ -77,37 +77,78 @@ juce::Result IRLibrary::importFile(int lane, const juce::File& file)
     if(error.isNotEmpty()) return juce::Result::fail(error);
     notify(); return juce::Result::ok();
 }
-std::unique_ptr<Cab::Kernel> IRLibrary::build(int lane,int source,unsigned generation,uint64_t model)
+bool IRLibrary::requestIsCurrent(int lane,int source,uint64_t model) const noexcept
 {
+    return source==cabs[lane]->requestedSource.load() && model==cabs[lane]->requestedModel.load();
+}
+std::unique_ptr<Cab::Kernel> IRLibrary::build(int lane,int source,unsigned generation,uint64_t model,
+                                           bool cancelObsolete)
+{
+    SF_CAB_PROFILE_SCOPE(WorkerBuild);
     const lifecycle::Scope trace("ir.build", this);
+    struct Request {const IRLibrary* library;int lane,source;uint64_t model;};
+    const Request request{this,lane,source,model};
+    // prepare() synchronously builds the saved initial state after stop(). It
+    // deliberately has no cancellation token. Only the running worker abandons
+    // requests using the same source/model predicate as its publication check.
+    const originalCab::GenerationCancellation cancellation{&request,cancelObsolete
+        ? +[](const void* context) {
+            const auto& expected=*static_cast<const Request*>(context);
+            return expected.library->threadShouldExit()
+                || !expected.library->requestIsCurrent(expected.lane,expected.source,expected.model);
+        } : nullptr};
+    cancellation.checkpoint();
     std::shared_ptr<Asset> asset;
     { std::lock_guard<std::mutex> lock(mutex);
       if(source==1 || source==2) asset=factory[(size_t)source-1];
       else if(source==3) asset=users[(size_t)lane];
     }
     juce::AudioBuffer<float> samples;
+    std::shared_ptr<const ModeledCabConvolution::Prepared> prepared;
+    CachedModel generated{model,{},{}};
+    CachedModel* cachedModel=nullptr;
+    bool cacheGenerated=false;
     double rate=spec.sampleRate;
     if(model) {
         auto found=std::find_if(modelCache.begin(),modelCache.end(),[&](const auto& item){return item.key==model;});
         if(found==modelCache.end()) {
-            auto response=cabLayout::generate(model,rate);
-            juce::AudioBuffer<float> generated(1,int(response.size()));
-            generated.copyFrom(0,0,response.data(),int(response.size()));
-            if(modelCache.size()==8)modelCache.pop_front();
-            modelCache.push_back({model,std::move(generated)});found=std::prev(modelCache.end());
+            SF_CAB_PROFILE_SCOPE(ResponseGenerate);
+            auto response=cabLayout::generate(model,rate,cancellation);
+            // Keep a new response private until its entire kernel is ready and
+            // the request remains current. Cancellation cannot evict useful
+            // responses or leave partial samples/spectra in the bounded cache.
+            generated.samples.setSize(1,int(response.size()));
+            generated.samples.copyFrom(0,0,response.data(),int(response.size()));
+            cachedModel=&generated;cacheGenerated=true;
         }
-        samples.makeCopyOf(found->samples);
+        else cachedModel=&*found;
+        cancellation.checkpoint();
+        // Reuse only immutable spectra. The cache is cleared on every prepare,
+        // so its model key is also bound to the current sample rate and block
+        // size. Every published microphone still owns private input/history.
+        if(Cab::Kernel::supportsPreparedModel(spec)) {
+            prepared=cachedModel->prepared;
+            if(!prepared)prepared=std::make_shared<const ModeledCabConvolution::Prepared>(cachedModel->samples,int(spec.maximumBlockSize),spec.numChannels==1);
+        }
+        cancellation.checkpoint();
+        samples.makeCopyOf(cachedModel->samples);
     }
     else if(asset) { samples.makeCopyOf(asset->samples); rate=asset->rate; }
     else { samples.setSize(1,1); samples.setSample(0,0,1.f); }
-    auto kernel=std::make_unique<Cab::Kernel>(std::move(samples),rate,spec,source,generation,model);
+    auto kernel=std::make_unique<Cab::Kernel>(std::move(samples),rate,spec,source,generation,model,prepared);
     kernel->hasIR = model != 0 || asset != nullptr;
+    cancellation.checkpoint();
+    if(cachedModel && !cachedModel->prepared)cachedModel->prepared=std::move(prepared);
+    if(cacheGenerated) {
+        modelCache.push_back(std::move(generated));
+        if(modelCache.size()>8)modelCache.pop_front();
+    }
     return kernel;
 }
 void IRLibrary::prepare(const juce::dsp::ProcessSpec& settings,const std::array<int,3>& sources)
 {
     const lifecycle::Scope trace("ir.prepare", this);
-    stop(); spec=settings; modelCache.clear();
+    stop(); spec=settings; modelCache.clear();cancelledBuilds.store(0,std::memory_order_relaxed);scheduling={};
     for(int i=0;i<6;++i)
     {
         cabs[i]->requestedSource.store((i<3 ? sources[i] : cabs[i]->requestedSource.load()));
@@ -115,10 +156,19 @@ void IRLibrary::prepare(const juce::dsp::ProcessSpec& settings,const std::array<
         { std::lock_guard<std::mutex> lock(mutex); generation=generations[i]; }
         cabs[i]->install(build(i,(i<3 ? sources[i] : cabs[i]->requestedSource.load()),generation,cabs[i]->requestedModel.load()));
     }
-    startThread();
+    // IR generation/preparation is background work. Let the host's processing
+    // thread preempt it; do not change the caller/process priority or affinity.
+    // JUCE maps low to Windows LOWEST and macOS UTILITY. Linux ignores this
+    // non-realtime priority request, so it must not be credited there as a fix.
+    scheduling.startSucceeded=startThread(Priority::low);
 }
 void IRLibrary::run()
 {
+    scheduling.observedPriority=int(getPriority());
+    scheduling.enteredRun=true;
+#if defined(CHIMERA_CAB_PROFILE) && CHIMERA_CAB_PROFILE
+    cabProfile::ThreadCapture profileCapture(profileSink);
+#endif
     const lifecycle::Scope trace("ir.worker", this);
     std::array<int,6> built;
     std::array<unsigned,6> versions, rejections{};
@@ -136,13 +186,18 @@ void IRLibrary::run()
             const auto rejected=cabs[i]->rejectedModels.load();
             if(rejected==rejections[i] && source==built[i] && model==models[i] && (source!=3 || generation==versions[i])) continue;
             try {
-                auto kernel=build(i,source,generation,model);
+                auto kernel=build(i,source,generation,model,true);
                 if(threadShouldExit())break;
-                // Coalesce rapid automation; no stale response is published.
-                if(source!=cabs[i]->requestedSource.load() || model!=cabs[i]->requestedModel.load())continue;
+                // Discard work when a newer request is already visible.
+                if(!requestIsCurrent(i,source,model))continue;
                 { std::lock_guard<std::mutex> lock(mutex); if(generation!=generations[i])continue; errors[i].clear(); }
                 cabs[i]->publish(std::move(kernel));
                 built[i]=source; versions[i]=generation; models[i]=model; rejections[i]=rejected;
+            }
+            catch(const originalCab::GenerationCancelled&) {
+                // Obsolete work/stop is expected, not a bad IR. Temporary
+                // response/kernel ownership unwinds here, on the worker only.
+                cancelledBuilds.fetch_add(1,std::memory_order_relaxed);
             }
             catch(const std::exception&) { std::lock_guard<std::mutex> lock(mutex); errors[i]="IR preparation failed. Previous IR kept."; ++displayGeneration[(size_t)i]; }
         }
