@@ -77,11 +77,22 @@ inline Skin makeSkin(const juce::Image& source,bool bass) {
     Skin skin;skin.bass=bass;
     if(!source.isValid())return skin;
     const auto regions=sourceRegions(bass);
-    const auto clip=[&](juce::Rectangle<int> area) {
+    const auto clip=[&](juce::Rectangle<int> area,bool detach=false) {
         const double sx=double(source.getWidth())/1254.0,sy=double(source.getHeight())/1254.0;
         const int left=int(std::ceil(area.getX()*sx)),top=int(std::ceil(area.getY()*sy));
         const int right=int(std::floor(area.getRight()*sx)),bottom=int(std::floor(area.getBottom()*sy));
-        return source.getClippedImage(juce::Rectangle<int>(left,top,right-left,bottom-top));
+        auto cropped=source.getClippedImage(juce::Rectangle<int>(left,top,right-left,bottom-top));
+        if(!detach)return cropped;
+        // A native subsection can keep its parent's backing bitmap even after
+        // createCopy(). Put every repeating texture in independent software
+        // storage so native bitmap brushes cannot wrap outside the crop.
+        juce::SoftwareImageType storage;
+        juce::Image copy(juce::Image::ARGB,cropped.getWidth(),cropped.getHeight(),true,storage);
+        const juce::Image::BitmapData sourcePixels(cropped,juce::Image::BitmapData::readOnly);
+        juce::Image::BitmapData copyPixels(copy,juce::Image::BitmapData::writeOnly);
+        for(int y=0;y<cropped.getHeight();++y)for(int x=0;x<cropped.getWidth();++x)
+            copyPixels.setPixelColour(x,y,sourcePixels.getPixelColour(x,y));
+        return copy;
     };
     for(size_t i=0;i<skin.perimeter.size();++i) {
         auto area=regions.perimeter[i];
@@ -91,13 +102,12 @@ inline Skin makeSkin(const juce::Image& source,bool bass) {
             if(i==topRail || i==bottomRail)area=area.withSizeKeepingCentre(64,area.getHeight());
             else area=area.withSizeKeepingCentre(area.getWidth(),64);
         }
-        skin.perimeter[i]=clip(area);
-        if(i%2)skin.perimeter[i]=skin.perimeter[i].createCopy();
+        skin.perimeter[i]=clip(area,i%2!=0);
     }
     skin.feet[0]=clip(bass ? juce::Rectangle<int>(113,1147,65,36) : juce::Rectangle<int>(102,1172,66,26));
     skin.feet[1]=clip(bass ? juce::Rectangle<int>(1087,1147,63,36) : juce::Rectangle<int>(1090,1172,67,26));
-    skin.grille=clip(regions.grille).createCopy();
-    skin.roof=clip(regions.roof).createCopy();
+    skin.grille=clip(regions.grille,true);
+    skin.roof=clip(regions.roof,true);
     // Preserve the complete photographed roof, rolled front edge and metal
     // cap returns. A tiny grain tile cannot reproduce their original form.
     // These strips end before any of the baked cones or bass horn begins.
