@@ -19,6 +19,7 @@ double processCPUSeconds(){
 #endif
 }
 void settle(int ms){check(juce::MessageManager::getInstance()->runDispatchLoopUntil(ms),"UI loop exited");}
+template<class Predicate> bool waitFor(Predicate predicate){const auto deadline=juce::Time::getMillisecondCounterHiRes()+2000;while(!predicate() && juce::Time::getMillisecondCounterHiRes()<deadline)settle(20);return predicate();}
 template<class T> T* find(juce::Component& c,const juce::String& id){if(c.getComponentID()==id)return dynamic_cast<T*>(&c);for(auto* child:c.getChildren())if(auto* p=find<T>(*child,id))return p;return nullptr;}
 juce::TextButton* tab(juce::Component& c,const juce::String& name){for(auto* child:c.getChildren()){if(auto* b=dynamic_cast<juce::TextButton*>(child);b && b->getButtonText()==name)return b;if(auto* b=tab(*child,name))return b;}return nullptr;}
 void set(ChimeraProcessor& p,const juce::String& id,float v){auto* q=p.parameters().getParameter(id);check(q!=nullptr,"Parameter missing");q->setValueNotifyingHost(q->convertTo0to1(v));}
@@ -46,7 +47,7 @@ int main(int argc,char** argv){try {
             numeric(*f,juce::String(200+b*317)+" Hz");numeric(*g,"3.5 dB");numeric(*qs,"1.25 Q");
             std::cout<<"Numeric "<<e<<":"<<b<<" Hz="<<get(*processor,eqID(e,b,"frequency"))<<" dB="<<get(*processor,eqID(e,b,"gain"))<<" Q="<<get(*processor,eqID(e,b,"q"))<<'\n';
             check(std::abs(get(*processor,eqID(e,b,"frequency"))-(200+b*317))<.1 && std::abs(get(*processor,eqID(e,b,"gain"))-3.5f)<.00001f && std::abs(get(*processor,eqID(e,b,"q"))-1.25f)<.001,"Numeric node edit did not reach host");
-            auto* on=find<juce::TextButton>(*panel,eqID(e,b,"enabled"));on->triggerClick();settle(5);check(get(*processor,eqID(e,b,"enabled"))==1,"Band activation not connected");
+            auto* on=find<juce::TextButton>(*panel,eqID(e,b,"enabled"));on->triggerClick();check(waitFor([&]{return get(*processor,eqID(e,b,"enabled"))==1;}),"Band activation not connected");
             auto* filter=find<juce::ComboBox>(*panel,eqID(e,b,"type"));filter->setSelectedId(4,juce::sendNotificationSync);check(get(*processor,eqID(e,b,"type"))==3 && !g->isEnabled(),"HP choice / gain applicability");
             filter->setSelectedId(1,juce::sendNotificationSync);
             if(b==0)for(int t=1;t<=7;++t){filter->setSelectedId(t,juce::sendNotificationSync);check(get(*processor,eqID(e,b,"type"))==float(t-1),"Filter menu did not reach host");}
@@ -57,7 +58,7 @@ int main(int argc,char** argv){try {
         check(get(*processor,eqID(e,0,"frequency"))>200 && get(*processor,eqID(e,0,"gain"))>3.5,"Graph drag not connected");
         juce::MouseWheelDetails wheel{};wheel.deltaY=.2f;panel->mouseWheelMove(mouse(*panel,end,end,false),wheel);check(get(*processor,eqID(e,0,"q"))>1.25,"Wheel Q not connected");
         check(host.starts>=3 && host.starts==host.ends && host.changes>0,"Unbalanced/missing host gestures");frequency->removeListener(&host);gain->removeListener(&host);q->removeListener(&host);
-        auto* bypass=find<juce::TextButton>(*panel,eqID(e,-1,"bypass"));bypass->triggerClick();settle(5);check(!processor->graphicalEQ(e).isBypassed(),"Bypass not connected");
+        auto* bypass=find<juce::TextButton>(*panel,eqID(e,-1,"bypass"));bypass->triggerClick();check(waitFor([&]{return !processor->graphicalEQ(e).isBypassed();}),"Bypass not connected");
         for(int b=0;b<12;++b)set(*processor,eqID(e,b,"enabled"),b==0?1.f:0.f);set(*processor,eqID(e,0,"frequency"),1007.8125f);set(*processor,eqID(e,0,"gain"),6);processor->graphicalEQ(e).prepare(48000);
     }
     juce::AudioBuffer<float> audio(2,512);for(int k=0;k<12;++k){for(int n=0;n<512;++n){const float v=.1f*std::sin(2*juce::MathConstants<float>::pi*43*float(k*512+n)/2048);audio.setSample(0,n,v);audio.setSample(1,n,-v);}
@@ -73,7 +74,7 @@ int main(int argc,char** argv){try {
         auto output=directory.getChildFile("eq-ui-"+juce::String(percent)+".png").createOutputStream();check(output!=nullptr,"Screenshot output");output->setPosition(0);output->truncate();juce::PNGImageFormat png;check(png.writeImageToStream(editor->createComponentSnapshot(editor->getLocalBounds()),*output),"Screenshot encoding");
         const auto t=juce::Time::getMillisecondCounterHiRes();const auto cpu=processCPUSeconds();settle(1000);const double elapsed=juce::Time::getMillisecondCounterHiRes()-t;std::cout<<"UI idle "<<percent<<"% = "<<100000.*(processCPUSeconds()-cpu)/elapsed<<"% one core (1 second no audio, process CPU)\n";
     }
-    tab(*editor,"RIGS")->triggerClick();settle(70);for(int e=0;e<2;++e)check(!processor->graphicalEQ(e).analyzer.enabled.load(),"Hidden EQ analyzer still enabled");
+    tab(*editor,"RIGS")->triggerClick();for(int e=0;e<2;++e)check(waitFor([&]{return !processor->graphicalEQ(e).analyzer.enabled.load();}),"Hidden EQ analyzer still enabled");
     editor.reset();for(int e=0;e<2;++e)check(!processor->graphicalEQ(e).analyzer.enabled.load(),"Closed editor analyzer still enabled");processor->releaseResources();
     std::cout<<"PASS real native peer / 24 numeric nodes / drag / Q / host gestures / 7 choices / stereo FFT / 75-150% / hidden and close\n";return 0;
 }catch(const std::exception& e){std::cerr<<"FAIL "<<e.what()<<'\n';return 1;}}

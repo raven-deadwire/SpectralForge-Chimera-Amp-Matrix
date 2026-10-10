@@ -60,11 +60,16 @@ Consult [PR #38 checks](https://github.com/raven-deadwire/SpectralForge-Chimera-
 for current results. A pending/failed run is not a passing result.
 
 The first macOS run exposed exact-float assumptions in numeric gain and
-unity output-trim test expectations. The production placement was correct;
-tests now check gain with a tolerance smaller than parameter resolution and
+unity output-trim test expectations. The updated macOS DSP contract passes. Tests now check gain with a tolerance smaller than parameter resolution and
 compare output against the actual host trim. The numeric UI test logs values
 for diagnosing any remaining platform issue. Linux passed the earlier CI run;
 updated head must pass independently on all three OSes.
+
+The second macOS run passes DSP/state/routing and exposes the native button
+message not arriving within the test's fixed 5 ms delay. JUCE `triggerClick()`
+posts an asynchronous command. Button tests now pump the message loop until
+the actual host value arrives (bounded at two seconds), then retain the same
+value assertion. Windows and Linux already pass; final head is rerun.
 
 Existing product/CAB workflows remain enabled. Development release-policy
 version/channel metadata matches 1.3.1 Preview; existing release requirements,
