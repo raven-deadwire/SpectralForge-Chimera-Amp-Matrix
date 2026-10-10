@@ -4,6 +4,9 @@
 #include <memory>
 #include <vector>
 #include "CabRealtimeProfile.h"
+#if defined(_MSC_VER) && (defined(_M_X64) || defined(_M_IX86))
+#include <xmmintrin.h>
+#endif
 
 namespace spectralforge {
 // A modeled IR is mono and is applied independently to both input channels.
@@ -87,7 +90,29 @@ private:
         // once and read/write each output only once per partition. The buffers
         // are disjoint; restrict makes that contract available to the compiler.
         // Keep the original arithmetic order and do not enable fast-math.
-        for(int i=0;i<bins;++i) {
+        int i=0;
+#if defined(_MSC_VER) && (defined(_M_X64) || defined(_M_IX86))
+        // Native Windows profiling identified sustained spectral-MAC cost in
+        // this loop. Make its four-float SIMD work explicit on MSVC instead of
+        // depending on auto-vectorization of the two variable-offset stores.
+        // Mono has N/2+1 bins, so neither the imaginary plane nor every input
+        // partition is SIMD-aligned. Unaligned loads/stores are intentional.
+        for(;i+4<=bins;i+=4) {
+            const auto inputReal=_mm_loadu_ps(input+i);
+            const auto inputImag=_mm_loadu_ps(input+bins+i);
+            const auto impulseReal=_mm_loadu_ps(impulse+i);
+            const auto impulseImag=_mm_loadu_ps(impulse+bins+i);
+            const auto outputReal=_mm_loadu_ps(output+i);
+            const auto outputImag=_mm_loadu_ps(output+bins+i);
+            const auto real=_mm_sub_ps(_mm_add_ps(outputReal,_mm_mul_ps(inputReal,impulseReal)),
+                                      _mm_mul_ps(inputImag,impulseImag));
+            const auto imag=_mm_add_ps(_mm_add_ps(outputImag,_mm_mul_ps(inputReal,impulseImag)),
+                                      _mm_mul_ps(inputImag,impulseReal));
+            _mm_storeu_ps(output+i,real);
+            _mm_storeu_ps(output+bins+i,imag);
+        }
+#endif
+        for(;i<bins;++i) {
             const float re=(output[i]+input[i]*impulse[i])-input[bins+i]*impulse[bins+i];
             const float im=(output[bins+i]+input[i]*impulse[bins+i])+input[bins+i]*impulse[i];
             output[i]=re;output[bins+i]=im;

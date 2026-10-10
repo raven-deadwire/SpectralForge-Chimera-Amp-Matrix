@@ -78,6 +78,42 @@ candidate route was faster than its earlier baseline sample. **No universal
 whole-plugin or whole-route speedup is inferred from these local measurements.**
 The paired CI comparison measures both actual commits on each runner.
 
+### First native comparison and the MSVC follow-up
+
+[Run 38063987771](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38063987771)
+tested candidate `f10f24a102b9fec73c4642810a9b5e13d66f45f4` against the fixed
+`aaa1330dd5cf7d51faf1c45a7cef633b9b118458` baseline. Windows, Linux and native
+arm64 macOS each passed all five candidate CTests and 66 timing cases with the
+unchanged p99 limits. The source/tree snapshots and complete artifact hashes
+were independently checked. These are new same-runner measurements, separate
+from the historical failures above.
+
+| Expanded 96 kHz / 64 | Baseline p99, microseconds | First candidate p99 | Baseline / candidate misses per 1600 |
+|---|---:|---:|---|
+| Windows mono | 175.900 | 218.600 | 0 / 0 |
+| Windows stereo | 187.600 | 311.500 | 0 / 0 |
+| Linux mono | 261.191 | 252.244 | 0 / 0 |
+| Linux stereo | 280.697 | 260.900 | 0 / 0 |
+| macOS mono | 358.917 | 132.416 | 7 / 1 |
+| macOS stereo | 316.333 | 194.917 | 4 / 1 |
+
+This first candidate improved paired p99 in 11/36 Windows, 25/36 Linux and
+31/36 macOS cases; all remaining pairs were slower and remain in the evidence.
+Windows 64-frame median and p99 increased in 17/18 cases. Expanded 96 kHz/64
+stereo's forced-publication median rose from 99.6 to 153.2 microseconds, while
+the candidate's instrumented spectral-MAC median alone was 103.3. This is a
+sustained small-block cost regression, not merely a few rare deadline spikes.
+The first passing gate is therefore not treated as a universal speedup.
+
+The follow-up makes four-bin fused multiply/accumulate explicit with SSE on
+MSVC x86/x64. Unaligned loads and stores handle odd mono bin counts, and a
+scalar remainder retains the final Nyquist bin. The same multiply/add/subtract
+order is used without fast-math or a new CPU instruction-set requirement on
+the x64 target. Other compilers retain the existing fused loop and macOS keeps
+its native real FFT. This addresses the measured hot loop; it does not assert
+an assembly-proven compiler defect. The follow-up is validated under its own
+source SHA in a new run, while this first result remains visible in the PR.
+
 ## Implementation
 
 ### Convolution
