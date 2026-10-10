@@ -69,11 +69,14 @@ public:
     }
     void resized() override {
         if(compact){const int width=(getWidth()-76)/juce::jmax(1,int(buttons.size()));for(size_t i=0;i<buttons.size();++i)buttons[i]->setBounds(int(i)*width,0,width-10,getHeight());if(expandButton)expandButton->setBounds(getWidth()-74,0,74,getHeight());}
-        else for(auto& b:buttons)if(const auto* n=current.find(b->getComponentID().substring(5)))b->setBounds(n->bounds);
+        else for(auto& b:buttons)if(const auto* n=current.find(b->getComponentID().substring(5))){b->setBounds(n->bounds);b->setTransform(juce::AffineTransform::scale(graphScale()));}
     }
     void paint(juce::Graphics& g) override {
         g.fillAll(juce::Colour(0xff171e20));
         if(compact){g.setColour(juce::Colour(0xff8da99c));for(size_t i=0;i+1<buttons.size();++i){const auto r=buttons[i]->getBounds();g.drawText(">",r.getRight(),0,10,getHeight(),juce::Justification::centred);}return;}
+        // Native window managers can constrain the dialog to a smaller display.
+        // Fit both connections and hit targets to the same logical canvas.
+        g.addTransform(juce::AffineTransform::scale(graphScale()));
         g.setColour(juce::Colour(0xffc8d7cc));g.setFont(juce::FontOptions(13.f));
         g.drawText(current.mode==0?"CLASSIC  /  ONE RIG":current.mode==1?(current.dualCross?"DUAL  /  CROSSOVER":"DUAL  /  PARALLEL BLEND"):"MATRIX  /  CLEAN LOW + WET MID / HIGH",16,5,700,24,juce::Justification::centredLeft);
         g.setFont(juce::FontOptions(10.f));g.drawText("Click a block to edit  |  Tab / Shift-Tab + Enter  |  Navigation only",650,8,450,20,juce::Justification::centredRight);
@@ -101,6 +104,7 @@ public:
         }
     }
 private:
+    float graphScale() const {return juce::jmin(float(juce::jmax(1,getWidth()))/1140.f,float(juce::jmax(1,getHeight()))/650.f);}
     void timerCallback() override {if(spectralforge::ui::visible(*this)){refresh();if(selection)select(selection());}}
     void updateSelection(){for(auto& b:buttons){const auto id=b->getComponentID().substring(5);b->setToggleState(id==selected || (!compact&&((selected=="rigs"&&id=="split")||(selected=="pre"&&id.startsWith("pre."))||(selected=="post"&&id.startsWith("post.")))) || (compact&&((id=="pre"&&selected.startsWith("pre."))||(id=="rigs"&&(selected.startsWith("amp.")||selected.startsWith("cab.")||selected.startsWith("low.")))||(id=="post"&&selected.startsWith("post.")))),juce::dontSendNotification);}}
     ChimeraProcessor& processor;bool compact;juce::String selected;

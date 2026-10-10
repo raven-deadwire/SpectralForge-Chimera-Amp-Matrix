@@ -43,6 +43,9 @@ level/mute/polarity and the rig sum. CAB microphone blend stays inside CAB.
 Both compact and expanded paths expose the two new banks and independently read
 bypass and enabled-band count from APVTS. Expanded graph dimensions include the
 additional output row. No routing mutation or drag reordering is implemented.
+The expanded graph fits its logical canvas, including connections and native hit
+targets, to the actual dialog content bounds. This prevents a window manager's
+small-display constraint from clipping Final EQ, output or the right-hand lanes.
 
 ## Compatibility
 
@@ -84,8 +87,34 @@ screenshots, four EQ scale screenshots and Standalone preview binaries. Existing
 full-product and CAB workflows remain enabled with their original limits.
 Do not substitute old #37/#38 results for results on this integrated source.
 
-At authoring time the local native build and new-head CI are pending. Exact
-results and workflow links will be recorded in the integration PR description.
+## Findings from integrated CI
+
+On `fb72d8e`, the EQ-focused run passed all nine CTests across Windows, Linux and
+macOS: [run 38057334727](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38057334727).
+The macOS integration run passed path navigation, packaging, CAB state, gate and
+both EQ tests, but exposed a NativeState assertion comparing a snapped POST
+parameter directly with literal `7.f`. The range has a 0.01 interval starting at
+-18; fused multiply-add can yield `6.999999523` where separate operations yield
+`7.0`. The revised test checks the parameter's canonical requested value and then
+requires **exact** preservation of the stored value through A/B and migration.
+It does not widen a recall tolerance or change production DSP/state code.
+
+Inspection of that run's actual macOS path screenshots also exposed a graph
+clipped to 1000 pixels by the native window. The fit above and containment tests
+for default and explicitly reduced native windows address this missed case.
+New-head results, including these corrections, are recorded in the PR description.
+
+The separate macOS CAB suite fails `ChimeraCabDriverVisualTests` with
+`rail tiling leaked the original cabinet parent bitmap`. The identical failure
+is present on the unchanged shared 1.3.0 base in
+[run 37998107407](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/37998107407)
+and on the integrated source in
+[run 38057334847](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38057334847).
+It remains a separate release-preparation blocker; no gate is disabled here.
+
+Local Linux built the Standalone and native test targets and passed the four
+display-independent contracts. Local native UI is blocked because AF_UNIX socket
+creation returns EPERM, preventing Xvfb from starting; native CI supplies UI evidence.
 Any subsequent failure remains a failure until its cause is understood and a
 new source or an explicitly identified infrastructure retry is validated.
 

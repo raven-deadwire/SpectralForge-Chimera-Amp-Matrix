@@ -59,6 +59,12 @@ inline void run(const juce::File& folder) {
         const auto before=values(*p);writes.changes=writes.gestures=0;click(*expand);
         auto graphWindow=juce::Component::SafePointer<juce::DialogWindow>(dialog("signalPathGraph"));require(graphWindow,"Path expansion did not open native graph");
         auto* graph=dynamic_cast<SignalPathView*>(graphWindow->getContentComponent());require(graph,"Graph content missing");
+        const auto nativeGraphSize=graphWindow->getBounds();
+        graphWindow->setSize(855,540);settle(80);
+        for(auto* child:graph->getChildren())inside(*graph,*child,"Expanded path block clipped on a small native display");
+        capture(*graph,folder,"signal-path-small-mode-"+juce::String(mode)+"-dual-"+juce::String(scenario[1]));
+        graphWindow->setSize(nativeGraphSize.getWidth(),nativeGraphSize.getHeight());settle(80);
+        for(auto* child:graph->getChildren())inside(*graph,*child,"Expanded path block clipped by native window bounds");
         capture(*graph,folder,("signal-path-mode-"+juce::String(mode)+"-dual-"+juce::String(scenario[1])).toRawUTF8());
         const auto nodes=graph->snapshot().nodes;
         for(const auto& node:nodes){auto* b=find<juce::TextButton>(*graph,"path."+node.id);require(b,"Navigation block missing");click(*b);if(!b->getToggleState())throw std::runtime_error("Native pointer click did not select block "+node.id.toStdString());

@@ -116,8 +116,16 @@ inline void run(const juce::File& directory) {
     checked.add("Binary project recall preserves every native amp and POST bank, including inactive models");
     set(p,"mode",0);p.copyComparison();p.selectComparison(1);
     p.setAmpModel(0,22);set(p,postNativeModelID(2),0);set(p,postNativeControlID(2,0,0),7.f);
+    const auto bPostID=postNativeControlID(2,0,0);
+    const auto* bPostParameter=p.parameters().getParameter(bPostID);
+    const float expectedBPost=bPostParameter->convertFrom0to1(bPostParameter->convertTo0to1(7.f));
+    const float storedBPost=get(p,bPostID);
+    // Decimal interval snapping may use fused multiply-add on ARM. Test the
+    // parameter's canonical value, then require exact preservation on recall.
+    require(storedBPost==expectedBPost,"Native B did not accept its canonical parameter value");
+    std::cout<<"Native B canonical POST value="<<juce::String(storedBPost,9)<<" (requested 7)\n";
     p.selectComparison(0);require(p.selectedAmpModel(0)==15 && get(p,postNativeModelID(2))==2,"A/B native A was overwritten by B");
-    p.selectComparison(1);require(p.selectedAmpModel(0)==22 && get(p,postNativeControlID(2,0,0))==7.f,"A/B failed to restore native B controls");
+    p.selectComparison(1);require(p.selectedAmpModel(0)==22 && get(p,bPostID)==storedBPost,"A/B failed to restore native B controls exactly");
     checked.add("A/B retains distinct native amp and POST selections and parameter values");
     p.setPedalModel(0,26);set(p,pedalControlID(0,26,0),.237f);p.setPedalModel(0,27);p.setPedalModel(0,26);
     require(std::abs(get(p,pedalControlID(0,26,0))-.237f)<1.e-4f,"Immediate pedal selection discarded the remembered model bank");
@@ -130,7 +138,7 @@ inline void run(const juce::File& directory) {
     const auto xml=older.createXml();juce::AudioProcessor::copyXmlToBinary(*xml,bytes);recalled.setStateInformation(bytes.getData(),int(bytes.getSize()));
     require(recalled.selectedAmpModel(0)==19 && recalled.selectedAmpChannel(0)==0 && recalled.selectedAmpNativeRoute(0)==2,"Old Model T input route was incorrectly treated as a native channel");
     require(recalled.selectedAmpModel(1)==21 && recalled.selectedAmpChannel(1)==1,"Old SLO overdrive circuit migrated to Normal");
-    require(get(recalled,postNativeControlID(2,0,0))==7.f,"Amp-only migration changed an existing POST bank");
+    require(get(recalled,bPostID)==storedBPost,"Amp-only migration changed an existing POST bank");
     recalled.activateNativeAmp(0);recalled.activateNativeAmp(1);
     require(recalled.selectedAmpChannel(0)==0 && recalled.selectedAmpNativeRoute(0)==2 && recalled.selectedAmpChannel(1)==1,"First native edit lost the old circuit/input meaning");
     recalled.setAmpNativeRoute(0,1);recalled.setAmpChannel(0,0);
