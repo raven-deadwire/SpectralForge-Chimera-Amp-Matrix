@@ -201,6 +201,8 @@ class PedalBoardPanel final : public juce::Component, private juce::Timer {
         syncing=false;if(layoutChanged)resized();repaint();
     }
 public:
+    // Viewing an existing owner must not activate the board or change its bank.
+    void navigateOwner(int owner) {if(owner>=0 && owner<5)showDetails(owner);else showDetails(-1);}
     explicit PedalBoardPanel(ChimeraProcessor& p):processor(p) {
         setComponentID("universalPedalBoard");
         for(int position=0;position<5;++position) {

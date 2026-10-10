@@ -9,6 +9,7 @@
 #include "PostNativePanel.h"
 #include "GraphicalEQPanel.h"
 #include "EffectSelectionCatalog.h"
+#include "SignalPathView.h"
 
 class CabRoomOverview;
 
@@ -67,6 +68,11 @@ private:
     void referenceFile(bool save);
     void layoutControls();
     void midiMenu();
+    void navigateSignalPath(const spectralforge::signalPath::Node&);
+    void openSignalPath();
+    std::unique_ptr<SignalPathView> signalPath;
+    juce::Component::SafePointer<juce::DialogWindow> pathDialog;
+    std::array<juce::String,3> pathSelections{{"rigs","rigs","rigs"}};
     ChimeraProcessor& processor;
     // Declared before children so their images/peers die first. The last editor
     // releases native GPU artwork while JUCE and the DLL are still alive.

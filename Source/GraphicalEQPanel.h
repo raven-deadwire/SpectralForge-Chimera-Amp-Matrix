@@ -29,6 +29,9 @@ public:
     void visibilityChanged() override {updateAnalyzer();if(!isShowing())fftPosition=0;}
     void parentHierarchyChanged() override {updateAnalyzer();}
     int selectedBand() const noexcept {return selected;}
+    void setNavigationSelected(bool selectedPanel) {if(navigationSelected!=selectedPanel){navigationSelected=selectedPanel;repaint();}}
+    bool isNavigationSelected() const noexcept {return navigationSelected;}
+    void focusForNavigation() {if(isShowing())sliders[0].grabKeyboardFocus();}
     uint64_t fftFrames() const noexcept {return analyzedFrames;}
     double lastFFTTimeMicros() const noexcept {return fftMicros;}
     float spectrumDB(bool output,int bin) const noexcept {return spectra[output?1:0][(size_t)juce::jlimit(0,1024,bin)];}
@@ -41,6 +44,7 @@ public:
     }
     void paint(juce::Graphics& g) override {
         g.fillAll(juce::Colour(0xff151b1c));g.setColour(juce::Colour(0xffb9c8c5));g.setFont(15);
+        if(navigationSelected){g.setColour(juce::Colour(0xff94d2ae));g.drawRect(getLocalBounds(),2);g.setColour(juce::Colour(0xffb9c8c5));}
         g.drawText(instance==0?"TONE EQ / BEFORE POST":"FINAL EQ / AFTER WIDTH",10,8,getWidth()-120,28,juce::Justification::centredLeft);
         const auto area=plot();g.setColour(juce::Colour(0xff0b1012));g.fillRect(area);
         for(float f:{20.f,50.f,100.f,200.f,500.f,1000.f,2000.f,5000.f,10000.f,20000.f}) {
@@ -83,6 +87,7 @@ public:
         if(!plot().contains(event.position))return;auto* p=parameter("q");p->beginChangeGesture();write("q",dsp.values(selected).q*std::exp(wheel.deltaY*1.5f));p->endChangeGesture();rebuildResponse();repaint();
     }
 private:
+    bool navigationSelected{};
     using BA=juce::AudioProcessorValueTreeState::ButtonAttachment;
     using CA=juce::AudioProcessorValueTreeState::ComboBoxAttachment;
     using SA=juce::AudioProcessorValueTreeState::SliderAttachment;
