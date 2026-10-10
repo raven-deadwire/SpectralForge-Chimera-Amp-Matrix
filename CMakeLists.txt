@@ -411,3 +411,16 @@ endforeach()
 add_test(NAME ChimeraGraphicalEQTests COMMAND ChimeraGraphicalEQTests "${CMAKE_BINARY_DIR}/eq-cpu.csv")
 add_test(NAME ChimeraGraphicalEQUITests COMMAND ChimeraGraphicalEQUITests "${CMAKE_BINARY_DIR}")
 set_tests_properties(ChimeraGraphicalEQTests ChimeraGraphicalEQUITests PROPERTIES TIMEOUT 180 RUN_SERIAL TRUE)
+
+# Console UI probes pump AppKit explicitly. Tahoe delays events when the legacy
+# JUCE nested dispatcher waits for a future NSEvent deadline (JUCE issue #1574).
+# Keep this adapter out of all product/plug-in targets and preserve JUCE 8.0.8.
+if(APPLE)
+  enable_language(OBJCXX)
+  foreach(ui_test ChimeraUITests ChimeraCabPanelStateTests ChimeraGraphicalEQUITests)
+    if(TARGET ${ui_test})
+      target_sources(${ui_test} PRIVATE Tests/NativeMessageLoop.mm)
+      set_property(TARGET ${ui_test} PROPERTY OBJCXX_STANDARD 20)
+    endif()
+  endforeach()
+endif()

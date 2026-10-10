@@ -107,6 +107,24 @@ clipped to 1000 pixels by the native window. The fit above and containment tests
 for default and explicitly reduced native windows address this missed case.
 New-head results, including these corrections, are recorded in the PR description.
 
+On `f8a43c0`, Windows and Linux each passed all seven integration tests. The first
+macOS 26 ARM64 attempt confirmed the exact canonical value `6.999999523`, passed
+NativeState and the production LOW blend (residual `3.72529e-09`), and captured
+an unclipped path. It then failed asynchronous dialog deletion, a CAB navigation
+callback and FFT delivery. These failures are retained as failed evidence.
+
+The pinned JUCE dispatcher's future `NSEvent` deadline matches the mechanism
+reported in [JUCE #1574](https://github.com/juce-framework/JUCE/issues/1574) for
+delayed nested-loop event delivery on macOS 26. A test-only Objective-C++ adapter
+now polls AppKit without that future deadline while yielding through CFRunLoop
+and retaining JUCE's modal-event filter. It is linked only into the three native
+UI test executables: no product target or JUCE dependency source is patched.
+Dialog deletion and FFT readiness use condition-based waits, with the existing
+UI-test convention of a two-second deadline. CAB's two-second deadline is
+unchanged and failures now identify the button. Audio tolerances are unchanged.
+Artifacts include the run-attempt number so a retry cannot replace earlier
+failure evidence. Updated source results must be checked before acceptance.
+
 The separate macOS CAB suite fails `ChimeraCabDriverVisualTests` with
 `rail tiling leaked the original cabinet parent bitmap`. The identical failure
 is present on the unchanged shared 1.3.0 base in

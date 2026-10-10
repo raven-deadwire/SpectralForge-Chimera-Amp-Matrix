@@ -1,4 +1,5 @@
 #include "PluginEditor.h"
+#include "NativeMessageLoop.h"
 #include <iostream>
 #include <stdexcept>
 #if JUCE_WINDOWS
@@ -18,7 +19,7 @@ double processCPUSeconds(){
     timespec t{};check(clock_gettime(CLOCK_PROCESS_CPUTIME_ID,&t)==0,"Process CPU query");return double(t.tv_sec)+double(t.tv_nsec)*1.e-9;
 #endif
 }
-void settle(int ms){check(juce::MessageManager::getInstance()->runDispatchLoopUntil(ms),"UI loop exited");}
+void settle(int ms){check(chimeraTest::dispatchFor(ms),"UI loop exited");}
 template<class Predicate> bool waitFor(Predicate predicate){const auto deadline=juce::Time::getMillisecondCounterHiRes()+2000;while(!predicate() && juce::Time::getMillisecondCounterHiRes()<deadline)settle(20);return predicate();}
 template<class T> T* find(juce::Component& c,const juce::String& id){if(c.getComponentID()==id)return dynamic_cast<T*>(&c);for(auto* child:c.getChildren())if(auto* p=find<T>(*child,id))return p;return nullptr;}
 juce::TextButton* tab(juce::Component& c,const juce::String& name){for(auto* child:c.getChildren()){if(auto* b=dynamic_cast<juce::TextButton*>(child);b && b->getButtonText()==name)return b;if(auto* b=tab(*child,name))return b;}return nullptr;}
@@ -66,7 +67,7 @@ int main(int argc,char** argv){try {
     }
     juce::AudioBuffer<float> audio(2,512);for(int k=0;k<12;++k){for(int n=0;n<512;++n){const float v=.1f*std::sin(2*juce::MathConstants<float>::pi*43*float(k*512+n)/2048);audio.setSample(0,n,v);audio.setSample(1,n,-v);}
         juce::AudioBuffer<float> copy;copy.makeCopyOf(audio);processor->graphicalEQ(0).process(audio);processor->graphicalEQ(1).process(copy);if(k%4==3)settle(50);}
-    for(int e=0;e<2;++e){auto* panel=find<GraphicalEQPanel>(*editor,e==0?"toneEQ_panel":"finalEQ_panel");check(panel->fftFrames()>0,"FFT did not update");check(std::abs(panel->spectrumDB(false,43)+20)<.1,"Stereo anti-phase canceled input FFT");check(std::abs(panel->spectrumDB(true,43)+14)<.15,"FFT did not measure actual 6 dB output");std::cout<<"FFT "<<e<<" input="<<panel->spectrumDB(false,43)<<" output="<<panel->spectrumDB(true,43)<<" us="<<panel->lastFFTTimeMicros()<<'\n';}
+    for(int e=0;e<2;++e){auto* panel=find<GraphicalEQPanel>(*editor,e==0?"toneEQ_panel":"finalEQ_panel");check(waitFor([&]{return panel->fftFrames()>0;}),"FFT did not update");check(std::abs(panel->spectrumDB(false,43)+20)<.1,"Stereo anti-phase canceled input FFT");check(std::abs(panel->spectrumDB(true,43)+14)<.15,"FFT did not measure actual 6 dB output");std::cout<<"FFT "<<e<<" input="<<panel->spectrumDB(false,43)<<" output="<<panel->spectrumDB(true,43)<<" us="<<panel->lastFFTTimeMicros()<<'\n';}
     // The same visible editor must track automation, A/B and project recall for
     // every band in both banks, including values changed while another tab is open.
     for(int e=0;e<2;++e)for(int b=0;b<12;++b){set(*processor,eqID(e,b,"frequency"),float(180+e*43+b*319));set(*processor,eqID(e,b,"gain"),float(b-6+e));set(*processor,eqID(e,b,"q"),.5f+float(b)*.1f);}
