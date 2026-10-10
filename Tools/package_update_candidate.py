@@ -8,28 +8,12 @@ import shutil
 import subprocess
 import zipfile
 import chimera_version
+import check_ir_distribution
+from package_installer_candidate import write_transfer_parts
 
 root=Path(__file__).resolve().parents[1]
-sha=subprocess.check_output(['git','rev-parse','HEAD'],cwd=root,text=True).strip()
-version=chimera_version.identity(root,sha)
-chimera_version.validate_build(root/'build',version)
-out=root/'candidate';out.mkdir(exist_ok=True)
-stage=out/('Chimera-update-'+sha[:10]);stage.mkdir()
-art=root/'build/ChimeraAmpMatrix_artefacts/Release'
-required=[art/'Standalone/SpectralForge Chimera.exe',art/'VST3/SpectralForge Chimera.vst3']
-for source in required:
-    if not source.exists():raise RuntimeError('Missing product '+str(source))
-    if source.is_dir() and not any(f.is_file() and f.stat().st_size for f in source.rglob('*.vst3')):
-        raise RuntimeError('VST3 bundle contains no plugin binary: '+str(source))
-    if source.is_file() and not source.stat().st_size:raise RuntimeError('Empty product '+str(source))
-    if source.is_dir():shutil.copytree(source,stage/source.name)
-    else:shutil.copy2(source,stage/source.name)
-for filename in ['UPDATE_TEST_BUILD.md','PEDAL_BOARD_DSP.md','NEW_AMP_DSP.md','AMP_NATIVE_DSP.md','POST_NATIVE_DSP.md','MANUAL.html','THIRD_PARTY_NOTICES.md']:
-    source=root/'docs'/filename
-    if not source.is_file():raise RuntimeError('Missing required test-build document '+str(source))
-    shutil.copy2(source,stage/source.name)
-shutil.copy2(root/'COPYRIGHT.txt',stage/'COPYRIGHT.txt')
-(stage/'INSTALLATION.md').write_text(r"""# Windows x64 experimental test build
+
+INSTALLATION = r"""# Windows x64 experimental test build
 
 This ZIP is a portable test package, not an installer or a published release.
 Extract the ZIP before use. Save copies of important presets and DAW projects,
@@ -48,33 +32,68 @@ and close Chimera and all DAWs before replacing a plugin binary.
 - To revert, close the host and restore your previous plugin bundle. Keep your
   presets and private IR folders; this package does not modify them on extraction.
 
-""",encoding='utf-8')
-shutil.copy2(root/'build/Testing/Temporary/LastTest.log',stage/'CTest.log')
-manifest={**version,'kind':'experimental-Windows-test-build','run_id':os.environ.get('GITHUB_RUN_ID'),
-          'run_attempt':os.environ.get('GITHUB_RUN_ATTEMPT'),'published_release':False,'publisher_signed':False,
-          'daw_verified':False,'files':[]}
-for file in sorted(stage.rglob('*')):
-    if file.is_file():manifest['files'].append({'path':file.relative_to(stage).as_posix(),'bytes':file.stat().st_size,'sha256':hashlib.sha256(file.read_bytes()).hexdigest()})
-(stage/'build-manifest.json').write_text(json.dumps(manifest,indent=2)+'\n',encoding='utf-8')
-archive=out/(stage.name+'-win64.zip')
-with zipfile.ZipFile(archive,'w',zipfile.ZIP_DEFLATED) as z:
-    for file in sorted(stage.rglob('*')):
-        if file.is_file():z.write(file,file.relative_to(stage))
-digest=hashlib.sha256(archive.read_bytes()).hexdigest()
-(out/(archive.name+'.sha256')).write_text(digest+'  '+archive.name+'\n')
-shutil.rmtree(stage)
-print(json.dumps({'archive':archive.name,'sha256':digest,'source_sha':sha}))
+"""
 
-# Keep transfer artifacts below common per-file download limits. These are exact
-# byte parts of the already hashed ZIP; joining them never repackages binaries.
-parts=root/'candidate-transfer';parts.mkdir(exist_ok=True)
-raw=archive.read_bytes();part_records=[]
-for number,offset in enumerate(range(0,len(raw),20*1024*1024),1):
-    data=raw[offset:offset+20*1024*1024]
-    folder=parts/('part-'+str(number));folder.mkdir(exist_ok=True)
-    path=folder/(archive.name+'.part'+str(number));path.write_bytes(data)
-    part_records.append({'name':path.name,'bytes':len(data),'sha256':hashlib.sha256(data).hexdigest()})
-metadata=parts/'metadata';metadata.mkdir(exist_ok=True)
-(metadata/'parts-manifest.json').write_text(json.dumps({'source_sha':sha,'archive':archive.name,'bytes':len(raw),'sha256':digest,'parts':part_records},indent=2)+'\n')
-shutil.copy2(out/(archive.name+'.sha256'),metadata/(archive.name+'.sha256'))
-(metadata/'build-manifest.json').write_text(json.dumps(manifest,indent=2)+'\n')
+
+def transfer(archive: Path, digest: str, sha: str, manifest: dict) -> None:
+    """Preserve the ZIP and its source identity in the bounded transfer stream."""
+    checksum = archive.with_name(archive.name + '.sha256')
+    if checksum.read_text(encoding='utf-8-sig').split()[0] != digest:
+        raise RuntimeError('Portable ZIP checksum differs after verification')
+    if manifest.get('source_sha') != sha:
+        raise RuntimeError('Portable ZIP manifest differs from the exact source')
+    parts = root / 'candidate-transfer'
+    part_records = write_transfer_parts(archive, parts, digest)
+    metadata = parts / 'metadata'
+    metadata.mkdir()
+    (metadata / 'parts-manifest.json').write_text(json.dumps({
+        'source_sha': sha, 'archive': archive.name,
+        'bytes': sum(part['bytes'] for part in part_records),
+        'sha256': digest, 'parts': part_records}, indent=2) + '\n', encoding='utf-8')
+    shutil.copy2(checksum, metadata / checksum.name)
+    (metadata / 'build-manifest.json').write_text(json.dumps(manifest, indent=2) + '\n', encoding='utf-8')
+
+
+def main() -> None:
+    check_ir_distribution.validate_source(root)
+    sha=subprocess.check_output(['git','rev-parse','HEAD'],cwd=root,text=True).strip()
+    version=chimera_version.identity(root,sha)
+    chimera_version.validate_build(root/'build',version)
+    out=root/'candidate';out.mkdir(exist_ok=True)
+    stage=out/('Chimera-update-'+sha[:10]);stage.mkdir()
+    art=root/'build/ChimeraAmpMatrix_artefacts/Release'
+    required=[art/'Standalone/SpectralForge Chimera.exe',art/'VST3/SpectralForge Chimera.vst3']
+    for source in required:
+        if not source.exists():raise RuntimeError('Missing product '+str(source))
+        if source.is_dir() and not any(f.is_file() and f.stat().st_size for f in source.rglob('*.vst3')):
+            raise RuntimeError('VST3 bundle contains no plugin binary: '+str(source))
+        if source.is_file() and not source.stat().st_size:raise RuntimeError('Empty product '+str(source))
+        if source.is_dir():shutil.copytree(source,stage/source.name)
+        else:shutil.copy2(source,stage/source.name)
+    for filename in ['UPDATE_TEST_BUILD.md','PEDAL_BOARD_DSP.md','NEW_AMP_DSP.md','AMP_NATIVE_DSP.md','POST_NATIVE_DSP.md','MANUAL.html','THIRD_PARTY_NOTICES.md','IR_DISTRIBUTION.md']:
+        source=root/'docs'/filename
+        if not source.is_file():raise RuntimeError('Missing required test-build document '+str(source))
+        shutil.copy2(source,stage/source.name)
+    shutil.copy2(root/'COPYRIGHT.txt',stage/'COPYRIGHT.txt')
+    (stage/'INSTALLATION.md').write_text(INSTALLATION,encoding='utf-8')
+    shutil.copy2(root/'build/Testing/Temporary/LastTest.log',stage/'CTest.log')
+    check_ir_distribution.validate_stage(stage)
+    manifest={**version,'kind':'experimental-Windows-test-build','run_id':os.environ.get('GITHUB_RUN_ID'),
+              'run_attempt':os.environ.get('GITHUB_RUN_ATTEMPT'),'published_release':False,'publisher_signed':False,
+              'daw_verified':False,'files':[]}
+    for file in sorted(stage.rglob('*')):
+        if file.is_file():manifest['files'].append({'path':file.relative_to(stage).as_posix(),'bytes':file.stat().st_size,'sha256':hashlib.sha256(file.read_bytes()).hexdigest()})
+    (stage/'build-manifest.json').write_text(json.dumps(manifest,indent=2)+'\n',encoding='utf-8')
+    archive=out/(stage.name+'-win64.zip')
+    with zipfile.ZipFile(archive,'w',zipfile.ZIP_DEFLATED) as z:
+        for file in sorted(stage.rglob('*')):
+            if file.is_file():z.write(file,file.relative_to(stage))
+    digest=hashlib.sha256(archive.read_bytes()).hexdigest()
+    (out/(archive.name+'.sha256')).write_text(digest+'  '+archive.name+'\n')
+    shutil.rmtree(stage)
+    print(json.dumps({'archive':archive.name,'sha256':digest,'source_sha':sha}))
+    transfer(archive, digest, sha, manifest)
+
+
+if __name__ == "__main__":
+    main()

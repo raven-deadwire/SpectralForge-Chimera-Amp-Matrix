@@ -4,6 +4,7 @@ from __future__ import annotations
 import json
 import re
 from pathlib import Path
+from check_ir_distribution import validate_source
 
 ROOT = Path(__file__).resolve().parents[1]
 CONTRACT = json.loads((ROOT / "Validation/catalog-count-contract.json").read_text(encoding="utf-8"))
@@ -70,14 +71,21 @@ print(
 guitar = read("Source/GuitarSignaturePresets.h")
 names = re.findall(r'\{"raven\.[^"]+","([^"]+)"', guitar)
 assert names == ["A Path To Alsatia", "Feel My Wrath", "Blackhearted", "Dark Matters of Throne"]
-assert "selectablePresetCount=factoryPresetCount+int(guitarSignatures.size())+originalPresetCount" in guitar
-import hashlib
-assert hashlib.sha256((ROOT / "Assets/IRs/guitar_v30_sm57.wav").read_bytes()).hexdigest() in guitar
-print("PASS: four append-only full-state Guitar Signatures and exact embedded V30 SHA-256")
+assert "selectablePresetCount=factoryPresetCount+int(guitarSignatures.size())+originalPresetCount+niflheimrPresetCount" in guitar
+validate_source(ROOT)
+print("PASS: four append-only full-state Guitar Signatures and two approved embedded IR assets with exact SHA-256")
 
 original = read("Source/OriginalPresets.h")
 original_names = re.findall(r'\{"original\.rig\.nastrond\.[^"]+","([^"]+)"', original)
 assert original_names == ["Thall Rhythm", "Molten Lead", "Rotten Grind", "Sludge Mass", "Slam Impact"], original_names
 assert len(original_names) == CONTRACT["original_preset_count"]
-assert preset_total + len(names) + len(original_names) == CONTRACT["selectable_preset_count"]
-print("PASS: five rebuilt Original full rigs; 43 selectable presets with previous indices preserved")
+niflheimr = read("Source/NiflheimrPresets.h")
+niflheimr_names = re.findall(r'\{"original\.rig\.niflheimr\.[^"]+","([^"]+)"', niflheimr)
+assert niflheimr_names == ["Frostline Precision", "Carrion Barrage", "Foundry Pulse", "Jötunn Hammer", "Mirebound Monolith"], niflheimr_names
+assert "niflheimrPresetStart=originalPresetStart+originalPresetCount" in niflheimr
+assert len(niflheimr_names) == CONTRACT["niflheimr_original_preset_count"]
+assert preset_total + len(names) + len(original_names) + len(niflheimr_names) == CONTRACT["selectable_preset_count"]
+assert CONTRACT["niflheimr_original_preset_ordinals"] == [
+    {"index": 43 + i, "name": name} for i, name in enumerate(niflheimr_names)
+]
+print("PASS: five Náströnd + five Niflheimr Original full rigs; 48 selectable presets, previous 43 indices preserved")

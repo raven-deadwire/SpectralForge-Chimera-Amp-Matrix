@@ -1,5 +1,11 @@
 # Chimera catalog roadmap
 
+## 1.3 preparation — 2026-10-09
+
+The current integrated candidate targets **1.3.0-beta.1**: Niflheimr plus the original CAB engine/panel, 14 speakers, 20 microphones and nine explicit layouts. Active AMP/PRE/POST counts are **25 + 39 + 21 = 85**; 48 presets are selectable. CAB inventory remains separate from the 132-model target. [Preparation status](RELEASE_1_3_PREPARATION.md) records final-source verification. Direct controls inside the amp-head artwork are planned for the next update after 1.3; its number is not assigned.
+
+## Published baseline and retained sequence
+
 Current published baseline is Open Beta 1.2: AMP24 + PRE39 + POST21 = 84 active
 models. [v1.2.0-beta.1](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/releases/tag/v1.2.0-beta.1)
 was published on 2026-10-05. Versions 1.1.1 and 1.1.2 are released history.
@@ -17,8 +23,8 @@ New model IDs, parameter IDs and presets are append-only.
 |---|---|---:|
 | 1.1.1 / 1.1.2 | Released baseline | 83 |
 | 1.2 | Released Náströnd | 84 |
-| 1.3 | Niflheimr | 85 |
-| 1.3.x | Original cabinet/microphone engine + CAB panel; optional Captured banks | 85 |
+| 1.3 | Niflheimr + original CAB engine/panel | 85 |
+| After 1.3 | CAB refinements / qualified optional captures; embedded head controls planned | 85 |
 | 1.4 | PRE Expansion A | 91 |
 | 1.5 | PRE Expansion B | 97 |
 | 1.6 | Reference AMP Expansion | 102 |

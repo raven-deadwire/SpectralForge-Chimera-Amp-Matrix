@@ -1,8 +1,8 @@
-# SpectralForge Chimera — Open Beta 1.1.2 updates and support
+# SpectralForge Chimera — Open Beta 1.3 preparation, updates and support
 
 Hosted VST3/AU opens the official releases page without creating an HTTP update worker. Automatic update checks and verified downloads described below apply to Standalone.
 
-The day-one patch binary version is `1.1.2-beta.1`; its release tag is `v1.1.2-beta.1`. It becomes discoverable after verified publication. The 1.1.0 manifest below is a historical example, not the current candidate identity.
+The current preparation uses product version `1.3.0`, package version `1.3.0-beta.1` and intended release tag `v1.3.0-beta.1`. This candidate remains in preparation and becomes discoverable through the update service only after verified publication. The 1.1.0 manifest below is a historical example, not the current candidate identity.
 The existing plugin IDs and `SpectralForge/Chimera` data directory remain compatible.
 
 ## User behavior

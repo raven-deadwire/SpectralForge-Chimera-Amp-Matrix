@@ -14,6 +14,21 @@ PARTIAL = 'partial_primary_review'
 PENDING = 'primary_panel_pending'
 
 
+def original_native_panels():
+    """Production-authored originals; deliberately outside hardware targets.
+
+    Their control ranges and channel metadata come from the shared C++ engine
+    definitions, preventing a generated panel from drifting from its DSP.
+    These descriptors do not claim capture equivalence or listening approval.
+    """
+    return [
+        dict(namespace='original', header='OriginalAmpDefinition.h',
+             reference='SpectralForge Original', review='authored_reference_informed'),
+        dict(namespace='niflheimr', header='NiflheimrDefinition.h',
+             reference='SpectralForge Original', review='authored_native_prototype'),
+    ]
+
+
 def knob(key, label, group='PANEL', channels=(), initial=.5, note=''):
     return dict(id=key, label=label, kind='knob', minimum=0, maximum=1,
                 initial=initial, step=.01, unit='position', group=group,

@@ -1,6 +1,30 @@
 # 1.2 development and remaining updates
 
-## Current roadmap update — 2026-10-08 KST
+## Current release and next UI update — 2026-10-09 KST
+
+The owner has assigned the current CAB update to **1.3**. Prepare and validate
+that release against its actual candidate source. The October 8 dates below
+remain a planning checkpoint, not a reason to reschedule work already delivered
+in the CAB test builds.
+
+The next update after 1.3 should make amplifier knobs directly operable within
+the head design. The implementation plan reuses the existing native parameters,
+channel memories and host gestures, with model-specific faceplate controls and
+an enlarged head view when room-scale controls would be too small. Its version
+number and delivery date are not assigned. See
+[embedded amplifier-head controls](AMP_HEAD_CONTROLS_NEXT_UPDATE.md).
+
+The same-day 1.3 candidate changes frame active room stacks with one common
+physical scale, remove unused microphone space from the room fit, and retain
+fixed microphone travel space in focused CAB. The owner's final cabinet
+direction replaces the unshipped 8x10 choice with a 6x10 at the same ordinal.
+The candidate also restores original guitar/bass shell materials around the
+independent speakers and presents nine unique cabinet choices. Preserve the
+physical relationship between head, cabinet, speakers and microphones;
+artificial per-rig size normalization is not an accepted solution. These are
+current release fixes, separate from the next-update head-control feature.
+
+## Prior CAB planning checkpoint — 2026-10-08 KST
 
 Open Beta 1.2 was [published on 2026-10-05](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/releases/tag/v1.2.0-beta.1).
 Versions 1.1.1, 1.1.2 and 1.2 must not be rescheduled as unshipped work.

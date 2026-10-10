@@ -1,8 +1,10 @@
 #include "IRLibrary.h"
+#include "IRUserPreferences.h"
 #include "ChimeraIRData.h"
+#include "CabLayoutModel.h"
 
 namespace spectralforge {
-IRLibrary::IRLibrary(std::array<Cab*,3> cabinets) : Thread("Chimera IR preparation"), cabs(cabinets)
+IRLibrary::IRLibrary(std::array<Cab*,3> cabinets) : Thread("Chimera IR preparation"), cabs{cabinets[0],cabinets[1],cabinets[2],cabinets[0]->secondMic(),cabinets[1]->secondMic(),cabinets[2]->secondMic()}
 {
     juce::String error;
     factory[0]=decode(juce::MemoryBlock(ChimeraIRData::guitar_v30_sm57_wav,ChimeraIRData::guitar_v30_sm57_wavSize),IRMetadata::factoryFilename(0),error);
@@ -58,7 +60,7 @@ std::shared_ptr<IRLibrary::Asset> IRLibrary::decode(const juce::MemoryBlock& byt
 }
 juce::Result IRLibrary::importFile(int lane, const juce::File& file)
 {
-    if(lane<0 || lane>2) return juce::Result::fail("Invalid lane");
+    if(lane<0 || lane>5) return juce::Result::fail("Invalid lane");
     juce::MemoryBlock bytes;
     juce::String error;
     std::shared_ptr<Asset> asset;
@@ -66,6 +68,7 @@ juce::Result IRLibrary::importFile(int lane, const juce::File& file)
     else asset=decode(bytes,file.getFileName(),error);
     if(asset) {const auto sidecar=juce::File(file.getFullPathName()+".json");
         if(sidecar.existsAsFile() && sidecar.getSize()<=16384) {const auto json=juce::JSON::parse(sidecar);if(json.isObject())asset->metadata=IRMetadata::fromJSON(json);}}
+    if(asset)IRUserPreferences::apply(IRUserPreferences::read(),file,asset->metadata);
     { std::lock_guard<std::mutex> lock(mutex);
       errors[(size_t)lane]=error;
       if(asset) { users[(size_t)lane]=std::move(asset); ++generations[(size_t)lane]; }
@@ -74,7 +77,7 @@ juce::Result IRLibrary::importFile(int lane, const juce::File& file)
     if(error.isNotEmpty()) return juce::Result::fail(error);
     notify(); return juce::Result::ok();
 }
-std::unique_ptr<Cab::Kernel> IRLibrary::build(int lane,int source,unsigned generation)
+std::unique_ptr<Cab::Kernel> IRLibrary::build(int lane,int source,unsigned generation,uint64_t model)
 {
     const lifecycle::Scope trace("ir.build", this);
     std::shared_ptr<Asset> asset;
@@ -84,43 +87,64 @@ std::unique_ptr<Cab::Kernel> IRLibrary::build(int lane,int source,unsigned gener
     }
     juce::AudioBuffer<float> samples;
     double rate=spec.sampleRate;
-    if(asset) { samples.makeCopyOf(asset->samples); rate=asset->rate; }
+    if(model) {
+        auto found=std::find_if(modelCache.begin(),modelCache.end(),[&](const auto& item){return item.key==model;});
+        if(found==modelCache.end()) {
+            auto response=cabLayout::generate(model,rate);
+            juce::AudioBuffer<float> generated(1,int(response.size()));
+            generated.copyFrom(0,0,response.data(),int(response.size()));
+            if(modelCache.size()==8)modelCache.pop_front();
+            modelCache.push_back({model,std::move(generated)});found=std::prev(modelCache.end());
+        }
+        samples.makeCopyOf(found->samples);
+    }
+    else if(asset) { samples.makeCopyOf(asset->samples); rate=asset->rate; }
     else { samples.setSize(1,1); samples.setSample(0,0,1.f); }
-    auto kernel=std::make_unique<Cab::Kernel>(std::move(samples),rate,spec,source,generation);
-    kernel->hasIR = asset != nullptr;
+    auto kernel=std::make_unique<Cab::Kernel>(std::move(samples),rate,spec,source,generation,model);
+    kernel->hasIR = model != 0 || asset != nullptr;
     return kernel;
 }
 void IRLibrary::prepare(const juce::dsp::ProcessSpec& settings,const std::array<int,3>& sources)
 {
     const lifecycle::Scope trace("ir.prepare", this);
-    stop(); spec=settings;
-    for(int i=0;i<3;++i)
+    stop(); spec=settings; modelCache.clear();
+    for(int i=0;i<6;++i)
     {
-        cabs[i]->requestedSource.store(sources[i]);
+        cabs[i]->requestedSource.store((i<3 ? sources[i] : cabs[i]->requestedSource.load()));
         unsigned generation;
         { std::lock_guard<std::mutex> lock(mutex); generation=generations[i]; }
-        cabs[i]->install(build(i,sources[i],generation));
+        cabs[i]->install(build(i,(i<3 ? sources[i] : cabs[i]->requestedSource.load()),generation,cabs[i]->requestedModel.load()));
     }
     startThread();
 }
 void IRLibrary::run()
 {
     const lifecycle::Scope trace("ir.worker", this);
-    std::array<int,3> built;
-    std::array<unsigned,3> versions;
-    for(int i=0;i<3;++i) { built[i]=cabs[i]->activeSource.load(); versions[i]=cabs[i]->activeGeneration.load(); }
+    std::array<int,6> built;
+    std::array<unsigned,6> versions, rejections{};
+    std::array<uint64_t,6> models{};
+    for(int i=0;i<6;++i) { built[i]=cabs[i]->activeSource.load(); versions[i]=cabs[i]->activeGeneration.load(); models[i]=cabs[i]->activeModel.load(); rejections[i]=cabs[i]->rejectedModels.load(); }
     while(!threadShouldExit())
     {
-        for(int i=0;i<3 && !threadShouldExit();++i)
+        for(int i=0;i<6 && !threadShouldExit();++i)
         {
             cabs[i]->collect();
             const int source=cabs[i]->requestedSource.load();
             unsigned generation;
             { std::lock_guard<std::mutex> lock(mutex); generation=generations[i]; }
-            if(source==built[i] && (source!=3 || generation==versions[i])) continue;
-            try { cabs[i]->publish(build(i,source,generation)); }
+            const auto model=cabs[i]->requestedModel.load();
+            const auto rejected=cabs[i]->rejectedModels.load();
+            if(rejected==rejections[i] && source==built[i] && model==models[i] && (source!=3 || generation==versions[i])) continue;
+            try {
+                auto kernel=build(i,source,generation,model);
+                if(threadShouldExit())break;
+                // Coalesce rapid automation; no stale response is published.
+                if(source!=cabs[i]->requestedSource.load() || model!=cabs[i]->requestedModel.load())continue;
+                { std::lock_guard<std::mutex> lock(mutex); if(generation!=generations[i])continue; errors[i].clear(); }
+                cabs[i]->publish(std::move(kernel));
+                built[i]=source; versions[i]=generation; models[i]=model; rejections[i]=rejected;
+            }
             catch(const std::exception&) { std::lock_guard<std::mutex> lock(mutex); errors[i]="IR preparation failed. Previous IR kept."; ++displayGeneration[(size_t)i]; }
-            built[i]=source; versions[i]=generation;
         }
         wait(20);
     }
@@ -135,6 +159,25 @@ juce::String IRLibrary::status(int lane) const
 {
     std::lock_guard<std::mutex> lock(mutex);
     if(errors[lane].isNotEmpty()) return errors[lane];
+    const auto model=cabs[lane]->requestedModel.load();
+    if(model) {
+        const auto p=originalCab::settings(model);
+        if(model&cabLayout::versionBit) {
+            const auto p3=cabLayout::settings(model);const auto* d=cabExpansion::driver(p3.voice);const auto* mic=cabExpansion::microphone(p3.voice);
+            return juce::String(d ? d->name : p.cabinet ? "Chimera Bass 10" : "Chimera Guitar 12")+" | "+juce::String(cabLayout::count(p3.layout))+"x"+juce::String(cabExpansion::diameter(p3.voice))
+                +" | "+(mic ? mic->name : p.mic==0 ? "Attack Dynamic" : p.mic==1 ? "Body Ribbon" : "Detail Condenser")+" | Unit "+juce::String(cabLayout::effectiveUnit(p3)+1)
+                +(model!=cabs[lane]->activeModel.load() ? " | Preparing..." : " | Ready");
+        }
+        if(model&cabExpansion::versionBit) {
+            const auto x=cabExpansion::settings(model);const auto* d=cabExpansion::driver(x);const auto* m=cabExpansion::microphone(x);
+            return juce::String(d ? d->name : p.cabinet ? "Chimera Bass 10" : "Chimera Guitar 12")
+                +" | "+(m ? m->name : p.mic==0 ? "Attack Dynamic" : p.mic==1 ? "Body Ribbon" : "Detail Condenser")+" | Unit "+juce::String(p.unit+1)
+                +(model!=cabs[lane]->activeModel.load() ? " | Preparing..." : " | Ready");
+        }
+        return juce::String(p.cabinet ? "Bass 4x10" : "Guitar 4x12")
+            +" | Modeled / unit "+juce::String(p.unit+1)
+            +(model!=cabs[lane]->activeModel.load() ? " | Preparing..." : " | Ready");
+    }
     const int source=cabs[lane]->requestedSource.load();
     if(source==3 && !users[lane]) return "No user IR loaded. Filters only.";
     const bool loading=cabs[lane]->activeSource.load()!=source ||
@@ -149,10 +192,10 @@ juce::ValueTree IRLibrary::save() const
 {
     juce::ValueTree tree("USER_IRS");
     std::lock_guard<std::mutex> lock(mutex);
-    for(int i=0;i<3;++i) if(users[i])
+    for(int i=0;i<6;++i) if(users[i])
     {
         juce::ValueTree child("IR");
-        child.setProperty("lane",i,nullptr); child.setProperty("name",users[i]->name,nullptr);
+        child.setProperty("lane",i%3,nullptr); child.setProperty("slot",i/3,nullptr); child.setProperty("name",users[i]->name,nullptr);
         child.setProperty("data",users[i]->encoded.toBase64Encoding(),nullptr);
         child.setProperty("metadata",juce::JSON::toString(users[i]->metadata.json(),true),nullptr);
         tree.appendChild(child,nullptr);
@@ -161,12 +204,14 @@ juce::ValueTree IRLibrary::save() const
 }
 void IRLibrary::restore(const juce::ValueTree& tree)
 {
-    std::array<std::shared_ptr<Asset>,3> restored;
-    std::array<juce::String,3> messages;
+    std::array<std::shared_ptr<Asset>,6> restored;
+    std::array<juce::String,6> messages;
     for(auto child:tree)
     {
-        const int lane=(int)child.getProperty("lane",-1);
-        if(lane<0 || lane>2) continue;
+        const int base=(int)child.getProperty("lane",-1), slot=(int)child.getProperty("slot",0);
+        if(base<0 || base>2 || slot<0 || slot>1) continue;
+        const int lane=base+3*slot;
+        if(lane<0 || lane>5) continue;
         const auto encoded=child.getProperty("data").toString();
         juce::MemoryBlock bytes;
         if(encoded.length()>6*1024*1024 || !bytes.fromBase64Encoding(encoded)) messages[lane]="Saved IR is damaged. Filters only.";
@@ -180,14 +225,48 @@ void IRLibrary::restore(const juce::ValueTree& tree)
     }
     notify();
 }
-IRMetadata IRLibrary::metadata(int lane,int source) const
+IRMetadata IRLibrary::metadata(int lane,int source,bool includeModeled) const
 {
-    std::lock_guard<std::mutex> lock(mutex);if(lane<0 || lane>2)return {};
+    std::lock_guard<std::mutex> lock(mutex);if(lane<0 || lane>5)return {};
+    if(const auto model=includeModeled ? cabs[lane]->requestedModel.load() : 0) {
+        const auto p=originalCab::settings(model);IRMetadata m;
+        if(model&cabLayout::versionBit) {
+            const auto p3=cabLayout::settings(model);const auto g=cabLayout::geometry(p3);
+            const auto* d=cabExpansion::driver(p3.voice);const auto* mic=cabExpansion::microphone(p3.voice);
+            m.instrument=cabExpansion::isBass(p3.voice) ? IRMetadata::Instrument::bass : IRMetadata::Instrument::guitar;
+            m.displayLabel=juce::String(d ? d->name : p.cabinet ? "Chimera Bass 10" : "Chimera Guitar 12")+" "+juce::String(g.count)+"x"+juce::String(cabExpansion::diameter(p3.voice));
+            m.values[0]=d ? d->name : p.cabinet ? "Chimera Bass 10" : "Chimera Guitar 12";m.values[1]=m.displayLabel;
+            m.values[3]=mic ? mic->name : p.mic==0 ? "Attack Dynamic" : p.mic==1 ? "Body Ribbon" : "Detail Condenser";
+            m.values[4]="Modeled unit "+juce::String(cabLayout::effectiveUnit(p3)+1)+", radius "+juce::String(p.position,3);
+            m.values[8]="Chimera original design";
+            m.values[11]="Independent linear array model; "+juce::String(g.box.volume*1000,1)+" L net volume; "
+                +juce::String(p.distanceCm,1)+" cm. No measured hardware matching, ports or room reverb.";return m;
+        }
+        if(model&cabExpansion::versionBit) {
+            const auto x=cabExpansion::settings(model);const auto* d=cabExpansion::driver(x);const auto* mic=cabExpansion::microphone(x);
+            m.instrument=cabExpansion::isBass(x) ? IRMetadata::Instrument::bass : IRMetadata::Instrument::guitar;
+            m.displayLabel=juce::String(d ? d->name : p.cabinet ? "Chimera Bass 10" : "Chimera Guitar 12")+" 4x"+juce::String(cabExpansion::diameter(x));
+            m.values[0]=d ? d->name : p.cabinet ? "Chimera Bass 10" : "Chimera Guitar 12";m.values[1]=m.displayLabel;
+            m.values[3]=mic ? mic->name : p.mic==0 ? "Attack Dynamic" : p.mic==1 ? "Body Ribbon" : "Detail Condenser";
+            m.values[4]="Modeled unit "+juce::String(p.unit+1)+", radius "+juce::String(p.position,3);
+            m.values[8]="Chimera original design";
+            m.values[11]="Independent linear model; not a measured hardware clone. Distance "+juce::String(p.distanceCm,1)+" cm. Four identical drivers; no third-party IR fitting.";
+            return m;
+        }
+        m.instrument=p.cabinet ? IRMetadata::Instrument::bass : IRMetadata::Instrument::guitar;
+        m.displayLabel=p.cabinet ? "Bass 4x10" : "Guitar 4x12";
+        m.values[0]=p.cabinet ? "Chimera Bass 10" : "Chimera Guitar 12";m.values[1]=m.displayLabel;
+        m.values[3]=p.mic==0 ? "Attack Dynamic" : p.mic==1 ? "Body Ribbon" : "Detail Condenser";
+        m.values[4]="Modeled unit "+juce::String(p.unit+1)+", radius "+juce::String(p.position,3);
+        m.values[8]="Chimera original design";
+        m.values[11]="Authored linear acoustic approximation, not a hardware measurement. Distance "+juce::String(p.distanceCm,1)+" cm from cone plane. No third-party IR fitting.";
+        return m;
+    }
     auto asset=source==3 ? users[(size_t)lane] : source==1 || source==2 ? factory[(size_t)source-1] : nullptr;
     return asset ? asset->metadata : IRMetadata{};
 }
 void IRLibrary::setMetadata(int lane,const IRMetadata& metadata)
 {
-    std::lock_guard<std::mutex> lock(mutex);if(lane>=0 && lane<3 && users[(size_t)lane]){users[(size_t)lane]->metadata=IRMetadata::fromJSON(metadata.json());++displayGeneration[(size_t)lane];}
+    std::lock_guard<std::mutex> lock(mutex);if(lane>=0 && lane<6 && users[(size_t)lane]){users[(size_t)lane]->metadata=IRMetadata::fromJSON(metadata.json());++displayGeneration[(size_t)lane];}
 }
 }

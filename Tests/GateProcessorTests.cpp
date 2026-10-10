@@ -91,7 +91,11 @@ void parameterContract(ChimeraProcessor& p)
     require(approvedDefaults==6*int(std::size(defaults112))+3,"Approved default coverage changed");
     auto* range=p.parameters().getParameter("gateRangeDb");
     // Five-channel Original appends 342 parameters after the frozen 3981.
-    require(range && range->getParameterIndex()==3890 && count==3686 && p.getParameters().size()==4323,"Gate Range ordinal or complete appended channel parameter count changed");
+    // Niflheimr appends six contexts with two selectors and five 14-control banks.
+    // CAB then appends ten version-6 controls for each of the three lanes.
+    constexpr int cabParameterCount=3*10;
+    constexpr int expectedParameterCount=4323+6*(2+5*14)+cabParameterCount+spectralforge::originalCabParameterCount+spectralforge::cabExpansionParameterCount+spectralforge::cabLayoutParameterCount;
+    require(range && range->getParameterIndex()==3890 && count==3686 && p.getParameters().size()==expectedParameterCount,"Gate Range ordinal or complete appended channel parameter count changed");
     require(range->getVersionHint()==2 && range->isAutomatable(),"Range AU version hint/automation changed");
     require(range->getText(1,0)=="Full" && range->getValueForText("Full")==1.f,"Host Full text does not round-trip");
     require(std::abs(range->convertFrom0to1(range->getValueForText("24 dB"))-24)<.01f,"Host dB text does not parse");
@@ -221,7 +225,7 @@ int main(int argc,char** argv)
     juce::ScopedJuceInitialiser_GUI init;
     try {
         if(argc==3 && juce::String(argv[1])=="--ui") {
-            const auto storage=std::make_unique<ChimeraProcessor>();ChimeraEditor editor(*storage);
+            const auto storage=std::make_unique<ChimeraProcessor>();const auto editorStorage=std::make_unique<ChimeraEditor>(*storage);auto& editor=*editorStorage;
             const juce::File directory{juce::String(argv[2])};require(directory.createDirectory().wasOk(),"Cannot create snapshot directory");
             checkGateUI(*storage,editor,directory);std::cout<<"PASS Gate UI at 75/100/125 percent scale\n";return 0;
         }

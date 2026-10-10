@@ -1,0 +1,67 @@
+name: CAB Panel prototype contracts
+on:
+  pull_request:
+    paths:
+      - 'Source/**'
+      - 'Assets/Artwork/Cab/**'
+      - 'Tests/CabPanel*'
+      - 'Tests/OriginalCab*'
+      - 'Tests/CabMicrophone*'
+      - 'Tests/CabIntegrated*'
+      - 'Tests/CabScene*'
+      - 'Tests/CabLowBlend*'
+      - 'Tests/CabExpansion*'
+      - 'Tests/CabLayout*'
+      - 'Tests/CabDriver*'
+      - 'Tests/CabCamera*'
+      - 'Tests/CabIRImage*'
+      - 'Tests/CabRealtime*'
+      - 'Tests/RigViewTestHelpers.h'
+      - 'Tests/MicrophoneCatalog*'
+      - 'Tests/IRCollectionTests.cpp'
+      - 'Tests/IRLibraryTests.cpp'
+      - 'Tests/GateProcessorTests.cpp'
+      - 'Tests/NativeStateTests.h'
+      - 'Tests/ChimeraTests.cpp'
+      - 'CMakeLists.txt'
+      - 'Tools/run_linux_ui_tests.py'
+      - '.github/workflows/cab-panel.yml'
+permissions:
+  contents: read
+concurrency:
+  group: cab-panel-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+jobs:
+  cab-panel:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-22.04, windows-latest, macos-15]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+      - if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y libasound2-dev libcurl4-openssl-dev libfreetype6-dev libfontconfig1-dev libx11-dev libxcomposite-dev libxcursor-dev libxext-dev libxinerama-dev libxrandr-dev libxrender-dev libgl1-mesa-dev xvfb openbox x11-utils
+      - run: cmake -S . -B build-cab -DCMAKE_BUILD_TYPE=Release
+      - run: cmake --build build-cab --config Release --target ChimeraCabPanelTests ChimeraCabPanelStateTests ChimeraIRLibraryTests ChimeraIRCollectionTests ChimeraTests ChimeraOriginalCabModelTests ChimeraCabExpansionModelTests ChimeraCabLayoutModelTests ChimeraCabCameraFramingTests ChimeraOriginalCabIntegrationTests ChimeraOriginalCabRealtimeTests ChimeraGateProcessorTests --parallel 2
+      - if: runner.os != 'Linux'
+        run: ctest --test-dir build-cab -C Release -R "^(ChimeraCabPanel.*Tests|ChimeraIRLibraryTests|ChimeraIRCollectionTests|ChimeraTests|ChimeraOriginalCab.*Tests|ChimeraCabExpansion.*Tests|ChimeraCabLayout.*Tests|ChimeraCabDriver.*Tests|ChimeraCabCameraFramingTests|ChimeraGateProcessorTests)$" --output-on-failure --no-tests=error
+      - if: runner.os == 'Linux'
+        run: python3 Tools/run_linux_ui_tests.py -- ctest --test-dir build-cab -C Release -R "^(ChimeraCabPanel.*Tests|ChimeraIRLibraryTests|ChimeraIRCollectionTests|ChimeraTests|ChimeraOriginalCab.*Tests|ChimeraCabExpansion.*Tests|ChimeraCabLayout.*Tests|ChimeraCabDriver.*Tests|ChimeraCabCameraFramingTests|ChimeraGateProcessorTests)$" --output-on-failure --no-tests=error
+      # Only synthetic fixtures are generated in these tests. Never upload arbitrary IR/state paths.
+      - if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: CAB-contracts-${{ runner.os }}-${{ github.event.pull_request.head.sha }}
+          path: |
+            build-cab/Testing/Temporary/LastTest.log
+            build-cab/cab-panel.png
+            build-cab/original-cab-panel.png
+            build-cab/cab-microphone-panel.png
+            build-cab/cab-microphone-library.png
+            build-cab/cab-integrated-panel.png
+            build-cab/cab-visual-*.png
+          if-no-files-found: error

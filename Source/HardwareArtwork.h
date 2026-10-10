@@ -44,7 +44,7 @@ inline void cabinet(juce::Graphics& g,juce::Rectangle<float> r,const IRMetadata&
         g.setColour(juce::Colour(0xff43443c));g.fillEllipse(x-d/2,y-d/2,d,d);g.setColour(juce::Colour(0xff171c1a));g.drawEllipse(x-d*.36f,y-d*.36f,d*.72f,d*.72f,2);g.fillEllipse(x-d*.16f,y-d*.16f,d*.32f,d*.32f);}
     g.setColour(juce::Colour(0xff929382).withAlpha(.22f));for(float x=face.getX();x<face.getRight();x+=3)g.drawVerticalLine((int)x,face.getY(),face.getBottom());for(float y=face.getY();y<face.getBottom();y+=3)g.drawHorizontalLine((int)y,face.getX(),face.getRight());
 }
-inline juce::Colour ampColour(int model) {constexpr std::array<juce::uint32,25> c{0xff7a827c,0xffa38547,0xff393e3e,0xff747777,0xff3b4f4d,0xff665b4c,0xff445d61,0xff3e5264,0xff94703d,0xffbd672d,0xffa4a59a,0xff424c53,0xffbcae8d,0xff858b8c,0xffb0b4b4,0xffad4937,0xff7b9495,0xff8d9baf,0xffae986c,0xffbba660,0xffd37934,0xffafa78b,0xff4a7fae,0xff7e9394,0xff6d9389};return juce::Colour(c[(size_t)juce::jlimit(0,static_cast<int>(c.size())-1,model)]);}
+inline juce::Colour ampColour(int model) {constexpr std::array<juce::uint32,26> c{0xff7a827c,0xffa38547,0xff393e3e,0xff747777,0xff3b4f4d,0xff665b4c,0xff445d61,0xff3e5264,0xff94703d,0xffbd672d,0xffa4a59a,0xff424c53,0xffbcae8d,0xff858b8c,0xffb0b4b4,0xffad4937,0xff7b9495,0xff8d9baf,0xffae986c,0xffbba660,0xffd37934,0xffafa78b,0xff4a7fae,0xff7e9394,0xff6d9389,0xff819aaf};return juce::Colour(c[(size_t)juce::jlimit(0,static_cast<int>(c.size())-1,model)]);}
 }
 
 class IRDetailsPanel : public juce::Component {

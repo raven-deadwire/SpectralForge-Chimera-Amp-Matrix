@@ -1,0 +1,214 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-07",
+  "scope": "Local modified-source synthetic regression evidence, not CI/release or musical acceptance",
+  "baseline_commit": "6d6a1c3814d32dd1aea5e18d119d76a836963152",
+  "source_sha256": {
+    "Source/NiflheimrDSP.h": "07532a179721bce0f6f1878b6ac761ed11404d55c446140f42282f009fa894dd",
+    "Source/NiflheimrDefinition.h": "998a58fd792846382173f5b21c36b389d753cfd4439ed7483b0e64b8cfdfc634",
+    "Tests/NiflheimrCoreTests.cpp": "b9ffcafbc58d304b83e39d0839d89c4b4434ea603d36d072724f4a95b2e7d162",
+    "Tests/verify_niflheimr_accepted_voices.py": "416c2a4c9a52e00905fbee93873b9020976edb65712b54771189f48a0aad5bdf"
+  },
+  "display_names": [
+    "Hrímfaxi",
+    "Garmr",
+    "Nidavellir",
+    "Ymir",
+    "Hel"
+  ],
+  "saved_keys": [
+    "modern_tight",
+    "death_grind",
+    "industrial_bite",
+    "slam_impact",
+    "sludge_mass"
+  ],
+  "accepted_voice_comparison": {
+    "baseline": "6d6a1c3814d32dd1aea5e18d119d76a836963152",
+    "baseline_dsp_sha256": "ed793343a1453f4646a26a5cd76487d34b2e4bfbe84bdd498019431a5de854c1",
+    "current_dsp_sha256": "07532a179721bce0f6f1878b6ac761ed11404d55c446140f42282f009fa894dd",
+    "channels": [
+      0,
+      2
+    ],
+    "channel_rate_routes": 24,
+    "stereo_samples": 3950084,
+    "moving_controls": 14,
+    "max_sample_error": 0,
+    "result": "PASS",
+    "scope": "Bit-identical accepted voices; no musical acceptance claim"
+  },
+  "fixture": {
+    "sample_rate": 48000,
+    "length_seconds": 2,
+    "analysis_start_seconds": 1,
+    "gain": 0.5,
+    "blend": 1,
+    "other_controls": "Unchanged defaults",
+    "cabinet": "None",
+    "input_kind": "synthetic",
+    "two_tone": "40 Hz at0.16 plus1000 Hz at0.025 linear amplitude",
+    "muted_riff": "125 ms period;75 ms exponential decay at40/s;40/240/1000 Hz amplitudes0.12/0.05/0.025",
+    "harmonic_limit_hz": 20000
+  },
+  "default_gain_comparison": {
+    "Garmr": {
+      "baseline": {
+        "upper_band_interaction_ratio": 0.12053622305393219,
+        "bass_generated_160_480_hz_ratio": 0.009827034547924995,
+        "hit_sustain_rms_ratio": 1.355258584022522,
+        "gap_hit_rms_ratio": 0.020408552139997482,
+        "upper_1khz_thd": 0.2623741328716278,
+        "upper_1khz_rms": 0.14987918734550476,
+        "muted_riff_rms": 0.08985357731580734
+      },
+      "candidate": {
+        "upper_band_interaction_ratio": 0.0010476801544427872,
+        "bass_generated_160_480_hz_ratio": 5.67532260902226e-05,
+        "hit_sustain_rms_ratio": 1.6898279190063477,
+        "gap_hit_rms_ratio": 0.009486332535743713,
+        "upper_1khz_thd": 0.3108542561531067,
+        "upper_1khz_rms": 0.13446836173534393,
+        "muted_riff_rms": 0.07494539022445679
+      },
+      "muted_riff_rms_change_db": -1.5758089403037647
+    },
+    "Ymir": {
+      "baseline": {
+        "upper_band_interaction_ratio": 0.6001824140548706,
+        "bass_generated_160_480_hz_ratio": 0.03465373069047928,
+        "hit_sustain_rms_ratio": 2.1519758701324463,
+        "gap_hit_rms_ratio": 0.007366877980530262,
+        "upper_1khz_thd": 0.0751471146941185,
+        "upper_1khz_rms": 0.11166604608297348,
+        "muted_riff_rms": 0.05711439624428749
+      },
+      "candidate": {
+        "upper_band_interaction_ratio": 0.004069160204380751,
+        "bass_generated_160_480_hz_ratio": 0.00028969402774237096,
+        "hit_sustain_rms_ratio": 2.914295196533203,
+        "gap_hit_rms_ratio": 0.004335963632911444,
+        "upper_1khz_thd": 0.10723438113927841,
+        "upper_1khz_rms": 0.10765483975410461,
+        "muted_riff_rms": 0.05299284681677818
+      },
+      "muted_riff_rms_change_db": -0.6505667891049525
+    },
+    "Hel": {
+      "baseline": {
+        "upper_band_interaction_ratio": 1.0316157341003418,
+        "bass_generated_160_480_hz_ratio": 0.1601778119802475,
+        "hit_sustain_rms_ratio": 1.321144700050354,
+        "gap_hit_rms_ratio": 0.01874939724802971,
+        "upper_1khz_thd": 0.2447572648525238,
+        "upper_1khz_rms": 0.1685226857662201,
+        "muted_riff_rms": 0.09105858206748962
+      },
+      "candidate": {
+        "upper_band_interaction_ratio": 0.011350675486028194,
+        "bass_generated_160_480_hz_ratio": 3.065458804485388e-05,
+        "hit_sustain_rms_ratio": 1.6480120420455933,
+        "gap_hit_rms_ratio": 0.012739098630845547,
+        "upper_1khz_thd": 0.26326510310173035,
+        "upper_1khz_rms": 0.14867503941059113,
+        "muted_riff_rms": 0.08007193356752396
+      },
+      "muted_riff_rms_change_db": -1.116811348344306
+    }
+  },
+  "gain_sweep_technical_metrics": [
+    {
+      "key": "death_grind",
+      "gain": 0.5,
+      "imd": 0.00104768,
+      "bass_lowmid": 5.67532e-05,
+      "upper_thd": 0.310854,
+      "upper_rms": 0.134468
+    },
+    {
+      "key": "death_grind",
+      "gain": 0.75,
+      "imd": 0.000988668,
+      "bass_lowmid": 0.000195624,
+      "upper_thd": 0.427798,
+      "upper_rms": 0.144721
+    },
+    {
+      "key": "death_grind",
+      "gain": 1.0,
+      "imd": 0.00299069,
+      "bass_lowmid": 0.00638742,
+      "upper_thd": 0.443374,
+      "upper_rms": 0.144479
+    },
+    {
+      "key": "slam_impact",
+      "gain": 0.5,
+      "imd": 0.00406916,
+      "bass_lowmid": 0.000289694,
+      "upper_thd": 0.107234,
+      "upper_rms": 0.107655
+    },
+    {
+      "key": "slam_impact",
+      "gain": 0.75,
+      "imd": 0.00155652,
+      "bass_lowmid": 0.000884702,
+      "upper_thd": 0.367856,
+      "upper_rms": 0.161158
+    },
+    {
+      "key": "slam_impact",
+      "gain": 1.0,
+      "imd": 0.00369485,
+      "bass_lowmid": 0.00208014,
+      "upper_thd": 0.507443,
+      "upper_rms": 0.174077
+    },
+    {
+      "key": "sludge_mass",
+      "gain": 0.5,
+      "imd": 0.0113507,
+      "bass_lowmid": 3.06546e-05,
+      "upper_thd": 0.263265,
+      "upper_rms": 0.148675
+    },
+    {
+      "key": "sludge_mass",
+      "gain": 0.75,
+      "imd": 0.000965379,
+      "bass_lowmid": 0.00024393,
+      "upper_thd": 0.336745,
+      "upper_rms": 0.175014
+    },
+    {
+      "key": "sludge_mass",
+      "gain": 1.0,
+      "imd": 0.00825571,
+      "bass_lowmid": 0.00454279,
+      "upper_thd": 0.334604,
+      "upper_rms": 0.183025
+    }
+  ],
+  "core_suite": {
+    "result": "PASS",
+    "protected_low_probes": 810,
+    "protected_low_min_ratio": 0.985276,
+    "protected_low_max_ratio": 1.03437,
+    "minimum_level_matched_channel_difference": 0.397716,
+    "allocation_count": 0
+  },
+  "baseline_negative_control": {
+    "result": "EXPECTED_FAILURE",
+    "message": "Bass fundamental again modulates the driven upper band",
+    "imd": 0.120536,
+    "threshold": 0.035
+  },
+  "limitations": [
+    "No instrument DI or user listening approval",
+    "No artist/hardware transfer-function matching",
+    "No production oversampling alias or CPU acceptance",
+    "No DAW or Windows/macOS validation implied"
+  ],
+  "sonic_acceptance": "PENDING_USER_DI_IR_AUDITION"
+}

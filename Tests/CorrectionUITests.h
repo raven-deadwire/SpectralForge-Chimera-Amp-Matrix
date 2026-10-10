@@ -1,5 +1,6 @@
 #pragma once
 #include "PluginEditor.h"
+#include "RigViewTestHelpers.h"
 #include <array>
 #include <cmath>
 #include <iostream>
@@ -79,7 +80,8 @@ inline double matchedDifference(const std::vector<float>& a,const std::vector<fl
 inline void run(const juce::File& directory) {
     const auto storage=std::make_unique<ChimeraProcessor>();auto& processor=*storage;
     require(processor.pedalBoardState().enabled,"A fresh instance still opens the old pedalboard by default");
-    ChimeraEditor editor(processor);auto* canvas=editor.findChildWithID("surface");
+    auto editorStorage=std::make_unique<ChimeraEditor>(processor);auto& editor=*editorStorage;
+    auto* canvas=editor.findChildWithID("surface");
     require(canvas!=nullptr,"Correction UI editor surface missing");
     clickTab(*canvas,"PRE");
     auto* board=canvas->findChildWithID("universalPedalBoard");
@@ -161,6 +163,7 @@ inline void run(const juce::File& directory) {
     snapshot(editor,directory,"Correction-new-amp-channels");
 
     set(processor,"mode",2);settle(120);
+    rigViewTests::showControls(*canvas);
     const std::array<int,3> models{15,18,22};
     for(int lane=0;lane<3;++lane) {
         auto& control=selector(*canvas,lane);

@@ -21,22 +21,35 @@ jobs:
           python-version: '3.12'
       - name: Check version contract before native build
         run: python Tests/test_packaging_version.py
+      - name: Check candidate transfer contract before native build
+        run: python Tools/test_candidate_transfer.py
       - name: Configure
         run: cmake -S . -B build -A x64 -DCMAKE_BUILD_TYPE=Release
-      - name: Check candidate installer scripts
-        shell: pwsh
+      - name: Check candidate packaging and validation contracts
+        # Native failures must stop before a later successful command can mask them.
+        shell: bash
         run: |
-          python -m py_compile Tools/package_installer_candidate.py Tools/Build-PersonalWindowsBundle.py Tools/prepare_lifecycle_baseline.py Tools/extract_vblank_test_class.py Tools/verify_vblank_failure.py Tools/evaluate_release_gate.py Tools/test_release_gate.py Tools/evaluate_signature_benchmark.py Tools/test_signature_benchmark.py Tools/check_catalog_contract.py Tools/check_ci_validation_map.py Tools/produce_validation_check.py Tools/test_validation_producer.py Tools/seed_validation_reports.py Tools/analyze_callback_pairs.py Tools/run_paired_callback_probe.py Tools/test_callback_timing_protocol.py
+          python -m py_compile Tools/package_installer_candidate.py Tools/package_update_candidate.py Tools/test_candidate_transfer.py Tools/Build-PersonalWindowsBundle.py Tools/prepare_lifecycle_baseline.py Tools/extract_vblank_test_class.py Tools/verify_vblank_failure.py Tools/evaluate_release_gate.py Tools/test_release_gate.py Tools/evaluate_signature_benchmark.py Tools/test_signature_benchmark.py Tools/check_catalog_contract.py Tools/check_ci_validation_map.py Tools/produce_validation_check.py Tools/test_validation_producer.py Tools/seed_validation_reports.py Tools/analyze_callback_pairs.py Tools/run_paired_callback_probe.py Tools/test_callback_timing_protocol.py Tools/release_evidence.py Tools/produce_release_evidence.py Tools/consolidate_release_gate.py Tools/check_ir_distribution.py Tests/test_ir_distribution.py
           python Tools/test_release_gate.py
           python Tools/test_release_scope.py
           python Tools/test_signature_benchmark.py
           python Tools/check_catalog_contract.py
+          python Tools/check_ir_distribution.py
+          python Tests/test_ir_distribution.py
           python Tools/check_ci_validation_map.py
           python Tools/test_validation_producer.py
           python Tools/test_ctest_validation.py
+          python Tools/test_release_consolidator.py
+          python Tools/test_publish_beta112.py
+          python Tools/test_publish_beta12.py
+          python Tools/test_publish_beta13.py
+          python Tools/test_release_preflight.py
           python Tools/test_callback_timing_protocol.py
-          $revision = (& git rev-parse HEAD).Trim()
-          python Tools/seed_validation_reports.py --commit $revision --profile pull_request --output build/validation
+          revision=$(git rev-parse HEAD)
+          python Tools/seed_validation_reports.py --commit "$revision" --profile pull_request --output build/validation
+      - name: Check candidate PowerShell script syntax
+        shell: pwsh
+        run: |
           foreach ($script in @("Tools/Build-WindowsInstaller.ps1", "Tools/Windows-VersionContract.ps1", "Tools/Verify-WindowsInstaller.ps1", "Tools/Trace-Chimera-Session.ps1")) {
             $tokens = $null
             $errors = $null
@@ -105,6 +118,7 @@ jobs:
         run: |
           $env:CHIMERA_LIFECYCLE_TRACE = Join-Path (Get-Location) "build/lifecycle-current-trace.log"
           ctest --test-dir build -C Release --show-only=json-v1 > build/ctest-inventory.json
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           ctest --test-dir build -C Release --output-on-failure --no-tests=error --output-junit ctest-results.xml
           exit $LASTEXITCODE
       - uses: actions/upload-artifact@v4
@@ -191,6 +205,34 @@ jobs:
           compression-level: 0
           if-no-files-found: error
       - uses: actions/upload-artifact@v4
+        if: success() && hashFiles('installer-transfer/part-5/*') != ''
+        with:
+          name: Chimera-installer-part-5
+          path: installer-transfer/part-5/*
+          compression-level: 0
+          if-no-files-found: error
+      - uses: actions/upload-artifact@v4
+        if: success() && hashFiles('installer-transfer/part-6/*') != ''
+        with:
+          name: Chimera-installer-part-6
+          path: installer-transfer/part-6/*
+          compression-level: 0
+          if-no-files-found: error
+      - uses: actions/upload-artifact@v4
+        if: success() && hashFiles('installer-transfer/part-7/*') != ''
+        with:
+          name: Chimera-installer-part-7
+          path: installer-transfer/part-7/*
+          compression-level: 0
+          if-no-files-found: error
+      - uses: actions/upload-artifact@v4
+        if: success() && hashFiles('installer-transfer/part-8/*') != ''
+        with:
+          name: Chimera-installer-part-8
+          path: installer-transfer/part-8/*
+          compression-level: 0
+          if-no-files-found: error
+      - uses: actions/upload-artifact@v4
         with:
           name: Chimera-installer-transfer-metadata
           path: installer-transfer/metadata/*
@@ -216,23 +258,52 @@ jobs:
           compression-level: 0
           if-no-files-found: error
       - uses: actions/upload-artifact@v4
+        if: success() && hashFiles('candidate-transfer/part-2/*') != ''
         with:
           name: Chimera-candidate-part-2
           path: candidate-transfer/part-2/*
           compression-level: 0
           if-no-files-found: error
       - uses: actions/upload-artifact@v4
-        if: hashFiles('candidate-transfer/part-3/*') != ''
+        if: success() && hashFiles('candidate-transfer/part-3/*') != ''
         with:
           name: Chimera-candidate-part-3
           path: candidate-transfer/part-3/*
           compression-level: 0
           if-no-files-found: error
       - uses: actions/upload-artifact@v4
-        if: hashFiles('candidate-transfer/part-4/*') != ''
+        if: success() && hashFiles('candidate-transfer/part-4/*') != ''
         with:
           name: Chimera-candidate-part-4
           path: candidate-transfer/part-4/*
+          compression-level: 0
+          if-no-files-found: error
+      - uses: actions/upload-artifact@v4
+        if: success() && hashFiles('candidate-transfer/part-5/*') != ''
+        with:
+          name: Chimera-candidate-part-5
+          path: candidate-transfer/part-5/*
+          compression-level: 0
+          if-no-files-found: error
+      - uses: actions/upload-artifact@v4
+        if: success() && hashFiles('candidate-transfer/part-6/*') != ''
+        with:
+          name: Chimera-candidate-part-6
+          path: candidate-transfer/part-6/*
+          compression-level: 0
+          if-no-files-found: error
+      - uses: actions/upload-artifact@v4
+        if: success() && hashFiles('candidate-transfer/part-7/*') != ''
+        with:
+          name: Chimera-candidate-part-7
+          path: candidate-transfer/part-7/*
+          compression-level: 0
+          if-no-files-found: error
+      - uses: actions/upload-artifact@v4
+        if: success() && hashFiles('candidate-transfer/part-8/*') != ''
+        with:
+          name: Chimera-candidate-part-8
+          path: candidate-transfer/part-8/*
           compression-level: 0
           if-no-files-found: error
       - uses: actions/upload-artifact@v4

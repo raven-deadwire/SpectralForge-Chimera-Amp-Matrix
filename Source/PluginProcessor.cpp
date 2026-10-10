@@ -1,6 +1,7 @@
 #include "GuitarSignaturePresets.h"
 #include "FactoryNativeVoicing.h"
 #include "PluginProcessor.h"
+#include "IRStateAssets.h"
 #include <algorithm>
 #include "PluginEditor.h"
 #include "FactoryPresets.h"
@@ -21,6 +22,9 @@ ChimeraProcessor::ChimeraProcessor()
     : AudioProcessor(BusesProperties().withInput("Input",juce::AudioChannelSet::stereo(),true)
                                       .withOutput("Output",juce::AudioChannelSet::stereo(),true))
 {
+    originalCabParameters.bind(state);
+    const std::array<const char*,10> cabIds{"cabblend","cabAgain","cabAdelay","cabAinvert","cabBgain","cabBdelay","cabBinvert","cabBlow","cabBhigh","cabBtype"};
+    for(int i=0;i<3;++i) for(size_t j=0;j<cabIds.size();++j) cabPanelParameters[i][j]=state.getRawParameterValue(juce::String(cabIds[j])+juce::String(i+1));
     clearMidi();
     boardParameters.bind(state);
     ampSelection.bind(state);
@@ -62,13 +66,27 @@ void ChimeraProcessor::prepareToPlay(double sr,int block)
     const spectralforge::lifecycle::Scope trace("processor.prepare", this);
     releaseResources(); cpuAverage.store(0);cpuPeak.store(0);rate=sr; maximumBlock=juce::jmax(1,block);
     const juce::dsp::ProcessSpec spec{sr,(juce::uint32)maximumBlock,(juce::uint32)getTotalNumOutputChannels()};
-    engine.prepare(spec); preFX.prepare(spec); pedalBoard.prepare(spec); postFX.prepare(spec);utilities.prepare(spec); tuner.prepare(sr);
+    // Install the restored panel state before Cab::prepare initializes its
+    // smoothers. This also clears a previous A/B blend/bypass after reprepare;
+    // the normal process() path still smooths live automation as before.
+    for(int i=0;i<3;++i) {
+        const auto get=[&](int id){return cabPanelParameters[i][id]->load();};
+        auto& cab=engine.cabinet(i);auto* b=cab.secondMic();
+        cab.blend=get(0);cab.gainDb=get(1);cab.delayMs=get(2);cab.invert=get(3)>.5f;
+        b->gainDb=get(4);b->delayMs=get(5);b->invert=get(6)>.5f;
+        cab.enable(laneParameters[i][13]->load()>.5f);
+    }
+    std::array<spectralforge::AmpNativeState,3> initialNativeStates{};
+    for(int i=0;i<3;++i)initialNativeStates[(size_t)i]=nativeAmps.read(ampContext(i));
+    engine.prepare(spec,initialNativeStates); preFX.prepare(spec); pedalBoard.prepare(spec); postFX.prepare(spec);utilities.prepare(spec); tuner.prepare(sr);
     audioBoard=boardParameters.read();
     postRigGate.prepare(spec,juce::jmax(preFX.latency(true),pedalBoard.maximumLatency()+preFX.transpose.latency())+engine.latency());
     preReduction.store(0);postReduction.store(0);for(auto& meter:postPeaks)meter.store(0);
     for(auto& meter:nativePostMeters)meter.store(0);
     std::array<int,3> sources{};
     for(int i=0;i<3;++i) sources[i]=(int)laneParameters[i][16]->load();
+    for(int i=0;i<3;++i) engine.cabinet(i).secondMic()->requestedSource.store(int(cabPanelParameters[i][9]->load()));
+    syncOriginalCabRequests();
     library.prepare(spec,sources);
     inputGain.reset(sr,.020); outputGain.reset(sr,.020); tuningMute.reset(sr,.005);
     inputGain.setCurrentAndTargetValue(juce::Decibels::decibelsToGain(globals[input]->load()));
@@ -160,6 +178,7 @@ void ChimeraProcessor::process(juce::AudioBuffer<float>& buffer)
     const int latency=postFX.latency()+engine.latency()+(audioBoard.enabled ? pedalBoard.latency(audioBoard)+(pitching ? preFX.transpose.latency() : 0) : preFX.latency(pitching));
     if(getLatencySamples()!=latency) setLatencySamples(latency);
     engine.setOversampling((int)value(os));
+    syncOriginalCabRequests();
     std::array<spectralforge::LaneState,3> lanes{};
     for(int i=0;i<3;++i)
     {
@@ -173,6 +192,12 @@ void ChimeraProcessor::process(juce::AudioBuffer<float>& buffer)
         lane.mute=f(10)>.5f; lane.solo=f(11)>.5f; lane.polarity=f(12)>.5f; lane.cab=f(13)>.5f;
         lane.cabLow=f(14); lane.cabHigh=f(15); lane.ampEnabled=f(17)>.5f;
         engine.cabinet(i).requestedSource.store((int)f(16));
+        auto get=[&](int id){return cabPanelParameters[i][id]->load();};
+        auto& cab=engine.cabinet(i); auto* b=cab.secondMic();
+        cab.blend=get(0);
+        cab.gainDb=get(1); cab.delayMs=get(2); cab.invert=get(3)>.5f;
+        b->gainDb=get(4); b->delayMs=get(5); b->invert=get(6)>.5f;
+        b->setCuts(get(7),get(8)); b->requestedSource.store(int(get(9)));
     }
     lanes[0].lowComp=lowCompParameter->load();lanes[0].lowAmpMix=lowAmpMixParameter->load();
     const bool dualCross=value(mode)==1 && extras[dualType]->load()>.5f;
@@ -203,11 +228,20 @@ void ChimeraProcessor::process(juce::AudioBuffer<float>& buffer)
     outputPeak.store(juce::jmax(peak,outputPeak.load()*meterDecay));
     measureStage(4,buffer);
 }
+juce::Result ChimeraProcessor::loadMicIR(int lane,int slot,const juce::File& file)
+{
+    if(slot==0) return loadIR(lane,file);
+    if(lane<0 || lane>2 || slot!=1) return juce::Result::fail("Invalid mic slot");
+    auto result=library.importFile(lane+3,file);
+    if(result.wasOk()) { setRawParameter(spectralforge::originalCabID(lane,"Bon"),0); setRawParameter("cabBtype"+juce::String(lane+1),3.f); engine.cabinet(lane).secondMic()->requestedSource.store(3); }
+    return result;
+}
 juce::Result ChimeraProcessor::loadIR(int lane,const juce::File& file)
 {
     const auto result=library.importFile(lane,file);
     if(result.wasOk())
     {
+        setRawParameter(spectralforge::originalCabID(lane,"Aon"),0);
         auto* parameter=state.getParameter("cabtype"+juce::String(lane+1));
         parameter->beginChangeGesture(); parameter->setValueNotifyingHost(parameter->convertTo0to1(3)); parameter->endChangeGesture();
         engine.cabinet(lane).requestedSource.store(3);
@@ -255,9 +289,50 @@ juce::AudioProcessorValueTreeState::ParameterLayout ChimeraProcessor::layout(){j
         juce::AudioParameterFloatAttributes()
             .withStringFromValueFunction([](float v,int) {return v>=spectralforge::NoiseGate::fullRangeDb ? juce::String("Full") : juce::String(v,1)+" dB";})
             .withValueFromStringFunction([](const juce::String& text) {return text.trim().equalsIgnoreCase("Full") ? spectralforge::NoiseGate::fullRangeDb : text.getFloatValue();})));
-    spectralforge::appendNewAmpNativeParameters(p,spectralforge::firstOriginalAmpModel,spectralforge::ampModelCount);
+    spectralforge::appendNewAmpNativeParameters(p,spectralforge::firstOriginalAmpModel,spectralforge::niflheimrAmpModel);
     spectralforge::appendOriginalChannelParameters(p);
+    spectralforge::appendNiflheimrParameters(p);
+for(int i=1;i<=3;++i) {
+    const auto n=juce::String(i);
+    p.add(std::make_unique<juce::AudioParameterChoice>(juce::ParameterID{"cabBtype"+n,6},"Mic B source "+n,juce::StringArray{"Filters only","V30 / SM57","Jensen / SM57","User IR"},0));
+    p.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{"cabblend"+n,6},"Mic A/B blend "+n,juce::NormalisableRange<float>{0.f,1.f},0.f));
+    for(const auto* slot:{"A","B"}) {
+        const auto id=juce::String("cab")+slot;
+        // Preserve the existing linear host mapping, but make its unity point
+        // exact. Fused multiply-add can otherwise turn the default 2/3 into
+        // a small nonzero dB value on arm64 during project migration.
+        juce::NormalisableRange<float> gainRange{-24.f,12.f,
+            [](float start,float end,float normalised) {
+                return normalised == (0.f-start)/(end-start) ? 0.f : start+(end-start)*normalised;
+            },
+            [](float start,float end,float value) {return (value-start)/(end-start);},
+            [](float start,float end,float value) {
+                // Keep the original 0.01 dB grid and clamping. Its multiply-add
+                // can also leave a residue at unity; canonicalize only that bin.
+                const juce::NormalisableRange<float> legacy{start,end,.01f};
+                const float step=std::floor((value-start)/.01f+.5f);
+                return step==std::floor((0.f-start)/.01f+.5f) ? 0.f : legacy.snapToLegalValue(value);
+            }};
+        gainRange.interval=.01f;
+        p.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{id+"gain"+n,6},id+" level "+n,gainRange,0.f));
+        p.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{id+"delay"+n,6},id+" delay ms "+n,juce::NormalisableRange<float>{0.f,20.f},0.f));
+        p.add(std::make_unique<juce::AudioParameterBool>(juce::ParameterID{id+"invert"+n,6},id+" polarity "+n,false));
+    }
+    p.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{"cabBlow"+n,6},"Mic B low cut "+n,juce::NormalisableRange<float>{20.f,500.f},70.f));
+    p.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{"cabBhigh"+n,6},"Mic B high cut "+n,juce::NormalisableRange<float>{1500.f,20000.f},9000.f));
+}
+spectralforge::appendOriginalCabParameters(p);
+spectralforge::appendCabExpansionParameters(p);
+spectralforge::appendCabLayoutParameters(p);
 return p;
+}
+
+void ChimeraProcessor::syncOriginalCabRequests()
+{
+    for(int i=0;i<3;++i) {
+        engine.cabinet(i).requestedModel.store(originalCabParameters.read(i,0));
+        engine.cabinet(i).secondMic()->requestedModel.store(originalCabParameters.read(i,1));
+    }
 }
 
 juce::ValueTree ChimeraProcessor::captureCore()
@@ -265,21 +340,27 @@ juce::ValueTree ChimeraProcessor::captureCore()
     auto saved=state.copyState();
     saved.removeChild(saved.getChildWithName("USER_IRS"),nullptr);
     saved.removeChild(saved.getChildWithName("COMPARISONS"),nullptr);
-    saved.appendChild(library.save(),nullptr); saved.setProperty("schemaVersion",9,nullptr);
+    saved.appendChild(library.save(),nullptr); saved.setProperty("schemaVersion",10,nullptr);
     return saved;
 }
 void ChimeraProcessor::getStateInformation(juce::MemoryBlock& data)
 {
-    auto saved=captureCore();
+    (void)tryGetStateInformation(data);
+}
+bool ChimeraProcessor::tryGetStateInformation(juce::MemoryBlock& data)
+{
+    auto saved=captureCore();const auto core=saved.createCopy();
     juce::ValueTree slots("COMPARISONS");
-    { std::lock_guard<std::mutex> lock(comparisonMutex);
-      const int active=selectedComparison.load();comparisons[(size_t)active]=saved.createCopy();
-      slots.setProperty("active",active,nullptr);
-      for(int i=0;i<2;++i) if(comparisons[(size_t)i].isValid()) {auto slot=comparisons[(size_t)i].createCopy();slot.setProperty("slot",i,nullptr);slots.appendChild(slot,nullptr);}
-    }
+    std::lock_guard<std::mutex> lock(comparisonMutex);
+    const int active=selectedComparison.load();
+    slots.setProperty("active",active,nullptr);
+      for(int i=0;i<2;++i) if(i==active || comparisons[(size_t)i].isValid()) {auto slot=(i==active ? saved : comparisons[(size_t)i]).createCopy();slot.setProperty("slot",i,nullptr);slots.appendChild(slot,nullptr);}
     saved.appendChild(slots,nullptr);
     juce::ValueTree midi("MIDI_MAP");for(int cc=0;cc<128;++cc) {const int index=midiMap[(size_t)cc].load();if(index<0 || index>=getParameters().size())continue;if(auto* parameter=dynamic_cast<juce::AudioProcessorParameterWithID*>(getParameters()[index])) {juce::ValueTree item("CC");item.setProperty("cc",cc,nullptr);item.setProperty("id",parameter->paramID,nullptr);midi.appendChild(item,nullptr);}}
-    saved.appendChild(midi,nullptr);auto xml=saved.createXml();copyXmlToBinary(*xml,data);
+    saved.appendChild(midi,nullptr);
+    if(!spectralforge::irState::serialize(saved,data))return false;
+    comparisons[(size_t)active]=core;
+    return true;
 }
 void ChimeraProcessor::restoreCore(juce::ValueTree restored)
 {
@@ -289,6 +370,8 @@ void ChimeraProcessor::restoreCore(juce::ValueTree restored)
     const bool missingPost=!restored.getChildWithProperty("id",spectralforge::postNativeModelID(0)).isValid();
     const bool missingBoard=!restored.getChildWithProperty("id",spectralforge::pedalModelID(0)).isValid();
     const bool hasOriginalV1=restored.getChildWithProperty("id",spectralforge::ampNativeControlID(0,spectralforge::firstOriginalAmpModel,0)).isValid();
+    // Enumerate registered parameters via the current tree, but obtain every
+    // missing value from the parameter definition, never from the session.
     const auto defaults=state.copyState();
     for(auto child:defaults)
     {
@@ -309,16 +392,18 @@ void ChimeraProcessor::restoreCore(juce::ValueTree restored)
         juce::ValueTree item("PARAM");item.setProperty("id",id,nullptr);item.setProperty("value",value,nullptr);restored.appendChild(item,nullptr);
     }
     library.restore(restored.getChildWithName("USER_IRS"));restored.removeChild(restored.getChildWithName("USER_IRS"),nullptr);
-    restored.removeChild(restored.getChildWithName("COMPARISONS"),nullptr);state.replaceState(restored);resetPending.store(true);
+    restored.removeChild(restored.getChildWithName("COMPARISONS"),nullptr);state.replaceState(restored);syncOriginalCabRequests();resetPending.store(true);
     if(missingNative || missingPost || missingBoard)seedNativeSelections(missingBoard,missingNative,missingPost);
-    for(int i=0;i<3;++i) engine.cabinet(i).requestedSource.store((int)laneParameters[i][16]->load());
+    for(int i=0;i<3;++i) { engine.cabinet(i).requestedSource.store((int)laneParameters[i][16]->load()); engine.cabinet(i).secondMic()->requestedSource.store(int(cabPanelParameters[i][9]->load())); }
 }
 void ChimeraProcessor::setStateInformation(const void* data,int size)
 {
-    // Three bounded snapshots, each containing up to three <=4 MB IR assets.
+    // Preserve the reader budget for both legacy and pooled projects.
     if(size<=0 || size>64*1024*1024) return;
     auto xml=getXmlFromBinary(data,size);if(!xml || !xml->hasTagName("PARAMS")) return;
-    auto restored=juce::ValueTree::fromXml(*xml);const auto saved=restored.getChildWithName("COMPARISONS");
+    auto restored=juce::ValueTree::fromXml(*xml);
+    if(!spectralforge::irState::unpack(restored))return;
+    const auto saved=restored.getChildWithName("COMPARISONS");
     { std::lock_guard<std::mutex> lock(comparisonMutex);
       comparisons={};selectedComparison.store(juce::jlimit(0,1,(int)saved.getProperty("active",0)));
       for(auto child:saved) {const int slot=(int)child.getProperty("slot",-1);if(slot>=0 && slot<2) comparisons[(size_t)slot]=child.createCopy();}
@@ -356,7 +441,9 @@ void ChimeraProcessor::tapTempo() {
 void ChimeraProcessor::loadFactoryPreset(int index) {
     if(index<0 || index>=spectralforge::selectablePresetCount)return;
     {
-        const auto snapshot=spectralforge::isOriginalPreset(index)
+        const auto snapshot=spectralforge::isNiflheimrPreset(index)
+            ? spectralforge::niflheimrPresetSnapshot(state,index-spectralforge::niflheimrPresetStart)
+            : spectralforge::isOriginalPreset(index)
             ? spectralforge::originalPresetSnapshot(state,index-spectralforge::originalPresetStart)
             : spectralforge::isGuitarSignature(index)
             ? spectralforge::guitarSignatureSnapshot(state,index-spectralforge::factoryPresetCount)
@@ -370,38 +457,9 @@ void ChimeraProcessor::loadFactoryPreset(int index) {
             parameter->setValueNotifyingHost(parameter->convertTo0to1(float(node.getProperty("value"))));
         }
         boardUndo.clear();boardRedo.clear();
-        if(spectralforge::isSignaturePreset(index))applyPresetIRTargets(index);
+        // Factory recipes own their modeled CAB. Resolving a user's IR folder
+        // here would bypass that cabinet and make recall machine-dependent.
         resetPending.store(true);
-    }
-}
-
-void ChimeraProcessor::applyPresetIRTargets(int index) {
-    if(!spectralforge::isSignaturePreset(index))return;
-    const auto entries=spectralforge::IRCollection::scan(spectralforge::IRCollection::roots(),true);
-    for(int lane=0;lane<3;++lane) {
-        const auto target=juce::String::fromUTF8(spectralforge::presetIRTarget(index,lane));
-        const auto expectedHash=juce::String::fromUTF8(spectralforge::presetIRTargetHash(index,lane));
-        if(target.isEmpty())continue;
-        const bool tagged=target.startsWith("tag:");
-        const auto terms=tagged ? juce::StringArray::fromTokens(target.substring(4),"|","") : juce::StringArray{};
-        const bool catalogTarget=!tagged && std::any_of(entries.begin(),entries.end(),[&](const auto& entry){return entry.reference && entry.name==target;});
-        const spectralforge::IRCollection::Entry* match=nullptr;
-        for(const auto& entry:entries) {
-            if(!entry.ready())continue;
-            bool matches=false;
-            if(tagged) {
-                const auto haystack=entry.name+" "+entry.displayName()+" "+juce::JSON::toString(entry.tags.json(),true);
-                matches=true;for(const auto& term:terms)if(!haystack.containsIgnoreCase(term.trim())){matches=false;break;}
-            } else matches=entry.name==target && (!catalogTarget || entry.reference);
-            if(matches && expectedHash.isNotEmpty() && entry.factorySource==0)
-                matches=spectralforge::IRCollection::matchesExpectedHash(entry.file,expectedHash);
-            if(!matches)continue;
-            match=&entry;
-            if(entry.reference)break;
-        }
-        if(match && match->factorySource!=0) setRawParameter("cabtype"+juce::String(lane+1),float(match->factorySource));
-        else if(match && match->file.existsAsFile()) loadIR(lane,match->file);
-        else setRawParameter("cabtype"+juce::String(lane+1),0.f);
     }
 }
 

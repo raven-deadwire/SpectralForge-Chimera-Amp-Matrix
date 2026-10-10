@@ -21,7 +21,10 @@ import produce_validation_check as producer
 import evaluate_release_gate as gate
 
 def test_results(junit: Path, inventory: Path) -> tuple[dict[str, bool], bool]:
-    expected = {test["name"] for test in json.loads(inventory.read_text(encoding="utf-8-sig"))["tests"]}
+    names = [test["name"] for test in gate.load_json(inventory)["tests"]]
+    if any(not isinstance(name, str) or not name for name in names) or len(names) != len(set(names)):
+        raise ValueError("Invalid or duplicate configured CTest name")
+    expected = set(names)
     if not expected:
         raise ValueError("Empty CTest inventory cannot certify a matrix")
     cases: dict[str, bool] = {}
@@ -58,6 +61,8 @@ def main() -> int:
     cases, matrix_ok = test_results(args.junit, args.inventory)
     artifact_hash = hashlib.sha256(args.junit.read_bytes()).hexdigest()
     for cid, spec in mapping["checks"].items():
+        if spec["platform"] not in ("all", args.platform):
+            continue
         name = spec["producer"]
         if name.startswith("ctest:"):
             test = name.partition(":")[2]
@@ -87,3 +92,4 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
+

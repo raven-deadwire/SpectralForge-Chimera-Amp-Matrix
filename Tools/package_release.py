@@ -16,6 +16,7 @@ import tarfile
 import tempfile
 import zipfile
 import chimera_version
+import check_ir_distribution
 
 ROOT = Path(__file__).resolve().parents[1]
 IDENTITY = chimera_version.identity(ROOT)
@@ -57,13 +58,12 @@ def documents(destination: Path, build: Path) -> None:
     destination.mkdir(parents=True, exist_ok=True)
     copy(ROOT / "COPYRIGHT.txt", destination / "COPYRIGHT.txt")
     for name in ("MANUAL.html", "OPEN_BETA_RELEASE_NOTES.md", "THIRD_PARTY_NOTICES.md",
-                 "AMP_VALIDATION.md", "AMP_VOICES_OPEN_BETA.md", "OPEN_BETA_NAM_VALIDATION.md", "PRESETS.md", "EXTERNAL_BASS_IRS.md", "UPDATES.md", "MODELS_AND_REFERENCE.md", "FX_AND_IR_DESIGN.md",
-                 "WINDOWS_INSTALL.txt", "INSTALLATION.md", "NAM_REFERENCE_RESULTS.md",
-                 "STUDIO_ONE_TEARDOWN.md", "NATIVE_NAM_CALIBRATION.md", "AMP_NATIVE_DSP.md", "POST_NATIVE_DSP.md", "PEDAL_BOARD_DSP.md", "VALIDATION_STATUS.md"):
+                 "AMP_VALIDATION.md", "AMP_VOICES_OPEN_BETA.md", "PRESETS.md", "FACTORY_CAB_VOICING_1_3.md", "EXTERNAL_BASS_IRS.md", "IR_DISTRIBUTION.md", "UPDATES.md",
+                 "WINDOWS_INSTALL.txt", "INSTALLATION.md", "STUDIO_ONE_TEARDOWN.md",
+                 "AMP_NATIVE_DSP.md", "POST_NATIVE_DSP.md", "PEDAL_BOARD_DSP.md", "VALIDATION_STATUS.md"):
         copy(ROOT / "docs" / name, destination / name)
     copy(build / "Testing/Temporary/LastTest.log", destination / "Verification.txt")
-    copy(ROOT / "docs/reference", destination / "reference")
-    copy(ROOT / "docs/evidence/native-nam-20261004", destination / "evidence/native-nam-20261004")
+    # Development capture catalogs/evidence stay out of the public package.
 
 
 def verify_stage(stage: Path, required: list[str], *, version: dict | None = None) -> None:
@@ -71,18 +71,14 @@ def verify_stage(stage: Path, required: list[str], *, version: dict | None = Non
         path = stage / name
         if not path.is_file() or not path.stat().st_size:
             raise RuntimeError(f"Empty or missing package file: {name}")
-    # Personal IR/NAM files must never leak into public release payloads.
-    for path in stage.rglob("*"):
-        if path.suffix.lower() == ".nam" or "Chimera-Personal-IRs" in path.parts:
-            raise RuntimeError(f"Restricted capture payload found: {path}")
-        if path.suffix.lower() in (".wav", ".aif", ".aiff") and "reference-audio" not in path.parts:
-            raise RuntimeError(f"Unexpected external audio payload: {path}")
+    check_ir_distribution.validate_stage(stage)
     inventory = [{"path": p.relative_to(stage).as_posix(), "bytes": p.stat().st_size, "sha256": sha256(p)}
                  for p in sorted(stage.rglob("*")) if p.is_file() and not p.is_symlink()]
     (stage / "payload-manifest.json").write_text(json.dumps({**(IDENTITY if version is None else version), "files": inventory}, indent=2) + "\n", encoding="utf-8")
 
 
 def windows(build: Path, dist: Path) -> None:
+    check_ir_distribution.validate_source(ROOT)
     stage = dist / f"{PREFIX}-win64"
     stage.mkdir(parents=True, exist_ok=False)
     artefacts = build / "ChimeraAmpMatrix_artefacts/Release"
@@ -95,7 +91,6 @@ def windows(build: Path, dist: Path) -> None:
     copy(ROOT / "Tools/validate_nam.py", stage / "ReferenceTools/validate_nam.py")
     copy(ROOT / "Tools/Trace-Chimera-Session.ps1", stage / "ReferenceTools/Trace-Chimera-Session.ps1")
     copy(build / "ChimeraRender_artefacts/Release/ChimeraRender.exe", stage / "ReferenceTools/ChimeraRender.exe")
-    copy(build / "reference-audio", stage / "reference-audio")
     (stage / "README.txt").write_text(
         f"{PRODUCT} — {chimera_version.display_version(ROOT)} ({VERSION})\n\n"
         "Close Chimera and your DAW before installing or updating.\n"
@@ -117,6 +112,7 @@ def windows(build: Path, dist: Path) -> None:
 
 
 def macos(build: Path, dist: Path) -> None:
+    check_ir_distribution.validate_source(ROOT)
     if platform.system() != "Darwin":
         raise RuntimeError("macOS packages must be produced and validated on macOS")
     artefacts = build / "ChimeraAmpMatrix_artefacts/Release"
@@ -174,6 +170,7 @@ def macos(build: Path, dist: Path) -> None:
 
 
 def linux(build: Path, dist: Path) -> None:
+    check_ir_distribution.validate_source(ROOT)
     if platform.system() != "Linux" or platform.machine() not in ("x86_64", "amd64"):
         raise RuntimeError("Linux packages require a Linux x86_64 builder")
     artefacts = build / "ChimeraAmpMatrix_artefacts/Release"
