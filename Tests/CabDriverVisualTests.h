@@ -40,40 +40,82 @@ inline void hornGrilleContracts(const juce::File& screenshots) {
     using namespace spectralforge;
     cabLayout::Settings selected{};selected.layout=6;selected.voice.base.cabinet=1;
     const auto model=cabLayout::geometry(selected);
-    for(bool native:{false,true})for(float scale:{200.f,400.f,700.f})for(int kind=0;kind<4;++kind) {
+    // Camera density (pixels/metre) and device/UI scale are independent.
+    // Keep all original 24 cases and exercise the real graphics transform at
+    // 100/125/150/175/200%, including fractional device-pixel origins.
+    int renders=0;
+    for(bool native:{false,true})for(float scale:{200.f,400.f,700.f})
+        for(float deviceScale:{1.f,1.25f,1.5f,1.75f,2.f})for(int kind=0;kind<4;++kind) {
         const auto type=native ? std::unique_ptr<juce::ImageType>(new juce::NativeImageType)
                                : std::unique_ptr<juce::ImageType>(new juce::SoftwareImageType);
-        const int width=int(std::ceil(float(model.box.width)*scale))+40;
-        const int height=int(std::ceil(float(model.box.height+model.box.depth*.16)*scale))+40;
+        const int width=int(std::ceil((float(model.box.width)*scale+40.f)*deviceScale));
+        const int height=int(std::ceil((float(model.box.height+model.box.depth*.16)*scale+40.f)*deviceScale));
         const juce::Rectangle<float> box(20.f,20.f,float(model.box.width)*scale,
             float(model.box.height+model.box.depth*.16)*scale);
         juce::Image rear(juce::Image::ARGB,width,height,true,*type),mask(juce::Image::ARGB,width,height,true,*type);
-        {juce::Graphics g(rear);g.fillAll(juce::Colour(0xff111719));cabLayoutView::tweeter(g,model,box,true,.65f,kind);}
-        {juce::Graphics g(mask);cabLayoutView::grille(g,model,box,true);}
+        {juce::Graphics g(rear);g.addTransform(juce::AffineTransform::scale(deviceScale));
+            g.fillAll(juce::Colour(0xff111719));cabLayoutView::tweeter(g,model,box,true,.65f,kind);}
+        {juce::Graphics g(mask);g.addTransform(juce::AffineTransform::scale(deviceScale));cabLayoutView::grille(g,model,box,true);}
         juce::Image front(juce::Image::ARGB,width,height,true,*type);
-        {juce::Graphics g(front);g.fillAll(juce::Colour(0xff111719));cabLayoutView::frontHardware(g,model,box,true,.65f,kind);}
+        {juce::Graphics g(front);g.addTransform(juce::AffineTransform::scale(deviceScale));
+            g.fillAll(juce::Colour(0xff111719));cabLayoutView::frontHardware(g,model,box,true,.65f,kind);}
         const auto centre=cabLayoutView::point(model,box,model.horn);
-        const auto region=juce::Rectangle<float>(.118f*scale,.080f*scale).withCentre(centre).toNearestInt();
+        const auto region=(juce::Rectangle<float>(.118f*scale,.080f*scale).withCentre(centre)*deviceScale).toNearestInt();
+        const auto label=juce::String(native ? "native" : "software")+"-ppm"+juce::String(int(scale))
+            +"-dpi"+juce::String(juce::roundToInt(deviceScale*100.f))+"-kind"+juce::String(kind);
+        // Save evidence before checking pixels: the previous failure artifact
+        // only contained a software/700 ppm image, not the failing native ROI.
+        const auto save=[&](const juce::Image& image,const char* layer) {
+            writeImage(image.getClippedImage(region.expanded(8).getIntersection(image.getBounds())),screenshots,
+                ("cab-visual-horn-"+label+"-"+layer+".png").toRawUTF8());
+        };
+        save(rear,"rear");save(mask,"mask");save(front,"front");
+        if(kind==0 && deviceScale==1.f) {
+            // Diagnostic witness of the pre-fix interpolation in the horn ROI.
+            // It uses the same authored tile, phase, scale and backend. The
+            // frame/outer clip do not intersect this central region. This is
+            // never an acceptance reference or a substitute for production.
+            const juce::SharedResourcePointer<cabArt::Bank> bank;
+            const auto& skin=bank->enclosureSkins[1];
+            const auto face=cabLayoutView::baffle(model,box);
+            const float corner=juce::jmin(scale*.048f,juce::jmin(face.getWidth(),face.getHeight())*.18f);
+            const float rail=juce::jmin(scale*.035f,corner);
+            juce::Image interpolated(juce::Image::ARGB,width,height,true,*type);
+            {juce::Graphics g(interpolated);g.setImageResamplingQuality(juce::Graphics::mediumResamplingQuality);
+                cabEnclosureArt::fillMaterial(g,skin.grilleOverlay,face.reduced(rail*.82f),scale/skin.sourcePixelsPerMetre);}
+            save(interpolated,"medium-mask-witness");
+            int wires=0,holes=0,minAlpha=255,maxAlpha=0;
+            for(int y=region.getY();y<region.getBottom();++y)for(int x=region.getX();x<region.getRight();++x) {
+                const int alpha=interpolated.getPixelAt(x,y).getAlpha();
+                wires+=alpha>100;holes+=alpha<8;minAlpha=juce::jmin(minAlpha,alpha);maxAlpha=juce::jmax(maxAlpha,alpha);
+            }
+            std::cout<<"HF interpolation witness "<<label<<" wires="<<wires<<" holes="<<holes
+                <<" alpha="<<minAlpha<<":"<<maxAlpha<<'\n';
+        }
         const juce::Image::BitmapData rearPixels(rear,juce::Image::BitmapData::readOnly);
         const juce::Image::BitmapData maskPixels(mask,juce::Image::BitmapData::readOnly);
         const juce::Image::BitmapData frontPixels(front,juce::Image::BitmapData::readOnly);
-        int wires=0,holes=0;
+        int wires=0,holes=0,minAlpha=255,maxAlpha=0,maxBlendError=0;
         for(int y=region.getY();y<region.getBottom();++y)for(int x=region.getX();x<region.getRight();++x) {
             const auto back=rearPixels.getPixelColour(x,y),wire=maskPixels.getPixelColour(x,y),actual=frontPixels.getPixelColour(x,y);
             const float a=wire.getFloatAlpha();
             const auto blend=[&](int b,int f){return juce::roundToInt((1-a)*float(b)+a*float(f));};
-            check(std::abs(int(actual.getRed())-blend(back.getRed(),wire.getRed()))<=3
-                && std::abs(int(actual.getGreen())-blend(back.getGreen(),wire.getGreen()))<=3
-                && std::abs(int(actual.getBlue())-blend(back.getBlue(),wire.getBlue()))<=3,
-                "HF hardware covers the foreground grille instead of sitting behind it");
+            maxBlendError=juce::jmax(maxBlendError,
+                std::abs(int(actual.getRed())-blend(back.getRed(),wire.getRed())),
+                std::abs(int(actual.getGreen())-blend(back.getGreen(),wire.getGreen())),
+                std::abs(int(actual.getBlue())-blend(back.getBlue(),wire.getBlue())));
             wires+=wire.getAlpha()>100;holes+=wire.getAlpha()<8;
+            minAlpha=juce::jmin(minAlpha,int(wire.getAlpha()));maxAlpha=juce::jmax(maxAlpha,int(wire.getAlpha()));
         }
-        if(!(wires>8 && holes>8))std::cerr<<"horn grille mismatch native="<<int(native)
-            <<" scale="<<scale<<" kind="<<kind<<" wires="<<wires<<" holes="<<holes<<'\n';
+        std::cout<<"HF grille "<<label<<" wires="<<wires<<" holes="<<holes
+            <<" alpha="<<minAlpha<<":"<<maxAlpha<<" max_blend_error="<<maxBlendError<<'\n';
+        check(maxBlendError<=3,"HF hardware covers the foreground grille instead of sitting behind it");
         check(wires>8 && holes>8,"central horn lost continuous grille wires or open apertures");
-        if(!native && scale==700.f && kind==0)writeImage(front,screenshots,"cab-visual-horn-behind-grille-detail.png");
+        if(!native && scale==700.f && deviceScale==1.f && kind==0)writeImage(front,screenshots,"cab-visual-horn-behind-grille-detail.png");
+        ++renders;
     }
-    std::cout<<"PASS HF depth: 24 native/software renders, four kinds and three scales, continuous wires and transmissive apertures\n";
+    check(renders==120,"HF scale/backend regression matrix is incomplete");
+    std::cout<<"PASS HF depth: 120 native/software renders, four kinds, three camera densities, 100/125/150/175/200% device scales, continuous wires and transmissive apertures\n";
 }
 inline void shellArtworkContracts(const juce::File& screenshots) {
     using namespace spectralforge;
