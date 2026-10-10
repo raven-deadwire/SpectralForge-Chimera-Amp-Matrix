@@ -64,7 +64,12 @@ inline void run(const juce::File& folder,const juce::File& screenshots) {
                 && !caption.getBounds().intersects(menu.getBounds()),"IR loader images or captions overlap the selection controls");
         }
     };
-    validateLayout();snapshot(panel,screenshots,"cab-visual-ir-images-factory.png");
+    validateLayout();
+    require(cabinetA.artworkBounds().getHeight()>130.f
+        && cabinetB.artworkBounds().getHeight()>130.f,
+        "Normal IR captures still reserve an unselected tall-cabinet camera envelope");
+    const auto normalCaptureScale=cabinetA.stageScale();
+    snapshot(panel,screenshots,"cab-visual-ir-images-factory.png");
 
     const auto mixed=folder.getChildFile("Mixed.wav"),tagged=folder.getChildFile("Bass_8x10.wav"),unknown=folder.getChildFile("Personal.wav");
     writeFixture(mixed,"Shure SM57 + Royer R-121","Traynor TC1510 (1x10 + 1x15)",Instrument::bass,"",9);
@@ -75,10 +80,12 @@ inline void run(const juce::File& folder,const juce::File& screenshots) {
         && int(cabinetB.getProperties()["cabCaptureUnitCount"])==8 && micB.asset()==Asset::dynamic421;}),
         "IR imagery did not follow the independent A/B capture metadata");
     require(micA.asset()==Asset::count && bool(micA.getProperties()["cabCaptureMixedMicrophones"])
-        && component<juce::Label>(panel,"cabAmicCaption1").getText()=="Mixed microphones",
+        && component<juce::Label>(panel,"cabAmicCaption1").getText()=="Mixed microphones / example image",
         "Mixed IR was falsely assigned a single microphone image");
     require(cabinetB.artworkBounds().getHeight()>cabinetA.artworkBounds().getHeight()*1.4f,
         "8x10 capture was fitted to the same image height as the 1x10 + 1x15 capture");
+    require(cabinetA.stageScale()<normalCaptureScale*.6f,
+        "Selecting a genuinely taller capture did not reframe the shared camera");
     require(std::abs(cabinetA.artworkBounds().getBottom()-cabinetB.artworkBounds().getBottom())<.01f,
         "A/B cabinets are floating on independent image baselines");
     require(micB.bodyBounds().getHeight()<cabinetB.artworkBounds().getHeight()*.3f,
@@ -97,7 +104,7 @@ inline void run(const juce::File& folder,const juce::File& screenshots) {
     validateLayout();snapshot(panel,screenshots,"cab-visual-ir-physical-scale-1x15-8x10.png");
     require(processor->loadMicIR(0,0,unknown).wasOk(),"Cannot load unspecified IR artwork fixture");
     require(dispatchUntil([&]{return cabinetA.getTitle()=="Unspecified cabinet"
-        && component<juce::Label>(panel,"cabAmicCaption1").getText()=="Unspecified microphone";}),
+        && component<juce::Label>(panel,"cabAmicCaption1").getText()=="Unspecified microphone / example image";}),
         "Unknown IR retained stale model identity or omitted its equipment captions");
     require(micA.asset()==Asset::count && !bool(micA.getProperties()["cabCaptureMixedMicrophones"])
         && int(cabinetA.getProperties()["cabCaptureUnitCount"])==0,"Unknown IR invented capture hardware");

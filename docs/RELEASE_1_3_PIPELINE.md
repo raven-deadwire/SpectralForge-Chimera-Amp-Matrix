@@ -7,12 +7,18 @@ test build and must not be renamed or promoted as a 1.3 binary.
 
 ## Authorization and current state
 
-The owner requested release preparation and selected version 1.3 on
-2026-10-09 KST. Preparation includes versioning, reviewable notes, installer
-generation, automated checks and this evidence pipeline. The current
-`release_scope` records `publication_authorized=false` and
-`release_approved=false`. These are not inferred from older 1.2 authorization,
-workflow success or the request to prepare this release.
+The owner explicitly requested fixing the cabinet issues, publishing version
+1.3 and updating the RavenForge homepage after publication on 2026-10-10 KST.
+The current `release_scope` records `publication_authorized=true` and
+`release_approved=false`. Publication authorization does not certify
+unexecuted instrument-DI, commercial DAW or historical acceptance checks.
+
+The current cabinet follow-up preserves native grille apertures during
+minification, fits the IR equipment stage to the selected captures with a
+shared physical scale, and labels generic cabinet/microphone illustrations as
+example images. Known metadata retains its documented configuration and model;
+examples never change the IR or audio parameters. Exact-source CI must verify
+these changes before the candidate can be accepted.
 
 `publish-beta13.yml` has only `workflow_dispatch`. Its default is a read-only
 review. The publication job requires the explicit publication option, the full

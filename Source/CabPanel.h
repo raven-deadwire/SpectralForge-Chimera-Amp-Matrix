@@ -177,6 +177,8 @@ private:
                     +(model && model->original ? " / CABINET MIC" : ""),juce::dontSendNotification);
                 slot.reference.setTooltip(source==0 || captureName.isEmpty() ? juce::String{} : metadata.details(captureName));
             }
+            if(!modeled && source!=0 && !bool(slot.cabinetImage.getProperties()["cabCaptureKnownConfiguration"]))
+                slot.provenance.setText("Example cabinet image / capture dimensions unspecified",juce::dontSendNotification);
         }
         if(artworkChanged && currentView==View::irLoader){resized();repaint();}
     }
@@ -310,13 +312,16 @@ public:
         if(originalControls)originalControls->setBounds(0,52,getWidth(),622);
         if(currentView==View::irLoader) {
             const int width=(getWidth()-48)/2;
-            // One camera for both captures; an 8x10 must remain taller than a
-            // 1x15 and a microphone must retain its own physical dimensions.
-            float stageHeight=1.36f,stageWidth=1.18f;
+            // Fit the two selected captures with one physical camera. Reserving
+            // an unselected 8x10 envelope made every normal capture tiny.
+            // Imported 8x10s still retain their own truthful taller geometry.
+            float stageHeight=.2f,stageWidth=.2f;
             for(const auto& slot:slots) {
                 const auto cabinet=slot.cabinetImage.physicalSize();
+                const auto microphone=slot.microphoneImage.physicalSize();
                 stageHeight=juce::jmax(stageHeight,cabinet.height+.04f);
-                stageWidth=juce::jmax(stageWidth,cabinet.width+.4f);
+                stageHeight=juce::jmax(stageHeight,microphone.height+.04f);
+                stageWidth=juce::jmax(stageWidth,cabinet.width+.2f+microphone.width);
             }
             const float scale=juce::jmin(152.f/stageHeight,float(width-48)/stageWidth);
             for(int i=0;i<2;++i) {

@@ -200,6 +200,12 @@ inline void paintGrille(juce::Graphics& g,const Skin& skin,juce::Rectangle<float
     {
         const juce::Graphics::ScopedSaveState clip(g);
         g.reduceClipRegion(frontOutline(face,upperInset(face,pixelsPerMetre,slant),corner*.28f));
+        // CoreGraphics' interpolated minification averages neighbouring metal
+        // wires into every aperture at room scale. Sample the authored alpha
+        // mask without interpolation so the foreground remains perforated.
+        // This is local to the grille; shell and driver artwork retain their
+        // existing resampling quality, and no image is allocated during paint.
+        g.setImageResamplingQuality(juce::Graphics::lowResamplingQuality);
         fillMaterial(g,skin.grilleOverlay,face.reduced(rail*.82f),pixelsPerMetre/skin.sourcePixelsPerMetre);
     }
     // The grille and frame are in front of the mounted units. Repaint the

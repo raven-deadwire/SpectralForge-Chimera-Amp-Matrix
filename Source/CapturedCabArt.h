@@ -69,7 +69,7 @@ inline bool mixedMicrophones(const IRMetadata& metadata) {
 inline juce::String microphoneCaption(const IRMetadata& metadata,const juce::String& filename,int source) {
     if(source==0)return "IR bypassed";
     if(const auto* model=metadata.microphoneModel(filename))return model->alias;
-    return mixedMicrophones(metadata) ? "Mixed microphones" : "Unspecified microphone";
+    return mixedMicrophones(metadata) ? "Mixed microphones / example image" : "Unspecified microphone / example image";
 }
 
 inline void cone(juce::Graphics& g,juce::Point<float> centre,float radius) {
@@ -120,7 +120,7 @@ inline void paintCabinet(juce::Graphics& g,juce::Rectangle<float> box,const Conf
     for(float y=face.getY()+1.f;y<face.getBottom();y+=3.f)g.drawHorizontalLine(int(y),face.getX(),face.getRight());
     const auto badge=juce::Rectangle<float>(.14f*pixelsPerMetre,.048f*pixelsPerMetre).withCentre({face.getCentreX(),face.getY()+.035f*pixelsPerMetre});
     g.setColour(juce::Colour(0xff171c19));g.fillRoundedRectangle(badge,1.f);
-    g.setColour(juce::Colour(0xffb1baa9));g.setFont(juce::FontOptions(.030f*pixelsPerMetre,juce::Font::bold));g.drawText("CAPTURE",badge,juce::Justification::centred);
+    g.setColour(juce::Colour(0xffb1baa9));g.setFont(juce::FontOptions(.030f*pixelsPerMetre,juce::Font::bold));g.drawText(count ? "CAPTURE" : "EXAMPLE",badge,juce::Justification::centred);
     for(float x:{box.getX()+4.f,box.getRight()-4.f})for(float y:{box.getY()+4.f,box.getBottom()-4.f}) {
         g.setColour(juce::Colour(0xff969d92));g.fillEllipse(x-1.f,y-1.f,2.f,2.f);
     }
@@ -156,7 +156,9 @@ public:
         const auto box=artworkBounds();
         paintCabinet(g,box,source ? layout : Configuration{});
         g.setColour(juce::Colour(0xffc1c8c1));g.setFont(juce::FontOptions(11.f));
-        g.drawFittedText(cabinetCaption(metadata,source),caption.toNearestInt(),juce::Justification::centred,2);
+        const auto text=cabinetCaption(metadata,source)
+            +(source && !layout.known() ? " / example image" : "");
+        g.drawFittedText(text,caption.toNearestInt(),juce::Justification::centred,2);
     }
 };
 
