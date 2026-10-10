@@ -1,0 +1,8 @@
+TCP Xvfb ready 127.0.0.1:0
+RUN UI refresh: construct processor and editor
+RUN UI refresh: idle state and page transitions
+RUN UI refresh: detached ALL window lifetimes
+RUN UI refresh: cabinet metadata invalidation
+RUN UI refresh: scaling and parameter preservation
+RUN UI refresh: native peer hide and reveal
+PASS UI refresh: stable state/metadata, hidden panels/editor, deferred model change, detached ALL windows, live meters, metadata-only invalidation, scaling 75/100/125/150 and parameter preservation
