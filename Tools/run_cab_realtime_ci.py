@@ -10,6 +10,7 @@ Its own exit status is retained, but cannot replace the normal CTest verdict.
 from __future__ import annotations
 
 import argparse
+import csv
 from datetime import datetime, timezone
 import hashlib
 import json
@@ -233,6 +234,89 @@ def preserve_build_metadata(build, output):
         write_json(output / "juce.json", {"sha": capture(["git", "rev-parse", "HEAD"], juce_source)})
 
 
+def preserve_timing_samples(build, output, suites):
+    """Retain complete or partial raw evidence, including when a gate fails."""
+    root = build / "cab-timing-diagnostics"
+    result = []
+    for suite in suites:
+        for path in sorted((root / suite).glob("*/*.csv")):
+            destination = output / "cab-timing-diagnostics" / path.relative_to(root)
+            destination.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copyfile(path, destination)
+            result.append({"path": destination.relative_to(output).as_posix(),
+                           "bytes": destination.stat().st_size, "sha256": digest(destination)})
+    return result
+
+
+def validate_timing_samples(output, timing, profile=False):
+    """Match CSV callbacks to the unchanged executable wall-time verdict.
+
+    Clock values remain paired by callback index. Cycle deltas are never
+    converted to time, and unavailable clocks do not invent a zero CPU cost.
+    """
+    files = []
+    for summary in timing:
+        engine, rate, block, channels = route_key(summary)
+        suite = "profile" if profile else "extended" if summary["test"] == EXTENDED_TEST else "integration"
+        path = output / "cab-timing-diagnostics" / suite / engine / f"{rate}-{block}-{channels}.csv"
+        with path.open(newline="", encoding="utf-8") as stream:
+            rows = list(csv.DictReader(stream))
+        if len(rows) != 1600:
+            raise RuntimeError(f"Incomplete raw callback evidence: {path} has {len(rows)} rows")
+        walls, misses, valid_cpu, valid_cycles = [], 0, 0, 0
+        previous_cpu_end, previous_cycles_end = -1.0, -1
+        budget = 1e6 * block / rate
+        for index, row in enumerate(rows):
+            expected = {"schema_version": "1", "engine": engine, "suite": suite,
+                        "sample_rate": str(rate), "block_size": str(block), "channels": str(channels),
+                        "callback_index": str(index), "phase_index": str(index if index < 1200 else index - 1200),
+                        "phase": "worker_and_automation" if index < 1200 else "forced_six_slot_publication",
+                        "automation_requested": "1" if index < 80 else "0"}
+            if any(row.get(key) != value for key, value in expected.items()):
+                raise RuntimeError(f"Raw callback identity/phase mismatch at {path}:{index}")
+            wall, recorded_budget = float(row["wall_us"]), float(row["budget_us"])
+            if not math.isfinite(wall) or wall < 0 or not math.isclose(recorded_budget, budget, rel_tol=1e-12):
+                raise RuntimeError(f"Invalid raw wall time or changed deadline at {path}:{index}")
+            miss = wall > budget
+            if row["deadline_miss"] != str(int(miss)):
+                raise RuntimeError(f"Raw deadline miss mismatch at {path}:{index}")
+            for key in ("thread_cpu_valid", "thread_cycles_valid"):
+                if row[key] not in ("0", "1"):
+                    raise RuntimeError(f"Invalid raw clock validity at {path}:{index}")
+            cpu = float(row["thread_cpu_us"])
+            if row["thread_cpu_valid"] == "1":
+                first, last = float(row["thread_cpu_start_us"]), float(row["thread_cpu_end_us"])
+                if (not all(math.isfinite(value) for value in (first, last, cpu))
+                        or first < 0 or first < previous_cpu_end or last < first
+                        or not math.isclose(cpu, last - first, rel_tol=1e-12, abs_tol=1e-8)):
+                    raise RuntimeError(f"Unpaired thread CPU sample at {path}:{index}")
+                valid_cpu += 1
+                previous_cpu_end = last
+            elif cpu != -1:
+                raise RuntimeError(f"Unavailable thread CPU must remain -1 at {path}:{index}")
+            if row["thread_cycles_valid"] == "1":
+                first, last = int(row["thread_cycles_start"]), int(row["thread_cycles_end"])
+                if first < 0 or first < previous_cycles_end or last < first or int(row["thread_cycles"]) != last - first:
+                    raise RuntimeError(f"Unpaired thread cycle sample at {path}:{index}")
+                valid_cycles += 1
+                previous_cycles_end = last
+            elif int(row["thread_cycles"]) != 0:
+                raise RuntimeError(f"Invalid thread cycle sentinel at {path}:{index}")
+            walls.append(wall)
+            misses += miss
+        walls.sort()
+        for key, value in (("p50_us", walls[800]), ("p99_us", walls[1584]), ("max_us", walls[-1])):
+            if not math.isclose(float(summary[key]), value, rel_tol=5e-11, abs_tol=1e-8):
+                raise RuntimeError(f"Raw callbacks disagree with executable {key} at {path}")
+        if summary["misses"] != f"{misses}/1600":
+            raise RuntimeError(f"Raw callbacks disagree with executable deadline misses at {path}")
+        files.append({"path": path.relative_to(output).as_posix(), "samples": len(rows),
+                      "thread_cpu_valid_samples": valid_cpu, "thread_cycles_valid_samples": valid_cycles})
+    if len({entry["path"] for entry in files}) != len(files):
+        raise RuntimeError("Duplicate raw callback route references")
+    return files
+
+
 def executable(build, target):
     path = build / f"{target}_artefacts" / "Release" / (target + (".exe" if os.name == "nt" else ""))
     if not path.is_file():
@@ -295,6 +379,9 @@ def run_version(label, source, expected_sha, build, output, candidate):
         shutil.copyfile(last_test, output / "LastTest.log")
         evidence = test_evidence(junit, specs, candidate)
         receipt.update(evidence)
+        if candidate:
+            preserve_timing_samples(build, output, ("integration", "extended"))
+            receipt["timing_sample_validation"] = validate_timing_samples(output, evidence["timing"])
         receipt["source_after"] = source_snapshot(source, expected_sha)
         if receipt["source_after"] != receipt["source"]:
             raise RuntimeError(f"{label} source changed during execution")
@@ -306,6 +393,7 @@ def run_version(label, source, expected_sha, build, output, candidate):
     finally:
         try:
             preserve_build_metadata(build, output)
+            receipt["timing_sample_files"] = preserve_timing_samples(build, output, ("integration", "extended"))
         except (OSError, RuntimeError, subprocess.SubprocessError) as error:
             receipt["metadata_error"] = str(error)
             receipt["complete"] = False
@@ -327,7 +415,8 @@ def run_profile(source, expected_sha, build, output, target):
             raise RuntimeError("Diagnostic profiling target did not build")
         binary = executable(build, target)
         receipt["binary"] = {"path": str(binary), "sha256": digest(binary)}
-        record = run_logged([binary, "--expanded"], source, output / "profile.log", timeout=600)
+        # Diagnostics write beside CTest evidence, never into the clean source.
+        record = run_logged([binary, "--expanded"], build, output / "profile.log", timeout=600)
         receipt["commands"].append(record)
         receipt["returncode"] = record["returncode"]
         parsed = parse_rows((output / "profile.log").read_text(encoding="utf-8", errors="replace"))
@@ -337,11 +426,18 @@ def run_profile(source, expected_sha, build, output, target):
         if not WORKER_STAGES.issubset({row.get("stage") for row in parsed["worker_profile"]}):
             raise RuntimeError("Required IR worker profile rows are missing")
         receipt.update(parsed)
+        preserve_timing_samples(build, output, ("profile",))
+        receipt["timing_sample_validation"] = validate_timing_samples(output, parsed["timing"], profile=True)
         receipt["source_after"] = source_snapshot(source, expected_sha)
         receipt["complete"] = True
     except (OSError, ValueError, KeyError, RuntimeError, subprocess.SubprocessError) as error:
         receipt["error"] = str(error)
         print(f"Diagnostic evidence error: {error}", flush=True)
+    try:
+        receipt["timing_sample_files"] = preserve_timing_samples(build, output, ("profile",))
+    except OSError as error:
+        receipt["sample_preservation_error"] = str(error)
+        receipt["complete"] = False
     write_json(output / "receipt.json", receipt)
     return receipt
 
@@ -386,7 +482,8 @@ def write_summary(output, manifest):
             lines += ["", f"{name} error: `{data['error']}`"]
     if manifest.get("error"):
         lines += ["", f"Driver error: `{manifest['error']}`"]
-    lines += ["", "Complete route/phase/profile tables, full logs, compiler configuration, source/tree SHAs and file hashes are in the artifact.", ""]
+    lines += ["", "Complete route/phase/profile tables, all candidate and diagnostic callback CSVs, full logs, compiler configuration, source/tree SHAs and file hashes are in the artifact.",
+              "Raw wall time and CPU clocks are paired by callback index. Windows cycles remain cycles; they are not elapsed microseconds or a scheduling-only diagnosis.", ""]
     summary = "\n".join(lines)
     (output / "summary.md").write_text(summary, encoding="utf-8")
     if os.environ.get("GITHUB_STEP_SUMMARY"):

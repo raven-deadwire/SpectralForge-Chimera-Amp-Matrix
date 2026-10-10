@@ -58,6 +58,7 @@ jobs:
           name: CAB-contracts-${{ runner.os }}-${{ github.event.pull_request.head.sha }}
           path: |
             build-cab/Testing/Temporary/LastTest.log
+            build-cab/cab-timing-diagnostics/**
             build-cab/cab-panel.png
             build-cab/original-cab-panel.png
             build-cab/cab-microphone-panel.png

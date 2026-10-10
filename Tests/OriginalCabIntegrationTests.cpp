@@ -1,3 +1,4 @@
+#include "CabTimingDiagnostics.h"
 #include "IRLibrary.h"
 #include "CabLayoutModel.h"
 #include <chrono>
@@ -6,7 +7,6 @@
 #include <iomanip>
 #include <new>
 #include <stdexcept>
-#include <ctime>
 thread_local bool watch=false;
 thread_local size_t allocations=0, deletions=0;
 void* operator new(std::size_t n){if(watch)++allocations;if(auto* p=std::malloc(std::max(n,size_t(1))))return p;throw std::bad_alloc();}
@@ -16,14 +16,6 @@ void operator delete[](void* p) noexcept {::operator delete(p);}
 void operator delete(void* p,std::size_t) noexcept {::operator delete(p);}
 void operator delete[](void* p,std::size_t) noexcept {::operator delete(p);}
 using namespace spectralforge;
-double threadCPU() {
-#if defined(_WIN32)
-    return -1; // GetThreadTimes accounting granularity is unsuitable per block.
-#else
-    timespec value{};
-    return clock_gettime(CLOCK_THREAD_CPUTIME_ID,&value)==0 ? double(value.tv_sec)*1e6+double(value.tv_nsec)*.001 : -1;
-#endif
-}
 void require(bool b,const char* m){if(!b)throw std::runtime_error(m);}
 void process(Cab& c,juce::AudioBuffer<float>& b){watch=true;c.process(b);watch=false;require(c.transitioningMicCount()<=1,"modeled A/B crossfades must be serialized per rig");}
 std::vector<float> render(Cab& cab,const juce::dsp::ProcessSpec& spec) {
@@ -79,9 +71,21 @@ int main(int argc,char** argv){try {
         else require(false,"usage: ChimeraOriginalCabIntegrationTests [--expanded | --layouts] [--extended-buffers]");
     }
     require(!(expanded && layouts),"select one CAB model engine");
+    const char* timingSuite=extendedBuffers ? "extended" : "integration";
 #if defined(CHIMERA_CAB_PROFILE) && CHIMERA_CAB_PROFILE
+    timingSuite=extendedBuffers ? "profile-extended" : "profile";
     std::cout<<"PROFILE_PROTOCOL diagnostic_only=1 stage_clocks_add_overhead=1 parameter_refresh_per_callback=1 nested_stage_times=1\n";
 #endif
+    std::cout<<"PAIRED_TIMING_PROTOCOL thread_clock_evidence_only=1 wall_gate_unchanged=1 thread_clocks_outside_wall=1 "
+        "thread_clock_reads_per_callback=2 extra_measurement_overhead=1 "
+        "cycles_to_time=disabled thread_cpu_p99_is_independent=1 raw_samples=csv "
+        "thread_clock="
+#if defined(_WIN32)
+        <<"QueryThreadCycleTime"
+#else
+        <<"CLOCK_THREAD_CPUTIME_ID"
+#endif
+        <<'\n';
     const char* engineName=layouts ? "array-v3-6x10" : expanded ? "expanded-v2" : "original-v1";
     const auto modelKey=[expanded,layouts](originalCab::Settings p){if(layouts)return cabLayout::key({{p,9,p.mic==1 ? 10 : 20,2},7,p.mic==1 ? 7 : p.unit});return expanded ? cabExpansion::key({p,12,p.mic==1 ? 10 : 20,2}) : originalCab::key(p);};
     if(layouts) {
@@ -120,6 +124,7 @@ int main(int argc,char** argv){try {
         juce::AudioBuffer<float> audio(channels,block);
         std::array<juce::AudioBuffer<float>,3> laneAudio;for(auto& lane:laneAudio)lane.setSize(channels,block);
         std::vector<double> times,cpuTimes;times.reserve(1600);cpuTimes.reserve(1600);
+        std::vector<cabTiming::Sample> timingSamples;timingSamples.reserve(1600);
         unsigned misses=0;double peak=0,maxStep=0;float previous=0;
         for(int n=0;n<1200;++n) {
             if(n<80)for(auto& c:cabs){a.position=double(n%60)/60;c.requestedModel=modelKey(a);b.distanceCm=5+n*.2;c.secondMic()->requestedModel=modelKey(b);}
@@ -128,7 +133,7 @@ int main(int argc,char** argv){try {
 #if defined(CHIMERA_CAB_PROFILE) && CHIMERA_CAB_PROFILE
             cabProfile::ThreadCapture profileCapture(&blockProfiles[size_t(n)]);
 #endif
-            const double cpuStart=threadCPU();const auto start=std::chrono::steady_clock::now();
+            const auto clockBefore=cabTiming::readThreadClock();const auto start=std::chrono::steady_clock::now();
 #if defined(CHIMERA_CAB_PROFILE) && CHIMERA_CAB_PROFILE
             // The production processor refreshes both mic filters each block.
             // These extra clocks/calls belong only to the diagnostic executable.
@@ -136,7 +141,10 @@ int main(int argc,char** argv){try {
 #endif
             // Independent lane inputs; copying is outside this CAB-only measurement.
             for(int lane=0;lane<3;++lane)process(cabs[lane],laneAudio[lane]);
-            const double us=std::chrono::duration<double,std::micro>(std::chrono::steady_clock::now()-start).count();times.push_back(us);cpuTimes.push_back(cpuStart<0 ? -1 : threadCPU()-cpuStart);if(us>1e6*block/sr)++misses;
+            const auto end=std::chrono::steady_clock::now();const auto clockAfter=cabTiming::readThreadClock();
+            const double us=std::chrono::duration<double,std::micro>(end-start).count();
+            timingSamples.push_back({size_t(n),us,clockBefore,clockAfter});
+            times.push_back(us);cpuTimes.push_back(timingSamples.back().cpuUs());if(us>1e6*block/sr)++misses;
             for(int k=0;k<block;++k){const float x=laneAudio[0].getSample(0,k);require(std::isfinite(x),"finite transitions");peak=std::max(peak,std::abs(double(x)));maxStep=std::max(maxStep,std::abs(double(x-previous)));previous=x;}
             if(n%8==0)juce::Thread::sleep(1);
         }
@@ -176,17 +184,31 @@ int main(int argc,char** argv){try {
 #if defined(CHIMERA_CAB_PROFILE) && CHIMERA_CAB_PROFILE
             cabProfile::ThreadCapture profileCapture(&blockProfiles[size_t(n+1200)]);
 #endif
-            const double cpuStart=threadCPU();const auto start=std::chrono::steady_clock::now();
+            const auto clockBefore=cabTiming::readThreadClock();const auto start=std::chrono::steady_clock::now();
 #if defined(CHIMERA_CAB_PROFILE) && CHIMERA_CAB_PROFILE
             for(auto& c:cabs) {c.setCuts(70,9000);c.secondMic()->setCuts(70,9000);}
 #endif
             for(int lane=0;lane<3;++lane)process(cabs[lane],laneAudio[lane]);
-            const double us=std::chrono::duration<double,std::micro>(std::chrono::steady_clock::now()-start).count();times.push_back(us);cpuTimes.push_back(cpuStart<0 ? -1 : threadCPU()-cpuStart);if(us>1e6*block/sr)++misses;
+            const auto end=std::chrono::steady_clock::now();const auto clockAfter=cabTiming::readThreadClock();
+            const double us=std::chrono::duration<double,std::micro>(end-start).count();
+            timingSamples.push_back({size_t(n+1200),us,clockBefore,clockAfter});
+            times.push_back(us);cpuTimes.push_back(timingSamples.back().cpuUs());if(us>1e6*block/sr)++misses;
             for(int k=0;k<block;++k){const auto x=laneAudio[0].getSample(0,k);require(std::isfinite(x),"finite six-slot swap");peak=std::max(peak,std::abs(double(x)));maxStep=std::max(maxStep,std::abs(double(x-previous)));previous=x;}
         }
         require(peak<2 && maxStep<.3,"bounded six-slot swap");
         for(auto& c:cabs)require(c.activeModel==nextKey && c.secondMic()->activeModel==nextKey,"six queued mic swaps converge");
         for(auto& c:cabs)c.clear();require(library.resourcesReleased(),"worker teardown");
+        std::cout<<"WORKER_ACTIVITY engine="<<engineName<<" suite="<<timingSuite
+            <<" sr="<<sr<<" block="<<block<<" channels="<<channels
+            <<" cancelled_builds="<<library.cancelledBuildCount()<<'\n';
+        const cabTiming::Configuration timingConfig{engineName,timingSuite,sr,block,channels};
+        const auto timingPath=cabTiming::saveCsv(timingConfig,timingSamples);
+        std::cout<<"TIMING_EVIDENCE engine="<<engineName<<" suite="<<timingSuite
+            <<" sr="<<sr<<" block="<<block<<" channels="<<channels<<" samples="<<timingSamples.size()
+            <<" path="<<timingPath.generic_string()<<'\n';
+        cabTiming::reportPairs(std::cout,timingConfig,"all",timingSamples,0,1600);
+        cabTiming::reportPairs(std::cout,timingConfig,"worker_and_automation",timingSamples,0,1200);
+        cabTiming::reportPairs(std::cout,timingConfig,"forced_six_slot_publication",timingSamples,1200,1600);
         std::cout<<"PHASE_CONFIG engine="<<engineName
             <<" sr="<<sr<<" block="<<block<<" channels="<<channels<<'\n';
         reportPhase("worker_and_automation",times,cpuTimes,0,1200,1e6*block/sr);

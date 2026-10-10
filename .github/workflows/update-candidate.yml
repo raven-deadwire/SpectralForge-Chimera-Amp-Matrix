@@ -11,7 +11,9 @@ permissions:
 jobs:
   windows-candidate:
     runs-on: windows-latest
-    timeout-minutes: 60
+    # Keep build, full DSP/UI coverage and installer verification separately bounded.
+    # The job budget also leaves time to preserve diagnostics after a step timeout.
+    timeout-minutes: 150
     steps:
       - uses: actions/checkout@v4
         with:
@@ -24,6 +26,7 @@ jobs:
       - name: Check candidate transfer contract before native build
         run: python Tools/test_candidate_transfer.py
       - name: Configure
+        timeout-minutes: 10
         run: cmake -S . -B build -A x64 -DCMAKE_BUILD_TYPE=Release
       - name: Check candidate packaging and validation contracts
         # Native failures must stop before a later successful command can mask them.
@@ -50,7 +53,7 @@ jobs:
       - name: Check candidate PowerShell script syntax
         shell: pwsh
         run: |
-          foreach ($script in @("Tools/Build-WindowsInstaller.ps1", "Tools/Windows-VersionContract.ps1", "Tools/Verify-WindowsInstaller.ps1", "Tools/Trace-Chimera-Session.ps1")) {
+          foreach ($script in @("Tools/Build-WindowsInstaller.ps1", "Tools/Windows-VersionContract.ps1", "Tools/Verify-WindowsInstaller.ps1", "Tools/Trace-Chimera-Session.ps1", "Tools/Collect-WindowsRunnerContext.ps1")) {
             $tokens = $null
             $errors = $null
             [System.Management.Automation.Language.Parser]::ParseFile((Resolve-Path $script).Path, [ref]$tokens, [ref]$errors) | Out-Null
@@ -68,6 +71,7 @@ jobs:
           path: build/validation
           if-no-files-found: error
       - name: Build independent shutdown regression probes
+        timeout-minutes: 10
         run: cmake --build build --config Release --target ChimeraVST3LifecycleTests ChimeraVBlankFailureTests --parallel 2
       - name: Verify VBlank failure can stop safely
         run: ctest --test-dir build -C Release -R "^ChimeraVBlankFailureTests$" --output-on-failure --no-tests=error
@@ -112,15 +116,26 @@ jobs:
             build/lifecycle-baseline/baseline-verification.json
           if-no-files-found: warn
       - name: Build product and regression checks
+        timeout-minutes: 60
         run: cmake --build build --config Release --parallel 2
+      - name: Record Windows execution environment before CTest
+        timeout-minutes: 2
+        shell: pwsh
+        run: ./Tools/Collect-WindowsRunnerContext.ps1 -OutputPath build/windows-runner-context.json
       - name: Execute DSP and actual JUCE UI tests
+        timeout-minutes: 60
         shell: pwsh
         run: |
           $env:CHIMERA_LIFECYCLE_TRACE = Join-Path (Get-Location) "build/lifecycle-current-trace.log"
           ctest --test-dir build -C Release --show-only=json-v1 > build/ctest-inventory.json
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          ctest --test-dir build -C Release --output-on-failure --no-tests=error --output-junit ctest-results.xml
-          exit $LASTEXITCODE
+          # Bound a stalled test without changing any audio callback deadline.
+          # Explicit CMake test TIMEOUT properties continue to take precedence.
+          $ctestLog = Join-Path (Get-Location) "build/ctest-output.log"
+          ctest --test-dir build -C Release --timeout 1200 --output-on-failure --no-tests=error --output-junit ctest-results.xml --output-log $ctestLog
+          $ctestExitCode = $LASTEXITCODE
+          Set-Content -Path build/ctest-exit-code.txt -Value $ctestExitCode
+          exit $ctestExitCode
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -140,10 +155,17 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: Chimera-candidate-integration-validation
+          # A cancelled CTest run may have only its streaming and temporary logs.
           path: |
             build/validation-current
             build/ctest-results.xml
             build/ctest-inventory.json
+            build/ctest-output.log*
+            build/ctest-exit-code.txt
+            build/Testing/Temporary/LastTest.log*
+            build/Testing/Temporary/LastTestsFailed.log
+            build/windows-runner-context.json
+            build/cab-timing-diagnostics/**
             build/signature-snapshots
           if-no-files-found: warn
       - name: Package distinct Windows test build

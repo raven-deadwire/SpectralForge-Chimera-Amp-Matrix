@@ -12,6 +12,109 @@ are unchanged.
 The acceptance criterion remains **CAB-only wall-clock p99 below one block
 period**. This document does not grant a product release or DAW acceptance.
 
+## Follow-up after the 4bfddbc8 Candidate failure
+
+The passing dedicated run did not establish consistent performance in the full
+Windows Candidate workflow. At the same source
+`4bfddbc8d3407429353450851b917f4769abd0c2`,
+[Candidate run 38065201856, job 114251441631](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38065201856/job/114251441631)
+finished with **38 tests passed, one failed and one interrupted**. Expanded CAB
+at 96 kHz / 64 samples / mono measured p50 **148.9 us**, p99 **2764.9 us** and
+**33/1600** deadline misses against the unchanged **666.666667 us** deadline.
+The worker/automation phase contributed 30 misses; forced publication contributed
+three. Per-callback Windows thread CPU evidence was unavailable in that source.
+
+There was also an independent workflow time-budget failure. The job began at
+15:50:41 UTC on 2026-10-10 and was cancelled at 16:50:40 UTC under its 60-minute
+whole-job limit. The final visual test had run for about 10 minutes 43 seconds;
+packaging and installer verification were skipped. The same visual test passed
+in about 13 minutes 32 seconds in the separate
+[Product run 38065201763](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38065201763),
+which passed all 40 Windows CTests. That separate success does not replace the
+Candidate failure or show that the interrupted visual test was hung.
+
+### Changes made for this follow-up
+
+- The IR worker checks for an obsolete source/model request or shutdown before
+  generation, every 64 frequency bins, before inverse FFT and after the completed
+  waveform. v1/v2/v3 dispatch all carry the same optional cancellation token.
+  Synchronous `prepare()` keeps cancellation disabled after joining the worker.
+- Cancellation has a distinct exception type. Temporary responses, spectra and
+  kernels are discarded on the worker. A new cache entry is committed only after
+  a complete kernel and a final request check; cancellation neither publishes a
+  partial kernel nor reports a bad user IR. The bounded eight-entry cache and
+  per-microphone mutable convolution histories retain their existing ownership.
+- `cancelledBuildCount()` records observed worker cancellations since the last
+  prepare. It is diagnostic evidence, independent of audio publication. User-IR
+  generation changes still use the existing final generation check. This change
+  does not promise a fixed stop-time bound inside inverse FFT/kernel preparation
+  or eliminate the pre-existing check-to-publication race for source changes.
+- The existing 1600-callback timing suites save every callback in
+  `cab-timing-diagnostics/<suite>/<engine>/<rate>-<block>-<channels>.csv` after
+  measurement. Wall time and thread observations retain the same callback index,
+  including all 1200 worker/automation and 400 forced-publication samples.
+  Windows reads `QueryThreadCycleTime`; other platforms retain thread CPU time.
+  Both reads are outside the unchanged wall interval. These additional test-only
+  calls have measurement overhead; they are not part of shipped DSP.
+- CPU cycles remain cycles, following the
+  [Microsoft API contract](https://learn.microsoft.com/en-us/windows/win32/api/realtimeapiset/nf-realtimeapiset-querythreadcycletime).
+  No conversion to microseconds or scheduling-only diagnosis is made. The
+  reported wall p99/maximum pairs identify their actual callback; independent
+  wall and CPU quantiles are still not interchangeable.
+- Dedicated evidence checks each CSV's 1600 indices, phase boundaries, 80
+  automation requests, original deadline, finite clocks, cumulative-clock order,
+  paired deltas and agreement with the executable's p50/p99/max/miss output.
+  Full and partial CSVs are copied into hashed artifacts, including on failure.
+  Candidate, Product and CAB Panel artifacts also preserve these raw files.
+- Windows Candidate now bounds the whole job at 150 minutes, configure and probe
+  builds at 10 minutes each, product build and CTest at 60 minutes each. CTest's
+  default per-test timeout is 1200 seconds; existing explicit CMake timeouts
+  continue to apply. Failed tests still block packaging. Streaming temporary
+  CTest logs survive interruption. A read-only report records CPU/OS/runner and
+  current power-plan context without changing priority, affinity or power policy.
+
+The authored equations, response length/taper, convolution path, zero added
+latency, 20 ms smoothing, 50 ms fades and strict
+`times[1584] < 1e6 * block / sr` criterion are unchanged. All existing tests remain
+selected; one small diagnostics-contract CTest is added.
+
+### Validation status of the follow-up
+
+Independent Linux/GCC 13.3 builds of the untouched `4bfddbc8` model headers and
+the new default generator produced byte-identical float responses in nine
+v1/v2/v3 x 44.1/48/96 kHz cases (maximum sample difference zero). The model
+contracts also check identical output with a non-cancelling token, cancellation
+before/during/after generation and invalid-rate errors. The worker contract
+requires an actual cancellation, convergence of all six microphones, preserved
+IR status and stop/clear/reprepare resource handling. Its stop section verifies
+lifecycle behavior, not a deterministic interruption-time bound.
+
+The 15 Python raw-evidence tests reject missing/duplicate callbacks, changed
+deadlines/wall summaries, mismatched or exchanged CPU/cycle pairs, non-finite CPU
+values and invented zero CPU time. They also preserve complete evidence from a
+failed performance gate and partial files without treating either as a pass.
+
+The local Release build passed **10/10 relevant CTests**, including all
+**66/66 unchanged p99 timing executions**, the 144-route convolution oracle,
+18 mic-post cases, four reprepares and six independent six-microphone cases.
+All **105600** candidate callback rows in **66 CSVs** matched their executable
+summaries. The tests observed 798 worker cancellations across these conditions.
+There were still **27 individual deadline misses**, so this is not zero-dropout
+evidence. Watched callback C++ new/delete counts remained zero.
+
+In one sequential local comparison against an untouched `4bfddbc8` build,
+Expanded 96 kHz / 64 mono p99 was **148.274 -> 151.199 us** (both 0/1600 misses),
+and stereo was **178.439 -> 221.204 us** (0 -> 1/1600 misses). Both remained below
+666.666667 us, but these are p99 increases. This measurement does not establish
+a universal callback speedup from removing obsolete worker work. The separate
+native comparison continues to use the fixed `aaa1330` pre-optimization baseline.
+
+Native results for the follow-up must be recorded against its resulting commit
+in PR #42. The earlier dedicated run, full Product pass and Candidate failure
+remain separate historical observations. Cooperative cancellation removes
+confirmed obsolete worker work; whether it resolves the Windows tail failure
+requires fresh native measurements under the original criteria.
+
 ## Confirmed failures, kept separate by source
 
 | Source | Workflow / platform | Engine / channels at 96 kHz, 64 frames | p99, microseconds | Deadline misses |

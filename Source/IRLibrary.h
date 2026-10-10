@@ -26,6 +26,9 @@ public:
     void stop();
     // Call only with host processing stopped, e.g. after releaseResources.
     bool resourcesReleased() const noexcept;
+    // Diagnostic only: worker cancellations since the last prepare(). Neither
+    // increment nor observation participates in the audio publication protocol.
+    unsigned cancelledBuildCount() const noexcept {return cancelledBuilds.load(std::memory_order_relaxed);}
     juce::Result importFile(int lane, const juce::File&);
     juce::String status(int lane) const;
     juce::String userName(int lane) const;
@@ -47,13 +50,16 @@ public:
 #endif
 private:
     void run() override;
-    std::unique_ptr<Cab::Kernel> build(int lane, int source, unsigned generation, uint64_t model=0);
+    bool requestIsCurrent(int lane,int source,uint64_t model) const noexcept;
+    std::unique_ptr<Cab::Kernel> build(int lane, int source, unsigned generation, uint64_t model=0,
+                                     bool cancelObsolete=false);
     struct CachedModel {
         uint64_t key;
         juce::AudioBuffer<float> samples;
         std::shared_ptr<const ModeledCabConvolution::Prepared> prepared;
     };
     std::deque<CachedModel> modelCache; // Eight responses, worker/prepare only; bounded FIFO.
+    std::atomic<unsigned> cancelledBuilds{};
     std::array<Cab*,6> cabs;
     std::array<std::shared_ptr<Asset>,6> users;
     std::array<std::shared_ptr<Asset>,2> factory;

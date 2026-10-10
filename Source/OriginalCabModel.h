@@ -12,6 +12,19 @@ namespace spectralforge::originalCab {
 // or ML data. Keep v1 equations and definitions for session reproducibility.
 constexpr double pi=3.14159265358979323846, soundSpeed=343.0;
 constexpr int generatorVersion=1;
+// Worker-only cooperative cancellation. A cancelled calculation is never an
+// empty/invalid response: the distinct exception lets its owner discard all
+// temporary state without reporting an IR error or publishing a partial kernel.
+struct GenerationCancelled final : std::exception {
+    const char* what() const noexcept override {return "CAB response generation cancelled";}
+};
+struct GenerationCancellation {
+    const void* context{};
+    bool (*requested)(const void*){};
+    void checkpoint() const {
+        if(requested && requested(context))throw GenerationCancelled{};
+    }
+};
 struct Settings {
     bool enabled{};
     int cabinet{}, rear{}, mic{}, unit{};
@@ -118,17 +131,20 @@ inline void inverseFFT(std::vector<Complex>& a) {
     }
     for(auto& x:a)x/=double(n);
 }
-inline std::vector<float> generate(Settings p,double rate) {
+inline std::vector<float> generate(Settings p,double rate,const GenerationCancellation& cancellation={}) {
     if(!std::isfinite(rate) || rate<8000 || rate>384000)throw std::invalid_argument("Original CAB sample rate");
+    cancellation.checkpoint();
     // >= 170 ms captures LF damping; 85 ms output + tail taper, no onset trimming.
     size_t fftSize=1;while(fftSize<size_t(std::ceil(rate*.170)))fftSize<<=1;
     std::vector<Complex> spectrum(fftSize);
     for(size_t k=1;k<fftSize/2;++k) {
+        if((k&63)==0)cancellation.checkpoint();
         const double hz=double(k)*rate/double(fftSize);
         // Smooth anti-alias boundary in physical frequency before sampling.
         const double taper=hz>rate*.40 ? .5+.5*std::cos(pi*(hz/rate-.40)/.10) : 1;
         spectrum[k]=response(p,hz)*taper;spectrum[fftSize-k]=std::conj(spectrum[k]);
     }
+    cancellation.checkpoint();
     inverseFFT(spectrum);
     std::vector<float> samples(size_t(std::ceil(rate*.085)));
     for(size_t n=0;n<samples.size();++n) {
@@ -136,6 +152,7 @@ inline std::vector<float> generate(Settings p,double rate) {
         const double taper=end>.8 ? .5+.5*std::cos(pi*(end-.8)/.2) : 1;
         samples[n]=float(spectrum[n].real()*taper);
     }
+    cancellation.checkpoint();
     return samples;
 }
 }

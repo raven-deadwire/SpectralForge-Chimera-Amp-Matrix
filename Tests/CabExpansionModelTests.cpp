@@ -1,4 +1,4 @@
-#include "CabExpansionModel.h"
+#include "CabLayoutModel.h"
 #include <iostream>
 #include <set>
 #include <string>
@@ -21,7 +21,48 @@ template<size_t N> void distinct(const std::array<std::array<double,12>,N>& sign
     }
     require(smallest>.15,why);std::cout<<why<<" minimum_level_matched_spectral_rms_db="<<smallest<<'\n';
 }
+void cancellationContracts() {
+    namespace layout=spectralforge::cabLayout;
+    const v1::Settings base{true,1,1,1,2,.4,.73,18.3};
+    const std::array<uint64_t,3> models{{v1::key(base),x::key({base,12,20,2}),
+        layout::key({{base,9,10,2},7,7})}};
+    struct Polls {
+        mutable unsigned calls{};
+        unsigned cancelAt{};
+        static bool check(const void* context) {
+            const auto& state=*static_cast<const Polls*>(context);
+            return ++state.calls==state.cancelAt;
+        }
+    };
+    unsigned cases=0;
+    for(double rate:{44100.,48000.,96000.})for(const auto model:models) {
+        // Always enter through production's v3 dispatcher. The v1/v2 cases
+        // must forward cancellation instead of silently dropping its token.
+        const auto reference=layout::generate(model,rate);
+        Polls completed;
+        const auto observed=layout::generate(model,rate,{&completed,Polls::check});
+        require(reference==observed,"cancellable generation changes completed waveform");
+        require(completed.calls>3,"generation never polls inside its frequency loop");
+        require(reference.size()==size_t(std::ceil(rate*.085)),"cancellation changes authored tail length");
+        for(unsigned cancelAt:{1u,3u,completed.calls}) {
+            Polls cancelled{0,cancelAt};bool caught=false;
+            std::vector<float> result{123.f};
+            try {result=layout::generate(model,rate,{&cancelled,Polls::check});}
+            catch(const v1::GenerationCancelled&) {caught=true;}
+            require(caught && cancelled.calls==cancelAt,"requested generation cancellation was ignored");
+            require(result==std::vector<float>{123.f},"cancelled generation returned a partial/empty response");
+        }
+        Polls invalid{0,1};bool badRate=false;
+        try {(void)layout::generate(model,0.,{&invalid,Polls::check});}
+        catch(const std::invalid_argument&) {badRate=true;}
+        require(badRate && invalid.calls==0,"invalid sample rate was mislabeled as cancellation");
+        ++cases;
+    }
+    std::cout<<"PASS cooperative_generation routes="<<cases
+        <<" engines=v1,v2,v3 completed_waveform=identical cancel=before,during,after invalid_rate=distinct\n";
+}
 int main(){try {
+    cancellationContracts();
     std::set<std::string> ids;int guitar=0,bass=0;std::array<int,3> kinds{};
     for(const auto& d:x::drivers){require(ids.insert(d.id).second,"duplicate driver ID");(d.bass?bass:guitar)++;}
     for(const auto& m:x::microphones){require(ids.insert(m.id).second,"duplicate mic ID");++kinds[size_t(m.kind)];}
