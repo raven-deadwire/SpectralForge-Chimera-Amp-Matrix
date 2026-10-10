@@ -1,0 +1,56 @@
+{
+  "schema": "chimera-native-source-47345-archive-index-v1",
+  "frozen_at_utc": "2026-10-10T23:51:17.276127+00:00",
+  "tested_source_sha": "47345c81db8aefbf9ae51a2684d546119bb9ae32",
+  "tested_source_tree": "80525e0dda220cbc87c229b3e5234d2ddc38fe78",
+  "archive_commit_parent": "47345c81db8aefbf9ae51a2684d546119bb9ae32",
+  "archive_branch": "validation/pr42-native-47345c81-20261011",
+  "tested_pr_branch": "perf/1.3-cab-realtime-20261011",
+  "native_runs_rerun": false,
+  "source_code_changed": false,
+  "release_ready": false,
+  "archive_count": 4,
+  "embedded_records": 1047,
+  "archives": [
+    {
+      "name": "cab-native-47345c81-windows.json",
+      "git_path": "Validation/cab-native-47345c81-windows.json",
+      "bytes": 8141351,
+      "sha256": "d1529be86ed5afd3d50d4dbd73c48d780fd27158eee3e91aa7e195c9994d92f6",
+      "git_blob_sha": "4a538ba41bb2d3e9cb72c42fb37aaa501eb71e4e",
+      "embedded_records": 443
+    },
+    {
+      "name": "cab-native-47345c81-macos.json",
+      "git_path": "Validation/cab-native-47345c81-macos.json",
+      "bytes": 6107301,
+      "sha256": "80fd1568fc5414649ca9da5828329fca8e44fff224fd07d42f90f05b2a4acd56",
+      "git_blob_sha": "a57d45cdd2a57bf805032c5c7a7cf5b7ecacc42d",
+      "embedded_records": 191
+    },
+    {
+      "name": "cab-native-47345c81-linux.json",
+      "git_path": "Validation/cab-native-47345c81-linux.json",
+      "bytes": 5101262,
+      "sha256": "74c0dc9fe7bb789727f9a2b5b6952a241d4b7d95470796b938bf35dc7787d942",
+      "git_blob_sha": "68838a35ebc190e131dbb4a1533ef733a1f586a5",
+      "embedded_records": 172
+    },
+    {
+      "name": "cab-native-47345c81-aggregate.json",
+      "git_path": "Validation/cab-native-47345c81-aggregate.json",
+      "bytes": 7424488,
+      "sha256": "da1c7649cdb81e69cfac99feac3491422e8583b6c49f6ec38628d38f334b5c0c",
+      "git_blob_sha": "2acb5e01f21166d0382242bb9645af218c0d238f",
+      "embedded_records": 241
+    }
+  ],
+  "config": {
+    "path": "evidence/cab-fullci-47345c81/final-archive-config.json",
+    "sha256": "efee13f3f31415f93e3d13bfc1ae9b9a45358d8f28cc92b9ead151d87f9095ba"
+  },
+  "builder": {
+    "path": "evidence/cab-fullci-47345c81/freeze_final_archives.py",
+    "sha256": "7b2d23fd0f9a340b12c7cb7ceb3f3977c7e4b61bd167ed032d6b7feb5649263f"
+  }
+}
