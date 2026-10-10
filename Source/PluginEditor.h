@@ -7,6 +7,7 @@
 #include "AmpSelector.h"
 #include "AmpNativePanel.h"
 #include "PostNativePanel.h"
+#include "GraphicalEQPanel.h"
 #include "EffectSelectionCatalog.h"
 
 class CabRoomOverview;
@@ -99,7 +100,8 @@ private:
     std::array<std::unique_ptr<SA>,8> globalAttachments;
     juce::TextButton gateOn{"GATE"},pitchOn{"TRANSPOSE"},tunerOn{"TUNER"},tunerMute{"AUTO MUTE"},info{"INFO"};
     std::array<std::unique_ptr<BA>,4> globalButtons;
-    juce::TextButton compareA{"A"},compareB{"B"},copyAB{"COPY"},irLibraryButton{"IR LIBRARY"},rigsTab{"RIGS"},preTab{"PRE"},postTab{"POST"};
+    juce::TextButton compareA{"A"},compareB{"B"},copyAB{"COPY"},irLibraryButton{"IR LIBRARY"},rigsTab{"RIGS"},preTab{"PRE"},postTab{"POST"},eqTab{"EQ"};
+    std::array<std::unique_ptr<spectralforge::GraphicalEQPanel>,2> eqPanels;
     std::unique_ptr<CabRoomOverview> cabRoom;
     juce::TextButton rigControls{"RIG CONTROLS"};
     bool showRigControls{};

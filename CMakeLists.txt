@@ -398,3 +398,15 @@ set_property(TEST ${CHIMERA_CAB_TIMING_TESTS} APPEND PROPERTY
   ENVIRONMENT_MODIFICATION "CHIMERA_LIFECYCLE_TRACE=unset:")
 
 add_test(NAME ChimeraCabDriverVisualTests COMMAND ChimeraCabPanelStateTests --visual-only)
+
+# Static EQ prototype is isolated from release publishing and future dynamics.
+foreach(eqtest GraphicalEQ GraphicalEQUI)
+  juce_add_console_app(Chimera${eqtest}Tests PRODUCT_NAME "Chimera ${eqtest} Tests")
+  target_sources(Chimera${eqtest}Tests PRIVATE Tests/${eqtest}Tests.cpp)
+  target_include_directories(Chimera${eqtest}Tests PRIVATE Source)
+  target_compile_definitions(Chimera${eqtest}Tests PRIVATE JUCE_MODAL_LOOPS_PERMITTED=1)
+  target_link_libraries(Chimera${eqtest}Tests PRIVATE ChimeraAmpMatrix ChimeraArtwork ChimeraManual juce::juce_cryptography juce::juce_audio_utils juce::juce_dsp)
+endforeach()
+add_test(NAME ChimeraGraphicalEQTests COMMAND ChimeraGraphicalEQTests "${CMAKE_BINARY_DIR}/eq-cpu.csv")
+add_test(NAME ChimeraGraphicalEQUITests COMMAND ChimeraGraphicalEQUITests "${CMAKE_BINARY_DIR}")
+set_tests_properties(ChimeraGraphicalEQTests ChimeraGraphicalEQUITests PROPERTIES TIMEOUT 180 RUN_SERIAL TRUE)

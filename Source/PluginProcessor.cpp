@@ -23,6 +23,7 @@ ChimeraProcessor::ChimeraProcessor()
                                       .withOutput("Output",juce::AudioChannelSet::stereo(),true))
 {
     originalCabParameters.bind(state);
+    toneEQ.bind(state,0);finalEQ.bind(state,1);
     const std::array<const char*,10> cabIds{"cabblend","cabAgain","cabAdelay","cabAinvert","cabBgain","cabBdelay","cabBinvert","cabBlow","cabBhigh","cabBtype"};
     for(int i=0;i<3;++i) for(size_t j=0;j<cabIds.size();++j) cabPanelParameters[i][j]=state.getRawParameterValue(juce::String(cabIds[j])+juce::String(i+1));
     clearMidi();
@@ -78,7 +79,7 @@ void ChimeraProcessor::prepareToPlay(double sr,int block)
     }
     std::array<spectralforge::AmpNativeState,3> initialNativeStates{};
     for(int i=0;i<3;++i)initialNativeStates[(size_t)i]=nativeAmps.read(ampContext(i));
-    engine.prepare(spec,initialNativeStates); preFX.prepare(spec); pedalBoard.prepare(spec); postFX.prepare(spec);utilities.prepare(spec); tuner.prepare(sr);
+    engine.prepare(spec,initialNativeStates); preFX.prepare(spec); pedalBoard.prepare(spec); postFX.prepare(spec);utilities.prepare(spec); tuner.prepare(sr);toneEQ.prepare(sr);finalEQ.prepare(sr);
     audioBoard=boardParameters.read();
     postRigGate.prepare(spec,juce::jmax(preFX.latency(true),pedalBoard.maximumLatency()+preFX.transpose.latency())+engine.latency());
     preReduction.store(0);postReduction.store(0);for(auto& meter:postPeaks)meter.store(0);
@@ -135,7 +136,7 @@ void ChimeraProcessor::processBlock(juce::AudioBuffer<float>& buffer,juce::MidiB
 }
 void ChimeraProcessor::process(juce::AudioBuffer<float>& buffer)
 {
-    if(resetPending.exchange(false)) {engine.reset();preFX.reset();pedalBoard.reset();postRigGate.reset();postFX.reset();utilities.reset();}
+    if(resetPending.exchange(false)) {engine.reset();preFX.reset();pedalBoard.reset();postRigGate.reset();postFX.reset();utilities.reset();toneEQ.reset();finalEQ.reset();}
     if(extras[inputMode]->load()>.5f && buffer.getNumChannels()==2) buffer.copyFrom(1,0,buffer,0,0,buffer.getNumSamples());
     const auto value=[this](Global id){return globals[id]->load();};
     inputGain.setTargetValue(juce::Decibels::decibelsToGain(value(input)));
@@ -206,6 +207,7 @@ void ChimeraProcessor::process(juce::AudioBuffer<float>& buffer)
     if(gateAtOutput)postRigGate.apply(buffer);
     gateGain.store(gateAtOutput ? postRigGate.reduction() : preFX.gate.reduction());
     measureStage(2,buffer);
+    toneEQ.process(buffer);
     postFX.process(buffer,fx);
     measureStage(3,buffer);
     postReduction.store(postFX.compressorReduction());
@@ -213,6 +215,7 @@ void ChimeraProcessor::process(juce::AudioBuffer<float>& buffer)
     for(size_t i=0;i<postPeaks.size();++i)
         postPeaks[i].store(juce::jmax(postFX.stagePeaks[i],postPeaks[i].load()*meterDecay));
     utilities.process(buffer,tempoMeter.load(),extras[doublerOn]->load()>.5f,extras[doublerTime]->load(),extras[metronome]->load()>.5f,restartClick.exchange(false));
+    finalEQ.process(buffer);
     tuningMute.setTargetValue(value(tunerOn)>.5f && value(tunerMute)>.5f ? 0.f : 1.f);
     peak=0;
     for(int n=0;n<buffer.getNumSamples();++n)
@@ -324,6 +327,7 @@ for(int i=1;i<=3;++i) {
 spectralforge::appendOriginalCabParameters(p);
 spectralforge::appendCabExpansionParameters(p);
 spectralforge::appendCabLayoutParameters(p);
+spectralforge::appendGraphicalEQParameters(p);
 return p;
 }
 
@@ -662,7 +666,9 @@ juce::String ChimeraProcessor::diagnosticReport() const {
     object->setProperty("transpose_enabled",globals[pitchOn]->load()>.5f);object->setProperty("semitones",int(globals[semitones]->load()));
     object->setProperty("oversampling_index",int(globals[os]->load()));object->setProperty("output_trim_db",globals[output]->load());
     object->setProperty("post_rig_gate",gateAfterRig->load()>.5f);object->setProperty("callback_average_percent",cpuAverage.load());
-    object->setProperty("callback_peak_percent",cpuPeak.load());object->setProperty("measurements","Last processed block, unweighted RMS/peak; not LUFS or whole-PC CPU. No audio is included.");
+    object->setProperty("callback_peak_percent",cpuPeak.load());
+    object->setProperty("tone_eq_average_percent",toneEQ.average.load());object->setProperty("tone_eq_peak_percent",toneEQ.peak.load());
+    object->setProperty("final_eq_average_percent",finalEQ.average.load());object->setProperty("final_eq_peak_percent",finalEQ.peak.load());object->setProperty("measurements","Last processed block, unweighted RMS/peak; not LUFS or whole-PC CPU. No audio is included.");
     juce::Array<juce::var> stages;const char* names[]{"INPUT_TRIM","PRE","RIG_GATE","POST","OUTPUT"};
     for(int i=0;i<5;++i) {auto stage=std::make_unique<juce::DynamicObject>();stage->setProperty("stage",names[i]);
         stage->setProperty("rms_dbfs",juce::Decibels::gainToDecibels(stageRms[(size_t)i].load(),-120.f));

@@ -76,7 +76,7 @@ inline void run(const juce::File& folder,const juce::File& screenshots) {
     const std::array<Frozen,13> frozen{{{"design",0,1,1,0},{"rear",0,1,1,0},{"tweeter",0,1,.01f,0},
         {"Aon",0,1,1,0},{"Amic",0,2,1,0},{"Aunit",0,3,1,0},{"Aposition",0,1,.001f,.25f},{"Adistance",2,60,.1f,10},
         {"Bon",0,1,1,0},{"Bmic",0,2,1,0},{"Bunit",0,3,1,0},{"Bposition",0,1,.001f,.25f},{"Bdistance",2,60,.1f,10}}};
-    require(processor->getParameters().size()==4824+spectralforge::cabExpansionParameterCount+spectralforge::cabLayoutParameterCount,"Integrated host parameter count changed");
+    require(processor->getParameters().size()==4824+spectralforge::cabExpansionParameterCount+spectralforge::cabLayoutParameterCount+spectralforge::graphicalEQParameterCount,"Integrated host parameter count changed");
     for(int lane=0;lane<3;++lane)for(size_t n=0;n<frozen.size();++n) {
         const auto& expected=frozen[n];auto* parameter=state.getParameter(spectralforge::originalCabID(lane,expected.suffix));
         require(parameter && parameter->getParameterIndex()==4785+lane*13+int(n) && parameter->getVersionHint()==7
