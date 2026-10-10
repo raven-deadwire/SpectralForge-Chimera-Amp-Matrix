@@ -1,5 +1,8 @@
 #include "Cabinet.h"
 #include "CabLayoutModel.h"
+#include "CabResidueBankReference.h"
+#include <bit>
+#include <cstring>
 #include <iostream>
 #include <stdexcept>
 
@@ -438,6 +441,209 @@ double compareSixMicPublications(double rate,int maximum,int channels) {
     require(residual<3e-6,"six-mic direct oracle differs across independent filters, phase, fades or reused responses");
     return residual;
 }
+
+namespace residueTests {
+using Current=spectralforge::ModeledCabConvolution;
+using Frozen=spectralforge::cabResidueReference::ModeledCabConvolution;
+struct Counts {
+    size_t indexCases{},indexReads{},streamCases{},resetCases{},privateCases{},exactSamples{},mixedSamples{};
+};
+void exact(const juce::AudioBuffer<float>& actual,const juce::AudioBuffer<float>& expected,
+           Counts& counts,bool silence=false) {
+    require(actual.getNumChannels()==expected.getNumChannels() && actual.getNumSamples()==expected.getNumSamples(),
+        "residue bank comparison changed buffer shape");
+    for(int channel=0;channel<actual.getNumChannels();++channel)for(int n=0;n<actual.getNumSamples();++n) {
+        const auto a=actual.getSample(channel,n),b=expected.getSample(channel,n);
+        require(std::isfinite(a) && std::bit_cast<uint32_t>(a)==std::bit_cast<uint32_t>(b),
+            "residue bank output differs from frozen 8097 float bits");
+        if(silence)require(a==0.f,"residue bank dirty reset retained history");
+        ++counts.exactSamples;
+    }
+}
+float signal(int frame,int channel,int slot) {
+    auto value=uint32_t(frame+1)*747796405u+uint32_t(slot+1)*2891336453u+uint32_t(channel)*277803737u;
+    value^=value>>16;
+    return float(int(value>>8)-0x800000)*0x1p-26f;
+}
+juce::AudioBuffer<float> response(int block,int partitions,int tag) {
+    const int segment=(block>128 ? 1 : 3)*block;
+    juce::AudioBuffer<float> samples(1,(partitions-1)*segment+1);
+    uint32_t random=0x9e3779b9u+uint32_t(tag);
+    for(int n=0;n<samples.getNumSamples();++n) {
+        random=random*1664525u+1013904223u;
+        samples.setSample(0,n,float(int(random>>8)-0x800000)*0x1p-30f);
+    }
+    return samples;
+}
+struct PreparedPair {
+    std::shared_ptr<const Current::Prepared> current;
+    std::shared_ptr<const Frozen::Prepared> frozen;
+    std::vector<float> original;
+    PreparedPair(int block,int channels,int partitions,int tag) {
+        const auto samples=response(block,partitions,tag);
+        current=std::make_shared<const Current::Prepared>(samples,block,channels==1);
+        frozen=std::make_shared<const Frozen::Prepared>(samples,block,channels==1);
+        require(current->segments==partitions && current->segments==frozen->segments
+            && current->inputSegments==frozen->inputSegments && current->fftSize==frozen->fftSize
+            && current->bins==frozen->bins && current->segmentSize==frozen->segmentSize,
+            "residue bank changed prepared geometry or capacity");
+        original=current->impulseSpectra;unchanged();
+    }
+    void unchanged() const {
+        const auto matches=[&](const std::vector<float>& samples) {
+            return samples.size()==original.size()
+                && std::memcmp(samples.data(),original.data(),original.size()*sizeof(float))==0;
+        };
+        require(matches(current->impulseSpectra) && matches(frozen->impulseSpectra),
+            "residue bank changes or mutates immutable IR spectra");
+    }
+};
+struct KernelPair {
+    Current current;
+    Frozen frozen;
+    explicit KernelPair(const PreparedPair& prepared):current(prepared.current),frozen(prepared.frozen) {
+        require(current.getLatency()==0 && frozen.getLatency()==0,"residue bank adds latency");
+    }
+    void process(juce::AudioBuffer<float>& actual,juce::AudioBuffer<float>& expected,Counts& counts,bool silence=false) {
+        current.process(actual);frozen.process(expected);exact(actual,expected,counts,silence);
+    }
+    void reset() {current.reset();frozen.reset();}
+};
+void indexPermutation(Counts& counts) {
+    for(int step:{1,3})for(int partitions:{1,2,3,7,16,22,32,43,86}) {
+        const int capacity=step*partitions;
+        // Build the transpose from a labelled logical ring, independently of
+        // the production pointer helper. Every physical slot is written once.
+        std::vector<int> banked(size_t(capacity),-1);int logical=0;
+        for(int q=0;q<partitions;++q)for(int r=0;r<step;++r) {
+            const int physical=r*partitions+q;
+            require(banked[size_t(physical)]==-1,"residue map aliases a physical slot");
+            banked[size_t(physical)]=logical++;
+        }
+        for(int cursor=0;cursor<capacity;++cursor) {
+            const int start=(cursor%step)*partitions;int index=cursor/step;
+            for(int p=0;p<partitions;++p) {
+                const int oldIndex=(cursor+step*p)%capacity;
+                require(banked[size_t(start+index)]==oldIndex,"residue map changes logical partition delay");
+                if(step==1)require(start+index==oldIndex,"stride-one residue map is not identity");
+                if(++index==partitions)index=0;++counts.indexReads;
+            }
+        }
+        ++counts.indexCases;
+    }
+}
+void streams(Counts& counts) {
+    for(int block:{32,64,128,256,512})for(int channels:{1,2}) {
+        const int segment=(block>128 ? 1 : 3)*block;
+        for(int partitions:{1,3,7,8161/segment+1}) {
+            PreparedPair prepared(block,channels,partitions,partitions+channels);
+            KernelPair pair(prepared);
+            const int tail=(partitions-1)*segment+1;
+            const int signalLength=(2*prepared.current->inputSegments+1)*block+17;
+            const int length=signalLength+tail+2*block+3;
+            for(bool irregular:{false,true}) {
+                pair.reset();int chunk=0;
+                for(int offset=0;offset<length;) {
+                    const std::array<int,5> sizes{{1,17,63,block,3}};
+                    const int count=std::min(length-offset,irregular ? std::min(block,sizes[size_t(chunk++%5)]) : block);
+                    juce::AudioBuffer<float> actual(channels,count),expected(channels,count);
+                    for(int c=0;c<channels;++c)for(int n=0;n<count;++n)
+                        actual.setSample(c,n,offset+n<signalLength ? signal(offset+n,c,partitions) : 0.f);
+                    expected.makeCopyOf(actual,true);pair.process(actual,expected,counts);offset+=count;
+                }
+                ++counts.streamCases;
+            }
+            // Both streams ended 21 samples into an internal block. Dirty it
+            // further, then reset from a nonzero partial position for every B.
+            juce::AudioBuffer<float> dirty(channels,17),oldDirty(channels,17);
+            for(int c=0;c<channels;++c)for(int n=0;n<17;++n)dirty.setSample(c,n,signal(n,c,91));
+            oldDirty.makeCopyOf(dirty,true);pair.process(dirty,oldDirty,counts);pair.reset();
+            for(int offset=0;offset<tail+2*block;) {
+                const int count=std::min(17,tail+2*block-offset);
+                juce::AudioBuffer<float> actual(channels,count),expected(channels,count);actual.clear();expected.clear();
+                pair.process(actual,expected,counts,true);offset+=count;
+            }
+            prepared.unchanged();++counts.resetCases;
+        }
+    }
+}
+void privateKernels(Counts& counts) {
+    for(int block:{32,64,256})for(int channels:{1,2}) {
+        std::array<std::unique_ptr<PreparedPair>,3> prepared;
+        const std::array<int,3> partitions{{1,3,7}};
+        for(int lane=0;lane<3;++lane)
+            prepared[size_t(lane)]=std::make_unique<PreparedPair>(block,channels,partitions[size_t(lane)],73+lane);
+        std::array<std::unique_ptr<KernelPair>,6> active;
+        std::array<std::unique_ptr<KernelPair>,3> fading;
+        std::array<int,3> fadingSlot{};
+        for(int slot=0;slot<6;++slot)active[size_t(slot)]=std::make_unique<KernelPair>(*prepared[size_t(slot/2)]);
+        constexpr int fadeLength=4800; // Exactly 50 ms at 96 kHz.
+        int fadeRemaining=0,frame=0,chunk=0;
+        const auto render=[&](int length,bool silence=false) {
+            for(int offset=0;offset<length;) {
+                const std::array<int,5> sizes{{1,17,63,block,3}};
+                const int count=std::min(length-offset,std::min(block,sizes[size_t(chunk++%5)]));
+                for(int slot=0;slot<6;++slot) {
+                    const size_t lane=size_t(slot/2);
+                    juce::AudioBuffer<float> input(channels,count),actual(channels,count),expected(channels,count);
+                    for(int c=0;c<channels;++c)for(int n=0;n<count;++n)
+                        input.setSample(c,n,silence ? 0.f : signal(frame+n,c,slot));
+                    actual.makeCopyOf(input,true);expected.makeCopyOf(input,true);
+                    active[size_t(slot)]->process(actual,expected,counts,silence);
+                    if(fading[lane] && fadingSlot[lane]==slot) {
+                        juce::AudioBuffer<float> oldActual(channels,count),oldExpected(channels,count);
+                        oldActual.makeCopyOf(input,true);oldExpected.makeCopyOf(input,true);
+                        fading[lane]->process(oldActual,oldExpected,counts);
+                        for(int c=0;c<channels;++c)for(int n=0;n<std::min(count,fadeRemaining);++n) {
+                            const float wet=1.f-float(fadeRemaining-n)/float(fadeLength);
+                            const float a=wet*actual.getSample(c,n)+(1.f-wet)*oldActual.getSample(c,n);
+                            const float b=wet*expected.getSample(c,n)+(1.f-wet)*oldExpected.getSample(c,n);
+                            require(std::bit_cast<uint32_t>(a)==std::bit_cast<uint32_t>(b),
+                                "residue bank private-kernel fade differs from frozen float bits");
+                            ++counts.mixedSamples;
+                        }
+                    }
+                }
+                if(fadeRemaining>0) {
+                    fadeRemaining=std::max(0,fadeRemaining-count);
+                    if(fadeRemaining==0)for(auto& previous:fading)previous.reset();
+                }
+                frame+=count;offset+=count;
+            }
+        };
+        render(2*prepared.back()->current->inputSegments*block+17);
+        // Each phase retains six active and three independently owned fading
+        // histories. Fresh kernels reuse immutable responses, never histories.
+        // Actual Cab publication/mic mixing remains covered by the eight
+        // unchanged direct-FIR oracle routes above; this isolates ring bits.
+        for(int phase=0;phase<3;++phase) {
+            for(int lane=0;lane<3;++lane) {
+                const int slot=2*lane+(phase==1 ? 1 : 0);fadingSlot[size_t(lane)]=slot;
+                fading[size_t(lane)]=std::move(active[size_t(slot)]);
+                active[size_t(slot)]=std::make_unique<KernelPair>(*prepared[size_t(phase==2 ? lane : (lane+1)%3)]);
+            }
+            fadeRemaining=fadeLength;render(fadeLength+block+17);
+            require(fadeRemaining==0,"residue bank private-kernel fade did not finish");
+        }
+        for(auto& pair:active)pair->reset();render(7*(block>128 ? 1 : 3)*block+17,true);
+        for(const auto& response:prepared)response->unchanged();++counts.privateCases;
+    }
+}
+void contracts() {
+    Counts counts;indexPermutation(counts);streams(counts);privateKernels(counts);
+    require(counts.indexCases==18 && counts.indexReads==44288 && counts.streamCases==80
+        && counts.resetCases==40 && counts.privateCases==6
+        && counts.exactSamples==2645088 && counts.mixedSamples==388800,
+        "residue bank correctness population changed");
+    std::cout<<"PASS residue_bank_reference source=8097ec69594ff728164c77f59e9ea1e39e384643"
+        <<" index_cases="<<counts.indexCases<<" index_reads="<<counts.indexReads
+        <<" stream_cases="<<counts.streamCases<<" reset_cases="<<counts.resetCases
+        <<" private_cases="<<counts.privateCases<<" exact_float_samples="<<counts.exactSamples
+        <<" fade_mix_samples="<<counts.mixedSamples
+        <<" exact_bits=1 immutable_spectra=1 steps=1,3 partial=fixed,1,17,63,max,3 full_wraps=2"
+        <<" active=6 fading=3 fade_ms=50 latency=0\n";
+}
+}
 }
 
 int main() {try {
@@ -490,5 +696,6 @@ int main() {try {
         <<" reprepare_routes=4 reprepare_residual="<<reprepareResidual
         <<" six_mic_routes="<<sixMicCases<<" six_mic_residual="<<sixMicResidual
         <<" six_mic_oracle=direct_FIR worker_cases=stale,six_ready,reuse fade_ms=50\n";
+    residueTests::contracts();
     return 0;
 }catch(const std::exception& error){std::cerr<<error.what()<<'\n';return 1;}}

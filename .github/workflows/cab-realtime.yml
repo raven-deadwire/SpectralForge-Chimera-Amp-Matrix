@@ -6,6 +6,7 @@ on:
       - 'Source/**'
       - 'Tests/OriginalCab*'
       - 'Tests/CabRealtime*'
+      - 'Tests/CabResidueBankReference.h'
       - 'Tests/CabProfil*'
       - 'Tests/CabTiming*'
       - 'CMakeLists.txt'

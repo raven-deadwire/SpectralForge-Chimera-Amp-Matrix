@@ -1,3 +1,6 @@
+// Frozen ModeledCabConvolution from 8097ec69594ff728164c77f59e9ea1e39e384643.
+// Only the enclosing namespace is renamed for an independent old/new
+// storage-layout comparison; do not update this reference to the candidate.
 #pragma once
 #include <juce_dsp/juce_dsp.h>
 #include <complex>
@@ -8,7 +11,7 @@
 #include <xmmintrin.h>
 #endif
 
-namespace spectralforge {
+namespace spectralforge::cabResidueReference {
 // A modeled IR is mono and is applied independently to both input channels.
 // Linearity lets one complex convolution carry left + i * right: its real and
 // imaginary outputs are the two separate convolutions, not a stereo downmix.
@@ -80,22 +83,12 @@ private:
     const int blockSize, fftSize, bins, segments, inputSegments, inputSegmentStep;
     juce::dsp::FFT fft;
     // Per-partition planar real/imaginary spectra keep the multiply/accumulate
-    // vectorizable and contiguous. The input ring groups logical positions
-    // with the same residue modulo inputSegmentStep into a contiguous bank.
-    // Both input channels share each IR spectrum; histories remain private.
+    // vectorizable and contiguous instead of traversing separately allocated
+    // channel/partition buffers. Both input channels share each IR spectrum.
     std::vector<float> inputSpectra, pastSum, outputSpectrum;
     std::vector<Complex> inputTime, transform, outputTime, overlap;
     std::vector<float> monoInput, monoTransform, monoOverlap;
     int currentSegment{}, inputPosition{};
-
-    struct InputBank {int start, offset;};
-    InputBank currentInputBank() const noexcept
-    {
-        if(inputSegmentStep==1)return {0,currentSegment};
-        // C=q*S+r stays the existing logical ring cursor. Its physical slot
-        // is r*P+q; delayed partition p reads r*P+((q+p) mod P).
-        return {(currentSegment%inputSegmentStep)*segments,currentSegment/inputSegmentStep};
-    }
 
     void accumulate(const float* __restrict input,const float* __restrict impulse,float* __restrict output) const noexcept
     {
@@ -131,17 +124,16 @@ private:
             output[i]=re;output[bins+i]=im;
         }
     }
-    void sumPartitions(const float* currentInput,InputBank bank,bool firstChunk) noexcept
+    void sumPartitions(const float* currentInput,bool firstChunk) noexcept
     {
         // Delayed partitions cannot change during a partial host block.
         // Recompute only the leading partition for subsequent partial calls.
         if(firstChunk) {
             std::fill(pastSum.begin(),pastSum.end(),0.f);
-            const auto* bankInput=inputSpectra.data()+size_t(bank.start)*size_t(2*bins);
-            int index=bank.offset;
+            int index=currentSegment;
             for(int partition=1;partition<segments;++partition) {
-                if(++index>=segments)index=0;
-                accumulate(bankInput+size_t(index)*size_t(2*bins),
+                index+=inputSegmentStep;if(index>=inputSegments)index-=inputSegments;
+                accumulate(inputSpectra.data()+size_t(index)*size_t(2*bins),
                     prepared->impulseSpectra.data()+size_t(partition)*size_t(2*bins),pastSum.data());
             }
         }
@@ -164,10 +156,9 @@ private:
             }
             {
                 SF_CAB_PROFILE_SCOPE(SpectralMAC);
-                const auto bank=currentInputBank();
-                auto* currentInput=inputSpectra.data()+size_t(bank.start+bank.offset)*size_t(2*bins);
+                auto* currentInput=inputSpectra.data()+size_t(currentSegment)*size_t(2*bins);
                 packRealSpectrum(monoTransform.data(),currentInput,bins);
-                sumPartitions(currentInput,bank,firstChunk);
+                sumPartitions(currentInput,firstChunk);
                 for(int i=0;i<bins;++i) {
                     monoTransform[size_t(2*i)]=outputSpectrum[size_t(i)];
                     monoTransform[size_t(2*i+1)]=outputSpectrum[size_t(bins+i)];
@@ -235,10 +226,9 @@ public:
             }
             {
                 SF_CAB_PROFILE_SCOPE(SpectralMAC);
-                const auto bank=currentInputBank();
-                auto* currentInput=inputSpectra.data()+size_t(bank.start+bank.offset)*size_t(2*fftSize);
+                auto* currentInput=inputSpectra.data()+size_t(currentSegment)*size_t(2*fftSize);
                 packSpectrum(transform.data(),currentInput,fftSize);
-                sumPartitions(currentInput,bank,firstChunk);
+                sumPartitions(currentInput,firstChunk);
                 for(int i=0;i<fftSize;++i)transform[size_t(i)]={outputSpectrum[size_t(i)],outputSpectrum[size_t(fftSize+i)]};
             }
             {

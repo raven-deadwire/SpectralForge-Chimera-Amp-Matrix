@@ -16,6 +16,7 @@ on:
       - 'Tests/CabCamera*'
       - 'Tests/CabIRImage*'
       - 'Tests/CabRealtime*'
+      - 'Tests/CabResidueBankReference.h'
       - 'Tests/RigViewTestHelpers.h'
       - 'Tests/MicrophoneCatalog*'
       - 'Tests/IRCollectionTests.cpp'
