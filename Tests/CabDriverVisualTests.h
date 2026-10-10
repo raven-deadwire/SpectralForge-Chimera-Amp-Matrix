@@ -68,6 +68,8 @@ inline void hornGrilleContracts(const juce::File& screenshots) {
                 "HF hardware covers the foreground grille instead of sitting behind it");
             wires+=wire.getAlpha()>100;holes+=wire.getAlpha()<8;
         }
+        if(!(wires>8 && holes>8))std::cerr<<"horn grille mismatch native="<<int(native)
+            <<" scale="<<scale<<" kind="<<kind<<" wires="<<wires<<" holes="<<holes<<'\n';
         check(wires>8 && holes>8,"central horn lost continuous grille wires or open apertures");
         if(!native && scale==700.f && kind==0)writeImage(front,screenshots,"cab-visual-horn-behind-grille-detail.png");
     }
