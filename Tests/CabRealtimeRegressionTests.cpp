@@ -35,6 +35,8 @@ Residuals compare(const juce::AudioBuffer<float>& response,double responseRate,u
                   const juce::dsp::ProcessSpec& spec) {
     juce::AudioBuffer<float> copy;copy.makeCopyOf(response);
     Cab::Kernel production(std::move(copy),responseRate,spec,key ? 0 : 3,1,key);
+    if(key)require(production.modeledConvolution!=nullptr && production.convolution==nullptr,
+        "modeled CAB did not select the loader-free prepared path");
     UniformReference reference(response,responseRate,spec,key!=0);
     require(production.getLatency()==0,"production CAB added processing latency");
     require(reference.convolution.getLatency()==0,"uniform oracle added processing latency");
@@ -328,7 +330,10 @@ double compareSixMicPublications(double rate,int maximum,int channels) {
             {length-1,(slot%2 ? -.04f : .03f)*(1.f+.2f*revision)}}};
     };
     const auto kernel=[&](const SparseResponse& response,uint64_t key,unsigned revision) {
-        return std::make_unique<Cab::Kernel>(response.samples(),rate,spec,0,revision,key);
+        auto prepared=std::make_unique<Cab::Kernel>(response.samples(),rate,spec,0,revision,key);
+        require(prepared->modeledConvolution!=nullptr && prepared->convolution==nullptr,
+            "six-mic model retains an auxiliary convolution loader");
+        return prepared;
     };
     for(int lane=0;lane<3;++lane) {
         auto& cab=production[size_t(lane)];cab.blend=blends[size_t(lane)];
@@ -437,7 +442,7 @@ double compareSixMicPublications(double rate,int maximum,int channels) {
 
 int main() {try {
     const juce::ScopedNoDenormals noDenormals;
-    Residuals maximum;int cases=0;
+    Residuals maximum;int cases=0,preparedModelCases=0;
     for(double rate:{44100.,48000.,96000.}) {
         const original::Settings base{true,1,1,1,2,.4,.73,18.3};
         const auto legacy=original::key(base);
@@ -463,6 +468,7 @@ int main() {try {
                 maximum.uniform=std::max(maximum.uniform,residual.uniform);
                 maximum.impulse=std::max(maximum.impulse,residual.impulse);
                 maximum.silence=std::max(maximum.silence,residual.silence);++cases;
+                if(key)++preparedModelCases;
             }
         }
     }
@@ -472,11 +478,12 @@ int main() {try {
         for(int channels:{1,2}) {postResidual=std::max(postResidual,compareMicPostPath(route.first,route.second,channels));++postCases;}
     const double reprepareResidual=compareReprepare();
     double sixMicResidual=0;int sixMicCases=0;
-    for(const auto& route:std::array<std::array<int,3>,6>{{{44100,32,1},{44100,128,2},{48000,64,2},
-        {48000,512,1},{96000,64,2},{96000,256,1}}}) {
+    for(const auto& route:std::array<std::array<int,3>,8>{{{44100,32,1},{44100,128,2},{48000,64,2},
+        {48000,512,1},{96000,64,2},{96000,256,1},{96000,256,2},{96000,512,2}}}) {
         sixMicResidual=std::max(sixMicResidual,compareSixMicPublications(route[0],route[1],route[2]));++sixMicCases;
     }
     std::cout<<"PASS CAB realtime equivalence routes="<<cases<<" models=v1,v2,v3,userIR"
+        <<" prepared_model_routes="<<preparedModelCases<<" modeled_juce_loaders=0"
         <<" uniform_residual="<<maximum.uniform<<" impulse_residual="<<maximum.impulse
         <<" reset_residual="<<maximum.silence<<" latency=0 chunks=fixed,1,17,63,max,3"
         <<" mic_post_routes="<<postCases<<" mic_post_residual="<<postResidual

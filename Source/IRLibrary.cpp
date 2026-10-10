@@ -148,7 +148,7 @@ std::unique_ptr<Cab::Kernel> IRLibrary::build(int lane,int source,unsigned gener
 void IRLibrary::prepare(const juce::dsp::ProcessSpec& settings,const std::array<int,3>& sources)
 {
     const lifecycle::Scope trace("ir.prepare", this);
-    stop(); spec=settings; modelCache.clear();cancelledBuilds.store(0,std::memory_order_relaxed);
+    stop(); spec=settings; modelCache.clear();cancelledBuilds.store(0,std::memory_order_relaxed);scheduling={};
     for(int i=0;i<6;++i)
     {
         cabs[i]->requestedSource.store((i<3 ? sources[i] : cabs[i]->requestedSource.load()));
@@ -156,10 +156,16 @@ void IRLibrary::prepare(const juce::dsp::ProcessSpec& settings,const std::array<
         { std::lock_guard<std::mutex> lock(mutex); generation=generations[i]; }
         cabs[i]->install(build(i,(i<3 ? sources[i] : cabs[i]->requestedSource.load()),generation,cabs[i]->requestedModel.load()));
     }
-    startThread();
+    // IR generation/preparation is background work. Let the host's processing
+    // thread preempt it; do not change the caller/process priority or affinity.
+    // JUCE maps low to Windows LOWEST and macOS UTILITY. Linux ignores this
+    // non-realtime priority request, so it must not be credited there as a fix.
+    scheduling.startSucceeded=startThread(Priority::low);
 }
 void IRLibrary::run()
 {
+    scheduling.observedPriority=int(getPriority());
+    scheduling.enteredRun=true;
 #if defined(CHIMERA_CAB_PROFILE) && CHIMERA_CAB_PROFILE
     cabProfile::ThreadCapture profileCapture(profileSink);
 #endif

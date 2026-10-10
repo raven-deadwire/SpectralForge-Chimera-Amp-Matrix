@@ -12,6 +12,182 @@ are unchanged.
 The acceptance criterion remains **CAB-only wall-clock p99 below one block
 period**. This document does not grant a product release or DAW acceptance.
 
+## Worker contention follow-up after 0f46f9f6
+
+### Completed native results at the preceding source
+
+All of the following are first attempts at
+`0f46f9f6eba7bea38ff256e3a5eafb1ca83b7065`, tree
+`a4587e804aa0cda0d2603593dda512bd26707759`. The dedicated success did not
+establish that the full product met its deadline.
+
+| Execution | CTests | CAB p99 | Individual wall misses / 105600 |
+|---|---:|---:|---:|
+| [Dedicated CAB / Windows](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38072841041) | 5/5 PASS | 66/66 | 0 |
+| Dedicated CAB / Linux | 5/5 PASS | 66/66 | 2 |
+| Dedicated CAB / macOS | 5/5 PASS | 66/66 | 28 |
+| [Full Candidate / Windows](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38072840993/job/114273646190) | 40 PASS / 1 FAIL | 64/66 | 44 |
+| [Full Product / Windows](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38072840987/job/114273736639) | 38 PASS / 3 FAIL | 60/66 | 328 |
+| [Full Product / macOS](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38072840987/job/114273736539) | 37 PASS / 1 FAIL | 65/66 | 34 |
+| Full Product / Linux | 38/38 PASS | 66/66 | 0 |
+
+Candidate completed all 41 inventory tests, with no skips or missing/duplicate
+JUnit entries, in a **63 min 30.4 s** job. Its final visual test passed in
+**809.78 s** and complete CTest took **1749.58 s**, returning exit 8. The previous
+whole-job 60-minute interruption is resolved in this attempt; the remaining
+failure is performance. All four CAB timing CTests already have
+`RUN_SERIAL=true`.
+
+Candidate Layout 96 kHz / 64 measured p99 **780.8 us mono / 876.6 us stereo**
+against **666.666667 us**, with 19 / 22 misses. Its other three misses were in
+passing p99 conditions. All 44 occurred in the worker phase. The same p99
+callbacks recorded **366260 / 414428 raw thread cycles**. Its environment
+collector identified AMD EPYC 7763, a VM with 2 cores / 4 logical processors,
+and High performance power plan. The collector's BelowNormal priority is not
+evidence of the CTest or callback thread's priority.
+
+Windows Product separately failed Expanded integration 96k/64 mono (769.7 us),
+Expanded extended 48k/32 stereo (773.9 us), 96k/32 mono (600.0 us),
+96k/32 stereo (589.8 us), 96k/64 mono (949.4 us), and Layout 96k/256 stereo
+(28839.8 us). The last condition's maximum was **1076579 us wall**, with
+**1524458 raw cycles** on that same callback; an on-time callback in the same
+condition recorded 1523968 cycles. This does not identify a particular OS or VM
+cause. No conversion of cycles to CPU time is made.
+
+macOS Product failed Expanded extended 96k/32 stereo at **398.666 us**
+against **333.333333 us**, with 28 worker-phase misses and no forced-phase
+misses. The same wall-p99 callback recorded 282.917 us thread CPU. Thirteen
+measured CPU observations also exceeded the budget, including one only 0.084 us
+above it. CPU clocks surround the wall interval and include diagnostic boundary
+cost, so these are not 13 proven pure-DSP overruns. CPU and wall tails must both
+remain visible.
+
+The [CAB Panel workflow](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38072841049)
+passed all 51 tests across three OSes. Product's current consolidated verdict is
+**BLOCKED, ready=false, 1 PASS / 127 BLOCKED**. Windows/macOS packaging,
+Setup/install/repair/uninstall and Defender checks were skipped. Linux packages
+were produced. There is no Windows or macOS installer for this source; the older
+`4bfddbc8` Setup must not be relabelled as a current-source result.
+
+### Production changes in the next source
+
+The first change applies the existing prepared modeled convolution to maximum
+blocks through 512. The previous 256/512 modeled path created a private JUCE
+convolution loader thread and message queue for every active, pending or fading
+kernel. This change removes those per-kernel loaders for modeled responses,
+without sharing a JUCE SPSC queue between its worker and audio producers.
+
+The partition geometry matches JUCE 8.0.8's existing uniform engine:
+
+| Rounded block B | FFT size | IR partition | Input-ring stride |
+|---|---:|---:|---:|
+| B <= 128 | 4B | 3B | 3 |
+| B = 256 or 512 | 2B | B | 1 |
+
+The delayed-partition sum remains stable across partial chunks. With 2B FFTs,
+the extra-overlap range is empty and exactly B tail samples are carried.
+Immutable response spectra may share the bounded worker cache; FFT state,
+input rings, partial-block position and overlap remain independent per kernel.
+User/factory IRs, rate mismatches and maximum blocks above 512 retain the JUCE
+fallback. The 64-sample failure cannot be declared resolved by this large-block
+change.
+
+IR preparation now starts at `juce::Thread::Priority::low`. In JUCE 8.0.8 this
+sets the new Windows thread to LOWEST and the new macOS thread to UTILITY;
+Linux ignores this non-realtime request. The host/caller thread, process
+priority, CPU affinity, power plan and benchmark sleeps are untouched.
+Synchronous initial preparation still occurs before the worker starts.
+Lower-priority asynchronous work must still meet the existing latest-request,
+cancellation and lifecycle contracts; no convergence limit was extended.
+
+The worker records its start result and priority at entry. Tests read that
+record only after stop/join, label Windows/macOS native observations separately
+from Linux's requested-only value, and record the actual CTest caller context.
+The worker query runs only on its own entry; caller-context reads/output occur
+before or after the full measured population. A scheduling contract failure
+retains the raw results before the final failure verdict.
+
+The third change caches the 48 fixed cone-quadrature coefficients used by both
+v1 and v2/v3 generation. The original `sqrt`, `cos` and `sin` expressions are
+evaluated once into separate doubles. The per-point operation order remains
+`r = radius * sqrtCoefficient`, then `r * cosCoefficient` / `r * sinCoefficient`.
+No pre-multiplied XY coefficient, approximate trigonometry, reduced quadrature,
+model/key change, propagation-phase change, response truncation or FFT/taper
+change is introduced. Actual GCC 13 optimized assembly retained the repeated
+geometry sincos calls before this change; frequency-dependent propagation
+trigonometry remains required.
+
+### Validation and limits
+
+The large-block implementation initially passed the existing **144-route**
+independent convolution oracle, including **108 modeled routes** that now assert
+the prepared path is selected and the JUCE loader path is absent. This includes
+36 modeled 256/512 conditions. The 18 mic-post and four reprepare checks passed.
+Two new 96 kHz / 256 and 512 stereo direct six-mic cases bring that coverage to
+eight, keeping the existing 3e-6 tolerance, 50 ms fades and partial chunks.
+Observed uniform/impulse/six-mic residuals were respectively
+**1.25729e-08 / 7.45058e-09 / 4.84288e-08**, reset residual zero and latency zero.
+These results establish local audio correctness, not native deadline success.
+
+The fixed-geometry prototype was independently compiled against untouched
+`0f46f9f6` headers with GCC 13.3 -O3. All **27 float waveforms** (v1/v2/v3,
+three settings each, at 44.1/48/96 kHz), **117 complex response values** and
+**144 geometry doubles** matched bit for bit. All 54 cancellation and 18 invalid
+rate cases also matched. The C++ function-local static initializer uses the
+original math expressions; this GCC build folded its results into read-only
+data. Native compiler equivalence remains a separate requirement.
+
+A bounded ABBA diagnostic measured six original and six cached 96 kHz 6x10
+generations. Wall median was **149.912 -> 79.094 ms** and thread-CPU median
+**149.909 -> 79.087 ms**, about 47.2% lower. The cached 129.188 ms outlier remains
+in those six samples. These small generator-only measurements do not establish
+callback p99 improvement or native Windows/macOS performance.
+
+The final frozen source then passed one sequential **10/10 CTest** execution
+on local Linux / GCC 13.3 in **60.35 s**. This included both independent
+quadrature references (**864 v1 + 2592 v2/v3 complex comparisons**, and 144
+geometry doubles, all exact bits), the 144-route convolution oracle, actual
+worker cancellation/latest-six-mic convergence, model tests and all four timing
+suites. All **66/66 strict p99 conditions** passed, while **34 individual wall
+misses / 105600 callbacks** remain in the evidence. In particular, Layout
+96k/64 stereo reached 23136.001 us wall; no complete removal of tails is claimed.
+The 66 worker records confirm successful entry with the low request; Linux
+reports that the request is ignored for non-realtime scheduling, and the actual
+caller remained SCHED_OTHER / priority 0. Callback C++ new/delete counts stayed
+zero within the existing instrumented scope.
+
+A separate instrumented profile ran once per version, using a preserved
+`0f46f9f6`-tree binary before rebuilding the follow-up. Both completed all 12
+conditions and passed p99. The follow-up improved p99 in eight conditions and
+worsened it in four; individual misses increased **1 -> 7 / 19200** (the new
+seven comprise one worker-phase and six forced-publication misses). These are
+diagnostic runs separated in time, not a repeatability study or replacement for
+CTest acceptance. Selected 96 kHz results, in microseconds:
+
+| Block / channels | Old p50 | Follow-up p50 | Old p99 | Follow-up p99 | Old / new misses |
+|---|---:|---:|---:|---:|---:|
+| 64 / mono | 51.047 | 51.227 | 137.037 | 148.715 | 1 / 0 |
+| 64 / stereo | 66.590 | 66.790 | 185.000 | 172.771 | 0 / 0 |
+| 256 / mono | 123.386 | 109.726 | 357.449 | 538.753 | 0 / 2 |
+| 256 / stereo | 242.216 | 140.341 | 580.907 | 504.432 | 0 / 4 |
+
+All local route summaries, source/binary hashes, original generator samples and
+validation scope are retained in
+[`Validation/cab-worker-contention-local-20261011.json`](../Validation/cab-worker-contention-local-20261011.json).
+
+A separate four-partition MAC tile was considered and rejected. In a bounded
+GCC/x64 SSE experiment it preserved arithmetic bits but regressed 512-bin median
+cost by **11.21%** and p99 by **8.90%**. The production accumulation loop is
+unchanged. That scratch experiment used CPU affinity and is not an acceptance
+test or evidence for native Windows/macOS speed.
+
+Native CI for the final follow-up source remains required. The unchanged
+`times[1584] < 1e6 * block / sr` predicate, all 1600 callbacks, 80 automation
+requests, 1200/400 phase split, per-rig overlap limit, and audio tolerances remain
+authoritative. No previous failure is erased and no installer/release success
+is inferred from local checks.
+
+
 ## Follow-up after the 4bfddbc8 Candidate failure
 
 The passing dedicated run did not establish consistent performance in the full
@@ -109,11 +285,11 @@ and stereo was **178.439 -> 221.204 us** (0 -> 1/1600 misses). Both remained bel
 a universal callback speedup from removing obsolete worker work. The separate
 native comparison continues to use the fixed `aaa1330` pre-optimization baseline.
 
-Native results for the follow-up must be recorded against its resulting commit
-in PR #42. The earlier dedicated run, full Product pass and Candidate failure
-remain separate historical observations. Cooperative cancellation removes
-confirmed obsolete worker work; whether it resolves the Windows tail failure
-requires fresh native measurements under the original criteria.
+The resulting source was `0f46f9f6`, whose completed native results are retained
+in the preceding source-bound table and PR #42. Cooperative cancellation removed
+confirmed obsolete worker work and the Candidate timeout was resolved, but full
+Windows/macOS timing failures remained. Earlier sources and their separate
+Product/Candidate results are retained as historical observations.
 
 ## Confirmed failures, kept separate by source
 

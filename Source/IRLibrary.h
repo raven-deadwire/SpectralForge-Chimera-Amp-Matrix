@@ -29,6 +29,13 @@ public:
     // Diagnostic only: worker cancellations since the last prepare(). Neither
     // increment nor observation participates in the audio publication protocol.
     unsigned cancelledBuildCount() const noexcept {return cancelledBuilds.load(std::memory_order_relaxed);}
+    struct WorkerScheduling {
+        bool startSucceeded{}, enteredRun{};
+        int observedPriority{};
+    };
+    // Read only after stop() has joined the worker. JUCE queries the native
+    // priority on Windows/macOS; on Linux it reports the requested value only.
+    WorkerScheduling workerScheduling() const noexcept {return scheduling;}
     juce::Result importFile(int lane, const juce::File&);
     juce::String status(int lane) const;
     juce::String userName(int lane) const;
@@ -60,6 +67,7 @@ private:
     };
     std::deque<CachedModel> modelCache; // Eight responses, worker/prepare only; bounded FIFO.
     std::atomic<unsigned> cancelledBuilds{};
+    WorkerScheduling scheduling;
     std::array<Cab*,6> cabs;
     std::array<std::shared_ptr<Asset>,6> users;
     std::array<std::shared_ptr<Asset>,2> factory;

@@ -14,6 +14,10 @@
  #endif
  #include <windows.h>
  #include <realtimeapiset.h>
+#elif defined(__APPLE__)
+ #include <sys/qos.h>
+#else
+ #include <pthread.h>
 #endif
 
 #include <algorithm>
@@ -36,6 +40,34 @@ namespace cabTiming
 constexpr size_t measuredCallbacks = 1600;
 constexpr size_t workerCallbacks = 1200;
 constexpr size_t automationCallbacks = 80;
+
+// Read-only execution context, queried before or after the complete measured
+// callback population. A shell/environment collector cannot stand in for the
+// priority of the actual CTest process and its calling thread.
+inline void appendCallerScheduling(std::ostream& out)
+{
+#if defined(_WIN32)
+    const auto processClass = ::GetPriorityClass(::GetCurrentProcess());
+    const auto threadPriority = ::GetThreadPriority(::GetCurrentThread());
+    DWORD_PTR processMask = 0, systemMask = 0;
+    const bool affinityValid = ::GetProcessAffinityMask(::GetCurrentProcess(), &processMask, &systemMask) != 0;
+    out << " caller_context=windows_native"
+        << " caller_process_priority_class=" << processClass
+        << " caller_thread_priority=" << threadPriority
+        << " caller_priority_valid=" << (processClass != 0 && threadPriority != THREAD_PRIORITY_ERROR_RETURN)
+        << " caller_process_affinity_mask=" << static_cast<uint64_t>(processMask)
+        << " caller_affinity_valid=" << affinityValid;
+#elif defined(__APPLE__)
+    // Base QoS is an observation, not a trace of temporary OS priority boosts.
+    out << " caller_context=macos_base_qos caller_thread_qos=" << static_cast<unsigned>(qos_class_self());
+#else
+    int policy = 0;
+    sched_param parameters{};
+    const auto error = pthread_getschedparam(pthread_self(), &policy, &parameters);
+    out << " caller_context=pthread_native caller_policy=" << policy
+        << " caller_thread_priority=" << parameters.sched_priority << " caller_query_error=" << error;
+#endif
+}
 
 struct ThreadClock
 {

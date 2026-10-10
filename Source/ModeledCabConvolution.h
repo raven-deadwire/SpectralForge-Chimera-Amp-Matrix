@@ -12,8 +12,8 @@ namespace spectralforge {
 // A modeled IR is mono and is applied independently to both input channels.
 // Linearity lets one complex convolution carry left + i * right: its real and
 // imaginary outputs are the two separate convolutions, not a stereo downmix.
-// Keep the existing small-block uniform partition schedule. In particular, no
-// larger, intermittent tail FFT or extra block of processing latency is added.
+// Keep JUCE's existing uniform partition schedule at each block size. No
+// intermittent tail FFT or extra block of processing latency is added.
 // Construction and all allocation are worker-only; process/reset are bounded.
 class ModeledCabConvolution {
     using Complex = std::complex<float>;
@@ -40,12 +40,15 @@ public:
         const int blockSize, fftSize, bins, segmentSize, segments, inputSegments;
         std::vector<float> impulseSpectra;
         Prepared(const juce::AudioBuffer<float>& samples,int maximumBlockSize,bool monoInput=false)
-            : mono(monoInput), blockSize(juce::nextPowerOfTwo(maximumBlockSize)), fftSize(4*blockSize),
+            : mono(monoInput), blockSize(juce::nextPowerOfTwo(maximumBlockSize)),
+              fftSize((blockSize>128 ? 2 : 4)*blockSize),
               bins(mono ? fftSize/2+1 : fftSize),
               segmentSize(fftSize-blockSize), segments(samples.getNumSamples()/segmentSize+1),
-              inputSegments(3*segments), impulseSpectra(size_t(segments)*size_t(2*bins))
+              inputSegments((blockSize>128 ? 1 : 3)*segments), impulseSpectra(size_t(segments)*size_t(2*bins))
         {
-            jassert(samples.getNumChannels()==1 && maximumBlockSize>0 && maximumBlockSize<=128);
+            jassert(samples.getNumChannels()==1 && maximumBlockSize>0 && maximumBlockSize<=512);
+            // Match the existing JUCE fallback's partition geometry: small
+            // blocks use 4B FFTs/3B IR segments, larger blocks 2B FFTs/B segments.
             juce::dsp::FFT fft(orderFor(fftSize));
             if(mono) {
                 std::vector<float> transform(size_t(2*fftSize),0.f);
@@ -74,7 +77,7 @@ public:
 private:
     std::shared_ptr<const Prepared> prepared;
     const bool mono;
-    const int blockSize, fftSize, bins, segments, inputSegments;
+    const int blockSize, fftSize, bins, segments, inputSegments, inputSegmentStep;
     juce::dsp::FFT fft;
     // Per-partition planar real/imaginary spectra keep the multiply/accumulate
     // vectorizable and contiguous instead of traversing separately allocated
@@ -126,7 +129,7 @@ private:
             std::fill(pastSum.begin(),pastSum.end(),0.f);
             int index=currentSegment;
             for(int partition=1;partition<segments;++partition) {
-                index+=3;if(index>=inputSegments)index-=inputSegments;
+                index+=inputSegmentStep;if(index>=inputSegments)index-=inputSegments;
                 accumulate(inputSpectra.data()+size_t(index)*size_t(2*bins),
                     prepared->impulseSpectra.data()+size_t(partition)*size_t(2*bins),pastSum.data());
             }
@@ -175,7 +178,8 @@ private:
 public:
     explicit ModeledCabConvolution(std::shared_ptr<const Prepared> response)
         : prepared(std::move(response)), mono(prepared->mono), blockSize(prepared->blockSize), fftSize(prepared->fftSize), bins(prepared->bins),
-          segments(prepared->segments), inputSegments(prepared->inputSegments), fft(orderFor(fftSize)),
+          segments(prepared->segments), inputSegments(prepared->inputSegments),
+          inputSegmentStep(inputSegments/segments), fft(orderFor(fftSize)),
           inputSpectra(size_t(inputSegments)*size_t(2*bins)),
           pastSum(size_t(2*bins)), outputSpectrum(size_t(2*bins)),
           inputTime(size_t(mono ? 0 : fftSize)), transform(size_t(mono ? 0 : fftSize)),

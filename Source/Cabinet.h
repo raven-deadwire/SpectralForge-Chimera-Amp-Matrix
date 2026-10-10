@@ -19,7 +19,7 @@ public:
         uint64_t modelKey{};
         bool hasIR{true};
         static bool supportsPreparedModel(const juce::dsp::ProcessSpec& spec) noexcept {
-            return spec.numChannels>=1 && spec.numChannels<=2 && spec.maximumBlockSize>0 && spec.maximumBlockSize<=128;
+            return spec.numChannels>=1 && spec.numChannels<=2 && spec.maximumBlockSize>0 && spec.maximumBlockSize<=512;
         }
         Kernel(juce::AudioBuffer<float> samples, double rate, const juce::dsp::ProcessSpec& spec,
                int type, unsigned revision, uint64_t model=0,

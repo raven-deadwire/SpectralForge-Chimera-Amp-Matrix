@@ -81,15 +81,29 @@ inline std::array<Point,4> centres(const Enclosure& box) {
     return {{{-box.width*.245,box.height*.245},{box.width*.245,box.height*.245},
              {-box.width*.245,-box.height*.245},{box.width*.245,-box.height*.245}}};
 }
+// Cache only the fixed quadrature geometry shared by all worker generations.
+// Keep the original angle expression, ring/sector order, and subsequent products.
+struct ConeQuadraturePoint {double radiusScale, cosTheta, sinTheta;};
+inline const std::array<ConeQuadraturePoint,48>& coneQuadraturePoints() {
+    static const std::array<ConeQuadraturePoint,48> points=[] {
+        std::array<ConeQuadraturePoint,48> result{};
+        for(int ring=0;ring<4;++ring)for(int sector=0;sector<12;++sector) {
+            const double theta=2*pi*(sector+.5*(ring%2))/12;
+            result[size_t(ring*12+sector)]={std::sqrt((ring+.5)/4),std::cos(theta),std::sin(theta)};
+        }
+        return result;
+    }();
+    return points;
+}
 // Reduced-order radiating surface: equal-area quadrature over each cone with
 // geometric spreading and propagation phase. High-frequency breakup uses an
 // authored shrinking coherent radius, NOT a rigid piston accuracy claim.
 inline Complex coneField(double hz,const Speaker& d,Point driver,Point mic,double z) {
     const double coherentRadius=d.radius/std::sqrt(1+std::pow(hz/1700,2));
     Complex field{};
-    for(int ring=0;ring<4;++ring)for(int sector=0;sector<12;++sector) {
-        const double r=coherentRadius*std::sqrt((ring+.5)/4),theta=2*pi*(sector+.5*(ring%2))/12;
-        const double dx=mic.x-driver.x-r*std::cos(theta),dy=mic.y-driver.y-r*std::sin(theta);
+    for(const auto& point:coneQuadraturePoints()) {
+        const double r=coherentRadius*point.radiusScale;
+        const double dx=mic.x-driver.x-r*point.cosTheta,dy=mic.y-driver.y-r*point.sinTheta;
         const double path=std::sqrt(dx*dx+dy*dy+z*z);
         field+=.10/path*propagation(hz,path)/48.0;
     }

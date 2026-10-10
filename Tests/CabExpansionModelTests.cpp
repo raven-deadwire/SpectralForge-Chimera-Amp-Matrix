@@ -1,4 +1,5 @@
 #include "CabLayoutModel.h"
+#include "CabQuadratureReference.h"
 #include <iostream>
 #include <set>
 #include <string>
@@ -61,7 +62,26 @@ void cancellationContracts() {
     std::cout<<"PASS cooperative_generation routes="<<cases
         <<" engines=v1,v2,v3 completed_waveform=identical cancel=before,during,after invalid_rate=distinct\n";
 }
+void quadratureReference() {
+    namespace reference=spectralforge::cabQuadratureReference;
+    const std::array<const x::Mic*,4> mics{{nullptr,&x::microphones[0],&x::microphones[9],&x::microphones[19]}};
+    size_t cases=0;
+    for(int driver:{1,9,13}) {
+        const x::Settings p{{true,0,0,0,0,0,.25,10},driver,0,0};
+        const auto& chosen=x::drivers[size_t(driver-1)];const auto points=v1::centres(x::enclosure(p));
+        for(const auto* mic:mics)for(int source:{0,3})for(int unit:{0,3})for(double position:{0.,.63,1.})
+        for(double z:{.02,.10,.60})for(double hz:{20.,80.,1000.,1700.,6000.,20000.}) {
+            const v1::Point pickup{points[size_t(unit)].x+position*chosen.speaker.radius,points[size_t(unit)].y};
+            require(reference::sameBits(x::coneField(hz,chosen.speaker,points[size_t(source)],pickup,z,chosen.coherenceHz,mic),
+                reference::expandedConeField(hz,chosen.speaker,points[size_t(source)],pickup,z,chosen.coherenceHz,mic)),
+                "cached v2/v3 cone differs from original math");
+            ++cases;
+        }
+    }
+    std::cout<<"PASS cone_quadrature_reference_v2_v3="<<cases<<" exact_double_bits\n";
+}
 int main(){try {
+    quadratureReference();
     cancellationContracts();
     std::set<std::string> ids;int guitar=0,bass=0;std::array<int,3> kinds{};
     for(const auto& d:x::drivers){require(ids.insert(d.id).second,"duplicate driver ID");(d.bass?bass:guitar)++;}

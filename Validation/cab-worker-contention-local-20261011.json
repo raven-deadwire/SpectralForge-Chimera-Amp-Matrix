@@ -1,0 +1,4240 @@
+{
+  "schema": "chimera.cab-worker-contention-local.v1",
+  "recorded_at_utc": "2026-10-10T19:23:12.796301+00:00",
+  "status": "LOCAL_PASS_NATIVE_PENDING",
+  "base_sha": "0f46f9f6eba7bea38ff256e3a5eafb1ca83b7065",
+  "base_tree": "a4587e804aa0cda0d2603593dda512bd26707759",
+  "source_code_sha256": {
+    "Source/CabExpansionModel.h": "98254fc51eb01bce251d58282c0c7a1474a4abfbee7ed0a4053d1380f3bb6a02",
+    "Source/Cabinet.h": "d047e0356ec092810abff44bcc77443dbabb52de5c939da80bb5ab3e3ac22f9e",
+    "Source/IRLibrary.cpp": "1af7925ac1083de4bb1cd25007ec25ed8fd1b8f7a7929913cc52faf18c2f212a",
+    "Source/IRLibrary.h": "f7494642010defa4de434f85629478198ed2b4a0cad15aaba3e54bea054c1f58",
+    "Source/ModeledCabConvolution.h": "c56e90411ed9869de21720327a6df79bccf0e0aedd13639f929fdc1165c4cf29",
+    "Source/OriginalCabModel.h": "972dacf18e91b2585b3bcef71d5650135241d733737b888e651c709c0e3e2735",
+    "Tests/CabExpansionModelTests.cpp": "39695636a49926ee226aee5f8dc03c8ef200616f9a4abad59b218ea1df7ebe50",
+    "Tests/CabRealtimeRegressionTests.cpp": "fd07d6fb300484671800ad47d81475ff674d9a06f27787d1e7b979c38b1ac8bd",
+    "Tests/CabTimingDiagnostics.h": "2e82a130f07b1ad1c22f4473e5f18e31f20cbf932126d832aa29120e616f0603",
+    "Tests/OriginalCabIntegrationTests.cpp": "dc9a637c9acf36695f8f7c743d179b9125dbebbb06a747c4adcd23f15c423e2d",
+    "Tests/OriginalCabModelTests.cpp": "b86e36713092304bb70937c421fa968dda91d02f7dbeeb6ebd6a014a942180d3",
+    "Tests/CabQuadratureReference.h": "2ad59d38a78d22ffd51b0073d9be44b3b69a8f31f5d1023e076c3d0b057a9bc9"
+  },
+  "source_binding": "These 12 code/test files were frozen before build, all 10 CTests and the diagnostic profile. Documentation and this evidence report were added only after execution. A subsequent publication commit can be verified against these hashes.",
+  "environment": {
+    "build_type": "Release",
+    "compiler": "GNU 13.3.0",
+    "release_flags": "-O3 -DNDEBUG",
+    "platform": "Linux",
+    "architecture": "x86_64",
+    "cpu_model_observed_at_audit": "AMD EPYC 9V74 80-Core Processor",
+    "cmake_cache_sha256": "d1822309dffe1d766514d316d5775575dc3eacfbc0168af58289bc555af6eb5f"
+  },
+  "ctest": {
+    "tests": 10,
+    "passed": 10,
+    "failures": 0,
+    "serial_parallel_argument": "1",
+    "execution_seconds": 60.35445486599929,
+    "junit_timestamp_unspecified_timezone": "2026-10-11T04:16:23",
+    "tests_detail": [
+      {
+        "name": "ChimeraIRLibraryTests",
+        "status": "run",
+        "seconds": 0.550976
+      },
+      {
+        "name": "ChimeraCabExpansionModelTests",
+        "status": "run",
+        "seconds": 5.85046
+      },
+      {
+        "name": "ChimeraOriginalCabModelTests",
+        "status": "run",
+        "seconds": 1.94773
+      },
+      {
+        "name": "ChimeraCabTimingDiagnosticsTests",
+        "status": "run",
+        "seconds": 0.00646859
+      },
+      {
+        "name": "ChimeraOriginalCabIntegrationTests",
+        "status": "run",
+        "seconds": 7.34251
+      },
+      {
+        "name": "ChimeraOriginalCabRealtimeTests",
+        "status": "run",
+        "seconds": 3.70673
+      },
+      {
+        "name": "ChimeraCabExpansionIntegrationTests",
+        "status": "run",
+        "seconds": 7.79363
+      },
+      {
+        "name": "ChimeraCabExtendedTimingTests",
+        "status": "run",
+        "seconds": 20.3809
+      },
+      {
+        "name": "ChimeraCabLayoutModelTests",
+        "status": "run",
+        "seconds": 3.17039
+      },
+      {
+        "name": "ChimeraCabLayoutIntegrationTests",
+        "status": "run",
+        "seconds": 9.54779
+      }
+    ]
+  },
+  "timing": {
+    "conditions": 66,
+    "strict_p99_passes": 66,
+    "strict_p99_failures": [],
+    "callbacks": 105600,
+    "worker_callbacks": 79200,
+    "forced_callbacks": 26400,
+    "automation_callbacks": 5280,
+    "paired_records_verified": 198,
+    "phase_summary_records_verified": 132,
+    "cpu_valid_callbacks": 105600,
+    "cycles_valid_callbacks": 0,
+    "clock_errors": 0,
+    "misses": 34,
+    "misses_by_phase": {
+      "worker_and_automation": 24,
+      "forced_six_slot_publication": 10
+    },
+    "measured_cpu_above_budget_callbacks": 34,
+    "wall_misses_with_measured_cpu_above_budget": 34,
+    "wall_misses_with_measured_cpu_at_or_below_budget": 0,
+    "by_suite": [
+      {
+        "engine": "array-v3-6x10",
+        "suite": "integration",
+        "conditions": 12,
+        "strict_p99_passes": 12,
+        "misses": 6,
+        "worker_misses": 6,
+        "forced_misses": 0,
+        "cancelled_builds": 143
+      },
+      {
+        "engine": "expanded-v2",
+        "suite": "extended",
+        "conditions": 30,
+        "strict_p99_passes": 30,
+        "misses": 21,
+        "worker_misses": 12,
+        "forced_misses": 9,
+        "cancelled_builds": 353
+      },
+      {
+        "engine": "expanded-v2",
+        "suite": "integration",
+        "conditions": 12,
+        "strict_p99_passes": 12,
+        "misses": 4,
+        "worker_misses": 3,
+        "forced_misses": 1,
+        "cancelled_builds": 144
+      },
+      {
+        "engine": "original-v1",
+        "suite": "integration",
+        "conditions": 12,
+        "strict_p99_passes": 12,
+        "misses": 3,
+        "worker_misses": 3,
+        "forced_misses": 0,
+        "cancelled_builds": 142
+      }
+    ],
+    "largest_wall_miss": {
+      "engine": "array-v3-6x10",
+      "suite": "integration",
+      "sr": 96000,
+      "block": 64,
+      "channels": 2,
+      "callback_index": 462,
+      "phase": "worker_and_automation",
+      "budget_us": 666.6666666666666,
+      "wall_us": 23136.001,
+      "thread_cpu_us": 23137.610000000335,
+      "thread_cpu_valid": 1,
+      "thread_cycles": 0,
+      "thread_cycles_valid": 0,
+      "wall_minus_measured_cpu_us": -1.6090000003350724
+    },
+    "smallest_p99_margin": {
+      "engine": "expanded-v2",
+      "suite": "extended",
+      "sr": 96000,
+      "block": 32,
+      "channels": 2,
+      "p99_us": 302.366,
+      "budget_us": 333.3333333333333,
+      "p99_budget_ratio": 0.907098
+    }
+  },
+  "worker_scheduling": {
+    "records": 66,
+    "all_contract_fields_valid": true,
+    "identical_fields": {
+      "start_succeeded": "1",
+      "entered_run": "1",
+      "requested_juce_priority": "-1",
+      "observed_juce_priority": "-1",
+      "worker_priority_query": "requested_only",
+      "linux_nonrealtime_request_ignored": "1",
+      "caller_context": "pthread_native",
+      "caller_policy": "0",
+      "caller_thread_priority": "0",
+      "caller_query_error": "0"
+    },
+    "interpretation": "JUCE Linux getPriority returns requested priority storage; start/entry and requested low are confirmed, but effective lowered worker priority is not established. Actual caller pthread_getschedparam succeeds with policy 0 (SCHED_OTHER) and priority 0. No claim of Linux priority benefit.",
+    "juce_source_sha256": "993aa2441b3cc5b633b1db6d793146950963cf57126d7019e470e9ed39558e7a",
+    "total_cancelled_builds": 782
+  },
+  "callback_allocations": {
+    "reports": [
+      {
+        "callback_new": "0",
+        "callback_delete": "0",
+        "test": "ChimeraOriginalCabIntegrationTests"
+      },
+      {
+        "callback_new": "0",
+        "callback_delete": "0",
+        "test": "ChimeraCabExpansionIntegrationTests"
+      },
+      {
+        "callback_new": "0",
+        "callback_delete": "0",
+        "test": "ChimeraCabLayoutIntegrationTests"
+      },
+      {
+        "callback_new": "0",
+        "callback_delete": "0",
+        "test": "ChimeraCabExtendedTimingTests"
+      }
+    ],
+    "all_zero": true,
+    "scope": "Thread-local C++ new/delete operators only; not universal malloc or lock tracing."
+  },
+  "functional_evidence": {
+    "passed_lines": [
+      "PASS modeled_worker_cancellation cancelled_builds=2 latest_six_mics=converged stop_us=2106.42 reprepare=synchronous resources=released",
+      "PASS cone_quadrature_reference_v2_v3=2592 exact_double_bits",
+      "PASS cooperative_generation routes=9 engines=v1,v2,v3 completed_waveform=identical cancel=before,during,after invalid_rate=distinct",
+      "PASS cone_quadrature_reference_v1=864 geometry_doubles=144 exact_double_bits",
+      "PASS CAB realtime equivalence routes=144 models=v1,v2,v3,userIR prepared_model_routes=108 modeled_juce_loaders=0 uniform_residual=1.25729e-08 impulse_residual=7.45058e-09 reset_residual=0 latency=0 chunks=fixed,1,17,63,max,3 mic_post_routes=18 mic_post_residual=0 reprepare_routes=4 reprepare_residual=0 six_mic_routes=8 six_mic_residual=4.84288e-08 six_mic_oracle=direct_FIR worker_cases=stale,six_ready,reuse fade_ms=50"
+    ],
+    "route_oracle": {
+      "routes": "144",
+      "models": "v1,v2,v3,userIR",
+      "prepared_model_routes": "108",
+      "modeled_juce_loaders": "0",
+      "uniform_residual": "1.25729e-08",
+      "impulse_residual": "7.45058e-09",
+      "reset_residual": "0",
+      "latency": "0",
+      "chunks": "fixed,1,17,63,max,3",
+      "mic_post_routes": "18",
+      "mic_post_residual": "0",
+      "reprepare_routes": "4",
+      "reprepare_residual": "0",
+      "six_mic_routes": "8",
+      "six_mic_residual": "4.84288e-08",
+      "six_mic_oracle": "direct_FIR",
+      "worker_cases": "stale,six_ready,reuse",
+      "fade_ms": "50"
+    },
+    "v1_existing_boundary_cases": 864,
+    "v2_existing_boundary_cases": 8960,
+    "failures": []
+  },
+  "binaries": [
+    {
+      "name": "ChimeraCabExpansionModelTests",
+      "bytes": 129456,
+      "sha256": "a8535bb02195984c55d6902b986dee069f25c09a0cbc908ac38c65c27e992b0b"
+    },
+    {
+      "name": "ChimeraCabLayoutModelTests",
+      "bytes": 120960,
+      "sha256": "be38abbaa47d436af3992d9aa1cfc5fe93d6479bb71039c7d081e35474c56f07"
+    },
+    {
+      "name": "ChimeraCabTimingDiagnosticsTests",
+      "bytes": 42328,
+      "sha256": "e8ceaa6be9f2b5d632d2f3ef7c00fcc1aadd51c9ef05462e33f23688e779216c"
+    },
+    {
+      "name": "ChimeraIRLibraryTests",
+      "bytes": 4695656,
+      "sha256": "a5249d6326d093ed6a8cdb41dc56fab176f2baa11ee72dcf49e753615c15b0ac"
+    },
+    {
+      "name": "ChimeraOriginalCabIntegrationTests",
+      "bytes": 4658016,
+      "sha256": "5b4909fee5995c421910b7a5f71abfb4901d4a2d95f31dea2a3f866993b8f179"
+    },
+    {
+      "name": "ChimeraOriginalCabModelTests",
+      "bytes": 53120,
+      "sha256": "c9db4e1a1d8af38f8d47c179778db5e939577076cf2edbe4375472e55632fa8b"
+    },
+    {
+      "name": "ChimeraOriginalCabRealtimeTests",
+      "bytes": 4005000,
+      "sha256": "97d183fa9dd11ecef1dad5fc01c223fd555660155be3f7a04b713b3856ba2a2c"
+    }
+  ],
+  "independent_audit": {
+    "pass": true,
+    "sha256": "07838b2c8260926879d2b833d7262784516df23b0e2a75dd7f9b5727ebddc13f",
+    "validator_source_sha256": "cd68cf57c43e7cc74290040d29f25878c267cdac4e624f1860dcb25aa7501901",
+    "validators": [
+      "parse_rows",
+      "validate_matrix",
+      "validate_timing_samples"
+    ],
+    "review": "Independent read-only source review found no blocker and verified original reference function bodies and unchanged gate/load. Native compilation remains pending."
+  },
+  "limitations": [
+    "This batch has no paired frozen 66-condition baseline: performance regression/improvement counts cannot be derived from this evidence alone.",
+    "All 66 strict p99 gates pass; 34 deadline misses remain and no claim of stall elimination follows.",
+    "Thread CPU spans include test clock/prologue overhead outside the original wall interval; slight CPU > wall does not prove impossible execution or exact DSP-only cost.",
+    "Linux cycles are unavailable and are not treated as zero work.",
+    "New original-math bit comparisons passed on local GCC; native Windows/MSVC and macOS/AppleClang remain pending."
+  ],
+  "routes": [
+    {
+      "engine": "original-v1",
+      "suite": "integration",
+      "sr": 44100,
+      "block": 64,
+      "channels": 1,
+      "test": "ChimeraOriginalCabIntegrationTests",
+      "budget_us": 1451.2471655328798,
+      "strict_p99_pass": true,
+      "worker_cancelled_builds": 12,
+      "kernel_residual": 4.88944351673e-09,
+      "raw_csv": "cab-timing-diagnostics/integration/original-v1/44100-64-1.csv",
+      "raw_csv_sha256": "ff9efe851fa9780715d8d7562301d54fba1a28fcf4a6d5938fa6eccefbd61469",
+      "phases": [
+        {
+          "phase": "all",
+          "samples": 1600,
+          "p50_us": 37.467,
+          "p99_us": 242.856,
+          "max_us": 409.017,
+          "misses": 0,
+          "cpu_p99_us": 243.40099999998347
+        },
+        {
+          "phase": "worker_and_automation",
+          "samples": 1200,
+          "p50_us": 37.566,
+          "p99_us": 261.345,
+          "max_us": 409.017,
+          "misses": 0,
+          "cpu_p99_us": 261.76900000000023
+        },
+        {
+          "phase": "forced_six_slot_publication",
+          "samples": 400,
+          "p50_us": 37.286,
+          "p99_us": 230.728,
+          "max_us": 265.681,
+          "misses": 0,
+          "cpu_p99_us": 231.14299999998184
+        }
+      ]
+    },
+    {
+      "engine": "original-v1",
+      "suite": "integration",
+      "sr": 44100,
+      "block": 64,
+      "channels": 2,
+      "test": "ChimeraOriginalCabIntegrationTests",
+      "budget_us": 1451.2471655328798,
+      "strict_p99_pass": true,
+      "worker_cancelled_builds": 12,
+      "kernel_residual": 4.88944351673e-09,
+      "raw_csv": "cab-timing-diagnostics/integration/original-v1/44100-64-2.csv",
+      "raw_csv_sha256": "1098df4384425c132490af2b6fc61d9cf08205a3118a74c6b8076652f56c6c3e",
+      "phases": [
+        {
+          "phase": "all",
+          "samples": 1600,
+          "p50_us": 45.709,
+          "p99_us": 185.329,
+          "max_us": 581.227,
+          "misses": 0,
+          "cpu_p99_us": 185.8760000000475
+        },
+        {
+          "phase": "worker_and_automation",
+          "samples": 1200,
+          "p50_us": 45.598,
+          "p99_us": 162.725,
+          "max_us": 581.227,
+          "misses": 0,
+          "cpu_p99_us": 163.46299999998882
+        },
+        {
+          "phase": "forced_six_slot_publication",
+          "samples": 400,
+          "p50_us": 45.859,
+          "p99_us": 254.013,
+          "max_us": 332.202,
+          "misses": 0,
+          "cpu_p99_us": 254.87899999995716
+        }
+      ]
+    },
+    {
+      "engine": "original-v1",
+      "suite": "integration",
+      "sr": 44100,
+      "block": 256,
+      "channels": 1,
+      "test": "ChimeraOriginalCabIntegrationTests",
+      "budget_us": 5804.988662131519,
+      "strict_p99_pass": true,
+      "worker_cancelled_builds": 10,
+      "kernel_residual": 3.72529029846e-09,
+      "raw_csv": "cab-timing-diagnostics/integration/original-v1/44100-256-1.csv",
+      "raw_csv_sha256": "52709ae39d0dda4c71ca0c5465d8623bd1389c2bb703c6f4acde6e3a03bf241b",
+      "phases": [
+        {
+          "phase": "all",
+          "samples": 1600,
+          "p50_us": 94.512,
+          "p99_us": 298.851,
+          "max_us": 2140.6,
+          "misses": 0,
+          "cpu_p99_us": 299.8950000000186
+        },
+        {
+          "phase": "worker_and_automation",
+          "samples": 1200,
+          "p50_us": 94.452,
+          "p99_us": 251.279,
+          "max_us": 2140.6,
+          "misses": 0,
+          "cpu_p99_us": 251.9440000000177
+        },
+        {
+          "phase": "forced_six_slot_publication",
+          "samples": 400,
+          "p50_us": 94.703,
+          "p99_us": 430.279,
+          "max_us": 918.616,
+          "misses": 0,
+          "cpu_p99_us": 430.93000000016764
+        }
+      ]
+    },
+    {
+      "engine": "original-v1",
+      "suite": "integration",
+      "sr": 44100,
+      "block": 256,
+      "channels": 2,
+      "test": "ChimeraOriginalCabIntegrationTests",
+      "budget_us": 5804.988662131519,
+      "strict_p99_pass": true,
+      "worker_cancelled_builds": 12,
+      "kernel_residual": 3.72529029846e-09,
+      "raw_csv": "cab-timing-diagnostics/integration/original-v1/44100-256-2.csv",
+      "raw_csv_sha256": "8ca236e0ecd0ee79db4c0a29c2f578667fbe6e9675639dbff4e233cdc01ad205",
+      "phases": [
+        {
+          "phase": "all",
+          "samples": 1600,
+          "p50_us": 112.98,
+          "p99_us": 356.057,
+          "max_us": 2019.397,
+          "misses": 0,
+          "cpu_p99_us": 356.71999999997206
+        },
+        {
+          "phase": "worker_and_automation",
+          "samples": 1200,
+          "p50_us": 112.53,
+          "p99_us": 393.634,
+          "max_us": 1042.573,
+          "misses": 0,
+          "cpu_p99_us": 394.5450000001583
+        },
+        {
+          "phase": "forced_six_slot_publication",
+          "samples": 400,
+          "p50_us": 113.261,
+          "p99_us": 325.911,
+          "max_us": 2019.397,
+          "misses": 0,
+          "cpu_p99_us": 326.89600000018254
+        }
+      ]
+    },
+    {
+      "engine": "original-v1",
+      "suite": "integration",
+      "sr": 48000,
+      "block": 64,
+      "channels": 1,
+      "test": "ChimeraOriginalCabIntegrationTests",
+      "budget_us": 1333.3333333333333,
+      "strict_p99_pass": true,
+      "worker_cancelled_builds": 12,
+      "kernel_residual": 3.72529029846e-09,
+      "raw_csv": "cab-timing-diagnostics/integration/original-v1/48000-64-1.csv",
+      "raw_csv_sha256": "967542d7243f7561252edc7fca8927193cea48845adc39e9514675a4d1681f35",
+      "phases": [
+        {
+          "phase": "all",
+          "samples": 1600,
+          "p50_us": 38.709,
+          "p99_us": 138.519,
+          "max_us": 1925.936,
+          "misses": 2,
+          "cpu_p99_us": 139.56700000027195
+        },
+        {
+          "phase": "worker_and_automation",
+          "samples": 1200,
+          "p50_us": 38.918,
+          "p99_us": 142.315,
+          "max_us": 1925.936,
+          "misses": 2,
+          "cpu_p99_us": 142.9220000000205
+        },
+        {
+          "phase": "forced_six_slot_publication",
+          "samples": 400,
+          "p50_us": 38.308,
+          "p99_us": 135.264,
+          "max_us": 301.975,
+          "misses": 0,
+          "cpu_p99_us": 135.71200000005774
+        }
+      ]
+    },
+    {
+      "engine": "original-v1",
+      "suite": "integration",
+      "sr": 48000,
+      "block": 64,
+      "channels": 2,
+      "test": "ChimeraOriginalCabIntegrationTests",
+      "budget_us": 1333.3333333333333,
+      "strict_p99_pass": true,
+      "worker_cancelled_builds": 12,
+      "kernel_residual": 3.72529029846e-09,
+      "raw_csv": "cab-timing-diagnostics/integration/original-v1/48000-64-2.csv",
+      "raw_csv_sha256": "edcf46028f34f9bfc2a2c266ae88cbf17ae58d5b3f99d50309aa36c30b761632",
+      "phases": [
+        {
+          "phase": "all",
+          "samples": 1600,
+          "p50_us": 47.562,
+          "p99_us": 151.008,
+          "max_us": 1808.629,
+          "misses": 1,
+          "cpu_p99_us": 155.25099999993108
+        },
+        {
+          "phase": "worker_and_automation",
+          "samples": 1200,
+          "p50_us": 47.853,
+          "p99_us": 160.552,
+          "max_us": 1808.629,
+          "misses": 1,
+          "cpu_p99_us": 163.44200000003912
+        },
+        {
+          "phase": "forced_six_slot_publication",
+          "samples": 400,
+          "p50_us": 47.131,
+          "p99_us": 133.241,
+          "max_us": 324.329,
+          "misses": 0,
+          "cpu_p99_us": 133.7390000000596
+        }
+      ]
+    },
+    {
+      "engine": "original-v1",
+      "suite": "integration",
+      "sr": 48000,
+      "block": 256,
+      "channels": 1,
+      "test": "ChimeraOriginalCabIntegrationTests",
+      "budget_us": 5333.333333333333,
+      "strict_p99_pass": true,
+      "worker_cancelled_builds": 12,
+      "kernel_residual": 3.49245965481e-09,
+      "raw_csv": "cab-timing-diagnostics/integration/original-v1/48000-256-1.csv",
+      "raw_csv_sha256": "a3f68c6dd9213c8103f3765f4b7179113f06b129e310d122963a081a73a753e6",
+      "phases": [
+        {
+          "phase": "all",
+          "samples": 1600,
+          "p50_us": 94.753,
+          "p99_us": 207.573,
+          "max_us": 408.256,
+          "misses": 0,
+          "cpu_p99_us": 209.03099999995902
+        },
+        {
+          "phase": "worker_and_automation",
+          "samples": 1200,
+          "p50_us": 94.783,
+          "p99_us": 190.527,
+          "max_us": 408.256,
+          "misses": 0,
+          "cpu_p99_us": 191.22399999992922
+        },
+        {
+          "phase": "forced_six_slot_publication",
+          "samples": 400,
+          "p50_us": 94.593,
+          "p99_us": 250.608,
+          "max_us": 377.55,
+          "misses": 0,
+          "cpu_p99_us": 251.4429999999702
+        }
+      ]
+    },
+    {
+      "engine": "original-v1",
+      "suite": "integration",
+      "sr": 48000,
+      "block": 256,
+      "channels": 2,
+      "test": "ChimeraOriginalCabIntegrationTests",
+      "budget_us": 5333.333333333333,
+      "strict_p99_pass": true,
+      "worker_cancelled_builds": 12,
+      "kernel_residual": 3.49245965481e-09,
+      "raw_csv": "cab-timing-diagnostics/integration/original-v1/48000-256-2.csv",
+      "raw_csv_sha256": "ee40e1925c3ed71b4e1c8f2674794081fa8b7a14d5a0d3ffb2666139b0532d1b",
+      "phases": [
+        {
+          "phase": "all",
+          "samples": 1600,
+          "p50_us": 113.511,
+          "p99_us": 242.846,
+          "max_us": 468.157,
+          "misses": 0,
+          "cpu_p99_us": 243.5219999998808
+        },
+        {
+          "phase": "worker_and_automation",
+          "samples": 1200,
+          "p50_us": 112.991,
+          "p99_us": 232.901,
+          "max_us": 390.709,
+          "misses": 0,
+          "cpu_p99_us": 233.67700000014156
+        },
+        {
+          "phase": "forced_six_slot_publication",
+          "samples": 400,
+          "p50_us": 113.932,
+          "p99_us": 292.822,
+          "max_us": 468.157,
+          "misses": 0,
+          "cpu_p99_us": 293.76699999999255
+        }
+      ]
+    },
+    {
+      "engine": "original-v1",
+      "suite": "integration",
+      "sr": 96000,
+      "block": 64,
+      "channels": 1,
+      "test": "ChimeraOriginalCabIntegrationTests",
+      "budget_us": 666.6666666666666,
+      "strict_p99_pass": true,
+      "worker_cancelled_builds": 12,
+      "kernel_residual": 2.32830643654e-09,
+      "raw_csv": "cab-timing-diagnostics/integration/original-v1/96000-64-1.csv",
+      "raw_csv_sha256": "a8be3a8c31f6e6e04cd09e7dfe16e4e5950b23d9c9abc8430499b0f2ff47a89a",
+      "phases": [
+        {
+          "phase": "all",
+          "samples": 1600,
+          "p50_us": 48.483,
+          "p99_us": 172.02,
+          "max_us": 379.964,
+          "misses": 0,
+          "cpu_p99_us": 174.29900000011548
+        },
+        {
+          "phase": "worker_and_automation",
+          "samples": 1200,
+          "p50_us": 48.193,
+          "p99_us": 184.969,
+          "max_us": 379.964,
+          "misses": 0,
+          "cpu_p99_us": 185.5950000002049
+        },
+        {
+          "phase": "forced_six_slot_publication",
+          "samples": 400,
+          "p50_us": 48.714,
+          "p99_us": 164.488,
+          "max_us": 333.023,
+          "misses": 0,
+          "cpu_p99_us": 164.76500000013039
+        }
+      ]
+    },
+    {
+      "engine": "original-v1",
+      "suite": "integration",
+      "sr": 96000,
+      "block": 64,
+      "channels": 2,
+      "test": "ChimeraOriginalCabIntegrationTests",
+      "budget_us": 666.6666666666666,
+      "strict_p99_pass": true,
+      "worker_cancelled_builds": 12,
+      "kernel_residual": 2.32830643654e-09,
+      "raw_csv": "cab-timing-diagnostics/integration/original-v1/96000-64-2.csv",
+      "raw_csv_sha256": "b7e65dd5c47a0baf6fb7b91ca1213ef23bf13bcbc103bf0abb2fbac73162fe4a",
+      "phases": [
+        {
+          "phase": "all",
+          "samples": 1600,
+          "p50_us": 63.636,
+          "p99_us": 159.551,
+          "max_us": 361.596,
+          "misses": 0,
+          "cpu_p99_us": 160.37800000002608
+        },
+        {
+          "phase": "worker_and_automation",
+          "samples": 1200,
+          "p50_us": 63.586,
+          "p99_us": 159.551,
+          "max_us": 329.127,
+          "misses": 0,
+          "cpu_p99_us": 160.37800000002608
+        },
+        {
+          "phase": "forced_six_slot_publication",
+          "samples": 400,
+          "p50_us": 63.736,
+          "p99_us": 166.421,
+          "max_us": 361.596,
+          "misses": 0,
+          "cpu_p99_us": 166.62699999986216
+        }
+      ]
+    },
+    {
+      "engine": "original-v1",
+      "suite": "integration",
+      "sr": 96000,
+      "block": 256,
+      "channels": 1,
+      "test": "ChimeraOriginalCabIntegrationTests",
+      "budget_us": 2666.6666666666665,
+      "strict_p99_pass": true,
+      "worker_cancelled_builds": 12,
+      "kernel_residual": 2.09547579288e-09,
+      "raw_csv": "cab-timing-diagnostics/integration/original-v1/96000-256-1.csv",
+      "raw_csv_sha256": "8f89b77377905a2db2ca51d65b3e1875cc823b7e17bedc97da02f49d3c8ba56e",
+      "phases": [
+        {
+          "phase": "all",
+          "samples": 1600,
+          "p50_us": 107.282,
+          "p99_us": 260.383,
+          "max_us": 1313.342,
+          "misses": 0,
+          "cpu_p99_us": 267.45700000040233
+        },
+        {
+          "phase": "worker_and_automation",
+          "samples": 1200,
+          "p50_us": 106.831,
+          "p99_us": 260.383,
+          "max_us": 645.193,
+          "misses": 0,
+          "cpu_p99_us": 267.45700000040233
+        },
+        {
+          "phase": "forced_six_slot_publication",
+          "samples": 400,
+          "p50_us": 107.712,
+          "p99_us": 276.717,
+          "max_us": 1313.342,
+          "misses": 0,
+          "cpu_p99_us": 278.9339999994263
+        }
+      ]
+    },
+    {
+      "engine": "original-v1",
+      "suite": "integration",
+      "sr": 96000,
+      "block": 256,
+      "channels": 2,
+      "test": "ChimeraOriginalCabIntegrationTests",
+      "budget_us": 2666.6666666666665,
+      "strict_p99_pass": true,
+      "worker_cancelled_builds": 12,
+      "kernel_residual": 2.09547579288e-09,
+      "raw_csv": "cab-timing-diagnostics/integration/original-v1/96000-256-2.csv",
+      "raw_csv_sha256": "35f79947a27f3311124b4d8fc0cb27cd05b07bda0e13a69fe7b25461568a2597",
+      "phases": [
+        {
+          "phase": "all",
+          "samples": 1600,
+          "p50_us": 134.843,
+          "p99_us": 301.035,
+          "max_us": 972.157,
+          "misses": 0,
+          "cpu_p99_us": 301.86899999994785
+        },
+        {
+          "phase": "worker_and_automation",
+          "samples": 1200,
+          "p50_us": 134.573,
+          "p99_us": 268.845,
+          "max_us": 588.378,
+          "misses": 0,
+          "cpu_p99_us": 269.74100000038743
+        },
+        {
+          "phase": "forced_six_slot_publication",
+          "samples": 400,
+          "p50_us": 135.154,
+          "p99_us": 382.947,
+          "max_us": 972.157,
+          "misses": 0,
+          "cpu_p99_us": 385.1019999999553
+        }
+      ]
+    },
+    {
+      "engine": "expanded-v2",
+      "suite": "integration",
+      "sr": 44100,
+      "block": 64,
+      "channels": 1,
+      "test": "ChimeraCabExpansionIntegrationTests",
+      "budget_us": 1451.2471655328798,
+      "strict_p99_pass": true,
+      "worker_cancelled_builds": 12,
+      "kernel_residual": 3.72529029846e-09,
+      "raw_csv": "cab-timing-diagnostics/integration/expanded-v2/44100-64-1.csv",
+      "raw_csv_sha256": "eed0e38914c40c994d97b397b6be55b1e1bbe858c55c883e5c90811cbcee1399",
+      "phases": [
+        {
+          "phase": "all",
+          "samples": 1600,
+          "p50_us": 37.487,
+          "p99_us": 108.404,
+          "max_us": 350.589,
+          "misses": 0,
+          "cpu_p99_us": 108.95100000000093
+        },
+        {
+          "phase": "worker_and_automation",
+          "samples": 1200,
+          "p50_us": 37.957,
+          "p99_us": 107.072,
+          "max_us": 230.858,
+          "misses": 0,
+          "cpu_p99_us": 107.52999999999884
+        },
+        {
+          "phase": "forced_six_slot_publication",
+          "samples": 400,
+          "p50_us": 37.056,
+          "p99_us": 136.606,
+          "max_us": 350.589,
+          "misses": 0,
+          "cpu_p99_us": 137.15299999999115
+        }
+      ]
+    },
+    {
+      "engine": "expanded-v2",
+      "suite": "integration",
+      "sr": 44100,
+      "block": 64,
+      "channels": 2,
+      "test": "ChimeraCabExpansionIntegrationTests",
+      "budget_us": 1451.2471655328798,
+      "strict_p99_pass": true,
+      "worker_cancelled_builds": 12,
+      "kernel_residual": 3.72529029846e-09,
+      "raw_csv": "cab-timing-diagnostics/integration/expanded-v2/44100-64-2.csv",
+      "raw_csv_sha256": "e8882d2d5b9410a5ff21b7a131aeea9526a59e4246ee6033233463285a348109",
+      "phases": [
+        {
+          "phase": "all",
+          "samples": 1600,
+          "p50_us": 45.959,
+          "p99_us": 134.172,
+          "max_us": 414.926,
+          "misses": 0,
+          "cpu_p99_us": 134.44899999990594
+        },
+        {
+          "phase": "worker_and_automation",
+          "samples": 1200,
+          "p50_us": 45.95,
+          "p99_us": 134.803,
+          "max_us": 414.926,
+          "misses": 0,
+          "cpu_p99_us": 136.87300000002142
+        },
+        {
+          "phase": "forced_six_slot_publication",
+          "samples": 400,
+          "p50_us": 45.96,
+          "p99_us": 134.172,
+          "max_us": 193.212,
+          "misses": 0,
+          "cpu_p99_us": 134.44899999990594
+        }
+      ]
+    },
+    {
+      "engine": "expanded-v2",
+      "suite": "integration",
+      "sr": 44100,
+      "block": 256,
+      "channels": 1,
+      "test": "ChimeraCabExpansionIntegrationTests",
+      "budget_us": 5804.988662131519,
+      "strict_p99_pass": true,
+      "worker_cancelled_builds": 12,
+      "kernel_residual": 3.72529029846e-09,
+      "raw_csv": "cab-timing-diagnostics/integration/expanded-v2/44100-256-1.csv",
+      "raw_csv_sha256": "c852de22733a58af017554e54089c270918ec155e17d726fd1f7e1bc5bb5335f",
+      "phases": [
+        {
+          "phase": "all",
+          "samples": 1600,
+          "p50_us": 94.493,
+          "p99_us": 230.447,
+          "max_us": 1563.289,
+          "misses": 0,
+          "cpu_p99_us": 230.82300000009127
+        },
+        {
+          "phase": "worker_and_automation",
+          "samples": 1200,
+          "p50_us": 94.302,
+          "p99_us": 207.933,
+          "max_us": 305.541,
+          "misses": 0,
+          "cpu_p99_us": 208.58900000003632
+        },
+        {
+          "phase": "forced_six_slot_publication",
+          "samples": 400,
+          "p50_us": 94.732,
+          "p99_us": 313.413,
+          "max_us": 1563.289,
+          "misses": 0,
+          "cpu_p99_us": 314.02700000000186
+        }
+      ]
+    },
+    {
+      "engine": "expanded-v2",
+      "suite": "integration",
+      "sr": 44100,
+      "block": 256,
+      "channels": 2,
+      "test": "ChimeraCabExpansionIntegrationTests",
+      "budget_us": 5804.988662131519,
+      "strict_p99_pass": true,
+      "worker_cancelled_builds": 12,
+      "kernel_residual": 3.72529029846e-09,
+      "raw_csv": "cab-timing-diagnostics/integration/expanded-v2/44100-256-2.csv",
+      "raw_csv_sha256": "36bc2c6c59366bfee39ffbcd0e9bd1c91b53b0dcf32368ed0bb8834f246d8997",
+      "phases": [
+        {
+          "phase": "all",
+          "samples": 1600,
+          "p50_us": 112.54,
+          "p99_us": 303.869,
+          "max_us": 2630.74,
+          "misses": 0,
+          "cpu_p99_us": 304.74300000001676
+        },
+        {
+          "phase": "worker_and_automation",
+          "samples": 1200,
+          "p50_us": 112.219,
+          "p99_us": 313.233,
+          "max_us": 2630.74,
+          "misses": 0,
+          "cpu_p99_us": 313.905999999959
+        },
+        {
+          "phase": "forced_six_slot_publication",
+          "samples": 400,
+          "p50_us": 112.9,
+          "p99_us": 261.184,
+          "max_us": 411.531,
+          "misses": 0,
+          "cpu_p99_us": 263.8310000000056
+        }
+      ]
+    },
+    {
+      "engine": "expanded-v2",
+      "suite": "integration",
+      "sr": 48000,
+      "block": 64,
+      "channels": 1,
+      "test": "ChimeraCabExpansionIntegrationTests",
+      "budget_us": 1333.3333333333333,
+      "strict_p99_pass": true,
+      "worker_cancelled_builds": 12,
+      "kernel_residual": 3.72529029846e-09,
+      "raw_csv": "cab-timing-diagnostics/integration/expanded-v2/48000-64-1.csv",
+      "raw_csv_sha256": "7a679df9628060fbbf3c91f23d46d09ab771e7b46889cf4ba627c0f7bbeb539d",
+      "phases": [
+        {
+          "phase": "all",
+          "samples": 1600,
+          "p50_us": 38.308,
+          "p99_us": 89.445,
+          "max_us": 157.017,
+          "misses": 0,
+          "cpu_p99_us": 90.09399999980815
+        },
+        {
+          "phase": "worker_and_automation",
+          "samples": 1200,
+          "p50_us": 38.468,
+          "p99_us": 89.655,
+          "max_us": 157.017,
+          "misses": 0,
+          "cpu_p99_us": 96.88299999991432
+        },
+        {
+          "phase": "forced_six_slot_publication",
+          "samples": 400,
+          "p50_us": 38.068,
+          "p99_us": 86.731,
+          "max_us": 97.878,
+          "misses": 0,
+          "cpu_p99_us": 87.06899999966845
+        }
+      ]
+    },
+    {
+      "engine": "expanded-v2",
+      "suite": "integration",
+      "sr": 48000,
+      "block": 64,
+      "channels": 2,
+      "test": "ChimeraCabExpansionIntegrationTests",
+      "budget_us": 1333.3333333333333,
+      "strict_p99_pass": true,
+      "worker_cancelled_builds": 12,
+      "kernel_residual": 3.72529029846e-09,
+      "raw_csv": "cab-timing-diagnostics/integration/expanded-v2/48000-64-2.csv",
+      "raw_csv_sha256": "4c8bf3372f95666785433499946e59a2278b02a348df7599641074421aa72531",
+      "phases": [
+        {
+          "phase": "all",
+          "samples": 1600,
+          "p50_us": 47.131,
+          "p99_us": 126.891,
+          "max_us": 363.559,
+          "misses": 0,
+          "cpu_p99_us": 127.54900000011548
+        },
+        {
+          "phase": "worker_and_automation",
+          "samples": 1200,
+          "p50_us": 47.001,
+          "p99_us": 106.791,
+          "max_us": 363.559,
+          "misses": 0,
+          "cpu_p99_us": 110.42399999988265
+        },
+        {
+          "phase": "forced_six_slot_publication",
+          "samples": 400,
+          "p50_us": 47.251,
+          "p99_us": 170.878,
+          "max_us": 322.917,
+          "misses": 0,
+          "cpu_p99_us": 171.46500000031665
+        }
+      ]
+    },
+    {
+      "engine": "expanded-v2",
+      "suite": "integration",
+      "sr": 48000,
+      "block": 256,
+      "channels": 1,
+      "test": "ChimeraCabExpansionIntegrationTests",
+      "budget_us": 5333.333333333333,
+      "strict_p99_pass": true,
+      "worker_cancelled_builds": 12,
+      "kernel_residual": 3.72529029846e-09,
+      "raw_csv": "cab-timing-diagnostics/integration/expanded-v2/48000-256-1.csv",
+      "raw_csv_sha256": "18a6c6274303484c58d558975c920e8eb3e47597fa35f2a5215f03dacde4fa37",
+      "phases": [
+        {
+          "phase": "all",
+          "samples": 1600,
+          "p50_us": 95.253,
+          "p99_us": 299.422,
+          "max_us": 2823.55,
+          "misses": 0,
+          "cpu_p99_us": 300.085999999661
+        },
+        {
+          "phase": "worker_and_automation",
+          "samples": 1200,
+          "p50_us": 95.404,
+          "p99_us": 300.112,
+          "max_us": 2823.55,
+          "misses": 0,
+          "cpu_p99_us": 300.75700000021607
+        },
+        {
+          "phase": "forced_six_slot_publication",
+          "samples": 400,
+          "p50_us": 95.124,
+          "p99_us": 299.422,
+          "max_us": 361.606,
+          "misses": 0,
+          "cpu_p99_us": 300.085999999661
+        }
+      ]
+    },
+    {
+      "engine": "expanded-v2",
+      "suite": "integration",
+      "sr": 48000,
+      "block": 256,
+      "channels": 2,
+      "test": "ChimeraCabExpansionIntegrationTests",
+      "budget_us": 5333.333333333333,
+      "strict_p99_pass": true,
+      "worker_cancelled_builds": 12,
+      "kernel_residual": 3.72529029846e-09,
+      "raw_csv": "cab-timing-diagnostics/integration/expanded-v2/48000-256-2.csv",
+      "raw_csv_sha256": "cea4c6ce8e41d44e8cde7f3fde0f05720826e05e96bb27a8821c75c0efedb2e8",
+      "phases": [
+        {
+          "phase": "all",
+          "samples": 1600,
+          "p50_us": 114.252,
+          "p99_us": 412.202,
+          "max_us": 1780.517,
+          "misses": 0,
+          "cpu_p99_us": 413.5139999999665
+        },
+        {
+          "phase": "worker_and_automation",
+          "samples": 1200,
+          "p50_us": 113.802,
+          "p99_us": 512.584,
+          "max_us": 1780.517,
+          "misses": 0,
+          "cpu_p99_us": 513.6219999999739
+        },
+        {
+          "phase": "forced_six_slot_publication",
+          "samples": 400,
+          "p50_us": 114.463,
+          "p99_us": 359.011,
+          "max_us": 815.561,
+          "misses": 0,
+          "cpu_p99_us": 359.73400000017136
+        }
+      ]
+    },
+    {
+      "engine": "expanded-v2",
+      "suite": "integration",
+      "sr": 96000,
+      "block": 64,
+      "channels": 1,
+      "test": "ChimeraCabExpansionIntegrationTests",
+      "budget_us": 666.6666666666666,
+      "strict_p99_pass": true,
+      "worker_cancelled_builds": 12,
+      "kernel_residual": 2.09547579288e-09,
+      "raw_csv": "cab-timing-diagnostics/integration/expanded-v2/96000-64-1.csv",
+      "raw_csv_sha256": "1873648702200c998e490990e0269b019f24ec0b92a7aa159023caf2b979079e",
+      "phases": [
+        {
+          "phase": "all",
+          "samples": 1600,
+          "p50_us": 49.324,
+          "p99_us": 278.35,
+          "max_us": 3166.653,
+          "misses": 4,
+          "cpu_p99_us": 278.94499999983236
+        },
+        {
+          "phase": "worker_and_automation",
+          "samples": 1200,
+          "p50_us": 48.964,
+          "p99_us": 179.772,
+          "max_us": 3166.653,
+          "misses": 3,
+          "cpu_p99_us": 180.4279999998398
+        },
+        {
+          "phase": "forced_six_slot_publication",
+          "samples": 400,
+          "p50_us": 52.198,
+          "p99_us": 339.182,
+          "max_us": 893.128,
+          "misses": 1,
+          "cpu_p99_us": 340.47600000025705
+        }
+      ]
+    },
+    {
+      "engine": "expanded-v2",
+      "suite": "integration",
+      "sr": 96000,
+      "block": 64,
+      "channels": 2,
+      "test": "ChimeraCabExpansionIntegrationTests",
+      "budget_us": 666.6666666666666,
+      "strict_p99_pass": true,
+      "worker_cancelled_builds": 12,
+      "kernel_residual": 2.09547579288e-09,
+      "raw_csv": "cab-timing-diagnostics/integration/expanded-v2/96000-64-2.csv",
+      "raw_csv_sha256": "6c51c404ef7316343eb51a85ca2ea836611913e91a898098687b17bffdc272c1",
+      "phases": [
+        {
+          "phase": "all",
+          "samples": 1600,
+          "p50_us": 64.247,
+          "p99_us": 238.68,
+          "max_us": 478.212,
+          "misses": 0,
+          "cpu_p99_us": 239.27499999990687
+        },
+        {
+          "phase": "worker_and_automation",
+          "samples": 1200,
+          "p50_us": 64.267,
+          "p99_us": 238.68,
+          "max_us": 478.212,
+          "misses": 0,
+          "cpu_p99_us": 239.27499999990687
+        },
+        {
+          "phase": "forced_six_slot_publication",
+          "samples": 400,
+          "p50_us": 64.167,
+          "p99_us": 244.399,
+          "max_us": 368.456,
+          "misses": 0,
+          "cpu_p99_us": 244.98400000017136
+        }
+      ]
+    },
+    {
+      "engine": "expanded-v2",
+      "suite": "integration",
+      "sr": 96000,
+      "block": 256,
+      "channels": 1,
+      "test": "ChimeraCabExpansionIntegrationTests",
+      "budget_us": 2666.6666666666665,
+      "strict_p99_pass": true,
+      "worker_cancelled_builds": 12,
+      "kernel_residual": 1.86264514923e-09,
+      "raw_csv": "cab-timing-diagnostics/integration/expanded-v2/96000-256-1.csv",
+      "raw_csv_sha256": "891fc3b6dd355d573cad1ab2f00ea3c77d63503ff725320746f4375b3317aed0",
+      "phases": [
+        {
+          "phase": "all",
+          "samples": 1600,
+          "p50_us": 107.522,
+          "p99_us": 291.56,
+          "max_us": 2467.723,
+          "misses": 0,
+          "cpu_p99_us": 292.47499999962747
+        },
+        {
+          "phase": "worker_and_automation",
+          "samples": 1200,
+          "p50_us": 107.542,
+          "p99_us": 298.671,
+          "max_us": 2467.723,
+          "misses": 0,
+          "cpu_p99_us": 299.7160000000149
+        },
+        {
+          "phase": "forced_six_slot_publication",
+          "samples": 400,
+          "p50_us": 107.502,
+          "p99_us": 249.687,
+          "max_us": 394.476,
+          "misses": 0,
+          "cpu_p99_us": 250.38199999928474
+        }
+      ]
+    },
+    {
+      "engine": "expanded-v2",
+      "suite": "integration",
+      "sr": 96000,
+      "block": 256,
+      "channels": 2,
+      "test": "ChimeraCabExpansionIntegrationTests",
+      "budget_us": 2666.6666666666665,
+      "strict_p99_pass": true,
+      "worker_cancelled_builds": 12,
+      "kernel_residual": 1.86264514923e-09,
+      "raw_csv": "cab-timing-diagnostics/integration/expanded-v2/96000-256-2.csv",
+      "raw_csv_sha256": "3a68ceed72333e3d23d3fdbd6ab24d750d98a2f1222f33657b9936348c287e18",
+      "phases": [
+        {
+          "phase": "all",
+          "samples": 1600,
+          "p50_us": 135.214,
+          "p99_us": 371.13,
+          "max_us": 998.687,
+          "misses": 0,
+          "cpu_p99_us": 372.0120000001043
+        },
+        {
+          "phase": "worker_and_automation",
+          "samples": 1200,
+          "p50_us": 134.644,
+          "p99_us": 371.13,
+          "max_us": 763.342,
+          "misses": 0,
+          "cpu_p99_us": 372.0120000001043
+        },
+        {
+          "phase": "forced_six_slot_publication",
+          "samples": 400,
+          "p50_us": 135.665,
+          "p99_us": 372.912,
+          "max_us": 998.687,
+          "misses": 0,
+          "cpu_p99_us": 374.1059999996796
+        }
+      ]
+    },
+    {
+      "engine": "array-v3-6x10",
+      "suite": "integration",
+      "sr": 44100,
+      "block": 64,
+      "channels": 1,
+      "test": "ChimeraCabLayoutIntegrationTests",
+      "budget_us": 1451.2471655328798,
+      "strict_p99_pass": true,
+      "worker_cancelled_builds": 12,
+      "kernel_residual": 7.45058059692e-09,
+      "raw_csv": "cab-timing-diagnostics/integration/array-v3-6x10/44100-64-1.csv",
+      "raw_csv_sha256": "72a0f5356a020b28f593b8beebfd73309e91532d06a0f31a2fbf397788354bcd",
+      "phases": [
+        {
+          "phase": "all",
+          "samples": 1600,
+          "p50_us": 37.797,
+          "p99_us": 128.313,
+          "max_us": 1393.563,
+          "misses": 0,
+          "cpu_p99_us": 131.5449999999837
+        },
+        {
+          "phase": "worker_and_automation",
+          "samples": 1200,
+          "p50_us": 38.458,
+          "p99_us": 108.614,
+          "max_us": 882.361,
+          "misses": 0,
+          "cpu_p99_us": 110.60399999999208
+        },
+        {
+          "phase": "forced_six_slot_publication",
+          "samples": 400,
+          "p50_us": 37.146,
+          "p99_us": 221.714,
+          "max_us": 1393.563,
+          "misses": 0,
+          "cpu_p99_us": 222.47999999998137
+        }
+      ]
+    },
+    {
+      "engine": "array-v3-6x10",
+      "suite": "integration",
+      "sr": 44100,
+      "block": 64,
+      "channels": 2,
+      "test": "ChimeraCabLayoutIntegrationTests",
+      "budget_us": 1451.2471655328798,
+      "strict_p99_pass": true,
+      "worker_cancelled_builds": 11,
+      "kernel_residual": 7.45058059692e-09,
+      "raw_csv": "cab-timing-diagnostics/integration/array-v3-6x10/44100-64-2.csv",
+      "raw_csv_sha256": "64c39b05a3e4812d5957276c5df4dc3fecb848753991b27c6711c26d88ba8e7e",
+      "phases": [
+        {
+          "phase": "all",
+          "samples": 1600,
+          "p50_us": 46.18,
+          "p99_us": 150.387,
+          "max_us": 1010.735,
+          "misses": 0,
+          "cpu_p99_us": 151.23400000005495
+        },
+        {
+          "phase": "worker_and_automation",
+          "samples": 1200,
+          "p50_us": 46.751,
+          "p99_us": 146.321,
+          "max_us": 1010.735,
+          "misses": 0,
+          "cpu_p99_us": 146.8979999999283
+        },
+        {
+          "phase": "forced_six_slot_publication",
+          "samples": 400,
+          "p50_us": 45.739,
+          "p99_us": 164.819,
+          "max_us": 578.973,
+          "misses": 0,
+          "cpu_p99_us": 165.4560000000056
+        }
+      ]
+    },
+    {
+      "engine": "array-v3-6x10",
+      "suite": "integration",
+      "sr": 44100,
+      "block": 256,
+      "channels": 1,
+      "test": "ChimeraCabLayoutIntegrationTests",
+      "budget_us": 5804.988662131519,
+      "strict_p99_pass": true,
+      "worker_cancelled_builds": 12,
+      "kernel_residual": 3.72529029846e-09,
+      "raw_csv": "cab-timing-diagnostics/integration/array-v3-6x10/44100-256-1.csv",
+      "raw_csv_sha256": "031d95d6336d10c94bdffd686cc2bb18b2210b8e25be06fa56cabe9ccbdd5768",
+      "phases": [
+        {
+          "phase": "all",
+          "samples": 1600,
+          "p50_us": 94.823,
+          "p99_us": 295.185,
+          "max_us": 2122.392,
+          "misses": 0,
+          "cpu_p99_us": 295.9189999999944
+        },
+        {
+          "phase": "worker_and_automation",
+          "samples": 1200,
+          "p50_us": 96.075,
+          "p99_us": 270.068,
+          "max_us": 2122.392,
+          "misses": 0,
+          "cpu_p99_us": 271.2829999998212
+        },
+        {
+          "phase": "forced_six_slot_publication",
+          "samples": 400,
+          "p50_us": 94.463,
+          "p99_us": 327.284,
+          "max_us": 528.718,
+          "misses": 0,
+          "cpu_p99_us": 328.5480000001844
+        }
+      ]
+    },
+    {
+      "engine": "array-v3-6x10",
+      "suite": "integration",
+      "sr": 44100,
+      "block": 256,
+      "channels": 2,
+      "test": "ChimeraCabLayoutIntegrationTests",
+      "budget_us": 5804.988662131519,
+      "strict_p99_pass": true,
+      "worker_cancelled_builds": 12,
+      "kernel_residual": 3.72529029846e-09,
+      "raw_csv": "cab-timing-diagnostics/integration/array-v3-6x10/44100-256-2.csv",
+      "raw_csv_sha256": "24fa6d077c580439ec47b46a79b799fe0ae0f9f6ff7f8aa57d6bfc0cc313bfc5",
+      "phases": [
+        {
+          "phase": "all",
+          "samples": 1600,
+          "p50_us": 112.981,
+          "p99_us": 352.802,
+          "max_us": 2613.935,
+          "misses": 0,
+          "cpu_p99_us": 353.9049999997951
+        },
+        {
+          "phase": "worker_and_automation",
+          "samples": 1200,
+          "p50_us": 113.12,
+          "p99_us": 363.148,
+          "max_us": 2613.935,
+          "misses": 0,
+          "cpu_p99_us": 364.1010000000242
+        },
+        {
+          "phase": "forced_six_slot_publication",
+          "samples": 400,
+          "p50_us": 112.91,
+          "p99_us": 348.366,
+          "max_us": 434.816,
+          "misses": 0,
+          "cpu_p99_us": 349.10900000017136
+        }
+      ]
+    },
+    {
+      "engine": "array-v3-6x10",
+      "suite": "integration",
+      "sr": 48000,
+      "block": 64,
+      "channels": 1,
+      "test": "ChimeraCabLayoutIntegrationTests",
+      "budget_us": 1333.3333333333333,
+      "strict_p99_pass": true,
+      "worker_cancelled_builds": 12,
+      "kernel_residual": 3.72529029846e-09,
+      "raw_csv": "cab-timing-diagnostics/integration/array-v3-6x10/48000-64-1.csv",
+      "raw_csv_sha256": "cc66b7914f2f9b8eb80e1c34bf980a9aa64257772319b0c7f0f2394e536efe7d",
+      "phases": [
+        {
+          "phase": "all",
+          "samples": 1600,
+          "p50_us": 38.929,
+          "p99_us": 159.531,
+          "max_us": 1947.548,
+          "misses": 1,
+          "cpu_p99_us": 162.02099999971688
+        },
+        {
+          "phase": "worker_and_automation",
+          "samples": 1200,
+          "p50_us": 39.57,
+          "p99_us": 145.049,
+          "max_us": 1947.548,
+          "misses": 1,
+          "cpu_p99_us": 154.7090000002645
+        },
+        {
+          "phase": "forced_six_slot_publication",
+          "samples": 400,
+          "p50_us": 38.518,
+          "p99_us": 186.001,
+          "max_us": 931.315,
+          "misses": 0,
+          "cpu_p99_us": 186.6070000003092
+        }
+      ]
+    },
+    {
+      "engine": "array-v3-6x10",
+      "suite": "integration",
+      "sr": 48000,
+      "block": 64,
+      "channels": 2,
+      "test": "ChimeraCabLayoutIntegrationTests",
+      "budget_us": 1333.3333333333333,
+      "strict_p99_pass": true,
+      "worker_cancelled_builds": 12,
+      "kernel_residual": 3.72529029846e-09,
+      "raw_csv": "cab-timing-diagnostics/integration/array-v3-6x10/48000-64-2.csv",
+      "raw_csv_sha256": "81fe2cbfc2afddcd4ba35eb00b71c8d7e22dfdc8143181889ffaba633fd0f6d9",
+      "phases": [
+        {
+          "phase": "all",
+          "samples": 1600,
+          "p50_us": 48.092,
+          "p99_us": 259.021,
+          "max_us": 2030.855,
+          "misses": 2,
+          "cpu_p99_us": 259.74500000011176
+        },
+        {
+          "phase": "worker_and_automation",
+          "samples": 1200,
+          "p50_us": 48.474,
+          "p99_us": 277.419,
+          "max_us": 2030.855,
+          "misses": 2,
+          "cpu_p99_us": 271.3739999998361
+        },
+        {
+          "phase": "forced_six_slot_publication",
+          "samples": 400,
+          "p50_us": 47.712,
+          "p99_us": 203.708,
+          "max_us": 464.05,
+          "misses": 0,
+          "cpu_p99_us": 204.26299999980256
+        }
+      ]
+    },
+    {
+      "engine": "array-v3-6x10",
+      "suite": "integration",
+      "sr": 48000,
+      "block": 256,
+      "channels": 1,
+      "test": "ChimeraCabLayoutIntegrationTests",
+      "budget_us": 5333.333333333333,
+      "strict_p99_pass": true,
+      "worker_cancelled_builds": 12,
+      "kernel_residual": 3.72529029846e-09,
+      "raw_csv": "cab-timing-diagnostics/integration/array-v3-6x10/48000-256-1.csv",
+      "raw_csv_sha256": "cbb46667abfb1751367d7e36b03e766404a202c943bc37bccab50fa2e26dc721",
+      "phases": [
+        {
+          "phase": "all",
+          "samples": 1600,
+          "p50_us": 95.234,
+          "p99_us": 307.023,
+          "max_us": 2242.894,
+          "misses": 0,
+          "cpu_p99_us": 307.75700000021607
+        },
+        {
+          "phase": "worker_and_automation",
+          "samples": 1200,
+          "p50_us": 94.733,
+          "p99_us": 275.315,
+          "max_us": 2242.894,
+          "misses": 0,
+          "cpu_p99_us": 275.93000000016764
+        },
+        {
+          "phase": "forced_six_slot_publication",
+          "samples": 400,
+          "p50_us": 95.524,
+          "p99_us": 1059.208,
+          "max_us": 1213.04,
+          "misses": 0,
+          "cpu_p99_us": 1060.094000000041
+        }
+      ]
+    },
+    {
+      "engine": "array-v3-6x10",
+      "suite": "integration",
+      "sr": 48000,
+      "block": 256,
+      "channels": 2,
+      "test": "ChimeraCabLayoutIntegrationTests",
+      "budget_us": 5333.333333333333,
+      "strict_p99_pass": true,
+      "worker_cancelled_builds": 12,
+      "kernel_residual": 3.72529029846e-09,
+      "raw_csv": "cab-timing-diagnostics/integration/array-v3-6x10/48000-256-2.csv",
+      "raw_csv_sha256": "9e40c4b7b728176461a2c9a31b3b6d9150c6b09b345dff3d9d8661f386f4bfcb",
+      "phases": [
+        {
+          "phase": "all",
+          "samples": 1600,
+          "p50_us": 114.192,
+          "p99_us": 370.9,
+          "max_us": 4597.016,
+          "misses": 0,
+          "cpu_p99_us": 371.78200000012293
+        },
+        {
+          "phase": "worker_and_automation",
+          "samples": 1200,
+          "p50_us": 113.862,
+          "p99_us": 390.45,
+          "max_us": 4597.016,
+          "misses": 0,
+          "cpu_p99_us": 391.47099999990314
+        },
+        {
+          "phase": "forced_six_slot_publication",
+          "samples": 400,
+          "p50_us": 114.433,
+          "p99_us": 290.158,
+          "max_us": 407.595,
+          "misses": 0,
+          "cpu_p99_us": 293.3760000001639
+        }
+      ]
+    },
+    {
+      "engine": "array-v3-6x10",
+      "suite": "integration",
+      "sr": 96000,
+      "block": 64,
+      "channels": 1,
+      "test": "ChimeraCabLayoutIntegrationTests",
+      "budget_us": 666.6666666666666,
+      "strict_p99_pass": true,
+      "worker_cancelled_builds": 12,
+      "kernel_residual": 1.86264514923e-09,
+      "raw_csv": "cab-timing-diagnostics/integration/array-v3-6x10/96000-64-1.csv",
+      "raw_csv_sha256": "152a51c2749406bcaac309431e01848fbe44dd2889f583d1fb02735db359e769",
+      "phases": [
+        {
+          "phase": "all",
+          "samples": 1600,
+          "p50_us": 48.112,
+          "p99_us": 146.27,
+          "max_us": 290.789,
+          "misses": 0,
+          "cpu_p99_us": 146.7179999994114
+        },
+        {
+          "phase": "worker_and_automation",
+          "samples": 1200,
+          "p50_us": 48.013,
+          "p99_us": 140.532,
+          "max_us": 290.789,
+          "misses": 0,
+          "cpu_p99_us": 141.4199999999255
+        },
+        {
+          "phase": "forced_six_slot_publication",
+          "samples": 400,
+          "p50_us": 48.564,
+          "p99_us": 162.545,
+          "max_us": 265.451,
+          "misses": 0,
+          "cpu_p99_us": 163.4320000000298
+        }
+      ]
+    },
+    {
+      "engine": "array-v3-6x10",
+      "suite": "integration",
+      "sr": 96000,
+      "block": 64,
+      "channels": 2,
+      "test": "ChimeraCabLayoutIntegrationTests",
+      "budget_us": 666.6666666666666,
+      "strict_p99_pass": true,
+      "worker_cancelled_builds": 12,
+      "kernel_residual": 1.86264514923e-09,
+      "raw_csv": "cab-timing-diagnostics/integration/array-v3-6x10/96000-64-2.csv",
+      "raw_csv_sha256": "614680852ba9227186509cbd15f9949d9b93356635318918d95fd0b265df45a9",
+      "phases": [
+        {
+          "phase": "all",
+          "samples": 1600,
+          "p50_us": 63.987,
+          "p99_us": 210.748,
+          "max_us": 23136.001,
+          "misses": 3,
+          "cpu_p99_us": 211.52400000020862
+        },
+        {
+          "phase": "worker_and_automation",
+          "samples": 1200,
+          "p50_us": 63.977,
+          "p99_us": 192.381,
+          "max_us": 23136.001,
+          "misses": 3,
+          "cpu_p99_us": 193.9780000001192
+        },
+        {
+          "phase": "forced_six_slot_publication",
+          "samples": 400,
+          "p50_us": 64.166,
+          "p99_us": 238.71,
+          "max_us": 346.883,
+          "misses": 0,
+          "cpu_p99_us": 240.20700000040233
+        }
+      ]
+    },
+    {
+      "engine": "array-v3-6x10",
+      "suite": "integration",
+      "sr": 96000,
+      "block": 256,
+      "channels": 1,
+      "test": "ChimeraCabLayoutIntegrationTests",
+      "budget_us": 2666.6666666666665,
+      "strict_p99_pass": true,
+      "worker_cancelled_builds": 12,
+      "kernel_residual": 1.86264514923e-09,
+      "raw_csv": "cab-timing-diagnostics/integration/array-v3-6x10/96000-256-1.csv",
+      "raw_csv_sha256": "1915fff6c7f9ab6f593002ac240f9164d8ce020399cfa8b0275a3057e456b08f",
+      "phases": [
+        {
+          "phase": "all",
+          "samples": 1600,
+          "p50_us": 107.291,
+          "p99_us": 222.486,
+          "max_us": 442.839,
+          "misses": 0,
+          "cpu_p99_us": 226.41600000020117
+        },
+        {
+          "phase": "worker_and_automation",
+          "samples": 1200,
+          "p50_us": 107.152,
+          "p99_us": 203.908,
+          "max_us": 442.839,
+          "misses": 0,
+          "cpu_p99_us": 208.16899999976158
+        },
+        {
+          "phase": "forced_six_slot_publication",
+          "samples": 400,
+          "p50_us": 107.492,
+          "p99_us": 279.822,
+          "max_us": 395.396,
+          "misses": 0,
+          "cpu_p99_us": 280.5559999998659
+        }
+      ]
+    },
+    {
+      "engine": "array-v3-6x10",
+      "suite": "integration",
+      "sr": 96000,
+      "block": 256,
+      "channels": 2,
+      "test": "ChimeraCabLayoutIntegrationTests",
+      "budget_us": 2666.6666666666665,
+      "strict_p99_pass": true,
+      "worker_cancelled_builds": 12,
+      "kernel_residual": 1.86264514923e-09,
+      "raw_csv": "cab-timing-diagnostics/integration/array-v3-6x10/96000-256-2.csv",
+      "raw_csv_sha256": "6445eab45bf70f59387a873075ce01302d9d9e15ea3623cb90495bb715c8d371",
+      "phases": [
+        {
+          "phase": "all",
+          "samples": 1600,
+          "p50_us": 134.703,
+          "p99_us": 261.935,
+          "max_us": 426.394,
+          "misses": 0,
+          "cpu_p99_us": 262.29000000003725
+        },
+        {
+          "phase": "worker_and_automation",
+          "samples": 1200,
+          "p50_us": 134.603,
+          "p99_us": 253.292,
+          "max_us": 386.673,
+          "misses": 0,
+          "cpu_p99_us": 253.81699999980628
+        },
+        {
+          "phase": "forced_six_slot_publication",
+          "samples": 400,
+          "p50_us": 134.834,
+          "p99_us": 324.66,
+          "max_us": 426.394,
+          "misses": 0,
+          "cpu_p99_us": 325.32299999985844
+        }
+      ]
+    },
+    {
+      "engine": "expanded-v2",
+      "suite": "extended",
+      "sr": 44100,
+      "block": 32,
+      "channels": 1,
+      "test": "ChimeraCabExtendedTimingTests",
+      "budget_us": 725.6235827664399,
+      "strict_p99_pass": true,
+      "worker_cancelled_builds": 12,
+      "kernel_residual": 4.65661287308e-09,
+      "raw_csv": "cab-timing-diagnostics/extended/expanded-v2/44100-32-1.csv",
+      "raw_csv_sha256": "a19c9b9314c536bc4b39b06e4388cfef6e0adeee20f08d2de0abbcb6e31b9c52",
+      "phases": [
+        {
+          "phase": "all",
+          "samples": 1600,
+          "p50_us": 26.57,
+          "p99_us": 105.69,
+          "max_us": 339.713,
+          "misses": 0,
+          "cpu_p99_us": 106.09799999999814
+        },
+        {
+          "phase": "worker_and_automation",
+          "samples": 1200,
+          "p50_us": 26.6,
+          "p99_us": 96.666,
+          "max_us": 339.713,
+          "misses": 0,
+          "cpu_p99_us": 97.21400000000722
+        },
+        {
+          "phase": "forced_six_slot_publication",
+          "samples": 400,
+          "p50_us": 26.259,
+          "p99_us": 129.886,
+          "max_us": 224.699,
+          "misses": 0,
+          "cpu_p99_us": 130.60399999999208
+        }
+      ]
+    },
+    {
+      "engine": "expanded-v2",
+      "suite": "extended",
+      "sr": 44100,
+      "block": 32,
+      "channels": 2,
+      "test": "ChimeraCabExtendedTimingTests",
+      "budget_us": 725.6235827664399,
+      "strict_p99_pass": true,
+      "worker_cancelled_builds": 12,
+      "kernel_residual": 4.65661287308e-09,
+      "raw_csv": "cab-timing-diagnostics/extended/expanded-v2/44100-32-2.csv",
+      "raw_csv_sha256": "41a25cd112d55d0b8789d1a34cd2ba84408961130147b29cc4e23a2381c271b2",
+      "phases": [
+        {
+          "phase": "all",
+          "samples": 1600,
+          "p50_us": 34.001,
+          "p99_us": 109.646,
+          "max_us": 504.471,
+          "misses": 0,
+          "cpu_p99_us": 110.17399999999907
+        },
+        {
+          "phase": "worker_and_automation",
+          "samples": 1200,
+          "p50_us": 33.941,
+          "p99_us": 104.928,
+          "max_us": 504.471,
+          "misses": 0,
+          "cpu_p99_us": 105.58600000001024
+        },
+        {
+          "phase": "forced_six_slot_publication",
+          "samples": 400,
+          "p50_us": 34.102,
+          "p99_us": 127.442,
+          "max_us": 242.145,
+          "misses": 0,
+          "cpu_p99_us": 128.38100000005215
+        }
+      ]
+    },
+    {
+      "engine": "expanded-v2",
+      "suite": "extended",
+      "sr": 44100,
+      "block": 64,
+      "channels": 1,
+      "test": "ChimeraCabExtendedTimingTests",
+      "budget_us": 1451.2471655328798,
+      "strict_p99_pass": true,
+      "worker_cancelled_builds": 12,
+      "kernel_residual": 3.72529029846e-09,
+      "raw_csv": "cab-timing-diagnostics/extended/expanded-v2/44100-64-1.csv",
+      "raw_csv_sha256": "b1f7e7edd052e47bbd2dcb69d9d54ed831f6d0ac14c7fbc879d04f7811ce40de",
+      "phases": [
+        {
+          "phase": "all",
+          "samples": 1600,
+          "p50_us": 37.377,
+          "p99_us": 118.939,
+          "max_us": 288.645,
+          "misses": 0,
+          "cpu_p99_us": 119.67699999990873
+        },
+        {
+          "phase": "worker_and_automation",
+          "samples": 1200,
+          "p50_us": 37.547,
+          "p99_us": 121.934,
+          "max_us": 288.645,
+          "misses": 0,
+          "cpu_p99_us": 122.77299999992829
+        },
+        {
+          "phase": "forced_six_slot_publication",
+          "samples": 400,
+          "p50_us": 36.926,
+          "p99_us": 114.593,
+          "max_us": 200.142,
+          "misses": 0,
+          "cpu_p99_us": 114.9110000000801
+        }
+      ]
+    },
+    {
+      "engine": "expanded-v2",
+      "suite": "extended",
+      "sr": 44100,
+      "block": 64,
+      "channels": 2,
+      "test": "ChimeraCabExtendedTimingTests",
+      "budget_us": 1451.2471655328798,
+      "strict_p99_pass": true,
+      "worker_cancelled_builds": 12,
+      "kernel_residual": 3.72529029846e-09,
+      "raw_csv": "cab-timing-diagnostics/extended/expanded-v2/44100-64-2.csv",
+      "raw_csv_sha256": "276e1de21dd521a170280a16e29fb403dfcd3563491c1cae2555d4015399053a",
+      "phases": [
+        {
+          "phase": "all",
+          "samples": 1600,
+          "p50_us": 45.499,
+          "p99_us": 137.458,
+          "max_us": 308.065,
+          "misses": 0,
+          "cpu_p99_us": 140.78899999987334
+        },
+        {
+          "phase": "worker_and_automation",
+          "samples": 1200,
+          "p50_us": 45.409,
+          "p99_us": 149.726,
+          "max_us": 308.065,
+          "misses": 0,
+          "cpu_p99_us": 150.75300000002608
+        },
+        {
+          "phase": "forced_six_slot_publication",
+          "samples": 400,
+          "p50_us": 45.628,
+          "p99_us": 131.498,
+          "max_us": 294.254,
+          "misses": 0,
+          "cpu_p99_us": 132.19599999999627
+        }
+      ]
+    },
+    {
+      "engine": "expanded-v2",
+      "suite": "extended",
+      "sr": 44100,
+      "block": 128,
+      "channels": 1,
+      "test": "ChimeraCabExtendedTimingTests",
+      "budget_us": 2902.4943310657595,
+      "strict_p99_pass": true,
+      "worker_cancelled_builds": 12,
+      "kernel_residual": 3.72529029846e-09,
+      "raw_csv": "cab-timing-diagnostics/extended/expanded-v2/44100-128-1.csv",
+      "raw_csv_sha256": "b430c4ac65770e51461eb502a2344efcc63a8bcdc71e3bd88d2af64cda64c04f",
+      "phases": [
+        {
+          "phase": "all",
+          "samples": 1600,
+          "p50_us": 86.05,
+          "p99_us": 290.158,
+          "max_us": 1986.257,
+          "misses": 0,
+          "cpu_p99_us": 290.8719999999739
+        },
+        {
+          "phase": "worker_and_automation",
+          "samples": 1200,
+          "p50_us": 86.32,
+          "p99_us": 305.962,
+          "max_us": 1986.257,
+          "misses": 0,
+          "cpu_p99_us": 306.6950000000652
+        },
+        {
+          "phase": "forced_six_slot_publication",
+          "samples": 400,
+          "p50_us": 85.659,
+          "p99_us": 265.0,
+          "max_us": 344.119,
+          "misses": 0,
+          "cpu_p99_us": 266.6959999999963
+        }
+      ]
+    },
+    {
+      "engine": "expanded-v2",
+      "suite": "extended",
+      "sr": 44100,
+      "block": 128,
+      "channels": 2,
+      "test": "ChimeraCabExtendedTimingTests",
+      "budget_us": 2902.4943310657595,
+      "strict_p99_pass": true,
+      "worker_cancelled_builds": 12,
+      "kernel_residual": 3.72529029846e-09,
+      "raw_csv": "cab-timing-diagnostics/extended/expanded-v2/44100-128-2.csv",
+      "raw_csv_sha256": "b8e47378b84936ed510e86ef7ea6104b2e171909442dd9903c32989b9cdc8abd",
+      "phases": [
+        {
+          "phase": "all",
+          "samples": 1600,
+          "p50_us": 96.545,
+          "p99_us": 237.819,
+          "max_us": 371.13,
+          "misses": 0,
+          "cpu_p99_us": 238.71400000015274
+        },
+        {
+          "phase": "worker_and_automation",
+          "samples": 1200,
+          "p50_us": 96.536,
+          "p99_us": 228.095,
+          "max_us": 371.13,
+          "misses": 0,
+          "cpu_p99_us": 228.6689999999944
+        },
+        {
+          "phase": "forced_six_slot_publication",
+          "samples": 400,
+          "p50_us": 96.546,
+          "p99_us": 253.723,
+          "max_us": 317.73,
+          "misses": 0,
+          "cpu_p99_us": 254.49800000013784
+        }
+      ]
+    },
+    {
+      "engine": "expanded-v2",
+      "suite": "extended",
+      "sr": 44100,
+      "block": 256,
+      "channels": 1,
+      "test": "ChimeraCabExtendedTimingTests",
+      "budget_us": 5804.988662131519,
+      "strict_p99_pass": true,
+      "worker_cancelled_builds": 12,
+      "kernel_residual": 3.72529029846e-09,
+      "raw_csv": "cab-timing-diagnostics/extended/expanded-v2/44100-256-1.csv",
+      "raw_csv_sha256": "28243dc7a8a5873ee50774f8cf0d687477348cbd0fbed4b80c32cc230aa40333",
+      "phases": [
+        {
+          "phase": "all",
+          "samples": 1600,
+          "p50_us": 94.002,
+          "p99_us": 176.847,
+          "max_us": 377.189,
+          "misses": 0,
+          "cpu_p99_us": 178.52600000007078
+        },
+        {
+          "phase": "worker_and_automation",
+          "samples": 1200,
+          "p50_us": 94.022,
+          "p99_us": 176.366,
+          "max_us": 377.189,
+          "misses": 0,
+          "cpu_p99_us": 177.30400000000373
+        },
+        {
+          "phase": "forced_six_slot_publication",
+          "samples": 400,
+          "p50_us": 93.941,
+          "p99_us": 194.304,
+          "max_us": 303.719,
+          "misses": 0,
+          "cpu_p99_us": 195.00999999977648
+        }
+      ]
+    },
+    {
+      "engine": "expanded-v2",
+      "suite": "extended",
+      "sr": 44100,
+      "block": 256,
+      "channels": 2,
+      "test": "ChimeraCabExtendedTimingTests",
+      "budget_us": 5804.988662131519,
+      "strict_p99_pass": true,
+      "worker_cancelled_builds": 12,
+      "kernel_residual": 3.72529029846e-09,
+      "raw_csv": "cab-timing-diagnostics/extended/expanded-v2/44100-256-2.csv",
+      "raw_csv_sha256": "535a5bb371075cf00787192d838440316976e3818150a778daad733a23e6fbc9",
+      "phases": [
+        {
+          "phase": "all",
+          "samples": 1600,
+          "p50_us": 112.509,
+          "p99_us": 226.271,
+          "max_us": 1528.817,
+          "misses": 0,
+          "cpu_p99_us": 227.24699999997392
+        },
+        {
+          "phase": "worker_and_automation",
+          "samples": 1200,
+          "p50_us": 111.919,
+          "p99_us": 265.631,
+          "max_us": 1528.817,
+          "misses": 0,
+          "cpu_p99_us": 282.82999999960884
+        },
+        {
+          "phase": "forced_six_slot_publication",
+          "samples": 400,
+          "p50_us": 112.94,
+          "p99_us": 213.632,
+          "max_us": 308.065,
+          "misses": 0,
+          "cpu_p99_us": 214.34899999992922
+        }
+      ]
+    },
+    {
+      "engine": "expanded-v2",
+      "suite": "extended",
+      "sr": 44100,
+      "block": 512,
+      "channels": 1,
+      "test": "ChimeraCabExtendedTimingTests",
+      "budget_us": 11609.977324263038,
+      "strict_p99_pass": true,
+      "worker_cancelled_builds": 13,
+      "kernel_residual": 3.72529029846e-09,
+      "raw_csv": "cab-timing-diagnostics/extended/expanded-v2/44100-512-1.csv",
+      "raw_csv_sha256": "2074f818e0c4a8f8b78b4ecf3376f52a254c69acac3d7384a5738a2956a6ddac",
+      "phases": [
+        {
+          "phase": "all",
+          "samples": 1600,
+          "p50_us": 154.313,
+          "p99_us": 316.828,
+          "max_us": 3338.297,
+          "misses": 0,
+          "cpu_p99_us": 318.5529999998398
+        },
+        {
+          "phase": "worker_and_automation",
+          "samples": 1200,
+          "p50_us": 154.303,
+          "p99_us": 323.298,
+          "max_us": 3338.297,
+          "misses": 0,
+          "cpu_p99_us": 324.0120000001043
+        },
+        {
+          "phase": "forced_six_slot_publication",
+          "samples": 400,
+          "p50_us": 154.333,
+          "p99_us": 311.159,
+          "max_us": 389.708,
+          "misses": 0,
+          "cpu_p99_us": 311.9130000001751
+        }
+      ]
+    },
+    {
+      "engine": "expanded-v2",
+      "suite": "extended",
+      "sr": 44100,
+      "block": 512,
+      "channels": 2,
+      "test": "ChimeraCabExtendedTimingTests",
+      "budget_us": 11609.977324263038,
+      "strict_p99_pass": true,
+      "worker_cancelled_builds": 12,
+      "kernel_residual": 3.72529029846e-09,
+      "raw_csv": "cab-timing-diagnostics/extended/expanded-v2/44100-512-2.csv",
+      "raw_csv_sha256": "79006889706a1a5f58ad7e41caa42fff3816782549dc346af8ec738c8b8cbdd2",
+      "phases": [
+        {
+          "phase": "all",
+          "samples": 1600,
+          "p50_us": 185.6,
+          "p99_us": 433.995,
+          "max_us": 2460.142,
+          "misses": 0,
+          "cpu_p99_us": 434.47500000009313
+        },
+        {
+          "phase": "worker_and_automation",
+          "samples": 1200,
+          "p50_us": 185.319,
+          "p99_us": 428.647,
+          "max_us": 2460.142,
+          "misses": 0,
+          "cpu_p99_us": 429.7379999998957
+        },
+        {
+          "phase": "forced_six_slot_publication",
+          "samples": 400,
+          "p50_us": 185.86,
+          "p99_us": 457.701,
+          "max_us": 2195.012,
+          "misses": 0,
+          "cpu_p99_us": 458.6110000000335
+        }
+      ]
+    },
+    {
+      "engine": "expanded-v2",
+      "suite": "extended",
+      "sr": 48000,
+      "block": 32,
+      "channels": 1,
+      "test": "ChimeraCabExtendedTimingTests",
+      "budget_us": 666.6666666666666,
+      "strict_p99_pass": true,
+      "worker_cancelled_builds": 12,
+      "kernel_residual": 3.72529029846e-09,
+      "raw_csv": "cab-timing-diagnostics/extended/expanded-v2/48000-32-1.csv",
+      "raw_csv_sha256": "494f43d8dca9e84727511c2720d3d58f2192ab98f1788645efe643b67b71865c",
+      "phases": [
+        {
+          "phase": "all",
+          "samples": 1600,
+          "p50_us": 27.121,
+          "p99_us": 127.152,
+          "max_us": 339.693,
+          "misses": 0,
+          "cpu_p99_us": 127.66000000014901
+        },
+        {
+          "phase": "worker_and_automation",
+          "samples": 1200,
+          "p50_us": 27.041,
+          "p99_us": 116.756,
+          "max_us": 241.574,
+          "misses": 0,
+          "cpu_p99_us": 117.2140000006184
+        },
+        {
+          "phase": "forced_six_slot_publication",
+          "samples": 400,
+          "p50_us": 27.291,
+          "p99_us": 152.681,
+          "max_us": 339.693,
+          "misses": 0,
+          "cpu_p99_us": 153.06699999980628
+        }
+      ]
+    },
+    {
+      "engine": "expanded-v2",
+      "suite": "extended",
+      "sr": 48000,
+      "block": 32,
+      "channels": 2,
+      "test": "ChimeraCabExtendedTimingTests",
+      "budget_us": 666.6666666666666,
+      "strict_p99_pass": true,
+      "worker_cancelled_builds": 12,
+      "kernel_residual": 3.72529029846e-09,
+      "raw_csv": "cab-timing-diagnostics/extended/expanded-v2/48000-32-2.csv",
+      "raw_csv_sha256": "c586f4adef42795b9c66a773d4117f8671f035910d8f5f596c8b8b7e5027ab0c",
+      "phases": [
+        {
+          "phase": "all",
+          "samples": 1600,
+          "p50_us": 36.485,
+          "p99_us": 180.182,
+          "max_us": 506.324,
+          "misses": 0,
+          "cpu_p99_us": 180.86800000071526
+        },
+        {
+          "phase": "worker_and_automation",
+          "samples": 1200,
+          "p50_us": 36.435,
+          "p99_us": 177.728,
+          "max_us": 506.324,
+          "misses": 0,
+          "cpu_p99_us": 178.75499999988824
+        },
+        {
+          "phase": "forced_six_slot_publication",
+          "samples": 400,
+          "p50_us": 36.525,
+          "p99_us": 255.896,
+          "max_us": 320.704,
+          "misses": 0,
+          "cpu_p99_us": 256.5709999995306
+        }
+      ]
+    },
+    {
+      "engine": "expanded-v2",
+      "suite": "extended",
+      "sr": 48000,
+      "block": 64,
+      "channels": 1,
+      "test": "ChimeraCabExtendedTimingTests",
+      "budget_us": 1333.3333333333333,
+      "strict_p99_pass": true,
+      "worker_cancelled_builds": 9,
+      "kernel_residual": 3.72529029846e-09,
+      "raw_csv": "cab-timing-diagnostics/extended/expanded-v2/48000-64-1.csv",
+      "raw_csv_sha256": "c8bb1eedf2ac9d80b8bd7bec286c6f11f02c780cae531b312f1079f5306dce5a",
+      "phases": [
+        {
+          "phase": "all",
+          "samples": 1600,
+          "p50_us": 38.188,
+          "p99_us": 121.243,
+          "max_us": 1304.358,
+          "misses": 0,
+          "cpu_p99_us": 122.55200000014156
+        },
+        {
+          "phase": "worker_and_automation",
+          "samples": 1200,
+          "p50_us": 38.348,
+          "p99_us": 129.876,
+          "max_us": 1304.358,
+          "misses": 0,
+          "cpu_p99_us": 130.8840000005439
+        },
+        {
+          "phase": "forced_six_slot_publication",
+          "samples": 400,
+          "p50_us": 37.878,
+          "p99_us": 106.821,
+          "max_us": 323.438,
+          "misses": 0,
+          "cpu_p99_us": 107.55999999959022
+        }
+      ]
+    },
+    {
+      "engine": "expanded-v2",
+      "suite": "extended",
+      "sr": 48000,
+      "block": 64,
+      "channels": 2,
+      "test": "ChimeraCabExtendedTimingTests",
+      "budget_us": 1333.3333333333333,
+      "strict_p99_pass": true,
+      "worker_cancelled_builds": 12,
+      "kernel_residual": 3.72529029846e-09,
+      "raw_csv": "cab-timing-diagnostics/extended/expanded-v2/48000-64-2.csv",
+      "raw_csv_sha256": "4269734d8705f597b1ba3dc2e05c54ae542283b67ce55fad45a79fc687944fe9",
+      "phases": [
+        {
+          "phase": "all",
+          "samples": 1600,
+          "p50_us": 47.331,
+          "p99_us": 137.928,
+          "max_us": 409.538,
+          "misses": 0,
+          "cpu_p99_us": 139.4669999992475
+        },
+        {
+          "phase": "worker_and_automation",
+          "samples": 1200,
+          "p50_us": 47.291,
+          "p99_us": 133.751,
+          "max_us": 409.538,
+          "misses": 0,
+          "cpu_p99_us": 134.10999999940395
+        },
+        {
+          "phase": "forced_six_slot_publication",
+          "samples": 400,
+          "p50_us": 47.391,
+          "p99_us": 154.382,
+          "max_us": 223.848,
+          "misses": 0,
+          "cpu_p99_us": 155.20100000035018
+        }
+      ]
+    },
+    {
+      "engine": "expanded-v2",
+      "suite": "extended",
+      "sr": 48000,
+      "block": 128,
+      "channels": 1,
+      "test": "ChimeraCabExtendedTimingTests",
+      "budget_us": 2666.6666666666665,
+      "strict_p99_pass": true,
+      "worker_cancelled_builds": 9,
+      "kernel_residual": 3.72529029846e-09,
+      "raw_csv": "cab-timing-diagnostics/extended/expanded-v2/48000-128-1.csv",
+      "raw_csv_sha256": "5b3882cdb3008f77aa4950ee7c84a48b840d029da5907df3d40b7c148db9c9ec",
+      "phases": [
+        {
+          "phase": "all",
+          "samples": 1600,
+          "p50_us": 86.941,
+          "p99_us": 214.734,
+          "max_us": 480.565,
+          "misses": 0,
+          "cpu_p99_us": 215.45000000018626
+        },
+        {
+          "phase": "worker_and_automation",
+          "samples": 1200,
+          "p50_us": 87.111,
+          "p99_us": 214.734,
+          "max_us": 412.412,
+          "misses": 0,
+          "cpu_p99_us": 215.45000000018626
+        },
+        {
+          "phase": "forced_six_slot_publication",
+          "samples": 400,
+          "p50_us": 86.651,
+          "p99_us": 236.227,
+          "max_us": 480.565,
+          "misses": 0,
+          "cpu_p99_us": 237.203000000678
+        }
+      ]
+    },
+    {
+      "engine": "expanded-v2",
+      "suite": "extended",
+      "sr": 48000,
+      "block": 128,
+      "channels": 2,
+      "test": "ChimeraCabExtendedTimingTests",
+      "budget_us": 2666.6666666666665,
+      "strict_p99_pass": true,
+      "worker_cancelled_builds": 9,
+      "kernel_residual": 3.72529029846e-09,
+      "raw_csv": "cab-timing-diagnostics/extended/expanded-v2/48000-128-2.csv",
+      "raw_csv_sha256": "d08ef2faa345f8d0efa6c3c859f5254c11a4291864686ac2e3258a1dc4701029",
+      "phases": [
+        {
+          "phase": "all",
+          "samples": 1600,
+          "p50_us": 98.229,
+          "p99_us": 221.024,
+          "max_us": 581.207,
+          "misses": 0,
+          "cpu_p99_us": 222.4300000006333
+        },
+        {
+          "phase": "worker_and_automation",
+          "samples": 1200,
+          "p50_us": 98.429,
+          "p99_us": 221.024,
+          "max_us": 581.207,
+          "misses": 0,
+          "cpu_p99_us": 222.4300000006333
+        },
+        {
+          "phase": "forced_six_slot_publication",
+          "samples": 400,
+          "p50_us": 98.058,
+          "p99_us": 240.212,
+          "max_us": 339.672,
+          "misses": 0,
+          "cpu_p99_us": 242.660000000149
+        }
+      ]
+    },
+    {
+      "engine": "expanded-v2",
+      "suite": "extended",
+      "sr": 48000,
+      "block": 256,
+      "channels": 1,
+      "test": "ChimeraCabExtendedTimingTests",
+      "budget_us": 5333.333333333333,
+      "strict_p99_pass": true,
+      "worker_cancelled_builds": 12,
+      "kernel_residual": 3.72529029846e-09,
+      "raw_csv": "cab-timing-diagnostics/extended/expanded-v2/48000-256-1.csv",
+      "raw_csv_sha256": "4de3aaf1cd3655f990513656bd0ca03cafac43461ffe414593e2da525a80385e",
+      "phases": [
+        {
+          "phase": "all",
+          "samples": 1600,
+          "p50_us": 94.833,
+          "p99_us": 196.787,
+          "max_us": 379.273,
+          "misses": 0,
+          "cpu_p99_us": 197.6230000006035
+        },
+        {
+          "phase": "worker_and_automation",
+          "samples": 1200,
+          "p50_us": 94.873,
+          "p99_us": 194.964,
+          "max_us": 366.884,
+          "misses": 0,
+          "cpu_p99_us": 195.81099999975413
+        },
+        {
+          "phase": "forced_six_slot_publication",
+          "samples": 400,
+          "p50_us": 94.723,
+          "p99_us": 201.353,
+          "max_us": 379.273,
+          "misses": 0,
+          "cpu_p99_us": 202.6110000004992
+        }
+      ]
+    },
+    {
+      "engine": "expanded-v2",
+      "suite": "extended",
+      "sr": 48000,
+      "block": 256,
+      "channels": 2,
+      "test": "ChimeraCabExtendedTimingTests",
+      "budget_us": 5333.333333333333,
+      "strict_p99_pass": true,
+      "worker_cancelled_builds": 9,
+      "kernel_residual": 3.72529029846e-09,
+      "raw_csv": "cab-timing-diagnostics/extended/expanded-v2/48000-256-2.csv",
+      "raw_csv_sha256": "340fc35eb6a85e1b21ba1712336dd1bc61a9ef294497492d02137678b63eaae9",
+      "phases": [
+        {
+          "phase": "all",
+          "samples": 1600,
+          "p50_us": 113.852,
+          "p99_us": 326.813,
+          "max_us": 2981.82,
+          "misses": 0,
+          "cpu_p99_us": 327.78700000047684
+        },
+        {
+          "phase": "worker_and_automation",
+          "samples": 1200,
+          "p50_us": 113.782,
+          "p99_us": 338.691,
+          "max_us": 2981.82,
+          "misses": 0,
+          "cpu_p99_us": 339.47399999946356
+        },
+        {
+          "phase": "forced_six_slot_publication",
+          "samples": 400,
+          "p50_us": 113.912,
+          "p99_us": 281.264,
+          "max_us": 391.3,
+          "misses": 0,
+          "cpu_p99_us": 282.3999999994412
+        }
+      ]
+    },
+    {
+      "engine": "expanded-v2",
+      "suite": "extended",
+      "sr": 48000,
+      "block": 512,
+      "channels": 1,
+      "test": "ChimeraCabExtendedTimingTests",
+      "budget_us": 10666.666666666666,
+      "strict_p99_pass": true,
+      "worker_cancelled_builds": 12,
+      "kernel_residual": 3.72529029846e-09,
+      "raw_csv": "cab-timing-diagnostics/extended/expanded-v2/48000-512-1.csv",
+      "raw_csv_sha256": "8c7b1ea9a2f0a26383805e05fd73a99631aadbde9853c9512be6aee60705ae43",
+      "phases": [
+        {
+          "phase": "all",
+          "samples": 1600,
+          "p50_us": 155.014,
+          "p99_us": 321.886,
+          "max_us": 1289.737,
+          "misses": 0,
+          "cpu_p99_us": 318.4529999997467
+        },
+        {
+          "phase": "worker_and_automation",
+          "samples": 1200,
+          "p50_us": 155.464,
+          "p99_us": 321.886,
+          "max_us": 1289.737,
+          "misses": 0,
+          "cpu_p99_us": 318.4529999997467
+        },
+        {
+          "phase": "forced_six_slot_publication",
+          "samples": 400,
+          "p50_us": 154.303,
+          "p99_us": 343.799,
+          "max_us": 485.542,
+          "misses": 0,
+          "cpu_p99_us": 344.4809999996796
+        }
+      ]
+    },
+    {
+      "engine": "expanded-v2",
+      "suite": "extended",
+      "sr": 48000,
+      "block": 512,
+      "channels": 2,
+      "test": "ChimeraCabExtendedTimingTests",
+      "budget_us": 10666.666666666666,
+      "strict_p99_pass": true,
+      "worker_cancelled_builds": 17,
+      "kernel_residual": 3.72529029846e-09,
+      "raw_csv": "cab-timing-diagnostics/extended/expanded-v2/48000-512-2.csv",
+      "raw_csv_sha256": "9ddb54bd279a5d6dc4a734e3b1bfb889c15a2a8716b4cf93bcb5f4827727bbba",
+      "phases": [
+        {
+          "phase": "all",
+          "samples": 1600,
+          "p50_us": 186.461,
+          "p99_us": 402.848,
+          "max_us": 967.48,
+          "misses": 0,
+          "cpu_p99_us": 403.5599999995902
+        },
+        {
+          "phase": "worker_and_automation",
+          "samples": 1200,
+          "p50_us": 186.882,
+          "p99_us": 425.161,
+          "max_us": 967.48,
+          "misses": 0,
+          "cpu_p99_us": 425.95199999958277
+        },
+        {
+          "phase": "forced_six_slot_publication",
+          "samples": 400,
+          "p50_us": 186.261,
+          "p99_us": 390.939,
+          "max_us": 613.916,
+          "misses": 0,
+          "cpu_p99_us": 391.62099999934435
+        }
+      ]
+    },
+    {
+      "engine": "expanded-v2",
+      "suite": "extended",
+      "sr": 96000,
+      "block": 32,
+      "channels": 1,
+      "test": "ChimeraCabExtendedTimingTests",
+      "budget_us": 333.3333333333333,
+      "strict_p99_pass": true,
+      "worker_cancelled_builds": 12,
+      "kernel_residual": 1.86264514923e-09,
+      "raw_csv": "cab-timing-diagnostics/extended/expanded-v2/96000-32-1.csv",
+      "raw_csv_sha256": "fe20fa65728ddf59d56f11789a3a5af4b198836faf20ee708a6d2ff1fb63d7d0",
+      "phases": [
+        {
+          "phase": "all",
+          "samples": 1600,
+          "p50_us": 45.209,
+          "p99_us": 196.517,
+          "max_us": 2021.159,
+          "misses": 7,
+          "cpu_p99_us": 197.08300000056624
+        },
+        {
+          "phase": "worker_and_automation",
+          "samples": 1200,
+          "p50_us": 40.391,
+          "p99_us": 211.659,
+          "max_us": 2021.159,
+          "misses": 6,
+          "cpu_p99_us": 212.50599999912083
+        },
+        {
+          "phase": "forced_six_slot_publication",
+          "samples": 400,
+          "p50_us": 59.399,
+          "p99_us": 178.379,
+          "max_us": 972.017,
+          "misses": 1,
+          "cpu_p99_us": 178.9550000000745
+        }
+      ]
+    },
+    {
+      "engine": "expanded-v2",
+      "suite": "extended",
+      "sr": 96000,
+      "block": 32,
+      "channels": 2,
+      "test": "ChimeraCabExtendedTimingTests",
+      "budget_us": 333.3333333333333,
+      "strict_p99_pass": true,
+      "worker_cancelled_builds": 12,
+      "kernel_residual": 1.86264514923e-09,
+      "raw_csv": "cab-timing-diagnostics/extended/expanded-v2/96000-32-2.csv",
+      "raw_csv_sha256": "58428519a5695c9b1e9044d0283a1f5aabf102d74596be71a773ff35744ddd90",
+      "phases": [
+        {
+          "phase": "all",
+          "samples": 1600,
+          "p50_us": 61.553,
+          "p99_us": 302.366,
+          "max_us": 607.938,
+          "misses": 10,
+          "cpu_p99_us": 303.15000000037253
+        },
+        {
+          "phase": "worker_and_automation",
+          "samples": 1200,
+          "p50_us": 55.955,
+          "p99_us": 272.27,
+          "max_us": 607.938,
+          "misses": 6,
+          "cpu_p99_us": 273.27600000053644
+        },
+        {
+          "phase": "forced_six_slot_publication",
+          "samples": 400,
+          "p50_us": 81.133,
+          "p99_us": 366.132,
+          "max_us": 497.711,
+          "misses": 4,
+          "cpu_p99_us": 366.9449999984354
+        }
+      ]
+    },
+    {
+      "engine": "expanded-v2",
+      "suite": "extended",
+      "sr": 96000,
+      "block": 64,
+      "channels": 1,
+      "test": "ChimeraCabExtendedTimingTests",
+      "budget_us": 666.6666666666666,
+      "strict_p99_pass": true,
+      "worker_cancelled_builds": 12,
+      "kernel_residual": 2.09547579288e-09,
+      "raw_csv": "cab-timing-diagnostics/extended/expanded-v2/96000-64-1.csv",
+      "raw_csv_sha256": "8f00a1eaaaac40c7ba268a93fe3b2916e776eb82835a29af910f0d79e2567277",
+      "phases": [
+        {
+          "phase": "all",
+          "samples": 1600,
+          "p50_us": 48.483,
+          "p99_us": 154.924,
+          "max_us": 319.752,
+          "misses": 0,
+          "cpu_p99_us": 156.0120000001043
+        },
+        {
+          "phase": "worker_and_automation",
+          "samples": 1200,
+          "p50_us": 47.973,
+          "p99_us": 154.924,
+          "max_us": 319.752,
+          "misses": 0,
+          "cpu_p99_us": 156.0120000001043
+        },
+        {
+          "phase": "forced_six_slot_publication",
+          "samples": 400,
+          "p50_us": 49.085,
+          "p99_us": 166.612,
+          "max_us": 205.841,
+          "misses": 0,
+          "cpu_p99_us": 167.36800000071526
+        }
+      ]
+    },
+    {
+      "engine": "expanded-v2",
+      "suite": "extended",
+      "sr": 96000,
+      "block": 64,
+      "channels": 2,
+      "test": "ChimeraCabExtendedTimingTests",
+      "budget_us": 666.6666666666666,
+      "strict_p99_pass": true,
+      "worker_cancelled_builds": 12,
+      "kernel_residual": 2.09547579288e-09,
+      "raw_csv": "cab-timing-diagnostics/extended/expanded-v2/96000-64-2.csv",
+      "raw_csv_sha256": "a594a2b4e8ce289976513baf0dbc29d92ce5f824f1572a508a10ea954209407f",
+      "phases": [
+        {
+          "phase": "all",
+          "samples": 1600,
+          "p50_us": 64.237,
+          "p99_us": 201.664,
+          "max_us": 334.174,
+          "misses": 0,
+          "cpu_p99_us": 202.04000000096858
+        },
+        {
+          "phase": "worker_and_automation",
+          "samples": 1200,
+          "p50_us": 64.016,
+          "p99_us": 179.171,
+          "max_us": 334.174,
+          "misses": 0,
+          "cpu_p99_us": 180.52800000086427
+        },
+        {
+          "phase": "forced_six_slot_publication",
+          "samples": 400,
+          "p50_us": 64.667,
+          "p99_us": 245.771,
+          "max_us": 297.929,
+          "misses": 0,
+          "cpu_p99_us": 246.50600000098348
+        }
+      ]
+    },
+    {
+      "engine": "expanded-v2",
+      "suite": "extended",
+      "sr": 96000,
+      "block": 128,
+      "channels": 1,
+      "test": "ChimeraCabExtendedTimingTests",
+      "budget_us": 1333.3333333333333,
+      "strict_p99_pass": true,
+      "worker_cancelled_builds": 12,
+      "kernel_residual": 1.86264514923e-09,
+      "raw_csv": "cab-timing-diagnostics/extended/expanded-v2/96000-128-1.csv",
+      "raw_csv_sha256": "47697be715e06ef0cfce260bd7130c9ea8fceed4c347ce11423949f3b2c2bfe2",
+      "phases": [
+        {
+          "phase": "all",
+          "samples": 1600,
+          "p50_us": 97.937,
+          "p99_us": 267.634,
+          "max_us": 2427.533,
+          "misses": 2,
+          "cpu_p99_us": 268.1480000000447
+        },
+        {
+          "phase": "worker_and_automation",
+          "samples": 1200,
+          "p50_us": 98.849,
+          "p99_us": 265.06,
+          "max_us": 445.162,
+          "misses": 0,
+          "cpu_p99_us": 265.9249999988824
+        },
+        {
+          "phase": "forced_six_slot_publication",
+          "samples": 400,
+          "p50_us": 96.957,
+          "p99_us": 485.593,
+          "max_us": 2427.533,
+          "misses": 2,
+          "cpu_p99_us": 486.97299999929965
+        }
+      ]
+    },
+    {
+      "engine": "expanded-v2",
+      "suite": "extended",
+      "sr": 96000,
+      "block": 128,
+      "channels": 2,
+      "test": "ChimeraCabExtendedTimingTests",
+      "budget_us": 1333.3333333333333,
+      "strict_p99_pass": true,
+      "worker_cancelled_builds": 12,
+      "kernel_residual": 1.86264514923e-09,
+      "raw_csv": "cab-timing-diagnostics/extended/expanded-v2/96000-128-2.csv",
+      "raw_csv_sha256": "bcac66a5b2e41f6e05f03749fbe6c0bf8856d3f7e12a14418139062a8f47d529",
+      "phases": [
+        {
+          "phase": "all",
+          "samples": 1600,
+          "p50_us": 114.213,
+          "p99_us": 378.481,
+          "max_us": 2239.89,
+          "misses": 2,
+          "cpu_p99_us": 379.25300000049174
+        },
+        {
+          "phase": "worker_and_automation",
+          "samples": 1200,
+          "p50_us": 114.052,
+          "p99_us": 376.138,
+          "max_us": 895.115,
+          "misses": 0,
+          "cpu_p99_us": 376.75899999961257
+        },
+        {
+          "phase": "forced_six_slot_publication",
+          "samples": 400,
+          "p50_us": 114.854,
+          "p99_us": 405.842,
+          "max_us": 2239.89,
+          "misses": 2,
+          "cpu_p99_us": 406.8140000011772
+        }
+      ]
+    },
+    {
+      "engine": "expanded-v2",
+      "suite": "extended",
+      "sr": 96000,
+      "block": 256,
+      "channels": 1,
+      "test": "ChimeraCabExtendedTimingTests",
+      "budget_us": 2666.6666666666665,
+      "strict_p99_pass": true,
+      "worker_cancelled_builds": 9,
+      "kernel_residual": 1.86264514923e-09,
+      "raw_csv": "cab-timing-diagnostics/extended/expanded-v2/96000-256-1.csv",
+      "raw_csv_sha256": "16169b43e9dfc38183fb59e3bc79c6330b50866356c40831abbc1075e5a97622",
+      "phases": [
+        {
+          "phase": "all",
+          "samples": 1600,
+          "p50_us": 108.023,
+          "p99_us": 289.637,
+          "max_us": 394.885,
+          "misses": 0,
+          "cpu_p99_us": 291.6129999998957
+        },
+        {
+          "phase": "worker_and_automation",
+          "samples": 1200,
+          "p50_us": 110.156,
+          "p99_us": 291.019,
+          "max_us": 394.885,
+          "misses": 0,
+          "cpu_p99_us": 291.6129999998957
+        },
+        {
+          "phase": "forced_six_slot_publication",
+          "samples": 400,
+          "p50_us": 107.693,
+          "p99_us": 252.201,
+          "max_us": 386.573,
+          "misses": 0,
+          "cpu_p99_us": 300.4359999988228
+        }
+      ]
+    },
+    {
+      "engine": "expanded-v2",
+      "suite": "extended",
+      "sr": 96000,
+      "block": 256,
+      "channels": 2,
+      "test": "ChimeraCabExtendedTimingTests",
+      "budget_us": 2666.6666666666665,
+      "strict_p99_pass": true,
+      "worker_cancelled_builds": 10,
+      "kernel_residual": 1.86264514923e-09,
+      "raw_csv": "cab-timing-diagnostics/extended/expanded-v2/96000-256-2.csv",
+      "raw_csv_sha256": "b3a9c08a720f9c0fd2a8b3ab08bafb604b47e0391fce58790bf95a07a7cce0b6",
+      "phases": [
+        {
+          "phase": "all",
+          "samples": 1600,
+          "p50_us": 134.784,
+          "p99_us": 274.504,
+          "max_us": 689.67,
+          "misses": 0,
+          "cpu_p99_us": 275.51899999938905
+        },
+        {
+          "phase": "worker_and_automation",
+          "samples": 1200,
+          "p50_us": 134.593,
+          "p99_us": 255.305,
+          "max_us": 366.352,
+          "misses": 0,
+          "cpu_p99_us": 257.04199999943376
+        },
+        {
+          "phase": "forced_six_slot_publication",
+          "samples": 400,
+          "p50_us": 135.014,
+          "p99_us": 295.446,
+          "max_us": 689.67,
+          "misses": 0,
+          "cpu_p99_us": 296.961000001058
+        }
+      ]
+    },
+    {
+      "engine": "expanded-v2",
+      "suite": "extended",
+      "sr": 96000,
+      "block": 512,
+      "channels": 1,
+      "test": "ChimeraCabExtendedTimingTests",
+      "budget_us": 5333.333333333333,
+      "strict_p99_pass": true,
+      "worker_cancelled_builds": 12,
+      "kernel_residual": 1.86264514923e-09,
+      "raw_csv": "cab-timing-diagnostics/extended/expanded-v2/96000-512-1.csv",
+      "raw_csv_sha256": "512aa83e268025f17a6e280c1a0f29f116077b50e948d5ea9d2ff2a07a7d8055",
+      "phases": [
+        {
+          "phase": "all",
+          "samples": 1600,
+          "p50_us": 167.643,
+          "p99_us": 345.622,
+          "max_us": 2396.245,
+          "misses": 0,
+          "cpu_p99_us": 347.9070000015199
+        },
+        {
+          "phase": "worker_and_automation",
+          "samples": 1200,
+          "p50_us": 167.273,
+          "p99_us": 312.912,
+          "max_us": 583.571,
+          "misses": 0,
+          "cpu_p99_us": 313.6859999988228
+        },
+        {
+          "phase": "forced_six_slot_publication",
+          "samples": 400,
+          "p50_us": 168.274,
+          "p99_us": 547.497,
+          "max_us": 2396.245,
+          "misses": 0,
+          "cpu_p99_us": 548.503999998793
+        }
+      ]
+    },
+    {
+      "engine": "expanded-v2",
+      "suite": "extended",
+      "sr": 96000,
+      "block": 512,
+      "channels": 2,
+      "test": "ChimeraCabExtendedTimingTests",
+      "budget_us": 5333.333333333333,
+      "strict_p99_pass": true,
+      "worker_cancelled_builds": 16,
+      "kernel_residual": 1.86264514923e-09,
+      "raw_csv": "cab-timing-diagnostics/extended/expanded-v2/96000-512-2.csv",
+      "raw_csv_sha256": "62e15d547642edc534cb0b0d9dbc6dbda8698c77addef62f6d754ee2a1562216",
+      "phases": [
+        {
+          "phase": "all",
+          "samples": 1600,
+          "p50_us": 207.072,
+          "p99_us": 410.509,
+          "max_us": 496.238,
+          "misses": 0,
+          "cpu_p99_us": 411.53099999949336
+        },
+        {
+          "phase": "worker_and_automation",
+          "samples": 1200,
+          "p50_us": 207.363,
+          "p99_us": 407.986,
+          "max_us": 496.238,
+          "misses": 0,
+          "cpu_p99_us": 409.20800000056624
+        },
+        {
+          "phase": "forced_six_slot_publication",
+          "samples": 400,
+          "p50_us": 205.25,
+          "p99_us": 414.706,
+          "max_us": 468.998,
+          "misses": 0,
+          "cpu_p99_us": 415.6270000003278
+        }
+      ]
+    }
+  ],
+  "miss_callbacks": [
+    {
+      "engine": "original-v1",
+      "suite": "integration",
+      "sr": 48000,
+      "block": 64,
+      "channels": 1,
+      "callback_index": 618,
+      "phase": "worker_and_automation",
+      "budget_us": 1333.3333333333333,
+      "wall_us": 1768.518,
+      "thread_cpu_us": 1770.2090000002645,
+      "thread_cpu_valid": 1,
+      "thread_cycles": 0,
+      "thread_cycles_valid": 0,
+      "wall_minus_measured_cpu_us": -1.6910000002644665
+    },
+    {
+      "engine": "original-v1",
+      "suite": "integration",
+      "sr": 48000,
+      "block": 64,
+      "channels": 1,
+      "callback_index": 639,
+      "phase": "worker_and_automation",
+      "budget_us": 1333.3333333333333,
+      "wall_us": 1925.936,
+      "thread_cpu_us": 1927.5229999998119,
+      "thread_cpu_valid": 1,
+      "thread_cycles": 0,
+      "thread_cycles_valid": 0,
+      "wall_minus_measured_cpu_us": -1.586999999811951
+    },
+    {
+      "engine": "original-v1",
+      "suite": "integration",
+      "sr": 48000,
+      "block": 64,
+      "channels": 2,
+      "callback_index": 260,
+      "phase": "worker_and_automation",
+      "budget_us": 1333.3333333333333,
+      "wall_us": 1808.629,
+      "thread_cpu_us": 1811.0400000000373,
+      "thread_cpu_valid": 1,
+      "thread_cycles": 0,
+      "thread_cycles_valid": 0,
+      "wall_minus_measured_cpu_us": -2.4110000000373475
+    },
+    {
+      "engine": "expanded-v2",
+      "suite": "integration",
+      "sr": 96000,
+      "block": 64,
+      "channels": 1,
+      "callback_index": 6,
+      "phase": "worker_and_automation",
+      "budget_us": 666.6666666666666,
+      "wall_us": 1227.172,
+      "thread_cpu_us": 1228.6740000001155,
+      "thread_cpu_valid": 1,
+      "thread_cycles": 0,
+      "thread_cycles_valid": 0,
+      "wall_minus_measured_cpu_us": -1.5020000001154585
+    },
+    {
+      "engine": "expanded-v2",
+      "suite": "integration",
+      "sr": 96000,
+      "block": 64,
+      "channels": 1,
+      "callback_index": 952,
+      "phase": "worker_and_automation",
+      "budget_us": 666.6666666666666,
+      "wall_us": 1469.727,
+      "thread_cpu_us": 1471.3449999997392,
+      "thread_cpu_valid": 1,
+      "thread_cycles": 0,
+      "thread_cycles_valid": 0,
+      "wall_minus_measured_cpu_us": -1.6179999997391405
+    },
+    {
+      "engine": "expanded-v2",
+      "suite": "integration",
+      "sr": 96000,
+      "block": 64,
+      "channels": 1,
+      "callback_index": 1005,
+      "phase": "worker_and_automation",
+      "budget_us": 666.6666666666666,
+      "wall_us": 3166.653,
+      "thread_cpu_us": 3170.3930000001565,
+      "thread_cpu_valid": 1,
+      "thread_cycles": 0,
+      "thread_cycles_valid": 0,
+      "wall_minus_measured_cpu_us": -3.7400000001566696
+    },
+    {
+      "engine": "expanded-v2",
+      "suite": "integration",
+      "sr": 96000,
+      "block": 64,
+      "channels": 1,
+      "callback_index": 1218,
+      "phase": "forced_six_slot_publication",
+      "budget_us": 666.6666666666666,
+      "wall_us": 893.128,
+      "thread_cpu_us": 895.9500000001863,
+      "thread_cpu_valid": 1,
+      "thread_cycles": 0,
+      "thread_cycles_valid": 0,
+      "wall_minus_measured_cpu_us": -2.8220000001862218
+    },
+    {
+      "engine": "array-v3-6x10",
+      "suite": "integration",
+      "sr": 48000,
+      "block": 64,
+      "channels": 1,
+      "callback_index": 1035,
+      "phase": "worker_and_automation",
+      "budget_us": 1333.3333333333333,
+      "wall_us": 1947.548,
+      "thread_cpu_us": 1948.2830000002868,
+      "thread_cpu_valid": 1,
+      "thread_cycles": 0,
+      "thread_cycles_valid": 0,
+      "wall_minus_measured_cpu_us": -0.7350000002868455
+    },
+    {
+      "engine": "array-v3-6x10",
+      "suite": "integration",
+      "sr": 48000,
+      "block": 64,
+      "channels": 2,
+      "callback_index": 787,
+      "phase": "worker_and_automation",
+      "budget_us": 1333.3333333333333,
+      "wall_us": 1931.775,
+      "thread_cpu_us": 1933.251000000164,
+      "thread_cpu_valid": 1,
+      "thread_cycles": 0,
+      "thread_cycles_valid": 0,
+      "wall_minus_measured_cpu_us": -1.4760000001638218
+    },
+    {
+      "engine": "array-v3-6x10",
+      "suite": "integration",
+      "sr": 48000,
+      "block": 64,
+      "channels": 2,
+      "callback_index": 928,
+      "phase": "worker_and_automation",
+      "budget_us": 1333.3333333333333,
+      "wall_us": 2030.855,
+      "thread_cpu_us": 2032.1669999998994,
+      "thread_cpu_valid": 1,
+      "thread_cycles": 0,
+      "thread_cycles_valid": 0,
+      "wall_minus_measured_cpu_us": -1.311999999899399
+    },
+    {
+      "engine": "array-v3-6x10",
+      "suite": "integration",
+      "sr": 96000,
+      "block": 64,
+      "channels": 2,
+      "callback_index": 462,
+      "phase": "worker_and_automation",
+      "budget_us": 666.6666666666666,
+      "wall_us": 23136.001,
+      "thread_cpu_us": 23137.610000000335,
+      "thread_cpu_valid": 1,
+      "thread_cycles": 0,
+      "thread_cycles_valid": 0,
+      "wall_minus_measured_cpu_us": -1.6090000003350724
+    },
+    {
+      "engine": "array-v3-6x10",
+      "suite": "integration",
+      "sr": 96000,
+      "block": 64,
+      "channels": 2,
+      "callback_index": 466,
+      "phase": "worker_and_automation",
+      "budget_us": 666.6666666666666,
+      "wall_us": 5209.481,
+      "thread_cpu_us": 5210.166999999434,
+      "thread_cpu_valid": 1,
+      "thread_cycles": 0,
+      "thread_cycles_valid": 0,
+      "wall_minus_measured_cpu_us": -0.6859999994339887
+    },
+    {
+      "engine": "array-v3-6x10",
+      "suite": "integration",
+      "sr": 96000,
+      "block": 64,
+      "channels": 2,
+      "callback_index": 616,
+      "phase": "worker_and_automation",
+      "budget_us": 666.6666666666666,
+      "wall_us": 1130.436,
+      "thread_cpu_us": 1131.7000000001863,
+      "thread_cpu_valid": 1,
+      "thread_cycles": 0,
+      "thread_cycles_valid": 0,
+      "wall_minus_measured_cpu_us": -1.2640000001863427
+    },
+    {
+      "engine": "expanded-v2",
+      "suite": "extended",
+      "sr": 96000,
+      "block": 32,
+      "channels": 1,
+      "callback_index": 536,
+      "phase": "worker_and_automation",
+      "budget_us": 333.3333333333333,
+      "wall_us": 1639.955,
+      "thread_cpu_us": 1641.0669999998063,
+      "thread_cpu_valid": 1,
+      "thread_cycles": 0,
+      "thread_cycles_valid": 0,
+      "wall_minus_measured_cpu_us": -1.1119999998063577
+    },
+    {
+      "engine": "expanded-v2",
+      "suite": "extended",
+      "sr": 96000,
+      "block": 32,
+      "channels": 1,
+      "callback_index": 572,
+      "phase": "worker_and_automation",
+      "budget_us": 333.3333333333333,
+      "wall_us": 395.281,
+      "thread_cpu_us": 396.75400000065565,
+      "thread_cpu_valid": 1,
+      "thread_cycles": 0,
+      "thread_cycles_valid": 0,
+      "wall_minus_measured_cpu_us": -1.4730000006556452
+    },
+    {
+      "engine": "expanded-v2",
+      "suite": "extended",
+      "sr": 96000,
+      "block": 32,
+      "channels": 1,
+      "callback_index": 573,
+      "phase": "worker_and_automation",
+      "budget_us": 333.3333333333333,
+      "wall_us": 410.519,
+      "thread_cpu_us": 411.6619999986142,
+      "thread_cpu_valid": 1,
+      "thread_cycles": 0,
+      "thread_cycles_valid": 0,
+      "wall_minus_measured_cpu_us": -1.1429999986141866
+    },
+    {
+      "engine": "expanded-v2",
+      "suite": "extended",
+      "sr": 96000,
+      "block": 32,
+      "channels": 1,
+      "callback_index": 817,
+      "phase": "worker_and_automation",
+      "budget_us": 333.3333333333333,
+      "wall_us": 338.421,
+      "thread_cpu_us": 340.035000000149,
+      "thread_cpu_valid": 1,
+      "thread_cycles": 0,
+      "thread_cycles_valid": 0,
+      "wall_minus_measured_cpu_us": -1.6140000001490193
+    },
+    {
+      "engine": "expanded-v2",
+      "suite": "extended",
+      "sr": 96000,
+      "block": 32,
+      "channels": 1,
+      "callback_index": 833,
+      "phase": "worker_and_automation",
+      "budget_us": 333.3333333333333,
+      "wall_us": 441.917,
+      "thread_cpu_us": 443.59899999946356,
+      "thread_cpu_valid": 1,
+      "thread_cycles": 0,
+      "thread_cycles_valid": 0,
+      "wall_minus_measured_cpu_us": -1.681999999463585
+    },
+    {
+      "engine": "expanded-v2",
+      "suite": "extended",
+      "sr": 96000,
+      "block": 32,
+      "channels": 1,
+      "callback_index": 866,
+      "phase": "worker_and_automation",
+      "budget_us": 333.3333333333333,
+      "wall_us": 2021.159,
+      "thread_cpu_us": 2022.6840000003576,
+      "thread_cpu_valid": 1,
+      "thread_cycles": 0,
+      "thread_cycles_valid": 0,
+      "wall_minus_measured_cpu_us": -1.5250000003575224
+    },
+    {
+      "engine": "expanded-v2",
+      "suite": "extended",
+      "sr": 96000,
+      "block": 32,
+      "channels": 1,
+      "callback_index": 1208,
+      "phase": "forced_six_slot_publication",
+      "budget_us": 333.3333333333333,
+      "wall_us": 972.017,
+      "thread_cpu_us": 972.6840000003576,
+      "thread_cpu_valid": 1,
+      "thread_cycles": 0,
+      "thread_cycles_valid": 0,
+      "wall_minus_measured_cpu_us": -0.6670000003575751
+    },
+    {
+      "engine": "expanded-v2",
+      "suite": "extended",
+      "sr": 96000,
+      "block": 32,
+      "channels": 2,
+      "callback_index": 0,
+      "phase": "worker_and_automation",
+      "budget_us": 333.3333333333333,
+      "wall_us": 349.507,
+      "thread_cpu_us": 351.5019999984652,
+      "thread_cpu_valid": 1,
+      "thread_cycles": 0,
+      "thread_cycles_valid": 0,
+      "wall_minus_measured_cpu_us": -1.9949999984651754
+    },
+    {
+      "engine": "expanded-v2",
+      "suite": "extended",
+      "sr": 96000,
+      "block": 32,
+      "channels": 2,
+      "callback_index": 392,
+      "phase": "worker_and_automation",
+      "budget_us": 333.3333333333333,
+      "wall_us": 333.674,
+      "thread_cpu_us": 334.15599999949336,
+      "thread_cpu_valid": 1,
+      "thread_cycles": 0,
+      "thread_cycles_valid": 0,
+      "wall_minus_measured_cpu_us": -0.48199999949338235
+    },
+    {
+      "engine": "expanded-v2",
+      "suite": "extended",
+      "sr": 96000,
+      "block": 32,
+      "channels": 2,
+      "callback_index": 435,
+      "phase": "worker_and_automation",
+      "budget_us": 333.3333333333333,
+      "wall_us": 607.938,
+      "thread_cpu_us": 609.2750000003725,
+      "thread_cpu_valid": 1,
+      "thread_cycles": 0,
+      "thread_cycles_valid": 0,
+      "wall_minus_measured_cpu_us": -1.3370000003725409
+    },
+    {
+      "engine": "expanded-v2",
+      "suite": "extended",
+      "sr": 96000,
+      "block": 32,
+      "channels": 2,
+      "callback_index": 475,
+      "phase": "worker_and_automation",
+      "budget_us": 333.3333333333333,
+      "wall_us": 438.462,
+      "thread_cpu_us": 439.1830000001937,
+      "thread_cpu_valid": 1,
+      "thread_cycles": 0,
+      "thread_cycles_valid": 0,
+      "wall_minus_measured_cpu_us": -0.721000000193726
+    },
+    {
+      "engine": "expanded-v2",
+      "suite": "extended",
+      "sr": 96000,
+      "block": 32,
+      "channels": 2,
+      "callback_index": 673,
+      "phase": "worker_and_automation",
+      "budget_us": 333.3333333333333,
+      "wall_us": 358.04,
+      "thread_cpu_us": 359.67400000058115,
+      "thread_cpu_valid": 1,
+      "thread_cycles": 0,
+      "thread_cycles_valid": 0,
+      "wall_minus_measured_cpu_us": -1.6340000005811248
+    },
+    {
+      "engine": "expanded-v2",
+      "suite": "extended",
+      "sr": 96000,
+      "block": 32,
+      "channels": 2,
+      "callback_index": 1057,
+      "phase": "worker_and_automation",
+      "budget_us": 333.3333333333333,
+      "wall_us": 438.913,
+      "thread_cpu_us": 440.55399999953806,
+      "thread_cpu_valid": 1,
+      "thread_cycles": 0,
+      "thread_cycles_valid": 0,
+      "wall_minus_measured_cpu_us": -1.640999999538053
+    },
+    {
+      "engine": "expanded-v2",
+      "suite": "extended",
+      "sr": 96000,
+      "block": 32,
+      "channels": 2,
+      "callback_index": 1206,
+      "phase": "forced_six_slot_publication",
+      "budget_us": 333.3333333333333,
+      "wall_us": 366.132,
+      "thread_cpu_us": 366.9449999984354,
+      "thread_cpu_valid": 1,
+      "thread_cycles": 0,
+      "thread_cycles_valid": 0,
+      "wall_minus_measured_cpu_us": -0.8129999984353731
+    },
+    {
+      "engine": "expanded-v2",
+      "suite": "extended",
+      "sr": 96000,
+      "block": 32,
+      "channels": 2,
+      "callback_index": 1237,
+      "phase": "forced_six_slot_publication",
+      "budget_us": 333.3333333333333,
+      "wall_us": 497.711,
+      "thread_cpu_us": 498.90000000037253,
+      "thread_cpu_valid": 1,
+      "thread_cycles": 0,
+      "thread_cycles_valid": 0,
+      "wall_minus_measured_cpu_us": -1.1890000003725163
+    },
+    {
+      "engine": "expanded-v2",
+      "suite": "extended",
+      "sr": 96000,
+      "block": 32,
+      "channels": 2,
+      "callback_index": 1304,
+      "phase": "forced_six_slot_publication",
+      "budget_us": 333.3333333333333,
+      "wall_us": 483.529,
+      "thread_cpu_us": 485.01999999955297,
+      "thread_cpu_valid": 1,
+      "thread_cycles": 0,
+      "thread_cycles_valid": 0,
+      "wall_minus_measured_cpu_us": -1.4909999995529688
+    },
+    {
+      "engine": "expanded-v2",
+      "suite": "extended",
+      "sr": 96000,
+      "block": 32,
+      "channels": 2,
+      "callback_index": 1313,
+      "phase": "forced_six_slot_publication",
+      "budget_us": 333.3333333333333,
+      "wall_us": 401.356,
+      "thread_cpu_us": 402.6270000003278,
+      "thread_cpu_valid": 1,
+      "thread_cycles": 0,
+      "thread_cycles_valid": 0,
+      "wall_minus_measured_cpu_us": -1.271000000327831
+    },
+    {
+      "engine": "expanded-v2",
+      "suite": "extended",
+      "sr": 96000,
+      "block": 128,
+      "channels": 1,
+      "callback_index": 1245,
+      "phase": "forced_six_slot_publication",
+      "budget_us": 1333.3333333333333,
+      "wall_us": 2427.533,
+      "thread_cpu_us": 2428.5359999984503,
+      "thread_cpu_valid": 1,
+      "thread_cycles": 0,
+      "thread_cycles_valid": 0,
+      "wall_minus_measured_cpu_us": -1.0029999984503775
+    },
+    {
+      "engine": "expanded-v2",
+      "suite": "extended",
+      "sr": 96000,
+      "block": 128,
+      "channels": 1,
+      "callback_index": 1259,
+      "phase": "forced_six_slot_publication",
+      "budget_us": 1333.3333333333333,
+      "wall_us": 2208.713,
+      "thread_cpu_us": 2209.2000000011176,
+      "thread_cpu_valid": 1,
+      "thread_cycles": 0,
+      "thread_cycles_valid": 0,
+      "wall_minus_measured_cpu_us": -0.4870000011173943
+    },
+    {
+      "engine": "expanded-v2",
+      "suite": "extended",
+      "sr": 96000,
+      "block": 128,
+      "channels": 2,
+      "callback_index": 1389,
+      "phase": "forced_six_slot_publication",
+      "budget_us": 1333.3333333333333,
+      "wall_us": 2239.89,
+      "thread_cpu_us": 2241.1480000000447,
+      "thread_cpu_valid": 1,
+      "thread_cycles": 0,
+      "thread_cycles_valid": 0,
+      "wall_minus_measured_cpu_us": -1.2580000000448308
+    },
+    {
+      "engine": "expanded-v2",
+      "suite": "extended",
+      "sr": 96000,
+      "block": 128,
+      "channels": 2,
+      "callback_index": 1405,
+      "phase": "forced_six_slot_publication",
+      "budget_us": 1333.3333333333333,
+      "wall_us": 1823.371,
+      "thread_cpu_us": 1824.5099999997765,
+      "thread_cpu_valid": 1,
+      "thread_cycles": 0,
+      "thread_cycles_valid": 0,
+      "wall_minus_measured_cpu_us": -1.138999999776388
+    }
+  ],
+  "quadrature": {
+    "baseline_header_sha256": {
+      "OriginalCabModel.h": "9c672ee2792a7ce869d41eb85287188ba599a63b21ec3d53f982302e9cb8742b",
+      "CabExpansionModel.h": "d46d79e51f0e3023ffb252cb179bf3415125163110ac47cf586fdbf40fce5ad5",
+      "CabLayoutModel.h": "f7abd4300e3f8e4fae2a08f60f3dfeae0e919626646cbc721f72fd14557785ea"
+    },
+    "source_verification": {
+      "production_equals_proven_scratch_implementation": true,
+      "only_prototype_difference": "One production comment replaces Scratch-only prototype wording.",
+      "reference_function_bodies_exactly_equal_to_baseline": true,
+      "reference_uses_production_geometry_cache": false,
+      "previous_test_file_bytes_unchanged_after_removing_insertions": true,
+      "diff_check_pass": true,
+      "cancellation_checkpoints_and_generation_math_unchanged": true
+    },
+    "scratch_equivalence": {
+      "kind": "summary",
+      "waves": 27,
+      "complex_responses": 117,
+      "cancellation_cases": 54,
+      "invalid_rate_cases": 18,
+      "pass": true,
+      "geometry_doubles_bitwise_equal": 144,
+      "waveform_samples_byte_identical": 143919,
+      "sample_rates": [
+        44100,
+        48000,
+        96000
+      ],
+      "normal_generation_checkpoints": {
+        "44100": 66,
+        "48000": 66,
+        "96000": 130
+      },
+      "cancellation_thresholds": "1, 2, total/2, total-1, total, total+1 for 3 engines at 3 rates; same status/message/checkpoint count/no partial return",
+      "invalid_rates": "Rates0,7999,384001,+inf,-inf,NaN on each engine: same invalid_argument message, callback never called",
+      "ir_library_cancelled_build_counter_exercised": false,
+      "compiler": "g++ (Ubuntu 13.3.0-6ubuntu2~24.04) 13.3.0",
+      "flags": [
+        "-std=c++20",
+        "-O3",
+        "-DNDEBUG",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-pedantic"
+      ]
+    },
+    "cache_storage": "Function-local static const array shared by v1 and v2/v3 cone functions. The source retains original std::sqrt/std::cos/std::sin expressions; GCC 13.3 -O3 folds this initializer to read-only data (no guard symbol), so dynamic initialization is not claimed for the measured binary.",
+    "native_reference_tests": {
+      "status": "Local coherent CTest batch PASS; native MSVC/AppleClang pending.",
+      "v1_complex_pairs": 864,
+      "geometry_double_pairs": 144,
+      "v2_v3_complex_pairs": 2592,
+      "comparison": "Exact IEEE double bits of each real and imaginary component.",
+      "v1_matrix": "2 speakers x 4 sources x 2 pickup anchors x 3 positions x 3 distances x 6 frequencies",
+      "v2_v3_matrix": "3 drivers x 4 mic variants (none/dynamic/ribbon/condenser) x 2 sources x 2 pickup anchors x 3 positions x 3 distances x 6 frequencies"
+    },
+    "generator_benchmark": {
+      "case": "v3-b610-nominal",
+      "sample_rate": 96000,
+      "model_key": "30352174791629059",
+      "generated_float_samples": 8161,
+      "sequence": "ABBA ABBA ABBA",
+      "table_state": "Warmed by correctness verification",
+      "thread_affinity_changed": false,
+      "priority_changed": false,
+      "cpu_model": "AMD EPYC 9V74 80-Core Processor",
+      "allowed_cpu_list": "0-8",
+      "summary": {
+        "baseline": {
+          "samples": 6,
+          "wall_ms": {
+            "min": 147.566615,
+            "median": 149.91216,
+            "max": 164.792114
+          },
+          "thread_cpu_ms": {
+            "min": 147.5549289999999,
+            "median": 149.9094584999998,
+            "max": 164.78245200000038
+          }
+        },
+        "cached": {
+          "samples": 6,
+          "wall_ms": {
+            "min": 77.318616,
+            "median": 79.0937895,
+            "max": 129.187794
+          },
+          "thread_cpu_ms": {
+            "min": 77.31916899999942,
+            "median": 79.08746000000019,
+            "max": 129.17621699999927
+          }
+        },
+        "wall_ms_median_reduction_percent": 47.239910691701056,
+        "thread_cpu_ms_median_reduction_percent": 47.243182123828234
+      },
+      "limits": [
+        "Single unpinned Linux x86_64 GCC13.3 process after other task builds/probes were reported idle.",
+        "One representative worker generator workload; not a full CAB callback p99 or product performance claim.",
+        "Six samples per implementation are descriptive, not a tail-latency estimate; the cached129ms and baseline165ms samples are retained.",
+        "Windows MSVC and macOS AppleClang byte equivalence are not established by this local probe.",
+        "Static-table cold initialization is not included in warmed benchmark; early cancellation still precedes geometry evaluation."
+      ]
+    },
+    "generator_raw_samples": [
+      {
+        "sequence": "0",
+        "variant": "baseline",
+        "rate": "96000",
+        "model_key": "30352174791629059",
+        "wall_ms": "150.53629900000001",
+        "thread_cpu_ms": "150.53112400000009",
+        "samples": "8161",
+        "fingerprint": "15695721611877073229"
+      },
+      {
+        "sequence": "1",
+        "variant": "cached",
+        "rate": "96000",
+        "model_key": "30352174791629059",
+        "wall_ms": "77.318616000000006",
+        "thread_cpu_ms": "77.31916899999942",
+        "samples": "8161",
+        "fingerprint": "15695721611877073229"
+      },
+      {
+        "sequence": "2",
+        "variant": "cached",
+        "rate": "96000",
+        "model_key": "30352174791629059",
+        "wall_ms": "78.899180999999999",
+        "thread_cpu_ms": "78.901128000000426",
+        "samples": "8161",
+        "fingerprint": "15695721611877073229"
+      },
+      {
+        "sequence": "3",
+        "variant": "baseline",
+        "rate": "96000",
+        "model_key": "30352174791629059",
+        "wall_ms": "149.28802099999999",
+        "thread_cpu_ms": "149.28779299999951",
+        "samples": "8161",
+        "fingerprint": "15695721611877073229"
+      },
+      {
+        "sequence": "4",
+        "variant": "baseline",
+        "rate": "96000",
+        "model_key": "30352174791629059",
+        "wall_ms": "151.303282",
+        "thread_cpu_ms": "151.2921580000002",
+        "samples": "8161",
+        "fingerprint": "15695721611877073229"
+      },
+      {
+        "sequence": "5",
+        "variant": "cached",
+        "rate": "96000",
+        "model_key": "30352174791629059",
+        "wall_ms": "78.622814000000005",
+        "thread_cpu_ms": "78.624157000000196",
+        "samples": "8161",
+        "fingerprint": "15695721611877073229"
+      },
+      {
+        "sequence": "6",
+        "variant": "cached",
+        "rate": "96000",
+        "model_key": "30352174791629059",
+        "wall_ms": "79.288398000000001",
+        "thread_cpu_ms": "79.273791999999958",
+        "samples": "8161",
+        "fingerprint": "15695721611877073229"
+      },
+      {
+        "sequence": "7",
+        "variant": "baseline",
+        "rate": "96000",
+        "model_key": "30352174791629059",
+        "wall_ms": "148.61379400000001",
+        "thread_cpu_ms": "148.59941999999955",
+        "samples": "8161",
+        "fingerprint": "15695721611877073229"
+      },
+      {
+        "sequence": "8",
+        "variant": "baseline",
+        "rate": "96000",
+        "model_key": "30352174791629059",
+        "wall_ms": "164.792114",
+        "thread_cpu_ms": "164.78245200000038",
+        "samples": "8161",
+        "fingerprint": "15695721611877073229"
+      },
+      {
+        "sequence": "9",
+        "variant": "cached",
+        "rate": "96000",
+        "model_key": "30352174791629059",
+        "wall_ms": "129.187794",
+        "thread_cpu_ms": "129.17621699999927",
+        "samples": "8161",
+        "fingerprint": "15695721611877073229"
+      },
+      {
+        "sequence": "10",
+        "variant": "cached",
+        "rate": "96000",
+        "model_key": "30352174791629059",
+        "wall_ms": "83.189293000000006",
+        "thread_cpu_ms": "83.191549999999552",
+        "samples": "8161",
+        "fingerprint": "15695721611877073229"
+      },
+      {
+        "sequence": "11",
+        "variant": "baseline",
+        "rate": "96000",
+        "model_key": "30352174791629059",
+        "wall_ms": "147.56661500000001",
+        "thread_cpu_ms": "147.5549289999999",
+        "samples": "8161",
+        "fingerprint": "15695721611877073229"
+      }
+    ]
+  },
+  "diagnostic_profile": {
+    "scope": "One run per version on local Linux, old preserved binary before rebuild and follow-up after CTest; instrumented diagnostic only. Not a paired 66-condition acceptance baseline or repeatability study. No task affinity/priority/power-plan or sleep changes. All regressions and misses retained.",
+    "baseline_binary_receipt": {
+      "source": {
+        "sha": "28bf17b3ea78d7b608918642d4f8f871a0133bf0",
+        "tree": "a4587e804aa0cda0d2603593dda512bd26707759",
+        "clean": true,
+        "path": "chimera"
+      },
+      "github_equivalent_sha": "0f46f9f6eba7bea38ff256e3a5eafb1ca83b7065",
+      "tree": "a4587e804aa0cda0d2603593dda512bd26707759",
+      "binary": {
+        "path": "worker-contention-evidence/baseline-profile/ChimeraCabProfiling-0f46f9f6",
+        "sha256": "1c8fec8d3ff913588365923695be99065b1a8cb6623b4d052e22af0955988aec"
+      },
+      "diagnostic_only": true,
+      "priority_or_affinity_changed": false
+    },
+    "followup_binary": {
+      "sha256": "1807a95f857530927066eb2eb3dd4964749995ede63a39e8d3486a1880f1919d"
+    },
+    "baseline_conditions": 12,
+    "followup_conditions": 12,
+    "baseline_p99_passes": 12,
+    "followup_p99_passes": 12,
+    "baseline_misses": 1,
+    "followup_misses": 7,
+    "followup_misses_by_phase": {
+      "worker_and_automation": 1,
+      "forced_six_slot_publication": 6
+    },
+    "p50_improved": 9,
+    "p50_worsened": 2,
+    "p99_improved": 8,
+    "p99_worsened": 4,
+    "comparison": [
+      {
+        "route": [
+          "expanded-v2",
+          44100,
+          64,
+          1
+        ],
+        "old": {
+          "p50_us": "39.78",
+          "p99_us": "118.939",
+          "max_us": "288.265",
+          "misses": "0/1600"
+        },
+        "candidate": {
+          "p50_us": "39.649",
+          "p99_us": "136.235",
+          "max_us": "2028.07",
+          "misses": "1/1600"
+        },
+        "p99_strict_pass": true
+      },
+      {
+        "route": [
+          "expanded-v2",
+          44100,
+          64,
+          2
+        ],
+        "old": {
+          "p50_us": "48.453",
+          "p99_us": "145.008",
+          "max_us": "355.627",
+          "misses": "0/1600"
+        },
+        "candidate": {
+          "p50_us": "48.243",
+          "p99_us": "122.115",
+          "max_us": "336.107",
+          "misses": "0/1600"
+        },
+        "p99_strict_pass": true
+      },
+      {
+        "route": [
+          "expanded-v2",
+          44100,
+          256,
+          1
+        ],
+        "old": {
+          "p50_us": "102.054",
+          "p99_us": "255.125",
+          "max_us": "2365.189",
+          "misses": "0/1600"
+        },
+        "candidate": {
+          "p50_us": "96.846",
+          "p99_us": "323.278",
+          "max_us": "2307.011",
+          "misses": "0/1600"
+        },
+        "p99_strict_pass": true
+      },
+      {
+        "route": [
+          "expanded-v2",
+          44100,
+          256,
+          2
+        ],
+        "old": {
+          "p50_us": "212.32",
+          "p99_us": "696.05",
+          "max_us": "2228.302",
+          "misses": "0/1600"
+        },
+        "candidate": {
+          "p50_us": "115.444",
+          "p99_us": "224.389",
+          "max_us": "434.485",
+          "misses": "0/1600"
+        },
+        "p99_strict_pass": true
+      },
+      {
+        "route": [
+          "expanded-v2",
+          48000,
+          64,
+          1
+        ],
+        "old": {
+          "p50_us": "40.952",
+          "p99_us": "136.976",
+          "max_us": "458.071",
+          "misses": "0/1600"
+        },
+        "candidate": {
+          "p50_us": "40.952",
+          "p99_us": "105.839",
+          "max_us": "156.126",
+          "misses": "0/1600"
+        },
+        "p99_strict_pass": true
+      },
+      {
+        "route": [
+          "expanded-v2",
+          48000,
+          64,
+          2
+        ],
+        "old": {
+          "p50_us": "50.255",
+          "p99_us": "191.108",
+          "max_us": "760.808",
+          "misses": "0/1600"
+        },
+        "candidate": {
+          "p50_us": "49.705",
+          "p99_us": "110.928",
+          "max_us": "559.034",
+          "misses": "0/1600"
+        },
+        "p99_strict_pass": true
+      },
+      {
+        "route": [
+          "expanded-v2",
+          48000,
+          256,
+          1
+        ],
+        "old": {
+          "p50_us": "102.845",
+          "p99_us": "241.905",
+          "max_us": "359.151",
+          "misses": "0/1600"
+        },
+        "candidate": {
+          "p50_us": "96.956",
+          "p99_us": "238.029",
+          "max_us": "450.23",
+          "misses": "0/1600"
+        },
+        "p99_strict_pass": true
+      },
+      {
+        "route": [
+          "expanded-v2",
+          48000,
+          256,
+          2
+        ],
+        "old": {
+          "p50_us": "210.958",
+          "p99_us": "456.268",
+          "max_us": "1996.933",
+          "misses": "0/1600"
+        },
+        "candidate": {
+          "p50_us": "116.776",
+          "p99_us": "332.452",
+          "max_us": "5290.448",
+          "misses": "0/1600"
+        },
+        "p99_strict_pass": true
+      },
+      {
+        "route": [
+          "expanded-v2",
+          96000,
+          64,
+          1
+        ],
+        "old": {
+          "p50_us": "51.047",
+          "p99_us": "137.037",
+          "max_us": "964.195",
+          "misses": "1/1600"
+        },
+        "candidate": {
+          "p50_us": "51.227",
+          "p99_us": "148.715",
+          "max_us": "385.752",
+          "misses": "0/1600"
+        },
+        "p99_strict_pass": true
+      },
+      {
+        "route": [
+          "expanded-v2",
+          96000,
+          64,
+          2
+        ],
+        "old": {
+          "p50_us": "66.59",
+          "p99_us": "185",
+          "max_us": "370.349",
+          "misses": "0/1600"
+        },
+        "candidate": {
+          "p50_us": "66.79",
+          "p99_us": "172.771",
+          "max_us": "427.335",
+          "misses": "0/1600"
+        },
+        "p99_strict_pass": true
+      },
+      {
+        "route": [
+          "expanded-v2",
+          96000,
+          256,
+          1
+        ],
+        "old": {
+          "p50_us": "123.386",
+          "p99_us": "357.449",
+          "max_us": "1830.562",
+          "misses": "0/1600"
+        },
+        "candidate": {
+          "p50_us": "109.726",
+          "p99_us": "538.753",
+          "max_us": "3180.829",
+          "misses": "2/1600"
+        },
+        "p99_strict_pass": true
+      },
+      {
+        "route": [
+          "expanded-v2",
+          96000,
+          256,
+          2
+        ],
+        "old": {
+          "p50_us": "242.216",
+          "p99_us": "580.907",
+          "max_us": "2250.466",
+          "misses": "0/1600"
+        },
+        "candidate": {
+          "p50_us": "140.341",
+          "p99_us": "504.432",
+          "max_us": "10773.706",
+          "misses": "4/1600"
+        },
+        "p99_strict_pass": true
+      }
+    ],
+    "raw_callback_validation": {
+      "baseline_files": 12,
+      "followup_files": 12,
+      "callbacks_each": 19200,
+      "baseline_validated": true,
+      "followup_validated": true
+    }
+  },
+  "evidence_sha256": {
+    "candidate/build.log": "2af7c06776636a19903ff02a46735c56a00cffc801610de1e860898b43030bcd",
+    "candidate/ctest-results.xml": "a32fd0fc5c2b493c0d0c28a5aa23d347f69173e3e9f380602eaf82709cdcfc92",
+    "candidate/ctest-console.log": "9a1ba01789fe34654b6300f99fcca38715c001c96dd58282198ca2bf1756b0ef",
+    "candidate/ctest-inventory.json": "1ec0d5cf3bcf43abac66a2392560dcfa90ef6215d654daa7335cbf21e21b8542",
+    "candidate/LastTest.log": "26fea14aa1860e1b83ed269f3fe3bd1bf3fd3e5d7eadb717d9ead3e24a8ab45b",
+    "candidate/source-files-before-build.json": "393d53dcab74a6d1af7297eb9f9cfdea108f78b84632f2671194a56a8f26eba7",
+    "candidate/independent-audit.json": "07838b2c8260926879d2b833d7262784516df23b0e2a75dd7f9b5727ebddc13f",
+    "baseline-profile/profile.log": "fac8bcd1fcd2f8300ee2e59685afa9bb9c3816424e9b9d04983b47af50b40c1a",
+    "baseline-profile/validated-profile.json": "97d4eda11bda815c6e6229bcaed578da9eebe83aee90598722915f348a9c6b2b",
+    "candidate-profile/profile.log": "1bb631a883ffd6b242d453d490f581cb15198849ffa2e452998c07e18dcdcfc4",
+    "candidate-profile/validated-profile.json": "babc0e7a9987d59c0445fefb5cf3020764f162cea14db545ca83ef9168c8adc7"
+  },
+  "evidence_note": "This repository report retains all route/phase summaries, individual miss pairs and source/binary/log/CSV hashes. Full local raw CSVs/logs remain in the original evidence workspace; native CI publishes its own raw artifacts separately. Local results do not establish Windows/macOS or product release acceptance."
+}

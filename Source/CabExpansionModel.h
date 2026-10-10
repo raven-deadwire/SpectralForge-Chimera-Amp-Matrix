@@ -87,9 +87,9 @@ inline Complex coneField(double hz,const Speaker& d,Point source,Point pickup,do
                          double coherence,const Mic* mic) {
     const double radius=d.radius/std::sqrt(1+std::pow(hz/coherence,2));
     Complex field{};
-    for(int ring=0;ring<4;++ring)for(int sector=0;sector<12;++sector) {
-        const double r=radius*std::sqrt((ring+.5)/4),theta=2*pi*(sector+.5*(ring%2))/12;
-        const double dx=pickup.x-source.x-r*std::cos(theta),dy=pickup.y-source.y-r*std::sin(theta);
+    for(const auto& point:coneQuadraturePoints()) {
+        const double r=radius*point.radiusScale;
+        const double dx=pickup.x-source.x-r*point.cosTheta,dy=pickup.y-source.y-r*point.sinTheta;
         const double path=std::sqrt(dx*dx+dy*dy+z*z),cosine=z/path;
         double pickupGain=1;
         if(mic) {

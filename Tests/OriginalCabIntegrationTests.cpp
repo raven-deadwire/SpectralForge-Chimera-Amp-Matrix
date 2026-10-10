@@ -86,6 +86,8 @@ int main(int argc,char** argv){try {
         <<"CLOCK_THREAD_CPUTIME_ID"
 #endif
         <<'\n';
+    std::cout<<"CALLER_SCHEDULING phase=entry";
+    cabTiming::appendCallerScheduling(std::cout);std::cout<<'\n';
     const char* engineName=layouts ? "array-v3-6x10" : expanded ? "expanded-v2" : "original-v1";
     const auto modelKey=[expanded,layouts](originalCab::Settings p){if(layouts)return cabLayout::key({{p,9,p.mic==1 ? 10 : 20,2},7,p.mic==1 ? 7 : p.unit});return expanded ? cabExpansion::key({p,12,p.mic==1 ? 10 : 20,2}) : originalCab::key(p);};
     if(layouts) {
@@ -95,7 +97,7 @@ int main(int argc,char** argv){try {
             "production 6x10 / previous bottom-right microphone migration");
     }
     const juce::ScopedNoDenormals noDenormals; // Same floating-point mode as processBlock.
-    bool cpuWithinBudget=true;
+    bool cpuWithinBudget=true,workerSchedulingValid=true;
     const std::vector<int> blocks=extendedBuffers ? std::vector<int>{32,64,128,256,512} : std::vector<int>{64,256};
     for(double sr:{44100.,48000.,96000.})for(int block:blocks)for(int channels:{1,2}) {
         juce::dsp::ProcessSpec spec{sr,juce::uint32(block),juce::uint32(channels)};
@@ -198,6 +200,23 @@ int main(int argc,char** argv){try {
         require(peak<2 && maxStep<.3,"bounded six-slot swap");
         for(auto& c:cabs)require(c.activeModel==nextKey && c.secondMic()->activeModel==nextKey,"six queued mic swaps converge");
         for(auto& c:cabs)c.clear();require(library.resourcesReleased(),"worker teardown");
+        const auto scheduling=library.workerScheduling();
+        // Preserve every measured route and the actual context before failing
+        // this diagnostic contract, just as the wall gate reports all routes.
+        workerSchedulingValid=workerSchedulingValid && scheduling.startSucceeded && scheduling.enteredRun
+            && scheduling.observedPriority==int(juce::Thread::Priority::low);
+        std::cout<<"WORKER_SCHEDULING engine="<<engineName<<" suite="<<timingSuite
+            <<" sr="<<sr<<" block="<<block<<" channels="<<channels
+            <<" start_succeeded="<<scheduling.startSucceeded<<" entered_run="<<scheduling.enteredRun
+            <<" requested_juce_priority="<<int(juce::Thread::Priority::low)
+            <<" observed_juce_priority="<<scheduling.observedPriority
+#if JUCE_WINDOWS || JUCE_MAC
+            <<" worker_priority_query=native"
+#else
+            <<" worker_priority_query=requested_only linux_nonrealtime_request_ignored=1"
+#endif
+            ;
+        cabTiming::appendCallerScheduling(std::cout);std::cout<<'\n';
         std::cout<<"WORKER_ACTIVITY engine="<<engineName<<" suite="<<timingSuite
             <<" sr="<<sr<<" block="<<block<<" channels="<<channels
             <<" cancelled_builds="<<library.cancelledBuildCount()<<'\n';
@@ -227,6 +246,7 @@ int main(int argc,char** argv){try {
     }
     require(allocations==0 && deletions==0,"callback new/delete observed");
     std::cout<<"CALLBACK callback_new="<<allocations<<" callback_delete="<<deletions<<" (thread-local C++ operators only; not a universal malloc/lock tracer)\n";
+    require(workerSchedulingValid,"IR worker did not start/run with the low priority request/observation");
     require(cpuWithinBudget,"CAB-only p99 exceeds one block period (runner CPU gate)");
     std::cout<<"PASS original CAB integration and runner CPU gate\n";return 0;
 }catch(const std::exception& e){watch=false;std::cerr<<e.what()<<'\n';return 1;}}
