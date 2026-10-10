@@ -18,7 +18,7 @@ public:
         type.addItemList(eqFilterNames(),1);type.onChange=[this]{sliders[1].setEnabled(gainApplicable());rebuildResponse();repaint();};addAndMakeVisible(type);
         for(size_t i=0;i<sliders.size();++i) {
             auto& slider=sliders[i];slider.setSliderStyle(juce::Slider::LinearHorizontal);slider.setTextBoxStyle(juce::Slider::TextBoxBelow,false,145,24);
-            slider.setName(i==0?"Frequency Hz":i==1?"Gain dB":"Q factor");
+            slider.setName(i==0?"Frequency Hz":i==1?"Gain dB":"Q factor");slider.setWantsKeyboardFocus(true);
             slider.textFromValueFunction=[i](double v){return juce::String(v,i==0?1:2)+(i==0?" Hz":i==1?" dB":" Q");};
             slider.valueFromTextFunction=[](const juce::String& t){return t.getDoubleValue();};addAndMakeVisible(slider);
         }

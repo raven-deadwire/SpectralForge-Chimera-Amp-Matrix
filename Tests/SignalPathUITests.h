@@ -68,6 +68,8 @@ inline void run(const juce::File& folder) {
                 auto* selected=find<spectralforge::GraphicalEQPanel>(*editor,tone?"toneEQ_panel":"finalEQ_panel");
                 auto* other=find<spectralforge::GraphicalEQPanel>(*editor,tone?"finalEQ_panel":"toneEQ_panel");
                 require(selected && other && selected->isShowing() && selected->isNavigationSelected() && !other->isNavigationSelected(),"Expanded EQ click did not open/highlight the requested bank");
+                auto* frequency=find<juce::Slider>(*selected,spectralforge::eqID(tone?0:1,selected->selectedBand(),"frequency"));
+                require(frequency && frequency->hasKeyboardFocus(true),"EQ navigation did not focus the requested bank's frequency control");
             }
             if(node.target==Target::amp && node.lane>=0)require(dialog("ampNativePanel"+juce::String(node.lane+1)),"AMP click did not open the existing lane editor");
             // Amp and CAB dialogs are independently owned and closed here.
