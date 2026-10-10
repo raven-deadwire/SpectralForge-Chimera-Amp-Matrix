@@ -4,7 +4,7 @@ void layoutStateContracts(const juce::File& screenshots) {
     auto p=std::make_unique<ChimeraProcessor>();
     const auto raw=[&](const juce::String& id){return p->parameters().getRawParameterValue(id)->load();};
     const auto delta=[](const auto& a,const auto& b){double d=0;for(size_t n=0;n<a.size();++n)d=std::max(d,std::abs(double(a[n]-b[n])));return d;};
-    check(p->getParameters().size()==4845,"v3 append-only parameter count");
+    check(p->getParameters().size()==4845+spectralforge::graphicalEQParameterCount,"v3 append-only parameter count");
     for(int lane=0;lane<3;++lane) {
         const std::array<const char*,4> old{"driver","Amic","Bmic","tweeter"};const std::array<int,4> ends{14,20,20,3};
         for(int i=0;i<4;++i) {
