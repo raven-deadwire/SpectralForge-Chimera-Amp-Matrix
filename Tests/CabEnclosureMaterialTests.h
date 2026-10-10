@@ -64,9 +64,14 @@ inline void run() {
                 {juce::Graphics g(target);fillMaterial(g,tile,{4.f,4.f,184.f,120.f},scale);}
                 for(int y=8;y<120;++y)for(int x=8;x<184;++x) {
                     const auto pixel=target.getPixelAt(x,y);
-                    check(std::abs(int(pixel.getRed())-208)<=2 && std::abs(int(pixel.getGreen())-160)<=2
-                        && std::abs(int(pixel.getBlue())-128)<=2 && pixel.getAlpha()>=253,
-                        "rail tiling leaked the original cabinet parent bitmap");
+                    const bool matches=std::abs(int(pixel.getRed())-208)<=2
+                        && std::abs(int(pixel.getGreen())-160)<=2
+                        && std::abs(int(pixel.getBlue())-128)<=2 && pixel.getAlpha()>=253;
+                    if(!matches)std::cerr<<"rail tile mismatch bass="<<int(bass)<<" native="<<int(native)
+                        <<" piece="<<i<<" scale="<<scale<<" xy="<<x<<','<<y
+                        <<" rgba="<<int(pixel.getRed())<<','<<int(pixel.getGreen())<<','
+                        <<int(pixel.getBlue())<<','<<int(pixel.getAlpha())<<'\n';
+                    check(matches,"rail tiling leaked the original cabinet parent bitmap");
                 }
             }
         }
