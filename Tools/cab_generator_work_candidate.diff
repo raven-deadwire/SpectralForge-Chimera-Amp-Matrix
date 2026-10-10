@@ -1,0 +1,1192 @@
+From c460b52db5464b7641bc954cd95d900c40f54df7 Mon Sep 17 00:00:00 2001
+From: Codex <codex@openai.com>
+Date: Sun, 11 Oct 2026 05:57:50 +0900
+Subject: [PATCH] Prepare modeled CAB response geometry once per generation
+
+Share request-local speaker, microphone, horn, and enclosure preparation across v1, v2, and v3 while preserving frequency arithmetic and cancellation cadence. Freeze the 8097 generators for independent exact-bit and full-waveform comparisons, and add an opt-in fixed ABBA generator diagnostic without changing acceptance gates.
+---
+ Source/CabExpansionModel.h           | 106 ++++--
+ Source/CabLayoutModel.h              |  76 ++--
+ Source/OriginalCabModel.h            |  89 ++++-
+ Tests/CabExpansionModelTests.cpp     | 230 +++++++++++-
+ Tests/CabPreparedResponseReference.h | 516 +++++++++++++++++++++++++++
+ 5 files changed, 938 insertions(+), 79 deletions(-)
+ create mode 100644 Tests/CabPreparedResponseReference.h
+
+diff --git a/Source/CabExpansionModel.h b/Source/CabExpansionModel.h
+index a2c3e77..a456c95 100644
+--- a/Source/CabExpansionModel.h
++++ b/Source/CabExpansionModel.h
+@@ -101,52 +101,108 @@ inline Complex coneField(double hz,const Speaker& d,Point source,Point pickup,do
+     }
+     return field;
+ }
+-inline Complex response(Settings raw,double hz) {
+-    const auto p=settings(key(raw));
+-    if(!p.driver && !p.mic && !p.tweeter)return originalCab::response(p.base,hz);
+-    const auto* chosen=driver(p);const auto* mic=microphone(p);
+-    const auto& d=chosen ? chosen->speaker : speakers[size_t(p.base.cabinet)];
+-    const auto box=enclosure(p);const auto points=centres(box);const auto selected=points[size_t(p.base.unit)];
+-    const Point pickup{selected.x+p.base.position*d.radius,selected.y};
+-    const double z=p.base.distanceCm*.01;const Complex s{0,2*pi*hz};Complex field{};
+-    for(const auto source:points) {
+-        auto front=coneField(hz,d,source,pickup,z,chosen ? chosen->coherenceHz : 1700,mic);
+-        if(p.base.rear) {
+-            const double edge=std::min(box.width*.5-std::abs(source.x),box.height*.5-std::abs(source.y));
+-            const double path=std::hypot(std::hypot(pickup.x-source.x,pickup.y-source.y),z)+2*edge+box.depth;
++// V3 uses this same extended preparation. Geometry and common speaker/mic
++// response data live in originalCab::PreparedResponse, not a third schema.
++struct PreparedResponse {
++    originalCab::PreparedResponse base{};
++    const Driver* chosen{};
++    const Mic* mic{};
++    size_t tweeter{};
++    double hornCosine{},hornAngleSine{};
++    std::array<double,3> axialHz{};
++    double rearDamping{1};
++    bool originalFallback{},layoutResponse{};
++};
++inline void prepareRearPaths(PreparedResponse& prepared) {
++    auto& b=prepared.base;
++    if(b.parameters.rear)for(int n=0;n<b.count;++n) {
++        const auto source=b.points[size_t(n)];
++        const double edge=std::min(b.box.width*.5-std::abs(source.x),b.box.height*.5-std::abs(source.y));
++        b.rearPaths[size_t(n)]=std::hypot(std::hypot(b.pickup.x-source.x,b.pickup.y-source.y),b.z)+2*edge+b.box.depth;
++    }
++}
++inline void prepareMicrophoneAndHorn(PreparedResponse& prepared) {
++    auto& b=prepared.base;const auto* mic=prepared.mic;
++    b.microphone=prepareMicrophoneResponse(mic ? mic->response : originalCab::microphones[size_t(b.parameters.mic)],b.z);
++    prepared.hornCosine=b.z/b.hornPath;
++    if(mic)prepared.hornAngleSine=std::sqrt(std::max(0.,1-prepared.hornCosine*prepared.hornCosine));
++    constexpr std::array<double,4> focus{1.5,1.1,2.1,.7};
++    b.hornFocus=std::pow(prepared.hornCosine,focus[prepared.tweeter]);
++}
++inline PreparedResponse prepareResponse(Settings raw) {
++    const auto p=settings(key(raw));PreparedResponse prepared;
++    if(!p.driver && !p.mic && !p.tweeter) {
++        prepared.originalFallback=true;prepared.base=originalCab::prepareResponse(p.base);return prepared;
++    }
++    prepared.chosen=driver(p);prepared.mic=microphone(p);prepared.tweeter=size_t(p.tweeter);
++    const auto& d=prepared.chosen ? prepared.chosen->speaker : speakers[size_t(p.base.cabinet)];
++    auto& b=prepared.base;b.parameters=p.base;b.box=enclosure(p);b.count=4;
++    const auto points=centres(b.box);const auto selected=points[size_t(p.base.unit)];
++    std::copy(points.begin(),points.end(),b.points.begin());
++    b.pickup={selected.x+p.base.position*d.radius,selected.y};b.z=p.base.distanceCm*.01;
++    b.speaker=prepareSpeakerResponse(d,b.box,p.base.rear!=0);
++    prepareRearPaths(prepared);
++    b.hornPath=std::hypot(std::hypot(b.pickup.x,b.pickup.y),b.z);
++    prepareMicrophoneAndHorn(prepared);
++    return prepared;
++}
++inline Complex preparedField(const PreparedResponse& prepared,double hz,Complex s) {
++    const auto& b=prepared.base;const auto& d=*b.speaker.driver;
++    const auto* chosen=prepared.chosen;const auto* mic=prepared.mic;Complex field{};
++    for(int n=0;n<b.count;++n) {
++        const auto source=b.points[size_t(n)];
++        auto front=coneField(hz,d,source,b.pickup,b.z,chosen ? chosen->coherenceHz : 1700,mic);
++        if(b.parameters.rear) {
++            const double path=b.rearPaths[size_t(n)];
+             // Forward-arriving edge-diffracted image. No invented room reverb.
+             front-=.10/path*propagation(hz,path)*low(s,900)*(mic ? mic->pressure+.5*(1-mic->pressure) : 1);
+         }
+         field+=front;
+     }
+-    auto result=speakerResponse(s,d,box,p.base.rear!=0)*field*(1.0+box.modeAmount*mode(s,box.modeHz,box.modeQ));
+-    if(chosen)result*=1.0-chosen->notchDepth*mode(s,chosen->notchHz,chosen->notchQ);
+-    const double hornPath=std::hypot(std::hypot(pickup.x,pickup.y),z);
+-    constexpr std::array<double,4> crossover{3300,4100,2900,4800}, rolloff{17000,15000,18500,22000}, focus{1.5,1.1,2.1,.7};
+-    const auto t=size_t(p.tweeter);
++    return field;
++}
++inline Complex preparedHornResponse(const PreparedResponse& prepared,double hz,Complex s) {
++    const auto& b=prepared.base;const auto* mic=prepared.mic;const auto t=prepared.tweeter;
++    const double hornPath=b.hornPath;
++    constexpr std::array<double,4> crossover{3300,4100,2900,4800},rolloff{17000,15000,18500,22000};
+     double hornPickup=1;
+     if(mic) {
+-        const auto cosine=z/hornPath,aperture=2*pi*hz*mic->aperture*std::sqrt(std::max(0.,1-cosine*cosine))/soundSpeed;
++        const auto cosine=prepared.hornCosine,aperture=2*pi*hz*mic->aperture*prepared.hornAngleSine/soundSpeed;
+         hornPickup=(mic->pressure+(1-mic->pressure)*cosine)/std::sqrt(1+aperture*aperture);
+     }
+-    result+=p.base.tweeter*.35*high2(s,crossover[t],.707)*low(s,rolloff[t])*(.10/hornPath)
+-        *std::pow(z/hornPath,focus[t])*hornPickup*propagation(hz,hornPath);
+-    auto micResponse=microphoneResponse(s,mic ? mic->response : originalCab::microphones[size_t(p.base.mic)],z);
++    return b.parameters.tweeter*.35*high2(s,crossover[t],.707)*low(s,rolloff[t])*(.10/hornPath)
++        *b.hornFocus*hornPickup*propagation(hz,hornPath);
++}
++inline Complex preparedMicrophoneResponse(const PreparedResponse& prepared,Complex s) {
++    const auto* mic=prepared.mic;
++    auto micResponse=microphoneResponse(s,prepared.base.microphone);
+     if(mic)micResponse*=1.0+mic->presenceAmount*mode(s,mic->presenceHz,mic->presenceQ);
+-    return .45*result*micResponse;
++    return micResponse;
++}
++inline Complex preparedResponse(const PreparedResponse& prepared,double hz) {
++    if(prepared.originalFallback)return originalCab::preparedResponse(prepared.base,hz);
++    const auto& b=prepared.base;const auto& box=b.box;const auto* chosen=prepared.chosen;
++    const Complex s{0,2*pi*hz};const auto field=preparedField(prepared,hz,s);
++    auto result=speakerResponse(s,b.speaker)*field*(1.0+box.modeAmount*mode(s,box.modeHz,box.modeQ));
++    if(chosen)result*=1.0-chosen->notchDepth*mode(s,chosen->notchHz,chosen->notchQ);
++    result+=preparedHornResponse(prepared,hz,s);
++    return .45*result*preparedMicrophoneResponse(prepared,s);
++}
++inline Complex response(Settings raw,double hz) {
++    return preparedResponse(prepareResponse(raw),hz);
+ }
+ inline std::vector<float> generate(uint64_t model,double rate,const GenerationCancellation& cancellation={}) {
+     if(!(model&versionBit))return originalCab::generate(originalCab::settings(model),rate,cancellation);
+     if(!std::isfinite(rate) || rate<8000 || rate>384000)throw std::invalid_argument("Expanded CAB sample rate");
+     cancellation.checkpoint();
+-    const auto p=settings(model);
++    const auto prepared=prepareResponse(settings(model));
+     size_t size=1;while(size<size_t(std::ceil(rate*.170)))size<<=1;
+     std::vector<Complex> spectrum(size);
+     for(size_t k=1;k<size/2;++k) {
+         if((k&63)==0)cancellation.checkpoint();
+         const double hz=double(k)*rate/double(size);
+         const double taper=hz>rate*.40 ? .5+.5*std::cos(pi*(hz/rate-.40)/.10) : 1;
+-        spectrum[k]=response(p,hz)*taper;spectrum[size-k]=std::conj(spectrum[k]);
++        spectrum[k]=preparedResponse(prepared,hz)*taper;spectrum[size-k]=std::conj(spectrum[k]);
+     }
+     cancellation.checkpoint();
+     inverseFFT(spectrum);std::vector<float> samples(size_t(std::ceil(rate*.085)));
+diff --git a/Source/CabLayoutModel.h b/Source/CabLayoutModel.h
+index f5b07f4..a85a4b4 100644
+--- a/Source/CabLayoutModel.h
++++ b/Source/CabLayoutModel.h
+@@ -104,65 +104,69 @@ inline Geometry geometry(Settings p) {
+     // drawing and acoustic propagation consume this same physical location.
+     g.horn={0,l.bass && l.columns==2 && l.rows==2 ? 0. : g.box.height*.44};return g;
+ }
+-inline Complex driverTransfer(Settings p,double hz,const Geometry& g) {
++using PreparedResponse=cabExpansion::PreparedResponse;
++inline PreparedResponse prepareDriverTransfer(Settings p,const Geometry& g) {
+     p=effectiveSettings(p);
+     const auto* chosen=cabExpansion::driver(p.voice);
+     const auto& d=chosen ? chosen->speaker : speakers[size_t(p.voice.base.cabinet!=0)];
++    PreparedResponse prepared;prepared.chosen=chosen;
++    auto& b=prepared.base;b.parameters=p.voice.base;b.box=g.box;b.count=g.count;
++    b.speaker=prepareSpeakerResponse(d,g.box,p.voice.base.rear!=0,g.count);
++    prepared.rearDamping=p.voice.base.rear ? .35 : 1.;
++    prepared.axialHz={soundSpeed/(2*g.box.width),soundSpeed/(2*g.box.height),soundSpeed/(2*g.box.depth)};
++    return prepared;
++}
++inline Complex preparedDriverTransfer(const PreparedResponse& prepared,double hz) {
++    const auto* chosen=prepared.chosen;
+     const Complex s{0,2*pi*hz};
+-    const double load=p.voice.base.rear ? 1. : std::sqrt(1.+g.count*g.box.vasPerDriver/g.box.volume);
+-    auto result=high2(s,d.resonance*load,d.q*load)*low(s,d.inductiveHz)*low(s,d.inductiveHz)
+-        *(1.+d.breakupAmount*mode(s,d.breakupHz,d.breakupQ));
++    auto result=speakerResponse(s,prepared.base.speaker);
+     // Three damped axial enclosure modes; explicitly not a room reverberator.
+-    const double rearDamping=p.voice.base.rear ? .35 : 1.;
+-    result*=1.+rearDamping*(.045*mode(s,soundSpeed/(2*g.box.width),1.6)
+-        +.040*mode(s,soundSpeed/(2*g.box.height),1.5)+.035*mode(s,soundSpeed/(2*g.box.depth),1.4));
++    result*=1.+prepared.rearDamping*(.045*mode(s,prepared.axialHz[0],1.6)
++        +.040*mode(s,prepared.axialHz[1],1.5)+.035*mode(s,prepared.axialHz[2],1.4));
+     if(chosen)result*=1.-chosen->notchDepth*mode(s,chosen->notchHz,chosen->notchQ);
+     return result;
+ }
+-inline Complex response(Settings raw,double hz) {
++inline Complex driverTransfer(Settings p,double hz,const Geometry& g) {
++    return preparedDriverTransfer(prepareDriverTransfer(p,g),hz);
++}
++inline PreparedResponse prepareResponse(Settings raw) {
+     const auto p=settings(key(raw));
+-    if(!p.layout)return cabExpansion::response(p.voice,hz);
++    if(!p.layout)return cabExpansion::prepareResponse(p.voice);
+     const auto g=geometry(p);const auto& v=p.voice;const auto& b=v.base;
+-    const auto* chosen=cabExpansion::driver(v);const auto* mic=cabExpansion::microphone(v);
+-    const auto& d=chosen ? chosen->speaker : speakers[size_t(b.cabinet!=0)];
++    auto prepared=prepareDriverTransfer(p,g);prepared.layoutResponse=true;
++    prepared.mic=cabExpansion::microphone(v);prepared.tweeter=size_t(v.tweeter);
+     const auto target=g.centres[size_t(effectiveUnit(p))];
+     const Point pickup{target.x+b.position*g.radius,target.y};
+-    const double z=b.distanceCm*.01;const Complex s{0,2*pi*hz};Complex field{};
+-    for(int n=0;n<g.count;++n) {
+-        const auto source=g.centres[size_t(n)];
+-        auto ray=cabExpansion::coneField(hz,d,source,pickup,z,chosen ? chosen->coherenceHz : 1700,mic);
+-        if(b.rear) {
+-            const double edge=std::min(g.box.width*.5-std::abs(source.x),g.box.height*.5-std::abs(source.y));
+-            const double path=std::hypot(std::hypot(pickup.x-source.x,pickup.y-source.y),z)+2*edge+g.box.depth;
+-            ray-=.10/path*propagation(hz,path)*low(s,900)*(mic ? mic->pressure+.5*(1-mic->pressure) : 1);
+-        }
+-        field+=ray; // Coherent complex sum: interference is not an EQ preset.
+-    }
+-    auto result=driverTransfer(p,hz,g)*field;
+-    const double path=std::hypot(std::hypot(pickup.x-g.horn.x,pickup.y-g.horn.y),z),cosine=z/path;
+-    constexpr std::array<double,4> cross{3300,4100,2900,4800},roll{17000,15000,18500,22000},focus{1.5,1.1,2.1,.7};
+-    const auto t=size_t(v.tweeter);double gain=1;
+-    if(mic) {
+-        const double aperture=2*pi*hz*mic->aperture*std::sqrt(std::max(0.,1-cosine*cosine))/soundSpeed;
+-        gain=(mic->pressure+(1-mic->pressure)*cosine)/std::sqrt(1+aperture*aperture);
+-    }
+-    result+=b.tweeter*.35*high2(s,cross[t],.707)*low(s,roll[t])*(.10/path)*std::pow(cosine,focus[t])*gain*propagation(hz,path);
+-    auto pickupResponse=microphoneResponse(s,mic ? mic->response : originalCab::microphones[size_t(b.mic)],z);
+-    if(mic)pickupResponse*=1.+mic->presenceAmount*mode(s,mic->presenceHz,mic->presenceQ);
+-    return .45*result*pickupResponse;
++    const double z=b.distanceCm*.01;
++    prepared.base.points=g.centres;prepared.base.pickup=pickup;prepared.base.z=z;
++    cabExpansion::prepareRearPaths(prepared);
++    prepared.base.hornPath=std::hypot(std::hypot(pickup.x-g.horn.x,pickup.y-g.horn.y),z);
++    cabExpansion::prepareMicrophoneAndHorn(prepared);
++    return prepared;
++}
++inline Complex preparedResponse(const PreparedResponse& prepared,double hz) {
++    if(!prepared.layoutResponse)return cabExpansion::preparedResponse(prepared,hz);
++    const Complex s{0,2*pi*hz};
++    const auto field=cabExpansion::preparedField(prepared,hz,s);
++    auto result=preparedDriverTransfer(prepared,hz)*field;
++    result+=cabExpansion::preparedHornResponse(prepared,hz,s);
++    return .45*result*cabExpansion::preparedMicrophoneResponse(prepared,s);
++}
++inline Complex response(Settings raw,double hz) {
++    return cabLayout::preparedResponse(prepareResponse(raw),hz);
+ }
+ inline std::vector<float> generate(uint64_t model,double rate,const GenerationCancellation& cancellation={}) {
+     model=key(settings(model));
+     if(!(model&versionBit))return cabExpansion::generate(model,rate,cancellation);
+     if(!std::isfinite(rate) || rate<8000 || rate>384000)throw std::invalid_argument("Layout CAB sample rate");
+     cancellation.checkpoint();
+-    const auto p=settings(model);size_t size=1;while(size<size_t(std::ceil(rate*.170)))size<<=1;
++    const auto prepared=prepareResponse(settings(model));size_t size=1;while(size<size_t(std::ceil(rate*.170)))size<<=1;
+     std::vector<Complex> spectrum(size);
+     for(size_t k=1;k<size/2;++k) {
+         if((k&63)==0)cancellation.checkpoint();
+         const double hz=double(k)*rate/double(size);
+         const double taper=hz>rate*.40 ? .5+.5*std::cos(pi*(hz/rate-.40)/.10) : 1;
+-        spectrum[k]=response(p,hz)*taper;spectrum[size-k]=std::conj(spectrum[k]);
++        spectrum[k]=cabLayout::preparedResponse(prepared,hz)*taper;spectrum[size-k]=std::conj(spectrum[k]);
+     }
+     cancellation.checkpoint();
+     inverseFFT(spectrum);std::vector<float> samples(size_t(std::ceil(rate*.085)));
+diff --git a/Source/OriginalCabModel.h b/Source/OriginalCabModel.h
+index d096805..cce2630 100644
+--- a/Source/OriginalCabModel.h
++++ b/Source/OriginalCabModel.h
+@@ -64,17 +64,39 @@ inline Complex low(Complex s,double hz) { return 1.0/(1.0+s/(2*pi*hz)); }
+ inline Complex high2(Complex s,double hz,double q) { const auto w=s/(2*pi*hz);return w*w/(1.0+w/q+w*w); }
+ inline Complex mode(Complex s,double hz,double q) {const auto w=s/(2*pi*hz);return (w/q)/(1.0+w/q+w*w);}
+ inline Complex propagation(double hz,double metres) {return std::polar(1.0,-2*pi*hz*metres/soundSpeed);}
+-inline Complex speakerResponse(Complex s,const Speaker& d,const Enclosure& box,bool open) {
++struct PreparedSpeakerResponse {
++    const Speaker* driver{};
++    double resonance{},q{};
++};
++inline PreparedSpeakerResponse prepareSpeakerResponse(const Speaker& d,const Enclosure& box,bool open,int count=4) {
+     // Closed-box compliance raises fc and Q by sqrt(1 + total Vas/Vb).
+-    const double load=open ? 1.0 : std::sqrt(1.0+4*box.vasPerDriver/box.volume);
+-    return high2(s,d.resonance*load,d.q*load)*low(s,d.inductiveHz)*low(s,d.inductiveHz)
++    const double load=open ? 1.0 : std::sqrt(1.0+count*box.vasPerDriver/box.volume);
++    return {&d,d.resonance*load,d.q*load};
++}
++inline Complex speakerResponse(Complex s,const PreparedSpeakerResponse& p) {
++    const auto& d=*p.driver;
++    return high2(s,p.resonance,p.q)*low(s,d.inductiveHz)*low(s,d.inductiveHz)
+         *(1.0+d.breakupAmount*mode(s,d.breakupHz,d.breakupQ));
+ }
+-inline Complex microphoneResponse(Complex s,const Microphone& m,double distance) {
++inline Complex speakerResponse(Complex s,const Speaker& d,const Enclosure& box,bool open) {
++    return speakerResponse(s,prepareSpeakerResponse(d,box,open));
++}
++struct PreparedMicrophoneResponse {
++    const Microphone* microphone{};
++    double proximity{};
++};
++inline PreparedMicrophoneResponse prepareMicrophoneResponse(const Microphone& m,double distance) {
++    return {&m,m.gradient*.10/(distance+.06)};
++}
++inline Complex microphoneResponse(Complex s,const PreparedMicrophoneResponse& p) {
++    const auto& m=*p.microphone;
+     // Bounded authored pressure-gradient proximity term; no actual mic measurement.
+     return high2(s,m.lowHz,.707)*low(s,m.highHz)
+         *(1.0+m.bodyAmount*mode(s,m.bodyHz,m.bodyQ))
+-        *(1.0+m.gradient*.10/(distance+.06)*low(s,180));
++        *(1.0+p.proximity*low(s,180));
++}
++inline Complex microphoneResponse(Complex s,const Microphone& m,double distance) {
++    return microphoneResponse(s,prepareMicrophoneResponse(m,distance));
+ }
+ struct Point {double x,y;};
+ inline std::array<Point,4> centres(const Enclosure& box) {
+@@ -109,29 +131,65 @@ inline Complex coneField(double hz,const Speaker& d,Point driver,Point mic,doubl
+     }
+     return field;
+ }
+-inline Complex response(Settings raw,double hz) {
+-    const auto p=settings(key(raw));
++// One request-local geometry, shared by the v1/v2/v3 preparation paths.
++// Only completed, frequency-independent scalar calculations move here. Cone
++// coordinates, propagation, complex products and summation keep their order.
++struct PreparedResponse {
++    Settings parameters{};
++    Enclosure box{};
++    std::array<Point,8> points{};
++    int count{};
++    Point pickup{};
++    double z{};
++    PreparedSpeakerResponse speaker{};
++    PreparedMicrophoneResponse microphone{};
++    std::array<double,8> rearPaths{};
++    double hornPath{},hornFocus{};
++};
++inline PreparedResponse prepareResponse(Settings raw) {
++    PreparedResponse prepared;
++    const auto p=settings(key(raw));prepared.parameters=p;
+     const auto& d=speakers[size_t(p.cabinet)];const auto& box=enclosures[size_t(p.cabinet)];
+     const auto points=centres(box);const auto selected=points[size_t(p.unit)];
+     const Point mic{selected.x+p.position*d.radius,selected.y};const double z=p.distanceCm*.01;
++    prepared.box=box;prepared.count=4;
++    std::copy(points.begin(),points.end(),prepared.points.begin());
++    prepared.pickup=mic;prepared.z=z;
++    prepared.speaker=prepareSpeakerResponse(d,box,p.rear!=0);
++    prepared.microphone=prepareMicrophoneResponse(microphones[size_t(p.mic)],z);
++    if(p.rear)for(size_t n=0;n<points.size();++n) {
++        const auto driver=points[n];
++        const double edge=std::min(box.width*.5-std::abs(driver.x),box.height*.5-std::abs(driver.y));
++        prepared.rearPaths[n]=std::sqrt(std::pow(mic.x-driver.x,2)+std::pow(mic.y-driver.y,2)+z*z)+2*edge+box.depth;
++    }
++    prepared.hornPath=std::sqrt(mic.x*mic.x+mic.y*mic.y+z*z);
++    prepared.hornFocus=std::pow(z/prepared.hornPath,1.5);
++    return prepared;
++}
++inline Complex preparedResponse(const PreparedResponse& prepared,double hz) {
++    const auto& p=prepared.parameters;const auto& d=*prepared.speaker.driver;const auto& box=prepared.box;
++    const auto mic=prepared.pickup;const double z=prepared.z;
+     const Complex s{0,2*pi*hz};Complex field{};
+-    for(const auto& driver:points) {
++    for(int n=0;n<prepared.count;++n) {
++        const auto driver=prepared.points[size_t(n)];
+         auto front=coneField(hz,d,driver,mic,z);
+         if(p.rear) {
+             // Inverted rear radiation diffracts around the nearest cabinet edge.
+             // Explicit low-passed delayed image path, not room reverb or an EQ switch.
+-            const double edge=std::min(box.width*.5-std::abs(driver.x),box.height*.5-std::abs(driver.y));
+-            const double path=std::sqrt(std::pow(mic.x-driver.x,2)+std::pow(mic.y-driver.y,2)+z*z)+2*edge+box.depth;
++            const double path=prepared.rearPaths[size_t(n)];
+             front-=.10/path*propagation(hz,path)*low(s,900);
+         }
+         field+=front;
+     }
+-    auto result=speakerResponse(s,d,box,p.rear!=0)*field*(1.0+box.modeAmount*mode(s,box.modeHz,box.modeQ));
++    auto result=speakerResponse(s,prepared.speaker)*field*(1.0+box.modeAmount*mode(s,box.modeHz,box.modeQ));
+     // Optional central tweeter, independent crossover and propagation path.
+-    const double hornPath=std::sqrt(mic.x*mic.x+mic.y*mic.y+z*z);
++    const double hornPath=prepared.hornPath;
+     result+=p.tweeter*.35*high2(s,3300,.707)*low(s,17000)*(.10/hornPath)
+-        *std::pow(z/hornPath,1.5)*propagation(hz,hornPath);
+-    return .45*result*microphoneResponse(s,microphones[size_t(p.mic)],z);
++        *prepared.hornFocus*propagation(hz,hornPath);
++    return .45*result*microphoneResponse(s,prepared.microphone);
++}
++inline Complex response(Settings raw,double hz) {
++    return preparedResponse(prepareResponse(raw),hz);
+ }
+ // Standalone deterministic radix-2 inverse transform; worker only.
+ inline void inverseFFT(std::vector<Complex>& a) {
+@@ -148,6 +206,7 @@ inline void inverseFFT(std::vector<Complex>& a) {
+ inline std::vector<float> generate(Settings p,double rate,const GenerationCancellation& cancellation={}) {
+     if(!std::isfinite(rate) || rate<8000 || rate>384000)throw std::invalid_argument("Original CAB sample rate");
+     cancellation.checkpoint();
++    const auto prepared=prepareResponse(p);
+     // >= 170 ms captures LF damping; 85 ms output + tail taper, no onset trimming.
+     size_t fftSize=1;while(fftSize<size_t(std::ceil(rate*.170)))fftSize<<=1;
+     std::vector<Complex> spectrum(fftSize);
+@@ -156,7 +215,7 @@ inline std::vector<float> generate(Settings p,double rate,const GenerationCancel
+         const double hz=double(k)*rate/double(fftSize);
+         // Smooth anti-alias boundary in physical frequency before sampling.
+         const double taper=hz>rate*.40 ? .5+.5*std::cos(pi*(hz/rate-.40)/.10) : 1;
+-        spectrum[k]=response(p,hz)*taper;spectrum[fftSize-k]=std::conj(spectrum[k]);
++        spectrum[k]=preparedResponse(prepared,hz)*taper;spectrum[fftSize-k]=std::conj(spectrum[k]);
+     }
+     cancellation.checkpoint();
+     inverseFFT(spectrum);
+diff --git a/Tests/CabExpansionModelTests.cpp b/Tests/CabExpansionModelTests.cpp
+index a4d4274..fdfef09 100644
+--- a/Tests/CabExpansionModelTests.cpp
++++ b/Tests/CabExpansionModelTests.cpp
+@@ -1,6 +1,12 @@
+ #include "CabLayoutModel.h"
+ #include "CabQuadratureReference.h"
++#include "CabPreparedResponseReference.h"
++#include "CabTimingDiagnostics.h"
++#include <bit>
++#include <chrono>
++#include <cstring>
+ #include <iostream>
++#include <limits>
+ #include <set>
+ #include <string>
+ namespace x=spectralforge::cabExpansion;
+@@ -22,6 +28,218 @@ template<size_t N> void distinct(const std::array<std::array<double,12>,N>& sign
+     }
+     require(smallest>.15,why);std::cout<<why<<" minimum_level_matched_spectral_rms_db="<<smallest<<'\n';
+ }
++namespace preparedTests {
++namespace layout=spectralforge::cabLayout;
++namespace reference=spectralforge::cabPreparedReference;
++enum class Engine { original, expanded, layout };
++struct Fixture {
++    std::string name;
++    Engine engine;
++    layout::Settings parameters;
++    bool waveform=true;
++};
++reference::originalCab::Settings frozen(v1::Settings p) {
++    return {p.enabled,p.cabinet,p.rear,p.mic,p.unit,p.tweeter,p.position,p.distanceCm};
++}
++reference::cabExpansion::Settings frozen(x::Settings p) {
++    return {frozen(p.base),p.driver,p.mic,p.tweeter};
++}
++reference::cabLayout::Settings frozen(layout::Settings p) {
++    return {frozen(p.voice),p.layout,p.unit};
++}
++std::vector<Fixture> fixtures() {
++    const v1::Settings front{true,1,0,0,0,.3,.25,10};
++    auto ribbon=front;ribbon.unit=1;ribbon.mic=1;ribbon.distanceCm=18;
++    const v1::Settings rear{true,1,1,1,2,1.,.73,18.3};
++    const v1::Settings invalid{false,-4,7,99,7,std::numeric_limits<double>::quiet_NaN(),
++        std::numeric_limits<double>::infinity(),-std::numeric_limits<double>::infinity()};
++    std::vector<Fixture> result{
++        {"v1-guitar-front",Engine::original,{{{true,0,0,0,0,0,.25,10},0,0,0},0,0}},
++        {"v1-bass-rear-horn",Engine::original,{{rear,0,0,0},0,0}},
++        {"v1-invalid-raw",Engine::original,{{invalid,0,0,0},0,0}},
++        {"v2-failing-strike",Engine::expanded,{{front,12,20,2},0,0}},
++        {"v2-failing-ribbon",Engine::expanded,{{ribbon,12,10,2},0,0}},
++        {"v2-rear-ribbon-horn",Engine::expanded,{{rear,9,10,3},0,0}},
++        {"v2-legacy-microphone",Engine::expanded,{{front,14,0,1},0,0}},
++        {"v2-legacy-driver",Engine::expanded,{{front,0,13,2},0,0}},
++        {"v2-original-fallback",Engine::expanded,{{rear,0,0,0},0,0}},
++        {"v2-invalid-raw",Engine::expanded,{{invalid,99,99,99},0,0}},
++        {"v3-failing-strike",Engine::layout,{{front,9,20,2},7,0}},
++        {"v3-failing-ribbon",Engine::layout,{{ribbon,9,10,2},7,7}},
++        {"v3-migrated-left",Engine::layout,{{{true,1,1,2,0,1.,1.,60.},9,20,3},7,6}},
++        {"v3-migrated-right",Engine::layout,{{{true,1,1,1,0,1.,0.,2.},9,10,1},7,7}},
++        {"v3-rear-legacy-microphone",Engine::layout,{{rear,13,0,0},4,0}},
++        {"v3-muted-horn",Engine::layout,{{{true,0,0,2,0,0.,.5,2.},1,14,0},2,1}},
++        {"v3-expanded-fallback",Engine::layout,{{front,12,20,2},0,0}},
++        {"v3-original-fallback",Engine::layout,{{rear,0,0,0},0,0}},
++        {"v3-driver-mismatch",Engine::layout,{{front,13,20,2},7,5}},
++        {"v3-invalid-raw",Engine::layout,{{invalid,99,99,99},99,99}}
++    };
++    // Exercise every catalog entry and layout against the independent complete
++    // response, without multiplying the more expensive full-waveform set.
++    for(int driver=1;driver<=14;++driver) {
++        auto p=front;p.rear=driver%2;p.tweeter=double(driver%4)/3.;
++        result.push_back({"driver-"+std::to_string(driver),Engine::expanded,{{p,driver,20,driver%4},0,0},false});
++    }
++    for(int mic=1;mic<=20;++mic) {
++        auto p=rear;p.position=double(mic%4)/3.;p.distanceCm=mic%2 ? 2. : 60.;
++        result.push_back({"microphone-"+std::to_string(mic),Engine::expanded,{{p,9,mic,mic%4},0,0},false});
++    }
++    for(int index=1;index<=9;++index) {
++        auto p=front;p.rear=index%2;p.tweeter=double(index%4)/3.;
++        result.push_back({"layout-"+std::to_string(index),Engine::layout,{{p,9,index%2 ? 10 : 20,index%4},index,7},false});
++    }
++    return result;
++}
++uint64_t checkedKey(const Fixture& fixture) {
++    uint64_t current=0,old=0;
++    switch(fixture.engine) {
++        case Engine::original: current=v1::key(fixture.parameters.voice.base);old=reference::originalCab::key(frozen(fixture.parameters.voice.base));break;
++        case Engine::expanded: current=x::key(fixture.parameters.voice);old=reference::cabExpansion::key(frozen(fixture.parameters.voice));break;
++        case Engine::layout: current=layout::key(fixture.parameters);old=reference::cabLayout::key(frozen(fixture.parameters));break;
++    }
++    require(current==old,"prepared response changed packed model key");return current;
++}
++bool sameBits(v1::Complex a,v1::Complex b) {
++    return std::bit_cast<uint64_t>(a.real())==std::bit_cast<uint64_t>(b.real())
++        && std::bit_cast<uint64_t>(a.imag())==std::bit_cast<uint64_t>(b.imag());
++}
++bool sameBytes(const std::vector<float>& a,const std::vector<float>& b) {
++    return a.size()==b.size() && (a.empty() || std::memcmp(a.data(),b.data(),a.size()*sizeof(float))==0);
++}
++void checkResponse(v1::Complex expected,v1::Complex actual,const Fixture& fixture,double hz,const char* path) {
++    if(!sameBits(expected,actual)) {
++        std::cerr<<"prepared response mismatch fixture="<<fixture.name<<" hz="<<std::setprecision(17)<<hz
++            <<" path="<<path<<" expected="<<expected<<" actual="<<actual<<'\n';
++        throw std::runtime_error("prepared response differs from frozen 8097 double bits");
++    }
++}
++uint64_t waveFingerprint(const std::vector<float>& samples) {
++    // FNV-1a is an evidence fingerprint, not a cryptographic integrity claim.
++    // Hash canonical little-endian IEEE float bits, including signed zero.
++    uint64_t hash=14695981039346656037ull;
++    for(float sample:samples) {
++        const auto bits=std::bit_cast<uint32_t>(sample);
++        for(unsigned shift=0;shift<32;shift+=8) {hash^=(bits>>shift)&255u;hash*=1099511628211ull;}
++    }
++    return hash;
++}
++void contracts() {
++    size_t responses=0,waves=0,samples=0,transfers=0;
++    for(const auto& fixture:fixtures()) {
++        const auto& p=fixture.parameters;const auto model=checkedKey(fixture);
++        const auto originalPrepared=v1::prepareResponse(p.voice.base);
++        const auto expandedPrepared=x::prepareResponse(p.voice);
++        const auto layoutPrepared=layout::prepareResponse(p);
++        for(double hz:{0.,20.,40.,80.,185.,333.,1000.,1700.,2900.,6000.,12000.,20000.,48000.}) {
++            v1::Complex expected,actual,prepared;
++            switch(fixture.engine) {
++                case Engine::original:
++                    expected=reference::originalCab::response(frozen(p.voice.base),hz);
++                    actual=v1::response(p.voice.base,hz);prepared=v1::preparedResponse(originalPrepared,hz);break;
++                case Engine::expanded:
++                    expected=reference::cabExpansion::response(frozen(p.voice),hz);
++                    actual=x::response(p.voice,hz);prepared=x::preparedResponse(expandedPrepared,hz);break;
++                case Engine::layout:
++                    expected=reference::cabLayout::response(frozen(p),hz);
++                    actual=layout::response(p,hz);prepared=layout::preparedResponse(layoutPrepared,hz);break;
++            }
++            checkResponse(expected,actual,fixture,hz,"public");
++            checkResponse(expected,prepared,fixture,hz,"request_local");++responses;
++            if(fixture.engine==Engine::layout) {
++                // driverTransfer accepts a supplied geometry and raw settings;
++                // response's key normalization must not leak into that API.
++                const auto g=layout::geometry(p);const auto oldGeometry=reference::cabLayout::geometry(frozen(p));
++                checkResponse(reference::cabLayout::driverTransfer(frozen(p),hz,oldGeometry),
++                    layout::driverTransfer(p,hz,g),fixture,hz,"driverTransfer");++transfers;
++            }
++        }
++        if(fixture.waveform)for(double rate:{48000.,96000.}) {
++            // Check each public generator entry, including its own fallback.
++            // The cancellation test separately uses the production v3 dispatcher.
++            const auto old=fixture.engine==Engine::original ? reference::originalCab::generate(frozen(p.voice.base),rate)
++                : fixture.engine==Engine::expanded ? reference::cabExpansion::generate(model,rate)
++                : reference::cabLayout::generate(model,rate);
++            const auto current=fixture.engine==Engine::original ? v1::generate(p.voice.base,rate)
++                : fixture.engine==Engine::expanded ? x::generate(model,rate) : layout::generate(model,rate);
++            if(!sameBytes(old,current)) {
++                std::cerr<<"prepared waveform mismatch fixture="<<fixture.name<<" sr="<<rate<<'\n';
++                throw std::runtime_error("prepared generation differs from frozen 8097 float bytes");
++            }
++            require(current.size()==size_t(std::ceil(rate*.085)),"prepared generation changed sample count");
++            std::cout<<"PREPARED_WAVEFORM fixture="<<fixture.name<<" model="<<model<<" sr="<<rate
++                <<" samples="<<current.size()<<" fnv1a64="<<waveFingerprint(current)<<" float_bytes=identical\n";
++            ++waves;samples+=current.size();
++        }
++    }
++    std::cout<<"PASS prepared_response_reference source=8097ec69594ff728164c77f59e9ea1e39e384643"
++        <<" response_cases="<<responses<<" public_and_request_local=exact_double_bits driver_transfer_cases="<<transfers
++        <<" waveform_cases="<<waves<<" waveform_samples="<<samples<<" float_bytes=identical rates=48000,96000\n";
++}
++void writeWaveform(const std::filesystem::path& path,const std::vector<float>& samples) {
++    std::ofstream output(path,std::ios::binary|std::ios::trunc);
++    if(!output)throw std::runtime_error("generator benchmark waveform file could not be opened");
++    for(float sample:samples) {
++        const auto bits=std::bit_cast<uint32_t>(sample);
++        const std::array<char,4> bytes{{char(bits&255u),char((bits>>8)&255u),char((bits>>16)&255u),char((bits>>24)&255u)}};
++        output.write(bytes.data(),std::streamsize(bytes.size()));
++    }
++    output.close();if(!output)throw std::runtime_error("generator benchmark waveform file could not be flushed");
++}
++void benchmark(const std::filesystem::path& directory) {
++    // Optional diagnostic only: ordinary CTest does not enter this function.
++    // All observations are retained; there are no retries or timing thresholds.
++    require(!std::filesystem::exists(directory/"generator-benchmark.csv"),"generator benchmark must not overwrite prior observations");
++    std::filesystem::create_directories(directory/"waveforms");
++    std::ofstream csv(directory/"generator-benchmark.csv",std::ios::trunc);
++    if(!csv)throw std::runtime_error("generator benchmark CSV could not be opened");
++    csv<<std::setprecision(17)<<"schema_version,family,model,sample_rate,repeat,abba_index,implementation,samples,wall_us,thread_cpu_us,thread_cpu_valid,thread_cycles,thread_cycles_valid,clock_start_error,clock_end_error,thread_cpu_start_us,thread_cpu_end_us,thread_cycles_start,thread_cycles_end,fnv1a64,float_bytes_identical,waveform\n";
++    size_t observations=0,byteChecks=0,mismatches=0;
++    std::cout<<"GENERATOR_BENCHMARK source_reference=8097ec69594ff728164c77f59e9ea1e39e384643 order=ABBA repeats=3"
++        <<" warmups_per_family=2 hash=fnv1a64 waveform_format=f32le timing_threshold=none";
++    cabTiming::appendCallerScheduling(std::cout);std::cout<<'\n';
++    for(const auto& fixture:fixtures())if(fixture.name=="v2-failing-strike" || fixture.name=="v3-failing-strike") {
++        const auto model=checkedKey(fixture);constexpr double rate=96000.;
++        const auto expected=reference::cabLayout::generate(model,rate);
++        const auto warmup=layout::generate(model,rate);
++        const auto warmupMatches=sameBytes(expected,warmup);
++        std::cout<<"GENERATOR_BENCHMARK_WARMUP family="<<fixture.name<<" generations=2 samples="<<expected.size()
++            <<" frozen_fnv1a64="<<waveFingerprint(expected)<<" prepared_fnv1a64="<<waveFingerprint(warmup)
++            <<" float_bytes="<<(warmupMatches ? "identical" : "DIFFERENT")<<'\n';
++        require(warmupMatches,"generator benchmark warmup differs from frozen 8097");
++        for(size_t repeat=0;repeat<3;++repeat)for(size_t position=0;position<4;++position) {
++            const bool old=position==0 || position==3;
++            const char* implementation=old ? "frozen8097" : "prepared";
++            const auto clockStart=cabTiming::readThreadClock();
++            const auto start=std::chrono::steady_clock::now();
++            const auto observed=old ? reference::cabLayout::generate(model,rate) : layout::generate(model,rate);
++            const auto stop=std::chrono::steady_clock::now();
++            const auto clockStop=cabTiming::readThreadClock();
++            const cabTiming::Sample sample{observations,std::chrono::duration<double,std::micro>(stop-start).count(),clockStart,clockStop};
++            const auto bytesMatch=sameBytes(expected,observed);
++            const auto name=fixture.name+"-"+std::to_string(repeat)+"-"+std::to_string(position)+"-"+implementation+".f32le";
++            writeWaveform(directory/"waveforms"/name,observed);
++            const auto fingerprint=waveFingerprint(observed);
++            csv<<"1,"<<fixture.name<<','<<model<<','<<rate<<','<<repeat<<','<<position<<','<<implementation<<','
++                <<observed.size()<<','<<sample.wallUs<<','<<sample.cpuUs()<<','<<sample.cpuValid()<<','<<sample.cycles()<<','
++                <<sample.cyclesValid()<<','<<clockStart.error<<','<<clockStop.error<<','<<clockStart.cpuUs<<','<<clockStop.cpuUs<<','
++                <<clockStart.cycles<<','<<clockStop.cycles<<','<<fingerprint<<','<<bytesMatch<<",waveforms/"<<name<<'\n';
++            std::cout<<std::setprecision(17)<<"GENERATOR_BENCHMARK_SAMPLE family="<<fixture.name<<" repeat="<<repeat
++                <<" abba_index="<<position<<" implementation="<<implementation<<" samples="<<observed.size()
++                <<" wall_us="<<sample.wallUs<<" thread_cpu_us="<<sample.cpuUs()<<" thread_cpu_valid="<<sample.cpuValid()
++                <<" thread_cycles="<<sample.cycles()<<" thread_cycles_valid="<<sample.cyclesValid()
++                <<" fnv1a64="<<fingerprint<<" float_bytes="<<(bytesMatch ? "identical" : "DIFFERENT")<<'\n';
++            ++observations;++byteChecks;if(!bytesMatch)++mismatches;
++        }
++    }
++    csv.close();if(!csv)throw std::runtime_error("generator benchmark CSV could not be flushed");
++    require(observations==24 && byteChecks==24,"generator benchmark observation inventory changed");
++    require(mismatches==0,"generator benchmark observation differs from frozen 8097 float bytes");
++    std::cout<<"PASS generator_prepared_benchmark families=2 order=ABBA repeats=3 samples="<<observations
++        <<" samples_per_implementation_per_family=6 waveform_byte_checks="<<byteChecks
++        <<" warmup_generations=4 timing_threshold=none\n";
++}
++}
+ void cancellationContracts() {
+     namespace layout=spectralforge::cabLayout;
+     const v1::Settings base{true,1,1,1,2,.4,.73,18.3};
+@@ -42,8 +260,9 @@ void cancellationContracts() {
+         const auto reference=layout::generate(model,rate);
+         Polls completed;
+         const auto observed=layout::generate(model,rate,{&completed,Polls::check});
+-        require(reference==observed,"cancellable generation changes completed waveform");
+-        require(completed.calls>3,"generation never polls inside its frequency loop");
++        require(preparedTests::sameBytes(reference,observed),"cancellable generation changes completed waveform bytes");
++        size_t fftSize=1;while(fftSize<size_t(std::ceil(rate*.170)))fftSize<<=1;
++        require(completed.calls==unsigned((fftSize/2-1)/64+3),"generation changed its 64-bin cancellation checkpoints");
+         require(reference.size()==size_t(std::ceil(rate*.085)),"cancellation changes authored tail length");
+         for(unsigned cancelAt:{1u,3u,completed.calls}) {
+             Polls cancelled{0,cancelAt};bool caught=false;
+@@ -80,8 +299,13 @@ void quadratureReference() {
+     }
+     std::cout<<"PASS cone_quadrature_reference_v2_v3="<<cases<<" exact_double_bits\n";
+ }
+-int main(){try {
++int main(int argc,char** argv){try {
++    if(argc==3 && std::string(argv[1])=="--benchmark-prepared-generation") {
++        preparedTests::benchmark(argv[2]);return 0;
++    }
++    require(argc==1,"usage: ChimeraCabExpansionModelTests [--benchmark-prepared-generation output-directory]");
+     quadratureReference();
++    preparedTests::contracts();
+     cancellationContracts();
+     std::set<std::string> ids;int guitar=0,bass=0;std::array<int,3> kinds{};
+     for(const auto& d:x::drivers){require(ids.insert(d.id).second,"duplicate driver ID");(d.bass?bass:guitar)++;}
+diff --git a/Tests/CabPreparedResponseReference.h b/Tests/CabPreparedResponseReference.h
+new file mode 100644
+index 0000000..fcbbe62
+--- /dev/null
++++ b/Tests/CabPreparedResponseReference.h
+@@ -0,0 +1,516 @@
++#pragma once
++// Frozen full generators from 8097ec69594ff728164c77f59e9ea1e39e384643.
++// Independent types, tables, equations, normalization, FFT and tail sampling.
++// Do not call production response/preparation helpers from this reference.
++
++// BEGIN frozen OriginalCabModel.h
++#include <algorithm>
++#include <array>
++#include <cmath>
++#include <complex>
++#include <cstdint>
++#include <stdexcept>
++#include <vector>
++
++namespace spectralforge::cabPreparedReference::originalCab {
++// Immutable v1 authored designs. No measured response, third-party IR, fitting,
++// or ML data. Keep v1 equations and definitions for session reproducibility.
++constexpr double pi=3.14159265358979323846, soundSpeed=343.0;
++constexpr int generatorVersion=1;
++// Worker-only cooperative cancellation. A cancelled calculation is never an
++// empty/invalid response: the distinct exception lets its owner discard all
++// temporary state without reporting an IR error or publishing a partial kernel.
++struct GenerationCancelled final : std::exception {
++    const char* what() const noexcept override {return "CAB response generation cancelled";}
++};
++struct GenerationCancellation {
++    const void* context{};
++    bool (*requested)(const void*){};
++    void checkpoint() const {
++        if(requested && requested(context))throw GenerationCancelled{};
++    }
++};
++struct Settings {
++    bool enabled{};
++    int cabinet{}, rear{}, mic{}, unit{};
++    double tweeter{}, position{.25}, distanceCm{10};
++};
++inline double bounded(double v,double lo,double hi,double fallback) {
++    return std::isfinite(v) ? std::clamp(v,lo,hi) : fallback;
++}
++// One lock-free value transfers a complete, quantized request. 1/1000 radius,
++// 1 mm distance and 1% tweeter steps are explicit host/control resolutions.
++inline uint64_t key(Settings s) {
++    return uint64_t(s.enabled) | (uint64_t(std::clamp(s.cabinet,0,1))<<1)
++        | (uint64_t(std::clamp(s.rear,0,1))<<2) | (uint64_t(std::clamp(s.mic,0,2))<<3)
++        | (uint64_t(std::clamp(s.unit,0,3))<<5)
++        | (uint64_t(std::lround(bounded(s.tweeter,0,1,0)*100))<<7)
++        | (uint64_t(std::lround(bounded(s.position,0,1,.25)*1000))<<14)
++        | (uint64_t(std::lround(bounded(s.distanceCm,2,60,10)*10))<<24);
++}
++inline Settings settings(uint64_t k) {
++    return {bool(k&1),int((k>>1)&1),int((k>>2)&1),int((k>>3)&3),int((k>>5)&3),
++        double((k>>7)&127)/100,double((k>>14)&1023)/1000,double((k>>24)&1023)/10};
++}
++struct Speaker {
++    double radius, resonance, q, inductiveHz, breakupHz, breakupQ, breakupAmount;
++};
++struct Enclosure { double width,height,depth,volume,vasPerDriver,modeHz,modeQ,modeAmount; };
++struct Microphone { double lowHz,highHz,bodyHz,bodyQ,bodyAmount,gradient; };
++constexpr std::array<Speaker,2> speakers{{
++    {.132,76,.69,4700,2550,2.4,.48}, {.106,46,.60,3600,1550,1.65,.20}}};
++constexpr std::array<Enclosure,2> enclosures{{
++    {.74,.76,.36,.155,.028,185,2.1,.11}, {.62,.64,.40,.125,.035,132,1.7,.08}}};
++// Authored roles, not brand emulations: attack dynamic, body ribbon, detail condenser.
++constexpr std::array<Microphone,3> microphones{{
++    {62,12500,3800,1.15,.55,.45}, {28,8500,680,.65,.16,1.0}, {22,19000,7200,.85,.10,.28}}};
++using Complex=std::complex<double>;
++inline Complex low(Complex s,double hz) { return 1.0/(1.0+s/(2*pi*hz)); }
++inline Complex high2(Complex s,double hz,double q) { const auto w=s/(2*pi*hz);return w*w/(1.0+w/q+w*w); }
++inline Complex mode(Complex s,double hz,double q) {const auto w=s/(2*pi*hz);return (w/q)/(1.0+w/q+w*w);}
++inline Complex propagation(double hz,double metres) {return std::polar(1.0,-2*pi*hz*metres/soundSpeed);}
++inline Complex speakerResponse(Complex s,const Speaker& d,const Enclosure& box,bool open) {
++    // Closed-box compliance raises fc and Q by sqrt(1 + total Vas/Vb).
++    const double load=open ? 1.0 : std::sqrt(1.0+4*box.vasPerDriver/box.volume);
++    return high2(s,d.resonance*load,d.q*load)*low(s,d.inductiveHz)*low(s,d.inductiveHz)
++        *(1.0+d.breakupAmount*mode(s,d.breakupHz,d.breakupQ));
++}
++inline Complex microphoneResponse(Complex s,const Microphone& m,double distance) {
++    // Bounded authored pressure-gradient proximity term; no actual mic measurement.
++    return high2(s,m.lowHz,.707)*low(s,m.highHz)
++        *(1.0+m.bodyAmount*mode(s,m.bodyHz,m.bodyQ))
++        *(1.0+m.gradient*.10/(distance+.06)*low(s,180));
++}
++struct Point {double x,y;};
++inline std::array<Point,4> centres(const Enclosure& box) {
++    return {{{-box.width*.245,box.height*.245},{box.width*.245,box.height*.245},
++             {-box.width*.245,-box.height*.245},{box.width*.245,-box.height*.245}}};
++}
++// Cache only the fixed quadrature geometry shared by all worker generations.
++// Keep the original angle expression, ring/sector order, and subsequent products.
++struct ConeQuadraturePoint {double radiusScale, cosTheta, sinTheta;};
++inline const std::array<ConeQuadraturePoint,48>& coneQuadraturePoints() {
++    static const std::array<ConeQuadraturePoint,48> points=[] {
++        std::array<ConeQuadraturePoint,48> result{};
++        for(int ring=0;ring<4;++ring)for(int sector=0;sector<12;++sector) {
++            const double theta=2*pi*(sector+.5*(ring%2))/12;
++            result[size_t(ring*12+sector)]={std::sqrt((ring+.5)/4),std::cos(theta),std::sin(theta)};
++        }
++        return result;
++    }();
++    return points;
++}
++// Reduced-order radiating surface: equal-area quadrature over each cone with
++// geometric spreading and propagation phase. High-frequency breakup uses an
++// authored shrinking coherent radius, NOT a rigid piston accuracy claim.
++inline Complex coneField(double hz,const Speaker& d,Point driver,Point mic,double z) {
++    const double coherentRadius=d.radius/std::sqrt(1+std::pow(hz/1700,2));
++    Complex field{};
++    for(const auto& point:coneQuadraturePoints()) {
++        const double r=coherentRadius*point.radiusScale;
++        const double dx=mic.x-driver.x-r*point.cosTheta,dy=mic.y-driver.y-r*point.sinTheta;
++        const double path=std::sqrt(dx*dx+dy*dy+z*z);
++        field+=.10/path*propagation(hz,path)/48.0;
++    }
++    return field;
++}
++inline Complex response(Settings raw,double hz) {
++    const auto p=settings(key(raw));
++    const auto& d=speakers[size_t(p.cabinet)];const auto& box=enclosures[size_t(p.cabinet)];
++    const auto points=centres(box);const auto selected=points[size_t(p.unit)];
++    const Point mic{selected.x+p.position*d.radius,selected.y};const double z=p.distanceCm*.01;
++    const Complex s{0,2*pi*hz};Complex field{};
++    for(const auto& driver:points) {
++        auto front=coneField(hz,d,driver,mic,z);
++        if(p.rear) {
++            // Inverted rear radiation diffracts around the nearest cabinet edge.
++            // Explicit low-passed delayed image path, not room reverb or an EQ switch.
++            const double edge=std::min(box.width*.5-std::abs(driver.x),box.height*.5-std::abs(driver.y));
++            const double path=std::sqrt(std::pow(mic.x-driver.x,2)+std::pow(mic.y-driver.y,2)+z*z)+2*edge+box.depth;
++            front-=.10/path*propagation(hz,path)*low(s,900);
++        }
++        field+=front;
++    }
++    auto result=speakerResponse(s,d,box,p.rear!=0)*field*(1.0+box.modeAmount*mode(s,box.modeHz,box.modeQ));
++    // Optional central tweeter, independent crossover and propagation path.
++    const double hornPath=std::sqrt(mic.x*mic.x+mic.y*mic.y+z*z);
++    result+=p.tweeter*.35*high2(s,3300,.707)*low(s,17000)*(.10/hornPath)
++        *std::pow(z/hornPath,1.5)*propagation(hz,hornPath);
++    return .45*result*microphoneResponse(s,microphones[size_t(p.mic)],z);
++}
++// Standalone deterministic radix-2 inverse transform; worker only.
++inline void inverseFFT(std::vector<Complex>& a) {
++    const size_t n=a.size();
++    for(size_t i=1,j=0;i<n;++i) {size_t bit=n>>1;for(;j&bit;bit>>=1)j^=bit;j^=bit;if(i<j)std::swap(a[i],a[j]);}
++    for(size_t len=2;len<=n;len<<=1) {
++        const auto step=std::polar(1.0,2*pi/double(len));
++        for(size_t i=0;i<n;i+=len) {Complex w{1,0};for(size_t j=0;j<len/2;++j) {
++            const auto u=a[i+j],v=a[i+j+len/2]*w;a[i+j]=u+v;a[i+j+len/2]=u-v;w*=step;
++        }}
++    }
++    for(auto& x:a)x/=double(n);
++}
++inline std::vector<float> generate(Settings p,double rate,const GenerationCancellation& cancellation={}) {
++    if(!std::isfinite(rate) || rate<8000 || rate>384000)throw std::invalid_argument("Original CAB sample rate");
++    cancellation.checkpoint();
++    // >= 170 ms captures LF damping; 85 ms output + tail taper, no onset trimming.
++    size_t fftSize=1;while(fftSize<size_t(std::ceil(rate*.170)))fftSize<<=1;
++    std::vector<Complex> spectrum(fftSize);
++    for(size_t k=1;k<fftSize/2;++k) {
++        if((k&63)==0)cancellation.checkpoint();
++        const double hz=double(k)*rate/double(fftSize);
++        // Smooth anti-alias boundary in physical frequency before sampling.
++        const double taper=hz>rate*.40 ? .5+.5*std::cos(pi*(hz/rate-.40)/.10) : 1;
++        spectrum[k]=response(p,hz)*taper;spectrum[fftSize-k]=std::conj(spectrum[k]);
++    }
++    cancellation.checkpoint();
++    inverseFFT(spectrum);
++    std::vector<float> samples(size_t(std::ceil(rate*.085)));
++    for(size_t n=0;n<samples.size();++n) {
++        const double end=double(n)/double(samples.size());
++        const double taper=end>.8 ? .5+.5*std::cos(pi*(end-.8)/.2) : 1;
++        samples[n]=float(spectrum[n].real()*taper);
++    }
++    cancellation.checkpoint();
++    return samples;
++}
++}
++// END frozen OriginalCabModel.h
++
++// BEGIN frozen CabExpansionModel.h
++
++namespace spectralforge::cabPreparedReference::cabExpansion {
++using namespace originalCab;
++// Version 2 is an independently authored role library, not fitted hardware.
++// Keep originalCab v1 and the low 34 request bits unchanged for old sessions.
++constexpr uint64_t versionBit=uint64_t{1}<<46;
++struct Driver {
++    const char* id; const char* name; const char* reference;
++    bool bass; int inches;
++    Speaker speaker;
++    double vas, coherenceHz, notchHz, notchQ, notchDepth;
++};
++inline constexpr std::array<Driver,14> drivers{{
++    {"ember-30-v2","Ember 30","Vintage 30",false,12,{.132,77,.68,4900,2950,2.1,.63},.029,1750,5600,1.4,.30},
++    {"steel-75-v2","Steel 75","G12T-75",false,12,{.132,82,.61,5500,3900,2.0,.41},.025,2000,1150,.8,.34},
++    {"verdant-25-v2","Verdant 25","G12M-25",false,12,{.132,72,.76,3900,2350,1.8,.55},.033,1450,4800,1.2,.38},
++    {"granite-55-v2","Granite 55","G12H 55 Hz",false,12,{.132,58,.65,4400,2700,2.3,.46},.037,1610,6100,1.8,.22},
++    {"silver-12-v2","Silver 12","Jensen clean ceramic",false,12,{.132,88,.58,6300,3400,1.0,.25},.026,2280,1850,1.3,.18},
++    {"carnivore-12-v2","Crimson 12","Eminence Karnivore",false,12,{.132,66,.59,4700,1950,1.65,.70},.031,1530,4200,1.6,.43},
++    {"raven-100-v2","Nocturne 100","Celestion G12-100 Raven",false,12,{.132,71,.55,5800,3200,1.55,.52},.024,2120,6500,2.0,.28},
++    {"ruin-12-v2","Chimera Ruin 12","Chimera original",false,12,{.132,61,.53,5050,1650,1.45,.83},.028,1820,4700,1.7,.49},
++    {"foundry-10-v2","Foundry 10","SVT sealed 10-inch",true,10,{.106,49,.66,3200,1150,1.7,.31},.036,1320,4100,1.2,.35},
++    {"vector-10-v2","Vector 10","Modern neo 10-inch",true,10,{.106,43,.52,4500,1950,1.5,.29},.031,1900,6200,1.8,.24},
++    {"clarity-12-v2","Clarity 12","Glockenklang / Vanderkley 12-inch",true,12,{.132,39,.51,4200,1250,.9,.12},.044,1750,5200,1.3,.16},
++    {"alloy-10-v2","Alloy 10","Hartke hybrid 10-inch",true,10,{.106,47,.57,5400,2600,2.7,.45},.029,2300,4400,2.2,.30},
++    {"monolith-15-v2","Monolith 15","Large 15-inch bass",true,15,{.168,35,.62,2500,820,1.35,.26},.074,1100,3100,1.1,.40},
++    {"depth-12-v2","Chimera Depth 12","Chimera original",true,12,{.132,37,.49,3850,1550,1.3,.38},.040,1560,4600,1.5,.32}
++}};
++struct Mic {
++    const char* id; const char* name; const char* catalogId;
++    int kind; // dynamic / ribbon / condenser
++    Microphone response;
++    double pressure, aperture, presenceHz, presenceQ, presenceAmount;
++};
++// Pressure + pressure-gradient pickup, aperture averaging and two independent
++// resonances distinguish each design, including its spatial/proximity response.
++inline constexpr std::array<Mic,20> microphones{{
++    {"needle-57-v2","Needle 57","dynamic-57",0,{64,12200,4200,1.25,.62,.45},.50,.010,6700,1.4,.20},
++    {"hammer-421-v2","Hammer 421","dynamic-421",0,{35,15500,2300,.85,.38,.59},.50,.013,5100,1.1,.25},
++    {"spear-441-v2","Spear 441","dynamic-441",0,{31,17400,3600,1.1,.25,.30},.37,.009,8500,1.6,.15},
++    {"edge-906-v2","Edge 906","dynamic-906",0,{47,14600,4700,1.3,.47,.38},.37,.011,1700,1.0,-.12},
++    {"anchor-20-v2","Anchor 20","dynamic-20",0,{26,14000,1600,.75,.16,.09},.50,.015,4200,1.0,.15},
++    {"veil-7-v2","Veil 7","dynamic-7",0,{38,11800,2800,.9,.19,.51},.50,.014,6100,1.2,-.19},
++    {"pin-201-v2","Pin 201","dynamic-201",0,{39,16900,5200,1.1,.29,.27},.25,.007,2200,1.2,.11},
++    {"fang-88-v2","Fang 88","dynamic-88",0,{25,15100,3100,1.0,.40,.78},.25,.012,6200,1.7,.24},
++    {"depth-112-v2","Depth 112","dynamic-112",0,{24,10200,110,.95,.54,.28},.50,.017,4100,1.8,.56},
++    {"silk-121-v2","Silk 121","ribbon-121",1,{25,9200,720,.70,.20,1.0},.00,.020,4500,.8,-.18},
++    {"focus-160-v2","Focus 160","ribbon-160",1,{36,12100,1650,1.05,.26,.65},.25,.010,6200,1.2,.15},
++    {"velvet-4038-v2","Velvet 4038","ribbon-4038",1,{22,7300,420,.8,.28,1.12},.00,.024,3400,.85,-.21},
++    {"halo-87-v2","Halo 87","condenser-87",2,{23,18700,6700,.9,.24,.39},.50,.014,2100,1.0,.08},
++    {"prism-414-v2","Prism 414","condenser-414",2,{21,20500,8200,1.1,.19,.25},.50,.013,3100,.9,.13},
++    {"pencil-184-v2","Pencil 184","condenser-184",2,{30,21200,9100,1.25,.30,.18},.50,.006,3800,1.1,.06},
++    {"titan-47-v2","Titan 47 FET","condenser-47-fet",2,{20,17400,240,.65,.25,.56},.50,.016,4800,1.0,.18},
++    {"crystal-4050-v2","Crystal 4050","condenser-4050",2,{21,20000,5600,.85,.10,.22},.50,.012,10500,1.0,.08},
++    {"copper-201-v2","Copper 201 FET","condenser-201-fet",2,{25,17700,320,.7,.16,.44},.50,.014,7200,1.2,.28},
++    {"ember-67-v2","Ember 67","condenser-67",2,{27,15700,900,.8,.17,.49},.50,.016,6100,.9,.16},
++    {"chimera-strike-v2","Chimera Strike","chimera-strike",2,{24,19300,3900,1.1,.37,.17},.37,.009,9200,1.4,-.16}
++}};
++struct Settings {originalCab::Settings base; int driver{},mic{},tweeter{};};
++inline uint64_t key(Settings p) {
++    const auto d=std::clamp(p.driver,0,int(drivers.size()));
++    const auto m=std::clamp(p.mic,0,int(microphones.size()));
++    const auto t=std::clamp(p.tweeter,0,3);
++    const auto v1=originalCab::key(p.base);
++    return d || m || t ? v1 | versionBit | (uint64_t(d)<<34) | (uint64_t(m)<<38) | (uint64_t(t)<<43) : v1;
++}
++inline Settings settings(uint64_t k) {
++    return {originalCab::settings(k),int((k>>34)&15),int((k>>38)&31),int((k>>43)&3)};
++}
++inline const Driver* driver(Settings p) {return p.driver>0 && p.driver<=int(drivers.size()) ? &drivers[size_t(p.driver-1)] : nullptr;}
++inline const Mic* microphone(Settings p) {return p.mic>0 && p.mic<=int(microphones.size()) ? &microphones[size_t(p.mic-1)] : nullptr;}
++inline bool isBass(Settings p) {return driver(p) ? driver(p)->bass : p.base.cabinet!=0;}
++inline int diameter(Settings p) {return driver(p) ? driver(p)->inches : p.base.cabinet ? 10 : 12;}
++inline Enclosure enclosure(Settings p) {
++    if(const auto* d=driver(p)) {
++        const double scale=double(d->inches)/(d->bass ? 10. : 12.);
++        auto box=enclosures[size_t(d->bass)];
++        box.width*=scale;box.height*=scale;box.depth*=std::sqrt(scale);
++        box.volume*=scale*scale*std::sqrt(scale);box.vasPerDriver=d->vas;
++        box.modeHz/=scale;return box;
++    }
++    return enclosures[size_t(p.base.cabinet)];
++}
++inline Complex coneField(double hz,const Speaker& d,Point source,Point pickup,double z,
++                         double coherence,const Mic* mic) {
++    const double radius=d.radius/std::sqrt(1+std::pow(hz/coherence,2));
++    Complex field{};
++    for(const auto& point:coneQuadraturePoints()) {
++        const double r=radius*point.radiusScale;
++        const double dx=pickup.x-source.x-r*point.cosTheta,dy=pickup.y-source.y-r*point.sinTheta;
++        const double path=std::sqrt(dx*dx+dy*dy+z*z),cosine=z/path;
++        double pickupGain=1;
++        if(mic) {
++            const double angleSine=std::sqrt(std::max(0.,1-cosine*cosine));
++            const double aperture=2*pi*hz*mic->aperture*angleSine/soundSpeed;
++            pickupGain=(mic->pressure+(1-mic->pressure)*cosine)/std::sqrt(1+aperture*aperture);
++        }
++        field+=pickupGain*.10/path*propagation(hz,path)/48.;
++    }
++    return field;
++}
++inline Complex response(Settings raw,double hz) {
++    const auto p=settings(key(raw));
++    if(!p.driver && !p.mic && !p.tweeter)return originalCab::response(p.base,hz);
++    const auto* chosen=driver(p);const auto* mic=microphone(p);
++    const auto& d=chosen ? chosen->speaker : speakers[size_t(p.base.cabinet)];
++    const auto box=enclosure(p);const auto points=centres(box);const auto selected=points[size_t(p.base.unit)];
++    const Point pickup{selected.x+p.base.position*d.radius,selected.y};
++    const double z=p.base.distanceCm*.01;const Complex s{0,2*pi*hz};Complex field{};
++    for(const auto source:points) {
++        auto front=coneField(hz,d,source,pickup,z,chosen ? chosen->coherenceHz : 1700,mic);
++        if(p.base.rear) {
++            const double edge=std::min(box.width*.5-std::abs(source.x),box.height*.5-std::abs(source.y));
++            const double path=std::hypot(std::hypot(pickup.x-source.x,pickup.y-source.y),z)+2*edge+box.depth;
++            // Forward-arriving edge-diffracted image. No invented room reverb.
++            front-=.10/path*propagation(hz,path)*low(s,900)*(mic ? mic->pressure+.5*(1-mic->pressure) : 1);
++        }
++        field+=front;
++    }
++    auto result=speakerResponse(s,d,box,p.base.rear!=0)*field*(1.0+box.modeAmount*mode(s,box.modeHz,box.modeQ));
++    if(chosen)result*=1.0-chosen->notchDepth*mode(s,chosen->notchHz,chosen->notchQ);
++    const double hornPath=std::hypot(std::hypot(pickup.x,pickup.y),z);
++    constexpr std::array<double,4> crossover{3300,4100,2900,4800}, rolloff{17000,15000,18500,22000}, focus{1.5,1.1,2.1,.7};
++    const auto t=size_t(p.tweeter);
++    double hornPickup=1;
++    if(mic) {
++        const auto cosine=z/hornPath,aperture=2*pi*hz*mic->aperture*std::sqrt(std::max(0.,1-cosine*cosine))/soundSpeed;
++        hornPickup=(mic->pressure+(1-mic->pressure)*cosine)/std::sqrt(1+aperture*aperture);
++    }
++    result+=p.base.tweeter*.35*high2(s,crossover[t],.707)*low(s,rolloff[t])*(.10/hornPath)
++        *std::pow(z/hornPath,focus[t])*hornPickup*propagation(hz,hornPath);
++    auto micResponse=microphoneResponse(s,mic ? mic->response : originalCab::microphones[size_t(p.base.mic)],z);
++    if(mic)micResponse*=1.0+mic->presenceAmount*mode(s,mic->presenceHz,mic->presenceQ);
++    return .45*result*micResponse;
++}
++inline std::vector<float> generate(uint64_t model,double rate,const GenerationCancellation& cancellation={}) {
++    if(!(model&versionBit))return originalCab::generate(originalCab::settings(model),rate,cancellation);
++    if(!std::isfinite(rate) || rate<8000 || rate>384000)throw std::invalid_argument("Expanded CAB sample rate");
++    cancellation.checkpoint();
++    const auto p=settings(model);
++    size_t size=1;while(size<size_t(std::ceil(rate*.170)))size<<=1;
++    std::vector<Complex> spectrum(size);
++    for(size_t k=1;k<size/2;++k) {
++        if((k&63)==0)cancellation.checkpoint();
++        const double hz=double(k)*rate/double(size);
++        const double taper=hz>rate*.40 ? .5+.5*std::cos(pi*(hz/rate-.40)/.10) : 1;
++        spectrum[k]=response(p,hz)*taper;spectrum[size-k]=std::conj(spectrum[k]);
++    }
++    cancellation.checkpoint();
++    inverseFFT(spectrum);std::vector<float> samples(size_t(std::ceil(rate*.085)));
++    for(size_t n=0;n<samples.size();++n) {
++        const double end=double(n)/double(samples.size());
++        samples[n]=float(spectrum[n].real()*(end>.8 ? .5+.5*std::cos(pi*(end-.8)/.2) : 1));
++    }
++    cancellation.checkpoint();
++    return samples;
++}
++}
++// END frozen CabExpansionModel.h
++
++// BEGIN frozen CabLayoutModel.h
++
++namespace spectralforge::cabPreparedReference::cabLayout {
++using namespace originalCab;
++// Authored v3 templates. Dimensions in metres, net volume in m^3.
++// Values describe our designs, not measurements of the reference products.
++// Release 1.3 replaces the unshipped 8x10 preview at ordinal 7 with a 6x10.
++struct Layout {
++    const char* id; const char* name;
++    int columns,rows,inches; bool bass;
++    double width,height,depth,volume;
++};
++inline constexpr std::array<Layout,9> layouts{{
++    {"g112-v3","Guitar 1x12",1,1,12,false,.48,.48,.30,.050},
++    {"g212-v3","Guitar 2x12",2,1,12,false,.78,.49,.32,.088},
++    {"g412-v3","Guitar 4x12",2,2,12,false,.74,.76,.36,.155},
++    {"b115-v3","Bass 1x15",1,1,15,true,.56,.60,.43,.112},
++    {"b210-v3","Bass 2x10",2,1,10,true,.61,.40,.37,.070},
++    {"b410-v3","Bass 4x10",2,2,10,true,.62,.64,.40,.125},
++    {"b610-v3","Bass 6x10",2,3,10,true,.63,.94,.40,.1785},
++    {"b112-v3","Bass 1x12",1,1,12,true,.49,.52,.39,.072},
++    {"b212-v3","Bass 2x12",2,1,12,true,.77,.49,.40,.118}
++}};
++constexpr uint64_t versionBit=uint64_t{1}<<54;
++struct Settings {cabExpansion::Settings voice; int layout{},unit{};};
++inline int layoutIndex(int index) {return std::clamp(index,0,int(layouts.size()));}
++inline int count(int index) {
++    if(!layoutIndex(index))return 4;
++    const auto& l=layouts[size_t(layoutIndex(index)-1)];return l.columns*l.rows;
++}
++inline bool isBass(Settings p) {
++    const auto index=layoutIndex(p.layout);
++    return index ? layouts[size_t(index-1)].bass : p.voice.base.cabinet!=0;
++}
++inline int nominalInches(Settings p) {
++    const auto index=layoutIndex(p.layout);
++    return index ? layouts[size_t(index-1)].inches : isBass(p) ? 10 : 12;
++}
++inline bool isDriverCompatible(Settings p) {
++    return p.voice.driver>=0 && p.voice.driver<=int(cabExpansion::drivers.size())
++        && cabExpansion::isBass(p.voice)==isBass(p)
++        && cabExpansion::diameter(p.voice)==nominalInches(p);
++}
++// Resolve a restored or automated mismatch without writing to host parameters.
++// An authored cabinet is a fixed baffle: another speaker cannot enlarge its holes.
++inline Settings effectiveSettings(Settings p) {
++    p.layout=layoutIndex(p.layout);
++    if(!isDriverCompatible(p)) {
++        // The cabinet selector owns the family, including selector zero. A
++        // driver automation change cannot switch its family or mounting size.
++        const bool bass=isBass(p);const int inches=nominalInches(p);
++        for(int driver=1;driver<=int(cabExpansion::drivers.size());++driver) {
++            auto candidate=p;candidate.voice.driver=driver;
++            if(cabExpansion::isBass(candidate.voice)==bass && cabExpansion::diameter(candidate.voice)==inches) {p.voice.driver=driver;break;}
++        }
++    }
++    return p;
++}
++inline int effectiveUnit(Settings p) {
++    const auto layout=layoutIndex(p.layout);
++    auto unit=layout ? p.unit : p.voice.base.unit;
++    // Preserve the column of the removed bottom row in 8x10 preview states.
++    // Raw automation/state stays untouched; DSP and visuals share this mapping.
++    if(layout==7 && unit>=6)unit=4+std::clamp(unit-6,0,1);
++    return std::clamp(unit,0,count(layout)-1);
++}
++inline uint64_t key(Settings p) {
++    p=effectiveSettings(p);
++    const auto previous=cabExpansion::key(p.voice);
++    // Valid four-unit requests retain their previous cache identity. Incompatible
++    // stored drivers resolve to the fixed four-unit family's supported diameter.
++    if(!p.layout)return previous;
++    return previous | versionBit | (uint64_t(p.layout)<<47) | (uint64_t(effectiveUnit(p))<<51);
++}
++inline Settings settings(uint64_t k) {
++    return effectiveSettings({cabExpansion::settings(k),k&versionBit ? layoutIndex(int((k>>47)&15)) : 0,int((k>>51)&7)});
++}
++struct Geometry {
++    Enclosure box;
++    std::array<Point,8> centres{};
++    Point horn{};
++    int count{};
++    double radius{};
++};
++inline Geometry geometry(Settings p) {
++    p=effectiveSettings(p);
++    const auto* driver=cabExpansion::driver(p.voice);
++    const auto& speaker=driver ? driver->speaker : speakers[size_t(p.voice.base.cabinet!=0)];
++    Geometry g{};g.radius=speaker.radius;g.count=count(p.layout);
++    if(!layoutIndex(p.layout)) {
++        g.box=enclosures[size_t(isBass(p))];
++        if(driver)g.box.vasPerDriver=driver->vas;
++        const auto legacy=originalCab::centres(g.box);
++        std::copy(legacy.begin(),legacy.end(),g.centres.begin());return g;
++    }
++    const auto& l=layouts[size_t(layoutIndex(p.layout)-1)];
++    g.box={l.width,l.height,l.depth,l.volume,
++        driver ? driver->vas : enclosures[size_t(p.voice.base.cabinet!=0)].vasPerDriver,0,1.6,0};
++    const double pitch=l.inches*.0254*1.10;
++    for(int row=0;row<l.rows;++row)for(int col=0;col<l.columns;++col)
++        g.centres[size_t(row*l.columns+col)]={(col-(l.columns-1)*.5)*pitch,((l.rows-1)*.5-row)*pitch};
++    // The four-driver bass baffle carries its horn between the cones. Both
++    // drawing and acoustic propagation consume this same physical location.
++    g.horn={0,l.bass && l.columns==2 && l.rows==2 ? 0. : g.box.height*.44};return g;
++}
++inline Complex driverTransfer(Settings p,double hz,const Geometry& g) {
++    p=effectiveSettings(p);
++    const auto* chosen=cabExpansion::driver(p.voice);
++    const auto& d=chosen ? chosen->speaker : speakers[size_t(p.voice.base.cabinet!=0)];
++    const Complex s{0,2*pi*hz};
++    const double load=p.voice.base.rear ? 1. : std::sqrt(1.+g.count*g.box.vasPerDriver/g.box.volume);
++    auto result=high2(s,d.resonance*load,d.q*load)*low(s,d.inductiveHz)*low(s,d.inductiveHz)
++        *(1.+d.breakupAmount*mode(s,d.breakupHz,d.breakupQ));
++    // Three damped axial enclosure modes; explicitly not a room reverberator.
++    const double rearDamping=p.voice.base.rear ? .35 : 1.;
++    result*=1.+rearDamping*(.045*mode(s,soundSpeed/(2*g.box.width),1.6)
++        +.040*mode(s,soundSpeed/(2*g.box.height),1.5)+.035*mode(s,soundSpeed/(2*g.box.depth),1.4));
++    if(chosen)result*=1.-chosen->notchDepth*mode(s,chosen->notchHz,chosen->notchQ);
++    return result;
++}
++inline Complex response(Settings raw,double hz) {
++    const auto p=settings(key(raw));
++    if(!p.layout)return cabExpansion::response(p.voice,hz);
++    const auto g=geometry(p);const auto& v=p.voice;const auto& b=v.base;
++    const auto* chosen=cabExpansion::driver(v);const auto* mic=cabExpansion::microphone(v);
++    const auto& d=chosen ? chosen->speaker : speakers[size_t(b.cabinet!=0)];
++    const auto target=g.centres[size_t(effectiveUnit(p))];
++    const Point pickup{target.x+b.position*g.radius,target.y};
++    const double z=b.distanceCm*.01;const Complex s{0,2*pi*hz};Complex field{};
++    for(int n=0;n<g.count;++n) {
++        const auto source=g.centres[size_t(n)];
++        auto ray=cabExpansion::coneField(hz,d,source,pickup,z,chosen ? chosen->coherenceHz : 1700,mic);
++        if(b.rear) {
++            const double edge=std::min(g.box.width*.5-std::abs(source.x),g.box.height*.5-std::abs(source.y));
++            const double path=std::hypot(std::hypot(pickup.x-source.x,pickup.y-source.y),z)+2*edge+g.box.depth;
++            ray-=.10/path*propagation(hz,path)*low(s,900)*(mic ? mic->pressure+.5*(1-mic->pressure) : 1);
++        }
++        field+=ray; // Coherent complex sum: interference is not an EQ preset.
++    }
++    auto result=driverTransfer(p,hz,g)*field;
++    const double path=std::hypot(std::hypot(pickup.x-g.horn.x,pickup.y-g.horn.y),z),cosine=z/path;
++    constexpr std::array<double,4> cross{3300,4100,2900,4800},roll{17000,15000,18500,22000},focus{1.5,1.1,2.1,.7};
++    const auto t=size_t(v.tweeter);double gain=1;
++    if(mic) {
++        const double aperture=2*pi*hz*mic->aperture*std::sqrt(std::max(0.,1-cosine*cosine))/soundSpeed;
++        gain=(mic->pressure+(1-mic->pressure)*cosine)/std::sqrt(1+aperture*aperture);
++    }
++    result+=b.tweeter*.35*high2(s,cross[t],.707)*low(s,roll[t])*(.10/path)*std::pow(cosine,focus[t])*gain*propagation(hz,path);
++    auto pickupResponse=microphoneResponse(s,mic ? mic->response : originalCab::microphones[size_t(b.mic)],z);
++    if(mic)pickupResponse*=1.+mic->presenceAmount*mode(s,mic->presenceHz,mic->presenceQ);
++    return .45*result*pickupResponse;
++}
++inline std::vector<float> generate(uint64_t model,double rate,const GenerationCancellation& cancellation={}) {
++    model=key(settings(model));
++    if(!(model&versionBit))return cabExpansion::generate(model,rate,cancellation);
++    if(!std::isfinite(rate) || rate<8000 || rate>384000)throw std::invalid_argument("Layout CAB sample rate");
++    cancellation.checkpoint();
++    const auto p=settings(model);size_t size=1;while(size<size_t(std::ceil(rate*.170)))size<<=1;
++    std::vector<Complex> spectrum(size);
++    for(size_t k=1;k<size/2;++k) {
++        if((k&63)==0)cancellation.checkpoint();
++        const double hz=double(k)*rate/double(size);
++        const double taper=hz>rate*.40 ? .5+.5*std::cos(pi*(hz/rate-.40)/.10) : 1;
++        spectrum[k]=response(p,hz)*taper;spectrum[size-k]=std::conj(spectrum[k]);
++    }
++    cancellation.checkpoint();
++    inverseFFT(spectrum);std::vector<float> samples(size_t(std::ceil(rate*.085)));
++    for(size_t n=0;n<samples.size();++n) {
++        const double end=double(n)/double(samples.size());
++        samples[n]=float(spectrum[n].real()*(end>.8 ? .5+.5*std::cos(pi*(end-.8)/.2) : 1));
++    }
++    cancellation.checkpoint();
++    return samples;
++}
++}
++// END frozen CabLayoutModel.h
+-- 
+2.51.1
+
