@@ -108,7 +108,7 @@ void placement() {
     for(int route=0;route<4;++route) {
         auto p=std::make_unique<ChimeraProcessor>();set(*p,"mode",route==0?0:route==3?2:1);set(*p,"dualtype",route==2?1:0);
         for(int lane=1;lane<=3;++lane){set(*p,"ampon"+juce::String(lane),0);set(*p,"cab"+juce::String(lane),0);}
-        set(*p,"boardEnabled",0);set(*p,"gateon",0);set(*p,"output",0);set(*p,"buscompon",1);set(*p,"busthreshold",-24);set(*p,"busratio",4);set(*p,"busattack",1);set(*p,"busrelease",50);set(*p,"busmakeup",0);
+        set(*p,"boardEnabled",0);set(*p,"gateon",1);set(*p,"gateAfterRig",1);set(*p,"gatethreshold",-35);set(*p,"gateRangeDb",24);set(*p,"output",0);set(*p,"buscompon",1);set(*p,"busthreshold",-24);set(*p,"busratio",4);set(*p,"busattack",1);set(*p,"busrelease",50);set(*p,"busmakeup",0);
         for(int section=0;section<3;++section)set(*p,postNativeModeID(section),0);
         set(*p,"doubleron",1);set(*p,"doublertime",6);set(*p,"metronome",0);
         configure(*p,0,0,0,997,12);configure(*p,1,0,3,200,0);p->prepareToPlay(48000,128);
@@ -119,7 +119,7 @@ void placement() {
         auto ref=std::make_unique<ChimeraProcessor>();configure(*ref,0,0,0,997,12);configure(*ref,1,0,3,200,0);ref->graphicalEQ(0).prepare(48000);ref->graphicalEQ(1).prepare(48000);
         p->graphicalEQ(0).analyzer.enabled.store(true);p->graphicalEQ(1).analyzer.enabled.store(true);
         juce::AudioBuffer<float>b(2,128),toneInput(2,128),toneOutput(2,128),finalInput(2,128),finalOutput(2,128);juce::MidiBuffer midi;
-        for(int k=0;k<400;++k){fill(b,k*128,48000,997,.15);p->processBlock(b,midi);
+        for(int k=0;k<400;++k){fill(b,k*128,48000,997,(k/40)%2?.0001:.15);p->processBlock(b,midi);
             for(int n=0;n<128;++n){EQAnalyzerFrame t,f;check(p->graphicalEQ(0).analyzer.pop(t) && p->graphicalEQ(1).analyzer.pop(f),"Placement analyzer missing frame");toneInput.setSample(0,n,t.inputL);toneInput.setSample(1,n,t.inputR);toneOutput.setSample(0,n,t.outputL);toneOutput.setSample(1,n,t.outputR);finalInput.setSample(0,n,f.inputL);finalInput.setSample(1,n,f.inputR);finalOutput.setSample(0,n,f.outputL);finalOutput.setSample(1,n,f.outputR);}
             ref->graphicalEQ(0).process(toneInput);
             for(int c=0;c<2;++c)for(int n=0;n<128;++n)check(std::abs(toneInput.getSample(c,n)-toneOutput.getSample(c,n))<1.e-6,"Tone EQ transfer mismatch");
@@ -127,7 +127,8 @@ void placement() {
             for(int c=0;c<2;++c)for(int n=0;n<128;++n)check(std::abs(toneOutput.getSample(c,n)-finalInput.getSample(c,n))<1.e-6,"Tone / POST compressor / width / Final placement mismatch");
             ref->graphicalEQ(1).process(finalInput);
             for(int c=0;c<2;++c)for(int n=0;n<128;++n){
-                check(std::abs(finalInput.getSample(c,n)-finalOutput.getSample(c,n))<1.e-6,"Final EQ transfer mismatch");check(b.getSample(c,n)==finalOutput.getSample(c,n),"Final EQ is not before master unity trim");}
+                check(std::abs(finalInput.getSample(c,n)-finalOutput.getSample(c,n))<1.e-6,"Final EQ transfer mismatch");const float expected=finalOutput.getSample(c,n)*juce::Decibels::decibelsToGain(get(*p,"output"));
+                check(std::abs(b.getSample(c,n)-expected)<=2*std::numeric_limits<float>::epsilon()*std::max(1.f,std::abs(expected)),"Final EQ is not before host output trim");}
         }
         p->releaseResources();std::cout<<"PASS route "<<route<<" analyzer node transfers and final output\n";
     }

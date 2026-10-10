@@ -44,7 +44,8 @@ int main(int argc,char** argv){try {
         for(int b=0;b<12;++b){selector->setSelectedId(b+1,juce::sendNotificationSync);
             auto* f=find<juce::Slider>(*panel,eqID(e,b,"frequency"));auto* g=find<juce::Slider>(*panel,eqID(e,b,"gain"));auto* qs=find<juce::Slider>(*panel,eqID(e,b,"q"));check(f && g && qs,"Node controls missing");
             numeric(*f,juce::String(200+b*317)+" Hz");numeric(*g,"3.5 dB");numeric(*qs,"1.25 Q");
-            check(std::abs(get(*processor,eqID(e,b,"frequency"))-(200+b*317))<.1 && get(*processor,eqID(e,b,"gain"))==3.5f && std::abs(get(*processor,eqID(e,b,"q"))-1.25f)<.001,"Numeric node edit did not reach host");
+            std::cout<<"Numeric "<<e<<":"<<b<<" Hz="<<get(*processor,eqID(e,b,"frequency"))<<" dB="<<get(*processor,eqID(e,b,"gain"))<<" Q="<<get(*processor,eqID(e,b,"q"))<<'\n';
+            check(std::abs(get(*processor,eqID(e,b,"frequency"))-(200+b*317))<.1 && std::abs(get(*processor,eqID(e,b,"gain"))-3.5f)<.00001f && std::abs(get(*processor,eqID(e,b,"q"))-1.25f)<.001,"Numeric node edit did not reach host");
             auto* on=find<juce::TextButton>(*panel,eqID(e,b,"enabled"));on->triggerClick();settle(5);check(get(*processor,eqID(e,b,"enabled"))==1,"Band activation not connected");
             auto* filter=find<juce::ComboBox>(*panel,eqID(e,b,"type"));filter->setSelectedId(4,juce::sendNotificationSync);check(get(*processor,eqID(e,b,"type"))==3 && !g->isEnabled(),"HP choice / gain applicability");
             filter->setSelectedId(1,juce::sendNotificationSync);

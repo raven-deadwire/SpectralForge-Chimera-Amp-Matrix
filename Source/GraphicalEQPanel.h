@@ -32,11 +32,11 @@ public:
     uint64_t fftFrames() const noexcept {return analyzedFrames;}
     double lastFFTTimeMicros() const noexcept {return fftMicros;}
     float spectrumDB(bool output,int bin) const noexcept {return spectra[output?1:0][(size_t)juce::jlimit(0,1024,bin)];}
-    juce::Point<float> nodePosition(int band) const {const auto v=dsp.values(band);return {frequencyX(v.frequency),gainY(v.gain)};}
+    juce::Point<float> nodePosition(int band) const {const auto v=dsp.values(band);return {frequencyX(v.frequency),gainY(v.type<=2?v.gain:0.f)};}
     void resized() override {
         bypass.setBounds(getWidth()-104,10,94,26);analyzerToggle.setBounds(10,39,142,26);
         selector.setBounds(10,getHeight()-106,108,26);enabled.setBounds(124,getHeight()-106,104,26);type.setBounds(234,getHeight()-106,getWidth()-244,26);
-        const int w=(getWidth()-30)/3;for(int i=0;i<3;++i)sliders[(size_t)i].setBounds(10+i*(w+5),getHeight()-73,w,55);
+        const int w=(getWidth()-30)/3;for(int i=0;i<3;++i)sliders[(size_t)i].setBounds(10+i*(w+5),getHeight()-63,w,45);
         rebuildResponse();repaint();
     }
     void paint(juce::Graphics& g) override {
@@ -65,6 +65,7 @@ public:
             g.setFont(9);g.setColour(v.enabled?juce::Colours::black:juce::Colour(0xffd6ddda));g.drawText(juce::String(b+1),int(p.x)-9,int(p.y)-7,18,14,juce::Justification::centred);
         }
         g.setFont(9);g.setColour(juce::Colour(0xff9baaa8));g.drawText("Drag: Hz / dB   Wheel: Q   Blue IN / Gold OUT dBFS",160,40,getWidth()-170,24,juce::Justification::centredLeft);
+        const int w=(getWidth()-30)/3;for(int i=0;i<3;++i)g.drawText(i==0?"FREQUENCY":i==1?"GAIN dB":"Q",10+i*(w+5),getHeight()-78,w,12,juce::Justification::centred);
         g.drawText("EQ CPU "+juce::String(dsp.average.load(),1)+"% / peak "+juce::String(dsp.peak.load(),1)+"%",10,getHeight()-18,getWidth()-20,16,juce::Justification::centredLeft);
     }
     void mouseDown(const juce::MouseEvent& event) override {
@@ -102,8 +103,8 @@ private:
         typeAttachment=std::make_unique<CA>(state,eqID(instance,selected,"type"),type);
         constexpr std::array<const char*,3> fields{"frequency","gain","q"};
         for(size_t i=0;i<3;++i){sliders[i].setComponentID(eqID(instance,selected,fields[i]));sliderAttachments[i]=std::make_unique<SA>(state,eqID(instance,selected,fields[i]),sliders[i]);
-            sliders[i].textFromValueFunction=[i](double v){return juce::String(v,i==0?1:2)+(i==0?" Hz":i==1?" dB":" Q");};
-            sliders[i].valueFromTextFunction=[](const juce::String& t){return t.getDoubleValue();};}
+            sliders[i].textFromValueFunction=[i](double v){return juce::String(v,i==0?1:i==1?2:3)+(i==0?" Hz":i==1?" dB":" Q");};
+            sliders[i].valueFromTextFunction=[](const juce::String& t){return t.getDoubleValue();};sliders[i].updateText();}
         sliders[1].setEnabled(gainApplicable());repaint();
     }
     void updateAnalyzer() {dsp.analyzer.enabled.store(isShowing() && analyzerToggle.getToggleState());}
