@@ -140,7 +140,7 @@ void benchmark(ChimeraProcessor& p,const char* path) {
         for(int k=0;k<640;++k){fill(b,k*block,rate,997,.001);const auto start=std::chrono::steady_clock::now();countAllocations=true;p.graphicalEQ(0).process(b);p.graphicalEQ(1).process(b);countAllocations=false;
             const auto us=std::chrono::duration<double,std::micro>(std::chrono::steady_clock::now()-start).count();if(k>=40)times.push_back(us);EQAnalyzerFrame f;for(int e=0;e<2;++e)while(p.graphicalEQ(e).analyzer.pop(f)){} }
         std::sort(times.begin(),times.end());const double budget=block/rate*1.e6;out<<rate<<','<<block<<','<<channels<<','<<analyzer<<','<<times[300]<<','<<times[594]<<','<<budget<<'\n';
-        std::cout<<"CPU pair24 "<<rate<<" Hz "<<block<<" / "<<channels<<"ch FFT="<<analyzer<<" p50="<<times[300]<<" p99="<<times[594]<<" us / "<<budget<<" us\n";
+        std::cout<<"CPU pair24 "<<rate<<" Hz "<<block<<" / "<<channels<<"ch analyzer_capture="<<analyzer<<" p50="<<times[300]<<" p99="<<times[594]<<" us / "<<budget<<" us\n";
     }
     check(allocations==0,"Benchmark callback allocated");
 }

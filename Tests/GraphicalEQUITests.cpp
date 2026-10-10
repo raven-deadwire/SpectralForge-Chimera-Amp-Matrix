@@ -1,11 +1,23 @@
 #include "PluginEditor.h"
 #include <iostream>
 #include <stdexcept>
-#include <ctime>
+#if JUCE_WINDOWS
+#include <windows.h>
+#else
+#include <time.h>
+#endif
 
 using namespace spectralforge;
 namespace {
 void check(bool v,const char* m){if(!v)throw std::runtime_error(m);}
+double processCPUSeconds(){
+#if JUCE_WINDOWS
+    FILETIME created{},exited{},kernel{},user{};check(GetProcessTimes(GetCurrentProcess(),&created,&exited,&kernel,&user)!=0,"Process CPU query");
+    ULARGE_INTEGER k{},u{};k.LowPart=kernel.dwLowDateTime;k.HighPart=kernel.dwHighDateTime;u.LowPart=user.dwLowDateTime;u.HighPart=user.dwHighDateTime;return double(k.QuadPart+u.QuadPart)*1.e-7;
+#else
+    timespec t{};check(clock_gettime(CLOCK_PROCESS_CPUTIME_ID,&t)==0,"Process CPU query");return double(t.tv_sec)+double(t.tv_nsec)*1.e-9;
+#endif
+}
 void settle(int ms){check(juce::MessageManager::getInstance()->runDispatchLoopUntil(ms),"UI loop exited");}
 template<class T> T* find(juce::Component& c,const juce::String& id){if(c.getComponentID()==id)return dynamic_cast<T*>(&c);for(auto* child:c.getChildren())if(auto* p=find<T>(*child,id))return p;return nullptr;}
 juce::TextButton* tab(juce::Component& c,const juce::String& name){for(auto* child:c.getChildren()){if(auto* b=dynamic_cast<juce::TextButton*>(child);b && b->getButtonText()==name)return b;if(auto* b=tab(*child,name))return b;}return nullptr;}
@@ -58,7 +70,7 @@ int main(int argc,char** argv){try {
             check(get(*processor,eqID(e,0,"frequency"))>previous,"Graph transform drag failed at UI scale");set(*processor,eqID(e,0,"frequency"),previous);}
         for(int e=0;e<2;++e){auto* panel=find<GraphicalEQPanel>(*editor,e==0?"toneEQ_panel":"finalEQ_panel");check(editor->getLocalBounds().contains(editor->getLocalArea(panel,panel->getLocalBounds())),"EQ clipped at scale");for(const char* field:{"frequency","gain","q"}){auto* s=find<juce::Slider>(*panel,eqID(e,0,field));check(editor->getLocalBounds().contains(editor->getLocalArea(s,s->getLocalBounds())),"Numeric controls clipped");}}
         auto output=directory.getChildFile("eq-ui-"+juce::String(percent)+".png").createOutputStream();check(output!=nullptr,"Screenshot output");output->setPosition(0);output->truncate();juce::PNGImageFormat png;check(png.writeImageToStream(editor->createComponentSnapshot(editor->getLocalBounds()),*output),"Screenshot encoding");
-        const auto t=juce::Time::getMillisecondCounterHiRes();const auto cpu=std::clock();settle(1000);const double elapsed=juce::Time::getMillisecondCounterHiRes()-t;std::cout<<"UI idle "<<percent<<"% = "<<100000.*double(std::clock()-cpu)/CLOCKS_PER_SEC/elapsed<<"% one core (1 second no audio)\n";
+        const auto t=juce::Time::getMillisecondCounterHiRes();const auto cpu=processCPUSeconds();settle(1000);const double elapsed=juce::Time::getMillisecondCounterHiRes()-t;std::cout<<"UI idle "<<percent<<"% = "<<100000.*(processCPUSeconds()-cpu)/elapsed<<"% one core (1 second no audio, process CPU)\n";
     }
     tab(*editor,"RIGS")->triggerClick();settle(70);for(int e=0;e<2;++e)check(!processor->graphicalEQ(e).analyzer.enabled.load(),"Hidden EQ analyzer still enabled");
     editor.reset();for(int e=0;e<2;++e)check(!processor->graphicalEQ(e).analyzer.enabled.load(),"Closed editor analyzer still enabled");processor->releaseResources();
