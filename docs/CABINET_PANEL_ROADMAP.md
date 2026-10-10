@@ -2,7 +2,7 @@
 
 ## Current 1.3 preparation — 2026-10-09 KST
 
-The original CAB engine, 14 speaker designs, 20 microphones and nine explicit layouts now exist in the CAB branch. The owner selected **1.3** for the current release preparation. Whole-room framing, cabinet artwork preservation and duplicate visible layout entries are being corrected before the final candidate. [Release preparation](RELEASE_1_3_PREPARATION.md) is the current delivery record; [head-front controls](AMP_HEAD_CONTROLS_NEXT_UPDATE.md) belong to the next update after 1.3, with no assigned version yet. The October 8 architecture and reference boundaries below remain applicable; its initial prototype schedule is historical.
+The original CAB engine, 14 speaker designs, 20 microphones and nine explicit layouts now exist in the CAB branch. The owner selected **1.3** for the current release preparation. Whole-room framing, cabinet artwork preservation and duplicate visible layout entries are being corrected before the final candidate. [Release preparation](RELEASE_1_3_PREPARATION.md) is the current delivery record; [head-front controls](AMP_HEAD_CONTROLS_NEXT_UPDATE.md) begin in 1.3.1 and expand through 1.3.2. The [full reordered roadmap](DEVELOPMENT_ROADMAP_2026_2027.md), updated October 10, governs all forward dates and the signal-path work. The October 8 architecture and reference boundaries below remain applicable; its initial prototype schedule is historical.
 
 ## October 8 design baseline
 
@@ -242,3 +242,4 @@ Repository dependencies: Source/Cabinet.h, Source/IRLibrary.cpp,
 Source/PluginProcessor.cpp, existing state/routing tests and current PR #24.
 Read their latest revisions before implementation. This plan does not assert
 that an open branch has merged or that a future prototype already exists.
+

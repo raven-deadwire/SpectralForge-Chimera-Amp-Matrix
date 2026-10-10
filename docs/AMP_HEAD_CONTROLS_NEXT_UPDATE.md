@@ -1,9 +1,19 @@
-# Embedded amplifier-head controls: next update after 1.3
+# Embedded amplifier-head controls: 1.3.1–1.3.2
 
-Status: implementation plan, 2026-10-09 KST. The owner requested amplifier
-knobs that can be operated inside the head design, after preparing the current
-CAB release as 1.3. The next version number and date remain unassigned. This
-document does not claim that the feature is implemented or included in 1.3.
+Status: implementation plan, updated 2026-10-10 KST. The owner requested
+amplifier knobs that can be operated inside the head design, after preparing
+the current CAB release as 1.3. The [full roadmap](DEVELOPMENT_ROADMAP_2026_2027.md)
+assigns the shared component and representative heads to **1.3.1, October 10–
+November 1**, and expands dense/full-catalog coverage through **1.3.2, November
+2–27**. The October 23 EQ-focused installer must list its actual head coverage;
+it is not blocked by unfinished decorative layouts when the existing complete
+detailed controls remain available. This document does not claim that embedded
+head knobs are already implemented or included in 1.3.
+
+The immediate startup correction opens new editors on **RIGS / amplifier
+view**, preserving the saved Classic/Dual/Matrix mode. A [signal-path strip](SIGNAL_PATH_EDITOR.md)
+adds actual routing display and click navigation in 1.3.1. Startup selection,
+head focus and audio signal order are separate behaviors.
 
 Source reviewed: CAB PR #34 at
 `40d5e8a5ea466eaccc1044ccefce1bd33e6ac222`. References below describe that
@@ -236,8 +246,8 @@ audio timing non-regression.
    enlarged views. Preserve CAB navigation, LOW blend, microphone placement and
    product names. Verify all supported editor scales and constrained monitors.
 4. **Validate the completed candidate.** Run native UI/host tests and inspect
-   generated images from the exact candidate. Assign the next update number
-   only when the release scope is decided.
+   generated images from the exact candidate. Report completed model/context
+   coverage against the assigned 1.3.1–1.3.2 scope and the remaining fallback.
 
 | Acceptance area | Evidence required before calling it complete |
 |---|---|
@@ -269,3 +279,4 @@ real pointer/keyboard gestures and visual inspection as distinct evidence.
 - [Current RIGS rendering and layout](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/blob/40d5e8a5ea466eaccc1044ccefce1bd33e6ac222/Source/PluginEditor.cpp)
 - [Current camera fit](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/blob/40d5e8a5ea466eaccc1044ccefce1bd33e6ac222/Source/CabLayoutView.h)
 - [Captured-cabinet dimensional rendering](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/blob/40d5e8a5ea466eaccc1044ccefce1bd33e6ac222/Source/CapturedCabArt.h)
+
