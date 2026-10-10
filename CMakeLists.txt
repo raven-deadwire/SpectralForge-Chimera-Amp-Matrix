@@ -364,6 +364,15 @@ target_compile_definitions(ChimeraOriginalCabIntegrationTests PRIVATE JUCE_USE_C
 target_link_libraries(ChimeraOriginalCabIntegrationTests PRIVATE ChimeraIRs juce::juce_data_structures juce::juce_dsp juce::juce_audio_formats PUBLIC juce::juce_recommended_config_flags)
 add_test(NAME ChimeraOriginalCabIntegrationTests COMMAND ChimeraOriginalCabIntegrationTests)
 
+# Optional stage clocks use a separate executable. The shipped plugin and all
+# deadline acceptance suites keep the hooks compiled out.
+juce_add_console_app(ChimeraCabProfiling PRODUCT_NAME "Chimera CAB Stage Profiling")
+set_target_properties(ChimeraCabProfiling PROPERTIES EXCLUDE_FROM_ALL TRUE)
+target_sources(ChimeraCabProfiling PRIVATE Tests/OriginalCabIntegrationTests.cpp Source/IRLibrary.cpp)
+target_include_directories(ChimeraCabProfiling PRIVATE Source)
+target_compile_definitions(ChimeraCabProfiling PRIVATE JUCE_USE_CURL=0 JUCE_WEB_BROWSER=0 CHIMERA_CAB_PROFILE=1)
+target_link_libraries(ChimeraCabProfiling PRIVATE ChimeraIRs juce::juce_data_structures juce::juce_dsp juce::juce_audio_formats PUBLIC juce::juce_recommended_config_flags)
+
 juce_add_console_app(ChimeraOriginalCabRealtimeTests PRODUCT_NAME "Chimera CAB Realtime Regression Tests")
 target_sources(ChimeraOriginalCabRealtimeTests PRIVATE Tests/CabRealtimeRegressionTests.cpp)
 target_include_directories(ChimeraOriginalCabRealtimeTests PRIVATE Source)
@@ -372,6 +381,7 @@ target_link_libraries(ChimeraOriginalCabRealtimeTests PRIVATE juce::juce_dsp PUB
 add_test(NAME ChimeraOriginalCabRealtimeTests COMMAND ChimeraOriginalCabRealtimeTests)
 
 add_test(NAME ChimeraCabExpansionIntegrationTests COMMAND ChimeraOriginalCabIntegrationTests --expanded)
+add_test(NAME ChimeraCabExtendedTimingTests COMMAND ChimeraOriginalCabIntegrationTests --expanded --extended-buffers)
 add_test(NAME ChimeraCabExpansionStateTests COMMAND ChimeraCabPanelStateTests --expansion-only)
 
 add_executable(ChimeraCabLayoutModelTests Tests/CabLayoutModelTests.cpp)
@@ -392,6 +402,7 @@ add_test(NAME ChimeraCabLayoutStateTests COMMAND ChimeraCabPanelStateTests --lay
 set(CHIMERA_CAB_TIMING_TESTS
   ChimeraOriginalCabIntegrationTests
   ChimeraCabExpansionIntegrationTests
+  ChimeraCabExtendedTimingTests
   ChimeraCabLayoutIntegrationTests)
 set_tests_properties(${CHIMERA_CAB_TIMING_TESTS} PROPERTIES RUN_SERIAL TRUE)
 set_property(TEST ${CHIMERA_CAB_TIMING_TESTS} APPEND PROPERTY

@@ -79,6 +79,7 @@ juce::Result IRLibrary::importFile(int lane, const juce::File& file)
 }
 std::unique_ptr<Cab::Kernel> IRLibrary::build(int lane,int source,unsigned generation,uint64_t model)
 {
+    SF_CAB_PROFILE_SCOPE(WorkerBuild);
     const lifecycle::Scope trace("ir.build", this);
     std::shared_ptr<Asset> asset;
     { std::lock_guard<std::mutex> lock(mutex);
@@ -86,21 +87,30 @@ std::unique_ptr<Cab::Kernel> IRLibrary::build(int lane,int source,unsigned gener
       else if(source==3) asset=users[(size_t)lane];
     }
     juce::AudioBuffer<float> samples;
+    std::shared_ptr<const ModeledCabConvolution::Prepared> prepared;
     double rate=spec.sampleRate;
     if(model) {
         auto found=std::find_if(modelCache.begin(),modelCache.end(),[&](const auto& item){return item.key==model;});
         if(found==modelCache.end()) {
+            SF_CAB_PROFILE_SCOPE(ResponseGenerate);
             auto response=cabLayout::generate(model,rate);
             juce::AudioBuffer<float> generated(1,int(response.size()));
             generated.copyFrom(0,0,response.data(),int(response.size()));
             if(modelCache.size()==8)modelCache.pop_front();
-            modelCache.push_back({model,std::move(generated)});found=std::prev(modelCache.end());
+            modelCache.push_back({model,std::move(generated),{}});found=std::prev(modelCache.end());
+        }
+        // Reuse only immutable spectra. The cache is cleared on every prepare,
+        // so its model key is also bound to the current sample rate and block
+        // size. Every published microphone still owns private input/history.
+        if(Cab::Kernel::supportsPreparedModel(spec)) {
+            if(!found->prepared)found->prepared=std::make_shared<const ModeledCabConvolution::Prepared>(found->samples,int(spec.maximumBlockSize),spec.numChannels==1);
+            prepared=found->prepared;
         }
         samples.makeCopyOf(found->samples);
     }
     else if(asset) { samples.makeCopyOf(asset->samples); rate=asset->rate; }
     else { samples.setSize(1,1); samples.setSample(0,0,1.f); }
-    auto kernel=std::make_unique<Cab::Kernel>(std::move(samples),rate,spec,source,generation,model);
+    auto kernel=std::make_unique<Cab::Kernel>(std::move(samples),rate,spec,source,generation,model,std::move(prepared));
     kernel->hasIR = model != 0 || asset != nullptr;
     return kernel;
 }
@@ -119,6 +129,9 @@ void IRLibrary::prepare(const juce::dsp::ProcessSpec& settings,const std::array<
 }
 void IRLibrary::run()
 {
+#if defined(CHIMERA_CAB_PROFILE) && CHIMERA_CAB_PROFILE
+    cabProfile::ThreadCapture profileCapture(profileSink);
+#endif
     const lifecycle::Scope trace("ir.worker", this);
     std::array<int,6> built;
     std::array<unsigned,6> versions, rejections{};
