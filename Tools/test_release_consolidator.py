@@ -228,6 +228,13 @@ class Consolidation(unittest.TestCase):
                 report = gate.load_json(output / 'checks' / (check['id'] + '.json'))
                 self.assertFalse(report['execution']['executed'])
         self.assertFalse(result['ready'])
+        audit = gate.load_json(output / 'validation-inventory.json')
+        self.assertEqual(audit['revision'], self.revision)
+        self.assertEqual(audit['counts'], {'ci_automatic': 21, 'definition_missing': 86,
+                         'automated_with_external_input': 13, 'manual_acceptance': 7, 'release_acceptance': 1})
+        self.assertEqual({r['id']: r['status'] for r in audit['checks']},
+                         {r['id']: r['computed_status'] for r in result['checks']})
+        self.assertTrue((output / 'validation-inventory.csv').is_file())
 
     def test_missing_platform_does_not_become_pass_from_other_platform(self):
         (self.folder('macos') / 'evidence.json').unlink()
@@ -370,7 +377,12 @@ class Consolidation(unittest.TestCase):
         for stage in policy['stages'].values():
             stage['required_checks'] = [c for c in stage['required_checks'] if c in self.mapping]
         policy['profiles']['beta_1_3']['required_stages'] = [s for s, v in policy['stages'].items() if v['required_checks']]
-        with patch.object(evidence, 'configuration', return_value=(policy, self.mapping)):
+        # This deliberately narrowed positive fixture tests only transport.
+        # The production 128-ID inventory validator rejects narrowed policies;
+        # its complete policy path is exercised above and in recovery tests.
+        with patch.object(evidence, 'configuration', return_value=(policy, self.mapping)), \
+             patch.object(consolidator.validation_inventory, 'inventory', return_value={}), \
+             patch.object(consolidator.validation_inventory, 'write_inventory'):
             result, output = self.run_gate()
         self.assertEqual(result['verdict'], 'PASS')
         load = publisher.read_json

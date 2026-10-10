@@ -13,6 +13,7 @@ import subprocess
 import xml.etree.ElementTree as ET
 
 import release_evidence as evidence
+import validation_inventory
 
 gate = evidence.gate
 
@@ -75,6 +76,8 @@ def consolidate(inputs, output, revision, profile):
     result['producer'] = {'name': 'consolidate_release_gate', 'inputs': provenance, 'errors': errors}
     (output / 'release-gate.json').write_text(json.dumps(result, indent=2) + '\n', encoding='utf-8')
     (output / 'release-gate.md').write_text(gate.render_summary(result), encoding='utf-8')
+    validation_inventory.write_inventory(output,
+        validation_inventory.inventory(policy, mapping, revision['commit_sha'], profile, result))
     return result
 
 

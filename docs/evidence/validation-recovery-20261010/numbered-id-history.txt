@@ -1,0 +1,15 @@
+commit 4d3d2ec944f8a2699451943a9da66102c2f21ea2 release: restack exact-source gates on canonical Node 24 actions
+
+docs/RELEASE_GATE_OWNERSHIP_AUDIT_20261006.md
+commit 2a84001aae6db2717131e7bd89548726be32cfe8 Record 15-test Linux matrix, complete guitar states and matched UI probe evidence
+
+Validation/Integrated111/local-release-gate.json
+commit 9df4493445106cb60ee79f92e3a9d893d8705a4d test: add catalog and validation producer infrastructure
+
+Tools/test_validation_producer.py
+commit bfa64fd2a8fc8f24e7f9080246b02d80a997bc34 test: add catalog and validation producer infrastructure
+
+Tools/test_validation_producer.py
+commit 11ee2419faeecab5bce919965051deef2391a88f Make required checks and hard gates policy-owned
+
+Validation/release-policy.json

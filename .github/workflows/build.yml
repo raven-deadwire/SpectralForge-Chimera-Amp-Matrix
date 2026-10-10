@@ -36,7 +36,18 @@ jobs:
           python Tools/test_publish_beta13.py
           python Tools/test_release_preflight.py
           python Tools/test_callback_timing_protocol.py
+          python Tools/test_validation_recovery.py
           python Tools/seed_validation_reports.py --commit "${{ github.event.pull_request.head.sha || github.sha }}" --profile pull_request --output build/validation
+      - name: Execute source-bound recovered calculator contracts
+        shell: bash
+        run: python Tools/produce_recovered_evidence.py --commit "$CHIMERA_SOURCE_SHA" --run-id "$GITHUB_RUN_ID" --run-attempt "$GITHUB_RUN_ATTEMPT" --output build/recovered-evidence
+      - name: Preserve component receipts and unresolved definition inventory
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Chimera-recovered-component-evidence
+          path: build/recovered-evidence
+          if-no-files-found: error
       - name: Upload current-commit release-gate evidence
         if: always()
         uses: actions/upload-artifact@v4
