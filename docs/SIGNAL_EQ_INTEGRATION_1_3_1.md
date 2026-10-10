@@ -78,6 +78,9 @@ The extended native path test covers both gate positions, exact EQ edges,
 Matrix LOW branching, all expanded destinations and compact PRE/POST/RIGS/EQ
 navigation, zero host writes/gestures during navigation, 48 factory presets,
 A/B/project restoration, live bypass/band count, and 75/100/125/150% UI scaling.
+It also invokes the existing production LOW audio contract at 0/25/50/75/100%
+blend, checking a single linear DI/AMP+CAB mix, microphone isolation at the DI
+endpoint and both AMP/CAB bypass behaviors without widening its tolerances.
 The EQ native test enters each bank through the integrated path, edits all 24
 nodes, checks graph drag/wheel host gestures and stereo FFT, and verifies visible
 controls after host updates, A/B, factory recall and project restoration.

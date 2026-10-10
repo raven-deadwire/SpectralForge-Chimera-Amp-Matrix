@@ -2,6 +2,7 @@
 #include "NativeUITests.h"
 #include "CabRoom.h"
 #include "GuitarSignaturePresets.h"
+#include "CabLowBlendAudioTests.h"
 namespace signalPathTests {
 using namespace nativeUITests;
 using namespace spectralforge::signalPath;
@@ -48,6 +49,7 @@ inline void capture(juce::Component& root,const juce::File& folder,const juce::S
     snapshot(root,folder,name.toRawUTF8());
 }
 inline void run(const juce::File& folder) {
+    cabLowBlendAudioTests::run();
     auto p=std::make_unique<ChimeraProcessor>();topology(*p);
     Writes writes;p->addListener(&writes);
     auto editor=std::make_unique<ChimeraEditor>(*p);editor->addToDesktop(juce::ComponentPeer::windowIsTemporary);editor->setVisible(true);settle(100);
