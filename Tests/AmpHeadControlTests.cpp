@@ -190,7 +190,8 @@ int main(int argc,char** argv){try {
         const auto committed=get(*p,editID);const int entryWrites=all.writes;
         const auto click=knobCentre(*entry);entry->mouseDown(mouse(*entry,click,click,false));entry->mouseDoubleClick(mouse(*entry,click,click,false));entry->mouseUp(mouse(*entry,click,click,false));checkReadout(*entry,true);
         check(valueEditor(*entry),"Double-click did not open precise entry");valueEditor(*entry)->setText("9.9",false);entry->hideTextBox(true);
-        checkReadout(*entry,false);check(get(*p,editID)==committed && all.writes==entryWrites,"Cancelling numeric entry changed sound");
+        checkReadout(*entry,false);check(get(*p,editID)==committed,"Cancelling numeric entry changed the knob value");
+        check(all.writes==entryWrites,"Opening/cancelling numeric entry emitted host parameter writes");
         focusKnob(*entry);check(entry->keyPressed(juce::KeyPress(juce::KeyPress::returnKey)),"Resize entry did not open");checkEditorFocus(*entry);
         juce::Component::SafePointer<juce::TextEditor> resizedEditor=valueEditor(*entry);check(resizedEditor!=nullptr,"Resize value editor missing");
         resizedEditor->setText("9.1",false);const int resizeWrites=all.writes,resizeBegins=all.begins;

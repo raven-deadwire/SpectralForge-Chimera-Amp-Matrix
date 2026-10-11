@@ -8,6 +8,7 @@ public:
     std::function<void(bool)> onReadoutVisibility;
     std::function<bool()> canInteract;
     void setInteractionReadout(bool enabled) {transient=enabled;setReadoutVisible(false);}
+    bool usesInteractionReadout() const {return transient;}
     bool isReadoutVisible() const {return transient && readout;}
     void beginValueAdjustment() {if(transient){stopTimer();pointerActive=true;setReadoutVisible(true);}}
     void endValueAdjustment() {if(transient){pointerActive=false;if(!editing){stopTimer();setReadoutVisible(false);}}}
@@ -93,7 +94,9 @@ public:
             });
             attachment->sendInitialUpdate();
         }
-        slider.onDragStart=[this]{finishInteraction();if(canEdit && !canEdit())return;if(activate)activate();dragging=true;if(attachment)attachment->beginGesture();slider.beginValueAdjustment();};
+        // A head click can open precise entry and be cancelled without changing
+        // sound. Activate that bank only from onValueChange, not pointer-down.
+        slider.onDragStart=[this]{finishInteraction();if(canEdit && !canEdit())return;if(!slider.usesInteractionReadout() && activate)activate();dragging=true;if(attachment)attachment->beginGesture();slider.beginValueAdjustment();};
         slider.onValueChange=[this]{if(!attachment)return;if(canEdit && !canEdit()){finishInteraction();attachment->sendInitialUpdate();return;}if(activate)activate();if(dragging)attachment->setValueAsPartOfGesture((float)slider.getValue());else attachment->setValueAsCompleteGesture((float)slider.getValue());};
         slider.onDragEnd=[this]{finishInteraction(false);};
         choice.onChange=[this]{if(activate)activate();if(attachment)attachment->setValueAsCompleteGesture((float)(choice.getSelectedId()-1));};
