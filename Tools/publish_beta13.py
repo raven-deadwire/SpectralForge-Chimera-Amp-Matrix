@@ -16,6 +16,7 @@ import re
 import subprocess
 import sys
 import tempfile
+import time
 import zipfile
 
 import chimera_version
@@ -61,6 +62,10 @@ CONTROL_PATHS = frozenset({
 })
 require = transport.require
 sha256 = transport.sha256
+
+
+class CIPending(RuntimeError):
+    """The exact-source run exists but has not reached a terminal result."""
 
 
 def unique_object(pairs):
@@ -141,6 +146,8 @@ def verified_run(runs, head, events=("pull_request", "workflow_dispatch")):
     require(all(type(run.get("id")) is int and run["id"] > 0 for run in matches),
             "Malformed verification run identity")
     latest = max(matches, key=lambda run: run["id"])
+    if latest.get("status") in ("queued", "in_progress", "waiting", "pending", "requested"):
+        raise CIPending("Latest exact-source verification run is still running")
     require(latest.get("status") == "completed" and latest.get("conclusion") == "success",
             "Latest exact-source verification run has not passed")
     require(type(latest.get("run_attempt")) is int and latest["run_attempt"] > 0,
@@ -172,14 +179,21 @@ def verified_artifact(artifacts, name, head, run_id):
 
 def verify_ci(api, head):
     runs = {}
+    pending = []
     for workflow, expected in WORKFLOWS.items():
         available = api.pages(f"/actions/workflows/{workflow}/runs?head_sha={head}", "workflow_runs")
-        run = verified_run(available, head)
+        try:
+            run = verified_run(available, head)
+        except CIPending:
+            pending.append(workflow)
+            continue
         require(run.get("repository", {}).get("full_name") == transport.REPO,
                 "Verification repository mismatch")
         jobs = api.pages(f"/actions/runs/{run['id']}/jobs?filter=latest", "jobs")
         verified_jobs(jobs, expected)
         runs[workflow] = run
+    if pending:
+        raise CIPending("Exact-source verification is still running: " + ", ".join(pending))
     build = runs["build.yml"]
     artifacts = api.pages(f"/actions/runs/{build['id']}/artifacts", "artifacts")
     return {
@@ -192,6 +206,22 @@ def verify_ci(api, head):
 def ci_identity(ci):
     return ({name: (run["id"], run["run_attempt"]) for name, run in ci["runs"].items()},
             tuple((ci[name]["id"], ci[name]["digest"]) for name in ("candidate", "gate")))
+
+
+def wait_for_ci(api, head, seconds, check_current_branch):
+    """Wait only for active runs; terminal failures and missing evidence fail now."""
+    require(type(seconds) is int and 0 <= seconds <= 5400, "Invalid CI wait duration")
+    deadline = time.monotonic() + seconds
+    while True:
+        check_current_branch()
+        try:
+            return verify_ci(api, head)
+        except CIPending:
+            remaining = deadline - time.monotonic()
+            if remaining <= 0:
+                raise
+            print(f"Waiting for exact-source CI at {head[:10]}; no release has been created", flush=True)
+            time.sleep(min(30, remaining))
 
 
 def verify_release_gate_archive(archive, head, profile, run_id, run_attempt, policy=None,
@@ -383,7 +413,7 @@ def publish(args, head, policy):
         require(api.json("/git/ref/heads/" + BRANCH)["object"]["sha"] == controller,
                 "A newer publication controller supersedes this invocation")
     check_current_branch()
-    ci = verify_ci(api, head)
+    ci = wait_for_ci(api, head, args.wait_ci_seconds, check_current_branch)
     run = ci["runs"]["build.yml"]
     with tempfile.TemporaryDirectory(prefix="chimera-beta13-") as temporary:
         working = Path(temporary)
@@ -440,6 +470,8 @@ def main(argv=None):
     mode.add_argument("--publish", action="store_true", help="requires separately authorized manual workflow")
     parser.add_argument("--source-sha")
     parser.add_argument("--confirm")
+    parser.add_argument("--wait-ci-seconds", type=int, default=0,
+                        help="live publication only: wait up to 5400 seconds for running CI")
     inputs = parser.add_mutually_exclusive_group()
     inputs.add_argument("--candidate-dir", type=Path)
     inputs.add_argument("--candidate-zip", type=Path)
@@ -448,6 +480,7 @@ def main(argv=None):
     parser.add_argument("--run-id", type=int)
     parser.add_argument("--run-attempt", type=int)
     args = parser.parse_args(argv)
+    require(args.publish or args.wait_ci_seconds == 0, "CI waiting requires live publication mode")
     head = args.source_sha or os.environ.get("GITHUB_SHA") or chimera_version.revision(ROOT)
     policy = release_policy(head)
     return publish(args, head, policy) if args.publish else dry_run(args, head, policy)

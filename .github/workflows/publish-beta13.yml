@@ -47,7 +47,7 @@ jobs:
   publish:
     if: github.repository == 'raven-deadwire/SpectralForge-Chimera-Amp-Matrix' && inputs.publish && github.ref == 'refs/heads/release/open-beta-1.3.0'
     runs-on: ubuntu-24.04
-    timeout-minutes: 30
+    timeout-minutes: 120
     permissions:
       contents: write
       actions: read
@@ -78,4 +78,4 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           ACCEPTED_SHA: ${{ inputs.source_sha }}
           CONFIRM: ${{ inputs.confirm }}
-        run: python Tools/publish_beta13.py --publish --source-sha "$ACCEPTED_SHA" --confirm "$CONFIRM"
+        run: python Tools/publish_beta13.py --publish --source-sha "$ACCEPTED_SHA" --confirm "$CONFIRM" --wait-ci-seconds 5400
