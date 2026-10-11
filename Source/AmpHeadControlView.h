@@ -43,8 +43,16 @@ class AmpHeadControlView final : public juce::Component {
             auto* value=spectralforge::art::DialogLook::createSliderTextBox(slider);
             value->setBorderSize(juce::BorderSize<int>(0));
             value->setFont(juce::FontOptions(float(slider.getProperties().getWithDefault("headFontSize",12.f)),juce::Font::bold));
+            // The brass face uses dark idle ink, but JUCE's editor defaults can
+            // combine a pale face background with white selected text. Give
+            // numeric entry an explicit, high-contrast dark readout on both heads.
+            value->setColour(juce::Label::textWhenEditingColourId,juce::Colour(0xfff1ece0));
+            value->setColour(juce::Label::backgroundWhenEditingColourId,juce::Colour(0xff101718));
+            value->setColour(juce::Label::outlineWhenEditingColourId,juce::Colour(0xffbfa377));
+            value->setColour(juce::TextEditor::highlightColourId,juce::Colour(0xff4d6572));
+            value->setColour(juce::TextEditor::highlightedTextColourId,juce::Colour(0xfffff5df));
             if(auto* head=dynamic_cast<NativeControlSlider*>(&slider)) {
-                value->onEditorShow=[head]{head->readoutEditorShown();};
+                value->onEditorShow=[head,value]{head->readoutEditorShown();if(auto* editor=value->getCurrentTextEditor()){editor->setBorder(juce::BorderSize<int>(0));editor->setIndents(2,0);editor->setJustification(juce::Justification::centred);}};
                 value->onEditorHide=[head]{head->readoutEditorHidden();};
             }
             return value;

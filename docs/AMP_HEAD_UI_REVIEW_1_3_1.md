@@ -23,6 +23,10 @@ Follow-up to the native review and the user's visual references:
   cancel, hiding or context changes return to the idle presentation. Text entry
   survives normal workspace refreshes. Existing host gesture and parameter-bank
   protection remain in place. The detail panel keeps its permanent values.
+- Native Windows review also caught white editing text on Brit Edge's pale
+  brass background. Precise entry now has an explicit dark background, cream
+  text and contrasting selection on both heads, with editor insets sized to the
+  compact label. The contract checks normal and selected text contrast.
 
 The focused contract additionally checks actual value-label visibility, name
 visibility, complete glyph widths, stable knob geometry, keyboard expiry,

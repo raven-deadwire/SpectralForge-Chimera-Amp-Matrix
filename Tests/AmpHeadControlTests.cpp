@@ -1,6 +1,7 @@
 #include "PluginEditor.h"
 #include "CabRoom.h"
 #include "NativeMessageLoop.h"
+#include <cmath>
 #include <iostream>
 #include <set>
 #include <stdexcept>
@@ -81,8 +82,22 @@ void focusKnob(juce::Slider& slider) {
     slider.getTopLevelComponent()->toFront(true);slider.grabKeyboardFocus();
     awaitUI([&]{return slider.hasKeyboardFocus(false);},"Face knob did not receive keyboard focus");
 }
+double relativeLuminance(juce::Colour colour) {
+    const auto linear=[](double channel){return channel<=.04045?channel/12.92:std::pow((channel+.055)/1.055,2.4);};
+    return .2126*linear(colour.getFloatRed())+.7152*linear(colour.getFloatGreen())+.0722*linear(colour.getFloatBlue());
+}
+double textContrast(juce::Colour text,juce::Colour background) {
+    const auto ink=relativeLuminance(background.overlaidWith(text)),paper=relativeLuminance(background);
+    return (juce::jmax(ink,paper)+.05)/(juce::jmin(ink,paper)+.05);
+}
 void checkEditorFocus(juce::Slider& slider) {
     awaitUI([&]{auto* editor=valueEditor(slider);return editor && editor->isShowing() && editor->hasKeyboardFocus(true);},"Precise entry lost visibility or keyboard focus");
+    auto* editor=valueEditor(slider);const auto background=editor->findColour(juce::TextEditor::backgroundColourId);
+    check(textContrast(editor->findColour(juce::TextEditor::textColourId),background)>=4.5,"Numeric-entry text contrast is below 4.5:1");
+    const auto selection=background.overlaidWith(editor->findColour(juce::TextEditor::highlightColourId));
+    check(textContrast(editor->findColour(juce::TextEditor::highlightedTextColourId),selection)>=4.5,"Selected numeric-entry text contrast is below 4.5:1");
+    const auto border=editor->getBorder();
+    check(float(editor->getHeight()-border.getTop()-border.getBottom()-editor->getTopIndent())>=editor->getFont().getHeight(),"Numeric-entry font is clipped by editor border or indent");
 }
 void numeric(juce::Slider& slider,const juce::String& text) {
     if(!slider.keyPressed(juce::KeyPress(juce::KeyPress::returnKey)))slider.showTextBox();
