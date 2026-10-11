@@ -11,7 +11,7 @@
 - **조작 방법:** 노브를 드래그하고 Shift로 미세 조정합니다. 더블클릭 또는 Enter로 값을 입력할 수 있습니다. 이름이 표시된 버튼으로 채널을 선택하고 DETAILS에서 전체 컨트롤을 엽니다. A/B와 기존 채널별 설정, 호스트 자동화·프로젝트 저장을 함께 사용합니다.
 - **Signal Path:** 현재 모드의 분기·합류, 활성·우회 상태와 Matrix LOW의 DI / AMP+CAB 관계를 표시합니다. 경로의 단계를 선택하면 해당 조작 화면으로 이동합니다. PATH +에서 전체 경로를 펼쳐 볼 수 있으며 화면 이동 자체는 소리 설정을 바꾸지 않습니다.
 - **Tone EQ / Final EQ:** 각각 12개 밴드, 7개 필터 종류, 주파수 응답 곡선과 입력·출력 스펙트럼을 제공합니다. Tone EQ는 리그 합산과 선택적 POST Gate 뒤, POST 랙 앞에 있습니다. Final EQ는 POST·Doubler·메트로놈 뒤, OUTPUT 앞에 있습니다. 두 EQ는 기본적으로 우회되며 밴드의 주파수·게인·Q를 그래프와 수치로 조절합니다.
-- **1.3 기능 유지:** Niflheimr, PRE 39종·POST 21종·프리셋 48개, 스피커 14종·마이크 20종·9개 CAB 배치와 Chimera HF를 포함한 4개 트위터 디자인을 유지합니다. 6×10 구성, 팩토리 CAB 레시피, Mic A/B 복원, 캐비넷 외장·그릴과 IR 로더 표현, 작은 블록에서의 중복 FFT 감소 및 IR 배포 범위 수정도 포함합니다. 상세 이력은 [1.3.0 릴리즈 노트](OPEN_BETA_1_3_RELEASE_NOTES.md)를 참고하세요.
+- **1.3 기능 유지:** Niflheimr, PRE 39종·POST 21종·프리셋 48개, 스피커 14종·마이크 20종·9개 CAB 배치와 Chimera HF를 포함한 4개 트위터 디자인을 유지합니다. 6×10 구성, 팩토리 CAB 레시피, Mic A/B 복원, 캐비넷 외장·그릴과 IR 로더 표현, 작은 블록에서의 중복 FFT 감소 및 IR 배포 범위 수정도 포함합니다. 상세 이력은 [1.3.0 릴리즈 노트](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/blob/ce3d3b43a4958b1aba55226fb081276578967704/docs/OPEN_BETA_1_3_RELEASE_NOTES.md)를 참고하세요.
 
 ## 업데이트와 기존 프로젝트
 
@@ -21,7 +21,7 @@ Chimera와 DAW를 종료한 뒤 설치하세요. 설치 후 SETTINGS의 **Open B
 
 ## 검증 범위와 남은 항목
 
-게시 전 최종 소스에 대한 Windows·macOS·Linux 제품 빌드, 네이티브 헤드·Signal Path·EQ·CAB 검사, 패키지 검사와 Windows 설치·복구·제거 증거를 확인합니다. 이전 PR·미리보기·1.3.0의 성공 기록을 변경된 소스의 검증으로 재사용하지 않습니다. 최종 소스 SHA·CI 실행·패키지 검사 결과는 릴리즈에 첨부한 검증 기록과 build 값을 기준으로 확인합니다. 필요한 증거와 게시 조건은 [1.3.1 검증·배포 절차](RELEASE_1_3_1_PIPELINE.md)에 설명합니다.
+게시 전 최종 소스에 대한 Windows·macOS·Linux 제품 빌드, 네이티브 헤드·Signal Path·EQ·CAB 검사, 패키지 검사와 Windows 설치·복구·제거 증거를 확인합니다. 이전 PR·미리보기·1.3.0의 성공 기록을 변경된 소스의 검증으로 재사용하지 않습니다. 최종 소스 SHA·CI 실행·패키지 검사 결과는 릴리즈에 첨부한 검증 기록과 build 값을 기준으로 확인합니다. 필요한 증거와 게시 조건은 [1.3.1 검증·배포 절차](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/blob/ce3d3b43a4958b1aba55226fb081276578967704/docs/RELEASE_1_3_1_PIPELINE.md)에 설명합니다.
 
 전체 제품 검증은 완료되지 않았습니다. 엄격한 검증 목록에는 미실행 항목 107개가 남아 있으며, 개별 항목을 통과로 바꾸지 않고 별도의 공개 베타 판단에서 그 범위를 밝힙니다. 실제 Studio One 조작, 악기 DI 청음, DAW별 프로젝트 복원·인스턴스 삭제·종료의 수동 승인을 받았다는 뜻이 아닙니다. 과거 소스의 macOS 오디오 마감시간 초과 기록도 전체 컴퓨터의 무중단 처리 보증으로 대체하지 않습니다.
 
@@ -45,6 +45,6 @@ Signal Path führt zum gewählten Bearbeitungsschritt. Tone EQ und Final EQ biet
 
 Die genaue Quellrevision, nativen Prüfergebnisse und Paketnachweise sind den Release-Anhängen zu entnehmen; diese Funktionsbeschreibung bescheinigt keine Prüfergebnisse. Die strenge Produktprüfung enthält weiterhin 107 nicht ausgeführte Prüfungen; eine getrennte Beta-Entscheidung legt diese offen. Die vollständige manuelle Abnahme in Studio One und anderen Hosts sowie Hörtests mit echten Instrumenten sind nicht abgeschlossen. Software-Vorschauen und Illustrationen sind keine nativen Betriebssystem-Screenshots. Hardware-Gleichwertigkeit, unterbrechungsfreie Verarbeitung auf jedem Rechner und abgeschlossene Signierung/Notarisierung werden nicht behauptet. Die bisherigen Transpose-Grenzen bleiben bestehen.
 
-[Published releases](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/releases) · [1.3.0 notes](OPEN_BETA_1_3_RELEASE_NOTES.md) · [1.2 notes](OPEN_BETA_1_2_RELEASE_NOTES.md) · [Manual](MANUAL.html)
+[Published releases](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/releases) · [1.3.0 notes](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/blob/ce3d3b43a4958b1aba55226fb081276578967704/docs/OPEN_BETA_1_3_RELEASE_NOTES.md) · [1.2 notes](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/blob/ce3d3b43a4958b1aba55226fb081276578967704/docs/OPEN_BETA_1_2_RELEASE_NOTES.md) · [Manual](MANUAL.html)
 
 Copyright © 2026 RavenForge Luthier Intelligence. All rights reserved.

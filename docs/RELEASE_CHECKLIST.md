@@ -2,7 +2,7 @@
 
 Product version: **1.3.1**. Package/tag: **1.3.1-beta.1 / v1.3.1-beta.1**.
 
-On 2026-10-11 the owner requested the full amplifier-knob audit and then instructed: **“수정되면 배포랑 업데이트까지 해”**. This authorizes the corrected beta's integration, publication and update distribution after the required verification. It does not report personal testing or complete Studio One acceptance. See the [1.3.1 pipeline and evidence boundary](RELEASE_1_3_1_PIPELINE.md). The published 1.3.0 release remains intact.
+On 2026-10-11 the owner requested the full amplifier-knob audit and then instructed: **“수정되면 배포랑 업데이트까지 해”**. This authorizes the corrected beta's integration, publication and update distribution after the required verification. It does not report personal testing or complete Studio One acceptance. See the [1.3.1 pipeline and evidence boundary](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/blob/ce3d3b43a4958b1aba55226fb081276578967704/docs/RELEASE_1_3_1_PIPELINE.md). The published 1.3.0 release remains intact.
 
 ## Source and user-facing scope
 
@@ -11,7 +11,7 @@ On 2026-10-11 the owner requested the full amplifier-knob audit and then instruc
 - Preserve parameter identities, host automation, channel recall, A/B, existing projects and personal files. Two new EQ stages default to bypass.
 - Derive product, platform package and manifest versions from VERSION and RELEASE_CHANNEL. Use new packages built from the final source.
 - Retain the licensed IR allowlist and exclusion of research/private capture audio from public payloads.
-- Keep the release notes and EN/DE/KO manual current; preserve the [1.3.0 notes](OPEN_BETA_1_3_RELEASE_NOTES.md) as history. Label actual native screenshots, software previews and illustrations accurately.
+- Keep the release notes and EN/DE/KO manual current; preserve the [1.3.0 notes](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/blob/ce3d3b43a4958b1aba55226fb081276578967704/docs/OPEN_BETA_1_3_RELEASE_NOTES.md) as history. Label actual native screenshots, software previews and illustrations accurately.
 
 ## Final-source evidence
 
@@ -30,7 +30,7 @@ These boxes remain open until the corresponding evidence is available. A source 
 
 ## Publication and update
 
-Use the manual `publish-beta131.yml` workflow on `release/open-beta-1.3.1`. It defaults to read-only review. Publication requires `publish=true`, the final product source SHA and `confirm=publish-v1.3.1-beta.1`. The publisher checks the current source, controller ancestry, required workflow results and all asset identities before publishing; preparation pushes cannot publish. See the [complete pipeline](RELEASE_1_3_1_PIPELINE.md).
+Use the manual `publish-beta131.yml` workflow on `release/open-beta-1.3.1`. It defaults to read-only review. Publication requires `publish=true`, the final product source SHA and `confirm=publish-v1.3.1-beta.1`. The publisher checks the current source, controller ancestry, required workflow results and all asset identities before publishing; preparation pushes cannot publish. See the [complete pipeline](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/blob/ce3d3b43a4958b1aba55226fb081276578967704/docs/RELEASE_1_3_1_PIPELINE.md).
 
 - [ ] Publish the verified prerelease and its strict validation report, raw evidence and separate beta decision without overwriting historical tags/assets.
 - [ ] Verify unauthenticated release visibility, public downloads, hashes and `update-beta.json` against the staged package set.
