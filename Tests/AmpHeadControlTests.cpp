@@ -132,6 +132,20 @@ void checkFaceLayout(AmpHeadWorkspace& view,int model,int channel=0) {
     check(input->getNumItems()==int(panel.routes.size()),"Layout input route count changed");
     for(size_t route=0;route<panel.routes.size();++route)
         check(input->getItemText(int(route))==juce::String::fromUTF8(panel.routes[route]),"Layout input route Unicode label changed");
+    if(model==int(AmpModel::britEdge)) {
+        check(input->isVisible(),"Brit Edge on-face input route is hidden");
+        checkPlate(head->getLocalArea(input,input->getLocalBounds()).toFloat(),"input route selector");
+        for(auto* child:input->getChildren())if(auto* label=dynamic_cast<juce::Label*>(child))
+            checkLabelFits(*label,"Face input route text is truncated");
+        bool foundRouteLabel=false;
+        for(auto* child:head->getChildren())if(auto* label=dynamic_cast<juce::Label*>(child);
+            label && label->getText()=="INPUT ROUTE") {
+            foundRouteLabel=true;check(label->isVisible(),"Brit Edge input route label is hidden");
+            checkLabelFits(*label,"Face input route label is truncated");
+            checkPlateLabel(*label);
+        }
+        check(foundRouteLabel,"Brit Edge input route label is missing");
+    }
     check(head->caption().contains(juce::String::fromUTF8(panel.channels[size_t(channel)])),"Head caption Unicode channel name changed");
 }
 juce::TextEditor* valueEditor(juce::Slider& slider) {

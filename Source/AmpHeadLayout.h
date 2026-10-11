@@ -441,7 +441,7 @@ inline constexpr std::array<std::span<const Knob>,ampModelCount> modelKnobs{{
 }};
 inline const std::array<FaceStyle,ampModelCount> faceStyles{{
     {0.0470f,0.1100f,0xfff1ece0,{0.0350f,0.6250f,0.9300f,0.2850f},{},{}}, // Glass
-    {0.0500f,0.1050f,0xff191b18,{0.0300f,0.5750f,0.9400f,0.3250f},{},{.80f,.71f,.17f,.10f}}, // Brit Edge
+    {0.0500f,0.1050f,0xff191b18,{0.0300f,0.5750f,0.9400f,0.3250f},{},{.78f,.71f,.17f,.10f}}, // Brit Edge
     {0.0450f,0.1100f,0xfff1ece0,{0.0420f,0.6000f,0.9150f,0.3100f},{},{}}, // Tight 515
     {0.0450f,0.1000f,0xfff1ece0,{0.0500f,0.6100f,0.9000f,0.2800f},{},{}}, // Wide Rect
     {0.0350f,0.1170f,0xfff1ece0,{0.0470f,0.5550f,0.9100f,0.3400f},{},{}}, // Liquid Lead
@@ -455,7 +455,7 @@ inline const std::array<FaceStyle,ampModelCount> faceStyles{{
     {0.0550f,0.1550f,0xff191b18,{0.0400f,0.5600f,0.9200f,0.3350f},{},{}}, // Prism Chime
     {0.0430f,0.1090f,0xff191b18,{0.0400f,0.6500f,0.9250f,0.2650f},{},{}}, // Silk Lead
     {0.0400f,0.1180f,0xff191b18,{0.0550f,0.2550f,0.9000f,0.6800f},{},{}}, // Taste Punch
-    {0.0350f,0.0860f,0xff191b18,{0.0400f,0.5700f,0.9200f,0.3250f},{},{}}, // Cinder 120
+    {0.0350f,0.0860f,0xfff1ece0,{0.0400f,0.5700f,0.9200f,0.3250f},{},{}}, // Cinder 120
     {0.0440f,0.1080f,0xfff1ece0,{0.0400f,0.6000f,0.9200f,0.3000f},{},{}}, // Iron Compact
     {0.0430f,0.1010f,0xff191b18,{0.0550f,0.6500f,0.8850f,0.2350f},{},{}}, // Fourfold
     {0.0550f,0.1550f,0xfff1ece0,{0.0400f,0.6250f,0.9200f,0.2800f},{},{}}, // Classic Tube

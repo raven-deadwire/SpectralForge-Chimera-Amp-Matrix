@@ -33,7 +33,13 @@ controls. Classic, Dual, Matrix and focused CAB overviews paint the selected
 bank's actual knob positions and channel lights using the same hardware
 materials; they do not write parameters. An overview state cache avoids
 repainting or rebuilding control bindings on idle timer ticks. Cinder's label
-and scale ink is dark against its new steel control plate.
+and scale ink stays light so it remains readable across the dark brushed-steel plate.
+
+The first complete-shell software capture review caught two additional issues:
+Brit Edge's route selector crossed the right gold piping, and dark Cinder labels
+lost contrast in the centre of its brushed plate. The selector is shifted left
+without reducing its width, and Cinder retains light label/scale ink. The layout
+contract now includes Brit Edge's actual selector and route-label plate bounds.
 
 The appearance contract independently decodes every source, checks alpha
 bounds and resource identity, compares production paint with a single raw
