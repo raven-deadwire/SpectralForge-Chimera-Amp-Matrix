@@ -167,3 +167,9 @@ any production, artwork, version, build workflow, original policy/map/waiver,
 source-document or other change rejects publication. The controller branch and
 exact-source CI are rechecked immediately before release creation. This avoids
 rebuilding unchanged product binaries merely to correct the publishing script.
+
+The explicitly started publication job can wait up to 90 minutes for the
+existing exact-source CI runs. It creates no release while they are running.
+Only pending/running statuses are retried; terminal failures, missing runs or
+artifacts and a superseded controller stop publication. The final provenance
+and current-branch checks still run immediately before the first mutation.

@@ -9,7 +9,7 @@ import tempfile
 import unittest
 import zipfile
 from contextlib import redirect_stdout
-from unittest.mock import patch
+from unittest.mock import Mock, call, patch
 
 import publish_beta13 as publisher
 
@@ -341,14 +341,39 @@ class CIContracts(unittest.TestCase):
     def test_stale_missing_failed_pending_or_newer_failed_runs_are_rejected(self):
         good = self.good_run()
         self.assertEqual(publisher.verified_run([good], HEAD)["id"], RUN)
-        for changes in ({"head_sha": "b" * 40}, {"event": "push"}, {"status": "in_progress"},
+        for status in ("queued", "in_progress", "waiting", "pending", "requested"):
+            with self.subTest(pending=status), self.assertRaises(publisher.CIPending):
+                publisher.verified_run([good, {**good, "id": RUN + 1, "status": status,
+                                              "conclusion": None}], HEAD)
+        for changes in ({"head_sha": "b" * 40}, {"event": "push"},
                         {"conclusion": "failure"}, {"conclusion": "cancelled"}, {"run_attempt": None}):
-            with self.subTest(changes=changes), self.assertRaises(RuntimeError):
+            with self.subTest(changes=changes), self.assertRaises(RuntimeError) as caught:
                 publisher.verified_run([{**good, **changes}], HEAD)
+            self.assertNotIsInstance(caught.exception, publisher.CIPending)
         with self.assertRaisesRegex(RuntimeError, "missing"):
             publisher.verified_run([], HEAD)
         with self.assertRaisesRegex(RuntimeError, "Latest"):
             publisher.verified_run([good, {**good, "id": RUN + 1, "conclusion": "failure"}], HEAD)
+
+    def test_pending_build_does_not_hide_a_later_failed_workflow(self):
+        api = Mock()
+        pending = {**self.good_run(), "status": "in_progress", "conclusion": None}
+        failed = {**self.good_run(RUN + 1), "conclusion": "failure"}
+        api.pages.side_effect = [[pending], [failed]]
+        with self.assertRaisesRegex(RuntimeError, "has not passed") as caught:
+            publisher.verify_ci(api, HEAD)
+        self.assertNotIsInstance(caught.exception, publisher.CIPending)
+        requests = [call(f"/actions/workflows/{name}/runs?head_sha={HEAD}", "workflow_runs")
+                    for name in ("build.yml", "update-candidate.yml", "cab-panel.yml")]
+        self.assertEqual(api.pages.call_args_list, requests[:2])
+
+        api.reset_mock()
+        api.pages.side_effect = [[{**pending, "id": RUN + index}] for index in range(3)]
+        with self.assertRaises(publisher.CIPending) as caught:
+            publisher.verify_ci(api, HEAD)
+        self.assertEqual(api.pages.call_args_list, requests)
+        for name in ("build.yml", "update-candidate.yml", "cab-panel.yml"):
+            self.assertIn(name, str(caught.exception))
 
     def test_every_cab_platform_and_consolidator_must_succeed(self):
         for workflow in ("build.yml", "cab-panel.yml"):
@@ -391,6 +416,76 @@ class CIContracts(unittest.TestCase):
         self.assertIn("--dry-run", workflow)
         self.assertIn("release/open-beta-1.3.0", workflow)
         self.assertIn("publish-v1.3.0-beta.1", workflow)
+
+
+class CIWaitContracts(unittest.TestCase):
+    def test_pending_then_success_rechecks_branch_before_each_verification(self):
+        api, result = object(), {"verified": "exact source"}
+        calls = Mock()
+        calls.verify.side_effect = [publisher.CIPending("active run"), result]
+        with patch.object(publisher, "verify_ci", calls.verify), \
+             patch.object(publisher.time, "monotonic", return_value=100), \
+             patch.object(publisher.time, "sleep") as sleep, redirect_stdout(io.StringIO()):
+            self.assertIs(publisher.wait_for_ci(api, HEAD, 60, calls.branch), result)
+        self.assertEqual(calls.mock_calls, [call.branch(), call.verify(api, HEAD),
+                                           call.branch(), call.verify(api, HEAD)])
+        sleep.assert_called_once_with(30)
+
+    def test_terminal_failure_or_missing_evidence_is_never_retried(self):
+        for message in ("Latest exact-source verification run has not passed",
+                        "Exact-source verification run is missing",
+                        "Expected one exact-source artifact: release gate"):
+            with self.subTest(error=message):
+                error, branch, api = RuntimeError(message), Mock(), object()
+                with patch.object(publisher, "verify_ci", side_effect=error) as verify, \
+                     patch.object(publisher.time, "monotonic", return_value=100), \
+                     patch.object(publisher.time, "sleep") as sleep, \
+                     self.assertRaises(RuntimeError) as caught:
+                    publisher.wait_for_ci(api, HEAD, 60, branch)
+                self.assertIs(caught.exception, error)
+                verify.assert_called_once_with(api, HEAD)
+                branch.assert_called_once_with()
+                sleep.assert_not_called()
+
+    def test_zero_and_expired_waits_stop_without_exceeding_the_bound(self):
+        for seconds, clock, attempts, sleeps in ((0, [100, 100], 1, []),
+                                                 (5, [100, 100, 105], 2, [call(5)])):
+            with self.subTest(seconds=seconds):
+                branch = Mock()
+                with patch.object(publisher, "verify_ci", side_effect=publisher.CIPending("active")) as verify, \
+                     patch.object(publisher.time, "monotonic", side_effect=clock), \
+                     patch.object(publisher.time, "sleep") as sleep, \
+                     redirect_stdout(io.StringIO()), self.assertRaises(publisher.CIPending):
+                    publisher.wait_for_ci(object(), HEAD, seconds, branch)
+                self.assertEqual(verify.call_count, attempts)
+                self.assertEqual(branch.call_count, attempts)
+                self.assertEqual(sleep.call_args_list, sleeps)
+        for seconds in (-1, 5401, True, 1.5):
+            with self.subTest(invalid_seconds=seconds), \
+                 patch.object(publisher, "verify_ci") as verify, \
+                 patch.object(publisher.time, "monotonic") as clock, \
+                 patch.object(publisher.time, "sleep") as sleep:
+                branch = Mock()
+                with self.assertRaisesRegex(RuntimeError, "Invalid CI wait duration"):
+                    publisher.wait_for_ci(object(), HEAD, seconds, branch)
+                verify.assert_not_called()
+                branch.assert_not_called()
+                clock.assert_not_called()
+                sleep.assert_not_called()
+
+    def test_superseded_branch_stops_before_the_next_ci_request(self):
+        error = RuntimeError("A newer publication controller supersedes this invocation")
+        branch = Mock(side_effect=[None, error])
+        api = object()
+        with patch.object(publisher, "verify_ci", side_effect=publisher.CIPending("active")) as verify, \
+             patch.object(publisher.time, "monotonic", return_value=100), \
+             patch.object(publisher.time, "sleep") as sleep, \
+             redirect_stdout(io.StringIO()), self.assertRaises(RuntimeError) as caught:
+            publisher.wait_for_ci(api, HEAD, 10, branch)
+        self.assertIs(caught.exception, error)
+        self.assertEqual(branch.call_count, 2)
+        verify.assert_called_once_with(api, HEAD)
+        sleep.assert_called_once_with(10)
 
 
 if __name__ == "__main__":
