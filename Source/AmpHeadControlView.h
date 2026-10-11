@@ -168,20 +168,25 @@ class AmpHeadWorkspace final : public juce::Component, private juce::Timer {
     AmpHeadControlView head;
     AmpNativePanel details;
     juce::Label title,hint;
-    juce::TextButton back{"< BACK"},detailToggle{"DETAILS"};
+    juce::TextButton back{"< BACK"},detailToggle{"DETAILS"},compareA{"A"},compareB{"B"};
     bool showDetails{};
     void timerCallback() override {refresh();}
 public:
     AmpHeadWorkspace(ChimeraProcessor& p,int index):processor(p),lane(index),head(p,index,true),details(p,index,true) {
         setLookAndFeel(&look);setComponentID("ampHeadWorkspace");
-        for(auto* c:std::initializer_list<juce::Component*>{&head,&details,&title,&hint,&back,&detailToggle})addAndMakeVisible(*c);
+        for(auto* c:std::initializer_list<juce::Component*>{&head,&details,&title,&hint,&back,&detailToggle,&compareA,&compareB})addAndMakeVisible(*c);
         back.setComponentID("ampHeadBack");back.onClick=[this]{head.finishInteraction();if(auto* w=findParentComponentOfClass<juce::DialogWindow>())w->exitModalState(0);};
         detailToggle.setComponentID("ampHeadDetails");detailToggle.onClick=[this]{head.finishInteraction();showDetails=!showDetails;refresh();};
+        compareA.setComponentID("ampHeadCompareA");compareB.setComponentID("ampHeadCompareB");
+        compareA.setTooltip("Recall the existing sound A comparison");compareB.setTooltip("Recall the existing sound B comparison");
+        compareA.onClick=[this]{head.finishInteraction();processor.selectComparison(0);refresh();};
+        compareB.onClick=[this]{head.finishInteraction();processor.selectComparison(1);refresh();};
         title.setFont(juce::FontOptions(15.f,juce::Font::bold));hint.setFont(juce::FontOptions(12.f));
         setSize(1200,650);refresh();startTimerHz(25);
     }
     ~AmpHeadWorkspace() override {stopTimer();head.finishInteraction();setLookAndFeel(nullptr);}
     void refresh() {
+        compareA.setToggleState(processor.comparisonSlot()==0,juce::dontSendNotification);compareB.setToggleState(processor.comparisonSlot()==1,juce::dontSendNotification);
         head.refresh();const bool active=lane<=int(processor.parameters().getRawParameterValue("mode")->load());
         const bool supported=spectralforge::ampHead::supported(head.displayedModel());
         details.setVisible(active && (showDetails||!supported));head.setVisible(active && !details.isVisible());
@@ -190,6 +195,6 @@ public:
         title.setText(active?head.caption():"This rig is inactive in the current routing mode",juce::dontSendNotification);
         hint.setText(details.isVisible()?"Full amplifier controls":supported?"Drag a knob | Shift for fine adjustment | Click a value for precise entry":"",juce::dontSendNotification);
     }
-    void resized() override {back.setBounds(16,12,86,30);detailToggle.setBounds(getWidth()-112,12,96,30);title.setBounds(116,12,getWidth()-240,30);hint.setBounds(20,getHeight()-31,getWidth()-40,22);head.setBounds(12,52,getWidth()-24,getHeight()-92);details.setBounds(24,62,getWidth()-48,getHeight()-108);}
+    void resized() override {back.setBounds(16,12,86,30);detailToggle.setBounds(getWidth()-112,12,96,30);compareA.setBounds(getWidth()-218,12,44,30);compareB.setBounds(getWidth()-168,12,44,30);title.setBounds(116,12,getWidth()-348,30);hint.setBounds(20,getHeight()-31,getWidth()-40,22);head.setBounds(12,52,getWidth()-24,getHeight()-92);details.setBounds(24,62,getWidth()-48,getHeight()-108);}
     void paint(juce::Graphics& g) override {g.fillAll(juce::Colour(0xff111617));}
 };

@@ -69,7 +69,7 @@ int main(int argc,char** argv){try {
     std::array<float,6> before{};for(int c=0;c<6;++c)before[size_t(c)]=get(*p,ampNativeControlID(c,niflheimrAmpModel,0,0));
     numeric(*slider,"7.1");for(int c=1;c<6;++c)check(get(*p,ampNativeControlID(c,niflheimrAmpModel,0,0))==before[size_t(c)],"Edited an inactive context");
     const auto savedValue=get(*p,id);p->copyComparison();juce::MemoryBlock saved;p->getStateInformation(saved);
-    p->selectComparison(1);settle();set(*p,id,.2f);p->selectComparison(0);settle();check(get(*p,id)==savedValue,"A/B recall value failed");
+    find<juce::TextButton>(*view,"ampHeadCompareB")->triggerClick();settle();set(*p,id,.2f);find<juce::TextButton>(*view,"ampHeadCompareA")->triggerClick();settle();check(get(*p,id)==savedValue && p->comparisonSlot()==0,"A/B recall value failed");
     slider=find<juce::Slider>(*view,id);check(std::abs(slider->getValue()-savedValue)<.002,"A/B face stale");
     Host host;auto* parameter=p->parameters().getParameter(id);parameter->addListener(&host);
     drag(*slider,false);p->setStateInformation(saved.getData(),int(saved.getSize()));

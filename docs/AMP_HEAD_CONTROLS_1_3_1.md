@@ -18,6 +18,8 @@ not alter the 1.3.0 preparation branch or publish a release.
   Back/Escape closes the enlargement and leaves the previous view intact.
 - Existing detailed controls remain available beside the compact head and via
   DETAILS in the enlargement. Other models open their full detailed panel.
+- A/B buttons inside the enlargement select the existing global comparison slots;
+  no extra snapshot or per-window state is introduced.
 - Controls use existing IDs and `ParameterAttachment`; no parameter addition,
   reordering, DSP change, extra blend, state schema or latency change.
 - Closing, hiding, rebinding or changing channel ends active drag gestures.
