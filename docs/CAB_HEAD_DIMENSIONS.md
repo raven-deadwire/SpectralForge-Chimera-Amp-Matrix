@@ -47,17 +47,21 @@ designs. These rows must not be presented as manufacturer measurements.
 
 ## Rendering interpretation
 
-- Width and height describe a physical front/enclosure envelope. Transparent
-  bitmap margins and the shape of the cropped source image never determine
-  width, height, or camera zoom.
-- Most manufacturers report external product height without separating feet,
-  handles and shell. Keep those published envelopes intact; the renderer's
-  fascia, feet and carrying handle are a visual decomposition within that
-  envelope, not separately measured manufacturer parts. Iron Compact explicitly
-  uses its manufacturer's 170 mm handle-inclusive envelope for consistency.
-- Project the roof from the recorded depth at the common camera angle. Do not
-  derive its depth from a fraction of front width or stretch a shallow compact
-  head to the roof dimensions of a larger tube head.
+- Following the 11 October complete-shell recomposition, catalogue width still
+  establishes each head's physical scale beside its cabinet. Transparent bitmap
+  margins do not add width, and every lane uses the same pixels-per-metre factor.
+- Each complete source image already contains its roof, handle, casing and feet.
+  Project it once with uniform scale, preserving its visible aspect ratio and
+  authored support baseline. The visible height therefore follows that complete
+  artwork's aspect at the catalogue width; it is not an independent measurement
+  of the manufacturer's height. Do not stretch the image to a second height or
+  add another depth-derived roof above it.
+- The catalogue height/depth provenance remains useful for the conservative
+  scene-fitting envelope. Those records do not make the new artwork a surveyed
+  replica. Most manufacturers report external height without separately
+  measuring feet, handles and shell; Iron Compact's 170 mm record includes its
+  handle. The [UI recomposition review](AMP_HEAD_UI_REVIEW_1_3_1.md) records the
+  distinct artwork and native-capture evidence.
 - Small desktop heads must remain physically small on a large cabinet. No
   per-model minimum visual width is permitted. If a whole rig needs to fit a
   view, change the shared scene scale for all its equipment together.

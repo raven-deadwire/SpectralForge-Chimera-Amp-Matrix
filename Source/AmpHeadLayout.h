@@ -43,65 +43,65 @@ inline constexpr Knob model1[]{
 };
 // 2 — Tight 515
 inline constexpr Knob model2[]{
-    {"hw.low","LOW",0.3450f,0.7850f},
-    {"hw.mid","MID",0.4600f,0.7850f},
-    {"hw.high","HIGH",0.5750f,0.7850f},
-    {"hw.resonance","RESONANCE",0.7200f,0.7850f},
-    {"hw.presence","PRESENCE",0.8500f,0.7850f},
-    {"hw.rhythm.pre_gain","PRE GAIN",0.1100f,0.7850f},
-    {"hw.rhythm.post_gain","POST GAIN",0.2250f,0.7850f},
-    {"hw.lead.pre_gain","PRE GAIN",0.1100f,0.7850f},
-    {"hw.lead.post_gain","POST GAIN",0.2250f,0.7850f},
+    {"hw.low","LOW",0.3450f,0.7400f},
+    {"hw.mid","MID",0.4600f,0.7400f},
+    {"hw.high","HIGH",0.5750f,0.7400f},
+    {"hw.resonance","RESONANCE",0.7200f,0.7400f},
+    {"hw.presence","PRESENCE",0.8500f,0.7400f},
+    {"hw.rhythm.pre_gain","PRE GAIN",0.1100f,0.7400f},
+    {"hw.rhythm.post_gain","POST GAIN",0.2250f,0.7400f},
+    {"hw.lead.pre_gain","PRE GAIN",0.1100f,0.7400f},
+    {"hw.lead.post_gain","POST GAIN",0.2250f,0.7400f},
 };
 // 3 — Wide Rect
 inline constexpr Knob model3[]{
-    {"hw.ch1.gain","GAIN",0.0950f,0.7750f},
-    {"hw.ch1.treble","TREBLE",0.2000f,0.7750f},
-    {"hw.ch1.mid","MID",0.3050f,0.7750f},
-    {"hw.ch1.bass","BASS",0.4100f,0.7750f},
-    {"hw.ch1.presence","PRESENCE",0.5150f,0.7750f},
-    {"hw.ch1.master","MASTER",0.6200f,0.7750f},
-    {"hw.ch2.gain","GAIN",0.0950f,0.7750f},
-    {"hw.ch2.treble","TREBLE",0.2000f,0.7750f},
-    {"hw.ch2.mid","MID",0.3050f,0.7750f},
-    {"hw.ch2.bass","BASS",0.4100f,0.7750f},
-    {"hw.ch2.presence","PRESENCE",0.5150f,0.7750f},
-    {"hw.ch2.master","MASTER",0.6200f,0.7750f},
-    {"hw.ch3.gain","GAIN",0.0950f,0.7750f},
-    {"hw.ch3.treble","TREBLE",0.2000f,0.7750f},
-    {"hw.ch3.mid","MID",0.3050f,0.7750f},
-    {"hw.ch3.bass","BASS",0.4100f,0.7750f},
-    {"hw.ch3.presence","PRESENCE",0.5150f,0.7750f},
-    {"hw.ch3.master","MASTER",0.6200f,0.7750f},
-    {"hw.output","OUTPUT",0.7650f,0.7750f},
-    {"hw.solo","SOLO",0.8800f,0.7750f},
+    {"hw.ch1.gain","GAIN",0.0950f,0.7900f},
+    {"hw.ch1.treble","TREBLE",0.2000f,0.7900f},
+    {"hw.ch1.mid","MID",0.3050f,0.7900f},
+    {"hw.ch1.bass","BASS",0.4100f,0.7900f},
+    {"hw.ch1.presence","PRESENCE",0.5150f,0.7900f},
+    {"hw.ch1.master","MASTER",0.6200f,0.7900f},
+    {"hw.ch2.gain","GAIN",0.0950f,0.7900f},
+    {"hw.ch2.treble","TREBLE",0.2000f,0.7900f},
+    {"hw.ch2.mid","MID",0.3050f,0.7900f},
+    {"hw.ch2.bass","BASS",0.4100f,0.7900f},
+    {"hw.ch2.presence","PRESENCE",0.5150f,0.7900f},
+    {"hw.ch2.master","MASTER",0.6200f,0.7900f},
+    {"hw.ch3.gain","GAIN",0.0950f,0.7900f},
+    {"hw.ch3.treble","TREBLE",0.2000f,0.7900f},
+    {"hw.ch3.mid","MID",0.3050f,0.7900f},
+    {"hw.ch3.bass","BASS",0.4100f,0.7900f},
+    {"hw.ch3.presence","PRESENCE",0.5150f,0.7900f},
+    {"hw.ch3.master","MASTER",0.6200f,0.7900f},
+    {"hw.output","OUTPUT",0.7650f,0.7900f},
+    {"hw.solo","SOLO",0.8800f,0.7900f},
 };
 // 4 — Liquid Lead
 inline constexpr Knob model4[]{
-    {"hw.r1.gain","GAIN",0.1000f,0.6650f},
-    {"hw.r1.treble","TREBLE",0.2250f,0.6650f},
-    {"hw.r1.presence","PRESENCE",0.7250f,0.6650f},
-    {"hw.r1.master","MASTER",0.8500f,0.6650f},
-    {"hw.r2.gain","GAIN",0.1000f,0.6650f},
-    {"hw.r2.treble","TREBLE",0.2250f,0.6650f},
-    {"hw.r2.presence","PRESENCE",0.7250f,0.6650f},
-    {"hw.r2.master","MASTER",0.8500f,0.6650f},
-    {"hw.rhythm.bass","BASS",0.3500f,0.6650f},
-    {"hw.rhythm.middle","MIDDLE",0.4750f,0.6650f},
-    {"hw.lead.gain","GAIN",0.1000f,0.6650f},
-    {"hw.lead.treble","TREBLE",0.2250f,0.6650f},
-    {"hw.lead.bass","BASS",0.3500f,0.6650f},
-    {"hw.lead.middle","MIDDLE",0.4750f,0.6650f},
-    {"hw.lead.drive","DRIVE",0.6000f,0.6650f},
-    {"hw.lead.presence","PRESENCE",0.7250f,0.6650f},
-    {"hw.lead.master","MASTER",0.8500f,0.6650f},
-    {"hw.geq.80","80 Hz",0.1000f,0.8550f},
-    {"hw.geq.240","240 Hz",0.2250f,0.8550f},
-    {"hw.geq.750","750 Hz",0.3500f,0.8550f},
-    {"hw.geq.2200","2.2 kHz",0.4750f,0.8550f},
-    {"hw.geq.6600","6.6 kHz",0.6000f,0.8550f},
-    {"hw.output","OUTPUT",0.7250f,0.8550f},
-    {"hw.reverb","REVERB",0.8500f,0.8550f},
+    {"hw.r1.gain","GAIN",0.1000f,0.6700f},
+    {"hw.r1.treble","TREBLE",0.2250f,0.6700f},
+    {"hw.r1.presence","PRESENCE",0.7250f,0.6700f},
+    {"hw.r1.master","MASTER",0.8500f,0.6700f},
+    {"hw.r2.gain","GAIN",0.1000f,0.6700f},
+    {"hw.r2.treble","TREBLE",0.2250f,0.6700f},
+    {"hw.r2.presence","PRESENCE",0.7250f,0.6700f},
+    {"hw.r2.master","MASTER",0.8500f,0.6700f},
+    {"hw.rhythm.bass","BASS",0.3500f,0.6700f},
+    {"hw.rhythm.middle","MIDDLE",0.4750f,0.6700f},
+    {"hw.lead.gain","GAIN",0.1000f,0.6700f},
+    {"hw.lead.treble","TREBLE",0.2250f,0.6700f},
+    {"hw.lead.bass","BASS",0.3500f,0.6700f},
+    {"hw.lead.middle","MIDDLE",0.4750f,0.6700f},
+    {"hw.lead.drive","DRIVE",0.6000f,0.6700f},
+    {"hw.lead.presence","PRESENCE",0.7250f,0.6700f},
+    {"hw.lead.master","MASTER",0.8500f,0.6700f},
+    {"hw.geq.80","80 Hz",0.1000f,0.8350f},
+    {"hw.geq.240","240 Hz",0.2250f,0.8350f},
+    {"hw.geq.750","750 Hz",0.3500f,0.8350f},
+    {"hw.geq.2200","2.2 kHz",0.4750f,0.8350f},
+    {"hw.geq.6600","6.6 kHz",0.6000f,0.8350f},
+    {"hw.output","OUTPUT",0.7250f,0.8350f},
+    {"hw.reverb","REVERB",0.8500f,0.8350f},
 };
 // 5 — Iron Tube
 inline constexpr Knob model5[]{
@@ -115,31 +115,31 @@ inline constexpr Knob model5[]{
 };
 // 6 — Solid Punch
 inline constexpr Knob model6[]{
-    {"hw.volume","VOLUME",0.0900f,0.8400f},
-    {"hw.treble","TREBLE",0.1925f,0.8400f},
-    {"hw.hi_mid","HI MID",0.2950f,0.8400f},
-    {"hw.lo_mid","LO MID",0.3975f,0.8400f},
-    {"hw.bass","BASS",0.5000f,0.8400f},
-    {"hw.boost","BOOST",0.6025f,0.8400f},
-    {"hw.low_master","LOW MSTR",0.7050f,0.8400f},
-    {"hw.high_master","HIGH MSTR",0.8075f,0.8400f},
-    {"hw.crossover","CROSSOVER",0.9100f,0.8400f},
+    {"hw.volume","VOLUME",0.1000f,0.8300f},
+    {"hw.treble","TREBLE",0.2000f,0.8300f},
+    {"hw.hi_mid","HI MID",0.3000f,0.8300f},
+    {"hw.lo_mid","LO MID",0.4000f,0.8300f},
+    {"hw.bass","BASS",0.5000f,0.8300f},
+    {"hw.boost","BOOST",0.6000f,0.8300f},
+    {"hw.low_master","LOW MSTR",0.7000f,0.8300f},
+    {"hw.high_master","HIGH MSTR",0.8000f,0.8300f},
+    {"hw.crossover","CROSSOVER",0.9000f,0.8300f},
 };
 // 7 — Modern Bass
 inline constexpr Knob model7[]{
-    {"hw.b7k.master","ULTRA MSTR",0.1050f,0.6400f},
-    {"hw.b7k.blend","ULTRA MIX",0.2175f,0.6400f},
-    {"hw.b7k.level","ULTRA LEVEL",0.3300f,0.6400f},
-    {"hw.b7k.drive","ULTRA DRIVE",0.4425f,0.6400f},
-    {"hw.b7k.bass","ULTRA BASS",0.5550f,0.6400f},
-    {"hw.b7k.lo_mids","ULTRA LO",0.6675f,0.6400f},
-    {"hw.b7k.hi_mids","ULTRA HI",0.7800f,0.6400f},
-    {"hw.b7k.treble","ULTRA TREB",0.8925f,0.6400f},
-    {"hw.db751.gain","AMP GAIN",0.1900f,0.8650f},
-    {"hw.db751.bass","AMP BASS",0.3450f,0.8650f},
-    {"hw.db751.mid","AMP MID",0.5000f,0.8650f},
-    {"hw.db751.treble","AMP TREBLE",0.6550f,0.8650f},
-    {"hw.db751.master","AMP MASTER",0.8100f,0.8650f},
+    {"hw.b7k.master","ULTRA MSTR",0.1050f,0.6650f},
+    {"hw.b7k.blend","ULTRA MIX",0.2175f,0.6650f},
+    {"hw.b7k.level","ULTRA LEVEL",0.3300f,0.6650f},
+    {"hw.b7k.drive","ULTRA DRIVE",0.4425f,0.6650f},
+    {"hw.b7k.bass","ULTRA BASS",0.5550f,0.6650f},
+    {"hw.b7k.lo_mids","ULTRA LO",0.6675f,0.6650f},
+    {"hw.b7k.hi_mids","ULTRA HI",0.7800f,0.6650f},
+    {"hw.b7k.treble","ULTRA TREB",0.8925f,0.6650f},
+    {"hw.db751.gain","AMP GAIN",0.1900f,0.8700f},
+    {"hw.db751.bass","AMP BASS",0.3450f,0.8700f},
+    {"hw.db751.mid","AMP MID",0.5000f,0.8700f},
+    {"hw.db751.treble","AMP TREBLE",0.6550f,0.8700f},
+    {"hw.db751.master","AMP MASTER",0.8100f,0.8700f},
 };
 // 8 — Chime 30
 inline constexpr Knob model8[]{
@@ -156,16 +156,16 @@ inline constexpr Knob model8[]{
 };
 // 9 — Orange Crown
 inline constexpr Knob model9[]{
-    {"hw.clean.volume","VOLUME",0.1100f,0.7300f},
-    {"hw.clean.treble","TREBLE",0.2350f,0.7300f},
-    {"hw.clean.bass","BASS",0.4850f,0.7300f},
-    {"hw.dirty.gain","GAIN",0.1100f,0.7300f},
-    {"hw.dirty.treble","TREBLE",0.2350f,0.7300f},
-    {"hw.dirty.middle","MIDDLE",0.3600f,0.7300f},
-    {"hw.dirty.bass","BASS",0.4850f,0.7300f},
-    {"hw.dirty.volume","VOLUME",0.6100f,0.7300f},
-    {"hw.reverb","REVERB",0.7550f,0.7300f},
-    {"hw.attenuator","ATTENUATOR",0.8800f,0.7300f},
+    {"hw.clean.volume","VOLUME",0.1100f,0.6750f},
+    {"hw.clean.treble","TREBLE",0.2350f,0.6750f},
+    {"hw.clean.bass","BASS",0.4850f,0.6750f},
+    {"hw.dirty.gain","GAIN",0.1100f,0.6750f},
+    {"hw.dirty.treble","TREBLE",0.2350f,0.6750f},
+    {"hw.dirty.middle","MIDDLE",0.3600f,0.6750f},
+    {"hw.dirty.bass","BASS",0.4850f,0.6750f},
+    {"hw.dirty.volume","VOLUME",0.6100f,0.6750f},
+    {"hw.reverb","REVERB",0.7550f,0.6750f},
+    {"hw.attenuator","ATTENUATOR",0.8800f,0.6750f},
 };
 // 10 — Vintage Valve
 inline constexpr Knob model10[]{
@@ -184,16 +184,16 @@ inline constexpr Knob model10[]{
 };
 // 11 — Metro Clean
 inline constexpr Knob model11[]{
-    {"hw.input","INPUT",0.1150f,0.5500f},
-    {"hw.high_pass","HIGH PASS",0.3050f,0.5500f},
-    {"hw.voicing","VOICING",0.4950f,0.5500f},
-    {"hw.bass","BASS",0.6850f,0.5500f},
-    {"hw.lo_mid_frequency","LO MID FREQUENCY",0.8750f,0.5500f},
-    {"hw.lo_mid","LO MID",0.1150f,0.8400f},
-    {"hw.hi_mid_frequency","HI MID FREQUENCY",0.3050f,0.8400f},
-    {"hw.hi_mid","HI MID",0.4950f,0.8400f},
-    {"hw.treble","TREBLE",0.6850f,0.8400f},
-    {"hw.master","MASTER",0.8750f,0.8400f},
+    {"hw.input","INPUT",0.1150f,0.5600f},
+    {"hw.high_pass","HIGH PASS",0.3050f,0.5600f},
+    {"hw.voicing","VOICING",0.4950f,0.5600f},
+    {"hw.bass","BASS",0.6850f,0.5600f},
+    {"hw.lo_mid_frequency","LO MID FREQUENCY",0.8750f,0.5600f},
+    {"hw.lo_mid","LO MID",0.1150f,0.8500f},
+    {"hw.hi_mid_frequency","HI MID FREQUENCY",0.3050f,0.8500f},
+    {"hw.hi_mid","HI MID",0.4950f,0.8500f},
+    {"hw.treble","TREBLE",0.6850f,0.8500f},
+    {"hw.master","MASTER",0.8750f,0.8500f},
 };
 // 12 — Prism Chime
 inline constexpr Knob model12[]{
@@ -206,64 +206,64 @@ inline constexpr Knob model12[]{
 };
 // 13 — Silk Lead
 inline constexpr Knob model13[]{
-    {"hw.volume","VOLUME",0.0950f,0.8050f},
-    {"hw.treble","TREBLE",0.2100f,0.8050f},
-    {"hw.middle","MIDDLE",0.3250f,0.8050f},
-    {"hw.bass","BASS",0.4400f,0.8050f},
-    {"hw.od.drive","DRIVE",0.5550f,0.8050f},
-    {"hw.od.ratio","RATIO",0.6700f,0.8050f},
-    {"hw.master","MASTER",0.7850f,0.8050f},
-    {"hw.presence","PRESENCE",0.9000f,0.8050f},
+    {"hw.volume","VOLUME",0.0950f,0.7850f},
+    {"hw.treble","TREBLE",0.2100f,0.7850f},
+    {"hw.middle","MIDDLE",0.3250f,0.7850f},
+    {"hw.bass","BASS",0.4400f,0.7850f},
+    {"hw.od.drive","DRIVE",0.5550f,0.7850f},
+    {"hw.od.ratio","RATIO",0.6700f,0.7850f},
+    {"hw.master","MASTER",0.7850f,0.7850f},
+    {"hw.presence","PRESENCE",0.9000f,0.7850f},
 };
 // 14 — Taste Punch
 inline constexpr Knob model14[]{
-    {"hw.gain","GAIN",0.1250f,0.6300f},
-    {"hw.taste","TASTE",0.2500f,0.6300f},
-    {"hw.lo","LO",0.3750f,0.6300f},
-    {"hw.lo_mid","LO MID",0.5000f,0.6300f},
-    {"hw.hi_mid","HI MID",0.6250f,0.6300f},
-    {"hw.hi","HI",0.7500f,0.6300f},
-    {"hw.master","MASTER",0.8750f,0.6300f},
+    {"hw.gain","GAIN",0.1250f,0.6600f},
+    {"hw.taste","TASTE",0.2500f,0.6600f},
+    {"hw.lo","LO",0.3750f,0.6600f},
+    {"hw.lo_mid","LO MID",0.5000f,0.6600f},
+    {"hw.hi_mid","HI MID",0.6250f,0.6600f},
+    {"hw.hi","HI",0.7500f,0.6600f},
+    {"hw.master","MASTER",0.8750f,0.6600f},
 };
 // 15 — Cinder 120
 inline constexpr Knob model15[]{
-    {"ch1.gain","GAIN",0.0900f,0.7950f},
-    {"ch1.low","LOW",0.1800f,0.7950f},
-    {"ch1.mid","MID",0.2700f,0.7950f},
-    {"ch1.high","HIGH",0.3600f,0.7950f},
-    {"ch1.volume","VOLUME",0.4500f,0.7950f},
-    {"ch2.gain","GAIN",0.0900f,0.7950f},
-    {"ch2.low","LOW",0.1800f,0.7950f},
-    {"ch2.mid","MID",0.2700f,0.7950f},
-    {"ch2.high","HIGH",0.3600f,0.7950f},
-    {"ch2.volume","VOLUME",0.4500f,0.7950f},
-    {"ch3.gain","GAIN",0.0900f,0.7950f},
-    {"ch3.low","LOW",0.1800f,0.7950f},
-    {"ch3.mid","MID",0.2700f,0.7950f},
-    {"ch3.high","HIGH",0.3600f,0.7950f},
-    {"ch3.volume","VOLUME",0.4500f,0.7950f},
-    {"ch4.gain","GAIN",0.0900f,0.7950f},
-    {"ch4.low","LOW",0.1800f,0.7950f},
-    {"ch4.mid","MID",0.2700f,0.7950f},
-    {"ch4.high","HIGH",0.3600f,0.7950f},
-    {"ch4.volume","VOLUME",0.4500f,0.7950f},
-    {"presence","PRESENCE",0.5400f,0.7950f},
-    {"depth","DEPTH",0.6300f,0.7950f},
-    {"master","MASTER",0.7200f,0.7950f},
-    {"gate_threshold","GATE",0.8100f,0.7950f},
-    {"solo_level","SOLO",0.9000f,0.7950f},
+    {"ch1.gain","GAIN",0.0900f,0.7900f},
+    {"ch1.low","LOW",0.1800f,0.7900f},
+    {"ch1.mid","MID",0.2700f,0.7900f},
+    {"ch1.high","HIGH",0.3600f,0.7900f},
+    {"ch1.volume","VOLUME",0.4500f,0.7900f},
+    {"ch2.gain","GAIN",0.0900f,0.7900f},
+    {"ch2.low","LOW",0.1800f,0.7900f},
+    {"ch2.mid","MID",0.2700f,0.7900f},
+    {"ch2.high","HIGH",0.3600f,0.7900f},
+    {"ch2.volume","VOLUME",0.4500f,0.7900f},
+    {"ch3.gain","GAIN",0.0900f,0.7900f},
+    {"ch3.low","LOW",0.1800f,0.7900f},
+    {"ch3.mid","MID",0.2700f,0.7900f},
+    {"ch3.high","HIGH",0.3600f,0.7900f},
+    {"ch3.volume","VOLUME",0.4500f,0.7900f},
+    {"ch4.gain","GAIN",0.0900f,0.7900f},
+    {"ch4.low","LOW",0.1800f,0.7900f},
+    {"ch4.mid","MID",0.2700f,0.7900f},
+    {"ch4.high","HIGH",0.3600f,0.7900f},
+    {"ch4.volume","VOLUME",0.4500f,0.7900f},
+    {"presence","PRESENCE",0.5400f,0.7900f},
+    {"depth","DEPTH",0.6300f,0.7900f},
+    {"master","MASTER",0.7200f,0.7900f},
+    {"gate_threshold","GATE",0.8100f,0.7900f},
+    {"solo_level","SOLO",0.9000f,0.7900f},
 };
 // 16 — Iron Compact
 inline constexpr Knob model16[]{
-    {"hw.clean.gain","GAIN",0.0950f,0.7900f},
-    {"hw.lead.gain","GAIN",0.0950f,0.7900f},
-    {"hw.bass","BASS",0.2100f,0.7900f},
-    {"hw.middle","MIDDLE",0.3250f,0.7900f},
-    {"hw.treble","TREBLE",0.4400f,0.7900f},
-    {"hw.lead.volume","VOLUME",0.5550f,0.7900f},
-    {"hw.presence","PRESENCE",0.6700f,0.7900f},
-    {"hw.master","MASTER",0.7850f,0.7900f},
-    {"hw.reverb","REVERB",0.9000f,0.7900f},
+    {"hw.clean.gain","GAIN",0.0950f,0.7550f},
+    {"hw.lead.gain","GAIN",0.0950f,0.7550f},
+    {"hw.bass","BASS",0.2100f,0.7550f},
+    {"hw.middle","MIDDLE",0.3250f,0.7550f},
+    {"hw.treble","TREBLE",0.4400f,0.7550f},
+    {"hw.lead.volume","VOLUME",0.5550f,0.7550f},
+    {"hw.presence","PRESENCE",0.6700f,0.7550f},
+    {"hw.master","MASTER",0.7850f,0.7550f},
+    {"hw.reverb","REVERB",0.9000f,0.7550f},
 };
 // 17 — Fourfold
 inline constexpr Knob model17[]{
@@ -310,23 +310,23 @@ inline constexpr Knob model19[]{
 };
 // 20 — Night Harvest
 inline constexpr Knob model20[]{
-    {"hw.ep.girth","GIRTH",0.0950f,0.6800f},
-    {"hw.ep.grind","GRIND",0.2300f,0.6800f},
-    {"hw.ep.gain","GAIN",0.3650f,0.6800f},
-    {"hw.gain_eq.bass","BASS",0.5000f,0.6800f},
-    {"hw.gain_eq.middle","MIDDLE",0.6350f,0.6800f},
-    {"hw.gain_eq.sweep","SWEEP",0.7700f,0.6800f},
-    {"hw.gain_eq.treble","TREBLE",0.9050f,0.6800f},
-    {"hw.kk.gain1","GAIN 1",0.0950f,0.6800f},
-    {"hw.kk.gain2","GAIN 2",0.3650f,0.6800f},
-    {"hw.clean.volume","VOLUME",0.0950f,0.6800f},
-    {"hw.clean.bass","BASS",0.3650f,0.6800f},
-    {"hw.clean.middle","MIDDLE",0.6350f,0.6800f},
-    {"hw.clean.treble","TREBLE",0.9050f,0.6800f},
-    {"hw.depth","DEPTH",0.2300f,0.8650f},
-    {"hw.presence","PRESENCE",0.4100f,0.8650f},
-    {"hw.master1","MASTER 1",0.5900f,0.8650f},
-    {"hw.master2","MASTER 2",0.7700f,0.8650f},
+    {"hw.ep.girth","GIRTH",0.0950f,0.6100f},
+    {"hw.ep.grind","GRIND",0.2300f,0.6100f},
+    {"hw.ep.gain","GAIN",0.3650f,0.6100f},
+    {"hw.gain_eq.bass","BASS",0.5000f,0.6100f},
+    {"hw.gain_eq.middle","MIDDLE",0.6350f,0.6100f},
+    {"hw.gain_eq.sweep","SWEEP",0.7700f,0.6100f},
+    {"hw.gain_eq.treble","TREBLE",0.9050f,0.6100f},
+    {"hw.kk.gain1","GAIN 1",0.0950f,0.6100f},
+    {"hw.kk.gain2","GAIN 2",0.3650f,0.6100f},
+    {"hw.clean.volume","VOLUME",0.0950f,0.6100f},
+    {"hw.clean.bass","BASS",0.3650f,0.6100f},
+    {"hw.clean.middle","MIDDLE",0.6350f,0.6100f},
+    {"hw.clean.treble","TREBLE",0.9050f,0.6100f},
+    {"hw.depth","DEPTH",0.2300f,0.8350f},
+    {"hw.presence","PRESENCE",0.4100f,0.8350f},
+    {"hw.master1","MASTER 1",0.5900f,0.8350f},
+    {"hw.master2","MASTER 2",0.7700f,0.8350f},
 };
 // 21 — Hot Lead
 inline constexpr Knob model21[]{
@@ -357,42 +357,42 @@ inline constexpr Knob model22[]{
 };
 // 23 — Special Edition
 inline constexpr Knob model23[]{
-    {"hw.clean.gain","GAIN",0.0900f,0.7900f},
-    {"hw.clean.treble","TREBLE",0.3900f,0.7900f},
-    {"hw.clean.volume","VOLUME",0.4900f,0.7900f},
-    {"hw.crunch.gain","GAIN",0.0900f,0.7900f},
-    {"hw.crunch.treble","TREBLE",0.3900f,0.7900f},
-    {"hw.crunch.volume","VOLUME",0.4900f,0.7900f},
-    {"hw.lead1.gain","GAIN",0.0900f,0.7900f},
-    {"hw.lead1.treble","TREBLE",0.3900f,0.7900f},
-    {"hw.lead1.volume","VOLUME",0.4900f,0.7900f},
-    {"hw.lead2.gain","GAIN",0.0900f,0.7900f},
-    {"hw.lead2.treble","TREBLE",0.3900f,0.7900f},
-    {"hw.lead2.volume","VOLUME",0.4900f,0.7900f},
-    {"hw.clean_eq.bass","BASS",0.1900f,0.7900f},
-    {"hw.clean_eq.middle","MIDDLE",0.2900f,0.7900f},
-    {"hw.lead_eq.bass","BASS",0.1900f,0.7900f},
-    {"hw.lead_eq.middle","MIDDLE",0.2900f,0.7900f},
-    {"hw.presence_a","PRESENCE A",0.6100f,0.7900f},
-    {"hw.presence_b","PRESENCE B",0.7100f,0.7900f},
-    {"hw.master_a","MASTER A",0.8100f,0.7900f},
-    {"hw.master_b","MASTER B",0.9100f,0.7900f},
+    {"hw.clean.gain","GAIN",0.0900f,0.7500f},
+    {"hw.clean.treble","TREBLE",0.3900f,0.7500f},
+    {"hw.clean.volume","VOLUME",0.4900f,0.7500f},
+    {"hw.crunch.gain","GAIN",0.0900f,0.7500f},
+    {"hw.crunch.treble","TREBLE",0.3900f,0.7500f},
+    {"hw.crunch.volume","VOLUME",0.4900f,0.7500f},
+    {"hw.lead1.gain","GAIN",0.0900f,0.7500f},
+    {"hw.lead1.treble","TREBLE",0.3900f,0.7500f},
+    {"hw.lead1.volume","VOLUME",0.4900f,0.7500f},
+    {"hw.lead2.gain","GAIN",0.0900f,0.7500f},
+    {"hw.lead2.treble","TREBLE",0.3900f,0.7500f},
+    {"hw.lead2.volume","VOLUME",0.4900f,0.7500f},
+    {"hw.clean_eq.bass","BASS",0.1900f,0.7500f},
+    {"hw.clean_eq.middle","MIDDLE",0.2900f,0.7500f},
+    {"hw.lead_eq.bass","BASS",0.1900f,0.7500f},
+    {"hw.lead_eq.middle","MIDDLE",0.2900f,0.7500f},
+    {"hw.presence_a","PRESENCE A",0.6100f,0.7500f},
+    {"hw.presence_b","PRESENCE B",0.7100f,0.7500f},
+    {"hw.master_a","MASTER A",0.8100f,0.7500f},
+    {"hw.master_b","MASTER B",0.9100f,0.7500f},
 };
 // 24 — Náströnd
 inline constexpr Knob model24[]{
-    {"gain","GAIN",0.1900f,0.7040f},
-    {"bass","BASS",0.2800f,0.7040f},
-    {"middle","MID",0.3700f,0.7040f},
-    {"mid_frequency","MID FREQ",0.4600f,0.7040f},
-    {"treble","TREBLE",0.5500f,0.7040f},
-    {"presence","PRESENCE",0.6400f,0.7040f},
-    {"depth","DEPTH",0.7300f,0.7040f},
-    {"master","MASTER",0.8200f,0.7040f},
-    {"clank","CLANK",0.3100f,0.8450f},
-    {"crush","CRUSH",0.4200f,0.8450f},
-    {"impact","IMPACT",0.5300f,0.8450f},
-    {"rot","ROT",0.6400f,0.8450f},
-    {"bloom","BLOOM",0.7500f,0.8450f},
+    {"gain","GAIN",0.1900f,0.6520f},
+    {"bass","BASS",0.2800f,0.6520f},
+    {"middle","MID",0.3700f,0.6520f},
+    {"mid_frequency","MID FREQ",0.4600f,0.6520f},
+    {"treble","TREBLE",0.5500f,0.6520f},
+    {"presence","PRESENCE",0.6400f,0.6520f},
+    {"depth","DEPTH",0.7300f,0.6520f},
+    {"master","MASTER",0.8200f,0.6520f},
+    {"clank","CLANK",0.3100f,0.8270f},
+    {"crush","CRUSH",0.4200f,0.8270f},
+    {"impact","IMPACT",0.5300f,0.8270f},
+    {"rot","ROT",0.6400f,0.8270f},
+    {"bloom","BLOOM",0.7500f,0.8270f},
 };
 // 25 — Niflheimr
 inline constexpr Knob model25[]{
@@ -439,32 +439,35 @@ inline constexpr std::array<std::span<const Knob>,ampModelCount> modelKnobs{{
     model24, // Náströnd
     model25 // Niflheimr
 }};
+// Dial sizes are fitted per reviewed production plate. Tall single-row panels
+// and compact two-row panels have independent diameters and row spacing; keep
+// the complete slider target and its readable label inside the metal plate.
 inline const std::array<FaceStyle,ampModelCount> faceStyles{{
     {0.0470f,0.1100f,0xfff1ece0,{0.0350f,0.6250f,0.9300f,0.2850f},{},{}}, // Glass
     {0.0500f,0.1050f,0xff191b18,{0.0300f,0.5750f,0.9400f,0.3250f},{},{.755f,.71f,.195f,.10f}}, // Brit Edge
-    {0.0450f,0.1100f,0xfff1ece0,{0.0420f,0.6000f,0.9150f,0.3100f},{},{}}, // Tight 515
-    {0.0450f,0.1000f,0xfff1ece0,{0.0500f,0.6100f,0.9000f,0.2800f},{},{}}, // Wide Rect
-    {0.0350f,0.1170f,0xfff1ece0,{0.0470f,0.5550f,0.9100f,0.3400f},{},{}}, // Liquid Lead
+    {0.0580f,0.1100f,0xfff1ece0,{0.0420f,0.6000f,0.9150f,0.3100f},{},{}}, // Tight 515
+    {0.0580f,0.1000f,0xfff1ece0,{0.0500f,0.6100f,0.9000f,0.2800f},{},{}}, // Wide Rect
+    {0.0430f,0.1170f,0xfff1ece0,{0.0470f,0.5550f,0.9100f,0.3400f},{},{}}, // Liquid Lead
     {0.0580f,0.1550f,0xff191b18,{0.0600f,0.6000f,0.8800f,0.3000f},{},{}}, // Iron Tube
-    {0.0430f,0.0970f,0xfff1ece0,{0.0570f,0.6300f,0.8850f,0.3450f},{},{}}, // Solid Punch
-    {0.0380f,0.1080f,0xfff1ece0,{0.0650f,0.4900f,0.8700f,0.4600f},{},{}}, // Modern Bass
+    {0.0550f,0.0970f,0xfff1ece0,{0.0570f,0.6300f,0.8850f,0.3450f},{},{}}, // Solid Punch
+    {0.0430f,0.1080f,0xfff1ece0,{0.0650f,0.4900f,0.8700f,0.4600f},{},{}}, // Modern Bass
     {0.0400f,0.0960f,0xff191b18,{0.0450f,0.6400f,0.9100f,0.2800f},{},{}}, // Chime 30
-    {0.0520f,0.1150f,0xff191b18,{0.0650f,0.4250f,0.8700f,0.4350f},{},{}}, // Orange Crown
+    {0.0730f,0.1150f,0xff191b18,{0.0650f,0.4250f,0.8700f,0.4350f},{},{}}, // Orange Crown
     {0.0410f,0.1040f,0xff191b18,{0.0480f,0.6350f,0.9100f,0.2350f},{},{}}, // Vintage Valve
-    {0.0360f,0.1750f,0xfff1ece0,{0.0650f,0.3400f,0.8700f,0.6100f},{},{}}, // Metro Clean
+    {0.0460f,0.1750f,0xfff1ece0,{0.0650f,0.3400f,0.8700f,0.6100f},{},{}}, // Metro Clean
     {0.0550f,0.1550f,0xff191b18,{0.0400f,0.5600f,0.9200f,0.3350f},{},{}}, // Prism Chime
-    {0.0430f,0.1090f,0xff191b18,{0.0400f,0.6500f,0.9250f,0.2650f},{},{}}, // Silk Lead
-    {0.0400f,0.1180f,0xff191b18,{0.0550f,0.2550f,0.9000f,0.6800f},{},{}}, // Taste Punch
-    {0.0350f,0.0860f,0xfff1ece0,{0.0400f,0.5700f,0.9200f,0.3250f},{},{}}, // Cinder 120
-    {0.0440f,0.1080f,0xfff1ece0,{0.0400f,0.6000f,0.9200f,0.3000f},{},{}}, // Iron Compact
+    {0.0550f,0.1090f,0xff191b18,{0.0400f,0.6500f,0.9250f,0.2650f},{},{}}, // Silk Lead
+    {0.0600f,0.1180f,0xff191b18,{0.0550f,0.2550f,0.9000f,0.6800f},{},{}}, // Taste Punch
+    {0.0450f,0.0860f,0xfff1ece0,{0.0400f,0.5700f,0.9200f,0.3250f},{},{}}, // Cinder 120
+    {0.0700f,0.1080f,0xfff1ece0,{0.0400f,0.6000f,0.9200f,0.3000f},{},{}}, // Iron Compact
     {0.0430f,0.1010f,0xff191b18,{0.0550f,0.6500f,0.8850f,0.2350f},{},{}}, // Fourfold
     {0.0550f,0.1550f,0xfff1ece0,{0.0400f,0.6250f,0.9200f,0.2800f},{},{}}, // Classic Tube
     {0.0520f,0.1280f,0xff191b18,{0.0400f,0.5900f,0.9200f,0.3200f},{},{}}, // Monolith
-    {0.0330f,0.1200f,0xfff1ece0,{0.0400f,0.5900f,0.9250f,0.3200f},{},{}}, // Night Harvest
+    {0.0500f,0.1200f,0xfff1ece0,{0.0400f,0.5900f,0.9250f,0.3200f},{},{}}, // Night Harvest
     {0.0450f,0.1180f,0xff191b18,{0.0450f,0.6000f,0.9100f,0.2850f},{},{}}, // Hot Lead
     {0.0450f,0.1180f,0xfff1ece0,{0.0400f,0.6050f,0.9200f,0.2850f},{},{}}, // Blue Storm
-    {0.0410f,0.0940f,0xfff1ece0,{0.0460f,0.6100f,0.9100f,0.2800f},{},{}}, // Special Edition
-    {0.0320f,0.0860f,0xfff1ece0,{0.1700f,0.6180f,0.7030f,0.2830f},{.4007f,.5447f,.1981f,.0432f},{}}, // Náströnd
+    {0.0530f,0.0940f,0xfff1ece0,{0.0460f,0.6100f,0.9100f,0.2800f},{},{}}, // Special Edition
+    {0.0450f,0.0860f,0xfff1ece0,{0.1700f,0.6180f,0.7030f,0.2830f},{.4007f,.5447f,.1981f,.0432f},{}}, // Náströnd
     // The complete Niflheimr shell has a taller plate: size its two rows to
     // that usable area instead of retaining the old miniature 3.2% dials.
     {0.0560f,0.0950f,0xfff1ece0,{0.1700f,0.4850f,0.7030f,0.4070f},{.4053f,.5637f,.1894f,.0468f},{}}, // Niflheimr

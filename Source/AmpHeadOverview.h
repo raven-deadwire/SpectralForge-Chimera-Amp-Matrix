@@ -26,6 +26,7 @@ class Painter final {
     ampHeadKnob::Renderer knobs;
     struct Control {
         juce::Point<float> anchor;
+        const char* key{};
         const std::atomic<float>* parameter{};
         juce::NormalisableRange<float> range;
         float value{};
@@ -50,7 +51,7 @@ public:
                 juce::NormalisableRange<float> range(float(spec.minimum),float(spec.maximum));
                 if(model==firstOriginalAmpModel && index==int(original::Control::midFrequency))range.setSkewForCentre(850.f);
                 else if(model==niflheimrAmpModel && index==int(niflheimr::Control::midFrequency))range.setSkewForCentre(650.f);
-                controls.push_back({{anchor.x,anchor.y},parameter,range,parameter->load()});
+                controls.push_back({{anchor.x,anchor.y},anchor.key,parameter,range,parameter->load()});
             }
         }
         // The APVTS parameter objects live for the processor lifetime. Idle
@@ -76,7 +77,7 @@ public:
                 layout.front.getWidth()*control.anchor.x,layout.front.getHeight()*control.anchor.y};
             knobs.draw(g,{centre.x-diameter*.5f,centre.y-diameter*.5f,diameter,diameter},
                        control.range.convertTo0to1(control.value),juce::MathConstants<float>::pi*1.2f,
-                       juce::MathConstants<float>::pi*2.8f,model,false);
+                       juce::MathConstants<float>::pi*2.8f,model,false,control.key);
         }
         const auto& windows=headShell::definition(model).channelWindows;
         for(size_t i=0;i<windows.size();++i)if(windows[i].valid())

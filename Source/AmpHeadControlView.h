@@ -69,19 +69,39 @@ class AmpHeadControlView final : public juce::Component {
             }
             return value;
         }
+        static int readoutWidth(juce::Slider& slider,const juce::Font& font) {
+            const auto measure=[&](const juce::String& text) {
+                juce::GlyphArrangement glyphs;glyphs.addLineOfText(font,text,0.f,0.f);
+                return glyphs.getBoundingBox(0,-1,true).getWidth();
+            };
+            juce::juce_wchar widestDigit='0';float digitWidth=0.f;
+            for(juce::juce_wchar digit='0';digit<='9';++digit)
+                if(const float width=measure(juce::String::charToString(digit));width>digitWidth){digitWidth=width;widestDigit=digit;}
+            float width=0.f;
+            for(const double fraction:{0.,.25,.5,.75,1.}) {
+                const auto text=slider.getTextFromValue(juce::jmap(fraction,slider.getMinimum(),slider.getMaximum()));
+                auto widest=text;
+                for(juce::juce_wchar digit='0';digit<='9';++digit)widest=widest.replaceCharacter(digit,widestDigit);
+                width=juce::jmax(width,measure(text),measure(widest));
+            }
+            // Stable across adjustment; includes the editor's horizontal
+            // indents and caret without painting the whole parameter cell.
+            return int(std::ceil(width))+8;
+        }
         juce::Slider::SliderLayout getSliderLayout(juce::Slider& slider) override {
             if(!bool(slider.getProperties()["headControl"]))return spectralforge::art::DialogLook::getSliderLayout(slider);
             juce::Slider::SliderLayout layout;
             const int labelHeight=slider.getTextBoxHeight();
             const int diameter=juce::jmin(slider.getWidth(),slider.getHeight()-labelHeight);
-            layout.textBoxBounds={0,0,slider.getWidth(),labelHeight};
+            const int readout=juce::jmin(slider.getWidth(),slider.getTextBoxWidth());
+            layout.textBoxBounds={(slider.getWidth()-readout)/2,0,readout,labelHeight};
             layout.sliderBounds={(slider.getWidth()-diameter)/2,labelHeight,diameter,diameter};
             return layout;
         }
         void drawRotarySlider(juce::Graphics& g,int x,int y,int w,int h,float value,float start,float end,juce::Slider& s) override {
             const auto bounds=juce::Rectangle<float>(float(x),float(y),float(w),float(h))
                 .withSizeKeepingCentre(float(juce::jmin(w,h)-2),float(juce::jmin(w,h)-2));
-            knobRenderer.draw(g,bounds,value,start,end,int(s.getProperties()["headModel"]),s.hasKeyboardFocus(true));
+            knobRenderer.draw(g,bounds,value,start,end,int(s.getProperties()["headModel"]),s.hasKeyboardFocus(true),s.getProperties()["headControlKey"].toString().toRawUTF8(),30.f);
         }
     } look;
     void rebuildInput() {
@@ -155,6 +175,7 @@ public:
                 control->label.setColour(juce::Label::textColourId,ink);control->label.getProperties().set("headFaceLabel",true);
                 control->slider.getProperties().set("headControl",true);
                 control->slider.getProperties().set("headModel",model);
+                control->slider.getProperties().set("headControlKey",anchor.key);
                 control->slider.setTextBoxStyle(juce::Slider::TextBoxAbove,false,84,15);
                 control->slider.onReadoutVisibility=[view=control.get()](bool visible){view->label.setVisible(!visible);};
                 control->slider.setInteractionReadout(true);
@@ -227,7 +248,7 @@ public:
             const int cellWidth=juce::roundToInt(face.getWidth()*style.cellWidth);
             c.label.setFont(juce::FontOptions(fontSize,juce::Font::bold));
             c.slider.getProperties().set("headFontSize",fontSize);
-            c.slider.setTextBoxStyle(juce::Slider::TextBoxAbove,false,cellWidth,labelHeight);
+            c.slider.setTextBoxStyle(juce::Slider::TextBoxAbove,false,FaceLook::readoutWidth(c.slider,c.label.getFont()),labelHeight);
             for(auto* child:c.slider.getChildren())if(auto* value=dynamic_cast<juce::Label*>(child))value->setFont(c.label.getFont());
             c.setBounds(juce::roundToInt(face.getX()+face.getWidth()*anchor.x)-cellWidth/2,juce::roundToInt(face.getY()+face.getHeight()*anchor.y)-diameter/2-labelHeight,cellWidth,diameter+labelHeight);
             c.group.setVisible(false);c.label.setBounds(0,0,cellWidth,labelHeight);c.slider.setBounds(c.getLocalBounds());

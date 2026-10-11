@@ -28,7 +28,23 @@ juce::MouseEvent mouse(juce::Component& target,juce::Point<float> point,juce::Po
 juce::Point<float> knobCentre(juce::Slider& slider){return slider.getLookAndFeel().getSliderLayout(slider).sliderBounds.getCentre().toFloat();}
 void releaseDrag(juce::Slider& slider){const auto start=knobCentre(slider);slider.mouseUp(mouse(slider,start+juce::Point<float>(0,-25),start,true));}
 void drag(juce::Slider& slider,bool finish=true){const auto start=knobCentre(slider),end=start+juce::Point<float>(0,-25);slider.mouseDown(mouse(slider,start,start,false));slider.mouseDrag(mouse(slider,end,start,true));if(finish)releaseDrag(slider);}
-void screenshot(juce::Component& c,const juce::File& directory,const juce::String& name){auto stream=directory.getChildFile(name+".png").createOutputStream();check(stream!=nullptr,"Capture file");stream->setPosition(0);stream->truncate();juce::PNGImageFormat png;check(png.writeImageToStream(c.createComponentSnapshot(c.getLocalBounds()),*stream),"Capture PNG");}
+void screenshot(juce::Component& c,const juce::File& directory,const juce::String& name) {
+    const auto file=directory.getChildFile(name+".png");
+    juce::MemoryOutputStream encoded;
+    juce::PNGImageFormat png;
+    check(png.writeImageToStream(c.createComponentSnapshot(c.getLocalBounds()),encoded),"Capture PNG");
+    auto stream=file.createOutputStream();check(stream!=nullptr,"Capture file");
+    check(stream->setPosition(0) && stream->truncate().wasOk(),"Prepare capture file");
+    // libpng's JUCE callback ignores OutputStream::write's return value. The
+    // encoder succeeding alone therefore cannot prove that a file was saved.
+    // Save the complete encoded buffer with an explicitly checked write.
+    const bool complete=stream->write(encoded.getData(),encoded.getDataSize());
+    stream->flush();
+    if(!complete || stream->getStatus().failed() || file.getSize()!=juce::int64(encoded.getDataSize()))
+        throw std::runtime_error("Capture write failed: "+file.getFullPathName().toStdString()
+            +" ("+stream->getStatus().getErrorMessage().toStdString()+", expected "
+            +std::to_string(encoded.getDataSize())+" bytes, saved "+std::to_string(file.getSize())+")");
+}
 void captureHeadAppearance(const juce::File& directory,bool nativePeer) {
     // Render the production component used by both the room and focused CAB.
     // Keep these isolated renderer captures separate from workspace captures.
@@ -70,7 +86,25 @@ void checkReadout(juce::Slider& slider,bool visible) {
     bool found=false;
     for(auto* child:slider.getChildren())if(auto* value=dynamic_cast<juce::Label*>(child)) {
         found=true;check(value->isVisible()==visible,"Value label visibility disagrees with interaction");
-        if(visible)checkLabelFits(*value,"Active face value is truncated");
+        if(visible) {
+            checkLabelFits(*value,"Active face value is truncated");
+            auto* head=slider.findParentComponentOfClass<AmpHeadControlView>();check(head,"Active readout has no amplifier head");
+            const auto plate=chimeraTest::reviewedHeadPlate(head->displayedModel())
+                .transformedBy(cabHead::geometry(head->headBounds(),head->displayedModel()).sourceToView);
+            check(plate.contains(head->getLocalArea(value,value->getLocalBounds()).toFloat()),
+                  "Active value background or editor crosses the reviewed control plate");
+            if(auto* editor=value->getCurrentTextEditor())
+                check(plate.contains(head->getLocalArea(editor,editor->getLocalBounds()).toFloat()),
+                      "Precise-entry editor crosses the reviewed control plate");
+            const auto font=value->getLookAndFeel().getLabelFont(*value);
+            const auto available=value->getBorderSize().subtractedFrom(value->getLocalBounds());
+            for(double position:{slider.getMinimum(),slider.getMaximum(),
+                slider.getMinimum()+.37*(slider.getMaximum()-slider.getMinimum())}) {
+                juce::GlyphArrangement glyphs;glyphs.addLineOfText(font,slider.getTextFromValue(position),0,0);
+                check(glyphs.getBoundingBox(0,-1,true).getWidth()<=float(available.getWidth()),
+                      "Stable readout cannot fit a formatted endpoint or intermediate value");
+            }
+        }
     }
     check(found,"Missing editable face value label");
     auto* control=dynamic_cast<NativeControlView*>(slider.getParentComponent());check(control,"Missing native face control");
@@ -115,7 +149,10 @@ void checkFaceLayout(AmpHeadWorkspace& view,int model,int channel=0) {
             checkPlate(head->getLocalArea(&c->slider,layout.sliderBounds).toFloat(),"knob "+c->label.getText());
             checkPlateLabel(c->label);
             for(auto* value:c->slider.getChildren())if(auto* label=dynamic_cast<juce::Label*>(value)) {
-                if(label->isVisible()){checkLabelFits(*label,"Face value is truncated");checkPlateLabel(*label);}
+                if(label->isVisible()) {
+                    checkLabelFits(*label,"Face value is truncated");checkPlateLabel(*label);
+                    checkPlate(head->getLocalArea(label,label->getLocalBounds()).toFloat(),"value background "+c->label.getText());
+                }
             }
         } else if(c->choice.isVisible()) {
             check(c->choice.getHeight()>=24 && c->choice.getWidth()>=48,"Face selector target too small");
@@ -147,6 +184,70 @@ void checkFaceLayout(AmpHeadWorkspace& view,int model,int channel=0) {
         check(foundRouteLabel,"Brit Edge input route label is missing");
     }
     check(head->caption().contains(juce::String::fromUTF8(panel.channels[size_t(channel)])),"Head caption Unicode channel name changed");
+}
+void checkKnobHardwareProfiles() {
+    // These visible hardware pairs differ in silhouette, even where their
+    // material is the same. Test rendered output, not the profile lookup table.
+    constexpr const char* b7k="hw.b7k.master";
+    constexpr const char* db751="hw.db751.gain";
+    const juce::Rectangle<float> slot{16.f,16.f,96.f,96.f};
+    const auto render=[&](ampHeadKnob::Renderer& renderer,int model,const char* key,float value=.5f) {
+        juce::Image result(juce::Image::ARGB,128,128,true,juce::SoftwareImageType{});
+        juce::Graphics g(result);
+        renderer.draw(g,slot,value,juce::MathConstants<float>::pi*1.2f,
+                      juce::MathConstants<float>::pi*2.8f,model,false,key);
+        return result;
+    };
+    juce::Image coldBar,coldRound;
+    {ampHeadKnob::Renderer renderer;coldBar=render(renderer,7,b7k);}
+    {ampHeadKnob::Renderer renderer;coldRound=render(renderer,7,db751);}
+    check(!chimeraTest::sameShellPixels(coldBar,coldRound),"Modern Bass hardware collapsed to one knob shape");
+    {
+        ampHeadKnob::Renderer renderer;
+        const auto first=render(renderer,7,b7k),other=render(renderer,7,db751),again=render(renderer,7,b7k);
+        check(chimeraTest::sameShellPixels(first,coldBar) && chimeraTest::sameShellPixels(other,coldRound)
+              && chimeraTest::sameShellPixels(first,again),"Shared knob cache substituted or mutated another hardware profile");
+        check(!chimeraTest::sameShellPixels(render(renderer,0,nullptr),render(renderer,14,nullptr)),
+              "American skirt and EICH scalloped knobs have identical rendered hardware");
+        check(!chimeraTest::sameShellPixels(render(renderer,1,nullptr),render(renderer,8,nullptr)),
+              "British gold cap and Chime chickenhead have identical rendered hardware");
+        const auto minimum=render(renderer,7,db751,0.f),maximum=render(renderer,7,db751,1.f);
+        check(!chimeraTest::sameShellPixels(minimum,maximum),"Knob position marker does not move with its value");
+        // At both endpoints the marker lies below this top-cap patch. Its
+        // illumination must stay fixed in the same room as the head artwork.
+        for(int y=38;y<48;++y)for(int x=46;x<82;++x)
+            check(minimum.getPixelAt(x,y)==maximum.getPixelAt(x,y),"Turning a round knob rotates its fixed overhead illumination");
+        for(const float value:{0.f,.5f,1.f}) {
+            const auto chickenhead=render(renderer,8,nullptr,value);
+            const auto safe=slot.expanded(2.f).getSmallestIntegerContainer();
+            for(int y=0;y<chickenhead.getHeight();++y)for(int x=0;x<chickenhead.getWidth();++x)
+                check(safe.contains(x,y) || chickenhead.getPixelAt(x,y).getAlpha()<=16,
+                      "Rotating chickenhead paints outside its control slot");
+        }
+    }
+    // Exercise key forwarding through actual production widgets as well as
+    // Renderer: using only the amp model would lose the two Modern Bass grips.
+    auto processor=std::make_unique<ChimeraProcessor>();
+    set(*processor,"mode",0.f);processor->setAmpModel(0,7);processor->setAmpChannel(0,0);
+    std::array<juce::String,2> ids;
+    const std::array<const char*,2> keys{b7k,db751};
+    for(size_t i=0;i<keys.size();++i) {
+        const int index=ampHead::controlIndex(7,keys[i]);check(index>=0,"Modern Bass hardware fixture is missing");
+        ids[i]=ampNativeControlID(0,7,index,0);
+        auto* parameter=processor->parameters().getParameter(ids[i]);check(parameter,"Modern Bass hardware parameter is missing");
+        parameter->setValueNotifyingHost(.5f);
+    }
+    AmpHeadWorkspace workspace(*processor,0);workspace.setVisible(true);workspace.setSize(1440,780);
+    std::array<juce::Image,2> images;
+    for(size_t i=0;i<ids.size();++i) {
+        auto* slider=find<NativeControlSlider>(workspace,ids[i]);check(slider,"Modern Bass hardware widget is missing");
+        checkReadout(*slider,false);
+        const auto bounds=slider->getLookAndFeel().getSliderLayout(*slider).sliderBounds;
+        images[i]=slider->createComponentSnapshot(bounds);
+    }
+    check(images[0].getBounds()==images[1].getBounds(),"Modern Bass hardware fixture slots no longer have equal sizes");
+    check(!chimeraTest::sameShellPixels(images[0],images[1]),"Native widgets lost their per-control Modern Bass hardware shapes");
+    std::cout<<"KNOB HARDWARE: per-control native widgets, distinct physical profiles, shared cache identity, fixed light and rotating-grip containment\n";
 }
 void checkRoomOverviewControls() {
     // Exercise the actual room path: a standalone Painter test would miss a
@@ -411,6 +512,7 @@ int main(int argc,char** argv){try {
         std::cout<<"SOFTWARE HEAD RENDERERS ONLY: "<<ampModelCount<<" models; 2 sizes; no native peer or interaction validation\n";
         return 0;
     }
+    checkKnobHardwareProfiles();
     checkRoomOverviewControls();
     const bool layoutsOnly=argc>1 && juce::String(argv[1])=="--software-layouts";
     if(layoutsOnly || (argc>1 && juce::String(argv[1])=="--software-preview")) {
@@ -430,7 +532,10 @@ int main(int argc,char** argv){try {
                 surface.setSize(size.x,size.y);checkFaceLayout(surface,model,channel);++layoutsChecked;
                 if(layoutsOnly) {
                     auto* head=find<AmpHeadControlView>(surface,"ampHead1");check(head,"Software layout head missing");
-                    for(auto* control:faceControls(*head))if(control->isShowing() && control->slider.isShowing())checkReadout(control->slider,false);
+                    for(auto* control:faceControls(*head))if(control->isShowing() && control->slider.isShowing()) {
+                        checkReadout(control->slider,false);control->slider.beginValueAdjustment();checkReadout(control->slider,true);
+                        control->slider.endValueAdjustment();checkReadout(control->slider,false);
+                    }
                     continue;
                 }
                 screenshot(surface,folder,"model"+juce::String(model)+"-"+juce::String(size.x));

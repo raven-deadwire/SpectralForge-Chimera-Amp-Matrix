@@ -4,6 +4,23 @@ Development: PR #44, stacked on the Signal/EQ integration PR #40. This review
 does not change the 1.3.0 release branch, audio processing, parameter IDs or
 project schema.
 
+## Complete knob hardware audit — current follow-up
+
+After the Niflheimr size fix, the user requested the same scrutiny for every
+other amplifier. All 26 catalog heads were compared with the actual reference
+hardware. The renderer now distinguishes skirted, bell, knurled, scalloped,
+chickenhead and raised-bar grips rather than changing only a common round
+body's material. Modern Bass chooses B7K and DB751 hardware per control.
+Fourteen heads receive larger allocations and revised row positions; the
+recent Niflheimr size is retained. The enlarged view preserves the existing
+minimum drawing area and adjustment-only numeric values.
+
+The [complete knob reference audit](AMP_HEAD_KNOB_REFERENCE_REVIEW_1_3_1.md)
+records all model mappings, reference links, version limits and deliberate UI
+adaptations. The prior shell artwork and independent layout boundaries remain
+in place. Exact-source native CI evidence is recorded in PR #44 after the
+combined render, layout and interaction verification.
+
 ## Complete enclosure recomposition — current correction
 
 The user rejected the appearance of `9995669df7a0058497f214d7380534cd80ebadcb`
