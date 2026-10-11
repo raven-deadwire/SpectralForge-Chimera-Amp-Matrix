@@ -1,0 +1,129 @@
+{
+  "schema": "spectralforge.niflheimr.publication-reproduction.v1",
+  "source_base": "50ec313bcd55d99dd04b18f26be6c06df9b9a64e",
+  "instrumentation": "observe size, actual bytes hashed, SHA256 at post-flush / pre-publish / post-publish; parent first-read snapshot; second diagnostic adds file identifier",
+  "route": {
+    "rate": 96000,
+    "gain": 0.75,
+    "blend": 1,
+    "oversampling": 8,
+    "block": 256,
+    "nominal_tone_hz": 3001,
+    "frames": 257792,
+    "audio_channels": 2,
+    "expected_bytes": 2062394
+  },
+  "reproductions": [
+    {
+      "diagnostic_run": "boundary-repeats/repeat-05",
+      "channel": "CH1-modern_tight.wav",
+      "observations": [
+        {
+          "phase": "post_flush",
+          "file": "CH1-modern_tight.wav",
+          "bytes": 2062394,
+          "sha256": "903a8e177314ea35ff0fd649b2336d00e8b46de2a954d601152217eb7166fd5e",
+          "bytes_read": 2062394,
+          "post_read_bytes": 2062394
+        },
+        {
+          "phase": "post_publish",
+          "file": "CH1-modern_tight.wav",
+          "bytes": 1443898,
+          "sha256": "09576bffa483d4a41b01e51e6d1ec0212d55b4c0371cb1b61da17e4965aee01b",
+          "bytes_read": 1443898,
+          "post_read_bytes": 1443898
+        },
+        {
+          "phase": "parent_first_read",
+          "file": "CH1-modern_tight.wav",
+          "bytes": 1443898,
+          "bytes_read": 1443898,
+          "post_read_bytes": 1443898,
+          "sha256": "09576bffa483d4a41b01e51e6d1ec0212d55b4c0371cb1b61da17e4965aee01b",
+          "expected_bytes": 2062394
+        }
+      ],
+      "preserved_first_read_sha256": "09576bffa483d4a41b01e51e6d1ec0212d55b4c0371cb1b61da17e4965aee01b",
+      "prefix_of_complete_rerender": true,
+      "manifest_sha256": "6a135c4ca131420dadbc9856bf5cc9447074de818e5974f3c9991219845b8e52"
+    },
+    {
+      "diagnostic_run": "boundary-prepublish/repeat-02",
+      "channel": "CH1-modern_tight.wav",
+      "observations": [
+        {
+          "phase": "post_flush",
+          "file": "CH1-modern_tight.wav",
+          "bytes": 2062394,
+          "file_identifier": "1711382",
+          "sha256": "903a8e177314ea35ff0fd649b2336d00e8b46de2a954d601152217eb7166fd5e",
+          "bytes_read": 2062394,
+          "post_read_bytes": 2062394
+        },
+        {
+          "phase": "pre_publish",
+          "file": "CH1-modern_tight.wav",
+          "bytes": 1904698,
+          "file_identifier": "1711386",
+          "sha256": "2704e434e4676f95a65b244b62b889412d7affc1e7dc39ae1510b866807e6048",
+          "bytes_read": 1904698,
+          "post_read_bytes": 1904698
+        },
+        {
+          "phase": "post_publish",
+          "file": "CH1-modern_tight.wav",
+          "bytes": 1904698,
+          "file_identifier": "1711386",
+          "sha256": "2704e434e4676f95a65b244b62b889412d7affc1e7dc39ae1510b866807e6048",
+          "bytes_read": 1904698,
+          "post_read_bytes": 1904698
+        },
+        {
+          "phase": "parent_first_read",
+          "file": "CH1-modern_tight.wav",
+          "bytes": 1904698,
+          "bytes_read": 1904698,
+          "post_read_bytes": 1904698,
+          "sha256": "2704e434e4676f95a65b244b62b889412d7affc1e7dc39ae1510b866807e6048",
+          "expected_bytes": 2062394
+        }
+      ],
+      "preserved_first_read_sha256": "2704e434e4676f95a65b244b62b889412d7affc1e7dc39ae1510b866807e6048",
+      "prefix_of_complete_rerender": true,
+      "manifest_sha256": "19ba98bb438683910d426f3d10be63e110d43773dc2d335a9562c0acca39aa37"
+    }
+  ],
+  "boundary": "AFTER_CH1_CLOSE_BEFORE_DIRECTORY_PUBLISH",
+  "finding": "CH1 was complete after close, then its pathname referred to a different file identifier and an earlier-content prefix before the directory move. The renderer does not reopen/write CH1 after close. This is pathname replacement outside the closed WAV writer, not a DSP mismatch, an unflushed tail, or the parent reading early. The external replacing actor is not identified.",
+  "external_actor": "UNRESOLVED",
+  "release_approved": false,
+  "atomic_file_publication_repeat_check": {
+    "iterations": 20,
+    "channel_outputs": 100,
+    "status": "ALL_BOUNDARIES_MATCH",
+    "note": "Local diagnostic working-tree implementation; exact implementation-source smoke/standard is recorded separately.",
+    "receipt_sha256": {
+      "repeat-00/io-observations.json": "7dfcbdbe5751ce7a28824bca48e88c40375dc80026333309783e781230976fcf",
+      "repeat-01/io-observations.json": "6e82a0b3ebfcae067c6c358805fcfc6fe0079f948cba0cd21bec2ca72e78b6b9",
+      "repeat-02/io-observations.json": "1fda3dbf3cf9f4dbd7c142e1df33e7c4a814e5746bedde690b194ca86a6a9fed",
+      "repeat-03/io-observations.json": "579ad319df0f433665bedcd1cfb41a648c8b9ef0fa231b60173b45d1f15c50f5",
+      "repeat-04/io-observations.json": "81fd2a5ae0ea2413fcf89173fc06acaa16ab56e63088fca88588692cdcb4792f",
+      "repeat-05/io-observations.json": "524b8b368efd5713e94151a83e4ac56ef8aaebcbffa27254d65b031ec054e3ff",
+      "repeat-06/io-observations.json": "751b4892835b827d36313ed3529b97d07d8467b5d94d960b21f26ac2bc9f2bb4",
+      "repeat-07/io-observations.json": "66d0b418d6809399f8b591f55860f875788a1a37edb563ebf49d9f0b31bbe1d4",
+      "repeat-08/io-observations.json": "3d293674cf3cf1e2d86f7d27fe00e95e3b16f82f2bfdf7e30e414e1549b09abd",
+      "repeat-09/io-observations.json": "335551c836b81f3a9e2ef41e7a9f1fb8abfc1d2d5dd571499001ebc0b1f140d3",
+      "repeat-10/io-observations.json": "afb4be7a06db9e00f0e1cbf58588f327441645f4817292026171b605b751341d",
+      "repeat-11/io-observations.json": "f090f8f9429d881330dfd3645ea862c78b8f4101bfea1462328b9755221cb35f",
+      "repeat-12/io-observations.json": "2c42e6529973a87a3c8696557844438bdddcda4aa2b6f552da038da2f21ff366",
+      "repeat-13/io-observations.json": "a2ba5f45cc46bb348f4c4a507feffb1fcf4944fef77ca48efcdb3356ee89ab15",
+      "repeat-14/io-observations.json": "c2f9b78154f77944f28c00ae4fbbb04ecb84381955f78d4856fdfed44d6e4b5b",
+      "repeat-15/io-observations.json": "50b665f5369c8f4dd144f803df6b6e504780c005f9abe4ff80a8b1cd214d7c17",
+      "repeat-16/io-observations.json": "51c69b18da50208df8881d895ecb4423247e3c8cefadc5686b0f50c53202cf13",
+      "repeat-17/io-observations.json": "92c097023c2f44d42446a5e57402b6d00ec764266f12b77dab2e8e9b746619c7",
+      "repeat-18/io-observations.json": "f64c7f82f60b9e76598e0371e99c141ef051d9ec2e7021740cee4cc7d4d343c3",
+      "repeat-19/io-observations.json": "893dcddfcbfbdbb19b1cac34bc3381b1ee0cb6554c3c6d02350370734ab221c5"
+    }
+  }
+}

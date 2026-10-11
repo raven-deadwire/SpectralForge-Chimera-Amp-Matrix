@@ -9,6 +9,8 @@
 #include "PostNativePanel.h"
 #include "EffectSelectionCatalog.h"
 
+class CabRoomOverview;
+
 class ChimeraLookAndFeel : public juce::LookAndFeel_V4 {
 public:
     ChimeraLookAndFeel();
@@ -52,6 +54,7 @@ private:
     spectralforge::ui::Changed<juce::String> cpuText,transportText,gateText,pitchText;
     void setupSlider(juce::Slider&,const juce::String&,const juce::String& suffix={});
     void loadIR(int);
+    void openCabWorkspace(int,bool focusRequested=false);
     void chooseIR(int,bool folder);
     void browseIR(int,const juce::File&);
     void showInfo();
@@ -97,7 +100,10 @@ private:
     juce::TextButton gateOn{"GATE"},pitchOn{"TRANSPOSE"},tunerOn{"TUNER"},tunerMute{"AUTO MUTE"},info{"INFO"};
     std::array<std::unique_ptr<BA>,4> globalButtons;
     juce::TextButton compareA{"A"},compareB{"B"},copyAB{"COPY"},irLibraryButton{"IR LIBRARY"},rigsTab{"RIGS"},preTab{"PRE"},postTab{"POST"};
-    int page{1}; // Open the production five-slot PRE view; RIGS/POST remain one click away.
+    std::unique_ptr<CabRoomOverview> cabRoom;
+    juce::TextButton rigControls{"RIG CONTROLS"};
+    bool showRigControls{};
+    int page{0}; // Start on the amp/RIGS view; navigation leaves the signal path unchanged.
     juce::Slider lowComp,lowAmpMix;
     juce::Label lowCompLabel,diVoice,diNote;
     std::unique_ptr<SA> lowCompAttachment,lowAmpMixAttachment;

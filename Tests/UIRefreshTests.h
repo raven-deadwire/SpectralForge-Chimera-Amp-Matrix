@@ -4,9 +4,15 @@
 namespace uiRefreshTests {
 using namespace nativeUITests;
 inline void run(const juce::File& directory) {
+    std::cout<<"RUN UI refresh: construct processor and editor\n"<<std::flush;
     auto storage=std::make_unique<ChimeraProcessor>();auto& p=*storage;
-    ChimeraEditor editor(p);auto& canvas=*editor.findChildWithID("surface");
+    // The editor owns a large control tree; keep its storage off the Windows
+    // message-thread stack while preserving editor-before-processor teardown.
+    auto editorStorage=std::make_unique<ChimeraEditor>(p);auto& editor=*editorStorage;
+    auto& canvas=*editor.findChildWithID("surface");
+    std::cout<<"RUN UI refresh: idle state and page transitions\n"<<std::flush;
     set(p,"mode",2);tab(canvas,"RIGS");settle(150);
+    rigViewTests::showControls(canvas);
     auto* amp=find<AmpNativePanel>(canvas,"ampNativePanel1");
     auto* post=find<PostNativePanel>(canvas,"postNativePanel0");
     require(amp && post,"Refresh test panels missing");
@@ -27,6 +33,7 @@ inline void run(const juce::File& directory) {
 
     // A modal ALL window may outlive the owning page. Drive the page callback
     // directly to test that lifecycle without faking an allowed mouse click.
+    std::cout<<"RUN UI refresh: detached ALL window lifetimes\n"<<std::flush;
     auto all=open(canvas,"postExpand0","postNativePanel0");auto* full=dynamic_cast<PostNativePanel*>(all->getContentComponent());
     for(auto* c:canvas.getChildren())if(auto* b=dynamic_cast<juce::TextButton*>(c);b && b->getButtonText()=="PRE")b->onClick();
     settle(100);const auto hiddenParent=post->stateRefreshCount();set(p,spectralforge::postNativeModelID(0),1);settle(120);
@@ -38,6 +45,7 @@ inline void run(const juce::File& directory) {
 
     // IR metadata may be edited while its cabinet is hidden, without changing
     // its short label. The explicit library revision must still invalidate it.
+    std::cout<<"RUN UI refresh: cabinet metadata invalidation\n"<<std::flush;
     const auto file=directory.getChildFile("ui-refresh-ir.wav");
     {juce::WavAudioFormat format;auto output=file.createOutputStream();
      auto writer=std::unique_ptr<juce::AudioFormatWriter>(format.createWriterFor(output.release(),48000,1,24,{},0));
@@ -52,6 +60,7 @@ inline void run(const juce::File& directory) {
 
     // Scaling and tab switches must not write audio parameters. Existing native
     // suites cover gestures, host automation, state restore and A/B banks.
+    std::cout<<"RUN UI refresh: scaling and parameter preservation\n"<<std::flush;
     std::vector<float> values;for(auto* parameter:p.getParameters())values.push_back(parameter->getValue());
     for(float scale:{.75f,1.f,1.25f,1.5f}) {
         editor.setSize(juce::roundToInt(1180*scale),juce::roundToInt(780*scale));
@@ -59,6 +68,7 @@ inline void run(const juce::File& directory) {
         snapshot(editor,directory,("UI-refresh-"+juce::String(scale*100,0)).toRawUTF8());
     }
     int n=0;for(auto* parameter:p.getParameters())require(parameter->getValue()==values[(size_t)n++],"Scaling/page transition wrote a parameter");
+    std::cout<<"RUN UI refresh: native peer hide and reveal\n"<<std::flush;
     editor.addToDesktop(juce::ComponentPeer::windowIsTemporary);editor.setVisible(true);settle(100);editor.setVisible(false);settle(80);
     const auto hiddenState=amp->stateRefreshCount(),hiddenMetadata=editor.metadataRefreshCount();settle(200);
     require(amp->stateRefreshCount()==hiddenState && editor.metadataRefreshCount()==hiddenMetadata,"Hidden editor performs panel/metadata work");

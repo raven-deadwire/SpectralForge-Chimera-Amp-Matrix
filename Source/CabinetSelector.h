@@ -25,16 +25,16 @@ public:
             }
         };
     }
-    void refresh(const std::vector<juce::File>& roots=spectralforge::IRCollection::roots()) {
+    void refresh(const std::vector<juce::File>& roots=spectralforge::IRCollection::roots(),const juce::File& preferences=spectralforge::IRUserPreferences::file()) {
         clear(juce::dontSendNotification);files.clear();labels.clear();details.clear();
         addSectionHeading("BUILT IN");
         addItem("Filters only",1);addItem("V30 / SM57",2);addItem("Jensen / SM57",3);
         addItem("Project IR",4);
-        const auto entries=spectralforge::IRCollection::scan(roots,true);
-        for(bool bass:{true,false}) {
+        const auto entries=spectralforge::IRCollection::scan(roots,true,nullptr,preferences);
+        for(const auto instrument:{spectralforge::IRMetadata::Instrument::bass,spectralforge::IRMetadata::Instrument::guitar,spectralforge::IRMetadata::Instrument::unspecified}) {
             bool heading=false;
-            for(const auto& entry:entries) if(!entry.factorySource && entry.ready() && entry.bass()==bass) {
-                if(!heading) {addSeparator();addSectionHeading(bass ? "INSTALLED / BASS" : "INSTALLED / GUITAR + OTHER");heading=true;}
+            for(const auto& entry:entries) if(!entry.factorySource && entry.ready() && entry.tags.instrument==instrument) {
+                if(!heading) {addSeparator();addSectionHeading(juce::String("INSTALLED / ")+spectralforge::IRMetadata::instrumentLabel(instrument));heading=true;}
                 addItem(entry.displayName(),100+(int)files.size());files.push_back(entry.file);
                 labels.add(entry.displayName());details.add(entry.details());
             }
@@ -42,11 +42,11 @@ public:
         addSeparator();addItem("Browse / import IRs...",9000);
         restoreDisplay();
     }
-    void sync(int value,const juce::String& name) {
+    void sync(int value,const juce::String& name,const juce::String& modeled={}) {
         // The editor polls parameters. Do not erase a pending asynchronous menu
         // selection when the host state has not actually changed.
-        if(displayInitialised && value==source && name==currentName) return;
-        source=value;currentName=name;
+        if(displayInitialised && value==source && name==currentName && modeled==modeledLabel) return;
+        source=value;currentName=name;modeledLabel=modeled;
         if(source!=3 || preferredFile.getFileName()!=currentName)preferredFile=juce::File{};
         restoreDisplay();
     }
@@ -62,11 +62,12 @@ private:
             for(size_t i=0;i<files.size();++i)if(files[i].getFileName()==currentName && (preferredFile==juce::File{} || preferredFile==files[i])) {text=labels[(int)i];tooltip=details[(int)i];break;}
             setText(text,juce::dontSendNotification);setTooltip(tooltip);
         } else setTooltip(source==0 ? "Speaker IR bypassed; cabinet filters remain available." : getText());
+        if(modeledLabel.isNotEmpty()){setText(modeledLabel,juce::dontSendNotification);setTooltip("Original modeled cabinet. Select a fixed IR to return Mic A to the captured path, or open PANEL to edit the model.");}
         displayInitialised=true;
     }
     std::vector<juce::File> files;
     juce::StringArray labels,details;
     juce::File preferredFile;
     bool displayInitialised{};
-    int source{1};juce::String currentName;
+    int source{1};juce::String currentName,modeledLabel;
 };

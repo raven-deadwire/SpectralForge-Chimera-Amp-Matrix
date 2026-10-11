@@ -11,7 +11,11 @@ inline juce::String ampNativeSoloID(int context) { return ampNativePrefix(contex
 inline juce::String ampNativeModelID(int context) { return ampNativePrefix(context)+"_model"; }
 inline juce::String ampNativeChannelID(int context,int model) { return ampNativePrefix(context)+"_m"+juce::String(model)+"_channel"; }
 inline juce::String ampNativeRouteID(int context,int model) { return ampNativePrefix(context)+"_m"+juce::String(model)+"_route"; }
-inline juce::String ampNativeControlID(int context,int model,int control,int channel=0) { if(model==firstOriginalAmpModel)return "originalAmp_c"+juce::String(context)+"_nastrond_"+(channel>0?"ch"+juce::String(channel)+"_":juce::String{})+original::controls[(size_t)control].id;return ampNativePrefix(context)+"_m"+juce::String(model)+"_"+juce::String(ampNativePanel(model).controls[(size_t)control].key).replaceCharacter('.','_'); }
+inline juce::String ampNativeControlID(int context,int model,int control,int channel=0) {
+    if(model==firstOriginalAmpModel)return "originalAmp_c"+juce::String(context)+"_nastrond_"+(channel>0?"ch"+juce::String(channel)+"_":juce::String{})+original::controls[(size_t)control].id;
+    if(model==niflheimrAmpModel)return "originalAmp_c"+juce::String(context)+"_niflheimr_ch"+juce::String(channel)+"_"+niflheimr::controls[(size_t)control].id;
+    return ampNativePrefix(context)+"_m"+juce::String(model)+"_"+juce::String(ampNativePanel(model).controls[(size_t)control].key).replaceCharacter('.','_');
+}
 inline juce::String ampNativeInputTrimID(int context) { return ampNativePrefix(context)+"_inputTrim"; }
 inline juce::String ampNativeOutputLevelID(int context) { return ampNativePrefix(context)+"_outputLevel"; }
 inline constexpr const char* ampNativeContextNames[]{"Classic","Dual A","Dual B","Matrix Low","Matrix Mid","Matrix High"};
@@ -70,12 +74,29 @@ inline void appendOriginalChannelParameters(juce::AudioProcessorValueTreeState::
         }
     }
 }
+// Append after every released Náströnd channel bank. All five Niflheimr
+// channels own fourteen controls; bank zero uses the same explicit ID shape.
+inline void appendNiflheimrParameters(juce::AudioProcessorValueTreeState::ParameterLayout& layout) {
+    const auto structural=juce::AudioParameterIntAttributes().withAutomatable(false);
+    for(int context=0;context<ampNativeContextCount;++context) {
+        const auto name=juce::String(ampNativeContextNames[context])+" Niflheimr ";
+        layout.add(std::make_unique<juce::AudioParameterInt>(juce::ParameterID{ampNativeChannelID(context,niflheimrAmpModel),5},name+"channel",0,15,0,structural));
+        layout.add(std::make_unique<juce::AudioParameterInt>(juce::ParameterID{ampNativeRouteID(context,niflheimrAmpModel),5},name+"input route",0,15,0,structural));
+        for(int channel=0;channel<niflheimr::channelCount;++channel)for(size_t c=0;c<niflheimr::controlCount;++c) {
+            const auto& k=niflheimr::controls[c];auto range=juce::NormalisableRange<float>(k.minimum,k.maximum,.001f);
+            if(c==size_t(niflheimr::Control::midFrequency))range.setSkewForCentre(650);
+            layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{ampNativeControlID(context,niflheimrAmpModel,int(c),channel),5},
+                name+juce::String::fromUTF8(niflheimr::channelNames[channel])+" "+k.label,range,niflheimr::channelState(channel).values[c]));
+        }
+    }
+}
 struct AmpNativeParameterCache {
     std::array<std::atomic<float>*,ampNativeContextCount> enabled{},models{},inputTrim{},outputLevel{},solo{};
     using ModelBank=std::array<std::atomic<float>*,ampModelCount>;
     std::array<ModelBank,ampNativeContextCount> channels{},routes{};
     std::array<std::array<std::array<std::atomic<float>*,maxAmpNativeControls>,ampModelCount>,ampNativeContextCount> controls{};
     std::array<std::array<std::array<std::atomic<float>*,original::controlCount>,original::channelCount>,ampNativeContextCount> originalControls{};
+    std::array<std::array<std::array<std::atomic<float>*,niflheimr::controlCount>,niflheimr::channelCount>,ampNativeContextCount> niflheimrControls{};
     std::array<std::array<std::atomic<float>*,original::channelCount>,ampNativeContextCount> originalResponse{};
     void bind(juce::AudioProcessorValueTreeState& state) {
         for(int context=0;context<ampNativeContextCount;++context) {
@@ -84,6 +105,8 @@ struct AmpNativeParameterCache {
                 originalResponse[c][size_t(channel)]=state.getRawParameterValue(originalResponseID(context,channel));
                 for(size_t k=0;k<original::controlCount;++k)originalControls[c][size_t(channel)][k]=state.getRawParameterValue(ampNativeControlID(context,firstOriginalAmpModel,int(k),channel));
             }
+            for(int channel=0;channel<niflheimr::channelCount;++channel)
+                for(size_t k=0;k<niflheimr::controlCount;++k)niflheimrControls[c][size_t(channel)][k]=state.getRawParameterValue(ampNativeControlID(context,niflheimrAmpModel,int(k),channel));
             solo[c]=state.getRawParameterValue(ampNativeSoloID(context));
             inputTrim[c]=state.getRawParameterValue(ampNativeInputTrimID(context));outputLevel[c]=state.getRawParameterValue(ampNativeOutputLevelID(context));
             for(int model=0;model<ampModelCount;++model) {
@@ -105,6 +128,10 @@ struct AmpNativeParameterCache {
             const auto channel=size_t(juce::jlimit(0,original::channelCount-1,s.channel));
             s.originalModern=value(originalResponse[c][channel],1)>.5f;
             for(size_t k=0;k<original::controlCount;++k)s.values[k]=value(originalControls[c][channel][k],original::channelState(int(channel)).values[k]);
+        }
+        if(s.model==niflheimrAmpModel) {
+            const auto channel=size_t(juce::jlimit(0,niflheimr::channelCount-1,s.channel));
+            for(size_t k=0;k<niflheimr::controlCount;++k)s.values[k]=value(niflheimrControls[c][channel][k],niflheimr::channelState(int(channel)).values[k]);
         }
         sanitiseAmpNativeState(s);return s;
     }

@@ -13,9 +13,19 @@ ALLOWED_NA={"FORBIDDEN","ALLOWED_WITH_REASON"}
 class ValidationError(RuntimeError):
     pass
 
+def unique_object(pairs):
+    result = {}
+    for key, value in pairs:
+        require(key not in result, f"Duplicate JSON key: {key}")
+        result[key] = value
+    return result
+
+def invalid_constant(value):
+    raise ValidationError(f"Invalid JSON constant: {value}")
+
 def load_json(path: Path):
     try:
-        return json.loads(path.read_text(encoding="utf-8-sig"))
+        return json.loads(path.read_text(encoding="utf-8-sig"), object_pairs_hook=unique_object, parse_constant=invalid_constant)
     except Exception as exc:
         raise ValidationError(f"Cannot read JSON {path}: {exc}") from exc
 
@@ -24,8 +34,9 @@ def require(condition: bool, message: str):
         raise ValidationError(message)
 
 def validate_check(doc: dict, source: str):
+    require(isinstance(doc, dict), f"{source}: check must be an object")
     require(doc.get("schema")=="spectralforge.chimera.validation.check",f"{source}: wrong schema")
-    require(doc.get("schema_version")==1,f"{source}: unsupported schema version")
+    require(type(doc.get("schema_version")) is int and doc["schema_version"]==1,f"{source}: unsupported schema version")
     for key in ("id","stage","name","policy","dependencies","execution","evidence","applicability"):
         require(key in doc,f"{source}: missing {key}")
     require(isinstance(doc["id"],str) and doc["id"],f"{source}: invalid id")
@@ -35,6 +46,9 @@ def validate_check(doc: dict, source: str):
     require(isinstance(policy,dict),f"{source}: policy must be an object")
     for key in ("required","hard_gate","na_policy"):
         require(key in policy,f"{source}: policy missing {key}")
+    require(all(type(policy[k]) is bool for k in ("required", "hard_gate")), f"{source}: invalid policy flags")
+    require(all(isinstance(d, str) and d for d in doc["dependencies"]), f"{source}: invalid dependencies")
+    require(isinstance(doc["evidence"], dict), f"{source}: invalid evidence")
     require(policy["na_policy"] in ALLOWED_NA,f"{source}: invalid na_policy")
     require(isinstance(doc["execution"],dict) and isinstance(doc["execution"].get("executed"),bool),f"{source}: invalid execution")
     require(isinstance(doc["applicability"],dict) and isinstance(doc["applicability"].get("applicable"),bool),f"{source}: invalid applicability")
@@ -144,13 +158,13 @@ def evaluate_checks(checks: dict[str,dict], policy: dict, waivers: dict, current
             visiting.remove(check_id);results[check_id]=result;return result
 
         exit_code=execution.get("exit_code")
-        if exit_code not in (None,0):
+        if type(exit_code) is not int or exit_code != 0:
             failure=check.get("failure") or {}
             result=blocked(check,"EXECUTION_FAILED",failure.get("type","TEST_FAILURE"),
                            failure.get("message",f"Validation exited with code {exit_code}"))
             visiting.remove(check_id);results[check_id]=result;return result
         assertion=check.get("assertion")
-        if assertion is not None and assertion.get("passed") is not True:
+        if not isinstance(assertion, dict) or assertion.get("passed") is not True:
             failure=check.get("failure") or {}
             result=blocked(check,"ASSERTION_FAILED",failure.get("type","TEST_FAILURE"),
                            failure.get("message","Validation assertion failed"))
@@ -171,9 +185,13 @@ def evaluate_checks(checks: dict[str,dict], policy: dict, waivers: dict, current
 def evaluate_release(policy: dict, waivers: dict, checks: dict[str,dict], profile_name: str, current_commit: str) -> dict:
     require(policy.get("schema")=="spectralforge.chimera.release-policy","Wrong release policy schema")
     require(policy.get("schema_version")==1,"Unsupported release policy schema version")
+    for cid, check in checks.items():
+        validate_check(check, cid)
+        require(check["id"] == cid, f"Check key/id mismatch: {cid}")
     profile=policy.get("profiles",{}).get(profile_name)
     require(profile is not None,f"Unknown release profile: {profile_name}")
     required_stages=profile.get("required_stages",[])
+    require(bool(required_stages) and len(required_stages) == len(set(required_stages)), "Invalid required stages")
     results=evaluate_checks(checks,policy,waivers,current_commit)
 
     stage_results={}

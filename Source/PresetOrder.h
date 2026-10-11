@@ -3,14 +3,15 @@
 
 namespace spectralforge {
 // Display order is independent of the append-only saved preset identities.
-inline constexpr std::array<const char*,13> presetCategoryOrder{{
+inline constexpr std::array<const char*,14> presetCategoryOrder{{
     "SIGNATURE / Deadwire","SIGNATURE / Raven Guitar",
     "Guitar / Clean & Ambient","Guitar / Edge & Rock","Guitar / High Gain","Guitar / Lead & Texture",
     "Bass / Clean & Dynamics","Bass / Drive & Texture",
-    "Dual / Blend","Dual / Crossover","Matrix / Bass","Matrix / Experimental","Original / Náströnd"
+    "Dual / Blend","Dual / Crossover","Matrix / Bass","Matrix / Experimental","Original / Náströnd","Original / Niflheimr"
 }};
 inline juce::String selectablePresetCategory(int index) {
-    if(isOriginalPreset(index))return juce::String::fromUTF8(presetCategoryOrder.back());
+    if(isNiflheimrPreset(index))return juce::String::fromUTF8(presetCategoryOrder[13]);
+    if(isOriginalPreset(index))return juce::String::fromUTF8(presetCategoryOrder[12]);
     return isGuitarSignature(index)?presetCategoryOrder[1]:index>=0&&index<factoryPresetCount?factoryPresets[size_t(index)].category:"";
 }
 inline const std::array<int,selectablePresetCount>& presetDisplayOrder() {

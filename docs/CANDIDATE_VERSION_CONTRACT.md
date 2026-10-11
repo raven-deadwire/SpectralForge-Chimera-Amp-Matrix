@@ -1,10 +1,10 @@
-# 1.1.2 release identity extension
+# 1.3 release identity
 
-`VERSION` remains the only numeric product version source. `RELEASE_CHANNEL` selects `beta.1` for the prepared 1.1.2 candidate, so the package and in-app identity are `1.1.2-beta.1`; `preview` retains the exact-SHA suffix for development builds. CMake, native resources, manifests and Setup read this contract. Configured build metadata also checks the package version to reject a stale channel build.
+`VERSION` remains the only numeric product version source and is `1.3.0` for this release preparation. `RELEASE_CHANNEL` selects `beta.1`, so the package and in-app identity are `1.3.0-beta.1`; `preview` retains the exact-SHA suffix for development builds. CMake, native resources, manifests and Setup read this contract. Configured build metadata also checks the package version to reject a stale channel build. Changing this identity requires rebuilding and verifying the resulting 1.3 packages.
 
-# Candidate version authority
+## Candidate version authority
 
-`VERSION` is the numeric product version source (currently 1.1.2). A preview
+`VERSION` is the numeric product version source (currently `1.3.0`). A preview
 package identity is derived as `<VERSION>-preview.<first 10 source SHA chars>`.
 The full 40-character SHA remains the provenance check; ten characters are only
 the display/build ID. The existing AppId, VST3 identity and user-data paths stay
@@ -28,16 +28,16 @@ Setup, then failed the installed registry/payload comparison. Previously:
 | Surface | Derived from |
 | --- | --- |
 | CMake PROJECT_VERSION / JUCE numeric resources | `cmake/ChimeraVersion.cmake` reads `VERSION` |
-| Settings release label | CMake-generated `ChimeraBuildVersion.h`, VERSION + configured SHA |
-| Portable and Setup payload manifests | `Tools/chimera_version.py`, VERSION + full checked-out SHA |
+| Settings release label | CMake-generated `ChimeraBuildVersion.h`, VERSION + RELEASE_CHANNEL + configured SHA for preview builds |
+| Portable and Setup payload manifests | `Tools/chimera_version.py`, VERSION + RELEASE_CHANNEL, with full checked-out SHA for provenance |
 | Inno AppVersion / DisplayVersion / Setup resources | validated `/DProductVersion`; no Inno fallback literal |
 | Inno preview label and package filename | validated `/DPackageVersion` and optional BuildId |
 | MSIX / macOS / Debian current build packages | same numeric source and derived package identity |
 
-Numeric Windows versions are `1.1.2` (`1.1.2.0` in PE/MSIX resources); preview
-identity is `1.1.2-preview.SHA`. Registry DisplayVersion deliberately remains
+Numeric Windows versions are `1.3.0` (`1.3.0.0` in PE/MSIX resources); preview
+identity is `1.3.0-preview.SHA`, and the prepared beta is `1.3.0-beta.1`. Registry DisplayVersion deliberately remains
 the numeric product version, while AppVerName, manifests and Settings identify
-the preview. No release/tag is created by either candidate workflow.
+the selected channel and package identity. No release/tag is created by either candidate workflow.
 
 Both CMake and Python reject malformed or Windows-overflow version components.
 Staging rejects a configured product version or SHA that differs from current
@@ -59,11 +59,12 @@ padding (space/NUL) is removed before comparison. Registry DisplayVersion is
 still compared directly. The Windows pre-build test also compiles a small real
 Inno Setup (never executes it) and checks its emitted PE resources.
 
-The common build workflow resolves filenames from the same preview identity
+The common build workflow resolves filenames from the same channel/package identity
 and checks out the PR head explicitly. Its current packages no longer claim
 the historical 1.1.0-beta.1 identity. Historical publishing scripts retain their
-explicit release-specific guards; this work does not authorize publishing a
-preview as Beta 1.1.
+explicit release-specific guards. The 1.3 publisher requires the exact
+`1.3.0-beta.1` identity, current source and consolidated release evidence;
+a preview cannot be repackaged as a release without rebuilding and verification.
 
 ## Regression coverage
 

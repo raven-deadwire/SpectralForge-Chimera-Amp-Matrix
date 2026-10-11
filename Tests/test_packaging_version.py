@@ -94,6 +94,11 @@ class PackagingVersionTests(unittest.TestCase):
             self.write(path)
         # Real documents/inventory paths; fixture product bytes are not native-build evidence.
         shutil.copytree(ROOT / "docs", self.root / "docs")
+        shutil.copytree(ROOT / "Assets/IRs", self.root / "Assets/IRs")
+        for path in ("CMakeLists.txt", "Source/IRReferenceCatalog.h", "Validation/ir-distribution-policy.json"):
+            target = self.root / path
+            target.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copyfile(ROOT / path, target)
         self.write("COPYRIGHT.txt")
         self.write("build/Testing/Temporary/LastTest.log", "PASS fixture\n")
         original = release.VERSION

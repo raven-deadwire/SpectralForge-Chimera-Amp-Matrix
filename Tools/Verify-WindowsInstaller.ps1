@@ -85,10 +85,17 @@ function Check-Payload([string]$Destination, [bool]$Vst3, [bool]$Standalone, [bo
     }
     Equal-File (Join-Path $stagePath "payload-manifest.json") (Join-Path $Destination "Documentation/payload-manifest.json")
     Assert (Test-Path -LiteralPath (Join-Path $startMenu "Manual.lnk")) "Offline manual shortcut is missing"
-    Equal-Tree (Join-Path $stagePath "reference") (Join-Path $Destination "Documentation/reference")
+    # Public packages exclude research documents and reference audio. These are
+    # payload checks only; user-imported IR locations remain outside this scope.
+    foreach ($excluded in @(
+        @{ Stage = "reference"; Installed = "Documentation/reference" },
+        @{ Stage = "reference-audio"; Installed = "reference-audio" }
+    )) {
+        Assert (!(Test-Path -LiteralPath (Join-Path $stagePath $excluded.Stage))) "Excluded research folder exists in public staging: $($excluded.Stage)"
+        Assert (!(Test-Path -LiteralPath (Join-Path $Destination $excluded.Installed))) "Excluded research folder was installed: $($excluded.Installed)"
+    }
     if ($Reference) {
         Equal-Tree (Join-Path $stagePath "ReferenceTools") (Join-Path $Destination "ReferenceTools")
-        Equal-Tree (Join-Path $stagePath "reference-audio") (Join-Path $Destination "reference-audio")
     } else { Assert (!(Test-Path -LiteralPath (Join-Path $Destination "ReferenceTools"))) "Unselected reference tools were installed" }
     Assert (Test-Path -LiteralPath $registry) "Windows uninstall entry is missing"
     $entry = Get-ItemProperty -LiteralPath $registry

@@ -12,7 +12,7 @@ struct FactoryPreset {
     const char* instrument;
     const char* description;
     PresetKind kind{PresetKind::factory};
-    std::array<const char*,3> irTargets{};
+    std::array<const char*,3> irTargets{"","",""};
     std::array<const char*,3> irTargetHashes{"","",""};
     // Own the values instead of retaining initializer-list backing-array pointers.
     // Signature presets also carry five-slot/native state, so reserve more than
@@ -61,8 +61,8 @@ struct FactoryPreset {
 
 // The original five ordinals and display names are retained. The remaining
 // entries are appended; UI category grouping must keep these selection IDs.
-// Bass presets use the built-in filter cabinet until a redistributable bass IR
-// is part of the application. No preset resolves a personal/user IR pathname.
+// These retained amp / PRE / POST values are completed by FactoryCabVoicing
+// in each native snapshot. Public factory recalls have no external IR target.
 inline constexpr std::array<FactoryPreset,34> factoryPresets{{
     {"Clean Sustain", "Guitar / Clean & Ambient", "Guitar", "Soft optical compression, Glass clean and a short plate; balanced arpeggios.",
      {{"amp1",0},{"drive1",.15f},{"cabtype1",2},{"cablow1",75},{"cabhigh1",8000},{"precompon",1},{"compmodel",2},{"precomp",.25f},{"reverbon",1},{"reverbmix",.12f}}},
@@ -154,7 +154,7 @@ inline constexpr std::array<FactoryPreset,34> factoryPresets{{
       {"pn_eq_native",1},{"pn_eq_model",0},{"pn_eq_m0_bypass",0},{"pn_eq_m0_hf_gain",-1.00f},{"pn_eq_m0_hmf_gain",1.50f},{"pn_eq_m0_lmf_gain",-1.00f},{"pn_eq_m0_lf_gain",0.50f},{"pn_eq_m0_black",0},{"pn_eq_m0_eq_in",1},
       {"choruson",0},{"modmodel",2},{"delayon",0},{"delaymodel",0},{"delaytime",250},{"delayfeedback",.25f},{"delaymix",.20f},
       {"reverbon",1},{"reverbmodel",1},{"reverbsize",.35f},{"reverbdamping",.55f},{"reverbmix",.14f}
-     }, PresetKind::signature, "", "DYN 421.wav", "Mar1960_Raven_SM57_In.wav"},
+     }, PresetKind::signature, "", "", ""},
 
     {"Wild Hunt", "SIGNATURE / Deadwire", "Bass", "Deadwire signature: lighter low foundation, forward mids and open upper attack with restrained stereo motion.",
      {
@@ -181,8 +181,7 @@ inline constexpr std::array<FactoryPreset,34> factoryPresets{{
       {"pn_eq_m0_lmf_gain",-1.2f},{"pn_eq_m0_lmf_frequency",450},{"pn_eq_m0_lmf_q",.8f},{"pn_eq_m0_lf_gain",.3f},{"pn_eq_m0_lf_frequency",90},{"pn_eq_m0_eq_in",1},
       {"choruson",1},{"modmodel",1},{"chorusrate",.18f},{"chorusdepth",.18f},{"chorusmix",.10f},
       {"delayon",0},{"delaymodel",0},{"reverbon",1},{"reverbmodel",0},{"reverbsize",.24f},{"reverbdamping",.62f},{"reverbmix",.06f}
-     }, PresetKind::signature, "", "Hartke HyDrive 410 _ SM57.wav", "Mar1960_Raven_SM57_In.wav",
-       "", "caa3be009191b2cd6c2ad1a711fe0f7eddd74c9115e991ab2032159405699d0b", ""},
+     }, PresetKind::signature, "", "", ""},
 
     {"Azhi Dahaka", "SIGNATURE / Deadwire", "Bass", "Deadwire signature: dense centre low-end, compressed foundation and focused upper-mid bite with restrained fizz.",
      {
@@ -210,8 +209,7 @@ inline constexpr std::array<FactoryPreset,34> factoryPresets{{
       {"pn_preamp_native",1},{"pn_preamp_model",0},{"pn_preamp_m0_bypass",0},{"pn_preamp_m0_gain",3},{"pn_preamp_m0_phase",0},{"pn_preamp_m0_softwareTrim",-3},
       {"pn_eq_native",1},{"pn_eq_model",2},{"pn_eq_m2_bypass",0},{"pn_eq_m2_lf_frequency",2},{"pn_eq_m2_lf_boost",2},{"pn_eq_m2_lf_atten",1},{"pn_eq_m2_bandwidth",.65f},{"pn_eq_m2_hf_boost",1.5f},{"pn_eq_m2_hf_frequency",2},{"pn_eq_m2_hf_atten",2},{"pn_eq_m2_hf_atten_frequency",1},{"pn_eq_m2_eq_in",1},
       {"choruson",0},{"delayon",0},{"reverbon",1},{"reverbmodel",0},{"reverbsize",.20f},{"reverbdamping",.65f},{"reverbmix",.05f}
-     }, PresetKind::signature, "", "DYN 421.wav", "Marshall G12 1 SM57 3.wav",
-       "", "", "d55582bb1f6ed27e0ee03e4ea71006968c2eb36cba93b55338f86b45d42c5cb1"}
+     }, PresetKind::signature, "", "", ""}
 }};
 inline constexpr int factoryPresetCount = static_cast<int>(factoryPresets.size());
 inline bool isSignaturePreset(int index) {

@@ -1,6 +1,8 @@
 #pragma once
 #include "FactoryPresetLevels.h"
+#include "FactoryCabVoicing.h"
 #include "OriginalPresets.h"
+#include "NiflheimrPresets.h"
 #include "FactoryPresets.h"
 #include "AmpNativeParameters.h"
 #include "PedalBoardParameters.h"
@@ -15,14 +17,16 @@ inline constexpr std::array<GuitarSignature,4> guitarSignatures{{
     {"raven.blackhearted.v1","Blackhearted","Death-metal rhythm: clean LOW, Fourfold MID and Night Harvest HIGH; Yellow Asym after the LOW tap, focused EQ and dry POST."},
     {"raven.throne.v1","Dark Matters of Throne","Death-metal rhythm: clean LOW, Blue Storm MID and Night Harvest HIGH; Obsession after the LOW tap, Iron Colour and Passive Tube EQ."}
 }};
-inline constexpr int selectablePresetCount=factoryPresetCount+int(guitarSignatures.size())+originalPresetCount;
+inline constexpr int selectablePresetCount=factoryPresetCount+int(guitarSignatures.size())+originalPresetCount+niflheimrPresetCount;
 inline bool isGuitarSignature(int index) { return index>=factoryPresetCount && index<originalPresetStart; }
 inline const char* selectablePresetName(int index) {
+    if(isNiflheimrPreset(index))return niflheimrRigPresets[size_t(index-niflheimrPresetStart)].name;
     if(isOriginalPreset(index))return originalRigPresets[size_t(index-originalPresetStart)].name;
     if(isGuitarSignature(index))return guitarSignatures[size_t(index-factoryPresetCount)].name;
     return index>=0&&index<factoryPresetCount?factoryPresets[size_t(index)].name:"";
 }
 inline const char* selectablePresetDescription(int index) {
+    if(isNiflheimrPreset(index))return niflheimrRigPresets[size_t(index-niflheimrPresetStart)].description;
     if(isOriginalPreset(index))return originalRigPresets[size_t(index-originalPresetStart)].role;
     if(isGuitarSignature(index))return guitarSignatures[size_t(index-factoryPresetCount)].description;
     return index>=0 && index<factoryPresetCount ? factoryPresets[size_t(index)].description : "";
@@ -30,7 +34,7 @@ inline const char* selectablePresetDescription(int index) {
 
 // Complete APVTS sound snapshot, including inactive model banks. No previous
 // native controls, pedal bypasses, POST values or performance settings leak in.
-// External files/MIDI/A-B are session resources; IR metadata selects built-in V30.
+// External files/MIDI/A-B remain session resources. Factory CAB uses the model.
 inline juce::ValueTree guitarSignatureSnapshot(juce::AudioProcessorValueTreeState& state,int song) {
     if(song<0 || song>=int(guitarSignatures.size()))return {};
     auto snapshot=state.copyState();
@@ -113,10 +117,11 @@ inline juce::ValueTree guitarSignatureSnapshot(juce::AudioProcessorValueTreeStat
     }
     auto metadata=juce::ValueTree("GUITAR_SIGNATURE");
     metadata.setProperty("id",guitarSignatures[size_t(song)].id,nullptr);metadata.setProperty("name",guitarSignatures[size_t(song)].name,nullptr);
-    metadata.setProperty("formatVersion",1,nullptr);metadata.setProperty("acceptance","CANDIDATE_SYNTHETIC_ONLY",nullptr);
-    metadata.setProperty("ir","embedded:guitar_v30_sm57.wav",nullptr);
-    metadata.setProperty("irSha256","ef8d258eee57b2f0fa1e678b4bdf9c8f535f03039172b0831dcc87b0e7d99bd2",nullptr);
+    metadata.setProperty("formatVersion",2,nullptr);metadata.setProperty("acceptance","CANDIDATE_SYNTHETIC_ONLY",nullptr);
+    metadata.setProperty("cabinetPolicy",factoryCabPolicy,nullptr);
     snapshot.removeChild(snapshot.getChildWithName("GUITAR_SIGNATURE"),nullptr);snapshot.appendChild(metadata,nullptr);
+    const auto get=[&](const juce::String& id){return float(snapshot.getChildWithProperty("id",id).getProperty("value"));};
+    voiceFactoryCab(factoryPresetCount+song,get,set);
     return snapshot;
 }
 }

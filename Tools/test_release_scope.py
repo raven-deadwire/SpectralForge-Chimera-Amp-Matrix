@@ -9,7 +9,7 @@ import produce_validation_check as producer
 import chimera_version
 
 ROOT = Path(__file__).resolve().parents[1]
-POLICY = json.loads((ROOT / 'Validation/release-policy.json').read_text())
+POLICY = json.loads((ROOT / 'Validation/release-policy.json').read_text(encoding='utf-8-sig'))
 COMMIT = '1' * 40
 DEFERRED = {'I2.PITCH_LIVE', 'I2.PITCH_DI'}
 

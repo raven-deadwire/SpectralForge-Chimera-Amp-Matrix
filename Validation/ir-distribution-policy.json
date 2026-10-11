@@ -1,0 +1,61 @@
+{
+  "schema": "spectralforge.ir-distribution.v1",
+  "reviewed_on": "2026-10-09",
+  "catalog_policy": "Only approved embedded factory IRs and user-selected files are shown. No development/private/external reference entries.",
+  "allowed_embedded": [
+    {
+      "path": "Assets/IRs/guitar_v30_sm57.wav",
+      "source_id": 1,
+      "bytes": 43385,
+      "sha256": "ef8d258eee57b2f0fa1e678b4bdf9c8f535f03039172b0831dcc87b0e7d99bd2",
+      "author": "jesterdyne",
+      "license": "CC-BY-4.0",
+      "license_url": "https://creativecommons.org/licenses/by/4.0/",
+      "source_url": "https://freesound.org/people/jesterdyne/sounds/116735/",
+      "title": "Engl Celestion V30 SM57 center-01.wav",
+      "byte_source": "OpenSauce/rustortion@1522f4d64f520bd665cfb098601a2cbf0bcae0d8:impulse_responses/Jesterdyne/Engl/sm57-center-01.wav"
+    },
+    {
+      "path": "Assets/IRs/guitar_jensen_sm57.wav",
+      "source_id": 2,
+      "bytes": 38601,
+      "sha256": "894805dc8b60bd7e2b49dac582bc27a39c8d1f191fc110eb4d4145c0b63937bb",
+      "author": "jesterdyne",
+      "license": "CC-BY-4.0",
+      "license_url": "https://creativecommons.org/licenses/by/4.0/",
+      "source_url": "https://freesound.org/people/jesterdyne/sounds/116743/",
+      "title": "Jensen Cab SM57 center.wav",
+      "byte_source": "OpenSauce/rustortion@1522f4d64f520bd665cfb098601a2cbf0bcae0d8:impulse_responses/Jesterdyne/Jensen/sm57-center.wav"
+    }
+  ],
+  "excluded_reference_catalogs": [
+    {
+      "id": "referenceIRCatalog",
+      "entries": 26,
+      "reason": "T3K development capture inventory; no product redistribution approval recorded."
+    },
+    {
+      "id": "externalBassIRCatalog",
+      "entries": 12,
+      "reason": "Creator permission for software bundling is not recorded."
+    },
+    {
+      "id": "ravenIRCatalog",
+      "entries": 4,
+      "reason": "Private-import inventory explicitly records that public redistribution permission was not obtained."
+    }
+  ],
+  "payload_policy": {
+    "loose_audio_allowed": false,
+    "nested_capture_archives_allowed": false,
+    "development_reference_documents_allowed": false,
+    "user_disk_modified": false,
+    "serialized_source_ids": [
+      0,
+      1,
+      2,
+      3
+    ]
+  },
+  "evidence_scope": "License labels verified on both original Freesound pages on the review date. The guard verifies this approved byte inventory and attribution; it is not a legal clearance of other assets or user imports."
+}

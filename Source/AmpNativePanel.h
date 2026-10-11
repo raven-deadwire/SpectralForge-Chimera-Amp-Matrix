@@ -23,11 +23,17 @@ public:
         addAndMakeVisible(resetChannel);resetChannel.setButtonText("RESET CHANNEL");resetChannel.setComponentID("ampResetChannel"+juce::String(lane+1));
         resetChannel.setTooltip("Restore this channel's factory voice and knobs. Other channels, PRE, cabinets and POST are kept.");
         resetChannel.onClick=[this]{
-            if(model!=spectralforge::firstOriginalAmpModel)return;
+            if(model!=spectralforge::firstOriginalAmpModel && model!=spectralforge::niflheimrAmpModel)return;
             const auto set=[this](const juce::String& id,float value){if(auto* p=processor.parameters().getParameter(id)){p->beginChangeGesture();p->setValueNotifyingHost(p->convertTo0to1(value));p->endChangeGesture();}};
-            const auto voice=spectralforge::original::channelState(currentChannel);
-            for(size_t c=0;c<spectralforge::original::controlCount;++c)set(spectralforge::ampNativeControlID(context,model,int(c),currentChannel),voice.values[c]);
-            set(spectralforge::originalResponseID(context,currentChannel),1);processor.activateNativeAmp(lane);
+            if(model==spectralforge::niflheimrAmpModel) {
+                const auto voice=spectralforge::niflheimr::channelState(currentChannel);
+                for(size_t c=0;c<spectralforge::niflheimr::controlCount;++c)set(spectralforge::ampNativeControlID(context,model,int(c),currentChannel),voice.values[c]);
+            } else {
+                const auto voice=spectralforge::original::channelState(currentChannel);
+                for(size_t c=0;c<spectralforge::original::controlCount;++c)set(spectralforge::ampNativeControlID(context,model,int(c),currentChannel),voice.values[c]);
+                set(spectralforge::originalResponseID(context,currentChannel),1);
+            }
+            processor.activateNativeAmp(lane);
         };
     }
     ~AmpNativePanel() override {if(dialog)delete dialog.getComponent();setLookAndFeel(nullptr);}
@@ -47,9 +53,10 @@ public:
         const bool split=mode==2 || (mode==1 && processor.parameters().getRawParameterValue("dualtype")->load()>.5f);
         const int nextContext=spectralforge::ampNativeContext(mode,lane),nextModel=processor.selectedAmpModel(lane);
         const auto& panel=spectralforge::ampNativePanel(nextModel);
-        channel.setTooltip(nextModel==spectralforge::firstOriginalAmpModel ? "Each channel remembers its own knobs. First selection uses defaults; switching back restores your edits. RESET CHANNEL is explicit." : "Select the amplifier channel.");
-        resetChannel.setVisible(detailed && nextModel==spectralforge::firstOriginalAmpModel);
-        if(nextContext!=context || nextModel!=model || split!=currentSplit || (nextModel==spectralforge::firstOriginalAmpModel && currentChannel!=processor.selectedAmpChannel(lane))) {
+        const bool channelMemory=nextModel==spectralforge::firstOriginalAmpModel || nextModel==spectralforge::niflheimrAmpModel;
+        channel.setTooltip(channelMemory ? "Each channel remembers its own knobs. First selection uses defaults; switching back restores your edits. RESET CHANNEL is explicit." : "Select the amplifier channel.");
+        resetChannel.setVisible(detailed && channelMemory);
+        if(nextContext!=context || nextModel!=model || split!=currentSplit || (channelMemory && currentChannel!=processor.selectedAmpChannel(lane))) {
             context=nextContext;model=nextModel;currentSplit=split;lowOverview=!detailed && mode==2 && lane==0;currentChannel=-1;controls.clear();
             channel.clear(juce::dontSendNotification);input.clear(juce::dontSendNotification);
             for(size_t i=0;i<panel.channels.size();++i)channel.addItem(juce::String::fromUTF8(panel.channels[i]),(int)i+1);
@@ -65,7 +72,16 @@ public:
                               options,spec.minimum,spec.maximum,spec.kind==spectralforge::AmpNativeControlKind::knob?.001:1.,spectralforge::art::headStyle(model).knobStyle);
                 if(spec.kind==spectralforge::AmpNativeControlKind::knob) {
                     if(model==spectralforge::firstOriginalAmpModel && i==size_t(spectralforge::original::Control::midFrequency)){control->slider.setTextValueSuffix(" Hz");control->slider.setNumDecimalPlacesToDisplay(0);control->slider.setSkewFactorFromMidPoint(850);}
+                    else if(model==spectralforge::niflheimrAmpModel && i==size_t(spectralforge::niflheimr::Control::midFrequency)){control->slider.setTextValueSuffix(" Hz");control->slider.setNumDecimalPlacesToDisplay(0);control->slider.setSkewFactorFromMidPoint(650);}
+                    else if(model==spectralforge::niflheimrAmpModel && i==size_t(spectralforge::niflheimr::Control::blend)) {
+                        control->slider.textFromValueFunction=[](double value){return juce::String(juce::roundToInt(value*100))+"%";};
+                        control->slider.valueFromTextFunction=[](const juce::String& text){return text.getDoubleValue()/100.;};control->slider.updateText();
+                    }
                     else control->showHardwarePosition();
+                }
+                if(model==spectralforge::niflheimrAmpModel) {
+                    constexpr const char* hints[]{"Primary distortion drive; higher settings add saturation.","Low-frequency EQ after the blend.","Midrange EQ amount.","Upper-frequency EQ after the blend.","Centre frequency of the MID control.","Focused upper-mid presence.","Low-frequency resonance and weight.","Amplifier output level.","Dirty body weight and low-order harmonics.","Low protection and distortion-band separation.","Upper-edge bite and clipping texture.","Body saturation density and compression.","Attack definition and recovery.","0% clean; 100% complete dirty voice with protected lows."};
+                    control->slider.setTooltip(hints[i]);control->label.setTooltip(hints[i]);
                 }
                 control->activate=[this]{processor.activateNativeAmp(lane);};content.addAndMakeVisible(*control);controls.push_back(std::move(control));
             }
@@ -109,8 +125,15 @@ public:
         expand.setBounds(getWidth()-41,shown?14:0,38,24);
         const int header=shown?43:detailed?0:28;
         viewport.setBounds(0,header,getWidth(),juce::jmax(0,getHeight()-header));
-        const int available=juce::jmax(100,getWidth()-11),columns=juce::jmax(2,available/110),cell=available/columns;
-        int visible=0;for(auto& control:controls)if(control->isVisible()) {control->setBounds((visible%columns)*cell,(visible/columns)*103,cell-3,100);++visible;}
+        const int available=juce::jmax(100,getWidth()-11),columns=model==spectralforge::niflheimrAmpModel && detailed?7:juce::jmax(2,available/110),cell=available/columns;
+        int visible=0;
+        const auto place=[&](size_t index){auto& control=controls[index];if(control->isVisible()){control->setBounds((visible%columns)*cell,(visible/columns)*103,cell-3,100);++visible;}};
+        if(model==spectralforge::niflheimrAmpModel && controls.size()>=spectralforge::niflheimr::controlCount) {
+            // Presentation order is independent of the stable host/DSP order.
+            constexpr size_t order[]{0,1,2,4,3,5,6,8,9,10,11,12,13,7};
+            for(auto index:order)place(index);
+            for(size_t index=spectralforge::niflheimr::controlCount;index<controls.size();++index)place(index);
+        } else for(size_t index=0;index<controls.size();++index)place(index);
         content.setSize(available,juce::jmax(viewport.getHeight(),((visible+columns-1)/columns)*103));
     }
 private:

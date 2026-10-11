@@ -1,4 +1,5 @@
 #pragma once
+#include "OriginalCabParameters.h"
 #include <juce_audio_processors/juce_audio_processors.h>
 #include "ChimeraDSP.h"
 #include "FXParameters.h"
@@ -39,10 +40,33 @@ public:
     const juce::String getProgramName(int) override { return {}; }
     void changeProgramName(int,const juce::String&) override {}
     void getStateInformation(juce::MemoryBlock&) override;
+    bool tryGetStateInformation(juce::MemoryBlock&);
     void setStateInformation(const void*,int) override;
     juce::AudioProcessorValueTreeState& parameters() { return state; }
     static juce::AudioProcessorValueTreeState::ParameterLayout layout();
     juce::Result loadIR(int lane,const juce::File& file);
+    juce::Result loadMicIR(int lane,int slot,const juce::File& file);
+    juce::String micName(int lane,int slot) const { return library.userName(lane+3*slot); }
+    juce::String micStatus(int lane,int slot) const {
+        const auto model=originalCabParameters.read(lane,slot);
+        const int source=(int)state.getRawParameterValue((slot ? "cabBtype" : "cabtype")+juce::String(lane+1))->load();
+        const auto selected=uint64_t(source+1) | (model<<4);
+        if(library.displayRevision(lane+3*slot)[1]!=selected)
+            return juce::String(model ? "Original model selected" : source ? "Captured IR selected" : "Filters only selected")
+                +" | Awaiting audio processing";
+        return library.status(lane+3*slot);
+    }
+    spectralforge::IRMetadata micMetadata(int lane,int slot) const {
+        const int source=(int)state.getRawParameterValue((slot ? "cabBtype" : "cabtype")+juce::String(lane+1))->load();
+        return library.metadata(lane+3*slot,source);
+    }
+    // The capture chooser describes the retained file even while its slot uses
+    // an original response. Never infer a capture identity from modeled metadata.
+    spectralforge::IRMetadata micCaptureMetadata(int lane,int slot) const {
+        const int source=(int)state.getRawParameterValue((slot ? "cabBtype" : "cabtype")+juce::String(lane+1))->load();
+        return library.metadata(lane+3*slot,source,false);
+    }
+    std::array<uint64_t,4> micDisplayRevision(int lane,int slot) const noexcept {return library.displayRevision(lane+3*slot);}
     juce::String userIRName(int lane) const {return library.userName(lane);}
     float preCompressorReduction() const {return preReduction.load();}
     float postCompressorReduction() const {return postReduction.load();}
@@ -94,7 +118,6 @@ private:
     int ampContext(int lane) const noexcept;
     void seedNativeSelections(bool seedBoard,bool seedAmps=true,bool seedPost=true);
     void resetAmpSelection();
-    void applyPresetIRTargets(int index);
     void rememberPedalEdit();
     void setRawParameter(const juce::String&,float);
     std::vector<juce::ValueTree> boardUndo,boardRedo;
@@ -116,6 +139,9 @@ private:
     std::atomic<int> selectedComparison{0};
     std::atomic<bool> resetPending{false};
     juce::AudioProcessorValueTreeState state{*this,nullptr,"PARAMS",layout()};
+    std::array<std::array<std::atomic<float>*,10>,3> cabPanelParameters{};
+    spectralforge::OriginalCabParameters originalCabParameters;
+    void syncOriginalCabRequests();
     spectralforge::Engine engine;
     spectralforge::IRLibrary library{{&engine.cabinet(0),&engine.cabinet(1),&engine.cabinet(2)}};
     spectralforge::PreFXChain preFX;

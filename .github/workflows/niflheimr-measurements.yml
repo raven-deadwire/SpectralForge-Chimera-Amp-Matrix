@@ -1,0 +1,66 @@
+name: Niflheimr technical measurements
+on:
+  workflow_dispatch:
+    inputs:
+      profile:
+        description: Synthetic coverage (no product approval)
+        type: choice
+        options: [smoke, standard]
+        default: smoke
+  pull_request:
+    paths:
+      - 'Source/Niflheimr*.h'
+      - 'Source/Amplifier.h'
+      - 'Source/AmpNative*.h'
+      - 'Tests/RenderNiflheimr.cpp'
+      - 'Tests/test_niflheimr_measurements.py'
+      - 'Tools/measure_niflheimr.py'
+      - 'CMakeLists.txt'
+      - 'cmake/NiflheimrMeasurementBuild.h.in'
+      - '.github/workflows/niflheimr-measurements.yml'
+permissions:
+  contents: read
+concurrency:
+  group: niflheimr-measurements-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+jobs:
+  measure:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-22.04, windows-latest, macos-15]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - run: python -m pip install numpy==2.2.6
+      - if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y libasound2-dev libcurl4-openssl-dev libfreetype6-dev libfontconfig1-dev libx11-dev libxcomposite-dev libxcursor-dev libxext-dev libxinerama-dev libxrandr-dev libxrender-dev libgl1-mesa-dev
+      - run: cmake -S . -B build-measurements -DCMAKE_BUILD_TYPE=Release -DCHIMERA_ENABLE_NIFLHEIMR_MEASUREMENTS=ON
+      - run: cmake --build build-measurements --config Release --target ChimeraNiflheimrRender --parallel 2
+      - name: Numerical controls and production renderer contracts
+        run: ctest --test-dir build-measurements -C Release -R "ChimeraNiflheimr(Renderer|Measurement)Tests" --output-on-failure --no-tests=error
+      - name: Record spectra and process timings (no absolute CPU gate)
+        shell: bash
+        env:
+          MEASUREMENT_PROFILE: ${{ inputs.profile || 'smoke' }}
+          MACHINE_LABEL: github-hosted-${{ matrix.os }}
+        run: |
+          renderer="build-measurements/ChimeraNiflheimrRender_artefacts/Release/ChimeraNiflheimrRender"
+          if [ "$RUNNER_OS" = Windows ]; then renderer="$renderer.exe"; fi
+          python Tools/measure_niflheimr.py --renderer "$renderer" --output build-measurements/evidence --profile "$MEASUREMENT_PROFILE" --machine-label "$MACHINE_LABEL"
+      - name: Upload technical measurements
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: Niflheimr-measurements-${{ runner.os }}-${{ github.event.pull_request.head.sha || github.sha }}
+          path: |
+            build-measurements/evidence
+            build-measurements/evidence.failed-*
+            build-measurements/Testing/Temporary/LastTest.log
+          if-no-files-found: error

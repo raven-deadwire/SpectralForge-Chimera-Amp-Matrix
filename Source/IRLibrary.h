@@ -1,5 +1,7 @@
 #pragma once
 #include "Cabinet.h"
+#include "OriginalCabModel.h"
+#include <deque>
 #include "IRMetadata.h"
 #include <juce_data_structures/juce_data_structures.h>
 #include <juce_audio_formats/juce_audio_formats.h>
@@ -24,30 +26,54 @@ public:
     void stop();
     // Call only with host processing stopped, e.g. after releaseResources.
     bool resourcesReleased() const noexcept;
+    // Diagnostic only: worker cancellations since the last prepare(). Neither
+    // increment nor observation participates in the audio publication protocol.
+    unsigned cancelledBuildCount() const noexcept {return cancelledBuilds.load(std::memory_order_relaxed);}
+    struct WorkerScheduling {
+        bool startSucceeded{}, enteredRun{};
+        int observedPriority{};
+    };
+    // Read only after stop() has joined the worker. JUCE queries the native
+    // priority on Windows/macOS; on Linux it reports the requested value only.
+    WorkerScheduling workerScheduling() const noexcept {return scheduling;}
     juce::Result importFile(int lane, const juce::File&);
     juce::String status(int lane) const;
     juce::String userName(int lane) const;
-    IRMetadata metadata(int lane, int source) const;
+    IRMetadata metadata(int lane, int source, bool includeModeled=true) const;
     void setMetadata(int lane, const IRMetadata&);
     // UI invalidation only. Existing cabinet atomics cover asynchronous kernel
     // activation; metadata/error revisions are written off the audio callback.
     std::array<uint64_t,4> displayRevision(int lane) const noexcept {
         const auto i=(size_t)lane;
-        return {displayGeneration[i].load(),(uint64_t)cabs[i]->requestedSource.load(),
-            (uint64_t)cabs[i]->activeSource.load(),(uint64_t)cabs[i]->activeGeneration.load()};
+        return {displayGeneration[i].load(),uint64_t(cabs[i]->requestedSource.load()+1) | (cabs[i]->requestedModel.load()<<4),
+            uint64_t(cabs[i]->activeSource.load()+1) | (cabs[i]->activeModel.load()<<4),uint64_t(cabs[i]->activeGeneration.load())};
     }
     juce::ValueTree save() const;
     void restore(const juce::ValueTree&);
     static std::shared_ptr<Asset> decode(const juce::MemoryBlock&, const juce::String&, juce::String& error);
+#if defined(CHIMERA_CAB_PROFILE) && CHIMERA_CAB_PROFILE
+    // Set before prepare; inspect only after stop joins the worker.
+    cabProfile::Counters* profileSink{};
+#endif
 private:
     void run() override;
-    std::unique_ptr<Cab::Kernel> build(int lane, int source, unsigned generation);
-    std::array<Cab*,3> cabs;
-    std::array<std::shared_ptr<Asset>,3> users;
+    bool requestIsCurrent(int lane,int source,uint64_t model) const noexcept;
+    std::unique_ptr<Cab::Kernel> build(int lane, int source, unsigned generation, uint64_t model=0,
+                                     bool cancelObsolete=false);
+    struct CachedModel {
+        uint64_t key;
+        juce::AudioBuffer<float> samples;
+        std::shared_ptr<const ModeledCabConvolution::Prepared> prepared;
+    };
+    std::deque<CachedModel> modelCache; // Eight responses, worker/prepare only; bounded FIFO.
+    std::atomic<unsigned> cancelledBuilds{};
+    WorkerScheduling scheduling;
+    std::array<Cab*,6> cabs;
+    std::array<std::shared_ptr<Asset>,6> users;
     std::array<std::shared_ptr<Asset>,2> factory;
-    std::array<unsigned,3> generations{1,1,1};
-    std::array<std::atomic<uint64_t>,3> displayGeneration{};
-    std::array<juce::String,3> errors;
+    std::array<unsigned,6> generations{1,1,1,1,1,1};
+    std::array<std::atomic<uint64_t>,6> displayGeneration{};
+    std::array<juce::String,6> errors;
     mutable std::mutex mutex;
     juce::dsp::ProcessSpec spec{48000,512,2};
 };

@@ -1,0 +1,255 @@
+{
+  "schema": "spectralforge.niflheimr.local-measurement-summary.v2",
+  "implementation_commit": "140e3f8bb5cd09a9afa94a557440cd0e03762568",
+  "implementation_tree": "1e3a042325541d72be2215122a5ebd3dcd853c10",
+  "status": "COMPLETED_TECHNICAL_MEASUREMENTS_ONLY",
+  "release_approved": false,
+  "note": "Clean implementation-source Linux Release execution. Boundary/content integrity only; alias/CPU values remain descriptive, never automatic acceptance gates.",
+  "measurement_source": {
+    "head": "140e3f8bb5cd09a9afa94a557440cd0e03762568",
+    "tree": "1e3a042325541d72be2215122a5ebd3dcd853c10",
+    "tracked_worktree_status": "",
+    "harness_sha256": "2e68bf33e59c48bcf47ba59cd8b7e282e5d83da85ac036b803f45432be0ff0c9",
+    "renderer_binary_sha256": "88659070335046b199a8c37ec07a7f57c168522ddd393164570f2b836b8a338c"
+  },
+  "build": {
+    "configuration": "Release",
+    "compiler_id": "GNU",
+    "compiler_version": "13.3.0",
+    "cxx_flags": "",
+    "release_flags": "-O3 -DNDEBUG",
+    "debug_flags": "-g",
+    "relwithdebinfo_flags": "-O2 -g -DNDEBUG",
+    "minsize_flags": "-Os -DNDEBUG",
+    "recommended_config_flags": true,
+    "cmake_version": "4.4.4",
+    "cxx_standard": "20",
+    "osx_architectures": "",
+    "msvc_runtime": "",
+    "juce_version": 524296,
+    "system": "Linux",
+    "processor": "x86_64",
+    "source_header_set_sha256": "dc97a80cc7ec06e98e94e8cff929a03347730be8c8a0009c41b353316c34f97c",
+    "renderer_sha256": "78216edcf543c74c1b3a01029773971c454e857505736dac253c7eb4cf589166"
+  },
+  "environment": {
+    "machine_label": "codex-linux-x86_64",
+    "cpu_model": "AMD EPYC 9V74 80-Core Processor",
+    "machine": "x86_64",
+    "system": "Linux",
+    "os_release": "6.18.44",
+    "os_version": "#1 SMP Sat Sep 26 20:02:31 UTC 2026",
+    "logical_cpus": 9,
+    "affinity": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8
+    ],
+    "power_governor": null,
+    "cgroup_cpu_max": "800000 100000",
+    "load_average_start": [
+      0.83642578125,
+      0.82421875,
+      0.5166015625
+    ],
+    "python": "3.12.14",
+    "numpy": "2.3.5",
+    "ci": {
+      "CI": null,
+      "GITHUB_ACTIONS": null,
+      "GITHUB_RUN_ID": null,
+      "GITHUB_RUN_ATTEMPT": null,
+      "GITHUB_JOB": null,
+      "GITHUB_SHA": null,
+      "RUNNER_OS": null,
+      "RUNNER_ARCH": null,
+      "ImageOS": null,
+      "ImageVersion": null
+    },
+    "scheduling": "ordinary offline process; no realtime priority or CPU isolation requested",
+    "load_average_end": [
+      1.02490234375,
+      1.04541015625,
+      0.859375
+    ]
+  },
+  "compiled_source_hashes": {
+    "NiflheimrDSP.h": "07532a179721bce0f6f1878b6ac761ed11404d55c446140f42282f009fa894dd",
+    "NiflheimrDefinition.h": "998a58fd792846382173f5b21c36b389d753cfd4439ed7483b0e64b8cfdfc634",
+    "Amplifier.h": "492edbef00302dbe933bb85ab54d4ffe226a45830c0d813386ac37ae79a18f4d"
+  },
+  "manual_acceptance": {
+    "instrument_di_same_ir_listening": "PENDING_MANUAL_EVIDENCE",
+    "musical_acceptance": "PENDING_MANUAL_EVIDENCE",
+    "commercial_daw_lifecycle": "PENDING_MANUAL_EVIDENCE",
+    "target_hardware_cpu_acceptance": "PENDING_MANUAL_EVIDENCE",
+    "windows_macos_product_acceptance": "PENDING_MANUAL_EVIDENCE"
+  },
+  "smoke_measurement": {
+    "status": "COMPLETED_TECHNICAL_ONLY",
+    "completed_evidence_available": true,
+    "release_approved": false,
+    "evidence_sha256": "ec28b62fbd14c2cd99d026785380481849fe7757a2e1b5b217fb51c1888c46ef",
+    "configuration": {
+      "rates": [
+        48000
+      ],
+      "gains": [
+        0.75
+      ],
+      "factors": [
+        1,
+        4
+      ],
+      "blocks": [
+        128
+      ],
+      "tones_hz": [
+        6011
+      ],
+      "fft_frames": 8192,
+      "settle_seconds": 1.0,
+      "repeats": 2,
+      "measured_blocks": 64,
+      "warmup_blocks": 384,
+      "profile": "smoke",
+      "blend": 1.0,
+      "input_peak_dbfs": -12.0,
+      "audio_channels": 2,
+      "alias_block_size": 256,
+      "max_fold_order": 127,
+      "guard_bins": 2,
+      "order_seed": 731
+    },
+    "counts": {
+      "renderer_processes": 4,
+      "alias_channel_routes": 10,
+      "cpu_channel_routes": 10,
+      "timed_blocks": 1280,
+      "verified_boundary_observations": 100,
+      "verified_inventory_files": 44
+    },
+    "elapsed_seconds": 2.011733567007468,
+    "all_manifest_wavs_reverified_after_measurement_publication": true
+  },
+  "standard_measurement": {
+    "status": "COMPLETED_TECHNICAL_ONLY",
+    "completed_evidence_available": true,
+    "release_approved": false,
+    "evidence_sha256": "aaaefce48cc90831f8376ece828f9ea20bb40feeff1c212bc972511c5ed3b9dc",
+    "configuration": {
+      "rates": [
+        44100,
+        48000,
+        96000
+      ],
+      "gains": [
+        0.5,
+        0.75,
+        1.0
+      ],
+      "factors": [
+        1,
+        2,
+        4,
+        8
+      ],
+      "blocks": [
+        64,
+        256
+      ],
+      "tones_hz": [
+        997,
+        3001,
+        6011
+      ],
+      "fft_frames": 32768,
+      "settle_seconds": 2.0,
+      "repeats": 5,
+      "measured_blocks": 512,
+      "warmup_blocks": 1536,
+      "profile": "standard",
+      "blend": 1.0,
+      "input_peak_dbfs": -12.0,
+      "audio_channels": 2,
+      "alias_block_size": 256,
+      "max_fold_order": 127,
+      "guard_bins": 2,
+      "order_seed": 731
+    },
+    "counts": {
+      "renderer_processes": 180,
+      "alias_channel_routes": 540,
+      "cpu_channel_routes": 360,
+      "timed_blocks": 921600,
+      "verified_boundary_observations": 4500,
+      "verified_inventory_files": 2222
+    },
+    "elapsed_seconds": 831.0959144220105,
+    "all_manifest_wavs_reverified_after_measurement_publication": true
+  },
+  "publication_reproduction": "Validation/niflheimr-publication-reproduction.json",
+  "publication_reproduction_sha256": "40fb44463e47e640d7baca48f425287c38cb1276d1a8fb821a93ca0b7a72ed37",
+  "local_tests": {
+    "ChimeraNiflheimrRendererTests": "PASS",
+    "ChimeraNiflheimrMeasurementTests": "PASS"
+  },
+  "measurement_ci": {
+    "source": "140e3f8bb5cd09a9afa94a557440cd0e03762568",
+    "run_id": 37635440318,
+    "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/37635440318",
+    "profile": "smoke",
+    "linux": "SUCCESS",
+    "windows": "SUCCESS",
+    "macos": "SUCCESS",
+    "artifacts": {
+      "Linux": 11487773993,
+      "Windows": 11489531373,
+      "macOS": 11488911096
+    },
+    "scope": "head-only measurement and renderer contracts; not DAW/product approval",
+    "windows_artifact_content_verification": {
+      "sha256": "5d2c48c1ad1a1a79e4dcbcd168ad88229154ac250ee790f53cf024ff2a6648fe",
+      "alias_routes": 10,
+      "cpu_routes": 10,
+      "integrity_observations": 100,
+      "inventory_files": 24,
+      "release_approved": false
+    }
+  },
+  "prior_standard_measurement": {
+    "status": "BLOCKED_OUTPUT_FILE_TRUNCATION",
+    "release_approved": false,
+    "failure": {
+      "status": "FAILED_NOT_ACCEPTANCE_EVIDENCE",
+      "release_approved": false,
+      "error": "Output hash mismatch: alias-sr96000-g0.75-os8-b256-t3001/CH1-modern_tight.wav; expected=903a8e177314ea35ff0fd649b2336d00e8b46de2a954d601152217eb7166fd5e; actual=67bb6b657ec77058b84d7f890384dd2f3af0a3f08bf7371524782a1e88d8ae35; bytes=829498"
+    },
+    "actual_wav_bytes": 829498,
+    "declared_wav_bytes": 2062394,
+    "root_cause": "UNRESOLVED",
+    "completed_evidence_available": false,
+    "truncation_diagnosis": {
+      "truncated_bytes": 829498,
+      "reproduced_bytes": 2062394,
+      "truncated_file_matches_prefix_of_reproduction": true,
+      "reproduction_sha256": "903a8e177314ea35ff0fd649b2336d00e8b46de2a954d601152217eb7166fd5e",
+      "original_renderer_manifest_sha256": "903a8e177314ea35ff0fd649b2336d00e8b46de2a954d601152217eb7166fd5e",
+      "reproduction_matches_original_full_hash": true,
+      "root_cause": "UNRESOLVED",
+      "release_approved": false
+    }
+  },
+  "boundary_resolution": {
+    "boundary": "AFTER_CH1_CLOSE_BEFORE_DIRECTORY_PUBLISH",
+    "mechanism": "Completed pathname replaced by a different file identifier containing an earlier-content prefix.",
+    "external_actor": "UNRESOLVED",
+    "mitigation": "Write temporary name, close/verify, atomically publish immutable WAV name, verify all later boundaries; reject rather than retry."
+  }
+}

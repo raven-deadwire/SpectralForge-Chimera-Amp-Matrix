@@ -25,6 +25,7 @@ inline void run() {
     check(ticked==1,"Selected amp duplicated across categories");
     check(!selector.selectMenuResult(1001)&&selector.getSelectedId()==8,"Invalid result changed selection");
     check(selector.selectMenuResult(24)&&selector.getSelectedId()==24,"E670FE not selectable");
+    check(selector.selectMenuResult(niflheimrAmpModel+1)&&selector.getSelectedId()==niflheimrAmpModel+1,"Niflheimr not selectable");
     // Reproduce a timer refresh between the user changing the displayed value
     // and JUCE delivering its pending onChange callback.
     const auto pendingSelection=[&check](StableAmpComboBox& control,bool keyboard) {
@@ -63,6 +64,6 @@ inline void run() {
         check(!popup.isPopupActive(),"Amp popup cancellation left the base menu-active flag stuck");
     }
     popup.removeFromDesktop();
-    std::cout<<"PASS: 24 active amps exactly once, Chimera names only, new choices selectable; pending asynchronous amp/channel selection retained; popup cancellation and reopening\n";
+    std::cout<<"PASS: 25 active amps exactly once, Chimera names only, new choices selectable; pending asynchronous amp/channel selection retained; popup cancellation and reopening\n";
 }
 }

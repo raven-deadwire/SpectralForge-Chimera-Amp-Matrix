@@ -1,8 +1,9 @@
-# SpectralForge Chimera — Open Beta 1.1 installation
+# SpectralForge Chimera — Open Beta 1.3 installation
 
-Version `1.1.0-beta.1`, release tag `v1.1.0-beta.1`.
+Product version `1.3.0`, package version `1.3.0-beta.1`.
+Preparation builds are test artifacts; public publication requires the separate release verdict.
 Close the application and all DAWs before installing or updating. Save a copy of important sessions first.
-Compare the downloaded installer against `SHA256SUMS.txt` from the same release.
+Compare the downloaded installer against its adjacent `.sha256.txt` file or `SHA256SUMS.txt` from the same package set.
 The beta packages currently have no verified publisher code signature. The macOS binaries use an ad-hoc build signature for local code integrity; they are not Developer ID signed or notarized. No Windows Store certification is claimed.
 
 ## System requirements and recommended configuration
@@ -18,7 +19,7 @@ The platform/architecture requirements below are release-supported values. CPU a
 | Display | Editor is 1180×780 at 100% and about 885×585 at 75%. 1280×800 is a practical minimum; 1920×1080 or larger is preferred. |
 | Memory | No certified hard minimum. 8 GB system RAM is a practical baseline; 16 GB+ is recommended for normal DAW work, multiple Chimera instances, or large sample-based sessions. |
 | CPU recommendation | Modern 64-bit CPU with strong single-core performance and 4+ cores as a practical baseline; 6–8+ cores provide more headroom for multi-instance sessions. |
-| Storage | Beta 1.1 installer downloads are about 40 MB on Windows/Linux and 125 MB on macOS. Keep additional free space for installation, updates, user IRs and projects; ~500 MB extra is a practical reserve. |
+| Storage | Check the download size of the selected package. Reserve additional space for its extracted files, installation, updates, user IRs and projects. |
 | Audio I/O | For live input, use an interface or system audio device with a stable low-latency driver/API. Physical mic gain and +48 V are supplied by the interface, not Chimera. |
 
 ### Real-time performance starting points
@@ -31,7 +32,7 @@ The platform/architecture requirements below are release-supported values. CPU a
 
 ## Windows 10/11 · x64
 
-Run `SpectralForge-Chimera-1.1.0-beta.1-win64-Setup.exe`.
+Run `SpectralForge-Chimera-1.3.0-beta.1-win64-Setup.exe`.
 Select VST3, standalone and optional reference tools. Setup requires administrator privileges for the standard VST3 folder.
 
 - VST3: `C:\Program Files\Common Files\VST3\SpectralForge Chimera.vst3`
@@ -47,7 +48,7 @@ Windows Setup에서 앱과 VST3 경로를 각각 선택할 수 있습니다. 사
 
 ## macOS 12 or later · Apple Silicon and Intel
 
-Run `SpectralForge-Chimera-1.1.0-beta.1-macos-universal.pkg`.
+Run `SpectralForge-Chimera-1.3.0-beta.1-macos-universal.pkg`.
 The universal app, VST3 and AU contain both arm64 and x86_64 code. Package installation requires administrator authorization.
 
 - App: `/Applications/SpectralForge Chimera.app`
@@ -67,7 +68,7 @@ The release builder targets Ubuntu 22.04 with glibc 2.35 baseline. Other distrib
 Install the `.deb` with a dependency-resolving package manager:
 
 ```sh
-sudo apt install ./SpectralForge-Chimera-1.1.0-beta.1-linux-x86_64.deb
+sudo apt install ./SpectralForge-Chimera-1.3.0-beta.1-linux-x86_64.deb
 ```
 
 - Standalone: `/usr/bin/chimera-amp-matrix`

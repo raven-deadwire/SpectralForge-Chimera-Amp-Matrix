@@ -29,7 +29,7 @@ sha256 = transport.sha256
 
 
 def prepare_assets(candidate, head, run_id):
-    source = json.loads((candidate / "candidate-source.json").read_text())
+    source = json.loads((candidate / "candidate-source.json").read_text(encoding="utf-8-sig"))
     require(source["version"] == VERSION and source["tag"] == "v" + VERSION
             and source["revision"] == head and str(source["runId"]) == str(run_id)
             and source["published"] is False and source["publisherSigned"] is False
@@ -46,7 +46,7 @@ def prepare_assets(candidate, head, run_id):
         require(sha256(candidate / name) == digest, f"Binary checksum mismatch: {name}")
         sidecar = (candidate / (name + ".sha256.txt")).read_text(encoding="utf-8-sig").split()
         require(sidecar[0].lower() == digest, f"Sidecar checksum mismatch: {name}")
-    manifest = json.loads((candidate / "update-beta.json").read_text())
+    manifest = json.loads((candidate / "update-beta.json").read_text(encoding="utf-8-sig"))
     require(manifest["schema"] == 1 and manifest["version"] == VERSION
             and manifest["channel"] == "beta" and manifest["releaseUrl"] == transport.RELEASE_URL,
             "Update manifest identity mismatch")
@@ -83,7 +83,7 @@ def prepare_assets(candidate, head, run_id):
     assets["COPYRIGHT.txt"] = ROOT / "COPYRIGHT.txt"
     for name, path in assets.items():
         require(path.is_file() and path.stat().st_size > 0, f"Missing public file: {name}")
-    notes = assets["OPEN_BETA_RELEASE_NOTES.md"].read_text().strip()
+    notes = assets["OPEN_BETA_RELEASE_NOTES.md"].read_text(encoding="utf-8").strip()
     require(VERSION in notes and "Studio One" in notes, "Incomplete release notes")
     return notes, assets
 
@@ -145,7 +145,7 @@ def main():
         release = transport.publish(api, notes, assets)
         print(f"Published and publicly verified: {release['html_url']}")
         if os.environ.get("GITHUB_STEP_SUMMARY"):
-            with open(os.environ["GITHUB_STEP_SUMMARY"], "a") as stream:
+            with open(os.environ["GITHUB_STEP_SUMMARY"], "a", encoding="utf-8") as stream:
                 stream.write(f"## Open Beta 1.1.2 published\n\n{release['html_url']}\n\nSource `{head}`; all three platform builds and package checks passed.\n")
 
 

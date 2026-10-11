@@ -1,0 +1,96 @@
+{
+  "schema": "spectralforge.niflheimr.local-prototype-evidence.v1",
+  "date": "2026-10-07",
+  "base_commit": "15427d5717d30f566de27bd3dcc0eafa459a5563",
+  "scope": "Locally modified prototype sources identified by SHA-256; selected technical suites only, not a release gate",
+  "environment": {
+    "os": "Linux",
+    "build": "Release",
+    "compiler": "g++ (Ubuntu 13.3.0-6ubuntu2~24.04) 13.3.0"
+  },
+  "source_sha256": {
+    "Source/NiflheimrDSP.h": "ed793343a1453f4646a26a5cd76487d34b2e4bfbe84bdd498019431a5de854c1",
+    "Source/NiflheimrDefinition.h": "e3c0f966fd753ad89b4e2a266d9f4018f7ef50badd850132c386d4e1a1def15a",
+    "Source/Amplifier.h": "492edbef00302dbe933bb85ab54d4ffe226a45830c0d813386ac37ae79a18f4d",
+    "Source/AmpNativeDSP.h": "252b377c2bec73d6d3911744fd286eaa84b35c06f2e7bf6b0e5ec4c78c5c7ea8",
+    "Source/AmpNativeParameters.h": "fdb6aa8bbf974f3056710ee6c77281b6abec4a96cd608a6511d426c81516bee9",
+    "Source/PluginProcessor.cpp": "05751d36785c4d055c50437088489426e7359e8f495ff24ecec7bb736ab1904e",
+    "Tests/NativeStateTests.h": "05d52a297d1a21a6a2e926289776858ada48b27f3c3ca2378cde5f4e5ff10f8b",
+    "Tests/NiflheimrCoreTests.cpp": "013b783e1128323bbd3834bc160decfb57e4f976a01c13e202bf2c210de8ab26",
+    "Tests/NiflheimrIntegrationTests.cpp": "9b33a490c8c6fcb5c6b24bdb54c0562cdded9c1fa133bb3b59c3ed5303a3a0ba",
+    "Tests/RenderNiflheimr.cpp": "71587533004e18c05ba7aded0f23f8aadd75e67946ed35dfaea089875f22d2f9",
+    "Tests/test_niflheimr_renderer.py": "46c5b32e45f8ad18a80eea037791b82f3f4b7c3d3b385fecfc8033493c3f11be"
+  },
+  "builds": {
+    "Linux VST3": "PASS",
+    "UI executable compilation": "PASS"
+  },
+  "test_suites": {
+    "ChimeraOriginalAmpTests": {
+      "status": "PASS",
+      "seconds": 4.03375
+    },
+    "ChimeraOriginalAmpIntegrationTests": {
+      "status": "PASS",
+      "seconds": 0.246123
+    },
+    "ChimeraNiflheimrCoreTests": {
+      "status": "PASS",
+      "seconds": 6.22416
+    },
+    "ChimeraNiflheimrIntegrationTests": {
+      "status": "PASS",
+      "seconds": 0.940127
+    },
+    "ChimeraNativeStateTests": {
+      "status": "PASS",
+      "seconds": 4.73822
+    },
+    "ChimeraNiflheimrRendererTests": {
+      "status": "PASS",
+      "seconds": 0.18915
+    },
+    "ChimeraAmpNativeTests": {
+      "status": "PASS",
+      "seconds": 10.5674
+    }
+  },
+  "production_observations": {
+    "channel_rate_oversampling_routes": 100,
+    "core_1x_max_error": 0,
+    "block_partition_max_error": 0,
+    "oversized_and_empty_block_max_error": 0,
+    "watched_realtime_allocations": 0,
+    "control_memories": 420,
+    "appended_parameters": 432
+  },
+  "core_observations": {
+    "protected_low_cases": 810,
+    "protected_fundamental_ratio_to_clean": [
+      0.98753,
+      1.03695
+    ],
+    "protected_frequency_hz": [
+      27.5,
+      30.867706,
+      41.2034,
+      55,
+      65.4064,
+      82.4069
+    ],
+    "level_matched_channel_pair_minimum_residual": 0.475101,
+    "musical_interpretation": "Synthetic technical evidence only; no listening or EQ-matched character acceptance"
+  },
+  "ui_execution": {
+    "status": "BLOCKED_ENVIRONMENT",
+    "reason": "Native UI regression requires an active display server and window manager"
+  },
+  "pending": [
+    "Real instrument DI / identical Cab IR audition and metal default voicing",
+    "EQ-matched channel identity",
+    "Alias spectra and target-hardware CPU",
+    "Windows/macOS exact-head CI",
+    "DAW reopen, automation and editor lifecycle"
+  ],
+  "release_approved": false
+}

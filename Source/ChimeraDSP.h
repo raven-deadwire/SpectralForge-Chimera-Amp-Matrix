@@ -85,6 +85,14 @@ public:
     float lowReduction() const {return lowCompressor.reduction();}
     int latency() const { return amps[0].latency(); }
     void setOversampling(int choice) { for (auto& amp : amps) amp.setOversampling(choice); }
+    // Seed the engine choice before Amp::prepare initializes its native/legacy
+    // mix. A restored native rig must start identically on fresh and reused
+    // processors; setNative still crossfades edits made during processing.
+    void prepare(const juce::dsp::ProcessSpec& spec,const std::array<AmpNativeState,3>& initialNativeStates)
+    {
+        for(size_t i=0;i<amps.size();++i)amps[i].setNative(initialNativeStates[i]);
+        prepare(spec);
+    }
     void prepare(const juce::dsp::ProcessSpec& spec)
     {
         sampleRate = spec.sampleRate;previousMode=static_cast<RoutingMode>(-1);

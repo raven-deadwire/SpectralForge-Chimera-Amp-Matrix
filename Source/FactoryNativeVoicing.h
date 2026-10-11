@@ -1,6 +1,7 @@
 #pragma once
 #include "FactoryPresets.h"
 #include "FactoryPresetLevels.h"
+#include "FactoryCabVoicing.h"
 #include "AmpNativeParameters.h"
 #include "PedalBoardParameters.h"
 #include "PostNativeParameters.h"
@@ -231,7 +232,8 @@ inline juce::ValueTree factoryNativeSnapshot(juce::AudioProcessorValueTreeState&
     }
     const auto set=[&](const juce::String& id,float value){auto* p=state.getParameter(id);jassert(p);if(p)snapshot.getChildWithProperty("id",id).setProperty("value",p->convertFrom0to1(p->convertTo0to1(value)),nullptr);};
     const auto get=[&](const juce::String& id){const auto node=snapshot.getChildWithProperty("id",id);jassert(node.isValid());return float(node.getProperty("value"));};
-    applyFactoryPreset(index,set);voiceFactoryNative(index,get,set);set("output",factoryOutputDb[size_t(index)]);
+    applyFactoryPreset(index,set);voiceFactoryNative(index,get,set);
+    voiceFactoryCab(index,get,set);set("output",factoryOutputDb[size_t(index)]);
     // Recall owns the selected PRE banks (including bypassed visible pedals),
     // but another model's saved controls still belong to the session. Restore
     // only inactive PRE banks after the complete native sound initialization.

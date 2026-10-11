@@ -1,0 +1,24 @@
+#pragma once
+// JSON built with JUCE below so compiler flags containing quotes stay valid.
+inline const juce::String CHIMERA_NIFLHEIMR_BUILD_JSON = [] {
+    auto* object = new juce::DynamicObject();
+    object->setProperty("configuration", CHIMERA_MEASUREMENT_CONFIG);
+    object->setProperty("compiler_id", "@CMAKE_CXX_COMPILER_ID@");
+    object->setProperty("compiler_version", "@CMAKE_CXX_COMPILER_VERSION@");
+    object->setProperty("cxx_flags", R"flags(@CMAKE_CXX_FLAGS@)flags");
+    object->setProperty("release_flags", R"flags(@CMAKE_CXX_FLAGS_RELEASE@)flags");
+    object->setProperty("debug_flags", R"flags(@CMAKE_CXX_FLAGS_DEBUG@)flags");
+    object->setProperty("relwithdebinfo_flags", R"flags(@CMAKE_CXX_FLAGS_RELWITHDEBINFO@)flags");
+    object->setProperty("minsize_flags", R"flags(@CMAKE_CXX_FLAGS_MINSIZEREL@)flags");
+    object->setProperty("recommended_config_flags", true);
+    object->setProperty("cmake_version", "@CMAKE_VERSION@");
+    object->setProperty("cxx_standard", "@CMAKE_CXX_STANDARD@");
+    object->setProperty("osx_architectures", "@CMAKE_OSX_ARCHITECTURES@");
+    object->setProperty("msvc_runtime", R"flags(@CMAKE_MSVC_RUNTIME_LIBRARY@)flags");
+    object->setProperty("juce_version", JUCE_VERSION);
+    object->setProperty("system", "@CMAKE_SYSTEM_NAME@");
+    object->setProperty("processor", "@CMAKE_SYSTEM_PROCESSOR@");
+    object->setProperty("source_header_set_sha256", "@CHIMERA_NIFLHEIMR_HEADER_SET_SHA256@");
+    object->setProperty("renderer_sha256", "@CHIMERA_NIFLHEIMR_RENDERER_SHA256@");
+    return juce::JSON::toString(juce::var(object), true);
+}();

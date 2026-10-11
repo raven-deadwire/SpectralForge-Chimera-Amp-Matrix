@@ -84,9 +84,7 @@ Source: "{#StageDir}\ARTWORK_PROMPTS.json"; DestDir: "{app}\Documentation"; Flag
 Source: "{#StageDir}\*.html"; DestDir: "{app}\Documentation"; Flags: ignoreversion
 Source: "{#StageDir}\payload-manifest.json"; DestDir: "{app}\Documentation"; Flags: ignoreversion
 Source: "{#StageDir}\*.md"; DestDir: "{app}\Documentation"; Flags: ignoreversion
-Source: "{#StageDir}\reference\*"; DestDir: "{app}\Documentation\reference"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "{#StageDir}\ReferenceTools\*"; DestDir: "{app}\ReferenceTools"; Components: reference; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "{#StageDir}\reference-audio\*"; DestDir: "{app}\reference-audio"; Components: reference; Flags: ignoreversion recursesubdirs createallsubdirs
 
 ; Optional user-owned companion pack, supplied separately from the public build.
 ; Install where both VST3 and standalone (and other Windows accounts) can discover it.
@@ -119,8 +117,8 @@ english.CustomInstall=Choose components
 korean.CustomInstall=설치할 구성 요소 선택
 english.Standalone=Standalone application
 korean.Standalone=단독 실행 앱
-english.ReferenceTools=Offline reference tools and example audio
-korean.ReferenceTools=오프라인 레퍼런스 도구 및 예제 음원
+english.ReferenceTools=Offline reference tools
+korean.ReferenceTools=오프라인 레퍼런스 도구
 english.InstallGuide=Installation guide
 korean.InstallGuide=설치 안내
 english.Vst3FolderTitle=VST3 installation folder

@@ -1,6 +1,12 @@
 # Cabinet control panel roadmap
 
-Status: **DESIGN DIRECTION APPROVED / IMPLEMENTATION PENDING**.
+## Current 1.3 preparation — 2026-10-09 KST
+
+The original CAB engine, 14 speaker designs, 20 microphones and nine explicit layouts now exist in the CAB branch. The owner selected **1.3** for the current release preparation. Whole-room framing, cabinet artwork preservation and duplicate visible layout entries are being corrected before the final candidate. [Release preparation](RELEASE_1_3_PREPARATION.md) is the current delivery record; [head-front controls](AMP_HEAD_CONTROLS_NEXT_UPDATE.md) belong to the next update after 1.3, with no assigned version yet. The October 8 architecture and reference boundaries below remain applicable; its initial prototype schedule is historical.
+
+## October 8 design baseline
+
+Status at the October 8 checkpoint: **DESIGN DIRECTION APPROVED / IMPLEMENTATION PENDING**.
 Updated 2026-10-08 KST after the owner's clarification:
 study existing products, then independently design Chimera's own cabinet and
 microphone engine. Delivery track remains **1.3.x CAB**, alongside Niflheimr.

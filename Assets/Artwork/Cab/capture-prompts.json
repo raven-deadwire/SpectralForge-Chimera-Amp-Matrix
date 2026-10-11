@@ -1,0 +1,103 @@
+{
+  "purpose": "Illustrative Chimera capture-identity microphone cutouts; artwork does not assert an implemented microphone response.",
+  "generator": "built-in image_gen",
+  "transparent_background": true,
+  "assets": [
+    {
+      "id": "dynamic-57",
+      "prompt": "Use case: product-mockup. Asset type: individual microphone cutout for SpectralForge Chimera cabinet simulator UI. Create ONE complete studio microphone, no other objects. Photorealistic premium 3D product rendering, physically plausible metal and finely woven grille, crisp clean silhouette easy to recognize at small thumbnail size. The microphone is upright vertically, entire body visible, centered on a square canvas with generous 12% transparent safety margin. Subtle three-quarter front view showing form. Neutral studio key light with cool soft rim highlighting dark materials. Actual transparent background, retain alpha; no floor, shadow backdrop, pedestal, stand, cable, hands, accessories, text, letters, logos, brand marks or watermark. Original Chimera illustrative design inspired by the described microphone archetype, not a guaranteed hardware reproduction. Subject: a classic slim instrument dynamic microphone, long tapered dark graphite cylindrical handle, shorter slightly wider cylindrical black vented capsule at the top, flat fine black mesh front cap with a few concentric ridges, modest satin nickel collar at capsule base. No ball-shaped head. Compact precision industrial finish.",
+      "source": "/workspace/scratch/8f5c79147ae4/generated_images/exec-04ad1cb2-9ff4-4618-86d6-63dc7b8fad52.png",
+      "file": "Assets/Artwork/Cab/mic-dynamic-57.png",
+      "generator": "built-in image_gen",
+      "transparent_background": true
+    },
+    {
+      "id": "dynamic-421",
+      "prompt": "Use case: product-mockup. Asset type: individual microphone cutout for SpectralForge Chimera cabinet simulator UI. Create ONE complete studio microphone, no other objects. Photorealistic premium 3D product rendering, physically plausible metal and finely woven grille, crisp clean silhouette easy to recognize at small thumbnail size. The microphone is upright vertically, entire body visible, centered on a square canvas with generous 12% transparent safety margin. Subtle three-quarter front view showing form. Neutral studio key light with cool soft rim highlighting dark materials. Actual transparent background, retain alpha; no floor, shadow backdrop, pedestal, stand, cable, hands, accessories, text, letters, logos, brand marks or watermark. Original Chimera illustrative design inspired by the described microphone archetype, not a guaranteed hardware reproduction. Subject: a large diaphragm instrument dynamic microphone with a distinctive thick elongated flattened oval capsule/body: a tall broad rounded rectangular dark graphite grille top and tapering lower graphite body, short narrow cylindrical connector tail, small brushed nickel collar near bottom. The silhouette is a chunky elongated capsule, not a ball microphone, not a skinny pencil.",
+      "source": "/workspace/scratch/8f5c79147ae4/generated_images/exec-2cffe7fb-1d4a-4701-b20c-b6bc548f8afc.png",
+      "file": "Assets/Artwork/Cab/mic-dynamic-421.png",
+      "generator": "built-in image_gen",
+      "transparent_background": true
+    },
+    {
+      "id": "dynamic-906",
+      "prompt": "Use case: product-mockup. Asset type: individual microphone cutout for SpectralForge Chimera cabinet simulator UI. Create ONE complete studio microphone, no other objects. Photorealistic premium 3D product rendering, physically plausible metal and finely woven grille, crisp clean silhouette easy to recognize at small thumbnail size. The microphone is upright vertically, entire body visible, centered on a square canvas with generous 12% transparent safety margin. Subtle three-quarter front view showing form. Neutral studio key light with cool soft rim highlighting dark materials. Actual transparent background, retain alpha; no floor, shadow backdrop, pedestal, stand, cable, hands, accessories, text, letters, logos, brand marks or watermark. Original Chimera illustrative design inspired by the described microphone archetype, not a guaranteed hardware reproduction. Subject: a compact flat side-address dynamic guitar microphone with a broad almost-square rounded rectangular gold-bronze woven grille head, slim depth, dark graphite perimeter frame and back shell, a short narrow cylindrical black connector stem below. Shape distinctly flat rectangular, not a long studio condenser and not a ball microphone.",
+      "source": "/workspace/scratch/8f5c79147ae4/generated_images/exec-23641bab-1521-4359-8aa3-ac2389474b7d.png",
+      "file": "Assets/Artwork/Cab/mic-dynamic-906.png",
+      "generator": "built-in image_gen",
+      "transparent_background": true
+    },
+    {
+      "id": "ribbon-121",
+      "prompt": "Use case: product-mockup. Asset type: individual microphone cutout for SpectralForge Chimera cabinet simulator UI. Create ONE complete studio microphone, no other objects. Photorealistic premium 3D product rendering, physically plausible metal and finely woven grille, crisp clean silhouette easy to recognize at small thumbnail size. The microphone is upright vertically, entire body visible, centered on a square canvas with generous 12% transparent safety margin. Subtle three-quarter front view showing form. Neutral studio key light with cool soft rim highlighting dark materials. Actual transparent background, retain alpha; no floor, shadow backdrop, pedestal, stand, cable, hands, accessories, text, letters, logos, brand marks or watermark. Original Chimera illustrative design inspired by the described microphone archetype, not a guaranteed hardware reproduction. Subject: a classic tall slender side-address ribbon microphone, straight brushed nickel cylindrical body, long narrow dark vertical ribbon grille at top protected by thin polished metal rails, softly rounded capsule cap, slightly wider capsule than stem, subtle horizontal machined rings below grille. Overall slim elegant metallic silhouette.",
+      "source": "/workspace/scratch/8f5c79147ae4/generated_images/exec-9a08f0f8-5683-4b2e-ac2e-f661b3d39791.png",
+      "file": "Assets/Artwork/Cab/mic-ribbon-121.png",
+      "generator": "built-in image_gen",
+      "transparent_background": true
+    },
+    {
+      "id": "ribbon-160",
+      "prompt": "Use case: product-mockup. Asset type: individual microphone cutout for SpectralForge Chimera cabinet simulator UI. Create ONE complete studio microphone, no other objects. Photorealistic premium 3D product rendering, physically plausible metal and finely woven grille, crisp clean silhouette easy to recognize at small thumbnail size. The microphone is upright vertically, entire body visible, centered on a square canvas with generous 12% transparent safety margin. Subtle three-quarter front view showing form. Neutral studio key light with cool soft rim highlighting dark materials. Actual transparent background, retain alpha; no floor, shadow backdrop, pedestal, stand, cable, hands, accessories, text, letters, logos, brand marks or watermark. Original Chimera illustrative design inspired by the described microphone archetype, not a guaranteed hardware reproduction. Subject: a compact classic double-ribbon microphone with a near-spherical fine black woven mesh head slightly elongated into an egg, sitting on a very slim straight dark graphite cylindrical handle, narrow brushed nickel collar under head. A small spherical head rather than a large handheld vocal ball, precise delicate grille. Entire slim handle visible.",
+      "source": "/workspace/scratch/8f5c79147ae4/generated_images/exec-ca6fe51d-1ce1-4279-8f23-0b6bb8f51427.png",
+      "file": "Assets/Artwork/Cab/mic-ribbon-160.png",
+      "generator": "built-in image_gen",
+      "transparent_background": true
+    },
+    {
+      "id": "condenser-87",
+      "prompt": "Use case: product-mockup. Asset type: individual microphone cutout for SpectralForge Chimera cabinet simulator UI. Create ONE complete studio microphone, no other objects. Photorealistic premium 3D product rendering, physically plausible metal and finely woven grille, crisp clean silhouette easy to recognize at small thumbnail size. The microphone is upright vertically, entire body visible, centered on a square canvas with generous 12% transparent safety margin. Subtle three-quarter front view showing form. Neutral studio key light with cool soft rim highlighting dark materials. Actual transparent background, retain alpha; no floor, shadow backdrop, pedestal, stand, cable, hands, accessories, text, letters, logos, brand marks or watermark. Original Chimera illustrative design inspired by the described microphone archetype, not a guaranteed hardware reproduction. Subject: a large classic side-address condenser microphone with a broad elongated rounded trapezoidal silver wire grille head, subtly angled sloping shoulders, brushed nickel cylindrical body tapering just slightly toward the connector base. Tall dignified studio silhouette, head approximately upper third, unmarked body, tiny understated switch recess, no shock mount.",
+      "source": "/workspace/scratch/8f5c79147ae4/generated_images/exec-546d246e-105b-4799-9e14-fd81481638aa.png",
+      "file": "Assets/Artwork/Cab/mic-condenser-87.png",
+      "generator": "built-in image_gen",
+      "transparent_background": true
+    },
+    {
+      "id": "condenser-414",
+      "prompt": "Use case: product-mockup. Asset type: individual microphone cutout for SpectralForge Chimera cabinet simulator UI. Create ONE complete studio microphone, no other objects. Photorealistic premium 3D product rendering, physically plausible metal and finely woven grille, crisp clean silhouette easy to recognize at small thumbnail size. The microphone is upright vertically, entire body visible, centered on a square canvas with generous 12% transparent safety margin. Subtle three-quarter front view showing form. Neutral studio key light with cool soft rim highlighting dark materials. Actual transparent background, retain alpha; no floor, shadow backdrop, pedestal, stand, cable, hands, accessories, text, letters, logos, brand marks or watermark. Original Chimera illustrative design inspired by the described microphone archetype, not a guaranteed hardware reproduction. Subject: a classic compact side-address condenser microphone with a broad rectangular brass-gold mesh upper head with rounded shoulders, a squared matte graphite short body lower half, very short black connector neck. Small plain recessed switch shapes on body but absolutely no lettering. Distinctive wide blocky cuboid silhouette, not a cylindrical condenser.",
+      "source": "/workspace/scratch/8f5c79147ae4/generated_images/exec-5b8c6dca-e8f2-4624-ac4b-29bb8b42efd6.png",
+      "file": "Assets/Artwork/Cab/mic-condenser-414.png",
+      "generator": "built-in image_gen",
+      "transparent_background": true
+    },
+    {
+      "id": "dynamic-20",
+      "prompt": "Use case: product-mockup. Asset type: individual microphone cutout for SpectralForge Chimera cabinet simulator UI. Create ONE complete studio microphone, no other objects. Photorealistic premium 3D product rendering, physically plausible metal and finely woven grille, crisp clean silhouette easy to recognize at small thumbnail size. The microphone is upright vertically, entire body visible, centered on a square canvas with generous 12% transparent safety margin. Subtle three-quarter front view showing form. Neutral studio key light with cool soft rim highlighting dark materials. Actual transparent background, retain alpha; no floor, shadow backdrop, pedestal, stand, cable, hands, accessories, text, letters, logos, brand marks or watermark. Original Chimera illustrative design inspired by the described microphone archetype, not a guaranteed hardware reproduction. Subject: a large broadcast dynamic microphone, thick long cylindrical satin nickel-grey body, rounded flat-ended cylindrical mesh grille at the top, distinctive row of several horizontal black acoustic side slots running down the upper body, slightly tapering compact bottom. Rugged balanced broadcast silhouette, no yoke or mount.",
+      "source": "/workspace/scratch/8f5c79147ae4/generated_images/exec-a15e0df0-9506-4ad4-8883-f599db70d7e1.png",
+      "file": "Assets/Artwork/Cab/mic-dynamic-20.png",
+      "generator": "built-in image_gen",
+      "transparent_background": true
+    },
+    {
+      "id": "dynamic-7",
+      "prompt": "Use case: product-mockup. Asset type: individual microphone cutout for SpectralForge Chimera cabinet simulator UI. Create ONE complete studio microphone, no other objects. Photorealistic premium 3D product rendering, physically plausible metal and finely woven grille, crisp clean silhouette easy to recognize at small thumbnail size. The microphone is upright vertically, entire body visible, centered on a square canvas with generous 12% transparent safety margin. Subtle three-quarter front view showing form. Neutral studio key light with cool soft rim highlighting dark materials. Actual transparent background, retain alpha; no floor, shadow backdrop, pedestal, stand, cable, hands, accessories, text, letters, logos, brand marks or watermark. Original Chimera illustrative design inspired by the described microphone archetype, not a guaranteed hardware reproduction. Subject: a large dark graphite broadcast dynamic microphone with a long black cylindrical foam windscreen upper half and slightly tapering rear cylindrical metal body lower half. Rounded foam top, subtly textured foam contrasting smooth graphite lower shell. Compact end connector integrated at base. No mounting yoke, brackets, stand, foam separated from body or extra parts.",
+      "source": "/workspace/scratch/8f5c79147ae4/generated_images/exec-a404f2f6-10a7-4e44-a149-cfb3f5dc314c.png",
+      "file": "Assets/Artwork/Cab/mic-dynamic-7.png",
+      "generator": "built-in image_gen",
+      "transparent_background": true
+    },
+    {
+      "id": "ribbon-4038",
+      "prompt": "Use case: product-mockup. Asset type: individual microphone cutout for SpectralForge Chimera cabinet simulator UI. Create ONE complete studio microphone, no other objects. Photorealistic premium 3D product rendering, physically plausible metal and finely woven grille, crisp clean silhouette easy to recognize at small thumbnail size. The microphone is upright vertically, entire body visible, centered on a square canvas with generous 12% transparent safety margin. Subtle three-quarter front view showing form. Neutral studio key light with cool soft rim highlighting dark materials. Actual transparent background, retain alpha; no floor, shadow backdrop, pedestal, stand, cable, hands, accessories, text, letters, logos, brand marks or watermark. Original Chimera illustrative design inspired by the described microphone archetype, not a guaranteed hardware reproduction. Subject: a distinctive vintage broadcast ribbon microphone, broad flattened circular dark graphite puck-shaped capsule at top, subtly flattened sides giving rounded-hexagonal outline, intricate dark woven mesh on front face and a thick smooth rolled rim. The heavy pancake-shaped head sits on a short thick tapered black neck and cylindrical connector, giving an unmistakable lollipop silhouette. No supporting stand, no external wire, no bracket.",
+      "source": "/workspace/scratch/8f5c79147ae4/generated_images/exec-44739526-794e-4ce6-9f61-f7dd84f7a69c.png",
+      "file": "Assets/Artwork/Cab/mic-ribbon-4038.png",
+      "generator": "built-in image_gen",
+      "transparent_background": true
+    },
+    {
+      "id": "condenser-184",
+      "prompt": "Use case: product-mockup. Asset type: individual microphone cutout for SpectralForge Chimera cabinet simulator UI. Create ONE complete studio microphone, no other objects. Photorealistic premium 3D product rendering, physically plausible metal and finely woven grille, crisp clean silhouette easy to recognize at small thumbnail size. The microphone is upright vertically, entire body visible, centered on a square canvas with generous 12% transparent safety margin. Subtle three-quarter front view showing form. Neutral studio key light with cool soft rim highlighting dark materials. Actual transparent background, retain alpha; no floor, shadow backdrop, pedestal, stand, cable, hands, accessories, text, letters, logos, brand marks or watermark. Original Chimera illustrative design inspired by the described microphone archetype, not a guaranteed hardware reproduction. Subject: a compact small-diaphragm pencil condenser microphone. A very slender short straight satin nickel metal cylinder of uniform diameter with a flat round gold-toned fine mesh end-address capsule on top, small dark acoustic slots immediately below capsule and a discreet thin seam. Clean miniature precision-measurement appearance, simple slender pencil silhouette, no side-address grille, no bulbous head.",
+      "source": "/workspace/scratch/8f5c79147ae4/generated_images/exec-d80a2735-7c5f-4cf5-a542-2a457f91c68b.png",
+      "file": "Assets/Artwork/Cab/mic-condenser-184.png",
+      "generator": "built-in image_gen",
+      "transparent_background": true
+    },
+    {
+      "id": "chimera-strike",
+      "prompt": "Use case: product-mockup. Asset type: individual microphone cutout for SpectralForge Chimera cabinet simulator UI. Create ONE complete studio microphone, no other objects. Photorealistic premium 3D product rendering, physically plausible metal and finely woven grille, crisp clean silhouette easy to recognize at small thumbnail size. The microphone is upright vertically, entire body visible, centered on a square canvas with generous 12% transparent safety margin. Subtle three-quarter front view showing form. Neutral studio key light with cool soft rim highlighting dark materials. Actual transparent background, retain alpha; no floor, shadow backdrop, pedestal, stand, cable, hands, accessories, text, letters, logos, brand marks or watermark. Original Chimera illustrative design inspired by the described microphone archetype, not a guaranteed hardware reproduction. Subject: Chimera Strike, an entirely original premium large-diaphragm side-address condenser microphone designed for a modern heavy-music studio. A striking tall faceted hexagonal graphite body with subtle converging chamfered planes, broad angular clipped-corner capsule cage in brushed nickel with layered fine bronze mesh, two slim parallel diagonal metallic ribs across capsule sides but clear front mesh, restrained brushed warm-gold accent ring at the shoulder, short geometric connector base. Invented purposeful engineered form, physically plausible precision audio hardware, not sci-fi weapon, no runes, no Nordic ornament, no manufacturer design copy, no writing or symbols.",
+      "source": "/workspace/scratch/8f5c79147ae4/generated_images/exec-4198c55b-08b6-403d-83ec-5bfc6bb691fd.png",
+      "file": "Assets/Artwork/Cab/mic-chimera-strike.png",
+      "generator": "built-in image_gen",
+      "transparent_background": true
+    }
+  ]
+}
