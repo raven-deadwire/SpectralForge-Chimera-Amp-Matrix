@@ -99,8 +99,8 @@ public:
         slider.onDragStart=[this]{finishInteraction();if(canEdit && !canEdit())return;if(!slider.usesInteractionReadout() && activate)activate();dragging=true;if(attachment)attachment->beginGesture();slider.beginValueAdjustment();};
         slider.onValueChange=[this]{if(!attachment)return;if(canEdit && !canEdit()){finishInteraction();attachment->sendInitialUpdate();return;}if(activate)activate();if(dragging)attachment->setValueAsPartOfGesture((float)slider.getValue());else attachment->setValueAsCompleteGesture((float)slider.getValue());};
         slider.onDragEnd=[this]{finishInteraction(false);};
-        choice.onChange=[this]{if(activate)activate();if(attachment)attachment->setValueAsCompleteGesture((float)(choice.getSelectedId()-1));};
-        toggle.onClick=[this]{if(activate)activate();if(attachment)attachment->setValueAsCompleteGesture(toggle.getToggleState()?1.f:0.f);updateToggle();};
+        choice.onChange=[this]{if(canEdit && !canEdit()){if(attachment)attachment->sendInitialUpdate();return;}if(activate)activate();if(attachment)attachment->setValueAsCompleteGesture((float)(choice.getSelectedId()-1));};
+        toggle.onClick=[this]{if(canEdit && !canEdit()){if(attachment)attachment->sendInitialUpdate();return;}if(activate)activate();if(attachment)attachment->setValueAsCompleteGesture(toggle.getToggleState()?1.f:0.f);updateToggle();};
     }
     void resized() override {
         if(compact) {

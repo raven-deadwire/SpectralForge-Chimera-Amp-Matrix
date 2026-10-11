@@ -7,7 +7,8 @@
 #include <stdexcept>
 using namespace spectralforge;
 namespace {
-void check(bool ok,const char* text){if(!ok)throw std::runtime_error(text);}
+std::string testContext;
+void check(bool ok,const char* text){if(!ok)throw std::runtime_error(std::string(text)+(testContext.empty()?std::string{}:" ["+testContext+"]"));}
 void settle(int ms=80){check(chimeraTest::dispatchFor(ms),"Native message loop stopped");}
 template<class Predicate> void awaitUI(Predicate ready,const char* message) {
     const auto deadline=juce::Time::getMillisecondCounterHiRes()+2000.;
@@ -55,23 +56,40 @@ void checkReadout(juce::Slider& slider,bool visible) {
     auto* control=dynamic_cast<NativeControlView*>(slider.getParentComponent());check(control,"Missing native face control");
     check(control->label.isVisible()!=visible,"Parameter name and active value overlap");
 }
-void checkFaceLayout(AmpHeadWorkspace& view,int model) {
+std::vector<NativeControlView*> faceControls(juce::Component& root) {
+    std::vector<NativeControlView*> result;
+    const auto visit=[&](auto&& self,juce::Component& parent)->void {
+        for(auto* child:parent.getChildren())if(auto* control=dynamic_cast<NativeControlView*>(child))result.push_back(control);else self(self,*child);
+    };
+    visit(visit,root);return result;
+}
+void checkFaceLayout(AmpHeadWorkspace& view,int model,int channel=0) {
     auto* head=find<AmpHeadControlView>(view,"ampHead1");check(head,"Missing layout head");
     std::vector<juce::Rectangle<int>> cells;
-    for(auto* child:head->getChildren())if(auto* c=dynamic_cast<NativeControlView*>(child)) {
-        check(head->getLocalBounds().contains(c->getBounds()),"Face control clipped outside head");
-        for(const auto& cell:cells)check(!cell.intersects(c->getBounds()),"Face controls overlap");
-        cells.push_back(c->getBounds());
+    for(auto* c:faceControls(*head))if(c->isVisible()) {
+        const auto bounds=head->getLocalArea(c,c->getLocalBounds());
+        check(head->getLocalBounds().contains(bounds),"Face control clipped outside head");
+        for(const auto& cell:cells)check(!cell.intersects(bounds),"Face controls overlap");
+        cells.push_back(bounds);
         check(c->label.getLookAndFeel().getLabelFont(c->label).getHeight()>=12.f,"Face label is too small to read");
         checkLabelFits(c->label,"Face parameter label is truncated");
-        const auto layout=c->slider.getLookAndFeel().getSliderLayout(c->slider);
-        check(layout.sliderBounds.getWidth()>=30 && layout.sliderBounds.getHeight()>=30,"Knob target too small");
-        // Measure the actual value label with its installed font and insets.
-        for(auto* value:c->slider.getChildren())if(auto* label=dynamic_cast<juce::Label*>(value)) {
-            if(label->isVisible())checkLabelFits(*label,"Face value is truncated");
+        if(c->slider.isVisible()) {
+            const auto layout=c->slider.getLookAndFeel().getSliderLayout(c->slider);
+            check(layout.sliderBounds.getWidth()>=30 && layout.sliderBounds.getHeight()>=30,"Knob target too small");
+            for(auto* value:c->slider.getChildren())if(auto* label=dynamic_cast<juce::Label*>(value)) {
+                if(label->isVisible())checkLabelFits(*label,"Face value is truncated");
+            }
+        } else if(c->choice.isVisible()) {
+            check(c->choice.getHeight()>=24 && c->choice.getWidth()>=48,"Face selector target too small");
+            for(auto* child:c->choice.getChildren())if(auto* label=dynamic_cast<juce::Label*>(child))checkLabelFits(*label,"Face selector text is truncated");
+        } else check(c->toggle.isVisible() && c->toggle.getHeight()>=24 && c->toggle.getWidth()>=32,"Face switch target too small");
+        if(auto* input=find<juce::ComboBox>(*head,"ampHeadInput1");input && input->isVisible()) {
+            check(!bounds.intersects(head->getLocalArea(input,input->getLocalBounds())),"Input route overlaps face control");
         }
     }
-    check(cells.size()==size_t(model==1?6:14),"Wrong layout control count");
+    size_t expected=0;const auto& panel=ampNativePanel(model);
+    for(size_t i=0;i<panel.controls.size();++i)if(ampNativeControlVisible(model,int(i),channel))++expected;
+    check(cells.size()==expected,"Wrong layout control count");
 }
 juce::TextEditor* valueEditor(juce::Slider& slider) {
     juce::TextEditor* input=nullptr;
@@ -112,29 +130,159 @@ void captureAdjustment(AmpHeadWorkspace& view,const juce::String& id,const juce:
     screenshot(view,directory,name);
     releaseDrag(*slider);checkReadout(*slider,false);
 }
+void checkStaleDiscrete(ChimeraProcessor& p,Host& all,int model,AmpNativeControlKind kind) {
+    testContext="stale discrete control, model "+std::to_string(model);
+    p.setAmpModel(0,model);p.setAmpChannel(0,0);
+    auto view=std::make_unique<AmpHeadWorkspace>(p,0);view->addToDesktop(juce::ComponentPeer::windowIsTemporary);view->setVisible(true);settle(20);
+    const auto& panel=ampNativePanel(model);int index=-1;
+    for(size_t i=0;i<panel.controls.size();++i)if(panel.controls[i].kind==kind && ampNativeControlVisible(model,int(i),0)){index=int(i);break;}
+    check(index>=0,"No discrete control for stale-event regression");const auto id=ampNativeControlID(0,model,index,0);
+    auto* head=find<AmpHeadControlView>(*view,"ampHead1");auto* control=find<NativeControlView>(*head,id+"_control");check(control && control->isShowing(),"Stale-event face control missing");
+    const auto before=get(p,id);p.setAmpChannel(0,1);const int writes=all.writes,begins=all.begins;
+    // Deliver the old widget callback before the workspace timer can rebuild it.
+    if(kind==AmpNativeControlKind::choice)control->choice.setSelectedId(control->choice.getSelectedId()==1?2:1,juce::sendNotificationSync);
+    else {control->toggle.setToggleState(!control->toggle.getToggleState(),juce::dontSendNotification);check(bool(control->toggle.onClick),"Toggle callback missing");control->toggle.onClick();}
+    check(get(p,id)==before && all.writes==writes && all.begins==begins,"Stale channel switch callback changed audio state");
+    view.reset();check(all.open==0,"Stale discrete callback left host gesture open");
+}
+void checkQueuedRouteRebind(ChimeraProcessor& p,Host& all) {
+    testContext="queued input route after model rebind";
+    p.setAmpModel(0,1);p.setAmpChannel(0,0);p.setAmpNativeRoute(0,0);
+    auto view=std::make_unique<AmpHeadWorkspace>(p,0);view->addToDesktop(juce::ComponentPeer::windowIsTemporary);view->setVisible(true);settle(20);
+    juce::Component::SafePointer<juce::ComboBox> oldInput=find<juce::ComboBox>(*view,"ampHeadInput1");
+    check(oldInput!=nullptr && oldInput->isShowing() && oldInput->getSelectedId()==1,"Queued-route source input missing");
+    oldInput->setSelectedId(2,juce::sendNotificationAsync);
+    check(p.selectedAmpNativeRoute(0)==0,"Queued route changed parameter synchronously");
+    p.setAmpModel(0,0);const int newRoute=p.selectedAmpNativeRoute(0),writes=all.writes,begins=all.begins,ends=all.ends;
+    view->refresh();check(oldInput==nullptr,"Model rebind retained the old input widget");
+    auto drained=std::make_shared<bool>(false);check(juce::MessageManager::callAsync([drained]{*drained=true;}),"Unable to enqueue route-drain marker");
+    awaitUI([&]{return *drained;},"Pending route callback queue did not drain");
+    check(p.selectedAmpModel(0)==0 && p.selectedAmpNativeRoute(0)==newRoute,"Queued old route changed the new model bank");
+    check(all.writes==writes && all.begins==begins && all.ends==ends && all.open==0,"Queued old route wrote after model rebind");
+}
+void checkQueuedChannelRebind(ChimeraProcessor& p,Host& all) {
+    testContext="queued named channel after model rebind";
+    p.setAmpModel(0,0);p.setAmpChannel(0,0);
+    auto view=std::make_unique<AmpHeadWorkspace>(p,0);view->addToDesktop(juce::ComponentPeer::windowIsTemporary);view->setVisible(true);settle(20);
+    juce::Component::SafePointer<juce::TextButton> oldButton=find<juce::TextButton>(*view,"ampHeadNamedChannel1_1");
+    check(oldButton!=nullptr && oldButton->isShowing(),"Queued-channel source button missing");oldButton->triggerClick();
+    check(p.selectedAmpChannel(0)==0,"Queued channel changed parameter synchronously");
+    p.setAmpModel(0,3);p.setAmpChannel(0,0);const int writes=all.writes,begins=all.begins,ends=all.ends;
+    view->refresh();check(oldButton==nullptr,"Model rebind retained the old channel button");
+    auto drained=std::make_shared<bool>(false);check(juce::MessageManager::callAsync([drained]{*drained=true;}),"Unable to enqueue channel-drain marker");
+    awaitUI([&]{return *drained;},"Pending channel callback queue did not drain");
+    check(p.selectedAmpModel(0)==3 && p.selectedAmpChannel(0)==0,"Queued old channel changed the new model bank");
+    check(all.writes==writes && all.begins==begins && all.ends==ends && all.open==0,"Queued old channel wrote after model rebind");
+}
+void checkAllModels(ChimeraProcessor& p,Host& all,const juce::File& directory) {
+    set(p,"mode",0);int channels=0,bindings=0,knobs=0,choices=0,toggles=0,routes=0;
+    for(int model=0;model<ampModelCount;++model) {
+        testContext="model "+std::to_string(model);check(ampHead::supported(model),"Catalog model has no direct head controls");
+        const auto& panel=ampNativePanel(model);p.setAmpModel(0,model);p.setAmpChannel(0,panel.defaultChannel);
+        auto view=std::make_unique<AmpHeadWorkspace>(p,0);view->addToDesktop(juce::ComponentPeer::windowIsTemporary);view->setVisible(true);settle(20);
+        auto* head=find<AmpHeadControlView>(*view,"ampHead1");check(head && head->isShowing(),"Catalog model fell back to Details");
+        for(int channel=0;channel<int(panel.channels.size());++channel) {
+            testContext="model "+std::to_string(model)+", channel "+std::to_string(channel);
+            if(panel.channels.size()>1) {
+                const auto namedID="ampHeadNamedChannel1_"+juce::String(channel);auto* named=find<juce::TextButton>(*view,namedID);
+                check(named && named->isShowing(),"Catalog channel has no visible selector");
+                check(named->getButtonText().contains(juce::String::fromUTF8(panel.channels[size_t(channel)])),"Catalog channel name missing");
+                named->triggerClick();awaitUI([&]{auto* current=find<juce::TextButton>(*view,namedID);return p.selectedAmpChannel(0)==channel && current && current->getToggleState();},"Catalog channel selector failed");
+            }
+            view->refresh();check(head->displayedModel()==model && head->displayedContext()==0,"Catalog head bound wrong model or context");
+            std::set<juce::String> activeIDs;size_t expectedControls=0;
+            for(size_t index=0;index<panel.controls.size();++index) {
+                const auto& spec=panel.controls[index];const auto id=ampNativeControlID(0,model,int(index),channel);
+                auto* control=find<NativeControlView>(*head,id+"_control");const bool visible=ampNativeControlVisible(model,int(index),channel);
+                check((control && control->isShowing())==visible,"Catalog channel mask does not match face visibility");
+                if(!visible)continue;
+                ++expectedControls;++bindings;check(activeIDs.insert(id).second,"Catalog face has duplicate parameter binding");
+                testContext="model "+std::to_string(model)+", channel "+std::to_string(channel)+", "+spec.key;
+                auto* parameter=p.parameters().getParameter(id);check(parameter,"Catalog face parameter missing");Host host;parameter->addListener(&host);
+                if(spec.kind==AmpNativeControlKind::knob) {
+                    ++knobs;check(control->slider.isShowing() && !control->choice.isVisible() && !control->toggle.isVisible(),"Catalog knob has wrong widget type");
+                    set(p,id,parameter->convertFrom0to1(.37f));settle(2);checkReadout(control->slider,false);
+                    const auto before=get(p,id);drag(control->slider,false);checkReadout(control->slider,true);releaseDrag(control->slider);checkReadout(control->slider,false);
+                    check(get(p,id)!=before,"Catalog knob drag did not edit its parameter");check(host.begins==1 && host.ends==1 && host.open==0,"Catalog knob host gesture not balanced");
+                } else if(spec.kind==AmpNativeControlKind::choice) {
+                    ++choices;check(control->choice.isShowing() && !control->slider.isVisible() && !control->toggle.isVisible(),"Catalog choice has wrong widget type");
+                    check(control->choice.getNumItems()==int(spec.options.size()),"Catalog selector options missing");
+                    for(int option=0;option<int(spec.options.size());++option) {
+                        check(control->choice.getItemText(option)==juce::String::fromUTF8(spec.options[size_t(option)]),"Catalog selector option label changed");
+                        control->choice.setSelectedId(option+1,juce::sendNotificationSync);check(get(p,id)==float(option),"Catalog selector changed wrong parameter value");
+                    }
+                } else {
+                    ++toggles;check(control->toggle.isShowing() && !control->slider.isVisible() && !control->choice.isVisible(),"Catalog toggle has wrong widget type");
+                    const float target=control->toggle.getToggleState()?0.f:1.f;control->toggle.triggerClick();
+                    awaitUI([&]{return get(p,id)==target;},"Catalog toggle did not edit its parameter");
+                    check(control->toggle.getToggleState()==(target>.5f),"Catalog toggle visual state is stale");
+                }
+                check(host.open==0 && host.begins==host.ends,"Catalog control host gestures not balanced");parameter->removeListener(&host);
+            }
+            check(head->controlCount()==expectedControls,"Catalog head control count differs from channel mask");
+            for(const auto size:{juce::Point<int>{1000,642},{1180,650},{1440,780},{1680,910}}) {
+                testContext="model "+std::to_string(model)+", channel "+std::to_string(channel)+", width "+std::to_string(size.x);
+                const int writes=all.writes,begins=all.begins;view->setSize(size.x,size.y);checkFaceLayout(*view,model,channel);
+                check(all.writes==writes && all.begins==begins,"Catalog layout changed audio state");
+                if(channel==panel.defaultChannel || size.x==1000)screenshot(*view,directory,"all-model-"+juce::String(model)+"-channel-"+juce::String(channel)+"-"+juce::String(size.x));
+            }
+            ++channels;
+        }
+        testContext="model "+std::to_string(model)+", input routes";
+        auto* input=find<juce::ComboBox>(*head,"ampHeadInput1");
+        if(panel.routes.size()>1) {
+            check(input && input->isShowing() && input->getNumItems()==int(panel.routes.size()),"Catalog input routes unavailable");
+            const int selectedChannel=p.selectedAmpChannel(0);
+            for(int route=0;route<int(panel.routes.size());++route) {
+                check(input->getItemText(route)==juce::String::fromUTF8(panel.routes[size_t(route)]),"Catalog input route label changed");
+                input->setSelectedId(route+1,juce::sendNotificationSync);check(p.selectedAmpNativeRoute(0)==route,"Catalog input route did not change");
+                check(p.selectedAmpModel(0)==model && p.selectedAmpChannel(0)==selectedChannel,"Input route changed model or channel");++routes;
+            }
+        } else check(!input || !input->isShowing(),"Single input route takes unnecessary face space");
+        view.reset();check(all.open==0,"Catalog model destruction left a host gesture open");
+    }
+    checkStaleDiscrete(p,all,3,AmpNativeControlKind::choice);checkStaleDiscrete(p,all,0,AmpNativeControlKind::toggle);checkQueuedRouteRebind(p,all);checkQueuedChannelRebind(p,all);testContext.clear();
+    std::cout<<"ALL HEADS: "<<ampModelCount<<" models; "<<channels<<" channels; "<<bindings<<" visible bindings ("<<knobs<<" knobs, "<<choices<<" selectors, "<<toggles<<" switches); "<<routes<<" selectable input routes; 4 workspace sizes\n";
+}
 }
 int main(int argc,char** argv){try {
     juce::ScopedJuceInitialiser_GUI init;
-    if(argc>1 && juce::String(argv[1])=="--software-preview") {
-        const auto folder=juce::File::getCurrentWorkingDirectory().getChildFile("head-software-preview");folder.createDirectory();
-        auto preview=std::make_unique<ChimeraProcessor>();
-        for(int model:{1,niflheimrAmpModel}) {
-            preview->setAmpModel(0,model);
+    const bool layoutsOnly=argc>1 && juce::String(argv[1])=="--software-layouts";
+    if(layoutsOnly || (argc>1 && juce::String(argv[1])=="--software-preview")) {
+        const auto folder=juce::File::getCurrentWorkingDirectory().getChildFile("head-software-preview");if(!layoutsOnly)folder.createDirectory();
+        auto preview=std::make_unique<ChimeraProcessor>();int channelsChecked=0,layoutsChecked=0;
+        for(int model=0;model<ampModelCount;++model) {
+          const auto& panel=ampNativePanel(model);const int first=layoutsOnly?0:panel.defaultChannel,last=layoutsOnly?int(panel.channels.size()):first+1;
+          for(int channel=first;channel<last;++channel) {
+            preview->setAmpModel(0,model);preview->setAmpChannel(0,channel);
             if(model==niflheimrAmpModel) {
-                set(*preview,ampNativeControlID(0,model,int(niflheimr::Control::midFrequency),0),2500);
-                set(*preview,ampNativeControlID(0,model,int(niflheimr::Control::blend),0),1);
+                set(*preview,ampNativeControlID(0,model,int(niflheimr::Control::midFrequency),channel),2500);
+                set(*preview,ampNativeControlID(0,model,int(niflheimr::Control::blend),channel),1);
             }
             AmpHeadWorkspace surface(*preview,0);surface.setVisible(true);
             for(const auto size:{juce::Point<int>{1000,642},{1180,650},{1440,780},{1680,910}}) {
-                surface.setSize(size.x,size.y);checkFaceLayout(surface,model);
+                testContext="software model "+std::to_string(model)+", channel "+std::to_string(channel)+", width "+std::to_string(size.x);
+                surface.setSize(size.x,size.y);checkFaceLayout(surface,model,channel);++layoutsChecked;
+                if(layoutsOnly) {
+                    auto* head=find<AmpHeadControlView>(surface,"ampHead1");check(head,"Software layout head missing");
+                    for(auto* control:faceControls(*head))if(control->isShowing() && control->slider.isShowing())checkReadout(control->slider,false);
+                    continue;
+                }
                 screenshot(surface,folder,"model"+juce::String(model)+"-"+juce::String(size.x));
-                const int index=model==niflheimrAmpModel?int(niflheimr::Control::midFrequency):0;
-                auto* active=find<NativeControlSlider>(surface,ampNativeControlID(0,model,index,0));check(active,"Software preview knob missing");
+                const auto anchors=ampHead::knobs(model,channel);check(!anchors.empty(),"Software preview has no knobs");
+                const int index=model==niflheimrAmpModel?int(niflheimr::Control::midFrequency):ampHead::controlIndex(model,anchors.front().key);
+                auto* active=find<NativeControlSlider>(surface,ampNativeControlID(0,model,index,channel));check(active,"Software preview knob missing");
                 active->beginValueAdjustment();checkReadout(*active,true);
                 screenshot(surface,folder,"model"+juce::String(model)+"-"+juce::String(size.x)+"-active");active->endValueAdjustment();checkReadout(*active,false);
             }
+            ++channelsChecked;
+          }
         }
-        preview->releaseResources();std::cout<<"SOFTWARE PREVIEW ONLY: no native peer or interaction validation\n";return 0;
+        testContext.clear();
+        preview->releaseResources();
+        if(layoutsOnly)std::cout<<"SOFTWARE LAYOUT ONLY: "<<ampModelCount<<" models; "<<channelsChecked<<" channels; "<<layoutsChecked<<" layouts; no screenshots, native peer or interaction validation\n";
+        else std::cout<<"SOFTWARE PREVIEW ONLY: no native peer or interaction validation\n";
+        return 0;
     }
     check(juce::Desktop::getInstance().getDisplays().getPrimaryDisplay()!=nullptr,"Native display required");
     const auto directory=juce::File::getCurrentWorkingDirectory().getChildFile(argc>1?argv[1]:"amp-head-snapshots");directory.createDirectory();
@@ -217,11 +365,12 @@ int main(int argc,char** argv){try {
         if(model==niflheimrAmpModel)for(int channel=0;channel<5;++channel) {
             auto* named=find<juce::TextButton>(*layout,"ampHeadNamedChannel1_"+juce::String(channel));
             check(named && named->getButtonText().contains(juce::String::fromUTF8(niflheimr::channelNames[channel])),"Channel name missing");
-            named->triggerClick();settle();check(p->selectedAmpChannel(0)==channel && named->getToggleState(),"Named channel selection failed");
+            named->triggerClick();settle();auto* current=find<juce::TextButton>(*layout,"ampHeadNamedChannel1_"+juce::String(channel));check(p->selectedAmpChannel(0)==channel && current && current->getToggleState(),"Named channel selection failed");
             check(find<juce::TextButton>(*layout,"ampHeadChannel1_"+juce::String(channel))->getToggleState(),"Physical channel indicator stale");
             screenshot(*layout,directory,"named-channel-"+juce::String(channel));
         }
     }
+    checkAllModels(*p,all,directory);
     // Context isolation and per-channel recall, then same-model A/B, project,
     // factory preset, interrupted gesture and head/detail bidirectional sync.
     set(*p,"mode",0);p->setAmpModel(0,niflheimrAmpModel);p->setAmpChannel(0,0);

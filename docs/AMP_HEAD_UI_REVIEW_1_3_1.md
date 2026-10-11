@@ -4,7 +4,35 @@ Development: PR #44, stacked on the Signal/EQ integration PR #40. This review
 does not change the 1.3.0 release branch, audio processing, parameter IDs or
 project schema.
 
-## Knob materials and interaction-only values
+## Raised hardware and all-model expansion
+
+The subsequent user review found that the first live knobs still read as flat
+2D dials beside the photographic chassis. The renderer now separates the
+mounting shadow, exposed fluted cylinder, raised cap, gasket and bevel. Metal
+uses a fixed asymmetrical studio reflection and machining detail; rotation
+moves only the engraved marker. Materials are assigned per model. Shared,
+bounded supersampled textures avoid generating images on each value update.
+
+All 25 active amps now open live model-specific front controls; retired Iron
+Compact retains project-recall support without re-entering the active menu.
+Explicit layouts follow each cropped fascia, selected channel masks and existing
+parameter keys. Non-knob choices/toggles are placed below the enclosure, keeping
+long option labels legible. Named channel controls are generalized, and Náströnd
+receives its 13-knob/five-channel layout and bounded baked-knob cleanup.
+The original heads’ physical channel lenses are aligned separately to each
+cropped artwork, with scaled live faces inside the preserved metal bezels.
+
+Expanding model switching exposed a stale-popup risk: a persistent route menu
+could deliver its old selection after a new model was bound. Recreating the
+route selector and channel buttons on rebinding cancels their queued callbacks;
+the tests require no subsequent parameter writes. All controls retain the prior
+interaction-only value display and high-contrast precise-entry editor.
+
+The all-model contract checks 26 catalog entries, 61 channel states and 675
+visible bindings at four workspace sizes. Native CI and visual conclusions must
+refer to this extension's exact source, not the earlier two-model passes below.
+
+## Previous knob materials and interaction-only values
 
 Follow-up to the native review and the user's visual references:
 
