@@ -1,11 +1,19 @@
 #!/usr/bin/env python3
-"""Small, synthetic corruption checks for the retained CAB callback evidence."""
+"""Small synthetic checks for retained CAB evidence and measured child launches."""
 
+import contextlib
 import csv
 import hashlib
+import io
+import os
 from pathlib import Path
+import subprocess
 import tempfile
+import types
 import unittest
+from unittest import mock
+
+import run_cab_realtime_ci as launcher
 
 from run_cab_realtime_ci import preserve_timing_samples, validate_timing_samples
 
@@ -160,6 +168,122 @@ class CabTimingEvidenceTests(unittest.TestCase):
             self.assertEqual(item["bytes"], len(original))
             self.assertEqual(item["sha256"], hashlib.sha256(original).hexdigest())
         self.assertFalse((self.output / "cab-timing-diagnostics" / "profile").exists())
+
+
+class LauncherFailureControls(unittest.TestCase):
+    def call(self, *, measured=True, windows=True, observed=32, query_error=None,
+             taskkill_error=None, kill_error=None, wait_error=None):
+        with tempfile.TemporaryDirectory(prefix="cab-priority-mock-") as temporary:
+            log = Path(temporary) / "child.log"
+            owner = self
+            class Child:
+                pid = 9001
+                returncode = None
+                kill_calls = 0
+                wait_calls = 0
+                output = None
+                def kill(self):
+                    self.kill_calls += 1
+                    if kill_error:
+                        raise kill_error
+                def wait(self, timeout):
+                    self.wait_calls += 1
+                    self.output.flush()
+                    owner.assertNotIn("MEASURED_PROCESS_PRIORITY", log.read_text(),
+                                      "parent metadata was written before child completion")
+                    if wait_error:
+                        raise wait_error
+                    self.output.write("CHILD FINISHED\n")
+                    self.output.flush()
+                    self.returncode = 0
+                    return 0
+                def poll(self):
+                    return self.returncode
+            child = Child()
+            def popen(command, **kwargs):
+                child.output = kwargs["stdout"]
+                child.output.write("CHILD STARTED\n")
+                child.output.flush()
+                return child
+            fake_subprocess = types.SimpleNamespace(
+                CREATE_NEW_PROCESS_GROUP=0x200, NORMAL_PRIORITY_CLASS=0x20,
+                STDOUT=subprocess.STDOUT, TimeoutExpired=subprocess.TimeoutExpired,
+                Popen=mock.Mock(side_effect=popen),
+                run=mock.Mock(side_effect=taskkill_error,
+                              return_value=types.SimpleNamespace(returncode=0)))
+            fake_os = types.SimpleNamespace(name="nt" if windows else "posix",
+                                            environ={}, SEEK_END=os.SEEK_END)
+            query = mock.Mock(side_effect=query_error, return_value=observed)
+            with mock.patch.object(launcher, "subprocess", fake_subprocess), \
+                 mock.patch.object(launcher, "os", fake_os), \
+                 mock.patch.object(launcher, "windows_child_priority_class", query), \
+                 contextlib.redirect_stdout(io.StringIO()):
+                receipt = launcher.run_logged(["mock-child"], temporary, log,
+                                               timeout=600, measured=measured)
+            return receipt, child, fake_subprocess, query, log.read_text()
+
+    def test_query_failure_and_taskkill_timeout_keep_latched_failure(self):
+        receipt, child, process_api, query, text = self.call(
+            query_error=OSError("query denied"),
+            taskkill_error=subprocess.TimeoutExpired("taskkill", 30))
+        priority = receipt["measured_process_priority"]
+        self.assertEqual(receipt["returncode"], 1)
+        self.assertEqual(child.returncode, 0)
+        self.assertFalse(priority["verified"])
+        self.assertIn("query denied", priority["error"])
+        self.assertGreater(child.kill_calls, 0)
+        self.assertGreater(child.wait_calls, 0)
+        self.assertTrue(priority["cleanup"]["direct_child_reaped"])
+        self.assertEqual(priority["cleanup"]["descendants"], "unverified")
+        self.assertTrue(any("taskkill:" in e for e in priority["cleanup"]["errors"]))
+        self.assertLess(text.index("CHILD FINISHED"), text.index("MEASURED_PROCESS_PRIORITY"))
+
+    def test_mismatch_and_all_cleanup_errors_preserve_receipt_without_stdout_race(self):
+        receipt, child, process_api, query, text = self.call(
+            observed=0x4000, taskkill_error=OSError("taskkill unavailable"),
+            kill_error=OSError("kill denied"),
+            wait_error=subprocess.TimeoutExpired("direct child", 30))
+        priority = receipt["measured_process_priority"]
+        self.assertEqual(receipt["returncode"], 1)
+        self.assertFalse(priority["verified"])
+        self.assertEqual(priority["observed_class"], 0x4000)
+        self.assertIn("did not start at NORMAL_PRIORITY_CLASS", priority["error"])
+        self.assertGreater(child.kill_calls, 0)
+        self.assertGreater(child.wait_calls, 0)
+        self.assertFalse(priority["cleanup"]["direct_child_reaped"])
+        self.assertEqual(priority["cleanup"]["descendants"], "unverified")
+        self.assertEqual(len(priority["cleanup"]["errors"]), 3)
+        self.assertEqual(priority["log_metadata_omitted"], "direct_child_not_reaped")
+        self.assertNotIn("MEASURED_PROCESS_PRIORITY", text)
+
+    def test_normal_measurement_records_actual_class_only_after_child_finishes(self):
+        receipt, child, process_api, query, text = self.call()
+        priority = receipt["measured_process_priority"]
+        self.assertEqual(receipt["returncode"], 0)
+        self.assertEqual(process_api.Popen.call_args.kwargs["creationflags"], 0x220)
+        self.assertEqual(priority["requested_class"], 32)
+        self.assertEqual(priority["observed_class"], 32)
+        self.assertTrue(priority["verified"])
+        query.assert_called_once_with(child)
+        process_api.run.assert_not_called()
+        self.assertLess(text.index("CHILD FINISHED"), text.index("MEASURED_PROCESS_PRIORITY"))
+
+    def test_windows_compile_launch_remains_inherited_and_unqueried(self):
+        receipt, child, process_api, query, text = self.call(measured=False)
+        self.assertEqual(receipt["returncode"], 0)
+        self.assertEqual(process_api.Popen.call_args.kwargs["creationflags"], 0x200)
+        self.assertNotIn("measured_process_priority", receipt)
+        query.assert_not_called()
+        process_api.run.assert_not_called()
+
+    def test_posix_measured_launch_remains_unchanged(self):
+        receipt, child, process_api, query, text = self.call(windows=False)
+        self.assertEqual(receipt["returncode"], 0)
+        self.assertTrue(process_api.Popen.call_args.kwargs["start_new_session"])
+        self.assertNotIn("creationflags", process_api.Popen.call_args.kwargs)
+        self.assertNotIn("measured_process_priority", receipt)
+        query.assert_not_called()
+        process_api.run.assert_not_called()
 
 
 if __name__ == "__main__":

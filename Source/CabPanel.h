@@ -212,6 +212,7 @@ public:
     }
     CabPanel(ChimeraProcessor& p,int rig,const std::vector<juce::File>& folders=spectralforge::IRCollection::roots(),
              const juce::File& settings=spectralforge::IRUserPreferences::file()):processor(p),lane(rig),roots(folders),preferences(settings) {
+        setOpaque(true);
         setLookAndFeel(&look);
         const auto n=juce::String(lane+1);
         heading.setText("CABINET / RIG "+n,juce::dontSendNotification);addAndMakeVisible(heading);

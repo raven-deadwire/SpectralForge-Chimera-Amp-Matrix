@@ -453,6 +453,7 @@ class CabWorkspace : public juce::Component, private juce::Timer {
     }
 public:
     explicit CabWorkspace(ChimeraProcessor& p,int initialLane=0,bool focusRequested=false):processor(p),room(p),lowBlend(p,"cabFocused") {
+        setOpaque(true);
         setLookAndFeel(&look);setComponentID("cabWorkspace");
         addAndMakeVisible(room);addAndMakeVisible(back);addAndMakeVisible(breadcrumb);addAndMakeVisible(lowBlend);
         back.setComponentID("cabBackToRoom");back.setTooltip("Return to the complete room without changing the sound.");
