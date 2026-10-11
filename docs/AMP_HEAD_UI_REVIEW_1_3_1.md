@@ -4,6 +4,33 @@ Development: PR #44, stacked on the Signal/EQ integration PR #40. This review
 does not change the 1.3.0 release branch, audio processing, parameter IDs or
 project schema.
 
+## Knob materials and interaction-only values
+
+Follow-up to the native review and the user's visual references:
+
+- Niflheimr uses a fluted dark-metal body, muted nickel rim, engraved scale
+  and warm ivory pointer; Brit Edge uses the same hardware construction with
+  a brass cap and dark pointer matching its gold fascia. These are live JUCE
+  vector controls, not painted controls or generated mockups.
+- Knob centres and their labels align. Labels use bold 12–15 px type,
+  scaling with the head width, with light ink on Niflheimr and dark ink on
+  Brit Edge. The cleaned original enclosure artwork is retained.
+- Idle controls show their parameter name, without a permanent numeric value.
+  Dragging temporarily replaces that name with the value in the same space;
+  releasing restores the name without moving the knob. Keyboard adjustments
+  show the value for 800 ms. Automation alone does not show the readout.
+- Double-click, Enter or F2 opens precise entry in the same readout. Commit,
+  cancel, hiding or context changes return to the idle presentation. Text entry
+  survives normal workspace refreshes. Existing host gesture and parameter-bank
+  protection remain in place. The detail panel keeps its permanent values.
+
+The focused contract additionally checks actual value-label visibility, name
+visibility, complete glyph widths, stable knob geometry, keyboard expiry,
+precise-entry persistence/cancellation and context interruption. Idle and active
+captures cover all four workspace sizes, plus `2500 Hz`, `100%` and text entry.
+Native validation must refer to the follow-up commit's own CI run; historical
+results below do not validate this follow-up.
+
 ## Evidence reviewed
 
 - Source: `306fc797ecee93cf4aec1a60aa50ac3ecbf7c35f`.

@@ -18,7 +18,7 @@ class AmpHeadControlView final : public juce::Component {
             auto face=getLocalBounds().toFloat().withSizeKeepingCentre(float(getWidth()-2),18.f);
             g.setColour(juce::Colour(getToggleState()?0xff507d99:0xff171d20).brighter(over||down?.15f:0.f));g.fillRoundedRectangle(face,2.f);
             g.setColour(juce::Colour(hasKeyboardFocus(true)?0xffb3e1ff:0xffa99878));g.drawRoundedRectangle(face,2.f,1.f);
-            g.setColour(juce::Colours::white);g.setFont(juce::FontOptions(10.f));g.drawText(getButtonText(),face.toNearestInt(),juce::Justification::centred);
+            g.setColour(juce::Colours::white);g.setFont(juce::FontOptions(12.f,juce::Font::bold));g.drawText(getButtonText(),face.toNearestInt(),juce::Justification::centred);
         }
     };
     std::array<ChannelButton,5> channels;
@@ -38,18 +38,55 @@ class AmpHeadControlView final : public juce::Component {
     uint64_t revision{};
     bool active{true};
     struct FaceLook : spectralforge::art::DialogLook {
-        juce::Font getLabelFont(juce::Label&) override {return juce::FontOptions(11.f);}
+        juce::Font getLabelFont(juce::Label& label) override {return label.getFont();}
+        juce::Label* createSliderTextBox(juce::Slider& slider) override {
+            auto* value=spectralforge::art::DialogLook::createSliderTextBox(slider);
+            value->setBorderSize(juce::BorderSize<int>(0));
+            value->setFont(juce::FontOptions(float(slider.getProperties().getWithDefault("headFontSize",12.f)),juce::Font::bold));
+            if(auto* head=dynamic_cast<NativeControlSlider*>(&slider)) {
+                value->onEditorShow=[head]{head->readoutEditorShown();};
+                value->onEditorHide=[head]{head->readoutEditorHidden();};
+            }
+            return value;
+        }
+        juce::Slider::SliderLayout getSliderLayout(juce::Slider& slider) override {
+            if(!bool(slider.getProperties()["headControl"]))return spectralforge::art::DialogLook::getSliderLayout(slider);
+            juce::Slider::SliderLayout layout;
+            const int labelHeight=slider.getTextBoxHeight();
+            const int diameter=juce::jmin(slider.getWidth(),slider.getHeight()-labelHeight);
+            layout.textBoxBounds={0,0,slider.getWidth(),labelHeight};
+            layout.sliderBounds={(slider.getWidth()-diameter)/2,labelHeight,diameter,diameter};
+            return layout;
+        }
         void drawRotarySlider(juce::Graphics& g,int x,int y,int w,int h,float value,float start,float end,juce::Slider& s) override {
-            const auto b=juce::Rectangle<float>(float(x),float(y),float(w),float(h)).withSizeKeepingCentre(float(juce::jmin(w,h)-2),float(juce::jmin(w,h)-2));
+            const auto bounds=juce::Rectangle<float>(float(x),float(y),float(w),float(h)).withSizeKeepingCentre(float(juce::jmin(w,h)-2),float(juce::jmin(w,h)-2));
             const bool gold=int(s.getProperties()["knobStyle"])==3;
-            g.setColour(juce::Colour(0xff060708));g.fillEllipse(b);
-            auto disk=b.reduced(3.f);
-            g.setGradientFill({juce::Colour(gold?0xfff4d38b:0xffe4e8e8),disk.getTopLeft(),juce::Colour(gold?0xff755525:0xff565e64),disk.getBottomRight(),false});g.fillEllipse(disk);
-            g.setColour(juce::Colour(0xff101316));g.drawEllipse(disk,1.f);
-            const float angle=start+value*(end-start),radius=disk.getWidth()*.42f;
-            const auto c=disk.getCentre();
-            g.setColour(juce::Colours::black);g.drawLine(c.x+std::sin(angle)*radius*.28f,c.y-std::cos(angle)*radius*.28f,c.x+std::sin(angle)*radius,c.y-std::cos(angle)*radius,2.3f);
-            if(s.hasKeyboardFocus(true)){g.setColour(juce::Colour(0xff94d4f0));g.drawEllipse(b,1.5f);}
+            const auto c=bounds.getCentre();const float r=bounds.getWidth()*.5f;
+            // Engraved scale, then a fluted dark body and a model-specific cap.
+            // The muted nickel / brass palette echoes each enclosure's trim.
+            g.setColour(juce::Colour(gold?0xff514026:0xffb4b0a5));
+            for(int i=0;i<=10;++i) {
+                const float a=start+float(i)*(end-start)/10.f;
+                g.drawLine(c.x+std::sin(a)*r*.89f,c.y-std::cos(a)*r*.89f,c.x+std::sin(a)*r,c.y-std::cos(a)*r,i%5==0?1.3f:.8f);
+            }
+            const auto body=bounds.reduced(r*(gold?.16f:.10f));
+            g.setColour(juce::Colours::black.withAlpha(.5f));g.fillEllipse(body.translated(1.f,1.5f));
+            g.setGradientFill({juce::Colour(0xff53534e),body.getTopLeft(),juce::Colour(0xff080a0b),body.getBottomRight(),false});g.fillEllipse(body);
+            for(int i=0;i<28;++i) {
+                const float a=float(i)*juce::MathConstants<float>::twoPi/28.f;
+                g.setColour(juce::Colour(gold?0xff28261f:0xffa7a398).withAlpha(i<14?.65f:.28f));
+                g.drawLine(c.x+std::sin(a)*r*.69f,c.y-std::cos(a)*r*.69f,c.x+std::sin(a)*r*.81f,c.y-std::cos(a)*r*.81f,.8f);
+            }
+            const auto cap=bounds.reduced(r*(gold?.32f:.22f));
+            g.setGradientFill({juce::Colour(gold?0xffdfc187:0xff787973),cap.getTopLeft(),juce::Colour(gold?0xff866535:0xff292d2d),cap.getBottomRight(),false});g.fillEllipse(cap);
+            g.setColour(juce::Colour(gold?0xfff0d6a0:0xffb3b3a9).withAlpha(.8f));g.drawEllipse(cap,.7f);
+            // Fine concentric machining remains subtle at small workspace sizes.
+            g.setColour(juce::Colour(gold?0xff71542e:0xffd1d0c7).withAlpha(.16f));
+            for(float inset=2.f;inset<cap.getWidth()*.35f;inset+=2.2f)g.drawEllipse(cap.reduced(inset),.45f);
+            const float angle=start+value*(end-start);
+            g.setColour(juce::Colour(gold?0xff201b12:0xfff5efe0));
+            g.drawLine(c.x+std::sin(angle)*r*.23f,c.y-std::cos(angle)*r*.23f,c.x+std::sin(angle)*r*.64f,c.y-std::cos(angle)*r*.64f,juce::jmax(1.8f,r*.11f));
+            if(s.hasKeyboardFocus(true)){g.setColour(juce::Colour(0xff94d4f0));g.drawEllipse(bounds,1.f);}
         }
     } look;
     bool bindingCurrent() const {
@@ -66,7 +103,7 @@ public:
         focus.setTooltip("Enlarge the amplifier and operate its faceplate controls.");
         focus.onClick=[this]{finishInteraction();if(onOpen)onOpen();};
         addChildComponent(inputLabel);inputLabel.setText("INPUT ROUTE",juce::dontSendNotification);
-        inputLabel.setFont(juce::FontOptions(11.f));inputLabel.setJustificationType(juce::Justification::centred);
+        inputLabel.setFont(juce::FontOptions(12.f,juce::Font::bold));inputLabel.setJustificationType(juce::Justification::centred);
         inputLabel.setColour(juce::Label::textColourId,juce::Colour(0xff191b18));
         addChildComponent(input);input.setComponentID("ampHeadInput"+juce::String(lane+1));input.setName("Amplifier input route");
         input.onChange=[this]{if(!bindingCurrent())return;finishInteraction();input.acceptSelection();processor.setAmpNativeRoute(lane,input.getSelectedId()-1);};
@@ -102,11 +139,15 @@ public:
                 const int index=spectralforge::ampHead::controlIndex(model,anchor.key);jassert(index>=0);if(index<0)continue;
                 const auto& spec=panel.controls[size_t(index)];auto control=std::make_unique<NativeControlView>();
                 control->bind(processor.parameters(),spectralforge::ampNativeControlID(context,model,index,channel),anchor.label,"AMP FACE",0,{},spec.minimum,spec.maximum,.001,spectralforge::art::headStyle(model).knobStyle);
-                control->group.setVisible(false);control->label.setFont(juce::FontOptions(11.f));control->label.setBorderSize(juce::BorderSize<int>(0));
+                control->group.setVisible(false);control->label.setFont(juce::FontOptions(12.f,juce::Font::bold));control->label.setBorderSize(juce::BorderSize<int>(0));
                 const auto ink=juce::Colour(model==1?0xff191b18:0xfff1ece0);
                 control->label.setColour(juce::Label::textColourId,ink);
-                control->slider.setTextBoxStyle(juce::Slider::TextBoxBelow,false,64,13);
-                control->slider.setColour(juce::Slider::textBoxBackgroundColourId,juce::Colours::transparentBlack);
+                control->slider.getProperties().set("headControl",true);
+                control->slider.setTextBoxStyle(juce::Slider::TextBoxAbove,false,84,15);
+                control->slider.onReadoutVisibility=[view=control.get()](bool visible){view->label.setVisible(!visible);};
+                control->slider.setInteractionReadout(true);
+                control->slider.setTooltip(juce::String(anchor.label)+" — Drag to adjust; Shift for fine adjustment; double-click or press Enter to type a value.");
+                control->slider.setColour(juce::Slider::textBoxBackgroundColourId,juce::Colour(model==1?0xffead4a4:0xff101718));
                 control->slider.setColour(juce::Slider::textBoxTextColourId,ink);
                 control->slider.setColour(juce::Slider::textBoxOutlineColourId,juce::Colours::transparentBlack);
                 control->slider.setScrollWheelEnabled(false);control->slider.setWantsKeyboardFocus(true);
@@ -141,13 +182,16 @@ public:
         const auto face=spectralforge::cabHead::geometry(headBounds(),juce::jmax(0,model)).front;
         for(size_t i=0;i<controls.size();++i) {
             const auto& anchor=anchors[i];auto& c=*controls[i];
-            const int diameter=juce::jmax(32,juce::roundToInt(face.getWidth()*(model==1?.046f:.032f)));
-            const int cellWidth=juce::roundToInt(face.getWidth()*(model==1?.10f:.095f));
-            const int labelHeight=14;
-            const int valueWidth=model==1?64:cellWidth-diameter-2;
-            c.slider.setTextBoxStyle(model==1?juce::Slider::TextBoxBelow:juce::Slider::TextBoxRight,false,valueWidth,18);
-            c.setBounds(juce::roundToInt(face.getX()+face.getWidth()*anchor.x)-(model==1?cellWidth/2:diameter/2),juce::roundToInt(face.getY()+face.getHeight()*anchor.y)-diameter/2-labelHeight,cellWidth,diameter+labelHeight+(model==1?18:0));
-            c.group.setVisible(false);c.label.setBounds(0,0,cellWidth,labelHeight);c.slider.setBounds(0,labelHeight,cellWidth,diameter+(model==1?18:0));
+            const float fontSize=juce::jlimit(12.f,15.f,face.getWidth()*.0126f);
+            const int labelHeight=juce::roundToInt(fontSize)+2;
+            const int diameter=juce::jmax(32,juce::roundToInt(face.getWidth()*(model==1?.050f:.032f)));
+            const int cellWidth=juce::roundToInt(face.getWidth()*(model==1?.105f:.095f));
+            c.label.setFont(juce::FontOptions(fontSize,juce::Font::bold));
+            c.slider.getProperties().set("headFontSize",fontSize);
+            c.slider.setTextBoxStyle(juce::Slider::TextBoxAbove,false,cellWidth,labelHeight);
+            for(auto* child:c.slider.getChildren())if(auto* value=dynamic_cast<juce::Label*>(child))value->setFont(c.label.getFont());
+            c.setBounds(juce::roundToInt(face.getX()+face.getWidth()*anchor.x)-cellWidth/2,juce::roundToInt(face.getY()+face.getHeight()*anchor.y)-diameter/2-labelHeight,cellWidth,diameter+labelHeight);
+            c.group.setVisible(false);c.label.setBounds(0,0,cellWidth,labelHeight);c.slider.setBounds(c.getLocalBounds());
         }
         for(int c=0;c<5;++c)channels[size_t(c)].setBounds(juce::roundToInt(face.getX()+face.getWidth()*(.409f+c*.0385f)),juce::roundToInt(face.getY()+face.getHeight()*.588f)-16,juce::jmax(32,juce::roundToInt(face.getWidth()*.03f)),32);
         input.setBounds(juce::roundToInt(face.getX()+face.getWidth()*.80f),juce::roundToInt(face.getY()+face.getHeight()*.71f),juce::roundToInt(face.getWidth()*.17f),30);
@@ -229,7 +273,7 @@ public:
         }
         resized();
         title.setText(active?head.caption():"This rig is inactive in the current routing mode",juce::dontSendNotification);
-        hint.setText(details.isVisible()?"Full amplifier controls":supported?"Drag a knob | Shift for fine adjustment | Click a value for precise entry":"",juce::dontSendNotification);
+        hint.setText(details.isVisible()?"Full amplifier controls":supported?"Drag to adjust | Shift: fine | Double-click / Enter: type value":"",juce::dontSendNotification);
     }
     void resized() override {back.setBounds(16,12,86,30);detailToggle.setBounds(getWidth()-112,12,96,30);compareA.setBounds(getWidth()-218,12,44,30);compareB.setBounds(getWidth()-168,12,44,30);title.setBounds(116,12,getWidth()-348,30);hint.setBounds(20,getHeight()-31,getWidth()-40,22);const bool names=namedChannels[0].isVisible();const int top=names?90:52;
         head.setBounds(12,top,getWidth()-24,getHeight()-top-40);
