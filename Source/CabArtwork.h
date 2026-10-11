@@ -6,6 +6,7 @@
 #include "CabSpeakerArt.h"
 #include "CabMicrophoneDimensions.h"
 #include "CabEnclosureArtwork.h"
+#include "CabHornArtwork.h"
 #include <array>
 
 namespace spectralforge::cabArt {
@@ -101,6 +102,7 @@ struct Bank {
     std::array<juce::Rectangle<int>,assetCount> contentBounds;
     std::array<juce::Image,16> frontSpeakers;
     std::array<cabEnclosureArt::Skin,2> enclosureSkins;
+    juce::Image hornMouth;
     Bank() {
         const lifecycle::Scope trace("cab.artwork.create",this);
         // All decode work happens when a CAB UI takes ownership on the message
@@ -111,7 +113,10 @@ struct Bank {
             const auto* bytes=ChimeraArtworkData::getNamedResource(resourceNames[i],size);
             if(bytes && size>0) {
                 auto decoded=juce::ImageFileFormat::loadFrom(bytes,static_cast<size_t>(size));
-                const int maximum=i<2 ? 640 : i<4 ? 384 : 320;
+                // The two oblique legacy driver assets only retain catalog
+                // identity; every visible unit uses the frontal cache below.
+                // Reclaim their unused detail budget without reducing mics.
+                const int maximum=i<2 ? 640 : i<4 ? 128 : 320;
                 const int longest=juce::jmax(decoded.getWidth(),decoded.getHeight());
                 if(longest>maximum) {
                     const double scale=double(maximum)/double(longest);
@@ -135,6 +140,10 @@ struct Bank {
         }
         for(size_t i=0;i<enclosureSkins.size();++i)
             enclosureSkins[i]=cabEnclosureArt::makeSkin(images[i],i==1);
+        // The small HF face is painted once, like the cone assemblies. Keep
+        // curved-path gradients off repeated room/focus paints and timers.
+        hornMouth=juce::Image(juce::Image::ARGB,96,66,true);
+        {juce::Graphics g(hornMouth);cabHornArt::mouth(g,hornMouth.getBounds().toFloat());}
         // Render front geometry once per shared UI bank, not in paint/timers.
         for(size_t i=0;i<frontSpeakers.size();++i) {
             const int driver=i<2 ? 0 : int(i)-1,legacy=i==1 ? 1 : 0;
@@ -143,7 +152,7 @@ struct Bank {
             const float cone=float(driver ? cabExpansion::drivers[size_t(driver-1)].speaker.radius : originalCab::speakers[size_t(legacy)].radius);
             // Bounded front caches keep the complete shared artwork bank
             // below 16 MiB, including the microphone and room textures.
-            auto& image=frontSpeakers[i];image=juce::Image(juce::Image::ARGB,128,128,true);
+            auto& image=frontSpeakers[i];image=juce::Image(juce::Image::ARGB,192,192,true);
             juce::Graphics graphics(image);cabSpeakerArt::paint(graphics,image.getBounds().toFloat(),driver,legacy,cone/outer);
         }
     }
@@ -152,6 +161,7 @@ struct Bank {
         images.fill({});
         frontSpeakers.fill({});
         enclosureSkins.fill({});
+        hornMouth={};
     }
 };
 

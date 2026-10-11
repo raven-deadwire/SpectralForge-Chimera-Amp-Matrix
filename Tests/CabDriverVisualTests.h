@@ -1,5 +1,6 @@
 #pragma once
 #include <set>
+#include "CabEnclosureMaterialTests.h"
 
 namespace cabDriverVisualTests {
 inline void writeImage(const juce::Image& image,const juce::File& folder,const char* name) {
@@ -35,31 +36,176 @@ inline void frontSilhouette(const juce::Image& image) {
 inline int matchingLayout(int driver) {
     return driver<=8 ? 1 : (driver==9 || driver==10 || driver==12) ? 6 : driver==13 ? 4 : 8;
 }
+inline void hornGrilleContracts(const juce::File& screenshots) {
+    using namespace spectralforge;
+    cabLayout::Settings selected{};selected.layout=6;selected.voice.base.cabinet=1;
+    const auto model=cabLayout::geometry(selected);
+    // Camera density (pixels/metre) and device/UI scale are independent.
+    // Keep all original 24 cases and exercise the real graphics transform at
+    // 100/125/150/175/200%, including fractional device-pixel origins.
+    int renders=0;
+    for(bool native:{false,true})for(float scale:{200.f,400.f,700.f})
+        for(float deviceScale:{1.f,1.25f,1.5f,1.75f,2.f})for(int kind=0;kind<4;++kind) {
+        const auto type=native ? std::unique_ptr<juce::ImageType>(new juce::NativeImageType)
+                               : std::unique_ptr<juce::ImageType>(new juce::SoftwareImageType);
+        const int width=int(std::ceil((float(model.box.width)*scale+40.f)*deviceScale));
+        const int height=int(std::ceil((float(model.box.height+model.box.depth*.16)*scale+40.f)*deviceScale));
+        const juce::Rectangle<float> box(20.f,20.f,float(model.box.width)*scale,
+            float(model.box.height+model.box.depth*.16)*scale);
+        juce::Image rear(juce::Image::ARGB,width,height,true,*type),mask(juce::Image::ARGB,width,height,true,*type);
+        {juce::Graphics g(rear);g.addTransform(juce::AffineTransform::scale(deviceScale));
+            g.fillAll(juce::Colour(0xff111719));cabLayoutView::tweeter(g,model,box,true,.65f,kind);}
+        {juce::Graphics g(mask);g.addTransform(juce::AffineTransform::scale(deviceScale));cabLayoutView::grille(g,model,box,true);}
+        juce::Image front(juce::Image::ARGB,width,height,true,*type);
+        {juce::Graphics g(front);g.addTransform(juce::AffineTransform::scale(deviceScale));
+            g.fillAll(juce::Colour(0xff111719));cabLayoutView::frontHardware(g,model,box,true,.65f,kind);}
+        juce::Image muted(juce::Image::ARGB,width,height,true,*type);
+        {juce::Graphics g(muted);g.addTransform(juce::AffineTransform::scale(deviceScale));
+            g.fillAll(juce::Colour(0xff111719));cabLayoutView::frontHardware(g,model,box,true,0.f,kind);}
+        check(greyDifference(front,muted)<.000001,"muting the bass 4x10 HF removes mounted hardware");
+        juce::Image absent(juce::Image::ARGB,width,height,true,*type);
+        {juce::Graphics g(absent);g.addTransform(juce::AffineTransform::scale(deviceScale));
+            g.fillAll(juce::Colour(0xff111719));cabLayoutView::grille(g,model,box,true);}
+        check(greyDifference(muted,absent)>.00001,"zero-level 4x10 horn is indistinguishable from absent hardware");
+        const auto centre=cabLayoutView::point(model,box,model.horn);
+        const auto region=(juce::Rectangle<float>(.118f*scale,.080f*scale).withCentre(centre)*deviceScale).toNearestInt();
+        const auto label=juce::String(native ? "native" : "software")+"-ppm"+juce::String(int(scale))
+            +"-dpi"+juce::String(juce::roundToInt(deviceScale*100.f))+"-kind"+juce::String(kind);
+        // Save evidence before checking pixels: the previous failure artifact
+        // only contained a software/700 ppm image, not the failing native ROI.
+        const auto save=[&](const juce::Image& image,const char* layer) {
+            writeImage(image.getClippedImage(region.expanded(8).getIntersection(image.getBounds())),screenshots,
+                ("cab-visual-horn-"+label+"-"+layer+".png").toRawUTF8());
+        };
+        save(rear,"rear");save(mask,"mask");save(front,"front");save(muted,"zero-level");
+        if(kind==0 && deviceScale==1.f) {
+            // Diagnostic witness of the pre-fix interpolation in the horn ROI.
+            // It uses the same authored tile, phase, scale and backend. The
+            // frame/outer clip do not intersect this central region. This is
+            // never an acceptance reference or a substitute for production.
+            const juce::SharedResourcePointer<cabArt::Bank> bank;
+            const auto& skin=bank->enclosureSkins[1];
+            const auto face=cabLayoutView::baffle(model,box);
+            const float corner=juce::jmin(scale*.048f,juce::jmin(face.getWidth(),face.getHeight())*.18f);
+            const float rail=juce::jmin(scale*.035f,corner);
+            juce::Image interpolated(juce::Image::ARGB,width,height,true,*type);
+            {juce::Graphics g(interpolated);g.setImageResamplingQuality(juce::Graphics::mediumResamplingQuality);
+                cabEnclosureArt::fillMaterial(g,skin.grilleOverlay,face.reduced(rail*.82f),scale/skin.sourcePixelsPerMetre);}
+            save(interpolated,"medium-mask-witness");
+            int wires=0,holes=0,minAlpha=255,maxAlpha=0;
+            for(int y=region.getY();y<region.getBottom();++y)for(int x=region.getX();x<region.getRight();++x) {
+                const int alpha=interpolated.getPixelAt(x,y).getAlpha();
+                wires+=alpha>100;holes+=alpha<8;minAlpha=juce::jmin(minAlpha,alpha);maxAlpha=juce::jmax(maxAlpha,alpha);
+            }
+            std::cout<<"HF interpolation witness "<<label<<" wires="<<wires<<" holes="<<holes
+                <<" alpha="<<minAlpha<<":"<<maxAlpha<<'\n';
+        }
+        const juce::Image::BitmapData rearPixels(rear,juce::Image::BitmapData::readOnly);
+        const juce::Image::BitmapData maskPixels(mask,juce::Image::BitmapData::readOnly);
+        const juce::Image::BitmapData frontPixels(front,juce::Image::BitmapData::readOnly);
+        int wires=0,holes=0,minAlpha=255,maxAlpha=0,maxBlendError=0;
+        for(int y=region.getY();y<region.getBottom();++y)for(int x=region.getX();x<region.getRight();++x) {
+            const auto back=rearPixels.getPixelColour(x,y),wire=maskPixels.getPixelColour(x,y),actual=frontPixels.getPixelColour(x,y);
+            const float a=wire.getFloatAlpha();
+            const auto blend=[&](int b,int f){return juce::roundToInt((1-a)*float(b)+a*float(f));};
+            maxBlendError=juce::jmax(maxBlendError,
+                std::abs(int(actual.getRed())-blend(back.getRed(),wire.getRed())),
+                std::abs(int(actual.getGreen())-blend(back.getGreen(),wire.getGreen())),
+                std::abs(int(actual.getBlue())-blend(back.getBlue(),wire.getBlue())));
+            wires+=wire.getAlpha()>100;holes+=wire.getAlpha()<8;
+            minAlpha=juce::jmin(minAlpha,int(wire.getAlpha()));maxAlpha=juce::jmax(maxAlpha,int(wire.getAlpha()));
+        }
+        std::cout<<"HF grille "<<label<<" wires="<<wires<<" holes="<<holes
+            <<" alpha="<<minAlpha<<":"<<maxAlpha<<" max_blend_error="<<maxBlendError<<'\n';
+        check(maxBlendError<=3,"HF hardware covers the foreground grille instead of sitting behind it");
+        check(wires>8 && holes>8,"central horn lost continuous grille wires or open apertures");
+        if(!native && scale==700.f && deviceScale==1.f && kind==0)writeImage(front,screenshots,"cab-visual-horn-behind-grille-detail.png");
+        ++renders;
+    }
+    check(renders==120,"HF scale/backend regression matrix is incomplete");
+    std::cout<<"PASS HF depth: 120 native/software renders, four kinds, three camera densities, 100/125/150/175/200% device scales, continuous wires and transmissive apertures\n";
+}
 inline void shellArtworkContracts(const juce::File& screenshots) {
     using namespace spectralforge;
     const juce::SharedResourcePointer<cabArt::Bank> bank;
+    cabIntegratedUITests::artworkResources();
     check(bank->enclosureSkins[0].isValid() && bank->enclosureSkins[1].isValid(),
         "original cabinet materials are absent from the shared artwork bank");
     check(!bank->enclosureSkins[0].bass && bank->enclosureSkins[1].bass
         && juce::String(bank->enclosureSkins[0].key())=="cab-guitar-412-shell"
         && juce::String(bank->enclosureSkins[1].key())=="cab-bass-410-shell",
         "guitar and bass shells lost their original material identities");
-    // Use the real scene painter and identical bounds to isolate the two
-    // original shells from speaker choice, lighting and physical camera size.
     cabLayout::Settings selected{};selected.layout=3;
     const auto model=cabLayout::geometry(selected);constexpr float scale=400.f;
     const juce::Rectangle<float> box(20.f,20.f,float(model.box.width)*scale,
         float(model.box.height+model.box.depth*.16)*scale);
+    for(const auto& skin:bank->enclosureSkins) {
+        const auto& tile=skin.grilleOverlay;
+        int low=255,high=0;
+        for(int y=0;y<tile.getHeight();++y)for(int x=0;x<tile.getWidth();++x) {
+            const int alpha=tile.getPixelAt(x,y).getAlpha();low=juce::jmin(low,alpha);high=juce::jmax(high,alpha);
+        }
+        check(low==0 && high>100 && high<255,"original grille lost its open apertures or became an opaque cover");
+        juce::Image before(juce::Image::ARGB,336,367,true);
+        {juce::Graphics g(before);g.fillAll(juce::Colour(0xffb5a390));}
+        auto after=before.createCopy();
+        {juce::Graphics g(after);cabLayoutView::grille(g,model,box,skin.bass);}
+        check(greyDifference(before,after)>.005,"continuous foreground grille does not cover the driver plane");
+        check(after.getPixelAt(0,0)==before.getPixelAt(0,0),"grille escapes the physical front baffle");
+    }
+    // Use the real scene painter and identical bounds to isolate the two
+    // original shells from speaker choice, lighting and physical camera size.
     std::array<juce::Image,2> shells;
     for(int family=0;family<2;++family) {
         shells[size_t(family)]=juce::Image(juce::Image::ARGB,336,367,true);
         juce::Graphics g(shells[size_t(family)]);cabLayoutView::enclosure(g,model,box,family==1);
     }
+    const auto face=cabLayoutView::baffle(model,box);
+    const auto rowEdges=[&](const juce::Image& image,float y) {
+        int left=image.getWidth(),right=-1;
+        for(int x=0;x<image.getWidth();++x)if(image.getPixelAt(x,juce::roundToInt(y)).getAlpha()>64) {
+            left=juce::jmin(left,x);right=juce::jmax(right,x);
+        }
+        return juce::Point<int>(left,right);
+    };
+    const auto guitarTop=rowEdges(shells[0],face.getY()+face.getHeight()*.16f);
+    const auto guitarLower=rowEdges(shells[0],face.getY()+face.getHeight()*.65f);
+    const auto bassTop=rowEdges(shells[1],face.getY()+face.getHeight()*.16f);
+    const auto bassLower=rowEdges(shells[1],face.getY()+face.getHeight()*.65f);
+    check(guitarTop.x>guitarLower.x+3 && guitarTop.y<guitarLower.y-3,
+        "guitar 4x12 upper baffle still has a flat rectangular silhouette");
+    check(std::abs(bassTop.x-bassLower.x)<=1 && std::abs(bassTop.y-bassLower.y)<=1,
+        "guitar slant was incorrectly applied to the straight bass enclosure");
     check(greyDifference(shells[0],shells[1])>.004,
         "production enclosure painter still replaces guitar and bass materials with one generic shell");
     juce::Image comparison(juce::Image::ARGB,672,367,true);juce::Graphics g(comparison);
     g.drawImageAt(shells[0],0,0);g.drawImageAt(shells[1],336,0);
     writeImage(comparison,screenshots,"cab-visual-original-shell-materials.png");
+    // All nine cabinets use the same production shell painter at one metre
+    // scale. This evidence makes material stretching on short/wide/tall boxes
+    // visible without scaling each cabinet independently to its card.
+    juce::Image catalog(juce::Image::RGB,960,1080,true);
+    {juce::Graphics cg(catalog);
+    cg.fillAll(juce::Colour(0xff181b1b));
+    for(size_t index=0;index<cabLayout::layouts.size();++index) {
+        const auto& entry=cabLayout::layouts[index];
+        cabLayout::Settings settings{};settings.layout=int(index)+1;settings.voice.base.cabinet=int(entry.bass);
+        settings=cabLayout::effectiveSettings(settings);
+        const auto geometry=cabLayout::geometry(settings);constexpr float metres=300.f;
+        const int column=int(index)%3,row=int(index)/3;
+        const float width=float(geometry.box.width)*metres;
+        const float height=float(geometry.box.height+geometry.box.depth*.16)*metres;
+        const juce::Rectangle<float> bounds(column*320.f+(320.f-width)*.5f,row*360.f+320.f-height,width,height);
+        check(geometry.count==entry.columns*entry.rows,"cabinet style catalog has an incorrect driver count");
+        cabLayoutView::enclosure(cg,geometry,bounds,entry.bass);
+        cabLayoutView::speakers(cg,geometry,bounds,settings.voice.driver,int(entry.bass));
+        cabLayoutView::grille(cg,geometry,bounds,entry.bass);
+        cg.setColour(juce::Colour(0xffd9c6a1));cg.setFont(juce::FontOptions(16.f));
+        cg.drawText(entry.name,column*320,row*360+330,320,24,juce::Justification::centred);
+    }
+    } // Flush native drawing before encoding the evidence image.
+    check(catalog.getPixelAt(0,0)!=juce::Colours::black,"cabinet catalogue screenshot is blank");
+    writeImage(catalog,screenshots,"cab-visual-full-style-catalog-9.png");
 }
 inline void roomCameraContracts(const juce::File& screenshots) {
     using namespace spectralforge;
@@ -133,6 +279,67 @@ inline void roomCameraContracts(const juce::File& screenshots) {
     const float inactiveSix=room.displayedScale(0);
     set(*p,"lcab3_layout",1);room.refreshState();
     check(room.displayedScale(0)==inactiveSix,"inactive Matrix HIGH cabinet reframes a Dual room");
+    // Reproduce the reported room: one guitar driver beside a single six-driver
+    // bass enclosure. Keep this rendered artifact in the native CAB evidence;
+    // generic capture thumbnails cannot verify modeled enclosure composition.
+    room.setSize(1040,780);
+    set(*p,"lcab1_layout",1);set(*p,"xcab1_driver",1);
+    set(*p,"lcab2_layout",7);set(*p,"xcab2_driver",10);
+    for(int lane=0;lane<2;++lane)p->setAmpModel(lane,0);
+    room.refreshState();
+    check(room.displayedGeometry(0).count==1 && room.displayedGeometry(1).count==6,
+        "reported Dual 1x12/6x10 fixture uses the wrong modeled speaker counts");
+    snapshot(room,screenshots,"cab-visual-room-dual-112-610-1040x780.png");
+    // The user's original full-cabinet style reference: compare the shells in
+    // its 4x12 / 4x10 layout as well as the current 1x12 / 6x10 composition.
+    set(*p,"lcab1_layout",0);set(*p,"xcab1_driver",0);set(*p,"ocab1_design",0);
+    set(*p,"lcab2_layout",0);set(*p,"xcab2_driver",0);set(*p,"ocab2_design",1);
+    // The supplied reference uses the 515-style tube-window head, not the
+    // cloth-front British head used by the earlier comparison fixture.
+    for(int lane=0;lane<2;++lane)p->setAmpModel(lane,2);
+    room.refreshState();
+    check(room.displayedGeometry(0).count==4 && room.displayedGeometry(1).count==4,
+        "original-style reference room has the wrong driver layout");
+    set(*p,"ocab2_tweeter",0);set(*p,"xcab2_tweeter",0);room.refreshState();
+    const auto withoutHorn=room.createComponentSnapshot(room.getLocalBounds());
+    set(*p,"ocab2_tweeter",.65f);room.refreshState();
+    const auto beforeHornRender=cabSceneUITests::parameterValues(*p);
+    const auto withHorn=room.createComponentSnapshot(room.getLocalBounds());
+    check(greyDifference(withoutHorn,withHorn)<.000001,"legacy 4x10 horn disappears at zero HF level");
+    check(cabSceneUITests::parameterValues(*p)==beforeHornRender,"horn rendering writes host parameters");
+    snapshot(room,screenshots,"cab-visual-room-dual-original-style-412-410.png");
+    // Exercise the current selectable layouts too: a legacy-only screenshot
+    // could hide a misplaced authored 4x10 horn.
+    set(*p,"lcab1_layout",3);set(*p,"xcab1_driver",1);
+    set(*p,"lcab2_layout",6);set(*p,"xcab2_driver",9);room.refreshState();
+    const auto currentBass=room.displayedGeometry(1);
+    const auto currentBox=room.displayedCabinetBounds(1);
+    const auto hornCentre=cabLayoutView::point(currentBass,currentBox,currentBass.horn);
+    const auto face=cabLayoutView::baffle(currentBass,currentBox);
+    check(hornCentre.getDistanceFrom(face.getCentre())<.01f,"current 4x10 horn is not centred between the cones");
+    set(*p,"ocab2_tweeter",0);room.refreshState();
+    const auto currentWithout=room.createComponentSnapshot(room.getLocalBounds());
+    set(*p,"ocab2_tweeter",.65f);room.refreshState();
+    const auto currentBefore=cabSceneUITests::parameterValues(*p);
+    const auto currentWith=room.createComponentSnapshot(room.getLocalBounds());
+    // Level is acoustic only; both room states retain the mounted hardware.
+    // hornGrilleContracts independently distinguishes it from grille alone.
+    const auto roomHornCentre=hornCentre+room.getRigBounds(1).getPosition().toFloat();
+    const auto centreRegion=juce::Rectangle<int>(int(roomHornCentre.x)-12,int(roomHornCentre.y)-8,24,16);
+    writeImage(currentWithout,screenshots,"cab-visual-current-horn-zero-level.png");
+    writeImage(currentWith,screenshots,"cab-visual-current-horn-on.png");
+    std::cout<<"4x10 centre horn pixel difference="
+        <<greyDifference(currentWithout.getClippedImage(centreRegion),currentWith.getClippedImage(centreRegion))
+        <<" centre="<<roomHornCentre.x<<","<<roomHornCentre.y<<'\n';
+    check(greyDifference(currentWithout.getClippedImage(centreRegion),currentWith.getClippedImage(centreRegion))<.000001,
+        "current 4x10 horn geometry changes with HF level");
+    check(cabSceneUITests::parameterValues(*p)==currentBefore,"current 4x10 horn rendering writes host parameters");
+    snapshot(room,screenshots,"cab-visual-room-current-412-410-centre-horn.png");
+    const auto detailBounds=juce::Rectangle<float>(.28f*room.displayedScale(1),.20f*room.displayedScale(1))
+        .withCentre(roomHornCentre).toNearestInt();
+    const auto detailRoom=room.createComponentSnapshot(room.getLocalBounds(),true,3.f);
+    writeImage(detailRoom.getClippedImage({detailBounds.getX()*3,detailBounds.getY()*3,
+        detailBounds.getWidth()*3,detailBounds.getHeight()*3}),screenshots,"cab-visual-room-410-horn-detail.png");
     std::cout<<"PASS room camera: active-only common scale, 6x10/4x12/4x10 physical proportions, normal/constrained/75% visuals, "
         <<"unused microphone space removed, inactive-rig isolation and stable microphone automation\n";
 }
@@ -144,7 +351,9 @@ void driverVisualContracts(const juce::File& screenshots) {
     using namespace spectralforge;
     using namespace cabMicrophoneUITests;
     using namespace cabDriverVisualTests;
+    cabEnclosureMaterialTests::run();
     shellArtworkContracts(screenshots);
+    hornGrilleContracts(screenshots);
     // A fresh Dual/Matrix room has no focused panel owning its image bank.
     // Observe without creating, and drop observation handles before repainting.
     {
@@ -285,7 +494,8 @@ void driverVisualContracts(const juce::File& screenshots) {
     // bass/guitar sprite cannot pass the pairwise pixel or unique-style checks.
     std::vector<juce::Image> designs;
     std::set<juce::String> styles;
-    juce::Image contact(juce::Image::RGB,7*256,2*294,true);juce::Graphics cg(contact);
+    juce::Image contact(juce::Image::RGB,7*256,2*294,true);
+    {juce::Graphics cg(contact);
     cg.fillAll(juce::Colour(0xff181d1d));
     for(int driver=1;driver<=14;++driver) {
         set(*p,"lcab1_layout",float(matchingLayout(driver)));set(*p,"xcab1_driver",float(driver));
@@ -320,6 +530,8 @@ void driverVisualContracts(const juce::File& screenshots) {
         cg.drawImageAt(image,x,y);cg.setColour(juce::Colour(0xffeee8dc));cg.setFont(juce::FontOptions(16.f));
         cg.drawText(cabExpansion::drivers[size_t(driver-1)].name,x,y+260,256,26,juce::Justification::centred);
     }
+    } // Direct2D must finish its batch before PNG reads the native image.
+    check(contact.getPixelAt(0,0)!=juce::Colours::black,"driver catalogue screenshot is blank");
     writeImage(contact,screenshots,"cab-visual-driver-front-designs-14.png");
 
     // Same viewport, mic model and distance across all three diameters.

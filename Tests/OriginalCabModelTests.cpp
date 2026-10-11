@@ -1,4 +1,5 @@
 #include "OriginalCabModel.h"
+#include "CabQuadratureReference.h"
 #include <iostream>
 #include <chrono>
 using namespace spectralforge::originalCab;
@@ -6,7 +7,31 @@ void require(bool b,const char* m){if(!b)throw std::runtime_error(m);}
 double energy(const std::vector<float>& a){double e=0;for(auto v:a)e+=v*v;return e;}
 double delta(const std::vector<float>& a,const std::vector<float>& b){double d=0;for(size_t n=0;n<a.size();++n)d=std::max(d,std::abs(double(a[n]-b[n])));return d;}
 double peakTime(const std::vector<float>& a,double sr){return std::distance(a.begin(),std::max_element(a.begin(),a.end(),[](float x,float y){return std::abs(x)<std::abs(y);}))/sr;}
+void quadratureReference() {
+    namespace reference=spectralforge::cabQuadratureReference;
+    size_t geometry=0,cases=0;
+    for(int ring=0;ring<4;++ring)for(int sector=0;sector<12;++sector) {
+        const double theta=2*pi*(sector+.5*(ring%2))/12;
+        const auto& point=coneQuadraturePoints()[size_t(ring*12+sector)];
+        require(reference::sameBits(point.radiusScale,std::sqrt((ring+.5)/4)),"cached cone radius bits differ");
+        require(reference::sameBits(point.cosTheta,std::cos(theta)),"cached cone cosine bits differ");
+        require(reference::sameBits(point.sinTheta,std::sin(theta)),"cached cone sine bits differ");
+        geometry+=3;
+    }
+    for(size_t cabinet=0;cabinet<speakers.size();++cabinet) {
+        const auto& speaker=speakers[cabinet];const auto points=centres(enclosures[cabinet]);
+        for(const auto source:points)for(int unit:{0,3})for(double position:{0.,.63,1.})
+        for(double z:{.02,.10,.60})for(double hz:{20.,80.,1000.,1700.,6000.,20000.}) {
+            const Point pickup{points[size_t(unit)].x+position*speaker.radius,points[size_t(unit)].y};
+            require(reference::sameBits(coneField(hz,speaker,source,pickup,z),
+                reference::originalConeField(hz,speaker,source,pickup,z)),"cached v1 cone differs from original math");
+            ++cases;
+        }
+    }
+    std::cout<<"PASS cone_quadrature_reference_v1="<<cases<<" geometry_doubles="<<geometry<<" exact_double_bits\n";
+}
 int main(){try {
+    quadratureReference();
     // Frozen authored v1 transfer anchors (not physical measurements).
     const std::array<Complex,6> golden{{{-0.428362432676646,0.201748237235966},{-0.199687868229497,-0.266552891708711},{-0.0374053842063739,-0.149089915074266},{-0.376149775579828,0.711919460466929},{-0.129113878143088,-0.235379002422618},{-0.020334227310253,-0.120790512406904}}};
     int anchor=0;for(int cab=0;cab<2;++cab)for(double hz:{80.,1000.,6000.}) {

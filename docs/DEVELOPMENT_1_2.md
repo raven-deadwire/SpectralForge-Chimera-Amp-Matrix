@@ -214,4 +214,3 @@ Public release, update feed and homepage promotion remain separate. The
 five-pedal limit and all released parameter identities remain unchanged.
 Preview active count is AMP24 + PRE39 + POST21 = 84, with 25 serialized AMP IDs
 including retired Ironball. No original NAM weights are bundled in the product.
-

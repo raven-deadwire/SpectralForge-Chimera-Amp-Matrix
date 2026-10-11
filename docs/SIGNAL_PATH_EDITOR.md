@@ -135,4 +135,3 @@ keyboard/host checks; do not present static screenshots as interaction proof.
 This specification implements the navigation/editing portion of the
 [full reordered roadmap](DEVELOPMENT_ROADMAP_2026_2027.md). It does not claim
 that the strip, embedded knobs or order editor already exist in 1.3.
-

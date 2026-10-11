@@ -1,5 +1,6 @@
 #pragma once
 #include "IRCollection.h"
+#include "CapturedCabArt.h"
 
 class IRBrowserPanel : public juce::Component, private juce::ListBoxModel {
     spectralforge::art::DialogLook look;
@@ -170,7 +171,13 @@ public:
         g.drawText("CABINET LIBRARY",20,14,255,32,juce::Justification::centredLeft);
         g.setColour(juce::Colour(0xff252827));g.fillRoundedRectangle(722,147,258,462,5);
         if(const auto* e=selection()) {
-            spectralforge::art::cabinet(g,{789,160,124,146},e->tags);
+            const auto configuration=spectralforge::capturedCabArt::configuration(e->tags);
+            const auto size=spectralforge::capturedCabArt::dimensions(configuration);
+            const float scale=juce::jmin(124.f/size.width,140.f/size.projectedHeight());
+            const auto box=juce::Rectangle<float>(size.width*scale,size.projectedHeight()*scale)
+                .withCentre({851.f,230.f});
+            spectralforge::capturedCabArt::paintCabinet(g,box,configuration,true,
+                e->tags.instrument==spectralforge::IRMetadata::Instrument::bass);
             g.setFont(juce::FontOptions(11.f));g.setColour(juce::Colour(0xffaaa89f));
             g.drawText("CABINET STYLE / NOT CAPTURE PHOTO",732,309,238,18,juce::Justification::centred);
         } else {g.setFont(juce::FontOptions(13.f));g.setColour(juce::Colour(0xffb7b5ae));g.drawFittedText("Select a cabinet to inspect its speaker, microphone and capture position.",744,206,213,100,juce::Justification::centred,4);}

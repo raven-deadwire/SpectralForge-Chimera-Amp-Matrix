@@ -7,12 +7,27 @@ test build and must not be renamed or promoted as a 1.3 binary.
 
 ## Authorization and current state
 
-The owner requested release preparation and selected version 1.3 on
-2026-10-09 KST. Preparation includes versioning, reviewable notes, installer
-generation, automated checks and this evidence pipeline. The current
-`release_scope` records `publication_authorized=false` and
-`release_approved=false`. These are not inferred from older 1.2 authorization,
-workflow success or the request to prepare this release.
+The owner requested the CAB fixes, version 1.3 publication and the full 1.3
+product description on the RavenForge homepage. On 2026-10-11 KST, the owner
+reported downloading and checking the test file and then explicitly instructed
+approval. The current `release_scope` therefore records both
+`publication_authorized=true` and `release_approved=true`. No further general
+approval or tested-file identification is required from the owner.
+
+The decision covers the prepared candidate `f56dc9d65c83a5d8dc29710ed29242032d34e235`
+and its requested IR-depth/mounted-horn fixes. That source identifies the
+approval scope; the personally tested file was not identified. Owner acceptance
+is recorded separately from individual measurement reports. Required checks,
+source binding, workflow results, waivers and the existing transpose deferral
+are unchanged; publication consumes the actual consolidated verdict without relabeling it. The
+separate beta publication decision described below governs this owner-approved beta.
+
+The current cabinet follow-up preserves native grille apertures during
+minification, fits the IR equipment stage to the selected captures with a
+shared physical scale, and labels generic cabinet/microphone illustrations as
+example images. Known metadata retains its documented configuration and model;
+examples never change the IR or audio parameters. Exact-source CI must verify
+these changes before the approved candidate can be published.
 
 `publish-beta13.yml` has only `workflow_dispatch`. Its default is a read-only
 review. The publication job requires the explicit publication option, the full
@@ -128,3 +143,33 @@ Run `Tools/test_publish_beta13.py` and `Tools/test_release_consolidator.py` for
 the publication-negative and raw-evidence contracts. Their positive paths use
 explicit test fixtures and never represent product acceptance. Fresh CI for the
 final integrated 1.3 source remains required after every source change.
+
+## Owner-accepted beta publication decision (2026-10-11)
+
+After disclosure of the 128/21/107 structural mismatch, the owner explicitly
+instructed correction and publication. `beta-publication-policy.json` records
+that decision for product source `7f692693f942a0f1dd1973062dc4d5d47b9be4ac`
+and version `1.3.0-beta.1` only. It does not modify the strict release policy,
+waivers, check map or consolidated verdict. The helper requires the fixed 21
+implemented checks to pass and permits only the fixed 107 genuinely unexecuted
+baseline reports. Executed failures, producer errors, stale evidence, waivers,
+missing/new IDs and invented PASS results still reject publication.
+
+The strict report remains 21 PASS / 107 BLOCKED (42 blocked strict hard gates).
+The separate decision is `OWNER_ACCEPTED_BETA_WITH_VALIDATION_GAPS`, not a
+full-validation PASS. Both reports and the complete evidence ZIP are attached
+to the public beta, and its release description states the validation limit.
+
+Publication-only code may run from a descendant controller commit. The tag,
+candidate, update manifests and CI remain bound to the tested product commit.
+`verify_controller_source` checks ancestry and an exact seven-file allowlist;
+any production, artwork, version, build workflow, original policy/map/waiver,
+source-document or other change rejects publication. The controller branch and
+exact-source CI are rechecked immediately before release creation. This avoids
+rebuilding unchanged product binaries merely to correct the publishing script.
+
+The explicitly started publication job can wait up to 90 minutes for the
+existing exact-source CI runs. It creates no release while they are running.
+Only pending/running statuses are retried; terminal failures, missing runs or
+artifacts and a superseded controller stop publication. The final provenance
+and current-branch checks still run immediately before the first mutation.

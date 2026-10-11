@@ -221,17 +221,13 @@ private:
         refresh();return true;
     }
     void paintRigging(juce::Graphics& g) {
+        spectralforge::cabLayoutView::frontHardware(g,arrayGeometry(),cabinetBounds(),design==1,raw("tweeter"),expanded("tweeter"));
         if(layoutModel>0) {
             g.setFont(juce::FontOptions(9.f));g.setColour(juce::Colour(0xff899492));
             for(int n=0;n<speakerCount();++n) {
                 const auto c=speakerCentre(n);
                 g.drawText(juce::String(n+1),juce::Rectangle<float>(c.x-speakerRadius()-10,c.y-6,10,12),juce::Justification::centred);
             }
-        }
-        if(raw("tweeter")>0) {
-                const auto model=arrayGeometry();const auto face=baffleBounds();
-                const auto horn=juce::Point<float>{face.getCentreX()+float(model.horn.x/model.box.width)*face.getWidth(),face.getCentreY()-float(model.horn.y/model.box.height)*face.getHeight()};
-                const float r=face.getWidth()*.024f;g.setColour(juce::Colour(0xffbcc0b9));g.drawEllipse(horn.x-r,horn.y-r,r*2,r*2,1.5f);
         }
         for(int i=0;i<2;++i)if(geometry[size_t(i)].enabled) {
             const auto& visual=visualGeometry[size_t(i)];

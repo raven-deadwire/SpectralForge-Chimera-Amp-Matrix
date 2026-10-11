@@ -1,21 +1,23 @@
 # SpectralForge Chimera — Open Beta 1.3 · Niflheimr & CAB
 
-**Version 1.3.0-beta.1 · Windows / macOS / Linux · release preparation, 2026-10-09 KST**
+**Version 1.3.0-beta.1 · Windows / macOS / Linux · 2026-10-11 KST**
 
-Niflheimr 베이스 앰프와 Chimera 오리지널 캐비넷·스피커·마이크 모델을 통합하는 1.3 업데이트입니다. 현재 문서는 릴리즈 준비본이며, 공개 다운로드와 최종 검증 결과는 확정된 소스의 빌드가 완료된 뒤 연결합니다.
+Niflheimr 베이스 앰프와 Chimera 오리지널 캐비넷·스피커·마이크 모델을 통합하는 1.3 업데이트입니다. 아래에는 제공 기능, 기존 프로젝트와의 호환 동작 및 알려진 한계를 정리했습니다.
 
 ## 주요 변경
 
 - **Niflheimr:** 다섯 채널의 SpectralForge Original 베이스 앰프와 다섯 개의 완성형 프리셋을 추가합니다. 전체 선택 가능 구성은 AMP 25종, PRE 39종, POST 21종, 프리셋 48개입니다. 캐비넷·스피커·마이크는 별도 목록입니다.
-- **오리지널 CAB:** 기타 스피커 8종과 베이스 스피커 6종, 다이나믹 9종·리본 3종·콘덴서 8종의 마이크 20종, 트위터 3종을 추가합니다. Chimera 고유 음향 모델이며 상용 하드웨어와의 동등성은 주장하지 않습니다.
+- **오리지널 CAB:** 기타 스피커 8종과 베이스 스피커 6종, 다이나믹 9종·리본 3종·콘덴서 8종의 마이크 20종을 제공합니다. 트위터는 기존 Chimera HF에 Silk HF·Metal HF·Air HF 3종을 더해 총 4개 디자인 중에서 선택합니다. Chimera 고유 음향 모델이며 상용 하드웨어와의 동등성은 주장하지 않습니다.
 - **610 재구성:** 미공개 810 테스트 모델을 10인치 유닛 6개의 2열×3행 구성으로 교체했습니다. 기존 스피커·마이크 응답 모델을 활용하고 함체 높이·용적·유닛 간 간섭을 610에 맞췄습니다. 이전 테스트 설정의 7·8번 마이크 대상은 같은 열의 5·6번으로 해석됩니다. 기존 8×10 캡처/User IR의 음원과 표기는 유지됩니다.
-- **프리셋 CAB 재조정:** 기존 팩토리·시그니처 프리셋 48개에 캐비넷·호환 스피커·마이크·수음 위치를 명시합니다. 베이스의 대형 리그는 610을 사용하고 각 기타·베이스·Dual·Matrix 역할에 맞는 조합을 제공합니다. 의도된 드라이 LOW, 프리셋 이름·순서와 기존 사용자 프로젝트는 유지하며, 개인 IR 파일을 자동으로 찾는 연결은 제거합니다. [전체 배치](FACTORY_CAB_VOICING_1_3.md)를 확인할 수 있습니다.
+- **프리셋 CAB 재조정:** 기존 팩토리·시그니처 프리셋 48개에 캐비넷·호환 스피커·마이크·수음 위치를 명시하며, 프리셋 호출 시 OUTPUT은 0 dB로 시작합니다. 저장된 프로젝트는 자체 OUTPUT 값을 복원합니다. 베이스의 대형 리그는 610을 사용하고 각 기타·베이스·Dual·Matrix 역할에 맞는 조합을 제공합니다. 의도된 드라이 LOW, 프리셋 이름·순서와 기존 사용자 프로젝트는 유지하며, 개인 IR 파일을 자동으로 찾는 연결은 제거합니다. [전체 배치](FACTORY_CAB_VOICING_1_3.md)를 확인할 수 있습니다.
 - **IR 배포 범위 정리:** 재배포 승인이 확인되지 않은 외부·개인 참조 42개를 기본 로더 목록에서 제외하고, 개발용 참조 오디오는 설치·포터블 패키지에 포함하지 않습니다. 출처·라이선스 고지와 해시가 확인된 번들 IR 2개, 사용자의 직접 IR 불러오기와 저장된 프로젝트 복원은 유지합니다.
 - **재생 시작·A/B 복원:** 저장된 마이크 레벨·극성·딜레이·블렌드와 네이티브 앰프 선택을 DSP 준비 단계부터 적용합니다. 새로 연 인스턴스와 다시 재생한 인스턴스의 시작 상태를 일치시키며, 재생 중 노브를 바꿀 때의 부드러운 전환은 유지합니다.
 - **캐비넷 구성:** 기타 1×12 / 2×12 / 4×12, 베이스 1×12 / 2×12 / 1×15 / 2×10 / 4×10 / 6×10을 선택할 수 있습니다. 캐비넷의 유닛 지름은 고정됩니다. 10인치 구성에는 12·15인치 유닛을 넣을 수 없습니다. 선택 목록의 중복 4×12·4×10 항목은 기존 프로젝트 호환성을 유지하면서 정리합니다.
 - **독립 Mic A/B:** 마이크 종류와 수음 유닛, 위치·거리, 블렌드·레벨·극성·딜레이·필터를 각 경로에서 조절합니다. 한 마이크만 쓰거나 서로 다른 유닛을 수음할 수 있습니다.
 - **룸과 외형:** Dual/Matrix에서 리그를 한 룸에 표시하고 캐비넷을 선택해 CAB 조작 화면을 엽니다. 실제로 놓인 장비를 기준으로 프레이밍하며, 마이크가 없는 룸에 예약된 마이크 여유 공간을 제거합니다. 공통 축척과 실제 가로세로 비율을 유지하고 기존 캐비넷 외장 디자인을 살립니다.
 - **유닛 아트와 이름:** 유닛 14종의 서로 다른 정면 디자인, 물리 치수에 맞춘 헤드와 마이크, IR Loader의 이미지를 제공합니다. 두 기타 유닛은 **Crimson 12**와 **Nocturne 100**으로 표시하며 Crimson 12는 빨간색을 유지합니다.
+- **IR 로더 입체 표현:** 캡처 캐비넷에도 상단 깊이, 모서리, 그릴과 접지 그림자를 적용해 CABINET과 같은 2.5D 표현을 사용합니다. A/B 이미지는 메타데이터 기반 일러스트이며 실제 녹음 장비의 사진이 아닙니다. 확인되지 않은 캐비넷·마이크 구성은 `EXAMPLE`로 구분하고, IR 메타데이터와 오디오는 변경하지 않습니다. CABINET / IR LOADER 화면 전환은 현재 소리를 유지하며, IR을 선택하면 해당 마이크 경로의 음원이 선택한 캡처로 바뀝니다.
+- **베이스 4×10 혼:** TWEETER 0%에서도 장착된 혼은 캐비넷 전면에 남습니다. 0%는 고역 음향 기여를 끄는 설정이며 하드웨어를 제거하는 설정이 아닙니다. 이번 표시 수정은 DSP와 프리셋 값을 변경하지 않습니다.
 - **Matrix LOW:** DI/AMP 블렌드는 DI와 AMP→CAB 경로를 섞습니다. 캐비넷은 AMP 쪽 비중에만 작용하며, Mic A/B 블렌드는 그 캐비넷 안에서 별도로 작동합니다.
 - **실시간 처리:** 작은 오디오 블록에서 오리지널 스테레오 캐비넷의 중복 FFT 작업을 줄입니다. 응답 길이, 전환 페이드, 음향식과 CPU 검증 기준을 유지합니다.
 - **배포 검사:** Windows에서 UTF-8 문서를 읽는 인코딩 오류를 수정하고, 중간 명령의 실패가 마지막 명령의 성공으로 가려지지 않도록 합니다. 실제 검증자료를 소스·실행·시도별로 취합해 게시 전에 다시 평가합니다.
@@ -28,7 +30,7 @@ Chimera와 DAW를 종료한 뒤 설치하세요. 설치 후 SETTINGS에서 **Ope
 
 ## 검증과 알려진 한계
 
-최종 1.3 소스에서 Windows·macOS·Linux 제품 빌드, CTest, CAB 검증, 패키지 조립과 Windows 설치·복구·제거를 다시 확인합니다. 이전 설치본의 성공 기록을 변경된 1.3 소스의 성공으로 재사용하지 않습니다. 새 소스의 실제 결과는 [1.3 준비 기록](RELEASE_1_3_PREPARATION.md)에 연결합니다.
+검증은 최종 소스와 동일한 Windows·macOS·Linux 제품 빌드, CTest, CAB 검사, 패키지 조립 및 Windows 설치·복구·제거 결과를 기준으로 합니다. 이전 설치본의 성공 기록을 변경된 1.3 소스의 성공으로 재사용하지 않습니다. 실제 실행 결과와 남은 항목은 [1.3 검증 기록](RELEASE_1_3_PREPARATION.md)에 구분하며, 이 제품 설명 자체는 공개 또는 검증 완료 증명이 아닙니다.
 
 실제 악기 DI 청음과 Studio One 등 사용 DAW에서의 연주·프로젝트 복원·UI를 연 뒤 인스턴스 삭제 및 종료 검증은 별도 확인 항목입니다. 이전 소스의 macOS 개별 오디오 마감시간 초과 기록도 유지합니다. 합성 테스트만으로 모든 컴퓨터에서의 무중단 처리나 원본 하드웨어와의 동등성을 주장하지 않습니다.
 
@@ -42,23 +44,27 @@ Chimera와 DAW를 종료한 뒤 설치하세요. 설치 후 SETTINGS에서 **Ope
 
 ## English summary
 
-Open Beta 1.3 prepares Niflheimr and the original CAB engine. It includes 25 active amps, 39 PRE models, 21 POST models and 48 presets; 14 speakers, 20 microphones and three additional tweeter designs are a separate inventory. Nine explicit cabinet layouts enforce driver diameter compatibility. The large bass layout is a 2×3 six-driver 6×10, rebuilt from the unpublished 8×10 preview with a shorter enclosure and six-source acoustic field. Independent Mic A/B paths support source selection, modeled position/distance, blend and phase controls. Room framing uses the displayed rigs, retains a common physical scale and removes unused microphone margins. Cabinet exterior detail and fixed captured/User IR responses are preserved.
+Open Beta 1.3 integrates Niflheimr and the original CAB engine. It includes 25 active amps, 39 PRE models, 21 POST models and 48 presets; 14 speakers, 20 microphones and Chimera HF plus three additional tweeter designs (Silk HF, Metal HF and Air HF) are a separate inventory. Nine explicit cabinet layouts enforce driver diameter compatibility. The large bass layout is a 2×3 six-driver 6×10, rebuilt from the unpublished 8×10 preview with a shorter enclosure and six-source acoustic field. Independent Mic A/B paths support source selection, modeled position/distance, blend and phase controls. Room framing uses the displayed rigs, retains a common physical scale and removes unused microphone margins. Cabinet exterior detail and fixed captured/User IR responses are preserved.
 
-All 48 factory recalls receive modeled cabinet, speaker and microphone recipes; intentional dry LOW paths and preset identities remain intact. Factory recall no longer resolves private IR filenames. The public loader omits 42 unapproved external/private reference entries, and release packages exclude research/reference audio. Two attributed, hash-allowlisted factory IRs and manual user import/recall remain available.
+All 48 factory recalls receive modeled cabinet, speaker and microphone recipes and start at OUTPUT 0 dB; saved projects restore their own OUTPUT values. Intentional dry LOW paths and preset identities remain intact. Factory recall no longer resolves private IR filenames. The public loader omits 42 unapproved external/private reference entries, and release packages exclude research/reference audio. Two attributed, hash-allowlisted factory IRs and manual user import/recall remain available.
 
 Saved microphone gain, polarity, delay and blend, and the complete native amp selection, are installed before DSP preparation. Fresh instances and restarted instances therefore begin from the selected rig, while live control changes retain their smoothing.
 
-The release remains in preparation. Exact-source 1.3 packages and tests must be verified before publication. Actual instrument/Studio One acceptance, existing transpose limitations and signing/notarization status remain separately documented. Embedded head-panel knobs are planned after 1.3.
+The IR loader uses the CABINET depth treatment: visible enclosure tops, corners, grilles and contact shadows. These metadata-based illustrations are not capture-session photographs; EXAMPLE identifies unconfirmed cabinet or microphone details. Imported 8×10 IR names, metadata and audio remain separate from the modeled six-driver 6×10. Switching views preserves the current sound; selecting an IR changes that microphone path to the chosen capture. The bass 4×10 horn stays visibly mounted at TWEETER 0%, when its acoustic contribution is off. This display correction does not alter DSP or preset values.
+
+Use packages and validation records that match the exact 1.3 source. Actual instrument/Studio One acceptance, existing transpose limitations and signing/notarization status remain separately documented. These product notes do not certify publication or completed acceptance. Embedded head-panel knobs are planned after 1.3.
 
 ## Deutsche Zusammenfassung
 
-Open Beta 1.3 integriert Niflheimr und die originale CAB-Engine: 25 aktive Verstärker, 39 PRE- und 21 POST-Modelle sowie 48 Presets. Dazu kommen 14 Lautsprecher, 20 Mikrofone, drei zusätzliche Hochtöner und neun Gehäusekonfigurationen mit passendem Lautsprecherdurchmesser. Das große Bassgehäuse ist jetzt ein 6×10 mit zwei Spalten und drei Reihen; das bisherige 8×10-Testmodell wurde akustisch und geometrisch entsprechend umgebaut. Mic A/B lassen sich unabhängig bearbeiten. Die Raumansicht nutzt den Platz anhand der angezeigten Rigs bei gemeinsamem physischem Maßstab; vorhandene Gehäusedetails bleiben erhalten. Eigene IRs und bestehende Projektzuordnungen bleiben unterstützt.
+Open Beta 1.3 integriert Niflheimr und die originale CAB-Engine: 25 aktive Verstärker, 39 PRE- und 21 POST-Modelle sowie 48 Presets. Dazu kommen 14 Lautsprecher, 20 Mikrofone, Chimera HF mit drei weiteren Hochtönerdesigns (Silk HF, Metal HF und Air HF) und neun Gehäusekonfigurationen mit passendem Lautsprecherdurchmesser. Das große Bassgehäuse ist jetzt ein 6×10 mit zwei Spalten und drei Reihen; das bisherige 8×10-Testmodell wurde akustisch und geometrisch entsprechend umgebaut. Mic A/B lassen sich unabhängig bearbeiten. Die Raumansicht nutzt den Platz anhand der angezeigten Rigs bei gemeinsamem physischem Maßstab; vorhandene Gehäusedetails bleiben erhalten. Eigene IRs und bestehende Projektzuordnungen bleiben unterstützt.
 
-Alle 48 Werkspresets erhalten passende modellierte Gehäuse-, Lautsprecher- und Mikrofoneinstellungen. Bewusste trockene LOW-Pfade sowie Namen und IDs bleiben erhalten; private IR-Dateien werden beim Presetaufruf nicht mehr automatisch gesucht. Die öffentliche IR-Liste enthält keine der 42 nicht zur Weitergabe freigegebenen externen/privaten Referenzen. Forschungs- und Referenzaudio wird aus den Paketen ausgeschlossen. Zwei mit Quellenangabe und Hash geprüfte Werks-IRs sowie der manuelle Import eigener IRs bleiben verfügbar.
+Alle 48 Werkspresets erhalten passende modellierte Gehäuse-, Lautsprecher- und Mikrofoneinstellungen und starten mit OUTPUT 0 dB. Gespeicherte Projekte stellen ihren eigenen OUTPUT-Wert wieder her. Bewusste trockene LOW-Pfade sowie Namen und IDs bleiben erhalten; private IR-Dateien werden beim Presetaufruf nicht mehr automatisch gesucht. Die öffentliche IR-Liste enthält keine der 42 nicht zur Weitergabe freigegebenen externen/privaten Referenzen. Forschungs- und Referenzaudio wird aus den Paketen ausgeschlossen. Zwei mit Quellenangabe und Hash geprüfte Werks-IRs sowie der manuelle Import eigener IRs bleiben verfügbar.
 
 Gespeicherte Mikrofonpegel, Polarität, Verzögerung und Mischung sowie die vollständige native Verstärkerauswahl werden vor der DSP-Vorbereitung übernommen. Neue und erneut gestartete Instanzen beginnen damit im gewählten Zustand; die Glättung laufender Regleränderungen bleibt erhalten.
 
-Die Veröffentlichung wird vorbereitet. Pakete und Prüfungen müssen zur endgültigen 1.3-Quellrevision passen. Hörtests mit echten Instrumenten, Studio-One-Prüfungen und bestehende Grenzen bleiben getrennt ausgewiesen. Regler direkt auf der Verstärkerfront sind für ein Update nach 1.3 vorgesehen.
+Der IR-Loader übernimmt die räumliche Darstellung von CABINET mit sichtbaren Oberseiten, Ecken, Gittern und Bodenschatten. Die Metadaten-basierten Illustrationen sind keine Fotos einer Aufnahmesitzung; EXAMPLE kennzeichnet unbestätigte Boxen- oder Mikrofonangaben. Namen, Metadaten und Audio importierter 8×10-IRs bleiben vom modellierten 6×10 mit sechs Lautsprechern getrennt. Ein Ansichtswechsel erhält den aktuellen Klang; die Auswahl einer IR schaltet den jeweiligen Mikrofonpfad auf diese Aufnahme um. Das Horn der Bassbox 4×10 bleibt bei TWEETER 0 % sichtbar montiert, obwohl sein Klanganteil ausgeschaltet ist. Diese Darstellungskorrektur ändert weder DSP noch Presetwerte.
+
+Pakete und Prüfberichte müssen zur endgültigen 1.3-Quellrevision passen. Hörtests mit echten Instrumenten, Studio-One-Prüfungen und bestehende Grenzen bleiben getrennt ausgewiesen. Diese Produktbeschreibung bestätigt weder eine Veröffentlichung noch abgeschlossene Abnahmen. Regler direkt auf der Verstärkerfront sind für ein Update nach 1.3 vorgesehen.
 
 [Published 1.2 release](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/releases/tag/v1.2.0-beta.1) · [Historical 1.2 notes](OPEN_BETA_1_2_RELEASE_NOTES.md)
 

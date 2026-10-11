@@ -100,7 +100,9 @@ inline Geometry geometry(Settings p) {
     const double pitch=l.inches*.0254*1.10;
     for(int row=0;row<l.rows;++row)for(int col=0;col<l.columns;++col)
         g.centres[size_t(row*l.columns+col)]={(col-(l.columns-1)*.5)*pitch,((l.rows-1)*.5-row)*pitch};
-    g.horn={0,g.box.height*.44};return g;
+    // The four-driver bass baffle carries its horn between the cones. Both
+    // drawing and acoustic propagation consume this same physical location.
+    g.horn={0,l.bass && l.columns==2 && l.rows==2 ? 0. : g.box.height*.44};return g;
 }
 inline Complex driverTransfer(Settings p,double hz,const Geometry& g) {
     p=effectiveSettings(p);
@@ -149,22 +151,26 @@ inline Complex response(Settings raw,double hz) {
     if(mic)pickupResponse*=1.+mic->presenceAmount*mode(s,mic->presenceHz,mic->presenceQ);
     return .45*result*pickupResponse;
 }
-inline std::vector<float> generate(uint64_t model,double rate) {
+inline std::vector<float> generate(uint64_t model,double rate,const GenerationCancellation& cancellation={}) {
     model=key(settings(model));
-    if(!(model&versionBit))return cabExpansion::generate(model,rate);
+    if(!(model&versionBit))return cabExpansion::generate(model,rate,cancellation);
     if(!std::isfinite(rate) || rate<8000 || rate>384000)throw std::invalid_argument("Layout CAB sample rate");
+    cancellation.checkpoint();
     const auto p=settings(model);size_t size=1;while(size<size_t(std::ceil(rate*.170)))size<<=1;
     std::vector<Complex> spectrum(size);
     for(size_t k=1;k<size/2;++k) {
+        if((k&63)==0)cancellation.checkpoint();
         const double hz=double(k)*rate/double(size);
         const double taper=hz>rate*.40 ? .5+.5*std::cos(pi*(hz/rate-.40)/.10) : 1;
         spectrum[k]=response(p,hz)*taper;spectrum[size-k]=std::conj(spectrum[k]);
     }
+    cancellation.checkpoint();
     inverseFFT(spectrum);std::vector<float> samples(size_t(std::ceil(rate*.085)));
     for(size_t n=0;n<samples.size();++n) {
         const double end=double(n)/double(samples.size());
         samples[n]=float(spectrum[n].real()*(end>.8 ? .5+.5*std::cos(pi*(end-.8)/.2) : 1));
     }
+    cancellation.checkpoint();
     return samples;
 }
 }

@@ -1,6 +1,6 @@
 # 1.3 release preparation
 
-Updated 2026-10-09 KST. The owner requested preparation of the current CAB/Niflheimr build as **1.3.0**, using the existing open-beta package convention **1.3.0-beta.1**. Public publication has not occurred.
+Updated 2026-10-11 KST. The owner has approved the prepared CAB/Niflheimr candidate as **1.3.0**, using the existing open-beta package convention **1.3.0-beta.1**, after reporting that the test file was downloaded and checked. Release and homepage publication are authorized. The approval record is in `Validation/release-policy.json`; it does not substitute individual measurement reports. Public publication has not occurred.
 
 ## Source integration
 
@@ -42,11 +42,29 @@ The old Windows log also contains two publisher UnicodeDecodeErrors masked by la
 
 This checkpoint predates the owner's subsequent factory-preset and IR-distribution requirements. Its installer and evidence are not the final 1.3 candidate. The completed revision must rerun product/candidate/CAB validation with those additions.
 
+## Native regression and targeted CAB correction
+
+At source **e05ca7ee9398a063615e6795f8754caa8406bfd6**, [Product run 37951956620](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/37951956620) completed Windows **38/39**, macOS **35/36** and Linux **35/36** CTest checks. Each platform failed the same integrated five-channel comparison: Thall Rhythm's driven K-weighted spread was **1.8139 dB**, above the existing **1.6 dB** limit. The revised factory recipe centres only preset 38's Strike microphone and sets its gain to **−5.0 dB**, retaining the Ruin 12 / closed 4×12 cabinet and 6 cm distance. Other preset recipes and acceptance limits are unchanged.
+
+[Candidate run 37951956736](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/37951956736) completed **36/39** checks. In addition to the same channel-spread failure, the Original and Expanded CAB tests exceeded the existing p99 block budget on that Windows runner. Those two tests passed on the same-source Product Windows runner. The logs show serial CTest execution, but lack a process inventory or scheduler trace that would establish the cause of the timing difference. These failures remain recorded and require new-source native verification. Installer/repair/uninstall and Defender checks did not run; assembly was skipped and consolidation remained **0 PASS / 128 BLOCKED**.
+
 ## Completed local preset and distribution verification
 
-The final local calibration uses the production factory loader, real audio/state code and JUCE 8.0.8. All **48** presets passed dirty/clean recall, modeled CAB contracts, OUTPUT = 0 dB, RMS > −30 dBFS and nominal/+6 dB-input peaks < 0.95, including every initial sample. The five Niflheimr binary and A/B audio round trips have maximum sample error **0**. Both-mic prepared-state and runtime gain-ramp checks passed. [The complete level table and measured source hashes](FACTORY_CAB_VOICING_1_3.md#completed-local-calibration) distinguish this headless local audio evidence from the forthcoming native editor/installer build.
+The complete strict default `ChimeraIntegratedProcessorTests` run finished with **exit 0** in **871.09 seconds** at **2026-10-09 16:41:26 UTC**, without diagnostic flags or a preset subset. The local build uses the production factory loader, real audio/state code and JUCE 8.0.8. All **48** presets passed dirty/clean recall, modeled CAB contracts, OUTPUT = 0 dB, RMS > −30 dBFS and nominal/+6 dB-input peaks < 0.95, including every initial sample. The five Niflheimr binary and A/B audio round trips have maximum sample error **0**. Both-mic prepared-state and runtime gain-ramp checks passed. [The complete level table and measured source hashes](FACTORY_CAB_VOICING_1_3.md#completed-local-calibration) distinguish this headless local audio evidence from the forthcoming native editor/installer build.
+
+The corrected source also passed the strict default five-channel comparison: bare/driven K-weighted spreads are **2.32495 / 1.54410 dB**, within the existing **2.5 / 1.6 dB** limits. This uses `FactoryCabVoicing.h` SHA-256 `4b4fc32933ecd22dbb7168a74da24dfb532b1fc09cc9da1d875afc5c447a23e2`; no amp or test threshold was changed. The completed full-suite log has SHA-256 `9fba2f4f5c4bed35977a3f31cdd65bf9965e3e11a3769eaa9ecfadbbec8945f6`.
 
 The public IR source/byte guard passed with exactly two approved embedded assets and no reference entries; its **10** regressions passed. Publisher **21/21**, release preflight **2/2**, and consolidator **26/26** regressions passed. The consolidator replay of the unchanged verified checkpoint bundles changes exactly the two stale E1 requirements and leaves **21 PASS / 107 BLOCKED**, with `ready=false`. Real-source CI and the remaining external/manual acceptance are still required.
+
+## Installer retry: startup view and CAB timing conditions
+
+The retry continues from **6dca3b2dba15d7b00fc2d429b6a7168b50ecb3af**, preserving its measured factory-preset correction and the unchanged strict integrated processor tests. The owner's requested first screen is now the **AMP/RIGS** page (`page = 0`). This is editor navigation only; PRE remains the first audio-processing stage and saved rig parameters are unchanged.
+
+The earlier Candidate workflow enabled `CHIMERA_LIFECYCLE_TRACE` for every CTest process, while Product and dedicated CAB jobs measured without this opt-in file logging. CAB worker/kernel lifecycle events can take a mutex and append to the trace file. The three CAB deadline tests now explicitly remove that variable before process startup and require tracing to be disabled. Other lifecycle and UI tests retain their tracing. `RUN_SERIAL` prevents those three measurements from sharing a CTest parallel slot; the previous failed run was already sequential, so this is a guard for future invocations, not a claimed cause of the previous failure.
+
+The complete 1,600-callback workload remains unchanged: 1,200 callbacks with worker/automation activity and 400 with forced six-slot publication. Sample rates, block sizes, channels, allocation checks and the strict p99 block-period limit are unchanged. This removes a confirmed difference in measurement conditions; it does not prove that logging alone caused the earlier runner's deadline misses. New-source native Product, CAB and Windows Candidate results are still required before installer delivery.
+
+Local validation of the retry passed `Tools/test_ctest_validation.py`, `Tools/check_catalog_contract.py` and `git diff --check`. The CTest evidence producer still rejects failed, skipped, missing, duplicate and unconfigured tests. Catalog checks retain 25 active amps, five PRE slots, 48 selectable presets and the two hash-allowlisted embedded IRs. Native startup/UI, timing and installer execution are pending the new CI run.
 
 ## Validation and remaining acceptance
 

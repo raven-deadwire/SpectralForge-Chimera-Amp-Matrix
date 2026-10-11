@@ -12,43 +12,49 @@ candidate targets, not guaranteed public release dates**. Select work by actual
 completion, priority and satisfied dependencies; do not wait for an obsolete
 calendar window. Re-estimate the next four weeks at each checkpoint.
 
-## October 10 baseline and continuing priorities
+## Schedule authority and delivery status
 
-The inspected 1.3 candidate is PR #35, commit
+This document is the single authority for version windows, room scope and
+prototype/test-installer/candidate targets. The `roadmap` section of
+[the catalog JSON](../Validation/catalog-count-contract.json) is a synchronized
+planning mirror, not a new release gate. The [CAB roadmap](CABINET_PANEL_ROADMAP.md)
+owns the detailed room integration requirements and links here for dates.
+When a checkpoint changes, update this calendar, its JSON mirror and the
+corresponding [issue #46](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/issues/46)
+checkpoint together.
+
+**Room status: schedule registered; implementation and acceptance pending.**
+Merging this plan does not deliver Room Core/Advanced, create a test installer
+or close issue #46. Keep that issue open until its implementation, audio,
+state/automation, performance, native UI and real-host acceptance criteria are
+complete for the planned core and advanced stages. An actual feature source,
+technical verification, host/listening acceptance and delivery are separate
+states.
+
+## Release-track boundary and continuing priorities
+
+The October 10 planning baseline was PR #35 at
 [e05ca7e](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/commit/e05ca7ee9398a063615e6795f8754caa8406bfd6).
-It contains Niflheimr, the original CAB engine, nine cabinet layouts, fourteen
-speakers, twenty microphone models and 48 selectable presets. Its active
-character catalog is AMP25 + PRE39 + POST21 = **85**. There are 26 serialized
-amp IDs because the retired Iron Compact is retained for saved-project recall.
-A source feature, a passing technical test and a distributable installer are
-different completion states.
+Its failed tests describe that historical source only. Use the latest
+[PR #35 delivery record](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/pull/35)
+and [release preparation](RELEASE_1_3_PREPARATION.md) for current 1.3.0 status;
+this plan neither reopens historical blockers nor changes release eligibility.
 
-At this checkpoint the product builds compiled, but the product CTest runs
-failed the integrated processor channel-level test. The Windows candidate also
-reported two CAB integration timing failures and skipped Setup generation.
-See [product run](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/37951956620)
-and [Windows candidate run](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/37951956736).
-Read their successors before reporting a current status. Do not bypass a failed
-audio test to label an installer complete.
+At consolidation, the current main source already has `page = 0` in
+`Source/PluginEditor.h`. Preserve that AMP/RIGS startup default and the saved
+Classic/Dual/Matrix mode; no startup-source change is included here. This fact
+does not establish later embedded-head or signal-path completion.
 
-Immediate priorities:
+The retained catalog is AMP25 + PRE39 + POST21 = **85** active character
+models, 26 serialized amp IDs including recall-only Iron Compact, and 48
+selectable presets. CAB inventory remains nine layouts, fourteen speakers and
+twenty microphone models, counted separately from character models.
 
-1. Diagnose and resolve the actual 1.3 candidate failures, then produce and
-   verify the Windows installer and deliver the real file.
-2. Change new editor instances from PRE to **RIGS / amplifier view**. This is
-   a presentation default, not a change to DSP order, saved audio mode or tone.
-3. Start the EQ, common state and head/navigation work below on an isolated
-   next-update branch. Existing installer preparation must not wait for EQ.
-4. Continue Transpose low-B/−2-semitone and NAM/reference investigations as
-   separate measured work. They do not establish one another's success.
-
-The inspected e05ca7e candidate still opens PRE. The separately prepared
-startup correction changes the editor page default from 1 to 0; it requires
-integration and actual UI validation in a follow-up candidate. New
-Classic sessions show the existing amp view; saved Dual/Matrix sessions open
-their corresponding RIGS overview without forcing Classic. An already open
-editor keeps its current page during preset/state restoration. This correction
-does not implement the later embedded knobs or editable signal-path strip.
+Continue the current 1.3.0 release work independently of the next-update
+plan. Do not alter its product source, version, assets, release evidence,
+validation policy, workflows or publisher as part of this consolidation.
+Continue EQ/head/navigation, low-B/−2-semitone Transpose and NAM/reference work
+on their own development tracks and report each track's actual evidence.
 
 ## Full reordered calendar
 
@@ -328,8 +334,9 @@ feature. Existing tests supplement actual host/playing acceptance and must
 not be replaced with unsupported PASS labels.
 
 The two development tasks retain their cadence: daily 15:00 KST independent
-implementation, weekdays 17:00 KST Astra validation. Their roadmap end moves to
-September 24 with this calendar. They must read this plan and the newest source,
+implementation, weekdays 17:00 KST Astra validation. Use September 24 as the
+roadmap end when those tasks consult this calendar; this document does not
+change automation configuration. They must read this plan and the newest source,
 continue independent work while a specific validation item is blocked, and
 record the next reviewable result. Installer/NAM result delivery remains a
 separate existing hourly condition watch.
@@ -343,5 +350,3 @@ separate existing hourly condition watch.
 - [Room implementation and dated checkpoints](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/issues/46)
 - [Transpose long-term work](TRANSPOSE_LONG_TERM.md)
 - [1.3 release preparation](RELEASE_1_3_PREPARATION.md)
-- [Exact 1.3 candidate test blockers](RELEASE_1_3_TEST_BLOCKERS_20261010.md)
-

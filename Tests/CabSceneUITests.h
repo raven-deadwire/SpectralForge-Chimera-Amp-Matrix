@@ -900,6 +900,22 @@ inline void nativePopupReady(juce::DialogWindow& window,CabWorkspace& workspace,
 
 inline void editorNavigation(const juce::File& screenshots) {
     auto processor=std::make_unique<ChimeraProcessor>();
+    automate(*processor,"mode",0);
+    auto editor=std::make_unique<ChimeraEditor>(*processor);
+    auto& canvas=component<juce::Component>(*editor,"surface");
+    juce::ComboBox* dualType=nullptr;
+    for(auto* child:canvas.getChildren())
+        if(auto* box=dynamic_cast<juce::ComboBox*>(child);box && box->getName()=="Dual type")dualType=box;
+    require(dualType && !dualType->isVisible(),"Classic startup exposes Dual-only routing controls");
+    require(pageButton(canvas,"RIGS").getToggleState(),"New editor does not open the AMP/RIGS page");
+    require(findComponent(canvas,"cabRoomOverview")==nullptr
+        && !juce::SharedResourcePointer<spectralforge::cabArt::Bank>::getSharedObjectWithoutCreating(),
+        "Classic AMP startup eagerly constructs a hidden multi-rig cabinet room and equipment bank");
+    Showing showing(*editor);
+    navigationUnchanged(*processor,[&] {
+        auto& pre=pageButton(canvas,"PRE");
+        click(pre,[&]{return pre.getToggleState();});
+    });
     automate(*processor,"mode",1);
     for(int lane=0;lane<3;++lane) {
         processor->setAmpModel(lane,std::array<int,3>{{15,18,22}}[size_t(lane)]);
@@ -908,12 +924,14 @@ inline void editorNavigation(const juce::File& screenshots) {
         automate(*processor,spectralforge::originalCabID(lane,"Bunit"),3);
         automate(*processor,spectralforge::originalCabID(lane,"design"),lane==1 ? 1.f : 0.f);
     }
-    auto editor=std::make_unique<ChimeraEditor>(*processor);
-    auto& canvas=component<juce::Component>(*editor,"surface");
-    require(findComponent(canvas,"cabRoomOverview")==nullptr
-        && !juce::SharedResourcePointer<spectralforge::cabArt::Bank>::getSharedObjectWithoutCreating(),
-        "Opening the PRE page eagerly constructs the hidden cabinet room and equipment bank");
-    Showing showing(*editor);
+    navigationUnchanged(*processor,[&] {
+        auto& pre=pageButton(canvas,"PRE");
+        require(dispatchUntil([&]{return pre.getToggleState() && dualType->isVisible();}),
+            "Dual mode UI did not update while the PRE page was selected");
+        require(findComponent(canvas,"cabRoomOverview")==nullptr
+            && !juce::SharedResourcePointer<spectralforge::cabArt::Bank>::getSharedObjectWithoutCreating(),
+            "Selecting Dual while on PRE eagerly constructs the hidden cabinet room and equipment bank");
+    });
     for(int mode=1;mode<=2;++mode) {
         automate(*processor,"mode",float(mode));
         navigationUnchanged(*processor,[&] {
@@ -965,7 +983,7 @@ inline void editorNavigation(const juce::File& screenshots) {
             click(pre,[&]{return pre.getToggleState() && !room.isVisible();});
         });
     }
-    std::cout<<"PASS main editor CAB: lazy PRE startup, Dual/Matrix room defaults, cabinet-to-focused-dialog/back, rig controls toggle, 75 percent layout and no host/audio-state writes\n";
+    std::cout<<"PASS main editor CAB: AMP/RIGS startup, lazy room while on PRE, Dual/Matrix room defaults, cabinet-to-focused-dialog/back, rig controls toggle, 75 percent layout and no host/audio-state writes\n";
 }
 
 inline void run(const juce::File& folder,const juce::File& screenshots) {

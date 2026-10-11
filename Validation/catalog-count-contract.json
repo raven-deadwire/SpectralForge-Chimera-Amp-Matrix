@@ -81,8 +81,7 @@
         "window": "2026-10-02/2026-10-11",
         "new_models": 0,
         "exception": "E670FE appended at 23 replaces active Ironball 16; Ironball DSP/state retained as legacy.",
-        "window_is_historical": true,
-        "status": "released_history"
+        "window_is_historical": true
       },
       {
         "version": "1.2",
@@ -90,9 +89,7 @@
         "total": 84,
         "window": "2026-10-12/2026-11-06",
         "new_models": 1,
-        "window_is_historical": true,
-        "status": "released_history",
-        "published_on": "2026-10-05"
+        "window_is_historical": true
       },
       {
         "version": "1.3",
@@ -100,8 +97,7 @@
         "total": 85,
         "window": "2026-11-09/2026-12-04",
         "new_models": 1,
-        "window_is_historical": true,
-        "status": "integrated_candidate_validation_pending"
+        "window_is_historical": true
       },
       {
         "version": "1.3.1",
@@ -287,7 +283,9 @@
         "routing": "Weighted audible AMP/CAB sends; LOW clean DI excluded; share existing post-rig gate envelope on excitation and add wet return after gate before Tone EQ/POST",
         "legacy_default": "room_off_sends_zero",
         "added_character_models": 0,
-        "issue": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/issues/46"
+        "issue": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/issues/46",
+        "status": "planned_implementation_and_acceptance_pending",
+        "issue_completion": "Keep issue #46 open until both core and advanced implementation and acceptance are complete; schedule registration alone is not completion."
       }
     },
     "room_schedule_revision": {
@@ -334,10 +332,5 @@
     }
   ],
   "selectable_preset_count": 48,
-  "development_scope": "1.3 release preparation: Niflheimr, original CAB engine, 14 speakers, 20 microphones and expanded cabinet layouts. CAB inventory is separate from the 85 active AMP/PRE/POST models; publication and actual listening acceptance remain pending.",
-  "preset_count_scopes": {
-    "preset_counts": "FactoryPresets.h bank only: 31 Factory + 3 Bass Signature = 34",
-    "selectable_preset_count": "All selectable banks: 34 base + 4 Guitar Signature + 5 Nastrond Original + 5 Niflheimr Original = 48"
-  }
+  "development_scope": "1.3 release preparation: Niflheimr, original CAB engine, 14 speakers, 20 microphones and expanded cabinet layouts. CAB inventory is separate from the 85 active AMP/PRE/POST models; publication and actual listening acceptance remain pending."
 }
-

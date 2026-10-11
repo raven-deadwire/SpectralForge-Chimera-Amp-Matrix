@@ -279,4 +279,3 @@ real pointer/keyboard gestures and visual inspection as distinct evidence.
 - [Current RIGS rendering and layout](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/blob/40d5e8a5ea466eaccc1044ccefce1bd33e6ac222/Source/PluginEditor.cpp)
 - [Current camera fit](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/blob/40d5e8a5ea466eaccc1044ccefce1bd33e6ac222/Source/CabLayoutView.h)
 - [Captured-cabinet dimensional rendering](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/blob/40d5e8a5ea466eaccc1044ccefce1bd33e6ac222/Source/CapturedCabArt.h)
-

@@ -129,6 +129,7 @@ jobs:
             build/validation
             build/ctest-results.xml
             build/ctest-inventory.json
+            build/cab-timing-diagnostics/**
             build/signature-snapshots
           if-no-files-found: warn
 

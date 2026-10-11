@@ -81,4 +81,3 @@ early integration/publication and the actual October 5 release. Sonic
 calibration, listening and real-host acceptance remain evidence-specific and
 are not implied by catalog counts or publication history. This documentation
 revision does not implement DSP, execute training or authorize release.
-

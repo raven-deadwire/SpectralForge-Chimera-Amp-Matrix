@@ -1,5 +1,7 @@
 # Graphics and DSP update
 
+This document records an earlier graphics/DSP test update. Its model inventories and implementation notes are historical; the IR delivery section below records the 1.3 release transition.
+
 This test update separates visual identity, audio behavior and reference evidence. It contains 46 FX choices: five models in each of the five PRE families and 21 models across the six POST modules. The eight amplifier voices remain available. Hardware names identify design references; generated artwork and signal differences do not establish an exact hardware replica.
 
 ## Model artwork
@@ -28,13 +30,13 @@ PRE Fuzz, Overdrive and POST preamp use fixed 4x oversampling. Amplifier quality
 
 Matrix LOW retains the clean tap after PRE Envelope/Compressor and before Fuzz/Boost/Overdrive. LOW COMP processes the low band before it branches into DI and the selected amp/cab. DI/AMP defaults to 0% amp. The hidden head Drive is fixed at zero, and the DI is aligned to the head's algorithmic delay. Captured IR onset and phase are retained. The six POST modules process the merged signal once.
 
-## IR delivery
+## IR delivery — 1.3 transition
 
-The personal pack has 13 real WAV captures, including two bass captures and seven Eminence Karnivore variants. Together with the two embedded factory IRs, the complete personal collection has 15 available captures. Installed files are selectable directly from CAB. The library still distinguishes missing catalog references from loadable files.
+Open Beta 1.3 includes two attributed, hash-allowlisted factory IRs and manual import of the user's WAV/AIFF files. Unapproved external/private capture catalogs, private research documents and reference-audio folders are excluded from the public release. See [IR_DISTRIBUTION.md](IR_DISTRIBUTION.md) for the distribution contract.
 
-The private installer ZIP carries `Chimera-Personal-IRs` beside Setup. Extract the entire ZIP before installing. The public bare Setup includes the two factory audio assets and reference metadata; it does not include the user's restricted captures. The updated personal ZIP can also be imported into an existing installation. See [WINDOWS_INSTALL.txt](WINDOWS_INSTALL.txt).
+Factory recalls use their authored modeled CAB recipes. The 1.3 public Setup and portable packages supply no personal capture pack or private catalog metadata, and factory recall does not search for private IR targets. For an existing personal collection, extract any archive yourself and choose **OPEN IR** or **ADD FOLDER**. Setup preserves personal preset and IR folders. See [WINDOWS_INSTALL.txt](WINDOWS_INSTALL.txt).
 
-Karnivore microphone identities come from filenames. Unknown cone position, microphone distance and angle are retained as unknown; the Fredman label is not converted into a guessed microphone pair or angle.
+Existing user-imported audio and metadata retain their normal project and A/B recall behavior. User sidecars supply capture information; unknown filenames do not inherit creator, source or license metadata from an internal private collection. Missing capture details remain unknown unless the user supplies them.
 
 ## Compatibility and verification boundary
 

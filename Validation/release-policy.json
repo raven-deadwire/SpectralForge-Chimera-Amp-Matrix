@@ -643,17 +643,27 @@
     "product_version": "1.3.0",
     "profile": "beta_1_3",
     "channel": "beta.1",
-    "decision_at": "2026-10-09T22:33:13+09:00",
-    "authorization": "Owner requested preparation of the current CAB build for release and explicitly selected version 1.3. This authorizes source integration, fixes, candidate builds, release documents and review preparation. Public publication and unexecuted instrument/DAW acceptance are not granted by the preparation request.",
+    "decision_at": "2026-10-11T15:44:59+09:00",
+    "authorization": "The owner requested release and homepage publication, reported downloading and checking the test file, and explicitly instructed approval on 2026-10-11 KST. Owner acceptance of the prepared 1.3 candidate and publication are approved; no further general approval or tested-file identification is required from the owner. Individual automated and source-bound evidence requirements remain independently evaluated.",
     "preparation_authorized": true,
-    "publication_authorized": false,
-    "release_approved": false,
-    "status": "PREPARATION_ONLY",
+    "publication_authorized": true,
+    "release_approved": true,
+    "status": "OWNER_APPROVED_CI_VERIFICATION_PENDING",
     "deferred_checks": [
       "I2.PITCH_LIVE",
       "I2.PITCH_DI"
     ],
     "tracking": "docs/TRANSPOSE_LONG_TERM.md",
-    "status_semantics": "Deferred is not PASS or NOT_APPLICABLE; the transpose_followup profile still requires evidence. All other acceptance gates are retained."
+    "status_semantics": "Deferred is not PASS or NOT_APPLICABLE; the transpose_followup profile still requires evidence. All other acceptance gates are retained.",
+    "owner_acceptance": {
+      "decision": "APPROVED",
+      "approval_source_sha": "f56dc9d65c83a5d8dc29710ed29242032d34e235",
+      "testing_reported": true,
+      "testing_statement": "내가 테스트 파일 받아서 확인했어",
+      "approval_statement": "그냥 승인좀 해라 좀",
+      "tested_artifact_source_sha": null,
+      "scope": "Prepared Chimera 1.3 candidate including the requested IR-depth and mounted bass 4x10 horn corrections, followed by release and the full 1.3 homepage product description. The approval-source identity identifies the prepared candidate, not a claim that this exact binary was personally tested.",
+      "individual_check_coverage": "Unspecified; owner acceptance does not synthesize individual measurements or check reports."
+    }
   }
 }

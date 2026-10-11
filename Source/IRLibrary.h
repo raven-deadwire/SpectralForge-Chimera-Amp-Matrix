@@ -26,6 +26,16 @@ public:
     void stop();
     // Call only with host processing stopped, e.g. after releaseResources.
     bool resourcesReleased() const noexcept;
+    // Diagnostic only: worker cancellations since the last prepare(). Neither
+    // increment nor observation participates in the audio publication protocol.
+    unsigned cancelledBuildCount() const noexcept {return cancelledBuilds.load(std::memory_order_relaxed);}
+    struct WorkerScheduling {
+        bool startSucceeded{}, enteredRun{};
+        int observedPriority{};
+    };
+    // Read only after stop() has joined the worker. JUCE queries the native
+    // priority on Windows/macOS; on Linux it reports the requested value only.
+    WorkerScheduling workerScheduling() const noexcept {return scheduling;}
     juce::Result importFile(int lane, const juce::File&);
     juce::String status(int lane) const;
     juce::String userName(int lane) const;
@@ -41,11 +51,23 @@ public:
     juce::ValueTree save() const;
     void restore(const juce::ValueTree&);
     static std::shared_ptr<Asset> decode(const juce::MemoryBlock&, const juce::String&, juce::String& error);
+#if defined(CHIMERA_CAB_PROFILE) && CHIMERA_CAB_PROFILE
+    // Set before prepare; inspect only after stop joins the worker.
+    cabProfile::Counters* profileSink{};
+#endif
 private:
     void run() override;
-    std::unique_ptr<Cab::Kernel> build(int lane, int source, unsigned generation, uint64_t model=0);
-    struct CachedModel { uint64_t key; juce::AudioBuffer<float> samples; };
+    bool requestIsCurrent(int lane,int source,uint64_t model) const noexcept;
+    std::unique_ptr<Cab::Kernel> build(int lane, int source, unsigned generation, uint64_t model=0,
+                                     bool cancelObsolete=false);
+    struct CachedModel {
+        uint64_t key;
+        juce::AudioBuffer<float> samples;
+        std::shared_ptr<const ModeledCabConvolution::Prepared> prepared;
+    };
     std::deque<CachedModel> modelCache; // Eight responses, worker/prepare only; bounded FIFO.
+    std::atomic<unsigned> cancelledBuilds{};
+    WorkerScheduling scheduling;
     std::array<Cab*,6> cabs;
     std::array<std::shared_ptr<Asset>,6> users;
     std::array<std::shared_ptr<Asset>,2> factory;

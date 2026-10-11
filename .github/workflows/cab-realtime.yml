@@ -1,0 +1,77 @@
+name: CAB realtime performance
+
+on:
+  pull_request:
+    paths:
+      - 'Source/**'
+      - 'Tests/OriginalCab*'
+      - 'Tests/CabRealtime*'
+      - 'Tests/CabResidueBankReference.h'
+      - 'Tests/CabProfil*'
+      - 'Tests/CabTiming*'
+      - 'CMakeLists.txt'
+      - 'Tools/run_cab_realtime_ci.py'
+      - 'Tools/test_cab_timing_evidence.py'
+      - '.github/workflows/cab-realtime.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: cab-realtime-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+env:
+  CHIMERA_CANDIDATE_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+  # Fixed pre-optimization source. Never patch its tests or DSP for comparison.
+  CHIMERA_BASELINE_SHA: aaa1330dd5cf7d51faf1c45a7cef633b9b118458
+
+jobs:
+  realtime:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-22.04, windows-latest, macos-15]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 45
+    steps:
+      - name: Check out exact candidate source
+        uses: actions/checkout@v5
+        with:
+          ref: ${{ env.CHIMERA_CANDIDATE_SHA }}
+          path: candidate
+          persist-credentials: false
+      - name: Check out fixed baseline source
+        uses: actions/checkout@v5
+        with:
+          ref: ${{ env.CHIMERA_BASELINE_SHA }}
+          path: baseline
+          persist-credentials: false
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - name: Verify raw callback evidence contracts
+        shell: bash
+        run: python candidate/Tools/test_cab_timing_evidence.py
+      - name: Install JUCE configure dependencies
+        if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y libasound2-dev libcurl4-openssl-dev libfreetype6-dev libfontconfig1-dev libx11-dev libxcomposite-dev libxcursor-dev libxext-dev libxinerama-dev libxrandr-dev libxrender-dev libgl1-mesa-dev
+      - name: Build, measure and preserve exact-source evidence
+        shell: bash
+        run: |
+          python candidate/Tools/run_cab_realtime_ci.py \
+            --candidate-source candidate --candidate-sha "$CHIMERA_CANDIDATE_SHA" \
+            --baseline-source baseline --baseline-sha "$CHIMERA_BASELINE_SHA" \
+            --build-root cab-realtime-build --output cab-realtime-evidence \
+            --profile-target ChimeraCabProfiling
+      # Includes full successful and failed logs, without the Product JUnit cap.
+      # No arbitrary user IRs or personal preset/state files are uploaded.
+      - name: Upload performance evidence even when a deadline fails
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: CAB-realtime-${{ runner.os }}-${{ env.CHIMERA_CANDIDATE_SHA }}
+          path: cab-realtime-evidence/
+          if-no-files-found: error
+          retention-days: 90
