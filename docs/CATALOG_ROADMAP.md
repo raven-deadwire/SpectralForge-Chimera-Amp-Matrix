@@ -1,8 +1,8 @@
 # Chimera catalog roadmap
 
-## 1.3 preparation — 2026-10-09
+## Current plan — 2026-10-11 KST
 
-The current integrated candidate targets **1.3.0-beta.1**: Niflheimr plus the original CAB engine/panel, 14 speakers, 20 microphones and nine explicit layouts. Active AMP/PRE/POST counts are **25 + 39 + 21 = 85**; 48 presets are selectable. CAB inventory remains separate from the 132-model target. [Preparation status](RELEASE_1_3_PREPARATION.md) records final-source verification. Direct controls inside the amp-head artwork are planned for the next update after 1.3; its number is not assigned.
+The current integrated candidate targets **1.3.0-beta.1**: Niflheimr plus the original CAB engine/panel, 14 speakers, 20 microphones and nine explicit layouts. Active AMP/PRE/POST counts are **25 + 39 + 21 = 85**; 48 presets are selectable. CAB inventory remains separate from the 132-model target. [Preparation status](RELEASE_1_3_PREPARATION.md) records final-source verification. The [full reordered roadmap](DEVELOPMENT_ROADMAP_2026_2027.md) is now authoritative for dates and common processing features. It assigns 1.3.1 to graphical EQ/FFT, signal-path navigation and the first embedded head controls; 1.3.2 adds Dynamic EQ/dynamics and expands head coverage. The October 11 room revision assigns 1.3.3 Room Core to November 30–December 25, 2026, with the first Windows test installer targeted for December 18; 1.8 adds advanced room conditions and spatial modeling in May–June 2027. New editors should open on RIGS. These are implementation targets, not features already shipped in the 1.3 candidate.
 
 ## Published baseline and retained sequence
 
@@ -24,17 +24,25 @@ New model IDs, parameter IDs and presets are append-only.
 | 1.1.1 / 1.1.2 | Released baseline | 83 |
 | 1.2 | Released Náströnd | 84 |
 | 1.3 | Niflheimr + original CAB engine/panel | 85 |
-| After 1.3 | CAB refinements / qualified optional captures; embedded head controls planned | 85 |
+| 1.3.1 | Graphical EQ / FFT; signal-path navigation; first embedded head controls | 85 |
+| 1.3.2 | Dynamic EQ / common dynamics; further head controls | 85 |
+| 1.3.3 | Room Core: shared Size/Absorption/Bypass and per-rig Send | 85 |
 | 1.4 | PRE Expansion A | 91 |
 | 1.5 | PRE Expansion B | 97 |
 | 1.6 | Reference AMP Expansion | 102 |
 | 1.7 | POST Dynamics & Tone | 111 |
-| 1.8 | POST Motion & Space | 120 |
+| 1.8 | POST Motion & Space; Room Advanced | 120 |
 | 1.9 | Creative FX | 129 |
 | 1.10 | Synth Layer | 132 |
 | 2.0 | Integration / RC | 132 |
 
-## CAB workstream — Original-first revision, 2026-10-08
+## CAB workstream — retained October 8 design checkpoint
+
+The initial calendar below is historical. The current candidate already contains
+the original CAB implementation. Use the full reordered roadmap for remaining
+work, feature dates and the September 24, 2027 integration target. Room Core
+adds four weeks before 1.4; the 1.8 spatial stage adds two further weeks.
+Room parameters and room presets do not increase the character-model count.
 
 The owner clarified that existing products are to be studied as references,
 then Chimera's cabinet and microphone system is to be independently designed.
@@ -60,7 +68,10 @@ Niflheimr-cycle integration and candidate validation: November 9–December 4,
 all KST. These remain internal targets, not promised public release dates.
 Existing Niflheimr work continues now; qualified Captured additions run in parallel.
 
-The 1.4–1.10 model sequence and 132 target do not change. CAB/microphone/IR
+The 1.4–1.10 model sequence and 132 target do not change. Their dates now follow
+the full reordered roadmap. The product target is **132 character models plus
+common EQ, dynamics, multiband and other processing functions**; repeated
+instances, modes and bands do not inflate the character catalog. CAB/microphone/IR
 position counts are separate inventory dimensions. Detailed scope, reference
 and training boundaries, task ownership and acceptance:
 [CAB panel roadmap](CABINET_PANEL_ROADMAP.md).

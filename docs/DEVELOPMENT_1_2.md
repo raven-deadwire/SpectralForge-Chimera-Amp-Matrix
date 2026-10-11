@@ -1,6 +1,16 @@
 # 1.2 development and remaining updates
 
-## Current release and next UI update — 2026-10-09 KST
+## Current release and forward plan — 2026-10-11 KST
+
+The [October 2026–September 2027 development roadmap](DEVELOPMENT_ROADMAP_2026_2027.md)
+supersedes this page's forward dates. Released versions remain history. It
+restores graphical EQ, Dynamic EQ, independent multiband processing and a
+visible editable signal path as explicit milestones before later model
+expansions. The October 11 room revision adds 1.3.3 Room Core on November
+30–December 25, 2026 (first Windows test installer: December 18) and Room
+Advanced in the expanded 1.8 window, May 10–June 18, 2027. This allocates
+four plus two additional work weeks; the full integration target is now
+September 24, 2027. See [room issue #46](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/issues/46).
 
 The owner has assigned the current CAB update to **1.3**. Prepare and validate
 that release against its actual candidate source. The October 8 dates below
@@ -11,7 +21,9 @@ The next update after 1.3 should make amplifier knobs directly operable within
 the head design. The implementation plan reuses the existing native parameters,
 channel memories and host gestures, with model-specific faceplate controls and
 an enlarged head view when room-scale controls would be too small. Its version
-number and delivery date are not assigned. See
+number is 1.3.1 for the shared UI and representative heads, with full/dense
+coverage expanded through 1.3.2. New editors open on RIGS; the future signal-path
+strip follows the same selection. See
 [embedded amplifier-head controls](AMP_HEAD_CONTROLS_NEXT_UPDATE.md).
 
 The same-day 1.3 candidate changes frame active room stacks with one common
