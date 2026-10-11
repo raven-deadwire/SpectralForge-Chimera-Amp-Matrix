@@ -22,7 +22,7 @@ EXE installer companion bundle still installs those six IRs automatically.
 
 ## Current review package
 
-`Chimera-1.0.0.0-x64-review-unsigned.msix` is a real SDK-generated package for
+`Chimera-1.3.1.0-x64-review-unsigned.msix` is a real SDK-generated package for
 inspection, not an authenticated customer release. It has no Store assignment
 and no trusted signature, so ordinary double-click installation is not promised.
 No customer certificate/root installation or disabling of Windows protections is
@@ -62,7 +62,7 @@ private keys or account recovery codes. The review identity is not invented Stor
 registration. The build refuses Store mode without the actual identity file.
 
 ```powershell
-./Tools/Build-WindowsMSIX.ps1 -Stage C:/Chimera/validated-package -Mode Store -IdentityFile C:/Chimera/partner-identity.json -Version 1.0.0.0
+./Tools/Build-WindowsMSIX.ps1 -Stage C:/Chimera/validated-package -Mode Store -IdentityFile C:/Chimera/partner-identity.json
 ```
 
 Run the Windows App Certification Kit on the resulting package and a supported
