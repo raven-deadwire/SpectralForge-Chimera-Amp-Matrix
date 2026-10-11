@@ -139,8 +139,79 @@ struct Showing {
 
 inline void click(juce::Button& button,const std::function<bool()>& ready) {
     require(button.isVisible() && button.isEnabled(),"CAB navigation button is unavailable");
+    // Observe the original asynchronous button path without forcing delivery,
+    // retrying the click, or changing dispatchUntil's two-second deadline.
+    struct Observation {
+        bool failureFence{};
+        int buttonCalls{},observations{};
+        double lastObservation{},longestDispatchGap{},buttonTime{-1};
+    };
+    struct Listener final : juce::Button::Listener {
+        juce::Component::SafePointer<juce::Button> target;
+        std::shared_ptr<Observation> observation;
+        double started;
+        Listener(juce::Button& value,std::shared_ptr<Observation> state,double start)
+            :target(&value),observation(std::move(state)),started(start) {value.addListener(this);}
+        ~Listener() override {if(target)target->removeListener(this);}
+        void buttonClicked(juce::Button*) override {
+            ++observation->buttonCalls;
+            observation->buttonTime=juce::Time::getMillisecondCounterHiRes()-started;
+        }
+    };
+    const auto state=std::make_shared<Observation>();
+    const auto started=juce::Time::getMillisecondCounterHiRes();
+    state->lastObservation=started;
+    Listener listener(button,state,started);
+    const auto identity=button.getComponentID().toStdString();
+    const auto workspaceState=[&] {
+        std::ostringstream value;
+        if(auto* target=listener.target.getComponent()) {
+            value<<" alive=1 visible="<<target->isVisible()<<" showing="<<target->isShowing()
+                 <<" enabled="<<target->isEnabled();
+            for(auto* parent=target->getParentComponent();parent;parent=parent->getParentComponent())
+                if(auto* workspace=dynamic_cast<CabWorkspace*>(parent)) {
+                    value<<" rigs="<<workspace->activeRigCount()<<" room="<<workspace->isRoomView()
+                         <<" focused="<<workspace->focusedRig();
+                    break;
+                }
+        } else value<<" alive=0";
+        return value.str();
+    };
+    const auto before=workspaceState();
     button.triggerClick();
-    if(!dispatchUntil(ready))throw std::runtime_error("CAB navigation click did not reach its view: "+button.getComponentID().toStdString());
+    if(!dispatchUntil([&] {
+        const auto now=juce::Time::getMillisecondCounterHiRes();
+        state->longestDispatchGap=juce::jmax(state->longestDispatchGap,now-state->lastObservation);
+        state->lastObservation=now;++state->observations;
+        return ready();
+    })) {
+        std::ostringstream detail;
+        detail<<"CAB navigation click did not reach its view: "<<identity
+              <<"; elapsed_ms="<<(juce::Time::getMillisecondCounterHiRes()-started)
+              <<" predicate_observations="<<state->observations
+              <<" longest_dispatch_gap_ms="<<state->longestDispatchGap
+              <<" button_listener_calls="<<state->buttonCalls<<" button_listener_ms="<<state->buttonTime
+              <<" stop_sent="<<juce::MessageManager::getInstance()->hasStopMessageBeenSent()
+              <<" before={"<<before<<" } after={"<<workspaceState()<<" }";
+        // The original failure is now latched. A single fixed post-failure
+        // pump can distinguish a pending command from a delivered callback
+        // without adding any messages to the original tested event sequence.
+        // Never re-evaluate the predicate or convert this failure to a pass.
+        const auto postFailureStarted=juce::Time::getMillisecondCounterHiRes();
+        const bool posted=juce::MessageManager::callAsync([state]{state->failureFence=true;});
+        try {
+            const bool pumpContinues=chimeraTest::dispatchFor(10);
+            detail<<" post_failure_observation={requested_pump_ms=10 actual_pump_ms="
+                  <<(juce::Time::getMillisecondCounterHiRes()-postFailureStarted)
+                  <<" pump_continues="<<pumpContinues<<" fence_posted="<<posted
+                  <<" fence_delivered="<<state->failureFence
+                  <<" button_listener_calls="<<state->buttonCalls<<" button_listener_ms="<<state->buttonTime
+                  <<workspaceState()<<" } original_result=FAILED";
+        } catch(const std::exception& error) {
+            detail<<" post_failure_observation_error="<<error.what()<<" original_result=FAILED";
+        }
+        throw std::runtime_error(detail.str());
+    }
 }
 
 inline void tabs(CabPanel& panel,ChimeraProcessor& processor) {
