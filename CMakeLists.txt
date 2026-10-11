@@ -424,6 +424,9 @@ set_property(TEST ${CHIMERA_CAB_TIMING_TESTS} APPEND PROPERTY
   ENVIRONMENT_MODIFICATION "CHIMERA_LIFECYCLE_TRACE=unset:")
 
 add_test(NAME ChimeraCabDriverVisualTests COMMAND ChimeraCabPanelStateTests --visual-only)
+# This large render/capture batch can exceed the candidate's default 1200 s.
+# Bound it separately without changing any real-time audio assertions.
+set_tests_properties(ChimeraCabDriverVisualTests PROPERTIES TIMEOUT 1800)
 
 # Static EQ prototype is isolated from release publishing and future dynamics.
 foreach(eqtest GraphicalEQ GraphicalEQUI)
