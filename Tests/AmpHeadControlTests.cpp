@@ -90,6 +90,11 @@ void checkFaceLayout(AmpHeadWorkspace& view,int model,int channel=0) {
     size_t expected=0;const auto& panel=ampNativePanel(model);
     for(size_t i=0;i<panel.controls.size();++i)if(ampNativeControlVisible(model,int(i),channel))++expected;
     check(cells.size()==expected,"Wrong layout control count");
+    auto* input=find<juce::ComboBox>(*head,"ampHeadInput1");check(input,"Layout input route widget missing");
+    check(input->getNumItems()==int(panel.routes.size()),"Layout input route count changed");
+    for(size_t route=0;route<panel.routes.size();++route)
+        check(input->getItemText(int(route))==juce::String::fromUTF8(panel.routes[route]),"Layout input route Unicode label changed");
+    check(head->caption().contains(juce::String::fromUTF8(panel.channels[size_t(channel)])),"Head caption Unicode channel name changed");
 }
 juce::TextEditor* valueEditor(juce::Slider& slider) {
     juce::TextEditor* input=nullptr;

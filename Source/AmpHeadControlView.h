@@ -146,7 +146,7 @@ public:
             finishInteraction();controls.clear();optionControls.clear();mode=nextMode;model=nextModel;channel=nextChannel;revision=nextRevision;active=nextActive;
             context=spectralforge::ampNativeContext(mode,lane);anchors=spectralforge::ampHead::knobs(model,channel);optionAnchors=spectralforge::ampHead::switches(model,channel);
             rebuildInput();input->clear(juce::dontSendNotification);const auto& panel=spectralforge::ampNativePanel(model);
-            for(size_t i=0;i<panel.routes.size();++i)input->addItem(panel.routes[i],int(i)+1);
+            for(size_t i=0;i<panel.routes.size();++i)input->addItem(juce::String::fromUTF8(panel.routes[i]),int(i)+1);
             input->resetSyncExplicit(processor.selectedAmpNativeRoute(lane)+1);
             if(enlarged && active)for(const auto& anchor:anchors) {
                 const int index=spectralforge::ampHead::controlIndex(model,anchor.key);jassert(index>=0);if(index<0)continue;
@@ -174,7 +174,7 @@ public:
                     control->slider.textFromValueFunction=[](double v){return juce::String(juce::roundToInt(v*100))+"%";};
                     control->slider.valueFromTextFunction=[](const juce::String& v){return v.getDoubleValue()/100.;};control->slider.updateText();
                 } else control->showHardwarePosition();
-                control->slider.setDescription(contextName()+" / "+panel.channels[size_t(channel)]+" / "+anchor.label);
+                control->slider.setDescription(contextName()+" / "+juce::String::fromUTF8(panel.channels[size_t(channel)])+" / "+anchor.label);
                 // Captured identities reject any late pointer event before the
                 // next UI tick, including same-model preset/A-B restoration.
                 const auto boundRevision=revision;const int boundContext=context,boundModel=model,boundChannel=channel;
@@ -204,7 +204,7 @@ public:
                 button.setComponentID("ampHeadChannel"+juce::String(lane+1)+"_"+juce::String(c));
                 button.onClick=[this,c]{selectChannel(c);};button.setVisible(enlarged && active && (model==spectralforge::niflheimrAmpModel || model==spectralforge::firstOriginalAmpModel));
                 button.setButtonText(juce::String(c+1));button.setToggleState(c==channel,juce::dontSendNotification);
-                if(c<int(panel.channels.size())){button.setName(panel.channels[size_t(c)]);button.setTooltip(panel.channels[size_t(c)]);}}
+                if(c<int(panel.channels.size())){const auto name=juce::String::fromUTF8(panel.channels[size_t(c)]);button.setName(name);button.setTooltip(name);}}
             input->setVisible(enlarged && active && panel.routes.size()>1);inputLabel.setVisible(input->isVisible());
             inputLabel.setColour(juce::Label::textColourId,juce::Colour(routeOnFace()?spectralforge::ampHead::faceStyle(model).ink:0xfff1ece0));
             focus.setVisible(!enlarged);resized();repaint();
@@ -213,7 +213,7 @@ public:
         if(route!=nextRoute){route=nextRoute;input->syncSelectedId(route+1);}
     }
     juce::String contextName() const {return mode==0?"CLASSIC":mode==1?"DUAL / RIG "+juce::String(lane+1):"MATRIX / "+juce::String(lane==0?"LOW":lane==1?"MID":"HIGH");}
-    juce::String caption() const {return contextName()+" / "+juce::String::fromUTF8(spectralforge::ampInfo(model).name)+" / "+spectralforge::ampNativePanel(model).channels[size_t(channel)];}
+    juce::String caption() const {return contextName()+" / "+juce::String::fromUTF8(spectralforge::ampInfo(model).name)+" / "+juce::String::fromUTF8(spectralforge::ampNativePanel(model).channels[size_t(channel)]);}
     void resized() override {
         focus.setBounds(headBounds().toNearestInt());
         const auto face=spectralforge::cabHead::geometry(headBounds(),juce::jmax(0,model)).front;
