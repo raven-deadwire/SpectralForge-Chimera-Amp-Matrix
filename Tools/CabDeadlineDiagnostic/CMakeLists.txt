@@ -1,6 +1,12 @@
 cmake_minimum_required(VERSION 3.22)
 project(ChimeraCabSchedulingController VERSION 0.1.0 LANGUAGES C CXX)
 
+# JUCE adds Objective-C++ sources to the parent probe target on Apple hosts.
+# Enable the language at the common parent scope, before the frozen subproject.
+if(APPLE)
+  enable_language(OBJCXX)
+endif()
+
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CHIMERA_FROZEN_SOURCE "" CACHE PATH "Clean, immutable Chimera source checkout")
