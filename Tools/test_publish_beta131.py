@@ -34,6 +34,42 @@ class PublicReleaseNotes(unittest.TestCase):
         with self.assertRaisesRegex(RuntimeError, "Unresolved relative"):
             publisher.render_public_release_notes(rendered + "\n[missing](missing.md)", HEAD)
 
+    def test_relative_and_previously_pinned_notes_follow_new_release_source(self):
+        old_head = "b" * 40
+        names = ("OPEN_BETA_1_3_RELEASE_NOTES.md", "OPEN_BETA_1_2_RELEASE_NOTES.md",
+                 "RELEASE_1_3_1_PIPELINE.md")
+        notes = "\n".join(
+            f"[relative]({name}) [old](https://github.com/{publisher.transport.REPO}"
+            f"/blob/{old_head}/docs/{name})" for name in names)
+        original = notes.encode("utf-8")
+        rendered = publisher.render_public_release_notes(notes, HEAD)
+        for name in names:
+            expected = f"https://github.com/{publisher.transport.REPO}/blob/{HEAD}/docs/{name}"
+            self.assertEqual(rendered.count(expected), 2)
+        self.assertNotIn(old_head, rendered)
+        self.assertEqual(publisher.render_public_release_notes(rendered, HEAD), rendered)
+        self.assertEqual(notes.encode("utf-8"), original)
+
+    def test_repinning_is_limited_to_exact_official_document_links(self):
+        name = "RELEASE_1_3_1_PIPELINE.md"
+        old_head = "b" * 40
+        prefix = f"https://github.com/{publisher.transport.REPO}/blob/"
+        untouched = (
+            f"https://example.com/{publisher.transport.REPO}/blob/{old_head}/docs/{name}",
+            f"https://github.com/another-owner/another-repo/blob/{old_head}/docs/{name}",
+            f"{prefix}{old_head}/docs/OTHER.md",
+            f"{prefix}{old_head[:-1]}/docs/{name}",
+            f"{prefix}{old_head}b/docs/{name}",
+            f"{prefix}main/docs/{name}",
+            f"{prefix}{old_head}/docs/{name}?plain=1",
+            f"{prefix}{old_head}/docs/{name}#section",
+        )
+        notes = "\n".join(f"[unchanged]({url})" for url in untouched)
+        self.assertEqual(publisher.render_public_release_notes(notes, HEAD), notes)
+        uppercase = f"[old]({prefix}{old_head.upper()}/docs/{name})"
+        self.assertEqual(publisher.render_public_release_notes(uppercase, HEAD),
+                         f"[old]({prefix}{HEAD}/docs/{name})")
+
 
 class CandidateArchiveCapacity(unittest.TestCase):
     def setUp(self):

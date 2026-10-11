@@ -372,7 +372,12 @@ def render_public_release_notes(notes, head):
     for name in ("OPEN_BETA_1_3_RELEASE_NOTES.md", "OPEN_BETA_1_2_RELEASE_NOTES.md",
                  "RELEASE_1_3_1_PIPELINE.md"):
         require((ROOT / "docs" / name).is_file(), f"Missing linked release document: {name}")
-        notes = notes.replace(f"]({name})", f"](https://github.com/{transport.REPO}/blob/{head}/docs/{name})")
+        target = f"](https://github.com/{transport.REPO}/blob/{head}/docs/{name})"
+        notes = notes.replace(f"]({name})", target)
+        # Packaged notes may already pin these documents to a preparation commit.
+        # Only the public release body follows the verified publication source.
+        notes = re.sub(rf"\]\(https://github\.com/{re.escape(transport.REPO)}"
+                       rf"/blob/[0-9a-fA-F]{{40}}/docs/{re.escape(name)}\)", target, notes)
     notes = notes.replace("](MANUAL.html)", f"]({DOWNLOAD_URL}MANUAL.html)")
     require(not re.search(r"\]\((?!https?://|#)[^)]+\)", notes), "Unresolved relative release-note link")
     return notes
