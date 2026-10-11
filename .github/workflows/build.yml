@@ -1,480 +1,379 @@
-name: Open Beta Build and Test
-on:
-  pull_request:
-  workflow_dispatch:
-  workflow_call:
-concurrency:
-  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
-  cancel-in-progress: true
+name: DIAGNOSTIC ONLY - 781d macOS 15 CAB first click phases
+'on':
+  workflow_dispatch: null
 permissions:
   contents: read
-env:
-  CHIMERA_SOURCE_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+concurrency:
+  group: macos-cab-first-click-${{ github.ref }}
+  cancel-in-progress: true
 jobs:
-  validation-contract:
-    runs-on: ubuntu-24.04
+  cab-first-click-not-release-certification:
+    runs-on: macos-15
+    timeout-minutes: 45
+    defaults:
+      run:
+        shell: bash
     steps:
-      - uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event.pull_request.head.sha || github.sha }}
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-      - name: Verify catalog and validation producer contracts
-        shell: bash
-        run: |
-          python -m py_compile Tools/check_catalog_contract.py Tools/check_ci_validation_map.py Tools/produce_validation_check.py Tools/test_validation_producer.py Tools/seed_validation_reports.py Tools/evaluate_release_gate.py Tools/analyze_callback_pairs.py Tools/run_paired_callback_probe.py Tools/test_callback_timing_protocol.py Tools/release_evidence.py Tools/produce_release_evidence.py Tools/consolidate_release_gate.py Tools/check_ir_distribution.py Tests/test_ir_distribution.py
-          python Tools/check_catalog_contract.py
-          python Tools/check_ir_distribution.py
-          python Tests/test_ir_distribution.py
-          python Tools/check_ci_validation_map.py
-          python Tools/test_validation_producer.py
-          python Tools/test_ctest_validation.py
-          python Tools/test_release_consolidator.py
-          python Tools/test_publish_beta112.py
-          python Tools/test_publish_beta12.py
-          python Tools/test_publish_beta13.py
-          python Tools/test_beta_publication.py
-          python Tools/test_publish_beta131.py
-          python Tools/test_beta_publication131.py
-          python Tools/test_release_preflight.py
-          python Tools/test_callback_timing_protocol.py
-          python Tools/seed_validation_reports.py --commit "${{ github.event.pull_request.head.sha || github.sha }}" --profile pull_request --output build/validation
-      - name: Upload current-commit release-gate evidence
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: Chimera-validation-seed
-          path: build/validation
-          if-no-files-found: error
+    - name: Checkout exact failed product source
+      uses: actions/checkout@v5
+      with:
+        ref: 781d03dd49bba51d6cfa7b1c6a0ec8d9e75a0333
+        persist-credentials: false
+    - name: Preserve isolated diagnostic controller
+      uses: actions/checkout@v5
+      with:
+        ref: ${{ github.sha }}
+        path: diagnostic-controller
+        fetch-depth: 2
+        sparse-checkout: .github/workflows/build.yml
+        sparse-checkout-cone-mode: false
+        persist-credentials: false
+    - name: Apply passive probes to exact source and record provenance
+      run: |
+        python3 - <<'PY_DIAGNOSTIC'
+        from pathlib import Path
+        import hashlib, json, os, shutil, subprocess, time
+        base = '781d03dd49bba51d6cfa7b1c6a0ec8d9e75a0333'
+        out = Path('build-macos-first-click/diagnostics')
+        out.mkdir(parents=True, exist_ok=True)
+        def git(*args, cwd=None):
+            return subprocess.check_output(['git', *args], cwd=cwd, text=True).strip()
+        assert git('rev-parse', 'HEAD') == base
+        assert not git('diff', '--name-only')
+        assert not git('diff', '--cached', '--name-only')
+        controller = git('rev-parse', 'HEAD', cwd='diagnostic-controller')
+        assert controller == os.environ['GITHUB_SHA']
+        assert git('rev-parse', 'HEAD^', cwd='diagnostic-controller') == base
+        assert git('diff', '--name-only', base, 'HEAD', cwd='diagnostic-controller').splitlines() == ['.github/workflows/build.yml']
+        expected = {'Tests/CabSceneUITests.h': '3468e4aed6b281e3c635677802868118c6be2b0fde77ff196649c3519640a2d4', 'Tests/NativeMessageLoop.mm': '23ed1c047145f68f592840facd68eb628fb4cfe591757c00a23836eaa58f08e2'}
+        patches = [('Tests/NativeMessageLoop.mm', '#include <iostream>', '#include <iostream>\n#include <array>\n#include <iomanip>'), ('Tests/NativeMessageLoop.mm', 'namespace chimeraTest {\nbool dispatchFor(int milliseconds) {', 'namespace chimeraTest {\n\n// DIAGNOSTIC ONLY. Fixed storage and passive timestamps; no posted messages,\n// waits, repaint requests, dispatch-policy changes, or in-phase stream output.\nnamespace {\nstruct NativeDiagnosticEvent {\n    const char* phase{};\n    double started{},finished{},deadline{};\n    int dispatch{},requestedMs{},value{};\n};\nstd::array<NativeDiagnosticEvent,4096> diagnosticEvents{};\nsize_t diagnosticCount{};\nunsigned diagnosticDropped{},diagnosticScope{};\nint diagnosticDispatchCount{};\nbool diagnosticActive{},diagnosticFirstSceneClick{};\n\ndouble diagnosticClock() {\n    return diagnosticActive ? juce::Time::getMillisecondCounterHiRes() : 0.0;\n}\nvoid diagnosticRecord(const char* phase,double started,double finished,\n                      double deadline=0.0,int dispatch=0,int requestedMs=0,int value=0) {\n    if(!diagnosticActive)return;\n    if(diagnosticCount<diagnosticEvents.size())\n        diagnosticEvents[diagnosticCount++]={phase,started,finished,deadline,dispatch,requestedMs,value};\n    else ++diagnosticDropped;\n}\nvoid diagnosticReset() {\n    diagnosticCount=0;diagnosticDropped=0;diagnosticDispatchCount=0;\n    ++diagnosticScope;diagnosticActive=true;\n}\n}\n\nvoid diagnosticCabMark(const char* phase) {\n    const auto now=diagnosticClock();\n    diagnosticRecord(phase,now,now);\n}\nvoid diagnosticCabBeginShowing() {\n    diagnosticReset();\n    diagnosticCabMark("Showing/begin");\n}\nvoid diagnosticCabArmFirstSceneClick() {\n    diagnosticFirstSceneClick=true;\n}\nvoid diagnosticCabBeforeClick(const char* identity) {\n    if(!diagnosticActive)diagnosticReset();\n    diagnosticCabMark("click/before-triggerClick");\n    if(diagnosticFirstSceneClick) {\n        diagnosticFirstSceneClick=false;\n        // A single observer marker; the test never waits for the sampler.\n        std::cerr<<std::setprecision(12)\n                 <<"DIAGNOSTIC CAB phase=first-scene-click-before-trigger"\n                 <<" monotonic_ms="<<juce::Time::getMillisecondCounterHiRes()\n                 <<" scope="<<diagnosticScope<<" component="<<identity<<std::endl;\n    }\n}\nvoid diagnosticCabFinishClick(const char* identity,bool originalPassed) {\n    if(!diagnosticActive)return;\n    diagnosticCabMark(originalPassed ? "click/original-passed" : "click/original-failed");\n    // Freeze the original result before printing or any fixture teardown.\n    diagnosticActive=false;\n    std::cerr<<std::setprecision(12)<<"DIAGNOSTIC CAB trace scope="<<diagnosticScope\n             <<" component="<<identity<<" original_result="<<(originalPassed ? "PASSED" : "FAILED")\n             <<" events="<<diagnosticCount<<" dropped="<<diagnosticDropped<<\'\\n\';\n    for(size_t i=0;i<diagnosticCount;++i) {\n        const auto& e=diagnosticEvents[i];\n        std::cerr<<"DIAGNOSTIC CAB timing scope="<<diagnosticScope<<" index="<<i\n                 <<" phase="<<e.phase<<" started_ms="<<e.started<<" finished_ms="<<e.finished\n                 <<" elapsed_ms="<<(e.finished-e.started)<<" deadline_ms="<<e.deadline\n                 <<" dispatch="<<e.dispatch<<" requested_ms="<<e.requestedMs\n                 <<" value="<<e.value<<\'\\n\';\n    }\n    std::cerr.flush();\n}\n\nbool dispatchFor(int milliseconds) {'), ('Tests/NativeMessageLoop.mm', '    const double deadline=juce::Time::getMillisecondCounterHiRes()+milliseconds;', '    const double deadline=juce::Time::getMillisecondCounterHiRes()+milliseconds;\n    const auto diagnosticStarted=diagnosticClock();\n    const int diagnosticDispatch=diagnosticActive ? ++diagnosticDispatchCount : 0;'), ('Tests/NativeMessageLoop.mm', '        @autoreleasepool {', '        double diagnosticDrainStarted=0.0;\n        @autoreleasepool {'), ('Tests/NativeMessageLoop.mm', '            CFRunLoopRunInMode(kCFRunLoopDefaultMode,juce::jmin(.01,remaining*.001),false);', '            const auto diagnosticCFStarted=diagnosticClock();\n            const auto diagnosticCFResult=CFRunLoopRunInMode(kCFRunLoopDefaultMode,juce::jmin(.01,remaining*.001),false);\n            diagnosticRecord("CFRunLoopRunInMode",diagnosticCFStarted,diagnosticClock(),deadline,diagnosticDispatch,milliseconds,int(diagnosticCFResult));'), ('Tests/NativeMessageLoop.mm', '            if(NSEvent* event=[NSApp nextEventMatchingMask:NSEventMaskAny\n                                               untilDate:[NSDate distantPast]\n                                                  inMode:NSDefaultRunLoopMode\n                                                 dequeue:YES])\n                if(juce::isEventBlockedByModalComps==nullptr\n                    || !juce::isEventBlockedByModalComps(event))\n                    [NSApp sendEvent:event];', '            const auto diagnosticNextStarted=diagnosticClock();\n            NSEvent* event=[NSApp nextEventMatchingMask:NSEventMaskAny\n                                               untilDate:[NSDate distantPast]\n                                                  inMode:NSDefaultRunLoopMode\n                                                 dequeue:YES];\n            diagnosticRecord("nextEventMatchingMask",diagnosticNextStarted,diagnosticClock(),deadline,diagnosticDispatch,milliseconds,event ? 1 : 0);\n            if(event) {\n                const auto diagnosticFilterStarted=diagnosticClock();\n                const bool diagnosticAllowed=juce::isEventBlockedByModalComps==nullptr\n                    || !juce::isEventBlockedByModalComps(event);\n                diagnosticRecord("modal-event-filter",diagnosticFilterStarted,diagnosticClock(),deadline,diagnosticDispatch,milliseconds,diagnosticAllowed ? 1 : 0);\n                if(diagnosticAllowed) {\n                    const auto diagnosticSendStarted=diagnosticClock();\n                    [NSApp sendEvent:event];\n                    diagnosticRecord("sendEvent",diagnosticSendStarted,diagnosticClock(),deadline,diagnosticDispatch,milliseconds);\n                }\n            }\n            diagnosticDrainStarted=diagnosticClock();'), ('Tests/NativeMessageLoop.mm', '        }\n    }\n    return !messages->hasStopMessageBeenSent();', '        }\n        diagnosticRecord("autoreleasepool-drain",diagnosticDrainStarted,diagnosticClock(),deadline,diagnosticDispatch,milliseconds);\n    }\n    diagnosticRecord("dispatchFor-total",diagnosticStarted,diagnosticClock(),deadline,diagnosticDispatch,milliseconds);\n    return !messages->hasStopMessageBeenSent();'), ('Tests/CabSceneUITests.h', '#include <thread>\n', '#include <thread>\n\n// DIAGNOSTIC ONLY; implemented in the test-only macOS event adapter.\nnamespace chimeraTest {\n#if JUCE_MAC\nvoid diagnosticCabBeginShowing();\nvoid diagnosticCabArmFirstSceneClick();\nvoid diagnosticCabBeforeClick(const char*);\nvoid diagnosticCabMark(const char*);\nvoid diagnosticCabFinishClick(const char*,bool);\n#else\ninline void diagnosticCabBeginShowing() {}\ninline void diagnosticCabArmFirstSceneClick() {}\ninline void diagnosticCabBeforeClick(const char*) {}\ninline void diagnosticCabMark(const char*) {}\ninline void diagnosticCabFinishClick(const char*,bool) {}\n#endif\n}\n'), ('Tests/CabSceneUITests.h', '    explicit Showing(juce::Component& value):component(value) {', '    explicit Showing(juce::Component& value):component(value) {\n        chimeraTest::diagnosticCabBeginShowing();'), ('Tests/CabSceneUITests.h', '        component.addToDesktop(juce::ComponentPeer::windowIsTemporary);', '        chimeraTest::diagnosticCabMark("Showing/before-addToDesktop");\n        component.addToDesktop(juce::ComponentPeer::windowIsTemporary);\n        chimeraTest::diagnosticCabMark("Showing/after-addToDesktop");'), ('Tests/CabSceneUITests.h', '        component.setVisible(true);', '        chimeraTest::diagnosticCabMark("Showing/before-setVisible");\n        component.setVisible(true);\n        chimeraTest::diagnosticCabMark("Showing/after-setVisible");'), ('Tests/CabSceneUITests.h', '        require(component.isShowing(),"CAB interaction fixture has no visible native peer");', '        require(component.isShowing(),"CAB interaction fixture has no visible native peer");\n        chimeraTest::diagnosticCabMark("Showing/ready-by-original-predicate");'), ('Tests/CabSceneUITests.h', '            observation->buttonTime=juce::Time::getMillisecondCounterHiRes()-started;', '            observation->buttonTime=juce::Time::getMillisecondCounterHiRes()-started;\n            chimeraTest::diagnosticCabMark("button-listener");'), ('Tests/CabSceneUITests.h', '    const auto before=workspaceState();\n    button.triggerClick();', '    const auto before=workspaceState();\n    chimeraTest::diagnosticCabBeforeClick(identity.c_str());\n    button.triggerClick();'), ('Tests/CabSceneUITests.h', '    })) {\n        std::ostringstream detail;', '    })) {\n        chimeraTest::diagnosticCabMark("click/deadline-failed-latched");\n        std::ostringstream detail;'), ('Tests/CabSceneUITests.h', '        throw std::runtime_error(detail.str());\n    }\n}', '        chimeraTest::diagnosticCabFinishClick(identity.c_str(),false);\n        throw std::runtime_error(detail.str());\n    }\n    chimeraTest::diagnosticCabFinishClick(identity.c_str(),true);\n}'), ('Tests/CabSceneUITests.h', '    CabPanel panel(*processor,0,{folder},folder.getChildFile("library.json"));\n    Showing showing(panel);', '    CabPanel panel(*processor,0,{folder},folder.getChildFile("library.json"));\n    chimeraTest::diagnosticCabArmFirstSceneClick();\n    Showing showing(panel);')]
+        for relative, digest in expected.items():
+            original = Path(relative).read_bytes()
+            assert hashlib.sha256(original).hexdigest() == digest, relative
+            target = out / 'original-source' / relative
+            target.parent.mkdir(parents=True, exist_ok=True)
+            target.write_bytes(original)
+        for relative, old, new in patches:
+            path = Path(relative)
+            text = path.read_text()
+            assert text.count(old) == 1, (relative, old)
+            path.write_text(text.replace(old, new))
+        assert git('diff', '--name-only').splitlines() == sorted(expected)
+        for relative in expected:
+            target = out / 'instrumented-source' / relative
+            target.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(relative, target)
+        (out/'instrumentation.patch').write_text(git('diff', '--', *expected)+'\n')
+        shutil.copy2('diagnostic-controller/.github/workflows/build.yml', out/'controller-workflow.yml')
+        metadata = dict(purpose='DIAGNOSTIC ONLY; never release acceptance', product_source_sha=base,
+            controller_sha=controller, workflow_ref=os.environ['GITHUB_WORKFLOW_REF'],
+            run_id=os.environ['GITHUB_RUN_ID'], run_attempt=os.environ['GITHUB_RUN_ATTEMPT'],
+            original_sha256=expected,
+            instrumented_sha256={p:hashlib.sha256(Path(p).read_bytes()).hexdigest() for p in expected},
+            started_epoch=time.time(), runner_image=os.environ.get('ImageOS'),
+            runner_image_version=os.environ.get('ImageVersion'), build_configuration='Original Release optimization with -g symbols; UI_PROBES OFF; no ASan or frame-pointer/optimization overrides',
+            caveat='Buffered phase timestamps and a single asynchronous sample can perturb timing; no warmup, repeat, callback forcing, or changed deadline. Aggregate stacks do not identify an individual timed event. A pass is not release certification.')
+        (out/'provenance.json').write_text(json.dumps(metadata, indent=2)+'\n')
+        print(json.dumps(metadata, indent=2))
+        PY_DIAGNOSTIC
+        xcodebuild -version > build-macos-first-click/diagnostics/xcode-version.txt
+        sw_vers > build-macos-first-click/diagnostics/macos-version.txt
+        clang++ --version > build-macos-first-click/diagnostics/compiler-version.txt
+    - name: Configure failed CAB Release mode with symbols, no optional UI probe targets
+      run: |
+        cmake -S . -B build-macos-first-click -DCMAKE_BUILD_TYPE=Release -DCHIMERA_UI_PROBES=OFF -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
+          -DCMAKE_C_FLAGS="-g" -DCMAKE_CXX_FLAGS="-g" -DCMAKE_OBJCXX_FLAGS="-g" \
+          2>&1 | tee build-macos-first-click/diagnostics/configure.log
+    - name: Build only the unchanged CABPanelState test plus passive instrumentation
+      id: build
+      run: |
+        cmake --build build-macos-first-click --config Release --target ChimeraCabPanelStateTests --parallel 2 2>&1 | tee build-macos-first-click/diagnostics/build.log
+    - name: Generate CAB dSYM and record exact executable identity
+      id: symbols
+      run: |
+        ctest --test-dir build-macos-first-click -C Release --show-only=json-v1 > build-macos-first-click/diagnostics/ctest-inventory.json
+        python3 - <<'PY_SYMBOLS'
+        from pathlib import Path
+        import hashlib, json, subprocess
+        out = Path('build-macos-first-click/diagnostics')
+        inventory = json.loads((out/'ctest-inventory.json').read_text())
+        names = {'ChimeraCabPanelStateTests'}
+        tests = [t for t in inventory['tests'] if t['name'] in names]
+        assert {t['name'] for t in tests} == names and len(tests) == 1
+        records = []
+        for test in tests:
+            binary = Path(test['command'][0])
+            assert binary.is_file()
+            dsym = Path(str(binary)+'.dSYM')
+            subprocess.run(['dsymutil', str(binary), '-o', str(dsym)], check=True)
+            uuid = subprocess.check_output(['dwarfdump', '--uuid', str(binary), str(dsym)], text=True)
+            records.append(dict(test=test['name'], command=test['command'], binary=str(binary),
+                                sha256=hashlib.sha256(binary.read_bytes()).hexdigest(), symbol_uuid=uuid))
+        (out/'binary-manifest.json').write_text(json.dumps(records, indent=2)+'\n')
+        PY_SYMBOLS
+    - name: Run the original CAB CTest once and sample its first scene click once
+      id: cab
+      if: ${{ !cancelled() && steps.symbols.outcome == 'success' }}
+      run: |
+        python3 - <<'PY_PROFILE'
+        # Embedded verbatim in the branch-only diagnostic workflow, never a product file.
+        from pathlib import Path
+        import ctypes, hashlib, json, os, shutil, subprocess, sys, threading, time
+        build = Path('build-macos-first-click').resolve()
+        out = build/'diagnostics'
+        manifest = json.loads((out/'binary-manifest.json').read_text())
+        assert len(manifest) == 1 and manifest[0]['test'] == 'ChimeraCabPanelStateTests'
+        binary = Path(manifest[0]['binary']).resolve()
+        assert binary.is_file()
+        assert hashlib.file_digest(binary.open('rb'), 'sha256').hexdigest() == manifest[0]['sha256']
+        libproc = None
 
-  build:
-    needs: validation-contract
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [windows-latest, ubuntu-22.04, macos-15]
-    runs-on: ${{ matrix.os }}
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event.pull_request.head.sha || github.sha }}
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-      - name: Resolve source version
-        shell: bash
-        run: echo "CHIMERA_PACKAGE_VERSION=$(python Tools/chimera_version.py --field version)" >> "$GITHUB_ENV"
-      - name: Check release packaging and validation syntax
-        # Bash stops at the first failed command on every runner, including Windows.
-        shell: bash
-        run: |
-          python -m py_compile Tools/package_release.py Tools/publish_beta111.py Tools/publish_beta112.py Tools/publish_beta12.py Tools/publish_beta13.py Tools/evaluate_release_gate.py Tools/test_release_gate.py Tools/evaluate_signature_benchmark.py Tools/test_signature_benchmark.py Tools/release_evidence.py Tools/produce_release_evidence.py Tools/consolidate_release_gate.py Tools/check_ir_distribution.py Tests/test_ir_distribution.py
-          python Tools/test_release_gate.py
-          python Tools/test_release_scope.py
-          python Tools/test_signature_benchmark.py
-          python Tools/check_catalog_contract.py
-          python Tools/check_ir_distribution.py
-          python Tests/test_ir_distribution.py
-          python Tools/test_validation_producer.py
-          python Tools/test_ctest_validation.py
-          python Tools/test_release_consolidator.py
-          python Tools/test_publish_beta112.py
-          python Tools/test_publish_beta12.py
-          python Tools/test_publish_beta13.py
-          python Tools/test_beta_publication.py
-          python Tools/test_publish_beta131.py
-          python Tools/test_beta_publication131.py
-          python Tools/test_release_preflight.py
-          python Tools/test_callback_timing_protocol.py
-      - name: Check Windows packaging script syntax
-        if: runner.os == 'Windows'
-        shell: pwsh
-        run: |
-          foreach ($script in @("Tools/Build-WindowsInstaller.ps1", "Tools/Verify-WindowsInstaller.ps1", "Tools/Sign-WindowsArtifact.ps1", "Tools/Build-WindowsMSIX.ps1", "Tools/Verify-WindowsMSIX.ps1", "Tools/Scan-WindowsArtifacts.ps1")) {
-            $tokens = $null
-            $parseErrors = $null
-            [System.Management.Automation.Language.Parser]::ParseFile((Resolve-Path $script).Path, [ref]$tokens, [ref]$parseErrors) | Out-Null
-            if ($parseErrors.Count) { throw (($parseErrors | ForEach-Object Message) -join "`n") }
-          }
-      - name: Verify Defender update retry contracts
-        if: runner.os == 'Windows'
-        shell: pwsh
-        run: ./Tools/Test-DefenderUpdate.ps1
-      - if: runner.os == 'Linux'
-        run: sudo apt-get update && sudo apt-get install -y libasound2-dev libjack-jackd2-dev ladspa-sdk libcurl4-openssl-dev libfreetype6-dev libfontconfig1-dev libx11-dev libxcomposite-dev libxcursor-dev libxext-dev libxinerama-dev libxrandr-dev libxrender-dev libwebkit2gtk-4.1-dev libglu1-mesa-dev mesa-common-dev dpkg-dev xvfb openbox x11-utils
-      - name: Configure Windows/Linux
-        if: runner.os != 'macOS'
-        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
-      - name: Configure universal macOS
-        if: runner.os == 'macOS'
-        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_OSX_ARCHITECTURES="arm64;x86_64" -DCMAKE_OSX_DEPLOYMENT_TARGET=12.0
-      - run: cmake --build build --config Release --parallel 2
-      - name: Record configured CTest inventory
-        run: ctest --test-dir build -C Release --show-only=json-v1 > build/ctest-inventory.json
-      - name: Execute Windows and macOS CTest matrix
-        id: ctest_native
-        if: runner.os != 'Linux'
-        run: ctest --test-dir build -C Release --output-on-failure --no-tests=error --output-junit ctest-results.xml
-      - name: Execute Linux CTest matrix with display supervision
-        id: ctest_linux
-        if: runner.os == 'Linux'
-        run: python3 Tools/run_linux_ui_tests.py -- ctest --test-dir build -C Release --output-on-failure --no-tests=error --output-junit ctest-results.xml
-      - name: Produce current-commit CTest validation evidence
-        if: always()
-        shell: bash
-        run: |
-          case "${{ runner.os }}" in Windows) platform=windows;; Linux) platform=linux;; macOS) platform=macos;; esac
-          python Tools/produce_ctest_validation.py --commit "$(git rev-parse HEAD)" --platform "$platform" --junit build/ctest-results.xml --inventory build/ctest-inventory.json --output build/validation
-      - name: Upload concrete CTest and full-state signature evidence
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: Chimera-integration-validation-${{ runner.os }}
-          path: |
-            build/validation
-            build/ctest-results.xml
-            build/ctest-inventory.json
-            build/cab-timing-diagnostics/**
-            build/signature-snapshots
-          if-no-files-found: warn
+        def identity(pid, expected_parent):
+            fields = subprocess.run(['/bin/ps', '-p', str(pid), '-o', 'ppid=,uid='], capture_output=True, text=True)
+            if fields.returncode != 0 or fields.stdout.split() != [str(expected_parent), str(os.getuid())]:
+                return None
+            buf = ctypes.create_string_buffer(4096)
+            if libproc.proc_pidpath(pid, buf, len(buf)) <= 0:
+                return None
+            executable = Path(os.fsdecode(buf.value)).resolve()
+            if executable != binary:
+                return None
+            return dict(pid=pid, parent_pid=expected_parent, uid=os.getuid(), executable=str(executable), observed_epoch=time.time())
 
-      - name: Upload DSP verification
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: Chimera-DSP-verification-${{ runner.os }}
-          path: build/Testing/Temporary/LastTest.log
-          if-no-files-found: warn
+        phase = threading.Event()
+        reader_errors = []
+        marker = b'DIAGNOSTIC CAB phase=first-scene-click-before-trigger'
+        ctest_command = ['ctest', '--test-dir', str(build), '-C', 'Release', '-R', '^ChimeraCabPanelStateTests$',
+                         '-V', '--output-on-failure', '--no-tests=error', '--output-junit', 'cab-results.xml']
+        env = dict(os.environ)
+        env.pop('CHIMERA_LIFECYCLE_TRACE', None)
+        record = dict(purpose='DIAGNOSTIC ONLY; not release acceptance', ctest_command=ctest_command,
+                      started_epoch=time.time(), sampling_interval_ms=10, maximum_sampling_seconds=3,
+                      sample_launch_count=0, trigger='first scene triggerClick passive stderr marker; no test-side sampler handshake',
+                      limitation='sample is an aggregate call tree; it does not map an individual stack to an individual timed stage.')
+        ctest = subprocess.Popen(ctest_command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, env=env)
+        record['ctest_pid'] = ctest.pid
 
-      - name: Upload Windows UI verification
-        if: runner.os == 'Windows' && always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: Chimera-Windows-UI-snapshots
-          path: |
-            build/ui-snapshots/*.png
-            build/ui-snapshots/Board-State-Verification.json
-            !build/ui-snapshots/Head-*.png
-            !build/ui-snapshots/PRE-models-*.png
-            !build/ui-snapshots/POST-models-*.png
-            !build/ui-snapshots/PRE-*-first.png
-          if-no-files-found: warn
+        def read_output():
+            tail = b''
+            log = None
+            console_ok = True
+            try:
+                log = (out/'cab-ctest.log').open('wb')
+            except Exception as error:
+                reader_errors.append('open log: '+type(error).__name__+': '+str(error))
+            while True:
+                try:
+                    chunk = ctest.stdout.read1(65536)
+                except Exception as error:
+                    reader_errors.append('read pipe: '+type(error).__name__+': '+str(error))
+                    break
+                if not chunk:
+                    break
+                combined = tail + chunk
+                if marker in combined and not phase.is_set():
+                    record['phase_trigger_observed_epoch'] = time.time()
+                    phase.set()
+                tail = combined[-len(marker):]
+                if log is not None:
+                    try:
+                        log.write(chunk); log.flush()
+                    except Exception as error:
+                        reader_errors.append('write log: '+type(error).__name__+': '+str(error))
+                        try: log.close()
+                        except Exception: pass
+                        log = None
+                if console_ok:
+                    try:
+                        sys.stdout.buffer.write(chunk); sys.stdout.buffer.flush()
+                    except Exception as error:
+                        reader_errors.append('write console: '+type(error).__name__+': '+str(error))
+                        console_ok = False
+                # Sink failures must not stop draining the original CTest stdout pipe.
+            if log is not None:
+                try:
+                    log.flush(); os.fsync(log.fileno()); log.close()
+                except Exception as error:
+                    reader_errors.append('close log: '+type(error).__name__+': '+str(error))
 
-      - name: Upload Windows head artwork gallery
-        if: runner.os == 'Windows' && always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: Chimera-Windows-Head-gallery
-          path: build/ui-snapshots/Head-*.png
-          if-no-files-found: warn
+        reader = None
+        reader_started = False
+        reader_start_error = None
+        try:
+            reader = threading.Thread(target=read_output, daemon=True)
+            reader.start()
+            reader_started = True
+        except Exception as error:
+            reader_start_error = type(error).__name__+': '+str(error)
+            reader_errors.append('reader startup: '+reader_start_error)
+            read_output()  # Synchronous drain fallback; no retry/termination of the test.
+        selected = None
+        sampler = None
+        sampler_watchdog = None
+        sample_stream = None
+        sampler_exit = None
+        collector_error = None
+        try:
+            if reader_start_error:
+                raise RuntimeError('Sampling skipped after reader startup failure: '+reader_start_error)
+            usage = subprocess.run(['/usr/bin/sample'], capture_output=True, timeout=5)
+            (out/'sample-usage.txt').write_bytes(usage.stdout + usage.stderr)
+            (out/'sample-usage-exit-code.txt').write_text(str(usage.returncode)+'\n')
+            libproc = ctypes.CDLL('/usr/lib/libproc.dylib', use_errno=True)
+            libproc.proc_pidpath.argtypes = [ctypes.c_int, ctypes.c_void_p, ctypes.c_uint32]
+            libproc.proc_pidpath.restype = ctypes.c_int
+            discovery_deadline = time.monotonic() + 15
+            while ctest.poll() is None and time.monotonic() < discovery_deadline:
+                found = subprocess.run(['/usr/bin/pgrep', '-P', str(ctest.pid)], capture_output=True, text=True)
+                candidates = []
+                if found.returncode not in (0, 1):
+                    raise RuntimeError('Owned CTest child discovery failed')
+                for value in found.stdout.split():
+                    observed = identity(int(value), ctest.pid)
+                    if observed is not None:
+                        candidates.append(observed)
+                if len(candidates) > 1:
+                    raise RuntimeError('More than one matching owned CAB test child')
+                if candidates:
+                    selected = candidates[0]
+                    break
+                time.sleep(.02)
+            if selected is None:
+                raise RuntimeError('Exact owned CAB test child not observed within15s')
+            record['selected_child'] = selected
+            trigger_deadline = time.monotonic() + 300
+            while ctest.poll() is None and not phase.wait(.05) and time.monotonic() < trigger_deadline:
+                pass
+            if not phase.is_set():
+                raise RuntimeError('CAB scene phase was not observed before process exit or300s observation bound')
+            rechecked = identity(selected['pid'], ctest.pid)
+            if rechecked is None or ctest.poll() is not None:
+                raise RuntimeError('Owned CAB identity changed before sampler launch')
+            record['identity_at_sample_launch'] = rechecked
+            sample_command = ['/usr/bin/sample', str(selected['pid']), '3', '10', '-mayDie', '-fullPaths',
+                              '-file', str(out/'cab-main-thread.sample.txt')]
+            record['sample_command'] = sample_command
+            record['sample_started_epoch'] = time.time()
+            sample_started_monotonic = time.monotonic()
+            sample_stream = (out/'sample-driver.log').open('wb')
+            sampler = subprocess.Popen(sample_command, stdout=sample_stream, stderr=subprocess.STDOUT)
+            record['sample_launch_count'] = 1
+            record['sampler_pid'] = sampler.pid
+            def stop_overdue_sampler():
+                if sampler.poll() is not None:
+                    return
+                record['sampler_timeout'] = True
+                try:
+                    sampler.terminate()  # Only this diagnostic sampler, never the test.
+                    try:
+                        sampler.wait(timeout=5)
+                    except subprocess.TimeoutExpired:
+                        sampler.kill()
+                except ProcessLookupError:
+                    pass
+            sampler_watchdog = threading.Timer(20, stop_overdue_sampler)
+            sampler_watchdog.daemon = True
+            sampler_watchdog.start()
+        except Exception as error:
+            collector_error = type(error).__name__+': '+str(error)
 
-      - name: Upload Windows pedal and rack gallery
-        if: runner.os == 'Windows' && always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: Chimera-Windows-Pedal-Rack-gallery
-          path: |
-            build/ui-snapshots/PRE-models-*.png
-            build/ui-snapshots/POST-models-*.png
-            build/ui-snapshots/PRE-*-first.png
-          if-no-files-found: warn
-
-      - name: Stage Windows open beta payload
-        id: package_windows
-        if: runner.os == 'Windows'
-        run: python Tools/package_release.py windows
-
-      - name: Package and verify macOS universal installer
-        id: package_macos
-        if: runner.os == 'macOS'
-        run: python Tools/package_release.py macos
-
-      - name: Package and verify Linux installers
-        id: package_linux
-        if: runner.os == 'Linux'
-        run: python Tools/package_release.py linux
-
-      - name: Verify signed release cannot fall back to unsigned
-        if: runner.os == 'Windows'
-        shell: pwsh
-        run: |
-          $rejected = $false
-          try { ./Tools/Build-WindowsInstaller.ps1 -Sign -CertificateThumbprint "" }
-          catch {
-            if ($_.Exception.Message -notmatch "verified public code-signing certificate is required") { throw }
-            $rejected = $true
-          }
-          if (!$rejected) { throw "Signed build accepted a missing signing identity" }
-          Write-Host "PASS: signed distribution is blocked without a verified publisher certificate"
-
-      - name: Build Windows installer
-        if: runner.os == 'Windows'
-        shell: pwsh
-        run: ./Tools/Build-WindowsInstaller.ps1
-
-      - name: Verify Windows install, repair and uninstall
-        id: installer
-        if: runner.os == 'Windows'
-        timeout-minutes: 3
-        shell: pwsh
-        run: ./Tools/Verify-WindowsInstaller.ps1
-
-      - name: Upload Windows installer verification
-        if: runner.os == 'Windows' && always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: Chimera-Windows-installer-verification
-          path: |
-            build/installer-verification/*.txt
-            build/installer-verification/*.log
-          if-no-files-found: warn
-
-      - name: Build MSIX review package
-        if: runner.os == 'Windows'
-        shell: pwsh
-        run: ./Tools/Build-WindowsMSIX.ps1
-
-      - name: Verify MSIX deployment and application activation
-        id: msix
-        if: runner.os == 'Windows'
-        timeout-minutes: 3
-        shell: powershell
-        run: ./Tools/Verify-WindowsMSIX.ps1
-
-      - name: Upload MSIX verification
-        if: runner.os == 'Windows' && always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: Chimera-Windows-MSIX-verification
-          path: build/msix-verification/MSIXVerification.txt
-          if-no-files-found: warn
-
-      - name: Scan Windows distribution with Microsoft Defender
-        id: scan
-        if: runner.os == 'Windows'
-        timeout-minutes: 10
-        shell: pwsh
-        run: ./Tools/Scan-WindowsArtifacts.ps1 -Path dist -ReportDirectory build/windows-security
-
-      - name: Upload Windows security report
-        if: runner.os == 'Windows' && always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: Chimera-Windows-security-report
-          path: build/windows-security/*
-          if-no-files-found: warn
-
-      # Executable downloads are only uploaded after the malware scan succeeds.
-      # This is not a Chrome Safe Browsing verdict or a publisher signature.
-      - name: Upload Windows test package
-        if: runner.os == 'Windows'
-        uses: actions/upload-artifact@v4
-        with:
-          name: SpectralForge-Chimera-${{ env.CHIMERA_PACKAGE_VERSION }}-win64
-          path: |
-            dist/SpectralForge-Chimera-${{ env.CHIMERA_PACKAGE_VERSION }}-win64.zip
-            dist/SpectralForge-Chimera-${{ env.CHIMERA_PACKAGE_VERSION }}-win64.zip.sha256.txt
-          if-no-files-found: error
-          compression-level: 0
-
-      - name: Upload Windows installer
-        if: runner.os == 'Windows'
-        uses: actions/upload-artifact@v4
-        with:
-          name: SpectralForge-Chimera-${{ env.CHIMERA_PACKAGE_VERSION }}-win64-Setup
-          path: |
-            dist/SpectralForge-Chimera-${{ env.CHIMERA_PACKAGE_VERSION }}-win64-Setup.exe
-            dist/SpectralForge-Chimera-${{ env.CHIMERA_PACKAGE_VERSION }}-win64-Setup.exe.sha256.txt
-            docs/WINDOWS_INSTALL.txt
-            build/installer-verification/InstallerVerification.txt
-          if-no-files-found: error
-          compression-level: 0
-
-      - name: Upload MSIX review package
-        if: runner.os == 'Windows'
-        uses: actions/upload-artifact@v4
-        with:
-          name: Chimera-Windows-MSIX-review-unsigned
-          path: dist/msix/*
-          if-no-files-found: error
-          compression-level: 0
-
-      - name: Upload macOS installer
-        if: runner.os == 'macOS'
-        uses: actions/upload-artifact@v4
-        with:
-          name: SpectralForge-Chimera-${{ env.CHIMERA_PACKAGE_VERSION }}-macos-universal
-          path: |
-            dist/SpectralForge-Chimera-${{ env.CHIMERA_PACKAGE_VERSION }}-macos-universal.pkg
-            dist/SpectralForge-Chimera-${{ env.CHIMERA_PACKAGE_VERSION }}-macos-universal.pkg.sha256.txt
-            dist/macOS-package-verification.txt
-          if-no-files-found: error
-          compression-level: 0
-
-      - name: Upload Linux installers
-        if: runner.os == 'Linux'
-        uses: actions/upload-artifact@v4
-        with:
-          name: SpectralForge-Chimera-${{ env.CHIMERA_PACKAGE_VERSION }}-linux-x86_64
-          path: |
-            dist/SpectralForge-Chimera-${{ env.CHIMERA_PACKAGE_VERSION }}-linux-x86_64.deb
-            dist/SpectralForge-Chimera-${{ env.CHIMERA_PACKAGE_VERSION }}-linux-x86_64.deb.sha256.txt
-            dist/SpectralForge-Chimera-${{ env.CHIMERA_PACKAGE_VERSION }}-linux-x86_64.tar.gz
-            dist/SpectralForge-Chimera-${{ env.CHIMERA_PACKAGE_VERSION }}-linux-x86_64.tar.gz.sha256.txt
-            dist/Linux-package-verification.txt
-          if-no-files-found: error
-          compression-level: 0
-
-      - name: Preserve exact-source platform release evidence
-        if: always()
-        shell: bash
-        env:
-          CTEST_OUTCOME: ${{ runner.os == 'Linux' && steps.ctest_linux.outcome || steps.ctest_native.outcome }}
-          WINDOWS_PACKAGE: ${{ steps.package_windows.outcome }}
-          LINUX_PACKAGE: ${{ steps.package_linux.outcome }}
-          MACOS_PACKAGE: ${{ steps.package_macos.outcome }}
-          INSTALLER_OUTCOME: ${{ steps.installer.outcome }}
-          MSIX_OUTCOME: ${{ steps.msix.outcome }}
-          SCAN_OUTCOME: ${{ steps.scan.outcome }}
-        run: |
-          case "${{ runner.os }}" in
-            Windows) platform=windows; package="$WINDOWS_PACKAGE";;
-            Linux) platform=linux; package="$LINUX_PACKAGE";;
-            macOS) platform=macos; package="$MACOS_PACKAGE";;
-          esac
-          python Tools/produce_release_evidence.py --commit "$CHIMERA_SOURCE_SHA" --run-id "$GITHUB_RUN_ID" --run-attempt "$GITHUB_RUN_ATTEMPT" --kind "$platform" --ctest "$CTEST_OUTCOME" --package "$package" --installer "$INSTALLER_OUTCOME" --msix "$MSIX_OUTCOME" --scan "$SCAN_OUTCOME" --output build/release-evidence
-      - name: Upload platform release evidence
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: Chimera-release-evidence-${{ runner.os == 'Windows' && 'windows' || runner.os == 'Linux' && 'linux' || 'macos' }}
-          path: build/release-evidence
-          if-no-files-found: error
-          overwrite: true
-
-  assemble-candidate:
-    needs: build
-    runs-on: ubuntu-24.04
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event.pull_request.head.sha || github.sha }}
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-      - name: Resolve source version
-        shell: bash
-        run: echo "CHIMERA_PACKAGE_VERSION=$(python Tools/chimera_version.py --field version)" >> "$GITHUB_ENV"
-      - uses: actions/download-artifact@v4
-        with:
-          pattern: SpectralForge-Chimera-${{ env.CHIMERA_PACKAGE_VERSION }}-*
-          path: candidate
-          merge-multiple: true
-      - name: Assemble update manifest from verified installers
-        id: assemble
-        shell: bash
-        run: |
-          # upload-artifact preserves common-root subdirectories in multi-root uploads.
-          python - <<'PY'
-          from pathlib import Path
-          import shutil
-          root = Path('candidate')
-          for source in list(root.rglob('*')):
-              if source.is_file() and source.parent != root:
-                  target = root / source.name
-                  if target.exists() and target.read_bytes() != source.read_bytes():
-                      raise RuntimeError(f'Conflicting candidate files: {source.name}')
-                  if not target.exists():
-                      shutil.copy2(source, target)
-          PY
-          python Tools/package_release.py manifest --dist candidate
-          cp COPYRIGHT.txt docs/MANUAL.html docs/INSTALLATION.md docs/OPEN_BETA_RELEASE_NOTES.md docs/THIRD_PARTY_NOTICES.md docs/RELEASE_CHECKLIST.md candidate/
-      - name: Record exact source revision and publication status
-        id: source
-        shell: bash
-        run: |
-          python - <<'PY'
-          import json, os, sys
-          sys.path.insert(0, "Tools")
-          import chimera_version
-          from pathlib import Path
-          Path('candidate/candidate-source.json').write_text(json.dumps({
-              'version': chimera_version.identity()['version'], 'tag': 'v' + chimera_version.identity()['version'],
-              'revision': chimera_version.revision(), 'runId': os.environ['GITHUB_RUN_ID'],
-              'published': False, 'publisherSigned': False, 'macOSNotarized': False
-          }, indent=2) + '\n', encoding='utf-8')
-          PY
-      - name: Upload concrete draft-ready release files
-        id: upload
-        uses: actions/upload-artifact@v4
-        with:
-          name: SpectralForge-Chimera-${{ env.CHIMERA_PACKAGE_VERSION }}-Release-Candidate
-          path: |
-            candidate/*.exe
-            candidate/*.pkg
-            candidate/*.deb
-            candidate/*.zip
-            candidate/*.tar.gz
-            candidate/*.txt
-            candidate/*.json
-            candidate/*.md
-            candidate/*.html
-          if-no-files-found: error
-          compression-level: 0
-
-      - name: Preserve exact-source assembly evidence
-        if: always()
-        shell: bash
-        env:
-          ASSEMBLE_OUTCOME: ${{ steps.assemble.outcome }}
-          SOURCE_OUTCOME: ${{ steps.source.outcome }}
-          UPLOAD_OUTCOME: ${{ steps.upload.outcome }}
-        run: |
-          python Tools/produce_release_evidence.py --commit "$CHIMERA_SOURCE_SHA" --run-id "$GITHUB_RUN_ID" --run-attempt "$GITHUB_RUN_ATTEMPT" --kind assembly --assemble "$ASSEMBLE_OUTCOME" --source "$SOURCE_OUTCOME" --upload "$UPLOAD_OUTCOME" --output build/release-evidence
-      - name: Upload assembly release evidence
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: Chimera-release-evidence-assembly
-          path: build/release-evidence
-          if-no-files-found: error
-          overwrite: true
-
-  consolidate-release-gate:
-    permissions:
-      contents: read
-      actions: read
-    if: always()
-    needs: [validation-contract, build, assemble-candidate]
-    runs-on: ubuntu-24.04
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          ref: ${{ env.CHIMERA_SOURCE_SHA }}
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-      - name: Download this run's evidence without merging platform files
-        uses: actions/download-artifact@v4
-        with:
-          pattern: Chimera-release-evidence-*
-          path: release-inputs
-          merge-multiple: false
-      - name: Compute intended release verdict
-        if: always()
-        shell: bash
-        run: |
-          python Tools/consolidate_release_gate.py --commit "$CHIMERA_SOURCE_SHA" --run-id "$GITHUB_RUN_ID" --run-attempt "$GITHUB_RUN_ATTEMPT" --profile beta_1_3 --inputs release-inputs --output build/release-validation
-      - name: Upload consolidated exact-source verdict
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: Chimera-A-stage-release-gate
-          path: build/release-validation
-          if-no-files-found: error
-          overwrite: true
-      - name: Show release eligibility separately from build success
-        if: always()
-        shell: bash
-        run: cat build/release-validation/release-gate.md >> "$GITHUB_STEP_SUMMARY"
+        # Never terminate, retry, or alter the original test because sampler setup failed.
+        ctest_exit = ctest.wait()
+        try:
+            record['ctest_finished_epoch'] = time.time()
+            record['ctest_exit_code'] = ctest_exit
+            try:
+                (out/'cab-ctest-exit-code.txt').write_text(str(ctest_exit)+'\n')
+            except OSError as error:
+                reader_errors.append('write raw CTest status: '+type(error).__name__+': '+str(error))
+            if reader_started:
+                reader.join(timeout=5)
+                if reader.is_alive():
+                    reader_errors.append('stdout reader did not finish within5s after CTest exit')
+            if sampler is not None:
+                remaining = max(.001, 20-(time.monotonic()-sample_started_monotonic))
+                try:
+                    sampler_exit = sampler.wait(timeout=remaining)
+                except subprocess.TimeoutExpired:
+                    record['sampler_timeout'] = True
+                    try: sampler.terminate()
+                    except ProcessLookupError: pass
+                    try:
+                        sampler_exit = sampler.wait(timeout=5)
+                    except subprocess.TimeoutExpired:
+                        try: sampler.kill()
+                        except ProcessLookupError: pass
+                        sampler_exit = sampler.wait(timeout=5)
+                if sampler_watchdog is not None:
+                    sampler_watchdog.cancel()
+                    if sampler_watchdog.is_alive(): sampler_watchdog.join(timeout=6)
+                record['sample_finished_epoch'] = time.time()
+            if sample_stream is not None:
+                sample_stream.flush(); os.fsync(sample_stream.fileno()); sample_stream.close()
+            record['sample_exit_code'] = sampler_exit
+            record['collector_error'] = collector_error
+            record['reader_errors'] = reader_errors
+            sample_file = out/'cab-main-thread.sample.txt'
+            record['sample_file_exists'] = sample_file.is_file()
+            record['sample_bytes'] = sample_file.stat().st_size if sample_file.is_file() else 0
+            if sample_file.is_file():
+                record['sample_sha256'] = hashlib.file_digest(sample_file.open('rb'), 'sha256').hexdigest()
+            try:
+                shutil.copy2(build/'Testing/Temporary/LastTest.log', out/'cab-LastTest.log')
+                record['last_test_copy_ok'] = True
+            except OSError as error:
+                record['last_test_copy_ok'] = False
+                record['last_test_copy_error'] = type(error).__name__+': '+str(error)
+            (out/'sample-exit-code.txt').write_text(str(sampler_exit)+'\n')
+            (out/'sampling-run.json').write_text(json.dumps(record, indent=2)+'\n')
+            print(json.dumps(record, indent=2), flush=True)
+            if collector_error or reader_errors or record.get('sampler_timeout') or not record['last_test_copy_ok'] or sampler_exit != 0 or not record['sample_bytes']:
+                raise SystemExit(2)
+        finally:
+            # A sampler, output sink, or finalization failure never replaces the
+            # original nonzero CTest result.
+            if ctest_exit:
+                raise SystemExit(ctest_exit if ctest_exit > 0 else 128-ctest_exit)
+        PY_PROFILE
+    - name: Collect OS crash reports after the single CAB profile
+      if: always()
+      run: |
+        python3 - <<'PY_REPORTS'
+        from pathlib import Path
+        import hashlib, json, shutil, time
+        out = Path('build-macos-first-click/diagnostics')
+        out.mkdir(parents=True, exist_ok=True)
+        provenance = out/'provenance.json'
+        started = json.loads(provenance.read_text())['started_epoch'] if provenance.exists() else time.time()
+        records = []
+        for root in (Path.home()/'Library/Logs/DiagnosticReports', Path('/Library/Logs/DiagnosticReports')):
+            if not root.exists():
+                continue
+            for report in root.iterdir():
+                if not report.is_file() or report.suffix not in ('.ips', '.crash'):
+                    continue
+                if not report.name.startswith(('ChimeraUITests', 'Chimera UI Tests', 'ChimeraCabPanelStateTests', 'Chimera CAB Panel State Tests')) or report.stat().st_mtime < started:
+                    continue
+                target = out/'crash-reports'/report.name
+                target.parent.mkdir(parents=True, exist_ok=True)
+                shutil.copy2(report, target)
+                records.append(dict(filename=report.name, sha256=hashlib.sha256(target.read_bytes()).hexdigest()))
+        (out/'crash-report-manifest.json').write_text(json.dumps(dict(reports=records,
+            note='Collected once after the single CAB profile; CTest stderr and native sampler output are retained.'), indent=2)+'\n')
+        PY_REPORTS
+    - name: Upload raw CAB test and native sampling evidence - not a release gate
+      if: always()
+      uses: actions/upload-artifact@v6
+      with:
+        name: Diagnostic-macOS15-CAB-first-click-781d03dd-${{ github.sha }}-attempt-${{ github.run_attempt }}
+        path: |
+          build-macos-first-click/diagnostics/
+          build-macos-first-click/*-results.xml
+          build-macos-first-click/chimera-build-version.json
+          build-macos-first-click/CMakeCache.txt
+          build-macos-first-click/compile_commands.json
+          build-macos-first-click/Testing/Temporary/
+          build-macos-first-click/cab-panel.png
+          build-macos-first-click/ChimeraCabPanelStateTests_artefacts/Release/
+        if-no-files-found: error
+        retention-days: 14
