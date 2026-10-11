@@ -1,0 +1,805 @@
+{
+  "schemaVersion": 1,
+  "description": "AI-created production source artwork for complete amplifier head enclosures; these PNGs are not screenshots of the running JUCE UI.",
+  "createdDate": "2026-10-11",
+  "developmentPullRequest": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/pull/44",
+  "supersededCompositionSource": "9995669df7a0058497f214d7380534cd80ebadcb",
+  "supersessionReason": "The prior composition was rejected in visual review for missing upper-corner volume and artificial rear extensions on bass heads.",
+  "assetCount": 26,
+  "activeCatalogCount": 25,
+  "legacyRecallModelIndex": 16,
+  "coordinateConventions": {
+    "pixelSize": "[width, height]",
+    "alphaBounds": "[x, y, width, height] of pixels with alpha > 32; right and bottom are exclusive",
+    "runtimeMetadata": "Source/AmpHeadShellMetadata.h",
+    "runtimeMetadataAuthority": "The header is authoritative for the final control coordinate frame (frontPlane), supportY, topHandle and channelWindows. Mutable layout landmarks are deliberately not duplicated in this manifest."
+  },
+  "renderingContract": "Draw the complete source PNG with one uniform transform. Do not split, stretch, or reconstruct its roof, corners, handle, side walls, or feet. Live knobs, labels and channel state are rendered by JUCE.",
+  "evidenceBoundary": "Generation instructions and source-art inspection do not establish native UI, host, interaction, or product acceptance. Native captures must identify their exact source commit and CI run.",
+  "assets": [
+    {
+      "modelIndex": 0,
+      "modelName": "Glass",
+      "catalogStatus": "active",
+      "asset": "Assets/Artwork/HeadShells/head-shell-00.png",
+      "identityReference": "Assets/Artwork/aglass.jpg",
+      "sha256": "5aeb81a5d2fb725e04c1084ab04271c094183b88c71d3e7936f481631ed4e768",
+      "byteLength": 2821428,
+      "pixelSize": [
+        1774,
+        887
+      ],
+      "pixelMode": "RGBA",
+      "alphaBounds": [
+        26,
+        115,
+        1721,
+        677
+      ],
+      "runtimeMetadataIndex": 0,
+      "generation": {
+        "tool": "built-in image_gen__imagegen",
+        "outputBasename": "exec-5df66f3a-77c2-4e2a-a83b-9e7c0c23235f.png",
+        "instructionRecord": {
+          "kind": "verbatim_final_prompt",
+          "text": "Use case: product-mockup. Asset type: production transparent RGBA amplifier head for a JUCE audio plugin.\nCreate a fundamental coherent full-object redraw of reference image 1, not a pasted patch or a roof extension. Reference image 1 is the identity and front construction reference (Glass); reference image 2 is ONLY the camera, integrated three-dimensional roof construction and lighting reference. Do not copy reference 2's grille, silver control plate, vertical handles or proportions.\nSubject identity to preserve: Silver and charcoal tightly woven grille cloth fills upper 62% of front opening, completely plain dark charcoal control plate fills bottom 38%, fine cream piping frames opening. Pebbled black tolex enclosure, classic small silver rounded metal corner protectors, original narrow arched black strap handle with small silver mounts, two black rubber feet. Preserve this exact model's recognizable woven silver grille and unadorned charcoal panel.\nPhysical body envelope: 673.1 mm wide x 225 mm front body high x 263.53 mm deep; front body width to height ratio 2.99:1. Keep the original front grille/blank-control-panel division and all usable empty control-panel area. Physical dimensions inform the enclosure silhouette; do not draw dimension labels.\nCamera and construction: EXACTLY centered in front, zero yaw, zero roll, near orthographic long-lens perspective, about 9 degrees above horizontal. Both sides perfectly symmetric, horizontal panel lines. A modest shallow integrated top surface recedes from the front top lip to the back edge, visibly attached to one complete box with natural continuous rounded upper corners, top handle and bottom feet. Roof visible depth should be about 12 to 17% of front body height, similar to reference 2. Roof/front/sides are a single coherent object, not separate slabs; rear edge lies low behind handle, never an upright wall. Entire front top lip and both rounded upper corners intact and uncut.\nComposition: clean studio-quality photorealistic product render, landscape approximately 2048 by 1152 pixels, object centered with at least 5% clear transparent margin on all sides, complete handle and all feet visible, no cropping. Preserve natural enclosure width/height ratio; no stretching. Soft neutral upper-left studio highlights, dark readable material relief, lighting consistent with reference 2.\nBackground: genuine alpha transparency everywhere outside the product. No floor, horizon, pedestal, reflection or cast ground shadow.\nBlank control panel essential: ZERO knobs, switches, sockets, meters, LEDs, UI graphics, numerals, letters, labels, badges, branding or logos. All control hardware will be supplied live by software. Tiny structural screws and amber tube glow behind grille are allowed only where original.\nAvoid: cut-away upper corners, upper-corner notches, disconnected roof wings, side volumes, double lid, extra stacked slab, backboard, raised rear fin, upright back plane, speaker cabinet, exaggerated top depth, three-quarter angle, perspective yaw, text, watermark, background."
+        },
+        "postGenerationProcessing": "None. Production PNG is byte-identical to the final generated output."
+      }
+    },
+    {
+      "modelIndex": 1,
+      "modelName": "Brit Edge",
+      "catalogStatus": "active",
+      "asset": "Assets/Artwork/HeadShells/head-shell-01.png",
+      "identityReference": "Assets/Artwork/abrit.jpg",
+      "sha256": "8715603b1eff5092026480e3baaf8ed7e8318a89ab69b358b0dc0afd1266075c",
+      "byteLength": 2181327,
+      "pixelSize": [
+        1536,
+        1024
+      ],
+      "pixelMode": "RGBA",
+      "alphaBounds": [
+        68,
+        210,
+        1401,
+        665
+      ],
+      "runtimeMetadataIndex": 1,
+      "generation": {
+        "tool": "built-in image_gen__imagegen",
+        "outputBasename": "exec-5d1334d3-ec93-475e-8564-b59984a17c7e.png",
+        "instructionRecord": {
+          "kind": "verbatim_final_prompt",
+          "text": "PRIMARY HIGHEST PRIORITY: Re-proportion the amplifier from image 1 into a visibly TALLER head cabinet, while preserving its model-specific materials and design. The original reference's panoramic cabinet shape is wrong and MUST NOT BE COPIED. The final FRONT FACE aspect ratio from front top lip to body bottom excluding roof, handle and feet MUST be 2.7:1. That means at 1500 pixels wide the front face is 556 pixels tall. The entire object including roof and handle will be taller still. Explicitly increase the original front body's height by 30 percent relative to width. Make both grille and blank control-panel taller while preserving their relative partition. Do not stretch individual hardware, handle or screw shapes.\n\nOUTPUT COMPOSITION: use a 3:2 landscape canvas, approximately 1800 by 1200 pixels, with generous transparent margin. Center the object. Front face should occupy approx x=150 to1650, y=390 to946, with roof and handle above it and feet below. These coordinates are guides, not text. Do NOT copy the 2:1 canvas or wide shallow silhouette of either reference. Full object must be uncut.\nUse case: product-mockup. Asset type: production transparent RGBA amplifier head for a JUCE audio plugin.\nCreate a fundamental coherent full-object redraw of reference image 1, not a pasted patch or a roof extension. Reference image 1 is the identity and front construction reference (Brit Edge); reference image 2 is ONLY the camera, integrated three-dimensional roof construction and lighting reference. Do not copy reference 2's grille, silver control plate, vertical handles or proportions.\nSubject identity to preserve: Black small-square basketweave grille fills upper 56% of front opening and a single uninterrupted brushed warm brass gold blank control plate fills lower 44%. Fine warm gold piping, black pebble tolex, softly rounded wooden enclosure corners with no silver corner guards, two tiny narrow gold vertical accent bands near left/right outer front edges. Original black leather carry strap on warm brass rectangular mounts, black rubber feet. Preserve original classic British grille and gold blank panel identity.\nPhysical body envelope: 665 mm wide x 265 mm front body high x 205 mm deep; front body width to height ratio 2.51:1. Keep the original front grille/blank-control-panel division and all usable empty control-panel area. Physical dimensions inform the enclosure silhouette; do not draw dimension labels.\nCamera and construction: EXACTLY centered in front, zero yaw, zero roll, near orthographic long-lens perspective, about 9 degrees above horizontal. Both sides perfectly symmetric, horizontal panel lines. A modest shallow integrated top surface recedes from the front top lip to the back edge, visibly attached to one complete box with natural continuous rounded upper corners, top handle and bottom feet. Roof visible depth should be about 12 to 17% of front body height, similar to reference 2. Roof/front/sides are a single coherent object, not separate slabs; rear edge lies low behind handle, never an upright wall. Entire front top lip and both rounded upper corners intact and uncut.\nComposition: clean studio-quality photorealistic product render, 3:2 landscape approximately 1800 by 1200 pixels, object centered with at least 5% clear transparent margin on all sides, complete handle and all feet visible, no cropping. Preserve natural enclosure width/height ratio; no stretching. Soft neutral upper-left studio highlights, dark readable material relief, lighting consistent with reference 2.\nBackground: genuine alpha transparency everywhere outside the product. No floor, horizon, pedestal, reflection or cast ground shadow.\nBlank control panel essential: ZERO knobs, switches, sockets, meters, LEDs, UI graphics, numerals, letters, labels, badges, branding or logos. All control hardware will be supplied live by software. Tiny structural screws and amber tube glow behind grille are allowed only where original.\nAvoid: cut-away upper corners, upper-corner notches, disconnected roof wings, side volumes, double lid, extra stacked slab, backboard, raised rear fin, upright back plane, speaker cabinet, exaggerated top depth, three-quarter angle, perspective yaw, text, watermark, background."
+        },
+        "postGenerationProcessing": "None. Production PNG is byte-identical to the final generated output."
+      }
+    },
+    {
+      "modelIndex": 2,
+      "modelName": "Tight 515",
+      "catalogStatus": "active",
+      "asset": "Assets/Artwork/HeadShells/head-shell-02.png",
+      "identityReference": "Assets/Artwork/a515.jpg",
+      "sha256": "fcc564e82cc2a3f93194e2ca78945f9c20dd222b36e9dce87b736e1648184305",
+      "byteLength": 2162742,
+      "pixelSize": [
+        1774,
+        887
+      ],
+      "pixelMode": "RGBA",
+      "alphaBounds": [
+        31,
+        90,
+        1712,
+        689
+      ],
+      "runtimeMetadataIndex": 2,
+      "generation": {
+        "tool": "built-in image_gen__imagegen",
+        "outputBasename": "exec-b2baf46c-dd2e-43e3-86a5-0ff97b2e4e2b.png",
+        "instructionRecord": {
+          "kind": "verbatim_final_prompt",
+          "text": "Use case: product-mockup. Asset type: production transparent RGBA amplifier head for a JUCE audio plugin.\nCreate a fundamental coherent full-object redraw of reference image 1, not a pasted patch or a roof extension. Reference image 1 is the identity and front construction reference (Tight 515); reference image 2 is ONLY the camera, integrated three-dimensional roof construction and lighting reference. Do not copy reference 2's grille, silver control plate, vertical handles or proportions.\nSubject identity to preserve: Black hexagonal metal mesh upper grille, orange-glowing vacuum tubes visible behind, two distinct brushed silver vertical reinforcement strips at quarter and three-quarter width, each with small screws. Upper grille approximately 59% of front opening, single completely blank dark charcoal control plate lower 41%, with tiny corner mounting screws. Black pebble tolex enclosure and original silver corner protectors. Original black strap handle with compact silver mounts, black feet. Preserve exact two-bar grille identity.\nPhysical body envelope: 676.275 mm wide x 254 mm front body high x 298.45 mm deep; front body width to height ratio 2.66:1. Keep the original front grille/blank-control-panel division and all usable empty control-panel area. Physical dimensions inform the enclosure silhouette; do not draw dimension labels.\nCamera and construction: EXACTLY centered in front, zero yaw, zero roll, near orthographic long-lens perspective, about 9 degrees above horizontal. Both sides perfectly symmetric, horizontal panel lines. A modest shallow integrated top surface recedes from the front top lip to the back edge, visibly attached to one complete box with natural continuous rounded upper corners, top handle and bottom feet. Roof visible depth should be about 12 to 17% of front body height, similar to reference 2. Roof/front/sides are a single coherent object, not separate slabs; rear edge lies low behind handle, never an upright wall. Entire front top lip and both rounded upper corners intact and uncut.\nComposition: clean studio-quality photorealistic product render, landscape approximately 2048 by 1152 pixels, object centered with at least 5% clear transparent margin on all sides, complete handle and all feet visible, no cropping. Preserve natural enclosure width/height ratio; no stretching. Soft neutral upper-left studio highlights, dark readable material relief, lighting consistent with reference 2.\nBackground: genuine alpha transparency everywhere outside the product. No floor, horizon, pedestal, reflection or cast ground shadow.\nBlank control panel essential: ZERO knobs, switches, sockets, meters, LEDs, UI graphics, numerals, letters, labels, badges, branding or logos. All control hardware will be supplied live by software. Tiny structural screws and amber tube glow behind grille are allowed only where original.\nAvoid: cut-away upper corners, upper-corner notches, disconnected roof wings, side volumes, double lid, extra stacked slab, backboard, raised rear fin, upright back plane, speaker cabinet, exaggerated top depth, three-quarter angle, perspective yaw, text, watermark, background."
+        },
+        "postGenerationProcessing": "None. Production PNG is byte-identical to the final generated output."
+      }
+    },
+    {
+      "modelIndex": 3,
+      "modelName": "Wide Rect",
+      "catalogStatus": "active",
+      "asset": "Assets/Artwork/HeadShells/head-shell-03.png",
+      "identityReference": "Assets/Artwork/arect.jpg",
+      "sha256": "5fdbbe32baf3f2561fb22f91fa08fe90a1ddf4fd8e6c870225981f1a2a800b3d",
+      "byteLength": 2326189,
+      "pixelSize": [
+        1536,
+        1024
+      ],
+      "pixelMode": "RGBA",
+      "alphaBounds": [
+        26,
+        188,
+        1485,
+        719
+      ],
+      "runtimeMetadataIndex": 3,
+      "generation": {
+        "tool": "built-in image_gen__imagegen",
+        "outputBasename": "exec-506c3db5-8652-4b80-b037-41fe23c7ae7c.png",
+        "instructionRecord": {
+          "kind": "verbatim_final_prompt",
+          "text": "PRIMARY HIGHEST PRIORITY: Re-proportion the amplifier from image 1 into a visibly TALLER head cabinet, while preserving its model-specific materials and design. The original reference's panoramic cabinet shape is wrong and MUST NOT BE COPIED. The final FRONT FACE aspect ratio from front top lip to body bottom excluding roof, handle and feet MUST be 2.7:1. That means at 1500 pixels wide the front face is 556 pixels tall. The entire object including roof and handle will be taller still. Explicitly increase the original front body's height by 30 percent relative to width. Make both grille and blank control-panel taller while preserving their relative partition. Do not stretch individual hardware, handle or screw shapes.\n\nOUTPUT COMPOSITION: use a 3:2 landscape canvas, approximately 1800 by 1200 pixels, with generous transparent margin. Center the object. Front face should occupy approx x=150 to1650, y=390 to946, with roof and handle above it and feet below. These coordinates are guides, not text. Do NOT copy the 2:1 canvas or wide shallow silhouette of either reference. Full object must be uncut.\nUse case: product-mockup. Asset type: production transparent RGBA amplifier head for a JUCE audio plugin.\nCreate a fundamental coherent full-object redraw of reference image 1, not a pasted patch or a roof extension. Reference image 1 is the identity and front construction reference (Wide Rect); reference image 2 is ONLY the camera, integrated three-dimensional roof construction and lighting reference. Do not copy reference 2's grille, silver control plate, vertical handles or proportions.\nSubject identity to preserve: Silver diamond treadplate covers upper 60% of front opening; single uninterrupted completely blank matte black control plate covers lower 40%. Black pebble tolex surround, chunky original silver corner protectors, original low black strap handle with wide rectangular silver mounts, two black feet. Preserve exact treadplate diamond rhythm and bold metal against black design.\nPhysical body envelope: 647.7 mm wide x 254 mm front body high x 250.825 mm deep; front body width to height ratio 2.55:1. Keep the original front grille/blank-control-panel division and all usable empty control-panel area. Physical dimensions inform the enclosure silhouette; do not draw dimension labels.\nCamera and construction: EXACTLY centered in front, zero yaw, zero roll, near orthographic long-lens perspective, about 9 degrees above horizontal. Both sides perfectly symmetric, horizontal panel lines. A modest shallow integrated top surface recedes from the front top lip to the back edge, visibly attached to one complete box with natural continuous rounded upper corners, top handle and bottom feet. Roof visible depth should be about 12 to 17% of front body height, similar to reference 2. Roof/front/sides are a single coherent object, not separate slabs; rear edge lies low behind handle, never an upright wall. Entire front top lip and both rounded upper corners intact and uncut.\nComposition: clean studio-quality photorealistic product render, 3:2 landscape approximately 1800 by 1200 pixels, object centered with at least 5% clear transparent margin on all sides, complete handle and all feet visible, no cropping. Preserve natural enclosure width/height ratio; no stretching. Soft neutral upper-left studio highlights, dark readable material relief, lighting consistent with reference 2.\nBackground: genuine alpha transparency everywhere outside the product. No floor, horizon, pedestal, reflection or cast ground shadow.\nBlank control panel essential: ZERO knobs, switches, sockets, meters, LEDs, UI graphics, numerals, letters, labels, badges, branding or logos. All control hardware will be supplied live by software. Tiny structural screws and amber tube glow behind grille are allowed only where original.\nAvoid: cut-away upper corners, upper-corner notches, disconnected roof wings, side volumes, double lid, extra stacked slab, backboard, raised rear fin, upright back plane, speaker cabinet, exaggerated top depth, three-quarter angle, perspective yaw, text, watermark, background."
+        },
+        "postGenerationProcessing": "None. Production PNG is byte-identical to the final generated output."
+      }
+    },
+    {
+      "modelIndex": 4,
+      "modelName": "Liquid Lead",
+      "catalogStatus": "active",
+      "asset": "Assets/Artwork/HeadShells/head-shell-04.png",
+      "identityReference": "Assets/Artwork/amark.jpg",
+      "sha256": "7fd7a821476868fab83e6f126a084053e75d8df8a50329381a43a18b4d2ac360",
+      "byteLength": 1968583,
+      "pixelSize": [
+        1536,
+        1024
+      ],
+      "pixelMode": "RGBA",
+      "alphaBounds": [
+        47,
+        207,
+        1443,
+        673
+      ],
+      "runtimeMetadataIndex": 4,
+      "generation": {
+        "tool": "built-in image_gen__imagegen",
+        "outputBasename": "exec-0490f08e-30f2-4b1b-9c81-9ac728d950c2.png",
+        "instructionRecord": {
+          "kind": "verbatim_final_prompt",
+          "text": "PRIMARY HIGHEST PRIORITY: Re-proportion the amplifier from image 1 into a visibly TALLER head cabinet, while preserving its model-specific materials and design. The original reference's panoramic cabinet shape is wrong and MUST NOT BE COPIED. The final FRONT FACE aspect ratio from front top lip to body bottom excluding roof, handle and feet MUST be 2.2:1. That means at 1500 pixels wide the front face is 682 pixels tall. The entire object including roof and handle will be taller still. Explicitly increase the original front body's height by 50 percent relative to width. Make both grille and blank control-panel taller while preserving their relative partition. Do not stretch individual hardware, handle or screw shapes.\n\nOUTPUT COMPOSITION: use a 3:2 landscape canvas, approximately 1800 by 1200 pixels, with generous transparent margin. Center the object. Front face should occupy approx x=150 to1650, y=390 to1072, with roof and handle above it and feet below. These coordinates are guides, not text. Do NOT copy the 2:1 canvas or wide shallow silhouette of either reference. Full object must be uncut.\nUse case: product-mockup. Asset type: production transparent RGBA amplifier head for a JUCE audio plugin.\nCreate a fundamental coherent full-object redraw of reference image 1, not a pasted patch or a roof extension. Reference image 1 is the identity and front construction reference (Liquid Lead); reference image 2 is ONLY the camera, integrated three-dimensional roof construction and lighting reference. Do not copy reference 2's grille, silver control plate, vertical handles or proportions.\nSubject identity to preserve: Black hexagonal upper grille with amber-orange glowing vacuum tubes behind the left three quarters and a separate vertically finned black vent at upper right quarter. Upper grille/vent area occupies 56% of front opening, uninterrupted completely blank charcoal control plate below occupies 44%. Thin pale cream piping around front opening, black pebble tolex enclosure, rounded black metal corner guards each with silver screw. Original slim black carry strap with tiny silver mounts, two black feet. Preserve warm visible-tube area plus right-hand vertical fin vent as unique identity.\nPhysical body envelope: 476.25 mm wide x 240 mm front body high x 270 mm deep; front body width to height ratio 1.98:1. Keep the original front grille/blank-control-panel division and all usable empty control-panel area. Physical dimensions inform the enclosure silhouette; do not draw dimension labels.\nCamera and construction: EXACTLY centered in front, zero yaw, zero roll, near orthographic long-lens perspective, about 9 degrees above horizontal. Both sides perfectly symmetric, horizontal panel lines. A modest shallow integrated top surface recedes from the front top lip to the back edge, visibly attached to one complete box with natural continuous rounded upper corners, top handle and bottom feet. Roof visible depth should be about 12 to 17% of front body height, similar to reference 2. Roof/front/sides are a single coherent object, not separate slabs; rear edge lies low behind handle, never an upright wall. Entire front top lip and both rounded upper corners intact and uncut.\nComposition: clean studio-quality photorealistic product render, 3:2 landscape approximately 1800 by 1200 pixels, object centered with at least 5% clear transparent margin on all sides, complete handle and all feet visible, no cropping. Preserve natural enclosure width/height ratio; no stretching. Soft neutral upper-left studio highlights, dark readable material relief, lighting consistent with reference 2.\nBackground: genuine alpha transparency everywhere outside the product. No floor, horizon, pedestal, reflection or cast ground shadow.\nBlank control panel essential: ZERO knobs, switches, sockets, meters, LEDs, UI graphics, numerals, letters, labels, badges, branding or logos. All control hardware will be supplied live by software. Tiny structural screws and amber tube glow behind grille are allowed only where original.\nAvoid: cut-away upper corners, upper-corner notches, disconnected roof wings, side volumes, double lid, extra stacked slab, backboard, raised rear fin, upright back plane, speaker cabinet, exaggerated top depth, three-quarter angle, perspective yaw, text, watermark, background."
+        },
+        "postGenerationProcessing": "None. Production PNG is byte-identical to the final generated output."
+      }
+    },
+    {
+      "modelIndex": 5,
+      "modelName": "Iron Tube",
+      "catalogStatus": "active",
+      "asset": "Assets/Artwork/HeadShells/head-shell-05.png",
+      "identityReference": "Assets/Artwork/asvt.jpg",
+      "sha256": "836363598f49c4529743287313ba758ed91b8e6fe75563effce74a18eb86f17e",
+      "byteLength": 2287049,
+      "pixelSize": [
+        1448,
+        1086
+      ],
+      "pixelMode": "RGBA",
+      "alphaBounds": [
+        12,
+        199,
+        1424,
+        717
+      ],
+      "runtimeMetadataIndex": 5,
+      "generation": {
+        "tool": "built-in image_gen__imagegen",
+        "outputBasename": "exec-7ad28c50-6306-4319-af9c-c926d20a350e.png",
+        "instructionRecord": {
+          "kind": "verbatim_final_prompt",
+          "text": "Use case: product-mockup. Complete transparent RGBA amplifier head model 05 Iron Tube.\nImage 1 is source STYLE reference only. Its overly wide flat silhouette MUST be corrected. Image 2 is only camera/material/light reference; do not copy its front grille.\nCRITICAL GEOMETRY: create a physically proportioned tall substantial wooden bass head. The visible rectangular FRONT BODY (front upper lip down to bottom wood rail, EXCLUDING roof projection, handle and feet) has width-to-height ratio exactly 2.35:1, NOT the panoramic 3.3:1 of the reference. Use a 4:3 landscape canvas. Example composition at 1600x1200: outer front body approximately x100 y350 width1400 height595, shallow roof projects upward ~100 px, handle top at y200, feet to y975. Increase actual body HEIGHT, do not merely create a taller roof. Use real dimensions width610mm bodyheight260mm depth324mm.\nDesign invariants: black textured vinyl-covered wooden shell, silver rounded corner caps, centered black leather top carrying handle and silver mounts, side carrying handles, low feet, narrow silver inner frame, dark blue-gray woven upper cloth grille occupying 59 percent of front inset, blank pale blue-gray brushed aluminum lower control panel occupying41 percent. Front features retain proportional positions within the TALLER new front inset. Absolutely no knobs, labels, text, logos, controls, jacks or UI.\nView perfectly straight front centered zero yaw and roll, camera about9degrees elevated nearorthographic. Shallow top flows into front lip and smooth rounded upper corners, natural slim side returns; ONE solid integrated cabinet with no upright rear board, second lid, rear slab, fin, rear rail or synthetic top extension.\nActual transparent alpha, no ground or outside shadow, soft even photoreal studio lighting. Full silhouette safely inside canvas, at least5percent transparent margin."
+        },
+        "postGenerationProcessing": "None. Production PNG is byte-identical to the final generated output."
+      }
+    },
+    {
+      "modelIndex": 6,
+      "modelName": "Solid Punch",
+      "catalogStatus": "active",
+      "asset": "Assets/Artwork/HeadShells/head-shell-06.png",
+      "identityReference": "Assets/Artwork/agk.jpg",
+      "sha256": "994b47bad382004ccde12be91cc0d4accb940a569944990c678ca6b959e497b5",
+      "byteLength": 1508741,
+      "pixelSize": [
+        1448,
+        1086
+      ],
+      "pixelMode": "RGBA",
+      "alphaBounds": [
+        24,
+        242,
+        1400,
+        603
+      ],
+      "runtimeMetadataIndex": 6,
+      "generation": {
+        "tool": "built-in image_gen__imagegen",
+        "outputBasename": "exec-64629884-8d14-46c5-81ca-c8a26642dc5a.png",
+        "instructionRecord": {
+          "kind": "normalized_generation_specification",
+          "text": "Revise the earlier complete Solid Punch redraw to increase front-body height: target front width-to-height approximately 3.4:1 and complete-head ratio approximately 2.6:1. At a nominal 1600-pixel object width, target a 470-pixel front and 140-pixel roof on a 4:3 canvas. Preserve the rack ears with four mounting holes, four grille rails, and blank dark control plate. Do not add a carrying handle or feet. Keep a centered frontal view with zero yaw or roll and a shallow coherent roof. Retain both complete upper corners; no detached backboard, second lid, or projecting fin. Transparent background.",
+          "note": "Summarized generation instructions; not a verbatim tool prompt."
+        },
+        "postGenerationProcessing": "None. Production PNG is byte-identical to the final generated output."
+      }
+    },
+    {
+      "modelIndex": 7,
+      "modelName": "Modern Bass",
+      "catalogStatus": "active",
+      "asset": "Assets/Artwork/HeadShells/head-shell-07.png",
+      "identityReference": "Assets/Artwork/ahybrid.jpg",
+      "sha256": "37dfaa1ddb8e3538c363867307dac6f9c9a4d5386e60c2a539edf5be1696ab00",
+      "byteLength": 1406124,
+      "pixelSize": [
+        1672,
+        941
+      ],
+      "pixelMode": "RGBA",
+      "alphaBounds": [
+        16,
+        218,
+        1640,
+        522
+      ],
+      "runtimeMetadataIndex": 7,
+      "generation": {
+        "tool": "built-in image_gen__imagegen",
+        "outputBasename": "exec-009db62f-c08e-4679-bd18-c5140dcb84bf.png",
+        "instructionRecord": {
+          "kind": "verbatim_final_prompt",
+          "text": "Use case: product-mockup. Production transparent RGBA amplifier head asset, model 07 Modern Bass. Image 1 is the edit target and sole design authority. Image 2 is ONLY the reference for camera, coherent enclosure volume and studio light; do not transfer its grille or front details.\nFundamentally redraw the complete compact black metal amplifier from image 1 as ONE integrated physical chassis. Preserve its front-relative proportions and details: full-width upper slanted diagonal ventilation slots with dark mesh below, roughly upper 42 percent of front face; a large completely blank black brushed-metal lower control panel roughly lower 58 percent; narrow silver separator line, tall thick gently rounded brushed-aluminum vertical front end trims, flat black rack ears outside both ends with two mounting holes each, two low dark feet. Preserve the perforated top panel. There is NO TOP CARRY HANDLE, and absolutely do not add any top handle, raised rear rail or backboard.\nPhysical chassis envelope width 431.8 mm height 133.35 mm depth 355.6 mm, excluding ears. Match source image's horizontal front proportions. Camera perfectly straight centered, zero yaw, zero roll, approximately 9 degrees elevated, near-orthographic long lens. All corners complete and smooth. Show a shallow integrated vented metal roof with natural narrow side returns; the roof and front are one low chassis, no extruded backboard or detached lid or second taller box or rear fin. Perspective like image 2, but source design remains intact.\nBlank uninterrupted control face for live software controls, no knobs, switches, labels, logos, UI, jacks or text. Soft even studio lighting, clean photoreal material, actual transparent alpha background, no ground or ground shadow. Landscape 2048x1152, complete head centered with at least 5 percent transparent margin around silhouette; do not crop feet, ears or corners."
+        },
+        "postGenerationProcessing": "None. Production PNG is byte-identical to the final generated output."
+      }
+    },
+    {
+      "modelIndex": 8,
+      "modelName": "Chime 30",
+      "catalogStatus": "active",
+      "asset": "Assets/Artwork/HeadShells/head-shell-08.png",
+      "identityReference": "Assets/Artwork/achim30.jpg",
+      "sha256": "c2cad53c955e3dc71204681e44bd3bdd7bcf138334e8228ede7cbb056ca1e7b7",
+      "byteLength": 2896807,
+      "pixelSize": [
+        1672,
+        941
+      ],
+      "pixelMode": "RGBA",
+      "alphaBounds": [
+        18,
+        130,
+        1636,
+        682
+      ],
+      "runtimeMetadataIndex": 8,
+      "generation": {
+        "tool": "built-in image_gen__imagegen",
+        "outputBasename": "exec-3d9f6076-62a8-4a41-8de2-d98ba19d5f3d.png",
+        "instructionRecord": {
+          "kind": "verbatim_final_prompt",
+          "text": "Use case: product-mockup. Production RGBA complete amplifier head enclosure sprite, photoreal premium studio product rendering, true transparent background, landscape canvas approximately 2048x1152. Redraw the ENTIRE physical object from scratch as one coherent solid enclosure, rather than attaching a roof to a flat front. Image 1 is the model identity/design/material source; image 2 is camera/composition/material quality reference ONLY. Camera exactly front centered, ZERO yaw, ZERO roll, approximately 9 degrees elevated, long lens near orthographic: horizontal front edges level, left-right symmetry, both full upper corners visible, a shallow continuous top plane receding upward to a rear top edge. Front side walls and top are the same physical cabinet; top corners must meet the front body seamlessly. Retain the model's own proportions/design/colors/grille/control fascia, not the camera reference's design. Whole top, both corners, original type handle, and both feet visible with at least 5% transparent clearance. Soft studio frontal overhead lighting; extremely crisp realistic tolex, metal and cloth detail. No backdrop, no shadow floor, no drop shadow outside object. No knobs, switches, jacks, control holes, labels, numbers, words, logos, watermarks or external brand marks anywhere. Keep the front control fascia completely blank and large enough for later live UI controls. Absolutely NO pasted-on roof, extra roof board, upright backboard, backfin, second top, double rim, raised rear fascia, sliced corners, clipped silhouette, or missing handle/feet. The top is a low receding surface, not an upright rectangle behind the front.\nModel: 08 Chime 30. Image 1 achim30.jpg provides exact family identity: black coarse pebbled tolex, rounded black corner caps with fine warm gold seams, arched black strap handle with warm brass brackets, small black rubber feet. Upper front cloth grille is dark brown with fine diagonal tan/gold diamond lattice; lower fascia is smooth brushed warm gold/brass, blank. Thin gold piping divides the grille and fascia and outlines front inset. Preserve the original control panel vs grille vertical proportions: upper diamond grille roughly 60%, bottom blank gold fascia roughly 40% of inset. Physical enclosure width 0.705m height 0.284m depth 0.266m; front body width:height approximately 2.48:1; do not flatten into a skinny strip. Render the top as the same continuous black tolex cabinet, camera shallow as reference 2, original gold/black handle fully visible. Avoid silver perforated metal grille or silver bars from reference 2."
+        },
+        "postGenerationProcessing": "None. Production PNG is byte-identical to the final generated output."
+      }
+    },
+    {
+      "modelIndex": 9,
+      "modelName": "Orange Crown",
+      "catalogStatus": "active",
+      "asset": "Assets/Artwork/HeadShells/head-shell-09.png",
+      "identityReference": "Assets/Artwork/aorange.jpg",
+      "sha256": "3da833a6e56d89568bfc013f2ce6d6c071504f0cef18d2e7e114f47e1eda02a3",
+      "byteLength": 2932368,
+      "pixelSize": [
+        1536,
+        1024
+      ],
+      "pixelMode": "RGBA",
+      "alphaBounds": [
+        27,
+        89,
+        1481,
+        851
+      ],
+      "runtimeMetadataIndex": 9,
+      "generation": {
+        "tool": "built-in image_gen__imagegen",
+        "outputBasename": "exec-4fdd9f86-c979-4eea-b94a-858dfa1e2e90.png",
+        "instructionRecord": {
+          "kind": "verbatim_final_prompt",
+          "text": "Use case: product-mockup. Fundamental complete enclosure redraw with CORRECTED TALLER BODY PROPORTIONS. The supplied images are TOO WIDE AND TOO SHORT. Absolutely DO NOT copy their panoramic body silhouette. This Orange Crown amplifier head must have a front face width of 550mm and front BODY height of 245mm: a front aspect ratio of 2.24:1, excluding handle, feet and top perspective. Render a noticeably TALLER, chunky rectangular head cabinet. Front face approximate pixel box WIDTH 1400, HEIGHT 625. Complete silhouette with shallow top, original handle and feet is approximately WIDTH 1400, HEIGHT 785. Center this whole object on a 2048x1536 4:3 canvas with generous transparent margins. Do not fill width with a skinny head. If original reference shape disagrees, the explicit taller dimensions in this paragraph take precedence.\nImage 1 (aorange.jpg) is STYLE/MATERIALS/PANEL PARTITION reference only. Mandatory vivid saturated orange textured tolex over entire enclosure including top, black rounded corner caps with silver fasteners, black arched leather strap on silver mounts, two rubber feet. Narrow upper tan basketweave grille and large completely blank ivory cream lower fascia. Inset grille is 30% of inset height; fascia is 70%. Stretch cabinet structure taller by constructing real taller side walls and taller fascia/grille, not adding empty above or below.\nImage 2 is CAMERA AND MATERIAL QUALITY reference only. Camera centered straight front, zero yaw and zero roll, 9 degrees above frontal with long near-orthographic lens. Small shallow top surface recedes smoothly from front upper lip to rear edge. Single seamless coherent cabinet, both original rounded upper corners complete; no added roof or upright backboard. The front vertical sides are long enough for specified tall shape.\nPhotoreal rich tolex and woven cloth detail, professional studio lighting. True transparent background. All edges, handle, feet visible. No controls, knobs, switches, jacks, labels, words, numbers, logos, marks, watermarks. Fascia stays blank. No silver perforated reference grille. No extra rear board, upright backfin, second lid, cropped corners. Produce substantial taller Orange head with exact stated body width:height; do not reproduce source's ~3.5:1 front."
+        },
+        "postGenerationProcessing": "None. Production PNG is byte-identical to the final generated output."
+      }
+    },
+    {
+      "modelIndex": 10,
+      "modelName": "Vintage Valve",
+      "catalogStatus": "active",
+      "asset": "Assets/Artwork/HeadShells/head-shell-10.png",
+      "identityReference": "Assets/Artwork/abassman.jpg",
+      "sha256": "d1edbd0831b50dd9f50b857ea5e2bdc1448478c495c25f26853697b7e2d34f35",
+      "byteLength": 1992434,
+      "pixelSize": [
+        1448,
+        1086
+      ],
+      "pixelMode": "RGBA",
+      "alphaBounds": [
+        19,
+        258,
+        1411,
+        631
+      ],
+      "runtimeMetadataIndex": 10,
+      "generation": {
+        "tool": "built-in image_gen__imagegen",
+        "outputBasename": "exec-e0765a5b-36db-4edf-972f-241727d7f17b.png",
+        "instructionRecord": {
+          "kind": "verbatim_final_prompt",
+          "text": "Use case: product-mockup. Production complete transparent RGBA amplifier head, model10 Vintage Valve. Image1 is source STYLE/design reference, but its flat panoramic body proportions MUST be corrected. Image2 gives ONLY camera, lighting and coherent enclosure volume, not front grille.\nCRITICAL GEOMETRY: physically proportioned wooden head width622.3mm bodyheight230mm depth342.9mm. Visible FRONT BODY rectangle (upper front lip to bottom wood rail, excluding roof, handle and feet) must be width/height 2.70:1. Do not reuse the original's 3.3:1 panoramic body. Make the actual front FACE taller, not the roof. Use4:3 landscape canvas; target on1600x1200 image: outer front body x100 y350 width1400 height520, shallow top roof~80px, handle crest~230px, feet~900px.\nPreserve source family and front-relative partitions: black pebble-textured vinyl wooden cabinet, silver rounded metal corner caps, centered black leather carrying handle with silver bases, small feet, thin cream/silver inner piping, warm gray woven cloth grille upper62percent of inset, completely blank light warm brushed-aluminum control panel lower38percent. No side handles. Rich realistic material, clean photoreal product finish.\nCamera exact front centered, zero yaw or roll, approximately9degrees elevated nearorthographic long lens. Modest shallow top continuously joins front upper lip with full rounded corners and thin natural side returns. ONE coherent cabinet, absolutely no rear backboard, second lid, dark slab behind, rear fin, rear railing or synthetic roof extension.\nNo controls, knobs, labels, letters, text, logos, jacks, UI. Truly transparent alpha outside the subject, no floor or outside shadow. Soft even neutral studio light. Complete object comfortably inside image with5percent margin."
+        },
+        "postGenerationProcessing": "None. Production PNG is byte-identical to the final generated output."
+      }
+    },
+    {
+      "modelIndex": 11,
+      "modelName": "Metro Clean",
+      "catalogStatus": "active",
+      "asset": "Assets/Artwork/HeadShells/head-shell-11.png",
+      "identityReference": "Assets/Artwork/asubway.jpg",
+      "sha256": "0e69e999f00a377e17b85fc2dda4db6d01df220ad0e2525ff4478997ff723066",
+      "byteLength": 982659,
+      "pixelSize": [
+        1672,
+        941
+      ],
+      "pixelMode": "RGBA",
+      "alphaBounds": [
+        50,
+        288,
+        1572,
+        387
+      ],
+      "runtimeMetadataIndex": 11,
+      "generation": {
+        "tool": "built-in image_gen__imagegen",
+        "outputBasename": "exec-838e01eb-5505-4b00-9d62-ea1dc6d80690.png",
+        "instructionRecord": {
+          "kind": "verbatim_final_prompt",
+          "text": "Use case: product-mockup. Production transparent RGBA amplifier-head artwork, model 11 Metro Clean. Image 1 is the edit target and absolute authority for model identity and front-relative design. Image 2 is ONLY a reference for camera angle, light, material finish and coherent enclosure volume; do not copy its front grille or rails.\nFundamentally redraw the COMPLETE low compact metal amp of image 1 as ONE realistic integrated chassis, never an assembled cutout. Preserve source design: broad blank charcoal-black brushed-aluminum front, row of nine long rounded horizontal ventilation apertures just below its top edge, slightly rounded matte-black chunky end caps with four silver screw heads, very narrow bronze/copper vertical accent strips where end caps meet front panel, two small low black feet with metallic rings. Preserve source top vent clusters at upper left and right. This model has NO TOP CARRYING HANDLE and absolutely no handle should be added.\nPhysical dimensions 336.55 mm wide by 66.675 mm high by 257.81 mm deep. Very low wide silhouette. Preserve source front control area proportions as live controls will be placed over it. Camera exactly centered straight front, zero yaw or roll, approximately 9 degrees elevated near orthographic long lens. Create a modest shallow top plane fully integrated with the curved front upper lip, natural tiny side returns, complete upper corners, one continuous chassis. No backboard, elevated rear slab, double lid, rear railing, standing fin or detached roof. Keep the source flat vented top profile.\nActual transparent alpha background, no ground or external shadow. Premium photoreal clean product rendering under soft even studio light. Landscape 2048x1152; widest extent only 87 percent of canvas, fully isolated with all corners and feet intact. No text, logo, labels, knobs, switches, jacks or UI."
+        },
+        "postGenerationProcessing": "None. Production PNG is byte-identical to the final generated output."
+      }
+    },
+    {
+      "modelIndex": 12,
+      "modelName": "Prism Chime",
+      "catalogStatus": "active",
+      "asset": "Assets/Artwork/HeadShells/head-shell-12.png",
+      "identityReference": "Assets/Artwork/amatchless.jpg",
+      "sha256": "ab267d9e1b0587bf388202907d3b44e48059be1b9d741c30ec20bdf3c38a9be9",
+      "byteLength": 3000788,
+      "pixelSize": [
+        1837,
+        856
+      ],
+      "pixelMode": "RGBA",
+      "alphaBounds": [
+        45,
+        10,
+        1747,
+        834
+      ],
+      "runtimeMetadataIndex": 12,
+      "generation": {
+        "tool": "built-in image_gen__imagegen",
+        "outputBasename": "exec-f8d99a7b-989a-470d-8d07-be85f5142cfc.png",
+        "instructionRecord": {
+          "kind": "verbatim_final_prompt",
+          "text": "Edit this exact complete amplifier head to correct one structural proportion: INCREASE THE VERTICAL HEIGHT OF THE FRONT CABINET BODY BY 30 PERCENT while keeping its physical width the same. Its current front is too short. Rebuild taller sidewalls, taller basketweave grille, taller blank champagne control fascia; preserve the grille-to-fascia height split. Desired FRONT FACE width:height is approximately 2.15:1. This is a substantial, relatively tall head enclosure, not a skinny panorama. Preserve the camera, shallow continuous top plane, handle size, feet size, perfect front symmetry, textures, black tolex, cream piping, rounded dark corner hardware and small blank cream badge on upper left grille. Keep all surfaces realistic rather than visually stretching weave. The top and corners remain one seamless complete enclosure. Adjust canvas to fit the taller object with5%margin around all sides, no clipping. Transparent background. No backdrop/floor/shadows outside object. No knobs, words, labels, logos or controls. Only structural body height changes."
+        },
+        "postGenerationProcessing": "None. Production PNG is byte-identical to the final generated output."
+      }
+    },
+    {
+      "modelIndex": 13,
+      "modelName": "Silk Lead",
+      "catalogStatus": "active",
+      "asset": "Assets/Artwork/HeadShells/head-shell-13.png",
+      "identityReference": "Assets/Artwork/adumble.jpg",
+      "sha256": "0ae18406f32023a16f26e805f41f7f0983701e5dc8e6120f0b5602b37c7648c1",
+      "byteLength": 2338938,
+      "pixelSize": [
+        1448,
+        1086
+      ],
+      "pixelMode": "RGBA",
+      "alphaBounds": [
+        16,
+        176,
+        1416,
+        755
+      ],
+      "runtimeMetadataIndex": 13,
+      "generation": {
+        "tool": "built-in image_gen__imagegen",
+        "outputBasename": "exec-a1b9e4c0-28b5-4d07-b0c6-ee0af85dcede.png",
+        "instructionRecord": {
+          "kind": "verbatim_final_prompt",
+          "text": "Photoreal premium studio product image of one complete SILK LEAD boutique tube guitar amplifier head cabinet with BLANK CONTROL PANEL and NO TEXT. True transparent RGBA cutout.\nThe physical head cabinet is 580mm wide and 260mm tall and270mmdeep, carryinghandleandfeet included. Its front wooden enclosure body is 580mm wide and235mm tall. Front body widthtoheight ratio2.47:1. A real substantial guitaramplifier head, not a speakercombo cabinet or a slimrackunit. Produce a balanced rectangular head, allcorners,handleandfeetfully visible. Canvas4:3 landscape, centered object with5%margin.\nCabinet is black pebbledtolex over frontframe,sides and continuous top; four rounded slightlywornsilvermetal cornercaps; fine cream ivory piping around the front opening. Uppertwo-thirds of inset is darkbrown-and-black textured woven grille cloth with subtle goldenochre thread pattern in horizontal tiny dashes. Lowerone-third of inset is a completelyblank satinbrushedsilver aluminumcontrolfascia. Black arching leatherstrapcarryinghandle centered on top attachedbytwosmall silvermounts. Two blackrubberfeet.\nCamera exactlystraightfront, zero yaw, zero roll, 9degree elevation, long nearorthographiclens. See a modest shallowtop plane receding fromfrontupperlip to rear top edge. Top and both roundeduppercorners seamlesslyjoin frontenclosure as one coherent solidcabinet. Horizontals level and left-right symmetric. Show realistic wovenfibers, fine tolexgrain, subtle metalhighlights, controlledsoftstudiolighting. No background,no floor,no externalshadow. No knobs,holes,switches,jacks,logos,labels,writing,numbers,watermarks. Do not add frontgrabhandles, decorativeplates, secondroof, backboard oruprightbackfin. Entirefrontheight235mm atwidth580mm MUSTbe correctly proportioned."
+        },
+        "postGenerationProcessing": "None. Production PNG is byte-identical to the final generated output."
+      }
+    },
+    {
+      "modelIndex": 14,
+      "modelName": "Taste Punch",
+      "catalogStatus": "active",
+      "asset": "Assets/Artwork/HeadShells/head-shell-14.png",
+      "identityReference": "Assets/Artwork/aeich.jpg",
+      "sha256": "d85744042227a48695c4433e252a5be079e35bef8406063294557a63d73450ef",
+      "byteLength": 825128,
+      "pixelSize": [
+        1672,
+        941
+      ],
+      "pixelMode": "RGBA",
+      "alphaBounds": [
+        43,
+        289,
+        1586,
+        362
+      ],
+      "runtimeMetadataIndex": 14,
+      "generation": {
+        "tool": "built-in image_gen__imagegen",
+        "outputBasename": "exec-e905dd75-9505-42da-b443-8e40ba35bbbf.png",
+        "instructionRecord": {
+          "kind": "verbatim_final_prompt",
+          "text": "Use case: product-mockup. Production transparent RGBA amplifier-head artwork model 14 Taste Punch. Image 1 is the edit target and sole model design authority. Image 2 is ONLY a reference for centered elevated front camera, coherent whole enclosure volume, realistic lighting/material quality, not grille or panel design.\nFundamentally redraw image 1 as a COMPLETE realistic tiny low metal bass amplifier. Preserve source structure and proportions: very wide unbroken blank pale-silver brushed aluminum front control face, thin dark perimeter lip, dark charcoal metal shell curving smoothly around front upper corners, low black side grab loops integrated at both left and right ends, two tiny feet, two vent-slot clusters at the back-left and back-right areas of the top. NO TOP CARRYING HANDLE: never add a raised handle over the roof. Preserve only existing low side grab loops.\nPhysical enclosure width 270 mm height 45 mm depth 210 mm. Low profile compact chassis, with source panel-relative proportions carefully retained so live software knobs align. View exactly front centered, zero yaw or roll, approximately 9 degrees elevated, near-orthographic long lens. Top plane modest and shallow in projection, smoothly integrated with front lip and natural thin side returns. Show full rounded upper corners. This is ONE continuous enclosure, no backboard, upright rear plate, rear fin, detached double lid or roof extension.\nNo text, logos, labels, knobs, switches, jacks, numbers or UI. True transparent alpha outside silhouette, no floor or external shadow. Soft even studio lighting, crisp photoreal brushed metal. Landscape 2048x1152, head widest extent at most 87 percent of canvas, centered; entire silhouette and feet remain clearly inside safe margin."
+        },
+        "postGenerationProcessing": "None. Production PNG is byte-identical to the final generated output."
+      }
+    },
+    {
+      "modelIndex": 15,
+      "modelName": "Cinder 120",
+      "catalogStatus": "active",
+      "asset": "Assets/Artwork/HeadShells/head-shell-15.png",
+      "identityReference": "Assets/Artwork/acinder.jpg",
+      "sha256": "fbf7e9d13184b2c100a3b382a0e14be94ef04b0eabd1477236fbcc8b1f55d9c1",
+      "byteLength": 2258583,
+      "pixelSize": [
+        1672,
+        941
+      ],
+      "pixelMode": "RGBA",
+      "alphaBounds": [
+        21,
+        140,
+        1630,
+        660
+      ],
+      "runtimeMetadataIndex": 15,
+      "generation": {
+        "tool": "built-in image_gen__imagegen",
+        "outputBasename": "exec-68a1d4b4-3cbd-4706-a4fd-73821a192145.png",
+        "instructionRecord": {
+          "kind": "verbatim_final_prompt",
+          "text": "Use case: product-mockup. Production RGBA complete amplifier head enclosure sprite, photoreal premium studio product rendering, true transparent background, landscape canvas approximately 2048x1152. Redraw the ENTIRE physical object from scratch as one coherent solid enclosure, rather than attaching a roof to a flat front. Image 1 is the model identity/design/material source; image 2 is camera/composition/material quality reference ONLY. Camera exactly front centered, ZERO yaw, ZERO roll, approximately 9 degrees elevated, long lens near orthographic: horizontal front edges level, left-right symmetry, both full upper corners visible, a shallow continuous top plane receding upward to a rear top edge. Front side walls and top are the same physical cabinet; top corners must meet the front body seamlessly. Retain the model's own proportions/design/colors/grille/control fascia, not the camera reference's design. Whole top, both corners, original type handle, and both feet visible with at least 5% transparent clearance. Soft studio frontal overhead lighting; extremely crisp realistic tolex, metal and cloth detail. No backdrop, no shadow floor, no drop shadow outside object. No knobs, switches, jacks, control holes, labels, numbers, words, logos, watermarks or external brand marks anywhere. Keep the front control fascia completely blank and large enough for later live UI controls. Absolutely NO pasted-on roof, extra roof board, upright backboard, backfin, second top, double rim, raised rear fascia, sliced corners, clipped silhouette, or missing handle/feet. The top is a low receding surface, not an upright rectangle behind the front.\nModel: 15 Cinder 120. Image 1 acinder.jpg is authoritative model identity, including RED enclosure and RED handle: dark saturated crimson red pebbled tolex over entire case, continuous red shallow top, slim red front framing, silver metal rounded corner/rack ear hardware at all four corners, arched RED leather carrying strap with silver brackets. Two black feet. Upper front grille is tightly perforated black metal, lower fascia is very dark brushed gunmetal steel, completely blank. Silver fine trim borders grille/fascia. Preserve red original head and original strap, no black alternative head. Keep front inset relative panel layout: upper black grille approx 60%, lower dark steel fascia 40%. Physical width 0.483m height 0.133m depth 0.220m (front includes rack ears), slim/wide front ratio 3.63:1. Whole silhouette includes original silver corner/rack-ear enclosure edges with intact rounded top corners. Do not invent new outer rack brackets or change original shape. Camera reference supplies only shallow top view and material quality. No front grab bars."
+        },
+        "postGenerationProcessing": "None. Production PNG is byte-identical to the final generated output."
+      }
+    },
+    {
+      "modelIndex": 16,
+      "modelName": "Iron Compact",
+      "catalogStatus": "legacy_recall_only",
+      "asset": "Assets/Artwork/HeadShells/head-shell-16.png",
+      "identityReference": "Assets/Artwork/airon.jpg",
+      "sha256": "5bb84adc2fb4aace4dcbcfa40c9bc1b3b84e227d1f79faa77ab6902deafb225d",
+      "byteLength": 1966276,
+      "pixelSize": [
+        1448,
+        1086
+      ],
+      "pixelMode": "RGBA",
+      "alphaBounds": [
+        21,
+        124,
+        1404,
+        850
+      ],
+      "runtimeMetadataIndex": 16,
+      "generation": {
+        "tool": "built-in image_gen__imagegen",
+        "outputBasename": "exec-7d1da7b4-5ca5-4e0f-845f-a0f1c3e14aca.png",
+        "instructionRecord": {
+          "kind": "verbatim_final_prompt",
+          "text": "Create a new transparent photoreal complete amp head by fundamentally redrawing this reference as a MUCH TALLER COMPACT physical cabinet. CRITICAL frontal wall ratio width340mm height150mm=2.27:1. The reference's panoramic shape is wrong; discard its silhouette proportions. Increase face height by50% relative to width. Construct taller sidewalls, bigger grille vertically and bigger blank fascia, maintaining proportional materials. Overall silhouette including handle, feet, shallow top is about1.8 times wider than tall. Use4:3 canvas2048x1536 with5%transparent margins and absolutely no clipped handle.\nRetain source STYLE: black pebbledtolex, fine warm cream piping and thincream cabinet edge seams, original black archedstrap handle on square silver mounts, two black rubberfeet. Upper front grille FIVE long horizontal rounded vents in silver edged metal, glowing amber vacuum tubes faintly visible behind the vents. Lower completely blank darkgraphite brushed metalcontrol fascia. Upper slotted grille57%lower fascia43%of inset. NO knobs,jacks,switches,labels,numbers,words,logos.\nCamera exactly front0yaw0roll,9degree elevation, long nearorthographic lens, shallow continuousblacktolex top receding upward and joined to the front lip. Fullleft/right corners visible, onephysicalsolid enclosure. No extra roof, rear board, backfin or second lid. Studio photo quality, sharply realistic hardware/tolex/tubes. True transparent alpha, nofloor,backdrop,externalshadow. The compact TALLER shape specified here takes absolute priority over originalpanorama."
+        },
+        "postGenerationProcessing": "None. Production PNG is byte-identical to the final generated output."
+      }
+    },
+    {
+      "modelIndex": 17,
+      "modelName": "Fourfold",
+      "catalogStatus": "active",
+      "asset": "Assets/Artwork/HeadShells/head-shell-17.png",
+      "identityReference": "Assets/Artwork/afourfold.jpg",
+      "sha256": "0c676731f4bd7d6f219de60ceced505b4f475607c7e4795394fcfc03356ef300",
+      "byteLength": 2272478,
+      "pixelSize": [
+        1774,
+        887
+      ],
+      "pixelMode": "RGBA",
+      "alphaBounds": [
+        43,
+        94,
+        1688,
+        697
+      ],
+      "runtimeMetadataIndex": 17,
+      "generation": {
+        "tool": "built-in image_gen__imagegen",
+        "outputBasename": "exec-a877dd60-2a3c-4cb4-96d3-f45d061f24f6.png",
+        "instructionRecord": {
+          "kind": "normalized_generation_specification",
+          "text": "Redraw the complete Fourfold head from afourfold.jpg as a single coherent object. Preserve black tolex, nickel corner caps, two vertical front handles, three grille divisions, and a blank silver control plate. Use a centered frontal camera with zero yaw and roll, approximately 9 degrees of elevation, and a near-orthographic projection. Physical design reference: approximately 740 mm wide, 270 mm body height, and 280 mm deep. Show the full connected roof, both rounded upper corners, carrying handle, and feet. No missing corners, detached backboard, second lid, or projecting fin. Transparent background.",
+          "note": "Summarized generation instructions; not a verbatim tool prompt."
+        },
+        "postGenerationProcessing": "None. Production PNG is byte-identical to the final generated output."
+      }
+    },
+    {
+      "modelIndex": 18,
+      "modelName": "Classic Tube",
+      "catalogStatus": "active",
+      "asset": "Assets/Artwork/HeadShells/head-shell-18.png",
+      "identityReference": "Assets/Artwork/aclassictube.jpg",
+      "sha256": "1b010c2b664f9ed43a198c65e3b85a256023c2ebac0aa55e17daaf6cf50dbec2",
+      "byteLength": 2130470,
+      "pixelSize": [
+        1448,
+        1086
+      ],
+      "pixelMode": "RGBA",
+      "alphaBounds": [
+        13,
+        214,
+        1423,
+        687
+      ],
+      "runtimeMetadataIndex": 18,
+      "generation": {
+        "tool": "built-in image_gen__imagegen",
+        "outputBasename": "exec-aff0e4c7-da44-495d-80ef-431aae7ab149.png",
+        "instructionRecord": {
+          "kind": "verbatim_final_prompt",
+          "text": "Use case: product-mockup. Production complete transparent RGBA amplifier-head model18 Classic Tube.\nImage1 is the source STYLE/design reference, but its too-wide panoramic body proportions MUST be corrected. Image2 supplies ONLY camera, volume coherence and lighting. Do not inherit image2's metal perforation grille or silver panel.\nCRITICAL PHYSICAL GEOMETRY: substantial wooden bass amplifier head width610mm, bodyheight260mm, depth330mm. The visible FRONT BODY rectangle, from front upper lip to bottom wood rail and EXCLUDING projected roof, handle and feet, must have width-to-height ratio2.35:1. Make actual front face taller; do NOT make only the roof taller. Use4:3 landscape canvas. At1600x1200 example: body x100 y340 width1400 height596, shallow roof~95px, handle crest~200px, feet~970px.\nDesign invariants from image1: black pebble-textured vinyl wood shell; small silver rounded metal corner guards; centered curved black leather carrying handle with silver mounts; low black feet; narrow pale silver/cream piping outlining inset; gray/black horizontal-ribbed cloth front grille in upper60percent of front inset, dark nearly-black brushed metal blank control panel lower40percent. Preserve these panel-relative proportions on the corrected taller front. No side handles. Retain horizontal silver-thread stripe texture within cloth, not round perforations.\nCamera centered perfectly straight front, zero yaw and roll, approximately9degrees elevated nearorthographic long lens. Modest shallow roof belongs to a single cohesive cabinet, full rounded corners, thin natural side returns. No added upright rear board, back slab, rear railing, fin, second lid or synthetic roof extension. Original top handle remains.\nPhotoreal clean high-quality soft even neutral studio lighting. Actual transparent alpha outside silhouette, no floor or external shadow. Whole head with all corners/feet/handle safely inside margin. No knobs, switches, jacks, text, logo, labels, numbers or UI."
+        },
+        "postGenerationProcessing": "None. Production PNG is byte-identical to the final generated output."
+      }
+    },
+    {
+      "modelIndex": 19,
+      "modelName": "Monolith",
+      "catalogStatus": "active",
+      "asset": "Assets/Artwork/HeadShells/head-shell-19.png",
+      "identityReference": "Assets/Artwork/amonolith.jpg",
+      "sha256": "db0fcf8cad4d11fb45287e8245744146dfc337157ba979226f687d55c763a3c0",
+      "byteLength": 2316273,
+      "pixelSize": [
+        1774,
+        887
+      ],
+      "pixelMode": "RGBA",
+      "alphaBounds": [
+        47,
+        141,
+        1679,
+        636
+      ],
+      "runtimeMetadataIndex": 19,
+      "generation": {
+        "tool": "built-in image_gen__imagegen",
+        "outputBasename": "exec-cea7133a-bf5c-468a-9aaf-88000e1853e4.png",
+        "instructionRecord": {
+          "kind": "verbatim_final_prompt",
+          "text": "Use case: product-mockup. Production game/UI asset, one complete photorealistic amplifier head cutout.\nImage 1 is the exact Monolith design identity reference. Image 2 is ONLY the target camera, coherent solid enclosure construction, framing and lighting reference; do not copy its design or hardware.\nFundamentally redraw Image 1 as one physically coherent solid head in the camera of Image 2: perfectly straight front elevation, zero yaw, zero roll, approximately 9 degrees elevated near-orthographic view, a shallow visible integrated top surface. Head dimensions width 670 mm, height 250 mm, depth 270 mm. Preserve Monolith's own black aged fine-grain tolex, softly rounded unarmored corners, fine pale-gold edge piping, black tight woven grille occupying upper front, large blank aged pale gold brushed metal control plate occupying lower front, black arch carry handle on brass mounts and two black feet. Preserve the original grille-to-controlplate proportions; empty lower plate will receive live UI controls.\nRedraw the whole enclosure, roof, front lip, rounded shoulders, sidewall and corners as a single continuous solid object. Top must flow into the rounded front corners with plausible material continuity. No synthetic additional lid, rear panel, backboard, rear fin, floating panel, doubled roof, corner notches, clipping, detached edge, protruding wedge or black background. Do not copy the chrome corner caps, silver panel, front handles or perforated grille of Image 2.\nCentered landscape approximately 2048x1152, entire object visible, at least 5 percent clear transparent margin around handle, sides and feet. Studio product lighting matching Image 2, crisp detailed realistic material. Genuine transparent RGBA background, no shadow plane. No text, labels, numbers, logos, UI, knobs, buttons or jacks."
+        },
+        "postGenerationProcessing": "None. Production PNG is byte-identical to the final generated output."
+      }
+    },
+    {
+      "modelIndex": 20,
+      "modelName": "Night Harvest",
+      "catalogStatus": "active",
+      "asset": "Assets/Artwork/HeadShells/head-shell-20.png",
+      "identityReference": "Assets/Artwork/anightharvest.jpg",
+      "sha256": "9c0bb713ce1291f9f3c17e25021cab206c5d5c9eb6ba5a80520cfad67d0cb15a",
+      "byteLength": 1343450,
+      "pixelSize": [
+        1448,
+        1086
+      ],
+      "pixelMode": "RGBA",
+      "alphaBounds": [
+        30,
+        266,
+        1392,
+        594
+      ],
+      "runtimeMetadataIndex": 20,
+      "generation": {
+        "tool": "built-in image_gen__imagegen",
+        "outputBasename": "exec-8813a36b-e68c-4423-89ef-8f0d217fa6b2.png",
+        "instructionRecord": {
+          "kind": "verbatim_final_prompt",
+          "text": "Use case: product-mockup. Production game/UI asset, one complete photorealistic amplifier head cutout.\nImage 1 is the exact Night Harvest design identity reference. Image 2 is ONLY the target camera, integrated solid enclosure geometry and lighting reference; do not copy its design or hardware.\nFundamentally redraw Image 1 as one physically coherent solid head in the camera of Image 2: perfectly straight front elevation, zero yaw, zero roll, approximately 9 degrees elevated near-orthographic view, shallow visible integrated top. Head dimensions width 730 mm, height 280 mm, depth 255 mm. Preserve Night Harvest's black finely pebbled tolex, rounded corners with thin orange-copper piping, black expanded oval diamond mesh upper grille with small warm orange vacuum tube glows behind it, entirely blank dark charcoal horizontally brushed metal lower control plate, black arch handle on orange-copper rectangular mounts and two black feet. Preserve the image 1 grille-to-controlplate proportions. Empty lower plate must remain generously sized to receive live UI controls.\nBuild roof, front lip, rounded shoulders, sidewalls and corners as ONE contiguous solid enclosure. Roof flows into front corners without gaps or changes in material. No second lid, backboard, rear fin, floating panel, doubled roof, notches, clipped corners, detached edges or protruding wedges. Do not borrow chrome corner caps, silver front plate, vertical handles or perforated grille from Image 2.\nCentered landscape approximately 2048x1152. Complete object and feet with at least 5 percent transparent clearance on all sides. Studio lighting matching Image 2 with crisp realistic details, genuine transparent RGBA background, no background or shadow plane. No text, labels, numbers, logos, UI, knobs, switches, buttons or jacks.Critical physical silhouette requirement: the FRONT BODY (excluding roof, handle, feet) must be about 2.94 times wider than tall; the references are too panoramic and must not dictate this aspect. Use a 4:3 landscape canvas, roughly 1600x1200. Approximate target: object 1400 pixels wide, FRONT BODY 476 pixels tall, roof showing another 70 pixels above front. Preserve Image 1's relative upper-grille/lower-plate partition within this front body. Show generous clear margins around the complete object.\nREVISION: Use case: precise-object-edit. Edit the supplied Night Harvest transparent amplifier-head asset. Preserve the complete coherent head geometry, overall body bounding box, camera, integrated top, coppertrim, black skin, handle, feet and detailed realism. Enlarge the BLANK graphite lower control panel vertically so it occupies at least 48 percent of the front inset opening height (approximately205pixels tall at1448pixel outputwidth), keeping its bottom edge and outer enclosure fixed. Move the horizontal copper divider upwards to accomplish this, reducing the upper glowing tube grille area proportionally. Maintain ample empty panel space for two rows of live UI controls. No added knobs, labels, text, UI, buttons or markings. Do not change silhouette, do not add another roof or rear panel. Genuine transparent RGBA background with no floor, no glow outside the object and no shadow plane. Keep4:3 landscape full-object composition."
+        },
+        "postGenerationProcessing": "None. Production PNG is byte-identical to the final generated output."
+      }
+    },
+    {
+      "modelIndex": 21,
+      "modelName": "Hot Lead",
+      "catalogStatus": "active",
+      "asset": "Assets/Artwork/HeadShells/head-shell-21.png",
+      "identityReference": "Assets/Artwork/ahotlead.jpg",
+      "sha256": "98e68405a61e79a475b50f16b4dcd151f4b80d9ee57df44b3b8f5ade85576f9e",
+      "byteLength": 1432906,
+      "pixelSize": [
+        1448,
+        1086
+      ],
+      "pixelMode": "RGBA",
+      "alphaBounds": [
+        31,
+        282,
+        1388,
+        558
+      ],
+      "runtimeMetadataIndex": 21,
+      "generation": {
+        "tool": "built-in image_gen__imagegen",
+        "outputBasename": "exec-e42d46db-3f82-4339-b863-5c0b51d4e86e.png",
+        "instructionRecord": {
+          "kind": "verbatim_final_prompt",
+          "text": "Use case: product-mockup. Production game/UI asset, one complete photorealistic amplifier head cutout.\nImage 1 is the exact Hot Lead model design identity reference. Image 2 is ONLY the target camera, coherent integrated enclosure, framing and lighting reference. Do not copy its design or hardware.\nFundamentally redraw Image 1 as one physically coherent solid head in the camera of Image 2: perfectly straight front elevation, zero yaw, zero roll, approximately 9 degrees elevated near-orthographic view, shallow visible integrated top. Physical enclosure dimensions width 635 mm, height 260.35 mm, depth 222.25 mm. Preserve Hot Lead's rich dark purple pebbled tolex, four polished silver wraparound corner protectors, black diamond expanded mesh upper grille, unmarked warm pale silver brushed metal lower control plate, black arch handle on silver mounts, two black rubber feet. Preserve original grille-to-controlplate proportions for the large blank lower plate that will receive live controls.\nThe enclosure must be a single contiguous solid volume, roof fully connected to front lip and rounded corner shoulders and sidewalls, with a consistent purple material wrapping across them. No second lid, backboard, rear fin, floating panel, doubled roof, corner notches, sliced corners, detached edges or protruding wedges. Do not copy Image 2's front handles, double perforated grille, or black skin.\nComplete centered object on a landscape approximately 2048x1152 RGBA transparent canvas. At least 5 percent clear margin from every object edge including handle and feet. Soft studio product lighting as Image 2, crisp texture and hardware reflections. Genuine transparent background, no floor or shadow plane. No text, labels, numbers, logos, UI, knobs, buttons, switches or jacks.Critical physical silhouette requirement: the FRONT BODY (excluding roof, handle, feet) must be about 2.78 times wider than tall; the references are too panoramic and must not dictate this aspect. Use a 4:3 landscape canvas, roughly 1600x1200. Approximate target: object 1400 pixels wide, FRONT BODY 504 pixels tall, roof showing another 70 pixels above front. Preserve Image 1's relative upper-grille/lower-plate partition within this front body. Show generous clear margins around the complete object."
+        },
+        "postGenerationProcessing": "None. Production PNG is byte-identical to the final generated output."
+      }
+    },
+    {
+      "modelIndex": 22,
+      "modelName": "Blue Storm",
+      "catalogStatus": "active",
+      "asset": "Assets/Artwork/HeadShells/head-shell-22.png",
+      "identityReference": "Assets/Artwork/abluestorm.jpg",
+      "sha256": "2530f33825a8fdc58396a1f44a4fff3a399cb47e466697bbe9e708b633dccf28",
+      "byteLength": 1523968,
+      "pixelSize": [
+        1448,
+        1086
+      ],
+      "pixelMode": "RGBA",
+      "alphaBounds": [
+        21,
+        228,
+        1406,
+        628
+      ],
+      "runtimeMetadataIndex": 22,
+      "generation": {
+        "tool": "built-in image_gen__imagegen",
+        "outputBasename": "exec-2c9c064a-dac3-4792-996d-87e35d42686a.png",
+        "instructionRecord": {
+          "kind": "verbatim_final_prompt",
+          "text": "Use case: product-mockup. Production game/UI asset, one complete photorealistic amplifier head cutout.\nImage 1 is the exact Blue Storm design identity reference. Image 2 is ONLY the target camera, coherent enclosure geometry and lighting reference; do not copy its design or hardware.\nFundamentally redraw Image 1 as one physically coherent solid head: perfectly straight frontal elevation, zero yaw and roll, 9 degrees elevated near-orthographic camera, shallow visible top integrated with the rounded front lip. Physical dimensions width 690 mm, total envelope height 280 mm, depth 270 mm. Critical FRONT BODY ratio excluding roof/handle/feet must be 2.78 width-to-height. References are too panoramic; make body taller to achieve this ratio. Use 4:3 landscape canvas near 1600x1200, object about1400 pixels wide with FRONT BODY 500 pixels high plus shallow 70pixel roof above.\nPreserve Blue Storm's own black finely textured tolex, polished silver corner caps, black metal upper grille consisting of five horizontal rows of long pill-ended slots arranged in five columns, large BLANK deep cobalt blue horizontally brushed metal lower control plate, black arch handle on silver mounts, and two black feet. Preserve the grille-versus-blue-controlplate relative height partition of Image 1. The blank blue lower plate receives live controls later and must remain empty and generously sized.\nOne contiguous enclosure volume: roof flows smoothly into full rounded shoulders, front lip, cornercaps, and sidewalls. No added lid, double roof, backboard, rear fin, detached edges, cornernotches, cuts, wedges or protruding panels. No front handles and no perforated grille copied from Image 2.\nComplete centered product with at least 5percent clear transparent margin on every side, including feet and handle. Realistic soft studio lighting matching Image 2, crisp material detail. Genuine transparent RGBA background, no floor or shadow plane. No text, labels, numbers, logos, UI, knobs, buttons, switches, jacks."
+        },
+        "postGenerationProcessing": "None. Production PNG is byte-identical to the final generated output."
+      }
+    },
+    {
+      "modelIndex": 23,
+      "modelName": "Special Edition",
+      "catalogStatus": "active",
+      "asset": "Assets/Artwork/HeadShells/head-shell-23.png",
+      "identityReference": "Assets/Artwork/aspecialedition.jpg",
+      "sha256": "96613c58aec73894c51ec11a5ce7c1869a932cb7af0acfb7fb3674c259606b3e",
+      "byteLength": 2018969,
+      "pixelSize": [
+        1536,
+        1024
+      ],
+      "pixelMode": "RGBA",
+      "alphaBounds": [
+        26,
+        189,
+        1485,
+        679
+      ],
+      "runtimeMetadataIndex": 23,
+      "generation": {
+        "tool": "built-in image_gen__imagegen",
+        "outputBasename": "exec-e73b54dd-ff78-40c6-9ec0-3dc56eb92e32.png",
+        "instructionRecord": {
+          "kind": "verbatim_final_prompt",
+          "text": "Use case: product-mockup. Production game/UI asset, one complete photorealistic amplifier head cutout.\nImage 1 is the exact Special Edition design identity reference. Image 2 is ONLY the target camera, coherent solid enclosure construction and studio lighting reference; do not copy its design or hardware.\nFundamentally redraw Image 1 as one physically coherent solid head. Camera exactly straight ahead zero yaw, zero roll, around 9 degrees elevated near-orthographic, shallow visible integrated top. Physical dimensions width 710 mm, height 270 mm, depth 290 mm. Critical FRONT BODY ratio excluding roof, handle and feet must be 2.98 width-to-height. Make body taller than panorama reference1. Use 4:3 landscape canvas around1600x1200, object around1400pixels wide, FRONT BODY470pixels high, roof visible70pixels above front body.\nPreserve Special Edition's own black textured tolex wrapped rounded corners WITHOUT large chrome protective cornercaps, fine silver piping and small round visible screws, black honeycomb hexagonal metal upper grille revealing warm orange-glowing vacuum tubes, silver slim horizontal grille frame and divider, large completely blank dark graphite horizontally brushed metal controlplate below grille with small silver screws at its four corners. Keep black arch carry handle on silver mounts and two black rubber feet. Preserve the original relative grille-to-lowerplate height split and model identity. Plate stays entirely empty for live UI knobs later.\nRedraw the complete shell as ONE contiguous solid enclosure. Roof flows into rounded front lip, shoulders and sidewalls with continuous material. No second lid, no backboard, no rear fin, no floatingpanel, no doubled roof, no cornernotches, no clipped corners, no detached edge, no protruding wedge. No front handles, large cornercaps or double perforated grille copied from Image2.\nComplete centered object with generous transparent margin on every side, no crop. Genuine RGBA transparent background, no floor or shadow plane. Studio lighting matching Image2, crisp realistic detail and silver highlights. No text, labels, numbers, logos, UI, knobs, buttons, switches or jacks."
+        },
+        "postGenerationProcessing": "None. Production PNG is byte-identical to the final generated output."
+      }
+    },
+    {
+      "modelIndex": 24,
+      "modelName": "Náströnd",
+      "catalogStatus": "active",
+      "asset": "Assets/Artwork/HeadShells/head-shell-24.png",
+      "identityReference": "Assets/Artwork/anastrond.png",
+      "sha256": "f066b27412641ca6d4ae92d7630ae8514cb3704765c6774bcd40017b96655173",
+      "byteLength": 2721222,
+      "pixelSize": [
+        1774,
+        887
+      ],
+      "pixelMode": "RGBA",
+      "alphaBounds": [
+        11,
+        60,
+        1753,
+        773
+      ],
+      "runtimeMetadataIndex": 24,
+      "generation": {
+        "tool": "built-in image_gen__imagegen",
+        "outputBasename": "exec-0d02b2e6-b930-4492-b137-37356246f699.png",
+        "instructionRecord": {
+          "kind": "normalized_generation_specification",
+          "text": "Revise the earlier complete Nastroend redraw to enlarge the blank control plate for two rows of live controls. Target an increase from approximately 140 to 205 pixels of plate height at a nominal 1774-pixel canvas width, extending the lower body by approximately 65 pixels. Preserve branding, ornate grille, coherent roof, complete corners, five channel windows, jack, switch, and power light. Keep the new plate blank: no baked knobs or control labels. Maintain the centered shallow elevated frontal composition, a single complete enclosure, and transparent background. These dimensions describe the generation request, not measured final output.",
+          "note": "Summarized generation instructions; not a verbatim tool prompt."
+        },
+        "postGenerationProcessing": "None. Production PNG is byte-identical to the final generated output."
+      }
+    },
+    {
+      "modelIndex": 25,
+      "modelName": "Niflheimr",
+      "catalogStatus": "active",
+      "asset": "Assets/Artwork/HeadShells/head-shell-25.png",
+      "identityReference": "Assets/Artwork/aniflheimr.png",
+      "sha256": "7c9ee0f7ace49f4d8c8b1c4a0c837c2655302442539d7205e0fae83d3280d42a",
+      "byteLength": 2525373,
+      "pixelSize": [
+        1672,
+        941
+      ],
+      "pixelMode": "RGBA",
+      "alphaBounds": [
+        13,
+        73,
+        1646,
+        791
+      ],
+      "runtimeMetadataIndex": 25,
+      "generation": {
+        "tool": "built-in image_gen__imagegen",
+        "outputBasename": "exec-b7ea04b5-4c5e-42c6-acf1-5e1d3586fc65.png",
+        "instructionRecord": {
+          "kind": "normalized_generation_specification",
+          "text": "Revise the earlier complete Niflheimr redraw to enlarge the blank control plate for two rows of live controls. Target an increase from approximately 140 to 205 pixels of plate height at a nominal 1672-pixel canvas width, extending the lower body by approximately 65 pixels. Preserve Niflheimr branding, raven ornament, ice-blue accents, coherent roof, complete corners, five channel windows, jack, switch, and power light. Keep the new plate blank: no baked knobs or control labels. Maintain the centered shallow elevated frontal composition, a single complete enclosure, and transparent background. These dimensions describe the generation request, not measured final output.",
+          "note": "Summarized generation instructions; not a verbatim tool prompt."
+        },
+        "postGenerationProcessing": "None. Production PNG is byte-identical to the final generated output."
+      }
+    }
+  ]
+}

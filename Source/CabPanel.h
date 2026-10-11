@@ -181,6 +181,7 @@ private:
         if(artworkChanged && currentView==View::irLoader){resized();repaint();}
     }
 public:
+    void setHeadAction(std::function<void()> action) {if(originalControls)originalControls->getScene().setHeadAction(std::move(action));}
     View getView() const noexcept {return currentView;}
     void finishInteraction() {if(originalControls)originalControls->getScene().endMicDrag();}
     void selectInternalView() {setView(View::cabinet);}

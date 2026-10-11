@@ -6,6 +6,7 @@
 #include "PedalBoardPanel.h"
 #include "AmpSelector.h"
 #include "AmpNativePanel.h"
+#include "AmpHeadControlView.h"
 #include "PostNativePanel.h"
 #include "GraphicalEQPanel.h"
 #include "EffectSelectionCatalog.h"
@@ -57,6 +58,7 @@ private:
     void setupSlider(juce::Slider&,const juce::String&,const juce::String& suffix={});
     void loadIR(int);
     void openCabWorkspace(int,bool focusRequested=false);
+    void openAmpHead(int);
     void chooseIR(int,bool folder);
     void browseIR(int,const juce::File&);
     void showInfo();
@@ -140,6 +142,7 @@ private:
         juce::Label header,range,toneLabel,tonePivot,cabStatus,ampReference;
         AmpSelector amp;
         std::unique_ptr<AmpNativePanel> nativePanel;
+        std::unique_ptr<AmpHeadControlView> head;
         CabinetSelector cabType;
         juce::Slider drive,level,bass,lm,hm,treble,pres,res,bandTone,cabLow,cabHigh;
         std::array<juce::Label,8> knobLabels;

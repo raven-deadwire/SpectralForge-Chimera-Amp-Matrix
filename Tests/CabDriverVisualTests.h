@@ -158,6 +158,26 @@ inline void roomCameraContracts(const juce::File& screenshots) {
     auto p=std::make_unique<ChimeraProcessor>();set(*p,"mode",2);set(*p,"lowampmix",1);
     const std::array<int,3> layouts{{7,3,6}},drivers{{9,1,9}},amps{{5,2,25}};
     const std::array<float,3> widths{{.63f,.74f,.62f}},heights{{.94f,.76f,.64f}},depths{{.40f,.36f,.40f}};
+    // Complete shells already contain their roof, handle and support feet.
+    // Measure the named raw PNGs independently of runtime shell metadata and
+    // projectedHeight(): adding physical depth again would stretch the art.
+    const std::array<const char*,3> headResources{{"headshell05_png","headshell02_png","headshell25_png"}};
+    std::array<float,3> headArtworkAspect{};
+    for(size_t lane=0;lane<headResources.size();++lane) {
+        int bytes=0;const auto* data=ChimeraArtworkData::getNamedResource(headResources[lane],bytes);
+        check(data!=nullptr && bytes>0,"room head fixture has no original PNG resource");
+        const auto image=juce::ImageFileFormat::loadFrom(data,size_t(bytes));
+        check(image.isValid(),"room head fixture cannot decode its original PNG");
+        const juce::Image::BitmapData pixels(image,juce::Image::BitmapData::readOnly);
+        int left=pixels.width,top=pixels.height,right=-1,bottom=-1;
+        for(int y=0;y<pixels.height;++y)for(int x=0;x<pixels.width;++x)
+            if(pixels.getPixelColour(x,y).getAlpha()>32) {
+                left=std::min(left,x);top=std::min(top,y);
+                right=std::max(right,x);bottom=std::max(bottom,y);
+            }
+        check(right>=left && bottom>=top,"room head fixture has no visible shell");
+        headArtworkAspect[lane]=float(bottom-top+1)/float(right-left+1);
+    }
     for(int lane=0;lane<3;++lane) {
         p->setAmpModel(lane,amps[size_t(lane)]);
         set(*p,"ampon"+juce::String(lane+1),1);set(*p,"cab"+juce::String(lane+1),1);
@@ -180,10 +200,15 @@ inline void roomCameraContracts(const juce::File& screenshots) {
             check(std::abs(box.getWidth()/scale-widths[size_t(lane)])<.00001f
                 && std::abs(box.getHeight()/scale-heights[size_t(lane)]-depths[size_t(lane)]*.16f)<.00001f,
                 "6x10 / 4x12 / 4x10 room cabinet proportions differ from their physical geometry");
-            check(std::abs(head.getWidth()/scale-physicalHead.width)<.00001f
-                && std::abs(head.getHeight()/scale-physicalHead.height-physicalHead.depth*.16f)<.00001f,
+            check(std::abs(head.getWidth()/scale-physicalHead.width)<.00001f,
                 "room head does not share its cabinet's physical metre");
+            check(std::abs(head.getHeight()/scale-physicalHead.width*headArtworkAspect[size_t(lane)])<.00001f,
+                "room head stretches or clips its complete source-artwork envelope");
             check(area.contains(box) && area.contains(head),"active stack is clipped by a narrow room lane");
+            // The camera's stage-height budget is the lane height minus 45 px;
+            // the actual visible stack must fit its existing 90% allocation.
+            check(box.getUnion(head).getHeight()<=(area.getHeight()-45.f)*.90f,
+                "complete source-artwork stack exceeds the room camera's visible height budget");
             check(std::abs(box.getBottom()-room.displayedCabinetBounds(0).getBottom())<.0001f,
                 "room cabinets have different ground baselines");
             const auto face=cabLayoutView::baffle(model,box);

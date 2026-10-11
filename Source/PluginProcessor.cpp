@@ -368,6 +368,7 @@ bool ChimeraProcessor::tryGetStateInformation(juce::MemoryBlock& data)
 }
 void ChimeraProcessor::restoreCore(juce::ValueTree restored)
 {
+    ++headRecallRevision;
     if(!restored.isValid() || !restored.hasType("PARAMS")) return;
     boardUndo.clear();boardRedo.clear();midiLearn.store(-1);
     const bool missingNative=!restored.getChildWithProperty("id",spectralforge::ampNativeModelID(0)).isValid();
@@ -444,6 +445,7 @@ void ChimeraProcessor::tapTempo() {
 }
 void ChimeraProcessor::loadFactoryPreset(int index) {
     if(index<0 || index>=spectralforge::selectablePresetCount)return;
+    ++headRecallRevision;
     {
         const auto snapshot=spectralforge::isNiflheimrPreset(index)
             ? spectralforge::niflheimrPresetSnapshot(state,index-spectralforge::niflheimrPresetStart)

@@ -267,6 +267,7 @@ ChimeraEditor::ChimeraEditor(ChimeraProcessor& p) : AudioProcessorEditor(&p),pro
         lane.amp.resetSyncExplicit(processor.selectedAmpModel(i)+1);
         lane.amp.onChange=[this,i]{auto& control=lanes[(size_t)i].amp;control.acceptSelection();processor.setAmpModel(i,control.getSelectedId()-1);stateDirty=true;};
         lane.nativePanel=std::make_unique<AmpNativePanel>(processor,i);add(*lane.nativePanel);
+        lane.head=std::make_unique<AmpHeadControlView>(processor,i,false);add(*lane.head);lane.head->onOpen=[this,i]{openAmpHead(i);};
         auto controls=lane.controls();
         for(size_t k=0;k<8;++k)
         {
@@ -369,6 +370,14 @@ void ChimeraEditor::navigateSignalPath(const spectralforge::signalPath::Node& no
         default:break;
     }
 }
+void ChimeraEditor::openAmpHead(int lane)
+{
+    juce::DialogWindow::LaunchOptions options;
+    options.content.setOwned(new AmpHeadWorkspace(processor,lane));
+    options.dialogTitle="Chimera / Amplifier";options.dialogBackgroundColour=background;
+    options.useNativeTitleBar=true;options.escapeKeyTriggersCloseButton=true;options.resizable=false;
+    options.componentToCentreAround=this;auto* window=options.launchAsync();trackDialog(window);fitCabinetWindow(window);
+}
 void ChimeraEditor::openCabWorkspace(int lane,bool focusRequested)
 {
     juce::DialogWindow::LaunchOptions options;
@@ -413,7 +422,7 @@ void ChimeraEditor::showInfo()
 void ChimeraEditor::timerCallback()
 {
     // Detached ALL windows remain live when their owning tab is hidden.
-    for(auto& lane:lanes)lane.nativePanel->refreshIfNeeded();
+    for(auto& lane:lanes){lane.nativePanel->refreshIfNeeded();if(lane.head->isShowing())lane.head->refresh();}
     for(auto& post:postPanels)post->refreshIfNeeded();
     if(!spectralforge::ui::visible(*this)){stateDirty=true;return;}
 
@@ -591,6 +600,7 @@ void ChimeraEditor::updateModeUI()
     if(roomVisible && !cabRoom) {
         cabRoom=std::make_unique<CabRoomOverview>(processor);canvas.addAndMakeVisible(*cabRoom);
         cabRoom->onCabinetSelected=[this](int lane){openCabWorkspace(lane,true);};
+        cabRoom->onAmplifierSelected=[this](int lane){openAmpHead(lane);};
     }
     if(cabRoom) {cabRoom->setVisible(roomVisible);if(roomVisible)cabRoom->refreshState();}
     rigControls.setVisible(page==0 && lastMode!=0);
@@ -609,7 +619,7 @@ void ChimeraEditor::updateModeUI()
     {
         auto& lane=lanes[i]; const bool show=i<count && page==0 && !roomVisible;
         for(juce::Component* c : std::initializer_list<juce::Component*>{&lane.header,&lane.range,&lane.ampReference,&lane.amp,&lane.ampOn,&lane.mute,&lane.solo,&lane.polarity,&lane.cabOn,&lane.load,&lane.details,&lane.cabType,&lane.cabLow,&lane.cabHigh,&lane.lowLabel,&lane.highLabel,&lane.cabStatus}) c->setVisible(show);
-        lane.nativePanel->setVisible(show);lane.nativePanel->refreshIfNeeded();
+        lane.nativePanel->setVisible(show);lane.nativePanel->refreshIfNeeded();lane.head->setVisible(show);if(show)lane.head->refresh();
         auto controls=lane.controls();
         for(size_t k=0;k<8;++k) { controls[k]->setVisible(false); lane.knobLabels[k].setVisible(false); }
         if(matrix && i==0) {
@@ -681,10 +691,10 @@ void ChimeraEditor::paint(juce::Graphics& g)
             g.setColour(panel.withAlpha(.8f));g.fillRoundedRectangle(x,330,float(width),412,5);
             g.setColour(line.withAlpha(.65f));g.drawRoundedRectangle(x,330,float(width),412,5,1);
             if(lastMode==0) {
-                spectralforge::art::head(g,{x+12,433,466,198},lane.amp.getSelectedId()-1);
+
                 g.setColour(background.withAlpha(.75f));g.fillRoundedRectangle(x+490,429,float(width-502),207,3);
             } else {
-                spectralforge::art::head(g,{x+12,433,float(width-24),55},lane.amp.getSelectedId()-1);
+
                 g.setColour(background.withAlpha(.82f));g.fillRoundedRectangle(x+10,490,float(width-20),145,3);
             }
             g.setColour(colour.withAlpha(.65f));g.fillRect(x+12,332.f,float(width-24),2.f);
@@ -747,6 +757,7 @@ void ChimeraEditor::layoutControls()
         lane.header.setBounds(x+12,339,width-165,22); lane.range.setBounds(x+12,362,width-24,17);
         lane.mute.setBounds(x+width-147,344,48,23); lane.solo.setBounds(x+width-95,344,44,23); lane.polarity.setBounds(x+width-47,344,35,23);
         lane.ampOn.setBounds(x+12,382,48,29);lane.amp.setBounds(x+68,382,width-80,29);lane.ampReference.setBounds(x+14,413,width-28,18);
+        lane.head->setBounds(x+12,433,lastMode==0?466:width-24,lastMode==0?198:55);
         lane.nativePanel->setBounds(lastMode==0?x+495:x+12,lastMode==0?433:490,lastMode==0?width-509:width-24,lastMode==0?201:145);
         lane.bandTone.setSliderStyle(juce::Slider::LinearHorizontal);lane.bandTone.setTextBoxStyle(juce::Slider::TextBoxRight,false,55,20);
         lane.toneLabel.setBounds(x+12,615,68,21);lane.bandTone.setBounds(x+82,615,width-94,22);lane.tonePivot.setVisible(false);
