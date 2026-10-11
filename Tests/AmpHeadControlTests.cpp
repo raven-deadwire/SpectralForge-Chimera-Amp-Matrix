@@ -264,7 +264,11 @@ int main(int argc,char** argv){try {
         check(full && full->isShowing(),"Head did not open native enlargement");screenshot(*full,directory,"focus-from-editor-"+juce::String(scale));
         closeWorkspace();check(all.writes==writes && all.begins==begins,"Head open/back changed audio state");
     }
-    for(int mode:{1,2}){set(*p,"mode",float(mode));settle();auto* room=find<CabRoomOverview>(*editor,"cabRoomOverview");check(room,"Room missing");
+    for(int mode:{1,2}){set(*p,"mode",float(mode));CabRoomOverview* room=nullptr;
+        // The editor rebuilds routing surfaces asynchronously. Wait for the
+        // requested mode's visible targets, not an arbitrary 80 ms timer tick.
+        awaitUI([&]{room=find<CabRoomOverview>(*editor,"cabRoomOverview");if(!room || !room->isShowing())return false;
+            for(int lane=0;lane<=mode;++lane){auto* head=find<juce::Button>(*room,"cabRoomHead"+juce::String(lane+1));auto* cab=find<juce::Button>(*room,"cabRoomRig"+juce::String(lane+1));if(!head || !cab || !head->isShowing() || !cab->isShowing())return false;}return true;},"Room routing targets did not become visible");
         // Keep production callbacks installed: prove the real destination,
         // selected bank and return path, not merely a substituted callback.
         const int writes=all.writes,begins=all.begins;
