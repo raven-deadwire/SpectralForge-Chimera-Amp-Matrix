@@ -1,0 +1,89 @@
+name: Node 24 action contracts
+on:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+concurrency:
+  group: node24-actions-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+jobs:
+  transport:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-24.04, windows-latest, macos-15]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 10
+    env:
+      EXACT_SOURCE: ${{ github.event.pull_request.head.sha || github.sha }}
+      ARTIFACT_PREFIX: node24-contract-${{ matrix.os }}-${{ github.run_id }}-${{ github.run_attempt }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ env.EXACT_SOURCE }}
+          persist-credentials: false
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ env.EXACT_SOURCE }}
+          path: credential-check
+      - uses: actions/setup-python@v6
+        id: python
+        with:
+          python-version: '3.12'
+      - run: python -m pip install PyYAML==6.0.3
+      - name: Verify audited workflow contracts and negative integrity tests
+        run: python Tools/test_workflow_actions.py -v
+      - name: Verify credentials, Python cache and prepare source-bound payloads
+        env:
+          PYTHON_CACHE_HIT: ${{ steps.python.outputs.cache-hit }}
+        run: python Tools/workflow_actions_smoke.py prepare
+      - uses: actions/upload-artifact@v6
+        id: a
+        with:
+          name: ${{ env.ARTIFACT_PREFIX }}-a
+          path: action-fixture/a
+          if-no-files-found: error
+          retention-days: 1
+          compression-level: 0
+      - uses: actions/upload-artifact@v6
+        id: b
+        with:
+          name: ${{ env.ARTIFACT_PREFIX }}-b
+          path: action-fixture/b
+          if-no-files-found: error
+          retention-days: 1
+          compression-level: 1
+      - uses: actions/download-artifact@v7
+        with:
+          name: ${{ env.ARTIFACT_PREFIX }}-a
+          path: action-download/by-name
+      - name: Exercise v7 singleton pattern layout
+        uses: actions/download-artifact@v7
+        with:
+          pattern: ${{ env.ARTIFACT_PREFIX }}-a
+          path: action-download/single
+          merge-multiple: false
+      - name: Restore the v4 singleton artifact directory
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python Tools/artifact_download_layout.py --path action-download/single --pattern "${{ env.ARTIFACT_PREFIX }}-a"
+      - uses: actions/download-artifact@v7
+        with:
+          pattern: ${{ env.ARTIFACT_PREFIX }}-*
+          path: action-download/merged
+          merge-multiple: true
+      - uses: actions/download-artifact@v7
+        with:
+          pattern: ${{ env.ARTIFACT_PREFIX }}-*
+          path: action-download/separate
+          merge-multiple: false
+      - name: Verify layouts, exact source and real archive digests
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ARTIFACT_A_ID: ${{ steps.a.outputs.artifact-id }}
+          ARTIFACT_A_DIGEST: ${{ steps.a.outputs.artifact-digest }}
+          ARTIFACT_B_ID: ${{ steps.b.outputs.artifact-id }}
+          ARTIFACT_B_DIGEST: ${{ steps.b.outputs.artifact-digest }}
+        run: python Tools/workflow_actions_smoke.py verify

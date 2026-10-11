@@ -18,10 +18,10 @@ jobs:
     if: github.repository == 'raven-deadwire/SpectralForge-Chimera-Amp-Matrix' && github.ref == 'refs/heads/release/open-beta-1.1.1'
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           ref: ${{ github.sha }}
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: '3.12'
       - name: Require exact accepted source and explicit release confirmation
@@ -51,11 +51,11 @@ jobs:
       contents: write
       actions: read
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           ref: ${{ github.sha }}
           persist-credentials: false
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: '3.12'
       - name: Verify this exact run's packages and publish Open Beta 1.1.1
