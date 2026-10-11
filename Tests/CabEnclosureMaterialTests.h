@@ -34,14 +34,15 @@ inline void slantedRailContinuity() {
             g.addTransform(juce::AffineTransform::translation(offset));
             paintFrame(g,skin,face,ppm,true);}
         // Moving a cabinet's coordinates and moving its parent component must
-        // produce the same rails. This exercises Direct2D using different bitmap
-        // brush coordinates for the sheared upper and straight lower pieces.
-        // Limit the comparison to the joined sides, away from unrelated caps.
+        // preserve the physical piping position. CoreGraphics clips the path
+        // and then paints transformed image tiles; equivalent coordinate/CTM
+        // paths can have different edge coverage, so RGB equality is diagnostic
+        // only. Compare piping centroids on both sides of the join instead.
         const float bend=(placed.getY()+placed.getHeight()*.46f)*dpi;
         const float rail=.038f*ppm*dpi;
         int maximumError=0;
         double errorSum=0.;int samples=0;
-        float maximumStep=0.f,minimumJoinCoverage=1.f;
+        float maximumStep=0.f,maximumTranslationShift=0.f,minimumJoinCoverage=1.f;
         for(bool right:{false,true}) {
             const float left=(right ? placed.getRight() : placed.getX())*dpi-(right ? rail : 0.f);
             const auto region=juce::Rectangle<float>(left-2.f,bend-6.f,rail+4.f,12.f)
@@ -52,30 +53,38 @@ inline void slantedRailContinuity() {
                     std::abs(int(a.getAlpha())-int(b.getAlpha())));
                 maximumError=juce::jmax(maximumError,error);errorSum+=error;++samples;
             }
+            const auto piping=[&](const juce::Image& rendered,int y) {
+                float weight=0.f,moment=0.f;
+                for(int x=region.getX();x<region.getRight();++x) {
+                    const auto pixel=rendered.getPixelAt(x,y);
+                    const float value=juce::jmax(0.f,float(pixel.getRed())-80.f)*pixel.getFloatAlpha();
+                    weight+=value;moment+=value*(float(x)+.5f);
+                }
+                check(weight>40.f,"slanted side rail lost its visible piping at the join");
+                return juce::Point<float>(moment/weight,weight);
+            };
+            const int aboveY=int(std::floor(bend))-2,belowY=int(std::ceil(bend))+2;
+            for(int y:{aboveY,belowY})
+                maximumTranslationShift=juce::jmax(maximumTranslationShift,
+                    std::abs(piping(absolute,y).x-piping(translated,y).x));
             for(const auto* rendered:{&absolute,&translated}) {
-                const auto piping=[&](int y) {
-                    float weight=0.f,moment=0.f;
-                    for(int x=region.getX();x<region.getRight();++x) {
-                        const auto pixel=rendered->getPixelAt(x,y);
-                        const float value=juce::jmax(0.f,float(pixel.getRed())-80.f)*pixel.getFloatAlpha();
-                        weight+=value;moment+=value*(float(x)+.5f);
-                    }
-                    check(weight>40.f,"slanted side rail lost its visible piping at the join");
-                    return juce::Point<float>(moment/weight,weight);
-                };
-                const auto above=piping(int(std::floor(bend))-2);
-                const auto below=piping(int(std::ceil(bend))+2);
+                const auto above=piping(*rendered,aboveY);
+                const auto below=piping(*rendered,belowY);
                 maximumStep=juce::jmax(maximumStep,std::abs(above.x-below.x));
                 const float baseline=juce::jmin(above.y,below.y);
                 for(int y=int(std::floor(bend))-1;y<=int(std::ceil(bend))+1;++y)
-                    minimumJoinCoverage=juce::jmin(minimumJoinCoverage,piping(y).y/baseline);
+                    minimumJoinCoverage=juce::jmin(minimumJoinCoverage,piping(*rendered,y).y/baseline);
             }
         }
         std::cout<<"Slanted rail "<<(native ? "native" : "software")<<" ppm="<<ppm<<" dpi="<<dpi
             <<" max_translation_error="<<maximumError<<" mean_translation_error="<<errorSum/double(samples)
+            <<" piping_translation_shift_px="<<maximumTranslationShift
             <<" piping_step_px="<<maximumStep<<" join_coverage="<<minimumJoinCoverage<<'\n';
-        check(maximumError<=8 && errorSum/double(samples)<.4,
-            "slanted side rails change texture position when their parent component moves");
+        // Half a device pixel tolerates raster coverage changes but rejects
+        // the original multi-pixel texture/piping jump. The independent join
+        // alignment and gap checks below also apply to each placement itself.
+        check(maximumTranslationShift<=.5f,
+            "slanted side rail piping moves when its parent component moves");
         check(maximumStep<=1.1f,"upper and lower side rail piping are horizontally misaligned");
         check(minimumJoinCoverage>.55f,"upper and lower side rails leave a visible gap at their join");
         ++cases;
