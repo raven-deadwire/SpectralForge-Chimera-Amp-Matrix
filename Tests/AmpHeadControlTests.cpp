@@ -148,6 +148,104 @@ void checkFaceLayout(AmpHeadWorkspace& view,int model,int channel=0) {
     }
     check(head->caption().contains(juce::String::fromUTF8(panel.channels[size_t(channel)])),"Head caption Unicode channel name changed");
 }
+void checkRoomOverviewControls() {
+    // Exercise the actual room path: a standalone Painter test would miss a
+    // room that calls only cabHead::paint and leaves its front plates empty.
+    auto processor=std::make_unique<ChimeraProcessor>();
+    const std::array<int,3> models{firstOriginalAmpModel,niflheimrAmpModel,int(AmpModel::britEdge)};
+    const auto differentPixels=[](const juce::Image& a,const juce::Image& b,juce::Rectangle<int> region) {
+        region=region.getIntersection(a.getBounds()).getIntersection(b.getBounds());
+        int changed=0;
+        for(int y=region.getY();y<region.getBottom();++y)for(int x=region.getX();x<region.getRight();++x) {
+            const auto left=a.getPixelAt(x,y),right=b.getPixelAt(x,y);
+            const int delta=std::abs(int(left.getRed())-int(right.getRed()))
+                +std::abs(int(left.getGreen())-int(right.getGreen()))
+                +std::abs(int(left.getBlue())-int(right.getBlue()));
+            if(delta>=24)++changed;
+        }
+        return changed;
+    };
+    for(int mode:{1,2}) {
+        set(*processor,"mode",float(mode));set(*processor,"lowampmix",1.f);
+        std::array<juce::String,3> parameterIDs;
+        for(int lane=0;lane<=mode;++lane) {
+            const int model=models[size_t(lane)];
+            processor->setAmpModel(lane,model);processor->setAmpChannel(lane,0);
+            set(*processor,"ampon"+juce::String(lane+1),1.f);set(*processor,"mute"+juce::String(lane+1),0.f);
+            const auto anchor=ampHead::knobs(model,0).front();
+            const int index=ampHead::controlIndex(model,anchor.key);
+            parameterIDs[size_t(lane)]=ampNativeControlID(ampNativeContext(mode,lane),model,index,0);
+            set(*processor,parameterIDs[size_t(lane)],float(ampNativePanel(model).controls[size_t(index)].minimum));
+        }
+        struct ParameterWatch {
+            ChimeraProcessor& processor;Host host;
+            explicit ParameterWatch(ChimeraProcessor& p):processor(p){for(auto* parameter:processor.getParameters())parameter->addListener(&host);}
+            ~ParameterWatch(){for(auto* parameter:processor.getParameters())parameter->removeListener(&host);}
+        } watch(*processor);
+        CabRoomOverview room(*processor);room.setSize(1280,760);room.setVisible(true);room.refreshState();
+        std::array<juce::Component*,3> rigs{};
+        std::array<juce::Rectangle<int>,3> knobRegions{};
+        std::array<juce::Image,3> current;
+        const auto snapshot=[&](int lane){return rigs[size_t(lane)]->createComponentSnapshot(rigs[size_t(lane)]->getLocalBounds());};
+        for(int lane=0;lane<=mode;++lane) {
+            testContext="room mode "+std::to_string(mode)+", lane "+std::to_string(lane);
+            auto*& rig=rigs[size_t(lane)];rig=find<juce::Component>(room,"cabRoomRig"+juce::String(lane+1));
+            check(rig && rig->isVisible(),"Room control regression cannot find its visible rig");
+            const auto bounds=room.displayedHeadBounds(lane),face=cabHead::geometry(bounds,models[size_t(lane)]).front;
+            const auto anchor=ampHead::knobs(models[size_t(lane)],0).front();
+            const auto centre=face.getPosition()+juce::Point<float>{face.getWidth()*anchor.x,face.getHeight()*anchor.y};
+            const float diameter=face.getWidth()*ampHead::faceStyle(models[size_t(lane)]).knobDiameter;
+            knobRegions[size_t(lane)]=juce::Rectangle<float>{diameter+4.f,diameter+4.f}.withCentre(centre).getSmallestIntegerContainer();
+            juce::Image bare(juce::Image::ARGB,rig->getWidth(),rig->getHeight(),true,juce::SoftwareImageType{});
+            {juce::Graphics g(bare);cabHead::paint(g,bounds,models[size_t(lane)]);}
+            current[size_t(lane)]=snapshot(lane);
+            check(differentPixels(current[size_t(lane)],bare,knobRegions[size_t(lane)])>=4,
+                  "Room head shows only its bare shell; the native knob is missing");
+        }
+        check(watch.host.writes==0 && watch.host.begins==0,"Creating or painting the room wrote amplifier parameters");
+        room.refreshState();
+        for(int lane=0;lane<=mode;++lane)
+            check(chimeraTest::sameShellPixels(current[size_t(lane)],snapshot(lane)),"Idle room refresh changed its displayed controls");
+        for(int lane=0;lane<=mode;++lane) {
+            testContext="room mode "+std::to_string(mode)+", changed lane "+std::to_string(lane);
+            const int model=models[size_t(lane)];
+            const int index=ampHead::controlIndex(model,ampHead::knobs(model,0).front().key);
+            set(*processor,parameterIDs[size_t(lane)],float(ampNativePanel(model).controls[size_t(index)].maximum));
+            const int writes=watch.host.writes,begins=watch.host.begins;
+            room.refreshState();
+            for(int target=0;target<=mode;++target) {
+                auto next=snapshot(target);
+                if(target==lane)check(differentPixels(current[size_t(target)],next,knobRegions[size_t(target)])>0,
+                                      "Changed native parameter did not update its room head knob");
+                else check(chimeraTest::sameShellPixels(current[size_t(target)],next),"A native knob change repainted another lane's displayed value");
+                current[size_t(target)]=next;
+            }
+            check(watch.host.writes==writes && watch.host.begins==begins,"Refreshing room knobs wrote parameters or host gestures");
+            const auto& windows=headShell::definition(model).channelWindows;
+            if(!windows[0].valid())continue;
+            processor->setAmpChannel(lane,1);
+            const int channelWrites=watch.host.writes,channelBegins=watch.host.begins;
+            room.refreshState();
+            const auto layout=cabHead::geometry(room.displayedHeadBounds(lane),model);
+            const auto next=snapshot(lane);
+            for(int channel=0;channel<2;++channel) {
+                const auto point=cabHead::pixels(windows[size_t(channel)]).transformedBy(layout.sourceToView).getCentre().roundToInt();
+                const float before=current[size_t(lane)].getPixelAt(point.x,point.y).getBrightness();
+                const float after=next.getPixelAt(point.x,point.y).getBrightness();
+                check(channel==1 ? after>before+.1f : before>after+.1f,
+                      "Room head channel lights do not show the selected native channel");
+            }
+            current[size_t(lane)]=next;
+            for(int target=0;target<=mode;++target)if(target!=lane)
+                check(chimeraTest::sameShellPixels(current[size_t(target)],snapshot(target)),"Room channel selection changed another rig's head");
+            check(watch.host.writes==channelWrites && watch.host.begins==channelBegins,
+                  "Refreshing room channels wrote parameters or host gestures");
+        }
+        check(watch.host.open==0,"Room overview left a host gesture open");
+    }
+    testContext.clear();
+    std::cout<<"ROOM HEAD CONTROLS: Dual/Matrix; 5 visible rigs; native knob presence, per-lane updates, channel lights and read-only refresh\n";
+}
 juce::TextEditor* valueEditor(juce::Slider& slider) {
     juce::TextEditor* input=nullptr;
     const auto scan=[&](auto&& self,juce::Component& c)->void{if(auto* t=dynamic_cast<juce::TextEditor*>(&c))input=t;for(auto* child:c.getChildren())self(self,*child);};
@@ -313,6 +411,7 @@ int main(int argc,char** argv){try {
         std::cout<<"SOFTWARE HEAD RENDERERS ONLY: "<<ampModelCount<<" models; 2 sizes; no native peer or interaction validation\n";
         return 0;
     }
+    checkRoomOverviewControls();
     const bool layoutsOnly=argc>1 && juce::String(argv[1])=="--software-layouts";
     if(layoutsOnly || (argc>1 && juce::String(argv[1])=="--software-preview")) {
         const auto folder=juce::File::getCurrentWorkingDirectory().getChildFile("head-software-preview");if(!layoutsOnly)folder.createDirectory();

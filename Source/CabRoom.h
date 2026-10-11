@@ -3,6 +3,7 @@
 #include "CabArtwork.h"
 #include "CabHeadView.h"
 #include "AmpHeadControlView.h"
+#include "AmpHeadOverview.h"
 #include "CabLayoutView.h"
 #include "HardwareArtwork.h"
 #include <functional>
@@ -177,6 +178,7 @@ class CabRoomOverview : public juce::Component, private juce::Timer {
         void paintButton(juce::Graphics& g,bool hovered,bool down) override {room.paintRig(g,lane,getLocalBounds().toFloat(),hovered || hasKeyboardFocus(true),down);}
     };
     std::array<RigState,3> state;
+    std::array<spectralforge::ampHeadOverview::Painter,3> headControls;
     std::array<std::unique_ptr<Rig>,3> rigs;
     int currentMode{-1};
     float read(const juce::String& id) const {return processor.parameters().getRawParameterValue(id)->load();}
@@ -255,7 +257,9 @@ class CabRoomOverview : public juce::Component, private juce::Timer {
         }
         g.endTransparencyLayer();
         g.beginTransparencyLayer(ampOpacity*(rig.muted ? .57f : 1.f));
-        spectralforge::cabHead::paint(g,headBounds,rig.amp);g.endTransparencyLayer();
+        spectralforge::cabHead::paint(g,headBounds,rig.amp);
+        headControls[static_cast<size_t>(lane)].paint(g,headBounds);
+        g.endTransparencyLayer();
         if(hovered) {
             g.setColour(gold.withAlpha(down ? .95f : .65f));
             const auto corners=cabinetBounds.reduced(side*.065f);
@@ -315,6 +319,9 @@ public:
             auto& component=*rigs[static_cast<size_t>(i)];
             component.setVisible(i<activeRigCount());
             if(i>=activeRigCount())continue;
+            // Refresh before invalidating the full rig. Paint only consumes
+            // this snapshot, so a partial expose cannot swallow a bank change.
+            const bool headChanged=headControls[static_cast<size_t>(i)].refresh(processor,i);
             const auto n=juce::String(i+1);
             const int amp=processor.selectedAmpModel(i),design=juce::roundToInt(read(spectralforge::originalCabID(i,"design")));
             const int rawDriver=juce::jlimit(0,int(spectralforge::cabExpansion::drivers.size()),
@@ -335,7 +342,7 @@ public:
             const float cabContribution=low ? blend.cabContribution() : (cabEnabled ? 1.f : 0.f);
             const float tweeterLevel=physicalSettings.voice.base.tweeter;
             const int tweeterKind=physicalSettings.voice.tweeter;
-            bool changed=rig.amp!=amp || rig.design!=design || rig.driver!=driver || rig.layout!=layout || rig.bass!=bass
+            bool changed=headChanged || rig.amp!=amp || rig.design!=design || rig.driver!=driver || rig.layout!=layout || rig.bass!=bass
                 || rig.tweeterLevel!=tweeterLevel || rig.tweeterKind!=tweeterKind
                 || rig.cabEnabled!=cabEnabled || rig.ampEnabled!=ampEnabled
                 || rig.muted!=muted || rig.solo!=solo || rig.lowAmpMix!=requested

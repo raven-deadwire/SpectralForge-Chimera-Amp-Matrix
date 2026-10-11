@@ -42,6 +42,15 @@ and widened so the longest route fits its unchanged 16 px font, and Cinder
 retains light label/scale ink. The layout contract now includes Brit Edge's
 actual selector and route-label plate bounds and uncompressed text width.
 
+The first native room capture then exposed a separate integration omission:
+`CabRoomOverview` still painted the bare shell directly, so Dual/Matrix room
+heads had no overview knobs. The room now owns one cached overview painter per
+lane, refreshed with the corresponding bank and drawn in the shell's existing
+opacity layer. A component-image regression covers both modes and all five
+visible rigs: knobs differ from the bare shell, value changes affect only the
+correct lane, channel lights switch, idle images stay stable, and painting
+emits no host writes or gestures. Navigation checks alone had not caught this.
+
 The appearance contract independently decodes every source, checks alpha
 bounds and resource identity, compares production paint with a single raw
 image projection at three sizes, and checks source immutability and continuous
