@@ -6,8 +6,11 @@
 #include "PedalBoardPanel.h"
 #include "AmpSelector.h"
 #include "AmpNativePanel.h"
+#include "AmpHeadControlView.h"
 #include "PostNativePanel.h"
+#include "GraphicalEQPanel.h"
 #include "EffectSelectionCatalog.h"
+#include "SignalPathView.h"
 
 class CabRoomOverview;
 
@@ -55,6 +58,7 @@ private:
     void setupSlider(juce::Slider&,const juce::String&,const juce::String& suffix={});
     void loadIR(int);
     void openCabWorkspace(int,bool focusRequested=false);
+    void openAmpHead(int);
     void chooseIR(int,bool folder);
     void browseIR(int,const juce::File&);
     void showInfo();
@@ -66,6 +70,11 @@ private:
     void referenceFile(bool save);
     void layoutControls();
     void midiMenu();
+    void navigateSignalPath(const spectralforge::signalPath::Node&);
+    void openSignalPath();
+    std::unique_ptr<SignalPathView> signalPath;
+    juce::Component::SafePointer<juce::DialogWindow> pathDialog;
+    std::array<juce::String,3> pathSelections{{"rigs","rigs","rigs"}};
     ChimeraProcessor& processor;
     // Declared before children so their images/peers die first. The last editor
     // releases native GPU artwork while JUCE and the DLL are still alive.
@@ -99,7 +108,8 @@ private:
     std::array<std::unique_ptr<SA>,8> globalAttachments;
     juce::TextButton gateOn{"GATE"},pitchOn{"TRANSPOSE"},tunerOn{"TUNER"},tunerMute{"AUTO MUTE"},info{"INFO"};
     std::array<std::unique_ptr<BA>,4> globalButtons;
-    juce::TextButton compareA{"A"},compareB{"B"},copyAB{"COPY"},irLibraryButton{"IR LIBRARY"},rigsTab{"RIGS"},preTab{"PRE"},postTab{"POST"};
+    juce::TextButton compareA{"A"},compareB{"B"},copyAB{"COPY"},irLibraryButton{"IR LIBRARY"},rigsTab{"RIGS"},preTab{"PRE"},postTab{"POST"},eqTab{"EQ"};
+    std::array<std::unique_ptr<spectralforge::GraphicalEQPanel>,2> eqPanels;
     std::unique_ptr<CabRoomOverview> cabRoom;
     juce::TextButton rigControls{"RIG CONTROLS"};
     bool showRigControls{};
@@ -132,6 +142,7 @@ private:
         juce::Label header,range,toneLabel,tonePivot,cabStatus,ampReference;
         AmpSelector amp;
         std::unique_ptr<AmpNativePanel> nativePanel;
+        std::unique_ptr<AmpHeadControlView> head;
         CabinetSelector cabType;
         juce::Slider drive,level,bass,lm,hm,treble,pres,res,bandTone,cabLow,cabHigh;
         std::array<juce::Label,8> knobLabels;

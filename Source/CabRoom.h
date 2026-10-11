@@ -2,6 +2,8 @@
 #include "CabPanel.h"
 #include "CabArtwork.h"
 #include "CabHeadView.h"
+#include "AmpHeadControlView.h"
+#include "AmpHeadOverview.h"
 #include "CabLayoutView.h"
 #include "HardwareArtwork.h"
 #include <functional>
@@ -153,17 +155,30 @@ class CabRoomOverview : public juce::Component, private juce::Timer {
         float tweeterLevel{};int tweeterKind{};
         juce::String name,caption;
     };
+    class HeadTarget : public juce::Button {
+    public:
+        HeadTarget():juce::Button("Open amplifier") {setWantsKeyboardFocus(true);setMouseCursor(juce::MouseCursor::PointingHandCursor);}
+        void paintButton(juce::Graphics& g,bool over,bool) override {
+            if(over||hasKeyboardFocus(true)){g.setColour(juce::Colour(0xffead4a4));g.drawRoundedRectangle(getLocalBounds().toFloat().reduced(1.f),3.f,2.f);
+                g.setColour(juce::Colour(0xee111617));g.fillRoundedRectangle(4.f,4.f,84.f,20.f,3.f);
+                g.setColour(juce::Colour(0xffead4a4));g.setFont(juce::FontOptions(11.f,juce::Font::bold));g.drawText("OPEN AMP",4,4,84,20,juce::Justification::centred);}
+        }
+    };
     class Rig : public juce::Button {
         CabRoomOverview& room;
         int lane;
     public:
+        HeadTarget head;
         Rig(CabRoomOverview& owner,int index):juce::Button("Open cabinet"),room(owner),lane(index) {
             setComponentID("cabRoomRig"+juce::String(lane+1));setMouseCursor(juce::MouseCursor::PointingHandCursor);
             setWantsKeyboardFocus(true);onClick=[this]{room.selectRig(lane);};
+            addAndMakeVisible(head);head.setComponentID("cabRoomHead"+juce::String(lane+1));
+            head.onClick=[this]{if(room.onAmplifierSelected)room.onAmplifierSelected(lane);};
         }
         void paintButton(juce::Graphics& g,bool hovered,bool down) override {room.paintRig(g,lane,getLocalBounds().toFloat(),hovered || hasKeyboardFocus(true),down);}
     };
     std::array<RigState,3> state;
+    std::array<spectralforge::ampHeadOverview::Painter,3> headControls;
     std::array<std::unique_ptr<Rig>,3> rigs;
     int currentMode{-1};
     float read(const juce::String& id) const {return processor.parameters().getRawParameterValue(id)->load();}
@@ -245,7 +260,9 @@ class CabRoomOverview : public juce::Component, private juce::Timer {
         }
         g.endTransparencyLayer();
         g.beginTransparencyLayer(ampOpacity*(rig.muted ? .57f : 1.f));
-        spectralforge::cabHead::paint(g,headBounds,rig.amp);g.endTransparencyLayer();
+        spectralforge::cabHead::paint(g,headBounds,rig.amp);
+        headControls[static_cast<size_t>(lane)].paint(g,headBounds);
+        g.endTransparencyLayer();
         if(hovered) {
             g.setColour(gold.withAlpha(down ? .95f : .65f));
             const auto corners=cabinetBounds.reduced(side*.065f);
@@ -264,7 +281,7 @@ class CabRoomOverview : public juce::Component, private juce::Timer {
         g.drawText(hovered && !low ? "OPEN CABINET  >" : rig.caption,labelArea.toNearestInt().withTrimmedTop(22),juce::Justification::centred);
     }
 public:
-    std::function<void(int)> onCabinetSelected;
+    std::function<void(int)> onCabinetSelected,onAmplifierSelected;
     explicit CabRoomOverview(ChimeraProcessor& p):processor(p),lowBlend(p,"cabRoom") {
         setComponentID("cabRoomOverview");setTitle("Chimera cabinet room");
         setDescription("Choose a cabinet to open its speaker and microphone controls.");
@@ -305,6 +322,9 @@ public:
             auto& component=*rigs[static_cast<size_t>(i)];
             component.setVisible(i<activeRigCount());
             if(i>=activeRigCount())continue;
+            // Refresh before invalidating the full rig. Paint only consumes
+            // this snapshot, so a partial expose cannot swallow a bank change.
+            const bool headChanged=headControls[static_cast<size_t>(i)].refresh(processor,i);
             const auto n=juce::String(i+1);
             const int amp=processor.selectedAmpModel(i),design=juce::roundToInt(read(spectralforge::originalCabID(i,"design")));
             const int rawDriver=juce::jlimit(0,int(spectralforge::cabExpansion::drivers.size()),
@@ -325,7 +345,7 @@ public:
             const float cabContribution=low ? blend.cabContribution() : (cabEnabled ? 1.f : 0.f);
             const float tweeterLevel=physicalSettings.voice.base.tweeter;
             const int tweeterKind=physicalSettings.voice.tweeter;
-            bool changed=rig.amp!=amp || rig.design!=design || rig.driver!=driver || rig.layout!=layout || rig.bass!=bass
+            bool changed=headChanged || rig.amp!=amp || rig.design!=design || rig.driver!=driver || rig.layout!=layout || rig.bass!=bass
                 || rig.tweeterLevel!=tweeterLevel || rig.tweeterKind!=tweeterKind
                 || rig.cabEnabled!=cabEnabled || rig.ampEnabled!=ampEnabled
                 || rig.muted!=muted || rig.solo!=solo || rig.lowAmpMix!=requested
@@ -372,6 +392,7 @@ public:
             component.getProperties().set("cabRoomCabContribution",cabContribution);
             roomChanged=roomChanged || changed;
         }
+        for(int i=0;i<activeRigCount();++i){auto& target=rigs[size_t(i)]->head;target.setBounds(projectedHead(i).toNearestInt());target.setTooltip(spectralforge::cabRoom::rigName(currentMode,i)+" / Open amplifier");}
         if(roomChanged)for(auto& rig:rigs)rig->repaint();
     }
     void resized() override {
@@ -384,6 +405,7 @@ public:
         for(int i=0;i<3;++i)rigs[static_cast<size_t>(i)]->setBounds(margin+i*(width+gap),top,width,juce::jmax(1,getHeight()-top-12));
         const int blendWidth=juce::jlimit(180,460,getWidth()/2-24);
         lowBlend.setBounds(getWidth()-24-blendWidth,3,blendWidth,38);
+        for(int i=0;i<count;++i)rigs[size_t(i)]->head.setBounds(projectedHead(i).toNearestInt());
     }
     void paint(juce::Graphics& g) override {
         g.fillAll(juce::Colour(0xff151714));
@@ -399,7 +421,7 @@ public:
             currentMode==2 ? juce::jmax(1,lowBlend.getX()-40) : getWidth()-48,22,juce::Justification::centredLeft);
         if(getHeight()>500) {
             g.setColour(juce::Colour(0xffc6bba8));g.setFont(juce::FontOptions(12.f));
-            g.drawText("Select a cabinet to move closer and place its microphones.",24,38,getWidth()-48,22,juce::Justification::centredLeft);
+            g.drawText("Select a head for amplifier controls, or a cabinet for microphones.",24,38,getWidth()-48,22,juce::Justification::centredLeft);
         }
         g.setColour(juce::Colour(0xffb99b6c).withAlpha(.35f));g.drawRect(getLocalBounds(),1);
     }
@@ -416,6 +438,7 @@ class CabWorkspace : public juce::Component, private juce::Timer {
     juce::TextButton back{"< ROOM"};
     juce::Label breadcrumb;
     bool roomView{true};
+    juce::Component::SafePointer<juce::DialogWindow> ampDialog;
     int focused{-1},lastMode{-1};
     void timerCallback() override {refreshState();}
     void updateNavigation() {
@@ -430,10 +453,12 @@ class CabWorkspace : public juce::Component, private juce::Timer {
     }
 public:
     explicit CabWorkspace(ChimeraProcessor& p,int initialLane=0,bool focusRequested=false):processor(p),room(p),lowBlend(p,"cabFocused") {
+        setOpaque(true);
         setLookAndFeel(&look);setComponentID("cabWorkspace");
         addAndMakeVisible(room);addAndMakeVisible(back);addAndMakeVisible(breadcrumb);addAndMakeVisible(lowBlend);
         back.setComponentID("cabBackToRoom");back.setTooltip("Return to the complete room without changing the sound.");
         back.onClick=[this]{showRoom();};room.onCabinetSelected=[this](int lane){focusRig(lane);};
+        room.onAmplifierSelected=[this](int lane){openAmplifier(lane);};
         breadcrumb.setFont(juce::FontOptions(12.f,juce::Font::bold));
         breadcrumb.setColour(juce::Label::textColourId,juce::Colour(0xffcfb991));
         setSize(1040,792);lastMode=spectralforge::cabRoom::mode(processor);
@@ -441,7 +466,16 @@ public:
         else updateNavigation();
         startTimerHz(12);
     }
-    ~CabWorkspace() override {stopTimer();panel.reset();setLookAndFeel(nullptr);}
+    ~CabWorkspace() override {stopTimer();if(ampDialog)delete ampDialog.getComponent();panel.reset();setLookAndFeel(nullptr);}
+    void openAmplifier(int lane) {
+        if(panel)panel->finishInteraction();
+        if(ampDialog)delete ampDialog.getComponent();
+        juce::DialogWindow::LaunchOptions options;auto* content=new AmpHeadWorkspace(processor,lane);options.content.setOwned(content);
+        if(auto* display=juce::Desktop::getInstance().getDisplays().getDisplayForRect(getScreenBounds()))content->setSize(juce::jmin(1200,display->userArea.getWidth()-32),juce::jmin(650,display->userArea.getHeight()-80));
+        options.dialogTitle="Chimera / Amplifier";options.dialogBackgroundColour=juce::Colour(0xff111617);
+        options.useNativeTitleBar=true;options.escapeKeyTriggersCloseButton=true;options.resizable=false;options.componentToCentreAround=this;
+        ampDialog=options.launchAsync();
+    }
     int activeRigCount() const {return spectralforge::cabRoom::rigCount(processor);}
     bool isRoomView() const {return roomView;}
     int focusedRig() const {return focused;}
@@ -455,7 +489,7 @@ public:
         if(panel)panel->finishInteraction();
         if(!panel || focused!=lane) {
             panel=std::make_unique<CabPanel>(processor,lane);
-            panel->setComponentID("cabFocusedPanel");addAndMakeVisible(*panel);
+            panel->setComponentID("cabFocusedPanel");panel->setHeadAction([this,lane]{openAmplifier(lane);});addAndMakeVisible(*panel);
         }
         focused=lane;roomView=false;panel->setView(CabPanel::View::cabinet);
         updateNavigation();return true;

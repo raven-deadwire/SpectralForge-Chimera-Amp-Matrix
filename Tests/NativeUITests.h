@@ -4,12 +4,13 @@
 #include "RigViewTestHelpers.h"
 #include "AmpNativeParameters.h"
 #include "PostNativeCatalog.h"
+#include "NativeMessageLoop.h"
 #include <iostream>
 #include <stdexcept>
 
 namespace nativeUITests {
 inline void require(bool value,const char* message){if(!value)throw std::runtime_error(message);}
-inline void settle(int ms=55){juce::MessageManager::getInstance()->runDispatchLoopUntil(ms);}
+inline void settle(int ms=55){require(chimeraTest::dispatchFor(ms),"Native UI loop exited");}
 template<class T=juce::Component> T* find(juce::Component& root,const juce::String& id){
     if(root.getComponentID()==id)if(auto* typed=dynamic_cast<T*>(&root))return typed;
     for(auto* child:root.getChildren())if(auto* result=find<T>(*child,id))return result;return nullptr;
@@ -34,7 +35,9 @@ inline juce::Component::SafePointer<juce::DialogWindow> open(juce::Component& ro
     auto* result=dialog(contentID);require(result!=nullptr,"ALL button failed to open the full control panel");return result;
 }
 inline void close(juce::Component::SafePointer<juce::DialogWindow> window) {
-    require(window!=nullptr,"Expanded panel disappeared before closing");window->exitModalState(0);settle(75);
+    require(window!=nullptr,"Expanded panel disappeared before closing");window->exitModalState(0);
+    const auto deadline=juce::Time::getMillisecondCounterHiRes()+2000;
+    while(window && juce::Time::getMillisecondCounterHiRes()<deadline)settle(10);
     require(window==nullptr,"Closing ALL left a live dialog or dangling panel");
 }
 inline void inside(juce::Component& root,juce::Component& control,const char* message) {

@@ -11,6 +11,7 @@
 #include "AmpSelectionParameters.h"
 #include "AmpNativeParameters.h"
 #include "PostNativeParameters.h"
+#include "GraphicalEQ.h"
 
 class ChimeraProcessor : public juce::AudioProcessor {
 public:
@@ -32,7 +33,7 @@ public:
         double tail=1.1;
         if(fxParameters[4] && fxParameters[4]->load()>.5f) tail+=(fxParameters[48]->load()>.5f ? 1.5 : fxParameters[5]->load()*.001)*std::log(.001)/std::log(juce::jlimit(.0001f,.85f,fxParameters[6]->load()));
         if(fxParameters[8] && fxParameters[8]->load()>.5f) tail+=12.0;
-        return tail;
+        return tail+toneEQ.tailSeconds()+finalEQ.tailSeconds();
     }
     int getNumPrograms() override { return 1; }
     int getCurrentProgram() override { return 0; }
@@ -78,6 +79,7 @@ public:
     void setCabMetadata(int lane,const spectralforge::IRMetadata& metadata) { library.setMetadata(lane,metadata); }
     float inputMeter() const { return inputPeak.load(); }
     float outputMeter() const { return outputPeak.load(); }
+    spectralforge::GraphicalEQ& graphicalEQ(int instance) noexcept {return instance==0 ? toneEQ : finalEQ;}
     float cpuLoad() const { return cpuAverage.load(); }
     float cpuPeakLoad() const { return cpuPeak.load(); }
     float lowCompMeter() const {return lowCompGain.load();}
@@ -88,6 +90,8 @@ public:
     void copyComparison();
     int comparisonSlot() const {return selectedComparison.load();}
     void loadFactoryPreset(int index);
+    // Presentation invalidation only; never serialized or read by the DSP.
+    uint64_t ampHeadRecallRevision() const noexcept {return headRecallRevision.load();}
     void learnMidi(const juce::String& parameterId);
     void clearMidi();
     bool learningMidi() const {return midiLearn.load()>=0;}
@@ -137,6 +141,7 @@ private:
     std::array<juce::ValueTree,2> comparisons;
     std::mutex comparisonMutex;
     std::atomic<int> selectedComparison{0};
+    std::atomic<uint64_t> headRecallRevision{0};
     std::atomic<bool> resetPending{false};
     juce::AudioProcessorValueTreeState state{*this,nullptr,"PARAMS",layout()};
     std::array<std::array<std::atomic<float>*,10>,3> cabPanelParameters{};
@@ -146,6 +151,7 @@ private:
     spectralforge::IRLibrary library{{&engine.cabinet(0),&engine.cabinet(1),&engine.cabinet(2)}};
     spectralforge::PreFXChain preFX;
     spectralforge::PostFXChain postFX;
+    spectralforge::GraphicalEQ toneEQ,finalEQ;
     spectralforge::Tuner tuner;
     spectralforge::PerformanceUtilities utilities;
     std::array<std::atomic<int>,128> midiMap;

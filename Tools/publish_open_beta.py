@@ -34,6 +34,8 @@ ARTIFACT = 10851512877
 ARTIFACT_NAME = "SpectralForge-Chimera-Open-Beta-1.0-Release-Candidate"
 ARCHIVE_SIZE = 256590746
 ARCHIVE_SHA = "6585473401c8f34959bdb4e17e4cb5ce599108b1201157845fe60afbc8beaa34"
+LEGACY_MAX_EXPANDED_BYTES = 1024 * 1024 * 1024
+MAX_SUPPORTED_EXPANDED_BYTES = 2 * 1024 * 1024 * 1024
 PREFIX = f"SpectralForge-Chimera-{VERSION}-"
 BINARY_HASHES = {
     PREFIX + "win64-Setup.exe": "29f1e12501ff64140879b0d17eea15b48aa881969388ad35a5eab2fd0d99c899",
@@ -151,14 +153,18 @@ def verify_ci(api):
     print("PASS: all CI jobs, pinned artifact provenance, and source trees")
 
 
-def extract_candidate(archive, destination):
+def extract_candidate(archive, destination, *, max_expanded_bytes=LEGACY_MAX_EXPANDED_BYTES):
+    # Newer release packages may request more transport capacity explicitly;
+    # existing publishers retain their strict 1 GiB limit and all safety checks.
+    require(type(max_expanded_bytes) is int and 0 < max_expanded_bytes <= MAX_SUPPORTED_EXPANDED_BYTES,
+            "Invalid candidate archive expansion limit")
     require(archive.stat().st_size == ARCHIVE_SIZE and sha256(archive) == ARCHIVE_SHA,
             "Candidate archive size or SHA-256 does not match verified build 136")
     with zipfile.ZipFile(archive) as zipped:
         entries = zipped.infolist()
         names = [entry.filename for entry in entries]
         require(len(names) == len(set(names)), "Duplicate archive entries")
-        require(sum(entry.file_size for entry in entries) < 1024 * 1024 * 1024,
+        require(sum(entry.file_size for entry in entries) < max_expanded_bytes,
                 "Unexpected archive expansion size")
         for entry in entries:
             path = PurePosixPath(entry.filename)

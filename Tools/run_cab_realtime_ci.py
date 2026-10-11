@@ -82,7 +82,24 @@ def source_snapshot(source, expected_sha):
             "clean": True, "path": str(source)}
 
 
-def run_logged(command, cwd, log, timeout=1800):
+def windows_child_priority_class(process):
+    """Observe the retained Popen process handle without changing its priority."""
+    import ctypes
+    from ctypes import wintypes
+
+    handle = getattr(process, "_handle", None)
+    if handle is None:
+        raise RuntimeError("Measured Windows child has no retained process handle")
+    query = ctypes.WinDLL("kernel32", use_last_error=True).GetPriorityClass
+    query.argtypes = [wintypes.HANDLE]
+    query.restype = wintypes.DWORD
+    priority_class = int(query(int(handle)))
+    if not priority_class:
+        raise OSError(ctypes.get_last_error(), "Could not verify measured Windows child priority")
+    return priority_class
+
+
+def run_logged(command, cwd, log, timeout=1800, *, measured=False):
     """Keep complete output on disk; show concise progress and exact error tails."""
     log.parent.mkdir(parents=True, exist_ok=True)
     print(f"Running {' '.join(str(arg) for arg in command)}", flush=True)
@@ -91,12 +108,57 @@ def run_logged(command, cwd, log, timeout=1800):
     # diagnostic executable; no timer thresholds or worker load are changed.
     env = os.environ.copy()
     env.pop("CHIMERA_LIFECYCLE_TRACE", None)
+    priority_receipt = None
     with log.open("w", encoding="utf-8") as output:
         group = {"creationflags": subprocess.CREATE_NEW_PROCESS_GROUP} if os.name == "nt" else {"start_new_session": True}
+        if os.name == "nt" and measured:
+            # Apply the same ordinary class to baseline, candidate and profiler
+            # timing children. Compiler commands keep their inherited context.
+            # The parent process and all wall/sample/workload gates are unchanged.
+            group["creationflags"] |= subprocess.NORMAL_PRIORITY_CLASS
         process = subprocess.Popen([str(arg) for arg in command], cwd=cwd, env=env,
                                    stdout=output, stderr=subprocess.STDOUT, **group)
+        child_finished = False
         try:
+            if os.name == "nt" and measured:
+                priority_receipt = {"scope": "measured_child_process", "pid": process.pid,
+                                    "requested_class": subprocess.NORMAL_PRIORITY_CLASS,
+                                    "creationflags": group["creationflags"],
+                                    "observed_class": None, "verified": False}
+                priority_receipt["observed_class"] = windows_child_priority_class(process)
+                if priority_receipt["observed_class"] != subprocess.NORMAL_PRIORITY_CLASS:
+                    raise RuntimeError("Measured Windows child did not start at NORMAL_PRIORITY_CLASS")
+                priority_receipt["verified"] = True
             code = process.wait(timeout=timeout)
+            child_finished = True
+        except (OSError, RuntimeError) as error:
+            if priority_receipt is None or priority_receipt["verified"]:
+                raise
+            priority_receipt["error"] = str(error)
+            # Preserve the setup failure even if cleanup returns a zero exit.
+            # A failed taskkill leaves descendant termination unverified; direct
+            # child kill/reap is a separate best-effort fallback, not that proof.
+            cleanup = {"taskkill_returncode": None, "descendants": "unverified",
+                       "direct_child_reaped": False, "errors": []}
+            try:
+                killed = subprocess.run(["taskkill", "/PID", str(process.pid), "/T", "/F"],
+                                        stdout=output, stderr=subprocess.STDOUT, timeout=30, check=False)
+                cleanup["taskkill_returncode"] = killed.returncode
+                if killed.returncode == 0:
+                    cleanup["descendants"] = "taskkill_reported_success"
+            except (OSError, subprocess.TimeoutExpired) as cleanup_error:
+                cleanup["errors"].append("taskkill: " + str(cleanup_error))
+            try:
+                process.kill()
+            except OSError as cleanup_error:
+                cleanup["errors"].append("direct kill: " + str(cleanup_error))
+            try:
+                process.wait(timeout=30)
+                child_finished = cleanup["direct_child_reaped"] = True
+            except (OSError, subprocess.TimeoutExpired) as cleanup_error:
+                cleanup["errors"].append("direct wait: " + str(cleanup_error))
+            priority_receipt["cleanup"] = cleanup
+            code = 1
         except subprocess.TimeoutExpired:
             # Do not leave compiler/test children consuming CPU when collecting
             # later evidence after a timeout on the same hosted runner.
@@ -111,14 +173,29 @@ def run_logged(command, cwd, log, timeout=1800):
             if process.poll() is None:
                 process.kill()
             process.wait(timeout=30)
+            child_finished = True
             output.write(f"\nDRIVER ERROR: command timed out after {timeout} seconds\n")
             code = 124
+        if priority_receipt is not None:
+            if child_finished:
+                # The child has stopped writing: append after its output, never
+                # race its inherited file handle with parent-side metadata.
+                output.seek(0, os.SEEK_END)
+                if "error" in priority_receipt:
+                    output.write("DRIVER ERROR: measured Windows priority precondition failed: "
+                                 + priority_receipt["error"] + "\n")
+                output.write("MEASURED_PROCESS_PRIORITY " + json.dumps(priority_receipt, sort_keys=True) + "\n")
+            else:
+                priority_receipt["log_metadata_omitted"] = "direct_child_not_reaped"
     duration = time.monotonic() - started
     print(f"Exit {code}, {duration:.1f}s; complete output: {log}", flush=True)
     if code:
         print("\n".join(log.read_text(encoding="utf-8", errors="replace").splitlines()[-35:]), flush=True)
-    return {"command": [str(arg) for arg in command], "cwd": str(cwd), "returncode": code,
-            "seconds": duration, "log": str(log)}
+    receipt = {"command": [str(arg) for arg in command], "cwd": str(cwd), "returncode": code,
+               "seconds": duration, "log": str(log)}
+    if priority_receipt is not None:
+        receipt["measured_process_priority"] = priority_receipt
+    return receipt
 
 
 def environment_snapshot(output):
@@ -369,7 +446,7 @@ def run_version(label, source, expected_sha, build, output, candidate):
                    "--parallel", "1", "--verbose", "--no-tests=error", "--timeout", "600",
                    "--test-output-size-passed", "10485760", "--test-output-size-failed", "10485760",
                    "--output-junit", junit]
-        record = run_logged(command, source, output / "ctest-console.log")
+        record = run_logged(command, source, output / "ctest-console.log", measured=True)
         receipt["commands"].append(record)
         receipt["ctest_returncode"] = record["returncode"]
         # Copy before another CTest invocation could replace the full raw log.
@@ -416,7 +493,7 @@ def run_profile(source, expected_sha, build, output, target):
         binary = executable(build, target)
         receipt["binary"] = {"path": str(binary), "sha256": digest(binary)}
         # Diagnostics write beside CTest evidence, never into the clean source.
-        record = run_logged([binary, "--expanded"], build, output / "profile.log", timeout=600)
+        record = run_logged([binary, "--expanded"], build, output / "profile.log", timeout=600, measured=True)
         receipt["commands"].append(record)
         receipt["returncode"] = record["returncode"]
         parsed = parse_rows((output / "profile.log").read_text(encoding="utf-8", errors="replace"))

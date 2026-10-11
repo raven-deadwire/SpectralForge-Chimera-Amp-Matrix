@@ -34,6 +34,9 @@ jobs:
           python Tools/test_publish_beta112.py
           python Tools/test_publish_beta12.py
           python Tools/test_publish_beta13.py
+          python Tools/test_beta_publication.py
+          python Tools/test_publish_beta131.py
+          python Tools/test_beta_publication131.py
           python Tools/test_release_preflight.py
           python Tools/test_callback_timing_protocol.py
           python Tools/seed_validation_reports.py --commit "${{ github.event.pull_request.head.sha || github.sha }}" --profile pull_request --output build/validation
@@ -79,6 +82,9 @@ jobs:
           python Tools/test_publish_beta112.py
           python Tools/test_publish_beta12.py
           python Tools/test_publish_beta13.py
+          python Tools/test_beta_publication.py
+          python Tools/test_publish_beta131.py
+          python Tools/test_beta_publication131.py
           python Tools/test_release_preflight.py
           python Tools/test_callback_timing_protocol.py
       - name: Check Windows packaging script syntax

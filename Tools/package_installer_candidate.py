@@ -20,19 +20,22 @@ import check_ir_distribution
 
 ROOT = Path(__file__).resolve().parents[1]
 TRANSFER_PART_BYTES = 20 * 1024 * 1024
-TRANSFER_MAX_PARTS = 8
+# The 1.3.1 Windows candidate exceeds the old 160 MiB ceiling. Keep each
+# transfer small and the total bounded at 320 MiB.
+TRANSFER_MAX_PARTS = 16
 
 
 def write_transfer_parts(artifact: Path, output: Path, expected_sha256: str) -> list[dict]:
     """Split verified bytes within the exact capacity uploaded by the workflow.
 
     Both Setup and portable ZIP use this contract. Reject before writing when a
-    file exceeds eight 20 MiB parts; never leave a publishable truncated set.
+    file exceeds sixteen 20 MiB parts; never leave a publishable truncated set.
     """
     expected_bytes = artifact.stat().st_size
     if expected_bytes <= 0 or expected_bytes > TRANSFER_MAX_PARTS * TRANSFER_PART_BYTES:
         raise RuntimeError(f"Candidate must fit 1..{TRANSFER_MAX_PARTS} transfer artifacts "
-                           f"of at most {TRANSFER_PART_BYTES} bytes each")
+                           f"of at most {TRANSFER_PART_BYTES} bytes each "
+                           f"(candidate has {expected_bytes} bytes)")
     output.mkdir(parents=True, exist_ok=False)
     records = []
     total_bytes = 0

@@ -3,6 +3,7 @@
 #include "CabScene.h"
 #include "CabRoom.h"
 #include "CabLowBlendAudioTests.h"
+#include "CabHeadAppearanceTests.h"
 #include "PluginEditor.h"
 #include <atomic>
 #include <iomanip>
@@ -138,8 +139,79 @@ struct Showing {
 
 inline void click(juce::Button& button,const std::function<bool()>& ready) {
     require(button.isVisible() && button.isEnabled(),"CAB navigation button is unavailable");
+    // Observe the original asynchronous button path without forcing delivery,
+    // retrying the click, or changing dispatchUntil's two-second deadline.
+    struct Observation {
+        bool failureFence{};
+        int buttonCalls{},observations{};
+        double lastObservation{},longestDispatchGap{},buttonTime{-1};
+    };
+    struct Listener final : juce::Button::Listener {
+        juce::Component::SafePointer<juce::Button> target;
+        std::shared_ptr<Observation> observation;
+        double started;
+        Listener(juce::Button& value,std::shared_ptr<Observation> state,double start)
+            :target(&value),observation(std::move(state)),started(start) {value.addListener(this);}
+        ~Listener() override {if(target)target->removeListener(this);}
+        void buttonClicked(juce::Button*) override {
+            ++observation->buttonCalls;
+            observation->buttonTime=juce::Time::getMillisecondCounterHiRes()-started;
+        }
+    };
+    const auto state=std::make_shared<Observation>();
+    const auto started=juce::Time::getMillisecondCounterHiRes();
+    state->lastObservation=started;
+    Listener listener(button,state,started);
+    const auto identity=button.getComponentID().toStdString();
+    const auto workspaceState=[&] {
+        std::ostringstream value;
+        if(auto* target=listener.target.getComponent()) {
+            value<<" alive=1 visible="<<target->isVisible()<<" showing="<<target->isShowing()
+                 <<" enabled="<<target->isEnabled();
+            for(auto* parent=target->getParentComponent();parent;parent=parent->getParentComponent())
+                if(auto* workspace=dynamic_cast<CabWorkspace*>(parent)) {
+                    value<<" rigs="<<workspace->activeRigCount()<<" room="<<workspace->isRoomView()
+                         <<" focused="<<workspace->focusedRig();
+                    break;
+                }
+        } else value<<" alive=0";
+        return value.str();
+    };
+    const auto before=workspaceState();
     button.triggerClick();
-    require(dispatchUntil(ready),"CAB navigation click did not reach its view");
+    if(!dispatchUntil([&] {
+        const auto now=juce::Time::getMillisecondCounterHiRes();
+        state->longestDispatchGap=juce::jmax(state->longestDispatchGap,now-state->lastObservation);
+        state->lastObservation=now;++state->observations;
+        return ready();
+    })) {
+        std::ostringstream detail;
+        detail<<"CAB navigation click did not reach its view: "<<identity
+              <<"; elapsed_ms="<<(juce::Time::getMillisecondCounterHiRes()-started)
+              <<" predicate_observations="<<state->observations
+              <<" longest_dispatch_gap_ms="<<state->longestDispatchGap
+              <<" button_listener_calls="<<state->buttonCalls<<" button_listener_ms="<<state->buttonTime
+              <<" stop_sent="<<juce::MessageManager::getInstance()->hasStopMessageBeenSent()
+              <<" before={"<<before<<" } after={"<<workspaceState()<<" }";
+        // The original failure is now latched. A single fixed post-failure
+        // pump can distinguish a pending command from a delivered callback
+        // without adding any messages to the original tested event sequence.
+        // Never re-evaluate the predicate or convert this failure to a pass.
+        const auto postFailureStarted=juce::Time::getMillisecondCounterHiRes();
+        const bool posted=juce::MessageManager::callAsync([state]{state->failureFence=true;});
+        try {
+            const bool pumpContinues=chimeraTest::dispatchFor(10);
+            detail<<" post_failure_observation={requested_pump_ms=10 actual_pump_ms="
+                  <<(juce::Time::getMillisecondCounterHiRes()-postFailureStarted)
+                  <<" pump_continues="<<pumpContinues<<" fence_posted="<<posted
+                  <<" fence_delivered="<<state->failureFence
+                  <<" button_listener_calls="<<state->buttonCalls<<" button_listener_ms="<<state->buttonTime
+                  <<workspaceState()<<" } original_result=FAILED";
+        } catch(const std::exception& error) {
+            detail<<" post_failure_observation_error="<<error.what()<<" original_result=FAILED";
+        }
+        throw std::runtime_error(detail.str());
+    }
 }
 
 inline void tabs(CabPanel& panel,ChimeraProcessor& processor) {
@@ -220,27 +292,30 @@ inline void physicalGeometry(CabScene& scene) {
 }
 
 inline void headSupportGeometry() {
+    chimeraTest::checkHeadAppearance();
     const juce::SharedResourcePointer<spectralforge::cabHead::Bank> artwork;
     for(const auto& face:artwork->faces)
-        require(face.front.isValid() && face.material.isValid() && std::isfinite(face.aspect) && face.aspect>0.f,
-            "A selected amplifier head lost its real fascia or casing material during perspective extraction");
+        require(face.shell.isValid() && face.shell.hasAlphaChannel(),
+            "A selected amplifier head lost its complete RGBA production shell");
     int cases=0,overhangs=0;
     for(const float pixelsPerMetre:std::array<float,3>{{250.f,500.f,800.f}}) {
-        // At a fixed camera scale the same amplifier must keep its size on both
-        // a narrow 1x10 and a wide array; genuine overhang is allowed.
+        // At a fixed camera scale the same amplifier keeps its measured width
+        // on a narrow 1x10 and a wide array. Genuine overhang is allowed. Its
+        // pictured height/depth stay in the authored asset's uniform projection.
         const juce::Rectangle<float> cabinet{50.f,400.f,.38f*pixelsPerMetre,.50f*pixelsPerMetre};
         const auto wideCabinet=cabinet.withWidth(1.20f*pixelsPerMetre);
         const float supportY=cabinet.getY()+.025f*pixelsPerMetre;
         for(int model=0;model<spectralforge::ampModelCount;++model) {
             const auto physical=spectralforge::cabPhysical::head(model);
+            const auto& spec=spectralforge::headShell::definition(model);
             const auto bounds=spectralforge::cabHead::physicalBoundsAboveCabinet(cabinet,pixelsPerMetre,model,supportY);
             const auto wideBounds=spectralforge::cabHead::physicalBoundsAboveCabinet(wideCabinet,pixelsPerMetre,model,supportY);
+            const float sourceScale=physical.width*pixelsPerMetre/float(spec.alphaBounds.width);
             require(std::abs(bounds.getWidth()-physical.width*pixelsPerMetre)<.01f
-                && std::abs(bounds.getHeight()-(physical.height+physical.depth*.16f)*pixelsPerMetre)<.01f
+                && std::abs(bounds.getHeight()-float(spec.supportY-spec.alphaBounds.y)*sourceScale)<.01f
                 && std::abs(bounds.getCentreX()-cabinet.getCentreX())<.01f
-                && bounds.getWidth()==wideBounds.getWidth()
-                && bounds.getHeight()==wideBounds.getHeight(),
-                "Amplifier dimensions follow the cabinet width or bitmap padding instead of physical scale");
+                && bounds.getWidth()==wideBounds.getWidth() && bounds.getHeight()==wideBounds.getHeight(),
+                "Amplifier width follows its cabinet or its authored projection receives a second depth extrusion");
             if(physical.width>.38f) {
                 require(bounds.getX()<cabinet.getX() && bounds.getRight()>cabinet.getRight(),
                     "A full-size head was shrunk to prevent its physical overhang on a narrow cabinet");
@@ -248,43 +323,33 @@ inline void headSupportGeometry() {
             }
             const auto geometry=spectralforge::cabHead::geometry(bounds,model);
             require(!geometry.front.isEmpty() && bounds.expanded(.01f).contains(geometry.front)
-                && std::abs(geometry.front.getWidth()-physical.width*pixelsPerMetre)<.01f
+                && std::abs(geometry.shell.getWidth()-physical.width*pixelsPerMetre)<.01f
                 && std::isfinite(geometry.supportY) && std::abs(geometry.supportY-supportY)<.01f,
-                "Amplifier front or foot plane does not preserve its physical envelope");
-            const float footRise=geometry.supportY-geometry.front.getBottom();
-            require(std::abs(geometry.front.getHeight()+footRise+geometry.handle.getHeight()
-                    -physical.height*pixelsPerMetre)<.01f,
-                "Amplifier body, feet and handle exceed or underfill its published height budget");
-            for(const auto& point:geometry.roof)
-                require(std::isfinite(point.x) && std::isfinite(point.y) && bounds.expanded(.01f).contains(point),
-                    "Perspective amplifier roof escapes its finite head bounds");
-            const auto& backLeft=geometry.roof[0];const auto& backRight=geometry.roof[1];
-            const auto& frontRight=geometry.roof[2];const auto& frontLeft=geometry.roof[3];
-            require(backLeft.x>frontLeft.x && backRight.x<frontRight.x && backRight.x>backLeft.x
-                && backLeft.y<frontLeft.y && backRight.y<frontRight.y
-                && std::abs(frontLeft.y-backLeft.y-physical.depth*.16f*pixelsPerMetre)<.01f,
-                "Amplifier roof does not project its own physical depth at the common camera angle");
-            for(const auto& foot:geometry.feet)
-                require(!foot.isEmpty() && bounds.expanded(.01f).contains(foot)
-                    && std::abs(foot.getBottom()-geometry.supportY)<.01f,
-                    "Amplifier foot floats above or penetrates its common support plane");
-            require(!geometry.feet[0].intersects(geometry.feet[1]),"Amplifier feet overlap");
-            if(spectralforge::cabHead::hasTopHandle(model))
-                require(!geometry.handle.isEmpty() && bounds.expanded(.01f).contains(geometry.handle),
-                    "Amplifier carrying handle escapes its physical height envelope");
-            else require(geometry.handle.isEmpty(),"A compact rack/desktop amplifier acquired an invented roof handle");
+                "Amplifier front plane, shell width or support baseline moved outside its physical placement");
+            // Test both axes using source landmarks, rather than accepting a
+            // separately stretched front, roof or handle to fill a height box.
+            const auto origin=juce::Point<float>{0,0}.transformedBy(geometry.sourceToView);
+            const auto horizontal=juce::Point<float>{100,0}.transformedBy(geometry.sourceToView)-origin;
+            const auto vertical=juce::Point<float>{0,100}.transformedBy(geometry.sourceToView)-origin;
+            require(std::abs(horizontal.x-100.f*sourceScale)<.01f && std::abs(horizontal.y)<.01f
+                && std::abs(vertical.y-100.f*sourceScale)<.01f && std::abs(vertical.x)<.01f,
+                "Complete shell projection stretches, shears or rotates its authored enclosure");
+            const auto sourceSupport=juce::Point<float>{float(spec.alphaBounds.x),float(spec.supportY)}
+                .transformedBy(geometry.sourceToView);
+            require(std::abs(sourceSupport.y-supportY)<.01f,
+                "The authored support plane floats above or penetrates its cabinet support");
             ++cases;
         }
         const auto compact=spectralforge::cabHead::physicalBoundsAboveCabinet(cabinet,pixelsPerMetre,
             int(spectralforge::AmpModel::tastePunch),supportY);
         const auto tube=spectralforge::cabHead::physicalBoundsAboveCabinet(cabinet,pixelsPerMetre,
             int(spectralforge::AmpModel::ironTube),supportY);
-        require(compact.getWidth()<tube.getWidth()*.5f && compact.getHeight()<tube.getHeight()*.3f,
-            "Low-profile desktop bass head was enlarged to the tube-head display envelope");
+        require(compact.getWidth()<tube.getWidth()*.5f,
+            "Compact desktop head was enlarged to a tube head's physical width");
     }
     require(overhangs>0,"Head physical-scale audit did not exercise cabinet overhang");
-    std::cout<<"PASS amplifier physical proportions: "<<cases<<" model/camera cases, independent W/H/D, compact formats, "
-        <<overhangs<<" genuine overhangs and shared foot support plane\n";
+    std::cout<<"PASS complete amplifier shells: "<<cases<<" model/camera cases, physical width, uniform authored projection, "
+        <<overhangs<<" genuine overhangs and shared support plane\n";
 }
 
 inline void mouseDrag(CabScene& scene,int slot,juce::Point<float> target,bool distanceOnly=false,

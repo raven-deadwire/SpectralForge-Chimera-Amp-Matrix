@@ -124,6 +124,9 @@ ChimeraEditor::ChimeraEditor(ChimeraProcessor& p) : AudioProcessorEditor(&p),pro
 {
     setLookAndFeel(&look); canvas.setComponentID("surface"); addAndMakeVisible(canvas);
     auto add=[this](juce::Component& component){canvas.addAndMakeVisible(component);};
+    signalPath=std::make_unique<SignalPathView>(processor,true);add(*signalPath);
+    signalPath->navigate=[this](const auto& node){navigateSignalPath(node);};
+    signalPath->expand=[this]{openSignalPath();};
     add(rigControls);
     rigControls.setComponentID("cabRigControls");
     rigControls.setTooltip("Switch between the shared cabinet room and amplifier controls. The sound is unchanged.");
@@ -150,7 +153,7 @@ ChimeraEditor::ChimeraEditor(ChimeraProcessor& p) : AudioProcessorEditor(&p),pro
         menu.showMenuAsync(juce::PopupMenu::Options().withTargetComponent(&info),[safe](int result){if(!safe)return;if(result==7)safe->showDiagnostics();else if(result==6)safe->showSupport();else if(result==1)safe->referenceFile(true);else if(result==2)safe->referenceFile(false);else if(result==3)safe->showInfo();else if(result==4){auto* p=safe->processor.parameters().getParameter("tunerref");p->setValueNotifyingHost(p->convertTo0to1(440));}else if(result==5)safe->processor.clearMidi();});
     };
     info.setTooltip(juce::String("SpectralForge Chimera / ")+spectralforge::release::displayVersion+" / build "+CHIMERA_BUILD_REVISION+"\nManual, bug reporting, updates, reference files and utility settings.");
-    for(auto* button:{&compareA,&compareB,&copyAB,&irLibraryButton,&rigsTab,&preTab,&postTab}) add(*button);
+    for(auto* button:{&compareA,&compareB,&copyAB,&irLibraryButton,&rigsTab,&preTab,&postTab,&eqTab}) add(*button);
     compareA.onClick=[this]{processor.selectComparison(0);markPresetCustom();timerCallback();};compareB.onClick=[this]{processor.selectComparison(1);markPresetCustom();timerCallback();};copyAB.onClick=[this]{processor.copyComparison();};
     compareA.setTooltip("Recall sound snapshot A: all parameters, models and embedded IRs. Both stereo channels are processed together.");compareB.setTooltip("Recall sound snapshot B. This is a stored sound, not the right audio channel.");
     copyAB.setTooltip("Copy the active sound to the other slot. A/B stores all parameters and IR audio; both slots are saved with the project/reference file.");
@@ -159,7 +162,9 @@ ChimeraEditor::ChimeraEditor(ChimeraProcessor& p) : AudioProcessorEditor(&p),pro
     preOrder.setTooltip("TOUCH lets the envelope follow your picking before compression. SUSTAIN compresses first for a steadier sweep. Fuzz, boost and drive remain after the shared clean tap.");
     gainOrder.setComponentID("gainorder");gainOrder.setName("Gain pedal order");gainOrder.addItemList({"FUZZ > BOOST > DRIVE","FUZZ > DRIVE > BOOST"},1);add(gainOrder);gainOrderAttachment=std::make_unique<CA>(p.parameters(),"gainorder",gainOrder);gainOrder.onChange=[this]{updateModeUI();};
     gainOrder.setTooltip("Boost before drive adds drive saturation. Boost after drive raises its output; a saturated amp may still add distortion instead of loudness. Fuzz stays first; Matrix LOW DI is unaffected.");
-    rigsTab.onClick=[this]{page=0;updateModeUI();};preTab.onClick=[this]{page=1;updateModeUI();};postTab.onClick=[this]{page=2;updateModeUI();};
+    rigsTab.onClick=[this]{page=0;pathSelections[size_t(juce::jlimit(0,2,lastMode))]="rigs";updateModeUI();};preTab.onClick=[this]{page=1;pathSelections[size_t(juce::jlimit(0,2,lastMode))]="pre";updateModeUI();};postTab.onClick=[this]{page=2;pathSelections[size_t(juce::jlimit(0,2,lastMode))]="post";updateModeUI();};
+    eqTab.onClick=[this]{const auto route=spectralforge::signalPath::read(processor);navigateSignalPath(*route.find("tone.eq"));};
+    for(int e=0;e<2;++e){eqPanels[(size_t)e]=std::make_unique<spectralforge::GraphicalEQPanel>(p.parameters(),p.graphicalEQ(e),e);add(*eqPanels[(size_t)e]);}
     const std::array<const char*,11> effectHeaders{"OVERDRIVE","DELAY","REVERB","COMPRESSOR","ENVELOPE","FUZZ","BOOST","BUS COMP","PREAMP","EQ","MODULATION"};
     const std::array<const char*,11> effectScopes{"05 / TIGHT GAIN","05 / SPACE","06 / SPACE","01 / DYNAMICS","02 / FILTER","03 / TEXTURE","04 / SHAPING","01 / DYNAMICS","02 / COLOUR","03 / TONE","04 / MODULATION"};
     const std::array<const char*,11> effectButtons{"preon","delayon","reverbon","precompon","filteron","fuzzon","booston","buscompon","preampon","eqon","choruson"};
@@ -262,6 +267,7 @@ ChimeraEditor::ChimeraEditor(ChimeraProcessor& p) : AudioProcessorEditor(&p),pro
         lane.amp.resetSyncExplicit(processor.selectedAmpModel(i)+1);
         lane.amp.onChange=[this,i]{auto& control=lanes[(size_t)i].amp;control.acceptSelection();processor.setAmpModel(i,control.getSelectedId()-1);stateDirty=true;};
         lane.nativePanel=std::make_unique<AmpNativePanel>(processor,i);add(*lane.nativePanel);
+        lane.head=std::make_unique<AmpHeadControlView>(processor,i,false);add(*lane.head);lane.head->onOpen=[this,i]{openAmpHead(i);};
         auto controls=lane.controls();
         for(size_t k=0;k<8;++k)
         {
@@ -317,6 +323,61 @@ void ChimeraEditor::loadIR(int lane)
     options.dialogTitle="SpectralForge Chimera / Cabinet library / Rig "+juce::String(lane+1);options.dialogBackgroundColour=background;
     options.useNativeTitleBar=true;options.escapeKeyTriggersCloseButton=true;options.resizable=false;options.componentToCentreAround=this;trackDialog(options.launchAsync());
 }
+void ChimeraEditor::openSignalPath()
+{
+    if(pathDialog){pathDialog->toFront(true);return;}
+    auto* graph=new SignalPathView(processor,false);
+    graph->select(pathSelections[size_t(juce::jlimit(0,2,lastMode))]);
+    const juce::Component::SafePointer<ChimeraEditor> safe(this);
+    graph->selection=[safe]{return safe?safe->pathSelections[size_t(juce::jlimit(0,2,int(safe->processor.parameters().getRawParameterValue("mode")->load())))]:juce::String{};};
+    graph->navigate=[safe,graph](const auto& node){if(safe){safe->navigateSignalPath(node);graph->select(safe->pathSelections[size_t(juce::jlimit(0,2,safe->lastMode))]);}};
+    pathDialog=new SignalPathWindow(graph,this);trackDialog(pathDialog);
+
+}
+void ChimeraEditor::navigateSignalPath(const spectralforge::signalPath::Node& node)
+{
+    using Target=spectralforge::signalPath::Target;
+    const int modeNow=juce::jlimit(0,2,int(processor.parameters().getRawParameterValue("mode")->load()));
+    // A stale graph event must never select a lane from another routing mode.
+    if(node.lane>=modeNow+1)return;
+    if(node.id!="pre" && node.id!="post" && node.id!="rigs" && !spectralforge::signalPath::read(processor).find(node.id))return;
+    updateModeUI(); // Synchronize restored mode before applying presentation focus.
+    pathSelections[size_t(modeNow)]=node.id;
+    switch(node.target){
+        case Target::pre:page=1;break;
+        case Target::post:page=2;break;
+        case Target::toneEQ:case Target::finalEQ:page=3;break;
+        case Target::amp:case Target::low:page=0;showRigControls=true;break;
+        case Target::cab:page=0;break;
+        case Target::rigs:page=0;break;
+        default:break;
+    }
+    updateModeUI();signalPath->select(node.id);
+    const auto focus=[](juce::Component& c){if(c.isShowing()&&c.getWantsKeyboardFocus())c.grabKeyboardFocus();};
+    switch(node.target){
+        case Target::pre:boardPanel.navigateOwner(node.id.startsWith("pre.owner")?node.id.substring(9).getIntValue():-1);break;
+        case Target::toneEQ:case Target::finalEQ:eqPanels[node.target==Target::toneEQ?0:1]->focusForNavigation();break;
+        case Target::amp:if(node.lane>=0){focus(lanes[size_t(node.lane)].amp);if(auto* button=dynamic_cast<juce::TextButton*>(lanes[size_t(node.lane)].nativePanel->findChildWithID("ampExpand"+juce::String(node.lane+1))))button->onClick();}break;
+        case Target::cab:if(node.lane>=0)openCabWorkspace(node.lane,true);break;
+        case Target::gate:focus(globalSliders[1]);break;
+        case Target::transpose:focus(globalSliders[4]);break;
+        case Target::input:focus(globalSliders[0]);break;
+        case Target::output:focus(globalSliders[6]);break;
+        case Target::tuner:{juce::DialogWindow::LaunchOptions options;options.content.setOwned(new SignalPathTunerPanel(processor));options.dialogTitle="Chimera / Tuner";options.dialogBackgroundColour=background;options.useNativeTitleBar=true;options.escapeKeyTriggersCloseButton=true;options.resizable=false;options.componentToCentreAround=this;trackDialog(options.launchAsync());break;}
+        case Target::utilities:focus(doublerTime);break;
+        case Target::low:if(auto* button=dynamic_cast<juce::TextButton*>(lanes[0].nativePanel->findChildWithID("ampExpand1")))button->onClick();break;
+        case Target::post:if(node.section>=0&&node.section<3){focus(*postPanels[size_t(node.section)]);}else if(node.section>=3){focus(effects[size_t(rackOrder[size_t(node.section)])].model);}break;
+        default:break;
+    }
+}
+void ChimeraEditor::openAmpHead(int lane)
+{
+    juce::DialogWindow::LaunchOptions options;
+    options.content.setOwned(new AmpHeadWorkspace(processor,lane));
+    options.dialogTitle="Chimera / Amplifier";options.dialogBackgroundColour=background;
+    options.useNativeTitleBar=true;options.escapeKeyTriggersCloseButton=true;options.resizable=false;
+    options.componentToCentreAround=this;auto* window=options.launchAsync();trackDialog(window);fitCabinetWindow(window);
+}
 void ChimeraEditor::openCabWorkspace(int lane,bool focusRequested)
 {
     juce::DialogWindow::LaunchOptions options;
@@ -361,7 +422,7 @@ void ChimeraEditor::showInfo()
 void ChimeraEditor::timerCallback()
 {
     // Detached ALL windows remain live when their owning tab is hidden.
-    for(auto& lane:lanes)lane.nativePanel->refreshIfNeeded();
+    for(auto& lane:lanes){lane.nativePanel->refreshIfNeeded();if(lane.head->isShowing())lane.head->refresh();}
     for(auto& post:postPanels)post->refreshIfNeeded();
     if(!spectralforge::ui::visible(*this)){stateDirty=true;return;}
 
@@ -369,6 +430,7 @@ void ChimeraEditor::timerCallback()
     if(++presetCheckTick%5==0 && !presetValues.empty()) {const auto& params=processor.getParameters();bool changed=presetValues.size()!=size_t(params.size());for(int i=0;!changed && i<params.size();++i)changed=std::abs(params[i]->getValue()-presetValues[(size_t)i])>1e-6f;if(changed)markPresetCustom();}
     const int current=(int)processor.parameters().getRawParameterValue("mode")->load();
     if(lastBoardEnabled!=(processor.parameters().getRawParameterValue("boardEnabled")->load()>.5f) || lastBoostAfterDrive!=(gainOrder.getSelectedId()==2) || lastEnvelopeFirst!=(preOrder.getSelectedId()==2) || current!=lastMode || lastDualCross!=(dualType.getSelectedId()==2) || lastTuner!=tunerOn.getToggleState()) updateModeUI();
+    signalPath->refresh();signalPath->select(pathSelections[size_t(current)]);
     refreshVisibleState();
     refreshMeters();
 }
@@ -523,10 +585,13 @@ void ChimeraEditor::updateModeUI()
     lastBoostAfterDrive=gainOrder.getSelectedId()==2;if(lastBoostAfterDrive)std::swap(pedalOrder[3],pedalOrder[4]);
     lastBoardEnabled=processor.parameters().getRawParameterValue("boardEnabled")->load()>.5f;
     preEngineStatus.setVisible(page==1 && !tunerOn.getToggleState());
-    preEngineStatus.setText("5-SLOT PRE  /  select a pedal by type; drag controls to shape each instance",juce::dontSendNotification);
+    preEngineStatus.setText("5-SLOT PRE  /  select and edit each pedal",juce::dontSendNotification);
     boardPanel.setVisible(page==1);
     preOrder.setVisible(false);gainOrder.setVisible(false);
     const int nextMode=(int)processor.parameters().getRawParameterValue("mode")->load();
+    // These two banks are global, so switching routing modes while editing an
+    // EQ must keep the path highlight on the same visible bank.
+    if(nextMode!=lastMode && lastMode>=0 && page==3)pathSelections[size_t(nextMode)]=pathSelections[size_t(lastMode)];
     if(nextMode!=lastMode)showRigControls=false;
     lastMode=nextMode;
     lastDualCross=dualType.getSelectedId()==2;lastTuner=tunerOn.getToggleState();
@@ -535,12 +600,14 @@ void ChimeraEditor::updateModeUI()
     if(roomVisible && !cabRoom) {
         cabRoom=std::make_unique<CabRoomOverview>(processor);canvas.addAndMakeVisible(*cabRoom);
         cabRoom->onCabinetSelected=[this](int lane){openCabWorkspace(lane,true);};
+        cabRoom->onAmplifierSelected=[this](int lane){openAmpHead(lane);};
     }
     if(cabRoom) {cabRoom->setVisible(roomVisible);if(roomVisible)cabRoom->refreshState();}
     rigControls.setVisible(page==0 && lastMode!=0);
     rigControls.setButtonText(showRigControls ? "CABINET ROOM" : "RIG CONTROLS");
     x1.setVisible(matrix && page==0 && !lastTuner); x2.setVisible(matrix && page==0 && !lastTuner); x1Label.setVisible(matrix && page==0 && !lastTuner); x2Label.setVisible(matrix && page==0 && !lastTuner);
-    rigsTab.setToggleState(page==0,juce::dontSendNotification);preTab.setToggleState(page==1,juce::dontSendNotification);postTab.setToggleState(page==2,juce::dontSendNotification);
+    rigsTab.setToggleState(page==0,juce::dontSendNotification);preTab.setToggleState(page==1,juce::dontSendNotification);postTab.setToggleState(page==2,juce::dontSendNotification);eqTab.setToggleState(page==3,juce::dontSendNotification);
+    for(int e=0;e<2;++e){eqPanels[size_t(e)]->setVisible(page==3);eqPanels[size_t(e)]->setNavigationSelected(page==3 && pathSelections[size_t(lastMode)]==(e==0?"tone.eq":"final.eq"));}
     for(size_t i=0;i<effects.size();++i) {
         auto& effect=effects[i];const bool show=page==2 && (i==10 || i==1 || i==2);
         effect.header.setVisible(show);effect.scope.setVisible(show);effect.description.setVisible(false);effect.enabled.setVisible(show);effect.model.setVisible(show);effect.expand.setVisible(show);
@@ -552,7 +619,7 @@ void ChimeraEditor::updateModeUI()
     {
         auto& lane=lanes[i]; const bool show=i<count && page==0 && !roomVisible;
         for(juce::Component* c : std::initializer_list<juce::Component*>{&lane.header,&lane.range,&lane.ampReference,&lane.amp,&lane.ampOn,&lane.mute,&lane.solo,&lane.polarity,&lane.cabOn,&lane.load,&lane.details,&lane.cabType,&lane.cabLow,&lane.cabHigh,&lane.lowLabel,&lane.highLabel,&lane.cabStatus}) c->setVisible(show);
-        lane.nativePanel->setVisible(show);lane.nativePanel->refreshIfNeeded();
+        lane.nativePanel->setVisible(show);lane.nativePanel->refreshIfNeeded();lane.head->setVisible(show);if(show)lane.head->refresh();
         auto controls=lane.controls();
         for(size_t k=0;k<8;++k) { controls[k]->setVisible(false); lane.knobLabels[k].setVisible(false); }
         if(matrix && i==0) {
@@ -566,7 +633,7 @@ void ChimeraEditor::updateModeUI()
     dualBlend.setVisible(lastMode==1 && !lastDualCross && page==0 && !lastTuner);dualFrequency.setVisible(lastMode==1 && lastDualCross && page==0 && !lastTuner);
     dualLabel.setText(lastDualCross ? "LOW / HIGH CROSSOVER" : "RIG 1 : RIG 2",juce::dontSendNotification);
     tunerMute.setVisible(lastTuner);globalSliders[5].setVisible(lastTuner);delaySync.setVisible(page==2);
-    routingHelp.setText(page==1 ? "PEDALBOARD / SHARED INPUT" : page==2 ? "RACK / AFTER RIG MERGE" : matrix ? "LR4 / 24 dB per octave" : lastMode==0 ? "ONE FULL-RANGE RIG" : lastDualCross ? "LR4 / 24 dB per octave" : "FULL-RANGE BLEND",juce::dontSendNotification);
+    routingHelp.setText(page==3 ? "TONE EQ > POST > WIDTH > FINAL EQ" : page==1 ? "PEDALBOARD / SHARED INPUT" : page==2 ? "RACK / AFTER RIG MERGE" : matrix ? "LR4 / 24 dB per octave" : lastMode==0 ? "ONE FULL-RANGE RIG" : lastDualCross ? "LR4 / 24 dB per octave" : "FULL-RANGE BLEND",juce::dontSendNotification);
     stateDirty=true;updateBandLabels();refreshVisibleState();layoutControls();repaint();
 }
 void ChimeraEditor::paint(juce::Graphics& g)
@@ -624,10 +691,10 @@ void ChimeraEditor::paint(juce::Graphics& g)
             g.setColour(panel.withAlpha(.8f));g.fillRoundedRectangle(x,330,float(width),412,5);
             g.setColour(line.withAlpha(.65f));g.drawRoundedRectangle(x,330,float(width),412,5,1);
             if(lastMode==0) {
-                spectralforge::art::head(g,{x+12,433,466,198},lane.amp.getSelectedId()-1);
+
                 g.setColour(background.withAlpha(.75f));g.fillRoundedRectangle(x+490,429,float(width-502),207,3);
             } else {
-                spectralforge::art::head(g,{x+12,433,float(width-24),55},lane.amp.getSelectedId()-1);
+
                 g.setColour(background.withAlpha(.82f));g.fillRoundedRectangle(x+10,490,float(width-20),145,3);
             }
             g.setColour(colour.withAlpha(.65f));g.fillRect(x+12,332.f,float(width-24),2.f);
@@ -650,11 +717,13 @@ void ChimeraEditor::resized()
 void ChimeraEditor::layoutControls()
 {
     if(cabRoom)cabRoom->setBounds(20,330,1140,412);
+    for(int e=0;e<2;++e)eqPanels[(size_t)e]->setBounds(20+e*580,330,560,412);
+    signalPath->setBounds(20,309,985,20);
     rigControls.setBounds(1017,309,143,20);
-    preEngineStatus.setBounds(20,298,1140,27);boardPanel.setBounds(20,330,1140,415);
+    preEngineStatus.setBounds(585,268,575,28);boardPanel.setBounds(20,330,1140,415);
     gateLocation.setBounds(298,93,113,23);
     preOrder.setBounds(585,268,257,28);gainOrder.setBounds(852,268,308,28);
-    compareA.setBounds(490,30,30,28);compareB.setBounds(524,30,30,28);copyAB.setBounds(558,30,52,28);rigsTab.setBounds(634,30,52,28);preTab.setBounds(692,30,52,28);postTab.setBounds(750,30,52,28);
+    compareA.setBounds(490,30,30,28);compareB.setBounds(524,30,30,28);copyAB.setBounds(558,30,52,28);rigsTab.setBounds(634,30,44,28);preTab.setBounds(684,30,44,28);postTab.setBounds(734,30,44,28);eqTab.setBounds(784,30,28,28);
     title.setBounds(30,16,166,40); quality.setBounds(816,30,130,28); scale.setBounds(986,30,80,28);irLibraryButton.setBounds(1074,30,86,28); info.setBounds(504,750,86,25);
     mode.setBounds(106,268,140,28); routingHelp.setBounds(lastMode==1 ? 415 : 258,268,lastMode==1 ? 160 : 277,28);
     dualType.setBounds(260,268,144,28);dualLabel.setBounds(597,257,280,20);dualBlend.setBounds(597,280,330,28);dualFrequency.setBounds(597,280,330,28);
@@ -688,6 +757,7 @@ void ChimeraEditor::layoutControls()
         lane.header.setBounds(x+12,339,width-165,22); lane.range.setBounds(x+12,362,width-24,17);
         lane.mute.setBounds(x+width-147,344,48,23); lane.solo.setBounds(x+width-95,344,44,23); lane.polarity.setBounds(x+width-47,344,35,23);
         lane.ampOn.setBounds(x+12,382,48,29);lane.amp.setBounds(x+68,382,width-80,29);lane.ampReference.setBounds(x+14,413,width-28,18);
+        lane.head->setBounds(x+12,433,lastMode==0?466:width-24,lastMode==0?198:55);
         lane.nativePanel->setBounds(lastMode==0?x+495:x+12,lastMode==0?433:490,lastMode==0?width-509:width-24,lastMode==0?201:145);
         lane.bandTone.setSliderStyle(juce::Slider::LinearHorizontal);lane.bandTone.setTextBoxStyle(juce::Slider::TextBoxRight,false,55,20);
         lane.toneLabel.setBounds(x+12,615,68,21);lane.bandTone.setBounds(x+82,615,width-94,22);lane.tonePivot.setVisible(false);

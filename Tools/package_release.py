@@ -187,7 +187,7 @@ def linux(build: Path, dist: Path) -> None:
     desktop = stage / "usr/share/applications/chimera-amp-matrix.desktop"
     desktop.parent.mkdir(parents=True, exist_ok=True)
     desktop.write_text("[Desktop Entry]\nType=Application\nName=SpectralForge Chimera\n"
-                       "Comment=Guitar and bass amp matrix — Preview\n"
+                       f"Comment=Guitar and bass amp matrix — {chimera_version.display_version(ROOT)}\n"
                        "Exec=chimera-amp-matrix\nIcon=chimera-amp-matrix\nTerminal=false\n"
                        "Categories=AudioVideo;Audio;\n", encoding="utf-8")
     vstbinary = plugin / "Contents/x86_64-linux/SpectralForge Chimera.so"
