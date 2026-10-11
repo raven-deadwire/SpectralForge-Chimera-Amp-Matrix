@@ -4,7 +4,8 @@ import math
 NAMES = ('Fenrir', 'Surtr', 'Nidhoggr', 'Fimbulvetr', 'Ragnarok')
 MATCH = ('dataset_sha256', 'config', 'source', 'sample_rate', 'trainer_commit',
          'target_player_commit', 'batch', 'frames', 'seed', 'threads',
-         'validation_selection', 'quality_profile', 'tail_fraction')
+         'validation_selection', 'quality_profile', 'tail_fraction',
+         'center_training_output', 'identity_version')
 
 
 def select_recipe(arms):
@@ -20,7 +21,8 @@ def select_recipe(arms):
             raise RuntimeError('Invalid validation provenance')
         if result['quality_profile'] != cfg['quality_profile']:
             raise RuntimeError('Changed quality profile')
-        if any(cfg[k] != baseline['config'][k] for k in MATCH):
+        if any(cfg.get(k, False if k == 'center_training_output' else 1) !=
+               baseline['config'].get(k, False if k == 'center_training_output' else 1) for k in MATCH):
             raise RuntimeError('Unmatched recipe configuration')
         if (result['checkpoint_step'] != baseline['validation']['checkpoint_step'] or
             result['crop_schedule_start_step'] != 0 or

@@ -85,6 +85,26 @@ class A2RecipeTests(unittest.TestCase):
         self.assertEqual(virtual_epoch_learning_rate(702, steps), .004 * .994)
         self.assertEqual(virtual_epoch_learning_rate(1404, steps), .004 * .994 ** 2)
 
+    def test_training_center_matches_export_without_removing_signal_dc(self):
+        from train_a2 import export_consistent_prediction
+        resource = importlib.resources.files('nam.train._resources').joinpath('config_model_packed.json')
+        template = json.loads(resource.read_text())['net']['config']['submodels'][-1]['config']
+        torch.manual_seed(42)
+        model = PackedWaveNet.init_from_config({'sample_rate': 48000,
+            'submodels': [{'name': 'test', 'config': template}]}).eval()
+        x = torch.randn(1, model.receptive_field + 256) * .1 + .05
+        actual = export_consistent_prediction(model, x)
+        sub = model.extract_submodel(0).eval()
+        with torch.no_grad():
+            dc = sub(torch.zeros(1, sub.receptive_field), pad_start=False)[0, -1]
+            sub._net._layer_arrays[-1]._head_rechannel.bias.sub_(dc / sub._net._head_scale)
+        expected = sub(x, pad_start=False)
+        torch.testing.assert_close(actual[:, 0], expected, rtol=1e-5, atol=1e-7)
+        actual.square().mean().backward()
+        self.assertTrue(all(torch.isfinite(p.grad).all() for p in model.parameters() if p.grad is not None))
+        zero = export_consistent_prediction(model, torch.zeros_like(x))
+        self.assertLess(float(zero.abs().max().detach()), 1e-7)
+
 
 if __name__ == '__main__':
     unittest.main()

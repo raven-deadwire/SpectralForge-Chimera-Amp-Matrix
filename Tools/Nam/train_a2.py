@@ -14,6 +14,7 @@ from nam.models._from_nam import init_from_nam
 from common import digest, write_json
 from capture_channels import VOICES
 from quality_profile import PROFILE, fidelity
+from training_contract import verify_audio_manifest, training_identity
 from a2_recipe import (RECIPE, A2TrainingLoss, training_output_gains,
     rescale_output_head, steps_per_virtual_epoch, virtual_epoch_learning_rate)
 
@@ -48,6 +49,16 @@ def centered_prediction(model,x):
     with torch.inference_mode():dc=model(torch.zeros(1,model.receptive_field+1),pad_start=False).numpy()[0,...,-1]
     return result-np.asarray(dc)[...,None]
 
+def export_consistent_prediction(model, x):
+    """Differentiate through the same fixed zero-history correction as export.
+
+    Never remove a signal-dependent mean: asymmetry, transients and native
+    decay remain in the target. Only the model's zero-input steady state is
+    subtracted. This is an explicit refinement, not the untouched A2 recipe.
+    """
+    dc = model(x.new_zeros(1, model.receptive_field), pad_start=False)
+    return model(x, pad_start=False) - dc
+
 def main():
     ap=argparse.ArgumentParser();ap.add_argument('--data',type=Path,required=True);ap.add_argument('--out',type=Path,required=True)
     ap.add_argument('--trainer',type=Path,required=True);ap.add_argument('--steps',type=int,default=5000)
@@ -59,9 +70,12 @@ def main():
     ap.add_argument('--validation-selection',choices=['window','full'],default='window')
     ap.add_argument('--warm-start',type=Path,help='Initialize from a prior run with the same architecture and frozen native source; reset optimizer and re-score validation')
     ap.add_argument('--tail-fraction',type=float,default=0.,help='Fraction of training windows drawn from the final captured decay')
+    ap.add_argument('--center-training-output',action='store_true',help='Train the same zero-history-corrected response that is exported')
     ap.add_argument('--resume',action='store_true');args=ap.parse_args()
     if args.resume and args.warm_start:raise ValueError('Choose resume or warm-start')
     if not 0<=args.tail_fraction<=.25:raise ValueError('Tail fraction must be between 0 and .25')
+    if min(args.steps,args.batch,args.frames,args.threads,args.lr,args.lr_half_life)<=0:raise ValueError('Positive training budget and optimizer settings required')
+    manifest=verify_audio_manifest(args.data)
     torch.set_num_threads(args.threads);torch.manual_seed(6405);rng=np.random.default_rng(6405)
     template=json.loads((args.trainer/'nam/train/_resources/config_model_packed.json').read_text())['net']['config']['submodels'][-1]['config']
     cfg={'sample_rate':48000,'submodels':[{'name':v[0],'config':copy.deepcopy(template)} for v in VOICES]}
@@ -71,14 +85,9 @@ def main():
     gains=training_output_gains(ys) if args.recipe=='official-a2' else np.full(len(VOICES),.1)
     gain_tensor=torch.tensor(gains,dtype=torch.float32)[None,:,None]
     epoch_steps=steps_per_virtual_epoch(len(x),rf,args.frames,args.batch)
-    recipe_identity='causal_raw_gain0.1_grouped_v1' if args.recipe=='legacy' else 'official_a2_train_rms_v1'+json.dumps(gains.tolist())
-    if args.recipe=='official-a2':
-        recipe_identity+=json.dumps({'recipe':RECIPE,'batch':args.batch,'frames':args.frames,
-          'initial_lr':args.lr,'virtual_epoch_steps':epoch_steps,'tail_fraction':args.tail_fraction},sort_keys=True)
-    identity=hashlib.sha256((digest(args.data/'manifest.json')+json.dumps(cfg,sort_keys=True)+recipe_identity).encode()).hexdigest()
     args.out.mkdir(parents=True,exist_ok=True)
-    source=json.loads((args.data/'manifest.json').read_text())['source']
-    train_cfg={'dataset_sha256':digest(args.data/'manifest.json'),'identity':identity,'config':cfg,'sample_rate':48000,
+    source=manifest['source']
+    train_cfg={'dataset_sha256':digest(args.data/'manifest.json'),'config':cfg,'sample_rate':48000,
       'trainer_commit':'0072676419459f5d39e36f5b9fd4172f28d62cbf','target_player_commit':'ef6f178ae1ac6412b55fec6f058d86e640e5aaaf',
       'training_target_gain':gains.tolist() if args.recipe=='official-a2' else .1,'export':'undo training gain in head_scale; fixed silence-bias correction; independent A2-Full WaveNets',
       'source':source,'receptive_field':rf,'torch':torch.__version__,'python':platform.python_version(),'batch':args.batch,'frames':args.frames,'seed':6405,'threads':args.threads,
@@ -88,10 +97,13 @@ def main():
       'sampling':'seeded random crops; matched across comparison arms, not upstream shuffled nonoverlapping epochs',
       'virtual_epoch_steps':epoch_steps,
       'quality_profile':PROFILE,'tail_fraction':args.tail_fraction,
+      'identity_version':2,'center_training_output':args.center_training_output,
       'warm_start':None if args.warm_start is None else {'run':str(args.warm_start),'checkpoint_sha256':digest(args.warm_start/'checkpoint.pt')}}
     if args.recipe=='official-a2':
         train_cfg['learning_rate']={'initial':args.lr,'gamma':.994,'virtual_epoch_steps':epoch_steps,'schedule':'step at completed virtual epoch; random crop adaptation'}
         train_cfg['loss_normalization']='train-only output RMS -18dBFS; summed per-channel unnormalized MSE + .0005 MRSTFT'
+    identity=training_identity(train_cfg)
+    train_cfg['identity']=identity
     vx=np.load(args.data/'validation/input.npy');vy=np.stack([np.load(args.data/'validation'/f'{v[0]}.npy') for v in VOICES])
     channel_power=torch.tensor([np.mean(y.astype(np.float64)**2)*g**2 for y,g in zip(ys,gains)],dtype=torch.float32)[None].clamp_min(.0001)
     recipe_loss=A2TrainingLoss() if args.recipe=='official-a2' else None
@@ -159,7 +171,7 @@ def main():
         crop_digest.update(st.astype('<i8').tobytes())
         xx=torch.from_numpy(np.stack([x[s-rf+1:s+args.frames] for s in st]))
         yy=torch.from_numpy(np.stack([ys[:,s:s+args.frames] for s in st]))*gain_tensor
-        pred=model(xx,pad_start=False)
+        pred=export_consistent_prediction(model,xx) if args.center_training_output else model(xx,pad_start=False)
         if recipe_loss is not None:loss=recipe_loss(pred,yy)
         else:
             power=yy.square().mean(dim=-1).clamp_min(.0001) if args.loss_normalization=='window' else channel_power

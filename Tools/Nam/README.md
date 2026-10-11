@@ -363,3 +363,50 @@ additional player oversampling; the captured source itself includes native
 
 Upstream NAM and TONE3000 are their respective authors' projects. Their source
 and dependency licenses apply; no affiliation or endorsement is implied.
+
+## Matched bounded refinement after run 37947011057
+
+That run already compared both recipes on identical crops. Its selected legacy
+model set still failed all five channels; see `reports/full-37947011057-audit.json`.
+`audit_full_run.py` verifies the original artifact inventory and recomputes
+validation metrics and pluck/broadband/terminal-decay error contributions.
+
+`refine_a2.py` starts both recipes from the same selected baseline checkpoint,
+resets optimizers and crop RNGs, and defaults to 1,000 additional steps per arm.
+Both use batch 2, 4,096 output frames, initial LR 0.001 and 10% terminal-decay
+sampling. The distinct legacy and upstream virtual-epoch LR schedules are
+retained and reported. The objective formulas remain distinct. This is an
+explicit refinement adaptation, not a claim of reproducing the upstream cloud
+trainer unchanged.
+
+With `--center-training-output`, the loss sees the same fixed zero-history
+response subtraction used by export. Gradients flow through that subtraction.
+No per-crop mean, gain, time alignment or EQ is fitted: native asymmetric tone,
+attack and decay targets stay unchanged. This option is opt-in; ordinary CI's
+historical recipe comparison remains reproducible.
+
+```sh
+python Tools/Nam/audit_full_run.py --evidence /absolute/path/to/failed-full \
+  --out /absolute/path/to/audit.json
+python Tools/Nam/refine_a2.py --data /absolute/path/to/failed-full/data \
+  --source /absolute/path/to/failed-full/run --trainer /absolute/path/to/trainer \
+  --out /absolute/path/to/refinement --steps 1000 --threads 2
+python Tools/Nam/evaluate_refinement.py --experiment /absolute/path/to/refinement \
+  --data /absolute/path/to/failed-full/data --baseline /absolute/path/to/failed-full/run \
+  --renderer /absolute/path/to/ChimeraNamRender --tool /absolute/path/to/ChimeraTone3000Tool \
+  --out /absolute/path/to/fresh-test --seed 26101122
+```
+
+The independent evaluator freezes the validation selection and model hashes
+before generating a new 24-second synthetic input. It evaluates the actual
+target engine against native DSP with the existing channel controls, and checks
+Python/engine parity. It writes `accuracy=FAIL` for unmet fidelity limits; exit
+zero only means measurement completed. It never grants release, DI-listening
+or GUI/DAW approval. Do not use that fresh test for further checkpoint tuning;
+another development round needs another sealed test.
+
+Training now checks every declared audio hash and rejects reused input files
+across splits. Resume identity v2 includes optimizer, crop, sampler, validation
+and centering settings. Old checkpoints must use a documented `--warm-start`;
+they cannot silently resume under different settings. The unchanged fidelity
+profile, source DSP and player pins remain authoritative.

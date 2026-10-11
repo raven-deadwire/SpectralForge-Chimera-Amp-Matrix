@@ -10,6 +10,8 @@ from ci_pipeline import NAMES, THRESHOLDS, numeric_pass, seal, verify_dataset, v
 from ci_sources import LOCK, check_checkout, sha256
 # Include recipe regression contracts in the existing CI failure-gate entry point.
 from test_recipe_selection import RecipeTests
+from test_training_contract import ContractTests
+from test_a2_recipe import A2RecipeTests
 
 
 class EvidenceTests(unittest.TestCase):
