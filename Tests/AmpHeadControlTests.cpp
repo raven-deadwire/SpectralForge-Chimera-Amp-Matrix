@@ -85,6 +85,22 @@ std::vector<NativeControlView*> faceControls(juce::Component& root) {
 }
 void checkFaceLayout(AmpHeadWorkspace& view,int model,int channel=0) {
     auto* head=find<AmpHeadControlView>(view,"ampHead1");check(head,"Missing layout head");
+    const auto shellLayout=cabHead::geometry(head->headBounds(),model);
+    const auto plate=chimeraTest::reviewedHeadPlate(model).transformedBy(shellLayout.sourceToView);
+    const auto checkPlate=[&](juce::Rectangle<float> painted,const juce::String& name) {
+        if(!plate.contains(painted))throw std::runtime_error("Native "+name.toStdString()
+            +" leaves the reviewed blank control plate ["+testContext+", bounds "
+            +painted.toString().toStdString()+", plate "+plate.toString().toStdString()+"]");
+    };
+    const auto checkPlateLabel=[&](juce::Label& label) {
+        if(!label.isVisible())return;
+        const auto area=head->getLocalArea(&label,label.getLocalBounds()).toFloat();
+        juce::GlyphArrangement glyphs;
+        glyphs.addFittedText(label.getLookAndFeel().getLabelFont(label),label.getText(),area.getX(),area.getY(),
+            area.getWidth(),area.getHeight(),juce::Justification::centred,1,1.f);
+        const auto ink=glyphs.getBoundingBox(0,-1,true);
+        checkPlate(ink.getUnion(ink.translated(0.f,1.f)),"label "+label.getText());
+    };
     std::vector<juce::Rectangle<int>> cells;
     for(auto* c:faceControls(*head))if(c->isVisible()) {
         const auto bounds=head->getLocalArea(c,c->getLocalBounds());
@@ -96,8 +112,10 @@ void checkFaceLayout(AmpHeadWorkspace& view,int model,int channel=0) {
         if(c->slider.isVisible()) {
             const auto layout=c->slider.getLookAndFeel().getSliderLayout(c->slider);
             check(layout.sliderBounds.getWidth()>=30 && layout.sliderBounds.getHeight()>=30,"Knob target too small");
+            checkPlate(head->getLocalArea(&c->slider,layout.sliderBounds).toFloat(),"knob "+c->label.getText());
+            checkPlateLabel(c->label);
             for(auto* value:c->slider.getChildren())if(auto* label=dynamic_cast<juce::Label*>(value)) {
-                if(label->isVisible())checkLabelFits(*label,"Face value is truncated");
+                if(label->isVisible()){checkLabelFits(*label,"Face value is truncated");checkPlateLabel(*label);}
             }
         } else if(c->choice.isVisible()) {
             check(c->choice.getHeight()>=24 && c->choice.getWidth()>=48,"Face selector target too small");
@@ -273,7 +291,7 @@ void checkAllModels(ChimeraProcessor& p,Host& all,const juce::File& directory) {
 int main(int argc,char** argv){try {
     juce::ScopedJuceInitialiser_GUI init;
     chimeraTest::checkHeadAppearance();
-    std::cout<<"HEAD APPEARANCE: "<<ampModelCount<<" models; 3 sizes; source hardware, complete mounts, uniform aspect, clean material and unchanged fascia\n";
+    std::cout<<"HEAD APPEARANCE: "<<ampModelCount<<" models; 3 sizes; complete RGBA shells, source pixel identity, single projection and corner continuity\n";
     const bool headsOnly=argc>1 && juce::String(argv[1])=="--software-heads";
     if(headsOnly) {
         const auto folder=juce::File::getCurrentWorkingDirectory().getChildFile("head-software-preview");folder.createDirectory();

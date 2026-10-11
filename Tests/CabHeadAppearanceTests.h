@@ -1,169 +1,209 @@
 #pragma once
+#include "AmpHeadLayout.h"
 #include "CabHeadView.h"
+#include <algorithm>
 #include <cmath>
+#include <cstdint>
+#include <initializer_list>
+#include <set>
 #include <stdexcept>
 #include <string>
 
 namespace chimeraTest {
-// These are the released front positions at a 1000 px head width, captured
-// before the roof/handle correction. A cosmetic roof change must not move the
-// model-specific control anchors or resize the enclosure in the cabinet room.
-inline constexpr std::array<juce::Point<float>,26> headFrontBaseline{{
-    {95.327292f,286.733026f}, {82.406015f,350.375940f},
-    {103.141474f,328.268826f}, {95.927127f,342.751274f},
-    {136.902887f,436.745407f}, {121.049180f,426.229508f},
-    {87.272727f,293.181818f}, {131.764706f,294.928208f},
-    {91.574468f,357.446809f}, {121.454545f,432.727273f},
-    {123.515989f,356.741122f}, {122.566038f,180.285247f},
-    {118.425197f,441.402674f}, {112.413793f,393.103448f},
-    {124.444444f,150.000000f}, {72.877847f,262.939959f},
-    {163.529412f,410.588235f}, {90.270270f,362.162162f},
-    {122.622951f,426.229508f}, {97.313433f,325.373134f},
-    {86.027397f,339.726027f}, {90.645669f,359.606299f},
-    {94.492754f,359.420290f}, {96.338028f,335.211268f},
-    {96.571429f,340.000000f}, {114.754098f,349.180328f}
-}};
-static_assert(headFrontBaseline.size()==spectralforge::ampModelCount,
-              "Review front placement when adding an amplifier");
-
 inline void headAppearanceCheck(bool ok,int model,const char* message) {
     if(!ok)throw std::runtime_error(std::string(message)+" [head model "+std::to_string(model)+"]");
 }
+inline juce::Rectangle<int> shellAlphaBounds(const juce::Image& image) {
+    const juce::Image::BitmapData pixels(image,juce::Image::BitmapData::readOnly);
+    int left=pixels.width,top=pixels.height,right=-1,bottom=-1;
+    for(int y=0;y<pixels.height;++y)for(int x=0;x<pixels.width;++x)
+        if(pixels.getPixelColour(x,y).getAlpha()>32) {
+            left=juce::jmin(left,x);top=juce::jmin(top,y);
+            right=juce::jmax(right,x);bottom=juce::jmax(bottom,y);
+        }
+    return right<left ? juce::Rectangle<int>{} : juce::Rectangle<int>{left,top,right-left+1,bottom-top+1};
+}
+inline bool sameShellPixels(const juce::Image& left,const juce::Image& right) {
+    if(left.getBounds()!=right.getBounds())return false;
+    const juce::Image::BitmapData a(left,juce::Image::BitmapData::readOnly),b(right,juce::Image::BitmapData::readOnly);
+    for(int y=0;y<a.height;++y)for(int x=0;x<a.width;++x)
+        if(a.getPixelColour(x,y)!=b.getPixelColour(x,y))return false;
+    return true;
+}
 
-inline void checkHeadAppearance() {
+// Blank plate rectangles measured on the final raw assets by the visual
+// review, independently of frontPlane or the runtime knob layout. Keep these
+// fixtures explicit: fitting a control onto grille/trim is a visual regression.
+inline constexpr std::array<spectralforge::headShell::PixelRect,26> reviewedHeadPlates{{
+    {89,568,1596,135}, // 0
+    {122,633,1292,158}, // 1
+    {89,505,1599,187}, // 2
+    {75,659,1385,170}, // 3
+    {111,598,1314,201}, // 4
+    {101,673,1248,165}, // 5
+    {112,655,1223,181}, // 6
+    {118,484,1433,217}, // 7
+    {84,571,1506,150}, // 8
+    {117,467,1296,357}, // 9
+    {80,670,1288,136}, // 10
+    {136,423,1400,210}, // 11
+    {123,550,1590,197}, // 12
+    {84,690,1282,153}, // 13
+    {120,379,1432,229}, // 14
+    {77,583,1518,139}, // 15
+    {85,627,1277,247}, // 16
+    {130,550,1495,153}, // 17
+    {68,664,1315,159}, // 18
+    {103,538,1560,154}, // 19
+    {78,558,1298,222}, // 20
+    {85,631,1279,133}, // 21
+    {75,626,1295,147}, // 22
+    {97,604,1347,161}, // 23
+    {108,522,1555,225}, // 24
+    {77,509,1514,261}, // 25
+}};
+inline juce::Rectangle<float> reviewedHeadPlate(int model) {
+    return spectralforge::cabHead::pixels(reviewedHeadPlates[static_cast<size_t>(model)]);
+}
+
+// Independently inspected landmarks on the two shells identified in the user's
+// screenshots. Each polyline traverses a real roof shoulder into its front
+// corner. A detached narrow lid with missing side panels cannot cover it.
+inline std::array<std::array<juce::Point<int>,3>,2> reviewedShellCorners(int model) {
+    using Side=std::array<juce::Point<int>,3>;
+    if(model==6)return {Side{{{205,260},{125,347},{100,415}}},Side{{{1243,260},{1323,347},{1348,415}}}};
+    if(model==17)return {Side{{{175,136},{103,200},{80,255}}},Side{{{1590,135},{1670,200},{1690,255}}}};
+    return {};
+}
+inline void checkReviewedShellLandmarks(const juce::Image& source,const juce::Image& painted,
+                                        float scale,juce::Point<float> offset,int model) {
+    if(model!=6 && model!=17)return;
+    const juce::Image::BitmapData input(source,juce::Image::BitmapData::readOnly),output(painted,juce::Image::BitmapData::readOnly);
+    for(const auto& side:reviewedShellCorners(model))for(int segment=0;segment<2;++segment)
+        for(int step=0;step<=20;++step) {
+            const auto point=side[static_cast<size_t>(segment)].toFloat()
+                +(side[static_cast<size_t>(segment+1)]-side[static_cast<size_t>(segment)]).toFloat()*(float(step)/20.f);
+            const auto raw=point.roundToInt(),pixel=(point*scale+offset).roundToInt();
+            headAppearanceCheck(input.getPixelColour(raw.x,raw.y).getAlpha()>=220
+                && output.getPixelColour(pixel.x,pixel.y).getAlpha()>=200,model,
+                "Roof shoulder and front corner are disconnected or missing");
+        }
+    // Fixed blank-panel landmarks, reviewed on the raw source, keep functional
+    // controls on the intended metal plate instead of grille, roof or trim.
+    const auto panel=reviewedHeadPlate(model);
+    const auto& spec=spectralforge::headShell::definition(model);
+    const auto front=spectralforge::cabHead::pixels(spec.frontPlane);
+    const auto& native=spectralforge::ampNativePanel(model);
+    for(size_t channel=0;channel<native.channels.size();++channel)
+        for(const auto& knob:spectralforge::ampHead::knobs(model,int(channel))) {
+            const juce::Point<float> centre{front.getX()+front.getWidth()*knob.x,front.getY()+front.getHeight()*knob.y};
+            headAppearanceCheck(panel.reduced(8.f).contains(centre),model,
+                                "A reviewed head's control anchor misses its authored blank panel");
+        }
+}
+
+// Native/CI callers omit selection and always validate the whole catalogue.
+// A selection supports authoring previews while the remaining assets are built.
+inline void checkHeadAppearance(std::initializer_list<int> selection={}) {
     using namespace spectralforge;
     const juce::SharedResourcePointer<cabHead::Bank> bank;
+    std::set<std::string> resourceNames;
+    std::set<std::uint64_t> sourceFingerprints;
     for(int model=0;model<ampModelCount;++model) {
-        // Named catalogue exceptions are intentional. Cinder is rack-sized but
-        // its source artwork has a red carrying strap and metal mounting feet.
-        const bool expectedHandle=model!=int(AmpModel::solidPunch)
-            && model!=int(AmpModel::modernBass) && model!=int(AmpModel::subwayClean)
-            && model!=int(AmpModel::tastePunch);
-        headAppearanceCheck(cabHead::hasTopHandle(model)==expectedHandle,model,
-                            "Rack/desktop handle classification changed");
-        const auto& face=bank->faces[static_cast<size_t>(model)];
-        headAppearanceCheck(face.front.isValid() && face.material.isValid(),model,
-                            "Head fascia or casing sample is missing");
-        headAppearanceCheck(face.sourceBody.contains(face.materialSource)
-            && !face.materialSource.intersects(face.handleSource),model,
-            "Roof material includes source carrying hardware or transparent padding");
-        headAppearanceCheck(face.handle.isValid()==expectedHandle
-            && face.handleSource.isEmpty()!=expectedHandle,model,
-            "Source carrying handle is missing or a handleless head gained hardware");
-        // Independent pixel landmarks reviewed on the source assets. The old
-        // alpha silhouette crop stopped at bodyTop and sliced these brackets.
-        int mountingFootBottom=0;
-        switch(model) {
-            case 0:mountingFootBottom=32;break;
-            case 1:mountingFootBottom=36;break;
-            case 9:mountingFootBottom=38;break;
-            case 10:mountingFootBottom=49;break;
-            case 23:mountingFootBottom=84;break;
-            case 24:mountingFootBottom=64;break;
-            case 25:mountingFootBottom=79;break;
-            default:break;
-        }
-        headAppearanceCheck(face.handleSource.getBottom()>=mountingFootBottom,model,
-                            "Source handle extraction amputates its mounting feet");
-        const auto& original=bank->originals->images[static_cast<size_t>(art::headStyle(model).surface)];
-        headAppearanceCheck(original.getBounds().contains(face.sourceBody)
-            && face.front.getWidth()==face.sourceBody.getWidth()
-            && face.front.getHeight()==face.sourceBody.getHeight(),model,
-            "Handle cleanup recropped or resized the original front artwork");
-        const juce::Image::BitmapData sourcePixels(original,juce::Image::BitmapData::readOnly);
-        const juce::Image::BitmapData frontPixels(face.front,juce::Image::BitmapData::readOnly);
-        headAppearanceCheck(face.cleanedSource.isEmpty() || (face.sourceBody.contains(face.cleanedSource)
-            && face.cleanedSource.getBottom()<=face.sourceBody.getY()+face.sourceBody.getHeight()*.12f),model,
-            "Handle shadow cleanup extends into the control fascia");
-        // This is the old mount's footprint in the front, not the newly placed
-        // roof sprite. It must be erased once, otherwise a second base remains.
-        if(mountingFootBottom>0) {
-            const auto footprint=face.handleSource.getIntersection(face.sourceBody);
-            int changed=0;
-            for(int y=footprint.getY();y<footprint.getBottom();++y)
-                for(int x=footprint.getX();x<footprint.getRight();++x)
-                    changed+=sourcePixels.getPixelColour(x,y)!=frontPixels.getPixelColour(
-                        x-face.sourceBody.getX(),y-face.sourceBody.getY()) ? 1 : 0;
-            headAppearanceCheck(changed>0,model,"Original handle mounting feet remain duplicated on the front");
-        }
-        // Independently reviewed dark-arch landmarks. Removing only the new
-        // sprite's mask left the OLD handle's opening and cast shadow visible
-        // on these two fascias. The repaired patch should match nearby casing
-        // lighting, not merely differ by a pixel from the old photograph.
-        if(model==10 || model==24) {
-            const juce::Rectangle<int> shadow=model==10
-                ? juce::Rectangle<int>{390,40,220,7} : juce::Rectangle<int>{925,54,330,10};
-            const juce::Rectangle<int> casing=model==10
-                ? juce::Rectangle<int>{200,40,90,7} : juce::Rectangle<int>{450,54,90,10};
-            headAppearanceCheck(face.cleanedSource.contains(shadow),model,
-                                "Cleanup misses the original handle's dark arch");
-            const auto brightness=[&](juce::Rectangle<int> area,bool repaired) {
-                double total=0;
-                for(int y=area.getY();y<area.getBottom();++y)for(int x=area.getX();x<area.getRight();++x) {
-                    const auto pixel=repaired ? frontPixels.getPixelColour(x-face.sourceBody.getX(),y-face.sourceBody.getY())
-                                              : sourcePixels.getPixelColour(x,y);
-                    total+=(double(pixel.getRed())+pixel.getGreen()+pixel.getBlue())/3.;
-                }
-                return total/double(area.getWidth()*area.getHeight());
-            };
-            const auto before=brightness(shadow,false),after=brightness(shadow,true),reference=brightness(casing,false);
-            headAppearanceCheck(after>before+8. && std::abs(after-reference)<std::abs(before-reference)*.65,model,
-                                "Original dark handle arch or shadow remains on the fascia");
-            // These source pixels are opaque casing beneath the grip. They
-            // must not travel with the extracted handle as a grey crescent.
-            // Retaining a known grip pixel prevents passing by erasing it all.
-            const juce::Image::BitmapData hardwarePixels(face.handle,juce::Image::BitmapData::readOnly);
-            const auto hardwareAlpha=[&](juce::Point<int> sourcePoint) {
-                headAppearanceCheck(face.handleSource.contains(sourcePoint),model,
-                                    "Reviewed handle landmark is outside the source extraction");
-                return hardwarePixels.getPixelColour(sourcePoint.x-face.handleSource.getX(),
-                    sourcePoint.y-face.handleSource.getY()).getAlpha();
-            };
-            const juce::Point<int> opening=model==10 ? juce::Point<int>{500,43} : juce::Point<int>{1086,64};
-            const juce::Point<int> grip=model==10 ? juce::Point<int>{500,12} : juce::Point<int>{1086,16};
-            headAppearanceCheck(sourcePixels.getPixelColour(opening.x,opening.y).getAlpha()>200
-                && hardwareAlpha(opening)<=8 && hardwareAlpha(grip)>=200,model,
-                "Extracted handle carries casing under its arch or loses its grip");
-            if(model==10)headAppearanceCheck(hardwareAlpha({450,34})<=8,model,
-                "Bassman carrying handle retains the off-centre grey casing crescent");
-        }
-        // Preserve artwork everywhere outside the explicit hardware/shadow
-        // cleanup strip, including corner trim, logos and the control fascia.
-        for(int row=0;row<16;++row)for(int column=0;column<16;++column) {
-            const int x=face.sourceBody.getX()+(2*column+1)*face.sourceBody.getWidth()/32;
-            const int y=face.sourceBody.getY()+(2*row+1)*face.sourceBody.getHeight()/32;
-            if(face.cleanedSource.contains(x,y))continue;
-            headAppearanceCheck(sourcePixels.getPixelColour(x,y)==frontPixels.getPixelColour(
-                x-face.sourceBody.getX(),y-face.sourceBody.getY()),model,
-                "Roof correction modified artwork outside the hardware cleanup");
-        }
-        const auto baseline=headFrontBaseline[static_cast<size_t>(model)];
-        for(const float width:{240.f,640.f,1120.f}) {
-            const auto physical=cabPhysical::head(model);
-            const juce::Rectangle<float> bounds{17.f,23.f,width,
-                width*cabHead::projectedHeight(model)/physical.width};
-            const auto layout=cabHead::geometry(bounds,model);
-            const auto handle=cabHead::handlePlacement(bounds,model,face);
-            const float scale=width/1000.f;
-            headAppearanceCheck(std::abs(layout.front.getX()-bounds.getX())<.01f
-                && std::abs(layout.front.getWidth()-width)<.01f
-                && std::abs(layout.front.getY()-bounds.getY()-baseline.x*scale)<.01f
-                && std::abs(layout.front.getHeight()-baseline.y*scale)<.01f,model,
-                "Roof/handle correction moved the released fascia/control anchors");
-            headAppearanceCheck(handle.isEmpty()!=expectedHandle,model,
-                                "Rendered carrying handle presence differs from the original model");
-            if(expectedHandle) {
-                headAppearanceCheck(bounds.expanded(.01f).contains(handle)
-                    && handle.getBottom()<=layout.front.getY()+.01f
-                    && handle.getBottom()>layout.roof[0].y,model,
-                    "Handle floats outside the roof or covers the front controls");
-                const float horizontalScale=handle.getWidth()/float(face.handle.getWidth());
-                const float verticalScale=handle.getHeight()/float(face.handle.getHeight());
-                headAppearanceCheck(std::isfinite(horizontalScale) && horizontalScale>0.f
-                    && std::abs(horizontalScale-verticalScale)<.0001f,model,
-                    "Carrying handle source aspect was stretched or flattened");
+        if(selection.size()!=0 && std::find(selection.begin(),selection.end(),model)==selection.end())continue;
+        const auto& spec=headShell::definition(model);
+        headAppearanceCheck(spec.valid() && resourceNames.insert(spec.resource).second,model,
+                            "Complete head shell metadata is missing or aliases another model");
+        headAppearanceCheck(juce::String(spec.resource)=="headshell"+juce::String(model).paddedLeft('0',2)+"_png",model,
+                            "Stable amplifier index references another model's shell resource");
+        int byteCount=0;
+        const auto* bytes=ChimeraArtworkData::getNamedResource(spec.resource,byteCount);
+        headAppearanceCheck(bytes && byteCount>0,model,"Complete head shell resource is missing");
+        std::uint64_t fingerprint=14695981039346656037ull;
+        for(int i=0;i<byteCount;++i) {fingerprint^=static_cast<unsigned char>(bytes[i]);fingerprint*=1099511628211ull;}
+        headAppearanceCheck(sourceFingerprints.insert(fingerprint).second,model,
+                            "Different amplifiers use an identical shell asset");
+        // Decode the embedded resource independently of the production Bank.
+        // This catches silent source retouching/cropping as well as cache writes.
+        const auto original=juce::ImageFileFormat::loadFrom(bytes,static_cast<size_t>(byteCount));
+        const auto& shell=bank->faces[static_cast<size_t>(model)].shell;
+        headAppearanceCheck(original.isValid() && original.hasAlphaChannel()
+            && original.getWidth()==spec.pixelWidth && original.getHeight()==spec.pixelHeight
+            && sameShellPixels(original,shell),model,"Shell bank changed the complete RGBA production asset");
+        const auto measured=shellAlphaBounds(original);
+        const juce::Rectangle<int> declared{spec.alphaBounds.x,spec.alphaBounds.y,spec.alphaBounds.width,spec.alphaBounds.height};
+        const juce::Rectangle<int> front{spec.frontPlane.x,spec.frontPlane.y,spec.frontPlane.width,spec.frontPlane.height};
+        headAppearanceCheck(measured==declared && original.getBounds().contains(front)
+            && measured.contains(front) && spec.supportY>=front.getBottom()
+            && spec.supportY<=measured.getBottom(),model,
+            "Authored alpha bounds, front control plane or support baseline do not match the source");
+        const bool expectedHandle=model!=int(AmpModel::solidPunch) && model!=int(AmpModel::modernBass)
+            && model!=int(AmpModel::subwayClean) && model!=int(AmpModel::tastePunch);
+        headAppearanceCheck(spec.topHandle==expectedHandle && cabHead::hasTopHandle(model)==expectedHandle,model,
+                            "A rack/desktop shell gained a handle or a carrying handle was omitted");
+        const auto& native=ampNativePanel(model);
+        const auto plate=reviewedHeadPlate(model);
+        const float rawKnobDiameter=float(front.getWidth())*ampHead::faceStyle(model).knobDiameter;
+        for(size_t channel=0;channel<native.channels.size();++channel)
+            for(const auto& knob:ampHead::knobs(model,int(channel))) {
+                const juce::Point<float> centre{float(front.getX())+float(front.getWidth())*knob.x,
+                    float(front.getY())+float(front.getHeight())*knob.y};
+                const auto point=centre.roundToInt();
+                headAppearanceCheck(original.getBounds().contains(point)
+                    && original.getPixelAt(point.x,point.y).getAlpha()>=200,model,
+                    "A channel's native knob is placed in transparent space outside its complete shell");
+                const auto footprint=juce::Rectangle<float>{rawKnobDiameter,rawKnobDiameter}.withCentre(centre);
+                if(!plate.contains(footprint))throw std::runtime_error("Knob "+std::string(knob.key)
+                    +" leaves the reviewed blank plate [head model "+std::to_string(model)+", footprint "
+                    +footprint.toString().toStdString()+", plate "+plate.toString().toStdString()+"]");
+            }
+        if(model==24 || model==25) {
+            headAppearanceCheck(native.channels.size()==spec.channelWindows.size(),model,
+                                "Photographed channel windows do not cover every native channel");
+            for(size_t channel=0;channel<spec.channelWindows.size();++channel) {
+                const auto window=cabHead::pixels(spec.channelWindows[channel]).toNearestInt();
+                headAppearanceCheck(!window.isEmpty() && original.getBounds().contains(window)
+                    && original.getPixelAt(window.getCentreX(),window.getCentreY()).getAlpha()>=200,model,
+                    "A native channel's illuminated window misses the complete source artwork");
+                for(size_t earlier=0;earlier<channel;++earlier)
+                    headAppearanceCheck(!window.intersects(cabHead::pixels(spec.channelWindows[earlier]).toNearestInt()),model,
+                                        "Native channel windows overlap on the authored shell");
             }
         }
+        for(const float width:{240.f,640.f,1120.f}) {
+            const float scale=width/float(measured.getWidth());
+            const float visibleHeight=float(spec.supportY-measured.getY())*scale;
+            const juce::Rectangle<float> bounds{40.f,40.f,width,visibleHeight};
+            // Align the independently decoded image's authored baseline to the
+            // requested support plane. Keep the subtraction in baseline order:
+            // algebraically equivalent float reassociation changes JUCE's
+            // subpixel interpolation by one alpha level at some window sizes.
+            const juce::Point<float> offset{40.f-float(measured.getX())*scale,
+                bounds.getBottom()-float(spec.supportY)*scale};
+            const auto layout=cabHead::geometry(bounds,model);
+            const juce::Rectangle<float> expectedFront{offset.x+float(front.getX())*scale,offset.y+float(front.getY())*scale,
+                float(front.getWidth())*scale,float(front.getHeight())*scale};
+            headAppearanceCheck(layout.front.getTopLeft().getDistanceFrom(expectedFront.getTopLeft())<.01f
+                && layout.front.getBottomRight().getDistanceFrom(expectedFront.getBottomRight())<.01f
+                && std::abs(layout.supportY-(offset.y+float(spec.supportY)*scale))<.01f
+                && std::abs(layout.shell.getWidth()-width)<.01f,model,
+                "Complete shell and controls use different scales, planes or support positions");
+            const int canvasWidth=int(std::ceil(width))+80,canvasHeight=int(std::ceil(visibleHeight))+80;
+            juce::Image actual(juce::Image::ARGB,canvasWidth,canvasHeight,true,juce::SoftwareImageType{});
+            juce::Image expected(juce::Image::ARGB,canvasWidth,canvasHeight,true,juce::SoftwareImageType{});
+            {juce::Graphics g(actual);cabHead::paint(g,bounds,model);}
+            {
+                juce::Graphics g(expected);g.setImageResamplingQuality(juce::Graphics::highResamplingQuality);
+                g.setColour(juce::Colours::white);
+                // Deliberately independent of geometry(). Draw the raw complete
+                // image once, uniformly aligned to its measured silhouette.
+                g.drawImageTransformed(original,juce::AffineTransform::scale(scale).translated(offset.x,offset.y));
+            }
+            headAppearanceCheck(sameShellPixels(actual,expected),model,
+                "Head paint adds, removes or distorts pixels outside the single authored shell (second roof/feet/handle)");
+            checkReviewedShellLandmarks(original,actual,scale,offset,model);
+        }
+        headAppearanceCheck(sameShellPixels(original,shell),model,"Rendering mutated the shared complete shell image");
     }
 }
 } // namespace chimeraTest

@@ -166,7 +166,7 @@ void draw(juce::Graphics& g,juce::Rectangle<float> bounds,float value,float star
     const auto material=styleForModel(model);
     const auto size=bounds.getWidth();
     const auto c=juce::Point<float>{bounds.getCentreX(),bounds.getY()+detail::capCentreY*size};
-    const bool brightFace=model==1||model==5||model==8||model==9||model==10||model==12||model==13||model==14||model==17||model==19||model==21;
+    const bool brightFace=model==1||model==5||model==8||model==9||model==10||model==12||model==13||model==14||model==15||model==17||model==19||model==21;
     const auto scaleInk=juce::Colour(brightFace?0xff342f26:0xffd0c9b8).withAlpha(.68f);
     // Sparse engraved ticks belong to the panel plane, behind the projecting
     // body. They are not a glowing circular application control.

@@ -2,6 +2,7 @@
 #include "PluginProcessor.h"
 #include "CabArtwork.h"
 #include "CabHeadView.h"
+#include "AmpHeadOverview.h"
 #include "CabLayoutView.h"
 #include <limits>
 
@@ -33,6 +34,7 @@ private:
     spectralforge::cabArt::View cabinetImage;
     std::array<spectralforge::cabArt::View,8> speakerImages;
     spectralforge::cabHead::View headImage;
+    spectralforge::ampHeadOverview::Painter headControls;
     class Foreground : public juce::Component {
         CabScene& owner;
     public:
@@ -278,6 +280,7 @@ private:
 public:
     void setHeadAction(std::function<void()> action) {headImage.setOpenAction(std::move(action));}
     CabScene(ChimeraProcessor& value,int rig):processor(value),lane(rig) {
+        headImage.setControlPainter([this](juce::Graphics& g,juce::Rectangle<float> bounds){headControls.paint(g,bounds);});
         setComponentID("cabScene"+juce::String(lane+1));
         setInterceptsMouseClicks(false,true);
         // The head's feet and contact shadow lie on the cabinet roof. Paint
@@ -309,6 +312,7 @@ public:
         if(draggingSlot>=0 && (design!=nextDesign || driverModel!=nextDriver || layoutModel!=nextLayout))endMicDrag();
         layoutModel=nextLayout;cabinetImage.setVisible(false);
         design=nextDesign;ampModel=nextAmp;driverModel=nextDriver;headImage.setModel(ampModel);
+        if(headControls.refresh(processor,lane))headImage.repaint();
         const auto* selected=driverModel>0 ? &spectralforge::cabExpansion::drivers[size_t(driverModel-1)] : nullptr;
         cabinetImage.setAsset(spectralforge::cabArt::cabinet(design),selected
             ? juce::String("Chimera ")+juce::String(speakerCount())+"x"+juce::String(selected->inches)+" / "+selected->name

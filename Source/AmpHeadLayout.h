@@ -6,7 +6,7 @@
 #include <vector>
 
 namespace spectralforge::ampHead {
-// Coordinates are relative to cabHead::Geometry::front, after alpha cropping.
+// Coordinates are relative to the authored control plane in AmpHeadShellMetadata.
 // These are authored Chimera front-panel arrangements, not claims of exact
 // hardware-panel reproduction. The native catalog remains the sole parameter
 // identity / channel-mask authority; changing the presentation never reorders it.
@@ -455,7 +455,7 @@ inline const std::array<FaceStyle,ampModelCount> faceStyles{{
     {0.0550f,0.1550f,0xff191b18,{0.0400f,0.5600f,0.9200f,0.3350f},{},{}}, // Prism Chime
     {0.0430f,0.1090f,0xff191b18,{0.0400f,0.6500f,0.9250f,0.2650f},{},{}}, // Silk Lead
     {0.0400f,0.1180f,0xff191b18,{0.0550f,0.2550f,0.9000f,0.6800f},{},{}}, // Taste Punch
-    {0.0350f,0.0860f,0xfff1ece0,{0.0400f,0.5700f,0.9200f,0.3250f},{},{}}, // Cinder 120
+    {0.0350f,0.0860f,0xff191b18,{0.0400f,0.5700f,0.9200f,0.3250f},{},{}}, // Cinder 120
     {0.0440f,0.1080f,0xfff1ece0,{0.0400f,0.6000f,0.9200f,0.3000f},{},{}}, // Iron Compact
     {0.0430f,0.1010f,0xff191b18,{0.0550f,0.6500f,0.8850f,0.2350f},{},{}}, // Fourfold
     {0.0550f,0.1550f,0xfff1ece0,{0.0400f,0.6250f,0.9200f,0.2800f},{},{}}, // Classic Tube

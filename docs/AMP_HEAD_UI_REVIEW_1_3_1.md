@@ -4,7 +4,53 @@ Development: PR #44, stacked on the Signal/EQ integration PR #40. This review
 does not change the 1.3.0 release branch, audio processing, parameter IDs or
 project schema.
 
-## Carrying handles and roof material
+## Complete enclosure recomposition — current correction
+
+The user rejected the appearance of `9995669df7a0058497f214d7380534cd80ebadcb`
+despite its passing native tests. The earlier visual review missed missing
+upper corner volumes and a second upright/backward roof shape on bass heads.
+Its native captures remain historical evidence, not visual acceptance.
+
+All 26 catalog entries now use newly composed complete RGBA enclosure images,
+including the recalled legacy Iron Compact. Each image contains its own roof,
+continuous upper corners, casing, appropriate handle and feet. Solid Punch,
+Modern Bass, Metro Clean and Taste Punch remain without a top handle. Cinder
+retains its red strap and casing. The complete source image is projected once
+with uniform scale: no extracted handle, synthetic roof, added feet, cleanup
+patch or independent stretching remains. Physical widths and support baselines
+continue to establish relative sizes in the cabinet scene.
+
+The source art is ImageGen-created production artwork, not a native screenshot
+or a claim of exact reproduction of a commercial amplifier. Its generation
+instructions, unchanged PNG hashes and provenance are recorded beside the
+assets. `AmpHeadShellMetadata.h` explicitly maps each control coordinate frame
+and the original heads' five channel windows. The control frame is an authored
+coordinate mapping and is not a physical measurement of the front body.
+
+Enlarged heads retain live JUCE knobs, readable labels and interaction-only
+values. Náströnd and Niflheimr have taller blank plates for their two-row
+controls. Classic, Dual, Matrix and focused CAB overviews paint the selected
+bank's actual knob positions and channel lights using the same hardware
+materials; they do not write parameters. An overview state cache avoids
+repainting or rebuilding control bindings on idle timer ticks. Cinder's label
+and scale ink is dark against its new steel control plate.
+
+The appearance contract independently decodes every source, checks alpha
+bounds and resource identity, compares production paint with a single raw
+image projection at three sizes, and checks source immutability and continuous
+corner landmarks. The workspace contract also checks actual knob bounds and
+label glyph extents inside independently reviewed blank control plates across
+all 61 channel states and four workspace sizes. These tests supplement visual
+inspection; a passing contract alone does not establish visual acceptance.
+
+New native evidence must identify this correction's exact source and CI run.
+The expected 252 PNGs per platform distinguish complete blank-shell renderer
+captures from live-control workspace and navigation captures. Software-only
+renders, ImageGen artwork and native-peer JUCE snapshots must be labelled
+separately. Real Studio One interaction and full product acceptance remain
+outstanding.
+
+## Historical handle/roof patch — rejected and superseded
 
 The user identified a further visual defect after the all-model knob review.
 The native `71ae9690` captures show duplicated metal handle mounts smeared

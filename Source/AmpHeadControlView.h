@@ -1,6 +1,7 @@
 #pragma once
 #include "AmpHeadLayout.h"
 #include "AmpHeadKnobLook.h"
+#include "AmpHeadOverview.h"
 #include "AmpNativePanel.h"
 #include "CabHeadView.h"
 
@@ -10,20 +11,17 @@ class AmpHeadControlView final : public juce::Component {
     const int lane;
     const bool enlarged;
     juce::SharedResourcePointer<spectralforge::cabHead::Bank> artwork;
+    spectralforge::ampHeadOverview::Painter overview;
     std::vector<std::unique_ptr<NativeControlView>> controls,optionControls;
     std::vector<spectralforge::ampHead::Knob> anchors,optionAnchors;
-    juce::Image cleanControlField;
-    int cleanModel{-1};
     class ChannelButton : public juce::TextButton {
-        float faceWidth{28.f},faceHeight{18.f};
+        juce::Rectangle<float> faceBounds;
+        int model{};
     public:
-        void setFaceSize(float w,float h) {faceWidth=w;faceHeight=h;}
+        void setFaceBounds(juce::Rectangle<float> face,int selectedModel) {faceBounds=face;model=selectedModel;}
         void paintButton(juce::Graphics& g,bool over,bool down) override {
-            auto face=getLocalBounds().toFloat().withSizeKeepingCentre(faceWidth,faceHeight);
-            const auto colour=juce::Colour(getToggleState()?0xff507d99:0xff171d20).brighter(over||down?.15f:0.f);
-            g.setGradientFill(juce::ColourGradient(colour.brighter(.12f),face.getTopLeft(),colour.darker(.3f),face.getBottomLeft(),false));g.fillRoundedRectangle(face,2.f);
-            g.setColour(juce::Colour(hasKeyboardFocus(true)?0xffb3e1ff:0xffa99878));g.drawRoundedRectangle(face,2.f,1.f);
-            g.setColour(juce::Colours::white);g.setFont(juce::FontOptions(12.f,juce::Font::bold));g.drawText(getButtonText(),face.toNearestInt(),juce::Justification::centred);
+            spectralforge::ampHeadOverview::paintChannel(g,faceBounds,model,getToggleState(),over||down,
+                                                        hasKeyboardFocus(true),getButtonText());
         }
     };
     std::array<std::unique_ptr<ChannelButton>,5> channels;
@@ -211,12 +209,15 @@ public:
         }
         const int nextRoute=processor.selectedAmpNativeRoute(lane);
         if(route!=nextRoute){route=nextRoute;input->syncSelectedId(route+1);}
+        if(!enlarged && overview.refresh(processor,lane))repaint();
     }
     juce::String contextName() const {return mode==0?"CLASSIC":mode==1?"DUAL / RIG "+juce::String(lane+1):"MATRIX / "+juce::String(lane==0?"LOW":lane==1?"MID":"HIGH");}
     juce::String caption() const {return contextName()+" / "+juce::String::fromUTF8(spectralforge::ampInfo(model).name)+" / "+juce::String::fromUTF8(spectralforge::ampNativePanel(model).channels[size_t(channel)]);}
     void resized() override {
         focus.setBounds(headBounds().toNearestInt());
-        const auto face=spectralforge::cabHead::geometry(headBounds(),juce::jmax(0,model)).front;
+        const auto layout=spectralforge::cabHead::geometry(headBounds(),juce::jmax(0,model));
+        const auto face=layout.front;
+        const auto& shell=spectralforge::headShell::definition(model);
         const auto style=spectralforge::ampHead::faceStyle(model);
         for(size_t i=0;i<controls.size();++i) {
             const auto& anchor=anchors[i];auto& c=*controls[i];
@@ -232,12 +233,14 @@ public:
             c.group.setVisible(false);c.label.setBounds(0,0,cellWidth,labelHeight);c.slider.setBounds(c.getLocalBounds());
         }
         const auto scaleRect=[&](juce::Rectangle<float> r){return juce::Rectangle<float>{face.getX()+face.getWidth()*r.getX(),face.getY()+face.getHeight()*r.getY(),face.getWidth()*r.getWidth(),face.getHeight()*r.getHeight()};};
-        if(!style.channelRegion.isEmpty()) {
-            const auto band=scaleRect(style.channelRegion);const auto width=band.getWidth()/5.f;
+        if(shell.channelWindows[0].valid()) {
             for(int c=0;c<5;++c) {
-                auto& button=*channels[size_t(c)];const float hitHeight=juce::jmax(32.f,band.getHeight()+4.f);
-                button.setFaceSize(width*.70f,juce::jmax(16.f,band.getHeight()));
-                button.setBounds(juce::Rectangle<float>{band.getX()+width*c,band.getCentreY()-hitHeight/2.f,width,hitHeight}.toNearestInt());
+                const auto window=spectralforge::cabHead::pixels(shell.channelWindows[size_t(c)])
+                    .transformedBy(layout.sourceToView);
+                const auto hit=window.withSizeKeepingCentre(juce::jmax(32.f,window.getWidth()+6.f),
+                                                            juce::jmax(32.f,window.getHeight()+8.f)).getSmallestIntegerContainer();
+                auto& button=*channels[size_t(c)];button.setBounds(hit);
+                button.setFaceBounds(window.translated(-float(hit.getX()),-float(hit.getY())),model);
             }
         }
         const int columns=auxiliaryColumns(),cell=(getWidth()-24)/columns,top=getHeight()-auxiliaryHeight()+4;
@@ -256,35 +259,7 @@ public:
     }
     void paint(juce::Graphics& g) override {
         spectralforge::cabHead::paint(g,headBounds(),juce::jmax(0,model));
-        const auto face=spectralforge::cabHead::geometry(headBounds(),juce::jmax(0,model)).front;
-        if(enlarged && active && (model==spectralforge::niflheimrAmpModel || model==spectralforge::firstOriginalAmpModel)) {
-            // Replace the complete baked control field (including disk shadows),
-            // using clean metal from the same vertical band. Per-disk elliptical
-            // masks left crescents and bottom-row fragments at smaller sizes.
-            // Keep the original jack, power lamp, switch and ornate perimeter.
-            const auto& image=artwork->faces[size_t(model)].front;
-            constexpr float left=.17f,top=.618f,width=.703f,height=.283f;
-            if(image.isValid() && (!cleanControlField.isValid() || cleanModel!=model)) {
-                cleanModel=model;
-                // Cache one softly blended metal field. The outside edges stay
-                // identical to the original fascia; old knob pixels lie fully
-                // inside the opaque part, including their upper chrome rims.
-                const int w=juce::roundToInt(image.getWidth()*width),h=juce::roundToInt(image.getHeight()*height);
-                cleanControlField=juce::Image(juce::Image::RGB,w,h,false);
-                const juce::Image::BitmapData source(image,juce::Image::BitmapData::readOnly);
-                juce::Image::BitmapData target(cleanControlField,juce::Image::BitmapData::writeOnly);
-                for(int y=0;y<h;++y)for(int x=0;x<w;++x) {
-                    const float u=float(x)/float(w-1),v=float(y)/float(h-1);
-                    const float blend=juce::jlimit(0.f,1.f,juce::jmin(juce::jmin(u,1.f-u)/.085f,juce::jmin(v,1.f-v)/.008f));
-                    const int sy=juce::roundToInt(image.getHeight()*top)+y;
-                    const auto old=source.getPixelColour(juce::roundToInt(image.getWidth()*left)+x,sy);
-                    const auto metal=source.getPixelColour(juce::roundToInt(image.getWidth()*(model==spectralforge::niflheimrAmpModel?.735f+u*.125f:.802f+u*.047f)),sy);
-                    target.setPixelColour(x,y,old.interpolatedWith(metal,blend));
-                }
-            }
-            if(cleanControlField.isValid())g.drawImage(cleanControlField,{face.getX()+face.getWidth()*left,face.getY()+face.getHeight()*top,face.getWidth()*width,face.getHeight()*height});
-        }
-
+        if(!enlarged)overview.paint(g,headBounds());
     }
 };
 
