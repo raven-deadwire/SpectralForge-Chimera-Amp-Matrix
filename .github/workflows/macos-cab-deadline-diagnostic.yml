@@ -7,6 +7,17 @@ on:
       - 'Tools/CabDeadlineDiagnostic/**'
       - '.github/workflows/macos-cab-deadline-diagnostic.yml'
   workflow_dispatch:
+    inputs:
+      order:
+        description: Prespecified control order (A inherited, B user-interactive)
+        type: choice
+        options: [ABBA, BAAB]
+        default: BAAB
+
+env:
+  # The second independently allocated host reverses the first ABBA experiment.
+  # Choose the order before measurement; never use this as a rerun-until-pass gate.
+  CAB_DIAGNOSTIC_ORDER: ${{ inputs.order || 'BAAB' }}
 
 permissions:
   contents: read
@@ -38,18 +49,19 @@ jobs:
       - name: Verify unchanged raw evidence contracts
         shell: bash
         run: python frozen-source/Tools/test_cab_timing_evidence.py
-      - name: Run unchanged gate and fixed ABBA diagnostic populations
+      - name: Run unchanged gate and prespecified diagnostic populations
         shell: bash
         run: |
           python controller/Tools/CabDeadlineDiagnostic/run_experiment.py \
             --source frozen-source \
             --build macos-deadline-build \
-            --output macos-deadline-evidence
+            --output macos-deadline-evidence \
+            --order "$CAB_DIAGNOSTIC_ORDER"
       - name: Preserve all results including failed gates and diagnostic conditions
         if: always()
         uses: actions/upload-artifact@v6
         with:
-          name: macOS-CAB-deadline-diagnostic-${{ github.sha }}-${{ github.run_attempt }}
+          name: macOS-CAB-deadline-diagnostic-${{ env.CAB_DIAGNOSTIC_ORDER }}-${{ github.sha }}-${{ github.run_attempt }}
           path: macos-deadline-evidence/
           if-no-files-found: error
           retention-days: 90

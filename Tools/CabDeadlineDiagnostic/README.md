@@ -7,7 +7,7 @@ p99 thresholds, callback populations, or recorded deadline misses.
 Configure with a clean immutable source checkout and its full commit:
 
 ```sh
-cmake -S diagnostic-controller -B diagnostic-build -DCMAKE_BUILD_TYPE=Release \
+cmake -S Tools/CabDeadlineDiagnostic -B diagnostic-build -DCMAKE_BUILD_TYPE=Release \
   -DCHIMERA_FROZEN_SOURCE=/absolute/path/to/frozen-source \
   -DCHIMERA_FROZEN_SHA=7b20cd9d1f90e3e2969c250712b199e893cf50cd
 cmake --build diagnostic-build --config Release \
@@ -62,6 +62,24 @@ reference values. The sentinel has no acceptance gate and does not modify or
 replace CAB results.
 
 ## Reproducibility and interpretation
+
+The bounded runner executes the unchanged five-test CTest selection first and
+then all four diagnostic conditions, preserving full raw data and return codes.
+Use a clean, separate checkout at the frozen SHA. On each native macOS machine,
+give every invocation fresh build and output directories:
+
+```sh
+python Tools/CabDeadlineDiagnostic/run_experiment.py \
+  --source /absolute/path/to/frozen-source \
+  --build diagnostic-build-ABBA --output diagnostic-evidence-ABBA --order ABBA
+```
+
+On the independently allocated second host, choose `--order BAAB` before
+measurement. A means inherited caller QoS; B means user-interactive caller QoS.
+The runner does not skip a failed p99 population to reach a passing condition.
+It keeps failure logs, all 66 route CSVs per condition, source/dependency/binary
+hashes, compiler settings, policy snapshots and exact command receipts. A setup
+or incomplete-evidence error remains an error and does not authorize a result.
 
 Build all conditions before measurements. On one runner, use a preregistered
 order such as inherited, interactive, interactive, inherited (ABBA); reverse it

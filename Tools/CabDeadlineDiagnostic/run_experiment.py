@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Bounded, diagnostic-only ABBA investigation of frozen macOS CAB timings.
+"""Bounded, diagnostic-only ABBA/BAAB investigation of frozen macOS CAB timings.
 
 The ordinary CTest gate runs unchanged first. Each later run uses a separate
 directory; failed tests and every raw row are retained. Higher caller QoS is
@@ -32,8 +32,12 @@ TESTS = ("ChimeraOriginalCabIntegrationTests", "ChimeraOriginalCabRealtimeTests"
 SUITES = (("original", []), ("expanded", ["--expanded"]),
           ("layouts", ["--layouts"]),
           ("extended", ["--expanded", "--extended-buffers"]))
-ORDER = (("01-A", "inherited"), ("02-B", "user-interactive"),
-         ("03-B", "user-interactive"), ("04-A", "inherited"))
+ORDERS = {
+    "ABBA": (("01-A", "inherited"), ("02-B", "user-interactive"),
+             ("03-B", "user-interactive"), ("04-A", "inherited")),
+    "BAAB": (("01-B", "user-interactive"), ("02-A", "inherited"),
+             ("03-A", "inherited"), ("04-B", "user-interactive")),
+}
 
 
 def write_json(path, obj):
@@ -163,7 +167,10 @@ def main():
     parser.add_argument("--source", type=Path, required=True)
     parser.add_argument("--build", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument("--order", choices=tuple(ORDERS), default="ABBA",
+                        help="Prespecified diagnostic order (default: ABBA)")
     args = parser.parse_args()
+    order = ORDERS[args.order]
     source, build, output = [p.resolve() for p in (args.source, args.build, args.output)]
     controller = Path(__file__).resolve().parent
     if platform.system() != "Darwin":
@@ -173,7 +180,7 @@ def main():
     output.mkdir(parents=True)
     driver = load_frozen_driver(source)
     report = {"schema_version": 1, "diagnostic_only": True, "product_fix_demonstrated": False,
-              "frozen_product_sha": FROZEN_SHA, "planned_order": ORDER,
+              "frozen_product_sha": FROZEN_SHA, "order_name": args.order, "planned_order": order,
               "planned_scope": "one unchanged ordinary CTest gate; 4 CAB and 4 arithmetic-only populations",
               "commands": [], "trials": [], "complete": False,
               "limitations": ["No CoreAudio device, DAW, editor, or real-time thread policy is created.",
@@ -209,7 +216,9 @@ def main():
             raise RuntimeError("Fetched JUCE tag moved; re-audit dependency before measuring")
         metadata = output / "build-metadata"
         metadata.mkdir()
-        for p in [build / "CMakeCache.txt", build / "compile_commands.json", *build.glob("CMakeFiles/*/CMakeCXXCompiler.cmake")]:
+        compiler_metadata = [*build.glob("CMakeFiles/*/CMakeCXXCompiler.cmake"),
+                             *build.glob("CMakeFiles/*/CMakeOBJCXXCompiler.cmake")]
+        for p in [build / "CMakeCache.txt", build / "compile_commands.json", *compiler_metadata]:
             if p.is_file():
                 shutil.copy2(p, metadata / p.name)
         normal = output / "ordinary-gate"
@@ -239,7 +248,7 @@ def main():
         shutil.copy2(product_build / "Testing/Temporary/LastTest.log", normal / "LastTest.log")
         report["ordinary_gate"]["summary"] = summarize(normal / "raw", diagnostic=False)
         write_json(normal / "summary.json", report["ordinary_gate"]["summary"])
-        for label, qos in ORDER:
+        for label, qos in order:
             trial = output / "trials" / label
             trial.mkdir(parents=True)
             entry = {"label": label, "requested_caller_qos": qos, "diagnostic_only": True, "commands": []}
