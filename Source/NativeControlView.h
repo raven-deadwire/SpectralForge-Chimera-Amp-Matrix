@@ -10,6 +10,11 @@ public:
     juce::ComboBox choice;
     juce::TextButton toggle;
     std::function<void()> activate;
+    std::function<bool()> canEdit;
+    ~NativeControlView() override {finishInteraction();}
+    void finishInteraction() {if(dragging && attachment)attachment->endGesture();dragging=false;}
+    void visibilityChanged() override {if(!isShowing())finishInteraction();}
+
     NativeControlView() {
         for(auto* l:{&label,&group}) {addAndMakeVisible(*l);l->setJustificationType(juce::Justification::centred);l->setColour(juce::Label::textColourId,juce::Colour(0xffe1dbce));}
         label.setFont(juce::FontOptions(10.5f));group.setFont(juce::FontOptions(8.5f));group.setColour(juce::Label::textColourId,juce::Colour(0xffa4a79f));
@@ -20,7 +25,7 @@ public:
     }
     void bind(juce::AudioProcessorValueTreeState& state,const juce::String& id,const juce::String& name,const juce::String& section,
               int kind,const juce::StringArray& options,double minimum,double maximum,double interval,int knobStyle) {
-        attachment.reset();type=kind;labels=options;
+        finishInteraction();attachment.reset();type=kind;labels=options;
         label.setText(name,juce::dontSendNotification);label.setTooltip(section+" / "+name);group.setText(section,juce::dontSendNotification);
         setComponentID(id+"_control");slider.setComponentID(id);choice.setComponentID(id);toggle.setComponentID(id);
         slider.setName(name);choice.setName(name);toggle.setName(name);
@@ -35,9 +40,9 @@ public:
             });
             attachment->sendInitialUpdate();
         }
-        slider.onDragStart=[this]{if(activate)activate();dragging=true;if(attachment)attachment->beginGesture();};
-        slider.onValueChange=[this]{if(!attachment)return;if(activate)activate();if(dragging)attachment->setValueAsPartOfGesture((float)slider.getValue());else attachment->setValueAsCompleteGesture((float)slider.getValue());};
-        slider.onDragEnd=[this]{if(attachment)attachment->endGesture();dragging=false;};
+        slider.onDragStart=[this]{finishInteraction();if(canEdit && !canEdit())return;if(activate)activate();dragging=true;if(attachment)attachment->beginGesture();};
+        slider.onValueChange=[this]{if(!attachment)return;if(canEdit && !canEdit()){finishInteraction();attachment->sendInitialUpdate();return;}if(activate)activate();if(dragging)attachment->setValueAsPartOfGesture((float)slider.getValue());else attachment->setValueAsCompleteGesture((float)slider.getValue());};
+        slider.onDragEnd=[this]{finishInteraction();};
         choice.onChange=[this]{if(activate)activate();if(attachment)attachment->setValueAsCompleteGesture((float)(choice.getSelectedId()-1));};
         toggle.onClick=[this]{if(activate)activate();if(attachment)attachment->setValueAsCompleteGesture(toggle.getToggleState()?1.f:0.f);updateToggle();};
     }

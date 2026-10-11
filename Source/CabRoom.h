@@ -2,6 +2,7 @@
 #include "CabPanel.h"
 #include "CabArtwork.h"
 #include "CabHeadView.h"
+#include "AmpHeadControlView.h"
 #include "CabLayoutView.h"
 #include "HardwareArtwork.h"
 #include <functional>
@@ -153,13 +154,23 @@ class CabRoomOverview : public juce::Component, private juce::Timer {
         float tweeterLevel{};int tweeterKind{};
         juce::String name,caption;
     };
+    class HeadTarget : public juce::Button {
+    public:
+        HeadTarget():juce::Button("Open amplifier") {setWantsKeyboardFocus(true);setMouseCursor(juce::MouseCursor::PointingHandCursor);}
+        void paintButton(juce::Graphics& g,bool over,bool) override {
+            if(over||hasKeyboardFocus(true)){g.setColour(juce::Colour(0xffead4a4));g.drawRoundedRectangle(getLocalBounds().toFloat().reduced(1.f),3.f,2.f);}
+        }
+    };
     class Rig : public juce::Button {
         CabRoomOverview& room;
         int lane;
     public:
+        HeadTarget head;
         Rig(CabRoomOverview& owner,int index):juce::Button("Open cabinet"),room(owner),lane(index) {
             setComponentID("cabRoomRig"+juce::String(lane+1));setMouseCursor(juce::MouseCursor::PointingHandCursor);
             setWantsKeyboardFocus(true);onClick=[this]{room.selectRig(lane);};
+            addAndMakeVisible(head);head.setComponentID("cabRoomHead"+juce::String(lane+1));
+            head.onClick=[this]{if(room.onAmplifierSelected)room.onAmplifierSelected(lane);};
         }
         void paintButton(juce::Graphics& g,bool hovered,bool down) override {room.paintRig(g,lane,getLocalBounds().toFloat(),hovered || hasKeyboardFocus(true),down);}
     };
@@ -261,7 +272,7 @@ class CabRoomOverview : public juce::Component, private juce::Timer {
         g.drawText(hovered && !low ? "OPEN CABINET  >" : rig.caption,labelArea.toNearestInt().withTrimmedTop(22),juce::Justification::centred);
     }
 public:
-    std::function<void(int)> onCabinetSelected;
+    std::function<void(int)> onCabinetSelected,onAmplifierSelected;
     explicit CabRoomOverview(ChimeraProcessor& p):processor(p),lowBlend(p,"cabRoom") {
         setComponentID("cabRoomOverview");setTitle("Chimera cabinet room");
         setDescription("Choose a cabinet to open its speaker and microphone controls.");
@@ -369,6 +380,7 @@ public:
             component.getProperties().set("cabRoomCabContribution",cabContribution);
             roomChanged=roomChanged || changed;
         }
+        for(int i=0;i<activeRigCount();++i){auto& target=rigs[size_t(i)]->head;target.setBounds(projectedHead(i).toNearestInt());target.setTooltip(spectralforge::cabRoom::rigName(currentMode,i)+" / Open amplifier");}
         if(roomChanged)for(auto& rig:rigs)rig->repaint();
     }
     void resized() override {
@@ -381,6 +393,7 @@ public:
         for(int i=0;i<3;++i)rigs[static_cast<size_t>(i)]->setBounds(margin+i*(width+gap),top,width,juce::jmax(1,getHeight()-top-12));
         const int blendWidth=juce::jlimit(180,460,getWidth()/2-24);
         lowBlend.setBounds(getWidth()-24-blendWidth,3,blendWidth,38);
+        for(int i=0;i<count;++i)rigs[size_t(i)]->head.setBounds(projectedHead(i).toNearestInt());
     }
     void paint(juce::Graphics& g) override {
         g.fillAll(juce::Colour(0xff151714));
@@ -396,7 +409,7 @@ public:
             currentMode==2 ? juce::jmax(1,lowBlend.getX()-40) : getWidth()-48,22,juce::Justification::centredLeft);
         if(getHeight()>500) {
             g.setColour(juce::Colour(0xffc6bba8));g.setFont(juce::FontOptions(12.f));
-            g.drawText("Select a cabinet to move closer and place its microphones.",24,38,getWidth()-48,22,juce::Justification::centredLeft);
+            g.drawText("Select a head for amplifier controls, or a cabinet for microphones.",24,38,getWidth()-48,22,juce::Justification::centredLeft);
         }
         g.setColour(juce::Colour(0xffb99b6c).withAlpha(.35f));g.drawRect(getLocalBounds(),1);
     }
@@ -413,6 +426,7 @@ class CabWorkspace : public juce::Component, private juce::Timer {
     juce::TextButton back{"< ROOM"};
     juce::Label breadcrumb;
     bool roomView{true};
+    juce::Component::SafePointer<juce::DialogWindow> ampDialog;
     int focused{-1},lastMode{-1};
     void timerCallback() override {refreshState();}
     void updateNavigation() {
@@ -431,6 +445,13 @@ public:
         addAndMakeVisible(room);addAndMakeVisible(back);addAndMakeVisible(breadcrumb);addAndMakeVisible(lowBlend);
         back.setComponentID("cabBackToRoom");back.setTooltip("Return to the complete room without changing the sound.");
         back.onClick=[this]{showRoom();};room.onCabinetSelected=[this](int lane){focusRig(lane);};
+        room.onAmplifierSelected=[this](int lane){
+            if(ampDialog)delete ampDialog.getComponent();
+            juce::DialogWindow::LaunchOptions options;options.content.setOwned(new AmpHeadWorkspace(processor,lane));
+            options.dialogTitle="Chimera / Amplifier";options.dialogBackgroundColour=juce::Colour(0xff111617);
+            options.useNativeTitleBar=true;options.escapeKeyTriggersCloseButton=true;options.resizable=false;options.componentToCentreAround=this;
+            ampDialog=options.launchAsync();
+        };
         breadcrumb.setFont(juce::FontOptions(12.f,juce::Font::bold));
         breadcrumb.setColour(juce::Label::textColourId,juce::Colour(0xffcfb991));
         setSize(1040,792);lastMode=spectralforge::cabRoom::mode(processor);
@@ -438,7 +459,7 @@ public:
         else updateNavigation();
         startTimerHz(12);
     }
-    ~CabWorkspace() override {stopTimer();panel.reset();setLookAndFeel(nullptr);}
+    ~CabWorkspace() override {stopTimer();if(ampDialog)delete ampDialog.getComponent();panel.reset();setLookAndFeel(nullptr);}
     int activeRigCount() const {return spectralforge::cabRoom::rigCount(processor);}
     bool isRoomView() const {return roomView;}
     int focusedRig() const {return focused;}

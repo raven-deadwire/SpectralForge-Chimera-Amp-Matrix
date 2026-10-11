@@ -90,6 +90,8 @@ public:
     void copyComparison();
     int comparisonSlot() const {return selectedComparison.load();}
     void loadFactoryPreset(int index);
+    // Presentation invalidation only; never serialized or read by the DSP.
+    uint64_t ampHeadRecallRevision() const noexcept {return headRecallRevision.load();}
     void learnMidi(const juce::String& parameterId);
     void clearMidi();
     bool learningMidi() const {return midiLearn.load()>=0;}
@@ -139,6 +141,7 @@ private:
     std::array<juce::ValueTree,2> comparisons;
     std::mutex comparisonMutex;
     std::atomic<int> selectedComparison{0};
+    std::atomic<uint64_t> headRecallRevision{0};
     std::atomic<bool> resetPending{false};
     juce::AudioProcessorValueTreeState state{*this,nullptr,"PARAMS",layout()};
     std::array<std::array<std::atomic<float>*,10>,3> cabPanelParameters{};
