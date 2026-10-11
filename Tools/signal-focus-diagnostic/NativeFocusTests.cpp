@@ -24,13 +24,20 @@ void dispatch(int milliseconds)
 }
 
 template<class Predicate>
-void waitForSetup(Predicate predicate, const juce::String& description)
+void waitForSetup(Predicate predicate, const juce::String& description, juce::Component& window)
 {
     const auto deadline = juce::Time::getMillisecondCounterHiRes() + 2000.0;
     while (!predicate() && juce::Time::getMillisecondCounterHiRes() < deadline)
         dispatch(10);
+    auto* peer = window.getPeer();
+    auto* current = juce::Component::getCurrentlyFocusedComponent();
+    auto* cached = peer != nullptr ? peer->getLastFocusedSubcomponent() : nullptr;
     require(predicate(), "Native focus setup failed: " + description
-                         + "; current=" + currentFocusName());
+                         + "; current=" + currentFocusName()
+                         + "; native=" + juce::String(int(peer != nullptr && peer->isFocused()))
+                         + "; current-peer-matches=" + juce::String(int(current != nullptr && current->getPeer() == peer))
+                         + "; cached=" + (cached != nullptr ? cached->getName() : juce::String("<none>"))
+                         + "; showing=" + juce::String(int(window.isShowing())));
 }
 
 void requireFocus(juce::Component& expected, const juce::String& description)
@@ -119,15 +126,20 @@ struct Fixture {
             panel.removeFromDesktop();
     }
 
-    void activateForSetup(juce::Component& window)
+    void activateForSetup(juce::Component& window, bool nativeTransfer = false)
     {
         auto* peer = window.getPeer();
         require(peer != nullptr, label + ": missing native peer during setup");
-        // One native request. Poll only readiness, never repeat a focus operation.
-        // Avoid queuing an additional window-manager activation request here.
-        peer->grabFocus();
+        // One public activation request; readiness polling never repeats it.
+        // Ordinary setup also establishes logical focus if the native peer was
+        // already active and therefore does not deliver a fresh FocusIn.
+        // The native-transfer case deliberately omits that logical fallback.
+        if (nativeTransfer)
+            peer->toFront(true);
+        else
+            window.toFront(true);
         waitForSetup([&] { return peer->isFocused() && window.hasKeyboardFocus(true); },
-                     label + ": activate " + window.getName());
+                     label + ": activate " + window.getName(), window);
         dispatch(30);
         requireFocus(window, label + ": native activation did not remain settled");
     }
@@ -230,9 +242,9 @@ void dispatchedNativeFocus()
     Fixture fixture(false);
     auto& panel = fixture.panel;
     fixture.selectOldForSetup();
-    // This entire case uses actual native focus delivery, with no calls to
-    // handleFocusGain/handleFocusLoss and no synthetic component pointer events.
-    fixture.activateForSetup(fixture.graph);
+    // After ordinary fixture setup, the cross-peer transfer uses native focus
+    // delivery, with no manual gain/loss hooks or component pointer injection.
+    fixture.activateForSetup(fixture.graph, true);
     require(fixture.top->getPeer()->getLastFocusedSubcomponent() == &panel.old,
             "Native transfer setup did not cache the old owner control");
     panel.frequency.grabKeyboardFocus();
