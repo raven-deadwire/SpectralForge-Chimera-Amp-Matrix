@@ -2,7 +2,7 @@
 
 ## Follow-up: adjustable room acoustics — 2026-10-11 KST
 
-**Status: REQUESTED / proposed scope; implementation pending.**
+**Status: PLANNED / dated scope assigned; implementation pending.**
 The owner requested controls for the room's own acoustic conditions. Track
 implementation and acceptance in [issue #46](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/issues/46).
 The supplied reference image shows ROOM SEND, ROOM SIZE (Small / Medium /
@@ -11,11 +11,11 @@ without room-response parameters.
 
 ### Proposed delivery stages
 
-| Stage | Controls and result |
+| Version / work window, KST | Controls and result |
 |---|---|
-| First playable room | Small / Medium / Large Room Size, per-rig Room Send, shared Absorption / Damping, Room Bypass and defined wet-return level; each control changes actual room audio. |
-| Detailed conditions | Early reflections, late decay, diffusion, room wet low/high cuts and stereo width. |
-| Spatial expansion | Declared modeled dimensions, wall/floor/ceiling absorption or material presets, cabinet-to-boundary placement and optional room-mic location independent of close Mic A/B. |
+| 1.3.3 Room Core, 2026-11-30–2026-12-25 | Small / Medium / Large Room Size, per-rig Room Send, shared Absorption / Damping, Room Bypass and defined wet-return level; each control changes actual room audio. |
+| 1.8 Room Advanced, 2027-05-10–2027-06-18 | Early reflections, late decay, diffusion, room wet low/high cuts and stereo width. |
+| 1.8 spatial stage, 2027-05-10–2027-06-18 | Declared modeled dimensions, wall/floor/ceiling absorption or material presets, cabinet-to-boundary placement and optional room-mic location independent of close Mic A/B. |
 
 Use one shared acoustic environment with one, two or three weighted rig sends
 in Classic, Dual and Matrix. Put basic controls on the RIGS/CAB room surface;
@@ -33,27 +33,45 @@ room response; a spatial remiking model is a separate implementation stage.
   stereo behavior for all modes.
 - Define source switching, CAB bypass and tail transitions explicitly.
   User IR can feed the optional room after its existing response.
-- Resolve the optional post-rig gate boundary before implementing the return.
-  The proposed return is after that gate and before Tone EQ / POST, with
-  excitation and detector behavior defined so gating does not accidentally
-  truncate the room tail. Reflect the chosen topology in the signal-path UI.
+- With the optional post-rig gate, apply its existing envelope to both the
+  direct rig sum and room excitation; return wet room audio after that gate
+  and before Tone EQ / POST. Verify the topology, detector behavior and tail
+  continuity, then reflect the actual routing in the signal-path UI.
 - Keep room state and the existing POST Reverb independent. Append stable
   parameter IDs; restore old projects and presets with Room off / sends zero.
   Cover project recall, A/B and host automation.
 - Target no additional direct-path buffering latency; distinguish wet
   reflection/predelay time from processing latency. Prepare heavy state away
   from the callback, smooth transitions and report room tail length.
-- Validate actual audio, LOW DI isolation, low-note/palm-mute definition,
-  full-product callback cost with all three rigs/two mics and active CAB
-  transitions, and real-host lifecycle before delivering a preview.
+- Validate actual audio, LOW DI isolation, low-note/palm-mute definition
+  and full-product callback cost with all three rigs/two mics and active CAB
+  transitions. Prototype/test-installer reports must list performed checks
+  and remaining host work. Complete real-host/tail/lifecycle acceptance for
+  the December 25 candidate.
 
-Track this as a dedicated post-1.3 CAB/room update. Assign the integration
-version and work estimate at a development checkpoint; an independent
-prototype may advance alongside the existing EQ/head/dynamics work.
-The [draft development calendar](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/pull/36)
-places advanced POST space effects in 1.8; that is a separate scope from this
-room request. Issue #46 remains open until its implementation and acceptance
-criteria are satisfied.
+### Assigned checkpoints
+
+| Target, KST | Result |
+|---|---|
+| 2026-12-04 | Shared bus/gate topology, state/parameter IDs and numerical callback/memory budgets. |
+| 2026-12-11 | Playable Size/Send/Absorption room in Classic, Dual and Matrix. |
+| 2026-12-18 | First Room Core Windows test installer and native UI/audio evidence. |
+| 2026-12-25 | 1.3.3 validation candidate; re-estimate the advanced spatial scope from the actual core. |
+| 2027-05-14 | Declared spatial model, surface/microphone scope and updated implementation estimate. |
+| 2027-05-28 | Playable advanced-condition/spatial prototype. |
+| 2027-06-11 | First 1.8 test installer with implemented room and POST scope. |
+| 2027-06-18 | 1.8 candidate and explicit acoustic/spatial coverage report. |
+
+The [development calendar](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/pull/36)
+now reserves four weeks for 1.3.3 and expands 1.8 by two weeks. Versions
+1.3.1/1.3.2 retain their windows; 1.4–1.7 move four weeks and 1.9 onward
+move six. Whole-product integration is targeted for **2027-09-24**.
+The first room delivers actual early reflections and decay through the basic
+controls; independent Early/Decay/Diffusion/HP/LP/Width and spatial controls
+are assigned to 1.8. The additional two weeks are an estimate to review on
+December 25 and May 14, with any affected dates revised explicitly.
+All dates are internal work/candidate targets. Issue #46 remains open until
+implementation and acceptance are complete.
 
 ## Current 1.3 preparation — 2026-10-09 KST
 
