@@ -8,6 +8,11 @@ using namespace spectralforge;
 namespace {
 void check(bool ok,const char* text){if(!ok)throw std::runtime_error(text);}
 void settle(int ms=80){check(chimeraTest::dispatchFor(ms),"Native message loop stopped");}
+template<class Predicate> void awaitUI(Predicate ready,const char* message) {
+    const auto deadline=juce::Time::getMillisecondCounterHiRes()+2000.;
+    while(!ready() && juce::Time::getMillisecondCounterHiRes()<deadline)settle(20);
+    check(ready(),message);
+}
 void set(ChimeraProcessor& p,const juce::String& id,float value){auto* q=p.parameters().getParameter(id);check(q,"Missing parameter");q->setValueNotifyingHost(q->convertTo0to1(value));}
 float get(ChimeraProcessor& p,const juce::String& id){return p.parameters().getRawParameterValue(id)->load();}
 template<class T>T* find(juce::Component& c,const juce::String& id){if(c.getComponentID()==id)return dynamic_cast<T*>(&c);for(auto* child:c.getChildren())if(auto* result=find<T>(*child,id))return result;return nullptr;}
@@ -80,8 +85,10 @@ int main(int argc,char** argv){try {
     auto* details=find<::AmpNativePanel>(*view,"ampNativePanel1");check(details && details->isShowing(),"Detailed fallback unavailable");
     auto* detailKnob=find<juce::Slider>(*details,id);check(detailKnob,"Detailed control missing");numeric(*detailKnob,"4.2");
     detailToggle->triggerClick();settle();slider=find<juce::Slider>(*view,id);check(std::abs(slider->getValue()-.42)<.002,"Detail-to-head synchronization failed");
-    drag(*slider,false);p->setAmpChannel(0,1);settle();check(host.open==0,"Channel switch left gesture open");p->setAmpChannel(0,0);settle();
-    slider=find<juce::Slider>(*view,id);drag(*slider,false);set(*p,"mode",1);settle();check(host.open==0,"Mode change left gesture open");set(*p,"mode",0);settle();
+    drag(*slider,false);p->setAmpChannel(0,1);awaitUI([&]{return host.open==0;},"Channel switch left gesture open");p->setAmpChannel(0,0);
+    awaitUI([&]{return find<juce::Slider>(*find<AmpHeadControlView>(*view,"ampHead1"),id)!=nullptr;},"Channel return did not rebind");
+    slider=find<juce::Slider>(*view,id);drag(*slider,false);set(*p,"mode",1);awaitUI([&]{return host.open==0;},"Mode change left gesture open");set(*p,"mode",0);
+    awaitUI([&]{return find<juce::Slider>(*find<AmpHeadControlView>(*view,"ampHead1"),id)!=nullptr;},"Classic return did not rebind");
     slider=find<juce::Slider>(*view,id);drag(*slider,false);view.reset();check(host.open==0,"Destruction left gesture open");parameter->removeListener(&host);
     // Native editor scale + room head/cabinet navigation use independent targets.
     auto editor=std::make_unique<ChimeraEditor>(*p);editor->addToDesktop(juce::ComponentPeer::windowIsTemporary);editor->setVisible(true);settle();

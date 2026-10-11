@@ -11,7 +11,12 @@ public:
     juce::TextButton toggle;
     std::function<void()> activate;
     std::function<bool()> canEdit;
-    ~NativeControlView() override {finishInteraction();}
+    ~NativeControlView() override {
+        finishInteraction();
+        // Slider can end its own drag while its members are being destroyed.
+        // The attachment and our flags have already gone away by that point.
+        slider.onDragStart=nullptr;slider.onDragEnd=nullptr;slider.onValueChange=nullptr;
+    }
     void finishInteraction() {if(dragging && attachment)attachment->endGesture();dragging=false;}
     void visibilityChanged() override {if(!isShowing())finishInteraction();}
 
