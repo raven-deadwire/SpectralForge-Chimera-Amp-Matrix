@@ -12,6 +12,7 @@ from ci_sources import LOCK, check_checkout, sha256
 from test_recipe_selection import RecipeTests
 from test_training_contract import ContractTests
 from test_a2_recipe import A2RecipeTests
+from test_quiet_memory import QuietMemoryTests
 
 
 class EvidenceTests(unittest.TestCase):

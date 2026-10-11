@@ -1,5 +1,16 @@
 # Náströnd A2 accuracy: measured blocker
 
+**2026-10-11 update:** the unchanged current absolute quiet policy also has a
+measured architecture blocker on the newly sealed test seed 26101122.
+Fimbulvetr's window at sample 1,132,747 has a best-possible quiet RMS lower
+bound of −68.033258 dBFS, above the required −70 dBFS. The bound permits an
+independently optimal constant per window and perfect prediction elsewhere,
+so further weight training cannot pass that witness with bare A2. No threshold
+or native DSP was changed. See [the refinement report](reports/refinement-20261011.md)
+and `audit_quiet_memory.py`; the actual target engine confirms constant output
+after the 6,347-sample receptive field. The older all-relative proof below
+remains historical evidence, not the only current blocker.
+
 Subsequent user decision: keep TONE3000. The new project profile in
 `quality_profile.py` preserves active-window ESR limits and assesses quiet
 decay by absolute residual. The historical proof and numbers below remain

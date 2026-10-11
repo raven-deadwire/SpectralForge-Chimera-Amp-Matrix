@@ -8,6 +8,16 @@ MATCH = ('dataset_sha256', 'config', 'source', 'sample_rate', 'trainer_commit',
          'center_training_output', 'identity_version')
 
 
+def matched_setting(config, key):
+    # Only the two versioned additions have defaults for historical artifacts.
+    # Missing established provenance must not silently compare equal.
+    if key == 'center_training_output':
+        return config.get(key, False)
+    if key == 'identity_version':
+        return config.get(key, 1)
+    return config[key]
+
+
 def select_recipe(arms):
     if set(arms) != {'legacy', 'official-a2'}:
         raise RuntimeError('Exactly two completed recipe arms required')
@@ -21,8 +31,7 @@ def select_recipe(arms):
             raise RuntimeError('Invalid validation provenance')
         if result['quality_profile'] != cfg['quality_profile']:
             raise RuntimeError('Changed quality profile')
-        if any(cfg.get(k, False if k == 'center_training_output' else 1) !=
-               baseline['config'].get(k, False if k == 'center_training_output' else 1) for k in MATCH):
+        if any(matched_setting(cfg, k) != matched_setting(baseline['config'], k) for k in MATCH):
             raise RuntimeError('Unmatched recipe configuration')
         if (result['checkpoint_step'] != baseline['validation']['checkpoint_step'] or
             result['crop_schedule_start_step'] != 0 or
@@ -39,7 +48,8 @@ def select_recipe(arms):
             esr = quality['full_esr']
             if type(esr) not in (int, float) or not math.isfinite(esr) or esr < 0:
                 raise RuntimeError('Invalid validation ESR')
-            if type(quality['fidelity_pass']) is not bool or abs(row['esr']-esr) > 1e-8:
+            if (type(row['esr']) not in (int, float) or not math.isfinite(row['esr']) or
+                type(quality['fidelity_pass']) is not bool or abs(row['esr']-esr) > 1e-8):
                 raise RuntimeError('Inconsistent validation evidence')
             esrs.append(esr)
             passes.append(quality['fidelity_pass'])

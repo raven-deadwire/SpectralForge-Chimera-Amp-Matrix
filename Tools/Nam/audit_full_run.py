@@ -4,6 +4,7 @@ import argparse
 import json
 from pathlib import Path
 import numpy as np
+from scipy.signal import butter, correlate, sosfilt
 
 from common import digest, write_json
 from quality_profile import PROFILE, fidelity
@@ -45,7 +46,17 @@ def audit(root):
                     if not np.isclose(value, saved['tone3000_fidelity'][key], rtol=1e-5, atol=1e-6):
                         raise RuntimeError('Recomputed fidelity disagrees: ' + name + '/' + key)
             err = (pred.astype(np.float64) - ref) ** 2
+            r, y = ref[6347:].astype(np.float64), pred[6347:].astype(np.float64)
+            correlation = correlate(y, r, mode='full', method='fft')
+            lag = int(correlation[len(r)-1-32:len(r)+32].argmax()) - 32
+            bands = {}
+            for lo, hi in ((30, 250), (250, 1000), (1000, 4000), (4000, 12000)):
+                sos = butter(3, [lo, hi], btype='bandpass', fs=48000, output='sos')
+                br, by = sosfilt(sos, r), sosfilt(sos, y)
+                bands[f'{lo}-{hi}Hz'] = {'esr': float(np.mean((by-br)**2) / np.mean(br**2)),
+                    'level_error_db': float(10*np.log10(np.mean(by**2) / np.mean(br**2)))}
             rows[recipe] = {'fidelity': measured, 'selected_step': saved['selected_step'],
+                'correlation_peak_lag_samples_within_32': lag, 'band_diagnostics': bands,
                 'export_zero_bias_removed_raw_units': saved['head_bias_correction'],
                 'sections': {label: {'esr': float(err[s].sum() / np.square(ref[s], dtype=np.float64).sum()),
                                     'fraction_total_error': float(err[s].sum() / err[6347:].sum())}

@@ -33,7 +33,7 @@ class ContractTests(unittest.TestCase):
                 for name in ('Fenrir', 'Surtr', 'Nidhoggr', 'Fimbulvetr', 'Ragnarok'):
                     row = {'split': split, 'name': name}
                     for kind in ('input', 'output'):
-                        path = p / split / (kind + (name if kind == 'output' else '') + '.npy')
+                        path = p / split / (('input' if kind == 'input' else name) + '.npy')
                         path.write_bytes((split + kind + (name if kind == 'output' else '')).encode())
                         row[kind] = str(path.relative_to(p))
                         row[kind + '_sha256'] = hashlib.sha256(path.read_bytes()).hexdigest()
@@ -43,7 +43,7 @@ class ContractTests(unittest.TestCase):
             verify_audio_manifest(p)
             for row in rows:
                 if row['split'] == 'test':
-                    row['input'] = rows[0]['input']
+                    (p / row['input']).write_bytes((p / rows[0]['input']).read_bytes())
                     row['input_sha256'] = rows[0]['input_sha256']
             (p / 'manifest.json').write_text(json.dumps(manifest))
             with self.assertRaisesRegex(RuntimeError, 'reused'):

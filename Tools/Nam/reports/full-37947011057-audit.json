@@ -171,6 +171,25 @@
           ]
         },
         "selected_step": 5000,
+        "correlation_peak_lag_samples_within_32": 0,
+        "band_diagnostics": {
+          "30-250Hz": {
+            "esr": 0.0841550219279761,
+            "level_error_db": 0.24359926169684154
+          },
+          "250-1000Hz": {
+            "esr": 0.08129765950066567,
+            "level_error_db": -0.224201810577207
+          },
+          "1000-4000Hz": {
+            "esr": 0.11351706185772016,
+            "level_error_db": -0.3575334772115169
+          },
+          "4000-12000Hz": {
+            "esr": 0.12525735347118075,
+            "level_error_db": -0.5707961476289671
+          }
+        },
         "export_zero_bias_removed_raw_units": -0.01562919281423092,
         "sections": {
           "plucks_before": {
@@ -316,6 +335,25 @@
           ]
         },
         "selected_step": 4500,
+        "correlation_peak_lag_samples_within_32": 0,
+        "band_diagnostics": {
+          "30-250Hz": {
+            "esr": 0.09797662356952787,
+            "level_error_db": -0.1703136714510617
+          },
+          "250-1000Hz": {
+            "esr": 0.09620525632485466,
+            "level_error_db": -0.8406096158853854
+          },
+          "1000-4000Hz": {
+            "esr": 0.11180321234397078,
+            "level_error_db": -0.6956176705891806
+          },
+          "4000-12000Hz": {
+            "esr": 0.0787971048493519,
+            "level_error_db": -0.27875356313382593
+          }
+        },
         "export_zero_bias_removed_raw_units": 0.027753086760640144,
         "sections": {
           "plucks_before": {
@@ -455,6 +493,25 @@
           ]
         },
         "selected_step": 5000,
+        "correlation_peak_lag_samples_within_32": 0,
+        "band_diagnostics": {
+          "30-250Hz": {
+            "esr": 0.07992713702999565,
+            "level_error_db": -0.33455221829567955
+          },
+          "250-1000Hz": {
+            "esr": 0.15950582748308068,
+            "level_error_db": -0.9971345063472447
+          },
+          "1000-4000Hz": {
+            "esr": 0.22240531300881955,
+            "level_error_db": -1.119771064457865
+          },
+          "4000-12000Hz": {
+            "esr": 0.190746508892194,
+            "level_error_db": -0.8430906530495291
+          }
+        },
         "export_zero_bias_removed_raw_units": 0.23280742764472961,
         "sections": {
           "plucks_before": {
@@ -592,6 +649,25 @@
           ]
         },
         "selected_step": 4000,
+        "correlation_peak_lag_samples_within_32": 0,
+        "band_diagnostics": {
+          "30-250Hz": {
+            "esr": 0.09919040580818168,
+            "level_error_db": -1.1406376051279372
+          },
+          "250-1000Hz": {
+            "esr": 0.18294176063292927,
+            "level_error_db": -1.529999257044805
+          },
+          "1000-4000Hz": {
+            "esr": 0.2478221112803084,
+            "level_error_db": -1.5550222474514417
+          },
+          "4000-12000Hz": {
+            "esr": 0.19932283701051742,
+            "level_error_db": -1.0702596559548758
+          }
+        },
         "export_zero_bias_removed_raw_units": -0.07891777157783508,
         "sections": {
           "plucks_before": {
@@ -731,6 +807,25 @@
           ]
         },
         "selected_step": 5000,
+        "correlation_peak_lag_samples_within_32": 0,
+        "band_diagnostics": {
+          "30-250Hz": {
+            "esr": 0.04788115266636182,
+            "level_error_db": -0.3202306362075786
+          },
+          "250-1000Hz": {
+            "esr": 0.11222866941761848,
+            "level_error_db": -0.6591313503768482
+          },
+          "1000-4000Hz": {
+            "esr": 0.18572174859994564,
+            "level_error_db": -0.8080277939620297
+          },
+          "4000-12000Hz": {
+            "esr": 0.18003978166435833,
+            "level_error_db": -0.8831123170649688
+          }
+        },
         "export_zero_bias_removed_raw_units": -0.016016241163015366,
         "sections": {
           "plucks_before": {
@@ -868,6 +963,25 @@
           ]
         },
         "selected_step": 5000,
+        "correlation_peak_lag_samples_within_32": 0,
+        "band_diagnostics": {
+          "30-250Hz": {
+            "esr": 0.08177178654226235,
+            "level_error_db": -0.08537942340682418
+          },
+          "250-1000Hz": {
+            "esr": 0.18366341815175236,
+            "level_error_db": -0.7562062475938326
+          },
+          "1000-4000Hz": {
+            "esr": 0.18103526121135857,
+            "level_error_db": -0.837412824276011
+          },
+          "4000-12000Hz": {
+            "esr": 0.14827208442274062,
+            "level_error_db": -0.5204604388473467
+          }
+        },
         "export_zero_bias_removed_raw_units": 0.013245037756860256,
         "sections": {
           "plucks_before": {
@@ -1007,6 +1121,25 @@
           ]
         },
         "selected_step": 4500,
+        "correlation_peak_lag_samples_within_32": 0,
+        "band_diagnostics": {
+          "30-250Hz": {
+            "esr": 0.017021312508765988,
+            "level_error_db": -0.0847586144120952
+          },
+          "250-1000Hz": {
+            "esr": 0.06161444373537105,
+            "level_error_db": -0.040731843322968635
+          },
+          "1000-4000Hz": {
+            "esr": 0.08459800213631236,
+            "level_error_db": -0.21695407956887042
+          },
+          "4000-12000Hz": {
+            "esr": 0.07865491795729426,
+            "level_error_db": -0.24492740160879467
+          }
+        },
         "export_zero_bias_removed_raw_units": -0.046827323734760284,
         "sections": {
           "plucks_before": {
@@ -1144,6 +1277,25 @@
           ]
         },
         "selected_step": 4000,
+        "correlation_peak_lag_samples_within_32": 0,
+        "band_diagnostics": {
+          "30-250Hz": {
+            "esr": 0.031182815445883347,
+            "level_error_db": -0.01443209232553447
+          },
+          "250-1000Hz": {
+            "esr": 0.08633500338985624,
+            "level_error_db": -0.32862237045398657
+          },
+          "1000-4000Hz": {
+            "esr": 0.08845804326835528,
+            "level_error_db": -0.6233071096967742
+          },
+          "4000-12000Hz": {
+            "esr": 0.06194551608871199,
+            "level_error_db": -0.7574423225412139
+          }
+        },
         "export_zero_bias_removed_raw_units": -0.09564243257045746,
         "sections": {
           "plucks_before": {
@@ -1283,6 +1435,25 @@
           ]
         },
         "selected_step": 5000,
+        "correlation_peak_lag_samples_within_32": 0,
+        "band_diagnostics": {
+          "30-250Hz": {
+            "esr": 0.13520575414773564,
+            "level_error_db": -0.1824118966837338
+          },
+          "250-1000Hz": {
+            "esr": 0.38333986681485155,
+            "level_error_db": -0.5236978734174571
+          },
+          "1000-4000Hz": {
+            "esr": 0.2691001996251335,
+            "level_error_db": -1.163263378992745
+          },
+          "4000-12000Hz": {
+            "esr": 0.1913647920089867,
+            "level_error_db": -0.9877540382570777
+          }
+        },
         "export_zero_bias_removed_raw_units": 2.9055774575681426e-05,
         "sections": {
           "plucks_before": {
@@ -1420,6 +1591,25 @@
           ]
         },
         "selected_step": 4500,
+        "correlation_peak_lag_samples_within_32": 0,
+        "band_diagnostics": {
+          "30-250Hz": {
+            "esr": 0.18870395081517008,
+            "level_error_db": -0.6701190247181356
+          },
+          "250-1000Hz": {
+            "esr": 0.7557140073293559,
+            "level_error_db": 0.049155276829389555
+          },
+          "1000-4000Hz": {
+            "esr": 0.43946110185334963,
+            "level_error_db": -2.2035890639587903
+          },
+          "4000-12000Hz": {
+            "esr": 0.2669030936908538,
+            "level_error_db": -1.4625524301943547
+          }
+        },
         "export_zero_bias_removed_raw_units": 0.0640605092048645,
         "sections": {
           "plucks_before": {

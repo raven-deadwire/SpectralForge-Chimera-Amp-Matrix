@@ -410,3 +410,11 @@ across splits. Resume identity v2 includes optimizer, crop, sampler, validation
 and centering settings. Old checkpoints must use a documented `--warm-start`;
 they cannot silently resume under different settings. The unchanged fidelity
 profile, source DSP and player pins remain authoritative.
+
+The completed 2026-10-11 refinement reduces mean ESR on the new independent
+test by 11.49%, but no channel fully qualifies. `audit_quiet_memory.py` proves
+a Fimbulvetr lower bound of −68.033258 dBFS against the unchanged −70 dBFS
+quiet RMS limit. See `reports/refinement-20261011.md`: longer training alone
+cannot make this bare A2 contract pass that witness. The result does not justify
+weakening the gate or claiming a longer-memory/recursive alternative is already
+implemented or target-compatible.

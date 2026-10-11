@@ -14,6 +14,9 @@ def verify_audio_manifest(data):
             raise RuntimeError('Duplicate capture')
         seen.add(key)
         for kind in ('input', 'output'):
+            filename = 'input.npy' if kind == 'input' else row['name'] + '.npy'
+            if row[kind] != row['split'] + '/' + filename:
+                raise RuntimeError('Capture path does not match trainer input: ' + row[kind])
             path = (data / row[kind]).resolve()
             if not path.is_relative_to(data):
                 raise RuntimeError('Audio path escapes dataset')

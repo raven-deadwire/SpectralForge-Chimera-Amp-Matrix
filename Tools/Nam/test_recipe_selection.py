@@ -56,6 +56,15 @@ class RecipeTests(unittest.TestCase):
             arms['official-a2']['validation']['channels']['Fenrir']['tone3000_fidelity']['full_esr'] = value
             with self.subTest(value=value), self.assertRaises(RuntimeError):
                 select_recipe(arms)
+        arms = fixture()
+        arms['official-a2']['validation']['channels']['Fenrir']['esr'] = float('nan')
+        with self.assertRaises(RuntimeError):
+            select_recipe(arms)
+        arms = fixture()
+        for arm in arms.values():
+            del arm['config']['dataset_sha256']
+        with self.assertRaises(KeyError):
+            select_recipe(arms)
 
     def test_diagnostics_keep_strict_esr_and_report_level_quiet_failures(self):
         q = dict(active_median=.005, active_p95=.01, active_worst=.02, full_esr=.01,
