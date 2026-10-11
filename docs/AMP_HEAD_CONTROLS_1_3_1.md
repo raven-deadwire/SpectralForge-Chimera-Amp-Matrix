@@ -13,7 +13,7 @@ not alter the 1.3.0 preparation branch or publish a release.
   before live JUCE knobs are drawn at the authored positions.
 - Brit Edge: six native controls on its clean gold faceplate and all five
   existing input routes. No unnecessary single-channel selector.
-- Classic head click and independent Dual/Matrix room head targets open the
+- Classic and focused CAB head clicks and independent Dual/Matrix room head targets open the
   same enlarged view. Cabinet targets retain their existing destination.
   Back/Escape closes the enlargement and leaves the previous view intact.
 - Existing detailed controls remain available beside the compact head and via
@@ -38,8 +38,9 @@ recall, interrupted drags, independent room targets, and editor scales.
 It writes actual native component PNGs to `amp-head-snapshots/`.
 
 The dedicated three-OS workflow builds the Standalone preview and runs the new
-contract plus existing NativeState, CAB state, signal navigation, EQ, gate
-and version contracts. Exact-source logs, JUnit, screenshots and preview
+head contract and packaging-version contract. The existing signal/EQ, CAB and
+full-product workflows remain unchanged and run their own regression suites.
+Exact-source logs, JUnit, screenshots and preview
 binaries are retained in platform-specific artifacts, including failures.
 
 Local native display startup is blocked by AF_UNIX socket permissions. Local
@@ -55,7 +56,6 @@ recorded in the PR after the run completes.
 | Cinder 120, Special Edition, Liquid Lead | Dense panels, shared controls, choices/toggles and secondary banks |
 | Other active heads | Model-specific clean fascia inventory and native layouts |
 | Retired Iron Compact | Recallable ordinal remains supported through full detailed controls |
-| Focused CAB scene head | Direct head entry from the separate microphone close-up |
 | Small in-place controls | Compact main/room heads intentionally open the enlargement |
 | Production acceptance | Real Studio One automation record/playback, save/reopen, plug-in removal and DAW shutdown; listening and full release/installer gates |
 | Performance | Same-machine before/after message-thread profiling with two instances and audio callback timing under UI activity |

@@ -276,6 +276,7 @@ private:
         }
     }
 public:
+    void setHeadAction(std::function<void()> action) {headImage.setOpenAction(std::move(action));}
     CabScene(ChimeraProcessor& value,int rig):processor(value),lane(rig) {
         setComponentID("cabScene"+juce::String(lane+1));
         setInterceptsMouseClicks(false,true);

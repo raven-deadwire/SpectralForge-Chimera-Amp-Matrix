@@ -445,13 +445,7 @@ public:
         addAndMakeVisible(room);addAndMakeVisible(back);addAndMakeVisible(breadcrumb);addAndMakeVisible(lowBlend);
         back.setComponentID("cabBackToRoom");back.setTooltip("Return to the complete room without changing the sound.");
         back.onClick=[this]{showRoom();};room.onCabinetSelected=[this](int lane){focusRig(lane);};
-        room.onAmplifierSelected=[this](int lane){
-            if(ampDialog)delete ampDialog.getComponent();
-            juce::DialogWindow::LaunchOptions options;options.content.setOwned(new AmpHeadWorkspace(processor,lane));
-            options.dialogTitle="Chimera / Amplifier";options.dialogBackgroundColour=juce::Colour(0xff111617);
-            options.useNativeTitleBar=true;options.escapeKeyTriggersCloseButton=true;options.resizable=false;options.componentToCentreAround=this;
-            ampDialog=options.launchAsync();
-        };
+        room.onAmplifierSelected=[this](int lane){openAmplifier(lane);};
         breadcrumb.setFont(juce::FontOptions(12.f,juce::Font::bold));
         breadcrumb.setColour(juce::Label::textColourId,juce::Colour(0xffcfb991));
         setSize(1040,792);lastMode=spectralforge::cabRoom::mode(processor);
@@ -460,6 +454,15 @@ public:
         startTimerHz(12);
     }
     ~CabWorkspace() override {stopTimer();if(ampDialog)delete ampDialog.getComponent();panel.reset();setLookAndFeel(nullptr);}
+    void openAmplifier(int lane) {
+        if(panel)panel->finishInteraction();
+        if(ampDialog)delete ampDialog.getComponent();
+        juce::DialogWindow::LaunchOptions options;auto* content=new AmpHeadWorkspace(processor,lane);options.content.setOwned(content);
+        if(auto* display=juce::Desktop::getInstance().getDisplays().getDisplayForRect(getScreenBounds()))content->setSize(juce::jmin(1200,display->userArea.getWidth()-32),juce::jmin(650,display->userArea.getHeight()-80));
+        options.dialogTitle="Chimera / Amplifier";options.dialogBackgroundColour=juce::Colour(0xff111617);
+        options.useNativeTitleBar=true;options.escapeKeyTriggersCloseButton=true;options.resizable=false;options.componentToCentreAround=this;
+        ampDialog=options.launchAsync();
+    }
     int activeRigCount() const {return spectralforge::cabRoom::rigCount(processor);}
     bool isRoomView() const {return roomView;}
     int focusedRig() const {return focused;}
@@ -473,7 +476,7 @@ public:
         if(panel)panel->finishInteraction();
         if(!panel || focused!=lane) {
             panel=std::make_unique<CabPanel>(processor,lane);
-            panel->setComponentID("cabFocusedPanel");addAndMakeVisible(*panel);
+            panel->setComponentID("cabFocusedPanel");panel->setHeadAction([this,lane]{openAmplifier(lane);});addAndMakeVisible(*panel);
         }
         focused=lane;roomView=false;panel->setView(CabPanel::View::cabinet);
         updateNavigation();return true;

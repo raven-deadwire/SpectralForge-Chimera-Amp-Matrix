@@ -13,11 +13,21 @@ class AmpHeadControlView final : public juce::Component {
     std::vector<spectralforge::ampHead::Knob> anchors;
     std::array<juce::TextButton,5> channels;
     StableAmpComboBox input;
-    juce::TextButton focus{"OPEN AMP"};
+    class OpenButton : public juce::TextButton {
+    public:
+        OpenButton():juce::TextButton("OPEN AMP") {}
+        void paintButton(juce::Graphics& g,bool over,bool) override {
+            if(over || hasKeyboardFocus(true)) {
+                g.setColour(juce::Colour(0xffead4a4));g.drawRoundedRectangle(getLocalBounds().toFloat().reduced(1.f),3.f,2.f);
+                g.setFont(juce::FontOptions(12.f,juce::Font::bold));g.drawText("OPEN AMP",getLocalBounds().withHeight(22),juce::Justification::centred);
+            }
+        }
+    } focus;
     int context{-1},model{-1},channel{-1},mode{-1},route{-1};
     uint64_t revision{};
     bool active{true};
     struct FaceLook : spectralforge::art::DialogLook {
+        juce::Font getLabelFont(juce::Label&) override {return juce::FontOptions(10.f);}
         void drawRotarySlider(juce::Graphics& g,int x,int y,int w,int h,float value,float start,float end,juce::Slider& s) override {
             const auto b=juce::Rectangle<float>(float(x),float(y),float(w),float(h)).withSizeKeepingCentre(float(juce::jmin(w,h)-2),float(juce::jmin(w,h)-2));
             const bool gold=int(s.getProperties()["knobStyle"])==3;
@@ -41,6 +51,7 @@ public:
     AmpHeadControlView(ChimeraProcessor& p,int index,bool full):processor(p),lane(index),enlarged(full) {
         setComponentID("ampHead"+juce::String(lane+1));setLookAndFeel(&look);
         addChildComponent(focus);focus.setComponentID("ampHeadOpen"+juce::String(lane+1));
+        focus.setMouseCursor(juce::MouseCursor::PointingHandCursor);
         focus.setTooltip("Enlarge the amplifier and operate its faceplate controls.");
         focus.onClick=[this]{finishInteraction();if(onOpen)onOpen();};
         addChildComponent(input);input.setComponentID("ampHeadInput"+juce::String(lane+1));input.setName("Amplifier input route");
@@ -85,6 +96,7 @@ public:
                 control->slider.setColour(juce::Slider::textBoxTextColourId,ink);
                 control->slider.setColour(juce::Slider::textBoxOutlineColourId,juce::Colours::transparentBlack);
                 control->slider.setScrollWheelEnabled(false);control->slider.setWantsKeyboardFocus(true);
+                control->slider.setVelocityModeParameters(.2,1,0.,true,juce::ModifierKeys::shiftModifier);
                 if(model==spectralforge::niflheimrAmpModel && index==int(spectralforge::niflheimr::Control::midFrequency)) {
                     control->slider.setSkewFactorFromMidPoint(650);control->slider.setTextValueSuffix(" Hz");control->slider.setNumDecimalPlacesToDisplay(0);
                 } else if(model==spectralforge::niflheimrAmpModel && index==int(spectralforge::niflheimr::Control::blend)) {
@@ -111,7 +123,7 @@ public:
     juce::String contextName() const {return mode==0?"CLASSIC":mode==1?"DUAL / RIG "+juce::String(lane+1):"MATRIX / "+juce::String(lane==0?"LOW":lane==1?"MID":"HIGH");}
     juce::String caption() const {return contextName()+" / "+juce::String::fromUTF8(spectralforge::ampInfo(model).name)+" / "+spectralforge::ampNativePanel(model).channels[size_t(channel)];}
     void resized() override {
-        focus.setBounds(getLocalBounds());focus.setAlpha(.01f); // keyboard target; enclosure supplies focus feedback
+        focus.setBounds(headBounds().toNearestInt());
         const auto face=spectralforge::cabHead::geometry(headBounds(),juce::jmax(0,model)).front;
         for(size_t i=0;i<controls.size();++i) {
             const auto& anchor=anchors[i];auto& c=*controls[i];
@@ -136,10 +148,7 @@ public:
                 const auto patch=juce::Rectangle<float>(face.getX()+face.getWidth()*a.x-w/2,face.getY()+face.getHeight()*a.y-h/2,w,h);
                 if(image.isValid())g.drawImage(image,patch.getX(),patch.getY(),patch.getWidth(),patch.getHeight(),int(image.getWidth()*.73f),int(image.getHeight()*(a.y-.0695f)),int(image.getWidth()*.046f),int(image.getHeight()*.139f));}
         }
-        if(!enlarged && (isMouseOver(true)||focus.hasKeyboardFocus(true))) {
-            g.setColour(juce::Colour(0xffead4a4));g.drawRoundedRectangle(face.reduced(1.f),3.f,2.f);
-            g.setFont(juce::FontOptions(12.f,juce::Font::bold));g.drawText("OPEN AMP",face.toNearestInt().withHeight(22),juce::Justification::centred);
-        }
+
     }
 };
 

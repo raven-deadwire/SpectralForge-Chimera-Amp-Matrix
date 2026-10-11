@@ -200,7 +200,11 @@ inline void paint(juce::Graphics& g,juce::Rectangle<float> bounds,int model) {
 class View : public juce::Component {
     juce::SharedResourcePointer<Bank> bank;
     int model{};
+    std::function<void()> open;
 public:
+    void setOpenAction(std::function<void()> action) {open=std::move(action);setInterceptsMouseClicks(bool(open),false);setWantsKeyboardFocus(bool(open));setMouseCursor(open?juce::MouseCursor::PointingHandCursor:juce::MouseCursor::NormalCursor);setTitle("Open amplifier");}
+    void mouseUp(const juce::MouseEvent& event) override {if(open && !event.mouseWasDraggedSinceMouseDown() && getLocalBounds().contains(event.getPosition()))open();}
+    bool keyPressed(const juce::KeyPress& key) override {if(open && (key==juce::KeyPress::returnKey || key==juce::KeyPress::spaceKey)){open();return true;}return false;}
     View() {setInterceptsMouseClicks(false,false);setComponentID("cabPerspectiveHead");}
     void setModel(int next) {next=juce::jlimit(0,spectralforge::ampModelCount-1,next);if(model!=next){model=next;repaint();}}
     int getModel() const {return model;}

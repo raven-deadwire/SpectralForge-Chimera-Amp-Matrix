@@ -23,6 +23,12 @@ void numeric(juce::Slider& slider,const juce::String& text){slider.showTextBox()
 }
 int main(int argc,char** argv){try {
     juce::ScopedJuceInitialiser_GUI init;
+    if(argc>1 && juce::String(argv[1])=="--software-preview") {
+        const auto folder=juce::File::getCurrentWorkingDirectory().getChildFile("head-software-preview");folder.createDirectory();
+        auto preview=std::make_unique<ChimeraProcessor>();
+        for(int model:{1,niflheimrAmpModel}){preview->setAmpModel(0,model);AmpHeadWorkspace surface(*preview,0);surface.setVisible(true);screenshot(surface,folder,"model"+juce::String(model));}
+        preview->releaseResources();std::cout<<"SOFTWARE PREVIEW ONLY: no native peer or interaction validation\n";return 0;
+    }
     check(juce::Desktop::getInstance().getDisplays().getPrimaryDisplay()!=nullptr,"Native display required");
     const auto directory=juce::File::getCurrentWorkingDirectory().getChildFile(argc>1?argv[1]:"amp-head-snapshots");directory.createDirectory();
     auto p=std::make_unique<ChimeraProcessor>();
@@ -70,13 +76,28 @@ int main(int argc,char** argv){try {
     // A late drag event before the timer refresh must NOT overwrite restored values.
     slider->mouseDrag(mouse(*slider,{15,-60},{15,15},true));check(get(*p,id)==savedValue,"Stale drag overwrote restored project");settle();check(host.open==0,"Restore left gesture open");
     p->loadFactoryPreset(0);settle();p->setStateInformation(saved.getData(),int(saved.getSize()));settle();check(get(*p,id)==savedValue,"Factory/project restoration failed");
+    auto* detailToggle=find<juce::TextButton>(*view,"ampHeadDetails");detailToggle->triggerClick();settle();
+    auto* details=find<::AmpNativePanel>(*view,"ampNativePanel1");check(details && details->isShowing(),"Detailed fallback unavailable");
+    auto* detailKnob=find<juce::Slider>(*details,id);check(detailKnob,"Detailed control missing");numeric(*detailKnob,"4.2");
+    detailToggle->triggerClick();settle();slider=find<juce::Slider>(*view,id);check(std::abs(slider->getValue()-.42)<.002,"Detail-to-head synchronization failed");
+    drag(*slider,false);p->setAmpChannel(0,1);settle();check(host.open==0,"Channel switch left gesture open");p->setAmpChannel(0,0);settle();
+    slider=find<juce::Slider>(*view,id);drag(*slider,false);set(*p,"mode",1);settle();check(host.open==0,"Mode change left gesture open");set(*p,"mode",0);settle();
     slider=find<juce::Slider>(*view,id);drag(*slider,false);view.reset();check(host.open==0,"Destruction left gesture open");parameter->removeListener(&host);
     // Native editor scale + room head/cabinet navigation use independent targets.
     auto editor=std::make_unique<ChimeraEditor>(*p);editor->addToDesktop(juce::ComponentPeer::windowIsTemporary);editor->setVisible(true);settle();
-    for(int scale:{75,100,125,150}){editor->setSize(1180*scale/100,780*scale/100);settle();screenshot(*editor,directory,"editor-"+juce::String(scale));}
+    for(int scale:{75,100,125,150}){editor->setSize(1180*scale/100,780*scale/100);settle();screenshot(*editor,directory,"editor-"+juce::String(scale));
+        const int writes=all.writes,begins=all.begins;auto* open=find<juce::TextButton>(*editor,"ampHeadOpen1");check(open && open->isShowing(),"Classic head entry missing");open->triggerClick();settle(150);
+        AmpHeadWorkspace* full=nullptr;auto& desktop=juce::Desktop::getInstance();for(int i=0;i<desktop.getNumComponents();++i)if(auto* w=find<AmpHeadWorkspace>(*desktop.getComponent(i),"ampHeadWorkspace"))full=w;
+        check(full && full->isShowing(),"Head did not open native enlargement");screenshot(*full,directory,"focus-from-editor-"+juce::String(scale));
+        find<juce::TextButton>(*full,"ampHeadBack")->triggerClick();settle(100);check(all.writes==writes && all.begins==begins,"Head open/back changed audio state");
+    }
     for(int mode:{1,2}){set(*p,"mode",float(mode));settle();auto* room=find<CabRoomOverview>(*editor,"cabRoomOverview");check(room,"Room missing");int selectedHead=-1,selectedCab=-1;room->onAmplifierSelected=[&](int lane){selectedHead=lane;};room->onCabinetSelected=[&](int lane){selectedCab=lane;};
         const int writes=all.writes,begins=all.begins;for(int lane=0;lane<=mode;++lane){auto* head=find<juce::Button>(*room,"cabRoomHead"+juce::String(lane+1));auto* cab=find<juce::Button>(*room,"cabRoomRig"+juce::String(lane+1));check(head && cab,"Separate room targets missing");head->triggerClick();settle(10);check(selectedHead==lane,"Wrong room head lane");cab->triggerClick();settle(10);check(selectedCab==lane,"Wrong room cab lane");}
         check(all.writes==writes && all.begins==begins,"Room navigation changed sound");screenshot(*editor,directory,"room-"+juce::String(mode));}
-    editor.reset();for(auto* parameter2:p->getParameters())parameter2->removeListener(&all);check(all.open==0,"Unbalanced host gestures");p->releaseResources();
+    editor.reset();
+    set(*p,"mode",2);auto cabinet=std::make_unique<CabWorkspace>(*p,1,true);cabinet->addToDesktop(juce::ComponentPeer::windowIsTemporary);cabinet->setVisible(true);settle();
+    auto* cabHead=find<spectralforge::cabHead::View>(*cabinet,"cabPerspectiveHead");check(cabHead && cabHead->getWantsKeyboardFocus(),"Focused CAB head entry missing");
+    const int cabWrites=all.writes;check(cabHead->keyPressed(juce::KeyPress(juce::KeyPress::returnKey)),"Focused CAB head keyboard entry failed");settle(100);check(all.writes==cabWrites,"CAB head entry changed sound");cabinet.reset();settle();
+    for(auto* parameter2:p->getParameters())parameter2->removeListener(&all);check(all.open==0,"Unbalanced host gestures");p->releaseResources();
     std::cout<<"PASS: "<<cases<<" route/model cases; 6 contexts; all 5 Niflheimr channels; native drag, values, automation, A/B/project/factory recall, interrupted gestures, room navigation and 4 editor scales\n";return 0;
 }catch(const std::exception& e){std::cerr<<"FAIL: "<<e.what()<<'\n';return 1;}}
