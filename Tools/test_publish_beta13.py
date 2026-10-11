@@ -4,6 +4,7 @@ import copy
 import io
 import json
 from pathlib import Path
+import subprocess
 import tempfile
 import unittest
 import zipfile
@@ -203,6 +204,133 @@ class PublicationInputs(unittest.TestCase):
         (self.candidate / "OPEN_BETA_RELEASE_NOTES.md").write_text("Older release notes", encoding="utf-8")
         with self.assertRaisesRegex(RuntimeError, "notes differ"):
             publisher.prepare_assets(self.candidate, HEAD, RUN)
+
+
+class ControllerSourceBinding(unittest.TestCase):
+    """Exercise real Git trees/index/worktrees, not mocked diff output."""
+
+    CONTROL_FILES = (
+        ".github/workflows/publish-beta13.yml", "Tools/publish_beta13.py",
+        "Tools/test_publish_beta13.py", "Tools/beta_publication.py",
+        "Tools/test_beta_publication.py", "Validation/beta-publication-policy.json",
+        "docs/RELEASE_1_3_PIPELINE.md",
+    )
+    PRODUCT_FILES = (
+        "Source/PluginProcessor.cpp", "Assets/Artwork/Cab/cab-guitar-412.png",
+        "VERSION", "RELEASE_CHANNEL", "Validation/release-policy.json",
+        "Validation/waivers.json", "Validation/ci-check-map.json",
+        ".github/workflows/build.yml", ".github/workflows/update-candidate.yml",
+        ".github/workflows/cab-panel.yml", "docs/MANUAL.html",
+        "docs/OPEN_BETA_RELEASE_NOTES.md", "Tools/publish_open_beta.py",
+    )
+
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.tmp.cleanup)
+        self.root = Path(self.tmp.name)
+        self.git("init", "--quiet")
+        self.git("config", "user.name", "Publication binding fixture")
+        self.git("config", "user.email", "publication-fixture@example.invalid")
+        self.git("config", "commit.gpgsign", "false")
+        self.git("config", "core.autocrlf", "false")
+        for name in (*self.PRODUCT_FILES, "Tools/publish_beta13.py",
+                     "docs/RELEASE_1_3_PIPELINE.md"):
+            self.write(name, "reviewed product bytes\n")
+        self.product = self.commit("tested product")
+        self.write("Tools/publish_beta13.py", "publication controller only\n")
+        self.controller = self.commit("publication-only descendant")
+        patcher = patch.object(publisher, "ROOT", self.root)
+        patcher.start()
+        self.addCleanup(patcher.stop)
+
+    def git(self, *args):
+        return subprocess.check_output(["git", *args], cwd=self.root,
+                                       text=True, stderr=subprocess.STDOUT).strip()
+
+    def write(self, name, text):
+        target = self.root / name
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_text(text, encoding="utf-8")
+
+    def commit(self, message):
+        self.git("add", "--all")
+        self.git("commit", "--quiet", "-m", message)
+        return self.git("rev-parse", "HEAD")
+
+    def test_accepts_only_the_seven_publication_paths_in_a_real_descendant(self):
+        # Keep this independent inventory literal: accidentally widening the
+        # implementation's allowlist must not silently widen the contract.
+        self.assertEqual(publisher.CONTROL_PATHS, frozenset(self.CONTROL_FILES))
+        for name in self.CONTROL_FILES:
+            self.write(name, "reviewed publication-only change: " + name + "\n")
+        controller = self.commit("all seven publication-only files")
+        proof = publisher.verify_controller_source(self.product, controller)
+        self.assertEqual(proof, {
+            "product_source_sha": self.product,
+            "publication_controller_sha": controller,
+            "controller_changed_paths": sorted(self.CONTROL_FILES),
+        })
+        self.assertNotEqual(self.product, controller)
+
+    def test_rejects_product_policy_build_workflow_and_packaged_document_changes(self):
+        for name in self.PRODUCT_FILES:
+            with self.subTest(path=name):
+                self.git("reset", "--hard", self.controller)
+                self.write(name, "unverified product change\n")
+                changed = self.commit("forbidden change: " + name)
+                with self.assertRaisesRegex(RuntimeError, "Untested product change"):
+                    publisher.verify_controller_source(self.product, changed)
+
+    def test_rejects_a_checkout_other_than_the_requested_controller(self):
+        self.git("checkout", "--quiet", "--detach", self.product)
+        with self.assertRaisesRegex(RuntimeError, "Checked-out publication controller differs"):
+            publisher.verify_controller_source(self.product, self.controller)
+
+    def test_rejects_a_source_from_a_sibling_history(self):
+        self.git("checkout", "--quiet", "--detach", self.product)
+        self.write("Tools/publish_beta13.py", "different publication sibling\n")
+        sibling = self.commit("sibling source is not an ancestor")
+        self.git("checkout", "--quiet", "--detach", self.controller)
+        with self.assertRaises(subprocess.CalledProcessError):
+            publisher.verify_controller_source(sibling, self.controller)
+
+    def test_rejects_staged_and_unstaged_controller_mutations(self):
+        for staged in (False, True):
+            with self.subTest(staged=staged):
+                self.git("reset", "--hard", self.controller)
+                self.write("Tools/publish_beta13.py", "uncommitted controller mutation\n")
+                if staged:
+                    self.git("add", "Tools/publish_beta13.py")
+                with self.assertRaisesRegex(RuntimeError, "local changes"):
+                    publisher.verify_controller_source(self.product, self.controller)
+
+    def test_rejects_deleting_or_renaming_even_an_allowed_file(self):
+        for rename in (False, True):
+            with self.subTest(rename=rename):
+                self.git("reset", "--hard", self.controller)
+                source = self.root / "Tools/publish_beta13.py"
+                if rename:
+                    source.rename(self.root / "Tools/beta_publication.py")
+                else:
+                    source.unlink()
+                changed = self.commit("removed an allowed controller file")
+                with self.assertRaisesRegex(RuntimeError, "Untested product change"):
+                    publisher.verify_controller_source(self.product, changed)
+
+    def test_rejects_a_committed_symlink_mode_on_an_allowed_path(self):
+        # core.symlinks=false represents a symlink as a normal worktree file,
+        # so this checks the actual 120000 Git tree mode on Windows too, without
+        # requiring OS permission to create symlinks or mocking ls-tree.
+        self.git("config", "core.symlinks", "false")
+        name = "Tools/beta_publication.py"
+        self.write(name, "../Source/PluginProcessor.cpp")
+        blob = self.git("hash-object", "-w", name)
+        self.git("update-index", "--add", "--cacheinfo", "120000," + blob + "," + name)
+        self.git("commit", "--quiet", "-m", "symlink-mode controller")
+        controller = self.git("rev-parse", "HEAD")
+        self.assertEqual(self.git("status", "--porcelain", "--untracked-files=no"), "")
+        with self.assertRaisesRegex(RuntimeError, "Unexpected publication controller file mode"):
+            publisher.verify_controller_source(self.product, controller)
 
 
 class CIContracts(unittest.TestCase):

@@ -1,0 +1,1077 @@
+{
+  "schema": "spectralforge.chimera.beta-publication-policy",
+  "schema_version": 1,
+  "policy_version": 1,
+  "product_version": "1.3.0",
+  "version": "1.3.0-beta.1",
+  "profile": "beta_1_3",
+  "approved_product_source_sha": "7f692693f942a0f1dd1973062dc4d5d47b9be4ac",
+  "strict_policy_sha256": "944c02099f1eaa23e6c5b6151becde62e696e18ef466805770de6e91b2f2015f",
+  "owner_acceptance": {
+    "approved": true,
+    "publication_authorized": true,
+    "decision_date": "2026-10-11",
+    "timezone": "Asia/Seoul",
+    "instruction": "그럼 처리를 하렴 좀",
+    "context": "After disclosure of the 128-check inventory, 21 connected automatic checks and 107 structurally BLOCKED checks, the owner instructed resolving the beta publication contract and proceeding.",
+    "scope": "Open beta publication with the exact disclosed validation gaps; no full-validation or stable-release claim.",
+    "testing_reported": true,
+    "testing_statement": "내가 테스트 파일 받아서 확인했어",
+    "individual_check_claims": []
+  },
+  "decision": "OWNER_ACCEPTED_BETA_WITH_VALIDATION_GAPS",
+  "strict_validation_is_pass": false,
+  "required_ci_checks": [
+    {
+      "id": "A12.01",
+      "name": "Portable core and preset regression",
+      "producer": "ctest:ChimeraTests",
+      "platforms": [
+        "windows",
+        "linux",
+        "macos"
+      ]
+    },
+    {
+      "id": "A12.02",
+      "name": "Transpose, gate and tail stability regression",
+      "producer": "ctest:ChimeraStabilityTests",
+      "platforms": [
+        "windows",
+        "linux",
+        "macos"
+      ]
+    },
+    {
+      "id": "A12.03",
+      "name": "Universal PRE board regression",
+      "producer": "ctest:ChimeraPedalBoardTests",
+      "platforms": [
+        "windows",
+        "linux",
+        "macos"
+      ]
+    },
+    {
+      "id": "A12.04",
+      "name": "IR collection, integrity and fallback regression",
+      "producer": "ctest:ChimeraIRCollectionTests",
+      "platforms": [
+        "windows",
+        "linux",
+        "macos"
+      ]
+    },
+    {
+      "id": "A12.05",
+      "name": "Appended amp topology and legacy preservation regression",
+      "producer": "ctest:ChimeraNewAmpTests",
+      "platforms": [
+        "windows",
+        "linux",
+        "macos"
+      ]
+    },
+    {
+      "id": "A12.06",
+      "name": "Native amp control and DSP regression",
+      "producer": "ctest:ChimeraAmpNativeTests",
+      "platforms": [
+        "windows",
+        "linux",
+        "macos"
+      ]
+    },
+    {
+      "id": "A12.07",
+      "name": "Native POST control, state and DSP regression",
+      "producer": "ctest:ChimeraPostNativeTests",
+      "platforms": [
+        "windows",
+        "linux",
+        "macos"
+      ]
+    },
+    {
+      "id": "A13.01",
+      "name": "Windows full CTest matrix",
+      "producer": "workflow:build/windows",
+      "platforms": [
+        "windows"
+      ]
+    },
+    {
+      "id": "A13.02",
+      "name": "Linux full CTest matrix",
+      "producer": "workflow:build/linux",
+      "platforms": [
+        "linux"
+      ]
+    },
+    {
+      "id": "A13.03",
+      "name": "macOS universal full CTest matrix",
+      "producer": "workflow:build/macos",
+      "platforms": [
+        "macos"
+      ]
+    },
+    {
+      "id": "A13.04",
+      "name": "Windows installer install, repair and uninstall",
+      "producer": "workflow:Verify-WindowsInstaller",
+      "platforms": [
+        "windows"
+      ]
+    },
+    {
+      "id": "A13.05",
+      "name": "Windows MSIX deployment and activation",
+      "producer": "workflow:Verify-WindowsMSIX",
+      "platforms": [
+        "windows"
+      ]
+    },
+    {
+      "id": "A13.06",
+      "name": "Windows distribution Defender scan",
+      "producer": "workflow:Scan-WindowsArtifacts",
+      "platforms": [
+        "windows"
+      ]
+    },
+    {
+      "id": "A13.07",
+      "name": "Exact-source release candidate assembly",
+      "producer": "workflow:assemble-candidate",
+      "platforms": [
+        "assembly"
+      ]
+    },
+    {
+      "id": "E1.DSP",
+      "name": "E670FE native DSP and control coverage",
+      "producer": "ctest-contract:E1.DSP",
+      "platforms": [
+        "windows",
+        "linux",
+        "macos"
+      ]
+    },
+    {
+      "id": "E1.LEGACY",
+      "name": "E670FE append-only and legacy compatibility",
+      "producer": "ctest-contract:E1.LEGACY",
+      "platforms": [
+        "windows",
+        "linux",
+        "macos"
+      ]
+    },
+    {
+      "id": "E1.STATE_UI",
+      "name": "E670FE six-context state and native UI coverage",
+      "producer": "ctest-contract:E1.STATE_UI",
+      "platforms": [
+        "windows"
+      ]
+    },
+    {
+      "id": "I1.GATE",
+      "name": "Combined Range manifest, state and routing",
+      "producer": "ctest:ChimeraGateProcessorTests",
+      "platforms": [
+        "windows",
+        "linux",
+        "macos"
+      ]
+    },
+    {
+      "id": "I1.LIVE_REMOVE",
+      "name": "Live project deletion with surviving peers",
+      "producer": "ctest:ChimeraVST3LifecycleTests",
+      "platforms": [
+        "windows"
+      ]
+    },
+    {
+      "id": "I1.PITCH",
+      "name": "Low-bin energy and unchanged raw mapping",
+      "producer": "ctest:ChimeraPitchRegressionTests",
+      "platforms": [
+        "windows",
+        "linux",
+        "macos"
+      ]
+    },
+    {
+      "id": "I1.STATE_GAIN_GR",
+      "name": "Full Guitar state, unity level and compressor GR",
+      "producer": "ctest:ChimeraIntegratedProcessorTests",
+      "platforms": [
+        "windows",
+        "linux",
+        "macos"
+      ]
+    }
+  ],
+  "known_validation_gaps": [
+    {
+      "id": "A1.01",
+      "stage": "A1",
+      "stage_name": "Installer consistency",
+      "strict_hard_gate": false,
+      "gap_type": "ORIGINAL_DEFINITION_MISSING",
+      "description": "Original per-ID assertion and source-bound producer are not defined in the recovered validation inventory."
+    },
+    {
+      "id": "A1.02",
+      "stage": "A1",
+      "stage_name": "Installer consistency",
+      "strict_hard_gate": false,
+      "gap_type": "ORIGINAL_DEFINITION_MISSING",
+      "description": "Original per-ID assertion and source-bound producer are not defined in the recovered validation inventory."
+    },
+    {
+      "id": "A1.03",
+      "stage": "A1",
+      "stage_name": "Installer consistency",
+      "strict_hard_gate": false,
+      "gap_type": "ORIGINAL_DEFINITION_MISSING",
+      "description": "Original per-ID assertion and source-bound producer are not defined in the recovered validation inventory."
+    },
+    {
+      "id": "A1.04",
+      "stage": "A1",
+      "stage_name": "Installer consistency",
+      "strict_hard_gate": true,
+      "gap_type": "ORIGINAL_DEFINITION_MISSING",
+      "description": "Original per-ID assertion and source-bound producer are not defined in the recovered validation inventory."
+    },
+    {
+      "id": "A1.05",
+      "stage": "A1",
+      "stage_name": "Installer consistency",
+      "strict_hard_gate": true,
+      "gap_type": "ORIGINAL_DEFINITION_MISSING",
+      "description": "Original per-ID assertion and source-bound producer are not defined in the recovered validation inventory."
+    },
+    {
+      "id": "A1.06",
+      "stage": "A1",
+      "stage_name": "Installer consistency",
+      "strict_hard_gate": true,
+      "gap_type": "ORIGINAL_DEFINITION_MISSING",
+      "description": "Original per-ID assertion and source-bound producer are not defined in the recovered validation inventory."
+    },
+    {
+      "id": "A10.01",
+      "stage": "A10",
+      "stage_name": "Signature hard and secondary gates",
+      "strict_hard_gate": false,
+      "gap_type": "ORIGINAL_DEFINITION_MISSING",
+      "description": "Original per-ID assertion and source-bound producer are not defined in the recovered validation inventory."
+    },
+    {
+      "id": "A10.02",
+      "stage": "A10",
+      "stage_name": "Signature hard and secondary gates",
+      "strict_hard_gate": false,
+      "gap_type": "ORIGINAL_DEFINITION_MISSING",
+      "description": "Original per-ID assertion and source-bound producer are not defined in the recovered validation inventory."
+    },
+    {
+      "id": "A10.03",
+      "stage": "A10",
+      "stage_name": "Signature hard and secondary gates",
+      "strict_hard_gate": false,
+      "gap_type": "ORIGINAL_DEFINITION_MISSING",
+      "description": "Original per-ID assertion and source-bound producer are not defined in the recovered validation inventory."
+    },
+    {
+      "id": "A10.04",
+      "stage": "A10",
+      "stage_name": "Signature hard and secondary gates",
+      "strict_hard_gate": false,
+      "gap_type": "ORIGINAL_DEFINITION_MISSING",
+      "description": "Original per-ID assertion and source-bound producer are not defined in the recovered validation inventory."
+    },
+    {
+      "id": "A10.05",
+      "stage": "A10",
+      "stage_name": "Signature hard and secondary gates",
+      "strict_hard_gate": false,
+      "gap_type": "ORIGINAL_DEFINITION_MISSING",
+      "description": "Original per-ID assertion and source-bound producer are not defined in the recovered validation inventory."
+    },
+    {
+      "id": "A10.06",
+      "stage": "A10",
+      "stage_name": "Signature hard and secondary gates",
+      "strict_hard_gate": false,
+      "gap_type": "ORIGINAL_DEFINITION_MISSING",
+      "description": "Original per-ID assertion and source-bound producer are not defined in the recovered validation inventory."
+    },
+    {
+      "id": "A11.01",
+      "stage": "A11",
+      "stage_name": "Benchmark JSON",
+      "strict_hard_gate": false,
+      "gap_type": "ORIGINAL_DEFINITION_MISSING",
+      "description": "Original per-ID assertion and source-bound producer are not defined in the recovered validation inventory."
+    },
+    {
+      "id": "A11.02",
+      "stage": "A11",
+      "stage_name": "Benchmark JSON",
+      "strict_hard_gate": false,
+      "gap_type": "ORIGINAL_DEFINITION_MISSING",
+      "description": "Original per-ID assertion and source-bound producer are not defined in the recovered validation inventory."
+    },
+    {
+      "id": "A11.03",
+      "stage": "A11",
+      "stage_name": "Benchmark JSON",
+      "strict_hard_gate": false,
+      "gap_type": "ORIGINAL_DEFINITION_MISSING",
+      "description": "Original per-ID assertion and source-bound producer are not defined in the recovered validation inventory."
+    },
+    {
+      "id": "A11.04",
+      "stage": "A11",
+      "stage_name": "Benchmark JSON",
+      "strict_hard_gate": false,
+      "gap_type": "ORIGINAL_DEFINITION_MISSING",
+      "description": "Original per-ID assertion and source-bound producer are not defined in the recovered validation inventory."
+    },
+    {
+      "id": "A11.05",
+      "stage": "A11",
+      "stage_name": "Benchmark JSON",
+      "strict_hard_gate": false,
+      "gap_type": "ORIGINAL_DEFINITION_MISSING",
+      "description": "Original per-ID assertion and source-bound producer are not defined in the recovered validation inventory."
+    },
+    {
+      "id": "A11.06",
+      "stage": "A11",
+      "stage_name": "Benchmark JSON",
+      "strict_hard_gate": false,
+      "gap_type": "ORIGINAL_DEFINITION_MISSING",
+      "description": "Original per-ID assertion and source-bound producer are not defined in the recovered validation inventory."
+    },
+    {
+      "id": "A11.07",
+      "stage": "A11",
+      "stage_name": "Benchmark JSON",
+      "strict_hard_gate": false,
+      "gap_type": "ORIGINAL_DEFINITION_MISSING",
+      "description": "Original per-ID assertion and source-bound producer are not defined in the recovered validation inventory."
+    },
+    {
+      "id": "A11.08",
+      "stage": "A11",
+      "stage_name": "Benchmark JSON",
+      "strict_hard_gate": false,
+      "gap_type": "ORIGINAL_DEFINITION_MISSING",
+      "description": "Original per-ID assertion and source-bound producer are not defined in the recovered validation inventory."
+    },
+    {
+      "id": "A11.09",
+      "stage": "A11",
+      "stage_name": "Benchmark JSON",
+      "strict_hard_gate": false,
+      "gap_type": "ORIGINAL_DEFINITION_MISSING",
+      "description": "Original per-ID assertion and source-bound producer are not defined in the recovered validation inventory."
+    },
+    {
+      "id": "A14.01",
+      "stage": "A14",
+      "stage_name": "Documentation sync",
+      "strict_hard_gate": false,
+      "gap_type": "ORIGINAL_DEFINITION_MISSING",
+      "description": "Original per-ID assertion and source-bound producer are not defined in the recovered validation inventory."
+    },
+    {
+      "id": "A14.02",
+      "stage": "A14",
+      "stage_name": "Documentation sync",
+      "strict_hard_gate": false,
+      "gap_type": "ORIGINAL_DEFINITION_MISSING",
+      "description": "Original per-ID assertion and source-bound producer are not defined in the recovered validation inventory."
+    },
+    {
+      "id": "A14.03",
+      "stage": "A14",
+      "stage_name": "Documentation sync",
+      "strict_hard_gate": false,
+      "gap_type": "ORIGINAL_DEFINITION_MISSING",
+      "description": "Original per-ID assertion and source-bound producer are not defined in the recovered validation inventory."
+    },
+    {
+      "id": "A14.04",
+      "stage": "A14",
+      "stage_name": "Documentation sync",
+      "strict_hard_gate": false,
+      "gap_type": "ORIGINAL_DEFINITION_MISSING",
+      "description": "Original per-ID assertion and source-bound producer are not defined in the recovered validation inventory."
+    },
+    {
+      "id": "A14.05",
+      "stage": "A14",
+      "stage_name": "Documentation sync",
+      "strict_hard_gate": false,
+      "gap_type": "ORIGINAL_DEFINITION_MISSING",
+      "description": "Original per-ID assertion and source-bound producer are not defined in the recovered validation inventory."
+    },
+    {
+      "id": "A14.06",
+      "stage": "A14",
+      "stage_name": "Documentation sync",
+      "strict_hard_gate": false,
+      "gap_type": "ORIGINAL_DEFINITION_MISSING",
+      "description": "Original per-ID assertion and source-bound producer are not defined in the recovered validation inventory."
+    },
+    {
+      "id": "A14.07",
+      "stage": "A14",
+      "stage_name": "Documentation sync",
+      "strict_hard_gate": false,
+      "gap_type": "ORIGINAL_DEFINITION_MISSING",
+      "description": "Original per-ID assertion and source-bound producer are not defined in the recovered validation inventory."
+    },
+    {
+      "id": "A2.01",
+      "stage": "A2",
+      "stage_name": "Signature definition",
+      "strict_hard_gate": false,
+      "gap_type": "ORIGINAL_DEFINITION_MISSING",
+      "description": "Original per-ID assertion and source-bound producer are not defined in the recovered validation inventory."
+    },
+    {
+      "id": "A2.02",
+      "stage": "A2",
+      "stage_name": "Signature definition",
+      "strict_hard_gate": false,
+      "gap_type": "ORIGINAL_DEFINITION_MISSING",
+      "description": "Original per-ID assertion and source-bound producer are not defined in the recovered validation inventory."
+    },
+    {
+      "id": "A2.03",
+      "stage": "A2",
+      "stage_name": "Signature definition",
+      "strict_hard_gate": false,
+      "gap_type": "ORIGINAL_DEFINITION_MISSING",
+      "description": "Original per-ID assertion and source-bound producer are not defined in the recovered validation inventory."
+    },
+    {
+      "id": "A2.04",
+      "stage": "A2",
+      "stage_name": "Signature definition",
+      "strict_hard_gate": false,
+      "gap_type": "ORIGINAL_DEFINITION_MISSING",
+      "description": "Original per-ID assertion and source-bound producer are not defined in the recovered validation inventory."
+    },
+    {
+      "id": "A2.05",
+      "stage": "A2",
+      "stage_name": "Signature definition",
+      "strict_hard_gate": false,
+      "gap_type": "ORIGINAL_DEFINITION_MISSING",
+      "description": "Original per-ID assertion and source-bound producer are not defined in the recovered validation inventory."
+    },
+    {
+      "id": "A2.06",
+      "stage": "A2",
+      "stage_name": "Signature definition",
+      "strict_hard_gate": false,
+      "gap_type": "ORIGINAL_DEFINITION_MISSING",
+      "description": "Original per-ID assertion and source-bound producer are not defined in the recovered validation inventory."
+    },
+    {
+      "id": "A2.07",
+      "stage": "A2",
+      "stage_name": "Signature definition",
+      "strict_hard_gate": false,
+      "gap_type": "ORIGINAL_DEFINITION_MISSING",
+      "description": "Original per-ID assertion and source-bound producer are not defined in the recovered validation inventory."
+    },
+    {
+      "id": "A2.08",
+      "stage": "A2",
+      "stage_name": "Signature definition",
+      "strict_hard_gate": false,
+      "gap_type": "ORIGINAL_DEFINITION_MISSING",
+      "description": "Original per-ID assertion and source-bound producer are not defined in the recovered validation inventory."
+    },
+    {
+      "id": "A3.01",
+      "stage": "A3",
+      "stage_name": "Signature APVTS recall",
+      "strict_hard_gate": true,
+      "gap_type": "ORIGINAL_DEFINITION_MISSING",
+      "description": "Original per-ID assertion and source-bound producer are not defined in the recovered validation inventory."
+    },
+    {
+      "id": "A3.02",
+      "stage": "A3",
+      "stage_name": "Signature APVTS recall",
+      "strict_hard_gate": false,
+      "gap_type": "ORIGINAL_DEFINITION_MISSING",
+      "description": "Original per-ID assertion and source-bound producer are not defined in the recovered validation inventory."
+    },
+    {
+      "id": "A3.03",
+      "stage": "A3",
+      "stage_name": "Signature APVTS recall",
+      "strict_hard_gate": false,
+      "gap_type": "ORIGINAL_DEFINITION_MISSING",
+      "description": "Original per-ID assertion and source-bound producer are not defined in the recovered validation inventory."
+    },
+    {
+      "id": "A3.04",
+      "stage": "A3",
+      "stage_name": "Signature APVTS recall",
+      "strict_hard_gate": false,
+      "gap_type": "ORIGINAL_DEFINITION_MISSING",
+      "description": "Original per-ID assertion and source-bound producer are not defined in the recovered validation inventory."
+    },
+    {
+      "id": "A3.05",
+      "stage": "A3",
+      "stage_name": "Signature APVTS recall",
+      "strict_hard_gate": false,
+      "gap_type": "ORIGINAL_DEFINITION_MISSING",
+      "description": "Original per-ID assertion and source-bound producer are not defined in the recovered validation inventory."
+    },
+    {
+      "id": "A3.06",
+      "stage": "A3",
+      "stage_name": "Signature APVTS recall",
+      "strict_hard_gate": true,
+      "gap_type": "ORIGINAL_DEFINITION_MISSING",
+      "description": "Original per-ID assertion and source-bound producer are not defined in the recovered validation inventory."
+    },
+    {
+      "id": "A3.07",
+      "stage": "A3",
+      "stage_name": "Signature APVTS recall",
+      "strict_hard_gate": true,
+      "gap_type": "ORIGINAL_DEFINITION_MISSING",
+      "description": "Original per-ID assertion and source-bound producer are not defined in the recovered validation inventory."
+    },
+    {
+      "id": "A3.08",
+      "stage": "A3",
+      "stage_name": "Signature APVTS recall",
+      "strict_hard_gate": true,
+      "gap_type": "ORIGINAL_DEFINITION_MISSING",
+      "description": "Original per-ID assertion and source-bound producer are not defined in the recovered validation inventory."
+    },
+    {
+      "id": "A3.09",
+      "stage": "A3",
+      "stage_name": "Signature APVTS recall",
+      "strict_hard_gate": false,
+      "gap_type": "ORIGINAL_DEFINITION_MISSING",
+      "description": "Original per-ID assertion and source-bound producer are not defined in the recovered validation inventory."
+    },
+    {
+      "id": "A4.01",
+      "stage": "A4",
+      "stage_name": "Factory compatibility",
+      "strict_hard_gate": true,
+      "gap_type": "ORIGINAL_DEFINITION_MISSING",
+      "description": "Original per-ID assertion and source-bound producer are not defined in the recovered validation inventory."
+    },
+    {
+      "id": "A4.02",
+      "stage": "A4",
+      "stage_name": "Factory compatibility",
+      "strict_hard_gate": false,
+      "gap_type": "ORIGINAL_DEFINITION_MISSING",
+      "description": "Original per-ID assertion and source-bound producer are not defined in the recovered validation inventory."
+    },
+    {
+      "id": "A4.03",
+      "stage": "A4",
+      "stage_name": "Factory compatibility",
+      "strict_hard_gate": true,
+      "gap_type": "ORIGINAL_DEFINITION_MISSING",
+      "description": "Original per-ID assertion and source-bound producer are not defined in the recovered validation inventory."
+    },
+    {
+      "id": "A4.04",
+      "stage": "A4",
+      "stage_name": "Factory compatibility",
+      "strict_hard_gate": true,
+      "gap_type": "ORIGINAL_DEFINITION_MISSING",
+      "description": "Original per-ID assertion and source-bound producer are not defined in the recovered validation inventory."
+    },
+    {
+      "id": "A4.05",
+      "stage": "A4",
+      "stage_name": "Factory compatibility",
+      "strict_hard_gate": true,
+      "gap_type": "ORIGINAL_DEFINITION_MISSING",
+      "description": "Original per-ID assertion and source-bound producer are not defined in the recovered validation inventory."
+    },
+    {
+      "id": "A5.01",
+      "stage": "A5",
+      "stage_name": "Hartke IR import",
+      "strict_hard_gate": true,
+      "gap_type": "ORIGINAL_DEFINITION_MISSING",
+      "description": "Original per-ID assertion and source-bound producer are not defined in the recovered validation inventory."
+    },
+    {
+      "id": "A5.02",
+      "stage": "A5",
+      "stage_name": "Hartke IR import",
+      "strict_hard_gate": false,
+      "gap_type": "ORIGINAL_DEFINITION_MISSING",
+      "description": "Original per-ID assertion and source-bound producer are not defined in the recovered validation inventory."
+    },
+    {
+      "id": "A5.03",
+      "stage": "A5",
+      "stage_name": "Hartke IR import",
+      "strict_hard_gate": false,
+      "gap_type": "ORIGINAL_DEFINITION_MISSING",
+      "description": "Original per-ID assertion and source-bound producer are not defined in the recovered validation inventory."
+    },
+    {
+      "id": "A5.04",
+      "stage": "A5",
+      "stage_name": "Hartke IR import",
+      "strict_hard_gate": false,
+      "gap_type": "ORIGINAL_DEFINITION_MISSING",
+      "description": "Original per-ID assertion and source-bound producer are not defined in the recovered validation inventory."
+    },
+    {
+      "id": "A5.05",
+      "stage": "A5",
+      "stage_name": "Hartke IR import",
+      "strict_hard_gate": true,
+      "gap_type": "ORIGINAL_DEFINITION_MISSING",
+      "description": "Original per-ID assertion and source-bound producer are not defined in the recovered validation inventory."
+    },
+    {
+      "id": "A5.06",
+      "stage": "A5",
+      "stage_name": "Hartke IR import",
+      "strict_hard_gate": false,
+      "gap_type": "ORIGINAL_DEFINITION_MISSING",
+      "description": "Original per-ID assertion and source-bound producer are not defined in the recovered validation inventory."
+    },
+    {
+      "id": "A5.07",
+      "stage": "A5",
+      "stage_name": "Hartke IR import",
+      "strict_hard_gate": false,
+      "gap_type": "ORIGINAL_DEFINITION_MISSING",
+      "description": "Original per-ID assertion and source-bound producer are not defined in the recovered validation inventory."
+    },
+    {
+      "id": "A5.08",
+      "stage": "A5",
+      "stage_name": "Hartke IR import",
+      "strict_hard_gate": true,
+      "gap_type": "ORIGINAL_DEFINITION_MISSING",
+      "description": "Original per-ID assertion and source-bound producer are not defined in the recovered validation inventory."
+    },
+    {
+      "id": "A6.01",
+      "stage": "A6",
+      "stage_name": "Marshall IR import",
+      "strict_hard_gate": true,
+      "gap_type": "ORIGINAL_DEFINITION_MISSING",
+      "description": "Original per-ID assertion and source-bound producer are not defined in the recovered validation inventory."
+    },
+    {
+      "id": "A6.02",
+      "stage": "A6",
+      "stage_name": "Marshall IR import",
+      "strict_hard_gate": false,
+      "gap_type": "ORIGINAL_DEFINITION_MISSING",
+      "description": "Original per-ID assertion and source-bound producer are not defined in the recovered validation inventory."
+    },
+    {
+      "id": "A6.03",
+      "stage": "A6",
+      "stage_name": "Marshall IR import",
+      "strict_hard_gate": false,
+      "gap_type": "ORIGINAL_DEFINITION_MISSING",
+      "description": "Original per-ID assertion and source-bound producer are not defined in the recovered validation inventory."
+    },
+    {
+      "id": "A6.04",
+      "stage": "A6",
+      "stage_name": "Marshall IR import",
+      "strict_hard_gate": false,
+      "gap_type": "ORIGINAL_DEFINITION_MISSING",
+      "description": "Original per-ID assertion and source-bound producer are not defined in the recovered validation inventory."
+    },
+    {
+      "id": "A6.05",
+      "stage": "A6",
+      "stage_name": "Marshall IR import",
+      "strict_hard_gate": true,
+      "gap_type": "ORIGINAL_DEFINITION_MISSING",
+      "description": "Original per-ID assertion and source-bound producer are not defined in the recovered validation inventory."
+    },
+    {
+      "id": "A6.06",
+      "stage": "A6",
+      "stage_name": "Marshall IR import",
+      "strict_hard_gate": false,
+      "gap_type": "ORIGINAL_DEFINITION_MISSING",
+      "description": "Original per-ID assertion and source-bound producer are not defined in the recovered validation inventory."
+    },
+    {
+      "id": "A6.07",
+      "stage": "A6",
+      "stage_name": "Marshall IR import",
+      "strict_hard_gate": false,
+      "gap_type": "ORIGINAL_DEFINITION_MISSING",
+      "description": "Original per-ID assertion and source-bound producer are not defined in the recovered validation inventory."
+    },
+    {
+      "id": "A6.08",
+      "stage": "A6",
+      "stage_name": "Marshall IR import",
+      "strict_hard_gate": true,
+      "gap_type": "ORIGINAL_DEFINITION_MISSING",
+      "description": "Original per-ID assertion and source-bound producer are not defined in the recovered validation inventory."
+    },
+    {
+      "id": "A7.01",
+      "stage": "A7",
+      "stage_name": "IR chain of trust",
+      "strict_hard_gate": true,
+      "gap_type": "ORIGINAL_DEFINITION_MISSING",
+      "description": "Original per-ID assertion and source-bound producer are not defined in the recovered validation inventory."
+    },
+    {
+      "id": "A7.02",
+      "stage": "A7",
+      "stage_name": "IR chain of trust",
+      "strict_hard_gate": true,
+      "gap_type": "ORIGINAL_DEFINITION_MISSING",
+      "description": "Original per-ID assertion and source-bound producer are not defined in the recovered validation inventory."
+    },
+    {
+      "id": "A7.03",
+      "stage": "A7",
+      "stage_name": "IR chain of trust",
+      "strict_hard_gate": true,
+      "gap_type": "ORIGINAL_DEFINITION_MISSING",
+      "description": "Original per-ID assertion and source-bound producer are not defined in the recovered validation inventory."
+    },
+    {
+      "id": "A7.04",
+      "stage": "A7",
+      "stage_name": "IR chain of trust",
+      "strict_hard_gate": true,
+      "gap_type": "ORIGINAL_DEFINITION_MISSING",
+      "description": "Original per-ID assertion and source-bound producer are not defined in the recovered validation inventory."
+    },
+    {
+      "id": "A7.05",
+      "stage": "A7",
+      "stage_name": "IR chain of trust",
+      "strict_hard_gate": true,
+      "gap_type": "ORIGINAL_DEFINITION_MISSING",
+      "description": "Original per-ID assertion and source-bound producer are not defined in the recovered validation inventory."
+    },
+    {
+      "id": "A7.06",
+      "stage": "A7",
+      "stage_name": "IR chain of trust",
+      "strict_hard_gate": true,
+      "gap_type": "ORIGINAL_DEFINITION_MISSING",
+      "description": "Original per-ID assertion and source-bound producer are not defined in the recovered validation inventory."
+    },
+    {
+      "id": "A7.07",
+      "stage": "A7",
+      "stage_name": "IR chain of trust",
+      "strict_hard_gate": true,
+      "gap_type": "ORIGINAL_DEFINITION_MISSING",
+      "description": "Original per-ID assertion and source-bound producer are not defined in the recovered validation inventory."
+    },
+    {
+      "id": "A8.01",
+      "stage": "A8",
+      "stage_name": "IR fallback policy",
+      "strict_hard_gate": true,
+      "gap_type": "ORIGINAL_DEFINITION_MISSING",
+      "description": "Original per-ID assertion and source-bound producer are not defined in the recovered validation inventory."
+    },
+    {
+      "id": "A8.02",
+      "stage": "A8",
+      "stage_name": "IR fallback policy",
+      "strict_hard_gate": true,
+      "gap_type": "ORIGINAL_DEFINITION_MISSING",
+      "description": "Original per-ID assertion and source-bound producer are not defined in the recovered validation inventory."
+    },
+    {
+      "id": "A8.03",
+      "stage": "A8",
+      "stage_name": "IR fallback policy",
+      "strict_hard_gate": true,
+      "gap_type": "ORIGINAL_DEFINITION_MISSING",
+      "description": "Original per-ID assertion and source-bound producer are not defined in the recovered validation inventory."
+    },
+    {
+      "id": "A8.04",
+      "stage": "A8",
+      "stage_name": "IR fallback policy",
+      "strict_hard_gate": false,
+      "gap_type": "ORIGINAL_DEFINITION_MISSING",
+      "description": "Original per-ID assertion and source-bound producer are not defined in the recovered validation inventory."
+    },
+    {
+      "id": "A9.01",
+      "stage": "A9",
+      "stage_name": "Signature benchmark calculator",
+      "strict_hard_gate": false,
+      "gap_type": "ORIGINAL_DEFINITION_MISSING",
+      "description": "Original per-ID assertion and source-bound producer are not defined in the recovered validation inventory."
+    },
+    {
+      "id": "A9.02",
+      "stage": "A9",
+      "stage_name": "Signature benchmark calculator",
+      "strict_hard_gate": false,
+      "gap_type": "ORIGINAL_DEFINITION_MISSING",
+      "description": "Original per-ID assertion and source-bound producer are not defined in the recovered validation inventory."
+    },
+    {
+      "id": "A9.03",
+      "stage": "A9",
+      "stage_name": "Signature benchmark calculator",
+      "strict_hard_gate": false,
+      "gap_type": "ORIGINAL_DEFINITION_MISSING",
+      "description": "Original per-ID assertion and source-bound producer are not defined in the recovered validation inventory."
+    },
+    {
+      "id": "A9.04",
+      "stage": "A9",
+      "stage_name": "Signature benchmark calculator",
+      "strict_hard_gate": false,
+      "gap_type": "ORIGINAL_DEFINITION_MISSING",
+      "description": "Original per-ID assertion and source-bound producer are not defined in the recovered validation inventory."
+    },
+    {
+      "id": "A9.05",
+      "stage": "A9",
+      "stage_name": "Signature benchmark calculator",
+      "strict_hard_gate": false,
+      "gap_type": "ORIGINAL_DEFINITION_MISSING",
+      "description": "Original per-ID assertion and source-bound producer are not defined in the recovered validation inventory."
+    },
+    {
+      "id": "A9.06",
+      "stage": "A9",
+      "stage_name": "Signature benchmark calculator",
+      "strict_hard_gate": false,
+      "gap_type": "ORIGINAL_DEFINITION_MISSING",
+      "description": "Original per-ID assertion and source-bound producer are not defined in the recovered validation inventory."
+    },
+    {
+      "id": "A9.07",
+      "stage": "A9",
+      "stage_name": "Signature benchmark calculator",
+      "strict_hard_gate": false,
+      "gap_type": "ORIGINAL_DEFINITION_MISSING",
+      "description": "Original per-ID assertion and source-bound producer are not defined in the recovered validation inventory."
+    },
+    {
+      "id": "A9.08",
+      "stage": "A9",
+      "stage_name": "Signature benchmark calculator",
+      "strict_hard_gate": false,
+      "gap_type": "ORIGINAL_DEFINITION_MISSING",
+      "description": "Original per-ID assertion and source-bound producer are not defined in the recovered validation inventory."
+    },
+    {
+      "id": "A9.09",
+      "stage": "A9",
+      "stage_name": "Signature benchmark calculator",
+      "strict_hard_gate": false,
+      "gap_type": "ORIGINAL_DEFINITION_MISSING",
+      "description": "Original per-ID assertion and source-bound producer are not defined in the recovered validation inventory."
+    },
+    {
+      "id": "B1.RESULT",
+      "stage": "B1",
+      "stage_name": "Same-DI fixture",
+      "strict_hard_gate": false,
+      "gap_type": "INPUT_REFERENCE_EVIDENCE_UNCONNECTED",
+      "description": "Source-bound input/reference evidence is not connected to this check ID."
+    },
+    {
+      "id": "B10.RESULT",
+      "stage": "B10",
+      "stage_name": "Audio save/restore roundtrip",
+      "strict_hard_gate": true,
+      "gap_type": "INPUT_REFERENCE_EVIDENCE_UNCONNECTED",
+      "description": "Source-bound input/reference evidence is not connected to this check ID."
+    },
+    {
+      "id": "B11.RESULT",
+      "stage": "B11",
+      "stage_name": "Windows host validation",
+      "strict_hard_gate": true,
+      "gap_type": "INDIVIDUAL_RECEIPT_MISSING",
+      "description": "Owner reported testing; an individual source-bound receipt for this check ID is absent from the consolidated artifact."
+    },
+    {
+      "id": "B12.RESULT",
+      "stage": "B12",
+      "stage_name": "Studio One 8 validation",
+      "strict_hard_gate": false,
+      "gap_type": "INDIVIDUAL_RECEIPT_MISSING",
+      "description": "Owner reported testing; an individual source-bound receipt for this check ID is absent from the consolidated artifact."
+    },
+    {
+      "id": "B13.RESULT",
+      "stage": "B13",
+      "stage_name": "30 minute soak",
+      "strict_hard_gate": true,
+      "gap_type": "INDIVIDUAL_RECEIPT_MISSING",
+      "description": "Owner reported testing; an individual source-bound receipt for this check ID is absent from the consolidated artifact."
+    },
+    {
+      "id": "B14.RESULT",
+      "stage": "B14",
+      "stage_name": "Release candidate gate",
+      "strict_hard_gate": true,
+      "gap_type": "COMPOSITE_REVIEW_GAP",
+      "description": "Owner beta acceptance is recorded separately; the strict composite validation gate remains incomplete."
+    },
+    {
+      "id": "B2.RESULT",
+      "stage": "B2",
+      "stage_name": "Signature renders",
+      "strict_hard_gate": false,
+      "gap_type": "INPUT_REFERENCE_EVIDENCE_UNCONNECTED",
+      "description": "Source-bound input/reference evidence is not connected to this check ID."
+    },
+    {
+      "id": "B3.RESULT",
+      "stage": "B3",
+      "stage_name": "Audio measurements",
+      "strict_hard_gate": false,
+      "gap_type": "INPUT_REFERENCE_EVIDENCE_UNCONNECTED",
+      "description": "Source-bound input/reference evidence is not connected to this check ID."
+    },
+    {
+      "id": "B4.H1",
+      "stage": "B4",
+      "stage_name": "Signature hard gates",
+      "strict_hard_gate": true,
+      "gap_type": "INPUT_REFERENCE_EVIDENCE_UNCONNECTED",
+      "description": "Source-bound input/reference evidence is not connected to this check ID."
+    },
+    {
+      "id": "B4.H2",
+      "stage": "B4",
+      "stage_name": "Signature hard gates",
+      "strict_hard_gate": true,
+      "gap_type": "INPUT_REFERENCE_EVIDENCE_UNCONNECTED",
+      "description": "Source-bound input/reference evidence is not connected to this check ID."
+    },
+    {
+      "id": "B4.H3",
+      "stage": "B4",
+      "stage_name": "Signature hard gates",
+      "strict_hard_gate": true,
+      "gap_type": "INPUT_REFERENCE_EVIDENCE_UNCONNECTED",
+      "description": "Source-bound input/reference evidence is not connected to this check ID."
+    },
+    {
+      "id": "B4.H4",
+      "stage": "B4",
+      "stage_name": "Signature hard gates",
+      "strict_hard_gate": true,
+      "gap_type": "INPUT_REFERENCE_EVIDENCE_UNCONNECTED",
+      "description": "Source-bound input/reference evidence is not connected to this check ID."
+    },
+    {
+      "id": "B5.RESULT",
+      "stage": "B5",
+      "stage_name": "Signature secondary gates",
+      "strict_hard_gate": false,
+      "gap_type": "INPUT_REFERENCE_EVIDENCE_UNCONNECTED",
+      "description": "Source-bound input/reference evidence is not connected to this check ID."
+    },
+    {
+      "id": "B6.RESULT",
+      "stage": "B6",
+      "stage_name": "Signature score verdict",
+      "strict_hard_gate": true,
+      "gap_type": "INPUT_REFERENCE_EVIDENCE_UNCONNECTED",
+      "description": "Source-bound input/reference evidence is not connected to this check ID."
+    },
+    {
+      "id": "B8.RESULT",
+      "stage": "B8",
+      "stage_name": "Listening A/B",
+      "strict_hard_gate": false,
+      "gap_type": "INDIVIDUAL_RECEIPT_MISSING",
+      "description": "Owner reported testing; an individual source-bound receipt for this check ID is absent from the consolidated artifact."
+    },
+    {
+      "id": "E2.CALIBRATION",
+      "stage": "E2",
+      "stage_name": "E670FE reference and sound acceptance",
+      "strict_hard_gate": true,
+      "gap_type": "INPUT_REFERENCE_EVIDENCE_UNCONNECTED",
+      "description": "Source-bound input/reference evidence is not connected to this check ID."
+    },
+    {
+      "id": "E2.SAME_DI",
+      "stage": "E2",
+      "stage_name": "E670FE reference and sound acceptance",
+      "strict_hard_gate": true,
+      "gap_type": "INPUT_REFERENCE_EVIDENCE_UNCONNECTED",
+      "description": "Source-bound input/reference evidence is not connected to this check ID."
+    },
+    {
+      "id": "E2.TD_EQ",
+      "stage": "E2",
+      "stage_name": "E670FE reference and sound acceptance",
+      "strict_hard_gate": true,
+      "gap_type": "INPUT_REFERENCE_EVIDENCE_UNCONNECTED",
+      "description": "Source-bound input/reference evidence is not connected to this check ID."
+    },
+    {
+      "id": "I2.GATE_DI",
+      "stage": "I2",
+      "stage_name": "1.1.1 real-input and host acceptance",
+      "strict_hard_gate": true,
+      "gap_type": "INDIVIDUAL_RECEIPT_MISSING",
+      "description": "Owner reported testing; an individual source-bound receipt for this check ID is absent from the consolidated artifact."
+    },
+    {
+      "id": "I2.LIVE_REMOVE_DAW",
+      "stage": "I2",
+      "stage_name": "1.1.1 real-input and host acceptance",
+      "strict_hard_gate": true,
+      "gap_type": "INDIVIDUAL_RECEIPT_MISSING",
+      "description": "Owner reported testing; an individual source-bound receipt for this check ID is absent from the consolidated artifact."
+    },
+    {
+      "id": "I2.UI_AUDIO_TIMING",
+      "stage": "I2",
+      "stage_name": "1.1.1 real-input and host acceptance",
+      "strict_hard_gate": true,
+      "gap_type": "INDIVIDUAL_RECEIPT_MISSING",
+      "description": "Owner reported testing; an individual source-bound receipt for this check ID is absent from the consolidated artifact."
+    }
+  ],
+  "ci_check_map_sha256": "d59f7e55cfcd16eaba5b712b959f10fd4d99846053f31fc821fdd5633f85420f"
+}

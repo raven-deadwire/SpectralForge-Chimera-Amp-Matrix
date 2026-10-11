@@ -19,7 +19,8 @@ and its requested IR-depth/mounted-horn fixes. That source identifies the
 approval scope; the personally tested file was not identified. Owner acceptance
 is recorded separately from individual measurement reports. Required checks,
 source binding, workflow results, waivers and the existing transpose deferral
-are unchanged; publication still consumes the actual consolidated verdict.
+are unchanged; publication consumes the actual consolidated verdict without relabeling it. The
+separate beta publication decision described below governs this owner-approved beta.
 
 The current cabinet follow-up preserves native grille apertures during
 minification, fits the IR equipment stage to the selected captures with a
@@ -142,3 +143,27 @@ Run `Tools/test_publish_beta13.py` and `Tools/test_release_consolidator.py` for
 the publication-negative and raw-evidence contracts. Their positive paths use
 explicit test fixtures and never represent product acceptance. Fresh CI for the
 final integrated 1.3 source remains required after every source change.
+
+## Owner-accepted beta publication decision (2026-10-11)
+
+After disclosure of the 128/21/107 structural mismatch, the owner explicitly
+instructed correction and publication. `beta-publication-policy.json` records
+that decision for product source `7f692693f942a0f1dd1973062dc4d5d47b9be4ac`
+and version `1.3.0-beta.1` only. It does not modify the strict release policy,
+waivers, check map or consolidated verdict. The helper requires the fixed 21
+implemented checks to pass and permits only the fixed 107 genuinely unexecuted
+baseline reports. Executed failures, producer errors, stale evidence, waivers,
+missing/new IDs and invented PASS results still reject publication.
+
+The strict report remains 21 PASS / 107 BLOCKED (42 blocked strict hard gates).
+The separate decision is `OWNER_ACCEPTED_BETA_WITH_VALIDATION_GAPS`, not a
+full-validation PASS. Both reports and the complete evidence ZIP are attached
+to the public beta, and its release description states the validation limit.
+
+Publication-only code may run from a descendant controller commit. The tag,
+candidate, update manifests and CI remain bound to the tested product commit.
+`verify_controller_source` checks ancestry and an exact seven-file allowlist;
+any production, artwork, version, build workflow, original policy/map/waiver,
+source-document or other change rejects publication. The controller branch and
+exact-source CI are rechecked immediately before release creation. This avoids
+rebuilding unchanged product binaries merely to correct the publishing script.
