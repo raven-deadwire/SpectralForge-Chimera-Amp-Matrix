@@ -66,6 +66,21 @@ renders, ImageGen artwork and native-peer JUCE snapshots must be labelled
 separately. Real Studio One interaction and full product acceptance remain
 outstanding.
 
+## Niflheimr knob proportion follow-up
+
+The user identified undersized Niflheimr knobs in the complete-shell result
+`7a2ea6a9`. The rebuilt blank plate became substantially taller while the
+old 3.2%-of-front-width dial allocation remained. Tests for containment and
+label readability had not caught the resulting poor knob-to-panel proportion.
+
+Niflheimr now uses a 5.6% dial allocation. Both rows move upward and farther
+apart inside the existing blank plate; no artwork is resized or regenerated.
+At a 1440 px workspace this raises the visible knob body from about 32 to
+56 px. The same model style applies in compact, room and focused-CAB views.
+Labels, adjustment-only values, all 14 controls and five channel memories
+remain in place. Existing four-size plate/overlap, readout and interaction
+checks must pass for the follow-up source before it is treated as verified.
+
 ## Historical handle/roof patch — rejected and superseded
 
 The user identified a further visual defect after the all-model knob review.

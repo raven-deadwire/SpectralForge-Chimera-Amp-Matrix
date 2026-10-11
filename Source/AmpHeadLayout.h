@@ -396,20 +396,20 @@ inline constexpr Knob model24[]{
 };
 // 25 — Niflheimr
 inline constexpr Knob model25[]{
-    {"gain","GAIN",0.2050f,0.7040f},
-    {"bass","BASS",0.3030f,0.7040f},
-    {"middle","MID",0.4010f,0.7040f},
-    {"mid_frequency","MID FREQ",0.4990f,0.7040f},
-    {"treble","TREBLE",0.5970f,0.7040f},
-    {"presence","PRESENCE",0.6950f,0.7040f},
-    {"depth","DEPTH",0.7930f,0.7040f},
-    {"mass","MASS",0.2050f,0.8450f},
-    {"split","SPLIT",0.3030f,0.8450f},
-    {"fang","FANG",0.4010f,0.8450f},
-    {"fold","FOLD",0.4990f,0.8450f},
-    {"thrust","THRUST",0.5970f,0.8450f},
-    {"blend","BLEND",0.6950f,0.8450f},
-    {"master","MASTER",0.7930f,0.8450f},
+    {"gain","GAIN",0.2050f,0.6050f},
+    {"bass","BASS",0.3030f,0.6050f},
+    {"middle","MID",0.4010f,0.6050f},
+    {"mid_frequency","MID FREQ",0.4990f,0.6050f},
+    {"treble","TREBLE",0.5970f,0.6050f},
+    {"presence","PRESENCE",0.6950f,0.6050f},
+    {"depth","DEPTH",0.7930f,0.6050f},
+    {"mass","MASS",0.2050f,0.8100f},
+    {"split","SPLIT",0.3030f,0.8100f},
+    {"fang","FANG",0.4010f,0.8100f},
+    {"fold","FOLD",0.4990f,0.8100f},
+    {"thrust","THRUST",0.5970f,0.8100f},
+    {"blend","BLEND",0.6950f,0.8100f},
+    {"master","MASTER",0.7930f,0.8100f},
 };
 inline constexpr std::array<std::span<const Knob>,ampModelCount> modelKnobs{{
     model0, // Glass
@@ -465,7 +465,9 @@ inline const std::array<FaceStyle,ampModelCount> faceStyles{{
     {0.0450f,0.1180f,0xfff1ece0,{0.0400f,0.6050f,0.9200f,0.2850f},{},{}}, // Blue Storm
     {0.0410f,0.0940f,0xfff1ece0,{0.0460f,0.6100f,0.9100f,0.2800f},{},{}}, // Special Edition
     {0.0320f,0.0860f,0xfff1ece0,{0.1700f,0.6180f,0.7030f,0.2830f},{.4007f,.5447f,.1981f,.0432f},{}}, // Náströnd
-    {0.0320f,0.0950f,0xfff1ece0,{0.1700f,0.6180f,0.7030f,0.2830f},{.4053f,.5637f,.1894f,.0468f},{}}, // Niflheimr
+    // The complete Niflheimr shell has a taller plate: size its two rows to
+    // that usable area instead of retaining the old miniature 3.2% dials.
+    {0.0560f,0.0950f,0xfff1ece0,{0.1700f,0.4850f,0.7030f,0.4070f},{.4053f,.5637f,.1894f,.0468f},{}}, // Niflheimr
 }};
 static_assert(modelKnobs.size()==ampModelCount && faceStyles.size()==ampModelCount);
 inline bool supported(int model) noexcept {return model>=0 && model<ampModelCount;}
