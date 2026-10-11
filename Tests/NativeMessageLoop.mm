@@ -23,7 +23,10 @@ bool dispatchFor(int milliseconds) {
         const double remaining=deadline-juce::Time::getMillisecondCounterHiRes();
         if(remaining<=0)break;
         @autoreleasepool {
-            CFRunLoopRunInMode(kCFRunLoopDefaultMode,juce::jmin(.01,remaining*.001),true);
+            // Test-only fairness: JUCE serves four messages per CF source callback.
+            // Keep servicing ready sources for this requested slice before AppKit
+            // polling, whose internal native work may outlast its event deadline.
+            CFRunLoopRunInMode(kCFRunLoopDefaultMode,juce::jmin(.01,remaining*.001),false);
             // On Tahoe, JUCE's future untilDate can defer callbacks until a
             // later mouse event: https://github.com/juce-framework/JUCE/issues/1574
             // Poll AppKit without waiting; CFRunLoop above still yields normally.
