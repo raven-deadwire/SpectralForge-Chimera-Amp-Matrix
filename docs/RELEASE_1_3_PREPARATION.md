@@ -1,6 +1,6 @@
 # 1.3 release preparation
 
-Updated 2026-10-10 KST. The owner requested preparation of the current CAB/Niflheimr build as **1.3.0**, using the existing open-beta package convention **1.3.0-beta.1**. Public publication has not occurred.
+Updated 2026-10-11 KST. The owner has approved the prepared CAB/Niflheimr candidate as **1.3.0**, using the existing open-beta package convention **1.3.0-beta.1**, after reporting that the test file was downloaded and checked. Release and homepage publication are authorized. The approval record is in `Validation/release-policy.json`; it does not substitute individual measurement reports. Public publication has not occurred.
 
 ## Source integration
 

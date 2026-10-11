@@ -1,65 +1,50 @@
-# SpectralForge Chimera — Open Beta 1.3 · Niflheimr & CAB
+# SpectralForge Chimera — Open Beta 1.3.1 · Head Controls & EQ
 
-**Version 1.3.0-beta.1 · Windows / macOS / Linux · release preparation, 2026-10-09 KST**
+**Version: 1.3.1-beta.1 · Windows / macOS / Linux**
 
-Niflheimr 베이스 앰프와 Chimera 오리지널 캐비넷·스피커·마이크 모델을 통합하는 1.3 업데이트입니다. 현재 문서는 릴리즈 준비본이며, 공개 다운로드와 최종 검증 결과는 확정된 소스의 빌드가 완료된 뒤 연결합니다.
+앰프 헤드 전면의 직접 조작과 모델별 노브 디자인을 확장하고, 실제 신호 경로를 따라 이동하는 Signal Path와 Tone EQ / Final EQ를 추가하는 업데이트입니다. 공개된 1.3.0의 CAB·IR·실시간 처리 수정도 포함합니다. 이 문서는 기능 설명이며 최종 소스·CI 결과·공개 상태는 릴리즈와 첨부 검증 기록을 기준으로 확인합니다.
 
 ## 주요 변경
 
-- **Niflheimr:** 다섯 채널의 SpectralForge Original 베이스 앰프와 다섯 개의 완성형 프리셋을 추가합니다. 전체 선택 가능 구성은 AMP 25종, PRE 39종, POST 21종, 프리셋 48개입니다. 캐비넷·스피커·마이크는 별도 목록입니다.
-- **오리지널 CAB:** 기타 스피커 8종과 베이스 스피커 6종, 다이나믹 9종·리본 3종·콘덴서 8종의 마이크 20종, 트위터 3종을 추가합니다. Chimera 고유 음향 모델이며 상용 하드웨어와의 동등성은 주장하지 않습니다.
-- **610 재구성:** 미공개 810 테스트 모델을 10인치 유닛 6개의 2열×3행 구성으로 교체했습니다. 기존 스피커·마이크 응답 모델을 활용하고 함체 높이·용적·유닛 간 간섭을 610에 맞췄습니다. 이전 테스트 설정의 7·8번 마이크 대상은 같은 열의 5·6번으로 해석됩니다. 기존 8×10 캡처/User IR의 음원과 표기는 유지됩니다.
-- **프리셋 CAB 재조정:** 기존 팩토리·시그니처 프리셋 48개에 캐비넷·호환 스피커·마이크·수음 위치를 명시합니다. 베이스의 대형 리그는 610을 사용하고 각 기타·베이스·Dual·Matrix 역할에 맞는 조합을 제공합니다. 의도된 드라이 LOW, 프리셋 이름·순서와 기존 사용자 프로젝트는 유지하며, 개인 IR 파일을 자동으로 찾는 연결은 제거합니다. [전체 배치](FACTORY_CAB_VOICING_1_3.md)를 확인할 수 있습니다.
-- **IR 배포 범위 정리:** 재배포 승인이 확인되지 않은 외부·개인 참조 42개를 기본 로더 목록에서 제외하고, 개발용 참조 오디오는 설치·포터블 패키지에 포함하지 않습니다. 출처·라이선스 고지와 해시가 확인된 번들 IR 2개, 사용자의 직접 IR 불러오기와 저장된 프로젝트 복원은 유지합니다.
-- **재생 시작·A/B 복원:** 저장된 마이크 레벨·극성·딜레이·블렌드와 네이티브 앰프 선택을 DSP 준비 단계부터 적용합니다. 새로 연 인스턴스와 다시 재생한 인스턴스의 시작 상태를 일치시키며, 재생 중 노브를 바꿀 때의 부드러운 전환은 유지합니다.
-- **캐비넷 구성:** 기타 1×12 / 2×12 / 4×12, 베이스 1×12 / 2×12 / 1×15 / 2×10 / 4×10 / 6×10을 선택할 수 있습니다. 캐비넷의 유닛 지름은 고정됩니다. 10인치 구성에는 12·15인치 유닛을 넣을 수 없습니다. 선택 목록의 중복 4×12·4×10 항목은 기존 프로젝트 호환성을 유지하면서 정리합니다.
-- **독립 Mic A/B:** 마이크 종류와 수음 유닛, 위치·거리, 블렌드·레벨·극성·딜레이·필터를 각 경로에서 조절합니다. 한 마이크만 쓰거나 서로 다른 유닛을 수음할 수 있습니다.
-- **룸과 외형:** Dual/Matrix에서 리그를 한 룸에 표시하고 캐비넷을 선택해 CAB 조작 화면을 엽니다. 실제로 놓인 장비를 기준으로 프레이밍하며, 마이크가 없는 룸에 예약된 마이크 여유 공간을 제거합니다. 공통 축척과 실제 가로세로 비율을 유지하고 기존 캐비넷 외장 디자인을 살립니다.
-- **유닛 아트와 이름:** 유닛 14종의 서로 다른 정면 디자인, 물리 치수에 맞춘 헤드와 마이크, IR Loader의 이미지를 제공합니다. 두 기타 유닛은 **Crimson 12**와 **Nocturne 100**으로 표시하며 Crimson 12는 빨간색을 유지합니다.
-- **Matrix LOW:** DI/AMP 블렌드는 DI와 AMP→CAB 경로를 섞습니다. 캐비넷은 AMP 쪽 비중에만 작용하며, Mic A/B 블렌드는 그 캐비넷 안에서 별도로 작동합니다.
-- **실시간 처리:** 작은 오디오 블록에서 오리지널 스테레오 캐비넷의 중복 FFT 작업을 줄입니다. 응답 길이, 전환 페이드, 음향식과 CPU 검증 기준을 유지합니다.
-- **배포 검사:** Windows에서 UTF-8 문서를 읽는 인코딩 오류를 수정하고, 중간 명령의 실패가 마지막 명령의 성공으로 가려지지 않도록 합니다. 실제 검증자료를 소스·실행·시도별로 취합해 게시 전에 다시 평가합니다.
+- **헤드 직접 조작:** Classic·Dual·Matrix에서 헤드를 선택해 확대하고 전면 노브를 조절합니다. Niflheimr의 14개 노브·5채널과 Brit Edge의 6개 노브·5개 입력 경로를 포함합니다. 전체 카탈로그 26개 헤드의 전면 배치를 제공하며, 선택 가능한 앰프는 기존과 같은 25종입니다. 검수에 포함한 퇴역 Ironball이 선택 목록에 복귀하는 것은 아닙니다.
+- **모델별 노브와 가독성:** 원본 하드웨어의 노브 형태·그립·캡·지시선을 참고해 앰프마다 다른 디자인을 적용합니다. Náströnd와 Niflheimr는 자체 디자인을 유지합니다. Niflheimr를 포함한 노브 크기와 간격, 라벨 크기·대비를 조정하고, 헤드 상단 모서리·손잡이·깊이 표현을 함께 정리합니다. 수치는 조작하거나 직접 입력할 때만 표시합니다.
+- **조작 방법:** 노브를 드래그하고 Shift로 미세 조정합니다. 더블클릭 또는 Enter로 값을 입력할 수 있습니다. 이름이 표시된 버튼으로 채널을 선택하고 DETAILS에서 전체 컨트롤을 엽니다. A/B와 기존 채널별 설정, 호스트 자동화·프로젝트 저장을 함께 사용합니다.
+- **Signal Path:** 현재 모드의 분기·합류, 활성·우회 상태와 Matrix LOW의 DI / AMP+CAB 관계를 표시합니다. 경로의 단계를 선택하면 해당 조작 화면으로 이동합니다. PATH +에서 전체 경로를 펼쳐 볼 수 있으며 화면 이동 자체는 소리 설정을 바꾸지 않습니다.
+- **Tone EQ / Final EQ:** 각각 12개 밴드, 7개 필터 종류, 주파수 응답 곡선과 입력·출력 스펙트럼을 제공합니다. Tone EQ는 리그 합산과 선택적 POST Gate 뒤, POST 랙 앞에 있습니다. Final EQ는 POST·Doubler·메트로놈 뒤, OUTPUT 앞에 있습니다. 두 EQ는 기본적으로 우회되며 밴드의 주파수·게인·Q를 그래프와 수치로 조절합니다.
+- **1.3 기능 유지:** Niflheimr, PRE 39종·POST 21종·프리셋 48개, 스피커 14종·마이크 20종·9개 CAB 배치와 Chimera HF를 포함한 4개 트위터 디자인을 유지합니다. 6×10 구성, 팩토리 CAB 레시피, Mic A/B 복원, 캐비넷 외장·그릴과 IR 로더 표현, 작은 블록에서의 중복 FFT 감소 및 IR 배포 범위 수정도 포함합니다. 상세 이력은 [1.3.0 릴리즈 노트](OPEN_BETA_1_3_RELEASE_NOTES.md)를 참고하세요.
 
 ## 업데이트와 기존 프로젝트
 
-Chimera와 DAW를 종료한 뒤 설치하세요. 설치 후 SETTINGS에서 **Open Beta 1.3.0**과 build 값을 확인합니다. 1.3 소스에서 생성하고 검증한 패키지만 사용합니다. 기존 1.2 preview의 파일명만 바꾸어 배포하지 않습니다.
+Chimera와 DAW를 종료한 뒤 설치하세요. 설치 후 SETTINGS의 **Open Beta 1.3.1** 및 build 값을 확인합니다. 1.3.1 최종 소스로 새로 빌드한 패키지를 사용하며, 공개된 1.3.0 태그와 파일은 그대로 보존합니다.
 
-플러그인 식별자, 기존 파라미터 순서와 자동화 매핑, 개인 프리셋·IR 저장 경로를 유지합니다. CAB 구성은 추가 파라미터로 저장하며, 같은 IR 데이터는 공유 저장해 중복을 줄입니다. 호환되지 않는 캐비넷/유닛 조합은 일관된 호환 유닛으로 해석합니다. 사용자 IR은 녹음에 포함된 캐비넷과 마이크의 응답을 유지합니다.
+기존 플러그인 식별자·파라미터 매핑과 개인 프리셋·IR 저장 경로를 유지합니다. 헤드 전면은 기존 앰프 파라미터를 조작합니다. 두 EQ는 추가 컨트롤이며 기본값은 우회 상태입니다. 기존 프로젝트와 A/B에 포함된 IR 오디오는 계속 복원됩니다. Standalone은 공개된 베타의 업데이트를 확인하고, VST3/AU의 Updates는 릴리즈 페이지를 엽니다. 다운로드와 설치는 사용자가 실행합니다.
 
-## 검증과 알려진 한계
+## 검증 범위와 남은 항목
 
-최종 1.3 소스에서 Windows·macOS·Linux 제품 빌드, CTest, CAB 검증, 패키지 조립과 Windows 설치·복구·제거를 다시 확인합니다. 이전 설치본의 성공 기록을 변경된 1.3 소스의 성공으로 재사용하지 않습니다. 새 소스의 실제 결과는 [1.3 준비 기록](RELEASE_1_3_PREPARATION.md)에 연결합니다.
+게시 전 최종 소스에 대한 Windows·macOS·Linux 제품 빌드, 네이티브 헤드·Signal Path·EQ·CAB 검사, 패키지 검사와 Windows 설치·복구·제거 증거를 확인합니다. 이전 PR·미리보기·1.3.0의 성공 기록을 변경된 소스의 검증으로 재사용하지 않습니다. 최종 소스 SHA·CI 실행·패키지 검사 결과는 릴리즈에 첨부한 검증 기록과 build 값을 기준으로 확인합니다. 필요한 증거와 게시 조건은 [1.3.1 검증·배포 절차](RELEASE_1_3_1_PIPELINE.md)에 설명합니다.
 
-실제 악기 DI 청음과 Studio One 등 사용 DAW에서의 연주·프로젝트 복원·UI를 연 뒤 인스턴스 삭제 및 종료 검증은 별도 확인 항목입니다. 이전 소스의 macOS 개별 오디오 마감시간 초과 기록도 유지합니다. 합성 테스트만으로 모든 컴퓨터에서의 무중단 처리나 원본 하드웨어와의 동등성을 주장하지 않습니다.
+전체 제품 검증은 완료되지 않았습니다. 엄격한 검증 목록에는 미실행 항목 107개가 남아 있으며, 개별 항목을 통과로 바꾸지 않고 별도의 공개 베타 판단에서 그 범위를 밝힙니다. 실제 Studio One 조작, 악기 DI 청음, DAW별 프로젝트 복원·인스턴스 삭제·종료의 수동 승인을 받았다는 뜻이 아닙니다. 과거 소스의 macOS 오디오 마감시간 초과 기록도 전체 컴퓨터의 무중단 처리 보증으로 대체하지 않습니다.
 
-현재 캐비넷은 선형 축약 모델입니다. 서로 다른 유닛의 혼합 장착, 별도 포트·다중 내부 구획, 비선형 스피커 압축과 룸 리버브는 이번 범위에 포함하지 않습니다. Transpose의 약 43–46ms 알고리즘 지연과 베이스 B현 −2반음에서의 어택 뭉개짐은 기존 후속 과제입니다.
+화면 자료는 출처를 구분합니다. 최종 소스의 각 운영체제에서 실행해 얻은 네이티브 PNG, 로컬 소프트웨어 렌더 미리보기, 디자인 일러스트·목업은 서로 다른 자료입니다. 노브 디자인 참조는 외형 비교이며 원본 하드웨어와의 음향적 동등성을 주장하지 않습니다.
 
-개인 Raven IR, NAM 가중치와 개인 캡처 오디오는 공개 패키지에 포함하지 않습니다. Windows 퍼블리셔 서명과 macOS Developer ID 서명·공증의 기존 한계도 유지합니다.
-
-## 다음 업데이트
-
-앰프 헤드 전면 디자인 안에서 노브를 직접 조절하는 UI를 검토·설계합니다. 기존 호스트 자동화와 채널별 설정을 재사용하며 다음 업데이트의 정확한 번호는 확정하지 않았습니다. 헤드 내부 노브 조작은 1.3 기능에 포함하지 않습니다.
+캐비넷은 선형 축약 모델입니다. 혼합 유닛·별도 포트·다중 내부 구획·비선형 스피커 압축·룸 리버브는 포함하지 않습니다. Transpose의 약 43–46 ms 지연과 베이스 B현 −2반음에서의 어택 뭉개짐은 후속 과제입니다. Windows 퍼블리셔 서명 및 macOS Developer ID 서명·공증은 완료되지 않았습니다. 개인 Raven IR·NAM 가중치·개인 캡처 오디오는 공개 패키지에 포함하지 않으며, 검증된 CC BY 4.0 팩토리 IR 2개와 직접 가져온 User IR을 사용합니다. 무료 베타는 향후 유료화될 수 있고 무료 지원이 종료될 수 있습니다.
 
 ## English summary
 
-Open Beta 1.3 prepares Niflheimr and the original CAB engine. It includes 25 active amps, 39 PRE models, 21 POST models and 48 presets; 14 speakers, 20 microphones and three additional tweeter designs are a separate inventory. Nine explicit cabinet layouts enforce driver diameter compatibility. The large bass layout is a 2×3 six-driver 6×10, rebuilt from the unpublished 8×10 preview with a shorter enclosure and six-source acoustic field. Independent Mic A/B paths support source selection, modeled position/distance, blend and phase controls. Room framing uses the displayed rigs, retains a common physical scale and removes unused microphone margins. Cabinet exterior detail and fixed captured/User IR responses are preserved.
+Open Beta 1.3.1 adds enlarged, playable amp-head panels in Classic, Dual and Matrix; model-specific knob shapes and materials; larger, clearer labels; and numeric readouts shown during adjustment or entry. Niflheimr retains 14 knobs and five channels; Brit Edge has six knobs and five input paths. Front-panel layouts cover all 26 catalog entries, while 25 amps remain selectable. The retired Ironball is included in layout review only. Drag to adjust, hold Shift for fine movement, or double-click / press Enter to type. DETAILS retains access to the full controls.
 
-All 48 factory recalls receive modeled cabinet, speaker and microphone recipes; intentional dry LOW paths and preset identities remain intact. Factory recall no longer resolves private IR filenames. The public loader omits 42 unapproved external/private reference entries, and release packages exclude research/reference audio. Two attributed, hash-allowlisted factory IRs and manual user import/recall remain available.
+Signal Path opens the controls for the selected processing stage. Tone EQ and Final EQ each have 12 bands, seven filter types, a response curve and input/output spectra. Tone EQ follows rig sum and the optional post-rig gate, before POST. Final EQ follows POST, doubler and metronome, before output trim. Both start bypassed. Existing 1.3.0 CAB, IR, state-recall and real-time fixes are retained.
 
-Saved microphone gain, polarity, delay and blend, and the complete native amp selection, are installed before DSP preparation. Fresh instances and restarted instances therefore begin from the selected rig, while live control changes retain their smoothing.
-
-The release remains in preparation. Exact-source 1.3 packages and tests must be verified before publication. Actual instrument/Studio One acceptance, existing transpose limitations and signing/notarization status remain separately documented. Embedded head-panel knobs are planned after 1.3.
+Consult the release attachments for the exact source revision, native test results and package evidence; these feature notes do not certify those results. The strict product inventory retains 107 unexecuted checks; the separate beta decision discloses them. Full Studio One/manual-host acceptance and real-instrument listening are not complete. Software-rendered previews and illustrations are not native operating-system capture evidence. Hardware equivalence, universal real-time performance and completed signing/notarization are not claimed. Existing transpose limitations remain.
 
 ## Deutsche Zusammenfassung
 
-Open Beta 1.3 integriert Niflheimr und die originale CAB-Engine: 25 aktive Verstärker, 39 PRE- und 21 POST-Modelle sowie 48 Presets. Dazu kommen 14 Lautsprecher, 20 Mikrofone, drei zusätzliche Hochtöner und neun Gehäusekonfigurationen mit passendem Lautsprecherdurchmesser. Das große Bassgehäuse ist jetzt ein 6×10 mit zwei Spalten und drei Reihen; das bisherige 8×10-Testmodell wurde akustisch und geometrisch entsprechend umgebaut. Mic A/B lassen sich unabhängig bearbeiten. Die Raumansicht nutzt den Platz anhand der angezeigten Rigs bei gemeinsamem physischem Maßstab; vorhandene Gehäusedetails bleiben erhalten. Eigene IRs und bestehende Projektzuordnungen bleiben unterstützt.
+Open Beta 1.3.1 ergänzt vergrößerte, direkt bedienbare Amp-Frontplatten in Classic, Dual und Matrix. Form, Griff, Kappe und Zeiger der Regler orientieren sich am jeweiligen Vorbild; Beschriftungen werden größer und klarer. Zahlenwerte erscheinen beim Einstellen oder bei der direkten Eingabe. Niflheimr besitzt 14 Regler und fünf Kanäle, Brit Edge sechs Regler und fünf Eingangswege. Alle 26 Katalogeinträge erhalten Frontplattenlayouts; 25 Amps bleiben auswählbar. Der ausgemusterte Ironball gehört nur zur Layoutprüfung. Ziehen regelt den Wert, Umschalt ermöglicht Feineinstellung, Doppelklick / Enter öffnet die Eingabe. DETAILS zeigt die vollständigen Bedienelemente.
 
-Alle 48 Werkspresets erhalten passende modellierte Gehäuse-, Lautsprecher- und Mikrofoneinstellungen. Bewusste trockene LOW-Pfade sowie Namen und IDs bleiben erhalten; private IR-Dateien werden beim Presetaufruf nicht mehr automatisch gesucht. Die öffentliche IR-Liste enthält keine der 42 nicht zur Weitergabe freigegebenen externen/privaten Referenzen. Forschungs- und Referenzaudio wird aus den Paketen ausgeschlossen. Zwei mit Quellenangabe und Hash geprüfte Werks-IRs sowie der manuelle Import eigener IRs bleiben verfügbar.
+Signal Path führt zum gewählten Bearbeitungsschritt. Tone EQ und Final EQ bieten jeweils zwölf Bänder, sieben Filtertypen, eine Frequenzgangkurve und Ein-/Ausgangsspektren. Tone EQ folgt der Rig-Summe und dem optionalen Post-Rig-Gate vor POST; Final EQ folgt POST, Doubler und Metronom vor dem Ausgangspegel. Beide beginnen im Bypass. Die CAB-, IR-, Zustands- und Echtzeitkorrekturen aus 1.3.0 bleiben enthalten.
 
-Gespeicherte Mikrofonpegel, Polarität, Verzögerung und Mischung sowie die vollständige native Verstärkerauswahl werden vor der DSP-Vorbereitung übernommen. Neue und erneut gestartete Instanzen beginnen damit im gewählten Zustand; die Glättung laufender Regleränderungen bleibt erhalten.
+Die genaue Quellrevision, nativen Prüfergebnisse und Paketnachweise sind den Release-Anhängen zu entnehmen; diese Funktionsbeschreibung bescheinigt keine Prüfergebnisse. Die strenge Produktprüfung enthält weiterhin 107 nicht ausgeführte Prüfungen; eine getrennte Beta-Entscheidung legt diese offen. Die vollständige manuelle Abnahme in Studio One und anderen Hosts sowie Hörtests mit echten Instrumenten sind nicht abgeschlossen. Software-Vorschauen und Illustrationen sind keine nativen Betriebssystem-Screenshots. Hardware-Gleichwertigkeit, unterbrechungsfreie Verarbeitung auf jedem Rechner und abgeschlossene Signierung/Notarisierung werden nicht behauptet. Die bisherigen Transpose-Grenzen bleiben bestehen.
 
-Die Veröffentlichung wird vorbereitet. Pakete und Prüfungen müssen zur endgültigen 1.3-Quellrevision passen. Hörtests mit echten Instrumenten, Studio-One-Prüfungen und bestehende Grenzen bleiben getrennt ausgewiesen. Regler direkt auf der Verstärkerfront sind für ein Update nach 1.3 vorgesehen.
-
-[Published 1.2 release](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/releases/tag/v1.2.0-beta.1) · [Historical 1.2 notes](OPEN_BETA_1_2_RELEASE_NOTES.md)
+[Published releases](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/releases) · [1.3.0 notes](OPEN_BETA_1_3_RELEASE_NOTES.md) · [1.2 notes](OPEN_BETA_1_2_RELEASE_NOTES.md) · [Manual](MANUAL.html)
 
 Copyright © 2026 RavenForge Luthier Intelligence. All rights reserved.

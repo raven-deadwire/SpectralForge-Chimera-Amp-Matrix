@@ -77,11 +77,22 @@ inline Skin makeSkin(const juce::Image& source,bool bass) {
     Skin skin;skin.bass=bass;
     if(!source.isValid())return skin;
     const auto regions=sourceRegions(bass);
-    const auto clip=[&](juce::Rectangle<int> area) {
+    const auto clip=[&](juce::Rectangle<int> area,bool detach=false) {
         const double sx=double(source.getWidth())/1254.0,sy=double(source.getHeight())/1254.0;
         const int left=int(std::ceil(area.getX()*sx)),top=int(std::ceil(area.getY()*sy));
         const int right=int(std::floor(area.getRight()*sx)),bottom=int(std::floor(area.getBottom()*sy));
-        return source.getClippedImage(juce::Rectangle<int>(left,top,right-left,bottom-top));
+        auto cropped=source.getClippedImage(juce::Rectangle<int>(left,top,right-left,bottom-top));
+        if(!detach)return cropped;
+        // A native subsection can keep its parent's backing bitmap even after
+        // createCopy(). Put every repeating texture in independent software
+        // storage so native bitmap brushes cannot wrap outside the crop.
+        juce::SoftwareImageType storage;
+        juce::Image copy(juce::Image::ARGB,cropped.getWidth(),cropped.getHeight(),true,storage);
+        const juce::Image::BitmapData sourcePixels(cropped,juce::Image::BitmapData::readOnly);
+        juce::Image::BitmapData copyPixels(copy,juce::Image::BitmapData::writeOnly);
+        for(int y=0;y<cropped.getHeight();++y)for(int x=0;x<cropped.getWidth();++x)
+            copyPixels.setPixelColour(x,y,sourcePixels.getPixelColour(x,y));
+        return copy;
     };
     for(size_t i=0;i<skin.perimeter.size();++i) {
         auto area=regions.perimeter[i];
@@ -91,13 +102,12 @@ inline Skin makeSkin(const juce::Image& source,bool bass) {
             if(i==topRail || i==bottomRail)area=area.withSizeKeepingCentre(64,area.getHeight());
             else area=area.withSizeKeepingCentre(area.getWidth(),64);
         }
-        skin.perimeter[i]=clip(area);
-        if(i%2)skin.perimeter[i]=skin.perimeter[i].createCopy();
+        skin.perimeter[i]=clip(area,i%2!=0);
     }
     skin.feet[0]=clip(bass ? juce::Rectangle<int>(113,1147,65,36) : juce::Rectangle<int>(102,1172,66,26));
     skin.feet[1]=clip(bass ? juce::Rectangle<int>(1087,1147,63,36) : juce::Rectangle<int>(1090,1172,67,26));
-    skin.grille=clip(regions.grille).createCopy();
-    skin.roof=clip(regions.roof).createCopy();
+    skin.grille=clip(regions.grille,true);
+    skin.roof=clip(regions.roof,true);
     // Preserve the complete photographed roof, rolled front edge and metal
     // cap returns. A tiny grain tile cannot reproduce their original form.
     // These strips end before any of the baked cones or bass horn begins.
@@ -159,14 +169,19 @@ inline void paintFrame(juce::Graphics& g,const Skin& skin,juce::Rectangle<float>
             const float bend=y+face.getHeight()*.46f,top=y+corner;
             const float start=i==leftRail ? x+inset : r-rail-inset;
             const float end=i==leftRail ? x : r-rail;
-            {
-                const juce::Graphics::ScopedSaveState upper(g);
-                g.addTransform(juce::AffineTransform(1.f,(end-start)/(bend-top),start,0.f,1.f,top));
-                g.setFillType(juce::FillType(image,juce::AffineTransform::scale(rail/float(image.getWidth()),grainScale)));
-                g.fillRect(0.f,0.f,rail,bend-top);
-            }
-            g.setFillType(juce::FillType(image,juce::AffineTransform::scale(rail/float(image.getWidth()),grainScale).translated(end,bend)));
-            g.fillRect(end,bend,rail,b-corner-bend);
+            const auto textureScale=juce::AffineTransform::scale(rail/float(image.getWidth()),grainScale);
+            const auto upperMap=juce::AffineTransform(1.f,(end-start)/(bend-top),start,0.f,1.f,top);
+            // Use one coordinate path for both halves. Direct2D's fillRect
+            // brush path differs for a sheared and a translated context and
+            // can shift the photographed piping at their shared bend.
+            juce::Path upper;upper.addRectangle(0.f,0.f,rail,bend-top);upper.applyTransform(upperMap);
+            g.setFillType(juce::FillType(image,textureScale.followedBy(upperMap)));
+            g.fillPath(upper);
+            juce::Path lower;lower.addRectangle(end,bend,rail,b-corner-bend);
+            // Keep the same vertical grain phase instead of restarting the
+            // material at the bend. Geometry, rail width and source skin stay fixed.
+            g.setFillType(juce::FillType(image,textureScale.translated(end,top)));
+            g.fillPath(lower);
             continue;
         }
         const auto transform=juce::AffineTransform::scale(
@@ -190,6 +205,12 @@ inline void paintGrille(juce::Graphics& g,const Skin& skin,juce::Rectangle<float
     {
         const juce::Graphics::ScopedSaveState clip(g);
         g.reduceClipRegion(frontOutline(face,upperInset(face,pixelsPerMetre,slant),corner*.28f));
+        // CoreGraphics' interpolated minification averages neighbouring metal
+        // wires into every aperture at room scale. Sample the authored alpha
+        // mask without interpolation so the foreground remains perforated.
+        // This is local to the grille; shell and driver artwork retain their
+        // existing resampling quality, and no image is allocated during paint.
+        g.setImageResamplingQuality(juce::Graphics::lowResamplingQuality);
         fillMaterial(g,skin.grilleOverlay,face.reduced(rail*.82f),pixelsPerMetre/skin.sourcePixelsPerMetre);
     }
     // The grille and frame are in front of the mounted units. Repaint the

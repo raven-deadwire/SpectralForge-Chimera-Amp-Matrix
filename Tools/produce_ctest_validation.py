@@ -50,8 +50,8 @@ def main() -> int:
         raise ValueError("Producer commit must be the checked-out HEAD")
     subprocess.run([sys.executable, str(ROOT / "Tools/seed_validation_reports.py"),
                     "--commit", args.commit, "--output", str(args.output)], check=True, stdout=subprocess.DEVNULL)
-    policy = json.loads((ROOT / "Validation/release-policy.json").read_text())
-    mapping = json.loads((ROOT / "Validation/ci-check-map.json").read_text())
+    policy = json.loads((ROOT / "Validation/release-policy.json").read_text(encoding="utf-8-sig"))
+    mapping = json.loads((ROOT / "Validation/ci-check-map.json").read_text(encoding="utf-8-sig"))
     if mapping["policy_version"] != policy["policy_version"]:
         raise ValueError("Stale CI ownership map")
     # Absent artifacts leave the seeded checks blocked, never an empty PASS.
@@ -82,11 +82,11 @@ def main() -> int:
             waiver_id=None, failure_type=None if passed else "TEST_FAILURE",
             failure_message=None if passed else "CTest failed, skipped or matrix inventory incomplete")
         report = producer.build_report(policy, report_args)
-        (args.output / "checks" / (cid + ".json")).write_text(json.dumps(report, indent=2) + "\n")
-    reports = {p.stem: json.loads(p.read_text()) for p in (args.output / "checks").glob("*.json")}
-    result = gate.evaluate_release(policy, json.loads((ROOT / "Validation/waivers.json").read_text()), reports, "pull_request", args.commit)
-    (args.output / "release-gate.json").write_text(json.dumps(result, indent=2) + "\n")
-    (args.output / "release-gate.md").write_text(gate.render_summary(result))
+        (args.output / "checks" / (cid + ".json")).write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
+    reports = {p.stem: json.loads(p.read_text(encoding="utf-8-sig")) for p in (args.output / "checks").glob("*.json")}
+    result = gate.evaluate_release(policy, json.loads((ROOT / "Validation/waivers.json").read_text(encoding="utf-8-sig")), reports, "pull_request", args.commit)
+    (args.output / "release-gate.json").write_text(json.dumps(result, indent=2) + "\n", encoding="utf-8")
+    (args.output / "release-gate.md").write_text(gate.render_summary(result), encoding="utf-8")
     print(f"Produced concrete {args.platform} CTest evidence; release verdict={result['verdict']}")
     return 0
 

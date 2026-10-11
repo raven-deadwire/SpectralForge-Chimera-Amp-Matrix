@@ -639,21 +639,32 @@
     "I2.LIVE_REMOVE_DAW"
   ],
   "release_scope": {
-    "version": "1.3.1",
+    "version": "1.3.1-beta.1",
     "product_version": "1.3.1",
     "profile": "beta_1_3",
-    "channel": "preview",
-    "decision_at": "2026-10-10T11:05:24+09:00",
-    "authorization": "Owner authorized the independent 1.3.1 static graphical EQ prototype, development branch, Draft PR and Windows/Linux/macOS regression CI. The 1.3 preparation branch is unchanged. This does not authorize release publication, merge or unexecuted DAW/instrument acceptance.",
+    "channel": "beta.1",
+    "decision_at": "2026-10-11T22:55:39+09:00",
+    "authorization": "The owner instructed \"수정되면 배포랑 업데이트까지 해\" after requesting all-model hardware-inspired knob corrections. This authorizes completion, integration, open-beta publication and update distribution once the corrected source passes the required native CI and packaging gates. No further general approval is required. This is not an assertion of personal testing, Studio One acceptance or completion of unexecuted checks.",
     "preparation_authorized": true,
-    "publication_authorized": false,
-    "release_approved": false,
-    "status": "DEVELOPMENT_ONLY",
+    "publication_authorized": true,
+    "release_approved": true,
+    "status": "CORRECTIONS_AND_EXACT_SOURCE_CI_PENDING",
     "deferred_checks": [
       "I2.PITCH_LIVE",
       "I2.PITCH_DI"
     ],
     "tracking": "docs/TRANSPOSE_LONG_TERM.md",
-    "status_semantics": "Deferred is not PASS or NOT_APPLICABLE; the transpose_followup profile still requires evidence. All other acceptance gates are retained."
+    "status_semantics": "Deferred is not PASS or NOT_APPLICABLE; the transpose_followup profile still requires evidence. All other acceptance gates are retained.",
+    "owner_acceptance": {
+      "approved": true,
+      "publication_authorized": true,
+      "decision_date": "2026-10-11",
+      "timezone": "Asia/Seoul",
+      "instruction": "수정되면 배포랑 업데이트까지 해",
+      "context": "The owner requested correction of all amplifier knob designs using original hardware references, after discussing incomplete Studio One and whole-product validation, then explicitly requested release and update when the corrections are complete.",
+      "scope": "Corrected Chimera 1.3.1 open beta, retaining the disclosed unexecuted validation inventory. Publication requires exact-source native CI, installer and package evidence; no stable or complete-validation claim.",
+      "testing_reported": false,
+      "individual_check_claims": []
+    }
   }
 }

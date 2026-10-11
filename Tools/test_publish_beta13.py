@@ -4,11 +4,12 @@ import copy
 import io
 import json
 from pathlib import Path
+import subprocess
 import tempfile
 import unittest
 import zipfile
 from contextlib import redirect_stdout
-from unittest.mock import patch
+from unittest.mock import Mock, call, patch
 
 import publish_beta13 as publisher
 
@@ -205,6 +206,133 @@ class PublicationInputs(unittest.TestCase):
             publisher.prepare_assets(self.candidate, HEAD, RUN)
 
 
+class ControllerSourceBinding(unittest.TestCase):
+    """Exercise real Git trees/index/worktrees, not mocked diff output."""
+
+    CONTROL_FILES = (
+        ".github/workflows/publish-beta13.yml", "Tools/publish_beta13.py",
+        "Tools/test_publish_beta13.py", "Tools/beta_publication.py",
+        "Tools/test_beta_publication.py", "Validation/beta-publication-policy.json",
+        "docs/RELEASE_1_3_PIPELINE.md",
+    )
+    PRODUCT_FILES = (
+        "Source/PluginProcessor.cpp", "Assets/Artwork/Cab/cab-guitar-412.png",
+        "VERSION", "RELEASE_CHANNEL", "Validation/release-policy.json",
+        "Validation/waivers.json", "Validation/ci-check-map.json",
+        ".github/workflows/build.yml", ".github/workflows/update-candidate.yml",
+        ".github/workflows/cab-panel.yml", "docs/MANUAL.html",
+        "docs/OPEN_BETA_RELEASE_NOTES.md", "Tools/publish_open_beta.py",
+    )
+
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.tmp.cleanup)
+        self.root = Path(self.tmp.name)
+        self.git("init", "--quiet")
+        self.git("config", "user.name", "Publication binding fixture")
+        self.git("config", "user.email", "publication-fixture@example.invalid")
+        self.git("config", "commit.gpgsign", "false")
+        self.git("config", "core.autocrlf", "false")
+        for name in (*self.PRODUCT_FILES, "Tools/publish_beta13.py",
+                     "docs/RELEASE_1_3_PIPELINE.md"):
+            self.write(name, "reviewed product bytes\n")
+        self.product = self.commit("tested product")
+        self.write("Tools/publish_beta13.py", "publication controller only\n")
+        self.controller = self.commit("publication-only descendant")
+        patcher = patch.object(publisher, "ROOT", self.root)
+        patcher.start()
+        self.addCleanup(patcher.stop)
+
+    def git(self, *args):
+        return subprocess.check_output(["git", *args], cwd=self.root,
+                                       text=True, stderr=subprocess.STDOUT).strip()
+
+    def write(self, name, text):
+        target = self.root / name
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_text(text, encoding="utf-8")
+
+    def commit(self, message):
+        self.git("add", "--all")
+        self.git("commit", "--quiet", "-m", message)
+        return self.git("rev-parse", "HEAD")
+
+    def test_accepts_only_the_seven_publication_paths_in_a_real_descendant(self):
+        # Keep this independent inventory literal: accidentally widening the
+        # implementation's allowlist must not silently widen the contract.
+        self.assertEqual(publisher.CONTROL_PATHS, frozenset(self.CONTROL_FILES))
+        for name in self.CONTROL_FILES:
+            self.write(name, "reviewed publication-only change: " + name + "\n")
+        controller = self.commit("all seven publication-only files")
+        proof = publisher.verify_controller_source(self.product, controller)
+        self.assertEqual(proof, {
+            "product_source_sha": self.product,
+            "publication_controller_sha": controller,
+            "controller_changed_paths": sorted(self.CONTROL_FILES),
+        })
+        self.assertNotEqual(self.product, controller)
+
+    def test_rejects_product_policy_build_workflow_and_packaged_document_changes(self):
+        for name in self.PRODUCT_FILES:
+            with self.subTest(path=name):
+                self.git("reset", "--hard", self.controller)
+                self.write(name, "unverified product change\n")
+                changed = self.commit("forbidden change: " + name)
+                with self.assertRaisesRegex(RuntimeError, "Untested product change"):
+                    publisher.verify_controller_source(self.product, changed)
+
+    def test_rejects_a_checkout_other_than_the_requested_controller(self):
+        self.git("checkout", "--quiet", "--detach", self.product)
+        with self.assertRaisesRegex(RuntimeError, "Checked-out publication controller differs"):
+            publisher.verify_controller_source(self.product, self.controller)
+
+    def test_rejects_a_source_from_a_sibling_history(self):
+        self.git("checkout", "--quiet", "--detach", self.product)
+        self.write("Tools/publish_beta13.py", "different publication sibling\n")
+        sibling = self.commit("sibling source is not an ancestor")
+        self.git("checkout", "--quiet", "--detach", self.controller)
+        with self.assertRaises(subprocess.CalledProcessError):
+            publisher.verify_controller_source(sibling, self.controller)
+
+    def test_rejects_staged_and_unstaged_controller_mutations(self):
+        for staged in (False, True):
+            with self.subTest(staged=staged):
+                self.git("reset", "--hard", self.controller)
+                self.write("Tools/publish_beta13.py", "uncommitted controller mutation\n")
+                if staged:
+                    self.git("add", "Tools/publish_beta13.py")
+                with self.assertRaisesRegex(RuntimeError, "local changes"):
+                    publisher.verify_controller_source(self.product, self.controller)
+
+    def test_rejects_deleting_or_renaming_even_an_allowed_file(self):
+        for rename in (False, True):
+            with self.subTest(rename=rename):
+                self.git("reset", "--hard", self.controller)
+                source = self.root / "Tools/publish_beta13.py"
+                if rename:
+                    source.rename(self.root / "Tools/beta_publication.py")
+                else:
+                    source.unlink()
+                changed = self.commit("removed an allowed controller file")
+                with self.assertRaisesRegex(RuntimeError, "Untested product change"):
+                    publisher.verify_controller_source(self.product, changed)
+
+    def test_rejects_a_committed_symlink_mode_on_an_allowed_path(self):
+        # core.symlinks=false represents a symlink as a normal worktree file,
+        # so this checks the actual 120000 Git tree mode on Windows too, without
+        # requiring OS permission to create symlinks or mocking ls-tree.
+        self.git("config", "core.symlinks", "false")
+        name = "Tools/beta_publication.py"
+        self.write(name, "../Source/PluginProcessor.cpp")
+        blob = self.git("hash-object", "-w", name)
+        self.git("update-index", "--add", "--cacheinfo", "120000," + blob + "," + name)
+        self.git("commit", "--quiet", "-m", "symlink-mode controller")
+        controller = self.git("rev-parse", "HEAD")
+        self.assertEqual(self.git("status", "--porcelain", "--untracked-files=no"), "")
+        with self.assertRaisesRegex(RuntimeError, "Unexpected publication controller file mode"):
+            publisher.verify_controller_source(self.product, controller)
+
+
 class CIContracts(unittest.TestCase):
     def good_run(self, run_id=RUN):
         return dict(id=run_id, run_attempt=1, head_sha=HEAD, event="pull_request",
@@ -213,14 +341,39 @@ class CIContracts(unittest.TestCase):
     def test_stale_missing_failed_pending_or_newer_failed_runs_are_rejected(self):
         good = self.good_run()
         self.assertEqual(publisher.verified_run([good], HEAD)["id"], RUN)
-        for changes in ({"head_sha": "b" * 40}, {"event": "push"}, {"status": "in_progress"},
+        for status in ("queued", "in_progress", "waiting", "pending", "requested"):
+            with self.subTest(pending=status), self.assertRaises(publisher.CIPending):
+                publisher.verified_run([good, {**good, "id": RUN + 1, "status": status,
+                                              "conclusion": None}], HEAD)
+        for changes in ({"head_sha": "b" * 40}, {"event": "push"},
                         {"conclusion": "failure"}, {"conclusion": "cancelled"}, {"run_attempt": None}):
-            with self.subTest(changes=changes), self.assertRaises(RuntimeError):
+            with self.subTest(changes=changes), self.assertRaises(RuntimeError) as caught:
                 publisher.verified_run([{**good, **changes}], HEAD)
+            self.assertNotIsInstance(caught.exception, publisher.CIPending)
         with self.assertRaisesRegex(RuntimeError, "missing"):
             publisher.verified_run([], HEAD)
         with self.assertRaisesRegex(RuntimeError, "Latest"):
             publisher.verified_run([good, {**good, "id": RUN + 1, "conclusion": "failure"}], HEAD)
+
+    def test_pending_build_does_not_hide_a_later_failed_workflow(self):
+        api = Mock()
+        pending = {**self.good_run(), "status": "in_progress", "conclusion": None}
+        failed = {**self.good_run(RUN + 1), "conclusion": "failure"}
+        api.pages.side_effect = [[pending], [failed]]
+        with self.assertRaisesRegex(RuntimeError, "has not passed") as caught:
+            publisher.verify_ci(api, HEAD)
+        self.assertNotIsInstance(caught.exception, publisher.CIPending)
+        requests = [call(f"/actions/workflows/{name}/runs?head_sha={HEAD}", "workflow_runs")
+                    for name in ("build.yml", "update-candidate.yml", "cab-panel.yml")]
+        self.assertEqual(api.pages.call_args_list, requests[:2])
+
+        api.reset_mock()
+        api.pages.side_effect = [[{**pending, "id": RUN + index}] for index in range(3)]
+        with self.assertRaises(publisher.CIPending) as caught:
+            publisher.verify_ci(api, HEAD)
+        self.assertEqual(api.pages.call_args_list, requests)
+        for name in ("build.yml", "update-candidate.yml", "cab-panel.yml"):
+            self.assertIn(name, str(caught.exception))
 
     def test_every_cab_platform_and_consolidator_must_succeed(self):
         for workflow in ("build.yml", "cab-panel.yml"):
@@ -263,6 +416,76 @@ class CIContracts(unittest.TestCase):
         self.assertIn("--dry-run", workflow)
         self.assertIn("release/open-beta-1.3.0", workflow)
         self.assertIn("publish-v1.3.0-beta.1", workflow)
+
+
+class CIWaitContracts(unittest.TestCase):
+    def test_pending_then_success_rechecks_branch_before_each_verification(self):
+        api, result = object(), {"verified": "exact source"}
+        calls = Mock()
+        calls.verify.side_effect = [publisher.CIPending("active run"), result]
+        with patch.object(publisher, "verify_ci", calls.verify), \
+             patch.object(publisher.time, "monotonic", return_value=100), \
+             patch.object(publisher.time, "sleep") as sleep, redirect_stdout(io.StringIO()):
+            self.assertIs(publisher.wait_for_ci(api, HEAD, 60, calls.branch), result)
+        self.assertEqual(calls.mock_calls, [call.branch(), call.verify(api, HEAD),
+                                           call.branch(), call.verify(api, HEAD)])
+        sleep.assert_called_once_with(30)
+
+    def test_terminal_failure_or_missing_evidence_is_never_retried(self):
+        for message in ("Latest exact-source verification run has not passed",
+                        "Exact-source verification run is missing",
+                        "Expected one exact-source artifact: release gate"):
+            with self.subTest(error=message):
+                error, branch, api = RuntimeError(message), Mock(), object()
+                with patch.object(publisher, "verify_ci", side_effect=error) as verify, \
+                     patch.object(publisher.time, "monotonic", return_value=100), \
+                     patch.object(publisher.time, "sleep") as sleep, \
+                     self.assertRaises(RuntimeError) as caught:
+                    publisher.wait_for_ci(api, HEAD, 60, branch)
+                self.assertIs(caught.exception, error)
+                verify.assert_called_once_with(api, HEAD)
+                branch.assert_called_once_with()
+                sleep.assert_not_called()
+
+    def test_zero_and_expired_waits_stop_without_exceeding_the_bound(self):
+        for seconds, clock, attempts, sleeps in ((0, [100, 100], 1, []),
+                                                 (5, [100, 100, 105], 2, [call(5)])):
+            with self.subTest(seconds=seconds):
+                branch = Mock()
+                with patch.object(publisher, "verify_ci", side_effect=publisher.CIPending("active")) as verify, \
+                     patch.object(publisher.time, "monotonic", side_effect=clock), \
+                     patch.object(publisher.time, "sleep") as sleep, \
+                     redirect_stdout(io.StringIO()), self.assertRaises(publisher.CIPending):
+                    publisher.wait_for_ci(object(), HEAD, seconds, branch)
+                self.assertEqual(verify.call_count, attempts)
+                self.assertEqual(branch.call_count, attempts)
+                self.assertEqual(sleep.call_args_list, sleeps)
+        for seconds in (-1, 5401, True, 1.5):
+            with self.subTest(invalid_seconds=seconds), \
+                 patch.object(publisher, "verify_ci") as verify, \
+                 patch.object(publisher.time, "monotonic") as clock, \
+                 patch.object(publisher.time, "sleep") as sleep:
+                branch = Mock()
+                with self.assertRaisesRegex(RuntimeError, "Invalid CI wait duration"):
+                    publisher.wait_for_ci(object(), HEAD, seconds, branch)
+                verify.assert_not_called()
+                branch.assert_not_called()
+                clock.assert_not_called()
+                sleep.assert_not_called()
+
+    def test_superseded_branch_stops_before_the_next_ci_request(self):
+        error = RuntimeError("A newer publication controller supersedes this invocation")
+        branch = Mock(side_effect=[None, error])
+        api = object()
+        with patch.object(publisher, "verify_ci", side_effect=publisher.CIPending("active")) as verify, \
+             patch.object(publisher.time, "monotonic", return_value=100), \
+             patch.object(publisher.time, "sleep") as sleep, \
+             redirect_stdout(io.StringIO()), self.assertRaises(RuntimeError) as caught:
+            publisher.wait_for_ci(api, HEAD, 10, branch)
+        self.assertIs(caught.exception, error)
+        self.assertEqual(branch.call_count, 2)
+        verify.assert_called_once_with(api, HEAD)
+        sleep.assert_called_once_with(10)
 
 
 if __name__ == "__main__":

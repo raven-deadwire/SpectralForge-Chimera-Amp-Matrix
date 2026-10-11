@@ -1,11 +1,12 @@
+#include "CabTimingDiagnostics.h"
 #include "IRLibrary.h"
 #include "CabLayoutModel.h"
 #include <chrono>
 #include <cstdlib>
 #include <iostream>
+#include <iomanip>
 #include <new>
 #include <stdexcept>
-#include <ctime>
 thread_local bool watch=false;
 thread_local size_t allocations=0, deletions=0;
 void* operator new(std::size_t n){if(watch)++allocations;if(auto* p=std::malloc(std::max(n,size_t(1))))return p;throw std::bad_alloc();}
@@ -15,14 +16,6 @@ void operator delete[](void* p) noexcept {::operator delete(p);}
 void operator delete(void* p,std::size_t) noexcept {::operator delete(p);}
 void operator delete[](void* p,std::size_t) noexcept {::operator delete(p);}
 using namespace spectralforge;
-double threadCPU() {
-#if defined(_WIN32)
-    return -1; // GetThreadTimes accounting granularity is unsuitable per block.
-#else
-    timespec value{};
-    return clock_gettime(CLOCK_THREAD_CPUTIME_ID,&value)==0 ? double(value.tv_sec)*1e6+double(value.tv_nsec)*.001 : -1;
-#endif
-}
 void require(bool b,const char* m){if(!b)throw std::runtime_error(m);}
 void process(Cab& c,juce::AudioBuffer<float>& b){watch=true;c.process(b);watch=false;require(c.transitioningMicCount()<=1,"modeled A/B crossfades must be serialized per rig");}
 std::vector<float> render(Cab& cab,const juce::dsp::ProcessSpec& spec) {
@@ -46,12 +39,56 @@ void reportPhase(const char* name,const std::vector<double>& times,const std::ve
     std::cout<<"PHASE name="<<name<<" blocks="<<wall.size()<<" p50_us="<<wall[wall.size()/2]
         <<" p99_us="<<wall[p99]<<" thread_cpu_p99_us="<<cpu[p99]<<" max_us="<<wall.back()<<" misses="<<misses<<'\n';
 }
+#if defined(CHIMERA_CAB_PROFILE) && CHIMERA_CAB_PROFILE
+void reportProfile(const char* engine,double sr,int block,int channels,const char* phase,
+                   const std::vector<cabProfile::Counters>& counters,size_t first,size_t last) {
+    for(unsigned stage=0;stage<unsigned(cabProfile::Stage::Count);++stage) {
+        std::vector<double> elapsed;elapsed.reserve(last-first);
+        uint64_t calls=0;double total=0;
+        for(size_t n=first;n<last;++n) {
+            const double us=double(counters[n].nanoseconds[stage])*.001;
+            elapsed.push_back(us);total+=us;calls+=counters[n].calls[stage];
+        }
+        if(!calls)continue;
+        std::sort(elapsed.begin(),elapsed.end());
+        std::cout<<"PROFILE engine="<<engine<<" sr="<<sr<<" block="<<block<<" channels="<<channels
+            <<" phase="<<phase<<" stage="<<cabProfile::names[stage]<<" callbacks="<<elapsed.size()
+            <<" calls="<<calls<<" mean_us="<<total/double(elapsed.size())<<" p50_us="<<elapsed[elapsed.size()/2]
+            <<" p99_us="<<elapsed[size_t(double(elapsed.size())*.99)]<<" max_us="<<elapsed.back()<<'\n';
+    }
+}
+#endif
 int main(int argc,char** argv){try {
+    std::cout<<std::setprecision(12);
     require(!lifecycle::enabled(),"CAB timing requires lifecycle tracing disabled; run the isolated CTest entries");
     std::cout<<"TIMING_PROTOCOL lifecycle_trace=disabled measured_blocks=1600 worker_blocks=1200 forced_publication_blocks=400\n";
-    const bool expanded=argc==2 && std::string(argv[1])=="--expanded";
-    const bool layouts=argc==2 && std::string(argv[1])=="--layouts";
-    require(argc==1 || expanded || layouts,"usage: ChimeraOriginalCabIntegrationTests [--expanded | --layouts]");
+    bool expanded=false,layouts=false,extendedBuffers=false;
+    for(int i=1;i<argc;++i) {
+        const std::string argument=argv[i];
+        if(argument=="--expanded")expanded=true;
+        else if(argument=="--layouts")layouts=true;
+        else if(argument=="--extended-buffers")extendedBuffers=true;
+        else require(false,"usage: ChimeraOriginalCabIntegrationTests [--expanded | --layouts] [--extended-buffers]");
+    }
+    require(!(expanded && layouts),"select one CAB model engine");
+    const char* timingSuite=extendedBuffers ? "extended" : "integration";
+#if defined(CHIMERA_CAB_PROFILE) && CHIMERA_CAB_PROFILE
+    timingSuite=extendedBuffers ? "profile-extended" : "profile";
+    std::cout<<"PROFILE_PROTOCOL diagnostic_only=1 stage_clocks_add_overhead=1 parameter_refresh_per_callback=1 nested_stage_times=1\n";
+#endif
+    std::cout<<"PAIRED_TIMING_PROTOCOL thread_clock_evidence_only=1 wall_gate_unchanged=1 thread_clocks_outside_wall=1 "
+        "thread_clock_reads_per_callback=2 extra_measurement_overhead=1 "
+        "cycles_to_time=disabled thread_cpu_p99_is_independent=1 raw_samples=csv "
+        "thread_clock="
+#if defined(_WIN32)
+        <<"QueryThreadCycleTime"
+#else
+        <<"CLOCK_THREAD_CPUTIME_ID"
+#endif
+        <<'\n';
+    std::cout<<"CALLER_SCHEDULING phase=entry";
+    cabTiming::appendCallerScheduling(std::cout);std::cout<<'\n';
+    const char* engineName=layouts ? "array-v3-6x10" : expanded ? "expanded-v2" : "original-v1";
     const auto modelKey=[expanded,layouts](originalCab::Settings p){if(layouts)return cabLayout::key({{p,9,p.mic==1 ? 10 : 20,2},7,p.mic==1 ? 7 : p.unit});return expanded ? cabExpansion::key({p,12,p.mic==1 ? 10 : 20,2}) : originalCab::key(p);};
     if(layouts) {
         originalCab::Settings preview{};preview.cabinet=1;preview.mic=1;
@@ -60,11 +97,20 @@ int main(int argc,char** argv){try {
             "production 6x10 / previous bottom-right microphone migration");
     }
     const juce::ScopedNoDenormals noDenormals; // Same floating-point mode as processBlock.
-    bool cpuWithinBudget=true;
-    for(double sr:{44100.,48000.,96000.})for(int block:{64,256})for(int channels:{1,2}) {
+    bool cpuWithinBudget=true,workerSchedulingValid=true;
+    const std::vector<int> blocks=extendedBuffers ? std::vector<int>{32,64,128,256,512} : std::vector<int>{64,256};
+    for(double sr:{44100.,48000.,96000.})for(int block:blocks)for(int channels:{1,2}) {
         juce::dsp::ProcessSpec spec{sr,juce::uint32(block),juce::uint32(channels)};
         std::array<Cab,3> cabs;for(auto& c:cabs)c.prepare(spec);
+#if defined(CHIMERA_CAB_PROFILE) && CHIMERA_CAB_PROFILE
+        // Counters outlive the library's worker even if a contract throws.
+        cabProfile::Counters workerProfile;
+        std::vector<cabProfile::Counters> blockProfiles(1600);
+#endif
         IRLibrary library({&cabs[0],&cabs[1],&cabs[2]});
+#if defined(CHIMERA_CAB_PROFILE) && CHIMERA_CAB_PROFILE
+        library.profileSink=&workerProfile;
+#endif
         originalCab::Settings a{true,1,0,0,0,.3,.25,10},b=a;b.unit=1;b.mic=1;b.distanceCm=18;
         for(auto& cab:cabs){cab.requestedModel=modelKey(a);cab.secondMic()->requestedModel=modelKey(b);cab.blend=.5;}
         library.prepare(spec,{0,0,0});library.stop();
@@ -80,15 +126,27 @@ int main(int argc,char** argv){try {
         juce::AudioBuffer<float> audio(channels,block);
         std::array<juce::AudioBuffer<float>,3> laneAudio;for(auto& lane:laneAudio)lane.setSize(channels,block);
         std::vector<double> times,cpuTimes;times.reserve(1600);cpuTimes.reserve(1600);
+        std::vector<cabTiming::Sample> timingSamples;timingSamples.reserve(1600);
         unsigned misses=0;double peak=0,maxStep=0;float previous=0;
         for(int n=0;n<1200;++n) {
             if(n<80)for(auto& c:cabs){a.position=double(n%60)/60;c.requestedModel=modelKey(a);b.distanceCm=5+n*.2;c.secondMic()->requestedModel=modelKey(b);}
             for(int ch=0;ch<channels;++ch)for(int k=0;k<block;++k)audio.setSample(ch,k,float(.05*std::sin((n*block+k)*.07)));
             for(auto& lane:laneAudio)lane.makeCopyOf(audio,true);
-            const double cpuStart=threadCPU();const auto start=std::chrono::steady_clock::now();
+#if defined(CHIMERA_CAB_PROFILE) && CHIMERA_CAB_PROFILE
+            cabProfile::ThreadCapture profileCapture(&blockProfiles[size_t(n)]);
+#endif
+            const auto clockBefore=cabTiming::readThreadClock();const auto start=std::chrono::steady_clock::now();
+#if defined(CHIMERA_CAB_PROFILE) && CHIMERA_CAB_PROFILE
+            // The production processor refreshes both mic filters each block.
+            // These extra clocks/calls belong only to the diagnostic executable.
+            for(auto& c:cabs) {c.setCuts(70,9000);c.secondMic()->setCuts(70,9000);}
+#endif
             // Independent lane inputs; copying is outside this CAB-only measurement.
             for(int lane=0;lane<3;++lane)process(cabs[lane],laneAudio[lane]);
-            const double us=std::chrono::duration<double,std::micro>(std::chrono::steady_clock::now()-start).count();times.push_back(us);cpuTimes.push_back(cpuStart<0 ? -1 : threadCPU()-cpuStart);if(us>1e6*block/sr)++misses;
+            const auto end=std::chrono::steady_clock::now();const auto clockAfter=cabTiming::readThreadClock();
+            const double us=std::chrono::duration<double,std::micro>(end-start).count();
+            timingSamples.push_back({size_t(n),us,clockBefore,clockAfter});
+            times.push_back(us);cpuTimes.push_back(timingSamples.back().cpuUs());if(us>1e6*block/sr)++misses;
             for(int k=0;k<block;++k){const float x=laneAudio[0].getSample(0,k);require(std::isfinite(x),"finite transitions");peak=std::max(peak,std::abs(double(x)));maxStep=std::max(maxStep,std::abs(double(x-previous)));previous=x;}
             if(n%8==0)juce::Thread::sleep(1);
         }
@@ -125,23 +183,70 @@ int main(int argc,char** argv){try {
         }
         for(int n=0;n<400;++n) {
             for(auto& lane:laneAudio)for(int ch=0;ch<channels;++ch)for(int k=0;k<block;++k)lane.setSample(ch,k,float(.05*std::sin(((n+1200)*block+k)*.07)));
-            const double cpuStart=threadCPU();const auto start=std::chrono::steady_clock::now();for(int lane=0;lane<3;++lane)process(cabs[lane],laneAudio[lane]);
-            const double us=std::chrono::duration<double,std::micro>(std::chrono::steady_clock::now()-start).count();times.push_back(us);cpuTimes.push_back(cpuStart<0 ? -1 : threadCPU()-cpuStart);if(us>1e6*block/sr)++misses;
+#if defined(CHIMERA_CAB_PROFILE) && CHIMERA_CAB_PROFILE
+            cabProfile::ThreadCapture profileCapture(&blockProfiles[size_t(n+1200)]);
+#endif
+            const auto clockBefore=cabTiming::readThreadClock();const auto start=std::chrono::steady_clock::now();
+#if defined(CHIMERA_CAB_PROFILE) && CHIMERA_CAB_PROFILE
+            for(auto& c:cabs) {c.setCuts(70,9000);c.secondMic()->setCuts(70,9000);}
+#endif
+            for(int lane=0;lane<3;++lane)process(cabs[lane],laneAudio[lane]);
+            const auto end=std::chrono::steady_clock::now();const auto clockAfter=cabTiming::readThreadClock();
+            const double us=std::chrono::duration<double,std::micro>(end-start).count();
+            timingSamples.push_back({size_t(n+1200),us,clockBefore,clockAfter});
+            times.push_back(us);cpuTimes.push_back(timingSamples.back().cpuUs());if(us>1e6*block/sr)++misses;
             for(int k=0;k<block;++k){const auto x=laneAudio[0].getSample(0,k);require(std::isfinite(x),"finite six-slot swap");peak=std::max(peak,std::abs(double(x)));maxStep=std::max(maxStep,std::abs(double(x-previous)));previous=x;}
         }
         require(peak<2 && maxStep<.3,"bounded six-slot swap");
         for(auto& c:cabs)require(c.activeModel==nextKey && c.secondMic()->activeModel==nextKey,"six queued mic swaps converge");
         for(auto& c:cabs)c.clear();require(library.resourcesReleased(),"worker teardown");
-        std::cout<<"PHASE_CONFIG engine="<<(layouts ? "array-v3-6x10" : expanded ? "expanded-v2" : "original-v1")
+        const auto scheduling=library.workerScheduling();
+        // Preserve every measured route and the actual context before failing
+        // this diagnostic contract, just as the wall gate reports all routes.
+        workerSchedulingValid=workerSchedulingValid && scheduling.startSucceeded && scheduling.enteredRun
+            && scheduling.observedPriority==int(juce::Thread::Priority::low);
+        std::cout<<"WORKER_SCHEDULING engine="<<engineName<<" suite="<<timingSuite
+            <<" sr="<<sr<<" block="<<block<<" channels="<<channels
+            <<" start_succeeded="<<scheduling.startSucceeded<<" entered_run="<<scheduling.enteredRun
+            <<" requested_juce_priority="<<int(juce::Thread::Priority::low)
+            <<" observed_juce_priority="<<scheduling.observedPriority
+#if JUCE_WINDOWS || JUCE_MAC
+            <<" worker_priority_query=native"
+#else
+            <<" worker_priority_query=requested_only linux_nonrealtime_request_ignored=1"
+#endif
+            ;
+        cabTiming::appendCallerScheduling(std::cout);std::cout<<'\n';
+        std::cout<<"WORKER_ACTIVITY engine="<<engineName<<" suite="<<timingSuite
+            <<" sr="<<sr<<" block="<<block<<" channels="<<channels
+            <<" cancelled_builds="<<library.cancelledBuildCount()<<'\n';
+        const cabTiming::Configuration timingConfig{engineName,timingSuite,sr,block,channels};
+        const auto timingPath=cabTiming::saveCsv(timingConfig,timingSamples);
+        std::cout<<"TIMING_EVIDENCE engine="<<engineName<<" suite="<<timingSuite
+            <<" sr="<<sr<<" block="<<block<<" channels="<<channels<<" samples="<<timingSamples.size()
+            <<" path="<<timingPath.generic_string()<<'\n';
+        cabTiming::reportPairs(std::cout,timingConfig,"all",timingSamples,0,1600);
+        cabTiming::reportPairs(std::cout,timingConfig,"worker_and_automation",timingSamples,0,1200);
+        cabTiming::reportPairs(std::cout,timingConfig,"forced_six_slot_publication",timingSamples,1200,1600);
+        std::cout<<"PHASE_CONFIG engine="<<engineName
             <<" sr="<<sr<<" block="<<block<<" channels="<<channels<<'\n';
         reportPhase("worker_and_automation",times,cpuTimes,0,1200,1e6*block/sr);
         reportPhase("forced_six_slot_publication",times,cpuTimes,1200,1600,1e6*block/sr);
+#if defined(CHIMERA_CAB_PROFILE) && CHIMERA_CAB_PROFILE
+        reportProfile(engineName,sr,block,channels,"worker_and_automation",blockProfiles,0,1200);
+        reportProfile(engineName,sr,block,channels,"forced_six_slot_publication",blockProfiles,1200,1600);
+        for(unsigned stage=0;stage<unsigned(cabProfile::Stage::Count);++stage)if(workerProfile.calls[stage])
+            std::cout<<"WORKER_PROFILE engine="<<engineName<<" sr="<<sr<<" block="<<block<<" channels="<<channels
+                <<" stage="<<cabProfile::names[stage]<<" calls="<<workerProfile.calls[stage]
+                <<" total_us="<<double(workerProfile.nanoseconds[stage])*.001<<'\n';
+#endif
         std::sort(times.begin(),times.end());std::sort(cpuTimes.begin(),cpuTimes.end());
         cpuWithinBudget=cpuWithinBudget && times[1584]<1e6*block/sr;
-        std::cout<<"TIMING engine="<<(layouts ? "array-v3-6x10" : expanded ? "expanded-v2" : "original-v1")<<" sr="<<sr<<" block="<<block<<" channels="<<channels<<" three_cabs_six_mics p50_us="<<times[800]<<" p99_us="<<times[1584]<<" thread_cpu_p99_us="<<cpuTimes[1584]<<" max_us="<<times.back()<<" misses="<<misses<<"/1600 kernel_residual="<<kernelResidual<<" peak="<<peak<<" max_step="<<maxStep<<'\n';
+        std::cout<<"TIMING engine="<<engineName<<" sr="<<sr<<" block="<<block<<" channels="<<channels<<" three_cabs_six_mics p50_us="<<times[800]<<" p99_us="<<times[1584]<<" thread_cpu_p99_us="<<cpuTimes[1584]<<" max_us="<<times.back()<<" misses="<<misses<<"/1600 kernel_residual="<<kernelResidual<<" peak="<<peak<<" max_step="<<maxStep<<'\n';
     }
     require(allocations==0 && deletions==0,"callback new/delete observed");
     std::cout<<"CALLBACK callback_new="<<allocations<<" callback_delete="<<deletions<<" (thread-local C++ operators only; not a universal malloc/lock tracer)\n";
+    require(workerSchedulingValid,"IR worker did not start/run with the low priority request/observation");
     require(cpuWithinBudget,"CAB-only p99 exceeds one block period (runner CPU gate)");
     std::cout<<"PASS original CAB integration and runner CPU gate\n";return 0;
 }catch(const std::exception& e){watch=false;std::cerr<<e.what()<<'\n';return 1;}}

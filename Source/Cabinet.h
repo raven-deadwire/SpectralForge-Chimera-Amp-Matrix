@@ -1,7 +1,9 @@
 #pragma once
 #include <juce_dsp/juce_dsp.h>
 #include <atomic>
+#include <limits>
 #include "LifecycleTrace.h"
+#include "CabRealtimeProfile.h"
 #include "ModeledCabConvolution.h"
 
 namespace spectralforge {
@@ -11,21 +13,27 @@ class Cab {
 public:
     struct Kernel {
         std::unique_ptr<juce::dsp::Convolution> convolution;
-        std::unique_ptr<ModeledCabConvolution> modeledStereo;
+        std::unique_ptr<ModeledCabConvolution> modeledConvolution;
         int source{};
         unsigned generation{};
         uint64_t modelKey{};
         bool hasIR{true};
+        static bool supportsPreparedModel(const juce::dsp::ProcessSpec& spec) noexcept {
+            return spec.numChannels>=1 && spec.numChannels<=2 && spec.maximumBlockSize>0 && spec.maximumBlockSize<=512;
+        }
         Kernel(juce::AudioBuffer<float> samples, double rate, const juce::dsp::ProcessSpec& spec,
-               int type, unsigned revision, uint64_t model=0)
+               int type, unsigned revision, uint64_t model=0,
+               std::shared_ptr<const ModeledCabConvolution::Prepared> prepared={})
             : source(type), generation(revision), modelKey(model)
         {
+            SF_CAB_PROFILE_SCOPE(KernelPrepare);
             // These authored responses are already at the processing rate.
-            // Packing the independent stereo streams halves their FFT count
-            // and shares one IR spectrum without changing the response.
-            if(model && spec.numChannels==2 && spec.maximumBlockSize>0 && spec.maximumBlockSize<=128
+            // Mono retains the native real FFT and only its non-negative bins;
+            // packed independent stereo streams share one complex transform.
+            if(model && supportsPreparedModel(spec)
                 && samples.getNumChannels()==1 && rate==spec.sampleRate) {
-                modeledStereo=std::make_unique<ModeledCabConvolution>(samples,int(spec.maximumBlockSize));
+                if(!prepared)prepared=std::make_shared<const ModeledCabConvolution::Prepared>(samples,int(spec.maximumBlockSize),spec.numChannels==1);
+                modeledConvolution=std::make_unique<ModeledCabConvolution>(std::move(prepared));
                 return;
             }
             convolution=std::make_unique<juce::dsp::Convolution>();
@@ -33,15 +41,15 @@ public:
                 juce::dsp::Convolution::Trim::no, model ? juce::dsp::Convolution::Normalise::no : juce::dsp::Convolution::Normalise::yes);
             convolution->prepare(spec); // Wait for this IR before it reaches audio.
         }
-        int getLatency() const noexcept {return modeledStereo ? modeledStereo->getLatency() : convolution->getLatency();}
+        int getLatency() const noexcept {return modeledConvolution ? modeledConvolution->getLatency() : convolution->getLatency();}
         void reset() noexcept
         {
-            if(modeledStereo)modeledStereo->reset();else convolution->reset();
+            if(modeledConvolution)modeledConvolution->reset();else convolution->reset();
         }
         void process(juce::AudioBuffer<float>& buffer)
         {
             if (!hasIR) return;
-            if(modeledStereo) {modeledStereo->process(buffer);return;}
+            if(modeledConvolution) {modeledConvolution->process(buffer);return;}
             juce::dsp::AudioBlock<float> block(buffer);
             juce::dsp::ProcessContextReplacing<float> context(block);
             convolution->process(context);
@@ -68,6 +76,10 @@ private:
     bool bWasRunning{};
     bool preferSecondSwap{};
     juce::SmoothedValue<float> micGain, micBlend, micDelay;
+    double cutRate{};
+    float lastLowCut{}, lastHighCut{};
+    float lastGainDb{std::numeric_limits<float>::quiet_NaN()};
+    bool lastInvert{};
     int fadeRemaining{}, fadeLength{1};
     static void destroyKernel(Kernel* kernel)
     {
@@ -106,6 +118,7 @@ public:
         // positive polarity. Runtime changes retain their 20 ms smoothing.
         micGain.reset(sr,.020);
         micGain.setCurrentAndTargetValue(juce::Decibels::decibelsToGain(gainDb)*(invert ? -1.f : 1.f));
+        lastGainDb=gainDb;lastInvert=invert;
         micBlend.reset(sr,.020); micBlend.setCurrentAndTargetValue(blend);
         micDelay.reset(sr,.020);
         micDelay.setCurrentAndTargetValue(float(sr*.001)*juce::jlimit(0.f,20.f,delayMs));
@@ -115,8 +128,8 @@ public:
         enabled.reset(sr,.020); enabled.setCurrentAndTargetValue(on ? 1.f : 0.f);
         fadeLength=juce::jmax(1,int(sr*.050));
     }
-    void publish(std::unique_ptr<Kernel> kernel) { destroyKernel(pending.exchange(kernel.release())); }
-    void collect() { destroyKernel(retired.exchange(nullptr)); }
+    void publish(std::unique_ptr<Kernel> kernel) { SF_CAB_PROFILE_SCOPE(WorkerPublish); destroyKernel(pending.exchange(kernel.release())); }
+    void collect() { SF_CAB_PROFILE_SCOPE(WorkerCollect); destroyKernel(retired.exchange(nullptr)); }
     void install(std::unique_ptr<Kernel> kernel) // prepareToPlay only
     {
         destroyKernel(active); active=kernel.release();
@@ -133,13 +146,20 @@ public:
     void enable(bool value) { on=value; enabled.setTargetValue(on ? 1.f : 0.f); }
     void setCuts(float low, float high)
     {
-        *hp.state=juce::dsp::IIR::ArrayCoefficients<float>::makeHighPass(sr,juce::jlimit(10.f,float(sr*.44),low));
-        *lp.state=juce::dsp::IIR::ArrayCoefficients<float>::makeLowPass(sr,juce::jlimit(100.f,float(sr*.45),high));
+        SF_CAB_PROFILE_SCOPE(Parameters);
+        low=juce::jlimit(10.f,float(sr*.44),low);
+        high=juce::jlimit(100.f,float(sr*.45),high);
+        if(cutRate!=sr || lastLowCut!=low)
+            *hp.state=juce::dsp::IIR::ArrayCoefficients<float>::makeHighPass(sr,low);
+        if(cutRate!=sr || lastHighCut!=high)
+            *lp.state=juce::dsp::IIR::ArrayCoefficients<float>::makeLowPass(sr,high);
+        cutRate=sr;lastLowCut=low;lastHighCut=high;
     }
     // Audio-thread diagnostic; never queried by the worker.
     int transitioningMicCount() const noexcept {return (fadeRemaining>0 ? 1 : 0)+(micB ? micB->transitioningMicCount() : 0);}
     void process(juce::AudioBuffer<float>& buffer,bool allowKernelSwap=true)
     {
+        SF_CAB_PROFILE_BEGIN(KernelSwap,swapProfile);
         // Model responses are longer than the legacy captures. Serialize A/B
         // crossfades within each rig: six steady paths plus at most three fading
         // paths. Keep every sample of the authored response and the 50 ms fade.
@@ -160,6 +180,7 @@ public:
                     if(serialiseModels)preferSecondSwap=true;
                 }
             }
+        SF_CAB_PROFILE_END(swapProfile);
         // The settled enabled path is the overwhelmingly common case. Avoid
         // copying and blending a dry buffer that cannot contribute; bypass
         // automation still takes the unchanged smoothed path below.
@@ -178,12 +199,12 @@ public:
         bWasRunning=renderB;
         juce::dsp::AudioBlock<float> block(buffer);
         juce::dsp::ProcessContextReplacing<float> context(block);
-        hp.process(context);
+        { SF_CAB_PROFILE_SCOPE(Filters); hp.process(context); }
         if(fadeRemaining>0) alternate.makeCopyOf(buffer,true);
-        if(active) active->process(buffer);
+        if(active) { SF_CAB_PROFILE_SCOPE(ActiveConvolution); active->process(buffer); }
         if(fadeRemaining>0)
         {
-            if(fading) fading->process(alternate);
+            if(fading) { SF_CAB_PROFILE_SCOPE(FadingConvolution); fading->process(alternate); }
             for(int n=0;n<buffer.getNumSamples() && fadeRemaining>0;++n,--fadeRemaining)
             {
                 const float wet=1.f-float(fadeRemaining)/float(fadeLength);
@@ -192,12 +213,16 @@ public:
             }
             if(fadeRemaining==0) { retired.store(fading); fading=nullptr; }
         }
-        lp.process(context);
-        micGain.setTargetValue(juce::Decibels::decibelsToGain(gainDb)*(invert ? -1.f : 1.f));
+        { SF_CAB_PROFILE_SCOPE(Filters); lp.process(context); }
+        SF_CAB_PROFILE_SCOPE(MicPost);
+        if(lastGainDb!=gainDb || lastInvert!=invert) {
+            micGain.setTargetValue(juce::Decibels::decibelsToGain(gainDb)*(invert ? -1.f : 1.f));
+            lastGainDb=gainDb;lastInvert=invert;
+        }
         micBlend.setTargetValue(blend);
         micDelay.setTargetValue(float(sr*.001)*juce::jlimit(0.f,20.f,delayMs));
         const bool directMic=!micGain.isSmoothing() && !micDelay.isSmoothing()
-            && micGain.getCurrentValue()==1.f && micDelay.getCurrentValue()==0.f;
+            && micDelay.getCurrentValue()==0.f;
         if(directMic) {
             // Keep the circular history current even at zero delay, so later
             // delay automation starts from real preceding audio rather than
@@ -214,6 +239,10 @@ public:
                 offset+=count;delayWrite+=count;
                 if(delayWrite==size)delayWrite=0;
             }
+            // History holds the pre-gain mic, exactly as in the fractional
+            // delay path. A settled non-unity gain needs only one vector pass.
+            const float gain=micGain.getCurrentValue();
+            if(gain!=1.f)buffer.applyGain(gain);
             if(micBlend.isSmoothing()) {
                 // Preserve the existing per-sample ramp, including the exact
                 // smoother progression when the second mic is not rendering.
@@ -235,13 +264,15 @@ public:
                 const float gain=micGain.getNextValue(), mix=micBlend.getNextValue(), delay=micDelay.getNextValue();
                 const int size=delayBuffer.getNumSamples();
                 const int whole=int(delay); const float fraction=delay-whole;
-                const int read=(delayWrite-whole+size)%size, previous=(read-1+size)%size;
+                int read=delayWrite-whole;
+                if(read<0)read+=size;
+                const int previous=read==0 ? size-1 : read-1;
                 for(int c=0;c<buffer.getNumChannels();++c) {
                     delayBuffer.setSample(c,delayWrite,buffer.getSample(c,n));
                     const float a=gain*((1.f-fraction)*delayBuffer.getSample(c,read)+fraction*delayBuffer.getSample(c,previous));
                     buffer.setSample(c,n,renderB ? (1.f-mix)*a+mix*second.getSample(c,n) : a);
                 }
-                delayWrite=(delayWrite+1)%size;
+                if(++delayWrite==size)delayWrite=0;
             }
         }
         if(blendDry)for(int n=0;n<buffer.getNumSamples();++n)

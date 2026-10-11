@@ -3,8 +3,8 @@
 
 The default is an offline dry run. Publication requires an explicit manual
 workflow, source-specific authorization, all three verification workflows and a
-recomputed consolidated acceptance gate. The producer retains missing manual and
-unowned checks as BLOCKED; a green build alone cannot publish this release.
+recomputed consolidated acceptance gate and a separate owner-approved beta
+decision. Unverified checks remain BLOCKED in the published strict report.
 """
 from __future__ import annotations
 
@@ -16,9 +16,11 @@ import re
 import subprocess
 import sys
 import tempfile
+import time
 import zipfile
 
 import chimera_version
+import beta_publication
 import check_ir_distribution
 import evaluate_release_gate as gate
 import publish_open_beta as transport
@@ -52,8 +54,18 @@ WORKFLOWS = {
     "cab-panel.yml": ("cab-panel (windows-latest)", "cab-panel (ubuntu-22.04)",
                       "cab-panel (macos-15)"),
 }
+CONTROL_PATHS = frozenset({
+    ".github/workflows/publish-beta13.yml", "Tools/publish_beta13.py",
+    "Tools/test_publish_beta13.py", "Tools/beta_publication.py",
+    "Tools/test_beta_publication.py", "Validation/beta-publication-policy.json",
+    "docs/RELEASE_1_3_PIPELINE.md",
+})
 require = transport.require
 sha256 = transport.sha256
+
+
+class CIPending(RuntimeError):
+    """The exact-source run exists but has not reached a terminal result."""
 
 
 def unique_object(pairs):
@@ -108,12 +120,34 @@ def publication_blockers(policy):
     return blockers
 
 
+def verify_controller_source(head, controller):
+    """Permit publication-only fixes without relabeling tested product binaries."""
+    require(all(re.fullmatch(r"[0-9a-f]{40}", sha or "") for sha in (head, controller)),
+            "Product and publication controller require full source identities")
+    require(chimera_version.revision(ROOT) == controller, "Checked-out publication controller differs")
+    def git(*args):
+        return subprocess.check_output(["git", *args], cwd=ROOT, text=True).strip()
+    subprocess.run(["git", "merge-base", "--is-ancestor", head, controller], cwd=ROOT, check=True)
+    require(not git("status", "--porcelain", "--untracked-files=no"), "Publication controller has local changes")
+    changes = git("diff", "--name-status", "--no-renames", head, controller)
+    for line in changes.splitlines():
+        status, path = line.split("\t", 1)
+        require(status in ("A", "M") and path in CONTROL_PATHS,
+                f"Untested product change in publication controller: {path}")
+        require(git("ls-tree", controller, "--", path).startswith("100644 blob "),
+                f"Unexpected publication controller file mode: {path}")
+    return {"product_source_sha": head, "publication_controller_sha": controller,
+            "controller_changed_paths": sorted(line.split("\t", 1)[1] for line in changes.splitlines())}
+
+
 def verified_run(runs, head, events=("pull_request", "workflow_dispatch")):
     matches = [run for run in runs if run.get("head_sha") == head and run.get("event") in events]
     require(bool(matches), "Exact-source verification run is missing")
     require(all(type(run.get("id")) is int and run["id"] > 0 for run in matches),
             "Malformed verification run identity")
     latest = max(matches, key=lambda run: run["id"])
+    if latest.get("status") in ("queued", "in_progress", "waiting", "pending", "requested"):
+        raise CIPending("Latest exact-source verification run is still running")
     require(latest.get("status") == "completed" and latest.get("conclusion") == "success",
             "Latest exact-source verification run has not passed")
     require(type(latest.get("run_attempt")) is int and latest["run_attempt"] > 0,
@@ -145,14 +179,21 @@ def verified_artifact(artifacts, name, head, run_id):
 
 def verify_ci(api, head):
     runs = {}
+    pending = []
     for workflow, expected in WORKFLOWS.items():
         available = api.pages(f"/actions/workflows/{workflow}/runs?head_sha={head}", "workflow_runs")
-        run = verified_run(available, head)
+        try:
+            run = verified_run(available, head)
+        except CIPending:
+            pending.append(workflow)
+            continue
         require(run.get("repository", {}).get("full_name") == transport.REPO,
                 "Verification repository mismatch")
         jobs = api.pages(f"/actions/runs/{run['id']}/jobs?filter=latest", "jobs")
         verified_jobs(jobs, expected)
         runs[workflow] = run
+    if pending:
+        raise CIPending("Exact-source verification is still running: " + ", ".join(pending))
     build = runs["build.yml"]
     artifacts = api.pages(f"/actions/runs/{build['id']}/artifacts", "artifacts")
     return {
@@ -167,7 +208,24 @@ def ci_identity(ci):
             tuple((ci[name]["id"], ci[name]["digest"]) for name in ("candidate", "gate")))
 
 
-def verify_release_gate_archive(archive, head, profile, run_id, run_attempt, policy=None):
+def wait_for_ci(api, head, seconds, check_current_branch):
+    """Wait only for active runs; terminal failures and missing evidence fail now."""
+    require(type(seconds) is int and 0 <= seconds <= 5400, "Invalid CI wait duration")
+    deadline = time.monotonic() + seconds
+    while True:
+        check_current_branch()
+        try:
+            return verify_ci(api, head)
+        except CIPending:
+            remaining = deadline - time.monotonic()
+            if remaining <= 0:
+                raise
+            print(f"Waiting for exact-source CI at {head[:10]}; no release has been created", flush=True)
+            time.sleep(min(30, remaining))
+
+
+def verify_release_gate_archive(archive, head, profile, run_id, run_attempt, policy=None,
+                                publication_policy=None):
     """Consume the consolidated format; seeded or summary-only gates are rejected."""
     require(str(run_id).isdigit() and int(run_id) > 0 and str(run_attempt).isdigit() and int(run_attempt) > 0,
             "Gate requires positive run and attempt identities")
@@ -220,13 +278,17 @@ def verify_release_gate_archive(archive, head, profile, run_id, run_attempt, pol
             for field in ("verdict", "ready", "counts", "hard_gates", "checks", "stages", "blockers"):
                 require(json.dumps(verdict.get(field), sort_keys=True) == json.dumps(computed[field], sort_keys=True),
                         "Release-gate summary differs from its underlying evidence")
-            require(computed["verdict"] == "PASS" and computed["ready"] is True
-                    and computed["counts"]["checks"]["blocked"] == 0
-                    and computed["hard_gates"]["blocked"] == 0 and not computed["blockers"],
-                    "Consolidated release-gate verdict is not PASS")
+            if publication_policy is None:
+                require(computed["verdict"] == "PASS" and computed["ready"] is True
+                        and computed["counts"]["checks"]["blocked"] == 0
+                        and computed["hard_gates"]["blocked"] == 0 and not computed["blockers"],
+                        "Consolidated release-gate verdict is not PASS")
+            else:
+                decision = beta_publication.evaluate(publication_policy, policy, checks, verdict,
+                                                     head, run_id, run_attempt)
     except (KeyError, TypeError, ValueError, AttributeError, zipfile.BadZipFile) as exc:
         raise RuntimeError("Malformed consolidated release-gate archive") from exc
-    return verdict
+    return verdict if publication_policy is None else (verdict, decision)
 
 
 def prepare_assets(candidate, head, run_id):
@@ -332,30 +394,34 @@ def publish(args, head, policy):
             "Publication is blocked by release preparation scope: " + ", ".join(publication_blockers(policy)))
     require(not any((args.candidate_dir, args.candidate_zip, args.artifact_json, args.gate_archive,
                      args.run_id, args.run_attempt)), "Live publication cannot consume local override evidence")
+    controller = os.environ.get("GITHUB_SHA")
     require(args.source_sha == head and args.confirm == "publish-" + TAG
             and os.environ.get("GITHUB_EVENT_NAME") == "workflow_dispatch"
             and os.environ.get("GITHUB_REPOSITORY") == transport.REPO
             and os.environ.get("GITHUB_REF") == "refs/heads/" + BRANCH
-            and os.environ.get("GITHUB_SHA") == head,
+            and re.fullmatch(r"[0-9a-f]{40}", controller or ""),
             "Publication requires the manually confirmed 1.3 release branch and exact source")
-    require(chimera_version.revision(ROOT) == head, "Checked-out source differs from accepted source")
-    subprocess.run(["git", "diff", "--exit-code"], cwd=ROOT, check=True)
+    controller_proof = verify_controller_source(head, controller)
+    publication_policy = read_json(ROOT / "Validation/beta-publication-policy.json")
+    require(publication_policy.get("approved_product_source_sha") == head,
+            "Product source differs from owner-approved beta publication scope")
     api = transport.GitHub()
     invocation = api.json(f"/actions/runs/{int(os.environ['GITHUB_RUN_ID'])}")
-    require(invocation.get("head_sha") == head and invocation.get("head_branch") == BRANCH
+    require(invocation.get("head_sha") == controller and invocation.get("head_branch") == BRANCH
             and invocation.get("event") == "workflow_dispatch", "Publication workflow identity mismatch")
     def check_current_branch():
-        require(api.json("/git/ref/heads/" + BRANCH)["object"]["sha"] == head,
-                "A newer release source supersedes this candidate")
+        require(api.json("/git/ref/heads/" + BRANCH)["object"]["sha"] == controller,
+                "A newer publication controller supersedes this invocation")
     check_current_branch()
-    ci = verify_ci(api, head)
+    ci = wait_for_ci(api, head, args.wait_ci_seconds, check_current_branch)
     run = ci["runs"]["build.yml"]
     with tempfile.TemporaryDirectory(prefix="chimera-beta13-") as temporary:
         working = Path(temporary)
         gate_archive = working / "release-gate.zip"
         api.download(f"/actions/artifacts/{ci['gate']['id']}/zip", gate_archive)
         check_archive(gate_archive, ci["gate"])
-        verify_release_gate_archive(gate_archive, head, PROFILE, run["id"], run["run_attempt"], policy)
+        verdict, decision = verify_release_gate_archive(gate_archive, head, PROFILE, run["id"],
+                                                       run["run_attempt"], policy, publication_policy)
         candidate_archive = working / "candidate.zip"
         api.download(f"/actions/artifacts/{ci['candidate']['id']}/zip", candidate_archive)
         configure_transport(head, ci["candidate"])
@@ -363,13 +429,35 @@ def publish(args, head, policy):
         candidate.mkdir()
         transport.extract_candidate(candidate_archive, candidate)
         notes, assets = prepare_assets(candidate, head, run["id"])
+        decision.update(controller_proof)
+        decision["ci"] = {name: {key: verified[key] for key in ("id", "run_attempt", "head_sha")}
+                          for name, verified in ci["runs"].items()}
+        decision["artifacts"] = {name: {key: ci[name][key] for key in ("id", "name", "digest", "size_in_bytes")}
+                                 for name in ("candidate", "gate")}
+        for name, value in (("release-gate.json", verdict), ("beta-publication-decision.json", decision)):
+            path = working / name
+            path.write_text(json.dumps(value, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+            assets[name] = path
+        assets["release-acceptance-evidence.zip"] = gate_archive
+        disclosure = working / "BETA_VALIDATION_SCOPE.md"
+        disclosure.write_text(beta_publication.render_markdown(decision), encoding="utf-8")
+        assets[disclosure.name] = disclosure
         notes += (f"\n\nBuild: [`{head[:10]}`](https://github.com/{transport.REPO}/commit/{head})"
-                  f" · [Verified CI](https://github.com/{transport.REPO}/actions/runs/{run['id']}).")
+                  f" · [Verified CI](https://github.com/{transport.REPO}/actions/runs/{run['id']})."
+                  "\n\nBeta validation scope: published with owner acceptance after all required native CI, "
+                  "packaging and 21 connected validation checks passed. The unchanged full acceptance "
+                  "inventory remains **BLOCKED: 107 checks are unexecuted**, including 42 strict hard gates. "
+                  "This is not a claim of complete reference, listening, DAW or target-hardware validation. "
+                  "The attached `beta-publication-decision.json` lists every gap; `release-gate.json` "
+                  "and `release-acceptance-evidence.zip` preserve the complete strict result and evidence.")
         # Recheck after downloads, immediately before the first mutating request.
         check_current_branch()
         require(ci_identity(verify_ci(api, head)) == ci_identity(ci),
                 "Verification runs or artifacts changed during preparation")
         require(not publication_blockers(release_policy(head)), "Release scope changed during preparation")
+        require(verify_controller_source(head, controller) == controller_proof
+                and read_json(ROOT / "Validation/beta-publication-policy.json") == publication_policy,
+                "Publication controller or beta acceptance scope changed during preparation")
         release = transport.publish(api, notes, assets)
         print(f"Published and publicly verified: {release['html_url']}")
         return release
@@ -382,6 +470,8 @@ def main(argv=None):
     mode.add_argument("--publish", action="store_true", help="requires separately authorized manual workflow")
     parser.add_argument("--source-sha")
     parser.add_argument("--confirm")
+    parser.add_argument("--wait-ci-seconds", type=int, default=0,
+                        help="live publication only: wait up to 5400 seconds for running CI")
     inputs = parser.add_mutually_exclusive_group()
     inputs.add_argument("--candidate-dir", type=Path)
     inputs.add_argument("--candidate-zip", type=Path)
@@ -390,6 +480,7 @@ def main(argv=None):
     parser.add_argument("--run-id", type=int)
     parser.add_argument("--run-attempt", type=int)
     args = parser.parse_args(argv)
+    require(args.publish or args.wait_ci_seconds == 0, "CI waiting requires live publication mode")
     head = args.source_sha or os.environ.get("GITHUB_SHA") or chimera_version.revision(ROOT)
     policy = release_policy(head)
     return publish(args, head, policy) if args.publish else dry_run(args, head, policy)

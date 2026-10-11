@@ -4,6 +4,7 @@
 #include <span>
 
 namespace spectralforge::cabCamera {
+inline constexpr float depthProjection=.16f;
 // A complete projected head + cabinet stack, in metres. Geometry within a rig
 // always uses one scale. Focus framing does not change any equipment dimension.
 struct Envelope {float width{},height{};};

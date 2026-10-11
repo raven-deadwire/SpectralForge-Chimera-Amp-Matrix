@@ -1,10 +1,10 @@
-# SpectralForge Chimera — Open Beta 1.3 preparation
+# SpectralForge Chimera — Open Beta 1.3.1
 
 **SpectralForge Chimera** is a guitar and bass amp & effects suite built around a flexible multi-amp architecture.
 
-**[Latest published build: Open Beta 1.2 — Windows / macOS / Linux](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/releases/tag/v1.2.0-beta.1)** · **[1.3 manual · EN / DE / KR](docs/MANUAL.html)** · [Published online manual](https://raven-deadwire.github.io/RavenForge-Luthier-Intelligence/manual/chimera.html)
+**[Published builds — Windows / macOS / Linux](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/releases)** · **[1.3.1 manual · EN / DE / KR](docs/MANUAL.html)** · [Published online manual](https://raven-deadwire.github.io/RavenForge-Luthier-Intelligence/manual/chimera.html)
 
-This branch prepares `1.3.0-beta.1`, with numeric product version `1.3.0`. It contains **25 active amp heads, 39 PRE models and 21 POST models — 85 models in those three sections — plus 48 factory and signature presets**. Náströnd and Niflheimr each provide five Original channels. The expanded CAB section adds 14 speaker designs, 20 microphones, three tweeters and nine explicit enclosure layouts. The download above remains the published 1.2 build while 1.3 completes release validation. Existing native reference limitations remain documented in the [calibration report](docs/NATIVE_NAM_CALIBRATION.md). The offline EN/DE/KO manual is available under SETTINGS → Manual. Windows publisher signing and macOS Developer ID signing/notarization remain pending.
+The 1.3.1 update uses package version `1.3.1-beta.1` and numeric product version `1.3.1`. Direct head controls, revised model-specific knobs, Signal Path navigation and two graphical EQ stages extend the published 1.3.0 feature set. It contains **25 active amp heads, 39 PRE models and 21 POST models — 85 models in those three sections — plus 48 factory and signature presets**. Náströnd and Niflheimr each provide five Original channels. The expanded CAB section adds 14 speaker designs, 20 microphones, three tweeters and nine explicit enclosure layouts. The releases page lists available downloads and their validation records; the published 1.3.0 tag and packages remain unchanged. Product-wide manual acceptance remains incomplete; see the [release scope](docs/OPEN_BETA_RELEASE_NOTES.md). Existing native reference limitations remain documented in the [calibration report](docs/NATIVE_NAM_CALIBRATION.md). The offline EN/DE/KO manual is available under SETTINGS → Manual. Windows publisher signing and macOS Developer ID signing/notarization remain pending.
 
 It works as a conventional single-amp simulator in **Classic Mode**, blends two complete amp rigs or splits low/high in **Dual Mode**, or splits the instrument signal into multiple frequency bands in **Matrix Mode**, blending a compressed LOW DI with a selectable head/cab beneath independent MID/HIGH rigs.
 
@@ -19,10 +19,14 @@ With integrated **Pre FX, Post FX, amp models, cabinet/IR processing, and flexib
 **RavenForge Luthier Intelligence**
 *Forge your signal. Build your amp.*
 
-## Prepared Open Beta 1.3 features
+## Open Beta 1.3.1 features
 
-Implemented signal path: **input/gate/transpose -> PRE pedalboard -> rigs/cabinets -> merge -> POST rack -> doubler/output**. The chromatic tuner taps the input before the gate and transpose; optional auto-mute silences the output while tuning.
+Implemented signal path: **input → transpose / PRE pedalboard → rigs/cabinets → merge → Tone EQ → POST rack → doubler/metronome → Final EQ → output**. The gate can operate before transpose or after the rig merge, before Tone EQ. The chromatic tuner taps the input before the gate and transpose; optional auto-mute silences the output while tuning.
 
+- Select a head in Classic, Dual or Matrix and open its enlarged front panel. Niflheimr has 14 knobs and five channels; Brit Edge has six knobs and five input paths. Direct control layouts cover all 26 catalog heads, including the retired Ironball reference; the selectable amp inventory remains 25. DETAILS opens the complete existing control panel.
+- Model-specific knobs follow the reference hardware’s shape, grip, cap and pointer, with distinct Original designs for Náströnd and Niflheimr. Larger labels and revised knob spacing improve legibility. Numeric values appear while adjusting or entering a value, keeping the idle head face clear.
+- Signal Path shows the active Classic, Dual or Matrix routing. Select a stage to open its controls; PATH + opens the expanded routing view. Selecting a stage leaves the sound settings intact.
+- Tone EQ and Final EQ each provide 12 adjustable bands, seven filter types, a response curve and input/output spectrum display. Tone EQ shapes the merged rigs before POST; Final EQ shapes the result after POST and stereo width. Both start bypassed.
 - Twenty-five active amplifier models with model-specific controls, channels/input paths and 1x/2x/4x/8x oversampling (4x default). Náströnd retains 13 controls per channel; Niflheimr provides 14 controls and five bass voicings.
 - Matrix LOW: one-knob VCA-style COMP, Level, Band Tone and DI/AMP blend. The compact view prioritizes Band Tone, LOW DI COMP and DI/AMP; ALL exposes the full amplifier controls. Classic/Dual settings are preserved. LOW receives the clean tap before Fuzz/Boost/Overdrive. Its DI and selected amp/cab branch have matching algorithmic delay. MID/HIGH retain Drive, Level and Band Tone. Classic/Dual Blend retain full-range EQ; Dual Crossover uses two Band Tone controls.
 - PRE: five freely arranged slots, 39 models grouped into exclusive categories, immediate selection, duplicate/reorder, and model-specific parameter banks. Pedal reference names are small captions; four knobs use 2×2 and five knobs use 3+2 layouts. Older sessions retain their internal compatibility processing until the new board is edited. POST: Bus Compressor, Preamp, EQ, Modulation, Delay and Reverb in six rows with ALL detail panels; compressor/preamp/EQ choices open directly without an intermediate category.
@@ -60,8 +64,12 @@ own front-facing design; Crimson 12 retains its red finish. IR LOADER shows
 independent A/B capture artwork. Matrix LOW blends DI with AMP+CAB, separately
 from the cabinet's Mic A/B blend.
 
-The next interface update is planned to add direct knob adjustment inside the
-amp-head artwork. Version 1.3 uses the existing amplifier control panels.
+The enlarged head is a working control surface. Drag a knob, hold Shift for fine
+adjustment, or double-click / press Enter to type a value. Switch channels using
+the named buttons and use DETAILS for the full controls. Head handles, top corners
+and enclosure depth are framed together, with controls sized for the faceplate.
+Hardware references guide the visual design; illustrations are not product photos
+and do not establish sonic equivalence.
 
 IR LIBRARY starts with **two factory IRs distributed under CC BY 4.0**, plus
 the files you import with **OPEN IR** or an extracted folder with **ADD FOLDER**.
@@ -80,7 +88,7 @@ remain part of release validation. See the [complete recipe overview](docs/FACTO
 See [installation instructions](docs/INSTALLATION.md)
 and [graphics/DSP update details](docs/GRAPHICS_DSP_UPDATE.md).
 
-Open Beta 1.3 is in preparation. Publication requires its own three-platform builds, package checks and release acceptance evidence. Windows shutdown changes address a reproduced JUCE VBlank failure loop and release shared image/IR resources earlier. The maintainer’s October 4 acceptance applied to 1.1.1; synthetic voicing measurements do not establish new recorded-DI listening acceptance. Existing sessions retain saved values but may sound different with revised native DSP and the modeled enclosure change described above. See [1.3 release validation and known limits](docs/OPEN_BETA_RELEASE_NOTES.md) and [shutdown diagnostics](docs/STUDIO_ONE_TEARDOWN.md). Hardware equivalence is not claimed. **Transpose latency remains about 43–46 ms, and low-B playing at -2 semitones can smear note body and attack; further pitch-engine improvements are deferred.** Windows signing is prepared in `Tools/Sign-WindowsArtifact.ps1`
+Open Beta 1.3.1 publication requires its own three-platform product builds, native head/Signal Path/EQ checks, CAB checks, package checks and installer evidence. The strict product validation inventory still includes unexecuted checks; the separate beta decision and remaining gaps are disclosed in the [1.3.1 publication pipeline](docs/RELEASE_1_3_1_PIPELINE.md). Actual instrument listening and Studio One operation have not been accepted for this version. Windows shutdown changes address a reproduced JUCE VBlank failure loop and release shared image/IR resources earlier. The maintainer’s October 4 acceptance applied to 1.1.1; synthetic voicing measurements do not establish new recorded-DI listening acceptance. Existing sessions retain saved values but may sound different with revised native DSP and the modeled enclosure change described above. See [1.3.1 release validation and known limits](docs/OPEN_BETA_RELEASE_NOTES.md) and [shutdown diagnostics](docs/STUDIO_ONE_TEARDOWN.md). Hardware equivalence is not claimed. **Transpose latency remains about 43–46 ms, and low-B playing at -2 semitones can smear note body and attack; further pitch-engine improvements are deferred.** Windows signing is prepared in `Tools/Sign-WindowsArtifact.ps1`
 and `Tools/Build-WindowsInstaller.ps1 -Sign`; a CA-validated publisher identity is
 still required. See `docs/WINDOWS_SIGNING.md` for the concrete signing path and the
 difference between publisher identity and SmartScreen reputation.
@@ -96,8 +104,9 @@ uses the standard-folder Setup installer. See [MSIX scope and signing](docs/WIND
 
 - [Open the detailed EN / DE / KR manual](https://raven-deadwire.github.io/RavenForge-Luthier-Intelligence/manual/chimera.html) — routing, model-family comparisons, illustrated PRE/AMP/POST model cards, IR use, presets, workflows, troubleshooting and support.
 - [Platform installation](docs/INSTALLATION.md) — Windows Setup, macOS universal PKG (app/VST3/AU), Linux x86_64 DEB/TAR.
-- [Prepared Beta 1.3 release notes](docs/OPEN_BETA_RELEASE_NOTES.md), [amp controls](docs/AMP_NATIVE_DSP.md), [factory and Deadwire preset guide](docs/PRESETS.md).
-- [Maintainer release checklist](docs/RELEASE_CHECKLIST.md). The `prepare-release.yml` workflow produces draft-ready artifacts and a hash-based update manifest; it never publishes externally.
+- [Beta 1.3.1 release notes](docs/OPEN_BETA_RELEASE_NOTES.md), [amp controls](docs/AMP_NATIVE_DSP.md), [factory and Deadwire preset guide](docs/PRESETS.md).
+- [Maintainer release checklist](docs/RELEASE_CHECKLIST.md) and [1.3.1 publication pipeline](docs/RELEASE_1_3_1_PIPELINE.md). Publication uses newly built packages and a hash-based update manifest from the verified source.
+- [Archived Beta 1.3.0 release notes](docs/OPEN_BETA_1_3_RELEASE_NOTES.md).
 
 SETTINGS → Manual / Bug report / Updates provides an embedded offline manual and user-reviewed bug reports. Hosted VST3/AU opens the releases page without an HTTP updater; Standalone retains beta update checks. Downloads are verified against same-repository release metadata, byte size and SHA256; users save/close their host before installation. Publisher signing and macOS notarization remain pending. The published prerelease includes `update-beta.json` for beta-channel discovery. Windows Setup supports separate app and VST3 paths. This free beta may become paid; free support may end after beta.
 
