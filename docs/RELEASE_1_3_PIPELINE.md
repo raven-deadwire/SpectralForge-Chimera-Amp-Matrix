@@ -7,18 +7,26 @@ test build and must not be renamed or promoted as a 1.3 binary.
 
 ## Authorization and current state
 
-The owner explicitly requested fixing the cabinet issues, publishing version
-1.3 and updating the RavenForge homepage after publication on 2026-10-10 KST.
-The current `release_scope` records `publication_authorized=true` and
-`release_approved=false`. Publication authorization does not certify
-unexecuted instrument-DI, commercial DAW or historical acceptance checks.
+The owner requested the CAB fixes, version 1.3 publication and the full 1.3
+product description on the RavenForge homepage. On 2026-10-11 KST, the owner
+reported downloading and checking the test file and then explicitly instructed
+approval. The current `release_scope` therefore records both
+`publication_authorized=true` and `release_approved=true`. No further general
+approval or tested-file identification is required from the owner.
+
+The decision covers the prepared candidate `f56dc9d65c83a5d8dc29710ed29242032d34e235`
+and its requested IR-depth/mounted-horn fixes. That source identifies the
+approval scope; the personally tested file was not identified. Owner acceptance
+is recorded separately from individual measurement reports. Required checks,
+source binding, workflow results, waivers and the existing transpose deferral
+are unchanged; publication still consumes the actual consolidated verdict.
 
 The current cabinet follow-up preserves native grille apertures during
 minification, fits the IR equipment stage to the selected captures with a
 shared physical scale, and labels generic cabinet/microphone illustrations as
 example images. Known metadata retains its documented configuration and model;
 examples never change the IR or audio parameters. Exact-source CI must verify
-these changes before the candidate can be accepted.
+these changes before the approved candidate can be published.
 
 `publish-beta13.yml` has only `workflow_dispatch`. Its default is a read-only
 review. The publication job requires the explicit publication option, the full
