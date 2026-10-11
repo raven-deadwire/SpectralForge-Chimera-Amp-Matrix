@@ -1,5 +1,6 @@
 #include "PluginEditor.h"
 #include "CabRoom.h"
+#include "CabHeadAppearanceTests.h"
 #include "NativeMessageLoop.h"
 #include <cmath>
 #include <iostream>
@@ -28,6 +29,25 @@ juce::Point<float> knobCentre(juce::Slider& slider){return slider.getLookAndFeel
 void releaseDrag(juce::Slider& slider){const auto start=knobCentre(slider);slider.mouseUp(mouse(slider,start+juce::Point<float>(0,-25),start,true));}
 void drag(juce::Slider& slider,bool finish=true){const auto start=knobCentre(slider),end=start+juce::Point<float>(0,-25);slider.mouseDown(mouse(slider,start,start,false));slider.mouseDrag(mouse(slider,end,start,true));if(finish)releaseDrag(slider);}
 void screenshot(juce::Component& c,const juce::File& directory,const juce::String& name){auto stream=directory.getChildFile(name+".png").createOutputStream();check(stream!=nullptr,"Capture file");stream->setPosition(0);stream->truncate();juce::PNGImageFormat png;check(png.writeImageToStream(c.createComponentSnapshot(c.getLocalBounds()),*stream),"Capture PNG");}
+void captureHeadAppearance(const juce::File& directory,bool nativePeer) {
+    // Render the production component used by both the room and focused CAB.
+    // Keep these isolated renderer captures separate from workspace captures.
+    cabHead::View head;
+    head.setSize(240,int(std::ceil(240.f*cabHead::projectedHeight(0)/cabPhysical::head(0).width)));
+    if(nativePeer) {
+        head.addToDesktop(juce::ComponentPeer::windowIsTemporary);
+        check(head.getPeer()!=nullptr,"Common head renderer did not create a native component peer");
+    }
+    head.setVisible(true);
+    for(int model=0;model<ampModelCount;++model) {
+        head.setModel(model);
+        for(const int width:{240,1120}) {
+            head.setSize(width,int(std::ceil(float(width)*cabHead::projectedHeight(model)/cabPhysical::head(model).width)));
+            if(nativePeer)settle(10);
+            screenshot(head,directory,"renderer-model"+juce::String(model)+"-"+juce::String(width));
+        }
+    }
+}
 AmpHeadWorkspace* openWorkspace() {
     auto& desktop=juce::Desktop::getInstance();
     for(int i=0;i<desktop.getNumComponents();++i)if(auto* w=find<AmpHeadWorkspace>(*desktop.getComponent(i),"ampHeadWorkspace"))return w;
@@ -252,6 +272,15 @@ void checkAllModels(ChimeraProcessor& p,Host& all,const juce::File& directory) {
 }
 int main(int argc,char** argv){try {
     juce::ScopedJuceInitialiser_GUI init;
+    chimeraTest::checkHeadAppearance();
+    std::cout<<"HEAD APPEARANCE: "<<ampModelCount<<" models; 3 sizes; source hardware, complete mounts, uniform aspect, clean material and unchanged fascia\n";
+    const bool headsOnly=argc>1 && juce::String(argv[1])=="--software-heads";
+    if(headsOnly) {
+        const auto folder=juce::File::getCurrentWorkingDirectory().getChildFile("head-software-preview");folder.createDirectory();
+        captureHeadAppearance(folder,false);
+        std::cout<<"SOFTWARE HEAD RENDERERS ONLY: "<<ampModelCount<<" models; 2 sizes; no native peer or interaction validation\n";
+        return 0;
+    }
     const bool layoutsOnly=argc>1 && juce::String(argv[1])=="--software-layouts";
     if(layoutsOnly || (argc>1 && juce::String(argv[1])=="--software-preview")) {
         const auto folder=juce::File::getCurrentWorkingDirectory().getChildFile("head-software-preview");if(!layoutsOnly)folder.createDirectory();
@@ -291,6 +320,7 @@ int main(int argc,char** argv){try {
     }
     check(juce::Desktop::getInstance().getDisplays().getPrimaryDisplay()!=nullptr,"Native display required");
     const auto directory=juce::File::getCurrentWorkingDirectory().getChildFile(argc>1?argv[1]:"amp-head-snapshots");directory.createDirectory();
+    captureHeadAppearance(directory,true);
     auto p=std::make_unique<ChimeraProcessor>();
     Host all;for(auto* parameter:p->getParameters())parameter->addListener(&all);
     int cases=0;

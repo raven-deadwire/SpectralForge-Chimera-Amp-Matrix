@@ -3,6 +3,7 @@
 #include "CabScene.h"
 #include "CabRoom.h"
 #include "CabLowBlendAudioTests.h"
+#include "CabHeadAppearanceTests.h"
 #include "PluginEditor.h"
 #include <atomic>
 #include <iomanip>
@@ -220,6 +221,7 @@ inline void physicalGeometry(CabScene& scene) {
 }
 
 inline void headSupportGeometry() {
+    chimeraTest::checkHeadAppearance();
     const juce::SharedResourcePointer<spectralforge::cabHead::Bank> artwork;
     for(const auto& face:artwork->faces)
         require(face.front.isValid() && face.material.isValid() && std::isfinite(face.aspect) && face.aspect>0.f,
@@ -252,9 +254,12 @@ inline void headSupportGeometry() {
                 && std::isfinite(geometry.supportY) && std::abs(geometry.supportY-supportY)<.01f,
                 "Amplifier front or foot plane does not preserve its physical envelope");
             const float footRise=geometry.supportY-geometry.front.getBottom();
+            // geometry.handle is the unchanged physical-height allowance, not
+            // the photographic sprite. The actual hardware keeps source aspect
+            // and sits within the projected roof, including Cinder's red strap.
             require(std::abs(geometry.front.getHeight()+footRise+geometry.handle.getHeight()
                     -physical.height*pixelsPerMetre)<.01f,
-                "Amplifier body, feet and handle exceed or underfill its published height budget");
+                "Amplifier body, feet and reserved height exceed or underfill its published height budget");
             for(const auto& point:geometry.roof)
                 require(std::isfinite(point.x) && std::isfinite(point.y) && bounds.expanded(.01f).contains(point),
                     "Perspective amplifier roof escapes its finite head bounds");
@@ -269,10 +274,12 @@ inline void headSupportGeometry() {
                     && std::abs(foot.getBottom()-geometry.supportY)<.01f,
                     "Amplifier foot floats above or penetrates its common support plane");
             require(!geometry.feet[0].intersects(geometry.feet[1]),"Amplifier feet overlap");
+            const auto actualHandle=spectralforge::cabHead::handlePlacement(bounds,model,
+                artwork->faces[static_cast<size_t>(model)]);
             if(spectralforge::cabHead::hasTopHandle(model))
-                require(!geometry.handle.isEmpty() && bounds.expanded(.01f).contains(geometry.handle),
+                require(!actualHandle.isEmpty() && bounds.expanded(.01f).contains(actualHandle),
                     "Amplifier carrying handle escapes its physical height envelope");
-            else require(geometry.handle.isEmpty(),"A compact rack/desktop amplifier acquired an invented roof handle");
+            else require(actualHandle.isEmpty(),"A compact rack/desktop amplifier acquired an invented roof handle");
             ++cases;
         }
         const auto compact=spectralforge::cabHead::physicalBoundsAboveCabinet(cabinet,pixelsPerMetre,
