@@ -124,6 +124,9 @@ ChimeraEditor::ChimeraEditor(ChimeraProcessor& p) : AudioProcessorEditor(&p),pro
 {
     setLookAndFeel(&look); canvas.setComponentID("surface"); addAndMakeVisible(canvas);
     auto add=[this](juce::Component& component){canvas.addAndMakeVisible(component);};
+    signalPath=std::make_unique<SignalPathView>(processor,true);add(*signalPath);
+    signalPath->navigate=[this](const auto& node){navigateSignalPath(node);};
+    signalPath->expand=[this]{openSignalPath();};
     add(rigControls);
     rigControls.setComponentID("cabRigControls");
     rigControls.setTooltip("Switch between the shared cabinet room and amplifier controls. The sound is unchanged.");
@@ -159,7 +162,7 @@ ChimeraEditor::ChimeraEditor(ChimeraProcessor& p) : AudioProcessorEditor(&p),pro
     preOrder.setTooltip("TOUCH lets the envelope follow your picking before compression. SUSTAIN compresses first for a steadier sweep. Fuzz, boost and drive remain after the shared clean tap.");
     gainOrder.setComponentID("gainorder");gainOrder.setName("Gain pedal order");gainOrder.addItemList({"FUZZ > BOOST > DRIVE","FUZZ > DRIVE > BOOST"},1);add(gainOrder);gainOrderAttachment=std::make_unique<CA>(p.parameters(),"gainorder",gainOrder);gainOrder.onChange=[this]{updateModeUI();};
     gainOrder.setTooltip("Boost before drive adds drive saturation. Boost after drive raises its output; a saturated amp may still add distortion instead of loudness. Fuzz stays first; Matrix LOW DI is unaffected.");
-    rigsTab.onClick=[this]{page=0;updateModeUI();};preTab.onClick=[this]{page=1;updateModeUI();};postTab.onClick=[this]{page=2;updateModeUI();};
+    rigsTab.onClick=[this]{page=0;pathSelections[size_t(juce::jlimit(0,2,lastMode))]="rigs";updateModeUI();};preTab.onClick=[this]{page=1;pathSelections[size_t(juce::jlimit(0,2,lastMode))]="pre";updateModeUI();};postTab.onClick=[this]{page=2;pathSelections[size_t(juce::jlimit(0,2,lastMode))]="post";updateModeUI();};
     const std::array<const char*,11> effectHeaders{"OVERDRIVE","DELAY","REVERB","COMPRESSOR","ENVELOPE","FUZZ","BOOST","BUS COMP","PREAMP","EQ","MODULATION"};
     const std::array<const char*,11> effectScopes{"05 / TIGHT GAIN","05 / SPACE","06 / SPACE","01 / DYNAMICS","02 / FILTER","03 / TEXTURE","04 / SHAPING","01 / DYNAMICS","02 / COLOUR","03 / TONE","04 / MODULATION"};
     const std::array<const char*,11> effectButtons{"preon","delayon","reverbon","precompon","filteron","fuzzon","booston","buscompon","preampon","eqon","choruson"};
@@ -317,6 +320,51 @@ void ChimeraEditor::loadIR(int lane)
     options.dialogTitle="SpectralForge Chimera / Cabinet library / Rig "+juce::String(lane+1);options.dialogBackgroundColour=background;
     options.useNativeTitleBar=true;options.escapeKeyTriggersCloseButton=true;options.resizable=false;options.componentToCentreAround=this;trackDialog(options.launchAsync());
 }
+void ChimeraEditor::openSignalPath()
+{
+    if(pathDialog){pathDialog->toFront(true);return;}
+    auto* graph=new SignalPathView(processor,false);
+    graph->select(pathSelections[size_t(juce::jlimit(0,2,lastMode))]);
+    const juce::Component::SafePointer<ChimeraEditor> safe(this);
+    graph->selection=[safe]{return safe?safe->pathSelections[size_t(juce::jlimit(0,2,int(safe->processor.parameters().getRawParameterValue("mode")->load())))]:juce::String{};};
+    graph->navigate=[safe,graph](const auto& node){if(safe){safe->navigateSignalPath(node);graph->select(safe->pathSelections[size_t(juce::jlimit(0,2,safe->lastMode))]);}};
+    pathDialog=new SignalPathWindow(graph,this);trackDialog(pathDialog);
+
+}
+void ChimeraEditor::navigateSignalPath(const spectralforge::signalPath::Node& node)
+{
+    using Target=spectralforge::signalPath::Target;
+    const int modeNow=juce::jlimit(0,2,int(processor.parameters().getRawParameterValue("mode")->load()));
+    // A stale graph event must never select a lane from another routing mode.
+    if(node.lane>=modeNow+1)return;
+    if(node.id!="pre" && node.id!="post" && node.id!="rigs" && !spectralforge::signalPath::read(processor).find(node.id))return;
+    updateModeUI(); // Synchronize restored mode before applying presentation focus.
+    pathSelections[size_t(modeNow)]=node.id;
+    switch(node.target){
+        case Target::pre:page=1;break;
+        case Target::post:page=2;break;
+        case Target::amp:case Target::low:page=0;showRigControls=true;break;
+        case Target::cab:page=0;break;
+        case Target::rigs:page=0;break;
+        default:break;
+    }
+    updateModeUI();signalPath->select(node.id);
+    const auto focus=[](juce::Component& c){if(c.isShowing()&&c.getWantsKeyboardFocus())c.grabKeyboardFocus();};
+    switch(node.target){
+        case Target::pre:boardPanel.navigateOwner(node.id.startsWith("pre.owner")?node.id.substring(9).getIntValue():-1);break;
+        case Target::amp:if(node.lane>=0){focus(lanes[size_t(node.lane)].amp);if(auto* button=dynamic_cast<juce::TextButton*>(lanes[size_t(node.lane)].nativePanel->findChildWithID("ampExpand"+juce::String(node.lane+1))))button->onClick();}break;
+        case Target::cab:if(node.lane>=0)openCabWorkspace(node.lane,true);break;
+        case Target::gate:focus(globalSliders[1]);break;
+        case Target::transpose:focus(globalSliders[4]);break;
+        case Target::input:focus(globalSliders[0]);break;
+        case Target::output:focus(globalSliders[6]);break;
+        case Target::tuner:{juce::DialogWindow::LaunchOptions options;options.content.setOwned(new SignalPathTunerPanel(processor));options.dialogTitle="Chimera / Tuner";options.dialogBackgroundColour=background;options.useNativeTitleBar=true;options.escapeKeyTriggersCloseButton=true;options.resizable=false;options.componentToCentreAround=this;trackDialog(options.launchAsync());break;}
+        case Target::utilities:focus(doublerTime);break;
+        case Target::low:if(auto* button=dynamic_cast<juce::TextButton*>(lanes[0].nativePanel->findChildWithID("ampExpand1")))button->onClick();break;
+        case Target::post:if(node.section>=0&&node.section<3){focus(*postPanels[size_t(node.section)]);}else if(node.section>=3){focus(effects[size_t(rackOrder[size_t(node.section)])].model);}break;
+        default:break;
+    }
+}
 void ChimeraEditor::openCabWorkspace(int lane,bool focusRequested)
 {
     juce::DialogWindow::LaunchOptions options;
@@ -369,6 +417,7 @@ void ChimeraEditor::timerCallback()
     if(++presetCheckTick%5==0 && !presetValues.empty()) {const auto& params=processor.getParameters();bool changed=presetValues.size()!=size_t(params.size());for(int i=0;!changed && i<params.size();++i)changed=std::abs(params[i]->getValue()-presetValues[(size_t)i])>1e-6f;if(changed)markPresetCustom();}
     const int current=(int)processor.parameters().getRawParameterValue("mode")->load();
     if(lastBoardEnabled!=(processor.parameters().getRawParameterValue("boardEnabled")->load()>.5f) || lastBoostAfterDrive!=(gainOrder.getSelectedId()==2) || lastEnvelopeFirst!=(preOrder.getSelectedId()==2) || current!=lastMode || lastDualCross!=(dualType.getSelectedId()==2) || lastTuner!=tunerOn.getToggleState()) updateModeUI();
+    signalPath->refresh();signalPath->select(pathSelections[size_t(current)]);
     refreshVisibleState();
     refreshMeters();
 }
@@ -650,6 +699,7 @@ void ChimeraEditor::resized()
 void ChimeraEditor::layoutControls()
 {
     if(cabRoom)cabRoom->setBounds(20,330,1140,412);
+    signalPath->setBounds(20,309,985,20);
     rigControls.setBounds(1017,309,143,20);
     preEngineStatus.setBounds(20,298,1140,27);boardPanel.setBounds(20,330,1140,415);
     gateLocation.setBounds(298,93,113,23);

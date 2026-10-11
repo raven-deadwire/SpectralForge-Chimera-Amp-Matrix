@@ -1,0 +1,36 @@
+{
+  "base_commit": "b7e4f18efa295f0babf2278ca63117fbccb54143",
+  "tested_source": "working tree with below SHA-256 files; build revision string still names base commit",
+  "platform": "Linux x86_64; Xvfb/Openbox over local TCP (Unix sockets unavailable)",
+  "results": {
+    "ChimeraSignalPathUITests": "PASS (63.39 s); all native pointer/Return assertions, zero host notifications/gestures from navigation",
+    "ChimeraNativeStateTests": "PASS (5.78 s)",
+    "ChimeraCabPanelStateTests": "PASS (74.78 s)",
+    "UIRefreshTests": "PASS",
+    "Standalone": "BUILT; Linux ELF prototype; not a Windows installer",
+    "Windows/macOS": "CI pending",
+    "Studio One": "not exercised"
+  },
+  "source_sha256": {
+    "CMakeLists.txt": "9b8690bcaa02efc56d4a09ff2c0afd54d3c99b6bf55eb754c5a3d70b0822ed31",
+    "Source/PluginEditor.cpp": "b60b994628637aa6c1dd7dee38c032ccd3c58c1da51a2f7a476bfc012bc0c243",
+    "Source/PluginEditor.h": "c04a2805f1626a8ef0c953ba9c040e5d5525ad94230f9b59293bd078a256a204",
+    "Source/PedalBoardPanel.h": "2a483cbead52ca935d3d000e034f03e6f73819557c7f8bbf2ea862a355c67939",
+    "Source/SignalPath.h": "e4b2fd34160eb9ac83ff75bfd481758161bd8dc07611d3f7b5e01786f839a5ca",
+    "Source/SignalPathView.h": "44df43d551d4374d5aea4be6066170e5e9c353e89a94563307ec78d55b315809",
+    "Tests/ChimeraUITests.cpp": "59d3c51224f97d6ad940c4b73f67c1ee061d1a30f760f8ed731fdbd688f1652c",
+    "Tests/SignalPathUITests.h": "78736a78532b14220fd6bcada8c4f9732c5d34ee880841499b93a698557922c4",
+    "Source/PluginProcessor.cpp": "7e7db793b3c7ea079258b133bbf14627e20c3ca807514d87079a3a06e5e5084b",
+    "Source/ChimeraDSP.h": "ee35949cdf33f3d47b37f98da93ebde0d2df85f7041cea210f083d9030b5aadd",
+    "Source/FXChain.h": "e241c054a6a39cf48b6081fc072281b588a6b622fbe9cabf4588ceb67149d077",
+    "Source/PedalBoardDSP.h": "22688a0aa364c6a5e148a9a1c94085927484c0168460037a9f74302def1d2329",
+    "Source/PerformanceUtilities.h": "4eccbd960e5cbdcf6cad7786000ac925db8c287fbdb45f0ddd005eaa46b00d59"
+  },
+  "image_sha256": {
+    "classic.png": "b2c0d812117e4a8c9490728ebfa5762ef254ce4b3b54fcbf430357c429569ecd",
+    "dual-blend.png": "78ca3adc8d3ffc4f3510b41148cf34263de6942e26c8c4b6d92b95dda13cb491",
+    "dual-crossover.png": "1d8081a6c62166e4004728c1343526f5e4caa13053b170295deeea063d2e2f73",
+    "matrix.png": "db9e7b7210acc7760730884930193ba6231741da76c630bec1aaed85c2b2eb8c",
+    "matrix-post-gate.png": "736b8b2f24c3168bfc32833f494f736d2840387e0944756bd3b0b5c527d4fede"
+  }
+}

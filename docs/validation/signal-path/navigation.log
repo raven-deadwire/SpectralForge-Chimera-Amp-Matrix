@@ -1,0 +1,78 @@
+TCP Xvfb ready 127.0.0.1:0
+Internal ctest changing into directory: /workspace/scratch/4991723cbc12/chimera/build
+UpdateCTestConfiguration  from :/workspace/scratch/4991723cbc12/chimera/build/DartConfiguration.tcl
+UpdateCTestConfiguration  from :/workspace/scratch/4991723cbc12/chimera/build/DartConfiguration.tcl
+Test project /workspace/scratch/4991723cbc12/chimera/build
+Constructing a list of tests
+Done constructing a list of tests
+Updating test list for fixtures
+Added 0 tests to meet fixture requirements
+Checking test dependency graph...
+Checking test dependency graph end
+test 9
+    Start 9: ChimeraSignalPathUITests
+
+9: Test command: /workspace/scratch/4991723cbc12/chimera/build/ChimeraUITests_artefacts/Release/ChimeraUITests "/workspace/scratch/4991723cbc12/chimera/build/signal-path-snapshots" "--signal-path-only"
+9: Working Directory: /workspace/scratch/4991723cbc12/chimera/build
+9: Test timeout computed to be: 10000000
+9: Signal Path scenario 0 / 0
+9: Signal Path scenario 1 / 0
+9: Signal Path scenario 1 / 1
+9: Signal Path scenario 2 / 0
+9: Signal Path preset 0
+9: Signal Path preset 1
+9: Signal Path preset 2
+9: Signal Path preset 3
+9: Signal Path preset 4
+9: Signal Path preset 5
+9: Signal Path preset 6
+9: Signal Path preset 7
+9: Signal Path preset 8
+9: Signal Path preset 9
+9: Signal Path preset 10
+9: Signal Path preset 11
+9: Signal Path preset 12
+9: Signal Path preset 13
+9: Signal Path preset 14
+9: Signal Path preset 15
+9: Signal Path preset 16
+9: Signal Path preset 17
+9: Signal Path preset 18
+9: Signal Path preset 19
+9: Signal Path preset 20
+9: Signal Path preset 21
+9: Signal Path preset 22
+9: Signal Path preset 23
+9: Signal Path preset 24
+9: Signal Path preset 25
+9: Signal Path preset 26
+9: Signal Path preset 27
+9: Signal Path preset 28
+9: Signal Path preset 29
+9: Signal Path preset 30
+9: Signal Path preset 31
+9: Signal Path preset 32
+9: Signal Path preset 33
+9: Signal Path preset 34
+9: Signal Path preset 35
+9: Signal Path preset 36
+9: Signal Path preset 37
+9: Signal Path preset 38
+9: Signal Path preset 39
+9: Signal Path preset 40
+9: Signal Path preset 41
+9: Signal Path preset 42
+9: Signal Path preset 43
+9: Signal Path preset 44
+9: Signal Path preset 45
+9: Signal Path preset 46
+9: Signal Path preset 47
+9: PASS Signal Path: Classic / Dual Blend & Crossover / Matrix LOW topology; native pointer navigation; host-write/gesture isolation; scales; automation; preset/project/A-B restore; editor recreation
+1/1 Test #9: ChimeraSignalPathUITests .........   Passed   63.39 sec
+
+The following tests passed:
+	ChimeraSignalPathUITests
+
+100% tests passed, 0 tests failed out of 1
+
+Total Test time (real) =  63.39 sec
