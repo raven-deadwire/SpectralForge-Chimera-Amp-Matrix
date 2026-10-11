@@ -38,6 +38,10 @@ inline int matchingLayout(int driver) {
 }
 inline void hornGrilleContracts(const juce::File& screenshots) {
     using namespace spectralforge;
+    // Direct painter calls have no CabScene/CabRoomOverview owning the bank.
+    // Retain it for this matrix, then release it before the room-only cache
+    // ownership regression below so that its cold-entry coverage is preserved.
+    const juce::SharedResourcePointer<cabArt::Bank> artwork;
     cabLayout::Settings selected{};selected.layout=6;selected.voice.base.cabinet=1;
     const auto model=cabLayout::geometry(selected);
     // Camera density (pixels/metre) and device/UI scale are independent.

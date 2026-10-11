@@ -34,6 +34,9 @@ TITLE = "SpectralForge Chimera — Open Beta 1.3.1 · Direct amp controls and gr
 BRANCH = "release/open-beta-1.3.1"
 ARTIFACT_NAME = f"SpectralForge-Chimera-{VERSION}-Release-Candidate"
 GATE_ARTIFACT_NAME = "Chimera-A-stage-release-gate"
+# The five native 1.3.1 packages exceed the legacy 1 GiB extraction budget.
+# This bounded transport allowance does not change package or acceptance gates.
+CANDIDATE_MAX_EXPANDED_BYTES = 2 * 1024 * 1024 * 1024
 RELEASE_URL = f"https://github.com/{transport.REPO}/releases/tag/{TAG}"
 DOWNLOAD_URL = f"https://github.com/{transport.REPO}/releases/download/{TAG}/"
 SUFFIXES = ("win64-Setup.exe", "win64.zip", "macos-universal.pkg",
@@ -399,7 +402,8 @@ def dry_run(args, head, policy):
             configure_transport(head, artifact)
             candidate = Path(temporary) / "candidate"
             candidate.mkdir()
-            transport.extract_candidate(args.candidate_zip, candidate)
+            transport.extract_candidate(args.candidate_zip, candidate,
+                                        max_expanded_bytes=CANDIDATE_MAX_EXPANDED_BYTES)
         if candidate:
             _, assets = prepare_assets(candidate, head, args.run_id)
             result.update(candidate="LOCAL_PACKAGE_CHECKS_PASS", public_asset_count=len(assets))
@@ -448,7 +452,8 @@ def publish(args, head, policy):
         configure_transport(head, ci["candidate"])
         candidate = working / "candidate"
         candidate.mkdir()
-        transport.extract_candidate(candidate_archive, candidate)
+        transport.extract_candidate(candidate_archive, candidate,
+                                    max_expanded_bytes=CANDIDATE_MAX_EXPANDED_BYTES)
         notes, assets = prepare_assets(candidate, head, run["id"])
         notes = render_public_release_notes(notes, head)
         decision.update(controller_proof)

@@ -4,6 +4,7 @@ import copy
 import io
 import json
 from pathlib import Path
+import stat
 import subprocess
 import tempfile
 import unittest
@@ -32,6 +33,95 @@ class PublicReleaseNotes(unittest.TestCase):
         self.assertIn("107", rendered)
         with self.assertRaisesRegex(RuntimeError, "Unresolved relative"):
             publisher.render_public_release_notes(rendered + "\n[missing](missing.md)", HEAD)
+
+
+class CandidateArchiveCapacity(unittest.TestCase):
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.tmp.cleanup)
+        self.root = Path(self.tmp.name)
+        self.archive = self.root / "candidate.zip"
+        self.destination = self.root / "extracted"
+        self.destination.mkdir()
+        self.members = [("one.pkg", b"one"), ("two.zip", b"two")]
+        self.write_archive(self.members)
+
+    def write_archive(self, members):
+        with zipfile.ZipFile(self.archive, "w", zipfile.ZIP_DEFLATED) as archive:
+            for name, data in members:
+                archive.writestr(name, data)
+        self.size, self.digest = self.archive.stat().st_size, publisher.sha256(self.archive)
+
+    def extract(self, **kwargs):
+        with patch.object(publisher.transport, "ARCHIVE_SIZE", self.size), \
+             patch.object(publisher.transport, "ARCHIVE_SHA", self.digest):
+            publisher.transport.extract_candidate(self.archive, self.destination, **kwargs)
+
+    def test_legacy_default_extracts_normal_verified_archive(self):
+        self.extract()
+        self.assertEqual({p.name: p.read_bytes() for p in self.destination.iterdir()}, dict(self.members))
+
+    def test_actual_expansion_sum_rejects_exact_boundary_before_extraction(self):
+        with self.assertRaisesRegex(RuntimeError, "Unexpected archive expansion size"):
+            self.extract(max_expanded_bytes=6)
+        self.assertEqual(list(self.destination.iterdir()), [])
+        self.extract(max_expanded_bytes=7)
+        self.assertEqual({p.name: p.read_bytes() for p in self.destination.iterdir()}, dict(self.members))
+
+    def test_legacy_and_beta131_budgets_keep_strict_gib_boundaries(self):
+        gib = 1024 * 1024 * 1024
+        self.assertEqual(publisher.CANDIDATE_MAX_EXPANDED_BYTES, 2 * gib)
+        # Simulate central-directory sizes without writing multi-GiB fixtures.
+        # Real decompression and checksum behavior are exercised separately.
+        for size, kwargs, accepted in ((gib - 1, {}, True), (gib, {}, False),
+                (gib, {"max_expanded_bytes": publisher.CANDIDATE_MAX_EXPANDED_BYTES}, True),
+                (2 * gib - 1, {"max_expanded_bytes": publisher.CANDIDATE_MAX_EXPANDED_BYTES}, True),
+                (2 * gib, {"max_expanded_bytes": publisher.CANDIDATE_MAX_EXPANDED_BYTES}, False)):
+            with self.subTest(size=size, kwargs=kwargs), patch.object(zipfile, "ZipFile") as open_archive:
+                bundle = open_archive.return_value.__enter__.return_value
+                member = zipfile.ZipInfo("package.pkg")
+                member.file_size = size
+                bundle.infolist.return_value = [member]
+                if accepted:
+                    self.extract(**kwargs)
+                    bundle.extractall.assert_called_once_with(self.destination)
+                else:
+                    with self.assertRaisesRegex(RuntimeError, "Unexpected archive expansion size"):
+                        self.extract(**kwargs)
+                    bundle.extractall.assert_not_called()
+
+    def test_invalid_or_unbounded_capacity_is_rejected_before_opening_archive(self):
+        for limit in (None, False, True, 0, -1, 1.5, "2147483648", 2 * 1024 ** 3 + 1):
+            with self.subTest(limit=limit), patch.object(zipfile, "ZipFile") as open_archive:
+                with self.assertRaisesRegex(RuntimeError, "Invalid candidate archive expansion limit"):
+                    self.extract(max_expanded_bytes=limit)
+                open_archive.assert_not_called()
+
+    def test_beta131_capacity_preserves_archive_size_and_digest_rejection(self):
+        for field, bad in (("size", self.size + 1), ("digest", "0" * 64)):
+            with self.subTest(field=field), patch.object(self, field, bad), \
+                 patch.object(zipfile, "ZipFile") as open_archive:
+                with self.assertRaisesRegex(RuntimeError, "size or SHA-256"):
+                    self.extract(max_expanded_bytes=publisher.CANDIDATE_MAX_EXPANDED_BYTES)
+                open_archive.assert_not_called()
+
+    def test_beta131_capacity_preserves_unsafe_entry_rejection(self):
+        link = zipfile.ZipInfo("link")
+        link.create_system = 3
+        link.external_attr = (stat.S_IFLNK | 0o777) << 16
+        for member in ("../escape", "/absolute", "nested/file", "back\\slash", "folder/", link):
+            with self.subTest(member=member):
+                self.write_archive([("valid.pkg", b"ok"), (member, b"unsafe")])
+                with self.assertRaisesRegex(RuntimeError, "Unsafe candidate archive entry"):
+                    self.extract(max_expanded_bytes=publisher.CANDIDATE_MAX_EXPANDED_BYTES)
+                self.assertEqual(list(self.destination.iterdir()), [])
+
+    def test_beta131_capacity_preserves_duplicate_entry_rejection(self):
+        with self.assertWarns(UserWarning):
+            self.write_archive([("same.pkg", b"one"), ("same.pkg", b"two")])
+        with self.assertRaisesRegex(RuntimeError, "Duplicate archive entries"):
+            self.extract(max_expanded_bytes=publisher.CANDIDATE_MAX_EXPANDED_BYTES)
+        self.assertEqual(list(self.destination.iterdir()), [])
 
 
 class PublicationInputs(unittest.TestCase):
@@ -117,6 +207,33 @@ class PublicationInputs(unittest.TestCase):
         self.assertFalse(result["publication_ready"])
         self.assertFalse(result["published"])
         self.assertIn("PUBLICATION_NOT_AUTHORIZED", result["blockers"])
+
+    def test_offline_archive_review_uses_explicit_beta131_capacity(self):
+        archive_path = self.root / "candidate.zip"
+        with zipfile.ZipFile(archive_path, "w", zipfile.ZIP_DEFLATED) as archive:
+            for path in self.candidate.iterdir():
+                archive.write(path, path.name)
+        artifact_path = self.root / "artifact.json"
+        self.write_json(artifact_path, dict(id=1, name=publisher.ARTIFACT_NAME, expired=False,
+            size_in_bytes=archive_path.stat().st_size, digest="sha256:" + publisher.sha256(archive_path),
+            workflow_run={"id": RUN, "head_sha": HEAD}))
+        transport = publisher.transport
+        changed = ("VERSION", "TAG", "TITLE", "HEAD", "RELEASE_URL", "DOWNLOAD_URL",
+                   "ARCHIVE_SIZE", "ARCHIVE_SHA")
+        with patch.multiple(transport, **{key: getattr(transport, key) for key in changed}), \
+             patch.object(transport, "extract_candidate", wraps=transport.extract_candidate) as extract, \
+             patch.object(transport, "GitHub") as api, patch.object(transport, "publish") as publish, \
+             redirect_stdout(io.StringIO()):
+            result = publisher.main(["--dry-run", "--source-sha", HEAD,
+                "--candidate-zip", str(archive_path), "--artifact-json", str(artifact_path),
+                "--run-id", str(RUN)])
+        self.assertEqual(extract.call_count, 1)
+        self.assertEqual(extract.call_args.kwargs, {"max_expanded_bytes": publisher.CANDIDATE_MAX_EXPANDED_BYTES})
+        self.assertEqual(result["candidate"], "LOCAL_PACKAGE_CHECKS_PASS")
+        self.assertFalse(result["publication_ready"])
+        self.assertFalse(result["published"])
+        api.assert_not_called()
+        publish.assert_not_called()
 
     def test_default_mode_is_offline_and_does_not_claim_missing_files(self):
         with patch.object(publisher.transport, "GitHub") as api, redirect_stdout(io.StringIO()):
