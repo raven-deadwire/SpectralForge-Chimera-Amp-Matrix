@@ -11,7 +11,16 @@ class AmpHeadControlView final : public juce::Component {
     juce::SharedResourcePointer<spectralforge::cabHead::Bank> artwork;
     std::vector<std::unique_ptr<NativeControlView>> controls;
     std::vector<spectralforge::ampHead::Knob> anchors;
-    std::array<juce::TextButton,5> channels;
+    class ChannelButton : public juce::TextButton {
+    public:
+        void paintButton(juce::Graphics& g,bool over,bool down) override {
+            auto face=getLocalBounds().toFloat().withSizeKeepingCentre(float(getWidth()-2),18.f);
+            g.setColour(juce::Colour(getToggleState()?0xff507d99:0xff171d20).brighter(over||down?.15f:0.f));g.fillRoundedRectangle(face,2.f);
+            g.setColour(juce::Colour(hasKeyboardFocus(true)?0xffb3e1ff:0xffa99878));g.drawRoundedRectangle(face,2.f,1.f);
+            g.setColour(juce::Colours::white);g.setFont(juce::FontOptions(10.f));g.drawText(getButtonText(),face.toNearestInt(),juce::Justification::centred);
+        }
+    };
+    std::array<ChannelButton,5> channels;
     StableAmpComboBox input;
     class OpenButton : public juce::TextButton {
     public:
@@ -134,7 +143,7 @@ public:
             c.setBounds(juce::roundToInt(face.getX()+face.getWidth()*anchor.x)-(model==1?cellWidth/2:diameter/2),juce::roundToInt(face.getY()+face.getHeight()*anchor.y)-diameter/2-11,cellWidth,h);
             c.group.setVisible(false);c.label.setBounds(0,0,cellWidth,11);c.slider.setBounds(0,11,cellWidth,diameter+(model==1?14:0));
         }
-        for(int c=0;c<5;++c)channels[size_t(c)].setBounds(juce::roundToInt(face.getX()+face.getWidth()*(.409f+c*.0385f)),juce::roundToInt(face.getY()+face.getHeight()*.566f),juce::roundToInt(face.getWidth()*.03f),juce::roundToInt(face.getHeight()*.044f));
+        for(int c=0;c<5;++c)channels[size_t(c)].setBounds(juce::roundToInt(face.getX()+face.getWidth()*(.409f+c*.0385f)),juce::roundToInt(face.getY()+face.getHeight()*.588f)-16,juce::jmax(32,juce::roundToInt(face.getWidth()*.03f)),32);
         input.setBounds(juce::roundToInt(face.getX()+face.getWidth()*.80f),juce::roundToInt(face.getY()+face.getHeight()*.69f),juce::roundToInt(face.getWidth()*.17f),28);
     }
     void paint(juce::Graphics& g) override {
@@ -146,6 +155,7 @@ public:
             const auto& image=artwork->faces[size_t(model)].front;
             for(const auto& a:anchors){const float w=face.getWidth()*.046f,h=face.getHeight()*.139f;
                 const auto patch=juce::Rectangle<float>(face.getX()+face.getWidth()*a.x-w/2,face.getY()+face.getHeight()*a.y-h/2,w,h);
+                const juce::Graphics::ScopedSaveState saved(g);juce::Path mask;mask.addEllipse(patch);g.reduceClipRegion(mask);
                 if(image.isValid())g.drawImage(image,patch.getX(),patch.getY(),patch.getWidth(),patch.getHeight(),int(image.getWidth()*.73f),int(image.getHeight()*(a.y-.0695f)),int(image.getWidth()*.046f),int(image.getHeight()*.139f));}
         }
 
@@ -178,7 +188,7 @@ public:
         detailToggle.setVisible(active && supported);detailToggle.setButtonText(showDetails?"HEAD":"DETAILS");
         if(details.isVisible())details.refreshIfNeeded();
         title.setText(active?head.caption():"This rig is inactive in the current routing mode",juce::dontSendNotification);
-        hint.setText(details.isVisible()?"Full amplifier controls":supported?"Drag a knob • Shift for fine adjustment • Click a value for precise entry":"",juce::dontSendNotification);
+        hint.setText(details.isVisible()?"Full amplifier controls":supported?"Drag a knob | Shift for fine adjustment | Click a value for precise entry":"",juce::dontSendNotification);
     }
     void resized() override {back.setBounds(16,12,86,30);detailToggle.setBounds(getWidth()-112,12,96,30);title.setBounds(116,12,getWidth()-240,30);hint.setBounds(20,getHeight()-31,getWidth()-40,22);head.setBounds(12,52,getWidth()-24,getHeight()-92);details.setBounds(24,62,getWidth()-48,getHeight()-108);}
     void paint(juce::Graphics& g) override {g.fillAll(juce::Colour(0xff111617));}
