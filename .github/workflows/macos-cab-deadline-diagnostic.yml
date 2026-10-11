@@ -1,0 +1,55 @@
+name: macOS CAB deadline controlled diagnostic
+
+on:
+  push:
+    branches: [diagnostic/macos-cab-deadline-20261012]
+    paths:
+      - 'Tools/CabDeadlineDiagnostic/**'
+      - '.github/workflows/macos-cab-deadline-diagnostic.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: macos-cab-deadline-diagnostic-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  controlled-diagnostic:
+    runs-on: macos-15
+    timeout-minutes: 40
+    steps:
+      - name: Check out exact diagnostic controller
+        uses: actions/checkout@v5
+        with:
+          ref: ${{ github.sha }}
+          path: controller
+          persist-credentials: false
+      - name: Check out unchanged released product source
+        uses: actions/checkout@v5
+        with:
+          ref: 7b20cd9d1f90e3e2969c250712b199e893cf50cd
+          path: frozen-source
+          persist-credentials: false
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - name: Verify unchanged raw evidence contracts
+        shell: bash
+        run: python frozen-source/Tools/test_cab_timing_evidence.py
+      - name: Run unchanged gate and fixed ABBA diagnostic populations
+        shell: bash
+        run: |
+          python controller/Tools/CabDeadlineDiagnostic/run_experiment.py \
+            --source frozen-source \
+            --build macos-deadline-build \
+            --output macos-deadline-evidence
+      - name: Preserve all results including failed gates and diagnostic conditions
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: macOS-CAB-deadline-diagnostic-${{ github.sha }}-${{ github.run_attempt }}
+          path: macos-deadline-evidence/
+          if-no-files-found: error
+          retention-days: 90
