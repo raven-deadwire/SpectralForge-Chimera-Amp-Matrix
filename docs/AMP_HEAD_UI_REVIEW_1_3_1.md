@@ -18,8 +18,8 @@ project schema.
 
 | Finding in the original captures | Correction |
 | --- | --- |
-| Niflheimr has dark crescents and bottom-row fragments around its live knobs. The elliptical mask does not cover the complete baked disk/shadow. | Replace the complete control field with clean metal from the same fascia band, retaining the jack, light, switch and ornate perimeter. |
-| At the 1000-pixel popup width, MID FREQ displays `405 ...`; the maximum `2500 Hz` is even wider. Labels are 9 px. | Widen the seven-column control field, retain at least 32 px knob allocation, increase labels/value font to 11 px and reserve more width for values. |
+| Niflheimr has dark crescents and bottom-row fragments around its live knobs. The elliptical mask does not cover the complete baked disk/shadow. | Replace the complete control field, including upper chrome rims, with cached, edge-blended clean metal from the same fascia band, retaining the jack, light, switch and ornate perimeter. |
+| At the 1000-pixel popup width, MID FREQ displays `405 ...`; the maximum `2500 Hz` is even wider. The label/value look uses a small 10 px font. | Widen the seven-column control field, retain at least 32 px knob allocation, increase labels/value font to 11 px and reserve more width for values. |
 | Physical channel buttons show only 1–5. The current name appears in the caption, but other voices require hovering or trial selection. | Add five named channel buttons, synchronized with the existing physical switches and parameter banks. |
 | Brit Edge's five-input selector has no functional label. | Add INPUT ROUTE above the existing selector without changing route order or DSP. |
 | Room heads only acquire an outline on hover/focus; the destination is unclear beside cabinet targets. | Add an OPEN AMP caption on head hover/keyboard focus. |

@@ -58,7 +58,18 @@ int main(int argc,char** argv){try {
     if(argc>1 && juce::String(argv[1])=="--software-preview") {
         const auto folder=juce::File::getCurrentWorkingDirectory().getChildFile("head-software-preview");folder.createDirectory();
         auto preview=std::make_unique<ChimeraProcessor>();
-        for(int model:{1,niflheimrAmpModel}){preview->setAmpModel(0,model);AmpHeadWorkspace surface(*preview,0);surface.setVisible(true);screenshot(surface,folder,"model"+juce::String(model));}
+        for(int model:{1,niflheimrAmpModel}) {
+            preview->setAmpModel(0,model);
+            if(model==niflheimrAmpModel) {
+                set(*preview,ampNativeControlID(0,model,int(niflheimr::Control::midFrequency),0),2500);
+                set(*preview,ampNativeControlID(0,model,int(niflheimr::Control::blend),0),1);
+            }
+            AmpHeadWorkspace surface(*preview,0);surface.setVisible(true);
+            for(const auto size:{juce::Point<int>{1000,642},{1180,650},{1440,780},{1680,910}}) {
+                surface.setSize(size.x,size.y);checkFaceLayout(surface,model);
+                screenshot(surface,folder,"model"+juce::String(model)+"-"+juce::String(size.x));
+            }
+        }
         preview->releaseResources();std::cout<<"SOFTWARE PREVIEW ONLY: no native peer or interaction validation\n";return 0;
     }
     check(juce::Desktop::getInstance().getDisplays().getPrimaryDisplay()!=nullptr,"Native display required");

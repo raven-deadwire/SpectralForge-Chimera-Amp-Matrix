@@ -11,6 +11,7 @@ class AmpHeadControlView final : public juce::Component {
     juce::SharedResourcePointer<spectralforge::cabHead::Bank> artwork;
     std::vector<std::unique_ptr<NativeControlView>> controls;
     std::vector<spectralforge::ampHead::Knob> anchors;
+    juce::Image cleanControlField;
     class ChannelButton : public juce::TextButton {
     public:
         void paintButton(juce::Graphics& g,bool over,bool down) override {
@@ -161,8 +162,25 @@ public:
             // masks left crescents and bottom-row fragments at smaller sizes.
             // Keep the original jack, power lamp, switch and ornate perimeter.
             const auto& image=artwork->faces[size_t(model)].front;
-            const auto patch=juce::Rectangle<float>(face.getX()+face.getWidth()*.17f,face.getY()+face.getHeight()*.643f,face.getWidth()*.703f,face.getHeight()*.264f);
-            if(image.isValid())g.drawImage(image,patch.getX(),patch.getY(),patch.getWidth(),patch.getHeight(),int(image.getWidth()*.735f),int(image.getHeight()*.643f),int(image.getWidth()*.125f),int(image.getHeight()*.264f));
+            constexpr float left=.17f,top=.618f,width=.703f,height=.283f;
+            if(image.isValid() && !cleanControlField.isValid()) {
+                // Cache one softly blended metal field. The outside edges stay
+                // identical to the original fascia; old knob pixels lie fully
+                // inside the opaque part, including their upper chrome rims.
+                const int w=juce::roundToInt(image.getWidth()*width),h=juce::roundToInt(image.getHeight()*height);
+                cleanControlField=juce::Image(juce::Image::RGB,w,h,false);
+                const juce::Image::BitmapData source(image,juce::Image::BitmapData::readOnly);
+                juce::Image::BitmapData target(cleanControlField,juce::Image::BitmapData::writeOnly);
+                for(int y=0;y<h;++y)for(int x=0;x<w;++x) {
+                    const float u=float(x)/float(w-1),v=float(y)/float(h-1);
+                    const float blend=juce::jlimit(0.f,1.f,juce::jmin(juce::jmin(u,1.f-u)/.085f,juce::jmin(v,1.f-v)/.008f));
+                    const int sy=juce::roundToInt(image.getHeight()*top)+y;
+                    const auto old=source.getPixelColour(juce::roundToInt(image.getWidth()*left)+x,sy);
+                    const auto metal=source.getPixelColour(juce::roundToInt(image.getWidth()*(.735f+u*.125f)),sy);
+                    target.setPixelColour(x,y,old.interpolatedWith(metal,blend));
+                }
+            }
+            if(cleanControlField.isValid())g.drawImage(cleanControlField,{face.getX()+face.getWidth()*left,face.getY()+face.getHeight()*top,face.getWidth()*width,face.getHeight()*height});
         }
 
     }
