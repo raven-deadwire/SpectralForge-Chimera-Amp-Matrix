@@ -158,7 +158,9 @@ class CabRoomOverview : public juce::Component, private juce::Timer {
     public:
         HeadTarget():juce::Button("Open amplifier") {setWantsKeyboardFocus(true);setMouseCursor(juce::MouseCursor::PointingHandCursor);}
         void paintButton(juce::Graphics& g,bool over,bool) override {
-            if(over||hasKeyboardFocus(true)){g.setColour(juce::Colour(0xffead4a4));g.drawRoundedRectangle(getLocalBounds().toFloat().reduced(1.f),3.f,2.f);}
+            if(over||hasKeyboardFocus(true)){g.setColour(juce::Colour(0xffead4a4));g.drawRoundedRectangle(getLocalBounds().toFloat().reduced(1.f),3.f,2.f);
+                g.setColour(juce::Colour(0xee111617));g.fillRoundedRectangle(4.f,4.f,84.f,20.f,3.f);
+                g.setColour(juce::Colour(0xffead4a4));g.setFont(juce::FontOptions(11.f,juce::Font::bold));g.drawText("OPEN AMP",4,4,84,20,juce::Justification::centred);}
         }
     };
     class Rig : public juce::Button {

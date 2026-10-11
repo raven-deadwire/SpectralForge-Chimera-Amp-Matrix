@@ -24,6 +24,33 @@ struct Host : juce::AudioProcessorParameter::Listener {
 juce::MouseEvent mouse(juce::Component& target,juce::Point<float> point,juce::Point<float> down,bool drag){return {juce::Desktop::getInstance().getMainMouseSource(),point,juce::ModifierKeys(juce::ModifierKeys::leftButtonModifier),1,0,0,0,0,&target,&target,juce::Time::getCurrentTime(),down,juce::Time::getCurrentTime(),1,drag};}
 void drag(juce::Slider& slider,bool finish=true){const auto start=juce::Point<float>(15,15),end=start+juce::Point<float>(0,-25);slider.mouseDown(mouse(slider,start,start,false));slider.mouseDrag(mouse(slider,end,start,true));if(finish)slider.mouseUp(mouse(slider,end,start,true));}
 void screenshot(juce::Component& c,const juce::File& directory,const juce::String& name){auto stream=directory.getChildFile(name+".png").createOutputStream();check(stream!=nullptr,"Capture file");stream->setPosition(0);stream->truncate();juce::PNGImageFormat png;check(png.writeImageToStream(c.createComponentSnapshot(c.getLocalBounds()),*stream),"Capture PNG");}
+AmpHeadWorkspace* openWorkspace() {
+    auto& desktop=juce::Desktop::getInstance();
+    for(int i=0;i<desktop.getNumComponents();++i)if(auto* w=find<AmpHeadWorkspace>(*desktop.getComponent(i),"ampHeadWorkspace"))return w;
+    return nullptr;
+}
+void closeWorkspace() {
+    auto* full=openWorkspace();check(full,"No head workspace to close");
+    find<juce::TextButton>(*full,"ampHeadBack")->triggerClick();
+    awaitUI([]{return openWorkspace()==nullptr;},"Head Back did not close dialog");
+}
+void checkFaceLayout(AmpHeadWorkspace& view,int model) {
+    auto* head=find<AmpHeadControlView>(view,"ampHead1");check(head,"Missing layout head");
+    std::vector<juce::Rectangle<int>> cells;
+    for(auto* child:head->getChildren())if(auto* c=dynamic_cast<NativeControlView*>(child)) {
+        check(head->getLocalBounds().contains(c->getBounds()),"Face control clipped outside head");
+        for(const auto& cell:cells)check(!cell.intersects(c->getBounds()),"Face controls overlap");
+        cells.push_back(c->getBounds());
+        const auto layout=c->slider.getLookAndFeel().getSliderLayout(c->slider);
+        check(layout.sliderBounds.getWidth()>=30 && layout.sliderBounds.getHeight()>=30,"Knob target too small");
+        // Measure the actual value label with its installed font and insets.
+        for(auto* value:c->slider.getChildren())if(auto* label=dynamic_cast<juce::Label*>(value)) {
+            juce::GlyphArrangement glyphs;glyphs.addLineOfText(label->getLookAndFeel().getLabelFont(*label),label->getText(),0,0);
+            check(glyphs.getBoundingBox(0,-1,true).getWidth()+6<=float(label->getWidth()),"Face value is truncated");
+        }
+    }
+    check(cells.size()==size_t(model==1?6:14),"Wrong layout control count");
+}
 void numeric(juce::Slider& slider,const juce::String& text){slider.showTextBox();juce::TextEditor* input=nullptr;const auto scan=[&](auto&& self,juce::Component& c)->void{if(auto* t=dynamic_cast<juce::TextEditor*>(&c))input=t;for(auto* child:c.getChildren())self(self,*child);};scan(scan,slider);check(input,"Value editor missing");input->setText(text,false);slider.hideTextBox(false);}
 }
 int main(int argc,char** argv){try {
@@ -62,9 +89,32 @@ int main(int argc,char** argv){try {
             }
         }
         if(model==niflheimrAmpModel)for(int c=0;c<5;++c)check(std::abs(get(*p,ampNativeControlID(ampNativeContext(mode,lane),model,0,c))-(.301f+float(c)*.1f))<.002,"Independent channel memory lost");
-        if(model==1){auto* route=find<juce::ComboBox>(*view,"ampHeadInput"+juce::String(lane+1));for(int i=1;i<=5;++i){route->setSelectedId(i,juce::sendNotificationSync);check(p->selectedAmpNativeRoute(lane)==i-1,"Input route failed");}}
+        if(model==1){auto* route=find<juce::ComboBox>(*view,"ampHeadInput"+juce::String(lane+1));for(int i=1;i<=5;++i){route->setSelectedId(i,juce::sendNotificationSync);check(p->selectedAmpNativeRoute(lane)==i-1,"Input route failed");if(mode==0){settle();screenshot(*view,directory,"brit-input-route-"+juce::String(i));}}}
         screenshot(*view,directory,"head-mode"+juce::String(mode)+"-dual"+juce::String(dual)+"-lane"+juce::String(lane)+"-model"+juce::String(model));
         view.reset();check(all.open==0,"Open gesture after window destruction");++cases;
+    }
+    // Inspect actual enlarged workspaces at four window sizes, independently
+    // of the main editor's scale. Exercise the widest frequency/percent values.
+    set(*p,"mode",0);
+    for(int model:{1,niflheimrAmpModel}) {
+        p->setAmpModel(0,model);p->setAmpChannel(0,0);
+        auto layout=std::make_unique<AmpHeadWorkspace>(*p,0);layout->addToDesktop(juce::ComponentPeer::windowIsTemporary);layout->setVisible(true);settle();
+        if(model==niflheimrAmpModel) {
+            set(*p,ampNativeControlID(0,model,int(niflheimr::Control::midFrequency),0),2500);
+            set(*p,ampNativeControlID(0,model,int(niflheimr::Control::blend),0),1);
+        }
+        for(const auto size:{juce::Point<int>{1000,642},{1180,650},{1440,780},{1680,910}}) {
+            layout->setSize(size.x,size.y);settle();checkFaceLayout(*layout,model);
+            screenshot(*layout,directory,"workspace-"+juce::String(size.x)+"-model"+juce::String(model));
+        }
+        layout->setSize(1000,642);settle();
+        if(model==niflheimrAmpModel)for(int channel=0;channel<5;++channel) {
+            auto* named=find<juce::TextButton>(*layout,"ampHeadNamedChannel1_"+juce::String(channel));
+            check(named && named->getButtonText().contains(juce::String::fromUTF8(niflheimr::channelNames[channel])),"Channel name missing");
+            named->triggerClick();settle();check(p->selectedAmpChannel(0)==channel && named->getToggleState(),"Named channel selection failed");
+            check(find<juce::TextButton>(*layout,"ampHeadChannel1_"+juce::String(channel))->getToggleState(),"Physical channel indicator stale");
+            screenshot(*layout,directory,"named-channel-"+juce::String(channel));
+        }
     }
     // Context isolation and per-channel recall, then same-model A/B, project,
     // factory preset, interrupted gesture and head/detail bidirectional sync.
@@ -96,15 +146,29 @@ int main(int argc,char** argv){try {
         const int writes=all.writes,begins=all.begins;auto* open=find<juce::TextButton>(*editor,"ampHeadOpen1");check(open && open->isShowing(),"Classic head entry missing");open->triggerClick();settle(150);
         AmpHeadWorkspace* full=nullptr;auto& desktop=juce::Desktop::getInstance();for(int i=0;i<desktop.getNumComponents();++i)if(auto* w=find<AmpHeadWorkspace>(*desktop.getComponent(i),"ampHeadWorkspace"))full=w;
         check(full && full->isShowing(),"Head did not open native enlargement");screenshot(*full,directory,"focus-from-editor-"+juce::String(scale));
-        find<juce::TextButton>(*full,"ampHeadBack")->triggerClick();settle(100);check(all.writes==writes && all.begins==begins,"Head open/back changed audio state");
+        closeWorkspace();check(all.writes==writes && all.begins==begins,"Head open/back changed audio state");
     }
-    for(int mode:{1,2}){set(*p,"mode",float(mode));settle();auto* room=find<CabRoomOverview>(*editor,"cabRoomOverview");check(room,"Room missing");int selectedHead=-1,selectedCab=-1;room->onAmplifierSelected=[&](int lane){selectedHead=lane;};room->onCabinetSelected=[&](int lane){selectedCab=lane;};
-        const int writes=all.writes,begins=all.begins;for(int lane=0;lane<=mode;++lane){auto* head=find<juce::Button>(*room,"cabRoomHead"+juce::String(lane+1));auto* cab=find<juce::Button>(*room,"cabRoomRig"+juce::String(lane+1));check(head && cab,"Separate room targets missing");head->triggerClick();settle(10);check(selectedHead==lane,"Wrong room head lane");cab->triggerClick();settle(10);check(selectedCab==lane,"Wrong room cab lane");}
+    for(int mode:{1,2}){set(*p,"mode",float(mode));settle();auto* room=find<CabRoomOverview>(*editor,"cabRoomOverview");check(room,"Room missing");
+        // Keep production callbacks installed: prove the real destination,
+        // selected bank and return path, not merely a substituted callback.
+        const int writes=all.writes,begins=all.begins;
+        for(int lane=0;lane<=mode;++lane){auto* entry=find<juce::Button>(*room,"cabRoomHead"+juce::String(lane+1));auto* cab=find<juce::Button>(*room,"cabRoomRig"+juce::String(lane+1));check(entry && cab,"Separate room targets missing");
+            entry->triggerClick();awaitUI([]{return openWorkspace()!=nullptr;},"Room head did not open workspace");
+            auto* full=openWorkspace();auto* target=find<AmpHeadControlView>(*full,"ampHead"+juce::String(lane+1));
+            check(target && target->displayedContext()==ampNativeContext(mode,lane),"Room opened wrong amplifier bank");
+            screenshot(*full,directory,"room-to-head-mode"+juce::String(mode)+"-lane"+juce::String(lane));closeWorkspace();
+            int selectedCab=-1;const auto callback=room->onCabinetSelected;
+            room->onCabinetSelected=[&](int selected){selectedCab=selected;};cab->triggerClick();settle(10);
+            check(selectedCab==lane,"Wrong room cabinet lane");room->onCabinetSelected=callback;
+        }
         check(all.writes==writes && all.begins==begins,"Room navigation changed sound");screenshot(*editor,directory,"room-"+juce::String(mode));}
     editor.reset();
     set(*p,"mode",2);auto cabinet=std::make_unique<CabWorkspace>(*p,1,true);cabinet->addToDesktop(juce::ComponentPeer::windowIsTemporary);cabinet->setVisible(true);settle();
     auto* cabHead=find<spectralforge::cabHead::View>(*cabinet,"cabPerspectiveHead");check(cabHead && cabHead->getWantsKeyboardFocus(),"Focused CAB head entry missing");
-    const int cabWrites=all.writes;check(cabHead->keyPressed(juce::KeyPress(juce::KeyPress::returnKey)),"Focused CAB head keyboard entry failed");settle(100);check(all.writes==cabWrites,"CAB head entry changed sound");cabinet.reset();settle();
+    const int cabWrites=all.writes;check(cabHead->keyPressed(juce::KeyPress(juce::KeyPress::returnKey)),"Focused CAB head keyboard entry failed");awaitUI([]{return openWorkspace()!=nullptr;},"Focused CAB head did not open workspace");
+    auto* focusedTarget=find<AmpHeadControlView>(*openWorkspace(),"ampHead2");check(focusedTarget && focusedTarget->displayedContext()==ampNativeContext(2,1),"CAB opened wrong head bank");
+    screenshot(*openWorkspace(),directory,"cab-to-head-matrix-mid");closeWorkspace();check(cabinet->focusedRig()==1,"CAB return lost focused rig");
+    check(all.writes==cabWrites,"CAB head entry changed sound");cabinet.reset();settle();
     for(auto* parameter2:p->getParameters())parameter2->removeListener(&all);check(all.open==0,"Unbalanced host gestures");p->releaseResources();
     std::cout<<"PASS: "<<cases<<" route/model cases; 6 contexts; all 5 Niflheimr channels; native drag, values, automation, A/B/project/factory recall, interrupted gestures, room navigation and 4 editor scales\n";return 0;
 }catch(const std::exception& e){std::cerr<<"FAIL: "<<e.what()<<'\n';return 1;}}

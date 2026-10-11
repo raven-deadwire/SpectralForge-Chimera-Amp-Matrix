@@ -17,7 +17,7 @@ inline std::vector<Knob> knobs(int model) {
     std::vector<Knob> result;
     if(model==niflheimrAmpModel)for(int i=0;i<14;++i) {
         const auto& spec=ampNativePanel(model).controls[size_t(nifOrder[i])];
-        result.push_back({spec.key,spec.label,.256f+float(i%7)*.069f,i<7?.704f:.837f});
+        result.push_back({spec.key,spec.label,.205f+float(i%7)*.098f,i<7?.704f:.845f});
     }
     return result;
 }
