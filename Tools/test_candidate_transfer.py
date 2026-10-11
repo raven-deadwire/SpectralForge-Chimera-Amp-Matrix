@@ -81,11 +81,14 @@ def fixture(kind: str, size: int):
 
 
 class CandidateTransferTests(unittest.TestCase):
-    def test_both_streams_reconstruct_past_old_four_part_limit_and_at_eight_parts(self):
-        # A scaled chunk keeps tests fast while crossing the same 4/8-part
-        # boundaries as 80/160 MiB production packages, including a short tail.
+    def test_both_streams_reconstruct_past_old_limits_and_at_sixteen_parts(self):
+        # A scaled chunk exercises the same production boundaries cheaply:
+        # retain older packages, cross 160 MiB, preserve numeric part order past
+        # part9, and reconstruct the exact 320 MiB ceiling without truncation.
         for kind in ("installer", "portable"):
-            for size, count in ((CHUNK * 4 + 19, 5), (CHUNK * 8, 8)):
+            for size, count in ((CHUNK * 4 + 19, 5), (CHUNK * 8, 8),
+                                (CHUNK * 8 + 19, 9), (CHUNK * 9 + 19, 10),
+                                (CHUNK * 16, 16)):
                 with self.subTest(kind=kind, parts=count), fixture(kind, size) as f:
                     f.invoke()
                     metadata = f.output / "metadata"
@@ -114,23 +117,23 @@ class CandidateTransferTests(unittest.TestCase):
                     else:
                         self.assertEqual(json.loads((metadata / "build-manifest.json").read_text()), f.original_manifest)
 
-    def test_both_streams_reject_ninth_part_before_output(self):
+    def test_both_streams_reject_seventeenth_part_before_output(self):
         for kind in ("installer", "portable"):
-            with self.subTest(kind=kind), fixture(kind, CHUNK * 8 + 1) as f:
-                with self.assertRaisesRegex(RuntimeError, "1..8 transfer artifacts"):
+            with self.subTest(kind=kind), fixture(kind, CHUNK * 16 + 1) as f:
+                with self.assertRaisesRegex(RuntimeError, "1..16 transfer artifacts"):
                     f.invoke()
                 self.assertFalse(f.output.exists())
 
     def test_both_streams_preserve_checksum_and_source_rejection(self):
         for kind in ("installer", "portable"):
-            with self.subTest(kind=kind, mismatch="checksum"), fixture(kind, CHUNK * 4 + 7) as f:
+            with self.subTest(kind=kind, mismatch="checksum"), fixture(kind, CHUNK * 8 + 7) as f:
                 changed = bytearray(f.data)
                 changed[-1] ^= 1
                 f.artifact.write_bytes(changed)
                 with self.assertRaises((RuntimeError, ValueError)):
                     f.invoke()
                 self.assertFalse(f.output.exists())
-            with self.subTest(kind=kind, mismatch="source"), fixture(kind, CHUNK * 4 + 7) as f:
+            with self.subTest(kind=kind, mismatch="source"), fixture(kind, CHUNK * 8 + 7) as f:
                 f.original_manifest["source_sha"] = "f" * 40
                 if f.receipt_path:
                     f.receipt_path.write_text(json.dumps(f.original_manifest), encoding="utf-8-sig")
@@ -140,7 +143,7 @@ class CandidateTransferTests(unittest.TestCase):
 
     def test_workflow_uploads_every_bounded_part_after_security_gate(self):
         self.assertEqual(installer.TRANSFER_PART_BYTES, 20 * 1024 * 1024)
-        self.assertEqual(installer.TRANSFER_MAX_PARTS, 8)
+        self.assertEqual(installer.TRANSFER_MAX_PARTS, 16)
         workflow = (ROOT / ".github/workflows/update-candidate.yml").read_text(encoding="utf-8")
         seen = {"installer": [], "candidate": []}
         for block in re.split(r"(?m)^      - ", workflow):
@@ -159,7 +162,7 @@ class CandidateTransferTests(unittest.TestCase):
             if number > 1:
                 self.assertIn(f"if: success() && hashFiles('{path}') != ''", block)
         for stream, numbers in seen.items():
-            self.assertEqual(numbers, list(range(1, 9)), stream)
+            self.assertEqual(numbers, list(range(1, 17)), stream)
         self.assertLess(workflow.index("run: python Tools/test_candidate_transfer.py"), workflow.index("- name: Configure"))
         scan = workflow.index("- name: Scan candidate Setup with Microsoft Defender")
         split = workflow.index("- name: Prepare verified Setup transfer parts")

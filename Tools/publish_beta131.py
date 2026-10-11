@@ -363,6 +363,18 @@ def configure_transport(head, artifact=None):
         transport.ARCHIVE_SHA = artifact["digest"].split(":", 1)[1]
 
 
+def render_public_release_notes(notes, head):
+    """Resolve document links for a release-page body without changing packaged notes."""
+    require(re.fullmatch(r"[0-9a-f]{40}", head or ""), "Release note links require an exact source")
+    for name in ("OPEN_BETA_1_3_RELEASE_NOTES.md", "OPEN_BETA_1_2_RELEASE_NOTES.md",
+                 "RELEASE_1_3_1_PIPELINE.md"):
+        require((ROOT / "docs" / name).is_file(), f"Missing linked release document: {name}")
+        notes = notes.replace(f"]({name})", f"](https://github.com/{transport.REPO}/blob/{head}/docs/{name})")
+    notes = notes.replace("](MANUAL.html)", f"]({DOWNLOAD_URL}MANUAL.html)")
+    require(not re.search(r"\]\((?!https?://|#)[^)]+\)", notes), "Unresolved relative release-note link")
+    return notes
+
+
 def check_archive(path, artifact):
     require(path.stat().st_size == artifact["size_in_bytes"]
             and sha256(path) == artifact["digest"].split(":", 1)[1], "Artifact size or SHA-256 mismatch")
@@ -438,6 +450,7 @@ def publish(args, head, policy):
         candidate.mkdir()
         transport.extract_candidate(candidate_archive, candidate)
         notes, assets = prepare_assets(candidate, head, run["id"])
+        notes = render_public_release_notes(notes, head)
         decision.update(controller_proof)
         decision["ci"] = {name: {key: verified[key] for key in ("id", "run_attempt", "head_sha")}
                           for name, verified in ci["runs"].items()}
@@ -453,6 +466,13 @@ def publish(args, head, policy):
         assets[disclosure.name] = disclosure
         notes += (f"\n\nBuild: [`{head[:10]}`](https://github.com/{transport.REPO}/commit/{head})"
                   f" · [Verified CI](https://github.com/{transport.REPO}/actions/runs/{run['id']})."
+                  "\n\n**1.3.1-preview 설치본:** 이 페이지의 설치 파일을 직접 받아 설치하세요. "
+                  "기존 미리보기의 버전 비교는 1.3.1-beta.1을 더 새 버전으로 판단하지 않습니다. "
+                  "공개된 1.3.0 베타에서는 업데이트를 정상적으로 찾을 수 있습니다. "
+                  "If you installed a 1.3.1-preview build, download and install this beta manually; "
+                  "that preview's updater does not consider beta.1 newer. "
+                  "Bei einer installierten 1.3.1-preview-Version diese Beta bitte manuell "
+                  "herunterladen und installieren."
                   "\n\nBeta validation scope: published with owner acceptance after all required native CI, "
                   "packaging and 21 connected validation checks passed. The unchanged full acceptance "
                   "inventory remains **BLOCKED: 107 checks are unexecuted**, including 42 strict hard gates. "

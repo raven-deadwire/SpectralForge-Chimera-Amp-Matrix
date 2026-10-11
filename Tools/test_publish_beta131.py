@@ -18,6 +18,22 @@ RUN = 123
 REAL_ROOT = publisher.ROOT
 
 
+class PublicReleaseNotes(unittest.TestCase):
+    def test_current_notes_link_to_pinned_documents_and_published_manual(self):
+        path = REAL_ROOT / "docs/OPEN_BETA_RELEASE_NOTES.md"
+        original = path.read_bytes()
+        rendered = publisher.render_public_release_notes(original.decode("utf-8"), HEAD)
+        for name in ("OPEN_BETA_1_3_RELEASE_NOTES.md", "OPEN_BETA_1_2_RELEASE_NOTES.md",
+                     "RELEASE_1_3_1_PIPELINE.md"):
+            self.assertIn(f"https://github.com/{publisher.transport.REPO}/blob/{HEAD}/docs/{name}", rendered)
+        self.assertIn(publisher.DOWNLOAD_URL + "MANUAL.html", rendered)
+        self.assertEqual(path.read_bytes(), original)
+        self.assertIn("Studio One", rendered)
+        self.assertIn("107", rendered)
+        with self.assertRaisesRegex(RuntimeError, "Unresolved relative"):
+            publisher.render_public_release_notes(rendered + "\n[missing](missing.md)", HEAD)
+
+
 class PublicationInputs(unittest.TestCase):
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory()

@@ -258,6 +258,62 @@ jobs:
           compression-level: 0
           if-no-files-found: error
       - uses: actions/upload-artifact@v4
+        if: success() && hashFiles('installer-transfer/part-9/*') != ''
+        with:
+          name: Chimera-installer-part-9
+          path: installer-transfer/part-9/*
+          compression-level: 0
+          if-no-files-found: error
+      - uses: actions/upload-artifact@v4
+        if: success() && hashFiles('installer-transfer/part-10/*') != ''
+        with:
+          name: Chimera-installer-part-10
+          path: installer-transfer/part-10/*
+          compression-level: 0
+          if-no-files-found: error
+      - uses: actions/upload-artifact@v4
+        if: success() && hashFiles('installer-transfer/part-11/*') != ''
+        with:
+          name: Chimera-installer-part-11
+          path: installer-transfer/part-11/*
+          compression-level: 0
+          if-no-files-found: error
+      - uses: actions/upload-artifact@v4
+        if: success() && hashFiles('installer-transfer/part-12/*') != ''
+        with:
+          name: Chimera-installer-part-12
+          path: installer-transfer/part-12/*
+          compression-level: 0
+          if-no-files-found: error
+      - uses: actions/upload-artifact@v4
+        if: success() && hashFiles('installer-transfer/part-13/*') != ''
+        with:
+          name: Chimera-installer-part-13
+          path: installer-transfer/part-13/*
+          compression-level: 0
+          if-no-files-found: error
+      - uses: actions/upload-artifact@v4
+        if: success() && hashFiles('installer-transfer/part-14/*') != ''
+        with:
+          name: Chimera-installer-part-14
+          path: installer-transfer/part-14/*
+          compression-level: 0
+          if-no-files-found: error
+      - uses: actions/upload-artifact@v4
+        if: success() && hashFiles('installer-transfer/part-15/*') != ''
+        with:
+          name: Chimera-installer-part-15
+          path: installer-transfer/part-15/*
+          compression-level: 0
+          if-no-files-found: error
+      - uses: actions/upload-artifact@v4
+        if: success() && hashFiles('installer-transfer/part-16/*') != ''
+        with:
+          name: Chimera-installer-part-16
+          path: installer-transfer/part-16/*
+          compression-level: 0
+          if-no-files-found: error
+      - uses: actions/upload-artifact@v4
         with:
           name: Chimera-installer-transfer-metadata
           path: installer-transfer/metadata/*
@@ -329,6 +385,62 @@ jobs:
         with:
           name: Chimera-candidate-part-8
           path: candidate-transfer/part-8/*
+          compression-level: 0
+          if-no-files-found: error
+      - uses: actions/upload-artifact@v4
+        if: success() && hashFiles('candidate-transfer/part-9/*') != ''
+        with:
+          name: Chimera-candidate-part-9
+          path: candidate-transfer/part-9/*
+          compression-level: 0
+          if-no-files-found: error
+      - uses: actions/upload-artifact@v4
+        if: success() && hashFiles('candidate-transfer/part-10/*') != ''
+        with:
+          name: Chimera-candidate-part-10
+          path: candidate-transfer/part-10/*
+          compression-level: 0
+          if-no-files-found: error
+      - uses: actions/upload-artifact@v4
+        if: success() && hashFiles('candidate-transfer/part-11/*') != ''
+        with:
+          name: Chimera-candidate-part-11
+          path: candidate-transfer/part-11/*
+          compression-level: 0
+          if-no-files-found: error
+      - uses: actions/upload-artifact@v4
+        if: success() && hashFiles('candidate-transfer/part-12/*') != ''
+        with:
+          name: Chimera-candidate-part-12
+          path: candidate-transfer/part-12/*
+          compression-level: 0
+          if-no-files-found: error
+      - uses: actions/upload-artifact@v4
+        if: success() && hashFiles('candidate-transfer/part-13/*') != ''
+        with:
+          name: Chimera-candidate-part-13
+          path: candidate-transfer/part-13/*
+          compression-level: 0
+          if-no-files-found: error
+      - uses: actions/upload-artifact@v4
+        if: success() && hashFiles('candidate-transfer/part-14/*') != ''
+        with:
+          name: Chimera-candidate-part-14
+          path: candidate-transfer/part-14/*
+          compression-level: 0
+          if-no-files-found: error
+      - uses: actions/upload-artifact@v4
+        if: success() && hashFiles('candidate-transfer/part-15/*') != ''
+        with:
+          name: Chimera-candidate-part-15
+          path: candidate-transfer/part-15/*
+          compression-level: 0
+          if-no-files-found: error
+      - uses: actions/upload-artifact@v4
+        if: success() && hashFiles('candidate-transfer/part-16/*') != ''
+        with:
+          name: Chimera-candidate-part-16
+          path: candidate-transfer/part-16/*
           compression-level: 0
           if-no-files-found: error
       - uses: actions/upload-artifact@v4
