@@ -1,0 +1,100 @@
+{
+  "schema": 1,
+  "passed": true,
+  "command": "python3 analyze_archives.py --archives archives-manifest.json --output recomputed",
+  "archive_layout": "Relative archives/ paths from archives-manifest.json; six temporary links to verified original ZIPs, no archive copies.",
+  "archive_count": 6,
+  "population_count": 396,
+  "callback_count": 633600,
+  "all_source_archives_unchanged": true,
+  "archive_checks": [
+    {
+      "path": "archives/latest-macOS.zip",
+      "sha256": "2630e2e9f54dd9f3beed1f93499fbe37a7fb53ec76ffd70a4cbd6045972ca239",
+      "matches_manifest": true
+    },
+    {
+      "path": "archives/latest-Windows.zip",
+      "sha256": "e920a95522731490dc4848be8ef8bda51181d944f5deacd95addea6762236b98",
+      "matches_manifest": true
+    },
+    {
+      "path": "archives/latest-Linux.zip",
+      "sha256": "32fa8b64225746023ab2e6f8539ad5f586aea32762bb29ce2711a047c5ed3ccd",
+      "matches_manifest": true
+    },
+    {
+      "path": "archives/prior-Linux.zip",
+      "sha256": "36b01241d53ad8ba7e9b9f14bb321fceef95fffcad8dd9279491c750df6590e9",
+      "matches_manifest": true
+    },
+    {
+      "path": "archives/prior-Windows.zip",
+      "sha256": "fc1e2af5c0c3078ce468bc8c3cf6ea6e9c35cb50144562bf677df95e4ae97a49",
+      "matches_manifest": true
+    },
+    {
+      "path": "archives/prior-macOS.zip",
+      "sha256": "9b86ba93f0ccfa9a9983be37df5eb1ae1082ff2dec8028128e27b9e51c7ed631",
+      "matches_manifest": true
+    }
+  ],
+  "output_comparisons": [
+    {
+      "file": "route-summary.csv",
+      "identical": true,
+      "sha256": "15c4c1dd205185e0718101b38140d524f5fb2949ab22790474029c9fa2f0a8a2"
+    },
+    {
+      "file": "deadline-misses.csv",
+      "identical": true,
+      "sha256": "7f6cd960fcd3abcba8054a87cabf24b4c6ac6bae6871c985a18f971974f92c83"
+    },
+    {
+      "file": "validation.json",
+      "identical": true,
+      "sha256": "73a4e6d3d4c25fb77d73b5e4e1577e17af103da5ce95b2d001d25982216d4a4f"
+    }
+  ],
+  "validation": {
+    "passed": true,
+    "archives": [
+      {
+        "archive": "latest-macOS",
+        "passed": true,
+        "routes": 66,
+        "callbacks": 105600
+      },
+      {
+        "archive": "latest-Windows",
+        "passed": true,
+        "routes": 66,
+        "callbacks": 105600
+      },
+      {
+        "archive": "latest-Linux",
+        "passed": true,
+        "routes": 66,
+        "callbacks": 105600
+      },
+      {
+        "archive": "prior-Linux",
+        "passed": true,
+        "routes": 66,
+        "callbacks": 105600
+      },
+      {
+        "archive": "prior-Windows",
+        "passed": true,
+        "routes": 66,
+        "callbacks": 105600
+      },
+      {
+        "archive": "prior-macOS",
+        "passed": true,
+        "routes": 66,
+        "callbacks": 105600
+      }
+    ]
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "recorded_at": "2026-10-11T23:44:54.988678+00:00",
+  "uname": {
+    "system": "Darwin",
+    "node": "sat12-bq167-96d1863d-9749-4625-a7a0-aa82368141ba-7ACC83CBBAD0.local",
+    "release": "24.6.0",
+    "version": "Darwin Kernel Version 24.6.0: Tue Jul 21 20:51:34 PDT 2026; root:xnu-11417.140.69.711.44~1/RELEASE_ARM64_VMAPPLE",
+    "machine": "arm64",
+    "processor": "arm"
+  },
+  "cpu_count": 3,
+  "python": "3.12.10 (v3.12.10:0cc81280367, Apr  8 2025, 08:46:59) [Clang 13.0.0 (clang-1300.0.29.30)]",
+  "runner": {
+    "RUNNER_OS": "macOS",
+    "RUNNER_ARCH": "ARM64",
+    "RUNNER_ENVIRONMENT": "github-hosted",
+    "ImageOS": "macos15",
+    "ImageVersion": "20260907.0337.1",
+    "GITHUB_REPOSITORY": "raven-deadwire/SpectralForge-Chimera-Amp-Matrix",
+    "GITHUB_RUN_ID": "38185416392",
+    "GITHUB_RUN_ATTEMPT": "1",
+    "GITHUB_JOB": "controlled-diagnostic"
+  },
+  "git": "git version 2.55.0",
+  "cmake": "cmake version 4.4.3\n\nCMake suite maintained and supported by Kitware (kitware.com/cmake).",
+  "ctest": "ctest version 4.4.3\n\nCMake suite maintained and supported by Kitware (kitware.com/cmake).",
+  "cpu_details": "      Model Name: Apple Virtual Machine 1\n      Model Identifier: VirtualMac2,1\n      Chip: Apple M1 (Virtual)\n      Total Number of Cores: 3\n      Memory: 7 GB"
+}
