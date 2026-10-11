@@ -169,14 +169,19 @@ inline void paintFrame(juce::Graphics& g,const Skin& skin,juce::Rectangle<float>
             const float bend=y+face.getHeight()*.46f,top=y+corner;
             const float start=i==leftRail ? x+inset : r-rail-inset;
             const float end=i==leftRail ? x : r-rail;
-            {
-                const juce::Graphics::ScopedSaveState upper(g);
-                g.addTransform(juce::AffineTransform(1.f,(end-start)/(bend-top),start,0.f,1.f,top));
-                g.setFillType(juce::FillType(image,juce::AffineTransform::scale(rail/float(image.getWidth()),grainScale)));
-                g.fillRect(0.f,0.f,rail,bend-top);
-            }
-            g.setFillType(juce::FillType(image,juce::AffineTransform::scale(rail/float(image.getWidth()),grainScale).translated(end,bend)));
-            g.fillRect(end,bend,rail,b-corner-bend);
+            const auto textureScale=juce::AffineTransform::scale(rail/float(image.getWidth()),grainScale);
+            const auto upperMap=juce::AffineTransform(1.f,(end-start)/(bend-top),start,0.f,1.f,top);
+            // Use one coordinate path for both halves. Direct2D's fillRect
+            // brush path differs for a sheared and a translated context and
+            // can shift the photographed piping at their shared bend.
+            juce::Path upper;upper.addRectangle(0.f,0.f,rail,bend-top);upper.applyTransform(upperMap);
+            g.setFillType(juce::FillType(image,textureScale.followedBy(upperMap)));
+            g.fillPath(upper);
+            juce::Path lower;lower.addRectangle(end,bend,rail,b-corner-bend);
+            // Keep the same vertical grain phase instead of restarting the
+            // material at the bend. Geometry, rail width and source skin stay fixed.
+            g.setFillType(juce::FillType(image,textureScale.translated(end,top)));
+            g.fillPath(lower);
             continue;
         }
         const auto transform=juce::AffineTransform::scale(
