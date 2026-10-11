@@ -7,6 +7,14 @@ namespace signalPathTests {
 using namespace nativeUITests;
 using namespace spectralforge::signalPath;
 inline bool edge(const Snapshot& s,const juce::String& a,const juce::String& b) {for(const auto& e:s.edges)if(e.from==a&&e.to==b)return true;return false;}
+// A stale presentation remains a test failure; report its state before dereferencing.
+inline const Node& requiredNode(const Snapshot& snapshot,const char* id,const char* phase) {
+    const auto* node=snapshot.find(id);
+    if(node==nullptr)
+        throw std::runtime_error((juce::String("Signal Path ")+phase+": missing "+id
+            +" (snapshot mode="+juce::String(snapshot.mode)+", nodes="+juce::String(int(snapshot.nodes.size()))+")").toStdString());
+    return *node;
+}
 inline std::vector<float> values(ChimeraProcessor& p){std::vector<float> result;for(auto* parameter:p.getParameters())result.push_back(parameter->getValue());return result;}
 struct Writes final:juce::AudioProcessorListener {
     int changes{},gestures{};
@@ -114,12 +122,12 @@ inline void run(const juce::File& folder) {
     }
     // Host changes converge through a presentation read, including inactive tabs.
     set(*p,"mode",2);set(*p,"cab2",0);set(*p,"gateAfterRig",1);set(*p,"transposeon",1);set(*p,"transpose",-2);settle(120);
-    require(!strip->snapshot().find("cab.context4")->active && strip->snapshot().find("transpose")->active&&edge(strip->snapshot(),"merge","gate"),"Host automation did not refresh path/bypass");
+    require(!requiredNode(strip->snapshot(),"cab.context4","host automation").active && requiredNode(strip->snapshot(),"transpose","host automation").active&&edge(strip->snapshot(),"merge","gate"),"Host automation did not refresh path/bypass");
     {SignalPathView automated(*p,false);capture(automated,folder,"signal-path-matrix-post-gate");}
     set(*p,"toneEQ_bypass",0);set(*p,"toneEQ_b1_enabled",1);set(*p,"finalEQ_bypass",1);settle(100);
-    require(strip->snapshot().find("tone.eq")->active && strip->snapshot().find("tone.eq")->status=="ACTIVE / 1 BANDS" && !strip->snapshot().find("final.eq")->active,"Automated EQ bypass/band status did not converge");
-    p->copyComparison();set(*p,"cab2",1);set(*p,"toneEQ_bypass",1);set(*p,"finalEQ_bypass",0);p->selectComparison(1);settle(100);require(!strip->snapshot().find("cab.context4")->active && strip->snapshot().find("tone.eq")->active && !strip->snapshot().find("final.eq")->active,"A/B did not restore graph CAB/EQ bypass");
-    juce::MemoryBlock saved;p->getStateInformation(saved);p->loadFactoryPreset(0);p->setStateInformation(saved.getData(),int(saved.getSize()));settle(120);require(strip->snapshot().mode==2&&!strip->snapshot().find("cab.context4")->active && strip->snapshot().find("tone.eq")->active && !strip->snapshot().find("final.eq")->active,"Project restore left stale graph");
+    require(requiredNode(strip->snapshot(),"tone.eq","EQ automation").active && requiredNode(strip->snapshot(),"tone.eq","EQ automation").status=="ACTIVE / 1 BANDS" && !requiredNode(strip->snapshot(),"final.eq","EQ automation").active,"Automated EQ bypass/band status did not converge");
+    p->copyComparison();set(*p,"cab2",1);set(*p,"toneEQ_bypass",1);set(*p,"finalEQ_bypass",0);p->selectComparison(1);settle(100);require(!requiredNode(strip->snapshot(),"cab.context4","A/B restore").active && requiredNode(strip->snapshot(),"tone.eq","A/B restore").active && !requiredNode(strip->snapshot(),"final.eq","A/B restore").active,"A/B did not restore graph CAB/EQ bypass");
+    juce::MemoryBlock saved;p->getStateInformation(saved);p->loadFactoryPreset(0);p->setStateInformation(saved.getData(),int(saved.getSize()));settle(120);require(strip->snapshot().mode==2&&!requiredNode(strip->snapshot(),"cab.context4","project restore").active && requiredNode(strip->snapshot(),"tone.eq","project restore").active && !requiredNode(strip->snapshot(),"final.eq","project restore").active,"Project restore left stale graph");
     auto expected=values(*p);writes.changes=writes.gestures=0;editor->removeFromDesktop();editor.reset();editor=std::make_unique<ChimeraEditor>(*p);settle(80);require(expected==values(*p)&&writes.changes==0&&writes.gestures==0,"Editor recreation changed sound");
     p->removeListener(&writes);editor.reset();
     std::cout<<"PASS Signal Path: Classic / Dual Blend & Crossover / Matrix LOW topology; native pointer navigation; host-write/gesture isolation; scales; automation; preset/project/A-B restore; editor recreation\n";
