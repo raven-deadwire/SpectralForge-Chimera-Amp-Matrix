@@ -38,8 +38,9 @@ and scale ink stays light so it remains readable across the dark brushed-steel p
 The first complete-shell software capture review caught two additional issues:
 Brit Edge's route selector crossed the right gold piping, and dark Cinder labels
 lost contrast in the centre of its brushed plate. The selector is shifted left
-without reducing its width, and Cinder retains light label/scale ink. The layout
-contract now includes Brit Edge's actual selector and route-label plate bounds.
+and widened so the longest route fits its unchanged 16 px font, and Cinder
+retains light label/scale ink. The layout contract now includes Brit Edge's
+actual selector and route-label plate bounds and uncompressed text width.
 
 The appearance contract independently decodes every source, checks alpha
 bounds and resource identity, compares production paint with a single raw
