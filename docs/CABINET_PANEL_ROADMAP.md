@@ -1,8 +1,81 @@
 # Cabinet control panel roadmap
 
+## Follow-up: adjustable room acoustics — 2026-10-11 KST
+
+**Status: PLANNED / dated scope assigned; implementation pending.**
+The owner requested controls for the room's own acoustic conditions. Track
+implementation and acceptance in [issue #46](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/issues/46).
+The supplied reference image shows ROOM SEND, ROOM SIZE (Small / Medium /
+Large) and Bypass. Current `Source/CabRoom.h` provides rig-navigation scenery
+without room-response parameters.
+
+### Proposed delivery stages
+
+| Version / work window, KST | Controls and result |
+|---|---|
+| 1.3.3 Room Core, 2026-11-30–2026-12-25 | Small / Medium / Large Room Size, per-rig Room Send, shared Absorption / Damping, Room Bypass and defined wet-return level; each control changes actual room audio. |
+| 1.8 Room Advanced, 2027-05-10–2027-06-18 | Early reflections, late decay, diffusion, room wet low/high cuts and stereo width. |
+| 1.8 spatial stage, 2027-05-10–2027-06-18 | Declared modeled dimensions, wall/floor/ceiling absorption or material presets, cabinet-to-boundary placement and optional room-mic location independent of close Mic A/B. |
+
+Use one shared acoustic environment with one, two or three weighted rig sends
+in Classic, Dual and Matrix. Put basic controls on the RIGS/CAB room surface;
+expand the detailed conditions only when their processing is implemented.
+Preserve RavenForge visual direction, common equipment scale and readable
+controls. Treat the first post-CAB ambience module as an authored additional
+room response; a spatial remiking model is a separate implementation stage.
+
+### Integration requirements
+
+- Preserve each direct AMP -> CAB lane. Matrix LOW sends originate in the
+  AMP/CAB branch and follow its effective `lowampmix` contribution; clean
+  LOW DI never feeds the room. DI 100% or LOW AMP off means no new LOW room
+  excitation. Follow the actual lane blend, gain, mute/solo, polarity and
+  stereo behavior for all modes.
+- Define source switching, CAB bypass and tail transitions explicitly.
+  User IR can feed the optional room after its existing response.
+- With the optional post-rig gate, apply its existing envelope to both the
+  direct rig sum and room excitation; return wet room audio after that gate
+  and before Tone EQ / POST. Verify the topology, detector behavior and tail
+  continuity, then reflect the actual routing in the signal-path UI.
+- Keep room state and the existing POST Reverb independent. Append stable
+  parameter IDs; restore old projects and presets with Room off / sends zero.
+  Cover project recall, A/B and host automation.
+- Target no additional direct-path buffering latency; distinguish wet
+  reflection/predelay time from processing latency. Prepare heavy state away
+  from the callback, smooth transitions and report room tail length.
+- Validate actual audio, LOW DI isolation, low-note/palm-mute definition
+  and full-product callback cost with all three rigs/two mics and active CAB
+  transitions. Prototype/test-installer reports must list performed checks
+  and remaining host work. Complete real-host/tail/lifecycle acceptance for
+  the December 25 candidate.
+
+### Assigned checkpoints
+
+| Target, KST | Result |
+|---|---|
+| 2026-12-04 | Shared bus/gate topology, state/parameter IDs and numerical callback/memory budgets. |
+| 2026-12-11 | Playable Size/Send/Absorption room in Classic, Dual and Matrix. |
+| 2026-12-18 | First Room Core Windows test installer and native UI/audio evidence. |
+| 2026-12-25 | 1.3.3 validation candidate; re-estimate the advanced spatial scope from the actual core. |
+| 2027-05-14 | Declared spatial model, surface/microphone scope and updated implementation estimate. |
+| 2027-05-28 | Playable advanced-condition/spatial prototype. |
+| 2027-06-11 | First 1.8 test installer with implemented room and POST scope. |
+| 2027-06-18 | 1.8 candidate and explicit acoustic/spatial coverage report. |
+
+The [development calendar](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/pull/36)
+now reserves four weeks for 1.3.3 and expands 1.8 by two weeks. Versions
+1.3.1/1.3.2 retain their windows; 1.4–1.7 move four weeks and 1.9 onward
+move six. Whole-product integration is targeted for **2027-09-24**.
+The first room delivers actual early reflections and decay through the basic
+controls; independent Early/Decay/Diffusion/HP/LP/Width and spatial controls
+are assigned to 1.8. The additional two weeks are an estimate to review on
+December 25 and May 14, with any affected dates revised explicitly.
+All dates are internal work/candidate targets. Issue #46 remains open until
+implementation and acceptance are complete.
+
 ## Current 1.3 preparation — 2026-10-09 KST
 
-The original CAB engine, 14 speaker designs, 20 microphones and nine explicit layouts now exist in the CAB branch. The owner selected **1.3** for the current release preparation. Whole-room framing, cabinet artwork preservation and duplicate visible layout entries are being corrected before the final candidate. [Release preparation](RELEASE_1_3_PREPARATION.md) is the current delivery record; [head-front controls](AMP_HEAD_CONTROLS_NEXT_UPDATE.md) begin in 1.3.1 and expand through 1.3.2. The [full reordered roadmap](DEVELOPMENT_ROADMAP_2026_2027.md), updated October 10, governs all forward dates and the signal-path work. The October 8 architecture and reference boundaries below remain applicable; its initial prototype schedule is historical.
+The original CAB engine, 14 speaker designs, 20 microphones and nine explicit layouts now exist in the CAB branch. The owner selected **1.3** for the current release preparation. Whole-room framing, cabinet artwork preservation and duplicate visible layout entries are being corrected before the final candidate. [Release preparation](RELEASE_1_3_PREPARATION.md) is the current delivery record; [head-front controls](AMP_HEAD_CONTROLS_NEXT_UPDATE.md) begin in 1.3.1 and expand through 1.3.2. The [full reordered roadmap](DEVELOPMENT_ROADMAP_2026_2027.md), updated October 11, governs all forward dates and the signal-path work. The October 8 architecture and reference boundaries below remain applicable; its initial prototype schedule is historical.
 
 ## October 8 design baseline
 
@@ -156,8 +229,9 @@ Version Original definitions and generator behavior so saved sessions do not
 silently change tone with a new model revision. Keep old definitions available
 or provide an equivalent explicit compatibility mechanism and regression proof.
 
-Room, angle, rear mic, Sub Kick and separately adjustable tweeter/port layers
-remain later scope. Original horn/port components may be modeled with explicit
+Adjustable room acoustics are scheduled in the October 11 follow-up above and
+issue #46. Angle, rear mic, Sub Kick and separately adjustable tweeter/port
+layers remain other later scope. Original horn/port components may be modeled with explicit
 assumptions; Captured horn/port identity must reflect actual capture metadata.
 Neither source may expose a disconnected or misleading control.
 

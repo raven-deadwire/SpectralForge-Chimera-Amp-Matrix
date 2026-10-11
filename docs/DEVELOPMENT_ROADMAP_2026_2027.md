@@ -1,6 +1,6 @@
-# Chimera development roadmap, October 2026–August 2027
+# Chimera development roadmap, October 2026–September 2027
 
-Updated: **2026-10-10, Asia/Seoul**. This is the current implementation plan
+Updated: **2026-10-11, Asia/Seoul**. This is the current implementation plan
 following the owner's request to review the [FabFilter product range](https://www.fabfilter.com/products),
 restore the omitted graphical EQ/dynamics/multiband work, add a visible editable
 signal path, and open Chimera on the amplifier view.
@@ -12,7 +12,7 @@ candidate targets, not guaranteed public release dates**. Select work by actual
 completion, priority and satisfied dependencies; do not wait for an obsolete
 calendar window. Re-estimate the next four weeks at each checkpoint.
 
-## Current baseline and immediate work
+## October 10 baseline and continuing priorities
 
 The inspected 1.3 candidate is PR #35, commit
 [e05ca7e](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/commit/e05ca7ee9398a063615e6795f8754caa8406bfd6).
@@ -52,24 +52,31 @@ does not implement the later embedded knobs or editable signal-path strip.
 
 ## Full reordered calendar
 
-The former June 4 integration target covered a model-led plan that omitted
-substantial common processors and routing work. This revision gives that work
-explicit time and moves the integration target to **August 13, 2027**.
-The model addition order is retained.
+The October 10 revision moved the model-led June 4 integration target to
+August 13, 2027 to account for common DSP and routing. The owner's October 11
+request now adds adjustable room acoustics to the dated plan.
+
+Reserve four weeks for **1.3.3 Room Core** and two additional weeks inside
+**1.8 Room Advanced / Motion & Space**. Versions 1.3.1 and 1.3.2 keep their
+existing windows; 1.4–1.7 move four weeks, and 1.9 onward move six weeks.
+The complete integration target becomes **September 24, 2027**.
+These are work estimates to review against measured progress, not an
+assumption of extra staffing. Retain the character-model addition order.
 
 | Version | Work window, KST | Main deliverable | Active character models |
 |---|---|---|---:|
-| 1.3 | Current candidate; deliver after its real gates pass | Niflheimr/CAB installer and candidate fixes; startup RIGS is a prepared follow-up correction | 85 |
+| 1.3 | Current release track; verify latest source and delivery state | Niflheimr/CAB installer and current release work | 85 |
 | 1.3.1 | 2026-10-10–2026-11-01 | Graphical 12-band EQ, input/output FFT, Tone/Final positions, signal-path display and navigation; representative embedded head controls | 85 |
 | 1.3.2 | 2026-11-02–2026-11-27 | Dynamic EQ, clean compressor, gate/expander improvements, live output limiter; expand head-control coverage | 85 |
-| 1.4 | 2026-11-30–2027-01-08 | Independent four-band dynamics, PRE Expansion A six models, first constrained signal-order editor | 91 |
-| 1.5 | 2027-01-11–2027-02-05 | PRE Expansion B six models, drag-order UX; separately gated M/S, external sidechain and six-band dynamics expansion | 97 |
-| 1.6 | 2027-02-08–2027-03-12 | Five reference amps and an independent three-band saturation processor | 102 |
-| 1.7 | 2027-03-15–2027-04-09 | Nine POST Dynamics/Tone models and a common two-filter modulation processor | 111 |
-| 1.8 | 2027-04-12–2027-05-07 | Nine Motion/Space models, advanced delay and reverb controls | 120 |
-| 1.9 | 2027-05-10–2027-06-04 | Nine Creative variants, expanded modulation and routing polish | 129 |
-| 1.10 | 2027-06-07–2027-07-16 | Dvergr Analog, Seidr Dynamic and Mimir Impact synth layers; integrate qualified tracking work | 132 |
-| 2.0 | 2027-07-19–2027-08-13 | Whole-product host/audio/state/performance/preset/installer integration and RC | 132 |
+| 1.3.3 | 2026-11-30–2026-12-25 | Room Core: shared Size/Absorption/Bypass, per-rig Send, actual early reflections and decay, state/automation and LOW DI isolation | 85 |
+| 1.4 | 2026-12-28–2027-02-05 | Independent four-band dynamics, PRE Expansion A six models, first constrained signal-order editor | 91 |
+| 1.5 | 2027-02-08–2027-03-05 | PRE Expansion B six models, drag-order UX; separately gated M/S, external sidechain and six-band dynamics expansion | 97 |
+| 1.6 | 2027-03-08–2027-04-09 | Five reference amps and an independent three-band saturation processor | 102 |
+| 1.7 | 2027-04-12–2027-05-07 | Nine POST Dynamics/Tone models and a common two-filter modulation processor | 111 |
+| 1.8 | 2027-05-10–2027-06-18 | Nine Motion/Space models, advanced delay/reverb and Room Advanced conditions/spatial modeling; six-week window includes two added room weeks | 120 |
+| 1.9 | 2027-06-21–2027-07-16 | Nine Creative variants, expanded modulation and routing polish | 129 |
+| 1.10 | 2027-07-19–2027-08-27 | Dvergr Analog, Seidr Dynamic and Mimir Impact synth layers; integrate qualified tracking work | 132 |
+| 2.0 | 2027-08-30–2027-09-24 | Whole-product host/audio/state/performance/preset/installer integration and RC | 132 |
 
 Model research, asset inventory and independent prototypes can start before
 their integration windows. A blocked capture, pitch method, studio-quality
@@ -88,15 +95,80 @@ audio, compatibility or acceptance criteria.
 | 2026-11-13 | Dynamic EQ/GR and clean compressor preview using repeatable audio |
 | 2026-11-20 | First 1.3.2 test installer |
 | 2026-11-27 | 1.3.2 candidate and head-coverage report |
-| 2026-12-11 | Four-band dynamics prototype with band sum/phase evidence |
-| 2026-12-18 | First constrained order-editing preview with save/restore and undo |
-| 2027-01-08 | Combined 1.4 candidate: verified four-band dynamics, PRE A and supported order editing |
+| 2026-12-04 | Room bus, gate placement, parameter/state and callback-budget design review |
+| 2026-12-11 | Playable Room Size/Send/Absorption prototype in Classic, Dual and Matrix |
+| 2026-12-18 | First Room Core Windows test installer, native UI captures and measured LOW DI isolation |
+| 2026-12-25 | 1.3.3 candidate with room transitions, state, CPU, host/tail evidence and EN/DE/KR guidance |
+| 2027-01-08 | Four-band dynamics prototype with band sum/phase evidence |
+| 2027-01-15 | First constrained order-editing preview with save/restore and undo |
+| 2027-02-05 | Combined 1.4 candidate: verified four-band dynamics, PRE A and supported order editing |
 
 A preview means implemented behavior, not a mock screenshot. October 23 does
 not promise Dynamic EQ, multiband processing or all 25 interactive head layouts.
 Keep the existing functional detailed controls as a fallback while dense
 faceplates are completed. Full coverage means 25 active heads plus the one
 recall-only model, across the existing six native contexts.
+
+## Room acoustics schedule and scope
+
+The owner requested adjustable room conditions on October 11 and then asked
+for their version/date assignment. [Issue #46](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/issues/46)
+tracks actual implementation and acceptance. This schedule assigns two stages.
+
+### 1.3.3 Room Core — November 30–December 25, 2026
+
+Deliver one shared room environment with Small / Medium / Large Size,
+Absorption / Damping, Bypass and per-rig Room Send. Include actual early
+reflections and late decay, a defined wet-return level, state/automation/A-B
+and old-project Room Off defaults. The first controls operate on the RIGS/CAB
+room surface in Classic, Dual and Matrix.
+
+| Week, KST | Reviewable work |
+|---|---|
+| 2026-11-30–2026-12-04 | Freeze weighted send/return topology, gate/tail policy, parameter IDs and numeric callback/memory budgets; verify Room Off preserves existing audio. |
+| 2026-12-07–2026-12-11 | Implement bounded room-size/absorption models, early reflections and decay; deliver a playable three-mode prototype. |
+| 2026-12-14–2026-12-18 | Complete basic UI, state/automation and smooth switching; measure low-note isolation and full-product cost; produce the first Windows test installer. |
+| 2026-12-21–2026-12-25 | Resolve platform/host/tail regressions, verify the installer and document the 1.3.3 candidate. |
+
+Independent Early Level, Decay, Diffusion, room HP/LP and Width controls belong
+to the dated 1.8 advanced stage. Individual controls may be brought forward
+only with their response/interaction evidence; the required 1.3.3 result is
+the playable basic room with actual reflections and decay.
+
+Room excitation follows each audible AMP/CAB contribution. Matrix LOW uses
+only its effective AMP/CAB portion; DI 100% and LOW AMP off create no new LOW
+room input. Preserve lane blend/gain/mute/solo/polarity. With the optional
+post-rig gate, apply the same existing gate envelope to the direct rig sum
+and room excitation; mix the wet return after that gate and before Tone EQ /
+POST. This avoids new excitation through a closed gate and preserves an
+already generated tail. Verify the final topology before implementation.
+
+### 1.8 Room Advanced — May 10–June 18, 2027
+
+Expand independent early/late balance, decay, diffusion, wet filters and width.
+Add declared modeled room dimensions, wall/floor/ceiling absorption or material
+presets, cabinet-to-boundary placement and a room-mic stage separate from close
+Mic A/B. The existing nine Motion/Space models and advanced POST delay/reverb
+remain in this version; allocate six weeks in total, including two added room
+weeks.
+
+| Checkpoint, KST | Reviewable result |
+|---|---|
+| 2026-12-25 | Re-estimate the advanced stage using the actual Room Core architecture and measured cost. |
+| 2027-05-14 | Fix spatial-model assumptions, controls, surface presets, acceptance limits and the remaining work estimate. |
+| 2027-05-28 | Playable advanced-condition/spatial prototype with declared parameter-to-response behavior. |
+| 2027-06-11 | First 1.8 test installer including the implemented room and POST scope. |
+| 2027-06-18 | Integrated 1.8 candidate and explicit coverage/evidence report. |
+
+The additional two weeks are a planning allowance, not proof that every
+physical-room claim is achievable. Review the scope on December 25 and May 14;
+revise affected dates and unqualified items explicitly rather than silently
+dropping the spatial controls or calling an ambience knob physical remiking.
+The core room can be used from 1.3.3 independently of this later extension.
+
+RavenForge room styling, common equipment scale, existing close microphones
+and private IR identity remain the design baseline. Room is a shared processor
+and adds no character models to the 85/132 catalog counts.
 
 ## Reference-to-feature mapping
 
@@ -134,7 +206,8 @@ global in Classic, Dual and Matrix.
 | Position | Default role | Reason |
 |---|---|---|
 | Input and PRE/rig section | Existing gate, transpose, owned PRE pedals, amp and CAB routing | Preserve the instrument/amp relationship and clean DI path |
-| Immediately after rig merge, before POST | Tone EQ, clean compressor/expander, independent multiband dynamics | Shape the performance before delay/reverb tails are generated |
+| Room return, from 1.3.3 | Weighted per-rig AMP/CAB sends into one shared room; wet return after the optional post-rig gate and before Tone EQ / POST | Preserve LOW DI and natural room decay; downstream Tone/dynamics intentionally also process room return |
+| Immediately after rig merge and optional room return, before POST | Tone EQ, clean compressor/expander, independent multiband dynamics | Shape the rig and room result before POST delay/reverb tails are generated |
 | Existing POST chain | Character dynamics/preamp/EQ, modulation, delay and reverb | Retain existing model roles and state; order editing is staged |
 | After POST and Doubler/Width | Final EQ | Adjust the complete wet sound and stereo result |
 | After Final EQ | Output/master trim, then output limiter | The limiter sees the final gain and every merged path |
@@ -153,8 +226,9 @@ distinct from the new clean common compressor.
 
 The first common dynamics default is before POST. Later supported global
 placements may intentionally process tails, but must state that result in the
-UI. Tone EQ is not initially movable across the rig split; Final EQ and the
-last limiter remain fixed roles. See [signal-path editor](SIGNAL_PATH_EDITOR.md).
+UI. Tone EQ is not initially movable across the rig split or ahead of the
+fixed Room return. Room send taps/return, Final EQ and the last limiter remain
+fixed roles. See [signal-path editor](SIGNAL_PATH_EDITOR.md).
 
 ### Live and Studio quality
 
@@ -219,6 +293,7 @@ Do not change the former to 48 and break its source contract.
 | Graph node coordinates, selection, value entry, FFT transport | 1.3.1 EQ | Dynamic EQ, multiband, filter and reverb shaping |
 | Stable processor/band IDs and order state | 1.3.1 state design; 1.4 order execution | Automation, routing, undo/redo and preset recall |
 | Detector/envelope, range/GR, audition and fixed DI taps | 1.3.2 dynamics | Gate, multiband, ducking, envelope filters |
+| Shared room send/return, gate-envelope reuse, tail and room state | 1.3.3 Room Core | 1.8 advanced room conditions and spatial modeling |
 | Band splitting/filtering, sum and branch alignment | 1.4 multiband | Saturation and later band processing |
 | Quality modes, latency reporting and dry/wet alignment | Live foundation first; Studio separately verified | Limiter, saturation, filters and Studio EQ |
 | Bounded modulation routing, tempo, LFO/EF and MIDI | Foundation with common processors; products in 1.7 onward | Filter, delay, saturation and synth |
@@ -243,6 +318,7 @@ effect a solution to live Transpose quality.
 | Multiband/saturation | Band isolation/solo, intended sum/phase, transitions and dry/wet alignment; actual four-/six-band callback cost |
 | Limiter/Studio | Ceiling and intersample behavior for claimed modes, real host latency, extreme inputs, mode/bypass changes |
 | Routing | Correct Classic/Dual/Matrix topology, untouched LOW clean DI branch, stable IDs, saved order and undo from first editable release |
+| Room | Audible size/absorption/send response, LOW DI isolation and lane weighting, gate/tail continuity, old-project Room Off, exact state/automation and measured full-product realtime cost; spatial claims need declared model evidence |
 | Head UI | Correct six native contexts, per-channel/shared control memory, matching hit/paint transforms, no writes from viewing, complete host gestures |
 | Host and release | Existing 48 presets, old projects, A/B and IR state, representative sample rates/buffers, callback timing and actual host lifecycle/installer results |
 
@@ -253,7 +329,7 @@ not be replaced with unsupported PASS labels.
 
 The two development tasks retain their cadence: daily 15:00 KST independent
 implementation, weekdays 17:00 KST Astra validation. Their roadmap end moves to
-August 13 with this calendar. They must read this plan and the newest source,
+September 24 with this calendar. They must read this plan and the newest source,
 continue independent work while a specific validation item is blocked, and
 record the next reviewable result. Installer/NAM result delivery remains a
 separate existing hourly condition watch.
@@ -264,6 +340,7 @@ separate existing hourly condition watch.
 - [Embedded amplifier-head controls](AMP_HEAD_CONTROLS_NEXT_UPDATE.md)
 - [Signal-path navigation and editing](SIGNAL_PATH_EDITOR.md)
 - [CAB source/identity/acceptance boundaries](CABINET_PANEL_ROADMAP.md)
+- [Room implementation and dated checkpoints](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/issues/46)
 - [Transpose long-term work](TRANSPOSE_LONG_TERM.md)
 - [1.3 release preparation](RELEASE_1_3_PREPARATION.md)
 - [Exact 1.3 candidate test blockers](RELEASE_1_3_TEST_BLOCKERS_20261010.md)

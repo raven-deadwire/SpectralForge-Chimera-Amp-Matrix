@@ -1,6 +1,6 @@
 # Signal-path navigation and editing
 
-Updated 2026-10-10 KST. Planned from the owner's connected-icon SIGNAL PATH
+Updated 2026-10-11 KST. Planned from the owner's connected-icon SIGNAL PATH
 reference and request to open Chimera on the amplifier head.
 
 ## Product behavior
@@ -31,9 +31,10 @@ global processor, not another label for Matrix.
 |---|---|---|---|
 | Startup correction | Immediate 1.3 follow-up | Start on the amp/RIGS view | The prepared follow-up correction must pass UI validation with existing state/mode preserved |
 | Navigation strip | 1.3.1, 2026-10-10–11-01 | Inspect actual path and click each implemented stage; see active/bypassed/selected state | Display is derived from actual routing, no fictional editable blocks, keyboard navigation and correct lane focus |
-| Constrained order editor | 1.4, 2026-11-30–2027-01-08 | Move supported stages earlier/later using commands or a placement menu | Correct audio graph, click-safe change policy, stable automation identities, order save/restore and basic undo |
-| Drag interaction | 1.5, 2027-01-11–02-05 | Drag with valid drop targets, preview placement, cancel, use keyboard and undo/redo | Calls the already tested order command; no DSP rebuild during hover; controls remain accessible |
-| Advanced polish | 1.9, 2027-05-10–06-04 | Expanded modulation/routing presentation and qualified advanced placements | Separately measured branch/latency/tail behavior; no unrestricted cyclic graph |
+| Room path integration | 1.3.3, 2026-11-30–12-25 | Show weighted AMP/CAB sends and shared Room; open its controls | Preserve LOW DI isolation and the actual post-rig gate/wet-return boundary; display implemented topology only |
+| Constrained order editor | 1.4, 2026-12-28–2027-02-05 | Move supported stages earlier/later using commands or a placement menu | Correct audio graph, click-safe change policy, stable automation identities, order save/restore and basic undo |
+| Drag interaction | 1.5, 2027-02-08–03-05 | Drag with valid drop targets, preview placement, cancel, use keyboard and undo/redo | Calls the already tested order command; no DSP rebuild during hover; controls remain accessible |
+| Advanced polish | 1.9, 2027-06-21–07-16 | Expanded modulation/routing presentation and qualified advanced placements | Separately measured branch/latency/tail behavior; no unrestricted cyclic graph |
 
 Do not postpone undo, preset recall or stable IDs until the drag release.
 They are required when order changes first become possible. An unavailable
@@ -47,7 +48,8 @@ active audio block in the shipping product.
 | Input gate / transpose / tuner | Inspect and use existing controls/bypass | Retain input/tap relationships |
 | PRE board | Reorder installed pedals within their current supported owner/board | Maximum five pedals; no implicit change of lane ownership |
 | Amp and CAB | Select models, use controls, inspect existing bypass and routing | Amp-to-CAB relationship and LOW DI routing remain explicit |
-| Common pre-POST block | Reorder Tone EQ, clean dynamics and multiband when implemented | Stay after rig merge and before POST in the first release |
+| Room send/return, from 1.3.3 | Inspect the weighted sends and shared room; open its controls | Keep send taps and wet return fixed in the first order editor; wet return follows the optional post-rig gate |
+| Common pre-POST block | Reorder Tone EQ, clean dynamics and multiband when implemented | Stay after rig merge, the optional post-rig gate and Room return, and before POST in the first release |
 | Existing POST slots | Reorder supported modules, including delay/reverb order | Preserve each existing instance ID and declared transition policy |
 | Final block | Set Final EQ, output trim and limiter | Final EQ → trim → limiter; no audio gain stage after limiter |
 
