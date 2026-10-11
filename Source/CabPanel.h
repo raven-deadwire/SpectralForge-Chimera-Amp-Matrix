@@ -319,7 +319,7 @@ public:
             for(const auto& slot:slots) {
                 const auto cabinet=slot.cabinetImage.physicalSize();
                 const auto microphone=slot.microphoneImage.physicalSize();
-                stageHeight=juce::jmax(stageHeight,cabinet.height+.04f);
+                stageHeight=juce::jmax(stageHeight,cabinet.projectedHeight()+.04f);
                 stageHeight=juce::jmax(stageHeight,microphone.height+.04f);
                 stageWidth=juce::jmax(stageWidth,cabinet.width+.2f+microphone.width);
             }

@@ -65,6 +65,24 @@ inline void run(const juce::File& folder,const juce::File& screenshots) {
         }
     };
     validateLayout();
+    // Verify the actual shell render, not a synthetic replacement image.
+    // At the same front-face width, its roof must occupy visible pixels above
+    // the baffle while preserving the undisclosed factory driver count.
+    const auto image=cabinetA.createComponentSnapshot(cabinetA.getLocalBounds());
+    const auto bounds=cabinetA.artworkBounds();
+    const float scale=cabinetA.stageScale();
+    const auto roof=juce::Rectangle<float>(bounds.getX()+bounds.getWidth()*.25f,
+        bounds.getY()+.01f*scale,bounds.getWidth()*.5f,.035f*scale).toNearestInt();
+    int opaqueRoof=0;double lowRoof=255,highRoof=0;
+    for(int y=roof.getY();y<roof.getBottom();++y)for(int x=roof.getX();x<roof.getRight();++x) {
+        const auto colour=image.getPixelAt(x,y);opaqueRoof+=colour.getAlpha()>200;
+        const double light=.2126*colour.getRed()+.7152*colour.getGreen()+.0722*colour.getBlue();
+        lowRoof=std::min(lowRoof,light);highRoof=std::max(highRoof,light);
+    }
+    require(opaqueRoof>roof.getWidth()*roof.getHeight()*.8 && highRoof-lowRoof>3,
+        "IR cabinet roof lost its opaque textured depth plane");
+    require(before.isEquivalentTo(processor->parameters().copyState()),
+        "Rendering the 2.5D IR cabinet changed audio or capture state");
     require(cabinetA.artworkBounds().getHeight()>130.f
         && cabinetB.artworkBounds().getHeight()>130.f,
         "Normal IR captures still reserve an unselected tall-cabinet camera envelope");

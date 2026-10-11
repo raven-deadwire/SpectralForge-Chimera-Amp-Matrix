@@ -9,7 +9,7 @@
 namespace spectralforge::cabLayoutView {
 // Each view frames complete rigs in metres. Room rigs share a single camera
 // scale; focused views can fit their selected stack without unused equipment.
-inline constexpr float depthProjection=.16f;
+inline constexpr float depthProjection=cabCamera::depthProjection;
 struct Projection { juce::Rectangle<float> box; float pixelsPerMetre{}; };
 inline cabCamera::Envelope stackEnvelope(cabLayout::Settings selected,int amplifier) {
     const auto box=cabLayout::geometry(selected).box;
@@ -85,7 +85,9 @@ inline void grille(juce::Graphics& g,const cabLayout::Geometry& model,juce::Rect
 }
 inline void tweeter(juce::Graphics& g,const cabLayout::Geometry& model,juce::Rectangle<float> box,
                     bool bass,float level,int kind) {
-    if(level<=0.f)return;
+    // The bass 4x10 has a permanently mounted centre horn. Its level controls
+    // sound, not whether the physical hardware exists (including at 0%).
+    if(level<=0.f && !(bass && model.count==4))return;
     const auto centre=point(model,box,model.horn);
     const float scale=box.getWidth()/float(model.box.width);
     const juce::SharedResourcePointer<cabArt::Bank> bank;
@@ -93,7 +95,7 @@ inline void tweeter(juce::Graphics& g,const cabLayout::Geometry& model,juce::Rec
     if(bass && kind==0 && image.isValid()) {
         const juce::Graphics::ScopedSaveState clip(g);
         // Use the selected acoustic horn position. Never bake a fixed centre
-        // horn into a different array, or show hardware when HF is disabled.
+        // horn into a different array. The 4x10 hardware remains when muted.
         g.reduceClipRegion(baffle(model,box).reduced(.035f*scale).toNearestInt());
         const auto plate=juce::Rectangle<float>(.126f*scale,.087f*scale).withCentre(centre);
         g.setColour(juce::Colours::white.withAlpha(.8f));

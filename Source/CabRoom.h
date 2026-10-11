@@ -188,7 +188,7 @@ class CabRoomOverview : public juce::Component, private juce::Timer {
             else {
                 const auto size=spectralforge::capturedCabArt::dimensions(captureConfiguration(rig));
                 const auto head=spectralforge::cabPhysical::head(rig.amp);
-                envelopes[size_t(lane)]=spectralforge::cabCamera::stack(size.width,size.height,
+                envelopes[size_t(lane)]=spectralforge::cabCamera::stack(size.width,size.projectedHeight(),
                     head.width,head.height+head.depth*spectralforge::cabLayoutView::depthProjection);
             }
         }
@@ -200,13 +200,15 @@ class CabRoomOverview : public juce::Component, private juce::Timer {
         if(modeled(rig))return spectralforge::cabLayoutView::projectAtScale(rig.physicalSettings,area,scale).box;
         const auto size=spectralforge::capturedCabArt::dimensions(captureConfiguration(rig));
         const float bottom=area.getBottom()-area.getHeight()*.07f;
-        return {area.getCentreX()-size.width*scale*.5f,bottom-size.height*scale,size.width*scale,size.height*scale};
+        return {area.getCentreX()-size.width*scale*.5f,bottom-size.projectedHeight()*scale,
+            size.width*scale,size.projectedHeight()*scale};
     }
     juce::Rectangle<float> projectedHead(int lane) const {
         const auto& rig=state[size_t(lane)];const auto cabinet=projectedCabinet(lane);
         const float support=modeled(rig) ? cabinet.getY()
             +(spectralforge::cabLayoutView::baffle(rig.model,cabinet).getY()-cabinet.getY())*.72f
-            : cabinet.getY();
+            : cabinet.getY()+spectralforge::capturedCabArt::dimensions(captureConfiguration(rig)).depth
+                *spectralforge::cabCamera::depthProjection*roomScale()*.72f;
         return spectralforge::cabHead::physicalBoundsAboveCabinet(cabinet,roomScale(),rig.amp,support);
     }
     void paintRig(juce::Graphics& g,int lane,juce::Rectangle<float> area,bool hovered,bool down) {
@@ -237,7 +239,8 @@ class CabRoomOverview : public juce::Component, private juce::Timer {
             spectralforge::cabLayoutView::frontHardware(g,rig.model,cabinetBounds,rig.bass,rig.tweeterLevel,rig.tweeterKind);
         } else {
             const int slot=rig.source[0]!=0 ? 0 : 1;
-            spectralforge::capturedCabArt::paintCabinet(g,cabinetBounds,captureConfiguration(rig),false);
+            spectralforge::capturedCabArt::paintCabinet(g,cabinetBounds,captureConfiguration(rig),false,
+                rig.capture[size_t(slot)].instrument==spectralforge::IRMetadata::Instrument::bass);
             if(rig.source[slot]==0)spectralforge::cabArt::neutral(g,cabinetBounds.reduced(7.f),"FILTERS");
         }
         g.endTransparencyLayer();
