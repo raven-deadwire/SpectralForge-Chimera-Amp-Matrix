@@ -14,6 +14,7 @@ public:
         :state(s),dsp(d),editing(edits),captureBoundary(boundary),instance(e) {
         setOpaque(true);setWantsKeyboardFocus(true);setComponentID(e==0?"toneEQ_panel":"finalEQ_panel");
         lastExternalRevision=editing.externalRevision();
+        pendingCaptureRequest=captureBoundary.latestRequest();
         bypass.setButtonText("BYPASS EQ");bypass.setClickingTogglesState(true);
         bypass.setComponentID(eqID(e,-1,"bypass"));addAndMakeVisible(bypass);
         bypassAttachment=std::make_unique<PA>(*state.getParameter(eqID(e,-1,"bypass")),[this](float v){bypass.setToggleState(v>.5f,juce::dontSendNotification);});
@@ -112,6 +113,7 @@ public:
         // request and completed, then flush again before accepting fresh input.
         pendingCaptureRequest=frozen?0:captureBoundary.requestDrain();
         spectrum.setFrozen(frozen,dsp.analyzer);
+        freezeToggle.setEnabled(spectrum.isFrozen() || spectrum.canFreezeSnapshot());
         freezeToggle.setToggleState(spectrum.isFrozen(),juce::dontSendNotification);
         freezeToggle.setButtonText(spectrum.isFrozen()?"FROZEN":"FREEZE");
         resolution.setSelectedId(frozen?(spectrum.fftSize()==2048?1:spectrum.fftSize()==8192?3:2):liveResolutionChoice,juce::dontSendNotification);

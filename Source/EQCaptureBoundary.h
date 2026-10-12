@@ -14,6 +14,7 @@ public:
     uint64_t requestDrain() noexcept {
         return requested.fetch_add(1,std::memory_order_acq_rel)+1;
     }
+    uint64_t latestRequest() const noexcept {return requested.load(std::memory_order_acquire);}
     bool isDrained(uint64_t request) const noexcept {
         return acknowledged.load(std::memory_order_acquire)>=request;
     }

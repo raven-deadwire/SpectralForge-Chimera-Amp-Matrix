@@ -50,10 +50,15 @@ public:
         reconcile();
         if(!validBank(bank) || restoreDepth.load(std::memory_order_acquire)!=0 || active)return false;
         interrupted=false;
+        const auto editEpoch=epoch.load(std::memory_order_acquire);
         Action action;action.bank=bank;action.description=description;action.before=capture(bank);
         action.after=action.before;action.beforeMask=occupiedMask(bank);action.afterMask=action.beforeMask;
-        action.epoch=epoch.load(std::memory_order_acquire);
+        action.epoch=editEpoch;
         active=std::move(action);gestureBank=bank;
+        // A host update during the snapshot must invalidate it, never become
+        // the epoch of a partially older before-state. No gesture has opened.
+        reconcile();
+        if(!alive(bank)){reconcile();interrupted=false;return false;}
         return true;
     }
     bool touchField(int bank,int band,const char* field) {

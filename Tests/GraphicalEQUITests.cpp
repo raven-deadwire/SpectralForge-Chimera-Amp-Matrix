@@ -107,6 +107,33 @@ private:
     }
     ChimeraProcessor& processor;bool fullRoute{};double sampleRate{48000};float rightGain{-1};std::atomic<bool> running{true};std::vector<double> timings;std::thread thread;
 };
+
+void pendingThawEditorRecreation(ChimeraProcessor& processor,std::unique_ptr<ChimeraEditor>& editor) {
+    auto* panel=find<GraphicalEQPanel>(*editor,"finalEQ_panel");check(panel,"Pending-thaw fixture has no final EQ");
+    auto& fifo=processor.graphicalEQ(1).analyzer;
+    // Model a callback whose capture decision predates thaw. The dedicated
+    // Freeze suite additionally schedules this case on a paused producer thread.
+    auto oldCallback=std::make_unique<EQCaptureBoundary::CallbackScope>(processor.eqCaptureBoundary());
+    panel->setSnapshotFrozen(true);panel->setSnapshotFrozen(false);
+    check(panel->isWaitingForFreshCapture() && !fifo.enabled.load(),"Thaw did not wait for the old callback");
+    editor.reset();
+    editor=std::make_unique<ChimeraEditor>(processor);
+    editor->addToDesktop(juce::ComponentPeer::windowIsTemporary);editor->setVisible(true);
+    tab(*editor,"EQ")->triggerClick();settle(60);
+    find<juce::TextButton>(*editor,"eq.bank.final")->triggerClick();
+    panel=find<GraphicalEQPanel>(*editor,"finalEQ_panel");
+    check(waitFor([&]{return panel->isShowing();}),"Recreated editor could not show pending EQ");
+    check(panel->isWaitingForFreshCapture() && !fifo.enabled.load(),"Editor recreation forgot the processor's pending thaw request");
+    for(int sample=0;sample<8192;++sample)fifo.push({.5f,.5f,.5f,.5f});
+    oldCallback.reset();settle(60);
+    check(panel->isWaitingForFreshCapture() && !fifo.enabled.load() && !panel->analyzerHasData(),
+          "Recreated editor consumed late pre-thaw samples or accepted an old acknowledgement");
+    juce::AudioBuffer<float> silence(2,128);silence.clear();juce::MidiBuffer midi;
+    processor.processBlock(silence,midi); // Actual callback entry/exit acknowledges the pending request.
+    check(waitFor([&]{return !panel->isWaitingForFreshCapture() && fifo.enabled.load();}),"Recreated editor never accepted the completed callback boundary");
+    check(fifo.pendingSamples()==0 && !panel->analyzerHasData(),"Recreated editor retained late samples after acknowledged purge");
+    std::cout<<"PASS pending thaw survives native editor recreation / late old window rejected / actual processBlock acknowledgement\n";
+}
 int spectrumPixels(const juce::Image& image,juce::Rectangle<int> bounds,bool output) {
     int count=0;bounds=bounds.getIntersection(image.getBounds());
     for(int y=bounds.getY();y<bounds.getBottom();++y)for(int x=bounds.getX();x<bounds.getRight();++x) {
@@ -602,6 +629,7 @@ int main(int argc,char** argv){try {
     check(waitFor([&]{return find<GraphicalEQPanel>(*editor,"finalEQ_panel")->isShowing();}),"Timing observation did not restore the visible EQ bank");
     std::exception_ptr observationFailure;
     try{fullProcessorNativeTiming(*processor,*editor,directory);}catch(...){observationFailure=std::current_exception();}
+    pendingThawEditorRecreation(*processor,editor);
     // Even an exhausted timing sample budget must leave close/teardown coverage
     // visible, and its original failure must still fail the overall test.
     editor.reset();for(int e=0;e<2;++e)check(!processor->graphicalEQ(e).analyzer.enabled.load(),"Closed editor analyzer still enabled");processor->releaseResources();
