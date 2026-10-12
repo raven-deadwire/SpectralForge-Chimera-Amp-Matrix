@@ -1,18 +1,23 @@
-# Embedded amplifier-head controls: 1.3.1–1.3.2
+# Embedded amplifier-head controls: delivered 1.3.1 baseline
 
-Status: implementation plan, updated 2026-10-10 KST. The owner requested
-amplifier knobs that can be operated inside the head design, after preparing
-the current CAB release as 1.3. The [full roadmap](DEVELOPMENT_ROADMAP_2026_2027.md)
-assigns the shared component and representative heads to **1.3.1, October 10–
-November 1**, and expands dense/full-catalog coverage through **1.3.2, November
-2–27**. The October 23 EQ-focused installer must list its actual head coverage;
-it is not blocked by unfinished decorative layouts when the existing complete
-detailed controls remain available. This document does not claim that embedded
-head knobs are already implemented or included in 1.3.
+Delivery update: **2026-10-12 KST**. Public
+[1.3.1-beta.1](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/releases/tag/v1.3.1-beta.1),
+product source 7b20cd9d1f90e3e2969c250712b199e893cf50cd, includes direct controls
+for all **25 active heads plus one saved-project-compatible head**, in the six
+native contexts. PR #48 integrates the implementation and its reported native
+evidence. This coverage is no longer a future 1.3.2 expansion.
 
-The immediate startup correction opens new editors on **RIGS / amplifier
+Preserve this delivered coverage while implementing the owner's new
+signal-chain and EQ quality work in
+[the current roadmap](DEVELOPMENT_ROADMAP_2026_2027.md).
+Actual DAW/playing acceptance retains the scope recorded by the release.
+The following design requirements remain useful regression criteria; their
+October 10 source and older future-tense descriptions are historical.
+
+The delivered startup behavior opens new editors on **RIGS / amplifier
 view**, preserving the saved Classic/Dual/Matrix mode. A [signal-path strip](SIGNAL_PATH_EDITOR.md)
-adds actual routing display and click navigation in 1.3.1. Startup selection,
+provides actual routing display and click navigation in 1.3.1; the October
+follow-up simplifies its presentation. Startup selection,
 head focus and audio signal order are separate behaviors.
 
 Source reviewed: CAB PR #34 at

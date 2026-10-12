@@ -69,9 +69,21 @@ Schedule registration is complete only as planning; keep issue #46 open until
 the core and advanced implementation and acceptance checklist is complete.
 All dates in the canonical plan are internal work/candidate targets.
 
-## Current 1.3 preparation — 2026-10-09 KST
+## Delivered CAB baseline — 2026-10-12 KST
 
-The original CAB engine, 14 speaker designs, 20 microphones and nine explicit layouts now exist in the CAB branch. The owner selected **1.3** for the current release preparation. Whole-room framing, cabinet artwork preservation and duplicate visible layout entries are being corrected before the final candidate. [Release preparation](RELEASE_1_3_PREPARATION.md) is the current delivery record; [head-front controls](AMP_HEAD_CONTROLS_NEXT_UPDATE.md) begin in 1.3.1 and expand through 1.3.2. The [full reordered roadmap](DEVELOPMENT_ROADMAP_2026_2027.md), updated October 11, governs all forward dates and the signal-path work. The October 8 architecture and reference boundaries below remain applicable; its initial prototype schedule is historical.
+Niflheimr, the original CAB engine, fourteen speaker designs, twenty microphones
+and nine layouts are included in the released 1.3 line and current
+[1.3.1-beta.1](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/releases/tag/v1.3.1-beta.1).
+The original 1.3 release-preparation work is historical. Direct head controls
+also shipped in 1.3.1-beta.1; full head coverage is no longer scheduled as a
+November expansion.
+
+Adjustable Room Core/Advanced above remains planned. Keep its existing dated
+scope and issue #46 open. The
+[full reordered roadmap](DEVELOPMENT_ROADMAP_2026_2027.md), updated October 12,
+governs forward work, including the owner's new signal-chain/EQ quality
+follow-up and the independent AAX Native track. Earlier prototype dates below
+are historical and do not postpone ready implementation.
 
 ## October 8 design baseline
 

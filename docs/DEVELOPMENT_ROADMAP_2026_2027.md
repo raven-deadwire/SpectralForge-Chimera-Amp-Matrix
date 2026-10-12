@@ -1,16 +1,28 @@
 # Chimera development roadmap, October 2026–September 2027
 
-Updated: **2026-10-11, Asia/Seoul**. This is the current implementation plan
-following the owner's request to review the [FabFilter product range](https://www.fabfilter.com/products),
-restore the omitted graphical EQ/dynamics/multiband work, add a visible editable
-signal path, and open Chimera on the amplifier view.
+Updated: **2026-10-12, Asia/Seoul**. The owner requested a new remaining-work
+schedule after using 1.3.1: simplify the signal-chain display, substantially
+improve the EQ analyzer and editing workflow, implement the missing
+[FabFilter reference functions](https://www.fabfilter.com/products), and add
+AAX support.
 
-This plan supersedes the forward dates in the earlier 132-model schedule,
-the October 8 CAB prototype calendar, and the unassigned next-head-update date.
-Released 1.1.1, 1.1.2 and 1.2 remain history. Dates below are **internal work and
-candidate targets, not guaranteed public release dates**. Select work by actual
-completion, priority and satisfied dependencies; do not wait for an obsolete
-calendar window. Re-estimate the next four weeks at each checkpoint.
+The verified baseline is public
+[1.3.1-beta.1](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/releases/tag/v1.3.1-beta.1),
+published **2026-10-12 07:48 KST**, from product source
+[7b20cd9d](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/commit/7b20cd9d1f90e3e2969c250712b199e893cf50cd).
+Main incorporates it through
+[PR #48](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/pull/48),
+commit 3817246f779a50f19b5378ec9661a2275e6b91b2.
+The initial graphical EQ, FFT, navigation and complete head-control coverage
+are delivered in that beta. The owner's new quality feedback is follow-up work;
+it does not make those initial features unimplemented again.
+
+Dates below are **internal work and candidate targets, not guaranteed public
+release dates**. Start ready work immediately, review actual progress at each
+checkpoint and retain the already assigned 1.3.2/Room Core/later windows unless
+a measured capacity or dependency change requires an explicit revision.
+The October 23 installer target now means the improved EQ/workflow build,
+rather than first delivery of the already shipped static EQ.
 
 ## Schedule authority and delivery status
 
@@ -31,49 +43,61 @@ complete for the planned core and advanced stages. An actual feature source,
 technical verification, host/listening acceptance and delivery are separate
 states.
 
-## Release-track boundary and continuing priorities
+## Released baseline and remaining priorities
 
-The October 10 planning baseline was PR #35 at
-[e05ca7e](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/commit/e05ca7ee9398a063615e6795f8754caa8406bfd6).
-Its failed tests describe that historical source only. Use the latest
-[PR #35 delivery record](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/pull/35)
-and [release preparation](RELEASE_1_3_PREPARATION.md) for current 1.3.0 status;
-this plan neither reopens historical blockers nor changes release eligibility.
+| Delivered baseline | Verified scope | Remaining follow-up |
+|---|---|---|
+| 1.3.0-beta.1 | Niflheimr and CAB generation shipped; superseded by 1.3.1-beta.1 | Actual instrument/host acceptance and identified performance issues continue on their own records |
+| 1.3.1-beta.1, October 12 | Tone/Final static EQ with 12 nodes each and input/output FFT; actual route navigation; 25 active heads plus one saved-project-compatible head across six native contexts | Compact signal display, analyzer quality and EQ workflow; dynamics and AAX remain unimplemented |
 
-At consolidation, the current main source already has `page = 0` in
-`Source/PluginEditor.h`. Preserve that AMP/RIGS startup default and the saved
-Classic/Dual/Matrix mode; no startup-source change is included here. This fact
-does not establish later embedded-head or signal-path completion.
+Public beta delivery is distinct from complete production, listening and
+commercial-host acceptance. Preserve the existing source-bound beta decision
+and historical evidence. This planning revision changes no product code,
+published package, source pin, release policy or acceptance threshold.
 
-The retained catalog is AMP25 + PRE39 + POST21 = **85** active character
-models, 26 serialized amp IDs including recall-only Iron Compact, and 48
-selectable presets. CAB inventory remains nine layouts, fourteen speakers and
-twenty microphone models, counted separately from character models.
+The retained active catalog is AMP25 + PRE39 + POST21 = **85** character models.
+There are 26 serialized amp IDs and 48 selectable presets. Nine CAB layouts,
+fourteen speakers and twenty microphones remain separate inventory dimensions.
 
-Continue the current 1.3.0 release work independently of the next-update
-plan. Do not alter its product source, version, assets, release evidence,
-validation policy, workflows or publisher as part of this consolidation.
-Continue EQ/head/navigation, low-B/−2-semitone Transpose and NAM/reference work
-on their own development tracks and report each track's actual evidence.
+The immediate priority order is:
+
+1. **Signal-chain and EQ usability:** five primary navigation blocks, a large
+   selected-EQ view, readable moving spectra and the missing band-edit workflow.
+2. **Audio and host reliability:** continue low-B/-2 Transpose quality/latency,
+   real-host lifecycle, UI/callback performance and NAM/reference acceptance.
+   A reproducible critical regression takes priority over feature expansion.
+3. **Common dynamics:** keep the November Dynamic EQ/compressor/gate/limiter
+   window, reusing the improved graph and editing foundation.
+4. **AAX Native:** start build/readiness work alongside the above; budget it
+   explicitly and keep external host/signing dependencies visible.
+5. **Room and model expansion:** retain the dated core/advanced room scope and
+   model order below.
+
+AMP/RIGS startup and the saved Classic/Dual/Matrix mode are already present.
+Preserve existing EQ frequency/gain/Q editing, filter types, calibrated stereo
+FFT and whole-product A/B; these are not new backlog items.
+See [the concrete EQ follow-up](EQ_ANALYZER_WORKFLOW_UPGRADE.md) and
+[signal-path presentation requirements](SIGNAL_PATH_EDITOR.md).
 
 ## Full reordered calendar
 
 The October 10 revision moved the model-led June 4 integration target to
 August 13, 2027 to account for common DSP and routing. The owner's October 11
-request now adds adjustable room acoustics to the dated plan.
+request added adjustable room acoustics. The October 12 revision uses the
+remaining October window for the newly requested UI/EQ quality work and adds
+an independently tracked AAX Native schedule.
 
 Reserve four weeks for **1.3.3 Room Core** and two additional weeks inside
-**1.8 Room Advanced / Motion & Space**. Versions 1.3.1 and 1.3.2 keep their
-existing windows; 1.4–1.7 move four weeks, and 1.9 onward move six weeks.
+**1.8 Room Advanced / Motion & Space**. The October 11 revision retained the 1.3.1/1.3.2 windows, moved 1.4–1.7 four
+weeks and 1.9 onward six weeks. Those later dates remain unchanged here.
 The complete integration target becomes **September 24, 2027**.
 These are work estimates to review against measured progress, not an
 assumption of extra staffing. Retain the character-model addition order.
 
 | Version | Work window, KST | Main deliverable | Active character models |
 |---|---|---|---:|
-| 1.3 | Current release track; verify latest source and delivery state | Niflheimr/CAB installer and current release work | 85 |
-| 1.3.1 | 2026-10-10–2026-11-01 | Graphical 12-band EQ, input/output FFT, Tone/Final positions, signal-path display and navigation; representative embedded head controls | 85 |
-| 1.3.2 | 2026-11-02–2026-11-27 | Dynamic EQ, clean compressor, gate/expander improvements, live output limiter; expand head-control coverage | 85 |
+| 1.3.1 follow-up beta, target beta.2 | 2026-10-12–2026-11-01 | Compact signal chain, focused EQ layout, analyzer redesign and band-edit workflow; preserve delivered EQ/head features | 85 |
+| 1.3.2 | 2026-11-02–2026-11-27 | Dynamic EQ and GR, clean compressor, gate/expander improvements, live output limiter; EQ slope/peak-edit extension | 85 |
 | 1.3.3 | 2026-11-30–2026-12-25 | Room Core: shared Size/Absorption/Bypass, per-rig Send, actual early reflections and decay, state/automation and LOW DI isolation | 85 |
 | 1.4 | 2026-12-28–2027-02-05 | Independent four-band dynamics, PRE Expansion A six models, first constrained signal-order editor | 91 |
 | 1.5 | 2027-02-08–2027-03-05 | PRE Expansion B six models, drag-order UX; separately gated M/S, external sidechain and six-band dynamics expansion | 97 |
@@ -93,14 +117,16 @@ audio, compatibility or acceptance criteria.
 
 ### Near-term reviewable checkpoints
 
-| Target | Reviewable result |
+| Target, KST | Reviewable result |
 |---|---|
-| 2026-10-14 | Actual EQ graph/control prototype and one original plus one simple reference head; startup behavior checked in the next candidate |
-| 2026-10-23 | First EQ-focused test installer: static EQ/FFT and working navigation, with exact included head coverage listed |
-| 2026-10-30 | 1.3.1 validation candidate if gates pass; remaining work closed or explicitly carried at the November 1 checkpoint |
+| 2026-10-14 | Implemented compact navigation and focused Tone/Final EQ layout preview; no duplicate utility nodes in the basic strip |
+| 2026-10-16 | Moving analyzer prototype; commit the October 23 minimum and October 30 remaining scope, including any dependent date changes; confirm AAX readiness/capacity |
+| 2026-10-23 | First follow-up test installer: five-block chain, focused EQ, filled IN/OUT spectra, smoothing/resolution/Freeze and band add/delete with Undo/Redo; show motion capture and remaining October 30 scope |
+| 2026-10-30 | 1.3.1 follow-up validation candidate covering the required analyzer/edit workflow, native scale checks and state/host evidence |
+| 2026-11-01 | Close October quality scope or record specific carryover and resulting impact before moving into dynamics |
 | 2026-11-13 | Dynamic EQ/GR and clean compressor preview using repeatable audio |
 | 2026-11-20 | First 1.3.2 test installer |
-| 2026-11-27 | 1.3.2 candidate and head-coverage report |
+| 2026-11-27 | 1.3.2 candidate with actual Dynamic EQ, detector, GR, gate and live-limiter evidence |
 | 2026-12-04 | Room bus, gate placement, parameter/state and callback-budget design review |
 | 2026-12-11 | Playable Room Size/Send/Absorption prototype in Classic, Dual and Matrix |
 | 2026-12-18 | First Room Core Windows test installer, native UI captures and measured LOW DI isolation |
@@ -109,11 +135,49 @@ audio, compatibility or acceptance criteria.
 | 2027-01-15 | First constrained order-editing preview with save/restore and undo |
 | 2027-02-05 | Combined 1.4 candidate: verified four-band dynamics, PRE A and supported order editing |
 
-A preview means implemented behavior, not a mock screenshot. October 23 does
-not promise Dynamic EQ, multiband processing or all 25 interactive head layouts.
-Keep the existing functional detailed controls as a fallback while dense
-faceplates are completed. Full coverage means 25 active heads plus the one
-recall-only model, across the existing six native contexts.
+A preview is implemented behavior. Analyzer acceptance includes moving audio
+and pointer/keyboard interaction, not only still screenshots. The October
+follow-up must satisfy the required scope in
+[EQ analyzer and workflow upgrade](EQ_ANALYZER_WORKFLOW_UPGRADE.md).
+Already delivered full head coverage stays in regression coverage; it is no
+longer a future November expansion.
+
+### AAX Native parallel track
+
+Initial scope: **Windows x64 and macOS Universal (Intel + Apple Silicon)**,
+using the common Chimera DSP/UI through the JUCE AAX Native wrapper.
+The current JUCE 8.0.8 baseline contains the AAX SDK; the current project does
+not enable an AAX target. AAX DSP/HDX/Carbon processing is a separate project.
+See [AAX Native implementation and delivery plan](AAX_NATIVE_PLAN.md).
+
+| Target, KST | Reviewable result | Dependency |
+|---|---|---|
+| 2026-10-16 | Freeze platform/bus/ID scope and inventory developer-host/signing access; estimate shared workload | Account and equipment status must be recorded as known or unavailable |
+| 2026-10-30 | Internal AAX Native build prototype for Windows/macOS | Working platform toolchains and actual bundle checks |
+| 2026-11-20 | Pro Tools test candidate and lifecycle/automation/state/latency report | Pro Tools Developer access; normal Pro Tools checks additionally require signed binaries |
+| Uncommitted public date | Signed AAX beta, installed and tested in normal Pro Tools | Avid/PACE access, signature verification, real-host acceptance and packaging |
+
+These are planning targets, not Avid/PACE approval forecasts. Reserve an initial
+**10–20 engineering-day estimate**, including host and packaging work, and
+re-estimate on October 16 and 23. This allowance does not assume extra staffing.
+If it conflicts with the immediate EQ quality work, explicitly revise AAX's
+dependent milestones before promising an installer. External approval waits
+must not stop unrelated EQ, dynamics or room work.
+
+### Continuing reliability and sound-quality tracks
+
+| Track | Next checkpoint | Required result |
+|---|---|---|
+| Low-B/-2 Transpose, issue #8 / PR #45 | October 16 baseline review; October 23 same-input candidate comparison; October 30 method decision | Separate smear, pitch stability and measured latency; <=10 ms remains a target, not a completed feature |
+| Náströnd five-channel NAM/reference work, PR #22 | October 23 channel-by-channel evidence review; October 30 qualification/carryover decision | Report actual full-training and reference-comparison status; do not infer success from a smoke run |
+| DAW lifecycle, issue #3 | Every follow-up installer; first report October 23 | Reopen UI, remove plugin, restore sessions, close/exit and sustained operation in available real hosts; include Pro Tools when available |
+| UI/CAB real-time performance | Every changed-source candidate | Compare average/p95/p99, worst callback and misses; record hidden-editor cost and actual display load |
+| Windows signing / macOS notarization | October 16 readiness review, October 30 next-step report | Record real credentials/service access and completed signature/notarization evidence separately from AAX signing |
+
+These checkpoints require a result or an explicit unmet prerequisite. They do
+not invent a user's isolated DI, a successful NAM training run, a DAW session,
+signing access or a guaranteed algorithm completion date. Historical product
+release and completed CI fixes are not reopened as new feature work.
 
 ## Room acoustics schedule and scope
 
@@ -184,7 +248,7 @@ sound, feature count or performance.
 
 | Official reference | Function to study | Chimera implementation and timing |
 |---|---|---|
-| [Pro-Q 4](https://www.fabfilter.com/products/pro-q-4-equalizer-plug-in) | Graph-node parametric EQ, analyzer, dynamic/spectral processing | 12-band graphical EQ and FFT in 1.3.1; initial Dynamic EQ in 1.3.2; spectral/linear-phase work separately gated |
+| [Pro-Q 4](https://www.fabfilter.com/products/pro-q-4-equalizer-plug-in) | Graph-node parametric EQ, analyzer, dynamic/spectral processing | Static EQ/FFT delivered in 1.3.1-beta.1; analyzer and edit workflow in the October follow-up; Dynamic EQ and slope/peak editing in 1.3.2; advanced modes separately gated |
 | [Pro-C 3](https://www.fabfilter.com/products/pro-c-3-compressor-plug-in) | Detailed compressor timing, detector control and GR feedback | One transparent common compressor in 1.3.2; additional character models remain in POST expansion |
 | [Pro-MB](https://www.fabfilter.com/products/pro-mb-multiband-compressor-plug-in) | Independent band dynamics, detector ranges, band solo and metering | Four processing bands in 1.4; six-band expansion is a separate 1.5 performance gate |
 | [Pro-L 2](https://www.fabfilter.com/products/pro-l-2-limiter-plug-in) | Output limiting, true-peak and loudness feedback | Live peak control in 1.3.2; measured Studio true-peak/LUFS option targeted in 1.5 |
@@ -225,8 +289,8 @@ most four nodes across both instances combined** may be dynamic; this is not
 12 static plus four extra nodes, nor four per instance. Show the shared limit
 and never silently disable another band when it is reached.
 
-Prepare stable band IDs, internal detector routes, channel modes and host-bus
-contracts with 1.3.1. Expose each advanced control only after its processing and
+Preserve the delivered stable band IDs. Prepare internal detector routes,
+channel modes and host-bus contracts for the next common-dynamics stages. Expose each advanced control only after its processing and
 host behavior are verified. Current gate and character compressors remain
 distinct from the new clean common compressor.
 
@@ -257,9 +321,13 @@ Those implementation choices are references, not Chimera performance values.
 Target a Studio true-peak/LUFS candidate in 1.5, independently of Live limiter
 acceptance. Evaluate spectral/linear-phase prototypes during 1.7; include only
 qualified work in 2.0, otherwise assign a concrete 2.x follow-up after the
-research checkpoint. EQ Match, EQ Sketch, cross-instance overview, automatic
-IR-to-reverb parameter inference and polyphonic guitar tracking have no
-committed release date in this plan.
+research checkpoint. Review EQ Match, EQ Sketch and cross-instance/rig spectrum comparison during
+1.7: requirements by April 16 and a feasibility/adoption decision by May 7,
+2027. That decision must assign qualified scope to 2.0 or name a concrete 2.x
+follow-up; it must not leave an unnamed indefinite backlog. These advanced
+features are not promised in the October quality update. Automatic
+IR-to-reverb parameter inference and polyphonic guitar tracking remain
+separate research items without a committed feature-release date.
 
 ## Model additions retained
 
@@ -296,7 +364,7 @@ Do not change the former to 48 and break its source contract.
 
 | Foundation | First implementation | Reused by |
 |---|---|---|
-| Graph node coordinates, selection, value entry, FFT transport | 1.3.1 EQ | Dynamic EQ, multiband, filter and reverb shaping |
+| Graph nodes, value entry and FFT transport | Delivered in 1.3.1-beta.1; workflow/analyzer quality follow-up in October | Dynamic EQ, multiband, filter and reverb shaping |
 | Stable processor/band IDs and order state | 1.3.1 state design; 1.4 order execution | Automation, routing, undo/redo and preset recall |
 | Detector/envelope, range/GR, audition and fixed DI taps | 1.3.2 dynamics | Gate, multiband, ducking, envelope filters |
 | Shared room send/return, gate-envelope reuse, tail and room state | 1.3.3 Room Core | 1.8 advanced room conditions and spatial modeling |
@@ -325,7 +393,8 @@ effect a solution to live Transpose quality.
 | Limiter/Studio | Ceiling and intersample behavior for claimed modes, real host latency, extreme inputs, mode/bypass changes |
 | Routing | Correct Classic/Dual/Matrix topology, untouched LOW clean DI branch, stable IDs, saved order and undo from first editable release |
 | Room | Audible size/absorption/send response, LOW DI isolation and lane weighting, gate/tail continuity, old-project Room Off, exact state/automation and measured full-product realtime cost; spatial claims need declared model evidence |
-| Head UI | Correct six native contexts, per-channel/shared control memory, matching hit/paint transforms, no writes from viewing, complete host gestures |
+| Head UI | Preserve delivered six native contexts and full catalog coverage, per-channel/shared memory, hit/paint transforms and host gestures |
+| AAX Native | Actual Windows/macOS AAX bundles, stable bus/parameter IDs, Developer-host evidence, then signed normal-Pro-Tools and installer/lifecycle evidence |
 | Host and release | Existing 48 presets, old projects, A/B and IR state, representative sample rates/buffers, callback timing and actual host lifecycle/installer results |
 
 Use precise statuses: IMPLEMENTED, TECHNICALLY VERIFIED, LISTENING/HOST
@@ -344,6 +413,8 @@ separate existing hourly condition watch.
 ## Related project records
 
 - [Catalog counts and historical baseline](CATALOG_ROADMAP.md)
+- [EQ analyzer and editing quality follow-up](EQ_ANALYZER_WORKFLOW_UPGRADE.md)
+- [AAX Native development and delivery](AAX_NATIVE_PLAN.md)
 - [Embedded amplifier-head controls](AMP_HEAD_CONTROLS_NEXT_UPDATE.md)
 - [Signal-path navigation and editing](SIGNAL_PATH_EDITOR.md)
 - [CAB source/identity/acceptance boundaries](CABINET_PANEL_ROADMAP.md)

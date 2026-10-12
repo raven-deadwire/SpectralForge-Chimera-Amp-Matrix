@@ -1,15 +1,36 @@
 # Signal-path navigation and editing
 
-Updated 2026-10-11 KST. Planned from the owner's connected-icon SIGNAL PATH
-reference and request to open Chimera on the amplifier head.
+Updated **2026-10-12 KST**. Basic navigation and AMP/RIGS startup are delivered
+in 1.3.1-beta.1. The owner's new feedback requires a simpler presentation.
+The October follow-up below is planned and not implemented by this document.
 
 ## Product behavior
 
-A persistent strip shows the signal path and the selected editing area.
-Clicking an amp opens its controls; clicking a cabinet opens that rig's
-speaker/microphone controls; selecting PRE, POST, EQ or dynamics opens its
-corresponding editor. Show real enabled/bypassed state and meaningful model
-names. Navigation must not modify audio state.
+The default strip contains **five primary editing areas** in actual order:
+
+| Order | Visible block | Action |
+|---|---|---|
+| 1 | PRE | Open the pedal board |
+| 2 | RIGS | Open the current Classic/Dual/Matrix rig view |
+| 3 | TONE EQ | Open the EQ before POST |
+| 4 | POST | Open the effects rack |
+| 5 | FINAL EQ | Open the EQ after POST and stereo utilities |
+
+Use the existing top-level utility controls for Gate, Transpose, Tuner and
+Click. Do not repeat these, INPUT/OUTPUT meters, or DOUBLER/CLICK as permanent
+blocks in the basic strip. Current sound-changing utility settings must
+remain visible and accessible in their own controls.
+
+Place a clearly labelled Details control outside the audio blocks. The first
+expanded view shows meaningful amp/CAB lanes and merge points. Further detail
+can expose utility processors, detector/tuner taps, gain stages and alignment.
+Keep presentation hierarchy separate from real DSP order. This is navigation;
+opening a block must not toggle bypass or change any parameter.
+
+Show selected and enabled/bypassed state clearly, with readable text and
+keyboard focus. Use actual model names inside the rig view rather than
+compressing every technical stage into the compact row. Do not use PATH+
+or invented future processors as if they were audio stages.
 
 Open a new editor on **RIGS / amplifier view**, not PRE. Restore the saved
 routing mode, selected models and sound. Classic displays its existing amp
@@ -29,8 +50,8 @@ global processor, not another label for Matrix.
 
 | Stage | Window | User can do | Completion condition |
 |---|---|---|---|
-| Startup correction | Immediate 1.3 follow-up | Start on the amp/RIGS view | The prepared follow-up correction must pass UI validation with existing state/mode preserved |
-| Navigation strip | 1.3.1, 2026-10-10–11-01 | Inspect actual path and click each implemented stage; see active/bypassed/selected state | Display is derived from actual routing, no fictional editable blocks, keyboard navigation and correct lane focus |
+| Startup and basic navigation | Delivered in 1.3.1-beta.1, 2026-10-12 | Start on AMP/RIGS and navigate implemented areas | Preserve shipped mode/state and correct lane focus |
+| Compact presentation and hierarchy | 1.3.1 follow-up, 2026-10-12–11-01; first installer 10-23 | Use five primary blocks; open rig topology or technical details only when needed | Actual order remains accurate; readable labels and keyboard focus; no audio writes from navigation |
 | Room path integration | 1.3.3, 2026-11-30–12-25 | Show weighted AMP/CAB sends and shared Room; open its controls | Preserve LOW DI isolation and the actual post-rig gate/wet-return boundary; display implemented topology only |
 | Constrained order editor | 1.4, 2026-12-28–2027-02-05 | Move supported stages earlier/later using commands or a placement menu | Correct audio graph, click-safe change policy, stable automation identities, order save/restore and basic undo |
 | Drag interaction | 1.5, 2027-02-08–03-05 | Drag with valid drop targets, preview placement, cancel, use keyboard and undo/redo | Calls the already tested order command; no DSP rebuild during hover; controls remain accessible |
@@ -45,7 +66,7 @@ active audio block in the shipping product.
 
 | Region | Initially supported | Fixed boundaries |
 |---|---|---|
-| Input gate / transpose / tuner | Inspect and use existing controls/bypass | Retain input/tap relationships |
+| Input gate / transpose / tuner | Use existing utility controls; inspect topology in Details | Preserve input/tap relationships; no duplicate basic-strip nodes |
 | PRE board | Reorder installed pedals within their current supported owner/board | Maximum five pedals; no implicit change of lane ownership |
 | Amp and CAB | Select models, use controls, inspect existing bypass and routing | Amp-to-CAB relationship and LOW DI routing remain explicit |
 | Room send/return, from 1.3.3 | Inspect the weighted sends and shared room; open its controls | Keep send taps and wet return fixed in the first order editor; wet return follows the optional post-rig gate |
@@ -106,8 +127,11 @@ input, bus-layout, automation and restore acceptance before exposure.
 
 ## Visual and interaction details
 
-- Use recognizable stage/model names, a selected-state highlight, connected
-  arrows and an accessible active/bypass indication.
+- Keep the basic strip to the five defined editing areas. Use readable labels,
+  selected-state highlighting and an accessible active/bypass indication.
+- Group secondary details without losing real branch relationships. Matrix
+  LOW must still show clean DI alongside AMP/CAB and their actual blend point
+  when the rig topology is expanded; do not flatten it into a false serial path.
 - Keep actual processing order distinct from tab order. The amp is the startup
   view even though PRE remains before it in the signal path.
 - Show valid drop positions before committing; an invalid drop leaves sound
@@ -132,6 +156,7 @@ active delay/reverb tails, wet/dry blends, latency-changing quality modes and
 editor removal/host shutdown. Use meaningful existing tests and real pointer/
 keyboard/host checks; do not present static screenshots as interaction proof.
 
-This specification implements the navigation/editing portion of the
-[full reordered roadmap](DEVELOPMENT_ROADMAP_2026_2027.md). It does not claim
-that the strip, embedded knobs or order editor already exist in 1.3.
+This specification follows the [full reordered roadmap](DEVELOPMENT_ROADMAP_2026_2027.md).
+The initial strip and embedded head controls are delivered in 1.3.1-beta.1.
+The simplified hierarchy and later order editor remain planned follow-up work.
+Inspect actual source and native interaction before marking either complete.
