@@ -50,6 +50,33 @@ The immediate-selection regression retains that original failing sequence.
 No DSP filter is removed or reset. No parameter ID, ordinal, default, source
 enumeration or stored IR asset format changes.
 
+## Native room painting
+
+The native macOS regression also exposed long event-processing slices before
+a queued room click reached its listener. One failing Matrix transition spent
+about 1.40 and 1.43 seconds in consecutive CF run-loop calls; other observed
+slices spent most of their time in AppKit polling. The full CAB state test and
+IR isolation test passed in that same run, while the independent room test
+retained its original failure and two-second readiness limit.
+
+The cabinet grille uses small repeating background and foreground textures.
+JUCE's scaled CoreGraphics tiling path draws each repetition separately. To
+reduce this room-paint workload, each shared skin prepares larger textures
+from exact whole repetitions once during construction. The original inspected
+crops, physical scale, origin, foreground alpha and resampling settings remain
+available; manually constructed skins retain their original-tile fallback.
+Each repeat contains four columns and three rows of the original crop. The
+two unused oblique speaker identity images retain 32-pixel thumbnails; visible
+speakers still use the unchanged 192-pixel front images. Counting all repeated
+textures gives 16,759,936 retained RGBA bytes, below the unchanged 16 MiB limit
+and 8,448 bytes less than before.
+
+Cache construction stays in skin initialization; native image copying during
+a fill remains a separate renderer cost. No viewport-sized cache or audio
+parameter is introduced. Pixel ownership, repetition and native/software
+material contracts cover the change; current native timing and platform
+results are recorded in PR #54. The dispatcher and click deadlines are unchanged.
+
 ## Niflheimr bank
 
 | Stored ordinal | Previous name | New name | Routing and purpose |
@@ -85,6 +112,13 @@ LOW hardware in Industrial Pulse, ordinary and +6 dB input headroom, binary
 and A/B restore, and retaining an existing Classic snapshot. The pre-existing
 RMS > −30 dBFS and peak < 0.95 limits are unchanged.
 
+The legacy rig-level check compares the exact canonical normalized zero
+detent, including the host parameter value. JUCE's 0.01 dB snapping can leave
+a sub-microdecibel raw residual with fused floating-point arithmetic; testing
+raw equality with `0.f` is not a portable zero-detent check. Adjacent
+0.01 dB settings and actual legacy output corrections remain distinguishable.
+Evidence records both raw and normalized values; no audio limit is widened.
+
 The dedicated `ChimeraNiflheimrPresetTests` CTest runs the stock modeled-CAB
 presets through the production processor. The Niflheimr DI workflow builds
 and runs it on Windows, Linux and macOS alongside its existing head renderer
@@ -114,6 +148,9 @@ made from this fixture. Its limited upper-band content does not establish
 musical balance or justify equalizing these different voicings.
 
 The catalog contract and four audition coordinator tests also pass. Local
+offscreen CAB visual contracts pass with the repeated textures, including
+material phase, rail continuity, HF transmission and the original memory
+budget (16,759,936 total RGBA bytes; 114,432 bytes in repeat textures). Local
 native window execution is blocked by this environment's Xvfb socket
 restriction; actual interaction results, screenshots, and current-source
 platform status are recorded in [PR #54](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/pull/54).

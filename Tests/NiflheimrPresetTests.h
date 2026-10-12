@@ -69,7 +69,21 @@ inline void run(const juce::File& directory) {
                     "Niflheimr lane cabinet recipe changed or was not recalled");
             require(value("ampon"+suffix)==(dryLow?0.f:1.f) && value("cab"+suffix)==(dryLow?0.f:1.f),
                     "Niflheimr active lane AMP/CAB bypass differs from its DI role");
-            require(value("level"+suffix)==0,"Niflheimr native rig contains an ineffective legacy output correction");
+            // JUCE snaps this 0.01 dB range relative to -24 dB. Fused float
+            // arithmetic can place its zero detent just off raw 0; its
+            // canonical host value must still match the zero detent exactly.
+            const auto legacyLevelID="level"+suffix;
+            const auto* legacyLevel=a->parameters().getParameter(legacyLevelID);
+            require(legacyLevel!=nullptr,"Niflheimr legacy level parameter missing");
+            const float legacyLevelDb=value(legacyLevelID);
+            const float legacyLevelNormalised=legacyLevel->convertTo0to1(legacyLevelDb);
+            const float neutralLevelNormalised=legacyLevel->convertTo0to1(0.f);
+            if(legacyLevelNormalised!=neutralLevelNormalised || legacyLevel->getValue()!=neutralLevelNormalised)
+                throw std::runtime_error(("Niflheimr native rig contains an ineffective legacy output correction: preset "
+                    +juce::String(index)+", "+legacyLevelID+" raw dB="+juce::String(legacyLevelDb,12)
+                    +", normalized="+juce::String(legacyLevelNormalised,12)
+                    +", host="+juce::String(legacyLevel->getValue(),12)
+                    +", expected="+juce::String(neutralLevelNormalised,12)).toStdString());
             auto* laneRow=new juce::DynamicObject();laneRow->setProperty("lane",lane);
             laneRow->setProperty("native_context",context);laneRow->setProperty("channel",channel);
             laneRow->setProperty("channel_name",juce::String::fromUTF8(niflheimr::channelNames[channel]));
@@ -79,6 +93,8 @@ inline void run(const juce::File& directory) {
             laneRow->setProperty("cab_mic",cabMics[size_t(preset)][size_t(lane)]);
             laneRow->setProperty("native_output_db",value(ampNativeOutputLevelID(context)));
             laneRow->setProperty("cab_mic_level_db",value("cabAgain"+suffix));
+            laneRow->setProperty("legacy_level_db",legacyLevelDb);
+            laneRow->setProperty("legacy_level_normalized",legacyLevelNormalised);
             if(mode==2 && lane==0)laneRow->setProperty("low_di_share",1.f-value("lowampmix"));
             routeRows.add(juce::var(laneRow));
         }

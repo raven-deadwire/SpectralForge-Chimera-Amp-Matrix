@@ -8,7 +8,7 @@ inline void artworkResources() {
     using namespace spectralforge::cabArt;
     const juce::SharedResourcePointer<Bank> artwork;
     require(assetCount==27,"Scenery changed the released equipment artwork enumeration");
-    size_t retainedBytes=0;
+    size_t retainedBytes=0,repeatedGrilleBytes=0;
     for(size_t i=0;i<assetCount;++i) {
         const auto& image=artwork->images[i];
         if(!image.isValid())throw std::runtime_error("Missing CAB artwork resource: "+std::string(keys[i]));
@@ -27,6 +27,12 @@ inline void artworkResources() {
     for(const auto& skin:artwork->enclosureSkins) {
         for(const auto& image:{skin.grille,skin.roof,skin.grilleOverlay})
             retainedBytes+=size_t(image.getWidth())*size_t(image.getHeight())*4;
+        // The rendering repeats own independent pixels in addition to the
+        // inspected raw crops, so both belong to the existing editor budget.
+        for(const auto& image:{skin.repeatedGrille,skin.repeatedGrilleOverlay}) {
+            const size_t bytes=size_t(image.getWidth())*size_t(image.getHeight())*4;
+            retainedBytes+=bytes;repeatedGrilleBytes+=bytes;
+        }
         for(size_t i=1;i<skin.perimeter.size();i+=2)
             retainedBytes+=size_t(skin.perimeter[i].getWidth())*size_t(skin.perimeter[i].getHeight())*4;
     }
@@ -40,7 +46,8 @@ inline void artworkResources() {
     }
     require(capturedMicrophone(nullptr)==Asset::count,"Unknown/mixed capture was assigned a microphone model");
     require(originalMicrophone(2)!=capturedMicrophone(spectralforge::micCatalog::byId("chimera-strike")),"Detail response uses Chimera Strike artwork");
-    std::cout<<"PASS CAB artwork: 27 embedded transparent assets, stable catalog mapping and separate room scenery, combined retained RGBA bytes="<<retainedBytes<<'\n';
+    std::cout<<"PASS CAB artwork: 27 embedded transparent assets, stable catalog mapping and separate room scenery, combined retained RGBA bytes="<<retainedBytes
+        <<", repeated grille RGBA bytes="<<repeatedGrilleBytes<<'\n';
 }
 
 inline void layout(CabPanel& panel) {

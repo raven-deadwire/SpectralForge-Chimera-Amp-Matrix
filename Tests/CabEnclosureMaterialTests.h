@@ -4,6 +4,99 @@
 // Exercise the production tiling operation on both renderers. A software-only
 // component snapshot cannot detect Direct2D wrapping a subsection's parent.
 namespace cabEnclosureMaterialTests {
+inline void checkRepeatedPixels(const juce::Image& tile,const juce::Image& repeated) {
+    check(tile.isValid() && repeated.isValid(),"repeated grille texture is missing");
+    check(repeated.getWidth()==tile.getWidth()*4 && repeated.getHeight()==tile.getHeight()*3,
+        "repeated grille no longer has twelve whole source periods");
+    const juce::Image::BitmapData source(tile,juce::Image::BitmapData::readOnly);
+    const juce::Image::BitmapData copy(repeated,juce::Image::BitmapData::readOnly);
+    check(source.pixelFormat==copy.pixelFormat && source.pixelStride==copy.pixelStride,
+        "repeated grille changed its stored pixel format");
+    for(int y=0;y<copy.height;++y)for(int x=0;x<copy.width;++x)
+        check(std::memcmp(copy.getPixelPointer(x,y),source.getPixelPointer(x%source.width,y%source.height),
+            size_t(source.pixelStride))==0,"repeated grille changed source phase or premultiplied pixel bytes");
+}
+inline void repeatedTextures() {
+    using namespace spectralforge::cabEnclosureArt;
+    check(!repeatGrilleTexture({}).isValid(),"missing custom grille produced a cached texture");
+    for(bool native:{false,true}) {
+        const auto type=native ? std::unique_ptr<juce::ImageType>(new juce::NativeImageType)
+                               : std::unique_ptr<juce::ImageType>(new juce::SoftwareImageType);
+        for(auto format:{juce::Image::ARGB,juce::Image::RGB,juce::Image::SingleChannel}) {
+            juce::Image tile(format,17,13,true,*type);
+            {
+                juce::Image::BitmapData pixels(tile,juce::Image::BitmapData::writeOnly);
+                constexpr std::array<juce::uint8,6> alphas{{0,1,17,63,129,255}};
+                for(int y=0;y<pixels.height;++y)for(int x=0;x<pixels.width;++x) {
+                    const auto alpha=alphas[size_t((x+3*y)%int(alphas.size()))];
+                    if(pixels.pixelFormat==juce::Image::ARGB) {
+                        // Arbitrary valid premultiplied values expose a lossy
+                        // unpremultiply/re-premultiply Colour round trip.
+                        juce::PixelARGB pixel;
+                        pixel.setARGB(alpha,juce::uint8((29*x+11*y)%(int(alpha)+1)),
+                            juce::uint8((7*x+19*y)%(int(alpha)+1)),juce::uint8((13*x+5*y)%(int(alpha)+1)));
+                        std::memcpy(pixels.getPixelPointer(x,y),&pixel,sizeof(pixel));
+                    } else pixels.setPixelColour(x,y,juce::Colour(juce::uint8(17*x),juce::uint8(19*y),
+                        juce::uint8(7*x+11*y),alpha));
+                }
+            }
+            const auto repeated=repeatGrilleTexture(tile);
+            checkRepeatedPixels(tile,repeated);
+            std::array<juce::uint8,4> before{};int stride=0;
+            {
+                const juce::Image::BitmapData pixels(repeated,juce::Image::BitmapData::readOnly);
+                stride=pixels.pixelStride;std::memcpy(before.data(),pixels.getPixelPointer(1,1),size_t(stride));
+            }
+            tile.clear(tile.getBounds(),juce::Colours::red);
+            const juce::Image::BitmapData pixels(repeated,juce::Image::BitmapData::readOnly);
+            check(std::memcmp(before.data(),pixels.getPixelPointer(1,1),size_t(stride))==0,
+                "repeated grille still aliases its source storage");
+        }
+        // Non-uniform colour and alpha make an origin or scale change visible.
+        // Check the production overlay's nearest-neighbour phase away from raw
+        // tile edges, whose native coverage can differ after aggregation.
+        juce::Image tile(juce::Image::ARGB,24,18,true,*type);
+        {
+            juce::Image::BitmapData pixels(tile,juce::Image::BitmapData::writeOnly);
+            for(int y=0;y<pixels.height;++y)for(int x=0;x<pixels.width;++x)
+                pixels.setPixelColour(x,y,juce::Colour(juce::uint8(40+45*(x/6)),juce::uint8(40+55*(y/6)),
+                    juce::uint8(80+(x+y)%5),juce::uint8(40+55*(x/6))));
+        }
+        const auto repeated=repeatGrilleTexture(tile);
+        Skin custom;custom.grille=tile;custom.grilleOverlay=tile;
+        check(&custom.grilleTexture(false)==&custom.grille && &custom.grilleTexture(true)==&custom.grilleOverlay,
+            "custom skin without rendering copies lost its raw grille fallback");
+        for(float scale:{.25f,1.f,1.75f}) {
+            juce::Image original(juce::Image::ARGB,192,128,true,*type);
+            juce::Image cached(juce::Image::ARGB,192,128,true,*type);
+            const juce::Rectangle<float> area(5.25f,7.75f,180.f,112.f);
+            {juce::Graphics g(original);g.setImageResamplingQuality(juce::Graphics::lowResamplingQuality);
+                fillMaterial(g,custom.grilleTexture(true),area,scale);}
+            {juce::Graphics g(cached);g.setImageResamplingQuality(juce::Graphics::lowResamplingQuality);
+                fillMaterial(g,repeated,area,scale);}
+            const juce::Image::BitmapData a(original,juce::Image::BitmapData::readOnly);
+            const juce::Image::BitmapData b(cached,juce::Image::BitmapData::readOnly);
+            check(a.pixelStride==b.pixelStride,"grille renderers returned different target formats");
+            int maximumError=0,samples=0;
+            for(int y=10;y<117;++y)for(int x=8;x<183;++x) {
+                const float phaseX=std::fmod((float(x)+.5f-area.getX())/scale,float(tile.getWidth()));
+                const float phaseY=std::fmod((float(y)+.5f-area.getY())/scale,float(tile.getHeight()));
+                if(phaseX<2.f || phaseX>float(tile.getWidth())-2.f
+                    || phaseY<2.f || phaseY>float(tile.getHeight())-2.f)continue;
+                const auto* expected=a.getPixelPointer(x,y);const auto* actual=b.getPixelPointer(x,y);
+                for(int channel=0;channel<a.pixelStride;++channel)
+                    maximumError=juce::jmax(maximumError,std::abs(int(expected[channel])-int(actual[channel])));
+                ++samples;
+            }
+            std::cout<<"Repeated grille "<<(native ? "native" : "software")<<" scale="<<scale
+                <<" phase_samples="<<samples<<" maximum_premultiplied_error="<<maximumError<<'\n';
+            check(samples>1000 && maximumError<=2,"repeated grille shifted its rendered colour/alpha phase or physical scale");
+            check(cached.getPixelAt(0,0).getAlpha()==0,"repeated grille escaped its material clip");
+        }
+    }
+    std::cout<<"PASS repeated grille: exact raw pixels in three formats, independent storage, custom-skin fallback, "
+        <<"12 native/software renders at three scales and a fractional origin\n";
+}
 inline void slantedRailContinuity() {
     using namespace spectralforge::cabEnclosureArt;
     // A bright, vertical piping stripe makes the edge's position observable
@@ -125,6 +218,7 @@ inline void transmission() {
 }
 inline void run() {
     using namespace spectralforge::cabEnclosureArt;
+    repeatedTextures();
     slantedRailContinuity();
     transmission();
     for(bool bass:{false,true})for(bool native:{false,true}) {
@@ -145,6 +239,8 @@ inline void run() {
         check(skin.isValid(),"material fixture extraction failed");
         check(skin.grille.getBounds()==juce::Rectangle<int>(36, bass ? 66 : 72)
             && skin.roof.getBounds()==juce::Rectangle<int>(128,20),"material crop dimensions changed");
+        checkRepeatedPixels(skin.grille,skin.repeatedGrille);
+        checkRepeatedPixels(skin.grilleOverlay,skin.repeatedGrilleOverlay);
         for(size_t i=1;i<skin.perimeter.size();i+=2) {
             const auto& tile=skin.perimeter[i];
             check((i==topRail || i==bottomRail ? tile.getWidth() : tile.getHeight())==64,

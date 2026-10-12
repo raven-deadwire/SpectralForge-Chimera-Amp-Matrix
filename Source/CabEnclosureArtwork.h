@@ -2,6 +2,7 @@
 #include <juce_graphics/juce_graphics.h>
 #include <array>
 #include <cmath>
+#include <cstring>
 
 namespace spectralforge::cabEnclosureArt {
 // The original cabinet illustrations remain the source of the shell material.
@@ -33,6 +34,8 @@ struct Skin {
     std::array<juce::Image,pieceCount> perimeter;
     std::array<juce::Image,2> feet;
     juce::Image grille,roof,grilleOverlay,header,horn;
+    // Immutable rendering copies; the inspected source crops stay separate.
+    juce::Image repeatedGrille,repeatedGrilleOverlay;
     float sourcePixelsPerMetre{};
     bool bass{};
     bool isValid() const noexcept {
@@ -41,7 +44,34 @@ struct Skin {
         return true;
     }
     const char* key() const noexcept {return bass ? "cab-bass-410-shell" : "cab-guitar-412-shell";}
+    const juce::Image& grilleTexture(bool overlay) const noexcept {
+        const auto& repeated=overlay ? repeatedGrilleOverlay : repeatedGrille;
+        return repeated.isValid() ? repeated : (overlay ? grilleOverlay : grille);
+    }
 };
+
+// CoreGraphics draws transformed image fills one tile at a time. Repeating
+// these small crops in advance reduces native drawing calls while retaining
+// their pixel period, origin and physical scale. No viewport/DPI cache is
+// needed: the regular painter still applies the current transform and clip.
+inline juce::Image repeatGrilleTexture(const juce::Image& tile) {
+    if(!tile.isValid())return {};
+    // Twelve whole periods stay within the shared artwork memory budget.
+    // The copied source pixels are not resampled or stretched.
+    const int width=tile.getWidth()*4,height=tile.getHeight()*3;
+    const juce::Image::BitmapData source(tile,juce::Image::BitmapData::readOnly);
+    juce::SoftwareImageType storage;
+    juce::Image repeated(source.pixelFormat,width,height,false,storage);
+    juce::Image::BitmapData target(repeated,juce::Image::BitmapData::writeOnly);
+    if(source.pixelStride!=target.pixelStride) {jassertfalse;return {};}
+    const auto rowBytes=size_t(source.width)*size_t(source.pixelStride);
+    // Copy stored pixels, including premultiplied alpha. Colour conversion
+    // would round translucent wires even though no new artwork is intended.
+    for(int y=0;y<height;++y)
+        for(int x=0;x<width;x+=source.width)
+            std::memcpy(target.getPixelPointer(x,y),source.getLinePointer(y%source.height),rowBytes);
+    return repeated;
+}
 
 // Retain the original woven/metal material as a transmissive layer in front
 // of the drivers. Only the inspected empty grille patch is sampled; no baked
@@ -115,6 +145,8 @@ inline Skin makeSkin(const juce::Image& source,bool bass) {
                           : juce::Rectangle<int>(44,48,1166,110));
     if(bass)skin.horn=clip({507,536,236,156});
     skin.grilleOverlay=makeGrilleOverlay(skin.grille,bass);
+    skin.repeatedGrille=repeatGrilleTexture(skin.grille);
+    skin.repeatedGrilleOverlay=repeatGrilleTexture(skin.grilleOverlay);
     skin.sourcePixelsPerMetre=float(regions.referenceFrontWidth)*float(source.getWidth())
         /(1254.f*regions.referenceWidthMetres);
     return skin;
@@ -209,9 +241,9 @@ inline void paintGrille(juce::Graphics& g,const Skin& skin,juce::Rectangle<float
         // wires into every aperture at room scale. Sample the authored alpha
         // mask without interpolation so the foreground remains perforated.
         // This is local to the grille; shell and driver artwork retain their
-        // existing resampling quality, and no image is allocated during paint.
+        // existing resampling quality; Chimera builds its textures up front.
         g.setImageResamplingQuality(juce::Graphics::lowResamplingQuality);
-        fillMaterial(g,skin.grilleOverlay,face.reduced(rail*.82f),pixelsPerMetre/skin.sourcePixelsPerMetre);
+        fillMaterial(g,skin.grilleTexture(true),face.reduced(rail*.82f),pixelsPerMetre/skin.sourcePixelsPerMetre);
     }
     // The grille and frame are in front of the mounted units. Repaint the
     // flange here so large valid drivers cannot erase the cabinet's hardware.
@@ -236,7 +268,7 @@ inline void paint(juce::Graphics& g,const Skin& skin,juce::Rectangle<float> box,
     const auto grille=face.reduced(rail*.82f);
     if(skin.isValid()) {
         const juce::Graphics::ScopedSaveState clip(g);g.reduceClipRegion(outline);
-        fillMaterial(g,skin.grille,grille,pixelsPerMetre/skin.sourcePixelsPerMetre);
+        fillMaterial(g,skin.grilleTexture(false),grille,pixelsPerMetre/skin.sourcePixelsPerMetre);
         if(slant) {
             // A soft change in the upper baffle's room-light angle makes the
             // slant legible without inventing a seam across continuous cloth.
