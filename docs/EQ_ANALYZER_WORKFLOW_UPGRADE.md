@@ -153,11 +153,11 @@ Do not expose inactive buttons for future processing.
 
 | Scope | Scheduled stage |
 |---|---|
-| Independent four-band dynamics, band solo and per-band GR | 1.4, December 28, 2026–February 5, 2027 |
-| Six-band extension, external sidechain, L/R and M/S, Studio true-peak/LUFS | 1.5, February 8–March 5, each with its own performance/host acceptance |
-| Spectral dynamics and linear-phase prototypes | 1.7 research window, April 12–May 7 |
-| EQ Match, EQ Sketch and cross-instance/rig spectrum comparison | Requirements checkpoint April 16; feasibility/adoption decision May 7 |
-| Qualified advanced EQ integration | 2.0 or a named 2.x follow-up assigned at the May 7 decision |
+| Independent four-band dynamics, band solo and per-band GR | 1.4, March 22–April 30, 2027 |
+| Six-band extension, external sidechain, L/R and M/S, Studio true-peak/LUFS | 1.5, May 3–May 28, each with its own performance/host acceptance |
+| Spectral dynamics and linear-phase prototypes | 1.7 research window, July 5–July 30 |
+| EQ Match, EQ Sketch and cross-instance/rig spectrum comparison | Requirements checkpoint July 9; feasibility/adoption decision July 30 |
+| Qualified advanced EQ integration | 2.0 or a named 2.x follow-up assigned at the July 30 decision |
 
 The graph/analyzer, ordinary Dynamic EQ and spectral dynamics are different
 deliverables. FabFilter documents linear-phase requirements for its spectral
@@ -198,3 +198,4 @@ own implementation, visual treatment and measured performance.
 - [Spectrum Grab](https://www.fabfilter.com/help/pro-q/using/spectrumgrab)
 - [Dynamic EQ](https://www.fabfilter.com/help/pro-q/using/dynamic-eq)
 - [Spectral dynamics](https://www.fabfilter.com/help/pro-q/using/spectral-dynamics)
+

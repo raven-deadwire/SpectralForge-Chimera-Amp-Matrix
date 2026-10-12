@@ -28,18 +28,42 @@ when implementing; developer-host and signing access remain separate.
 
 | Target, KST | Result | Meaning |
 |---|---|---|
-| October 16, 2026 | Platform/bus/ID plan, access inventory and workload estimate | Ready-to-build assessment; do not infer an account or signing permission exists |
-| October 30, 2026 | Internal unsigned Windows/macOS AAX prototype and bundle report | Build proof; host operation requires actual host evidence |
-| November 20, 2026 | Pro Tools validation candidate and evidence report | Conditional on a usable Developer host; signed normal-host checks when available |
+| October 16, 2026 | Platform/bus/ID plan, actual access inventory and workload review | Ready-to-build assessment; record SDK, host and signing prerequisites separately; do not infer access |
+| October 30, 2026 | Conditional internal unsigned Windows/macOS AAX prototype and bundle review | Requires the applicable toolchain and allocated work; build proof does not establish host operation or a public beta |
+| November 20, 2026 | Conditional Pro Tools validation candidate and evidence review | Requires an actual usable Developer host and built candidate; signed normal-host checks require actual signing access |
 | Public release date uncommitted | Signed and packaged AAX beta verified in normal Pro Tools | Requires the full delivery stage below |
 
 Initial planning allowance: **10–20 engineering days**, including host and
-installer work, excluding unknown external approval waits. This is an estimate,
-not measured velocity or an assumption of additional staff. Re-estimate October
-16 and 23. Give the immediate chain/EQ quality work priority if shared capacity
-conflicts; record any moved AAX target explicitly. The public AAX version will
-be assigned to the then-current verified Chimera release, rather than promised
-as 1.3.2 regardless of readiness.
+installer work, excluding unknown external approval waits. This remains an
+estimate, not measured velocity or additional staff. Re-estimate October 16
+and 23 against actual access and weekly progress. It is not a second full-time
+implementation running alongside chain/EQ, shared FX or a focused product.
+Give the immediate chain/EQ quality work priority if shared capacity conflicts;
+record any moved AAX target and its reason explicitly. The public AAX version
+will be assigned to the then-current verified Chimera release, rather than
+promised as 1.3.2 regardless of readiness.
+
+The October 30 and November 20 entries are conditional evidence checkpoints,
+not automatic passes or guaranteed releases. If a prerequisite is unavailable,
+record the affected AAX stage as blocked, keep any achieved build evidence, and
+continue independent product changes. An account request, an unsigned artifact
+or an internal demo cannot substitute for the final signed-host acceptance.
+
+### Weekly implementation and maintenance
+
+Follow the central roadmap's weekly delivery rule: one principal implementation
+plus bounded maintenance, with at least one actual verified change/build each
+week. AAX contributes a concrete wrapper, layout, state, packaging, signing or
+host fix when its prerequisites permit; planning text and an access status
+alone are not an implemented update. Publish source identity, changed behavior,
+validation result and the actual available package for each completed increment.
+
+If AAX access is blocked, that does not block the weekly Chimera/native-VST3
+maintenance build. Do not issue an unusable unsigned public AAX package merely
+to meet a weekly cadence. Public AAX still requires Stage 3 and the applicable
+release checks. Allocate substantial AAX implementation as the principal work
+for an explicit week or revise its checkpoint, rather than counting that work
+again inside another product's implementation window.
 
 ## Scope of the new focused products
 
@@ -53,7 +77,15 @@ still needs its own stable AAX product/layout IDs, bundle/installer ownership,
 parameter mapping, source-bound signature and normal-Pro-Tools acceptance.
 Do not reuse Chimera's plugin identity or infer acceptance from a sibling's
 signed binary. Add the incremental platform, host and packaging work to the
-October 16/23 capacity review.
+October 16/23 capacity review and subsequent weekly reviews.
+
+The central calendar now allocates November 30–December 25, 2026 to the first
+shared original FX/reuse integration, December 28, 2026–January 22, 2027 to
+the first Náströnd native VST3 beta, and January 25–February 19, 2027 to the
+first Niflheimr native VST3 beta. These are three separate four-week principal
+work windows, not an allowance for three additional AAX implementations. Reuse
+AAX build/signing work where possible, then explicitly allocate the remaining
+product-specific host and package validation when each native product is ready.
 
 Focused-product AAX is a follow-on format track with no committed public date.
 It must not block a separately qualified VST3 release, and it does not make
@@ -152,3 +184,4 @@ Checked October 12, 2026:
 - [Avid AAX developer entry point](https://developer.avid.com/aax/)
 - [PACE AAX signing workflow](https://paceap.com/getting-started-with-aax-code-signing-for-pro-tools-plugins/)
 - [Avid Apple Silicon host/plugin compatibility](https://kb.avid.com/pkb/articles/en_US/Knowledge/Missing-plug-ins-after-upgrading-to-Pro-Tools-2023-3-on-Apple-Silicon-Mac)
+

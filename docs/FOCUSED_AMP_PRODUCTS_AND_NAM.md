@@ -1,16 +1,23 @@
 # Focused Náströnd / Niflheimr products and NAM delivery
 
-Updated: **2026-10-12 KST**. Status: **PLANNED; separate product targets and
-Niflheimr NAM delivery are not implemented or qualified by this document**.
+Updated: **2026-10-12 KST**. Status: **PLANNED; this document does not establish
+implementation or qualification of separate product targets or either NAM pack**.
 
 ## Owner decision and verified baseline
 
 The October 12 follow-up requires:
 
-1. A five-channel Niflheimr NAM pack, alongside the existing Náströnd NAM work.
+1. Required five-channel Náströnd and Niflheimr NAM packs, qualified separately
+   from the native VST products.
 2. Separately installable Náströnd and Niflheimr VST products.
 3. A simpler playing/editing workflow, using Neural DSP and Odeholm Audio as
    references for focused amp products.
+4. Four replaceable PRE slots per focused product, with five guitar families
+   and six bass families; Chimera retains its existing five PRE slots.
+5. Guitar gain shaping centred on a BOOST that drives the amp, plus shared
+   original FX improvements delivered back to Chimera.
+6. Weekly working changes and verified builds, continuing maintenance while
+   the larger product work progresses.
 
 Product-source audit: main
 [3817246f](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/commit/3817246f779a50f19b5378ec9661a2275e6b91b2).
@@ -31,7 +38,7 @@ catalog JSON mirrors them.
 |---|---|---|---|
 | SpectralForge Chimera | Full guitar/bass amp-and-effects environment | Existing Classic/Dual/Matrix and broad catalog | Existing formats; AAX Native plan remains separate |
 | SpectralForge Náströnd | Focused five-channel guitar amp | One selected Náströnd channel, one CAB section, curated PRE/POST and one main EQ | Separate VST3; Windows first reviewable package, macOS Universal separately verified |
-| SpectralForge Niflheimr | Focused five-channel bass amp | One selected Niflheimr channel, common LOW/Blend, curated compression, one CAB section and one main EQ | Separate VST3; Windows first reviewable package, macOS Universal separately verified |
+| SpectralForge Niflheimr | Focused five-channel bass amp | One selected Niflheimr channel, native common LOW/Blend, four curated PRE slots, one CAB section and one main EQ | Separate VST3; Windows first reviewable package, macOS Universal separately verified |
 
 Initial focused-product version target: **1.0.0-beta.1 for each product**.
 Their version and release acceptance are independent of Chimera 1.3.x.
@@ -45,6 +52,14 @@ utilities and improved EQ components. Product descriptors/processors/editors
 own their limited topology, resources, parameters and packaging. Avoid
 independently maintained copies of the amp sound engine.
 
+Reuse existing compressor, EQ, drive and spatial engines as the implementation
+baseline. The original FX programme adds or improves algorithms module by module;
+it is not a rewrite of every effect before either VST can be tested. Share the
+resulting DSP and fixes with Chimera, while each product exposes its own useful
+controls, defaults and presets. A renamed module or a new skin does not establish
+new DSP, improved sound or measured parity. Record what each revision actually
+changes and qualifies.
+
 ## Focused playing workflow
 
 Use a shared, compact layout with product-specific head identity:
@@ -53,16 +68,25 @@ Use a shared, compact layout with product-specific head identity:
   whole-product A/B, compact tuner and gate access.
 - Main AMP page: five clearly named channel selectors and the amp controls.
   Open on AMP, retain per-channel settings and keep Niflheimr Blend visible.
-- A short AMP / CAB / EQ / FX page row. Gate, Transpose, tuner and click are
-  not separate signal-navigation nodes. The first focused scope requires
-  tuner/gate; Transpose may be added only with the separately qualified
-  shared pitch implementation and latency evidence.
+- A compact PRE / AMP / CAB / EQ / SPACE page row. PRE shows four replaceable
+  effect slots with individual bypass, clear family selection and an expanded
+  editor for the selected slot. Do not repeat the same pages in another long
+  signal-navigation row. Gate, Transpose, tuner and click remain compact
+  utilities and do not inflate the PRE family count.
+- The first focused scope requires tuner/gate. Any exposed PITCH family or
+  Transpose function must use a qualified implementation with measured latency;
+  the separate <=10 ms research target is not a promise for the first native
+  VST3 beta. If a feature remains blocked, record its absence in that build
+  rather than claiming the complete inventory or blocking unrelated work.
 - One selected, sufficiently large EQ graph with the improved input/output
   analyzer, band editing, Undo/Redo, audition and comparison components.
   Preserve ordinary knob/keyboard accessibility and readable scaling.
 - Curated section bypass and a small number of useful presets/IR choices;
-  retain a personal WAV IR option. No full catalog browser, mode switch,
-  multi-lane routing editor or Room scene in the initial focused versions.
+  retain a personal WAV IR option. SPACE groups selected delay/reverb controls;
+  Niflheimr defaults to dry and permits deliberate creative use. Modulation
+  assigned to PRE remains visibly part of the PRE slots, not an extra hidden
+  serial processor. No full catalog browser, mode switch, multi-lane routing
+  editor or Room scene is required for the initial focused versions.
 
 Simplification comes from the fixed path and limited peripheral selection.
 Preserve the native amp's actual tone controls rather than flattening five
@@ -75,17 +99,46 @@ channel identities into a generic distortion macro.
 | Stable channel order | Fenrir, Surtr, Níðhöggr, Fimbulvetr, Ragnarök | Hrímfaxi, Garmr, Nidavellir, Ymir, Hel |
 | Amp controls | Gain, Bass, Mid, Treble, Mid Frequency, Presence, Depth, Master | Same eight controls, plus Blend on the main panel |
 | Compact Character section | Clank, Crush, Impact, Rot, Bloom | Mass, Split, Fang, Fold, Thrust |
-| PRE | Gate and a small fixed compressor/boost selection | Gate and clean compression; selected corrective tone processing only |
+| PRE slots | Four replaceable slots; choose from BOOST, COMP, PITCH, WAH, MOD | Four replaceable slots; choose from COMP, DRIVE, FUZZ, OCTAVER, FILTER, CHORUS |
 | CAB | Curated guitar cabinet choices, CAB bypass and personal IR | Curated bass cabinet choices, CAB bypass and personal IR |
 | Main EQ | One post-CAB bank using the improved graph/analyzer | Same shared bank, with clear low-frequency detail |
-| POST | One compact delay and reverb section | Dry default; no new time-effect inventory in the first edition |
+| SPACE / POST | Compact selected delay and reverb, sharing qualified engines with Chimera | Same shared compact approach, dry by default and voiced for bass |
 
 Retain all **13 Náströnd** and **14 Niflheimr** native controls, including
 channel-specific recall and reset. The Character section can expand without
 covering the main channel/level controls. Reuse the EQ quality work rather
 than creating a second analyzer implementation or a cosmetic imitation.
-The first focused EQ bank is static; later common Dynamic EQ features have
-their own integration/acceptance scope and are not implied by sharing a graph.
+The first focused EQ bank reuses the accepted common EQ implementation. Dynamic
+EQ is included only after its own DSP, state, automation and audio acceptance;
+sharing the graph alone does not establish dynamic processing.
+
+### PRE inventory and original FX integration
+
+Four slots means at most four selected PRE modules in the active focused chain,
+not four total available families. The product descriptor limits choices to the
+five guitar or six bass families above. Slots are replaceable; do not infer an
+unrestricted drag-and-drop routing editor, duplicate-family stacking or a changed
+Chimera slot count. Freeze allowed combinations and the actual module order at
+the product review, persist them explicitly, and make the screen reflect the
+processed path. Any later limited order editing retains its central-roadmap task.
+
+- Náströnd BOOST is an amp-driving and input-shaping effect, with Boost, Tight
+  and Tone as the initial principal controls. Its primary role is not a second
+  standalone distortion amp. COMP, PITCH, WAH and MOD provide distinct additional
+  roles; pitch/whammy/octave options or modulation modes do not count as extra
+  installed families or extra simultaneous slots.
+- Niflheimr distinguishes DRIVE and FUZZ as selectable families, alongside COMP,
+  OCTAVER, FILTER and CHORUS. Bass voicing must be assessed for low-frequency
+  response, attack and interaction with native Blend. Do not import the entire
+  Chimera effect catalog or hide unsupported modules behind the focused selector.
+- Gate and tuner are product utilities. Global Transpose and creative PRE pitch
+  must have a documented relationship, with no unintended double transposition
+  or duplicated latency. Newly added algorithms and corrective changes are
+  shared with Chimera through the same module implementation.
+- Qualify insertion/removal, bypass, parameter changes, state restore, supported
+  slot combinations and declared sample rates/buffers. A missing research feature
+  blocks its own availability and completeness claim; it does not stop verified
+  maintenance builds or unrelated native product development.
 
 Freeze whether the first buses are mono-to-mono and stereo-to-stereo only,
 or additionally mono-to-stereo, at the product scope review. Current Chimera
@@ -100,12 +153,18 @@ clean and dirty remainders, followed by common EQ, Presence, Depth and Master.
 Blend zero selects the cleaned input, not raw DI or total plugin bypass.
 Its meaning differs from Chimera's Matrix LOW DI/AMP Mix.
 
-A full-band distortion inserted before that split would affect the clean
-foundation as well. Keep the first PRE selection clean as above. Do not
-replace native Blend with a generic crossfader between raw DI and a full-head
-NAM output, or replace its topology merely because another bass plugin also
-uses parallel bands. Verify endpoints and intermediate Blend positions,
-low-note magnitude/phase, transient clarity and channel/quality changes.
+A full-band PRE DRIVE or FUZZ inserted before that split also changes the input
+to the clean foundation. Native Blend does not bypass active PRE effects; the
+UI must not label its clean endpoint as raw DI. Record and audition the actual
+insertion boundary for every bass module. If a later design protects common
+LOW or the clean remainder from a distortion module, implement and validate
+that explicit routing before advertising an unaffected clean-low path.
+
+Do not replace native Blend with a generic crossfader between raw DI and a
+full-head NAM output, or replace its topology merely because another bass plugin
+also uses parallel bands. Verify endpoints and intermediate Blend positions,
+low-note magnitude/phase, transient clarity and channel/quality changes with
+PRE off and with every supported active PRE combination.
 
 ## Dedicated builds and release identity
 
@@ -154,8 +213,12 @@ Never silently discard a multi-lane preset's sound-producing state.
 
 ## NAM is a separate required delivery
 
-The minimum Niflheimr pack has **five accepted fixed-setting, amp-only .nam
-models**, one for each channel in the stable order above. A voicing choice
+Both the Náströnd and Niflheimr NAM packs remain required deliverables. Each
+requires at least **five accepted fixed-setting, amp-only .nam models**, one
+for each channel in that family's stable order above. Neither native VST3
+packaging nor a pipeline smoke pass substitutes for an accepted NAM pack.
+
+For Niflheimr, a voicing choice
 is frozen after audition; its full 14-control vector, including Blend, is
 recorded. Extra gain/Blend variants add models and validation work beyond
 that minimum.
@@ -220,23 +283,65 @@ A pipeline smoke pass establishes neither fidelity nor musical acceptance.
 
 ## Schedule and completion
 
-All dated checkpoints are in the
+All dated checkpoints are owned by the
 [central roadmap](DEVELOPMENT_ROADMAP_2026_2027.md#focused-náströnd--niflheimr-products-and-required-nam-delivery)
-and its JSON mirror. The product capacity decision is October 16; the proposed
-November 30–December 25 focused implementation/candidate window is **not yet
-allocated** and conflicts with the currently assigned Room Core window.
-Resolve allocation and dependent dates together. Do not assume extra staff
-or count both projects against the same four weeks.
+and its JSON mirror. The revised calendar explicitly allocates **three
+consecutive four-week windows**. This replaces the former unallocated
+November 30–December 25 estimate for both products and resolves its conflict
+with Room Core by moving dependent Room/1.4-and-later work twelve weeks.
 
-The initial four-week estimate covers native VST3 internal candidates with
-the focused scope above. NAM training/fidelity, NAM runtime, AU/standalone and
-signed AAX are separately estimated tracks. Public VST3 and NAM dates remain
-uncommitted until their respective evidence is complete.
+| Allocated window, KST | Main work | Reviewable result |
+|---|---|---|
+| 2026-11-30–2026-12-25 | First shared original FX increment and integration of reusable modules; freeze focused slot/state contracts and product descriptors | Verified shared modules and a concrete four-slot workflow, with accepted and blocked capabilities listed individually |
+| 2026-12-28–2027-01-22 | Náströnd native VST3 target, focused UI, presets, packaging and host acceptance | First Náströnd VST3 beta target; public availability remains subject to that build's platform and release checks |
+| 2027-01-25–2027-02-19 | Niflheimr native VST3 target, native Blend/PRE integration, presets, packaging and host acceptance | First Niflheimr VST3 beta target; assess bass-specific behavior and coexistence explicitly |
+
+These are allocated working targets, not verified progress or a guarantee that
+an unchecked binary can ship on the last day. The first FX window delivers
+the accepted initial increment using existing engines where appropriate; it
+does not promise a wholesale rewrite or simultaneous completion of every
+original algorithm. Remaining module improvements continue in weekly changes.
+
+The central schedule moves the dependent Room/1.4-and-later programme by twelve
+weeks, places the 2.0 candidate window at **2027-11-22–2027-12-17**, and retains
+**2027-12-20–2027-12-31** as a correction/buffer period. These are provisional
+targets reviewed against actual weekly results, not a claim that all future
+research must succeed by 2027. Changes to dependent version milestones remain
+owned by the central roadmap and its JSON mirror.
+
+### Weekly delivery and capacity rule
+
+- Work on one principal implementation at a time, plus bounded maintenance and
+  existing regressions. Shared work benefits all products but is not counted as
+  separate full-time capacity for each product.
+- Every week produces at least one actual code/UI/DSP or maintenance change and
+  a build that verifies the changed behavior. Report the source, concrete
+  change, validation outcome, available package and remaining blocker.
+  Editing this roadmap or issuing a status report alone is not a weekly update.
+- A larger incomplete feature does not stop a smaller useful, verified
+  maintenance delivery. If the current feature fails validation, fix it or
+  supply another independently qualified change; never call a failing or
+  unchanged build a successful update.
+- Public publication continues to use the applicable release checks. Clearly
+  identify internal review builds and platform-limited candidates instead of
+  presenting them as universally accepted releases.
+- Review the next week's work after each result. If a checkpoint slips, record
+  the specific dependency and the affected target; do not suspend unrelated
+  work or silently double-book Room, a focused product and AAX.
+
+NAM training/fidelity, a future NAM runtime, AU/standalone and signed AAX are
+separate delivery tracks. Limit NAM and <=10 ms pitch experiments to defined
+questions and record the pass/fail decision before repeating expensive work.
+A blocked model or pitch algorithm blocks that feature's qualification and
+release claim, not independent native VST3 development or weekly maintenance.
+Both NAM packs remain open required deliveries until their evidence is complete.
 
 | Deliverable | Required completion evidence |
 |---|---|
-| Each focused VST3 | Product-specific builds/IDs, all five native channels and control memories, supported bus and bypass behavior, dedicated presets, resource measurements and native UI/audio |
+| Each focused VST3 | Product-specific builds/IDs, all five native channels and control memories, four replaceable PRE slots with declared qualified inventory, supported buses/bypass, dedicated presets, resource measurements and native UI/audio |
 | Focused release candidate | Actual platform/DAW lifecycle, automation/session restore, multiple instances, three-product coexistence and verified installer/update/uninstall |
+| Shared original FX increment | Identified reused and newly changed algorithms, supported family/slot behavior, audio/state/automation evidence and common implementation integrated with Chimera |
+| Náströnd NAM pack | Five source-bound qualified models, retained fidelity/held-out-DI results, supported player load/restore and hashes with installation/calibration guidance |
 | Niflheimr NAM pack | Five source-bound qualified models, frozen fidelity/held-out-DI results, supported player load/restore and hashes with installation/calibration guidance |
 | Future focused AAX | Product-specific signatures and normal-Pro-Tools/installer acceptance under the shared AAX plan |
 
@@ -275,3 +380,4 @@ Official workflow references checked October 12, 2026:
 
 These references guide interaction and product scope. They do not imply
 copied DSP/assets, measured sound equivalence or matching latency/CPU claims.
+

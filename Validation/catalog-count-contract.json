@@ -71,7 +71,7 @@
   },
   "roadmap": {
     "target_total": 132,
-    "next_model_window": "2026-12-28",
+    "next_model_window": "2027-03-22",
     "model_policy": "append-only",
     "preset_policy": "preserve first 31 Factory ordinals; append new presets",
     "version_gates": [
@@ -123,7 +123,7 @@
         "version": "1.3.3",
         "name": "Room Core: adjustable room size, absorption and per-rig sends",
         "total": 85,
-        "window": "2026-11-30/2026-12-25",
+        "window": "2027-02-22/2027-03-19",
         "new_models": 0,
         "status": "planned_internal_target"
       },
@@ -131,7 +131,7 @@
         "version": "1.4",
         "name": "PRE Expansion A and common multiband/routing",
         "total": 91,
-        "window": "2026-12-28/2027-02-05",
+        "window": "2027-03-22/2027-04-30",
         "new_models": 6,
         "status": "planned_internal_target"
       },
@@ -139,7 +139,7 @@
         "version": "1.5",
         "name": "PRE Expansion B and routing interaction",
         "total": 97,
-        "window": "2027-02-08/2027-03-05",
+        "window": "2027-05-03/2027-05-28",
         "new_models": 6,
         "status": "planned_internal_target"
       },
@@ -147,7 +147,7 @@
         "version": "1.6",
         "name": "Reference AMP Expansion and common saturation",
         "total": 102,
-        "window": "2027-03-08/2027-04-09",
+        "window": "2027-05-31/2027-07-02",
         "new_models": 5,
         "status": "planned_internal_target"
       },
@@ -155,7 +155,7 @@
         "version": "1.7",
         "name": "POST Dynamics & Tone and common filters",
         "total": 111,
-        "window": "2027-04-12/2027-05-07",
+        "window": "2027-07-05/2027-07-30",
         "new_models": 9,
         "status": "planned_internal_target"
       },
@@ -163,7 +163,7 @@
         "version": "1.8",
         "name": "POST Motion & Space and Room Advanced",
         "total": 120,
-        "window": "2027-05-10/2027-06-18",
+        "window": "2027-08-02/2027-09-10",
         "new_models": 9,
         "status": "planned_internal_target"
       },
@@ -171,7 +171,7 @@
         "version": "1.9",
         "name": "Creative FX",
         "total": 129,
-        "window": "2027-06-21/2027-07-16",
+        "window": "2027-09-13/2027-10-08",
         "new_models": 9,
         "status": "planned_internal_target"
       },
@@ -179,7 +179,7 @@
         "version": "1.10",
         "name": "Synth Layer",
         "total": 132,
-        "window": "2027-07-19/2027-08-27",
+        "window": "2027-10-11/2027-11-19",
         "new_models": 3,
         "status": "planned_internal_target"
       },
@@ -187,7 +187,7 @@
         "version": "2.0",
         "name": "Integration / RC",
         "total": 132,
-        "window": "2027-08-30/2027-09-24",
+        "window": "2027-11-22/2027-12-17",
         "new_models": 0,
         "status": "planned_internal_target"
       }
@@ -197,8 +197,8 @@
     "timezone": "Asia/Seoul",
     "authoritative_plan": "docs/DEVELOPMENT_ROADMAP_2026_2027.md",
     "next_common_feature_window": "2026-10-12",
-    "integration_target": "2027-09-24",
-    "date_policy": "Internal work/candidate targets, not guaranteed public release dates. Select work by actual completion, priority and satisfied dependencies; reassess the next four weeks at each checkpoint.",
+    "integration_target": "2027-12-17",
+    "date_policy": "Internal work/candidate targets with at least one substantive verified update or maintenance build each week. First two weeks are concrete commitments; review the next four weeks every fourth Friday. Re-estimate scope and affected dates from measured progress; no extra staffing assumed.",
     "target_counts": {
       "pre": 51,
       "amp": 30,
@@ -264,8 +264,8 @@
         "true_peak_loudness": "1.5 separately gated",
         "spectral_linear_phase": "1.7 research checkpoint; qualified 2.0 or a separately assigned 2.x release",
         "eq_reference_workflow_review": {
-          "requirements": "2027-04-16",
-          "feasibility_decision": "2027-05-07",
+          "requirements": "2027-07-09",
+          "feasibility_decision": "2027-07-30",
           "scope": [
             "eq_match",
             "eq_sketch",
@@ -276,7 +276,7 @@
       },
       "room_acoustics": {
         "first_version": "1.3.3",
-        "core_window": "2026-11-30/2026-12-25",
+        "core_window": "2027-02-22/2027-03-19",
         "required_core_controls": [
           "size_small_medium_large",
           "per_rig_send",
@@ -285,13 +285,13 @@
         ],
         "core_response": "Shared original early reflections and late decay; defined wet return; stable state and automation",
         "checkpoints": {
-          "design": "2026-12-04",
-          "playable_prototype": "2026-12-11",
-          "first_windows_test_installer": "2026-12-18",
-          "core_candidate": "2026-12-25"
+          "design": "2027-02-26",
+          "playable_prototype": "2027-03-05",
+          "first_windows_test_installer": "2027-03-12",
+          "core_candidate": "2027-03-19"
         },
         "advanced_version": "1.8",
-        "advanced_window": "2027-05-10/2027-06-18",
+        "advanced_window": "2027-08-02/2027-09-10",
         "advanced_controls": [
           "early_late_balance",
           "decay",
@@ -304,11 +304,11 @@
           "separate_room_microphone"
         ],
         "advanced_checkpoints": {
-          "reestimate_from_core": "2026-12-25",
-          "spatial_scope_review": "2027-05-14",
-          "playable_prototype": "2027-05-28",
-          "first_test_installer": "2027-06-11",
-          "candidate": "2027-06-18"
+          "reestimate_from_core": "2027-03-19",
+          "spatial_scope_review": "2027-08-06",
+          "playable_prototype": "2027-08-20",
+          "first_test_installer": "2027-09-03",
+          "candidate": "2027-09-10"
         },
         "routing": "Weighted audible AMP/CAB sends; LOW clean DI excluded; share existing post-rig gate envelope on excitation and add wet return after gate before Tone EQ/POST",
         "legacy_default": "room_off_sends_zero",
@@ -324,7 +324,9 @@
       "total_added_weeks": 6,
       "previous_integration_target": "2027-08-13",
       "integration_target": "2027-09-24",
-      "reestimate_policy": "Review against actual core results on 2026-12-25 and spatial scope on 2027-05-14; explicitly revise affected dates if required."
+      "reestimate_policy": "Review against actual core results on 2026-12-25 and spatial scope on 2027-05-14; explicitly revise affected dates if required.",
+      "historical_revision": true,
+      "superseded_for_current_dates_by": "weekly_capacity_revision"
     },
     "delivered_baseline": {
       "version": "1.3.1-beta.1",
@@ -351,7 +353,8 @@
         "first_test_installer": "2026-10-23",
         "candidate": "2026-10-30",
         "scope_review": "2026-11-01",
-        "scope_capacity_commitment": "2026-10-16"
+        "scope_capacity_commitment": "2026-10-16",
+        "first_weekly_test_build": "2026-10-16"
       },
       "specification": "docs/EQ_ANALYZER_WORKFLOW_UPGRADE.md",
       "first_installer_minimum": [
@@ -404,7 +407,8 @@
         "aax_dsp_hdx_carbon"
       ],
       "specification": "docs/AAX_NATIVE_PLAN.md",
-      "estimate_product_scope": "Chimera first implementation; focused products reuse infrastructure but require separate incremental estimates and acceptance"
+      "estimate_product_scope": "Chimera first implementation; focused products reuse infrastructure but require separate incremental estimates and acceptance",
+      "shared_capacity_policy": "Readiness/internal/host dates are conditional checkpoints within the same weekly budget. Re-estimate on October 16 and 23; explicitly move a checkpoint if the original 10-20 engineering days do not fit. Do not assume additional staff."
     },
     "continuing_tracks": {
       "transpose": {
@@ -484,14 +488,41 @@
           "role": "guitar",
           "channel_count": 5,
           "native_controls_per_channel": 13,
-          "initial_version_target": "1.0.0-beta.1"
+          "initial_version_target": "1.0.0-beta.1",
+          "pre_families": [
+            "BOOST",
+            "COMP",
+            "PITCH",
+            "WAH",
+            "MODULATION"
+          ],
+          "pre_modes": {
+            "PITCH": [
+              "Octaver",
+              "Whammy"
+            ],
+            "MODULATION": [
+              "Chorus",
+              "Phaser"
+            ]
+          },
+          "drive_role": "primarily_booster"
         },
         {
           "name": "Niflheimr",
           "role": "bass",
           "channel_count": 5,
           "native_controls_per_channel": 14,
-          "initial_version_target": "1.0.0-beta.1"
+          "initial_version_target": "1.0.0-beta.1",
+          "pre_families": [
+            "COMP",
+            "BASS DRIVE",
+            "FUZZ",
+            "OCTAVER",
+            "FILTER",
+            "CHORUS"
+          ],
+          "blend_boundary": "Native common LOW plus clean/dirty remainder Blend; not raw DI bypass or Matrix LOW DI/AMP. Define Drive/Fuzz insertion and preserved low route; any additional full-band DI branch is a separate design."
         }
       ],
       "first_format": "VST3",
@@ -503,19 +534,6 @@
         "scope_capacity_decision": "2026-10-16",
         "extraction_identity_preset_report": "2026-10-23"
       },
-      "proposed_candidate_window": {
-        "window": "2026-11-30/2026-12-25",
-        "status": "proposed_not_allocated",
-        "estimated_weeks": 4,
-        "conflicts_with": "1.3.3_room_core",
-        "allocation_decision": "2026-10-16",
-        "allocation_policy": "Choose shared capacity explicitly; if adopted, rebaseline Room Core and affected dates in the central roadmap, this mirror and issue #46 together. Do not double-book or automatically shift all 2027 dates.",
-        "product_order": [
-          "Náströnd",
-          "Niflheimr",
-          "coexistence_host_preset_verification"
-        ]
-      },
       "public_release_dates": {
         "nastrond": null,
         "niflheimr": null
@@ -523,12 +541,15 @@
       "initial_scope": [
         "one_active_amp_family_channel",
         "full_native_channel_control_memories",
-        "compact_amp_cab_eq_fx_workflow",
+        "focused_pre_amp_cab_eq_space_workflow",
         "improved_shared_static_eq_analyzer",
         "curated_peripherals_and_personal_ir",
         "dedicated_factory_presets",
         "unique_plugin_state_installer_update_identity",
-        "three_product_coexistence_verification"
+        "three_product_coexistence_verification",
+        "four_replaceable_pre_slots",
+        "shared_fx_reuse_and_chimera_feedback",
+        "guitar_boost_and_bass_low_blend_contract"
       ],
       "excluded_initial_candidate_estimate": [
         "general_chimera_preset_import",
@@ -536,7 +557,100 @@
         "au_standalone_delivery",
         "signed_aax_delivery"
       ],
-      "aax_follow_on": "Shared infrastructure; each product needs its own IDs, signing, host and installer acceptance. Additional effort and public dates are uncommitted."
+      "aax_follow_on": "Shared infrastructure; each product needs its own IDs, signing, host and installer acceptance. Additional effort and public dates are uncommitted.",
+      "allocated_candidate_windows": [
+        {
+          "product": "Náströnd",
+          "window": "2026-12-28/2027-01-22",
+          "first_beta_candidate": "2027-01-22",
+          "estimated_weeks": 4
+        },
+        {
+          "product": "Niflheimr",
+          "window": "2027-01-25/2027-02-19",
+          "first_beta_candidate": "2027-02-19",
+          "estimated_weeks": 4
+        }
+      ],
+      "allocation_status": "explicit_planning_estimate_not_implemented_or_public_release",
+      "ui_sections": [
+        "PRE",
+        "AMP",
+        "CAB",
+        "EQ",
+        "SPACE"
+      ],
+      "default_page": "AMP",
+      "pre_board_capacity": 4,
+      "chimera_pre_board_capacity_unchanged": 5,
+      "pre_policy": "Four replaceable simultaneous slots; selected-slot large controls; library families/modes are not additional simultaneous instances. Do not duplicate global gate/transpose nodes."
+    },
+    "weekly_capacity_revision": {
+      "updated_at": "2026-10-12",
+      "previous_integration_target": "2027-09-24",
+      "added_allocated_weeks": 12,
+      "shared_original_fx_weeks": 4,
+      "nastrond_product_weeks": 4,
+      "niflheimr_product_weeks": 4,
+      "shifted_versions": [
+        "1.3.3",
+        "1.4",
+        "1.5",
+        "1.6",
+        "1.7",
+        "1.8",
+        "1.9",
+        "1.10",
+        "2.0"
+      ],
+      "integration_target": "2027-12-17",
+      "correction_reserve": "2027-12-20/2027-12-31",
+      "estimate_status": "explicit_planning_allocation_not_measured_velocity_or_guaranteed_release",
+      "policy": "Preserve Room and model scope/order/durations; reuse existing engines and avoid a stabilization-only pause. The 2028 chat proposal was not adopted. Research/format work consumes the same capacity or displaces an explicitly named item."
+    },
+    "weekly_delivery": {
+      "minimum_substantive_updates": 1,
+      "period": "week",
+      "candidate_day": "Friday",
+      "timezone": "Asia/Seoul",
+      "development_cadence": "daily_15_00",
+      "validation_cadence": "weekdays_17_00",
+      "automation_end": "2027-12-31",
+      "required": [
+        "implemented_feature_or_maintenance_fix",
+        "source_commit_or_pr",
+        "change_specific_verification",
+        "working_test_build_or_explicit_missed_goal"
+      ],
+      "insufficient_alone": [
+        "report_or_documentation",
+        "empty_version_bump",
+        "unchanged_ci_rerun"
+      ],
+      "concurrency": "one_principal_feature_and_one_bounded_maintenance_item",
+      "planning_capacity_percent": {
+        "feature": 60,
+        "maintenance": 20,
+        "verification_integration_research": 20
+      },
+      "first_four_week_review": "2026-11-06",
+      "scope_policy": "A blocker affects its own feature; use an independently safe maintenance candidate. Retain release gates and existing authorization; do not newly block all weekly work on unrelated historical issues.",
+      "research_policy": "Do not rerun full CI or training without changed source/cause or a useful new hypothesis.",
+      "reporting": "Report actual change, source, performed checks, working artifact/download, limitations and next increment. Admit a missed weekly goal rather than invent completion."
+    },
+    "shared_original_fx": {
+      "status": "allocated_planning_estimate_not_implemented",
+      "window": "2026-11-30/2026-12-25",
+      "reuse_policy": "Reuse amp/compressor/EQ/drive/space engines and improve shared modules once; new algorithm work requires an identified missing behavior or quality problem.",
+      "first_scope": [
+        "guitar_boost_role",
+        "bass_drive_fuzz_and_low_route",
+        "shared_comp_eq_integration",
+        "focused_four_slot_pre_state_foundation",
+        "qualified_pitch_modulation_space_reuse"
+      ],
+      "later_scope": "Complete named Original FX enhancements incrementally through weekly product updates and Motion/Space; first beta does not require a wholesale replacement of existing engines.",
+      "catalog_policy": "Shared processors, instances and modes are separate from retained 132 character models; audit any genuinely added selectable Original model explicitly."
     }
   },
   "reference_manifest_contract": "Validation/reference-manifest-contract.json",
@@ -574,5 +688,6 @@
     }
   ],
   "selectable_preset_count": 48,
-  "development_scope": "Public 1.3.1-beta.1 baseline: Niflheimr/CAB, static Tone/Final EQ and FFT, signal navigation and full head-control coverage delivered. October chain/EQ quality work, common dynamics, Room, AAX Native, separate focused Náströnd/Niflheimr VST3 products and required Niflheimr five-channel NAM delivery remain planned. The proposed focused-product window is not allocated and conflicts with Room Core; resolve shared capacity explicitly. CAB inventory is separate from 85 active character models. Actual listening/host acceptance retains its recorded scope."
+  "development_scope": "Public 1.3.1-beta.1 remains delivered. Weekly substantive verified updates/maintenance continue from October 2026. Allocate four weeks shared Original FX reuse, four weeks Náströnd VST3 and four weeks Niflheimr VST3; shift Room and subsequent version windows twelve weeks to a 2027-12-17 integration/RC target, with reserve through December 31. Both five-channel NAM packs remain required separate work with unchanged fidelity/player boundaries. Shared processors and additional Original catalogue identities are audited separately from the retained 132-character model plan."
 }
+

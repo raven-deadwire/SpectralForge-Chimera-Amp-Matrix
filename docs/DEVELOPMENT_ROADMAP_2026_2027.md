@@ -1,4 +1,4 @@
-# Chimera development roadmap, October 2026–September 2027
+# Chimera development roadmap, October 2026–December 2027
 
 Updated: **2026-10-12, Asia/Seoul**. The owner requested a new remaining-work
 schedule after using 1.3.1: simplify the signal-chain display, substantially
@@ -19,12 +19,18 @@ The initial graphical EQ, FFT, navigation and complete head-control coverage
 are delivered in that beta. The owner's new quality feedback is follow-up work;
 it does not make those initial features unimplemented again.
 
+The owner's latest October 12 correction rejects a roadmap stretched into
+2028 and requires **at least one substantive update or maintenance delivery
+every week**. This revision removes the proposed stabilization-only pause,
+keeps October/November work active, and explicitly allocates twelve weeks for
+shared Original FX and the two focused products. No additional staffing is
+assumed. The earlier 2028 chat proposal was not applied to this repository.
+
 Dates below are **internal work and candidate targets, not guaranteed public
-release dates**. Start ready work immediately, review actual progress at each
-checkpoint and retain the already assigned 1.3.2/Room Core/later windows unless
-a measured capacity or dependency change requires an explicit revision.
-The October 23 installer target now means the improved EQ/workflow build,
-rather than first delivery of the already shipped static EQ.
+release dates**. Weekly changes continue during every larger feature window.
+The October 23 target is the improved EQ/workflow installer; a smaller verified
+maintenance/UI build is due at the October 16 weekly checkpoint. Re-estimate
+the next four weeks using actual results; do not wait for a calendar boundary.
 
 ## Schedule authority and delivery status
 
@@ -75,9 +81,9 @@ The immediate priority order is:
 5. **Focused amp products and Niflheimr NAM:** develop separately installable
    Náströnd and Niflheimr products around their existing five-channel native
    cores, plus the required Niflheimr NAM pack. Freeze shared capacity on
-   October 16; the proposed focused-product window below is not yet allocated.
-6. **Room and model expansion:** retain the dated core/advanced room scope and
-   model order below until a capacity decision explicitly rebaselines them.
+   October 16; the new allocation below separates shared FX, each product and Room.
+6. **Room and model expansion:** preserve their scope and model order while
+   moving their windows twelve weeks to fund the focused-product work.
 
 AMP/RIGS startup and the saved Classic/Dual/Matrix mode are already present.
 Preserve existing EQ frequency/gain/Q editing, filter types, calibrated stereo
@@ -87,116 +93,165 @@ See [the concrete EQ follow-up](EQ_ANALYZER_WORKFLOW_UPGRADE.md) and
 
 ## Full reordered calendar
 
-The October 10 revision moved the model-led June 4 integration target to
-August 13, 2027 to account for common DSP and routing. The owner's October 11
-request added adjustable room acoustics. The October 12 revision uses the
-remaining October window for the newly requested UI/EQ quality work and adds
-an independently tracked AAX Native schedule. The follow-up adds two focused
-products and mandatory Niflheimr NAM work. Their proposed capacity reservation
-must be resolved against Room Core on October 16; it does not silently assign
-the same resources to both projects or move the entire 2027 calendar.
+The previously registered integration target was September 24, 2027. This
+revision adds **three consecutive four-week allocations**, rather than putting
+two products and Room in the same four weeks: shared Original FX first,
+Náströnd productization second, Niflheimr productization third. Existing Room
+Core and version 1.4 onward shift twelve weeks, retaining their original
+durations and model order. The new **2.0 integration/RC target is December 17,
+2027**, with December 20–31 reserved for final corrections and carryover.
 
-Reserve four weeks for **1.3.3 Room Core** and two additional weeks inside
-**1.8 Room Advanced / Motion & Space**. The October 11 revision retained the 1.3.1/1.3.2 windows, moved 1.4–1.7 four
-weeks and 1.9 onward six weeks. Those later dates remain unchanged here.
-The complete integration target becomes **September 24, 2027**.
-These are work estimates to review against measured progress, not an
-assumption of extra staffing. Retain the character-model addition order.
+The twelve weeks are an explicit planning allowance, not measured throughput.
+Reuse the existing working amp, compressor, EQ, drive and space code. Replace
+or extend a DSP algorithm only for a documented missing behavior or quality
+problem; product shells and different control layouts do not justify separate
+engine rewrites. Shared improvements return to Chimera in the same weekly flow.
+A first beta does not require every later Original-engine enhancement to exist.
 
-| Version | Work window, KST | Main deliverable | Active character models |
+| Version / allocation | Work window, KST | Main deliverable | Retained character-model plan |
 |---|---|---|---:|
-| 1.3.1 follow-up beta, target beta.2 | 2026-10-12–2026-11-01 | Compact signal chain, focused EQ layout, analyzer redesign and band-edit workflow; preserve delivered EQ/head features | 85 |
-| 1.3.2 | 2026-11-02–2026-11-27 | Dynamic EQ and GR, clean compressor, gate/expander improvements, live output limiter; EQ slope/peak-edit extension | 85 |
-| 1.3.3 | 2026-11-30–2026-12-25 | Room Core: shared Size/Absorption/Bypass, per-rig Send, actual early reflections and decay, state/automation and LOW DI isolation | 85 |
-| 1.4 | 2026-12-28–2027-02-05 | Independent four-band dynamics, PRE Expansion A six models, first constrained signal-order editor | 91 |
-| 1.5 | 2027-02-08–2027-03-05 | PRE Expansion B six models, drag-order UX; separately gated M/S, external sidechain and six-band dynamics expansion | 97 |
-| 1.6 | 2027-03-08–2027-04-09 | Five reference amps and an independent three-band saturation processor | 102 |
-| 1.7 | 2027-04-12–2027-05-07 | Nine POST Dynamics/Tone models and a common two-filter modulation processor | 111 |
-| 1.8 | 2027-05-10–2027-06-18 | Nine Motion/Space models, advanced delay/reverb and Room Advanced conditions/spatial modeling; six-week window includes two added room weeks | 120 |
-| 1.9 | 2027-06-21–2027-07-16 | Nine Creative variants, expanded modulation and routing polish | 129 |
-| 1.10 | 2027-07-19–2027-08-27 | Dvergr Analog, Seidr Dynamic and Mimir Impact synth layers; integrate qualified tracking work | 132 |
-| 2.0 | 2027-08-30–2027-09-24 | Whole-product host/audio/state/performance/preset/installer integration and RC | 132 |
+| 1.3.1 follow-up beta, target beta.2 | 2026-10-12–2026-11-01 | Weekly compact-chain, focused EQ, analyzer and band-edit improvements | 85 |
+| 1.3.2 | 2026-11-02–2026-11-27 | Dynamic EQ, clean compressor, gate/expander, live limiter; weekly playable increments | 85 |
+| Shared Original FX, first allocation | 2026-11-30–2026-12-25 | Reusable FX interfaces, guitar BOOST and bass Drive/Fuzz behavior, common COMP/EQ integration, PRE board/state foundation; qualified existing pitch/modulation/space reuse | 85 |
+| Náströnd focused VST3 beta | 2026-12-28–2027-01-22 | Five-channel guitar product, full controls, four replaceable PRE slots, focused five-area UI, independent package/presets | 85 |
+| Niflheimr focused VST3 beta | 2027-01-25–2027-02-19 | Five-channel bass product, full controls, four PRE slots, preserved LOW/Blend semantics, independent package/presets | 85 |
+| 1.3.3 | 2027-02-22–2027-03-19 | Room Core: Size/Absorption/Bypass, per-rig Send, actual early/late response, state and LOW DI isolation | 85 |
+| 1.4 | 2027-03-22–2027-04-30 | Independent four-band dynamics, PRE A six models and constrained signal-order editor | 91 |
+| 1.5 | 2027-05-03–2027-05-28 | PRE B six models, drag-order UX; separately qualified advanced dynamics modes | 97 |
+| 1.6 | 2027-05-31–2027-07-02 | Five reference amps and common three-band saturation | 102 |
+| 1.7 | 2027-07-05–2027-07-30 | Nine POST Dynamics/Tone models and common two-filter modulation | 111 |
+| 1.8 | 2027-08-02–2027-09-10 | Nine Motion/Space models, advanced shared delay/reverb and Room Advanced | 120 |
+| 1.9 | 2027-09-13–2027-10-08 | Nine Creative variants, modulation and routing polish | 129 |
+| 1.10 | 2027-10-11–2027-11-19 | Dvergr Analog, Seidr Dynamic and Mimir Impact; integrate qualified tracking work | 132 |
+| 2.0 | 2027-11-22–2027-12-17 | Whole-product host/audio/state/performance/preset/installer integration and RC | 132 |
+| Correction reserve | 2027-12-20–2027-12-31 | Remaining release corrections and bounded carryover | 132 |
 
-Model research, asset inventory and independent prototypes can start before
-their integration windows. A blocked capture, pitch method, studio-quality
-option or host-specific feature blocks that item, not unrelated development.
-If measured velocity cannot support a window, update its remaining scope and
-dependent dates before promising a release. The dates do not authorize weaker
-audio, compatibility or acceptance criteria.
+Counts retain the original character-model inventory contract. Shared processor
+types, product instances, modes and focused-product PRE slot counts are separate.
+If an Original FX becomes an additional selectable character model, audit and
+update its catalogue identity/count explicitly; do not silently count it inside
+the retained 132 or count modes as separate pedals.
+
+Model research and independent prototypes can precede integration, within the
+same capacity budget. A blocked NAM architecture, pitch method, optional quality
+mode or host-specific format blocks that item, not unrelated weekly fixes.
+Record changed scope and dependent dates when measured velocity differs.
+
+### Weekly delivery contract
+
+- Deliver at least one **implemented feature improvement or maintenance fix**
+  each week, with a source/PR, change-specific verification and a working test
+  build. A report, plan, empty version bump or unchanged CI rerun alone does not
+  meet the weekly product-delivery goal.
+- Keep one principal feature in development and one bounded maintenance item.
+  Choose Monday's smallest useful deliverable, integrate through the week, and
+  use Friday's existing development/validation runs for the weekly candidate.
+  Weekend development may prepare the next slice; do not promise extra capacity.
+- Plan approximately 60% feature work, 20% maintenance and 20% verification/
+  integration, including packaging and bounded research. These are planning
+  shares of the same capacity, not extra tracks. AAX, NAM and pitch experiments
+  must fit that budget or explicitly displace another scheduled item.
+- Use the first two weeks as concrete commitments and the following weeks as
+  rolling targets. Review the next four weeks every fourth Friday, starting
+  November 6. Larger feature milestones normally occupy four to six weeks while
+  weekly maintenance and incremental improvements remain visible.
+- If the principal feature cannot qualify, deliver an independently safe small
+  fix already in the maintenance queue. If no candidate qualifies, state the
+  missed weekly goal and recovery step; do not fabricate a build or relax a gate.
+- Run targeted checks first. Broader candidate validation covers the changed
+  paths and required release gates. Reuse valid source-bound evidence; do not
+  repeat full CI or NAM training without a changed cause or useful hypothesis.
+- Provide the candidate's change, source, actual checks, download/artifact and
+  known limitations. Use existing publication authorization when applicable;
+  verified fixes may ship weekly, while source-unverified changes stay in their
+  own candidate. Do not newly require all historical open issues to close.
 
 ### Near-term reviewable checkpoints
 
-| Target, KST | Reviewable result |
-|---|---|
-| 2026-10-14 | Implemented compact navigation and focused Tone/Final EQ layout preview; no duplicate utility nodes in the basic strip |
-| 2026-10-16 | Moving analyzer prototype; commit the October 23 minimum and October 30 remaining scope, including any dependent date changes; confirm AAX readiness/capacity |
-| 2026-10-23 | First follow-up test installer: five-block chain, focused EQ, filled IN/OUT spectra, smoothing/resolution/Freeze and band add/delete with Undo/Redo; show motion capture and remaining October 30 scope |
-| 2026-10-30 | 1.3.1 follow-up validation candidate covering the required analyzer/edit workflow, native scale checks and state/host evidence |
-| 2026-11-01 | Close October quality scope or record specific carryover and resulting impact before moving into dynamics |
-| 2026-11-13 | Dynamic EQ/GR and clean compressor preview using repeatable audio |
-| 2026-11-20 | First 1.3.2 test installer |
-| 2026-11-27 | 1.3.2 candidate with actual Dynamic EQ, detector, GR, gate and live-limiter evidence |
-| 2026-12-04 | Room bus, gate placement, parameter/state and callback-budget design review |
-| 2026-12-11 | Playable Room Size/Send/Absorption prototype in Classic, Dual and Matrix |
-| 2026-12-18 | First Room Core Windows test installer, native UI captures and measured LOW DI isolation |
-| 2026-12-25 | 1.3.3 candidate with room transitions, state, CPU, host/tail evidence and EN/DE/KR guidance |
-| 2027-01-08 | Four-band dynamics prototype with band sum/phase evidence |
-| 2027-01-15 | First constrained order-editing preview with save/restore and undo |
-| 2027-02-05 | Combined 1.4 candidate: verified four-band dynamics, PRE A and supported order editing |
+These are weekly **implemented changes plus verification/build** targets.
+The October 14/16 analyzer prototype reviews remain subordinate tasks, not
+additional completed releases. October 23/30 EQ scope is retained; split any
+measured carryover explicitly instead of counting unfinished controls as done.
 
-A preview is implemented behavior. Analyzer acceptance includes moving audio
-and pointer/keyboard interaction, not only still screenshots. The October
-follow-up must satisfy the required scope in
-[EQ analyzer and workflow upgrade](EQ_ANALYZER_WORKFLOW_UPGRADE.md).
-Already delivered full head coverage stays in regression coverage; it is no
-longer a future November expansion.
+| Week ending, KST | Minimum reviewable weekly increment |
+|---|---|
+| 2026-10-16 | Compact signal navigation/focused EQ usability or a reproducible priority maintenance fix, with a verified test build; freeze the October 23 EQ minimum and product shared-core scope |
+| 2026-10-23 | Improved EQ installer: five-block chain, large EQ, filled IN/OUT, smoothing/resolution/Freeze, persistent-slot add/delete and Undo/Redo |
+| 2026-10-30 | Remaining EQ workflow: multi-selection, band audition, local A/B, peak hold/range controls; full follow-up candidate or explicitly bounded carryover |
+| 2026-11-06 | First Dynamic EQ/GR increment using the existing EQ nodes and repeatable audio |
+| 2026-11-13 | Shared clean-compressor increment with actual detector/GR response; Dynamic EQ refinement |
+| 2026-11-20 | Gate/expander improvement and a qualified live-limiter increment in the 1.3.2 test installer |
+| 2026-11-27 | Common-dynamics integration/maintenance candidate with state, automation and real-time evidence |
+| 2026-12-04 | First reusable guitar BOOST improvement integrated with the existing shared FX path |
+| 2026-12-11 | Bass Drive/Fuzz role and low-frequency routing increment, preserving native Blend semantics |
+| 2026-12-18 | Four-slot focused PRE board/state implementation using independent reusable instances; Chimera keeps five slots |
+| 2026-12-25 | Shared-FX first candidate with actual control/audio/state verification and explicit remaining product work |
+| 2027-01-08 | Playable Náströnd focused-product preview; its earlier week still supplies a small verified increment |
+| 2027-01-22 | First Náströnd VST3 beta candidate, conditional on its product/host/package checks |
+| 2027-02-05 | Playable Niflheimr focused-product preview with LOW/Blend routing demonstrated |
+| 2027-02-19 | First Niflheimr VST3 beta candidate with coexistence and product checks |
+| 2027-02-26 | Room bus/state/CPU-budget review plus a verified implementation/maintenance increment |
+| 2027-03-05 | Playable Room Size/Send/Absorption prototype |
+| 2027-03-12 | First Room Core Windows test installer |
+| 2027-03-19 | Room Core integration candidate and advanced-stage re-estimate |
+| 2027-04-02 | Independent four-band dynamics prototype |
+| 2027-04-09 | Constrained order-editing preview with state/undo |
+| 2027-04-30 | Combined 1.4 candidate |
+
+Unlisted Fridays follow the same weekly delivery contract. A preview requires
+working behavior. Analyzer acceptance includes moving audio and pointer/
+keyboard interaction. Preserve already delivered full head-control coverage.
+See [EQ analyzer and workflow upgrade](EQ_ANALYZER_WORKFLOW_UPGRADE.md).
 
 ### Focused Náströnd / Niflheimr products and required NAM delivery
 
-The planned product line has three distinct editions. Chimera keeps the full
-Classic/Dual/Matrix system. Each focused edition uses one selected channel of
-its own amp family, a fixed path, curated peripherals and its own plugin,
-installer, state and preset identity. The native amp core and improved EQ
-components are shared; there is no independent fork of the sound engine.
-See [focused amp products and NAM specification](FOCUSED_AMP_PRODUCTS_AND_NAM.md).
+Chimera retains Classic/Dual/Matrix and its five-slot PRE board. Each focused
+edition uses one active native amp-family channel with independent product,
+state, preset, installer and update identities. Amp, compressor, EQ, drive and
+space engines are shared; new behavior is developed once and integrated into
+the relevant products. See [the focused-product specification](FOCUSED_AMP_PRODUCTS_AND_NAM.md).
 
-| Deliverable | Required scope | Current status |
-|---|---|---|
-| Náströnd VST3, initial version target 1.0.0-beta.1 | Five guitar channels, focused AMP/CAB/EQ/FX workflow, native character controls, dedicated presets and independent installation | Planned; no separate product target or accepted binary exists |
-| Niflheimr VST3, initial version target 1.0.0-beta.1 | Five bass channels, preserved common LOW and Blend behavior, focused amp/comp/CAB/EQ workflow and independent installation | Planned; no separate product target or accepted binary exists |
-| Niflheimr NAM pack | At least one accepted fixed-setting, amp-only model for each of Hrímfaxi, Garmr, Nidavellir, Ymir and Hel; metadata and real-DI/player validation | Required planned deliverable; training/export qualification not established |
-| Náströnd NAM pack, PR #22 | Retain five-channel fidelity and TONE3000 compatibility contract | Existing work remains blocked; a successful pipeline smoke run is not five accepted models |
+Both focused UIs use **PRE / AMP / CAB / EQ / SPACE**, opening on AMP, with full
+13/14 channel controls, four replaceable simultaneous PRE slots and large
+controls for the selected slot. Gate/tuner/transpose utilities do not create
+duplicate processing nodes. Guitar families are BOOST, COMP, PITCH
+(Octaver/Whammy modes), WAH and MODULATION (Chorus/Phaser modes). Bass families
+are COMP, BASS DRIVE, FUZZ, OCTAVER, FILTER and CHORUS. Modes do not add slots.
+Guitar drive is designed primarily for its boost role.
 
-The focused VSTs initially reuse native DSP so all existing 13/14 amp controls
-retain their meaning. Delivering a fixed-setting .nam file does not implement a
-NAM runtime with continuous amp controls. Neither the two VSTs nor their native
-release acceptance depends automatically on a NAM training completion date.
-NAM remains a required separate delivery track.
+Niflheimr preserves its common LOW and native clean/dirty Blend structure.
+Native Blend is not Matrix LOW DI/AMP mix or a raw-DI bypass. Define Drive/Fuzz
+insertion and the preserved clean-low route before product integration; any
+additional full-band DI branch requires an explicit new design.
 
-| Target, KST | Reviewable result | Status / capacity condition |
-|---|---|---|
-| 2026-10-16 | Freeze product scope, native/shared-core boundary, VST3 platforms, identities and workload; review both NAM families' source/capture/memory contracts | Resolve the proposed product-window conflict with Room Core and publish the resulting allocation; no extra staff assumed |
-| 2026-10-23 | Product extraction/identity/preset feasibility report; Niflheimr five-channel capture and quality contract; retain Náströnd channel-by-channel evidence review | October EQ test installer keeps priority; report unmet prerequisites explicitly |
-| 2026-10-30 | Niflheimr training/export/player-restore smoke target and memory-feasibility report; Náströnd qualification/carryover decision | Smoke proves pipeline operation only; full training requires an admissible model and frozen data |
-| 2026-11-13 | Niflheimr first full-training/fidelity report against the frozen reference, or an explicit memory/data/player blocker with a next experiment | Evidence-report target; not a promise that five models pass |
-| Proposed 2026-11-30–2026-12-25 | Shared focused-product implementation and internal candidates: Náströnd first, then Niflheimr, then coexistence/host/preset verification | Priority reservation proposal, not an allocated window or public release; currently conflicts with Room Core |
-| Public dates uncommitted | Each VST3 beta and each qualified NAM pack released with its own evidence | Actual build/host/listening/installer or NAM fidelity/player acceptance; no inferred completion |
+| Allocation / checkpoint | Reviewable result |
+|---|---|
+| 2026-10-16 / 2026-10-23 | Shared-core/identity/scope and extraction review within the October weekly budget |
+| 2026-11-30–2026-12-25 | Four weeks for reusable Original FX first increments and focused PRE/state foundation; no blanket DSP rewrite |
+| 2026-12-28–2027-01-22 | Four weeks for Náströnd native VST3; five channels and all 13 controls; first beta candidate January 22 |
+| 2027-01-25–2027-02-19 | Four weeks for Niflheimr native VST3; five channels and all 14 controls; first beta candidate February 19 |
+| Weekly thereafter | Both product maintenance and qualified shared-engine improvements alongside the current main feature |
 
-If the proposed four-week product window is allocated, rebaseline Room Core
-and affected later checkpoints in this calendar, the JSON mirror and the Room
-issue together. A possible sequential Room Core window is December 28, 2026–
-January 22, 2027, but it is **not adopted by this revision**. If another allocation
-is selected, give the focused products concrete implementation/candidate dates
-at the October 16 review. Do not leave both workstreams marked as committed to
-the same shared capacity. Keep October EQ and November common dynamics first;
-reuse those results in the focused editions.
+The new twelve-week reservation supersedes the former unallocated four-week
+proposal. Room starts February 22, after the two product windows; dates are
+synchronized with the JSON mirror and issue #46. The Windows VST3 beta target
+is reviewable, conditional on actual product, host and package acceptance.
+macOS Universal VST3 needs separate build/host evidence. Shared infrastructure
+does not count as two already implemented products or additional staff.
 
-The four-week allowance is an initial scope estimate for native VST3 internal
-candidates, not measured velocity or completed commercial products. It excludes
-general .chimera preset import, NAM runtime integration, AU/standalone delivery
-and signed AAX delivery. Windows VST3 is the first reviewable package; macOS
-Universal VST3 requires its own actual build/host evidence. Re-estimate with
-the extraction report on October 23 before advertising product candidate dates.
+Both **Náströnd and Niflheimr five-channel fixed-setting NAM packs remain
+required**. Retain the Náströnd fidelity/TONE3000 contract and its existing
+memory blocker. Niflheimr retains October 16 source/memory, October 23 frozen
+capture/quality, October 30 pipeline/memory feasibility and November 13 first
+full-training/evidence-report checkpoints. Report missing prerequisites when
+necessary; neither smoke success nor a scheduled report proves qualification.
+Bound experiments within the same weekly budget and decide the next method,
+rather than repeatedly adding epochs to a known insufficient architecture.
+
+The native VST beta is separate from NAM files, optional NAM runtime and signed
+AAX. General Chimera-preset import, AU/standalone and signed AAX delivery remain
+outside these native VST3 first-candidate estimates. Later enhancements retain
+named backlog items; do not advertise a partial PRE library as complete.
 
 ### AAX Native parallel track
 
@@ -245,7 +300,7 @@ The owner requested adjustable room conditions on October 11 and then asked
 for their version/date assignment. [Issue #46](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/issues/46)
 tracks actual implementation and acceptance. This schedule assigns two stages.
 
-### 1.3.3 Room Core — November 30–December 25, 2026
+### 1.3.3 Room Core — February 22–March 19, 2027
 
 Deliver one shared room environment with Small / Medium / Large Size,
 Absorption / Damping, Bypass and per-rig Room Send. Include actual early
@@ -255,10 +310,10 @@ room surface in Classic, Dual and Matrix.
 
 | Week, KST | Reviewable work |
 |---|---|
-| 2026-11-30–2026-12-04 | Freeze weighted send/return topology, gate/tail policy, parameter IDs and numeric callback/memory budgets; verify Room Off preserves existing audio. |
-| 2026-12-07–2026-12-11 | Implement bounded room-size/absorption models, early reflections and decay; deliver a playable three-mode prototype. |
-| 2026-12-14–2026-12-18 | Complete basic UI, state/automation and smooth switching; measure low-note isolation and full-product cost; produce the first Windows test installer. |
-| 2026-12-21–2026-12-25 | Resolve platform/host/tail regressions, verify the installer and document the 1.3.3 candidate. |
+| 2027-02-22–2027-02-26 | Freeze weighted send/return topology, gate/tail policy, parameter IDs and numeric callback/memory budgets; verify Room Off preserves existing audio. |
+| 2027-03-01–2027-03-05 | Implement bounded room-size/absorption models, early reflections and decay; deliver a playable three-mode prototype. |
+| 2027-03-08–2027-03-12 | Complete basic UI, state/automation and smooth switching; measure low-note isolation and full-product cost; produce the first Windows test installer. |
+| 2027-03-15–2027-03-19 | Resolve platform/host/tail regressions, verify the installer and document the 1.3.3 candidate. |
 
 Independent Early Level, Decay, Diffusion, room HP/LP and Width controls belong
 to the dated 1.8 advanced stage. Individual controls may be brought forward
@@ -273,7 +328,7 @@ and room excitation; mix the wet return after that gate and before Tone EQ /
 POST. This avoids new excitation through a closed gate and preserves an
 already generated tail. Verify the final topology before implementation.
 
-### 1.8 Room Advanced — May 10–June 18, 2027
+### 1.8 Room Advanced — August 2–September 10, 2027
 
 Expand independent early/late balance, decay, diffusion, wet filters and width.
 Add declared modeled room dimensions, wall/floor/ceiling absorption or material
@@ -284,14 +339,14 @@ weeks.
 
 | Checkpoint, KST | Reviewable result |
 |---|---|
-| 2026-12-25 | Re-estimate the advanced stage using the actual Room Core architecture and measured cost. |
-| 2027-05-14 | Fix spatial-model assumptions, controls, surface presets, acceptance limits and the remaining work estimate. |
-| 2027-05-28 | Playable advanced-condition/spatial prototype with declared parameter-to-response behavior. |
-| 2027-06-11 | First 1.8 test installer including the implemented room and POST scope. |
-| 2027-06-18 | Integrated 1.8 candidate and explicit coverage/evidence report. |
+| 2027-03-19 | Re-estimate the advanced stage using the actual Room Core architecture and measured cost. |
+| 2027-08-06 | Fix spatial-model assumptions, controls, surface presets, acceptance limits and the remaining work estimate. |
+| 2027-08-20 | Playable advanced-condition/spatial prototype with declared parameter-to-response behavior. |
+| 2027-09-03 | First 1.8 test installer including the implemented room and POST scope. |
+| 2027-09-10 | Integrated 1.8 candidate and explicit coverage/evidence report. |
 
 The additional two weeks are a planning allowance, not proof that every
-physical-room claim is achievable. Review the scope on December 25 and May 14;
+physical-room claim is achievable. Review the scope on March 19 and August 6;
 revise affected dates and unqualified items explicitly rather than silently
 dropping the spatial controls or calling an ambience knob physical remiking.
 The core room can be used from 1.3.3 independently of this later extension.
@@ -382,7 +437,7 @@ Target a Studio true-peak/LUFS candidate in 1.5, independently of Live limiter
 acceptance. Evaluate spectral/linear-phase prototypes during 1.7; include only
 qualified work in 2.0, otherwise assign a concrete 2.x follow-up after the
 research checkpoint. Review EQ Match, EQ Sketch and cross-instance/rig spectrum comparison during
-1.7: requirements by April 16 and a feasibility/adoption decision by May 7,
+1.7: requirements by July 9 and a feasibility/adoption decision by July 30,
 2027. That decision must assign qualified scope to 2.0 or name a concrete 2.x
 follow-up; it must not leave an unnamed indefinite backlog. These advanced
 features are not promised in the October quality update. Automatic
@@ -464,13 +519,14 @@ ACCEPTED, CANDIDATE or DELIVERED. Report missing evidence at the affected
 feature. Existing tests supplement actual host/playing acceptance and must
 not be replaced with unsupported PASS labels.
 
-The two development tasks retain their cadence: daily 15:00 KST independent
-implementation, weekdays 17:00 KST Astra validation. Use September 24 as the
-roadmap end when those tasks consult this calendar; this document does not
-change automation configuration. They must read this plan and the newest source,
-continue independent work while a specific validation item is blocked, and
-record the next reviewable result. Installer/NAM result delivery remains a
-separate existing hourly condition watch.
+The two development tasks retain daily 15:00 KST independent implementation
+and weekdays 17:00 KST Astra validation. Apply the weekly delivery contract
+above and continue through the December 31, 2027 correction reserve. Their
+runtime configuration must be updated separately and verified; a document edit
+alone does not schedule execution. Read current source and open work before
+each run, avoid duplicate implementation, and keep independent work moving.
+Do not assume a paused installer/NAM watch is running or re-enable it merely
+because it appears in historical planning text.
 
 ## Related project records
 
@@ -484,3 +540,4 @@ separate existing hourly condition watch.
 - [Room implementation and dated checkpoints](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/issues/46)
 - [Transpose long-term work](TRANSPOSE_LONG_TERM.md)
 - [1.3 release preparation](RELEASE_1_3_PREPARATION.md)
+

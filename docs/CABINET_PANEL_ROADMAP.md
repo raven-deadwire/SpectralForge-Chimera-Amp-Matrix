@@ -1,6 +1,6 @@
 # Cabinet control panel roadmap
 
-## Follow-up: adjustable room acoustics — 2026-10-11 KST
+## Follow-up: adjustable room acoustics — October 11 scope / October 12 weekly schedule
 
 **Status: PLANNED / dated scope assigned; implementation pending.**
 The owner requested controls for the room's own acoustic conditions. Track
@@ -67,7 +67,11 @@ PR #36 consolidates the roadmap and the room requirements proposed in PR #47.
 Issue #46 tracks functionality and acceptance, not merely documentation.
 Schedule registration is complete only as planning; keep issue #46 open until
 the core and advanced implementation and acceptance checklist is complete.
-All dates in the canonical plan are internal work/candidate targets.
+The October 12 weekly-delivery revision reserves twelve weeks for shared FX
+and the two focused products before Room Core, retaining four core weeks and
+the six-week 1.8 window. Consult the canonical calendar for the shifted dates.
+Weekly implemented improvements and verified builds continue throughout these
+windows. All dates remain internal work/candidate targets.
 
 ## Delivered CAB baseline — 2026-10-12 KST
 
@@ -324,3 +328,4 @@ Repository dependencies: Source/Cabinet.h, Source/IRLibrary.cpp,
 Source/PluginProcessor.cpp, existing state/routing tests and current PR #24.
 Read their latest revisions before implementation. This plan does not assert
 that an open branch has merged or that a future prototype already exists.
+

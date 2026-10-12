@@ -52,10 +52,10 @@ global processor, not another label for Matrix.
 |---|---|---|---|
 | Startup and basic navigation | Delivered in 1.3.1-beta.1, 2026-10-12 | Start on AMP/RIGS and navigate implemented areas | Preserve shipped mode/state and correct lane focus |
 | Compact presentation and hierarchy | 1.3.1 follow-up, 2026-10-12–11-01; first installer 10-23 | Use five primary blocks; open rig topology or technical details only when needed | Actual order remains accurate; readable labels and keyboard focus; no audio writes from navigation |
-| Room path integration | 1.3.3, 2026-11-30–12-25 | Show weighted AMP/CAB sends and shared Room; open its controls | Preserve LOW DI isolation and the actual post-rig gate/wet-return boundary; display implemented topology only |
-| Constrained order editor | 1.4, 2026-12-28–2027-02-05 | Move supported stages earlier/later using commands or a placement menu | Correct audio graph, click-safe change policy, stable automation identities, order save/restore and basic undo |
-| Drag interaction | 1.5, 2027-02-08–03-05 | Drag with valid drop targets, preview placement, cancel, use keyboard and undo/redo | Calls the already tested order command; no DSP rebuild during hover; controls remain accessible |
-| Advanced polish | 1.9, 2027-06-21–07-16 | Expanded modulation/routing presentation and qualified advanced placements | Separately measured branch/latency/tail behavior; no unrestricted cyclic graph |
+| Room path integration | 1.3.3, 2027-02-22–03-19 | Show weighted AMP/CAB sends and shared Room; open its controls | Preserve LOW DI isolation and the actual post-rig gate/wet-return boundary; display implemented topology only |
+| Constrained order editor | 1.4, 2027-03-22–04-30 | Move supported stages earlier/later using commands or a placement menu | Correct audio graph, click-safe change policy, stable automation identities, order save/restore and basic undo |
+| Drag interaction | 1.5, 2027-05-03–05-28 | Drag with valid drop targets, preview placement, cancel, use keyboard and undo/redo | Calls the already tested order command; no DSP rebuild during hover; controls remain accessible |
+| Advanced polish | 1.9, 2027-09-13–10-08 | Expanded modulation/routing presentation and qualified advanced placements | Separately measured branch/latency/tail behavior; no unrestricted cyclic graph |
 
 Do not postpone undo, preset recall or stable IDs until the drag release.
 They are required when order changes first become possible. An unavailable
@@ -160,3 +160,4 @@ This specification follows the [full reordered roadmap](DEVELOPMENT_ROADMAP_2026
 The initial strip and embedded head controls are delivered in 1.3.1-beta.1.
 The simplified hierarchy and later order editor remain planned follow-up work.
 Inspect actual source and native interaction before marking either complete.
+
