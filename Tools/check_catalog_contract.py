@@ -81,7 +81,7 @@ assert original_names == ["Thall Rhythm", "Molten Lead", "Rotten Grind", "Sludge
 assert len(original_names) == CONTRACT["original_preset_count"]
 niflheimr = read("Source/NiflheimrPresets.h")
 niflheimr_names = re.findall(r'\{"original\.rig\.niflheimr\.[^"]+","([^"]+)"', niflheimr)
-assert niflheimr_names == ["Progressive Clank", "Death Grind", "Industrial Pulse", "Slam Punch", "Doom Fuzz"], niflheimr_names
+assert niflheimr_names == ["Clear Attack", "Death Grind", "Clean Low Drive", "Slam Punch", "Doom Fuzz"], niflheimr_names
 assert "niflheimrPresetStart=originalPresetStart+originalPresetCount" in niflheimr
 assert len(niflheimr_names) == CONTRACT["niflheimr_original_preset_count"]
 assert preset_total + len(names) + len(original_names) + len(niflheimr_names) == CONTRACT["selectable_preset_count"]

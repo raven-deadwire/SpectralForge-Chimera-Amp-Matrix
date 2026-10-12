@@ -81,11 +81,17 @@ results are recorded in PR #54. The dispatcher and click deadlines are unchanged
 
 | Stored ordinal | Previous name | New name | Routing and purpose |
 | --- | --- | --- | --- |
-| 43 | Frostline Precision | Progressive Clank | Classic Hrímfaxi; precise progressive-metal picking |
+| 43 | Frostline Precision | Clear Attack | Classic Hrímfaxi; controlled lows and clear string attack |
 | 44 | Carrion Barrage | Death Grind | Dual at 180 Hz; restrained Hrímfaxi lows and Garmr upper grind |
-| 45 | Foundry Pulse | Industrial Pulse | Matrix at 140 / 1600 Hz; clean LOW DI, Nidavellir MID, Hrímfaxi HIGH |
+| 45 | Foundry Pulse | Clean Low Drive | Matrix at 140 / 1600 Hz; clean LOW DI, Nidavellir MID drive, Hrímfaxi HIGH attack |
 | 46 | Jötunn Hammer | Slam Punch | Matrix at 110 / 900 Hz; LOW DI 75% / Ymir AMP+CAB 25%, Ymir MID, Garmr HIGH |
 | 47 | Mirebound Monolith | Doom Fuzz | Classic Hel; sustained sludge/doom fuzz |
+
+User feedback replaced the draft names `Progressive Clank` and `Industrial
+Pulse` with `Clear Attack` and `Clean Low Drive` on 12 October. Their display
+descriptions and default export filenames now describe attack and low-band
+clarity directly. The authored audio parameters and stable IDs are retained;
+existing saved references keep their stored names and sounds.
 
 Each active lane has a mode-specific native context, channel controls, bass
 cabinet recipe and visible gain trims. Global OUTPUT stays at 0 dB. The bank
@@ -108,7 +114,7 @@ around navigation and project recall.
 
 Niflheimr production tests cover dirty-state recall, the correct native bank
 for every lane, actual audio contribution from each split band, silent parked
-LOW hardware in Industrial Pulse, ordinary and +6 dB input headroom, binary
+LOW hardware in Clean Low Drive, ordinary and +6 dB input headroom, binary
 and A/B restore, and retaining an existing Classic snapshot. The pre-existing
 RMS > −30 dBFS and peak < 0.95 limits are unchanged.
 
@@ -127,6 +133,12 @@ enabled cabinets and preserves the same routing, native channels and LOW DI
 roles; its manifest records these choices explicitly.
 
 ### Local production render, 12 October 2026
+
+The measurements below retain the draft labels recorded at source
+`97d6786ba35fa541f2ff50b621222aac4f007a5b`: `Progressive Clank` is now
+`Clear Attack`, and `Industrial Pulse` is now `Clean Low Drive`. These are
+historical render results; the display-name follow-up does not claim a new
+render or real-DI listening result.
 
 The Release/GCC 13.3 build passed both the five-preset production-recall
 measurement and the strict Niflheimr route/state/audio tests. These values
