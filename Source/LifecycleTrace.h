@@ -65,7 +65,9 @@ inline void write(const char* event, const void* instance, double elapsed = -1.0
     static std::mutex outputMutex;
     const std::lock_guard<std::mutex> lock(outputMutex);
     const auto thread = juce::Thread::getCurrentThreadId();
-    auto line = juce::String(microseconds(), 0) + " us thread=" + hexId(thread)
+    // String(double, 0) may choose scientific notation and lose low-order
+    // timestamp digits. Integral microseconds keep diagnostic boundaries exact.
+    auto line = juce::String(static_cast<juce::int64>(microseconds())) + " us thread=" + hexId(thread)
         + " instance=" + hexId(instance) + " " + event
         + " pid=" + juce::String(processId());
 #if JUCE_WINDOWS
@@ -80,7 +82,7 @@ inline void write(const char* event, const void* instance, double elapsed = -1.0
         if (context.messageThread != nullptr)
             line += " on_message_thread=" + juce::String(thread == context.messageThread ? 1 : 0);
     }
-    if (elapsed >= 0.0) line += " elapsed_us=" + juce::String(elapsed, 0);
+    if (elapsed >= 0.0) line += " elapsed_us=" + juce::String(static_cast<juce::int64>(elapsed));
     line += "\n";
     // Failure to open the explicitly requested path must not affect the plugin.
     traceFile().appendText(line, false, false, nullptr);

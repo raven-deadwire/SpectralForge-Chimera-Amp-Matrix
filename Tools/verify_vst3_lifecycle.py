@@ -11,6 +11,7 @@ from collections import Counter
 from datetime import datetime, timezone
 import hashlib
 import json
+import math
 from pathlib import Path
 import re
 import subprocess
@@ -27,7 +28,9 @@ MODULE_PHASES = ("module.load_library", "module.init", "factory.get", "factory.r
 INSTANCE_PHASES = ("instance.create", "component.deactivate", "component.terminate",
                    "component.release", "controller.terminate", "controller.release")
 EDITOR_PHASES = ("editor.create", "editor.attach", "view.removed", "view.release", "host_window.destroy")
-TRACE_LINE = re.compile(r"^(\d+) us thread=([0-9a-f]+) instance=([0-9a-f]+) ([\w.]+)(.*)$")
+# Existing JUCE String(double, 0) traces may use decimal/scientific notation.
+# Accept those observations as well as the precise integral format now emitted.
+TRACE_LINE = re.compile(r"^(\d+(?:\.\d+)?(?:[eE][+-]?\d+)?) us thread=([0-9a-f]+) instance=([0-9a-f]+) ([\w.]+)(.*)$")
 
 
 class EvidenceError(ValueError):
@@ -272,6 +275,8 @@ def verify_plugin_trace(path, scenario, pid, expected_instances=None, expected_e
         match = TRACE_LINE.fullmatch(line)
         require(match is not None, f"{scenario}: malformed plugin trace")
         timestamp, thread, instance, name, suffix = match.groups()
+        timestamp = float(timestamp)
+        require(math.isfinite(timestamp) and timestamp >= 0, f"{scenario}: invalid plugin trace clock")
         fields = dict(item.split("=", 1) for item in suffix.split())
         require(fields.get("pid") == str(pid), f"{scenario}: plugin trace PID mismatch")
         require(fields.get("tid", "").isdigit() and int(fields["tid"]) > 0,
@@ -280,10 +285,10 @@ def verify_plugin_trace(path, scenario, pid, expected_instances=None, expected_e
         if name.endswith(".begin"):
             key = (name[:-6], instance, thread)
             require(key not in pending, f"{scenario}: duplicate trace begin {name}")
-            pending[key] = int(timestamp)
+            pending[key] = timestamp
         elif name.endswith(".end") and not name.endswith(".members.end"):
             key = (name[:-4], instance, thread)
-            require(key in pending and int(timestamp) >= pending.pop(key),
+            require(key in pending and timestamp >= pending.pop(key),
                     f"{scenario}: unpaired trace end {name}")
         if name == "processor.create.body.begin":
             require(instance not in processors, f"{scenario}: processor address reused before destruction")

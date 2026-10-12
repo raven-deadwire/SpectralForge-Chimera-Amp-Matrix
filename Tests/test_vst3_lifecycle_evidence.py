@@ -180,6 +180,33 @@ class EvidenceTests(unittest.TestCase):
         with self.assertRaisesRegex(verifier.EvidenceError, "parent PID"):
             verifier.verify(self.root, 11)
 
+    def test_existing_juce_decimal_and_scientific_trace_clocks_are_accepted(self):
+        fixture = self.fixtures[0]
+        original = list(fixture.trace)
+        for numeric in (lambda n: f"{1335360000 + n}.5", lambda n: f"{1335360000 + n:.5e}"):
+            with self.subTest(format=numeric):
+                fixture.trace = [numeric(n) + line[line.index(" us "):]
+                                 for n, line in enumerate(original)]
+                self.write()
+                self.assertEqual(len(verifier.verify(self.root, 10)["scenarios"]), 12)
+
+    def test_invalid_or_backwards_plugin_trace_clocks_are_rejected(self):
+        fixture = self.fixtures[0]
+        original = list(fixture.trace)
+        for clock in ("NaN", "Inf", "-1", "1e999"):
+            with self.subTest(clock=clock):
+                fixture.trace = list(original)
+                fixture.trace[0] = clock + original[0][original[0].index(" us "):]
+                self.write()
+                with self.assertRaisesRegex(verifier.EvidenceError, "plugin trace"):
+                    verifier.verify(self.root, 10)
+        fixture.trace = list(original)
+        end = next(n for n, line in enumerate(original) if " processor.create.body.end " in line)
+        fixture.trace[end] = "0e0" + original[end][original[end].index(" us "):]
+        self.write()
+        with self.assertRaisesRegex(verifier.EvidenceError, "unpaired trace end"):
+            verifier.verify(self.root, 10)
+
     def test_missing_duplicate_unknown_or_selected_scenario_is_rejected(self):
         original = copy.deepcopy(self.summary)
         for mode in ("missing", "duplicate", "unknown", "selected"):
