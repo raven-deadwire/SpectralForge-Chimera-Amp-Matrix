@@ -24,6 +24,7 @@ $success = $false
 $installerInvocations = 0
 $nativeCompilerPassed = $false
 $compilerVersion = $null
+$guardCancellationAndTerminationVerified = $false
 function Assert([bool]$Condition, [string]$Message) { if (!$Condition) { throw $Message } }
 function Pass([string]$Message) { $checks.Add("PASS: $Message"); Write-Host "PASS: $Message" }
 function Hash([string]$Path) { return (Get-FileHash -LiteralPath $Path -Algorithm SHA256).Hash.ToLowerInvariant() }
@@ -31,9 +32,10 @@ function Write-Fixture([string]$Path, [string]$Value) {
     New-Item -ItemType Directory -Force -Path (Split-Path -Parent $Path) | Out-Null
     [IO.File]::WriteAllText($Path, $Value, [Text.UTF8Encoding]::new($false))
 }
-function Invoke-Setup([string]$Executable, [string]$Name, [string]$Destination, [bool]$ExpectSuccess = $true) {
+function Invoke-Setup([string]$Executable, [string]$Name, [string]$Destination, [bool]$ExpectSuccess = $true, [string[]]$ExtraArguments = @()) {
     $arguments = @("/VERYSILENT", "/SUPPRESSMSGBOXES", "/NORESTART", "/SP-", "/LOG=`"$logs/$Name.log`"")
     if ($Destination) { $arguments += "/DIR=`"$Destination`"" }
+    $arguments += $ExtraArguments
     $process = Start-Process -FilePath $Executable -ArgumentList $arguments -PassThru -Wait
     $script:installerInvocations += 1
     if ($ExpectSuccess) { Assert ($process.ExitCode -eq 0) "$Name failed with exit code $($process.ExitCode)" }
@@ -113,6 +115,8 @@ Source: "{#StageDir}\*.html"; DestDir: "{app}\Documentation"; Flags: ignoreversi
 Source: "{#StageDir}\payload-manifest.json"; DestDir: "{app}\Documentation"; Flags: ignoreversion; Check: ShouldInstallManagedDocument
 [Code]
 #include CleanupSource
+function FixtureCurrentProcessId: Cardinal;
+  external 'GetCurrentProcessId@kernel32.dll stdcall';
 function InitializeSetup: Boolean;
 var
   Parent, Filename: String;
@@ -160,12 +164,37 @@ begin
   ReleaseDocumentPreservation;
 end;
 function InitializeUninstall: Boolean;
+var
+  Probe, Marker: String;
 begin
   Result := InitializeDocumentUninstall;
+  if not Result then Exit;
+  Probe := ExpandConstant('{param:DOCGUARDPROBE|}');
+  if Probe <> '' then begin
+    if SaveStringToFile(ExpandConstant('{app}\Documentation\AMP_VALIDATION.md'),
+      'A new user file must not replace an absent-path guard.', False) then
+      RaiseException('Missing historical pathname was not guarded.');
+    if SaveStringToFile(ExpandConstant('{app}\Documentation\reference\microphone-tags.json'),
+      'A new user file must not replace a nested absent-path guard.', False) then
+      RaiseException('Missing nested historical pathname was not guarded.');
+    if Probe = 'hold' then begin
+      Marker := ExpandConstant('{param:DOCGUARDMARKER|}');
+      if not SaveStringToFile(Marker, IntToStr(FixtureCurrentProcessId) + ':ready', False) then
+        RaiseException('Cannot signal the active guard termination probe.');
+      Sleep(30000);
+    end;
+    // Exercise cancellation before usUninstall: no owned bytes are deleted.
+    Result := False;
+  end;
 end;
 procedure CurUninstallStepChanged(CurUninstallStep: TUninstallStep);
 begin
-  if CurUninstallStep = usUninstall then DeleteVerifiedUninstallDocuments;
+  if CurUninstallStep = usUninstall then begin
+    DeleteVerifiedUninstallDocuments;
+    if SaveStringToFile(ExpandConstant('{app}\README.txt'),
+      'A new user file must not replace a delete-pending verified object.', False) then
+      RaiseException('Verified deleted pathname was available to historical log deletion.');
+  end;
 end;
 procedure DeinitializeUninstall;
 begin
@@ -193,6 +222,9 @@ end;
     Invoke-Setup (Uninstaller) "02-fresh-uninstall" ""
     Assert (!(Test-Path -LiteralPath $registry)) "Fresh uninstall registration remains"
     Assert (Test-Path -LiteralPath (Join-Path $fresh "Documentation/THIRD_PARTY_NOTICES.md")) "Fresh uninstall removed license notices"
+    foreach ($name in $legacyNames) {
+        Assert (!(Test-Path -LiteralPath (Join-Path $fresh "Documentation/$name"))) "Fresh uninstall left a temporary historical-path guard"
+    }
     Pass "Real Inno fresh installation and removal preserve license notices"
 
     Invoke-Setup $oldSetup "03-historical-install" $app
@@ -277,6 +309,58 @@ end;
     Rename-Item -LiteralPath $referenceSaved -NewName "reference"
     Pass "Junction targets remain unchanged and uninstall refuses historical traversal before deleting files"
 
+    $guardPaths = @((Join-Path $docs "AMP_VALIDATION.md"), (Join-Path $docs "reference/microphone-tags.json"))
+    $beforeCancelReadme = Hash $readme
+    # Force an absent parent as well as an absent file. Delete only the empty
+    # directory owned by this synthetic fixture, never recurse into a tree.
+    [IO.Directory]::Delete($reference, $false)
+    Invoke-Setup (Uninstaller) "08a-cancelled-guard-uninstall" "" $false @("/DOCGUARDPROBE=cancel")
+    Assert (Test-Path -LiteralPath $registry) "Cancelled uninstall removed registration"
+    Assert ((Hash $readme) -eq $beforeCancelReadme -and (Hash $modified) -eq $modifiedHash) "Cancelled uninstall changed owned or user bytes"
+    foreach ($path in $guardPaths) { Assert (!(Test-Path -LiteralPath $path)) "Cancelled uninstall left an empty guard file" }
+    Assert (!(Test-Path -LiteralPath $reference)) "Cancelled uninstall left its newly created empty guard directory"
+    Assert-NoDeferredDocumentDelete
+
+    $marker = Join-Path $outside "guard-process.txt"
+    $arguments = @("/VERYSILENT", "/SUPPRESSMSGBOXES", "/NORESTART", "/SP-", "/DOCGUARDPROBE=hold",
+        "/DOCGUARDMARKER=`"$marker`"", "/LOG=`"$logs/08b-terminated-guard-uninstall.log`"")
+    $guardProcess = Start-Process -FilePath (Uninstaller) -ArgumentList $arguments -PassThru
+    $installerInvocations += 1
+    $phaseProcess = $null
+    try {
+        $phaseProcessId = 0
+        for ($attempt = 0; $attempt -lt 100; ++$attempt) {
+            if ((Test-Path -LiteralPath $marker) -and (Get-Content -LiteralPath $marker -Raw) -match '^([1-9][0-9]*):ready$') {
+                $phaseProcessId = [int]$Matches[1]
+                break
+            }
+            Start-Sleep -Milliseconds 100
+        }
+        Assert ($phaseProcessId -gt 0) "The actual uninstaller did not acquire its absent-path guards before termination"
+        $phase = Get-CimInstance Win32_Process -Filter "ProcessId=$phaseProcessId"
+        Assert ($null -ne $phase -and $phase.CommandLine.Contains($app, [StringComparison]::OrdinalIgnoreCase)) "Refusing to terminate a process outside this exact fixture installation"
+        $phaseProcess = [Diagnostics.Process]::GetProcessById($phaseProcessId)
+        & taskkill.exe /F /T /PID $phaseProcessId | Out-Host
+        Assert ($LASTEXITCODE -eq 0) "Cannot terminate the guarded native uninstaller fixture"
+        Assert ($phaseProcess.WaitForExit(10000)) "The guarded native uninstaller did not finish termination"
+    } finally {
+        if (!$guardProcess.HasExited) { $guardProcess.Kill($true); $guardProcess.WaitForExit() }
+        if ($null -ne $phaseProcess) { $phaseProcess.Dispose() }
+        $guardProcess.Dispose()
+    }
+    Assert (Test-Path -LiteralPath $registry) "Terminated pre-confirmation uninstall removed registration"
+    Assert ((Hash $readme) -eq $beforeCancelReadme -and (Hash $modified) -eq $modifiedHash) "Terminated pre-confirmation uninstall changed owned or user bytes"
+    Assert (@(Get-ChildItem -LiteralPath $reference -File -Recurse).Count -eq 0) "Terminated guard left document files in its newly created parent"
+    foreach ($path in $guardPaths) {
+        Assert (!(Test-Path -LiteralPath $path)) "Kernel delete-on-close did not remove its own empty guard after process termination"
+        # Prove the pathname can be created again once the guard owner exits.
+        Write-Fixture $path "creation after terminated guard release"
+        Remove-Item -LiteralPath $path
+    }
+    Assert-NoDeferredDocumentDelete
+    $guardCancellationAndTerminationVerified = $true
+    Pass "Absent historical path guards prevent creation during uninstall, disappear on cancellation and forced process termination, and never queue reboot deletion"
+
     # A concurrent writer prevents even the read-only preservation handle:
     # our FILE_SHARE_READ intentionally does not share the writer's access.
     $lock = [IO.File]::Open($modified, [IO.FileMode]::Open, [IO.FileAccess]::ReadWrite, [IO.FileShare]::None)
@@ -317,6 +401,8 @@ end;
     @{ success = $success; platform = "windows"; native_inno_execution = ($installerInvocations -gt 0);
         native_compiler_passed = $nativeCompilerPassed; installer_invocations = $installerInvocations;
         compiler_version = $compilerVersion;
+        guard_cancellation_and_termination_verified = $guardCancellationAndTerminationVerified;
+        forced_termination_may_leave_empty_guard_directories = $true;
         historical_release_installer_executed = $false; scope = "real Inno installers with synthetic historical document ownership";
         source_sha = (& git -C $repository rev-parse HEAD).Trim(); run_id = $env:GITHUB_RUN_ID;
         checks = @($checks.ToArray()) } | ConvertTo-Json -Depth 6 |

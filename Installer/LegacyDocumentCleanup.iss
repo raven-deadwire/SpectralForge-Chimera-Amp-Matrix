@@ -16,10 +16,12 @@ const
   DocListDirectory = $00000001;
   DocReadAttributes = $00000080;
   DocShareRead = $00000001;
+  DocShareWrite = $00000002;
   DocOpenExisting = 3;
   DocCreateNew = 1;
   DocOpenReparsePoint = $00200000;
   DocBackupSemantics = $02000000;
+  DocDeleteOnClose = $04000000;
   DocAttributeDirectory = $00000010;
   DocAttributeReparsePoint = $00000400;
   DocInvalidAttributes = $FFFFFFFF;
@@ -51,6 +53,8 @@ var
   DocumentRulesLoaded: Boolean;
   DocumentParentLocks: TDocumentHandleArray;
   DocumentPending: array of TDocumentPending;
+  DocumentUninstallActive: Boolean;
+  DocumentCreatedDirectories: array of String;
 
 function DocCreateFile(Name: String; Access, Share: Cardinal; Security: THandle;
   Creation, Flags: Cardinal; Template: THandle): THandle;
@@ -125,6 +129,17 @@ begin
   Handles[I] := Handle;
 end;
 
+procedure RememberCreatedDocumentDirectory(Directory: String);
+var
+  I: Integer;
+begin
+  if not DocumentUninstallActive then Exit;
+  I := GetArrayLength(DocumentCreatedDirectories);
+  SetArrayLength(DocumentCreatedDirectories, I + 1);
+  // CreateDir receives a trailing slash; RemoveDir should not receive one.
+  DocumentCreatedDirectories[I] := Copy(Directory, 1, Length(Directory) - 1);
+end;
+
 function DocumentRelativePath(Filename: String): String;
 var
   Root: String;
@@ -152,11 +167,16 @@ begin
   for I := 3 to Length(Filename) do
     if Filename[I] = '\' then begin
       Parent := Copy(Filename, 1, I);
-      if CreateMissing and not DirExists(Parent) then
+      if CreateMissing and not DirExists(Parent) then begin
         if not CreateDir(Parent) then Exit;
+        RememberCreatedDocumentDirectory(Parent);
+      end;
       // FILE_LIST_DIRECTORY participates in sharing checks. Attributes alone
       // do not stop a directory rename/reparse substitution after validation.
-      Handle := DocCreateFile(Parent, DocListDirectory or DocReadAttributes, DocShareRead, 0,
+      // Share directory writes so Inno can rename child payload files into
+      // place; denying DELETE still prevents this parent itself being moved.
+      Handle := DocCreateFile(Parent, DocListDirectory or DocReadAttributes,
+        DocShareRead or DocShareWrite, 0,
         DocOpenExisting, DocOpenReparsePoint or DocBackupSemantics, 0);
       if not DocValidHandle(Handle) then Exit;
       RememberDocumentHandle(Handles, Handle);
@@ -363,11 +383,23 @@ end;
 procedure ReleaseDocumentPreservation;
 var
   I: Integer;
+  Attr: Cardinal;
 begin
   for I := GetArrayLength(DocumentPending) - 1 downto 0 do
     if DocValidHandle(DocumentPending[I].Handle) then DocCloseHandle(DocumentPending[I].Handle);
   SetArrayLength(DocumentPending, 0);
   CloseDocumentHandles(DocumentParentLocks);
+  // Only directories created for this uninstall's finite guard paths qualify.
+  // RemoveDir is nonrecursive and fails if a user has put any files inside.
+  for I := GetArrayLength(DocumentCreatedDirectories) - 1 downto 0 do begin
+    Attr := DocGetAttributes(DocumentCreatedDirectories[I]);
+    if (Attr <> DocInvalidAttributes) and ((Attr and DocAttributeDirectory) <> 0)
+       and ((Attr and DocAttributeReparsePoint) = 0) then
+      if not RemoveDir(DocumentCreatedDirectories[I]) then
+        Log('Chimera document preservation: retained nonempty/unremovable guard directory ' + DocumentCreatedDirectories[I]);
+  end;
+  SetArrayLength(DocumentCreatedDirectories, 0);
+  DocumentUninstallActive := False;
 end;
 
 function InitializeDocumentUninstall: Boolean;
@@ -376,11 +408,12 @@ var
   Filename, SHA256: String;
   Handle: THandle;
   Info: TDocumentFileInfo;
-  AlreadySeen, CanDelete: Boolean;
-  Attr, ErrorCode: Cardinal;
+  AlreadySeen, CanDelete, CreatedGuard: Boolean;
+  ErrorCode: Cardinal;
 begin
   Result := False;
   EnsureDocumentRules;
+  DocumentUninstallActive := True;
   try
     for I := 0 to GetArrayLength(DocumentRules) - 1 do begin
       AlreadySeen := False;
@@ -388,25 +421,42 @@ begin
         if CompareText(DocumentRules[I].RelativePath, DocumentRules[J].RelativePath) = 0 then AlreadySeen := True;
       if not AlreadySeen then begin
         Filename := ExpandConstant('{app}') + '\' + DocumentRules[I].RelativePath;
-        Attr := DocGetAttributes(Filename);
-        ErrorCode := DocLastError;
-        if not ((Attr = DocInvalidAttributes) and ((ErrorCode = 2) or (ErrorCode = 3))) then begin
-          if not LockDocumentParents(Filename, False, DocumentParentLocks) then
-            RaiseException('Cannot secure a documentation path against historical uninstall records.');
-          CanDelete := True;
-          Handle := DocCreateFile(Filename, DocRead or DocDelete, DocShareRead, 0,
-            DocOpenExisting, DocOpenReparsePoint or DocBackupSemantics, 0);
-          if not DocValidHandle(Handle) then begin
-            CanDelete := False;
-            Handle := OpenDocumentPreservationHandle(Filename);
-          end;
-          if not DocValidHandle(Handle) then
-            RaiseException('Cannot lock a document for preservation; uninstall stopped before deleting files.');
-          N := GetArrayLength(DocumentPending);
-          SetArrayLength(DocumentPending, N + 1);
-          DocumentPending[N].Handle := Handle;
-          DocumentPending[N].RelativePath := DocumentRules[I].RelativePath;
-          DocumentPending[N].DeleteVerified := False;
+        // A missing pathname is also covered by old Inno deletion records.
+        // Lock its parents before creating an exclusive, zero-byte guard so
+        // a concurrent file creation cannot be claimed by those records.
+        if not LockDocumentParents(Filename, True, DocumentParentLocks) then
+          RaiseException('Cannot secure a documentation path against historical uninstall records.');
+        CreatedGuard := False;
+        CanDelete := True;
+        Handle := DocCreateFile(Filename, DocRead or DocDelete, DocShareRead, 0,
+          DocOpenExisting, DocOpenReparsePoint or DocBackupSemantics, 0);
+        if not DocValidHandle(Handle) then begin
+          ErrorCode := DocLastError;
+          CanDelete := False;
+          if (ErrorCode = 2) or (ErrorCode = 3) then begin
+            // CREATE_NEW never overwrites a file that appeared meanwhile.
+            // DELETE_ON_CLOSE removes only our own guard on cancellation or
+            // process termination, without a deferred/reboot deletion queue.
+            Handle := DocCreateFile(Filename, DocRead or DocDelete, DocShareRead, 0,
+              DocCreateNew, DocOpenReparsePoint or DocDeleteOnClose, 0);
+            if not DocValidHandle(Handle) then
+              RaiseException('Cannot guard an absent historical document; uninstall stopped before deleting files.');
+            CreatedGuard := True;
+          end else Handle := OpenDocumentPreservationHandle(Filename);
+        end;
+        if not DocValidHandle(Handle) then
+          RaiseException('Cannot lock a document for preservation; uninstall stopped before deleting files.');
+        N := GetArrayLength(DocumentPending);
+        SetArrayLength(DocumentPending, N + 1);
+        DocumentPending[N].Handle := Handle;
+        DocumentPending[N].RelativePath := DocumentRules[I].RelativePath;
+        DocumentPending[N].DeleteVerified := False;
+        if CreatedGuard then begin
+          if not DocGetFileInfo(Handle, Info) or not IsRegularSingleLinkDocument(Info)
+             or (Info.SizeLow <> 0) then
+            RaiseException('Cannot verify an exclusive empty document guard.');
+          Log('Chimera document preservation: guarded absent historical pathname ' + Filename);
+        end else begin
           if DocGetFileInfo(Handle, Info) and IsRegularSingleLinkDocument(Info) and CanDelete
              and not MustKeepDocument(DocumentRules[I].RelativePath) then begin
             SHA256 := HashDocumentHandle(Handle);
@@ -437,9 +487,10 @@ begin
     if DocumentPending[I].DeleteVerified then begin
       if DeleteVerifiedDocumentHandle(DocumentPending[I].Handle,
         DocumentPending[I].Bytes, DocumentPending[I].SHA256) then begin
-        Log('Chimera document cleanup: removed verified owned file at uninstall ' + DocumentPending[I].RelativePath);
-        DocCloseHandle(DocumentPending[I].Handle);
-        DocumentPending[I].Handle := 0;
+        // Keep the delete-pending object open until all historical Inno log
+        // records have run. Closing now would allow a new user file at this
+        // pathname to be deleted by a later old log record.
+        Log('Chimera document cleanup: verified owned file pending removal at uninstall ' + DocumentPending[I].RelativePath);
       end else Log('Chimera document preservation: retained unverified/unremovable file ' + DocumentPending[I].RelativePath);
     end;
 end;
