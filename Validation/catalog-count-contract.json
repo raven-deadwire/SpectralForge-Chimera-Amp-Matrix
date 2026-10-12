@@ -121,6 +121,16 @@
       },
       {
         "version": "1.3.3",
+        "name": "Shared Original FX and focused-product foundation",
+        "total": 85,
+        "window": "2026-11-30/2026-12-25",
+        "new_models": 0,
+        "status": "planned_internal_target",
+        "beta_maintenance_window": "2026-12-28/2027-02-19",
+        "count_note": "Shared processors and modes do not add character models; audit any new selectable Original identity separately."
+      },
+      {
+        "version": "1.3.4",
         "name": "Room Core: adjustable room size, absorption and per-rig sends",
         "total": 85,
         "window": "2027-02-22/2027-03-19",
@@ -128,7 +138,7 @@
         "status": "planned_internal_target"
       },
       {
-        "version": "1.4",
+        "version": "1.4.0",
         "name": "PRE Expansion A and common multiband/routing",
         "total": 91,
         "window": "2027-03-22/2027-04-30",
@@ -136,7 +146,7 @@
         "status": "planned_internal_target"
       },
       {
-        "version": "1.5",
+        "version": "1.5.0",
         "name": "PRE Expansion B and routing interaction",
         "total": 97,
         "window": "2027-05-03/2027-05-28",
@@ -144,7 +154,7 @@
         "status": "planned_internal_target"
       },
       {
-        "version": "1.6",
+        "version": "1.6.0",
         "name": "Reference AMP Expansion and common saturation",
         "total": 102,
         "window": "2027-05-31/2027-07-02",
@@ -152,7 +162,7 @@
         "status": "planned_internal_target"
       },
       {
-        "version": "1.7",
+        "version": "1.7.0",
         "name": "POST Dynamics & Tone and common filters",
         "total": 111,
         "window": "2027-07-05/2027-07-30",
@@ -160,7 +170,7 @@
         "status": "planned_internal_target"
       },
       {
-        "version": "1.8",
+        "version": "1.8.0",
         "name": "POST Motion & Space and Room Advanced",
         "total": 120,
         "window": "2027-08-02/2027-09-10",
@@ -168,7 +178,7 @@
         "status": "planned_internal_target"
       },
       {
-        "version": "1.9",
+        "version": "1.9.0",
         "name": "Creative FX",
         "total": 129,
         "window": "2027-09-13/2027-10-08",
@@ -176,7 +186,7 @@
         "status": "planned_internal_target"
       },
       {
-        "version": "1.10",
+        "version": "1.10.0",
         "name": "Synth Layer",
         "total": 132,
         "window": "2027-10-11/2027-11-19",
@@ -184,7 +194,7 @@
         "status": "planned_internal_target"
       },
       {
-        "version": "2.0",
+        "version": "2.0.0",
         "name": "Integration / RC",
         "total": 132,
         "window": "2027-11-22/2027-12-17",
@@ -218,7 +228,7 @@
           "after_post_and_width_before_output_trim"
         ],
         "status": "static_foundation_delivered_in_1_3_1_beta_1",
-        "workflow_quality_followup": "1.3.1-beta.2 target; docs/EQ_ANALYZER_WORKFLOW_UPGRADE.md",
+        "workflow_quality_followup": "1.3.1-beta.2 through beta.4; docs/EQ_ANALYZER_WORKFLOW_UPGRADE.md",
         "slope_and_peak_editing": "1.3.2"
       },
       "dynamic_eq": {
@@ -226,22 +236,22 @@
         "initial_max_active_nodes_across_all_eq_instances": 4
       },
       "multiband_dynamics": {
-        "first_version": "1.4",
+        "first_version": "1.4.0",
         "initial_bands": 4,
-        "six_band_expansion": "1.5 only after separate performance acceptance"
+        "six_band_expansion": "1.5.0 only after separate performance acceptance"
       },
       "saturation": {
-        "first_version": "1.6",
+        "first_version": "1.6.0",
         "initial_bands": 3
       },
       "filter_modulation": {
-        "first_version": "1.7",
+        "first_version": "1.7.0",
         "initial_filters": 2
       },
       "signal_path": {
         "navigation": "1.3.1",
-        "constrained_order_with_state_and_undo": "1.4",
-        "drag_interaction": "1.5",
+        "constrained_order_with_state_and_undo": "1.4.0",
+        "drag_interaction": "1.5.0",
         "navigation_status": "delivered_in_1_3_1_beta_1",
         "basic_strip": [
           "PRE",
@@ -261,8 +271,8 @@
         "remaining_scope": "regression_and_recorded_host_acceptance"
       },
       "studio": {
-        "true_peak_loudness": "1.5 separately gated",
-        "spectral_linear_phase": "1.7 research checkpoint; qualified 2.0 or a separately assigned 2.x release",
+        "true_peak_loudness": "1.5.0 separately gated",
+        "spectral_linear_phase": "1.7.0 research checkpoint; qualified 2.0.0 or a separately assigned 2.x release",
         "eq_reference_workflow_review": {
           "requirements": "2027-07-09",
           "feasibility_decision": "2027-07-30",
@@ -271,11 +281,11 @@
             "eq_sketch",
             "cross_instance_or_rig_spectrum_comparison"
           ],
-          "integration": "Qualified 2.0 scope or a concrete named 2.x follow-up assigned at the decision."
+          "integration": "Qualified 2.0.0 scope or a concrete named 2.x follow-up assigned at the decision."
         }
       },
       "room_acoustics": {
-        "first_version": "1.3.3",
+        "first_version": "1.3.4",
         "core_window": "2027-02-22/2027-03-19",
         "required_core_controls": [
           "size_small_medium_large",
@@ -290,7 +300,7 @@
           "first_windows_test_installer": "2027-03-12",
           "core_candidate": "2027-03-19"
         },
-        "advanced_version": "1.8",
+        "advanced_version": "1.8.0",
         "advanced_window": "2027-08-02/2027-09-10",
         "advanced_controls": [
           "early_late_balance",
@@ -337,7 +347,7 @@
       "status": "delivered_public_beta_not_full_production_acceptance"
     },
     "quality_followup": {
-      "version_target": "1.3.1-beta.2",
+      "version_target": "1.3.1-beta.4",
       "status": "planned_not_implemented",
       "window": "2026-10-12/2026-11-01",
       "scope": [
@@ -371,7 +381,21 @@
         "peak_hold",
         "spectrum_range_tilt_zoom"
       ],
-      "scope_revision_policy": "Commit October 23 minimum and October 30 remainder on October 16; review variance October 23 and explicitly date any carryover before advertising the full candidate."
+      "scope_revision_policy": "Commit October 23 minimum and October 30 remainder on October 16; review variance October 23 and explicitly date any carryover before advertising the full candidate.",
+      "weekly_versions": [
+        {
+          "version": "1.3.1-beta.2",
+          "publication_target": "2026-10-16"
+        },
+        {
+          "version": "1.3.1-beta.3",
+          "publication_target": "2026-10-23"
+        },
+        {
+          "version": "1.3.1-beta.4",
+          "publication_target": "2026-10-30"
+        }
+      ]
     },
     "aax_native": {
       "status": "planned_not_implemented",
@@ -408,7 +432,13 @@
       ],
       "specification": "docs/AAX_NATIVE_PLAN.md",
       "estimate_product_scope": "Chimera first implementation; focused products reuse infrastructure but require separate incremental estimates and acceptance",
-      "shared_capacity_policy": "Readiness/internal/host dates are conditional checkpoints within the same weekly budget. Re-estimate on October 16 and 23; explicitly move a checkpoint if the original 10-20 engineering days do not fit. Do not assume additional staff."
+      "shared_capacity_policy": "Readiness/internal/host dates are conditional checkpoints within the same weekly budget. Re-estimate on October 16 and 23; explicitly move a checkpoint if the original 10-20 engineering days do not fit. Do not assume additional staff.",
+      "first_publication_review": {
+        "target": "2026-11-27",
+        "candidate_version": "1.3.2-beta.4",
+        "conditional_on": "signed_binary_normal_pro_tools_acceptance_and_same_source_release_checks",
+        "if_blocked": "first_later_qualified_product_release_with_its_own_version"
+      }
     },
     "continuing_tracks": {
       "transpose": {
@@ -431,7 +461,9 @@
           "report": "Tools/Nam/reports/refinement-20261011.md",
           "report_branch": "PR #22",
           "blocker": "Bare A2 finite-history quiet-tail witness; more epochs alone cannot resolve demonstrated limitation"
-        }
+        },
+        "conditional_package_target": "2026-11-20",
+        "conditional_package_policy": "A planning target only; all five channels must meet the existing source/memory/fidelity/held-out/player requirements. A blocked report remains a report, not a downloadable qualified pack."
       },
       "host_lifecycle": {
         "first_followup_report": "2026-10-23",
@@ -475,7 +507,9 @@
           "full_training_and_held_out_instrument_di",
           "supported_player_load_restore_and_hashes"
         ],
-        "specification": "docs/FOCUSED_AMP_PRODUCTS_AND_NAM.md"
+        "specification": "docs/FOCUSED_AMP_PRODUCTS_AND_NAM.md",
+        "conditional_package_target": "2026-12-04",
+        "conditional_package_policy": "A planning target only; all five channels must meet the existing source/memory/fidelity/held-out/player requirements. A blocked report remains a report, not a downloadable qualified pack."
       }
     },
     "focused_amp_products": {
@@ -583,7 +617,23 @@
       "default_page": "AMP",
       "pre_board_capacity": 4,
       "chimera_pre_board_capacity_unchanged": 5,
-      "pre_policy": "Four replaceable simultaneous slots; selected-slot large controls; library families/modes are not additional simultaneous instances. Do not duplicate global gate/transpose nodes."
+      "pre_policy": "Four replaceable simultaneous slots; selected-slot large controls; library families/modes are not additional simultaneous instances. Do not duplicate global gate/transpose nodes.",
+      "release_reviews": {
+        "nastrond": {
+          "first_beta": "2027-01-22",
+          "first_rc_review": "2027-02-26",
+          "stable_review": "2027-03-12"
+        },
+        "niflheimr": {
+          "first_beta": "2027-02-19",
+          "first_rc_review": "2027-03-19",
+          "stable_review": "2027-04-02"
+        }
+      },
+      "tag_namespaces": {
+        "nastrond": "nastrond-v<version>",
+        "niflheimr": "niflheimr-v<version>"
+      }
     },
     "weekly_capacity_revision": {
       "updated_at": "2026-10-12",
@@ -593,15 +643,15 @@
       "nastrond_product_weeks": 4,
       "niflheimr_product_weeks": 4,
       "shifted_versions": [
-        "1.3.3",
-        "1.4",
-        "1.5",
-        "1.6",
-        "1.7",
-        "1.8",
-        "1.9",
-        "1.10",
-        "2.0"
+        "1.3.4",
+        "1.4.0",
+        "1.5.0",
+        "1.6.0",
+        "1.7.0",
+        "1.8.0",
+        "1.9.0",
+        "1.10.0",
+        "2.0.0"
       ],
       "integration_target": "2027-12-17",
       "correction_reserve": "2027-12-20/2027-12-31",
@@ -650,7 +700,21 @@
         "qualified_pitch_modulation_space_reuse"
       ],
       "later_scope": "Complete named Original FX enhancements incrementally through weekly product updates and Motion/Space; first beta does not require a wholesale replacement of existing engines.",
-      "catalog_policy": "Shared processors, instances and modes are separate from retained 132 character models; audit any genuinely added selectable Original model explicitly."
+      "catalog_policy": "Shared processors, instances and modes are separate from retained 132 character models; audit any genuinely added selectable Original model explicitly.",
+      "version": "1.3.3"
+    },
+    "release_calendar": {
+      "document": "docs/RELEASE_CALENDAR_2026_2027.md",
+      "data": "Validation/release-calendar.json",
+      "status": "planning_only_not_updater_feed",
+      "timezone": "Asia/Seoul",
+      "test_build_day": "Wednesday",
+      "candidate_day": "Thursday",
+      "publication_target_day": "Friday",
+      "public_baseline": "1.3.1-beta.1",
+      "numbering_revision": "Shared FX = 1.3.3; Room Core = 1.3.4, unchanged dates; use X.Y.Z for all public base versions.",
+      "release_policy": "Dates reserve capacity. Actual publication requires the applicable source/platform/host/package checks. Never overwrite published tags/assets or count an unchanged build as an update.",
+      "rc_stable_channel_support": "planned_by_2027-01-15_including_generators_publisher_updater_client_product_feeds_and_beta_to_stable_transition_not_currently_implemented"
     }
   },
   "reference_manifest_contract": "Validation/reference-manifest-contract.json",
@@ -688,6 +752,5 @@
     }
   ],
   "selectable_preset_count": 48,
-  "development_scope": "Public 1.3.1-beta.1 remains delivered. Weekly substantive verified updates/maintenance continue from October 2026. Allocate four weeks shared Original FX reuse, four weeks Náströnd VST3 and four weeks Niflheimr VST3; shift Room and subsequent version windows twelve weeks to a 2027-12-17 integration/RC target, with reserve through December 31. Both five-channel NAM packs remain required separate work with unchanged fidelity/player boundaries. Shared processors and additional Original catalogue identities are audited separately from the retained 132-character model plan."
+  "development_scope": "Public 1.3.1-beta.1 remains delivered. Weekly substantive verified updates/maintenance continue from October 2026. Allocate four weeks shared Original FX reuse, four weeks Náströnd VST3 and four weeks Niflheimr VST3; shift Room and subsequent version windows twelve weeks to a 2027-12-17 integration/RC target, with reserve through December 31. Both five-channel NAM packs remain required separate work with unchanged fidelity/player boundaries. Shared processors and additional Original catalogue identities are audited separately from the retained 132-character model plan. Exact weekly versions and Wednesday/Thursday/Friday delivery dates are defined in the release calendar; shared FX is 1.3.3 and Room Core is 1.3.4. No runtime/publisher implementation is claimed."
 }
-

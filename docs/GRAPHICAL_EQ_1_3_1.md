@@ -81,7 +81,7 @@ See `GRAPHICAL_EQ_1_3_1_VALIDATION.md` for measured results and outstanding chec
 Dynamic EQ, compressor/limiter expansion, independent four-band dynamics,
 linear-phase/zero-latency mode selection, per-band stereo/M-S processing,
 external sidechains and automatic EQ matching are not implemented here.
-Dynamic EQ belongs to 1.3.2 and independent multiband dynamics to 1.4 under the
+Dynamic EQ belongs to 1.3.2 and independent multiband dynamics to 1.4.0 under the
 current roadmap. The October follow-up adds analyzer controls, larger focused
 editing, plot-based band creation/removal, multi-selection, audition and EQ
 Undo/Redo; these are not implemented by this baseline.

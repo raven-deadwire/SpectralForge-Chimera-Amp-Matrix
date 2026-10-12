@@ -174,6 +174,27 @@ availability, signing route/cost and actual Native build results are **unknown
 or not executed**. Continue independent source work while those prerequisites
 are resolved; do not fabricate their completion or an external approval date.
 
+## Public artifact version and conditional deployment reviews
+
+AAX uses the same product version as that release's other formats; it does not
+have a separate AAX version counter. Freeze and sign the matching final source,
+then publish its AAX package with that new product release. Do not append a
+changed-source binary to an already published older version.
+
+The first Chimera public-AAX review is **November 27, 2026**, targeting
+**1.3.2-beta.4** only if the November 20 host/signing checks and applicable
+release gates pass. Otherwise use the first later qualified Chimera version.
+This is a conditional slot, not a forecast of Avid/PACE approval or acquired
+credentials. The November 20 check is not itself a public distribution claim.
+
+Focused-product AAX review reservations are **March 26, 2027** for Náströnd
+and **April 9, 2027** for Niflheimr, after their native stable-review targets.
+Use the then-current verified product version and separately estimate the
+incremental work. These reviews must fit the existing shared maintenance/
+verification budget or explicitly move affected work; they are not included
+as additional guaranteed releases in the native four-week allocations.
+See [the release calendar](RELEASE_CALENDAR_2026_2027.md).
+
 ## Primary references
 
 Checked October 12, 2026:
@@ -184,4 +205,3 @@ Checked October 12, 2026:
 - [Avid AAX developer entry point](https://developer.avid.com/aax/)
 - [PACE AAX signing workflow](https://paceap.com/getting-started-with-aax-code-signing-for-pro-tools-plugins/)
 - [Avid Apple Silicon host/plugin compatibility](https://kb.avid.com/pkb/articles/en_US/Knowledge/Missing-plug-ins-after-upgrading-to-Pro-Tools-2023-3-on-Apple-Silicon-Mac)
-

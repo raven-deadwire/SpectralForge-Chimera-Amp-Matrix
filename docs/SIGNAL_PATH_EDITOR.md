@@ -52,10 +52,10 @@ global processor, not another label for Matrix.
 |---|---|---|---|
 | Startup and basic navigation | Delivered in 1.3.1-beta.1, 2026-10-12 | Start on AMP/RIGS and navigate implemented areas | Preserve shipped mode/state and correct lane focus |
 | Compact presentation and hierarchy | 1.3.1 follow-up, 2026-10-12–11-01; first installer 10-23 | Use five primary blocks; open rig topology or technical details only when needed | Actual order remains accurate; readable labels and keyboard focus; no audio writes from navigation |
-| Room path integration | 1.3.3, 2027-02-22–03-19 | Show weighted AMP/CAB sends and shared Room; open its controls | Preserve LOW DI isolation and the actual post-rig gate/wet-return boundary; display implemented topology only |
-| Constrained order editor | 1.4, 2027-03-22–04-30 | Move supported stages earlier/later using commands or a placement menu | Correct audio graph, click-safe change policy, stable automation identities, order save/restore and basic undo |
-| Drag interaction | 1.5, 2027-05-03–05-28 | Drag with valid drop targets, preview placement, cancel, use keyboard and undo/redo | Calls the already tested order command; no DSP rebuild during hover; controls remain accessible |
-| Advanced polish | 1.9, 2027-09-13–10-08 | Expanded modulation/routing presentation and qualified advanced placements | Separately measured branch/latency/tail behavior; no unrestricted cyclic graph |
+| Room path integration | 1.3.4, 2027-02-22–03-19 | Show weighted AMP/CAB sends and shared Room; open its controls | Preserve LOW DI isolation and the actual post-rig gate/wet-return boundary; display implemented topology only |
+| Constrained order editor | 1.4.0, 2027-03-22–04-30 | Move supported stages earlier/later using commands or a placement menu | Correct audio graph, click-safe change policy, stable automation identities, order save/restore and basic undo |
+| Drag interaction | 1.5.0, 2027-05-03–05-28 | Drag with valid drop targets, preview placement, cancel, use keyboard and undo/redo | Calls the already tested order command; no DSP rebuild during hover; controls remain accessible |
+| Advanced polish | 1.9.0, 2027-09-13–10-08 | Expanded modulation/routing presentation and qualified advanced placements | Separately measured branch/latency/tail behavior; no unrestricted cyclic graph |
 
 Do not postpone undo, preset recall or stable IDs until the drag release.
 They are required when order changes first become possible. An unavailable
@@ -69,7 +69,7 @@ active audio block in the shipping product.
 | Input gate / transpose / tuner | Use existing utility controls; inspect topology in Details | Preserve input/tap relationships; no duplicate basic-strip nodes |
 | PRE board | Reorder installed pedals within their current supported owner/board | Maximum five pedals; no implicit change of lane ownership |
 | Amp and CAB | Select models, use controls, inspect existing bypass and routing | Amp-to-CAB relationship and LOW DI routing remain explicit |
-| Room send/return, from 1.3.3 | Inspect the weighted sends and shared room; open its controls | Keep send taps and wet return fixed in the first order editor; wet return follows the optional post-rig gate |
+| Room send/return, from 1.3.4 | Inspect the weighted sends and shared room; open its controls | Keep send taps and wet return fixed in the first order editor; wet return follows the optional post-rig gate |
 | Common pre-POST block | Reorder Tone EQ, clean dynamics and multiband when implemented | Stay after rig merge, the optional post-rig gate and Room return, and before POST in the first release |
 | Existing POST slots | Reorder supported modules, including delay/reverb order | Preserve each existing instance ID and declared transition policy |
 | Final block | Set Final EQ, output trim and limiter | Final EQ → trim → limiter; no audio gain stage after limiter |
@@ -160,4 +160,3 @@ This specification follows the [full reordered roadmap](DEVELOPMENT_ROADMAP_2026
 The initial strip and embedded head controls are delivered in 1.3.1-beta.1.
 The simplified hierarchy and later order editor remain planned follow-up work.
 Inspect actual source and native interaction before marking either complete.
-

@@ -35,7 +35,7 @@ visual or editing acceptance below.
 
 ## October follow-up: required quality scope
 
-Target: **1.3.1 follow-up beta, provisionally beta.2**.
+Targets: **1.3.1-beta.2 on October 16, beta.3 on October 23, and beta.4 on October 30**. The release calendar assigns the minimum and remaining scope to each weekly build.
 First installer October 23; validation candidate October 30; scope review
 November 1. The released beta.1 remains the historical base.
 
@@ -146,18 +146,18 @@ Target: **1.3.2, November 2–27**; first test installer November 20.
   separately defined signal roles; this document does not count them as EQ bands.
 
 Begin with internal detector sources. External DAW sidechain and per-band
-L/R or M/S belong to the independently tested 1.5 host/channel extension.
+L/R or M/S belong to the independently tested 1.5.0 host/channel extension.
 Do not expose inactive buttons for future processing.
 
 ## Later reference functions and decision dates
 
 | Scope | Scheduled stage |
 |---|---|
-| Independent four-band dynamics, band solo and per-band GR | 1.4, March 22–April 30, 2027 |
-| Six-band extension, external sidechain, L/R and M/S, Studio true-peak/LUFS | 1.5, May 3–May 28, each with its own performance/host acceptance |
-| Spectral dynamics and linear-phase prototypes | 1.7 research window, July 5–July 30 |
+| Independent four-band dynamics, band solo and per-band GR | 1.4.0, March 22–April 30, 2027 |
+| Six-band extension, external sidechain, L/R and M/S, Studio true-peak/LUFS | 1.5.0, May 3–May 28, each with its own performance/host acceptance |
+| Spectral dynamics and linear-phase prototypes | 1.7.0 research window, July 5–July 30 |
 | EQ Match, EQ Sketch and cross-instance/rig spectrum comparison | Requirements checkpoint July 9; feasibility/adoption decision July 30 |
-| Qualified advanced EQ integration | 2.0 or a named 2.x follow-up assigned at the July 30 decision |
+| Qualified advanced EQ integration | 2.0.0 or a named 2.x follow-up assigned at the July 30 decision |
 
 The graph/analyzer, ordinary Dynamic EQ and spectral dynamics are different
 deliverables. FabFilter documents linear-phase requirements for its spectral
@@ -198,4 +198,3 @@ own implementation, visual treatment and measured performance.
 - [Spectrum Grab](https://www.fabfilter.com/help/pro-q/using/spectrumgrab)
 - [Dynamic EQ](https://www.fabfilter.com/help/pro-q/using/dynamic-eq)
 - [Spectral dynamics](https://www.fabfilter.com/help/pro-q/using/spectral-dynamics)
-

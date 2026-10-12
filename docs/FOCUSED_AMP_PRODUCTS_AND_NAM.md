@@ -235,7 +235,7 @@ boundary. No such runtime is claimed by this plan.
 Reuse Niflheimr's production-wrapper renderer and audition harness, together
 with the reusable training/checkpoint/export/player-validation work in PR #22.
 PR #22 currently hardcodes Náströnd channels/controls and pins a pre-Niflheimr
-v1.2.0-beta.1 source. Generalize with a per-family manifest rather than
+v1.2.0.0-beta.1 source. Generalize with a per-family manifest rather than
 globally repinning the historical Náströnd experiment.
 
 Every family/channel capture records:
@@ -288,7 +288,7 @@ All dated checkpoints are owned by the
 and its JSON mirror. The revised calendar explicitly allocates **three
 consecutive four-week windows**. This replaces the former unallocated
 November 30–December 25 estimate for both products and resolves its conflict
-with Room Core by moving dependent Room/1.4-and-later work twelve weeks.
+with Room Core by moving dependent Room/1.4.0-and-later work twelve weeks.
 
 | Allocated window, KST | Main work | Reviewable result |
 |---|---|---|
@@ -302,8 +302,8 @@ the accepted initial increment using existing engines where appropriate; it
 does not promise a wholesale rewrite or simultaneous completion of every
 original algorithm. Remaining module improvements continue in weekly changes.
 
-The central schedule moves the dependent Room/1.4-and-later programme by twelve
-weeks, places the 2.0 candidate window at **2027-11-22–2027-12-17**, and retains
+The central schedule moves the dependent Room/1.4.0-and-later programme by twelve
+weeks, places the 2.0.0 candidate window at **2027-11-22–2027-12-17**, and retains
 **2027-12-20–2027-12-31** as a correction/buffer period. These are provisional
 targets reviewed against actual weekly results, not a claim that all future
 research must succeed by 2027. Changes to dependent version milestones remain
@@ -345,6 +345,47 @@ Both NAM packs remain open required deliveries until their evidence is complete.
 | Niflheimr NAM pack | Five source-bound qualified models, frozen fidelity/held-out-DI results, supported player load/restore and hashes with installation/calibration guidance |
 | Future focused AAX | Product-specific signatures and normal-Pro-Tools/installer acceptance under the shared AAX plan |
 
+## Product release numbering and deployment targets
+
+Use independent product tags `nastrond-v<version>` and `niflheimr-v<version>`;
+preserve Chimera's existing `v<version>` path. Each product needs its own update
+manifest/feed resolution, plugin/state/preset/data paths and installer identity.
+The current single-product publisher is not sufficient by renaming an archive.
+Internal candidate IDs include the source and CI build, and are not published
+to the updater. The first public tag identifies one immutable verified payload.
+
+| Product | Internal test target | First public beta target | First RC review | Stable 1.0.0 review |
+|---|---|---|---|---|
+| Náströnd | January 8, 2027 | January 22, 2027: 1.0.0-beta.1 | February 26, 2027: 1.0.0-rc.1 | March 12, 2027 |
+| Niflheimr | February 5, 2027 | February 19, 2027: 1.0.0-beta.1 | March 19, 2027: 1.0.0-rc.1 | April 2, 2027 |
+
+Windows VST3 is the first package target. Reserve macOS Universal VST3 for the next weekly beta: January 29 for
+Náströnd and February 26 for Niflheimr, conditional on its own build and host
+evidence. Record the actual supported platform matrix on each release. General Linux,
+AU/standalone and signed AAX are not silently added to the focused estimates.
+Each beta covers the full five-channel native core, four replaceable slots,
+declared qualified PRE inventory, CAB/EQ/SPACE, presets and product identity.
+Any incomplete family remains explicitly listed; partial availability is not
+completion of the full five-guitar/six-bass-family scope.
+
+Stabilization uses the already budgeted maintenance/verification work. A
+significant fix that cannot fit changes the next main milestone explicitly.
+RC/production-channel generation is currently unsupported and must be added
+and verified before those releases, with January 15 as the readiness target. Include updater channel selection,
+existing-beta discovery of the stable successor, stable-default feeds and
+explicit beta opt-in; a new stable feed alone does not migrate the client.
+Neither the number of beta weeks nor the calendar alone authorizes stable.
+See the full [release calendar](RELEASE_CALENDAR_2026_2027.md) for intermediate
+betas and exact test/candidate/publication dates.
+
+NAM tags use `nastrond-nam-v<version>` / `niflheimr-nam-v<version>`, independent
+of plugin versions. Reserve November 20, 2026 and December 4, 2026 respectively
+as conditional first 1.0.0-beta.1 pack targets. These dates do not assert that
+the existing memory/fidelity blocker will be solved: release only after all
+five channels meet the unchanged source, fidelity, held-out DI and supported
+player checks. If prerequisites fail, report the result and next experiment;
+keep native product work moving. A beta pack still requires qualified models.
+
 ## Evidence and references
 
 Repository observations above are pinned to the audited main unless noted:
@@ -380,4 +421,3 @@ Official workflow references checked October 12, 2026:
 
 These references guide interaction and product scope. They do not imply
 copied DSP/assets, measured sound equivalence or matching latency/CPU claims.
-

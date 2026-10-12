@@ -13,9 +13,9 @@ without room-response parameters.
 
 | Assigned stage | Controls and result |
 |---|---|
-| 1.3.3 Room Core | Small / Medium / Large Room Size, per-rig Room Send, shared Absorption / Damping, Room Bypass and defined wet-return level; each control changes actual room audio. |
-| 1.8 Room Advanced | Early reflections, late decay, diffusion, room wet low/high cuts and stereo width. |
-| 1.8 spatial stage | Declared modeled dimensions, wall/floor/ceiling absorption or material presets, cabinet-to-boundary placement and optional room-mic location independent of close Mic A/B. |
+| 1.3.4 Room Core | Small / Medium / Large Room Size, per-rig Room Send, shared Absorption / Damping, Room Bypass and defined wet-return level; each control changes actual room audio. |
+| 1.8.0 Room Advanced | Early reflections, late decay, diffusion, room wet low/high cuts and stereo width. |
+| 1.8.0 spatial stage | Declared modeled dimensions, wall/floor/ceiling absorption or material presets, cabinet-to-boundary placement and optional room-mic location independent of close Mic A/B. |
 
 Use one shared acoustic environment with one, two or three weighted rig sends
 in Classic, Dual and Matrix. Put basic controls on the RIGS/CAB room surface;
@@ -69,7 +69,7 @@ Schedule registration is complete only as planning; keep issue #46 open until
 the core and advanced implementation and acceptance checklist is complete.
 The October 12 weekly-delivery revision reserves twelve weeks for shared FX
 and the two focused products before Room Core, retaining four core weeks and
-the six-week 1.8 window. Consult the canonical calendar for the shifted dates.
+the six-week 1.8.0 window. Consult the canonical calendar for the shifted dates.
 Weekly implemented improvements and verified builds continue throughout these
 windows. All dates remain internal work/candidate targets.
 
@@ -328,4 +328,3 @@ Repository dependencies: Source/Cabinet.h, Source/IRLibrary.cpp,
 Source/PluginProcessor.cpp, existing state/routing tests and current PR #24.
 Read their latest revisions before implementation. This plan does not assert
 that an open branch has merged or that a future prototype already exists.
-
