@@ -30,6 +30,42 @@ The build input is
 Installed copies of that data or `payload-manifest.json` cannot expand the
 compiled deletion rules.
 
+## New-package document list compared with beta.1
+
+The exact #56 [packaging source](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/blob/d7450883ddbeba58e44cf217072f325654c16128/Tools/package_release.py)
+defines these 11 shared public documents. This compatibility proposal keeps
+that list unchanged:
+
+- `MANUAL.html`
+- `OPEN_BETA_RELEASE_NOTES.md`
+- `THIRD_PARTY_NOTICES.md`
+- `PRESETS.md`
+- `EXTERNAL_BASS_IRS.md`
+- `IR_DISTRIBUTION.md`
+- `UPDATES.md`
+- `WINDOWS_INSTALL.txt`
+- `INSTALLATION.md`
+- `STUDIO_ONE_TEARDOWN.md`
+- `PUBLIC_PRODUCT_NAMING.md`
+
+The document payload also includes `COPYRIGHT.txt`, the generated
+`Verification.txt`, and `payload-manifest.json`. Windows additionally generates
+`README.txt`. The new maintenance executables, application/plugin binaries and
+optional diagnostic tools are outside the document counts below.
+
+| Fresh document payload | Public beta.1 archive: observed | #56 source: expected | Direct comparison |
+| --- | ---: | ---: | --- |
+| Windows Setup / current portable ZIP layout | 24 | 15 | 10 retired documents omitted; `PUBLIC_PRODUCT_NAMING.md` added |
+| macOS PKG | 20 | 14 | 7 retired documents omitted; `PUBLIC_PRODUCT_NAMING.md` added |
+| Linux TAR / latest DEB | 20 | 14 | 7 retired documents omitted; `PUBLIC_PRODUCT_NAMING.md` added |
+
+These are source-defined expectations for a newly built payload, not results
+of a completed beta.2 installation. Protected old notices, modified documents
+and user files can legitimately make an upgraded directory contain more files.
+Windows Setup and portable ZIP route their documents differently, as detailed
+below. Older portable ZIPs also have the additional evidence subtree recorded
+in [HISTORICAL_INVENTORY.md](HISTORICAL_INVENTORY.md).
+
 ## Installation paths and engine behavior
 
 | Installation | Actual document destination | Upgrade/removal behavior that needs protection |
@@ -86,10 +122,15 @@ theoretical LF/CRLF conversions, trimmed text or decoded/normalized hashes.
 
 The native POSIX helper and generated Windows installer rules are built from
 this finite input. They check links and ancestors and recheck the file used
-for the operation. A preservation failure stops the surrounding operation
-before its ordinary destructive file phase. Unsafe managed links can require
-the user to repair the installation path before the installer can proceed;
-the implementation does not follow a link to make cleanup succeed.
+for the operation. Preparatory preservation failure blocks DEB/PKG unpack.
+A Windows per-document preservation failure stops that file's normal copy;
+earlier installer operations may already have run. A TAR failure after an
+atomic exchange can likewise leave some current files installed. It stops
+further work and retains any captured original for recovery rather than
+claiming that no changes occurred. Unsafe managed links can require the user
+to repair the installation path before the installer can proceed; following
+a link is not a cleanup fallback. The engine and concurrency limits below
+remain part of this contract.
 
 | File state | Upgrade/repair | Removal |
 | --- | --- | --- |
@@ -116,11 +157,37 @@ deletion for verified bytes. Current edited documents receive a checked copy
 under `{app}\PreservedDocuments\<SHA-256>\<relative-path>` before the existing
 repair behavior refreshes the packaged file.
 
+The follow-up implementation holds parent directories with actual directory
+read access and read/write sharing, while denying delete sharing. Read/write
+sharing is needed for Inno's child-file replacement operations; denying delete
+sharing guards against renaming or deleting the held parent. This does not
+claim to block every possible in-place directory change.
+
 On removal, protected files are held without delete sharing so that earlier
-Inno uninstall records cannot delete them by pathname. The guard runs before
-the uninstall file phase. The prior public releases all used Inno Setup 6.7.1;
-the new build enforces at least that version, supported by the exact historical
-build-log and Setup-asset joins in
+Inno uninstall records cannot delete them by pathname. Verified deletion
+handles remain open until uninstall finishes: keeping their objects in the
+delete-pending state prevents a later-created user file from occupying a
+pathname still mentioned by an old uninstall record. For a missing path in
+the finite compiled document list, the follow-up code creates only an
+exclusive zero-byte `CREATE_NEW` guard with `DELETE_ON_CLOSE`. It never
+replaces a file that appeared concurrently. Guards precede the uninstall
+file phase and are closed on normal cancellation or completion. Directories
+created for guards are removed only when empty, without recursive deletion.
+Forced process termination closes the guard handles through the OS but can
+leave empty guard directories. The native Inno fixture at `0bf06fe` passed
+cancellation, forced process termination, blocked concurrent path creation,
+and later pathname reuse. The earlier `50e40f9` failure remains recorded below.
+
+There is a separate remaining upgrade/repair limit: `ShouldInstallManagedDocument`
+checks and snapshots the existing file, then releases its file handle before
+Inno performs the ordinary copy. A new user edit or file replacement during
+that Check-to-copy interval is not guaranteed to be preserved. Directory
+handles and the uninstall guards do not close this interval. The tests do
+not establish general safety for actively editing managed documents during
+Setup's copy phase.
+
+The prior public releases all used Inno Setup 6.7.1; the new build enforces at
+least that version, supported by the exact historical build-log and Setup-asset joins in
 [windows-compiler-history.json](windows-compiler-history.json).
 
 ### macOS and Linux DEB
@@ -135,7 +202,11 @@ preinstall phase does not assume an unavailable C runtime.
 For these system installations, copies live in the sibling
 `Documentation.preserved/<SHA-256>/<relative-path>` on macOS and
 `/usr/share/doc/chimera-amp-matrix.preserved/<SHA-256>/<relative-path>` on Linux.
-Their ownership and access follow the privileged installation context.
+The preservation directories follow the privileged installation context.
+When a missing original is restored, its recorded owner, group and ordinary
+permission bits are restored as well. Preinstall snapshots do not create a
+lock spanning the package engine's separate unpack process; preservation of
+active edits made after that snapshot is outside the demonstrated scenarios.
 
 ### Linux TAR
 
@@ -157,7 +228,10 @@ the missing-target path. A raced link is not followed. Unsupported atomic
 exchange, unsafe paths and unstable source bytes produce failure, and a
 captured original can remain beside its document in a
 `.chimera-install-*/replacement` recovery entry. Recovery entries are not
-automatically discarded.
+automatically discarded. The command can fail after exchanging some files;
+it does not undo all earlier document replacements or imply a complete
+application rollback. Installer success must not be inferred from a partial
+directory or a retained recovery entry.
 
 `payload-manifest.json` needs special handling because it contains the helper
 binary's own hash and is generated after the helper. Only this fixed metadata
@@ -182,17 +256,49 @@ whole documentation directory.
 
 ## Validation status and limits
 
-Results must be bound to the source actually tested. The initial proposal is
-commit `88dbec2cb7c4e8a07cdf6211ee71fe14e2dd947a`, with source tree
-`06dcc5197c4a118610abc7ac05af471f09e00fc3`. Follow-up review fixes and final
-source/test fingerprints are recorded in this directory as they complete.
+Results are attached to their tested code checkpoints. The local full Python
+run uses GitHub checkpoint
+`50e40f906843d5bc264774ec27c9a81edddd4884`, Git tree
+`eb168ebe3b9bedf6e467675c9d04b451a4572e6c`. The locally tested commit
+`76889b0a6cba12248c283b930a548ce48805579b` has that same exact tree.
+The final Windows, macOS and Ubuntu native fixture passes are at
+`0bf06fe2a04f7e64b2870dee7d618eb6dad54e1e`, Git tree
+`705ad0f50cd03cab351dcceafd6975b6c47bff5f`. That follow-up changes only the
+Windows cleanup include and its native fixture; it leaves the tested POSIX
+implementation and original #56 product/contract inputs unchanged. Separate
+Linux product-baseline probes record every source input's SHA256 and Git blob.
+Later evidence or standalone validation-tool commits do not convert these
+results into a new exact-SHA release-gate pass.
 
-The prior #56 Python regressions were rerun; the packaging subset's first
-attempt lacked CMake in this container, and its rerun using the installed
-CMake runtime passed. The initial local cleanup tests passed 26 POSIX/helper/
-dpkg cases and 11 Windows rule-generation cases. These do not imply Windows
-or macOS installer execution. Auxiliary CI runs real installer engines with
-explicitly labeled synthetic documents and records invocation counts.
+The full three-platform document workflow completed successfully at this
+code checkpoint. The [workflow observation](native-ci-0bf06fe/workflow-observation.json)
+also records the separate product build: its validation-contract job passed,
+but its three native product builds were still queued at the observation.
+
+| Evidence | Recorded result | Scope and source boundary |
+| --- | --- | --- |
+| Local Python regressions | **262 PASS, 4 explicit SKIP / 266 cases** | Exact local/GitHub trees match. Includes #56's 210 passing cases and 3 existing Windows-only skips, plus 52 passing new cases and 1 local UID-mapping skip. [Result](local-regressions.json), [raw log](local-regressions.log). |
+| Ubuntu native helper CI | **42 / 42 PASS; no skips** | Exact `0bf06fe` source. Synthetic helper and real-dpkg fixtures; deterministic Linux pathname races; actual UID/GID and mode restoration. [Job 114915651265](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38280283924/job/114915651265), [final evidence](native-ci-0bf06fe/ubuntu/). The previous `50e40f9` pass and raw log also remain in [native-ci-50e40f9](native-ci-50e40f9/). |
+| Actual public beta.1 DEB plus successor document fixture | **7 / 7 native dpkg calls and 73 byte-preservation assertions PASS** | Exact baseline archive and recorded working-tree SHA256/Git blob IDs. Old app/plugin bytes remain fixed; no rebuilt beta.2 product acceptance. [Result](linux-native-dpkg/LinuxDocumentUpgradeVerification.json). |
+| Windows Inno document fixtures | **12 native invocations; 8 check groups PASS at `0bf06fe`** | [Job 114915651402](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38280283924/job/114915651402) compiled and ran actual Inno 6.7.1 fixtures: fresh, upgrade, twice-repair, historical-log removal, lock/link safety, guard cancellation and forced termination. [Result and artifact provenance](native-ci-0bf06fe/windows-ci-observation.json). This uses synthetic historical documents, not the public beta.1 product Setup. |
+| Earlier Windows Inno checkpoint | **FAILED at `50e40f9`; corrected in the later native pass** | Parent sharing blocked Inno's child-file replacement. [Failed job](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38279252685/job/114912219710), [failure observation](native-ci-50e40f9/later-ci-observation.json), [decoded job log](native-ci-50e40f9/windows-job-114912219710.log). |
+| macOS native helper / Apple PKG fixtures | **4 / 4 actual Apple installer calls and 4 lifecycle groups PASS at `0bf06fe`** | [Job 114915650894](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38280283924/job/114915650894): synthetic PKG fresh/upgrade/repair plus document-only removal. [Native PKG result](native-ci-0bf06fe/macos/artifact/macos-pkg-fixture/MacOSDocumentUpgradeVerification.json). Helper methods: 33 PASS, 6 method SKIP, plus one skipped dpkg class containing 3 unexecuted methods. This is not a public historical PKG to rebuilt product PKG test. |
+| Actual public beta.1 Setup to current product Setup | **Implemented; execution pending** | Added to the existing product installer verification flow. Synthetic Inno fixture results cannot certify this path. |
+| Complete Linux TAR `install.sh` lifecycle | **4 / 4 shell installations; 80 byte assertions PASS** | The actual public beta.1 TAR and current full wrapper were executed in the unchanged real account HOME, after proving all eight product targets absent. Current-fixture fresh install, real baseline install, upgrade, repair and installed-helper document removal passed. Old app/plugin bytes stayed fixed; app/VST3/icon/desktop/helper installation bytes were checked. [Result](linux-native-tar/final/LinuxTarDocumentUpgradeVerification.json), [provenance and prior probe assertion correction](linux-native-tar/verification.json). |
+
+The local helper subset passed **41 cases and skipped 1 across 42 cases**.
+That skip was the different-UID/GID restoration case, which this container's
+single-UID mapping cannot execute. The Ubuntu run subsequently executed and
+passed it, so its 42/42 result has no skip. The 16 cases added after the first
+26 cover native document installation, deterministic source/target/directory
+races and ownership restoration. The separate 11 Windows Python tests verify
+rule generation, not execution of the Windows installer.
+
+The packaging subset's first local attempt lacked CMake. The final full run
+used the installed CMake runtime and passed without suppressing checks. Local
+tracked sources were clean before and after that run; the logs were saved
+afterward. Auxiliary CI uses explicitly labeled synthetic documents and
+records the actual installer invocations.
 
 The separate Linux probe installs the actual public beta.1 DEB into an
 isolated dpkg root, verifies its 20 document files and original runtime bytes,
@@ -202,25 +308,48 @@ It uses `--force-depends` and `--force-script-chrootless`, so it does not verify
 dependency installation, the rebuilt beta.2 product, DAW operation or audio.
 The report's `next_release_product_installer_verified` remains `false`.
 
-The final local native-helper checkpoint passed **41 tests with 1 explicit
-skip across 42 cases**. The skipped non-root UID/GID restoration case cannot
-run in this container's single-UID mapping; it remains enabled for a capable
-runner. The 16 added cases cover native document installation, deterministic
-source/target/directory races and ownership restoration. The final actual
-Linux DEB probe passed **7 native dpkg calls and 73 byte-preservation
-assertions** with unchanged source inputs and an unchanged host dpkg database.
-Its code fingerprints and exact limitations are recorded in
-[LinuxDocumentUpgradeVerification.json](linux-native-dpkg/LinuxDocumentUpgradeVerification.json).
+The actual Linux DEB probe also verified unchanged source inputs and an
+unchanged host dpkg status database. Its source input hashes, Git blob IDs,
+native helper/fixture hashes, and every byte-preservation assertion are
+recorded in the linked JSON result. Archive inspection and this isolated
+native lifecycle remain different evidence categories.
+
+The separate TAR probe closes the full shell-wrapper gap for the tested Linux
+environment. It does not change `HOME`, create an account, install dependencies
+or launch the application. The new-package document fixture contains all 14
+expected document files, including copy-only payload metadata generated after
+the native helper. Its seven check groups cover both a fresh current fixture
+and an actual beta.1 installation followed by upgrade, repair and document
+removal. All 21 source-input hashes were unchanged during execution.
+
+Both the fresh-fixture cycle and final test housekeeping restored the eight
+initially absent Chimera targets and newly created empty ancestors. Housekeeping
+used finite known paths and raw size/hash checks, including bounded helper
+inode-retention paths; it was not a product application uninstaller. An initial
+probe assertion incorrectly demanded a separate backup of an unchanged
+copyright file. The exact original bytes were correctly retained in place,
+the assertion was fixed without changing production code, and that initial
+attempt also restored the scoped HOME state. Its source and failed result are
+retained alongside the final successful evidence.
 
 Product model/UI/DSP source, the existing state/parameter fixture and strict
 publication-policy files remain unchanged from #56. Its earlier result for
 4,967 host parameter names and 613 choices belongs to the exact #56 source;
-it is not presented as a newly executed host test of this PR.
+it is not presented as a newly executed host test of this PR. The exact Git
+object and file comparisons, including all 18 unchanged input hashes from
+the actual Linux DEB probe, are recorded in
+[compatibility-checkpoint.json](compatibility-checkpoint.json).
 
 Native Windows/Apple fixture failures or pending jobs remain failures/pending
 until corrected and executed. Actual previous-release product installer to
 new product installer acceptance is separate. No helper pass or archive check
 is a substitute for the existing release gates or publication approval.
+
+The linked `docs/INSTALLATION.md` still contains beta.1 headings and package
+examples inherited from #56, while `RELEASE_CHANNEL` is `beta.2`. This existing
+documentation-version mismatch remains a separate release-review item. The
+current investigation does not relabel its tested document bytes as a revised
+installation guide or treat those old examples as completed beta.2 validation.
 
 Edited documents, unknown files and licensed attribution can intentionally
 retain historical equipment names. The supported conclusion is removal of

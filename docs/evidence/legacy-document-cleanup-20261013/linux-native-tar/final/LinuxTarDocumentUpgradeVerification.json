@@ -1,0 +1,600 @@
+{
+  "schema": "spectralforge.linux-tar-document-fixture.v1",
+  "success": true,
+  "scope": "Real public TAR install.sh baseline in an initially empty actual account HOME, followed by an internal document fixture.",
+  "baseline": {
+    "name": "SpectralForge-Chimera-1.3.1-beta.1-linux-x86_64.tar.gz",
+    "size": 234056208,
+    "sha256": "7b2bd5ecb84b882340af019af3b4c8aeca48f5af9393909167ab22e0c6a290a9",
+    "source_sha": "7b20cd9d1f90e3e2969c250712b199e893cf50cd"
+  },
+  "actual_baseline_shell_install_verified": true,
+  "current_fixture_fresh_shell_install_verified": true,
+  "fresh_fixture_home_targets_restored": true,
+  "fixture_shell_upgrade_verified": true,
+  "fixture_shell_repair_verified": true,
+  "document_only_removal_verified": true,
+  "application_uninstaller_verified": false,
+  "next_release_product_installer_verified": false,
+  "application_or_plugin_executed": false,
+  "daw_audio_verified": false,
+  "home_override_used": false,
+  "dependencies_installed": false,
+  "accounts_or_global_settings_changed": false,
+  "publication_approved": false,
+  "home_scoped_targets_restored": true,
+  "source_inputs_unchanged": true,
+  "shell_install_invocations": 4,
+  "shell_install_successes": 4,
+  "checks": [
+    "Original archive/script, real account HOME, absent product targets, and all linked libraries passed preflight without dependency or environment changes.",
+    "Current full install.sh installed all 14 documents and runtime files from an empty real account path; document removal preserved notices and fixture housekeeping restored the initial state.",
+    "Actual public beta.1 install.sh completed in the unchanged real HOME; all 20 documents and installed runtime bytes match.",
+    "Current full install.sh upgraded the actual TAR installation, retired exact research bytes, and preserved edits, historical notices, and licensed metadata.",
+    "Repeated full TAR installation retained both distinct user manual revisions and the edited legacy document.",
+    "The installed native helper removed owned documents while preserving user documents, presets, IRs, projects, licenses, and all runtime files.",
+    "All finite probe-created files passed hash verification before housekeeping; all Chimera targets and newly created parents returned to their initial absence."
+  ],
+  "byte_assertions": [
+    {
+      "check": "fresh-current/document/PRESETS.md",
+      "size": 13588,
+      "sha256": "4e540202a3cf312bedc2ff9cb1f66cf19befa4a6b5dd01d755346243562e8f53"
+    },
+    {
+      "check": "fresh-current/document/COPYRIGHT.txt",
+      "size": 174,
+      "sha256": "72f5d564400827c4d6d071649c507f36a5a0bc79003b24461f53285f00899bc7"
+    },
+    {
+      "check": "fresh-current/document/UPDATES.md",
+      "size": 8063,
+      "sha256": "7e1b7ecbbe2e7efdb8c370aac49498aee8a0a1735edcdf9780c52cd1eee8686d"
+    },
+    {
+      "check": "fresh-current/document/Verification.txt",
+      "size": 179,
+      "sha256": "c0ad2960413d62f59b4a4cefff4a03d7678616d57919c75574dd6191e9966f46"
+    },
+    {
+      "check": "fresh-current/document/MANUAL.html",
+      "size": 265823,
+      "sha256": "c1546f51cf9a62ff859d1d51d376ebe818599e631d166146bed1da444455f6c5"
+    },
+    {
+      "check": "fresh-current/document/STUDIO_ONE_TEARDOWN.md",
+      "size": 5936,
+      "sha256": "1c7972ba988c8c7e7e210e270999edffcdafc4b87637c11154e297b0064dbd0b"
+    },
+    {
+      "check": "fresh-current/document/PUBLIC_PRODUCT_NAMING.md",
+      "size": 2963,
+      "sha256": "3bcf936e16b91b505b4b0336624d00217320dfa1a96a8547ca163f7a9f4e5be3"
+    },
+    {
+      "check": "fresh-current/document/EXTERNAL_BASS_IRS.md",
+      "size": 1714,
+      "sha256": "1ede5213d65938edc037d4bd831169fe33d606c32d23da52882a424ba840dd23"
+    },
+    {
+      "check": "fresh-current/document/IR_DISTRIBUTION.md",
+      "size": 2508,
+      "sha256": "f5fc289eff9f71b6a71b96a1491483b7736463760957b4b6e6fedefc8f09518e"
+    },
+    {
+      "check": "fresh-current/document/WINDOWS_INSTALL.txt",
+      "size": 5290,
+      "sha256": "3850b3a7c448c5467f7ec0c3f0c79bd636b8c8b3ae650930dd558c406f0b5133"
+    },
+    {
+      "check": "fresh-current/document/OPEN_BETA_RELEASE_NOTES.md",
+      "size": 14675,
+      "sha256": "a8bc09ab0d2d7aad1467f3f503e6c2e89968661aa05b924133b8a78b60d70398"
+    },
+    {
+      "check": "fresh-current/document/INSTALLATION.md",
+      "size": 9850,
+      "sha256": "e6bf70276e18fe2a97a8e038f432676d666f692184aa36b2f47cc3851700d2dc"
+    },
+    {
+      "check": "fresh-current/document/THIRD_PARTY_NOTICES.md",
+      "size": 3434,
+      "sha256": "b936cd11f179273d3505a0fe194a58626ff2a35b658aec65e2ff691758050b4c"
+    },
+    {
+      "check": "fresh-current/document/payload-manifest.json",
+      "size": 3724,
+      "sha256": "2593ef434585a6a0b9d952cd9358863f61c45cfc49792a947e4175e0b36d66fe"
+    },
+    {
+      "check": "fresh-current/runtime/.local/bin/chimera-amp-matrix",
+      "size": 130537392,
+      "sha256": "4dd1b7ff5a360bd4511ea12de2942d2a32bab1a77459952638ed6ec4c884d8de"
+    },
+    {
+      "check": "fresh-current/runtime/.local/share/pixmaps/chimera-amp-matrix.png",
+      "size": 1048150,
+      "sha256": "aa4448b13dc8878bf5934afe4ba9ee42fbeb8d3b709ebca92c2473fe6c389b39"
+    },
+    {
+      "check": "fresh-current/runtime/.local/libexec/chimera-document-maintenance",
+      "size": 63680,
+      "sha256": "bbf007c6a0f22d20ffffe7436cb102c9d6405f6d072ee97064e869e2be79b99d"
+    },
+    {
+      "check": "fresh-current/runtime/.vst3/SpectralForge Chimera.vst3/Contents/x86_64-linux/SpectralForge Chimera.so",
+      "size": 130641072,
+      "sha256": "8adaf63d618a84b179856305f12bb646d1137c5aa9e71cc04120930096bb7f86"
+    },
+    {
+      "check": "fresh-current/runtime/.vst3/SpectralForge Chimera.vst3/Contents/Resources/moduleinfo.json",
+      "size": 1441,
+      "sha256": "51c54a7b2e26d627fdbf4de0a5882df63574e9ccec483161e8a53a72060ada50"
+    },
+    {
+      "check": "fresh-current/runtime/.local/share/applications/chimera-amp-matrix.desktop",
+      "size": 226,
+      "sha256": "e376021275e1154b7dded3b960b77d67aafa73d764a43b173b97a90f5cc5d934"
+    },
+    {
+      "check": "fresh-remove/notice/COPYRIGHT.txt",
+      "size": 174,
+      "sha256": "72f5d564400827c4d6d071649c507f36a5a0bc79003b24461f53285f00899bc7"
+    },
+    {
+      "check": "fresh-remove/notice/THIRD_PARTY_NOTICES.md",
+      "size": 3434,
+      "sha256": "b936cd11f179273d3505a0fe194a58626ff2a35b658aec65e2ff691758050b4c"
+    },
+    {
+      "check": "baseline/document/PRESETS.md",
+      "size": 13829,
+      "sha256": "204d7770911560aa284fdb27e9edab63d7dcfd92d3a4f7e69bfc7d7f74af2fb7"
+    },
+    {
+      "check": "baseline/document/COPYRIGHT.txt",
+      "size": 174,
+      "sha256": "72f5d564400827c4d6d071649c507f36a5a0bc79003b24461f53285f00899bc7"
+    },
+    {
+      "check": "baseline/document/AMP_VOICES_OPEN_BETA.md",
+      "size": 7811,
+      "sha256": "c67cb981d1fbbe8b7bf3727addccf9fdc0cf3196cb620b1c145d7695ac210fe8"
+    },
+    {
+      "check": "baseline/document/UPDATES.md",
+      "size": 8181,
+      "sha256": "84d1afcfb2bde692734490544d54ea44f2c2540ea9b05c410cb5687f018b0621"
+    },
+    {
+      "check": "baseline/document/AMP_VALIDATION.md",
+      "size": 12023,
+      "sha256": "1477d4be92eb6bd0904f33f3151469b6e3891fa03ef1848dea9ddedb65acd74f"
+    },
+    {
+      "check": "baseline/document/Verification.txt",
+      "size": 349794,
+      "sha256": "d5d7b02db8e021e9fcb030b51b061a15ca2ce85532f423091c5690bd69c76fb9"
+    },
+    {
+      "check": "baseline/document/MANUAL.html",
+      "size": 266264,
+      "sha256": "97645c9cdbb053d50fc190512d0c5656062685885070c6dbc0e03de71c7d778f"
+    },
+    {
+      "check": "baseline/document/POST_NATIVE_DSP.md",
+      "size": 7143,
+      "sha256": "814fc7fe3184d3093cf2b40d48f9cf520a39cd6678c88a8f5e2b0059c3281372"
+    },
+    {
+      "check": "baseline/document/STUDIO_ONE_TEARDOWN.md",
+      "size": 5936,
+      "sha256": "1c7972ba988c8c7e7e210e270999edffcdafc4b87637c11154e297b0064dbd0b"
+    },
+    {
+      "check": "baseline/document/PEDAL_BOARD_DSP.md",
+      "size": 8643,
+      "sha256": "e18fcabebb914a21357e16828e82ccfb17d87eb4e41fa9d7d4f87f7accd43a51"
+    },
+    {
+      "check": "baseline/document/FACTORY_CAB_VOICING_1_3.md",
+      "size": 15969,
+      "sha256": "058ada6a4b6011a3f6330e1552b27b0a974d15cbff18fc8ca58849fd03b284ac"
+    },
+    {
+      "check": "baseline/document/EXTERNAL_BASS_IRS.md",
+      "size": 1714,
+      "sha256": "1ede5213d65938edc037d4bd831169fe33d606c32d23da52882a424ba840dd23"
+    },
+    {
+      "check": "baseline/document/IR_DISTRIBUTION.md",
+      "size": 2508,
+      "sha256": "f5fc289eff9f71b6a71b96a1491483b7736463760957b4b6e6fedefc8f09518e"
+    },
+    {
+      "check": "baseline/document/VALIDATION_STATUS.md",
+      "size": 4435,
+      "sha256": "5f14b6c470b0b67a5d8be78629c499c711c1862f5db11233bbc690ab071a7f3a"
+    },
+    {
+      "check": "baseline/document/payload-manifest.json",
+      "size": 4702,
+      "sha256": "04897baac4061bdb8c902187b84f3f709b6533ed7833bdb724d1aba7842f78aa"
+    },
+    {
+      "check": "baseline/document/WINDOWS_INSTALL.txt",
+      "size": 5290,
+      "sha256": "3850b3a7c448c5467f7ec0c3f0c79bd636b8c8b3ae650930dd558c406f0b5133"
+    },
+    {
+      "check": "baseline/document/OPEN_BETA_RELEASE_NOTES.md",
+      "size": 10171,
+      "sha256": "bb5e44699452c10fcd6b610f5de758372417c04feafe010382179119847fa721"
+    },
+    {
+      "check": "baseline/document/INSTALLATION.md",
+      "size": 7736,
+      "sha256": "e73d1d098a9f725dc9fff3d279fb985194a12700eb248526ccf36e9d00f9ab94"
+    },
+    {
+      "check": "baseline/document/THIRD_PARTY_NOTICES.md",
+      "size": 3627,
+      "sha256": "05cfcd43ab8062b9d3b1425db5955b7d062bf1cc517d7367f51287ff4e5f2908"
+    },
+    {
+      "check": "baseline/document/AMP_NATIVE_DSP.md",
+      "size": 10588,
+      "sha256": "0387af8daf39ee3373396fec2a05f4f14930cf8d236cd3a90d26baf13bb57eb7"
+    },
+    {
+      "check": "baseline/runtime/.local/bin/chimera-amp-matrix",
+      "size": 130537392,
+      "sha256": "4dd1b7ff5a360bd4511ea12de2942d2a32bab1a77459952638ed6ec4c884d8de"
+    },
+    {
+      "check": "baseline/runtime/.local/share/pixmaps/chimera-amp-matrix.png",
+      "size": 1048150,
+      "sha256": "aa4448b13dc8878bf5934afe4ba9ee42fbeb8d3b709ebca92c2473fe6c389b39"
+    },
+    {
+      "check": "baseline/runtime/.vst3/SpectralForge Chimera.vst3/Contents/x86_64-linux/SpectralForge Chimera.so",
+      "size": 130641072,
+      "sha256": "8adaf63d618a84b179856305f12bb646d1137c5aa9e71cc04120930096bb7f86"
+    },
+    {
+      "check": "baseline/runtime/.vst3/SpectralForge Chimera.vst3/Contents/Resources/moduleinfo.json",
+      "size": 1441,
+      "sha256": "51c54a7b2e26d627fdbf4de0a5882df63574e9ccec483161e8a53a72060ada50"
+    },
+    {
+      "check": "baseline/runtime/.local/share/applications/chimera-amp-matrix.desktop",
+      "size": 226,
+      "sha256": "e376021275e1154b7dded3b960b77d67aafa73d764a43b173b97a90f5cc5d934"
+    },
+    {
+      "check": "upgrade/edited-legacy",
+      "size": 12064,
+      "sha256": "391328b4a510f0144a0c526f6ac13d471679d8e877e9456c921e684f6cd80270"
+    },
+    {
+      "check": "upgrade/current-manual",
+      "size": 265823,
+      "sha256": "c1546f51cf9a62ff859d1d51d376ebe818599e631d166146bed1da444455f6c5"
+    },
+    {
+      "check": "upgrade/preserved/MANUAL.html",
+      "size": 266314,
+      "sha256": "f94526d6dd968c1038490371554a6bac863a115c1a81ca9c333947f356ad7789"
+    },
+    {
+      "check": "upgrade/unchanged-notice/COPYRIGHT.txt",
+      "size": 174,
+      "sha256": "72f5d564400827c4d6d071649c507f36a5a0bc79003b24461f53285f00899bc7"
+    },
+    {
+      "check": "upgrade/preserved/THIRD_PARTY_NOTICES.md",
+      "size": 3627,
+      "sha256": "05cfcd43ab8062b9d3b1425db5955b7d062bf1cc517d7367f51287ff4e5f2908"
+    },
+    {
+      "check": "upgrade/licensed-reference",
+      "size": 2836,
+      "sha256": "e0972876dc0a95ad7da6a2baca5317f27e64797d39dbe7223066e3c12a3157f3"
+    },
+    {
+      "check": "upgrade/runtime/.local/bin/chimera-amp-matrix",
+      "size": 130537392,
+      "sha256": "4dd1b7ff5a360bd4511ea12de2942d2a32bab1a77459952638ed6ec4c884d8de"
+    },
+    {
+      "check": "upgrade/runtime/.local/share/pixmaps/chimera-amp-matrix.png",
+      "size": 1048150,
+      "sha256": "aa4448b13dc8878bf5934afe4ba9ee42fbeb8d3b709ebca92c2473fe6c389b39"
+    },
+    {
+      "check": "upgrade/runtime/.local/libexec/chimera-document-maintenance",
+      "size": 63680,
+      "sha256": "bbf007c6a0f22d20ffffe7436cb102c9d6405f6d072ee97064e869e2be79b99d"
+    },
+    {
+      "check": "upgrade/runtime/.vst3/SpectralForge Chimera.vst3/Contents/x86_64-linux/SpectralForge Chimera.so",
+      "size": 130641072,
+      "sha256": "8adaf63d618a84b179856305f12bb646d1137c5aa9e71cc04120930096bb7f86"
+    },
+    {
+      "check": "upgrade/runtime/.vst3/SpectralForge Chimera.vst3/Contents/Resources/moduleinfo.json",
+      "size": 1441,
+      "sha256": "51c54a7b2e26d627fdbf4de0a5882df63574e9ccec483161e8a53a72060ada50"
+    },
+    {
+      "check": "upgrade/runtime/.local/share/applications/chimera-amp-matrix.desktop",
+      "size": 226,
+      "sha256": "e376021275e1154b7dded3b960b77d67aafa73d764a43b173b97a90f5cc5d934"
+    },
+    {
+      "check": "repair/current-manual",
+      "size": 265823,
+      "sha256": "c1546f51cf9a62ff859d1d51d376ebe818599e631d166146bed1da444455f6c5"
+    },
+    {
+      "check": "repair/distinct-user-revision/f94526d6dd968c1038490371554a6bac863a115c1a81ca9c333947f356ad7789",
+      "size": 266314,
+      "sha256": "f94526d6dd968c1038490371554a6bac863a115c1a81ca9c333947f356ad7789"
+    },
+    {
+      "check": "repair/distinct-user-revision/da618351f022deea1da4864ef58be3c251d1e918a2cbb59b734abb0249355f19",
+      "size": 265874,
+      "sha256": "da618351f022deea1da4864ef58be3c251d1e918a2cbb59b734abb0249355f19"
+    },
+    {
+      "check": "repair/edited-legacy",
+      "size": 12064,
+      "sha256": "391328b4a510f0144a0c526f6ac13d471679d8e877e9456c921e684f6cd80270"
+    },
+    {
+      "check": "remove/edited-manual",
+      "size": 265874,
+      "sha256": "da618351f022deea1da4864ef58be3c251d1e918a2cbb59b734abb0249355f19"
+    },
+    {
+      "check": "remove/edited-legacy",
+      "size": 12064,
+      "sha256": "391328b4a510f0144a0c526f6ac13d471679d8e877e9456c921e684f6cd80270"
+    },
+    {
+      "check": "remove/personal/personal.chimera",
+      "size": 45,
+      "sha256": "2da46964b2b93e9b837761595b4104f36edb3942fd1d29a51c44b5f51f6bf142"
+    },
+    {
+      "check": "remove/personal/personal.wav",
+      "size": 33,
+      "sha256": "cea744ac07930537940da0282e8620d564c2279556176d4a6123e1c907394519"
+    },
+    {
+      "check": "remove/personal/existing-project.song",
+      "size": 51,
+      "sha256": "dcce46af3e651c6b51e868a4c2f83b6a60208f4299044d9a0b74502bc8314153"
+    },
+    {
+      "check": "remove/personal/user-notes.md",
+      "size": 47,
+      "sha256": "f86a2352e09f458a9252d5cb6c2b75f3b5be281120cbe6f1f88edcf702ace4de"
+    },
+    {
+      "check": "remove/current-notice/COPYRIGHT.txt",
+      "size": 174,
+      "sha256": "72f5d564400827c4d6d071649c507f36a5a0bc79003b24461f53285f00899bc7"
+    },
+    {
+      "check": "remove/prior-notice/COPYRIGHT.txt",
+      "size": 174,
+      "sha256": "72f5d564400827c4d6d071649c507f36a5a0bc79003b24461f53285f00899bc7"
+    },
+    {
+      "check": "remove/current-notice/THIRD_PARTY_NOTICES.md",
+      "size": 3434,
+      "sha256": "b936cd11f179273d3505a0fe194a58626ff2a35b658aec65e2ff691758050b4c"
+    },
+    {
+      "check": "remove/prior-notice/THIRD_PARTY_NOTICES.md",
+      "size": 3627,
+      "sha256": "05cfcd43ab8062b9d3b1425db5955b7d062bf1cc517d7367f51287ff4e5f2908"
+    },
+    {
+      "check": "remove/licensed-reference",
+      "size": 2836,
+      "sha256": "e0972876dc0a95ad7da6a2baca5317f27e64797d39dbe7223066e3c12a3157f3"
+    },
+    {
+      "check": "remove/runtime-outside-document-scope/.local/bin/chimera-amp-matrix",
+      "size": 130537392,
+      "sha256": "4dd1b7ff5a360bd4511ea12de2942d2a32bab1a77459952638ed6ec4c884d8de"
+    },
+    {
+      "check": "remove/runtime-outside-document-scope/.local/share/pixmaps/chimera-amp-matrix.png",
+      "size": 1048150,
+      "sha256": "aa4448b13dc8878bf5934afe4ba9ee42fbeb8d3b709ebca92c2473fe6c389b39"
+    },
+    {
+      "check": "remove/runtime-outside-document-scope/.local/libexec/chimera-document-maintenance",
+      "size": 63680,
+      "sha256": "bbf007c6a0f22d20ffffe7436cb102c9d6405f6d072ee97064e869e2be79b99d"
+    },
+    {
+      "check": "remove/runtime-outside-document-scope/.vst3/SpectralForge Chimera.vst3/Contents/x86_64-linux/SpectralForge Chimera.so",
+      "size": 130641072,
+      "sha256": "8adaf63d618a84b179856305f12bb646d1137c5aa9e71cc04120930096bb7f86"
+    },
+    {
+      "check": "remove/runtime-outside-document-scope/.vst3/SpectralForge Chimera.vst3/Contents/Resources/moduleinfo.json",
+      "size": 1441,
+      "sha256": "51c54a7b2e26d627fdbf4de0a5882df63574e9ccec483161e8a53a72060ada50"
+    },
+    {
+      "check": "remove/runtime-outside-document-scope/.local/share/applications/chimera-amp-matrix.desktop",
+      "size": 226,
+      "sha256": "e376021275e1154b7dded3b960b77d67aafa73d764a43b173b97a90f5cc5d934"
+    }
+  ],
+  "limitations": [
+    "HOME is the real account HOME; an existing Chimera target blocks execution.",
+    "The successor fixture retains original beta.1 app/plugin binaries and is not a beta.2 product installer.",
+    "ldd checks linked library resolution; application startup and DAW/audio behavior are not tested.",
+    "Removal exercises the document helper only; final removal of other probe-created files is test housekeeping, not a product uninstaller.",
+    "Restoration covers the finite initially absent Chimera paths and new empty ancestors; directory timestamps naturally change during installation."
+  ],
+  "initial_home_state": {
+    "home": "/root",
+    "existing_chimera_paths": [],
+    "parents": {
+      ".local": {
+        "device": 27,
+        "inode": 790732,
+        "uid": 0,
+        "gid": 0,
+        "mode": 493
+      },
+      ".vst3": null,
+      ".local/bin": {
+        "device": 27,
+        "inode": 790764,
+        "uid": 0,
+        "gid": 0,
+        "mode": 493
+      },
+      ".local/libexec": null,
+      ".local/share": null,
+      ".local/share/applications": null,
+      ".local/share/doc": null,
+      ".local/share/pixmaps": null
+    }
+  },
+  "source_input_sha256": {
+    "Tools/verify_linux_tar_document_upgrade.py": "4376e9907bcec1cf2bd554903315585675488869b0f68261936b1cb9fdc9ca09",
+    "Tools/install-linux.sh": "388b1bfac8c9fd61cf1cda036d42d55338f650a9b63c1d6441372a6095683ff3",
+    "Tools/legacy_document_cleanup.c": "1ad869d66aa1a1d46f5d203072d290892f14eaa79df718b5ce3d28c24a6c98ca",
+    "Tools/legacy_document_cleanup.py": "2af71f2cfec6bff91dfa1e3fd517112be88c949003e9151f4a253d8684ea1c47",
+    "Tools/package_release.py": "0992f1edf51bcd9fc495bc26e1e453ae18edfac347ea9f0bd306d7bdb10e84d4",
+    "Validation/legacy-document-inventory.json": "f031c868585254123617ed7eca6a659def38c98e0dd64e6118b1534728b5c207",
+    "Validation/public-presentation-policy.json": "906486c23ffe52d9de576cd8117815edeaa4763cc8c33a99aac084a5e1eae610",
+    "COPYRIGHT.txt": "72f5d564400827c4d6d071649c507f36a5a0bc79003b24461f53285f00899bc7",
+    "docs/reference/artwork-manifest.json": "5a5ae9d39ce7730e021f93dd89b426e0c84b2bbd293463f5ada309b918c8bf6d",
+    "docs/reference/manifest.json": "e0972876dc0a95ad7da6a2baca5317f27e64797d39dbe7223066e3c12a3157f3",
+    "docs/MANUAL.html": "c1546f51cf9a62ff859d1d51d376ebe818599e631d166146bed1da444455f6c5",
+    "docs/OPEN_BETA_RELEASE_NOTES.md": "a8bc09ab0d2d7aad1467f3f503e6c2e89968661aa05b924133b8a78b60d70398",
+    "docs/THIRD_PARTY_NOTICES.md": "b936cd11f179273d3505a0fe194a58626ff2a35b658aec65e2ff691758050b4c",
+    "docs/PRESETS.md": "4e540202a3cf312bedc2ff9cb1f66cf19befa4a6b5dd01d755346243562e8f53",
+    "docs/EXTERNAL_BASS_IRS.md": "1ede5213d65938edc037d4bd831169fe33d606c32d23da52882a424ba840dd23",
+    "docs/IR_DISTRIBUTION.md": "f5fc289eff9f71b6a71b96a1491483b7736463760957b4b6e6fedefc8f09518e",
+    "docs/UPDATES.md": "7e1b7ecbbe2e7efdb8c370aac49498aee8a0a1735edcdf9780c52cd1eee8686d",
+    "docs/WINDOWS_INSTALL.txt": "3850b3a7c448c5467f7ec0c3f0c79bd636b8c8b3ae650930dd558c406f0b5133",
+    "docs/INSTALLATION.md": "e6bf70276e18fe2a97a8e038f432676d666f692184aa36b2f47cc3851700d2dc",
+    "docs/STUDIO_ONE_TEARDOWN.md": "1c7972ba988c8c7e7e210e270999edffcdafc4b87637c11154e297b0064dbd0b",
+    "docs/PUBLIC_PRODUCT_NAMING.md": "3bcf936e16b91b505b4b0336624d00217320dfa1a96a8547ca163f7a9f4e5be3"
+  },
+  "source_input_git_blob_sha1": {
+    "Tools/verify_linux_tar_document_upgrade.py": "1cfdba3bb6c06e03460424d01065d18d4eff3896",
+    "Tools/install-linux.sh": "447f8b14aeb61b87ee061f232c334d55ecbac412",
+    "Tools/legacy_document_cleanup.c": "f7aaf48b237e27c3a0c340a77d925b00ae53c52c",
+    "Tools/legacy_document_cleanup.py": "1423bec252cd783b76f352e912f70ed349e5e504",
+    "Tools/package_release.py": "c12ff9c05c8a938a520644af13e11b4faf7b6943",
+    "Validation/legacy-document-inventory.json": "50817aaa33f246f41fafe54b37f7f3fd0a6f2d8e",
+    "Validation/public-presentation-policy.json": "90daa2bfcd3df86de246cec63a5d66bd4b4825b2",
+    "COPYRIGHT.txt": "c8cd59c2a904b4cd7a40d5f041a17724d95abb85",
+    "docs/reference/artwork-manifest.json": "034407ea0278b7934b7ae4d8ac6fcbc6798177e5",
+    "docs/reference/manifest.json": "02a158abae824facfdc51fcc799f27222acf8913",
+    "docs/MANUAL.html": "7b1d27f017a18efad6182591f642fe8f77156b31",
+    "docs/OPEN_BETA_RELEASE_NOTES.md": "0bc2a65a458742aac31ef5e46d12ef4a4e04dc51",
+    "docs/THIRD_PARTY_NOTICES.md": "60c10ec4ddcfb2fded7a5679c49f8644f800ba87",
+    "docs/PRESETS.md": "8368d366bb82841387d5883814fae01537a547ac",
+    "docs/EXTERNAL_BASS_IRS.md": "b2e674c848a2cdf1bad81757325f64ddaf49b5d6",
+    "docs/IR_DISTRIBUTION.md": "8cb5b65d2cbcbd27de1c317fdf7f535bc2560b21",
+    "docs/UPDATES.md": "b1b23225c57de1491a004aeba79fbd75f98565a3",
+    "docs/WINDOWS_INSTALL.txt": "70d1c49b62c81dd896541ba10f138de9656ecfd2",
+    "docs/INSTALLATION.md": "3da625052cf7640e524bbc952d338c6d6efbe4fe",
+    "docs/STUDIO_ONE_TEARDOWN.md": "96b9962e452fb054a3e30a3ef90c6e78f571ba8a",
+    "docs/PUBLIC_PRODUCT_NAMING.md": "4fe20327e2f9ff415831407308891b7c6af32ef8"
+  },
+  "fixture_source_sha": "0bf06fe2a04f7e64b2870dee7d618eb6dad54e1e",
+  "fixture_source_dirty": true,
+  "baseline_install_script_sha256": "7a3d6d4e4902ffb01de9f35d97022c98159d2bb7a6d7c6bbbccd16ecfba214b6",
+  "ldd_missing_libraries": [],
+  "fixture": {
+    "native_helper_sha256": "bbf007c6a0f22d20ffffe7436cb102c9d6405f6d072ee97064e869e2be79b99d",
+    "install_script_sha256": "388b1bfac8c9fd61cf1cda036d42d55338f650a9b63c1d6441372a6095683ff3",
+    "current_document_count": 14,
+    "historical_non_document_payload_sha256": {
+      "usr/bin/chimera-amp-matrix": "4dd1b7ff5a360bd4511ea12de2942d2a32bab1a77459952638ed6ec4c884d8de",
+      "usr/share/pixmaps/chimera-amp-matrix.png": "aa4448b13dc8878bf5934afe4ba9ee42fbeb8d3b709ebca92c2473fe6c389b39",
+      "usr/share/applications/chimera-amp-matrix.desktop": "2c0724bd4884c09b67cac50d5a32a5d5a5b6254d1eaf80a5bd8c7588a6567b5a",
+      "usr/lib/vst3/SpectralForge Chimera.vst3/Contents/x86_64-linux/SpectralForge Chimera.so": "8adaf63d618a84b179856305f12bb646d1137c5aa9e71cc04120930096bb7f86",
+      "usr/lib/vst3/SpectralForge Chimera.vst3/Contents/Resources/moduleinfo.json": "51c54a7b2e26d627fdbf4de0a5882df63574e9ccec483161e8a53a72060ada50"
+    },
+    "historical_non_document_payload_unchanged": true
+  },
+  "declared_retained_inode_housekeeping_paths": [
+    ".local/share/doc/chimera-amp-matrix.preserved/04897baac4061bdb8c902187b84f3f709b6533ed7833bdb724d1aba7842f78aa/.open-inode-75-13/payload-manifest.json",
+    ".local/share/doc/chimera-amp-matrix.preserved/05cfcd43ab8062b9d3b1425db5955b7d062bf1cc517d7367f51287ff4e5f2908/.open-inode-75-9/THIRD_PARTY_NOTICES.md",
+    ".local/share/doc/chimera-amp-matrix.preserved/da618351f022deea1da4864ef58be3c251d1e918a2cbb59b734abb0249355f19/.open-inode-96-4/MANUAL.html",
+    ".local/share/doc/chimera-amp-matrix.preserved/f94526d6dd968c1038490371554a6bac863a115c1a81ca9c333947f356ad7789/.open-inode-75-4/MANUAL.html"
+  ],
+  "fixture_housekeeping_removed_files": [
+    ".local/bin/chimera-amp-matrix",
+    ".local/libexec/chimera-document-maintenance",
+    ".local/share/applications/chimera-amp-matrix.desktop",
+    ".local/share/doc/chimera-amp-matrix.preserved/04897baac4061bdb8c902187b84f3f709b6533ed7833bdb724d1aba7842f78aa/.open-inode-75-13/payload-manifest.json",
+    ".local/share/doc/chimera-amp-matrix.preserved/04897baac4061bdb8c902187b84f3f709b6533ed7833bdb724d1aba7842f78aa/payload-manifest.json",
+    ".local/share/doc/chimera-amp-matrix.preserved/05cfcd43ab8062b9d3b1425db5955b7d062bf1cc517d7367f51287ff4e5f2908/.open-inode-75-9/THIRD_PARTY_NOTICES.md",
+    ".local/share/doc/chimera-amp-matrix.preserved/05cfcd43ab8062b9d3b1425db5955b7d062bf1cc517d7367f51287ff4e5f2908/THIRD_PARTY_NOTICES.md",
+    ".local/share/doc/chimera-amp-matrix.preserved/2593ef434585a6a0b9d952cd9358863f61c45cfc49792a947e4175e0b36d66fe/payload-manifest.json",
+    ".local/share/doc/chimera-amp-matrix.preserved/391328b4a510f0144a0c526f6ac13d471679d8e877e9456c921e684f6cd80270/AMP_VALIDATION.md",
+    ".local/share/doc/chimera-amp-matrix.preserved/72f5d564400827c4d6d071649c507f36a5a0bc79003b24461f53285f00899bc7/COPYRIGHT.txt",
+    ".local/share/doc/chimera-amp-matrix.preserved/b936cd11f179273d3505a0fe194a58626ff2a35b658aec65e2ff691758050b4c/THIRD_PARTY_NOTICES.md",
+    ".local/share/doc/chimera-amp-matrix.preserved/da618351f022deea1da4864ef58be3c251d1e918a2cbb59b734abb0249355f19/.open-inode-96-4/MANUAL.html",
+    ".local/share/doc/chimera-amp-matrix.preserved/da618351f022deea1da4864ef58be3c251d1e918a2cbb59b734abb0249355f19/MANUAL.html",
+    ".local/share/doc/chimera-amp-matrix.preserved/e0972876dc0a95ad7da6a2baca5317f27e64797d39dbe7223066e3c12a3157f3/reference/manifest.json",
+    ".local/share/doc/chimera-amp-matrix.preserved/f94526d6dd968c1038490371554a6bac863a115c1a81ca9c333947f356ad7789/.open-inode-75-4/MANUAL.html",
+    ".local/share/doc/chimera-amp-matrix.preserved/f94526d6dd968c1038490371554a6bac863a115c1a81ca9c333947f356ad7789/MANUAL.html",
+    ".local/share/doc/chimera-amp-matrix/AMP_VALIDATION.md",
+    ".local/share/doc/chimera-amp-matrix/COPYRIGHT.txt",
+    ".local/share/doc/chimera-amp-matrix/MANUAL.html",
+    ".local/share/doc/chimera-amp-matrix/THIRD_PARTY_NOTICES.md",
+    ".local/share/doc/chimera-amp-matrix/existing-project.song",
+    ".local/share/doc/chimera-amp-matrix/payload-manifest.json",
+    ".local/share/doc/chimera-amp-matrix/personal.chimera",
+    ".local/share/doc/chimera-amp-matrix/personal.wav",
+    ".local/share/doc/chimera-amp-matrix/reference/manifest.json",
+    ".local/share/doc/chimera-amp-matrix/user-notes.md",
+    ".local/share/pixmaps/chimera-amp-matrix.png",
+    ".vst3/SpectralForge Chimera.vst3/Contents/Resources/moduleinfo.json",
+    ".vst3/SpectralForge Chimera.vst3/Contents/x86_64-linux/SpectralForge Chimera.so"
+  ],
+  "final_home_state": {
+    "home": "/root",
+    "existing_chimera_paths": [],
+    "parents": {
+      ".local": {
+        "device": 27,
+        "inode": 790732,
+        "uid": 0,
+        "gid": 0,
+        "mode": 493
+      },
+      ".vst3": null,
+      ".local/bin": {
+        "device": 27,
+        "inode": 790764,
+        "uid": 0,
+        "gid": 0,
+        "mode": 493
+      },
+      ".local/libexec": null,
+      ".local/share": null,
+      ".local/share/applications": null,
+      ".local/share/doc": null,
+      ".local/share/pixmaps": null
+    }
+  },
+  "home_environment_unchanged": true
+}

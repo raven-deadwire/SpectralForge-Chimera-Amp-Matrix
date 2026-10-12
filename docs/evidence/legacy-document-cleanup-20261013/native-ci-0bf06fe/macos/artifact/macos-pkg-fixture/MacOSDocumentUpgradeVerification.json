@@ -1,0 +1,20 @@
+{
+  "schema": "spectralforge.macos-document-package-fixture.v1",
+  "success": true,
+  "platform": "Darwin",
+  "run_id": "38280283924",
+  "source_sha": "0bf06fe2a04f7e64b2870dee7d618eb6dad54e1e",
+  "scope": "Real Apple PKG installers with synthetic documents and compiled native lifecycle hooks; document-only removal.",
+  "native_installer_invocations": 4,
+  "native_installer_successes": 4,
+  "historical_release_installer_executed": false,
+  "native_product_installation_verified": false,
+  "daw_audio_verified": false,
+  "publication_approved": false,
+  "checks": [
+    "Real Apple PKG fresh installation executes native hooks; document-only removal preserves notices.",
+    "Real Apple PKG upgrade removes exact retired files and preserves edited legacy and current document bytes.",
+    "Same-version Apple PKG repair installs current documentation and retains both user revisions.",
+    "Repeated document-only removal preserves modified docs, license notices, personal presets, IRs and project fixtures."
+  ]
+}

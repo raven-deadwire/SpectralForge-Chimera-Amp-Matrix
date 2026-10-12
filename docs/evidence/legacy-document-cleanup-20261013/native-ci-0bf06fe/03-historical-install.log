@@ -1,0 +1,95 @@
+﻿2026-10-12 16:54:07.358   Log opened. (Time zone: UTC+00:00)
+2026-10-12 16:54:07.358   Setup version: Inno Setup version 6.7.1
+2026-10-12 16:54:07.358   Original Setup EXE: D:\a\_temp\Chimera document lifecycle 916ada417cbe471a89aab6355f61ce77\installers\old.exe
+2026-10-12 16:54:07.358   Setup command line: /SL5="$500C6,894546,893952,D:\a\_temp\Chimera document lifecycle 916ada417cbe471a89aab6355f61ce77\installers\old.exe" /VERYSILENT /SUPPRESSMSGBOXES /NORESTART /SP- /LOG="D:\a\SpectralForge-Chimera-Amp-Matrix\SpectralForge-Chimera-Amp-Matrix\build\windows-document-upgrade-verification/03-historical-install.log" /DIR="D:\a\_temp\Chimera document lifecycle 916ada417cbe471a89aab6355f61ce77\설치 경로"
+2026-10-12 16:54:07.358   Windows version: 10.0.20348
+2026-10-12 16:54:07.358   Windows architecture: x64 (64-bit)
+2026-10-12 16:54:07.358   Machine types supported by system: x86 x64
+2026-10-12 16:54:07.358   User privileges: Administrative
+2026-10-12 16:54:07.358   Administrative install mode: Yes
+2026-10-12 16:54:07.358   Install mode root key: HKEY_LOCAL_MACHINE
+2026-10-12 16:54:07.358   64-bit install mode: Yes
+2026-10-12 16:54:07.358   RedirectionGuard status for current process: Enabled in enforcing mode
+2026-10-12 16:54:07.358   Created protected temporary directory: C:\Users\RUNNER~1\AppData\Local\Temp\is-BPCLIN9FV0.tmp
+2026-10-12 16:54:07.436   Starting the installation process.
+2026-10-12 16:54:07.436   Creating directory: D:\a\_temp\Chimera document lifecycle 916ada417cbe471a89aab6355f61ce77\설치 경로
+2026-10-12 16:54:07.436   Directory for uninstall files: D:\a\_temp\Chimera document lifecycle 916ada417cbe471a89aab6355f61ce77\설치 경로\Uninstall
+2026-10-12 16:54:07.436   Creating directory: D:\a\_temp\Chimera document lifecycle 916ada417cbe471a89aab6355f61ce77\설치 경로\Uninstall
+2026-10-12 16:54:07.436   Creating new uninstall log: D:\a\_temp\Chimera document lifecycle 916ada417cbe471a89aab6355f61ce77\설치 경로\Uninstall\unins000.dat
+2026-10-12 16:54:07.436   -- File entry --
+2026-10-12 16:54:07.436   Dest filename: D:\a\_temp\Chimera document lifecycle 916ada417cbe471a89aab6355f61ce77\설치 경로\Uninstall\unins000.exe
+2026-10-12 16:54:07.436   Non-default bitness: 32-bit
+2026-10-12 16:54:07.436   Time stamp of our file: 2026-10-12 16:54:07.311
+2026-10-12 16:54:07.436   Installing the file.
+2026-10-12 16:54:07.451   Successfully installed the file.
+2026-10-12 16:54:07.451   -- File entry --
+2026-10-12 16:54:07.451   Dest filename: D:\a\_temp\Chimera document lifecycle 916ada417cbe471a89aab6355f61ce77\설치 경로\README.txt
+2026-10-12 16:54:07.451   Time stamp of our file: 2026-10-12 16:54:02.000
+2026-10-12 16:54:07.451   Installing the file.
+2026-10-12 16:54:07.451   Successfully installed the file.
+2026-10-12 16:54:07.451   -- File entry --
+2026-10-12 16:54:07.451   Dest filename: D:\a\_temp\Chimera document lifecycle 916ada417cbe471a89aab6355f61ce77\설치 경로\Documentation\AMP_NATIVE_DSP.md
+2026-10-12 16:54:07.451   Time stamp of our file: 2026-10-12 16:54:02.000
+2026-10-12 16:54:07.451   Installing the file.
+2026-10-12 16:54:07.451   Creating directory: D:\a\_temp\Chimera document lifecycle 916ada417cbe471a89aab6355f61ce77\설치 경로\Documentation
+2026-10-12 16:54:07.451   Successfully installed the file.
+2026-10-12 16:54:07.451   -- File entry --
+2026-10-12 16:54:07.451   Dest filename: D:\a\_temp\Chimera document lifecycle 916ada417cbe471a89aab6355f61ce77\설치 경로\Documentation\AMP_VALIDATION.md
+2026-10-12 16:54:07.451   Time stamp of our file: 2026-10-12 16:54:02.000
+2026-10-12 16:54:07.451   Installing the file.
+2026-10-12 16:54:07.451   Successfully installed the file.
+2026-10-12 16:54:07.451   -- File entry --
+2026-10-12 16:54:07.451   Dest filename: D:\a\_temp\Chimera document lifecycle 916ada417cbe471a89aab6355f61ce77\설치 경로\Documentation\GRAPHICS_DSP_UPDATE.md
+2026-10-12 16:54:07.451   Time stamp of our file: 2026-10-12 16:54:02.000
+2026-10-12 16:54:07.451   Installing the file.
+2026-10-12 16:54:07.451   Successfully installed the file.
+2026-10-12 16:54:07.451   -- File entry --
+2026-10-12 16:54:07.451   Dest filename: D:\a\_temp\Chimera document lifecycle 916ada417cbe471a89aab6355f61ce77\설치 경로\Documentation\PEDAL_BOARD_DSP.md
+2026-10-12 16:54:07.451   Time stamp of our file: 2026-10-12 16:54:02.000
+2026-10-12 16:54:07.451   Installing the file.
+2026-10-12 16:54:07.451   Successfully installed the file.
+2026-10-12 16:54:07.451   -- File entry --
+2026-10-12 16:54:07.451   Dest filename: D:\a\_temp\Chimera document lifecycle 916ada417cbe471a89aab6355f61ce77\설치 경로\Documentation\POST_NATIVE_DSP.md
+2026-10-12 16:54:07.451   Time stamp of our file: 2026-10-12 16:54:02.000
+2026-10-12 16:54:07.451   Installing the file.
+2026-10-12 16:54:07.451   Successfully installed the file.
+2026-10-12 16:54:07.451   -- File entry --
+2026-10-12 16:54:07.451   Dest filename: D:\a\_temp\Chimera document lifecycle 916ada417cbe471a89aab6355f61ce77\설치 경로\Documentation\THIRD_PARTY_NOTICES.md
+2026-10-12 16:54:07.451   Time stamp of our file: 2026-10-12 16:54:02.000
+2026-10-12 16:54:07.451   Installing the file.
+2026-10-12 16:54:07.467   Successfully installed the file.
+2026-10-12 16:54:07.467   -- File entry --
+2026-10-12 16:54:07.467   Dest filename: D:\a\_temp\Chimera document lifecycle 916ada417cbe471a89aab6355f61ce77\설치 경로\Documentation\VALIDATION_STATUS.md
+2026-10-12 16:54:07.467   Time stamp of our file: 2026-10-12 16:54:02.000
+2026-10-12 16:54:07.467   Installing the file.
+2026-10-12 16:54:07.467   Successfully installed the file.
+2026-10-12 16:54:07.467   -- File entry --
+2026-10-12 16:54:07.467   Dest filename: D:\a\_temp\Chimera document lifecycle 916ada417cbe471a89aab6355f61ce77\설치 경로\Documentation\MANUAL.html
+2026-10-12 16:54:07.467   Time stamp of our file: 2026-10-12 16:54:02.000
+2026-10-12 16:54:07.467   Installing the file.
+2026-10-12 16:54:07.467   Successfully installed the file.
+2026-10-12 16:54:07.467   -- File entry --
+2026-10-12 16:54:07.467   Dest filename: D:\a\_temp\Chimera document lifecycle 916ada417cbe471a89aab6355f61ce77\설치 경로\Documentation\ARTWORK_PROMPTS.json
+2026-10-12 16:54:07.467   Time stamp of our file: 2026-10-12 16:54:02.000
+2026-10-12 16:54:07.467   Installing the file.
+2026-10-12 16:54:07.467   Successfully installed the file.
+2026-10-12 16:54:07.467   -- File entry --
+2026-10-12 16:54:07.467   Dest filename: D:\a\_temp\Chimera document lifecycle 916ada417cbe471a89aab6355f61ce77\설치 경로\Documentation\payload-manifest.json
+2026-10-12 16:54:07.467   Time stamp of our file: 2026-10-12 16:54:02.000
+2026-10-12 16:54:07.467   Installing the file.
+2026-10-12 16:54:07.467   Successfully installed the file.
+2026-10-12 16:54:07.467   -- File entry --
+2026-10-12 16:54:07.467   Dest filename: D:\a\_temp\Chimera document lifecycle 916ada417cbe471a89aab6355f61ce77\설치 경로\Documentation\reference\microphone-tags.json
+2026-10-12 16:54:07.467   Time stamp of our file: 2026-10-12 16:54:02.000
+2026-10-12 16:54:07.467   Installing the file.
+2026-10-12 16:54:07.467   Creating directory: D:\a\_temp\Chimera document lifecycle 916ada417cbe471a89aab6355f61ce77\설치 경로\Documentation\reference
+2026-10-12 16:54:07.467   Successfully installed the file.
+2026-10-12 16:54:07.467   Saving uninstall information.
+2026-10-12 16:54:07.467   Creating new uninstall key: HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\Uninstall\SpectralForge.Chimera.DocumentUpgradeFixture_is1
+2026-10-12 16:54:07.467   Writing uninstall key values.
+2026-10-12 16:54:07.467   Detected previous non administrative install? No
+2026-10-12 16:54:07.467   Detected previous administrative 32-bit install? No
+2026-10-12 16:54:07.467   Installation process succeeded.
+2026-10-12 16:54:07.467   Need to restart Windows? No
+2026-10-12 16:54:07.467   Deinitializing Setup.
+2026-10-12 16:54:07.467   Log closed.
