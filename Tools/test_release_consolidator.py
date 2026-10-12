@@ -25,6 +25,11 @@ class Consolidation(unittest.TestCase):
         self.root = Path(self.temp.name)
         self.inputs = self.root / 'inputs'
         self.policy, self.mapping = evidence.configuration()
+        # This fixture exercises the historical beta check inventory even
+        # when the checkout has moved to a release-candidate/stable channel.
+        # External callers may inject a different version through configuration.
+        self.policy = copy.deepcopy(self.policy)
+        self.policy['release_scope']['profile'] = 'beta_1_3'
         self.revision = evidence.identity(HEAD, RUN, ATTEMPT)
         self.index = 0
         for kind in evidence.KINDS:
@@ -36,7 +41,7 @@ class Consolidation(unittest.TestCase):
             if kind == 'assembly':
                 raw('candidate', {'version': self.policy['release_scope']['version'],
                     'tag': 'v' + self.policy['release_scope']['version'],
-                    'revision': HEAD, 'runId': RUN, 'published': False})
+                    'revision': HEAD, 'runId': RUN, 'runAttempt': ATTEMPT, 'published': False})
                 version = self.policy['release_scope']['version']
                 prefix = 'SpectralForge-Chimera-' + version + '-'
                 assets = [{'platform': platform, 'name': prefix + suffix, 'sha256': 'a' * 64, 'size': 10}
@@ -64,8 +69,9 @@ class Consolidation(unittest.TestCase):
                     raw('scan_status', {'AMServiceEnabled': True, 'AMEngineVersion': '1', 'AntivirusSignatureVersion': '1'})
                 else:
                     raw(kind + '_package', 'PASS: package fixture')
-            evidence.collect_bundle(source, self.folder(kind), kind, self.revision,
-                {key: 'success' for key in ('ctest', 'package', 'installer', 'msix', 'scan', 'assemble', 'source', 'upload')})
+            with patch.object(evidence, 'source_profile', return_value='beta_1_3'):
+                evidence.collect_bundle(source, self.folder(kind), kind, self.revision,
+                    {key: 'success' for key in ('ctest', 'package', 'installer', 'msix', 'scan', 'assemble', 'source', 'upload')})
 
     def folder(self, kind):
         return self.inputs / (evidence.BUNDLE_PREFIX + kind)
@@ -83,10 +89,12 @@ class Consolidation(unittest.TestCase):
             doc['files'][key]['sha256'] = evidence.digest(path)
         self.mutate(kind, apply)
 
-    def run_gate(self):
+    def run_gate(self, *, policy=None):
         self.index += 1
         output = self.root / ('result' + str(self.index))
-        return consolidator.consolidate(self.inputs, output, self.revision, 'beta_1_3'), output
+        with patch.object(evidence, 'configuration', return_value=(self.policy if policy is None else policy, self.mapping)), \
+             patch.object(evidence, 'source_profile', return_value='beta_1_3'):
+            return consolidator.consolidate(self.inputs, output, self.revision, 'beta_1_3'), output
 
     def archive(self, output):
         path = self.root / 'gate.zip'
@@ -308,6 +316,18 @@ class Consolidation(unittest.TestCase):
         self.raw_change('assembly', 'candidate', lambda s: s.replace(HEAD, 'b' * 40))
         self.assertEqual(self.status(self.run_gate()[0], 'A13.07'), 'BLOCKED')
 
+    def test_candidate_receipt_requires_current_run_attempt(self):
+        original = (self.folder('assembly') / 'raw/candidate-source.json').read_text(encoding='utf-8')
+        for value in (None, '1', 2, False):
+            with self.subTest(attempt=value):
+                receipt = json.loads(original)
+                if value is None:
+                    receipt.pop('runAttempt')
+                else:
+                    receipt['runAttempt'] = value
+                self.raw_change('assembly', 'candidate', lambda _: json.dumps(receipt))
+                self.assertEqual(self.status(self.run_gate()[0], 'A13.07'), 'BLOCKED')
+
     def test_duplicate_bundle_and_stale_output_are_rejected(self):
         (self.inputs / 'duplicate').mkdir()
         result, output = self.run_gate()
@@ -351,7 +371,8 @@ class Consolidation(unittest.TestCase):
         final = workflow.split('  consolidate-release-gate:', 1)[1]
         self.assertIn('needs: [validation-contract, build, assemble-candidate]', final)
         self.assertIn('merge-multiple: false', final)
-        self.assertIn('--profile beta_1_3', final)
+        self.assertNotIn('--profile beta_1_3', final)
+        self.assertNotIn('--profile full_release', final)
         self.assertIn('--commit "$CHIMERA_SOURCE_SHA"', final)
         self.assertIn('--run-attempt "$GITHUB_RUN_ATTEMPT"', final)
         self.assertIn('ref: ${{ env.CHIMERA_SOURCE_SHA }}', final)
@@ -362,6 +383,45 @@ class Consolidation(unittest.TestCase):
         self.assertIn('CTEST_OUTCOME:', workflow)
         self.assertIn('Tools/run_linux_ui_tests.py', workflow)
         self.assertIn('consolidate-release-gate', (evidence.ROOT / 'Tools/publish_beta13.py').read_text(encoding='utf-8'))
+        self.assertIn("'runAttempt': os.environ['GITHUB_RUN_ATTEMPT']", workflow)
+
+    def test_full_release_receipts_retain_unexecuted_checks_and_reject_beta_profile(self):
+        policy = copy.deepcopy(self.policy)
+        policy['release_scope']['profile'] = 'full_release'
+        source = self.root / 'full-release-source'
+        source.mkdir()
+        (source / 'VERSION').write_text('1.3.1\n', encoding='utf-8')
+        for channel in ('rc.1', 'stable'):
+            with self.subTest(channel=channel):
+                (source / 'RELEASE_CHANNEL').write_text(channel + '\n', encoding='utf-8')
+                # The checked-out channel owns the profile. The raw fixtures
+                # still carry beta receipts, which cannot validate this source.
+                original_profile = evidence.source_profile
+                resolve_profile = lambda: original_profile(source)
+                with patch.object(evidence, 'source_profile', side_effect=resolve_profile), \
+                     patch.object(evidence, 'configuration', return_value=(policy, self.mapping)):
+                    with self.assertRaisesRegex(gate.ValidationError, 'committed source'):
+                        consolidator.consolidate(self.inputs, self.root / 'rejected-beta-profile',
+                                                 self.revision, 'beta_1_3')
+                    self.index += 1
+                    result = consolidator.consolidate(self.inputs, self.root / ('result' + str(self.index)),
+                                                     self.revision, 'full_release')
+                    self.assertEqual(result['verdict'], 'BLOCKED')
+                    self.assertFalse(result['ready'])
+                    self.assertTrue(result['producer']['errors'])
+                    for kind in evidence.KINDS:
+                        self.mutate(kind, lambda d: d.update(profile='full_release'))
+                    self.index += 1
+                    result = consolidator.consolidate(self.inputs, self.root / ('result' + str(self.index)),
+                                                     self.revision, 'full_release')
+                    self.assertEqual(result['producer']['errors'], [])
+                    self.assertEqual(result['profile'], 'full_release')
+                    self.assertEqual(result['verdict'], 'BLOCKED')
+                    self.assertFalse(result['ready'])
+                    for cid in ('I2.PITCH_LIVE', 'I2.PITCH_DI', 'B12.RESULT', 'B14.RESULT'):
+                        self.assertEqual(self.status(result, cid), 'BLOCKED')
+                for kind in evidence.KINDS:
+                    self.mutate(kind, lambda d: d.update(profile='beta_1_3'))
 
     def test_positive_producer_to_publisher_contract_fixture(self):
         # Test-only policy narrows the required checks to actual automatic owners.
@@ -370,8 +430,7 @@ class Consolidation(unittest.TestCase):
         for stage in policy['stages'].values():
             stage['required_checks'] = [c for c in stage['required_checks'] if c in self.mapping]
         policy['profiles']['beta_1_3']['required_stages'] = [s for s, v in policy['stages'].items() if v['required_checks']]
-        with patch.object(evidence, 'configuration', return_value=(policy, self.mapping)):
-            result, output = self.run_gate()
+        result, output = self.run_gate(policy=policy)
         self.assertEqual(result['verdict'], 'PASS')
         load = publisher.read_json
         def policy_load(path):
@@ -379,6 +438,30 @@ class Consolidation(unittest.TestCase):
         with patch.object(publisher, 'read_json', side_effect=policy_load):
             verified = publisher.verify_release_gate_archive(self.archive(output), HEAD, 'beta_1_3', RUN, ATTEMPT)
         self.assertEqual(verified['revision'], self.revision)
+
+
+class SourceProfile(unittest.TestCase):
+    def setUp(self):
+        self.temp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.temp.cleanup)
+        self.root = Path(self.temp.name)
+        (self.root / 'VERSION').write_text('1.3.1\n', encoding='utf-8')
+
+    def test_committed_channel_selects_beta_or_full_release_profile(self):
+        for channel, expected in (('preview', 'beta_1_3'), ('beta.1', 'beta_1_3'),
+                                  ('beta.2', 'beta_1_3'), ('beta.10', 'beta_1_3'),
+                                  ('rc.1', 'full_release'), ('rc.10', 'full_release'),
+                                  ('stable', 'full_release')):
+            with self.subTest(channel=channel):
+                (self.root / 'RELEASE_CHANNEL').write_text(channel + '\n', encoding='utf-8')
+                self.assertEqual(evidence.source_profile(self.root), expected)
+
+    def test_invalid_source_channel_cannot_select_weaker_validation(self):
+        for channel in ('rc', 'rc.0', 'rc.01', 'stable.1', 'alpha.1', 'beta.0', 'beta.01', ''):
+            with self.subTest(channel=channel):
+                (self.root / 'RELEASE_CHANNEL').write_text(channel + '\n', encoding='utf-8')
+                with self.assertRaises(ValueError):
+                    evidence.source_profile(self.root)
 
 
 if __name__ == '__main__':

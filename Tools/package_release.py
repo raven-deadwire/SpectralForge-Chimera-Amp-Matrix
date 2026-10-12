@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Stage verified binaries and build OS-native, unsigned beta installers.
+"""Stage verified binaries and build OS-native, unsigned release installers.
 
 Run only after CTest passes. Does not publish, sign, fetch or install anything.
 """
@@ -238,26 +238,58 @@ def linux(build: Path, dist: Path) -> None:
         encoding="utf-8")
 
 
-def manifest(dist: Path) -> None:
-    release_url = f"https://github.com/{REPO}/releases/tag/v{VERSION}"
+def manifest(dist: Path, *, target_version: str | None = None,
+             source_sha: str | None = None) -> tuple[Path, ...]:
+    # Targets are assertions about source-derived package identity, not knobs
+    # for renaming already-built bytes from another version or revision.
+    expected = chimera_version.identity(ROOT)
+    if source_sha is not None and source_sha != expected["source_sha"]:
+        raise ValueError("Requested source SHA differs from the checked-out source")
+    value = expected["version"] if target_version is None else target_version
+    if target_version is None and chimera_version.release_channel(ROOT) == "preview":
+        # Private CI assembly also stages preview.<SHA> payloads. Their feed is
+        # review evidence only: public target validation rejects this identity.
+        names = ("update-beta.json",)
+    else:
+        chimera_version.validate_target_version(value, ROOT, expected["source_sha"])
+        names = chimera_version.release_manifest_names(value)
+    prefix = f"SpectralForge-Chimera-{value}"
+    release_url = f"https://github.com/{REPO}/releases/tag/v{value}"
+    allowed_archives = {f"{prefix}-{suffix}" for suffix in (
+        "win64-Setup.exe", "win64.zip", "macos-universal.pkg",
+        "linux-x86_64.deb", "linux-x86_64.tar.gz")}
+    archives = sorted(p for p in dist.iterdir()
+                      if p.is_file() and p.suffix.lower() in (".exe", ".pkg", ".deb", ".gz", ".zip"))
+    if any(p.name not in allowed_archives or p.is_symlink() for p in archives):
+        raise RuntimeError("Release directory contains an unexpected/mixed-version package")
+    if any(p.name not in names for p in dist.glob("update-*.json")):
+        raise RuntimeError("Release directory contains a feed for a different channel")
     assets = []
     for suffix, system, arch in (("win64-Setup.exe", "windows", "x86_64"),
                                  ("macos-universal.pkg", "macos", "universal"),
                                  ("linux-x86_64.deb", "linux", "x86_64")):
-        name = f"{PREFIX}-{suffix}"
+        name = f"{prefix}-{suffix}"
         path = dist / name
-        if not path.is_file():
+        if not path.is_file() or path.is_symlink() or not 0 < path.stat().st_size <= 1024**3:
             raise RuntimeError(f"Release manifest requires all verified OS installers: {name}")
         sidecar = path.with_name(name + ".sha256.txt")
-        if not sidecar.exists() or sidecar.read_text(encoding="utf-8-sig").split()[0].lower() != sha256(path):
+        checksum_fields = sidecar.read_text(encoding="utf-8-sig").split() if sidecar.is_file() else []
+        if sidecar.is_symlink() or checksum_fields != [sha256(path), name]:
             raise RuntimeError(f"Missing/mismatched verified SHA256: {name}")
         assets.append({"platform": system, "arch": arch, "name": name,
-                       "url": f"https://github.com/{REPO}/releases/download/v{VERSION}/{name}",
+                       "url": f"https://github.com/{REPO}/releases/download/v{value}/{name}",
                        "sha256": sha256(path), "size": path.stat().st_size})
-    (dist / "update-beta.json").write_text(json.dumps({"schema": 1, "version": VERSION, "channel": "beta",
-                                                      "releaseUrl": release_url, "assets": assets}, indent=2) + "\n", encoding="utf-8")
-    archives = sorted(p for p in dist.iterdir() if p.is_file() and p.suffix.lower() in (".exe", ".pkg", ".deb", ".gz", ".zip"))
+    # A stable/RC release keeps its canonical channel. The extra beta receiver
+    # feed lets already shipped beta clients discover it without marking a
+    # stable GitHub release as a prerelease or relabelling installer bytes.
+    feeds = tuple(dist / name for name in names)
+    for feed in feeds:
+        receiver_channel = feed.stem.removeprefix("update-")
+        feed.write_text(json.dumps({"schema": 1, "version": value, "channel": receiver_channel,
+                                   "source_sha": expected["source_sha"],
+                                   "releaseUrl": release_url, "assets": assets}, indent=2) + "\n", encoding="utf-8")
     (dist / "SHA256SUMS.txt").write_text("".join(f"{sha256(p)}  {p.name}\n" for p in archives), encoding="utf-8")
+    return feeds
 
 
 def main() -> None:
@@ -265,10 +297,16 @@ def main() -> None:
     parser.add_argument("platform", choices=("windows", "macos", "linux", "manifest"))
     parser.add_argument("--build", type=Path, default=ROOT / "build")
     parser.add_argument("--dist", type=Path, default=ROOT / "dist")
+    parser.add_argument("--target-version", help="Assert the source-derived package version")
+    parser.add_argument("--source-sha", help="Assert the exact checked-out source SHA")
     args = parser.parse_args()
+    if args.source_sha is not None and args.source_sha != IDENTITY["source_sha"]:
+        parser.error("Requested source SHA differs from the checked-out source")
+    if args.target_version is not None:
+        chimera_version.validate_target_version(args.target_version, ROOT)
     args.dist.mkdir(parents=True, exist_ok=True)
     if args.platform == "manifest":
-        manifest(args.dist)
+        manifest(args.dist, target_version=args.target_version, source_sha=args.source_sha)
     else:
         chimera_version.validate_build(args.build, IDENTITY)
         globals()[args.platform](args.build, args.dist)
