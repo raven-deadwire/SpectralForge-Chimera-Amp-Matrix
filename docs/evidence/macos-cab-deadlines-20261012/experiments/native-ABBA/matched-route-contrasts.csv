@@ -1,0 +1,7 @@
+archive,run_id,phase,quantile,matched_routes,median_route_ratio_Bmean_to_Amean,routes_Bmean_below_Amean,median_route_ratio_lateA_to_earlyA,routes_lateA_below_earlyA
+native-ABBA,38185786916,all,p50,66,0.9837901322635716,35,2.763606813179459,0
+native-ABBA,38185786916,all,p99,66,0.9580547812388396,39,2.5115613021162906,1
+native-ABBA,38185786916,worker_and_automation,p50,66,0.9925615715132301,42,4.285062383536978,0
+native-ABBA,38185786916,worker_and_automation,p99,66,0.9658019212031428,40,2.521697979651774,1
+native-ABBA,38185786916,forced_six_slot_publication,p50,66,0.9951767263790254,36,1.196350680996753,19
+native-ABBA,38185786916,forced_six_slot_publication,p99,66,1.0015818084022605,33,1.1361797330301928,19

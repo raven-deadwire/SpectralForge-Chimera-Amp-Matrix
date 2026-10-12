@@ -29,7 +29,7 @@ Windows and Linux candidate measurements have zero misses in both runs. Latest m
 
 ## All 21 affected latest populations
 
-Each row contains 1,600 callbacks, three independent parallel CAB lane buffers, and two microphones per lane. “Channels” is mono/stereo per lane. `integration` and `extended` are independently executed populations, including overlapping buffer settings. Maximum CPU below is the CPU measurement paired with that exact maximum wall callback; it is not an independently sorted CPU maximum.
+Each row contains 1,600 callbacks, three independent CAB lane buffers processed sequentially on the measured caller thread, and two microphones per lane. “Channels” is mono/stereo per lane. `integration` and `extended` are independently executed populations, including overlapping buffer settings. Maximum CPU below is the CPU measurement paired with that exact maximum wall callback; it is not an independently sorted CPU maximum.
 
 | Suite | Engine | Hz | Buffer | Channels | Misses | Max wall us | Paired CPU at max us |
 |---|---|---:|---:|---:|---:|---:|---:|
@@ -65,7 +65,11 @@ The [source-bound harness](https://github.com/raven-deadwire/SpectralForge-Chime
 | `expanded-v2` | Bass four-driver family; driver ordinal 12 = Alloy 10 | Ordinal 20 = Chimera Strike / ordinal 10 = Silk 121 | 0 / 1 |
 | `array-v3-6x10` | Layout ordinal 7 = Bass 6x10; driver ordinal 9 = Foundry 10 | Chimera Strike / Silk 121 | 0 / requested 7 mapped to effective 5 |
 
-All are closed-rear models with tweeter level 0.3 and mic A/B blend 0.5; expanded/array tweeter type is 2. Mic A starts at position 0.25, distance 10 cm; B at position 0.25, distance 18 cm. For callbacks 0–79, all lanes request A position `(n % 60)/60` and B distance `5 + 0.2*n` cm. Key quantization applies. The first phase contains 1,200 callbacks while the IR worker runs; `sleep(1 ms)` occurs every eight callbacks outside the measured region. After convergence and fade drain, the worker is stopped, six prepared kernels with A position 0.85 are published, and 400 callbacks are measured. Three lane inputs remain separate.
+All are closed-rear models with tweeter level 0.3 and mic A/B blend 0.5; expanded/array tweeter type is 2. The Mic A settings object begins at position 0.25, distance 10 cm; B at position 0.25, distance 18 cm. For callbacks 0–79, all lanes request A position `(n % 60)/60` and B distance `5 + 0.2*n` cm. Key quantization applies. The first phase contains 1,200 callbacks while the IR worker runs; `sleep(1 ms)` occurs every eight callbacks outside the measured region. Three lane inputs remain separate and their CAB calls execute sequentially on the caller thread.
+
+After convergence and fade drain, the worker is stopped. The harness sets `a.position = .85`, derives one `nextKey = modelKey(a)` from Mic A's settings, and generates one response for that key. It copies that response into six separately prepared kernel objects and publishes the **same unchanged `nextKey` to all six slots**, including every Mic B slot. The final 400 callbacks measure those publications, the serialized transitions, and the subsequent tail; the final assertion requires all six active models to converge to that same key.
+
+The table's A/B configurations therefore describe initial/requested models and transition origins, not six distinct steady configurations throughout the forced-publication phase. Its common final target uses Mic A's unit, microphone, distance, and position 0.85. The initial functional checks also change the first lane's second-mic request for a unity check before the measured automation requests begin; requested settings alone do not establish every slot's active state at the first measured callback.
 
 The 66 populations comprise three integration engines × three rates × two buffers (64/256) × two channel counts = 36, plus expanded-v2 × three rates × five buffers (32/64/128/256/512) × two channel counts = 30. No Classic/Dual/Matrix processor mode is selected: this is a CAB-only console executable. It does not run the full `ChimeraProcessor::processBlock`, GUI painting, real DAW or CoreAudio callback scheduling. Normal production mic cut-filter refresh is included only in the separate profiler.
 

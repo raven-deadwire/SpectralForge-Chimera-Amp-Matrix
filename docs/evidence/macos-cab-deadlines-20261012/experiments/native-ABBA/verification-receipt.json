@@ -1,0 +1,13 @@
+{
+  "verifier": "analyze_diagnostic_artifacts.py",
+  "verifier_sha256": "27270d49cdc94a1866c22a639b6dd999035d4d077d69381331e9773af0d8022d",
+  "exit_status": 0,
+  "status": "verified_complete",
+  "original_zip_unchanged": true,
+  "routes_csv_records": 594,
+  "deadline_miss_csv_records": 59,
+  "cab_callback_misses": 55,
+  "synthetic_interval_misses": 4,
+  "performance_fix_demonstrated": false,
+  "inputs_preserved": true
+}
