@@ -23,6 +23,7 @@ $checks = [Collections.Generic.List[string]]::new()
 $success = $false
 $installerInvocations = 0
 $nativeCompilerPassed = $false
+$compilerVersion = $null
 function Assert([bool]$Condition, [string]$Message) { if (!$Condition) { throw $Message } }
 function Pass([string]$Message) { $checks.Add("PASS: $Message"); Write-Host "PASS: $Message" }
 function Hash([string]$Path) { return (Get-FileHash -LiteralPath $Path -Algorithm SHA256).Hash.ToLowerInvariant() }
@@ -137,8 +138,14 @@ end;
     Write-Fixture $newScript ($common + "`r`n" + $newFiles)
     & $iscc "/DStageDir=$oldStage" "/DOutputPath=$output" "/DOutputName=old" $oldScript
     Assert ($LASTEXITCODE -eq 0) "Historical Inno fixture failed to compile"
-    & $iscc "/DStageDir=$newStage" "/DOutputPath=$output" "/DOutputName=new" "/DDocumentRulesPath=$rules" "/DCleanupSource=$(Join-Path $repository 'Installer/LegacyDocumentCleanup.iss')" $newScript
-    Assert ($LASTEXITCODE -eq 0) "Current Inno document migration code failed to compile"
+    $compileOutput = @(& $iscc "/DStageDir=$newStage" "/DOutputPath=$output" "/DOutputName=new" "/DDocumentRulesPath=$rules" "/DCleanupSource=$(Join-Path $repository 'Installer/LegacyDocumentCleanup.iss')" $newScript 2>&1)
+    $compileExitCode = $LASTEXITCODE
+    foreach ($line in $compileOutput) {
+        Write-Host $line
+        if ($line -match '^Compiler engine version: Inno Setup (\d+\.\d+\.\d+)') { $compilerVersion = $Matches[1] }
+    }
+    Assert ($compileExitCode -eq 0) "Current Inno document migration code failed to compile"
+    Assert ($null -ne $compilerVersion) "The compiler did not identify its engine version"
     $nativeCompilerPassed = $true
     $oldSetup = Join-Path $output "old.exe"
     $newSetup = Join-Path $output "new.exe"
@@ -231,15 +238,24 @@ end;
     Rename-Item -LiteralPath $referenceSaved -NewName "reference"
     Pass "Junction targets remain unchanged and uninstall refuses historical traversal before deleting files"
 
-    $lock = [IO.File]::Open($modified, [IO.FileMode]::Open, [IO.FileAccess]::Read, [IO.FileShare]::None)
+    # A concurrent writer prevents even the metadata-only preservation handle:
+    # our FILE_SHARE_READ intentionally does not share the writer's access.
+    $lock = [IO.File]::Open($modified, [IO.FileMode]::Open, [IO.FileAccess]::ReadWrite, [IO.FileShare]::None)
     try { Invoke-Setup (Uninstaller) "09-locked-uninstall-refused" "" $false }
     finally { $lock.Dispose() }
     Assert ((Hash $modified) -eq $modifiedHash) "Refused uninstall changed edited bytes"
+    Assert (Test-Path -LiteralPath $registry) "Refused uninstall removed registration"
+    Assert-NoDeferredDocumentDelete
+    Pass "An exclusive writer refuses uninstall before deleting files or registration when a preservation handle cannot be acquired"
     # Edit a currently shipped document after repair: old and new log entries
     # must both leave its current in-place bytes untouched during uninstall.
     Write-Fixture $manual "<p>New user annotations after repair</p>`r`n"
     $finalManualHash = Hash $manual
-    Invoke-Setup (Uninstaller) "10-upgraded-uninstall" ""
+    # A concurrent reader allows a metadata-only handle that still denies
+    # DELETE. Uninstall may proceed safely while that handle protects the file.
+    $lock = [IO.File]::Open($modified, [IO.FileMode]::Open, [IO.FileAccess]::Read, [IO.FileShare]::None)
+    try { Invoke-Setup (Uninstaller) "10-upgraded-uninstall-with-reader" "" }
+    finally { $lock.Dispose() }
     Assert (!(Test-Path -LiteralPath $registry)) "Upgraded uninstall registration remains"
     foreach ($pair in @(@($modified, $modifiedHash), @($sameSize, $sameSizeHash), @($hardPath, $hardHash),
         @($readonly, $readOnlyHash), @($unknown, $unknownHash), @($manual, $finalManualHash),
@@ -261,7 +277,7 @@ end;
 } finally {
     @{ success = $success; platform = "windows"; native_inno_execution = ($installerInvocations -gt 0);
         native_compiler_passed = $nativeCompilerPassed; installer_invocations = $installerInvocations;
-        compiler_version = ([Diagnostics.FileVersionInfo]::GetVersionInfo($iscc)).FileVersion;
+        compiler_version = $compilerVersion;
         historical_release_installer_executed = $false; scope = "real Inno installers with synthetic historical document ownership";
         source_sha = (& git -C $repository rev-parse HEAD).Trim(); run_id = $env:GITHUB_RUN_ID;
         checks = @($checks.ToArray()) } | ConvertTo-Json -Depth 6 |

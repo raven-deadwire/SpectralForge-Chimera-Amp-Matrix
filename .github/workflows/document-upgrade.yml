@@ -119,16 +119,10 @@ jobs:
       - name: Locate native Inno Setup compiler
         shell: pwsh
         run: |
-          $iscc = Join-Path ${env:ProgramFiles(x86)} "Inno Setup 6/ISCC.exe"
-          $compilerVersion = [Version]"0.0.0.0"
-          if (Test-Path -LiteralPath $iscc) {
-            $version = [Diagnostics.FileVersionInfo]::GetVersionInfo($iscc)
-            $compilerVersion = [Version]::new($version.FileMajorPart, $version.FileMinorPart, $version.FileBuildPart, $version.FilePrivatePart)
-          }
-          if ($compilerVersion -lt [Version]"6.7.1.0") {
-            choco upgrade innosetup --version=6.7.1 --yes --no-progress
-            if ($LASTEXITCODE -ne 0) { throw "Cannot install Inno Setup for native fixture validation." }
-          }
+          # ISCC.exe's PE FileVersion can be 0.0.0.0; the compiled .iss guard
+          # validates the actual engine VER and rejects versions below 6.7.1.
+          choco upgrade innosetup --version=6.7.1 --yes --no-progress
+          if ($LASTEXITCODE -ne 0) { throw "Cannot install Inno Setup for native fixture validation." }
       - name: Real Inno fresh, upgrade, repair and historical-log uninstall fixtures
         shell: pwsh
         run: ./Tests/Test-WindowsDocumentUpgrade.ps1

@@ -45,9 +45,9 @@ $iscc = if ($isccCommand) { $isccCommand.Source } else {
 if (!(Test-Path -LiteralPath $iscc)) { throw "Inno Setup 6.7.1 or newer is required to build the installer." }
 # All supported public releases used 6.7.1. Older engines can retain the old
 # Pascal uninstall code while appending logs, bypassing document preservation.
-$compilerInfo = [Diagnostics.FileVersionInfo]::GetVersionInfo($iscc)
-$compilerVersion = [Version]::new($compilerInfo.FileMajorPart, $compilerInfo.FileMinorPart, $compilerInfo.FileBuildPart, $compilerInfo.FilePrivatePart)
-if ($compilerVersion -lt [Version]"6.7.1.0") { throw "Inno Setup $compilerVersion would downgrade historical Chimera uninstall code; 6.7.1 or newer is required." }
+# LegacyDocumentCleanup.iss checks the actual compiler engine's VER value.
+# Do not use ISCC.exe FileVersionInfo: the official 6.7.1 launcher reports
+# 0.0.0.0 even though its loaded compiler engine is 6.7.1.
 $script = Join-Path $PSScriptRoot "../Installer/Chimera.iss"
 $compilerArguments = @("/DStageDir=$stagePath", "/DOutputPath=$outputPath",
     "/DProductVersion=$($identity.product_version)", "/DPackageVersion=$($identity.version)")
