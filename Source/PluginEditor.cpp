@@ -164,7 +164,14 @@ ChimeraEditor::ChimeraEditor(ChimeraProcessor& p) : AudioProcessorEditor(&p),pro
     gainOrder.setTooltip("Boost before drive adds drive saturation. Boost after drive raises its output; a saturated amp may still add distortion instead of loudness. Fuzz stays first; Matrix LOW DI is unaffected.");
     rigsTab.onClick=[this]{page=0;pathSelections[size_t(juce::jlimit(0,2,lastMode))]="rigs";updateModeUI();};preTab.onClick=[this]{page=1;pathSelections[size_t(juce::jlimit(0,2,lastMode))]="pre";updateModeUI();};postTab.onClick=[this]{page=2;pathSelections[size_t(juce::jlimit(0,2,lastMode))]="post";updateModeUI();};
     eqTab.onClick=[this]{const auto route=spectralforge::signalPath::read(processor);navigateSignalPath(*route.find(selectedEQBank==0?"tone.eq":"final.eq"));};
-    for(int e=0;e<2;++e){eqPanels[(size_t)e]=std::make_unique<spectralforge::GraphicalEQPanel>(p.parameters(),p.graphicalEQ(e),e);add(*eqPanels[(size_t)e]);}
+    for(int e=0;e<2;++e){
+        eqPanels[(size_t)e]=std::make_unique<spectralforge::GraphicalEQPanel>(p.parameters(),p.graphicalEQ(e),e,p.eqEditing());
+        eqPanels[(size_t)e]->onHistoryBankSelected=[this](int bank){
+            const auto route=spectralforge::signalPath::read(processor);
+            navigateSignalPath(*route.find(bank==0?"tone.eq":"final.eq"));
+        };
+        add(*eqPanels[(size_t)e]);
+    }
     toneEQBank.setComponentID("eq.bank.tone");finalEQBank.setComponentID("eq.bank.final");
     toneEQBank.setTooltip("Edit Tone EQ before the POST rack. The other EQ continues processing.");
     finalEQBank.setTooltip("Edit Final EQ after width, before output trim and tuner mute.");

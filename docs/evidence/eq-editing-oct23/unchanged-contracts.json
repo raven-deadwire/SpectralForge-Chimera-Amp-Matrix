@@ -1,0 +1,29 @@
+{
+  "baseline": "a2ae89467665b9122b7d1ae744dc52fb8f693bd6",
+  "checks": {
+    "Source/GraphicalEQ.h": {
+      "byte_identical": true,
+      "sha256": "01a639554e7f04099e010c033ba6c116d495cb1c136a9bb41a490a9b81cb9673"
+    },
+    "Source/ChimeraDSP.h": {
+      "byte_identical": true,
+      "sha256": "ee35949cdf33f3d47b37f98da93ebde0d2df85f7041cea210f083d9030b5aadd"
+    },
+    "VERSION": {
+      "byte_identical": true,
+      "sha256": "10e2e117b01523891ca271a615ae36e9d5e52348fd7d642f66727602c1b8dcbe"
+    },
+    "RELEASE_CHANNEL": {
+      "byte_identical": true,
+      "sha256": "d11a8a9975b043d17eb65d496a998f9f7cf9d0462f1b5b1a9024b7251873c529"
+    },
+    "cmake/ChimeraVersion.cmake": {
+      "byte_identical": true,
+      "sha256": "ceabe4ab93f75ea2d01a4f66c6bc956f6dec8e944dc05148ed469637abb70e32"
+    },
+    "Tools/publish_beta131.py": {
+      "byte_identical": true,
+      "sha256": "d639de1edd0401f463b47a5bb7ea884d10bd2b700da3ede226a06675824aded7"
+    }
+  }
+}

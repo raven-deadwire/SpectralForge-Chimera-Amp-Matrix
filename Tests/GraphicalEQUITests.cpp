@@ -163,6 +163,58 @@ void overlappingBandDrag(ChimeraProcessor& processor,GraphicalEQPanel& panel,juc
     selector.setSelectedId(previousSelection,juce::sendNotificationSync);
     std::cout<<"PASS overlapping nodes retain selected Band 12 / only selected-band host changes / balanced gestures bank="<<bank<<'\n';
 }
+void editingWorkflow(ChimeraProcessor& processor,GraphicalEQPanel& panel,int bank) {
+    auto* selector=find<juce::ComboBox>(panel,eqID(bank,-1,"band"));
+    auto* add=find<juce::TextButton>(panel,eqID(bank,-1,"addBand"));
+    auto* remove=find<juce::TextButton>(panel,eqID(bank,-1,"deleteBand"));
+    auto* undo=find<juce::TextButton>(panel,eqID(bank,-1,"undo"));
+    auto* redo=find<juce::TextButton>(panel,eqID(bank,-1,"redo"));
+    check(selector && add && remove && undo && redo,"October 23 editing controls missing");
+    check(selector->getNumItems()==0 && panel.selectedBand()==-1 && !remove->isEnabled(),"New EQ has phantom bands");
+    const auto creation=panel.graphBounds().getCentre()+juce::Point<float>(30,-25);
+    panel.mouseDoubleClick(mouse(panel,creation,creation,false));
+    check(panel.isBandVisible(0) && panel.selectedBand()==0 && get(processor,eqID(bank,0,"enabled"))==1,"Graph creation failed");
+    check(selector->getNumItems()==1 && get(processor,eqID(bank,0,"gain"))>0,"Graph creation lost gain or selector occupancy");
+    auto* on=find<juce::TextButton>(panel,eqID(bank,0,"enabled"));on->triggerClick();
+    check(waitFor([&]{return get(processor,eqID(bank,0,"enabled"))==0;}),"Bypass band failed");
+    check(panel.isBandVisible(0) && selector->getNumItems()==1,"Bypass incorrectly deleted band");
+    undo->triggerClick();check(waitFor([&]{return get(processor,eqID(bank,0,"enabled"))==1;}),"Undo band bypass failed");
+
+    auto* frequency=find<juce::Slider>(panel,eqID(bank,0,"frequency"));
+    const float previous=get(processor,eqID(bank,0,"frequency"));
+    HostEvents numberEvents;auto* parameter=processor.parameters().getParameter(eqID(bank,0,"frequency"));parameter->addListener(&numberEvents);
+    numeric(*frequency,"1735.25 Hz");parameter->removeListener(&numberEvents);
+    check(std::abs(get(processor,eqID(bank,0,"frequency"))-1735.25f)<.02f,"Numeric commit failed");
+    check(numberEvents.starts==1 && numberEvents.ends==1,"Numeric input was not one balanced host gesture");
+    undo->triggerClick();check(waitFor([&]{return std::abs(get(processor,eqID(bank,0,"frequency"))-previous)<.02f;}),"Numeric undo failed");
+    redo->triggerClick();check(waitFor([&]{return std::abs(get(processor,eqID(bank,0,"frequency"))-1735.25f)<.02f;}),"Numeric redo failed");
+
+    const auto start=panel.nodePosition(0);const float gain=get(processor,eqID(bank,0,"gain"));
+    HostEvents dragEvents;parameter->addListener(&dragEvents);
+    auto* gainParameter=processor.parameters().getParameter(eqID(bank,0,"gain"));gainParameter->addListener(&dragEvents);
+    panel.mouseDown(mouse(panel,start,start,false));
+    for(int step=1;step<=4;++step)panel.mouseDrag(mouse(panel,start+juce::Point<float>(float(step*10),float(-step*3)),start,true));
+    panel.mouseUp(mouse(panel,start+juce::Point<float>(40,-12),start,true));
+    parameter->removeListener(&dragEvents);gainParameter->removeListener(&dragEvents);
+    check(dragEvents.starts==2 && dragEvents.ends==2,"Graph drag did not keep one gesture per field");
+    undo->triggerClick();check(waitFor([&]{return std::abs(get(processor,eqID(bank,0,"frequency"))-1735.25f)<.02f && std::abs(get(processor,eqID(bank,0,"gain"))-gain)<.02f;}),"Graph drag undo did not restore both axes in one step");
+    check(panel.keyPressed(juce::KeyPress(juce::KeyPress::deleteKey)),"Delete shortcut not handled");
+    check(!panel.isBandVisible(0) && selector->getNumItems()==0 && get(processor,eqID(bank,0,"enabled"))==0,"Delete left a phantom/audible band");
+    undo->triggerClick();check(waitFor([&]{return panel.isBandVisible(0) && get(processor,eqID(bank,0,"enabled"))==1;}),"Undo deletion failed");
+    redo->triggerClick();check(waitFor([&]{return !panel.isBandVisible(0) && selector->getNumItems()==0;}),"Redo deletion failed");
+    add->triggerClick();check(waitFor([&]{return panel.selectedBand()==0 && selector->getNumItems()==1;}),"Deleted first slot was not reused");
+    check(get(processor,eqID(bank,0,"frequency"))==1000 && get(processor,eqID(bank,0,"gain"))==0,"Reused slot did not start neutral");
+    for(int band=1;band<12;++band){add->triggerClick();check(waitFor([&]{return selector->getNumItems()==band+1;}),"Add did not use the next persistent slot");}
+    check(!add->isEnabled(),"Full EQ did not disable Add");
+    const auto mask=processor.eqEditing().occupiedMask(bank);
+    panel.mouseDoubleClick(mouse(panel,creation,creation,false));
+    check(processor.eqEditing().occupiedMask(bank)==mask && selector->getNumItems()==12,"Full graph creation changed existing slots");
+    // The original 24-control regression starts with occupied but bypassed
+    // bands. Preserve its activation, filter, automation and gesture assertions.
+    for(int band=0;band<12;++band)set(processor,eqID(bank,band,"enabled"),0);
+    settle(50);
+    std::cout<<"PASS native graph add/delete / disabled node visibility / numeric and drag undo-redo / persistent reuse / capacity bank="<<bank<<'\n';
+}
 void liveAnalyzer(ChimeraProcessor& processor,ChimeraEditor& editor,const juce::File& directory) {
     std::ofstream timing(directory.getChildFile("eq-analyzer-native-ui.csv").getFullPathName().toStdString());
     timing<<"bank,fft_size,rate,bin_spacing_hz,window_ms,first_complete_data_observed_ms,first_component_render_complete_ms,updates,fft_p50_us,fft_p99_us,update_p50_us,update_p99_us,path_p50_us,path_p99_us,panel_paint_p50_us,panel_paint_p99_us,snapshot_p50_us,snapshot_p99_us,native_interval_p50_ms,native_interval_p99_ms,process_cpu_with_snapshot_percent\n";
@@ -221,6 +273,26 @@ void liveAnalyzer(ChimeraProcessor& processor,ChimeraEditor& editor,const juce::
         auto* input=find<juce::TextButton>(*panel,eqID(e,-1,"inputSpectrum"));
         auto* output=find<juce::TextButton>(*panel,eqID(e,-1,"outputSpectrum"));
         auto* master=find<juce::TextButton>(*panel,eqID(e,-1,"analyzer"));check(input && output && master,"Independent IN/OUT/LIVE controls missing");
+        auto* freeze=find<juce::TextButton>(*panel,eqID(e,-1,"freeze"));
+        check(freeze && waitFor([&]{return freeze->isEnabled() && panel->analyzerHasData();}),"Snapshot Freeze did not become available");
+        freeze->triggerClick();check(waitFor([&]{return panel->isSnapshotFrozen();}),"Freeze button did not hold a frame");
+        const auto frozenFrames=panel->fftFrames();
+        std::vector<float> frozen;
+        for(int stream=0;stream<2;++stream)for(int bin=0;bin<=panel->analysisFFTSize()/2;++bin)frozen.push_back(panel->displaySpectrumDB(stream==1,bin));
+        check(!processor.graphicalEQ(e).analyzer.enabled.load() && !resolution->isEnabled() && !smoothing->isEnabled() && !master->isEnabled(),"Frozen analyzer still captures or exposes changing frame settings");
+        settle(180);
+        find<juce::TextButton>(editor,e==0?"eq.bank.final":"eq.bank.tone")->triggerClick();settle(60);
+        bank->triggerClick();check(waitFor([&]{return panel->isShowing();}),"Frozen bank could not reopen");
+        check(panel->fftFrames()==frozenFrames && panel->isSnapshotFrozen(),"Freeze transformed data or was lost across bank navigation");
+        size_t frozenIndex=0;for(int stream=0;stream<2;++stream)for(int bin=0;bin<=panel->analysisFFTSize()/2;++bin)
+            check(panel->displaySpectrumDB(stream==1,bin)==frozen[frozenIndex++],"Frozen visible spectrum decayed or changed");
+        snapshot(editor,directory.getChildFile("eq-ui-freeze-bank"+juce::String(e)+".png"));
+        // Trigger directly on the message thread to inspect the immediate thaw
+        // boundary before the synthetic producer can complete a fresh window.
+        panel->setSnapshotFrozen(false);
+        check(!panel->analyzerHasData() && !panel->isSnapshotFrozen(),"Thaw displayed an old snapshot before fresh audio");
+        check(waitFor([&]{return panel->analyzerHasData() && panel->fftFrames()>frozenFrames;}),"Thaw did not resume from new audio");
+        std::cout<<"PASS native Snapshot Freeze / exact bins / capture off / hidden bank / fresh thaw bank="<<e<<'\n';
         // PNG file encoding above is outside the timing interval and may block
         // the consumer long enough to trigger its correct overflow recovery.
         // Compare visible layers only after a fresh complete observation.
@@ -441,6 +513,7 @@ void fullProcessorNativeTiming(ChimeraProcessor& processor,ChimeraEditor& editor
 }
 }
 #include "EQAttributionDiagnostics.h"
+#include "EQPendingInputTests.h"
 int main(int argc,char** argv){try {
     juce::ScopedJuceInitialiser_GUI init;
     if(argc>1 && (std::string(argv[1])=="--attribution" || std::string(argv[1])=="--attribution-headless"))return eqAttribution::run(argc,argv);
@@ -452,6 +525,8 @@ int main(int argc,char** argv){try {
         tab(*editor,"RIGS")->triggerClick();settle(80);
         auto* path=find<juce::TextButton>(*editor,e==0?"path.tone.eq":"path.final.eq");check(path,"EQ path target missing");path->triggerClick();
         auto* panel=find<GraphicalEQPanel>(*editor,e==0?"toneEQ_panel":"finalEQ_panel");check(panel && waitFor([&]{return panel->isShowing() && panel->isNavigationSelected();}),"EQ path did not open the requested bank");
+        editingWorkflow(*processor,*panel,e);
+        eqPendingInputTests::run(*processor,*panel,e);
         auto* selector=find<juce::ComboBox>(*panel,eqID(e,-1,"band"));check(selector,"Band chooser missing");
         HostEvents host;auto* frequency=processor->parameters().getParameter(eqID(e,0,"frequency"));auto* gain=processor->parameters().getParameter(eqID(e,0,"gain"));auto* q=processor->parameters().getParameter(eqID(e,0,"q"));frequency->addListener(&host);gain->addListener(&host);q->addListener(&host);
         for(int b=0;b<12;++b){selector->setSelectedId(b+1,juce::sendNotificationSync);
@@ -492,7 +567,10 @@ int main(int argc,char** argv){try {
     processor->selectComparison(1);for(int e=0;e<2;++e)for(int b=0;b<12;++b)set(*processor,eqID(e,b,"gain"),12);verifyBanks();
     processor->selectComparison(0);verifyBanks();
     for(int e=0;e<2;++e)for(int b=0;b<12;++b)check(std::abs(get(*processor,eqID(e,b,"gain"))-float(b-6+e))<.001,"A/B bank recall changed a node");
-    processor->loadFactoryPreset(0);verifyBanks();processor->setStateInformation(saved.getData(),int(saved.getSize()));verifyBanks();
+    processor->loadFactoryPreset(0);settle(60);
+    for(int e=0;e<2;++e){auto* panel=find<GraphicalEQPanel>(*editor,e==0?"toneEQ_panel":"finalEQ_panel");
+        check(processor->eqEditing().occupiedMask(e)==0 && panel->selectedBand()==-1,"Factory reset retained prior editing slots");}
+    processor->setStateInformation(saved.getData(),int(saved.getSize()));verifyBanks();
     for(int e=0;e<2;++e)for(int b=0;b<12;++b)check(std::abs(get(*processor,eqID(e,b,"gain"))-float(b-6+e))<.001,"Project recall changed a node");
     for(int mode:{1,2,0}){set(*processor,"mode",float(mode));settle(100);check(find<GraphicalEQPanel>(*editor,"finalEQ_panel")->isNavigationSelected(),"Mode switch lost the global EQ selection");}
     tab(*editor,"RIGS")->triggerClick();settle(50);eqTab->triggerClick();settle(50);

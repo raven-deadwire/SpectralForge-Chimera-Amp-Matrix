@@ -12,6 +12,7 @@
 #include "AmpNativeParameters.h"
 #include "PostNativeParameters.h"
 #include "GraphicalEQ.h"
+#include "EQEditState.h"
 
 class ChimeraProcessor : public juce::AudioProcessor {
 public:
@@ -80,6 +81,7 @@ public:
     float inputMeter() const { return inputPeak.load(); }
     float outputMeter() const { return outputPeak.load(); }
     spectralforge::GraphicalEQ& graphicalEQ(int instance) noexcept {return instance==0 ? toneEQ : finalEQ;}
+    spectralforge::EQEditState& eqEditing() noexcept {return eqEditState;}
     float cpuLoad() const { return cpuAverage.load(); }
     float cpuPeakLoad() const { return cpuPeak.load(); }
     float lowCompMeter() const {return lowCompGain.load();}
@@ -144,6 +146,7 @@ private:
     std::atomic<uint64_t> headRecallRevision{0};
     std::atomic<bool> resetPending{false};
     juce::AudioProcessorValueTreeState state{*this,nullptr,"PARAMS",layout()};
+    spectralforge::EQEditState eqEditState{state};
     std::array<std::array<std::atomic<float>*,10>,3> cabPanelParameters{};
     spectralforge::OriginalCabParameters originalCabParameters;
     void syncOriginalCabRequests();
