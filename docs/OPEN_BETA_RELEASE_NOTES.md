@@ -10,7 +10,7 @@ Classic 룸 진입, 모델링 캐비넷과 IR 조작 분리, Niflheimr 프리셋
 
 - **Classic 룸:** Classic에서도 헤드와 캐비넷을 룸에서 선택하고 확대할 수 있습니다. 기존 Dual·Matrix 진입과 되돌아가기를 유지합니다.
 - **캐비넷과 IR 상태 표시:** 모델링 마이크를 사용하는 동안 IR 로더에 해당 슬롯을 비활성으로 표시하고, 그 화면의 공유 조절부를 비활성화합니다. 마이크의 게인·딜레이·위상·컷 설정은 유지하며 CABINET에서 조절합니다. IR을 명시적으로 선택하면 해당 마이크의 소스만 전환합니다. IR 목록의 첫 선택이 초기화 콜백으로 지워지던 문제도 수정합니다.
-- **Niflheimr 프리셋:** Clear Attack와 Doom Fuzz는 Classic, Death Grind는 Dual, Clean Low Drive와 Slam Punch는 Matrix를 사용합니다. 표시 이름과 각 리그의 채널·CAB·PRE/POST 구성을 함께 정리하며, 기존 프리셋 ID와 전체 프리셋 수를 유지합니다. 전역 OUTPUT은 0 dB 기준을 유지합니다.
+- **Niflheimr 프리셋:** Clear Clank와 Doom Fuzz는 Classic, Death Grind는 Dual, Clean Low Pulse와 Slam Punch는 Matrix를 사용합니다. 표시 이름과 각 리그의 채널·CAB·PRE/POST 구성을 함께 정리하며, 기존 프리셋 ID와 전체 프리셋 수를 유지합니다. 전역 OUTPUT은 0 dB 기준을 유지합니다.
 - **룸 그릴 렌더링:** 동일한 그릴 모양을 유지하면서 반복되는 네이티브 그리기 호출을 줄입니다. 실제 macOS 룸 응답 개선 여부는 이번 후보의 네이티브 검사로 확인해야 합니다.
 - **주간 업데이트 경로:** 선택한 버전·소스·패키지·업데이트 피드와 승인 영수증을 대조하는 기존 주간 배포 기능을 통합합니다. 새 후보의 승인 값은 모두 false로 시작합니다.
 

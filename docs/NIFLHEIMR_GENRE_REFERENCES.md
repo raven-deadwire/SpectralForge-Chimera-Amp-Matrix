@@ -135,15 +135,17 @@ literally into Chimera.
 
 The five entries remain at preset indices 43-47; previous 0-42 identities and
 category navigation remain intact. The 2026-10-12 revision gives them direct
-sound/use names and two Classic, one Dual and two Matrix arrangements. The amp
+sound/use names and two Classic, one Dual and two Matrix arrangements. The
+13 October (KST) naming correction retains Clank and Pulse as Clear Clank and
+Clean Low Pulse without changing those arrangements or their sound. The amp
 still has five independently selectable channels. A full-rig name describes
 the complete configuration, and does not replace a native channel name.
 
 | ID | Current full-rig preset | Previous display name | Routing and channel roles |
 |---|---|---|---|
-| 43 | Clear Attack | Frostline Precision | Classic: Hrímfaxi (0), full range; controlled lows and clear string attack |
+| 43 | Clear Clank | Frostline Precision | Classic: Hrímfaxi (0), full range; controlled lows and clear string attack |
 | 44 | Death Grind | Carrion Barrage | Dual crossover at 180 Hz: restrained Hrímfaxi (0) below the split, Garmr (1) above |
-| 45 | Clean Low Drive | Foundry Pulse | Matrix at 140 / 1600 Hz: clean LOW DI, Nidavellir (2) MID drive, Hrímfaxi (0) HIGH attack |
+| 45 | Clean Low Pulse | Foundry Pulse | Matrix at 140 / 1600 Hz: clean LOW DI, Nidavellir (2) MID drive, Hrímfaxi (0) HIGH attack |
 | 46 | Slam Punch | Jötunn Hammer | Matrix at 110 / 900 Hz: Ymir (3) LOW and MID, Garmr (1) HIGH |
 | 47 | Doom Fuzz | Mirebound Monolith | Classic: Hel (4), full range |
 
@@ -160,12 +162,12 @@ Mic A; the alternate Mic B is stored but disabled, with the mic blend at A.
 
 | Preset / lane | Channel | Cabinet · speaker · Mic A | Native BLEND | Native Amp OUT | Mic A level |
 |---|---|---|---:|---:|---:|
-| Clear Attack / full range | Hrímfaxi | Bass 4x10 · Vector 10 · Anchor 20 | 66% | +7.5 dB | +4.8 dB |
+| Clear Clank / full range | Hrímfaxi | Bass 4x10 · Vector 10 · Anchor 20 | 66% | +7.5 dB | +4.8 dB |
 | Death Grind / below 180 Hz | Hrímfaxi | Bass 2x12 · Chimera Depth 12 · Anchor 20 | 28% | +5.0 dB | +4.0 dB |
 | Death Grind / above 180 Hz | Garmr | Bass 6x10 · Foundry 10 · Hammer 421 | 72% | −2.0 dB | +4.4 dB |
-| Clean Low Drive / LOW | Hrímfaxi, parked | Bass 2x12 · Chimera Depth 12 · Anchor 20, parked; AMP and CAB off | 28%, stored | 0 dB, inactive | 0 dB, inactive |
-| Clean Low Drive / MID | Nidavellir | Bass 4x10 · Alloy 10 · Spear 441 | 70% | +1.0 dB | +5.6 dB |
-| Clean Low Drive / HIGH | Hrímfaxi | Bass 1x12 · Clarity 12 · Prism 414 | 65% | +3.0 dB | +4.0 dB |
+| Clean Low Pulse / LOW | Hrímfaxi, parked | Bass 2x12 · Chimera Depth 12 · Anchor 20, parked; AMP and CAB off | 28%, stored | 0 dB, inactive | 0 dB, inactive |
+| Clean Low Pulse / MID | Nidavellir | Bass 4x10 · Alloy 10 · Spear 441 | 70% | +1.0 dB | +5.6 dB |
+| Clean Low Pulse / HIGH | Hrímfaxi | Bass 1x12 · Clarity 12 · Prism 414 | 65% | +3.0 dB | +4.0 dB |
 | Slam Punch / LOW | Ymir | Bass 6x10 · Foundry 10 · Anchor 20 | 30% | +3.0 dB | +3.3 dB |
 | Slam Punch / MID | Ymir | Bass 6x10 · Foundry 10 · Anchor 20 | 66% | +1.0 dB | +3.3 dB |
 | Slam Punch / HIGH | Garmr | Bass 4x10 · Alloy 10 · Spear 441 | 68% | −2.0 dB | +2.5 dB |
@@ -173,7 +175,7 @@ Mic A; the alternate Mic B is stored but disabled, with the mic blend at A.
 
 The native **BLEND** column is internal to each Niflheimr channel; its protected
 LOW is common to the native clean and driven signals. It is separate from the
-Matrix **LOW DI / AMP + CAB** blend. Clean Low Drive sets the latter to
+Matrix **LOW DI / AMP + CAB** blend. Clean Low Pulse sets the latter to
 **100% DI / 0% AMP + CAB**, with LOW compression at **0.25**. Its parked native
 channel and cabinet remain editable but contribute no sound. Slam Punch sets
 **75% DI / 25% AMP + CAB**, with LOW compression at **0.50**. Its LOW cabinet
@@ -184,9 +186,9 @@ does not weight its complementary low/high bands.
 
 | Full-rig preset | PRE | Cabinet HP / LP | POST / space |
 |---|---|---|---|
-| Clear Attack | Bass Comp, Graphic EQ | 30 Hz / 6.7 kHz | Console Four contour; dry |
+| Clear Clank | Bass Comp, Graphic EQ | 30 Hz / 6.7 kHz | Console Four contour; dry |
 | Death Grind | Graphic EQ, Bass Comp | 32 Hz / 5.9 kHz | Console Four midrange; dry |
-| Clean Low Drive | Parallel Studio FET, Graphic EQ | 32 Hz / 6.1 kHz, stored but inactive on LOW | Console Four contour for note definition; dry |
+| Clean Low Pulse | Parallel Studio FET, Graphic EQ | 32 Hz / 6.1 kHz, stored but inactive on LOW | Console Four contour for note definition; dry |
 | Slam Punch | Bass Comp, Graphic EQ | 27 Hz / 5.1 kHz; LOW cuts affect its amplified share | Console Four impact contour; dry |
 | Doom Fuzz | Gentle Diamond, Graphic EQ | 28 Hz / 3.9 kHz | Dark Passive Tube contour; dry |
 
@@ -219,7 +221,7 @@ trim and old display name. It does not reauthor the saved sound from its ID.
 The revised-route tests are defined in
 [NiflheimrPresetTests.h](../Tests/NiflheimrPresetTests.h). They check contaminated
 state recall, the correct native contexts and all active controls, an audible
-contribution from each route, the inactive Clean Low Drive LOW hardware, binary
+contribution from each route, the inactive Clean Low Pulse LOW hardware, binary
 restore, A/B audio equality and legacy Classic snapshot preservation. The
 unchanged production-fixture limits are **RMS > −30 dBFS**, **peak < 0.95** at
 both nominal and +6 dB input, with **OUTPUT = 0 dB**. Consult the

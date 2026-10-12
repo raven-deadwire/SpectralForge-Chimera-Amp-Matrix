@@ -47,9 +47,9 @@ inline constexpr std::array<float,48> factoryOutputDb{{
     0.0f, // 40: Rotten Grind (Original)
     0.0f, // 41: Sludge Mass (Original)
     0.0f, // 42: Slam Impact (Original)
-    0.0f, // 43: Clear Attack (Niflheimr Original)
+    0.0f, // 43: Clear Clank (Niflheimr Original)
     0.0f, // 44: Death Grind (Niflheimr Original)
-    0.0f, // 45: Clean Low Drive (Niflheimr Original)
+    0.0f, // 45: Clean Low Pulse (Niflheimr Original)
     0.0f, // 46: Slam Punch (Niflheimr Original)
     0.0f, // 47: Doom Fuzz (Niflheimr Original)
 }};
