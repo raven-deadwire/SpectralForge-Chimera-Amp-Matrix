@@ -11,6 +11,7 @@ from pathlib import Path, PurePosixPath
 import re
 from types import SimpleNamespace
 
+import chimera_version
 import evaluate_release_gate as gate
 import produce_validation_check as producer
 from produce_ctest_validation import test_results
@@ -18,7 +19,6 @@ from produce_ctest_validation import test_results
 ROOT = Path(__file__).resolve().parents[1]
 PLATFORMS = ('windows', 'linux', 'macos')
 KINDS = (*PLATFORMS, 'assembly')
-PROFILE = 'beta_1_3'
 ARTIFACT = 'Chimera-A-stage-release-gate'
 BUNDLE_PREFIX = 'Chimera-release-evidence-'
 OUTCOMES = {'success', 'failure', 'cancelled', 'skipped', ''}
@@ -42,6 +42,17 @@ RAW_FILES = {
 
 def digest(path):
     return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def source_profile(root=None):
+    """Select validation from committed source, never a dispatch label.
+
+    Preview builds remain private candidates with the beta check inventory.
+    Release candidates and stable releases must also satisfy the full-release
+    checks, including checks whose automatic producers do not yet exist.
+    """
+    channel = chimera_version.release_channel(ROOT if root is None else root)
+    return 'full_release' if channel == 'stable' or channel.startswith('rc.') else 'beta_1_3'
 
 
 def configuration():
@@ -88,18 +99,22 @@ def collect_bundle(root, output, kind, revision, outcomes):
         destination.write_bytes(source.read_bytes())
         files[key] = {'path': destination.relative_to(output).as_posix(), 'sha256': digest(destination)}
     doc = {'schema': 'spectralforge.chimera.release-evidence', 'schema_version': 1,
-           'policy_version': policy['policy_version'], 'profile': PROFILE,
+           'policy_version': policy['policy_version'], 'profile': source_profile(),
            'revision': revision, 'kind': kind, 'outcomes': outcomes, 'files': files}
     (output / 'evidence.json').write_text(json.dumps(doc, indent=2) + '\n', encoding='utf-8')
     return doc
 
 
-def read_bundle(folder, kind, revision, policy):
+def read_bundle(folder, kind, revision, policy, *, profile=None):
+    profile = source_profile() if profile is None else profile
+    gate.require(profile in ('beta_1_3', 'full_release')
+                 and policy.get('release_scope', {}).get('profile') == profile,
+                 'Raw evidence profile must match the source validation policy')
     doc = gate.load_json(folder / 'evidence.json')
     gate.require(isinstance(doc, dict) and doc.get('schema') == 'spectralforge.chimera.release-evidence'
                  and type(doc.get('schema_version')) is int and doc['schema_version'] == 1,
                  'Malformed evidence schema')
-    gate.require(doc.get('kind') == kind and doc.get('profile') == PROFILE
+    gate.require(doc.get('kind') == kind and doc.get('profile') == profile
                  and doc.get('revision') == revision
                  and doc.get('policy_version') == policy['policy_version'], 'Stale/mismatched evidence identity')
     outcomes = doc.get('outcomes')
@@ -197,6 +212,7 @@ def reports_for_bundle(doc, paths, policy, mapping):
             source = gate.load_json(paths['candidate'])
             manifest = gate.load_json(paths['manifest'])
             ok = (source.get('revision') == commit and source.get('runId') == doc['revision']['run_id']
+                  and source.get('runAttempt') == doc['revision']['run_attempt']
                   and source.get('published') is False and source.get('version') == policy['release_scope']['version']
                   and source.get('tag') == 'v' + source.get('version', '')
                   and manifest.get('version') == source.get('version') and manifest.get('schema') == 1)

@@ -1,0 +1,217 @@
+{
+  "schema": "spectralforge.chimera.weekly-publication-policy",
+  "schema_version": 1,
+  "policy_version": 1,
+  "product_version": null,
+  "version": null,
+  "profile": null,
+  "approved_product_source_sha": null,
+  "strict_policy_sha256": null,
+  "ci_check_map_sha256": null,
+  "decision": "STRICT_PASS",
+  "release_approved": false,
+  "publication_authorized": false,
+  "owner_acceptance": {
+    "approved": false,
+    "publication_authorized": false,
+    "validation_gaps_accepted": false,
+    "instruction": null,
+    "context": null,
+    "scope": null
+  },
+  "required_ci_checks": [
+    {
+      "id": "A12.01",
+      "name": "Portable core and preset regression",
+      "producer": "ctest:ChimeraTests",
+      "platforms": [
+        "windows",
+        "linux",
+        "macos"
+      ]
+    },
+    {
+      "id": "A12.02",
+      "name": "Transpose, gate and tail stability regression",
+      "producer": "ctest:ChimeraStabilityTests",
+      "platforms": [
+        "windows",
+        "linux",
+        "macos"
+      ]
+    },
+    {
+      "id": "A12.03",
+      "name": "Universal PRE board regression",
+      "producer": "ctest:ChimeraPedalBoardTests",
+      "platforms": [
+        "windows",
+        "linux",
+        "macos"
+      ]
+    },
+    {
+      "id": "A12.04",
+      "name": "IR collection, integrity and fallback regression",
+      "producer": "ctest:ChimeraIRCollectionTests",
+      "platforms": [
+        "windows",
+        "linux",
+        "macos"
+      ]
+    },
+    {
+      "id": "A12.05",
+      "name": "Appended amp topology and legacy preservation regression",
+      "producer": "ctest:ChimeraNewAmpTests",
+      "platforms": [
+        "windows",
+        "linux",
+        "macos"
+      ]
+    },
+    {
+      "id": "A12.06",
+      "name": "Native amp control and DSP regression",
+      "producer": "ctest:ChimeraAmpNativeTests",
+      "platforms": [
+        "windows",
+        "linux",
+        "macos"
+      ]
+    },
+    {
+      "id": "A12.07",
+      "name": "Native POST control, state and DSP regression",
+      "producer": "ctest:ChimeraPostNativeTests",
+      "platforms": [
+        "windows",
+        "linux",
+        "macos"
+      ]
+    },
+    {
+      "id": "A13.01",
+      "name": "Windows full CTest matrix",
+      "producer": "workflow:build/windows",
+      "platforms": [
+        "windows"
+      ]
+    },
+    {
+      "id": "A13.02",
+      "name": "Linux full CTest matrix",
+      "producer": "workflow:build/linux",
+      "platforms": [
+        "linux"
+      ]
+    },
+    {
+      "id": "A13.03",
+      "name": "macOS universal full CTest matrix",
+      "producer": "workflow:build/macos",
+      "platforms": [
+        "macos"
+      ]
+    },
+    {
+      "id": "A13.04",
+      "name": "Windows installer install, repair and uninstall",
+      "producer": "workflow:Verify-WindowsInstaller",
+      "platforms": [
+        "windows"
+      ]
+    },
+    {
+      "id": "A13.05",
+      "name": "Windows MSIX deployment and activation",
+      "producer": "workflow:Verify-WindowsMSIX",
+      "platforms": [
+        "windows"
+      ]
+    },
+    {
+      "id": "A13.06",
+      "name": "Windows distribution Defender scan",
+      "producer": "workflow:Scan-WindowsArtifacts",
+      "platforms": [
+        "windows"
+      ]
+    },
+    {
+      "id": "A13.07",
+      "name": "Exact-source release candidate assembly",
+      "producer": "workflow:assemble-candidate",
+      "platforms": [
+        "assembly"
+      ]
+    },
+    {
+      "id": "I1.PITCH",
+      "name": "Low-bin energy and unchanged raw mapping",
+      "producer": "ctest:ChimeraPitchRegressionTests",
+      "platforms": [
+        "windows",
+        "linux",
+        "macos"
+      ]
+    },
+    {
+      "id": "I1.GATE",
+      "name": "Combined Range manifest, state and routing",
+      "producer": "ctest:ChimeraGateProcessorTests",
+      "platforms": [
+        "windows",
+        "linux",
+        "macos"
+      ]
+    },
+    {
+      "id": "I1.STATE_GAIN_GR",
+      "name": "Full Guitar state, unity level and compressor GR",
+      "producer": "ctest:ChimeraIntegratedProcessorTests",
+      "platforms": [
+        "windows",
+        "linux",
+        "macos"
+      ]
+    },
+    {
+      "id": "I1.LIVE_REMOVE",
+      "name": "Live project deletion with surviving peers",
+      "producer": "ctest:ChimeraVST3LifecycleTests",
+      "platforms": [
+        "windows"
+      ]
+    },
+    {
+      "id": "E1.DSP",
+      "name": "E670FE native DSP and control coverage",
+      "producer": "ctest-contract:E1.DSP",
+      "platforms": [
+        "windows",
+        "linux",
+        "macos"
+      ]
+    },
+    {
+      "id": "E1.STATE_UI",
+      "name": "E670FE six-context state and native UI coverage",
+      "producer": "ctest-contract:E1.STATE_UI",
+      "platforms": [
+        "windows"
+      ]
+    },
+    {
+      "id": "E1.LEGACY",
+      "name": "E670FE append-only and legacy compatibility",
+      "producer": "ctest-contract:E1.LEGACY",
+      "platforms": [
+        "windows",
+        "linux",
+        "macos"
+      ]
+    }
+  ],
+  "known_validation_gaps": []
+}

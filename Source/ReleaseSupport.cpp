@@ -20,8 +20,21 @@ bool semverIdentifiers(const juce::String& s, bool rejectLeadingZeroes) {
     }
     return !s.startsWithChar('.') && !s.endsWithChar('.') && !s.contains("..");
 }
-bool betaChannelVersion(const Version& v) {
-    return v.prerelease.isEmpty() || v.prerelease[0] == "beta" || v.prerelease[0] == "rc";
+juce::String releaseChannel(const juce::String& source) {
+    // The generic SemVer parser also supports development identities. Public
+    // update feeds are restricted to stable, beta.N and rc.N with no metadata.
+    const auto v = Version::parse(source);
+    if (!v || source.containsChar('+')) return {};
+    for (const auto part : v->numbers) if (part > 65535) return {};
+    if (v->prerelease.isEmpty()) return "stable";
+    if (v->prerelease.size() != 2 || !digits(v->prerelease[1]) || v->prerelease[1].startsWithChar('0')) return {};
+    return v->prerelease[0] == "beta" || v->prerelease[0] == "rc" ? v->prerelease[0] : juce::String{};
+}
+bool acceptsChannel(const juce::String& receiver, const juce::String& target) {
+    if (target.isEmpty()) return false;
+    if (receiver == "beta") return target == "beta" || target == "rc" || target == "stable";
+    if (receiver == "rc") return target == "rc" || target == "stable";
+    return receiver == "stable" && target == "stable";
 }
 juce::File userRoot() {
     return juce::File::getSpecialLocation(juce::File::userApplicationDataDirectory).getChildFile("SpectralForge/Chimera");
@@ -104,14 +117,18 @@ bool isAllowedDownloadRedirect(const juce::String& source) {
         || host == "github-releases.githubusercontent.com";
 }
 
-juce::Result parseManifest(const juce::String& text, const juce::String& expected, Manifest& output) {
+juce::Result parseManifest(const juce::String& text, const juce::String& expected, Manifest& output,
+                           const juce::String& receiverChannel, const juce::String& expectedManifestChannel) {
     output = {};
     if (text.getNumBytesAsUTF8() > 256 * 1024) return juce::Result::fail("Update manifest exceeds the size limit.");
     const auto json = juce::JSON::parse(text);
-    const auto parsedVersion = Version::parse(expected);
+    const auto targetChannel = releaseChannel(expected);
+    const auto feedChannel = json["channel"].toString();
+    const bool compatibleFeed = feedChannel == targetChannel
+        || (receiverChannel == "beta" && feedChannel == "beta" && (targetChannel == "rc" || targetChannel == "stable"));
     if (!json.isObject() || !isInteger(json["schema"]) || static_cast<int>(json["schema"]) != 1
-        || !parsedVersion || !betaChannelVersion(*parsedVersion) || json["version"].toString() != expected
-        || json["channel"].toString() != channel)
+        || !acceptsChannel(receiverChannel, targetChannel) || !compatibleFeed || json["version"].toString() != expected
+        || (expectedManifestChannel.isNotEmpty() && feedChannel != expectedManifestChannel))
         return juce::Result::fail("Update manifest version or channel is invalid.");
     const auto page = juce::String(repositoryUrl) + "/releases/tag/v" + expected;
     if (json["releaseUrl"].toString() != page) return juce::Result::fail("Update release page is not the official repository.");
@@ -127,7 +144,14 @@ juce::Result parseManifest(const juce::String& text, const juce::String& expecte
         const bool validExtension = (a.platform == "windows" && a.name.endsWith(".exe"))
             || (a.platform == "macos" && a.name.endsWith(".pkg"))
             || (a.platform == "linux" && (a.name.endsWith(".deb") || a.name.endsWith(".tar.gz")));
+        const auto prefix = "SpectralForge-Chimera-" + expected + "-";
+        const bool matchingName = (a.platform == "windows"
+                && a.name == prefix + (a.arch == "x86_64" ? "win64-Setup.exe" : "win-arm64-Setup.exe"))
+            || (a.platform == "macos" && a.name == prefix + "macos-" + a.arch + ".pkg")
+            || (a.platform == "linux" && (a.name == prefix + "linux-" + a.arch + ".deb"
+                                         || a.name == prefix + "linux-" + a.arch + ".tar.gz"));
         if (!item.isObject() || !validPlatform || !validArch || !validExtension
+            || !matchingName
             || !isOfficialAssetUrl(a.url, expected, a.name) || a.sha256.length() != 64
             || !a.sha256.containsOnly("0123456789abcdef") || !isInteger(item["size"])
             || a.size <= 0 || a.size > maxInstallerBytes || names.contains(a.name))
@@ -150,30 +174,43 @@ std::optional<Installer> selectInstaller(const Manifest& manifest, const juce::S
     return result;
 }
 
-juce::Result findReleaseManifest(const juce::String& text, ManifestReference& output) {
+juce::Result findReleaseManifest(const juce::String& text, ManifestReference& output,
+                                const juce::String& receiverChannel) {
     output = {};
+    if (receiverChannel != "beta" && receiverChannel != "rc" && receiverChannel != "stable")
+        return juce::Result::fail("Unknown update receiver channel.");
     if (text.getNumBytesAsUTF8() > 2 * 1024 * 1024) return juce::Result::fail("Release list exceeds the size limit.");
     const auto json = juce::JSON::parse(text);
     const auto* releases = json.getArray();
     if (releases == nullptr) return juce::Result::fail("GitHub returned an invalid release list.");
     std::optional<Version> latest;
+    int latestFeedScore = -1;
     for (const auto& entry : *releases) {
         if (!entry.isObject() || !entry["draft"].isBool() || static_cast<bool>(entry["draft"])) continue;
         const auto tag = entry["tag_name"].toString();
         if (!tag.startsWithChar('v')) continue;
         const auto v = Version::parse(tag.substring(1));
-        if (!v || !betaChannelVersion(*v)) continue;
+        const auto targetChannel = releaseChannel(tag.substring(1));
+        if (!v || !acceptsChannel(receiverChannel, targetChannel) || !entry["prerelease"].isBool()
+            || static_cast<bool>(entry["prerelease"]) != (targetChannel != "stable")) continue;
         if (entry["html_url"].toString() != juce::String(repositoryUrl) + "/releases/tag/" + tag) continue;
         const auto* assets = entry["assets"].getArray();
         if (assets == nullptr) continue;
         for (const auto& asset : *assets) {
-            if (asset["name"].toString() != manifestName) continue;
+            const auto name = asset["name"].toString();
+            const bool canonical = name == "update-" + targetChannel + ".json";
+            const bool legacyBeta = receiverChannel == "beta" && targetChannel != "beta" && name == "update-beta.json";
+            if (!canonical && !legacyBeta) continue;
             const auto url = asset["browser_download_url"].toString();
-            if (!isOfficialAssetUrl(url, tag.substring(1), manifestName)) continue;
-            if (!latest || v->compare(*latest) > 0) { latest = v; output = {tag.substring(1), url}; }
+            if (!isOfficialAssetUrl(url, tag.substring(1), name)) continue;
+            const int score = canonical ? 1 : 0;
+            if (!latest || v->compare(*latest) > 0 || (v->compare(*latest) == 0 && score > latestFeedScore)) {
+                latest = v; latestFeedScore = score;
+                output = {tag.substring(1), url, canonical ? targetChannel : juce::String("beta")};
+            }
         }
     }
-    // An empty list is valid before the first open-beta release is published.
+    // An empty list is valid before the first eligible release is published.
     return juce::Result::ok();
 }
 
@@ -199,7 +236,7 @@ juce::String bugReportText(const Diagnostics& d) {
 }
 juce::URL bugReportUrl(const Diagnostics& d) {
     return juce::URL(juce::String(repositoryUrl) + "/issues/new")
-        .withParameter("title", "[Open Beta " + juce::String(version) + "] Bug report")
+        .withParameter("title", "[Chimera " + juce::String(version) + "] Bug report")
         .withParameter("body", bugReportText(d));
 }
 
@@ -274,7 +311,7 @@ bool ReleaseSupport::enqueue(Job job) {
       if (job == Job::download && !candidate) return false;
       cancelled = false; pending = job; busy = true;
       status.state = job == Job::check ? State::checking : State::downloading;
-      status.message = job == Job::check ? "Checking the official beta release channel..." : "Downloading installer; SHA-256 will be verified...";
+      status.message = job == Job::check ? "Checking the official " + juce::String(channel) + " release channel..." : "Downloading installer; SHA-256 will be verified...";
       status.progress = 0.0; }
     notify(); return true;
 }
@@ -318,7 +355,7 @@ std::shared_ptr<juce::WebInputStream> ReleaseSupport::connect(const juce::String
             address = target; continue;
         }
         error = code == 403 || code == 429 ? "GitHub rate limit reached. Try again later."
-            : code == 404 ? "The beta release channel is not published or this repository is unavailable."
+            : code == 404 ? "The release channel is not published or this repository is unavailable."
             : "GitHub returned HTTP " + juce::String(code) + ". Try again later.";
         return {};
     }
@@ -352,12 +389,12 @@ void ReleaseSupport::performCheck() {
     const auto available = Version::parse(reference.version);
     if (!available || (installed && available->compare(*installed) <= 0)) {
         const juce::ScopedLock l(mutex); status.state = State::upToDate;
-        status.message = reference.version.isEmpty() ? "No open-beta update has been published yet." : "You are running the latest available beta-channel version."; return;
+        status.message = reference.version.isEmpty() ? "No update is published for this release channel yet." : "You are running the latest available version in this release channel."; return;
     }
     juce::String text;
     if (auto r = readText(reference.url, 256 * 1024, text); r.failed()) { fail(r.getErrorMessage()); return; }
     Manifest manifest;
-    if (auto r = parseManifest(text, reference.version, manifest); r.failed()) { fail(r.getErrorMessage()); return; }
+    if (auto r = parseManifest(text, reference.version, manifest, channel, reference.manifestChannel); r.failed()) { fail(r.getErrorMessage()); return; }
     auto installer = selectInstaller(manifest, currentPlatform(), currentArchitecture());
     if (!installer) { fail("A new version exists, but no compatible installer is published for this OS and architecture."); return; }
     const juce::ScopedLock l(mutex); candidate = installer; status.state = State::available;
