@@ -259,8 +259,13 @@ void liveAnalyzer(ChimeraProcessor& processor,ChimeraEditor& editor,const juce::
     check(waitFor([&]{return panel->fftFrames()>before && panel->spectrumDB(false,256)>-20.2f && panel->spectrumDB(false,86)<-70;}),"Native analyzer did not follow a new real input frequency");
     check(panel->spectrumDB(false,86)<-70,"Native raw spectrum retained the old frequency");
     check(audio.callbacks.load()>100,"Native proof did not run real paced audio callbacks");
-    audio.stop();const auto atStop=panel->fftFrames();settle(100);
-    const auto drained=panel->fftFrames();check(drained<=atStop+2,"Stopped producer triggered unbounded catch-up FFT work");
+    audio.stop();const auto atStop=panel->fftFrames();
+    const uint64_t pendingAtStop=processor.graphicalEQ(1).analyzer.pendingSamples();
+    const uint64_t hop=uint64_t(panel->analysisFFTSize()/4);
+    const uint64_t maximumDrainWindows=(pendingAtStop+hop-1)/hop+1;
+    settle(100);
+    const auto drained=panel->fftFrames();
+    check(drained<=atStop+maximumDrainWindows,"Stopped producer triggered unbounded catch-up FFT work");
     const int peakBin=256;const float oldDisplay=panel->displaySpectrumDB(false,peakBin);settle(400);
     check(panel->fftFrames()==drained && panel->spectrumDB(false,peakBin)<=-119.9f && panel->displaySpectrumDB(false,peakBin)<oldDisplay,
           "Stopped audio did not decay on the native screen without fabricated FFT frames");
@@ -352,23 +357,86 @@ void fullProcessorNativeTiming(ChimeraProcessor& processor,ChimeraEditor& editor
         check(targetReached,"Whole-processor callback sample target timed out: diagnostic row preserved");
     }
     check(output.good(),"Whole-processor timing evidence could not be written");
-    // One high-rate observation resolves the FIFO's actual timer headroom on
-    // this runner. Scheduling overruns are measured, never silently hidden.
-    processor.prepareToPlay(192000,128);resolution->setSelectedId(3,juce::sendNotificationSync);settle(60);
-    const auto before=processor.graphicalEQ(1).analyzer.dropped.load();
-    const double observedStart=juce::Time::getMillisecondCounterHiRes();
-    SyntheticAudio highRate(processor,true,192000);settle(2600);highRate.stop();
-    const double observedElapsed=juce::Time::getMillisecondCounterHiRes()-observedStart;
-    const auto producedSamples=highRate.callbacks.load()*128;
-    const double effectiveRate=1000*double(producedSamples)/observedElapsed;
-    const auto lost=processor.graphicalEQ(1).analyzer.dropped.load()-before;
+    // These observations run the normal native event pump without snapshots or
+    // PNG encoding. Sample conservation is checked separately from FFT coverage
+    // and from wall-clock source scheduling. A slow producer cannot qualify the
+    // nominal sample rate merely because its smaller queue did not overflow.
     std::ofstream high(directory.getChildFile("eq-analyzer-high-rate.csv").getFullPathName().toStdString());
-    const double productionRatio=effectiveRate/192000;
-    const bool withinNominalRate=productionRatio>=.95 && productionRatio<=1.05;
-    high<<"rate,block,fft_size,fifo_capacity,requested_capture_ms,observed_elapsed_ms,callbacks,produced_samples,effective_samples_per_second,production_ratio,dropped_samples,within_5pct_nominal_rate,performance_acceptance\n192000,128,8192,"<<EQAnalyzerFIFO::capacity<<",2600,"<<observedElapsed<<','<<highRate.callbacks.load()<<','<<producedSamples<<','<<effectiveRate<<','<<productionRatio<<','<<lost<<','<<withinNominalRate<<",NOT_ASSESSED\n";
-    check(high.good(),"High-rate FIFO evidence could not be written");
-    std::cout<<"OBSERVATION192k FFT8192 callbacks="<<highRate.callbacks.load()<<" effective_samples_per_second="<<effectiveRate<<" production_ratio="<<productionRatio
-             <<" within_5pct_nominal_rate="<<withinNominalRate<<" dropped_samples="<<lost<<" FIFOcapacity="<<EQAnalyzerFIFO::capacity<<" performance_acceptance=NOT_ASSESSED\n";
+    std::ofstream updateRows(directory.getChildFile("eq-analyzer-high-rate-updates.csv").getFullPathName().toStdString());
+    high<<"rate,block,fft_size,fifo_capacity,requested_capture_ms,observed_elapsed_ms,callbacks,produced_samples,initial_pending_samples,effective_samples_per_second,production_ratio,consumed_samples,discarded_samples,dropped_samples,pending_samples,sample_accounting_error,update_calls,observed_updates,unobserved_updates,observed_queue_high_water,fft_windows,first_complete_data_observed_ms,consumer_gap_p50_ms,consumer_gap_p99_ms,consumer_gap_max_ms,fft_windows_per_update_max,fft_p50_us,fft_p99_us,update_p50_us,update_p99_us,update_max_us,process_cpu_percent,within_5pct_nominal_rate,sample_flow_status,performance_acceptance\n";
+    updateRows<<"rate,fft_size,elapsed_ms,update_sequence,unobserved_updates_since_previous,consumer_gap_ms,pending_snapshot_samples,consumed_samples,fft_windows,fft_us,update_us,total_consumed_samples,total_discarded_samples,total_dropped_samples,pending_samples\n";
+    struct NativeUpdateObservation {
+        double elapsed{},gap{},fftMicros{},updateMicros{};
+        uint64_t sequence{},unobserved{},pendingSnapshot{},consumed{},windows{},totalConsumed{},discarded{},dropped{},pending{};
+    };
+    constexpr int highRateObservationMs=10000;
+    for(double rate:{96000.,192000.})for(int size:{2048,4096,8192}) {
+        processor.prepareToPlay(rate,128);
+        resolution->setSelectedId(size==2048?1:size==4096?2:3,juce::sendNotificationSync);settle(60);
+        check(waitFor([&]{return panel->analysisSampleRate()==rate;}),"High-rate analyzer did not finish its sample-rate transition before capture");
+        check(processor.graphicalEQ(1).analyzer.enabled.load(),"High-rate observation did not enable analyzer capture");
+        auto& fifo=processor.graphicalEQ(1).analyzer;
+        const uint64_t initialPending=fifo.pendingSamples(),beforeDropped=fifo.dropped.load();
+        const auto beforeConsumed=panel->analysisTotalConsumedSamples(),beforeDiscarded=panel->analysisDiscardedSamples();
+        const auto beforeUpdates=panel->analysisUpdates(),beforeWindows=panel->fftFrames();
+        auto previousUpdate=beforeUpdates;
+        uint64_t unobserved=0,queueHighWater=initialPending;
+        std::vector<NativeUpdateObservation> observations;observations.reserve(512);
+        std::vector<double> gaps,fftTimes,updateTimes;gaps.reserve(512);fftTimes.reserve(512);updateTimes.reserve(512);
+        const auto started=std::chrono::steady_clock::now();const double cpuStart=processCPUSeconds();
+        const auto elapsedMs=[&]{return std::chrono::duration<double,std::milli>(std::chrono::steady_clock::now()-started).count();};
+        double firstData=std::numeric_limits<double>::quiet_NaN();
+        const auto observe=[&] {
+            const auto pending=uint64_t(fifo.pendingSamples());queueHighWater=std::max(queueHighWater,pending);
+            const auto sequence=panel->analysisUpdates();if(sequence==previousUpdate)return;
+            const auto skipped=sequence-previousUpdate-1;unobserved+=skipped;previousUpdate=sequence;
+            const auto snapshot=uint64_t(panel->analysisLastPendingSamples());queueHighWater=std::max(queueHighWater,snapshot);
+            const double now=elapsedMs(),gap=panel->analysisLastConsumerIntervalMs();
+            const double fft=panel->lastFFTTimeMicros(),update=panel->analysisUpdateMicros();
+            observations.push_back({now,gap,fft,update,sequence-beforeUpdates,skipped,snapshot,
+                uint64_t(panel->analysisLastConsumedSamples()),uint64_t(panel->analysisLastFFTWindows()),
+                panel->analysisTotalConsumedSamples()-beforeConsumed,panel->analysisDiscardedSamples()-beforeDiscarded,
+                fifo.dropped.load()-beforeDropped,pending});
+            gaps.push_back(gap);fftTimes.push_back(fft);updateTimes.push_back(update);
+            if(!std::isfinite(firstData) && panel->analyzerHasData() && panel->fftFrames()>beforeWindows)firstData=now;
+        };
+        SyntheticAudio audio(processor,true,rate);
+        while(elapsedMs()<highRateObservationMs) {settle(1);observe();}
+        audio.stop();observe();
+        const double observedElapsed=elapsedMs(),processCPU=100000*(processCPUSeconds()-cpuStart)/observedElapsed;
+        const uint64_t produced=audio.callbacks.load()*128,consumed=panel->analysisTotalConsumedSamples()-beforeConsumed;
+        const uint64_t discarded=panel->analysisDiscardedSamples()-beforeDiscarded,lost=fifo.dropped.load()-beforeDropped,pending=fifo.pendingSamples();
+        const uint64_t updates=panel->analysisUpdates()-beforeUpdates,windows=panel->fftFrames()-beforeWindows;
+        const int64_t accountingError=int64_t(initialPending+produced)-int64_t(consumed+discarded+lost+pending);
+        const double effectiveRate=1000*double(produced)/observedElapsed,productionRatio=effectiveRate/rate;
+        const bool withinNominalRate=productionRatio>=.95 && productionRatio<=1.05;
+        const double missing=std::numeric_limits<double>::quiet_NaN();
+        const auto quantile=[&](const std::vector<double>& values,double fraction){return values.empty()?missing:percentile(values,fraction);};
+        const auto maximum=[&](const std::vector<double>& values){return values.empty()?missing:*std::max_element(values.begin(),values.end());};
+        uint64_t maximumWindows=0;for(const auto& observation:observations)maximumWindows=std::max(maximumWindows,observation.windows);
+        const char* flow=accountingError!=0?"ACCOUNTING_ERROR":lost>0?"FIFO_DROPS":discarded>0?"DISCONTINUITY":windows==0?"NO_ANALYSIS":"NO_LOSS";
+        high<<rate<<",128,"<<size<<','<<EQAnalyzerFIFO::capacity<<','<<highRateObservationMs<<','<<observedElapsed<<','<<audio.callbacks.load()<<','
+            <<produced<<','<<initialPending<<','<<effectiveRate<<','<<productionRatio<<','<<consumed<<','<<discarded<<','<<lost<<','<<pending<<','
+            <<accountingError<<','<<updates<<','<<observations.size()<<','<<unobserved<<','<<queueHighWater<<','<<windows<<','<<firstData<<','
+            <<quantile(gaps,.5)<<','<<quantile(gaps,.99)<<','<<maximum(gaps)<<','<<maximumWindows<<','
+            <<quantile(fftTimes,.5)<<','<<quantile(fftTimes,.99)<<','<<quantile(updateTimes,.5)<<','<<quantile(updateTimes,.99)<<','<<maximum(updateTimes)<<','
+            <<processCPU<<','<<withinNominalRate<<','<<flow<<",NOT_ASSESSED\n";
+        // Write after joining the producer. Polling can miss a timer callback;
+        // retain the missing count instead of claiming complete percentiles.
+        for(const auto& observation:observations)
+            updateRows<<rate<<','<<size<<','<<observation.elapsed<<','<<observation.sequence<<','<<observation.unobserved<<','<<observation.gap<<','
+                <<observation.pendingSnapshot<<','<<observation.consumed<<','<<observation.windows<<','<<observation.fftMicros<<','<<observation.updateMicros<<','
+                <<observation.totalConsumed<<','<<observation.discarded<<','<<observation.dropped<<','<<observation.pending<<'\n';
+        high.flush();updateRows.flush();
+        std::cout<<"OBSERVATION high-rate="<<rate<<" FFT="<<size<<" produced/consumed/discarded/dropped/pending="
+            <<produced<<'/'<<consumed<<'/'<<discarded<<'/'<<lost<<'/'<<pending<<" accounting_error="<<accountingError
+            <<" observed/missed_updates="<<observations.size()<<'/'<<unobserved<<" consumer_gap_p99_ms="<<quantile(gaps,.99)
+            <<" production_ratio="<<productionRatio<<" within_5pct_nominal_rate="<<withinNominalRate
+            <<" sample_flow_status="<<flow<<" performance_acceptance=NOT_ASSESSED"<<std::endl;
+        check(high.good() && updateRows.good(),"High-rate FIFO evidence could not be written");
+        check(accountingError==0,"High-rate FIFO sample accounting does not conserve actual produced samples");
+        check(produced>0 && updates>0 && !observations.empty(),"High-rate native observation did not exercise producer and consumer");
+    }
     processor.prepareToPlay(48000,128);
 }
 }

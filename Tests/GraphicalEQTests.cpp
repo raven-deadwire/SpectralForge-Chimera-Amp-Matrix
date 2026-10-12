@@ -27,7 +27,7 @@ void fill(juce::AudioBuffer<float>& b,int offset,double rate,double hz=1000,doub
     for(int n=0;n<b.getNumSamples();++n)for(int c=0;c<b.getNumChannels();++c)b.setSample(c,n,float(amplitude*std::sin(2*juce::MathConstants<double>::pi*hz*(offset+n)/rate))*(c==1?-.7f:1.f));
 }
 void fifoContract() {
-    EQAnalyzerFIFO f;EQAnalyzerFrame x;
+    auto storage=std::make_unique<EQAnalyzerFIFO>();auto& f=*storage;EQAnalyzerFrame x;
     for(uint32_t n=0;n<EQAnalyzerFIFO::capacity+17;++n)f.push({float(n),float(n+1),float(n+2),float(n+3)});
     check(f.dropped.load()==17,"Analyzer overflow did not drop newest");
     for(uint32_t n=0;n<EQAnalyzerFIFO::capacity;++n){check(f.pop(x),"FIFO lost sample");check(x.inputL==float(n) && x.outputR==float(n+3),"FIFO changed paired stereo ordering");}

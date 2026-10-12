@@ -445,12 +445,15 @@ add_test(NAME ChimeraGraphicalEQTests COMMAND ChimeraGraphicalEQTests "${CMAKE_B
 add_test(NAME ChimeraGraphicalEQUITests COMMAND ChimeraGraphicalEQUITests "${CMAKE_BINARY_DIR}")
 add_test(NAME ChimeraEQAnalyzerTests COMMAND ChimeraEQAnalyzerTests "${CMAKE_BINARY_DIR}")
 set_tests_properties(ChimeraGraphicalEQTests ChimeraGraphicalEQUITests ChimeraEQAnalyzerTests PROPERTIES TIMEOUT 180 RUN_SERIAL TRUE)
-# Observational diagnostic for the known newest-window temporal coverage gap.
-# Recording a missed burst is evidence, never an assertion of product acceptance.
+# Six 10-second native high-rate observations replace the former single 2.6 s
+# probe. Accommodate the added measured duration without changing assertions.
+set_tests_properties(ChimeraGraphicalEQUITests PROPERTIES TIMEOUT 240)
+# Required temporal coverage is also run by ChimeraEQAnalyzerTests. Keep this
+# focused target convenient for investigation, with the same detection gates.
 add_custom_target(ChimeraEQTemporalCoverageProbe
-  COMMAND $<TARGET_FILE:ChimeraEQAnalyzerTests> --temporal-coverage-probe "${CMAKE_BINARY_DIR}"
+  COMMAND $<TARGET_FILE:ChimeraEQAnalyzerTests> --temporal-coverage-regression "${CMAKE_BINARY_DIR}"
   DEPENDS ChimeraEQAnalyzerTests
-  COMMENT "Record EQ analyzer temporal coverage (diagnostic, not an acceptance gate)")
+  COMMENT "Verify EQ transient coverage and update-partition invariance")
 
 # Console UI probes pump AppKit explicitly. Tahoe delays events when the legacy
 # JUCE nested dispatcher waits for a future NSEvent deadline (JUCE issue #1574).

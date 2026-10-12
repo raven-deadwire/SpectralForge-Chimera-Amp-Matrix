@@ -59,7 +59,10 @@ inline EQCoefficients eqCoefficients(int type,double frequency,double gain,doubl
 struct EQAnalyzerFrame {float inputL{},outputL{},inputR{},outputR{};};
 class EQAnalyzerFIFO {
 public:
-    static constexpr uint32_t capacity=8192;
+    // Analysis-only scheduling headroom: 341.33 ms at 192 kHz. The old 8192
+    // frames provided only 2.67 ms spare time beyond the nominal 40 ms UI tick.
+    // A finite queue still reports real losses after longer consumer stalls.
+    static constexpr uint32_t capacity=65536;
     void push(EQAnalyzerFrame frame) noexcept {
         const auto w=write.load(std::memory_order_relaxed);
         if(w-read.load(std::memory_order_acquire)>=capacity) {dropped.fetch_add(1,std::memory_order_relaxed);return;}

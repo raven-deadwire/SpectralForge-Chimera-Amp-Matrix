@@ -7,8 +7,11 @@ namespace spectralforge {
 
 // Analysis-only, single message-thread consumer of the existing SPSC tap.
 // All FFT plans and sample/transform/power buffers are allocated at construction.
-// update() drains one bounded FIFO snapshot and transforms its newest complete
-// rolling window once. It never processes, delays or writes host audio.
+// update() first copies one bounded FIFO snapshot out of the audio queue, then
+// analyzes EVERY complete N/4-hop window in chronological order (75% overlap).
+// The envelope advances per analysis window, not per UI timer, so an attack
+// between paints still contributes even when the latest raw window is silent.
+// It never processes, delays or writes host audio.
 //
 // Display calibration is coherent sinusoidal amplitude in dBFS. L/R powers are
 // averaged (not their waveforms), so opposite-polarity stereo cannot disappear.
@@ -37,21 +40,22 @@ public:
     void setSmoothing(int selection) noexcept {smoothing=std::clamp(selection,0,2);}
 
     void reset(EQAnalyzerFIFO& fifo) noexcept {
-        // Read the drop generation before flushing. A producer drop occurring
-        // during/after that flush must still force recovery on the next update.
-        observedDropped=fifo.dropped.load(std::memory_order_relaxed);fifo.discardPending();
-        clearHistory();pendingReset=false;lastSamplesAt=Clock::now();lastIdleDecayAt=lastSamplesAt;
+        resetSignalHistory(fifo);
+        lastConsumed=lastPending=lastWindows=0;lastTransformMicros=lastUpdateMicros=0;
+        lastConsumerInterval=0;previousUpdateValid=false;
     }
 
     // True means visible spectrum/state changed. The caller owns the visibility
     // gate and must not call update for a hidden or disabled analyzer.
     bool update(EQAnalyzerFIFO& fifo,double rate) noexcept {
         const auto started=Clock::now();
-        bool changed=false;lastConsumed=0;lastTransformMicros=0;
+        lastConsumerInterval=previousUpdateValid?1000.*seconds(started-previousUpdate):0.;
+        previousUpdate=started;previousUpdateValid=true;++updateCount;
+        bool changed=false;lastConsumed=lastWindows=lastPending=0;lastTransformMicros=0;
         rate=std::isfinite(rate)?std::max(8000.,rate):48000.;
-        if(pendingReset) {reset(fifo);changed=true;}
+        if(pendingReset) {resetSignalHistory(fifo);changed=true;}
         if(sampleRate>0 && rate!=sampleRate) {
-            ++discontinuityCount;reset(fifo);sampleRate=rate;return finishUpdate(started,true);
+            ++discontinuityCount;resetSignalHistory(fifo);sampleRate=rate;return finishUpdate(started,true);
         }
         sampleRate=rate;
         const auto droppedAtStart=fifo.dropped.load(std::memory_order_relaxed);
@@ -60,25 +64,36 @@ public:
         }
 
         const auto available=std::min(EQAnalyzerFIFO::capacity,fifo.pendingSamples());
-        EQAnalyzerFrame frame;
-        for(uint32_t n=0;n<available && fifo.pop(frame);++n) {
+        lastPending=available;
+        // Free producer headroom BEFORE the FFT catch-up work. Storage is
+        // preallocated; this snapshot cannot grow while the producer runs.
+        while(lastConsumed<available && fifo.pop(staged[(size_t)lastConsumed]))++lastConsumed;
+        totalConsumed+=lastConsumed; // Successful pops, including an invalidated snapshot.
+        // A concurrent overflow invalidates continuity even if its counter
+        // changed while this snapshot was being copied. Never join both sides.
+        if(fifo.dropped.load(std::memory_order_relaxed)!=observedDropped) {
+            recoverDiscontinuity(fifo);return finishUpdate(started,true);
+        }
+        for(uint32_t n=0;n<lastConsumed;++n) {
+            const auto& frame=staged[(size_t)n];
             const size_t p=(size_t)writePosition;
             history[0][p]=finite(frame.inputL);history[1][p]=finite(frame.outputL);
             history[2][p]=finite(frame.inputR);history[3][p]=finite(frame.outputR);
             writePosition=(writePosition+1)&(selectedSize-1);
-            collected=std::min(selectedSize,collected+1);++lastConsumed;++samplesSinceTransform;
+            collected=std::min(selectedSize,collected+1);++samplesSinceTransform;
+            if(collected==selectedSize && (!smoothingInitialized || samplesSinceTransform>=uint64_t(hopSamples()))) {
+                analyze();++lastWindows;changed=true;
+            }
         }
-        // A concurrent overflow invalidates continuity even if its counter
-        // changed while this snapshot was being drained. Never join both sides.
+        // Work on this complete snapshot is bounded by capacity / hop + 1.
+        // If the new producer backlog overflowed meanwhile, reset rather than
+        // displaying a misleading continuous history or silently skipping work.
         if(fifo.dropped.load(std::memory_order_relaxed)!=observedDropped) {
             recoverDiscontinuity(fifo);return finishUpdate(started,true);
         }
 
         if(lastConsumed>0) {
             lastSamplesAt=started;lastIdleDecayAt=started;idle=false;
-            if(collected==selectedSize) {
-                analyze();changed=true;
-            }
         } else if(seconds(started-lastSamplesAt)>idleGraceSeconds) {
             changed=decayIdle(started)||changed;
         }
@@ -86,9 +101,16 @@ public:
     }
 
     int fftSize() const noexcept {return selectedSize;}
+    int hopSamples() const noexcept {return selectedSize/4;}
     int smoothingMode() const noexcept {return smoothing;}
     int windowSamples() const noexcept {return collected;}
     uint32_t lastConsumedSamples() const noexcept {return lastConsumed;}
+    uint32_t lastPendingSamples() const noexcept {return lastPending;}
+    uint32_t lastFFTWindows() const noexcept {return lastWindows;}
+    uint64_t totalConsumedSamples() const noexcept {return totalConsumed;}
+    uint64_t discardedSamples() const noexcept {return discarded;}
+    uint64_t updates() const noexcept {return updateCount;}
+    double lastConsumerIntervalMs() const noexcept {return lastConsumerInterval;}
     uint64_t samplesSinceLastFFT() const noexcept {return samplesSinceTransform;}
     uint64_t lastAnalysedSamples() const noexcept {return analysedSampleSpan;}
     double lastSampleRate() const noexcept {return sampleRate;}
@@ -154,13 +176,21 @@ private:
         }
     }
     void clearHistory() noexcept {
-        writePosition=collected=0;samplesSinceTransform=analysedSampleSpan=0;lastConsumed=0;
-        validSpectrum=smoothingInitialized=idle=false;lastTransformMicros=lastUpdateMicros=0;
+        writePosition=collected=0;samplesSinceTransform=analysedSampleSpan=0;
+        validSpectrum=smoothingInitialized=idle=false;
         for(auto& p:rawPower)p.fill(floorPower);
         for(auto& p:smoothPower)p.fill(floorPower);
     }
+    void resetSignalHistory(EQAnalyzerFIFO& fifo) noexcept {
+        // Read the drop generation before flushing. A producer drop occurring
+        // during/after that flush must still force recovery on the next update.
+        // This only clears signal history: recovery must retain this update's
+        // actual dequeue count and FFT cost in the diagnostics.
+        observedDropped=fifo.dropped.load(std::memory_order_relaxed);discarded+=fifo.discardPending();
+        clearHistory();pendingReset=false;lastSamplesAt=Clock::now();lastIdleDecayAt=lastSamplesAt;
+    }
     void recoverDiscontinuity(EQAnalyzerFIFO& fifo) noexcept {
-        ++discontinuityCount;reset(fifo);
+        ++discontinuityCount;resetSignalHistory(fifo);
     }
     juce::dsp::FFT& transform() noexcept {
         return selectedSize==2048?fft2048:selectedSize==8192?fft8192:fft4096;
@@ -170,8 +200,7 @@ private:
         const int bins=selectedSize/2+1;
         for(auto& p:rawPower)std::fill_n(p.begin(),bins,0.f);
         for(int stream=0;stream<4;++stream) {
-            // A full circular history ends at writePosition, so reading from it
-            // starts with the oldest sample of the newest complete window.
+            // This chronological N/4-hop endpoint ends at writePosition.
             int cursor=writePosition;
             for(int n=0;n<selectedSize;++n) {
                 work[(size_t)n]=history[(size_t)stream][(size_t)cursor]*window[(size_t)n];
@@ -236,14 +265,18 @@ private:
 
     juce::dsp::FFT fft2048{11},fft4096{12},fft8192{13};
     std::array<std::array<float,maximumFFTSize>,4> history{};
+    std::array<EQAnalyzerFrame,EQAnalyzerFIFO::capacity> staged{};
     std::array<float,maximumFFTSize> window{};
     std::array<float,2*maximumFFTSize> work{};
     std::array<PowerBins,2> rawPower{},smoothPower{};
     int selectedSize{4096},smoothing{1},writePosition{},collected{};
-    uint32_t lastConsumed{};
+    uint32_t lastConsumed{},lastPending{},lastWindows{};
     uint64_t analysedFrames{},samplesSinceTransform{},analysedSampleSpan{},observedDropped{},discontinuityCount{};
+    uint64_t totalConsumed{},discarded{},updateCount{};
     double sampleRate{},windowSum{},lastTransformMicros{},lastUpdateMicros{};
-    bool validSpectrum{},smoothingInitialized{},pendingReset{},idle{};
+    double lastConsumerInterval{};
+    bool validSpectrum{},smoothingInitialized{},pendingReset{},idle{},previousUpdateValid{};
     Clock::time_point lastSamplesAt{Clock::now()},lastIdleDecayAt{lastSamplesAt};
+    Clock::time_point previousUpdate{};
 };
 }

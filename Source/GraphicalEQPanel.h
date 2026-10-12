@@ -66,6 +66,14 @@ public:
     float spectrumDB(bool output,int bin) const noexcept {return spectrum.rawDB(output,bin);}
     int analysisFFTSize() const noexcept {return spectrum.fftSize();}
     double analysisUpdateMicros() const noexcept {return spectrum.updateMicros();}
+    double analysisSampleRate() const noexcept {return spectrum.lastSampleRate();}
+    uint64_t analysisTotalConsumedSamples() const noexcept {return spectrum.totalConsumedSamples();}
+    uint64_t analysisDiscardedSamples() const noexcept {return spectrum.discardedSamples();}
+    uint32_t analysisLastPendingSamples() const noexcept {return spectrum.lastPendingSamples();}
+    uint32_t analysisLastConsumedSamples() const noexcept {return spectrum.lastConsumedSamples();}
+    uint32_t analysisLastFFTWindows() const noexcept {return spectrum.lastFFTWindows();}
+    uint64_t analysisUpdates() const noexcept {return spectrum.updates();}
+    double analysisLastConsumerIntervalMs() const noexcept {return spectrum.lastConsumerIntervalMs();}
     double spectrumPathMicros() const noexcept {return pathMicros;}
     double lastPaintMicros() const noexcept {return paintMicros;}
     float displaySpectrumDB(bool output,int bin) const noexcept {return spectrum.smoothedDB(output,bin);}
