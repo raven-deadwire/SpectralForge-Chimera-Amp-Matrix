@@ -269,6 +269,7 @@ target_include_directories(ChimeraCabPanelStateTests PRIVATE Source)
 target_compile_definitions(ChimeraCabPanelStateTests PRIVATE JUCE_MODAL_LOOPS_PERMITTED=1)
 target_link_libraries(ChimeraCabPanelStateTests PRIVATE ChimeraAmpMatrix ChimeraArtwork ChimeraManual juce::juce_cryptography juce::juce_audio_utils juce::juce_dsp)
 add_test(NAME ChimeraCabPanelStateTests COMMAND ChimeraCabPanelStateTests "${CMAKE_BINARY_DIR}/cab-panel.png")
+add_test(NAME ChimeraCabPanelRoutingTests COMMAND ChimeraCabPanelStateTests --room-ir-regressions)
 
 
 

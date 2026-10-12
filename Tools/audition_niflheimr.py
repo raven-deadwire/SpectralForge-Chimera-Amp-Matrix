@@ -17,7 +17,7 @@ import numpy as np
 from measure_niflheimr import digest, read_wav, save_json, measurement_stage
 
 CHANNELS = ['Hrímfaxi', 'Garmr', 'Nidavellir', 'Ymir', 'Hel']
-PRESETS = ['Frostline Precision', 'Carrion Barrage', 'Foundry Pulse', 'Jötunn Hammer', 'Mirebound Monolith']
+PRESETS = ['Progressive Clank', 'Death Grind', 'Industrial Pulse', 'Slam Punch', 'Doom Fuzz']
 
 
 def load_audio(path):

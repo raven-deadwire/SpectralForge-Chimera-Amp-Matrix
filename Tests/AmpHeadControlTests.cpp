@@ -2,6 +2,7 @@
 #include "CabRoom.h"
 #include "CabHeadAppearanceTests.h"
 #include "NativeMessageLoop.h"
+#include "RigViewTestHelpers.h"
 #include <cmath>
 #include <iostream>
 #include <set>
@@ -678,13 +679,17 @@ int main(int argc,char** argv){try {
     slider=find<juce::Slider>(*view,id);drag(*slider,false);view.reset();check(host.open==0,"Destruction left gesture open");parameter->removeListener(&host);
     // Native editor scale + room head/cabinet navigation use independent targets.
     auto editor=std::make_unique<ChimeraEditor>(*p);editor->addToDesktop(juce::ComponentPeer::windowIsTemporary);editor->setVisible(true);settle();
+    auto* canvas=find<juce::Component>(*editor,"surface");check(canvas,"Missing editor surface");
+    rigViewTests::showControls(*canvas);
     for(int scale:{75,100,125,150}){editor->setSize(1180*scale/100,780*scale/100);settle();screenshot(*editor,directory,"editor-"+juce::String(scale));
         const int writes=all.writes,begins=all.begins;auto* open=find<juce::TextButton>(*editor,"ampHeadOpen1");check(open && open->isShowing(),"Classic head entry missing");open->triggerClick();settle(150);
         AmpHeadWorkspace* full=nullptr;auto& desktop=juce::Desktop::getInstance();for(int i=0;i<desktop.getNumComponents();++i)if(auto* w=find<AmpHeadWorkspace>(*desktop.getComponent(i),"ampHeadWorkspace"))full=w;
         check(full && full->isShowing(),"Head did not open native enlargement");screenshot(*full,directory,"focus-from-editor-"+juce::String(scale));
         closeWorkspace();check(all.writes==writes && all.begins==begins,"Head open/back changed audio state");
     }
-    for(int mode:{1,2}){set(*p,"mode",float(mode));CabRoomOverview* room=nullptr;
+    auto* roomToggle=find<juce::TextButton>(*canvas,"cabRigControls");check(roomToggle && roomToggle->isShowing(),"Room return unavailable after Classic head controls");
+    roomToggle->triggerClick();
+    for(int mode:{0,1,2}){set(*p,"mode",float(mode));CabRoomOverview* room=nullptr;
         // The editor rebuilds routing surfaces asynchronously. Wait for the
         // requested mode's visible targets, not an arbitrary 80 ms timer tick.
         awaitUI([&]{room=find<CabRoomOverview>(*editor,"cabRoomOverview");if(!room || !room->isShowing())return false;

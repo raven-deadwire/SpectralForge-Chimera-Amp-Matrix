@@ -129,7 +129,7 @@ inline void run(const juce::File& directory) {
         set(processor,"cab"+juce::String(lane+1),0);set(processor,"drive"+juce::String(lane+1),.68f);
     }
     processor.setRateAndBufferSizeDetails(48000,256);
-    clickTab(*canvas,"RIGS");auto& amp=selector(*canvas,0);
+    clickTab(*canvas,"RIGS");rigViewTests::showControls(*canvas);auto& amp=selector(*canvas,0);
     require(amp.getNumItems()==spectralforge::ampModelCount,"Editor recall inventory incomplete");
     require(amp.selectMenuResult(3),"Cannot select legacy reference voice through the actual editor");settle();
     std::vector<std::vector<float>> voices;voices.push_back(render(processor));

@@ -176,7 +176,8 @@ inline void run(const juce::File& folder,const juce::File& screenshots) {
     automate("cabblend1",.5f);processor->prepareToPlay(48000,128);
     require(dispatchUntil([&]{return !component<juce::ComboBox>(*controls,"ocab1_Amic").isEnabled()
         && component<juce::ComboBox>(*controls,"ocab1_Bmic").isEnabled()
-        && component<juce::Label>(panel,"cabBstatus1").getText().contains("Ready");}),"Mixed panel readiness or control availability incorrect");
+        && component<juce::Label>(panel,"cabBstatus1").getText().contains("IR inactive")
+        && processor->micStatus(0,1).contains("Ready");}),"Mixed panel readiness or control availability incorrect");
     snapshot(panel,screenshots,"cab-integrated-panel.png");
     processor->releaseResources();
     juce::MemoryBlock saved;require(processor->tryGetStateInformation(saved),"Integrated state save failed");

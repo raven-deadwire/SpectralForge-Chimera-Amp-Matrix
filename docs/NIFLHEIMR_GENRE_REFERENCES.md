@@ -5,6 +5,11 @@ complete factory rigs. The owner's listening result is authoritative: Modern
 Tight and Industrial Bite were accepted; Death Grind, Slam Impact and Sludge
 Mass required revision because they blurred the notes.
 
+Full-rig routing revision: 2026-10-12. The configurations below describe the
+current authored source. Native recall/audio validation and level calibration
+for these revised routes remain pending; the historical channel acceptance
+above does not approve the new full rigs.
+
 ## Channel identity
 
 | Index (unchanged) | Display name | Previous role | Design target |
@@ -126,39 +131,100 @@ literally into Chimera.
 
 ## Original / Niflheimr full-rig bank
 
-Five entries are appended at preset indices 43-47; all previous 0-42 identities
-and display navigation remain intact. The actual amp still has five channels:
-these are optional complete rigs around those channels, not substitutes for
-the channel selector. Full-rig preset names differ from the native channel
-names; the historical serialized preset IDs and indices remain unchanged.
-Each rig explicitly sets all 14 active native controls,
-PRE, cabinet filters, POST, gate and output, so an earlier rig cannot leak in.
+The five entries remain at preset indices 43-47; previous 0-42 identities and
+category navigation remain intact. The 2026-10-12 revision gives them direct
+genre/use names and two Classic, one Dual and two Matrix arrangements. The amp
+still has five independently selectable channels. A full-rig name describes
+the complete configuration, and does not replace a native channel name.
 
-| Full-rig preset | Native amp channel (index) | PRE | Amp BLEND | Amp OUT dB | Cabinet HP / LP | POST / space |
-|---|---|---|---|---|---|---|
-| Frostline Precision | Hrímfaxi (0) | Bass Comp, Graphic EQ | 66% amp | +7.5 | 30 Hz / 6.7 kHz | Console Four contour; dry |
-| Carrion Barrage | Garmr (1) | Graphic EQ, Bass Comp | 72% amp | -2.0 | 32 Hz / 5.9 kHz | Console Four midrange; dry |
-| Foundry Pulse | Nidavellir (2) | Parallel Studio FET, Graphic EQ | 70% amp | +1.0 | 32 Hz / 6.1 kHz | Console Four pulse definition; dry |
-| Jötunn Hammer | Ymir (3) | Bass Comp, Graphic EQ | 66% amp | +1.0 | 27 Hz / 5.1 kHz | Console Four impact contour; dry |
-| Mirebound Monolith | Hel (4) | Gentle Diamond, Graphic EQ | 73% amp | -4.5 | 28 Hz / 3.9 kHz | Dark Passive Tube contour; dry |
+| ID | Current full-rig preset | Previous display name | Routing and channel roles |
+|---|---|---|---|
+| 43 | Progressive Clank | Frostline Precision | Classic: Hrímfaxi (0), full range |
+| 44 | Death Grind | Carrion Barrage | Dual crossover at 180 Hz: restrained Hrímfaxi (0) below the split, Garmr (1) above |
+| 45 | Industrial Pulse | Foundry Pulse | Matrix at 140 / 1600 Hz: clean LOW DI, Nidavellir (2) MID, Hrímfaxi (0) HIGH |
+| 46 | Slam Punch | Jötunn Hammer | Matrix at 110 / 900 Hz: Ymir (3) LOW and MID, Garmr (1) HIGH |
+| 47 | Doom Fuzz | Mirebound Monolith | Classic: Hel (4), full range |
 
-These are authored starting values. Each channel also retains its internal
-protected LOW path; BLEND is not a simple dirty-band-only percentage. PRE uses
-compression and EQ, not full-band drive ahead of the amp's clean branch.
-Compressor positions are Chimera parameter positions, not copied artist
-settings or claims of hardware time-constant calibration. Global **OUTPUT**
-still recalls at **0 dB**. The visible native **Amp OUT** trims apply linear
-makeup after distortion, targeting approximately **-24.5 dBFS RMS** on the
-48 kHz synthetic bass-pluck fixture. This is a synthetic level-consistency
-target, not perceived-loudness matching or musical acceptance; complete-rig
-headroom is also checked with the fixture input raised by 6 dB.
+Every lane in the selected routing mode explicitly recalls its native model,
+channel and all 14 native controls in the matching Classic/Dual/Matrix bank.
+PRE, modeled cabinet, POST, gate, crossovers and output are also authored.
+Changing only the mode would leave unrelated native banks in use; this builder
+sets the banks for the actual routing contexts.
 
-The bundled IRs are guitar cabinets. These bass rigs deliberately use the
-available **Filters only** cabinet mode, without resolving a personal path or
-silently substituting a V30. A user may select a suitable bass IR after recall.
-Factory presets and `.chimera` exports use the same production state path.
-User-added IRs can now be classified as Bass, Guitar or Unspecified and removed
-from the list without changing the source file or already-loaded session audio.
+### Lane and cabinet settings
+
+All active cabinets are Chimera's own bass models. The active microphone is
+Mic A; the alternate Mic B is stored but disabled, with the mic blend at A.
+
+| Preset / lane | Channel | Cabinet · speaker · Mic A | Native BLEND | Native Amp OUT | Mic A level |
+|---|---|---|---:|---:|---:|
+| Progressive Clank / full range | Hrímfaxi | Bass 4x10 · Vector 10 · Anchor 20 | 66% | +7.5 dB | +4.8 dB |
+| Death Grind / below 180 Hz | Hrímfaxi | Bass 2x12 · Chimera Depth 12 · Anchor 20 | 28% | +5.0 dB | +4.0 dB |
+| Death Grind / above 180 Hz | Garmr | Bass 6x10 · Foundry 10 · Hammer 421 | 72% | −2.0 dB | +4.4 dB |
+| Industrial Pulse / LOW | Hrímfaxi, parked | Bass 2x12 · Chimera Depth 12 · Anchor 20, parked; AMP and CAB off | 28%, stored | 0 dB, inactive | 0 dB, inactive |
+| Industrial Pulse / MID | Nidavellir | Bass 4x10 · Alloy 10 · Spear 441 | 70% | +1.0 dB | +5.6 dB |
+| Industrial Pulse / HIGH | Hrímfaxi | Bass 1x12 · Clarity 12 · Prism 414 | 65% | +3.0 dB | +4.0 dB |
+| Slam Punch / LOW | Ymir | Bass 6x10 · Foundry 10 · Anchor 20 | 30% | +3.0 dB | +3.3 dB |
+| Slam Punch / MID | Ymir | Bass 6x10 · Foundry 10 · Anchor 20 | 66% | +1.0 dB | +3.3 dB |
+| Slam Punch / HIGH | Garmr | Bass 4x10 · Alloy 10 · Spear 441 | 68% | −2.0 dB | +2.5 dB |
+| Doom Fuzz / full range | Hel | Bass 1x15 · Monolith 15 · Anchor 20 | 73% | −4.5 dB | +10.1 dB |
+
+The native **BLEND** column is internal to each Niflheimr channel; its protected
+LOW is common to the native clean and driven signals. It is separate from the
+Matrix **LOW DI / AMP + CAB** blend. Industrial Pulse sets the latter to
+**100% DI / 0% AMP + CAB**, with LOW compression at **0.25**. Its parked native
+channel and cabinet remain editable but contribute no sound. Slam Punch sets
+**75% DI / 25% AMP + CAB**, with LOW compression at **0.50**. Its LOW cabinet
+affects only the 25% amplified share. Both Matrix clean taps follow the first
+PRE compressor, before the Graphic EQ; the MID/HIGH input uses the complete
+PRE chain. Death Grind uses crossover Dual, so the stored 50% parallel blend
+does not weight its complementary low/high bands.
+
+| Full-rig preset | PRE | Cabinet HP / LP | POST / space |
+|---|---|---|---|
+| Progressive Clank | Bass Comp, Graphic EQ | 30 Hz / 6.7 kHz | Console Four contour; dry |
+| Death Grind | Graphic EQ, Bass Comp | 32 Hz / 5.9 kHz | Console Four midrange; dry |
+| Industrial Pulse | Parallel Studio FET, Graphic EQ | 32 Hz / 6.1 kHz, stored but inactive on LOW | Console Four pulse definition; dry |
+| Slam Punch | Bass Comp, Graphic EQ | 27 Hz / 5.1 kHz; LOW cuts affect its amplified share | Console Four impact contour; dry |
+| Doom Fuzz | Gentle Diamond, Graphic EQ | 28 Hz / 3.9 kHz | Dark Passive Tube contour; dry |
+
+PRE uses compression and EQ without a full-band drive before the native clean
+branch. Compressor positions are Chimera parameter positions, not copied
+artist settings or hardware time-constant measurements. Global **OUTPUT**
+recalls at **0 dB** in all five presets. The native Amp OUT and microphone
+levels above are visible authored makeup after distortion. Legacy lane LEVEL
+remains 0 dB; native processing does not use it for level correction.
+
+The stored captured-source selectors use ordinal 0, labeled **Filters only**
+when that source is selected. Those selectors are inactive while a modeled
+microphone owns the path. They do not enable an extra Filters-only source
+alongside the modeled cabinet. Cabinet HP/LP cuts remain the explicit cut
+controls of that cabinet path. No factory recall resolves a personal IR path,
+loads a guitar IR in place of a bass model, or requires an external bass IR.
+Selecting an IR later is an explicit source change. Factory presets and
+`.chimera` exports use the production state path.
+
+### Compatibility and verification
+
+The stable IDs remain `original.rig.niflheimr.hrimfaxi.v1`,
+`original.rig.niflheimr.garmr.v1`, `original.rig.niflheimr.nidavellir.v1`,
+`original.rig.niflheimr.ymir.v1` and `original.rig.niflheimr.hel.v1`.
+Only a new factory recall selects the revised arrangements and display names.
+Loading an existing project, user `.chimera` file or A/B snapshot restores its
+stored parameters and metadata, including its previous Classic route, output
+trim and old display name. It does not reauthor the saved sound from its ID.
+
+The revised-route tests are defined in
+[NiflheimrPresetTests.h](../Tests/NiflheimrPresetTests.h). They check contaminated
+state recall, the correct native contexts and all active controls, an audible
+contribution from each route, the inactive Industrial LOW hardware, binary
+restore, A/B audio equality and legacy Classic snapshot preservation. The
+unchanged production-fixture limits are **RMS > −30 dBFS**, **peak < 0.95** at
+both nominal and +6 dB input, with **OUTPUT = 0 dB**. Current native test and
+level-calibration results remain pending. Earlier five-Classic measurements in
+[Factory CAB voicing — historical calibration](FACTORY_CAB_VOICING_1_3.md#historical-local-calibration--2026-10-09)
+are retained as history; they are not measured level matches or acceptance
+evidence for the new Dual/Matrix arrangements.
 
 ## Technical cross-check
 
@@ -181,7 +247,8 @@ The core regression verifies fundamental retention, intermodulation, transient
 behavior and distortion strength using synthetic signals. The accepted-channel
 comparison checks sample-identical behavior at varied rates and moving controls.
 Those checks do not establish musical acceptance. Final acceptance still needs
-the owner's real bass DI, level-matched comparison, suitable bass IR when one is
-available, and listening in a dense mix. Include low B shifted down two semitones,
+the owner's real bass DI, level-matched comparison through the modeled bass
+cabinets, and listening in a dense mix. A separate user-IR comparison is optional.
+Include low B shifted down two semitones,
 fast repeated notes, strong/soft attacks, dyads and long decays. Keep the protected
 low fundamental audible while evaluating each channel's distinct texture.

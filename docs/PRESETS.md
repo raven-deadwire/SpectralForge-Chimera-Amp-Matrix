@@ -127,7 +127,7 @@ recall and level checks.
 | Bank | Stored ordinals | Presets |
 |---|---|---|
 | Náströnd | 38–42 | Thall Rhythm, Molten Lead, Rotten Grind, Sludge Mass, Slam Impact |
-| Niflheimr | 43–47 | Frostline Precision, Carrion Barrage, Foundry Pulse, Jötunn Hammer, Mirebound Monolith |
+| Niflheimr | 43–47 | Progressive Clank, Death Grind, Industrial Pulse, Slam Punch, Doom Fuzz |
 
 The 6×10 assignments use six sources in two columns and three rows. Existing
 user-loaded 8×10 capture audio is retained; the change applies to the unshipped

@@ -199,6 +199,7 @@ inline void run(const juce::File& directory){
     gateLocation->triggerClick();settle();require((processor.parameters().getRawParameterValue("gateAfterRig")->load()>.5f)==originalGateLocation,"POST GATE button cannot restore the prior routing");
     for(const auto* id:{"legacyPreControls","boardEnabled"})require(find(*canvas,id)==nullptr,"Obsolete Legacy/engine-selection control remains in native editor");
     set(processor,"mode",0);tab(*canvas,"RIGS");
+    rigViewTests::showControls(*canvas);
     auto* selector=find<AmpSelector>(*canvas,"ampSelect1");require(selector!=nullptr,"Native UI amp selector missing");
     int channelCases=0,controlCases=0;
     for(int scale=0;scale<2;++scale){editor.setSize(scale?885:1180,scale?585:780);settle();
