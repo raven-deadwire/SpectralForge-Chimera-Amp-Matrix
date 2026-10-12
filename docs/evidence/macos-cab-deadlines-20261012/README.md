@@ -265,3 +265,12 @@ The new A/B conditions mean recording off/on; they are distinct from this
 report's completed caller-QoS experiments. This is diagnostic development, not
 an accepted performance fix. Actual AU/VST3/CoreAudio/DAW and editor-interaction
 tests remain **NOT_EXECUTED** without separate host evidence.
+
+The follow-up implementation at `35617a2e0a5a599c5bd2b2a13113b6f234cd60a3`
+has now completed the registered macOS **instrumentation** ABBA and BAAB
+allocations. The [executed attribution report](callback-attribution/README.md)
+retains their raw-data audits, every diagnostic miss field, observed recording
+effects and the unchanged original gates. Its A/B counts and clocks describe
+different populations from the historical QoS results above. A separate failed
+macOS UI navigation check also remains recorded. Console diagnostic completion
+does not establish a product fix or actual audio-host acceptance.

@@ -18,6 +18,12 @@ interpretation limits. A planned measurement is not a completed measurement.
 Actual execution results require their own source-bound receipts and validation
 record; no prospective entry below certifies a run.
 
+The subsequent [execution report](callback-attribution/README.md) records the
+completed source-bound macOS ABBA/BAAB and portable validation at `35617a2e0a5a`,
+with independent raw-data audits and preserved individual misses. It is a
+separate result record; the protocol and its acceptance boundaries below are
+unchanged.
+
 ## Review of the original observations
 
 The [historical audit](historical/historical-audit.md),
