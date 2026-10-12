@@ -1,0 +1,83 @@
+{
+  "schema": 1,
+  "experiment": "A2 target import-contract and ignored-field probes",
+  "dependency_pins": {
+    "plugin": "ef6f178ae1ac6412b55fec6f058d86e640e5aaaf",
+    "core": "1f42f88535884450104b8711d7595019afa0495b",
+    "juce": "d6181bde38d858c283c3b7bf699ce6340c050b5d"
+  },
+  "binary_sha256": "02e40c31e7483be2dbe9383d193c5918b3d1ce31abce9eba9081dfc63143c6bc",
+  "original_control_model_sha256": "5c88c8d03609a0e3a2341467d3ae7e843af9d36de8e4e007ba85b08b9545b594",
+  "original_control_model": "Nastrond-Fenrir.nam",
+  "samples": 12000,
+  "sample_rate": 48000,
+  "block_size": 64,
+  "input_sha256": "017524615e718be63099d064d382dd4adbfd0ddb90c820c54be2763526edc04a",
+  "input_seed": 26101203,
+  "all_expectations_met": true,
+  "probes": [
+    {
+      "probe": "unchanged_a2",
+      "expected": "accepted",
+      "model_sha256": "7e1108e002c6244b0bbd4bf12f5d6c411c8dae2389ffd8878d88dc6286441381",
+      "exit_code": 0,
+      "stderr": "",
+      "output_created": true,
+      "a2_shape_gate": true,
+      "a2_channels": 8,
+      "output_sha256": "497b3fedc000a34136474d6e7debf2522d2c574a1cc40c612c59243ed2be5ea8",
+      "output_peak": 3.6427650451660156,
+      "observed": "accepted",
+      "expectation_met": true
+    },
+    {
+      "probe": "changed_dilation",
+      "expected": "rejected_at_a2_gate",
+      "model_sha256": "16e3bfd9682f00c42c213503f6aab7d7881db7ccbe21bb1333da6a75bf764345",
+      "exit_code": 1,
+      "stderr": "TONE3000 rejects non-A2 model",
+      "output_created": false,
+      "observed": "rejected_at_a2_gate",
+      "expectation_met": true
+    },
+    {
+      "probe": "changed_head_kernel",
+      "expected": "rejected_at_a2_gate",
+      "model_sha256": "b5150b9c2da8940c50a723c81ba0b832c3f92b29133c537442ae478eb8e457c9",
+      "exit_code": 1,
+      "stderr": "TONE3000 rejects non-A2 model",
+      "output_created": false,
+      "observed": "rejected_at_a2_gate",
+      "expectation_met": true
+    },
+    {
+      "probe": "lstm_architecture_marker",
+      "expected": "rejected_at_a2_gate",
+      "model_sha256": "d59cd9059fadb6db449e03cb3c555135a33ae958ac5e1ca82b85934bed743129",
+      "exit_code": 1,
+      "stderr": "TONE3000 rejects non-A2 model",
+      "output_created": false,
+      "observed": "rejected_at_a2_gate",
+      "expectation_met": true
+    },
+    {
+      "probe": "invalid_condition_dsp_field",
+      "expected": "accepted_but_not_executed",
+      "model_sha256": "3881f4d7225e6686cd173de3608fd9089eff5839b1db5704ce4eb7879fee0e94",
+      "exit_code": 0,
+      "stderr": "",
+      "output_created": true,
+      "a2_shape_gate": true,
+      "a2_channels": 8,
+      "output_sha256": "497b3fedc000a34136474d6e7debf2522d2c574a1cc40c612c59243ed2be5ea8",
+      "output_peak": 3.6427650451660156,
+      "bit_exact_to_unchanged": true,
+      "max_abs_delta_to_unchanged": 0.0,
+      "observed": "accepted_but_not_executed",
+      "expectation_met": true,
+      "interpretation": "The unsupported conditioner is not constructed or executed by the A2 fast path; a successful load must not be reported as recurrent-conditioner support."
+    }
+  ],
+  "release_approved": false,
+  "scope": "Pinned unmodified A2 shape detector and NamEngine called by the existing offline harness. No plugin GUI/DAW validation, browser deployment validation, or acoustic acceptance is implied."
+}

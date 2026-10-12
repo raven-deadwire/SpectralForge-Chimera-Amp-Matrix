@@ -1,0 +1,110 @@
+{
+  "status": "pass",
+  "purpose": "New-environment native renderer check against immutable training capture prefix; not new accuracy experiment or release qualification",
+  "capture_source": "d93560445c78552768a0ed592e5ec62c3c648fb6",
+  "prefix_samples": 192000,
+  "source_hash_audit": "native-renderer-source-hashes.json",
+  "dependencies": {
+    "player": "ef6f178ae1ac6412b55fec6f058d86e640e5aaaf",
+    "core": "1f42f88535884450104b8711d7595019afa0495b",
+    "juce": "d6181bde38d858c283c3b7bf699ce6340c050b5d"
+  },
+  "binaries": {
+    "ChimeraTone3000Tool": {
+      "path": "/workspace/scratch/e8564bd8a57f/build/nam-tools/ChimeraTone3000Tool_artefacts/Release/ChimeraTone3000Tool",
+      "sha256": "02e40c31e7483be2dbe9383d193c5918b3d1ce31abce9eba9081dfc63143c6bc"
+    },
+    "ChimeraNamRender": {
+      "path": "/workspace/scratch/e8564bd8a57f/build/nam-tools/ChimeraNamRender_artefacts/Release/ChimeraNamRender",
+      "sha256": "1e96f28042c229d97a01685834973c184f9b76de208cc107fb39fb7ddbbb3c32"
+    }
+  },
+  "channels": [
+    {
+      "channel": "Fenrir",
+      "samples": 192000,
+      "max_abs_error": 0.0,
+      "rms_error": 0.0,
+      "bit_exact": true,
+      "renderer": {
+        "samples": 192000,
+        "latency": 6,
+        "peak": 3.590630531311035,
+        "rms": 0.745170427966654,
+        "sample_rate": 48000,
+        "oversampling": 4,
+        "block_size": 256,
+        "events": 0
+      }
+    },
+    {
+      "channel": "Surtr",
+      "samples": 192000,
+      "max_abs_error": 0.0,
+      "rms_error": 0.0,
+      "bit_exact": true,
+      "renderer": {
+        "samples": 192000,
+        "latency": 6,
+        "peak": 2.703763723373413,
+        "rms": 1.067887699596834,
+        "sample_rate": 48000,
+        "oversampling": 4,
+        "block_size": 256,
+        "events": 0
+      }
+    },
+    {
+      "channel": "Nidhoggr",
+      "samples": 192000,
+      "max_abs_error": 0.0,
+      "rms_error": 0.0,
+      "bit_exact": true,
+      "renderer": {
+        "samples": 192000,
+        "latency": 6,
+        "peak": 3.437533617019653,
+        "rms": 1.019476209487473,
+        "sample_rate": 48000,
+        "oversampling": 4,
+        "block_size": 256,
+        "events": 0
+      }
+    },
+    {
+      "channel": "Fimbulvetr",
+      "samples": 192000,
+      "max_abs_error": 0.0,
+      "rms_error": 0.0,
+      "bit_exact": true,
+      "renderer": {
+        "samples": 192000,
+        "latency": 6,
+        "peak": 3.565701723098755,
+        "rms": 0.881659921807614,
+        "sample_rate": 48000,
+        "oversampling": 4,
+        "block_size": 256,
+        "events": 0
+      }
+    },
+    {
+      "channel": "Ragnarok",
+      "samples": 192000,
+      "max_abs_error": 0.0,
+      "rms_error": 0.0,
+      "bit_exact": true,
+      "renderer": {
+        "samples": 192000,
+        "latency": 6,
+        "peak": 3.661141157150269,
+        "rms": 1.856859785763477,
+        "sample_rate": 48000,
+        "oversampling": 4,
+        "block_size": 256,
+        "events": 0
+      }
+    }
+  ],
+  "scope": "Unmodified pinned NamEngine, BlockEq, PresetFile built by existing Tools/Nam CMake. Whole plugin GUI/DAW and hosted web player are not qualified."
+}

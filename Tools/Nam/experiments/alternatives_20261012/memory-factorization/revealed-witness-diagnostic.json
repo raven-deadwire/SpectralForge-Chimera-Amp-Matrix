@@ -1,0 +1,325 @@
+{
+  "scope": "Reused revealed-test diagnosis only, not a new independent test",
+  "release_approved": false,
+  "fit_or_selection_performed": false,
+  "training_freeze_sha256": "b4479d760e82c222838b23a4dabb11d80c5113a8926f97f4b534b9184a9350be",
+  "input_sha256": "dd67e0ee995b2fe7b6212eef8108759fcc859ac5d500d58782c5dd0051f2aaf5",
+  "previous_comparison_sha256": "27edb890a955cea174466647bac82127fbae7176fa0b91169d8dcad1936d95fc",
+  "channels": {
+    "Fenrir": {
+      "inverse_forward_rms_dbfs": -270.8128159875083,
+      "original_late_tail_rms_dbfs": -122.84975819930084,
+      "pretarget_late_tail_rms_dbfs": -121.59523351553563,
+      "late_tail_energy_reduction_db": 1.2545246837652115,
+      "late_tail_oracle_residual_rms_dbfs": -121.53777198363387,
+      "oracle_full_esr": 1.1077398793140753e-12,
+      "oracle_quiet_worst_residual_rms_dbfs": -115.21036493493538,
+      "oracle_quiet_worst_residual_peak_dbfs": -106.05172468883075,
+      "quiet_windows": [
+        {
+          "start_sample": 6347,
+          "zero_history_samples": 4096,
+          "oracle_residual_rms_dbfs": -300.0,
+          "oracle_residual_peak_dbfs": -300.0,
+          "pretarget_variance_bound_dbfs": -300.0,
+          "original_variance_bound_dbfs": -300.0
+        },
+        {
+          "start_sample": 1132747,
+          "zero_history_samples": 2497,
+          "oracle_residual_rms_dbfs": -115.21036493493538,
+          "oracle_residual_peak_dbfs": -106.05172468883075,
+          "pretarget_variance_bound_dbfs": -120.14059311997678,
+          "original_variance_bound_dbfs": -121.2108878040465
+        },
+        {
+          "start_sample": 1136843,
+          "zero_history_samples": 4096,
+          "oracle_residual_rms_dbfs": -137.44813565884778,
+          "oracle_residual_peak_dbfs": -128.2089564060993,
+          "pretarget_variance_bound_dbfs": -139.90733630783777,
+          "original_variance_bound_dbfs": -141.8354278152662
+        },
+        {
+          "start_sample": 1140939,
+          "zero_history_samples": 4096,
+          "oracle_residual_rms_dbfs": -173.81468015434453,
+          "oracle_residual_peak_dbfs": -164.60432939347777,
+          "pretarget_variance_bound_dbfs": -175.43863507223253,
+          "original_variance_bound_dbfs": -179.08863606108295
+        },
+        {
+          "start_sample": 1145035,
+          "zero_history_samples": 4096,
+          "oracle_residual_rms_dbfs": -209.8386892144488,
+          "oracle_residual_peak_dbfs": -200.51758637614648,
+          "pretarget_variance_bound_dbfs": -210.40137066815677,
+          "original_variance_bound_dbfs": -216.37559873196804
+        }
+      ],
+      "scope": "Inverse-target and zero-history truncation oracle only. Final profile applies to a real NAM+EQ chain; these values are not an accuracy/compatibility pass.",
+      "original_hard_window": {
+        "start_sample": 1132747,
+        "zero_history_samples": 2497,
+        "oracle_residual_rms_dbfs": -115.21036493493538,
+        "oracle_residual_peak_dbfs": -106.05172468883075,
+        "pretarget_variance_bound_dbfs": -120.14059311997678,
+        "original_variance_bound_dbfs": -121.2108878040465
+      },
+      "job_sha256": "77e631749bb6f7d02d07479c539e8dece6f2cea66b2d73c0c6fb416ba4964b93",
+      "native_sha256": "ae97c65d1ffeb93c8900b741f3f3367bd6e0bb7f69fd0d0bdb8c1b3cc39c8f39"
+    },
+    "Surtr": {
+      "inverse_forward_rms_dbfs": -258.6916029722845,
+      "original_late_tail_rms_dbfs": -84.54095847653535,
+      "pretarget_late_tail_rms_dbfs": -94.53581905263977,
+      "late_tail_energy_reduction_db": -9.994860576104415,
+      "late_tail_oracle_residual_rms_dbfs": -94.75485786880954,
+      "oracle_full_esr": 5.083250556309542e-10,
+      "oracle_quiet_worst_residual_rms_dbfs": -88.74188718921779,
+      "oracle_quiet_worst_residual_peak_dbfs": -78.34785169692546,
+      "quiet_windows": [
+        {
+          "start_sample": 6347,
+          "zero_history_samples": 4096,
+          "oracle_residual_rms_dbfs": -300.0,
+          "oracle_residual_peak_dbfs": -300.0,
+          "pretarget_variance_bound_dbfs": -300.0,
+          "original_variance_bound_dbfs": -300.0
+        },
+        {
+          "start_sample": 1132747,
+          "zero_history_samples": 2497,
+          "oracle_residual_rms_dbfs": -88.74188718921779,
+          "oracle_residual_peak_dbfs": -78.34785169692546,
+          "pretarget_variance_bound_dbfs": -90.93052577029086,
+          "original_variance_bound_dbfs": -78.67089426521835
+        },
+        {
+          "start_sample": 1136843,
+          "zero_history_samples": 4096,
+          "oracle_residual_rms_dbfs": -99.76089951116407,
+          "oracle_residual_peak_dbfs": -89.88539870518608,
+          "pretarget_variance_bound_dbfs": -98.68482590463351,
+          "original_variance_bound_dbfs": -89.27461280669982
+        },
+        {
+          "start_sample": 1140939,
+          "zero_history_samples": 4096,
+          "oracle_residual_rms_dbfs": -114.98371220505602,
+          "oracle_residual_peak_dbfs": -106.72646971426268,
+          "pretarget_variance_bound_dbfs": -112.59109586767208,
+          "original_variance_bound_dbfs": -107.71849707368263
+        },
+        {
+          "start_sample": 1145035,
+          "zero_history_samples": 4096,
+          "oracle_residual_rms_dbfs": -131.20600376425583,
+          "oracle_residual_peak_dbfs": -122.35441517309661,
+          "pretarget_variance_bound_dbfs": -128.10507582573007,
+          "original_variance_bound_dbfs": -125.76551315719874
+        }
+      ],
+      "scope": "Inverse-target and zero-history truncation oracle only. Final profile applies to a real NAM+EQ chain; these values are not an accuracy/compatibility pass.",
+      "original_hard_window": {
+        "start_sample": 1132747,
+        "zero_history_samples": 2497,
+        "oracle_residual_rms_dbfs": -88.74188718921779,
+        "oracle_residual_peak_dbfs": -78.34785169692546,
+        "pretarget_variance_bound_dbfs": -90.93052577029086,
+        "original_variance_bound_dbfs": -78.67089426521835
+      },
+      "job_sha256": "b54e713b8acb4a83d900bc9d1712e09a97cae61ad71bc6e754a202c78feb9177",
+      "native_sha256": "44228d20125d02f5ba29c9e2803a444bb5425ad9339a9eb1dbb1c7db27c72336"
+    },
+    "Nidhoggr": {
+      "inverse_forward_rms_dbfs": -258.2895793667281,
+      "original_late_tail_rms_dbfs": -76.13819455242727,
+      "pretarget_late_tail_rms_dbfs": -90.93520655883785,
+      "late_tail_energy_reduction_db": -14.797012006410583,
+      "late_tail_oracle_residual_rms_dbfs": -91.61818816559094,
+      "oracle_full_esr": 1.021410006512623e-09,
+      "oracle_quiet_worst_residual_rms_dbfs": -86.5480404658033,
+      "oracle_quiet_worst_residual_peak_dbfs": -78.59084028618622,
+      "quiet_windows": [
+        {
+          "start_sample": 6347,
+          "zero_history_samples": 4096,
+          "oracle_residual_rms_dbfs": -300.0,
+          "oracle_residual_peak_dbfs": -300.0,
+          "pretarget_variance_bound_dbfs": -300.0,
+          "original_variance_bound_dbfs": -300.0
+        },
+        {
+          "start_sample": 1132747,
+          "zero_history_samples": 2497,
+          "oracle_residual_rms_dbfs": -86.5480404658033,
+          "oracle_residual_peak_dbfs": -78.59084028618622,
+          "pretarget_variance_bound_dbfs": -86.20559328982601,
+          "original_variance_bound_dbfs": -70.29756556099807
+        },
+        {
+          "start_sample": 1136843,
+          "zero_history_samples": 4096,
+          "oracle_residual_rms_dbfs": -91.46931177945478,
+          "oracle_residual_peak_dbfs": -84.52768693222666,
+          "pretarget_variance_bound_dbfs": -90.12383409763055,
+          "original_variance_bound_dbfs": -79.4720799095666
+        },
+        {
+          "start_sample": 1140939,
+          "zero_history_samples": 4096,
+          "oracle_residual_rms_dbfs": -103.73165253681074,
+          "oracle_residual_peak_dbfs": -96.09875072148628,
+          "pretarget_variance_bound_dbfs": -101.27802490855433,
+          "original_variance_bound_dbfs": -95.16043954379569
+        },
+        {
+          "start_sample": 1145035,
+          "zero_history_samples": 4096,
+          "oracle_residual_rms_dbfs": -117.00540209443577,
+          "oracle_residual_peak_dbfs": -108.99960231875008,
+          "pretarget_variance_bound_dbfs": -113.64537242897737,
+          "original_variance_bound_dbfs": -110.76287518946557
+        }
+      ],
+      "scope": "Inverse-target and zero-history truncation oracle only. Final profile applies to a real NAM+EQ chain; these values are not an accuracy/compatibility pass.",
+      "original_hard_window": {
+        "start_sample": 1132747,
+        "zero_history_samples": 2497,
+        "oracle_residual_rms_dbfs": -86.5480404658033,
+        "oracle_residual_peak_dbfs": -78.59084028618622,
+        "pretarget_variance_bound_dbfs": -86.20559328982601,
+        "original_variance_bound_dbfs": -70.29756556099807
+      },
+      "job_sha256": "09b0d92c45fa4bb4ba2a76c32e83049dc22d9639dec03c4a8fb9cc1e80689258",
+      "native_sha256": "4ee26424196c4cde7e9cc862857ee4b916f05060721e4d7b70f6dd99fed43089"
+    },
+    "Fimbulvetr": {
+      "inverse_forward_rms_dbfs": -264.85254412656224,
+      "original_late_tail_rms_dbfs": -73.45968690261606,
+      "pretarget_late_tail_rms_dbfs": -75.6245967786635,
+      "late_tail_energy_reduction_db": -2.164909876047446,
+      "late_tail_oracle_residual_rms_dbfs": -76.36211313463168,
+      "oracle_full_esr": 3.824728174407187e-08,
+      "oracle_quiet_worst_residual_rms_dbfs": -71.25701748065896,
+      "oracle_quiet_worst_residual_peak_dbfs": -63.347661878902315,
+      "quiet_windows": [
+        {
+          "start_sample": 6347,
+          "zero_history_samples": 4096,
+          "oracle_residual_rms_dbfs": -300.0,
+          "oracle_residual_peak_dbfs": -300.0,
+          "pretarget_variance_bound_dbfs": -300.0,
+          "original_variance_bound_dbfs": -300.0
+        },
+        {
+          "start_sample": 1132747,
+          "zero_history_samples": 2497,
+          "oracle_residual_rms_dbfs": -71.25701748065896,
+          "oracle_residual_peak_dbfs": -63.347661878902315,
+          "pretarget_variance_bound_dbfs": -70.82848261464564,
+          "original_variance_bound_dbfs": -68.03325797098152
+        },
+        {
+          "start_sample": 1136843,
+          "zero_history_samples": 4096,
+          "oracle_residual_rms_dbfs": -76.42605440269014,
+          "oracle_residual_peak_dbfs": -69.52914278759245,
+          "pretarget_variance_bound_dbfs": -74.98983715610888,
+          "original_variance_bound_dbfs": -74.61528968056693
+        },
+        {
+          "start_sample": 1140939,
+          "zero_history_samples": 4096,
+          "oracle_residual_rms_dbfs": -87.25336368999889,
+          "oracle_residual_peak_dbfs": -79.85866500566848,
+          "pretarget_variance_bound_dbfs": -84.96175943488778,
+          "original_variance_bound_dbfs": -86.46737199730049
+        },
+        {
+          "start_sample": 1145035,
+          "zero_history_samples": 4096,
+          "oracle_residual_rms_dbfs": -98.72113955344588,
+          "oracle_residual_peak_dbfs": -91.47329190478135,
+          "pretarget_variance_bound_dbfs": -95.81850195462096,
+          "original_variance_bound_dbfs": -98.40156834572531
+        }
+      ],
+      "scope": "Inverse-target and zero-history truncation oracle only. Final profile applies to a real NAM+EQ chain; these values are not an accuracy/compatibility pass.",
+      "original_hard_window": {
+        "start_sample": 1132747,
+        "zero_history_samples": 2497,
+        "oracle_residual_rms_dbfs": -71.25701748065896,
+        "oracle_residual_peak_dbfs": -63.347661878902315,
+        "pretarget_variance_bound_dbfs": -70.82848261464564,
+        "original_variance_bound_dbfs": -68.03325797098152
+      },
+      "job_sha256": "44e14d8c46a39356d3e7d9bd117b0c4b1e9e9d35fd5e43e5aadfa551b830e58b",
+      "native_sha256": "43f1aee85524e89b0a739e6df43fc38a6702f51801f343e7be66e6ee9779aec6"
+    },
+    "Ragnarok": {
+      "inverse_forward_rms_dbfs": -266.26635644873255,
+      "original_late_tail_rms_dbfs": -101.2941872991924,
+      "pretarget_late_tail_rms_dbfs": -101.97580222410357,
+      "late_tail_energy_reduction_db": -0.6816149249111731,
+      "late_tail_oracle_residual_rms_dbfs": -102.13461977230628,
+      "oracle_full_esr": 1.212873506745492e-10,
+      "oracle_quiet_worst_residual_rms_dbfs": -95.84871276796306,
+      "oracle_quiet_worst_residual_peak_dbfs": -83.8811669888926,
+      "quiet_windows": [
+        {
+          "start_sample": 6347,
+          "zero_history_samples": 4096,
+          "oracle_residual_rms_dbfs": -300.0,
+          "oracle_residual_peak_dbfs": -300.0,
+          "pretarget_variance_bound_dbfs": -300.0,
+          "original_variance_bound_dbfs": -300.0
+        },
+        {
+          "start_sample": 1132747,
+          "zero_history_samples": 2497,
+          "oracle_residual_rms_dbfs": -95.84871276796306,
+          "oracle_residual_peak_dbfs": -83.8811669888926,
+          "pretarget_variance_bound_dbfs": -97.01121115504257,
+          "original_variance_bound_dbfs": -96.04209153111603
+        },
+        {
+          "start_sample": 1136843,
+          "zero_history_samples": 4096,
+          "oracle_residual_rms_dbfs": -114.12085047718344,
+          "oracle_residual_peak_dbfs": -101.52172046282334,
+          "pretarget_variance_bound_dbfs": -112.9912995075347,
+          "original_variance_bound_dbfs": -113.11685026993027
+        },
+        {
+          "start_sample": 1140939,
+          "zero_history_samples": 4096,
+          "oracle_residual_rms_dbfs": -141.03182796332388,
+          "oracle_residual_peak_dbfs": -131.3860905287338,
+          "pretarget_variance_bound_dbfs": -137.42516516375412,
+          "original_variance_bound_dbfs": -139.22481280209604
+        },
+        {
+          "start_sample": 1145035,
+          "zero_history_samples": 4096,
+          "oracle_residual_rms_dbfs": -166.70883926614795,
+          "oracle_residual_peak_dbfs": -156.49056385182988,
+          "pretarget_variance_bound_dbfs": -162.13616467695388,
+          "original_variance_bound_dbfs": -165.2457157159294
+        }
+      ],
+      "scope": "Inverse-target and zero-history truncation oracle only. Final profile applies to a real NAM+EQ chain; these values are not an accuracy/compatibility pass.",
+      "original_hard_window": {
+        "start_sample": 1132747,
+        "zero_history_samples": 2497,
+        "oracle_residual_rms_dbfs": -95.84871276796306,
+        "oracle_residual_peak_dbfs": -83.8811669888926,
+        "pretarget_variance_bound_dbfs": -97.01121115504257,
+        "original_variance_bound_dbfs": -96.04209153111603
+      },
+      "job_sha256": "21150dc2d4900fd8c451c36ec8740151dc5223a6e47273c340379c86c29155b6",
+      "native_sha256": "18146273b91c7c0ad8bc6fdfb2f6072af92033a8753ba44f2753ad791e3653c1"
+    }
+  }
+}

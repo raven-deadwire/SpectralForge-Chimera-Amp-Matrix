@@ -1,0 +1,284 @@
+{
+  "parent_source": "859fea9bc49c4b9981c926a314655e485c51027c",
+  "selection_sha256": "0f136e033c1a9d2aaf046dbc93c1c9f033c4ff3b157002f99b6ac00ba3ee6584",
+  "seed": 2610122201,
+  "seconds": 24,
+  "quality_profile": {
+    "id": "nastrond-tone3000-fidelity-v1",
+    "authority": "project acceptance policy; not a TONE3000 certification",
+    "window_samples": 4096,
+    "skip_samples": 6347,
+    "active_reference_rms_min_dbfs": -60.0,
+    "full_esr_max_exclusive": 0.01,
+    "esr_guidance_source": "https://www.tone3000.com/guides/capture-your-gear-with-nam-dry-wet",
+    "active_window_esr_median_max": 0.005,
+    "active_window_esr_p95_max": 0.01,
+    "active_window_esr_worst_max": 0.02,
+    "quiet_residual_rms_max_dbfs": -70.0,
+    "quiet_residual_peak_max_dbfs": -60.0,
+    "rms_error_max_db": 0.5,
+    "peak_error_max_db": 1.0,
+    "steady_silence_rms_max_dbfs": -80.0,
+    "engine_parity_residual_max_dbfs": -80.0,
+    "level_anchor": "delivered v0.2 reference_output_scale, frozen per channel",
+    "source_output_scale": {
+      "Fenrir": 0.09195752759643712,
+      "Surtr": 0.09034985741800312,
+      "Nidhoggr": 0.0860012970451488,
+      "Fimbulvetr": 0.09721294970620417,
+      "Ragnarok": 0.05162876564505051
+    }
+  },
+  "policy_sha256": "6c245586da78b30c4f977293e54589097854ba7b49675a6b7d30fa05d1ab402e",
+  "script_sha256": "6b7205e5e3441f4de91c9a784946e7545e204c3baf51217d7f51ea5487ba7435",
+  "native_source": {
+    "source_commit": "d93560445c78552768a0ed592e5ec62c3c648fb6",
+    "source_hashes": {
+      "Source/Amplifier.h": "67ea06291ac61c561fb011a883f26d76aceca3c31c8028526bc4ed6a7fb8f254",
+      "Source/AmpNativeDSP.h": "3f53d3fd64b31fc0d746e5fbcf059bb86d335084b4280a41c96c336aec9a1b60",
+      "Source/OriginalAmpDSP.h": "7595c2bf32af62d7b3863d0b9551139d319b7ec3b108a0053b34f6072559de3c",
+      "Source/OriginalAmpDefinition.h": "edf22de4734d189551d5a68b9ca84738f25ab0623a8bb6ada9519d105933f62b",
+      "Source/AmpNativeCalibration.h": "87f01c0e4e465f6161431bcc58d7d0d2d162f76527656db88f05b4a6685d0cb1",
+      "Source/AmpNativeCatalog.h": "77887a5bc80afd53f9de7e1c4f33f0c958877264d06b1afa7671a924b0dc4038",
+      "Source/AmpCatalog.h": "269d66eee5d42815d5d23350f118014fb6816b7fcf01c0f73f8a9a86e2b7703e",
+      "Source/NewAmpDSP.h": "35e15da80253d3edfd474990e675e920f8ad2cb23402bb21e45b5fe4f3013337"
+    },
+    "renderer_sha256": "2599523b8ca2cfbbd7239242f9cfe3ab62d0b462c89309035dd6e1038cd43b08",
+    "sample_rate": 48000,
+    "oversampling": 4,
+    "block_size": 256,
+    "alignment": "unshifted native output, including production latency",
+    "input_trim_db": 0,
+    "output_trim_db": 0,
+    "cabinet": false,
+    "pre_post_effects": false,
+    "input_kind": "synthetic; not recorded instrument DI"
+  },
+  "renderer_sha256": "1e96f28042c229d97a01685834973c184f9b76de208cc107fb39fb7ddbbb3c32",
+  "tool_sha256": "02e40c31e7483be2dbe9383d193c5918b3d1ce31abce9eba9081dfc63143c6bc",
+  "models": {
+    "baseline": {
+      "Fenrir": "5c88c8d03609a0e3a2341467d3ae7e843af9d36de8e4e007ba85b08b9545b594",
+      "Surtr": "c3dbc6092fed41c54b2d8b7486b5538495c617fb419a7563e307e67931957edb",
+      "Nidhoggr": "fec3d9a7fd4a0c92ea30f90e9aee20034fa7acfb456413a4407e5062d9fb8474",
+      "Fimbulvetr": "df28b1397a973d28c50d53d3bdab2e4c63df8850ebb39ba2efa8c1a27f17668d",
+      "Ragnarok": "c99712054961360701cb76554aca2e021745ba769dcfc9ecb1ad138723384fc4"
+    },
+    "raw": {
+      "Fenrir": "7cf7162a38c9f506e2b6185299d611faf06d404c93465129f9f3e41ebf82ef32",
+      "Surtr": "778dd35a7a08ba950ac07ecccc2658f26375d18da424142922b3fda1709eb35a",
+      "Nidhoggr": "c83461b1b7fb1737aa02bf58e876f5302bdc50042fdaa85ee82127fcb4147901",
+      "Fimbulvetr": "f5b7326c188d9bf81d63581d07357037e9029e3225b197af4d25a01fc8994e85",
+      "Ragnarok": "f4be37f89e4b431c8ef8c502fe2a214d8fe0b63a10b942bf53a82baa96cbc820"
+    },
+    "eq-chain": {
+      "Fenrir": "60e9d91177dcea304f2864b25f5497d26519d38db91374e6b1c4f7a52ab0c4de",
+      "Surtr": "aff819cc7e91f57d9b97dfd7ad7f881ad947d7e0ca1ad8ebbb7e7f137e6c07f6",
+      "Nidhoggr": "0192446dc31b40d31f155359ea36b93e1a652a871eba44bc934aedb7154837ee",
+      "Fimbulvetr": "9b0972a89b8c0c0276c3249b331d5c180edfd67b1558ca44022465e3a008eb77",
+      "Ragnarok": "0f89052b74c6e34a12ad12a1e96abc0e7bd11fe579f58a193d8d30c77a41b973"
+    }
+  },
+  "jobs": {
+    "baseline": {
+      "Fenrir": "d7759aaab367b41c26fe6330f215bc37e195f80eb661e074d5200e12ef5c7817",
+      "Surtr": "d7759aaab367b41c26fe6330f215bc37e195f80eb661e074d5200e12ef5c7817",
+      "Nidhoggr": "d7759aaab367b41c26fe6330f215bc37e195f80eb661e074d5200e12ef5c7817",
+      "Fimbulvetr": "d7759aaab367b41c26fe6330f215bc37e195f80eb661e074d5200e12ef5c7817",
+      "Ragnarok": "d7759aaab367b41c26fe6330f215bc37e195f80eb661e074d5200e12ef5c7817"
+    },
+    "raw": {
+      "Fenrir": "d7759aaab367b41c26fe6330f215bc37e195f80eb661e074d5200e12ef5c7817",
+      "Surtr": "d7759aaab367b41c26fe6330f215bc37e195f80eb661e074d5200e12ef5c7817",
+      "Nidhoggr": "d7759aaab367b41c26fe6330f215bc37e195f80eb661e074d5200e12ef5c7817",
+      "Fimbulvetr": "d7759aaab367b41c26fe6330f215bc37e195f80eb661e074d5200e12ef5c7817",
+      "Ragnarok": "d7759aaab367b41c26fe6330f215bc37e195f80eb661e074d5200e12ef5c7817"
+    },
+    "eq-chain": {
+      "Fenrir": "457e855c15cb418711fa06098d593eb4bcd60bbe86a339b8fb94cfe3bd2a5da7",
+      "Surtr": "de430ab7c2441109b69da7f06907115145dadd001fab251951f29bcf7ed2dcf9",
+      "Nidhoggr": "7e9ec49aee778ad5c2c806b9e5dd64fd59f6573d4e9f67afe38b7bef14752681",
+      "Fimbulvetr": "d98c2d32d55aa3ede7182d4651832964895aa1aa2cd0f5b36ada2e337b979538",
+      "Ragnarok": "87d545ad47d89b712dd9c183103d5682d8cd564911b9c257c6336585282e3af8"
+    }
+  },
+  "frozen_validation_roles": {
+    "baseline": {
+      "Fenrir": [
+        "baseline"
+      ],
+      "Surtr": [
+        "baseline"
+      ],
+      "Nidhoggr": [
+        "baseline"
+      ],
+      "Fimbulvetr": [
+        "baseline"
+      ],
+      "Ragnarok": [
+        "baseline",
+        "selected"
+      ]
+    },
+    "raw": {
+      "Fenrir": [
+        "selected",
+        "best-esr-raw"
+      ],
+      "Surtr": [
+        "best-esr-raw"
+      ],
+      "Nidhoggr": [
+        "best-esr-raw"
+      ],
+      "Fimbulvetr": [
+        "best-esr-raw"
+      ],
+      "Ragnarok": [
+        "best-esr-raw"
+      ]
+    },
+    "eq-chain": {
+      "Fenrir": [
+        "best-esr-eq-chain"
+      ],
+      "Surtr": [
+        "selected",
+        "best-esr-eq-chain"
+      ],
+      "Nidhoggr": [
+        "best-esr-eq-chain"
+      ],
+      "Fimbulvetr": [
+        "selected",
+        "best-esr-eq-chain"
+      ],
+      "Ragnarok": [
+        "best-esr-eq-chain"
+      ]
+    }
+  },
+  "role_scope": "best-esr arms are descriptive even when selection guards rejected them; no role is release approval",
+  "native_jobs": {
+    "Fenrir": "784407452810707a0318880bcd7dfd6b3890f1efe552ed2210a1ce48d0185488",
+    "Surtr": "1cbfcfcf27f775c623867588b85fd22e22adbc6950a0a68772b137b9962047dc",
+    "Nidhoggr": "c6adcc1c53951f7ffc19ae06f0f97a224341e9bc662373b8382508182f1ad932",
+    "Fimbulvetr": "ea0a04bf9d3798e8469a7a6406a0587e97f5f2a099f5f4f4e46ee1fffa767c8f",
+    "Ragnarok": "dbc4c3c55d727d12442354e9b51087d64d8458c661a83ea96c7ebde5602d16eb"
+  },
+  "sealed_files": {
+    "/workspace/scratch/e8564bd8a57f/headfit-evidence/selection.json": "0f136e033c1a9d2aaf046dbc93c1c9f033c4ff3b157002f99b6ac00ba3ee6584",
+    "/workspace/scratch/e8564bd8a57f/headfit-evidence/plan.json": "e9a9061129db57cbf64bc95c8caab84af08452abcebf8b0ec836cbf5cb3fabe3",
+    "/workspace/scratch/e8564bd8a57f/headfit-evidence/validation.json": "58928c0ca01d0aebcf981e4e437a3a4bf982f68ba6d8c151a22f2a73c3b301ce",
+    "/workspace/scratch/e8564bd8a57f/evidence-input/restored/failed-full/data/manifest.json": "ab21a98603f4d2db264c37f480158003209230e71ec2b96c92169863163d7abe",
+    "/workspace/scratch/e8564bd8a57f/nam-alternatives/Tools/Nam/experiments/alternatives_20261012/native-tool-build.json": "563fa732975b6397664a24a85306e9da64d21555516e3c56f1b5a27253556917",
+    "/workspace/scratch/e8564bd8a57f/nam-alternatives/Tools/Nam/experiments/alternatives_20261012/evaluate_candidates.py": "6b7205e5e3441f4de91c9a784946e7545e204c3baf51217d7f51ea5487ba7435",
+    "/workspace/scratch/e8564bd8a57f/nam-alternatives/Tools/Nam/common.py": "696393670eee85fc4ab2c250668bb80746eb8e3c0231d256a2d2da5b07e4db83",
+    "/workspace/scratch/e8564bd8a57f/nam-alternatives/Tools/Nam/train_a2.py": "63111f1ab43999524c189136bc5f832492808cc68e8dc7ef453b41508a3cb907",
+    "/workspace/scratch/e8564bd8a57f/nam-alternatives/Tools/Nam/quality_profile.py": "6c245586da78b30c4f977293e54589097854ba7b49675a6b7d30fa05d1ab402e",
+    "/workspace/scratch/e8564bd8a57f/nam-alternatives/Tools/Nam/experiments/alternatives_20261012/memory_factorization.py": "640897689d4e96373c50e6b016235b0cc8a6d4a359e853b49380930f0e513c4f",
+    "/workspace/scratch/e8564bd8a57f/build/nam-tools/ChimeraNamRender_artefacts/Release/ChimeraNamRender": "1e96f28042c229d97a01685834973c184f9b76de208cc107fb39fb7ddbbb3c32",
+    "/workspace/scratch/e8564bd8a57f/build/nam-tools/ChimeraTone3000Tool_artefacts/Release/ChimeraTone3000Tool": "02e40c31e7483be2dbe9383d193c5918b3d1ce31abce9eba9081dfc63143c6bc",
+    "/workspace/scratch/e8564bd8a57f/nam-alternatives/Source/Amplifier.h": "67ea06291ac61c561fb011a883f26d76aceca3c31c8028526bc4ed6a7fb8f254",
+    "/workspace/scratch/e8564bd8a57f/nam-alternatives/Source/AmpNativeDSP.h": "3f53d3fd64b31fc0d746e5fbcf059bb86d335084b4280a41c96c336aec9a1b60",
+    "/workspace/scratch/e8564bd8a57f/nam-alternatives/Source/OriginalAmpDSP.h": "7595c2bf32af62d7b3863d0b9551139d319b7ec3b108a0053b34f6072559de3c",
+    "/workspace/scratch/e8564bd8a57f/nam-alternatives/Source/OriginalAmpDefinition.h": "edf22de4734d189551d5a68b9ca84738f25ab0623a8bb6ada9519d105933f62b",
+    "/workspace/scratch/e8564bd8a57f/nam-alternatives/Source/AmpNativeCalibration.h": "87f01c0e4e465f6161431bcc58d7d0d2d162f76527656db88f05b4a6685d0cb1",
+    "/workspace/scratch/e8564bd8a57f/nam-alternatives/Source/AmpNativeCatalog.h": "77887a5bc80afd53f9de7e1c4f33f0c958877264d06b1afa7671a924b0dc4038",
+    "/workspace/scratch/e8564bd8a57f/nam-alternatives/Source/AmpCatalog.h": "269d66eee5d42815d5d23350f118014fb6816b7fcf01c0f73f8a9a86e2b7703e",
+    "/workspace/scratch/e8564bd8a57f/nam-alternatives/Source/NewAmpDSP.h": "35e15da80253d3edfd474990e675e920f8ad2cb23402bb21e45b5fe4f3013337",
+    "/workspace/scratch/e8564bd8a57f/evidence-input/restored/fresh-test/input.npy": "dd67e0ee995b2fe7b6212eef8108759fcc859ac5d500d58782c5dd0051f2aaf5",
+    "/workspace/scratch/e8564bd8a57f/evidence-input/restored/fresh-test/Fenrir-native.npy": "ae97c65d1ffeb93c8900b741f3f3367bd6e0bb7f69fd0d0bdb8c1b3cc39c8f39",
+    "/workspace/scratch/e8564bd8a57f/evidence-input/restored/fresh-test/Surtr-native.npy": "44228d20125d02f5ba29c9e2803a444bb5425ad9339a9eb1dbb1c7db27c72336",
+    "/workspace/scratch/e8564bd8a57f/evidence-input/restored/fresh-test/Nidhoggr-native.npy": "4ee26424196c4cde7e9cc862857ee4b916f05060721e4d7b70f6dd99fed43089",
+    "/workspace/scratch/e8564bd8a57f/evidence-input/restored/fresh-test/Fimbulvetr-native.npy": "43f1aee85524e89b0a739e6df43fc38a6702f51801f343e7be66e6ee9779aec6",
+    "/workspace/scratch/e8564bd8a57f/evidence-input/restored/fresh-test/Ragnarok-native.npy": "18146273b91c7c0ad8bc6fdfb2f6072af92033a8753ba44f2753ad791e3653c1",
+    "/workspace/scratch/e8564bd8a57f/headfit-evidence/baseline/Nastrond-Fenrir.nam": "5c88c8d03609a0e3a2341467d3ae7e843af9d36de8e4e007ba85b08b9545b594",
+    "/workspace/scratch/e8564bd8a57f/headfit-evidence/baseline/Fenrir-job.json": "d7759aaab367b41c26fe6330f215bc37e195f80eb661e074d5200e12ef5c7817",
+    "/dev/shm/nam-alternatives-evaluation-20261012/baseline-Fenrir-job.json": "d7759aaab367b41c26fe6330f215bc37e195f80eb661e074d5200e12ef5c7817",
+    "/workspace/scratch/e8564bd8a57f/headfit-evidence/baseline/Nastrond-Surtr.nam": "c3dbc6092fed41c54b2d8b7486b5538495c617fb419a7563e307e67931957edb",
+    "/workspace/scratch/e8564bd8a57f/headfit-evidence/baseline/Surtr-job.json": "d7759aaab367b41c26fe6330f215bc37e195f80eb661e074d5200e12ef5c7817",
+    "/dev/shm/nam-alternatives-evaluation-20261012/baseline-Surtr-job.json": "d7759aaab367b41c26fe6330f215bc37e195f80eb661e074d5200e12ef5c7817",
+    "/workspace/scratch/e8564bd8a57f/headfit-evidence/baseline/Nastrond-Nidhoggr.nam": "fec3d9a7fd4a0c92ea30f90e9aee20034fa7acfb456413a4407e5062d9fb8474",
+    "/workspace/scratch/e8564bd8a57f/headfit-evidence/baseline/Nidhoggr-job.json": "d7759aaab367b41c26fe6330f215bc37e195f80eb661e074d5200e12ef5c7817",
+    "/dev/shm/nam-alternatives-evaluation-20261012/baseline-Nidhoggr-job.json": "d7759aaab367b41c26fe6330f215bc37e195f80eb661e074d5200e12ef5c7817",
+    "/workspace/scratch/e8564bd8a57f/headfit-evidence/baseline/Nastrond-Fimbulvetr.nam": "df28b1397a973d28c50d53d3bdab2e4c63df8850ebb39ba2efa8c1a27f17668d",
+    "/workspace/scratch/e8564bd8a57f/headfit-evidence/baseline/Fimbulvetr-job.json": "d7759aaab367b41c26fe6330f215bc37e195f80eb661e074d5200e12ef5c7817",
+    "/dev/shm/nam-alternatives-evaluation-20261012/baseline-Fimbulvetr-job.json": "d7759aaab367b41c26fe6330f215bc37e195f80eb661e074d5200e12ef5c7817",
+    "/workspace/scratch/e8564bd8a57f/headfit-evidence/baseline/Nastrond-Ragnarok.nam": "c99712054961360701cb76554aca2e021745ba769dcfc9ecb1ad138723384fc4",
+    "/workspace/scratch/e8564bd8a57f/headfit-evidence/baseline/Ragnarok-job.json": "d7759aaab367b41c26fe6330f215bc37e195f80eb661e074d5200e12ef5c7817",
+    "/dev/shm/nam-alternatives-evaluation-20261012/baseline-Ragnarok-job.json": "d7759aaab367b41c26fe6330f215bc37e195f80eb661e074d5200e12ef5c7817",
+    "/workspace/scratch/e8564bd8a57f/headfit-evidence/best-esr-raw/Nastrond-Fenrir.nam": "7cf7162a38c9f506e2b6185299d611faf06d404c93465129f9f3e41ebf82ef32",
+    "/workspace/scratch/e8564bd8a57f/headfit-evidence/best-esr-raw/Fenrir-job.json": "d7759aaab367b41c26fe6330f215bc37e195f80eb661e074d5200e12ef5c7817",
+    "/dev/shm/nam-alternatives-evaluation-20261012/raw-Fenrir-job.json": "d7759aaab367b41c26fe6330f215bc37e195f80eb661e074d5200e12ef5c7817",
+    "/workspace/scratch/e8564bd8a57f/headfit-evidence/best-esr-raw/Nastrond-Surtr.nam": "778dd35a7a08ba950ac07ecccc2658f26375d18da424142922b3fda1709eb35a",
+    "/workspace/scratch/e8564bd8a57f/headfit-evidence/best-esr-raw/Surtr-job.json": "d7759aaab367b41c26fe6330f215bc37e195f80eb661e074d5200e12ef5c7817",
+    "/dev/shm/nam-alternatives-evaluation-20261012/raw-Surtr-job.json": "d7759aaab367b41c26fe6330f215bc37e195f80eb661e074d5200e12ef5c7817",
+    "/workspace/scratch/e8564bd8a57f/headfit-evidence/best-esr-raw/Nastrond-Nidhoggr.nam": "c83461b1b7fb1737aa02bf58e876f5302bdc50042fdaa85ee82127fcb4147901",
+    "/workspace/scratch/e8564bd8a57f/headfit-evidence/best-esr-raw/Nidhoggr-job.json": "d7759aaab367b41c26fe6330f215bc37e195f80eb661e074d5200e12ef5c7817",
+    "/dev/shm/nam-alternatives-evaluation-20261012/raw-Nidhoggr-job.json": "d7759aaab367b41c26fe6330f215bc37e195f80eb661e074d5200e12ef5c7817",
+    "/workspace/scratch/e8564bd8a57f/headfit-evidence/best-esr-raw/Nastrond-Fimbulvetr.nam": "f5b7326c188d9bf81d63581d07357037e9029e3225b197af4d25a01fc8994e85",
+    "/workspace/scratch/e8564bd8a57f/headfit-evidence/best-esr-raw/Fimbulvetr-job.json": "d7759aaab367b41c26fe6330f215bc37e195f80eb661e074d5200e12ef5c7817",
+    "/dev/shm/nam-alternatives-evaluation-20261012/raw-Fimbulvetr-job.json": "d7759aaab367b41c26fe6330f215bc37e195f80eb661e074d5200e12ef5c7817",
+    "/workspace/scratch/e8564bd8a57f/headfit-evidence/best-esr-raw/Nastrond-Ragnarok.nam": "f4be37f89e4b431c8ef8c502fe2a214d8fe0b63a10b942bf53a82baa96cbc820",
+    "/workspace/scratch/e8564bd8a57f/headfit-evidence/best-esr-raw/Ragnarok-job.json": "d7759aaab367b41c26fe6330f215bc37e195f80eb661e074d5200e12ef5c7817",
+    "/dev/shm/nam-alternatives-evaluation-20261012/raw-Ragnarok-job.json": "d7759aaab367b41c26fe6330f215bc37e195f80eb661e074d5200e12ef5c7817",
+    "/workspace/scratch/e8564bd8a57f/headfit-evidence/best-esr-eq-chain/Nastrond-Fenrir.nam": "60e9d91177dcea304f2864b25f5497d26519d38db91374e6b1c4f7a52ab0c4de",
+    "/workspace/scratch/e8564bd8a57f/headfit-evidence/best-esr-eq-chain/Fenrir-job.json": "457e855c15cb418711fa06098d593eb4bcd60bbe86a339b8fb94cfe3bd2a5da7",
+    "/dev/shm/nam-alternatives-evaluation-20261012/eq-chain-Fenrir-job.json": "457e855c15cb418711fa06098d593eb4bcd60bbe86a339b8fb94cfe3bd2a5da7",
+    "/workspace/scratch/e8564bd8a57f/headfit-evidence/best-esr-eq-chain/Nastrond-Surtr.nam": "aff819cc7e91f57d9b97dfd7ad7f881ad947d7e0ca1ad8ebbb7e7f137e6c07f6",
+    "/workspace/scratch/e8564bd8a57f/headfit-evidence/best-esr-eq-chain/Surtr-job.json": "de430ab7c2441109b69da7f06907115145dadd001fab251951f29bcf7ed2dcf9",
+    "/dev/shm/nam-alternatives-evaluation-20261012/eq-chain-Surtr-job.json": "de430ab7c2441109b69da7f06907115145dadd001fab251951f29bcf7ed2dcf9",
+    "/workspace/scratch/e8564bd8a57f/headfit-evidence/best-esr-eq-chain/Nastrond-Nidhoggr.nam": "0192446dc31b40d31f155359ea36b93e1a652a871eba44bc934aedb7154837ee",
+    "/workspace/scratch/e8564bd8a57f/headfit-evidence/best-esr-eq-chain/Nidhoggr-job.json": "7e9ec49aee778ad5c2c806b9e5dd64fd59f6573d4e9f67afe38b7bef14752681",
+    "/dev/shm/nam-alternatives-evaluation-20261012/eq-chain-Nidhoggr-job.json": "7e9ec49aee778ad5c2c806b9e5dd64fd59f6573d4e9f67afe38b7bef14752681",
+    "/workspace/scratch/e8564bd8a57f/headfit-evidence/best-esr-eq-chain/Nastrond-Fimbulvetr.nam": "9b0972a89b8c0c0276c3249b331d5c180edfd67b1558ca44022465e3a008eb77",
+    "/workspace/scratch/e8564bd8a57f/headfit-evidence/best-esr-eq-chain/Fimbulvetr-job.json": "d98c2d32d55aa3ede7182d4651832964895aa1aa2cd0f5b36ada2e337b979538",
+    "/dev/shm/nam-alternatives-evaluation-20261012/eq-chain-Fimbulvetr-job.json": "d98c2d32d55aa3ede7182d4651832964895aa1aa2cd0f5b36ada2e337b979538",
+    "/workspace/scratch/e8564bd8a57f/headfit-evidence/best-esr-eq-chain/Nastrond-Ragnarok.nam": "0f89052b74c6e34a12ad12a1e96abc0e7bd11fe579f58a193d8d30c77a41b973",
+    "/workspace/scratch/e8564bd8a57f/headfit-evidence/best-esr-eq-chain/Ragnarok-job.json": "87d545ad47d89b712dd9c183103d5682d8cd564911b9c257c6336585282e3af8",
+    "/dev/shm/nam-alternatives-evaluation-20261012/eq-chain-Ragnarok-job.json": "87d545ad47d89b712dd9c183103d5682d8cd564911b9c257c6336585282e3af8",
+    "/dev/shm/nam-alternatives-evaluation-20261012/Fenrir-native-job.json": "784407452810707a0318880bcd7dfd6b3890f1efe552ed2210a1ce48d0185488",
+    "/dev/shm/nam-alternatives-evaluation-20261012/Surtr-native-job.json": "1cbfcfcf27f775c623867588b85fd22e22adbc6950a0a68772b137b9962047dc",
+    "/dev/shm/nam-alternatives-evaluation-20261012/Nidhoggr-native-job.json": "c6adcc1c53951f7ffc19ae06f0f97a224341e9bc662373b8382508182f1ad932",
+    "/dev/shm/nam-alternatives-evaluation-20261012/Fimbulvetr-native-job.json": "ea0a04bf9d3798e8469a7a6406a0587e97f5f2a099f5f4f4e46ee1fffa767c8f",
+    "/dev/shm/nam-alternatives-evaluation-20261012/Ragnarok-native-job.json": "dbc4c3c55d727d12442354e9b51087d64d8458c661a83ea96c7ebde5602d16eb"
+  },
+  "eq_arithmetic": "Native-rounded float32 SOS coefficients, input and recursive states; zero initial state, continuous full input",
+  "old_test": {
+    "kind": "already revealed 20261011 test, immutable diagnostic regression only",
+    "input_sha256": "dd67e0ee995b2fe7b6212eef8108759fcc859ac5d500d58782c5dd0051f2aaf5",
+    "native_sha256": {
+      "Fenrir": "ae97c65d1ffeb93c8900b741f3f3367bd6e0bb7f69fd0d0bdb8c1b3cc39c8f39",
+      "Surtr": "44228d20125d02f5ba29c9e2803a444bb5425ad9339a9eb1dbb1c7db27c72336",
+      "Nidhoggr": "4ee26424196c4cde7e9cc862857ee4b916f05060721e4d7b70f6dd99fed43089",
+      "Fimbulvetr": "43f1aee85524e89b0a739e6df43fc38a6702f51801f343e7be66e6ee9779aec6",
+      "Ragnarok": "18146273b91c7c0ad8bc6fdfb2f6072af92033a8753ba44f2753ad791e3653c1"
+    }
+  },
+  "release_approved": false,
+  "candidate_adjustment_after_test": false,
+  "character_bands_hz": [
+    [
+      20,
+      120
+    ],
+    [
+      120,
+      400
+    ],
+    [
+      400,
+      2000
+    ],
+    [
+      2000,
+      6000
+    ],
+    [
+      6000,
+      20000
+    ]
+  ]
+}

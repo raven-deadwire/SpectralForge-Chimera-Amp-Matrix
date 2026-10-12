@@ -1,0 +1,7 @@
+__pycache__/
+*.pyc
+*.npy
+*.npz
+*.f32
+*.nam
+*.t3kpreset

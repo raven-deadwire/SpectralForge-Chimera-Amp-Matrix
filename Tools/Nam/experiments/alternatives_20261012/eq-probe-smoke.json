@@ -1,0 +1,61 @@
+{
+  "sample_rate": 48000,
+  "block_size": 64,
+  "samples": 12000,
+  "peak": 0.386225879192352,
+  "rms": 0.100061132754363,
+  "eq": {
+    "enabled": true,
+    "pre": false,
+    "bands": [
+      {
+        "type": "lowshelf",
+        "freqHz": 80.0,
+        "gainDb": 0.0,
+        "q": 0.707000017166138
+      },
+      {
+        "type": "bell",
+        "freqHz": 152.71157836914062,
+        "gainDb": 14.984204292297363,
+        "q": 0.577466547489166
+      },
+      {
+        "type": "bell",
+        "freqHz": 153.92759704589844,
+        "gainDb": -15.0,
+        "q": 0.582639813423157
+      },
+      {
+        "type": "bell",
+        "freqHz": 153.38232421875,
+        "gainDb": 13.677542686462402,
+        "q": 9.07115650177002
+      },
+      {
+        "type": "bell",
+        "freqHz": 154.17709350585938,
+        "gainDb": -15.0,
+        "q": 10.0
+      },
+      {
+        "type": "highshelf",
+        "freqHz": 8000.0,
+        "gainDb": 0.0,
+        "q": 0.707000017166138
+      }
+    ]
+  },
+  "native_eq_tree_roundtrip": true,
+  "roundtrip_output_bit_exact": true,
+  "roundtrip_max_abs_delta": 0.0,
+  "serialization_scope": "BlockEq native ValueTree; not full plugin/DAW acceptance",
+  "purpose": "New EQ-only harness invocation and native ValueTree persistence check; not acoustic acceptance",
+  "input_seed": 26101204,
+  "input_sha256": "75a0e561ee58d11699f83f8d6648543d55551bbdf7272938f7d1bc39b8031f0b",
+  "output_sha256": "44227660f503b9e3cb177818c10023de5adff8c12fbc51100d04c8aede17756d",
+  "job_sha256": "44e14d8c46a39356d3e7d9bd117b0c4b1e9e9d35fd5e43e5aadfa551b830e58b",
+  "binary_sha256": "1b9c2956607c4974d49d7c190570d367552ea12ba73a0e0d53073c56520c17bc",
+  "finite": true,
+  "max_change_from_input": 0.0011723190546035767
+}

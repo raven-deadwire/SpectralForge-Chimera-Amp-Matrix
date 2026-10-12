@@ -1,0 +1,27 @@
+{
+  "scope": "Deterministic numerical tests against archived pinned A2-Full; not acoustic qualification",
+  "command": "CHIMERA_HEAD_REFIT_TEST_MODEL=/workspace/scratch/e8564bd8a57f/evidence-input/restored/refinement/legacy/Nastrond-Fenrir.nam OPENBLAS_NUM_THREADS=2 MKL_NUM_THREADS=2 /workspace/scratch/e8564bd8a57f/nam-venv/bin/python -m unittest discover -s Tools/Nam/experiments/alternatives_20261012 -p test_head_refit.py -v",
+  "exit_code": 0,
+  "test_count": 13,
+  "all_passed": true,
+  "script_sha256": "d974c8b256a4b04c1ca938a482089f4a3039abc211f972ad400505eb15995842",
+  "test_script_sha256": "2e5bb01a34f6ef7ff460bd32fff38f61412b5816e7432896741ad0a36ec42b8e",
+  "pinned_model_sha256": "5c88c8d03609a0e3a2341467d3ae7e843af9d36de8e4e007ba85b08b9545b594",
+  "quality_profile_sha256": "6c245586da78b30c4f977293e54589097854ba7b49675a6b7d30fa05d1ab402e",
+  "test_names": [
+    "test_actual_output_matches_causal_feature_reconstruction",
+    "test_channel_and_tap_order_match_one_hot_actual_convolutions",
+    "test_chunked_history_is_equivalent_to_one_continuous_forward",
+    "test_ridge_solution_matches_augmented_least_squares",
+    "test_filtered_feature_sum_matches_filtered_head_including_residual",
+    "test_fitted_export_preserves_backbone_features_and_silence",
+    "test_export_guard_detects_head_corruption_during_import",
+    "test_lower_esr_does_not_override_a_peak_regression",
+    "test_lower_esr_does_not_override_a_new_quiet_failure",
+    "test_esr_and_peak_improvement_can_be_selected_without_release_approval",
+    "test_predeclared_point_one_percent_selection_boundary_is_inclusive",
+    "test_pre_skip_excitation_state_reaches_scored_tail",
+    "test_float32_native_output_filter_is_bit_exact_across_chunks"
+  ],
+  "release_approved": false
+}

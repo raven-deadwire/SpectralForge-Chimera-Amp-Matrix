@@ -1,0 +1,282 @@
+{
+  "method": "train-only centered-head ridge regression; raw and fixed legal POST EQ",
+  "parent_source": "859fea9bc49c4b9981c926a314655e485c51027c",
+  "native_source": {
+    "source_commit": "d93560445c78552768a0ed592e5ec62c3c648fb6",
+    "source_hashes": {
+      "Source/Amplifier.h": "67ea06291ac61c561fb011a883f26d76aceca3c31c8028526bc4ed6a7fb8f254",
+      "Source/AmpNativeDSP.h": "3f53d3fd64b31fc0d746e5fbcf059bb86d335084b4280a41c96c336aec9a1b60",
+      "Source/OriginalAmpDSP.h": "7595c2bf32af62d7b3863d0b9551139d319b7ec3b108a0053b34f6072559de3c",
+      "Source/OriginalAmpDefinition.h": "edf22de4734d189551d5a68b9ca84738f25ab0623a8bb6ada9519d105933f62b",
+      "Source/AmpNativeCalibration.h": "87f01c0e4e465f6161431bcc58d7d0d2d162f76527656db88f05b4a6685d0cb1",
+      "Source/AmpNativeCatalog.h": "77887a5bc80afd53f9de7e1c4f33f0c958877264d06b1afa7671a924b0dc4038",
+      "Source/AmpCatalog.h": "269d66eee5d42815d5d23350f118014fb6816b7fcf01c0f73f8a9a86e2b7703e",
+      "Source/NewAmpDSP.h": "35e15da80253d3edfd474990e675e920f8ad2cb23402bb21e45b5fe4f3013337"
+    },
+    "renderer_sha256": "2599523b8ca2cfbbd7239242f9cfe3ab62d0b462c89309035dd6e1038cd43b08",
+    "sample_rate": 48000,
+    "oversampling": 4,
+    "block_size": 256,
+    "alignment": "unshifted native output, including production latency",
+    "input_trim_db": 0,
+    "output_trim_db": 0,
+    "cabinet": false,
+    "pre_post_effects": false,
+    "input_kind": "synthetic; not recorded instrument DI"
+  },
+  "quality_profile": {
+    "id": "nastrond-tone3000-fidelity-v1",
+    "authority": "project acceptance policy; not a TONE3000 certification",
+    "window_samples": 4096,
+    "skip_samples": 6347,
+    "active_reference_rms_min_dbfs": -60.0,
+    "full_esr_max_exclusive": 0.01,
+    "esr_guidance_source": "https://www.tone3000.com/guides/capture-your-gear-with-nam-dry-wet",
+    "active_window_esr_median_max": 0.005,
+    "active_window_esr_p95_max": 0.01,
+    "active_window_esr_worst_max": 0.02,
+    "quiet_residual_rms_max_dbfs": -70.0,
+    "quiet_residual_peak_max_dbfs": -60.0,
+    "rms_error_max_db": 0.5,
+    "peak_error_max_db": 1.0,
+    "steady_silence_rms_max_dbfs": -80.0,
+    "engine_parity_residual_max_dbfs": -80.0,
+    "level_anchor": "delivered v0.2 reference_output_scale, frozen per channel",
+    "source_output_scale": {
+      "Fenrir": 0.09195752759643712,
+      "Surtr": 0.09034985741800312,
+      "Nidhoggr": 0.0860012970451488,
+      "Fimbulvetr": 0.09721294970620417,
+      "Ragnarok": 0.05162876564505051
+    }
+  },
+  "policy_sha256": "6c245586da78b30c4f977293e54589097854ba7b49675a6b7d30fa05d1ab402e",
+  "script_sha256": "d974c8b256a4b04c1ca938a482089f4a3039abc211f972ad400505eb15995842",
+  "model_sha256": {
+    "Fenrir": "5c88c8d03609a0e3a2341467d3ae7e843af9d36de8e4e007ba85b08b9545b594",
+    "Surtr": "c3dbc6092fed41c54b2d8b7486b5538495c617fb419a7563e307e67931957edb",
+    "Nidhoggr": "fec3d9a7fd4a0c92ea30f90e9aee20034fa7acfb456413a4407e5062d9fb8474",
+    "Fimbulvetr": "df28b1397a973d28c50d53d3bdab2e4c63df8850ebb39ba2efa8c1a27f17668d",
+    "Ragnarok": "c99712054961360701cb76554aca2e021745ba769dcfc9ecb1ad138723384fc4"
+  },
+  "eq_implementation_sha256": "640897689d4e96373c50e6b016235b0cc8a6d4a359e853b49380930f0e513c4f",
+  "eq_source_job_sha256": {
+    "Fenrir": "77e631749bb6f7d02d07479c539e8dece6f2cea66b2d73c0c6fb416ba4964b93",
+    "Surtr": "b54e713b8acb4a83d900bc9d1712e09a97cae61ad71bc6e754a202c78feb9177",
+    "Nidhoggr": "09b0d92c45fa4bb4ba2a76c32e83049dc22d9639dec03c4a8fb9cc1e80689258",
+    "Fimbulvetr": "44e14d8c46a39356d3e7d9bd117b0c4b1e9e9d35fd5e43e5aadfa551b830e58b",
+    "Ragnarok": "21150dc2d4900fd8c451c36ec8740151dc5223a6e47273c340379c86c29155b6"
+  },
+  "frozen_job_sha256": {
+    "raw": {
+      "Fenrir": "d7759aaab367b41c26fe6330f215bc37e195f80eb661e074d5200e12ef5c7817",
+      "Surtr": "d7759aaab367b41c26fe6330f215bc37e195f80eb661e074d5200e12ef5c7817",
+      "Nidhoggr": "d7759aaab367b41c26fe6330f215bc37e195f80eb661e074d5200e12ef5c7817",
+      "Fimbulvetr": "d7759aaab367b41c26fe6330f215bc37e195f80eb661e074d5200e12ef5c7817",
+      "Ragnarok": "d7759aaab367b41c26fe6330f215bc37e195f80eb661e074d5200e12ef5c7817"
+    },
+    "eq-chain": {
+      "Fenrir": "457e855c15cb418711fa06098d593eb4bcd60bbe86a339b8fb94cfe3bd2a5da7",
+      "Surtr": "de430ab7c2441109b69da7f06907115145dadd001fab251951f29bcf7ed2dcf9",
+      "Nidhoggr": "7e9ec49aee778ad5c2c806b9e5dd64fd59f6573d4e9f67afe38b7bef14752681",
+      "Fimbulvetr": "d98c2d32d55aa3ede7182d4651832964895aa1aa2cd0f5b36ada2e337b979538",
+      "Ragnarok": "87d545ad47d89b712dd9c183103d5682d8cd564911b9c257c6336585282e3af8"
+    }
+  },
+  "rounded_post_eq_sos": {
+    "Fenrir": [
+      [
+        1.083612322807312,
+        -1.963645100593567,
+        0.8802185654640198,
+        1.0,
+        -1.963645100593567,
+        0.9638308882713318
+      ],
+      [
+        0.9228383898735046,
+        -1.8121236562728882,
+        0.8894597291946411,
+        1.0,
+        -1.8121236562728882,
+        0.8122981190681458
+      ],
+      [
+        1.0094738006591797,
+        -1.9956386089324951,
+        0.9863440990447998,
+        1.0,
+        -1.9956386089324951,
+        0.9958178997039795
+      ],
+      [
+        0.9906067848205566,
+        -1.97697114944458,
+        0.9865434765815735,
+        1.0,
+        -1.97697114944458,
+        0.9771503210067749
+      ]
+    ],
+    "Surtr": [
+      [
+        1.0249111652374268,
+        -1.9889154434204102,
+        0.9643099308013916,
+        1.0,
+        -1.9889154434204102,
+        0.9892210364341736
+      ],
+      [
+        0.9757460951805115,
+        -1.940696120262146,
+        0.9652532935142517,
+        1.0,
+        -1.940696120262146,
+        0.9409993886947632
+      ],
+      [
+        1.0022451877593994,
+        -1.9985908269882202,
+        0.9966417551040649,
+        1.0,
+        -1.9985908269882202,
+        0.9988870024681091
+      ],
+      [
+        0.9977105259895325,
+        -1.994132161140442,
+        0.9967201948165894,
+        1.0,
+        -1.994132161140442,
+        0.9944307208061218
+      ]
+    ],
+    "Nidhoggr": [
+      [
+        1.021036148071289,
+        -1.9905511140823364,
+        0.9698485136032104,
+        1.0,
+        -1.9905511140823364,
+        0.9908846616744995
+      ],
+      [
+        0.9794472455978394,
+        -1.949671983718872,
+        0.9705564379692078,
+        1.0,
+        -1.949671983718872,
+        0.9500036835670471
+      ],
+      [
+        1.0018680095672607,
+        -1.9987249374389648,
+        0.9971832633018494,
+        1.0,
+        -1.9987249374389648,
+        0.9990513324737549
+      ],
+      [
+        0.9980871677398682,
+        -1.9950178861618042,
+        0.9972596764564514,
+        1.0,
+        -1.9950178861618042,
+        0.9953468441963196
+      ]
+    ],
+    "Fimbulvetr": [
+      [
+        1.0334550142288208,
+        -1.9850993156433105,
+        0.95204097032547,
+        1.0,
+        -1.9850993156433105,
+        0.9854959845542908
+      ],
+      [
+        0.9676177501678467,
+        -1.9208375215530396,
+        0.953609824180603,
+        1.0,
+        -1.9208375215530396,
+        0.9212275147438049
+      ],
+      [
+        1.0019272565841675,
+        -1.9985904693603516,
+        0.997066080570221,
+        1.0,
+        -1.9985904693603516,
+        0.9989933967590332
+      ],
+      [
+        0.9980374574661255,
+        -1.9948196411132812,
+        0.9971884489059448,
+        1.0,
+        -1.9948196411132812,
+        0.9952259063720703
+      ]
+    ],
+    "Ragnarok": [
+      [
+        1.0412884950637817,
+        -1.981886625289917,
+        0.9408509731292725,
+        1.0,
+        -1.981886625289917,
+        0.9821394085884094
+      ],
+      [
+        0.9603068828582764,
+        -1.9031566381454468,
+        0.9430979490280151,
+        1.0,
+        -1.9031566381454468,
+        0.9034047722816467
+      ],
+      [
+        1.0033913850784302,
+        -1.9981529712677002,
+        0.9950053095817566,
+        1.0,
+        -1.9981529712677002,
+        0.9983967542648315
+      ],
+      [
+        0.9965727925300598,
+        -1.9914172887802124,
+        0.9950902462005615,
+        1.0,
+        -1.9914172887802124,
+        0.9916629791259766
+      ]
+    ]
+  },
+  "data_manifest_sha256": "ab21a98603f4d2db264c37f480158003209230e71ec2b96c92169863163d7abe",
+  "fit_split": "train only; all frames after original 6347-sample skip",
+  "selection_split": "validation only; old test bytes hash-verified but never decoded or used for fitting/selection",
+  "modes": [
+    "raw",
+    "eq-chain"
+  ],
+  "ridge_strengths": [
+    1e-06,
+    0.0001,
+    0.01
+  ],
+  "ridge_units": "lambda * trace(mode-specific train_gram)/128",
+  "objective": "unweighted physical-output MSE + ridge toward original head",
+  "eq_chain_fit": "continuous H((features-zero_features)*head_scale), then original skip; unchanged native output target",
+  "eq_chain_arithmetic": "native-rounded coefficients; float64 SOS feature states for linear fit; float32 SOS output states for validation; actual target engine comparison still required",
+  "selection": "minimum validation ESR among six guard-passing candidates; raw first on ties; else original raw baseline",
+  "descriptive_comparison": "best ESR within each mode frozen separately even if rejected; neither is approval",
+  "guard": "no newly failed components; level errors cannot exceed max(baseline absolute error, original limit); quiet errors cannot exceed max(baseline, original limit)+0.01dB; ESR reduction>=0.1%",
+  "future_test_seed": 2610122201,
+  "future_test_seconds": 24,
+  "torch": "2.8.0+cpu",
+  "threads": 2,
+  "release_approved": false
+}

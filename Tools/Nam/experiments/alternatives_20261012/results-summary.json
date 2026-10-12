@@ -1,0 +1,838 @@
+{
+  "source_sha256": {
+    "independent-comparison.json": "9d59a4e599742bde7901ea0b35e2337dd5ef4902d3d17586112b92aecae501cf",
+    "selected-summary.json": "5dd77d1c865c90953bd26e77363ad8ff8a1387e9099b5790a631385143c20c6e"
+  },
+  "input_sha256": "3e6196cd2773ceda1c859599356112d4d8fefd3c9dcb21ffda0b1287aafe5d1b",
+  "quality_profile": {
+    "id": "nastrond-tone3000-fidelity-v1",
+    "authority": "project acceptance policy; not a TONE3000 certification",
+    "window_samples": 4096,
+    "skip_samples": 6347,
+    "active_reference_rms_min_dbfs": -60.0,
+    "full_esr_max_exclusive": 0.01,
+    "esr_guidance_source": "https://www.tone3000.com/guides/capture-your-gear-with-nam-dry-wet",
+    "active_window_esr_median_max": 0.005,
+    "active_window_esr_p95_max": 0.01,
+    "active_window_esr_worst_max": 0.02,
+    "quiet_residual_rms_max_dbfs": -70.0,
+    "quiet_residual_peak_max_dbfs": -60.0,
+    "rms_error_max_db": 0.5,
+    "peak_error_max_db": 1.0,
+    "steady_silence_rms_max_dbfs": -80.0,
+    "engine_parity_residual_max_dbfs": -80.0,
+    "level_anchor": "delivered v0.2 reference_output_scale, frozen per channel",
+    "source_output_scale": {
+      "Fenrir": 0.09195752759643712,
+      "Surtr": 0.09034985741800312,
+      "Nidhoggr": 0.0860012970451488,
+      "Fimbulvetr": 0.09721294970620417,
+      "Ragnarok": 0.05162876564505051
+    }
+  },
+  "selected_modes": {
+    "Fenrir": "raw",
+    "Surtr": "eq-chain",
+    "Nidhoggr": "raw",
+    "Fimbulvetr": "eq-chain",
+    "Ragnarok": "baseline"
+  },
+  "means": {
+    "baseline": {
+      "new_test": 0.10123350478532842,
+      "old_revealed_regression": 0.0880753660657521
+    },
+    "raw": {
+      "new_test": 0.09908061626303855,
+      "old_revealed_regression": 0.08574361466659397
+    },
+    "eq-chain": {
+      "new_test": 0.09911670661273811,
+      "old_revealed_regression": 0.08570353689328844
+    },
+    "selected": {
+      "new_test": 0.09894643097992867,
+      "old_revealed_regression": 0.08595389250742849
+    }
+  },
+  "selected_new_mean_esr_reduction_percent": 2.2592063865116807,
+  "selected_old_mean_esr_reduction_percent": 2.408702515911021,
+  "channels": {
+    "baseline": {
+      "Fenrir": {
+        "new_test": {
+          "full_esr": 0.11045061043454145,
+          "active_median": 0.07736069100820948,
+          "active_p95": 0.3643808628470537,
+          "active_worst": 0.5199782875187161,
+          "rms_error_db": -0.11186478364135477,
+          "peak_error_db": 1.633149282335621,
+          "quiet_worst_residual_rms_dbfs": -62.02988421071936,
+          "quiet_worst_residual_peak_dbfs": -45.66076139480959,
+          "active_pass": false,
+          "quiet_pass": false,
+          "level_pass": false,
+          "fidelity_pass": false
+        },
+        "old_revealed_regression": {
+          "full_esr": 0.08530047623345552,
+          "active_median": 0.05998800856696131,
+          "active_p95": 0.3103749731077737,
+          "active_worst": 0.7257879246058798,
+          "rms_error_db": 0.008789540514490546,
+          "peak_error_db": 1.646816044629972,
+          "quiet_worst_residual_rms_dbfs": -101.93943592680199,
+          "quiet_worst_residual_peak_dbfs": -92.64254965578087,
+          "active_pass": false,
+          "quiet_pass": true,
+          "level_pass": false,
+          "fidelity_pass": false
+        }
+      },
+      "Surtr": {
+        "new_test": {
+          "full_esr": 0.10907180627537993,
+          "active_median": 0.09084258245375673,
+          "active_p95": 0.32994848668860116,
+          "active_worst": 0.6802121254156368,
+          "rms_error_db": -0.45672361484315727,
+          "peak_error_db": 0.29482583801001816,
+          "quiet_worst_residual_rms_dbfs": -79.1577383638151,
+          "quiet_worst_residual_peak_dbfs": -68.10414824195396,
+          "active_pass": false,
+          "quiet_pass": true,
+          "level_pass": true,
+          "fidelity_pass": false
+        },
+        "old_revealed_regression": {
+          "full_esr": 0.09136244687656378,
+          "active_median": 0.08141563001975154,
+          "active_p95": 0.23783788119981403,
+          "active_worst": 0.9195398213294795,
+          "rms_error_db": -0.35266131440029047,
+          "peak_error_db": -0.21364858120768027,
+          "quiet_worst_residual_rms_dbfs": -69.39958624980943,
+          "quiet_worst_residual_peak_dbfs": -58.321201756234544,
+          "active_pass": false,
+          "quiet_pass": false,
+          "level_pass": true,
+          "fidelity_pass": false
+        }
+      },
+      "Nidhoggr": {
+        "new_test": {
+          "full_esr": 0.1158629879326855,
+          "active_median": 0.10512603870803383,
+          "active_p95": 0.37872175380705475,
+          "active_worst": 0.6619025054913624,
+          "rms_error_db": -0.6246448798211397,
+          "peak_error_db": 1.1992669764178974,
+          "quiet_worst_residual_rms_dbfs": -76.49915837016967,
+          "quiet_worst_residual_peak_dbfs": -65.52880346139303,
+          "active_pass": false,
+          "quiet_pass": true,
+          "level_pass": false,
+          "fidelity_pass": false
+        },
+        "old_revealed_regression": {
+          "full_esr": 0.09945272977887044,
+          "active_median": 0.07977597657590463,
+          "active_p95": 0.2768299707282457,
+          "active_worst": 0.7826802556994447,
+          "rms_error_db": -0.4603968948323296,
+          "peak_error_db": 0.938944478417886,
+          "quiet_worst_residual_rms_dbfs": -63.655397333537714,
+          "quiet_worst_residual_peak_dbfs": -55.275514466541736,
+          "active_pass": false,
+          "quiet_pass": false,
+          "level_pass": true,
+          "fidelity_pass": false
+        }
+      },
+      "Fimbulvetr": {
+        "new_test": {
+          "full_esr": 0.04799113591464823,
+          "active_median": 0.045793603732132454,
+          "active_p95": 0.17216754351352795,
+          "active_worst": 0.43811680881324444,
+          "rms_error_db": -0.3812380351984431,
+          "peak_error_db": -0.5673224266612689,
+          "quiet_worst_residual_rms_dbfs": -78.23560778000495,
+          "quiet_worst_residual_peak_dbfs": -69.13502906788128,
+          "active_pass": false,
+          "quiet_pass": true,
+          "level_pass": true,
+          "fidelity_pass": false
+        },
+        "old_revealed_regression": {
+          "full_esr": 0.04381176239110577,
+          "active_median": 0.03366011874587921,
+          "active_p95": 0.11333006990005237,
+          "active_worst": 0.30827166798872224,
+          "rms_error_db": -0.3869202694724073,
+          "peak_error_db": -0.21483394319474058,
+          "quiet_worst_residual_rms_dbfs": -62.863771752936756,
+          "quiet_worst_residual_peak_dbfs": -54.77057703149605,
+          "active_pass": false,
+          "quiet_pass": false,
+          "level_pass": true,
+          "fidelity_pass": false
+        }
+      },
+      "Ragnarok": {
+        "new_test": {
+          "full_esr": 0.12279098336938697,
+          "active_median": 0.1104472707367978,
+          "active_p95": 0.5522833414055893,
+          "active_worst": 1.0834203013158774,
+          "rms_error_db": -0.47477392992025447,
+          "peak_error_db": 3.060529527138897,
+          "quiet_worst_residual_rms_dbfs": -85.90998030900468,
+          "quiet_worst_residual_peak_dbfs": -73.44512940016003,
+          "active_pass": false,
+          "quiet_pass": true,
+          "level_pass": false,
+          "fidelity_pass": false
+        },
+        "old_revealed_regression": {
+          "full_esr": 0.12044941504876498,
+          "active_median": 0.10685972871271984,
+          "active_p95": 0.37107993252307525,
+          "active_worst": 1.081336944324607,
+          "rms_error_db": -0.6495582168040217,
+          "peak_error_db": 2.360759637019969,
+          "quiet_worst_residual_rms_dbfs": -83.59316340286233,
+          "quiet_worst_residual_peak_dbfs": -71.6398922233058,
+          "active_pass": false,
+          "quiet_pass": true,
+          "level_pass": false,
+          "fidelity_pass": false
+        }
+      }
+    },
+    "raw": {
+      "Fenrir": {
+        "new_test": {
+          "full_esr": 0.10682750072037343,
+          "active_median": 0.07246748209714994,
+          "active_p95": 0.354724515308851,
+          "active_worst": 0.5320767948546975,
+          "rms_error_db": -0.44346687761618625,
+          "peak_error_db": 1.121729506281314,
+          "quiet_worst_residual_rms_dbfs": -62.27831351829514,
+          "quiet_worst_residual_peak_dbfs": -45.954525705774074,
+          "active_pass": false,
+          "quiet_pass": false,
+          "level_pass": false,
+          "fidelity_pass": false
+        },
+        "old_revealed_regression": {
+          "full_esr": 0.08075138488633755,
+          "active_median": 0.05661835533299857,
+          "active_p95": 0.30191163754639194,
+          "active_worst": 0.7151078117008813,
+          "rms_error_db": -0.33552891571117066,
+          "peak_error_db": 0.91692994755571,
+          "quiet_worst_residual_rms_dbfs": -101.96096863463369,
+          "quiet_worst_residual_peak_dbfs": -92.65342393837408,
+          "active_pass": false,
+          "quiet_pass": true,
+          "level_pass": true,
+          "fidelity_pass": false
+        }
+      },
+      "Surtr": {
+        "new_test": {
+          "full_esr": 0.10605176672415369,
+          "active_median": 0.08925304384069052,
+          "active_p95": 0.3285501326163056,
+          "active_worst": 0.6506645978156914,
+          "rms_error_db": -0.4353942547840528,
+          "peak_error_db": 0.7829214720516848,
+          "quiet_worst_residual_rms_dbfs": -79.15743187881225,
+          "quiet_worst_residual_peak_dbfs": -68.10392602613751,
+          "active_pass": false,
+          "quiet_pass": true,
+          "level_pass": true,
+          "fidelity_pass": false
+        },
+        "old_revealed_regression": {
+          "full_esr": 0.0896047523212037,
+          "active_median": 0.08032559507726847,
+          "active_p95": 0.23782084464066935,
+          "active_worst": 0.9226549054575637,
+          "rms_error_db": -0.3384023763604409,
+          "peak_error_db": 0.2410457139782789,
+          "quiet_worst_residual_rms_dbfs": -69.39967818349668,
+          "quiet_worst_residual_peak_dbfs": -58.3212497092729,
+          "active_pass": false,
+          "quiet_pass": false,
+          "level_pass": true,
+          "fidelity_pass": false
+        }
+      },
+      "Nidhoggr": {
+        "new_test": {
+          "full_esr": 0.11277619681155215,
+          "active_median": 0.10152292625380908,
+          "active_p95": 0.3723904519260122,
+          "active_worst": 0.6808197936920153,
+          "rms_error_db": -0.5281828871204559,
+          "peak_error_db": 1.5534466765620536,
+          "quiet_worst_residual_rms_dbfs": -76.4992600718918,
+          "quiet_worst_residual_peak_dbfs": -65.52916109428625,
+          "active_pass": false,
+          "quiet_pass": true,
+          "level_pass": false,
+          "fidelity_pass": false
+        },
+        "old_revealed_regression": {
+          "full_esr": 0.09738463757476824,
+          "active_median": 0.0796848901132806,
+          "active_p95": 0.27531921381898583,
+          "active_worst": 0.7922688485674789,
+          "rms_error_db": -0.3464978843846578,
+          "peak_error_db": 1.5587503359213386,
+          "quiet_worst_residual_rms_dbfs": -63.65537085597993,
+          "quiet_worst_residual_peak_dbfs": -55.275789719107365,
+          "active_pass": false,
+          "quiet_pass": false,
+          "level_pass": false,
+          "fidelity_pass": false
+        }
+      },
+      "Fimbulvetr": {
+        "new_test": {
+          "full_esr": 0.046331752926247374,
+          "active_median": 0.04388490067259407,
+          "active_p95": 0.17563735522772647,
+          "active_worst": 0.43136201365127097,
+          "rms_error_db": -0.12423910904090867,
+          "peak_error_db": -0.5332953751339531,
+          "quiet_worst_residual_rms_dbfs": -78.23566771600599,
+          "quiet_worst_residual_peak_dbfs": -69.13505427995372,
+          "active_pass": false,
+          "quiet_pass": true,
+          "level_pass": true,
+          "fidelity_pass": false
+        },
+        "old_revealed_regression": {
+          "full_esr": 0.04157185694332164,
+          "active_median": 0.032123450476769295,
+          "active_p95": 0.11226385591130353,
+          "active_worst": 0.2972919477583676,
+          "rms_error_db": -0.16017822198348342,
+          "peak_error_db": -0.24047216561812768,
+          "quiet_worst_residual_rms_dbfs": -62.86376888548021,
+          "quiet_worst_residual_peak_dbfs": -54.770573930511205,
+          "active_pass": false,
+          "quiet_pass": false,
+          "level_pass": true,
+          "fidelity_pass": false
+        }
+      },
+      "Ragnarok": {
+        "new_test": {
+          "full_esr": 0.12341586413286607,
+          "active_median": 0.10885823217968754,
+          "active_p95": 0.5551892746844249,
+          "active_worst": 1.0736632934472354,
+          "rms_error_db": -0.40455976968028207,
+          "peak_error_db": 3.0862599010060485,
+          "quiet_worst_residual_rms_dbfs": -85.90943300393445,
+          "quiet_worst_residual_peak_dbfs": -73.44484821094287,
+          "active_pass": false,
+          "quiet_pass": true,
+          "level_pass": false,
+          "fidelity_pass": false
+        },
+        "old_revealed_regression": {
+          "full_esr": 0.1194054416073387,
+          "active_median": 0.10543758294759722,
+          "active_p95": 0.3675965613222804,
+          "active_worst": 1.0851197513903854,
+          "rms_error_db": -0.5872817736443086,
+          "peak_error_db": 2.5209544696949546,
+          "quiet_worst_residual_rms_dbfs": -83.5928247932718,
+          "quiet_worst_residual_peak_dbfs": -71.63970591209575,
+          "active_pass": false,
+          "quiet_pass": true,
+          "level_pass": false,
+          "fidelity_pass": false
+        }
+      }
+    },
+    "eq-chain": {
+      "Fenrir": {
+        "new_test": {
+          "full_esr": 0.10691264805436933,
+          "active_median": 0.07393951286415318,
+          "active_p95": 0.3552927734317625,
+          "active_worst": 0.5367545331677043,
+          "rms_error_db": -0.4402361623055631,
+          "peak_error_db": 1.1221380361862003,
+          "quiet_worst_residual_rms_dbfs": -62.406097711847906,
+          "quiet_worst_residual_peak_dbfs": -45.823791699303186,
+          "active_pass": false,
+          "quiet_pass": false,
+          "level_pass": false,
+          "fidelity_pass": false
+        },
+        "old_revealed_regression": {
+          "full_esr": 0.08078046653094391,
+          "active_median": 0.05625095343252931,
+          "active_p95": 0.3019670914076842,
+          "active_worst": 0.711826841272999,
+          "rms_error_db": -0.3362580486285706,
+          "peak_error_db": 0.9139536218612783,
+          "quiet_worst_residual_rms_dbfs": -102.22325751564655,
+          "quiet_worst_residual_peak_dbfs": -92.89207041227701,
+          "active_pass": false,
+          "quiet_pass": true,
+          "level_pass": true,
+          "fidelity_pass": false
+        }
+      },
+      "Surtr": {
+        "new_test": {
+          "full_esr": 0.10565405876590445,
+          "active_median": 0.08946088297149472,
+          "active_p95": 0.3249923187208553,
+          "active_worst": 0.6519714458562392,
+          "rms_error_db": -0.43900254482293766,
+          "peak_error_db": 0.9076442997460106,
+          "quiet_worst_residual_rms_dbfs": -78.1225934170986,
+          "quiet_worst_residual_peak_dbfs": -67.1553611053052,
+          "active_pass": false,
+          "quiet_pass": true,
+          "level_pass": true,
+          "fidelity_pass": false
+        },
+        "old_revealed_regression": {
+          "full_esr": 0.08929312354418167,
+          "active_median": 0.08080118808985283,
+          "active_p95": 0.23589861529202671,
+          "active_worst": 0.9226049709059122,
+          "rms_error_db": -0.35769178913856214,
+          "peak_error_db": 0.21070312419274906,
+          "quiet_worst_residual_rms_dbfs": -74.8668116996003,
+          "quiet_worst_residual_peak_dbfs": -64.64404150768065,
+          "active_pass": false,
+          "quiet_pass": true,
+          "level_pass": true,
+          "fidelity_pass": false
+        }
+      },
+      "Nidhoggr": {
+        "new_test": {
+          "full_esr": 0.11283294528697685,
+          "active_median": 0.10127466243628037,
+          "active_p95": 0.3728354072368471,
+          "active_worst": 0.6813909922377701,
+          "rms_error_db": -0.5184876564402756,
+          "peak_error_db": 1.5481609850195621,
+          "quiet_worst_residual_rms_dbfs": -78.11742517495185,
+          "quiet_worst_residual_peak_dbfs": -67.46085877934894,
+          "active_pass": false,
+          "quiet_pass": true,
+          "level_pass": false,
+          "fidelity_pass": false
+        },
+        "old_revealed_regression": {
+          "full_esr": 0.09767316640657071,
+          "active_median": 0.07987621214127252,
+          "active_p95": 0.27805169362335125,
+          "active_worst": 0.7857066519032623,
+          "rms_error_db": -0.3569865037799209,
+          "peak_error_db": 1.5318879872751392,
+          "quiet_worst_residual_rms_dbfs": -77.48451369257366,
+          "quiet_worst_residual_peak_dbfs": -68.77627559785894,
+          "active_pass": false,
+          "quiet_pass": true,
+          "level_pass": false,
+          "fidelity_pass": false
+        }
+      },
+      "Fimbulvetr": {
+        "new_test": {
+          "full_esr": 0.04658045258674599,
+          "active_median": 0.0446660712884856,
+          "active_p95": 0.17641691584096544,
+          "active_worst": 0.4402536807949977,
+          "rms_error_db": -0.12665212124482353,
+          "peak_error_db": -0.5478531617152171,
+          "quiet_worst_residual_rms_dbfs": -78.31350353461032,
+          "quiet_worst_residual_peak_dbfs": -69.04516595973264,
+          "active_pass": false,
+          "quiet_pass": true,
+          "level_pass": true,
+          "fidelity_pass": false
+        },
+        "old_revealed_regression": {
+          "full_esr": 0.041742623584370045,
+          "active_median": 0.03195966325717752,
+          "active_p95": 0.1123148151608563,
+          "active_worst": 0.2969838719110448,
+          "rms_error_db": -0.15418628757128897,
+          "peak_error_db": -0.24397130317212756,
+          "quiet_worst_residual_rms_dbfs": -67.44568978176704,
+          "quiet_worst_residual_peak_dbfs": -59.69165136868983,
+          "active_pass": false,
+          "quiet_pass": false,
+          "level_pass": true,
+          "fidelity_pass": false
+        }
+      },
+      "Ragnarok": {
+        "new_test": {
+          "full_esr": 0.12360342836969389,
+          "active_median": 0.10882994122185091,
+          "active_p95": 0.5537877866383784,
+          "active_worst": 1.0691767454681538,
+          "rms_error_db": -0.4086525914851258,
+          "peak_error_db": 3.188800465226201,
+          "quiet_worst_residual_rms_dbfs": -86.6064982988741,
+          "quiet_worst_residual_peak_dbfs": -75.21703262216838,
+          "active_pass": false,
+          "quiet_pass": true,
+          "level_pass": false,
+          "fidelity_pass": false
+        },
+        "old_revealed_regression": {
+          "full_esr": 0.11902830440037587,
+          "active_median": 0.10519579649742175,
+          "active_p95": 0.36725409053712244,
+          "active_worst": 1.083907187673941,
+          "rms_error_db": -0.5917154683762496,
+          "peak_error_db": 2.575894676569071,
+          "quiet_worst_residual_rms_dbfs": -86.57797816914355,
+          "quiet_worst_residual_peak_dbfs": -76.45503315891322,
+          "active_pass": false,
+          "quiet_pass": true,
+          "level_pass": false,
+          "fidelity_pass": false
+        }
+      }
+    },
+    "selected": {
+      "Fenrir": {
+        "new_test": {
+          "full_esr": 0.10682750072037343,
+          "active_median": 0.07246748209714994,
+          "active_p95": 0.354724515308851,
+          "active_worst": 0.5320767948546975,
+          "rms_error_db": -0.44346687761618625,
+          "peak_error_db": 1.121729506281314,
+          "quiet_worst_residual_rms_dbfs": -62.27831351829514,
+          "quiet_worst_residual_peak_dbfs": -45.954525705774074,
+          "active_pass": false,
+          "quiet_pass": false,
+          "level_pass": false,
+          "fidelity_pass": false
+        },
+        "old_revealed_regression": {
+          "full_esr": 0.08075138488633755,
+          "active_median": 0.05661835533299857,
+          "active_p95": 0.30191163754639194,
+          "active_worst": 0.7151078117008813,
+          "rms_error_db": -0.33552891571117066,
+          "peak_error_db": 0.91692994755571,
+          "quiet_worst_residual_rms_dbfs": -101.96096863463369,
+          "quiet_worst_residual_peak_dbfs": -92.65342393837408,
+          "active_pass": false,
+          "quiet_pass": true,
+          "level_pass": true,
+          "fidelity_pass": false
+        }
+      },
+      "Surtr": {
+        "new_test": {
+          "full_esr": 0.10565405876590445,
+          "active_median": 0.08946088297149472,
+          "active_p95": 0.3249923187208553,
+          "active_worst": 0.6519714458562392,
+          "rms_error_db": -0.43900254482293766,
+          "peak_error_db": 0.9076442997460106,
+          "quiet_worst_residual_rms_dbfs": -78.1225934170986,
+          "quiet_worst_residual_peak_dbfs": -67.1553611053052,
+          "active_pass": false,
+          "quiet_pass": true,
+          "level_pass": true,
+          "fidelity_pass": false
+        },
+        "old_revealed_regression": {
+          "full_esr": 0.08929312354418167,
+          "active_median": 0.08080118808985283,
+          "active_p95": 0.23589861529202671,
+          "active_worst": 0.9226049709059122,
+          "rms_error_db": -0.35769178913856214,
+          "peak_error_db": 0.21070312419274906,
+          "quiet_worst_residual_rms_dbfs": -74.8668116996003,
+          "quiet_worst_residual_peak_dbfs": -64.64404150768065,
+          "active_pass": false,
+          "quiet_pass": true,
+          "level_pass": true,
+          "fidelity_pass": false
+        }
+      },
+      "Nidhoggr": {
+        "new_test": {
+          "full_esr": 0.11287915945723248,
+          "active_median": 0.10187729818177846,
+          "active_p95": 0.3733264239855341,
+          "active_worst": 0.6805217122036199,
+          "rms_error_db": -0.531425046466406,
+          "peak_error_db": 1.5871257150491864,
+          "quiet_worst_residual_rms_dbfs": -76.49920966306627,
+          "quiet_worst_residual_peak_dbfs": -65.52925786755746,
+          "active_pass": false,
+          "quiet_pass": true,
+          "level_pass": false,
+          "fidelity_pass": false
+        },
+        "old_revealed_regression": {
+          "full_esr": 0.09753291547348826,
+          "active_median": 0.07962902029465625,
+          "active_p95": 0.2755477426307942,
+          "active_worst": 0.7922160928100805,
+          "rms_error_db": -0.34883479870418954,
+          "peak_error_db": 1.455255639827893,
+          "quiet_worst_residual_rms_dbfs": -63.65536953534145,
+          "quiet_worst_residual_peak_dbfs": -55.27579230383907,
+          "active_pass": false,
+          "quiet_pass": false,
+          "level_pass": false,
+          "fidelity_pass": false
+        }
+      },
+      "Fimbulvetr": {
+        "new_test": {
+          "full_esr": 0.04658045258674599,
+          "active_median": 0.0446660712884856,
+          "active_p95": 0.17641691584096544,
+          "active_worst": 0.4402536807949977,
+          "rms_error_db": -0.12665212124482353,
+          "peak_error_db": -0.5478531617152171,
+          "quiet_worst_residual_rms_dbfs": -78.31350353461032,
+          "quiet_worst_residual_peak_dbfs": -69.04516595973264,
+          "active_pass": false,
+          "quiet_pass": true,
+          "level_pass": true,
+          "fidelity_pass": false
+        },
+        "old_revealed_regression": {
+          "full_esr": 0.041742623584370045,
+          "active_median": 0.03195966325717752,
+          "active_p95": 0.1123148151608563,
+          "active_worst": 0.2969838719110448,
+          "rms_error_db": -0.15418628757128897,
+          "peak_error_db": -0.24397130317212756,
+          "quiet_worst_residual_rms_dbfs": -67.44568978176704,
+          "quiet_worst_residual_peak_dbfs": -59.69165136868983,
+          "active_pass": false,
+          "quiet_pass": false,
+          "level_pass": true,
+          "fidelity_pass": false
+        }
+      },
+      "Ragnarok": {
+        "new_test": {
+          "full_esr": 0.12279098336938697,
+          "active_median": 0.1104472707367978,
+          "active_p95": 0.5522833414055893,
+          "active_worst": 1.0834203013158774,
+          "rms_error_db": -0.47477392992025447,
+          "peak_error_db": 3.060529527138897,
+          "quiet_worst_residual_rms_dbfs": -85.90998030900468,
+          "quiet_worst_residual_peak_dbfs": -73.44512940016003,
+          "active_pass": false,
+          "quiet_pass": true,
+          "level_pass": false,
+          "fidelity_pass": false
+        },
+        "old_revealed_regression": {
+          "full_esr": 0.12044941504876498,
+          "active_median": 0.10685972871271984,
+          "active_p95": 0.37107993252307525,
+          "active_worst": 1.081336944324607,
+          "rms_error_db": -0.6495582168040217,
+          "peak_error_db": 2.360759637019969,
+          "quiet_worst_residual_rms_dbfs": -83.59316340286233,
+          "quiet_worst_residual_peak_dbfs": -71.6398922233058,
+          "active_pass": false,
+          "quiet_pass": true,
+          "level_pass": false,
+          "fidelity_pass": false
+        }
+      }
+    }
+  },
+  "selected_character": {
+    "Fenrir": {
+      "prediction": {
+        "band_power_db": [
+          -14.306612711606306,
+          -8.208915439325384,
+          -5.406643653274447,
+          -4.553578223300226,
+          -7.929979386670103
+        ],
+        "crest_db": 12.30113977175616
+      },
+      "reference": {
+        "band_power_db": [
+          -14.126952938544623,
+          -8.128104759242635,
+          -4.9526194748699135,
+          -4.0458814547613144,
+          -7.2702603228776175
+        ],
+        "crest_db": 10.735943387858661
+      },
+      "band_error_db": [
+        -0.17965977306168313,
+        -0.08081068008274883,
+        -0.45402417840453335,
+        -0.5076967685389118,
+        -0.6597190637924859
+      ],
+      "crest_error_db": 1.565196383897499,
+      "scope": "Fixed channel snapshot, synthetic excitation, numerical proxy only; no musical/DI listening verdict"
+    },
+    "Surtr": {
+      "prediction": {
+        "band_power_db": [
+          -2.495661219888053,
+          -6.234391497826825,
+          -8.089579076828338,
+          -8.464393806565266,
+          -11.259357228020729
+        ],
+        "crest_db": 9.426675832762866
+      },
+      "reference": {
+        "band_power_db": [
+          -2.183528603881432,
+          -5.871574090663142,
+          -7.683180763161336,
+          -7.677630870260761,
+          -10.3302989466119
+        ],
+        "crest_db": 8.080028988193918
+      },
+      "band_error_db": [
+        -0.3121326160066209,
+        -0.36281740716368294,
+        -0.40639831366700196,
+        -0.7867629363045046,
+        -0.9290582814088282
+      ],
+      "crest_error_db": 1.346646844568948,
+      "scope": "Fixed channel snapshot, synthetic excitation, numerical proxy only; no musical/DI listening verdict"
+    },
+    "Nidhoggr": {
+      "prediction": {
+        "band_power_db": [
+          -3.373522711540619,
+          -5.883397431555524,
+          -11.544559261730532,
+          -5.034911731319832,
+          -7.858067965961904
+        ],
+        "crest_db": 11.598193684878
+      },
+      "reference": {
+        "band_power_db": [
+          -3.0262334946250355,
+          -5.541446415298714,
+          -11.15428466131698,
+          -4.334568318697691,
+          -6.867417130133978
+        ],
+        "crest_db": 9.479642923362405
+      },
+      "band_error_db": [
+        -0.34728921691558323,
+        -0.34195101625681,
+        -0.39027460041355155,
+        -0.7003434126221411,
+        -0.9906508358279265
+      ],
+      "crest_error_db": 2.1185507615155945,
+      "scope": "Fixed channel snapshot, synthetic excitation, numerical proxy only; no musical/DI listening verdict"
+    },
+    "Fimbulvetr": {
+      "prediction": {
+        "band_power_db": [
+          -2.979422527555282,
+          -9.439641210375335,
+          -12.81924280394028,
+          -6.995253195626675,
+          -8.22786196351834
+        ],
+        "crest_db": 10.356859636683925
+      },
+      "reference": {
+        "band_power_db": [
+          -2.9796501046467534,
+          -9.581824064783245,
+          -12.617088445709726,
+          -6.674143449489876,
+          -7.8098355784916675
+        ],
+        "crest_db": 10.77806067715432
+      },
+      "band_error_db": [
+        0.00022757709147125382,
+        0.1421828544079098,
+        -0.20215435823055472,
+        -0.32110974613679844,
+        -0.4180263850266721
+      ],
+      "crest_error_db": -0.42120104047039497,
+      "scope": "Fixed channel snapshot, synthetic excitation, numerical proxy only; no musical/DI listening verdict"
+    },
+    "Ragnarok": {
+      "prediction": {
+        "band_power_db": [
+          4.335605230809433,
+          -8.113289285980224,
+          -13.484226340343259,
+          -7.172126200607664,
+          -8.219695973533641
+        ],
+        "crest_db": 9.486640676670321
+      },
+      "reference": {
+        "band_power_db": [
+          4.7012182920350485,
+          -7.402326769998133,
+          -12.754037197883347,
+          -6.185013141649469,
+          -7.327047612149399
+        ],
+        "crest_db": 5.951337219611169
+      },
+      "band_error_db": [
+        -0.36561306122561543,
+        -0.7109625159820911,
+        -0.7301891424599116,
+        -0.9871130589581956,
+        -0.892648361384242
+      ],
+      "crest_error_db": 3.535303457059152,
+      "scope": "Fixed channel snapshot, synthetic excitation, numerical proxy only; no musical/DI listening verdict"
+    }
+  },
+  "selected_max_band_contrast_error_db": 0.8531453703900009,
+  "selected_numerical_pass_count": 0,
+  "selected_engine_pass_count": 5,
+  "engine_parity_range_dbfs": [
+    -149.2435859337482,
+    -98.26744194279769
+  ],
+  "block_output_max_abs": 0.0,
+  "preset_restore_max_abs": 0.0,
+  "release_approved": false,
+  "scope": "Descriptive summaries; no test-time selection, statistical significance, DI listening, or GUI/DAW approval."
+}

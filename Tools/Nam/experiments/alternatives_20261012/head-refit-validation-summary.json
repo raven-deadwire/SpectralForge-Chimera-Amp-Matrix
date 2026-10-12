@@ -1,0 +1,98 @@
+{
+  "scope": "Validation only; actual engine and new test evaluated separately",
+  "mean_validation_esr": {
+    "baseline": 0.10012599519037668,
+    "best_raw": 0.09830293297168882,
+    "best_eq_chain": 0.09838279947350789,
+    "selected": 0.0983429734989672
+  },
+  "rows": [
+    {
+      "channel": "Fenrir",
+      "selected_mode": "raw",
+      "selected_ridge": 1e-06,
+      "baseline_esr": 0.10527461676778821,
+      "selected_esr": 0.10179764689468736,
+      "selected_rms_error_db": -0.45769660058799577,
+      "selected_peak_error_db": 0.6296143514756078,
+      "selected_quiet_rms_dbfs": -67.55913939616818,
+      "selected_quiet_peak_dbfs": -50.74746927085391,
+      "selected_fidelity_pass": false,
+      "raw_best_rejections": [],
+      "eq_chain_best_rejections": [],
+      "feature_reconstruction_max_abs": 3.5038848893442776e-06
+    },
+    {
+      "channel": "Surtr",
+      "selected_mode": "eq-chain",
+      "selected_ridge": 0.0001,
+      "baseline_esr": 0.10674827596645599,
+      "selected_esr": 0.10507964628122761,
+      "selected_rms_error_db": -0.3876295804885447,
+      "selected_peak_error_db": 0.5335267860269948,
+      "selected_quiet_rms_dbfs": -81.81860977595531,
+      "selected_quiet_peak_dbfs": -70.98527127746425,
+      "selected_fidelity_pass": false,
+      "raw_best_rejections": [],
+      "eq_chain_best_rejections": [],
+      "feature_reconstruction_max_abs": 1.6969252119025668e-06
+    },
+    {
+      "channel": "Nidhoggr",
+      "selected_mode": "raw",
+      "selected_ridge": 0.01,
+      "baseline_esr": 0.10676660686671842,
+      "selected_esr": 0.10477413254698298,
+      "selected_rms_error_db": -0.4093639130830542,
+      "selected_peak_error_db": 0.9921943209013921,
+      "selected_quiet_rms_dbfs": -75.30531517822784,
+      "selected_quiet_peak_dbfs": -64.75012638859825,
+      "selected_fidelity_pass": false,
+      "raw_best_rejections": [
+        "level_regression:peak_error_db"
+      ],
+      "eq_chain_best_rejections": [
+        "level_regression:peak_error_db"
+      ],
+      "feature_reconstruction_max_abs": 3.7543136648388042e-06
+    },
+    {
+      "channel": "Fimbulvetr",
+      "selected_mode": "eq-chain",
+      "selected_ridge": 0.0001,
+      "baseline_esr": 0.04068242784004505,
+      "selected_esr": 0.038905393261062286,
+      "selected_rms_error_db": -0.14506727232657507,
+      "selected_peak_error_db": 0.28192616585857344,
+      "selected_quiet_rms_dbfs": -81.36489316107864,
+      "selected_quiet_peak_dbfs": -70.89842555754817,
+      "selected_fidelity_pass": false,
+      "raw_best_rejections": [],
+      "eq_chain_best_rejections": [],
+      "feature_reconstruction_max_abs": 2.0607758890456296e-06
+    },
+    {
+      "channel": "Ragnarok",
+      "selected_mode": "baseline",
+      "selected_ridge": null,
+      "baseline_esr": 0.1411580485108758,
+      "selected_esr": 0.1411580485108758,
+      "selected_rms_error_db": -0.4557523409636728,
+      "selected_peak_error_db": 3.7316420235089325,
+      "selected_quiet_rms_dbfs": -90.11790500362875,
+      "selected_quiet_peak_dbfs": -78.3858555939836,
+      "selected_fidelity_pass": false,
+      "raw_best_rejections": [
+        "level_regression:peak_error_db"
+      ],
+      "eq_chain_best_rejections": [
+        "level_regression:peak_error_db",
+        "no_0.1percent_esr_improvement"
+      ],
+      "feature_reconstruction_max_abs": 2.7125340018585575e-06
+    }
+  ],
+  "selection_sha256": "0f136e033c1a9d2aaf046dbc93c1c9f033c4ff3b157002f99b6ac00ba3ee6584",
+  "run_seconds_sum": 179.971,
+  "release_approved": false
+}

@@ -1,0 +1,367 @@
+{
+  "protocol_id": "nastrond-nonlinear-incremental-memory-v1",
+  "created_utc_before_rendering": "2026-10-12T01:54:06.063314+00:00",
+  "source_commit": "d93560445c78552768a0ed592e5ec62c3c648fb6",
+  "native_renderer_sha256": "1e96f28042c229d97a01685834973c184f9b76de208cc107fb39fb7ddbbb3c32",
+  "player_sha256": "02e40c31e7483be2dbe9383d193c5918b3d1ce31abce9eba9081dfc63143c6bc",
+  "script_sha256": "95ffeb906eb247d2fd5b99400d92a3c6730c3031db66b698590eadb86b2e6b68",
+  "build_evidence_sha256": "563fa732975b6397664a24a85306e9da64d21555516e3c56f1b5a27253556917",
+  "settings_sha256": "1b9377115bf43a8fccba39fe7e4197383c03194eacdcef91bdf02c26454c02f9",
+  "profile_sha256": "19e3db1f40633ce80d5996494b42de8cb2347632a182a0cf6f04af44f999410a",
+  "sample_rate": 48000,
+  "native_oversampling": 4,
+  "native_block_size": 256,
+  "rf_samples": 6347,
+  "conditioning_samples": 48000,
+  "conditioning_levels": [
+    0.65,
+    0.005
+  ],
+  "gaps_ms": [
+    150,
+    250,
+    500,
+    750,
+    1000
+  ],
+  "probe_levels": [
+    0.03,
+    0.3
+  ],
+  "probe_samples": 9600,
+  "post_probe_tail_samples": 9600,
+  "carrier": "(sin(2*pi*55*t)+.35*sin(2*pi*110*t)+.15*sin(2*pi*165*t))/1.5",
+  "probe_envelope": "(1-exp(-t/.003))*exp(-t/.080), multiplied by half-cosine fade over180-200ms",
+  "windows_relative_to_probe_onset": {
+    "onset_20ms": [
+      0,
+      960
+    ],
+    "late_probe_20ms": [
+      8640,
+      9600
+    ],
+    "whole_probe_200ms": [
+      0,
+      9600
+    ],
+    "post_probe_tail_200ms": [
+      9600,
+      19200
+    ]
+  },
+  "delta_definition": "(y_high_probe-y_high_zero)-(y_low_probe-y_low_zero)",
+  "render_count_native": 150,
+  "zero_controls_reused_only_within_same_channel_gap": true,
+  "positive_control_selection": "one largest native whole_probe_200ms delta RMS across all50 predefined cases; no model selection or tuning",
+  "player_control": "four renders of unchanged legacy baseline A2 plus its already-frozen legal POST EQ on that witness; normalizefalse",
+  "floating_point_scope": "Fixed finite-history A2 plus fixed linear POST has delta0 in exact arithmetic; actual component control quantifies float32 residual",
+  "formal_bound": "If delta_hat=0, triangle inequality gives max_i norm(y_i-yhat_i)>=norm(delta)/4 for the same output window; report RMS and infinity norms only",
+  "limitations": "Diagnostic-specific class result, not whole-program fidelity fail/pass, universal recurrent-model impossibility, perceptual audibility, or state-specific sag attribution",
+  "fit_or_tuning": false,
+  "release_approved": false,
+  "inputs": {
+    "gap150-high-level0.000": {
+      "sha256": "1cf1bfdc92b1158197112d59ef76334f2849efb9af9084b01d7913635633ba4b",
+      "samples": 74400,
+      "probe_onset_sample": 55200,
+      "probe_end_sample": 64800
+    },
+    "gap150-high-level0.030": {
+      "sha256": "f74f4b2cec9cdb0097e541b5017f1eaa428afa1748eac1e27273c97ab589595b",
+      "samples": 74400,
+      "probe_onset_sample": 55200,
+      "probe_end_sample": 64800
+    },
+    "gap150-high-level0.300": {
+      "sha256": "6276ae7ff4ca2236386a20c7edd75e0b500c116e4d4fe9a452cc17ace98665e0",
+      "samples": 74400,
+      "probe_onset_sample": 55200,
+      "probe_end_sample": 64800
+    },
+    "gap150-low-level0.000": {
+      "sha256": "ecbac99474e9cd93e01fe7e32e7ab7a3badf6c9e75020152a19e543792f0caf7",
+      "samples": 74400,
+      "probe_onset_sample": 55200,
+      "probe_end_sample": 64800
+    },
+    "gap150-low-level0.030": {
+      "sha256": "c08077f8542046a79ab305f5ed700e92b609f7a94f8381cde30ef207e5111e2d",
+      "samples": 74400,
+      "probe_onset_sample": 55200,
+      "probe_end_sample": 64800
+    },
+    "gap150-low-level0.300": {
+      "sha256": "e261fde502c14435b671db52bff5979b8800e80fb9aedd934abca1ac52c81d8d",
+      "samples": 74400,
+      "probe_onset_sample": 55200,
+      "probe_end_sample": 64800
+    },
+    "gap250-high-level0.000": {
+      "sha256": "df6752248e53596076033da4ed5b15efed2947ad2c3ce6e394e1b0dc2a7975bd",
+      "samples": 79200,
+      "probe_onset_sample": 60000,
+      "probe_end_sample": 69600
+    },
+    "gap250-high-level0.030": {
+      "sha256": "93fffcd3297be545a5ec34a11c8dac3b746c914019ee97d64452b75b2b11c9e5",
+      "samples": 79200,
+      "probe_onset_sample": 60000,
+      "probe_end_sample": 69600
+    },
+    "gap250-high-level0.300": {
+      "sha256": "cb3a2fc0072aaad44d4c3f4d424417e3dc18460585550c2e9d5b30b352b06a1b",
+      "samples": 79200,
+      "probe_onset_sample": 60000,
+      "probe_end_sample": 69600
+    },
+    "gap250-low-level0.000": {
+      "sha256": "9317c90d293bd2b47ace67d17fa058ff00f5a0cbd2af69f6fc72716e332e0c89",
+      "samples": 79200,
+      "probe_onset_sample": 60000,
+      "probe_end_sample": 69600
+    },
+    "gap250-low-level0.030": {
+      "sha256": "0b6a4fbe3b2df19708bf7c88d19366e3e7de321f99d3d5d73ea6502aca2c5d58",
+      "samples": 79200,
+      "probe_onset_sample": 60000,
+      "probe_end_sample": 69600
+    },
+    "gap250-low-level0.300": {
+      "sha256": "9a44b43e1ef75fac2f0998489f500b687ef362192d8271925b1515e130f446fd",
+      "samples": 79200,
+      "probe_onset_sample": 60000,
+      "probe_end_sample": 69600
+    },
+    "gap500-high-level0.000": {
+      "sha256": "b4285f720230295402205595018ae8920fa8cd4587e267e2bdbd57f5359c9226",
+      "samples": 91200,
+      "probe_onset_sample": 72000,
+      "probe_end_sample": 81600
+    },
+    "gap500-high-level0.030": {
+      "sha256": "21258485cbac95c9272e46e65898d302ea5ce3647e6a13ab329d406d28781a56",
+      "samples": 91200,
+      "probe_onset_sample": 72000,
+      "probe_end_sample": 81600
+    },
+    "gap500-high-level0.300": {
+      "sha256": "20ca8cb883fbbfe096f2c1575e5fa692e102b5285caa21bf78af95cde191df76",
+      "samples": 91200,
+      "probe_onset_sample": 72000,
+      "probe_end_sample": 81600
+    },
+    "gap500-low-level0.000": {
+      "sha256": "0e373070e945941890ed8427780ee2f71ab7d986f76c6f7cc8f71e41ffe7628b",
+      "samples": 91200,
+      "probe_onset_sample": 72000,
+      "probe_end_sample": 81600
+    },
+    "gap500-low-level0.030": {
+      "sha256": "09591a54a750e7861e774dd36812e8984d5dfa30ede1f0259982b092b0519986",
+      "samples": 91200,
+      "probe_onset_sample": 72000,
+      "probe_end_sample": 81600
+    },
+    "gap500-low-level0.300": {
+      "sha256": "38e8d4dfd92d8cf7692b912294edcb54226f01317f10741586492841a2d6c953",
+      "samples": 91200,
+      "probe_onset_sample": 72000,
+      "probe_end_sample": 81600
+    },
+    "gap750-high-level0.000": {
+      "sha256": "16ece129b4c39512a01c4ca424801dd5af59adce5658540e8d89af3db5dce376",
+      "samples": 103200,
+      "probe_onset_sample": 84000,
+      "probe_end_sample": 93600
+    },
+    "gap750-high-level0.030": {
+      "sha256": "b928013b08b77035e4d98a20cea9e6291f5ee9625b02919b15d4af7581e10bf2",
+      "samples": 103200,
+      "probe_onset_sample": 84000,
+      "probe_end_sample": 93600
+    },
+    "gap750-high-level0.300": {
+      "sha256": "d4f9aec2b7d553a7e7c4dee08d2f15ecf6bb6ee4f5be2dd34dc29f4a94267295",
+      "samples": 103200,
+      "probe_onset_sample": 84000,
+      "probe_end_sample": 93600
+    },
+    "gap750-low-level0.000": {
+      "sha256": "69f78ec76907c38278093753e891559f89f51a47adb33561a1fac0f512964d4b",
+      "samples": 103200,
+      "probe_onset_sample": 84000,
+      "probe_end_sample": 93600
+    },
+    "gap750-low-level0.030": {
+      "sha256": "a108a0438b948d437758514c2d32e4c57a5191b0834c3afa59d58dedacdc84d1",
+      "samples": 103200,
+      "probe_onset_sample": 84000,
+      "probe_end_sample": 93600
+    },
+    "gap750-low-level0.300": {
+      "sha256": "5a43bf4bf6f56b017af46d33baceddf496672cc936215e8853d60025ade208dd",
+      "samples": 103200,
+      "probe_onset_sample": 84000,
+      "probe_end_sample": 93600
+    },
+    "gap1000-high-level0.000": {
+      "sha256": "ddd79d9f3f27a4457220718490674d26277d2e89a04357945943409d098ccc72",
+      "samples": 115200,
+      "probe_onset_sample": 96000,
+      "probe_end_sample": 105600
+    },
+    "gap1000-high-level0.030": {
+      "sha256": "0d9735db760683ea1f93611ba8e3fa5e8fe36ddcf7d33c7cfed874240bebfeb2",
+      "samples": 115200,
+      "probe_onset_sample": 96000,
+      "probe_end_sample": 105600
+    },
+    "gap1000-high-level0.300": {
+      "sha256": "b37b5cd3847494f9c8dd94734efb913c0b8c5eab4038814b7b653c373a4d7a54",
+      "samples": 115200,
+      "probe_onset_sample": 96000,
+      "probe_end_sample": 105600
+    },
+    "gap1000-low-level0.000": {
+      "sha256": "4629be453db49621687ed063f5f15c4752a54e7b436526df63c99e805b98adfc",
+      "samples": 115200,
+      "probe_onset_sample": 96000,
+      "probe_end_sample": 105600
+    },
+    "gap1000-low-level0.030": {
+      "sha256": "864211c5bd50eb4bb6510d0ecb16cec4e8a3e7204372d7dfc33372d4b653c768",
+      "samples": 115200,
+      "probe_onset_sample": 96000,
+      "probe_end_sample": 105600
+    },
+    "gap1000-low-level0.300": {
+      "sha256": "68a4b38ea3ddd3f9acbabd59c489149e333754896b17d59a006525810481df9c",
+      "samples": 115200,
+      "probe_onset_sample": 96000,
+      "probe_end_sample": 105600
+    }
+  },
+  "channels": {
+    "Fenrir": {
+      "native_job": {
+        "channel": 0,
+        "controls": {
+          "gain": 0.56,
+          "bass": 0.4,
+          "middle": 0.55,
+          "treble": 0.6,
+          "mid_frequency": 1050,
+          "presence": 0.62,
+          "depth": 0.55,
+          "master": 0.5,
+          "clank": 0.95,
+          "crush": 0.48,
+          "impact": 0.78,
+          "rot": 0.15,
+          "bloom": 0.12
+        }
+      },
+      "native_job_sha256": "784407452810707a0318880bcd7dfd6b3890f1efe552ed2210a1ce48d0185488",
+      "reference_output_scale": 0.09195752759643712,
+      "baseline_model_sha256": "5c88c8d03609a0e3a2341467d3ae7e843af9d36de8e4e007ba85b08b9545b594",
+      "frozen_eq_job_sha256": "77e631749bb6f7d02d07479c539e8dece6f2cea66b2d73c0c6fb416ba4964b93"
+    },
+    "Surtr": {
+      "native_job": {
+        "channel": 1,
+        "controls": {
+          "gain": 0.68,
+          "bass": 0.48,
+          "middle": 0.75,
+          "treble": 0.52,
+          "mid_frequency": 1050,
+          "presence": 0.52,
+          "depth": 0.5,
+          "master": 0.5,
+          "clank": 0.5,
+          "crush": 0.95,
+          "impact": 0.48,
+          "rot": 0.35,
+          "bloom": 0.55
+        }
+      },
+      "native_job_sha256": "1cbfcfcf27f775c623867588b85fd22e22adbc6950a0a68772b137b9962047dc",
+      "reference_output_scale": 0.09034985741800312,
+      "baseline_model_sha256": "c3dbc6092fed41c54b2d8b7486b5538495c617fb419a7563e307e67931957edb",
+      "frozen_eq_job_sha256": "b54e713b8acb4a83d900bc9d1712e09a97cae61ad71bc6e754a202c78feb9177"
+    },
+    "Nidhoggr": {
+      "native_job": {
+        "channel": 2,
+        "controls": {
+          "gain": 0.64,
+          "bass": 0.43,
+          "middle": 0.5,
+          "treble": 0.57,
+          "mid_frequency": 800,
+          "presence": 0.6,
+          "depth": 0.52,
+          "master": 0.5,
+          "clank": 0.5,
+          "crush": 0.6,
+          "impact": 0.5,
+          "rot": 1.0,
+          "bloom": 0.58
+        }
+      },
+      "native_job_sha256": "c6adcc1c53951f7ffc19ae06f0f97a224341e9bc662373b8382508182f1ad932",
+      "reference_output_scale": 0.0860012970451488,
+      "baseline_model_sha256": "fec3d9a7fd4a0c92ea30f90e9aee20034fa7acfb456413a4407e5062d9fb8474",
+      "frozen_eq_job_sha256": "09b0d92c45fa4bb4ba2a76c32e83049dc22d9639dec03c4a8fb9cc1e80689258"
+    },
+    "Fimbulvetr": {
+      "native_job": {
+        "channel": 3,
+        "controls": {
+          "gain": 0.52,
+          "bass": 0.4,
+          "middle": 0.65,
+          "treble": 0.72,
+          "mid_frequency": 1350,
+          "presence": 0.72,
+          "depth": 0.48,
+          "master": 0.5,
+          "clank": 0.35,
+          "crush": 0.42,
+          "impact": 0.5,
+          "rot": 0.4,
+          "bloom": 0.95
+        }
+      },
+      "native_job_sha256": "ea0a04bf9d3798e8469a7a6406a0587e97f5f2a099f5f4f4e46ee1fffa767c8f",
+      "reference_output_scale": 0.09721294970620417,
+      "baseline_model_sha256": "df28b1397a973d28c50d53d3bdab2e4c63df8850ebb39ba2efa8c1a27f17668d",
+      "frozen_eq_job_sha256": "44e14d8c46a39356d3e7d9bd117b0c4b1e9e9d35fd5e43e5aadfa551b830e58b"
+    },
+    "Ragnarok": {
+      "native_job": {
+        "channel": 4,
+        "controls": {
+          "gain": 0.66,
+          "bass": 0.6,
+          "middle": 0.42,
+          "treble": 0.55,
+          "mid_frequency": 650,
+          "presence": 0.56,
+          "depth": 0.86,
+          "master": 0.5,
+          "clank": 0.74,
+          "crush": 0.82,
+          "impact": 1.0,
+          "rot": 0.58,
+          "bloom": 0.32
+        }
+      },
+      "native_job_sha256": "dbc4c3c55d727d12442354e9b51087d64d8458c661a83ea96c7ebde5602d16eb",
+      "reference_output_scale": 0.05162876564505051,
+      "baseline_model_sha256": "c99712054961360701cb76554aca2e021745ba769dcfc9ecb1ad138723384fc4",
+      "frozen_eq_job_sha256": "21150dc2d4900fd8c451c36ec8740151dc5223a6e47273c340379c86c29155b6"
+    }
+  }
+}

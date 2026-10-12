@@ -1,0 +1,1281 @@
+{
+  "initial_plan_sha256": "c9ca398e8c17cd4286da522f66c9c8d51c6b9b776b6c208fe7436e97642b0121",
+  "initial_results_sha256": "755d8d61e43e09ec00e71d3db21e2f7b0b58326d1aa10498678bc6adf03ad28c",
+  "energy_reconstruction_plan_sha256": "6eb3c65f67ef9f0b02e783fd1bb8a3e5a5fcd8d813f11ef61912c9ec49e192bd",
+  "scope": "Same-window structural diagnostic only; no application or modification of product fidelity gates",
+  "exact_arithmetic_class": "finite6347-sample A2 followed by a fixed linear time-invariant POST filter",
+  "bounds": {
+    "minimax_individual_norm": "max_i ||e_i|| >= ||Delta||/4",
+    "pooled_four_trace_probe_esr": "sum_i||e_i||^2/sum_i||r_i||^2 >= ||Delta||^2/(4*sum_i||r_i||^2)",
+    "derivation": "Delta_hat=0 implies Delta=plus/minus signed sum of four errors. Triangle inequality gives minimax; Cauchy-Schwarz gives ||Delta||^2<=4*sum||e_i||^2. All norms use identical sample ranges and frozen per-channel anchors."
+  },
+  "channels": {
+    "Fenrir": {
+      "max_whole_probe_case": {
+        "gap_ms": 150,
+        "probe_level": 0.03,
+        "probe_onset_sample": 55200
+      },
+      "reference_output_scale": 0.09195752759643712,
+      "max_case_windows": {
+        "onset_20ms": {
+          "delta_rms_dbfs": -38.03681669948587,
+          "delta_peak_dbfs": -26.310055659664147,
+          "delta_rms": 0.012536005240917343,
+          "delta_peak": 0.04836121652784474,
+          "increment_high_rms_dbfs": -26.381539438685472,
+          "increment_low_rms_dbfs": -25.126995569466573,
+          "increment_level_high_minus_low_db": -1.2545438692188995,
+          "minimax_individual_error_rms_lower_bound_dbfs": -50.07801652604512,
+          "minimax_individual_error_peak_lower_bound_dbfs": -38.351255486223394,
+          "reference_quartet_energy": {
+            "high-level0.000": 4.1892877435471526e-10,
+            "high-level0.030": 2.2086068077570893,
+            "low-level0.000": 4.671638859125263e-11,
+            "low-level0.030": 2.9483009389690062
+          },
+          "reference_quartet_energy_sum": 5.156907747191741,
+          "delta_energy": 0.1508653703042948,
+          "pooled_four_trace_esr_lower_bound": 0.007313751656040893
+        },
+        "late_probe_20ms": {
+          "delta_rms_dbfs": -92.92027047834287,
+          "delta_peak_dbfs": -71.85800770221263,
+          "delta_rms": 2.2593654125543203e-05,
+          "delta_peak": 0.0002553286887405741,
+          "increment_high_rms_dbfs": -35.86749824553306,
+          "increment_low_rms_dbfs": -35.86593034840862,
+          "increment_level_high_minus_low_db": -0.0015678971244454942,
+          "minimax_individual_error_rms_lower_bound_dbfs": -104.96147030490212,
+          "minimax_individual_error_peak_lower_bound_dbfs": -83.89920752877188,
+          "reference_quartet_energy": {
+            "high-level0.000": 5.7489629827750114e-18,
+            "high-level0.030": 0.24861161160792353,
+            "low-level0.000": 6.411742009303563e-19,
+            "low-level0.030": 0.2487013818451903
+          },
+          "reference_quartet_energy_sum": 0.49731299345311386,
+          "delta_energy": 4.900542784748916e-07,
+          "pooled_four_trace_esr_lower_bound": 2.463510329139899e-07
+        },
+        "whole_probe_200ms": {
+          "delta_rms_dbfs": -46.724754268058334,
+          "delta_peak_dbfs": -26.310055659664147,
+          "delta_rms": 0.0046106513901572254,
+          "delta_peak": 0.04836121652784474,
+          "increment_high_rms_dbfs": -29.482550434393204,
+          "increment_low_rms_dbfs": -28.923065739692873,
+          "increment_level_high_minus_low_db": -0.5594846947003305,
+          "minimax_individual_error_rms_lower_bound_dbfs": -58.76595409461758,
+          "minimax_individual_error_peak_lower_bound_dbfs": -38.351255486223394,
+          "reference_quartet_energy": {
+            "high-level0.000": 4.836754079989038e-10,
+            "high-level0.030": 10.814746113755156,
+            "low-level0.000": 5.393733411435584e-11,
+            "low-level0.030": 12.301686755162963
+          },
+          "reference_quartet_energy_sum": 23.116432869455732,
+          "delta_energy": 0.204077819918964,
+          "pooled_four_trace_esr_lower_bound": 0.0022070643540835475
+        },
+        "post_probe_tail_200ms": {
+          "delta_rms_dbfs": -116.43973379061791,
+          "delta_peak_dbfs": -103.49972136662782,
+          "delta_rms": 1.5066532421225493e-06,
+          "delta_peak": 6.683653576184225e-06,
+          "increment_high_rms_dbfs": -68.2332651500187,
+          "increment_low_rms_dbfs": -68.21263609951157,
+          "increment_level_high_minus_low_db": -0.020629050507125157,
+          "minimax_individual_error_rms_lower_bound_dbfs": -128.48093361717716,
+          "minimax_individual_error_peak_lower_bound_dbfs": -115.54092119318707,
+          "reference_quartet_energy": {
+            "high-level0.000": 8.898658413814269e-19,
+            "high-level0.030": 0.0014419317520490125,
+            "low-level0.000": 9.924554943528334e-20,
+            "low-level0.030": 0.0014487972695839152
+          },
+          "reference_quartet_energy_sum": 0.002890729021632929,
+          "delta_energy": 2.1792038323184577e-08,
+          "pooled_four_trace_esr_lower_bound": 1.8846490072316245e-06
+        }
+      },
+      "all_cases_whole_probe": [
+        {
+          "gap_ms": 150,
+          "probe_level": 0.03,
+          "delta_rms_dbfs": -46.724754268058334,
+          "delta_peak_dbfs": -26.310055659664147,
+          "delta_rms": 0.0046106513901572254,
+          "delta_peak": 0.04836121652784474,
+          "increment_high_rms_dbfs": -29.482550434393204,
+          "increment_low_rms_dbfs": -28.923065739692873,
+          "increment_level_high_minus_low_db": -0.5594846947003305,
+          "minimax_individual_error_rms_lower_bound_dbfs": -58.76595409461758,
+          "minimax_individual_error_peak_lower_bound_dbfs": -38.351255486223394
+        },
+        {
+          "gap_ms": 150,
+          "probe_level": 0.3,
+          "delta_rms_dbfs": -52.48968562904243,
+          "delta_peak_dbfs": -24.65627769271848,
+          "delta_rms": 0.0023741913509855855,
+          "delta_peak": 0.05850407475732057,
+          "increment_high_rms_dbfs": -27.15501049618297,
+          "increment_low_rms_dbfs": -27.073183629851837,
+          "increment_level_high_minus_low_db": -0.08182686633113434,
+          "minimax_individual_error_rms_lower_bound_dbfs": -64.53088545560166,
+          "minimax_individual_error_peak_lower_bound_dbfs": -36.697477519277726
+        },
+        {
+          "gap_ms": 250,
+          "probe_level": 0.03,
+          "delta_rms_dbfs": -56.399908562739455,
+          "delta_peak_dbfs": -26.89480805585103,
+          "delta_rms": 0.0015135771819362247,
+          "delta_peak": 0.045212611959263835,
+          "increment_high_rms_dbfs": -28.953739967372066,
+          "increment_low_rms_dbfs": -28.917509411012475,
+          "increment_level_high_minus_low_db": -0.03623055635959105,
+          "minimax_individual_error_rms_lower_bound_dbfs": -68.44110838929869,
+          "minimax_individual_error_peak_lower_bound_dbfs": -38.93600788241028
+        },
+        {
+          "gap_ms": 250,
+          "probe_level": 0.3,
+          "delta_rms_dbfs": -57.49215734389515,
+          "delta_peak_dbfs": -25.052410632107353,
+          "delta_rms": 0.001334726037952773,
+          "delta_peak": 0.05589583759324482,
+          "increment_high_rms_dbfs": -27.084467646177394,
+          "increment_low_rms_dbfs": -27.070705164338925,
+          "increment_level_high_minus_low_db": -0.013762481838469398,
+          "minimax_individual_error_rms_lower_bound_dbfs": -69.5333571704544,
+          "minimax_individual_error_peak_lower_bound_dbfs": -37.093610458666596
+        },
+        {
+          "gap_ms": 500,
+          "probe_level": 0.03,
+          "delta_rms_dbfs": -112.82813860335185,
+          "delta_peak_dbfs": -83.59858741144677,
+          "delta_rms": 2.283458220105609e-06,
+          "delta_peak": 6.608009054973052e-05,
+          "increment_high_rms_dbfs": -28.91722231094196,
+          "increment_low_rms_dbfs": -28.917191532009596,
+          "increment_level_high_minus_low_db": -3.0778932362807154e-05,
+          "minimax_individual_error_rms_lower_bound_dbfs": -124.8693384299111,
+          "minimax_individual_error_peak_lower_bound_dbfs": -95.63978723800602
+        },
+        {
+          "gap_ms": 500,
+          "probe_level": 0.3,
+          "delta_rms_dbfs": -114.10776942073494,
+          "delta_peak_dbfs": -81.09909224670695,
+          "delta_rms": 1.970659217239881e-06,
+          "delta_peak": 8.811409553211025e-05,
+          "increment_high_rms_dbfs": -27.07057738185163,
+          "increment_low_rms_dbfs": -27.07056492655382,
+          "increment_level_high_minus_low_db": -1.2455297810021193e-05,
+          "minimax_individual_error_rms_lower_bound_dbfs": -126.14896924729419,
+          "minimax_individual_error_peak_lower_bound_dbfs": -93.1402920732662
+        },
+        {
+          "gap_ms": 750,
+          "probe_level": 0.03,
+          "delta_rms_dbfs": -171.21752807486104,
+          "delta_peak_dbfs": -142.3000914837305,
+          "delta_rms": 2.7486762900584815e-09,
+          "delta_peak": 7.673534072050181e-08,
+          "increment_high_rms_dbfs": -28.91719126348848,
+          "increment_low_rms_dbfs": -28.917191245834953,
+          "increment_level_high_minus_low_db": -1.7653526640515338e-08,
+          "minimax_individual_error_rms_lower_bound_dbfs": -183.2587279014203,
+          "minimax_individual_error_peak_lower_bound_dbfs": -154.34129131028976
+        },
+        {
+          "gap_ms": 750,
+          "probe_level": 0.3,
+          "delta_rms_dbfs": -172.09103603733357,
+          "delta_peak_dbfs": -141.14025254299864,
+          "delta_rms": 2.485697057059518e-09,
+          "delta_peak": 8.769753226389732e-08,
+          "increment_high_rms_dbfs": -27.07056477653913,
+          "increment_low_rms_dbfs": -27.070564768520757,
+          "increment_level_high_minus_low_db": -8.018371744356045e-09,
+          "minimax_individual_error_rms_lower_bound_dbfs": -184.13223586389282,
+          "minimax_individual_error_peak_lower_bound_dbfs": -153.1814523695579
+        },
+        {
+          "gap_ms": 1000,
+          "probe_level": 0.03,
+          "delta_rms_dbfs": -217.3688975443629,
+          "delta_peak_dbfs": -183.284451938705,
+          "delta_rms": 1.353801910933545e-11,
+          "delta_peak": 6.851369705948573e-10,
+          "increment_high_rms_dbfs": -28.917191244321664,
+          "increment_low_rms_dbfs": -28.917191244324272,
+          "increment_level_high_minus_low_db": 2.6076918402395677e-12,
+          "minimax_individual_error_rms_lower_bound_dbfs": -229.41009737092216,
+          "minimax_individual_error_peak_lower_bound_dbfs": -195.32565176526424
+        },
+        {
+          "gap_ms": 1000,
+          "probe_level": 0.3,
+          "delta_rms_dbfs": -300.0,
+          "delta_peak_dbfs": -300.0,
+          "delta_rms": 1.3747718038538184e-27,
+          "delta_peak": 1.346995772882982e-25,
+          "increment_high_rms_dbfs": -27.070564772405543,
+          "increment_low_rms_dbfs": -27.070564772405543,
+          "increment_level_high_minus_low_db": 0.0,
+          "minimax_individual_error_rms_lower_bound_dbfs": -300.0,
+          "minimax_individual_error_peak_lower_bound_dbfs": -300.0
+        }
+      ],
+      "energy_reconstruction_byte_exact": true,
+      "energy_reconstruction_proofs": [
+        {
+          "input_key": "gap150-high-level0.000",
+          "original_and_reconstructed_output_sha256": "a105b3f89d1c38c6060143c47b6df03dce15e4d6d691b9596cbaf74f083fe95f"
+        },
+        {
+          "input_key": "gap150-high-level0.030",
+          "original_and_reconstructed_output_sha256": "0244ca8799ec62fc7994903946f22025ada897d1353c5f6975405b3e6e0bee78"
+        },
+        {
+          "input_key": "gap150-low-level0.000",
+          "original_and_reconstructed_output_sha256": "b1b83760af6616c2c7b6a996d65ac6183fe34f15708cf803ba9a942137ae91a9"
+        },
+        {
+          "input_key": "gap150-low-level0.030",
+          "original_and_reconstructed_output_sha256": "d12fcdc5b5f93c1229a8fadc977120fc54e8afcf533273d1ab8359b75a01d8f2"
+        }
+      ]
+    },
+    "Surtr": {
+      "max_whole_probe_case": {
+        "gap_ms": 150,
+        "probe_level": 0.03,
+        "probe_onset_sample": 55200
+      },
+      "reference_output_scale": 0.09034985741800312,
+      "max_case_windows": {
+        "onset_20ms": {
+          "delta_rms_dbfs": -40.18674396364419,
+          "delta_peak_dbfs": -27.38572162100059,
+          "delta_rms": 0.009787297776017874,
+          "delta_peak": 0.04272813321220938,
+          "increment_high_rms_dbfs": -18.47271426614819,
+          "increment_low_rms_dbfs": -17.96981319729663,
+          "increment_level_high_minus_low_db": -0.5029010688515605,
+          "minimax_individual_error_rms_lower_bound_dbfs": -52.22794379020344,
+          "minimax_individual_error_peak_lower_bound_dbfs": -39.42692144755984,
+          "reference_quartet_energy": {
+            "high-level0.000": 1.6704653317353407e-05,
+            "high-level0.030": 13.63967755226837,
+            "low-level0.000": 3.24340805019319e-07,
+            "low-level0.030": 15.31988121895865
+          },
+          "reference_quartet_energy_sum": 28.959575800221145,
+          "delta_energy": 0.09195954984618665,
+          "pooled_four_trace_esr_lower_bound": 0.0007938613334719876
+        },
+        "late_probe_20ms": {
+          "delta_rms_dbfs": -74.5858750007501,
+          "delta_peak_dbfs": -64.7869089623236,
+          "delta_rms": 0.00018651177274544575,
+          "delta_peak": 0.0005763078720992382,
+          "increment_high_rms_dbfs": -19.030354103660944,
+          "increment_low_rms_dbfs": -19.028116762342762,
+          "increment_level_high_minus_low_db": -0.0022373413181817625,
+          "minimax_individual_error_rms_lower_bound_dbfs": -86.62707482730934,
+          "minimax_individual_error_peak_lower_bound_dbfs": -76.82810878888284,
+          "reference_quartet_energy": {
+            "high-level0.000": 1.1646551287587162e-10,
+            "high-level0.030": 12.001512263671026,
+            "low-level0.000": 3.6595727655747576e-11,
+            "low-level0.030": 12.007697391694084
+          },
+          "reference_quartet_energy_sum": 24.00920965551817,
+          "delta_energy": 3.3395175717742726e-05,
+          "pooled_four_trace_esr_lower_bound": 3.477329761880284e-07
+        },
+        "whole_probe_200ms": {
+          "delta_rms_dbfs": -48.32948006980823,
+          "delta_peak_dbfs": -27.38572162100059,
+          "delta_rms": 0.003832886830578898,
+          "delta_peak": 0.04272813321220938,
+          "increment_high_rms_dbfs": -18.641636864789277,
+          "increment_low_rms_dbfs": -18.528984759605326,
+          "increment_level_high_minus_low_db": -0.11265210518395108,
+          "minimax_individual_error_rms_lower_bound_dbfs": -60.37067989636748,
+          "minimax_individual_error_peak_lower_bound_dbfs": -39.42692144755984,
+          "reference_quartet_energy": {
+            "high-level0.000": 1.9534779900064976e-05,
+            "high-level0.030": 131.24980937683802,
+            "low-level0.000": 4.7516155841517337e-07,
+            "low-level0.030": 134.7006467795062
+          },
+          "reference_quartet_energy_sum": 265.9504761662857,
+          "delta_energy": 0.14103380597784146,
+          "pooled_four_trace_esr_lower_bound": 0.00013257525236546296
+        },
+        "post_probe_tail_200ms": {
+          "delta_rms_dbfs": -91.64441695256434,
+          "delta_peak_dbfs": -73.29742502005683,
+          "delta_rms": 2.616851947064897e-05,
+          "delta_peak": 0.00021633597686206325,
+          "increment_high_rms_dbfs": -31.00390419661773,
+          "increment_low_rms_dbfs": -31.007197531032187,
+          "increment_level_high_minus_low_db": 0.0032933344144581156,
+          "minimax_individual_error_rms_lower_bound_dbfs": -103.68561677912359,
+          "minimax_individual_error_peak_lower_bound_dbfs": -85.33862484661609,
+          "reference_quartet_energy": {
+            "high-level0.000": 6.939781732632531e-11,
+            "high-level0.030": 7.618692145305643,
+            "low-level0.000": 2.1126618170337118e-11,
+            "low-level0.030": 7.612922175971333
+          },
+          "reference_quartet_energy_sum": 15.2316143213675,
+          "delta_energy": 6.57399754834301e-06,
+          "pooled_four_trace_esr_lower_bound": 1.0790053847281228e-07
+        }
+      },
+      "all_cases_whole_probe": [
+        {
+          "gap_ms": 150,
+          "probe_level": 0.03,
+          "delta_rms_dbfs": -48.32948006980823,
+          "delta_peak_dbfs": -27.38572162100059,
+          "delta_rms": 0.003832886830578898,
+          "delta_peak": 0.04272813321220938,
+          "increment_high_rms_dbfs": -18.641636864789277,
+          "increment_low_rms_dbfs": -18.528984759605326,
+          "increment_level_high_minus_low_db": -0.11265210518395108,
+          "minimax_individual_error_rms_lower_bound_dbfs": -60.37067989636748,
+          "minimax_individual_error_peak_lower_bound_dbfs": -39.42692144755984
+        },
+        {
+          "gap_ms": 150,
+          "probe_level": 0.3,
+          "delta_rms_dbfs": -58.97034117730733,
+          "delta_peak_dbfs": -39.88257488829535,
+          "delta_rms": 0.0011258562449683002,
+          "delta_peak": 0.010136108613527706,
+          "increment_high_rms_dbfs": -18.378882402663262,
+          "increment_low_rms_dbfs": -18.36178420521665,
+          "increment_level_high_minus_low_db": -0.017098197446610897,
+          "minimax_individual_error_rms_lower_bound_dbfs": -71.01154100386658,
+          "minimax_individual_error_peak_lower_bound_dbfs": -51.9237747148546
+        },
+        {
+          "gap_ms": 250,
+          "probe_level": 0.03,
+          "delta_rms_dbfs": -63.41779028171157,
+          "delta_peak_dbfs": -37.70968215507487,
+          "delta_rms": 0.000674699651629748,
+          "delta_peak": 0.013017149486874005,
+          "increment_high_rms_dbfs": -18.515819583387927,
+          "increment_low_rms_dbfs": -18.505530634590375,
+          "increment_level_high_minus_low_db": -0.010288948797551711,
+          "minimax_individual_error_rms_lower_bound_dbfs": -75.45899010827083,
+          "minimax_individual_error_peak_lower_bound_dbfs": -49.75088198163412
+        },
+        {
+          "gap_ms": 250,
+          "probe_level": 0.3,
+          "delta_rms_dbfs": -69.15573965158167,
+          "delta_peak_dbfs": -42.30010198513419,
+          "delta_rms": 0.0003485082131712695,
+          "delta_peak": 0.007673524794609005,
+          "increment_high_rms_dbfs": -18.34063776347747,
+          "increment_low_rms_dbfs": -18.339404358612907,
+          "increment_level_high_minus_low_db": -0.001233404864564136,
+          "minimax_individual_error_rms_lower_bound_dbfs": -81.19693947814092,
+          "minimax_individual_error_peak_lower_bound_dbfs": -54.34130181169344
+        },
+        {
+          "gap_ms": 500,
+          "probe_level": 0.03,
+          "delta_rms_dbfs": -86.11977345423625,
+          "delta_peak_dbfs": -50.985055784451774,
+          "delta_rms": 4.9432357978851454e-05,
+          "delta_peak": 0.0028232361791609116,
+          "increment_high_rms_dbfs": -18.48813685915286,
+          "increment_low_rms_dbfs": -18.488120637264508,
+          "increment_level_high_minus_low_db": -1.6221888351708458e-05,
+          "minimax_individual_error_rms_lower_bound_dbfs": -98.1609732807955,
+          "minimax_individual_error_peak_lower_bound_dbfs": -63.02625561101102
+        },
+        {
+          "gap_ms": 500,
+          "probe_level": 0.3,
+          "delta_rms_dbfs": -93.06139981693654,
+          "delta_peak_dbfs": -67.19372504680975,
+          "delta_rms": 2.222951611165914e-05,
+          "delta_peak": 0.0004368312986088932,
+          "increment_high_rms_dbfs": -18.321919633414215,
+          "increment_low_rms_dbfs": -18.321939590190336,
+          "increment_level_high_minus_low_db": 1.995677612143254e-05,
+          "minimax_individual_error_rms_lower_bound_dbfs": -105.1025996434958,
+          "minimax_individual_error_peak_lower_bound_dbfs": -79.234924873369
+        },
+        {
+          "gap_ms": 750,
+          "probe_level": 0.03,
+          "delta_rms_dbfs": -109.93459075501167,
+          "delta_peak_dbfs": -74.7564939424556,
+          "delta_rms": 3.1861811376341682e-06,
+          "delta_peak": 0.0001828838277363569,
+          "increment_high_rms_dbfs": -18.484674957613464,
+          "increment_low_rms_dbfs": -18.48467874325014,
+          "increment_level_high_minus_low_db": 3.785636675246451e-06,
+          "minimax_individual_error_rms_lower_bound_dbfs": -121.97579058157092,
+          "minimax_individual_error_peak_lower_bound_dbfs": -86.79769376901484
+        },
+        {
+          "gap_ms": 750,
+          "probe_level": 0.3,
+          "delta_rms_dbfs": -117.03328634583934,
+          "delta_peak_dbfs": -90.94210799092667,
+          "delta_rms": 1.4071347318083406e-06,
+          "delta_peak": 2.837230373399502e-05,
+          "increment_high_rms_dbfs": -18.318481918978378,
+          "increment_low_rms_dbfs": -18.318487515590963,
+          "increment_level_high_minus_low_db": 5.596612584923832e-06,
+          "minimax_individual_error_rms_lower_bound_dbfs": -129.0744861723986,
+          "minimax_individual_error_peak_lower_bound_dbfs": -102.98330781748592
+        },
+        {
+          "gap_ms": 1000,
+          "probe_level": 0.03,
+          "delta_rms_dbfs": -133.76974214880875,
+          "delta_peak_dbfs": -98.66267941860724,
+          "delta_rms": 2.048862872039378e-07,
+          "delta_peak": 1.1664497357628811e-05,
+          "increment_high_rms_dbfs": -18.483964153398993,
+          "increment_low_rms_dbfs": -18.4839652899999,
+          "increment_level_high_minus_low_db": 1.1366009076141381e-06,
+          "minimax_individual_error_rms_lower_bound_dbfs": -145.810941975368,
+          "minimax_individual_error_peak_lower_bound_dbfs": -110.70387924516649
+        },
+        {
+          "gap_ms": 1000,
+          "probe_level": 0.3,
+          "delta_rms_dbfs": -140.42469164992127,
+          "delta_peak_dbfs": -114.55675212978123,
+          "delta_rms": 9.522816538036769e-08,
+          "delta_peak": 1.8713817657514675e-06,
+          "increment_high_rms_dbfs": -18.317771095991347,
+          "increment_low_rms_dbfs": -18.31777233178417,
+          "increment_level_high_minus_low_db": 1.2357928227402226e-06,
+          "minimax_individual_error_rms_lower_bound_dbfs": -152.46589147648052,
+          "minimax_individual_error_peak_lower_bound_dbfs": -126.59795195634048
+        }
+      ],
+      "energy_reconstruction_byte_exact": true,
+      "energy_reconstruction_proofs": [
+        {
+          "input_key": "gap150-high-level0.000",
+          "original_and_reconstructed_output_sha256": "8ce3801346c8265445caa410dd8e2f6f48b4c85428224f059896fd0c86e45f90"
+        },
+        {
+          "input_key": "gap150-high-level0.030",
+          "original_and_reconstructed_output_sha256": "b0018b1b24de3622398dc152c2d0dded1270855fd8a74a0e8200016c742ecac3"
+        },
+        {
+          "input_key": "gap150-low-level0.000",
+          "original_and_reconstructed_output_sha256": "342ace28fb2de6c6d34bd97dd84749dce916671d3ae79f77eb7fb52eaf291bf5"
+        },
+        {
+          "input_key": "gap150-low-level0.030",
+          "original_and_reconstructed_output_sha256": "84b061701533570a9e4102077427f4ab16304a5814de59c6256c66342aa5d0f7"
+        }
+      ]
+    },
+    "Nidhoggr": {
+      "max_whole_probe_case": {
+        "gap_ms": 150,
+        "probe_level": 0.03,
+        "probe_onset_sample": 55200
+      },
+      "reference_output_scale": 0.0860012970451488,
+      "max_case_windows": {
+        "onset_20ms": {
+          "delta_rms_dbfs": -52.78641127240902,
+          "delta_peak_dbfs": -41.48228022600044,
+          "delta_rms": 0.0022944544287095536,
+          "delta_peak": 0.008431133939741431,
+          "increment_high_rms_dbfs": -19.914425689776227,
+          "increment_low_rms_dbfs": -19.800600555502896,
+          "increment_level_high_minus_low_db": -0.11382513427333052,
+          "minimax_individual_error_rms_lower_bound_dbfs": -64.82761109896826,
+          "minimax_individual_error_peak_lower_bound_dbfs": -53.52348005255969,
+          "reference_quartet_energy": {
+            "high-level0.000": 1.1545979967753747e-05,
+            "high-level0.030": 9.785688505743078,
+            "low-level0.000": 2.104861558415776e-06,
+            "low-level0.030": 10.049950466314169
+          },
+          "reference_quartet_energy_sum": 19.835652622898774,
+          "delta_energy": 0.00505394028040789,
+          "pooled_four_trace_esr_lower_bound": 6.369768084380414e-05
+        },
+        "late_probe_20ms": {
+          "delta_rms_dbfs": -45.82838743104556,
+          "delta_peak_dbfs": -25.521784252541828,
+          "delta_rms": 0.005111879742498099,
+          "delta_peak": 0.052955465177872224,
+          "increment_high_rms_dbfs": -19.896433736706673,
+          "increment_low_rms_dbfs": -19.923323100657804,
+          "increment_level_high_minus_low_db": 0.026889363951131173,
+          "minimax_individual_error_rms_lower_bound_dbfs": -57.86958725760481,
+          "minimax_individual_error_peak_lower_bound_dbfs": -37.56298407910107,
+          "reference_quartet_energy": {
+            "high-level0.000": 4.124294087084863e-09,
+            "high-level0.030": 9.831635747454609,
+            "low-level0.000": 8.733300525722543e-10,
+            "low-level0.030": 9.770952098148893
+          },
+          "reference_quartet_energy_sum": 19.602587850601125,
+          "delta_energy": 0.02508606192169193,
+          "pooled_four_trace_esr_lower_bound": 0.0003199330378325871
+        },
+        "whole_probe_200ms": {
+          "delta_rms_dbfs": -47.20656094680359,
+          "delta_peak_dbfs": -25.521784252541828,
+          "delta_rms": 0.004361862314864238,
+          "delta_peak": 0.052955465177872224,
+          "increment_high_rms_dbfs": -19.678357995290103,
+          "increment_low_rms_dbfs": -19.66529661900001,
+          "increment_level_high_minus_low_db": -0.013061376290092852,
+          "minimax_individual_error_rms_lower_bound_dbfs": -59.24776077336284,
+          "minimax_individual_error_peak_lower_bound_dbfs": -37.56298407910107,
+          "reference_quartet_energy": {
+            "high-level0.000": 1.8507933879252332e-05,
+            "high-level0.030": 103.37682966349041,
+            "low-level0.000": 3.4547799957070636e-06,
+            "low-level0.030": 103.69064785208317
+          },
+          "reference_quartet_energy_sum": 207.06749947828746,
+          "delta_energy": 0.18264809139679497,
+          "pooled_four_trace_esr_lower_bound": 0.00022051757501416458
+        },
+        "post_probe_tail_200ms": {
+          "delta_rms_dbfs": -57.862216420952166,
+          "delta_peak_dbfs": -44.84738039425552,
+          "delta_rms": 0.0012790548798205558,
+          "delta_peak": 0.005723095333228109,
+          "increment_high_rms_dbfs": -33.68071709194916,
+          "increment_low_rms_dbfs": -34.129210222454205,
+          "increment_level_high_minus_low_db": 0.44849313050504236,
+          "minimax_individual_error_rms_lower_bound_dbfs": -69.90341624751142,
+          "minimax_individual_error_peak_lower_bound_dbfs": -56.88858022081477,
+          "reference_quartet_energy": {
+            "high-level0.000": 3.3558937184982363e-09,
+            "high-level0.030": 4.11336807361356,
+            "low-level0.000": 6.48221725608661e-10,
+            "low-level0.030": 3.709803603104935
+          },
+          "reference_quartet_energy_sum": 7.82317168072261,
+          "delta_energy": 0.015705421301690645,
+          "pooled_four_trace_esr_lower_bound": 0.00050188791524258
+        }
+      },
+      "all_cases_whole_probe": [
+        {
+          "gap_ms": 150,
+          "probe_level": 0.03,
+          "delta_rms_dbfs": -47.20656094680359,
+          "delta_peak_dbfs": -25.521784252541828,
+          "delta_rms": 0.004361862314864238,
+          "delta_peak": 0.052955465177872224,
+          "increment_high_rms_dbfs": -19.678357995290103,
+          "increment_low_rms_dbfs": -19.66529661900001,
+          "increment_level_high_minus_low_db": -0.013061376290092852,
+          "minimax_individual_error_rms_lower_bound_dbfs": -59.24776077336284,
+          "minimax_individual_error_peak_lower_bound_dbfs": -37.56298407910107
+        },
+        {
+          "gap_ms": 150,
+          "probe_level": 0.3,
+          "delta_rms_dbfs": -52.30024514903895,
+          "delta_peak_dbfs": -26.848337778890517,
+          "delta_rms": 0.002426541607827491,
+          "delta_peak": 0.04545515165364255,
+          "increment_high_rms_dbfs": -19.745622510629033,
+          "increment_low_rms_dbfs": -19.73811927161466,
+          "increment_level_high_minus_low_db": -0.007503239014372554,
+          "minimax_individual_error_rms_lower_bound_dbfs": -64.3414449755982,
+          "minimax_individual_error_peak_lower_bound_dbfs": -38.88953760544977
+        },
+        {
+          "gap_ms": 250,
+          "probe_level": 0.03,
+          "delta_rms_dbfs": -47.306076385404936,
+          "delta_peak_dbfs": -25.54132505399923,
+          "delta_rms": 0.004312173047145013,
+          "delta_peak": 0.05283646422905916,
+          "increment_high_rms_dbfs": -19.65676675462268,
+          "increment_low_rms_dbfs": -19.660797835941036,
+          "increment_level_high_minus_low_db": 0.004031081318355945,
+          "minimax_individual_error_rms_lower_bound_dbfs": -59.347276211964186,
+          "minimax_individual_error_peak_lower_bound_dbfs": -37.58252488055847
+        },
+        {
+          "gap_ms": 250,
+          "probe_level": 0.3,
+          "delta_rms_dbfs": -51.68452190875683,
+          "delta_peak_dbfs": -25.878283851878408,
+          "delta_rms": 0.0026047971291855267,
+          "delta_peak": 0.05082598540401914,
+          "increment_high_rms_dbfs": -19.739527718007388,
+          "increment_low_rms_dbfs": -19.733228697686275,
+          "increment_level_high_minus_low_db": -0.006299020321112181,
+          "minimax_individual_error_rms_lower_bound_dbfs": -63.72572173531608,
+          "minimax_individual_error_peak_lower_bound_dbfs": -37.91948367843765
+        },
+        {
+          "gap_ms": 500,
+          "probe_level": 0.03,
+          "delta_rms_dbfs": -47.45514805675241,
+          "delta_peak_dbfs": -25.956384217508834,
+          "delta_rms": 0.004238796793766201,
+          "delta_peak": 0.05037102508332389,
+          "increment_high_rms_dbfs": -19.652693341738555,
+          "increment_low_rms_dbfs": -19.65758957286959,
+          "increment_level_high_minus_low_db": 0.004896231131034767,
+          "minimax_individual_error_rms_lower_bound_dbfs": -59.49634788331166,
+          "minimax_individual_error_peak_lower_bound_dbfs": -37.997584044068084
+        },
+        {
+          "gap_ms": 500,
+          "probe_level": 0.3,
+          "delta_rms_dbfs": -51.2319182175693,
+          "delta_peak_dbfs": -25.47138830246204,
+          "delta_rms": 0.0027441262555936963,
+          "delta_peak": 0.0532636084041849,
+          "increment_high_rms_dbfs": -19.735308505396286,
+          "increment_low_rms_dbfs": -19.729798308154567,
+          "increment_level_high_minus_low_db": -0.005510197241719084,
+          "minimax_individual_error_rms_lower_bound_dbfs": -63.27311804412855,
+          "minimax_individual_error_peak_lower_bound_dbfs": -37.51258812902129
+        },
+        {
+          "gap_ms": 750,
+          "probe_level": 0.03,
+          "delta_rms_dbfs": -48.31045196029943,
+          "delta_peak_dbfs": -27.074213049621,
+          "delta_rms": 0.0038412927093294273,
+          "delta_peak": 0.0442883343914654,
+          "increment_high_rms_dbfs": -19.651560379038997,
+          "increment_low_rms_dbfs": -19.656916420609083,
+          "increment_level_high_minus_low_db": 0.005356041570085068,
+          "minimax_individual_error_rms_lower_bound_dbfs": -60.35165178685868,
+          "minimax_individual_error_peak_lower_bound_dbfs": -39.115412876180244
+        },
+        {
+          "gap_ms": 750,
+          "probe_level": 0.3,
+          "delta_rms_dbfs": -51.75004652966464,
+          "delta_peak_dbfs": -26.052773003968547,
+          "delta_rms": 0.0025852209906885673,
+          "delta_peak": 0.04981513938159528,
+          "increment_high_rms_dbfs": -19.732758324898672,
+          "increment_low_rms_dbfs": -19.72889244469048,
+          "increment_level_high_minus_low_db": -0.0038658802081918964,
+          "minimax_individual_error_rms_lower_bound_dbfs": -63.79124635622389,
+          "minimax_individual_error_peak_lower_bound_dbfs": -38.09397283052779
+        },
+        {
+          "gap_ms": 1000,
+          "probe_level": 0.03,
+          "delta_rms_dbfs": -49.80394102783905,
+          "delta_peak_dbfs": -28.940688565918858,
+          "delta_rms": 0.0032344686686092135,
+          "delta_peak": 0.03572445167986022,
+          "increment_high_rms_dbfs": -19.65219682951202,
+          "increment_low_rms_dbfs": -19.656829987852586,
+          "increment_level_high_minus_low_db": 0.004633158340563881,
+          "minimax_individual_error_rms_lower_bound_dbfs": -61.845140854398295,
+          "minimax_individual_error_peak_lower_bound_dbfs": -40.981888392478105
+        },
+        {
+          "gap_ms": 1000,
+          "probe_level": 0.3,
+          "delta_rms_dbfs": -52.421488014618866,
+          "delta_peak_dbfs": -26.73467317188086,
+          "delta_rms": 0.0023929057829945406,
+          "delta_peak": 0.04605389234266853,
+          "increment_high_rms_dbfs": -19.731397208123067,
+          "increment_low_rms_dbfs": -19.728546683916377,
+          "increment_level_high_minus_low_db": -0.0028505242066891867,
+          "minimax_individual_error_rms_lower_bound_dbfs": -64.46268784117811,
+          "minimax_individual_error_peak_lower_bound_dbfs": -38.77587299844011
+        }
+      ],
+      "energy_reconstruction_byte_exact": true,
+      "energy_reconstruction_proofs": [
+        {
+          "input_key": "gap150-high-level0.000",
+          "original_and_reconstructed_output_sha256": "80e28d5d5a0ac79f49a6a6ceda1c8bccbbfeaa05ee4c375ff1d7986808a3a3e9"
+        },
+        {
+          "input_key": "gap150-high-level0.030",
+          "original_and_reconstructed_output_sha256": "3c0dd224ee656df71ed1befc0d8e6979c57812f6c903d7b5872c9a4533c4a533"
+        },
+        {
+          "input_key": "gap150-low-level0.000",
+          "original_and_reconstructed_output_sha256": "815027cc9a4ebc71938b0861dcdcb6bff0139db25054b7fa79d460f4b57a814f"
+        },
+        {
+          "input_key": "gap150-low-level0.030",
+          "original_and_reconstructed_output_sha256": "c017385133a08e7d7891ecdc87f80f3fbb125dd8740462090268f1e438ee1a25"
+        }
+      ]
+    },
+    "Fimbulvetr": {
+      "max_whole_probe_case": {
+        "gap_ms": 150,
+        "probe_level": 0.03,
+        "probe_onset_sample": 55200
+      },
+      "reference_output_scale": 0.09721294970620417,
+      "max_case_windows": {
+        "onset_20ms": {
+          "delta_rms_dbfs": -36.63818162315596,
+          "delta_peak_dbfs": -31.17174185678236,
+          "delta_rms": 0.014726207609218849,
+          "delta_peak": 0.02763203734394193,
+          "increment_high_rms_dbfs": -18.711661334533282,
+          "increment_low_rms_dbfs": -17.72484822864238,
+          "increment_level_high_minus_low_db": -0.9868131058909029,
+          "minimax_individual_error_rms_lower_bound_dbfs": -48.67938144971521,
+          "minimax_individual_error_peak_lower_bound_dbfs": -43.21294168334161,
+          "reference_quartet_energy": {
+            "high-level0.000": 6.93171777236259e-05,
+            "high-level0.030": 12.915842099544523,
+            "low-level0.000": 7.49784694762064e-07,
+            "low-level0.030": 16.20972469919195
+          },
+          "reference_quartet_energy_sum": 29.12563686569889,
+          "delta_energy": 0.20818674292782252,
+          "pooled_four_trace_esr_lower_bound": 0.0017869715938555403
+        },
+        "late_probe_20ms": {
+          "delta_rms_dbfs": -61.97228556517035,
+          "delta_peak_dbfs": -57.740352446497354,
+          "delta_rms": 0.000796866779130011,
+          "delta_peak": 0.0012971266365349732,
+          "increment_high_rms_dbfs": -20.509792670358,
+          "increment_low_rms_dbfs": -20.568627348248008,
+          "increment_level_high_minus_low_db": 0.05883467789000818,
+          "minimax_individual_error_rms_lower_bound_dbfs": -74.01348539172959,
+          "minimax_individual_error_peak_lower_bound_dbfs": -69.7815522730566,
+          "reference_quartet_energy": {
+            "high-level0.000": 4.787880735654232e-08,
+            "high-level0.030": 8.536707686881464,
+            "low-level0.000": 1.398993239568224e-09,
+            "low-level0.030": 8.421876717443686
+          },
+          "reference_quartet_energy_sum": 16.95858445360295,
+          "delta_energy": 0.0006095967971337952,
+          "pooled_four_trace_esr_lower_bound": 8.986551896498102e-06
+        },
+        "whole_probe_200ms": {
+          "delta_rms_dbfs": -45.222995327913296,
+          "delta_peak_dbfs": -29.239651889676146,
+          "delta_rms": 0.005480879242779216,
+          "delta_peak": 0.03451575721741195,
+          "increment_high_rms_dbfs": -19.22650506108814,
+          "increment_low_rms_dbfs": -19.024667784067784,
+          "increment_level_high_minus_low_db": -0.20183727702035625,
+          "minimax_individual_error_rms_lower_bound_dbfs": -57.264195154472546,
+          "minimax_individual_error_peak_lower_bound_dbfs": -41.2808517162354,
+          "reference_quartet_energy": {
+            "high-level0.000": 9.445360397363537e-05,
+            "high-level0.030": 114.72177928880797,
+            "low-level0.000": 1.3059284680091308e-06,
+            "low-level0.030": 120.17132489685618
+          },
+          "reference_quartet_energy_sum": 234.89319994519659,
+          "delta_energy": 0.2883843578297095,
+          "pooled_four_trace_esr_lower_bound": 0.0003069313606109
+        },
+        "post_probe_tail_200ms": {
+          "delta_rms_dbfs": -78.9172591811257,
+          "delta_peak_dbfs": -61.82702439616759,
+          "delta_rms": 0.00011327577467799249,
+          "delta_peak": 0.0008103054878222174,
+          "increment_high_rms_dbfs": -46.65074747041853,
+          "increment_low_rms_dbfs": -46.84985925981267,
+          "increment_level_high_minus_low_db": 0.19911178939413787,
+          "minimax_individual_error_rms_lower_bound_dbfs": -90.95845900768495,
+          "minimax_individual_error_peak_lower_bound_dbfs": -73.86822422272684,
+          "reference_quartet_energy": {
+            "high-level0.000": 5.438043174975802e-08,
+            "high-level0.030": 0.207540554933621,
+            "low-level0.000": 1.5969224977424151e-09,
+            "low-level0.030": 0.1982904472092251
+          },
+          "reference_quartet_energy_sum": 0.4058310581202003,
+          "delta_energy": 0.00012318145083743348,
+          "pooled_four_trace_esr_lower_bound": 7.588222264703384e-05
+        }
+      },
+      "all_cases_whole_probe": [
+        {
+          "gap_ms": 150,
+          "probe_level": 0.03,
+          "delta_rms_dbfs": -45.222995327913296,
+          "delta_peak_dbfs": -29.239651889676146,
+          "delta_rms": 0.005480879242779216,
+          "delta_peak": 0.03451575721741195,
+          "increment_high_rms_dbfs": -19.22650506108814,
+          "increment_low_rms_dbfs": -19.024667784067784,
+          "increment_level_high_minus_low_db": -0.20183727702035625,
+          "minimax_individual_error_rms_lower_bound_dbfs": -57.264195154472546,
+          "minimax_individual_error_peak_lower_bound_dbfs": -41.2808517162354
+        },
+        {
+          "gap_ms": 150,
+          "probe_level": 0.3,
+          "delta_rms_dbfs": -52.64348234712327,
+          "delta_peak_dbfs": -36.10010521128056,
+          "delta_rms": 0.002332522719718937,
+          "delta_peak": 0.015667320923298297,
+          "increment_high_rms_dbfs": -18.640250629289806,
+          "increment_low_rms_dbfs": -18.544560182633354,
+          "increment_level_high_minus_low_db": -0.09569044665645166,
+          "minimax_individual_error_rms_lower_bound_dbfs": -64.68468217368252,
+          "minimax_individual_error_peak_lower_bound_dbfs": -48.1413050378398
+        },
+        {
+          "gap_ms": 250,
+          "probe_level": 0.03,
+          "delta_rms_dbfs": -53.24296319394023,
+          "delta_peak_dbfs": -31.304553894625805,
+          "delta_rms": 0.0021769669727002084,
+          "delta_peak": 0.02721274206692512,
+          "increment_high_rms_dbfs": -18.987784786587504,
+          "increment_low_rms_dbfs": -18.936025121373152,
+          "increment_level_high_minus_low_db": -0.05175966521435171,
+          "minimax_individual_error_rms_lower_bound_dbfs": -65.28416302049948,
+          "minimax_individual_error_peak_lower_bound_dbfs": -43.34575372118505
+        },
+        {
+          "gap_ms": 250,
+          "probe_level": 0.3,
+          "delta_rms_dbfs": -57.67328226679119,
+          "delta_peak_dbfs": -39.52038131352468,
+          "delta_rms": 0.001307181481396063,
+          "delta_peak": 0.010567711155820503,
+          "increment_high_rms_dbfs": -18.512002807776533,
+          "increment_low_rms_dbfs": -18.46126993543492,
+          "increment_level_high_minus_low_db": -0.05073287234161228,
+          "minimax_individual_error_rms_lower_bound_dbfs": -69.71448209335044,
+          "minimax_individual_error_peak_lower_bound_dbfs": -51.56158114008392
+        },
+        {
+          "gap_ms": 500,
+          "probe_level": 0.03,
+          "delta_rms_dbfs": -60.03810995026237,
+          "delta_peak_dbfs": -37.0825158685827,
+          "delta_rms": 0.0009956220411556234,
+          "delta_peak": 0.013991819907050902,
+          "increment_high_rms_dbfs": -18.83381966174039,
+          "increment_low_rms_dbfs": -18.81918002279675,
+          "increment_level_high_minus_low_db": -0.014639638943638289,
+          "minimax_individual_error_rms_lower_bound_dbfs": -72.07930977682162,
+          "minimax_individual_error_peak_lower_bound_dbfs": -49.123715695141954
+        },
+        {
+          "gap_ms": 500,
+          "probe_level": 0.3,
+          "delta_rms_dbfs": -64.43511270707512,
+          "delta_peak_dbfs": -44.9278268621822,
+          "delta_rms": 0.0006001286558994505,
+          "delta_peak": 0.005670334208543067,
+          "increment_high_rms_dbfs": -18.37075448697083,
+          "increment_low_rms_dbfs": -18.351135403106333,
+          "increment_level_high_minus_low_db": -0.019619083864498066,
+          "minimax_individual_error_rms_lower_bound_dbfs": -76.47631253363437,
+          "minimax_individual_error_peak_lower_bound_dbfs": -56.96902668874145
+        },
+        {
+          "gap_ms": 750,
+          "probe_level": 0.03,
+          "delta_rms_dbfs": -69.35144963312166,
+          "delta_peak_dbfs": -46.36460833525017,
+          "delta_rms": 0.00034074345161459903,
+          "delta_peak": 0.004805843047758968,
+          "increment_high_rms_dbfs": -18.777232488761648,
+          "increment_low_rms_dbfs": -18.77015187108513,
+          "increment_level_high_minus_low_db": -0.0070806176765181306,
+          "minimax_individual_error_rms_lower_bound_dbfs": -81.39264945968091,
+          "minimax_individual_error_peak_lower_bound_dbfs": -58.40580816180942
+        },
+        {
+          "gap_ms": 750,
+          "probe_level": 0.3,
+          "delta_rms_dbfs": -72.00339315560721,
+          "delta_peak_dbfs": -53.6181481142977,
+          "delta_rms": 0.0002510905351010395,
+          "delta_peak": 0.0020849353569009597,
+          "increment_high_rms_dbfs": -18.313422970275678,
+          "increment_low_rms_dbfs": -18.305147367466713,
+          "increment_level_high_minus_low_db": -0.008275602808964777,
+          "minimax_individual_error_rms_lower_bound_dbfs": -84.04459298216645,
+          "minimax_individual_error_peak_lower_bound_dbfs": -65.65934794085695
+        },
+        {
+          "gap_ms": 1000,
+          "probe_level": 0.03,
+          "delta_rms_dbfs": -78.82988537405947,
+          "delta_peak_dbfs": -56.59989238821774,
+          "delta_rms": 0.00011442099796265761,
+          "delta_peak": 0.0014791267133464493,
+          "increment_high_rms_dbfs": -18.752547266792714,
+          "increment_low_rms_dbfs": -18.749099626041083,
+          "increment_level_high_minus_low_db": -0.0034476407516308427,
+          "minimax_individual_error_rms_lower_bound_dbfs": -90.87108520061872,
+          "minimax_individual_error_peak_lower_bound_dbfs": -68.64109221477699
+        },
+        {
+          "gap_ms": 1000,
+          "probe_level": 0.3,
+          "delta_rms_dbfs": -79.77605401850062,
+          "delta_peak_dbfs": -63.48261561302383,
+          "delta_rms": 0.00010261179836331796,
+          "delta_peak": 0.0006696829150373215,
+          "increment_high_rms_dbfs": -18.288946654875733,
+          "increment_low_rms_dbfs": -18.285404447050052,
+          "increment_level_high_minus_low_db": -0.003542207825681487,
+          "minimax_individual_error_rms_lower_bound_dbfs": -91.81725384505987,
+          "minimax_individual_error_peak_lower_bound_dbfs": -75.52381543958307
+        }
+      ],
+      "energy_reconstruction_byte_exact": true,
+      "energy_reconstruction_proofs": [
+        {
+          "input_key": "gap150-high-level0.000",
+          "original_and_reconstructed_output_sha256": "d889669bccc442a6671003e462cc9e0ce9beff443ed6a94a2afbeb46ec2b4696"
+        },
+        {
+          "input_key": "gap150-high-level0.030",
+          "original_and_reconstructed_output_sha256": "db2029688158e62be55873b9b802385a167d871146b85c8dd0df8bb4ed000302"
+        },
+        {
+          "input_key": "gap150-low-level0.000",
+          "original_and_reconstructed_output_sha256": "9a6254ee7185805ab3a7fe6b9a8790372b4ded7be81449ea28003c38535c57d8"
+        },
+        {
+          "input_key": "gap150-low-level0.030",
+          "original_and_reconstructed_output_sha256": "10b08f76e4170afce5605d96dc889d81507bcaf98e5216c14eb150bf0046f379"
+        }
+      ]
+    },
+    "Ragnarok": {
+      "max_whole_probe_case": {
+        "gap_ms": 150,
+        "probe_level": 0.03,
+        "probe_onset_sample": 55200
+      },
+      "reference_output_scale": 0.05162876564505051,
+      "max_case_windows": {
+        "onset_20ms": {
+          "delta_rms_dbfs": -31.74798788231223,
+          "delta_peak_dbfs": -22.68137865228722,
+          "delta_rms": 0.025858337879161912,
+          "delta_peak": 0.07343972930098246,
+          "increment_high_rms_dbfs": -17.18982825336753,
+          "increment_low_rms_dbfs": -16.629079364746374,
+          "increment_level_high_minus_low_db": -0.5607488886211556,
+          "minimax_individual_error_rms_lower_bound_dbfs": -43.789187708871474,
+          "minimax_individual_error_peak_lower_bound_dbfs": -34.722578478846465,
+          "reference_quartet_energy": {
+            "high-level0.000": 2.2623142333477043e-06,
+            "high-level0.030": 18.338609300260334,
+            "low-level0.000": 1.8575017735857002e-07,
+            "low-level0.030": 20.863105518745535
+          },
+          "reference_quartet_energy_sum": 39.20171726707028,
+          "delta_energy": 0.6419074923579837,
+          "pooled_four_trace_esr_lower_bound": 0.004093618450340124
+        },
+        "late_probe_20ms": {
+          "delta_rms_dbfs": -61.37564323645361,
+          "delta_peak_dbfs": -45.46783694607179,
+          "delta_rms": 0.0008535281286406606,
+          "delta_peak": 0.0053285390482853134,
+          "increment_high_rms_dbfs": -17.70280689803008,
+          "increment_low_rms_dbfs": -17.704733501609084,
+          "increment_level_high_minus_low_db": 0.0019266035790046487,
+          "minimax_individual_error_rms_lower_bound_dbfs": -73.41684306301286,
+          "minimax_individual_error_peak_lower_bound_dbfs": -57.50903677263104,
+          "reference_quartet_energy": {
+            "high-level0.000": 1.8478838498039277e-12,
+            "high-level0.030": 16.292606210169943,
+            "low-level0.000": 3.9269271951305874e-13,
+            "low-level0.030": 16.28537968233647
+          },
+          "reference_quartet_energy_sum": 32.57798589250865,
+          "delta_energy": 0.0006993698557255948,
+          "pooled_four_trace_esr_lower_bound": 5.366889914812197e-06
+        },
+        "whole_probe_200ms": {
+          "delta_rms_dbfs": -38.748153235447916,
+          "delta_peak_dbfs": -22.68137865228722,
+          "delta_rms": 0.011550275366425533,
+          "delta_peak": 0.07343972930098246,
+          "increment_high_rms_dbfs": -16.807031088113458,
+          "increment_low_rms_dbfs": -16.74527228851758,
+          "increment_level_high_minus_low_db": -0.0617587995958786,
+          "minimax_individual_error_rms_lower_bound_dbfs": -50.789353062007166,
+          "minimax_individual_error_peak_lower_bound_dbfs": -34.722578478846465,
+          "reference_quartet_energy": {
+            "high-level0.000": 2.8390200349857108e-06,
+            "high-level0.030": 200.250050924785,
+            "low-level0.000": 2.47629088050581e-07,
+            "low-level0.030": 203.11669097415688
+          },
+          "reference_quartet_energy_sum": 403.366744985591,
+          "delta_energy": 1.280725065986462,
+          "pooled_four_trace_esr_lower_bound": 0.0007937720956844197
+        },
+        "post_probe_tail_200ms": {
+          "delta_rms_dbfs": -70.83871651291116,
+          "delta_peak_dbfs": -54.759682441018434,
+          "delta_rms": 0.000287120481974939,
+          "delta_peak": 0.0018281670533096123,
+          "increment_high_rms_dbfs": -27.002348137339713,
+          "increment_low_rms_dbfs": -27.022189394415477,
+          "increment_level_high_minus_low_db": 0.019841257075764673,
+          "minimax_individual_error_rms_lower_bound_dbfs": -82.87991633947041,
+          "minimax_individual_error_peak_lower_bound_dbfs": -66.80088226757768,
+          "reference_quartet_energy": {
+            "high-level0.000": 5.027669495794539e-13,
+            "high-level0.030": 19.144165504320668,
+            "low-level0.000": 1.1315230712004065e-13,
+            "low-level0.030": 19.056902110987053
+          },
+          "reference_quartet_energy_sum": 38.20106761530834,
+          "delta_energy": 0.000791406443227405,
+          "pooled_four_trace_esr_lower_bound": 5.179216790463888e-06
+        }
+      },
+      "all_cases_whole_probe": [
+        {
+          "gap_ms": 150,
+          "probe_level": 0.03,
+          "delta_rms_dbfs": -38.748153235447916,
+          "delta_peak_dbfs": -22.68137865228722,
+          "delta_rms": 0.011550275366425533,
+          "delta_peak": 0.07343972930098246,
+          "increment_high_rms_dbfs": -16.807031088113458,
+          "increment_low_rms_dbfs": -16.74527228851758,
+          "increment_level_high_minus_low_db": -0.0617587995958786,
+          "minimax_individual_error_rms_lower_bound_dbfs": -50.789353062007166,
+          "minimax_individual_error_peak_lower_bound_dbfs": -34.722578478846465
+        },
+        {
+          "gap_ms": 150,
+          "probe_level": 0.3,
+          "delta_rms_dbfs": -47.94173190345538,
+          "delta_peak_dbfs": -28.722386384869637,
+          "delta_rms": 0.004007867956767049,
+          "delta_peak": 0.03663369124237739,
+          "increment_high_rms_dbfs": -16.40943520021406,
+          "increment_low_rms_dbfs": -16.394259819660586,
+          "increment_level_high_minus_low_db": -0.01517538055347245,
+          "minimax_individual_error_rms_lower_bound_dbfs": -59.98293173001463,
+          "minimax_individual_error_peak_lower_bound_dbfs": -40.76358621142888
+        },
+        {
+          "gap_ms": 250,
+          "probe_level": 0.03,
+          "delta_rms_dbfs": -48.03652200016111,
+          "delta_peak_dbfs": -31.939681886044365,
+          "delta_rms": 0.00396436743492336,
+          "delta_peak": 0.025293906317153406,
+          "increment_high_rms_dbfs": -16.73146375979216,
+          "increment_low_rms_dbfs": -16.744150403052124,
+          "increment_level_high_minus_low_db": 0.012686643259964825,
+          "minimax_individual_error_rms_lower_bound_dbfs": -60.077721826720364,
+          "minimax_individual_error_peak_lower_bound_dbfs": -43.98088171260361
+        },
+        {
+          "gap_ms": 250,
+          "probe_level": 0.3,
+          "delta_rms_dbfs": -53.787117213948136,
+          "delta_peak_dbfs": -32.0123288021754,
+          "delta_rms": 0.002044768467756605,
+          "delta_peak": 0.02508323574494889,
+          "increment_high_rms_dbfs": -16.396255621896557,
+          "increment_low_rms_dbfs": -16.39404817334,
+          "increment_level_high_minus_low_db": -0.002207448556557523,
+          "minimax_individual_error_rms_lower_bound_dbfs": -65.82831704050739,
+          "minimax_individual_error_peak_lower_bound_dbfs": -44.053528628734654
+        },
+        {
+          "gap_ms": 500,
+          "probe_level": 0.03,
+          "delta_rms_dbfs": -65.91019684063401,
+          "delta_peak_dbfs": -44.9551931191678,
+          "delta_rms": 0.0005063958733920538,
+          "delta_peak": 0.0056524970458286805,
+          "increment_high_rms_dbfs": -16.74308042793945,
+          "increment_low_rms_dbfs": -16.74453327652158,
+          "increment_level_high_minus_low_db": 0.0014528485821294623,
+          "minimax_individual_error_rms_lower_bound_dbfs": -77.95139666719326,
+          "minimax_individual_error_peak_lower_bound_dbfs": -56.996392945727045
+        },
+        {
+          "gap_ms": 500,
+          "probe_level": 0.3,
+          "delta_rms_dbfs": -68.6908232772891,
+          "delta_peak_dbfs": -45.432329910144304,
+          "delta_rms": 0.0003676705426990156,
+          "delta_peak": 0.005350366158611175,
+          "increment_high_rms_dbfs": -16.39447097511114,
+          "increment_low_rms_dbfs": -16.394387501340745,
+          "increment_level_high_minus_low_db": -8.34737703954147e-05,
+          "minimax_individual_error_rms_lower_bound_dbfs": -80.73202310384835,
+          "minimax_individual_error_peak_lower_bound_dbfs": -57.473529736703554
+        },
+        {
+          "gap_ms": 750,
+          "probe_level": 0.03,
+          "delta_rms_dbfs": -82.72706284174777,
+          "delta_peak_dbfs": -63.95711070284388,
+          "delta_rms": 7.30544806911616e-05,
+          "delta_peak": 0.0006340805984166031,
+          "increment_high_rms_dbfs": -16.744450402996765,
+          "increment_low_rms_dbfs": -16.744639429073892,
+          "increment_level_high_minus_low_db": 0.000189026077126897,
+          "minimax_individual_error_rms_lower_bound_dbfs": -94.76826266830702,
+          "minimax_individual_error_peak_lower_bound_dbfs": -75.99831052940313
+        },
+        {
+          "gap_ms": 750,
+          "probe_level": 0.3,
+          "delta_rms_dbfs": -84.75368391115364,
+          "delta_peak_dbfs": -61.60761511995329,
+          "delta_rms": 5.785165724210104e-05,
+          "delta_peak": 0.0008310348641753229,
+          "increment_high_rms_dbfs": -16.394484944372362,
+          "increment_low_rms_dbfs": -16.394472739655523,
+          "increment_level_high_minus_low_db": -1.2204716838937202e-05,
+          "minimax_individual_error_rms_lower_bound_dbfs": -96.7948837377129,
+          "minimax_individual_error_peak_lower_bound_dbfs": -73.64881494651254
+        },
+        {
+          "gap_ms": 1000,
+          "probe_level": 0.03,
+          "delta_rms_dbfs": -99.74096536431995,
+          "delta_peak_dbfs": -77.64510940442412,
+          "delta_rms": 1.0302716079663555e-05,
+          "delta_peak": 0.00013114282350119855,
+          "increment_high_rms_dbfs": -16.74463325222085,
+          "increment_low_rms_dbfs": -16.744656505388868,
+          "increment_level_high_minus_low_db": 2.3253168016879044e-05,
+          "minimax_individual_error_rms_lower_bound_dbfs": -111.7821651908792,
+          "minimax_individual_error_peak_lower_bound_dbfs": -89.68630923098337
+        },
+        {
+          "gap_ms": 1000,
+          "probe_level": 0.3,
+          "delta_rms_dbfs": -100.97907606437073,
+          "delta_peak_dbfs": -77.88397712480278,
+          "delta_rms": 8.934005114964412e-06,
+          "delta_peak": 0.00012758544824384432,
+          "increment_high_rms_dbfs": -16.394488425725427,
+          "increment_low_rms_dbfs": -16.394486546706133,
+          "increment_level_high_minus_low_db": -1.8790192939377448e-06,
+          "minimax_individual_error_rms_lower_bound_dbfs": -113.02027589092998,
+          "minimax_individual_error_peak_lower_bound_dbfs": -89.92517695136202
+        }
+      ],
+      "energy_reconstruction_byte_exact": true,
+      "energy_reconstruction_proofs": [
+        {
+          "input_key": "gap150-high-level0.000",
+          "original_and_reconstructed_output_sha256": "fee78e28d084fe2e54e3e2f959c18c780fa0d3b38ee7175d33ceb2ac4c41d5f8"
+        },
+        {
+          "input_key": "gap150-high-level0.030",
+          "original_and_reconstructed_output_sha256": "c9c2e626900795cd254831c4f3f8239203c95b8e59f97991f0406e34719599dd"
+        },
+        {
+          "input_key": "gap150-low-level0.000",
+          "original_and_reconstructed_output_sha256": "3eb5111ee02c1e695419b59f1dc0687c4a3a8bc611d5d75217149ce642b510a3"
+        },
+        {
+          "input_key": "gap150-low-level0.030",
+          "original_and_reconstructed_output_sha256": "4528fa1a8baf886c275ab5537506e3174bd6284f3077dfaf547992128f9592ce"
+        }
+      ]
+    }
+  },
+  "fit_or_tuning": false,
+  "release_approved": false,
+  "numerical_control": {
+    "case": {
+      "name": "Ragnarok",
+      "gap_ms": 150,
+      "probe_level": 0.03,
+      "probe_onset_sample": 55200
+    },
+    "original_statistics_units": "unscaled raw NAM output; retained unchanged in initial results.json",
+    "reference_output_scale": 0.05162876564505051,
+    "reference_output_scale_db": -25.742165161248657,
+    "anchored_statistics": {
+      "onset_20ms": {
+        "delta_rms_dbfs": -101.30358856164455,
+        "delta_peak_dbfs": -92.39996429773663,
+        "delta_rms": 8.606381074419746e-06,
+        "delta_peak": 2.3988427791425413e-05,
+        "increment_high_rms_dbfs": -17.402244111880293,
+        "increment_low_rms_dbfs": -17.401947598118486,
+        "increment_level_high_minus_low_db": -0.00029651376180872546,
+        "minimax_individual_error_rms_lower_bound_dbfs": -113.3447883882038,
+        "minimax_individual_error_peak_lower_bound_dbfs": -104.44116412429588
+      },
+      "late_probe_20ms": {
+        "delta_rms_dbfs": -101.41346272130275,
+        "delta_peak_dbfs": -94.89150737560414,
+        "delta_rms": 8.498198360274536e-06,
+        "delta_peak": 1.800630620432003e-05,
+        "increment_high_rms_dbfs": -16.41883932166439,
+        "increment_low_rms_dbfs": -16.41895292838846,
+        "increment_level_high_minus_low_db": 0.00011360672407079164,
+        "minimax_individual_error_rms_lower_bound_dbfs": -113.454662547862,
+        "minimax_individual_error_peak_lower_bound_dbfs": -106.93270720216339
+      },
+      "whole_probe_200ms": {
+        "delta_rms_dbfs": -98.69388862027981,
+        "delta_peak_dbfs": -87.5374714901418,
+        "delta_rms": 1.1622660950053726e-05,
+        "delta_peak": 4.198811959085939e-05,
+        "increment_high_rms_dbfs": -16.3724667272227,
+        "increment_low_rms_dbfs": -16.372471253844857,
+        "increment_level_high_minus_low_db": 4.526622156220128e-06,
+        "minimax_individual_error_rms_lower_bound_dbfs": -110.73508844683906,
+        "minimax_individual_error_peak_lower_bound_dbfs": -99.57867131670105
+      },
+      "post_probe_tail_200ms": {
+        "delta_rms_dbfs": -110.11224326045783,
+        "delta_peak_dbfs": -95.24724517262663,
+        "delta_rms": 3.121676082729849e-06,
+        "delta_peak": 1.7283740668188332e-05,
+        "increment_high_rms_dbfs": -29.557236927951624,
+        "increment_low_rms_dbfs": -29.557648786615605,
+        "increment_level_high_minus_low_db": 0.00041185866398185667,
+        "minimax_individual_error_rms_lower_bound_dbfs": -122.15344308701708,
+        "minimax_individual_error_peak_lower_bound_dbfs": -107.28844499918588
+      }
+    },
+    "native_whole_probe_delta_rms_dbfs": -38.748153235447916,
+    "native_over_control_whole_probe_delta_db": 59.94573538483189,
+    "scope": "Floating-point control for one existing A2+fixedPOST chain; not a uniform error bound over all weights/filtersettings"
+  }
+}

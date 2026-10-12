@@ -1,0 +1,296 @@
+{
+  "source_commit": "859fea9bc49c4b9981c926a314655e485c51027c",
+  "source_report_sha256": "89c19c30d87159d1c5091f76d8c8ee7b90caab534513073e23e6128710c37f93",
+  "scope": "Post-selection diagnostic; no candidate fitted or selected",
+  "oracle_use": "Impossibility bound only; never an evaluation score for a fitted candidate",
+  "previous_test_status": "Already exposed; regression evidence only for future work",
+  "quality_profile": {
+    "id": "nastrond-tone3000-fidelity-v1",
+    "authority": "project acceptance policy; not a TONE3000 certification",
+    "window_samples": 4096,
+    "skip_samples": 6347,
+    "active_reference_rms_min_dbfs": -60.0,
+    "full_esr_max_exclusive": 0.01,
+    "esr_guidance_source": "https://www.tone3000.com/guides/capture-your-gear-with-nam-dry-wet",
+    "active_window_esr_median_max": 0.005,
+    "active_window_esr_p95_max": 0.01,
+    "active_window_esr_worst_max": 0.02,
+    "quiet_residual_rms_max_dbfs": -70.0,
+    "quiet_residual_peak_max_dbfs": -60.0,
+    "rms_error_max_db": 0.5,
+    "peak_error_max_db": 1.0,
+    "steady_silence_rms_max_dbfs": -80.0,
+    "engine_parity_residual_max_dbfs": -80.0,
+    "level_anchor": "delivered v0.2 reference_output_scale, frozen per channel",
+    "source_output_scale": {
+      "Fenrir": 0.09195752759643712,
+      "Surtr": 0.09034985741800312,
+      "Nidhoggr": 0.0860012970451488,
+      "Fimbulvetr": 0.09721294970620417,
+      "Ragnarok": 0.05162876564505051
+    }
+  },
+  "model_artifacts_modified": false,
+  "release_approved": false,
+  "accuracy": "FAIL",
+  "channels": {
+    "Fenrir": {
+      "validation_selected_legacy": {
+        "archived_full_esr": 0.10527461676778821,
+        "archived_rms_error_db": -0.13233874519510702,
+        "archived_peak_error_db": 1.4998610292988754,
+        "prediction_to_reference_power_ratio": 0.9699874728156163,
+        "normalized_cross_moment": 0.9323564280239139,
+        "oracle_scalar_linear": 0.9612046074342905,
+        "oracle_scalar_db_if_positive": -0.3436831223545869,
+        "oracle_minimum_full_esr": 0.10381470561243644,
+        "rms_allowed_gain_db": [
+          -0.367661254804893,
+          0.632338745195107
+        ],
+        "peak_allowed_gain_db": [
+          -2.4998610292988754,
+          -0.49986102929887544
+        ],
+        "simultaneous_level_feasible": false,
+        "simultaneous_allowed_gain_db": null,
+        "level_interval_signed_overlap_db": -0.13219977449398246,
+        "crest_factor_error_db": 1.6321997744939825,
+        "scalar_full_esr_pass_impossible": true
+      },
+      "previously_exposed_test": {
+        "archived_full_esr": 0.08530047623345552,
+        "archived_rms_error_db": 0.008789540514490546,
+        "archived_peak_error_db": 1.646816044629972,
+        "prediction_to_reference_power_ratio": 1.0020259158964282,
+        "normalized_cross_moment": 0.9583627198314864,
+        "oracle_scalar_linear": 0.9564250830519887,
+        "oracle_scalar_db_if_positive": -0.3869808533790825,
+        "oracle_minimum_full_esr": 0.08339785609124095,
+        "rms_allowed_gain_db": [
+          -0.5087895405144905,
+          0.49121045948550945
+        ],
+        "peak_allowed_gain_db": [
+          -2.646816044629972,
+          -0.646816044629972
+        ],
+        "simultaneous_level_feasible": false,
+        "simultaneous_allowed_gain_db": null,
+        "level_interval_signed_overlap_db": -0.13802650411548145,
+        "crest_factor_error_db": 1.6380265041154813,
+        "scalar_full_esr_pass_impossible": true
+      }
+    },
+    "Surtr": {
+      "validation_selected_legacy": {
+        "archived_full_esr": 0.10674827596645599,
+        "archived_rms_error_db": -0.40551061242989683,
+        "archived_peak_error_db": 0.05783859205203257,
+        "prediction_to_reference_power_ratio": 0.9108543542214455,
+        "normalized_cross_moment": 0.9020530391274948,
+        "oracle_scalar_linear": 0.9903372970078476,
+        "oracle_scalar_db_if_positive": -0.084337294297253,
+        "oracle_minimum_full_esr": 0.10666323147276269,
+        "rms_allowed_gain_db": [
+          -0.09448938757010317,
+          0.9055106124298968
+        ],
+        "peak_allowed_gain_db": [
+          -1.0578385920520326,
+          0.9421614079479674
+        ],
+        "simultaneous_level_feasible": true,
+        "simultaneous_allowed_gain_db": [
+          -0.09448938757010317,
+          0.9055106124298968
+        ],
+        "level_interval_signed_overlap_db": 1.0,
+        "crest_factor_error_db": 0.4633492044819294,
+        "scalar_full_esr_pass_impossible": true
+      },
+      "previously_exposed_test": {
+        "archived_full_esr": 0.09136244687656378,
+        "archived_rms_error_db": -0.35266131440029047,
+        "archived_peak_error_db": -0.21364858120768027,
+        "prediction_to_reference_power_ratio": 0.9220062575284335,
+        "normalized_cross_moment": 0.9153219053259348,
+        "oracle_scalar_linear": 0.9927502095046329,
+        "oracle_scalar_db_if_positive": -0.06320025225824137,
+        "oracle_minimum_full_esr": 0.09131398672349844,
+        "rms_allowed_gain_db": [
+          -0.14733868559970953,
+          0.8526613144002905
+        ],
+        "peak_allowed_gain_db": [
+          -0.7863514187923197,
+          1.2136485812076803
+        ],
+        "simultaneous_level_feasible": true,
+        "simultaneous_allowed_gain_db": [
+          -0.14733868559970953,
+          0.8526613144002905
+        ],
+        "level_interval_signed_overlap_db": 1.0,
+        "crest_factor_error_db": 0.1390127331926102,
+        "scalar_full_esr_pass_impossible": true
+      }
+    },
+    "Nidhoggr": {
+      "validation_selected_legacy": {
+        "archived_full_esr": 0.10676660686671842,
+        "archived_rms_error_db": -0.5005735449808804,
+        "archived_peak_error_db": 0.7234834880464582,
+        "prediction_to_reference_power_ratio": 0.8911332440870992,
+        "normalized_cross_moment": 0.8921833186101904,
+        "oracle_scalar_linear": 1.001178358601319,
+        "oracle_scalar_db_if_positive": 0.010229067193382178,
+        "oracle_minimum_full_esr": 0.10676536950237203,
+        "rms_allowed_gain_db": [
+          0.0005735449808803583,
+          1.0005735449808804
+        ],
+        "peak_allowed_gain_db": [
+          -1.7234834880464582,
+          0.27651651195354177
+        ],
+        "simultaneous_level_feasible": true,
+        "simultaneous_allowed_gain_db": [
+          0.0005735449808803583,
+          0.27651651195354177
+        ],
+        "level_interval_signed_overlap_db": 0.2759429669726614,
+        "crest_factor_error_db": 1.2240570330273386,
+        "scalar_full_esr_pass_impossible": true
+      },
+      "previously_exposed_test": {
+        "archived_full_esr": 0.09945272977887044,
+        "archived_rms_error_db": -0.4603968948323296,
+        "archived_peak_error_db": 0.938944478417886,
+        "prediction_to_reference_power_ratio": 0.8994153816301812,
+        "normalized_cross_moment": 0.8999813259256553,
+        "oracle_scalar_linear": 1.0006292357313795,
+        "oracle_scalar_db_if_positive": 0.005463753304904943,
+        "oracle_minimum_full_esr": 0.09945237366649795,
+        "rms_allowed_gain_db": [
+          -0.039603105167670405,
+          0.9603968948323296
+        ],
+        "peak_allowed_gain_db": [
+          -1.938944478417886,
+          0.061055521582114025
+        ],
+        "simultaneous_level_feasible": true,
+        "simultaneous_allowed_gain_db": [
+          -0.039603105167670405,
+          0.061055521582114025
+        ],
+        "level_interval_signed_overlap_db": 0.10065862674978443,
+        "crest_factor_error_db": 1.3993413732502156,
+        "scalar_full_esr_pass_impossible": true
+      }
+    },
+    "Fimbulvetr": {
+      "validation_selected_legacy": {
+        "archived_full_esr": 0.04068242784004505,
+        "archived_rms_error_db": -0.39301675714862555,
+        "archived_peak_error_db": 0.13789717888884745,
+        "prediction_to_reference_power_ratio": 0.9134784878155138,
+        "normalized_cross_moment": 0.9363980299877344,
+        "oracle_scalar_linear": 1.0250904016656486,
+        "oracle_scalar_db_if_positive": 0.21524334126578473,
+        "oracle_minimum_full_esr": 0.040107367320951215,
+        "rms_allowed_gain_db": [
+          -0.10698324285137445,
+          0.8930167571486256
+        ],
+        "peak_allowed_gain_db": [
+          -1.1378971788888474,
+          0.8621028211111526
+        ],
+        "simultaneous_level_feasible": true,
+        "simultaneous_allowed_gain_db": [
+          -0.10698324285137445,
+          0.8621028211111526
+        ],
+        "level_interval_signed_overlap_db": 0.969086063962527,
+        "crest_factor_error_db": 0.530913936037473,
+        "scalar_full_esr_pass_impossible": true
+      },
+      "previously_exposed_test": {
+        "archived_full_esr": 0.04381176239110577,
+        "archived_rms_error_db": -0.3869202694724073,
+        "archived_peak_error_db": -0.21483394319474058,
+        "prediction_to_reference_power_ratio": 0.9147617002911608,
+        "normalized_cross_moment": 0.9354749689500275,
+        "oracle_scalar_linear": 1.0226433492485243,
+        "oracle_scalar_db_if_positive": 0.194483965353966,
+        "oracle_minimum_full_esr": 0.0433427446147846,
+        "rms_allowed_gain_db": [
+          -0.11307973052759268,
+          0.8869202694724073
+        ],
+        "peak_allowed_gain_db": [
+          -0.7851660568052594,
+          1.2148339431947406
+        ],
+        "simultaneous_level_feasible": true,
+        "simultaneous_allowed_gain_db": [
+          -0.11307973052759268,
+          0.8869202694724073
+        ],
+        "level_interval_signed_overlap_db": 1.0,
+        "crest_factor_error_db": 0.17208632627766673,
+        "scalar_full_esr_pass_impossible": true
+      }
+    },
+    "Ragnarok": {
+      "validation_selected_legacy": {
+        "archived_full_esr": 0.1411580485108758,
+        "archived_rms_error_db": -0.4557523409636728,
+        "archived_peak_error_db": 3.7316420235089325,
+        "prediction_to_reference_power_ratio": 0.9003777741790393,
+        "normalized_cross_moment": 0.8796098628340817,
+        "oracle_scalar_linear": 0.9769342247881522,
+        "oracle_scalar_db_if_positive": -0.2026935111551859,
+        "oracle_minimum_full_esr": 0.14067902053617343,
+        "rms_allowed_gain_db": [
+          -0.044247659036327214,
+          0.9557523409636728
+        ],
+        "peak_allowed_gain_db": [
+          -4.7316420235089325,
+          -2.7316420235089325
+        ],
+        "simultaneous_level_feasible": false,
+        "simultaneous_allowed_gain_db": null,
+        "level_interval_signed_overlap_db": -2.6873943644726053,
+        "crest_factor_error_db": 4.187394364472605,
+        "scalar_full_esr_pass_impossible": true
+      },
+      "previously_exposed_test": {
+        "archived_full_esr": 0.12044941504876498,
+        "archived_rms_error_db": -0.6495582168040217,
+        "archived_peak_error_db": 2.360759637019969,
+        "prediction_to_reference_power_ratio": 0.8610813406607702,
+        "normalized_cross_moment": 0.8703159628060027,
+        "oracle_scalar_linear": 1.010724448097024,
+        "oracle_scalar_db_if_positive": 0.09265541681996266,
+        "oracle_minimum_full_esr": 0.1203503788228727,
+        "rms_allowed_gain_db": [
+          0.1495582168040217,
+          1.1495582168040217
+        ],
+        "peak_allowed_gain_db": [
+          -3.360759637019969,
+          -1.360759637019969
+        ],
+        "simultaneous_level_feasible": false,
+        "simultaneous_allowed_gain_db": null,
+        "level_interval_signed_overlap_db": -1.5103178538239908,
+        "crest_factor_error_db": 3.0103178538239908,
+        "scalar_full_esr_pass_impossible": true
+      }
+    }
+  }
+}

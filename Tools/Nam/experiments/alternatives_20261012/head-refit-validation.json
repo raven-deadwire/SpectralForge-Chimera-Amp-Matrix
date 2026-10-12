@@ -1,0 +1,4081 @@
+{
+  "plan_sha256": "e9a9061129db57cbf64bc95c8caab84af08452abcebf8b0ec836cbf5cb3fabe3",
+  "quality_profile": {
+    "id": "nastrond-tone3000-fidelity-v1",
+    "authority": "project acceptance policy; not a TONE3000 certification",
+    "window_samples": 4096,
+    "skip_samples": 6347,
+    "active_reference_rms_min_dbfs": -60.0,
+    "full_esr_max_exclusive": 0.01,
+    "esr_guidance_source": "https://www.tone3000.com/guides/capture-your-gear-with-nam-dry-wet",
+    "active_window_esr_median_max": 0.005,
+    "active_window_esr_p95_max": 0.01,
+    "active_window_esr_worst_max": 0.02,
+    "quiet_residual_rms_max_dbfs": -70.0,
+    "quiet_residual_peak_max_dbfs": -60.0,
+    "rms_error_max_db": 0.5,
+    "peak_error_max_db": 1.0,
+    "steady_silence_rms_max_dbfs": -80.0,
+    "engine_parity_residual_max_dbfs": -80.0,
+    "level_anchor": "delivered v0.2 reference_output_scale, frozen per channel",
+    "source_output_scale": {
+      "Fenrir": 0.09195752759643712,
+      "Surtr": 0.09034985741800312,
+      "Nidhoggr": 0.0860012970451488,
+      "Fimbulvetr": 0.09721294970620417,
+      "Ragnarok": 0.05162876564505051
+    }
+  },
+  "release_approved": false,
+  "channels": {
+    "Fenrir": {
+      "baseline_validation": {
+        "profile": "nastrond-tone3000-fidelity-v1",
+        "level_anchor": 0.09195752759643712,
+        "active_windows": 273,
+        "quiet_windows": 6,
+        "active_median": 0.06980835014151521,
+        "active_p95": 0.40322075771194643,
+        "active_worst": 0.8371552436875379,
+        "quiet_worst_residual_rms_dbfs": -66.99314950591956,
+        "quiet_worst_residual_peak_dbfs": -50.33271928773217,
+        "rms_error_db": -0.13233874519510702,
+        "peak_error_db": 1.4998610292988754,
+        "full_esr": 0.10527461676778821,
+        "active_pass": false,
+        "quiet_pass": false,
+        "level_pass": false,
+        "full_esr_pass": false,
+        "fidelity_pass": false,
+        "worst_active_windows": [
+          {
+            "start_sample": 739531,
+            "active": true,
+            "reference_rms_dbfs": -22.21091181334891,
+            "esr": 0.8371552436875379,
+            "residual_rms_dbfs": -22.982851794645978,
+            "residual_peak_dbfs": -11.525244641182443
+          },
+          {
+            "start_sample": 596171,
+            "active": true,
+            "reference_rms_dbfs": -22.727136345042855,
+            "esr": 0.7120631980778585,
+            "residual_rms_dbfs": -24.201950940156664,
+            "residual_peak_dbfs": -11.372309308994812
+          },
+          {
+            "start_sample": 600267,
+            "active": true,
+            "reference_rms_dbfs": -23.393782387632527,
+            "esr": 0.6922413126304808,
+            "residual_rms_dbfs": -24.99120724544728,
+            "residual_peak_dbfs": -12.834539834913382
+          },
+          {
+            "start_sample": 592075,
+            "active": true,
+            "reference_rms_dbfs": -20.219674431293704,
+            "esr": 0.6190538738365532,
+            "residual_rms_dbfs": -22.302389975150284,
+            "residual_peak_dbfs": -9.71278240642233
+          },
+          {
+            "start_sample": 145611,
+            "active": true,
+            "reference_rms_dbfs": -18.997168349496146,
+            "esr": 0.5782164592351827,
+            "residual_rms_dbfs": -21.376263850185083,
+            "residual_peak_dbfs": -10.123681027099366
+          }
+        ],
+        "quiet_window_details": [
+          {
+            "start_sample": 6347,
+            "active": false,
+            "reference_rms_dbfs": -200.0,
+            "esr": 62195.306183328394,
+            "residual_rms_dbfs": -152.062423898365,
+            "residual_peak_dbfs": -152.062423898365
+          },
+          {
+            "start_sample": 1128651,
+            "active": false,
+            "reference_rms_dbfs": -67.9567810552375,
+            "esr": 1.248427006486549,
+            "residual_rms_dbfs": -66.99314950591956,
+            "residual_peak_dbfs": -50.33271928773217
+          },
+          {
+            "start_sample": 1132747,
+            "active": false,
+            "reference_rms_dbfs": -110.78050261461891,
+            "esr": 1.0116981274913692,
+            "residual_rms_dbfs": -110.72999315284164,
+            "residual_peak_dbfs": -101.46096774571367
+          },
+          {
+            "start_sample": 1136843,
+            "active": false,
+            "reference_rms_dbfs": -148.03573894484128,
+            "esr": 2.243001558761235,
+            "residual_rms_dbfs": -144.52744319090564,
+            "residual_peak_dbfs": -137.0143810816429
+          },
+          {
+            "start_sample": 1140939,
+            "active": false,
+            "reference_rms_dbfs": -185.3173747991754,
+            "esr": 2178.7311219726757,
+            "residual_rms_dbfs": -151.9353384280976,
+            "residual_peak_dbfs": -151.52497065807847
+          },
+          {
+            "start_sample": 1145035,
+            "active": false,
+            "reference_rms_dbfs": -200.0,
+            "esr": 62220.18351250265,
+            "residual_rms_dbfs": -152.06068712315235,
+            "residual_peak_dbfs": -152.05444742764737
+          }
+        ]
+      },
+      "candidates": [
+        {
+          "mode": "raw",
+          "ridge": 1e-06,
+          "model_sha256": "7cf7162a38c9f506e2b6185299d611faf06d404c93465129f9f3e41ebf82ef32",
+          "job_sha256": "d7759aaab367b41c26fe6330f215bc37e195f80eb661e074d5200e12ef5c7817",
+          "validation": {
+            "profile": "nastrond-tone3000-fidelity-v1",
+            "level_anchor": 0.09195752759643712,
+            "active_windows": 273,
+            "quiet_windows": 6,
+            "active_median": 0.06435106017144228,
+            "active_p95": 0.3994076455196393,
+            "active_worst": 0.7964593198541333,
+            "quiet_worst_residual_rms_dbfs": -67.55913939616818,
+            "quiet_worst_residual_peak_dbfs": -50.74746927085391,
+            "rms_error_db": -0.45769660058799577,
+            "peak_error_db": 0.6296143514756078,
+            "full_esr": 0.10179764689468736,
+            "active_pass": false,
+            "quiet_pass": false,
+            "level_pass": true,
+            "full_esr_pass": false,
+            "fidelity_pass": false,
+            "worst_active_windows": [
+              {
+                "start_sample": 739531,
+                "active": true,
+                "reference_rms_dbfs": -22.21091181334891,
+                "esr": 0.7964593198541333,
+                "residual_rms_dbfs": -23.19927582759638,
+                "residual_peak_dbfs": -12.066798470523972
+              },
+              {
+                "start_sample": 596171,
+                "active": true,
+                "reference_rms_dbfs": -22.727136345042855,
+                "esr": 0.7143469754805675,
+                "residual_rms_dbfs": -24.18804424221282,
+                "residual_peak_dbfs": -11.272097673180998
+              },
+              {
+                "start_sample": 600267,
+                "active": true,
+                "reference_rms_dbfs": -23.393782387632527,
+                "esr": 0.6979598325416129,
+                "residual_rms_dbfs": -24.955478089874894,
+                "residual_peak_dbfs": -12.484619735854256
+              },
+              {
+                "start_sample": 592075,
+                "active": true,
+                "reference_rms_dbfs": -20.219674431293704,
+                "esr": 0.6216677400302277,
+                "residual_rms_dbfs": -22.284091118563868,
+                "residual_peak_dbfs": -9.63973512034374
+              },
+              {
+                "start_sample": 145611,
+                "active": true,
+                "reference_rms_dbfs": -18.997168349496146,
+                "esr": 0.5775569077845152,
+                "residual_rms_dbfs": -21.38122052412866,
+                "residual_peak_dbfs": -9.990443931167865
+              }
+            ],
+            "quiet_window_details": [
+              {
+                "start_sample": 6347,
+                "active": false,
+                "reference_rms_dbfs": -200.0,
+                "esr": 6570.960030497522,
+                "residual_rms_dbfs": -161.82371174505903,
+                "residual_peak_dbfs": -161.82371174505903
+              },
+              {
+                "start_sample": 1128651,
+                "active": false,
+                "reference_rms_dbfs": -67.9567810552375,
+                "esr": 1.0958829393428982,
+                "residual_rms_dbfs": -67.55913939616818,
+                "residual_peak_dbfs": -50.74746927085391
+              },
+              {
+                "start_sample": 1132747,
+                "active": false,
+                "reference_rms_dbfs": -110.78050261461891,
+                "esr": 0.9961386991926626,
+                "residual_rms_dbfs": -110.7973044904194,
+                "residual_peak_dbfs": -101.49594761234012
+              },
+              {
+                "start_sample": 1136843,
+                "active": false,
+                "reference_rms_dbfs": -148.03573894484128,
+                "esr": 0.7663861776578526,
+                "residual_rms_dbfs": -149.1912623116554,
+                "residual_peak_dbfs": -139.3335402605456
+              },
+              {
+                "start_sample": 1140939,
+                "active": false,
+                "reference_rms_dbfs": -185.3173747991754,
+                "esr": 204.4480832089644,
+                "residual_rms_dbfs": -162.21154436710592,
+                "residual_peak_dbfs": -161.8279368304286
+              },
+              {
+                "start_sample": 1145035,
+                "active": false,
+                "reference_rms_dbfs": -200.0,
+                "esr": 6562.881220991033,
+                "residual_rms_dbfs": -161.82905455797163,
+                "residual_peak_dbfs": -161.82376967495483
+              }
+            ]
+          },
+          "selection_rejections": [],
+          "zero_state_projection_residual": -5.4125280668504415e-08,
+          "official_roundtrip_max_abs": 0.0
+        },
+        {
+          "mode": "raw",
+          "ridge": 0.0001,
+          "model_sha256": "e9ef56150cf78bce1fb546186c73fa44a54f44d53976e073f5102e9e99749ade",
+          "job_sha256": "d7759aaab367b41c26fe6330f215bc37e195f80eb661e074d5200e12ef5c7817",
+          "validation": {
+            "profile": "nastrond-tone3000-fidelity-v1",
+            "level_anchor": 0.09195752759643712,
+            "active_windows": 273,
+            "quiet_windows": 6,
+            "active_median": 0.06435131479878449,
+            "active_p95": 0.3994064292771112,
+            "active_worst": 0.796482044134642,
+            "quiet_worst_residual_rms_dbfs": -67.559507611359,
+            "quiet_worst_residual_peak_dbfs": -50.74867995661941,
+            "rms_error_db": -0.4577494114090576,
+            "peak_error_db": 0.6311136696941837,
+            "full_esr": 0.10179830058602353,
+            "active_pass": false,
+            "quiet_pass": false,
+            "level_pass": true,
+            "full_esr_pass": false,
+            "fidelity_pass": false,
+            "worst_active_windows": [
+              {
+                "start_sample": 739531,
+                "active": true,
+                "reference_rms_dbfs": -22.21091181334891,
+                "esr": 0.796482044134642,
+                "residual_rms_dbfs": -23.199151918080894,
+                "residual_peak_dbfs": -12.066556292450647
+              },
+              {
+                "start_sample": 596171,
+                "active": true,
+                "reference_rms_dbfs": -22.727136345042855,
+                "esr": 0.7143696863378389,
+                "residual_rms_dbfs": -24.187906171449644,
+                "residual_peak_dbfs": -11.272134623940161
+              },
+              {
+                "start_sample": 600267,
+                "active": true,
+                "reference_rms_dbfs": -23.393782387632527,
+                "esr": 0.6979790488319544,
+                "residual_rms_dbfs": -24.955358521189336,
+                "residual_peak_dbfs": -12.48439287819881
+              },
+              {
+                "start_sample": 592075,
+                "active": true,
+                "reference_rms_dbfs": -20.219674431293704,
+                "esr": 0.6216690542006378,
+                "residual_rms_dbfs": -22.28408193783408,
+                "residual_peak_dbfs": -9.639920141848403
+              },
+              {
+                "start_sample": 145611,
+                "active": true,
+                "reference_rms_dbfs": -18.997168349496146,
+                "esr": 0.5775583910819215,
+                "residual_rms_dbfs": -21.38120937047362,
+                "residual_peak_dbfs": -9.99088096034187
+              }
+            ],
+            "quiet_window_details": [
+              {
+                "start_sample": 6347,
+                "active": false,
+                "reference_rms_dbfs": -200.0,
+                "esr": 3643.2856156148428,
+                "residual_rms_dbfs": -164.38506780879072,
+                "residual_peak_dbfs": -164.38506780879072
+              },
+              {
+                "start_sample": 1128651,
+                "active": false,
+                "reference_rms_dbfs": -67.9567810552375,
+                "esr": 1.0957900291962737,
+                "residual_rms_dbfs": -67.559507611359,
+                "residual_peak_dbfs": -50.74867995661941
+              },
+              {
+                "start_sample": 1132747,
+                "active": false,
+                "reference_rms_dbfs": -110.78050261461891,
+                "esr": 1.0027264192621592,
+                "residual_rms_dbfs": -110.76867803827145,
+                "residual_peak_dbfs": -101.4813659803906
+              },
+              {
+                "start_sample": 1136843,
+                "active": false,
+                "reference_rms_dbfs": -148.03573894484128,
+                "esr": 1.22825688261005,
+                "residual_rms_dbfs": -147.14284688075648,
+                "residual_peak_dbfs": -138.26447367835573
+              },
+              {
+                "start_sample": 1140939,
+                "active": false,
+                "reference_rms_dbfs": -185.3173747991754,
+                "esr": 139.91047703168925,
+                "residual_rms_dbfs": -163.85887242575964,
+                "residual_peak_dbfs": -162.3519624873844
+              },
+              {
+                "start_sample": 1145035,
+                "active": false,
+                "reference_rms_dbfs": -200.0,
+                "esr": 3649.3108293542327,
+                "residual_rms_dbfs": -164.37789144110207,
+                "residual_peak_dbfs": -164.35215845125012
+              }
+            ]
+          },
+          "selection_rejections": [],
+          "zero_state_projection_residual": 9.96686124743462e-08,
+          "official_roundtrip_max_abs": 0.0
+        },
+        {
+          "mode": "raw",
+          "ridge": 0.01,
+          "model_sha256": "407932e50559fe382e7eec1c4ead9d3265945aeba7ab0ebd8b382fcd7465fae8",
+          "job_sha256": "d7759aaab367b41c26fe6330f215bc37e195f80eb661e074d5200e12ef5c7817",
+          "validation": {
+            "profile": "nastrond-tone3000-fidelity-v1",
+            "level_anchor": 0.09195752759643712,
+            "active_windows": 273,
+            "quiet_windows": 6,
+            "active_median": 0.06462284187015263,
+            "active_p95": 0.3993875604882732,
+            "active_worst": 0.7980766551266415,
+            "quiet_worst_residual_rms_dbfs": -67.57807854613708,
+            "quiet_worst_residual_peak_dbfs": -50.82094854242074,
+            "rms_error_db": -0.459431578428598,
+            "peak_error_db": 0.7306591255378532,
+            "full_esr": 0.10202153428146987,
+            "active_pass": false,
+            "quiet_pass": false,
+            "level_pass": true,
+            "full_esr_pass": false,
+            "fidelity_pass": false,
+            "worst_active_windows": [
+              {
+                "start_sample": 739531,
+                "active": true,
+                "reference_rms_dbfs": -22.21091181334891,
+                "esr": 0.7980766551266415,
+                "residual_rms_dbfs": -23.19046574069793,
+                "residual_peak_dbfs": -12.049500115553746
+              },
+              {
+                "start_sample": 596171,
+                "active": true,
+                "reference_rms_dbfs": -22.727136345042855,
+                "esr": 0.7156049707490634,
+                "residual_rms_dbfs": -24.180402858937583,
+                "residual_peak_dbfs": -11.276075662407251
+              },
+              {
+                "start_sample": 600267,
+                "active": true,
+                "reference_rms_dbfs": -23.393782387632527,
+                "esr": 0.6990335675610635,
+                "residual_rms_dbfs": -24.94880207714978,
+                "residual_peak_dbfs": -12.476221337011964
+              },
+              {
+                "start_sample": 592075,
+                "active": true,
+                "reference_rms_dbfs": -20.219674431293704,
+                "esr": 0.6217530200223333,
+                "residual_rms_dbfs": -22.283495396966867,
+                "residual_peak_dbfs": -9.649529343524703
+              },
+              {
+                "start_sample": 145611,
+                "active": true,
+                "reference_rms_dbfs": -18.997168349496146,
+                "esr": 0.5778319845309625,
+                "residual_rms_dbfs": -21.379152574261152,
+                "residual_peak_dbfs": -10.012735700765209
+              }
+            ],
+            "quiet_window_details": [
+              {
+                "start_sample": 6347,
+                "active": false,
+                "reference_rms_dbfs": -200.0,
+                "esr": 10321.05516020456,
+                "residual_rms_dbfs": -159.8627590088427,
+                "residual_peak_dbfs": -159.8627590088427
+              },
+              {
+                "start_sample": 1128651,
+                "active": false,
+                "reference_rms_dbfs": -67.9567810552375,
+                "esr": 1.0911143082713,
+                "residual_rms_dbfs": -67.57807854613708,
+                "residual_peak_dbfs": -50.82094854242074
+              },
+              {
+                "start_sample": 1132747,
+                "active": false,
+                "reference_rms_dbfs": -110.78050261461891,
+                "esr": 0.9951860676640246,
+                "residual_rms_dbfs": -110.80145974077958,
+                "residual_peak_dbfs": -101.49800856869533
+              },
+              {
+                "start_sample": 1136843,
+                "active": false,
+                "reference_rms_dbfs": -148.03573894484128,
+                "esr": 0.720486114815356,
+                "residual_rms_dbfs": -149.45948278962405,
+                "residual_peak_dbfs": -139.50029046638764
+              },
+              {
+                "start_sample": 1140939,
+                "active": false,
+                "reference_rms_dbfs": -185.3173747991754,
+                "esr": 326.9369559071854,
+                "residual_rms_dbfs": -160.1727346530406,
+                "residual_peak_dbfs": -159.86613006899935
+              },
+              {
+                "start_sample": 1145035,
+                "active": false,
+                "reference_rms_dbfs": -200.0,
+                "esr": 10310.92876637713,
+                "residual_rms_dbfs": -159.86702213480248,
+                "residual_peak_dbfs": -159.86280523149026
+              }
+            ]
+          },
+          "selection_rejections": [],
+          "zero_state_projection_residual": -7.621570580207404e-08,
+          "official_roundtrip_max_abs": 0.0
+        },
+        {
+          "mode": "eq-chain",
+          "ridge": 1e-06,
+          "model_sha256": "60e9d91177dcea304f2864b25f5497d26519d38db91374e6b1c4f7a52ab0c4de",
+          "job_sha256": "457e855c15cb418711fa06098d593eb4bcd60bbe86a339b8fb94cfe3bd2a5da7",
+          "validation": {
+            "profile": "nastrond-tone3000-fidelity-v1",
+            "level_anchor": 0.09195752759643712,
+            "active_windows": 273,
+            "quiet_windows": 6,
+            "active_median": 0.0643398876428178,
+            "active_p95": 0.399555111890375,
+            "active_worst": 0.8062382148882427,
+            "quiet_worst_residual_rms_dbfs": -67.64319643328466,
+            "quiet_worst_residual_peak_dbfs": -50.71118303308531,
+            "rms_error_db": -0.45518743950899654,
+            "peak_error_db": 0.632034656644727,
+            "full_esr": 0.10198755380076373,
+            "active_pass": false,
+            "quiet_pass": false,
+            "level_pass": true,
+            "full_esr_pass": false,
+            "fidelity_pass": false,
+            "worst_active_windows": [
+              {
+                "start_sample": 739531,
+                "active": true,
+                "reference_rms_dbfs": -22.21091181334891,
+                "esr": 0.8062382148882427,
+                "residual_rms_dbfs": -23.146278019041713,
+                "residual_peak_dbfs": -12.07313952112379
+              },
+              {
+                "start_sample": 596171,
+                "active": true,
+                "reference_rms_dbfs": -22.727136345042855,
+                "esr": 0.7279804946361128,
+                "residual_rms_dbfs": -24.105938914349142,
+                "residual_peak_dbfs": -11.228968275525775
+              },
+              {
+                "start_sample": 600267,
+                "active": true,
+                "reference_rms_dbfs": -23.393782387632527,
+                "esr": 0.7133229969203408,
+                "residual_rms_dbfs": -24.860920132360363,
+                "residual_peak_dbfs": -12.432445097866093
+              },
+              {
+                "start_sample": 592075,
+                "active": true,
+                "reference_rms_dbfs": -20.219674431293704,
+                "esr": 0.6263439957305553,
+                "residual_rms_dbfs": -22.251545245911956,
+                "residual_peak_dbfs": -9.613245256205333
+              },
+              {
+                "start_sample": 145611,
+                "active": true,
+                "reference_rms_dbfs": -18.997168349496146,
+                "esr": 0.577767009231896,
+                "residual_rms_dbfs": -21.37964095152743,
+                "residual_peak_dbfs": -9.983960556524869
+              }
+            ],
+            "quiet_window_details": [
+              {
+                "start_sample": 6347,
+                "active": false,
+                "reference_rms_dbfs": -200.0,
+                "esr": 3591.5622998121794,
+                "residual_rms_dbfs": -164.4471659582403,
+                "residual_peak_dbfs": -164.443773999374
+              },
+              {
+                "start_sample": 1128651,
+                "active": false,
+                "reference_rms_dbfs": -67.9567810552375,
+                "esr": 1.0748762380859727,
+                "residual_rms_dbfs": -67.64319643328466,
+                "residual_peak_dbfs": -50.71118303308531
+              },
+              {
+                "start_sample": 1132747,
+                "active": false,
+                "reference_rms_dbfs": -110.78050261461891,
+                "esr": 0.8841794506864515,
+                "residual_rms_dbfs": -111.31509844261396,
+                "residual_peak_dbfs": -101.96801284130858
+              },
+              {
+                "start_sample": 1136843,
+                "active": false,
+                "reference_rms_dbfs": -148.03573894484128,
+                "esr": 0.6617276832634834,
+                "residual_rms_dbfs": -149.82894590825748,
+                "residual_peak_dbfs": -140.01196831450864
+              },
+              {
+                "start_sample": 1140939,
+                "active": false,
+                "reference_rms_dbfs": -185.3173747991754,
+                "esr": 110.30628703697602,
+                "residual_rms_dbfs": -164.89137213645503,
+                "residual_peak_dbfs": -164.44029544433266
+              },
+              {
+                "start_sample": 1145035,
+                "active": false,
+                "reference_rms_dbfs": -200.0,
+                "esr": 3584.7426350206592,
+                "residual_rms_dbfs": -164.45542018853249,
+                "residual_peak_dbfs": -164.4474500044484
+              }
+            ]
+          },
+          "selection_rejections": [],
+          "zero_state_projection_residual": -3.082308799307043e-08,
+          "official_roundtrip_max_abs": 0.0
+        },
+        {
+          "mode": "eq-chain",
+          "ridge": 0.0001,
+          "model_sha256": "ba37675a805d3b1bb5563180895b1546bd9c013fe55cbadc57f8b49318e537b6",
+          "job_sha256": "457e855c15cb418711fa06098d593eb4bcd60bbe86a339b8fb94cfe3bd2a5da7",
+          "validation": {
+            "profile": "nastrond-tone3000-fidelity-v1",
+            "level_anchor": 0.09195752759643712,
+            "active_windows": 273,
+            "quiet_windows": 6,
+            "active_median": 0.06433977847959133,
+            "active_p95": 0.3995575205560135,
+            "active_worst": 0.8062744542488891,
+            "quiet_worst_residual_rms_dbfs": -67.63949269591443,
+            "quiet_worst_residual_peak_dbfs": -50.70495376060204,
+            "rms_error_db": -0.4552425249912623,
+            "peak_error_db": 0.6340661794515317,
+            "full_esr": 0.10198807639623754,
+            "active_pass": false,
+            "quiet_pass": false,
+            "level_pass": true,
+            "full_esr_pass": false,
+            "fidelity_pass": false,
+            "worst_active_windows": [
+              {
+                "start_sample": 739531,
+                "active": true,
+                "reference_rms_dbfs": -22.21091181334891,
+                "esr": 0.8062744542488891,
+                "residual_rms_dbfs": -23.146082813699635,
+                "residual_peak_dbfs": -12.072385720080236
+              },
+              {
+                "start_sample": 596171,
+                "active": true,
+                "reference_rms_dbfs": -22.727136345042855,
+                "esr": 0.727974743023146,
+                "residual_rms_dbfs": -24.105973227131695,
+                "residual_peak_dbfs": -11.229074590207492
+              },
+              {
+                "start_sample": 600267,
+                "active": true,
+                "reference_rms_dbfs": -23.393782387632527,
+                "esr": 0.7133273670431338,
+                "residual_rms_dbfs": -24.860893525698184,
+                "residual_peak_dbfs": -12.431992910416348
+              },
+              {
+                "start_sample": 592075,
+                "active": true,
+                "reference_rms_dbfs": -20.219674431293704,
+                "esr": 0.6263409565728529,
+                "residual_rms_dbfs": -22.25156631887874,
+                "residual_peak_dbfs": -9.61328154273269
+              },
+              {
+                "start_sample": 145611,
+                "active": true,
+                "reference_rms_dbfs": -18.997168349496146,
+                "esr": 0.5777658062215867,
+                "residual_rms_dbfs": -21.379649994295097,
+                "residual_peak_dbfs": -9.984263285900338
+              }
+            ],
+            "quiet_window_details": [
+              {
+                "start_sample": 6347,
+                "active": false,
+                "reference_rms_dbfs": -200.0,
+                "esr": 2185.5868138482106,
+                "residual_rms_dbfs": -166.6043193818992,
+                "residual_peak_dbfs": -166.60389811416405
+              },
+              {
+                "start_sample": 1128651,
+                "active": false,
+                "reference_rms_dbfs": -67.9567810552375,
+                "esr": 1.0757933018520627,
+                "residual_rms_dbfs": -67.63949269591443,
+                "residual_peak_dbfs": -50.70495376060204
+              },
+              {
+                "start_sample": 1132747,
+                "active": false,
+                "reference_rms_dbfs": -110.78050261461891,
+                "esr": 0.8985260662236788,
+                "residual_rms_dbfs": -111.24519580959688,
+                "residual_peak_dbfs": -101.9118841646609
+              },
+              {
+                "start_sample": 1136843,
+                "active": false,
+                "reference_rms_dbfs": -148.03573894484128,
+                "esr": 0.9958468681524612,
+                "residual_rms_dbfs": -148.05381332595903,
+                "residual_peak_dbfs": -139.06046660159825
+              },
+              {
+                "start_sample": 1140939,
+                "active": false,
+                "reference_rms_dbfs": -185.3173747991754,
+                "esr": 85.0056766259981,
+                "residual_rms_dbfs": -166.02289551320564,
+                "residual_peak_dbfs": -164.34710890194202
+              },
+              {
+                "start_sample": 1145035,
+                "active": false,
+                "reference_rms_dbfs": -200.0,
+                "esr": 2188.4037220019736,
+                "residual_rms_dbfs": -166.59872555252846,
+                "residual_peak_dbfs": -166.57150845919784
+              }
+            ]
+          },
+          "selection_rejections": [],
+          "zero_state_projection_residual": 8.5175864472653e-08,
+          "official_roundtrip_max_abs": 0.0
+        },
+        {
+          "mode": "eq-chain",
+          "ridge": 0.01,
+          "model_sha256": "7d64d8f5bac95d253a979131e9646d05d6d8d679fffa089952cf8c9aab460ffd",
+          "job_sha256": "457e855c15cb418711fa06098d593eb4bcd60bbe86a339b8fb94cfe3bd2a5da7",
+          "validation": {
+            "profile": "nastrond-tone3000-fidelity-v1",
+            "level_anchor": 0.09195752759643712,
+            "active_windows": 273,
+            "quiet_windows": 6,
+            "active_median": 0.06461210535764897,
+            "active_p95": 0.39952939823225564,
+            "active_worst": 0.8078934949589004,
+            "quiet_worst_residual_rms_dbfs": -67.66108812753387,
+            "quiet_worst_residual_peak_dbfs": -50.78485315146648,
+            "rms_error_db": -0.4569375878003161,
+            "peak_error_db": 0.7330895007751028,
+            "full_esr": 0.10221264913735713,
+            "active_pass": false,
+            "quiet_pass": false,
+            "level_pass": true,
+            "full_esr_pass": false,
+            "fidelity_pass": false,
+            "worst_active_windows": [
+              {
+                "start_sample": 739531,
+                "active": true,
+                "reference_rms_dbfs": -22.21091181334891,
+                "esr": 0.8078934949589004,
+                "residual_rms_dbfs": -23.137370700657407,
+                "residual_peak_dbfs": -12.056266527317517
+              },
+              {
+                "start_sample": 596171,
+                "active": true,
+                "reference_rms_dbfs": -22.727136345042855,
+                "esr": 0.7292128762470771,
+                "residual_rms_dbfs": -24.09859305797155,
+                "residual_peak_dbfs": -11.232907817481262
+              },
+              {
+                "start_sample": 600267,
+                "active": true,
+                "reference_rms_dbfs": -23.393782387632527,
+                "esr": 0.7144365768450922,
+                "residual_rms_dbfs": -24.854145578388817,
+                "residual_peak_dbfs": -12.42415647716873
+              },
+              {
+                "start_sample": 592075,
+                "active": true,
+                "reference_rms_dbfs": -20.219674431293704,
+                "esr": 0.6264288548491384,
+                "residual_rms_dbfs": -22.250956889499555,
+                "residual_peak_dbfs": -9.623147019686826
+              },
+              {
+                "start_sample": 145611,
+                "active": true,
+                "reference_rms_dbfs": -18.997168349496146,
+                "esr": 0.5780288777605438,
+                "residual_rms_dbfs": -21.377672990571664,
+                "residual_peak_dbfs": -10.006626187294394
+              }
+            ],
+            "quiet_window_details": [
+              {
+                "start_sample": 6347,
+                "active": false,
+                "reference_rms_dbfs": -200.0,
+                "esr": 747.417084775079,
+                "residual_rms_dbfs": -171.2643697908641,
+                "residual_peak_dbfs": -171.26370537757325
+              },
+              {
+                "start_sample": 1128651,
+                "active": false,
+                "reference_rms_dbfs": -67.9567810552375,
+                "esr": 1.0704571634034552,
+                "residual_rms_dbfs": -67.66108812753387,
+                "residual_peak_dbfs": -50.78485315146648
+              },
+              {
+                "start_sample": 1132747,
+                "active": false,
+                "reference_rms_dbfs": -110.78050261461891,
+                "esr": 0.888693137602548,
+                "residual_rms_dbfs": -111.29298434858214,
+                "residual_peak_dbfs": -101.95526964379619
+              },
+              {
+                "start_sample": 1136843,
+                "active": false,
+                "reference_rms_dbfs": -148.03573894484128,
+                "esr": 0.9121496827518525,
+                "residual_rms_dbfs": -148.43507783064555,
+                "residual_peak_dbfs": -139.27918190993074
+              },
+              {
+                "start_sample": 1140939,
+                "active": false,
+                "reference_rms_dbfs": -185.3173747991754,
+                "esr": 31.861002823224762,
+                "residual_rms_dbfs": -170.28478038843556,
+                "residual_peak_dbfs": -167.73748865343666
+              },
+              {
+                "start_sample": 1145035,
+                "active": false,
+                "reference_rms_dbfs": -200.0,
+                "esr": 749.092026401882,
+                "residual_rms_dbfs": -171.2546482568709,
+                "residual_peak_dbfs": -171.20872343266538
+              }
+            ]
+          },
+          "selection_rejections": [],
+          "zero_state_projection_residual": 6.425483650707164e-08,
+          "official_roundtrip_max_abs": 0.0
+        }
+      ],
+      "selected_ridge": 1e-06,
+      "selected_mode": "raw",
+      "selected_is_baseline": false,
+      "best_esr_ridge": {
+        "raw": 1e-06,
+        "eq-chain": 1e-06
+      },
+      "causal_feature_reconstruction_max_abs": 3.5038848893442776e-06,
+      "head_coefficients": 128,
+      "train_samples_used": 4601653,
+      "gram_condition": {
+        "raw": 24327.838688569227,
+        "eq-chain": 24317.529086770002
+      },
+      "seconds": 38.707
+    },
+    "Surtr": {
+      "baseline_validation": {
+        "profile": "nastrond-tone3000-fidelity-v1",
+        "level_anchor": 0.09034985741800312,
+        "active_windows": 274,
+        "quiet_windows": 5,
+        "active_median": 0.09203557743779858,
+        "active_p95": 0.33240566712434394,
+        "active_worst": 0.6661787227219685,
+        "quiet_worst_residual_rms_dbfs": -77.99175891892364,
+        "quiet_worst_residual_peak_dbfs": -67.67841023654037,
+        "rms_error_db": -0.40551061242989683,
+        "peak_error_db": 0.05783859205203257,
+        "full_esr": 0.10674827596645599,
+        "active_pass": false,
+        "quiet_pass": true,
+        "level_pass": true,
+        "full_esr_pass": false,
+        "fidelity_pass": false,
+        "worst_active_windows": [
+          {
+            "start_sample": 190667,
+            "active": true,
+            "reference_rms_dbfs": -24.101048589377008,
+            "esr": 0.6661787227219685,
+            "residual_rms_dbfs": -25.86514101420139,
+            "residual_peak_dbfs": -12.478214129780392
+          },
+          {
+            "start_sample": 911563,
+            "active": true,
+            "reference_rms_dbfs": -19.680096609938794,
+            "esr": 0.6005471160085094,
+            "residual_rms_dbfs": -21.894625752835964,
+            "residual_peak_dbfs": -13.880756851206135
+          },
+          {
+            "start_sample": 596171,
+            "active": true,
+            "reference_rms_dbfs": -19.599196639018036,
+            "esr": 0.4357030750472107,
+            "residual_rms_dbfs": -23.20729038849404,
+            "residual_peak_dbfs": -10.980187824844322
+          },
+          {
+            "start_sample": 39115,
+            "active": true,
+            "reference_rms_dbfs": -25.27768904010386,
+            "esr": 0.41516919667850954,
+            "residual_rms_dbfs": -29.09543780289475,
+            "residual_peak_dbfs": -13.531392928957924
+          },
+          {
+            "start_sample": 915659,
+            "active": true,
+            "reference_rms_dbfs": -20.60764698345276,
+            "esr": 0.408897215248646,
+            "residual_rms_dbfs": -24.491505454976284,
+            "residual_peak_dbfs": -15.856920076967247
+          }
+        ],
+        "quiet_window_details": [
+          {
+            "start_sample": 6347,
+            "active": false,
+            "reference_rms_dbfs": -200.0,
+            "esr": 1856.073363054005,
+            "residual_rms_dbfs": -167.31404861878013,
+            "residual_peak_dbfs": -167.31404861878013
+          },
+          {
+            "start_sample": 1132747,
+            "active": false,
+            "reference_rms_dbfs": -77.99179334096651,
+            "esr": 1.0000079259996904,
+            "residual_rms_dbfs": -77.99175891892364,
+            "residual_peak_dbfs": -67.67841023654037
+          },
+          {
+            "start_sample": 1136843,
+            "active": false,
+            "reference_rms_dbfs": -96.68540998659559,
+            "esr": 1.0000246535005475,
+            "residual_rms_dbfs": -96.6853029191229,
+            "residual_peak_dbfs": -87.6454416748737
+          },
+          {
+            "start_sample": 1140939,
+            "active": false,
+            "reference_rms_dbfs": -114.7640282706402,
+            "esr": 1.0002067656348785,
+            "residual_rms_dbfs": -114.7631303917195,
+            "residual_peak_dbfs": -105.803488648761
+          },
+          {
+            "start_sample": 1145035,
+            "active": false,
+            "reference_rms_dbfs": -133.17086184689248,
+            "esr": 1.000244607309536,
+            "residual_rms_dbfs": -133.1697996607488,
+            "residual_peak_dbfs": -124.02511329357134
+          }
+        ]
+      },
+      "candidates": [
+        {
+          "mode": "raw",
+          "ridge": 1e-06,
+          "model_sha256": "39c81d97209f507de17af0f7f13470aeacac6fa7e969381d6610d2c857aa9ba7",
+          "job_sha256": "d7759aaab367b41c26fe6330f215bc37e195f80eb661e074d5200e12ef5c7817",
+          "validation": {
+            "profile": "nastrond-tone3000-fidelity-v1",
+            "level_anchor": 0.09034985741800312,
+            "active_windows": 274,
+            "quiet_windows": 5,
+            "active_median": 0.0904835096435635,
+            "active_p95": 0.33033692930753683,
+            "active_worst": 0.6698216953604761,
+            "quiet_worst_residual_rms_dbfs": -77.99170692258274,
+            "quiet_worst_residual_peak_dbfs": -67.67833968458805,
+            "rms_error_db": -0.39914429420381725,
+            "peak_error_db": 0.5873153038877525,
+            "full_esr": 0.10532554968729897,
+            "active_pass": false,
+            "quiet_pass": true,
+            "level_pass": true,
+            "full_esr_pass": false,
+            "fidelity_pass": false,
+            "worst_active_windows": [
+              {
+                "start_sample": 190667,
+                "active": true,
+                "reference_rms_dbfs": -24.101048589377008,
+                "esr": 0.6698216953604761,
+                "residual_rms_dbfs": -25.841456488142573,
+                "residual_peak_dbfs": -12.417338113142744
+              },
+              {
+                "start_sample": 911563,
+                "active": true,
+                "reference_rms_dbfs": -19.680096609938794,
+                "esr": 0.5843300937878865,
+                "residual_rms_dbfs": -22.01351407356104,
+                "residual_peak_dbfs": -13.875745975969833
+              },
+              {
+                "start_sample": 596171,
+                "active": true,
+                "reference_rms_dbfs": -19.599196639018036,
+                "esr": 0.41853208122932833,
+                "residual_rms_dbfs": -23.38190910851203,
+                "residual_peak_dbfs": -11.24023322268561
+              },
+              {
+                "start_sample": 39115,
+                "active": true,
+                "reference_rms_dbfs": -25.27768904010386,
+                "esr": 0.4068122999897596,
+                "residual_rms_dbfs": -29.18374828646296,
+                "residual_peak_dbfs": -13.89719609680726
+              },
+              {
+                "start_sample": 915659,
+                "active": true,
+                "reference_rms_dbfs": -20.60764698345276,
+                "esr": 0.3952105216087815,
+                "residual_rms_dbfs": -24.639362001427223,
+                "residual_peak_dbfs": -15.69023061351433
+              }
+            ],
+            "quiet_window_details": [
+              {
+                "start_sample": 6347,
+                "active": false,
+                "reference_rms_dbfs": -200.0,
+                "esr": 7837.501086299907,
+                "residual_rms_dbfs": -161.05822385966775,
+                "residual_peak_dbfs": -161.05822385966775
+              },
+              {
+                "start_sample": 1132747,
+                "active": false,
+                "reference_rms_dbfs": -77.99179334096651,
+                "esr": 1.0000198987662012,
+                "residual_rms_dbfs": -77.99170692258274,
+                "residual_peak_dbfs": -67.67833968458805
+              },
+              {
+                "start_sample": 1136843,
+                "active": false,
+                "reference_rms_dbfs": -96.68540998659559,
+                "esr": 1.0000508481017303,
+                "residual_rms_dbfs": -96.68518916170983,
+                "residual_peak_dbfs": -87.64448981609718
+              },
+              {
+                "start_sample": 1140939,
+                "active": false,
+                "reference_rms_dbfs": -114.7640282706402,
+                "esr": 1.0004369336397456,
+                "residual_rms_dbfs": -114.76213110639046,
+                "residual_peak_dbfs": -105.79579191912066
+              },
+              {
+                "start_sample": 1145035,
+                "active": false,
+                "reference_rms_dbfs": -133.17086184689248,
+                "esr": 1.0013376411943173,
+                "residual_rms_dbfs": -133.16505642691732,
+                "residual_peak_dbfs": -123.96259372541628
+              }
+            ]
+          },
+          "selection_rejections": [],
+          "zero_state_projection_residual": -1.1539096931301173e-07,
+          "official_roundtrip_max_abs": 0.0
+        },
+        {
+          "mode": "raw",
+          "ridge": 0.0001,
+          "model_sha256": "778dd35a7a08ba950ac07ecccc2658f26375d18da424142922b3fda1709eb35a",
+          "job_sha256": "d7759aaab367b41c26fe6330f215bc37e195f80eb661e074d5200e12ef5c7817",
+          "validation": {
+            "profile": "nastrond-tone3000-fidelity-v1",
+            "level_anchor": 0.09034985741800312,
+            "active_windows": 274,
+            "quiet_windows": 5,
+            "active_median": 0.09048266743646771,
+            "active_p95": 0.3303349601733137,
+            "active_worst": 0.6698283840326357,
+            "quiet_worst_residual_rms_dbfs": -77.99165409188791,
+            "quiet_worst_residual_peak_dbfs": -67.6782585422216,
+            "rms_error_db": -0.39916855885729885,
+            "peak_error_db": 0.5857435555504402,
+            "full_esr": 0.10532499162530887,
+            "active_pass": false,
+            "quiet_pass": true,
+            "level_pass": true,
+            "full_esr_pass": false,
+            "fidelity_pass": false,
+            "worst_active_windows": [
+              {
+                "start_sample": 190667,
+                "active": true,
+                "reference_rms_dbfs": -24.101048589377008,
+                "esr": 0.6698283840326357,
+                "residual_rms_dbfs": -25.8414131207968,
+                "residual_peak_dbfs": -12.416997761046286
+              },
+              {
+                "start_sample": 911563,
+                "active": true,
+                "reference_rms_dbfs": -19.680096609938794,
+                "esr": 0.5843276055548925,
+                "residual_rms_dbfs": -22.01353256701485,
+                "residual_peak_dbfs": -13.875762615539632
+              },
+              {
+                "start_sample": 596171,
+                "active": true,
+                "reference_rms_dbfs": -19.599196639018036,
+                "esr": 0.4185361073734062,
+                "residual_rms_dbfs": -23.38186733097992,
+                "residual_peak_dbfs": -11.240055095753052
+              },
+              {
+                "start_sample": 39115,
+                "active": true,
+                "reference_rms_dbfs": -25.27768904010386,
+                "esr": 0.4068154578633713,
+                "residual_rms_dbfs": -29.183714574557953,
+                "residual_peak_dbfs": -13.896942530752124
+              },
+              {
+                "start_sample": 915659,
+                "active": true,
+                "reference_rms_dbfs": -20.60764698345276,
+                "esr": 0.3952083449254881,
+                "residual_rms_dbfs": -24.639385920935805,
+                "residual_peak_dbfs": -15.690055181140664
+              }
+            ],
+            "quiet_window_details": [
+              {
+                "start_sample": 6347,
+                "active": false,
+                "reference_rms_dbfs": -200.0,
+                "esr": 16160.590858663138,
+                "residual_rms_dbfs": -157.91542764726907,
+                "residual_peak_dbfs": -157.91542764726907
+              },
+              {
+                "start_sample": 1132747,
+                "active": false,
+                "reference_rms_dbfs": -77.99179334096651,
+                "esr": 1.0000320637992925,
+                "residual_rms_dbfs": -77.99165409188791,
+                "residual_peak_dbfs": -67.6782585422216
+              },
+              {
+                "start_sample": 1136843,
+                "active": false,
+                "reference_rms_dbfs": -96.68540998659559,
+                "esr": 1.0000732441306017,
+                "residual_rms_dbfs": -96.6850919030268,
+                "residual_peak_dbfs": -87.64368156611616
+              },
+              {
+                "start_sample": 1140939,
+                "active": false,
+                "reference_rms_dbfs": -114.7640282706402,
+                "esr": 1.000642110198368,
+                "residual_rms_dbfs": -114.7612405164079,
+                "residual_peak_dbfs": -105.78926109882221
+              },
+              {
+                "start_sample": 1145035,
+                "active": false,
+                "reference_rms_dbfs": -133.17086184689248,
+                "esr": 1.0029390087336674,
+                "residual_rms_dbfs": -133.15811661415393,
+                "residual_peak_dbfs": -123.90985229527044
+              }
+            ]
+          },
+          "selection_rejections": [],
+          "zero_state_projection_residual": -1.5810758089429555e-07,
+          "official_roundtrip_max_abs": 0.0
+        },
+        {
+          "mode": "raw",
+          "ridge": 0.01,
+          "model_sha256": "114c3cd382894e8f55248c831c5d254ead1ea63038f2be125e3c4c5506a801f5",
+          "job_sha256": "d7759aaab367b41c26fe6330f215bc37e195f80eb661e074d5200e12ef5c7817",
+          "validation": {
+            "profile": "nastrond-tone3000-fidelity-v1",
+            "level_anchor": 0.09034985741800312,
+            "active_windows": 274,
+            "quiet_windows": 5,
+            "active_median": 0.09063825371388014,
+            "active_p95": 0.33020772098527457,
+            "active_worst": 0.6703624093893642,
+            "quiet_worst_residual_rms_dbfs": -77.99186202741845,
+            "quiet_worst_residual_peak_dbfs": -67.67857801614213,
+            "rms_error_db": -0.4003007703427717,
+            "peak_error_db": 0.5174040337275692,
+            "full_esr": 0.10536737168919671,
+            "active_pass": false,
+            "quiet_pass": true,
+            "level_pass": true,
+            "full_esr_pass": false,
+            "fidelity_pass": false,
+            "worst_active_windows": [
+              {
+                "start_sample": 190667,
+                "active": true,
+                "reference_rms_dbfs": -24.101048589377008,
+                "esr": 0.6703624093893642,
+                "residual_rms_dbfs": -25.8379520572074,
+                "residual_peak_dbfs": -12.398787477981617
+              },
+              {
+                "start_sample": 911563,
+                "active": true,
+                "reference_rms_dbfs": -19.680096609938794,
+                "esr": 0.5841989688612789,
+                "residual_rms_dbfs": -22.01448874905907,
+                "residual_peak_dbfs": -13.892077789645846
+              },
+              {
+                "start_sample": 596171,
+                "active": true,
+                "reference_rms_dbfs": -19.599196639018036,
+                "esr": 0.4187870796090532,
+                "residual_rms_dbfs": -23.379263895125977,
+                "residual_peak_dbfs": -11.228302698268127
+              },
+              {
+                "start_sample": 39115,
+                "active": true,
+                "reference_rms_dbfs": -25.27768904010386,
+                "esr": 0.40710345360973044,
+                "residual_rms_dbfs": -29.18064117334041,
+                "residual_peak_dbfs": -13.875329997084393
+              },
+              {
+                "start_sample": 915659,
+                "active": true,
+                "reference_rms_dbfs": -20.60764698345276,
+                "esr": 0.39513327797549436,
+                "residual_rms_dbfs": -24.640210910062255,
+                "residual_peak_dbfs": -15.676895898124467
+              }
+            ],
+            "quiet_window_details": [
+              {
+                "start_sample": 6347,
+                "active": false,
+                "reference_rms_dbfs": -200.0,
+                "esr": 614.6636223926238,
+                "residual_rms_dbfs": -172.11362488947861,
+                "residual_peak_dbfs": -172.11362488947861
+              },
+              {
+                "start_sample": 1132747,
+                "active": false,
+                "reference_rms_dbfs": -77.99179334096651,
+                "esr": 0.9999841844850329,
+                "residual_rms_dbfs": -77.99186202741845,
+                "residual_peak_dbfs": -67.67857801614213
+              },
+              {
+                "start_sample": 1136843,
+                "active": false,
+                "reference_rms_dbfs": -96.68540998659559,
+                "esr": 0.9999858911443956,
+                "residual_rms_dbfs": -96.6854712610092,
+                "residual_peak_dbfs": -87.64686344404404
+              },
+              {
+                "start_sample": 1140939,
+                "active": false,
+                "reference_rms_dbfs": -114.7640282706402,
+                "esr": 0.9998860529707068,
+                "residual_rms_dbfs": -114.76452316449709,
+                "residual_peak_dbfs": -105.81499621690025
+              },
+              {
+                "start_sample": 1145035,
+                "active": false,
+                "reference_rms_dbfs": -133.17086184689248,
+                "esr": 1.0002084667642712,
+                "residual_rms_dbfs": -133.16995658159425,
+                "residual_peak_dbfs": -124.11933054533552
+              }
+            ]
+          },
+          "selection_rejections": [],
+          "zero_state_projection_residual": 1.013356760726225e-08,
+          "official_roundtrip_max_abs": 0.0
+        },
+        {
+          "mode": "eq-chain",
+          "ridge": 1e-06,
+          "model_sha256": "20e13e4b5ed625fa4c3dd58350478de62e33e8ad54ff304718ac8702ed3bffa5",
+          "job_sha256": "de430ab7c2441109b69da7f06907115145dadd001fab251951f29bcf7ed2dcf9",
+          "validation": {
+            "profile": "nastrond-tone3000-fidelity-v1",
+            "level_anchor": 0.09034985741800312,
+            "active_windows": 274,
+            "quiet_windows": 5,
+            "active_median": 0.09019977510826452,
+            "active_p95": 0.3258215384987115,
+            "active_worst": 0.6687451069848969,
+            "quiet_worst_residual_rms_dbfs": -81.81465059465167,
+            "quiet_worst_residual_peak_dbfs": -70.98421509432379,
+            "rms_error_db": -0.3876168769416565,
+            "peak_error_db": 0.5347247522514031,
+            "full_esr": 0.10507985301967002,
+            "active_pass": false,
+            "quiet_pass": true,
+            "level_pass": true,
+            "full_esr_pass": false,
+            "fidelity_pass": false,
+            "worst_active_windows": [
+              {
+                "start_sample": 190667,
+                "active": true,
+                "reference_rms_dbfs": -24.101048589377008,
+                "esr": 0.6687451069848969,
+                "residual_rms_dbfs": -25.848442415042786,
+                "residual_peak_dbfs": -12.440399774591192
+              },
+              {
+                "start_sample": 911563,
+                "active": true,
+                "reference_rms_dbfs": -19.680096609938794,
+                "esr": 0.5780706424767906,
+                "residual_rms_dbfs": -22.060287468584782,
+                "residual_peak_dbfs": -13.812755720800627
+              },
+              {
+                "start_sample": 596171,
+                "active": true,
+                "reference_rms_dbfs": -19.599196639018036,
+                "esr": 0.4251116354612319,
+                "residual_rms_dbfs": -23.314166719729013,
+                "residual_peak_dbfs": -11.21605470349917
+              },
+              {
+                "start_sample": 39115,
+                "active": true,
+                "reference_rms_dbfs": -25.27768904010386,
+                "esr": 0.4095555724081173,
+                "residual_rms_dbfs": -29.15456064696127,
+                "residual_peak_dbfs": -13.83218649218678
+              },
+              {
+                "start_sample": 915659,
+                "active": true,
+                "reference_rms_dbfs": -20.60764698345276,
+                "esr": 0.394210879989101,
+                "residual_rms_dbfs": -24.650360919634352,
+                "residual_peak_dbfs": -15.681552668543093
+              }
+            ],
+            "quiet_window_details": [
+              {
+                "start_sample": 6347,
+                "active": false,
+                "reference_rms_dbfs": -200.0,
+                "esr": 90.4935344418584,
+                "residual_rms_dbfs": -180.4338244904377,
+                "residual_peak_dbfs": -180.43086059688162
+              },
+              {
+                "start_sample": 1132747,
+                "active": false,
+                "reference_rms_dbfs": -77.99179334096651,
+                "esr": 0.41468113126071904,
+                "residual_rms_dbfs": -81.81465059465167,
+                "residual_peak_dbfs": -70.98421509432379
+              },
+              {
+                "start_sample": 1136843,
+                "active": false,
+                "reference_rms_dbfs": -96.68540998659559,
+                "esr": 0.4448586535791868,
+                "residual_rms_dbfs": -100.20318955592668,
+                "residual_peak_dbfs": -91.10022664220728
+              },
+              {
+                "start_sample": 1140939,
+                "active": false,
+                "reference_rms_dbfs": -114.7640282706402,
+                "esr": 0.54794887893378,
+                "residual_rms_dbfs": -117.3766278433255,
+                "residual_peak_dbfs": -108.50460398627747
+              },
+              {
+                "start_sample": 1145035,
+                "active": false,
+                "reference_rms_dbfs": -133.17086184689248,
+                "esr": 0.6247692710930978,
+                "residual_rms_dbfs": -135.21366523811824,
+                "residual_peak_dbfs": -126.53986066823177
+              }
+            ]
+          },
+          "selection_rejections": [],
+          "zero_state_projection_residual": -9.11828470506748e-09,
+          "official_roundtrip_max_abs": 0.0
+        },
+        {
+          "mode": "eq-chain",
+          "ridge": 0.0001,
+          "model_sha256": "aff819cc7e91f57d9b97dfd7ad7f881ad947d7e0ca1ad8ebbb7e7f137e6c07f6",
+          "job_sha256": "de430ab7c2441109b69da7f06907115145dadd001fab251951f29bcf7ed2dcf9",
+          "validation": {
+            "profile": "nastrond-tone3000-fidelity-v1",
+            "level_anchor": 0.09034985741800312,
+            "active_windows": 274,
+            "quiet_windows": 5,
+            "active_median": 0.09019624941028774,
+            "active_p95": 0.32584844522067846,
+            "active_worst": 0.6687553832628284,
+            "quiet_worst_residual_rms_dbfs": -81.81860977595531,
+            "quiet_worst_residual_peak_dbfs": -70.98527127746425,
+            "rms_error_db": -0.3876295804885447,
+            "peak_error_db": 0.5335267860269948,
+            "full_esr": 0.10507964628122761,
+            "active_pass": false,
+            "quiet_pass": true,
+            "level_pass": true,
+            "full_esr_pass": false,
+            "fidelity_pass": false,
+            "worst_active_windows": [
+              {
+                "start_sample": 190667,
+                "active": true,
+                "reference_rms_dbfs": -24.101048589377008,
+                "esr": 0.6687553832628284,
+                "residual_rms_dbfs": -25.84837567965341,
+                "residual_peak_dbfs": -12.44029477102819
+              },
+              {
+                "start_sample": 911563,
+                "active": true,
+                "reference_rms_dbfs": -19.680096609938794,
+                "esr": 0.578069484749533,
+                "residual_rms_dbfs": -22.060296166398267,
+                "residual_peak_dbfs": -13.813098044565448
+              },
+              {
+                "start_sample": 596171,
+                "active": true,
+                "reference_rms_dbfs": -19.599196639018036,
+                "esr": 0.4251046374940168,
+                "residual_rms_dbfs": -23.31423821162214,
+                "residual_peak_dbfs": -11.216174487901831
+              },
+              {
+                "start_sample": 39115,
+                "active": true,
+                "reference_rms_dbfs": -25.27768904010386,
+                "esr": 0.4095741635997815,
+                "residual_rms_dbfs": -29.154363509643495,
+                "residual_peak_dbfs": -13.831289278186667
+              },
+              {
+                "start_sample": 915659,
+                "active": true,
+                "reference_rms_dbfs": -20.60764698345276,
+                "esr": 0.39421381024089,
+                "residual_rms_dbfs": -24.650328637738607,
+                "residual_peak_dbfs": -15.682267959396228
+              }
+            ],
+            "quiet_window_details": [
+              {
+                "start_sample": 6347,
+                "active": false,
+                "reference_rms_dbfs": -200.0,
+                "esr": 976.948451706655,
+                "residual_rms_dbfs": -170.10128351050895,
+                "residual_peak_dbfs": -170.09861247578465
+              },
+              {
+                "start_sample": 1132747,
+                "active": false,
+                "reference_rms_dbfs": -77.99179334096651,
+                "esr": 0.41430326561487607,
+                "residual_rms_dbfs": -81.81860977595531,
+                "residual_peak_dbfs": -70.98527127746425
+              },
+              {
+                "start_sample": 1136843,
+                "active": false,
+                "reference_rms_dbfs": -96.68540998659559,
+                "esr": 0.44316208967044884,
+                "residual_rms_dbfs": -100.21978397099674,
+                "residual_peak_dbfs": -91.12657201687563
+              },
+              {
+                "start_sample": 1140939,
+                "active": false,
+                "reference_rms_dbfs": -114.7640282706402,
+                "esr": 0.5463802249525104,
+                "residual_rms_dbfs": -117.38907854453167,
+                "residual_peak_dbfs": -108.51685218075059
+              },
+              {
+                "start_sample": 1145035,
+                "active": false,
+                "reference_rms_dbfs": -133.17086184689248,
+                "esr": 0.6254375909782027,
+                "residual_rms_dbfs": -135.20902204386456,
+                "residual_peak_dbfs": -126.50835154714672
+              }
+            ]
+          },
+          "selection_rejections": [],
+          "zero_state_projection_residual": 1.4926397584602567e-08,
+          "official_roundtrip_max_abs": 0.0
+        },
+        {
+          "mode": "eq-chain",
+          "ridge": 0.01,
+          "model_sha256": "3660b980dc040f9d6716058fbddb49f3cbf9dd33e51a6e48afa7d47370813488",
+          "job_sha256": "de430ab7c2441109b69da7f06907115145dadd001fab251951f29bcf7ed2dcf9",
+          "validation": {
+            "profile": "nastrond-tone3000-fidelity-v1",
+            "level_anchor": 0.09034985741800312,
+            "active_windows": 274,
+            "quiet_windows": 5,
+            "active_median": 0.09037360791726057,
+            "active_p95": 0.32565802780932424,
+            "active_worst": 0.6692829612545994,
+            "quiet_worst_residual_rms_dbfs": -81.81747747526224,
+            "quiet_worst_residual_peak_dbfs": -70.98495544453573,
+            "rms_error_db": -0.3887861884966548,
+            "peak_error_db": 0.47214720803202326,
+            "full_esr": 0.10511994543978047,
+            "active_pass": false,
+            "quiet_pass": true,
+            "level_pass": true,
+            "full_esr_pass": false,
+            "fidelity_pass": false,
+            "worst_active_windows": [
+              {
+                "start_sample": 190667,
+                "active": true,
+                "reference_rms_dbfs": -24.101048589377008,
+                "esr": 0.6692829612545994,
+                "residual_rms_dbfs": -25.844950901530837,
+                "residual_peak_dbfs": -12.42278868933936
+              },
+              {
+                "start_sample": 911563,
+                "active": true,
+                "reference_rms_dbfs": -19.680096609938794,
+                "esr": 0.577974780012069,
+                "residual_rms_dbfs": -22.061007726435133,
+                "residual_peak_dbfs": -13.812290439083977
+              },
+              {
+                "start_sample": 596171,
+                "active": true,
+                "reference_rms_dbfs": -19.599196639018036,
+                "esr": 0.42531224421729313,
+                "residual_rms_dbfs": -23.312117782029198,
+                "residual_peak_dbfs": -11.204119939611296
+              },
+              {
+                "start_sample": 39115,
+                "active": true,
+                "reference_rms_dbfs": -25.27768904010386,
+                "esr": 0.40986590540416656,
+                "residual_rms_dbfs": -29.151271108724117,
+                "residual_peak_dbfs": -13.81126968271948
+              },
+              {
+                "start_sample": 915659,
+                "active": true,
+                "reference_rms_dbfs": -20.60764698345276,
+                "esr": 0.39418627455325095,
+                "residual_rms_dbfs": -24.65063200140973,
+                "residual_peak_dbfs": -15.672580972161425
+              }
+            ],
+            "quiet_window_details": [
+              {
+                "start_sample": 6347,
+                "active": false,
+                "reference_rms_dbfs": -200.0,
+                "esr": 57.63667548374193,
+                "residual_rms_dbfs": -182.39301077488605,
+                "residual_peak_dbfs": -182.3905986613914
+              },
+              {
+                "start_sample": 1132747,
+                "active": false,
+                "reference_rms_dbfs": -77.99179334096651,
+                "esr": 0.4144112976194363,
+                "residual_rms_dbfs": -81.81747747526224,
+                "residual_peak_dbfs": -70.98495544453573
+              },
+              {
+                "start_sample": 1136843,
+                "active": false,
+                "reference_rms_dbfs": -96.68540998659559,
+                "esr": 0.44320427710462684,
+                "residual_rms_dbfs": -100.21937055797545,
+                "residual_peak_dbfs": -91.1132743968819
+              },
+              {
+                "start_sample": 1140939,
+                "active": false,
+                "reference_rms_dbfs": -114.7640282706402,
+                "esr": 0.546630777322644,
+                "residual_rms_dbfs": -117.38708746642803,
+                "residual_peak_dbfs": -108.52124334395333
+              },
+              {
+                "start_sample": 1145035,
+                "active": false,
+                "reference_rms_dbfs": -133.17086184689248,
+                "esr": 0.6252096929284437,
+                "residual_rms_dbfs": -135.2106048221237,
+                "residual_peak_dbfs": -126.54166421344681
+              }
+            ]
+          },
+          "selection_rejections": [],
+          "zero_state_projection_residual": -1.1114488729369042e-08,
+          "official_roundtrip_max_abs": 0.0
+        }
+      ],
+      "selected_ridge": 0.0001,
+      "selected_mode": "eq-chain",
+      "selected_is_baseline": false,
+      "best_esr_ridge": {
+        "raw": 0.0001,
+        "eq-chain": 0.0001
+      },
+      "causal_feature_reconstruction_max_abs": 1.6969252119025668e-06,
+      "head_coefficients": 128,
+      "train_samples_used": 4601653,
+      "gram_condition": {
+        "raw": 18095.663142511363,
+        "eq-chain": 18379.616410920993
+      },
+      "seconds": 33.982
+    },
+    "Nidhoggr": {
+      "baseline_validation": {
+        "profile": "nastrond-tone3000-fidelity-v1",
+        "level_anchor": 0.0860012970451488,
+        "active_windows": 274,
+        "quiet_windows": 5,
+        "active_median": 0.08337267131389217,
+        "active_p95": 0.34615589426717147,
+        "active_worst": 0.563598029393991,
+        "quiet_worst_residual_rms_dbfs": -75.30537395502161,
+        "quiet_worst_residual_peak_dbfs": -64.75017671652427,
+        "rms_error_db": -0.5005735449808804,
+        "peak_error_db": 0.7234834880464582,
+        "full_esr": 0.10676660686671842,
+        "active_pass": false,
+        "quiet_pass": true,
+        "level_pass": false,
+        "full_esr_pass": false,
+        "fidelity_pass": false,
+        "worst_active_windows": [
+          {
+            "start_sample": 370891,
+            "active": true,
+            "reference_rms_dbfs": -21.145587644436084,
+            "esr": 0.563598029393991,
+            "residual_rms_dbfs": -23.63589298503117,
+            "residual_peak_dbfs": -9.852766088312615
+          },
+          {
+            "start_sample": 190667,
+            "active": true,
+            "reference_rms_dbfs": -25.397785714315958,
+            "esr": 0.4869527590619014,
+            "residual_rms_dbfs": -28.522917405534926,
+            "residual_peak_dbfs": -10.440791642142477
+          },
+          {
+            "start_sample": 633035,
+            "active": true,
+            "reference_rms_dbfs": -20.65105249501622,
+            "esr": 0.47755494118346625,
+            "residual_rms_dbfs": -23.860819065028835,
+            "residual_peak_dbfs": -10.492363442532698
+          },
+          {
+            "start_sample": 366795,
+            "active": true,
+            "reference_rms_dbfs": -20.849964761956613,
+            "esr": 0.4616050568114267,
+            "residual_rms_dbfs": -24.207259183935896,
+            "residual_peak_dbfs": -10.0254387093519
+          },
+          {
+            "start_sample": 1059019,
+            "active": true,
+            "reference_rms_dbfs": -20.691862186344583,
+            "esr": 0.44622886024370356,
+            "residual_rms_dbfs": -24.19628563400984,
+            "residual_peak_dbfs": -9.1246242130931
+          }
+        ],
+        "quiet_window_details": [
+          {
+            "start_sample": 6347,
+            "active": false,
+            "reference_rms_dbfs": -200.0,
+            "esr": 4440.756528146282,
+            "residual_rms_dbfs": -163.5254303709004,
+            "residual_peak_dbfs": -163.5254303709004
+          },
+          {
+            "start_sample": 1132747,
+            "active": false,
+            "reference_rms_dbfs": -75.30632701889408,
+            "esr": 1.0002194751476892,
+            "residual_rms_dbfs": -75.30537395502161,
+            "residual_peak_dbfs": -64.75017671652427
+          },
+          {
+            "start_sample": 1136843,
+            "active": false,
+            "reference_rms_dbfs": -97.79997986067326,
+            "esr": 1.0000915984586163,
+            "residual_rms_dbfs": -97.79958207184012,
+            "residual_peak_dbfs": -88.78306688903764
+          },
+          {
+            "start_sample": 1140939,
+            "active": false,
+            "reference_rms_dbfs": -113.71541366440859,
+            "esr": 0.9998467468128516,
+            "residual_rms_dbfs": -113.7160792855493,
+            "residual_peak_dbfs": -105.45924486260803
+          },
+          {
+            "start_sample": 1145035,
+            "active": false,
+            "reference_rms_dbfs": -129.2850228580729,
+            "esr": 1.0004378894006267,
+            "residual_rms_dbfs": -129.2831215448212,
+            "residual_peak_dbfs": -120.5704659925175
+          }
+        ]
+      },
+      "candidates": [
+        {
+          "mode": "raw",
+          "ridge": 1e-06,
+          "model_sha256": "f61848dca64fc5f46365ba302c88b1c3fe2066bbc8c296a5d5f5e23c08b91445",
+          "job_sha256": "d7759aaab367b41c26fe6330f215bc37e195f80eb661e074d5200e12ef5c7817",
+          "validation": {
+            "profile": "nastrond-tone3000-fidelity-v1",
+            "level_anchor": 0.0860012970451488,
+            "active_windows": 274,
+            "quiet_windows": 5,
+            "active_median": 0.08074042890381564,
+            "active_p95": 0.3355916375595898,
+            "active_worst": 0.5846086362111058,
+            "quiet_worst_residual_rms_dbfs": -75.3055538571063,
+            "quiet_worst_residual_peak_dbfs": -64.75025637187674,
+            "rms_error_db": -0.40704888416670104,
+            "peak_error_db": 1.0118213861972265,
+            "full_esr": 0.10465587359485964,
+            "active_pass": false,
+            "quiet_pass": true,
+            "level_pass": false,
+            "full_esr_pass": false,
+            "fidelity_pass": false,
+            "worst_active_windows": [
+              {
+                "start_sample": 370891,
+                "active": true,
+                "reference_rms_dbfs": -21.145587644436084,
+                "esr": 0.5846086362111058,
+                "residual_rms_dbfs": -23.476935377001173,
+                "residual_peak_dbfs": -9.647600187590543
+              },
+              {
+                "start_sample": 633035,
+                "active": true,
+                "reference_rms_dbfs": -20.65105249501622,
+                "esr": 0.50742767711821,
+                "residual_rms_dbfs": -23.59731097826202,
+                "residual_peak_dbfs": -10.322549449732826
+              },
+              {
+                "start_sample": 190667,
+                "active": true,
+                "reference_rms_dbfs": -25.397785714315958,
+                "esr": 0.5063149968193416,
+                "residual_rms_dbfs": -28.353577802497153,
+                "residual_peak_dbfs": -10.402724948135635
+              },
+              {
+                "start_sample": 366795,
+                "active": true,
+                "reference_rms_dbfs": -20.849964761956613,
+                "esr": 0.47377657856594985,
+                "residual_rms_dbfs": -24.09422888890778,
+                "residual_peak_dbfs": -9.873961007802754
+              },
+              {
+                "start_sample": 1059019,
+                "active": true,
+                "reference_rms_dbfs": -20.691862186344583,
+                "esr": 0.4452388282912179,
+                "residual_rms_dbfs": -24.205931874612133,
+                "residual_peak_dbfs": -9.130356925164252
+              }
+            ],
+            "quiet_window_details": [
+              {
+                "start_sample": 6347,
+                "active": false,
+                "reference_rms_dbfs": -200.0,
+                "esr": 156.69434965384355,
+                "residual_rms_dbfs": -178.04946663763698,
+                "residual_peak_dbfs": -178.04946663763698
+              },
+              {
+                "start_sample": 1132747,
+                "active": false,
+                "reference_rms_dbfs": -75.30632701889408,
+                "esr": 1.0001780429284612,
+                "residual_rms_dbfs": -75.3055538571063,
+                "residual_peak_dbfs": -64.75025637187674
+              },
+              {
+                "start_sample": 1136843,
+                "active": false,
+                "reference_rms_dbfs": -97.79997986067326,
+                "esr": 0.9999828534503786,
+                "residual_rms_dbfs": -97.80005432783054,
+                "residual_peak_dbfs": -88.78495706802391
+              },
+              {
+                "start_sample": 1140939,
+                "active": false,
+                "reference_rms_dbfs": -113.71541366440859,
+                "esr": 1.000031118822626,
+                "residual_rms_dbfs": -113.71527851918187,
+                "residual_peak_dbfs": -105.44636407212359
+              },
+              {
+                "start_sample": 1145035,
+                "active": false,
+                "reference_rms_dbfs": -129.2850228580729,
+                "esr": 1.0000017909273131,
+                "residual_rms_dbfs": -129.28501508018135,
+                "residual_peak_dbfs": -120.64419997267217
+              }
+            ]
+          },
+          "selection_rejections": [
+            "level_regression:peak_error_db"
+          ],
+          "zero_state_projection_residual": 1.340006063887955e-08,
+          "official_roundtrip_max_abs": 0.0
+        },
+        {
+          "mode": "raw",
+          "ridge": 0.0001,
+          "model_sha256": "c83461b1b7fb1737aa02bf58e876f5302bdc50042fdaa85ee82127fcb4147901",
+          "job_sha256": "d7759aaab367b41c26fe6330f215bc37e195f80eb661e074d5200e12ef5c7817",
+          "validation": {
+            "profile": "nastrond-tone3000-fidelity-v1",
+            "level_anchor": 0.0860012970451488,
+            "active_windows": 274,
+            "quiet_windows": 5,
+            "active_median": 0.08074702354493422,
+            "active_p95": 0.3355882709220595,
+            "active_worst": 0.5846055287259612,
+            "quiet_worst_residual_rms_dbfs": -75.30547764751809,
+            "quiet_worst_residual_peak_dbfs": -64.75021838276359,
+            "rms_error_db": -0.40709081194521524,
+            "peak_error_db": 1.009514317184781,
+            "full_esr": 0.10465572102550234,
+            "active_pass": false,
+            "quiet_pass": true,
+            "level_pass": false,
+            "full_esr_pass": false,
+            "fidelity_pass": false,
+            "worst_active_windows": [
+              {
+                "start_sample": 370891,
+                "active": true,
+                "reference_rms_dbfs": -21.145587644436084,
+                "esr": 0.5846055287259612,
+                "residual_rms_dbfs": -23.476958461970405,
+                "residual_peak_dbfs": -9.647584504306115
+              },
+              {
+                "start_sample": 633035,
+                "active": true,
+                "reference_rms_dbfs": -20.65105249501622,
+                "esr": 0.5074263628901853,
+                "residual_rms_dbfs": -23.597322226420996,
+                "residual_peak_dbfs": -10.322607607993639
+              },
+              {
+                "start_sample": 190667,
+                "active": true,
+                "reference_rms_dbfs": -25.397785714315958,
+                "esr": 0.506305121078706,
+                "residual_rms_dbfs": -28.353662513033456,
+                "residual_peak_dbfs": -10.402287235974077
+              },
+              {
+                "start_sample": 366795,
+                "active": true,
+                "reference_rms_dbfs": -20.849964761956613,
+                "esr": 0.4737766847352581,
+                "residual_rms_dbfs": -24.094227915690833,
+                "residual_peak_dbfs": -9.87402428742636
+              },
+              {
+                "start_sample": 1059019,
+                "active": true,
+                "reference_rms_dbfs": -20.691862186344583,
+                "esr": 0.44523534450104896,
+                "residual_rms_dbfs": -24.205965856301724,
+                "residual_peak_dbfs": -9.130300621310655
+              }
+            ],
+            "quiet_window_details": [
+              {
+                "start_sample": 6347,
+                "active": false,
+                "reference_rms_dbfs": -200.0,
+                "esr": 161.13927157423598,
+                "residual_rms_dbfs": -177.92798603904114,
+                "residual_peak_dbfs": -177.92798603904114
+              },
+              {
+                "start_sample": 1132747,
+                "active": false,
+                "reference_rms_dbfs": -75.30632701889408,
+                "esr": 1.0001955941129124,
+                "residual_rms_dbfs": -75.30547764751809,
+                "residual_peak_dbfs": -64.75021838276359
+              },
+              {
+                "start_sample": 1136843,
+                "active": false,
+                "reference_rms_dbfs": -97.79997986067326,
+                "esr": 1.000017407329865,
+                "residual_rms_dbfs": -97.7999042622582,
+                "residual_peak_dbfs": -88.78435499189878
+              },
+              {
+                "start_sample": 1140939,
+                "active": false,
+                "reference_rms_dbfs": -113.71541366440859,
+                "esr": 0.999969195808371,
+                "residual_rms_dbfs": -113.71554744737358,
+                "residual_peak_dbfs": -105.45046459573706
+              },
+              {
+                "start_sample": 1145035,
+                "active": false,
+                "reference_rms_dbfs": -129.2850228580729,
+                "esr": 1.000025329938651,
+                "residual_rms_dbfs": -129.28491285294027,
+                "residual_peak_dbfs": -120.62064732941568
+              }
+            ]
+          },
+          "selection_rejections": [
+            "level_regression:peak_error_db"
+          ],
+          "zero_state_projection_residual": 4.2716733550385296e-08,
+          "official_roundtrip_max_abs": 0.0
+        },
+        {
+          "mode": "raw",
+          "ridge": 0.01,
+          "model_sha256": "a3648c4adc848b3adc0b1101587e58d24cb9303b3e2f6c6e9b8900917725a7b7",
+          "job_sha256": "d7759aaab367b41c26fe6330f215bc37e195f80eb661e074d5200e12ef5c7817",
+          "validation": {
+            "profile": "nastrond-tone3000-fidelity-v1",
+            "level_anchor": 0.0860012970451488,
+            "active_windows": 274,
+            "quiet_windows": 5,
+            "active_median": 0.08106218991865602,
+            "active_p95": 0.3354184856045873,
+            "active_worst": 0.5843144568633336,
+            "quiet_worst_residual_rms_dbfs": -75.30531517822784,
+            "quiet_worst_residual_peak_dbfs": -64.75012638859825,
+            "rms_error_db": -0.4093639130830542,
+            "peak_error_db": 0.9921943209013921,
+            "full_esr": 0.10477413254698298,
+            "active_pass": false,
+            "quiet_pass": true,
+            "level_pass": true,
+            "full_esr_pass": false,
+            "fidelity_pass": false,
+            "worst_active_windows": [
+              {
+                "start_sample": 370891,
+                "active": true,
+                "reference_rms_dbfs": -21.145587644436084,
+                "esr": 0.5843144568633336,
+                "residual_rms_dbfs": -23.47912132868408,
+                "residual_peak_dbfs": -9.646263694816632
+              },
+              {
+                "start_sample": 633035,
+                "active": true,
+                "reference_rms_dbfs": -20.65105249501622,
+                "esr": 0.5072451723531002,
+                "residual_rms_dbfs": -23.59887327123762,
+                "residual_peak_dbfs": -10.328271282038132
+              },
+              {
+                "start_sample": 190667,
+                "active": true,
+                "reference_rms_dbfs": -25.397785714315958,
+                "esr": 0.505784354673614,
+                "residual_rms_dbfs": -28.35813180159875,
+                "residual_peak_dbfs": -10.377785198539705
+              },
+              {
+                "start_sample": 366795,
+                "active": true,
+                "reference_rms_dbfs": -20.849964761956613,
+                "esr": 0.4737799906447743,
+                "residual_rms_dbfs": -24.094197611682688,
+                "residual_peak_dbfs": -9.877523007953613
+              },
+              {
+                "start_sample": 1059019,
+                "active": true,
+                "reference_rms_dbfs": -20.691862186344583,
+                "esr": 0.44498300439691246,
+                "residual_rms_dbfs": -24.208427947042953,
+                "residual_peak_dbfs": -9.128599194210034
+              }
+            ],
+            "quiet_window_details": [
+              {
+                "start_sample": 6347,
+                "active": false,
+                "reference_rms_dbfs": -200.0,
+                "esr": 4392.993108445088,
+                "residual_rms_dbfs": -163.57239478038255,
+                "residual_peak_dbfs": -163.57239478038255
+              },
+              {
+                "start_sample": 1132747,
+                "active": false,
+                "reference_rms_dbfs": -75.30632701889408,
+                "esr": 1.000233012066552,
+                "residual_rms_dbfs": -75.30531517822784,
+                "residual_peak_dbfs": -64.75012638859825
+              },
+              {
+                "start_sample": 1136843,
+                "active": false,
+                "reference_rms_dbfs": -97.79997986067326,
+                "esr": 1.0000911030892459,
+                "residual_rms_dbfs": -97.79958422300545,
+                "residual_peak_dbfs": -88.78307546884082
+              },
+              {
+                "start_sample": 1140939,
+                "active": false,
+                "reference_rms_dbfs": -113.71541366440859,
+                "esr": 0.9998475171818527,
+                "residual_rms_dbfs": -113.71607593936771,
+                "residual_peak_dbfs": -105.45918634527206
+              },
+              {
+                "start_sample": 1145035,
+                "active": false,
+                "reference_rms_dbfs": -129.2850228580729,
+                "esr": 1.0004335079429054,
+                "residual_rms_dbfs": -129.28314056496328,
+                "residual_peak_dbfs": -120.57079930793219
+              }
+            ]
+          },
+          "selection_rejections": [],
+          "zero_state_projection_residual": 1.0510157988363743e-07,
+          "official_roundtrip_max_abs": 0.0
+        },
+        {
+          "mode": "eq-chain",
+          "ridge": 1e-06,
+          "model_sha256": "796e9d4df2cd3efe68b4a20762fed1d8bbb3f66ee195a5e4b7429291ff5785ea",
+          "job_sha256": "7e9ec49aee778ad5c2c806b9e5dd64fd59f6573d4e9f67afe38b7bef14752681",
+          "validation": {
+            "profile": "nastrond-tone3000-fidelity-v1",
+            "level_anchor": 0.0860012970451488,
+            "active_windows": 274,
+            "quiet_windows": 5,
+            "active_median": 0.07944686324941953,
+            "active_p95": 0.33575889921248153,
+            "active_worst": 0.5945467836440602,
+            "quiet_worst_residual_rms_dbfs": -75.87097204069103,
+            "quiet_worst_residual_peak_dbfs": -65.22858508907065,
+            "rms_error_db": -0.39194616509520896,
+            "peak_error_db": 1.010181049926162,
+            "full_esr": 0.10489441285217667,
+            "active_pass": false,
+            "quiet_pass": true,
+            "level_pass": false,
+            "full_esr_pass": false,
+            "fidelity_pass": false,
+            "worst_active_windows": [
+              {
+                "start_sample": 370891,
+                "active": true,
+                "reference_rms_dbfs": -21.145587644436084,
+                "esr": 0.5945467836440602,
+                "residual_rms_dbfs": -23.403727304190042,
+                "residual_peak_dbfs": -9.598389651141456
+              },
+              {
+                "start_sample": 633035,
+                "active": true,
+                "reference_rms_dbfs": -20.65105249501622,
+                "esr": 0.512697648175665,
+                "residual_rms_dbfs": -23.552439242333968,
+                "residual_peak_dbfs": -10.344641053382835
+              },
+              {
+                "start_sample": 190667,
+                "active": true,
+                "reference_rms_dbfs": -25.397785714315958,
+                "esr": 0.5045659859350152,
+                "residual_rms_dbfs": -28.36860601149033,
+                "residual_peak_dbfs": -10.402936733231638
+              },
+              {
+                "start_sample": 366795,
+                "active": true,
+                "reference_rms_dbfs": -20.849964761956613,
+                "esr": 0.4794134129836146,
+                "residual_rms_dbfs": -24.042862956776663,
+                "residual_peak_dbfs": -9.842551633331865
+              },
+              {
+                "start_sample": 1059019,
+                "active": true,
+                "reference_rms_dbfs": -20.691862186344583,
+                "esr": 0.4491487178905597,
+                "residual_rms_dbfs": -24.167960543231818,
+                "residual_peak_dbfs": -9.097512069331211
+              }
+            ],
+            "quiet_window_details": [
+              {
+                "start_sample": 6347,
+                "active": false,
+                "reference_rms_dbfs": -200.0,
+                "esr": 1422.119715316045,
+                "residual_rms_dbfs": -168.47063842767477,
+                "residual_peak_dbfs": -168.46473214410037
+              },
+              {
+                "start_sample": 1132747,
+                "active": false,
+                "reference_rms_dbfs": -75.30632701889408,
+                "esr": 0.8780828558039243,
+                "residual_rms_dbfs": -75.87097204069103,
+                "residual_peak_dbfs": -65.22858508907065
+              },
+              {
+                "start_sample": 1136843,
+                "active": false,
+                "reference_rms_dbfs": -97.79997986067326,
+                "esr": 0.4297566387229573,
+                "residual_rms_dbfs": -101.46775391834524,
+                "residual_peak_dbfs": -91.73721949125742
+              },
+              {
+                "start_sample": 1140939,
+                "active": false,
+                "reference_rms_dbfs": -113.71541366440859,
+                "esr": 0.5065212757156362,
+                "residual_rms_dbfs": -116.66943674430954,
+                "residual_peak_dbfs": -108.59955400957504
+              },
+              {
+                "start_sample": 1145035,
+                "active": false,
+                "reference_rms_dbfs": -129.2850228580729,
+                "esr": 0.5568345970405222,
+                "residual_rms_dbfs": -131.8277607494292,
+                "residual_peak_dbfs": -123.70529526667536
+              }
+            ]
+          },
+          "selection_rejections": [
+            "level_regression:peak_error_db"
+          ],
+          "zero_state_projection_residual": 7.105089445680334e-08,
+          "official_roundtrip_max_abs": 0.0
+        },
+        {
+          "mode": "eq-chain",
+          "ridge": 0.0001,
+          "model_sha256": "0192446dc31b40d31f155359ea36b93e1a652a871eba44bc934aedb7154837ee",
+          "job_sha256": "7e9ec49aee778ad5c2c806b9e5dd64fd59f6573d4e9f67afe38b7bef14752681",
+          "validation": {
+            "profile": "nastrond-tone3000-fidelity-v1",
+            "level_anchor": 0.0860012970451488,
+            "active_windows": 274,
+            "quiet_windows": 5,
+            "active_median": 0.07944851476271692,
+            "active_p95": 0.3357481755211483,
+            "active_worst": 0.5945239863443994,
+            "quiet_worst_residual_rms_dbfs": -75.87273840646473,
+            "quiet_worst_residual_peak_dbfs": -65.23428222678079,
+            "rms_error_db": -0.39199301646727536,
+            "peak_error_db": 1.0069159413185194,
+            "full_esr": 0.10489388077448664,
+            "active_pass": false,
+            "quiet_pass": true,
+            "level_pass": false,
+            "full_esr_pass": false,
+            "fidelity_pass": false,
+            "worst_active_windows": [
+              {
+                "start_sample": 370891,
+                "active": true,
+                "reference_rms_dbfs": -21.145587644436084,
+                "esr": 0.5945239863443994,
+                "residual_rms_dbfs": -23.403893833242748,
+                "residual_peak_dbfs": -9.598694559666894
+              },
+              {
+                "start_sample": 633035,
+                "active": true,
+                "reference_rms_dbfs": -20.65105249501622,
+                "esr": 0.5126701231565965,
+                "residual_rms_dbfs": -23.55267240675034,
+                "residual_peak_dbfs": -10.344680021917538
+              },
+              {
+                "start_sample": 190667,
+                "active": true,
+                "reference_rms_dbfs": -25.397785714315958,
+                "esr": 0.5045711031297103,
+                "residual_rms_dbfs": -28.36856196654454,
+                "residual_peak_dbfs": -10.40245299768828
+              },
+              {
+                "start_sample": 366795,
+                "active": true,
+                "reference_rms_dbfs": -20.849964761956613,
+                "esr": 0.479393162163435,
+                "residual_rms_dbfs": -24.0430464102424,
+                "residual_peak_dbfs": -9.842896484788119
+              },
+              {
+                "start_sample": 1059019,
+                "active": true,
+                "reference_rms_dbfs": -20.691862186344583,
+                "esr": 0.44913662626945905,
+                "residual_rms_dbfs": -24.1680774620785,
+                "residual_peak_dbfs": -9.097253189205341
+              }
+            ],
+            "quiet_window_details": [
+              {
+                "start_sample": 6347,
+                "active": false,
+                "reference_rms_dbfs": -200.0,
+                "esr": 2172.311758430316,
+                "residual_rms_dbfs": -166.63077847016,
+                "residual_peak_dbfs": -166.62605195164846
+              },
+              {
+                "start_sample": 1132747,
+                "active": false,
+                "reference_rms_dbfs": -75.30632701889408,
+                "esr": 0.877725793903473,
+                "residual_rms_dbfs": -75.87273840646473,
+                "residual_peak_dbfs": -65.23428222678079
+              },
+              {
+                "start_sample": 1136843,
+                "active": false,
+                "reference_rms_dbfs": -97.79997986067326,
+                "esr": 0.429295618857801,
+                "residual_rms_dbfs": -101.47241529722969,
+                "residual_peak_dbfs": -91.7590390841161
+              },
+              {
+                "start_sample": 1140939,
+                "active": false,
+                "reference_rms_dbfs": -113.71541366440859,
+                "esr": 0.507042293099331,
+                "residual_rms_dbfs": -116.66497180492918,
+                "residual_peak_dbfs": -108.57786135510345
+              },
+              {
+                "start_sample": 1145035,
+                "active": false,
+                "reference_rms_dbfs": -129.2850228580729,
+                "esr": 0.5576968337559906,
+                "residual_rms_dbfs": -131.82104106953534,
+                "residual_peak_dbfs": -123.61020038399003
+              }
+            ]
+          },
+          "selection_rejections": [
+            "level_regression:peak_error_db"
+          ],
+          "zero_state_projection_residual": -2.6992717105933647e-08,
+          "official_roundtrip_max_abs": 0.0
+        },
+        {
+          "mode": "eq-chain",
+          "ridge": 0.01,
+          "model_sha256": "baf84eefcb38892f218264a30908a4e4461daa4554dba05985723b80292f8902",
+          "job_sha256": "7e9ec49aee778ad5c2c806b9e5dd64fd59f6573d4e9f67afe38b7bef14752681",
+          "validation": {
+            "profile": "nastrond-tone3000-fidelity-v1",
+            "level_anchor": 0.0860012970451488,
+            "active_windows": 274,
+            "quiet_windows": 5,
+            "active_median": 0.0795540250641697,
+            "active_p95": 0.33558158387470793,
+            "active_worst": 0.5942706072656496,
+            "quiet_worst_residual_rms_dbfs": -75.87466048346653,
+            "quiet_worst_residual_peak_dbfs": -65.23503467057944,
+            "rms_error_db": -0.3942116332426917,
+            "peak_error_db": 0.9974599934103114,
+            "full_esr": 0.10501279430106061,
+            "active_pass": false,
+            "quiet_pass": true,
+            "level_pass": true,
+            "full_esr_pass": false,
+            "fidelity_pass": false,
+            "worst_active_windows": [
+              {
+                "start_sample": 370891,
+                "active": true,
+                "reference_rms_dbfs": -21.145587644436084,
+                "esr": 0.5942706072656496,
+                "residual_rms_dbfs": -23.405745139397546,
+                "residual_peak_dbfs": -9.597263679600408
+              },
+              {
+                "start_sample": 633035,
+                "active": true,
+                "reference_rms_dbfs": -20.65105249501622,
+                "esr": 0.5124863436720088,
+                "residual_rms_dbfs": -23.554229523531657,
+                "residual_peak_dbfs": -10.350278364418038
+              },
+              {
+                "start_sample": 190667,
+                "active": true,
+                "reference_rms_dbfs": -25.397785714315958,
+                "esr": 0.5041175743624514,
+                "residual_rms_dbfs": -28.372467335141867,
+                "residual_peak_dbfs": -10.378774072858922
+              },
+              {
+                "start_sample": 366795,
+                "active": true,
+                "reference_rms_dbfs": -20.849964761956613,
+                "esr": 0.47942268902295543,
+                "residual_rms_dbfs": -24.04277892713507,
+                "residual_peak_dbfs": -9.846903379134172
+              },
+              {
+                "start_sample": 1059019,
+                "active": true,
+                "reference_rms_dbfs": -20.691862186344583,
+                "esr": 0.44895289251571674,
+                "residual_rms_dbfs": -24.16985444655129,
+                "residual_peak_dbfs": -9.09596347202616
+              }
+            ],
+            "quiet_window_details": [
+              {
+                "start_sample": 6347,
+                "active": false,
+                "reference_rms_dbfs": -200.0,
+                "esr": 939.873122663169,
+                "residual_rms_dbfs": -170.26930769641075,
+                "residual_peak_dbfs": -170.26451729021102
+              },
+              {
+                "start_sample": 1132747,
+                "active": false,
+                "reference_rms_dbfs": -75.30632701889408,
+                "esr": 0.8773374207227148,
+                "residual_rms_dbfs": -75.87466048346653,
+                "residual_peak_dbfs": -65.23503467057944
+              },
+              {
+                "start_sample": 1136843,
+                "active": false,
+                "reference_rms_dbfs": -97.79997986067326,
+                "esr": 0.43076345548755507,
+                "residual_rms_dbfs": -101.45759133951373,
+                "residual_peak_dbfs": -91.73065206688561
+              },
+              {
+                "start_sample": 1140939,
+                "active": false,
+                "reference_rms_dbfs": -113.71541366440859,
+                "esr": 0.5077007113536706,
+                "residual_rms_dbfs": -116.65933594533678,
+                "residual_peak_dbfs": -108.56360832000384
+              },
+              {
+                "start_sample": 1145035,
+                "active": false,
+                "reference_rms_dbfs": -129.2850228580729,
+                "esr": 0.5579911566607991,
+                "residual_rms_dbfs": -131.81874969743996,
+                "residual_peak_dbfs": -123.63626540221382
+              }
+            ]
+          },
+          "selection_rejections": [],
+          "zero_state_projection_residual": -8.400035711453312e-09,
+          "official_roundtrip_max_abs": 0.0
+        }
+      ],
+      "selected_ridge": 0.01,
+      "selected_mode": "raw",
+      "selected_is_baseline": false,
+      "best_esr_ridge": {
+        "raw": 0.0001,
+        "eq-chain": 0.0001
+      },
+      "causal_feature_reconstruction_max_abs": 3.7543136648388042e-06,
+      "head_coefficients": 128,
+      "train_samples_used": 4601653,
+      "gram_condition": {
+        "raw": 12818.134159432237,
+        "eq-chain": 12850.128838715455
+      },
+      "seconds": 36.979
+    },
+    "Fimbulvetr": {
+      "baseline_validation": {
+        "profile": "nastrond-tone3000-fidelity-v1",
+        "level_anchor": 0.09721294970620417,
+        "active_windows": 274,
+        "quiet_windows": 5,
+        "active_median": 0.03152379502577499,
+        "active_p95": 0.10119554313696312,
+        "active_worst": 0.2532136548747924,
+        "quiet_worst_residual_rms_dbfs": -78.3787374771259,
+        "quiet_worst_residual_peak_dbfs": -67.6689461074211,
+        "rms_error_db": -0.39301675714862555,
+        "peak_error_db": 0.13789717888884745,
+        "full_esr": 0.04068242784004505,
+        "active_pass": false,
+        "quiet_pass": true,
+        "level_pass": true,
+        "full_esr_pass": false,
+        "fidelity_pass": false,
+        "worst_active_windows": [
+          {
+            "start_sample": 1128651,
+            "active": true,
+            "reference_rms_dbfs": -51.654631609557384,
+            "esr": 0.2532136548747924,
+            "residual_rms_dbfs": -57.61976039085647,
+            "residual_peak_dbfs": -42.198778009627134
+          },
+          {
+            "start_sample": 190667,
+            "active": true,
+            "reference_rms_dbfs": -28.172560911511138,
+            "esr": 0.2184579898601359,
+            "residual_rms_dbfs": -34.77888157973173,
+            "residual_peak_dbfs": -15.91495411433466
+          },
+          {
+            "start_sample": 141515,
+            "active": true,
+            "reference_rms_dbfs": -21.611190470763546,
+            "esr": 0.2083104710807287,
+            "residual_rms_dbfs": -28.424079460278723,
+            "residual_peak_dbfs": -10.769291202399549
+          },
+          {
+            "start_sample": 149707,
+            "active": true,
+            "reference_rms_dbfs": -21.19579621050651,
+            "esr": 0.18491457734680863,
+            "residual_rms_dbfs": -28.526084718615525,
+            "residual_peak_dbfs": -11.58901090430531
+          },
+          {
+            "start_sample": 1079499,
+            "active": true,
+            "reference_rms_dbfs": -24.78949441308861,
+            "esr": 0.17100368038621863,
+            "residual_rms_dbfs": -32.459439838159724,
+            "residual_peak_dbfs": -21.253476377232353
+          }
+        ],
+        "quiet_window_details": [
+          {
+            "start_sample": 6347,
+            "active": false,
+            "reference_rms_dbfs": -200.0,
+            "esr": 11182.379074242597,
+            "residual_rms_dbfs": -159.51465789571412,
+            "residual_peak_dbfs": -159.51465789571412
+          },
+          {
+            "start_sample": 1132747,
+            "active": false,
+            "reference_rms_dbfs": -78.37832381087446,
+            "esr": 0.9999047543617511,
+            "residual_rms_dbfs": -78.3787374771259,
+            "residual_peak_dbfs": -67.6689461074211
+          },
+          {
+            "start_sample": 1136843,
+            "active": false,
+            "reference_rms_dbfs": -92.47328269391983,
+            "esr": 0.999965903945835,
+            "residual_rms_dbfs": -92.47343077372611,
+            "residual_peak_dbfs": -84.45309757052117
+          },
+          {
+            "start_sample": 1140939,
+            "active": false,
+            "reference_rms_dbfs": -104.42400780247172,
+            "esr": 1.0000192837716717,
+            "residual_rms_dbfs": -104.42392405492294,
+            "residual_peak_dbfs": -97.10367669099428
+          },
+          {
+            "start_sample": 1145035,
+            "active": false,
+            "reference_rms_dbfs": -116.26679347913894,
+            "esr": 1.0003125085426885,
+            "residual_rms_dbfs": -116.26543648380783,
+            "residual_peak_dbfs": -108.8068683499798
+          }
+        ]
+      },
+      "candidates": [
+        {
+          "mode": "raw",
+          "ridge": 1e-06,
+          "model_sha256": "81e4021f8b7480ae581d9c68cf1c657f296f46562303590a52c06397a8c50610",
+          "job_sha256": "d7759aaab367b41c26fe6330f215bc37e195f80eb661e074d5200e12ef5c7817",
+          "validation": {
+            "profile": "nastrond-tone3000-fidelity-v1",
+            "level_anchor": 0.09721294970620417,
+            "active_windows": 274,
+            "quiet_windows": 5,
+            "active_median": 0.029342340059191535,
+            "active_p95": 0.10260569881646493,
+            "active_worst": 0.28202665500302915,
+            "quiet_worst_residual_rms_dbfs": -78.3787008710495,
+            "quiet_worst_residual_peak_dbfs": -67.66902777174533,
+            "rms_error_db": -0.13170892600803757,
+            "peak_error_db": 0.2734248506913648,
+            "full_esr": 0.03891803611725598,
+            "active_pass": false,
+            "quiet_pass": true,
+            "level_pass": true,
+            "full_esr_pass": false,
+            "fidelity_pass": false,
+            "worst_active_windows": [
+              {
+                "start_sample": 1128651,
+                "active": true,
+                "reference_rms_dbfs": -51.654631609557384,
+                "esr": 0.28202665500302915,
+                "residual_rms_dbfs": -57.151730045027946,
+                "residual_peak_dbfs": -41.532318335635125
+              },
+              {
+                "start_sample": 190667,
+                "active": true,
+                "reference_rms_dbfs": -28.172560911511138,
+                "esr": 0.2231118613213869,
+                "residual_rms_dbfs": -34.68733431806343,
+                "residual_peak_dbfs": -15.792324491878675
+              },
+              {
+                "start_sample": 141515,
+                "active": true,
+                "reference_rms_dbfs": -21.611190470763546,
+                "esr": 0.2161143920691931,
+                "residual_rms_dbfs": -28.26435357527183,
+                "residual_peak_dbfs": -10.618435257270844
+              },
+              {
+                "start_sample": 149707,
+                "active": true,
+                "reference_rms_dbfs": -21.19579621050651,
+                "esr": 0.1835970604979464,
+                "residual_rms_dbfs": -28.55713897451991,
+                "residual_peak_dbfs": -11.639531809948139
+              },
+              {
+                "start_sample": 166091,
+                "active": true,
+                "reference_rms_dbfs": -21.17449708948664,
+                "esr": 0.16260699414079066,
+                "residual_rms_dbfs": -29.06310487177549,
+                "residual_peak_dbfs": -12.809150988641033
+              }
+            ],
+            "quiet_window_details": [
+              {
+                "start_sample": 6347,
+                "active": false,
+                "reference_rms_dbfs": -200.0,
+                "esr": 7472.177625933082,
+                "residual_rms_dbfs": -161.26552812762213,
+                "residual_peak_dbfs": -161.26552812762213
+              },
+              {
+                "start_sample": 1132747,
+                "active": false,
+                "reference_rms_dbfs": -78.37832381087446,
+                "esr": 0.9999131824550404,
+                "residual_rms_dbfs": -78.3787008710495,
+                "residual_peak_dbfs": -67.66902777174533
+              },
+              {
+                "start_sample": 1136843,
+                "active": false,
+                "reference_rms_dbfs": -92.47328269391983,
+                "esr": 0.9999720989895808,
+                "residual_rms_dbfs": -92.47340386815893,
+                "residual_peak_dbfs": -84.45281758716325
+              },
+              {
+                "start_sample": 1140939,
+                "active": false,
+                "reference_rms_dbfs": -104.42400780247172,
+                "esr": 1.0000153011860216,
+                "residual_rms_dbfs": -104.42394135077357,
+                "residual_peak_dbfs": -97.10487812026582
+              },
+              {
+                "start_sample": 1145035,
+                "active": false,
+                "reference_rms_dbfs": -116.26679347913894,
+                "esr": 1.000248392975415,
+                "residual_rms_dbfs": -116.26571485610893,
+                "residual_peak_dbfs": -108.81149155689934
+              }
+            ]
+          },
+          "selection_rejections": [],
+          "zero_state_projection_residual": -8.334428739376065e-08,
+          "official_roundtrip_max_abs": 0.0
+        },
+        {
+          "mode": "raw",
+          "ridge": 0.0001,
+          "model_sha256": "f5b7326c188d9bf81d63581d07357037e9029e3225b197af4d25a01fc8994e85",
+          "job_sha256": "d7759aaab367b41c26fe6330f215bc37e195f80eb661e074d5200e12ef5c7817",
+          "validation": {
+            "profile": "nastrond-tone3000-fidelity-v1",
+            "level_anchor": 0.09721294970620417,
+            "active_windows": 274,
+            "quiet_windows": 5,
+            "active_median": 0.029339948936364053,
+            "active_p95": 0.10260642965710166,
+            "active_worst": 0.2820190970465729,
+            "quiet_worst_residual_rms_dbfs": -78.37865864989531,
+            "quiet_worst_residual_peak_dbfs": -67.66899795487176,
+            "rms_error_db": -0.1317333415191735,
+            "peak_error_db": 0.27304445214195816,
+            "full_esr": 0.03891754995108849,
+            "active_pass": false,
+            "quiet_pass": true,
+            "level_pass": true,
+            "full_esr_pass": false,
+            "fidelity_pass": false,
+            "worst_active_windows": [
+              {
+                "start_sample": 1128651,
+                "active": true,
+                "reference_rms_dbfs": -51.654631609557384,
+                "esr": 0.2820190970465729,
+                "residual_rms_dbfs": -57.15184643199733,
+                "residual_peak_dbfs": -41.53186730332096
+              },
+              {
+                "start_sample": 190667,
+                "active": true,
+                "reference_rms_dbfs": -28.172560911511138,
+                "esr": 0.22311194452471877,
+                "residual_rms_dbfs": -34.687332698483864,
+                "residual_peak_dbfs": -15.792792683253435
+              },
+              {
+                "start_sample": 141515,
+                "active": true,
+                "reference_rms_dbfs": -21.611190470763546,
+                "esr": 0.21609623251927002,
+                "residual_rms_dbfs": -28.26471851735707,
+                "residual_peak_dbfs": -10.618553862197826
+              },
+              {
+                "start_sample": 149707,
+                "active": true,
+                "reference_rms_dbfs": -21.19579621050651,
+                "esr": 0.18359377927161083,
+                "residual_rms_dbfs": -28.55721659184241,
+                "residual_peak_dbfs": -11.63886916204036
+              },
+              {
+                "start_sample": 166091,
+                "active": true,
+                "reference_rms_dbfs": -21.17449708948664,
+                "esr": 0.1625834797011594,
+                "residual_rms_dbfs": -29.063732946225155,
+                "residual_peak_dbfs": -12.808744575363441
+              }
+            ],
+            "quiet_window_details": [
+              {
+                "start_sample": 6347,
+                "active": false,
+                "reference_rms_dbfs": -200.0,
+                "esr": 5229.960021821052,
+                "residual_rms_dbfs": -162.81501630897327,
+                "residual_peak_dbfs": -162.81501630897327
+              },
+              {
+                "start_sample": 1132747,
+                "active": false,
+                "reference_rms_dbfs": -78.37832381087446,
+                "esr": 0.9999229034382953,
+                "residual_rms_dbfs": -78.37865864989531,
+                "residual_peak_dbfs": -67.66899795487176
+              },
+              {
+                "start_sample": 1136843,
+                "active": false,
+                "reference_rms_dbfs": -92.47328269391983,
+                "esr": 0.9999766395476698,
+                "residual_rms_dbfs": -92.47338414826027,
+                "residual_peak_dbfs": -84.45261276067052
+              },
+              {
+                "start_sample": 1140939,
+                "active": false,
+                "reference_rms_dbfs": -104.42400780247172,
+                "esr": 1.0000125183306543,
+                "residual_rms_dbfs": -104.42395343639276,
+                "residual_peak_dbfs": -97.1057571756779
+              },
+              {
+                "start_sample": 1145035,
+                "active": false,
+                "reference_rms_dbfs": -116.26679347913894,
+                "esr": 1.0002034854722959,
+                "residual_rms_dbfs": -116.2659098428618,
+                "residual_peak_dbfs": -108.81487539472596
+              }
+            ]
+          },
+          "selection_rejections": [],
+          "zero_state_projection_residual": -6.881636358535558e-08,
+          "official_roundtrip_max_abs": 0.0
+        },
+        {
+          "mode": "raw",
+          "ridge": 0.01,
+          "model_sha256": "70448303e649b2375ff749808849eb5f3e86f20601f158be2e25f9e1265cc992",
+          "job_sha256": "d7759aaab367b41c26fe6330f215bc37e195f80eb661e074d5200e12ef5c7817",
+          "validation": {
+            "profile": "nastrond-tone3000-fidelity-v1",
+            "level_anchor": 0.09721294970620417,
+            "active_windows": 274,
+            "quiet_windows": 5,
+            "active_median": 0.029359485348110156,
+            "active_p95": 0.10264441148726318,
+            "active_worst": 0.2815434633543319,
+            "quiet_worst_residual_rms_dbfs": -78.3783225710452,
+            "quiet_worst_residual_peak_dbfs": -67.66875615766124,
+            "rms_error_db": -0.13263629943768587,
+            "peak_error_db": 0.23447728643687604,
+            "full_esr": 0.0389666919275061,
+            "active_pass": false,
+            "quiet_pass": true,
+            "level_pass": true,
+            "full_esr_pass": false,
+            "fidelity_pass": false,
+            "worst_active_windows": [
+              {
+                "start_sample": 1128651,
+                "active": true,
+                "reference_rms_dbfs": -51.654631609557384,
+                "esr": 0.2815434633543319,
+                "residual_rms_dbfs": -57.159177122554404,
+                "residual_peak_dbfs": -41.52199024182071
+              },
+              {
+                "start_sample": 190667,
+                "active": true,
+                "reference_rms_dbfs": -28.172560911511138,
+                "esr": 0.2231723403673894,
+                "residual_rms_dbfs": -34.68615723332634,
+                "residual_peak_dbfs": -15.810602060388332
+              },
+              {
+                "start_sample": 141515,
+                "active": true,
+                "reference_rms_dbfs": -21.611190470763546,
+                "esr": 0.21488358205656488,
+                "residual_rms_dbfs": -28.289158121089667,
+                "residual_peak_dbfs": -10.61425760320497
+              },
+              {
+                "start_sample": 149707,
+                "active": true,
+                "reference_rms_dbfs": -21.19579621050651,
+                "esr": 0.18336350683470792,
+                "residual_rms_dbfs": -28.562667147838678,
+                "residual_peak_dbfs": -11.598796336856942
+              },
+              {
+                "start_sample": 1079499,
+                "active": true,
+                "reference_rms_dbfs": -24.78949441308861,
+                "esr": 0.162114540004425,
+                "residual_rms_dbfs": -32.691274729717534,
+                "residual_peak_dbfs": -20.825664966234918
+              }
+            ],
+            "quiet_window_details": [
+              {
+                "start_sample": 6347,
+                "active": false,
+                "reference_rms_dbfs": -200.0,
+                "esr": 1608.1225038543612,
+                "residual_rms_dbfs": -167.9368087056178,
+                "residual_peak_dbfs": -167.9368087056178
+              },
+              {
+                "start_sample": 1132747,
+                "active": false,
+                "reference_rms_dbfs": -78.37832381087446,
+                "esr": 1.000000285481278,
+                "residual_rms_dbfs": -78.3783225710452,
+                "residual_peak_dbfs": -67.66875615766124
+              },
+              {
+                "start_sample": 1136843,
+                "active": false,
+                "reference_rms_dbfs": -92.47328269391983,
+                "esr": 1.0000130333107948,
+                "residual_rms_dbfs": -92.4732260913391,
+                "residual_peak_dbfs": -84.45098253679504
+              },
+              {
+                "start_sample": 1140939,
+                "active": false,
+                "reference_rms_dbfs": -104.42400780247172,
+                "esr": 0.9999943069872411,
+                "residual_rms_dbfs": -104.42403252698239,
+                "residual_peak_dbfs": -97.11275753324237
+              },
+              {
+                "start_sample": 1145035,
+                "active": false,
+                "reference_rms_dbfs": -116.26679347913894,
+                "esr": 0.9999062495637356,
+                "residual_rms_dbfs": -116.26720065119697,
+                "residual_peak_dbfs": -108.84185748026579
+              }
+            ]
+          },
+          "selection_rejections": [],
+          "zero_state_projection_residual": 4.6824452826221826e-08,
+          "official_roundtrip_max_abs": 0.0
+        },
+        {
+          "mode": "eq-chain",
+          "ridge": 1e-06,
+          "model_sha256": "b30a4b98232869bb3b7a25953321261ff0bbb25eb9f4f30d9d53fe9537806c17",
+          "job_sha256": "d98c2d32d55aa3ede7182d4651832964895aa1aa2cd0f5b36ada2e337b979538",
+          "validation": {
+            "profile": "nastrond-tone3000-fidelity-v1",
+            "level_anchor": 0.09721294970620417,
+            "active_windows": 274,
+            "quiet_windows": 5,
+            "active_median": 0.03019300441913361,
+            "active_p95": 0.10123910593275226,
+            "active_worst": 0.251644304001653,
+            "quiet_worst_residual_rms_dbfs": -81.36298414498285,
+            "quiet_worst_residual_peak_dbfs": -70.89730045561429,
+            "rms_error_db": -0.14503321172734127,
+            "peak_error_db": 0.28260508885054314,
+            "full_esr": 0.038906051724015116,
+            "active_pass": false,
+            "quiet_pass": true,
+            "level_pass": true,
+            "full_esr_pass": false,
+            "fidelity_pass": false,
+            "worst_active_windows": [
+              {
+                "start_sample": 1128651,
+                "active": true,
+                "reference_rms_dbfs": -51.654631609557384,
+                "esr": 0.251644304001653,
+                "residual_rms_dbfs": -57.64676056417882,
+                "residual_peak_dbfs": -42.45686676480766
+              },
+              {
+                "start_sample": 190667,
+                "active": true,
+                "reference_rms_dbfs": -28.172560911511138,
+                "esr": 0.2240569066134038,
+                "residual_rms_dbfs": -34.66897755453451,
+                "residual_peak_dbfs": -15.781079980669144
+              },
+              {
+                "start_sample": 141515,
+                "active": true,
+                "reference_rms_dbfs": -21.611190470763546,
+                "esr": 0.2122074573814136,
+                "residual_rms_dbfs": -28.34358405292891,
+                "residual_peak_dbfs": -10.733928333493823
+              },
+              {
+                "start_sample": 149707,
+                "active": true,
+                "reference_rms_dbfs": -21.19579621050651,
+                "esr": 0.18271623920283586,
+                "residual_rms_dbfs": -28.57802473354559,
+                "residual_peak_dbfs": -11.673969999294165
+              },
+              {
+                "start_sample": 1079499,
+                "active": true,
+                "reference_rms_dbfs": -24.78949441308861,
+                "esr": 0.16396252809198095,
+                "residual_rms_dbfs": -32.64204835348633,
+                "residual_peak_dbfs": -20.430182479624893
+              }
+            ],
+            "quiet_window_details": [
+              {
+                "start_sample": 6347,
+                "active": false,
+                "reference_rms_dbfs": -200.0,
+                "esr": 2551.4794929228387,
+                "residual_rms_dbfs": -165.93207917884854,
+                "residual_peak_dbfs": -165.9268250797661
+              },
+              {
+                "start_sample": 1132747,
+                "active": false,
+                "reference_rms_dbfs": -78.37832381087446,
+                "esr": 0.5029606013446023,
+                "residual_rms_dbfs": -81.36298414498285,
+                "residual_peak_dbfs": -70.89730045561429
+              },
+              {
+                "start_sample": 1136843,
+                "active": false,
+                "reference_rms_dbfs": -92.47328269391983,
+                "esr": 0.5722419719831695,
+                "residual_rms_dbfs": -94.8974856074591,
+                "residual_peak_dbfs": -87.30961833803539
+              },
+              {
+                "start_sample": 1140939,
+                "active": false,
+                "reference_rms_dbfs": -104.42400780247172,
+                "esr": 0.7874279302437427,
+                "residual_rms_dbfs": -105.46189964997933,
+                "residual_peak_dbfs": -98.37460203686057
+              },
+              {
+                "start_sample": 1145035,
+                "active": false,
+                "reference_rms_dbfs": -116.26679347913894,
+                "esr": 0.9030637538791939,
+                "residual_rms_dbfs": -116.70960936492344,
+                "residual_peak_dbfs": -109.39255024250104
+              }
+            ]
+          },
+          "selection_rejections": [],
+          "zero_state_projection_residual": 5.83781547103257e-08,
+          "official_roundtrip_max_abs": 0.0
+        },
+        {
+          "mode": "eq-chain",
+          "ridge": 0.0001,
+          "model_sha256": "9b0972a89b8c0c0276c3249b331d5c180edfd67b1558ca44022465e3a008eb77",
+          "job_sha256": "d98c2d32d55aa3ede7182d4651832964895aa1aa2cd0f5b36ada2e337b979538",
+          "validation": {
+            "profile": "nastrond-tone3000-fidelity-v1",
+            "level_anchor": 0.09721294970620417,
+            "active_windows": 274,
+            "quiet_windows": 5,
+            "active_median": 0.03019663510640283,
+            "active_p95": 0.10123156888548822,
+            "active_worst": 0.2515563761163494,
+            "quiet_worst_residual_rms_dbfs": -81.36489316107864,
+            "quiet_worst_residual_peak_dbfs": -70.89842555754817,
+            "rms_error_db": -0.14506727232657507,
+            "peak_error_db": 0.28192616585857344,
+            "full_esr": 0.038905393261062286,
+            "active_pass": false,
+            "quiet_pass": true,
+            "level_pass": true,
+            "full_esr_pass": false,
+            "fidelity_pass": false,
+            "worst_active_windows": [
+              {
+                "start_sample": 1128651,
+                "active": true,
+                "reference_rms_dbfs": -51.654631609557384,
+                "esr": 0.2515563761163494,
+                "residual_rms_dbfs": -57.648278312357235,
+                "residual_peak_dbfs": -42.461265497927755
+              },
+              {
+                "start_sample": 190667,
+                "active": true,
+                "reference_rms_dbfs": -28.172560911511138,
+                "esr": 0.2240566810304787,
+                "residual_rms_dbfs": -34.66898192706068,
+                "residual_peak_dbfs": -15.781388398572103
+              },
+              {
+                "start_sample": 141515,
+                "active": true,
+                "reference_rms_dbfs": -21.611190470763546,
+                "esr": 0.21219435847200346,
+                "residual_rms_dbfs": -28.343852137742175,
+                "residual_peak_dbfs": -10.733779047699803
+              },
+              {
+                "start_sample": 149707,
+                "active": true,
+                "reference_rms_dbfs": -21.19579621050651,
+                "esr": 0.1827106224573576,
+                "residual_rms_dbfs": -28.578158238869015,
+                "residual_peak_dbfs": -11.673009291032319
+              },
+              {
+                "start_sample": 1079499,
+                "active": true,
+                "reference_rms_dbfs": -24.78949441308861,
+                "esr": 0.16394984170093577,
+                "residual_rms_dbfs": -32.642384396291455,
+                "residual_peak_dbfs": -20.431185754805277
+              }
+            ],
+            "quiet_window_details": [
+              {
+                "start_sample": 6347,
+                "active": false,
+                "reference_rms_dbfs": -200.0,
+                "esr": 59.446597723979984,
+                "residual_rms_dbfs": -182.25872996082865,
+                "residual_peak_dbfs": -182.25383403162925
+              },
+              {
+                "start_sample": 1132747,
+                "active": false,
+                "reference_rms_dbfs": -78.37832381087446,
+                "esr": 0.5027395649448686,
+                "residual_rms_dbfs": -81.36489316107864,
+                "residual_peak_dbfs": -70.89842555754817
+              },
+              {
+                "start_sample": 1136843,
+                "active": false,
+                "reference_rms_dbfs": -92.47328269391983,
+                "esr": 0.5720268791279941,
+                "residual_rms_dbfs": -94.89911832936899,
+                "residual_peak_dbfs": -87.31675323668424
+              },
+              {
+                "start_sample": 1140939,
+                "active": false,
+                "reference_rms_dbfs": -104.42400780247172,
+                "esr": 0.7876949735105568,
+                "residual_rms_dbfs": -105.46042706116683,
+                "residual_peak_dbfs": -98.37114616103136
+              },
+              {
+                "start_sample": 1145035,
+                "active": false,
+                "reference_rms_dbfs": -116.26679347913894,
+                "esr": 0.9033870723607945,
+                "residual_rms_dbfs": -116.7080547647991,
+                "residual_peak_dbfs": -109.3821063455185
+              }
+            ]
+          },
+          "selection_rejections": [],
+          "zero_state_projection_residual": 1.4351820087910026e-08,
+          "official_roundtrip_max_abs": 0.0
+        },
+        {
+          "mode": "eq-chain",
+          "ridge": 0.01,
+          "model_sha256": "d111dd6549073a1fafcf14b80c400551261a13025a24da39fae1dad25d1235c0",
+          "job_sha256": "d98c2d32d55aa3ede7182d4651832964895aa1aa2cd0f5b36ada2e337b979538",
+          "validation": {
+            "profile": "nastrond-tone3000-fidelity-v1",
+            "level_anchor": 0.09721294970620417,
+            "active_windows": 274,
+            "quiet_windows": 5,
+            "active_median": 0.03031622160918166,
+            "active_p95": 0.10128737568708483,
+            "active_worst": 0.2509607717319499,
+            "quiet_worst_residual_rms_dbfs": -81.36092797437355,
+            "quiet_worst_residual_peak_dbfs": -70.89546834047921,
+            "rms_error_db": -0.14580342313119782,
+            "peak_error_db": 0.24156575032009364,
+            "full_esr": 0.03895655638529287,
+            "active_pass": false,
+            "quiet_pass": true,
+            "level_pass": true,
+            "full_esr_pass": false,
+            "fidelity_pass": false,
+            "worst_active_windows": [
+              {
+                "start_sample": 1128651,
+                "active": true,
+                "reference_rms_dbfs": -51.654631609557384,
+                "esr": 0.2509607717319499,
+                "residual_rms_dbfs": -57.65857319760742,
+                "residual_peak_dbfs": -42.46153360208913
+              },
+              {
+                "start_sample": 190667,
+                "active": true,
+                "reference_rms_dbfs": -28.172560911511138,
+                "esr": 0.22394777568169974,
+                "residual_rms_dbfs": -34.67109337895574,
+                "residual_peak_dbfs": -15.796349281109766
+              },
+              {
+                "start_sample": 141515,
+                "active": true,
+                "reference_rms_dbfs": -21.611190470763546,
+                "esr": 0.21113632517489,
+                "residual_rms_dbfs": -28.36556088681787,
+                "residual_peak_dbfs": -10.725562415695078
+              },
+              {
+                "start_sample": 149707,
+                "active": true,
+                "reference_rms_dbfs": -21.19579621050651,
+                "esr": 0.18247879893363464,
+                "residual_rms_dbfs": -28.583672072773,
+                "residual_peak_dbfs": -11.633235573701214
+              },
+              {
+                "start_sample": 1079499,
+                "active": true,
+                "reference_rms_dbfs": -24.78949441308861,
+                "esr": 0.16402385764393348,
+                "residual_rms_dbfs": -32.64042419544445,
+                "residual_peak_dbfs": -20.43362911145611
+              }
+            ],
+            "quiet_window_details": [
+              {
+                "start_sample": 6347,
+                "active": false,
+                "reference_rms_dbfs": -200.0,
+                "esr": 5756.746903457646,
+                "residual_rms_dbfs": -162.39822863969914,
+                "residual_peak_dbfs": -162.39372013831962
+              },
+              {
+                "start_sample": 1132747,
+                "active": false,
+                "reference_rms_dbfs": -78.37832381087446,
+                "esr": 0.5031987848129221,
+                "residual_rms_dbfs": -81.36092797437355,
+                "residual_peak_dbfs": -70.89546834047921
+              },
+              {
+                "start_sample": 1136843,
+                "active": false,
+                "reference_rms_dbfs": -92.47328269391983,
+                "esr": 0.5728578153559787,
+                "residual_rms_dbfs": -94.8928142695151,
+                "residual_peak_dbfs": -87.30639174921917
+              },
+              {
+                "start_sample": 1140939,
+                "active": false,
+                "reference_rms_dbfs": -104.42400780247172,
+                "esr": 0.7878085068392986,
+                "residual_rms_dbfs": -105.45980114191137,
+                "residual_peak_dbfs": -98.36213279237325
+              },
+              {
+                "start_sample": 1145035,
+                "active": false,
+                "reference_rms_dbfs": -116.26679347913894,
+                "esr": 0.903663164328699,
+                "residual_rms_dbfs": -116.70672768250046,
+                "residual_peak_dbfs": -109.35616478078971
+              }
+            ]
+          },
+          "selection_rejections": [],
+          "zero_state_projection_residual": -7.162761564982744e-08,
+          "official_roundtrip_max_abs": 0.0
+        }
+      ],
+      "selected_ridge": 0.0001,
+      "selected_mode": "eq-chain",
+      "selected_is_baseline": false,
+      "best_esr_ridge": {
+        "raw": 0.0001,
+        "eq-chain": 0.0001
+      },
+      "causal_feature_reconstruction_max_abs": 2.0607758890456296e-06,
+      "head_coefficients": 128,
+      "train_samples_used": 4601653,
+      "gram_condition": {
+        "raw": 17111.71225590499,
+        "eq-chain": 17486.8912221886
+      },
+      "seconds": 35.772
+    },
+    "Ragnarok": {
+      "baseline_validation": {
+        "profile": "nastrond-tone3000-fidelity-v1",
+        "level_anchor": 0.05162876564505051,
+        "active_windows": 274,
+        "quiet_windows": 5,
+        "active_median": 0.10917768335426875,
+        "active_p95": 0.5083374977528191,
+        "active_worst": 1.148902257795663,
+        "quiet_worst_residual_rms_dbfs": -90.11790500362875,
+        "quiet_worst_residual_peak_dbfs": -78.3858555939836,
+        "rms_error_db": -0.4557523409636728,
+        "peak_error_db": 3.7316420235089325,
+        "full_esr": 0.1411580485108758,
+        "active_pass": false,
+        "quiet_pass": true,
+        "level_pass": false,
+        "full_esr_pass": false,
+        "fidelity_pass": false,
+        "worst_active_windows": [
+          {
+            "start_sample": 633035,
+            "active": true,
+            "reference_rms_dbfs": -19.64491625462002,
+            "esr": 1.148902257795663,
+            "residual_rms_dbfs": -19.042085425575284,
+            "residual_peak_dbfs": -9.938611119842506
+          },
+          {
+            "start_sample": 39115,
+            "active": true,
+            "reference_rms_dbfs": -27.20829890572986,
+            "esr": 0.8455845065227615,
+            "residual_rms_dbfs": -27.936728736923886,
+            "residual_peak_dbfs": -17.303625916720176
+          },
+          {
+            "start_sample": 600267,
+            "active": true,
+            "reference_rms_dbfs": -20.758616129380364,
+            "esr": 0.7273592333907175,
+            "residual_rms_dbfs": -22.141126566229726,
+            "residual_peak_dbfs": -12.437724152049348
+          },
+          {
+            "start_sample": 1124555,
+            "active": true,
+            "reference_rms_dbfs": -24.725521529899282,
+            "esr": 0.694735504586124,
+            "residual_rms_dbfs": -26.307326588488067,
+            "residual_peak_dbfs": -15.393707469105246
+          },
+          {
+            "start_sample": 911563,
+            "active": true,
+            "reference_rms_dbfs": -18.264657774913186,
+            "esr": 0.6783544323686947,
+            "residual_rms_dbfs": -19.950091104647885,
+            "residual_peak_dbfs": -11.035029482200368
+          }
+        ],
+        "quiet_window_details": [
+          {
+            "start_sample": 6347,
+            "active": false,
+            "reference_rms_dbfs": -200.0,
+            "esr": 1363.6603674069188,
+            "residual_rms_dbfs": -168.6529378138609,
+            "residual_peak_dbfs": -168.6529378138609
+          },
+          {
+            "start_sample": 1132747,
+            "active": false,
+            "reference_rms_dbfs": -90.11826253866892,
+            "esr": 1.000082328874207,
+            "residual_rms_dbfs": -90.11790500362875,
+            "residual_peak_dbfs": -78.3858555939836
+          },
+          {
+            "start_sample": 1136843,
+            "active": false,
+            "reference_rms_dbfs": -117.64067814891749,
+            "esr": 1.000944744770323,
+            "residual_rms_dbfs": -117.63657711142389,
+            "residual_peak_dbfs": -106.60855874777093
+          },
+          {
+            "start_sample": 1140939,
+            "active": false,
+            "reference_rms_dbfs": -143.7505867490878,
+            "esr": 1.0117877871086542,
+            "residual_rms_dbfs": -143.69969242002009,
+            "residual_peak_dbfs": -133.02159926523666
+          },
+          {
+            "start_sample": 1145035,
+            "active": false,
+            "reference_rms_dbfs": -170.2975614655336,
+            "esr": 2.457402317794197,
+            "residual_rms_dbfs": -166.39279882993688,
+            "residual_peak_dbfs": -157.027953897292
+          }
+        ]
+      },
+      "candidates": [
+        {
+          "mode": "raw",
+          "ridge": 1e-06,
+          "model_sha256": "888c3d8d24e71aa94200ab4213de358d13b4e6e26b3264805565599a161272d6",
+          "job_sha256": "d7759aaab367b41c26fe6330f215bc37e195f80eb661e074d5200e12ef5c7817",
+          "validation": {
+            "profile": "nastrond-tone3000-fidelity-v1",
+            "level_anchor": 0.05162876564505051,
+            "active_windows": 274,
+            "quiet_windows": 5,
+            "active_median": 0.1069032778196221,
+            "active_p95": 0.502968235672562,
+            "active_worst": 1.1156708634123758,
+            "quiet_worst_residual_rms_dbfs": -90.11816654986205,
+            "quiet_worst_residual_peak_dbfs": -78.38607563787055,
+            "rms_error_db": -0.37825837049744493,
+            "peak_error_db": 3.854793396372491,
+            "full_esr": 0.14081879888362486,
+            "active_pass": false,
+            "quiet_pass": true,
+            "level_pass": false,
+            "full_esr_pass": false,
+            "fidelity_pass": false,
+            "worst_active_windows": [
+              {
+                "start_sample": 633035,
+                "active": true,
+                "reference_rms_dbfs": -19.64491625462002,
+                "esr": 1.1156708634123758,
+                "residual_rms_dbfs": -19.169555341638258,
+                "residual_peak_dbfs": -10.029281176706217
+              },
+              {
+                "start_sample": 39115,
+                "active": true,
+                "reference_rms_dbfs": -27.20829890572986,
+                "esr": 0.8438595427502051,
+                "residual_rms_dbfs": -27.945597246165747,
+                "residual_peak_dbfs": -17.237089327132185
+              },
+              {
+                "start_sample": 600267,
+                "active": true,
+                "reference_rms_dbfs": -20.758616129380364,
+                "esr": 0.7562064667649474,
+                "residual_rms_dbfs": -21.972212259888483,
+                "residual_peak_dbfs": -12.296453828438047
+              },
+              {
+                "start_sample": 1124555,
+                "active": true,
+                "reference_rms_dbfs": -24.725521529899282,
+                "esr": 0.6898934447091902,
+                "residual_rms_dbfs": -26.33770134641611,
+                "residual_peak_dbfs": -15.615167127147185
+              },
+              {
+                "start_sample": 911563,
+                "active": true,
+                "reference_rms_dbfs": -18.264657774913186,
+                "esr": 0.6717051134913504,
+                "residual_rms_dbfs": -19.99287123025254,
+                "residual_peak_dbfs": -11.092573070269502
+              }
+            ],
+            "quiet_window_details": [
+              {
+                "start_sample": 6347,
+                "active": false,
+                "reference_rms_dbfs": -200.0,
+                "esr": 241.69847424946659,
+                "residual_rms_dbfs": -176.1672609111957,
+                "residual_peak_dbfs": -176.1672609111957
+              },
+              {
+                "start_sample": 1132747,
+                "active": false,
+                "reference_rms_dbfs": -90.11826253866892,
+                "esr": 1.0000221024838345,
+                "residual_rms_dbfs": -90.11816654986205,
+                "residual_peak_dbfs": -78.38607563787055
+              },
+              {
+                "start_sample": 1136843,
+                "active": false,
+                "reference_rms_dbfs": -117.64067814891749,
+                "esr": 1.0003958083597828,
+                "residual_rms_dbfs": -117.63895951515443,
+                "residual_peak_dbfs": -106.61253406713914
+              },
+              {
+                "start_sample": 1140939,
+                "active": false,
+                "reference_rms_dbfs": -143.7505867490878,
+                "esr": 1.0041743157304774,
+                "residual_rms_dbfs": -143.7324956589592,
+                "residual_peak_dbfs": -133.10516188788918
+              },
+              {
+                "start_sample": 1145035,
+                "active": false,
+                "reference_rms_dbfs": -170.2975614655336,
+                "esr": 1.257590565741465,
+                "residual_rms_dbfs": -169.30216875858815,
+                "residual_peak_dbfs": -158.45854819241976
+              }
+            ]
+          },
+          "selection_rejections": [
+            "level_regression:peak_error_db"
+          ],
+          "zero_state_projection_residual": 5.0643103777225913e-08,
+          "official_roundtrip_max_abs": 0.0
+        },
+        {
+          "mode": "raw",
+          "ridge": 0.0001,
+          "model_sha256": "f4be37f89e4b431c8ef8c502fe2a214d8fe0b63a10b942bf53a82baa96cbc820",
+          "job_sha256": "d7759aaab367b41c26fe6330f215bc37e195f80eb661e074d5200e12ef5c7817",
+          "validation": {
+            "profile": "nastrond-tone3000-fidelity-v1",
+            "level_anchor": 0.05162876564505051,
+            "active_windows": 274,
+            "quiet_windows": 5,
+            "active_median": 0.10690617277921943,
+            "active_p95": 0.5029758399483212,
+            "active_worst": 1.1156707817361533,
+            "quiet_worst_residual_rms_dbfs": -90.1185494949807,
+            "quiet_worst_residual_peak_dbfs": -78.38634185164534,
+            "rms_error_db": -0.3782682387912608,
+            "peak_error_db": 3.855160659768714,
+            "full_esr": 0.14081875536185703,
+            "active_pass": false,
+            "quiet_pass": true,
+            "level_pass": false,
+            "full_esr_pass": false,
+            "fidelity_pass": false,
+            "worst_active_windows": [
+              {
+                "start_sample": 633035,
+                "active": true,
+                "reference_rms_dbfs": -19.64491625462002,
+                "esr": 1.1156707817361533,
+                "residual_rms_dbfs": -19.169555659577313,
+                "residual_peak_dbfs": -10.029169227416034
+              },
+              {
+                "start_sample": 39115,
+                "active": true,
+                "reference_rms_dbfs": -27.20829890572986,
+                "esr": 0.8438640741662181,
+                "residual_rms_dbfs": -27.945573925179417,
+                "residual_peak_dbfs": -17.237198033540018
+              },
+              {
+                "start_sample": 600267,
+                "active": true,
+                "reference_rms_dbfs": -20.758616129380364,
+                "esr": 0.7562015723167327,
+                "residual_rms_dbfs": -21.97224036912616,
+                "residual_peak_dbfs": -12.296397014207974
+              },
+              {
+                "start_sample": 1124555,
+                "active": true,
+                "reference_rms_dbfs": -24.725521529899282,
+                "esr": 0.6898983435841151,
+                "residual_rms_dbfs": -26.337670507642237,
+                "residual_peak_dbfs": -15.614838320590767
+              },
+              {
+                "start_sample": 911563,
+                "active": true,
+                "reference_rms_dbfs": -18.264657774913186,
+                "esr": 0.6717084473200694,
+                "residual_rms_dbfs": -19.99284967526071,
+                "residual_peak_dbfs": -11.09275289612545
+              }
+            ],
+            "quiet_window_details": [
+              {
+                "start_sample": 6347,
+                "active": false,
+                "reference_rms_dbfs": -200.0,
+                "esr": 457.06191270363456,
+                "residual_rms_dbfs": -173.4002496727294,
+                "residual_peak_dbfs": -173.4002496727294
+              },
+              {
+                "start_sample": 1132747,
+                "active": false,
+                "reference_rms_dbfs": -90.11826253866892,
+                "esr": 0.9999339280502626,
+                "residual_rms_dbfs": -90.1185494949807,
+                "residual_peak_dbfs": -78.38634185164534
+              },
+              {
+                "start_sample": 1136843,
+                "active": false,
+                "reference_rms_dbfs": -117.64067814891749,
+                "esr": 0.9994602889888928,
+                "residual_rms_dbfs": -117.64302271680845,
+                "residual_peak_dbfs": -106.61940381855766
+              },
+              {
+                "start_sample": 1140939,
+                "active": false,
+                "reference_rms_dbfs": -143.7505867490878,
+                "esr": 0.9961319790967827,
+                "residual_rms_dbfs": -143.76741792312163,
+                "residual_peak_dbfs": -133.25139692096153
+              },
+              {
+                "start_sample": 1145035,
+                "active": false,
+                "reference_rms_dbfs": -170.2975614655336,
+                "esr": 1.491192815331525,
+                "residual_rms_dbfs": -168.56222343998783,
+                "residual_peak_dbfs": -158.82350488255548
+              }
+            ]
+          },
+          "selection_rejections": [
+            "level_regression:peak_error_db"
+          ],
+          "zero_state_projection_residual": -2.0879975748400167e-08,
+          "official_roundtrip_max_abs": 0.0
+        },
+        {
+          "mode": "raw",
+          "ridge": 0.01,
+          "model_sha256": "e069e3e6f44db20744deadaef4f5a102e3a096f4358ddb05d441dca7e06e20fa",
+          "job_sha256": "d7759aaab367b41c26fe6330f215bc37e195f80eb661e074d5200e12ef5c7817",
+          "validation": {
+            "profile": "nastrond-tone3000-fidelity-v1",
+            "level_anchor": 0.05162876564505051,
+            "active_windows": 274,
+            "quiet_windows": 5,
+            "active_median": 0.10717680463347232,
+            "active_p95": 0.5035674054406793,
+            "active_worst": 1.1156116541983552,
+            "quiet_worst_residual_rms_dbfs": -90.11793934538747,
+            "quiet_worst_residual_peak_dbfs": -78.38591361206478,
+            "rms_error_db": -0.37876919097954165,
+            "peak_error_db": 3.8884437611858367,
+            "full_esr": 0.14085326602376333,
+            "active_pass": false,
+            "quiet_pass": true,
+            "level_pass": false,
+            "full_esr_pass": false,
+            "fidelity_pass": false,
+            "worst_active_windows": [
+              {
+                "start_sample": 633035,
+                "active": true,
+                "reference_rms_dbfs": -19.64491625462002,
+                "esr": 1.1156116541983552,
+                "residual_rms_dbfs": -19.16978583002088,
+                "residual_peak_dbfs": -10.024226239047344
+              },
+              {
+                "start_sample": 39115,
+                "active": true,
+                "reference_rms_dbfs": -27.20829890572986,
+                "esr": 0.8441954364524344,
+                "residual_rms_dbfs": -27.943868904552392,
+                "residual_peak_dbfs": -17.242657758918515
+              },
+              {
+                "start_sample": 600267,
+                "active": true,
+                "reference_rms_dbfs": -20.758616129380364,
+                "esr": 0.7560220131484586,
+                "residual_rms_dbfs": -21.973271718684156,
+                "residual_peak_dbfs": -12.288771205518106
+              },
+              {
+                "start_sample": 1124555,
+                "active": true,
+                "reference_rms_dbfs": -24.725521529899282,
+                "esr": 0.6900774281368413,
+                "residual_rms_dbfs": -26.33654330765694,
+                "residual_peak_dbfs": -15.600225780295107
+              },
+              {
+                "start_sample": 911563,
+                "active": true,
+                "reference_rms_dbfs": -18.264657774913186,
+                "esr": 0.6719038137600188,
+                "residual_rms_dbfs": -19.9915867131715,
+                "residual_peak_dbfs": -11.098500849124607
+              }
+            ],
+            "quiet_window_details": [
+              {
+                "start_sample": 6347,
+                "active": false,
+                "reference_rms_dbfs": -200.0,
+                "esr": 1401.6773015233234,
+                "residual_rms_dbfs": -168.53351959478448,
+                "residual_peak_dbfs": -168.53351959478448
+              },
+              {
+                "start_sample": 1132747,
+                "active": false,
+                "reference_rms_dbfs": -90.11826253866892,
+                "esr": 1.00007442077229,
+                "residual_rms_dbfs": -90.11793934538747,
+                "residual_peak_dbfs": -78.38591361206478
+              },
+              {
+                "start_sample": 1136843,
+                "active": false,
+                "reference_rms_dbfs": -117.64067814891749,
+                "esr": 1.0009579344927264,
+                "residual_rms_dbfs": -117.63651988363038,
+                "residual_peak_dbfs": -106.60846372271429
+              },
+              {
+                "start_sample": 1140939,
+                "active": false,
+                "reference_rms_dbfs": -143.7505867490878,
+                "esr": 1.0119963632311517,
+                "residual_rms_dbfs": -143.69879723108045,
+                "residual_peak_dbfs": -133.01961114413604
+              },
+              {
+                "start_sample": 1145035,
+                "active": false,
+                "reference_rms_dbfs": -170.2975614655336,
+                "esr": 2.4980742721103044,
+                "residual_rms_dbfs": -166.32150799989967,
+                "residual_peak_dbfs": -156.99647474318434
+              }
+            ]
+          },
+          "selection_rejections": [
+            "level_regression:peak_error_db"
+          ],
+          "zero_state_projection_residual": 9.290412815721183e-08,
+          "official_roundtrip_max_abs": 0.0
+        },
+        {
+          "mode": "eq-chain",
+          "ridge": 1e-06,
+          "model_sha256": "0f89052b74c6e34a12ad12a1e96abc0e7bd11fe579f58a193d8d30c77a41b973",
+          "job_sha256": "87d545ad47d89b712dd9c183103d5682d8cd564911b9c257c6336585282e3af8",
+          "validation": {
+            "profile": "nastrond-tone3000-fidelity-v1",
+            "level_anchor": 0.05162876564505051,
+            "active_windows": 274,
+            "quiet_windows": 5,
+            "active_median": 0.10602669879778213,
+            "active_p95": 0.5059260265534906,
+            "active_worst": 1.1180601761290687,
+            "quiet_worst_residual_rms_dbfs": -91.65557324769875,
+            "quiet_worst_residual_peak_dbfs": -79.97304790179838,
+            "rms_error_db": -0.3774796756648664,
+            "peak_error_db": 3.9098280489824866,
+            "full_esr": 0.14104752324999925,
+            "active_pass": false,
+            "quiet_pass": true,
+            "level_pass": false,
+            "full_esr_pass": false,
+            "fidelity_pass": false,
+            "worst_active_windows": [
+              {
+                "start_sample": 633035,
+                "active": true,
+                "reference_rms_dbfs": -19.64491625462002,
+                "esr": 1.1180601761290687,
+                "residual_rms_dbfs": -19.16026446726008,
+                "residual_peak_dbfs": -9.987865277118145
+              },
+              {
+                "start_sample": 39115,
+                "active": true,
+                "reference_rms_dbfs": -27.20829890572986,
+                "esr": 0.8489469049394245,
+                "residual_rms_dbfs": -27.919493612393826,
+                "residual_peak_dbfs": -17.162127720505495
+              },
+              {
+                "start_sample": 600267,
+                "active": true,
+                "reference_rms_dbfs": -20.758616129380364,
+                "esr": 0.7679275511021697,
+                "residual_rms_dbfs": -21.905413637928767,
+                "residual_peak_dbfs": -12.26989651458577
+              },
+              {
+                "start_sample": 1124555,
+                "active": true,
+                "reference_rms_dbfs": -24.725521529899282,
+                "esr": 0.6923506788444719,
+                "residual_rms_dbfs": -26.32226030627439,
+                "residual_peak_dbfs": -15.541629974912269
+              },
+              {
+                "start_sample": 911563,
+                "active": true,
+                "reference_rms_dbfs": -18.264657774913186,
+                "esr": 0.666860159612532,
+                "residual_rms_dbfs": -20.02431005457695,
+                "residual_peak_dbfs": -11.196108365119851
+              }
+            ],
+            "quiet_window_details": [
+              {
+                "start_sample": 6347,
+                "active": false,
+                "reference_rms_dbfs": -200.0,
+                "esr": 187.2995879697813,
+                "residual_rms_dbfs": -177.2746317800462,
+                "residual_peak_dbfs": -177.27336897741236
+              },
+              {
+                "start_sample": 1132747,
+                "active": false,
+                "reference_rms_dbfs": -90.11826253866892,
+                "esr": 0.7018897965921453,
+                "residual_rms_dbfs": -91.65557324769875,
+                "residual_peak_dbfs": -79.97304790179838
+              },
+              {
+                "start_sample": 1136843,
+                "active": false,
+                "reference_rms_dbfs": -117.64067814891749,
+                "esr": 0.6834625787528139,
+                "residual_rms_dbfs": -119.29353074021654,
+                "residual_peak_dbfs": -108.1973554878845
+              },
+              {
+                "start_sample": 1140939,
+                "active": false,
+                "reference_rms_dbfs": -143.7505867490878,
+                "esr": 0.7405456560430022,
+                "residual_rms_dbfs": -145.0550683614837,
+                "residual_peak_dbfs": -134.46750623694544
+              },
+              {
+                "start_sample": 1145035,
+                "active": false,
+                "reference_rms_dbfs": -170.2975614655336,
+                "esr": 1.011880457259726,
+                "residual_rms_dbfs": -170.24626938218586,
+                "residual_peak_dbfs": -160.20264159989654
+              }
+            ]
+          },
+          "selection_rejections": [
+            "level_regression:peak_error_db",
+            "no_0.1percent_esr_improvement"
+          ],
+          "zero_state_projection_residual": -5.1779459719902825e-09,
+          "official_roundtrip_max_abs": 0.0
+        },
+        {
+          "mode": "eq-chain",
+          "ridge": 0.0001,
+          "model_sha256": "ca41abc739fc222d2e52c560e523b7ab2f70fbad202b92d20865de05d380c7e4",
+          "job_sha256": "87d545ad47d89b712dd9c183103d5682d8cd564911b9c257c6336585282e3af8",
+          "validation": {
+            "profile": "nastrond-tone3000-fidelity-v1",
+            "level_anchor": 0.05162876564505051,
+            "active_windows": 274,
+            "quiet_windows": 5,
+            "active_median": 0.10602371035232266,
+            "active_p95": 0.5059366248266928,
+            "active_worst": 1.1180679034060232,
+            "quiet_worst_residual_rms_dbfs": -91.64898231595689,
+            "quiet_worst_residual_peak_dbfs": -79.97057097247227,
+            "rms_error_db": -0.3774634782114381,
+            "peak_error_db": 3.910610647255808,
+            "full_esr": 0.14104824046170625,
+            "active_pass": false,
+            "quiet_pass": true,
+            "level_pass": false,
+            "full_esr_pass": false,
+            "fidelity_pass": false,
+            "worst_active_windows": [
+              {
+                "start_sample": 633035,
+                "active": true,
+                "reference_rms_dbfs": -19.64491625462002,
+                "esr": 1.1180679034060232,
+                "residual_rms_dbfs": -19.16023445186184,
+                "residual_peak_dbfs": -9.987907818443576
+              },
+              {
+                "start_sample": 39115,
+                "active": true,
+                "reference_rms_dbfs": -27.20829890572986,
+                "esr": 0.8489771153486007,
+                "residual_rms_dbfs": -27.919339068211094,
+                "residual_peak_dbfs": -17.16197290865069
+              },
+              {
+                "start_sample": 600267,
+                "active": true,
+                "reference_rms_dbfs": -20.758616129380364,
+                "esr": 0.7679812171078099,
+                "residual_rms_dbfs": -21.905110145291612,
+                "residual_peak_dbfs": -12.269896734124416
+              },
+              {
+                "start_sample": 1124555,
+                "active": true,
+                "reference_rms_dbfs": -24.725521529899282,
+                "esr": 0.6923748822366976,
+                "residual_rms_dbfs": -26.322108487026107,
+                "residual_peak_dbfs": -15.54103582683323
+              },
+              {
+                "start_sample": 911563,
+                "active": true,
+                "reference_rms_dbfs": -18.264657774913186,
+                "esr": 0.6668929039032444,
+                "residual_rms_dbfs": -20.024096811733703,
+                "residual_peak_dbfs": -11.195833264910931
+              }
+            ],
+            "quiet_window_details": [
+              {
+                "start_sample": 6347,
+                "active": false,
+                "reference_rms_dbfs": -200.0,
+                "esr": 1944.9812777545321,
+                "residual_rms_dbfs": -167.11084574804613,
+                "residual_peak_dbfs": -167.1097761619096
+              },
+              {
+                "start_sample": 1132747,
+                "active": false,
+                "reference_rms_dbfs": -90.11826253866892,
+                "esr": 0.7029558059570973,
+                "residual_rms_dbfs": -91.64898231595689,
+                "residual_peak_dbfs": -79.97057097247227
+              },
+              {
+                "start_sample": 1136843,
+                "active": false,
+                "reference_rms_dbfs": -117.64067814891749,
+                "esr": 0.683189454227343,
+                "residual_rms_dbfs": -119.2952666096698,
+                "residual_peak_dbfs": -108.20329188497426
+              },
+              {
+                "start_sample": 1140939,
+                "active": false,
+                "reference_rms_dbfs": -143.7505867490878,
+                "esr": 0.7552575392709491,
+                "residual_rms_dbfs": -144.96963605647437,
+                "residual_peak_dbfs": -134.21791767214154
+              },
+              {
+                "start_sample": 1145035,
+                "active": false,
+                "reference_rms_dbfs": -170.2975614655336,
+                "esr": 2.870331254938006,
+                "residual_rms_dbfs": -165.71824126512735,
+                "residual_peak_dbfs": -157.54290247767884
+              }
+            ]
+          },
+          "selection_rejections": [
+            "level_regression:peak_error_db",
+            "no_0.1percent_esr_improvement"
+          ],
+          "zero_state_projection_residual": 1.0667729315461116e-07,
+          "official_roundtrip_max_abs": 0.0
+        },
+        {
+          "mode": "eq-chain",
+          "ridge": 0.01,
+          "model_sha256": "bcba3f4aae166eef9b60045d55518b71c3c2639fe81e0c0efdeef5f53798743b",
+          "job_sha256": "87d545ad47d89b712dd9c183103d5682d8cd564911b9c257c6336585282e3af8",
+          "validation": {
+            "profile": "nastrond-tone3000-fidelity-v1",
+            "level_anchor": 0.05162876564505051,
+            "active_windows": 274,
+            "quiet_windows": 5,
+            "active_median": 0.10627782904530539,
+            "active_p95": 0.5063489092048763,
+            "active_worst": 1.1181824203809303,
+            "quiet_worst_residual_rms_dbfs": -91.64755226581114,
+            "quiet_worst_residual_peak_dbfs": -79.96801152715251,
+            "rms_error_db": -0.37796047392346566,
+            "peak_error_db": 3.937742866041134,
+            "full_esr": 0.14109825687899957,
+            "active_pass": false,
+            "quiet_pass": true,
+            "level_pass": false,
+            "full_esr_pass": false,
+            "fidelity_pass": false,
+            "worst_active_windows": [
+              {
+                "start_sample": 633035,
+                "active": true,
+                "reference_rms_dbfs": -19.64491625462002,
+                "esr": 1.1181824203809303,
+                "residual_rms_dbfs": -19.15978965290708,
+                "residual_peak_dbfs": -9.983495772318589
+              },
+              {
+                "start_sample": 39115,
+                "active": true,
+                "reference_rms_dbfs": -27.20829890572986,
+                "esr": 0.8493328445338147,
+                "residual_rms_dbfs": -27.91751971570067,
+                "residual_peak_dbfs": -17.16759841808897
+              },
+              {
+                "start_sample": 600267,
+                "active": true,
+                "reference_rms_dbfs": -20.758616129380364,
+                "esr": 0.7685692084486145,
+                "residual_rms_dbfs": -21.901786318062307,
+                "residual_peak_dbfs": -12.260191086154004
+              },
+              {
+                "start_sample": 1124555,
+                "active": true,
+                "reference_rms_dbfs": -24.725521529899282,
+                "esr": 0.6924953468107242,
+                "residual_rms_dbfs": -26.32135293464583,
+                "residual_peak_dbfs": -15.535335415052005
+              },
+              {
+                "start_sample": 911563,
+                "active": true,
+                "reference_rms_dbfs": -18.264657774913186,
+                "esr": 0.6671096869576612,
+                "residual_rms_dbfs": -20.022685304952873,
+                "residual_peak_dbfs": -11.202370123568892
+              }
+            ],
+            "quiet_window_details": [
+              {
+                "start_sample": 6347,
+                "active": false,
+                "reference_rms_dbfs": -200.0,
+                "esr": 282.6614946792388,
+                "residual_rms_dbfs": -175.48733348876215,
+                "residual_peak_dbfs": -175.4857768211442
+              },
+              {
+                "start_sample": 1132747,
+                "active": false,
+                "reference_rms_dbfs": -90.11826253866892,
+                "esr": 0.7031873142123916,
+                "residual_rms_dbfs": -91.64755226581114,
+                "residual_peak_dbfs": -79.96801152715251
+              },
+              {
+                "start_sample": 1136843,
+                "active": false,
+                "reference_rms_dbfs": -117.64067814891749,
+                "esr": 0.6827136771609915,
+                "residual_rms_dbfs": -119.29829211503898,
+                "residual_peak_dbfs": -108.21274750070157
+              },
+              {
+                "start_sample": 1140939,
+                "active": false,
+                "reference_rms_dbfs": -143.7505867490878,
+                "esr": 0.7459818535339078,
+                "residual_rms_dbfs": -145.0233041178724,
+                "residual_peak_dbfs": -134.3148900566878
+              },
+              {
+                "start_sample": 1145035,
+                "active": false,
+                "reference_rms_dbfs": -170.2975614655336,
+                "esr": 1.1012357804817376,
+                "residual_rms_dbfs": -169.8787583285011,
+                "residual_peak_dbfs": -159.5480419007605
+              }
+            ]
+          },
+          "selection_rejections": [
+            "level_regression:peak_error_db",
+            "no_0.1percent_esr_improvement"
+          ],
+          "zero_state_projection_residual": 5.3721824400110306e-08,
+          "official_roundtrip_max_abs": 0.0
+        }
+      ],
+      "selected_ridge": null,
+      "selected_mode": "baseline",
+      "selected_is_baseline": true,
+      "best_esr_ridge": {
+        "raw": 0.0001,
+        "eq-chain": 1e-06
+      },
+      "causal_feature_reconstruction_max_abs": 2.7125340018585575e-06,
+      "head_coefficients": 128,
+      "train_samples_used": 4601653,
+      "gram_condition": {
+        "raw": 23539.0298150728,
+        "eq-chain": 24272.116340490113
+      },
+      "seconds": 34.531
+    }
+  }
+}

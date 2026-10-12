@@ -1,0 +1,3000 @@
+{
+  "complete": true,
+  "selection_sha256": "0f136e033c1a9d2aaf046dbc93c1c9f033c4ff3b157002f99b6ac00ba3ee6584",
+  "source_evaluation_plan_sha256": "81fc04115b8171d3858d33c9209e7c64404e5aa61e95de8f90ae57278d657ff2",
+  "source_comparison_sha256": "9d59a4e599742bde7901ea0b35e2337dd5ef4902d3d17586112b92aecae501cf",
+  "supplement_plan_sha256": "fe212b097183c13a5261a8a70197aeb5c91bea8c0e1ff269168e665924dc3cfc",
+  "input_sha256": "3e6196cd2773ceda1c859599356112d4d8fefd3c9dcb21ffda0b1287aafe5d1b",
+  "quality_profile": {
+    "id": "nastrond-tone3000-fidelity-v1",
+    "authority": "project acceptance policy; not a TONE3000 certification",
+    "window_samples": 4096,
+    "skip_samples": 6347,
+    "active_reference_rms_min_dbfs": -60.0,
+    "full_esr_max_exclusive": 0.01,
+    "esr_guidance_source": "https://www.tone3000.com/guides/capture-your-gear-with-nam-dry-wet",
+    "active_window_esr_median_max": 0.005,
+    "active_window_esr_p95_max": 0.01,
+    "active_window_esr_worst_max": 0.02,
+    "quiet_residual_rms_max_dbfs": -70.0,
+    "quiet_residual_peak_max_dbfs": -60.0,
+    "rms_error_max_db": 0.5,
+    "peak_error_max_db": 1.0,
+    "steady_silence_rms_max_dbfs": -80.0,
+    "engine_parity_residual_max_dbfs": -80.0,
+    "level_anchor": "delivered v0.2 reference_output_scale, frozen per channel",
+    "source_output_scale": {
+      "Fenrir": 0.09195752759643712,
+      "Surtr": 0.09034985741800312,
+      "Nidhoggr": 0.0860012970451488,
+      "Fimbulvetr": 0.09721294970620417,
+      "Ragnarok": 0.05162876564505051
+    }
+  },
+  "provenance_aliases": {
+    "Fenrir": {
+      "kind": "reuse exact previously measured model/job pair",
+      "arm": "raw",
+      "channel": "Fenrir",
+      "comparison_sha256": "9d59a4e599742bde7901ea0b35e2337dd5ef4902d3d17586112b92aecae501cf"
+    },
+    "Surtr": {
+      "kind": "reuse exact previously measured model/job pair",
+      "arm": "eq-chain",
+      "channel": "Surtr",
+      "comparison_sha256": "9d59a4e599742bde7901ea0b35e2337dd5ef4902d3d17586112b92aecae501cf"
+    },
+    "Fimbulvetr": {
+      "kind": "reuse exact previously measured model/job pair",
+      "arm": "eq-chain",
+      "channel": "Fimbulvetr",
+      "comparison_sha256": "9d59a4e599742bde7901ea0b35e2337dd5ef4902d3d17586112b92aecae501cf"
+    },
+    "Ragnarok": {
+      "kind": "reuse exact previously measured model/job pair",
+      "arm": "baseline",
+      "channel": "Ragnarok",
+      "comparison_sha256": "9d59a4e599742bde7901ea0b35e2337dd5ef4902d3d17586112b92aecae501cf"
+    },
+    "Nidhoggr": {
+      "kind": "sole omitted preselected model; supplemental measurement on shared test",
+      "channel": "Nidhoggr",
+      "supplement_plan_sha256": "fe212b097183c13a5261a8a70197aeb5c91bea8c0e1ff269168e665924dc3cfc"
+    }
+  },
+  "selected_modes": {
+    "Fenrir": "raw",
+    "Surtr": "eq-chain",
+    "Nidhoggr": "raw",
+    "Fimbulvetr": "eq-chain",
+    "Ragnarok": "baseline"
+  },
+  "channels": {
+    "Fenrir": {
+      "model_sha256": "7cf7162a38c9f506e2b6185299d611faf06d404c93465129f9f3e41ebf82ef32",
+      "job_sha256": "d7759aaab367b41c26fe6330f215bc37e195f80eb661e074d5200e12ef5c7817",
+      "new_test": {
+        "profile": "nastrond-tone3000-fidelity-v1",
+        "level_anchor": 0.09195752759643712,
+        "active_windows": 273,
+        "quiet_windows": 6,
+        "active_median": 0.07246748209714994,
+        "active_p95": 0.354724515308851,
+        "active_worst": 0.5320767948546975,
+        "quiet_worst_residual_rms_dbfs": -62.27831351829514,
+        "quiet_worst_residual_peak_dbfs": -45.954525705774074,
+        "rms_error_db": -0.44346687761618625,
+        "peak_error_db": 1.121729506281314,
+        "full_esr": 0.10682750072037343,
+        "active_pass": false,
+        "quiet_pass": false,
+        "level_pass": false,
+        "full_esr_pass": false,
+        "fidelity_pass": false,
+        "worst_active_windows": [
+          {
+            "start_sample": 833739,
+            "active": true,
+            "reference_rms_dbfs": -20.05439116953557,
+            "esr": 0.5320767948546975,
+            "residual_rms_dbfs": -22.794647982399102,
+            "residual_peak_dbfs": -11.428338867438377
+          },
+          {
+            "start_sample": 731339,
+            "active": true,
+            "reference_rms_dbfs": -22.001002371864878,
+            "esr": 0.5148062140163842,
+            "residual_rms_dbfs": -24.88456456730482,
+            "residual_peak_dbfs": -9.47682037344399
+          },
+          {
+            "start_sample": 47307,
+            "active": true,
+            "reference_rms_dbfs": -19.69012481903652,
+            "esr": 0.5059928297041281,
+            "residual_rms_dbfs": -22.648681192970436,
+            "residual_peak_dbfs": -10.119687907310764
+          },
+          {
+            "start_sample": 600267,
+            "active": true,
+            "reference_rms_dbfs": -30.722568959541768,
+            "esr": 0.4791895980271259,
+            "residual_rms_dbfs": -33.91749513886052,
+            "residual_peak_dbfs": -14.090166872924922
+          },
+          {
+            "start_sample": 317643,
+            "active": true,
+            "reference_rms_dbfs": -26.019728342510614,
+            "esr": 0.4587355253821537,
+            "residual_rms_dbfs": -29.404104601970914,
+            "residual_peak_dbfs": -10.753668962137121
+          }
+        ],
+        "quiet_window_details": [
+          {
+            "start_sample": 6347,
+            "active": false,
+            "reference_rms_dbfs": -200.0,
+            "esr": 6986.737944360019,
+            "residual_rms_dbfs": -161.55725545775675,
+            "residual_peak_dbfs": -161.55725545775675
+          },
+          {
+            "start_sample": 1128651,
+            "active": false,
+            "reference_rms_dbfs": -61.85476266246902,
+            "esr": 0.9070785860584424,
+            "residual_rms_dbfs": -62.27831351829514,
+            "residual_peak_dbfs": -45.954525705774074
+          },
+          {
+            "start_sample": 1132747,
+            "active": false,
+            "reference_rms_dbfs": -102.13069507567334,
+            "esr": 0.9985622716140555,
+            "residual_rms_dbfs": -102.13694354359521,
+            "residual_peak_dbfs": -92.82146415029855
+          },
+          {
+            "start_sample": 1136843,
+            "active": false,
+            "reference_rms_dbfs": -139.38681025210286,
+            "esr": 0.9011434012304985,
+            "residual_rms_dbfs": -139.83887118351552,
+            "residual_peak_dbfs": -130.29033269523578
+          },
+          {
+            "start_sample": 1140939,
+            "active": false,
+            "reference_rms_dbfs": -176.650115540645,
+            "esr": 25.66031658887105,
+            "residual_rms_dbfs": -162.55749543804563,
+            "residual_peak_dbfs": -161.5683505039053
+          },
+          {
+            "start_sample": 1145035,
+            "active": false,
+            "reference_rms_dbfs": -200.0,
+            "esr": 6964.214560264846,
+            "residual_rms_dbfs": -161.5712785718371,
+            "residual_peak_dbfs": -161.55740752196624
+          }
+        ]
+      },
+      "character": {
+        "prediction": {
+          "band_power_db": [
+            -14.306612711606306,
+            -8.208915439325384,
+            -5.406643653274447,
+            -4.553578223300226,
+            -7.929979386670103
+          ],
+          "crest_db": 12.30113977175616
+        },
+        "reference": {
+          "band_power_db": [
+            -14.126952938544623,
+            -8.128104759242635,
+            -4.9526194748699135,
+            -4.0458814547613144,
+            -7.2702603228776175
+          ],
+          "crest_db": 10.735943387858661
+        },
+        "band_error_db": [
+          -0.17965977306168313,
+          -0.08081068008274883,
+          -0.45402417840453335,
+          -0.5076967685389118,
+          -0.6597190637924859
+        ],
+        "crest_error_db": 1.565196383897499,
+        "scope": "Fixed channel snapshot, synthetic excitation, numerical proxy only; no musical/DI listening verdict"
+      },
+      "runtime64": {
+        "a2_channels": 8,
+        "a2_gate": true,
+        "callback_p99_seconds": 0.000183117,
+        "deadline_misses": 2,
+        "eq": {
+          "bands": [
+            {
+              "freqHz": 100.0,
+              "gainDb": 0.0,
+              "q": 0.709999978542328,
+              "type": "lowshelf"
+            },
+            {
+              "freqHz": 250.0,
+              "gainDb": 0.0,
+              "q": 1.0,
+              "type": "bell"
+            },
+            {
+              "freqHz": 650.0,
+              "gainDb": 0.0,
+              "q": 1.0,
+              "type": "bell"
+            },
+            {
+              "freqHz": 1600.0,
+              "gainDb": 0.0,
+              "q": 1.0,
+              "type": "bell"
+            },
+            {
+              "freqHz": 3500.0,
+              "gainDb": 0.0,
+              "q": 1.399999976158142,
+              "type": "bell"
+            },
+            {
+              "freqHz": 8000.0,
+              "gainDb": 0.0,
+              "q": 0.709999978542328,
+              "type": "highshelf"
+            }
+          ],
+          "enabled": false,
+          "pre": false
+        },
+        "normalization_gain": 1.0,
+        "normalize": false,
+        "p99_budget_ratio": 0.13733775,
+        "peak": 4.085595607757568,
+        "rms": 0.9885501313950756,
+        "sample_rate": 48000.0,
+        "samples": 1152000
+      },
+      "runtime256": {
+        "a2_channels": 8,
+        "a2_gate": true,
+        "callback_p99_seconds": 0.000586425,
+        "deadline_misses": 0,
+        "eq": {
+          "bands": [
+            {
+              "freqHz": 100.0,
+              "gainDb": 0.0,
+              "q": 0.709999978542328,
+              "type": "lowshelf"
+            },
+            {
+              "freqHz": 250.0,
+              "gainDb": 0.0,
+              "q": 1.0,
+              "type": "bell"
+            },
+            {
+              "freqHz": 650.0,
+              "gainDb": 0.0,
+              "q": 1.0,
+              "type": "bell"
+            },
+            {
+              "freqHz": 1600.0,
+              "gainDb": 0.0,
+              "q": 1.0,
+              "type": "bell"
+            },
+            {
+              "freqHz": 3500.0,
+              "gainDb": 0.0,
+              "q": 1.399999976158142,
+              "type": "bell"
+            },
+            {
+              "freqHz": 8000.0,
+              "gainDb": 0.0,
+              "q": 0.709999978542328,
+              "type": "highshelf"
+            }
+          ],
+          "enabled": false,
+          "pre": false
+        },
+        "normalization_gain": 1.0,
+        "normalize": false,
+        "p99_budget_ratio": 0.1099546875,
+        "peak": 4.085595607757568,
+        "rms": 0.9885501313950756,
+        "sample_rate": 48000.0,
+        "samples": 1152000
+      },
+      "block64_256_max_abs": 0.0,
+      "python_native_parity_residual_dbfs": -138.49801407042477,
+      "preset_restore_max_abs": 0.0,
+      "preset_sha256": "89f652ac3d2f2cb5e8b6a63321abe4fce27e1fe124f0b201433492cbe0edc8b0",
+      "preset_metadata": {
+        "blocks": [
+          {
+            "a2_channels": 8,
+            "embedded_bytes": 264488,
+            "eq": {
+              "bands": [
+                {
+                  "freqHz": 100.0,
+                  "gainDb": 0.0,
+                  "q": 0.709999978542328,
+                  "type": "lowshelf"
+                },
+                {
+                  "freqHz": 250.0,
+                  "gainDb": 0.0,
+                  "q": 1.0,
+                  "type": "bell"
+                },
+                {
+                  "freqHz": 650.0,
+                  "gainDb": 0.0,
+                  "q": 1.0,
+                  "type": "bell"
+                },
+                {
+                  "freqHz": 1600.0,
+                  "gainDb": 0.0,
+                  "q": 1.0,
+                  "type": "bell"
+                },
+                {
+                  "freqHz": 3500.0,
+                  "gainDb": 0.0,
+                  "q": 1.399999976158142,
+                  "type": "bell"
+                },
+                {
+                  "freqHz": 8000.0,
+                  "gainDb": 0.0,
+                  "q": 0.709999978542328,
+                  "type": "highshelf"
+                }
+              ],
+              "enabled": false,
+              "pre": false
+            },
+            "input_gain_normalized": 0.5,
+            "normalize": false,
+            "output_gain_normalized": 0.5
+          }
+        ],
+        "id": "bd39366d-0860-5136-8420-00b6d1272f14",
+        "name": "Nastrond Fenrir raw Research",
+        "v2": true
+      },
+      "preset_runtime": {
+        "a2_channels": 8,
+        "a2_gate": true,
+        "callback_p99_seconds": 0.000241535,
+        "deadline_misses": 0,
+        "eq": {
+          "bands": [
+            {
+              "freqHz": 100.0,
+              "gainDb": 0.0,
+              "q": 0.709999978542328,
+              "type": "lowshelf"
+            },
+            {
+              "freqHz": 250.0,
+              "gainDb": 0.0,
+              "q": 1.0,
+              "type": "bell"
+            },
+            {
+              "freqHz": 650.0,
+              "gainDb": 0.0,
+              "q": 1.0,
+              "type": "bell"
+            },
+            {
+              "freqHz": 1600.0,
+              "gainDb": 0.0,
+              "q": 1.0,
+              "type": "bell"
+            },
+            {
+              "freqHz": 3500.0,
+              "gainDb": 0.0,
+              "q": 1.399999976158142,
+              "type": "bell"
+            },
+            {
+              "freqHz": 8000.0,
+              "gainDb": 0.0,
+              "q": 0.709999978542328,
+              "type": "highshelf"
+            }
+          ],
+          "enabled": false,
+          "pre": false
+        },
+        "normalization_gain": 1.0,
+        "normalize": false,
+        "p99_budget_ratio": 0.18115124999999999,
+        "peak": 4.085595607757568,
+        "rms": 0.9885501313950756,
+        "sample_rate": 48000.0,
+        "samples": 1152000
+      },
+      "steady_silence_dbfs": -161.55725545775675,
+      "silence_runtime": {
+        "a2_channels": 8,
+        "a2_gate": true,
+        "callback_p99_seconds": 0.000141484,
+        "deadline_misses": 0,
+        "eq": {
+          "bands": [
+            {
+              "freqHz": 100.0,
+              "gainDb": 0.0,
+              "q": 0.709999978542328,
+              "type": "lowshelf"
+            },
+            {
+              "freqHz": 250.0,
+              "gainDb": 0.0,
+              "q": 1.0,
+              "type": "bell"
+            },
+            {
+              "freqHz": 650.0,
+              "gainDb": 0.0,
+              "q": 1.0,
+              "type": "bell"
+            },
+            {
+              "freqHz": 1600.0,
+              "gainDb": 0.0,
+              "q": 1.0,
+              "type": "bell"
+            },
+            {
+              "freqHz": 3500.0,
+              "gainDb": 0.0,
+              "q": 1.399999976158142,
+              "type": "bell"
+            },
+            {
+              "freqHz": 8000.0,
+              "gainDb": 0.0,
+              "q": 0.709999978542328,
+              "type": "highshelf"
+            }
+          ],
+          "enabled": false,
+          "pre": false
+        },
+        "normalization_gain": 1.0,
+        "normalize": false,
+        "p99_budget_ratio": 0.10611299999999999,
+        "peak": 9.089708186138523e-08,
+        "rms": 9.089708186137488e-08,
+        "sample_rate": 48000.0,
+        "samples": 48000
+      },
+      "frozen_validation_roles": [
+        "selected",
+        "best-esr-raw"
+      ],
+      "engine_compatibility_pass": true,
+      "old_revealed_regression": {
+        "profile": "nastrond-tone3000-fidelity-v1",
+        "level_anchor": 0.09195752759643712,
+        "active_windows": 274,
+        "quiet_windows": 5,
+        "active_median": 0.05661835533299857,
+        "active_p95": 0.30191163754639194,
+        "active_worst": 0.7151078117008813,
+        "quiet_worst_residual_rms_dbfs": -101.96096863463369,
+        "quiet_worst_residual_peak_dbfs": -92.65342393837408,
+        "rms_error_db": -0.33552891571117066,
+        "peak_error_db": 0.91692994755571,
+        "full_esr": 0.08075138488633755,
+        "active_pass": false,
+        "quiet_pass": true,
+        "level_pass": true,
+        "full_esr_pass": false,
+        "fidelity_pass": false,
+        "worst_active_windows": [
+          {
+            "start_sample": 10443,
+            "active": true,
+            "reference_rms_dbfs": -28.946939399488045,
+            "esr": 0.7151078117008813,
+            "residual_rms_dbfs": -30.40322417732215,
+            "residual_peak_dbfs": -9.4811770145792
+          },
+          {
+            "start_sample": 1128651,
+            "active": true,
+            "reference_rms_dbfs": -57.7840779070129,
+            "esr": 0.664335592528682,
+            "residual_rms_dbfs": -59.56020269819704,
+            "residual_peak_dbfs": -42.59622021388493
+          },
+          {
+            "start_sample": 850123,
+            "active": true,
+            "reference_rms_dbfs": -31.4999019560905,
+            "esr": 0.5439866198545181,
+            "residual_rms_dbfs": -34.1440197788663,
+            "residual_peak_dbfs": -12.84740107040899
+          },
+          {
+            "start_sample": 915659,
+            "active": true,
+            "reference_rms_dbfs": -21.708540953154454,
+            "esr": 0.5314751021321684,
+            "residual_rms_dbfs": -24.453711712536528,
+            "residual_peak_dbfs": -10.479638302167
+          },
+          {
+            "start_sample": 907467,
+            "active": true,
+            "reference_rms_dbfs": -20.331653050278135,
+            "esr": 0.4648777324747719,
+            "residual_rms_dbfs": -23.658265609418223,
+            "residual_peak_dbfs": -8.024950718011741
+          }
+        ],
+        "quiet_window_details": [
+          {
+            "start_sample": 6347,
+            "active": false,
+            "reference_rms_dbfs": -200.0,
+            "esr": 6986.737944360019,
+            "residual_rms_dbfs": -161.55725545775675,
+            "residual_peak_dbfs": -161.55725545775675
+          },
+          {
+            "start_sample": 1132747,
+            "active": false,
+            "reference_rms_dbfs": -101.95470699145845,
+            "esr": 0.9985592422661053,
+            "residual_rms_dbfs": -101.96096863463369,
+            "residual_peak_dbfs": -92.65342393837408
+          },
+          {
+            "start_sample": 1136843,
+            "active": false,
+            "reference_rms_dbfs": -139.21007114091665,
+            "esr": 0.9030148401711515,
+            "residual_rms_dbfs": -139.65312226511844,
+            "residual_peak_dbfs": -130.1086392692648
+          },
+          {
+            "start_sample": 1140939,
+            "active": false,
+            "reference_rms_dbfs": -176.47337096911104,
+            "esr": 24.525956987839812,
+            "residual_rms_dbfs": -162.57711134623463,
+            "residual_peak_dbfs": -161.56857873268694
+          },
+          {
+            "start_sample": 1145035,
+            "active": false,
+            "reference_rms_dbfs": -200.0,
+            "esr": 6963.752396385951,
+            "residual_rms_dbfs": -161.57156679081845,
+            "residual_peak_dbfs": -161.5574106479479
+          }
+        ]
+      }
+    },
+    "Surtr": {
+      "model_sha256": "aff819cc7e91f57d9b97dfd7ad7f881ad947d7e0ca1ad8ebbb7e7f137e6c07f6",
+      "job_sha256": "de430ab7c2441109b69da7f06907115145dadd001fab251951f29bcf7ed2dcf9",
+      "new_test": {
+        "profile": "nastrond-tone3000-fidelity-v1",
+        "level_anchor": 0.09034985741800312,
+        "active_windows": 274,
+        "quiet_windows": 5,
+        "active_median": 0.08946088297149472,
+        "active_p95": 0.3249923187208553,
+        "active_worst": 0.6519714458562392,
+        "quiet_worst_residual_rms_dbfs": -78.1225934170986,
+        "quiet_worst_residual_peak_dbfs": -67.1553611053052,
+        "rms_error_db": -0.43900254482293766,
+        "peak_error_db": 0.9076442997460106,
+        "full_esr": 0.10565405876590445,
+        "active_pass": false,
+        "quiet_pass": true,
+        "level_pass": true,
+        "full_esr_pass": false,
+        "fidelity_pass": false,
+        "worst_active_windows": [
+          {
+            "start_sample": 243915,
+            "active": true,
+            "reference_rms_dbfs": -20.022183279765255,
+            "esr": 0.6519714458562392,
+            "residual_rms_dbfs": -21.879897524572215,
+            "residual_peak_dbfs": -10.194436784614032
+          },
+          {
+            "start_sample": 137419,
+            "active": true,
+            "reference_rms_dbfs": -20.96086215326231,
+            "esr": 0.6336363655298375,
+            "residual_rms_dbfs": -22.94246121088659,
+            "residual_peak_dbfs": -10.903638890756246
+          },
+          {
+            "start_sample": 833739,
+            "active": true,
+            "reference_rms_dbfs": -19.332625222724197,
+            "esr": 0.554612959077574,
+            "residual_rms_dbfs": -21.892725091940676,
+            "residual_peak_dbfs": -12.403886583330516
+          },
+          {
+            "start_sample": 239819,
+            "active": true,
+            "reference_rms_dbfs": -20.39463340653457,
+            "esr": 0.47536499022741235,
+            "residual_rms_dbfs": -23.62436147087395,
+            "residual_peak_dbfs": -11.355988017416486
+          },
+          {
+            "start_sample": 125131,
+            "active": true,
+            "reference_rms_dbfs": -20.8066875058934,
+            "esr": 0.4266131532402444,
+            "residual_rms_dbfs": -24.50634509200274,
+            "residual_peak_dbfs": -11.213073216734399
+          }
+        ],
+        "quiet_window_details": [
+          {
+            "start_sample": 6347,
+            "active": false,
+            "reference_rms_dbfs": -200.0,
+            "esr": 19.15060829001234,
+            "residual_rms_dbfs": -187.1781742677107,
+            "residual_peak_dbfs": -187.17451541817752
+          },
+          {
+            "start_sample": 1132747,
+            "active": false,
+            "reference_rms_dbfs": -79.1579385109989,
+            "esr": 1.2692129931271374,
+            "residual_rms_dbfs": -78.1225934170986,
+            "residual_peak_dbfs": -67.1553611053052
+          },
+          {
+            "start_sample": 1136843,
+            "active": false,
+            "reference_rms_dbfs": -98.87932516382622,
+            "esr": 1.3329314923397584,
+            "residual_rms_dbfs": -97.63124687496432,
+            "residual_peak_dbfs": -88.26657453469457
+          },
+          {
+            "start_sample": 1140939,
+            "active": false,
+            "reference_rms_dbfs": -116.97958952322374,
+            "esr": 1.2858143584105504,
+            "residual_rms_dbfs": -115.88780681197372,
+            "residual_peak_dbfs": -106.69710173444882
+          },
+          {
+            "start_sample": 1145035,
+            "active": false,
+            "reference_rms_dbfs": -135.50290256659866,
+            "esr": 1.271747178373594,
+            "residual_rms_dbfs": -134.45889473924893,
+            "residual_peak_dbfs": -125.57077203291236
+          }
+        ]
+      },
+      "character": {
+        "prediction": {
+          "band_power_db": [
+            -2.495661219888053,
+            -6.234391497826825,
+            -8.089579076828338,
+            -8.464393806565266,
+            -11.259357228020729
+          ],
+          "crest_db": 9.426675832762866
+        },
+        "reference": {
+          "band_power_db": [
+            -2.183528603881432,
+            -5.871574090663142,
+            -7.683180763161336,
+            -7.677630870260761,
+            -10.3302989466119
+          ],
+          "crest_db": 8.080028988193918
+        },
+        "band_error_db": [
+          -0.3121326160066209,
+          -0.36281740716368294,
+          -0.40639831366700196,
+          -0.7867629363045046,
+          -0.9290582814088282
+        ],
+        "crest_error_db": 1.346646844568948,
+        "scope": "Fixed channel snapshot, synthetic excitation, numerical proxy only; no musical/DI listening verdict"
+      },
+      "runtime64": {
+        "a2_channels": 8,
+        "a2_gate": true,
+        "callback_p99_seconds": 0.000176166,
+        "deadline_misses": 0,
+        "eq": {
+          "bands": [
+            {
+              "freqHz": 80.0,
+              "gainDb": 0.0,
+              "q": 0.707000017166138,
+              "type": "lowshelf"
+            },
+            {
+              "freqHz": 133.91342163085938,
+              "gainDb": 14.998103141784668,
+              "q": 0.682126045227051,
+              "type": "bell"
+            },
+            {
+              "freqHz": 135.0508270263672,
+              "gainDb": -14.999283790588379,
+              "q": 0.689499795436859,
+              "type": "bell"
+            },
+            {
+              "freqHz": 131.51296997070312,
+              "gainDb": 14.039115905761719,
+              "q": 6.889160633087158,
+              "type": "bell"
+            },
+            {
+              "freqHz": 132.17750549316406,
+              "gainDb": -15.0,
+              "q": 7.346218585968018,
+              "type": "bell"
+            },
+            {
+              "freqHz": 8000.0,
+              "gainDb": 0.0,
+              "q": 0.707000017166138,
+              "type": "highshelf"
+            }
+          ],
+          "enabled": true,
+          "pre": false
+        },
+        "normalization_gain": 1.0,
+        "normalize": false,
+        "p99_budget_ratio": 0.1321245,
+        "peak": 3.1973838806152344,
+        "rms": 1.077113076321869,
+        "sample_rate": 48000.0,
+        "samples": 1152000
+      },
+      "runtime256": {
+        "a2_channels": 8,
+        "a2_gate": true,
+        "callback_p99_seconds": 0.000813878,
+        "deadline_misses": 0,
+        "eq": {
+          "bands": [
+            {
+              "freqHz": 80.0,
+              "gainDb": 0.0,
+              "q": 0.707000017166138,
+              "type": "lowshelf"
+            },
+            {
+              "freqHz": 133.91342163085938,
+              "gainDb": 14.998103141784668,
+              "q": 0.682126045227051,
+              "type": "bell"
+            },
+            {
+              "freqHz": 135.0508270263672,
+              "gainDb": -14.999283790588379,
+              "q": 0.689499795436859,
+              "type": "bell"
+            },
+            {
+              "freqHz": 131.51296997070312,
+              "gainDb": 14.039115905761719,
+              "q": 6.889160633087158,
+              "type": "bell"
+            },
+            {
+              "freqHz": 132.17750549316406,
+              "gainDb": -15.0,
+              "q": 7.346218585968018,
+              "type": "bell"
+            },
+            {
+              "freqHz": 8000.0,
+              "gainDb": 0.0,
+              "q": 0.707000017166138,
+              "type": "highshelf"
+            }
+          ],
+          "enabled": true,
+          "pre": false
+        },
+        "normalization_gain": 1.0,
+        "normalize": false,
+        "p99_budget_ratio": 0.152602125,
+        "peak": 3.1973838806152344,
+        "rms": 1.077113076321869,
+        "sample_rate": 48000.0,
+        "samples": 1152000
+      },
+      "block64_256_max_abs": 0.0,
+      "python_native_parity_residual_dbfs": -98.26744194279769,
+      "preset_restore_max_abs": 0.0,
+      "preset_sha256": "8fe6f58f4182d49c1b8eb3bb026f77c306f4551df16fcb8489e3a26be3474c00",
+      "preset_metadata": {
+        "blocks": [
+          {
+            "a2_channels": 8,
+            "embedded_bytes": 263944,
+            "eq": {
+              "bands": [
+                {
+                  "freqHz": 80.0,
+                  "gainDb": 0.0,
+                  "q": 0.707000017166138,
+                  "type": "lowshelf"
+                },
+                {
+                  "freqHz": 133.91342163085938,
+                  "gainDb": 14.998103141784668,
+                  "q": 0.682126045227051,
+                  "type": "bell"
+                },
+                {
+                  "freqHz": 135.0508270263672,
+                  "gainDb": -14.999283790588379,
+                  "q": 0.689499795436859,
+                  "type": "bell"
+                },
+                {
+                  "freqHz": 131.51296997070312,
+                  "gainDb": 14.039115905761719,
+                  "q": 6.889160633087158,
+                  "type": "bell"
+                },
+                {
+                  "freqHz": 132.17750549316406,
+                  "gainDb": -15.0,
+                  "q": 7.346218585968018,
+                  "type": "bell"
+                },
+                {
+                  "freqHz": 8000.0,
+                  "gainDb": 0.0,
+                  "q": 0.707000017166138,
+                  "type": "highshelf"
+                }
+              ],
+              "enabled": true,
+              "pre": false
+            },
+            "input_gain_normalized": 0.5,
+            "normalize": false,
+            "output_gain_normalized": 0.5
+          }
+        ],
+        "id": "740e091f-3555-5bef-8310-d7ad6953e05d",
+        "name": "Nastrond Surtr eq-chain Research",
+        "v2": true
+      },
+      "preset_runtime": {
+        "a2_channels": 8,
+        "a2_gate": true,
+        "callback_p99_seconds": 0.00017233,
+        "deadline_misses": 2,
+        "eq": {
+          "bands": [
+            {
+              "freqHz": 80.0,
+              "gainDb": 0.0,
+              "q": 0.707000017166138,
+              "type": "lowshelf"
+            },
+            {
+              "freqHz": 133.91342163085938,
+              "gainDb": 14.998103141784668,
+              "q": 0.682126045227051,
+              "type": "bell"
+            },
+            {
+              "freqHz": 135.0508270263672,
+              "gainDb": -14.999283790588379,
+              "q": 0.689499795436859,
+              "type": "bell"
+            },
+            {
+              "freqHz": 131.51296997070312,
+              "gainDb": 14.039115905761719,
+              "q": 6.889160633087158,
+              "type": "bell"
+            },
+            {
+              "freqHz": 132.17750549316406,
+              "gainDb": -15.0,
+              "q": 7.346218585968018,
+              "type": "bell"
+            },
+            {
+              "freqHz": 8000.0,
+              "gainDb": 0.0,
+              "q": 0.707000017166138,
+              "type": "highshelf"
+            }
+          ],
+          "enabled": true,
+          "pre": false
+        },
+        "normalization_gain": 1.0,
+        "normalize": false,
+        "p99_budget_ratio": 0.1292475,
+        "peak": 3.1973838806152344,
+        "rms": 1.077113076321869,
+        "sample_rate": 48000.0,
+        "samples": 1152000
+      },
+      "steady_silence_dbfs": -187.17807939798718,
+      "silence_runtime": {
+        "a2_channels": 8,
+        "a2_gate": true,
+        "callback_p99_seconds": 0.000184529,
+        "deadline_misses": 0,
+        "eq": {
+          "bands": [
+            {
+              "freqHz": 80.0,
+              "gainDb": 0.0,
+              "q": 0.707000017166138,
+              "type": "lowshelf"
+            },
+            {
+              "freqHz": 133.91342163085938,
+              "gainDb": 14.998103141784668,
+              "q": 0.682126045227051,
+              "type": "bell"
+            },
+            {
+              "freqHz": 135.0508270263672,
+              "gainDb": -14.999283790588379,
+              "q": 0.689499795436859,
+              "type": "bell"
+            },
+            {
+              "freqHz": 131.51296997070312,
+              "gainDb": 14.039115905761719,
+              "q": 6.889160633087158,
+              "type": "bell"
+            },
+            {
+              "freqHz": 132.17750549316406,
+              "gainDb": -15.0,
+              "q": 7.346218585968018,
+              "type": "bell"
+            },
+            {
+              "freqHz": 8000.0,
+              "gainDb": 0.0,
+              "q": 0.707000017166138,
+              "type": "highshelf"
+            }
+          ],
+          "enabled": true,
+          "pre": false
+        },
+        "normalization_gain": 1.0,
+        "normalize": false,
+        "p99_budget_ratio": 0.13839675,
+        "peak": 4.9292050441351876e-09,
+        "rms": 4.843907658716434e-09,
+        "sample_rate": 48000.0,
+        "samples": 48000
+      },
+      "frozen_validation_roles": [
+        "selected",
+        "best-esr-eq-chain"
+      ],
+      "engine_compatibility_pass": true,
+      "old_revealed_regression": {
+        "profile": "nastrond-tone3000-fidelity-v1",
+        "level_anchor": 0.09034985741800312,
+        "active_windows": 274,
+        "quiet_windows": 5,
+        "active_median": 0.08080118808985283,
+        "active_p95": 0.23589861529202671,
+        "active_worst": 0.9226049709059122,
+        "quiet_worst_residual_rms_dbfs": -74.8668116996003,
+        "quiet_worst_residual_peak_dbfs": -64.64404150768065,
+        "rms_error_db": -0.35769178913856214,
+        "peak_error_db": 0.21070312419274906,
+        "full_esr": 0.08929312354418167,
+        "active_pass": false,
+        "quiet_pass": true,
+        "level_pass": true,
+        "full_esr_pass": false,
+        "fidelity_pass": false,
+        "worst_active_windows": [
+          {
+            "start_sample": 600267,
+            "active": true,
+            "reference_rms_dbfs": -20.93215239815823,
+            "esr": 0.9226049709059122,
+            "residual_rms_dbfs": -21.281994496008135,
+            "residual_peak_dbfs": -12.331377834253903
+          },
+          {
+            "start_sample": 850123,
+            "active": true,
+            "reference_rms_dbfs": -22.830656810671748,
+            "esr": 0.6010303007994547,
+            "residual_rms_dbfs": -25.041693136596447,
+            "residual_peak_dbfs": -12.739008674257903
+          },
+          {
+            "start_sample": 112843,
+            "active": true,
+            "reference_rms_dbfs": -25.02032804145528,
+            "esr": 0.5426703931028197,
+            "residual_rms_dbfs": -27.67496676066734,
+            "residual_peak_dbfs": -12.451768038150593
+          },
+          {
+            "start_sample": 239819,
+            "active": true,
+            "reference_rms_dbfs": -22.443279528243497,
+            "esr": 0.5288075474064792,
+            "residual_rms_dbfs": -25.21030307833915,
+            "residual_peak_dbfs": -15.126282003624098
+          },
+          {
+            "start_sample": 157899,
+            "active": true,
+            "reference_rms_dbfs": -20.000013313712447,
+            "esr": 0.5067455774279607,
+            "residual_rms_dbfs": -22.952113642519087,
+            "residual_peak_dbfs": -14.967143160400191
+          }
+        ],
+        "quiet_window_details": [
+          {
+            "start_sample": 6347,
+            "active": false,
+            "reference_rms_dbfs": -200.0,
+            "esr": 19.15060829001234,
+            "residual_rms_dbfs": -187.1781742677107,
+            "residual_peak_dbfs": -187.17451541817752
+          },
+          {
+            "start_sample": 1132747,
+            "active": false,
+            "reference_rms_dbfs": -69.39996675816423,
+            "esr": 0.2839981466319499,
+            "residual_rms_dbfs": -74.8668116996003,
+            "residual_peak_dbfs": -64.64404150768065
+          },
+          {
+            "start_sample": 1136843,
+            "active": false,
+            "reference_rms_dbfs": -89.2597855074946,
+            "esr": 0.12702688466323686,
+            "residual_rms_dbfs": -98.22082903610566,
+            "residual_peak_dbfs": -88.29493961032809
+          },
+          {
+            "start_sample": 1140939,
+            "active": false,
+            "reference_rms_dbfs": -107.71422577953473,
+            "esr": 0.22013241540999728,
+            "residual_rms_dbfs": -114.28738579029704,
+            "residual_peak_dbfs": -105.9543402409912
+          },
+          {
+            "start_sample": 1145035,
+            "active": false,
+            "reference_rms_dbfs": -125.76313552102265,
+            "esr": 0.31742599217140516,
+            "residual_rms_dbfs": -130.74671066373932,
+            "residual_peak_dbfs": -121.89612677918775
+          }
+        ]
+      }
+    },
+    "Nidhoggr": {
+      "model_sha256": "a3648c4adc848b3adc0b1101587e58d24cb9303b3e2f6c6e9b8900917725a7b7",
+      "job_sha256": "d7759aaab367b41c26fe6330f215bc37e195f80eb661e074d5200e12ef5c7817",
+      "new_test": {
+        "profile": "nastrond-tone3000-fidelity-v1",
+        "level_anchor": 0.0860012970451488,
+        "active_windows": 274,
+        "quiet_windows": 5,
+        "active_median": 0.10187729818177846,
+        "active_p95": 0.3733264239855341,
+        "active_worst": 0.6805217122036199,
+        "quiet_worst_residual_rms_dbfs": -76.49920966306627,
+        "quiet_worst_residual_peak_dbfs": -65.52925786755746,
+        "rms_error_db": -0.531425046466406,
+        "peak_error_db": 1.5871257150491864,
+        "full_esr": 0.11287915945723248,
+        "active_pass": false,
+        "quiet_pass": true,
+        "level_pass": false,
+        "full_esr_pass": false,
+        "fidelity_pass": false,
+        "worst_active_windows": [
+          {
+            "start_sample": 243915,
+            "active": true,
+            "reference_rms_dbfs": -20.834911799197393,
+            "esr": 0.6805217122036199,
+            "residual_rms_dbfs": -22.506491938928093,
+            "residual_peak_dbfs": -9.06351160098063
+          },
+          {
+            "start_sample": 837835,
+            "active": true,
+            "reference_rms_dbfs": -22.618592952975234,
+            "esr": 0.5350879630604028,
+            "residual_rms_dbfs": -25.334341137780317,
+            "residual_peak_dbfs": -10.057441990210707
+          },
+          {
+            "start_sample": 780491,
+            "active": true,
+            "reference_rms_dbfs": -20.980695687550334,
+            "esr": 0.5070752214435955,
+            "residual_rms_dbfs": -23.9299717976748,
+            "residual_peak_dbfs": -12.893754146345906
+          },
+          {
+            "start_sample": 248011,
+            "active": true,
+            "reference_rms_dbfs": -20.97629681233334,
+            "esr": 0.4903554658333686,
+            "residual_rms_dbfs": -24.071186606305442,
+            "residual_peak_dbfs": -9.896568101363973
+          },
+          {
+            "start_sample": 833739,
+            "active": true,
+            "reference_rms_dbfs": -19.55552424628296,
+            "esr": 0.4809281540522721,
+            "residual_rms_dbfs": -22.734722227434204,
+            "residual_peak_dbfs": -9.044055180378589
+          }
+        ],
+        "quiet_window_details": [
+          {
+            "start_sample": 6347,
+            "active": false,
+            "reference_rms_dbfs": -200.0,
+            "esr": 6.569165934664542,
+            "residual_rms_dbfs": -191.8248976787817,
+            "residual_peak_dbfs": -191.8248976787817
+          },
+          {
+            "start_sample": 1132747,
+            "active": false,
+            "reference_rms_dbfs": -76.50561818185375,
+            "esr": 1.001476705239794,
+            "residual_rms_dbfs": -76.49920966306627,
+            "residual_peak_dbfs": -65.52925786755746
+          },
+          {
+            "start_sample": 1136843,
+            "active": false,
+            "reference_rms_dbfs": -97.51509957110866,
+            "esr": 0.9999962432472345,
+            "residual_rms_dbfs": -97.51511588650926,
+            "residual_peak_dbfs": -88.44715492660393
+          },
+          {
+            "start_sample": 1140939,
+            "active": false,
+            "reference_rms_dbfs": -113.14883108356973,
+            "esr": 1.0000045156233612,
+            "residual_rms_dbfs": -113.14881147251093,
+            "residual_peak_dbfs": -104.82796185663469
+          },
+          {
+            "start_sample": 1145035,
+            "active": false,
+            "reference_rms_dbfs": -129.05856923406384,
+            "esr": 1.0000441095620825,
+            "residual_rms_dbfs": -129.05837767289452,
+            "residual_peak_dbfs": -120.71985527011066
+          }
+        ]
+      },
+      "character": {
+        "prediction": {
+          "band_power_db": [
+            -3.373522711540619,
+            -5.883397431555524,
+            -11.544559261730532,
+            -5.034911731319832,
+            -7.858067965961904
+          ],
+          "crest_db": 11.598193684878
+        },
+        "reference": {
+          "band_power_db": [
+            -3.0262334946250355,
+            -5.541446415298714,
+            -11.15428466131698,
+            -4.334568318697691,
+            -6.867417130133978
+          ],
+          "crest_db": 9.479642923362405
+        },
+        "band_error_db": [
+          -0.34728921691558323,
+          -0.34195101625681,
+          -0.39027460041355155,
+          -0.7003434126221411,
+          -0.9906508358279265
+        ],
+        "crest_error_db": 2.1185507615155945,
+        "scope": "Fixed channel snapshot, synthetic excitation, numerical proxy only; no musical/DI listening verdict"
+      },
+      "runtime64": {
+        "a2_channels": 8,
+        "a2_gate": true,
+        "callback_p99_seconds": 0.000162004,
+        "deadline_misses": 0,
+        "eq": {
+          "bands": [
+            {
+              "freqHz": 100.0,
+              "gainDb": 0.0,
+              "q": 0.709999978542328,
+              "type": "lowshelf"
+            },
+            {
+              "freqHz": 250.0,
+              "gainDb": 0.0,
+              "q": 1.0,
+              "type": "bell"
+            },
+            {
+              "freqHz": 650.0,
+              "gainDb": 0.0,
+              "q": 1.0,
+              "type": "bell"
+            },
+            {
+              "freqHz": 1600.0,
+              "gainDb": 0.0,
+              "q": 1.0,
+              "type": "bell"
+            },
+            {
+              "freqHz": 3500.0,
+              "gainDb": 0.0,
+              "q": 1.399999976158142,
+              "type": "bell"
+            },
+            {
+              "freqHz": 8000.0,
+              "gainDb": 0.0,
+              "q": 0.709999978542328,
+              "type": "highshelf"
+            }
+          ],
+          "enabled": false,
+          "pre": false
+        },
+        "normalization_gain": 1.0,
+        "normalize": false,
+        "p99_budget_ratio": 0.12150299999999999,
+        "peak": 4.2640061378479,
+        "rms": 1.1186866250707725,
+        "sample_rate": 48000.0,
+        "samples": 1152000
+      },
+      "runtime256": {
+        "a2_channels": 8,
+        "a2_gate": true,
+        "callback_p99_seconds": 0.00068912,
+        "deadline_misses": 0,
+        "eq": {
+          "bands": [
+            {
+              "freqHz": 100.0,
+              "gainDb": 0.0,
+              "q": 0.709999978542328,
+              "type": "lowshelf"
+            },
+            {
+              "freqHz": 250.0,
+              "gainDb": 0.0,
+              "q": 1.0,
+              "type": "bell"
+            },
+            {
+              "freqHz": 650.0,
+              "gainDb": 0.0,
+              "q": 1.0,
+              "type": "bell"
+            },
+            {
+              "freqHz": 1600.0,
+              "gainDb": 0.0,
+              "q": 1.0,
+              "type": "bell"
+            },
+            {
+              "freqHz": 3500.0,
+              "gainDb": 0.0,
+              "q": 1.399999976158142,
+              "type": "bell"
+            },
+            {
+              "freqHz": 8000.0,
+              "gainDb": 0.0,
+              "q": 0.709999978542328,
+              "type": "highshelf"
+            }
+          ],
+          "enabled": false,
+          "pre": false
+        },
+        "normalization_gain": 1.0,
+        "normalize": false,
+        "p99_budget_ratio": 0.12921,
+        "peak": 4.2640061378479,
+        "rms": 1.1186866250707725,
+        "sample_rate": 48000.0,
+        "samples": 1152000
+      },
+      "block64_256_max_abs": 0.0,
+      "python_native_parity_residual_dbfs": -143.8387501498816,
+      "preset_restore_max_abs": 0.0,
+      "preset_sha256": "c07967de985e8e10fe538dbf5358474bd20b3e56c80b1f216dd2fd61c6e95393",
+      "preset_metadata": {
+        "blocks": [
+          {
+            "a2_channels": 8,
+            "embedded_bytes": 263779,
+            "eq": {
+              "bands": [
+                {
+                  "freqHz": 100.0,
+                  "gainDb": 0.0,
+                  "q": 0.709999978542328,
+                  "type": "lowshelf"
+                },
+                {
+                  "freqHz": 250.0,
+                  "gainDb": 0.0,
+                  "q": 1.0,
+                  "type": "bell"
+                },
+                {
+                  "freqHz": 650.0,
+                  "gainDb": 0.0,
+                  "q": 1.0,
+                  "type": "bell"
+                },
+                {
+                  "freqHz": 1600.0,
+                  "gainDb": 0.0,
+                  "q": 1.0,
+                  "type": "bell"
+                },
+                {
+                  "freqHz": 3500.0,
+                  "gainDb": 0.0,
+                  "q": 1.399999976158142,
+                  "type": "bell"
+                },
+                {
+                  "freqHz": 8000.0,
+                  "gainDb": 0.0,
+                  "q": 0.709999978542328,
+                  "type": "highshelf"
+                }
+              ],
+              "enabled": false,
+              "pre": false
+            },
+            "input_gain_normalized": 0.5,
+            "normalize": false,
+            "output_gain_normalized": 0.5
+          }
+        ],
+        "id": "bc782db0-dbc1-54fc-abbb-b2a02124507c",
+        "name": "Nastrond Nidhoggr selected Research",
+        "v2": true
+      },
+      "preset_runtime": {
+        "a2_channels": 8,
+        "a2_gate": true,
+        "callback_p99_seconds": 0.000161484,
+        "deadline_misses": 6,
+        "eq": {
+          "bands": [
+            {
+              "freqHz": 100.0,
+              "gainDb": 0.0,
+              "q": 0.709999978542328,
+              "type": "lowshelf"
+            },
+            {
+              "freqHz": 250.0,
+              "gainDb": 0.0,
+              "q": 1.0,
+              "type": "bell"
+            },
+            {
+              "freqHz": 650.0,
+              "gainDb": 0.0,
+              "q": 1.0,
+              "type": "bell"
+            },
+            {
+              "freqHz": 1600.0,
+              "gainDb": 0.0,
+              "q": 1.0,
+              "type": "bell"
+            },
+            {
+              "freqHz": 3500.0,
+              "gainDb": 0.0,
+              "q": 1.399999976158142,
+              "type": "bell"
+            },
+            {
+              "freqHz": 8000.0,
+              "gainDb": 0.0,
+              "q": 0.709999978542328,
+              "type": "highshelf"
+            }
+          ],
+          "enabled": false,
+          "pre": false
+        },
+        "normalization_gain": 1.0,
+        "normalize": false,
+        "p99_budget_ratio": 0.12111299999999998,
+        "peak": 4.2640061378479,
+        "rms": 1.1186866250707725,
+        "sample_rate": 48000.0,
+        "samples": 1152000
+      },
+      "steady_silence_dbfs": -191.8248976787817,
+      "silence_runtime": {
+        "a2_channels": 8,
+        "a2_gate": true,
+        "callback_p99_seconds": 0.000156876,
+        "deadline_misses": 0,
+        "eq": {
+          "bands": [
+            {
+              "freqHz": 100.0,
+              "gainDb": 0.0,
+              "q": 0.709999978542328,
+              "type": "lowshelf"
+            },
+            {
+              "freqHz": 250.0,
+              "gainDb": 0.0,
+              "q": 1.0,
+              "type": "bell"
+            },
+            {
+              "freqHz": 650.0,
+              "gainDb": 0.0,
+              "q": 1.0,
+              "type": "bell"
+            },
+            {
+              "freqHz": 1600.0,
+              "gainDb": 0.0,
+              "q": 1.0,
+              "type": "bell"
+            },
+            {
+              "freqHz": 3500.0,
+              "gainDb": 0.0,
+              "q": 1.399999976158142,
+              "type": "bell"
+            },
+            {
+              "freqHz": 8000.0,
+              "gainDb": 0.0,
+              "q": 0.709999978542328,
+              "type": "highshelf"
+            }
+          ],
+          "enabled": false,
+          "pre": false
+        },
+        "normalization_gain": 1.0,
+        "normalize": false,
+        "p99_budget_ratio": 0.117657,
+        "peak": 2.9802322831784522e-09,
+        "rms": 2.9802322831781412e-09,
+        "sample_rate": 48000.0,
+        "samples": 48000
+      },
+      "frozen_validation_roles": [
+        "selected"
+      ],
+      "engine_compatibility_pass": true,
+      "old_revealed_regression": {
+        "profile": "nastrond-tone3000-fidelity-v1",
+        "level_anchor": 0.0860012970451488,
+        "active_windows": 274,
+        "quiet_windows": 5,
+        "active_median": 0.07962902029465625,
+        "active_p95": 0.2755477426307942,
+        "active_worst": 0.7922160928100805,
+        "quiet_worst_residual_rms_dbfs": -63.65536953534145,
+        "quiet_worst_residual_peak_dbfs": -55.27579230383907,
+        "rms_error_db": -0.34883479870418954,
+        "peak_error_db": 1.455255639827893,
+        "full_esr": 0.09753291547348826,
+        "active_pass": false,
+        "quiet_pass": false,
+        "level_pass": false,
+        "full_esr_pass": false,
+        "fidelity_pass": false,
+        "worst_active_windows": [
+          {
+            "start_sample": 153803,
+            "active": true,
+            "reference_rms_dbfs": -21.442639665094603,
+            "esr": 0.7922160928100805,
+            "residual_rms_dbfs": -22.454203062401895,
+            "residual_peak_dbfs": -10.093543499916642
+          },
+          {
+            "start_sample": 600267,
+            "active": true,
+            "reference_rms_dbfs": -22.375251173257567,
+            "esr": 0.7833734410668693,
+            "residual_rms_dbfs": -23.435562738739666,
+            "residual_peak_dbfs": -10.875070747474103
+          },
+          {
+            "start_sample": 149707,
+            "active": true,
+            "reference_rms_dbfs": -20.925974312746177,
+            "esr": 0.7570108852255947,
+            "residual_rms_dbfs": -22.134953069140142,
+            "residual_peak_dbfs": -9.967727757618784
+          },
+          {
+            "start_sample": 145611,
+            "active": true,
+            "reference_rms_dbfs": -22.08077849511103,
+            "esr": 0.458895761228135,
+            "residual_rms_dbfs": -25.46363803330353,
+            "residual_peak_dbfs": -9.98253241392217
+          },
+          {
+            "start_sample": 10443,
+            "active": true,
+            "reference_rms_dbfs": -22.64744855367006,
+            "esr": 0.37802053039579364,
+            "residual_rms_dbfs": -26.87229468240155,
+            "residual_peak_dbfs": -10.123909714514772
+          }
+        ],
+        "quiet_window_details": [
+          {
+            "start_sample": 6347,
+            "active": false,
+            "reference_rms_dbfs": -200.0,
+            "esr": 6.569165934664542,
+            "residual_rms_dbfs": -191.8248976787817,
+            "residual_peak_dbfs": -191.8248976787817
+          },
+          {
+            "start_sample": 1132747,
+            "active": false,
+            "reference_rms_dbfs": -63.65470400031761,
+            "esr": 0.9998467666389542,
+            "residual_rms_dbfs": -63.65536953534145,
+            "residual_peak_dbfs": -55.27579230383907
+          },
+          {
+            "start_sample": 1136843,
+            "active": false,
+            "reference_rms_dbfs": -79.46748319031735,
+            "esr": 1.000000156816693,
+            "residual_rms_dbfs": -79.46748250927115,
+            "residual_peak_dbfs": -71.1230685143341
+          },
+          {
+            "start_sample": 1140939,
+            "active": false,
+            "reference_rms_dbfs": -95.160079692629,
+            "esr": 1.000000267485036,
+            "residual_rms_dbfs": -95.16007853095641,
+            "residual_peak_dbfs": -86.50014642778243
+          },
+          {
+            "start_sample": 1145035,
+            "active": false,
+            "reference_rms_dbfs": -110.75886078264317,
+            "esr": 0.9999946307454464,
+            "residual_rms_dbfs": -110.758884101082,
+            "residual_peak_dbfs": -102.37219647380839
+          }
+        ]
+      }
+    },
+    "Fimbulvetr": {
+      "model_sha256": "9b0972a89b8c0c0276c3249b331d5c180edfd67b1558ca44022465e3a008eb77",
+      "job_sha256": "d98c2d32d55aa3ede7182d4651832964895aa1aa2cd0f5b36ada2e337b979538",
+      "new_test": {
+        "profile": "nastrond-tone3000-fidelity-v1",
+        "level_anchor": 0.09721294970620417,
+        "active_windows": 274,
+        "quiet_windows": 5,
+        "active_median": 0.0446660712884856,
+        "active_p95": 0.17641691584096544,
+        "active_worst": 0.4402536807949977,
+        "quiet_worst_residual_rms_dbfs": -78.31350353461032,
+        "quiet_worst_residual_peak_dbfs": -69.04516595973264,
+        "rms_error_db": -0.12665212124482353,
+        "peak_error_db": -0.5478531617152171,
+        "full_esr": 0.04658045258674599,
+        "active_pass": false,
+        "quiet_pass": true,
+        "level_pass": true,
+        "full_esr_pass": false,
+        "fidelity_pass": false,
+        "worst_active_windows": [
+          {
+            "start_sample": 63691,
+            "active": true,
+            "reference_rms_dbfs": -23.738076671938778,
+            "esr": 0.4402536807949977,
+            "residual_rms_dbfs": -27.301046715670015,
+            "residual_peak_dbfs": -12.30335294671014
+          },
+          {
+            "start_sample": 59595,
+            "active": true,
+            "reference_rms_dbfs": -27.05517873171038,
+            "esr": 0.3698168254285955,
+            "residual_rms_dbfs": -31.375312069520866,
+            "residual_peak_dbfs": -11.919792119494982
+          },
+          {
+            "start_sample": 321739,
+            "active": true,
+            "reference_rms_dbfs": -20.549488896472074,
+            "esr": 0.27216500637753643,
+            "residual_rms_dbfs": -26.201166046142326,
+            "residual_peak_dbfs": -11.17301950744684
+          },
+          {
+            "start_sample": 616651,
+            "active": true,
+            "reference_rms_dbfs": -24.11996196485064,
+            "esr": 0.26974182063663094,
+            "residual_rms_dbfs": -29.810479120132793,
+            "residual_peak_dbfs": -14.131005277650907
+          },
+          {
+            "start_sample": 612555,
+            "active": true,
+            "reference_rms_dbfs": -24.11526911850878,
+            "esr": 0.23587202429393914,
+            "residual_rms_dbfs": -30.38850477600514,
+            "residual_peak_dbfs": -14.757634684022566
+          }
+        ],
+        "quiet_window_details": [
+          {
+            "start_sample": 6347,
+            "active": false,
+            "reference_rms_dbfs": -200.0,
+            "esr": 1826.2762022980908,
+            "residual_rms_dbfs": -167.38433540020364,
+            "residual_peak_dbfs": -167.37922841042575
+          },
+          {
+            "start_sample": 1132747,
+            "active": false,
+            "reference_rms_dbfs": -78.2352620437469,
+            "esr": 0.9821455447324409,
+            "residual_rms_dbfs": -78.31350353461032,
+            "residual_peak_dbfs": -69.04516595973264
+          },
+          {
+            "start_sample": 1136843,
+            "active": false,
+            "reference_rms_dbfs": -106.13197137011016,
+            "esr": 0.5092216559798887,
+            "residual_rms_dbfs": -109.06290272130391,
+            "residual_peak_dbfs": -99.52278868092249
+          },
+          {
+            "start_sample": 1140939,
+            "active": false,
+            "reference_rms_dbfs": -118.55460413333921,
+            "esr": 0.706780803310925,
+            "residual_rms_dbfs": -120.06175668098169,
+            "residual_peak_dbfs": -112.76586289705479
+          },
+          {
+            "start_sample": 1145035,
+            "active": false,
+            "reference_rms_dbfs": -130.31625806466954,
+            "esr": 0.8559653273506818,
+            "residual_rms_dbfs": -130.99169633431447,
+            "residual_peak_dbfs": -123.63592680072665
+          }
+        ]
+      },
+      "character": {
+        "prediction": {
+          "band_power_db": [
+            -2.979422527555282,
+            -9.439641210375335,
+            -12.81924280394028,
+            -6.995253195626675,
+            -8.22786196351834
+          ],
+          "crest_db": 10.356859636683925
+        },
+        "reference": {
+          "band_power_db": [
+            -2.9796501046467534,
+            -9.581824064783245,
+            -12.617088445709726,
+            -6.674143449489876,
+            -7.8098355784916675
+          ],
+          "crest_db": 10.77806067715432
+        },
+        "band_error_db": [
+          0.00022757709147125382,
+          0.1421828544079098,
+          -0.20215435823055472,
+          -0.32110974613679844,
+          -0.4180263850266721
+        ],
+        "crest_error_db": -0.42120104047039497,
+        "scope": "Fixed channel snapshot, synthetic excitation, numerical proxy only; no musical/DI listening verdict"
+      },
+      "runtime64": {
+        "a2_channels": 8,
+        "a2_gate": true,
+        "callback_p99_seconds": 0.000150868,
+        "deadline_misses": 6,
+        "eq": {
+          "bands": [
+            {
+              "freqHz": 80.0,
+              "gainDb": 0.0,
+              "q": 0.707000017166138,
+              "type": "lowshelf"
+            },
+            {
+              "freqHz": 152.71157836914062,
+              "gainDb": 14.984204292297363,
+              "q": 0.577466547489166,
+              "type": "bell"
+            },
+            {
+              "freqHz": 153.92759704589844,
+              "gainDb": -15.0,
+              "q": 0.582639813423157,
+              "type": "bell"
+            },
+            {
+              "freqHz": 153.38232421875,
+              "gainDb": 13.677542686462402,
+              "q": 9.07115650177002,
+              "type": "bell"
+            },
+            {
+              "freqHz": 154.17709350585938,
+              "gainDb": -15.0,
+              "q": 10.0,
+              "type": "bell"
+            },
+            {
+              "freqHz": 8000.0,
+              "gainDb": 0.0,
+              "q": 0.707000017166138,
+              "type": "highshelf"
+            }
+          ],
+          "enabled": true,
+          "pre": false
+        },
+        "normalization_gain": 1.0,
+        "normalize": false,
+        "p99_budget_ratio": 0.11315099999999999,
+        "peak": 3.3180959224700928,
+        "rms": 1.0042602285988667,
+        "sample_rate": 48000.0,
+        "samples": 1152000
+      },
+      "runtime256": {
+        "a2_channels": 8,
+        "a2_gate": true,
+        "callback_p99_seconds": 0.000582169,
+        "deadline_misses": 0,
+        "eq": {
+          "bands": [
+            {
+              "freqHz": 80.0,
+              "gainDb": 0.0,
+              "q": 0.707000017166138,
+              "type": "lowshelf"
+            },
+            {
+              "freqHz": 152.71157836914062,
+              "gainDb": 14.984204292297363,
+              "q": 0.577466547489166,
+              "type": "bell"
+            },
+            {
+              "freqHz": 153.92759704589844,
+              "gainDb": -15.0,
+              "q": 0.582639813423157,
+              "type": "bell"
+            },
+            {
+              "freqHz": 153.38232421875,
+              "gainDb": 13.677542686462402,
+              "q": 9.07115650177002,
+              "type": "bell"
+            },
+            {
+              "freqHz": 154.17709350585938,
+              "gainDb": -15.0,
+              "q": 10.0,
+              "type": "bell"
+            },
+            {
+              "freqHz": 8000.0,
+              "gainDb": 0.0,
+              "q": 0.707000017166138,
+              "type": "highshelf"
+            }
+          ],
+          "enabled": true,
+          "pre": false
+        },
+        "normalization_gain": 1.0,
+        "normalize": false,
+        "p99_budget_ratio": 0.1091566875,
+        "peak": 3.3180959224700928,
+        "rms": 1.0042602285988667,
+        "sample_rate": 48000.0,
+        "samples": 1152000
+      },
+      "block64_256_max_abs": 0.0,
+      "python_native_parity_residual_dbfs": -100.45276508508263,
+      "preset_restore_max_abs": 0.0,
+      "preset_sha256": "f13f5831ef031b65b0814e165d3bc662076da9ff4baff0cd2aa70a6b14e7a921",
+      "preset_metadata": {
+        "blocks": [
+          {
+            "a2_channels": 8,
+            "embedded_bytes": 264609,
+            "eq": {
+              "bands": [
+                {
+                  "freqHz": 80.0,
+                  "gainDb": 0.0,
+                  "q": 0.707000017166138,
+                  "type": "lowshelf"
+                },
+                {
+                  "freqHz": 152.71157836914062,
+                  "gainDb": 14.984204292297363,
+                  "q": 0.577466547489166,
+                  "type": "bell"
+                },
+                {
+                  "freqHz": 153.92759704589844,
+                  "gainDb": -15.0,
+                  "q": 0.582639813423157,
+                  "type": "bell"
+                },
+                {
+                  "freqHz": 153.38232421875,
+                  "gainDb": 13.677542686462402,
+                  "q": 9.07115650177002,
+                  "type": "bell"
+                },
+                {
+                  "freqHz": 154.17709350585938,
+                  "gainDb": -15.0,
+                  "q": 10.0,
+                  "type": "bell"
+                },
+                {
+                  "freqHz": 8000.0,
+                  "gainDb": 0.0,
+                  "q": 0.707000017166138,
+                  "type": "highshelf"
+                }
+              ],
+              "enabled": true,
+              "pre": false
+            },
+            "input_gain_normalized": 0.5,
+            "normalize": false,
+            "output_gain_normalized": 0.5
+          }
+        ],
+        "id": "b18c7584-3f62-525d-b503-910c2e04bd06",
+        "name": "Nastrond Fimbulvetr eq-chain Research",
+        "v2": true
+      },
+      "preset_runtime": {
+        "a2_channels": 8,
+        "a2_gate": true,
+        "callback_p99_seconds": 0.00016603,
+        "deadline_misses": 10,
+        "eq": {
+          "bands": [
+            {
+              "freqHz": 80.0,
+              "gainDb": 0.0,
+              "q": 0.707000017166138,
+              "type": "lowshelf"
+            },
+            {
+              "freqHz": 152.71157836914062,
+              "gainDb": 14.984204292297363,
+              "q": 0.577466547489166,
+              "type": "bell"
+            },
+            {
+              "freqHz": 153.92759704589844,
+              "gainDb": -15.0,
+              "q": 0.582639813423157,
+              "type": "bell"
+            },
+            {
+              "freqHz": 153.38232421875,
+              "gainDb": 13.677542686462402,
+              "q": 9.07115650177002,
+              "type": "bell"
+            },
+            {
+              "freqHz": 154.17709350585938,
+              "gainDb": -15.0,
+              "q": 10.0,
+              "type": "bell"
+            },
+            {
+              "freqHz": 8000.0,
+              "gainDb": 0.0,
+              "q": 0.707000017166138,
+              "type": "highshelf"
+            }
+          ],
+          "enabled": true,
+          "pre": false
+        },
+        "normalization_gain": 1.0,
+        "normalize": false,
+        "p99_budget_ratio": 0.12452250000000001,
+        "peak": 3.3180959224700928,
+        "rms": 1.0042602285988667,
+        "sample_rate": 48000.0,
+        "samples": 1152000
+      },
+      "steady_silence_dbfs": -167.38438312662626,
+      "silence_runtime": {
+        "a2_channels": 8,
+        "a2_gate": true,
+        "callback_p99_seconds": 0.000177447,
+        "deadline_misses": 0,
+        "eq": {
+          "bands": [
+            {
+              "freqHz": 80.0,
+              "gainDb": 0.0,
+              "q": 0.707000017166138,
+              "type": "lowshelf"
+            },
+            {
+              "freqHz": 152.71157836914062,
+              "gainDb": 14.984204292297363,
+              "q": 0.577466547489166,
+              "type": "bell"
+            },
+            {
+              "freqHz": 153.92759704589844,
+              "gainDb": -15.0,
+              "q": 0.582639813423157,
+              "type": "bell"
+            },
+            {
+              "freqHz": 153.38232421875,
+              "gainDb": 13.677542686462402,
+              "q": 9.07115650177002,
+              "type": "bell"
+            },
+            {
+              "freqHz": 154.17709350585938,
+              "gainDb": -15.0,
+              "q": 10.0,
+              "type": "bell"
+            },
+            {
+              "freqHz": 8000.0,
+              "gainDb": 0.0,
+              "q": 0.707000017166138,
+              "type": "highshelf"
+            }
+          ],
+          "enabled": true,
+          "pre": false
+        },
+        "normalization_gain": 1.0,
+        "normalize": false,
+        "p99_budget_ratio": 0.13308525000000002,
+        "peak": 4.4646267127745887e-08,
+        "rms": 4.396219499105473e-08,
+        "sample_rate": 48000.0,
+        "samples": 48000
+      },
+      "frozen_validation_roles": [
+        "selected",
+        "best-esr-eq-chain"
+      ],
+      "engine_compatibility_pass": true,
+      "old_revealed_regression": {
+        "profile": "nastrond-tone3000-fidelity-v1",
+        "level_anchor": 0.09721294970620417,
+        "active_windows": 274,
+        "quiet_windows": 5,
+        "active_median": 0.03195966325717752,
+        "active_p95": 0.1123148151608563,
+        "active_worst": 0.2969838719110448,
+        "quiet_worst_residual_rms_dbfs": -67.44568978176704,
+        "quiet_worst_residual_peak_dbfs": -59.69165136868983,
+        "rms_error_db": -0.15418628757128897,
+        "peak_error_db": -0.24397130317212756,
+        "full_esr": 0.041742623584370045,
+        "active_pass": false,
+        "quiet_pass": false,
+        "level_pass": true,
+        "full_esr_pass": false,
+        "fidelity_pass": false,
+        "worst_active_windows": [
+          {
+            "start_sample": 850123,
+            "active": true,
+            "reference_rms_dbfs": -26.139554951604023,
+            "esr": 0.2969838719110448,
+            "residual_rms_dbfs": -31.412226301200356,
+            "residual_peak_dbfs": -11.86719098220623
+          },
+          {
+            "start_sample": 211147,
+            "active": true,
+            "reference_rms_dbfs": -20.1706103350402,
+            "esr": 0.2502838181424311,
+            "residual_rms_dbfs": -26.186282618767336,
+            "residual_peak_dbfs": -10.644790446803789
+          },
+          {
+            "start_sample": 10443,
+            "active": true,
+            "reference_rms_dbfs": -20.902771108310034,
+            "esr": 0.22665966447261043,
+            "residual_rms_dbfs": -27.34902869290955,
+            "residual_peak_dbfs": -8.77996084379397
+          },
+          {
+            "start_sample": 215243,
+            "active": true,
+            "reference_rms_dbfs": -19.392607011789625,
+            "esr": 0.18406007742110786,
+            "residual_rms_dbfs": -26.743011008112912,
+            "residual_peak_dbfs": -10.615740422427356
+          },
+          {
+            "start_sample": 600267,
+            "active": true,
+            "reference_rms_dbfs": -22.0250269631441,
+            "esr": 0.18201318967235663,
+            "residual_rms_dbfs": -29.423998358328017,
+            "residual_peak_dbfs": -15.757346872254764
+          }
+        ],
+        "quiet_window_details": [
+          {
+            "start_sample": 6347,
+            "active": false,
+            "reference_rms_dbfs": -200.0,
+            "esr": 1826.2762022980908,
+            "residual_rms_dbfs": -167.38433540020364,
+            "residual_peak_dbfs": -167.37922841042575
+          },
+          {
+            "start_sample": 1132747,
+            "active": false,
+            "reference_rms_dbfs": -62.86382774148108,
+            "esr": 0.3481879972083894,
+            "residual_rms_dbfs": -67.44568978176704,
+            "residual_peak_dbfs": -59.69165136868983
+          },
+          {
+            "start_sample": 1136843,
+            "active": false,
+            "reference_rms_dbfs": -74.61422006840672,
+            "esr": 0.6325457600396357,
+            "residual_rms_dbfs": -76.60330057840494,
+            "residual_peak_dbfs": -69.77218432544605
+          },
+          {
+            "start_sample": 1140939,
+            "active": false,
+            "reference_rms_dbfs": -86.46679007011896,
+            "esr": 0.8191253343611877,
+            "residual_rms_dbfs": -87.33328648771719,
+            "residual_peak_dbfs": -79.95907403038967
+          },
+          {
+            "start_sample": 1145035,
+            "active": false,
+            "reference_rms_dbfs": -98.40151268062469,
+            "esr": 0.9191399072766953,
+            "residual_rms_dbfs": -98.7676964532311,
+            "residual_peak_dbfs": -91.52981333877675
+          }
+        ]
+      }
+    },
+    "Ragnarok": {
+      "model_sha256": "c99712054961360701cb76554aca2e021745ba769dcfc9ecb1ad138723384fc4",
+      "job_sha256": "d7759aaab367b41c26fe6330f215bc37e195f80eb661e074d5200e12ef5c7817",
+      "new_test": {
+        "profile": "nastrond-tone3000-fidelity-v1",
+        "level_anchor": 0.05162876564505051,
+        "active_windows": 274,
+        "quiet_windows": 5,
+        "active_median": 0.1104472707367978,
+        "active_p95": 0.5522833414055893,
+        "active_worst": 1.0834203013158774,
+        "quiet_worst_residual_rms_dbfs": -85.90998030900468,
+        "quiet_worst_residual_peak_dbfs": -73.44512940016003,
+        "rms_error_db": -0.47477392992025447,
+        "peak_error_db": 3.060529527138897,
+        "full_esr": 0.12279098336938697,
+        "active_pass": false,
+        "quiet_pass": true,
+        "level_pass": false,
+        "full_esr_pass": false,
+        "fidelity_pass": false,
+        "worst_active_windows": [
+          {
+            "start_sample": 248011,
+            "active": true,
+            "reference_rms_dbfs": -20.657838016232763,
+            "esr": 1.0834203013158774,
+            "residual_rms_dbfs": -20.309868324111772,
+            "residual_peak_dbfs": -11.092848753646631
+          },
+          {
+            "start_sample": 137419,
+            "active": true,
+            "reference_rms_dbfs": -23.498128892285287,
+            "esr": 1.0029682441766516,
+            "residual_rms_dbfs": -23.485257065542484,
+            "residual_peak_dbfs": -12.134932935112538
+          },
+          {
+            "start_sample": 600267,
+            "active": true,
+            "reference_rms_dbfs": -20.68375851032728,
+            "esr": 0.8807859181459411,
+            "residual_rms_dbfs": -21.23505488439151,
+            "residual_peak_dbfs": -13.452928156550518
+          },
+          {
+            "start_sample": 633035,
+            "active": true,
+            "reference_rms_dbfs": -29.332177346237028,
+            "esr": 0.6995261622626398,
+            "residual_rms_dbfs": -30.88413772888316,
+            "residual_peak_dbfs": -16.998592230713182
+          },
+          {
+            "start_sample": 186571,
+            "active": true,
+            "reference_rms_dbfs": -24.647058639632263,
+            "esr": 0.6743664573070555,
+            "residual_rms_dbfs": -26.3580990342711,
+            "residual_peak_dbfs": -17.231954333317667
+          }
+        ],
+        "quiet_window_details": [
+          {
+            "start_sample": 6347,
+            "active": false,
+            "reference_rms_dbfs": -200.0,
+            "esr": 994.9274256920015,
+            "residual_rms_dbfs": -170.022085974161,
+            "residual_peak_dbfs": -170.022085974161
+          },
+          {
+            "start_sample": 1132747,
+            "active": false,
+            "reference_rms_dbfs": -85.90947907952122,
+            "esr": 0.9998845943060682,
+            "residual_rms_dbfs": -85.90998030900468,
+            "residual_peak_dbfs": -73.44512940016003
+          },
+          {
+            "start_sample": 1136843,
+            "active": false,
+            "reference_rms_dbfs": -117.96236363318172,
+            "esr": 0.9986045446704688,
+            "residual_rms_dbfs": -117.96842825111183,
+            "residual_peak_dbfs": -106.58544546743482
+          },
+          {
+            "start_sample": 1140939,
+            "active": false,
+            "reference_rms_dbfs": -144.40246684877627,
+            "esr": 0.9955640462761408,
+            "residual_rms_dbfs": -144.42177480735592,
+            "residual_peak_dbfs": -134.39805222141024
+          },
+          {
+            "start_sample": 1145035,
+            "active": false,
+            "reference_rms_dbfs": -170.88952468281997,
+            "esr": 2.0918644429121724,
+            "residual_rms_dbfs": -167.68418930344257,
+            "residual_peak_dbfs": -159.40750671765883
+          }
+        ]
+      },
+      "character": {
+        "prediction": {
+          "band_power_db": [
+            4.335605230809433,
+            -8.113289285980224,
+            -13.484226340343259,
+            -7.172126200607664,
+            -8.219695973533641
+          ],
+          "crest_db": 9.486640676670321
+        },
+        "reference": {
+          "band_power_db": [
+            4.7012182920350485,
+            -7.402326769998133,
+            -12.754037197883347,
+            -6.185013141649469,
+            -7.327047612149399
+          ],
+          "crest_db": 5.951337219611169
+        },
+        "band_error_db": [
+          -0.36561306122561543,
+          -0.7109625159820911,
+          -0.7301891424599116,
+          -0.9871130589581956,
+          -0.892648361384242
+        ],
+        "crest_error_db": 3.535303457059152,
+        "scope": "Fixed channel snapshot, synthetic excitation, numerical proxy only; no musical/DI listening verdict"
+      },
+      "runtime64": {
+        "a2_channels": 8,
+        "a2_gate": true,
+        "callback_p99_seconds": 0.000184919,
+        "deadline_misses": 3,
+        "eq": {
+          "bands": [
+            {
+              "freqHz": 100.0,
+              "gainDb": 0.0,
+              "q": 0.709999978542328,
+              "type": "lowshelf"
+            },
+            {
+              "freqHz": 250.0,
+              "gainDb": 0.0,
+              "q": 1.0,
+              "type": "bell"
+            },
+            {
+              "freqHz": 650.0,
+              "gainDb": 0.0,
+              "q": 1.0,
+              "type": "bell"
+            },
+            {
+              "freqHz": 1600.0,
+              "gainDb": 0.0,
+              "q": 1.0,
+              "type": "bell"
+            },
+            {
+              "freqHz": 3500.0,
+              "gainDb": 0.0,
+              "q": 1.399999976158142,
+              "type": "bell"
+            },
+            {
+              "freqHz": 8000.0,
+              "gainDb": 0.0,
+              "q": 0.709999978542328,
+              "type": "highshelf"
+            }
+          ],
+          "enabled": false,
+          "pre": false
+        },
+        "normalization_gain": 1.0,
+        "normalize": false,
+        "p99_budget_ratio": 0.13868925,
+        "peak": 5.360480785369873,
+        "rms": 1.7933787464998001,
+        "sample_rate": 48000.0,
+        "samples": 1152000
+      },
+      "runtime256": {
+        "a2_channels": 8,
+        "a2_gate": true,
+        "callback_p99_seconds": 0.000538583,
+        "deadline_misses": 0,
+        "eq": {
+          "bands": [
+            {
+              "freqHz": 100.0,
+              "gainDb": 0.0,
+              "q": 0.709999978542328,
+              "type": "lowshelf"
+            },
+            {
+              "freqHz": 250.0,
+              "gainDb": 0.0,
+              "q": 1.0,
+              "type": "bell"
+            },
+            {
+              "freqHz": 650.0,
+              "gainDb": 0.0,
+              "q": 1.0,
+              "type": "bell"
+            },
+            {
+              "freqHz": 1600.0,
+              "gainDb": 0.0,
+              "q": 1.0,
+              "type": "bell"
+            },
+            {
+              "freqHz": 3500.0,
+              "gainDb": 0.0,
+              "q": 1.399999976158142,
+              "type": "bell"
+            },
+            {
+              "freqHz": 8000.0,
+              "gainDb": 0.0,
+              "q": 0.709999978542328,
+              "type": "highshelf"
+            }
+          ],
+          "enabled": false,
+          "pre": false
+        },
+        "normalization_gain": 1.0,
+        "normalize": false,
+        "p99_budget_ratio": 0.1009843125,
+        "peak": 5.360480785369873,
+        "rms": 1.7933787464998001,
+        "sample_rate": 48000.0,
+        "samples": 1152000
+      },
+      "block64_256_max_abs": 0.0,
+      "python_native_parity_residual_dbfs": -148.96762333726915,
+      "preset_restore_max_abs": 0.0,
+      "preset_sha256": "861bae0dbb11f2c91acfe3d73cc231b5df41be055b0e7a0399dd5051d994cecc",
+      "preset_metadata": {
+        "blocks": [
+          {
+            "a2_channels": 8,
+            "embedded_bytes": 264169,
+            "eq": {
+              "bands": [
+                {
+                  "freqHz": 100.0,
+                  "gainDb": 0.0,
+                  "q": 0.709999978542328,
+                  "type": "lowshelf"
+                },
+                {
+                  "freqHz": 250.0,
+                  "gainDb": 0.0,
+                  "q": 1.0,
+                  "type": "bell"
+                },
+                {
+                  "freqHz": 650.0,
+                  "gainDb": 0.0,
+                  "q": 1.0,
+                  "type": "bell"
+                },
+                {
+                  "freqHz": 1600.0,
+                  "gainDb": 0.0,
+                  "q": 1.0,
+                  "type": "bell"
+                },
+                {
+                  "freqHz": 3500.0,
+                  "gainDb": 0.0,
+                  "q": 1.399999976158142,
+                  "type": "bell"
+                },
+                {
+                  "freqHz": 8000.0,
+                  "gainDb": 0.0,
+                  "q": 0.709999978542328,
+                  "type": "highshelf"
+                }
+              ],
+              "enabled": false,
+              "pre": false
+            },
+            "input_gain_normalized": 0.5,
+            "normalize": false,
+            "output_gain_normalized": 0.5
+          }
+        ],
+        "id": "d2f6ef98-66db-51c7-9948-54dfca3d13f7",
+        "name": "Nastrond Ragnarok baseline Research",
+        "v2": true
+      },
+      "preset_runtime": {
+        "a2_channels": 8,
+        "a2_gate": true,
+        "callback_p99_seconds": 0.000149595,
+        "deadline_misses": 2,
+        "eq": {
+          "bands": [
+            {
+              "freqHz": 100.0,
+              "gainDb": 0.0,
+              "q": 0.709999978542328,
+              "type": "lowshelf"
+            },
+            {
+              "freqHz": 250.0,
+              "gainDb": 0.0,
+              "q": 1.0,
+              "type": "bell"
+            },
+            {
+              "freqHz": 650.0,
+              "gainDb": 0.0,
+              "q": 1.0,
+              "type": "bell"
+            },
+            {
+              "freqHz": 1600.0,
+              "gainDb": 0.0,
+              "q": 1.0,
+              "type": "bell"
+            },
+            {
+              "freqHz": 3500.0,
+              "gainDb": 0.0,
+              "q": 1.399999976158142,
+              "type": "bell"
+            },
+            {
+              "freqHz": 8000.0,
+              "gainDb": 0.0,
+              "q": 0.709999978542328,
+              "type": "highshelf"
+            }
+          ],
+          "enabled": false,
+          "pre": false
+        },
+        "normalization_gain": 1.0,
+        "normalize": false,
+        "p99_budget_ratio": 0.11219625000000001,
+        "peak": 5.360480785369873,
+        "rms": 1.7933787464998001,
+        "sample_rate": 48000.0,
+        "samples": 1152000
+      },
+      "steady_silence_dbfs": -170.022085974161,
+      "silence_runtime": {
+        "a2_channels": 8,
+        "a2_gate": true,
+        "callback_p99_seconds": 0.000123717,
+        "deadline_misses": 0,
+        "eq": {
+          "bands": [
+            {
+              "freqHz": 100.0,
+              "gainDb": 0.0,
+              "q": 0.709999978542328,
+              "type": "lowshelf"
+            },
+            {
+              "freqHz": 250.0,
+              "gainDb": 0.0,
+              "q": 1.0,
+              "type": "bell"
+            },
+            {
+              "freqHz": 650.0,
+              "gainDb": 0.0,
+              "q": 1.0,
+              "type": "bell"
+            },
+            {
+              "freqHz": 1600.0,
+              "gainDb": 0.0,
+              "q": 1.0,
+              "type": "bell"
+            },
+            {
+              "freqHz": 3500.0,
+              "gainDb": 0.0,
+              "q": 1.399999976158142,
+              "type": "bell"
+            },
+            {
+              "freqHz": 8000.0,
+              "gainDb": 0.0,
+              "q": 0.709999978542328,
+              "type": "highshelf"
+            }
+          ],
+          "enabled": false,
+          "pre": false
+        },
+        "normalization_gain": 1.0,
+        "normalize": false,
+        "p99_budget_ratio": 0.09278775,
+        "peak": 6.109475947368992e-08,
+        "rms": 6.10947594736764e-08,
+        "sample_rate": 48000.0,
+        "samples": 48000
+      },
+      "frozen_validation_roles": [
+        "baseline",
+        "selected"
+      ],
+      "engine_compatibility_pass": true,
+      "old_revealed_regression": {
+        "profile": "nastrond-tone3000-fidelity-v1",
+        "level_anchor": 0.05162876564505051,
+        "active_windows": 274,
+        "quiet_windows": 5,
+        "active_median": 0.10685972871271984,
+        "active_p95": 0.37107993252307525,
+        "active_worst": 1.081336944324607,
+        "quiet_worst_residual_rms_dbfs": -83.59316340286233,
+        "quiet_worst_residual_peak_dbfs": -71.6398922233058,
+        "rms_error_db": -0.6495582168040217,
+        "peak_error_db": 2.360759637019969,
+        "full_esr": 0.12044941504876498,
+        "active_pass": false,
+        "quiet_pass": true,
+        "level_pass": false,
+        "full_esr_pass": false,
+        "fidelity_pass": false,
+        "worst_active_windows": [
+          {
+            "start_sample": 850123,
+            "active": true,
+            "reference_rms_dbfs": -21.210936159555725,
+            "esr": 1.081336944324607,
+            "residual_rms_dbfs": -20.871325748608708,
+            "residual_peak_dbfs": -12.02720097100056
+          },
+          {
+            "start_sample": 919755,
+            "active": true,
+            "reference_rms_dbfs": -20.610801091740733,
+            "esr": 0.8198410887922007,
+            "residual_rms_dbfs": -21.473504286791425,
+            "residual_peak_dbfs": -11.011776933063981
+          },
+          {
+            "start_sample": 714955,
+            "active": true,
+            "reference_rms_dbfs": -26.698301213980894,
+            "esr": 0.769663137646382,
+            "residual_rms_dbfs": -27.835294345009864,
+            "residual_peak_dbfs": -16.027763356805597
+          },
+          {
+            "start_sample": 575691,
+            "active": true,
+            "reference_rms_dbfs": -20.65262844441449,
+            "esr": 0.7615613854521065,
+            "residual_rms_dbfs": -21.8355792916774,
+            "residual_peak_dbfs": -11.674356835661492
+          },
+          {
+            "start_sample": 673995,
+            "active": true,
+            "reference_rms_dbfs": -22.744796866120694,
+            "esr": 0.7016830140783502,
+            "residual_rms_dbfs": -24.283387230964067,
+            "residual_peak_dbfs": -13.512077610408081
+          }
+        ],
+        "quiet_window_details": [
+          {
+            "start_sample": 6347,
+            "active": false,
+            "reference_rms_dbfs": -200.0,
+            "esr": 994.9274256920015,
+            "residual_rms_dbfs": -170.022085974161,
+            "residual_peak_dbfs": -170.022085974161
+          },
+          {
+            "start_sample": 1132747,
+            "active": false,
+            "reference_rms_dbfs": -83.59280590262725,
+            "esr": 0.9999176859167863,
+            "residual_rms_dbfs": -83.59316340286233,
+            "residual_peak_dbfs": -71.6398922233058
+          },
+          {
+            "start_sample": 1136843,
+            "active": false,
+            "reference_rms_dbfs": -112.97761464314691,
+            "esr": 0.9995027251696763,
+            "residual_rms_dbfs": -112.97977481743958,
+            "residual_peak_dbfs": -101.3971795766784
+          },
+          {
+            "start_sample": 1140939,
+            "active": false,
+            "reference_rms_dbfs": -139.22476572547805,
+            "esr": 1.000642312294479,
+            "residual_rms_dbfs": -139.2219770941168,
+            "residual_peak_dbfs": -129.47833251790118
+          },
+          {
+            "start_sample": 1145035,
+            "active": false,
+            "reference_rms_dbfs": -165.24563239835066,
+            "esr": 1.337985849363984,
+            "residual_rms_dbfs": -163.9811171950912,
+            "residual_peak_dbfs": -153.42720217617267
+          }
+        ]
+      }
+    }
+  },
+  "channel_character_contrasts": [
+    {
+      "channels": [
+        "Fenrir",
+        "Surtr"
+      ],
+      "native_band_contrast_db": [
+        -11.943424334663192,
+        -2.2565306685794937,
+        2.7305612882914225,
+        3.6317494154994465,
+        3.0600386237342834
+      ],
+      "candidate_band_contrast_db": [
+        -11.810951491718253,
+        -1.9745239414985596,
+        2.682935423553891,
+        3.9108155832650393,
+        3.3293778413506256
+      ],
+      "absolute_contrast_error_db": [
+        0.13247284294493866,
+        0.2820067270809341,
+        0.04762586473753139,
+        0.2790661677655928,
+        0.2693392176163423
+      ]
+    },
+    {
+      "channels": [
+        "Fenrir",
+        "Nidhoggr"
+      ],
+      "native_band_contrast_db": [
+        -11.100719443919587,
+        -2.5866583439439212,
+        6.201665186447067,
+        0.2886868639363769,
+        -0.40284319274363956
+      ],
+      "candidate_band_contrast_db": [
+        -10.933090000065686,
+        -2.32551800776986,
+        6.137915608456085,
+        0.48133350801960617,
+        -0.071911420708199
+      ],
+      "absolute_contrast_error_db": [
+        0.167629443853901,
+        0.2611403361740612,
+        0.0637495779909818,
+        0.1926466440832293,
+        0.33093177203544055
+      ]
+    },
+    {
+      "channels": [
+        "Fenrir",
+        "Fimbulvetr"
+      ],
+      "native_band_contrast_db": [
+        -11.14730283389787,
+        1.4537193055406092,
+        7.664468970839812,
+        2.628261994728562,
+        0.5395752556140501
+      ],
+      "candidate_band_contrast_db": [
+        -11.327190184051023,
+        1.2307257710499506,
+        7.412599150665834,
+        2.4416749723264486,
+        0.29788257684823627
+      ],
+      "absolute_contrast_error_db": [
+        0.1798873501531535,
+        0.22299353449065862,
+        0.25186982017397863,
+        0.18658702240211333,
+        0.2416926787658138
+      ]
+    },
+    {
+      "channels": [
+        "Fenrir",
+        "Ragnarok"
+      ],
+      "native_band_contrast_db": [
+        -18.82817123057967,
+        -0.7257779892445022,
+        7.801417723013434,
+        2.1391316868881542,
+        0.05678728927178156
+      ],
+      "candidate_band_contrast_db": [
+        -18.64221794241574,
+        -0.09562615334515989,
+        8.077582687068812,
+        2.618547977307438,
+        0.28971658686353763
+      ],
+      "absolute_contrast_error_db": [
+        0.18595328816392964,
+        0.6301518358993423,
+        0.27616496405537827,
+        0.4794162904192838,
+        0.23292929759175607
+      ]
+    },
+    {
+      "channels": [
+        "Surtr",
+        "Nidhoggr"
+      ],
+      "native_band_contrast_db": [
+        0.8427048907436037,
+        -0.33012767536442755,
+        3.4711038981556444,
+        -3.3430625515630696,
+        -3.462881816477923
+      ],
+      "candidate_band_contrast_db": [
+        0.877861491652566,
+        -0.3509940662713005,
+        3.454980184902194,
+        -3.429482075245433,
+        -3.4012892620588246
+      ],
+      "absolute_contrast_error_db": [
+        0.03515660090896233,
+        0.020866390906872923,
+        0.01612371325345041,
+        0.0864195236823635,
+        0.06159255441909828
+      ]
+    },
+    {
+      "channels": [
+        "Surtr",
+        "Fimbulvetr"
+      ],
+      "native_band_contrast_db": [
+        0.7961215007653215,
+        3.710249974120103,
+        4.93390768254839,
+        -1.0034874207708846,
+        -2.5204633681202333
+      ],
+      "candidate_band_contrast_db": [
+        0.48376130766722936,
+        3.20524971254851,
+        4.729663727111943,
+        -1.4691406109385907,
+        -3.0314952645023894
+      ],
+      "absolute_contrast_error_db": [
+        0.31236019309809215,
+        0.5050002615715927,
+        0.20424395543644724,
+        0.4656531901677061,
+        0.5110318963821561
+      ]
+    },
+    {
+      "channels": [
+        "Surtr",
+        "Ragnarok"
+      ],
+      "native_band_contrast_db": [
+        -6.88474689591648,
+        1.5307526793349915,
+        5.070856434722011,
+        -1.4926177286112923,
+        -3.003251334462502
+      ],
+      "candidate_band_contrast_db": [
+        -6.831266450697486,
+        1.8788977881533997,
+        5.394647263514921,
+        -1.2922676059576013,
+        -3.039661254487088
+      ],
+      "absolute_contrast_error_db": [
+        0.05348044521899453,
+        0.3481451088184082,
+        0.32379082879290966,
+        0.200350122653691,
+        0.036409920024586206
+      ]
+    },
+    {
+      "channels": [
+        "Nidhoggr",
+        "Fimbulvetr"
+      ],
+      "native_band_contrast_db": [
+        -0.04658338997828215,
+        4.0403776494845305,
+        1.4628037843927455,
+        2.339575130792185,
+        0.9424184483576896
+      ],
+      "candidate_band_contrast_db": [
+        -0.39410018398533664,
+        3.5562437788198107,
+        1.2746835422097487,
+        1.9603414643068424,
+        0.36979399755643527
+      ],
+      "absolute_contrast_error_db": [
+        0.3475167940070545,
+        0.4841338706647198,
+        0.18812024218299683,
+        0.3792336664853426,
+        0.5726244508012543
+      ]
+    },
+    {
+      "channels": [
+        "Nidhoggr",
+        "Ragnarok"
+      ],
+      "native_band_contrast_db": [
+        -7.727451786660084,
+        1.860880354699419,
+        1.599752536566367,
+        1.8504448229517774,
+        0.4596304820154211
+      ],
+      "candidate_band_contrast_db": [
+        -7.709127942350052,
+        2.2298918544247,
+        1.939667078612727,
+        2.137214469287832,
+        0.36162800757173663
+      ],
+      "absolute_contrast_error_db": [
+        0.0183238443100322,
+        0.36901149972528113,
+        0.33991454204636007,
+        0.2867696463360545,
+        0.09800247444368448
+      ]
+    },
+    {
+      "channels": [
+        "Fimbulvetr",
+        "Ragnarok"
+      ],
+      "native_band_contrast_db": [
+        -7.680868396681802,
+        -2.1794972947851114,
+        0.13694875217362146,
+        -0.4891303078404077,
+        -0.4827879663422685
+      ],
+      "candidate_band_contrast_db": [
+        -7.315027758364716,
+        -1.3263519243951105,
+        0.6649835364029784,
+        0.17687300498098946,
+        -0.00816598998469864
+      ],
+      "absolute_contrast_error_db": [
+        0.3658406383170867,
+        0.8531453703900009,
+        0.5280347842293569,
+        0.6660033128213971,
+        0.47462197635756986
+      ]
+    }
+  ],
+  "numerical_pass_count": 0,
+  "engine_pass_count": 5,
+  "candidate_adjustment_after_test": false,
+  "candidate_selection_after_test": false,
+  "test_scope": "Same shared synthetic test; supplemental model was selected before initial test generation",
+  "old_test_scope": "Already revealed 20261011 diagnostic regression only",
+  "compatibility_scope": "Pinned unmodified NamEngine/BlockEq/PresetFile in console harness; no GUI/DAW claim",
+  "timing_scope": "Offline diagnostic under shared compute; no real-time qualification",
+  "instrument_DI_listening": "NOT_EXECUTED",
+  "channel_role_listening": "NOT_EXECUTED",
+  "TONE3000_GUI_DAW_acceptance": "NOT_EXECUTED",
+  "release_approved": false
+}

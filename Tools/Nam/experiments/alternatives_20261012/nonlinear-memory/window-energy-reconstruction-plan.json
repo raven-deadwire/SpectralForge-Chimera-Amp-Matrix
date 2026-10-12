@@ -1,0 +1,44 @@
+{
+  "created_utc_before_evidence_reconstruction": "2026-10-12T01:59:09.079306+00:00",
+  "script_sha256": "98054fe427e15ee93eb9a68f4b9dfdf921302de6c9a8585a22016394c01f7e3f",
+  "initial_plan_sha256": "c9ca398e8c17cd4286da522f66c9c8d51c6b9b776b6c208fe7436e97642b0121",
+  "initial_results_sha256": "755d8d61e43e09ec00e71d3db21e2f7b0b58326d1aa10498678bc6adf03ad28c",
+  "purpose": "Recover previously unrecorded same-window quartet energies and apply the original anchor to raw player numerical-control statistics",
+  "regeneration_count": 20,
+  "new_unique_stimuli_or_settings": 0,
+  "require_original_output_sha256_equality": true,
+  "selected_existing_cases": {
+    "Fenrir": {
+      "name": "Fenrir",
+      "gap_ms": 150,
+      "probe_level": 0.03,
+      "probe_onset_sample": 55200
+    },
+    "Surtr": {
+      "name": "Surtr",
+      "gap_ms": 150,
+      "probe_level": 0.03,
+      "probe_onset_sample": 55200
+    },
+    "Nidhoggr": {
+      "name": "Nidhoggr",
+      "gap_ms": 150,
+      "probe_level": 0.03,
+      "probe_onset_sample": 55200
+    },
+    "Fimbulvetr": {
+      "name": "Fimbulvetr",
+      "gap_ms": 150,
+      "probe_level": 0.03,
+      "probe_onset_sample": 55200
+    },
+    "Ragnarok": {
+      "name": "Ragnarok",
+      "gap_ms": 150,
+      "probe_level": 0.03,
+      "probe_onset_sample": 55200
+    }
+  },
+  "fit_or_tuning": false,
+  "release_approved": false
+}

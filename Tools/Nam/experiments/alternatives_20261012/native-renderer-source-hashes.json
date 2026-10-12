@@ -1,0 +1,55 @@
+{
+  "capture_source": "d93560445c78552768a0ed592e5ec62c3c648fb6",
+  "checkout_source": "859fea9bc49c4b9981c926a314655e485c51027c",
+  "hashes": [
+    {
+      "path": "Source/Amplifier.h",
+      "expected": "67ea06291ac61c561fb011a883f26d76aceca3c31c8028526bc4ed6a7fb8f254",
+      "observed": "67ea06291ac61c561fb011a883f26d76aceca3c31c8028526bc4ed6a7fb8f254",
+      "match": true
+    },
+    {
+      "path": "Source/AmpNativeDSP.h",
+      "expected": "3f53d3fd64b31fc0d746e5fbcf059bb86d335084b4280a41c96c336aec9a1b60",
+      "observed": "3f53d3fd64b31fc0d746e5fbcf059bb86d335084b4280a41c96c336aec9a1b60",
+      "match": true
+    },
+    {
+      "path": "Source/OriginalAmpDSP.h",
+      "expected": "7595c2bf32af62d7b3863d0b9551139d319b7ec3b108a0053b34f6072559de3c",
+      "observed": "7595c2bf32af62d7b3863d0b9551139d319b7ec3b108a0053b34f6072559de3c",
+      "match": true
+    },
+    {
+      "path": "Source/OriginalAmpDefinition.h",
+      "expected": "edf22de4734d189551d5a68b9ca84738f25ab0623a8bb6ada9519d105933f62b",
+      "observed": "edf22de4734d189551d5a68b9ca84738f25ab0623a8bb6ada9519d105933f62b",
+      "match": true
+    },
+    {
+      "path": "Source/AmpNativeCalibration.h",
+      "expected": "87f01c0e4e465f6161431bcc58d7d0d2d162f76527656db88f05b4a6685d0cb1",
+      "observed": "87f01c0e4e465f6161431bcc58d7d0d2d162f76527656db88f05b4a6685d0cb1",
+      "match": true
+    },
+    {
+      "path": "Source/AmpNativeCatalog.h",
+      "expected": "77887a5bc80afd53f9de7e1c4f33f0c958877264d06b1afa7671a924b0dc4038",
+      "observed": "77887a5bc80afd53f9de7e1c4f33f0c958877264d06b1afa7671a924b0dc4038",
+      "match": true
+    },
+    {
+      "path": "Source/AmpCatalog.h",
+      "expected": "269d66eee5d42815d5d23350f118014fb6816b7fcf01c0f73f8a9a86e2b7703e",
+      "observed": "269d66eee5d42815d5d23350f118014fb6816b7fcf01c0f73f8a9a86e2b7703e",
+      "match": true
+    },
+    {
+      "path": "Source/NewAmpDSP.h",
+      "expected": "35e15da80253d3edfd474990e675e920f8ad2cb23402bb21e45b5fe4f3013337",
+      "observed": "35e15da80253d3edfd474990e675e920f8ad2cb23402bb21e45b5fe4f3013337",
+      "match": true
+    }
+  ],
+  "all_match": true
+}

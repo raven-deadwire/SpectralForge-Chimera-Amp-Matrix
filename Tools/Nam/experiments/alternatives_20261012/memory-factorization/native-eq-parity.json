@@ -1,0 +1,810 @@
+{
+  "sample_rate": 48000,
+  "input_sha256": "79b8d087de8e6a07cb2be5df17e942860a078aa42a9afa8aea14b0ccf424ec17",
+  "probe_binary_sha256": "1b9c2956607c4974d49d7c190570d367552ea12ba73a0e0d53073c56520c17bc",
+  "release_approved": false,
+  "scope": "Actual BlockEq component parity and native Eq state roundtrip; not full NAM/preset/DAW acceptance",
+  "parity_rms_limit_dbfs": -80.0,
+  "channels": {
+    "Fenrir": {
+      "job_sha256": "77e631749bb6f7d02d07479c539e8dece6f2cea66b2d73c0c6fb416ba4964b93",
+      "effective_eq": {
+        "enabled": true,
+        "pre": false,
+        "bands": [
+          {
+            "type": "lowshelf",
+            "freqHz": 80.0,
+            "gainDb": 0.0,
+            "q": 0.707000017166138
+          },
+          {
+            "type": "bell",
+            "freqHz": 105.07307434082031,
+            "gainDb": 15.0,
+            "q": 0.157453685998917
+          },
+          {
+            "type": "bell",
+            "freqHz": 106.02118682861328,
+            "gainDb": -15.0,
+            "q": 0.158872380852699
+          },
+          {
+            "type": "bell",
+            "freqHz": 102.3982925415039,
+            "gainDb": 14.855551719665527,
+            "q": 1.359964847564697
+          },
+          {
+            "type": "bell",
+            "freqHz": 102.85279083251953,
+            "gainDb": -15.0,
+            "q": 1.381245732307434
+          },
+          {
+            "type": "highshelf",
+            "freqHz": 8000.0,
+            "gainDb": 0.0,
+            "q": 0.707000017166138
+          }
+        ]
+      },
+      "native_float32_vs_python_float64_rms_dbfs": -83.44984193537884,
+      "native_float32_vs_python_float64_peak_abs": 0.00020553171634674072,
+      "native_float32_vs_python_float32_rms_dbfs": -300.0,
+      "native_float32_vs_python_float32_peak_abs": 0.0,
+      "block64_vs257_bit_exact": true,
+      "last_100ms_silence_rms_dbfs": -300.0,
+      "native_metadata": [
+        {
+          "sample_rate": 48000,
+          "block_size": 64,
+          "samples": 384000,
+          "peak": 0.499995321035385,
+          "rms": 0.157641475229054,
+          "eq": {
+            "enabled": true,
+            "pre": false,
+            "bands": [
+              {
+                "type": "lowshelf",
+                "freqHz": 80.0,
+                "gainDb": 0.0,
+                "q": 0.707000017166138
+              },
+              {
+                "type": "bell",
+                "freqHz": 105.07307434082031,
+                "gainDb": 15.0,
+                "q": 0.157453685998917
+              },
+              {
+                "type": "bell",
+                "freqHz": 106.02118682861328,
+                "gainDb": -15.0,
+                "q": 0.158872380852699
+              },
+              {
+                "type": "bell",
+                "freqHz": 102.3982925415039,
+                "gainDb": 14.855551719665527,
+                "q": 1.359964847564697
+              },
+              {
+                "type": "bell",
+                "freqHz": 102.85279083251953,
+                "gainDb": -15.0,
+                "q": 1.381245732307434
+              },
+              {
+                "type": "highshelf",
+                "freqHz": 8000.0,
+                "gainDb": 0.0,
+                "q": 0.707000017166138
+              }
+            ]
+          },
+          "native_eq_tree_roundtrip": true,
+          "roundtrip_output_bit_exact": true,
+          "roundtrip_max_abs_delta": 0.0,
+          "serialization_scope": "BlockEq native ValueTree; not full plugin/DAW acceptance"
+        },
+        {
+          "sample_rate": 48000,
+          "block_size": 257,
+          "samples": 384000,
+          "peak": 0.499995321035385,
+          "rms": 0.157641475229054,
+          "eq": {
+            "enabled": true,
+            "pre": false,
+            "bands": [
+              {
+                "type": "lowshelf",
+                "freqHz": 80.0,
+                "gainDb": 0.0,
+                "q": 0.707000017166138
+              },
+              {
+                "type": "bell",
+                "freqHz": 105.07307434082031,
+                "gainDb": 15.0,
+                "q": 0.157453685998917
+              },
+              {
+                "type": "bell",
+                "freqHz": 106.02118682861328,
+                "gainDb": -15.0,
+                "q": 0.158872380852699
+              },
+              {
+                "type": "bell",
+                "freqHz": 102.3982925415039,
+                "gainDb": 14.855551719665527,
+                "q": 1.359964847564697
+              },
+              {
+                "type": "bell",
+                "freqHz": 102.85279083251953,
+                "gainDb": -15.0,
+                "q": 1.381245732307434
+              },
+              {
+                "type": "highshelf",
+                "freqHz": 8000.0,
+                "gainDb": 0.0,
+                "q": 0.707000017166138
+              }
+            ]
+          },
+          "native_eq_tree_roundtrip": true,
+          "roundtrip_output_bit_exact": true,
+          "roundtrip_max_abs_delta": 0.0,
+          "serialization_scope": "BlockEq native ValueTree; not full plugin/DAW acceptance"
+        }
+      ],
+      "python_float64_parity_pass": true
+    },
+    "Surtr": {
+      "job_sha256": "b54e713b8acb4a83d900bc9d1712e09a97cae61ad71bc6e754a202c78feb9177",
+      "effective_eq": {
+        "enabled": true,
+        "pre": false,
+        "bands": [
+          {
+            "type": "lowshelf",
+            "freqHz": 80.0,
+            "gainDb": 0.0,
+            "q": 0.707000017166138
+          },
+          {
+            "type": "bell",
+            "freqHz": 133.91342163085938,
+            "gainDb": 14.998103141784668,
+            "q": 0.682126045227051
+          },
+          {
+            "type": "bell",
+            "freqHz": 135.0508270263672,
+            "gainDb": -14.999283790588379,
+            "q": 0.689499795436859
+          },
+          {
+            "type": "bell",
+            "freqHz": 131.51296997070312,
+            "gainDb": 14.039115905761719,
+            "q": 6.889160633087158
+          },
+          {
+            "type": "bell",
+            "freqHz": 132.17750549316406,
+            "gainDb": -15.0,
+            "q": 7.346218585968018
+          },
+          {
+            "type": "highshelf",
+            "freqHz": 8000.0,
+            "gainDb": 0.0,
+            "q": 0.707000017166138
+          }
+        ]
+      },
+      "native_float32_vs_python_float64_rms_dbfs": -89.59066769043473,
+      "native_float32_vs_python_float64_peak_abs": 0.0001843869686126709,
+      "native_float32_vs_python_float32_rms_dbfs": -300.0,
+      "native_float32_vs_python_float32_peak_abs": 0.0,
+      "block64_vs257_bit_exact": true,
+      "last_100ms_silence_rms_dbfs": -264.842205816168,
+      "native_metadata": [
+        {
+          "sample_rate": 48000,
+          "block_size": 64,
+          "samples": 384000,
+          "peak": 0.500001788139343,
+          "rms": 0.157265927897058,
+          "eq": {
+            "enabled": true,
+            "pre": false,
+            "bands": [
+              {
+                "type": "lowshelf",
+                "freqHz": 80.0,
+                "gainDb": 0.0,
+                "q": 0.707000017166138
+              },
+              {
+                "type": "bell",
+                "freqHz": 133.91342163085938,
+                "gainDb": 14.998103141784668,
+                "q": 0.682126045227051
+              },
+              {
+                "type": "bell",
+                "freqHz": 135.0508270263672,
+                "gainDb": -14.999283790588379,
+                "q": 0.689499795436859
+              },
+              {
+                "type": "bell",
+                "freqHz": 131.51296997070312,
+                "gainDb": 14.039115905761719,
+                "q": 6.889160633087158
+              },
+              {
+                "type": "bell",
+                "freqHz": 132.17750549316406,
+                "gainDb": -15.0,
+                "q": 7.346218585968018
+              },
+              {
+                "type": "highshelf",
+                "freqHz": 8000.0,
+                "gainDb": 0.0,
+                "q": 0.707000017166138
+              }
+            ]
+          },
+          "native_eq_tree_roundtrip": true,
+          "roundtrip_output_bit_exact": true,
+          "roundtrip_max_abs_delta": 0.0,
+          "serialization_scope": "BlockEq native ValueTree; not full plugin/DAW acceptance"
+        },
+        {
+          "sample_rate": 48000,
+          "block_size": 257,
+          "samples": 384000,
+          "peak": 0.500001788139343,
+          "rms": 0.157265927897058,
+          "eq": {
+            "enabled": true,
+            "pre": false,
+            "bands": [
+              {
+                "type": "lowshelf",
+                "freqHz": 80.0,
+                "gainDb": 0.0,
+                "q": 0.707000017166138
+              },
+              {
+                "type": "bell",
+                "freqHz": 133.91342163085938,
+                "gainDb": 14.998103141784668,
+                "q": 0.682126045227051
+              },
+              {
+                "type": "bell",
+                "freqHz": 135.0508270263672,
+                "gainDb": -14.999283790588379,
+                "q": 0.689499795436859
+              },
+              {
+                "type": "bell",
+                "freqHz": 131.51296997070312,
+                "gainDb": 14.039115905761719,
+                "q": 6.889160633087158
+              },
+              {
+                "type": "bell",
+                "freqHz": 132.17750549316406,
+                "gainDb": -15.0,
+                "q": 7.346218585968018
+              },
+              {
+                "type": "highshelf",
+                "freqHz": 8000.0,
+                "gainDb": 0.0,
+                "q": 0.707000017166138
+              }
+            ]
+          },
+          "native_eq_tree_roundtrip": true,
+          "roundtrip_output_bit_exact": true,
+          "roundtrip_max_abs_delta": 0.0,
+          "serialization_scope": "BlockEq native ValueTree; not full plugin/DAW acceptance"
+        }
+      ],
+      "python_float64_parity_pass": true
+    },
+    "Nidhoggr": {
+      "job_sha256": "09b0d92c45fa4bb4ba2a76c32e83049dc22d9639dec03c4a8fb9cc1e80689258",
+      "effective_eq": {
+        "enabled": true,
+        "pre": false,
+        "bands": [
+          {
+            "type": "lowshelf",
+            "freqHz": 80.0,
+            "gainDb": 0.0,
+            "q": 0.707000017166138
+          },
+          {
+            "type": "bell",
+            "freqHz": 139.8280487060547,
+            "gainDb": 14.987833023071289,
+            "q": 0.843442559242249
+          },
+          {
+            "type": "bell",
+            "freqHz": 140.91395568847656,
+            "gainDb": -14.999960899353027,
+            "q": 0.852971196174622
+          },
+          {
+            "type": "bell",
+            "freqHz": 138.06492614746094,
+            "gainDb": 13.871662139892578,
+            "q": 8.568319320678711
+          },
+          {
+            "type": "bell",
+            "freqHz": 138.72511291503906,
+            "gainDb": -15.0,
+            "q": 9.232260704040527
+          },
+          {
+            "type": "highshelf",
+            "freqHz": 8000.0,
+            "gainDb": 0.0,
+            "q": 0.707000017166138
+          }
+        ]
+      },
+      "native_float32_vs_python_float64_rms_dbfs": -92.20054311642251,
+      "native_float32_vs_python_float64_peak_abs": 0.0001423656940460205,
+      "native_float32_vs_python_float32_rms_dbfs": -300.0,
+      "native_float32_vs_python_float32_peak_abs": 0.0,
+      "block64_vs257_bit_exact": true,
+      "last_100ms_silence_rms_dbfs": -231.05137701508932,
+      "native_metadata": [
+        {
+          "sample_rate": 48000,
+          "block_size": 64,
+          "samples": 384000,
+          "peak": 0.500001311302185,
+          "rms": 0.156903040227159,
+          "eq": {
+            "enabled": true,
+            "pre": false,
+            "bands": [
+              {
+                "type": "lowshelf",
+                "freqHz": 80.0,
+                "gainDb": 0.0,
+                "q": 0.707000017166138
+              },
+              {
+                "type": "bell",
+                "freqHz": 139.8280487060547,
+                "gainDb": 14.987833023071289,
+                "q": 0.843442559242249
+              },
+              {
+                "type": "bell",
+                "freqHz": 140.91395568847656,
+                "gainDb": -14.999960899353027,
+                "q": 0.852971196174622
+              },
+              {
+                "type": "bell",
+                "freqHz": 138.06492614746094,
+                "gainDb": 13.871662139892578,
+                "q": 8.568319320678711
+              },
+              {
+                "type": "bell",
+                "freqHz": 138.72511291503906,
+                "gainDb": -15.0,
+                "q": 9.232260704040527
+              },
+              {
+                "type": "highshelf",
+                "freqHz": 8000.0,
+                "gainDb": 0.0,
+                "q": 0.707000017166138
+              }
+            ]
+          },
+          "native_eq_tree_roundtrip": true,
+          "roundtrip_output_bit_exact": true,
+          "roundtrip_max_abs_delta": 0.0,
+          "serialization_scope": "BlockEq native ValueTree; not full plugin/DAW acceptance"
+        },
+        {
+          "sample_rate": 48000,
+          "block_size": 257,
+          "samples": 384000,
+          "peak": 0.500001311302185,
+          "rms": 0.156903040227159,
+          "eq": {
+            "enabled": true,
+            "pre": false,
+            "bands": [
+              {
+                "type": "lowshelf",
+                "freqHz": 80.0,
+                "gainDb": 0.0,
+                "q": 0.707000017166138
+              },
+              {
+                "type": "bell",
+                "freqHz": 139.8280487060547,
+                "gainDb": 14.987833023071289,
+                "q": 0.843442559242249
+              },
+              {
+                "type": "bell",
+                "freqHz": 140.91395568847656,
+                "gainDb": -14.999960899353027,
+                "q": 0.852971196174622
+              },
+              {
+                "type": "bell",
+                "freqHz": 138.06492614746094,
+                "gainDb": 13.871662139892578,
+                "q": 8.568319320678711
+              },
+              {
+                "type": "bell",
+                "freqHz": 138.72511291503906,
+                "gainDb": -15.0,
+                "q": 9.232260704040527
+              },
+              {
+                "type": "highshelf",
+                "freqHz": 8000.0,
+                "gainDb": 0.0,
+                "q": 0.707000017166138
+              }
+            ]
+          },
+          "native_eq_tree_roundtrip": true,
+          "roundtrip_output_bit_exact": true,
+          "roundtrip_max_abs_delta": 0.0,
+          "serialization_scope": "BlockEq native ValueTree; not full plugin/DAW acceptance"
+        }
+      ],
+      "python_float64_parity_pass": true
+    },
+    "Fimbulvetr": {
+      "job_sha256": "44e14d8c46a39356d3e7d9bd117b0c4b1e9e9d35fd5e43e5aadfa551b830e58b",
+      "effective_eq": {
+        "enabled": true,
+        "pre": false,
+        "bands": [
+          {
+            "type": "lowshelf",
+            "freqHz": 80.0,
+            "gainDb": 0.0,
+            "q": 0.707000017166138
+          },
+          {
+            "type": "bell",
+            "freqHz": 152.71157836914062,
+            "gainDb": 14.984204292297363,
+            "q": 0.577466547489166
+          },
+          {
+            "type": "bell",
+            "freqHz": 153.92759704589844,
+            "gainDb": -15.0,
+            "q": 0.582639813423157
+          },
+          {
+            "type": "bell",
+            "freqHz": 153.38232421875,
+            "gainDb": 13.677542686462402,
+            "q": 9.07115650177002
+          },
+          {
+            "type": "bell",
+            "freqHz": 154.17709350585938,
+            "gainDb": -15.0,
+            "q": 10.0
+          },
+          {
+            "type": "highshelf",
+            "freqHz": 8000.0,
+            "gainDb": 0.0,
+            "q": 0.707000017166138
+          }
+        ]
+      },
+      "native_float32_vs_python_float64_rms_dbfs": -89.65057767882703,
+      "native_float32_vs_python_float64_peak_abs": 0.00016111135482788086,
+      "native_float32_vs_python_float32_rms_dbfs": -300.0,
+      "native_float32_vs_python_float32_peak_abs": 0.0,
+      "block64_vs257_bit_exact": true,
+      "last_100ms_silence_rms_dbfs": -228.64778972686824,
+      "native_metadata": [
+        {
+          "sample_rate": 48000,
+          "block_size": 64,
+          "samples": 384000,
+          "peak": 0.499975174665451,
+          "rms": 0.154942944089724,
+          "eq": {
+            "enabled": true,
+            "pre": false,
+            "bands": [
+              {
+                "type": "lowshelf",
+                "freqHz": 80.0,
+                "gainDb": 0.0,
+                "q": 0.707000017166138
+              },
+              {
+                "type": "bell",
+                "freqHz": 152.71157836914062,
+                "gainDb": 14.984204292297363,
+                "q": 0.577466547489166
+              },
+              {
+                "type": "bell",
+                "freqHz": 153.92759704589844,
+                "gainDb": -15.0,
+                "q": 0.582639813423157
+              },
+              {
+                "type": "bell",
+                "freqHz": 153.38232421875,
+                "gainDb": 13.677542686462402,
+                "q": 9.07115650177002
+              },
+              {
+                "type": "bell",
+                "freqHz": 154.17709350585938,
+                "gainDb": -15.0,
+                "q": 10.0
+              },
+              {
+                "type": "highshelf",
+                "freqHz": 8000.0,
+                "gainDb": 0.0,
+                "q": 0.707000017166138
+              }
+            ]
+          },
+          "native_eq_tree_roundtrip": true,
+          "roundtrip_output_bit_exact": true,
+          "roundtrip_max_abs_delta": 0.0,
+          "serialization_scope": "BlockEq native ValueTree; not full plugin/DAW acceptance"
+        },
+        {
+          "sample_rate": 48000,
+          "block_size": 257,
+          "samples": 384000,
+          "peak": 0.499975174665451,
+          "rms": 0.154942944089724,
+          "eq": {
+            "enabled": true,
+            "pre": false,
+            "bands": [
+              {
+                "type": "lowshelf",
+                "freqHz": 80.0,
+                "gainDb": 0.0,
+                "q": 0.707000017166138
+              },
+              {
+                "type": "bell",
+                "freqHz": 152.71157836914062,
+                "gainDb": 14.984204292297363,
+                "q": 0.577466547489166
+              },
+              {
+                "type": "bell",
+                "freqHz": 153.92759704589844,
+                "gainDb": -15.0,
+                "q": 0.582639813423157
+              },
+              {
+                "type": "bell",
+                "freqHz": 153.38232421875,
+                "gainDb": 13.677542686462402,
+                "q": 9.07115650177002
+              },
+              {
+                "type": "bell",
+                "freqHz": 154.17709350585938,
+                "gainDb": -15.0,
+                "q": 10.0
+              },
+              {
+                "type": "highshelf",
+                "freqHz": 8000.0,
+                "gainDb": 0.0,
+                "q": 0.707000017166138
+              }
+            ]
+          },
+          "native_eq_tree_roundtrip": true,
+          "roundtrip_output_bit_exact": true,
+          "roundtrip_max_abs_delta": 0.0,
+          "serialization_scope": "BlockEq native ValueTree; not full plugin/DAW acceptance"
+        }
+      ],
+      "python_float64_parity_pass": true
+    },
+    "Ragnarok": {
+      "job_sha256": "21150dc2d4900fd8c451c36ec8740151dc5223a6e47273c340379c86c29155b6",
+      "effective_eq": {
+        "enabled": true,
+        "pre": false,
+        "bands": [
+          {
+            "type": "lowshelf",
+            "freqHz": 80.0,
+            "gainDb": 0.0,
+            "q": 0.707000017166138
+          },
+          {
+            "type": "bell",
+            "freqHz": 122.01874542236328,
+            "gainDb": 14.99999713897705,
+            "q": 0.373727530241013
+          },
+          {
+            "type": "bell",
+            "freqHz": 123.34490203857422,
+            "gainDb": -14.984037399291992,
+            "q": 0.376866430044174
+          },
+          {
+            "type": "bell",
+            "freqHz": 119.33863067626953,
+            "gainDb": 14.371245384216309,
+            "q": 4.256723880767822
+          },
+          {
+            "type": "bell",
+            "freqHz": 120.00482177734375,
+            "gainDb": -15.0,
+            "q": 4.449334144592285
+          },
+          {
+            "type": "highshelf",
+            "freqHz": 8000.0,
+            "gainDb": 0.0,
+            "q": 0.707000017166138
+          }
+        ]
+      },
+      "native_float32_vs_python_float64_rms_dbfs": -90.87769050899291,
+      "native_float32_vs_python_float64_peak_abs": 0.0001640021800994873,
+      "native_float32_vs_python_float32_rms_dbfs": -300.0,
+      "native_float32_vs_python_float32_peak_abs": 0.0,
+      "block64_vs257_bit_exact": true,
+      "last_100ms_silence_rms_dbfs": -300.0,
+      "native_metadata": [
+        {
+          "sample_rate": 48000,
+          "block_size": 64,
+          "samples": 384000,
+          "peak": 0.499954551458359,
+          "rms": 0.157606394326352,
+          "eq": {
+            "enabled": true,
+            "pre": false,
+            "bands": [
+              {
+                "type": "lowshelf",
+                "freqHz": 80.0,
+                "gainDb": 0.0,
+                "q": 0.707000017166138
+              },
+              {
+                "type": "bell",
+                "freqHz": 122.01874542236328,
+                "gainDb": 14.99999713897705,
+                "q": 0.373727530241013
+              },
+              {
+                "type": "bell",
+                "freqHz": 123.34490203857422,
+                "gainDb": -14.984037399291992,
+                "q": 0.376866430044174
+              },
+              {
+                "type": "bell",
+                "freqHz": 119.33863067626953,
+                "gainDb": 14.371245384216309,
+                "q": 4.256723880767822
+              },
+              {
+                "type": "bell",
+                "freqHz": 120.00482177734375,
+                "gainDb": -15.0,
+                "q": 4.449334144592285
+              },
+              {
+                "type": "highshelf",
+                "freqHz": 8000.0,
+                "gainDb": 0.0,
+                "q": 0.707000017166138
+              }
+            ]
+          },
+          "native_eq_tree_roundtrip": true,
+          "roundtrip_output_bit_exact": true,
+          "roundtrip_max_abs_delta": 0.0,
+          "serialization_scope": "BlockEq native ValueTree; not full plugin/DAW acceptance"
+        },
+        {
+          "sample_rate": 48000,
+          "block_size": 257,
+          "samples": 384000,
+          "peak": 0.499954551458359,
+          "rms": 0.157606394326352,
+          "eq": {
+            "enabled": true,
+            "pre": false,
+            "bands": [
+              {
+                "type": "lowshelf",
+                "freqHz": 80.0,
+                "gainDb": 0.0,
+                "q": 0.707000017166138
+              },
+              {
+                "type": "bell",
+                "freqHz": 122.01874542236328,
+                "gainDb": 14.99999713897705,
+                "q": 0.373727530241013
+              },
+              {
+                "type": "bell",
+                "freqHz": 123.34490203857422,
+                "gainDb": -14.984037399291992,
+                "q": 0.376866430044174
+              },
+              {
+                "type": "bell",
+                "freqHz": 119.33863067626953,
+                "gainDb": 14.371245384216309,
+                "q": 4.256723880767822
+              },
+              {
+                "type": "bell",
+                "freqHz": 120.00482177734375,
+                "gainDb": -15.0,
+                "q": 4.449334144592285
+              },
+              {
+                "type": "highshelf",
+                "freqHz": 8000.0,
+                "gainDb": 0.0,
+                "q": 0.707000017166138
+              }
+            ]
+          },
+          "native_eq_tree_roundtrip": true,
+          "roundtrip_output_bit_exact": true,
+          "roundtrip_max_abs_delta": 0.0,
+          "serialization_scope": "BlockEq native ValueTree; not full plugin/DAW acceptance"
+        }
+      ],
+      "python_float64_parity_pass": true
+    }
+  }
+}

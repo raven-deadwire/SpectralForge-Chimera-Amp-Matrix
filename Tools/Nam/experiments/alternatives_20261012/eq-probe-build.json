@@ -1,0 +1,107 @@
+{
+  "source_sha256": "ad2424453d33d2a71ea69dd840dbf226388a664fe11ae29355fc96a3df8eb537",
+  "binary_sha256": "1b9c2956607c4974d49d7c190570d367552ea12ba73a0e0d53073c56520c17bc",
+  "binary": "/workspace/scratch/e8564bd8a57f/build/eq-probe/BlockEqProbe",
+  "compile_arguments": [
+    "/usr/bin/c++",
+    "-DEIGEN_MPL2_ONLY=1",
+    "-DEIGEN_NO_DEBUG=1",
+    "-DJUCE_GLOBAL_MODULE_SETTINGS_INCLUDED=1",
+    "-DJUCE_MODULE_AVAILABLE_juce_audio_basics=1",
+    "-DJUCE_MODULE_AVAILABLE_juce_core=1",
+    "-DJUCE_MODULE_AVAILABLE_juce_data_structures=1",
+    "-DJUCE_MODULE_AVAILABLE_juce_events=1",
+    "-DJUCE_MODULE_AVAILABLE_juce_graphics=1",
+    "-DJUCE_STANDALONE_APPLICATION=1",
+    "-DJUCE_USE_CURL=0",
+    "-DJUCE_WEB_BROWSER=0",
+    "-DLINUX=1",
+    "-DNAM_ENABLE_A2_FAST=1",
+    "-DNDEBUG=1",
+    "-D_NDEBUG=1",
+    "-I/workspace/scratch/e8564bd8a57f/build/nam-tools/ChimeraTone3000Tool_artefacts/JuceLibraryCode",
+    "-I/workspace/scratch/e8564bd8a57f/deps/tone3000-plugin/plugin/include",
+    "-I/workspace/scratch/e8564bd8a57f/deps/tone3000-plugin/plugin/AudioDSPTools",
+    "-I/workspace/scratch/e8564bd8a57f/deps/tone3000-plugin/plugin/NeuralAmpModelerCore",
+    "-I/workspace/scratch/e8564bd8a57f/deps/tone3000-plugin/plugin/NeuralAmpModelerCore/Dependencies/eigen",
+    "-I/workspace/scratch/e8564bd8a57f/deps/tone3000-plugin/plugin/NeuralAmpModelerCore/Dependencies/nlohmann",
+    "-I/workspace/scratch/e8564bd8a57f/deps/JUCE/modules",
+    "-I/usr/include/freetype2",
+    "-I/usr/include/libpng16",
+    "-O3",
+    "-DNDEBUG",
+    "-std=gnu++20",
+    "-O3",
+    "-MD",
+    "-MT",
+    "/workspace/scratch/e8564bd8a57f/build/eq-probe/BlockEqProbe.cpp.o",
+    "-MF",
+    "/workspace/scratch/e8564bd8a57f/build/eq-probe/BlockEqProbe.cpp.o.d",
+    "-o",
+    "/workspace/scratch/e8564bd8a57f/build/eq-probe/BlockEqProbe.cpp.o",
+    "-c",
+    "/workspace/scratch/e8564bd8a57f/nam-alternatives/Tools/Nam/experiments/alternatives_20261012/BlockEqProbe.cpp"
+  ],
+  "link_arguments": [
+    "/usr/bin/c++",
+    "-O3",
+    "-DNDEBUG",
+    "/workspace/scratch/e8564bd8a57f/build/eq-probe/BlockEqProbe.cpp.o",
+    "/workspace/scratch/e8564bd8a57f/build/nam-tools/CMakeFiles/ChimeraTone3000Tool.dir/workspace/scratch/e8564bd8a57f/deps/tone3000-plugin/plugin/src/BlockEq.cpp.o",
+    "/workspace/scratch/e8564bd8a57f/build/nam-tools/CMakeFiles/ChimeraTone3000Tool.dir/workspace/scratch/e8564bd8a57f/deps/JUCE/modules/juce_audio_basics/juce_audio_basics.cpp.o",
+    "/workspace/scratch/e8564bd8a57f/build/nam-tools/CMakeFiles/ChimeraTone3000Tool.dir/workspace/scratch/e8564bd8a57f/deps/JUCE/modules/juce_core/juce_core.cpp.o",
+    "/workspace/scratch/e8564bd8a57f/build/nam-tools/CMakeFiles/ChimeraTone3000Tool.dir/workspace/scratch/e8564bd8a57f/deps/JUCE/modules/juce_core/juce_core_CompilationTime.cpp.o",
+    "/workspace/scratch/e8564bd8a57f/build/nam-tools/CMakeFiles/ChimeraTone3000Tool.dir/workspace/scratch/e8564bd8a57f/deps/JUCE/modules/juce_data_structures/juce_data_structures.cpp.o",
+    "/workspace/scratch/e8564bd8a57f/build/nam-tools/CMakeFiles/ChimeraTone3000Tool.dir/workspace/scratch/e8564bd8a57f/deps/JUCE/modules/juce_events/juce_events.cpp.o",
+    "/workspace/scratch/e8564bd8a57f/build/nam-tools/CMakeFiles/ChimeraTone3000Tool.dir/workspace/scratch/e8564bd8a57f/deps/JUCE/modules/juce_graphics/juce_graphics.cpp.o",
+    "/workspace/scratch/e8564bd8a57f/build/nam-tools/CMakeFiles/ChimeraTone3000Tool.dir/workspace/scratch/e8564bd8a57f/deps/JUCE/modules/juce_graphics/juce_graphics_Harfbuzz.cpp.o",
+    "/workspace/scratch/e8564bd8a57f/build/nam-tools/CMakeFiles/ChimeraTone3000Tool.dir/workspace/scratch/e8564bd8a57f/deps/JUCE/modules/juce_graphics/juce_graphics_Sheenbidi.c.o",
+    "-o",
+    "/workspace/scratch/e8564bd8a57f/build/eq-probe/BlockEqProbe",
+    "-lrt",
+    "-ldl",
+    "-lpthread",
+    "/usr/lib/x86_64-linux-gnu/libfontconfig.so",
+    "/usr/lib/x86_64-linux-gnu/libfreetype.so"
+  ],
+  "reused_objects": [
+    {
+      "path": "/workspace/scratch/e8564bd8a57f/build/nam-tools/CMakeFiles/ChimeraTone3000Tool.dir/workspace/scratch/e8564bd8a57f/deps/tone3000-plugin/plugin/src/BlockEq.cpp.o",
+      "sha256": "80273341a375f6199807bebd7ba9777b52bf9397525c7b780c07034647f5d380"
+    },
+    {
+      "path": "/workspace/scratch/e8564bd8a57f/build/nam-tools/CMakeFiles/ChimeraTone3000Tool.dir/workspace/scratch/e8564bd8a57f/deps/JUCE/modules/juce_audio_basics/juce_audio_basics.cpp.o",
+      "sha256": "e6ee629661faf00cb6441f71205141c397c51e6646fc0fa6a078262ba2456aaf"
+    },
+    {
+      "path": "/workspace/scratch/e8564bd8a57f/build/nam-tools/CMakeFiles/ChimeraTone3000Tool.dir/workspace/scratch/e8564bd8a57f/deps/JUCE/modules/juce_core/juce_core.cpp.o",
+      "sha256": "205559f47cd17ff7865ae45c4b95f8d4fb825187a2cba0356c2de45b67793e23"
+    },
+    {
+      "path": "/workspace/scratch/e8564bd8a57f/build/nam-tools/CMakeFiles/ChimeraTone3000Tool.dir/workspace/scratch/e8564bd8a57f/deps/JUCE/modules/juce_core/juce_core_CompilationTime.cpp.o",
+      "sha256": "524f2a4a520df77b72294a78b2fcfc4c1ae2f3876cc5e17252fb719f64648e31"
+    },
+    {
+      "path": "/workspace/scratch/e8564bd8a57f/build/nam-tools/CMakeFiles/ChimeraTone3000Tool.dir/workspace/scratch/e8564bd8a57f/deps/JUCE/modules/juce_data_structures/juce_data_structures.cpp.o",
+      "sha256": "1df357ee2395fa259751a6ea36eaef39f1f356f420ddb52d3ba6d8a31c1b310d"
+    },
+    {
+      "path": "/workspace/scratch/e8564bd8a57f/build/nam-tools/CMakeFiles/ChimeraTone3000Tool.dir/workspace/scratch/e8564bd8a57f/deps/JUCE/modules/juce_events/juce_events.cpp.o",
+      "sha256": "55f122d7f1f19a2e33fe9447d9ca83b98199433a1444ecd9678b97107dfe1f9e"
+    },
+    {
+      "path": "/workspace/scratch/e8564bd8a57f/build/nam-tools/CMakeFiles/ChimeraTone3000Tool.dir/workspace/scratch/e8564bd8a57f/deps/JUCE/modules/juce_graphics/juce_graphics.cpp.o",
+      "sha256": "55a5c2d91d193cda2355b8dc899bd269b375fb7eb818ca923869728476b4b882"
+    },
+    {
+      "path": "/workspace/scratch/e8564bd8a57f/build/nam-tools/CMakeFiles/ChimeraTone3000Tool.dir/workspace/scratch/e8564bd8a57f/deps/JUCE/modules/juce_graphics/juce_graphics_Harfbuzz.cpp.o",
+      "sha256": "9621b53a31f68f4364ed38b03ae8c73e08ce23555376e8a18baff727ca8ddc37"
+    },
+    {
+      "path": "/workspace/scratch/e8564bd8a57f/build/nam-tools/CMakeFiles/ChimeraTone3000Tool.dir/workspace/scratch/e8564bd8a57f/deps/JUCE/modules/juce_graphics/juce_graphics_Sheenbidi.c.o",
+      "sha256": "d10f5e2387044435619ed86e5a6beecde50423553ae7f4755250841fd5b5f593"
+    }
+  ],
+  "upstream_modified": false,
+  "scope": "One experimental wrapper plus the already compiled unmodified pinned BlockEq and JUCE objects"
+}

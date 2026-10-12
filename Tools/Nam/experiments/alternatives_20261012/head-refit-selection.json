@@ -1,0 +1,102 @@
+{
+  "plan_sha256": "e9a9061129db57cbf64bc95c8caab84af08452abcebf8b0ec836cbf5cb3fabe3",
+  "validation_sha256": "58928c0ca01d0aebcf981e4e437a3a4bf982f68ba6d8c151a22f2a73c3b301ce",
+  "baseline": {
+    "Fenrir": {
+      "model_sha256": "5c88c8d03609a0e3a2341467d3ae7e843af9d36de8e4e007ba85b08b9545b594",
+      "job_sha256": "d7759aaab367b41c26fe6330f215bc37e195f80eb661e074d5200e12ef5c7817"
+    },
+    "Surtr": {
+      "model_sha256": "c3dbc6092fed41c54b2d8b7486b5538495c617fb419a7563e307e67931957edb",
+      "job_sha256": "d7759aaab367b41c26fe6330f215bc37e195f80eb661e074d5200e12ef5c7817"
+    },
+    "Nidhoggr": {
+      "model_sha256": "fec3d9a7fd4a0c92ea30f90e9aee20034fa7acfb456413a4407e5062d9fb8474",
+      "job_sha256": "d7759aaab367b41c26fe6330f215bc37e195f80eb661e074d5200e12ef5c7817"
+    },
+    "Fimbulvetr": {
+      "model_sha256": "df28b1397a973d28c50d53d3bdab2e4c63df8850ebb39ba2efa8c1a27f17668d",
+      "job_sha256": "d7759aaab367b41c26fe6330f215bc37e195f80eb661e074d5200e12ef5c7817"
+    },
+    "Ragnarok": {
+      "model_sha256": "c99712054961360701cb76554aca2e021745ba769dcfc9ecb1ad138723384fc4",
+      "job_sha256": "d7759aaab367b41c26fe6330f215bc37e195f80eb661e074d5200e12ef5c7817"
+    }
+  },
+  "selected": {
+    "Fenrir": {
+      "model_sha256": "7cf7162a38c9f506e2b6185299d611faf06d404c93465129f9f3e41ebf82ef32",
+      "job_sha256": "d7759aaab367b41c26fe6330f215bc37e195f80eb661e074d5200e12ef5c7817",
+      "mode": "raw"
+    },
+    "Surtr": {
+      "model_sha256": "aff819cc7e91f57d9b97dfd7ad7f881ad947d7e0ca1ad8ebbb7e7f137e6c07f6",
+      "job_sha256": "de430ab7c2441109b69da7f06907115145dadd001fab251951f29bcf7ed2dcf9",
+      "mode": "eq-chain"
+    },
+    "Nidhoggr": {
+      "model_sha256": "a3648c4adc848b3adc0b1101587e58d24cb9303b3e2f6c6e9b8900917725a7b7",
+      "job_sha256": "d7759aaab367b41c26fe6330f215bc37e195f80eb661e074d5200e12ef5c7817",
+      "mode": "raw"
+    },
+    "Fimbulvetr": {
+      "model_sha256": "9b0972a89b8c0c0276c3249b331d5c180edfd67b1558ca44022465e3a008eb77",
+      "job_sha256": "d98c2d32d55aa3ede7182d4651832964895aa1aa2cd0f5b36ada2e337b979538",
+      "mode": "eq-chain"
+    },
+    "Ragnarok": {
+      "model_sha256": "c99712054961360701cb76554aca2e021745ba769dcfc9ecb1ad138723384fc4",
+      "job_sha256": "d7759aaab367b41c26fe6330f215bc37e195f80eb661e074d5200e12ef5c7817",
+      "mode": "baseline"
+    }
+  },
+  "best_esr": {
+    "raw": {
+      "Fenrir": {
+        "model_sha256": "7cf7162a38c9f506e2b6185299d611faf06d404c93465129f9f3e41ebf82ef32",
+        "job_sha256": "d7759aaab367b41c26fe6330f215bc37e195f80eb661e074d5200e12ef5c7817"
+      },
+      "Surtr": {
+        "model_sha256": "778dd35a7a08ba950ac07ecccc2658f26375d18da424142922b3fda1709eb35a",
+        "job_sha256": "d7759aaab367b41c26fe6330f215bc37e195f80eb661e074d5200e12ef5c7817"
+      },
+      "Nidhoggr": {
+        "model_sha256": "c83461b1b7fb1737aa02bf58e876f5302bdc50042fdaa85ee82127fcb4147901",
+        "job_sha256": "d7759aaab367b41c26fe6330f215bc37e195f80eb661e074d5200e12ef5c7817"
+      },
+      "Fimbulvetr": {
+        "model_sha256": "f5b7326c188d9bf81d63581d07357037e9029e3225b197af4d25a01fc8994e85",
+        "job_sha256": "d7759aaab367b41c26fe6330f215bc37e195f80eb661e074d5200e12ef5c7817"
+      },
+      "Ragnarok": {
+        "model_sha256": "f4be37f89e4b431c8ef8c502fe2a214d8fe0b63a10b942bf53a82baa96cbc820",
+        "job_sha256": "d7759aaab367b41c26fe6330f215bc37e195f80eb661e074d5200e12ef5c7817"
+      }
+    },
+    "eq-chain": {
+      "Fenrir": {
+        "model_sha256": "60e9d91177dcea304f2864b25f5497d26519d38db91374e6b1c4f7a52ab0c4de",
+        "job_sha256": "457e855c15cb418711fa06098d593eb4bcd60bbe86a339b8fb94cfe3bd2a5da7"
+      },
+      "Surtr": {
+        "model_sha256": "aff819cc7e91f57d9b97dfd7ad7f881ad947d7e0ca1ad8ebbb7e7f137e6c07f6",
+        "job_sha256": "de430ab7c2441109b69da7f06907115145dadd001fab251951f29bcf7ed2dcf9"
+      },
+      "Nidhoggr": {
+        "model_sha256": "0192446dc31b40d31f155359ea36b93e1a652a871eba44bc934aedb7154837ee",
+        "job_sha256": "7e9ec49aee778ad5c2c806b9e5dd64fd59f6573d4e9f67afe38b7bef14752681"
+      },
+      "Fimbulvetr": {
+        "model_sha256": "9b0972a89b8c0c0276c3249b331d5c180edfd67b1558ca44022465e3a008eb77",
+        "job_sha256": "d98c2d32d55aa3ede7182d4651832964895aa1aa2cd0f5b36ada2e337b979538"
+      },
+      "Ragnarok": {
+        "model_sha256": "0f89052b74c6e34a12ad12a1e96abc0e7bd11fe579f58a193d8d30c77a41b973",
+        "job_sha256": "87d545ad47d89b712dd9c183103d5682d8cd564911b9c257c6336585282e3af8"
+      }
+    }
+  },
+  "release_approved": false,
+  "instrument_DI_listening": "NOT_EXECUTED",
+  "GUI_DAW": "NOT_EXECUTED"
+}
