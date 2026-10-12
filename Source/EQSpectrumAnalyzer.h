@@ -47,6 +47,9 @@ public:
     // The snapshot survives visibility/LIVE resets and sample-rate changes;
     // resolution/smoothing controls are locked until thaw. It is editor-local
     // display state, never a host parameter, preset, A/B or undo operation.
+    // reset() drains already-published samples only. A live processor must also
+    // keep capture disabled through EQCaptureBoundary acknowledgement and reset
+    // once more before re-enabling, excluding an older in-flight callback.
     void setFrozen(bool shouldFreeze,EQAnalyzerFIFO& fifo) noexcept {
         if(frozen==shouldFreeze)return;
         frozen=shouldFreeze;

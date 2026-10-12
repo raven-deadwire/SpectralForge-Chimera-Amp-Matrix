@@ -94,7 +94,10 @@ private:
             }
             const auto callbackStart=std::chrono::steady_clock::now();
             if(fullRoute)processor.processBlock(first,midi);
-            else {processor.graphicalEQ(0).process(first);processor.graphicalEQ(1).process(second);}
+            else {
+                EQCaptureBoundary::CallbackScope captureScope(processor.eqCaptureBoundary());
+                processor.graphicalEQ(0).process(first);processor.graphicalEQ(1).process(second);
+            }
             const double elapsed=std::chrono::duration<double,std::micro>(std::chrono::steady_clock::now()-callbackStart).count();
             if(timings.size()<10000)timings.push_back(elapsed);callbacks.fetch_add(1);
             deadline+=interval;const auto now=std::chrono::steady_clock::now();
@@ -291,6 +294,7 @@ void liveAnalyzer(ChimeraProcessor& processor,ChimeraEditor& editor,const juce::
         // boundary before the synthetic producer can complete a fresh window.
         panel->setSnapshotFrozen(false);
         check(!panel->analyzerHasData() && !panel->isSnapshotFrozen(),"Thaw displayed an old snapshot before fresh audio");
+        check(!panel->isWaitingForFreshCapture() || !processor.graphicalEQ(e).analyzer.enabled.load(),"Thaw captured before its callback boundary was acknowledged");
         check(waitFor([&]{return panel->analyzerHasData() && panel->fftFrames()>frozenFrames;}),"Thaw did not resume from new audio");
         std::cout<<"PASS native Snapshot Freeze / exact bins / capture off / hidden bank / fresh thaw bank="<<e<<'\n';
         // PNG file encoding above is outside the timing interval and may block

@@ -104,6 +104,7 @@ bool ChimeraProcessor::isBusesLayoutSupported(const BusesLayout& buses) const
 }
 void ChimeraProcessor::processBlock(juce::AudioBuffer<float>& buffer,juce::MidiBuffer& midi)
 {
+    spectralforge::EQCaptureBoundary::CallbackScope eqCaptureScope(eqCaptureBoundaryState);
     const auto started=juce::Time::getHighResolutionTicks();
     juce::ScopedNoDenormals noDenormals;
     for(const auto metadata:midi) {

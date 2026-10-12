@@ -1,8 +1,11 @@
 #include "EQSpectrumAnalyzer.h"
+#include "EQCaptureBoundary.h"
 #include "PluginProcessor.h"
+#include <condition_variable>
 #include <cstdlib>
 #include <cstring>
 #include <iostream>
+#include <mutex>
 #include <stdexcept>
 #include <thread>
 #include <vector>
@@ -195,6 +198,104 @@ void idleAndMixedBatch() {
     std::cout<<"PASS Freeze captures the last real pre-idle frame and the latest valid window before malformed data in one FIFO batch\n";
 }
 
+// Deterministic test-only scheduling. The real boundary never locks or waits;
+// this fixture pauses a callback after its entry request/capture reads so the
+// message thread can make a Freeze/thaw request before old samples publish.
+class PausedCaptureCallback {
+public:
+    template<typename Produce>
+    PausedCaptureCallback(EQCaptureBoundary& boundary,EQAnalyzerFIFO& fifo,Produce produce)
+        :thread([this,&boundary,&fifo,produce] {
+            EQCaptureBoundary::CallbackScope callback(boundary);
+            captured.store(fifo.enabled.load(std::memory_order_relaxed));
+            {
+                std::unique_lock<std::mutex> lock(mutex);entered=true;condition.notify_all();
+                condition.wait(lock,[this]{return released;});
+            }
+            produce(captured.load());
+        }){}
+    ~PausedCaptureCallback(){resumeAndJoin();}
+    void waitUntilEntered() {
+        std::unique_lock<std::mutex> lock(mutex);condition.wait(lock,[this]{return entered;});
+    }
+    bool capturedAtEntry() const noexcept {return captured.load();}
+    void resumeAndJoin() {
+        {std::lock_guard<std::mutex> lock(mutex);released=true;}
+        condition.notify_all();if(thread.joinable())thread.join();
+    }
+private:
+    std::mutex mutex;std::condition_variable condition;bool entered{},released{};
+    std::atomic<bool> captured{false};std::thread thread;
+};
+
+void strictCallbackFreshness() {
+    for(double rate:rates)for(int size:{2048,4096,8192}) {
+        EQCaptureBoundary boundary;
+        auto analyzer=std::make_unique<EQSpectrumAnalyzer>();auto fifo=std::make_unique<EQAnalyzerFIFO>();
+        configure(*analyzer,*fifo,size,rate);fill(*fifo,size,0,size);analyzer->update(*fifo,rate);
+        fifo->enabled.store(true);
+        PausedCaptureCallback oldCallback(boundary,*fifo,[&](bool capture) {
+            if(capture)fill(*fifo,size+37,0,size,43,.3f,3.f);
+        });
+        oldCallback.waitUntilEntered();check(oldCallback.capturedAtEntry(),"Old callback did not load capture before Freeze");
+        fifo->enabled.store(false);analyzer->setFrozen(true,*fifo);analyzer->setFrozen(false,*fifo);
+        const auto request=boundary.requestDrain();const auto beforeDiscard=analyzer->discardedSamples();
+        check(!boundary.isDrained(request) && !analyzer->hasData(),"Thaw skipped its pending callback boundary");
+        oldCallback.resumeAndJoin();
+        check(fifo->pendingSamples()==uint32_t(size+37),"Adversarial old callback did not publish a full stale frame after the initial flush");
+        check(!boundary.isDrained(request),"A pre-thaw callback acknowledged a newer request");
+        check(!analyzer->hasData(),"Pending thaw exposed the old callback's late-published frame");
+
+        PausedCaptureCallback acknowledgingCallback(boundary,*fifo,[&](bool capture) {
+            if(capture)fill(*fifo,size,0,size,7,.6f,1.f);
+        });
+        acknowledgingCallback.waitUntilEntered();
+        check(!acknowledgingCallback.capturedAtEntry(),"Request-observing callback did not see capture disabled");
+        check(!boundary.isDrained(request),"Callback entry acknowledged before all old writes were finished");
+        acknowledgingCallback.resumeAndJoin();check(boundary.isDrained(request),"Completed request-observing callback did not acknowledge");
+        check(fifo->pendingSamples()==uint32_t(size+37),"Disabled acknowledging callback captured audio");
+
+        // This is the integrated UI's acknowledged boundary. Its second flush
+        // removes old writes that arrived after setFrozen(false)'s first flush.
+        analyzer->reset(*fifo);fifo->enabled.store(true);
+        check(fifo->pendingSamples()==0 && !analyzer->hasData() && analyzer->windowSamples()==0 &&
+              analyzer->discardedSamples()-beforeDiscard==uint64_t(size+37),"Acknowledged thaw retained stale FIFO/overlap data");
+        {
+            EQCaptureBoundary::CallbackScope freshCallback(boundary);
+            fill(*fifo,size-1,0,size,61,.05f,2.f);
+        }
+        analyzer->update(*fifo,rate);check(!analyzer->hasData(),"Callback-fresh thaw published before N new samples");
+        {
+            EQCaptureBoundary::CallbackScope freshCallback(boundary);
+            fill(*fifo,1,size-1,size,61,.05f,2.f);
+        }
+        analyzer->update(*fifo,rate);
+        check(analyzer->hasData(),"N callback-fresh samples did not publish after acknowledged thaw");
+        near(analyzer->rawDB(false,61),20*std::log10(.05),.025,"First callback-fresh input window contains late old data");
+        near(analyzer->rawDB(true,61),-20,.025,"First callback-fresh output window contains late old data");
+        check(analyzer->rawDB(false,43)<-110,"Pre-thaw callback tone leaked into the new complete window");
+    }
+
+    EQCaptureBoundary boundary;
+    const auto stoppedRequest=boundary.requestDrain();
+    for(int poll=0;poll<32;++poll)check(!boundary.isDrained(stoppedRequest),"Stopped producer fabricated a callback acknowledgement");
+    uint64_t laterRequest{};
+    {
+        EQCaptureBoundary::CallbackScope resumedCallback(boundary);
+        laterRequest=boundary.requestDrain();
+        check(!boundary.isDrained(stoppedRequest) && !boundary.isDrained(laterRequest),"Resumed callback acknowledged before exit");
+    }
+    check(boundary.isDrained(stoppedRequest) && !boundary.isDrained(laterRequest),"Earlier resumed callback released a later bank request");
+    const auto coalescedRequest=boundary.requestDrain();
+    {
+        EQCaptureBoundary::CallbackScope nextCallback(boundary);
+        check(!boundary.isDrained(coalescedRequest),"Coalesced requests were released before callback exit");
+    }
+    check(boundary.isDrained(stoppedRequest) && boundary.isDrained(laterRequest) && boundary.isDrained(coalescedRequest),
+          "Latest acknowledged callback did not release all older coalesced bank requests");
+    std::cout<<"PASS 12 rate/FFT pairs: delayed old callback cannot release thaw, disabled callback acknowledgement, final purge, first N callback-fresh samples; stopped/resumed/coalesced requests\n";
+}
+
 void set(ChimeraProcessor& processor,const juce::String& id,float value) {
     auto* parameter=processor.parameters().getParameter(id);check(parameter!=nullptr,"Missing EQ host parameter");
     parameter->setValueNotifyingHost(parameter->convertTo0to1(value));
@@ -231,7 +332,10 @@ void audioAndParameterInvariance() {
             y.makeCopyOf(x,true);
             for(int eq=0;eq<2;++eq)candidate->graphicalEQ(eq).analyzer.enabled.store(!(eq==0?tone:final)->isFrozen());
             countAllocations=true;
-            for(int eq=0;eq<2;++eq) {reference->graphicalEQ(eq).process(x);candidate->graphicalEQ(eq).process(y);}
+            {
+                EQCaptureBoundary::CallbackScope callback(candidate->eqCaptureBoundary());
+                for(int eq=0;eq<2;++eq) {reference->graphicalEQ(eq).process(x);candidate->graphicalEQ(eq).process(y);}
+            }
             tone->update(candidate->graphicalEQ(0).analyzer,rate);final->update(candidate->graphicalEQ(1).analyzer,rate);
             countAllocations=false;
             for(int channel=0;channel<2;++channel) {
@@ -252,7 +356,7 @@ void audioAndParameterInvariance() {
 int main() {
     try {
         juce::ScopedJuceInitialiser_GUI init;
-        emptyAndFreshWindow();immutableFrameAndMapping();malformedFramesAndRetainedMetadata();idleAndMixedBatch();audioAndParameterInvariance();
+        emptyAndFreshWindow();immutableFrameAndMapping();malformedFramesAndRetainedMetadata();idleAndMixedBatch();strictCallbackFreshness();audioAndParameterInvariance();
         std::cout<<"PASS October 23 Snapshot Freeze regression suite; real DAW/editor acceptance remains separate\n";return 0;
     } catch(const std::exception& error) {
         countAllocations=false;std::cerr<<"FAIL "<<error.what()<<'\n';return 1;

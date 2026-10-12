@@ -2,6 +2,7 @@
 #include "GraphicalEQ.h"
 #include "EQSpectrumAnalyzer.h"
 #include "EQEditState.h"
+#include "EQCaptureBoundary.h"
 #include <juce_audio_utils/juce_audio_utils.h>
 
 namespace spectralforge {
@@ -9,8 +10,8 @@ namespace spectralforge {
 // released APVTS attachments/IDs, gestures and parameter meanings.
 class GraphicalEQPanel : public juce::Component, private juce::Timer {
 public:
-    GraphicalEQPanel(juce::AudioProcessorValueTreeState& s,GraphicalEQ& d,int e,EQEditState& edits)
-        :state(s),dsp(d),editing(edits),instance(e) {
+    GraphicalEQPanel(juce::AudioProcessorValueTreeState& s,GraphicalEQ& d,int e,EQEditState& edits,EQCaptureBoundary& boundary)
+        :state(s),dsp(d),editing(edits),captureBoundary(boundary),instance(e) {
         setOpaque(true);setWantsKeyboardFocus(true);setComponentID(e==0?"toneEQ_panel":"finalEQ_panel");
         lastExternalRevision=editing.externalRevision();
         bypass.setButtonText("BYPASS EQ");bypass.setClickingTogglesState(true);
@@ -101,10 +102,15 @@ public:
     std::function<void(int)> onHistoryBankSelected;
     bool isBandVisible(int band) const noexcept {return editing.isOccupied(instance,band);}
     bool isSnapshotFrozen() const noexcept {return spectrum.isFrozen();}
+    bool isWaitingForFreshCapture() const noexcept {return pendingCaptureRequest!=0;}
     void setSnapshotFrozen(bool frozen) {
         if(frozen==spectrum.isFrozen())return;
         if(frozen){liveResolutionChoice=resolution.getSelectedId();liveSmoothingChoice=smoothing.getSelectedId();}
         dsp.analyzer.enabled.store(false);analyzerActive=false;
+        // A callback that was already running can still publish after a FIFO
+        // flush. Keep capture off until a later callback has observed this
+        // request and completed, then flush again before accepting fresh input.
+        pendingCaptureRequest=frozen?0:captureBoundary.requestDrain();
         spectrum.setFrozen(frozen,dsp.analyzer);
         freezeToggle.setToggleState(spectrum.isFrozen(),juce::dontSendNotification);
         freezeToggle.setButtonText(spectrum.isFrozen()?"FROZEN":"FREEZE");
@@ -399,6 +405,11 @@ private:
     }
     void updateAnalyzer() {
         if(!isShowing())endDrag();
+        if(pendingCaptureRequest!=0) {
+            dsp.analyzer.enabled.store(false);analyzerActive=false;
+            if(!captureBoundary.isDrained(pendingCaptureRequest))return;
+            pendingCaptureRequest=0;spectrum.reset(dsp.analyzer);clearSpectrumPaths();
+        }
         const bool active=isShowing() && analyzerToggle.getToggleState() && !spectrum.isFrozen();if(active==analyzerActive)return;
         dsp.analyzer.enabled.store(false);
         if(!spectrum.isFrozen()){spectrum.reset(dsp.analyzer);clearSpectrumPaths();}
@@ -450,10 +461,10 @@ private:
         if(diagnosticObserver)diagnosticObserver(diagnosticContext,*this,false,
             std::chrono::duration<double,std::micro>(std::chrono::steady_clock::now()-diagnosticStart).count());
     }
-    juce::AudioProcessorValueTreeState& state;GraphicalEQ& dsp;EQEditState& editing;int instance,selected{-1};
+    juce::AudioProcessorValueTreeState& state;GraphicalEQ& dsp;EQEditState& editing;EQCaptureBoundary& captureBoundary;int instance,selected{-1};
     bool dragging{},sliderEditing{},sliderGestureRejected{},refreshingControls{},navigationSelected{},analyzerActive{};
     uint16_t lastOccupiedMask{0xffff};int liveResolutionChoice{2},liveSmoothingChoice{2};
-    uint64_t lastExternalRevision{};
+    uint64_t lastExternalRevision{},pendingCaptureRequest{};
     juce::TextButton bypass,enabled,analyzerToggle,inputToggle,outputToggle,freezeToggle,addButton,deleteButton,undoButton,redoButton;
     juce::ComboBox selector,type,resolution,smoothing;std::array<juce::Slider,3> sliders;
     std::unique_ptr<PA> bypassAttachment,enabledAttachment,typeAttachment;std::array<std::unique_ptr<PA>,3> sliderAttachments;
