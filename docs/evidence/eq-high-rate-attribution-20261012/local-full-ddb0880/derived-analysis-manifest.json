@@ -1,0 +1,24 @@
+{
+  "source_commit": "ddb0880bd61a4c794236783b869767b96208bf41",
+  "run_id": null,
+  "derived_analysis": true,
+  "performance_acceptance": "NOT_ASSESSED",
+  "files": [
+    {
+      "source_path": "attribution-audit.json",
+      "path": "attribution-audit.json.gz",
+      "raw_bytes": 251618,
+      "raw_sha256": "f418f57f58c5fc6f36a1dac3afc981b01953d0ae06b572855b48c2de69967a41",
+      "stored_sha256": "efacc08c37d6029839227f7d3697757ea4378db84d98c4568ff2e3ed1a05ecfa",
+      "compression": "gzip; mtime=0"
+    },
+    {
+      "source_path": "attribution-rebase-events.json",
+      "path": "attribution-rebase-events.json.gz",
+      "raw_bytes": 27737,
+      "raw_sha256": "6697f4544b54ef1a32c652c8e86ae5c44149911ce15e772bae621107aa253f8d",
+      "stored_sha256": "56ead47b2e8fba7730959427349cde70f901f9d2215d8dd9e56a0817cb6c102e",
+      "compression": "gzip; mtime=0"
+    }
+  ]
+}

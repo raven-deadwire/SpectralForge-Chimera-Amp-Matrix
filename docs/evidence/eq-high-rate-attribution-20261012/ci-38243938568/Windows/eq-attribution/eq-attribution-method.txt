@@ -1,0 +1,12 @@
+Synthetic diagnostic source; no hardware clock, audio interface or DAW.
+Scope=complete_90_case_synthetic_matrix.
+Historical functional suite and its producer are unchanged. Duration scale=1.
+Legacy source permanently rebases after >2 periods late; due source retains clock debt and can issue catch-up bursts.
+Near-nominal catch-up production is NOT proof of real-time callback scheduling. Raw late starts and execution overruns are retained.
+Process/producer/message CPU are actual CPU-time deltas as percent of one core; FFT/update/path times are inclusive wall durations.
+macOS CF/AppKit timings include their dispatched callbacks; do not sum them with analyzer/paint times.
+Native no-panel-paint suppresses the EQ panel rendering only; host editor controls and the real message loop remain.
+Producer signal generation, buffer fills, sleeps and timing records are test-only, outside the product processBlock.
+All waveform/cache/buffer/telemetry allocations precede measured production. CSV writes occur after joining the producer.
+Observed FIFO high-water is sampled, not a claim to observe the instantaneous maximum. Pending samples at stop are not losses.
+DAW/performance acceptance remains NOT_ASSESSED in every row.

@@ -1,0 +1,4500 @@
+{
+  "platform": "macOS-native-CI",
+  "artifact": "/workspace/scratch/af7c830474b5/ci-artifacts/macos-72e361ba",
+  "datasets": [
+    {
+      "platform": "macOS-native-CI",
+      "dataset": ".",
+      "input_artifact": "/workspace/scratch/af7c830474b5/ci-artifacts/macos-72e361ba",
+      "performance_acceptance": "NOT_ASSESSED",
+      "issues": [],
+      "notes": [
+        "CPU milliseconds include FIFO feeding and analysis. FFT-only wall measurements have different magnitude-pass scope across variants; use complete-update wall cost.",
+        "Timing reductions are observations, with no performance threshold or statistical significance gate. Shared-runner variation remains visible in raw trials.",
+        "FIFO pending/discarded values are asserted by the C++ test but absent from cost CSV columns; do not invent separate observed values.",
+        "Zero-FFT consumer updates are legitimate when a batch is shorter than one hop. Consumer totals include them; no zero-update timing row is discarded.",
+        "CSV consistency PASS is separate from the CTest process result and from untested DAW/audio-interface real-time acceptance."
+      ],
+      "cells": [
+        {
+          "rate": 44100,
+          "fft_size": 2048,
+          "fixture": "full_capacity_catchup",
+          "ui_interval_ms": null,
+          "samples_per_trial": 65536,
+          "fft_windows_per_trial": 128,
+          "consumer_calls_per_trial": 1,
+          "expected_zero_fft_calls_from_fixture": 0,
+          "zero_fft_calls_observed_in_cost_csv": "NOT_RECORDED_PER_UPDATE",
+          "baseline_update_median_ms": 8.2187085,
+          "candidate_update_median_ms": 6.243458499999999,
+          "update_cost_reduction_percent": 24.0335814319245,
+          "baseline_cpu_median_ms": 9.345875,
+          "candidate_cpu_median_ms": 7.2694790000000005,
+          "cpu_cost_reduction_percent": 22.217245576256893,
+          "cpu_reduction_status": "COMPARABLE_OBSERVATION",
+          "adjacent_pair_update_reductions_percent": [
+            -5.39158316551358,
+            -97.34616238875948,
+            50.796727820035215,
+            56.209577763070804
+          ],
+          "adjacent_pair_reduction_median_percent": 22.702572327260818,
+          "baseline_update_trials_ms": [
+            7.829333,
+            4.286208,
+            8.608084,
+            9.44375
+          ],
+          "candidate_update_trials_ms": [
+            8.251458,
+            8.458667,
+            4.235459,
+            4.135458
+          ],
+          "baseline_cpu_trials_ms": [
+            8.756458,
+            4.555292,
+            9.935292,
+            10.492209
+          ],
+          "candidate_cpu_trials_ms": [
+            9.504167,
+            8.737083,
+            5.801875,
+            5.754708
+          ],
+          "baseline_max_update_us_median": 8218.7085,
+          "candidate_max_update_us_median": 6243.458500000001
+        },
+        {
+          "rate": 44100,
+          "fft_size": 2048,
+          "fixture": "nominal_cadence",
+          "ui_interval_ms": 20,
+          "samples_per_trial": 88200,
+          "fft_windows_per_trial": 172,
+          "consumer_calls_per_trial": 100,
+          "expected_zero_fft_calls_from_fixture": 0,
+          "zero_fft_calls_observed_in_cost_csv": "NOT_RECORDED_PER_UPDATE",
+          "baseline_update_median_ms": 11.0382905,
+          "candidate_update_median_ms": 7.7255815000000005,
+          "update_cost_reduction_percent": 30.011069195904927,
+          "baseline_cpu_median_ms": 12.222083000000001,
+          "candidate_cpu_median_ms": 9.2091875,
+          "cpu_cost_reduction_percent": 24.651243981897363,
+          "cpu_reduction_status": "COMPARABLE_OBSERVATION",
+          "adjacent_pair_update_reductions_percent": [
+            8.721497311683047,
+            36.79167808560467,
+            55.721036495246764,
+            20.321614449774337
+          ],
+          "adjacent_pair_reduction_median_percent": 28.556646267689505,
+          "baseline_update_trials_ms": [
+            8.868374,
+            12.84416,
+            13.836706,
+            9.232421
+          ],
+          "candidate_update_trials_ms": [
+            8.094919,
+            8.118578,
+            6.12675,
+            7.356244
+          ],
+          "baseline_cpu_trials_ms": [
+            10.629208,
+            13.814958,
+            14.50175,
+            10.55025
+          ],
+          "candidate_cpu_trials_ms": [
+            10.108083,
+            9.686042,
+            7.803042,
+            8.732333
+          ],
+          "baseline_max_update_us_median": 299.77049999999997,
+          "candidate_max_update_us_median": 215.22899999999998
+        },
+        {
+          "rate": 44100,
+          "fft_size": 2048,
+          "fixture": "nominal_cadence",
+          "ui_interval_ms": 40,
+          "samples_per_trial": 88200,
+          "fft_windows_per_trial": 172,
+          "consumer_calls_per_trial": 50,
+          "expected_zero_fft_calls_from_fixture": 0,
+          "zero_fft_calls_observed_in_cost_csv": "NOT_RECORDED_PER_UPDATE",
+          "baseline_update_median_ms": 9.38846,
+          "candidate_update_median_ms": 8.6948765,
+          "update_cost_reduction_percent": 7.38761735151453,
+          "baseline_cpu_median_ms": 11.031854,
+          "candidate_cpu_median_ms": 10.037979,
+          "cpu_cost_reduction_percent": 9.009138445813358,
+          "cpu_reduction_status": "COMPARABLE_OBSERVATION",
+          "adjacent_pair_update_reductions_percent": [
+            19.90277970279929,
+            -17.594495639947596,
+            37.863027548216145,
+            -0.7928212133935242
+          ],
+          "adjacent_pair_reduction_median_percent": 9.554979244702883,
+          "baseline_update_trials_ms": [
+            9.437124,
+            9.339796,
+            15.437878,
+            7.735792
+          ],
+          "candidate_update_trials_ms": [
+            7.558874,
+            10.983086,
+            9.59263,
+            7.797123
+          ],
+          "baseline_cpu_trials_ms": [
+            11.130292,
+            10.933416,
+            18.274458,
+            9.530708
+          ],
+          "candidate_cpu_trials_ms": [
+            9.197041,
+            12.338791,
+            10.518625,
+            9.557333
+          ],
+          "baseline_max_update_us_median": 430.979,
+          "candidate_max_update_us_median": 455.812
+        },
+        {
+          "rate": 44100,
+          "fft_size": 2048,
+          "fixture": "nominal_cadence",
+          "ui_interval_ms": 80,
+          "samples_per_trial": 88200,
+          "fft_windows_per_trial": 172,
+          "consumer_calls_per_trial": 25,
+          "expected_zero_fft_calls_from_fixture": 0,
+          "zero_fft_calls_observed_in_cost_csv": "NOT_RECORDED_PER_UPDATE",
+          "baseline_update_median_ms": 9.8886465,
+          "candidate_update_median_ms": 8.382500499999999,
+          "update_cost_reduction_percent": 15.231063219824891,
+          "baseline_cpu_median_ms": 11.448667,
+          "candidate_cpu_median_ms": 10.0241665,
+          "cpu_cost_reduction_percent": 12.442500947926959,
+          "cpu_reduction_status": "COMPARABLE_OBSERVATION",
+          "adjacent_pair_update_reductions_percent": [
+            22.114894628585713,
+            1.7073622237961716,
+            21.848533472471278,
+            34.728517554592564
+          ],
+          "adjacent_pair_reduction_median_percent": 21.981714050528495,
+          "baseline_update_trials_ms": [
+            8.96021,
+            8.853833,
+            10.817083,
+            12.73342
+          ],
+          "candidate_update_trials_ms": [
+            6.978669,
+            8.702666,
+            8.453709,
+            8.311292
+          ],
+          "baseline_cpu_trials_ms": [
+            10.574625,
+            10.611959,
+            12.285375,
+            13.561542
+          ],
+          "candidate_cpu_trials_ms": [
+            8.561917,
+            10.184042,
+            10.01825,
+            10.030083
+          ],
+          "baseline_max_update_us_median": 766.292,
+          "candidate_max_update_us_median": 569.0
+        },
+        {
+          "rate": 44100,
+          "fft_size": 4096,
+          "fixture": "full_capacity_catchup",
+          "ui_interval_ms": null,
+          "samples_per_trial": 65536,
+          "fft_windows_per_trial": 64,
+          "consumer_calls_per_trial": 1,
+          "expected_zero_fft_calls_from_fixture": 0,
+          "zero_fft_calls_observed_in_cost_csv": "NOT_RECORDED_PER_UPDATE",
+          "baseline_update_median_ms": 8.850104,
+          "candidate_update_median_ms": 7.4779585,
+          "update_cost_reduction_percent": 15.504286729285898,
+          "baseline_cpu_median_ms": 9.6144795,
+          "candidate_cpu_median_ms": 8.247,
+          "cpu_cost_reduction_percent": 14.223125651263802,
+          "cpu_reduction_status": "COMPARABLE_OBSERVATION",
+          "adjacent_pair_update_reductions_percent": [
+            11.1299648064354,
+            7.938118925146509,
+            -7.591584778737714,
+            41.4855539657995
+          ],
+          "adjacent_pair_reduction_median_percent": 9.534041865790954,
+          "baseline_update_trials_ms": [
+            9.945,
+            10.096334,
+            5.686125,
+            7.755208
+          ],
+          "candidate_update_trials_ms": [
+            8.838125,
+            9.294875,
+            6.117792,
+            4.537917
+          ],
+          "baseline_cpu_trials_ms": [
+            10.282375,
+            10.389375,
+            6.337292,
+            8.946584
+          ],
+          "candidate_cpu_trials_ms": [
+            9.0985,
+            10.71925,
+            7.3955,
+            5.707916
+          ],
+          "baseline_max_update_us_median": 8850.104,
+          "candidate_max_update_us_median": 7477.958500000001
+        },
+        {
+          "rate": 44100,
+          "fft_size": 4096,
+          "fixture": "nominal_cadence",
+          "ui_interval_ms": 20,
+          "samples_per_trial": 88200,
+          "fft_windows_per_trial": 86,
+          "consumer_calls_per_trial": 100,
+          "expected_zero_fft_calls_from_fixture": 14,
+          "zero_fft_calls_observed_in_cost_csv": "NOT_RECORDED_PER_UPDATE",
+          "baseline_update_median_ms": 9.8573945,
+          "candidate_update_median_ms": 9.661517499999999,
+          "update_cost_reduction_percent": 1.9871072421825176,
+          "baseline_cpu_median_ms": 11.0411875,
+          "candidate_cpu_median_ms": 10.769937500000001,
+          "cpu_cost_reduction_percent": 2.4567103855450245,
+          "cpu_reduction_status": "COMPARABLE_OBSERVATION",
+          "adjacent_pair_update_reductions_percent": [
+            22.253611134161332,
+            -6.5219195605768165,
+            -29.64922566967454,
+            12.263832889460069
+          ],
+          "adjacent_pair_reduction_median_percent": 2.8709566644416262,
+          "baseline_update_trials_ms": [
+            13.955034,
+            11.385835,
+            6.535712,
+            8.328954
+          ],
+          "candidate_update_trials_ms": [
+            10.849535,
+            12.12841,
+            8.4735,
+            7.307505
+          ],
+          "baseline_cpu_trials_ms": [
+            15.784916,
+            12.283375,
+            8.186292,
+            9.799
+          ],
+          "candidate_cpu_trials_ms": [
+            11.684125,
+            12.763125,
+            9.85575,
+            8.637792
+          ],
+          "baseline_max_update_us_median": 225.625,
+          "candidate_max_update_us_median": 239.89550000000003
+        },
+        {
+          "rate": 44100,
+          "fft_size": 4096,
+          "fixture": "nominal_cadence",
+          "ui_interval_ms": 40,
+          "samples_per_trial": 88200,
+          "fft_windows_per_trial": 86,
+          "consumer_calls_per_trial": 50,
+          "expected_zero_fft_calls_from_fixture": 0,
+          "zero_fft_calls_observed_in_cost_csv": "NOT_RECORDED_PER_UPDATE",
+          "baseline_update_median_ms": 13.9597685,
+          "candidate_update_median_ms": 8.083,
+          "update_cost_reduction_percent": 42.09789367209061,
+          "baseline_cpu_median_ms": 14.6880205,
+          "candidate_cpu_median_ms": 9.404729,
+          "cpu_cost_reduction_percent": 35.97007166486458,
+          "cpu_reduction_status": "COMPARABLE_OBSERVATION",
+          "adjacent_pair_update_reductions_percent": [
+            27.7647898973963,
+            56.165657994994355,
+            7.39787377314981,
+            -51.4205881377847
+          ],
+          "adjacent_pair_reduction_median_percent": 17.581331835273055,
+          "baseline_update_trials_ms": [
+            12.838037,
+            15.174082,
+            7.443044,
+            15.0815
+          ],
+          "candidate_update_trials_ms": [
+            9.273583,
+            6.651459,
+            6.892417,
+            22.836496
+          ],
+          "baseline_cpu_trials_ms": [
+            13.75075,
+            15.625291,
+            9.818458,
+            17.182834
+          ],
+          "candidate_cpu_trials_ms": [
+            10.412375,
+            8.100125,
+            8.397083,
+            24.548583
+          ],
+          "baseline_max_update_us_median": 635.4585,
+          "candidate_max_update_us_median": 424.042
+        },
+        {
+          "rate": 44100,
+          "fft_size": 4096,
+          "fixture": "nominal_cadence",
+          "ui_interval_ms": 80,
+          "samples_per_trial": 88200,
+          "fft_windows_per_trial": 86,
+          "consumer_calls_per_trial": 25,
+          "expected_zero_fft_calls_from_fixture": 0,
+          "zero_fft_calls_observed_in_cost_csv": "NOT_RECORDED_PER_UPDATE",
+          "baseline_update_median_ms": 10.6093735,
+          "candidate_update_median_ms": 9.014624000000001,
+          "update_cost_reduction_percent": 15.031514349080076,
+          "baseline_cpu_median_ms": 11.652666499999999,
+          "candidate_cpu_median_ms": 10.3362085,
+          "cpu_cost_reduction_percent": 11.297482855104446,
+          "cpu_reduction_status": "COMPARABLE_OBSERVATION",
+          "adjacent_pair_update_reductions_percent": [
+            19.58419380800497,
+            -35.76768366941141,
+            24.21576422717098,
+            30.80552694677077
+          ],
+          "adjacent_pair_reduction_median_percent": 21.899979017587974,
+          "baseline_update_trials_ms": [
+            11.920746,
+            7.101128,
+            9.298001,
+            12.201963
+          ],
+          "candidate_update_trials_ms": [
+            9.586164,
+            9.641037,
+            7.046419,
+            8.443084
+          ],
+          "baseline_cpu_trials_ms": [
+            13.144791,
+            8.971333,
+            10.160542,
+            13.944917
+          ],
+          "candidate_cpu_trials_ms": [
+            11.047834,
+            11.206792,
+            8.423333,
+            9.624583
+          ],
+          "baseline_max_update_us_median": 990.667,
+          "candidate_max_update_us_median": 800.625
+        },
+        {
+          "rate": 44100,
+          "fft_size": 8192,
+          "fixture": "full_capacity_catchup",
+          "ui_interval_ms": null,
+          "samples_per_trial": 65536,
+          "fft_windows_per_trial": 32,
+          "consumer_calls_per_trial": 1,
+          "expected_zero_fft_calls_from_fixture": 0,
+          "zero_fft_calls_observed_in_cost_csv": "NOT_RECORDED_PER_UPDATE",
+          "baseline_update_median_ms": 6.501479,
+          "candidate_update_median_ms": 4.393437499999999,
+          "update_cost_reduction_percent": 32.42402997840954,
+          "baseline_cpu_median_ms": 7.416771,
+          "candidate_cpu_median_ms": 5.711479000000001,
+          "cpu_cost_reduction_percent": 22.992377680260034,
+          "cpu_reduction_status": "COMPARABLE_OBSERVATION",
+          "adjacent_pair_update_reductions_percent": [
+            -1.8509577062137295,
+            19.10888531128313,
+            5.939155147913711,
+            48.56212283477777
+          ],
+          "adjacent_pair_reduction_median_percent": 12.52402022959842,
+          "baseline_update_trials_ms": [
+            7.433125,
+            5.569833,
+            4.551708,
+            8.154417
+          ],
+          "candidate_update_trials_ms": [
+            7.570709,
+            4.5055,
+            4.281375,
+            4.194459
+          ],
+          "baseline_cpu_trials_ms": [
+            8.943375,
+            5.890167,
+            5.072959,
+            9.800625
+          ],
+          "candidate_cpu_trials_ms": [
+            7.84475,
+            5.976708,
+            5.366125,
+            5.44625
+          ],
+          "baseline_max_update_us_median": 6501.478999999999,
+          "candidate_max_update_us_median": 4393.4375
+        },
+        {
+          "rate": 44100,
+          "fft_size": 8192,
+          "fixture": "nominal_cadence",
+          "ui_interval_ms": 20,
+          "samples_per_trial": 88200,
+          "fft_windows_per_trial": 43,
+          "consumer_calls_per_trial": 100,
+          "expected_zero_fft_calls_from_fixture": 57,
+          "zero_fft_calls_observed_in_cost_csv": "NOT_RECORDED_PER_UPDATE",
+          "baseline_update_median_ms": 8.051083,
+          "candidate_update_median_ms": 6.1448979999999995,
+          "update_cost_reduction_percent": 23.67613152168473,
+          "baseline_cpu_median_ms": 9.430041500000002,
+          "candidate_cpu_median_ms": 7.8547709999999995,
+          "cpu_cost_reduction_percent": 16.704809835672528,
+          "cpu_reduction_status": "COMPARABLE_OBSERVATION",
+          "adjacent_pair_update_reductions_percent": [
+            46.82321544065372,
+            57.59081366012991,
+            -69.22773261215846,
+            -9.238858340322054
+          ],
+          "adjacent_pair_reduction_median_percent": 18.792178550165833,
+          "baseline_update_trials_ms": [
+            9.474832,
+            11.908203,
+            6.568541,
+            6.627334
+          ],
+          "candidate_update_trials_ms": [
+            5.038411,
+            5.050172,
+            11.115793,
+            7.239624
+          ],
+          "baseline_cpu_trials_ms": [
+            10.534375,
+            13.125375,
+            8.193958,
+            8.325708
+          ],
+          "candidate_cpu_trials_ms": [
+            6.5755,
+            6.77225,
+            12.287334,
+            8.937292
+          ],
+          "baseline_max_update_us_median": 328.875,
+          "candidate_max_update_us_median": 263.91650000000004
+        },
+        {
+          "rate": 44100,
+          "fft_size": 8192,
+          "fixture": "nominal_cadence",
+          "ui_interval_ms": 40,
+          "samples_per_trial": 88200,
+          "fft_windows_per_trial": 43,
+          "consumer_calls_per_trial": 50,
+          "expected_zero_fft_calls_from_fixture": 7,
+          "zero_fft_calls_observed_in_cost_csv": "NOT_RECORDED_PER_UPDATE",
+          "baseline_update_median_ms": 10.4589985,
+          "candidate_update_median_ms": 9.0817285,
+          "update_cost_reduction_percent": 13.168278014381585,
+          "baseline_cpu_median_ms": 12.185770999999999,
+          "candidate_cpu_median_ms": 10.328958,
+          "cpu_cost_reduction_percent": 15.237550418434742,
+          "cpu_reduction_status": "COMPARABLE_OBSERVATION",
+          "adjacent_pair_update_reductions_percent": [
+            4.874392056920751,
+            -10.142739045638805,
+            50.30985146783843,
+            14.599613006742185
+          ],
+          "adjacent_pair_reduction_median_percent": 9.737002531831468,
+          "baseline_update_trials_ms": [
+            8.822372,
+            9.476454,
+            11.814209,
+            11.441543
+          ],
+          "candidate_update_trials_ms": [
+            8.392335,
+            10.437626,
+            5.870498,
+            9.771122
+          ],
+          "baseline_cpu_trials_ms": [
+            9.950042,
+            11.718542,
+            12.653,
+            12.727542
+          ],
+          "candidate_cpu_trials_ms": [
+            9.759875,
+            11.211875,
+            7.649917,
+            10.898041
+          ],
+          "baseline_max_update_us_median": 464.7915,
+          "candidate_max_update_us_median": 305.8125
+        },
+        {
+          "rate": 44100,
+          "fft_size": 8192,
+          "fixture": "nominal_cadence",
+          "ui_interval_ms": 80,
+          "samples_per_trial": 88200,
+          "fft_windows_per_trial": 43,
+          "consumer_calls_per_trial": 25,
+          "expected_zero_fft_calls_from_fixture": 0,
+          "zero_fft_calls_observed_in_cost_csv": "NOT_RECORDED_PER_UPDATE",
+          "baseline_update_median_ms": 7.781378,
+          "candidate_update_median_ms": 8.962416000000001,
+          "update_cost_reduction_percent": -15.17774872265556,
+          "baseline_cpu_median_ms": 9.645041500000001,
+          "candidate_cpu_median_ms": 10.016958500000001,
+          "cpu_cost_reduction_percent": -3.8560435432029916,
+          "cpu_reduction_status": "COMPARABLE_OBSERVATION",
+          "adjacent_pair_update_reductions_percent": [
+            -25.612098263367077,
+            42.13321943146775,
+            -51.454659629258416,
+            -11.722296668422306
+          ],
+          "adjacent_pair_reduction_median_percent": -18.66719746589469,
+          "baseline_update_trials_ms": [
+            7.837753,
+            13.857543,
+            7.725003,
+            7.231919
+          ],
+          "candidate_update_trials_ms": [
+            9.845166,
+            8.018914,
+            11.699877,
+            8.079666
+          ],
+          "baseline_cpu_trials_ms": [
+            9.87475,
+            14.414459,
+            9.415333,
+            9.079375
+          ],
+          "candidate_cpu_trials_ms": [
+            10.658917,
+            9.375,
+            12.029334,
+            9.35475
+          ],
+          "baseline_max_update_us_median": 727.583,
+          "candidate_max_update_us_median": 613.7295
+        },
+        {
+          "rate": 48000,
+          "fft_size": 2048,
+          "fixture": "full_capacity_catchup",
+          "ui_interval_ms": null,
+          "samples_per_trial": 65536,
+          "fft_windows_per_trial": 128,
+          "consumer_calls_per_trial": 1,
+          "expected_zero_fft_calls_from_fixture": 0,
+          "zero_fft_calls_observed_in_cost_csv": "NOT_RECORDED_PER_UPDATE",
+          "baseline_update_median_ms": 7.7192495,
+          "candidate_update_median_ms": 8.597708,
+          "update_cost_reduction_percent": -11.380102430942296,
+          "baseline_cpu_median_ms": 8.019479,
+          "candidate_cpu_median_ms": 8.972125,
+          "cpu_cost_reduction_percent": -11.879150752810741,
+          "cpu_reduction_status": "COMPARABLE_OBSERVATION",
+          "adjacent_pair_update_reductions_percent": [
+            -39.54182790233749,
+            10.854915375967266,
+            44.11272538849003,
+            -209.61528343073073
+          ],
+          "adjacent_pair_reduction_median_percent": -14.34345626318511,
+          "baseline_update_trials_ms": [
+            6.811458,
+            8.627041,
+            11.575458,
+            5.777708
+          ],
+          "candidate_update_trials_ms": [
+            9.504833,
+            7.690583,
+            6.469208,
+            17.888667
+          ],
+          "baseline_cpu_trials_ms": [
+            7.131208,
+            8.90775,
+            12.762666,
+            6.0395
+          ],
+          "candidate_cpu_trials_ms": [
+            10.040125,
+            7.904125,
+            6.736959,
+            19.525667
+          ],
+          "baseline_max_update_us_median": 7719.2495,
+          "candidate_max_update_us_median": 8597.708
+        },
+        {
+          "rate": 48000,
+          "fft_size": 2048,
+          "fixture": "nominal_cadence",
+          "ui_interval_ms": 20,
+          "samples_per_trial": 96000,
+          "fft_windows_per_trial": 187,
+          "consumer_calls_per_trial": 100,
+          "expected_zero_fft_calls_from_fixture": 0,
+          "zero_fft_calls_observed_in_cost_csv": "NOT_RECORDED_PER_UPDATE",
+          "baseline_update_median_ms": 12.0977535,
+          "candidate_update_median_ms": 8.3152305,
+          "update_cost_reduction_percent": 31.26632560334445,
+          "baseline_cpu_median_ms": 13.1876875,
+          "candidate_cpu_median_ms": 9.980708499999999,
+          "cpu_cost_reduction_percent": 24.31797841736848,
+          "cpu_reduction_status": "COMPARABLE_OBSERVATION",
+          "adjacent_pair_update_reductions_percent": [
+            1.7425484059884866,
+            36.67322368353296,
+            14.305025168190566,
+            24.673235356367307
+          ],
+          "adjacent_pair_reduction_median_percent": 19.489130262278938,
+          "baseline_update_trials_ms": [
+            13.545793,
+            13.59358,
+            8.465249,
+            10.649714
+          ],
+          "candidate_update_trials_ms": [
+            13.309751,
+            8.608376,
+            7.254293,
+            8.022085
+          ],
+          "baseline_cpu_trials_ms": [
+            15.294125,
+            14.416917,
+            10.087667,
+            11.958458
+          ],
+          "candidate_cpu_trials_ms": [
+            15.266875,
+            10.293208,
+            8.845584,
+            9.668209
+          ],
+          "baseline_max_update_us_median": 361.4375,
+          "candidate_max_update_us_median": 456.89599999999996
+        },
+        {
+          "rate": 48000,
+          "fft_size": 2048,
+          "fixture": "nominal_cadence",
+          "ui_interval_ms": 40,
+          "samples_per_trial": 96000,
+          "fft_windows_per_trial": 187,
+          "consumer_calls_per_trial": 50,
+          "expected_zero_fft_calls_from_fixture": 0,
+          "zero_fft_calls_observed_in_cost_csv": "NOT_RECORDED_PER_UPDATE",
+          "baseline_update_median_ms": 11.550287,
+          "candidate_update_median_ms": 12.695771,
+          "update_cost_reduction_percent": -9.917363958142333,
+          "baseline_cpu_median_ms": 13.1880205,
+          "candidate_cpu_median_ms": 13.161812,
+          "cpu_cost_reduction_percent": 0.19872959706122018,
+          "cpu_reduction_status": "COMPARABLE_OBSERVATION",
+          "adjacent_pair_update_reductions_percent": [
+            14.12445026477992,
+            11.416876435762358,
+            -54.401423011357664,
+            -46.11724992410522
+          ],
+          "adjacent_pair_reduction_median_percent": -17.35018674417143,
+          "baseline_update_trials_ms": [
+            14.189331,
+            14.908456,
+            8.911243,
+            6.726418
+          ],
+          "candidate_update_trials_ms": [
+            12.185166,
+            13.206376,
+            13.759086,
+            9.828457
+          ],
+          "baseline_cpu_trials_ms": [
+            15.430125,
+            15.418125,
+            10.957916,
+            9.008583
+          ],
+          "candidate_cpu_trials_ms": [
+            12.701583,
+            13.622041,
+            13.971083,
+            11.493375
+          ],
+          "baseline_max_update_us_median": 383.33349999999996,
+          "candidate_max_update_us_median": 410.0625
+        },
+        {
+          "rate": 48000,
+          "fft_size": 2048,
+          "fixture": "nominal_cadence",
+          "ui_interval_ms": 80,
+          "samples_per_trial": 96000,
+          "fft_windows_per_trial": 187,
+          "consumer_calls_per_trial": 25,
+          "expected_zero_fft_calls_from_fixture": 0,
+          "zero_fft_calls_observed_in_cost_csv": "NOT_RECORDED_PER_UPDATE",
+          "baseline_update_median_ms": 11.845456500000001,
+          "candidate_update_median_ms": 11.122919,
+          "update_cost_reduction_percent": 6.099701602888851,
+          "baseline_cpu_median_ms": 13.1820415,
+          "candidate_cpu_median_ms": 12.166917,
+          "cpu_cost_reduction_percent": 7.7008140203473125,
+          "cpu_reduction_status": "COMPARABLE_OBSERVATION",
+          "adjacent_pair_update_reductions_percent": [
+            -66.55681250506305,
+            8.152587976422087,
+            38.53054753118496,
+            21.96104502201227
+          ],
+          "adjacent_pair_reduction_median_percent": 15.05681649921718,
+          "baseline_update_trials_ms": [
+            7.110336,
+            12.790785,
+            10.900128,
+            13.452042
+          ],
+          "candidate_update_trials_ms": [
+            11.842749,
+            11.748005,
+            6.700249,
+            10.497833
+          ],
+          "baseline_cpu_trials_ms": [
+            9.431709,
+            13.995416,
+            12.368667,
+            14.854084
+          ],
+          "candidate_cpu_trials_ms": [
+            12.587625,
+            12.62625,
+            8.52375,
+            11.746209
+          ],
+          "baseline_max_update_us_median": 1239.2915,
+          "candidate_max_update_us_median": 695.2705000000001
+        },
+        {
+          "rate": 48000,
+          "fft_size": 4096,
+          "fixture": "full_capacity_catchup",
+          "ui_interval_ms": null,
+          "samples_per_trial": 65536,
+          "fft_windows_per_trial": 64,
+          "consumer_calls_per_trial": 1,
+          "expected_zero_fft_calls_from_fixture": 0,
+          "zero_fft_calls_observed_in_cost_csv": "NOT_RECORDED_PER_UPDATE",
+          "baseline_update_median_ms": 7.8935414999999995,
+          "candidate_update_median_ms": 6.523125,
+          "update_cost_reduction_percent": 17.361237664994846,
+          "baseline_cpu_median_ms": 9.3365625,
+          "candidate_cpu_median_ms": 7.5889375,
+          "cpu_cost_reduction_percent": 18.718077450881943,
+          "cpu_reduction_status": "COMPARABLE_OBSERVATION",
+          "adjacent_pair_update_reductions_percent": [
+            -62.7416205690027,
+            45.539897177580535,
+            25.106286019210245,
+            42.600276625172896
+          ],
+          "adjacent_pair_reduction_median_percent": 33.85328132219157,
+          "baseline_update_trials_ms": [
+            4.095833,
+            6.417083,
+            9.37,
+            11.116125
+          ],
+          "candidate_update_trials_ms": [
+            6.665625,
+            3.49475,
+            7.017541,
+            6.380625
+          ],
+          "baseline_cpu_trials_ms": [
+            4.431375,
+            7.877125,
+            10.796,
+            13.891125
+          ],
+          "candidate_cpu_trials_ms": [
+            8.059708,
+            3.762625,
+            7.283,
+            7.894875
+          ],
+          "baseline_max_update_us_median": 7893.541499999999,
+          "candidate_max_update_us_median": 6523.125
+        },
+        {
+          "rate": 48000,
+          "fft_size": 4096,
+          "fixture": "nominal_cadence",
+          "ui_interval_ms": 20,
+          "samples_per_trial": 96000,
+          "fft_windows_per_trial": 93,
+          "consumer_calls_per_trial": 100,
+          "expected_zero_fft_calls_from_fixture": 7,
+          "zero_fft_calls_observed_in_cost_csv": "NOT_RECORDED_PER_UPDATE",
+          "baseline_update_median_ms": 12.7674145,
+          "candidate_update_median_ms": 8.213058499999999,
+          "update_cost_reduction_percent": 35.67171724549243,
+          "baseline_cpu_median_ms": 14.5007705,
+          "candidate_cpu_median_ms": 9.861020499999999,
+          "cpu_cost_reduction_percent": 31.9965756302398,
+          "cpu_reduction_status": "COMPARABLE_OBSERVATION",
+          "adjacent_pair_update_reductions_percent": [
+            47.81626782987356,
+            11.048953372497683,
+            15.696552406841901,
+            54.50526290606818
+          ],
+          "adjacent_pair_reduction_median_percent": 31.75641011835773,
+          "baseline_update_trials_ms": [
+            19.086086,
+            10.654077,
+            8.243084,
+            14.880752
+          ],
+          "candidate_update_trials_ms": [
+            9.959832,
+            9.476913,
+            6.949204,
+            6.769959
+          ],
+          "baseline_cpu_trials_ms": [
+            20.123708,
+            12.976125,
+            10.416041,
+            16.025416
+          ],
+          "candidate_cpu_trials_ms": [
+            11.196333,
+            10.815,
+            8.907041,
+            8.376375
+          ],
+          "baseline_max_update_us_median": 847.1255,
+          "candidate_max_update_us_median": 263.604
+        },
+        {
+          "rate": 48000,
+          "fft_size": 4096,
+          "fixture": "nominal_cadence",
+          "ui_interval_ms": 40,
+          "samples_per_trial": 96000,
+          "fft_windows_per_trial": 93,
+          "consumer_calls_per_trial": 50,
+          "expected_zero_fft_calls_from_fixture": 0,
+          "zero_fft_calls_observed_in_cost_csv": "NOT_RECORDED_PER_UPDATE",
+          "baseline_update_median_ms": 9.8511075,
+          "candidate_update_median_ms": 10.6123575,
+          "update_cost_reduction_percent": -7.72755753604355,
+          "baseline_cpu_median_ms": 11.385563000000001,
+          "candidate_cpu_median_ms": 11.6089165,
+          "cpu_cost_reduction_percent": -1.9617255642079279,
+          "cpu_reduction_status": "COMPARABLE_OBSERVATION",
+          "adjacent_pair_update_reductions_percent": [
+            4.573960681545886,
+            -15.97482156113401,
+            2.147925869209888,
+            -18.418772222133107
+          ],
+          "adjacent_pair_reduction_median_percent": -6.913447845962061,
+          "baseline_update_trials_ms": [
+            13.945004,
+            10.73617,
+            8.966045,
+            6.795871
+          ],
+          "candidate_update_trials_ms": [
+            13.307165,
+            12.451254,
+            8.773461,
+            8.047587
+          ],
+          "baseline_cpu_trials_ms": [
+            15.081542,
+            12.252959,
+            10.518167,
+            8.987667
+          ],
+          "candidate_cpu_trials_ms": [
+            13.807334,
+            13.143667,
+            10.074166,
+            9.885
+          ],
+          "baseline_max_update_us_median": 415.60400000000004,
+          "candidate_max_update_us_median": 731.271
+        },
+        {
+          "rate": 48000,
+          "fft_size": 4096,
+          "fixture": "nominal_cadence",
+          "ui_interval_ms": 80,
+          "samples_per_trial": 96000,
+          "fft_windows_per_trial": 93,
+          "consumer_calls_per_trial": 25,
+          "expected_zero_fft_calls_from_fixture": 0,
+          "zero_fft_calls_observed_in_cost_csv": "NOT_RECORDED_PER_UPDATE",
+          "baseline_update_median_ms": 12.4774575,
+          "candidate_update_median_ms": 10.065727500000001,
+          "update_cost_reduction_percent": 19.328697372842175,
+          "baseline_cpu_median_ms": 13.7176255,
+          "candidate_cpu_median_ms": 11.300374999999999,
+          "cpu_cost_reduction_percent": 17.621493603247895,
+          "cpu_reduction_status": "COMPARABLE_OBSERVATION",
+          "adjacent_pair_update_reductions_percent": [
+            20.919250253462707,
+            18.20236442066462,
+            -24.76210549211433,
+            46.47760154090784
+          ],
+          "adjacent_pair_reduction_median_percent": 19.560807337063665,
+          "baseline_update_trials_ms": [
+            10.733334,
+            14.221581,
+            9.047918,
+            16.522208
+          ],
+          "candidate_update_trials_ms": [
+            8.488001,
+            11.632917,
+            11.288373,
+            8.843082
+          ],
+          "baseline_cpu_trials_ms": [
+            12.111042,
+            15.324209,
+            11.365167,
+            19.333208
+          ],
+          "candidate_cpu_trials_ms": [
+            9.920458,
+            12.321542,
+            12.245958,
+            10.354792
+          ],
+          "baseline_max_update_us_median": 742.4165,
+          "candidate_max_update_us_median": 552.0625
+        },
+        {
+          "rate": 48000,
+          "fft_size": 8192,
+          "fixture": "full_capacity_catchup",
+          "ui_interval_ms": null,
+          "samples_per_trial": 65536,
+          "fft_windows_per_trial": 32,
+          "consumer_calls_per_trial": 1,
+          "expected_zero_fft_calls_from_fixture": 0,
+          "zero_fft_calls_observed_in_cost_csv": "NOT_RECORDED_PER_UPDATE",
+          "baseline_update_median_ms": 5.8568335000000005,
+          "candidate_update_median_ms": 7.0422495000000005,
+          "update_cost_reduction_percent": -20.23987876725537,
+          "baseline_cpu_median_ms": 6.5963545,
+          "candidate_cpu_median_ms": 8.1682915,
+          "cpu_cost_reduction_percent": -23.8303899525109,
+          "cpu_reduction_status": "COMPARABLE_OBSERVATION",
+          "adjacent_pair_update_reductions_percent": [
+            23.157230989706225,
+            -99.72959415884799,
+            54.544094727500394,
+            -113.9371242643465
+          ],
+          "adjacent_pair_reduction_median_percent": -38.28618158457088,
+          "baseline_update_trials_ms": [
+            7.152375,
+            4.561292,
+            10.282125,
+            4.014458
+          ],
+          "candidate_update_trials_ms": [
+            5.496083,
+            9.11025,
+            4.673833,
+            8.588416
+          ],
+          "baseline_cpu_trials_ms": [
+            8.369292,
+            4.823417,
+            11.619542,
+            4.279917
+          ],
+          "candidate_cpu_trials_ms": [
+            7.145708,
+            9.190875,
+            6.794542,
+            9.954709
+          ],
+          "baseline_max_update_us_median": 5856.833500000001,
+          "candidate_max_update_us_median": 7042.2495
+        },
+        {
+          "rate": 48000,
+          "fft_size": 8192,
+          "fixture": "nominal_cadence",
+          "ui_interval_ms": 20,
+          "samples_per_trial": 96000,
+          "fft_windows_per_trial": 46,
+          "consumer_calls_per_trial": 100,
+          "expected_zero_fft_calls_from_fixture": 54,
+          "zero_fft_calls_observed_in_cost_csv": "NOT_RECORDED_PER_UPDATE",
+          "baseline_update_median_ms": 11.689059499999999,
+          "candidate_update_median_ms": 7.81221,
+          "update_cost_reduction_percent": 33.16647930485767,
+          "baseline_cpu_median_ms": 13.0274585,
+          "candidate_cpu_median_ms": 9.180854,
+          "cpu_cost_reduction_percent": 29.526898895897457,
+          "cpu_reduction_status": "COMPARABLE_OBSERVATION",
+          "adjacent_pair_update_reductions_percent": [
+            17.73248365431335,
+            32.31522104123621,
+            57.16579923615945,
+            33.2229865554338
+          ],
+          "adjacent_pair_reduction_median_percent": 32.769103798335,
+          "baseline_update_trials_ms": [
+            10.381332,
+            12.769744,
+            14.616925,
+            10.608375
+          ],
+          "candidate_update_trials_ms": [
+            8.540464,
+            8.643173,
+            6.261043,
+            7.083956
+          ],
+          "baseline_cpu_trials_ms": [
+            11.600916,
+            14.001459,
+            15.891625,
+            12.053458
+          ],
+          "candidate_cpu_trials_ms": [
+            9.730458,
+            10.24375,
+            8.166458,
+            8.63125
+          ],
+          "baseline_max_update_us_median": 409.91650000000004,
+          "candidate_max_update_us_median": 377.66700000000003
+        },
+        {
+          "rate": 48000,
+          "fft_size": 8192,
+          "fixture": "nominal_cadence",
+          "ui_interval_ms": 40,
+          "samples_per_trial": 96000,
+          "fft_windows_per_trial": 46,
+          "consumer_calls_per_trial": 50,
+          "expected_zero_fft_calls_from_fixture": 4,
+          "zero_fft_calls_observed_in_cost_csv": "NOT_RECORDED_PER_UPDATE",
+          "baseline_update_median_ms": 12.8277285,
+          "candidate_update_median_ms": 8.9007325,
+          "update_cost_reduction_percent": 30.61333890875535,
+          "baseline_cpu_median_ms": 14.3724375,
+          "candidate_cpu_median_ms": 10.2048545,
+          "cpu_cost_reduction_percent": 28.997050778617062,
+          "cpu_reduction_status": "COMPARABLE_OBSERVATION",
+          "adjacent_pair_update_reductions_percent": [
+            13.191726773163126,
+            52.09919684005031,
+            54.439570150687075,
+            -25.496936930308678
+          ],
+          "adjacent_pair_reduction_median_percent": 32.64546180660672,
+          "baseline_update_trials_ms": [
+            13.57729,
+            12.078167,
+            15.111249,
+            8.69879
+          ],
+          "candidate_update_trials_ms": [
+            11.786211,
+            5.785539,
+            6.88475,
+            10.916715
+          ],
+          "baseline_cpu_trials_ms": [
+            15.723417,
+            13.021458,
+            15.762291,
+            11.051417
+          ],
+          "candidate_cpu_trials_ms": [
+            12.350333,
+            8.076167,
+            8.655,
+            11.754709
+          ],
+          "baseline_max_update_us_median": 521.396,
+          "candidate_max_update_us_median": 283.77049999999997
+        },
+        {
+          "rate": 48000,
+          "fft_size": 8192,
+          "fixture": "nominal_cadence",
+          "ui_interval_ms": 80,
+          "samples_per_trial": 96000,
+          "fft_windows_per_trial": 46,
+          "consumer_calls_per_trial": 25,
+          "expected_zero_fft_calls_from_fixture": 0,
+          "zero_fft_calls_observed_in_cost_csv": "NOT_RECORDED_PER_UPDATE",
+          "baseline_update_median_ms": 14.246499499999999,
+          "candidate_update_median_ms": 8.659958499999998,
+          "update_cost_reduction_percent": 39.21342923572209,
+          "baseline_cpu_median_ms": 15.252667,
+          "candidate_cpu_median_ms": 10.192729499999999,
+          "cpu_cost_reduction_percent": 33.174116369288086,
+          "cpu_reduction_status": "COMPARABLE_OBSERVATION",
+          "adjacent_pair_update_reductions_percent": [
+            39.331306474534465,
+            42.127050760334114,
+            46.089625847952,
+            -28.602851982508405
+          ],
+          "adjacent_pair_reduction_median_percent": 40.729178617434286,
+          "baseline_update_trials_ms": [
+            15.069624,
+            13.423375,
+            15.168459,
+            8.187708
+          ],
+          "candidate_update_trials_ms": [
+            9.142544,
+            7.768503,
+            8.177373,
+            10.529626
+          ],
+          "baseline_cpu_trials_ms": [
+            15.935875,
+            14.62775,
+            15.877584,
+            9.676
+          ],
+          "candidate_cpu_trials_ms": [
+            10.448834,
+            9.509208,
+            9.936625,
+            11.465167
+          ],
+          "baseline_max_update_us_median": 908.9375,
+          "candidate_max_update_us_median": 568.604
+        },
+        {
+          "rate": 96000,
+          "fft_size": 2048,
+          "fixture": "full_capacity_catchup",
+          "ui_interval_ms": null,
+          "samples_per_trial": 65536,
+          "fft_windows_per_trial": 128,
+          "consumer_calls_per_trial": 1,
+          "expected_zero_fft_calls_from_fixture": 0,
+          "zero_fft_calls_observed_in_cost_csv": "NOT_RECORDED_PER_UPDATE",
+          "baseline_update_median_ms": 5.236083000000001,
+          "candidate_update_median_ms": 5.258770999999999,
+          "update_cost_reduction_percent": -0.4333010000032278,
+          "baseline_cpu_median_ms": 6.5625625,
+          "candidate_cpu_median_ms": 6.828146,
+          "cpu_cost_reduction_percent": -4.046948124303573,
+          "cpu_reduction_status": "COMPARABLE_OBSERVATION",
+          "adjacent_pair_update_reductions_percent": [
+            37.045669103756055,
+            -56.08690690690692,
+            7.009391353119476,
+            -10.472377776212127
+          ],
+          "adjacent_pair_reduction_median_percent": -1.7314932115463257,
+          "baseline_update_trials_ms": [
+            8.462417,
+            4.995,
+            5.477166,
+            4.698083
+          ],
+          "candidate_update_trials_ms": [
+            5.327458,
+            7.796541,
+            5.09325,
+            5.190084
+          ],
+          "baseline_cpu_trials_ms": [
+            8.765167,
+            6.397042,
+            6.728083,
+            6.335084
+          ],
+          "candidate_cpu_trials_ms": [
+            5.568125,
+            8.825541,
+            7.490375,
+            6.165917
+          ],
+          "baseline_max_update_us_median": 5236.0830000000005,
+          "candidate_max_update_us_median": 5258.771
+        },
+        {
+          "rate": 96000,
+          "fft_size": 2048,
+          "fixture": "nominal_cadence",
+          "ui_interval_ms": 20,
+          "samples_per_trial": 192000,
+          "fft_windows_per_trial": 375,
+          "consumer_calls_per_trial": 100,
+          "expected_zero_fft_calls_from_fixture": 0,
+          "zero_fft_calls_observed_in_cost_csv": "NOT_RECORDED_PER_UPDATE",
+          "baseline_update_median_ms": 20.7241255,
+          "candidate_update_median_ms": 15.648857,
+          "update_cost_reduction_percent": 24.48966302582949,
+          "baseline_cpu_median_ms": 23.925354499999997,
+          "candidate_cpu_median_ms": 19.0732705,
+          "cpu_cost_reduction_percent": 20.280092401556683,
+          "cpu_reduction_status": "COMPARABLE_OBSERVATION",
+          "adjacent_pair_update_reductions_percent": [
+            -16.78074238610472,
+            36.20158321905465,
+            44.36782341067678,
+            -0.25584332132480014
+          ],
+          "adjacent_pair_reduction_median_percent": 17.972869948864926,
+          "baseline_update_trials_ms": [
+            16.065791,
+            19.649334,
+            21.798917,
+            22.37854
+          ],
+          "candidate_update_trials_ms": [
+            18.76175,
+            12.535964,
+            12.127212,
+            22.435794
+          ],
+          "baseline_cpu_trials_ms": [
+            19.799625,
+            22.742167,
+            25.911,
+            25.108542
+          ],
+          "candidate_cpu_trials_ms": [
+            21.5655,
+            16.581041,
+            16.391458,
+            26.536
+          ],
+          "baseline_max_update_us_median": 430.29150000000004,
+          "candidate_max_update_us_median": 286.64599999999996
+        },
+        {
+          "rate": 96000,
+          "fft_size": 2048,
+          "fixture": "nominal_cadence",
+          "ui_interval_ms": 40,
+          "samples_per_trial": 192000,
+          "fft_windows_per_trial": 375,
+          "consumer_calls_per_trial": 50,
+          "expected_zero_fft_calls_from_fixture": 0,
+          "zero_fft_calls_observed_in_cost_csv": "NOT_RECORDED_PER_UPDATE",
+          "baseline_update_median_ms": 16.454666,
+          "candidate_update_median_ms": 18.8376915,
+          "update_cost_reduction_percent": -14.482369317007105,
+          "baseline_cpu_median_ms": 19.701999999999998,
+          "candidate_cpu_median_ms": 21.6745415,
+          "cpu_cost_reduction_percent": -10.011884580245667,
+          "cpu_reduction_status": "COMPARABLE_OBSERVATION",
+          "adjacent_pair_update_reductions_percent": [
+            -25.844281256582647,
+            8.112711824529505,
+            -4.575263184330014,
+            8.363871644194177
+          ],
+          "adjacent_pair_reduction_median_percent": 1.7687243200997456,
+          "baseline_update_trials_ms": [
+            15.329163,
+            26.415791,
+            17.580169,
+            14.351918
+          ],
+          "candidate_update_trials_ms": [
+            19.290875,
+            24.272754,
+            18.384508,
+            13.151542
+          ],
+          "baseline_cpu_trials_ms": [
+            19.075042,
+            28.096,
+            20.328958,
+            18.769375
+          ],
+          "candidate_cpu_trials_ms": [
+            22.697666,
+            25.551916,
+            20.651417,
+            18.29775
+          ],
+          "baseline_max_update_us_median": 711.813,
+          "candidate_max_update_us_median": 617.875
+        },
+        {
+          "rate": 96000,
+          "fft_size": 2048,
+          "fixture": "nominal_cadence",
+          "ui_interval_ms": 80,
+          "samples_per_trial": 192000,
+          "fft_windows_per_trial": 375,
+          "consumer_calls_per_trial": 25,
+          "expected_zero_fft_calls_from_fixture": 0,
+          "zero_fft_calls_observed_in_cost_csv": "NOT_RECORDED_PER_UPDATE",
+          "baseline_update_median_ms": 16.477625500000002,
+          "candidate_update_median_ms": 14.340207,
+          "update_cost_reduction_percent": 12.971641454043258,
+          "baseline_cpu_median_ms": 20.412438,
+          "candidate_cpu_median_ms": 17.895563000000003,
+          "cpu_cost_reduction_percent": 12.33010481158595,
+          "cpu_reduction_status": "COMPARABLE_OBSERVATION",
+          "adjacent_pair_update_reductions_percent": [
+            25.47539411833052,
+            -0.033997945652997075,
+            26.688038194752338,
+            -15.395545914786757
+          ],
+          "adjacent_pair_reduction_median_percent": 12.72069808633876,
+          "baseline_update_trials_ms": [
+            17.764208,
+            13.959667,
+            20.073124,
+            15.191043
+          ],
+          "candidate_update_trials_ms": [
+            13.238706,
+            13.964413,
+            14.716001,
+            17.529787
+          ],
+          "baseline_cpu_trials_ms": [
+            22.099667,
+            18.318833,
+            23.127208,
+            18.725209
+          ],
+          "candidate_cpu_trials_ms": [
+            17.457042,
+            17.629542,
+            18.161584,
+            21.39975
+          ],
+          "baseline_max_update_us_median": 1228.521,
+          "candidate_max_update_us_median": 999.9165
+        },
+        {
+          "rate": 96000,
+          "fft_size": 4096,
+          "fixture": "full_capacity_catchup",
+          "ui_interval_ms": null,
+          "samples_per_trial": 65536,
+          "fft_windows_per_trial": 64,
+          "consumer_calls_per_trial": 1,
+          "expected_zero_fft_calls_from_fixture": 0,
+          "zero_fft_calls_observed_in_cost_csv": "NOT_RECORDED_PER_UPDATE",
+          "baseline_update_median_ms": 5.047604,
+          "candidate_update_median_ms": 4.3472919999999995,
+          "update_cost_reduction_percent": 13.874147021042072,
+          "baseline_cpu_median_ms": 6.4621875,
+          "candidate_cpu_median_ms": 5.731937500000001,
+          "cpu_cost_reduction_percent": 11.30035301513611,
+          "cpu_reduction_status": "COMPARABLE_OBSERVATION",
+          "adjacent_pair_update_reductions_percent": [
+            27.380639057784904,
+            9.522840176879344,
+            -24.448049494855905,
+            13.92702535306265
+          ],
+          "adjacent_pair_reduction_median_percent": 11.724932764970998,
+          "baseline_update_trials_ms": [
+            5.809459,
+            4.946875,
+            5.148333,
+            4.880791
+          ],
+          "candidate_update_trials_ms": [
+            4.218792,
+            4.475792,
+            6.407,
+            4.201042
+          ],
+          "baseline_cpu_trials_ms": [
+            8.033625,
+            6.506417,
+            6.372584,
+            6.417958
+          ],
+          "candidate_cpu_trials_ms": [
+            5.301625,
+            6.032708,
+            7.745084,
+            5.431167
+          ],
+          "baseline_max_update_us_median": 5047.603999999999,
+          "candidate_max_update_us_median": 4347.292
+        },
+        {
+          "rate": 96000,
+          "fft_size": 4096,
+          "fixture": "nominal_cadence",
+          "ui_interval_ms": 20,
+          "samples_per_trial": 192000,
+          "fft_windows_per_trial": 187,
+          "consumer_calls_per_trial": 100,
+          "expected_zero_fft_calls_from_fixture": 0,
+          "zero_fft_calls_observed_in_cost_csv": "NOT_RECORDED_PER_UPDATE",
+          "baseline_update_median_ms": 19.31052,
+          "candidate_update_median_ms": 12.770163,
+          "update_cost_reduction_percent": 33.869398649026536,
+          "baseline_cpu_median_ms": 22.308833,
+          "candidate_cpu_median_ms": 18.526646,
+          "cpu_cost_reduction_percent": 16.95376445733401,
+          "cpu_reduction_status": "COMPARABLE_OBSERVATION",
+          "adjacent_pair_update_reductions_percent": [
+            35.54164686521278,
+            34.41405315123024,
+            39.79198339954429,
+            -12.267217219818205
+          ],
+          "adjacent_pair_reduction_median_percent": 34.97785000822151,
+          "baseline_update_trials_ms": [
+            18.773874,
+            20.490664,
+            19.847166,
+            14.932376
+          ],
+          "candidate_update_trials_ms": [
+            12.10133,
+            13.438996,
+            11.949585,
+            16.764163
+          ],
+          "baseline_cpu_trials_ms": [
+            21.918541,
+            24.511792,
+            22.699125,
+            18.682625
+          ],
+          "candidate_cpu_trials_ms": [
+            17.778667,
+            19.274625,
+            16.216916,
+            19.508458
+          ],
+          "baseline_max_update_us_median": 390.6665,
+          "candidate_max_update_us_median": 309.14599999999996
+        },
+        {
+          "rate": 96000,
+          "fft_size": 4096,
+          "fixture": "nominal_cadence",
+          "ui_interval_ms": 40,
+          "samples_per_trial": 192000,
+          "fft_windows_per_trial": 187,
+          "consumer_calls_per_trial": 50,
+          "expected_zero_fft_calls_from_fixture": 0,
+          "zero_fft_calls_observed_in_cost_csv": "NOT_RECORDED_PER_UPDATE",
+          "baseline_update_median_ms": 15.143813999999999,
+          "candidate_update_median_ms": 14.299166,
+          "update_cost_reduction_percent": 5.577511715344629,
+          "baseline_cpu_median_ms": 19.029500499999997,
+          "candidate_cpu_median_ms": 18.3064375,
+          "cpu_cost_reduction_percent": 3.7996951102315935,
+          "cpu_reduction_status": "COMPARABLE_OBSERVATION",
+          "adjacent_pair_update_reductions_percent": [
+            25.53859326644804,
+            -25.815856952860106,
+            -12.784502913437223,
+            18.82327902098644
+          ],
+          "adjacent_pair_reduction_median_percent": 3.019388053774609,
+          "baseline_update_trials_ms": [
+            15.645294,
+            14.642334,
+            13.344547,
+            16.689207
+          ],
+          "candidate_update_trials_ms": [
+            11.649706,
+            18.422378,
+            15.050581,
+            13.547751
+          ],
+          "baseline_cpu_trials_ms": [
+            19.500459,
+            18.558542,
+            16.733125,
+            19.744125
+          ],
+          "candidate_cpu_trials_ms": [
+            15.275458,
+            21.447042,
+            18.625958,
+            17.986917
+          ],
+          "baseline_max_update_us_median": 665.8125,
+          "candidate_max_update_us_median": 563.0625
+        },
+        {
+          "rate": 96000,
+          "fft_size": 4096,
+          "fixture": "nominal_cadence",
+          "ui_interval_ms": 80,
+          "samples_per_trial": 192000,
+          "fft_windows_per_trial": 187,
+          "consumer_calls_per_trial": 25,
+          "expected_zero_fft_calls_from_fixture": 0,
+          "zero_fft_calls_observed_in_cost_csv": "NOT_RECORDED_PER_UPDATE",
+          "baseline_update_median_ms": 14.407623000000001,
+          "candidate_update_median_ms": 13.039999,
+          "update_cost_reduction_percent": 9.492363868765864,
+          "baseline_cpu_median_ms": 19.226542000000002,
+          "candidate_cpu_median_ms": 17.7704795,
+          "cpu_cost_reduction_percent": 7.573189708268924,
+          "cpu_reduction_status": "COMPARABLE_OBSERVATION",
+          "adjacent_pair_update_reductions_percent": [
+            14.803271229009718,
+            34.080427369684074,
+            3.733855651329443,
+            2.8113745039964555
+          ],
+          "adjacent_pair_reduction_median_percent": 9.268563440169581,
+          "baseline_update_trials_ms": [
+            14.990207,
+            18.690329,
+            13.825039,
+            13.704791
+          ],
+          "candidate_update_trials_ms": [
+            12.771166,
+            12.320585,
+            13.308832,
+            13.319498
+          ],
+          "baseline_cpu_trials_ms": [
+            20.562459,
+            21.749125,
+            17.890625,
+            17.366375
+          ],
+          "candidate_cpu_trials_ms": [
+            18.633084,
+            17.115125,
+            17.375625,
+            18.165334
+          ],
+          "baseline_max_update_us_median": 800.8330000000001,
+          "candidate_max_update_us_median": 792.979
+        },
+        {
+          "rate": 96000,
+          "fft_size": 8192,
+          "fixture": "full_capacity_catchup",
+          "ui_interval_ms": null,
+          "samples_per_trial": 65536,
+          "fft_windows_per_trial": 32,
+          "consumer_calls_per_trial": 1,
+          "expected_zero_fft_calls_from_fixture": 0,
+          "zero_fft_calls_observed_in_cost_csv": "NOT_RECORDED_PER_UPDATE",
+          "baseline_update_median_ms": 7.653812500000001,
+          "candidate_update_median_ms": 4.7083125,
+          "update_cost_reduction_percent": 38.484088811948304,
+          "baseline_cpu_median_ms": 6.5241045,
+          "candidate_cpu_median_ms": 5.9254375,
+          "cpu_cost_reduction_percent": 9.176232538887131,
+          "cpu_reduction_status": "COMPARABLE_OBSERVATION",
+          "adjacent_pair_update_reductions_percent": [
+            5.461059405217828,
+            32.99708466059605,
+            48.80804217976893,
+            36.61276424372005
+          ],
+          "adjacent_pair_reduction_median_percent": 34.80492445215805,
+          "baseline_update_trials_ms": [
+            5.095916,
+            6.323792,
+            8.983833,
+            10.260083
+          ],
+          "candidate_update_trials_ms": [
+            4.817625,
+            4.237125,
+            4.599,
+            6.503583
+          ],
+          "baseline_cpu_trials_ms": [
+            7.023334,
+            7.749458,
+            5.654916,
+            6.024875
+          ],
+          "candidate_cpu_trials_ms": [
+            5.993125,
+            5.85775,
+            5.671958,
+            7.708666
+          ],
+          "baseline_max_update_us_median": 7653.8125,
+          "candidate_max_update_us_median": 4708.3125
+        },
+        {
+          "rate": 96000,
+          "fft_size": 8192,
+          "fixture": "nominal_cadence",
+          "ui_interval_ms": 20,
+          "samples_per_trial": 192000,
+          "fft_windows_per_trial": 93,
+          "consumer_calls_per_trial": 100,
+          "expected_zero_fft_calls_from_fixture": 7,
+          "zero_fft_calls_observed_in_cost_csv": "NOT_RECORDED_PER_UPDATE",
+          "baseline_update_median_ms": 15.72477,
+          "candidate_update_median_ms": 14.4150835,
+          "update_cost_reduction_percent": 8.328811804560576,
+          "baseline_cpu_median_ms": 19.8215835,
+          "candidate_cpu_median_ms": 18.229332999999997,
+          "cpu_cost_reduction_percent": 8.03291270851293,
+          "cpu_reduction_status": "COMPARABLE_OBSERVATION",
+          "adjacent_pair_update_reductions_percent": [
+            13.625948853141667,
+            10.532967828695561,
+            6.443078782043122,
+            2.1211416811376727
+          ],
+          "adjacent_pair_reduction_median_percent": 8.488023305369342,
+          "baseline_update_trials_ms": [
+            13.309752,
+            14.5005,
+            16.94904,
+            20.081544
+          ],
+          "candidate_update_trials_ms": [
+            11.496172,
+            12.973167,
+            15.857,
+            19.655586
+          ],
+          "baseline_cpu_trials_ms": [
+            17.033209,
+            18.166417,
+            21.47675,
+            23.37225
+          ],
+          "candidate_cpu_trials_ms": [
+            15.73175,
+            16.711166,
+            19.7475,
+            21.650791
+          ],
+          "baseline_max_update_us_median": 339.41650000000004,
+          "candidate_max_update_us_median": 521.292
+        },
+        {
+          "rate": 96000,
+          "fft_size": 8192,
+          "fixture": "nominal_cadence",
+          "ui_interval_ms": 40,
+          "samples_per_trial": 192000,
+          "fft_windows_per_trial": 93,
+          "consumer_calls_per_trial": 50,
+          "expected_zero_fft_calls_from_fixture": 0,
+          "zero_fft_calls_observed_in_cost_csv": "NOT_RECORDED_PER_UPDATE",
+          "baseline_update_median_ms": 16.327273,
+          "candidate_update_median_ms": 15.879206,
+          "update_cost_reduction_percent": 2.7442855889039275,
+          "baseline_cpu_median_ms": 20.079437499999997,
+          "candidate_cpu_median_ms": 19.145083,
+          "cpu_cost_reduction_percent": 4.65329021293549,
+          "cpu_reduction_status": "COMPARABLE_OBSERVATION",
+          "adjacent_pair_update_reductions_percent": [
+            0.7579756407052107,
+            21.621725152602313,
+            22.955104116182255,
+            -68.74272340558831
+          ],
+          "adjacent_pair_reduction_median_percent": 11.189850396653762,
+          "baseline_update_trials_ms": [
+            16.991707,
+            19.004626,
+            15.662839,
+            13.790792
+          ],
+          "candidate_update_trials_ms": [
+            16.862914,
+            14.895498,
+            12.067418,
+            23.270958
+          ],
+          "baseline_cpu_trials_ms": [
+            20.900083,
+            22.334334,
+            19.258792,
+            17.486458
+          ],
+          "candidate_cpu_trials_ms": [
+            19.630833,
+            18.659333,
+            16.020625,
+            24.526458
+          ],
+          "baseline_max_update_us_median": 673.0,
+          "candidate_max_update_us_median": 580.5
+        },
+        {
+          "rate": 96000,
+          "fft_size": 8192,
+          "fixture": "nominal_cadence",
+          "ui_interval_ms": 80,
+          "samples_per_trial": 192000,
+          "fft_windows_per_trial": 93,
+          "consumer_calls_per_trial": 25,
+          "expected_zero_fft_calls_from_fixture": 0,
+          "zero_fft_calls_observed_in_cost_csv": "NOT_RECORDED_PER_UPDATE",
+          "baseline_update_median_ms": 17.3801895,
+          "candidate_update_median_ms": 12.985082,
+          "update_cost_reduction_percent": 25.288029799675083,
+          "baseline_cpu_median_ms": 22.566687,
+          "candidate_cpu_median_ms": 17.7408335,
+          "cpu_cost_reduction_percent": 21.38485591615642,
+          "cpu_reduction_status": "COMPARABLE_OBSERVATION",
+          "adjacent_pair_update_reductions_percent": [
+            40.27706652372418,
+            2.02210453874615,
+            29.521408239596504,
+            20.65028490543743
+          ],
+          "adjacent_pair_reduction_median_percent": 25.085846572516967,
+          "baseline_update_trials_ms": [
+            20.642335,
+            16.136505,
+            18.172419,
+            16.58796
+          ],
+          "candidate_update_trials_ms": [
+            12.328208,
+            15.810208,
+            12.807665,
+            13.162499
+          ],
+          "baseline_cpu_trials_ms": [
+            23.309959,
+            21.123208,
+            22.772541,
+            22.360833
+          ],
+          "candidate_cpu_trials_ms": [
+            17.0545,
+            19.776792,
+            17.721084,
+            17.760583
+          ],
+          "baseline_max_update_us_median": 1383.8335,
+          "candidate_max_update_us_median": 671.1669999999999
+        },
+        {
+          "rate": 192000,
+          "fft_size": 2048,
+          "fixture": "full_capacity_catchup",
+          "ui_interval_ms": null,
+          "samples_per_trial": 65536,
+          "fft_windows_per_trial": 128,
+          "consumer_calls_per_trial": 1,
+          "expected_zero_fft_calls_from_fixture": 0,
+          "zero_fft_calls_observed_in_cost_csv": "NOT_RECORDED_PER_UPDATE",
+          "baseline_update_median_ms": 5.3563335,
+          "candidate_update_median_ms": 5.690104,
+          "update_cost_reduction_percent": -6.231324095110957,
+          "baseline_cpu_median_ms": 6.4515,
+          "candidate_cpu_median_ms": 6.9529585,
+          "cpu_cost_reduction_percent": -7.772742772998531,
+          "cpu_reduction_status": "COMPARABLE_OBSERVATION",
+          "adjacent_pair_update_reductions_percent": [
+            34.01281982828059,
+            22.132122868097483,
+            -76.32220451628777,
+            -38.15620376287945
+          ],
+          "adjacent_pair_reduction_median_percent": -8.012040447390984,
+          "baseline_update_trials_ms": [
+            6.105542,
+            5.67275,
+            4.629333,
+            5.039917
+          ],
+          "candidate_update_trials_ms": [
+            4.028875,
+            4.41725,
+            8.162542,
+            6.962958
+          ],
+          "baseline_cpu_trials_ms": [
+            6.44775,
+            7.241959,
+            6.250417,
+            6.45525
+          ],
+          "candidate_cpu_trials_ms": [
+            5.428333,
+            5.351042,
+            8.603833,
+            8.477584
+          ],
+          "baseline_max_update_us_median": 5356.333500000001,
+          "candidate_max_update_us_median": 5690.103999999999
+        },
+        {
+          "rate": 192000,
+          "fft_size": 2048,
+          "fixture": "nominal_cadence",
+          "ui_interval_ms": 20,
+          "samples_per_trial": 384000,
+          "fft_windows_per_trial": 750,
+          "consumer_calls_per_trial": 100,
+          "expected_zero_fft_calls_from_fixture": 0,
+          "zero_fft_calls_observed_in_cost_csv": "NOT_RECORDED_PER_UPDATE",
+          "baseline_update_median_ms": 42.522228999999996,
+          "candidate_update_median_ms": 34.042148499999996,
+          "update_cost_reduction_percent": 19.94269985235252,
+          "baseline_cpu_median_ms": 47.1041455,
+          "candidate_cpu_median_ms": 39.991458,
+          "cpu_cost_reduction_percent": 15.09991832884433,
+          "cpu_reduction_status": "COMPARABLE_OBSERVATION",
+          "adjacent_pair_update_reductions_percent": [
+            2.124489164997878,
+            20.920216503508225,
+            17.820204001562633,
+            22.850162556799813
+          ],
+          "adjacent_pair_reduction_median_percent": 19.37021025253543,
+          "baseline_update_trials_ms": [
+            33.433496,
+            43.476247,
+            41.568211,
+            43.971092
+          ],
+          "candidate_update_trials_ms": [
+            32.723205,
+            34.380922,
+            34.160671,
+            33.923626
+          ],
+          "baseline_cpu_trials_ms": [
+            42.630708,
+            46.83175,
+            47.376541,
+            48.320375
+          ],
+          "candidate_cpu_trials_ms": [
+            40.180458,
+            40.9065,
+            39.674084,
+            39.802458
+          ],
+          "baseline_max_update_us_median": 740.708,
+          "candidate_max_update_us_median": 613.3545
+        },
+        {
+          "rate": 192000,
+          "fft_size": 2048,
+          "fixture": "nominal_cadence",
+          "ui_interval_ms": 40,
+          "samples_per_trial": 384000,
+          "fft_windows_per_trial": 750,
+          "consumer_calls_per_trial": 50,
+          "expected_zero_fft_calls_from_fixture": 0,
+          "zero_fft_calls_observed_in_cost_csv": "NOT_RECORDED_PER_UPDATE",
+          "baseline_update_median_ms": 48.75079,
+          "candidate_update_median_ms": 33.9709185,
+          "update_cost_reduction_percent": 30.317193834192224,
+          "baseline_cpu_median_ms": 49.529979499999996,
+          "candidate_cpu_median_ms": 39.6589795,
+          "cpu_cost_reduction_percent": 19.929344004674977,
+          "cpu_reduction_status": "COMPARABLE_OBSERVATION",
+          "adjacent_pair_update_reductions_percent": [
+            35.947891351530856,
+            37.0771786482022,
+            32.244557683184304,
+            19.402142479073625
+          ],
+          "adjacent_pair_reduction_median_percent": 34.096224517357584,
+          "baseline_update_trials_ms": [
+            43.704914,
+            134.998918,
+            53.796666,
+            39.072587
+          ],
+          "candidate_update_trials_ms": [
+            27.993919,
+            84.945128,
+            36.450169,
+            31.491668
+          ],
+          "baseline_cpu_trials_ms": [
+            48.750792,
+            50.309167,
+            55.564042,
+            46.585292
+          ],
+          "candidate_cpu_trials_ms": [
+            34.860958,
+            44.296,
+            41.519417,
+            37.798542
+          ],
+          "baseline_max_update_us_median": 4737.125,
+          "candidate_max_update_us_median": 1239.75
+        },
+        {
+          "rate": 192000,
+          "fft_size": 2048,
+          "fixture": "nominal_cadence",
+          "ui_interval_ms": 80,
+          "samples_per_trial": 384000,
+          "fft_windows_per_trial": 750,
+          "consumer_calls_per_trial": 25,
+          "expected_zero_fft_calls_from_fixture": 0,
+          "zero_fft_calls_observed_in_cost_csv": "NOT_RECORDED_PER_UPDATE",
+          "baseline_update_median_ms": 35.3464805,
+          "candidate_update_median_ms": 30.864748,
+          "update_cost_reduction_percent": 12.67943070032107,
+          "baseline_cpu_median_ms": 41.4214585,
+          "candidate_cpu_median_ms": 37.092417,
+          "cpu_cost_reduction_percent": 10.451204899025957,
+          "cpu_reduction_status": "COMPARABLE_OBSERVATION",
+          "adjacent_pair_update_reductions_percent": [
+            9.236457588976076,
+            17.330059642471983,
+            9.304783487702217,
+            12.43561414087978
+          ],
+          "adjacent_pair_reduction_median_percent": 10.870198814290998,
+          "baseline_update_trials_ms": [
+            34.219959,
+            36.473002,
+            33.816832,
+            38.426916
+          ],
+          "candidate_update_trials_ms": [
+            31.059247,
+            30.152209,
+            30.670249,
+            33.648293
+          ],
+          "baseline_cpu_trials_ms": [
+            40.308542,
+            42.534375,
+            40.254125,
+            43.325083
+          ],
+          "candidate_cpu_trials_ms": [
+            37.910459,
+            36.168792,
+            36.274375,
+            39.106792
+          ],
+          "baseline_max_update_us_median": 2541.333,
+          "candidate_max_update_us_median": 2101.0415000000003
+        },
+        {
+          "rate": 192000,
+          "fft_size": 4096,
+          "fixture": "full_capacity_catchup",
+          "ui_interval_ms": null,
+          "samples_per_trial": 65536,
+          "fft_windows_per_trial": 64,
+          "consumer_calls_per_trial": 1,
+          "expected_zero_fft_calls_from_fixture": 0,
+          "zero_fft_calls_observed_in_cost_csv": "NOT_RECORDED_PER_UPDATE",
+          "baseline_update_median_ms": 7.888062,
+          "candidate_update_median_ms": 7.093500000000001,
+          "update_cost_reduction_percent": 10.07296849340179,
+          "baseline_cpu_median_ms": 8.692395999999999,
+          "candidate_cpu_median_ms": 7.8307085,
+          "cpu_cost_reduction_percent": 9.913118316284697,
+          "cpu_reduction_status": "COMPARABLE_OBSERVATION",
+          "adjacent_pair_update_reductions_percent": [
+            18.18366721233674,
+            33.55077295439969,
+            -39.39265473693605,
+            36.84646994751956
+          ],
+          "adjacent_pair_reduction_median_percent": 25.867220083368217,
+          "baseline_update_trials_ms": [
+            9.631583,
+            6.144541,
+            5.60225,
+            10.099
+          ],
+          "candidate_update_trials_ms": [
+            7.880208,
+            4.083,
+            7.809125,
+            6.377875
+          ],
+          "baseline_cpu_trials_ms": [
+            10.188042,
+            7.19675,
+            6.7045,
+            11.07375
+          ],
+          "candidate_cpu_trials_ms": [
+            9.945959,
+            5.879417,
+            9.27125,
+            6.390167
+          ],
+          "baseline_max_update_us_median": 7888.062,
+          "candidate_max_update_us_median": 7093.5
+        },
+        {
+          "rate": 192000,
+          "fft_size": 4096,
+          "fixture": "nominal_cadence",
+          "ui_interval_ms": 20,
+          "samples_per_trial": 384000,
+          "fft_windows_per_trial": 375,
+          "consumer_calls_per_trial": 100,
+          "expected_zero_fft_calls_from_fixture": 0,
+          "zero_fft_calls_observed_in_cost_csv": "NOT_RECORDED_PER_UPDATE",
+          "baseline_update_median_ms": 35.92568249999999,
+          "candidate_update_median_ms": 40.81921,
+          "update_cost_reduction_percent": -13.621251315128124,
+          "baseline_cpu_median_ms": 42.904708,
+          "candidate_cpu_median_ms": 45.524666499999995,
+          "cpu_cost_reduction_percent": -6.106459225873295,
+          "cpu_reduction_status": "COMPARABLE_OBSERVATION",
+          "adjacent_pair_update_reductions_percent": [
+            0.451117278633395,
+            -61.985812200362304,
+            4.266869244316929,
+            -26.96931161811349
+          ],
+          "adjacent_pair_reduction_median_percent": -13.259097169740048,
+          "baseline_update_trials_ms": [
+            43.51108,
+            37.436249,
+            34.415116,
+            30.183377
+          ],
+          "candidate_update_trials_ms": [
+            43.314794,
+            60.641412,
+            32.946668,
+            38.323626
+          ],
+          "baseline_cpu_trials_ms": [
+            47.885791,
+            45.146875,
+            40.662541,
+            37.598
+          ],
+          "candidate_cpu_trials_ms": [
+            47.015375,
+            69.016917,
+            38.695041,
+            44.033958
+          ],
+          "baseline_max_update_us_median": 869.5415,
+          "candidate_max_update_us_median": 1281.4375
+        },
+        {
+          "rate": 192000,
+          "fft_size": 4096,
+          "fixture": "nominal_cadence",
+          "ui_interval_ms": 40,
+          "samples_per_trial": 384000,
+          "fft_windows_per_trial": 375,
+          "consumer_calls_per_trial": 50,
+          "expected_zero_fft_calls_from_fixture": 0,
+          "zero_fft_calls_observed_in_cost_csv": "NOT_RECORDED_PER_UPDATE",
+          "baseline_update_median_ms": 47.037666,
+          "candidate_update_median_ms": 36.687668,
+          "update_cost_reduction_percent": 22.00363853087438,
+          "baseline_cpu_median_ms": 51.0106875,
+          "candidate_cpu_median_ms": 41.69360399999999,
+          "cpu_cost_reduction_percent": 18.264963592188423,
+          "cpu_reduction_status": "COMPARABLE_OBSERVATION",
+          "adjacent_pair_update_reductions_percent": [
+            34.62292322485406,
+            11.760840939383254,
+            23.236354953591132,
+            8.212185007383821
+          ],
+          "adjacent_pair_reduction_median_percent": 17.498597946487195,
+          "baseline_update_trials_ms": [
+            51.413787,
+            46.532914,
+            47.542418,
+            40.179672
+          ],
+          "candidate_update_trials_ms": [
+            33.612831,
+            41.060252,
+            36.495293,
+            36.880043
+          ],
+          "baseline_cpu_trials_ms": [
+            56.571125,
+            52.026417,
+            49.994958,
+            45.177958
+          ],
+          "candidate_cpu_trials_ms": [
+            41.406375,
+            49.642833,
+            41.980833,
+            41.236333
+          ],
+          "baseline_max_update_us_median": 1920.104,
+          "candidate_max_update_us_median": 1531.896
+        },
+        {
+          "rate": 192000,
+          "fft_size": 4096,
+          "fixture": "nominal_cadence",
+          "ui_interval_ms": 80,
+          "samples_per_trial": 384000,
+          "fft_windows_per_trial": 375,
+          "consumer_calls_per_trial": 25,
+          "expected_zero_fft_calls_from_fixture": 0,
+          "zero_fft_calls_observed_in_cost_csv": "NOT_RECORDED_PER_UPDATE",
+          "baseline_update_median_ms": 42.579122999999996,
+          "candidate_update_median_ms": 32.378898,
+          "update_cost_reduction_percent": 23.95593023369692,
+          "baseline_cpu_median_ms": 48.092979,
+          "candidate_cpu_median_ms": 39.2235205,
+          "cpu_cost_reduction_percent": 18.442314625592225,
+          "cpu_reduction_status": "COMPARABLE_OBSERVATION",
+          "adjacent_pair_update_reductions_percent": [
+            22.58302674032907,
+            7.005092077927067,
+            30.6215311132951,
+            13.259436975120497
+          ],
+          "adjacent_pair_reduction_median_percent": 17.921231857724784,
+          "baseline_update_trials_ms": [
+            37.546247,
+            27.432416,
+            51.443378,
+            47.611999
+          ],
+          "candidate_update_trials_ms": [
+            29.067168,
+            25.51075,
+            35.690628,
+            41.298916
+          ],
+          "baseline_cpu_trials_ms": [
+            44.17975,
+            34.828958,
+            56.4115,
+            52.006208
+          ],
+          "candidate_cpu_trials_ms": [
+            35.707333,
+            32.465375,
+            42.739708,
+            46.956709
+          ],
+          "baseline_max_update_us_median": 2755.6459999999997,
+          "candidate_max_update_us_median": 2257.25
+        },
+        {
+          "rate": 192000,
+          "fft_size": 8192,
+          "fixture": "full_capacity_catchup",
+          "ui_interval_ms": null,
+          "samples_per_trial": 65536,
+          "fft_windows_per_trial": 32,
+          "consumer_calls_per_trial": 1,
+          "expected_zero_fft_calls_from_fixture": 0,
+          "zero_fft_calls_observed_in_cost_csv": "NOT_RECORDED_PER_UPDATE",
+          "baseline_update_median_ms": 7.0011875,
+          "candidate_update_median_ms": 7.460708,
+          "update_cost_reduction_percent": -6.563465126451762,
+          "baseline_cpu_median_ms": 7.802583,
+          "candidate_cpu_median_ms": 7.7962495,
+          "cpu_cost_reduction_percent": 0.08117183758250546,
+          "cpu_reduction_status": "COMPARABLE_OBSERVATION",
+          "adjacent_pair_update_reductions_percent": [
+            -57.018634457327245,
+            26.298030914768788,
+            -84.51372559847583,
+            28.180445621181182
+          ],
+          "adjacent_pair_reduction_median_percent": -15.360301771279229,
+          "baseline_update_trials_ms": [
+            5.012542,
+            9.566625,
+            4.527125,
+            8.989833
+          ],
+          "candidate_update_trials_ms": [
+            7.870625,
+            7.050791,
+            8.353167,
+            6.456458
+          ],
+          "baseline_cpu_trials_ms": [
+            5.302292,
+            10.253583,
+            5.557708,
+            10.047458
+          ],
+          "candidate_cpu_trials_ms": [
+            8.152791,
+            7.439708,
+            9.271208,
+            7.224791
+          ],
+          "baseline_max_update_us_median": 7001.1875,
+          "candidate_max_update_us_median": 7460.7080000000005
+        },
+        {
+          "rate": 192000,
+          "fft_size": 8192,
+          "fixture": "nominal_cadence",
+          "ui_interval_ms": 20,
+          "samples_per_trial": 384000,
+          "fft_windows_per_trial": 187,
+          "consumer_calls_per_trial": 100,
+          "expected_zero_fft_calls_from_fixture": 0,
+          "zero_fft_calls_observed_in_cost_csv": "NOT_RECORDED_PER_UPDATE",
+          "baseline_update_median_ms": 37.0619605,
+          "candidate_update_median_ms": 31.695833999999998,
+          "update_cost_reduction_percent": 14.478798281596571,
+          "baseline_cpu_median_ms": 43.985063,
+          "candidate_cpu_median_ms": 38.900458,
+          "cpu_cost_reduction_percent": 11.559844759117421,
+          "cpu_reduction_status": "COMPARABLE_OBSERVATION",
+          "adjacent_pair_update_reductions_percent": [
+            29.195832416837842,
+            -13.844190653252685,
+            19.795769477174076,
+            13.602654183780816
+          ],
+          "adjacent_pair_reduction_median_percent": 16.699211830477445,
+          "baseline_update_trials_ms": [
+            39.634674,
+            33.570117,
+            41.885414,
+            34.489247
+          ],
+          "candidate_update_trials_ms": [
+            28.063001,
+            38.217628,
+            33.593874,
+            29.797794
+          ],
+          "baseline_cpu_trials_ms": [
+            45.750667,
+            40.819042,
+            46.923375,
+            42.219459
+          ],
+          "candidate_cpu_trials_ms": [
+            37.198125,
+            42.891375,
+            39.622625,
+            38.178291
+          ],
+          "baseline_max_update_us_median": 721.6875,
+          "candidate_max_update_us_median": 608.375
+        },
+        {
+          "rate": 192000,
+          "fft_size": 8192,
+          "fixture": "nominal_cadence",
+          "ui_interval_ms": 40,
+          "samples_per_trial": 384000,
+          "fft_windows_per_trial": 187,
+          "consumer_calls_per_trial": 50,
+          "expected_zero_fft_calls_from_fixture": 0,
+          "zero_fft_calls_observed_in_cost_csv": "NOT_RECORDED_PER_UPDATE",
+          "baseline_update_median_ms": 39.7807505,
+          "candidate_update_median_ms": 31.3941645,
+          "update_cost_reduction_percent": 21.082020561678448,
+          "baseline_cpu_median_ms": 45.975604000000004,
+          "candidate_cpu_median_ms": 38.105916500000006,
+          "cpu_cost_reduction_percent": 17.11709431810835,
+          "cpu_reduction_status": "COMPARABLE_OBSERVATION",
+          "adjacent_pair_update_reductions_percent": [
+            19.34769707602192,
+            17.012721418728837,
+            25.48962931690807,
+            -1.7129079188116458
+          ],
+          "adjacent_pair_reduction_median_percent": 18.18020924737538,
+          "baseline_update_trials_ms": [
+            40.170171,
+            43.081044,
+            39.39133,
+            29.878372
+          ],
+          "candidate_update_trials_ms": [
+            32.398168,
+            35.751786,
+            29.350626,
+            30.390161
+          ],
+          "baseline_cpu_trials_ms": [
+            46.494083,
+            48.239917,
+            45.457125,
+            36.603917
+          ],
+          "candidate_cpu_trials_ms": [
+            38.60475,
+            41.879834,
+            35.96975,
+            37.607083
+          ],
+          "baseline_max_update_us_median": 1378.9375,
+          "candidate_max_update_us_median": 1225.6455
+        },
+        {
+          "rate": 192000,
+          "fft_size": 8192,
+          "fixture": "nominal_cadence",
+          "ui_interval_ms": 80,
+          "samples_per_trial": 384000,
+          "fft_windows_per_trial": 187,
+          "consumer_calls_per_trial": 25,
+          "expected_zero_fft_calls_from_fixture": 0,
+          "zero_fft_calls_observed_in_cost_csv": "NOT_RECORDED_PER_UPDATE",
+          "baseline_update_median_ms": 40.0450435,
+          "candidate_update_median_ms": 38.644499499999995,
+          "update_cost_reduction_percent": 3.497421597257111,
+          "baseline_cpu_median_ms": 46.1786245,
+          "candidate_cpu_median_ms": 44.1195205,
+          "cpu_cost_reduction_percent": 4.4589981236881515,
+          "cpu_reduction_status": "COMPARABLE_OBSERVATION",
+          "adjacent_pair_update_reductions_percent": [
+            26.308496858403085,
+            -15.550888148037533,
+            2.1255293390742946,
+            -0.04676606953661899
+          ],
+          "adjacent_pair_reduction_median_percent": 1.0393816347688378,
+          "baseline_update_trials_ms": [
+            42.243166,
+            40.44596,
+            38.443459,
+            39.644127
+          ],
+          "candidate_update_trials_ms": [
+            31.129624,
+            46.735666,
+            37.626332,
+            39.662667
+          ],
+          "baseline_cpu_trials_ms": [
+            48.204875,
+            46.485541,
+            45.808166,
+            45.871708
+          ],
+          "candidate_cpu_trials_ms": [
+            37.323208,
+            50.770167,
+            43.679416,
+            44.559625
+          ],
+          "baseline_max_update_us_median": 3933.7085,
+          "candidate_max_update_us_median": 2377.0205
+        }
+      ],
+      "receipts_sha256": {
+        "eq-analyzer-performance-summary.csv": "dbb8a868e42611a059c710385f1d152050bef6ac751d8d60da7da8ca2109c014",
+        "eq-analyzer-performance-paired.csv": "2632b50c7574ccbe6a5dfacf4a2a42c0a4e616e0df3e4956815fe56ef2921997",
+        "eq-analyzer-performance-parity.csv": "a0b63db5ab31f3077681b92e1a9f0f4ff42d70218394fd054aa3c5f1be476546"
+      },
+      "row_counts": {
+        "summary": 48,
+        "paired": 384,
+        "parity": 108
+      },
+      "source_commit": "72e361ba91ea2c6b8d830921a71275fa25cba493",
+      "runner": {
+        "platform": "macOS-15.7.9-arm64-arm-64bit-Mach-O",
+        "machine": "arm64",
+        "processor": "arm",
+        "logical_cpus": 3,
+        "RUNNER_OS": "macOS",
+        "RUNNER_ARCH": "ARM64",
+        "ImageOS": "macos15",
+        "ImageVersion": "20260907.0337.1",
+        "GITHUB_RUN_ID": "38243938568",
+        "GITHUB_RUN_ATTEMPT": "1"
+      },
+      "source_sha256": {
+        "Source/EQSpectrumAnalyzer.h": "a7dd27cef57df2edea050cdbaa07c299a63e526269f8518d00409a4f1f6ff941",
+        "Tests/EQAnalyzerPerformanceTests.cpp": "2e234951c7e6b9fdb6f9ad0ccbd87938badc5ee246fb62581f1261a31bb5acee",
+        "Tests/reference/EQSpectrumAnalyzerBeb72f.h": "ad0e9f7dc7fe46579b24707291bf63a5ee09363de701b1606c5cedf98f970f26"
+      },
+      "parity": {
+        "cases": 108,
+        "max_errors": {
+          "max_raw_error_db": 1.52587890625e-05,
+          "max_envelope_error_db": 1.52587890625e-05,
+          "max_display_error_db": 1.52587890625e-05,
+          "max_raw_power_relative_error": 3.5134721954e-06,
+          "max_smoothed_power_relative_error": 3.5134721954e-06
+        },
+        "dropped_samples": 0,
+        "discontinuities": 0,
+        "tolerance_db": 0.002
+      },
+      "cost_accounting": {
+        "dropped_samples": 0,
+        "entire_trials_with_zero_windows": 0,
+        "raw_thread_cpu_zero_rows": 0,
+        "per_update_zero_window_observation": "Not available in these cost CSVs; expected fixture counts only."
+      },
+      "aggregate": {
+        "cells": 48,
+        "lower_candidate_update_cells": 38,
+        "median_update_reduction_percent": 14.755156315338324,
+        "median_cpu_reduction_percent": 11.944974785351686,
+        "cpu_comparable_cells": 48
+      },
+      "by_fft": {
+        "2048": {
+          "median_update_reduction_percent": 12.825536077182164,
+          "median_cpu_reduction_percent": 11.390654855305954
+        },
+        "4096": {
+          "median_update_reduction_percent": 15.267900539182987,
+          "median_cpu_reduction_percent": 12.761739333199955
+        },
+        "8192": {
+          "median_update_reduction_percent": 17.780409421637508,
+          "median_cpu_reduction_percent": 13.39869758877608
+        }
+      },
+      "192khz_cells": [
+        {
+          "rate": 192000,
+          "fft_size": 2048,
+          "fixture": "full_capacity_catchup",
+          "ui_interval_ms": null,
+          "samples_per_trial": 65536,
+          "fft_windows_per_trial": 128,
+          "consumer_calls_per_trial": 1,
+          "expected_zero_fft_calls_from_fixture": 0,
+          "zero_fft_calls_observed_in_cost_csv": "NOT_RECORDED_PER_UPDATE",
+          "baseline_update_median_ms": 5.3563335,
+          "candidate_update_median_ms": 5.690104,
+          "update_cost_reduction_percent": -6.231324095110957,
+          "baseline_cpu_median_ms": 6.4515,
+          "candidate_cpu_median_ms": 6.9529585,
+          "cpu_cost_reduction_percent": -7.772742772998531,
+          "cpu_reduction_status": "COMPARABLE_OBSERVATION",
+          "adjacent_pair_update_reductions_percent": [
+            34.01281982828059,
+            22.132122868097483,
+            -76.32220451628777,
+            -38.15620376287945
+          ],
+          "adjacent_pair_reduction_median_percent": -8.012040447390984,
+          "baseline_update_trials_ms": [
+            6.105542,
+            5.67275,
+            4.629333,
+            5.039917
+          ],
+          "candidate_update_trials_ms": [
+            4.028875,
+            4.41725,
+            8.162542,
+            6.962958
+          ],
+          "baseline_cpu_trials_ms": [
+            6.44775,
+            7.241959,
+            6.250417,
+            6.45525
+          ],
+          "candidate_cpu_trials_ms": [
+            5.428333,
+            5.351042,
+            8.603833,
+            8.477584
+          ],
+          "baseline_max_update_us_median": 5356.333500000001,
+          "candidate_max_update_us_median": 5690.103999999999
+        },
+        {
+          "rate": 192000,
+          "fft_size": 2048,
+          "fixture": "nominal_cadence",
+          "ui_interval_ms": 20,
+          "samples_per_trial": 384000,
+          "fft_windows_per_trial": 750,
+          "consumer_calls_per_trial": 100,
+          "expected_zero_fft_calls_from_fixture": 0,
+          "zero_fft_calls_observed_in_cost_csv": "NOT_RECORDED_PER_UPDATE",
+          "baseline_update_median_ms": 42.522228999999996,
+          "candidate_update_median_ms": 34.042148499999996,
+          "update_cost_reduction_percent": 19.94269985235252,
+          "baseline_cpu_median_ms": 47.1041455,
+          "candidate_cpu_median_ms": 39.991458,
+          "cpu_cost_reduction_percent": 15.09991832884433,
+          "cpu_reduction_status": "COMPARABLE_OBSERVATION",
+          "adjacent_pair_update_reductions_percent": [
+            2.124489164997878,
+            20.920216503508225,
+            17.820204001562633,
+            22.850162556799813
+          ],
+          "adjacent_pair_reduction_median_percent": 19.37021025253543,
+          "baseline_update_trials_ms": [
+            33.433496,
+            43.476247,
+            41.568211,
+            43.971092
+          ],
+          "candidate_update_trials_ms": [
+            32.723205,
+            34.380922,
+            34.160671,
+            33.923626
+          ],
+          "baseline_cpu_trials_ms": [
+            42.630708,
+            46.83175,
+            47.376541,
+            48.320375
+          ],
+          "candidate_cpu_trials_ms": [
+            40.180458,
+            40.9065,
+            39.674084,
+            39.802458
+          ],
+          "baseline_max_update_us_median": 740.708,
+          "candidate_max_update_us_median": 613.3545
+        },
+        {
+          "rate": 192000,
+          "fft_size": 2048,
+          "fixture": "nominal_cadence",
+          "ui_interval_ms": 40,
+          "samples_per_trial": 384000,
+          "fft_windows_per_trial": 750,
+          "consumer_calls_per_trial": 50,
+          "expected_zero_fft_calls_from_fixture": 0,
+          "zero_fft_calls_observed_in_cost_csv": "NOT_RECORDED_PER_UPDATE",
+          "baseline_update_median_ms": 48.75079,
+          "candidate_update_median_ms": 33.9709185,
+          "update_cost_reduction_percent": 30.317193834192224,
+          "baseline_cpu_median_ms": 49.529979499999996,
+          "candidate_cpu_median_ms": 39.6589795,
+          "cpu_cost_reduction_percent": 19.929344004674977,
+          "cpu_reduction_status": "COMPARABLE_OBSERVATION",
+          "adjacent_pair_update_reductions_percent": [
+            35.947891351530856,
+            37.0771786482022,
+            32.244557683184304,
+            19.402142479073625
+          ],
+          "adjacent_pair_reduction_median_percent": 34.096224517357584,
+          "baseline_update_trials_ms": [
+            43.704914,
+            134.998918,
+            53.796666,
+            39.072587
+          ],
+          "candidate_update_trials_ms": [
+            27.993919,
+            84.945128,
+            36.450169,
+            31.491668
+          ],
+          "baseline_cpu_trials_ms": [
+            48.750792,
+            50.309167,
+            55.564042,
+            46.585292
+          ],
+          "candidate_cpu_trials_ms": [
+            34.860958,
+            44.296,
+            41.519417,
+            37.798542
+          ],
+          "baseline_max_update_us_median": 4737.125,
+          "candidate_max_update_us_median": 1239.75
+        },
+        {
+          "rate": 192000,
+          "fft_size": 2048,
+          "fixture": "nominal_cadence",
+          "ui_interval_ms": 80,
+          "samples_per_trial": 384000,
+          "fft_windows_per_trial": 750,
+          "consumer_calls_per_trial": 25,
+          "expected_zero_fft_calls_from_fixture": 0,
+          "zero_fft_calls_observed_in_cost_csv": "NOT_RECORDED_PER_UPDATE",
+          "baseline_update_median_ms": 35.3464805,
+          "candidate_update_median_ms": 30.864748,
+          "update_cost_reduction_percent": 12.67943070032107,
+          "baseline_cpu_median_ms": 41.4214585,
+          "candidate_cpu_median_ms": 37.092417,
+          "cpu_cost_reduction_percent": 10.451204899025957,
+          "cpu_reduction_status": "COMPARABLE_OBSERVATION",
+          "adjacent_pair_update_reductions_percent": [
+            9.236457588976076,
+            17.330059642471983,
+            9.304783487702217,
+            12.43561414087978
+          ],
+          "adjacent_pair_reduction_median_percent": 10.870198814290998,
+          "baseline_update_trials_ms": [
+            34.219959,
+            36.473002,
+            33.816832,
+            38.426916
+          ],
+          "candidate_update_trials_ms": [
+            31.059247,
+            30.152209,
+            30.670249,
+            33.648293
+          ],
+          "baseline_cpu_trials_ms": [
+            40.308542,
+            42.534375,
+            40.254125,
+            43.325083
+          ],
+          "candidate_cpu_trials_ms": [
+            37.910459,
+            36.168792,
+            36.274375,
+            39.106792
+          ],
+          "baseline_max_update_us_median": 2541.333,
+          "candidate_max_update_us_median": 2101.0415000000003
+        },
+        {
+          "rate": 192000,
+          "fft_size": 4096,
+          "fixture": "full_capacity_catchup",
+          "ui_interval_ms": null,
+          "samples_per_trial": 65536,
+          "fft_windows_per_trial": 64,
+          "consumer_calls_per_trial": 1,
+          "expected_zero_fft_calls_from_fixture": 0,
+          "zero_fft_calls_observed_in_cost_csv": "NOT_RECORDED_PER_UPDATE",
+          "baseline_update_median_ms": 7.888062,
+          "candidate_update_median_ms": 7.093500000000001,
+          "update_cost_reduction_percent": 10.07296849340179,
+          "baseline_cpu_median_ms": 8.692395999999999,
+          "candidate_cpu_median_ms": 7.8307085,
+          "cpu_cost_reduction_percent": 9.913118316284697,
+          "cpu_reduction_status": "COMPARABLE_OBSERVATION",
+          "adjacent_pair_update_reductions_percent": [
+            18.18366721233674,
+            33.55077295439969,
+            -39.39265473693605,
+            36.84646994751956
+          ],
+          "adjacent_pair_reduction_median_percent": 25.867220083368217,
+          "baseline_update_trials_ms": [
+            9.631583,
+            6.144541,
+            5.60225,
+            10.099
+          ],
+          "candidate_update_trials_ms": [
+            7.880208,
+            4.083,
+            7.809125,
+            6.377875
+          ],
+          "baseline_cpu_trials_ms": [
+            10.188042,
+            7.19675,
+            6.7045,
+            11.07375
+          ],
+          "candidate_cpu_trials_ms": [
+            9.945959,
+            5.879417,
+            9.27125,
+            6.390167
+          ],
+          "baseline_max_update_us_median": 7888.062,
+          "candidate_max_update_us_median": 7093.5
+        },
+        {
+          "rate": 192000,
+          "fft_size": 4096,
+          "fixture": "nominal_cadence",
+          "ui_interval_ms": 20,
+          "samples_per_trial": 384000,
+          "fft_windows_per_trial": 375,
+          "consumer_calls_per_trial": 100,
+          "expected_zero_fft_calls_from_fixture": 0,
+          "zero_fft_calls_observed_in_cost_csv": "NOT_RECORDED_PER_UPDATE",
+          "baseline_update_median_ms": 35.92568249999999,
+          "candidate_update_median_ms": 40.81921,
+          "update_cost_reduction_percent": -13.621251315128124,
+          "baseline_cpu_median_ms": 42.904708,
+          "candidate_cpu_median_ms": 45.524666499999995,
+          "cpu_cost_reduction_percent": -6.106459225873295,
+          "cpu_reduction_status": "COMPARABLE_OBSERVATION",
+          "adjacent_pair_update_reductions_percent": [
+            0.451117278633395,
+            -61.985812200362304,
+            4.266869244316929,
+            -26.96931161811349
+          ],
+          "adjacent_pair_reduction_median_percent": -13.259097169740048,
+          "baseline_update_trials_ms": [
+            43.51108,
+            37.436249,
+            34.415116,
+            30.183377
+          ],
+          "candidate_update_trials_ms": [
+            43.314794,
+            60.641412,
+            32.946668,
+            38.323626
+          ],
+          "baseline_cpu_trials_ms": [
+            47.885791,
+            45.146875,
+            40.662541,
+            37.598
+          ],
+          "candidate_cpu_trials_ms": [
+            47.015375,
+            69.016917,
+            38.695041,
+            44.033958
+          ],
+          "baseline_max_update_us_median": 869.5415,
+          "candidate_max_update_us_median": 1281.4375
+        },
+        {
+          "rate": 192000,
+          "fft_size": 4096,
+          "fixture": "nominal_cadence",
+          "ui_interval_ms": 40,
+          "samples_per_trial": 384000,
+          "fft_windows_per_trial": 375,
+          "consumer_calls_per_trial": 50,
+          "expected_zero_fft_calls_from_fixture": 0,
+          "zero_fft_calls_observed_in_cost_csv": "NOT_RECORDED_PER_UPDATE",
+          "baseline_update_median_ms": 47.037666,
+          "candidate_update_median_ms": 36.687668,
+          "update_cost_reduction_percent": 22.00363853087438,
+          "baseline_cpu_median_ms": 51.0106875,
+          "candidate_cpu_median_ms": 41.69360399999999,
+          "cpu_cost_reduction_percent": 18.264963592188423,
+          "cpu_reduction_status": "COMPARABLE_OBSERVATION",
+          "adjacent_pair_update_reductions_percent": [
+            34.62292322485406,
+            11.760840939383254,
+            23.236354953591132,
+            8.212185007383821
+          ],
+          "adjacent_pair_reduction_median_percent": 17.498597946487195,
+          "baseline_update_trials_ms": [
+            51.413787,
+            46.532914,
+            47.542418,
+            40.179672
+          ],
+          "candidate_update_trials_ms": [
+            33.612831,
+            41.060252,
+            36.495293,
+            36.880043
+          ],
+          "baseline_cpu_trials_ms": [
+            56.571125,
+            52.026417,
+            49.994958,
+            45.177958
+          ],
+          "candidate_cpu_trials_ms": [
+            41.406375,
+            49.642833,
+            41.980833,
+            41.236333
+          ],
+          "baseline_max_update_us_median": 1920.104,
+          "candidate_max_update_us_median": 1531.896
+        },
+        {
+          "rate": 192000,
+          "fft_size": 4096,
+          "fixture": "nominal_cadence",
+          "ui_interval_ms": 80,
+          "samples_per_trial": 384000,
+          "fft_windows_per_trial": 375,
+          "consumer_calls_per_trial": 25,
+          "expected_zero_fft_calls_from_fixture": 0,
+          "zero_fft_calls_observed_in_cost_csv": "NOT_RECORDED_PER_UPDATE",
+          "baseline_update_median_ms": 42.579122999999996,
+          "candidate_update_median_ms": 32.378898,
+          "update_cost_reduction_percent": 23.95593023369692,
+          "baseline_cpu_median_ms": 48.092979,
+          "candidate_cpu_median_ms": 39.2235205,
+          "cpu_cost_reduction_percent": 18.442314625592225,
+          "cpu_reduction_status": "COMPARABLE_OBSERVATION",
+          "adjacent_pair_update_reductions_percent": [
+            22.58302674032907,
+            7.005092077927067,
+            30.6215311132951,
+            13.259436975120497
+          ],
+          "adjacent_pair_reduction_median_percent": 17.921231857724784,
+          "baseline_update_trials_ms": [
+            37.546247,
+            27.432416,
+            51.443378,
+            47.611999
+          ],
+          "candidate_update_trials_ms": [
+            29.067168,
+            25.51075,
+            35.690628,
+            41.298916
+          ],
+          "baseline_cpu_trials_ms": [
+            44.17975,
+            34.828958,
+            56.4115,
+            52.006208
+          ],
+          "candidate_cpu_trials_ms": [
+            35.707333,
+            32.465375,
+            42.739708,
+            46.956709
+          ],
+          "baseline_max_update_us_median": 2755.6459999999997,
+          "candidate_max_update_us_median": 2257.25
+        },
+        {
+          "rate": 192000,
+          "fft_size": 8192,
+          "fixture": "full_capacity_catchup",
+          "ui_interval_ms": null,
+          "samples_per_trial": 65536,
+          "fft_windows_per_trial": 32,
+          "consumer_calls_per_trial": 1,
+          "expected_zero_fft_calls_from_fixture": 0,
+          "zero_fft_calls_observed_in_cost_csv": "NOT_RECORDED_PER_UPDATE",
+          "baseline_update_median_ms": 7.0011875,
+          "candidate_update_median_ms": 7.460708,
+          "update_cost_reduction_percent": -6.563465126451762,
+          "baseline_cpu_median_ms": 7.802583,
+          "candidate_cpu_median_ms": 7.7962495,
+          "cpu_cost_reduction_percent": 0.08117183758250546,
+          "cpu_reduction_status": "COMPARABLE_OBSERVATION",
+          "adjacent_pair_update_reductions_percent": [
+            -57.018634457327245,
+            26.298030914768788,
+            -84.51372559847583,
+            28.180445621181182
+          ],
+          "adjacent_pair_reduction_median_percent": -15.360301771279229,
+          "baseline_update_trials_ms": [
+            5.012542,
+            9.566625,
+            4.527125,
+            8.989833
+          ],
+          "candidate_update_trials_ms": [
+            7.870625,
+            7.050791,
+            8.353167,
+            6.456458
+          ],
+          "baseline_cpu_trials_ms": [
+            5.302292,
+            10.253583,
+            5.557708,
+            10.047458
+          ],
+          "candidate_cpu_trials_ms": [
+            8.152791,
+            7.439708,
+            9.271208,
+            7.224791
+          ],
+          "baseline_max_update_us_median": 7001.1875,
+          "candidate_max_update_us_median": 7460.7080000000005
+        },
+        {
+          "rate": 192000,
+          "fft_size": 8192,
+          "fixture": "nominal_cadence",
+          "ui_interval_ms": 20,
+          "samples_per_trial": 384000,
+          "fft_windows_per_trial": 187,
+          "consumer_calls_per_trial": 100,
+          "expected_zero_fft_calls_from_fixture": 0,
+          "zero_fft_calls_observed_in_cost_csv": "NOT_RECORDED_PER_UPDATE",
+          "baseline_update_median_ms": 37.0619605,
+          "candidate_update_median_ms": 31.695833999999998,
+          "update_cost_reduction_percent": 14.478798281596571,
+          "baseline_cpu_median_ms": 43.985063,
+          "candidate_cpu_median_ms": 38.900458,
+          "cpu_cost_reduction_percent": 11.559844759117421,
+          "cpu_reduction_status": "COMPARABLE_OBSERVATION",
+          "adjacent_pair_update_reductions_percent": [
+            29.195832416837842,
+            -13.844190653252685,
+            19.795769477174076,
+            13.602654183780816
+          ],
+          "adjacent_pair_reduction_median_percent": 16.699211830477445,
+          "baseline_update_trials_ms": [
+            39.634674,
+            33.570117,
+            41.885414,
+            34.489247
+          ],
+          "candidate_update_trials_ms": [
+            28.063001,
+            38.217628,
+            33.593874,
+            29.797794
+          ],
+          "baseline_cpu_trials_ms": [
+            45.750667,
+            40.819042,
+            46.923375,
+            42.219459
+          ],
+          "candidate_cpu_trials_ms": [
+            37.198125,
+            42.891375,
+            39.622625,
+            38.178291
+          ],
+          "baseline_max_update_us_median": 721.6875,
+          "candidate_max_update_us_median": 608.375
+        },
+        {
+          "rate": 192000,
+          "fft_size": 8192,
+          "fixture": "nominal_cadence",
+          "ui_interval_ms": 40,
+          "samples_per_trial": 384000,
+          "fft_windows_per_trial": 187,
+          "consumer_calls_per_trial": 50,
+          "expected_zero_fft_calls_from_fixture": 0,
+          "zero_fft_calls_observed_in_cost_csv": "NOT_RECORDED_PER_UPDATE",
+          "baseline_update_median_ms": 39.7807505,
+          "candidate_update_median_ms": 31.3941645,
+          "update_cost_reduction_percent": 21.082020561678448,
+          "baseline_cpu_median_ms": 45.975604000000004,
+          "candidate_cpu_median_ms": 38.105916500000006,
+          "cpu_cost_reduction_percent": 17.11709431810835,
+          "cpu_reduction_status": "COMPARABLE_OBSERVATION",
+          "adjacent_pair_update_reductions_percent": [
+            19.34769707602192,
+            17.012721418728837,
+            25.48962931690807,
+            -1.7129079188116458
+          ],
+          "adjacent_pair_reduction_median_percent": 18.18020924737538,
+          "baseline_update_trials_ms": [
+            40.170171,
+            43.081044,
+            39.39133,
+            29.878372
+          ],
+          "candidate_update_trials_ms": [
+            32.398168,
+            35.751786,
+            29.350626,
+            30.390161
+          ],
+          "baseline_cpu_trials_ms": [
+            46.494083,
+            48.239917,
+            45.457125,
+            36.603917
+          ],
+          "candidate_cpu_trials_ms": [
+            38.60475,
+            41.879834,
+            35.96975,
+            37.607083
+          ],
+          "baseline_max_update_us_median": 1378.9375,
+          "candidate_max_update_us_median": 1225.6455
+        },
+        {
+          "rate": 192000,
+          "fft_size": 8192,
+          "fixture": "nominal_cadence",
+          "ui_interval_ms": 80,
+          "samples_per_trial": 384000,
+          "fft_windows_per_trial": 187,
+          "consumer_calls_per_trial": 25,
+          "expected_zero_fft_calls_from_fixture": 0,
+          "zero_fft_calls_observed_in_cost_csv": "NOT_RECORDED_PER_UPDATE",
+          "baseline_update_median_ms": 40.0450435,
+          "candidate_update_median_ms": 38.644499499999995,
+          "update_cost_reduction_percent": 3.497421597257111,
+          "baseline_cpu_median_ms": 46.1786245,
+          "candidate_cpu_median_ms": 44.1195205,
+          "cpu_cost_reduction_percent": 4.4589981236881515,
+          "cpu_reduction_status": "COMPARABLE_OBSERVATION",
+          "adjacent_pair_update_reductions_percent": [
+            26.308496858403085,
+            -15.550888148037533,
+            2.1255293390742946,
+            -0.04676606953661899
+          ],
+          "adjacent_pair_reduction_median_percent": 1.0393816347688378,
+          "baseline_update_trials_ms": [
+            42.243166,
+            40.44596,
+            38.443459,
+            39.644127
+          ],
+          "candidate_update_trials_ms": [
+            31.129624,
+            46.735666,
+            37.626332,
+            39.662667
+          ],
+          "baseline_cpu_trials_ms": [
+            48.204875,
+            46.485541,
+            45.808166,
+            45.871708
+          ],
+          "candidate_cpu_trials_ms": [
+            37.323208,
+            50.770167,
+            43.679416,
+            44.559625
+          ],
+          "baseline_max_update_us_median": 3933.7085,
+          "candidate_max_update_us_median": 2377.0205
+        }
+      ],
+      "ctest_result": "PASSED",
+      "separate_observed_zero_fft_updates": [
+        {
+          "rate": "44100",
+          "fft_size": "2048",
+          "ui_hz": "25",
+          "measured_update_calls": "160",
+          "zero_fft_update_calls": "0",
+          "fft_windows": "552",
+          "fifo_dropped_samples": "0"
+        },
+        {
+          "rate": "44100",
+          "fft_size": "4096",
+          "ui_hz": "25",
+          "measured_update_calls": "160",
+          "zero_fft_update_calls": "0",
+          "fft_windows": "276",
+          "fifo_dropped_samples": "0"
+        },
+        {
+          "rate": "44100",
+          "fft_size": "8192",
+          "ui_hz": "25",
+          "measured_update_calls": "160",
+          "zero_fft_update_calls": "22",
+          "fft_windows": "138",
+          "fifo_dropped_samples": "0"
+        },
+        {
+          "rate": "48000",
+          "fft_size": "2048",
+          "ui_hz": "25",
+          "measured_update_calls": "160",
+          "zero_fft_update_calls": "0",
+          "fft_windows": "600",
+          "fifo_dropped_samples": "0"
+        },
+        {
+          "rate": "48000",
+          "fft_size": "4096",
+          "ui_hz": "25",
+          "measured_update_calls": "160",
+          "zero_fft_update_calls": "0",
+          "fft_windows": "300",
+          "fifo_dropped_samples": "0"
+        },
+        {
+          "rate": "48000",
+          "fft_size": "8192",
+          "ui_hz": "25",
+          "measured_update_calls": "160",
+          "zero_fft_update_calls": "10",
+          "fft_windows": "150",
+          "fifo_dropped_samples": "0"
+        },
+        {
+          "rate": "96000",
+          "fft_size": "2048",
+          "ui_hz": "25",
+          "measured_update_calls": "160",
+          "zero_fft_update_calls": "0",
+          "fft_windows": "1200",
+          "fifo_dropped_samples": "0"
+        },
+        {
+          "rate": "96000",
+          "fft_size": "4096",
+          "ui_hz": "25",
+          "measured_update_calls": "160",
+          "zero_fft_update_calls": "0",
+          "fft_windows": "600",
+          "fifo_dropped_samples": "0"
+        },
+        {
+          "rate": "96000",
+          "fft_size": "8192",
+          "ui_hz": "25",
+          "measured_update_calls": "160",
+          "zero_fft_update_calls": "0",
+          "fft_windows": "300",
+          "fifo_dropped_samples": "0"
+        },
+        {
+          "rate": "192000",
+          "fft_size": "2048",
+          "ui_hz": "25",
+          "measured_update_calls": "160",
+          "zero_fft_update_calls": "0",
+          "fft_windows": "2400",
+          "fifo_dropped_samples": "0"
+        },
+        {
+          "rate": "192000",
+          "fft_size": "4096",
+          "ui_hz": "25",
+          "measured_update_calls": "160",
+          "zero_fft_update_calls": "0",
+          "fft_windows": "1200",
+          "fifo_dropped_samples": "0"
+        },
+        {
+          "rate": "192000",
+          "fft_size": "8192",
+          "ui_hz": "25",
+          "measured_update_calls": "160",
+          "zero_fft_update_calls": "0",
+          "fft_windows": "600",
+          "fifo_dropped_samples": "0"
+        }
+      ],
+      "csv_gate": "PASS"
+    }
+  ],
+  "functional_receipt_verification": {
+    "gate": "PASS",
+    "issues": [],
+    "source_commit": "72e361ba91ea2c6b8d830921a71275fa25cba493",
+    "runner": {
+      "platform": "macOS-15.7.9-arm64-arm-64bit-Mach-O",
+      "machine": "arm64",
+      "processor": "arm",
+      "logical_cpus": 3,
+      "RUNNER_OS": "macOS",
+      "RUNNER_ARCH": "ARM64",
+      "ImageOS": "macos15",
+      "ImageVersion": "20260907.0337.1",
+      "GITHUB_RUN_ID": "38243938568",
+      "GITHUB_RUN_ATTEMPT": "1"
+    },
+    "build": {
+      "CMAKE_BUILD_TYPE:STRING": "Release",
+      "CMAKE_CXX_COMPILER:FILEPATH": "/usr/bin/c++",
+      "CMAKE_CXX_FLAGS:STRING": "",
+      "CMAKE_CXX_FLAGS_RELEASE:STRING": "-O3 -DNDEBUG",
+      "JUCE_SOURCE_DIR:STATIC": "/Users/runner/work/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build-eq/_deps/juce-src",
+      "CMAKE_GENERATOR:INTERNAL": "Unix Makefiles"
+    },
+    "ctest_suite": {
+      "name": "(empty)",
+      "tests": "6",
+      "failures": "0",
+      "disabled": "0",
+      "skipped": "0",
+      "hostname": "",
+      "time": "467",
+      "timestamp": "2026-10-12T11:51:26"
+    },
+    "ctests": [
+      {
+        "name": "ChimeraGateProcessorTests",
+        "status": "PASSED",
+        "seconds": 28.9871
+      },
+      {
+        "name": "ChimeraGraphicalEQTests",
+        "status": "PASSED",
+        "seconds": 38.98
+      },
+      {
+        "name": "ChimeraGraphicalEQUITests",
+        "status": "PASSED",
+        "seconds": 184.123
+      },
+      {
+        "name": "ChimeraEQAnalyzerTests",
+        "status": "PASSED",
+        "seconds": 27.2176
+      },
+      {
+        "name": "ChimeraEQAnalyzerPerformanceTests",
+        "status": "PASSED",
+        "seconds": 11.522
+      },
+      {
+        "name": "ChimeraEQHighRateAttributionTests",
+        "status": "PASSED",
+        "seconds": 176.375
+      }
+    ],
+    "functional_cases": {
+      "eq-analyzer-temporal-coverage.csv": {
+        "rows": 24,
+        "sample_rates": [
+          44100,
+          48000,
+          96000,
+          192000
+        ],
+        "minimum_bounded_display_db": -33.5502,
+        "drops": 0,
+        "legitimate_zero_fft_at_first_40ms": [
+          {
+            "rate": 44100,
+            "fft_size": 8192,
+            "burst_position": "early"
+          },
+          {
+            "rate": 44100,
+            "fft_size": 8192,
+            "burst_position": "late"
+          },
+          {
+            "rate": 48000,
+            "fft_size": 8192,
+            "burst_position": "early"
+          },
+          {
+            "rate": 48000,
+            "fft_size": 8192,
+            "burst_position": "late"
+          }
+        ],
+        "interpretation": "Each attack detected with the bounded N/2+N/4 observation tail; early high-rate attacks also present at 40 ms."
+      },
+      "eq-analyzer-partition-invariance.csv": {
+        "rows": 180,
+        "sample_rates": [
+          44100,
+          48000,
+          96000,
+          192000
+        ],
+        "max_errors_db": {
+          "max_raw_error_db": 0.0,
+          "max_envelope_error_db": 0.0,
+          "max_pixel_error_db": 0.0
+        },
+        "drops": 0
+      },
+      "eq-analyzer-fifo-stalls.csv": {
+        "rows": 48,
+        "sample_rates": [
+          44100,
+          48000,
+          96000,
+          192000
+        ],
+        "lossless_rows": 45,
+        "intentional_overflow_rows": [
+          {
+            "rate": 192000,
+            "fft_size": 2048,
+            "stall_ms": 500,
+            "produced": 96000,
+            "dropped": 30464,
+            "discarded": 65536,
+            "recovery_complete": 1
+          },
+          {
+            "rate": 192000,
+            "fft_size": 4096,
+            "stall_ms": 500,
+            "produced": 96000,
+            "dropped": 30464,
+            "discarded": 65536,
+            "recovery_complete": 1
+          },
+          {
+            "rate": 192000,
+            "fft_size": 8192,
+            "stall_ms": 500,
+            "produced": 96000,
+            "dropped": 30464,
+            "discarded": 65536,
+            "recovery_complete": 1
+          }
+        ],
+        "all_recovery_complete": true,
+        "interpretation": "192 kHz x 500 ms produces 96,000 samples; its expected 30,464 FIFO drops plus 65,536 discarded stale frames are intentional recovery tests."
+      },
+      "eq-analyzer-audio-invariance.csv": {
+        "rows": 12,
+        "sample_rates": [
+          44100,
+          48000,
+          96000,
+          192000
+        ],
+        "bit_identical_rows": 12,
+        "max_audio_error": 0,
+        "host_latency_samples": [
+          42
+        ],
+        "checked_blocks_per_row": 768,
+        "intentional_tone_drops_values": [
+          5504
+        ],
+        "intentional_final_drops_values": [
+          5504
+        ],
+        "interpretation": "ON/OFF whole-processor outputs remain bit-identical despite deliberate FIFO overflow and analyzer reconfiguration."
+      },
+      "eq-analyzer-callback.csv": {
+        "rows": 48,
+        "sample_rates": [
+          44100,
+          48000,
+          96000,
+          192000
+        ],
+        "total_observed_callbacks": 28800,
+        "audio_allocations": 0,
+        "observed_overruns": 0,
+        "overrun_rows": [],
+        "interpretation": "Observed software fixture timing only; not hardware or DAW acceptance."
+      },
+      "eq-analyzer-cpu.csv": {
+        "rows": 12,
+        "sample_rates": [
+          44100,
+          48000,
+          96000,
+          192000
+        ],
+        "drops": 0,
+        "observed_zero_fft_update_calls": [
+          {
+            "rate": 44100,
+            "fft_size": 2048,
+            "calls": 160,
+            "zero_fft_calls": 0
+          },
+          {
+            "rate": 44100,
+            "fft_size": 4096,
+            "calls": 160,
+            "zero_fft_calls": 0
+          },
+          {
+            "rate": 44100,
+            "fft_size": 8192,
+            "calls": 160,
+            "zero_fft_calls": 22
+          },
+          {
+            "rate": 48000,
+            "fft_size": 2048,
+            "calls": 160,
+            "zero_fft_calls": 0
+          },
+          {
+            "rate": 48000,
+            "fft_size": 4096,
+            "calls": 160,
+            "zero_fft_calls": 0
+          },
+          {
+            "rate": 48000,
+            "fft_size": 8192,
+            "calls": 160,
+            "zero_fft_calls": 10
+          },
+          {
+            "rate": 96000,
+            "fft_size": 2048,
+            "calls": 160,
+            "zero_fft_calls": 0
+          },
+          {
+            "rate": 96000,
+            "fft_size": 4096,
+            "calls": 160,
+            "zero_fft_calls": 0
+          },
+          {
+            "rate": 96000,
+            "fft_size": 8192,
+            "calls": 160,
+            "zero_fft_calls": 0
+          },
+          {
+            "rate": 192000,
+            "fft_size": 2048,
+            "calls": 160,
+            "zero_fft_calls": 0
+          },
+          {
+            "rate": 192000,
+            "fft_size": 4096,
+            "calls": 160,
+            "zero_fft_calls": 0
+          },
+          {
+            "rate": 192000,
+            "fft_size": 8192,
+            "calls": 160,
+            "zero_fft_calls": 0
+          }
+        ],
+        "interpretation": "Zero-call rows are included in the measured consumer sample set. CPU/UI attribution is outside this independent report."
+      }
+    },
+    "receipts_sha256": {
+      "eq-results.xml": "37886b7395addefd442e4340f83197e0f16ceafc8bd8a6ea31a2b1e598f2c797",
+      "eq-analyzer-temporal-coverage.csv": "c61c394b32c1b2ffdb0b5c1417a9ae0f1d3204ed5bf7d23a37197f1e2af81b32",
+      "eq-analyzer-partition-invariance.csv": "dda1b140a709393137fa0cddcf66fa2bc8732598974f151162344fe586f58633",
+      "eq-analyzer-fifo-stalls.csv": "c8f1e0c8b0948a01a0ad2583c5b6729a8e82c2138d8b0c339625f3dc7bb82ede",
+      "eq-analyzer-audio-invariance.csv": "bb049aa2c08466a8388b80ba8b4ffc8692a14d4213f5d41dff997df605309f04",
+      "eq-analyzer-callback.csv": "0241663e88c312987f037fc01e877d73f0a5d909b00793bb3976600ccdb77261",
+      "eq-analyzer-cpu.csv": "c0839687a40694c5b3a2c2b1e9b6d77ed9fb13e6e97f7fc881f716619f3cd3ae",
+      "eq-attribution-provenance.json": "05b3a8fce526037e721a92fcdcf22e98d3b3c0005343d5e0b6b99de4155e419f",
+      "chimera-build-version.json": "dc3eb2c98009d903df432ddf297f91128ee93f9168532a9ea1693893cf23b507"
+    },
+    "backend": {
+      "selected_by_checked_JUCE_source_and_default_build_config": "AppleFFT / vDSP",
+      "backend_reported_directly_in_CSV": false,
+      "proof_limit": "Local JUCE 8.0.8 backend/source audit; no remote binary symbol dump supplied."
+    },
+    "preserved_transient_repair": {
+      "production_commit": "beb72f520721685f3698883297371be7def92198",
+      "evidence_commit": "139e98f2614f516fb97975034eacae4e4dc05098",
+      "workflow_run": 38224717793,
+      "analyzer_git_blob": "34f31791c005c291c294afc3fb2ab4783830b4bd",
+      "reference_git_sha256": "ad0e9f7dc7fe46579b24707291bf63a5ee09363de701b1606c5cedf98f970f26",
+      "reference_worktree_sha256": "ad0e9f7dc7fe46579b24707291bf63a5ee09363de701b1606c5cedf98f970f26",
+      "evidence_files": 84,
+      "evidence_worktree_files": 84,
+      "evidence_tree_sha256": "bb47058bd2798bea744da7d61754aefb5b7dbd5d8488086c313a5ae92897bc2e",
+      "evidence_tree_sha256_basis": "Canonical Git blobs at HEAD; original LF/CRLF bytes are preserved",
+      "evidence_worktree_tree_sha256": "bb47058bd2798bea744da7d61754aefb5b7dbd5d8488086c313a5ae92897bc2e",
+      "worktree_matches_git_blobs": true,
+      "status": "PREVIOUS_FUNCTIONAL_PASS_PRESERVED",
+      "validation_errors": []
+    },
+    "physical_daw_acceptance": "NOT_ASSESSED",
+    "public_beta_changed": false,
+    "non_improving_update_cells": [
+      {
+        "rate": 44100,
+        "fft_size": 8192,
+        "fixture": "nominal_cadence",
+        "ui_interval_ms": 80,
+        "samples_per_trial": 88200,
+        "fft_windows_per_trial": 43,
+        "consumer_calls_per_trial": 25,
+        "expected_zero_fft_calls_from_fixture": 0,
+        "zero_fft_calls_observed_in_cost_csv": "NOT_RECORDED_PER_UPDATE",
+        "baseline_update_median_ms": 7.781378,
+        "candidate_update_median_ms": 8.962416000000001,
+        "update_cost_reduction_percent": -15.17774872265556,
+        "baseline_cpu_median_ms": 9.645041500000001,
+        "candidate_cpu_median_ms": 10.016958500000001,
+        "cpu_cost_reduction_percent": -3.8560435432029916,
+        "cpu_reduction_status": "COMPARABLE_OBSERVATION",
+        "adjacent_pair_update_reductions_percent": [
+          -25.612098263367077,
+          42.13321943146775,
+          -51.454659629258416,
+          -11.722296668422306
+        ],
+        "adjacent_pair_reduction_median_percent": -18.66719746589469,
+        "baseline_update_trials_ms": [
+          7.837753,
+          13.857543,
+          7.725003,
+          7.231919
+        ],
+        "candidate_update_trials_ms": [
+          9.845166,
+          8.018914,
+          11.699877,
+          8.079666
+        ],
+        "baseline_cpu_trials_ms": [
+          9.87475,
+          14.414459,
+          9.415333,
+          9.079375
+        ],
+        "candidate_cpu_trials_ms": [
+          10.658917,
+          9.375,
+          12.029334,
+          9.35475
+        ],
+        "baseline_max_update_us_median": 727.583,
+        "candidate_max_update_us_median": 613.7295
+      },
+      {
+        "rate": 48000,
+        "fft_size": 2048,
+        "fixture": "full_capacity_catchup",
+        "ui_interval_ms": null,
+        "samples_per_trial": 65536,
+        "fft_windows_per_trial": 128,
+        "consumer_calls_per_trial": 1,
+        "expected_zero_fft_calls_from_fixture": 0,
+        "zero_fft_calls_observed_in_cost_csv": "NOT_RECORDED_PER_UPDATE",
+        "baseline_update_median_ms": 7.7192495,
+        "candidate_update_median_ms": 8.597708,
+        "update_cost_reduction_percent": -11.380102430942296,
+        "baseline_cpu_median_ms": 8.019479,
+        "candidate_cpu_median_ms": 8.972125,
+        "cpu_cost_reduction_percent": -11.879150752810741,
+        "cpu_reduction_status": "COMPARABLE_OBSERVATION",
+        "adjacent_pair_update_reductions_percent": [
+          -39.54182790233749,
+          10.854915375967266,
+          44.11272538849003,
+          -209.61528343073073
+        ],
+        "adjacent_pair_reduction_median_percent": -14.34345626318511,
+        "baseline_update_trials_ms": [
+          6.811458,
+          8.627041,
+          11.575458,
+          5.777708
+        ],
+        "candidate_update_trials_ms": [
+          9.504833,
+          7.690583,
+          6.469208,
+          17.888667
+        ],
+        "baseline_cpu_trials_ms": [
+          7.131208,
+          8.90775,
+          12.762666,
+          6.0395
+        ],
+        "candidate_cpu_trials_ms": [
+          10.040125,
+          7.904125,
+          6.736959,
+          19.525667
+        ],
+        "baseline_max_update_us_median": 7719.2495,
+        "candidate_max_update_us_median": 8597.708
+      },
+      {
+        "rate": 48000,
+        "fft_size": 2048,
+        "fixture": "nominal_cadence",
+        "ui_interval_ms": 40,
+        "samples_per_trial": 96000,
+        "fft_windows_per_trial": 187,
+        "consumer_calls_per_trial": 50,
+        "expected_zero_fft_calls_from_fixture": 0,
+        "zero_fft_calls_observed_in_cost_csv": "NOT_RECORDED_PER_UPDATE",
+        "baseline_update_median_ms": 11.550287,
+        "candidate_update_median_ms": 12.695771,
+        "update_cost_reduction_percent": -9.917363958142333,
+        "baseline_cpu_median_ms": 13.1880205,
+        "candidate_cpu_median_ms": 13.161812,
+        "cpu_cost_reduction_percent": 0.19872959706122018,
+        "cpu_reduction_status": "COMPARABLE_OBSERVATION",
+        "adjacent_pair_update_reductions_percent": [
+          14.12445026477992,
+          11.416876435762358,
+          -54.401423011357664,
+          -46.11724992410522
+        ],
+        "adjacent_pair_reduction_median_percent": -17.35018674417143,
+        "baseline_update_trials_ms": [
+          14.189331,
+          14.908456,
+          8.911243,
+          6.726418
+        ],
+        "candidate_update_trials_ms": [
+          12.185166,
+          13.206376,
+          13.759086,
+          9.828457
+        ],
+        "baseline_cpu_trials_ms": [
+          15.430125,
+          15.418125,
+          10.957916,
+          9.008583
+        ],
+        "candidate_cpu_trials_ms": [
+          12.701583,
+          13.622041,
+          13.971083,
+          11.493375
+        ],
+        "baseline_max_update_us_median": 383.33349999999996,
+        "candidate_max_update_us_median": 410.0625
+      },
+      {
+        "rate": 48000,
+        "fft_size": 4096,
+        "fixture": "nominal_cadence",
+        "ui_interval_ms": 40,
+        "samples_per_trial": 96000,
+        "fft_windows_per_trial": 93,
+        "consumer_calls_per_trial": 50,
+        "expected_zero_fft_calls_from_fixture": 0,
+        "zero_fft_calls_observed_in_cost_csv": "NOT_RECORDED_PER_UPDATE",
+        "baseline_update_median_ms": 9.8511075,
+        "candidate_update_median_ms": 10.6123575,
+        "update_cost_reduction_percent": -7.72755753604355,
+        "baseline_cpu_median_ms": 11.385563000000001,
+        "candidate_cpu_median_ms": 11.6089165,
+        "cpu_cost_reduction_percent": -1.9617255642079279,
+        "cpu_reduction_status": "COMPARABLE_OBSERVATION",
+        "adjacent_pair_update_reductions_percent": [
+          4.573960681545886,
+          -15.97482156113401,
+          2.147925869209888,
+          -18.418772222133107
+        ],
+        "adjacent_pair_reduction_median_percent": -6.913447845962061,
+        "baseline_update_trials_ms": [
+          13.945004,
+          10.73617,
+          8.966045,
+          6.795871
+        ],
+        "candidate_update_trials_ms": [
+          13.307165,
+          12.451254,
+          8.773461,
+          8.047587
+        ],
+        "baseline_cpu_trials_ms": [
+          15.081542,
+          12.252959,
+          10.518167,
+          8.987667
+        ],
+        "candidate_cpu_trials_ms": [
+          13.807334,
+          13.143667,
+          10.074166,
+          9.885
+        ],
+        "baseline_max_update_us_median": 415.60400000000004,
+        "candidate_max_update_us_median": 731.271
+      },
+      {
+        "rate": 48000,
+        "fft_size": 8192,
+        "fixture": "full_capacity_catchup",
+        "ui_interval_ms": null,
+        "samples_per_trial": 65536,
+        "fft_windows_per_trial": 32,
+        "consumer_calls_per_trial": 1,
+        "expected_zero_fft_calls_from_fixture": 0,
+        "zero_fft_calls_observed_in_cost_csv": "NOT_RECORDED_PER_UPDATE",
+        "baseline_update_median_ms": 5.8568335000000005,
+        "candidate_update_median_ms": 7.0422495000000005,
+        "update_cost_reduction_percent": -20.23987876725537,
+        "baseline_cpu_median_ms": 6.5963545,
+        "candidate_cpu_median_ms": 8.1682915,
+        "cpu_cost_reduction_percent": -23.8303899525109,
+        "cpu_reduction_status": "COMPARABLE_OBSERVATION",
+        "adjacent_pair_update_reductions_percent": [
+          23.157230989706225,
+          -99.72959415884799,
+          54.544094727500394,
+          -113.9371242643465
+        ],
+        "adjacent_pair_reduction_median_percent": -38.28618158457088,
+        "baseline_update_trials_ms": [
+          7.152375,
+          4.561292,
+          10.282125,
+          4.014458
+        ],
+        "candidate_update_trials_ms": [
+          5.496083,
+          9.11025,
+          4.673833,
+          8.588416
+        ],
+        "baseline_cpu_trials_ms": [
+          8.369292,
+          4.823417,
+          11.619542,
+          4.279917
+        ],
+        "candidate_cpu_trials_ms": [
+          7.145708,
+          9.190875,
+          6.794542,
+          9.954709
+        ],
+        "baseline_max_update_us_median": 5856.833500000001,
+        "candidate_max_update_us_median": 7042.2495
+      },
+      {
+        "rate": 96000,
+        "fft_size": 2048,
+        "fixture": "full_capacity_catchup",
+        "ui_interval_ms": null,
+        "samples_per_trial": 65536,
+        "fft_windows_per_trial": 128,
+        "consumer_calls_per_trial": 1,
+        "expected_zero_fft_calls_from_fixture": 0,
+        "zero_fft_calls_observed_in_cost_csv": "NOT_RECORDED_PER_UPDATE",
+        "baseline_update_median_ms": 5.236083000000001,
+        "candidate_update_median_ms": 5.258770999999999,
+        "update_cost_reduction_percent": -0.4333010000032278,
+        "baseline_cpu_median_ms": 6.5625625,
+        "candidate_cpu_median_ms": 6.828146,
+        "cpu_cost_reduction_percent": -4.046948124303573,
+        "cpu_reduction_status": "COMPARABLE_OBSERVATION",
+        "adjacent_pair_update_reductions_percent": [
+          37.045669103756055,
+          -56.08690690690692,
+          7.009391353119476,
+          -10.472377776212127
+        ],
+        "adjacent_pair_reduction_median_percent": -1.7314932115463257,
+        "baseline_update_trials_ms": [
+          8.462417,
+          4.995,
+          5.477166,
+          4.698083
+        ],
+        "candidate_update_trials_ms": [
+          5.327458,
+          7.796541,
+          5.09325,
+          5.190084
+        ],
+        "baseline_cpu_trials_ms": [
+          8.765167,
+          6.397042,
+          6.728083,
+          6.335084
+        ],
+        "candidate_cpu_trials_ms": [
+          5.568125,
+          8.825541,
+          7.490375,
+          6.165917
+        ],
+        "baseline_max_update_us_median": 5236.0830000000005,
+        "candidate_max_update_us_median": 5258.771
+      },
+      {
+        "rate": 96000,
+        "fft_size": 2048,
+        "fixture": "nominal_cadence",
+        "ui_interval_ms": 40,
+        "samples_per_trial": 192000,
+        "fft_windows_per_trial": 375,
+        "consumer_calls_per_trial": 50,
+        "expected_zero_fft_calls_from_fixture": 0,
+        "zero_fft_calls_observed_in_cost_csv": "NOT_RECORDED_PER_UPDATE",
+        "baseline_update_median_ms": 16.454666,
+        "candidate_update_median_ms": 18.8376915,
+        "update_cost_reduction_percent": -14.482369317007105,
+        "baseline_cpu_median_ms": 19.701999999999998,
+        "candidate_cpu_median_ms": 21.6745415,
+        "cpu_cost_reduction_percent": -10.011884580245667,
+        "cpu_reduction_status": "COMPARABLE_OBSERVATION",
+        "adjacent_pair_update_reductions_percent": [
+          -25.844281256582647,
+          8.112711824529505,
+          -4.575263184330014,
+          8.363871644194177
+        ],
+        "adjacent_pair_reduction_median_percent": 1.7687243200997456,
+        "baseline_update_trials_ms": [
+          15.329163,
+          26.415791,
+          17.580169,
+          14.351918
+        ],
+        "candidate_update_trials_ms": [
+          19.290875,
+          24.272754,
+          18.384508,
+          13.151542
+        ],
+        "baseline_cpu_trials_ms": [
+          19.075042,
+          28.096,
+          20.328958,
+          18.769375
+        ],
+        "candidate_cpu_trials_ms": [
+          22.697666,
+          25.551916,
+          20.651417,
+          18.29775
+        ],
+        "baseline_max_update_us_median": 711.813,
+        "candidate_max_update_us_median": 617.875
+      },
+      {
+        "rate": 192000,
+        "fft_size": 2048,
+        "fixture": "full_capacity_catchup",
+        "ui_interval_ms": null,
+        "samples_per_trial": 65536,
+        "fft_windows_per_trial": 128,
+        "consumer_calls_per_trial": 1,
+        "expected_zero_fft_calls_from_fixture": 0,
+        "zero_fft_calls_observed_in_cost_csv": "NOT_RECORDED_PER_UPDATE",
+        "baseline_update_median_ms": 5.3563335,
+        "candidate_update_median_ms": 5.690104,
+        "update_cost_reduction_percent": -6.231324095110957,
+        "baseline_cpu_median_ms": 6.4515,
+        "candidate_cpu_median_ms": 6.9529585,
+        "cpu_cost_reduction_percent": -7.772742772998531,
+        "cpu_reduction_status": "COMPARABLE_OBSERVATION",
+        "adjacent_pair_update_reductions_percent": [
+          34.01281982828059,
+          22.132122868097483,
+          -76.32220451628777,
+          -38.15620376287945
+        ],
+        "adjacent_pair_reduction_median_percent": -8.012040447390984,
+        "baseline_update_trials_ms": [
+          6.105542,
+          5.67275,
+          4.629333,
+          5.039917
+        ],
+        "candidate_update_trials_ms": [
+          4.028875,
+          4.41725,
+          8.162542,
+          6.962958
+        ],
+        "baseline_cpu_trials_ms": [
+          6.44775,
+          7.241959,
+          6.250417,
+          6.45525
+        ],
+        "candidate_cpu_trials_ms": [
+          5.428333,
+          5.351042,
+          8.603833,
+          8.477584
+        ],
+        "baseline_max_update_us_median": 5356.333500000001,
+        "candidate_max_update_us_median": 5690.103999999999
+      },
+      {
+        "rate": 192000,
+        "fft_size": 4096,
+        "fixture": "nominal_cadence",
+        "ui_interval_ms": 20,
+        "samples_per_trial": 384000,
+        "fft_windows_per_trial": 375,
+        "consumer_calls_per_trial": 100,
+        "expected_zero_fft_calls_from_fixture": 0,
+        "zero_fft_calls_observed_in_cost_csv": "NOT_RECORDED_PER_UPDATE",
+        "baseline_update_median_ms": 35.92568249999999,
+        "candidate_update_median_ms": 40.81921,
+        "update_cost_reduction_percent": -13.621251315128124,
+        "baseline_cpu_median_ms": 42.904708,
+        "candidate_cpu_median_ms": 45.524666499999995,
+        "cpu_cost_reduction_percent": -6.106459225873295,
+        "cpu_reduction_status": "COMPARABLE_OBSERVATION",
+        "adjacent_pair_update_reductions_percent": [
+          0.451117278633395,
+          -61.985812200362304,
+          4.266869244316929,
+          -26.96931161811349
+        ],
+        "adjacent_pair_reduction_median_percent": -13.259097169740048,
+        "baseline_update_trials_ms": [
+          43.51108,
+          37.436249,
+          34.415116,
+          30.183377
+        ],
+        "candidate_update_trials_ms": [
+          43.314794,
+          60.641412,
+          32.946668,
+          38.323626
+        ],
+        "baseline_cpu_trials_ms": [
+          47.885791,
+          45.146875,
+          40.662541,
+          37.598
+        ],
+        "candidate_cpu_trials_ms": [
+          47.015375,
+          69.016917,
+          38.695041,
+          44.033958
+        ],
+        "baseline_max_update_us_median": 869.5415,
+        "candidate_max_update_us_median": 1281.4375
+      },
+      {
+        "rate": 192000,
+        "fft_size": 8192,
+        "fixture": "full_capacity_catchup",
+        "ui_interval_ms": null,
+        "samples_per_trial": 65536,
+        "fft_windows_per_trial": 32,
+        "consumer_calls_per_trial": 1,
+        "expected_zero_fft_calls_from_fixture": 0,
+        "zero_fft_calls_observed_in_cost_csv": "NOT_RECORDED_PER_UPDATE",
+        "baseline_update_median_ms": 7.0011875,
+        "candidate_update_median_ms": 7.460708,
+        "update_cost_reduction_percent": -6.563465126451762,
+        "baseline_cpu_median_ms": 7.802583,
+        "candidate_cpu_median_ms": 7.7962495,
+        "cpu_cost_reduction_percent": 0.08117183758250546,
+        "cpu_reduction_status": "COMPARABLE_OBSERVATION",
+        "adjacent_pair_update_reductions_percent": [
+          -57.018634457327245,
+          26.298030914768788,
+          -84.51372559847583,
+          28.180445621181182
+        ],
+        "adjacent_pair_reduction_median_percent": -15.360301771279229,
+        "baseline_update_trials_ms": [
+          5.012542,
+          9.566625,
+          4.527125,
+          8.989833
+        ],
+        "candidate_update_trials_ms": [
+          7.870625,
+          7.050791,
+          8.353167,
+          6.456458
+        ],
+        "baseline_cpu_trials_ms": [
+          5.302292,
+          10.253583,
+          5.557708,
+          10.047458
+        ],
+        "candidate_cpu_trials_ms": [
+          8.152791,
+          7.439708,
+          9.271208,
+          7.224791
+        ],
+        "baseline_max_update_us_median": 7001.1875,
+        "candidate_max_update_us_median": 7460.7080000000005
+      }
+    ],
+    "non_improving_cpu_cells": [
+      {
+        "rate": 44100,
+        "fft_size": 8192,
+        "fixture": "nominal_cadence",
+        "ui_interval_ms": 80,
+        "samples_per_trial": 88200,
+        "fft_windows_per_trial": 43,
+        "consumer_calls_per_trial": 25,
+        "expected_zero_fft_calls_from_fixture": 0,
+        "zero_fft_calls_observed_in_cost_csv": "NOT_RECORDED_PER_UPDATE",
+        "baseline_update_median_ms": 7.781378,
+        "candidate_update_median_ms": 8.962416000000001,
+        "update_cost_reduction_percent": -15.17774872265556,
+        "baseline_cpu_median_ms": 9.645041500000001,
+        "candidate_cpu_median_ms": 10.016958500000001,
+        "cpu_cost_reduction_percent": -3.8560435432029916,
+        "cpu_reduction_status": "COMPARABLE_OBSERVATION",
+        "adjacent_pair_update_reductions_percent": [
+          -25.612098263367077,
+          42.13321943146775,
+          -51.454659629258416,
+          -11.722296668422306
+        ],
+        "adjacent_pair_reduction_median_percent": -18.66719746589469,
+        "baseline_update_trials_ms": [
+          7.837753,
+          13.857543,
+          7.725003,
+          7.231919
+        ],
+        "candidate_update_trials_ms": [
+          9.845166,
+          8.018914,
+          11.699877,
+          8.079666
+        ],
+        "baseline_cpu_trials_ms": [
+          9.87475,
+          14.414459,
+          9.415333,
+          9.079375
+        ],
+        "candidate_cpu_trials_ms": [
+          10.658917,
+          9.375,
+          12.029334,
+          9.35475
+        ],
+        "baseline_max_update_us_median": 727.583,
+        "candidate_max_update_us_median": 613.7295
+      },
+      {
+        "rate": 48000,
+        "fft_size": 2048,
+        "fixture": "full_capacity_catchup",
+        "ui_interval_ms": null,
+        "samples_per_trial": 65536,
+        "fft_windows_per_trial": 128,
+        "consumer_calls_per_trial": 1,
+        "expected_zero_fft_calls_from_fixture": 0,
+        "zero_fft_calls_observed_in_cost_csv": "NOT_RECORDED_PER_UPDATE",
+        "baseline_update_median_ms": 7.7192495,
+        "candidate_update_median_ms": 8.597708,
+        "update_cost_reduction_percent": -11.380102430942296,
+        "baseline_cpu_median_ms": 8.019479,
+        "candidate_cpu_median_ms": 8.972125,
+        "cpu_cost_reduction_percent": -11.879150752810741,
+        "cpu_reduction_status": "COMPARABLE_OBSERVATION",
+        "adjacent_pair_update_reductions_percent": [
+          -39.54182790233749,
+          10.854915375967266,
+          44.11272538849003,
+          -209.61528343073073
+        ],
+        "adjacent_pair_reduction_median_percent": -14.34345626318511,
+        "baseline_update_trials_ms": [
+          6.811458,
+          8.627041,
+          11.575458,
+          5.777708
+        ],
+        "candidate_update_trials_ms": [
+          9.504833,
+          7.690583,
+          6.469208,
+          17.888667
+        ],
+        "baseline_cpu_trials_ms": [
+          7.131208,
+          8.90775,
+          12.762666,
+          6.0395
+        ],
+        "candidate_cpu_trials_ms": [
+          10.040125,
+          7.904125,
+          6.736959,
+          19.525667
+        ],
+        "baseline_max_update_us_median": 7719.2495,
+        "candidate_max_update_us_median": 8597.708
+      },
+      {
+        "rate": 48000,
+        "fft_size": 4096,
+        "fixture": "nominal_cadence",
+        "ui_interval_ms": 40,
+        "samples_per_trial": 96000,
+        "fft_windows_per_trial": 93,
+        "consumer_calls_per_trial": 50,
+        "expected_zero_fft_calls_from_fixture": 0,
+        "zero_fft_calls_observed_in_cost_csv": "NOT_RECORDED_PER_UPDATE",
+        "baseline_update_median_ms": 9.8511075,
+        "candidate_update_median_ms": 10.6123575,
+        "update_cost_reduction_percent": -7.72755753604355,
+        "baseline_cpu_median_ms": 11.385563000000001,
+        "candidate_cpu_median_ms": 11.6089165,
+        "cpu_cost_reduction_percent": -1.9617255642079279,
+        "cpu_reduction_status": "COMPARABLE_OBSERVATION",
+        "adjacent_pair_update_reductions_percent": [
+          4.573960681545886,
+          -15.97482156113401,
+          2.147925869209888,
+          -18.418772222133107
+        ],
+        "adjacent_pair_reduction_median_percent": -6.913447845962061,
+        "baseline_update_trials_ms": [
+          13.945004,
+          10.73617,
+          8.966045,
+          6.795871
+        ],
+        "candidate_update_trials_ms": [
+          13.307165,
+          12.451254,
+          8.773461,
+          8.047587
+        ],
+        "baseline_cpu_trials_ms": [
+          15.081542,
+          12.252959,
+          10.518167,
+          8.987667
+        ],
+        "candidate_cpu_trials_ms": [
+          13.807334,
+          13.143667,
+          10.074166,
+          9.885
+        ],
+        "baseline_max_update_us_median": 415.60400000000004,
+        "candidate_max_update_us_median": 731.271
+      },
+      {
+        "rate": 48000,
+        "fft_size": 8192,
+        "fixture": "full_capacity_catchup",
+        "ui_interval_ms": null,
+        "samples_per_trial": 65536,
+        "fft_windows_per_trial": 32,
+        "consumer_calls_per_trial": 1,
+        "expected_zero_fft_calls_from_fixture": 0,
+        "zero_fft_calls_observed_in_cost_csv": "NOT_RECORDED_PER_UPDATE",
+        "baseline_update_median_ms": 5.8568335000000005,
+        "candidate_update_median_ms": 7.0422495000000005,
+        "update_cost_reduction_percent": -20.23987876725537,
+        "baseline_cpu_median_ms": 6.5963545,
+        "candidate_cpu_median_ms": 8.1682915,
+        "cpu_cost_reduction_percent": -23.8303899525109,
+        "cpu_reduction_status": "COMPARABLE_OBSERVATION",
+        "adjacent_pair_update_reductions_percent": [
+          23.157230989706225,
+          -99.72959415884799,
+          54.544094727500394,
+          -113.9371242643465
+        ],
+        "adjacent_pair_reduction_median_percent": -38.28618158457088,
+        "baseline_update_trials_ms": [
+          7.152375,
+          4.561292,
+          10.282125,
+          4.014458
+        ],
+        "candidate_update_trials_ms": [
+          5.496083,
+          9.11025,
+          4.673833,
+          8.588416
+        ],
+        "baseline_cpu_trials_ms": [
+          8.369292,
+          4.823417,
+          11.619542,
+          4.279917
+        ],
+        "candidate_cpu_trials_ms": [
+          7.145708,
+          9.190875,
+          6.794542,
+          9.954709
+        ],
+        "baseline_max_update_us_median": 5856.833500000001,
+        "candidate_max_update_us_median": 7042.2495
+      },
+      {
+        "rate": 96000,
+        "fft_size": 2048,
+        "fixture": "full_capacity_catchup",
+        "ui_interval_ms": null,
+        "samples_per_trial": 65536,
+        "fft_windows_per_trial": 128,
+        "consumer_calls_per_trial": 1,
+        "expected_zero_fft_calls_from_fixture": 0,
+        "zero_fft_calls_observed_in_cost_csv": "NOT_RECORDED_PER_UPDATE",
+        "baseline_update_median_ms": 5.236083000000001,
+        "candidate_update_median_ms": 5.258770999999999,
+        "update_cost_reduction_percent": -0.4333010000032278,
+        "baseline_cpu_median_ms": 6.5625625,
+        "candidate_cpu_median_ms": 6.828146,
+        "cpu_cost_reduction_percent": -4.046948124303573,
+        "cpu_reduction_status": "COMPARABLE_OBSERVATION",
+        "adjacent_pair_update_reductions_percent": [
+          37.045669103756055,
+          -56.08690690690692,
+          7.009391353119476,
+          -10.472377776212127
+        ],
+        "adjacent_pair_reduction_median_percent": -1.7314932115463257,
+        "baseline_update_trials_ms": [
+          8.462417,
+          4.995,
+          5.477166,
+          4.698083
+        ],
+        "candidate_update_trials_ms": [
+          5.327458,
+          7.796541,
+          5.09325,
+          5.190084
+        ],
+        "baseline_cpu_trials_ms": [
+          8.765167,
+          6.397042,
+          6.728083,
+          6.335084
+        ],
+        "candidate_cpu_trials_ms": [
+          5.568125,
+          8.825541,
+          7.490375,
+          6.165917
+        ],
+        "baseline_max_update_us_median": 5236.0830000000005,
+        "candidate_max_update_us_median": 5258.771
+      },
+      {
+        "rate": 96000,
+        "fft_size": 2048,
+        "fixture": "nominal_cadence",
+        "ui_interval_ms": 40,
+        "samples_per_trial": 192000,
+        "fft_windows_per_trial": 375,
+        "consumer_calls_per_trial": 50,
+        "expected_zero_fft_calls_from_fixture": 0,
+        "zero_fft_calls_observed_in_cost_csv": "NOT_RECORDED_PER_UPDATE",
+        "baseline_update_median_ms": 16.454666,
+        "candidate_update_median_ms": 18.8376915,
+        "update_cost_reduction_percent": -14.482369317007105,
+        "baseline_cpu_median_ms": 19.701999999999998,
+        "candidate_cpu_median_ms": 21.6745415,
+        "cpu_cost_reduction_percent": -10.011884580245667,
+        "cpu_reduction_status": "COMPARABLE_OBSERVATION",
+        "adjacent_pair_update_reductions_percent": [
+          -25.844281256582647,
+          8.112711824529505,
+          -4.575263184330014,
+          8.363871644194177
+        ],
+        "adjacent_pair_reduction_median_percent": 1.7687243200997456,
+        "baseline_update_trials_ms": [
+          15.329163,
+          26.415791,
+          17.580169,
+          14.351918
+        ],
+        "candidate_update_trials_ms": [
+          19.290875,
+          24.272754,
+          18.384508,
+          13.151542
+        ],
+        "baseline_cpu_trials_ms": [
+          19.075042,
+          28.096,
+          20.328958,
+          18.769375
+        ],
+        "candidate_cpu_trials_ms": [
+          22.697666,
+          25.551916,
+          20.651417,
+          18.29775
+        ],
+        "baseline_max_update_us_median": 711.813,
+        "candidate_max_update_us_median": 617.875
+      },
+      {
+        "rate": 192000,
+        "fft_size": 2048,
+        "fixture": "full_capacity_catchup",
+        "ui_interval_ms": null,
+        "samples_per_trial": 65536,
+        "fft_windows_per_trial": 128,
+        "consumer_calls_per_trial": 1,
+        "expected_zero_fft_calls_from_fixture": 0,
+        "zero_fft_calls_observed_in_cost_csv": "NOT_RECORDED_PER_UPDATE",
+        "baseline_update_median_ms": 5.3563335,
+        "candidate_update_median_ms": 5.690104,
+        "update_cost_reduction_percent": -6.231324095110957,
+        "baseline_cpu_median_ms": 6.4515,
+        "candidate_cpu_median_ms": 6.9529585,
+        "cpu_cost_reduction_percent": -7.772742772998531,
+        "cpu_reduction_status": "COMPARABLE_OBSERVATION",
+        "adjacent_pair_update_reductions_percent": [
+          34.01281982828059,
+          22.132122868097483,
+          -76.32220451628777,
+          -38.15620376287945
+        ],
+        "adjacent_pair_reduction_median_percent": -8.012040447390984,
+        "baseline_update_trials_ms": [
+          6.105542,
+          5.67275,
+          4.629333,
+          5.039917
+        ],
+        "candidate_update_trials_ms": [
+          4.028875,
+          4.41725,
+          8.162542,
+          6.962958
+        ],
+        "baseline_cpu_trials_ms": [
+          6.44775,
+          7.241959,
+          6.250417,
+          6.45525
+        ],
+        "candidate_cpu_trials_ms": [
+          5.428333,
+          5.351042,
+          8.603833,
+          8.477584
+        ],
+        "baseline_max_update_us_median": 5356.333500000001,
+        "candidate_max_update_us_median": 5690.103999999999
+      },
+      {
+        "rate": 192000,
+        "fft_size": 4096,
+        "fixture": "nominal_cadence",
+        "ui_interval_ms": 20,
+        "samples_per_trial": 384000,
+        "fft_windows_per_trial": 375,
+        "consumer_calls_per_trial": 100,
+        "expected_zero_fft_calls_from_fixture": 0,
+        "zero_fft_calls_observed_in_cost_csv": "NOT_RECORDED_PER_UPDATE",
+        "baseline_update_median_ms": 35.92568249999999,
+        "candidate_update_median_ms": 40.81921,
+        "update_cost_reduction_percent": -13.621251315128124,
+        "baseline_cpu_median_ms": 42.904708,
+        "candidate_cpu_median_ms": 45.524666499999995,
+        "cpu_cost_reduction_percent": -6.106459225873295,
+        "cpu_reduction_status": "COMPARABLE_OBSERVATION",
+        "adjacent_pair_update_reductions_percent": [
+          0.451117278633395,
+          -61.985812200362304,
+          4.266869244316929,
+          -26.96931161811349
+        ],
+        "adjacent_pair_reduction_median_percent": -13.259097169740048,
+        "baseline_update_trials_ms": [
+          43.51108,
+          37.436249,
+          34.415116,
+          30.183377
+        ],
+        "candidate_update_trials_ms": [
+          43.314794,
+          60.641412,
+          32.946668,
+          38.323626
+        ],
+        "baseline_cpu_trials_ms": [
+          47.885791,
+          45.146875,
+          40.662541,
+          37.598
+        ],
+        "candidate_cpu_trials_ms": [
+          47.015375,
+          69.016917,
+          38.695041,
+          44.033958
+        ],
+        "baseline_max_update_us_median": 869.5415,
+        "candidate_max_update_us_median": 1281.4375
+      }
+    ]
+  }
+}

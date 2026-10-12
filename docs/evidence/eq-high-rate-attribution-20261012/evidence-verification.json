@@ -1,0 +1,97 @@
+{
+  "schema": "eq_evidence_integrity_v1",
+  "date_utc": "2026-10-12",
+  "verification_kind": "read_only_byte_and_syntax_checks; no benchmark execution",
+  "manifests": [
+    {
+      "manifest": "ci-38240150849/Linux/derived-analysis-manifest.json",
+      "sha256": "1d99ea262aed79dfe198dd39ebd33a5762ab5081c78c9d117c7a7dedd5a3b7a4",
+      "files_verified": 2,
+      "source_commit": "ddb0880bd61a4c794236783b869767b96208bf41",
+      "run_id": 38240150849
+    },
+    {
+      "manifest": "ci-38240150849/Linux/receipt-manifest.json",
+      "sha256": "04e7c661315f295ac160c6465e57cf7fc1da69e8d196ac97d40cc7d879f8f05f",
+      "files_verified": 23,
+      "source_commit": "ddb0880bd61a4c794236783b869767b96208bf41",
+      "run_id": 38240150849
+    },
+    {
+      "manifest": "ci-38240150849/macOS/derived-analysis-manifest.json",
+      "sha256": "e21b70841420e57df74ed31bec93ac8a015c1a0bb2bc927c0058be0c3f42f4a2",
+      "files_verified": 2,
+      "source_commit": "ddb0880bd61a4c794236783b869767b96208bf41",
+      "run_id": 38240150849
+    },
+    {
+      "manifest": "ci-38240150849/macOS/receipt-manifest.json",
+      "sha256": "edb3e3679af468180fad2d4cd733431dc0441d6f693f6c4cd64d9b720bcb0186",
+      "files_verified": 23,
+      "source_commit": "ddb0880bd61a4c794236783b869767b96208bf41",
+      "run_id": 38240150849
+    },
+    {
+      "manifest": "ci-38243938568/Linux/derived-analysis-manifest.json",
+      "sha256": "87a7c4f63cb1abd47c93d9f68e04a646734514360ff1f02ef4c5872789e28997",
+      "files_verified": 2,
+      "source_commit": "72e361ba91ea2c6b8d830921a71275fa25cba493",
+      "run_id": 38243938568
+    },
+    {
+      "manifest": "ci-38243938568/Linux/receipt-manifest.json",
+      "sha256": "7897c30a17a38478ce8d75c808e7964aeaf81db9cd44beda897283d0bf92e66b",
+      "files_verified": 23,
+      "source_commit": "72e361ba91ea2c6b8d830921a71275fa25cba493",
+      "run_id": 38243938568
+    },
+    {
+      "manifest": "ci-38243938568/Windows/derived-analysis-manifest.json",
+      "sha256": "c79da4620232079946fc494fb2b1b5c1abdc8e643c21eb4245d6025927a73288",
+      "files_verified": 2,
+      "source_commit": "72e361ba91ea2c6b8d830921a71275fa25cba493",
+      "run_id": 38243938568
+    },
+    {
+      "manifest": "ci-38243938568/Windows/receipt-manifest.json",
+      "sha256": "7ffd5f90a1eaf18e42f01e17eb9ca97a4f3a20275b705da13081b84ce4f8f71a",
+      "files_verified": 23,
+      "source_commit": "72e361ba91ea2c6b8d830921a71275fa25cba493",
+      "run_id": 38243938568
+    },
+    {
+      "manifest": "ci-38243938568/macOS/derived-analysis-manifest.json",
+      "sha256": "c0e9c8a1198e81d04a3e13c9434d3073cb5d8b5efbed4dc82ac6769d265b3f47",
+      "files_verified": 2,
+      "source_commit": "72e361ba91ea2c6b8d830921a71275fa25cba493",
+      "run_id": 38243938568
+    },
+    {
+      "manifest": "ci-38243938568/macOS/receipt-manifest.json",
+      "sha256": "741a67c95f51117b85b9c7ebfb41b3633f5238d5b4a72f3e92105693971c529e",
+      "files_verified": 23,
+      "source_commit": "72e361ba91ea2c6b8d830921a71275fa25cba493",
+      "run_id": 38243938568
+    },
+    {
+      "manifest": "local-full-ddb0880/derived-analysis-manifest.json",
+      "sha256": "b567a6449c43bf7b6fca3dfad1cc70ecb56c0cfef8499ce6227677f7f0a793be",
+      "files_verified": 2,
+      "source_commit": "ddb0880bd61a4c794236783b869767b96208bf41",
+      "run_id": null
+    },
+    {
+      "manifest": "local-full-ddb0880/receipt-manifest.json",
+      "sha256": "1fc2122e94e5cefc2b45abb49ec242ef43c9afef4bed19564fc8cf54d894bd9e",
+      "files_verified": 21,
+      "source_commit": "ddb0880bd61a4c794236783b869767b96208bf41",
+      "run_id": null
+    }
+  ],
+  "manifest_count": 12,
+  "receipt_file_count": 148,
+  "historical_files": 84,
+  "historical_canonical_and_worktree_sha256": "bb47058bd2798bea744da7d61754aefb5b7dbd5d8488086c313a5ae92897bc2e",
+  "reference_sha256": "ad0e9f7dc7fe46579b24707291bf63a5ee09363de701b1606c5cedf98f970f26",
+  "performance_acceptance": "NOT_ASSESSED"
+}

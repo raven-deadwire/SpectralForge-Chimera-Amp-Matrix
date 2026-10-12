@@ -1,0 +1,12 @@
+{
+  "run_id": 38240150849,
+  "job_id": 114780458274,
+  "artifact_id": 11743892354,
+  "source_commit": "ddb0880bd61a4c794236783b869767b96208bf41",
+  "build": "SUCCESS",
+  "provenance": "FAILURE",
+  "test_execution": "NOT_RUN",
+  "performance_acceptance": "NOT_ASSESSED",
+  "failure": "The paired analyzer reference no longer matches the retained transient repair",
+  "interpretation": "Checkout EOL conversion reproduces this strict raw-byte validation failure without changing canonical Git blobs; immutable -text checkout and separate canonical/worktree hashes are the corrective validation."
+}
