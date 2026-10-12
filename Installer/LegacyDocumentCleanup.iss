@@ -13,6 +13,7 @@ const
   DocRead = $80000000;
   DocWrite = $40000000;
   DocDelete = $00010000;
+  DocListDirectory = $00000001;
   DocReadAttributes = $00000080;
   DocShareRead = $00000001;
   DocOpenExisting = 3;
@@ -71,6 +72,15 @@ function DocFlushFileBuffers(Handle: THandle): Boolean;
 function DocValidHandle(Handle: THandle): Boolean;
 begin
   Result := (Handle <> 0) and (Handle <> THandle(-1));
+end;
+
+function OpenDocumentPreservationHandle(Filename: String): THandle;
+begin
+  // Attribute-only access bypasses Windows sharing checks and cannot be used
+  // as a preservation lock. Request real data read access, denying deletion
+  // even if another application's original handle closes during uninstall.
+  Result := DocCreateFile(Filename, DocRead, DocShareRead, 0,
+    DocOpenExisting, DocOpenReparsePoint or DocBackupSemantics, 0);
 end;
 
 procedure AddDocumentRule(RelativePath: String; Bytes: Cardinal; SHA256: String;
@@ -144,7 +154,9 @@ begin
       Parent := Copy(Filename, 1, I);
       if CreateMissing and not DirExists(Parent) then
         if not CreateDir(Parent) then Exit;
-      Handle := DocCreateFile(Parent, DocReadAttributes, DocShareRead, 0,
+      // FILE_LIST_DIRECTORY participates in sharing checks. Attributes alone
+      // do not stop a directory rename/reparse substitution after validation.
+      Handle := DocCreateFile(Parent, DocListDirectory or DocReadAttributes, DocShareRead, 0,
         DocOpenExisting, DocOpenReparsePoint or DocBackupSemantics, 0);
       if not DocValidHandle(Handle) then Exit;
       RememberDocumentHandle(Handles, Handle);
@@ -386,8 +398,7 @@ begin
             DocOpenExisting, DocOpenReparsePoint or DocBackupSemantics, 0);
           if not DocValidHandle(Handle) then begin
             CanDelete := False;
-            Handle := DocCreateFile(Filename, DocReadAttributes, DocShareRead, 0,
-              DocOpenExisting, DocOpenReparsePoint or DocBackupSemantics, 0);
+            Handle := OpenDocumentPreservationHandle(Filename);
           end;
           if not DocValidHandle(Handle) then
             RaiseException('Cannot lock a document for preservation; uninstall stopped before deleting files.');

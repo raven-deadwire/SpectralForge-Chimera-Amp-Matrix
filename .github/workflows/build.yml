@@ -121,7 +121,7 @@ jobs:
         if: runner.os == 'Windows'
         shell: pwsh
         run: |
-          foreach ($script in @("Tools/Build-WindowsInstaller.ps1", "Tools/Verify-WindowsInstaller.ps1", "Tools/Sign-WindowsArtifact.ps1", "Tools/Build-WindowsMSIX.ps1", "Tools/Verify-WindowsMSIX.ps1", "Tools/Scan-WindowsArtifacts.ps1")) {
+          foreach ($script in @("Tools/Build-WindowsInstaller.ps1", "Tools/Verify-WindowsInstaller.ps1", "Tools/Verify-WindowsPreviousReleaseUpgrade.ps1", "Tools/Sign-WindowsArtifact.ps1", "Tools/Build-WindowsMSIX.ps1", "Tools/Verify-WindowsMSIX.ps1", "Tools/Scan-WindowsArtifacts.ps1")) {
             $tokens = $null
             $parseErrors = $null
             [System.Management.Automation.Language.Parser]::ParseFile((Resolve-Path $script).Path, [ref]$tokens, [ref]$parseErrors) | Out-Null
@@ -246,7 +246,7 @@ jobs:
       - name: Verify Windows install, repair and uninstall
         id: installer
         if: runner.os == 'Windows'
-        timeout-minutes: 3
+        timeout-minutes: 10
         shell: pwsh
         run: ./Tools/Verify-WindowsInstaller.ps1
 
@@ -258,6 +258,7 @@ jobs:
           path: |
             build/installer-verification/*.txt
             build/installer-verification/*.log
+            build/installer-verification/*.json
           if-no-files-found: warn
 
       - name: Build MSIX review package

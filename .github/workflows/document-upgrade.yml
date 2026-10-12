@@ -17,6 +17,7 @@ on:
       - "Tools/windows_document_rules.py"
       - "Tools/Build-WindowsInstaller.ps1"
       - "Tools/Verify-WindowsInstaller.ps1"
+      - "Tools/Verify-WindowsPreviousReleaseUpgrade.ps1"
       - "Tests/Test-WindowsDocumentUpgrade.ps1"
       - "Tests/test_windows_document_rules.py"
       - ".github/workflows/document-upgrade.yml"
@@ -110,7 +111,7 @@ jobs:
         run: |
           python -m unittest Tests.test_windows_document_rules -v
           if ($LASTEXITCODE -ne 0) { throw "Windows document rule contracts failed." }
-          foreach ($script in @("Tests/Test-WindowsDocumentUpgrade.ps1", "Tools/Build-WindowsInstaller.ps1", "Tools/Verify-WindowsInstaller.ps1")) {
+          foreach ($script in @("Tests/Test-WindowsDocumentUpgrade.ps1", "Tools/Build-WindowsInstaller.ps1", "Tools/Verify-WindowsInstaller.ps1", "Tools/Verify-WindowsPreviousReleaseUpgrade.ps1")) {
             $tokens = $null
             $parseErrors = $null
             [System.Management.Automation.Language.Parser]::ParseFile((Resolve-Path $script).Path, [ref]$tokens, [ref]$parseErrors) | Out-Null

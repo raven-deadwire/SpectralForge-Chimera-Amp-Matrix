@@ -31,6 +31,7 @@ foreach ($path in @($app, $vst, $startMenu, $registry, $sharedIRs, $companion)) 
 }
 $report = [Collections.Generic.List[string]]::new()
 $success = $false
+$actualPreviousReleaseUpgradeVerified = $false
 $observedVersions = [Collections.Generic.List[string]]::new()
 $payload = Get-Content -LiteralPath (Join-Path $stagePath "payload-manifest.json") -Raw | ConvertFrom-Json
 $sourceSha = if ($payload.PSObject.Properties.Name -contains "source_sha") { $payload.source_sha } else { (& git rev-parse HEAD).Trim() }
@@ -301,6 +302,14 @@ try {
     Check-AppShortcut $custom
     Uninstall "07-standalone-uninstall" $custom
     Pass "Standalone-only selection and removal; no VST3 installed"
+
+    # Run the separately reported, real public beta.1 Setup upgrade only after
+    # every existing current-product installation and launch gate has passed.
+    & (Join-Path $PSScriptRoot "Verify-WindowsPreviousReleaseUpgrade.ps1") -Installer $installerPath -Stage $stagePath -LogDirectory $logPath
+    $previousUpgrade = Get-Content -LiteralPath (Join-Path $logPath "PreviousReleaseUpgradeVerification.json") -Raw | ConvertFrom-Json
+    Assert ($previousUpgrade.success -and $previousUpgrade.actual_previous_release_upgrade_verified) "Actual previous-release upgrade verification did not complete"
+    $actualPreviousReleaseUpgradeVerified = $true
+    Pass "Actual public beta.1 Setup to current product Setup upgrade, repair and removal preserve user documents and files"
     $success = $true
 } catch {
     $report.Add("FAIL: $($_.Exception.Message)")
@@ -308,6 +317,7 @@ try {
 } finally {
     $report | Set-Content -LiteralPath (Join-Path $logPath "InstallerVerification.txt")
     @{ success = $success; source_sha = $sourceSha; run_id = $env:GITHUB_RUN_ID;
+       actual_previous_release_upgrade_verified = $actualPreviousReleaseUpgradeVerified;
        version = $payload.version; product_version = $payload.product_version;
        installer_version = $payload.installer_version; build_id = $payload.build_id;
        observed_display_versions = @($observedVersions.ToArray());

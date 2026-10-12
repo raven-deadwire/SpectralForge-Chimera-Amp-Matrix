@@ -2,10 +2,12 @@
  * Copyright (c) 2026 RavenForge Luthier Intelligence. All rights reserved.
  * Build-time fingerprints are the only authority for retiring historical bytes.
  */
-#define _POSIX_C_SOURCE 200809L
 #if defined(__APPLE__) && !defined(_DARWIN_C_SOURCE)
 #define _DARWIN_C_SOURCE 1
+#elif defined(__linux__) && !defined(_GNU_SOURCE)
+#define _GNU_SOURCE 1
 #endif
+#define _POSIX_C_SOURCE 200809L
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
@@ -23,7 +25,13 @@
 #define MAX_BYTES (64ULL * 1024 * 1024)
 #define RESTORE_UPGRADE 1
 typedef struct { uint64_t size; const char *sha; } Fingerprint;
-typedef struct { const char *path; int retire, always, current; size_t offset, count; } Rule;
+typedef struct {
+    const char *path;
+    int retire, always, current;
+    size_t offset, count;
+    uint64_t current_size;
+    const char *current_sha;
+} Rule;
 #include "document_rules.h"
 
 /* SHA-256 on the exact file bytes. No text decoding/newline normalization. */
@@ -134,7 +142,8 @@ static int write_all(int fd,const void *data,size_t length) {
     const char *p=data;while(length){ssize_t n=write(fd,p,length);if(n<0){if(errno==EINTR)continue;return -1;}if(!n){errno=EIO;return -1;}p+=n;length-=(size_t)n;}return 0;
 }
 /* Never replace a pre-existing preserved copy or restored user file. */
-static int copy_checked(int source,int parent,const char *name,uint64_t size,const char *sha,mode_t mode) {
+static int copy_checked_owner(int source,int parent,const char *name,uint64_t size,const char *sha,
+                              mode_t mode,int restore_owner,uid_t uid,gid_t gid) {
     int target,existing;char check[65];uint64_t bytes;unsigned char buffer[16384];ssize_t n;
     existing=regular_at(parent,name);
     if(existing>=0){int ok=hash_fd(existing,&bytes,check)==0 && bytes==size && !strcmp(check,sha);close(existing);if(!ok){errno=EEXIST;return -1;}return 0;}
@@ -143,13 +152,17 @@ static int copy_checked(int source,int parent,const char *name,uint64_t size,con
     if(target<0)return -1;
     if(lseek(source,0,SEEK_SET)<0){close(target);return -1;}
     while((n=read(source,buffer,sizeof(buffer)))>0)if(write_all(target,buffer,(size_t)n)<0){close(target);return -1;}
-    if(n<0 || fsync(target)<0 || fchmod(target,mode&0777)<0){close(target);return -1;}
+    if(n<0 || (restore_owner && fchown(target,uid,gid)<0) ||
+       fchmod(target,mode&0777)<0 || fsync(target)<0){close(target);return -1;}
     close(target);target=regular_at(parent,name);
     if(target<0)return -1;
     if(hash_fd(target,&bytes,check)<0 || bytes!=size || strcmp(check,sha)){close(target);errno=EAGAIN;return -1;}
     close(target);
     if(hash_fd(source,&bytes,check)<0 || bytes!=size || strcmp(check,sha)){errno=EAGAIN;return -1;}
     return fsync(parent);
+}
+static int copy_checked(int source,int parent,const char *name,uint64_t size,const char *sha,mode_t mode) {
+    return copy_checked_owner(source,parent,name,size,sha,mode,0,0,0);
 }
 static int auxiliary(const char *docroot,const char *suffix,int create) {
     char path[PATH_MAX];struct stat st;int fd;
@@ -183,21 +196,23 @@ static int snapshot(int source,int preserved,const Rule *r,uint64_t size,const c
     parent=parent_for(preserved,path,1,leaf);if(parent<0)return -1;
     {int result=copy_checked(source,parent,leaf,size,sha,mode);close(parent);return result;}
 }
-static int record_write(int pending,size_t index,uint64_t size,const char *sha,mode_t mode,int flags) {
-    char name[64],data[160];int fd;snprintf(name,sizeof(name),"%zu.record",index);
-    snprintf(data,sizeof(data),"%llu %s %u %d\n",(unsigned long long)size,sha,(unsigned)(mode&0777),flags);
+static int record_write(int pending,size_t index,uint64_t size,const char *sha,mode_t mode,int flags,uid_t uid,gid_t gid) {
+    char name[64],data[192];int fd;snprintf(name,sizeof(name),"%zu.record",index);
+    snprintf(data,sizeof(data),"%llu %s %u %d %llu %llu\n",(unsigned long long)size,sha,(unsigned)(mode&0777),flags,(unsigned long long)uid,(unsigned long long)gid);
     fd=openat(pending,name,O_WRONLY|O_CREAT|O_EXCL|O_NOFOLLOW|O_CLOEXEC,0600);if(fd<0)return -1;
     {int ok=write_all(fd,data,strlen(data))==0 && fsync(fd)==0;close(fd);return ok?0:-1;}
 }
-static int record_read(int pending,size_t index,uint64_t *size,char sha[65],mode_t *mode,int *flags) {
-    char name[64],data[192],extra;unsigned long long bytes;unsigned perm;ssize_t n;int fd;size_t i;
+static int record_read(int pending,size_t index,uint64_t *size,char sha[65],mode_t *mode,int *flags,uid_t *uid,gid_t *gid) {
+    char name[64],data[224],extra;unsigned long long bytes,owner,group;unsigned perm;ssize_t n;int fd;size_t i;
     snprintf(name,sizeof(name),"%zu.record",index);fd=regular_at(pending,name);if(fd<0)return fd;
     n=read(fd,data,sizeof(data)-1);close(fd);if(n<0)return -1;data[n]=0;
-    if(sscanf(data,"%llu %64s %u %d %c",&bytes,sha,&perm,flags,&extra)!=4 || bytes>MAX_BYTES || perm>0777 || (*flags!=0 && *flags!=RESTORE_UPGRADE) || strlen(sha)!=64){errno=EINVAL;return -1;}
+    if(sscanf(data,"%llu %64s %u %d %llu %llu %c",&bytes,sha,&perm,flags,&owner,&group,&extra)!=6 || bytes>MAX_BYTES || perm>0777 || (*flags!=0 && *flags!=RESTORE_UPGRADE) || strlen(sha)!=64 ||
+       (unsigned long long)(uid_t)owner!=owner || (unsigned long long)(gid_t)group!=group ||
+       (uid_t)owner==(uid_t)-1 || (gid_t)group==(gid_t)-1){errno=EINVAL;return -1;}
     for(i=0;i<64;i++)if(!((sha[i]>='0'&&sha[i]<='9')||(sha[i]>='a'&&sha[i]<='f'))){errno=EINVAL;return -1;}
-    *size=bytes;*mode=(mode_t)perm;return 0;
+    *size=bytes;*mode=(mode_t)perm;*uid=(uid_t)owner;*gid=(gid_t)group;return 0;
 }
-static int restore_record(int root,int preserved,size_t index,uint64_t size,const char *sha,mode_t mode) {
+static int restore_record(int root,int preserved,size_t index,uint64_t size,const char *sha,mode_t mode,uid_t uid,gid_t gid) {
     char backup[PATH_MAX],leaf[PATH_MAX],check[65];int bp,source,parent,target;uint64_t bytes;
     if(snprintf(backup,sizeof(backup),"%s/%s",sha,rules[index].path)>=(int)sizeof(backup)){errno=ENAMETOOLONG;return -1;}
     bp=parent_for(preserved,backup,0,leaf);if(bp<0)return -1;
@@ -210,7 +225,7 @@ static int restore_record(int root,int preserved,size_t index,uint64_t size,cons
         if(bytes!=size || strcmp(check,sha))fprintf(stderr,"Current document retained; previous bytes remain in preserved copy: %s\n",rules[index].path);
         close(target);
     } else if(target==-2) {
-        if(copy_checked(source,parent,leaf,size,sha,mode)<0){close(parent);close(source);return -1;}
+        if(copy_checked_owner(source,parent,leaf,size,sha,mode,1,uid,gid)<0){close(parent);close(source);return -1;}
         printf("Restored preserved document: %s\n",rules[index].path);
     } else {close(parent);close(source);return -1;}
     close(parent);close(source);return 0;
@@ -244,7 +259,7 @@ static int cleanup_one(int root,const Rule *r,size_t index) {
 }
 static int cleanup(int root) {size_t i;for(i=0;i<rule_count;i++)if(cleanup_one(root,&rules[i],i)<0)return error("cannot retire safely",rules[i].path);return 0;}
 static int finish(const char *docroot,const char *requested,int aborting) {
-    int pending=auxiliary(docroot,".pending",0),root,preserved,result=0;char mode[16],name[64],sha[65];size_t i;uint64_t size;mode_t perm;int flags,status;
+    int pending=auxiliary(docroot,".pending",0),root,preserved,result=0;char mode[16],name[64],sha[65];size_t i;uint64_t size;mode_t perm;uid_t uid;gid_t gid;int flags,status;
     if(pending==-2){root=open_absolute_dir(docroot,0,0755);if(root<0)return errno==ENOENT?0:error("unsafe document root",docroot);result=aborting?0:cleanup(root);close(root);return result;}
     if(pending<0)return error("unsafe pending journal",docroot);
     if(pending_mode(pending,mode)<0 || (!aborting && strcmp(mode,requested))){close(pending);return error("pending journal identity or operation mismatch",docroot);}
@@ -252,10 +267,10 @@ static int finish(const char *docroot,const char *requested,int aborting) {
     if(root<0 || preserved<0){if(root>=0)close(root);if(preserved>=0)close(preserved);close(pending);return error("preserved bytes unavailable",docroot);}
     /* Validate every pending record and backup before removing any journal record. */
     for(i=0;i<rule_count;i++) {
-        status=record_read(pending,i,&size,sha,&perm,&flags);if(status==-2)continue;
+        status=record_read(pending,i,&size,sha,&perm,&flags,&uid,&gid);if(status==-2)continue;
         if(status<0){result=error("invalid preservation record",rules[i].path);break;}
         if(aborting || !strcmp(mode,"remove") || (flags&RESTORE_UPGRADE)) {
-            if(restore_record(root,preserved,i,size,sha,perm)<0){result=error("cannot restore preserved bytes",rules[i].path);break;}
+            if(restore_record(root,preserved,i,size,sha,perm,uid,gid)<0){result=error("cannot restore preserved bytes",rules[i].path);break;}
         } else {
             char path[PATH_MAX],leaf[PATH_MAX],check[65];int p,fd;uint64_t bytes;
             if(snprintf(path,sizeof(path),"%s/%s",sha,rules[i].path)>=(int)sizeof(path)){result=-1;break;}
@@ -296,13 +311,200 @@ static int prepare(const char *docroot,const char *mode) {
         fd=regular_at(parent,leaf);close(parent);if(fd==-2)continue;if(fd<0)goto failed;
         if(hash_fd(fd,&size,sha)<0 || fstat(fd,&st)<0){close(fd);goto failed;}
         if(!rules[i].always && accepted(&rules[i],size,sha)){close(fd);continue;}
-        if(snapshot(fd,preserved,&rules[i],size,sha,st.st_mode)<0 || record_write(pending,i,size,sha,st.st_mode,(!rules[i].current?RESTORE_UPGRADE:0))<0){close(fd);goto failed;}
+        if(snapshot(fd,preserved,&rules[i],size,sha,st.st_mode)<0 || record_write(pending,i,size,sha,st.st_mode,(!rules[i].current?RESTORE_UPGRADE:0),st.st_uid,st.st_gid)<0){close(fd);goto failed;}
         close(fd);printf("Preserved document copy: %s.preserved/%s/%s\n",docroot,sha,rules[i].path);
     }
     if(fsync(pending)<0)goto failed;
     close(root);close(preserved);close(pending);return 0;
 failed:
     close(root);close(preserved);close(pending);return error("preservation incomplete; package changes must not proceed",i<rule_count?rules[i].path:docroot);
+}
+
+typedef struct {
+    const Rule *rule;
+    int source;
+    int metadata;
+    uint64_t size;
+    char sha[65];
+} InstallFile;
+
+/* Swapping names keeps the previous inode alive even when the target changes
+ * after inspection. No unlink-then-copy or rename-overwrite fallback is safe. */
+static int exchange_at(int first,const char *a,int second,const char *b) {
+#ifdef __APPLE__
+    return renameatx_np(first,a,second,b,RENAME_SWAP);
+#else
+    return renameat2(first,a,second,b,RENAME_EXCHANGE);
+#endif
+}
+
+static int inspect_managed(int root,const Rule *r) {
+    char leaf[PATH_MAX],sha[65];uint64_t size;int parent,fd,result;
+    parent=parent_for(root,r->path,0,leaf);
+    if(parent==-2)return 0;
+    if(parent<0)return -1;
+    fd=regular_at(parent,leaf);close(parent);
+    if(fd==-2)return 0;
+    if(fd<0)return -1;
+    result=hash_fd(fd,&size,sha);close(fd);return result;
+}
+
+/* Retain the captured inode as well as its checked byte snapshot. An editor
+ * that still holds the old inode open can therefore finish its write without
+ * losing those bytes when the installed pathname has already been replaced. */
+static int retain_captured(int work,int preserved,const Rule *r,size_t index,
+                           uint64_t size,const char *sha,mode_t mode) {
+    char path[PATH_MAX],leaf[PATH_MAX];int source,parent,result;
+    source=regular_at(work,"replacement");if(source<0)return -1;
+    result=snapshot(source,preserved,r,size,sha,mode);close(source);
+    if(result<0)return -1;
+    if(snprintf(path,sizeof(path),"%s/.open-inode-%ld-%zu/%s",sha,(long)getpid(),index,r->path)>=(int)sizeof(path)){errno=ENAMETOOLONG;return -1;}
+    parent=parent_for(preserved,path,1,leaf);if(parent<0)return -1;
+    /* Exclusive hard-link creation never replaces an older preserved version.
+     * Cross-device preservation stops safely with the captured inode retained
+     * in the private work directory, plus the already verified byte snapshot. */
+    result=linkat(work,"replacement",parent,leaf,0);
+    if(result==0)result=fsync(parent);
+    if(result==0)result=unlinkat(work,"replacement",0);
+    if(result==0)result=fsync(work);
+    close(parent);return result;
+}
+
+static int install_one(int root,int preserved,const InstallFile *item,size_t index) {
+    const Rule *r=item->rule;
+    char leaf[PATH_MAX],workname[96],sha[65];
+    int parent=-1,work=-1,target=-1,captured=-1,result=-1,attempt;
+    uint64_t size;struct stat st,now;
+    parent=parent_for(root,r->path,1,leaf);if(parent<0)return -1;
+    target=regular_at(parent,leaf);
+    if(target>=0) {
+        if(hash_fd(target,&size,sha)<0)goto done;
+        if(size==item->size && !strcmp(sha,item->sha)){result=0;goto done;}
+    } else if(target!=-2)goto done;
+    if(target>=0){close(target);target=-1;}
+    snprintf(workname,sizeof(workname),".chimera-install-%ld-%zu",(long)getpid(),index);
+    if(mkdirat(parent,workname,0700)<0)goto done;
+    work=open_directory_at(parent,workname,0,0700);if(work<0)goto done;
+    if(fsync(parent)<0 || copy_checked(item->source,work,"replacement",item->size,item->sha,0644)<0)goto recovery;
+    for(attempt=0;attempt<8;attempt++) {
+        target=regular_at(parent,leaf);
+        if(target==-2) {
+            /* A concurrent creation makes this fail, without changing it. */
+            if(linkat(work,"replacement",parent,leaf,0)==0) {
+                if(unlinkat(work,"replacement",0)<0 || fsync(parent)<0)goto recovery;
+                result=0;goto done;
+            }
+            if(errno==EEXIST)continue;
+            goto recovery;
+        }
+        if(target<0)goto recovery;
+        if(hash_fd(target,&size,sha)<0 || fstat(target,&st)<0)goto recovery;
+        if(item->metadata || r->always || !accepted(r,size,sha)) {
+            if(snapshot(target,preserved,r,size,sha,st.st_mode)<0)goto recovery;
+        }
+        close(target);target=-1;
+        if(exchange_at(work,"replacement",parent,leaf)==0)break;
+        if(errno!=ENOENT)goto recovery;
+    }
+    if(attempt==8){errno=EAGAIN;goto recovery;}
+    if(fsync(parent)<0 || fsync(work)<0)goto recovery;
+    captured=regular_at(work,"replacement");
+    /* A raced link, directory, hard link, or unreadable file stays captured.
+     * Its target is never followed, and no recovery object is auto-deleted. */
+    if(captured<0 || hash_fd(captured,&size,sha)<0 || fstat(captured,&st)<0)goto recovery;
+    if(item->metadata || r->always || !accepted(r,size,sha)) {
+        if(retain_captured(work,preserved,r,index,size,sha,st.st_mode)<0)goto recovery;
+        printf("Preserved replaced document: %s/%s\n",sha,r->path);
+    } else {
+        if(fstatat(work,"replacement",&now,AT_SYMLINK_NOFOLLOW)<0 || !stable(&st,&now)){errno=EAGAIN;goto recovery;}
+        if(unlinkat(work,"replacement",0)<0)goto recovery;
+    }
+    result=0;goto done;
+recovery:
+    fprintf(stderr,"Document replacement stopped; recovery entry beside %s: %s/replacement\n",r->path,workname);
+done:
+    if(captured>=0)close(captured);
+    if(target>=0)close(target);
+    if(work>=0) {
+        if(result==0 && fsync(work)<0)result=-1;
+        close(work);
+        if(result==0 && unlinkat(parent,workname,AT_REMOVEDIR)<0)result=-1;
+    }
+    if(parent>=0){if(result==0 && fsync(parent)<0)result=-1;close(parent);}
+    return result;
+}
+
+static int install_documents(const char *source_path,const char *docroot) {
+    /* The payload manifest hashes this helper, so embedding its own expected
+     * hash would be circular. Copy only this explicitly named metadata file
+     * with a pinned source hash; never parse it or use it as removal authority. */
+    static const Rule metadata={"payload-manifest.json",0,1,1,0,0,0,""};
+    InstallFile *items=NULL;
+    int source=-1,parent=-1,root=-1,preserved=-1,pending=-1,fd,p,result=-1,check;
+    char parentpath[PATH_MAX],docleaf[PATH_MAX],preservedname[PATH_MAX],leaf[PATH_MAX],*slash;
+    struct stat a,b;size_t i,count=0;int manifest_compiled=0;
+    if(!strcmp(source_path,"/") || !strcmp(docroot,"/") || strlen(docroot)>=sizeof(parentpath)){errno=EINVAL;return error("invalid document installation root",docroot);}
+    source=open_absolute_dir(source_path,0,0755);
+    if(source<0)return error("unsafe package document source",source_path);
+    items=calloc(rule_count+1,sizeof(*items));if(!items)goto done;
+    /* Validate every source before any target is installed or retired. Keeping
+     * the source descriptors open also closes path-swap races during copying. */
+    for(i=0;i<rule_count;i++) {
+        if(!rules[i].current)continue;
+        p=parent_for(source,rules[i].path,0,leaf);if(p<0)goto source_error;
+        fd=regular_at(p,leaf);close(p);if(fd<0)goto source_error;
+        items[count].rule=&rules[i];items[count].source=fd;
+        items[count].metadata=!strcmp(rules[i].path,metadata.path);
+        count++;
+        if(hash_fd(fd,&items[count-1].size,items[count-1].sha)<0 ||
+           items[count-1].size!=rules[i].current_size || strcmp(items[count-1].sha,rules[i].current_sha)){errno=EINVAL;goto source_error;}
+        if(!strcmp(rules[i].path,metadata.path))manifest_compiled=1;
+    }
+    if(!count){errno=EINVAL;error("helper contains no current package documents",source_path);goto done;}
+    if(!manifest_compiled) {
+        fd=regular_at(source,metadata.path);
+        if(fd>=0) {
+            items[count].rule=&metadata;items[count].source=fd;items[count].metadata=1;count++;
+            if(hash_fd(fd,&items[count-1].size,items[count-1].sha)<0)goto source_error;
+        } else if(fd!=-2)goto source_error;
+    }
+    pending=auxiliary(docroot,".pending",0);
+    if(pending>=0){close(pending);pending=-1;if(finish(docroot,"upgrade",1)<0)goto done;}
+    else if(pending!=-2){error("unsafe previous document transaction",docroot);goto done;}
+    strcpy(parentpath,docroot);slash=strrchr(parentpath,'/');
+    if(!slash || !safe_component(slash+1)){errno=EINVAL;goto done;}
+    strcpy(docleaf,slash+1);
+    if(slash==parentpath)slash[1]=0;else *slash=0;
+    parent=open_absolute_dir(parentpath,1,0755);if(parent<0)goto target_error;
+    root=open_directory_at(parent,docleaf,1,0755);if(root<0)goto target_error;
+    if(fstat(source,&a)<0 || fstat(root,&b)<0)goto target_error;
+    if(a.st_dev==b.st_dev && a.st_ino==b.st_ino){errno=EINVAL;goto target_error;}
+    for(i=0;i<rule_count;i++)if(inspect_managed(root,&rules[i])<0)goto target_error;
+    if(inspect_managed(root,&metadata)<0)goto target_error;
+    if(snprintf(preservedname,sizeof(preservedname),"%s.preserved",docleaf)>=(int)sizeof(preservedname)){errno=ENAMETOOLONG;goto target_error;}
+    preserved=open_directory_at(parent,preservedname,1,0700);if(preserved<0)goto target_error;
+    if(fstat(preserved,&a)<0 || a.st_uid!=geteuid() || (a.st_mode&077)!=0){errno=EACCES;goto target_error;}
+    for(i=0;i<count;i++)if(install_one(root,preserved,&items[i],i)<0){error("cannot replace document safely",items[i].rule->path);goto done;}
+    if(cleanup(root)<0)goto done;
+    /* Report a renamed/replaced root as interrupted, even though all writes
+     * remained confined to the directory held open before the change. */
+    check=open_absolute_dir(docroot,0,0755);if(check<0)goto target_error;
+    if(fstat(check,&a)<0 || fstat(root,&b)<0){close(check);goto target_error;}
+    close(check);
+    if(a.st_dev!=b.st_dev || a.st_ino!=b.st_ino){errno=EAGAIN;goto target_error;}
+    result=0;goto done;
+source_error:
+    error("package document differs from its compiled current fingerprint",i<rule_count?rules[i].path:metadata.path);goto done;
+target_error:
+    error("unsafe or changed document installation root",docroot);
+done:
+    for(i=0;i<count;i++)close(items[i].source);
+    free(items);
+    if(source>=0)close(source);
+    if(parent>=0)close(parent);
+    if(root>=0)close(root);
+    if(preserved>=0)close(preserved);
+    return result;
 }
 static int ends_with(const char *s,const char *tail) {size_t a=strlen(s),b=strlen(tail);return a>=b && !strcmp(s+a-b,tail);}
 static int maintenance(const char *action,const char *docroot) {
@@ -346,6 +548,12 @@ int main(int argc,char **argv) {
         else if(!strncmp(argv[1],"abort-",6))action="abort";
         else return 0; /* Never let old prerm/postrm touch a new upgrade journal. */
     } else {
+        if(argc==4 && !strcmp(argv[1],"install-documents")) {
+            if(strlen(argv[3])>=sizeof(docroot))return 2;
+            strcpy(docroot,argv[3]);
+            {size_t n=strlen(docroot);while(n>1 && docroot[n-1]=='/')docroot[--n]=0;}
+            return install_documents(argv[2],docroot)?1:0;
+        }
         if(argc!=3){fprintf(stderr,"Usage: document-maintenance ACTION ABSOLUTE-DOCUMENT-ROOT\n");return 2;}
         action=argv[1];if(strlen(argv[2])>=sizeof(docroot))return 2;strcpy(docroot,argv[2]);
     }

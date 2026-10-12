@@ -113,6 +113,44 @@ Source: "{#StageDir}\*.html"; DestDir: "{app}\Documentation"; Flags: ignoreversi
 Source: "{#StageDir}\payload-manifest.json"; DestDir: "{app}\Documentation"; Flags: ignoreversion; Check: ShouldInstallManagedDocument
 [Code]
 #include CleanupSource
+function InitializeSetup: Boolean;
+var
+  Parent, Filename: String;
+  Parents: TDocumentHandleArray;
+  Handle: THandle;
+begin
+  // Exercise the production locking functions against actual Windows rename
+  // and delete calls, with no second handle masking an ineffective lock.
+  Parent := ExpandConstant('{tmp}') + '\document-lock-probe';
+  Filename := Parent + '\probe.md';
+  try
+    if not LockDocumentParents(Filename, True, Parents) then
+      RaiseException('Cannot acquire native parent locks for the fixture.');
+    if RenameFile(Parent, Parent + '-moved') then
+      RaiseException('Production parent locks failed to block directory rename.');
+  finally
+    CloseDocumentHandles(Parents);
+  end;
+  if not RenameFile(Parent, Parent + '-moved') then
+    RaiseException('Parent rename probe was invalid after locks were released.');
+  if not RenameFile(Parent + '-moved', Parent) then
+    RaiseException('Cannot restore the parent rename probe.');
+  if not SaveStringToFile(Filename, 'native document lock probe', False) then
+    RaiseException('Cannot create the preservation handle probe.');
+  Handle := OpenDocumentPreservationHandle(Filename);
+  if not DocValidHandle(Handle) then
+    RaiseException('Cannot acquire the production preservation handle.');
+  try
+    if DeleteFile(Filename) then
+      RaiseException('Production preservation handle failed to block deletion.');
+  finally
+    DocCloseHandle(Handle);
+  end;
+  if not DeleteFile(Filename) then
+    RaiseException('Deletion probe was invalid after the handle was released.');
+  RemoveDir(Parent);
+  Result := True;
+end;
 procedure CurStepChanged(CurStep: TSetupStep);
 begin
   if CurStep = ssPostInstall then CleanupRetiredDocuments;
@@ -150,6 +188,7 @@ end;
     $oldSetup = Join-Path $output "old.exe"
     $newSetup = Join-Path $output "new.exe"
     Invoke-Setup $newSetup "01-fresh-install" $fresh
+    Pass "Production parent handles block directory rename and preservation handles block deletion independently of external application locks"
     Assert ((Hash (Join-Path $fresh "README.txt")) -eq (Hash (Join-Path $newStage "README.txt"))) "Fresh payload mismatch"
     Invoke-Setup (Uninstaller) "02-fresh-uninstall" ""
     Assert (!(Test-Path -LiteralPath $registry)) "Fresh uninstall registration remains"
@@ -238,7 +277,7 @@ end;
     Rename-Item -LiteralPath $referenceSaved -NewName "reference"
     Pass "Junction targets remain unchanged and uninstall refuses historical traversal before deleting files"
 
-    # A concurrent writer prevents even the metadata-only preservation handle:
+    # A concurrent writer prevents even the read-only preservation handle:
     # our FILE_SHARE_READ intentionally does not share the writer's access.
     $lock = [IO.File]::Open($modified, [IO.FileMode]::Open, [IO.FileAccess]::ReadWrite, [IO.FileShare]::None)
     try { Invoke-Setup (Uninstaller) "09-locked-uninstall-refused" "" $false }
@@ -251,9 +290,9 @@ end;
     # must both leave its current in-place bytes untouched during uninstall.
     Write-Fixture $manual "<p>New user annotations after repair</p>`r`n"
     $finalManualHash = Hash $manual
-    # A concurrent reader allows a metadata-only handle that still denies
-    # DELETE. Uninstall may proceed safely while that handle protects the file.
-    $lock = [IO.File]::Open($modified, [IO.FileMode]::Open, [IO.FileAccess]::Read, [IO.FileShare]::None)
+    # A reader that shares READ but denies DELETE exercises the production
+    # read-only fallback. The fallback must provide its own deny-delete lock.
+    $lock = [IO.File]::Open($modified, [IO.FileMode]::Open, [IO.FileAccess]::Read, [IO.FileShare]::Read)
     try { Invoke-Setup (Uninstaller) "10-upgraded-uninstall-with-reader" "" }
     finally { $lock.Dispose() }
     Assert (!(Test-Path -LiteralPath $registry)) "Upgraded uninstall registration remains"

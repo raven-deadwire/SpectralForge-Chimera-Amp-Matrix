@@ -312,6 +312,25 @@ class LegacyDocumentCleanupTests(NativeFixtureCase):
         for relative, content in sentinels.items():
             self.assertEqual((self.docroot / relative).read_bytes(), content)
 
+    def test_restore_retains_private_file_owner_group_and_permissions(self) -> None:
+        if not hasattr(os, "geteuid") or os.geteuid() != 0:
+            self.skipTest("Restoring a different user's ownership requires root")
+        self.install_old()
+        original = self.docroot / "AMP_VALIDATION.md"
+        original.write_bytes(USER_EDIT)
+        original.chmod(0o600)
+        try:
+            os.chown(original, 54321, 54321)
+        except (PermissionError, OSError) as error:
+            self.skipTest(f"This isolated runtime cannot map another UID/GID: {error}")
+        self.helper_run("prepare-upgrade")
+        original.unlink()
+        self.helper_run("commit-upgrade")
+        restored = original.stat()
+        self.assertEqual((restored.st_uid, restored.st_gid, restored.st_mode & 0o777),
+                         (54321, 54321, 0o600))
+        self.assertEqual(original.read_bytes(), USER_EDIT)
+
     def test_remove_documents_preserves_edits_notices_and_unknown_user_files(self) -> None:
         self.install_old()
         write_documents(self.docroot, CURRENT_DOCUMENTS)
@@ -431,6 +450,286 @@ class LegacyDocumentCleanupTests(NativeFixtureCase):
         self.assertEqual((self.docroot / "AMP_VALIDATION.md").read_bytes(), USER_EDIT)
         self.assertEqual((self.docroot / "MODELS_AND_REFERENCE.md").read_bytes(), OLD_DOCUMENTS["MODELS_AND_REFERENCE.md"])
         self.require_saved("AMP_VALIDATION.md", USER_EDIT)
+
+
+class NativeDocumentInstallTests(NativeFixtureCase):
+    """The TAR document operation, including concurrent pathname changes."""
+
+    @classmethod
+    def setUpClass(cls) -> None:
+        super().setUpClass()
+        cls.race_library = None
+        if sys.platform == "linux":
+            # Test-only libc interposition deterministically changes paths at
+            # the actual atomic operation. The production helper has no test
+            # hook, environment-controlled bypass, or alternate safety mode.
+            shim = cls.build_root / "race-fixture.c"
+            shim.write_text(r'''
+#define _GNU_SOURCE 1
+#include <dlfcn.h>
+#include <fcntl.h>
+#include <stdarg.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+static int triggered;
+static void mark(void) {
+    int fd=open(getenv("CHIMERA_TEST_MARKER"),O_WRONLY|O_CREAT|O_EXCL,0600);
+    if(fd<0 || write(fd,"triggered",9)!=9)_exit(125);
+    close(fd);triggered=1;
+}
+static void create_user(int parent,const char *leaf) {
+    int fd;const char *text=getenv("CHIMERA_TEST_BYTES");
+    fd=openat(parent,leaf,O_WRONLY|O_CREAT|O_EXCL,0600);
+    if(fd<0 || write(fd,text,strlen(text))!=(ssize_t)strlen(text))_exit(125);
+    close(fd);
+}
+int renameat2(int a,const char *x,int b,const char *y,unsigned flags) {
+    int (*real_call)(int,const char *,int,const char *,unsigned)=dlsym(RTLD_NEXT,"renameat2");
+    const char *mode=getenv("CHIMERA_TEST_RACE");
+    if(!triggered && mode && flags==RENAME_EXCHANGE && !strcmp(y,"MANUAL.html")) {
+        if(!strcmp(mode,"root")) {
+            mark();
+            if(rename(getenv("CHIMERA_TEST_ROOT"),getenv("CHIMERA_TEST_MOVED"))<0 ||
+               symlink(getenv("CHIMERA_TEST_OUTSIDE"),getenv("CHIMERA_TEST_ROOT"))<0)_exit(125);
+        } else if(!strcmp(mode,"leaf")) {
+            mark();if(unlinkat(b,y,0)<0)_exit(125);create_user(b,y);
+        } else if(!strcmp(mode,"symlink")) {
+            mark();
+            if(unlinkat(b,y,0)<0 || symlinkat(getenv("CHIMERA_TEST_OUTSIDE"),b,y)<0)_exit(125);
+        }
+    }
+    return real_call(a,x,b,y,flags);
+}
+int linkat(int a,const char *x,int b,const char *y,int flags) {
+    int (*real_call)(int,const char *,int,const char *,int)=dlsym(RTLD_NEXT,"linkat");
+    const char *mode=getenv("CHIMERA_TEST_RACE");
+    if(!triggered && mode && !strcmp(mode,"create") && !strcmp(x,"replacement") && !strcmp(y,"MANUAL.html")) {
+        mark();create_user(b,y);
+    }
+    return real_call(a,x,b,y,flags);
+}
+int openat(int parent,const char *leaf,int flags,...) {
+    int (*real_call)(int,const char *,int,...)=dlsym(RTLD_NEXT,"openat");
+    const char *mode=getenv("CHIMERA_TEST_RACE");mode_t permissions=0;va_list args;
+    if(flags&O_CREAT){va_start(args,flags);permissions=va_arg(args,int);va_end(args);}
+    if(!triggered && mode && !strcmp(mode,"source") && (flags&O_CREAT) && !strcmp(leaf,"replacement")) {
+        int fd;mark();fd=open(getenv("CHIMERA_TEST_SOURCE"),O_WRONLY);
+        if(fd<0 || pwrite(fd,"X",1,0)!=1 || fsync(fd)<0)_exit(125);
+        close(fd);
+    }
+    return real_call(parent,leaf,flags,permissions);
+}
+''', encoding="ascii")
+            cls.race_library = cls.build_root / "race-fixture.so"
+            subprocess.run(["cc", "-shared", "-fPIC", "-O2", "-Wall", "-Wextra", "-Werror",
+                            str(shim), "-ldl", "-o", str(cls.race_library)], check=True,
+                           text=True, capture_output=True)
+
+    def setUp(self) -> None:
+        super().setUp()
+        self.source = self.work / "package-documents"
+        write_documents(self.source, CURRENT_DOCUMENTS)
+
+    def install_documents(self, *, source: Path | None = None, root: Path | None = None,
+                          success: bool = True, race: str | None = None,
+                          outside: Path | None = None) -> subprocess.CompletedProcess:
+        environment = os.environ.copy()
+        marker = self.work / "interposition-triggered"
+        if race:
+            if self.race_library is None:
+                self.skipTest("Deterministic libc race fixture is Linux-only; native path tests still run")
+            environment.update({
+                "LD_PRELOAD": str(self.race_library),
+                "CHIMERA_TEST_RACE": race,
+                "CHIMERA_TEST_MARKER": str(marker),
+                "CHIMERA_TEST_ROOT": str(self.docroot),
+                "CHIMERA_TEST_MOVED": str(self.work / "moved-original-documents"),
+                "CHIMERA_TEST_OUTSIDE": str(outside or self.work / "outside"),
+                "CHIMERA_TEST_SOURCE": str(self.source / "MANUAL.html"),
+                "CHIMERA_TEST_BYTES": "New user bytes created at the atomic operation.\n",
+            })
+        result = subprocess.run(
+            [str(self.helper), "install-documents", str(source or self.source), str(root or self.docroot)],
+            text=True, capture_output=True, timeout=30, env=environment,
+        )
+        detail = f"install-documents: exit={result.returncode}\n{result.stdout}\n{result.stderr}"
+        self.assertEqual(result.returncode == 0, success, detail)
+        if race:
+            self.assertEqual(marker.read_text(), "triggered", "The deterministic race was not exercised")
+        return result
+
+    def test_native_install_fresh_then_same_version_is_idempotent(self) -> None:
+        manifest = b'{"fixture":true,"files":[{"path":"personal.wav","sha256":"forged"}]}'
+        (self.source / "payload-manifest.json").write_bytes(manifest)
+        (self.source / "unlisted-user-file.md").write_bytes(USER_EDIT)
+        self.install_documents()
+        installed = {**CURRENT_DOCUMENTS, "payload-manifest.json": manifest}
+        for relative, content in installed.items():
+            self.assertEqual((self.docroot / relative).read_bytes(), content)
+        before = {relative: (self.docroot / relative).stat().st_ino for relative in installed}
+        self.install_documents()
+        self.assertEqual(before, {relative: (self.docroot / relative).stat().st_ino for relative in installed})
+        self.assertFalse((self.docroot / "unlisted-user-file.md").exists())
+
+    def test_native_install_upgrade_preserves_same_size_edits_and_private_files(self) -> None:
+        self.install_old()
+        edited = b"X" + OLD_DOCUMENTS["MANUAL.html"][1:]
+        write_documents(self.docroot, {
+            "MANUAL.html": edited, "AMP_VALIDATION.md": USER_EDIT,
+            "COPYRIGHT.txt": USER_EDIT, "personal.wav": USER_EDIT,
+            "Presets/private.chimera": USER_EDIT, "Projects/session.chimera": USER_EDIT,
+        })
+        self.install_documents()
+        for relative, content in CURRENT_DOCUMENTS.items():
+            self.assertEqual((self.docroot / relative).read_bytes(), content)
+        for relative in {"AMP_VALIDATION.md", "personal.wav", "Presets/private.chimera", "Projects/session.chimera"}:
+            self.assertEqual((self.docroot / relative).read_bytes(), USER_EDIT)
+        self.require_saved("MANUAL.html", edited)
+        self.require_saved("COPYRIGHT.txt", USER_EDIT)
+        self.assertFalse((self.docroot / "MODELS_AND_REFERENCE.md").exists())
+
+    def test_native_install_rejects_changed_or_historical_source_bytes_before_changes(self) -> None:
+        self.install_old()
+        for invalid in (b"X" + CURRENT_DOCUMENTS["MANUAL.html"][1:], OLD_DOCUMENTS["MANUAL.html"]):
+            with self.subTest(source=invalid):
+                (self.source / "MANUAL.html").write_bytes(invalid)
+                self.install_documents(success=False)
+                for relative, content in OLD_DOCUMENTS.items():
+                    self.assertEqual((self.docroot / relative).read_bytes(), content)
+
+    def test_native_install_refuses_source_links_and_nonregular_files(self) -> None:
+        self.install_old()
+        source = self.source / "MANUAL.html"
+        outside = self.work / "outside-source"
+        outside.write_bytes(CURRENT_DOCUMENTS["MANUAL.html"])
+        for kind in ("symlink", "hardlink", "directory"):
+            with self.subTest(kind=kind):
+                source.unlink()
+                if kind == "symlink":
+                    source.symlink_to(outside)
+                elif kind == "hardlink":
+                    os.link(outside, source)
+                else:
+                    source.mkdir()
+                self.install_documents(success=False)
+                self.assertEqual((self.docroot / "MANUAL.html").read_bytes(), OLD_DOCUMENTS["MANUAL.html"])
+                if kind == "directory":
+                    source.rmdir()
+                else:
+                    source.unlink()
+                source.write_bytes(CURRENT_DOCUMENTS["MANUAL.html"])
+
+    def test_native_install_refuses_linked_source_or_target_ancestors(self) -> None:
+        self.install_old()
+        alias = self.work / "linked-parent"
+        alias.symlink_to(self.work, target_is_directory=True)
+        self.install_documents(source=alias / self.source.name, success=False)
+        self.install_documents(root=alias / self.docroot.name, success=False)
+        self.install_documents(source=self.docroot, root=self.docroot, success=False)
+        for relative, content in OLD_DOCUMENTS.items():
+            self.assertEqual((self.docroot / relative).read_bytes(), content)
+
+    def test_native_install_rejects_relative_root_and_source_destination_overlap(self) -> None:
+        self.install_old()
+        self.install_documents(root=Path("relative-target"), success=False)
+        self.install_documents(root=Path("/"), success=False)
+        (self.source / "AMP_VALIDATION.md").write_bytes(OLD_DOCUMENTS["AMP_VALIDATION.md"])
+        self.install_documents(source=self.source, root=self.source, success=False)
+        self.assertEqual((self.source / "AMP_VALIDATION.md").read_bytes(), OLD_DOCUMENTS["AMP_VALIDATION.md"])
+        for relative, content in OLD_DOCUMENTS.items():
+            self.assertEqual((self.docroot / relative).read_bytes(), content)
+
+    def test_native_install_refuses_target_link_before_retiring_other_files(self) -> None:
+        self.install_old()
+        outside = self.work / "external-private-manual"
+        outside.write_bytes(USER_EDIT)
+        manual = self.docroot / "MANUAL.html"
+        manual.unlink()
+        manual.symlink_to(outside)
+        self.install_documents(success=False)
+        self.assertTrue(manual.is_symlink())
+        self.assertEqual(outside.read_bytes(), USER_EDIT)
+        self.assertTrue((self.docroot / "AMP_VALIDATION.md").exists())
+
+    def test_native_install_failed_preservation_keeps_original_before_replacement(self) -> None:
+        self.install_old()
+        (self.docroot / "MANUAL.html").write_bytes(USER_EDIT)
+        preserved = Path(str(self.docroot) + ".preserved")
+        saved = preserved / digest(USER_EDIT) / "MANUAL.html"
+        saved.parent.mkdir(parents=True)
+        preserved.chmod(0o700)
+        saved.write_bytes(b"A conflicting user-created preserved file.")
+        self.install_documents(success=False)
+        self.assertEqual((self.docroot / "MANUAL.html").read_bytes(), USER_EDIT)
+        self.assertEqual(saved.read_bytes(), b"A conflicting user-created preserved file.")
+        self.assertTrue((self.docroot / "AMP_VALIDATION.md").exists())
+
+    def test_native_install_manifest_is_copy_only_metadata_and_preserves_previous_bytes(self) -> None:
+        self.install_old()
+        manifest = b'{"files":[{"path":"personal.wav","sha256":"not-an-authority"}]}'
+        (self.source / "payload-manifest.json").write_bytes(manifest)
+        write_documents(self.docroot, {"payload-manifest.json": USER_EDIT, "personal.wav": USER_EDIT})
+        self.install_documents()
+        self.assertEqual((self.docroot / "payload-manifest.json").read_bytes(), manifest)
+        self.require_saved("payload-manifest.json", USER_EDIT)
+        self.assertEqual((self.docroot / "personal.wav").read_bytes(), USER_EDIT)
+
+    def test_native_install_retains_inode_for_an_editor_already_holding_it_open(self) -> None:
+        self.install_old()
+        original = self.docroot / "MANUAL.html"
+        original.write_bytes(USER_EDIT)
+        with original.open("r+b") as editor:
+            identity = os.fstat(editor.fileno()).st_ino
+            self.install_documents()
+            continuation = b"The existing editor finished writing after replacement.\n"
+            editor.seek(0)
+            editor.truncate()
+            editor.write(continuation)
+            editor.flush()
+            os.fsync(editor.fileno())
+        candidates = [path for path in Path(str(self.docroot) + ".preserved").rglob("*")
+                      if path.is_file() and path.stat().st_ino == identity]
+        self.assertEqual(len(candidates), 1)
+        self.assertEqual(candidates[0].read_bytes(), continuation)
+        self.require_saved("MANUAL.html", USER_EDIT)
+        self.assertEqual(original.read_bytes(), CURRENT_DOCUMENTS["MANUAL.html"])
+
+    def test_native_install_root_swap_cannot_redirect_copy_to_private_documents(self) -> None:
+        self.install_old()
+        outside = self.work / "private-documents"
+        write_documents(outside, {"MANUAL.html": USER_EDIT})
+        self.install_documents(race="root", outside=outside, success=False)
+        self.assertEqual((outside / "MANUAL.html").read_bytes(), USER_EDIT)
+        self.assertTrue(self.docroot.is_symlink())
+
+    def test_native_install_leaf_swap_preserves_both_observed_user_versions(self) -> None:
+        self.install_old()
+        (self.docroot / "MANUAL.html").write_bytes(USER_EDIT)
+        self.install_documents(race="leaf")
+        self.require_saved("MANUAL.html", USER_EDIT)
+        self.require_saved("MANUAL.html", b"New user bytes created at the atomic operation.\n")
+        self.assertEqual((self.docroot / "MANUAL.html").read_bytes(), CURRENT_DOCUMENTS["MANUAL.html"])
+
+    def test_native_install_raced_symlink_never_touches_its_target(self) -> None:
+        self.install_old()
+        outside = self.work / "private-manual"
+        outside.write_bytes(USER_EDIT)
+        self.install_documents(race="symlink", outside=outside, success=False)
+        self.assertEqual(outside.read_bytes(), USER_EDIT)
+        self.assertTrue(any(path.is_symlink() for path in self.docroot.glob(".chimera-install-*/replacement")))
+
+    def test_native_install_creation_race_preserves_new_user_file(self) -> None:
+        self.install_documents(race="create")
+        self.require_saved("MANUAL.html", b"New user bytes created at the atomic operation.\n")
+        self.assertEqual((self.docroot / "MANUAL.html").read_bytes(), CURRENT_DOCUMENTS["MANUAL.html"])
+
+    def test_native_install_rechecks_same_size_source_change_before_replacement(self) -> None:
+        self.install_old()
+        self.install_documents(race="source", success=False)
+        self.assertEqual((self.docroot / "MANUAL.html").read_bytes(), OLD_DOCUMENTS["MANUAL.html"])
+        self.assertTrue((self.docroot / "AMP_VALIDATION.md").exists())
 
 
 class DpkgDocumentLifecycleTests(NativeFixtureCase):

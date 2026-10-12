@@ -8,8 +8,8 @@ compatibility; it does not change model IDs, presets, DSP, or product naming.
 
 All **21 public Windows ZIP, macOS PKG and Linux TAR archives** from the seven
 releases below were downloaded and their complete SHA-256 digests and sizes
-matched the GitHub release asset metadata. The audit read **1,057 document
-occurrences** and verified **1,036 entries against their embedded payload
+matched the GitHub release asset metadata. The installed-document inventory
+read **1,057 document occurrences** and verified **1,036 entries against their embedded payload
 manifests**. The other 21 files are the payload manifests themselves, which were
 hashed from the verified archives; these files do not list their own digest.
 
@@ -32,6 +32,11 @@ digest verified. All 20 documentation files have the same raw bytes as that
 release's TAR. Its control archive contains only `control`, with no maintainer
 scripts. [deb-document-comparison.json](deb-document-comparison.json) records
 this additional archive check; it also has `actual_install_verified: false`.
+
+The separate [Linux native lifecycle fixture result](linux-native-dpkg/LinuxDocumentUpgradeVerification.json)
+records actual isolated `dpkg` execution of that original beta.1 DEB and an
+internal successor document fixture. That narrower result does not change the
+archive inventory's evidence category or certify the beta.2 product installer.
 
 The machine-readable evidence is
 [legacy-document-inventory.json](../../../Validation/legacy-document-inventory.json).
@@ -69,6 +74,7 @@ These paths are unchanged across the seven historical packaging sources.
 | --- | --- | --- |
 | Windows Setup | `{app}\Documentation` where the default `{app}` is `%ProgramFiles%\SpectralForge\Chimera Amp Matrix` | `*.md`, `*.html`, two explicit JSON files, and historical `reference/*` are routed here. The selected app directory can differ from the default. |
 | Windows Setup text documents | `{app}` | `*.txt`, including `COPYRIGHT.txt`, `WINDOWS_INSTALL.txt`, `README.txt`, and `Verification.txt`, are installed at the app root. |
+| Windows portable ZIP | User-selected extraction directory; documents are directly at its root, with historical `reference/` and `evidence/` subdirectories | This public manual-use layout has no fixed installation root or Inno ownership registration. Extracting another ZIP over it can leave old files. Setup cleanup does not locate or delete arbitrary portable copies. |
 | macOS PKG | `/Library/Application Support/SpectralForge/Chimera/Documentation` | A directory outside the app/VST3/AU bundles. A bundle replacement setting does not establish that these separate document files were removed. |
 | Linux TAR `install.sh` | `$HOME/.local/share/doc/chimera-amp-matrix` | The historical script creates the directory and merges the new tree using `cp -R`; missing new-package files are not removed by that operation. |
 | Linux DEB | `/usr/share/doc/chimera-amp-matrix` | The latest beta.1 DEB's actual document bytes match its TAR; older DEB destinations are source-defined here. Package-manager removal and modified-file preservation require separate native lifecycle evidence. |
@@ -81,6 +87,34 @@ Supporting historical sources:
 The VST3 directories, user settings directories, `%ProgramData%` personal IR
 pack, user preset/IR locations, and DAW project directories are outside this
 document-cleanup inventory. There is no recursive search for matching names.
+
+## Windows portable and MSIX scope
+
+All seven public release asset lists contain both a `win64-Setup.exe` and a
+`win64.zip`. None contains MSIX, APPX, a bundle of either, or MSI. The actual
+`INSTALLATION.md` inside every verified ZIP identifies ZIP use as a manual
+portable option and MSIX as an internal review package, not a public beta
+installer. [windows-publication-scope.json](windows-publication-scope.json)
+records the complete public asset-name lists, archive identities, and shipped
+documentation evidence. A public WindowsApps upgrade path is not established
+by these releases, and no WindowsApps cleanup is authorized.
+
+The Windows counts in the installed-document inventory use Inno's document
+routing. For the separate portable path, v1.1.2-beta.1 and v1.2.0-beta.1 ZIPs
+also contain 12 `evidence/native-nam-20261004/*` research files that Inno does
+not install. Their 24 archive occurrences were separately hashed and matched
+against the ZIP payload manifests. The corresponding portable document counts
+are 76 and 77, compared with the Setup counts of 64 and 65. Other releases'
+portable and Setup document counts match, although the on-disk layout differs.
+
+For example, the latest portable ZIP places `AMP_VALIDATION.md` at
+`<chosen ZIP folder>/AMP_VALIDATION.md`; Setup places it under
+`{app}/Documentation/AMP_VALIDATION.md`. A merge into a portable directory can
+therefore retain old research documents even when the Setup upgrade is safe.
+Portable folders and files copied manually between layouts remain outside
+automatic cleanup. A future targeted portable migration would need a supplied
+extraction root and separately verified ownership; searching arbitrary user
+directories or guessing a WindowsApps location would exceed this investigation.
 
 ## Retired documents with verified bytes
 
@@ -155,6 +189,65 @@ discrepancy was found. **Source bytes are never added as alternative cleanup
 hashes.** A hypothetical LF/CRLF conversion, BOM removal, whitespace trim,
 or normalized hash could incorrectly classify a user-edited document as
 untouched. Every allowlisted variant here was observed in a verified archive.
+
+## Historical Windows compiler compatibility
+
+All seven public Windows Setup installers were built with **Inno Setup 6.7.1**.
+For each release, the audit joined the Windows workflow job's compiler banner
+and installer SHA-256 line to the public Setup EXE asset's digest. The workflow
+run's source SHA also matches the pinned release source. These seven joins are
+recorded in [windows-compiler-history.json](windows-compiler-history.json), with
+run and job URLs and exact log excerpts.
+
+The maximum observed public compiler is therefore 6.7.1. An installer compiler
+requirement that accepts 6.3 does not prevent a downgrade relative to these
+released uninstallers. The build floor must cover at least 6.7.1 so new
+preservation callbacks are not superseded by a newer historical uninstaller
+engine. Compiler provenance alone does not prove native Windows upgrade or
+uninstall behavior; the corresponding lifecycle tests remain separate.
+
+## Actual Linux DEB lifecycle fixture
+
+`Tools/verify_linux_document_upgrade.py` builds an internal successor fixture
+from the verified original beta.1 DEB. It keeps every historical application
+and plugin file byte-for-byte, replaces only the documentation payload, adds
+the current compiled native document hooks, and uses fixture version
+`1.3.1~beta.2`. The fixture is temporary and is not a release artifact.
+
+The probe executes seven real `dpkg` operations: fresh fixture installation
+and removal; original public beta.1 installation; successor fixture upgrade;
+same-version repair; removal; and purge of the remaining package record.
+Assertions cover all 20 original document bytes, historical application and
+plugin hashes, exact retired files, one older nested carryover, an edited
+legacy document, two separate manual revisions, SHA-verified preserved copies,
+prior and current license notices, protected reference metadata, and synthetic
+personal presets, IRs, and existing projects both inside and outside the
+document directory. The application and plugins are never executed.
+
+The probe uses fresh temporary filesystem roots and package databases,
+including a Unicode target path. `--force-depends` is necessary because these
+roots have no operating-system dependency database. `--force-script-chrootless`
+runs the native document hooks with the host C runtime while `DPKG_ROOT`
+selects the isolated destination. Consequently, package dependency resolution,
+real beta.2 application binaries, desktop integration, DAW loading, and audio
+behavior are outside this result. `HOME` is not overridden, and the host dpkg
+status database is checked for unchanged bytes.
+
+Reproduce with the pinned original DEB from the v1.3.1-beta.1 release:
+
+```sh
+python Tools/verify_linux_document_upgrade.py \
+  --baseline-deb /path/to/SpectralForge-Chimera-1.3.1-beta.1-linux-x86_64.deb \
+  --output /path/to/linux-native-dpkg-evidence
+```
+
+The [JSON result](linux-native-dpkg/LinuxDocumentUpgradeVerification.json)
+records the local source commit and dirty state, actual working-tree input
+SHA-256 and Git blob IDs, compiled helper and fixture digests, tool versions,
+every byte-preservation assertion, and the installation evidence boundary.
+`actual_baseline_install_verified: true` and
+`fixture_native_lifecycle_verified: true` apply only to this isolated probe;
+`next_release_product_installer_verified` remains `false`.
 
 ## Reproduce the archive audit
 

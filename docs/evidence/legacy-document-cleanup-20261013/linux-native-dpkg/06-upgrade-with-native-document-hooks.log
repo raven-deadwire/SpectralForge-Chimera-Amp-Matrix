@@ -1,0 +1,34 @@
+(Reading database ... 39 files and directories currently installed.)
+Preparing to unpack .../document-lifecycle-fixture.deb ...
+Preserved document copy: /tmp/chimera-dpkg-document-fixture-ykr9vm0x/upgrade-root 한글/usr/share/doc/chimera-amp-matrix.preserved/a987691457ef86753afa79cf4cb1e46003e5829559db342964372d1639a84621/AMP_VALIDATION.md
+Preserved document copy: /tmp/chimera-dpkg-document-fixture-ykr9vm0x/upgrade-root 한글/usr/share/doc/chimera-amp-matrix.preserved/72f5d564400827c4d6d071649c507f36a5a0bc79003b24461f53285f00899bc7/COPYRIGHT.txt
+Preserved document copy: /tmp/chimera-dpkg-document-fixture-ykr9vm0x/upgrade-root 한글/usr/share/doc/chimera-amp-matrix.preserved/37a79431d0108ad6467021809599e6563c3708311bcdba73ef3d67d9dedf8ab3/MANUAL.html
+Preserved document copy: /tmp/chimera-dpkg-document-fixture-ykr9vm0x/upgrade-root 한글/usr/share/doc/chimera-amp-matrix.preserved/05cfcd43ab8062b9d3b1425db5955b7d062bf1cc517d7367f51287ff4e5f2908/THIRD_PARTY_NOTICES.md
+Preserved document copy: /tmp/chimera-dpkg-document-fixture-ykr9vm0x/upgrade-root 한글/usr/share/doc/chimera-amp-matrix.preserved/e0972876dc0a95ad7da6a2baca5317f27e64797d39dbe7223066e3c12a3157f3/reference/manifest.json
+Unpacking chimera-amp-matrix (1.3.1~beta.2) over (1.3.1~beta.1) ...
+Setting up chimera-amp-matrix (1.3.1~beta.2) ...
+Restored preserved document: AMP_VALIDATION.md
+Retired verified legacy document: reference/artwork-manifest.json
+dpkg: regarding .../document-lifecycle-fixture.deb containing chimera-amp-matrix, pre-dependency problem:
+ chimera-amp-matrix pre-depends on libc6
+  libc6 is not installed.
+
+dpkg: warning: ignoring pre-dependency problem!
+dpkg: chimera-amp-matrix: dependency problems, but configuring anyway as you requested:
+ chimera-amp-matrix depends on libasound2 (>= 1.0.16); however:
+  Package libasound2 is not installed.
+ chimera-amp-matrix depends on libc6 (>= 2.35); however:
+  Package libc6 is not installed.
+ chimera-amp-matrix depends on libcurl4 (>= 7.16.2); however:
+  Package libcurl4 is not installed.
+ chimera-amp-matrix depends on libfontconfig1 (>= 2.12.6); however:
+  Package libfontconfig1 is not installed.
+ chimera-amp-matrix depends on libfreetype6 (>= 2.8); however:
+  Package libfreetype6 is not installed.
+ chimera-amp-matrix depends on libgcc-s1 (>= 4.0); however:
+  Package libgcc-s1 is not installed.
+ chimera-amp-matrix depends on libstdc++6 (>= 12); however:
+  Package libstdc++6 is not installed.
+ chimera-amp-matrix depends on libc6; however:
+  Package libc6 is not installed.
+

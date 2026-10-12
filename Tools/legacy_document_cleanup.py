@@ -63,7 +63,8 @@ def document_rules(*, platform: str, inventory: Path | None = None,
             continue
         always = bool(entry.get("preserve_always")) or _license(path)
         rules[path] = {"path": path, "retire": bool(entry.get("retire")) and not always,
-                       "always": always, "current": False, "variants": variants}
+                       "always": always, "current": False, "current_fingerprint": None,
+                       "variants": variants}
     if current_documents is not None:
         current_documents = Path(current_documents)
         if current_documents.is_symlink() or not current_documents.is_dir():
@@ -79,10 +80,12 @@ def document_rules(*, platform: str, inventory: Path | None = None,
                 raise ValueError(f"Oversized staged document: {path}")
             rule = rules.setdefault(path, {"path": path, "retire": False,
                                            "always": _license(path), "current": True,
+                                           "current_fingerprint": None,
                                            "variants": set()})
             rule["current"] = True
             rule["retire"] = False
-            rule["variants"].add((len(content), hashlib.sha256(content).hexdigest()))
+            rule["current_fingerprint"] = (len(content), hashlib.sha256(content).hexdigest())
+            rule["variants"].add(rule["current_fingerprint"])
     return [{**rules[path], "variants": sorted(rules[path]["variants"])} for path in sorted(rules)]
 
 
@@ -100,13 +103,14 @@ def build_helper(output: Path, *, platform: str = "linux", inventory: Path | Non
     for rule in rules:
         offset = len(fingerprints)
         fingerprints.extend('{%duLL,"%s"}' % variant for variant in rule["variants"])
-        entries.append("{%s,%d,%d,%d,%d,%d}" % (
+        current_size, current_sha = rule["current_fingerprint"] or (0, "")
+        entries.append("{%s,%d,%d,%d,%d,%d,%duLL,\"%s\"}" % (
             _c_string(rule["path"]), rule["retire"], rule["always"], rule["current"],
-            offset, len(rule["variants"])))
+            offset, len(rule["variants"]), current_size, current_sha))
     header = ('#define RULE_DIGEST "' + digest + '"\n'
               + '#define TARGET_MACOS ' + str(int(platform == "macos")) + '\n'
               + "static const Fingerprint fingerprints[] = {\n" + ",\n".join(fingerprints or ['{0,""}']) + "\n};\n"
-              + "static const Rule rules[] = {\n" + ",\n".join(entries or ['{"",0,0,0,0,0}']) + "\n};\n"
+              + "static const Rule rules[] = {\n" + ",\n".join(entries or ['{"",0,0,0,0,0,0,""}']) + "\n};\n"
               + "static const size_t rule_count = " + str(len(rules)) + ";\n")
     output = Path(output)
     output.parent.mkdir(parents=True, exist_ok=True)
