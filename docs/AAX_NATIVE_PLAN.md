@@ -41,6 +41,24 @@ conflicts; record any moved AAX target explicitly. The public AAX version will
 be assigned to the then-current verified Chimera release, rather than promised
 as 1.3.2 regardless of readiness.
 
+## Scope of the new focused products
+
+The October 12 follow-up adds separately installable Náströnd and Niflheimr
+VST3 products; see [their product/NAM specification](FOCUSED_AMP_PRODUCTS_AND_NAM.md).
+This document's dated milestones and initial 10–20 engineering-day allowance
+cover **Chimera's first AAX Native implementation**, not three accepted products.
+
+Design the build/signing integration for reuse by the focused products. Each
+still needs its own stable AAX product/layout IDs, bundle/installer ownership,
+parameter mapping, source-bound signature and normal-Pro-Tools acceptance.
+Do not reuse Chimera's plugin identity or infer acceptance from a sibling's
+signed binary. Add the incremental platform, host and packaging work to the
+October 16/23 capacity review.
+
+Focused-product AAX is a follow-on format track with no committed public date.
+It must not block a separately qualified VST3 release, and it does not make
+NAM files or a future NAM runtime part of the AAX implementation scope.
+
 ## Stage 1: compile and integrate Native
 
 - Add an opt-in Windows/macOS AAX format through the existing JUCE CMake

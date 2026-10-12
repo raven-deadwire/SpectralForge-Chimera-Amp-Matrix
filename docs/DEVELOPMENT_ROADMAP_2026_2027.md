@@ -4,7 +4,9 @@ Updated: **2026-10-12, Asia/Seoul**. The owner requested a new remaining-work
 schedule after using 1.3.1: simplify the signal-chain display, substantially
 improve the EQ analyzer and editing workflow, implement the missing
 [FabFilter reference functions](https://www.fabfilter.com/products), and add
-AAX support.
+AAX support. The same-day follow-up makes **five-channel Niflheimr NAM delivery
+required** and adds **separate, simplified Náströnd and Niflheimr VST3 products**,
+using Neural DSP and Odeholm Audio as workflow references.
 
 The verified baseline is public
 [1.3.1-beta.1](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/releases/tag/v1.3.1-beta.1),
@@ -70,8 +72,12 @@ The immediate priority order is:
    window, reusing the improved graph and editing foundation.
 4. **AAX Native:** start build/readiness work alongside the above; budget it
    explicitly and keep external host/signing dependencies visible.
-5. **Room and model expansion:** retain the dated core/advanced room scope and
-   model order below.
+5. **Focused amp products and Niflheimr NAM:** develop separately installable
+   Náströnd and Niflheimr products around their existing five-channel native
+   cores, plus the required Niflheimr NAM pack. Freeze shared capacity on
+   October 16; the proposed focused-product window below is not yet allocated.
+6. **Room and model expansion:** retain the dated core/advanced room scope and
+   model order below until a capacity decision explicitly rebaselines them.
 
 AMP/RIGS startup and the saved Classic/Dual/Matrix mode are already present.
 Preserve existing EQ frequency/gain/Q editing, filter types, calibrated stereo
@@ -85,7 +91,10 @@ The October 10 revision moved the model-led June 4 integration target to
 August 13, 2027 to account for common DSP and routing. The owner's October 11
 request added adjustable room acoustics. The October 12 revision uses the
 remaining October window for the newly requested UI/EQ quality work and adds
-an independently tracked AAX Native schedule.
+an independently tracked AAX Native schedule. The follow-up adds two focused
+products and mandatory Niflheimr NAM work. Their proposed capacity reservation
+must be resolved against Room Core on October 16; it does not silently assign
+the same resources to both projects or move the entire 2027 calendar.
 
 Reserve four weeks for **1.3.3 Room Core** and two additional weeks inside
 **1.8 Room Advanced / Motion & Space**. The October 11 revision retained the 1.3.1/1.3.2 windows, moved 1.4–1.7 four
@@ -142,9 +151,56 @@ follow-up must satisfy the required scope in
 Already delivered full head coverage stays in regression coverage; it is no
 longer a future November expansion.
 
+### Focused Náströnd / Niflheimr products and required NAM delivery
+
+The planned product line has three distinct editions. Chimera keeps the full
+Classic/Dual/Matrix system. Each focused edition uses one selected channel of
+its own amp family, a fixed path, curated peripherals and its own plugin,
+installer, state and preset identity. The native amp core and improved EQ
+components are shared; there is no independent fork of the sound engine.
+See [focused amp products and NAM specification](FOCUSED_AMP_PRODUCTS_AND_NAM.md).
+
+| Deliverable | Required scope | Current status |
+|---|---|---|
+| Náströnd VST3, initial version target 1.0.0-beta.1 | Five guitar channels, focused AMP/CAB/EQ/FX workflow, native character controls, dedicated presets and independent installation | Planned; no separate product target or accepted binary exists |
+| Niflheimr VST3, initial version target 1.0.0-beta.1 | Five bass channels, preserved common LOW and Blend behavior, focused amp/comp/CAB/EQ workflow and independent installation | Planned; no separate product target or accepted binary exists |
+| Niflheimr NAM pack | At least one accepted fixed-setting, amp-only model for each of Hrímfaxi, Garmr, Nidavellir, Ymir and Hel; metadata and real-DI/player validation | Required planned deliverable; training/export qualification not established |
+| Náströnd NAM pack, PR #22 | Retain five-channel fidelity and TONE3000 compatibility contract | Existing work remains blocked; a successful pipeline smoke run is not five accepted models |
+
+The focused VSTs initially reuse native DSP so all existing 13/14 amp controls
+retain their meaning. Delivering a fixed-setting .nam file does not implement a
+NAM runtime with continuous amp controls. Neither the two VSTs nor their native
+release acceptance depends automatically on a NAM training completion date.
+NAM remains a required separate delivery track.
+
+| Target, KST | Reviewable result | Status / capacity condition |
+|---|---|---|
+| 2026-10-16 | Freeze product scope, native/shared-core boundary, VST3 platforms, identities and workload; review both NAM families' source/capture/memory contracts | Resolve the proposed product-window conflict with Room Core and publish the resulting allocation; no extra staff assumed |
+| 2026-10-23 | Product extraction/identity/preset feasibility report; Niflheimr five-channel capture and quality contract; retain Náströnd channel-by-channel evidence review | October EQ test installer keeps priority; report unmet prerequisites explicitly |
+| 2026-10-30 | Niflheimr training/export/player-restore smoke target and memory-feasibility report; Náströnd qualification/carryover decision | Smoke proves pipeline operation only; full training requires an admissible model and frozen data |
+| 2026-11-13 | Niflheimr first full-training/fidelity report against the frozen reference, or an explicit memory/data/player blocker with a next experiment | Evidence-report target; not a promise that five models pass |
+| Proposed 2026-11-30–2026-12-25 | Shared focused-product implementation and internal candidates: Náströnd first, then Niflheimr, then coexistence/host/preset verification | Priority reservation proposal, not an allocated window or public release; currently conflicts with Room Core |
+| Public dates uncommitted | Each VST3 beta and each qualified NAM pack released with its own evidence | Actual build/host/listening/installer or NAM fidelity/player acceptance; no inferred completion |
+
+If the proposed four-week product window is allocated, rebaseline Room Core
+and affected later checkpoints in this calendar, the JSON mirror and the Room
+issue together. A possible sequential Room Core window is December 28, 2026–
+January 22, 2027, but it is **not adopted by this revision**. If another allocation
+is selected, give the focused products concrete implementation/candidate dates
+at the October 16 review. Do not leave both workstreams marked as committed to
+the same shared capacity. Keep October EQ and November common dynamics first;
+reuse those results in the focused editions.
+
+The four-week allowance is an initial scope estimate for native VST3 internal
+candidates, not measured velocity or completed commercial products. It excludes
+general .chimera preset import, NAM runtime integration, AU/standalone delivery
+and signed AAX delivery. Windows VST3 is the first reviewable package; macOS
+Universal VST3 requires its own actual build/host evidence. Re-estimate with
+the extraction report on October 23 before advertising product candidate dates.
+
 ### AAX Native parallel track
 
-Initial scope: **Windows x64 and macOS Universal (Intel + Apple Silicon)**,
+Initial Chimera scope: **Windows x64 and macOS Universal (Intel + Apple Silicon)**,
 using the common Chimera DSP/UI through the JUCE AAX Native wrapper.
 The current JUCE 8.0.8 baseline contains the AAX SDK; the current project does
 not enable an AAX target. AAX DSP/HDX/Carbon processing is a separate project.
@@ -162,14 +218,18 @@ These are planning targets, not Avid/PACE approval forecasts. Reserve an initial
 re-estimate on October 16 and 23. This allowance does not assume extra staffing.
 If it conflicts with the immediate EQ quality work, explicitly revise AAX's
 dependent milestones before promising an installer. External approval waits
-must not stop unrelated EQ, dynamics or room work.
+must not stop unrelated EQ, dynamics or room work. The new focused products
+can reuse this build/signing infrastructure, but each needs distinct AAX IDs
+and its own signed host/installer acceptance. Their dates and additional work
+are not included automatically in the original Chimera 10–20-day estimate.
 
 ### Continuing reliability and sound-quality tracks
 
 | Track | Next checkpoint | Required result |
 |---|---|---|
 | Low-B/-2 Transpose, issue #8 / PR #45 | October 16 baseline review; October 23 same-input candidate comparison; October 30 method decision | Separate smear, pitch stability and measured latency; <=10 ms remains a target, not a completed feature |
-| Náströnd five-channel NAM/reference work, PR #22 | October 23 channel-by-channel evidence review; October 30 qualification/carryover decision | Report actual full-training and reference-comparison status; do not infer success from a smoke run |
+| Náströnd five-channel NAM/reference work, PR #22 | October 23 channel-by-channel evidence review; October 30 qualification/carryover decision | Existing fidelity/memory blocker remains; retain TONE3000 compatibility and existing thresholds |
+| Required Niflheimr five-channel NAM pack | October 16 memory/source review; October 23 capture/quality contract; October 30 smoke; November 13 fidelity report | Preserve channel order, native Blend/LOW capture boundary and separate full-training, listening and player evidence |
 | DAW lifecycle, issue #3 | Every follow-up installer; first report October 23 | Reopen UI, remove plugin, restore sessions, close/exit and sustained operation in available real hosts; include Pro Tools when available |
 | UI/CAB real-time performance | Every changed-source candidate | Compare average/p95/p99, worst callback and misses; record hidden-editor cost and actual display load |
 | Windows signing / macOS notarization | October 16 readiness review, October 30 next-step report | Record real credentials/service access and completed signature/notarization evidence separately from AAX signing |
@@ -395,6 +455,8 @@ effect a solution to live Transpose quality.
 | Room | Audible size/absorption/send response, LOW DI isolation and lane weighting, gate/tail continuity, old-project Room Off, exact state/automation and measured full-product realtime cost; spatial claims need declared model evidence |
 | Head UI | Preserve delivered six native contexts and full catalog coverage, per-channel/shared memory, hit/paint transforms and host gestures |
 | AAX Native | Actual Windows/macOS AAX bundles, stable bus/parameter IDs, Developer-host evidence, then signed normal-Pro-Tools and installer/lifecycle evidence |
+| Focused Náströnd / Niflheimr VST3 | Separate product identities, one active amp path, full native channel controls, authored focused presets, measured resource cost and three-product coexistence/host acceptance |
+| Required Niflheimr NAM pack | Five source-bound amp-only captures, frozen fidelity criteria, full-training/held-out-DI evidence and actual supported-player load/restore verification |
 | Host and release | Existing 48 presets, old projects, A/B and IR state, representative sample rates/buffers, callback timing and actual host lifecycle/installer results |
 
 Use precise statuses: IMPLEMENTED, TECHNICALLY VERIFIED, LISTENING/HOST
@@ -415,6 +477,7 @@ separate existing hourly condition watch.
 - [Catalog counts and historical baseline](CATALOG_ROADMAP.md)
 - [EQ analyzer and editing quality follow-up](EQ_ANALYZER_WORKFLOW_UPGRADE.md)
 - [AAX Native development and delivery](AAX_NATIVE_PLAN.md)
+- [Focused Náströnd / Niflheimr products and NAM delivery](FOCUSED_AMP_PRODUCTS_AND_NAM.md)
 - [Embedded amplifier-head controls](AMP_HEAD_CONTROLS_NEXT_UPDATE.md)
 - [Signal-path navigation and editing](SIGNAL_PATH_EDITOR.md)
 - [CAB source/identity/acceptance boundaries](CABINET_PANEL_ROADMAP.md)
