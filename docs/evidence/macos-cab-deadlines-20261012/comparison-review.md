@@ -92,3 +92,21 @@ Raw locations under each `trials/<trial>/sentinel/cab-timing-diagnostics/` direc
 The first three paired CPU/wall ratios are approximately 9.11%, 0.268% and 0.330%. The last paired CPU observation also exceeds the reference deadline; its immediately preceding and following intervals each have 2.750 microseconds wall time. Thus an observation with both wall and paired CPU above the reference can occur in this arithmetic-only control. It does not identify a CAB computational defect, establish that all CAB anomalies have the same cause, or remove the CPU-clock envelope limitation described above.
 
 The run reports CAB miss counts of 17, 7, 6 and 1 in A/B/B/A order, while sentinel counts are 2, 1, 0 and 1. The final inherited A has fewer CAB misses than either B repetition. A pooled reduction alone therefore does not demonstrate a reproducible QoS benefit. Preserve individual repetitions and the independent repeat before making a product-performance claim.
+
+## Native verification: BAAB run 38186063935
+
+The independently allocated [BAAB run 38186063935](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38186063935) was checked directly in `diagnostic-38186063935-BAAB.zip`, without extraction. Its SHA-256 matches `e35401f002edb8bb7bbe6fbd91b68534e22137ea456c66cf710b337b905b64cd`.
+
+All 18 relevant compilation command strings—nine original integration units and nine probe units—are **exactly identical between ABBA and BAAB**, including their paths. The previously established within-run flag parity therefore also holds here: AppleClang `17.0.0.17000013`, Release `-O3`, arm64, minimum macOS 12.0, and no profile/sanitizer flags. BAAB additionally archives `CMakeOBJCXXCompiler.cmake`, which independently records the same AppleClang version.
+
+Both runs record the same clean frozen product SHA `7b20cd9d1f90e3e2969c250712b199e893cf50cd` and tree before and after execution, and the same pinned JUCE SHA `d6181bde38d858c283c3b7bf699ce6340c050b5d`. Controller `CabSchedulingProbe.cpp` and `CMakeLists.txt` fingerprints agree across runs; `run_experiment.py` and README fingerprints differ for the repeat's order-capable controller. The report has `complete=true`, all five unchanged ordinary tests passing, and all 32 child processes recording the intended before/after caller QoS: A=17, B=33.
+
+The recorded runner node changes from the ABBA `iad20-gt1018-...` node to BAAB `sjc22-be112-...`. Both report GitHub-hosted macos15 image `20260907.0337.1`, Darwin `24.6.0`, arm64 Apple M1 (Virtual), three cores and 7 GB memory. Recorded Git, CMake/CTest and Python versions also agree. Apart from node identity, observation times and run ID, these captured environment fields are unchanged. They do not describe unrecorded host contention, CPU dispatch or faults.
+
+These are separate native builds. The probe fingerprint changes from ABBA `7f89446dbd0dd48c84a9134b7c58ddff27ea80d21fe6c307376d1ecbcf8cf291` to BAAB `29b607d216baec5dc1d31b4ef6472eff3d838c7a2a8bc25dba7d5da8e82a43ca`. Both ordinary test executable fingerprints also differ and remain recorded in each `report.json`. Consequently, the cross-run evidence establishes source and compiler-command parity, not binary identity. Each run's A/B arms use that run's common probe executable.
+
+### BAAB sentinel raw check
+
+BAAB has one sentinel wall miss, in trial `02-A`, expanded label 96,000 Hz / 128 samples / one channel, paced interval 787. The raw row records **1,519.167 microseconds wall, 28.084 microseconds paired CPU, and a 1,333.333 microseconds reference deadline**, with valid CPU and zero clock errors. It was matched against `trials/02-A/sentinel/cab-timing-diagnostics/scheduler-sentinel-extended/sentinel-expanded-v2/96000-128-1.csv`; its immediately adjacent wall measurements are 1.333 and 0.500 microseconds.
+
+A direct scan of all 422,400 BAAB sentinel rows finds no valid paired CPU value above its reference deadline. Thus there is no additional CPU-over sentinel example in this repeat; the earlier ABBA example remains recorded. This preserves the result without assigning every CAB anomaly to one cause. Full configuration/phase comparisons belong to the accompanying measurement analysis; these native checks do not establish a product fix.

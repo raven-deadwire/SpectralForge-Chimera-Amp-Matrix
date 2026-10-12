@@ -1,0 +1,11 @@
+{
+  "passed": true,
+  "BAAB_verified_input_accepted": true,
+  "ABBA_input_rejected": true,
+  "rejection": "Require completed BAAB evidence; do not relabel a different order",
+  "wrong_order_output_created": false,
+  "computed_B_to_A_formula": "(metric_01B + metric_04B) / (metric_02A + metric_03A)",
+  "outer_same_condition_formula": "metric_04B / metric_01B",
+  "inner_same_condition_formula": "metric_03A / metric_02A",
+  "contrasts_record_count": 6
+}
