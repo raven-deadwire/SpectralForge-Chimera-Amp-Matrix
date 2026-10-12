@@ -163,8 +163,14 @@ ChimeraEditor::ChimeraEditor(ChimeraProcessor& p) : AudioProcessorEditor(&p),pro
     gainOrder.setComponentID("gainorder");gainOrder.setName("Gain pedal order");gainOrder.addItemList({"FUZZ > BOOST > DRIVE","FUZZ > DRIVE > BOOST"},1);add(gainOrder);gainOrderAttachment=std::make_unique<CA>(p.parameters(),"gainorder",gainOrder);gainOrder.onChange=[this]{updateModeUI();};
     gainOrder.setTooltip("Boost before drive adds drive saturation. Boost after drive raises its output; a saturated amp may still add distortion instead of loudness. Fuzz stays first; Matrix LOW DI is unaffected.");
     rigsTab.onClick=[this]{page=0;pathSelections[size_t(juce::jlimit(0,2,lastMode))]="rigs";updateModeUI();};preTab.onClick=[this]{page=1;pathSelections[size_t(juce::jlimit(0,2,lastMode))]="pre";updateModeUI();};postTab.onClick=[this]{page=2;pathSelections[size_t(juce::jlimit(0,2,lastMode))]="post";updateModeUI();};
-    eqTab.onClick=[this]{const auto route=spectralforge::signalPath::read(processor);navigateSignalPath(*route.find("tone.eq"));};
+    eqTab.onClick=[this]{const auto route=spectralforge::signalPath::read(processor);navigateSignalPath(*route.find(selectedEQBank==0?"tone.eq":"final.eq"));};
     for(int e=0;e<2;++e){eqPanels[(size_t)e]=std::make_unique<spectralforge::GraphicalEQPanel>(p.parameters(),p.graphicalEQ(e),e);add(*eqPanels[(size_t)e]);}
+    toneEQBank.setComponentID("eq.bank.tone");finalEQBank.setComponentID("eq.bank.final");
+    toneEQBank.setTooltip("Edit Tone EQ before the POST rack. The other EQ continues processing.");
+    finalEQBank.setTooltip("Edit Final EQ after width, before output trim and tuner mute.");
+    add(toneEQBank);add(finalEQBank);
+    toneEQBank.onClick=[this]{const auto route=spectralforge::signalPath::read(processor);navigateSignalPath(*route.find("tone.eq"));};
+    finalEQBank.onClick=[this]{const auto route=spectralforge::signalPath::read(processor);navigateSignalPath(*route.find("final.eq"));};
     const std::array<const char*,11> effectHeaders{"OVERDRIVE","DELAY","REVERB","COMPRESSOR","ENVELOPE","FUZZ","BOOST","BUS COMP","PREAMP","EQ","MODULATION"};
     const std::array<const char*,11> effectScopes{"05 / TIGHT GAIN","05 / SPACE","06 / SPACE","01 / DYNAMICS","02 / FILTER","03 / TEXTURE","04 / SHAPING","01 / DYNAMICS","02 / COLOUR","03 / TONE","04 / MODULATION"};
     const std::array<const char*,11> effectButtons{"preon","delayon","reverbon","precompon","filteron","fuzzon","booston","buscompon","preampon","eqon","choruson"};
@@ -346,7 +352,7 @@ void ChimeraEditor::navigateSignalPath(const spectralforge::signalPath::Node& no
     switch(node.target){
         case Target::pre:page=1;break;
         case Target::post:page=2;break;
-        case Target::toneEQ:case Target::finalEQ:page=3;break;
+        case Target::toneEQ:case Target::finalEQ:page=3;selectedEQBank=node.target==Target::toneEQ?0:1;break;
         case Target::amp:case Target::low:page=0;showRigControls=true;break;
         case Target::cab:page=0;break;
         case Target::rigs:page=0;break;
@@ -607,7 +613,11 @@ void ChimeraEditor::updateModeUI()
     rigControls.setButtonText(showRigControls ? "CABINET ROOM" : "RIG CONTROLS");
     x1.setVisible(matrix && page==0 && !lastTuner); x2.setVisible(matrix && page==0 && !lastTuner); x1Label.setVisible(matrix && page==0 && !lastTuner); x2Label.setVisible(matrix && page==0 && !lastTuner);
     rigsTab.setToggleState(page==0,juce::dontSendNotification);preTab.setToggleState(page==1,juce::dontSendNotification);postTab.setToggleState(page==2,juce::dontSendNotification);eqTab.setToggleState(page==3,juce::dontSendNotification);
-    for(int e=0;e<2;++e){eqPanels[size_t(e)]->setVisible(page==3);eqPanels[size_t(e)]->setNavigationSelected(page==3 && pathSelections[size_t(lastMode)]==(e==0?"tone.eq":"final.eq"));}
+    // Keep the chosen bank visible even when a utility path node is focused.
+    // The hidden bank remains alive (selection/preferences) but captures no audio.
+    for(int e=0;e<2;++e){eqPanels[size_t(e)]->setVisible(page==3 && selectedEQBank==e);eqPanels[size_t(e)]->setNavigationSelected(page==3 && pathSelections[size_t(lastMode)]==(e==0?"tone.eq":"final.eq"));}
+    toneEQBank.setVisible(page==3 && !lastTuner);finalEQBank.setVisible(page==3 && !lastTuner);
+    toneEQBank.setToggleState(selectedEQBank==0,juce::dontSendNotification);finalEQBank.setToggleState(selectedEQBank==1,juce::dontSendNotification);
     for(size_t i=0;i<effects.size();++i) {
         auto& effect=effects[i];const bool show=page==2 && (i==10 || i==1 || i==2);
         effect.header.setVisible(show);effect.scope.setVisible(show);effect.description.setVisible(false);effect.enabled.setVisible(show);effect.model.setVisible(show);effect.expand.setVisible(show);
@@ -717,7 +727,8 @@ void ChimeraEditor::resized()
 void ChimeraEditor::layoutControls()
 {
     if(cabRoom)cabRoom->setBounds(20,330,1140,412);
-    for(int e=0;e<2;++e)eqPanels[(size_t)e]->setBounds(20+e*580,330,560,412);
+    for(auto& eq:eqPanels)eq->setBounds(20,330,1140,412);
+    toneEQBank.setBounds(792,267,174,29);finalEQBank.setBounds(976,267,184,29);
     signalPath->setBounds(20,309,985,20);
     rigControls.setBounds(1017,309,143,20);
     preEngineStatus.setBounds(585,268,575,28);boardPanel.setBounds(20,330,1140,415);

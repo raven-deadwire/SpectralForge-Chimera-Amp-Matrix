@@ -70,6 +70,16 @@ public:
         if(r==write.load(std::memory_order_acquire))return false;
         frame=frames[r%capacity];read.store(r+1,std::memory_order_release);return true;
     }
+    // Consumer only. Snapshot/drain never reset the producer's index or touch
+    // unpublished sample storage, so the audio producer can continue running.
+    uint32_t pendingSamples() const noexcept {
+        return write.load(std::memory_order_acquire)-read.load(std::memory_order_relaxed);
+    }
+    uint32_t discardPending() noexcept {
+        const auto r=read.load(std::memory_order_relaxed);
+        const auto w=write.load(std::memory_order_acquire);
+        read.store(w,std::memory_order_release);return w-r;
+    }
     std::atomic<bool> enabled{false};
     std::atomic<uint64_t> dropped{0};
 private:

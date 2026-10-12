@@ -1,0 +1,5 @@
+capture,fft_size,rate,block,channels,mode,latency_samples,callbacks,whole_processor_p50_us,whole_processor_p99_us,whole_processor_max_us,budget_us,overruns
+0,0,48000,128,2,0,42,575,354.696,662.45,1416.46,2666.67,0
+1,2048,48000,128,2,0,42,577,356.468,604.772,898.586,2666.67,0
+1,4096,48000,128,2,0,42,577,363.539,579.595,1920.2,2666.67,0
+1,8192,48000,128,2,0,42,577,377.38,660.777,1450.24,2666.67,0

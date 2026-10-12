@@ -39,6 +39,11 @@ else()
   set(CHIMERA_BUILD_REVISION "source-archive")
 endif()
 chimera_set_package_identity()
+option(CHIMERA_EQ_DEVELOPMENT_PREVIEW "Identify the isolated EQ development preview (never a public release)" OFF)
+if(CHIMERA_EQ_DEVELOPMENT_PREVIEW)
+  set(CHIMERA_PACKAGE_VERSION "${PROJECT_VERSION}-preview.${CHIMERA_BUILD_REVISION}")
+  set(CHIMERA_PACKAGE_DISPLAY "${PROJECT_VERSION} EQ Preview ${CHIMERA_BUILD_REVISION}")
+endif()
 configure_file(cmake/ChimeraBuildVersion.h.in generated/ChimeraBuildVersion.h @ONLY)
 configure_file(cmake/chimera-build-version.json.in chimera-build-version.json @ONLY)
 include_directories("${CMAKE_BINARY_DIR}/generated")
@@ -428,8 +433,8 @@ add_test(NAME ChimeraCabDriverVisualTests COMMAND ChimeraCabPanelStateTests --vi
 # Bound it separately without changing any real-time audio assertions.
 set_tests_properties(ChimeraCabDriverVisualTests PROPERTIES TIMEOUT 1800)
 
-# Static EQ prototype is isolated from release publishing and future dynamics.
-foreach(eqtest GraphicalEQ GraphicalEQUI)
+# EQ editor/analysis prototypes are isolated from release publishing and dynamics.
+foreach(eqtest GraphicalEQ GraphicalEQUI EQAnalyzer)
   juce_add_console_app(Chimera${eqtest}Tests PRODUCT_NAME "Chimera ${eqtest} Tests")
   target_sources(Chimera${eqtest}Tests PRIVATE Tests/${eqtest}Tests.cpp)
   target_include_directories(Chimera${eqtest}Tests PRIVATE Source)
@@ -438,7 +443,8 @@ foreach(eqtest GraphicalEQ GraphicalEQUI)
 endforeach()
 add_test(NAME ChimeraGraphicalEQTests COMMAND ChimeraGraphicalEQTests "${CMAKE_BINARY_DIR}/eq-cpu.csv")
 add_test(NAME ChimeraGraphicalEQUITests COMMAND ChimeraGraphicalEQUITests "${CMAKE_BINARY_DIR}")
-set_tests_properties(ChimeraGraphicalEQTests ChimeraGraphicalEQUITests PROPERTIES TIMEOUT 180 RUN_SERIAL TRUE)
+add_test(NAME ChimeraEQAnalyzerTests COMMAND ChimeraEQAnalyzerTests "${CMAKE_BINARY_DIR}")
+set_tests_properties(ChimeraGraphicalEQTests ChimeraGraphicalEQUITests ChimeraEQAnalyzerTests PROPERTIES TIMEOUT 180 RUN_SERIAL TRUE)
 
 # Console UI probes pump AppKit explicitly. Tahoe delays events when the legacy
 # JUCE nested dispatcher waits for a future NSEvent deadline (JUCE issue #1574).

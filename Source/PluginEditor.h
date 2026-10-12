@@ -110,6 +110,8 @@ private:
     std::array<std::unique_ptr<BA>,4> globalButtons;
     juce::TextButton compareA{"A"},compareB{"B"},copyAB{"COPY"},irLibraryButton{"IR LIBRARY"},rigsTab{"RIGS"},preTab{"PRE"},postTab{"POST"},eqTab{"EQ"};
     std::array<std::unique_ptr<spectralforge::GraphicalEQPanel>,2> eqPanels;
+    juce::TextButton toneEQBank{"TONE EQ"},finalEQBank{"FINAL EQ"};
+    int selectedEQBank{}; // Presentation only; never a host parameter or sound-state edit.
     std::unique_ptr<CabRoomOverview> cabRoom;
     juce::TextButton rigControls{"RIG CONTROLS"};
     bool showRigControls{};
