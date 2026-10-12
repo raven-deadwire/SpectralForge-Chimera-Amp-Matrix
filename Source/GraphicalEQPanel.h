@@ -94,18 +94,18 @@ public:
         g.setColour(navigationSelected?eq.withAlpha(.65f):grid);g.fillRect(0,0,getWidth(),2);
         g.setColour(text);g.setFont(juce::FontOptions(19.f,juce::Font::bold));
         g.drawText(instance==0?"TONE EQ":"FINAL EQ",18,9,310,26,juce::Justification::centredLeft);
-        g.setColour(muted);g.setFont(juce::FontOptions(11.f));
+        g.setColour(muted);g.setFont(juce::FontOptions(12.5f));
         g.drawText(instance==0?"Before POST":"After width / before output trim",18,36,312,17,juce::Justification::centredLeft);
-        g.setFont(juce::FontOptions(9.5f));
+        g.setFont(juce::FontOptions(12.f));
         g.drawText("ANALYZER",350,5,80,15,juce::Justification::centredLeft);
         g.drawText("RESOLUTION",592,5,172,15,juce::Justification::centredLeft);
-        g.drawText("RESPONSE",780,5,156,15,juce::Justification::centredLeft);
+        g.drawText("SMOOTHING",780,5,156,15,juce::Justification::centredLeft);
         g.setColour(in);g.drawLine(441.f,12.f,463.f,12.f,1.4f);g.drawLine(469.f,12.f,491.f,12.f,1.4f);
         g.setColour(out);g.drawLine(512.f,12.f,570.f,12.f,2.f);
         const auto area=plot();
         g.setGradientFill({juce::Colour(0xff0b1216),area.getX(),area.getY(),juce::Colour(0xff142125),area.getX(),area.getBottom(),false});
         g.fillRect(area);
-        g.setFont(juce::FontOptions(10.5f));
+        g.setFont(juce::FontOptions(12.5f));
         for(float f:{20.f,50.f,100.f,200.f,500.f,1000.f,2000.f,5000.f,10000.f,20000.f}) {
             const auto x=frequencyX(f);g.setColour(grid);g.drawVerticalLine(juce::roundToInt(x),area.getY(),area.getBottom());
             g.setColour(muted);g.drawText(f<1000?juce::String(int(f)):juce::String(f/1000,0)+"k",int(x)-20,int(area.getBottom())+5,40,16,juce::Justification::centred);
@@ -115,7 +115,7 @@ public:
             g.drawHorizontalLine(juce::roundToInt(y),area.getX(),area.getRight());
             if(db%12==0){g.setColour(muted);g.drawText((db>0?"+":"")+juce::String(db),5,int(y)-8,40,16,juce::Justification::centredRight);}
         }
-        g.setColour(muted);g.setFont(juce::FontOptions(9.5f));
+        g.setColour(muted);g.setFont(juce::FontOptions(12.f));
         g.drawText("EQ dB",7,62,40,15,juce::Justification::centredRight);
         g.drawText("dBFS",int(area.getRight())+9,62,42,15,juce::Justification::centredLeft);
         for(int db:{0,-24,-48,-72,-96})g.drawText(juce::String(db),int(area.getRight())+9,int(spectrumY(float(db)))-8,40,16,juce::Justification::centredLeft);
@@ -138,11 +138,11 @@ public:
         for(int b=0;b<graphicalEQBands;++b)if(b!=selected)drawNode(g,b,false);
         drawNode(g,selected,true);
         if(!spectrum.hasData() || !analyzerToggle.getToggleState()) {
-            g.setColour(muted.withAlpha(.75f));g.setFont(juce::FontOptions(11.f));
+            g.setColour(muted.withAlpha(.85f));g.setFont(juce::FontOptions(12.5f));
             g.drawText(analyzerToggle.getToggleState()?"Waiting for audio":"Analyzer off",int(area.getX())+10,int(area.getBottom())-24,230,18,juce::Justification::centredLeft);
         }
         g.setColour(grid);g.drawRect(area,1.f);g.drawHorizontalLine(getHeight()-65,16.f,float(getWidth()-16));
-        g.setColour(muted);g.setFont(juce::FontOptions(9.5f));const int labelY=getHeight()-62;
+        g.setColour(muted);g.setFont(juce::FontOptions(12.f));const int labelY=getHeight()-62;
         g.drawText("BAND",16,labelY,106,15,juce::Justification::centredLeft);
         g.drawText("FILTER",240,labelY,174,15,juce::Justification::centredLeft);
         g.drawText("FREQUENCY",434,labelY,240,15,juce::Justification::centredLeft);
@@ -152,8 +152,16 @@ public:
     }
     void mouseDown(const juce::MouseEvent& event) override {
         if(!plot().contains(event.position))return;
+        // Hit-test in the same front-to-back order as painting. The selected
+        // node is drawn last; coincident nodes must not silently redirect its
+        // drag/automation to the first persistent slot.
         float distance=18;int closest=-1;
-        for(int b=0;b<graphicalEQBands;++b){const float d=nodePosition(b).getDistanceFrom(event.position);if(d<distance){distance=d;closest=b;}}
+        const auto consider=[&](int band) {
+            const float d=nodePosition(band).getDistanceFrom(event.position);
+            if(d<distance){distance=d;closest=band;}
+        };
+        consider(selected);
+        for(int b=graphicalEQBands-1;b>=0;--b)if(b!=selected)consider(b);
         if(closest<0)return;selector.setSelectedId(closest+1,juce::dontSendNotification);selectBand(closest);dragging=true;
         parameter("frequency")->beginChangeGesture();parameter("gain")->beginChangeGesture();
     }
@@ -180,12 +188,12 @@ private:
     bool gainApplicable() const {return dsp.values(selected).type<=2;}
     void endDrag(){if(dragging){parameter("frequency")->endChangeGesture();parameter("gain")->endChangeGesture();dragging=false;}}
     void drawNode(juce::Graphics& g,int band,bool chosen) const {
-        const auto v=dsp.values(band);const auto p=nodePosition(band);const float r=chosen?8.f:v.enabled?6.5f:5.5f;
+        const auto v=dsp.values(band);const auto p=nodePosition(band);const float r=chosen?9.f:v.enabled?8.f:7.5f;
         const juce::Colour colour(chosen?0xfff0d39b:v.enabled?0xffb5d6c6:0xff718d8a);
         if(chosen){g.setColour(colour.withAlpha(.12f));g.fillEllipse(p.x-13,p.y-13,26,26);}
         g.setColour(juce::Colour(0xff101b1e));g.fillEllipse(p.x-r,p.y-r,2*r,2*r);
         g.setColour(colour);if(v.enabled)g.fillEllipse(p.x-r,p.y-r,2*r,2*r);else g.drawEllipse(p.x-r,p.y-r,2*r,2*r,chosen?2.f:1.f);
-        g.setFont(juce::FontOptions(chosen?10.f:9.f,juce::Font::bold));g.setColour(v.enabled?juce::Colour(0xff172421):colour);
+        g.setFont(juce::FontOptions(chosen?12.f:11.f,juce::Font::bold));g.setColour(v.enabled?juce::Colour(0xff172421):colour);
         g.drawText(juce::String(band+1),int(p.x)-10,int(p.y)-8,20,16,juce::Justification::centred);
     }
     void selectBand(int band) {

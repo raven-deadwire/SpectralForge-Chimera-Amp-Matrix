@@ -32,6 +32,12 @@ jobs:
         run: ctest --test-dir build-eq -C Release -R "^(ChimeraGraphicalEQ.*Tests|ChimeraEQAnalyzerTests|ChimeraGateProcessorTests)$" --output-on-failure --no-tests=error --output-junit eq-results.xml
       - if: runner.os == 'Linux'
         run: python3 Tools/run_linux_ui_tests.py -- ctest --test-dir build-eq -C Release -R "^(ChimeraGraphicalEQ.*Tests|ChimeraEQAnalyzerTests|ChimeraGateProcessorTests)$" --output-on-failure --no-tests=error --output-junit eq-results.xml
+      - name: Record temporal coverage limitations (non-acceptance diagnostic)
+        if: runner.os != 'Linux'
+        run: cmake --build build-eq --config Release --target ChimeraEQTemporalCoverageProbe
+      - name: Record temporal coverage limitations on the native Linux desktop
+        if: runner.os == 'Linux'
+        run: python3 Tools/run_linux_ui_tests.py -- cmake --build build-eq --config Release --target ChimeraEQTemporalCoverageProbe
       - if: runner.os == 'Windows'
         run: cmake --build build-eq --config Release --target ChimeraAmpMatrix_Standalone --parallel 2
       - if: runner.os == 'Windows'

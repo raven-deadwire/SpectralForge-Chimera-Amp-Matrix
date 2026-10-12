@@ -174,6 +174,47 @@ void smoothingAndStop() {
     std::cout<<"PASS sample-time smoothing / no reset on ballistics changes / idle decay / fresh resumed window\n";
 }
 
+// Opt-in diagnostic, not an assertion that dropping a visible transient is an
+// acceptable product result. Run with --temporal-coverage-probe [output-folder].
+// A real FIFO/analyzer receives the same short synthetic burst at two positions
+// in a nominal 40 ms UI interval. This isolates observation-window coverage
+// from FIFO overflow, amplitude calibration and source startup.
+void temporalCoverageDiagnostic(const juce::File& directory) {
+    std::ofstream out(directory.getChildFile("eq-analyzer-temporal-coverage.csv").getFullPathName().toStdString());
+    out<<"rate,fft_size,ui_interval_ms,hop_samples,window_ms,overwritten_prefix_samples,burst_position,burst_start,burst_samples,input_energy,raw_peak_db,smoothed_peak_db,fft_batches,fifo_dropped_samples\n";
+    for(double rate:{48000.,96000.,192000.})for(int size:{2048,4096,8192})for(bool late:{false,true}) {
+        auto analyzer=std::make_unique<EQSpectrumAnalyzer>();auto fifo=std::make_unique<EQAnalyzerFIFO>();
+        configure(*analyzer,*fifo,size,rate);
+        // Start from a complete, silent observation; this is a steady-state
+        // probe and does not confuse initial window acquisition with coverage.
+        for(int n=0;n<size;++n)fifo->push({});analyzer->update(*fifo,rate);
+        check(analyzer->hasData(),"Temporal coverage probe did not acquire a complete initial window");
+        const auto beforeFrames=analyzer->frames(),beforeDropped=fifo->dropped.load();
+        const int hop=int(rate/25),burstSamples=384;
+        const int burstStart=late?hop-std::min(size,hop)/2-burstSamples/2:64;
+        double energy=0;
+        for(int n=0;n<hop;++n) {
+            const bool inBurst=n>=burstStart && n<burstStart+burstSamples;
+            const float x=inBurst?float(.4*std::sin(2*juce::MathConstants<double>::pi*997*(n-burstStart)/rate)):0.f;
+            energy+=double(x)*x;fifo->push({x,x,-x,-x});
+        }
+        analyzer->update(*fifo,rate);
+        float rawPeak=EQSpectrumAnalyzer::floorDB,smoothPeak=EQSpectrumAnalyzer::floorDB;
+        for(int bin=1;bin<=size/2;++bin) {
+            rawPeak=std::max(rawPeak,analyzer->rawDB(false,bin));
+            smoothPeak=std::max(smoothPeak,analyzer->smoothedDB(false,bin));
+        }
+        const auto dropped=fifo->dropped.load()-beforeDropped,batches=analyzer->frames()-beforeFrames;
+        check(energy>1.e-6 && dropped==0 && batches==1,"Temporal coverage fixture was silent, dropped FIFO data or did not perform one update");
+        out<<rate<<','<<size<<",40,"<<hop<<','<<1000.*size/rate<<','<<std::max(0,hop-size)<<','
+           <<(late?"late":"early")<<','<<burstStart<<','<<burstSamples<<','<<energy<<','<<rawPeak<<','<<smoothPeak<<','<<batches<<','<<dropped<<'\n';
+        std::cout<<"COVERAGE rate="<<rate<<" FFT="<<size<<" position="<<(late?"late":"early")
+                 <<" hop="<<hop<<" overwritten_prefix="<<std::max(0,hop-size)<<" samples input_energy="<<energy
+                 <<" raw_peak="<<rawPeak<<" dBFS fifo_drops="<<dropped<<'\n';
+    }
+    check(out.good(),"Temporal coverage diagnostic could not be written");
+}
+
 void fftBenchmarks(const juce::File& directory) {
     std::ofstream out(directory.getChildFile("eq-analyzer-cpu.csv").getFullPathName().toStdString());
     out<<"fft_size,rate,bin_spacing_hz,hann_enbw_hz,window_ms,fft_batches,fft_p50_us,fft_p99_us,update_p50_us,update_p99_us,update_mean_us,analysis_cpu_at_25hz_percent\n";
@@ -281,8 +322,10 @@ void callbackAndLatency(const juce::File& directory) {
 int main(int argc,char** argv) {
     try {
         juce::ScopedJuceInitialiser_GUI init;
-        const auto directory=juce::File::getCurrentWorkingDirectory().getChildFile(argc>1?argv[1]:"eq-analyzer");
+        const bool coverageProbe=argc>1 && std::strcmp(argv[1],"--temporal-coverage-probe")==0;
+        const auto directory=juce::File::getCurrentWorkingDirectory().getChildFile(coverageProbe?(argc>2?argv[2]:"eq-analyzer-coverage"):(argc>1?argv[1]:"eq-analyzer"));
         check(directory.createDirectory().wasOk(),"Could not create analyzer evidence directory");
+        if(coverageProbe){temporalCoverageDiagnostic(directory);return 0;}
         calibrationAndContinuity();lowFrequencyAndFiniteInput();smoothingAndStop();fftBenchmarks(directory);callbackAndLatency(directory);
         std::cout<<"PASS variable-resolution real-audio analysis, bounded consumer, timing evidence, unchanged processing and host latency\n";
         return 0;

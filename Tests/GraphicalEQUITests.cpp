@@ -1,13 +1,21 @@
 #include "PluginEditor.h"
 #include "NativeMessageLoop.h"
+#include <algorithm>
+#include <array>
+#include <chrono>
+#include <exception>
 #include <iostream>
 #include <fstream>
 #include <cstring>
+#include <limits>
 #include <numeric>
 #include <stdexcept>
 #include <thread>
 #include <vector>
 #if JUCE_WINDOWS
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif
 #include <windows.h>
 #else
 #include <time.h>
@@ -53,7 +61,7 @@ void snapshot(juce::Component& component,const juce::File& file) {
 }
 double percentile(std::vector<double> values,double fraction) {
     check(!values.empty(),"No native timing samples");std::sort(values.begin(),values.end());
-    return values[std::min(values.size()-1,size_t(fraction*double(values.size()-1)))];
+    return values[(std::min)(values.size()-1,size_t(fraction*double(values.size()-1)))];
 }
 // A paced synthetic audio callback runs the production EQ processing on a
 // separate thread while the native desktop dispatches real timer/paint events.
@@ -103,6 +111,57 @@ int spectrumPixels(const juce::Image& image,juce::Rectangle<int> bounds,bool out
         if(output ? (r>g+8 && g>b+8) : (b>r+14 && g>r+10))++count;
     }
     return count;
+}
+void overlappingBandDrag(ChimeraProcessor& processor,GraphicalEQPanel& panel,juce::ComboBox& selector,int bank) {
+    constexpr std::array<const char*,4> fields{"frequency","gain","type","enabled"};
+    std::array<std::array<float,4>,graphicalEQBands> previousValues{};
+    const int previousSelection=selector.getSelectedId();
+    for(int band=0;band<graphicalEQBands;++band)
+        for(size_t field=0;field<fields.size();++field)
+            previousValues[(size_t)band][field]=get(processor,eqID(bank,band,fields[field]));
+    // The chosen node is painted last. Re-clicking an exact overlap must keep
+    // that visible selection instead of redirecting automation to Band 1.
+    for(int band=0;band<graphicalEQBands;++band) {
+        set(processor,eqID(bank,band,"frequency"),1000);
+        set(processor,eqID(bank,band,"gain"),0);
+        set(processor,eqID(bank,band,"type"),0);
+        set(processor,eqID(bank,band,"enabled"),1);
+    }
+    selector.setSelectedId(graphicalEQBands,juce::sendNotificationSync);settle(50);
+    check(panel.selectedBand()==graphicalEQBands-1,"Overlap fixture did not select Band 12");
+    std::array<HostEvents,graphicalEQBands> events{};
+    std::array<float,graphicalEQBands> frequencies{},gains{};
+    for(int band=0;band<graphicalEQBands;++band) {
+        frequencies[(size_t)band]=get(processor,eqID(bank,band,"frequency"));
+        gains[(size_t)band]=get(processor,eqID(bank,band,"gain"));
+        for(const char* field:{"frequency","gain"})
+            processor.parameters().getParameter(eqID(bank,band,field))->addListener(&events[(size_t)band]);
+    }
+    const auto start=panel.nodePosition(graphicalEQBands-1);
+    const auto end=start+juce::Point<float>(panel.graphBounds().getWidth()*.02f,-panel.graphBounds().getHeight()*.04f);
+    panel.mouseDown(mouse(panel,start,start,false));panel.mouseDrag(mouse(panel,end,start,true));panel.mouseUp(mouse(panel,end,start,true));
+    for(int band=0;band<graphicalEQBands;++band)
+        for(const char* field:{"frequency","gain"})
+            processor.parameters().getParameter(eqID(bank,band,field))->removeListener(&events[(size_t)band]);
+    check(panel.selectedBand()==graphicalEQBands-1 && selector.getSelectedId()==graphicalEQBands,
+          "Dragging overlapping nodes changed the selected Band 12");
+    for(int band=0;band<graphicalEQBands;++band) {
+        const auto& host=events[(size_t)band];
+        if(band==graphicalEQBands-1) {
+            check(get(processor,eqID(bank,band,"frequency"))>frequencies[(size_t)band]
+                  && get(processor,eqID(bank,band,"gain"))>gains[(size_t)band],"Overlap drag did not edit Band 12");
+            check(host.changes>0 && host.starts==2 && host.ends==2,"Overlap drag did not balance Band 12 host gestures");
+        } else {
+            check(get(processor,eqID(bank,band,"frequency"))==frequencies[(size_t)band]
+                  && get(processor,eqID(bank,band,"gain"))==gains[(size_t)band],"Overlap drag edited an unselected band");
+            check(host.changes==0 && host.starts==0 && host.ends==0,"Overlap drag notified the host for an unselected band");
+        }
+    }
+    for(int band=0;band<graphicalEQBands;++band)
+        for(size_t field=0;field<fields.size();++field)
+            set(processor,eqID(bank,band,fields[field]),previousValues[(size_t)band][field]);
+    selector.setSelectedId(previousSelection,juce::sendNotificationSync);
+    std::cout<<"PASS overlapping nodes retain selected Band 12 / only selected-band host changes / balanced gestures bank="<<bank<<'\n';
 }
 void liveAnalyzer(ChimeraProcessor& processor,ChimeraEditor& editor,const juce::File& directory) {
     std::ofstream timing(directory.getChildFile("eq-analyzer-native-ui.csv").getFullPathName().toStdString());
@@ -245,18 +304,52 @@ void fullProcessorNativeTiming(ChimeraProcessor& processor,ChimeraEditor& editor
     auto* resolution=find<juce::ComboBox>(*panel,eqID(1,-1,"resolution"));
     auto* master=find<juce::TextButton>(*panel,eqID(1,-1,"analyzer"));
     std::ofstream output(directory.getChildFile("eq-analyzer-full-callback.csv").getFullPathName().toStdString());
-    output<<"capture,fft_size,rate,block,channels,mode,latency_samples,callbacks,whole_processor_p50_us,whole_processor_p99_us,whole_processor_max_us,budget_us,overruns\n";
+    output<<"capture,fft_size,rate,block,channels,mode,latency_samples,callbacks,whole_processor_p50_us,whole_processor_p99_us,whole_processor_max_us,budget_us,overruns,total_callbacks,minimum_capture_ms,capture_timeout_ms,observed_elapsed_ms,callbacks_at_minimum_capture,effective_samples_per_second,production_ratio,sample_target,target_reached,minimum_sample_coverage,within_5pct_nominal_rate,performance_acceptance\n";
     for(int size:{0,2048,4096,8192}) {
         const bool enabled=size!=0;
         if(master->getToggleState()!=enabled){master->triggerClick();settle(50);}
         if(enabled)resolution->setSelectedId(size==2048?1:size==4096?2:3,juce::sendNotificationSync);
-        SyntheticAudio audio(processor,true);settle(1800);audio.stop();
-        const auto& all=audio.callbackMicrosAfterStop();check(all.size()>400,"Insufficient whole-processor callbacks while native UI was active");
-        const std::vector<double> samples(all.begin()+100,all.end());const double budget=128./48000*1.e6;
+        // A normal std::thread on a hosted runner has no audio scheduling
+        // guarantee. Collect the required sample count within a hard timeout;
+        // retain raw wall-clock throughput so a slow producer cannot masquerade
+        // as successful real-time audio. Sample coverage is not a CPU verdict.
+        constexpr uint64_t sampleTarget=600;
+        constexpr double minimumCaptureMs=1800,maximumCaptureMs=8000;
+        const auto observedStart=std::chrono::steady_clock::now();
+        const auto elapsedMs=[&]{return std::chrono::duration<double,std::milli>(std::chrono::steady_clock::now()-observedStart).count();};
+        SyntheticAudio audio(processor,true);uint64_t callbacksAtMinimum=0;bool minimumObserved=false;
+        while(elapsedMs()<maximumCaptureMs) {
+            if(elapsedMs()>=minimumCaptureMs) {
+                if(!minimumObserved){callbacksAtMinimum=audio.callbacks.load();minimumObserved=true;}
+                if(audio.callbacks.load()>=sampleTarget)break;
+            }
+            settle(20);
+        }
+        audio.stop();const double observedElapsed=elapsedMs();
+        const auto totalCallbacks=audio.callbacks.load();
+        if(!minimumObserved)callbacksAtMinimum=totalCallbacks;
+        const auto& all=audio.callbackMicrosAfterStop();
+        std::vector<double> samples;if(all.size()>100)samples.assign(all.begin()+100,all.end());
+        const double budget=128./48000*1.e6;
         const auto overruns=std::count_if(samples.begin(),samples.end(),[budget](double value){return value>budget;});
+        const double effectiveRate=1000*double(totalCallbacks)*128/observedElapsed,productionRatio=effectiveRate/48000;
+        const bool targetReached=totalCallbacks>=sampleTarget,minimumCoverage=all.size()>400 && samples.size()>300;
+        const bool withinNominalRate=productionRatio>=.95 && productionRatio<=1.05;
+        const double missing=std::numeric_limits<double>::quiet_NaN();
+        const double p50=samples.empty()?missing:percentile(samples,.5),p99=samples.empty()?missing:percentile(samples,.99);
+        const double maximum=samples.empty()?missing:*std::max_element(samples.begin(),samples.end());
         output<<enabled<<','<<size<<",48000,128,2,"<<get(processor,"mode")<<','<<processor.getLatencySamples()<<','<<samples.size()<<','
-              <<percentile(samples,.5)<<','<<percentile(samples,.99)<<','<<*std::max_element(samples.begin(),samples.end())<<','<<budget<<','<<overruns<<'\n';
-        std::cout<<"NATIVE whole processor FFT="<<size<<" p50/p99="<<percentile(samples,.5)<<'/'<<percentile(samples,.99)<<" us; callbacks="<<samples.size()<<" overruns="<<overruns<<'\n';
+              <<p50<<','<<p99<<','<<maximum<<','<<budget<<','<<overruns<<','<<totalCallbacks<<','<<minimumCaptureMs<<','<<maximumCaptureMs<<','
+              <<observedElapsed<<','<<callbacksAtMinimum<<','<<effectiveRate<<','<<productionRatio<<','<<sampleTarget<<','<<targetReached<<','
+              <<minimumCoverage<<','<<withinNominalRate<<",NOT_ASSESSED\n";
+        output.flush();
+        std::cout<<"OBSERVATION whole processor FFT="<<size<<" p50/p99="<<p50<<'/'<<p99<<" us; callbacks="<<samples.size()
+                 <<" total_callbacks="<<totalCallbacks<<" callbacks_at_minimum_capture="<<callbacksAtMinimum<<" observed_ms="<<observedElapsed
+                 <<" production_ratio="<<productionRatio<<" target_reached="<<targetReached<<" minimum_coverage="<<minimumCoverage
+                 <<" within_5pct_nominal_rate="<<withinNominalRate<<" overruns="<<overruns<<" performance_acceptance=NOT_ASSESSED"<<std::endl;
+        check(output.good(),"Whole-processor timing evidence could not be written");
+        check(minimumCoverage,"Insufficient whole-processor callbacks: diagnostic row preserved (requires >400 total and >300 after warmup)");
+        check(targetReached,"Whole-processor callback sample target timed out: diagnostic row preserved");
     }
     check(output.good(),"Whole-processor timing evidence could not be written");
     // One high-rate observation resolves the FIFO's actual timer headroom on
@@ -270,9 +363,12 @@ void fullProcessorNativeTiming(ChimeraProcessor& processor,ChimeraEditor& editor
     const double effectiveRate=1000*double(producedSamples)/observedElapsed;
     const auto lost=processor.graphicalEQ(1).analyzer.dropped.load()-before;
     std::ofstream high(directory.getChildFile("eq-analyzer-high-rate.csv").getFullPathName().toStdString());
-    high<<"rate,block,fft_size,fifo_capacity,requested_capture_ms,observed_elapsed_ms,callbacks,produced_samples,effective_samples_per_second,production_ratio,dropped_samples\n192000,128,8192,"<<EQAnalyzerFIFO::capacity<<",2600,"<<observedElapsed<<','<<highRate.callbacks.load()<<','<<producedSamples<<','<<effectiveRate<<','<<effectiveRate/192000<<','<<lost<<'\n';
+    const double productionRatio=effectiveRate/192000;
+    const bool withinNominalRate=productionRatio>=.95 && productionRatio<=1.05;
+    high<<"rate,block,fft_size,fifo_capacity,requested_capture_ms,observed_elapsed_ms,callbacks,produced_samples,effective_samples_per_second,production_ratio,dropped_samples,within_5pct_nominal_rate,performance_acceptance\n192000,128,8192,"<<EQAnalyzerFIFO::capacity<<",2600,"<<observedElapsed<<','<<highRate.callbacks.load()<<','<<producedSamples<<','<<effectiveRate<<','<<productionRatio<<','<<lost<<','<<withinNominalRate<<",NOT_ASSESSED\n";
     check(high.good(),"High-rate FIFO evidence could not be written");
-    std::cout<<"NATIVE192k FFT8192 callbacks="<<highRate.callbacks.load()<<" effective_samples_per_second="<<effectiveRate<<" dropped_samples="<<lost<<" FIFOcapacity="<<EQAnalyzerFIFO::capacity<<'\n';
+    std::cout<<"OBSERVATION192k FFT8192 callbacks="<<highRate.callbacks.load()<<" effective_samples_per_second="<<effectiveRate<<" production_ratio="<<productionRatio
+             <<" within_5pct_nominal_rate="<<withinNominalRate<<" dropped_samples="<<lost<<" FIFOcapacity="<<EQAnalyzerFIFO::capacity<<" performance_acceptance=NOT_ASSESSED\n";
     processor.prepareToPlay(48000,128);
 }
 }
@@ -303,11 +399,12 @@ int main(int argc,char** argv){try {
         check(get(*processor,eqID(e,0,"frequency"))>200 && get(*processor,eqID(e,0,"gain"))>3.5,"Graph drag not connected");
         juce::MouseWheelDetails wheel{};wheel.deltaY=.2f;panel->mouseWheelMove(mouse(*panel,end,end,false),wheel);check(get(*processor,eqID(e,0,"q"))>1.25,"Wheel Q not connected");
         check(host.starts>=3 && host.starts==host.ends && host.changes>0,"Unbalanced/missing host gestures");frequency->removeListener(&host);gain->removeListener(&host);q->removeListener(&host);
+        overlappingBandDrag(*processor,*panel,*selector,e);
         auto* bypass=find<juce::TextButton>(*panel,eqID(e,-1,"bypass"));bypass->triggerClick();check(waitFor([&]{return !processor->graphicalEQ(e).isBypassed();}),"Bypass not connected");
         for(int b=0;b<12;++b)set(*processor,eqID(e,b,"enabled"),b==0?1.f:0.f);set(*processor,eqID(e,0,"frequency"),1007.8125f);set(*processor,eqID(e,0,"gain"),6);processor->graphicalEQ(e).prepare(48000);
     }
     liveAnalyzer(*processor,*editor,directory);
-    fullProcessorNativeTiming(*processor,*editor,directory);
+    juce::MemoryBlock observationState;processor->getStateInformation(observationState);
     // The same visible editor must track automation, A/B and project recall for
     // every band in both banks, including values changed while another tab is open.
     for(int e=0;e<2;++e)for(int b=0;b<12;++b){set(*processor,eqID(e,b,"frequency"),float(180+e*43+b*319));set(*processor,eqID(e,b,"gain"),float(b-6+e));set(*processor,eqID(e,b,"q"),.5f+float(b)*.1f);}
@@ -342,6 +439,20 @@ int main(int argc,char** argv){try {
         const auto t=juce::Time::getMillisecondCounterHiRes();const auto cpu=processCPUSeconds();settle(1000);const double elapsed=juce::Time::getMillisecondCounterHiRes()-t;std::cout<<"UI idle "<<percent<<"% = "<<100000.*(processCPUSeconds()-cpu)/elapsed<<"% one core (1 second no audio, process CPU)\n";
     }
     tab(*editor,"RIGS")->triggerClick();for(int e=0;e<2;++e)check(waitFor([&]{return !processor->graphicalEQ(e).analyzer.enabled.load();}),"Hidden EQ analyzer still enabled");
+    std::cout<<"PASS native functional coverage / automation / A-B and project recall / mode navigation / 75-150% / hidden analyzer"<<std::endl;
+    // Timing is observational and must not prevent the functional recall,
+    // navigation or scaling checks above from running. Restore the original
+    // audio fixture and editor size for comparable whole-processor observations.
+    processor->setStateInformation(observationState.getData(),int(observationState.getSize()));
+    editor->setSize(1180,780);eqTab->triggerClick();settle(50);
+    find<juce::TextButton>(*editor,"eq.bank.final")->triggerClick();
+    check(waitFor([&]{return find<GraphicalEQPanel>(*editor,"finalEQ_panel")->isShowing();}),"Timing observation did not restore the visible EQ bank");
+    std::exception_ptr observationFailure;
+    try{fullProcessorNativeTiming(*processor,*editor,directory);}catch(...){observationFailure=std::current_exception();}
+    // Even an exhausted timing sample budget must leave close/teardown coverage
+    // visible, and its original failure must still fail the overall test.
     editor.reset();for(int e=0;e<2;++e)check(!processor->graphicalEQ(e).analyzer.enabled.load(),"Closed editor analyzer still enabled");processor->releaseResources();
-    std::cout<<"PASS real native peer / 24 numeric nodes / drag / Q / host gestures / 7 choices / stereo FFT / 75-150% / hidden and close\n";return 0;
+    std::cout<<"PASS real native peer / 24 numeric nodes / drag / overlapping selection / Q / host gestures / 7 choices / stereo FFT / 75-150% / hidden and close\n";
+    if(observationFailure)std::rethrow_exception(observationFailure);
+    return 0;
 }catch(const std::exception& e){std::cerr<<"FAIL "<<e.what()<<'\n';return 1;}}
