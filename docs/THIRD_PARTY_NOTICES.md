@@ -27,21 +27,21 @@ The shipped pitch engine is original Chimera STFT code (`Source/PolyPitch.h`) us
 JUCE 8.0.8: https://github.com/juce-framework/JUCE/tree/8.0.8
 JUCE license: https://github.com/juce-framework/JUCE/blob/8.0.8/LICENSE.md
 
-## Design reference
+## Interface design
 
-The information hierarchy and visible signal flow were informed by Odeholm Audio's Slam Amp and thall amp product pages. Chimera's interface combines original JUCE controls and generated RavenForge raster artwork; no product artwork, logos, fonts, presets, amp captures or commercial IRs from those products are included.
+Chimera's interface combines JUCE controls and RavenForge raster artwork. Public model descriptions use Chimera names and explain each model's function.
 
 ## Offline NAM / TONE3000 references
 
 NeuralAmpModelerCore by Steven Atkinson and contributors was used as an external offline renderer, pinned to `0b3d3c97b0859a3a8c92a8628c4dd89a25eb5842`. It is not linked into the plugin. https://github.com/sdatkinson/NeuralAmpModelerCore
 
-Third-party NAM weights, private IR recordings and development capture catalogs are not included in public packages. Offline research records remain outside the shipped payload. Original hardware names are descriptive references, not endorsements.
+Third-party NAM weights, private IR recordings and development capture catalogs are not included in public packages. Offline research records remain outside the shipped payload. Offline research is separate from public product naming.
 
 ## RavenForge interface artwork
 
-Fourteen original raster assets were generated with the built-in image-generation tool
+Raster assets were generated with the built-in image-generation tool
 for this project, using the user's RavenForge brand imagery as style references for the
-workbench background. Generation prompts are in ARTWORK_PROMPTS.json. Hardware images
+workbench background. Artwork provenance is retained in development records. Hardware images
 are illustrative and do not constitute photographs of the captured equipment. No third-party
 logos or product artwork are included. Native UI controls/text remain separate from images.
 

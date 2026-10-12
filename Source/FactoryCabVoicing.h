@@ -55,7 +55,7 @@ inline constexpr std::array<FactoryCabRig,48> factoryCabRigs{{
     {FactoryCabTone::bell212},                                                    //  5 Bell Clean
     {FactoryCabTone::chime212},                                                   //  6 Edge Chime
     {FactoryCabTone::crunch212},                                                  //  7 Classic Crunch
-    {FactoryCabTone::dark412},                                                    //  8 Orange Heavy
+    {FactoryCabTone::dark412},                                                    //  8 Amber Heavy
     {FactoryCabTone::rhythm412},                                                  //  9 Melodic Death Rhythm
     {FactoryCabTone::lead212},                                                    // 10 Melodic Lead
     {FactoryCabTone::clean212},                                                   // 11 Ambient Clean
@@ -75,8 +75,8 @@ inline constexpr std::array<FactoryCabRig,48> factoryCabRigs{{
     {FactoryCabTone::dryBass,FactoryCabTone::grind610,FactoryCabTone::clean410},    // 25 Low B Foundation
     {FactoryCabTone::dryBass,FactoryCabTone::grind610,FactoryCabTone::punch410},    // 26 Pick Attack Matrix
     {FactoryCabTone::dryBass,FactoryCabTone::chime212,FactoryCabTone::dark412},     // 27 Spectral Texture
-    {FactoryCabTone::chime212},                                                   // 28 Matchless Edge
-    {FactoryCabTone::lead212},                                                    // 29 Dumble Smooth Lead
+    {FactoryCabTone::chime212},                                                   // 28 Prism Edge
+    {FactoryCabTone::lead212},                                                    // 29 Silk Smooth Lead
     {FactoryCabTone::clarity112},                                                 // 30 Modern Clean
     {FactoryCabTone::depth212,FactoryCabTone::grind610,FactoryCabTone::nocturne412},// 31 Crom Cruach
     {FactoryCabTone::clean410,FactoryCabTone::alloy410,FactoryCabTone::nocturne412},// 32 Wild Hunt
@@ -107,7 +107,7 @@ inline constexpr std::array<std::array<float,3>,48> factoryCabLevelDb{{
     {0.3f,0.f,0.f}, // 5: Bell Clean
     {-0.9f,0.f,0.f}, // 6: Edge Chime
     {-5.6f,0.f,0.f}, // 7: Classic Crunch
-    {2.4f,0.f,0.f}, // 8: Orange Heavy
+    {2.4f,0.f,0.f}, // 8: Amber Heavy
     {2.3f,0.f,0.f}, // 9: Melodic Death Rhythm
     {-5.7f,0.f,0.f}, // 10: Melodic Lead
     {1.6f,0.f,0.f}, // 11: Ambient Clean
@@ -127,8 +127,8 @@ inline constexpr std::array<std::array<float,3>,48> factoryCabLevelDb{{
     {0.f,0.7f,0.7f}, // 25: Low B Foundation
     {0.f,1.9f,1.9f}, // 26: Pick Attack Matrix
     {0.f,3.7f,3.7f}, // 27: Spectral Texture
-    {-0.7f,0.f,0.f}, // 28: Matchless Edge
-    {-5.7f,0.f,0.f}, // 29: Dumble Smooth Lead
+    {-0.7f,0.f,0.f}, // 28: Prism Edge
+    {-5.7f,0.f,0.f}, // 29: Silk Smooth Lead
     {9.8f,0.f,0.f}, // 30: Modern Clean
     {4.3f,4.3f,4.3f}, // 31: Crom Cruach
     {6.2f,6.2f,6.2f}, // 32: Wild Hunt

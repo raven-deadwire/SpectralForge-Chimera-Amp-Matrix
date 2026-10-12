@@ -17,6 +17,7 @@ import tempfile
 import zipfile
 import chimera_version
 import check_ir_distribution
+import check_public_names
 
 ROOT = Path(__file__).resolve().parents[1]
 IDENTITY = chimera_version.identity(ROOT)
@@ -24,6 +25,15 @@ VERSION = IDENTITY["version"]
 PRODUCT = "SpectralForge Chimera"
 PREFIX = f"SpectralForge-Chimera-{VERSION}"
 REPO = "raven-deadwire/SpectralForge-Chimera-Amp-Matrix"
+# Product-facing documents shared by release, preview and publication staging.
+# Research mappings, artwork prompts and raw evidence remain in their original
+# development/CI locations; they are not installed as product documentation.
+PUBLIC_DOCUMENTS = (
+    "MANUAL.html", "OPEN_BETA_RELEASE_NOTES.md", "THIRD_PARTY_NOTICES.md",
+    "PRESETS.md", "EXTERNAL_BASS_IRS.md", "IR_DISTRIBUTION.md", "UPDATES.md",
+    "WINDOWS_INSTALL.txt", "INSTALLATION.md", "STUDIO_ONE_TEARDOWN.md",
+    "PUBLIC_PRODUCT_NAMING.md",
+)
 
 
 def run(*args: str, **kwargs) -> str:
@@ -54,16 +64,50 @@ def checksum(path: Path) -> None:
     path.with_name(path.name + ".sha256.txt").write_text(f"{sha256(path)}  {path.name}\n", encoding="utf-8")
 
 
-def documents(destination: Path, build: Path) -> None:
+def write_public_verification(destination: Path, build: Path, *, version: dict | None = None) -> None:
+    """Identify the untouched test evidence without installing its research text.
+
+    ``destination`` is the output file, not a directory. This is an evidence
+    pointer, never a replacement PASS verdict or an approval receipt.
+    """
+    raw_log = build / "Testing/Temporary/LastTest.log"
+    if not raw_log.is_file() or not raw_log.stat().st_size:
+        raise RuntimeError(f"Missing required release input: {raw_log}")
+    identity = IDENTITY if version is None else version
+    lines = [
+        f"{PRODUCT} — automated verification record",
+        f"Version: {identity['version']}",
+        f"Source commit: {identity['source_sha']}",
+        "Raw CTest log: Testing/Temporary/LastTest.log",
+        f"Raw CTest log SHA-256: {sha256(raw_log)}",
+        f"Raw CTest log bytes: {raw_log.stat().st_size}",
+    ]
+    run_id = os.environ.get("GITHUB_RUN_ID", "")
+    attempt = os.environ.get("GITHUB_RUN_ATTEMPT", "")
+    if run_id.isdecimal() and int(run_id) > 0:
+        lines.append(f"CI run: https://github.com/{REPO}/actions/runs/{run_id}")
+        if attempt.isdecimal() and int(attempt) > 0:
+            lines.append(f"CI run attempt: {attempt}")
+    else:
+        lines.append("CI run: not supplied by this build environment")
+    lines.extend((
+        "",
+        "Review the original test logs and source-specific CI validation artifacts for results.",
+        "This record does not certify DAW/listening acceptance or authorize publication.",
+    ))
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    destination.write_text("\n".join(lines) + "\n", encoding="utf-8")
+
+
+def documents(destination: Path, build: Path, *, version: dict | None = None) -> None:
+    check_public_names.validate_document_names(PUBLIC_DOCUMENTS)
     destination.mkdir(parents=True, exist_ok=True)
+    check_public_names.validate_document(ROOT / "COPYRIGHT.txt")
     copy(ROOT / "COPYRIGHT.txt", destination / "COPYRIGHT.txt")
-    for name in ("MANUAL.html", "OPEN_BETA_RELEASE_NOTES.md", "THIRD_PARTY_NOTICES.md",
-                 "AMP_VALIDATION.md", "AMP_VOICES_OPEN_BETA.md", "PRESETS.md", "FACTORY_CAB_VOICING_1_3.md", "EXTERNAL_BASS_IRS.md", "IR_DISTRIBUTION.md", "UPDATES.md",
-                 "WINDOWS_INSTALL.txt", "INSTALLATION.md", "STUDIO_ONE_TEARDOWN.md",
-                 "AMP_NATIVE_DSP.md", "POST_NATIVE_DSP.md", "PEDAL_BOARD_DSP.md", "VALIDATION_STATUS.md"):
+    for name in PUBLIC_DOCUMENTS:
+        check_public_names.validate_document(ROOT / "docs" / name)
         copy(ROOT / "docs" / name, destination / name)
-    copy(build / "Testing/Temporary/LastTest.log", destination / "Verification.txt")
-    # Development capture catalogs/evidence stay out of the public package.
+    write_public_verification(destination / "Verification.txt", build, version=version)
 
 
 def verify_stage(stage: Path, required: list[str], *, version: dict | None = None) -> None:
@@ -72,6 +116,7 @@ def verify_stage(stage: Path, required: list[str], *, version: dict | None = Non
         if not path.is_file() or not path.stat().st_size:
             raise RuntimeError(f"Empty or missing package file: {name}")
     check_ir_distribution.validate_stage(stage)
+    check_public_names.validate_stage(stage)
     inventory = [{"path": p.relative_to(stage).as_posix(), "bytes": p.stat().st_size, "sha256": sha256(p)}
                  for p in sorted(stage.rglob("*")) if p.is_file() and not p.is_symlink()]
     (stage / "payload-manifest.json").write_text(json.dumps({**(IDENTITY if version is None else version), "files": inventory}, indent=2) + "\n", encoding="utf-8")
@@ -85,9 +130,8 @@ def windows(build: Path, dist: Path) -> None:
     copy(artefacts / "VST3", stage / "VST3")
     copy(artefacts / "Standalone", stage / "Standalone")
     documents(stage, build)
-    # Existing installer validation exercises reference tools and their opt-in component.
-    for name in ("GRAPHICS_DSP_UPDATE.md", "WINDOWS_SIGNING.md", "ARTWORK_PROMPTS.json"):
-        copy(ROOT / "docs" / name, stage / name)
+    # Preserve the optional diagnostic component exercised by installer checks.
+    # Hardware-reference research and artwork prompts stay out of this payload.
     copy(ROOT / "Tools/validate_nam.py", stage / "ReferenceTools/validate_nam.py")
     copy(ROOT / "Tools/Trace-Chimera-Session.ps1", stage / "ReferenceTools/Trace-Chimera-Session.ps1")
     copy(build / "ChimeraRender_artefacts/Release/ChimeraRender.exe", stage / "ReferenceTools/ChimeraRender.exe")
@@ -95,11 +139,11 @@ def windows(build: Path, dist: Path) -> None:
         f"{PRODUCT} — {chimera_version.display_version(ROOT)} ({VERSION})\n\n"
         "Close Chimera and your DAW before installing or updating.\n"
         "Run the Setup installer for standard VST3 registration and the standalone app.\n"
-        "Read MANUAL.html for Korean/English usage and INSTALLATION.md for platform details.\n"
+        "Read MANUAL.html for Korean/English/German usage and INSTALLATION.md for platform details.\n"
         "This build is unsigned; no verified publisher signature or Store certification is claimed.\n"
         "Public factory IRs are embedded and credited in THIRD_PARTY_NOTICES.md.\n"
         "Personal third-party IR packs are separate and are not redistributed here.\n"
-        "Check the adjacent SHA256 before installing. Verification.txt records automated tests.\n",
+        "Check the adjacent SHA256 before installing. Verification.txt identifies the original test evidence.\n",
         encoding="utf-8")
     verify_stage(stage, ["Standalone/SpectralForge Chimera.exe", "MANUAL.html", "Verification.txt",
                          "VST3/SpectralForge Chimera.vst3/Contents/x86_64-win/SpectralForge Chimera.vst3"])

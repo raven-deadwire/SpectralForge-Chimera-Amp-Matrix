@@ -1,6 +1,6 @@
 # Factory CAB voicing — 1.3
 
-Release 1.3 keeps all 48 factory preset ordinals and category navigation. Each factory recall supplies an explicit modeled cabinet, compatible speaker, microphone, pickup unit and visible microphone level. The 2026-10-12 Niflheimr revision renames its five factory entries and authors Classic, Dual and Matrix arrangements while preserving their stable IDs. The current assignment table below includes those changes; the 2026-10-09 calibration section remains historical evidence for the earlier source.
+Release 1.3 keeps all 48 factory preset ordinals and category navigation. Current display names use Chimera naming; dated measurements below retain the names recorded by their original source. Each factory recall supplies an explicit modeled cabinet, compatible speaker, microphone, pickup unit and visible microphone level. The 2026-10-12 Niflheimr revision renames its five factory entries and authors Classic, Dual and Matrix arrangements while preserving their stable IDs. The current assignment table below includes those changes; the 2026-10-09 calibration section remains historical evidence for the earlier source.
 
 The four snapshot builders share [FactoryCabVoicing.h](../Source/FactoryCabVoicing.h). Loading a saved project, user `.chimera` preset or A/B snapshot does not call that factory revoicing function; its stored route, parameter values and display name remain intact.
 
@@ -27,7 +27,7 @@ Numbers below are stored preset ordinals, not positions in the category-sorted m
 | 5 | Bell Clean | Classic | Guitar 2x12 · Silver 12 · Pencil 184 | — | — |
 | 6 | Edge Chime | Classic | Guitar 2x12 · Verdant 25 · Spear 441 | — | — |
 | 7 | Classic Crunch | Classic | Guitar 2x12 · Verdant 25 · Needle 57 | — | — |
-| 8 | Orange Heavy | Classic | Guitar 4x12 · Crimson 12 · Veil 7 | — | — |
+| 8 | Amber Heavy | Classic | Guitar 4x12 · Crimson 12 · Veil 7 | — | — |
 | 9 | Melodic Death Rhythm | Classic | Guitar 4x12 · Ember 30 · Needle 57 | — | — |
 | 10 | Melodic Lead | Classic | Guitar 2x12 · Ember 30 · Focus 160 | — | — |
 | 11 | Ambient Clean | Classic | Guitar 2x12 · Silver 12 · Prism 414 | — | — |
@@ -47,8 +47,8 @@ Numbers below are stored preset ordinals, not positions in the category-sorted m
 | 25 | Low B Foundation | Matrix | Dry / CAB bypass | Bass 6x10 · Foundry 10 · Hammer 421 | Bass 4x10 · Vector 10 · Anchor 20 |
 | 26 | Pick Attack Matrix | Matrix | Dry / CAB bypass | Bass 6x10 · Foundry 10 · Hammer 421 | Bass 4x10 · Alloy 10 · Needle 57 |
 | 27 | Spectral Texture | Matrix | Dry / CAB bypass | Guitar 2x12 · Verdant 25 · Spear 441 | Guitar 4x12 · Crimson 12 · Veil 7 |
-| 28 | Matchless Edge | Classic | Guitar 2x12 · Verdant 25 · Spear 441 | — | — |
-| 29 | Dumble Smooth Lead | Classic | Guitar 2x12 · Ember 30 · Focus 160 | — | — |
+| 28 | Prism Edge | Classic | Guitar 2x12 · Verdant 25 · Spear 441 | — | — |
+| 29 | Silk Smooth Lead | Classic | Guitar 2x12 · Ember 30 · Focus 160 | — | — |
 | 30 | Modern Clean | Classic | Bass 1x12 · Clarity 12 · Prism 414 | — | — |
 | 31 | Crom Cruach | Matrix | Bass 2x12 · Chimera Depth 12 · Anchor 20 | Bass 6x10 · Foundry 10 · Hammer 421 | Guitar 4x12 · Nocturne 100 · Needle 57 |
 | 32 | Wild Hunt | Matrix | Bass 4x10 · Vector 10 · Anchor 20 | Bass 4x10 · Alloy 10 · Spear 441 | Guitar 4x12 · Nocturne 100 · Needle 57 |

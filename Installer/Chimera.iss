@@ -80,7 +80,6 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; Components: standalo
 Source: "{#StageDir}\VST3\SpectralForge Chimera.vst3\*"; DestDir: "{code:GetVst3Dir}\SpectralForge Chimera.vst3"; Components: vst3; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "{#StageDir}\Standalone\SpectralForge Chimera.exe"; DestDir: "{app}"; Components: standalone; Flags: ignoreversion
 Source: "{#StageDir}\*.txt"; DestDir: "{app}"; Flags: ignoreversion
-Source: "{#StageDir}\ARTWORK_PROMPTS.json"; DestDir: "{app}\Documentation"; Flags: ignoreversion
 Source: "{#StageDir}\*.html"; DestDir: "{app}\Documentation"; Flags: ignoreversion
 Source: "{#StageDir}\payload-manifest.json"; DestDir: "{app}\Documentation"; Flags: ignoreversion
 Source: "{#StageDir}\*.md"; DestDir: "{app}\Documentation"; Flags: ignoreversion

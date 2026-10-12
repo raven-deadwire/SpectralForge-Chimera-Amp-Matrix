@@ -228,6 +228,26 @@ class SourceContracts(SourceFixture):
 
 
 class PackageContracts(SourceFixture):
+    def test_public_attachments_exclude_research_reference_documents(self):
+        self.make_candidate()
+        _, assets = publisher.prepare_assets(self.candidate, self.release, RUN, ATTEMPT)
+        self.assertTrue(set(publisher.PUBLIC_DOCUMENTS) <= set(assets))
+        for name in ("AMP_NATIVE_DSP.md", "POST_NATIVE_DSP.md", "PEDAL_BOARD_DSP.md",
+                     "MODELS_AND_REFERENCE.md", "NAM_REFERENCE_RESULTS.md", "ARTWORK_PROMPTS.json"):
+            self.assertNotIn(name, assets)
+
+    def test_original_name_in_source_public_document_blocks_preparation(self):
+        self.make_candidate()
+        self.write("docs/PRESETS.md", "New preset uses Fender Twin Reverb.\n")
+        with self.assertRaisesRegex(RuntimeError, "Original amp/effect name"):
+            publisher.prepare_assets(self.candidate, self.release, RUN, ATTEMPT)
+
+    def test_original_name_in_candidate_manual_blocks_preparation(self):
+        self.make_candidate()
+        (self.candidate / "MANUAL.html").write_text('<button title="BOSS SD-1">Yellow Asym</button>', encoding="utf-8")
+        with self.assertRaisesRegex(RuntimeError, "Original amp/effect name"):
+            publisher.prepare_assets(self.candidate, self.release, RUN, ATTEMPT)
+
     def test_five_packages_and_all_channel_feeds_are_verified(self):
         for version in ("1.3.1-beta.2", "1.3.1-beta.10", "1.3.2-beta.1", "1.3.1-rc.1", "1.3.1"):
             with self.subTest(version=version):

@@ -2,6 +2,7 @@
 #include "PluginProcessor.h"
 #include "GateUITests.h"
 #include "Fixtures/ReleasedParameterContract.h"
+#include "PublicNameTests.h"
 #include <iostream>
 #include <limits>
 #include <stdexcept>
@@ -230,6 +231,7 @@ int main(int argc,char** argv)
             checkGateUI(*storage,editor,directory);std::cout<<"PASS Gate UI at 75/100/125 percent scale\n";return 0;
         }
         const auto storage=std::make_unique<ChimeraProcessor>();parameterContract(*storage);stateAndAutomation(*storage);
+        publicNameTests::hostPresentation(*storage);
         routing();postTails();
     }catch(const std::exception& e){std::cerr<<"FAIL "<<e.what()<<'\n';return 1;}
 }

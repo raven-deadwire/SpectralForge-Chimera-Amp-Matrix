@@ -2,7 +2,7 @@
 
 Hosted VST3/AU opens the official releases page without creating an HTTP update worker. Automatic update checks and verified downloads described below apply to Standalone.
 
-The 1.3.1 update uses product version `1.3.1`, package version `1.3.1-beta.1` and release tag `v1.3.1-beta.1`. The published 1.3.0 release remains available unchanged. Version 1.3.1 becomes discoverable through the existing update service only after exact-source verification and publication; preparing these documents does not publish an update. See the [release notes](OPEN_BETA_RELEASE_NOTES.md) and [1.3.1 publication pipeline](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/blob/ce3d3b43a4958b1aba55226fb081276578967704/docs/RELEASE_1_3_1_PIPELINE.md). The 1.1.0 manifest below is a historical example, not the 1.3.1 package identity.
+The next candidate uses product version `1.3.1`, package version `1.3.1-beta.2` and release tag `v1.3.1-beta.2`. It becomes discoverable through the existing update service only after verification of its final source and an approved publication. Preparing these documents does not publish an update. See the [release notes](OPEN_BETA_RELEASE_NOTES.md). Previously published releases retain their original packages and documentation. The 1.1.0 manifest below is a historical schema example; the candidate's package identity is `1.3.1-beta.2`.
 The existing plugin IDs and `SpectralForge/Chimera` data directory remain compatible.
 
 ## User behavior

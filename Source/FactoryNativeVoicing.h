@@ -20,7 +20,7 @@ inline constexpr std::array<FactoryTone,31> factoryTones{{
     {.40f,.47f,.66f,.50f,.50f}, // Bell Clean: bright, lean, bell-like
     {.41f,.58f,.62f,.54f,.50f}, // Edge Chime: open upper mids
     {.43f,.63f,.57f,.57f,.52f}, // Classic Crunch: thick midrange
-    {.46f,.59f,.51f,.48f,.53f}, // Orange Heavy: low-mid weight
+    {.46f,.59f,.51f,.48f,.53f}, // Amber Heavy: low-mid weight
     {.34f,.55f,.59f,.60f,.46f}, // Melodic Death: tight, articulate
     {.38f,.64f,.54f,.48f,.47f}, // Melodic Lead: singing, rounded top
     {.44f,.53f,.57f,.43f,.50f}, // Ambient Clean: warm direct body
@@ -40,8 +40,8 @@ inline constexpr std::array<FactoryTone,31> factoryTones{{
     {.56f,.54f,.46f,.50f,.50f}, // Low B: subdued treble
     {.51f,.59f,.57f,.50f,.50f}, // Pick Attack: focused upper mids
     {.47f,.56f,.53f,.48f,.48f}, // Spectral Texture: balanced split body
-    {.42f,.55f,.61f,.52f,.50f}, // Matchless Edge: articulate chime
-    {.40f,.66f,.52f,.46f,.47f}, // Dumble Lead: mid sustain, soft top
+    {.42f,.55f,.61f,.52f,.50f}, // Prism Edge: articulate chime
+    {.40f,.66f,.52f,.46f,.47f}, // Silk Lead: mid sustain, soft top
     {.54f,.53f,.55f,.50f,.50f}, // EICH: clean definition, modest lift
 }};
 
@@ -143,7 +143,7 @@ void voiceFactoryNative(int index,Getter get,Setter set) {
     if(index==9) {
         pedal(0,10,{});pedal(3,22,{.5f});pedal(4,1,{.30f,.60f,.50f});
     } else if(index==8) {
-        // Owner's Orange Heavy reference: FET 4/5.4/2.8/2/2.2/5,
+        // Owner's Amber Heavy reference: FET 4/5.4/2.8/2/2.2/5,
         // Treble Lift 5, Green Drive 10/10/5, Dirty gain 7.6.
         pedal(0,9,{.40f,.54f,.28f,.20f,.22f,.50f});
         pedal(3,22,{.50f});pedal(4,1,{1.f,1.f,.50f});

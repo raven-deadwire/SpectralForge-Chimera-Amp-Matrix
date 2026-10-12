@@ -529,9 +529,9 @@ void ChimeraEditor::updateHardwareStyles()
         effect.lastModel=model;
         const auto& info=spectralforge::modelInfo((int)family,model);
         const auto description=juce::String(info.character)+"\nApplied after rig merge.";
-        effect.model.setTooltip(juce::String("Reference: ")+info.reference+"\n"+description);
+        effect.model.setTooltip(juce::String(spectralforge::effectFamilyMenuName((int)family,model))+"\n"+description);
         effect.header.setTooltip(description);effect.description.setTooltip(description);
-        effect.description.setText(juce::String(info.character).replace(" / ","\n"),juce::dontSendNotification);effect.scope.setText(info.reference,juce::dontSendNotification);
+        effect.description.setText(juce::String(info.character).replace(" / ","\n"),juce::dontSendNotification);effect.scope.setText("AFTER RIG MERGE",juce::dontSendNotification);
         if(family==9){effect.labels[0].setText(model==1?"LOW 110 Hz":model==2?"LOW 60 Hz":"LOW 80 Hz",juce::dontSendNotification);effect.labels[4].setText(model==1?"HIGH 12 kHz":model==2?"HIGH 10 kHz":"HIGH 8 kHz",juce::dontSendNotification);}
         for(int position=3;position<6;++position)if(rackOrder[(size_t)position]==(int)family)repaintDesign({20,330+position*69,1140,64});
         const bool pedal=family==0 || (family>=3 && family<=6);
@@ -562,7 +562,7 @@ void ChimeraEditor::updateHardwareStyles()
         const int count=lastMode==0?1:lastMode==1?2:3,width=(1140-14*(count-1))/count;
         repaintDesign({20+(int)i*(width+14),330,width,412});
         lane.lastModel=model;const auto& amp=spectralforge::ampInfo(model);
-        lane.ampReference.setText(juce::String::fromUTF8(amp.reference),juce::dontSendNotification);
+        lane.ampReference.setText(juce::String::fromUTF8(amp.character),juce::dontSendNotification);
         lane.amp.setTooltip(juce::String(amp.name)+"\n"+amp.character);
         lane.ampReference.setTooltip(lane.ampReference.getText());
         const auto hardware=spectralforge::art::headStyle(model);
