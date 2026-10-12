@@ -6,6 +6,9 @@
 namespace spectralforge {
 IRLibrary::IRLibrary(std::array<Cab*,3> cabinets) : Thread("Chimera IR preparation"), cabs{cabinets[0],cabinets[1],cabinets[2],cabinets[0]->secondMic(),cabinets[1]->secondMic(),cabinets[2]->secondMic()}
 {
+#if defined(CHIMERA_CAB_ATTRIBUTION) && CHIMERA_CAB_ATTRIBUTION
+    for(int i=0;i<3;++i)cabinets[i]->setTraceContext(i);
+#endif
     juce::String error;
     factory[0]=decode(juce::MemoryBlock(ChimeraIRData::guitar_v30_sm57_wav,ChimeraIRData::guitar_v30_sm57_wavSize),IRMetadata::factoryFilename(0),error);
     factory[1]=decode(juce::MemoryBlock(ChimeraIRData::guitar_jensen_sm57_wav,ChimeraIRData::guitar_jensen_sm57_wavSize),IRMetadata::factoryFilename(1),error);
@@ -85,6 +88,8 @@ std::unique_ptr<Cab::Kernel> IRLibrary::build(int lane,int source,unsigned gener
                                            bool cancelObsolete)
 {
     SF_CAB_PROFILE_SCOPE(WorkerBuild);
+    SF_CAB_TRACE_CONTEXT(lane%3,lane/3,model,generation,Worker);
+    SF_CAB_TRACE_WORKER(WorkerBuild,Build);
     const lifecycle::Scope trace("ir.build", this);
     struct Request {const IRLibrary* library;int lane,source;uint64_t model;};
     const Request request{this,lane,source,model};
@@ -113,6 +118,7 @@ std::unique_ptr<Cab::Kernel> IRLibrary::build(int lane,int source,unsigned gener
         auto found=std::find_if(modelCache.begin(),modelCache.end(),[&](const auto& item){return item.key==model;});
         if(found==modelCache.end()) {
             SF_CAB_PROFILE_SCOPE(ResponseGenerate);
+            SF_CAB_TRACE_WORKER(ResponseGenerate,Generate);
             auto response=cabLayout::generate(model,rate,cancellation);
             // Keep a new response private until its entire kernel is ready and
             // the request remains current. Cancellation cannot evict useful
@@ -131,7 +137,7 @@ std::unique_ptr<Cab::Kernel> IRLibrary::build(int lane,int source,unsigned gener
             if(!prepared)prepared=std::make_shared<const ModeledCabConvolution::Prepared>(cachedModel->samples,int(spec.maximumBlockSize),spec.numChannels==1);
         }
         cancellation.checkpoint();
-        samples.makeCopyOf(cachedModel->samples);
+        {SF_CAB_TRACE_BYTES(SpectrumCopy,2u*std::uint64_t(cachedModel->samples.getNumSamples())*cachedModel->samples.getNumChannels()*sizeof(float));samples.makeCopyOf(cachedModel->samples);}
     }
     else if(asset) { samples.makeCopyOf(asset->samples); rate=asset->rate; }
     else { samples.setSize(1,1); samples.setSample(0,0,1.f); }
@@ -149,6 +155,9 @@ void IRLibrary::prepare(const juce::dsp::ProcessSpec& settings,const std::array<
 {
     const lifecycle::Scope trace("ir.prepare", this);
     stop(); spec=settings; modelCache.clear();cancelledBuilds.store(0,std::memory_order_relaxed);scheduling={};
+#if defined(CHIMERA_CAB_ATTRIBUTION) && CHIMERA_CAB_ATTRIBUTION
+    traceProgress.reset();
+#endif
     for(int i=0;i<6;++i)
     {
         cabs[i]->requestedSource.store((i<3 ? sources[i] : cabs[i]->requestedSource.load()));
@@ -169,6 +178,11 @@ void IRLibrary::run()
 #if defined(CHIMERA_CAB_PROFILE) && CHIMERA_CAB_PROFILE
     cabProfile::ThreadCapture profileCapture(profileSink);
 #endif
+#if defined(CHIMERA_CAB_ATTRIBUTION) && CHIMERA_CAB_ATTRIBUTION
+    cabTrace::ThreadCapture traceCapture(traceSink,cabTrace::noCallback,&traceProgress);
+    traceProgress.transition(cabTrace::WorkerState::Run);
+#endif
+    SF_CAB_TRACE_BEGIN(WorkerRun,workerRunTrace);
     const lifecycle::Scope trace("ir.worker", this);
     std::array<int,6> built;
     std::array<unsigned,6> versions, rejections{};
@@ -195,15 +209,25 @@ void IRLibrary::run()
                 built[i]=source; versions[i]=generation; models[i]=model; rejections[i]=rejected;
             }
             catch(const originalCab::GenerationCancelled&) {
+                SF_CAB_TRACE_CONTEXT(i%3,i/3,model,generation,Worker);
+                SF_CAB_TRACE_WORKER(WorkerCancel,Cancelled);
                 // Obsolete work/stop is expected, not a bad IR. Temporary
                 // response/kernel ownership unwinds here, on the worker only.
                 cancelledBuilds.fetch_add(1,std::memory_order_relaxed);
             }
-            catch(const std::exception&) { std::lock_guard<std::mutex> lock(mutex); errors[i]="IR preparation failed. Previous IR kept."; ++displayGeneration[(size_t)i]; }
+            catch(const std::exception&) {
+                SF_CAB_TRACE_CONTEXT(i%3,i/3,model,generation,Worker);
+                SF_CAB_TRACE_WORKER(WorkerError,Error);
+                std::lock_guard<std::mutex> lock(mutex); errors[i]="IR preparation failed. Previous IR kept."; ++displayGeneration[(size_t)i];
+            }
         }
-        wait(20);
+        {SF_CAB_TRACE_WORKER(WorkerWait,Wait);wait(20);}
     }
-    for(auto* cab:cabs) cab->collect();
+    {SF_CAB_TRACE_WORKER(WorkerExit,Exit);for(auto* cab:cabs) cab->collect();}
+#if defined(CHIMERA_CAB_ATTRIBUTION) && CHIMERA_CAB_ATTRIBUTION
+    traceProgress.transition(cabTrace::WorkerState::Exit);
+#endif
+    SF_CAB_TRACE_END(workerRunTrace);
 }
 juce::String IRLibrary::userName(int lane) const
 {

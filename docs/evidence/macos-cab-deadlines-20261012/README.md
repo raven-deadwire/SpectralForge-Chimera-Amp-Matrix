@@ -254,3 +254,14 @@ demonstrated resolution of the deadline outliers.
 No IR shortening, reduced lane/microphone count, larger buffer, relaxed p99
 threshold, discarded callback or suppressed miss is accepted as an improvement.
 The beta's existing approval remains limited to its recorded conditions.
+
+## Follow-up: same-callback attribution
+
+The [callback attribution plan](callback-attribution-plan.md) reviews which
+explanations are outside the measured console path, insufficient as sole causes,
+or still unproven. It specifies guarded callback-stage instrumentation, separate
+resource and arithmetic controls, and independently allocated ABBA/BAAB runs.
+The new A/B conditions mean recording off/on; they are distinct from this
+report's completed caller-QoS experiments. This is diagnostic development, not
+an accepted performance fix. Actual AU/VST3/CoreAudio/DAW and editor-interaction
+tests remain **NOT_EXECUTED** without separate host evidence.

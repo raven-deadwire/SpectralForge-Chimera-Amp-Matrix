@@ -1,0 +1,94 @@
+name: macOS CAB callback attribution
+
+on:
+  push:
+    branches: [diagnostic/macos-cab-deadline-20261012]
+    paths:
+      - 'Source/CabCallbackTrace.h'
+      - 'Source/Cabinet.h'
+      - 'Source/ModeledCabConvolution.h'
+      - 'Source/IRLibrary.h'
+      - 'Source/IRLibrary.cpp'
+      - 'Tools/CabCallbackAttribution/**'
+      - '.github/workflows/macos-cab-callback-attribution.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: macos-cab-callback-attribution-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  attribute:
+    # Separate allocations, ordered before results exist. A/B here measures
+    # compiled-out versus enabled hooks, not the historical caller-QoS arms.
+    strategy:
+      fail-fast: false
+      matrix:
+        order: [ABBA, BAAB]
+    runs-on: macos-15
+    timeout-minutes: 55
+    steps:
+      - name: Check out exact diagnostic source
+        uses: actions/checkout@v5
+        with:
+          ref: ${{ github.sha }}
+          path: controller
+          persist-credentials: false
+      - name: Check out unchanged released acceptance source
+        uses: actions/checkout@v5
+        with:
+          ref: 7b20cd9d1f90e3e2969c250712b199e893cf50cd
+          path: frozen-source
+          persist-credentials: false
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - name: Record planned allocation before contract or measurement execution
+        shell: bash
+        env:
+          ATTRIBUTION_ORDER: ${{ matrix.order }}
+        run: |
+          python - <<'PY'
+          import json, os, platform
+          from datetime import datetime, timezone
+          from pathlib import Path
+          Path('attribution-attempt.json').write_text(json.dumps({
+              'source_sha': os.environ['GITHUB_SHA'],
+              'run_id': os.environ['GITHUB_RUN_ID'],
+              'attempt': os.environ['GITHUB_RUN_ATTEMPT'],
+              'planned_order': os.environ['ATTRIBUTION_ORDER'],
+              'system': platform.system(),
+              'recorded_utc': datetime.now(timezone.utc).isoformat(),
+              'measurement_status': 'not_yet_executed',
+              'audio_host_validation': 'not_executed',
+              'product_fix_demonstrated': False,
+          }, indent=2) + '\n')
+          PY
+      - name: Check original and attribution evidence contracts
+        shell: bash
+        run: |
+          python frozen-source/Tools/test_cab_timing_evidence.py 2>&1 | tee original-contracts.log
+          python controller/Tools/CabCallbackAttribution/test_verify_attribution.py 2>&1 | tee attribution-contracts.log
+      - name: Run original gates and registered attribution controls
+        run: |
+          python controller/Tools/CabCallbackAttribution/run_attribution.py \
+            --source controller --source-sha '${{ github.sha }}' \
+            --frozen-source frozen-source \
+            --build-root callback-attribution-build \
+            --output callback-attribution-evidence \
+            --order '${{ matrix.order }}' --environment native-macos
+      - name: Preserve completed and incomplete attempts
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: macOS-CAB-callback-attribution-${{ matrix.order }}-${{ github.sha }}-${{ github.run_attempt }}
+          path: |
+            callback-attribution-evidence/
+            attribution-attempt.json
+            original-contracts.log
+            attribution-contracts.log
+          if-no-files-found: error
+          retention-days: 90
