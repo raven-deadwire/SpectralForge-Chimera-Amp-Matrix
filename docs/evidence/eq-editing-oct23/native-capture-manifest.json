@@ -1,0 +1,529 @@
+{
+  "decoded_files": 51,
+  "visually_inspected": [
+    "eq-ui-freeze-bank0.png",
+    "eq-ui-freeze-bank1.png",
+    "eq-ui-75.png",
+    "eq-ui-125.png",
+    "eq-ui-150.png"
+  ],
+  "retained_files": [
+    "eq-ui-150.png",
+    "eq-ui-75.png",
+    "eq-ui-freeze-bank0.png",
+    "eq-ui-freeze-bank1.png"
+  ],
+  "finding": "No clipping or overlapping control labels observed in the five inspected captures; all 51 files fully decoded. Physical DPI/monitor/DAW acceptance NOT_ASSESSED.",
+  "images": [
+    {
+      "file": "eq-live-000.png",
+      "size": [
+        1180,
+        780
+      ],
+      "mode": "RGBA",
+      "sha256": "e586bf6e46baf204e9a5b65c91c540f7392f52721c6380bb237569afe58cc7a2",
+      "retained": false
+    },
+    {
+      "file": "eq-live-001.png",
+      "size": [
+        1180,
+        780
+      ],
+      "mode": "RGBA",
+      "sha256": "0ca7a50c7d1c50d4947a42d880793cf15fb46db4165dae12ddd25e4d9ab84e53",
+      "retained": false
+    },
+    {
+      "file": "eq-live-002.png",
+      "size": [
+        1180,
+        780
+      ],
+      "mode": "RGBA",
+      "sha256": "2ab83c5371d9f65c4e9b40eb43fb4957345b2724e2a32291e1a72a20b7b4a525",
+      "retained": false
+    },
+    {
+      "file": "eq-live-003.png",
+      "size": [
+        1180,
+        780
+      ],
+      "mode": "RGBA",
+      "sha256": "fe439c0a8905d96fb7544e82ea7f045d4529fb375f72dd70a702c48a6e329238",
+      "retained": false
+    },
+    {
+      "file": "eq-live-004.png",
+      "size": [
+        1180,
+        780
+      ],
+      "mode": "RGBA",
+      "sha256": "99305b5afd6b2243c1c17e981c478b9ecd6e998c6a91213de0199b4b87988e48",
+      "retained": false
+    },
+    {
+      "file": "eq-live-005.png",
+      "size": [
+        1180,
+        780
+      ],
+      "mode": "RGBA",
+      "sha256": "7f84c9d2ee1495b5cd747db757a6e1cfa604c04d5dac4902b876c4b97470c314",
+      "retained": false
+    },
+    {
+      "file": "eq-live-006.png",
+      "size": [
+        1180,
+        780
+      ],
+      "mode": "RGBA",
+      "sha256": "a0635333657e448708ce171e2231cb06ca553de4d71cde812c05738e83cd2857",
+      "retained": false
+    },
+    {
+      "file": "eq-live-007.png",
+      "size": [
+        1180,
+        780
+      ],
+      "mode": "RGBA",
+      "sha256": "c9a9d616a07a0d2ad4b00b2ab537efebdd88e4bd83c945eb38da3f7282dd077b",
+      "retained": false
+    },
+    {
+      "file": "eq-live-008.png",
+      "size": [
+        1180,
+        780
+      ],
+      "mode": "RGBA",
+      "sha256": "7702ad5da2a767e9bf4d3579d49bd96d19859ffb0b89b8af890e86344d19bc0d",
+      "retained": false
+    },
+    {
+      "file": "eq-live-009.png",
+      "size": [
+        1180,
+        780
+      ],
+      "mode": "RGBA",
+      "sha256": "120bfa2c15ba08708b72dc5e5dd8046d48152b8013406c3efd2c9ac9ee2b64e9",
+      "retained": false
+    },
+    {
+      "file": "eq-live-010.png",
+      "size": [
+        1180,
+        780
+      ],
+      "mode": "RGBA",
+      "sha256": "b137d041d75ac2f78cbda3fcc085d24615abcf6a02757cf4a42d862aab0b20e8",
+      "retained": false
+    },
+    {
+      "file": "eq-live-011.png",
+      "size": [
+        1180,
+        780
+      ],
+      "mode": "RGBA",
+      "sha256": "173447d43be4824b4415de4f0141ef9f3098b89e1ea0e90c7e995957cec75e37",
+      "retained": false
+    },
+    {
+      "file": "eq-live-012.png",
+      "size": [
+        1180,
+        780
+      ],
+      "mode": "RGBA",
+      "sha256": "768afb73fcebde746325684c2ac477bb86ad08767d2a9cb235fd02cc1ad0a67b",
+      "retained": false
+    },
+    {
+      "file": "eq-live-013.png",
+      "size": [
+        1180,
+        780
+      ],
+      "mode": "RGBA",
+      "sha256": "0efbff390be5f7e30314f8749c43a4a555f72147cbba019378d68f529655e22e",
+      "retained": false
+    },
+    {
+      "file": "eq-live-014.png",
+      "size": [
+        1180,
+        780
+      ],
+      "mode": "RGBA",
+      "sha256": "12044b8a3eef62a0b115f396c8d175ecbe6601b90f583a015a56354a24a697cb",
+      "retained": false
+    },
+    {
+      "file": "eq-live-015.png",
+      "size": [
+        1180,
+        780
+      ],
+      "mode": "RGBA",
+      "sha256": "8586f236270635a186131ecc4165a7ecf2f7fd63c0e630e749ccaac22a11ca62",
+      "retained": false
+    },
+    {
+      "file": "eq-live-016.png",
+      "size": [
+        1180,
+        780
+      ],
+      "mode": "RGBA",
+      "sha256": "b9b1404268f9c5446644b68f68f0845490b27693b8f669b53df5bb0d97bed86e",
+      "retained": false
+    },
+    {
+      "file": "eq-live-017.png",
+      "size": [
+        1180,
+        780
+      ],
+      "mode": "RGBA",
+      "sha256": "9c52278ec595f2ec97b6820de449aa29c069e4717509641b260f352fa4738827",
+      "retained": false
+    },
+    {
+      "file": "eq-live-018.png",
+      "size": [
+        1180,
+        780
+      ],
+      "mode": "RGBA",
+      "sha256": "5d0b54da957528397b37ef322b04f55d82a0561b9ecb5b3055a431ecabe4b884",
+      "retained": false
+    },
+    {
+      "file": "eq-live-019.png",
+      "size": [
+        1180,
+        780
+      ],
+      "mode": "RGBA",
+      "sha256": "70820ba0b9b78f614c91a021372b002442278cd5cff02698bc61c22109c5c210",
+      "retained": false
+    },
+    {
+      "file": "eq-live-020.png",
+      "size": [
+        1180,
+        780
+      ],
+      "mode": "RGBA",
+      "sha256": "0b759e341536ed86819dea824a6cb22504280e08b229467f3bf7de76f1a460c9",
+      "retained": false
+    },
+    {
+      "file": "eq-live-021.png",
+      "size": [
+        1180,
+        780
+      ],
+      "mode": "RGBA",
+      "sha256": "8219dfc3ee87556f5167a3290f1ddac147c387f27ca5f0d8ed0fa191499763e5",
+      "retained": false
+    },
+    {
+      "file": "eq-live-022.png",
+      "size": [
+        1180,
+        780
+      ],
+      "mode": "RGBA",
+      "sha256": "cc68dc5ea6b0d263e6f845177ae4a2564d4654639da5295ff48c6fe080ead877",
+      "retained": false
+    },
+    {
+      "file": "eq-live-023.png",
+      "size": [
+        1180,
+        780
+      ],
+      "mode": "RGBA",
+      "sha256": "84ba915dafc4f2ef8898f8574447d36884b26cada5359c80a9564a721134cbbf",
+      "retained": false
+    },
+    {
+      "file": "eq-live-024.png",
+      "size": [
+        1180,
+        780
+      ],
+      "mode": "RGBA",
+      "sha256": "cb161a7496ada0d5aaad49349736b9cfac6e6b655e13f41b8ab1671956cbfe81",
+      "retained": false
+    },
+    {
+      "file": "eq-live-025.png",
+      "size": [
+        1180,
+        780
+      ],
+      "mode": "RGBA",
+      "sha256": "e753cfa4b5a5ea10dd7557561e35e68a3a7471e4c05159db19f494c70521ef48",
+      "retained": false
+    },
+    {
+      "file": "eq-live-026.png",
+      "size": [
+        1180,
+        780
+      ],
+      "mode": "RGBA",
+      "sha256": "6ce16440cc9badab7d7a2b382b96c983864488de5b26a7c9dba9d30370941c2a",
+      "retained": false
+    },
+    {
+      "file": "eq-live-027.png",
+      "size": [
+        1180,
+        780
+      ],
+      "mode": "RGBA",
+      "sha256": "a91dd21d63f32ca2df8c3c12e52aecb667a980c8f0d8cd39fc4dbde2a8dec8c4",
+      "retained": false
+    },
+    {
+      "file": "eq-live-028.png",
+      "size": [
+        1180,
+        780
+      ],
+      "mode": "RGBA",
+      "sha256": "c823fff987ddf120893c869e6229e7cdd55f91bce60cddd70d13d7642679af2d",
+      "retained": false
+    },
+    {
+      "file": "eq-live-029.png",
+      "size": [
+        1180,
+        780
+      ],
+      "mode": "RGBA",
+      "sha256": "1c75bdbb0dd8f3e6014cd4ba5e9678dd800cfee74dad2df16dfe965c164ed2f3",
+      "retained": false
+    },
+    {
+      "file": "eq-live-030.png",
+      "size": [
+        1180,
+        780
+      ],
+      "mode": "RGBA",
+      "sha256": "c45bf78688fc9553ff158aa04d02e5b77b27f18dacf667a518834d09a126c2cb",
+      "retained": false
+    },
+    {
+      "file": "eq-live-031.png",
+      "size": [
+        1180,
+        780
+      ],
+      "mode": "RGBA",
+      "sha256": "7eb174fea37198b57b2d6a735bc6ec172fbeb513902d01285f0ecbb6e4df45eb",
+      "retained": false
+    },
+    {
+      "file": "eq-ui-100.png",
+      "size": [
+        1180,
+        780
+      ],
+      "mode": "RGBA",
+      "sha256": "f57e54d2e4b118b205c59ad81856835ac3bba8a6325df3edc666724a5789f96f",
+      "retained": false
+    },
+    {
+      "file": "eq-ui-125.png",
+      "size": [
+        1475,
+        975
+      ],
+      "mode": "RGBA",
+      "sha256": "fe78cbc144df600268f726f534c6b0164323e2c579f5972fea1ea9b1f5986c85",
+      "retained": false
+    },
+    {
+      "file": "eq-ui-150.png",
+      "size": [
+        1770,
+        1170
+      ],
+      "mode": "RGBA",
+      "sha256": "1a77887136e1f0ffb7b518fcb26a6638850c92ea1abc2d57d2363c463a36c9d9",
+      "retained": true
+    },
+    {
+      "file": "eq-ui-75.png",
+      "size": [
+        885,
+        585
+      ],
+      "mode": "RGBA",
+      "sha256": "75d468b1d82e8bab3b1a9158b0ac8c20cea2d383144317d8cf763648d5411c6d",
+      "retained": true
+    },
+    {
+      "file": "eq-ui-bank0-fft2048.png",
+      "size": [
+        1180,
+        780
+      ],
+      "mode": "RGBA",
+      "sha256": "1503a5d850e8218f08d9addce9eaeaa363c515121e58efc0be9cdc8d7472c743",
+      "retained": false
+    },
+    {
+      "file": "eq-ui-bank0-fft4096.png",
+      "size": [
+        1180,
+        780
+      ],
+      "mode": "RGBA",
+      "sha256": "62b0ace34bd7299806cccc2f3e8bad988fb2024bf149e824b1f03459fe0b8945",
+      "retained": false
+    },
+    {
+      "file": "eq-ui-bank0-fft8192.png",
+      "size": [
+        1180,
+        780
+      ],
+      "mode": "RGBA",
+      "sha256": "fa832c39eea3ec02106741eddd60212eac44c1b047a656064b6d3d64609c6232",
+      "retained": false
+    },
+    {
+      "file": "eq-ui-bank1-fft2048.png",
+      "size": [
+        1180,
+        780
+      ],
+      "mode": "RGBA",
+      "sha256": "b79fb6d50b909ce535ecaf47d30657b65ac5097e2baae1c8482bf06c7f17eec6",
+      "retained": false
+    },
+    {
+      "file": "eq-ui-bank1-fft4096.png",
+      "size": [
+        1180,
+        780
+      ],
+      "mode": "RGBA",
+      "sha256": "ddaea69aa42273b6d0b980e87b5f8b993fff2e902f74391a94b298991e38429c",
+      "retained": false
+    },
+    {
+      "file": "eq-ui-bank1-fft8192.png",
+      "size": [
+        1180,
+        780
+      ],
+      "mode": "RGBA",
+      "sha256": "caaa9fd76febcaefa7dc530e788d23a45c8d228bf4065b85d348105c6c1212c3",
+      "retained": false
+    },
+    {
+      "file": "eq-ui-freeze-bank0.png",
+      "size": [
+        1180,
+        780
+      ],
+      "mode": "RGBA",
+      "sha256": "0faffd5ecb7d000569822f21463a73274903a694d25bf784aa6c866f6a475b48",
+      "retained": true
+    },
+    {
+      "file": "eq-ui-freeze-bank1.png",
+      "size": [
+        1180,
+        780
+      ],
+      "mode": "RGBA",
+      "sha256": "59d94761bcfb4034c0610839d0778249e04ef01a45db0558d5039af016720dff",
+      "retained": true
+    },
+    {
+      "file": "eq-ui-stopped-source.png",
+      "size": [
+        1180,
+        780
+      ],
+      "mode": "RGBA",
+      "sha256": "17acaa344ec9517e4bd2442428681591a5ffb5446e3f6c3094557fc94b0c54cd",
+      "retained": false
+    },
+    {
+      "file": "eq-ui-toggle-bank0-both.png",
+      "size": [
+        1140,
+        412
+      ],
+      "mode": "RGB",
+      "sha256": "193872b058f69f6181a65f5d3cc337a0a34d224ae0e11c4db0fd5c9a31a1077c",
+      "retained": false
+    },
+    {
+      "file": "eq-ui-toggle-bank0-in-only.png",
+      "size": [
+        1140,
+        412
+      ],
+      "mode": "RGB",
+      "sha256": "9591cc6ff130e4a0af6089bf3fa5b1c0b660cefb2098b316993b768c60e30255",
+      "retained": false
+    },
+    {
+      "file": "eq-ui-toggle-bank0-neither.png",
+      "size": [
+        1140,
+        412
+      ],
+      "mode": "RGB",
+      "sha256": "25d0ba0220159f2d1eeefdd100f55f359e7632149823ddc613981edc2a6ae522",
+      "retained": false
+    },
+    {
+      "file": "eq-ui-toggle-bank1-both.png",
+      "size": [
+        1140,
+        412
+      ],
+      "mode": "RGB",
+      "sha256": "43d5bf51bdeb3ea6b03d376ed271cc1702ed7eb6dda4f3b55992b89b56fc687b",
+      "retained": false
+    },
+    {
+      "file": "eq-ui-toggle-bank1-in-only.png",
+      "size": [
+        1140,
+        412
+      ],
+      "mode": "RGB",
+      "sha256": "f5ace5c4c855449fd0892a13e8491c56cc036bab1d76ee8e7380b3e723ce89fa",
+      "retained": false
+    },
+    {
+      "file": "eq-ui-toggle-bank1-neither.png",
+      "size": [
+        1140,
+        412
+      ],
+      "mode": "RGB",
+      "sha256": "19e5092fda9fc30d843fdd967a491fff65325a576243eb099ba73eb410c114d9",
+      "retained": false
+    }
+  ]
+}

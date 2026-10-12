@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="(empty)"
+	tests="2"
+	failures="0"
+	disabled="0"
+	skipped="0"
+	hostname=""
+	time="29"
+	timestamp="2026-10-13T01:53:26"
+	>
+	<testcase name="ChimeraGraphicalEQEditingTests" classname="ChimeraGraphicalEQEditingTests" time="26.7135" status="run">
+		<properties/>
+		<system-out>PASS 4,967 unique host IDs / all 122 EQ ordinals, names, version hints, ranges, defaults, steps and choices
+PASS occupied/bypassed/deleted distinction / first-vacancy reuse / 12-slot cap / independent banks / preserved bypass
+PASS one-step graph/numeric/create/delete Undo/Redo / redo survives no-op / balanced host gestures
+PASS host automation ownership / canceled active gestures / no external values in history / unrelated audio parameters preserved
+PASS binary project / independent global A-B slot occupancy / save preserves session history / recall clears history
+PASS P0/pre-EQ migration / disabled tuning preservation / malformed metadata fallback / no hidden enabled band after recall
+PASS all 48 factory occupancy/history resets / bounded 64-operation session history
+PASS audible delete settles exact dry / tuning automation stays hidden / host enable reoccupies / four-rate exact EQ transfer
+PASS October 23 EQ editing backend regression contract
+</system-out>
+	</testcase>
+	<testcase name="ChimeraEQSnapshotFreezeTests" classname="ChimeraEQSnapshotFreezeTests" time="2.63088" status="run">
+		<properties/>
+		<system-out>PASS 12 rate/FFT pairs: empty/partial Freeze, stale FIFO+overlap purge, first full fresh IN/OUT window and envelope
+PASS 12 rate/FFT pairs: raw/smoothed/pixel identity across Freeze, configuration attempts, reset, overflow and rate changes
+PASS 12 rate/FFT pairs: nonfinite samples/FFT overflow/rate rejected, valid recovery, last normal frame keeps original mapping
+PASS Freeze captures the last real pre-idle frame and the latest valid window before malformed data in one FIFO batch
+PASS 12 rate/FFT pairs: delayed old callback cannot release thaw, disabled callback acknowledgement, final purge, first N callback-fresh samples; stopped/resumed/coalesced requests
+PASS audio identity rate=44100 fft=2048 both active EQ banks / unchanged state+latency=42 / zero counted allocations
+PASS audio identity rate=44100 fft=4096 both active EQ banks / unchanged state+latency=42 / zero counted allocations
+PASS audio identity rate=44100 fft=8192 both active EQ banks / unchanged state+latency=42 / zero counted allocations
+PASS au...
+[This part of the test output was removed since it exceeds the threshold of 1024 bytes.]
+</system-out>
+	</testcase>
+</testsuite>

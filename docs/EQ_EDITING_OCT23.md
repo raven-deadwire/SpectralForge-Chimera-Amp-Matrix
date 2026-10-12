@@ -83,9 +83,9 @@
 ## 이 환경에서 자동 검증할 수 있는 항목
 
 1. `ChimeraGraphicalEQEditingTests`: 실제 processor의 모든 EQ 파라미터 계약, 점유/우회/삭제/재사용, 64작업 이력, 동기·별도 스레드·재진입 호스트 쓰기, binary project, A/B, legacy/malformed migration, 모든 공장 프리셋, 44.1/48/96/192 kHz 오디오 동등성.
-2. `ChimeraEQSnapshotFreezeTests`: 4샘플레이트×3FFT 조합, frozen raw/smoothed/pixel 불변성, 대기·해제 후 첫 완전 프레임, 지연된 기존 콜백의 요청/확인 경계, FIFO 및 중첩 창 폐기, invalid 입력, 원래 프레임 메타데이터 보존, 오디오 동일성·할당 검사.
+2. `ChimeraEQSnapshotFreezeTests`: 4샘플레이트×3FFT 조합, frozen raw/smoothed 및 181개 displayDB 좌표 값 불변성, 대기·해제 후 첫 완전 프레임, 지연된 기존 콜백의 요청/확인 경계, FIFO 및 중첩 창 폐기, invalid 입력, 원래 프레임 메타데이터 보존, 오디오 동일성·할당 검사.
 3. 기존 `ChimeraGraphicalEQTests`: 7필터 실측, 24밴드 빠른 자동화, no allocation, EQ 위치, 실제 processBlock 프로젝트·A/B 오디오 복원, 호스트 지연.
-4. 기존 `ChimeraEQAnalyzerTests`와 `ChimeraEQAnalyzerPerformanceTests`: 고샘플레이트 어택 시간 범위, 입력 분할 불변성, 수치 동등성, FFT 비용 회귀.
+4. 기존 `ChimeraEQAnalyzerTests`와 `ChimeraEQAnalyzerPerformanceTests`: 고샘플레이트 어택 시간 범위, 입력 분할 불변성, 수치·FFT 창 계산 게이트. ABBA/BAAB 비용은 보존된 beb72f 대비 관측값이며, PR #52 head 대비 CPU 회귀를 차단하는 임계값은 아니다.
 5. native UI 회귀: 그래프에서 실제 노드 hit test·생성·삭제, numeric commit, 하나의 drag undo, frozen 화면 보존, 숨겨진 뱅크 분석 중단, 에디터 닫기·다시 열기, gesture 균형.
 
 위 테스트의 합격은 직접 설치한 DAW 환경의 자동화 및 UI 종료 수용을 의미하지 않는다.
@@ -109,7 +109,7 @@
 
 ## 정확한 검증 기록
 
-구현 소스와 자동 테스트 결과는 `docs/evidence/eq-editing-oct23/README.md`에 기록한다. 실행 전 항목, 통과 항목, 실패한 최초 실행 및 수정 뒤 실행을 구분한다. 테스트 이름의 PASS만으로 설치본/물리 DAW 성능을 판정하지 않는다.
+구현 소스와 자동 테스트 결과는 [실행 기록](evidence/eq-editing-oct23/README.md)에 보관했다. 정확한 e52976f 소스의 Linux Release 실행에서 관련 8개 CTest가 모두 통과했다(379.31초). 이는 기능·수치·상태 게이트의 결과이며 CPU/DAW/설치본 수용은 아니다. 실행 전 항목, 통과 항목, 실패한 최초 실행 및 수정 뒤 실행을 구분한다. 테스트 이름의 PASS만으로 설치본/물리 DAW 성능을 판정하지 않는다.
 
 기존 #52의 반복 관측 macOS 비용 예외와 실제 고샘플레이트 callback/화면 수용 미평가 상태는 이 기능 작업으로 해제하지 않는다. 새로운 Snapshot 보관·유효성 검사에도 분석기 비용이 있으므로 기존 성능 회귀와 실제 장비의 지속 테스트가 필요하다.
 
