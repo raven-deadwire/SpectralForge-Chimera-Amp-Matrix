@@ -24,6 +24,7 @@ void operator delete[](void* p,std::size_t) noexcept {std::free(p);}
 using namespace spectralforge;
 namespace {
 using Clock=std::chrono::steady_clock;
+constexpr std::array<double,4> diagnosticRates{44100.,48000.,96000.,192000.};
 void check(bool value,const char* message) {if(!value)throw std::runtime_error(message);}
 void near(double actual,double expected,double tolerance,const char* message) {
     if(!std::isfinite(actual) || !std::isfinite(expected) || std::abs(actual-expected)>tolerance) {
@@ -52,7 +53,7 @@ void configure(EQSpectrumAnalyzer& analyzer,EQAnalyzerFIFO& fifo,int size,double
 }
 
 void lowFrequencyAndFiniteInput() {
-    for(double rate:{48000.,96000.,192000.})for(int size:{2048,4096,8192}) {
+    for(double rate:diagnosticRates)for(int size:{2048,4096,8192}) {
         auto analyzer=std::make_unique<EQSpectrumAnalyzer>();auto fifo=std::make_unique<EQAnalyzerFIFO>();
         configure(*analyzer,*fifo,size,rate);
         for(double hz:{31.,55.,63.,251.,997.,8011.}) {
@@ -86,7 +87,7 @@ void lowFrequencyAndFiniteInput() {
     std::cout<<"PASS 48/96/192 kHz: 31/55 Hz and stepped frequency peaks at honest bin tolerance / deterministic broadband / nonfinite input recovery\n";
 }
 void calibrationAndContinuity() {
-    for(double rate:{48000.,96000.,192000.})for(int size:{2048,4096,8192}) {
+    for(double rate:diagnosticRates)for(int size:{2048,4096,8192}) {
         auto analyzer=std::make_unique<EQSpectrumAnalyzer>();auto fifo=std::make_unique<EQAnalyzerFIFO>();
         configure(*analyzer,*fifo,size,rate);const int hop=size/4;
         constexpr int bin=43;const double gain=std::pow(10.,6./20.);
@@ -157,7 +158,7 @@ void calibrationAndContinuity() {
 
 void smoothingAndStop() {
     constexpr int size=4096,bin=43,hop=size/4;
-    for(double rate:{48000.,96000.,192000.}) {
+    for(double rate:diagnosticRates) {
       std::array<double,3> after{};
       for(int mode=0;mode<3;++mode) {
         auto analyzer=std::make_unique<EQSpectrumAnalyzer>();auto fifo=std::make_unique<EQAnalyzerFIFO>();
@@ -206,7 +207,7 @@ void temporalCoverageDiagnostic(const juce::File& directory,bool enforceDetectio
     std::ofstream out(directory.getChildFile("eq-analyzer-temporal-coverage.csv").getFullPathName().toStdString());
     out<<"rate,fft_size,ui_interval_ms,ui_batch_samples,analysis_hop_samples,window_ms,legacy_unobserved_prefix_samples,burst_position,burst_start,burst_samples,input_energy,raw_last_peak_db_at_40ms,smoothed_peak_db_at_40ms,display_peak_db_at_40ms,fft_windows_at_40ms,extra_observation_samples,bounded_display_peak_db,fifo_dropped_samples\n";
     bool correctCadence=true;
-    for(double rate:{48000.,96000.,192000.})for(int size:{2048,4096,8192})for(bool late:{false,true}) {
+    for(double rate:diagnosticRates)for(int size:{2048,4096,8192})for(bool late:{false,true}) {
         auto analyzer=std::make_unique<EQSpectrumAnalyzer>();auto fifo=std::make_unique<EQAnalyzerFIFO>();
         configure(*analyzer,*fifo,size,rate);
         // Start from a complete, silent observation; this is a steady-state
@@ -261,7 +262,7 @@ void temporalCoverageDiagnostic(const juce::File& directory,bool enforceDetectio
 void partitionInvariantCoverage(const juce::File& directory) {
     std::ofstream out(directory.getChildFile("eq-analyzer-partition-invariance.csv").getFullPathName().toStdString());
     out<<"rate,fft_size,smoothing,burst_start,burst_samples,checked_ui_boundaries,fft_windows,max_raw_error_db,max_envelope_error_db,max_pixel_error_db,max_display_db,fifo_dropped_samples\n";
-    for(double rate:{96000.,192000.})for(int size:{2048,4096,8192})for(int mode=0;mode<3;++mode) {
+    for(double rate:diagnosticRates)for(int size:{2048,4096,8192})for(int mode=0;mode<3;++mode) {
         const int hop=size/4,batch=int(rate/25),burstSamples=384;
         // Both sides of a hop and a burst spanning the nominal UI boundary.
         for(int burstStart:{64,hop-1,hop+1,batch-192,batch+1}) {
@@ -315,13 +316,13 @@ void partitionInvariantCoverage(const juce::File& directory) {
         }
     }
     check(out.good(),"Partition invariance evidence could not be written");
-    std::cout<<"PASS 90 transient/boundary/ballistics cases: 96/192 kHz, all FFT sizes, per-hop/25 Hz/irregular consumers agree\n";
+    std::cout<<"PASS 180 transient/boundary/ballistics cases: 44.1/48/96/192 kHz, all FFT sizes, per-hop/25 Hz/irregular consumers agree\n";
 }
 
 void fifoStallsAndBoundedCatchup(const juce::File& directory) {
     std::ofstream out(directory.getChildFile("eq-analyzer-fifo-stalls.csv").getFullPathName().toStdString());
     out<<"rate,fft_size,fixture,simulated_stall_ms,capacity_samples,produced_samples,consumed_samples,discarded_samples,dropped_samples,pending_samples,fft_windows,update_us,fft_us,recovery_complete\n";
-    for(double rate:{96000.,192000.})for(int size:{2048,4096,8192})for(int stall:{100,250,500,0}) {
+    for(double rate:diagnosticRates)for(int size:{2048,4096,8192})for(int stall:{100,250,500,0}) {
         auto analyzer=std::make_unique<EQSpectrumAnalyzer>();auto fifo=std::make_unique<EQAnalyzerFIFO>();
         configure(*analyzer,*fifo,size,rate);fillFIFO(*fifo,size,0,size,43);analyzer->update(*fifo,rate);
         const auto consumedBefore=analyzer->totalConsumedSamples(),discardedBefore=analyzer->discardedSamples();
@@ -360,7 +361,7 @@ void fifoStallsAndBoundedCatchup(const juce::File& directory) {
 void fftBenchmarks(const juce::File& directory) {
     std::ofstream out(directory.getChildFile("eq-analyzer-cpu.csv").getFullPathName().toStdString());
     out<<"fft_size,rate,bin_spacing_hz,hann_enbw_hz,window_ms,hop_samples,hop_ms,ui_hz,measured_update_calls,zero_fft_update_calls,fft_windows,fft_windows_min,fft_windows_max,fft_total_p50_us,fft_total_p99_us,fft_per_window_mean_us,update_p50_us,update_p99_us,update_max_us,update_mean_us,analysis_cpu_at_25hz_percent,fifo_dropped_samples,max_pending_samples,max_consumed_samples\n";
-    for(double rate:{48000.,96000.,192000.})for(int size:{2048,4096,8192}) {
+    for(double rate:diagnosticRates)for(int size:{2048,4096,8192}) {
         auto analyzer=std::make_unique<EQSpectrumAnalyzer>();auto fifo=std::make_unique<EQAnalyzerFIFO>();
         configure(*analyzer,*fifo,size,rate);std::vector<double> fft,update;
         const int batch=int(rate/25),hop=size/4;int offset=0,zeroWindows=0;
@@ -406,7 +407,7 @@ void callbackAndLatency(const juce::File& directory) {
     }
     std::ofstream out(directory.getChildFile("eq-analyzer-callback.csv").getFullPathName().toStdString());
     out<<"capture,fft_size,rate,block,channels,active_eq_bands,captured_banks,callbacks,eq_pair_p50_us,eq_pair_p99_us,eq_pair_max_us,budget_us,overruns,audio_allocations\n";
-    for(double rate:{48000.,96000.,192000.})for(int block:{64,128,512})for(int size:{0,2048,4096,8192}) {
+    for(double rate:diagnosticRates)for(int block:{64,128,512})for(int size:{0,2048,4096,8192}) {
         auto analyzer=std::make_unique<EQSpectrumAnalyzer>();configure(*analyzer,p->graphicalEQ(0).analyzer,size==0?4096:size,rate);
         for(int e=0;e<2;++e){p->graphicalEQ(e).prepare(rate);p->graphicalEQ(e).analyzer.enabled.store(size>0 && e==0);}
         juce::AudioBuffer<float> audio(2,block);std::vector<double> times;times.reserve(600);int sinceUpdate=0;allocations=0;
@@ -432,7 +433,7 @@ void callbackAndLatency(const juce::File& directory) {
     // output sample or add to the plugin's existing reported host latency.
     std::ofstream invariance(directory.getChildFile("eq-analyzer-audio-invariance.csv").getFullPathName().toStdString());
     invariance<<"rate,initial_fft_size,block,channels,checked_blocks,host_latency_samples,max_audio_error,bit_identical,tone_fifo_drops,final_fifo_drops,tone_discontinuities,final_discontinuities\n";
-    for(double rate:{48000.,96000.,192000.})for(int size:{2048,4096,8192}) {
+    for(double rate:diagnosticRates)for(int size:{2048,4096,8192}) {
         auto a=std::make_unique<ChimeraProcessor>(),b=std::make_unique<ChimeraProcessor>();
         for(auto* processor:{a.get(),b.get()}) {
             set(*processor,"mode",0);set(*processor,"ampon1",0);set(*processor,"cab1",0);

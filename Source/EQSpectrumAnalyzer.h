@@ -169,11 +169,14 @@ private:
         lastUpdateMicros=std::chrono::duration<double,std::micro>(Clock::now()-started).count();return changed;
     }
     void makeWindow() noexcept {
-        windowSum=0;
+        double windowSum=0;
         for(int n=0;n<selectedSize;++n) {
             const double value=.5-.5*std::cos(2*juce::MathConstants<double>::pi*n/selectedSize);
             window[(size_t)n]=(float)value;windowSum+=value;
         }
+        // Interior one-sided amplitude is 2 / sum(window). Average stereo
+        // powers directly, without a magnitude square root followed by square.
+        interiorPowerGain=2./(windowSum*windowSum);
     }
     void clearHistory() noexcept {
         writePosition=collected=0;samplesSinceTransform=analysedSampleSpan=0;
@@ -206,21 +209,26 @@ private:
                 work[(size_t)n]=history[(size_t)stream][(size_t)cursor]*window[(size_t)n];
                 cursor=(cursor+1)&(selectedSize-1);
             }
-            std::fill(work.begin()+selectedSize,work.begin()+2*selectedSize,0.f);
             const auto fftStarted=Clock::now();
-            transform().performFrequencyOnlyForwardTransform(work.data(),true);
+            // The real FFT reads only the first N samples and returns complex
+            // bins. Its frequency-only wrapper would take N/2+1 square roots
+            // and clear the unused tail, then we would immediately square it.
+            transform().performRealOnlyForwardTransform(work.data(),true);
             lastTransformMicros+=std::chrono::duration<double,std::micro>(Clock::now()-fftStarted).count();
             auto& power=rawPower[(size_t)(stream%2)];
             for(int bin=0;bin<bins;++bin) {
                 // Finite but corrupt near-FLT_MAX input can overflow an FFT
                 // butterfly. Keep an invalid analysis bin out of the envelope;
                 // neither the other stereo channel nor future frames is poisoned.
-                if(!std::isfinite(work[(size_t)bin]))continue;
+                const double real=work[(size_t)(2*bin)],imaginary=work[(size_t)(2*bin+1)];
+                if(!std::isfinite(real) || !std::isfinite(imaginary))continue;
+                const double magnitudeSquared=real*real+imaginary*imaginary;
+                constexpr double maximumMagnitude=std::numeric_limits<float>::max();
+                if(magnitudeSquared>maximumMagnitude*maximumMagnitude)continue;
                 // DC/Nyquist have no conjugate partner. Interior sinusoidal
                 // amplitudes receive the one-sided factor of two.
-                const double gain=(bin==0 || bin==selectedSize/2)?1./windowSum:2./windowSum;
-                const double amplitude=work[(size_t)bin]*gain;
-                const double value=.5*amplitude*amplitude;
+                const double gain=(bin==0 || bin==selectedSize/2)?interiorPowerGain*.25:interiorPowerGain;
+                const double value=magnitudeSquared*gain;
                 power[(size_t)bin]+=float(std::min(value,double(std::numeric_limits<float>::max())*.25));
             }
         }
@@ -273,7 +281,7 @@ private:
     uint32_t lastConsumed{},lastPending{},lastWindows{};
     uint64_t analysedFrames{},samplesSinceTransform{},analysedSampleSpan{},observedDropped{},discontinuityCount{};
     uint64_t totalConsumed{},discarded{},updateCount{};
-    double sampleRate{},windowSum{},lastTransformMicros{},lastUpdateMicros{};
+    double sampleRate{},interiorPowerGain{},lastTransformMicros{},lastUpdateMicros{};
     double lastConsumerInterval{};
     bool validSpectrum{},smoothingInitialized{},pendingReset{},idle{},previousUpdateValid{};
     Clock::time_point lastSamplesAt{Clock::now()},lastIdleDecayAt{lastSamplesAt};

@@ -455,6 +455,22 @@ add_custom_target(ChimeraEQTemporalCoverageProbe
   DEPENDS ChimeraEQAnalyzerTests
   COMMENT "Verify EQ transient coverage and update-partition invariance")
 
+# Same-executable baseline/candidate FFT cost and numerical equivalence. This
+# analysis-only target needs no processor, editor, artwork or audio device.
+juce_add_console_app(ChimeraEQAnalyzerPerformanceTests PRODUCT_NAME "Chimera EQ Analyzer Performance Tests")
+target_sources(ChimeraEQAnalyzerPerformanceTests PRIVATE Tests/EQAnalyzerPerformanceTests.cpp)
+target_include_directories(ChimeraEQAnalyzerPerformanceTests PRIVATE Source)
+target_compile_definitions(ChimeraEQAnalyzerPerformanceTests PRIVATE JUCE_USE_CURL=0 JUCE_WEB_BROWSER=0)
+target_link_libraries(ChimeraEQAnalyzerPerformanceTests PRIVATE juce::juce_dsp juce::juce_graphics PUBLIC juce::juce_recommended_config_flags)
+add_test(NAME ChimeraEQAnalyzerPerformanceTests COMMAND ChimeraEQAnalyzerPerformanceTests "${CMAKE_BINARY_DIR}")
+set_tests_properties(ChimeraEQAnalyzerPerformanceTests PROPERTIES TIMEOUT 180 RUN_SERIAL TRUE)
+
+# Normal-thread producer/UI attribution is observational. Its functional gates
+# verify accounting, not a DAW/device real-time performance qualification.
+add_test(NAME ChimeraEQHighRateAttributionTests
+  COMMAND ChimeraGraphicalEQUITests --attribution "${CMAKE_BINARY_DIR}/eq-attribution")
+set_tests_properties(ChimeraEQHighRateAttributionTests PROPERTIES TIMEOUT 360 RUN_SERIAL TRUE)
+
 # Console UI probes pump AppKit explicitly. Tahoe delays events when the legacy
 # JUCE nested dispatcher waits for a future NSEvent deadline (JUCE issue #1574).
 # Keep this adapter out of all product/plug-in targets and preserve JUCE 8.0.8.

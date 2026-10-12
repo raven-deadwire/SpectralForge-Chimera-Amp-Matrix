@@ -78,6 +78,17 @@ public:
     double lastPaintMicros() const noexcept {return paintMicros;}
     float displaySpectrumDB(bool output,int bin) const noexcept {return spectrum.smoothedDB(output,bin);}
     bool analyzerHasData() const noexcept {return spectrum.hasData();}
+    // Opt-in native-test diagnostics. Kept identical in every translation unit;
+    // production editors never install an observer or change the 40 ms cadence.
+    // The observer runs only on the message thread, never on the audio callback.
+    using DiagnosticObserver=void (*)(void*,const GraphicalEQPanel&,bool,double);
+    void configureDiagnostics(int intervalMs,bool renderPanel,DiagnosticObserver observer=nullptr,void* context=nullptr) {
+        diagnosticObserver=observer;diagnosticContext=context;diagnosticRenderPanel=renderPanel;
+        startTimer(std::max(1,intervalMs));
+    }
+    void clearDiagnostics() {
+        diagnosticObserver=nullptr;diagnosticContext=nullptr;diagnosticRenderPanel=true;startTimerHz(25);
+    }
     juce::Rectangle<float> graphBounds() const noexcept {return plot();}
     juce::Point<float> nodePosition(int band) const {
         const auto v=dsp.values(band);return {frequencyX(v.frequency),gainY(v.type<=2?v.gain:0.f)};
@@ -93,6 +104,10 @@ public:
         rebuildResponse();rebuildSpectrumPaths();repaint();
     }
     void paint(juce::Graphics& g) override {
+        if(!diagnosticRenderPanel) {
+            if(diagnosticObserver)diagnosticObserver(diagnosticContext,*this,true,0.);
+            return;
+        }
         const auto start=std::chrono::steady_clock::now();
         const juce::Colour text(0xffe0e8e5),muted(0xff9aadaa),grid(0xff283638);
         const juce::Colour in(0xff7ab6cf),out(0xffd3b478),eq(0xffc4ead5);
@@ -157,6 +172,7 @@ public:
         g.drawText("GAIN",694,labelY,198,15,juce::Justification::centredLeft);
         g.drawText("Q",912,labelY,100,15,juce::Justification::centredLeft);
         paintMicros=std::chrono::duration<double,std::micro>(std::chrono::steady_clock::now()-start).count();
+        if(diagnosticObserver)diagnosticObserver(diagnosticContext,*this,true,paintMicros);
     }
     void mouseDown(const juce::MouseEvent& event) override {
         if(!plot().contains(event.position))return;
@@ -257,14 +273,18 @@ private:
         pathMicros=std::chrono::duration<double,std::micro>(std::chrono::steady_clock::now()-start).count();
     }
     void timerCallback() override {
+        const auto diagnosticStart=diagnosticObserver?std::chrono::steady_clock::now():std::chrono::steady_clock::time_point{};
         updateAnalyzer();if(!isShowing())return;bool changed=false;
+        if(diagnosticObserver)pathMicros=0.; // A no-path tick must not reuse a previous measurement.
         if(analyzerActive && spectrum.update(dsp.analyzer,dsp.sampleRate())){rebuildSpectrumPaths();changed=true;}
         // CPU meter fluctuations must not cause a transfer-curve rebuild.
         std::array<float,62> key{};int n=0;key[(size_t)n++]=dsp.isBypassed()?1.f:0.f;
         for(int b=0;b<graphicalEQBands;++b){const auto v=dsp.values(b);for(float f:{v.enabled?1.f:0.f,v.frequency,v.gain,v.q,float(v.type)})key[(size_t)n++]=f;}
         key[61]=float(dsp.sampleRate());
         if(key!=lastKey){const bool rateChanged=key[61]!=lastKey[61];lastKey=key;rebuildResponse();sliders[1].setEnabled(gainApplicable());if(rateChanged)updateResolutionTooltip();changed=true;}
-        if(changed)repaint(); // Only this workspace, never the whole editor.
+        if(changed && diagnosticRenderPanel)repaint(); // Only this workspace, never the whole editor.
+        if(diagnosticObserver)diagnosticObserver(diagnosticContext,*this,false,
+            std::chrono::duration<double,std::micro>(std::chrono::steady_clock::now()-diagnosticStart).count());
     }
     juce::AudioProcessorValueTreeState& state;GraphicalEQ& dsp;int instance,selected{};
     bool dragging{},navigationSelected{},analyzerActive{};
@@ -274,5 +294,6 @@ private:
     juce::Path response,dashedInput;std::array<juce::Path,2> spectrumPaths,spectrumFills;
     std::array<float,62> lastKey{};EQSpectrumAnalyzer spectrum;
     double pathMicros{},paintMicros{};
+    DiagnosticObserver diagnosticObserver{};void* diagnosticContext{};bool diagnosticRenderPanel{true};
 };
 }

@@ -440,8 +440,11 @@ void fullProcessorNativeTiming(ChimeraProcessor& processor,ChimeraEditor& editor
     processor.prepareToPlay(48000,128);
 }
 }
+#include "EQAttributionDiagnostics.h"
 int main(int argc,char** argv){try {
-    juce::ScopedJuceInitialiser_GUI init;auto processor=std::make_unique<ChimeraProcessor>();auto editor=std::make_unique<ChimeraEditor>(*processor);
+    juce::ScopedJuceInitialiser_GUI init;
+    if(argc>1 && (std::string(argv[1])=="--attribution" || std::string(argv[1])=="--attribution-headless"))return eqAttribution::run(argc,argv);
+    auto processor=std::make_unique<ChimeraProcessor>();auto editor=std::make_unique<ChimeraEditor>(*processor);
     editor->addToDesktop(juce::ComponentPeer::windowIsTemporary);editor->setVisible(true);settle(100);check(editor->getPeer()!=nullptr,"No native UI peer");
     auto* eqTab=tab(*editor,"EQ");check(eqTab!=nullptr,"EQ navigation missing");eqTab->triggerClick();settle(80);
     const juce::File directory=juce::File::getCurrentWorkingDirectory().getChildFile(argc>1?argv[1]:"eq-ui");directory.createDirectory();
