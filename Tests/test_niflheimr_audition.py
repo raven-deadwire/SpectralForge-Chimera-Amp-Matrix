@@ -102,7 +102,7 @@ if __name__ == '__main__':
             # The real renderer must retain the factory's complete route when
             # replacing active cabinets with the common audition IR. In
             # particular, the preset ordinal no longer identifies lane 0's
-            # channel, and Industrial LOW must stay dry and bypassed.
+            # channel, and Clean Low Drive's LOW must stay dry and bypassed.
             modes = [0, 1, 2, 2, 0]
             channels = [[0], [0, 1], [0, 2, 0], [3, 3, 1], [4]]
             contexts = [[0], [1, 2], [3, 4, 5], [3, 4, 5], [0]]

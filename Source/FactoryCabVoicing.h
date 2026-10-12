@@ -90,9 +90,9 @@ inline constexpr std::array<FactoryCabRig,48> factoryCabRigs{{
     {FactoryCabTone::dark412,FactoryCabTone::ruin412},                             // 40 Rotten Grind
     {FactoryCabTone::wide412},                                                    // 41 Sludge Mass
     {FactoryCabTone::ruin412,FactoryCabTone::dark412,FactoryCabTone::nocturne412},  // 42 Slam Impact
-    {FactoryCabTone::clean410},                                                   // 43 Progressive Clank
+    {FactoryCabTone::clean410},                                                   // 43 Clear Attack
     {FactoryCabTone::depth212,FactoryCabTone::grind610},                          // 44 Death Grind
-    {FactoryCabTone::dryBass,FactoryCabTone::alloy410,FactoryCabTone::clarity112}, // 45 Industrial Pulse
+    {FactoryCabTone::dryBass,FactoryCabTone::alloy410,FactoryCabTone::clarity112}, // 45 Clean Low Drive
     {FactoryCabTone::impact610,FactoryCabTone::impact610,FactoryCabTone::alloy410},// 46 Slam Punch
     {FactoryCabTone::round115},                                                   // 47 Doom Fuzz
 }};
@@ -142,9 +142,9 @@ inline constexpr std::array<std::array<float,3>,48> factoryCabLevelDb{{
     {-5.7f,-5.7f,0.f}, // 40: Rotten Grind
     {-13.7f,0.f,0.f}, // 41: Sludge Mass
     {-5.0f,-5.0f,-5.0f}, // 42: Slam Impact
-    {4.8f,0.f,0.f}, // 43: Progressive Clank
+    {4.8f,0.f,0.f}, // 43: Clear Attack
     {4.f,4.4f,0.f}, // 44: Death Grind
-    {0.f,5.6f,4.f}, // 45: Industrial Pulse (LOW DI; parked cabinet)
+    {0.f,5.6f,4.f}, // 45: Clean Low Drive (LOW DI; parked cabinet)
     {3.3f,3.3f,2.5f}, // 46: Slam Punch
     {10.1f,0.f,0.f}, // 47: Doom Fuzz
 }};
