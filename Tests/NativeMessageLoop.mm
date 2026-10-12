@@ -18,26 +18,54 @@ bool dispatchFor(int milliseconds) {
         return true;
     }();
     (void)announced;
-    const double deadline=juce::Time::getMillisecondCounterHiRes()+milliseconds;
+    const double started=juce::Time::getMillisecondCounterHiRes();
+    const double deadline=started+milliseconds;
+    double cfMilliseconds{},pollMilliseconds{},eventMilliseconds{},autoreleaseMilliseconds{};
+    int iterations{},nativeEvents{};SInt32 lastCFResult{};NSInteger lastNativeEvent=-1;
     while(!messages->hasStopMessageBeenSent()) {
         const double remaining=deadline-juce::Time::getMillisecondCounterHiRes();
         if(remaining<=0)break;
+        double beforeAutorelease{};
         @autoreleasepool {
             // Test-only fairness: JUCE serves four messages per CF source callback.
             // Keep servicing ready sources for this requested slice before AppKit
             // polling, whose internal native work may outlast its event deadline.
-            CFRunLoopRunInMode(kCFRunLoopDefaultMode,juce::jmin(.01,remaining*.001),false);
+            const auto beforeCF=juce::Time::getMillisecondCounterHiRes();
+            lastCFResult=CFRunLoopRunInMode(kCFRunLoopDefaultMode,juce::jmin(.01,remaining*.001),false);
+            const auto beforePoll=juce::Time::getMillisecondCounterHiRes();
+            cfMilliseconds+=beforePoll-beforeCF;
             // On Tahoe, JUCE's future untilDate can defer callbacks until a
             // later mouse event: https://github.com/juce-framework/JUCE/issues/1574
             // Poll AppKit without waiting; CFRunLoop above still yields normally.
-            if(NSEvent* event=[NSApp nextEventMatchingMask:NSEventMaskAny
-                                               untilDate:[NSDate distantPast]
-                                                  inMode:NSDefaultRunLoopMode
-                                                 dequeue:YES])
+            NSEvent* event=[NSApp nextEventMatchingMask:NSEventMaskAny
+                                            untilDate:[NSDate distantPast]
+                                               inMode:NSDefaultRunLoopMode
+                                              dequeue:YES];
+            const auto beforeEvent=juce::Time::getMillisecondCounterHiRes();
+            pollMilliseconds+=beforeEvent-beforePoll;
+            if(event) {
+                ++nativeEvents;lastNativeEvent=NSInteger(event.type);
                 if(juce::isEventBlockedByModalComps==nullptr
                     || !juce::isEventBlockedByModalComps(event))
                     [NSApp sendEvent:event];
+            }
+            beforeAutorelease=juce::Time::getMillisecondCounterHiRes();
+            eventMilliseconds+=beforeAutorelease-beforeEvent;
         }
+        autoreleaseMilliseconds+=juce::Time::getMillisecondCounterHiRes()-beforeAutorelease;
+        ++iterations;
+    }
+    // Observation only: preserve the dispatcher and the caller's readiness
+    // deadline. Identify which native stage consumed an overlong slice before
+    // changing scheduling; no extra dispatch or click is attempted here.
+    const double elapsed=juce::Time::getMillisecondCounterHiRes()-started;
+    if(elapsed>juce::jmax(250.0,4.0*milliseconds)) {
+        std::cerr<<"TEST HARNESS: macOS dispatch overrun requested_ms="<<milliseconds
+                 <<" actual_ms="<<elapsed<<" cf_ms="<<cfMilliseconds
+                 <<" appkit_poll_ms="<<pollMilliseconds<<" native_event_ms="<<eventMilliseconds
+                 <<" autorelease_ms="<<autoreleaseMilliseconds<<" iterations="<<iterations
+                 <<" last_cf_result="<<lastCFResult<<" native_events="<<nativeEvents
+                 <<" last_native_event="<<lastNativeEvent<<'\n';
     }
     return !messages->hasStopMessageBeenSent();
 }

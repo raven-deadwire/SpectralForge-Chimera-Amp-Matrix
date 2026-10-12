@@ -24,6 +24,7 @@ on:
       - 'Tests/IRLibraryTests.cpp'
       - 'Tests/GateProcessorTests.cpp'
       - 'Tests/NativeStateTests.h'
+      - 'Tests/NativeMessageLoop.*'
       - 'Tests/ChimeraTests.cpp'
       - 'CMakeLists.txt'
       - 'Tools/run_linux_ui_tests.py'

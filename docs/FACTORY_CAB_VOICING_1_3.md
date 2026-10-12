@@ -70,7 +70,7 @@ Numbers below are stored preset ordinals, not positions in the category-sorted m
 
 ## Current Niflheimr routing — 2026-10-12
 
-These five arrangements are authored settings in the current source. Native recall/audio tests and level calibration for the changed routes are pending; the historical measurements later in this document do not certify them.
+These five arrangements are authored settings in the current source. For source-specific native recall/audio test status and level-calibration evidence, see the [revision validation report](CAB_ROUTING_AND_NIFLHEIMR_20261012.md#verification) and [PR #54](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/pull/54). The historical measurements later in this document do not certify the revised routes.
 
 | ID | Channels by lane | Crossover / LOW routing | Native Amp OUT by lane | Mic A level by lane |
 | --- | --- | --- | --- | --- |
@@ -96,7 +96,7 @@ Factory Mic A distances are 6–8 cm. Cone positions are 25–42%, with Thall Rh
 
 ## Level evidence
 
-Mic-stage compensation is validated through the production processor and its actual factory-recall function. The historical 48-preset levels at source `40d5e8a5ea466eaccc1044ccefce1bd33e6ac222` provide a reference for relative loudness; the presets are not all normalized to one RMS target. Peak headroom takes priority where matching an old RMS would overload a new full rig. Global OUTPUT remains 0 dB. The new Niflheimr per-lane native and mic settings above require fresh measurements; the following dated calibration covers its five earlier Classic arrangements only.
+Mic-stage compensation is evaluated through the production processor and its actual factory-recall function. The historical 48-preset levels at source `40d5e8a5ea466eaccc1044ccefce1bd33e6ac222` provide a reference for relative loudness; the presets are not all normalized to one RMS target. Peak headroom takes priority where matching an old RMS would overload a new full rig. Global OUTPUT remains 0 dB. For measurements of the revised Niflheimr per-lane native and mic settings above, consult the [revision validation report](CAB_ROUTING_AND_NIFLHEIMR_20261012.md#verification). The following dated calibration covers its five earlier Classic arrangements only.
 
 Final acceptance retains the existing 48-preset synthetic-fixture gates: OUTPUT = 0 dB, RMS above −30 dBFS, peak below 0.95, and +6 dB input peak below 0.95. Measurements include the first output sample at 48 kHz, 128 samples per block and 450 blocks per render. No warmup interval is discarded. The dirty-state/clean-state audio comparison and preset/A-B round trips must also pass. Synthetic fixtures establish signal safety and deterministic recall; real instrument/DAW listening remains a separate acceptance item.
 
@@ -104,7 +104,7 @@ Preparation now installs the saved CAB gain, polarity, delay, blend and bypass b
 
 ### Historical local calibration — 2026-10-09
 
-The measurements in this section predate the 2026-10-12 Niflheimr route revision. They describe the measured source and original five Classic entries: 43 Frostline Precision, 44 Carrion Barrage, 45 Foundry Pulse, 46 Jötunn Hammer and 47 Mirebound Monolith. Their names, values and results are preserved as history; no row is relabeled as a measurement of the revised Dual/Matrix preset. Current native test/calibration results remain pending.
+The measurements in this section predate the 2026-10-12 Niflheimr route revision. They describe the measured source and original five Classic entries: 43 Frostline Precision, 44 Carrion Barrage, 45 Foundry Pulse, 46 Jötunn Hammer and 47 Mirebound Monolith. Their names, values and results are preserved as history; no row is relabeled as a measurement of the revised Dual/Matrix preset. Revised-route native test and calibration evidence belongs to the [revision validation report](CAB_ROUTING_AND_NIFLHEIMR_20261012.md#verification) and its linked integration results.
 
 The complete strict default `ChimeraIntegratedProcessorTests` run finished with **exit 0** in **871.09 seconds** at **2026-10-09 16:41:26 UTC**, without diagnostic flags or a preset subset. The production-recall render completed **48/48** nominal and **48/48** hot-input preset checks with all limits unchanged. The lowest RMS is **−27.7529 dBFS** (Slap Studio). The largest nominal and +6 dB-input peaks are **−0.734963 / −0.899584 dBFS** (Orange Heavy), both below the 0.95 linear peak limit (approximately −0.4455 dBFS).
 

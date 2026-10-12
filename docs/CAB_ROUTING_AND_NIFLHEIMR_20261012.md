@@ -42,6 +42,11 @@ The separate main-editor IR library now also clears Mic A's modeled switch
 when a factory IR is deliberately selected. A retained personal IR can be
 reselected even when its filename is unchanged.
 
+The library initializes its filter defaults without queuing change callbacks.
+Its final refresh already applies those defaults; the redundant deferred
+callbacks could otherwise clear a valid first selection and disable LOAD.
+The immediate-selection regression retains that original failing sequence.
+
 No DSP filter is removed or reset. No parameter ID, ordinal, default, source
 enumeration or stored IR asset format changes.
 
@@ -64,9 +69,11 @@ and catalog/audition labels use the new names.
 
 ## Verification
 
-The focused native test is `ChimeraCabPanelRoutingTests`. Its executable also
-accepts `--classic-room-regression` and `--ir-isolation-regression` to isolate
-the two reported UI paths. Coverage includes real native window navigation,
+The focused native tests are `ChimeraCabPanelRoutingTests` and
+`ChimeraCabPanelIRIsolationTests`. Their executable accepts
+`--classic-room-regression`, `--ir-isolation-regression`, and the combined
+`--room-ir-regressions`. Separate CTest entries ensure a failure in one path
+does not prevent the other from being exercised. Coverage includes native window navigation,
 all three modes, state and host-notification invariance, an inactive rig's IR
 window lifetime, retained filter/factory/personal sources, independent A/B
 controls, intentional source selection, same-IR reselection, audio invariance
@@ -78,8 +85,37 @@ LOW hardware in Industrial Pulse, ordinary and +6 dB input headroom, binary
 and A/B restore, and retaining an existing Classic snapshot. The pre-existing
 RMS > −30 dBFS and peak < 0.95 limits are unchanged.
 
-Initial local checks: catalog contract and four audition coordinator tests
-pass. GCC syntax checks cover the edited production and test translation
-units. Native build, interaction, audio and platform results are recorded in
-the associated pull request as they complete. The new routing recipes are
-authored starting points; synthetic tests do not establish listening approval.
+The dedicated `ChimeraNiflheimrPresetTests` CTest runs the stock modeled-CAB
+presets through the production processor. The Niflheimr DI workflow builds
+and runs it on Windows, Linux and macOS alongside its existing head renderer
+and common-IR comparison contracts. The common-IR variant replaces only
+enabled cabinets and preserves the same routing, native channels and LOW DI
+roles; its manifest records these choices explicitly.
+
+### Local production render, 12 October 2026
+
+The Release/GCC 13.3 build passed both the five-preset production-recall
+measurement and the strict Niflheimr route/state/audio tests. These values
+use the unchanged deterministic six-pluck bass fixture (48 kHz, 128-sample
+blocks, 1.2 seconds, stereo). Every preset recalls global OUTPUT at 0 dB.
+
+| Preset | RMS dBFS | Peak dBFS | Peak with +6 dB input, dBFS |
+| --- | ---: | ---: | ---: |
+| Progressive Clank | -24.2670 | -9.64738 | -6.38747 |
+| Death Grind | -25.0032 | -11.7928 | -9.52069 |
+| Industrial Pulse | -23.3847 | -9.32282 | -5.42369 |
+| Slam Punch | -27.1406 | -11.0145 | -5.85054 |
+| Doom Fuzz | -24.7331 | -13.1380 | -7.24318 |
+
+All five pass the existing RMS and peak limits. Binary and A/B restore have
+zero measured sample error; every authored lane contributes, and Industrial
+Pulse's parked LOW amp/cabinet remains silent. No further gain adjustment was
+made from this fixture. Its limited upper-band content does not establish
+musical balance or justify equalizing these different voicings.
+
+The catalog contract and four audition coordinator tests also pass. Local
+native window execution is blocked by this environment's Xvfb socket
+restriction; actual interaction results, screenshots, and current-source
+platform status are recorded in [PR #54](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/pull/54).
+The new routing recipes remain authored starting points; synthetic tests do
+not establish real-DI listening approval.

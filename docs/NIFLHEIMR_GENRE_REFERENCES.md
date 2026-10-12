@@ -6,9 +6,11 @@ Tight and Industrial Bite were accepted; Death Grind, Slam Impact and Sludge
 Mass required revision because they blurred the notes.
 
 Full-rig routing revision: 2026-10-12. The configurations below describe the
-current authored source. Native recall/audio validation and level calibration
-for these revised routes remain pending; the historical channel acceptance
-above does not approve the new full rigs.
+current authored source. For native recall/audio test status and level-calibration
+evidence for these revised routes, see the
+[revision validation report](CAB_ROUTING_AND_NIFLHEIMR_20261012.md#verification)
+and [PR #54](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/pull/54).
+The historical channel acceptance above does not approve the new full rigs.
 
 ## Channel identity
 
@@ -220,8 +222,9 @@ state recall, the correct native contexts and all active controls, an audible
 contribution from each route, the inactive Industrial LOW hardware, binary
 restore, A/B audio equality and legacy Classic snapshot preservation. The
 unchanged production-fixture limits are **RMS > −30 dBFS**, **peak < 0.95** at
-both nominal and +6 dB input, with **OUTPUT = 0 dB**. Current native test and
-level-calibration results remain pending. Earlier five-Classic measurements in
+both nominal and +6 dB input, with **OUTPUT = 0 dB**. Consult the
+[revision validation report](CAB_ROUTING_AND_NIFLHEIMR_20261012.md#verification)
+for source-specific native test results and level measurements. Earlier five-Classic measurements in
 [Factory CAB voicing — historical calibration](FACTORY_CAB_VOICING_1_3.md#historical-local-calibration--2026-10-09)
 are retained as history; they are not measured level matches or acceptance
 evidence for the new Dual/Matrix arrangements.

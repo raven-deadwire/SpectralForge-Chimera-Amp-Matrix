@@ -53,16 +53,30 @@ int main(int argc, char** argv) {
             }
             set(*processor,"input",0);set(*processor,"inputmode",0);set(*processor,"tuneron",0);
             set(*processor,"oversampling",factor==1?0.f:factor==2?1.f:factor==4?2.f:3.f);
-            // Replace all cabinet lanes with the same IR and the same cuts.
-            // This is a controlled cabinet variant, not the filters-only original.
-            for(int lane=0;lane<3;++lane){
+            const auto value=[&](const juce::String& id){
+                auto* parameter=processor->parameters().getRawParameterValue(id);
+                require(parameter!=nullptr,"Unknown rendered parameter: "+id);return parameter->load();
+            };
+            const int routing=juce::roundToInt(value("mode")),laneCount=routing+1;
+            if(mode=="preset-cab") {
+                require(routing==spectralforge::niflheimrRigPresets[size_t(channel)].mode,"Factory routing selection mismatch");
+                for(int lane=0;lane<laneCount;++lane)
+                    require(processor->selectedAmpModel(lane)==spectralforge::niflheimrAmpModel
+                            && processor->selectedAmpChannel(lane)==spectralforge::niflheimrRigVoice(channel,lane).channel,
+                            "Factory native lane/channel selection mismatch");
+            } else require(routing==0 && processor->selectedAmpModel(0)==spectralforge::niflheimrAmpModel
+                           && processor->selectedAmpChannel(0)==channel,"Native channel selection mismatch");
+            // Replace only the active cabinet paths for this common-IR variant.
+            // Preserve the preset's routing and parked/DI lanes; the ordinary
+            // factory recall retains its own modeled bass cabinet recipes.
+            for(int lane=0;lane<laneCount;++lane){
+                const auto suffix=juce::String(lane+1);
+                if(value("cab"+suffix)<=.5f)continue;
                 const auto imported=processor->loadIR(lane,ir);
                 require(imported.wasOk(),"Cannot import common IR: "+imported.getErrorMessage());
-                set(*processor,"cab"+juce::String(lane+1),1);
-                set(*processor,"cablow"+juce::String(lane+1),20);
-                set(*processor,"cabhigh"+juce::String(lane+1),20000);
+                set(*processor,"cablow"+suffix,20);
+                set(*processor,"cabhigh"+suffix,20000);
             }
-            require(processor->selectedAmpModel(0)==spectralforge::niflheimrAmpModel && processor->selectedAmpChannel(0)==channel,"Native channel selection mismatch");
             processor->prepareToPlay(reader->sampleRate,block); // synchronously installs kernels
             const int frames=int(reader->lengthInSamples+std::llround(reader->sampleRate*2));
             const auto filename="CH"+juce::String(channel+1)+".wav";
@@ -86,6 +100,29 @@ int main(int argc, char** argv) {
             verifyObservation(observeFile(destination.getChildFile(filename),"post_publish"),58+juce::int64(frames)*8,observed["sha256"].toString());
             auto row=std::make_unique<juce::DynamicObject>();row->setProperty("file",filename);
             row->setProperty("sha256",observed["sha256"]);row->setProperty("channel_index",channel);
+            row->setProperty("routing_mode",routing);row->setProperty("output_db",value("output"));
+            juce::Array<juce::var> laneRows,crossovers;
+            if(routing==1 && value("dualtype")>.5f)crossovers.add(value("dualcross"));
+            if(routing==2){crossovers.add(value("x1"));crossovers.add(value("x2"));}
+            row->setProperty("crossovers_hz",crossovers);
+            for(int lane=0;lane<laneCount;++lane) {
+                const auto suffix=juce::String(lane+1);auto laneRow=std::make_unique<juce::DynamicObject>();
+                laneRow->setProperty("lane",lane);laneRow->setProperty("native_context",spectralforge::ampNativeContext(routing,lane));
+                laneRow->setProperty("model",processor->selectedAmpModel(lane));
+                laneRow->setProperty("channel",processor->selectedAmpChannel(lane));
+                laneRow->setProperty("amp_enabled",value("ampon"+suffix)>.5f);
+                laneRow->setProperty("cab_enabled",value("cab"+suffix)>.5f);
+                laneRow->setProperty("cab_source",juce::roundToInt(value("cabtype"+suffix)));
+                laneRow->setProperty("cab_low_hz",value("cablow"+suffix));laneRow->setProperty("cab_high_hz",value("cabhigh"+suffix));
+                if(routing==2 && lane==0)laneRow->setProperty("low_di_share",value("ampon1")>.5f?1.f-value("lowampmix"):1.f);
+                laneRows.add(juce::var(laneRow.release()));
+            }
+            row->setProperty("lanes",laneRows);
+            if(mode=="preset-cab") {
+                const auto& preset=spectralforge::niflheimrRigPresets[size_t(channel)];
+                row->setProperty("preset_id",preset.id);row->setProperty("preset_index",spectralforge::niflheimrPresetStart+channel);
+                row->setProperty("preset_name",juce::String::fromUTF8(preset.name));
+            }
             row->setProperty("latency_samples",processor->getLatencySamples());
             row->setProperty("diagnostics",juce::JSON::parse(processor->diagnosticReport()));
             juce::MemoryBlock state;processor->getStateInformation(state);
@@ -102,7 +139,7 @@ int main(int argc, char** argv) {
         manifest->setProperty("rig_renderer_sha256",CHIMERA_NIFLHEIMR_RIG_RENDERER_SHA256);
         manifest->setProperty("processor_sha256",CHIMERA_NIFLHEIMR_PROCESSOR_SHA256);
         manifest->setProperty("input_sha256",inputHash);manifest->setProperty("ir_sha256",irHash);
-        manifest->setProperty("cabinet_policy","production Cab; JUCE normalization; common 20 Hz / 20 kHz cuts; no IR trim");
+        manifest->setProperty("cabinet_policy","production Cab; common IR on active CAB paths; saved bypass/DI roles retained; JUCE normalization; 20 Hz / 20 kHz active cuts; no IR trim");
         manifest->setProperty("release_approved",false);manifest->setProperty("musical_acceptance","PENDING");
         manifest->setProperty("outputs",rows);
         require(destination.getChildFile("manifest.json").replaceWithText(juce::JSON::toString(juce::var(manifest.release()),false)),"Cannot write manifest");
