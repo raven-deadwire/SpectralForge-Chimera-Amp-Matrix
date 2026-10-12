@@ -1,0 +1,77 @@
+{
+  "source_commit": "beb72f520721685f3698883297371be7def92198",
+  "files": {
+    "Testing/Temporary/LastTest.log": {
+      "bytes": 22447,
+      "sha256": "b86360b1bb04667bbe89813c2e8ea174fe845cc722ad9858d2b0d6106bfb1887"
+    },
+    "analysis-summary.json": {
+      "bytes": 17965,
+      "sha256": "bc0b855430de8944f206e267f950207ad74c2f0100951ed143b76c9463afe330"
+    },
+    "chimera-build-version.json": {
+      "bytes": 126,
+      "sha256": "1a09b1afa7ef5804cdf0c2f79e42600f0654d613a38351ed5b367389b1706215"
+    },
+    "eq-analyzer-audio-invariance.csv": {
+      "bytes": 560,
+      "sha256": "60d60fa717a17c30fc615881fcd6c220d69e3724b80d4e0ad42f1f389cdc80e4"
+    },
+    "eq-analyzer-callback.csv": {
+      "bytes": 2290,
+      "sha256": "e1d402f9cebb87a006c01ed4d381f314404ea6d3c5d183a8ce70f4df1bed1cca"
+    },
+    "eq-analyzer-cpu.csv": {
+      "bytes": 1625,
+      "sha256": "90bd00c1b3f526b595071ef6daf6652f19246fb7fb3793da8be33c5d9c319cfb"
+    },
+    "eq-analyzer-fifo-stalls.csv": {
+      "bytes": 2004,
+      "sha256": "7815009da8ff78a7c3c26639f382a3c70f8143f864b1f395852b8482479329ce"
+    },
+    "eq-analyzer-full-callback.csv": {
+      "bytes": 911,
+      "sha256": "e1a833f5b5b5f4cce99ae1a5f6d345dd29a410f8696d07b1ee5fbd6ed7ed5cc5"
+    },
+    "eq-analyzer-high-rate-updates.csv": {
+      "bytes": 42600,
+      "sha256": "e9bedea3679533a43b3eed1206e13d14c7314f054fd3a9d701a9b6b8d42c9dc6"
+    },
+    "eq-analyzer-high-rate.csv": {
+      "bytes": 1858,
+      "sha256": "6ed1f5ff2bb350ad4997302f51664a543d12443e979c695ed6b7f11b31dbda6b"
+    },
+    "eq-analyzer-live-frames.csv": {
+      "bytes": 3784,
+      "sha256": "1efff5f22d1a4aaa04891a8ec3a87fc7d9ba41dfd64f6d5c2966bb86b018f6b3"
+    },
+    "eq-analyzer-native-ui.csv": {
+      "bytes": 1241,
+      "sha256": "d83337faff3c25f9e6a8704dedac9984fb1cec7cffb4ae78a00bdff21a8d90d6"
+    },
+    "eq-analyzer-partition-invariance.csv": {
+      "bytes": 4111,
+      "sha256": "2e4310f45d07430d545ed3722bd36e8906065b83150213d3f45303430b28f52c"
+    },
+    "eq-analyzer-temporal-coverage.csv": {
+      "bytes": 2100,
+      "sha256": "1df77c9837847eea653be9c3dbe3dc593893f7b295d326ecbdc9c47ba2ba57d1"
+    },
+    "eq-cpu.csv": {
+      "bytes": 892,
+      "sha256": "cb50edac797571eca645f294b572c68cbedddc87804ea7ec2c7d193f4674e2af"
+    },
+    "eq-results.xml": {
+      "bytes": 5324,
+      "sha256": "cc1b98ca8ed56972b315ceff71827a77161fad145429a8d46538578788c1de41"
+    },
+    "github-metadata.json": {
+      "bytes": 4859,
+      "sha256": "9ae9de9a757b93f74a58f8c35ccdd99cca457bca01c58dc7d6cba77133f65da2"
+    },
+    "png-decode-report.json": {
+      "bytes": 12547,
+      "sha256": "acd76487e4e242ea4b5434cbf937a0b16d59f90b40bea0633e481c0895cf9743"
+    }
+  }
+}

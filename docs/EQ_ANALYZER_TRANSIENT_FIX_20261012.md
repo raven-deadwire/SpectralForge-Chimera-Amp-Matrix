@@ -9,11 +9,21 @@ This change repairs analysis only. It does not merge or publish the public beta.
 It retains the existing 2048/4096/8192-point, full-host-rate Hann analysis,
 stereo power calibration, IN/OUT taps and smoothing choices.
 
-The independent analyzer-only checks pass. The original analyzer and an
-otherwise unchanged original analyzer with a larger FIFO both fail the new
-short-attack detection assertion. Complete product tests and exact-source
-Windows/macOS/Linux CI are being collected; this document does not treat the
-analyzer-only probe as installer, DAW or performance acceptance.
+The original analyzer and an otherwise unchanged original analyzer with a larger
+FIFO both fail the new short-attack detection assertion. The repair in
+[`beb72f5`](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/commit/beb72f520721685f3698883297371be7def92198)
+passes all four required product tests and the temporal/partition regressions on
+Windows, macOS and Linux in [run 38224717793](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38224717793).
+The [complete measurement bundle](evidence/eq-transient-fix-20261012/README.md)
+retains CSVs, logs, source identities, artifact digests and the limitations.
+
+This functional repair is eligible for a development integration-test candidate.
+**Final October 23 installer/DAW acceptance is withheld.** Windows's native
+192 kHz producer reaches only 71.44–75.59% of nominal; macOS reaches 42.31–43.84%
+at 96 kHz and 54.84–55.92% at 192 kHz. Their zero-drop rows do not qualify the
+requested rate. Linux CI reaches 98.97–99.998% of nominal, but 192 kHz analysis
+costs 21.76–25.18% of one core equivalent and full-queue replay takes up to
+86.40 ms. These are measured limits, not waived by functional test success.
 
 ## Two different failures
 
@@ -43,9 +53,11 @@ the high-rate phase did not take screenshots or encode PNGs.
 | Antialiased lower-rate analysis stream | Better low-frequency bin spacing at high host rates with less FFT work | Needs filter passband/stopband, effective-rate labeling, gain and delay calibration; decimation after the raw FIFO alone does not protect that FIFO | Separate design work |
 | Parallel short/long analysis windows | Fast attack observation and long low-frequency observation | Additional transforms and a defined display/calibration crossover | Separate design work |
 
-For a narrow event, the largest Hann weight among complete 75%-overlap windows
-is at least approximately 0.854, compared with 0.5 at 50% overlap. These are
-window-geometry bounds, not a measured promise about arbitrary musical signals.
+For a narrow event in a fully primed continuous stream, with sufficient subsequent
+observation, the largest Hann weight among complete 75%-overlap windows is at
+least approximately 0.854, compared with 0.5 at 50% overlap. These are window-
+geometry bounds, not a promise about arbitrary musical signals or sample-zero
+startup attacks. The tested coverage fixtures explicitly prime N real samples.
 
 ### Implemented processing contract
 
@@ -123,11 +135,13 @@ at identical audio sample positions; maximum raw/envelope/pixel differences are
 exactly zero in that run. The weakest observed peak in the 90 cases is -36.845
 dBFS, above the -60 dBFS detection gate.
 
-The 24 separate finite-queue tests retain all samples during 100/250 ms stalls
-at 96/192 kHz and 500 ms at 96 kHz. A deliberately excessive 500 ms stall at
-192 kHz produces 96,000 samples: 30,464 are rejected, 65,536 are discarded during
-discontinuity recovery and zero remain pending. Fresh-window recovery passes for
-all FFT sizes. This behavior must not be relabelled as loss-free operation.
+The 24 separate finite-queue tests inject rate × duration samples without a
+consumer, deterministically representing a backlog rather than a timed native UI
+pause. They retain the complete 100/250 ms backlogs at 96/192 kHz and 500 ms at
+96 kHz. A deliberately excessive 500 ms backlog at 192 kHz contains 96,000 samples:
+30,464 are rejected, 65,536 are discarded during discontinuity recovery and zero
+remain pending. Fresh-window recovery passes for all FFT sizes. This behavior
+must not be relabelled as loss-free operation.
 
 Probe timings were taken during compilation and are excluded from performance
 acceptance. The final full-build/CI measurements provide the CPU evidence.
@@ -174,6 +188,8 @@ work, actual installer/DAW loading and saved-state tests, real guitar/bass DI,
 physical display readability and representative extended sessions. This repair
 must not imply those independent requirements have been completed.
 
-Exact-source product/CI results and the resulting inclusion decision will be
-recorded with the final measurement bundle under
-[`docs/evidence/eq-transient-fix-20261012`](evidence/eq-transient-fix-20261012).
+The [final measurement report](evidence/eq-transient-fix-20261012/README.md) and
+[machine-readable assessment](evidence/eq-transient-fix-20261012/assessment.json)
+record the exact-source product/CI results, development-candidate decision and
+uncompleted installer/host acceptance. The later evidence commit changes only
+documentation; its executable source remains byte-identical to the tested repair.
