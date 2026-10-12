@@ -1,0 +1,169 @@
+{
+  "schema": "spectralforge.historical-windows-compiler-audit.v1",
+  "maximum_observed_released_engine": "6.7.1",
+  "minimum_engine_to_avoid_known_public_release_downgrade": "6.7.1",
+  "scope": "Seven fixed-source public release Windows build logs. Every compiler record is joined to the published Setup asset by the exact Installer SHA256 line and to the fixed source by run head_sha. These records do not claim new installer lifecycle success.",
+  "releases": [
+    {
+      "tag": "v1.3.1-beta.1",
+      "source_sha": "7b20cd9d1f90e3e2969c250712b199e893cf50cd",
+      "run_id": 38175545577,
+      "run_attempt": 1,
+      "workflow_path": ".github/workflows/build.yml",
+      "job_id": 114577224437,
+      "job_url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38175545577/job/114577224437",
+      "job_name": "build (windows-latest)",
+      "job_conclusion": "success",
+      "compiler_engine": "6.7.1",
+      "compiler_log_line": 4990,
+      "compiler_log_excerpt": "2026-10-11T22:11:19.5766949Z Compiler engine version: Inno Setup 6.7.1",
+      "installer_hash_log_excerpt": "2026-10-11T22:11:59.6488922Z Installer SHA256: da0a0c7f70b2ab6f5e0854ba9180a2eb3a8ab847c31c169db9e82c91002ff41a",
+      "published_setup": {
+        "name": "SpectralForge-Chimera-1.3.1-beta.1-win64-Setup.exe",
+        "size": 210803143,
+        "sha256": "da0a0c7f70b2ab6f5e0854ba9180a2eb3a8ab847c31c169db9e82c91002ff41a",
+        "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/releases/download/v1.3.1-beta.1/SpectralForge-Chimera-1.3.1-beta.1-win64-Setup.exe"
+      },
+      "published_hash_matches_build_log": true,
+      "run_source_matches_release": true
+    },
+    {
+      "tag": "v1.3.0-beta.1",
+      "source_sha": "7f692693f942a0f1dd1973062dc4d5d47b9be4ac",
+      "run_id": 38122947124,
+      "run_attempt": 1,
+      "workflow_path": ".github/workflows/build.yml",
+      "job_id": 114421685810,
+      "job_url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38122947124/job/114421685810",
+      "job_name": "build (windows-latest)",
+      "job_conclusion": "success",
+      "compiler_engine": "6.7.1",
+      "compiler_log_line": 3872,
+      "compiler_log_excerpt": "2026-10-11T08:53:22.9832772Z Compiler engine version: Inno Setup 6.7.1",
+      "installer_hash_log_excerpt": "2026-10-11T08:53:45.0576547Z Installer SHA256: 7fd926a0db00b415b00d191116af14f71809ff995f805dfb5970a8c3c910b79a",
+      "published_setup": {
+        "name": "SpectralForge-Chimera-1.3.0-beta.1-win64-Setup.exe",
+        "size": 117887175,
+        "sha256": "7fd926a0db00b415b00d191116af14f71809ff995f805dfb5970a8c3c910b79a",
+        "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/releases/download/v1.3.0-beta.1/SpectralForge-Chimera-1.3.0-beta.1-win64-Setup.exe"
+      },
+      "published_hash_matches_build_log": true,
+      "run_source_matches_release": true
+    },
+    {
+      "tag": "v1.2.0-beta.1",
+      "source_sha": "d93560445c78552768a0ed592e5ec62c3c648fb6",
+      "run_id": 37296915015,
+      "run_attempt": 1,
+      "workflow_path": ".github/workflows/build.yml",
+      "job_id": 111720294768,
+      "job_url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/37296915015/job/111720294768",
+      "job_name": "build (windows-latest)",
+      "job_conclusion": "success",
+      "compiler_engine": "6.7.1",
+      "compiler_log_line": 2812,
+      "compiler_log_excerpt": "2026-10-05T11:00:18.2547886Z Compiler engine version: Inno Setup 6.7.1",
+      "installer_hash_log_excerpt": "2026-10-05T11:00:31.3819074Z Installer SHA256: 6d1a7fac0bd8a0a3e42994920ebd28e5c3b7e5f1be1cbf9f97b1ed1a47eb2490",
+      "published_setup": {
+        "name": "SpectralForge-Chimera-1.2.0-beta.1-win64-Setup.exe",
+        "size": 49670164,
+        "sha256": "6d1a7fac0bd8a0a3e42994920ebd28e5c3b7e5f1be1cbf9f97b1ed1a47eb2490",
+        "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/releases/download/v1.2.0-beta.1/SpectralForge-Chimera-1.2.0-beta.1-win64-Setup.exe"
+      },
+      "published_hash_matches_build_log": true,
+      "run_source_matches_release": true
+    },
+    {
+      "tag": "v1.1.2-beta.1",
+      "source_sha": "88b62738fdbd9bcdca34f7b6e1092d6ed411eb94",
+      "run_id": 37214948359,
+      "run_attempt": 1,
+      "workflow_path": ".github/workflows/publish-beta112.yml",
+      "job_id": 111473790376,
+      "job_url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/37214948359/job/111473790376",
+      "job_name": "verified-builds / build (windows-latest)",
+      "job_conclusion": "success",
+      "compiler_engine": "6.7.1",
+      "compiler_log_line": 2729,
+      "compiler_log_excerpt": "2026-10-04T16:26:12.3591931Z Compiler engine version: Inno Setup 6.7.1",
+      "installer_hash_log_excerpt": "2026-10-04T16:26:21.9903795Z Installer SHA256: e749ebc071063cd3a7aab2d428e2ff72569fe34cd8461f9eb4ebeecfe4fb3e10",
+      "published_setup": {
+        "name": "SpectralForge-Chimera-1.1.2-beta.1-win64-Setup.exe",
+        "size": 42821556,
+        "sha256": "e749ebc071063cd3a7aab2d428e2ff72569fe34cd8461f9eb4ebeecfe4fb3e10",
+        "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/releases/download/v1.1.2-beta.1/SpectralForge-Chimera-1.1.2-beta.1-win64-Setup.exe"
+      },
+      "published_hash_matches_build_log": true,
+      "run_source_matches_release": true
+    },
+    {
+      "tag": "v1.1.1-beta.1",
+      "source_sha": "91850fdca0c329983e051b113719699dba9831fd",
+      "run_id": 37203981151,
+      "run_attempt": 1,
+      "workflow_path": ".github/workflows/publish-beta111.yml",
+      "job_id": 111441285814,
+      "job_url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/37203981151/job/111441285814",
+      "job_name": "verified-builds / build (windows-latest)",
+      "job_conclusion": "success",
+      "compiler_engine": "6.7.1",
+      "compiler_log_line": 2707,
+      "compiler_log_excerpt": "2026-10-04T13:19:38.7619224Z Compiler engine version: Inno Setup 6.7.1",
+      "installer_hash_log_excerpt": "2026-10-04T13:19:47.3868069Z Installer SHA256: c3f1b047e9f8ef17f4fb2dde67cfb846778f3b8ce6e971a833d2ad9cadcb4ca1",
+      "published_setup": {
+        "name": "SpectralForge-Chimera-1.1.1-beta.1-win64-Setup.exe",
+        "size": 42791855,
+        "sha256": "c3f1b047e9f8ef17f4fb2dde67cfb846778f3b8ce6e971a833d2ad9cadcb4ca1",
+        "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/releases/download/v1.1.1-beta.1/SpectralForge-Chimera-1.1.1-beta.1-win64-Setup.exe"
+      },
+      "published_hash_matches_build_log": true,
+      "run_source_matches_release": true
+    },
+    {
+      "tag": "v1.1.0-beta.1",
+      "source_sha": "f5b8ce7d39f69621ffe193fd4be6fbd760a6e6cf",
+      "run_id": 36526523257,
+      "run_attempt": 1,
+      "workflow_path": ".github/workflows/publish-beta11.yml",
+      "job_id": 109270699178,
+      "job_url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/36526523257/job/109270699178",
+      "job_name": "verified-builds / build (windows-latest)",
+      "job_conclusion": "success",
+      "compiler_engine": "6.7.1",
+      "compiler_log_line": 1871,
+      "compiler_log_excerpt": "2026-09-29T05:48:59.2761600Z Compiler engine version: Inno Setup 6.7.1",
+      "installer_hash_log_excerpt": "2026-09-29T05:49:09.9432363Z Installer SHA256: 0f9d97f8aa0160d2828829e7c5d0696fd2e38776cec62882d18f761b3f21ca52",
+      "published_setup": {
+        "name": "SpectralForge-Chimera-1.1.0-beta.1-win64-Setup.exe",
+        "size": 41602683,
+        "sha256": "0f9d97f8aa0160d2828829e7c5d0696fd2e38776cec62882d18f761b3f21ca52",
+        "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/releases/download/v1.1.0-beta.1/SpectralForge-Chimera-1.1.0-beta.1-win64-Setup.exe"
+      },
+      "published_hash_matches_build_log": true,
+      "run_source_matches_release": true
+    },
+    {
+      "tag": "v1.0.0-beta.1",
+      "source_sha": "95b4091af2c914188ea32672f05e00544a1d2098",
+      "run_id": 36107249747,
+      "run_attempt": 1,
+      "workflow_path": ".github/workflows/build.yml",
+      "job_id": 107982505966,
+      "job_url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/36107249747/job/107982505966",
+      "job_name": "build (windows-latest)",
+      "job_conclusion": "success",
+      "compiler_engine": "6.7.1",
+      "compiler_log_line": 1455,
+      "compiler_log_excerpt": "2026-09-25T07:32:45.7010759Z Compiler engine version: Inno Setup 6.7.1",
+      "installer_hash_log_excerpt": "2026-09-25T07:32:55.1581650Z Installer SHA256: 29f1e12501ff64140879b0d17eea15b48aa881969388ad35a5eab2fd0d99c899",
+      "published_setup": {
+        "name": "SpectralForge-Chimera-1.0.0-beta.1-win64-Setup.exe",
+        "size": 36241187,
+        "sha256": "29f1e12501ff64140879b0d17eea15b48aa881969388ad35a5eab2fd0d99c899",
+        "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/releases/download/v1.0.0-beta.1/SpectralForge-Chimera-1.0.0-beta.1-win64-Setup.exe"
+      },
+      "published_hash_matches_build_log": true,
+      "run_source_matches_release": true
+    }
+  ]
+}

@@ -255,17 +255,22 @@ try {
     $personalCaptureHash = (Get-FileHash -LiteralPath $installedRaven[0]).Hash
     Remove-Item -LiteralPath (Join-Path $app "ReferenceTools/ChimeraRender.exe")
     "damaged documentation fixture" | Set-Content -LiteralPath (Join-Path $app "README.txt")
+    $modifiedReadmeHash = (Get-FileHash -LiteralPath (Join-Path $app "README.txt") -Algorithm SHA256).Hash.ToLowerInvariant()
+    $preservedReadme = Join-Path $app "PreservedDocuments/$modifiedReadmeHash/README.txt"
     Install "02-repair" $app "vst3,standalone,reference"
     Check-Payload $app $true $true $true
+    Assert ((Get-FileHash -LiteralPath $preservedReadme -Algorithm SHA256).Hash.ToLowerInvariant() -eq $modifiedReadmeHash) "Repair did not preserve the modified README byte-for-byte"
     Assert ((Get-FileHash -LiteralPath $preset).Hash -eq $presetHash -and (Get-FileHash -LiteralPath $userIR).Hash -eq $irHash) "Repair modified user files"
     Assert ((Get-FileHash -LiteralPath $installedRaven[0]).Hash -eq $personalCaptureHash) "Repair overwrote a personal Raven IR"
-    Pass "Same-version reinstall repairs files and preserves personal presets/IRs"
+    Pass "Same-version reinstall repairs files and preserves modified documentation copies and personal presets/IRs"
     Uninstall "03-full-uninstall" $app
     Equal-File $fixture $installedIR
     Equal-File $guitarFixture $installedGuitarIR
     Assert ((Get-FileHash -LiteralPath $installedRaven[0]).Hash -eq $personalCaptureHash) "Uninstall removed or changed a personal Raven IR"
     Pass "Personal IR collection is preserved after uninstall"
     Assert ((Get-FileHash -LiteralPath $preset).Hash -eq $presetHash -and (Get-FileHash -LiteralPath $userIR).Hash -eq $irHash) "Uninstall modified user files"
+    Assert ((Get-FileHash -LiteralPath $preservedReadme -Algorithm SHA256).Hash.ToLowerInvariant() -eq $modifiedReadmeHash) "Uninstall removed the user's preserved documentation"
+    Equal-File (Join-Path $stagePath "THIRD_PARTY_NOTICES.md") (Join-Path $app "Documentation/THIRD_PARTY_NOTICES.md")
     Pass "Uninstall removes owned binaries, shortcut and Windows registration; preserves user files"
 
     $custom = Join-Path $env:RUNNER_TEMP "Chimera 설치 검증"

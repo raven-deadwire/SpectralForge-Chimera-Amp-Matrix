@@ -45,6 +45,9 @@ SetupIconFile=..\Assets\Artwork\spectralforge-emblem.ico
 UninstallDisplayName={#ProductName}
 UninstallDisplayIcon={uninstallexe}
 UninstallFilesDir={app}\Uninstall
+; Historical logs must remain available for component removal. The scripted
+; document guard protects edited files from their old pathname-only records.
+UninstallLogMode=append
 CloseApplications=no
 RestartApplications=no
 SetupLogging=yes
@@ -79,10 +82,10 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; Components: standalo
 [Files]
 Source: "{#StageDir}\VST3\SpectralForge Chimera.vst3\*"; DestDir: "{code:GetVst3Dir}\SpectralForge Chimera.vst3"; Components: vst3; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "{#StageDir}\Standalone\SpectralForge Chimera.exe"; DestDir: "{app}"; Components: standalone; Flags: ignoreversion
-Source: "{#StageDir}\*.txt"; DestDir: "{app}"; Flags: ignoreversion
-Source: "{#StageDir}\*.html"; DestDir: "{app}\Documentation"; Flags: ignoreversion
-Source: "{#StageDir}\payload-manifest.json"; DestDir: "{app}\Documentation"; Flags: ignoreversion
-Source: "{#StageDir}\*.md"; DestDir: "{app}\Documentation"; Flags: ignoreversion
+Source: "{#StageDir}\*.txt"; DestDir: "{app}"; Flags: ignoreversion; Check: ShouldInstallManagedDocument
+Source: "{#StageDir}\*.html"; DestDir: "{app}\Documentation"; Flags: ignoreversion; Check: ShouldInstallManagedDocument
+Source: "{#StageDir}\payload-manifest.json"; DestDir: "{app}\Documentation"; Flags: ignoreversion; Check: ShouldInstallManagedDocument
+Source: "{#StageDir}\*.md"; DestDir: "{app}\Documentation"; Flags: ignoreversion; Check: ShouldInstallManagedDocument
 Source: "{#StageDir}\ReferenceTools\*"; DestDir: "{app}\ReferenceTools"; Components: reference; Flags: ignoreversion recursesubdirs createallsubdirs
 
 ; Optional user-owned companion pack, supplied separately from the public build.
@@ -136,6 +139,8 @@ var
   Vst3Page: TInputDirWizardPage;
   PreviousVst3Dir: String;
 
+#include "LegacyDocumentCleanup.iss"
+
 function GetVst3Dir(Param: String): String;
 begin
   Result := Vst3Page.Values[0];
@@ -175,11 +180,41 @@ var
   Folder: String;
 begin
   Result := '';
+  if not LockDocumentParents(ExpandConstant('{app}\Documentation\payload-manifest.json'),
+    True, DocumentParentLocks) then begin
+    Result := 'Documentation path is linked or inaccessible; existing files were preserved.';
+    Exit;
+  end;
   if not WizardIsComponentSelected('vst3') then Exit;
   Folder := Vst3Page.Values[0];
   if not (((Length(Folder) >= 3) and (Folder[2] = ':') and (Folder[3] = '\')) or
           ((Length(Folder) > 2) and (Copy(Folder, 1, 2) = '\\'))) then
     Result := CustomMessage('Vst3FolderInvalid');
+end;
+
+procedure CurStepChanged(CurStep: TSetupStep);
+begin
+  if CurStep = ssPostInstall then CleanupRetiredDocuments;
+end;
+
+procedure DeinitializeSetup;
+begin
+  ReleaseDocumentPreservation;
+end;
+
+function InitializeUninstall: Boolean;
+begin
+  Result := InitializeDocumentUninstall;
+end;
+
+procedure CurUninstallStepChanged(CurUninstallStep: TUninstallStep);
+begin
+  if CurUninstallStep = usUninstall then DeleteVerifiedUninstallDocuments;
+end;
+
+procedure DeinitializeUninstall;
+begin
+  ReleaseDocumentPreservation;
 end;
 
 procedure RegisterPreviousData(PreviousDataKey: Integer);

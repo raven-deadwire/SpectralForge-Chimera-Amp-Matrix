@@ -18,6 +18,7 @@ import zipfile
 import chimera_version
 import check_ir_distribution
 import check_public_names
+import legacy_document_cleanup
 
 ROOT = Path(__file__).resolve().parents[1]
 IDENTITY = chimera_version.identity(ROOT)
@@ -180,6 +181,11 @@ def macos(build: Path, dist: Path) -> None:
         raise RuntimeError("macOS standalone is missing its microphone permission description")
     docdir = stage / "Library/Application Support/SpectralForge/Chimera/Documentation"
     documents(docdir, build)
+    maintenance = stage / "Library/Application Support/SpectralForge/Chimera/Tools/document-maintenance"
+    legacy_document_cleanup.build_helper(maintenance, platform="macos", current_documents=docdir)
+    run("lipo", str(maintenance), "-verify_arch", "arm64", "x86_64")
+    run("codesign", "--force", "--sign", "-", str(maintenance))
+    run("codesign", "--verify", "--strict", str(maintenance))
     verify_stage(stage, [f"Applications/{PRODUCT}.app/Contents/MacOS/{PRODUCT}",
                          "Library/Application Support/SpectralForge/Chimera/Documentation/MANUAL.html"])
     (stage / "payload-manifest.json").rename(docdir / "payload-manifest.json")
@@ -193,8 +199,15 @@ def macos(build: Path, dist: Path) -> None:
             item["BundleIsRelocatable"] = False
             item["BundleOverwriteAction"] = "upgrade"
         components.write_bytes(plistlib.dumps(info))
+        scripts = Path(temporary) / "scripts"
+        scripts.mkdir()
+        # Native executable hooks work without an optional Python installation.
+        # Preinstall protects changed bytes before the system installer unpacks.
+        for phase in ("preinstall", "postinstall"):
+            copy(maintenance, scripts / phase)
         package = dist / f"{PREFIX}-macos-universal.pkg"
         run("pkgbuild", "--root", str(stage), "--component-plist", str(components),
+            "--scripts", str(scripts),
             "--identifier", "audio.spectralforge.chimera", "--version", IDENTITY["product_version"], "--install-location", "/", str(package))
         expanded = Path(temporary) / "expanded"
         run("pkgutil", "--expand-full", str(package), str(expanded))
@@ -204,6 +217,10 @@ def macos(build: Path, dist: Path) -> None:
             extracted = unpacked / original.relative_to(stage)
             if not extracted.is_file() or sha256(extracted) != sha256(original):
                 raise RuntimeError(f"macOS package payload differs: {original}")
+        for phase in ("preinstall", "postinstall"):
+            packaged_script = expanded / "Scripts" / phase
+            if not packaged_script.is_file() or sha256(packaged_script) != sha256(maintenance):
+                raise RuntimeError(f"macOS document lifecycle hook differs: {phase}")
     checksum(package)
     (dist / "macOS-package-verification.txt").write_text(
         "PASS: Standalone, VST3 and AU contain arm64 + x86_64 slices.\n"
@@ -227,6 +244,8 @@ def linux(build: Path, dist: Path) -> None:
     executable.chmod(0o755)
     docdir = stage / "usr/share/doc/chimera-amp-matrix"
     documents(docdir, build)
+    maintenance = stage / "usr/libexec/chimera-document-maintenance"
+    legacy_document_cleanup.build_helper(maintenance, platform="linux", current_documents=docdir)
     copy(ROOT / "Assets/Artwork/spectralforge-emblem.png", stage / "usr/share/pixmaps/chimera-amp-matrix.png")
     desktop = stage / "usr/share/applications/chimera-amp-matrix.desktop"
     desktop.parent.mkdir(parents=True, exist_ok=True)
@@ -236,6 +255,7 @@ def linux(build: Path, dist: Path) -> None:
                        "Categories=AudioVideo;Audio;\n", encoding="utf-8")
     vstbinary = plugin / "Contents/x86_64-linux/SpectralForge Chimera.so"
     verify_stage(stage, ["usr/bin/chimera-amp-matrix", "usr/share/doc/chimera-amp-matrix/MANUAL.html",
+                         "usr/libexec/chimera-document-maintenance",
                          f"usr/lib/vst3/{PRODUCT}.vst3/Contents/x86_64-linux/SpectralForge Chimera.so"])
     (stage / "payload-manifest.json").rename(docdir / "payload-manifest.json")
     with tempfile.TemporaryDirectory(prefix="chimera-deb-") as temporary:
@@ -243,14 +263,23 @@ def linux(build: Path, dist: Path) -> None:
         (work / "debian").mkdir()
         (work / "debian/control").write_text("Source: chimera-amp-matrix\nSection: sound\nPriority: optional\nMaintainer: RavenForge <noreply@ravenforge.audio>\n\nPackage: chimera-amp-matrix\nArchitecture: amd64\nDescription: guitar and bass amp matrix\n", encoding="utf-8")
         dependencies = run("dpkg-shlibdeps", "-O", "-e" + str(executable.resolve()),
-                           "-e" + str(vstbinary.resolve()), cwd=work).strip()
+                           "-e" + str(vstbinary.resolve()), "-e" + str(maintenance.resolve()), cwd=work).strip()
         depends = next((line.removeprefix("shlibs:Depends=") for line in dependencies.splitlines()
                         if line.startswith("shlibs:Depends=")), "")
         if not depends or "libc6" not in depends:
             raise RuntimeError("Cannot produce explicit Debian runtime dependencies")
+        helper_dependencies = run("dpkg-shlibdeps", "-O", "-e" + str(maintenance.resolve()), cwd=work).strip()
+        pre_depends = next((line.removeprefix("shlibs:Depends=") for line in helper_dependencies.splitlines()
+                            if line.startswith("shlibs:Depends=")), "")
+        if not pre_depends or "libc6" not in pre_depends:
+            raise RuntimeError("Cannot prove document preinst runtime dependencies")
         control = stage / "DEBIAN/control"
         control.parent.mkdir()
-        control.write_text(f"Package: chimera-amp-matrix\nVersion: {VERSION.replace('-', '~', 1)}\nSection: sound\nPriority: optional\nArchitecture: amd64\nMaintainer: RavenForge <noreply@ravenforge.audio>\nDepends: {depends}\nHomepage: https://github.com/{REPO}\nDescription: SpectralForge Chimera {chimera_version.display_version(ROOT)}\n Guitar and bass amp suite, standalone and VST3, with offline manual.\n", encoding="utf-8")
+        control.write_text(f"Package: chimera-amp-matrix\nVersion: {VERSION.replace('-', '~', 1)}\nSection: sound\nPriority: optional\nArchitecture: amd64\nMaintainer: RavenForge <noreply@ravenforge.audio>\nPre-Depends: {pre_depends}\nDepends: {depends}\nHomepage: https://github.com/{REPO}\nDescription: SpectralForge Chimera {chimera_version.display_version(ROOT)}\n Guitar and bass amp suite, standalone and VST3, with offline manual.\n", encoding="utf-8")
+        # General package files are not conffiles: dpkg can delete obsolete
+        # edited documents during unpack. Protection must run in preinst.
+        for phase in ("preinst", "postinst", "prerm", "postrm"):
+            copy(maintenance, control.parent / phase)
         package = dist / f"{PREFIX}-linux-x86_64.deb"
         run("dpkg-deb", "--build", "--root-owner-group", str(stage), str(package))
         extracted = work / "extracted"

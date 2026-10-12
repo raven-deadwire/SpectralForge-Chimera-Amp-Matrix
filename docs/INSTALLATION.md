@@ -60,7 +60,8 @@ The unsigned, unnotarized beta can be blocked by Gatekeeper. Use only an intenti
 If macOS requests microphone access, permit it for the standalone app or host you use for recording. Refresh the DAW plugin scan after installation.
 
 Before the renamed beta, macOS builds were distributed as loose bundles. If you manually copied `Chimera Amp Matrix.app`, `.vst3` or `.component`, remove those obsolete exact bundles after confirming the new version and backing up sessions; the pkg does not delete arbitrary manually installed folders.
-Uninstall the three installed product bundles and the product documentation folder. Keep personal presets/IRs in your user data folder.
+Uninstall the three installed product bundles. Keep personal presets/IRs in your user data folder.
+Do not remove the documentation directory as a whole if it contains your annotations or other personal files.
 
 ## Linux · x86_64 Debian/Ubuntu
 
@@ -80,6 +81,33 @@ sudo apt install ./SpectralForge-Chimera-1.3.1-beta.1-linux-x86_64.deb
 The tarball contains the same `usr` layout and a per-user `install.sh`. Extract it, read `RUNTIME-DEPENDENCIES.txt`, then run `sh install.sh` from the extracted directory. It installs only beneath your home directory: `~/.local/bin`, `~/.vst3`, and `~/.local/share`. Put `~/.local/bin` on PATH if starting it from a terminal. This archive does not bundle glibc or replace your system audio stack. It requires the listed runtime libraries; it is not an AppImage or a distribution-independent static binary.
 
 For an old manually copied plugin, remove only the obsolete `Chimera Amp Matrix.vst3` bundle after confirming the renamed bundle works. Avoid simultaneous system and per-user copies of the same plugin.
+
+## Document preservation when upgrading to 1.3.1-beta.2
+
+The installer retires an obsolete document only when its exact path, byte count and SHA-256 match a verified previous package. Edited or unrecognized documents are retained. Personal presets, IRs and project files are outside this document migration, and required license notices remain available.
+
+When an existing manual or other current product document has been edited, a verified copy is saved before repair installs the current version. Saved copies are kept across repair and uninstall:
+
+| Installation | Saved document copies |
+|---|---|
+| Windows Setup | `PreservedDocuments` inside the selected application directory |
+| macOS PKG | `/Library/Application Support/SpectralForge/Chimera/Documentation.preserved` |
+| Linux DEB | `/usr/share/doc/chimera-amp-matrix.preserved` |
+| Linux TAR | `~/.local/share/doc/chimera-amp-matrix.preserved` |
+
+Each saved copy retains its original relative filename under a folder named for its SHA-256. If a linked or unreadable managed document prevents safe preservation, the package operation stops or preserves that file; review the installer log before retrying.
+
+Windows Installed Apps and Linux package-manager removal apply the document-preservation rules automatically. macOS and Linux TAR do not provide a complete application uninstaller. Their document-only maintenance tool can remove verified, unchanged product documents while retaining edited documents, notices and unknown files:
+
+```sh
+# macOS, after removing the exact product app/plugin bundles:
+sudo "/Library/Application Support/SpectralForge/Chimera/Tools/document-maintenance" remove-documents "/Library/Application Support/SpectralForge/Chimera/Documentation"
+
+# Linux TAR, after removing the exact installed application/plugin files:
+"$HOME/.local/libexec/chimera-document-maintenance" remove-documents "$HOME/.local/share/doc/chimera-amp-matrix"
+```
+
+These commands do not remove application or plugin bundles. Saved document copies are never automatically purged.
 
 ## 한국어 빠른 안내
 
