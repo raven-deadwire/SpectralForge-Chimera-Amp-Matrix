@@ -116,6 +116,8 @@ public:
     void activateNativeAmp(int lane);
     void activateNativePost(int section);
 private:
+    // First member: reports after every derived member, before AudioProcessor.
+    spectralforge::lifecycle::AfterMembers teardownMembers{"processor.destroy.members.end", this};
     spectralforge::AmpSelectionParameterCache ampSelection;
     spectralforge::AmpNativeParameterCache nativeAmps;
     spectralforge::PostNativeParameterCache nativePost;

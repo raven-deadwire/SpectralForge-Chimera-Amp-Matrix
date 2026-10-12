@@ -1,10 +1,12 @@
-# Studio One 프로젝트 종료 멈춤 진단
+# DAW 프로젝트 종료·플러그인 제거 멈춤 진단
 
 이 도구는 **문제가 재현될 때 종료가 멈춘 위치를 확인하는 선택형 진단 도구**입니다.
-자동 검사 통과와 실제 Studio One에서의 해결 여부는 별개이며, 이 도구를 제공했다는
-이유로 Studio One 종료 문제가 해결됐다고 판단하지 않습니다.
+Cakewalk Sonar, Cubase 10.5와 Studio One의 실제 실행 파일을 선택할 수 있습니다.
+자동 검사 통과와 각 DAW에서의 해결 여부는 별개이며, 이 도구를 제공했다는 이유로
+종료 문제가 해결됐다고 판단하지 않습니다. Issue #3의 Cakewalk/Cubase 실기 검증은
+별도 결과가 등록될 때까지 **미수행(NOT_RUN)**입니다.
 
-## 이번 종료 경로 수정
+## 기존 종료 경로 수정
 
 - 전역에 남아 있던 88개 원본 UI 이미지의 GPU 자원을 에디터가 공유해서 소유하도록
   바꿨습니다. 마지막 에디터가 없어질 때 이미지를 해제하므로 DLL 언로드까지 남지 않습니다.
@@ -18,44 +20,87 @@
 - 실제 VST3 DLL의 생성·연결·상태·처리·창 표시·종료·최종 언로드를 별도 호스트 프로세스에서
   검사합니다. 이전 전달 바이너리와 같은 절차로 비교하며, 멈춤은 제한 시간 초과 실패로 기록합니다.
 
-이는 코드에서 확인한 자원 수명 및 종료 루프 문제의 수정이며, 사용자의 Studio One에서 멈춘 스레드가
-어느 경로였는지 아직 직접 관찰한 결과는 아닙니다. 실제 DAW 재확인과 아래 진단을 구분합니다.
+이는 코드에서 확인한 자원 수명 및 종료 루프 문제의 수정이며, 사용자가 신고한 DAW에서
+멈춘 스레드가 어느 경로였는지 아직 직접 관찰한 결과는 아닙니다. Issue #3 회귀 보강은
+기존 수명 주기 경로를 계측하고 검사 범위를 넓히며, 새 원인 수정이나 실제 DAW 해결을
+주장하지 않습니다.
+
+## Issue #3 최소 재현 구분
+
+[원 신고](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/issues/3)는
+UI 미사용 재생 후 프로젝트 닫기는 정상, UI를 한 번 연 이후 프로젝트 닫기는 프리즈라는
+내용입니다. [후속 댓글](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/issues/3#issuecomment-5831985941)은
+**플러그인 제거 자체에서도 프리즈가 발생한다**는 신고입니다. 제거가 반환됐는지 먼저
+확인하고, 이후의 프로젝트 닫기와 DAW 프로세스 종료를 따로 기록해야 합니다.
+
+각 시나리오는 Cakewalk Sonar와 Cubase 10.5에서 각각 새 DAW 프로세스로 시작합니다.
+빈 프로젝트에 Chimera 한 개만 넣고 약 10초 재생한 뒤 정지합니다. 모든 UI 미사용
+케이스에서는 DAW의 자동 에디터 열기를 미리 끄고 로그에 에디터 생성이 없는지 확인합니다.
+
+| `-Scenario` | 수행 순서 |
+| --- | --- |
+| `no-ui-project-close` | UI를 열지 않고 프로젝트 닫기 → DAW 종료 |
+| `ui-closed-project-close` | UI 열기 → 닫기 → 프로젝트 닫기 → DAW 종료 |
+| `no-ui-host-exit` | UI를 열지 않고 프로젝트가 열린 채 DAW 종료 |
+| `ui-closed-host-exit` | UI 열기 → 닫기 → 프로젝트가 열린 채 DAW 종료 |
+| `no-ui-remove` | UI를 열지 않고 플러그인 제거 → 프로젝트 닫기 → DAW 종료 |
+| `ui-closed-remove` | UI 열기 → 닫기 → 플러그인 제거 → 프로젝트 닫기 → DAW 종료 |
+| `ui-visible-remove` | UI가 열린 상태에서 플러그인 제거 → 프로젝트 닫기 → DAW 종료 |
+
+스크립트는 각 동작 후 `PASS`, `HANG`, `FAIL`, `SKIP` 중 하나를 직접 입력받습니다.
+프리즈나 실패가 기록되면 뒤 동작을 진행하지 않고 로그·선택형 덤프 수집으로 이동합니다.
+프로젝트 닫기·제거 뒤에는 DAW가 계속 응답해야 하며, DAW 종료는 창이 사라지는 것뿐 아니라
+실행한 원래 PID가 종료돼야 합니다. 이 PID가 살아 있으면 종료 `PASS` 입력도 `FAIL`로
+기록됩니다. `custom` 또는 시나리오 생략은 기존 자유 재현 방식이며 자동 판정하지 않습니다.
+
+세부 결과표·반복 조건·계측 해석은
+[Issue #3 회귀 검증 절차](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/blob/main/docs/ISSUE_3_DAW_TEARDOWN_REGRESSION.md)를 따릅니다.
 
 ## 실행
 
-1. 수정 빌드의 VST3를 설치하고 Studio One을 완전히 종료합니다. 이 도구는 실행 중인
-   Studio One을 종료하거나 강제로 중지하지 않습니다.
+1. 검사할 빌드의 VST3를 설치하고 선택할 DAW를 완전히 종료합니다. 이 도구는 실행 중인
+   DAW를 종료하거나 강제로 중지하지 않습니다. 다른 DAW가 실행 중이라는 이유만으로
+   선택한 DAW의 진단을 차단하지 않습니다.
 2. 받은 설치 ZIP을 **전체 압축 해제한 폴더**에서 일반 **64비트 Windows PowerShell**을
    열고 아래 명령을 실행합니다. 이 폴더에는 `Tools` 폴더와 이 안내 문서가 있습니다.
    관리자 권한은 필요하지 않습니다. 실행 파일 경로는 실제 설치 위치로 바꾸세요.
 
    ```powershell
-   .\Tools\Trace-Chimera-Session.ps1 -HostExecutable 'C:\Program Files\PreSonus\Studio One 8\Studio One.exe'
+   .\Tools\Trace-Chimera-Session.ps1 -Scenario ui-closed-remove
    ```
 
-   `-HostExecutable`을 생략하면 실행 파일 선택 창이 열립니다. 바로가기 대신 실제
-   Studio One 실행 파일을 선택합니다. PowerShell이 스크립트 실행을 차단하면 실행
+   실행 파일 선택 창에서 검사할 Cakewalk Sonar, Cubase 10.5 또는 Studio One의
+   실제 `.exe`를 선택합니다. `-HostExecutable '실제 DAW 실행 파일 경로'`로 경로를
+   직접 전달할 수도 있습니다. 바로가기나 별도 실행 프로그램은 선택하지 않습니다.
+   PowerShell이 스크립트 실행을 차단하면 실행
    정책을 우회하지 말고 표시된 오류를 알려주세요.
-3. 도구가 실행한 Studio One에서 문제가 발생했던 곡/프로젝트의 **복사본**을 열고,
-   Chimera를 사용한 뒤 프로젝트를 닫아 봅니다. PowerShell 창은 열어 둡니다.
-4. 테스트가 끝나거나 응답 없음이 발생하면 PowerShell 창에서 Enter를 누릅니다.
+3. 먼저 위의 최소 프로젝트로 선택한 시나리오를 수행합니다. 통과 후에는 문제가 발생했던
+   곡/프로젝트의 **복사본**으로 같은 절차를 반복합니다. PowerShell 창의 순서대로
+   동작하고 결과를 입력합니다. 제거 시나리오는 제거 명령 직후 반응부터 확인합니다.
+4. 테스트가 끝나거나 응답 없음이 발생하면 수집 안내에 따라 Enter를 누릅니다.
    기본 저장 위치는 `문서\Chimera Diagnostics`이며, 화면에 표시된 ZIP이 진단 묶음입니다.
    저장 위치는 `-OutputDirectory 'D:\Chimera Diagnostics'`로 바꿀 수 있습니다.
 
 설치 시 **오프라인 레퍼런스 도구 및 예제 음원** 구성 요소를 선택했다면, 도구는
 앱 설치 폴더의 `ReferenceTools\Trace-Chimera-Session.ps1`에도 있습니다.
 압축 해제 폴더 대신 **앱 설치 폴더**에서 PowerShell을 연 경우 다음 명령을 사용합니다.
-실행 파일 선택 창에서 Studio One을 지정하세요.
+실행 파일 선택 창에서 검사할 DAW를 지정하세요.
 
 ```powershell
-.\ReferenceTools\Trace-Chimera-Session.ps1
+.\ReferenceTools\Trace-Chimera-Session.ps1 -Scenario ui-closed-remove
 ```
 
-Chimera 수명 주기 로그에는 준비·작업·종료 이벤트, 스레드/인스턴스 식별자와 시간이
-기록됩니다. 프로젝트 경로, 프리셋 내용, 오디오 샘플은 기록하지 않습니다.
-설정은 도구가 새로 실행한 Studio One 프로세스와 그 자식 프로세스에만 적용됩니다.
+Chimera 수명 주기 로그에는 준비·작업·종료 이벤트, 프로세스/스레드/인스턴스 식별자와 시간이
+기록됩니다. 에디터와 프로세서, IR·튜너 작업의 소유 관계 및 메시지 스레드 정보도 기록합니다.
+`session.json`에는 DAW 이름·버전·실행 PID, 시나리오, 수동 입력 결과와 동작 전후의
+로그 줄 수, 수집 시점의 원래 프로세스 종료 여부가 기록됩니다. 수동 입력 시각의 차이는
+사용자 반응 시간을 포함하므로 코드 실행 시간으로 해석하지 않습니다.
+프로젝트 경로, 프리셋 내용, 오디오 샘플은 수명 주기 로그에 기록하지 않습니다.
+설정은 도구가 새로 실행한 DAW 프로세스와 그 자식 프로세스에만 적용됩니다.
 레지스트리나 DAW 설정, 시스템 환경 변수는 변경하지 않습니다. 로그가 비어 있으면
-이 진단 기능을 포함한 새 VST3가 실제로 로드됐는지 확인해야 합니다.
+이 진단 기능을 포함한 새 VST3가 실제로 로드됐는지 확인해야 합니다. 로그 PID가
+`session.json`의 실행 PID와 다르면 플러그인 검색용 자식 프로세스인지 확인하며,
+이 도구는 다른 PID에 덤프 수집 대상을 자동으로 옮기지 않습니다.
 
 ## 멈춘 스레드의 작은 덤프가 필요한 경우
 
@@ -64,10 +109,10 @@ Chimera 수명 주기 로그에는 준비·작업·종료 이벤트, 스레드/�
 경우에는 위의 `ReferenceTools` 명령 끝에 같은 옵션을 추가하세요.
 
 ```powershell
-.\Tools\Trace-Chimera-Session.ps1 -CaptureDump
+.\Tools\Trace-Chimera-Session.ps1 -Scenario ui-closed-remove -CaptureDump
 ```
 
-실행된 Studio One에서 **응답 없음이 재현된 뒤** PowerShell 창에서 Enter를 누르면
+실행된 DAW에서 **응답 없음이 재현된 뒤** PowerShell 창에서 Enter를 누르면
 그 프로세스의 작은 스레드 덤프를 한 번 저장합니다. `SKIP`을 입력하면 덤프 없이
 로그만 저장합니다. 호스트가 이미 종료됐으면 다른 프로세스에 자동으로 연결하지 않습니다.
 덤프 수집에는 잠시 시간이 걸릴 수 있습니다.
@@ -78,4 +123,5 @@ Chimera 수명 주기 로그에는 준비·작업·종료 이벤트, 스레드/�
 오류만 기록하고 로그를 보존합니다. 이 도구 때문에 관리자 권한으로 다시 실행할 필요는 없습니다.
 
 ZIP은 Enter를 누른 시점의 스냅샷입니다. 이후의 종료 이벤트는 원본 로그 폴더에만 계속
-기록됩니다. 도구는 Studio One을 강제 종료하거나 프로젝트를 수정하지 않습니다.
+기록됩니다. 정상 통과 실행은 DAW 프로세스 종료 후 수집하고, 프리즈 실행은 멈춘 상태에서
+수집해 해당 시점을 보존합니다. 도구는 DAW를 강제 종료하거나 프로젝트를 수정하지 않습니다.

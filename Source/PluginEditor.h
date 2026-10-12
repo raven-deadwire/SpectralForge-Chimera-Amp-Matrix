@@ -35,6 +35,8 @@ public:
     void filesDropped(const juce::StringArray&,int,int) override;
     uint64_t metadataRefreshCount() const noexcept {return metadataReads;}
 private:
+    // First member: reports after every derived member, before JUCE bases.
+    spectralforge::lifecycle::AfterMembers teardownMembers{"editor.destroy.members.end", this};
     using CA=juce::AudioProcessorValueTreeState::ComboBoxAttachment;
     using SA=juce::AudioProcessorValueTreeState::SliderAttachment;
     using BA=juce::AudioProcessorValueTreeState::ButtonAttachment;
