@@ -11,7 +11,7 @@ inline void run(const juce::File& directory){
     auto* panel=find<spectralforge::CommonDynamicsPanel>(*editor,"commonDynamics.panel");require(panel && panel->isShowing(),"Dynamics workspace did not open");
     require(signalPathTests::values(*p)==before,"Opening dynamics changed sound state");
     for(int scale:{75,100,125,150}){editor->setSize(1180*scale/100,780*scale/100);settle(40);
-        for(const auto* id:{"cleanCompOn","cleanCompThreshold","cleanCompMix","gateMode","gateRangeDb","liveLimiterOn","liveLimiterCeiling","dynamicEQ4_target","dynamicEQ4_ratio"}){
+        for(const auto* id:{"cleanCompOn","cleanCompThreshold","cleanCompMix","gateMode","commonDynamics.gateRangeDb","liveLimiterOn","liveLimiterCeiling","dynamicEQ4_target","dynamicEQ4_ratio"}){
             auto* c=find(*panel,id);require(c && c->isShowing() && editor->getLocalBounds().contains(editor->getLocalArea(c,c->getLocalBounds())),"Dynamics control clipped or absent");
         }
         signalPathTests::capture(*editor,directory,"common-dynamics-"+juce::String(scale));

@@ -63,18 +63,22 @@ void compressor(ChimeraProcessor& p){
 void dynamicEQ(ChimeraProcessor& p){
     for(int s=0;s<4;++s){set(p,dynamicSlotID(s,"target"),float(1+s*6));set(p,dynamicSlotID(s,"range"),6);set(p,dynamicSlotID(s,"threshold"),-24);set(p,dynamicSlotID(s,"ratio"),4);}
     DynamicEQBindings bindings;bindings.bind(p.parameters());int assigned=0;for(int t=1;t<=24;++t)assigned+=bindings.forBand(t).enabled;check(assigned==4,"Dynamic EQ shared four-node cap failed");
-    set(p,dynamicSlotID(1,"target"),1);set(p,dynamicSlotID(1,"range"),12);const auto duplicate=bindings.forBand(1);check(duplicate.enabled && std::abs(duplicate.range-6)<1e-5,"Duplicate disabled or replaced the first active node");set(p,dynamicSlotID(1,"target"),7);
-    for(int bank=0;bank<2;++bank){set(p,eqID(bank,-1,"bypass"),0);set(p,eqID(bank,0,"enabled"),1);set(p,eqID(bank,0,"frequency"),1000);set(p,eqID(bank,0,"q"),4);auto& eq=p.graphicalEQ(bank);eq.prepare(48000);
+    set(p,dynamicSlotID(1,"target"),1);set(p,dynamicSlotID(1,"range"),12);const auto duplicate=bindings.forBand(1);check(duplicate.enabled && std::abs(duplicate.range-6)<1e-5,"Duplicate disabled or replaced the first active node");set(p,dynamicSlotID(1,"target"),7);set(p,dynamicSlotID(1,"range"),6);
+    for(int bank=0;bank<2;++bank){set(p,eqID(bank,-1,"bypass"),0);for(int band:{0,6}){set(p,eqID(bank,band,"enabled"),1);set(p,eqID(bank,band,"frequency"),1000);set(p,eqID(bank,band,"q"),4);}auto& eq=p.graphicalEQ(bank);eq.prepare(48000);
         juce::AudioBuffer<float> b(2,128);double in=0,out=0;
         for(int k=0;k<600;++k){fill(b,k*128,48000);if(k>300)for(int n=0;n<128;++n)in+=b.getSample(0,n)*b.getSample(0,n);
             counting=true;eq.process(b);counting=false;
             if(k>300)for(int n=0;n<128;++n)out+=b.getSample(0,n)*b.getSample(0,n);
         }
-        check(std::abs(10*std::log10(out/in)+6)<.1,"Dynamic node measured cut differs from range");check(std::abs(eq.dynamicReduction(0)-6)<.01,"Dynamic GR differs from applied cut");
-        for(int k=0;k<1000;++k){fill(b,k*128,48000,.01,80);eq.process(b);}check(eq.dynamicReduction(0)<.01,"Frequency selective detector failed to release");
-        set(p,eqID(bank,-1,"bypass"),1);for(int k=0;k<10;++k)eq.process(b);check(eq.dynamicReduction(0)==0,"Bypassed EQ still reports dynamic cut");
+        check(std::abs(10*std::log10(out/in)+12)<.1,"Two dynamic nodes per bank did not apply the combined cut");for(int band:{0,6})check(std::abs(eq.dynamicReduction(band)-6)<.01,"Dynamic GR differs from applied cut");
+        for(int k=0;k<1000;++k){fill(b,k*128,48000,.01,80);eq.process(b);}for(int band:{0,6})check(eq.dynamicReduction(band)<.01,"Frequency selective detector failed to release");
+        set(p,eqID(bank,-1,"bypass"),1);for(int k=0;k<10;++k)eq.process(b);for(int band:{0,6})check(eq.dynamicReduction(band)==0,"Bypassed EQ still reports dynamic cut");
     }
     check(allocations==0,"Dynamic EQ allocated in callback");
+    set(p,eqID(0,-1,"bypass"),0);set(p,eqID(0,0,"frequency"),20);set(p,eqID(0,0,"gain"),24);set(p,eqID(0,0,"q"),18);
+    set(p,dynamicSlotID(0,"target"),0);const auto staticTail=p.graphicalEQ(0).tailSeconds();set(p,dynamicSlotID(0,"target"),1);
+    check(staticTail>1 && p.graphicalEQ(0).tailSeconds()>=staticTail,"Dynamic mode under-reported the uncompressed filter tail");
+    set(p,eqID(0,-1,"bypass"),1);
     std::cout<<"PASS four shared nodes, deterministic duplicate recovery, two-bank measured dynamic cut/GR, selective detector, release and bypass\n";
 }
 void expander(){

@@ -17,6 +17,7 @@ public:
         constexpr std::array<const char*,6> gateIDs{"gatethreshold","gateRatio","gateAttack","gatehold","gaterelease","gateRangeDb"};
         constexpr std::array<const char*,6> gateNames{"Threshold dB","Ratio","Attack ms","Hold ms","Release ms","Range dB"};
         for(size_t i=0;i<gate.size();++i)control(gate[i],gateIDs[i],gateNames[i]);
+        gate[1].slider.setTooltip("Downward expansion ratio; active only in Expander mode.");
         control(ceiling,"liveLimiterCeiling","Ceiling dBFS");control(limitRelease,"liveLimiterRelease","Release ms");
         gateMode.setTooltip("Uses the clean DI detector before PRE; attenuation follows the existing PRE / POST GATE placement. Enable GATE in the input controls.");
         limiterOn.setTooltip("Stereo-linked sample peak limiter after output trim. No lookahead or extra latency; intersample peaks are not measured.");
@@ -83,15 +84,25 @@ private:
     struct Slot {juce::ComboBox target;std::unique_ptr<juce::ParameterAttachment> targetAttachment;std::array<Control,5> controls;juce::Label status;};
     void control(Control& c,const juce::String& id,const char* title){
         c.label.setText(title,juce::dontSendNotification);c.label.setFont(juce::FontOptions(12.f));addAndMakeVisible(c.label);
-        c.slider.setName(title);c.slider.setComponentID(id);c.slider.setSliderStyle(juce::Slider::LinearHorizontal);
+        const bool sharedGateControl=id=="gatethreshold" || id=="gatehold" || id=="gaterelease" || id=="gateRangeDb";
+        c.slider.setName(title);c.slider.setComponentID(sharedGateControl?"commonDynamics."+id:id);c.slider.setSliderStyle(juce::Slider::LinearHorizontal);
         c.slider.setTextBoxStyle(juce::Slider::TextBoxRight,false,61,26);c.slider.setWantsKeyboardFocus(true);c.slider.setNumDecimalPlacesToDisplay(2);addAndMakeVisible(c.slider);
         c.attachment=std::make_unique<SA>(state,id,c.slider);
+        if(id=="cleanCompMix"){
+            c.slider.textFromValueFunction=[](double v){return juce::String(v*100,1)+" %";};
+            c.slider.valueFromTextFunction=[](const juce::String& text){return text.getDoubleValue()/100.;};
+        }else if(id=="gateRangeDb"){
+            c.slider.textFromValueFunction=[](double v){return v>=95.95?juce::String("Full"):juce::String(v,1);};
+            c.slider.valueFromTextFunction=[](const juce::String& text){return text.trim().equalsIgnoreCase("Full")?96.:text.getDoubleValue();};
+        }
+        c.slider.updateText();
     }
     void toggle(juce::TextButton& b,const char* title,const char* id){b.setButtonText(title);b.setClickingTogglesState(true);b.setComponentID(id);addAndMakeVisible(b);buttons.push_back(std::make_unique<BA>(state,id,b));}
     void choice(juce::ComboBox& box,const char* id,const juce::StringArray& names){box.addItemList(names,1);box.setComponentID(id);addAndMakeVisible(box);choices.push_back(std::make_unique<CA>(state,id,box));}
     int assignment(int i)const{return int(state.getRawParameterValue(dynamicSlotID(i,"target"))->load());}
     void refresh(){
         const int oldUsed=used;bool changed=false;
+        gate[1].slider.setEnabled(state.getRawParameterValue("gateMode")->load()>.5f);
         used=0;
         for(int i=0;i<4;++i){auto& slot=slots[size_t(i)];const int target=assignment(i);used+=target!=0;bool duplicate=false;
             for(int j=0;j<i;++j)duplicate|=target!=0 && assignment(j)==target;

@@ -197,11 +197,18 @@ public:
     double tailSeconds() const noexcept {
         if(isBypassed())return 0;
         double tail=0;
-        for(int i=0;i<graphicalEQBands;++i) {const auto v=values(i);const auto dynamic=dynamicParameters.forBand(bank*12+i+1);const float gain=v.gain-(dynamic.enabled&&v.type<=2?dynamic.range:0.f);if(!v.enabled || (v.type<=2 && gain==0))continue;
-            const auto c=eqCoefficients(v.type,v.frequency,gain,v.q,sampleRate());
-            const auto root=std::sqrt(std::complex<double>(c.a1*c.a1-4*c.a2,0));
-            const auto radius=std::max(std::abs((-c.a1+root)/2.),std::abs((-c.a1-root)/2.));
-            if(radius>0 && radius<1)tail+=std::log(1.e-6)/(sampleRate()*std::log(radius));
+        for(int i=0;i<graphicalEQBands;++i) {const auto v=values(i);if(!v.enabled)continue;const auto dynamic=dynamicParameters.forBand(bank*12+i+1);
+            // Both the uncompressed and fully reduced filter can ring. Do not
+            // under-report a boosted node's tail while its detector is quiet.
+            const float reduced=v.gain-(dynamic.enabled&&v.type<=2?dynamic.range:0.f);double longest=0;
+            for(float gain:{v.gain,reduced}){
+                if(v.type<=2 && gain==0)continue;
+                const auto c=eqCoefficients(v.type,v.frequency,gain,v.q,sampleRate());
+                const auto root=std::sqrt(std::complex<double>(c.a1*c.a1-4*c.a2,0));
+                const auto radius=std::max(std::abs((-c.a1+root)/2.),std::abs((-c.a1-root)/2.));
+                if(radius>0 && radius<1)longest=std::max(longest,std::log(1.e-6)/(sampleRate()*std::log(radius)));
+            }
+            tail+=longest;
         }
         return tail;
     }
