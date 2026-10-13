@@ -153,7 +153,14 @@ public:
         if(enabled.exchange(active)!=active){generation.fetch_add(1);low1=low2=0;phase=0;previousChannel=-1;}
         if(!active || buffer.getNumChannels()==0) return;
         int channel=0;
-        if(buffer.getNumChannels()>1 && buffer.getRMSLevel(1,0,buffer.getNumSamples())>buffer.getRMSLevel(0,0,buffer.getNumSamples())) channel=1;
+        if(buffer.getNumChannels()>1){
+            const std::array<float,2> rms{buffer.getRMSLevel(0,0,buffer.getNumSamples()),buffer.getRMSLevel(1,0,buffer.getNumSamples())};
+            channel=rms[1]>rms[0]?1:0;
+            // Tiny stereo level changes must not reset the analysis every block.
+            // Switch only when the new input is at least 3 dB stronger; a real
+            // switch still invalidates the old channel's estimate immediately.
+            if(previousChannel>=0 && rms[size_t(channel)]<=rms[size_t(previousChannel)]*1.41421356f)channel=previousChannel;
+        }
         if(previousChannel>=0 && channel!=previousChannel){generation.fetch_add(1);low1=low2=0;phase=0;}
         previousChannel=channel;
         const int produced=(phase+buffer.getNumSamples())/decimation;

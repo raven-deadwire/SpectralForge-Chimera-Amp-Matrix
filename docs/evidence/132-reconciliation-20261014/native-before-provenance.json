@@ -1,0 +1,13 @@
+{
+  "source_sha": "e2373d7fbcd3923d4b0f4bd3e09a4cffdf762672",
+  "scope": "native decimator/FIFO/worker; standalone synthetic inputs",
+  "qualification": "FAIL",
+  "concurrent_compilation": true,
+  "threshold_ms": 290,
+  "failed_routes": 5,
+  "channel_repro": {
+    "input_hz": 110,
+    "measured_hz": 0,
+    "balance_difference_db": 0.017
+  }
+}

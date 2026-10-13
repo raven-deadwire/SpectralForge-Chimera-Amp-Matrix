@@ -121,3 +121,9 @@ Windows/macOS/Linux source-matched builds, callback deadlines and installed
 DAW acceptance remain separate release conditions. Two-pole 3 kHz filtering is
 not an ideal anti-alias filter. Synthetic sub-cent results do not certify
 Peterson-equivalent hardware or instrument accuracy.
+
+Stereo channel selection now retains the current input until the other channel
+is at least 3 dB stronger. This prevents small balance fluctuations from repeatedly
+invalidating the analysis window. A genuine switch still invalidates immediately.
+The native regression covers alternating near-equal input levels and acquisition
+of a new dominant channel, alongside the unchanged timing gates.

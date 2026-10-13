@@ -37,6 +37,23 @@ template<class T> NativeResult native(double rate,int block,double hz){
     if constexpr(std::is_same_v<T,spectralforge::Tuner>)require(tuner.frequency()==0,"Disabled tuner exposed stale reading");
     tuner.stop();require(tuner.stopped(),"Worker did not stop");return result;
 }
+void channelContinuity(){
+    spectralforge::Tuner tuner;tuner.prepare(48000);juce::AudioBuffer<float> audio(2,256);
+    const auto feed=[&](bool switchChannel){
+        const auto start=Clock::now();
+        for(int block=0;block<120;++block){
+            for(int n=0;n<256;++n){const double t=(block*256+n)/48000.;
+                audio.setSample(0,n,tone(110,t,0)*(switchChannel?.1f:(block%2?.999f:1.001f)));
+                audio.setSample(1,n,tone(switchChannel?220:110,t,0)*(switchChannel?3.f:(block%2?1.001f:.999f)));}
+            tuner.push(audio,true);
+            if(switchChannel && block==0)require(tuner.frequency()==0,"True channel switch retained the previous pitch");
+            std::this_thread::sleep_until(start+std::chrono::microseconds((block+1)*5333));
+        }
+    };
+    feed(false);require(std::abs(error(tuner.frequency(),110))<.5,"Tiny stereo balance changes prevent pitch acquisition");
+    feed(true);require(std::abs(error(tuner.frequency(),220))<.5,"Dominant replacement channel did not acquire");
+    tuner.stop();std::cerr<<"PASS stereo balance continuity and true channel-switch invalidation/reacquisition\n";
+}
 void lifecycle(){
     spectralforge::Tuner tuner;tuner.prepare(48000);
     juce::AudioBuffer<float> audio(2,256);
@@ -86,7 +103,7 @@ int main(){try{
             ++failedRoutes;std::cerr<<"ROUTE FAIL rate="<<rate<<" block="<<block<<" hz="<<hz<<" acquire="<<b.acquire<<" settle="<<b.settle<<" error="<<b.cents<<'\n';
         }
     }
-    lifecycle();
+    channelContinuity();lifecycle();
     require(failedRoutes==0,"Native acquisition/settle/accuracy gate failed; all route rows retained");
     std::cerr<<"PASS "<<count<<" kernel cases and 32 native A/B routes. Synthetic sine/harmonic/exponential-decay maxima: "<<worst[0]<<' '<<worst[1]<<' '<<worst[2]<<" ct. Lifecycle re-enable/stale/nonfinite/rate-change passed. Host clock/DI/GUI latency not included.\n";
 }catch(const std::exception& e){std::cerr<<"FAIL "<<e.what()<<'\n';return 1;}}
