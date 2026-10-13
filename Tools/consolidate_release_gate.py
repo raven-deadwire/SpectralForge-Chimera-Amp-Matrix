@@ -19,8 +19,9 @@ gate = evidence.gate
 
 def consolidate(inputs, output, revision, profile):
     policy, mapping = evidence.configuration()
-    gate.require(profile == evidence.PROFILE and policy['release_scope']['profile'] == profile,
-                 'Consolidator must use the intended beta_1_3 release profile')
+    expected_profile = evidence.source_profile()
+    gate.require(profile == expected_profile and policy['release_scope']['profile'] == profile,
+                 'Consolidator profile and policy must match the committed source release channel')
     gate.require(not output.exists(), 'Use a fresh output directory; refusing stale gate reuse')
     output.mkdir(parents=True)
     checks_dir = output / 'checks'
@@ -83,14 +84,14 @@ def main():
     parser.add_argument('--commit', required=True)
     parser.add_argument('--run-id', required=True)
     parser.add_argument('--run-attempt', required=True)
-    parser.add_argument('--profile', required=True)
+    parser.add_argument('--profile', help='Optional assertion; the source release channel selects the required profile')
     parser.add_argument('--inputs', type=Path, required=True)
     parser.add_argument('--output', type=Path, required=True)
     args = parser.parse_args()
     actual = subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=evidence.ROOT, text=True).strip()
     gate.require(actual == args.commit, 'Consolidator source must be checked-out HEAD')
     result = consolidate(args.inputs, args.output,
-        evidence.identity(args.commit, args.run_id, args.run_attempt), args.profile)
+        evidence.identity(args.commit, args.run_id, args.run_attempt), args.profile or evidence.source_profile())
     print(gate.render_summary(result))
     return 2 if result['producer']['errors'] else 0
 

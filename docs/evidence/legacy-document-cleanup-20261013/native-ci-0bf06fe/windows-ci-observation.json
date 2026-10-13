@@ -1,0 +1,109 @@
+{
+  "schema": "spectralforge.windows-document-native-evidence.v1",
+  "captured_at_utc": "2026-10-12T16:55:54.143736+00:00",
+  "repository": "raven-deadwire/SpectralForge-Chimera-Amp-Matrix",
+  "source_sha": "0bf06fe2a04f7e64b2870dee7d618eb6dad54e1e",
+  "run_id": 38280283924,
+  "run_url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38280283924",
+  "job_id": 114915651402,
+  "job_url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38280283924/job/114915651402",
+  "job_conclusion": "success",
+  "artifact_id": 11760528370,
+  "artifact_name": "Chimera-document-upgrade-windows-inno-fixtures",
+  "artifact_sha256": "6ae2d3c7c5cac5805c3925d87dd681c8bf336327879c23d0d26e27a29193f14d",
+  "artifact_size": 20102,
+  "artifact_sha256_verified": true,
+  "platform": "Windows Server 2022 x64 10.0.20348",
+  "compiler_version": "6.7.1",
+  "scope": "real Inno installers with synthetic historical document ownership",
+  "installer_invocations": 12,
+  "lifecycle_check_groups": 8,
+  "historical_release_installer_executed": false,
+  "actual_previous_release_upgrade_verified": false,
+  "full_product_setup_status": "Not executed in this auxiliary fixture job. The separate full-product build was pending when this evidence was captured.",
+  "guard_cancellation_and_termination_verified": true,
+  "known_limits": [
+    "Forced process termination can leave empty parent directories created for guards; guarded files are deleted on handle closure.",
+    "Existing reparse points are rejected and directory renames are blocked; arbitrary in-place directory reparse mutation during execution is not established as race-free.",
+    "The Check callback must release a current-document file before the Inno copy; a concurrent edit in that interval is not made atomic.",
+    "These installers contain synthetic ownership fixtures and do not establish behavior of a downloaded historical product Setup."
+  ],
+  "files": [
+    {
+      "file": "01-fresh-install.log",
+      "size": 6896,
+      "sha256": "1a73ca886961292478b6e261a6898d24fcff8d0da7064c1feb4b5e661f9959ca"
+    },
+    {
+      "file": "02-fresh-uninstall.log",
+      "size": 7617,
+      "sha256": "ac4d2a0ff0721ebc198b56aedbb3d64edbc557a9a7aa9a677a7f5f2fe1a90ec3"
+    },
+    {
+      "file": "03-historical-install.log",
+      "size": 8038,
+      "sha256": "f9bdf68b511d16ff5a1b4c782420bbda34daa98d067107b5acbf0eb302ff61cc"
+    },
+    {
+      "file": "04-upgrade.log",
+      "size": 10017,
+      "sha256": "d2bc0695ed618952e67d4e51576d65d0c20be443e3f1b3dbec438beb82dd6ed0"
+    },
+    {
+      "file": "05-repair.log",
+      "size": 9575,
+      "sha256": "1419276d6b3b1546e404ed17ac45c613bac4b2f1695e4164bf1a6bae27e6373a"
+    },
+    {
+      "file": "06-repeated-repair.log",
+      "size": 9080,
+      "sha256": "49cf617654506440cca53b950412184637fb44110b8881e564c0eb495a2aceba"
+    },
+    {
+      "file": "07-junction-upgrade.log",
+      "size": 9081,
+      "sha256": "06e7927a891cb9bb1d2b4b5a9ac3a6778d88bc764704e43bf24b44fb27bea841"
+    },
+    {
+      "file": "08-junction-uninstall-refused.log",
+      "size": 6031,
+      "sha256": "7a4eb2b350ff44dc17b4820139aa29a8591662318358e39ab57aa1a462ae61ea"
+    },
+    {
+      "file": "08a-cancelled-guard-uninstall.log",
+      "size": 6009,
+      "sha256": "90aeadbd43cca6961ba807a0a9ef21d130a4ddd3adc1ab358f26916405a7ce13"
+    },
+    {
+      "file": "08b-terminated-guard-uninstall.log",
+      "size": 6011,
+      "sha256": "c8690b71349b06139025bfcde42f763d95a97a3c9aad2b6a7388f6858fa09b05"
+    },
+    {
+      "file": "09-locked-uninstall-refused.log",
+      "size": 4444,
+      "sha256": "9c192cf676c5e26ab6e7a6e99728a25dad320d1648c553d3b006161ee80b8879"
+    },
+    {
+      "file": "10-upgraded-uninstall-with-reader.log",
+      "size": 13609,
+      "sha256": "f5918a1a5110fe93366885eeb92048a7d69f7175e77854d60010d848d76e02e3"
+    },
+    {
+      "file": "DocumentUpgradeVerification.json",
+      "size": 1627,
+      "sha256": "3fe50c9e69b98f9e7b36a61d5bd536faca230b94a02e9770a314af473b5b4a57"
+    },
+    {
+      "file": "DocumentUpgradeVerification.txt",
+      "size": 1025,
+      "sha256": "9f7d0b44d8145652b489eae70ef7a3eb31bb96a6aaef4c096ab26aef56dcfd70"
+    },
+    {
+      "file": "windows-job-114915651402.log",
+      "size": 33427,
+      "sha256": "195cae6e1e79e1ad0dd65b52e2e0b4747538b4204b73100dce78eb5b073340e0",
+      "note": "Decoded GitHub Actions job log, line endings normalized to LF during local capture."
+    }
+  ]
+}

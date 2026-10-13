@@ -1,5 +1,6 @@
 #pragma once
 #include "PluginEditor.h"
+#include "PublicNameTests.h"
 #include "RigViewTestHelpers.h"
 #include <array>
 #include <cmath>
@@ -129,7 +130,7 @@ inline void run(const juce::File& directory) {
         set(processor,"cab"+juce::String(lane+1),0);set(processor,"drive"+juce::String(lane+1),.68f);
     }
     processor.setRateAndBufferSizeDetails(48000,256);
-    clickTab(*canvas,"RIGS");auto& amp=selector(*canvas,0);
+    clickTab(*canvas,"RIGS");rigViewTests::showControls(*canvas);auto& amp=selector(*canvas,0);
     require(amp.getNumItems()==spectralforge::ampModelCount,"Editor recall inventory incomplete");
     require(amp.selectMenuResult(3),"Cannot select legacy reference voice through the actual editor");settle();
     std::vector<std::vector<float>> voices;voices.push_back(render(processor));
@@ -157,8 +158,9 @@ inline void run(const juce::File& directory) {
             require(processor.selectedAmpChannel(0)==index,"Channel selection did not reach actual amplifier DSP state");
         }
         auto* reference=dynamic_cast<juce::Label*>(find(*canvas,"ampreference1"));
-        require(reference && reference->isVisible() && reference->getText()==juce::String::fromUTF8(spectralforge::ampInfo(model).reference),
-                "Selected amplifier caption must retain its original model name without a prefix");
+        require(reference && reference->isVisible() && reference->getText()==juce::String::fromUTF8(spectralforge::ampInfo(model).character),
+                "Selected amplifier caption must describe the selected sound");
+        publicNameTests::safeText(reference->getText(),"selected AMP correction caption");
     }
     snapshot(editor,directory,"Correction-new-amp-channels");
 
@@ -176,7 +178,7 @@ inline void run(const juce::File& directory) {
         require(selector(*canvas,lane).getSelectedId()==models[(size_t)lane]+1,"Matrix lane selector did not retain its model");
     }
     snapshot(editor,directory,"Correction-three-extended-lanes");
-    std::cout<<"PASS correction UI: directly editable five-slot PRE after fresh/old recall, alias-only amp menus with visible reference captions, "
+    std::cout<<"PASS correction UI: directly editable five-slot PRE after fresh/old recall, alias-only amp menus with sound-description captions, "
                "8 editor-to-audio DSP selections, native channel callbacks and isolated Matrix lane selectors; "
                "minimum RMS-matched processor residual "<<smallestResidual<<"\n";
 }

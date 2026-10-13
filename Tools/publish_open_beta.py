@@ -268,26 +268,29 @@ def verify_release_assets(api, release, assets, *, complete):
     return by_name
 
 
-def public_check(api, assets):
+def public_check(api, assets, *, prerelease=True, manifest_names=("update-beta.json",)):
     for attempt in range(6):
         try:
             release = api.json(f"/releases/tags/{TAG}", authenticated=False)
-            require(not release["draft"] and release["prerelease"] and release["html_url"] == RELEASE_URL,
-                    "Release is not publicly visible as a prerelease")
+            require(not release["draft"] and release["prerelease"] is prerelease
+                    and release["html_url"] == RELEASE_URL,
+                    "Release is not publicly visible in the requested channel")
             public_assets = {asset["name"]: asset for asset in release["assets"]}
             require(set(public_assets) == set(assets), "Public release asset list mismatch")
             for name, path in assets.items():
                 require(public_assets[name]["size"] == path.stat().st_size and
                         public_assets[name]["browser_download_url"] == DOWNLOAD_URL + name,
                         "Unexpected public asset URL or size")
-            with api.request(DOWNLOAD_URL + "update-beta.json", authenticated=False,
-                             headers={"Accept": "application/octet-stream"}) as response:
-                downloaded = response.read()
-            require(downloaded == assets["update-beta.json"].read_bytes(), "Public update manifest differs")
+            for name in manifest_names:
+                with api.request(DOWNLOAD_URL + name, authenticated=False,
+                                 headers={"Accept": "application/octet-stream"}) as response:
+                    downloaded = response.read()
+                require(downloaded == assets[name].read_bytes(), "Public update manifest differs")
             feed = api.pages("/releases", authenticated=False)
-            require(any(item["id"] == release["id"] and not item["draft"] and item["prerelease"] for item in feed),
-                    "Beta release is absent from public discovery feed")
-            print("PASS: unauthenticated release, assets, beta discovery, and downloaded update manifest")
+            require(any(item["id"] == release["id"] and not item["draft"]
+                        and item["prerelease"] is prerelease for item in feed),
+                    "Release is absent from public discovery feed")
+            print("PASS: unauthenticated release, assets, channel discovery, and downloaded update manifests")
             return release
         except (urllib.error.URLError, RuntimeError):
             if attempt == 5:
@@ -295,23 +298,28 @@ def public_check(api, assets):
             time.sleep(5)
 
 
-def publish(api, notes, assets):
+def publish(api, notes, assets, *, prerelease=True, manifest_names=("update-beta.json",),
+            before_publish=None):
+    require(type(prerelease) is bool and isinstance(manifest_names, tuple) and manifest_names
+            and all(name in assets and name in ("update-beta.json", "update-rc.json", "update-stable.json")
+                    for name in manifest_names), "Invalid release transport channel")
     verify_tag(api)
     matches = [release for release in api.pages("/releases") if release["tag_name"] == TAG]
     require(len(matches) <= 1, "Multiple releases have the requested tag")
     if matches:
         release = matches[0]
-        require(release["name"] == TITLE and release["body"].strip() == notes and release["prerelease"],
+        require(release["name"] == TITLE and release["body"].strip() == notes
+                and release["prerelease"] is prerelease,
                 "Existing release metadata differs; refusing to overwrite")
         verify_release_assets(api, release, assets, complete=not release["draft"])
         if not release["draft"]:
             verify_tag(api, required=True)
             print("Existing published release matches exactly; verifying public discovery")
-            return public_check(api, assets)
+            return public_check(api, assets, prerelease=prerelease, manifest_names=manifest_names)
     else:
         release = api.json("/releases", method="POST", payload={
             "tag_name": TAG, "target_commitish": HEAD, "name": TITLE, "body": notes,
-            "draft": True, "prerelease": True, "make_latest": "false",
+            "draft": True, "prerelease": prerelease, "make_latest": "false",
         })
         print(f"Created staging draft release {release['id']}")
     existing = verify_release_assets(api, release, assets, complete=False)
@@ -331,11 +339,18 @@ def publish(api, notes, assets):
         print(f"Uploaded and verified {name} ({path.stat().st_size} bytes)")
     verify_release_assets(api, release, assets, complete=True)
     verify_tag(api)
+    # Uploads can outlast a CI rerun or a revoked approval. Revalidate after the
+    # last byte is staged, immediately before making the immutable release public.
+    if before_publish is not None:
+        before_publish()
+    # The callback can perform multiple API reads. A tag changed during those
+    # reads must still be rejected before, not after, publication.
+    verify_tag(api)
     api.json(f"/releases/{release['id']}", method="PATCH", payload={
-        "draft": False, "prerelease": True, "make_latest": "false", "target_commitish": HEAD,
+        "draft": False, "prerelease": prerelease, "make_latest": "false", "target_commitish": HEAD,
     })
     verify_tag(api, required=True)
-    return public_check(api, assets)
+    return public_check(api, assets, prerelease=prerelease, manifest_names=manifest_names)
 
 
 def main():

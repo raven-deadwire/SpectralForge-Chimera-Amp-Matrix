@@ -114,4 +114,8 @@ struct PostNativeSectionState { bool nativeEnabled{false}; int selected{}; std::
 struct PostNativeState { std::array<PostNativeSectionState,3> sections{}; };
 inline PostNativeState defaultPostNativeState(bool nativeEnabled=true) { PostNativeState state; for(int s=0;s<3;++s) { state.sections[s].nativeEnabled=nativeEnabled; for(int m=0;m<3;++m)for(int c=0;c<postNativeModel(s,m).controlCount;++c)state.sections[s].banks[m].values[c]=postNativeModel(s,m).controls[c].initial; } return state; }
 inline void sanitisePostNativeState(PostNativeState& state) { for(int s=0;s<3;++s) { auto& section=state.sections[s]; section.selected=juce::jlimit(0,2,section.selected); for(int m=0;m<3;++m) { auto& bank=section.banks[m]; bank.trimDb=std::isfinite(bank.trimDb)?juce::jlimit(-24.f,24.f,bank.trimDb):0.f; bank.levelDb=std::isfinite(bank.levelDb)?juce::jlimit(-24.f,24.f,bank.levelDb):0.f; for(int c=0;c<postNativeModel(s,m).controlCount;++c) { const auto& spec=postNativeModel(s,m).controls[c]; float& value=bank.values[c]; value=std::isfinite(value)?juce::jlimit(spec.minimum,spec.maximum,value):spec.initial; if(spec.kind!=PostNativeControlKind::knob)value=std::round(value); if(!spec.connected)value=spec.initial; } } } }
+inline const char* postNativeDescription(int section,int model) {
+    constexpr std::array<const char*,9> descriptions{{"Linked RMS compression","Fast peak compression","Optical gain levelling","Class-A colour preamp","High-headroom DI","Transformer colour preamp","Four-band console EQ","Inductor-style tone EQ","Broad tube-style shelves"}};
+    return descriptions[static_cast<size_t>(juce::jlimit(0,2,section)*3+juce::jlimit(0,2,model))];
+}
 } // namespace spectralforge

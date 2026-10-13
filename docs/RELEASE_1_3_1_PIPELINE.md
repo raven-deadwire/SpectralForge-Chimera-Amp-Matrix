@@ -1,4 +1,11 @@
-# Chimera 1.3.1 beta publication pipeline
+# Chimera 1.3.1-beta.1 historical publication pipeline
+
+This document records the published beta.1 process and its version-specific
+authorization. For beta.2 and subsequent versions, use
+[Weekly release publication](WEEKLY_RELEASE_PIPELINE.md). The manual Actions
+entry retains the filename `publish-beta131.yml` but now uses explicit version
+and source inputs with a fresh approval receipt. The historical approval and
+branch/confirmation values below do not authorize or configure a new release.
 
 Product version: `1.3.1`. Package: `1.3.1-beta.1`. Intended tag:
 `v1.3.1-beta.1`. The published 1.3.0 tag and its package bytes remain unchanged.

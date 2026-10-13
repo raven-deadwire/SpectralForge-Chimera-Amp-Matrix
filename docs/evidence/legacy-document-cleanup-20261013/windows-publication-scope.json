@@ -1,0 +1,595 @@
+{
+  "schema": "spectralforge.historical-windows-distribution-scope.v1",
+  "public_release_count": 7,
+  "public_msix_or_appx_assets_observed": false,
+  "public_windows_distributions": [
+    "Inno Setup EXE",
+    "portable win64 ZIP"
+  ],
+  "windows_setup_documents": "{app}\\Documentation; text files at {app}",
+  "portable_documents": "<user-selected ZIP extraction root>; no fixed installed path or installer ownership database",
+  "msix_scope": "All seven shipped INSTALLATION.md documents identify MSIX as internal review only; no MSIX/APPX family asset exists in these seven public release asset lists.",
+  "portable_cleanup_authorized": false,
+  "windowsapps_cleanup_authorized": false,
+  "boundary": "This read-only inventory does not add portable folders or WindowsApps to automatic cleanup. Portable research records absent from Inno routing are not Windows Setup cleanup rules.",
+  "releases": [
+    {
+      "tag": "v1.0.0-beta.1",
+      "source_sha": "95b4091af2c914188ea32672f05e00544a1d2098",
+      "release_url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/releases/tag/v1.0.0-beta.1",
+      "public_asset_count": 18,
+      "public_asset_names": [
+        "candidate-source.json",
+        "COPYRIGHT.txt",
+        "EXTERNAL_BASS_IRS.md",
+        "INSTALLATION.md",
+        "InstallerVerification.txt",
+        "Linux-package-verification.txt",
+        "macOS-package-verification.txt",
+        "MANUAL.html",
+        "OPEN_BETA_NAM_VALIDATION.md",
+        "PUBLISHED_OPEN_BETA_1.md",
+        "SHA256SUMS.txt",
+        "SpectralForge-Chimera-1.0.0-beta.1-linux-x86_64.deb",
+        "SpectralForge-Chimera-1.0.0-beta.1-linux-x86_64.tar.gz",
+        "SpectralForge-Chimera-1.0.0-beta.1-macos-universal.pkg",
+        "SpectralForge-Chimera-1.0.0-beta.1-win64-Setup.exe",
+        "SpectralForge-Chimera-1.0.0-beta.1-win64.zip",
+        "THIRD_PARTY_NOTICES.md",
+        "update-beta.json"
+      ],
+      "msix_appx_msi_assets": [],
+      "windows_assets": [
+        {
+          "name": "SpectralForge-Chimera-1.0.0-beta.1-win64-Setup.exe",
+          "sha256": "29f1e12501ff64140879b0d17eea15b48aa881969388ad35a5eab2fd0d99c899",
+          "bytes": 36241187,
+          "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/releases/download/v1.0.0-beta.1/SpectralForge-Chimera-1.0.0-beta.1-win64-Setup.exe",
+          "asset_id": 587869291
+        },
+        {
+          "name": "SpectralForge-Chimera-1.0.0-beta.1-win64.zip",
+          "sha256": "b02e534f48c13078d0e5f7926a3ee568498ddde00ce08a9150c96b4e1cf4b1bb",
+          "bytes": 37144765,
+          "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/releases/download/v1.0.0-beta.1/SpectralForge-Chimera-1.0.0-beta.1-win64.zip",
+          "asset_id": 587869333
+        }
+      ],
+      "zip_archive_digest_verified": true,
+      "zip_root_contains_documents_directly": true,
+      "setup_document_count": 55,
+      "portable_document_count": 55,
+      "shipped_installation_document_sha256": "b6b34429421550f4d820af5b9207b5b6361ae3608c787fcc6d14f8e7cca7f4ab",
+      "shipped_installation_document_scope_line": 20,
+      "shipped_installation_document_scope_paraphrase": "ZIP is for portable manual use; VST3 needs manual placement; MSIX is internal review, not public beta.",
+      "portable_extra_documents_not_installed_by_setup": []
+    },
+    {
+      "tag": "v1.1.0-beta.1",
+      "source_sha": "f5b8ce7d39f69621ffe193fd4be6fbd760a6e6cf",
+      "release_url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/releases/tag/v1.1.0-beta.1",
+      "public_asset_count": 22,
+      "public_asset_names": [
+        "AMP_NATIVE_DSP.md",
+        "candidate-source.json",
+        "COPYRIGHT.txt",
+        "EXTERNAL_BASS_IRS.md",
+        "INSTALLATION.md",
+        "InstallerVerification.txt",
+        "Linux-package-verification.txt",
+        "macOS-package-verification.txt",
+        "MANUAL.html",
+        "PEDAL_BOARD_DSP.md",
+        "POST_NATIVE_DSP.md",
+        "PUBLISHED_OPEN_BETA_1_1.md",
+        "SHA256SUMS.txt",
+        "SpectralForge-Chimera-1.1.0-beta.1-linux-x86_64.deb",
+        "SpectralForge-Chimera-1.1.0-beta.1-linux-x86_64.tar.gz",
+        "SpectralForge-Chimera-1.1.0-beta.1-macos-universal.pkg",
+        "SpectralForge-Chimera-1.1.0-beta.1-win64-Setup.exe",
+        "SpectralForge-Chimera-1.1.0-beta.1-win64.zip",
+        "STUDIO_ONE_TEARDOWN.md",
+        "THIRD_PARTY_NOTICES.md",
+        "Trace-Chimera-Session.ps1",
+        "update-beta.json"
+      ],
+      "msix_appx_msi_assets": [],
+      "windows_assets": [
+        {
+          "name": "SpectralForge-Chimera-1.1.0-beta.1-win64-Setup.exe",
+          "sha256": "0f9d97f8aa0160d2828829e7c5d0696fd2e38776cec62882d18f761b3f21ca52",
+          "bytes": 41602683,
+          "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/releases/download/v1.1.0-beta.1/SpectralForge-Chimera-1.1.0-beta.1-win64-Setup.exe",
+          "asset_id": 597392010
+        },
+        {
+          "name": "SpectralForge-Chimera-1.1.0-beta.1-win64.zip",
+          "sha256": "e6988f9ea05f0c934b2d2ff1e28aea1a2087b1912a91635043e66179d5728776",
+          "bytes": 42609995,
+          "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/releases/download/v1.1.0-beta.1/SpectralForge-Chimera-1.1.0-beta.1-win64.zip",
+          "asset_id": 597392066
+        }
+      ],
+      "zip_archive_digest_verified": true,
+      "zip_root_contains_documents_directly": true,
+      "setup_document_count": 61,
+      "portable_document_count": 61,
+      "shipped_installation_document_sha256": "874bc69bff6378db3d91397c9fc2fee41ebf0b4edd82e56009c45503115a69d1",
+      "shipped_installation_document_scope_line": 20,
+      "shipped_installation_document_scope_paraphrase": "ZIP is for portable manual use; VST3 needs manual placement; MSIX is internal review, not public beta.",
+      "portable_extra_documents_not_installed_by_setup": []
+    },
+    {
+      "tag": "v1.1.1-beta.1",
+      "source_sha": "91850fdca0c329983e051b113719699dba9831fd",
+      "release_url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/releases/tag/v1.1.1-beta.1",
+      "public_asset_count": 22,
+      "public_asset_names": [
+        "AMP_NATIVE_DSP.md",
+        "candidate-source.json",
+        "COPYRIGHT.txt",
+        "EXTERNAL_BASS_IRS.md",
+        "INSTALLATION.md",
+        "InstallerVerification.txt",
+        "Linux-package-verification.txt",
+        "macOS-package-verification.txt",
+        "MANUAL.html",
+        "OPEN_BETA_RELEASE_NOTES.md",
+        "PEDAL_BOARD_DSP.md",
+        "POST_NATIVE_DSP.md",
+        "SHA256SUMS.txt",
+        "SpectralForge-Chimera-1.1.1-beta.1-linux-x86_64.deb",
+        "SpectralForge-Chimera-1.1.1-beta.1-linux-x86_64.tar.gz",
+        "SpectralForge-Chimera-1.1.1-beta.1-macos-universal.pkg",
+        "SpectralForge-Chimera-1.1.1-beta.1-win64-Setup.exe",
+        "SpectralForge-Chimera-1.1.1-beta.1-win64.zip",
+        "STUDIO_ONE_TEARDOWN.md",
+        "THIRD_PARTY_NOTICES.md",
+        "Trace-Chimera-Session.ps1",
+        "update-beta.json"
+      ],
+      "msix_appx_msi_assets": [],
+      "windows_assets": [
+        {
+          "name": "SpectralForge-Chimera-1.1.1-beta.1-win64-Setup.exe",
+          "sha256": "c3f1b047e9f8ef17f4fb2dde67cfb846778f3b8ce6e971a833d2ad9cadcb4ca1",
+          "bytes": 42791855,
+          "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/releases/download/v1.1.1-beta.1/SpectralForge-Chimera-1.1.1-beta.1-win64-Setup.exe",
+          "asset_id": 609902084
+        },
+        {
+          "name": "SpectralForge-Chimera-1.1.1-beta.1-win64.zip",
+          "sha256": "c8f50aa4c8a8d7e8c349e5393932a1deeabf9228facd7510360a7ae68be0c85d",
+          "bytes": 43936490,
+          "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/releases/download/v1.1.1-beta.1/SpectralForge-Chimera-1.1.1-beta.1-win64.zip",
+          "asset_id": 609902154
+        }
+      ],
+      "zip_archive_digest_verified": true,
+      "zip_root_contains_documents_directly": true,
+      "setup_document_count": 62,
+      "portable_document_count": 62,
+      "shipped_installation_document_sha256": "f9dd821c620e8e1dd069e0d991156957daa2cd99492ce03be8656d556319e949",
+      "shipped_installation_document_scope_line": 44,
+      "shipped_installation_document_scope_paraphrase": "ZIP is for portable manual use; VST3 needs manual placement; MSIX is internal review, not public beta.",
+      "portable_extra_documents_not_installed_by_setup": []
+    },
+    {
+      "tag": "v1.1.2-beta.1",
+      "source_sha": "88b62738fdbd9bcdca34f7b6e1092d6ed411eb94",
+      "release_url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/releases/tag/v1.1.2-beta.1",
+      "public_asset_count": 23,
+      "public_asset_names": [
+        "AMP_NATIVE_DSP.md",
+        "candidate-source.json",
+        "COPYRIGHT.txt",
+        "EXTERNAL_BASS_IRS.md",
+        "INSTALLATION.md",
+        "InstallerVerification.txt",
+        "Linux-package-verification.txt",
+        "macOS-package-verification.txt",
+        "MANUAL.html",
+        "NATIVE_NAM_CALIBRATION.md",
+        "OPEN_BETA_RELEASE_NOTES.md",
+        "PEDAL_BOARD_DSP.md",
+        "POST_NATIVE_DSP.md",
+        "SHA256SUMS.txt",
+        "SpectralForge-Chimera-1.1.2-beta.1-linux-x86_64.deb",
+        "SpectralForge-Chimera-1.1.2-beta.1-linux-x86_64.tar.gz",
+        "SpectralForge-Chimera-1.1.2-beta.1-macos-universal.pkg",
+        "SpectralForge-Chimera-1.1.2-beta.1-win64-Setup.exe",
+        "SpectralForge-Chimera-1.1.2-beta.1-win64.zip",
+        "STUDIO_ONE_TEARDOWN.md",
+        "THIRD_PARTY_NOTICES.md",
+        "Trace-Chimera-Session.ps1",
+        "update-beta.json"
+      ],
+      "msix_appx_msi_assets": [],
+      "windows_assets": [
+        {
+          "name": "SpectralForge-Chimera-1.1.2-beta.1-win64-Setup.exe",
+          "sha256": "e749ebc071063cd3a7aab2d428e2ff72569fe34cd8461f9eb4ebeecfe4fb3e10",
+          "bytes": 42821556,
+          "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/releases/download/v1.1.2-beta.1/SpectralForge-Chimera-1.1.2-beta.1-win64-Setup.exe",
+          "asset_id": 610182724
+        },
+        {
+          "name": "SpectralForge-Chimera-1.1.2-beta.1-win64.zip",
+          "sha256": "2b6e4d2b33155130b9f2ab0134391a11afd5c30e67c9527d63c8b18a7bf40c40",
+          "bytes": 44110204,
+          "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/releases/download/v1.1.2-beta.1/SpectralForge-Chimera-1.1.2-beta.1-win64.zip",
+          "asset_id": 610182775
+        }
+      ],
+      "zip_archive_digest_verified": true,
+      "zip_root_contains_documents_directly": true,
+      "setup_document_count": 64,
+      "portable_document_count": 76,
+      "shipped_installation_document_sha256": "f9dd821c620e8e1dd069e0d991156957daa2cd99492ce03be8656d556319e949",
+      "shipped_installation_document_scope_line": 44,
+      "shipped_installation_document_scope_paraphrase": "ZIP is for portable manual use; VST3 needs manual placement; MSIX is internal review, not public beta.",
+      "portable_extra_documents_not_installed_by_setup": [
+        {
+          "path": "evidence/native-nam-20261004/additional-fit.json",
+          "size": 14934,
+          "sha256": "0162ce7de9540865f5310d2c67c264cbb04ca39081c4e0734c659cf915f6b2bb",
+          "payload_manifest_match": true,
+          "windows_setup_installs_this_path": false
+        },
+        {
+          "path": "evidence/native-nam-20261004/calibration.json",
+          "size": 2938,
+          "sha256": "cddbd84a0b3aa75283adfdac52d41644abf09fea2a334dab80966cf63706a2d4",
+          "payload_manifest_match": true,
+          "windows_setup_installs_this_path": false
+        },
+        {
+          "path": "evidence/native-nam-20261004/core-tests.log",
+          "size": 13982,
+          "sha256": "552ca91534b48c26132f9370e9d95ea6c073fbe0a097fc22afa7240908a4d3b1",
+          "payload_manifest_match": true,
+          "windows_setup_installs_this_path": false
+        },
+        {
+          "path": "evidence/native-nam-20261004/gain.json",
+          "size": 559769,
+          "sha256": "839ed049b171b7d57f72a4fb22190310e5dadd6761b21ef9b9d526efb6bc64d1",
+          "payload_manifest_match": true,
+          "windows_setup_installs_this_path": false
+        },
+        {
+          "path": "evidence/native-nam-20261004/gate-processor-tests.log",
+          "size": 2814,
+          "sha256": "d5bc5f9cd0657ab3fa6837da08929f5c03f8be5c55f3f1224691e9f9c876d94f",
+          "payload_manifest_match": true,
+          "windows_setup_installs_this_path": false
+        },
+        {
+          "path": "evidence/native-nam-20261004/integrated-final.log",
+          "size": 25546,
+          "sha256": "0aa22de3d1e328634101eb53b052bcd065c82b1bd66f3286e6080197b7a6a8fe",
+          "payload_manifest_match": true,
+          "windows_setup_installs_this_path": false
+        },
+        {
+          "path": "evidence/native-nam-20261004/native-tests.log",
+          "size": 2491,
+          "sha256": "b26954ae62bdf68d69301c93cb2b7047455fa5768ada5465c0daadf1fb39e8b6",
+          "payload_manifest_match": true,
+          "windows_setup_installs_this_path": false
+        },
+        {
+          "path": "evidence/native-nam-20261004/newamp-tests.log",
+          "size": 1264,
+          "sha256": "0e56a7bccc96bae99754cb30917a77e66fb306263eee4439370514c4f4d735cc",
+          "payload_manifest_match": true,
+          "windows_setup_installs_this_path": false
+        },
+        {
+          "path": "evidence/native-nam-20261004/preset-levels.json",
+          "size": 6381,
+          "sha256": "a6798164c507905b3672eff6e0b984ba2f33b07ac56950fd34f79c93778b9c03",
+          "payload_manifest_match": true,
+          "windows_setup_installs_this_path": false
+        },
+        {
+          "path": "evidence/native-nam-20261004/renderer-tests.log",
+          "size": 85,
+          "sha256": "a0aab9f0818ce5afb12552395e7375e35ba2e7ea5d27a18695570fa3e8c5eea6",
+          "payload_manifest_match": true,
+          "windows_setup_installs_this_path": false
+        },
+        {
+          "path": "evidence/native-nam-20261004/source-hashes.json",
+          "size": 6307,
+          "sha256": "2c41ebbd260f9217474fcb1f3605f2631d9ea0d857f064387f061b7bb639e149",
+          "payload_manifest_match": true,
+          "windows_setup_installs_this_path": false
+        },
+        {
+          "path": "evidence/native-nam-20261004/tone.json",
+          "size": 225845,
+          "sha256": "92092f689157e9e296036d5e99e6597574d6bb312d7b4223838d73f337ae24a2",
+          "payload_manifest_match": true,
+          "windows_setup_installs_this_path": false
+        }
+      ]
+    },
+    {
+      "tag": "v1.2.0-beta.1",
+      "source_sha": "d93560445c78552768a0ed592e5ec62c3c648fb6",
+      "release_url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/releases/tag/v1.2.0-beta.1",
+      "public_asset_count": 24,
+      "public_asset_names": [
+        "AMP_NATIVE_DSP.md",
+        "candidate-source.json",
+        "COPYRIGHT.txt",
+        "EXTERNAL_BASS_IRS.md",
+        "INSTALLATION.md",
+        "InstallerVerification.txt",
+        "Linux-package-verification.txt",
+        "macOS-package-verification.txt",
+        "MANUAL.html",
+        "NASTROND_CHANNEL_FEEDBACK.md",
+        "NATIVE_NAM_CALIBRATION.md",
+        "OPEN_BETA_RELEASE_NOTES.md",
+        "PEDAL_BOARD_DSP.md",
+        "POST_NATIVE_DSP.md",
+        "SHA256SUMS.txt",
+        "SpectralForge-Chimera-1.2.0-beta.1-linux-x86_64.deb",
+        "SpectralForge-Chimera-1.2.0-beta.1-linux-x86_64.tar.gz",
+        "SpectralForge-Chimera-1.2.0-beta.1-macos-universal.pkg",
+        "SpectralForge-Chimera-1.2.0-beta.1-win64-Setup.exe",
+        "SpectralForge-Chimera-1.2.0-beta.1-win64.zip",
+        "STUDIO_ONE_TEARDOWN.md",
+        "THIRD_PARTY_NOTICES.md",
+        "Trace-Chimera-Session.ps1",
+        "update-beta.json"
+      ],
+      "msix_appx_msi_assets": [],
+      "windows_assets": [
+        {
+          "name": "SpectralForge-Chimera-1.2.0-beta.1-win64-Setup.exe",
+          "sha256": "6d1a7fac0bd8a0a3e42994920ebd28e5c3b7e5f1be1cbf9f97b1ed1a47eb2490",
+          "bytes": 49670164,
+          "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/releases/download/v1.2.0-beta.1/SpectralForge-Chimera-1.2.0-beta.1-win64-Setup.exe",
+          "asset_id": 612321385
+        },
+        {
+          "name": "SpectralForge-Chimera-1.2.0-beta.1-win64.zip",
+          "sha256": "16e2aa1d5f8268004c33782bf73d5727d9fbe575e3378a81974d4ece5f209147",
+          "bytes": 50996997,
+          "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/releases/download/v1.2.0-beta.1/SpectralForge-Chimera-1.2.0-beta.1-win64.zip",
+          "asset_id": 612321510
+        }
+      ],
+      "zip_archive_digest_verified": true,
+      "zip_root_contains_documents_directly": true,
+      "setup_document_count": 65,
+      "portable_document_count": 77,
+      "shipped_installation_document_sha256": "f9dd821c620e8e1dd069e0d991156957daa2cd99492ce03be8656d556319e949",
+      "shipped_installation_document_scope_line": 44,
+      "shipped_installation_document_scope_paraphrase": "ZIP is for portable manual use; VST3 needs manual placement; MSIX is internal review, not public beta.",
+      "portable_extra_documents_not_installed_by_setup": [
+        {
+          "path": "evidence/native-nam-20261004/additional-fit.json",
+          "size": 14934,
+          "sha256": "0162ce7de9540865f5310d2c67c264cbb04ca39081c4e0734c659cf915f6b2bb",
+          "payload_manifest_match": true,
+          "windows_setup_installs_this_path": false
+        },
+        {
+          "path": "evidence/native-nam-20261004/calibration.json",
+          "size": 2938,
+          "sha256": "cddbd84a0b3aa75283adfdac52d41644abf09fea2a334dab80966cf63706a2d4",
+          "payload_manifest_match": true,
+          "windows_setup_installs_this_path": false
+        },
+        {
+          "path": "evidence/native-nam-20261004/core-tests.log",
+          "size": 13982,
+          "sha256": "552ca91534b48c26132f9370e9d95ea6c073fbe0a097fc22afa7240908a4d3b1",
+          "payload_manifest_match": true,
+          "windows_setup_installs_this_path": false
+        },
+        {
+          "path": "evidence/native-nam-20261004/gain.json",
+          "size": 559769,
+          "sha256": "839ed049b171b7d57f72a4fb22190310e5dadd6761b21ef9b9d526efb6bc64d1",
+          "payload_manifest_match": true,
+          "windows_setup_installs_this_path": false
+        },
+        {
+          "path": "evidence/native-nam-20261004/gate-processor-tests.log",
+          "size": 2814,
+          "sha256": "d5bc5f9cd0657ab3fa6837da08929f5c03f8be5c55f3f1224691e9f9c876d94f",
+          "payload_manifest_match": true,
+          "windows_setup_installs_this_path": false
+        },
+        {
+          "path": "evidence/native-nam-20261004/integrated-final.log",
+          "size": 25546,
+          "sha256": "0aa22de3d1e328634101eb53b052bcd065c82b1bd66f3286e6080197b7a6a8fe",
+          "payload_manifest_match": true,
+          "windows_setup_installs_this_path": false
+        },
+        {
+          "path": "evidence/native-nam-20261004/native-tests.log",
+          "size": 2491,
+          "sha256": "b26954ae62bdf68d69301c93cb2b7047455fa5768ada5465c0daadf1fb39e8b6",
+          "payload_manifest_match": true,
+          "windows_setup_installs_this_path": false
+        },
+        {
+          "path": "evidence/native-nam-20261004/newamp-tests.log",
+          "size": 1264,
+          "sha256": "0e56a7bccc96bae99754cb30917a77e66fb306263eee4439370514c4f4d735cc",
+          "payload_manifest_match": true,
+          "windows_setup_installs_this_path": false
+        },
+        {
+          "path": "evidence/native-nam-20261004/preset-levels.json",
+          "size": 6381,
+          "sha256": "a6798164c507905b3672eff6e0b984ba2f33b07ac56950fd34f79c93778b9c03",
+          "payload_manifest_match": true,
+          "windows_setup_installs_this_path": false
+        },
+        {
+          "path": "evidence/native-nam-20261004/renderer-tests.log",
+          "size": 85,
+          "sha256": "a0aab9f0818ce5afb12552395e7375e35ba2e7ea5d27a18695570fa3e8c5eea6",
+          "payload_manifest_match": true,
+          "windows_setup_installs_this_path": false
+        },
+        {
+          "path": "evidence/native-nam-20261004/source-hashes.json",
+          "size": 6307,
+          "sha256": "2c41ebbd260f9217474fcb1f3605f2631d9ea0d857f064387f061b7bb639e149",
+          "payload_manifest_match": true,
+          "windows_setup_installs_this_path": false
+        },
+        {
+          "path": "evidence/native-nam-20261004/tone.json",
+          "size": 225845,
+          "sha256": "92092f689157e9e296036d5e99e6597574d6bb312d7b4223838d73f337ae24a2",
+          "payload_manifest_match": true,
+          "windows_setup_installs_this_path": false
+        }
+      ]
+    },
+    {
+      "tag": "v1.3.0-beta.1",
+      "source_sha": "7f692693f942a0f1dd1973062dc4d5d47b9be4ac",
+      "release_url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/releases/tag/v1.3.0-beta.1",
+      "public_asset_count": 32,
+      "public_asset_names": [
+        "AMP_NATIVE_DSP.md",
+        "beta-publication-decision.json",
+        "BETA_VALIDATION_SCOPE.md",
+        "CAB_EXPANSION_V2.md",
+        "CAB_INTEGRATION.md",
+        "CAB_LAYOUT_V3.md",
+        "candidate-source.json",
+        "COPYRIGHT.txt",
+        "EXTERNAL_BASS_IRS.md",
+        "INSTALLATION.md",
+        "InstallerVerification.txt",
+        "IR_DISTRIBUTION.md",
+        "Linux-package-verification.txt",
+        "macOS-package-verification.txt",
+        "MANUAL.html",
+        "NASTROND_CHANNEL_FEEDBACK.md",
+        "NIFLHEIMR_NATIVE_PROTOTYPE.md",
+        "OPEN_BETA_RELEASE_NOTES.md",
+        "PEDAL_BOARD_DSP.md",
+        "POST_NATIVE_DSP.md",
+        "release-acceptance-evidence.zip",
+        "release-gate.json",
+        "SHA256SUMS.txt",
+        "SpectralForge-Chimera-1.3.0-beta.1-linux-x86_64.deb",
+        "SpectralForge-Chimera-1.3.0-beta.1-linux-x86_64.tar.gz",
+        "SpectralForge-Chimera-1.3.0-beta.1-macos-universal.pkg",
+        "SpectralForge-Chimera-1.3.0-beta.1-win64-Setup.exe",
+        "SpectralForge-Chimera-1.3.0-beta.1-win64.zip",
+        "STUDIO_ONE_TEARDOWN.md",
+        "THIRD_PARTY_NOTICES.md",
+        "Trace-Chimera-Session.ps1",
+        "update-beta.json"
+      ],
+      "msix_appx_msi_assets": [],
+      "windows_assets": [
+        {
+          "name": "SpectralForge-Chimera-1.3.0-beta.1-win64-Setup.exe",
+          "sha256": "7fd926a0db00b415b00d191116af14f71809ff995f805dfb5970a8c3c910b79a",
+          "bytes": 117887175,
+          "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/releases/download/v1.3.0-beta.1/SpectralForge-Chimera-1.3.0-beta.1-win64-Setup.exe",
+          "asset_id": 630295873
+        },
+        {
+          "name": "SpectralForge-Chimera-1.3.0-beta.1-win64.zip",
+          "sha256": "7d5e441ffe7def69d0e0e1a6fd984cfd2c265f0112c597b9279b4b45d532c056",
+          "bytes": 128311517,
+          "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/releases/download/v1.3.0-beta.1/SpectralForge-Chimera-1.3.0-beta.1-win64.zip",
+          "asset_id": 630296003
+        }
+      ],
+      "zip_archive_digest_verified": true,
+      "zip_root_contains_documents_directly": true,
+      "setup_document_count": 24,
+      "portable_document_count": 24,
+      "shipped_installation_document_sha256": "2d52a08ec6dcb387347bb47996577fd37899aa25a372f1a50c6e73105c0eb2f2",
+      "shipped_installation_document_scope_line": 45,
+      "shipped_installation_document_scope_paraphrase": "ZIP is for portable manual use; VST3 needs manual placement; MSIX is internal review, not public beta.",
+      "portable_extra_documents_not_installed_by_setup": []
+    },
+    {
+      "tag": "v1.3.1-beta.1",
+      "source_sha": "7b20cd9d1f90e3e2969c250712b199e893cf50cd",
+      "release_url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/releases/tag/v1.3.1-beta.1",
+      "public_asset_count": 36,
+      "public_asset_names": [
+        "AMP_HEAD_KNOB_REFERENCE_REVIEW_1_3_1.md",
+        "AMP_HEAD_UI_REVIEW_1_3_1.md",
+        "AMP_NATIVE_DSP.md",
+        "beta-publication-decision.json",
+        "BETA_VALIDATION_SCOPE.md",
+        "CAB_EXPANSION_V2.md",
+        "CAB_INTEGRATION.md",
+        "CAB_LAYOUT_V3.md",
+        "candidate-source.json",
+        "COPYRIGHT.txt",
+        "EXTERNAL_BASS_IRS.md",
+        "GRAPHICAL_EQ_1_3_1.md",
+        "INSTALLATION.md",
+        "InstallerVerification.txt",
+        "IR_DISTRIBUTION.md",
+        "Linux-package-verification.txt",
+        "macOS-package-verification.txt",
+        "MANUAL.html",
+        "NASTROND_CHANNEL_FEEDBACK.md",
+        "NIFLHEIMR_NATIVE_PROTOTYPE.md",
+        "OPEN_BETA_RELEASE_NOTES.md",
+        "PEDAL_BOARD_DSP.md",
+        "POST_NATIVE_DSP.md",
+        "release-acceptance-evidence.zip",
+        "release-gate.json",
+        "SHA256SUMS.txt",
+        "SIGNAL_EQ_INTEGRATION_1_3_1.md",
+        "SpectralForge-Chimera-1.3.1-beta.1-linux-x86_64.deb",
+        "SpectralForge-Chimera-1.3.1-beta.1-linux-x86_64.tar.gz",
+        "SpectralForge-Chimera-1.3.1-beta.1-macos-universal.pkg",
+        "SpectralForge-Chimera-1.3.1-beta.1-win64-Setup.exe",
+        "SpectralForge-Chimera-1.3.1-beta.1-win64.zip",
+        "STUDIO_ONE_TEARDOWN.md",
+        "THIRD_PARTY_NOTICES.md",
+        "Trace-Chimera-Session.ps1",
+        "update-beta.json"
+      ],
+      "msix_appx_msi_assets": [],
+      "windows_assets": [
+        {
+          "name": "SpectralForge-Chimera-1.3.1-beta.1-win64-Setup.exe",
+          "sha256": "da0a0c7f70b2ab6f5e0854ba9180a2eb3a8ab847c31c169db9e82c91002ff41a",
+          "bytes": 210803143,
+          "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/releases/download/v1.3.1-beta.1/SpectralForge-Chimera-1.3.1-beta.1-win64-Setup.exe",
+          "asset_id": 632010362
+        },
+        {
+          "name": "SpectralForge-Chimera-1.3.1-beta.1-win64.zip",
+          "sha256": "de958d33303042be9cd5b99f34cb83090f665e88a24b01ccf06252f4c4dda55a",
+          "bytes": 231613396,
+          "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/releases/download/v1.3.1-beta.1/SpectralForge-Chimera-1.3.1-beta.1-win64.zip",
+          "asset_id": 632010618
+        }
+      ],
+      "zip_archive_digest_verified": true,
+      "zip_root_contains_documents_directly": true,
+      "setup_document_count": 24,
+      "portable_document_count": 24,
+      "shipped_installation_document_sha256": "ba2337d38f4f49c30aca01a4a6df671bf9ddad0ab7b6a6b67b66d00026b07644",
+      "shipped_installation_document_scope_line": 45,
+      "shipped_installation_document_scope_paraphrase": "ZIP is for portable manual use; VST3 needs manual placement; MSIX is internal review, not public beta.",
+      "portable_extra_documents_not_installed_by_setup": []
+    }
+  ]
+}

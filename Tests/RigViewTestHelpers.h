@@ -4,7 +4,7 @@
 
 namespace rigViewTests {
 // Use only for tests of the amplifier knobs/metadata. The product RIGS page
-// deliberately opens its room in Dual/Matrix; performance/default-view tests
+// deliberately opens its room in Classic/Dual/Matrix; performance/default-view tests
 // should continue to exercise that room instead of calling this helper.
 inline void showControls(juce::Component& canvas) {
     auto* panel=canvas.findChildWithID("ampNativePanel1");

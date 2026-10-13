@@ -24,7 +24,7 @@ inline constexpr std::array headDimensions{
     HeadDimensions{.44000f, .13500f, .24000f, true }, // Solid Punch: authored compact metal enclosure
     HeadDimensions{.43180f, .13335f, .35560f, false}, // Modern Bass: DB751, without rack ears
     HeadDimensions{.70500f, .28400f, .26600f, false}, // Chime 30: AC30CH head format
-    HeadDimensions{.55000f, .27000f, .28000f, false}, // Orange Crown: Rockerverb 50 MKIII
+    HeadDimensions{.55000f, .27000f, .28000f, false}, // Amber Crown: Rockerverb 50 MKIII
     HeadDimensions{.62230f, .25400f, .34290f, false}, // Vintage Valve: Super Bassman
     HeadDimensions{.33655f, .066675f,.25781f, false}, // Metro Clean: Subway D-800+
     HeadDimensions{.54610f, .27305f, .26670f, false}, // Prism Chime: HC-30 head format

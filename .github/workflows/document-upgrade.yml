@@ -1,0 +1,136 @@
+name: Document Upgrade Compatibility
+
+on:
+  pull_request:
+    paths:
+      - "Tools/legacy_document_cleanup.py"
+      - "Tools/legacy_document_cleanup.c"
+      - "Tools/test_legacy_document_cleanup.py"
+      - "Tools/verify_macos_document_upgrade.py"
+      - "Tools/package_release.py"
+      - "Tools/install-linux.sh"
+      - "Tools/uninstall-linux.sh"
+      - "Validation/legacy-document-inventory.json"
+      - "Validation/public-presentation-policy.json"
+      - "Installer/Chimera.iss"
+      - "Installer/LegacyDocumentCleanup.iss"
+      - "Tools/windows_document_rules.py"
+      - "Tools/Build-WindowsInstaller.ps1"
+      - "Tools/Verify-WindowsInstaller.ps1"
+      - "Tools/Verify-WindowsPreviousReleaseUpgrade.ps1"
+      - "Tests/Test-WindowsDocumentUpgrade.ps1"
+      - "Tests/test_windows_document_rules.py"
+      - ".github/workflows/document-upgrade.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  document-fixtures:
+    name: Document fixtures (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-24.04, macos-15]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Record source and exact validation scope
+        shell: bash
+        run: |
+          mkdir -p build/document-upgrade
+          python - <<'PY'
+          import json, os, pathlib, platform, subprocess
+          record = {
+              "schema": "spectralforge.document-upgrade-fixtures.v1",
+              "source_sha": subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip(),
+              "run_id": os.environ["GITHUB_RUN_ID"],
+              "runner_os": platform.system(),
+              "scope": "Native document helper with synthetic files; Linux invokes real dpkg in an isolated root. macOS additionally runs a guarded synthetic Apple PKG lifecycle reported in macos-pkg-fixture/.",
+              "native_product_installation_verified": False,
+              "macos_pkg_installation_verified": False,
+              "windows_installer_verified": False,
+              "daw_audio_verified": False,
+              "publication_approved": False,
+              "results": "See test-output.txt; this source/scope record is not a PASS verdict.",
+          }
+          pathlib.Path("build/document-upgrade/scope.json").write_text(json.dumps(record, indent=2) + "\n", encoding="utf-8")
+          PY
+      - name: Native helper and isolated real dpkg lifecycle fixtures
+        if: runner.os == 'Linux'
+        shell: bash
+        run: |
+          set -o pipefail
+          CHIMERA_TEST_PYTHON=$(command -v python)
+          sudo -- "$CHIMERA_TEST_PYTHON" Tools/test_legacy_document_cleanup.py 2>&1 | tee build/document-upgrade/test-output.txt
+      - name: Native macOS helper fixtures
+        if: runner.os == 'macOS'
+        shell: bash
+        run: |
+          set -o pipefail
+          python Tools/test_legacy_document_cleanup.py 2>&1 | tee build/document-upgrade/test-output.txt
+      - name: Real Apple PKG fixture installation, upgrade and repair
+        if: runner.os == 'macOS'
+        shell: bash
+        run: |
+          set -o pipefail
+          CHIMERA_TEST_PYTHON=$(command -v python)
+          sudo --preserve-env=CI,GITHUB_ACTIONS,GITHUB_RUN_ID,RUNNER_OS,RUNNER_TEMP -- "$CHIMERA_TEST_PYTHON" Tools/verify_macos_document_upgrade.py --disposable-ci 2>&1 | tee build/document-upgrade/macos-pkg-fixture-output.txt
+      - name: Upload source-bound fixture evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Chimera-document-upgrade-${{ matrix.os }}
+          path: build/document-upgrade
+          if-no-files-found: error
+
+  windows-inno-document-fixtures:
+    name: Windows Inno document fixtures (exact source)
+    runs-on: windows-2022
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Verify generated Windows ownership rules
+        shell: pwsh
+        run: |
+          python -m unittest Tests.test_windows_document_rules -v
+          if ($LASTEXITCODE -ne 0) { throw "Windows document rule contracts failed." }
+          foreach ($script in @("Tests/Test-WindowsDocumentUpgrade.ps1", "Tools/Build-WindowsInstaller.ps1", "Tools/Verify-WindowsInstaller.ps1", "Tools/Verify-WindowsPreviousReleaseUpgrade.ps1")) {
+            $tokens = $null
+            $parseErrors = $null
+            [System.Management.Automation.Language.Parser]::ParseFile((Resolve-Path $script).Path, [ref]$tokens, [ref]$parseErrors) | Out-Null
+            if ($parseErrors.Count) { throw (($parseErrors | ForEach-Object Message) -join "`n") }
+          }
+      - name: Locate native Inno Setup compiler
+        shell: pwsh
+        run: |
+          # ISCC.exe's PE FileVersion can be 0.0.0.0; the compiled .iss guard
+          # validates the actual engine VER and rejects versions below 6.7.1.
+          choco upgrade innosetup --version=6.7.1 --yes --no-progress
+          if ($LASTEXITCODE -ne 0) { throw "Cannot install Inno Setup for native fixture validation." }
+      - name: Real Inno fresh, upgrade, repair and historical-log uninstall fixtures
+        shell: pwsh
+        run: ./Tests/Test-WindowsDocumentUpgrade.ps1
+      - name: Upload native fixture evidence (not a released-product install claim)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Chimera-document-upgrade-windows-inno-fixtures
+          path: build/windows-document-upgrade-verification
+          if-no-files-found: warn

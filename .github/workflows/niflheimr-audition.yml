@@ -4,6 +4,8 @@ on:
     paths:
       - 'Tests/RenderNiflheimr*.cpp'
       - 'Tests/test_niflheimr_audition.py'
+      - 'Tests/IntegratedProcessorTests.cpp'
+      - 'Tests/NiflheimrPresetTests.h'
       - 'Tools/audition_niflheimr.py'
       - 'Validation/audition/**'
       - 'Source/**'
@@ -33,15 +35,16 @@ jobs:
       - if: runner.os == 'Linux'
         run: sudo apt-get update && sudo apt-get install -y libasound2-dev libcurl4-openssl-dev libfreetype6-dev libfontconfig1-dev libx11-dev libxcomposite-dev libxcursor-dev libxext-dev libxinerama-dev libxrandr-dev libxrender-dev libgl1-mesa-dev
       - run: cmake -S . -B build-audition -DCMAKE_BUILD_TYPE=Release -DCHIMERA_ENABLE_NIFLHEIMR_MEASUREMENTS=ON
-      - run: cmake --build build-audition --config Release --target ChimeraNiflheimrRender ChimeraNiflheimrRigRender --parallel 2
-      - name: Synthetic tool contracts (musical acceptance remains pending)
-        run: ctest --test-dir build-audition -C Release -R "ChimeraNiflheimr(Audition|Renderer).*Tests" --output-on-failure --no-tests=error
+      - run: cmake --build build-audition --config Release --target ChimeraNiflheimrRender ChimeraNiflheimrRigRender ChimeraIntegratedProcessorTests --parallel 2
+      - name: Synthetic tool and stock preset contracts (musical acceptance remains pending)
+        run: ctest --test-dir build-audition -C Release -R "ChimeraNiflheimr(Audition|Renderer|Preset).*Tests" --output-on-failure --no-tests=error
       - if: always()
         uses: actions/upload-artifact@v6
         with:
           name: Niflheimr-audition-contracts-${{ runner.os }}-${{ github.event.pull_request.head.sha }}
           path: |
             build-audition/audition-route-evidence
+            build-audition/niflheimr-preset-evidence
             build-audition/Testing/Temporary/LastTest.log
             build-audition/ChimeraNiflheimrRender_artefacts/Release/*
             build-audition/ChimeraNiflheimrRigRender_artefacts/Release/*

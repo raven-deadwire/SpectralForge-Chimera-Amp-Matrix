@@ -1,0 +1,103 @@
+{
+  "schema": "spectralforge.native-document-ci-retrieval.v1",
+  "source_sha": "0bf06fe2a04f7e64b2870dee7d618eb6dad54e1e",
+  "run_id": 38280283924,
+  "run_url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38280283924",
+  "retrieved_at_utc": "2026-10-12 17:08:08 UTC",
+  "job_url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38280283924/job/114915651265",
+  "job": {
+    "id": 114915651265,
+    "name": "Document fixtures (ubuntu-24.04)",
+    "status": "completed",
+    "conclusion": "success",
+    "run_id": 38280283924,
+    "logs_url": null,
+    "steps": [
+      {
+        "name": "Set up job",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 1
+      },
+      {
+        "name": "Run actions/checkout@v4",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 2
+      },
+      {
+        "name": "Run actions/setup-python@v5",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 3
+      },
+      {
+        "name": "Record source and exact validation scope",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 4
+      },
+      {
+        "name": "Native helper and isolated real dpkg lifecycle fixtures",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 5
+      },
+      {
+        "name": "Native macOS helper fixtures",
+        "status": "completed",
+        "conclusion": "skipped",
+        "number": 6
+      },
+      {
+        "name": "Real Apple PKG fixture installation, upgrade and repair",
+        "status": "completed",
+        "conclusion": "skipped",
+        "number": 7
+      },
+      {
+        "name": "Upload source-bound fixture evidence",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 8
+      },
+      {
+        "name": "Post Run actions/setup-python@v5",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 15
+      },
+      {
+        "name": "Post Run actions/checkout@v4",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 16
+      },
+      {
+        "name": "Complete job",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 17
+      }
+    ]
+  },
+  "artifact": {
+    "id": 11760523733,
+    "name": "Chimera-document-upgrade-ubuntu-24.04",
+    "size_in_bytes": 1816,
+    "url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/artifacts/11760523733",
+    "archive_download_url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/artifacts/11760523733/zip",
+    "expired": false,
+    "created_at": "2026-10-12T16:56:37Z",
+    "expires_at": "2027-01-10T16:51:22Z",
+    "updated_at": "2026-10-12T16:56:37Z",
+    "digest": "sha256:2cb4b531c1fbe0cb59d0d37212ff6132c387c090feb8e816bb7a9999e2089273",
+    "workflow_run": {
+      "id": 38280283924,
+      "repository_id": 1382701489,
+      "head_repository_id": 1382701489,
+      "head_branch": "fix/verified-legacy-doc-cleanup-20261013",
+      "head_sha": "0bf06fe2a04f7e64b2870dee7d618eb6dad54e1e"
+    }
+  }
+}

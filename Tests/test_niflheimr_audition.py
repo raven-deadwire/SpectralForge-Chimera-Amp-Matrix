@@ -99,6 +99,36 @@ if __name__ == '__main__':
             a.execute(root / 'config.json', root / 'run', sys.argv[1], sys.argv[2])
             r = json.loads((root / 'run/report.json').read_text())
             assert len(r['results']) == 15 and r['musical_acceptance'] == 'PENDING'
+            # The real renderer must retain the factory's complete route when
+            # replacing active cabinets with the common audition IR. In
+            # particular, the preset ordinal no longer identifies lane 0's
+            # channel, and Heavy Pulse's LOW must stay dry and bypassed.
+            modes = [0, 1, 2, 2, 0]
+            channels = [[0], [0, 1], [0, 2, 0], [3, 3, 1], [4]]
+            contexts = [[0], [1, 2], [3, 4, 5], [3, 4, 5], [0]]
+            crossovers = [[], [180], [140, 1600], [110, 900], []]
+            outputs = r['provenance']['current']['preset-cab']['outputs']
+            for preset, row in enumerate(outputs):
+                assert row['preset_index'] == 43 + preset and row['preset_name'] == a.PRESETS[preset]
+                assert row['routing_mode'] == modes[preset] and abs(row['output_db']) < 1e-5
+                np.testing.assert_allclose(row['crossovers_hz'], crossovers[preset], atol=.001)
+                assert [lane['channel'] for lane in row['lanes']] == channels[preset]
+                assert [lane['native_context'] for lane in row['lanes']] == contexts[preset]
+                for lane in row['lanes']:
+                    dry = preset == 2 and lane['lane'] == 0
+                    assert lane['cab_enabled'] == lane['amp_enabled'] == (not dry)
+                    if dry:
+                        assert lane['cab_source'] == 0 and lane['low_di_share'] == 1
+                        np.testing.assert_allclose([lane['cab_low_hz'], lane['cab_high_hz']], [32, 6100], atol=.001)
+                    else:
+                        assert lane['cab_source'] != 0
+                        np.testing.assert_allclose([lane['cab_low_hz'], lane['cab_high_hz']], [20, 20000], atol=.001)
+                if preset == 3:
+                    assert abs(row['lanes'][0]['low_di_share'] - .75) < .001
+            for channel, row in enumerate(r['provenance']['current']['head-cab']['outputs']):
+                assert row['routing_mode'] == 0 and row['crossovers_hz'] == []
+                assert len(row['lanes']) == 1 and row['lanes'][0]['channel'] == channel
+                assert row['lanes'][0]['cab_enabled'] and row['lanes'][0]['amp_enabled']
             print('COMPLETED_SYNTHETIC_ROUTE_CONTRACT_NOT_LISTENING_ACCEPTANCE')
     else:
         unittest.main()

@@ -813,14 +813,14 @@ inline void roomNavigation(const juce::File& screenshots) {
         automate(*processor,spectralforge::originalCabID(lane,"design"),lane==1 ? 1.f : 0.f);
     }
     CabWorkspace workspace(*processor);Showing showing(workspace);
-    require(workspace.activeRigCount()==1 && !workspace.isRoomView() && workspace.focusedRig()==0,
-        "Single-rig mode must open directly on its active cabinet");
+    require(workspace.activeRigCount()==1 && workspace.isRoomView(),
+        "Classic must open its one-rig cabinet room");
     navigationUnchanged(*processor,[&] {
         workspace.showRoom();
-        require(!workspace.isRoomView() && !workspace.focusRig(-1) && !workspace.focusRig(1),
-            "Single-rig navigation exposed an inactive cabinet");
+        require(workspace.isRoomView() && !workspace.focusRig(-1) && !workspace.focusRig(1),
+            "Classic room navigation exposed an inactive cabinet");
     });
-    for(int mode=1;mode<=2;++mode) {
+    for(int mode=0;mode<=2;++mode) {
         automate(*processor,"mode",float(mode));workspace.refreshState();
         const int count=mode+1;
         require(workspace.isRoomView() && workspace.activeRigCount()==count,"Routing mode did not reveal its active cabinet room");
@@ -839,7 +839,7 @@ inline void roomNavigation(const juce::File& screenshots) {
                     require(!bounds.intersects(room.getRigBounds(earlier)),"Active room cabinet click targets overlap");
             }
         }
-        snapshot(workspace,screenshots,mode==1 ? "cab-visual-room-dual.png" : "cab-visual-room-matrix.png");
+        snapshot(workspace,screenshots,mode==0 ? "cab-visual-room-classic.png" : mode==1 ? "cab-visual-room-dual.png" : "cab-visual-room-matrix.png");
         navigationUnchanged(*processor,[&] {
             require(!workspace.focusRig(-1) && !workspace.focusRig(count) && workspace.isRoomView(),
                 "Invalid focus request changed the active room view");
@@ -872,15 +872,49 @@ inline void roomNavigation(const juce::File& screenshots) {
     require(workspace.activeRigCount()==2 && workspace.isRoomView() && !workspace.focusRig(2),
         "Shrinking Matrix to Dual retained an actionable third rig");
     automate(*processor,"mode",0);workspace.refreshState();
-    require(workspace.activeRigCount()==1 && !workspace.isRoomView() && workspace.focusedRig()==0,
-        "Returning to single-rig mode did not focus the only active cabinet");
-    automate(*processor,"mode",2);
-    navigationUnchanged(*processor,[&] {
-        CabWorkspace requested(*processor,1,true);
-        require(!requested.isRoomView() && requested.focusedRig()==1,"Explicit active-rig detail request did not focus that cabinet");
-        require(!requested.focusRig(3),"Explicit detail workspace accepted an out-of-range rig");
-    });
-    std::cout<<"PASS CAB room: production 1/2/3-rig mapping, real cabinet/back clicks, explicit focus, mode transitions and zero audio/state writes from navigation\n";
+    require(workspace.activeRigCount()==1 && workspace.isRoomView() && !workspace.focusRig(1),
+        "Returning to Classic did not restore its room or retained an inactive cabinet");
+    for(int mode=0;mode<3;++mode) {
+        automate(*processor,"mode",float(mode));
+        navigationUnchanged(*processor,[&] {
+            CabWorkspace requested(*processor,mode,true);
+            require(!requested.isRoomView() && requested.focusedRig()==mode,"Explicit active-rig detail request did not focus that cabinet");
+            require(!requested.focusRig(mode+1),"Explicit detail workspace accepted an inactive rig");
+            requested.showRoom();
+            require(requested.isRoomView(),"Explicit cabinet detail request has no return to its room");
+        });
+    }
+    const auto libraryWindow=[]()->juce::DialogWindow* {
+        for(int index=0;index<juce::TopLevelWindow::getNumTopLevelWindows();++index)
+            if(auto* window=dynamic_cast<juce::DialogWindow*>(juce::TopLevelWindow::getTopLevelWindow(index)))
+                if(dynamic_cast<IRBrowserPanel*>(window->getContentComponent()))return window;
+        return nullptr;
+    };
+    for(int mode:{1,2}) {
+        automate(*processor,"mode",float(mode));workspace.refreshState();
+        require(workspace.focusRig(mode),"Cannot focus the lane removed by the routing transition");
+        auto& panel=component<CabPanel>(workspace,"cabFocusedPanel");
+        panel.setView(CabPanel::View::irLoader);
+        juce::TextButton* library=nullptr;
+        for(auto* child:panel.getChildren())
+            if(auto* button=dynamic_cast<juce::TextButton*>(child);button && button->getButtonText()=="IR LIBRARY") {
+                library=button;break;
+            }
+        require(library!=nullptr,"Focused cabinet has no IR library action");
+        navigationUnchanged(*processor,[&]{click(*library,[&]{return libraryWindow()!=nullptr;});});
+        juce::Component::SafePointer<CabPanel> previousPanel(&panel);
+        juce::Component::SafePointer<juce::DialogWindow> previousLibrary(libraryWindow());
+        require(previousLibrary && previousLibrary->isShowing(),"Inactive-rig cleanup fixture has no native IR library");
+        automate(*processor,"mode",0);
+        navigationUnchanged(*processor,[&] {
+            workspace.refreshState();
+            require(workspace.isRoomView() && workspace.activeRigCount()==1 && !workspace.focusRig(mode),
+                "Routing shrink did not return to the Classic room");
+            require(previousPanel==nullptr && previousLibrary==nullptr,
+                "An inactive rig retained its focused cabinet or actionable IR library after returning to Classic");
+        });
+    }
+    std::cout<<"PASS CAB room: production 1/2/3-rig mapping, real cabinet/back clicks, explicit focus, mode transitions, inactive-rig library teardown and zero audio/state writes from navigation\n";
 }
 
 inline juce::TextButton& pageButton(juce::Component& canvas,const char* title) {
@@ -973,9 +1007,9 @@ inline void editorNavigation(const juce::File& screenshots) {
         if(auto* box=dynamic_cast<juce::ComboBox*>(child);box && box->getName()=="Dual type")dualType=box;
     require(dualType && !dualType->isVisible(),"Classic startup exposes Dual-only routing controls");
     require(pageButton(canvas,"RIGS").getToggleState(),"New editor does not open the AMP/RIGS page");
-    require(findComponent(canvas,"cabRoomOverview")==nullptr
-        && !juce::SharedResourcePointer<spectralforge::cabArt::Bank>::getSharedObjectWithoutCreating(),
-        "Classic AMP startup eagerly constructs a hidden multi-rig cabinet room and equipment bank");
+    auto& initialRoom=component<CabRoomOverview>(canvas,"cabRoomOverview");
+    require(initialRoom.isVisible() && initialRoom.activeRigCount()==1,
+        "Classic AMP startup does not expose its one-rig cabinet room");
     Showing showing(*editor);
     navigationUnchanged(*processor,[&] {
         auto& pre=pageButton(canvas,"PRE");
@@ -993,11 +1027,10 @@ inline void editorNavigation(const juce::File& screenshots) {
         auto& pre=pageButton(canvas,"PRE");
         require(dispatchUntil([&]{return pre.getToggleState() && dualType->isVisible();}),
             "Dual mode UI did not update while the PRE page was selected");
-        require(findComponent(canvas,"cabRoomOverview")==nullptr
-            && !juce::SharedResourcePointer<spectralforge::cabArt::Bank>::getSharedObjectWithoutCreating(),
-            "Selecting Dual while on PRE eagerly constructs the hidden cabinet room and equipment bank");
+        require(findComponent(canvas,"cabRoomOverview")==&initialRoom && !initialRoom.isVisible(),
+            "Selecting Dual while on PRE exposed or replaced the hidden cabinet room");
     });
-    for(int mode=1;mode<=2;++mode) {
+    for(int mode=0;mode<=2;++mode) {
         automate(*processor,"mode",float(mode));
         navigationUnchanged(*processor,[&] {
             auto& rigs=pageButton(canvas,"RIGS");
@@ -1008,13 +1041,16 @@ inline void editorNavigation(const juce::File& screenshots) {
             auto& room=component<CabRoomOverview>(canvas,"cabRoomOverview");
             auto& toggle=component<juce::TextButton>(canvas,"cabRigControls");
             require(room.activeRigCount()==mode+1 && toggle.isVisible() && toggle.getButtonText()=="RIG CONTROLS",
-                "Main RIGS page does not default to its active Dual/Matrix room");
+                "Main RIGS page does not default to its active Classic/Dual/Matrix room");
+            for(int lane=0;lane<3;++lane)
+                require(component<juce::Button>(room,("cabRoomRig"+juce::String(lane+1)).toRawUTF8()).isVisible()==(lane<=mode),
+                    "Main cabinet room exposes an inactive rig or hides an active one");
             for(int lane=0;lane<3;++lane)
                 require(!component<AmpNativePanel>(canvas,("ampNativePanel"+juce::String(lane+1)).toRawUTF8()).isVisible(),
                     "Main cabinet room is covered by amplifier knob panels");
             require(editor->getLocalBounds().contains(editor->getLocalArea(&room,room.getLocalBounds())),
                 "Main cabinet room extends outside the editor");
-            snapshot(*editor,screenshots,mode==1 ? "cab-visual-editor-dual.png" : "cab-visual-editor-matrix.png");
+            snapshot(*editor,screenshots,mode==0 ? "cab-visual-editor-classic.png" : mode==1 ? "cab-visual-editor-dual.png" : "cab-visual-editor-matrix.png");
             auto& card=component<juce::Button>(room,("cabRoomRig"+juce::String(mode+1)).toRawUTF8());
             click(card,[]{return cabinetDialog()!=nullptr;});
             juce::Component::SafePointer<juce::DialogWindow> window(cabinetDialog());
@@ -1026,8 +1062,10 @@ inline void editorNavigation(const juce::File& screenshots) {
             std::cout<<"NATIVE CAB popup: workspace="<<workspace->getWidth()<<"x"<<workspace->getHeight()<<" rig="<<mode+1<<"\n";
             auto& focused=component<CabPanel>(*workspace,"cabFocusedPanel");
             focused.setView(CabPanel::View::irLoader);workspaceControlBounds(*workspace,mode);
+            if(mode==0)snapshot(*workspace,screenshots,"cab-visual-editor-classic-ir-loader.png");
             if(mode==2)snapshot(*workspace,screenshots,"cab-visual-editor-ir-loader-rig3.png");
             focused.setView(CabPanel::View::cabinet);workspaceControlBounds(*workspace,mode);
+            if(mode==0)snapshot(*workspace,screenshots,"cab-visual-editor-classic-focused.png");
             if(mode==2)snapshot(*workspace,screenshots,"cab-visual-editor-focused-rig3.png");
             auto& back=component<juce::Button>(*workspace,"cabBackToRoom");
             click(back,[&]{return workspace->isRoomView();});
@@ -1042,13 +1080,14 @@ inline void editorNavigation(const juce::File& screenshots) {
             editor->setSize(885,585);
             require(editor->getLocalBounds().contains(editor->getLocalArea(&room,room.getLocalBounds())),
                 "Cabinet room is clipped at the supported 75 percent editor size");
+            if(mode==0)snapshot(*editor,screenshots,"cab-visual-editor-classic-75pct.png");
             if(mode==2)snapshot(*editor,screenshots,"cab-visual-editor-matrix-75pct.png");
             editor->setSize(1180,780);
             auto& pre=pageButton(canvas,"PRE");
             click(pre,[&]{return pre.getToggleState() && !room.isVisible();});
         });
     }
-    std::cout<<"PASS main editor CAB: AMP/RIGS startup, lazy room while on PRE, Dual/Matrix room defaults, cabinet-to-focused-dialog/back, rig controls toggle, 75 percent layout and no host/audio-state writes\n";
+    std::cout<<"PASS main editor CAB: Classic/Dual/Matrix room defaults, room hidden on PRE, cabinet-to-focused-dialog/back, rig controls toggle, 75 percent layout and no host/audio-state writes\n";
 }
 
 inline void run(const juce::File& folder,const juce::File& screenshots) {
