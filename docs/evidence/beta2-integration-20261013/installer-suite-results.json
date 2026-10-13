@@ -1,0 +1,64 @@
+{
+  "schema": "chimera.integration-installer-checks.v1",
+  "started_utc": "2026-10-13T02:05:24.409968+00:00",
+  "expected_source_sha": "c3e9d436fbdc9b8778b592f333c93037b012b8c5",
+  "donor_source_sha": "068f1547face75b34c1760dd7b8c9d34868a5393",
+  "before": {
+    "source_sha": "c3e9d436fbdc9b8778b592f333c93037b012b8c5",
+    "tree": "9f147ca042491a56af6373592707bf2f6179b4c1",
+    "status_porcelain": "",
+    "inventory_blob": "50817aaa33f246f41fafe54b37f7f3fd0a6f2d8e",
+    "inventory_sha256": "f031c868585254123617ed7eca6a659def38c98e0dd64e6118b1534728b5c207"
+  },
+  "platform": "Linux-6.18.44-x86_64-with-glibc2.39",
+  "euid": 0,
+  "python": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+  "scope": "Fresh POSIX native document helper including isolated real dpkg synthetic fixtures; portable Windows rules; integrated current-document fingerprint semantics. No product installer, Windows Inno, macOS PKG, DAW or publication acceptance.",
+  "native_product_installation_verified": false,
+  "publication_approved": false,
+  "donor_inventory_blob": "50817aaa33f246f41fafe54b37f7f3fd0a6f2d8e",
+  "suites": [
+    {
+      "name": "native-helper",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-B",
+        "Tools/test_legacy_document_cleanup.py"
+      ],
+      "exit_code": 0,
+      "started_utc": "2026-10-13T02:05:24.433069+00:00",
+      "finished_utc": "2026-10-13T02:05:26.575333+00:00",
+      "tests_run": 42,
+      "skip_reasons": [
+        "test_restore_retains_private_file_owner_group_and_permissions (__main__.LegacyDocumentCleanupTests.test_restore_retains_private_file_owner_group_and_permissions) ... skipped \"This isolated runtime cannot map another UID/GID: [Errno 22] Invalid argument: '/tmp/chimera-document-fixture-c63036ad/Chimera 문서 fixture/AMP_VALIDATION.md'\""
+      ],
+      "log": "/workspace/scratch/b934cbc39d7c/evidence/installer/native-helper.log"
+    },
+    {
+      "name": "windows-rules",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-B",
+        "-m",
+        "unittest",
+        "Tests.test_windows_document_rules",
+        "-v"
+      ],
+      "exit_code": 0,
+      "started_utc": "2026-10-13T02:05:24.433551+00:00",
+      "finished_utc": "2026-10-13T02:05:24.514441+00:00",
+      "tests_run": 11,
+      "skip_reasons": [],
+      "log": "/workspace/scratch/b934cbc39d7c/evidence/installer/windows-rules.log"
+    }
+  ],
+  "after": {
+    "source_sha": "c3e9d436fbdc9b8778b592f333c93037b012b8c5",
+    "tree": "9f147ca042491a56af6373592707bf2f6179b4c1",
+    "status_porcelain": "",
+    "inventory_blob": "50817aaa33f246f41fafe54b37f7f3fd0a6f2d8e",
+    "inventory_sha256": "f031c868585254123617ed7eca6a659def38c98e0dd64e6118b1534728b5c207"
+  },
+  "success": true,
+  "finished_utc": "2026-10-13T02:05:26.592730+00:00"
+}

@@ -1,0 +1,28 @@
+{
+  "source_sha": "c3e9d436fbdc9b8778b592f333c93037b012b8c5",
+  "tree_sha": "9f147ca042491a56af6373592707bf2f6179b4c1",
+  "status": "",
+  "finished_utc": "2026-10-13T02:19:48.188030+00:00",
+  "configure": "PASS",
+  "build_first_attempt": "FAIL: demonstrated zero-byte BinaryData209.cpp.o generated artifact",
+  "build_repaired_same_source": "PASS",
+  "desktop_wrapper": "ENVIRONMENT_FAILURE: Xvfb could not bind local/unix sockets; CTest did not run",
+  "processor_state_tests": "3/3 PASS, no native window/UI acceptance claimed",
+  "binaries": [
+    {
+      "path": "/workspace/scratch/b934cbc39d7c/build-integrated/ChimeraUITests_artefacts/Release/ChimeraUITests",
+      "bytes": 131105976,
+      "sha256": "77e8987d2f2a63ea3e3987a1cde14e5c1486bbff8c257a6edcf6fb21c151938a"
+    },
+    {
+      "path": "/workspace/scratch/b934cbc39d7c/build-integrated/ChimeraGateProcessorTests_artefacts/Release/ChimeraGateProcessorTests",
+      "bytes": 131070864,
+      "sha256": "6a855092c8bf41388b0f353712caedc5927f9e2a2790a8acc9367eb6e19e83f3"
+    },
+    {
+      "path": "/workspace/scratch/b934cbc39d7c/build-integrated/ChimeraIntegratedProcessorTests_artefacts/Release/ChimeraIntegratedProcessorTests",
+      "bytes": 130921160,
+      "sha256": "f70dfac9e806649ac43614fd9a50e99a9fae636e305d78ae3abecebb3d99f5dd"
+    }
+  ]
+}

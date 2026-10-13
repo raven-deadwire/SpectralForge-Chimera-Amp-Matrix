@@ -1,0 +1,345 @@
+{
+  "source_sha": "c3e9d436fbdc9b8778b592f333c93037b012b8c5",
+  "baseline_55": "022244e6ce845669665e9ffdfefe25bdee154b75",
+  "donor_56": "d7450883ddbeba58e44cf217072f325654c16128",
+  "donor_58": "068f1547face75b34c1760dd7b8c9d34868a5393",
+  "scope": "Static compatibility and reproducibility; does not replace native build, host or installer acceptance",
+  "checks": [
+    {
+      "check": "Integration source changes stay within reviewed naming donor",
+      "result": "PASS",
+      "changed": [
+        "Source/AmpCatalog.h",
+        "Source/AmpHeadLayout.h",
+        "Source/AmpHeadShellMetadata.h",
+        "Source/AmpNativeCatalog.h",
+        "Source/AmpNativePanel.h",
+        "Source/CabHeadDimensions.h",
+        "Source/EffectSelectionCatalog.h",
+        "Source/FactoryCabVoicing.h",
+        "Source/FactoryNativeVoicing.h",
+        "Source/FactoryPresetLevels.h",
+        "Source/FactoryPresets.h",
+        "Source/GuitarSignaturePresets.h",
+        "Source/ModelCatalog.h",
+        "Source/NiflheimrPresets.h",
+        "Source/OriginalPresets.h",
+        "Source/PedalBoardCatalog.h",
+        "Source/PedalBoardPanel.h",
+        "Source/PluginEditor.cpp",
+        "Source/PostNativeCatalog.h",
+        "Source/PostNativePanel.h",
+        "Source/RackEffectDetailPanel.h"
+      ],
+      "unexpected": []
+    },
+    {
+      "check": "All other production Source files byte-identical to latest #55",
+      "result": "PASS",
+      "files_checked": 81,
+      "mismatches": []
+    },
+    {
+      "check": "Other reviewed naming source files preserved byte-for-byte",
+      "result": "PASS",
+      "files_checked": 18,
+      "mismatches": []
+    },
+    {
+      "check": "Source/FactoryCabVoicing.h executable data unchanged",
+      "result": "PASS"
+    },
+    {
+      "check": "Source/FactoryNativeVoicing.h executable data unchanged",
+      "result": "PASS"
+    },
+    {
+      "check": "Source/FactoryPresetLevels.h executable data unchanged",
+      "result": "PASS"
+    },
+    {
+      "check": "Source/AmpHeadShellMetadata.h executable data unchanged",
+      "result": "PASS"
+    },
+    {
+      "check": "Source/CabHeadDimensions.h executable data unchanged",
+      "result": "PASS"
+    },
+    {
+      "check": "Source/AmpNativeCatalog.h non-display structure unchanged",
+      "result": "PASS"
+    },
+    {
+      "check": "Source/AmpHeadLayout.h non-display structure unchanged",
+      "result": "PASS"
+    },
+    {
+      "check": "Source/PedalBoardCatalog.h non-display structure unchanged",
+      "result": "PASS"
+    },
+    {
+      "check": "Source/FactoryPresets.h non-display structure unchanged",
+      "result": "PASS"
+    },
+    {
+      "check": "Source/GuitarSignaturePresets.h non-display structure unchanged",
+      "result": "PASS"
+    },
+    {
+      "check": "Source/OriginalPresets.h non-display structure unchanged",
+      "result": "PASS"
+    },
+    {
+      "check": "Source/NiflheimrPresets.h non-display structure unchanged",
+      "result": "PASS"
+    },
+    {
+      "check": "Source/ModelCatalog.h non-display structure unchanged",
+      "result": "PASS"
+    },
+    {
+      "check": "Source/AmpNativeCatalog.h serialized/control identity sequence unchanged",
+      "result": "PASS",
+      "identities_checked": 338
+    },
+    {
+      "check": "Source/AmpHeadLayout.h serialized/control identity sequence unchanged",
+      "result": "PASS",
+      "identities_checked": 271
+    },
+    {
+      "check": "Source/PedalBoardCatalog.h serialized/control identity sequence unchanged",
+      "result": "PASS",
+      "identities_checked": 144
+    },
+    {
+      "check": "Source/GuitarSignaturePresets.h serialized/control identity sequence unchanged",
+      "result": "PASS",
+      "identities_checked": 50
+    },
+    {
+      "check": "Source/OriginalPresets.h serialized/control identity sequence unchanged",
+      "result": "PASS",
+      "identities_checked": 5
+    },
+    {
+      "check": "Source/NiflheimrPresets.h serialized/control identity sequence unchanged",
+      "result": "PASS",
+      "identities_checked": 5
+    },
+    {
+      "check": "Source/PedalBoardCatalog.h all parameter/control keys and numeric mappings unchanged",
+      "result": "PASS",
+      "records_checked": 161
+    },
+    {
+      "check": "Source/FactoryPresets.h all parameter/control keys and numeric mappings unchanged",
+      "result": "PASS",
+      "records_checked": 1053
+    },
+    {
+      "check": "Source/ModelCatalog.h all parameter/control keys and numeric mappings unchanged",
+      "result": "PASS",
+      "records_checked": 11
+    },
+    {
+      "check": "Source/NiflheimrPresets.h complete recall implementation unchanged",
+      "result": "PASS"
+    },
+    {
+      "check": "Source/OriginalPresets.h complete recall implementation unchanged",
+      "result": "PASS"
+    },
+    {
+      "check": "Source/GuitarSignaturePresets.h complete recall implementation unchanged",
+      "result": "PASS"
+    },
+    {
+      "check": "Niflheimr final labels, exported filenames, routing and Optical description retained",
+      "result": "PASS",
+      "rows": [
+        [
+          "original.rig.niflheimr.hrimfaxi.v1",
+          "Metal Clank",
+          "Classic Hrímfaxi: controlled lows and clear string attack, with Bass Comp, focused PRE EQ and a clean 4x10; dry Console Four contour.",
+          "Niflheimr-01-Metal-Clank.chimera",
+          "0"
+        ],
+        [
+          "original.rig.niflheimr.garmr.v1",
+          "Death Grind",
+          "Dual at 180 Hz: restrained Hrímfaxi and a 2x12 hold the lows; Garmr and a 6x10 deliver upper-band death/grind bite.",
+          "Niflheimr-02-Death-Grind.chimera",
+          "1"
+        ],
+        [
+          "original.rig.niflheimr.nidavellir.v1",
+          "Heavy Pulse",
+          "Matrix at 140 / 1600 Hz: clean LOW DI anchors Nidavellir MID drive through a 4x10 and Hrímfaxi HIGH attack through a 1x12.",
+          "Niflheimr-03-Heavy-Pulse.chimera",
+          "2"
+        ],
+        [
+          "original.rig.niflheimr.ymir.v1",
+          "Slam Punch",
+          "Matrix at 110 / 900 Hz: 75% LOW DI with 25% Ymir and cabinet, Ymir MID impact and Garmr HIGH attack; dry slam / brutal-death rhythm.",
+          "Niflheimr-04-Slam-Punch.chimera",
+          "2"
+        ],
+        [
+          "original.rig.niflheimr.hel.v1",
+          "Doom Fuzz",
+          "Classic Hel: gentle Optical compression, restrained PRE low mids, a 1x15 and dark Passive Tube contour for sustained sludge / doom fuzz.",
+          "Niflheimr-05-Doom-Fuzz.chimera",
+          "0"
+        ]
+      ]
+    },
+    {
+      "check": "POST native parameters, defaults, IDs and state unchanged",
+      "result": "PASS"
+    },
+    {
+      "check": "Validation/release-policy.json approval policy unchanged",
+      "result": "PASS"
+    },
+    {
+      "check": "Validation/weekly-publication-policy.json approval policy unchanged",
+      "result": "PASS"
+    },
+    {
+      "check": "Validation/beta-publication-policy-1.3.1.json approval policy unchanged",
+      "result": "PASS"
+    },
+    {
+      "check": "Validation/beta-publication-policy.json approval policy unchanged",
+      "result": "PASS"
+    },
+    {
+      "check": "Validation/waivers.json approval policy unchanged",
+      "result": "PASS"
+    },
+    {
+      "check": "Tools/weekly_publication.py approval policy unchanged",
+      "result": "PASS"
+    },
+    {
+      "check": "Tools/evaluate_release_gate.py approval policy unchanged",
+      "result": "PASS"
+    },
+    {
+      "check": "Tools/release_evidence.py approval policy unchanged",
+      "result": "PASS"
+    },
+    {
+      "check": "Tools/consolidate_release_gate.py approval policy unchanged",
+      "result": "PASS"
+    },
+    {
+      "check": "Tools/verify_publication_evidence.py approval policy unchanged",
+      "result": "PASS"
+    },
+    {
+      "check": ".github/workflows/release-publisher.yml approval policy unchanged",
+      "result": "PASS"
+    },
+    {
+      "check": ".github/workflows/prepare-release.yml approval policy unchanged",
+      "result": "PASS"
+    },
+    {
+      "check": "Installer/Chimera.iss #58 production/inventory preserved",
+      "result": "PASS"
+    },
+    {
+      "check": "Installer/LegacyDocumentCleanup.iss #58 production/inventory preserved",
+      "result": "PASS"
+    },
+    {
+      "check": "Tools/Build-WindowsInstaller.ps1 #58 production/inventory preserved",
+      "result": "PASS"
+    },
+    {
+      "check": "Tools/Verify-WindowsInstaller.ps1 #58 production/inventory preserved",
+      "result": "PASS"
+    },
+    {
+      "check": "Tools/Verify-WindowsPreviousReleaseUpgrade.ps1 #58 production/inventory preserved",
+      "result": "PASS"
+    },
+    {
+      "check": "Tools/audit_legacy_document_inventory.py #58 production/inventory preserved",
+      "result": "PASS"
+    },
+    {
+      "check": "Tools/install-linux.sh #58 production/inventory preserved",
+      "result": "PASS"
+    },
+    {
+      "check": "Tools/legacy_document_cleanup.c #58 production/inventory preserved",
+      "result": "PASS"
+    },
+    {
+      "check": "Tools/legacy_document_cleanup.py #58 production/inventory preserved",
+      "result": "PASS"
+    },
+    {
+      "check": "Tools/package_release.py #58 production/inventory preserved",
+      "result": "PASS"
+    },
+    {
+      "check": "Tools/verify_linux_document_upgrade.py #58 production/inventory preserved",
+      "result": "PASS"
+    },
+    {
+      "check": "Tools/verify_linux_tar_document_upgrade.py #58 production/inventory preserved",
+      "result": "PASS"
+    },
+    {
+      "check": "Tools/verify_macos_document_upgrade.py #58 production/inventory preserved",
+      "result": "PASS"
+    },
+    {
+      "check": "Tools/windows_document_rules.py #58 production/inventory preserved",
+      "result": "PASS"
+    },
+    {
+      "check": "Validation/legacy-document-inventory.json #58 production/inventory preserved",
+      "result": "PASS"
+    },
+    {
+      "check": "generate_amp_native_catalog.py reproduces committed catalog",
+      "result": "PASS",
+      "generated_sha256": "086b0777e66f328d7b989efa297e5fd30d4530906710f60bfb1aac253314ab6d",
+      "committed_sha256": "086b0777e66f328d7b989efa297e5fd30d4530906710f60bfb1aac253314ab6d",
+      "stderr": ""
+    },
+    {
+      "check": "generate_pedal_catalog.py reproduces committed catalog",
+      "result": "PASS",
+      "generated_sha256": "f352af7a6fcc98bcb72afe620ea1aa892b8472fe7ace1feaa1f428c294ca48b5",
+      "committed_sha256": "f352af7a6fcc98bcb72afe620ea1aa892b8472fe7ace1feaa1f428c294ca48b5",
+      "stderr": ""
+    },
+    {
+      "check": "generate_post_native_catalog.py reproduces committed catalog",
+      "result": "PASS",
+      "generated_sha256": "49f3a3cf4b6109010fdb3b9420bb96cfab55256aea5864afb1676ecfbd805101",
+      "committed_sha256": "49f3a3cf4b6109010fdb3b9420bb96cfab55256aea5864afb1676ecfbd805101",
+      "stderr": ""
+    },
+    {
+      "check": "Fresh public-name Python unit suite",
+      "result": "PASS",
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "........\n----------------------------------------------------------------------\nRan 8 tests in 0.932s\n\nOK\n"
+    },
+    {
+      "check": "Audit ran against unchanged frozen checkout",
+      "result": "PASS"
+    }
+  ],
+  "passed": 62,
+  "failed": 0
+}
