@@ -1,0 +1,636 @@
+[
+  {
+    "artifact_id": 11791989864,
+    "artifact_name": "Chimera-A-stage-release-gate",
+    "run_id": 38350264755,
+    "path": "evidence/windows/raw/InstallerVerification.json",
+    "report": {
+      "payload_manifest_sha256": "713d97c09656544b3fe0b92205af08f2a273f023f05e98b8a3bce480fe6e0d89",
+      "checks": [
+        "PASS: Setup version resources match source/payload product version 1.3.1",
+        "PASS: Installed DisplayVersion=1.3.1 and selected binary versions match 1.3.1-beta.2",
+        "PASS: Product rename retires only exact old executable/VST3 binaries and preserves personal preset bytes",
+        "PASS: Companion Bass/Guitar WAVs install recursively, match their source hashes, decode, appear in the cabinet menu and load into a rig",
+        "PASS: Four Raven companion fixtures and sidecars install automatically, decode, appear in CAB and load into a rig",
+        "PASS: Full install: standard VST3 path, app, documentation, shortcuts and uninstall registration; payload hashes match",
+        "PASS: Standalone, VST3 and reference renderer use the static MSVC runtime",
+        "PASS: Installed VST3 loads through the Windows loader and exports GetPluginFactory",
+        "PASS: Start Menu shortcut launches the installed app and its window: C:\\Program Files\\SpectralForge\\Chimera Amp Matrix\\SpectralForge Chimera.exe",
+        "PASS: Installed DisplayVersion=1.3.1 and selected binary versions match 1.3.1-beta.2",
+        "PASS: Same-version reinstall repairs files and preserves modified documentation copies and personal presets/IRs",
+        "PASS: Personal IR collection is preserved after uninstall",
+        "PASS: Uninstall removes owned binaries, shortcut and Windows registration; preserves user files",
+        "PASS: Installed DisplayVersion=1.3.1 and selected binary versions match 1.3.1-beta.2",
+        "PASS: Independent custom application and VST3 installation folders accept Unicode paths",
+        "PASS: Installed DisplayVersion=1.3.1 and selected binary versions match 1.3.1-beta.2",
+        "PASS: Repair remembers the selected VST3 folder without a /VST3DIR override",
+        "PASS: Installed DisplayVersion=1.3.1 and selected binary versions match 1.3.1-beta.2",
+        "PASS: Changing the selected VST3 folder retires only its exact old plugin binary and preserves user files",
+        "PASS: VST3-only selection and removal; Unicode custom app path",
+        "PASS: Installed DisplayVersion=1.3.1 and selected binary versions match 1.3.1-beta.2",
+        "PASS: Start Menu shortcut launches the installed app and its window: D:\\a\\_temp\\Chimera 설치 검증\\SpectralForge Chimera.exe",
+        "PASS: Standalone-only selection and removal; no VST3 installed",
+        "PASS: Actual public beta.1 Setup to current product Setup upgrade, repair and removal preserve user documents and files"
+      ],
+      "source_sha": "6033236cb81820a43679cbbd34be020804f9658d",
+      "installer_version": "1.3.1",
+      "actual_previous_release_upgrade_verified": true,
+      "installer_sha256": "610b44602b7aec2dd5adb4ac3d90692b4f6dc683ab56ae7012f11bf457a1b4e7",
+      "build_id": "6033236cb8",
+      "success": true,
+      "product_version": "1.3.1",
+      "installer": "SpectralForge-Chimera-1.3.1-beta.2-win64-Setup.exe",
+      "observed_display_versions": [
+        "1.3.1",
+        "1.3.1",
+        "1.3.1",
+        "1.3.1",
+        "1.3.1",
+        "1.3.1"
+      ],
+      "run_id": "38350264755",
+      "version": "1.3.1-beta.2"
+    }
+  },
+  {
+    "artifact_id": 11790003728,
+    "artifact_name": "Chimera-document-upgrade-ubuntu-24.04",
+    "run_id": 38350264747,
+    "path": "scope.json",
+    "report": {
+      "schema": "spectralforge.document-upgrade-fixtures.v1",
+      "source_sha": "6033236cb81820a43679cbbd34be020804f9658d",
+      "run_id": "38350264747",
+      "runner_os": "Linux",
+      "scope": "Native document helper with synthetic files; Linux invokes real dpkg in an isolated root. macOS additionally runs a guarded synthetic Apple PKG lifecycle reported in macos-pkg-fixture/.",
+      "native_product_installation_verified": false,
+      "macos_pkg_installation_verified": false,
+      "windows_installer_verified": false,
+      "daw_audio_verified": false,
+      "publication_approved": false,
+      "results": "See test-output.txt; this source/scope record is not a PASS verdict."
+    }
+  },
+  {
+    "artifact_id": 11790402477,
+    "artifact_name": "Chimera-document-upgrade-windows-inno-fixtures",
+    "run_id": 38350264747,
+    "path": "DocumentUpgradeVerification.json",
+    "report": {
+      "checks": [
+        "PASS: Production parent handles block directory rename and preservation handles block deletion independently of external application locks",
+        "PASS: Real Inno fresh installation and removal preserve license notices",
+        "PASS: Upgrade retires only exact hash+size identities; edits, same-size edits, unknown files, hardlinks, symlinks and readonly documents survive",
+        "PASS: Same-version repair and repeat repair restore owned documentation while retaining exact modified copies",
+        "PASS: Junction targets remain unchanged and uninstall refuses historical traversal before deleting files",
+        "PASS: Absent historical path guards prevent creation during uninstall, disappear on cancellation and forced process termination, and never queue reboot deletion",
+        "PASS: An exclusive writer refuses uninstall before deleting files or registration when a preservation handle cannot be acquired",
+        "PASS: Appended historical uninstall logs preserve edited docs in place, snapshots, licenses, linked files, presets, IRs and projects without reboot deletion"
+      ],
+      "native_compiler_passed": true,
+      "compiler_version": "6.7.1",
+      "success": true,
+      "historical_release_installer_executed": false,
+      "guard_cancellation_and_termination_verified": true,
+      "platform": "windows",
+      "forced_termination_may_leave_empty_guard_directories": true,
+      "native_inno_execution": true,
+      "run_id": "38350264747",
+      "installer_invocations": 12,
+      "source_sha": "6033236cb81820a43679cbbd34be020804f9658d",
+      "scope": "real Inno installers with synthetic historical document ownership"
+    }
+  },
+  {
+    "artifact_id": 11790667188,
+    "artifact_name": "Chimera-document-upgrade-macos-15",
+    "run_id": 38350264747,
+    "path": "macos-pkg-fixture/MacOSDocumentUpgradeVerification.json",
+    "report": {
+      "schema": "spectralforge.macos-document-package-fixture.v1",
+      "success": true,
+      "platform": "Darwin",
+      "run_id": "38350264747",
+      "source_sha": "6033236cb81820a43679cbbd34be020804f9658d",
+      "scope": "Real Apple PKG installers with synthetic documents and compiled native lifecycle hooks; document-only removal.",
+      "native_installer_invocations": 4,
+      "native_installer_successes": 4,
+      "historical_release_installer_executed": false,
+      "native_product_installation_verified": false,
+      "daw_audio_verified": false,
+      "publication_approved": false,
+      "checks": [
+        "Real Apple PKG fresh installation executes native hooks; document-only removal preserves notices.",
+        "Real Apple PKG upgrade removes exact retired files and preserves edited legacy and current document bytes.",
+        "Same-version Apple PKG repair installs current documentation and retains both user revisions.",
+        "Repeated document-only removal preserves modified docs, license notices, personal presets, IRs and project fixtures."
+      ]
+    }
+  },
+  {
+    "artifact_id": 11790667188,
+    "artifact_name": "Chimera-document-upgrade-macos-15",
+    "run_id": 38350264747,
+    "path": "scope.json",
+    "report": {
+      "schema": "spectralforge.document-upgrade-fixtures.v1",
+      "source_sha": "6033236cb81820a43679cbbd34be020804f9658d",
+      "run_id": "38350264747",
+      "runner_os": "Darwin",
+      "scope": "Native document helper with synthetic files; Linux invokes real dpkg in an isolated root. macOS additionally runs a guarded synthetic Apple PKG lifecycle reported in macos-pkg-fixture/.",
+      "native_product_installation_verified": false,
+      "macos_pkg_installation_verified": false,
+      "windows_installer_verified": false,
+      "daw_audio_verified": false,
+      "publication_approved": false,
+      "results": "See test-output.txt; this source/scope record is not a PASS verdict."
+    }
+  },
+  {
+    "artifact_id": 11792796513,
+    "artifact_name": "Chimera-candidate-installer-verification",
+    "run_id": 38350264864,
+    "path": "candidate-installer-verification/InstallerVerification.json",
+    "report": {
+      "installer_sha256": "97f6216ac93a4343f2cccb3ed4420e0f33c83c831b387a72a66d1e4087ac434c",
+      "payload_manifest_sha256": "f57a4106852280b82fd9ae5249cf6fb34cebf4f1a742803a9fb60abfa47473a3",
+      "actual_previous_release_upgrade_verified": true,
+      "installer": "SpectralForge-Chimera-update-6033236cb8-win64-Setup.exe",
+      "version": "1.3.1-beta.2",
+      "source_sha": "6033236cb81820a43679cbbd34be020804f9658d",
+      "build_id": "6033236cb8",
+      "observed_display_versions": [
+        "1.3.1",
+        "1.3.1",
+        "1.3.1",
+        "1.3.1",
+        "1.3.1",
+        "1.3.1"
+      ],
+      "success": true,
+      "checks": [
+        "PASS: Setup version resources match source/payload product version 1.3.1",
+        "PASS: Installed DisplayVersion=1.3.1 and selected binary versions match 1.3.1-beta.2",
+        "PASS: Product rename retires only exact old executable/VST3 binaries and preserves personal preset bytes",
+        "PASS: Companion Bass/Guitar WAVs install recursively, match their source hashes, decode, appear in the cabinet menu and load into a rig",
+        "PASS: Four Raven companion fixtures and sidecars install automatically, decode, appear in CAB and load into a rig",
+        "PASS: Full install: standard VST3 path, app, documentation, shortcuts and uninstall registration; payload hashes match",
+        "PASS: Standalone, VST3 and reference renderer use the static MSVC runtime",
+        "PASS: Installed VST3 loads through the Windows loader and exports GetPluginFactory",
+        "PASS: Start Menu shortcut launches the installed app and its window: C:\\Program Files\\SpectralForge\\Chimera Amp Matrix\\SpectralForge Chimera.exe",
+        "PASS: Installed DisplayVersion=1.3.1 and selected binary versions match 1.3.1-beta.2",
+        "PASS: Same-version reinstall repairs files and preserves modified documentation copies and personal presets/IRs",
+        "PASS: Personal IR collection is preserved after uninstall",
+        "PASS: Uninstall removes owned binaries, shortcut and Windows registration; preserves user files",
+        "PASS: Installed DisplayVersion=1.3.1 and selected binary versions match 1.3.1-beta.2",
+        "PASS: Independent custom application and VST3 installation folders accept Unicode paths",
+        "PASS: Installed DisplayVersion=1.3.1 and selected binary versions match 1.3.1-beta.2",
+        "PASS: Repair remembers the selected VST3 folder without a /VST3DIR override",
+        "PASS: Installed DisplayVersion=1.3.1 and selected binary versions match 1.3.1-beta.2",
+        "PASS: Changing the selected VST3 folder retires only its exact old plugin binary and preserves user files",
+        "PASS: VST3-only selection and removal; Unicode custom app path",
+        "PASS: Installed DisplayVersion=1.3.1 and selected binary versions match 1.3.1-beta.2",
+        "PASS: Start Menu shortcut launches the installed app and its window: D:\\a\\_temp\\Chimera 설치 검증\\SpectralForge Chimera.exe",
+        "PASS: Standalone-only selection and removal; no VST3 installed",
+        "PASS: Actual public beta.1 Setup to current product Setup upgrade, repair and removal preserve user documents and files"
+      ],
+      "run_id": "38350264864",
+      "installer_version": "1.3.1",
+      "product_version": "1.3.1"
+    }
+  },
+  {
+    "artifact_id": 11792796513,
+    "artifact_name": "Chimera-candidate-installer-verification",
+    "run_id": 38350264864,
+    "path": "candidate-installer-verification/PreviousReleaseUpgradeVerification.json",
+    "report": {
+      "installer_sha256": "97f6216ac93a4343f2cccb3ed4420e0f33c83c831b387a72a66d1e4087ac434c",
+      "installer_invocations": 5,
+      "run_id": "38350264864",
+      "previous_installer_url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/releases/download/v1.3.1-beta.1/SpectralForge-Chimera-1.3.1-beta.1-win64-Setup.exe",
+      "success": true,
+      "actual_uninstall_registration": "HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\SpectralForge.ChimeraAmpMatrix_is1",
+      "source_sha": "6033236cb81820a43679cbbd34be020804f9658d",
+      "actual_install_directory": "D:\\a\\_temp\\Chimera public upgrade 8a18d27d2d164a889c280adba10c6654\\이전 버전 업그레이드",
+      "previous_release_archive_verified": true,
+      "version": "1.3.1-beta.2",
+      "actual_previous_release_upgrade_verified": true,
+      "previous_release": "v1.3.1-beta.1",
+      "previous_installed_documents_verified": true,
+      "installer": "SpectralForge-Chimera-update-6033236cb8-win64-Setup.exe",
+      "previous_installer_expected_sha256": "da0a0c7f70b2ab6f5e0854ba9180a2eb3a8ab847c31c169db9e82c91002ff41a",
+      "installer_version": "1.3.1",
+      "observed_display_versions": [
+        "1.3.1",
+        "1.3.1",
+        "1.3.1",
+        "1.3.1"
+      ],
+      "checks": [
+        "PASS: Official v1.3.1-beta.1 Setup archive size and SHA256 match the reviewed public release",
+        "PASS: Actual v1.3.1-beta.1 Setup installs exactly 24 documentation files; every raw size and SHA256 matches historical package evidence",
+        "PASS: Real v1.3.1-beta.1 to 1.3.1-beta.2 upgrade retires nine exact owned research documents, preserves an edited legacy document in place and saves the annotated manual and license notices",
+        "PASS: Two actual current-Setup repairs restore current payload bytes and preserve all annotated document snapshots and personal files",
+        "PASS: Actual previous-release uninstall ownership survives upgrade/repair and preserves edited documents, snapshots, licenses, presets, IRs and projects without reboot deletion"
+      ],
+      "platform": "windows",
+      "scope": "actual public beta.1 Setup to current product Setup, standalone component, upgrade/repair/uninstall",
+      "historical_release_installer_executed": true,
+      "previous_installer_expected_bytes": 210803143,
+      "product_version": "1.3.1",
+      "observed_previous_documents": [
+        {
+          "path": "AMP_NATIVE_DSP.md",
+          "bytes": 10695,
+          "sha256": "c57aa800d2e559cdcd4cddea02780abfc772e260c4c6d749796797e3499d65db"
+        },
+        {
+          "path": "AMP_VALIDATION.md",
+          "bytes": 12100,
+          "sha256": "831a856dde2c50500d608da1c320aa408b240189154fc339b9af684fe583722a"
+        },
+        {
+          "path": "AMP_VOICES_OPEN_BETA.md",
+          "bytes": 7867,
+          "sha256": "2ab94b7edf959595a189da2941dcbf238a46ff0376455611ef3f106c6877331c"
+        },
+        {
+          "path": "ARTWORK_PROMPTS.json",
+          "bytes": 125623,
+          "sha256": "88e5bd8218f4eb57aa30de665f65777d0a9f47ce8ceea0f978f6d88b42ea8dbf"
+        },
+        {
+          "path": "COPYRIGHT.txt",
+          "bytes": 177,
+          "sha256": "e038aeb980350b48710a6bdbbbd8cf04a1390bc68e350b053c821efff9ec9d32"
+        },
+        {
+          "path": "EXTERNAL_BASS_IRS.md",
+          "bytes": 1749,
+          "sha256": "ab6dffb3661e10dda3ede9bb161427987f1090330f2ff9e73f36f98a30cb57ec"
+        },
+        {
+          "path": "FACTORY_CAB_VOICING_1_3.md",
+          "bytes": 16135,
+          "sha256": "c32f9fbb0c08b329b353926d676eb82408a98b88e46a9335672770ef99ab97fc"
+        },
+        {
+          "path": "GRAPHICS_DSP_UPDATE.md",
+          "bytes": 6163,
+          "sha256": "509714a82140017e99003dfebf18fab88664f95849cf8f038f7be4a5e5fc3933"
+        },
+        {
+          "path": "INSTALLATION.md",
+          "bytes": 7823,
+          "sha256": "ba2337d38f4f49c30aca01a4a6df671bf9ddad0ab7b6a6b67b66d00026b07644"
+        },
+        {
+          "path": "IR_DISTRIBUTION.md",
+          "bytes": 2559,
+          "sha256": "6db4245f2ba8ba62167685c235269b47eac1a3b57d93e5b4718931cf672ab14f"
+        },
+        {
+          "path": "MANUAL.html",
+          "bytes": 268143,
+          "sha256": "4daeb30d01ebefe93ce9b73c7d9f71e566e939eea5053772fadc5c9bddf193ee"
+        },
+        {
+          "path": "OPEN_BETA_RELEASE_NOTES.md",
+          "bytes": 10221,
+          "sha256": "3a401b63e8c6d9bb9b1b16d944f5c45bba4a9ba33ad400ddc6fdcbd39fd1cb69"
+        },
+        {
+          "path": "PEDAL_BOARD_DSP.md",
+          "bytes": 8756,
+          "sha256": "b4d2d41a1baaef4550474a0da25d4b1906f4420d82553975d06f5a0edcc3a4d4"
+        },
+        {
+          "path": "POST_NATIVE_DSP.md",
+          "bytes": 7248,
+          "sha256": "96e1a22bbc87058479e7dad867c43cd80a54579f5d642df102a9ba8c75a1e7c3"
+        },
+        {
+          "path": "PRESETS.md",
+          "bytes": 13963,
+          "sha256": "65554545cb02fcf9bdf85bdbfde44bcf8d8d4d2c85253cbca563eddc585a766a"
+        },
+        {
+          "path": "README.txt",
+          "bytes": 613,
+          "sha256": "90b29b4a142806d4ca81862e0a43923db2c2e337f55afed53446ff9cc4e06ac1"
+        },
+        {
+          "path": "STUDIO_ONE_TEARDOWN.md",
+          "bytes": 6017,
+          "sha256": "0b8638409355f3943ad623c9575a298816d35dd3cea7b1ab5bce42d38083bffd"
+        },
+        {
+          "path": "THIRD_PARTY_NOTICES.md",
+          "bytes": 3677,
+          "sha256": "ab1f448d8433190f44d1b29048657c2c77504b05a6ac3654d4e33b0f515ff1bd"
+        },
+        {
+          "path": "UPDATES.md",
+          "bytes": 8317,
+          "sha256": "6af8b76daa8b52b510a53f76d55373c8a97d24a3758ab15272d3630e3da8f786"
+        },
+        {
+          "path": "VALIDATION_STATUS.md",
+          "bytes": 4488,
+          "sha256": "157acf33aa1998d32269ebe0ac600ba112d9b90ddbbfe7e789adcd6729a44fe1"
+        },
+        {
+          "path": "Verification.txt",
+          "bytes": 376763,
+          "sha256": "34c42cf97026d90ff042e433f8c951257d446c96a835b0752b07a2ce376b52f1"
+        },
+        {
+          "path": "WINDOWS_INSTALL.txt",
+          "bytes": 5360,
+          "sha256": "8036d9a4debee76f5437c057296f0043a7ff5c81182ac5bf76064f29fd55164f"
+        },
+        {
+          "path": "WINDOWS_SIGNING.md",
+          "bytes": 3716,
+          "sha256": "e15ee5019bc3848d12635c50ba75ee145a686fd021a3631b5ba7adbf257f9e2b"
+        },
+        {
+          "path": "payload-manifest.json",
+          "bytes": 5687,
+          "sha256": "072fdff72bb6af2f77cf2dc9eb2a6c79dd58791e0e99c404dd0ba02a2efccf56"
+        }
+      ]
+    }
+  },
+  {
+    "artifact_id": 11791897476,
+    "artifact_name": "Chimera-Windows-installer-verification",
+    "run_id": 38350264755,
+    "path": "InstallerVerification.json",
+    "report": {
+      "payload_manifest_sha256": "713d97c09656544b3fe0b92205af08f2a273f023f05e98b8a3bce480fe6e0d89",
+      "checks": [
+        "PASS: Setup version resources match source/payload product version 1.3.1",
+        "PASS: Installed DisplayVersion=1.3.1 and selected binary versions match 1.3.1-beta.2",
+        "PASS: Product rename retires only exact old executable/VST3 binaries and preserves personal preset bytes",
+        "PASS: Companion Bass/Guitar WAVs install recursively, match their source hashes, decode, appear in the cabinet menu and load into a rig",
+        "PASS: Four Raven companion fixtures and sidecars install automatically, decode, appear in CAB and load into a rig",
+        "PASS: Full install: standard VST3 path, app, documentation, shortcuts and uninstall registration; payload hashes match",
+        "PASS: Standalone, VST3 and reference renderer use the static MSVC runtime",
+        "PASS: Installed VST3 loads through the Windows loader and exports GetPluginFactory",
+        "PASS: Start Menu shortcut launches the installed app and its window: C:\\Program Files\\SpectralForge\\Chimera Amp Matrix\\SpectralForge Chimera.exe",
+        "PASS: Installed DisplayVersion=1.3.1 and selected binary versions match 1.3.1-beta.2",
+        "PASS: Same-version reinstall repairs files and preserves modified documentation copies and personal presets/IRs",
+        "PASS: Personal IR collection is preserved after uninstall",
+        "PASS: Uninstall removes owned binaries, shortcut and Windows registration; preserves user files",
+        "PASS: Installed DisplayVersion=1.3.1 and selected binary versions match 1.3.1-beta.2",
+        "PASS: Independent custom application and VST3 installation folders accept Unicode paths",
+        "PASS: Installed DisplayVersion=1.3.1 and selected binary versions match 1.3.1-beta.2",
+        "PASS: Repair remembers the selected VST3 folder without a /VST3DIR override",
+        "PASS: Installed DisplayVersion=1.3.1 and selected binary versions match 1.3.1-beta.2",
+        "PASS: Changing the selected VST3 folder retires only its exact old plugin binary and preserves user files",
+        "PASS: VST3-only selection and removal; Unicode custom app path",
+        "PASS: Installed DisplayVersion=1.3.1 and selected binary versions match 1.3.1-beta.2",
+        "PASS: Start Menu shortcut launches the installed app and its window: D:\\a\\_temp\\Chimera 설치 검증\\SpectralForge Chimera.exe",
+        "PASS: Standalone-only selection and removal; no VST3 installed",
+        "PASS: Actual public beta.1 Setup to current product Setup upgrade, repair and removal preserve user documents and files"
+      ],
+      "source_sha": "6033236cb81820a43679cbbd34be020804f9658d",
+      "installer_version": "1.3.1",
+      "actual_previous_release_upgrade_verified": true,
+      "installer_sha256": "610b44602b7aec2dd5adb4ac3d90692b4f6dc683ab56ae7012f11bf457a1b4e7",
+      "build_id": "6033236cb8",
+      "success": true,
+      "product_version": "1.3.1",
+      "installer": "SpectralForge-Chimera-1.3.1-beta.2-win64-Setup.exe",
+      "observed_display_versions": [
+        "1.3.1",
+        "1.3.1",
+        "1.3.1",
+        "1.3.1",
+        "1.3.1",
+        "1.3.1"
+      ],
+      "run_id": "38350264755",
+      "version": "1.3.1-beta.2"
+    }
+  },
+  {
+    "artifact_id": 11791897476,
+    "artifact_name": "Chimera-Windows-installer-verification",
+    "run_id": 38350264755,
+    "path": "PreviousReleaseUpgradeVerification.json",
+    "report": {
+      "previous_release": "v1.3.1-beta.1",
+      "checks": [
+        "PASS: Official v1.3.1-beta.1 Setup archive size and SHA256 match the reviewed public release",
+        "PASS: Actual v1.3.1-beta.1 Setup installs exactly 24 documentation files; every raw size and SHA256 matches historical package evidence",
+        "PASS: Real v1.3.1-beta.1 to 1.3.1-beta.2 upgrade retires nine exact owned research documents, preserves an edited legacy document in place and saves the annotated manual and license notices",
+        "PASS: Two actual current-Setup repairs restore current payload bytes and preserve all annotated document snapshots and personal files",
+        "PASS: Actual previous-release uninstall ownership survives upgrade/repair and preserves edited documents, snapshots, licenses, presets, IRs and projects without reboot deletion"
+      ],
+      "run_id": "38350264755",
+      "source_sha": "6033236cb81820a43679cbbd34be020804f9658d",
+      "historical_release_installer_executed": true,
+      "previous_installer_url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/releases/download/v1.3.1-beta.1/SpectralForge-Chimera-1.3.1-beta.1-win64-Setup.exe",
+      "observed_previous_documents": [
+        {
+          "sha256": "c57aa800d2e559cdcd4cddea02780abfc772e260c4c6d749796797e3499d65db",
+          "bytes": 10695,
+          "path": "AMP_NATIVE_DSP.md"
+        },
+        {
+          "sha256": "831a856dde2c50500d608da1c320aa408b240189154fc339b9af684fe583722a",
+          "bytes": 12100,
+          "path": "AMP_VALIDATION.md"
+        },
+        {
+          "sha256": "2ab94b7edf959595a189da2941dcbf238a46ff0376455611ef3f106c6877331c",
+          "bytes": 7867,
+          "path": "AMP_VOICES_OPEN_BETA.md"
+        },
+        {
+          "sha256": "88e5bd8218f4eb57aa30de665f65777d0a9f47ce8ceea0f978f6d88b42ea8dbf",
+          "bytes": 125623,
+          "path": "ARTWORK_PROMPTS.json"
+        },
+        {
+          "sha256": "e038aeb980350b48710a6bdbbbd8cf04a1390bc68e350b053c821efff9ec9d32",
+          "bytes": 177,
+          "path": "COPYRIGHT.txt"
+        },
+        {
+          "sha256": "ab6dffb3661e10dda3ede9bb161427987f1090330f2ff9e73f36f98a30cb57ec",
+          "bytes": 1749,
+          "path": "EXTERNAL_BASS_IRS.md"
+        },
+        {
+          "sha256": "c32f9fbb0c08b329b353926d676eb82408a98b88e46a9335672770ef99ab97fc",
+          "bytes": 16135,
+          "path": "FACTORY_CAB_VOICING_1_3.md"
+        },
+        {
+          "sha256": "509714a82140017e99003dfebf18fab88664f95849cf8f038f7be4a5e5fc3933",
+          "bytes": 6163,
+          "path": "GRAPHICS_DSP_UPDATE.md"
+        },
+        {
+          "sha256": "ba2337d38f4f49c30aca01a4a6df671bf9ddad0ab7b6a6b67b66d00026b07644",
+          "bytes": 7823,
+          "path": "INSTALLATION.md"
+        },
+        {
+          "sha256": "6db4245f2ba8ba62167685c235269b47eac1a3b57d93e5b4718931cf672ab14f",
+          "bytes": 2559,
+          "path": "IR_DISTRIBUTION.md"
+        },
+        {
+          "sha256": "4daeb30d01ebefe93ce9b73c7d9f71e566e939eea5053772fadc5c9bddf193ee",
+          "bytes": 268143,
+          "path": "MANUAL.html"
+        },
+        {
+          "sha256": "3a401b63e8c6d9bb9b1b16d944f5c45bba4a9ba33ad400ddc6fdcbd39fd1cb69",
+          "bytes": 10221,
+          "path": "OPEN_BETA_RELEASE_NOTES.md"
+        },
+        {
+          "sha256": "b4d2d41a1baaef4550474a0da25d4b1906f4420d82553975d06f5a0edcc3a4d4",
+          "bytes": 8756,
+          "path": "PEDAL_BOARD_DSP.md"
+        },
+        {
+          "sha256": "96e1a22bbc87058479e7dad867c43cd80a54579f5d642df102a9ba8c75a1e7c3",
+          "bytes": 7248,
+          "path": "POST_NATIVE_DSP.md"
+        },
+        {
+          "sha256": "65554545cb02fcf9bdf85bdbfde44bcf8d8d4d2c85253cbca563eddc585a766a",
+          "bytes": 13963,
+          "path": "PRESETS.md"
+        },
+        {
+          "sha256": "90b29b4a142806d4ca81862e0a43923db2c2e337f55afed53446ff9cc4e06ac1",
+          "bytes": 613,
+          "path": "README.txt"
+        },
+        {
+          "sha256": "0b8638409355f3943ad623c9575a298816d35dd3cea7b1ab5bce42d38083bffd",
+          "bytes": 6017,
+          "path": "STUDIO_ONE_TEARDOWN.md"
+        },
+        {
+          "sha256": "ab1f448d8433190f44d1b29048657c2c77504b05a6ac3654d4e33b0f515ff1bd",
+          "bytes": 3677,
+          "path": "THIRD_PARTY_NOTICES.md"
+        },
+        {
+          "sha256": "6af8b76daa8b52b510a53f76d55373c8a97d24a3758ab15272d3630e3da8f786",
+          "bytes": 8317,
+          "path": "UPDATES.md"
+        },
+        {
+          "sha256": "157acf33aa1998d32269ebe0ac600ba112d9b90ddbbfe7e789adcd6729a44fe1",
+          "bytes": 4488,
+          "path": "VALIDATION_STATUS.md"
+        },
+        {
+          "sha256": "34c42cf97026d90ff042e433f8c951257d446c96a835b0752b07a2ce376b52f1",
+          "bytes": 376763,
+          "path": "Verification.txt"
+        },
+        {
+          "sha256": "8036d9a4debee76f5437c057296f0043a7ff5c81182ac5bf76064f29fd55164f",
+          "bytes": 5360,
+          "path": "WINDOWS_INSTALL.txt"
+        },
+        {
+          "sha256": "e15ee5019bc3848d12635c50ba75ee145a686fd021a3631b5ba7adbf257f9e2b",
+          "bytes": 3716,
+          "path": "WINDOWS_SIGNING.md"
+        },
+        {
+          "sha256": "072fdff72bb6af2f77cf2dc9eb2a6c79dd58791e0e99c404dd0ba02a2efccf56",
+          "bytes": 5687,
+          "path": "payload-manifest.json"
+        }
+      ],
+      "previous_installer_expected_sha256": "da0a0c7f70b2ab6f5e0854ba9180a2eb3a8ab847c31c169db9e82c91002ff41a",
+      "previous_installed_documents_verified": true,
+      "product_version": "1.3.1",
+      "actual_install_directory": "D:\\a\\_temp\\Chimera public upgrade e13449d40fc443f59e0301db17686729\\이전 버전 업그레이드",
+      "version": "1.3.1-beta.2",
+      "observed_display_versions": [
+        "1.3.1",
+        "1.3.1",
+        "1.3.1",
+        "1.3.1"
+      ],
+      "installer_sha256": "610b44602b7aec2dd5adb4ac3d90692b4f6dc683ab56ae7012f11bf457a1b4e7",
+      "installer_version": "1.3.1",
+      "platform": "windows",
+      "success": true,
+      "installer_invocations": 5,
+      "actual_previous_release_upgrade_verified": true,
+      "previous_installer_expected_bytes": 210803143,
+      "scope": "actual public beta.1 Setup to current product Setup, standalone component, upgrade/repair/uninstall",
+      "installer": "SpectralForge-Chimera-1.3.1-beta.2-win64-Setup.exe",
+      "previous_release_archive_verified": true,
+      "actual_uninstall_registration": "HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\SpectralForge.ChimeraAmpMatrix_is1"
+    }
+  },
+  {
+    "artifact_id": 11791947436,
+    "artifact_name": "Chimera-release-evidence-windows",
+    "run_id": 38350264755,
+    "path": "raw/InstallerVerification.json",
+    "report": {
+      "payload_manifest_sha256": "713d97c09656544b3fe0b92205af08f2a273f023f05e98b8a3bce480fe6e0d89",
+      "checks": [
+        "PASS: Setup version resources match source/payload product version 1.3.1",
+        "PASS: Installed DisplayVersion=1.3.1 and selected binary versions match 1.3.1-beta.2",
+        "PASS: Product rename retires only exact old executable/VST3 binaries and preserves personal preset bytes",
+        "PASS: Companion Bass/Guitar WAVs install recursively, match their source hashes, decode, appear in the cabinet menu and load into a rig",
+        "PASS: Four Raven companion fixtures and sidecars install automatically, decode, appear in CAB and load into a rig",
+        "PASS: Full install: standard VST3 path, app, documentation, shortcuts and uninstall registration; payload hashes match",
+        "PASS: Standalone, VST3 and reference renderer use the static MSVC runtime",
+        "PASS: Installed VST3 loads through the Windows loader and exports GetPluginFactory",
+        "PASS: Start Menu shortcut launches the installed app and its window: C:\\Program Files\\SpectralForge\\Chimera Amp Matrix\\SpectralForge Chimera.exe",
+        "PASS: Installed DisplayVersion=1.3.1 and selected binary versions match 1.3.1-beta.2",
+        "PASS: Same-version reinstall repairs files and preserves modified documentation copies and personal presets/IRs",
+        "PASS: Personal IR collection is preserved after uninstall",
+        "PASS: Uninstall removes owned binaries, shortcut and Windows registration; preserves user files",
+        "PASS: Installed DisplayVersion=1.3.1 and selected binary versions match 1.3.1-beta.2",
+        "PASS: Independent custom application and VST3 installation folders accept Unicode paths",
+        "PASS: Installed DisplayVersion=1.3.1 and selected binary versions match 1.3.1-beta.2",
+        "PASS: Repair remembers the selected VST3 folder without a /VST3DIR override",
+        "PASS: Installed DisplayVersion=1.3.1 and selected binary versions match 1.3.1-beta.2",
+        "PASS: Changing the selected VST3 folder retires only its exact old plugin binary and preserves user files",
+        "PASS: VST3-only selection and removal; Unicode custom app path",
+        "PASS: Installed DisplayVersion=1.3.1 and selected binary versions match 1.3.1-beta.2",
+        "PASS: Start Menu shortcut launches the installed app and its window: D:\\a\\_temp\\Chimera 설치 검증\\SpectralForge Chimera.exe",
+        "PASS: Standalone-only selection and removal; no VST3 installed",
+        "PASS: Actual public beta.1 Setup to current product Setup upgrade, repair and removal preserve user documents and files"
+      ],
+      "source_sha": "6033236cb81820a43679cbbd34be020804f9658d",
+      "installer_version": "1.3.1",
+      "actual_previous_release_upgrade_verified": true,
+      "installer_sha256": "610b44602b7aec2dd5adb4ac3d90692b4f6dc683ab56ae7012f11bf457a1b4e7",
+      "build_id": "6033236cb8",
+      "success": true,
+      "product_version": "1.3.1",
+      "installer": "SpectralForge-Chimera-1.3.1-beta.2-win64-Setup.exe",
+      "observed_display_versions": [
+        "1.3.1",
+        "1.3.1",
+        "1.3.1",
+        "1.3.1",
+        "1.3.1",
+        "1.3.1"
+      ],
+      "run_id": "38350264755",
+      "version": "1.3.1-beta.2"
+    }
+  }
+]

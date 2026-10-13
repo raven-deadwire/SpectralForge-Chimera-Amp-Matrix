@@ -1,0 +1,87 @@
+{
+  "source_sha": "6033236cb81820a43679cbbd34be020804f9658d",
+  "run_id": 38350264755,
+  "run_attempt": 1,
+  "ctest_outcome": "success",
+  "ctest_passed_count": 48,
+  "ctest_total_count": 48,
+  "ctest_matrix_ok": true,
+  "ChimeraUITests_passed": true,
+  "scoped_test_section_count": 1,
+  "actual_original_markers": [
+    "PASS: six native amp contexts, all native banks, POST nine models, binary/A-B recall and immediate pedal bank recall",
+    "PASS native UI: all 26 serialized amplifier panels at 100/75%, 122 channel cases, 2246 channel/control visibility cases, Matrix LOW priority controls and ALL, 9 POST models / 144 controls at 100/75%, flat POST alias menus and short original model captions, six compact rack rows and ALL dialogs, editor teardown and real parameter callbacks"
+  ],
+  "required_exact_patterns": {
+    "ChimeraUITests": [
+      "PASS: six native amp contexts, all native banks, POST nine models, binary/A-B recall and immediate pedal bank recall",
+      "PASS native UI: all 26 serialized amplifier panels at 100/75%, 122 channel cases, 2246 channel/control visibility cases, Matrix LOW priority controls and ALL, 9 POST models / 144 controls at 100/75%, flat POST alias menus and short original model captions, six compact rack rows and ALL dialogs, editor teardown and real parameter callbacks"
+    ]
+  },
+  "pattern_matches": [
+    {
+      "pattern": "PASS: six native amp contexts, all native banks, POST nine models, binary/A-B recall and immediate pedal bank recall",
+      "matched": true
+    },
+    {
+      "pattern": "PASS native UI: all 26 serialized amplifier panels at 100/75%, 122 channel cases, 2246 channel/control visibility cases, Matrix LOW priority controls and ALL, 9 POST models / 144 controls at 100/75%, flat POST alias menus and short original model captions, six compact rack rows and ALL dialogs, editor teardown and real parameter callbacks",
+      "matched": true
+    }
+  ],
+  "unchanged_contract_passed": true,
+  "regenerated_E1.STATE_UI": {
+    "schema": "spectralforge.chimera.validation.check",
+    "schema_version": 1,
+    "id": "E1.STATE_UI",
+    "stage": "E1",
+    "name": "E1.STATE_UI",
+    "scope": {
+      "platform": "windows",
+      "producer": "exact-source-ci",
+      "synthetic_only": true,
+      "run_id": "38350264755",
+      "run_attempt": "1"
+    },
+    "policy": {
+      "required": true,
+      "hard_gate": true,
+      "na_policy": "FORBIDDEN",
+      "requires_current_commit": true,
+      "requires_policy_version": true
+    },
+    "dependencies": [],
+    "execution": {
+      "executed": true,
+      "exit_code": 0
+    },
+    "evidence": {
+      "commit_sha": "6033236cb81820a43679cbbd34be020804f9658d",
+      "policy_version": 4,
+      "artifacts": [
+        "raw/ctest-results.xml",
+        "raw/ctest-inventory.json",
+        "raw/LastTest.log",
+        "raw/InstallerVerification.json",
+        "raw/InstallerVerification.txt",
+        "raw/MSIXVerification.txt",
+        "raw/WindowsSecurity.txt",
+        "raw/FileInventory.json",
+        "raw/DefenderStatus.json"
+      ]
+    },
+    "applicability": {
+      "applicable": true,
+      "waiver_id": null
+    },
+    "assertion": {
+      "passed": true
+    },
+    "failure": {
+      "type": "TEST_FAILURE",
+      "message": "Missing/failed CTest inventory, case or scoped full-log contract assertion"
+    }
+  },
+  "original_full_log_sha256": "0b273f3a171d92d2c4bb0083af5953c33386345a64e5676b06db88d7a0f28362",
+  "original_full_log_bytes": 386856,
+  "qualification": "Diagnostic only; original contract and strict gate acceptance unchanged."
+}

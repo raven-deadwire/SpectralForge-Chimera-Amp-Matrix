@@ -1,0 +1,39 @@
+{
+  "schema": "chimera.product-platform.archive-audit-addendum.v1",
+  "source_sha": "6033236cb81820a43679cbbd34be020804f9658d",
+  "audit_run_id": 38356862697,
+  "audit_job_id": 115161681494,
+  "supersedes_pending_condition_in": "scope-verdict.json",
+  "result": "SOURCE_BOUND_ARCHIVE_CHECKS_PASS",
+  "artifact": {
+    "id": 11792184316,
+    "name": "Chimera-release-evidence-macos",
+    "run_id": 38350264755,
+    "source_sha": "6033236cb81820a43679cbbd34be020804f9658d",
+    "size": 57663,
+    "sha256": "3717460345ebf7d6cb335b736eca93bd90ead33a615dd8137c7e6c67884e20cc",
+    "api_digest": "sha256:3717460345ebf7d6cb335b736eca93bd90ead33a615dd8137c7e6c67884e20cc",
+    "zip_crc_valid": true,
+    "internal_hashes_checked": 4,
+    "platform_outcomes": {
+      "ctest": "success",
+      "package": "success",
+      "installer": "skipped",
+      "msix": "skipped",
+      "scan": "skipped",
+      "assemble": "",
+      "source": "",
+      "upload": ""
+    }
+  },
+  "original_product_test_summary": {
+    "passed": 44,
+    "total": 44,
+    "seconds": 922.37
+  },
+  "limits": [
+    "Original Product job scope unchanged; this audit only authenticates archived evidence.",
+    "No new product installation/upgrade or installed app/DAW acceptance was executed.",
+    "Large binary artifact not independently downloaded or rehashed."
+  ]
+}

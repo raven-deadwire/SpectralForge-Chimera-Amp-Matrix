@@ -1,0 +1,131 @@
+{
+  "online": {
+    "result": "PASS",
+    "workflows": {
+      "build.yml": {
+        "id": 38350264755,
+        "run_attempt": 1,
+        "head_sha": "6033236cb81820a43679cbbd34be020804f9658d",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      "update-candidate.yml": {
+        "id": 38350264864,
+        "run_attempt": 1,
+        "head_sha": "6033236cb81820a43679cbbd34be020804f9658d",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      "cab-panel.yml": {
+        "id": 38350264753,
+        "run_attempt": 1,
+        "head_sha": "6033236cb81820a43679cbbd34be020804f9658d",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      "cab-realtime.yml": {
+        "id": 38350264721,
+        "run_attempt": 1,
+        "head_sha": "6033236cb81820a43679cbbd34be020804f9658d",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      "amp-head-controls.yml": {
+        "id": 38350264874,
+        "run_attempt": 1,
+        "head_sha": "6033236cb81820a43679cbbd34be020804f9658d",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      "signal-path.yml": {
+        "id": 38350264908,
+        "run_attempt": 1,
+        "head_sha": "6033236cb81820a43679cbbd34be020804f9658d",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      "graphical-eq.yml": {
+        "id": 38350264855,
+        "run_attempt": 1,
+        "head_sha": "6033236cb81820a43679cbbd34be020804f9658d",
+        "status": "completed",
+        "conclusion": "success"
+      }
+    }
+  },
+  "strict_gate": {
+    "verdict": "BLOCKED",
+    "ready": false,
+    "counts": {
+      "checks": {
+        "total": 128,
+        "pass": 21,
+        "blocked": 107,
+        "not_applicable": 0
+      },
+      "stages": {
+        "total": 30,
+        "pass": 4,
+        "blocked": 26,
+        "not_applicable": 0
+      }
+    },
+    "hard_gates": {
+      "total": 63,
+      "pass": 21,
+      "blocked": 42
+    },
+    "producer": {
+      "name": "consolidate_release_gate",
+      "inputs": [
+        {
+          "kind": "windows",
+          "manifest_sha256": "800d2c719e0def0ffdeae6ff840265ce759d61284e974a1ece5c9028ffee65a6",
+          "revision": {
+            "commit_sha": "6033236cb81820a43679cbbd34be020804f9658d",
+            "run_id": "38350264755",
+            "run_attempt": "1"
+          }
+        },
+        {
+          "kind": "linux",
+          "manifest_sha256": "5b9958d0a7463b17a1d6468a569f8df7585dd89cd82f6bab70fca9f150074ee8",
+          "revision": {
+            "commit_sha": "6033236cb81820a43679cbbd34be020804f9658d",
+            "run_id": "38350264755",
+            "run_attempt": "1"
+          }
+        },
+        {
+          "kind": "macos",
+          "manifest_sha256": "72a8a577664a22a86170c03d57928339fbd68d98f8520fdac7c315b52a265a39",
+          "revision": {
+            "commit_sha": "6033236cb81820a43679cbbd34be020804f9658d",
+            "run_id": "38350264755",
+            "run_attempt": "1"
+          }
+        },
+        {
+          "kind": "assembly",
+          "manifest_sha256": "c6a725da12ff2e514f6cdda1dc292e15ea0f217defae7f74f7f1aca5cca838d7",
+          "revision": {
+            "commit_sha": "6033236cb81820a43679cbbd34be020804f9658d",
+            "run_id": "38350264755",
+            "run_attempt": "1"
+          }
+        }
+      ],
+      "errors": []
+    },
+    "revision": {
+      "commit_sha": "6033236cb81820a43679cbbd34be020804f9658d",
+      "run_id": "38350264755",
+      "run_attempt": "1"
+    }
+  },
+  "offline": {
+    "returncode": 0,
+    "stdout": "{\n  \"version\": \"1.3.1-beta.2\",\n  \"source_sha\": \"6033236cb81820a43679cbbd34be020804f9658d\",\n  \"profile\": \"beta_1_3\",\n  \"mode\": \"OFFLINE_DRY_RUN\",\n  \"candidate\": \"NOT_SUPPLIED\",\n  \"consolidated_acceptance\": \"BLOCKED\",\n  \"publication_ready\": false,\n  \"published\": false,\n  \"blockers\": [\n    \"LIVE_EXACT_SOURCE_CI_NOT_VERIFIED\",\n    \"APPROVAL_REQUIRED: Weekly publication policy/version/source identity mismatch\"\n  ],\n  \"product_source_sha\": \"6033236cb81820a43679cbbd34be020804f9658d\",\n  \"publication_controller_sha\": \"6033236cb81820a43679cbbd34be020804f9658d\",\n  \"controller_changed_paths\": []\n}\n",
+    "stderr": ""
+  }
+}

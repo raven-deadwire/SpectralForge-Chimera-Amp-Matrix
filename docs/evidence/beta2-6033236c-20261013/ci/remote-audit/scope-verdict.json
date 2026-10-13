@@ -1,0 +1,416 @@
+{
+  "schema": "chimera.read-only-exact-source-audit.verdict.v1",
+  "source_sha": "6033236cb81820a43679cbbd34be020804f9658d",
+  "tree_sha": "7b23b503b807db36ec4f51491d6aa5f8c29e7b8c",
+  "product_run_id": 38350264755,
+  "product_run_attempt": 1,
+  "controller_sha": "31fca717ad0a38ce42acf104ebf0d7128a218e0a",
+  "controller_tree": "73679fcf9c1c6cd1b8ec8b48724b3719b65e3209",
+  "audit_run_id": 38356862697,
+  "audit_job_id": 115161681494,
+  "audit_run_attempt": 1,
+  "run_url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38356862697",
+  "result": "AUDIT_COMPLETED",
+  "original_job_conclusion": "success",
+  "unchanged_online_verify_ci": {
+    "result": "PASS",
+    "workflows": {
+      "build.yml": {
+        "id": 38350264755,
+        "run_attempt": 1,
+        "head_sha": "6033236cb81820a43679cbbd34be020804f9658d",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      "update-candidate.yml": {
+        "id": 38350264864,
+        "run_attempt": 1,
+        "head_sha": "6033236cb81820a43679cbbd34be020804f9658d",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      "cab-panel.yml": {
+        "id": 38350264753,
+        "run_attempt": 1,
+        "head_sha": "6033236cb81820a43679cbbd34be020804f9658d",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      "cab-realtime.yml": {
+        "id": 38350264721,
+        "run_attempt": 1,
+        "head_sha": "6033236cb81820a43679cbbd34be020804f9658d",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      "amp-head-controls.yml": {
+        "id": 38350264874,
+        "run_attempt": 1,
+        "head_sha": "6033236cb81820a43679cbbd34be020804f9658d",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      "signal-path.yml": {
+        "id": 38350264908,
+        "run_attempt": 1,
+        "head_sha": "6033236cb81820a43679cbbd34be020804f9658d",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      "graphical-eq.yml": {
+        "id": 38350264855,
+        "run_attempt": 1,
+        "head_sha": "6033236cb81820a43679cbbd34be020804f9658d",
+        "status": "completed",
+        "conclusion": "success"
+      }
+    }
+  },
+  "unchanged_strict_embedded_gate_verifier": {
+    "result": "ACCEPTED_EVIDENCE_BINDINGS",
+    "verdict": {
+      "verdict": "BLOCKED",
+      "ready": false,
+      "counts": {
+        "checks": {
+          "total": 128,
+          "pass": 21,
+          "blocked": 107,
+          "not_applicable": 0
+        },
+        "stages": {
+          "total": 30,
+          "pass": 4,
+          "blocked": 26,
+          "not_applicable": 0
+        }
+      },
+      "hard_gates": {
+        "total": 63,
+        "pass": 21,
+        "blocked": 42
+      },
+      "producer": {
+        "name": "consolidate_release_gate",
+        "inputs": [
+          {
+            "kind": "windows",
+            "manifest_sha256": "800d2c719e0def0ffdeae6ff840265ce759d61284e974a1ece5c9028ffee65a6",
+            "revision": {
+              "commit_sha": "6033236cb81820a43679cbbd34be020804f9658d",
+              "run_id": "38350264755",
+              "run_attempt": "1"
+            }
+          },
+          {
+            "kind": "linux",
+            "manifest_sha256": "5b9958d0a7463b17a1d6468a569f8df7585dd89cd82f6bab70fca9f150074ee8",
+            "revision": {
+              "commit_sha": "6033236cb81820a43679cbbd34be020804f9658d",
+              "run_id": "38350264755",
+              "run_attempt": "1"
+            }
+          },
+          {
+            "kind": "macos",
+            "manifest_sha256": "72a8a577664a22a86170c03d57928339fbd68d98f8520fdac7c315b52a265a39",
+            "revision": {
+              "commit_sha": "6033236cb81820a43679cbbd34be020804f9658d",
+              "run_id": "38350264755",
+              "run_attempt": "1"
+            }
+          },
+          {
+            "kind": "assembly",
+            "manifest_sha256": "c6a725da12ff2e514f6cdda1dc292e15ea0f217defae7f74f7f1aca5cca838d7",
+            "revision": {
+              "commit_sha": "6033236cb81820a43679cbbd34be020804f9658d",
+              "run_id": "38350264755",
+              "run_attempt": "1"
+            }
+          }
+        ],
+        "errors": []
+      },
+      "revision": {
+        "commit_sha": "6033236cb81820a43679cbbd34be020804f9658d",
+        "run_id": "38350264755",
+        "run_attempt": "1"
+      }
+    },
+    "release_acceptance": "BLOCKED"
+  },
+  "automatic_contracts": {
+    "total": 21,
+    "passed": 21,
+    "failed": [],
+    "details": [
+      {
+        "id": "A12.01",
+        "platforms": [
+          "windows",
+          "linux",
+          "macos"
+        ],
+        "passed": true
+      },
+      {
+        "id": "A12.02",
+        "platforms": [
+          "windows",
+          "linux",
+          "macos"
+        ],
+        "passed": true
+      },
+      {
+        "id": "A12.03",
+        "platforms": [
+          "windows",
+          "linux",
+          "macos"
+        ],
+        "passed": true
+      },
+      {
+        "id": "A12.04",
+        "platforms": [
+          "windows",
+          "linux",
+          "macos"
+        ],
+        "passed": true
+      },
+      {
+        "id": "A12.05",
+        "platforms": [
+          "windows",
+          "linux",
+          "macos"
+        ],
+        "passed": true
+      },
+      {
+        "id": "A12.06",
+        "platforms": [
+          "windows",
+          "linux",
+          "macos"
+        ],
+        "passed": true
+      },
+      {
+        "id": "A12.07",
+        "platforms": [
+          "windows",
+          "linux",
+          "macos"
+        ],
+        "passed": true
+      },
+      {
+        "id": "A13.01",
+        "platforms": [
+          "windows"
+        ],
+        "passed": true
+      },
+      {
+        "id": "A13.02",
+        "platforms": [
+          "linux"
+        ],
+        "passed": true
+      },
+      {
+        "id": "A13.03",
+        "platforms": [
+          "macos"
+        ],
+        "passed": true
+      },
+      {
+        "id": "A13.04",
+        "platforms": [
+          "windows"
+        ],
+        "passed": true
+      },
+      {
+        "id": "A13.05",
+        "platforms": [
+          "windows"
+        ],
+        "passed": true
+      },
+      {
+        "id": "A13.06",
+        "platforms": [
+          "windows"
+        ],
+        "passed": true
+      },
+      {
+        "id": "A13.07",
+        "platforms": [
+          "assembly"
+        ],
+        "passed": true
+      },
+      {
+        "id": "I1.PITCH",
+        "platforms": [
+          "windows",
+          "linux",
+          "macos"
+        ],
+        "passed": true
+      },
+      {
+        "id": "I1.GATE",
+        "platforms": [
+          "windows",
+          "linux",
+          "macos"
+        ],
+        "passed": true
+      },
+      {
+        "id": "I1.STATE_GAIN_GR",
+        "platforms": [
+          "windows",
+          "linux",
+          "macos"
+        ],
+        "passed": true
+      },
+      {
+        "id": "I1.LIVE_REMOVE",
+        "platforms": [
+          "windows"
+        ],
+        "passed": true
+      },
+      {
+        "id": "E1.DSP",
+        "platforms": [
+          "windows",
+          "linux",
+          "macos"
+        ],
+        "passed": true
+      },
+      {
+        "id": "E1.STATE_UI",
+        "platforms": [
+          "windows"
+        ],
+        "passed": true
+      },
+      {
+        "id": "E1.LEGACY",
+        "platforms": [
+          "windows",
+          "linux",
+          "macos"
+        ],
+        "passed": true
+      }
+    ]
+  },
+  "archive_integrity": {
+    "result": "PASS",
+    "verified_archives": 13,
+    "api_size_and_sha256": true,
+    "zip_crc": true,
+    "standalone_release_bundle_internal_hashes": 20,
+    "cab_internal_hashes": 321,
+    "embedded_gate_bundles_rehashed_and_regenerated": 4
+  },
+  "native_ui_receipt": {
+    "unchanged_contract_passed": true,
+    "ctest_passed": 48,
+    "ctest_total": 48,
+    "inventory_valid": true,
+    "original_full_log_sha256": "0b273f3a171d92d2c4bb0083af5953c33386345a64e5676b06db88d7a0f28362",
+    "original_full_log_bytes": 386856,
+    "compatibility_note": "The source preserves the immutable legacy machine receipt token while its functional-caption and safe-public-name assertions remain in force; no policy relaxation."
+  },
+  "unchanged_offline_dry_run": {
+    "returncode": 0,
+    "report": {
+      "version": "1.3.1-beta.2",
+      "source_sha": "6033236cb81820a43679cbbd34be020804f9658d",
+      "profile": "beta_1_3",
+      "mode": "OFFLINE_DRY_RUN",
+      "candidate": "NOT_SUPPLIED",
+      "consolidated_acceptance": "BLOCKED",
+      "publication_ready": false,
+      "published": false,
+      "blockers": [
+        "LIVE_EXACT_SOURCE_CI_NOT_VERIFIED",
+        "APPROVAL_REQUIRED: Weekly publication policy/version/source identity mismatch"
+      ],
+      "product_source_sha": "6033236cb81820a43679cbbd34be020804f9658d",
+      "publication_controller_sha": "6033236cb81820a43679cbbd34be020804f9658d",
+      "controller_changed_paths": []
+    },
+    "interpretation": "The offline CLI does not itself perform live CI verification and explicitly reports that mode-specific blocker; the separate unchanged online verify_ci above passed. Its approval blocker and BLOCKED consolidated acceptance remain unchanged."
+  },
+  "source_and_policy": {
+    "source_before": {
+      "sha": "6033236cb81820a43679cbbd34be020804f9658d",
+      "tree": "7b23b503b807db36ec4f51491d6aa5f8c29e7b8c",
+      "tracked_status": "",
+      "tracked_diff": ""
+    },
+    "source_after": {
+      "sha": "6033236cb81820a43679cbbd34be020804f9658d",
+      "tree": "7b23b503b807db36ec4f51491d6aa5f8c29e7b8c",
+      "tracked_status": "",
+      "tracked_diff": ""
+    },
+    "source_final": {
+      "sha": "6033236cb81820a43679cbbd34be020804f9658d",
+      "tree": "7b23b503b807db36ec4f51491d6aa5f8c29e7b8c",
+      "tracked_status": "",
+      "tracked_diff": ""
+    },
+    "source_final_error": null,
+    "policy_hashes_before": {
+      "Validation/release-policy.json": "909758fb1169c60c6da22b7bcb4ab4ee8f8f1f7632067c0f6117bf8e117c552c",
+      "Validation/waivers.json": "0bddd84f0795d218b3d14bdda53331bf65e05824d2b12730c2efb98ed1d57b04",
+      "Validation/weekly-publication-policy.json": "9dde322755557bb4f2cbbbf426f9c626676536e6b9521579b393f43ba44f0bf4",
+      "Validation/ci-check-map.json": "4cbbd8fdcc720ae6d7b8a4fbe81d4e13e6a2e01b9f9d73570d2a9039d7754249"
+    },
+    "policy_hashes_after": {
+      "Validation/release-policy.json": "909758fb1169c60c6da22b7bcb4ab4ee8f8f1f7632067c0f6117bf8e117c552c",
+      "Validation/waivers.json": "0bddd84f0795d218b3d14bdda53331bf65e05824d2b12730c2efb98ed1d57b04",
+      "Validation/weekly-publication-policy.json": "9dde322755557bb4f2cbbbf426f9c626676536e6b9521579b393f43ba44f0bf4",
+      "Validation/ci-check-map.json": "4cbbd8fdcc720ae6d7b8a4fbe81d4e13e6a2e01b9f9d73570d2a9039d7754249"
+    },
+    "policy_hashes_final": {
+      "Validation/release-policy.json": "909758fb1169c60c6da22b7bcb4ab4ee8f8f1f7632067c0f6117bf8e117c552c",
+      "Validation/waivers.json": "0bddd84f0795d218b3d14bdda53331bf65e05824d2b12730c2efb98ed1d57b04",
+      "Validation/weekly-publication-policy.json": "9dde322755557bb4f2cbbbf426f9c626676536e6b9521579b393f43ba44f0bf4",
+      "Validation/ci-check-map.json": "4cbbd8fdcc720ae6d7b8a4fbe81d4e13e6a2e01b9f9d73570d2a9039d7754249"
+    }
+  },
+  "published": false,
+  "publication_approved": false,
+  "candidate_binary_archive_downloaded": false,
+  "original_selected_report_count": 10,
+  "supersession": {
+    "earlier603_pre_audit_scope_files": "Their pending independent byte-verification condition is now resolved by this exact603 audit. Preserve their original observation chronology.",
+    "prior937_or_c3_results": "Historical only; no prior source PASS used to qualify603.",
+    "executor_outage": "Local executor remains unavailable; this audit ran only on a separate read-only GitHub runner at frozen603."
+  },
+  "scope_limits": [
+    "Audit success authenticates source-specific automated evidence and does not grant release approval.",
+    "Consolidated release acceptance remains BLOCKED:21 PASS,107 BLOCKED,42 hard gates blocked.",
+    "No additional native installation, previous-release upgrade, app, DAW or target-hardware test was executed by this archive audit.",
+    "Mac/Linux Product package extraction and code/dependency checks remain distinct from actual full-product old-to-new installed acceptance.",
+    "Large assembled candidate and platform binary archives were not downloaded or independently rehashed by this audit.",
+    "CAB p99 PASS does not imply zero callback overruns."
+  ]
+}

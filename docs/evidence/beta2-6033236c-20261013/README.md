@@ -7,7 +7,7 @@
 - Version: `1.3.1-beta.2`
 - Parent: `9375328c30dfe5908e5010342179b5afbc258900`
 - Integration PR: [#55](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/pull/55), open Draft against main.
-- Verification status: **original exact-source CI 11/11 workflows and 33/33 jobs SUCCESS; release BLOCKED; independent raw-archive audit pending**.
+- Verification status: **original exact-source CI 11/11 workflows and 33/33 jobs SUCCESS; independent raw-archive audit AUDIT_COMPLETED; release BLOCKED**.
 
 This is an evidence-only branch. Its commits do not replace the product source listed above. No prior source's runtime or CI PASS qualifies this candidate.
 
@@ -48,7 +48,7 @@ The full current and three donor Git trees/files were retrieved again and evalua
 - The 19 directly inspected DSP/parameter/state/PluginProcessor paths are byte-identical to latest #55.
 - All 20 non-document changes introduced by #58 are exact donor blobs, including native cleanup, platform packaging/installers, inventory and verification fixtures. The full Installer and workflow trees also match #58.
 - Current names, stable IDs, generated filenames, indices 43–47 and routing modes agree. There remain 48 selectable presets and all previous 43 indices are preserved.
-- The actual new validation-contract job (115140821449 in Product38350264755) checks out6033236c and reports the catalog plus13 public documents passing the public-name contract. Runtime captions still require the new native test executions.
+- The actual new validation-contract job (115140821449 in Product38350264755) checks out6033236c and reports the catalog plus13 public documents passing the public-name contract. The completed native executions and independently audited Windows full log now verify the actual captions and unchanged receipt contract.
 - Selected approval/gate/CI-map/weekly policy files are exact latest #55. The publisher is exact #56/#58 and retains its added distribution public-name guard.
 
 ## Fresh exact-source CI
@@ -90,7 +90,7 @@ Current PRESETS.md participates in installed-versus-current-stage SHA256 checks.
 Document-upgrade run38350264747 succeeded on all three platforms:
 
 - Ubuntu:42/42 helper tests,0 skips, including UID/GID ownership. Native dpkg document fixtures are synthetic document installation tests.
-- Windows:11/11 portable rules and8 real Inno synthetic-document PASS groups.
+- Windows:11/11 portable rules and8 real Inno synthetic-document PASS groups across12 installer invocations.
 - macOS ARM64:39 helper methods (33 pass,6 method skips), plus a skipped dpkg class;7 unittest-reported skips overall. Four native Apple PKG document lifecycle groups passed.
 
 These synthetic fixtures are distinct from the actual old Windows product Setup above. macOS fixture execution does not establish native Intel runtime or full previous-product PKG upgrade.
@@ -101,7 +101,7 @@ macOS Product verified arm64+x86_64 slices for standalone/VST3/AU and the native
 
 ### CAB and original release gate
 
-All three new CAB jobs succeeded. Their exact-source logs/API metadata are retained under ci/cab. Raw route/callback measurements remain pending the independent archive audit.
+All three new CAB jobs and their original archives were independently verified. Each platform passed5/5 CTests and66/66 candidate p99 routes. Fresh callback deadline misses per105600 callbacks were Windows1, Linux16 and macOS7. Passing the existing p99 gate does not mean zero individual overruns. The macOS expanded-v2/96kHz/32-sample/stereo route measured p99228.75us and max480us against333.333us, with1/1600 misses. The earlier source's timing failure remains historical evidence; no causal performance fix is claimed. Exact-source logs,107 internal file hashes per platform and the archive addendum are under ci/cab.
 
 The original consolidated gate job115161016588 completed successfully as a computation, while its actual release verdict is **BLOCKED:21 PASS /107 BLOCKED /0 NOT_APPLICABLE;21 of63 hard gates PASS,42 not passed**. E1 aggregate is PASS3/3 in the producer log. Its workflow has no continue-on-error on the verdict command. Passing job execution is not release approval.
 
@@ -111,7 +111,30 @@ Original assembled candidate artifact11792559837:1592385077bytes, SHA256013c559c
 
 ## Independent raw-evidence audit
 
-Read-only audit run38356862697, job115161681494, uses controller31fca717ad0a38ce42acf104ebf0d7128a218e0a and separately checks out exact product6033236c. It retains read-only contents/actions permissions, fixed original run IDs, unchanged product verification functions, bounded evidence downloads, original failure handling and an offline publication dry-run. Its result is pending at this checkpoint. Product CI totals above do not include this audit.
+Read-only [audit run38356862697](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38356862697), job115161681494, completed successfully at2026-10-13T06:38:04Z with **AUDIT_COMPLETED**. Controller31fca717ad0a38ce42acf104ebf0d7128a218e0a separately checked out product6033236c. It retained read-only contents/actions permissions, fixed original run IDs, unchanged product verification functions, bounded evidence downloads and original failure handling. It did not run additional installers. This audit is excluded from product11/33 totals.
+
+- All13 evidence ZIPs matched original API byte size and SHA256 and passed ZIP CRC checks. The standalone platform bundles supplied20 verified internal raw-file hashes; CAB supplied321. Four embedded gate bundles were rehashed and their automatic checks regenerated.
+- Unchanged online verify_ci accepted all7 required exact-source workflows. All21 regenerated automatic contracts passed. The original full Windows LastTest.log (386856bytes, SHA2560b273f3a171d92d2c4bb0083af5953c33386345a64e5676b06db88d7a0f28362) passed the unchanged inventory and two scoped receipt patterns; E1.STATE_UI now passes.
+- Unchanged verify_release_gate_archive accepted the evidence bindings while preserving the actual **BLOCKED:21 PASS/107 BLOCKED,42 hard gates blocked** verdict. These blocked counts identify unclosed acceptance checks, not107 or42 independently proven product defects.
+- Unchanged offline publication dry-run exited0 with publication_ready=false and published=false. It explicitly reports LIVE_EXACT_SOURCE_CI_NOT_VERIFIED because that offline mode does not itself perform a live check; the separate online check above passed. Its APPROVAL_REQUIRED policy/version/source-identity blocker remains. Exit0 is a successful diagnostic, not release authorization.
+- Source SHA/tree, clean tracked status and all4 release-policy/waiver/weekly-policy/CI-map hashes were identical before, after and at final verification.
+- A separate installer review parsed the original5 selected installer/document archives, including both24-check current reports and both5-stage actual-old-product reports. The24 old document path/size/hash entries matched the frozen historical inventory; all installer hashes and stage flags agreed.
+
+Audit artifact11793362243 is20747777bytes, SHA25618c93c8385b2cf63425cee21a45512c393e319286c03a35ffc33c6040fafd67a. Complete original logs/API metadata, selected reports, unchanged-verifier output and source/policy proof are under ci/remote-audit. Final installer/CAB/Linux/macOS archive addenda resolve the pending-read conditions in their earlier observation files; those earlier files retain their truthful chronology.
+
+The large assembled candidate ZIP and separate platform binary archives were not independently downloaded by this audit. Evidence integrity and installer execution are qualified only within the scopes described above.
+
+## October 14 scope decision
+
+| Scope | Decision |
+|---|---|
+| Metal Clank/Heavy Pulse labels, #56 current-product public-name policy, #58 conservative document retirement/user-file preservation | Included in frozen603 candidate for internal acceptance testing under existing preparation authorization |
+| Three test-only compatibility corrections relative to the initial integration | Included;12 additions/5 deletions across3 Tests files, with no product/policy relaxation |
+| I2.PITCH_LIVE and I2.PITCH_DI | Remain in the existing transpose follow-up; no new PASS, NOT_APPLICABLE or waiver assigned |
+| Actual DAW/session recall and listening/hardware acceptance, applicable full platform install/upgrade and signing/notarization, remaining strict release gates and owner approval | Still required for the applicable release scope; not deferred or waived to meet October14 |
+| Main merge, release/tag/feed publication and deployment | Not performed; no publication authorization |
+
+Public-name policy covers the current product UI/host labels and newly shipped public documents. Retained user-authored historical documents, byte-preserved snapshots, mandatory license notices and historical fingerprints can retain earlier wording. Globally purging that retained content would violate the preservation requirement.
 
 ## Release boundary
 

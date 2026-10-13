@@ -1,0 +1,353 @@
+[
+  {
+    "id": 11791989864,
+    "name": "Chimera-A-stage-release-gate",
+    "run_id": 38350264755,
+    "source_sha": "6033236cb81820a43679cbbd34be020804f9658d",
+    "size": 262810,
+    "sha256": "c3a812f2d28a2b409a5cdbe6594140c0e70ae41ee3310c4a05d7fc1ca348ed01",
+    "api_digest": "sha256:c3a812f2d28a2b409a5cdbe6594140c0e70ae41ee3310c4a05d7fc1ca348ed01",
+    "zip_crc_valid": true,
+    "internal_hashes_checked": 0
+  },
+  {
+    "id": 11790003728,
+    "name": "Chimera-document-upgrade-ubuntu-24.04",
+    "run_id": 38350264747,
+    "source_sha": "6033236cb81820a43679cbbd34be020804f9658d",
+    "size": 1819,
+    "sha256": "1374c49a7379561577ae3825eb6a773eeafb4ba59da215a47e55df82672568ad",
+    "api_digest": "sha256:1374c49a7379561577ae3825eb6a773eeafb4ba59da215a47e55df82672568ad",
+    "zip_crc_valid": true,
+    "internal_hashes_checked": 0
+  },
+  {
+    "id": 11790402477,
+    "name": "Chimera-document-upgrade-windows-inno-fixtures",
+    "run_id": 38350264747,
+    "source_sha": "6033236cb81820a43679cbbd34be020804f9658d",
+    "size": 20094,
+    "sha256": "26b1dd64fb6e56ac2535ae5800b87e5c562b008de77adf5e20d4fe3980cae277",
+    "api_digest": "sha256:26b1dd64fb6e56ac2535ae5800b87e5c562b008de77adf5e20d4fe3980cae277",
+    "zip_crc_valid": true,
+    "internal_hashes_checked": 0
+  },
+  {
+    "id": 11790667188,
+    "name": "Chimera-document-upgrade-macos-15",
+    "run_id": 38350264747,
+    "source_sha": "6033236cb81820a43679cbbd34be020804f9658d",
+    "size": 7916,
+    "sha256": "e43d959d5f985e1a2e2e8807d9064e3eb81f02e0622bfcb3c2cffef9dd5a9c43",
+    "api_digest": "sha256:e43d959d5f985e1a2e2e8807d9064e3eb81f02e0622bfcb3c2cffef9dd5a9c43",
+    "zip_crc_valid": true,
+    "internal_hashes_checked": 0
+  },
+  {
+    "id": 11792796513,
+    "name": "Chimera-candidate-installer-verification",
+    "run_id": 38350264864,
+    "source_sha": "6033236cb81820a43679cbbd34be020804f9658d",
+    "size": 49156,
+    "sha256": "74862cef2b87a24710367db3a3706c6c8aec949dcf25c6eed7b75ef28a0f14c6",
+    "api_digest": "sha256:74862cef2b87a24710367db3a3706c6c8aec949dcf25c6eed7b75ef28a0f14c6",
+    "zip_crc_valid": true,
+    "internal_hashes_checked": 0
+  },
+  {
+    "id": 11791897476,
+    "name": "Chimera-Windows-installer-verification",
+    "run_id": 38350264755,
+    "source_sha": "6033236cb81820a43679cbbd34be020804f9658d",
+    "size": 44010,
+    "sha256": "b2ccb79a634ba4c42d962d345e49e9a5e22c2f0440e77e15d26bc95941fc90ff",
+    "api_digest": "sha256:b2ccb79a634ba4c42d962d345e49e9a5e22c2f0440e77e15d26bc95941fc90ff",
+    "zip_crc_valid": true,
+    "internal_hashes_checked": 0
+  },
+  {
+    "id": 11791947436,
+    "name": "Chimera-release-evidence-windows",
+    "run_id": 38350264755,
+    "source_sha": "6033236cb81820a43679cbbd34be020804f9658d",
+    "size": 66492,
+    "sha256": "0360b9024975ddf842c78ca44da611a587f8b8c1eb5b319d916d7e5faffc50e3",
+    "api_digest": "sha256:0360b9024975ddf842c78ca44da611a587f8b8c1eb5b319d916d7e5faffc50e3",
+    "zip_crc_valid": true,
+    "internal_hashes_checked": 9,
+    "platform_outcomes": {
+      "ctest": "success",
+      "package": "success",
+      "installer": "success",
+      "msix": "success",
+      "scan": "success",
+      "assemble": "",
+      "source": "",
+      "upload": ""
+    }
+  },
+  {
+    "id": 11792077750,
+    "name": "Chimera-release-evidence-linux",
+    "run_id": 38350264755,
+    "source_sha": "6033236cb81820a43679cbbd34be020804f9658d",
+    "size": 58605,
+    "sha256": "5ad81cadb31bd96bc275db684845ce42ade49b53db4bd2da50316af4bbde88b9",
+    "api_digest": "sha256:5ad81cadb31bd96bc275db684845ce42ade49b53db4bd2da50316af4bbde88b9",
+    "zip_crc_valid": true,
+    "internal_hashes_checked": 4,
+    "platform_outcomes": {
+      "ctest": "success",
+      "package": "success",
+      "installer": "skipped",
+      "msix": "skipped",
+      "scan": "skipped",
+      "assemble": "",
+      "source": "",
+      "upload": ""
+    }
+  },
+  {
+    "id": 11792184316,
+    "name": "Chimera-release-evidence-macos",
+    "run_id": 38350264755,
+    "source_sha": "6033236cb81820a43679cbbd34be020804f9658d",
+    "size": 57663,
+    "sha256": "3717460345ebf7d6cb335b736eca93bd90ead33a615dd8137c7e6c67884e20cc",
+    "api_digest": "sha256:3717460345ebf7d6cb335b736eca93bd90ead33a615dd8137c7e6c67884e20cc",
+    "zip_crc_valid": true,
+    "internal_hashes_checked": 4,
+    "platform_outcomes": {
+      "ctest": "success",
+      "package": "success",
+      "installer": "skipped",
+      "msix": "skipped",
+      "scan": "skipped",
+      "assemble": "",
+      "source": "",
+      "upload": ""
+    }
+  },
+  {
+    "id": 11793180543,
+    "name": "Chimera-release-evidence-assembly",
+    "run_id": 38350264755,
+    "source_sha": "6033236cb81820a43679cbbd34be020804f9658d",
+    "size": 1959,
+    "sha256": "32d52baa0cda3115917360ad554580433e028d8c15ab43a1239c34b4901b06e7",
+    "api_digest": "sha256:32d52baa0cda3115917360ad554580433e028d8c15ab43a1239c34b4901b06e7",
+    "zip_crc_valid": true,
+    "internal_hashes_checked": 3,
+    "platform_outcomes": {
+      "ctest": "",
+      "package": "",
+      "installer": "",
+      "msix": "",
+      "scan": "",
+      "assemble": "success",
+      "source": "success",
+      "upload": "success"
+    }
+  },
+  {
+    "id": 11790862141,
+    "name": "CAB-realtime-Windows-6033236cb81820a43679cbbd34be020804f9658d",
+    "run_id": 38350264721,
+    "source_sha": "6033236cb81820a43679cbbd34be020804f9658d",
+    "size": 2814049,
+    "sha256": "038002016a47328840360d49fa790135d4bb342381627ddf2da805cd20485bd4",
+    "api_digest": "sha256:038002016a47328840360d49fa790135d4bb342381627ddf2da805cd20485bd4",
+    "zip_crc_valid": true,
+    "internal_hashes_checked": 107,
+    "cab": {
+      "reported_result": "PASS",
+      "ctest_returncode": 0,
+      "tests": [
+        {
+          "name": "ChimeraOriginalCabIntegrationTests",
+          "passed": true,
+          "seconds": 7.92968
+        },
+        {
+          "name": "ChimeraOriginalCabRealtimeTests",
+          "passed": true,
+          "seconds": 5.58351
+        },
+        {
+          "name": "ChimeraCabExpansionIntegrationTests",
+          "passed": true,
+          "seconds": 8.36869
+        },
+        {
+          "name": "ChimeraCabExtendedTimingTests",
+          "passed": true,
+          "seconds": 21.8105
+        },
+        {
+          "name": "ChimeraCabLayoutIntegrationTests",
+          "passed": true,
+          "seconds": 10.0911
+        }
+      ],
+      "passing_p99_routes": 66,
+      "total_p99_routes": 66,
+      "total_callbacks": 105600,
+      "callback_deadline_misses": 1,
+      "failed_routes": [],
+      "former_failure_route": [
+        {
+          "engine": "expanded-v2",
+          "sr": "96000",
+          "block": "32",
+          "channels": "2",
+          "p50_us": "59.8",
+          "p99_us": "125.9",
+          "thread_cpu_p99_us": "-1",
+          "max_us": "217.1",
+          "misses": "0/1600",
+          "kernel_residual": "1.86264514923e-09",
+          "peak": "0.015451724641",
+          "max_step": "0.00442692497745",
+          "deadline_us": 333.3333333333333,
+          "p99_within_deadline": true,
+          "test": "ChimeraCabExtendedTimingTests"
+        }
+      ],
+      "qualification": "Existing candidate CTest/p99 gates; PASS does not imply zero callback overruns."
+    }
+  },
+  {
+    "id": 11790179551,
+    "name": "CAB-realtime-Linux-6033236cb81820a43679cbbd34be020804f9658d",
+    "run_id": 38350264721,
+    "source_sha": "6033236cb81820a43679cbbd34be020804f9658d",
+    "size": 4052305,
+    "sha256": "b115d4e02d897abc268511ebe5ebf0c82c470e68dc9941bda55d8c6d9f1ae3c8",
+    "api_digest": "sha256:b115d4e02d897abc268511ebe5ebf0c82c470e68dc9941bda55d8c6d9f1ae3c8",
+    "zip_crc_valid": true,
+    "internal_hashes_checked": 107,
+    "cab": {
+      "reported_result": "PASS",
+      "ctest_returncode": 0,
+      "tests": [
+        {
+          "name": "ChimeraOriginalCabIntegrationTests",
+          "passed": true,
+          "seconds": 11.7883
+        },
+        {
+          "name": "ChimeraOriginalCabRealtimeTests",
+          "passed": true,
+          "seconds": 10.7243
+        },
+        {
+          "name": "ChimeraCabExpansionIntegrationTests",
+          "passed": true,
+          "seconds": 12.2127
+        },
+        {
+          "name": "ChimeraCabExtendedTimingTests",
+          "passed": true,
+          "seconds": 34.7475
+        },
+        {
+          "name": "ChimeraCabLayoutIntegrationTests",
+          "passed": true,
+          "seconds": 14.0745
+        }
+      ],
+      "passing_p99_routes": 66,
+      "total_p99_routes": 66,
+      "total_callbacks": 105600,
+      "callback_deadline_misses": 16,
+      "failed_routes": [],
+      "former_failure_route": [
+        {
+          "engine": "expanded-v2",
+          "sr": "96000",
+          "block": "32",
+          "channels": "2",
+          "p50_us": "107.217",
+          "p99_us": "221.652",
+          "thread_cpu_p99_us": "222.153999999",
+          "max_us": "269.22",
+          "misses": "0/1600",
+          "kernel_residual": "1.86264514923e-09",
+          "peak": "0.015451724641",
+          "max_step": "0.00442692497745",
+          "deadline_us": 333.3333333333333,
+          "p99_within_deadline": true,
+          "test": "ChimeraCabExtendedTimingTests"
+        }
+      ],
+      "qualification": "Existing candidate CTest/p99 gates; PASS does not imply zero callback overruns."
+    }
+  },
+  {
+    "id": 11790372512,
+    "name": "CAB-realtime-macOS-6033236cb81820a43679cbbd34be020804f9658d",
+    "run_id": 38350264721,
+    "source_sha": "6033236cb81820a43679cbbd34be020804f9658d",
+    "size": 2901300,
+    "sha256": "6914753eaf0d949f9e1ab9c69d440c5bb16b15c5bf00a4d8c4c77d6dc4769be9",
+    "api_digest": "sha256:6914753eaf0d949f9e1ab9c69d440c5bb16b15c5bf00a4d8c4c77d6dc4769be9",
+    "zip_crc_valid": true,
+    "internal_hashes_checked": 107,
+    "cab": {
+      "reported_result": "PASS",
+      "ctest_returncode": 0,
+      "tests": [
+        {
+          "name": "ChimeraOriginalCabIntegrationTests",
+          "passed": true,
+          "seconds": 22.1564
+        },
+        {
+          "name": "ChimeraOriginalCabRealtimeTests",
+          "passed": true,
+          "seconds": 13.3362
+        },
+        {
+          "name": "ChimeraCabExpansionIntegrationTests",
+          "passed": true,
+          "seconds": 23.2032
+        },
+        {
+          "name": "ChimeraCabExtendedTimingTests",
+          "passed": true,
+          "seconds": 58.5459
+        },
+        {
+          "name": "ChimeraCabLayoutIntegrationTests",
+          "passed": true,
+          "seconds": 23.9397
+        }
+      ],
+      "passing_p99_routes": 66,
+      "total_p99_routes": 66,
+      "total_callbacks": 105600,
+      "callback_deadline_misses": 7,
+      "failed_routes": [],
+      "former_failure_route": [
+        {
+          "engine": "expanded-v2",
+          "sr": "96000",
+          "block": "32",
+          "channels": "2",
+          "p50_us": "78.416",
+          "p99_us": "228.75",
+          "thread_cpu_p99_us": "229.875",
+          "max_us": "480",
+          "misses": "1/1600",
+          "kernel_residual": "1.86264514923e-09",
+          "peak": "0.0154514228925",
+          "max_step": "0.00442915130407",
+          "deadline_us": 333.3333333333333,
+          "p99_within_deadline": true,
+          "test": "ChimeraCabExtendedTimingTests"
+        }
+      ],
+      "qualification": "Existing candidate CTest/p99 gates; PASS does not imply zero callback overruns."
+    }
+  }
+]

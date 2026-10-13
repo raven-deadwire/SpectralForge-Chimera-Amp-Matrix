@@ -1,0 +1,217 @@
+{
+  "schema": "chimera.cab.archive-audit-addendum.v1",
+  "source_sha": "6033236cb81820a43679cbbd34be020804f9658d",
+  "audit_run_id": 38356862697,
+  "audit_job_id": 115161681494,
+  "supersedes_pending_condition_in": "original-job-metadata-scope.json",
+  "result": "SOURCE_BOUND_ARCHIVE_CHECKS_PASS",
+  "platforms": [
+    {
+      "id": 11790862141,
+      "name": "CAB-realtime-Windows-6033236cb81820a43679cbbd34be020804f9658d",
+      "run_id": 38350264721,
+      "source_sha": "6033236cb81820a43679cbbd34be020804f9658d",
+      "size": 2814049,
+      "sha256": "038002016a47328840360d49fa790135d4bb342381627ddf2da805cd20485bd4",
+      "api_digest": "sha256:038002016a47328840360d49fa790135d4bb342381627ddf2da805cd20485bd4",
+      "zip_crc_valid": true,
+      "internal_hashes_checked": 107,
+      "cab": {
+        "reported_result": "PASS",
+        "ctest_returncode": 0,
+        "tests": [
+          {
+            "name": "ChimeraOriginalCabIntegrationTests",
+            "passed": true,
+            "seconds": 7.92968
+          },
+          {
+            "name": "ChimeraOriginalCabRealtimeTests",
+            "passed": true,
+            "seconds": 5.58351
+          },
+          {
+            "name": "ChimeraCabExpansionIntegrationTests",
+            "passed": true,
+            "seconds": 8.36869
+          },
+          {
+            "name": "ChimeraCabExtendedTimingTests",
+            "passed": true,
+            "seconds": 21.8105
+          },
+          {
+            "name": "ChimeraCabLayoutIntegrationTests",
+            "passed": true,
+            "seconds": 10.0911
+          }
+        ],
+        "passing_p99_routes": 66,
+        "total_p99_routes": 66,
+        "total_callbacks": 105600,
+        "callback_deadline_misses": 1,
+        "failed_routes": [],
+        "former_failure_route": [
+          {
+            "engine": "expanded-v2",
+            "sr": "96000",
+            "block": "32",
+            "channels": "2",
+            "p50_us": "59.8",
+            "p99_us": "125.9",
+            "thread_cpu_p99_us": "-1",
+            "max_us": "217.1",
+            "misses": "0/1600",
+            "kernel_residual": "1.86264514923e-09",
+            "peak": "0.015451724641",
+            "max_step": "0.00442692497745",
+            "deadline_us": 333.3333333333333,
+            "p99_within_deadline": true,
+            "test": "ChimeraCabExtendedTimingTests"
+          }
+        ],
+        "qualification": "Existing candidate CTest/p99 gates; PASS does not imply zero callback overruns."
+      }
+    },
+    {
+      "id": 11790179551,
+      "name": "CAB-realtime-Linux-6033236cb81820a43679cbbd34be020804f9658d",
+      "run_id": 38350264721,
+      "source_sha": "6033236cb81820a43679cbbd34be020804f9658d",
+      "size": 4052305,
+      "sha256": "b115d4e02d897abc268511ebe5ebf0c82c470e68dc9941bda55d8c6d9f1ae3c8",
+      "api_digest": "sha256:b115d4e02d897abc268511ebe5ebf0c82c470e68dc9941bda55d8c6d9f1ae3c8",
+      "zip_crc_valid": true,
+      "internal_hashes_checked": 107,
+      "cab": {
+        "reported_result": "PASS",
+        "ctest_returncode": 0,
+        "tests": [
+          {
+            "name": "ChimeraOriginalCabIntegrationTests",
+            "passed": true,
+            "seconds": 11.7883
+          },
+          {
+            "name": "ChimeraOriginalCabRealtimeTests",
+            "passed": true,
+            "seconds": 10.7243
+          },
+          {
+            "name": "ChimeraCabExpansionIntegrationTests",
+            "passed": true,
+            "seconds": 12.2127
+          },
+          {
+            "name": "ChimeraCabExtendedTimingTests",
+            "passed": true,
+            "seconds": 34.7475
+          },
+          {
+            "name": "ChimeraCabLayoutIntegrationTests",
+            "passed": true,
+            "seconds": 14.0745
+          }
+        ],
+        "passing_p99_routes": 66,
+        "total_p99_routes": 66,
+        "total_callbacks": 105600,
+        "callback_deadline_misses": 16,
+        "failed_routes": [],
+        "former_failure_route": [
+          {
+            "engine": "expanded-v2",
+            "sr": "96000",
+            "block": "32",
+            "channels": "2",
+            "p50_us": "107.217",
+            "p99_us": "221.652",
+            "thread_cpu_p99_us": "222.153999999",
+            "max_us": "269.22",
+            "misses": "0/1600",
+            "kernel_residual": "1.86264514923e-09",
+            "peak": "0.015451724641",
+            "max_step": "0.00442692497745",
+            "deadline_us": 333.3333333333333,
+            "p99_within_deadline": true,
+            "test": "ChimeraCabExtendedTimingTests"
+          }
+        ],
+        "qualification": "Existing candidate CTest/p99 gates; PASS does not imply zero callback overruns."
+      }
+    },
+    {
+      "id": 11790372512,
+      "name": "CAB-realtime-macOS-6033236cb81820a43679cbbd34be020804f9658d",
+      "run_id": 38350264721,
+      "source_sha": "6033236cb81820a43679cbbd34be020804f9658d",
+      "size": 2901300,
+      "sha256": "6914753eaf0d949f9e1ab9c69d440c5bb16b15c5bf00a4d8c4c77d6dc4769be9",
+      "api_digest": "sha256:6914753eaf0d949f9e1ab9c69d440c5bb16b15c5bf00a4d8c4c77d6dc4769be9",
+      "zip_crc_valid": true,
+      "internal_hashes_checked": 107,
+      "cab": {
+        "reported_result": "PASS",
+        "ctest_returncode": 0,
+        "tests": [
+          {
+            "name": "ChimeraOriginalCabIntegrationTests",
+            "passed": true,
+            "seconds": 22.1564
+          },
+          {
+            "name": "ChimeraOriginalCabRealtimeTests",
+            "passed": true,
+            "seconds": 13.3362
+          },
+          {
+            "name": "ChimeraCabExpansionIntegrationTests",
+            "passed": true,
+            "seconds": 23.2032
+          },
+          {
+            "name": "ChimeraCabExtendedTimingTests",
+            "passed": true,
+            "seconds": 58.5459
+          },
+          {
+            "name": "ChimeraCabLayoutIntegrationTests",
+            "passed": true,
+            "seconds": 23.9397
+          }
+        ],
+        "passing_p99_routes": 66,
+        "total_p99_routes": 66,
+        "total_callbacks": 105600,
+        "callback_deadline_misses": 7,
+        "failed_routes": [],
+        "former_failure_route": [
+          {
+            "engine": "expanded-v2",
+            "sr": "96000",
+            "block": "32",
+            "channels": "2",
+            "p50_us": "78.416",
+            "p99_us": "228.75",
+            "thread_cpu_p99_us": "229.875",
+            "max_us": "480",
+            "misses": "1/1600",
+            "kernel_residual": "1.86264514923e-09",
+            "peak": "0.0154514228925",
+            "max_step": "0.00442915130407",
+            "deadline_us": 333.3333333333333,
+            "p99_within_deadline": true,
+            "test": "ChimeraCabExtendedTimingTests"
+          }
+        ],
+        "qualification": "Existing candidate CTest/p99 gates; PASS does not imply zero callback overruns."
+      }
+    }
+  ],
+  "limits": [
+    "All three candidate suites5/5;66/66 p99 routes each.",
+    "Callback misses are freshly measured: Windows1/105600,Linux16/105600,macOS7/105600.",
+    "Historical022 failure's causal explanation remains unresolved; later fresh PASS does not erase that history.",
+    "No target DAW/device audio acceptance or zero-overrun guarantee."
+  ]
+}

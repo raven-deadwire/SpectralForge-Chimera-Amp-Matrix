@@ -1,0 +1,122 @@
+{
+  "schema": "chimera.installer-original-archive-addendum.v2",
+  "source_sha": "6033236cb81820a43679cbbd34be020804f9658d",
+  "audit": {
+    "run_id": 38356862697,
+    "job_id": 115161681494,
+    "controller_commit": "31fca717ad0a38ce42acf104ebf0d7128a218e0a",
+    "result": "AUDIT_COMPLETED",
+    "original_report_blob": "fa925a06aee3809f44a50664c8cc58041aaed783",
+    "original_archive_audit_records_blob": "d3b4a705244ac842f5cd440448ec696cc3a5fcdb"
+  },
+  "chronology": "This later addendum resolves the original ZIP/JSON-read PENDING observation in the existing installer-verdict.json. Earlier observations stay unchanged. No extra installer or local test was run by this read-only audit.",
+  "checks": {
+    "selected_archives": 5,
+    "selected_original_reports": 8,
+    "all_original_report_values_match_independently_fetched_job_log": true,
+    "all_original_api_source_run_size_sha256_and_crc_bindings_match": true,
+    "source_passes_reused_from_937": false
+  },
+  "archives": [
+    {
+      "id": 11790667188,
+      "name": "Chimera-document-upgrade-macos-15",
+      "run_id": 38350264747,
+      "bytes": 7916,
+      "sha256": "e43d959d5f985e1a2e2e8807d9064e3eb81f02e0622bfcb3c2cffef9dd5a9c43",
+      "zip_crc_valid": true
+    },
+    {
+      "id": 11790402477,
+      "name": "Chimera-document-upgrade-windows-inno-fixtures",
+      "run_id": 38350264747,
+      "bytes": 20094,
+      "sha256": "26b1dd64fb6e56ac2535ae5800b87e5c562b008de77adf5e20d4fe3980cae277",
+      "zip_crc_valid": true
+    },
+    {
+      "id": 11790003728,
+      "name": "Chimera-document-upgrade-ubuntu-24.04",
+      "run_id": 38350264747,
+      "bytes": 1819,
+      "sha256": "1374c49a7379561577ae3825eb6a773eeafb4ba59da215a47e55df82672568ad",
+      "zip_crc_valid": true
+    },
+    {
+      "id": 11791897476,
+      "name": "Chimera-Windows-installer-verification",
+      "run_id": 38350264755,
+      "bytes": 44010,
+      "sha256": "b2ccb79a634ba4c42d962d345e49e9a5e22c2f0440e77e15d26bc95941fc90ff",
+      "zip_crc_valid": true
+    },
+    {
+      "id": 11792796513,
+      "name": "Chimera-candidate-installer-verification",
+      "run_id": 38350264864,
+      "bytes": 49156,
+      "sha256": "74862cef2b87a24710367db3a3706c6c8aec949dcf25c6eed7b75ef28a0f14c6",
+      "zip_crc_valid": true
+    }
+  ],
+  "actual_windows": [
+    {
+      "run_id": 38350264864,
+      "installer": "SpectralForge-Chimera-update-6033236cb8-win64-Setup.exe",
+      "installer_sha256": "97f6216ac93a4343f2cccb3ed4420e0f33c83c831b387a72a66d1e4087ac434c",
+      "actual_previous_release_verified": true,
+      "public_historical_setup_executed": true,
+      "historical_archive_and_installed_documents_verified": true,
+      "installer_invocations": 5,
+      "old_document_count": 24,
+      "all_old_document_paths_sizes_hashes_match_inventory_blob": "50817aaa33f246f41fafe54b37f7f3fd0a6f2d8e",
+      "main_report_pass_checks": 24,
+      "payload_manifest_sha256": "f57a4106852280b82fd9ae5249cf6fb34cebf4f1a742803a9fb60abfa47473a3",
+      "scope": "actual public beta.1 Setup to current product Setup, standalone component, upgrade/repair/uninstall"
+    },
+    {
+      "run_id": 38350264755,
+      "installer": "SpectralForge-Chimera-1.3.1-beta.2-win64-Setup.exe",
+      "installer_sha256": "610b44602b7aec2dd5adb4ac3d90692b4f6dc683ab56ae7012f11bf457a1b4e7",
+      "actual_previous_release_verified": true,
+      "public_historical_setup_executed": true,
+      "historical_archive_and_installed_documents_verified": true,
+      "installer_invocations": 5,
+      "old_document_count": 24,
+      "all_old_document_paths_sizes_hashes_match_inventory_blob": "50817aaa33f246f41fafe54b37f7f3fd0a6f2d8e",
+      "main_report_pass_checks": 24,
+      "payload_manifest_sha256": "713d97c09656544b3fe0b92205af08f2a273f023f05e98b8a3bce480fe6e0d89",
+      "scope": "actual public beta.1 Setup to current product Setup, standalone component, upgrade/repair/uninstall"
+    }
+  ],
+  "fixtures": {
+    "windows": {
+      "real_inno_invocations": 12,
+      "pass_groups": 8,
+      "historical_release_installer_executed": false
+    },
+    "macos": {
+      "real_pkg_invocations": 4,
+      "successes": 4,
+      "historical_release_installer_executed": false,
+      "native_product_installation_verified": false,
+      "runner": "macos-15-arm64"
+    },
+    "ubuntu": {
+      "scope": "Native helper plus isolated real dpkg synthetic document lifecycle; not actual public product upgrade",
+      "source_scope_record_verified": true
+    }
+  },
+  "preservation": "The two fresh actual Windows runs preserve edited retired documents in place; annotated shipped Manual/README bytes are saved as deterministic hash-keyed snapshots before current staged payload restoration. Manual edits made after repair survive uninstall in place; snapshots, licenses and personal preset/IR/project sentinels remain. Current PRESETS bytes match stage, but this previous-release fixture does not separately annotate PRESETS.md.",
+  "naming_policy_scope": "Current product UI and currently shipped public documents use Chimera names. Retained user edits, historical snapshots and required license notices may retain old wording; preserving those bytes is intentional and does not imply global purging of every original-equipment string.",
+  "current_document_hash_scope": "The original reports contain payload-manifest hashes, not per-current-Manual/Presets raw hashes. Source-bound runtime comparisons are against the Windows stage; observed_previous_documents are historical beta.1 hashes. No Git/LF versus Windows CRLF equality is assumed.",
+  "acceptance_limits": "Actual beta.1 upgrade is Standalone. Separate current VST3/full/component tests do not establish old DAW-project recall, hardware/listening acceptance or macOS/Linux public-product upgrades. Archive audit executes no installer and grants no signing/notarization/Store/release approval.",
+  "release_gate": {
+    "verdict": "BLOCKED",
+    "checks_pass": 21,
+    "checks_blocked": 107,
+    "hard_gates_blocked": 42
+  },
+  "published": false,
+  "publication_approved": false
+}
