@@ -205,7 +205,11 @@ void preservation(const juce::File& directory) {
     auto xml=juce::AudioProcessor::getXmlFromBinary(after.getData(),int(after.getSize()));require(xml!=nullptr,"Expired save is invalid");
     auto tree=juce::ValueTree::fromXml(*xml);require(spectralforge::irState::unpack(tree),"Expired IR assets invalid");
     juce::MemoryBlock embedded;require(embedded.fromBase64Encoding(tree.getChildWithName("USER_IRS").getChildWithProperty("lane",0).getProperty("data").toString()) && embedded==originalIR,"Expired save changed embedded IR bytes");
-    juce::MemoryBlock disk;require(ir.loadFileAsData(disk)&&disk==originalIR,"Expiry rewrote personal IR file");require(preset.loadFileAsData(disk)&&disk==before,"Expiry rewrote personal preset file");
+    // JUCE loadFileAsData appends to its destination. Independent buffers
+    // are required to compare the two unchanged files, not their concatenation.
+    juce::MemoryBlock diskIR,diskPreset;
+    require(ir.loadFileAsData(diskIR)&&diskIR==originalIR,"Expiry rewrote personal IR file");
+    require(preset.loadFileAsData(diskPreset)&&diskPreset==before,"Expiry rewrote personal preset file");
     // The user source can be unavailable; the embedded data remains sufficient.
     require(ir.deleteFile(),"Cannot remove fixture IR");
     auto reopened=ChimeraBetaTestAccess::create(beta,clockNow);reopened->setStateInformation(after.getData(),int(after.getSize()));compareParameters(*expired,*reopened);
