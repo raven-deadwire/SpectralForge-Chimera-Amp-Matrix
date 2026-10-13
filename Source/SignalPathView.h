@@ -29,7 +29,10 @@ public:
         if(!compact){g.setFont(juce::FontOptions(9.f));g.drawFittedText(status,4,25,getWidth()-8,17,juce::Justification::centred,1);}
     }
 };
-class SignalPathView final : public juce::Component,private juce::Timer {
+class SignalPathView final : public juce::Component,
+                             private juce::Timer,
+                             private juce::AudioProcessorValueTreeState::Listener,
+                             private juce::AsyncUpdater {
 public:
     SignalPathView(ChimeraProcessor& p,bool compactView):processor(p),compact(compactView) {
         setComponentID(compact?"signalPathStrip":"signalPathGraph");
@@ -37,9 +40,13 @@ public:
         setTitle(getName());
         setDescription(compact?"PRE, amplifier heads, cabinets, Tone EQ, POST and Final EQ. Open Routing for the complete signal path, including global utilities.":"Complete signal path with utility positions, taps, parallel branches and rig summing. Select a block to open its controls.");
         setFocusContainerType(juce::Component::FocusContainerType::focusContainer);
+        for(const auto* id:routingParameters)processor.parameters().addParameterListener(id,this);
         if(!compact){setSize(1140,650);startTimerHz(25);}refresh();
     }
-    ~SignalPathView() override {stopTimer();}
+    ~SignalPathView() override {
+        stopTimer();cancelPendingUpdate();
+        for(const auto* id:routingParameters)processor.parameters().removeParameterListener(id,this);
+    }
     std::function<void(const spectralforge::signalPath::Node&)> navigate;
     std::function<void()> expand;
     std::function<juce::String()> selection;
@@ -152,6 +159,11 @@ public:
         }
     }
 private:
+    void parameterChanged(const juce::String&,float) override {triggerAsyncUpdate();}
+    void handleAsyncUpdate() override {
+        refresh();
+        if(selection)select(selection());
+    }
     float graphScale() const {return juce::jmin(float(juce::jmax(1,getWidth()))/1140.f,float(juce::jmax(1,getHeight()))/650.f);}
     void timerCallback() override {if(spectralforge::ui::visible(*this)){refresh();if(selection)select(selection());}}
     void updateSelection(){
@@ -180,6 +192,10 @@ private:
             b->setToggleState(id==(compact?editingStage:selected)||grouped,juce::dontSendNotification);
         }
     }
+    // Mode and Dual topology already call updateModeUI(), which synchronously
+    // refreshes this view. Gate location is host-automatable and otherwise only
+    // reaches the compact view through the editor's polling timer.
+    static constexpr std::array<const char*,1> routingParameters{{"gateAfterRig"}};
     ChimeraProcessor& processor;bool compact;juce::String selected;
     spectralforge::signalPath::Snapshot current;
     std::vector<std::unique_ptr<juce::TextButton>> buttons;
