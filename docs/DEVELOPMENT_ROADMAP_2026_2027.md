@@ -1,6 +1,6 @@
 # Chimera development roadmap, October 2026–December 2027
 
-Updated: **2026-10-12, Asia/Seoul**. The owner requested a new remaining-work
+Updated: **2026-10-13, Asia/Seoul**. The owner requested a new remaining-work
 schedule after using 1.3.1: simplify the signal-chain display, substantially
 improve the EQ analyzer and editing workflow, implement the missing
 [FabFilter reference functions](https://www.fabfilter.com/products), and add
@@ -580,3 +580,68 @@ because it appears in historical planning text.
 - [Room implementation and dated checkpoints](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/issues/46)
 - [Transpose long-term work](TRANSPOSE_LONG_TERM.md)
 - [1.3 release preparation](RELEASE_1_3_PREPARATION.md)
+
+## October 13 addition — transparent-power bass research in the next update
+
+Owner instruction: incorporate the ongoing expanded amp research into the next
+update schedule. Register the research/qualification work in the **1.3.1-beta.2
+cycle (test October 14, candidate October 15, conditional publication October
+16, 2026 KST)**. This is not a promise that a newly researched DSP can qualify
+in that cycle. Preserve the existing UI/EQ, reliability and beta-lifecycle scope;
+research consumes the same bounded capacity.
+
+| Checkpoint, KST | Required result |
+|---|---|
+| October 14 / next test-build review | Review the available Deep Research results; record unresolved results as pending. Build a reference manifest with exact device, capture point, EQ/Gain/Master, load, calibration provenance and licensing. Schedule the two roogbass Avalanche NAM files as qualification candidates, without carrying over an unidentified older capture's rejection. |
+| October 15 / candidate review | Freeze the level-matched listening and unnormalized input-level sweep protocol; identify obtainable files, SHA-256 pins and remaining real-head measurement gaps. Record actual verification separately from literature claims. |
+| October 16 / next-update checkpoint | Deliver the research decision/remaining-work record alongside the independently verified weekly plugin increment. Research documentation alone does not fulfill weekly implemented-delivery requirements. |
+| October 23 / follow-up review | Review any obtained NAM/audio evidence, select the next bounded experiment and estimate original clean-core prototype work. If results or files remain unavailable, report that blocker and assign the next experiment; do not mark qualification complete. |
+
+**Core comparison set:** Glockenklang Bass Art Classic/Blue Sky/Blue Bird;
+Vanderkley Spartan/Aurora; PJB M-500/D-1000 (BP-800 separately); Trickfish Bullhead
+1K. EBS 802, Genzler Magellan 800+, Bergantino forte HP Ultra and GR PureAmp 800
+are control/complementary candidates. **High-end tube comparison is core scope:**
+LeSuire Avalanche and Jad Freer Volta first, Reeves Custom 225/400 as contrasting
+output-stage designs. Exact specifications remain evidence to verify, not
+assumed measured behavior. Guitar expansion also retains Quilter Aviator Mach 3
+qualification, with Laney Lionheart correctly identified in the comparison.
+
+The target is clean low-note body/pressure, attack, repeated-note separation
+and headroom, with instrument and playing differences retained. Output/Gain
+increases, permanent saturation, bass boost or compression alone do not establish
+success. Compare identical DI, cabinet and playback conditions at matched
+listening level; retain original output for input-level/THD/compression/recovery
+measurements (no normalization at every input step). Separate perceived pressure
+from measured SPL of a declared physical playback system. Include low-B and
+lower tuning, strong-to-weak notes, repeated attacks, two-note inputs and decay.
+
+For TONE3000 **roogbass / 31892**, qualify both Avalanche NAM files independently.
+Old-file identity is **unconfirmed**, not rejected and not proven different.
+Verify capture settings, calibration, load and amp-only status; the preview's
+Ampeg 8x10 IR is not part of the head qualification. A low ESR or a preamp capture
+alone does not establish loaded power-stage fidelity. Freeze obtainable NAM
+hashes, rights and source evidence before adoption; unavailable evidence stays
+pending.
+
+An **original transparent/high-headroom bass core** remains a development option,
+separate from Niflheimr's distortion-channel design. Begin with neutral clean
+response; evaluate bypassable low protection, four-band EQ and independent
+internal headroom/output. Adopt optional Punch/dynamics only with demonstrated
+benefit. Do not claim damping/load interaction from a disguised EQ or an ordinary
+DI capture. DSP integration requires audio, state/automation, Classic/Dual/Matrix,
+sample-rate, latency, CPU and actual host/listening acceptance.
+
+**Expansion/count reconciliation:** retain the owner's current **42-amp target**
+and bass candidate slots **Trace / SWR / B-15 / transparent-power** as the research
+scope. The transparent-power slot yields one selected product model even when
+many devices are researched. The older five-amp/AMP30/132 plan and its JSON mirrors
+are now a historical baseline pending an explicit inventory/delta reconciliation;
+do not silently assert that 42 amps fit those totals or change serialized IDs.
+Reconcile the complete guitar/bass list, aliases and affected implementation
+dates at the October 16 checkpoint, then synchronize calendar/catalog mirrors.
+Original manufacturer names stay in internal research only; the next release's
+customer UI, host labels, presets and shipped manuals use Chimera identities.
+
+Research registration is complete when this plan is saved. Deep Research results,
+file qualification, original DSP implementation and public delivery each remain
+separate pending states until their own evidence exists.
