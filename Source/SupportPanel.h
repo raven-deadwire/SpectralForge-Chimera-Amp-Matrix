@@ -54,7 +54,7 @@ public:
                 component->setVisible(false);
             note.setText("Download updates from the release page or use the Chimera standalone application. Close your DAW before installing an update.",juce::dontSendNotification);
         }
-        setSize(660,(support ? 360 : 300)+(betaNotice ? 240 : 0));refresh();startTimerHz(4);
+        setSize(660,(support ? 360 : 300)+(betaNotice ? 240 : 0));refresh();if(support || betaNotice)startTimerHz(4);
     }
     void paint(juce::Graphics& g) override {g.fillAll(juce::Colour(0xff171b1b));}
     void resized() override {
@@ -72,7 +72,7 @@ private:
     void refresh() {
         if(betaNotice) {const auto message=betaNotice();if(lifecycle.getText()!=message)lifecycle.setText(message,false);}
         if(!support) {
-            status.setText("Updates open in your browser at github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/releases. If GitHub is unreachable, try later; your offline beta and saved project are unaffected.",false);
+            status.setText("Updates open in your browser at github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/releases. Verified downloads remain available in Chimera standalone. If GitHub is unreachable, try later; your offline beta and saved project are unaffected.",false);
             return;
         }
         using State=spectralforge::release::ReleaseSupport::State;
