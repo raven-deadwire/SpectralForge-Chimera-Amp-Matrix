@@ -1,0 +1,16 @@
+{
+  "historical-recalculation.json": "cf5f683e5e26e695b64a4647172d79a337346e8a38d70c1d42fc0f385dc50fa3",
+  "build_modules.py": "f140ef60f85daf567daebc204fccdb53d14670e7e4112919906c135c88ce5db9",
+  "local-pinned/eq-analyzer-performance-parity.csv": "fde96883fe8beba116cdb9f2a221002db6b6f474d134dfae0ba42c6b2b2859e5",
+  "local-pinned/analysis.json": "fdd9d76faeed59544c9bc540d03c3f0b5a10defd7d6e6ef3f7cff4b3bdb6daf1",
+  "local-pinned/cost-investigation.csv": "efbb89a8c5aaf80277dfc6ab315ace31d7aab48bdb40362b1967cdd6cff891a1",
+  "local-pinned/affinity.json": "03179b8f0107c0825d43835e3fbc678023163a7e4b00154f0614ab724cf98b89",
+  "local-pinned/fft-stage-controls.csv": "a82632c7afe527f40f5641b8888ca08fa1e3c689bad8a8bac576f7051546dc1b",
+  "local-pinned/run.log": "f0f5d53cb56d34567f295f87f354568b5f128505133fcc2588bfd5f6d6b8413e",
+  "local/eq-analyzer-performance-parity.csv": "fde96883fe8beba116cdb9f2a221002db6b6f474d134dfae0ba42c6b2b2859e5",
+  "local/analysis.json": "c239e24bf0d43730a68d161b41dcf2130b995b1eedcf82a1599b67ebc7fc0471",
+  "local/cost-investigation.csv": "53adeebe59ed60451a4624b63510c745e06d944c0971a79be4b9851779116083",
+  "local/manifest.json": "2720399cd9f121ee15fa9993de0e1f556cf72718f76a35308ac97224f37e5f4a",
+  "local/fft-stage-controls.csv": "75127dc3ab4f31df92f506638a275f8b19e5b2fed1872858540a5ba52c83a491",
+  "local/run.log": "15c558d8ab563bb0bf9a8a51f9455f6255956609bd18d88fe21228e580ae0500"
+}

@@ -495,3 +495,11 @@ if(APPLE)
 endif()
 add_test(NAME ChimeraAmpHeadControlTests COMMAND ChimeraAmpHeadControlTests "${CMAKE_BINARY_DIR}/amp-head-snapshots")
 set_tests_properties(ChimeraAmpHeadControlTests PROPERTIES TIMEOUT 300 RUN_SERIAL TRUE)
+
+# Manual, longer shuffled A/B plus duplicate-instance A/A cost investigation.
+# Deliberately excluded from CTest and all release/product targets.
+juce_add_console_app(ChimeraEQAnalyzerCostInvestigation PRODUCT_NAME "Chimera EQ Cost Investigation")
+target_sources(ChimeraEQAnalyzerCostInvestigation PRIVATE Tests/EQAnalyzerCostInvestigation.cpp)
+target_include_directories(ChimeraEQAnalyzerCostInvestigation PRIVATE Source)
+target_compile_definitions(ChimeraEQAnalyzerCostInvestigation PRIVATE JUCE_USE_CURL=0 JUCE_WEB_BROWSER=0)
+target_link_libraries(ChimeraEQAnalyzerCostInvestigation PRIVATE juce::juce_dsp juce::juce_graphics PUBLIC juce::juce_recommended_config_flags)

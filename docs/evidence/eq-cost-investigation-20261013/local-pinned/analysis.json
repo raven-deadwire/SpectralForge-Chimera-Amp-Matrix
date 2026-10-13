@@ -1,0 +1,324 @@
+{
+  "daw_acceptance": "NOT_ASSESSED",
+  "sha256": "efbb89a8c5aaf80277dfc6ab315ace31d7aab48bdb40362b1967cdd6cff891a1",
+  "cells": [
+    {
+      "rate": "44100",
+      "implementations": {
+        "baseline": {
+          "update_ms": 35.309884375,
+          "feed_analysis_cpu_ms": 35.704898125,
+          "feed_analysis_wall_ms": 35.697692125
+        },
+        "baseline_AA": {
+          "update_ms": 33.74717190625,
+          "feed_analysis_cpu_ms": 34.082644125,
+          "feed_analysis_wall_ms": 34.078411062499995
+        },
+        "candidate": {
+          "update_ms": 31.9973861875,
+          "feed_analysis_cpu_ms": 32.3311228125,
+          "feed_analysis_wall_ms": 32.33057828125
+        },
+        "candidate_AA": {
+          "update_ms": 31.041411625000002,
+          "feed_analysis_cpu_ms": 31.24769196875,
+          "feed_analysis_wall_ms": 31.480390874999998
+        }
+      },
+      "rounds": [
+        {
+          "round": "0",
+          "update_reductions_percent": {
+            "baseline->candidate": 13.673591399040784,
+            "baseline->baseline_AA": -2.221325604673452,
+            "candidate->candidate_AA": -5.777310537727431
+          }
+        },
+        {
+          "round": "1",
+          "update_reductions_percent": {
+            "baseline->candidate": -7.463888069522562,
+            "baseline->baseline_AA": -1.862550742445901,
+            "candidate->candidate_AA": 15.62485067896996
+          }
+        },
+        {
+          "round": "2",
+          "update_reductions_percent": {
+            "baseline->candidate": 2.729400421226902,
+            "baseline->baseline_AA": 7.718070913831587,
+            "candidate->candidate_AA": 8.542558541339695
+          }
+        },
+        {
+          "round": "3",
+          "update_reductions_percent": {
+            "baseline->candidate": 13.619644444479484,
+            "baseline->baseline_AA": 6.730296551998183,
+            "candidate->candidate_AA": 5.256000890131074
+          }
+        },
+        {
+          "round": "4",
+          "update_reductions_percent": {
+            "baseline->candidate": 14.954272852179507,
+            "baseline->baseline_AA": -129.75095419000127,
+            "candidate->candidate_AA": -19.113798047791008
+          }
+        },
+        {
+          "round": "5",
+          "update_reductions_percent": {
+            "baseline->candidate": 9.83063931539061,
+            "baseline->baseline_AA": -109.54083148208204,
+            "candidate->candidate_AA": -66.59598195973204
+          }
+        }
+      ]
+    },
+    {
+      "rate": "48000",
+      "implementations": {
+        "baseline": {
+          "update_ms": 34.21194928125,
+          "feed_analysis_cpu_ms": 34.63667703125,
+          "feed_analysis_wall_ms": 34.6324686875
+        },
+        "baseline_AA": {
+          "update_ms": 36.580367875,
+          "feed_analysis_cpu_ms": 36.980731093749995,
+          "feed_analysis_wall_ms": 36.9723774375
+        },
+        "candidate": {
+          "update_ms": 30.6635926875,
+          "feed_analysis_cpu_ms": 30.8212874375,
+          "feed_analysis_wall_ms": 31.04527071875
+        },
+        "candidate_AA": {
+          "update_ms": 30.31847103125,
+          "feed_analysis_cpu_ms": 30.769405687499997,
+          "feed_analysis_wall_ms": 30.7669811875
+        }
+      },
+      "rounds": [
+        {
+          "round": "0",
+          "update_reductions_percent": {
+            "baseline->candidate": 9.771070562603724,
+            "baseline->baseline_AA": -0.12490407225800304,
+            "candidate->candidate_AA": 0.45342167901840646
+          }
+        },
+        {
+          "round": "1",
+          "update_reductions_percent": {
+            "baseline->candidate": 17.552023033421815,
+            "baseline->baseline_AA": 10.669953105485586,
+            "candidate->candidate_AA": 0.30900000731347577
+          }
+        },
+        {
+          "round": "2",
+          "update_reductions_percent": {
+            "baseline->candidate": 11.1682735091863,
+            "baseline->baseline_AA": -18.201955172792793,
+            "candidate->candidate_AA": -19.952695192426617
+          }
+        },
+        {
+          "round": "3",
+          "update_reductions_percent": {
+            "baseline->candidate": 2.522341872077216,
+            "baseline->baseline_AA": -3.8666940384978643,
+            "candidate->candidate_AA": 3.496696121117737
+          }
+        },
+        {
+          "round": "4",
+          "update_reductions_percent": {
+            "baseline->candidate": 12.570083075438676,
+            "baseline->baseline_AA": -13.820707450085967,
+            "candidate->candidate_AA": 2.851676805263492
+          }
+        },
+        {
+          "round": "5",
+          "update_reductions_percent": {
+            "baseline->candidate": 16.857000228209696,
+            "baseline->baseline_AA": 4.599857011897934,
+            "candidate->candidate_AA": -112.52358589905676
+          }
+        }
+      ]
+    },
+    {
+      "rate": "96000",
+      "implementations": {
+        "baseline": {
+          "update_ms": 36.48397059375,
+          "feed_analysis_cpu_ms": 36.854298625,
+          "feed_analysis_wall_ms": 36.84965828125
+        },
+        "baseline_AA": {
+          "update_ms": 35.047362875000005,
+          "feed_analysis_cpu_ms": 35.24158659375,
+          "feed_analysis_wall_ms": 35.44860065625
+        },
+        "candidate": {
+          "update_ms": 30.1576125625,
+          "feed_analysis_cpu_ms": 30.457405875,
+          "feed_analysis_wall_ms": 30.44809734375
+        },
+        "candidate_AA": {
+          "update_ms": 30.703727781250002,
+          "feed_analysis_cpu_ms": 31.0584691875,
+          "feed_analysis_wall_ms": 31.0544223125
+        }
+      },
+      "rounds": [
+        {
+          "round": "0",
+          "update_reductions_percent": {
+            "baseline->candidate": 10.528452168466352,
+            "baseline->baseline_AA": -6.5291240050386445,
+            "candidate->candidate_AA": 1.347609378706116
+          }
+        },
+        {
+          "round": "1",
+          "update_reductions_percent": {
+            "baseline->candidate": 5.710367784033066,
+            "baseline->baseline_AA": -2.43807166461667,
+            "candidate->candidate_AA": 1.2831026028488957
+          }
+        },
+        {
+          "round": "2",
+          "update_reductions_percent": {
+            "baseline->candidate": 11.15556178475826,
+            "baseline->baseline_AA": 10.443151335231192,
+            "candidate->candidate_AA": 15.606446563270504
+          }
+        },
+        {
+          "round": "3",
+          "update_reductions_percent": {
+            "baseline->candidate": 9.070411293163616,
+            "baseline->baseline_AA": 1.1265113232693191,
+            "candidate->candidate_AA": -4.1817215822639975
+          }
+        },
+        {
+          "round": "4",
+          "update_reductions_percent": {
+            "baseline->candidate": 56.71550061124686,
+            "baseline->baseline_AA": 48.723532298249225,
+            "candidate->candidate_AA": -139.17100587997675
+          }
+        },
+        {
+          "round": "5",
+          "update_reductions_percent": {
+            "baseline->candidate": 69.82582109244433,
+            "baseline->baseline_AA": 38.25069051548531,
+            "candidate->candidate_AA": -98.47677107314207
+          }
+        }
+      ]
+    },
+    {
+      "rate": "192000",
+      "implementations": {
+        "baseline": {
+          "update_ms": 32.5479198125,
+          "feed_analysis_cpu_ms": 32.903825187500004,
+          "feed_analysis_wall_ms": 32.90402678125
+        },
+        "baseline_AA": {
+          "update_ms": 33.94857825,
+          "feed_analysis_cpu_ms": 34.36172528125,
+          "feed_analysis_wall_ms": 34.36604453125
+        },
+        "candidate": {
+          "update_ms": 31.474023125,
+          "feed_analysis_cpu_ms": 31.80690721875,
+          "feed_analysis_wall_ms": 31.8045856875
+        },
+        "candidate_AA": {
+          "update_ms": 30.168828,
+          "feed_analysis_cpu_ms": 30.690275624999998,
+          "feed_analysis_wall_ms": 30.677027875
+        }
+      },
+      "rounds": [
+        {
+          "round": "0",
+          "update_reductions_percent": {
+            "baseline->candidate": -3.3481271777676236,
+            "baseline->baseline_AA": -0.32705987402215086,
+            "candidate->candidate_AA": 11.200135384858989
+          }
+        },
+        {
+          "round": "1",
+          "update_reductions_percent": {
+            "baseline->candidate": -1.5668112025491343,
+            "baseline->baseline_AA": -14.49959034376771,
+            "candidate->candidate_AA": 12.368499878272521
+          }
+        },
+        {
+          "round": "2",
+          "update_reductions_percent": {
+            "baseline->candidate": -4.787402424414577,
+            "baseline->baseline_AA": -4.917779389491406,
+            "candidate->candidate_AA": 15.77203216416143
+          }
+        },
+        {
+          "round": "3",
+          "update_reductions_percent": {
+            "baseline->candidate": 8.126498598019705,
+            "baseline->baseline_AA": 0.06829899994940103,
+            "candidate->candidate_AA": 0.7199953299847017
+          }
+        },
+        {
+          "round": "4",
+          "update_reductions_percent": {
+            "baseline->candidate": 10.86558119557085,
+            "baseline->baseline_AA": 1.546965081173901,
+            "candidate->candidate_AA": -121.0390694554493
+          }
+        },
+        {
+          "round": "5",
+          "update_reductions_percent": {
+            "baseline->candidate": -14.067860389893783,
+            "baseline->baseline_AA": -1.3395906326127305,
+            "candidate->candidate_AA": -5.371139608512943
+          }
+        }
+      ]
+    }
+  ],
+  "isolated_stages": {
+    "baseline": {
+      "prepare_ms": 0.2861505,
+      "real_fft_ms": 51.084704,
+      "power_and_tail_ms": 37.027152,
+      "total_thread_cpu_ms": 89.0614665,
+      "checksum": 0.750000026599
+    },
+    "candidate": {
+      "prepare_ms": 0.1478425,
+      "real_fft_ms": 51.3674215,
+      "power_and_tail_ms": 3.3699695,
+      "total_thread_cpu_ms": 56.232273500000005,
+      "checksum": 0.749999997246
+    }
+  },
+  "stage_limit": "Isolated control; CPU includes timers/checksum; cannot directly assign full-update residuals.",
+  "all_accounting_valid": true
+}

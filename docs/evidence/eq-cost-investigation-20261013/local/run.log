@@ -1,0 +1,15 @@
+PASS 108 baseline/candidate spectral cases, max raw/envelope/display errors 1.52588e-05/1.52588e-05/1.52588e-05 dB; every chronological window and FIFO sample preserved
+PASS nonfinite/overflow containment and fresh-spectrum recovery
+Completed round 1/12
+Completed round 2/12
+Completed round 3/12
+Completed round 4/12
+Completed round 5/12
+Completed round 6/12
+Completed round 7/12
+Completed round 8/12
+Completed round 9/12
+Completed round 10/12
+Completed round 11/12
+Completed round 12/12
+DAW/interface acceptance NOT_ASSESSED; inclusive FFT timers differ between implementations
