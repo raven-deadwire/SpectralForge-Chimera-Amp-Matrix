@@ -1,0 +1,47 @@
+name: Chimera beta.2 evidence audit (9375328c)
+on:
+  push:
+    branches:
+      - evidence/beta2-9375328c-20261013
+    paths:
+      - .github/workflows/beta2-evidence-audit.yml
+      - docs/evidence/beta2-9375328c-20261013/remote_audit.py
+permissions:
+  contents: read
+  actions: read
+jobs:
+  verify-frozen-source-evidence:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - name: Check out evidence controller
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          path: controller
+          persist-credentials: false
+      - name: Check out frozen product source
+        uses: actions/checkout@v4
+        with:
+          ref: 9375328c30dfe5908e5010342179b5afbc258900
+          path: product
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Reverify original CI and bounded evidence archives without publication
+        working-directory: product
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GITHUB_TOKEN: ${{ github.token }}
+          PYTHONDONTWRITEBYTECODE: '1'
+          CHIMERA_AUDIT_OUTPUT: ${{ runner.temp }}/chimera-audit
+        run: python ../controller/docs/evidence/beta2-9375328c-20261013/remote_audit.py
+      - name: Preserve raw audit evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Chimera-9375328c-readonly-evidence-audit
+          path: ${{ runner.temp }}/chimera-audit
+          if-no-files-found: error
+          retention-days: 90

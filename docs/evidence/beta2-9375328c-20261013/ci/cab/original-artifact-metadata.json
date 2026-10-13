@@ -1,0 +1,61 @@
+{
+  "artifacts": [
+    {
+      "id": 11788326920,
+      "name": "CAB-realtime-Linux-9375328c30dfe5908e5010342179b5afbc258900",
+      "size_in_bytes": 3887380,
+      "url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/artifacts/11788326920",
+      "archive_download_url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/artifacts/11788326920/zip",
+      "expired": false,
+      "created_at": "2026-10-13T04:02:21Z",
+      "expires_at": "2027-01-11T03:33:35Z",
+      "updated_at": "2026-10-13T04:02:21Z",
+      "digest": "sha256:ab358bff343562f79339b1e30a96a1080b9fe8355b6c3d609223fcc41d391050",
+      "workflow_run": {
+        "id": 38342282472,
+        "repository_id": 1382701489,
+        "head_repository_id": 1382701489,
+        "head_branch": "integration/beta2-test-20261014",
+        "head_sha": "9375328c30dfe5908e5010342179b5afbc258900"
+      }
+    },
+    {
+      "id": 11787892678,
+      "name": "CAB-realtime-Windows-9375328c30dfe5908e5010342179b5afbc258900",
+      "size_in_bytes": 2849594,
+      "url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/artifacts/11787892678",
+      "archive_download_url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/artifacts/11787892678/zip",
+      "expired": false,
+      "created_at": "2026-10-13T03:57:12Z",
+      "expires_at": "2027-01-11T03:33:35Z",
+      "updated_at": "2026-10-13T03:57:12Z",
+      "digest": "sha256:f4943312440fade8af38a6a6e34c0a498b2fe1f8fd137ab221f14e1110ef9f64",
+      "workflow_run": {
+        "id": 38342282472,
+        "repository_id": 1382701489,
+        "head_repository_id": 1382701489,
+        "head_branch": "integration/beta2-test-20261014",
+        "head_sha": "9375328c30dfe5908e5010342179b5afbc258900"
+      }
+    },
+    {
+      "id": 11787636746,
+      "name": "CAB-realtime-macOS-9375328c30dfe5908e5010342179b5afbc258900",
+      "size_in_bytes": 2729635,
+      "url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/artifacts/11787636746",
+      "archive_download_url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/artifacts/11787636746/zip",
+      "expired": false,
+      "created_at": "2026-10-13T03:45:09Z",
+      "expires_at": "2027-01-11T03:33:35Z",
+      "updated_at": "2026-10-13T03:45:09Z",
+      "digest": "sha256:db9005447dd23d5c6a4b7d6ebe704ab29a1bb4a171351f11d1305c2c3f214eb9",
+      "workflow_run": {
+        "id": 38342282472,
+        "repository_id": 1382701489,
+        "head_repository_id": 1382701489,
+        "head_branch": "integration/beta2-test-20261014",
+        "head_sha": "9375328c30dfe5908e5010342179b5afbc258900"
+      }
+    }
+  ]
+}

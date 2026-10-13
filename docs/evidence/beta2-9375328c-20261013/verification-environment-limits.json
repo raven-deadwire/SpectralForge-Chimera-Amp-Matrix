@@ -1,0 +1,15 @@
+{
+  "observed_utc": "2026-10-13 04:11 UTC",
+  "error": "409 Conflict environment_offline: Environment is not connected",
+  "impact": "Independent archive revalidation and final local unchanged publisher/verify_ci execution unavailable; GitHub CI/log/metadata verification continues. All completed new-source local evidence already persisted at e732cb00a55bd00aaebf6ac632e919ead10fc50a.",
+  "products_source_unchanged": "9375328c30dfe5908e5010342179b5afbc258900",
+  "source_sha": "9375328c30dfe5908e5010342179b5afbc258900",
+  "post_outage_activity": "Original GitHub API metadata/log inspection and evidence persistence through the authorized connector only.",
+  "not_run_after_outage": [
+    "Local post-CI unchanged Python verify_ci verifier",
+    "Local post-CI unchanged release-gate/publication-evidence verifier",
+    "Independent archive byte/CRC/inner-hash audit for artifacts not audited before outage"
+  ],
+  "preserved_before_outage": "Fresh local static, Python contracts, native processor/state and document-helper evidence is persisted in e732cb00a55bd00aaebf6ac632e919ead10fc50a.",
+  "qualification": "This environment limitation does not change GitHub CI execution outcomes and does not count as a PASS, waiver, owner acceptance, or publication authorization."
+}

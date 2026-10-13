@@ -1,0 +1,225 @@
+2026-10-13T03:51:45.5993860Z [command]/usr/bin/git log -1 --format=%H
+2026-10-13T03:51:45.6007302Z 9375328c30dfe5908e5010342179b5afbc258900
+2026-10-13T04:16:15.5472281Z ##[group]Run python3 Tools/run_linux_ui_tests.py -- ctest --test-dir build -C Release --output-on-failure --no-tests=error --output-junit ctest-results.xml
+2026-10-13T04:16:15.5472847Z [36;1mpython3 Tools/run_linux_ui_tests.py -- ctest --test-dir build -C Release --output-on-failure --no-tests=error --output-junit ctest-results.xml[0m
+2026-10-13T04:16:15.5500987Z shell: /usr/bin/bash -e {0}
+2026-10-13T04:16:15.5501122Z env:
+2026-10-13T04:16:15.5501268Z   CHIMERA_SOURCE_SHA: 9375328c30dfe5908e5010342179b5afbc258900
+2026-10-13T04:16:15.5501484Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-13T04:16:15.5501707Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib/pkgconfig
+2026-10-13T04:16:15.5501979Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-13T04:16:15.5502180Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-13T04:16:15.5502382Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-13T04:16:15.5502615Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib
+2026-10-13T04:16:15.5502793Z   CHIMERA_PACKAGE_VERSION: 1.3.1-beta.2
+2026-10-13T04:16:15.5502933Z ##[endgroup]
+2026-10-13T04:16:16.1621060Z Openbox-Message: Unable to find a valid menu file "/var/lib/openbox/debian-menu.xml"
+2026-10-13T04:16:16.1708079Z Native desktop ready: DISPLAY=:0, Openbox supporting window=0x20000e, WM_PROTOCOLS present
+2026-10-13T04:16:16.1719091Z Internal ctest changing into directory: /home/runner/work/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build
+2026-10-13T04:16:16.1720698Z Test project /home/runner/work/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build
+2026-10-13T04:16:16.1728452Z       Start  1: ChimeraOriginalAmpTests
+2026-10-13T04:16:19.8194225Z  1/45 Test  #1: ChimeraOriginalAmpTests ...............   Passed    3.65 sec
+2026-10-13T04:16:19.8194713Z       Start  2: ChimeraOriginalAmpIntegrationTests
+2026-10-13T04:16:20.0278217Z  2/45 Test  #2: ChimeraOriginalAmpIntegrationTests ....   Passed    0.21 sec
+2026-10-13T04:16:20.0278768Z       Start  3: ChimeraNiflheimrCoreTests
+2026-10-13T04:16:25.3252918Z  3/45 Test  #3: ChimeraNiflheimrCoreTests .............   Passed    5.30 sec
+2026-10-13T04:16:25.3253231Z       Start  4: ChimeraNiflheimrIntegrationTests
+2026-10-13T04:16:26.0396561Z  4/45 Test  #4: ChimeraNiflheimrIntegrationTests ......   Passed    0.71 sec
+2026-10-13T04:16:26.0397027Z       Start  5: ChimeraPackagingVersionTests
+2026-10-13T04:16:28.3826476Z  5/45 Test  #5: ChimeraPackagingVersionTests ..........   Passed    2.34 sec
+2026-10-13T04:16:28.3826772Z       Start  6: ChimeraVBlankFailureTests
+2026-10-13T04:16:30.4810887Z  6/45 Test  #6: ChimeraVBlankFailureTests .............   Passed    2.10 sec
+2026-10-13T04:16:30.4811203Z       Start  7: ChimeraTests
+2026-10-13T04:17:00.1858707Z  7/45 Test  #7: ChimeraTests ..........................   Passed   29.70 sec
+2026-10-13T04:17:00.1859922Z       Start  8: ChimeraNativeFocusTests
+2026-10-13T04:17:03.1999463Z  8/45 Test  #8: ChimeraNativeFocusTests ...............   Passed    3.01 sec
+2026-10-13T04:17:03.1999878Z       Start  9: ChimeraNativeRendererTests
+2026-10-13T04:17:03.2662032Z  9/45 Test  #9: ChimeraNativeRendererTests ............   Passed    0.07 sec
+2026-10-13T04:17:03.2662458Z       Start 10: ChimeraOriginalRendererTests
+2026-10-13T04:17:03.8775236Z 10/45 Test #10: ChimeraOriginalRendererTests ..........   Passed    0.61 sec
+2026-10-13T04:17:03.8775694Z       Start 11: ChimeraNiflheimrRendererTests
+2026-10-13T04:17:04.0165596Z 11/45 Test #11: ChimeraNiflheimrRendererTests .........   Passed    0.14 sec
+2026-10-13T04:17:04.0165879Z       Start 12: ChimeraReleaseTests
+2026-10-13T04:17:04.0212381Z 12/45 Test #12: ChimeraReleaseTests ...................   Passed    0.00 sec
+2026-10-13T04:17:04.0212772Z       Start 13: ChimeraStabilityTests
+2026-10-13T04:17:06.5671780Z 13/45 Test #13: ChimeraStabilityTests .................   Passed    2.55 sec
+2026-10-13T04:17:06.5672538Z       Start 14: ChimeraPedalBoardTests
+2026-10-13T04:17:09.1205004Z 14/45 Test #14: ChimeraPedalBoardTests ................   Passed    2.55 sec
+2026-10-13T04:17:09.1205424Z       Start 15: ChimeraIRCollectionTests
+2026-10-13T04:17:09.1945816Z 15/45 Test #15: ChimeraIRCollectionTests ..............   Passed    0.07 sec
+2026-10-13T04:17:09.1946154Z       Start 16: ChimeraIRLibraryTests
+2026-10-13T04:17:09.6727928Z 16/45 Test #16: ChimeraIRLibraryTests .................   Passed    0.48 sec
+2026-10-13T04:17:09.6728225Z       Start 17: ChimeraCabPanelTests
+2026-10-13T04:17:12.8041176Z 17/45 Test #17: ChimeraCabPanelTests ..................   Passed    3.13 sec
+2026-10-13T04:17:12.8041565Z       Start 18: ChimeraCabPanelStateTests
+2026-10-13T04:18:22.8117114Z 18/45 Test #18: ChimeraCabPanelStateTests .............   Passed   70.01 sec
+2026-10-13T04:18:22.8117544Z       Start 19: ChimeraCabPanelRoutingTests
+2026-10-13T04:18:30.1159744Z 19/45 Test #19: ChimeraCabPanelRoutingTests ...........   Passed    7.30 sec
+2026-10-13T04:18:30.1160105Z       Start 20: ChimeraCabPanelIRIsolationTests
+2026-10-13T04:18:43.0306959Z 20/45 Test #20: ChimeraCabPanelIRIsolationTests .......   Passed   12.91 sec
+2026-10-13T04:18:43.0307267Z       Start 21: ChimeraNewAmpTests
+2026-10-13T04:18:51.0318253Z 21/45 Test #21: ChimeraNewAmpTests ....................   Passed    8.00 sec
+2026-10-13T04:18:51.0318694Z       Start 22: ChimeraPedalOctaverTests
+2026-10-13T04:19:00.1430481Z 22/45 Test #22: ChimeraPedalOctaverTests ..............   Passed    9.11 sec
+2026-10-13T04:19:00.1430896Z       Start 23: ChimeraAmpNativeTests
+2026-10-13T04:19:08.8660964Z 23/45 Test #23: ChimeraAmpNativeTests .................   Passed    8.72 sec
+2026-10-13T04:19:08.8661361Z       Start 24: ChimeraPostNativeTests
+2026-10-13T04:19:10.3685923Z 24/45 Test #24: ChimeraPostNativeTests ................   Passed    1.50 sec
+2026-10-13T04:19:10.3686303Z       Start 25: ChimeraGateProcessorTests
+2026-10-13T04:19:19.8146906Z 25/45 Test #25: ChimeraGateProcessorTests .............   Passed    9.45 sec
+2026-10-13T04:19:19.8147389Z       Start 26: ChimeraGateTests
+2026-10-13T04:19:20.0396057Z 26/45 Test #26: ChimeraGateTests ......................   Passed    0.22 sec
+2026-10-13T04:19:20.0396497Z       Start 27: ChimeraIntegratedProcessorTests
+2026-10-13T04:22:03.4740155Z 27/45 Test #27: ChimeraIntegratedProcessorTests .......   Passed  163.43 sec
+2026-10-13T04:22:03.4740634Z       Start 28: ChimeraNiflheimrPresetTests
+2026-10-13T04:22:22.5752325Z 28/45 Test #28: ChimeraNiflheimrPresetTests ...........   Passed   19.10 sec
+2026-10-13T04:22:22.5752637Z       Start 29: ChimeraPitchRegressionTests
+2026-10-13T04:22:52.4292480Z 29/45 Test #29: ChimeraPitchRegressionTests ...........   Passed   29.85 sec
+2026-10-13T04:22:52.4292955Z       Start 30: ChimeraCabExpansionModelTests
+2026-10-13T04:22:56.7097907Z 30/45 Test #30: ChimeraCabExpansionModelTests .........   Passed    4.28 sec
+2026-10-13T04:22:56.7098407Z       Start 31: ChimeraOriginalCabModelTests
+2026-10-13T04:22:58.1194890Z 31/45 Test #31: ChimeraOriginalCabModelTests ..........   Passed    1.41 sec
+2026-10-13T04:22:58.1195275Z       Start 32: ChimeraCabTimingDiagnosticsTests
+2026-10-13T04:22:58.1236728Z 32/45 Test #32: ChimeraCabTimingDiagnosticsTests ......   Passed    0.00 sec
+2026-10-13T04:22:58.1237159Z       Start 33: ChimeraOriginalCabIntegrationTests
+2026-10-13T04:23:06.8538008Z 33/45 Test #33: ChimeraOriginalCabIntegrationTests ....   Passed    8.73 sec
+2026-10-13T04:23:06.8538509Z       Start 34: ChimeraOriginalCabRealtimeTests
+2026-10-13T04:23:15.1480972Z 34/45 Test #34: ChimeraOriginalCabRealtimeTests .......   Passed    8.29 sec
+2026-10-13T04:23:15.1481839Z       Start 35: ChimeraCabExpansionIntegrationTests
+2026-10-13T04:23:24.1788501Z 35/45 Test #35: ChimeraCabExpansionIntegrationTests ...   Passed    9.03 sec
+2026-10-13T04:23:24.1788980Z       Start 36: ChimeraCabExtendedTimingTests
+2026-10-13T04:23:49.6392463Z 36/45 Test #36: ChimeraCabExtendedTimingTests .........   Passed   25.46 sec
+2026-10-13T04:23:49.6393180Z       Start 37: ChimeraCabExpansionStateTests
+2026-10-13T04:23:57.5913426Z 37/45 Test #37: ChimeraCabExpansionStateTests .........   Passed    7.95 sec
+2026-10-13T04:23:57.5913727Z       Start 38: ChimeraCabLayoutModelTests
+2026-10-13T04:23:59.9182284Z 38/45 Test #38: ChimeraCabLayoutModelTests ............   Passed    2.33 sec
+2026-10-13T04:23:59.9182573Z       Start 39: ChimeraCabCameraFramingTests
+2026-10-13T04:23:59.9195050Z 39/45 Test #39: ChimeraCabCameraFramingTests ..........   Passed    0.00 sec
+2026-10-13T04:23:59.9195473Z       Start 40: ChimeraCabLayoutIntegrationTests
+2026-10-13T04:24:09.8143195Z 40/45 Test #40: ChimeraCabLayoutIntegrationTests ......   Passed    9.89 sec
+2026-10-13T04:24:09.8143520Z       Start 41: ChimeraCabLayoutStateTests
+2026-10-13T04:24:20.8803103Z 41/45 Test #41: ChimeraCabLayoutStateTests ............   Passed   11.07 sec
+2026-10-13T04:24:20.8803534Z       Start 42: ChimeraCabDriverVisualTests
+2026-10-13T04:24:33.3290437Z 42/45 Test #42: ChimeraCabDriverVisualTests ...........   Passed   12.45 sec
+2026-10-13T04:24:33.3290911Z       Start 43: ChimeraGraphicalEQTests
+2026-10-13T04:24:56.6702913Z 43/45 Test #43: ChimeraGraphicalEQTests ...............   Passed   23.34 sec
+2026-10-13T04:24:56.6704223Z       Start 44: ChimeraGraphicalEQUITests
+2026-10-13T04:25:06.5349601Z 44/45 Test #44: ChimeraGraphicalEQUITests .............   Passed    9.86 sec
+2026-10-13T04:25:06.5350070Z       Start 45: ChimeraAmpHeadControlTests
+2026-10-13T04:27:02.0881182Z 45/45 Test #45: ChimeraAmpHeadControlTests ............   Passed  115.55 sec
+2026-10-13T04:27:02.0884171Z 
+2026-10-13T04:27:02.0884293Z 100% tests passed, 0 tests failed out of 45
+2026-10-13T04:27:02.0884466Z 
+2026-10-13T04:27:02.0884576Z Total Test time (real) = 645.92 sec
+2026-10-13T04:27:05.7180730Z ##[group]Run python Tools/package_release.py linux
+2026-10-13T04:27:05.7180980Z [36;1mpython Tools/package_release.py linux[0m
+2026-10-13T04:27:05.7209623Z shell: /usr/bin/bash -e {0}
+2026-10-13T04:27:05.7209767Z env:
+2026-10-13T04:27:05.7209918Z   CHIMERA_SOURCE_SHA: 9375328c30dfe5908e5010342179b5afbc258900
+2026-10-13T04:27:05.7210153Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-13T04:27:05.7210392Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib/pkgconfig
+2026-10-13T04:27:05.7210622Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-13T04:27:05.7210836Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-13T04:27:05.7211051Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-13T04:27:05.7211271Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib
+2026-10-13T04:27:05.7211457Z   CHIMERA_PACKAGE_VERSION: 1.3.1-beta.2
+2026-10-13T04:27:05.7211602Z ##[endgroup]
+2026-10-13T04:28:33.8827765Z shlibs:Depends=libasound2 (>= 1.0.16), libc6 (>= 2.35), libcurl4 (>= 7.16.2), libfontconfig1 (>= 2.12.6), libfreetype6 (>= 2.8), libgcc-s1 (>= 4.0), libstdc++6 (>= 12)
+2026-10-13T04:28:33.8828542Z shlibs:Depends=libc6 (>= 2.34)
+2026-10-13T04:28:33.8829293Z dpkg-deb: building package 'chimera-amp-matrix' in '/home/runner/work/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/dist/SpectralForge-Chimera-1.3.1-beta.2-linux-x86_64.deb'.
+2026-10-13T04:28:33.8830061Z 	linux-vdso.so.1 (0x00007fff6af2a000)
+2026-10-13T04:28:33.8830375Z 	libcurl.so.4 => /lib/x86_64-linux-gnu/libcurl.so.4 (0x00007fdc601fc000)
+2026-10-13T04:28:33.8830840Z 	libfontconfig.so.1 => /lib/x86_64-linux-gnu/libfontconfig.so.1 (0x00007fdc601b2000)
+2026-10-13T04:28:33.8831297Z 	libfreetype.so.6 => /lib/x86_64-linux-gnu/libfreetype.so.6 (0x00007fdc58738000)
+2026-10-13T04:28:33.8831720Z 	libasound.so.2 => /lib/x86_64-linux-gnu/libasound.so.2 (0x00007fdc58635000)
+2026-10-13T04:28:33.8832122Z 	libstdc++.so.6 => /lib/x86_64-linux-gnu/libstdc++.so.6 (0x00007fdc58400000)
+2026-10-13T04:28:33.8832496Z 	libm.so.6 => /lib/x86_64-linux-gnu/libm.so.6 (0x00007fdc58319000)
+2026-10-13T04:28:33.8832853Z 	libgcc_s.so.1 => /lib/x86_64-linux-gnu/libgcc_s.so.1 (0x00007fdc582f9000)
+2026-10-13T04:28:33.8833214Z 	libc.so.6 => /lib/x86_64-linux-gnu/libc.so.6 (0x00007fdc58000000)
+2026-10-13T04:28:33.8833541Z 	/lib64/ld-linux-x86-64.so.2 (0x00007fdc602b3000)
+2026-10-13T04:28:33.8833893Z 	libnghttp2.so.14 => /lib/x86_64-linux-gnu/libnghttp2.so.14 (0x00007fdc582cf000)
+2026-10-13T04:28:33.8834288Z 	libidn2.so.0 => /lib/x86_64-linux-gnu/libidn2.so.0 (0x00007fdc582ae000)
+2026-10-13T04:28:33.8834654Z 	librtmp.so.1 => /lib/x86_64-linux-gnu/librtmp.so.1 (0x00007fdc5828f000)
+2026-10-13T04:28:33.8835018Z 	libssh.so.4 => /lib/x86_64-linux-gnu/libssh.so.4 (0x00007fdc57f92000)
+2026-10-13T04:28:33.8835364Z 	libpsl.so.5 => /lib/x86_64-linux-gnu/libpsl.so.5 (0x00007fdc5827b000)
+2026-10-13T04:28:33.8835716Z 	libssl.so.3 => /lib/x86_64-linux-gnu/libssl.so.3 (0x00007fdc57eed000)
+2026-10-13T04:28:33.8836088Z 	libcrypto.so.3 => /lib/x86_64-linux-gnu/libcrypto.so.3 (0x00007fdc57a00000)
+2026-10-13T04:28:33.8836494Z 	libgssapi_krb5.so.2 => /lib/x86_64-linux-gnu/libgssapi_krb5.so.2 (0x00007fdc57e99000)
+2026-10-13T04:28:33.8836913Z 	libldap-2.5.so.0 => /lib/x86_64-linux-gnu/libldap-2.5.so.0 (0x00007fdc579a0000)
+2026-10-13T04:28:33.8837625Z 	liblber-2.5.so.0 => /lib/x86_64-linux-gnu/liblber-2.5.so.0 (0x00007fdc5826a000)
+2026-10-13T04:28:33.8837996Z 	libzstd.so.1 => /lib/x86_64-linux-gnu/libzstd.so.1 (0x00007fdc578d1000)
+2026-10-13T04:28:33.8838495Z 	libbrotlidec.so.1 => /lib/x86_64-linux-gnu/libbrotlidec.so.1 (0x00007fdc5825c000)
+2026-10-13T04:28:33.8838872Z 	libz.so.1 => /lib/x86_64-linux-gnu/libz.so.1 (0x00007fdc58240000)
+2026-10-13T04:28:33.8839320Z 	libexpat.so.1 => /lib/x86_64-linux-gnu/libexpat.so.1 (0x00007fdc57e67000)
+2026-10-13T04:28:33.8839678Z 	libuuid.so.1 => /lib/x86_64-linux-gnu/libuuid.so.1 (0x00007fdc5862c000)
+2026-10-13T04:28:33.8840198Z 	libpng16.so.16 => /lib/x86_64-linux-gnu/libpng16.so.16 (0x00007fdc57896000)
+2026-10-13T04:28:33.8840591Z 	libunistring.so.2 => /lib/x86_64-linux-gnu/libunistring.so.2 (0x00007fdc576ec000)
+2026-10-13T04:28:33.8840993Z 	libgnutls.so.30 => /lib/x86_64-linux-gnu/libgnutls.so.30 (0x00007fdc574ff000)
+2026-10-13T04:28:33.8841389Z 	libhogweed.so.6 => /lib/x86_64-linux-gnu/libhogweed.so.6 (0x00007fdc574b7000)
+2026-10-13T04:28:33.8841777Z 	libnettle.so.8 => /lib/x86_64-linux-gnu/libnettle.so.8 (0x00007fdc57471000)
+2026-10-13T04:28:33.8842143Z 	libgmp.so.10 => /lib/x86_64-linux-gnu/libgmp.so.10 (0x00007fdc573ef000)
+2026-10-13T04:28:33.8842496Z 	libkrb5.so.3 => /lib/x86_64-linux-gnu/libkrb5.so.3 (0x00007fdc57324000)
+2026-10-13T04:28:33.8842878Z 	libk5crypto.so.3 => /lib/x86_64-linux-gnu/libk5crypto.so.3 (0x00007fdc572f5000)
+2026-10-13T04:28:33.8843275Z 	libcom_err.so.2 => /lib/x86_64-linux-gnu/libcom_err.so.2 (0x00007fdc5823a000)
+2026-10-13T04:28:33.8843690Z 	libkrb5support.so.0 => /lib/x86_64-linux-gnu/libkrb5support.so.0 (0x00007fdc5822c000)
+2026-10-13T04:28:33.8844103Z 	libsasl2.so.2 => /lib/x86_64-linux-gnu/libsasl2.so.2 (0x00007fdc57e4c000)
+2026-10-13T04:28:33.8844518Z 	libbrotlicommon.so.1 => /lib/x86_64-linux-gnu/libbrotlicommon.so.1 (0x00007fdc572d2000)
+2026-10-13T04:28:33.8844943Z 	libp11-kit.so.0 => /lib/x86_64-linux-gnu/libp11-kit.so.0 (0x00007fdc57197000)
+2026-10-13T04:28:33.8845328Z 	libtasn1.so.6 => /lib/x86_64-linux-gnu/libtasn1.so.6 (0x00007fdc5717f000)
+2026-10-13T04:28:33.8845709Z 	libkeyutils.so.1 => /lib/x86_64-linux-gnu/libkeyutils.so.1 (0x00007fdc57e45000)
+2026-10-13T04:28:33.8846103Z 	libresolv.so.2 => /lib/x86_64-linux-gnu/libresolv.so.2 (0x00007fdc5716a000)
+2026-10-13T04:28:33.8846477Z 	libffi.so.8 => /lib/x86_64-linux-gnu/libffi.so.8 (0x00007fdc5715d000)
+2026-10-13T04:28:33.8846790Z 	linux-vdso.so.1 (0x00007ffed1742000)
+2026-10-13T04:28:33.8847082Z 	libcurl.so.4 => /lib/x86_64-linux-gnu/libcurl.so.4 (0x00007f619d846000)
+2026-10-13T04:28:33.8847486Z 	libfontconfig.so.1 => /lib/x86_64-linux-gnu/libfontconfig.so.1 (0x00007f619d7fc000)
+2026-10-13T04:28:33.8847917Z 	libfreetype.so.6 => /lib/x86_64-linux-gnu/libfreetype.so.6 (0x00007f6195d38000)
+2026-10-13T04:28:33.8848423Z 	libstdc++.so.6 => /lib/x86_64-linux-gnu/libstdc++.so.6 (0x00007f6195a00000)
+2026-10-13T04:28:33.8848778Z 	libm.so.6 => /lib/x86_64-linux-gnu/libm.so.6 (0x00007f6195c51000)
+2026-10-13T04:28:33.8849124Z 	libgcc_s.so.1 => /lib/x86_64-linux-gnu/libgcc_s.so.1 (0x00007f619d7da000)
+2026-10-13T04:28:33.8849470Z 	libc.so.6 => /lib/x86_64-linux-gnu/libc.so.6 (0x00007f6195600000)
+2026-10-13T04:28:33.8849773Z 	/lib64/ld-linux-x86-64.so.2 (0x00007f619d8fd000)
+2026-10-13T04:28:33.8850113Z 	libnghttp2.so.14 => /lib/x86_64-linux-gnu/libnghttp2.so.14 (0x00007f61959d6000)
+2026-10-13T04:28:33.8850497Z 	libidn2.so.0 => /lib/x86_64-linux-gnu/libidn2.so.0 (0x00007f6195c30000)
+2026-10-13T04:28:33.8850856Z 	librtmp.so.1 => /lib/x86_64-linux-gnu/librtmp.so.1 (0x00007f61959b7000)
+2026-10-13T04:28:33.8851206Z 	libssh.so.4 => /lib/x86_64-linux-gnu/libssh.so.4 (0x00007f6195949000)
+2026-10-13T04:28:33.8851556Z 	libpsl.so.5 => /lib/x86_64-linux-gnu/libpsl.so.5 (0x00007f6195935000)
+2026-10-13T04:28:33.8851901Z 	libssl.so.3 => /lib/x86_64-linux-gnu/libssl.so.3 (0x00007f6195890000)
+2026-10-13T04:28:33.8852263Z 	libcrypto.so.3 => /lib/x86_64-linux-gnu/libcrypto.so.3 (0x00007f6195000000)
+2026-10-13T04:28:33.8852671Z 	libgssapi_krb5.so.2 => /lib/x86_64-linux-gnu/libgssapi_krb5.so.2 (0x00007f619583c000)
+2026-10-13T04:28:33.8853230Z 	libldap-2.5.so.0 => /lib/x86_64-linux-gnu/libldap-2.5.so.0 (0x00007f61955a0000)
+2026-10-13T04:28:33.8853620Z 	liblber-2.5.so.0 => /lib/x86_64-linux-gnu/liblber-2.5.so.0 (0x00007f619582b000)
+2026-10-13T04:28:33.8853993Z 	libzstd.so.1 => /lib/x86_64-linux-gnu/libzstd.so.1 (0x00007f61954d1000)
+2026-10-13T04:28:33.8854434Z 	libbrotlidec.so.1 => /lib/x86_64-linux-gnu/libbrotlidec.so.1 (0x00007f619d7c8000)
+2026-10-13T04:28:33.8854807Z 	libz.so.1 => /lib/x86_64-linux-gnu/libz.so.1 (0x00007f61954b5000)
+2026-10-13T04:28:33.8855230Z 	libexpat.so.1 => /lib/x86_64-linux-gnu/libexpat.so.1 (0x00007f6195483000)
+2026-10-13T04:28:33.8855590Z 	libuuid.so.1 => /lib/x86_64-linux-gnu/libuuid.so.1 (0x00007f619547a000)
+2026-10-13T04:28:33.8855952Z 	libpng16.so.16 => /lib/x86_64-linux-gnu/libpng16.so.16 (0x00007f6194fc5000)
+2026-10-13T04:28:33.8856352Z 	libunistring.so.2 => /lib/x86_64-linux-gnu/libunistring.so.2 (0x00007f6194e1b000)
+2026-10-13T04:28:33.8856767Z 	libgnutls.so.30 => /lib/x86_64-linux-gnu/libgnutls.so.30 (0x00007f6194c2e000)
+2026-10-13T04:28:33.8857243Z 	libhogweed.so.6 => /lib/x86_64-linux-gnu/libhogweed.so.6 (0x00007f6194be6000)
+2026-10-13T04:28:33.8857655Z 	libnettle.so.8 => /lib/x86_64-linux-gnu/libnettle.so.8 (0x00007f6194ba0000)
+2026-10-13T04:28:33.8858052Z 	libgmp.so.10 => /lib/x86_64-linux-gnu/libgmp.so.10 (0x00007f6194b1e000)
+2026-10-13T04:28:33.8858586Z 	libkrb5.so.3 => /lib/x86_64-linux-gnu/libkrb5.so.3 (0x00007f6194a53000)
+2026-10-13T04:28:33.8858984Z 	libk5crypto.so.3 => /lib/x86_64-linux-gnu/libk5crypto.so.3 (0x00007f619544b000)
+2026-10-13T04:28:33.8859399Z 	libcom_err.so.2 => /lib/x86_64-linux-gnu/libcom_err.so.2 (0x00007f6195445000)
+2026-10-13T04:28:33.8859830Z 	libkrb5support.so.0 => /lib/x86_64-linux-gnu/libkrb5support.so.0 (0x00007f6194a45000)
+2026-10-13T04:28:33.8860255Z 	libsasl2.so.2 => /lib/x86_64-linux-gnu/libsasl2.so.2 (0x00007f6194a2a000)
+2026-10-13T04:28:33.8860676Z 	libbrotlicommon.so.1 => /lib/x86_64-linux-gnu/libbrotlicommon.so.1 (0x00007f6194a07000)
+2026-10-13T04:28:33.8861087Z 	libp11-kit.so.0 => /lib/x86_64-linux-gnu/libp11-kit.so.0 (0x00007f61948cc000)
+2026-10-13T04:28:33.8861480Z 	libtasn1.so.6 => /lib/x86_64-linux-gnu/libtasn1.so.6 (0x00007f61948b4000)
+2026-10-13T04:28:33.8861881Z 	libkeyutils.so.1 => /lib/x86_64-linux-gnu/libkeyutils.so.1 (0x00007f61948ad000)
+2026-10-13T04:28:33.8862285Z 	libresolv.so.2 => /lib/x86_64-linux-gnu/libresolv.so.2 (0x00007f619489a000)
+2026-10-13T04:28:33.8862668Z 	libffi.so.8 => /lib/x86_64-linux-gnu/libffi.so.8 (0x00007f619488d000)
+2026-10-13T04:27:04.0713738Z SHA256 digest of uploaded artifact zip is 2e3ff649a037cd37cf13f29fc224e812817298d9bed9db6be556fee88531a0bf
+2026-10-13T04:27:04.3836500Z Artifact Chimera-integration-validation-Linux.zip successfully finalized. Artifact ID 11788821194
+2026-10-13T04:27:04.3837279Z Artifact Chimera-integration-validation-Linux has been successfully uploaded! Final size is 7614090 bytes. Artifact ID is 11788821194
+2026-10-13T04:27:05.3636794Z SHA256 digest of uploaded artifact zip is 4a929ff2646ca3728746d77f995d04474174406e6ddd81b9045649c606b8ee45
+2026-10-13T04:27:05.7084536Z Artifact Chimera-DSP-verification-Linux.zip successfully finalized. Artifact ID 11788986001
+2026-10-13T04:27:05.7085570Z Artifact Chimera-DSP-verification-Linux has been successfully uploaded! Final size is 43936 bytes. Artifact ID is 11788986001
+2026-10-13T04:28:39.3622329Z SHA256 digest of uploaded artifact zip is c325c70d15238038e59a273378a56a97c627fc4d405f6f795cff1153ef1fbc39
+2026-10-13T04:28:39.7480448Z Artifact SpectralForge-Chimera-1.3.1-beta.2-linux-x86_64.zip successfully finalized. Artifact ID 11789275712
+2026-10-13T04:28:39.7481659Z Artifact SpectralForge-Chimera-1.3.1-beta.2-linux-x86_64 has been successfully uploaded! Final size is 447353161 bytes. Artifact ID is 11789275712
+2026-10-13T04:28:39.7916371Z Preserved linux evidence for 9375328c30dfe5908e5010342179b5afbc258900, run 38342282418/1
+2026-10-13T04:28:40.8702861Z SHA256 digest of uploaded artifact zip is c40cd2d4b215720f471c9a1e3b4b5a5c99f11720ff7cfe353fbe874e0904119f
+2026-10-13T04:28:41.1371560Z Artifact Chimera-release-evidence-linux.zip successfully finalized. Artifact ID 11789670530
+2026-10-13T04:28:41.1372300Z Artifact Chimera-release-evidence-linux has been successfully uploaded! Final size is 58373 bytes. Artifact ID is 11789670530

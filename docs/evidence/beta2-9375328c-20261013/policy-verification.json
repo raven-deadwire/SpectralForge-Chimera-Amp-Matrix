@@ -1,0 +1,62 @@
+{
+  "source_sha": "9375328c30dfe5908e5010342179b5afbc258900",
+  "policy_files_unchanged_by_integration": true,
+  "current_release_scope": {
+    "version": "1.3.1-beta.2",
+    "product_version": "1.3.1",
+    "profile": "beta_1_3",
+    "channel": "beta.2",
+    "decision_at": "2026-10-12T21:15:02+09:00",
+    "authorization": "The owner requested verification and reviewable fixes for the conditional October 14 test build. This authorizes candidate integration and validation only; it does not approve publication, acceptance of validation gaps, or reuse of beta.1 evidence.",
+    "preparation_authorized": true,
+    "publication_authorized": false,
+    "release_approved": false,
+    "status": "TEST_BUILD_INTEGRATION_PENDING_EXACT_SOURCE_CI",
+    "deferred_checks": [
+      "I2.PITCH_LIVE",
+      "I2.PITCH_DI"
+    ],
+    "tracking": "docs/TRANSPOSE_LONG_TERM.md",
+    "status_semantics": "Deferred is not PASS or NOT_APPLICABLE; the transpose_followup profile still requires evidence. All other acceptance gates are retained.",
+    "owner_acceptance": {
+      "approved": false,
+      "publication_authorized": false,
+      "decision_date": null,
+      "timezone": "Asia/Seoul",
+      "instruction": null,
+      "context": null,
+      "scope": null,
+      "testing_reported": false,
+      "individual_check_claims": []
+    }
+  },
+  "current_weekly_publication_flags": {
+    "release_approved": false,
+    "publication_authorized": false,
+    "owner_acceptance": {
+      "approved": false,
+      "publication_authorized": false,
+      "validation_gaps_accepted": false,
+      "instruction": null,
+      "context": null,
+      "scope": null
+    }
+  },
+  "waivers": [],
+  "historical_beta1_policy": {
+    "version": "1.3.1-beta.1",
+    "owner_acceptance": {
+      "approved": true,
+      "publication_authorized": true,
+      "decision_date": "2026-10-11",
+      "timezone": "Asia/Seoul",
+      "instruction": "수정되면 배포랑 업데이트까지 해",
+      "context": "The owner requested correction of all amplifier knob designs using original hardware references, after discussing incomplete Studio One and whole-product validation, then explicitly requested release and update when the corrections are complete.",
+      "scope": "Corrected Chimera 1.3.1 open beta, retaining the disclosed unexecuted validation inventory. Publication requires exact-source native CI, installer and package evidence; no stable or complete-validation claim.",
+      "testing_reported": false,
+      "individual_check_claims": []
+    },
+    "qualification": "Historical beta.1 authorization does not authorize beta.2 publication or reuse beta.1 acceptance evidence."
+  },
+  "scope": "Read-only verification. No approval flags, waivers, thresholds or policy files were changed."
+}

@@ -1,0 +1,78 @@
+{
+  "source_sha": "9375328c30dfe5908e5010342179b5afbc258900",
+  "tree_sha": "b02780be13bb594074bf51b269f804b4c861e5a4",
+  "run_id": 38342282472,
+  "run_attempt": 1,
+  "run_attempt_basis": "Original macOS manifest independently read before executor outage; this is the original new-source run, with no rerun requested.",
+  "workflow_url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38342282472",
+  "verdict": "All three fresh GitHub CAB jobs report PASS. Independent artifact byte audit completed for macOS only.",
+  "independent_all_platform_archive_verification_complete": false,
+  "executor_status": "environment_offline HTTP 409; no further shell probes or retries after confirmation",
+  "platforms": [
+    {
+      "platform": "macOS",
+      "job_id": 115115729269,
+      "artifact_id": 11787636746,
+      "ci_reported_result": "PASS",
+      "archive_byte_audit": "COMPLETED before executor offline",
+      "zip_size": 2729635,
+      "zip_sha256": "db9005447dd23d5c6a4b7d6ebe704ab29a1bb4a171351f11d1305c2c3f214eb9",
+      "zip_crc_valid": true,
+      "inner_index_hashes_valid": 107,
+      "ctest_passed": 5,
+      "ctest_total": 5,
+      "passing_p99_routes": 66,
+      "total_p99_routes": 66,
+      "total_callbacks": 105600,
+      "callback_deadline_misses": 9,
+      "former_failure_route": {
+        "engine": "expanded-v2",
+        "sample_rate": 96000,
+        "block_size": 32,
+        "channels": 2,
+        "p99_wall_us": 90.375,
+        "p99_thread_cpu_us": 93.7919999994,
+        "wall_p99_callback_paired_thread_cpu_us": 90.79200000036508,
+        "deadline_us": 333.3333333333333,
+        "max_wall_us": 965,
+        "misses": 3,
+        "callbacks": 1600
+      },
+      "persistence_limit": "Full locally verified manifest/JUnit/CSV/hash index snapshot was not persisted into the evidence branch before the executor became unavailable. These compact facts preserve the completed audit finding; original artifact remains available by ID/digest."
+    },
+    {
+      "platform": "Windows",
+      "job_id": 115115729211,
+      "artifact_id": 11787892678,
+      "ci_reported_result": "PASS",
+      "archive_byte_audit": "NOT COMPLETED: executor offline",
+      "zip_size_reported_by_api_and_upload_log": 2849594,
+      "zip_sha256_reported_by_api_and_upload_log": "f4943312440fade8af38a6a6e34c0a498b2fe1f8fd137ab221f14e1110ef9f64",
+      "independent_archive_size_digest_crc_internal_hash_check": false,
+      "passing_p99_routes_independently_read": null,
+      "total_callbacks_independently_read": null,
+      "callback_misses_independently_read": null
+    },
+    {
+      "platform": "Linux",
+      "job_id": 115115729441,
+      "artifact_id": 11788326920,
+      "ci_reported_result": "PASS",
+      "archive_byte_audit": "NOT COMPLETED: executor offline",
+      "zip_size_reported_by_api_and_upload_log": 3887380,
+      "zip_sha256_reported_by_api_and_upload_log": "ab358bff343562f79339b1e30a96a1080b9fe8355b6c3d609223fcc41d391050",
+      "independent_archive_size_digest_crc_internal_hash_check": false,
+      "passing_p99_routes_independently_read": null,
+      "total_callbacks_independently_read": null,
+      "callback_misses_independently_read": null
+    }
+  ],
+  "historical_results_reused": false,
+  "historical_failure": "022244e6 macOS CAB failure is preserved in historical evidence; neither subsequent PASS nor this test-only source change proves a cause or repair for that historical timing failure.",
+  "qualification_limits": [
+    "p99 gate PASS is not zero callback overrun acceptance.",
+    "No installed-product, real DAW, hardware audio or release approval is certified by these CAB jobs.",
+    "c3 source results are historical and are not qualification results for 9375328c.",
+    "No Python/archive verifier was executed after the executor went offline."
+  ]
+}
