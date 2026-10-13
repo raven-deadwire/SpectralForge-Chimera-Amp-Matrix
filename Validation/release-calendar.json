@@ -1,7 +1,7 @@
 {
   "schema": "spectralforge.release-plan",
   "schema_version": 1,
-  "updated_at": "2026-10-12",
+  "updated_at": "2026-10-13",
   "timezone": "Asia/Seoul",
   "status": "planning_only_not_release_or_updater_manifest",
   "source_baseline": {
@@ -37,7 +37,7 @@
       "test_build_date": "2026-10-14",
       "candidate_date": "2026-10-15",
       "publication_target": "2026-10-16",
-      "scope": "신호체인의 유틸리티 중복 표시를 줄이고 beta.1로 고정된 publisher를 검증 소스와 주간 버전 인자를 받는 구조로 수정한다.",
+      "scope": "신호체인의 유틸리티 중복 표시를 줄이고 beta.1로 고정된 publisher를 검증 소스와 주간 버전 인자를 받는 구조로 수정한다. 투명·고헤드룸 베이스 및 하이엔드 진공관 비교 연구 검토, Avalanche NAM 2개 검증 착수·42앰프 수량 정합성 점검(신규 DSP 납품 보장 아님).",
       "kind": "public_beta",
       "conditional": true,
       "status": "planned",
@@ -47,7 +47,14 @@
         "macos_universal",
         "linux_x86_64"
       ],
-      "publication_requires": "applicable_source_platform_host_package_acceptance"
+      "publication_requires": "applicable_source_platform_host_package_acceptance",
+      "research_qualification": {
+        "status": "registered_not_qualified",
+        "reference": "docs/DEVELOPMENT_ROADMAP_2026_2027.md#october-13-addition--transparent-power-bass-research-in-the-next-update",
+        "next_review": "2026-10-23",
+        "target_amp_count": 42,
+        "existing_count_plan_requires_reconciliation": true
+      }
     },
     {
       "product": "Chimera",
