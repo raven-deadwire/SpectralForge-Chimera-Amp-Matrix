@@ -1,4 +1,5 @@
 #pragma once
+#include "CommonDynamics.h"
 #include <juce_audio_processors/juce_audio_processors.h>
 #include <array>
 #include <atomic>
@@ -59,7 +60,10 @@ inline EQCoefficients eqCoefficients(int type,double frequency,double gain,doubl
 struct EQAnalyzerFrame {float inputL{},outputL{},inputR{},outputR{};};
 class EQAnalyzerFIFO {
 public:
-    static constexpr uint32_t capacity=8192;
+    // Analysis-only scheduling headroom: 341.33 ms at 192 kHz. The old 8192
+    // frames provided only 2.67 ms spare time beyond the nominal 40 ms UI tick.
+    // A finite queue still reports real losses after longer consumer stalls.
+    static constexpr uint32_t capacity=65536;
     void push(EQAnalyzerFrame frame) noexcept {
         const auto w=write.load(std::memory_order_relaxed);
         if(w-read.load(std::memory_order_acquire)>=capacity) {dropped.fetch_add(1,std::memory_order_relaxed);return;}
@@ -69,6 +73,16 @@ public:
         const auto r=read.load(std::memory_order_relaxed);
         if(r==write.load(std::memory_order_acquire))return false;
         frame=frames[r%capacity];read.store(r+1,std::memory_order_release);return true;
+    }
+    // Consumer only. Snapshot/drain never reset the producer's index or touch
+    // unpublished sample storage, so the audio producer can continue running.
+    uint32_t pendingSamples() const noexcept {
+        return write.load(std::memory_order_acquire)-read.load(std::memory_order_relaxed);
+    }
+    uint32_t discardPending() noexcept {
+        const auto r=read.load(std::memory_order_relaxed);
+        const auto w=write.load(std::memory_order_acquire);
+        read.store(w,std::memory_order_release);return w-r;
     }
     std::atomic<bool> enabled{false};
     std::atomic<uint64_t> dropped{0};
@@ -80,6 +94,7 @@ class GraphicalEQ {
 public:
     struct Values {bool enabled{};float frequency{1000},gain{},q{.707f};int type{};};
     void bind(juce::AudioProcessorValueTreeState& state,int instance) {
+        bank=instance;dynamicParameters.bind(state);
         bypass=state.getRawParameterValue(eqID(instance,-1,"bypass"));
         constexpr std::array<const char*,5> fields{"enabled","frequency","gain","q","type"};
         for(int b=0;b<graphicalEQBands;++b)for(size_t f=0;f<fields.size();++f)params[(size_t)b][f]=state.getRawParameterValue(eqID(instance,b,fields[f]));
@@ -91,6 +106,7 @@ public:
     }
     bool isBypassed() const noexcept {return bypass->load()>.5f;}
     double sampleRate() const noexcept {return uiRate.load();}
+    float dynamicReduction(int band) const noexcept {return dynamicMeters[size_t(std::clamp(band,0,11))].load();}
     void prepare(double sr) noexcept {rate=std::max(8000.,sr);uiRate.store(rate);reset();average.store(0);peak.store(0);}
     void reset() noexcept {
         wet.reset(rate,.01);wet.setCurrentAndTargetValue(isBypassed()?0.f:1.f);clock=0;
@@ -101,6 +117,7 @@ public:
             b.wet.reset(rate,.01);b.wet.setCurrentAndTargetValue(v.enabled?1.f:0.f);
             b.type=v.type;b.nextType=v.type;b.fade.reset(rate,.01);b.fade.setCurrentAndTargetValue(1);
             b.current={};b.next={};b.current.coeff=eqCoefficients(v.type,v.frequency,v.gain,v.q,rate);
+            b.detector={};b.reduction=b.envelope=0;b.detectorFrequency=b.detectorQ=0;dynamicMeters[size_t(i)].store(0);
         }
     }
     void process(juce::AudioBuffer<float>& buffer) noexcept {
@@ -113,11 +130,20 @@ public:
         wet.setTargetValue(bypassed?0.f:1.f);
         const bool analyze=analyzer.enabled.load(std::memory_order_relaxed);
         if(bypassed && !wet.isSmoothing()) {
+            for(int i=0;i<graphicalEQBands;++i){bands[size_t(i)].reduction=bands[size_t(i)].envelope=0;bands[size_t(i)].detector.clear();dynamicMeters[size_t(i)].store(0);}
             if(analyze)for(int n=0;n<samples;++n) {const auto l=buffer.getSample(0,n),r=buffer.getSample(channels-1,n);analyzer.push({l,l,r,r});}
         } else {
             // Read atomic host values once per block; coefficient work uses a 32-sample clock.
+            bool hasDynamics=false;
+            const double detectorDecay=std::exp(-1./(rate*.02));
             for(int i=0;i<graphicalEQBands;++i) {
                 auto& b=bands[(size_t)i];const auto v=values(i);
+                b.dynamic=dynamicParameters.forBand(bank*12+i+1);b.dynamic.enabled=b.dynamic.enabled && v.enabled && v.type<=2;
+                if(b.dynamic.enabled || b.reduction>1e-6){b.dynamicAttack=std::exp(-1./(rate*b.dynamic.attack*.001));b.dynamicRelease=std::exp(-1./(rate*b.dynamic.release*.001));}
+                hasDynamics|=b.dynamic.enabled || b.reduction>1e-6;
+                if(b.dynamic.enabled && (b.detectorFrequency!=v.frequency || b.detectorQ!=v.q)){
+                    b.detectorFrequency=v.frequency;b.detectorQ=v.q;b.detector.coeff=eqCoefficients(6,v.frequency,0,v.q,rate);
+                }
                 b.f.setTargetValue(v.frequency);b.g.setTargetValue(v.gain);b.q.setTargetValue(v.q);
                 if(v.enabled && b.wet.getTargetValue()==0) {b.current.clear();b.next.clear();}
                 b.wet.setTargetValue(v.enabled?1.f:0.f);
@@ -128,15 +154,24 @@ public:
                 }
             }
             for(int n=0;n<samples;++n) {
+                const float inputL=buffer.getSample(0,n),inputR=buffer.getSample(channels-1,n);
+                if(hasDynamics)for(auto& b:bands)if(b.dynamic.enabled || b.reduction>1e-6){
+                    double peak=0;
+                    if(b.dynamic.enabled){peak=std::abs(b.detector.tick(inputL,0));if(channels==2)peak=std::max(peak,std::abs(b.detector.tick(inputR,1)));}
+                    b.envelope=std::max(peak,b.envelope*detectorDecay);
+                    const double db=20*std::log10(std::max(1e-12,b.envelope));
+                    const double target=b.dynamic.enabled?std::clamp((db-b.dynamic.threshold)*(1.-1./b.dynamic.ratio),0.,double(b.dynamic.range)):0.;
+                    const double a=target>b.reduction?b.dynamicAttack:b.dynamicRelease;b.reduction=target+(b.reduction-target)*a;
+                    if(b.reduction<1e-6)b.reduction=0;
+                }
                 if(clock==0)for(auto& b:bands) {
                     const auto f=b.f.getNextValue(),g=b.g.getNextValue(),q=b.q.getNextValue();
                     if(b.wet.getCurrentValue()==0 && b.wet.getTargetValue()==0)continue;
-                    b.current.coeff=eqCoefficients(b.type,f,g,q,rate);
-                    if(b.fade.isSmoothing())b.next.coeff=eqCoefficients(b.nextType,f,g,q,rate);
+                    b.current.coeff=eqCoefficients(b.type,f,g-b.reduction,q,rate);
+                    if(b.fade.isSmoothing())b.next.coeff=eqCoefficients(b.nextType,f,g-b.reduction,q,rate);
                 }
                 clock=(clock+1)%32;
                 const float globalWet=wet.getNextValue();
-                const float inputL=buffer.getSample(0,n),inputR=buffer.getSample(channels-1,n);
                 std::array<float,2> x{inputL,inputR};
                 for(auto& b:bands) {
                     const float bandWet=b.wet.getNextValue();const bool transitioning=b.fade.isSmoothing();const float fade=b.fade.getNextValue();
@@ -152,6 +187,8 @@ public:
                 buffer.setSample(0,n,l);if(channels==2)buffer.setSample(1,n,r);
                 if(analyze)analyzer.push({inputL,l,inputR,r});
             }
+            // Applied coefficient gain, not the detector's requested range.
+            for(int i=0;i<graphicalEQBands;++i){const auto& b=bands[size_t(i)];const double g=b.g.getCurrentValue();dynamicMeters[size_t(i)].store(b.type<=2?float((g-std::clamp(g-b.reduction,-24.,24.))*b.wet.getCurrentValue()*wet.getCurrentValue()):0.f);}
         }
         const auto us=std::chrono::duration<double,std::micro>(std::chrono::steady_clock::now()-start).count();
         const float load=float(us*rate/(samples*10000.));
@@ -160,8 +197,8 @@ public:
     double tailSeconds() const noexcept {
         if(isBypassed())return 0;
         double tail=0;
-        for(int i=0;i<graphicalEQBands;++i) {const auto v=values(i);if(!v.enabled || (v.type<=2 && v.gain==0))continue;
-            const auto c=eqCoefficients(v.type,v.frequency,v.gain,v.q,sampleRate());
+        for(int i=0;i<graphicalEQBands;++i) {const auto v=values(i);const auto dynamic=dynamicParameters.forBand(bank*12+i+1);const float gain=v.gain-(dynamic.enabled&&v.type<=2?dynamic.range:0.f);if(!v.enabled || (v.type<=2 && gain==0))continue;
+            const auto c=eqCoefficients(v.type,v.frequency,gain,v.q,sampleRate());
             const auto root=std::sqrt(std::complex<double>(c.a1*c.a1-4*c.a2,0));
             const auto radius=std::max(std::abs((-c.a1+root)/2.),std::abs((-c.a1-root)/2.));
             if(radius>0 && radius<1)tail+=std::log(1.e-6)/(sampleRate()*std::log(radius));
@@ -177,8 +214,9 @@ private:
         void clear() noexcept {z1={};z2={};}
         double tick(double x,int c) noexcept {const size_t i=(size_t)c;const double y=coeff.b0*x+z1[i];z1[i]=coeff.b1*x-coeff.a1*y+z2[i];z2[i]=coeff.b2*x-coeff.a2*y;return y;}
     };
-    struct Band {Filter current,next;juce::SmoothedValue<float> f,g,q,wet,fade;int type{},nextType{};};
+    struct Band {Filter current,next,detector;juce::SmoothedValue<float> f,g,q,wet,fade;int type{},nextType{};DynamicEQConfig dynamic;double reduction{},envelope{},dynamicAttack{},dynamicRelease{},detectorFrequency{},detectorQ{};};
     std::array<Band,graphicalEQBands> bands;
+    DynamicEQBindings dynamicParameters;std::array<std::atomic<float>,graphicalEQBands> dynamicMeters{};int bank{};
     std::atomic<float>* bypass{};
     std::array<std::array<std::atomic<float>*,5>,graphicalEQBands> params{};
     juce::SmoothedValue<float> wet;

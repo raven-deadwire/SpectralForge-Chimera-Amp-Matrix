@@ -38,7 +38,15 @@ inline std::pair<float,float> estimate(const float* x,int count,double rate) {
         return error/std::max(1,end-3);
     };
     double left=std::max(4.0,selected+refinement-.6),right=selected+refinement+.6;
-    for(int i=0;i<26;++i){const double l=left+(right-left)*.38196601125,r=left+(right-left)*.61803398875;if(cost(l)<cost(r))right=r;else left=l;}
+    // Golden-section search retains one observation at each subdivision.
+    // Evaluate 28 costs instead of recomputing both sides 52 times.
+    constexpr double fraction=.3819660112501051;
+    double l=left+(right-left)*fraction,r=right-(right-left)*fraction;
+    double lc=cost(l),rc=cost(r);
+    for(int i=0;i<26;++i){
+        if(lc<rc){right=r;r=l;rc=lc;l=left+(right-left)*fraction;lc=cost(l);}
+        else {left=l;l=r;lc=rc;r=right-(right-left)*fraction;rc=cost(r);}
+    }
     const double hz=rate/((left+right)*.5);
     if(hz<16 || hz>2000)return {};
     return {float(hz),float(1-difference[size_t(selected)])};

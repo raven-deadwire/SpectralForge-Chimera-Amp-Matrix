@@ -1,0 +1,9 @@
+{
+  "schema": "spectralforge.chimera.beta-policy.v1",
+  "version": "1.3.2-beta.1",
+  "expires_at_utc": null,
+  "expiry_approved": false,
+  "warning_lead_seconds": 1209600,
+  "new_expired_instance": "muted-output-state-preserved",
+  "active_instance_grace": true
+}

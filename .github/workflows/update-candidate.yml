@@ -27,7 +27,7 @@ jobs:
         run: python Tools/test_candidate_transfer.py
       - name: Configure
         timeout-minutes: 10
-        run: cmake -S . -B build -A x64 -DCMAKE_BUILD_TYPE=Release
+        run: cmake -S . -B build -A x64 -DCHIMERA_BETA_QUALIFICATION_ONLY=ON -DCMAKE_BUILD_TYPE=Release
       - name: Check candidate packaging and validation contracts
         # Native failures must stop before a later successful command can mask them.
         shell: bash

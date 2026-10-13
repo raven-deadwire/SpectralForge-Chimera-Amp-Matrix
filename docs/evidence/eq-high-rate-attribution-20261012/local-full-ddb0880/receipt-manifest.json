@@ -1,0 +1,180 @@
+{
+  "source_commit": "ddb0880bd61a4c794236783b869767b96208bf41",
+  "run_id": null,
+  "artifact_id": null,
+  "original_artifact_zip_sha256": null,
+  "scope": "local full CMake: four CTests +22 headless cases; native UI NOT_RUN",
+  "performance_acceptance": "NOT_ASSESSED",
+  "physical_daw_device_tested": false,
+  "files": [
+    {
+      "source_path": "eq-analyzer-audio-invariance.csv",
+      "path": "eq-analyzer-audio-invariance.csv",
+      "raw_bytes": 686,
+      "raw_sha256": "bb049aa2c08466a8388b80ba8b4ffc8692a14d4213f5d41dff997df605309f04",
+      "stored_sha256": "bb049aa2c08466a8388b80ba8b4ffc8692a14d4213f5d41dff997df605309f04",
+      "compression": null
+    },
+    {
+      "source_path": "eq-analyzer-callback.csv",
+      "path": "eq-analyzer-callback.csv",
+      "raw_bytes": 3083,
+      "raw_sha256": "5bf79caae4fb63cd9abe0c277c3f8800e7ece7ec16abcac42a9ba9e6a8c4b0ac",
+      "stored_sha256": "5bf79caae4fb63cd9abe0c277c3f8800e7ece7ec16abcac42a9ba9e6a8c4b0ac",
+      "compression": null
+    },
+    {
+      "source_path": "eq-analyzer-cpu.csv",
+      "path": "eq-analyzer-cpu.csv",
+      "raw_bytes": 2047,
+      "raw_sha256": "e46728ad3442d2642f33895640a220cfe564bf6fb51900651dd683d146ffca86",
+      "stored_sha256": "e46728ad3442d2642f33895640a220cfe564bf6fb51900651dd683d146ffca86",
+      "compression": null
+    },
+    {
+      "source_path": "eq-analyzer-fifo-stalls.csv",
+      "path": "eq-analyzer-fifo-stalls.csv",
+      "raw_bytes": 3821,
+      "raw_sha256": "57afdd930b64be88b2954680f93eae301304997b076ce8f25b50d05c48326c52",
+      "stored_sha256": "57afdd930b64be88b2954680f93eae301304997b076ce8f25b50d05c48326c52",
+      "compression": null
+    },
+    {
+      "source_path": "eq-analyzer-partition-invariance.csv",
+      "path": "eq-analyzer-partition-invariance.csv",
+      "raw_bytes": 7946,
+      "raw_sha256": "318e615eca31dedf3e76c484514356cbc40db56b8f99a2c61291e71d267608ea",
+      "stored_sha256": "318e615eca31dedf3e76c484514356cbc40db56b8f99a2c61291e71d267608ea",
+      "compression": null
+    },
+    {
+      "source_path": "eq-analyzer-performance-paired.csv",
+      "path": "eq-analyzer-performance-paired.csv",
+      "raw_bytes": 42465,
+      "raw_sha256": "11e785263dd127dc8820675af939cdd7961a14c8089614a0becb28a0d4f6e474",
+      "stored_sha256": "11e785263dd127dc8820675af939cdd7961a14c8089614a0becb28a0d4f6e474",
+      "compression": null
+    },
+    {
+      "source_path": "eq-analyzer-performance-parity.csv",
+      "path": "eq-analyzer-performance-parity.csv",
+      "raw_bytes": 15428,
+      "raw_sha256": "fde96883fe8beba116cdb9f2a221002db6b6f474d134dfae0ba42c6b2b2859e5",
+      "stored_sha256": "fde96883fe8beba116cdb9f2a221002db6b6f474d134dfae0ba42c6b2b2859e5",
+      "compression": null
+    },
+    {
+      "source_path": "eq-analyzer-performance-summary.csv",
+      "path": "eq-analyzer-performance-summary.csv",
+      "raw_bytes": 7264,
+      "raw_sha256": "f1866d5cde9d2c6c5e858a37e565afedb0bad522cd65f0cc2b6e2276d8f07f4f",
+      "stored_sha256": "f1866d5cde9d2c6c5e858a37e565afedb0bad522cd65f0cc2b6e2276d8f07f4f",
+      "compression": null
+    },
+    {
+      "source_path": "eq-analyzer-temporal-coverage.csv",
+      "path": "eq-analyzer-temporal-coverage.csv",
+      "raw_bytes": 2672,
+      "raw_sha256": "c61c394b32c1b2ffdb0b5c1417a9ae0f1d3204ed5bf7d23a37197f1e2af81b32",
+      "stored_sha256": "c61c394b32c1b2ffdb0b5c1417a9ae0f1d3204ed5bf7d23a37197f1e2af81b32",
+      "compression": null
+    },
+    {
+      "source_path": "eq-cpu.csv",
+      "path": "eq-cpu.csv",
+      "raw_bytes": 914,
+      "raw_sha256": "3615cee38c173346d0e25cf77cf46fe16620f980b6f218b55da51c476bbdf365",
+      "stored_sha256": "3615cee38c173346d0e25cf77cf46fe16620f980b6f218b55da51c476bbdf365",
+      "compression": null
+    },
+    {
+      "source_path": "eq-results-local.xml",
+      "path": "eq-results-local.xml",
+      "raw_bytes": 5350,
+      "raw_sha256": "d2cc4c8aea2ff89945a5cc57ce6caa2e0fc06d2d7121f2f5ce5497a1f7976feb",
+      "stored_sha256": "d2cc4c8aea2ff89945a5cc57ce6caa2e0fc06d2d7121f2f5ce5497a1f7976feb",
+      "compression": null
+    },
+    {
+      "source_path": "chimera-build-version.json",
+      "path": "chimera-build-version.json",
+      "raw_bytes": 126,
+      "raw_sha256": "68a717cc8849bf30cee022748016ba82c07127a943039e0008bf25dd9bb159ad",
+      "stored_sha256": "68a717cc8849bf30cee022748016ba82c07127a943039e0008bf25dd9bb159ad",
+      "compression": null
+    },
+    {
+      "source_path": "eq-attribution-provenance.json",
+      "path": "eq-attribution-provenance.json",
+      "raw_bytes": 13103,
+      "raw_sha256": "c731491957e10f66fd2df197ddc61648290154b8c575f87f4a2e4f24f307a0bd",
+      "stored_sha256": "c731491957e10f66fd2df197ddc61648290154b8c575f87f4a2e4f24f307a0bd",
+      "compression": null
+    },
+    {
+      "source_path": "Testing/Temporary/LastTest.log",
+      "path": "Testing/Temporary/LastTest.log",
+      "raw_bytes": 25776,
+      "raw_sha256": "9f870590567347c0dd1cd1c0cd2e1cbdd4f727a1ca83cf5c8cb919867fc4228a",
+      "stored_sha256": "9f870590567347c0dd1cd1c0cd2e1cbdd4f727a1ca83cf5c8cb919867fc4228a",
+      "compression": null
+    },
+    {
+      "source_path": "eq-attribution-headless/eq-attribution-callbacks.csv",
+      "path": "eq-attribution/eq-attribution-callbacks.csv.gz",
+      "raw_bytes": 4211308,
+      "raw_sha256": "785ef6e6bf5ac28f9ae157b5d3a28fb535c171a58f7259a99f2774bb6d12c9c4",
+      "stored_sha256": "1170375ab49771eaa11649f34c3f3da57689c31bfc4c13102ba0df70e89a5fcc",
+      "compression": "gzip; mtime=0"
+    },
+    {
+      "source_path": "eq-attribution-headless/eq-attribution-method.txt",
+      "path": "eq-attribution/eq-attribution-method.txt",
+      "raw_bytes": 1232,
+      "raw_sha256": "6e3d9f8558e35a0dd635491f7cea230f1034d8c5ee516690d207e2bd8add1789",
+      "stored_sha256": "6e3d9f8558e35a0dd635491f7cea230f1034d8c5ee516690d207e2bd8add1789",
+      "compression": null
+    },
+    {
+      "source_path": "eq-attribution-headless/eq-attribution-summary.csv",
+      "path": "eq-attribution/eq-attribution-summary.csv",
+      "raw_bytes": 12908,
+      "raw_sha256": "954f7aad4e8332b8cb77e7b4e886625f30e54a0173384e08aab655af6475d32a",
+      "stored_sha256": "954f7aad4e8332b8cb77e7b4e886625f30e54a0173384e08aab655af6475d32a",
+      "compression": null
+    },
+    {
+      "source_path": "eq-attribution-headless/eq-attribution-updates.csv",
+      "path": "eq-attribution/eq-attribution-updates.csv",
+      "raw_bytes": 20529,
+      "raw_sha256": "cc48d41ef4215fe9a2fe6defef29a0302bae1b5ad050b6449ebd2bc6318041d0",
+      "stored_sha256": "cc48d41ef4215fe9a2fe6defef29a0302bae1b5ad050b6449ebd2bc6318041d0",
+      "compression": null
+    },
+    {
+      "source_path": "local-validation-state.json",
+      "path": "local-validation-state.json",
+      "raw_bytes": 3315,
+      "raw_sha256": "5b72645795f84a88d241a36c94fe43911d3597ce8ab58eb6f285166a0e7fc6f5",
+      "stored_sha256": "5b72645795f84a88d241a36c94fe43911d3597ce8ab58eb6f285166a0e7fc6f5",
+      "compression": null
+    },
+    {
+      "source_path": "local-ctest.log",
+      "path": "local-ctest.log",
+      "raw_bytes": 580,
+      "raw_sha256": "3378f55dddd8c1f8a3973d840e476d13153fd84a56c6f1045dcf04f42ea00f55",
+      "stored_sha256": "3378f55dddd8c1f8a3973d840e476d13153fd84a56c6f1045dcf04f42ea00f55",
+      "compression": null
+    },
+    {
+      "source_path": "local-attribution-headless.log",
+      "path": "local-attribution-headless.log",
+      "raw_bytes": 4958,
+      "raw_sha256": "573af20913c481a8f0ea02cb5e0a7a36b5c3b96e21ba532df0beaf0b5e4f0ad9",
+      "stored_sha256": "573af20913c481a8f0ea02cb5e0a7a36b5c3b96e21ba532df0beaf0b5e4f0ad9",
+      "compression": null
+    }
+  ],
+  "original_ci_artifact": null
+}

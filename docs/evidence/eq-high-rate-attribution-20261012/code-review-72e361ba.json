@@ -1,0 +1,137 @@
+{
+  "review_mode": "READ_ONLY_STATIC_CODE_REVIEW",
+  "candidate_commit": "72e361ba91ea2c6b8d830921a71275fa25cba493",
+  "baseline_commits": [
+    "139e98f2614f516fb97975034eacae4e4dc05098",
+    "beb72f520721685f3698883297371be7def92198"
+  ],
+  "repository": "/workspace/scratch/af7c830474b5/chimera",
+  "new_builds_tests_performance_runs_network_requests": false,
+  "repository_modified": false,
+  "verdict": {
+    "new_product_callback_allocation_or_wait_identified": false,
+    "new_blocking_functional_or_fft_layout_error_identified": false,
+    "proof_scope": "Static delta inspection only; does not assert the complete existing processor is globally allocation-free or certify a DAW/device",
+    "universal_performance_pass": false,
+    "physical_daw_acceptance": "NOT_ASSESSED"
+  },
+  "confirmed": [
+    {
+      "topic": "Product audio path unchanged",
+      "detail": "Only Source/EQSpectrumAnalyzer.h and Source/GraphicalEQPanel.h differ from the retained baseline under Source. GraphicalEQ.h (SPSC producer/process), PluginProcessor.cpp/.h and PluginEditor.cpp/.h have no delta.",
+      "locations": [
+        "Source/GraphicalEQ.h:66",
+        "Source/GraphicalEQ.h:119"
+      ]
+    },
+    {
+      "topic": "No new callback wait/allocation",
+      "detail": "New waveform/cache/record storage and sleep/yield/join are confined to Tests/EQAttributionDiagnostics.h. Storage is reserved before the measured producer starts; CSV output and percentile work run after source.stop()/join. This is not a claim about all pre-existing processor operations.",
+      "locations": [
+        "Tests/EQAttributionDiagnostics.h:62",
+        "Tests/EQAttributionDiagnostics.h:68",
+        "Tests/EQAttributionDiagnostics.h:105",
+        "Tests/EQAttributionDiagnostics.h:120",
+        "Tests/EQAttributionDiagnostics.h:123",
+        "Tests/EQAttributionDiagnostics.h:220",
+        "Tests/EQAttributionDiagnostics.h:229"
+      ]
+    },
+    {
+      "topic": "FFT layout and gain",
+      "detail": "Pinned JUCE 8.0.8 guarantees at least N/2+1 interleaved complex outputs from an input buffer of 2*N floats. Candidate reads exactly those bins. Interior power coefficient 2/W^2 and DC/Nyquist coefficient 0.5/W^2 are algebraically identical to the baseline stereo power average. N/4 scheduling, FIFO snapshot/recovery, envelope times and paths are unchanged.",
+      "locations": [
+        "Source/EQSpectrumAnalyzer.h:179",
+        "Source/EQSpectrumAnalyzer.h:216",
+        "Source/EQSpectrumAnalyzer.h:223",
+        "Source/EQSpectrumAnalyzer.h:230",
+        "JUCE/modules/juce_dsp/frequency/juce_FFT.h:86",
+        "JUCE/modules/juce_dsp/frequency/juce_FFT.cpp:483",
+        "JUCE/modules/juce_dsp/frequency/juce_FFT.cpp:515"
+      ]
+    },
+    {
+      "topic": "Production diagnostics are inert by default",
+      "detail": "GraphicalEQPanel observer defaults to null, rendering defaults true, and the constructor retains 25 Hz. Only test code installs the observer. NativeMessageLoop.mm is attached to console UI test targets, not plugin/product targets. Current observer callbacks are read-only and execute on the message thread.",
+      "locations": [
+        "Source/GraphicalEQPanel.h:55",
+        "Source/GraphicalEQPanel.h:81",
+        "Source/GraphicalEQPanel.h:297",
+        "Tests/EQAttributionDiagnostics.h:200",
+        "CMakeLists.txt:474"
+      ]
+    },
+    {
+      "topic": "Counter/thread ownership",
+      "detail": "Producer startTime is published by release/acquire go; exception state is read after join; mutable analyzer metrics and observer state stay on the message thread. Normal runCase cleanup stops/joins producer, stops heartbeat/telemetry and clears observer before CSV/summary processing.",
+      "locations": [
+        "Tests/EQAttributionDiagnostics.h:74",
+        "Tests/EQAttributionDiagnostics.h:86",
+        "Tests/EQAttributionDiagnostics.h:220",
+        "Tests/EQAttributionDiagnostics.h:223",
+        "Tests/EQAttributionDiagnostics.h:264"
+      ]
+    }
+  ],
+  "remaining_risks": [
+    {
+      "id": "PERF-MAC-FULL-FIFO",
+      "severity": "MATERIAL_OPEN_PERFORMANCE_RISK",
+      "basis": "Parent-provided existing result; not independently rerun by this review",
+      "detail": "macOS vDSP full-FIFO 2048 initial four-trial result includes candidate update wall +36.6% and actual CPU +26.6%. This is incompatible with an unconditional cross-platform performance pass. Complete FIFO batches remain a possible product UI backlog workload; all chronological windows are still processed in one update.",
+      "locations": [
+        "Source/EQSpectrumAnalyzer.h:66",
+        "Source/EQSpectrumAnalyzer.h:77",
+        "Tests/EQAnalyzerPerformanceTests.cpp:193",
+        "Tests/EQAnalyzerPerformanceTests.cpp:204"
+      ],
+      "recommendation": "Keep platform/fixture-specific results and NOT_ASSESSED acceptance. Do not dismiss this row or substitute other-platform medians."
+    },
+    {
+      "id": "FFT-TIMER-BOUNDARY",
+      "severity": "MEASUREMENT_INTERPRETATION",
+      "basis": "Direct code comparison",
+      "detail": "Baseline fftMicros includes performFrequencyOnlyForwardTransform (real FFT, magnitude extraction and zeroing); candidate fftMicros encloses performRealOnlyForwardTransform only. fft_operation_wall_ms is not the same operation boundary between implementations. Complete update wall and feed-plus-analysis thread CPU remain comparable and are recorded.",
+      "locations": [
+        "Tests/reference/EQSpectrumAnalyzerBeb72f.h:210",
+        "Source/EQSpectrumAnalyzer.h:212",
+        "Source/EQSpectrumAnalyzer.h:223",
+        "JUCE/modules/juce_dsp/frequency/juce_FFT.cpp:991",
+        "Tests/EQAnalyzerPerformanceTests.cpp:167",
+        "Tests/EQAnalyzerPerformanceTests.cpp:172"
+      ],
+      "recommendation": "Use total update wall and actual thread CPU for optimization acceptance; describe FFT-call timing as implementation-specific subspan, not isolated identical-kernel throughput."
+    },
+    {
+      "id": "OBSERVER-EXCEPTION-CLEANUP",
+      "severity": "LOW_TEST_HARNESS_ROBUSTNESS",
+      "basis": "Static exceptional-path risk; no normal-path failure identified",
+      "detail": "configureDiagnostics stores a non-owning pointer to stack ConsumerMetrics. Explicit clearDiagnostics happens on the normal path after the measurement. An exception between installation and clearing can leave the pointer attached during stack unwinding until the editor is destroyed. No shipping caller installs this observer, and current normal runs clear it before the context dies.",
+      "locations": [
+        "Source/GraphicalEQPanel.h:85",
+        "Tests/EQAttributionDiagnostics.h:197",
+        "Tests/EQAttributionDiagnostics.h:200",
+        "Tests/EQAttributionDiagnostics.h:208",
+        "Tests/EQAttributionDiagnostics.h:223"
+      ],
+      "recommendation": "If this harness is extended to recover and continue after exceptions or permit nested event dispatch during teardown, add scoped observer/telemetry cleanup and enforce message-thread ownership. No code change was made during this review."
+    },
+    {
+      "id": "OBSERVATION-SCOPE",
+      "severity": "ACCEPTANCE_BOUNDARY",
+      "basis": "Direct code inspection",
+      "detail": "No-panel-paint still builds spectrum paths and leaves child/editor controls and native dispatch active. Timer duration excludes observer bookkeeping; message-thread/process CPU include it. Due-sample catch-up may yield a near-nominal total production ratio while individual callbacks remain late. Exit 0 of attribution currently certifies accounting/capacity/evidence-write checks, not no-loss/no-overrun device behavior.",
+      "locations": [
+        "Source/GraphicalEQPanel.h:279",
+        "Source/GraphicalEQPanel.h:286",
+        "Tests/EQAttributionDiagnostics.h:141",
+        "Tests/EQAttributionDiagnostics.h:242",
+        "Tests/EQAttributionDiagnostics.h:260",
+        "Tests/EQAttributionDiagnostics.h:279"
+      ],
+      "recommendation": "Retain current narrow names/NOT_ASSESSED interpretation. Do not sum inclusive spans or call thread CPU analyzer-only CPU; do not describe accounting PASS as DAW or FIFO no-loss acceptance."
+    }
+  ],
+  "numerical_qualification": "Algebraic ordinary-input equivalence is supported by inspection; floating-point rounding is intentionally not bit-for-bit identical. Corrupt near-FLT_MAX handling cannot be described as exact full-domain numeric equivalence from static inspection alone.",
+  "new_tests_requested_by_review": false
+}

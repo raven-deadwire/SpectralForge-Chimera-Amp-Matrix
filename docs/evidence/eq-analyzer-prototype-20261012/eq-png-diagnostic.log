@@ -1,0 +1,83 @@
+Start testing: Oct 12 14:18 KST
+----------------------------------------------------------
+41/43 Testing: ChimeraGraphicalEQUITests
+41/43 Test: ChimeraGraphicalEQUITests
+Command: "/workspace/scratch/272ab589d483/chimera-eq-prototype/build-eq-prototype/ChimeraGraphicalEQUITests_artefacts/Release/ChimeraGraphicalEQUITests" "/workspace/scratch/272ab589d483/chimera-eq-prototype/build-eq-prototype"
+Directory: /workspace/scratch/272ab589d483/chimera-eq-prototype/build-eq-prototype
+"ChimeraGraphicalEQUITests" start time: Oct 12 14:18 KST
+Output:
+----------------------------------------------------------
+Numeric 0:0 Hz=200 dB=3.5 Q=1.25
+Numeric 0:1 Hz=517 dB=3.5 Q=1.25
+Numeric 0:2 Hz=834 dB=3.5 Q=1.25
+Numeric 0:3 Hz=1151 dB=3.5 Q=1.25
+Numeric 0:4 Hz=1468 dB=3.5 Q=1.25
+Numeric 0:5 Hz=1785 dB=3.5 Q=1.25
+Numeric 0:6 Hz=2102 dB=3.5 Q=1.25
+Numeric 0:7 Hz=2419 dB=3.5 Q=1.25
+Numeric 0:8 Hz=2736 dB=3.5 Q=1.25
+Numeric 0:9 Hz=3053 dB=3.5 Q=1.25
+Numeric 0:10 Hz=3370 dB=3.5 Q=1.25
+Numeric 0:11 Hz=3687 dB=3.5 Q=1.25
+Numeric 1:0 Hz=200 dB=3.5 Q=1.25
+Numeric 1:1 Hz=517 dB=3.5 Q=1.25
+Numeric 1:2 Hz=834 dB=3.5 Q=1.25
+Numeric 1:3 Hz=1151 dB=3.5 Q=1.25
+Numeric 1:4 Hz=1468 dB=3.5 Q=1.25
+Numeric 1:5 Hz=1785 dB=3.5 Q=1.25
+Numeric 1:6 Hz=2102 dB=3.5 Q=1.25
+Numeric 1:7 Hz=2419 dB=3.5 Q=1.25
+Numeric 1:8 Hz=2736 dB=3.5 Q=1.25
+Numeric 1:9 Hz=3053 dB=3.5 Q=1.25
+Numeric 1:10 Hz=3370 dB=3.5 Q=1.25
+Numeric 1:11 Hz=3687 dB=3.5 Q=1.25
+NATIVE synthetic audio bank=0 FFT=2048 input=-20 output=-14 first_data_observed=59.853 ms paint_p50=2077.7 us
+NATIVE synthetic audio bank=0 FFT=4096 input=-20 output=-14 first_data_observed=105.808 ms paint_p50=2093.08 us
+NATIVE synthetic audio bank=0 FFT=8192 input=-20 output=-14 first_data_observed=219.722 ms paint_p50=2151.29 us
+NATIVE layer state bank=0 both hasData=1 frames=318 dropped=128
+NATIVE layer state bank=0 in_only hasData=0 frames=318 dropped=640
+NATIVE layer state bank=0 neither hasData=0 frames=318 dropped=640
+NATIVE layer pixels bank=0 OUT both=786 in_only=188 IN in_only=113515 neither=113515
+FAIL IN visibility control did not remove the real input spectrum layer
+<end of output>
+Test time =  16.70 sec
+----------------------------------------------------------
+Test Failed.
+"ChimeraGraphicalEQUITests" end time: Oct 12 14:18 KST
+"ChimeraGraphicalEQUITests" time elapsed: 00:00:16
+----------------------------------------------------------
+
+42/43 Testing: ChimeraEQAnalyzerTests
+42/43 Test: ChimeraEQAnalyzerTests
+Command: "/workspace/scratch/272ab589d483/chimera-eq-prototype/build-eq-prototype/ChimeraEQAnalyzerTests_artefacts/Release/ChimeraEQAnalyzerTests" "/workspace/scratch/272ab589d483/chimera-eq-prototype/build-eq-prototype"
+Directory: /workspace/scratch/272ab589d483/chimera-eq-prototype/build-eq-prototype
+"ChimeraEQAnalyzerTests" start time: Oct 12 14:18 KST
+Output:
+----------------------------------------------------------
+PASS FFT 2048 bin=23.4375 Hz window=42.6667 ms / antiphase, amplitude, endpoints, frequency change, overflow, rate transition
+PASS FFT 4096 bin=11.7188 Hz window=85.3333 ms / antiphase, amplitude, endpoints, frequency change, overflow, rate transition
+PASS FFT 8192 bin=5.85938 Hz window=170.667 ms / antiphase, amplitude, endpoints, frequency change, overflow, rate transition
+PASS31/55Hz and stepped frequency peaks at honest bin tolerance / deterministic broadband / nonfinite input recovery
+PASS sample-time smoothing / no reset on ballistics changes / idle decay / fresh resumed window
+FFT CPU 2048 @ 48000 Hz p50=116.887 us update p50/p99=134.213/192.311 us; observation=42.6667 ms
+FFT CPU 4096 @ 48000 Hz p50=205.069 us update p50/p99=233.954/348.647 us; observation=85.3333 ms
+FFT CPU 8192 @ 48000 Hz p50=529.409 us update p50/p99=581.778/724.264 us; observation=170.667 ms
+FFT CPU 2048 @ 96000 Hz p50=117.007 us update p50/p99=140.211/407.745 us; observation=21.3333 ms
+FFT CPU 4096 @ 96000 Hz p50=205.129 us update p50/p99=239.752/363.289 us; observation=42.6667 ms
+FFT CPU 8192 @ 96000 Hz p50=530.34 us update p50/p99=589.84/975.202 us; observation=85.3333 ms
+FFT CPU 2048 @ 192000 Hz p50=116.986 us update p50/p99=151.659/328.607 us; observation=10.6667 ms
+FFT CPU 4096 @ 192000 Hz p50=205.28 us update p50/p99=251.781/791.745 us; observation=21.3333 ms
+FFT CPU 8192 @ 192000 Hz p50=529.349 us update p50/p99=599.555/866.158 us; observation=42.6667 ms
+PASS full processor initial_fft=2048 unchanged latency=42 samples / both banks / capture toggles / resolution switch / impulse / FIFOoverflow / max_error=0
+PASS full processor initial_fft=4096 unchanged latency=42 samples / both banks / capture toggles / resolution switch / impulse / FIFOoverflow / max_error=0
+PASS full processor initial_fft=8192 unchanged latency=42 samples / both banks / capture toggles / resolution switch / impulse / FIFOoverflow / max_error=0
+PASS variable-resolution real-audio analysis, bounded consumer, timing evidence, unchanged processing and host latency
+<end of output>
+Test time =   2.99 sec
+----------------------------------------------------------
+Test Passed.
+"ChimeraEQAnalyzerTests" end time: Oct 12 14:18 KST
+"ChimeraEQAnalyzerTests" time elapsed: 00:00:02
+----------------------------------------------------------
+
+End testing: Oct 12 14:18 KST

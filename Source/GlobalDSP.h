@@ -12,6 +12,7 @@ class NoiseGate {
     float detector{}, gain{1};
     int holdCounter{};
     bool open{true};
+    bool expand{};float expansionRatio{2},attackMs{.5f};
 public:
     // 0..95.9 dB is a finite attenuation floor. 96 is the Full sentinel:
     // the original zero target, approached with the existing release curve.
@@ -24,6 +25,7 @@ public:
     void prepare(double sr) { rate=sr; reset(); }
     void reset() { detector=0; gain=1; holdCounter=0; open=true; }
     float reduction() const { return gain; }
+    void setMode(bool expander,float ratio,float attack) noexcept {expand=expander;expansionRatio=juce::jlimit(1.f,20.f,ratio);attackMs=juce::jlimit(.1f,20.f,attack);}
     void process(juce::AudioBuffer<float>& buffer,bool enabled,float thresholdDb,float releaseMs,float holdMs,float rangeDb=fullRangeDb)
     { processInternal(buffer,&buffer,nullptr,enabled,thresholdDb,releaseMs,holdMs,rangeDb); }
     // The same input detector can control a later gain stage without altering
@@ -36,7 +38,7 @@ private:
         const float threshold=juce::Decibels::decibelsToGain(thresholdDb);
         const float closeThreshold=threshold*.501187f; // 6 dB hysteresis
         const float envelopeRelease=float(std::exp(-1.0/(rate*.020)));
-        const float attack=float(std::exp(-1.0/(rate*.0005)));
+        const float attack=float(std::exp(-1.0/(rate*(attackMs==.5f?.0005:double(attackMs)*.001))));
         const float release=float(std::exp(-1.0/(rate*juce::jmax(5.f,releaseMs)*.001)));
         const int holdSamples=int(rate*holdMs*.001);
         const float floor=closedGain(rangeDb);
@@ -51,7 +53,11 @@ private:
                 if(holdCounter>0) --holdCounter;
                 else open=false;
             }
-            const float target=(!enabled || open) ? 1.f : floor;
+            float target=(!enabled || open) ? 1.f : floor;
+            if(enabled && !open && expand){
+                const float below=juce::jmax(0.f,thresholdDb-juce::Decibels::gainToDecibels(detector,-120.f));
+                target=juce::jmax(floor,juce::Decibels::decibelsToGain(-below*(expansionRatio-1.f),-120.f));
+            }
             const float coefficient=target>gain ? attack : release;
             gain=target+(gain-target)*coefficient;
             if(envelope) envelope[n]=gain;
@@ -139,7 +145,7 @@ public:
         stop(); fifo.reset(); history.fill(0); writeIndex=filled=phase=0; low1=low2=0;
         decimation=juce::jmax(1,juce::roundToInt(rate/24000.0)); analysisRate=rate/decimation;
         coefficient=float(1.0-std::exp(-juce::MathConstants<double>::twoPi*3000.0/rate));
-        hz.store(0); certainty.store(0); startThread();
+        hz.store(0); certainty.store(0); startThread(juce::Thread::Priority::low);
     }
     void push(const juce::AudioBuffer<float>& buffer,bool active)
     {
@@ -147,15 +153,23 @@ public:
         if(!active) return;
         int channel=0;
         if(buffer.getNumChannels()>1 && buffer.getRMSLevel(1,0,buffer.getNumSamples())>buffer.getRMSLevel(0,0,buffer.getNumSamples())) channel=1;
+        const int produced=(phase+buffer.getNumSamples())/decimation;
+        int first{},firstCount{},second{},secondCount{},written=0;
+        fifo.prepareToWrite(produced,first,firstCount,second,secondCount);
+        const int available=firstCount+secondCount;
         for(int n=0;n<buffer.getNumSamples();++n)
         {
             low1+=coefficient*(buffer.getSample(channel,n)-low1); low2+=coefficient*(low1-low2);
             if(++phase<decimation) continue;
             phase=0;
-            if(fifo.getFreeSpace()==0){generation.fetch_add(1);continue;}
-            const auto scope=fifo.write(1);
-            scope.forEach([this](int i){queue[(size_t)i]=low2;});
+            if(written<available){
+                const int index=written<firstCount?first+written:second+written-firstCount;
+                queue[size_t(index)]=low2;++written;
+            }
         }
+        // One SPSC publication per audio block, with bounded overflow recovery.
+        fifo.finishedWrite(written);
+        if(available<produced)generation.fetch_add(1);
     }
     float frequency() const { return enabled.load()?hz.load():0; }
     float confidence() const { return enabled.load()?certainty.load():0; }

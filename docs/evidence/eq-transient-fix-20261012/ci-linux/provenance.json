@@ -1,0 +1,275 @@
+{
+  "run_id": 38224717793,
+  "job_id": 114729284136,
+  "source_sha": "beb72f520721685f3698883297371be7def92198",
+  "artifact": {
+    "id": 11736082685,
+    "name": "EQ-contracts-Linux-beb72f520721685f3698883297371be7def92198",
+    "size_in_bytes": 23519340,
+    "url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/artifacts/11736082685",
+    "archive_download_url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/artifacts/11736082685/zip",
+    "expired": false,
+    "created_at": "2026-10-12T08:56:18Z",
+    "expires_at": "2027-01-10T08:37:38Z",
+    "updated_at": "2026-10-12T08:56:18Z",
+    "digest": "sha256:211e53b682a0ab66859ee711a02c94f328e0b92cc870f9104ca04bc92ae5cee4",
+    "workflow_run": {
+      "id": 38224717793,
+      "repository_id": 1382701489,
+      "head_repository_id": 1382701489,
+      "head_branch": "dev/eq-analyzer-prototype-20261012",
+      "head_sha": "beb72f520721685f3698883297371be7def92198"
+    }
+  },
+  "steps": [
+    {
+      "name": "Set up job",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 1
+    },
+    {
+      "name": "Run actions/checkout@v5",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 2
+    },
+    {
+      "name": "Run sudo apt-get update && sudo apt-get install -y libasound2-dev libcurl4-openssl-dev libfreetype6-dev libfontconfig1-dev libx11-dev libxcomposite-dev libxcursor-dev libxext-dev libxinerama-dev libxrandr-dev libxrender-dev libgl1-mesa-dev xvfb openbox x11-utils",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 3
+    },
+    {
+      "name": "Run cmake -S . -B build-eq -DCMAKE_BUILD_TYPE=Release -DCHIMERA_EQ_DEVELOPMENT_PREVIEW=ON",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 4
+    },
+    {
+      "name": "Run cmake --build build-eq --config Release --target ChimeraGraphicalEQTests ChimeraGraphicalEQUITests ChimeraEQAnalyzerTests ChimeraGateProcessorTests --parallel 2",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 5
+    },
+    {
+      "name": "Run ctest --test-dir build-eq -C Release -R \"^(ChimeraGraphicalEQ.*Tests|ChimeraEQAnalyzerTests|ChimeraGateProcessorTests)$\" --output-on-failure --no-tests=error --output-junit eq-results.xml",
+      "status": "completed",
+      "conclusion": "skipped",
+      "number": 6
+    },
+    {
+      "name": "Run python3 Tools/run_linux_ui_tests.py -- ctest --test-dir build-eq -C Release -R \"^(ChimeraGraphicalEQ.*Tests|ChimeraEQAnalyzerTests|ChimeraGateProcessorTests)$\" --output-on-failure --no-tests=error --output-junit eq-results.xml",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 7
+    },
+    {
+      "name": "Verify transient coverage and update-partition invariance",
+      "status": "completed",
+      "conclusion": "skipped",
+      "number": 8
+    },
+    {
+      "name": "Verify transient coverage on the native Linux desktop",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 9
+    },
+    {
+      "name": "Run cmake --build build-eq --config Release --target ChimeraAmpMatrix_Standalone --parallel 2",
+      "status": "completed",
+      "conclusion": "skipped",
+      "number": 10
+    },
+    {
+      "name": "Run actions/upload-artifact@v6",
+      "status": "completed",
+      "conclusion": "skipped",
+      "number": 11
+    },
+    {
+      "name": "Run actions/upload-artifact@v6",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 12
+    },
+    {
+      "name": "Post Run actions/checkout@v5",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 24
+    },
+    {
+      "name": "Complete job",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 25
+    }
+  ],
+  "downloaded_archive_sha256": "211e53b682a0ab66859ee711a02c94f328e0b92cc870f9104ca04bc92ae5cee4",
+  "archive_size": 23519340,
+  "extracted_file_count": 64,
+  "build_version": {
+    "product_version": "1.3.1",
+    "source_sha": "beb72f520721685f3698883297371be7def92198",
+    "version": "1.3.1-preview.beb72f5207"
+  },
+  "junit": {
+    "name": "(empty)",
+    "tests": "4",
+    "failures": "0",
+    "disabled": "0",
+    "skipped": "0",
+    "hostname": "",
+    "time": "200",
+    "timestamp": "2026-10-12T08:52:49"
+  },
+  "decoded_png_count": 49,
+  "job_log_sha256": "02dad534d4bcec7a57f4e11e5b03b02d3c2582c4f96e4d2e85ed6df5f30d7bec",
+  "summary": {
+    "coverage_rows": 18,
+    "high_rate_early_bursts_at_40ms": [
+      {
+        "rate": "96000",
+        "fft_size": "2048",
+        "ui_interval_ms": "40",
+        "ui_batch_samples": "3840",
+        "analysis_hop_samples": "512",
+        "window_ms": "21.3333",
+        "legacy_unobserved_prefix_samples": "1792",
+        "burst_position": "early",
+        "burst_start": "64",
+        "burst_samples": "384",
+        "input_energy": "30.8115",
+        "raw_last_peak_db_at_40ms": "-120",
+        "smoothed_peak_db_at_40ms": "-24.0521",
+        "display_peak_db_at_40ms": "-24.0521",
+        "fft_windows_at_40ms": "7",
+        "extra_observation_samples": "1536",
+        "bounded_display_peak_db": "-24.0521",
+        "fifo_dropped_samples": "0"
+      },
+      {
+        "rate": "96000",
+        "fft_size": "4096",
+        "ui_interval_ms": "40",
+        "ui_batch_samples": "3840",
+        "analysis_hop_samples": "1024",
+        "window_ms": "42.6667",
+        "legacy_unobserved_prefix_samples": "0",
+        "burst_position": "early",
+        "burst_start": "64",
+        "burst_samples": "384",
+        "input_energy": "30.8115",
+        "raw_last_peak_db_at_40ms": "-25.6912",
+        "smoothed_peak_db_at_40ms": "-27.4693",
+        "display_peak_db_at_40ms": "-27.4693",
+        "fft_windows_at_40ms": "3",
+        "extra_observation_samples": "3072",
+        "bounded_display_peak_db": "-27.4693",
+        "fifo_dropped_samples": "0"
+      },
+      {
+        "rate": "96000",
+        "fft_size": "8192",
+        "ui_interval_ms": "40",
+        "ui_batch_samples": "3840",
+        "analysis_hop_samples": "2048",
+        "window_ms": "85.3333",
+        "legacy_unobserved_prefix_samples": "0",
+        "burst_position": "early",
+        "burst_start": "64",
+        "burst_samples": "384",
+        "input_energy": "30.8115",
+        "raw_last_peak_db_at_40ms": "-36.3782",
+        "smoothed_peak_db_at_40ms": "-39.7849",
+        "display_peak_db_at_40ms": "-39.7849",
+        "fft_windows_at_40ms": "1",
+        "extra_observation_samples": "6144",
+        "bounded_display_peak_db": "-31.9961",
+        "fifo_dropped_samples": "0"
+      },
+      {
+        "rate": "192000",
+        "fft_size": "2048",
+        "ui_interval_ms": "40",
+        "ui_batch_samples": "7680",
+        "analysis_hop_samples": "512",
+        "window_ms": "10.6667",
+        "legacy_unobserved_prefix_samples": "5632",
+        "burst_position": "early",
+        "burst_start": "64",
+        "burst_samples": "384",
+        "input_energy": "30.8122",
+        "raw_last_peak_db_at_40ms": "-120",
+        "smoothed_peak_db_at_40ms": "-26.851",
+        "display_peak_db_at_40ms": "-26.851",
+        "fft_windows_at_40ms": "15",
+        "extra_observation_samples": "1536",
+        "bounded_display_peak_db": "-26.851",
+        "fifo_dropped_samples": "0"
+      },
+      {
+        "rate": "192000",
+        "fft_size": "4096",
+        "ui_interval_ms": "40",
+        "ui_batch_samples": "7680",
+        "analysis_hop_samples": "1024",
+        "window_ms": "21.3333",
+        "legacy_unobserved_prefix_samples": "3584",
+        "burst_position": "early",
+        "burst_start": "64",
+        "burst_samples": "384",
+        "input_energy": "30.8122",
+        "raw_last_peak_db_at_40ms": "-120",
+        "smoothed_peak_db_at_40ms": "-29.984",
+        "display_peak_db_at_40ms": "-29.984",
+        "fft_windows_at_40ms": "7",
+        "extra_observation_samples": "3072",
+        "bounded_display_peak_db": "-29.984",
+        "fifo_dropped_samples": "0"
+      },
+      {
+        "rate": "192000",
+        "fft_size": "8192",
+        "ui_interval_ms": "40",
+        "ui_batch_samples": "7680",
+        "analysis_hop_samples": "2048",
+        "window_ms": "42.6667",
+        "legacy_unobserved_prefix_samples": "0",
+        "burst_position": "early",
+        "burst_start": "64",
+        "burst_samples": "384",
+        "input_energy": "30.8122",
+        "raw_last_peak_db_at_40ms": "-32.8848",
+        "smoothed_peak_db_at_40ms": "-33.5502",
+        "display_peak_db_at_40ms": "-33.5502",
+        "fft_windows_at_40ms": "3",
+        "extra_observation_samples": "6144",
+        "bounded_display_peak_db": "-33.5502",
+        "fifo_dropped_samples": "0"
+      }
+    ],
+    "partition_rows": 90,
+    "partition_max_errors": {
+      "max_raw_error_db": 0.0,
+      "max_envelope_error_db": 0.0,
+      "max_pixel_error_db": 0.0
+    },
+    "partition_display_range_db": [
+      -36.845,
+      -20.0298
+    ],
+    "audio_invariance_rows": 9,
+    "all_audio_bit_identical": true,
+    "host_latency_by_rate": {
+      "48000": "42",
+      "96000": "42",
+      "192000": "42"
+    },
+    "callback_rows": 36,
+    "audio_allocations": 0,
+    "callback_overruns_total": 0
+  }
+}

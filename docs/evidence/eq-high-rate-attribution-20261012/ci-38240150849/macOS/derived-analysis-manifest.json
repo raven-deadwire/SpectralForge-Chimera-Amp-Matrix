@@ -1,0 +1,24 @@
+{
+  "source_commit": "ddb0880bd61a4c794236783b869767b96208bf41",
+  "run_id": 38240150849,
+  "derived_analysis": true,
+  "performance_acceptance": "NOT_ASSESSED",
+  "files": [
+    {
+      "source_path": "attribution-audit.json",
+      "path": "attribution-audit.json.gz",
+      "raw_bytes": 1155755,
+      "raw_sha256": "77a02878ccab566a61dd567ddb5f8b98bcb586abfb7b1d66229d3154cbbe1556",
+      "stored_sha256": "6517b6d5a712051231e1802d91677969b43f21e3756e747c3767de284e73daa9",
+      "compression": "gzip; mtime=0"
+    },
+    {
+      "source_path": "attribution-supplement.json",
+      "path": "attribution-supplement.json.gz",
+      "raw_bytes": 5224759,
+      "raw_sha256": "aa06fa7cc1659e50f0af6d408ef5f57a84ddbc86d1efb6554d57e367d3148d23",
+      "stored_sha256": "a1525a85eda691ce296f665b0102e95c3f3a798d5c8ac7a3d4b4a08c38b9c3c8",
+      "compression": "gzip; mtime=0"
+    }
+  ]
+}

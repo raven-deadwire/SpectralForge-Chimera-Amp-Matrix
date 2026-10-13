@@ -1,0 +1,45 @@
+[0/2] Re-checking globbed directories...
+[1/9] Building CXX object CMakeFiles/ChimeraEQSnapshotFreezeTests.dir/workspace/scratch/11e0fb768feb/JUCE-eq/modules/juce_events/juce_events.cpp.o
+<command-line>: warning: "JUCE_STANDALONE_APPLICATION" redefined
+<command-line>: note: this is the location of the previous definition
+[2/9] Building CXX object CMakeFiles/ChimeraEQSnapshotFreezeTests.dir/workspace/scratch/11e0fb768feb/JUCE-eq/modules/juce_audio_basics/juce_audio_basics.cpp.o
+<command-line>: warning: "JUCE_STANDALONE_APPLICATION" redefined
+<command-line>: note: this is the location of the previous definition
+[3/9] Building CXX object CMakeFiles/ChimeraEQSnapshotFreezeTests.dir/workspace/scratch/11e0fb768feb/JUCE-eq/modules/juce_audio_devices/juce_audio_devices.cpp.o
+<command-line>: warning: "JUCE_STANDALONE_APPLICATION" redefined
+<command-line>: note: this is the location of the previous definition
+In file included from /workspace/scratch/4d5a68945722/toolchain/sysroot/usr/include/alsa/asoundlib.h:56,
+                 from /workspace/scratch/11e0fb768feb/JUCE-eq/modules/juce_audio_devices/juce_audio_devices.cpp:174:
+/workspace/scratch/4d5a68945722/toolchain/sysroot/usr/include/alsa/pcm.h:641:26: warning: ISO C++ forbids zero-size array ‘pos’ [-Wpedantic]
+  641 |         unsigned int pos[0];    /**< channel position array */
+      |                          ^
+/workspace/scratch/4d5a68945722/toolchain/sysroot/usr/include/alsa/pcm.h:647:25: warning: invalid use of ‘struct snd_pcm_chmap’ with a zero-size array in ‘struct snd_pcm_chmap_query’ [-Wpedantic]
+  647 |         snd_pcm_chmap_t map;            /**< available channel map */
+      |                         ^~~
+/workspace/scratch/4d5a68945722/toolchain/sysroot/usr/include/alsa/pcm.h:641:22: note: array member ‘unsigned int snd_pcm_chmap::pos [0]’ declared here
+  641 |         unsigned int pos[0];    /**< channel position array */
+      |                      ^~~
+In file included from /workspace/scratch/4d5a68945722/toolchain/sysroot/usr/include/alsa/asoundlib.h:58:
+/workspace/scratch/4d5a68945722/toolchain/sysroot/usr/include/alsa/ump.h:94:72: warning: ‘int snd_ump_endpoint_info(snd_ump_t*, snd_ump_endpoint_info_t*)’ hides constructor for ‘struct snd_ump_endpoint_info’ [-Wshadow]
+   94 | int snd_ump_endpoint_info(snd_ump_t *ump, snd_ump_endpoint_info_t *info);
+      |                                                                        ^
+/workspace/scratch/4d5a68945722/toolchain/sysroot/usr/include/alsa/ump.h:135:66: warning: ‘int snd_ump_block_info(snd_ump_t*, snd_ump_block_info_t*)’ hides constructor for ‘struct snd_ump_block_info’ [-Wshadow]
+  135 | int snd_ump_block_info(snd_ump_t *ump, snd_ump_block_info_t *info);
+      |                                                                  ^
+[4/9] Building CXX object CMakeFiles/ChimeraEQSnapshotFreezeTests.dir/workspace/scratch/11e0fb768feb/JUCE-eq/modules/juce_audio_formats/juce_audio_formats.cpp.o
+<command-line>: warning: "JUCE_STANDALONE_APPLICATION" redefined
+<command-line>: note: this is the location of the previous definition
+[5/9] Linking CXX executable ChimeraGraphicalEQEditingTests_artefacts/Release/ChimeraGraphicalEQEditingTests
+FAILED: [code=1] ChimeraGraphicalEQEditingTests_artefacts/Release/ChimeraGraphicalEQEditingTests 
+: && /usr/bin/c++ -O3 -DNDEBUG -Wl,--dependency-file=CMakeFiles/ChimeraGraphicalEQEditingTests.dir/link.d CMakeFiles/ChimeraGraphicalEQEditingTests.dir/Tests/GraphicalEQEditingTests.cpp.o CMakeFiles/ChimeraGraphicalEQEditingTests.dir/workspace/scratch/11e0fb768feb/JUCE-eq/modules/juce_cryptography/juce_cryptography.cpp.o CMakeFiles/ChimeraGraphicalEQEditingTests.dir/workspace/scratch/11e0fb768feb/JUCE-eq/modules/juce_core/juce_core.cpp.o CMakeFiles/ChimeraGraphicalEQEditingTests.dir/workspace/scratch/11e0fb768feb/JUCE-eq/modules/juce_core/juce_core_CompilationTime.cpp.o CMakeFiles/ChimeraGraphicalEQEditingTests.dir/workspace/scratch/11e0fb768feb/JUCE-eq/modules/juce_audio_utils/juce_audio_utils.cpp.o CMakeFiles/ChimeraGraphicalEQEditingTests.dir/workspace/scratch/11e0fb768feb/JUCE-eq/modules/juce_audio_processors/juce_audio_processors.cpp.o CMakeFiles/ChimeraGraphicalEQEditingTests.dir/workspace/scratch/11e0fb768feb/JUCE-eq/modules/juce_audio_processors/juce_audio_processors_ara.cpp.o CMakeFiles/ChimeraGraphicalEQEditingTests.dir/workspace/scratch/11e0fb768feb/JUCE-eq/modules/juce_audio_processors/juce_audio_processors_lv2_libs.cpp.o CMakeFiles/ChimeraGraphicalEQEditingTests.dir/workspace/scratch/11e0fb768feb/JUCE-eq/modules/juce_gui_extra/juce_gui_extra.cpp.o CMakeFiles/ChimeraGraphicalEQEditingTests.dir/workspace/scratch/11e0fb768feb/JUCE-eq/modules/juce_gui_basics/juce_gui_basics.cpp.o CMakeFiles/ChimeraGraphicalEQEditingTests.dir/workspace/scratch/11e0fb768feb/JUCE-eq/modules/juce_graphics/juce_graphics.cpp.o CMakeFiles/ChimeraGraphicalEQEditingTests.dir/workspace/scratch/11e0fb768feb/JUCE-eq/modules/juce_graphics/juce_graphics_Harfbuzz.cpp.o CMakeFiles/ChimeraGraphicalEQEditingTests.dir/workspace/scratch/11e0fb768feb/JUCE-eq/modules/juce_graphics/juce_graphics_Sheenbidi.c.o CMakeFiles/ChimeraGraphicalEQEditingTests.dir/workspace/scratch/11e0fb768feb/JUCE-eq/modules/juce_events/juce_events.cpp.o CMakeFiles/ChimeraGraphicalEQEditingTests.dir/workspace/scratch/11e0fb768feb/JUCE-eq/modules/juce_data_structures/juce_data_structures.cpp.o CMakeFiles/ChimeraGraphicalEQEditingTests.dir/workspace/scratch/11e0fb768feb/JUCE-eq/modules/juce_audio_basics/juce_audio_basics.cpp.o CMakeFiles/ChimeraGraphicalEQEditingTests.dir/workspace/scratch/11e0fb768feb/JUCE-eq/modules/juce_audio_formats/juce_audio_formats.cpp.o CMakeFiles/ChimeraGraphicalEQEditingTests.dir/workspace/scratch/11e0fb768feb/JUCE-eq/modules/juce_audio_devices/juce_audio_devices.cpp.o CMakeFiles/ChimeraGraphicalEQEditingTests.dir/workspace/scratch/11e0fb768feb/JUCE-eq/modules/juce_dsp/juce_dsp.cpp.o -o ChimeraGraphicalEQEditingTests_artefacts/Release/ChimeraGraphicalEQEditingTests  "ChimeraAmpMatrix_artefacts/Release/libSpectralForge Chimera_SharedCode.a"  libChimeraArtwork.a  libChimeraManual.a  /workspace/scratch/4d5a68945722/toolchain/sysroot/usr/lib/x86_64-linux-gnu/libasound.so  /workspace/scratch/4d5a68945722/toolchain/sysroot/usr/lib/x86_64-linux-gnu/libfontconfig.so  /workspace/scratch/4d5a68945722/toolchain/sysroot/usr/lib/x86_64-linux-gnu/libfreetype.so  -lrt  -ldl  -lpthread  /usr/lib/x86_64-linux-gnu/libcurl.so  /usr/lib/x86_64-linux-gnu/libcurl.so  libChimeraIRs.a && :
+/usr/bin/ld: libChimeraArtwork.a(BinaryData1.cpp.o): in function `ChimeraArtworkData::getNamedResource(char const*, int&)':
+BinaryData1.cpp:(.text+0x158c): undefined reference to `ChimeraArtworkData::aniflheimr_png'
+/usr/bin/ld: BinaryData1.cpp:(.text+0x15e1): undefined reference to `ChimeraArtworkData::headshell24_png'
+collect2: error: ld returned 1 exit status
+[6/9] Building CXX object CMakeFiles/ChimeraEQSnapshotFreezeTests.dir/workspace/scratch/11e0fb768feb/JUCE-eq/modules/juce_dsp/juce_dsp.cpp.o
+<command-line>: warning: "JUCE_STANDALONE_APPLICATION" redefined
+<command-line>: note: this is the location of the previous definition
+[7/9] Building CXX object CMakeFiles/ChimeraEQSnapshotFreezeTests.dir/workspace/scratch/11e0fb768feb/JUCE-eq/modules/juce_gui_basics/juce_gui_basics.cpp.o
+<command-line>: warning: "JUCE_STANDALONE_APPLICATION" redefined
+<command-line>: note: this is the location of the previous definition
+ninja: build stopped: subcommand failed.

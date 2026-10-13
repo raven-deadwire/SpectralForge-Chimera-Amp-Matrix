@@ -12,6 +12,9 @@
 #include "AmpNativeParameters.h"
 #include "PostNativeParameters.h"
 #include "GraphicalEQ.h"
+#include "BetaLifecycleRuntime.h"
+#include "EQEditState.h"
+#include "EQCaptureBoundary.h"
 
 class ChimeraProcessor : public juce::AudioProcessor {
 public:
@@ -21,6 +24,10 @@ public:
     std::atomic<int> routingGateObserved{-1};
     std::atomic<uint64_t> routingBlocks{0};
 #endif
+    spectralforge::beta::Evaluation betaStatus() const noexcept { return betaLifecycle.observe(betaClock()); }
+    bool betaProcessingPermitted() const noexcept { return betaLifecycle.processingPermitted(); }
+    juce::String betaNotice() const;
+    void recheckBetaClock() noexcept { (void)betaLifecycle.recoverFromClockCorrection(betaClock()); }
     void prepareToPlay(double,int) override;
     void releaseResources() override;
     // Diagnostic/test query. Host audio processing must already be stopped.
@@ -84,6 +91,9 @@ public:
     float inputMeter() const { return inputPeak.load(); }
     float outputMeter() const { return outputPeak.load(); }
     spectralforge::GraphicalEQ& graphicalEQ(int instance) noexcept {return instance==0 ? toneEQ : finalEQ;}
+    spectralforge::CommonDynamics& commonDynamics() noexcept {return dynamics;}
+    spectralforge::EQEditState& eqEditing() noexcept {return eqEditState;}
+    spectralforge::EQCaptureBoundary& eqCaptureBoundary() noexcept {return eqCaptureBoundaryState;}
     float cpuLoad() const { return cpuAverage.load(); }
     float cpuPeakLoad() const { return cpuPeak.load(); }
     float lowCompMeter() const {return lowCompGain.load();}
@@ -120,6 +130,11 @@ public:
     void activateNativeAmp(int lane);
     void activateNativePost(int section);
 private:
+    friend struct ChimeraBetaTestAccess;
+    ChimeraProcessor(const spectralforge::beta::Metadata&, spectralforge::beta::Clock);
+    const spectralforge::beta::Clock betaClock;
+    spectralforge::beta::InstanceLatch betaLifecycle;
+    juce::SmoothedValue<float> betaOutputGain;
     spectralforge::AmpSelectionParameterCache ampSelection;
     spectralforge::AmpNativeParameterCache nativeAmps;
     spectralforge::PostNativeParameterCache nativePost;
@@ -148,6 +163,8 @@ private:
     std::atomic<uint64_t> headRecallRevision{0};
     std::atomic<bool> resetPending{false};
     juce::AudioProcessorValueTreeState state{*this,nullptr,"PARAMS",layout()};
+    spectralforge::EQEditState eqEditState{state};
+    spectralforge::EQCaptureBoundary eqCaptureBoundaryState;
     std::array<std::array<std::atomic<float>*,10>,3> cabPanelParameters{};
     spectralforge::OriginalCabParameters originalCabParameters;
     void syncOriginalCabRequests();
@@ -156,6 +173,7 @@ private:
     spectralforge::PreFXChain preFX;
     spectralforge::PostFXChain postFX;
     spectralforge::GraphicalEQ toneEQ,finalEQ;
+    spectralforge::CommonDynamics dynamics;
     spectralforge::Tuner tuner;
     spectralforge::PerformanceUtilities utilities;
     std::array<std::atomic<int>,128> midiMap;

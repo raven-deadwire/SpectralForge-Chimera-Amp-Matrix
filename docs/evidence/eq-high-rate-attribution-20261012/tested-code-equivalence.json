@@ -1,0 +1,25 @@
+{
+  "schema": "eq_final_evidence_only_equivalence_v1",
+  "tested_source_commit": "72e361ba91ea2c6b8d830921a71275fa25cba493",
+  "tested_source_tree": "301738e7fb5386ed0912a779caf447f2653771b4",
+  "verification_kind": "worktree and canonical Git-byte identity; not a new test execution",
+  "unchanged_scopes": [
+    "Source",
+    "Tests",
+    "Tools",
+    "CMakeLists.txt",
+    "cmake",
+    ".github"
+  ],
+  "unchanged_tracked_files_checked": 310,
+  "allowed_changes": [
+    "docs/EQ_HIGH_RATE_ATTRIBUTION_20261012.md",
+    "docs/evidence/eq-high-rate-attribution-20261012/**",
+    "one appended .gitattributes receipt -text line"
+  ],
+  "gitattributes_change": "Append /docs/evidence/eq-high-rate-attribution-20261012/** -text; tested inputs/runtime unchanged",
+  "final_evidence_commit_tests": "NOT_RUN: documentation and byte-preservation metadata only; original run/source identities retained",
+  "functional_ci_run": 38243938568,
+  "physical_daw_audio_interface_performance": "NOT_ASSESSED",
+  "october_23_final_installer_acceptance": "WITHHELD"
+}

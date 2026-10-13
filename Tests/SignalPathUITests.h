@@ -28,7 +28,7 @@ inline void topology(ChimeraProcessor& p) {
         int amps=0,cabs=0;for(const auto& n:s.nodes){amps+=n.id.startsWith("amp.context");cabs+=n.target==Target::cab;}
         require(amps==mode+1&&cabs==mode+1,"Path lane count differs from DSP");
         require(edge(s,"post.section0","post.section1")&&edge(s,"post.section4","post.section5")&&edge(s,"post.section5","utilities")&&edge(s,"utilities","final.eq")&&edge(s,"final.eq","output"),"POST / Final EQ order differs from DSP");
-        require(edge(s,gate?"gate":"merge","tone.eq")&&edge(s,"tone.eq","post.section0")&&!edge(s,"merge","post.section0")&&!edge(s,"utilities","output"),"Tone / Final EQ must occupy the actual global DSP positions");
+        require(edge(s,gate?"gate":"merge","tone.eq")&&edge(s,"tone.eq","common.comp")&&edge(s,"common.comp","post.section0")&&edge(s,"output","output.limiter")&&!edge(s,"merge","post.section0")&&!edge(s,"utilities","output"),"Tone / common dynamics / Final EQ and last limiter must occupy the actual global DSP positions");
         require(s.find("tone.eq")->target==Target::toneEQ && s.find("final.eq")->target==Target::finalEQ,"EQ editor target mismatch");
         for(size_t i=0;i<s.nodes.size();++i)for(size_t j=i+1;j<s.nodes.size();++j)require(!s.nodes[i].bounds.intersects(s.nodes[j].bounds),"Expanded path blocks overlap");
         if(mode==2){require(edge(s,"low.comp","low.di")&&edge(s,"low.comp","amp.context3")&&edge(s,"amp.context3","cab.context3")&&edge(s,"cab.context3","low.blend")&&edge(s,"low.di","low.blend")&&edge(s,"low.blend","level.context3"),"Matrix LOW branch/blend order differs from DSP");require(!edge(s,"split","amp.context3"),"Wet PRE falsely feeds LOW");}
@@ -215,10 +215,10 @@ inline void compactDestination(juce::Component& editor,SignalPathView& strip,con
         const bool tone=id=="tone.eq";
         auto* selected=find<spectralforge::GraphicalEQPanel>(editor,tone?"toneEQ_panel":"finalEQ_panel");
         auto* other=find<spectralforge::GraphicalEQPanel>(editor,tone?"finalEQ_panel":"toneEQ_panel");
-        require(selected && other && selected->isShowing() && selected->isNavigationSelected() && !other->isNavigationSelected(),
+        require(selected && other && selected->isShowing() && !other->isShowing() && selected->isNavigationSelected() && !other->isNavigationSelected(),
                 "Compact EQ action did not open and select the requested bank");
         auto* frequency=find<juce::Slider>(*selected,spectralforge::eqID(tone?0:1,selected->selectedBand(),"frequency"));
-        require(frequency && frequency->hasKeyboardFocus(true),"Compact EQ action did not focus its frequency control");
+        require(selected->selectedBand()<0 ? selected->hasKeyboardFocus(false) : frequency && frequency->hasKeyboardFocus(true),"Compact EQ action did not focus its existing node or empty workspace");
     }
     globalUtilities(editor,strip);
 }
@@ -416,10 +416,11 @@ inline void run(const juce::File& folder) {
                 const bool tone=node.target==Target::toneEQ;
                 auto* selected=find<spectralforge::GraphicalEQPanel>(*editor,tone?"toneEQ_panel":"finalEQ_panel");
                 auto* other=find<spectralforge::GraphicalEQPanel>(*editor,tone?"finalEQ_panel":"toneEQ_panel");
-                require(selected && other && selected->isShowing() && selected->isNavigationSelected() && !other->isNavigationSelected(),"Expanded EQ click did not open/highlight the requested bank");
+                require(selected && other && selected->isShowing() && !other->isShowing() && selected->isNavigationSelected() && !other->isNavigationSelected(),"Expanded EQ click did not open/highlight the requested bank");
                 auto* frequency=find<juce::Slider>(*selected,spectralforge::eqID(tone?0:1,selected->selectedBand(),"frequency"));
-                require(frequency && frequency->hasKeyboardFocus(true),"EQ navigation did not focus the requested bank's frequency control");
+                require(selected->selectedBand()<0 ? selected->hasKeyboardFocus(false) : frequency && frequency->hasKeyboardFocus(true),"EQ navigation did not focus its existing node or empty workspace");
             }
+            if(node.target==Target::dynamics)require(find(*editor,"commonDynamics.panel")->isShowing(),"Detailed compressor/limiter navigation did not open dynamics");
             if(node.target==Target::amp && node.lane>=0)require(dialog("ampNativePanel"+juce::String(node.lane+1)),"AMP click did not open the existing lane editor");
             if(node.target==Target::pre || node.target==Target::post || node.target==Target::rigs || node.target==Target::amp || node.target==Target::cab || node.target==Target::low) {
                 const auto stage=node.target==Target::pre?"pre":node.target==Target::post?"post":node.target==Target::cab?"cab":"head";

@@ -1,0 +1,47 @@
+{
+  "scratch": "/workspace/scratch/af7c830474b5/eq-eol-review-zr6qiw0d",
+  "source_commit": "ddb0880bd61a4c794236783b869767b96208bf41",
+  "canonical_reference_sha256": "ad0e9f7dc7fe46579b24707291bf63a5ee09363de701b1606c5cedf98f970f26",
+  "canonical_history_sha256": "bb47058bd2798bea744da7d61754aefb5b7dbd5d8488086c313a5ae92897bc2e",
+  "modes": [
+    {
+      "core.autocrlf": "false",
+      "reference_raw_sha256": "ad0e9f7dc7fe46579b24707291bf63a5ee09363de701b1606c5cedf98f970f26",
+      "reference_raw_matches_expected": true,
+      "history_raw_sha256": "bb47058bd2798bea744da7d61754aefb5b7dbd5d8488086c313a5ae92897bc2e",
+      "history_raw_matches_expected": true,
+      "changed_files": 0,
+      "eol_only_changes": 0,
+      "blind_lf_normalized_history_sha256": "299f3a4c9cfb2d0d0496948bdbdc43a85d126978d04acec09eb43d487b289218",
+      "blind_lf_matches_canonical": false
+    },
+    {
+      "core.autocrlf": "true",
+      "reference_raw_sha256": "3c2e4e0e97e8eba18bfbfc07017b6d969d76f6a4e3e6f2da56a4cff5e9f1477d",
+      "reference_raw_matches_expected": false,
+      "history_raw_sha256": "23e3e5958db177c1986b80c13213f382e4b15457dccde9f432b513640c8aa6d5",
+      "history_raw_matches_expected": false,
+      "changed_files": 69,
+      "eol_only_changes": 69,
+      "blind_lf_normalized_history_sha256": "299f3a4c9cfb2d0d0496948bdbdc43a85d126978d04acec09eb43d487b289218",
+      "blind_lf_matches_canonical": false
+    },
+    {
+      "core.autocrlf": "input",
+      "reference_raw_sha256": "ad0e9f7dc7fe46579b24707291bf63a5ee09363de701b1606c5cedf98f970f26",
+      "reference_raw_matches_expected": true,
+      "history_raw_sha256": "bb47058bd2798bea744da7d61754aefb5b7dbd5d8488086c313a5ae92897bc2e",
+      "history_raw_matches_expected": true,
+      "changed_files": 0,
+      "eol_only_changes": 0,
+      "blind_lf_normalized_history_sha256": "299f3a4c9cfb2d0d0496948bdbdc43a85d126978d04acec09eb43d487b289218",
+      "blind_lf_matches_canonical": false
+    }
+  ],
+  "scoped_minus_text": {
+    "core.autocrlf": "true",
+    "immutable_files": 85,
+    "changed_immutable_files": [],
+    "attributes": "/Tests/reference/EQSpectrumAnalyzerBeb72f.h -text\n/docs/evidence/eq-transient-fix-20261012/** -text\n"
+  }
+}

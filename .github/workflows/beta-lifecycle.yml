@@ -1,0 +1,133 @@
+name: Beta lifecycle and state preservation
+on:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: beta-lifecycle-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+jobs:
+  historical-fixture:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          path: candidate
+      - uses: actions/checkout@v5
+        with:
+          ref: 6033236cb81820a43679cbbd34be020804f9658d
+          path: released-beta2
+      - run: sudo apt-get update && sudo apt-get install -y libasound2-dev libcurl4-openssl-dev libfreetype6-dev libfontconfig1-dev libx11-dev libxcomposite-dev libxcursor-dev libxext-dev libxinerama-dev libxrandr-dev libxrender-dev libgl1-mesa-dev xvfb openbox x11-utils
+      - name: Build fixture writer against immutable beta.2 product source
+        shell: bash
+        run: |
+          test "$(git -C released-beta2 rev-parse HEAD)" = 6033236cb81820a43679cbbd34be020804f9658d
+          cp candidate/Tests/WriteBeta2State.cpp released-beta2/Tests/WriteBeta2State.cpp
+          cat >> released-beta2/CMakeLists.txt <<'CMAKE'
+          juce_add_console_app(ChimeraBeta2StateWriter PRODUCT_NAME "Chimera Beta2 State Writer")
+          target_sources(ChimeraBeta2StateWriter PRIVATE Tests/WriteBeta2State.cpp)
+          target_include_directories(ChimeraBeta2StateWriter PRIVATE Source)
+          target_link_libraries(ChimeraBeta2StateWriter PRIVATE ChimeraAmpMatrix ChimeraArtwork ChimeraManual juce::juce_cryptography juce::juce_audio_utils juce::juce_dsp)
+          CMAKE
+          cmake -S released-beta2 -B build-history -DCMAKE_BUILD_TYPE=Release
+          cmake --build build-history --config Release --target ChimeraBeta2StateWriter --parallel 2
+          python candidate/Tools/run_linux_ui_tests.py -- "$PWD/build-history/ChimeraBeta2StateWriter_artefacts/Release/ChimeraBeta2StateWriter" "$PWD/historical-fixture"
+      - uses: actions/upload-artifact@v6
+        with:
+          name: Beta2-historical-state-${{ github.event.pull_request.head.sha || github.sha }}
+          path: historical-fixture/
+          if-no-files-found: error
+  runtime:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - name: Generator, publisher and prior release compatibility
+        shell: bash
+        run: |
+          python Tools/test_beta_lifecycle.py
+          python Tools/test_publish_release.py
+          python Tools/test_weekly_publication.py
+          python Tools/test_publication_evidence.py
+          python Tests/test_packaging_version.py
+      - if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y libasound2-dev libcurl4-openssl-dev libfreetype6-dev libfontconfig1-dev libx11-dev libxcomposite-dev libxcursor-dev libxext-dev libxinerama-dev libxrandr-dev libxrender-dev libgl1-mesa-dev xvfb openbox x11-utils
+      - name: Configure marked qualification build (no approved deadline)
+        run: cmake -S . -B build-beta -DCMAKE_BUILD_TYPE=Release -DCHIMERA_UI_PROBES=ON -DCHIMERA_BETA_QUALIFICATION_ONLY=ON
+      - name: Build real processor, serializer, editor and updater regressions
+        run: cmake --build build-beta --config Release --target ChimeraBetaLifecycleTests ChimeraBetaLifecycleProcessorTests ChimeraUITests ChimeraReleaseTests ChimeraGateProcessorTests --parallel 2
+      - if: runner.os != 'Linux'
+        name: Runtime and state tests
+        run: ctest --test-dir build-beta -C Release -R '^(ChimeraBetaLifecycle.*Tests|ChimeraNativeStateTests|ChimeraReleaseTests|ChimeraGateProcessorTests)$' --output-on-failure --no-tests=error --output-junit beta-results.xml
+      - if: runner.os == 'Linux'
+        name: Runtime and state tests with supervised display
+        run: python Tools/run_linux_ui_tests.py -- ctest --test-dir build-beta -C Release -R '^(ChimeraBetaLifecycle.*Tests|ChimeraNativeStateTests|ChimeraReleaseTests|ChimeraGateProcessorTests)$' --output-on-failure --no-tests=error --output-junit beta-results.xml
+      - if: runner.os == 'macOS'
+        name: Repeat macOS native state restoration without retrying failures
+        run: ctest --test-dir build-beta -C Release -R '^ChimeraNativeStateTests$' --repeat until-fail:5 --output-on-failure --no-tests=error --output-junit macos-state-repeat.xml
+      - if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: Beta-lifecycle-${{ runner.os }}-${{ github.event.pull_request.head.sha || github.sha }}
+          path: |
+            build-beta/*results.xml
+            build-beta/macos-state-repeat.xml
+            build-beta/ChimeraBetaLifecycleProcessorTests_artefacts/Release/
+            build-beta/beta-lifecycle-evidence/
+            build-beta/native-state/
+            build-beta/chimera-build-version.json
+            build-beta/chimera-beta-lifecycle.json
+            build-beta/Testing/Temporary/LastTest.log
+          if-no-files-found: error
+
+  historical-restore:
+    needs: [historical-fixture, runtime]
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/download-artifact@v5
+        with:
+          name: Beta2-historical-state-${{ github.event.pull_request.head.sha || github.sha }}
+          path: historical-fixture
+      - uses: actions/download-artifact@v5
+        with:
+          name: Beta-lifecycle-${{ runner.os }}-${{ github.event.pull_request.head.sha || github.sha }}
+          path: runtime
+      - if: runner.os == 'Linux'
+        # The development package names resolve the appropriate runtime ABI on
+        # both pre-t64 and t64 Ubuntu runners (libasound2 is virtual on 24.04).
+        run: sudo apt-get update && sudo apt-get install -y libasound2-dev libcurl4-openssl-dev libfreetype6 libfontconfig1 libx11-6 libxcomposite1 libxcursor1 libxext6 libxinerama1 libxrandr2 libxrender1 libgl1 xvfb openbox x11-utils
+      - name: Restore actual beta.2 source fixture before, at and after expiry
+        shell: bash
+        run: |
+          binary="$PWD/runtime/ChimeraBetaLifecycleProcessorTests_artefacts/Release/ChimeraBetaLifecycleProcessorTests"
+          if [ "${{ runner.os }}" = Windows ]; then binary="$binary.exe"; else chmod +x "$binary"; fi
+          if [ "${{ runner.os }}" = Linux ]; then
+            python Tools/run_linux_ui_tests.py -- "$binary" --historical "$PWD/historical-fixture" | tee historical-restore.log
+          else
+            "$binary" --historical "$PWD/historical-fixture" | tee historical-restore.log
+          fi
+      - if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: Beta-historical-restore-${{ runner.os }}-${{ github.event.pull_request.head.sha || github.sha }}
+          path: historical-restore.log
+          if-no-files-found: error

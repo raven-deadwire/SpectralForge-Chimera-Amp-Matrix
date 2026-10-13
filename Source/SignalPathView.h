@@ -195,6 +195,7 @@ private:
                 case Target::rigs:case Target::amp:case Target::low:editingStage="head";break;
                 case Target::cab:editingStage="cab";break;
                 case Target::post:editingStage="post";break;
+                case Target::dynamics:editingStage=selected=="output.limiter"?"final.eq":"tone.eq";break;
                 default:break;
             }
         }

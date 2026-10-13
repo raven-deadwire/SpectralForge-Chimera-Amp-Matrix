@@ -74,6 +74,10 @@ public:
     juce::Result revealVerifiedInstaller() const;
     void cancel();
 private:
+    friend struct ReleaseSupportTestAccess;
+    using TextReader = juce::Result (*)(const juce::String&, int, juce::String&);
+    explicit ReleaseSupport(TextReader);
+    const TextReader injectedReader;
     enum class Job { none, check, download };
     void run() override;
     void performCheck();

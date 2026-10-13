@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="(empty)"
+	tests="1"
+	failures="0"
+	disabled="0"
+	skipped="0"
+	hostname=""
+	time="56"
+	timestamp="2026-10-12T14:27:13"
+	>
+	<testcase name="ChimeraGraphicalEQUITests" classname="ChimeraGraphicalEQUITests" time="56.434" status="run">
+		<properties/>
+		<system-out>Numeric 0:0 Hz=200 dB=3.5 Q=1.25
+Numeric 0:1 Hz=517 dB=3.5 Q=1.25
+Numeric 0:2 Hz=834 dB=3.5 Q=1.25
+Numeric 0:3 Hz=1151 dB=3.5 Q=1.25
+Numeric 0:4 Hz=1468 dB=3.5 Q=1.25
+Numeric 0:5 Hz=1785 dB=3.5 Q=1.25
+Numeric 0:6 Hz=2102 dB=3.5 Q=1.25
+Numeric 0:7 Hz=2419 dB=3.5 Q=1.25
+Numeric 0:8 Hz=2736 dB=3.5 Q=1.25
+Numeric 0:9 Hz=3053 dB=3.5 Q=1.25
+Numeric 0:10 Hz=3370 dB=3.5 Q=1.25
+Numeric 0:11 Hz=3687 dB=3.5 Q=1.25
+Numeric 1:0 Hz=200 dB=3.5 Q=1.25
+Numeric 1:1 Hz=517 dB=3.5 Q=1.25
+Numeric 1:2 Hz=834 dB=3.5 Q=1.25
+Numeric 1:3 Hz=1151 dB=3.5 Q=1.25
+Numeric 1:4 Hz=1468 dB=3.5 Q=1.25
+Numeric 1:5 Hz=1785 dB=3.5 Q=1.25
+Numeric 1:6 Hz=2102 dB=3.5 Q=1.25
+Numeric 1:7 Hz=2419 dB=3.5 Q=1.25
+Numeric 1:8 Hz=2736 dB=3.5 Q=1.25
+Numeric 1:9 Hz=3053 dB=3.5 Q=1.25
+Numeric 1:10 Hz=3370 dB=3.5 Q=1.25
+Numeric 1:11 Hz=3687 dB=3.5 Q=1.25
+NATIVE synthetic audio bank=0 FFT=2048 input=-20 output=-14 first_data_observed=59.85 ms paint_p50=2155.76 us
+NATIVE synthetic audio bank=0 FFT=4096 input=-20 output=-14 first_data_observed=112.47 ms paint_p50=...
+[This part of the test output was removed since it exceeds the threshold of 1024 bytes.]
+</system-out>
+	</testcase>
+</testsuite>

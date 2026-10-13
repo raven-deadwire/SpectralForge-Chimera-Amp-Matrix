@@ -12,6 +12,7 @@
 #include "EffectSelectionCatalog.h"
 #include "SignalPathView.h"
 #include "PrecisionTunerPanel.h"
+#include "CommonDynamicsPanel.h"
 
 class CabRoomOverview;
 
@@ -66,6 +67,7 @@ private:
     spectralforge::ui::Changed<int> lowMeterKey;
     std::array<spectralforge::ui::Changed<std::array<int,2>>,3> postMeterKeys;
     spectralforge::ui::Changed<juce::String> cpuText,transportText,gateText,pitchText;
+    juce::Label callbackLoad;
     void setupSlider(juce::Slider&,const juce::String&,const juce::String& suffix={});
     void loadIR(int);
     void openCabWorkspace(int,bool focusRequested=false);
@@ -117,10 +119,16 @@ private:
     std::unique_ptr<SA> a1,a2;
     std::array<juce::Slider,8> globalSliders;
     std::array<std::unique_ptr<SA>,8> globalAttachments;
+    int betaUiTicks{25};
     juce::TextButton gateOn{"GATE"},pitchOn{"TRANSPOSE"},tunerOn{"TUNER"},tunerMute{"AUTO MUTE"},info{"INFO"};
     std::array<std::unique_ptr<BA>,4> globalButtons;
     juce::TextButton compareA{"A"},compareB{"B"},copyAB{"COPY"},irLibraryButton{"IR LIBRARY"};
     std::array<std::unique_ptr<spectralforge::GraphicalEQPanel>,2> eqPanels;
+    juce::TextButton toneEQBank{"TONE EQ"},finalEQBank{"FINAL EQ"};
+    juce::TextButton dynamicsOpen{"DYNAMICS"};
+    std::unique_ptr<spectralforge::CommonDynamicsPanel> dynamicsPanel;
+    bool dynamicsViewOpen{};
+    int selectedEQBank{}; // Presentation only; never a host parameter or sound-state edit.
     std::unique_ptr<CabRoomOverview> cabRoom;
     std::unique_ptr<PrecisionTunerPanel> precisionTuner;
     juce::TextButton tunerOpen{"TUNER"};

@@ -1,0 +1,125 @@
+{
+  "scope": "Scratch-only source provenance/EOL validation; no build, performance, network or repository mutation",
+  "source_commit": "ddb0880bd61a4c794236783b869767b96208bf41",
+  "patch_sha256": "4a3852d8f41aad37786d2da050ac523588673d7625f13922c0d7862e89927d76",
+  "patch_applies_to_original": true,
+  "expected_reference_sha256_unchanged": "ad0e9f7dc7fe46579b24707291bf63a5ee09363de701b1606c5cedf98f970f26",
+  "expected_history_tree_sha256_unchanged": "bb47058bd2798bea744da7d61754aefb5b7dbd5d8488086c313a5ae92897bc2e",
+  "cases": [
+    {
+      "case": "normal_false",
+      "autocrlf": "false",
+      "eol": "lf",
+      "shallow_head": true,
+      "immutable_85_files_preserved_before_tamper": true,
+      "exit_code": 0,
+      "validation_errors": [],
+      "diagnostic_provenance_written": true,
+      "reference_git_sha256": "ad0e9f7dc7fe46579b24707291bf63a5ee09363de701b1606c5cedf98f970f26",
+      "reference_worktree_sha256": "ad0e9f7dc7fe46579b24707291bf63a5ee09363de701b1606c5cedf98f970f26",
+      "evidence_git_tree_sha256": "bb47058bd2798bea744da7d61754aefb5b7dbd5d8488086c313a5ae92897bc2e",
+      "evidence_worktree_tree_sha256": "bb47058bd2798bea744da7d61754aefb5b7dbd5d8488086c313a5ae92897bc2e",
+      "status": "PASS"
+    },
+    {
+      "case": "normal_true",
+      "autocrlf": "true",
+      "eol": "crlf",
+      "shallow_head": true,
+      "immutable_85_files_preserved_before_tamper": true,
+      "exit_code": 0,
+      "validation_errors": [],
+      "diagnostic_provenance_written": true,
+      "reference_git_sha256": "ad0e9f7dc7fe46579b24707291bf63a5ee09363de701b1606c5cedf98f970f26",
+      "reference_worktree_sha256": "ad0e9f7dc7fe46579b24707291bf63a5ee09363de701b1606c5cedf98f970f26",
+      "evidence_git_tree_sha256": "bb47058bd2798bea744da7d61754aefb5b7dbd5d8488086c313a5ae92897bc2e",
+      "evidence_worktree_tree_sha256": "bb47058bd2798bea744da7d61754aefb5b7dbd5d8488086c313a5ae92897bc2e",
+      "status": "PASS"
+    },
+    {
+      "case": "normal_input",
+      "autocrlf": "input",
+      "eol": null,
+      "shallow_head": true,
+      "immutable_85_files_preserved_before_tamper": true,
+      "exit_code": 0,
+      "validation_errors": [],
+      "diagnostic_provenance_written": true,
+      "reference_git_sha256": "ad0e9f7dc7fe46579b24707291bf63a5ee09363de701b1606c5cedf98f970f26",
+      "reference_worktree_sha256": "ad0e9f7dc7fe46579b24707291bf63a5ee09363de701b1606c5cedf98f970f26",
+      "evidence_git_tree_sha256": "bb47058bd2798bea744da7d61754aefb5b7dbd5d8488086c313a5ae92897bc2e",
+      "evidence_worktree_tree_sha256": "bb47058bd2798bea744da7d61754aefb5b7dbd5d8488086c313a5ae92897bc2e",
+      "status": "PASS"
+    },
+    {
+      "case": "worktree_reference_tamper",
+      "autocrlf": "false",
+      "eol": null,
+      "shallow_head": true,
+      "immutable_85_files_preserved_before_tamper": true,
+      "exit_code": 1,
+      "validation_errors": [
+        "REFERENCE_WORKTREE_DIFFERS_FROM_GIT_BLOB"
+      ],
+      "diagnostic_provenance_written": true,
+      "reference_git_sha256": "ad0e9f7dc7fe46579b24707291bf63a5ee09363de701b1606c5cedf98f970f26",
+      "reference_worktree_sha256": "3899559ed5370329d5fc8110f20a44b0f046d985da56ee2b50a48aad9644dad8",
+      "evidence_git_tree_sha256": "bb47058bd2798bea744da7d61754aefb5b7dbd5d8488086c313a5ae92897bc2e",
+      "evidence_worktree_tree_sha256": "bb47058bd2798bea744da7d61754aefb5b7dbd5d8488086c313a5ae92897bc2e",
+      "status": "PASS"
+    },
+    {
+      "case": "worktree_history_tamper",
+      "autocrlf": "false",
+      "eol": null,
+      "shallow_head": true,
+      "immutable_85_files_preserved_before_tamper": true,
+      "exit_code": 1,
+      "validation_errors": [
+        "HISTORICAL_WORKTREE_BYTES_DIFFER"
+      ],
+      "diagnostic_provenance_written": true,
+      "reference_git_sha256": "ad0e9f7dc7fe46579b24707291bf63a5ee09363de701b1606c5cedf98f970f26",
+      "reference_worktree_sha256": "ad0e9f7dc7fe46579b24707291bf63a5ee09363de701b1606c5cedf98f970f26",
+      "evidence_git_tree_sha256": "bb47058bd2798bea744da7d61754aefb5b7dbd5d8488086c313a5ae92897bc2e",
+      "evidence_worktree_tree_sha256": "5c94e589c3e319a9ba828b8fb510b9180b01a6880d3a51e32a8232ead9c2ae6e",
+      "status": "PASS"
+    },
+    {
+      "case": "git_reference_tamper",
+      "autocrlf": "false",
+      "eol": null,
+      "shallow_head": true,
+      "immutable_85_files_preserved_before_tamper": true,
+      "exit_code": 1,
+      "validation_errors": [
+        "REFERENCE_GIT_BLOB_CHANGED"
+      ],
+      "diagnostic_provenance_written": true,
+      "reference_git_sha256": "3899559ed5370329d5fc8110f20a44b0f046d985da56ee2b50a48aad9644dad8",
+      "reference_worktree_sha256": "3899559ed5370329d5fc8110f20a44b0f046d985da56ee2b50a48aad9644dad8",
+      "evidence_git_tree_sha256": "bb47058bd2798bea744da7d61754aefb5b7dbd5d8488086c313a5ae92897bc2e",
+      "evidence_worktree_tree_sha256": "bb47058bd2798bea744da7d61754aefb5b7dbd5d8488086c313a5ae92897bc2e",
+      "status": "PASS"
+    },
+    {
+      "case": "git_history_tamper",
+      "autocrlf": "false",
+      "eol": null,
+      "shallow_head": true,
+      "immutable_85_files_preserved_before_tamper": true,
+      "exit_code": 1,
+      "validation_errors": [
+        "HISTORICAL_GIT_BLOBS_CHANGED"
+      ],
+      "diagnostic_provenance_written": true,
+      "reference_git_sha256": "ad0e9f7dc7fe46579b24707291bf63a5ee09363de701b1606c5cedf98f970f26",
+      "reference_worktree_sha256": "ad0e9f7dc7fe46579b24707291bf63a5ee09363de701b1606c5cedf98f970f26",
+      "evidence_git_tree_sha256": "5c94e589c3e319a9ba828b8fb510b9180b01a6880d3a51e32a8232ead9c2ae6e",
+      "evidence_worktree_tree_sha256": "5c94e589c3e319a9ba828b8fb510b9180b01a6880d3a51e32a8232ead9c2ae6e",
+      "status": "PASS"
+    }
+  ],
+  "passed": 7,
+  "total": 7
+}

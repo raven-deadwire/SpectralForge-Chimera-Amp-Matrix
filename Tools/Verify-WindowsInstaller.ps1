@@ -85,6 +85,10 @@ function Check-Payload([string]$Destination, [bool]$Vst3, [bool]$Standalone, [bo
         if ($file.Extension -in ".md", ".html") { Equal-File $file.FullName (Join-Path $Destination "Documentation/$($file.Name)") }
     }
     Equal-File (Join-Path $stagePath "payload-manifest.json") (Join-Path $Destination "Documentation/payload-manifest.json")
+    if (Test-Path -LiteralPath (Join-Path $stagePath "chimera-beta-lifecycle.json")) {
+        Equal-File (Join-Path $stagePath "chimera-beta-lifecycle.json") (Join-Path $Destination "Documentation/chimera-beta-lifecycle.json")
+        Equal-File (Join-Path $stagePath "BETA_LIFECYCLE.txt") (Join-Path $Destination "BETA_LIFECYCLE.txt")
+    }
     Assert (Test-Path -LiteralPath (Join-Path $startMenu "Manual.lnk")) "Offline manual shortcut is missing"
     # Public packages exclude research documents and reference audio. These are
     # payload checks only; user-imported IR locations remain outside this scope.
