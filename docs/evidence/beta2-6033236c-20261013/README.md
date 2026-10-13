@@ -7,7 +7,7 @@
 - Version: `1.3.1-beta.2`
 - Parent: `9375328c30dfe5908e5010342179b5afbc258900`
 - Integration PR: [#55](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/pull/55), open Draft against main.
-- Verification status: **fresh exact-source CI and installed-product qualification in progress**.
+- Verification status: **original exact-source CI 11/11 workflows and 33/33 jobs SUCCESS; release BLOCKED; independent raw-archive audit pending**.
 
 This is an evidence-only branch. Its commits do not replace the product source listed above. No prior source's runtime or CI PASS qualifies this candidate.
 
@@ -51,29 +51,70 @@ The full current and three donor Git trees/files were retrieved again and evalua
 - The actual new validation-contract job (115140821449 in Product38350264755) checks out6033236c and reports the catalog plus13 public documents passing the public-name contract. Runtime captions still require the new native test executions.
 - Selected approval/gate/CI-map/weekly policy files are exact latest #55. The publisher is exact #56/#58 and retains its added distribution public-name guard.
 
-## Fresh CI
+## Fresh exact-source CI
 
-Original attempt-1 run IDs are recorded in ci/run-map.json. All are pinned to the source above. At the current checkpoint,10/11 workflows and30 completed jobs succeeded with original checkout logs bound to6033236c. macOS Product CTest and the later assembly/gate remain pending.
+All11 original product-source workflows and33 jobs completed SUCCESS, with0 failed/skipped jobs. Every one of the33 original checkout logs binds6033236cb81820a43679cbbd34be020804f9658d. The original source workflows include #58's document-upgrade workflow. The separate evidence audit is excluded from these11/33 totals. Complete original API responses, checkout proofs, job URLs and critical logs are under ci/observations.
 
-| Completed fresh check | Result |
+| Native matrix | Original result | Time |
+|---|---|---|
+| Product Windows | 48/48 PASS | 1103.14s |
+| Update Windows | 48/48 PASS | 1259.52s |
+| Product Linux | 45/45 PASS | 967.42s |
+| Product macOS | 44/44 PASS | 922.37s |
+| Separate Update smoke | 1/1 PASS | 2.98s |
+
+Product run38350264755 and Update run38350264864 are completed attempt1 executions of this exact source. These platform totals overlap in coverage and are not a count of unique test cases. Local execution for this source is NOT_RUN because the executor remained offline. No historical local62/293 totals are credited here.
+
+### Actual Windows installation and preservation
+
+Product job115141040314 and Update job115140821748 independently executed the real previous-public-beta.1 Setup. The old-product upgrade configuration is **Standalone**. Both paths verified24 historical document sizes/hashes, upgraded to newly built603 installers, performed two repairs, and uninstalled successfully. Current-version full/VST3-only/Standalone-only components, custom Unicode paths, app launch, VST3 loader/GetPluginFactory and IR decode/rig-load cases were exercised separately.
+
+| Installer | New binary SHA256 |
 |---|---|
-| Windows Product CTest | 48/48 PASS;1103.14seconds |
-| Windows update-candidate CTest | 48/48 PASS;1259.52seconds; separate smoke1/1 in2.98seconds |
-| Linux Product CTest | 45/45 PASS;967.42seconds |
-| Three document fixture platform jobs | SUCCESS within platform-specific scope |
-| Both actual Windows previous-public-beta.1 lifecycles | Upgrade, two repairs and uninstall PASS |
-| CAB three-platform workflow | Three original jobs SUCCESS; independent archive metrics audit pending |
+| SpectralForge-Chimera-1.3.1-beta.2-win64-Setup.exe | 610b44602b7aec2dd5adb4ac3d90692b4f6dc683ab56ae7012f11bf457a1b4e7 |
+| SpectralForge-Chimera-update-6033236cb8-win64-Setup.exe | 97f6216ac93a4343f2cccb3ed4420e0f33c83c831b387a72a66d1e4087ac434c |
 
-Both real Windows lifecycles verified24 historical document hashes/sizes against the frozen inventory, removed9 exact unedited retired documents and preserved the edited retired document. Edited old Manual bytes were snapshotted before current-document replacement. Edited README bytes were snapshotted on repair, and two repairs restored current payload bytes. A later edited Manual, existing snapshots, licenses and personal preset/IR/project sentinels survived uninstall without reboot-delayed deletion. Actual Windows PRESETS.md was checked against the current stage, but that old-product fixture did not separately annotate PRESETS.md; no previous-source local PRESETS-edit probe is credited here.
+The executed verifiers confirm:
 
-Product Setup SHA256:610b44602b7aec2dd5adb4ac3d90692b4f6dc683ab56ae7012f11bf457a1b4e7. Update Setup SHA256:97f6216ac93a4343f2cccb3ed4420e0f33c83c831b387a72a66d1e4087ac434c. These are distinct newly built binaries. Original logs/metadata and the exact preservation contract are under ci/installers. Original report ZIP byte audit remains pending; its later result will be recorded as a separate addendum.
+- Nine exact unedited retired documents were removed; edited retired Documentation/AMP_NATIVE_DSP.md remained in place with its edited bytes.
+- The annotated old Manual was saved byte-for-byte at PreservedDocuments/<edited SHA256>/Documentation/MANUAL.html before the active document was replaced by the current Windows staging file.
+- An edited current README was saved under PreservedDocuments/<edited SHA256>/README.txt. Two repairs restored the current payload and retained both current and earlier snapshots.
+- A later Manual edit survived uninstall in place. Snapshots, licenses, the edited retired document and personal preset/IR/project sentinels survived; there were no pending reboot-delayed deletes.
 
-Linux packaging verified extracted DEB standalone/VST3/manual hashes, builder ldd and explicit runtime dependencies, plus TAR construction/checksums. This does not establish actual Linux full-product installation/upgrade or installed-app/DAW acceptance. macOS synthetic document PKG fixtures are also distinct from a full old-product upgrade.
+This policy does not mean every edited document keeps the same active pathname. New distributed UI/labels/current docs follow the public-name policy; user-authored historical edits are preserved rather than rewritten. File-byte preservation does not establish actual DAW project recall or listening acceptance.
 
-Local execution for this source is NOT_RUN because the executor remains offline. No source qualification is inferred from workflow start, parent-source static identity or another SHA's runtime PASS.
+Current PRESETS.md participates in installed-versus-current-stage SHA256 checks. The real beta.1 fixture did not separately annotate PRESETS.md. No earlier-source local PRESETS-edit probe is reused. Individual current Manual/Presets raw hashes are not printed; the verifiers compare actual installed bytes against that Windows stage, not against a Git/LF assumption. Detailed exact-source assertions and original logs are under ci/installers.
+
+### Document and platform-package scope
+
+Document-upgrade run38350264747 succeeded on all three platforms:
+
+- Ubuntu:42/42 helper tests,0 skips, including UID/GID ownership. Native dpkg document fixtures are synthetic document installation tests.
+- Windows:11/11 portable rules and8 real Inno synthetic-document PASS groups.
+- macOS ARM64:39 helper methods (33 pass,6 method skips), plus a skipped dpkg class;7 unittest-reported skips overall. Four native Apple PKG document lifecycle groups passed.
+
+These synthetic fixtures are distinct from the actual old Windows product Setup above. macOS fixture execution does not establish native Intel runtime or full previous-product PKG upgrade.
+
+Linux Product verified extracted DEB standalone/VST3/manual hashes, builder ldd and explicit Depends/helper Pre-Depends, and TAR construction/checksums. It did not execute a full Linux product install/old-to-new upgrade or the TAR install script.
+
+macOS Product verified arm64+x86_64 slices for standalone/VST3/AU and the native helper, strict ad-hoc code seals, microphone-permission metadata, expanded PKG executable hashes and native pre/post hook hashes. It did not execute the product PKG, an old-product upgrade, installed-app/DAW/hardware acceptance, Developer ID signing or notarization. Separate scopes are recorded under ci/product-platforms.
+
+### CAB and original release gate
+
+All three new CAB jobs succeeded. Their exact-source logs/API metadata are retained under ci/cab. Raw route/callback measurements remain pending the independent archive audit.
+
+The original consolidated gate job115161016588 completed successfully as a computation, while its actual release verdict is **BLOCKED:21 PASS /107 BLOCKED /0 NOT_APPLICABLE;21 of63 hard gates PASS,42 not passed**. E1 aggregate is PASS3/3 in the producer log. Its workflow has no continue-on-error on the verdict command. Passing job execution is not release approval.
+
+Original gate artifact11791989864:262810bytes, SHA256 c3a812f2d28a2b409a5cdbe6594140c0e70ae41ee3310c4a05d7fc1ca348ed01.
+
+Original assembled candidate artifact11792559837:1592385077bytes, SHA256013c559c13a06956327ac5a695d57a0444728a79af3ec9f0c015c07428bee0bb. These candidate ZIP values are original API metadata; this review does not claim an independent download of the large binary ZIP.
+
+## Independent raw-evidence audit
+
+Read-only audit run38356862697, job115161681494, uses controller31fca717ad0a38ce42acf104ebf0d7128a218e0a and separately checks out exact product6033236c. It retains read-only contents/actions permissions, fixed original run IDs, unchanged product verification functions, bounded evidence downloads, original failure handling and an offline publication dry-run. Its result is pending at this checkpoint. Product CI totals above do not include this audit.
 
 ## Release boundary
 
 No main merge, release, tag, feed publication or deployment has been performed. The source change is prepared for evaluation as an October 14 test candidate. Actual-user DAW/project recall, audio listening, applicable full platform installation/upgrade and signing acceptance, strict gate completion and owner approval must retain their actual statuses. They are not silently deferred merely to meet the date.
 
-The local executor is unavailable during this source's verification. GitHub's original CI is used for native tests and installers. A separately recorded read-only evidence controller will recheck original raw archives using unchanged product verification tools; it will neither change approval policy nor publish. It is a separate audit, not an extra product workflow or an extra installer run.
+The local executor is unavailable during this source's verification. GitHub's original CI is used for native tests and installers. The separately recorded read-only evidence controller rechecks original raw archives using unchanged product verification tools; it does not change approval policy or publish. It is a separate audit, not an extra product workflow or an extra installer run.

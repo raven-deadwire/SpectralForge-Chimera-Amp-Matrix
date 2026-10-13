@@ -1,0 +1,418 @@
+2026-10-13T05:22:40.1410290Z [command]/opt/homebrew/bin/git log -1 --format=%H
+2026-10-13T05:22:40.1521430Z 6033236cb81820a43679cbbd34be020804f9658d
+2026-10-13T06:08:42.5672720Z ##[group]Run ctest --test-dir build -C Release --show-only=json-v1 > build/ctest-inventory.json
+2026-10-13T06:08:42.5673600Z [36;1mctest --test-dir build -C Release --show-only=json-v1 > build/ctest-inventory.json[0m
+2026-10-13T06:08:42.6244910Z shell: /bin/bash -e {0}
+2026-10-13T06:08:42.6245210Z env:
+2026-10-13T06:08:42.6245560Z   CHIMERA_SOURCE_SHA: 6033236cb81820a43679cbbd34be020804f9658d
+2026-10-13T06:08:42.6246010Z   pythonLocation: /Users/runner/hostedtoolcache/Python/3.12.10/arm64
+2026-10-13T06:08:42.6246510Z   PKG_CONFIG_PATH: /Users/runner/hostedtoolcache/Python/3.12.10/arm64/lib/pkgconfig
+2026-10-13T06:08:42.6246950Z   Python_ROOT_DIR: /Users/runner/hostedtoolcache/Python/3.12.10/arm64
+2026-10-13T06:08:42.6247770Z   Python2_ROOT_DIR: /Users/runner/hostedtoolcache/Python/3.12.10/arm64
+2026-10-13T06:08:42.6248930Z   Python3_ROOT_DIR: /Users/runner/hostedtoolcache/Python/3.12.10/arm64
+2026-10-13T06:08:42.6249360Z   CHIMERA_PACKAGE_VERSION: 1.3.1-beta.2
+2026-10-13T06:08:42.6250110Z ##[endgroup]
+2026-10-13T06:08:42.8688040Z ##[group]Run ctest --test-dir build -C Release --output-on-failure --no-tests=error --output-junit ctest-results.xml
+2026-10-13T06:08:42.8690160Z [36;1mctest --test-dir build -C Release --output-on-failure --no-tests=error --output-junit ctest-results.xml[0m
+2026-10-13T06:08:42.8766650Z shell: /bin/bash -e {0}
+2026-10-13T06:08:42.8766940Z env:
+2026-10-13T06:08:42.8767330Z   CHIMERA_SOURCE_SHA: 6033236cb81820a43679cbbd34be020804f9658d
+2026-10-13T06:08:42.8767800Z   pythonLocation: /Users/runner/hostedtoolcache/Python/3.12.10/arm64
+2026-10-13T06:08:42.8768370Z   PKG_CONFIG_PATH: /Users/runner/hostedtoolcache/Python/3.12.10/arm64/lib/pkgconfig
+2026-10-13T06:08:42.8768970Z   Python_ROOT_DIR: /Users/runner/hostedtoolcache/Python/3.12.10/arm64
+2026-10-13T06:08:42.8769760Z   Python2_ROOT_DIR: /Users/runner/hostedtoolcache/Python/3.12.10/arm64
+2026-10-13T06:08:42.8770370Z   Python3_ROOT_DIR: /Users/runner/hostedtoolcache/Python/3.12.10/arm64
+2026-10-13T06:08:42.8770890Z   CHIMERA_PACKAGE_VERSION: 1.3.1-beta.2
+2026-10-13T06:08:42.8771420Z ##[endgroup]
+2026-10-13T06:08:43.0644380Z Test project /Users/runner/work/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build
+2026-10-13T06:08:43.0747490Z       Start  1: ChimeraOriginalAmpTests
+2026-10-13T06:08:46.9275970Z  1/44 Test  #1: ChimeraOriginalAmpTests ...............   Passed    3.86 sec
+2026-10-13T06:08:46.9295020Z       Start  2: ChimeraOriginalAmpIntegrationTests
+2026-10-13T06:08:47.1917850Z  2/44 Test  #2: ChimeraOriginalAmpIntegrationTests ....   Passed    0.26 sec
+2026-10-13T06:08:47.1918650Z       Start  3: ChimeraNiflheimrCoreTests
+2026-10-13T06:08:52.3552180Z  3/44 Test  #3: ChimeraNiflheimrCoreTests .............   Passed    5.16 sec
+2026-10-13T06:08:52.3553630Z       Start  4: ChimeraNiflheimrIntegrationTests
+2026-10-13T06:08:53.1078070Z  4/44 Test  #4: ChimeraNiflheimrIntegrationTests ......   Passed    0.75 sec
+2026-10-13T06:08:53.1079550Z       Start  5: ChimeraPackagingVersionTests
+2026-10-13T06:08:57.9787090Z  5/44 Test  #5: ChimeraPackagingVersionTests ..........   Passed    4.87 sec
+2026-10-13T06:08:57.9788020Z       Start  6: ChimeraVBlankFailureTests
+2026-10-13T06:09:00.4994110Z  6/44 Test  #6: ChimeraVBlankFailureTests .............   Passed    2.52 sec
+2026-10-13T06:09:00.4996260Z       Start  7: ChimeraTests
+2026-10-13T06:09:51.2652170Z  7/44 Test  #7: ChimeraTests ..........................   Passed   50.76 sec
+2026-10-13T06:09:51.2657480Z       Start  8: ChimeraNativeRendererTests
+2026-10-13T06:09:51.4399760Z  8/44 Test  #8: ChimeraNativeRendererTests ............   Passed    0.17 sec
+2026-10-13T06:09:51.4401580Z       Start  9: ChimeraOriginalRendererTests
+2026-10-13T06:09:52.2138470Z  9/44 Test  #9: ChimeraOriginalRendererTests ..........   Passed    0.77 sec
+2026-10-13T06:09:52.2140150Z       Start 10: ChimeraNiflheimrRendererTests
+2026-10-13T06:09:52.7105990Z 10/44 Test #10: ChimeraNiflheimrRendererTests .........   Passed    0.50 sec
+2026-10-13T06:09:52.7107000Z       Start 11: ChimeraReleaseTests
+2026-10-13T06:09:52.7340710Z 11/44 Test #11: ChimeraReleaseTests ...................   Passed    0.02 sec
+2026-10-13T06:09:52.7341480Z       Start 12: ChimeraStabilityTests
+2026-10-13T06:09:54.2873310Z 12/44 Test #12: ChimeraStabilityTests .................   Passed    1.55 sec
+2026-10-13T06:09:54.2874200Z       Start 13: ChimeraPedalBoardTests
+2026-10-13T06:09:58.0697210Z 13/44 Test #13: ChimeraPedalBoardTests ................   Passed    3.78 sec
+2026-10-13T06:09:58.0698510Z       Start 14: ChimeraIRCollectionTests
+2026-10-13T06:09:58.3772910Z 14/44 Test #14: ChimeraIRCollectionTests ..............   Passed    0.31 sec
+2026-10-13T06:09:58.3774100Z       Start 15: ChimeraIRLibraryTests
+2026-10-13T06:10:00.9675870Z 15/44 Test #15: ChimeraIRLibraryTests .................   Passed    2.59 sec
+2026-10-13T06:10:00.9677670Z       Start 16: ChimeraCabPanelTests
+2026-10-13T06:10:17.6473260Z 16/44 Test #16: ChimeraCabPanelTests ..................   Passed   16.68 sec
+2026-10-13T06:10:17.6478720Z       Start 17: ChimeraCabPanelStateTests
+2026-10-13T06:12:00.2564370Z 17/44 Test #17: ChimeraCabPanelStateTests .............   Passed  102.61 sec
+2026-10-13T06:12:00.2666080Z       Start 18: ChimeraCabPanelRoutingTests
+2026-10-13T06:12:12.2625400Z 18/44 Test #18: ChimeraCabPanelRoutingTests ...........   Passed   12.00 sec
+2026-10-13T06:12:12.2628390Z       Start 19: ChimeraCabPanelIRIsolationTests
+2026-10-13T06:12:26.0958230Z 19/44 Test #19: ChimeraCabPanelIRIsolationTests .......   Passed   13.83 sec
+2026-10-13T06:12:26.1010560Z       Start 20: ChimeraNewAmpTests
+2026-10-13T06:12:33.5254950Z 20/44 Test #20: ChimeraNewAmpTests ....................   Passed    7.42 sec
+2026-10-13T06:12:33.5256250Z       Start 21: ChimeraPedalOctaverTests
+2026-10-13T06:12:36.0975080Z 21/44 Test #21: ChimeraPedalOctaverTests ..............   Passed    2.57 sec
+2026-10-13T06:12:36.0975990Z       Start 22: ChimeraAmpNativeTests
+2026-10-13T06:12:46.1417130Z 22/44 Test #22: ChimeraAmpNativeTests .................   Passed   10.04 sec
+2026-10-13T06:12:46.1418030Z       Start 23: ChimeraPostNativeTests
+2026-10-13T06:12:47.2755610Z 23/44 Test #23: ChimeraPostNativeTests ................   Passed    1.13 sec
+2026-10-13T06:12:47.2757040Z       Start 24: ChimeraGateProcessorTests
+2026-10-13T06:13:17.3891990Z 24/44 Test #24: ChimeraGateProcessorTests .............   Passed   30.11 sec
+2026-10-13T06:13:17.3895950Z       Start 25: ChimeraGateTests
+2026-10-13T06:13:17.6173180Z 25/44 Test #25: ChimeraGateTests ......................   Passed    0.23 sec
+2026-10-13T06:13:17.6174760Z       Start 26: ChimeraIntegratedProcessorTests
+2026-10-13T06:17:17.1462220Z 26/44 Test #26: ChimeraIntegratedProcessorTests .......   Passed  239.53 sec
+2026-10-13T06:17:17.1463860Z       Start 27: ChimeraNiflheimrPresetTests
+2026-10-13T06:17:47.3430050Z 27/44 Test #27: ChimeraNiflheimrPresetTests ...........   Passed   30.20 sec
+2026-10-13T06:17:47.3432070Z       Start 28: ChimeraPitchRegressionTests
+2026-10-13T06:17:58.0701650Z 28/44 Test #28: ChimeraPitchRegressionTests ...........   Passed   10.73 sec
+2026-10-13T06:17:58.0702330Z       Start 29: ChimeraCabExpansionModelTests
+2026-10-13T06:18:01.4072670Z 29/44 Test #29: ChimeraCabExpansionModelTests .........   Passed    3.34 sec
+2026-10-13T06:18:01.4073480Z       Start 30: ChimeraOriginalCabModelTests
+2026-10-13T06:18:02.4215870Z 30/44 Test #30: ChimeraOriginalCabModelTests ..........   Passed    1.02 sec
+2026-10-13T06:18:02.4220030Z       Start 31: ChimeraCabTimingDiagnosticsTests
+2026-10-13T06:18:02.4361750Z 31/44 Test #31: ChimeraCabTimingDiagnosticsTests ......   Passed    0.01 sec
+2026-10-13T06:18:02.4366050Z       Start 32: ChimeraOriginalCabIntegrationTests
+2026-10-13T06:18:24.0444640Z 32/44 Test #32: ChimeraOriginalCabIntegrationTests ....   Passed   21.60 sec
+2026-10-13T06:18:24.0447010Z       Start 33: ChimeraOriginalCabRealtimeTests
+2026-10-13T06:18:36.6740610Z 33/44 Test #33: ChimeraOriginalCabRealtimeTests .......   Passed   12.63 sec
+2026-10-13T06:18:36.6742150Z       Start 34: ChimeraCabExpansionIntegrationTests
+2026-10-13T06:18:58.7876220Z 34/44 Test #34: ChimeraCabExpansionIntegrationTests ...   Passed   22.11 sec
+2026-10-13T06:18:58.7877350Z       Start 35: ChimeraCabExtendedTimingTests
+2026-10-13T06:19:54.8653070Z 35/44 Test #35: ChimeraCabExtendedTimingTests .........   Passed   56.08 sec
+2026-10-13T06:19:54.8654640Z       Start 36: ChimeraCabExpansionStateTests
+2026-10-13T06:20:08.0723190Z 36/44 Test #36: ChimeraCabExpansionStateTests .........   Passed   13.21 sec
+2026-10-13T06:20:08.0818900Z       Start 37: ChimeraCabLayoutModelTests
+2026-10-13T06:20:10.0246620Z 37/44 Test #37: ChimeraCabLayoutModelTests ............   Passed    1.95 sec
+2026-10-13T06:20:10.0247360Z       Start 38: ChimeraCabCameraFramingTests
+2026-10-13T06:20:10.0279870Z 38/44 Test #38: ChimeraCabCameraFramingTests ..........   Passed    0.00 sec
+2026-10-13T06:20:10.0280360Z       Start 39: ChimeraCabLayoutIntegrationTests
+2026-10-13T06:20:30.3965650Z 39/44 Test #39: ChimeraCabLayoutIntegrationTests ......   Passed   20.37 sec
+2026-10-13T06:20:30.3976260Z       Start 40: ChimeraCabLayoutStateTests
+2026-10-13T06:20:42.7855720Z 40/44 Test #40: ChimeraCabLayoutStateTests ............   Passed   12.39 sec
+2026-10-13T06:20:42.7895020Z       Start 41: ChimeraCabDriverVisualTests
+2026-10-13T06:20:57.6088980Z 41/44 Test #41: ChimeraCabDriverVisualTests ...........   Passed   14.82 sec
+2026-10-13T06:20:57.6191420Z       Start 42: ChimeraGraphicalEQTests
+2026-10-13T06:21:30.4171350Z 42/44 Test #42: ChimeraGraphicalEQTests ...............   Passed   32.81 sec
+2026-10-13T06:21:30.4174000Z       Start 43: ChimeraGraphicalEQUITests
+2026-10-13T06:21:42.8814790Z 43/44 Test #43: ChimeraGraphicalEQUITests .............   Passed   12.46 sec
+2026-10-13T06:21:42.8920130Z       Start 44: ChimeraAmpHeadControlTests
+2026-10-13T06:24:05.4041760Z 44/44 Test #44: ChimeraAmpHeadControlTests ............   Passed  142.52 sec
+2026-10-13T06:24:05.4253820Z 
+2026-10-13T06:24:05.4254160Z 100% tests passed out of 44
+2026-10-13T06:24:05.4254390Z 
+2026-10-13T06:24:05.4254820Z Total Test time (real) = 922.37 sec
+2026-10-13T06:24:05.4538330Z ##[group]Run case "macOS" in Windows) platform=windows;; Linux) platform=linux;; macOS) platform=macos;; esac
+2026-10-13T06:24:05.4539250Z [36;1mcase "macOS" in Windows) platform=windows;; Linux) platform=linux;; macOS) platform=macos;; esac[0m
+2026-10-13T06:24:05.4540210Z [36;1mpython Tools/produce_ctest_validation.py --commit "$(git rev-parse HEAD)" --platform "$platform" --junit build/ctest-results.xml --inventory build/ctest-inventory.json --output build/validation[0m
+2026-10-13T06:24:05.5004060Z shell: /bin/bash --noprofile --norc -e -o pipefail {0}
+2026-10-13T06:24:05.5004410Z env:
+2026-10-13T06:24:05.5004730Z   CHIMERA_SOURCE_SHA: 6033236cb81820a43679cbbd34be020804f9658d
+2026-10-13T06:24:05.5005210Z   pythonLocation: /Users/runner/hostedtoolcache/Python/3.12.10/arm64
+2026-10-13T06:24:05.5005720Z   PKG_CONFIG_PATH: /Users/runner/hostedtoolcache/Python/3.12.10/arm64/lib/pkgconfig
+2026-10-13T06:24:05.5006440Z   Python_ROOT_DIR: /Users/runner/hostedtoolcache/Python/3.12.10/arm64
+2026-10-13T06:24:05.5006900Z   Python2_ROOT_DIR: /Users/runner/hostedtoolcache/Python/3.12.10/arm64
+2026-10-13T06:24:05.5007310Z   Python3_ROOT_DIR: /Users/runner/hostedtoolcache/Python/3.12.10/arm64
+2026-10-13T06:24:05.5007680Z   CHIMERA_PACKAGE_VERSION: 1.3.1-beta.2
+2026-10-13T06:24:05.5007900Z ##[endgroup]
+2026-10-13T06:24:06.1160500Z Produced concrete macos CTest evidence; release verdict=BLOCKED
+2026-10-13T06:24:06.1342450Z ##[group]Run actions/upload-artifact@v4
+2026-10-13T06:24:06.1342860Z with:
+2026-10-13T06:24:06.1343330Z   name: Chimera-integration-validation-macOS
+2026-10-13T06:24:06.1344730Z   path: build/validation
+build/ctest-results.xml
+build/ctest-inventory.json
+build/cab-timing-diagnostics/**
+build/signature-snapshots
+
+2026-10-13T06:24:06.1345480Z   if-no-files-found: warn
+2026-10-13T06:24:06.1346600Z   compression-level: 6
+2026-10-13T06:24:06.1346820Z   overwrite: false
+2026-10-13T06:24:06.1349060Z   include-hidden-files: false
+2026-10-13T06:24:06.1350280Z env:
+2026-10-13T06:24:06.1351730Z   CHIMERA_SOURCE_SHA: 6033236cb81820a43679cbbd34be020804f9658d
+2026-10-13T06:24:06.1353340Z   pythonLocation: /Users/runner/hostedtoolcache/Python/3.12.10/arm64
+2026-10-13T06:24:06.1353850Z   PKG_CONFIG_PATH: /Users/runner/hostedtoolcache/Python/3.12.10/arm64/lib/pkgconfig
+2026-10-13T06:24:06.1354460Z   Python_ROOT_DIR: /Users/runner/hostedtoolcache/Python/3.12.10/arm64
+2026-10-13T06:24:06.1355570Z   Python2_ROOT_DIR: /Users/runner/hostedtoolcache/Python/3.12.10/arm64
+2026-10-13T06:24:06.1356130Z   Python3_ROOT_DIR: /Users/runner/hostedtoolcache/Python/3.12.10/arm64
+2026-10-13T06:24:06.1357010Z   CHIMERA_PACKAGE_VERSION: 1.3.1-beta.2
+2026-10-13T06:24:06.1357990Z ##[endgroup]
+2026-10-13T06:24:06.5974730Z (node:8439) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-13T06:24:06.6077260Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-13T06:24:06.6386160Z Multiple search paths detected. Calculating the least common ancestor of all paths
+2026-10-13T06:24:06.6391570Z The least common ancestor is /Users/runner/work/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build. This will be the root directory of the artifact
+2026-10-13T06:24:06.6411020Z With the provided path, there will be 197 files uploaded
+2026-10-13T06:24:06.6420670Z Artifact name is valid!
+2026-10-13T06:24:06.6421040Z Root directory input is valid!
+2026-10-13T06:24:07.0556930Z Beginning upload of artifact content to blob storage
+2026-10-13T06:24:07.6331340Z (node:8439) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-10-13T06:24:08.5154760Z Uploaded bytes 6909095
+2026-10-13T06:24:08.5943520Z Finished uploading artifact content to blob storage!
+2026-10-13T06:24:08.5944850Z SHA256 digest of uploaded artifact zip is b1e11526b2a7ce8ca7977294aa1547d03f12a3c36242eb6e6f5e56d041b064cf
+2026-10-13T06:24:08.5947820Z Finalizing artifact upload
+2026-10-13T06:24:08.8853610Z Artifact Chimera-integration-validation-macOS.zip successfully finalized. Artifact ID 11792089306
+2026-10-13T06:24:08.8857590Z Artifact Chimera-integration-validation-macOS has been successfully uploaded! Final size is 6909095 bytes. Artifact ID is 11792089306
+2026-10-13T06:24:08.8880720Z Artifact download URL: https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38350264755/artifacts/11792089306
+2026-10-13T06:24:08.9167320Z ##[group]Run actions/upload-artifact@v4
+2026-10-13T06:24:08.9167560Z with:
+2026-10-13T06:24:08.9167710Z   name: Chimera-DSP-verification-macOS
+2026-10-13T06:24:08.9167940Z   path: build/Testing/Temporary/LastTest.log
+2026-10-13T06:24:08.9168160Z   if-no-files-found: warn
+2026-10-13T06:24:08.9168320Z   compression-level: 6
+2026-10-13T06:24:08.9168480Z   overwrite: false
+2026-10-13T06:24:08.9168630Z   include-hidden-files: false
+2026-10-13T06:24:08.9168800Z env:
+2026-10-13T06:24:08.9169000Z   CHIMERA_SOURCE_SHA: 6033236cb81820a43679cbbd34be020804f9658d
+2026-10-13T06:24:08.9169350Z   pythonLocation: /Users/runner/hostedtoolcache/Python/3.12.10/arm64
+2026-10-13T06:24:08.9169760Z   PKG_CONFIG_PATH: /Users/runner/hostedtoolcache/Python/3.12.10/arm64/lib/pkgconfig
+2026-10-13T06:24:08.9170160Z   Python_ROOT_DIR: /Users/runner/hostedtoolcache/Python/3.12.10/arm64
+2026-10-13T06:24:08.9170510Z   Python2_ROOT_DIR: /Users/runner/hostedtoolcache/Python/3.12.10/arm64
+2026-10-13T06:24:08.9170930Z   Python3_ROOT_DIR: /Users/runner/hostedtoolcache/Python/3.12.10/arm64
+2026-10-13T06:24:08.9171270Z   CHIMERA_PACKAGE_VERSION: 1.3.1-beta.2
+2026-10-13T06:24:08.9171470Z ##[endgroup]
+2026-10-13T06:24:09.0762290Z (node:8445) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-13T06:24:09.0763040Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-13T06:24:09.0776980Z With the provided path, there will be 1 file uploaded
+2026-10-13T06:24:09.0779390Z Artifact name is valid!
+2026-10-13T06:24:09.0779840Z Root directory input is valid!
+2026-10-13T06:24:09.4667820Z Beginning upload of artifact content to blob storage
+2026-10-13T06:24:09.4882630Z (node:8445) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-10-13T06:24:09.8065150Z Uploaded bytes 44110
+2026-10-13T06:24:09.8790110Z Finished uploading artifact content to blob storage!
+2026-10-13T06:24:09.8791100Z SHA256 digest of uploaded artifact zip is 525eb7faa0d98cd29f406efd1f38c6d42f9976256d217e0f35f3a6df7a2aaeef
+2026-10-13T06:24:09.8791760Z Finalizing artifact upload
+2026-10-13T06:24:10.1637340Z Artifact Chimera-DSP-verification-macOS.zip successfully finalized. Artifact ID 11792094278
+2026-10-13T06:24:10.1638840Z Artifact Chimera-DSP-verification-macOS has been successfully uploaded! Final size is 44110 bytes. Artifact ID is 11792094278
+2026-10-13T06:24:10.1646090Z Artifact download URL: https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38350264755/artifacts/11792094278
+2026-10-13T06:24:10.1794730Z ##[group]Run python Tools/package_release.py macos
+2026-10-13T06:24:10.1811860Z [36;1mpython Tools/package_release.py macos[0m
+2026-10-13T06:24:10.1869360Z shell: /bin/bash -e {0}
+2026-10-13T06:24:10.1869570Z env:
+2026-10-13T06:24:10.1869800Z   CHIMERA_SOURCE_SHA: 6033236cb81820a43679cbbd34be020804f9658d
+2026-10-13T06:24:10.1870380Z   pythonLocation: /Users/runner/hostedtoolcache/Python/3.12.10/arm64
+2026-10-13T06:24:10.1870990Z   PKG_CONFIG_PATH: /Users/runner/hostedtoolcache/Python/3.12.10/arm64/lib/pkgconfig
+2026-10-13T06:24:10.1871530Z   Python_ROOT_DIR: /Users/runner/hostedtoolcache/Python/3.12.10/arm64
+2026-10-13T06:24:10.1872010Z   Python2_ROOT_DIR: /Users/runner/hostedtoolcache/Python/3.12.10/arm64
+2026-10-13T06:24:10.1872370Z   Python3_ROOT_DIR: /Users/runner/hostedtoolcache/Python/3.12.10/arm64
+2026-10-13T06:24:10.1872770Z   CHIMERA_PACKAGE_VERSION: 1.3.1-beta.2
+2026-10-13T06:24:10.1873010Z ##[endgroup]
+2026-10-13T06:24:55.2876490Z pkgbuild: Inferring bundle components from contents of /Users/runner/work/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/dist/SpectralForge-Chimera-1.3.1-beta.2-macos-payload
+2026-10-13T06:24:55.2878320Z pkgbuild: Writing new component property list to /var/folders/nj/vtw8zd2j31d1gdrtntc5y4600000gn/T/chimera-pkg-2ulw7k4v/components.plist
+2026-10-13T06:24:55.2879230Z pkgbuild: Reading components from /var/folders/nj/vtw8zd2j31d1gdrtntc5y4600000gn/T/chimera-pkg-2ulw7k4v/components.plist
+2026-10-13T06:24:55.2879880Z pkgbuild: Adding component at Library/Audio/Plug-Ins/VST3/SpectralForge Chimera.vst3
+2026-10-13T06:24:55.2880490Z pkgbuild: Adding component at Library/Audio/Plug-Ins/Components/SpectralForge Chimera.component
+2026-10-13T06:24:55.2881090Z pkgbuild: Adding component at Applications/SpectralForge Chimera.app
+2026-10-13T06:24:55.2881600Z pkgbuild: Adding top-level preinstall script
+2026-10-13T06:24:55.2882320Z pkgbuild: Adding top-level postinstall script
+2026-10-13T06:24:55.2883180Z pkgbuild: Wrote package to /Users/runner/work/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/dist/SpectralForge-Chimera-1.3.1-beta.2-macos-universal.pkg
+2026-10-13T06:24:55.3264610Z ##[group]Run actions/upload-artifact@v4
+2026-10-13T06:24:55.3264850Z with:
+2026-10-13T06:24:55.3265040Z   name: SpectralForge-Chimera-1.3.1-beta.2-macos-universal
+2026-10-13T06:24:55.3265730Z   path: dist/SpectralForge-Chimera-1.3.1-beta.2-macos-universal.pkg
+dist/SpectralForge-Chimera-1.3.1-beta.2-macos-universal.pkg.sha256.txt
+dist/macOS-package-verification.txt
+
+2026-10-13T06:24:55.3266340Z   if-no-files-found: error
+2026-10-13T06:24:55.3266510Z   compression-level: 0
+2026-10-13T06:24:55.3266660Z   overwrite: false
+2026-10-13T06:24:55.3266810Z   include-hidden-files: false
+2026-10-13T06:24:55.3266990Z env:
+2026-10-13T06:24:55.3267180Z   CHIMERA_SOURCE_SHA: 6033236cb81820a43679cbbd34be020804f9658d
+2026-10-13T06:24:55.3267510Z   pythonLocation: /Users/runner/hostedtoolcache/Python/3.12.10/arm64
+2026-10-13T06:24:55.3267930Z   PKG_CONFIG_PATH: /Users/runner/hostedtoolcache/Python/3.12.10/arm64/lib/pkgconfig
+2026-10-13T06:24:55.3268340Z   Python_ROOT_DIR: /Users/runner/hostedtoolcache/Python/3.12.10/arm64
+2026-10-13T06:24:55.3268700Z   Python2_ROOT_DIR: /Users/runner/hostedtoolcache/Python/3.12.10/arm64
+2026-10-13T06:24:55.3269040Z   Python3_ROOT_DIR: /Users/runner/hostedtoolcache/Python/3.12.10/arm64
+2026-10-13T06:24:55.3269320Z   CHIMERA_PACKAGE_VERSION: 1.3.1-beta.2
+2026-10-13T06:24:55.3269510Z ##[endgroup]
+2026-10-13T06:24:55.8030040Z (node:9678) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-13T06:24:55.8030690Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-13T06:24:55.8058260Z Multiple search paths detected. Calculating the least common ancestor of all paths
+2026-10-13T06:24:55.8059820Z The least common ancestor is /Users/runner/work/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/dist. This will be the root directory of the artifact
+2026-10-13T06:24:55.8064950Z With the provided path, there will be 3 files uploaded
+2026-10-13T06:24:55.8065440Z Artifact name is valid!
+2026-10-13T06:24:55.8065670Z Root directory input is valid!
+2026-10-13T06:24:56.2175420Z Beginning upload of artifact content to blob storage
+2026-10-13T06:24:56.2650400Z (node:9678) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-10-13T06:24:57.1777150Z Uploaded bytes 8388608
+2026-10-13T06:24:57.1867710Z Uploaded bytes 16777216
+2026-10-13T06:24:57.2090190Z Uploaded bytes 25165824
+2026-10-13T06:24:57.2750930Z Uploaded bytes 33554432
+2026-10-13T06:24:57.4853050Z Uploaded bytes 41943040
+2026-10-13T06:24:57.5536320Z Uploaded bytes 50331648
+2026-10-13T06:24:57.5748560Z Uploaded bytes 58720256
+2026-10-13T06:24:57.5803860Z Uploaded bytes 67108864
+2026-10-13T06:24:57.7773870Z Uploaded bytes 75497472
+2026-10-13T06:24:57.8341520Z Uploaded bytes 83886080
+2026-10-13T06:24:57.8552120Z Uploaded bytes 92274688
+2026-10-13T06:24:57.9034500Z Uploaded bytes 100663296
+2026-10-13T06:24:58.0242650Z Uploaded bytes 109051904
+2026-10-13T06:24:58.1424770Z Uploaded bytes 117440512
+2026-10-13T06:24:58.1545190Z Uploaded bytes 125829120
+2026-10-13T06:24:58.1924320Z Uploaded bytes 134217728
+2026-10-13T06:24:58.3849560Z Uploaded bytes 142606336
+2026-10-13T06:24:58.4432760Z Uploaded bytes 150994944
+2026-10-13T06:24:58.4550760Z Uploaded bytes 159383552
+2026-10-13T06:24:58.4644150Z Uploaded bytes 167772160
+2026-10-13T06:24:58.6804120Z Uploaded bytes 176160768
+2026-10-13T06:24:58.7711650Z Uploaded bytes 184549376
+2026-10-13T06:24:58.7768580Z Uploaded bytes 192937984
+2026-10-13T06:24:58.8758350Z Uploaded bytes 201326592
+2026-10-13T06:24:59.0540810Z Uploaded bytes 209715200
+2026-10-13T06:24:59.0709020Z Uploaded bytes 218103808
+2026-10-13T06:24:59.1377420Z Uploaded bytes 226492416
+2026-10-13T06:24:59.1874680Z Uploaded bytes 234881024
+2026-10-13T06:24:59.4037070Z Uploaded bytes 243269632
+2026-10-13T06:24:59.4365210Z Uploaded bytes 251658240
+2026-10-13T06:24:59.5714280Z Uploaded bytes 260046848
+2026-10-13T06:24:59.6621720Z Uploaded bytes 268435456
+2026-10-13T06:24:59.7293470Z Uploaded bytes 276824064
+2026-10-13T06:24:59.7465670Z Uploaded bytes 285212672
+2026-10-13T06:24:59.8552480Z Uploaded bytes 293601280
+2026-10-13T06:25:00.0284270Z Uploaded bytes 301989888
+2026-10-13T06:25:00.0331870Z Uploaded bytes 310378496
+2026-10-13T06:25:00.0732290Z Uploaded bytes 318767104
+2026-10-13T06:25:00.1091970Z Uploaded bytes 327155712
+2026-10-13T06:25:00.3025610Z Uploaded bytes 335544320
+2026-10-13T06:25:00.3199140Z Uploaded bytes 343932928
+2026-10-13T06:25:00.4109220Z Uploaded bytes 352321536
+2026-10-13T06:25:00.4217340Z Uploaded bytes 360710144
+2026-10-13T06:25:00.5968350Z Uploaded bytes 369098752
+2026-10-13T06:25:00.6802450Z Uploaded bytes 377487360
+2026-10-13T06:25:00.6860980Z Uploaded bytes 385875968
+2026-10-13T06:25:00.7675980Z Uploaded bytes 394264576
+2026-10-13T06:25:00.8629350Z Uploaded bytes 402653184
+2026-10-13T06:25:00.9145730Z Uploaded bytes 411041792
+2026-10-13T06:25:00.9437880Z Uploaded bytes 419430400
+2026-10-13T06:25:01.0556720Z Uploaded bytes 427819008
+2026-10-13T06:25:01.1789460Z Uploaded bytes 436207616
+2026-10-13T06:25:01.2565610Z Uploaded bytes 444596224
+2026-10-13T06:25:01.2888800Z Uploaded bytes 452984832
+2026-10-13T06:25:01.4073440Z Uploaded bytes 461373440
+2026-10-13T06:25:01.5109660Z Uploaded bytes 469762048
+2026-10-13T06:25:01.5242620Z Uploaded bytes 478150656
+2026-10-13T06:25:01.6539330Z Uploaded bytes 486539264
+2026-10-13T06:25:01.7399800Z Uploaded bytes 494927872
+2026-10-13T06:25:01.8233210Z Uploaded bytes 503316480
+2026-10-13T06:25:01.8399400Z Uploaded bytes 511705088
+2026-10-13T06:25:01.9609660Z Uploaded bytes 520093696
+2026-10-13T06:25:02.0465650Z Uploaded bytes 528482304
+2026-10-13T06:25:02.1184650Z Uploaded bytes 536870912
+2026-10-13T06:25:02.1401940Z Uploaded bytes 545259520
+2026-10-13T06:25:02.2597110Z Uploaded bytes 553648128
+2026-10-13T06:25:02.3141460Z Uploaded bytes 562036736
+2026-10-13T06:25:02.3871690Z Uploaded bytes 570425344
+2026-10-13T06:25:02.4532480Z Uploaded bytes 578813952
+2026-10-13T06:25:02.5828090Z Uploaded bytes 587202560
+2026-10-13T06:25:02.6187800Z Uploaded bytes 595591168
+2026-10-13T06:25:02.6690760Z Uploaded bytes 603979776
+2026-10-13T06:25:02.7364240Z Uploaded bytes 612368384
+2026-10-13T06:25:02.8548770Z Uploaded bytes 620756992
+2026-10-13T06:25:02.8748540Z Uploaded bytes 629145600
+2026-10-13T06:25:02.9642990Z Uploaded bytes 637534208
+2026-10-13T06:25:03.0987290Z Uploaded bytes 645922816
+2026-10-13T06:25:03.1461430Z Uploaded bytes 654311424
+2026-10-13T06:25:03.1842520Z Uploaded bytes 662700032
+2026-10-13T06:25:03.2253920Z Uploaded bytes 671088640
+2026-10-13T06:25:03.3929300Z Uploaded bytes 679477248
+2026-10-13T06:25:03.4170120Z Uploaded bytes 687865856
+2026-10-13T06:25:03.4926340Z Uploaded bytes 696254464
+2026-10-13T06:25:03.7517980Z Uploaded bytes 702463383
+2026-10-13T06:25:03.8251070Z Finished uploading artifact content to blob storage!
+2026-10-13T06:25:03.8253000Z SHA256 digest of uploaded artifact zip is 8753a9a5578820141d4627dc523d9b2e42ab1e00ca542ddcb927a154a95f3047
+2026-10-13T06:25:03.8254360Z Finalizing artifact upload
+2026-10-13T06:25:04.2490490Z Artifact SpectralForge-Chimera-1.3.1-beta.2-macos-universal.zip successfully finalized. Artifact ID 11792154439
+2026-10-13T06:25:04.2491890Z Artifact SpectralForge-Chimera-1.3.1-beta.2-macos-universal has been successfully uploaded! Final size is 702463383 bytes. Artifact ID is 11792154439
+2026-10-13T06:25:04.2498520Z Artifact download URL: https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38350264755/artifacts/11792154439
+2026-10-13T06:25:04.2693140Z ##[group]Run case "macOS" in
+2026-10-13T06:25:04.2693540Z [36;1mcase "macOS" in[0m
+2026-10-13T06:25:04.2693870Z [36;1m  Windows) platform=windows; package="$WINDOWS_PACKAGE";;[0m
+2026-10-13T06:25:04.2694430Z [36;1m  Linux) platform=linux; package="$LINUX_PACKAGE";;[0m
+2026-10-13T06:25:04.2694940Z [36;1m  macOS) platform=macos; package="$MACOS_PACKAGE";;[0m
+2026-10-13T06:25:04.2695270Z [36;1mesac[0m
+2026-10-13T06:25:04.2697210Z [36;1mpython Tools/produce_release_evidence.py --commit "$CHIMERA_SOURCE_SHA" --run-id "$GITHUB_RUN_ID" --run-attempt "$GITHUB_RUN_ATTEMPT" --kind "$platform" --ctest "$CTEST_OUTCOME" --package "$package" --installer "$INSTALLER_OUTCOME" --msix "$MSIX_OUTCOME" --scan "$SCAN_OUTCOME" --output build/release-evidence[0m
+2026-10-13T06:25:04.3051790Z shell: /bin/bash --noprofile --norc -e -o pipefail {0}
+2026-10-13T06:25:04.3052060Z env:
+2026-10-13T06:25:04.3052560Z   CHIMERA_SOURCE_SHA: 6033236cb81820a43679cbbd34be020804f9658d
+2026-10-13T06:25:04.3053100Z   pythonLocation: /Users/runner/hostedtoolcache/Python/3.12.10/arm64
+2026-10-13T06:25:04.3053620Z   PKG_CONFIG_PATH: /Users/runner/hostedtoolcache/Python/3.12.10/arm64/lib/pkgconfig
+2026-10-13T06:25:04.3054170Z   Python_ROOT_DIR: /Users/runner/hostedtoolcache/Python/3.12.10/arm64
+2026-10-13T06:25:04.3054650Z   Python2_ROOT_DIR: /Users/runner/hostedtoolcache/Python/3.12.10/arm64
+2026-10-13T06:25:04.3055040Z   Python3_ROOT_DIR: /Users/runner/hostedtoolcache/Python/3.12.10/arm64
+2026-10-13T06:25:04.3055350Z   CHIMERA_PACKAGE_VERSION: 1.3.1-beta.2
+2026-10-13T06:25:04.3055610Z   CTEST_OUTCOME: success
+2026-10-13T06:25:04.3055830Z   WINDOWS_PACKAGE: skipped
+2026-10-13T06:25:04.3056100Z   LINUX_PACKAGE: skipped
+2026-10-13T06:25:04.3056320Z   MACOS_PACKAGE: success
+2026-10-13T06:25:04.3056530Z   INSTALLER_OUTCOME: skipped
+2026-10-13T06:25:04.3056710Z   MSIX_OUTCOME: skipped
+2026-10-13T06:25:04.3056890Z   SCAN_OUTCOME: skipped
+2026-10-13T06:25:04.3057090Z ##[endgroup]
+2026-10-13T06:25:04.4673470Z Preserved macos evidence for 6033236cb81820a43679cbbd34be020804f9658d, run 38350264755/1
+2026-10-13T06:25:04.4836950Z ##[group]Run actions/upload-artifact@v4
+2026-10-13T06:25:04.4837780Z with:
+2026-10-13T06:25:04.4838960Z   name: Chimera-release-evidence-macos
+2026-10-13T06:25:04.4839890Z   path: build/release-evidence
+2026-10-13T06:25:04.4840490Z   if-no-files-found: error
+2026-10-13T06:25:04.4841030Z   overwrite: true
+2026-10-13T06:25:04.4841770Z   compression-level: 6
+2026-10-13T06:25:04.4842030Z   include-hidden-files: false
+2026-10-13T06:25:04.4842250Z env:
+2026-10-13T06:25:04.4842480Z   CHIMERA_SOURCE_SHA: 6033236cb81820a43679cbbd34be020804f9658d
+2026-10-13T06:25:04.4843130Z   pythonLocation: /Users/runner/hostedtoolcache/Python/3.12.10/arm64
+2026-10-13T06:25:04.4843640Z   PKG_CONFIG_PATH: /Users/runner/hostedtoolcache/Python/3.12.10/arm64/lib/pkgconfig
+2026-10-13T06:25:04.4844130Z   Python_ROOT_DIR: /Users/runner/hostedtoolcache/Python/3.12.10/arm64
+2026-10-13T06:25:04.4844590Z   Python2_ROOT_DIR: /Users/runner/hostedtoolcache/Python/3.12.10/arm64
+2026-10-13T06:25:04.4845090Z   Python3_ROOT_DIR: /Users/runner/hostedtoolcache/Python/3.12.10/arm64
+2026-10-13T06:25:04.4845420Z   CHIMERA_PACKAGE_VERSION: 1.3.1-beta.2
+2026-10-13T06:25:04.4845680Z ##[endgroup]
+2026-10-13T06:25:04.6437190Z (node:9966) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-13T06:25:04.6437970Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-13T06:25:04.6463410Z With the provided path, there will be 5 files uploaded
+2026-10-13T06:25:04.9339240Z Artifact name is valid!
+2026-10-13T06:25:04.9341210Z Root directory input is valid!
+2026-10-13T06:25:05.1588950Z Beginning upload of artifact content to blob storage
+2026-10-13T06:25:05.1788710Z (node:9966) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-10-13T06:25:05.5677720Z Uploaded bytes 57663
+2026-10-13T06:25:05.6504100Z Finished uploading artifact content to blob storage!
+2026-10-13T06:25:05.6505540Z SHA256 digest of uploaded artifact zip is 3717460345ebf7d6cb335b736eca93bd90ead33a615dd8137c7e6c67884e20cc
+2026-10-13T06:25:05.6506780Z Finalizing artifact upload
+2026-10-13T06:25:05.9244220Z Artifact Chimera-release-evidence-macos.zip successfully finalized. Artifact ID 11792184316
+2026-10-13T06:25:05.9246160Z Artifact Chimera-release-evidence-macos has been successfully uploaded! Final size is 57663 bytes. Artifact ID is 11792184316
+2026-10-13T06:25:05.9257040Z Artifact download URL: https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38350264755/artifacts/11792184316
+2026-10-13T06:25:05.9502360Z Post job cleanup.
+2026-10-13T06:25:06.0998170Z (node:9968) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-13T06:25:06.0999860Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-13T06:25:06.1136920Z Post job cleanup.
+2026-10-13T06:25:06.2610420Z [command]/opt/homebrew/bin/git version
+2026-10-13T06:25:06.2692970Z git version 2.55.0
+2026-10-13T06:25:06.2717040Z Copying '/Users/runner/.gitconfig' to '/Users/runner/work/_temp/f1db5698-92eb-4ec1-b1eb-f686bda96c54/.gitconfig'
+2026-10-13T06:25:06.2727000Z Temporarily overriding HOME='/Users/runner/work/_temp/f1db5698-92eb-4ec1-b1eb-f686bda96c54' before making global git config changes
+2026-10-13T06:25:06.2727970Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-13T06:25:06.2742140Z [command]/opt/homebrew/bin/git config --global --add safe.directory /Users/runner/work/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix
+2026-10-13T06:25:06.2839270Z [command]/opt/homebrew/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-13T06:25:06.2939150Z [command]/opt/homebrew/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-13T06:25:06.4324440Z [command]/opt/homebrew/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-13T06:25:06.4416200Z http.https://github.com/.extraheader
+2026-10-13T06:25:06.4427470Z [command]/opt/homebrew/bin/git config --local --unset-all http.https://github.com/.extraheader
+2026-10-13T06:25:06.4544140Z [command]/opt/homebrew/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-13T06:25:06.5875560Z [command]/opt/homebrew/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-13T06:25:06.5971880Z [command]/opt/homebrew/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-10-13T06:25:06.7277430Z Cleaning up orphan processes
+2026-10-13T06:25:07.8859830Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, actions/setup-python@v5, actions/upload-artifact@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/

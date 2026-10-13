@@ -1,0 +1,54 @@
+{
+  "job_id": 115161016588,
+  "declared_verdict": "BLOCKED",
+  "producer_declared_checks": {
+    "PASS": 21,
+    "BLOCKED": 107,
+    "NOT_APPLICABLE": 0
+  },
+  "producer_declared_hard_gates": {
+    "passed": 21,
+    "total": 63,
+    "not_passed": 42,
+    "not_passed_derivation": "63 total -21 PASS =42 not passed; producer summary also declares0 NOT_APPLICABLE overall."
+  },
+  "E1_stage": "Producer original log declares E1 aggregate PASS,3 PASS/0 BLOCKED/0 N/A; individual E1.STATE_UI embedded report receipt is not exposed in this job stdout.",
+  "job_conclusion": "success",
+  "verdict_step": {
+    "name": "Compute intended release verdict",
+    "status": "completed",
+    "conclusion": "success",
+    "number": 5,
+    "started_at": "2026-10-13T06:26:19Z",
+    "completed_at": "2026-10-13T06:26:19Z"
+  },
+  "source_workflow_has_continue_on_error_on_verdict_step": false,
+  "explicit_process_exit_code_in_log": "Not printed. The original GitHub step conclusion is success and the unchanged workflow has no continue-on-error on this command.",
+  "artifact": {
+    "id": 11791989864,
+    "node_id": "MDg6QXJ0aWZhY3QxMTc5MTk4OTg2NA==",
+    "name": "Chimera-A-stage-release-gate",
+    "size_in_bytes": 262810,
+    "url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/artifacts/11791989864",
+    "archive_download_url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/artifacts/11791989864/zip",
+    "expired": false,
+    "digest": "sha256:c3a812f2d28a2b409a5cdbe6594140c0e70ae41ee3310c4a05d7fc1ca348ed01",
+    "created_at": "2026-10-13T06:26:20Z",
+    "updated_at": "2026-10-13T06:26:20Z",
+    "expires_at": "2027-01-11T05:13:04Z",
+    "workflow_run": {
+      "id": 38350264755,
+      "repository_id": 1382701489,
+      "head_repository_id": 1382701489,
+      "head_branch": "integration/beta2-test-20261014",
+      "head_sha": "6033236cb81820a43679cbbd34be020804f9658d"
+    }
+  },
+  "qualification": "Producer declares release BLOCKED. The separate read-only archive/publisher audit is owned by root and is not performed by this observation collector.",
+  "original_summary_lines": [
+    "2026-10-13T06:26:19.7758518Z # Chimera release gate: BLOCKED",
+    "2026-10-13T06:26:19.7759710Z - Checks: 21 PASS / 107 BLOCKED / 0 NOT_APPLICABLE",
+    "2026-10-13T06:26:19.7760038Z - Hard gates: 21 / 63 PASS",
+    "2026-10-13T06:26:19.7768703Z | E1 E670FE implementation and legacy compatibility | PASS | 3 | 0 | 0 |"
+  ]
+}
