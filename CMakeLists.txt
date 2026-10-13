@@ -55,6 +55,13 @@ target_compile_definitions(ChimeraAmpMatrix PUBLIC JUCE_WEB_BROWSER=0 JUCE_USE_C
 target_link_libraries(ChimeraAmpMatrix PRIVATE ChimeraIRs ChimeraArtwork ChimeraManual juce::juce_cryptography juce::juce_audio_utils juce::juce_dsp PUBLIC juce::juce_recommended_config_flags juce::juce_recommended_warning_flags)
 enable_testing()
 
+# Serverless beta lifecycle policy. This target is deliberately independent of
+# JUCE and the audio graph so injected-clock and active-instance latch behavior
+# can be validated without networking, a host, or the machine clock.
+add_executable(ChimeraBetaLifecycleTests Tests/BetaLifecycleTests.cpp)
+target_include_directories(ChimeraBetaLifecycleTests PRIVATE Source)
+add_test(NAME ChimeraBetaLifecycleTests COMMAND ChimeraBetaLifecycleTests)
+
 # 1.2 Original engine: isolated core tests alongside the production native route.
 add_executable(ChimeraOriginalAmpTests Tests/OriginalAmpTests.cpp)
 target_include_directories(ChimeraOriginalAmpTests PRIVATE Source)
@@ -118,6 +125,8 @@ target_link_libraries(ChimeraOriginalAmpRender PRIVATE juce::juce_dsp juce::juce
 # Compile the actual upstream/patched VBlankThread class with a deterministic
 # failing DXGI output. This runs on every platform without a physical display.
 find_package(Python3 3.9 REQUIRED COMPONENTS Interpreter)
+add_test(NAME ChimeraBetaLifecycleToolTests
+  COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/Tools/test_beta_lifecycle.py")
 add_test(NAME ChimeraPackagingVersionTests
   COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/Tests/test_packaging_version.py")
 find_package(Threads REQUIRED)
