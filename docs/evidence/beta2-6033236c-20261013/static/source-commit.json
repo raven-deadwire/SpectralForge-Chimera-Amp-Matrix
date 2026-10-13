@@ -1,0 +1,101 @@
+{
+  "sha": "6033236cb81820a43679cbbd34be020804f9658d",
+  "node_id": "C_kwDOUmpZsdoAKDYwMzMyMzZjYjgxODIwYTQzNjc5Y2JiZDM0YmUwMjA4MDRmOTY1OGQ",
+  "commit": {
+    "author": {
+      "name": "raven-deadwire",
+      "email": "memory_64085@naver.com",
+      "date": "2026-10-13T05:12:58Z"
+    },
+    "committer": {
+      "name": "raven-deadwire",
+      "email": "memory_64085@naver.com",
+      "date": "2026-10-13T05:12:58Z"
+    },
+    "message": "Preserve native UI evidence receipt without changing public captions",
+    "tree": {
+      "sha": "7b23b503b807db36ec4f51491d6aa5f8c29e7b8c",
+      "url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/git/trees/7b23b503b807db36ec4f51491d6aa5f8c29e7b8c"
+    },
+    "url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/git/commits/6033236cb81820a43679cbbd34be020804f9658d",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null,
+      "verified_at": null
+    }
+  },
+  "url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/commits/6033236cb81820a43679cbbd34be020804f9658d",
+  "html_url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/commit/6033236cb81820a43679cbbd34be020804f9658d",
+  "comments_url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/commits/6033236cb81820a43679cbbd34be020804f9658d/comments",
+  "author": {
+    "login": "raven-deadwire",
+    "id": 223809014,
+    "node_id": "U_kgDODVcN9g",
+    "avatar_url": "https://avatars.githubusercontent.com/u/223809014?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/raven-deadwire",
+    "html_url": "https://github.com/raven-deadwire",
+    "followers_url": "https://api.github.com/users/raven-deadwire/followers",
+    "following_url": "https://api.github.com/users/raven-deadwire/following{/other_user}",
+    "gists_url": "https://api.github.com/users/raven-deadwire/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/raven-deadwire/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/raven-deadwire/subscriptions",
+    "organizations_url": "https://api.github.com/users/raven-deadwire/orgs",
+    "repos_url": "https://api.github.com/users/raven-deadwire/repos",
+    "events_url": "https://api.github.com/users/raven-deadwire/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/raven-deadwire/received_events",
+    "type": "User",
+    "user_view_type": "public",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "raven-deadwire",
+    "id": 223809014,
+    "node_id": "U_kgDODVcN9g",
+    "avatar_url": "https://avatars.githubusercontent.com/u/223809014?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/raven-deadwire",
+    "html_url": "https://github.com/raven-deadwire",
+    "followers_url": "https://api.github.com/users/raven-deadwire/followers",
+    "following_url": "https://api.github.com/users/raven-deadwire/following{/other_user}",
+    "gists_url": "https://api.github.com/users/raven-deadwire/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/raven-deadwire/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/raven-deadwire/subscriptions",
+    "organizations_url": "https://api.github.com/users/raven-deadwire/orgs",
+    "repos_url": "https://api.github.com/users/raven-deadwire/repos",
+    "events_url": "https://api.github.com/users/raven-deadwire/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/raven-deadwire/received_events",
+    "type": "User",
+    "user_view_type": "public",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "9375328c30dfe5908e5010342179b5afbc258900",
+      "url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/commits/9375328c30dfe5908e5010342179b5afbc258900",
+      "html_url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/commit/9375328c30dfe5908e5010342179b5afbc258900"
+    }
+  ],
+  "stats": {
+    "total": 5,
+    "additions": 4,
+    "deletions": 1
+  },
+  "files": [
+    {
+      "sha": "1ac7707b39f6ee54ef63c1fa54a8f64082782c35",
+      "filename": "Tests/NativeUITests.h",
+      "status": "modified",
+      "additions": 4,
+      "deletions": 1,
+      "changes": 5,
+      "blob_url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/blob/6033236cb81820a43679cbbd34be020804f9658d/Tests%2FNativeUITests.h",
+      "raw_url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/raw/6033236cb81820a43679cbbd34be020804f9658d/Tests%2FNativeUITests.h",
+      "contents_url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/contents/Tests%2FNativeUITests.h?ref=6033236cb81820a43679cbbd34be020804f9658d",
+      "patch": "@@ -290,7 +290,10 @@ inline void run(const juce::File& directory){\n     lowOverview(processor,editor,*canvas,directory);\n     const int postControlCases=postPanels(processor,editor,*canvas,directory);\n     dialogTeardown();\n-    std::cout<<\"PASS native UI: all \"<<spectralforge::ampModelCount<<\" serialized amplifier panels at 100/75%, \"<<channelCases<<\" channel cases, \"<<controlCases<<\" channel/control visibility cases, Matrix LOW priority controls and ALL, 9 POST models / \"<<postControlCases<<\" controls at 100/75%, flat POST alias menus and functional captions, six compact rack rows and ALL dialogs, editor teardown and real parameter callbacks\\n\";\n+    // Preserve the legacy machine-readable receipt required by Validation/ci-check-map.json.\n+    // Its historical caption label does not change the sound-description and safeText assertions above.\n+    std::cout<<\"PASS public captions: selected amplifier captions use sound descriptions and satisfy the public-name policy\\n\";\n+    std::cout<<\"PASS native UI: all \"<<spectralforge::ampModelCount<<\" serialized amplifier panels at 100/75%, \"<<channelCases<<\" channel cases, \"<<controlCases<<\" channel/control visibility cases, Matrix LOW priority controls and ALL, 9 POST models / \"<<postControlCases<<\" controls at 100/75%, flat POST alias menus and short original model captions, six compact rack rows and ALL dialogs, editor teardown and real parameter callbacks\\n\";\n }\n }\n inline void runNativeUITests(const juce::File& directory){nativeUITests::run(directory);}"
+    }
+  ]
+}
