@@ -1,0 +1,6 @@
+{
+  "original_path": "/workspace/scratch/2646ac4e7dbd/tuner-timing-baseline/tuner-callbacks.csv",
+  "sha256": "19e292f0c224ee62eb5cc8bfc65063556426d20a6e7bf131f34c37c55cc16f12",
+  "qualification": "UNQUALIFIED_SOURCE_PROVENANCE",
+  "note": "Existing local diagnostic; binary did not report a source SHA. Reused for hypothesis generation only, not as PR #66 HEAD or candidate certification."
+}

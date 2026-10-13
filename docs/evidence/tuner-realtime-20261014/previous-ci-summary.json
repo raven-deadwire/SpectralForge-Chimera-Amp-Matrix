@@ -1,0 +1,42 @@
+[
+  {
+    "file": "existing-job-115400013610.log.gz",
+    "sha256_uncompressed": "6a504139d48947b3acbcb55467bdf3f940472ad7ff504955a1d48f3f86dfaeab",
+    "failures": [
+      "2026-10-13T16:23:28.8004946Z  3/10 Test #10: ChimeraPrecisionTunerUITests ............***Failed    7.36 sec",
+      "2026-10-13T16:23:28.8006317Z FAIL: Tuner control outside window",
+      "2026-10-13T16:24:10.0328977Z  5/10 Test #22: ChimeraCabPanelStateTests ...............***Failed   35.18 sec",
+      "2026-10-13T16:24:10.3761554Z  6/10 Test #29: ChimeraGateProcessorTests ...............***Failed    0.34 sec",
+      "2026-10-13T16:24:10.3772419Z FAIL Gate Range ordinal or complete appended channel parameter count changed",
+      "2026-10-13T16:25:38.6179638Z 70% tests passed, 3 tests failed out of 10"
+    ]
+  },
+  {
+    "file": "pr67-macos-existing.log.gz",
+    "sha256_uncompressed": "4e45b7f6ba7a60c433334480396f182722084e41d5923145cf2918fa365adee9",
+    "failures": [
+      "2026-10-13T16:21:07.0880880Z  3/10 Test #10: ChimeraPrecisionTunerUITests ............***Failed    6.69 sec",
+      "2026-10-13T16:21:07.1427360Z FAIL: Tuner control outside window",
+      "2026-10-13T16:21:38.0151940Z  5/10 Test #21: ChimeraCabPanelStateTests ...............***Failed   23.62 sec",
+      "2026-10-13T16:21:38.3248170Z  6/10 Test #28: ChimeraGateProcessorTests ...............***Failed    0.31 sec",
+      "2026-10-13T16:21:38.3272680Z FAIL Gate Range ordinal or complete appended channel parameter count changed",
+      "2026-10-13T16:23:11.6495400Z 10/10 Test #50: ChimeraPrecisionTunerIntegrationTests ...***Failed   41.89 sec",
+      "2026-10-13T16:23:11.6980930Z ROUTE FAIL rate=44100 block=256 hz=27.5 acquire=293.775 settle=233.22 error=-1.92066e-05",
+      "2026-10-13T16:23:11.6986720Z ROUTE FAIL rate=44100 block=256 hz=440 acquire=320.172 settle=225.154 error=-1.92066e-05",
+      "2026-10-13T16:23:11.6997160Z ROUTE FAIL rate=48000 block=256 hz=30.8677 acquire=299.909 settle=222.33 error=-3.17068e-05",
+      "2026-10-13T16:23:11.7004850Z ROUTE FAIL rate=96000 block=64 hz=30.8677 acquire=297.833 settle=197.606 error=-3.17068e-05",
+      "2026-10-13T16:23:11.7023950Z ROUTE FAIL rate=192000 block=256 hz=27.5 acquire=306.37 settle=226.539 error=-1.92066e-05",
+      "2026-10-13T16:23:11.7038110Z 60% tests passed, 4 tests failed out of 10"
+    ]
+  },
+  {
+    "file": "existing-job-115400013142.log.gz",
+    "sha256_uncompressed": "2605d3a9d63d329f7d5005b0762ed093bff2b1ec6557a278ed9e602d249ef8c8",
+    "failures": [
+      "2026-10-13T16:26:34.5581682Z  6/11 Test #22: ChimeraCabPanelStateTests ...............***Failed   27.34 sec",
+      "2026-10-13T16:26:34.8533444Z  7/11 Test #29: ChimeraGateProcessorTests ...............***Failed    0.29 sec",
+      "2026-10-13T16:26:34.8542597Z FAIL Gate Range ordinal or complete appended channel parameter count changed",
+      "2026-10-13T16:28:06.1577231Z 82% tests passed, 2 tests failed out of 11"
+    ]
+  }
+]

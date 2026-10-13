@@ -1,0 +1,36 @@
+{
+  "base_pr67_sha": "36e41a50a9179b52eba21c3e8d5f99d0aad5bbef",
+  "instrumentation_local_commit": "26dc7bb",
+  "candidate_remote_sha": "2cf45707e7d3ad9e50569fe1c5fa13815387b975",
+  "thresholds_changed": false,
+  "release_approved": false,
+  "platform": "Linux-6.18.44-x86_64-with-glibc2.39",
+  "normal_priority_feeder": true,
+  "physical_audio_driver": false,
+  "limitations": [
+    "Shared container: other build workloads observed. Local timings do not certify a dedicated audio host.",
+    "Diagnostic hooks add paired clock reads; clocks/trace storage are excluded from ordinary builds.",
+    "Windows GetThreadTimes is raw kernel+user CPU time; short intervals may be quantized; cycles are never converted to time."
+  ],
+  "candidate_source_sha256": {
+    "Source/GlobalDSP.h": "54d0612a7ad2479c8a4ee1106edb7db88931cde24401ead0fb74e83153c79576",
+    "Source/PrecisionTuner.h": "557dc3dedd05904856f242122c89c4a52c43926d88d96e4d630de337b4c1a8a4",
+    "Source/PluginProcessor.h": "b9ca1489c30c46ecd33e40bd7d0a2032513a8a474924288012d6fbd620cc8b6e",
+    "Tests/TunerResponseTests.cpp": "4fa50a57689c0d015f2991d03613423ccd8ee55af429e28c365b5ad422e45cf8",
+    "Tests/TunerRealtimeTests.cpp": "222f23c9abe00dd262767878ed800a18a75c1baeac71bdb5d65517d80f5c69a7",
+    "Tests/TunerDiagnostics.h": "a073ac24b8b37e47645470ec4ee36b45d9d0ce55ed6558ff5644bccaf0e586b9",
+    "Tests/TunerCostTests.cpp": "f831c0d6c527ff2977c44e803517f6624453abb579b7601b28324fd572f1a159"
+  },
+  "baseline_diagnostic_global_sha256": "9f7bd12306a4b348eb5a13dd13a9c6e3e52f4b103951ecf41158183baffe756a",
+  "binary_sha256": {
+    "candidate-response": "e6541e14dd8e224e824aac473aac2730310cdee1dfa2c9852efc791536e2153c",
+    ".baseline-realtime.aa7Fim": "d770d9fc42dd2a8df2647596aa23c6b577cd5dd801bbb32c05c82c80fc09b1a8",
+    "candidate-integration": "609781fc250bbe5821e299af50ed12fa73662458631ca1f774e47a70c9486386",
+    "candidate-core": "0389ee010f550a0840522803f342311ad248d0b68ee6233a0abbb9b3ed0de864",
+    "baseline-realtime": "33971ec58dcb294c8126c3055c0e44786a647df4849a84e87914e8009b06c120",
+    "baseline-integration": "056712fe18d8a08f2d63ac69984feb6addc7e6753508c33000f16b6a29090a73",
+    "baseline-response": "f557f579e59031f6c2f4d4e5a29902f604d798e14b3a8c51fea3c8e900923bbd",
+    "clock-controls": "cd6b446c915dd60bc2093a4e97ad171d71ef5cb24e0198b1e9fb54af3f9a2b32",
+    "candidate-cost": "d438617efbd3e59f9fa9054e34f6486e5d5260b5f57ae5ae48c6825cdf66d94e"
+  }
+}

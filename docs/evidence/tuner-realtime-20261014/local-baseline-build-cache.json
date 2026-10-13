@@ -1,0 +1,34 @@
+{
+  "scope": "Baseline full native harness only; project Source TUs and harness recompiled with diagnostic layout. Local CMake flags from prior identical product configuration. Reused unchanged JUCE and binary data resources; no release build claimed.",
+  "recompiled_project_objects": {
+    "ReleaseSupport.cpp.o": "de546ee89228055e6c32a3d66de7f3f1559051220c8fea1f41e599bb5500f048",
+    "IRLibrary.cpp.o": "46b31082bcbd2bdabbe50d934cfb60d4fb3873ae7b9afc8cc8e4ae92fe1ef6e0",
+    "PluginProcessor.cpp.o": "9a031ff57812cb49c859770e5367bee7a271d478a4c823111cce98690a661c06",
+    "PluginEditor.cpp.o": "1862eaebe757a75a224013e976857c551d07828086b2351e0ea03bcea3624738"
+  },
+  "resource_archives": {
+    "libChimeraArtwork.a": "4ee6535b354a8972a46c9962bee134ed99805192bc73bafe151f6ac3c67edbb4",
+    "libChimeraManual.a": "07fbd2bb11d2756451d0e12b6610a37a8cfe74092b66ae434a13285a6407a185",
+    "libChimeraIRs.a": "0dc1fb35b60e6095de67e36d7e3fb0a342b22d411ac053f900c9d2de08ecca0b"
+  },
+  "juce_objects": {
+    "CMakeFiles/ChimeraUITests.dir/workspace/scratch/2646ac4e7dbd/juce/modules/juce_audio_formats/juce_audio_formats.cpp.o": "cd8c0d43e27ba40077eae8a097c0de3c6df83b8e61894bec184acfba6bdd17f0",
+    "CMakeFiles/ChimeraUITests.dir/workspace/scratch/2646ac4e7dbd/juce/modules/juce_core/juce_core.cpp.o": "b7e41362991b08c3821e576fc132a2463e5d97c8bf53d4a95a9d0570707219b2",
+    "CMakeFiles/ChimeraUITests.dir/workspace/scratch/2646ac4e7dbd/juce/modules/juce_core/juce_core_CompilationTime.cpp.o": "71573b135073c8e40360b0f12457cf6435cf837ef06dccc6643168732004f6be",
+    "CMakeFiles/ChimeraUITests.dir/workspace/scratch/2646ac4e7dbd/juce/modules/juce_audio_processors/juce_audio_processors.cpp.o": "2ca5eaf071e9c777426712ac4c4f60f682e109d9a2db36baddfb83ef7328e588",
+    "CMakeFiles/ChimeraUITests.dir/workspace/scratch/2646ac4e7dbd/juce/modules/juce_audio_processors/juce_audio_processors_ara.cpp.o": "2d9147a3f46e53a40446435284fbbe237443b16083f089e70ffa884f6aa6715d",
+    "CMakeFiles/ChimeraUITests.dir/workspace/scratch/2646ac4e7dbd/juce/modules/juce_audio_processors/juce_audio_processors_lv2_libs.cpp.o": "0bfdc084d3c63afc91665225c37f613cc0aea98e9bc103b6b5ad2ee461eae73b",
+    "CMakeFiles/ChimeraUITests.dir/workspace/scratch/2646ac4e7dbd/juce/modules/juce_gui_basics/juce_gui_basics.cpp.o": "b401896a0edecfd6c2454b2e1cea0890bfe4a13cff7c420cc6e2cb0848e95cfd",
+    "CMakeFiles/ChimeraUITests.dir/workspace/scratch/2646ac4e7dbd/juce/modules/juce_events/juce_events.cpp.o": "61fe08cdc4c985972abf17e2ffd9223b4681f596f3a12fce933b104a665c951d",
+    "CMakeFiles/ChimeraUITests.dir/workspace/scratch/2646ac4e7dbd/juce/modules/juce_gui_extra/juce_gui_extra.cpp.o": "21c3850cc5170a6c918b7012767918f804b94c1f14fa4b61882689d7eb22cc52",
+    "CMakeFiles/ChimeraUITests.dir/workspace/scratch/2646ac4e7dbd/juce/modules/juce_audio_basics/juce_audio_basics.cpp.o": "e6ee629661faf00cb6441f71205141c397c51e6646fc0fa6a078262ba2456aaf",
+    "CMakeFiles/ChimeraUITests.dir/workspace/scratch/2646ac4e7dbd/juce/modules/juce_audio_devices/juce_audio_devices.cpp.o": "7c7e93d5270dd56daca39cb448631f2cd78ec8317f517c4210ee5426f4fccba7",
+    "CMakeFiles/ChimeraUITests.dir/workspace/scratch/2646ac4e7dbd/juce/modules/juce_cryptography/juce_cryptography.cpp.o": "23c70f6409987daa8f98409707acc62ad5c52885488caad13f3480af9348e203",
+    "CMakeFiles/ChimeraUITests.dir/workspace/scratch/2646ac4e7dbd/juce/modules/juce_dsp/juce_dsp.cpp.o": "ff9e089532ae4d0b34d7ea29c3e58240bdc5465f557c610cfa433ee439e8bb5d",
+    "CMakeFiles/ChimeraUITests.dir/workspace/scratch/2646ac4e7dbd/juce/modules/juce_audio_utils/juce_audio_utils.cpp.o": "d0f5eaea38e24040be8c28473a7355fded4b8a28679e4f92d2a2857af329dbd0",
+    "CMakeFiles/ChimeraUITests.dir/workspace/scratch/2646ac4e7dbd/juce/modules/juce_graphics/juce_graphics_Sheenbidi.c.o": "d10f5e2387044435619ed86e5a6beecde50423553ae7f4755250841fd5b5f593",
+    "CMakeFiles/ChimeraUITests.dir/workspace/scratch/2646ac4e7dbd/juce/modules/juce_graphics/juce_graphics.cpp.o": "55a5c2d91d193cda2355b8dc899bd269b375fb7eb818ca923869728476b4b882",
+    "CMakeFiles/ChimeraUITests.dir/workspace/scratch/2646ac4e7dbd/juce/modules/juce_graphics/juce_graphics_Harfbuzz.cpp.o": "9621b53a31f68f4364ed38b03ae8c73e08ce23555376e8a18baff727ca8ddc37",
+    "CMakeFiles/ChimeraUITests.dir/workspace/scratch/2646ac4e7dbd/juce/modules/juce_data_structures/juce_data_structures.cpp.o": "1df357ee2395fa259751a6ea36eaef39f1f356f420ddb52d3ba6d8a31c1b310d"
+  }
+}

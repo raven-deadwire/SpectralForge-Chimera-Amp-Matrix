@@ -1,0 +1,6 @@
+E2 repeat=0 continuous=0 acquire_ms=197.446 step_ms=190.846 final_cents=5.14413e-05 pass=1
+E2 repeat=0 continuous=1 acquire_ms=170.784 step_ms=180.262 final_cents=5.14413e-05 pass=1
+E2 repeat=1 continuous=0 acquire_ms=181.582 step_ms=185.529 final_cents=5.14413e-05 pass=1
+E2 repeat=1 continuous=1 acquire_ms=186.776 step_ms=174.973 final_cents=5.14413e-05 pass=1
+E2 repeat=2 continuous=0 acquire_ms=178.111 step_ms=190.751 final_cents=5.14413e-05 pass=1
+E2 repeat=2 continuous=1 acquire_ms=192.578 step_ms=191.062 final_cents=5.14413e-05 pass=1

@@ -1,0 +1,22 @@
+[
+  {
+    "encoded": "existing-job-115400013610.log.gz.b64",
+    "decoded": "existing-job-115400013610.log.gz",
+    "sha256": "9a595fc4b6b753b2b0cde51202d30fb1570bf3c3cfe3dd03021283efeb40f065"
+  },
+  {
+    "encoded": "previous-pr66-unqualified-callbacks.csv.gz.b64",
+    "decoded": "previous-pr66-unqualified-callbacks.csv.gz",
+    "sha256": "38c58903e66d50111ad73e522df3d4546efe60a1e74944b1028381645448890e"
+  },
+  {
+    "encoded": "pr67-macos-existing.log.gz.b64",
+    "decoded": "pr67-macos-existing.log.gz",
+    "sha256": "26e9cc63ddea018523048c391e92a0cf8bd7f844d0a8810ad17a2b43874231a4"
+  },
+  {
+    "encoded": "existing-job-115400013142.log.gz.b64",
+    "decoded": "existing-job-115400013142.log.gz",
+    "sha256": "be80ac16a0d9376a0a230ad217ca059f2137876cb0504d22ccdb1caf6057124b"
+  }
+]
