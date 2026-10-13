@@ -1,0 +1,698 @@
+{
+  "source_sha": "c3e9d436fbdc9b8778b592f333c93037b012b8c5",
+  "observed_at": "2026-10-13T03:25:00.324Z",
+  "verdict": "FAILED; superseded only by a separately verified later source",
+  "counts": {
+    "workflows": 11,
+    "workflows_success": 9,
+    "workflows_failed": 2,
+    "jobs": 33,
+    "jobs_success": 29,
+    "jobs_failed": 3,
+    "jobs_skipped": 1,
+    "jobs_executed": 32,
+    "executed_jobs_checkout_verified": 32
+  },
+  "runs": [
+    {
+      "id": 38335148324,
+      "name": "Niflheimr DI audition contracts",
+      "path": ".github/workflows/niflheimr-audition.yml",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38335148324",
+      "attempt": 1,
+      "source_sha": "c3e9d436fbdc9b8778b592f333c93037b012b8c5"
+    },
+    {
+      "id": 38335147329,
+      "name": "1.3.1 signal path and EQ integration contracts",
+      "path": ".github/workflows/signal-path.yml",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38335147329",
+      "attempt": 1,
+      "source_sha": "c3e9d436fbdc9b8778b592f333c93037b012b8c5"
+    },
+    {
+      "id": 38335147293,
+      "name": "CAB realtime performance",
+      "path": ".github/workflows/cab-realtime.yml",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38335147293",
+      "attempt": 1,
+      "source_sha": "c3e9d436fbdc9b8778b592f333c93037b012b8c5"
+    },
+    {
+      "id": 38335147299,
+      "name": "CAB Panel prototype contracts",
+      "path": ".github/workflows/cab-panel.yml",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38335147299",
+      "attempt": 1,
+      "source_sha": "c3e9d436fbdc9b8778b592f333c93037b012b8c5"
+    },
+    {
+      "id": 38335147277,
+      "name": "Graphical EQ prototype contracts",
+      "path": ".github/workflows/graphical-eq.yml",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38335147277",
+      "attempt": 1,
+      "source_sha": "c3e9d436fbdc9b8778b592f333c93037b012b8c5"
+    },
+    {
+      "id": 38335147323,
+      "name": "Chimera release publisher contracts",
+      "path": ".github/workflows/release-publisher.yml",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38335147323",
+      "attempt": 1,
+      "source_sha": "c3e9d436fbdc9b8778b592f333c93037b012b8c5"
+    },
+    {
+      "id": 38335147327,
+      "name": "Niflheimr technical measurements",
+      "path": ".github/workflows/niflheimr-measurements.yml",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38335147327",
+      "attempt": 1,
+      "source_sha": "c3e9d436fbdc9b8778b592f333c93037b012b8c5"
+    },
+    {
+      "id": 38335147379,
+      "name": "Document Upgrade Compatibility",
+      "path": ".github/workflows/document-upgrade.yml",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38335147379",
+      "attempt": 1,
+      "source_sha": "c3e9d436fbdc9b8778b592f333c93037b012b8c5"
+    },
+    {
+      "id": 38335147356,
+      "name": "1.3.1 amplifier head controls",
+      "path": ".github/workflows/amp-head-controls.yml",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38335147356",
+      "attempt": 1,
+      "source_sha": "c3e9d436fbdc9b8778b592f333c93037b012b8c5"
+    },
+    {
+      "id": 38335147371,
+      "name": "Chimera update candidate",
+      "path": ".github/workflows/update-candidate.yml",
+      "status": "completed",
+      "conclusion": "failure",
+      "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38335147371",
+      "attempt": 1,
+      "source_sha": "c3e9d436fbdc9b8778b592f333c93037b012b8c5"
+    },
+    {
+      "id": 38335147294,
+      "name": "Open Beta Build and Test",
+      "path": ".github/workflows/build.yml",
+      "status": "completed",
+      "conclusion": "failure",
+      "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38335147294",
+      "attempt": 1,
+      "source_sha": "c3e9d436fbdc9b8778b592f333c93037b012b8c5"
+    }
+  ],
+  "jobs": [
+    {
+      "id": 115093432913,
+      "run_id": 38335148324,
+      "name": "audition-contracts (ubuntu-22.04)",
+      "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38335148324/job/115093432913",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "c3e9d436fbdc9b8778b592f333c93037b012b8c5",
+      "checkout_binding": "verified",
+      "checkout_evidence": [
+        "2026-10-13T02:05:20.8309676Z [command]/usr/bin/git log -1 --format=%H",
+        "2026-10-13T02:05:20.8342826Z c3e9d436fbdc9b8778b592f333c93037b012b8c5"
+      ],
+      "original_log": "job-115093432913.log",
+      "failed_steps": []
+    },
+    {
+      "id": 115093433195,
+      "run_id": 38335148324,
+      "name": "audition-contracts (windows-latest)",
+      "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38335148324/job/115093433195",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "c3e9d436fbdc9b8778b592f333c93037b012b8c5",
+      "checkout_binding": "verified",
+      "checkout_evidence": [
+        "2026-10-13T02:14:55.9143649Z [command]\"C:\\Program Files\\Git\\bin\\git.exe\" log -1 --format=%H\r",
+        "2026-10-13T02:14:55.9430526Z c3e9d436fbdc9b8778b592f333c93037b012b8c5\r"
+      ],
+      "original_log": "job-115093433195.log",
+      "failed_steps": []
+    },
+    {
+      "id": 115093433213,
+      "run_id": 38335148324,
+      "name": "audition-contracts (macos-15)",
+      "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38335148324/job/115093433213",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "c3e9d436fbdc9b8778b592f333c93037b012b8c5",
+      "checkout_binding": "verified",
+      "checkout_evidence": [
+        "2026-10-13T02:23:05.7858540Z [command]/opt/homebrew/bin/git log -1 --format=%H",
+        "2026-10-13T02:23:05.7960210Z c3e9d436fbdc9b8778b592f333c93037b012b8c5"
+      ],
+      "original_log": "job-115093433213.log",
+      "failed_steps": []
+    },
+    {
+      "id": 115093430185,
+      "run_id": 38335147329,
+      "name": "native-navigation (ubuntu-latest)",
+      "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38335147329/job/115093430185",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "c3e9d436fbdc9b8778b592f333c93037b012b8c5",
+      "checkout_binding": "verified",
+      "checkout_evidence": [
+        "2026-10-13T02:12:29.3412914Z [command]/usr/bin/git log -1 --format=%H",
+        "2026-10-13T02:12:29.3446885Z c3e9d436fbdc9b8778b592f333c93037b012b8c5"
+      ],
+      "original_log": "job-115093430185.log",
+      "failed_steps": []
+    },
+    {
+      "id": 115093430321,
+      "run_id": 38335147329,
+      "name": "native-navigation (macos-latest)",
+      "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38335147329/job/115093430321",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "c3e9d436fbdc9b8778b592f333c93037b012b8c5",
+      "checkout_binding": "verified",
+      "checkout_evidence": [
+        "2026-10-13T02:05:15.6637120Z [command]/opt/homebrew/bin/git log -1 --format=%H",
+        "2026-10-13T02:05:15.6733100Z c3e9d436fbdc9b8778b592f333c93037b012b8c5"
+      ],
+      "original_log": "job-115093430321.log",
+      "failed_steps": []
+    },
+    {
+      "id": 115093430422,
+      "run_id": 38335147329,
+      "name": "native-navigation (windows-latest)",
+      "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38335147329/job/115093430422",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "c3e9d436fbdc9b8778b592f333c93037b012b8c5",
+      "checkout_binding": "verified",
+      "checkout_evidence": [
+        "2026-10-13T02:16:52.9318697Z [command]\"C:\\Program Files\\Git\\bin\\git.exe\" log -1 --format=%H\r",
+        "2026-10-13T02:16:52.9602221Z c3e9d436fbdc9b8778b592f333c93037b012b8c5\r"
+      ],
+      "original_log": "job-115093430422.log",
+      "failed_steps": []
+    },
+    {
+      "id": 115093430208,
+      "run_id": 38335147293,
+      "name": "realtime (windows-latest)",
+      "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38335147293/job/115093430208",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "c3e9d436fbdc9b8778b592f333c93037b012b8c5",
+      "checkout_binding": "verified",
+      "checkout_evidence": [
+        "2026-10-13T02:06:10.2239436Z [command]\"C:\\Program Files\\Git\\bin\\git.exe\" log -1 --format=%H",
+        "2026-10-13T02:06:10.2410335Z c3e9d436fbdc9b8778b592f333c93037b012b8c5"
+      ],
+      "original_log": "job-115093430208.log",
+      "failed_steps": []
+    },
+    {
+      "id": 115093430383,
+      "run_id": 38335147293,
+      "name": "realtime (ubuntu-22.04)",
+      "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38335147293/job/115093430383",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "c3e9d436fbdc9b8778b592f333c93037b012b8c5",
+      "checkout_binding": "verified",
+      "checkout_evidence": [
+        "2026-10-13T02:11:09.6007925Z [command]/usr/bin/git log -1 --format=%H",
+        "2026-10-13T02:11:09.6022576Z c3e9d436fbdc9b8778b592f333c93037b012b8c5",
+        "2026-10-13T02:11:12.9458301Z [command]/usr/bin/git log -1 --format=%H",
+        "2026-10-13T02:11:12.9471678Z aaa1330dd5cf7d51faf1c45a7cef633b9b118458"
+      ],
+      "original_log": "job-115093430383.log",
+      "failed_steps": []
+    },
+    {
+      "id": 115093430416,
+      "run_id": 38335147293,
+      "name": "realtime (macos-15)",
+      "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38335147293/job/115093430416",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "c3e9d436fbdc9b8778b592f333c93037b012b8c5",
+      "checkout_binding": "verified",
+      "checkout_evidence": [
+        "2026-10-13T02:31:27.6689000Z [command]/opt/homebrew/bin/git log -1 --format=%H",
+        "2026-10-13T02:31:27.6804680Z c3e9d436fbdc9b8778b592f333c93037b012b8c5",
+        "2026-10-13T02:31:32.2763240Z [command]/opt/homebrew/bin/git log -1 --format=%H",
+        "2026-10-13T02:31:32.2864440Z aaa1330dd5cf7d51faf1c45a7cef633b9b118458"
+      ],
+      "original_log": "job-115093430416.log",
+      "failed_steps": []
+    },
+    {
+      "id": 115093430132,
+      "run_id": 38335147299,
+      "name": "cab-panel (macos-15)",
+      "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38335147299/job/115093430132",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "c3e9d436fbdc9b8778b592f333c93037b012b8c5",
+      "checkout_binding": "verified",
+      "checkout_evidence": [
+        "2026-10-13T02:15:35.8527830Z [command]/opt/homebrew/bin/git log -1 --format=%H",
+        "2026-10-13T02:15:35.8640910Z c3e9d436fbdc9b8778b592f333c93037b012b8c5"
+      ],
+      "original_log": "job-115093430132.log",
+      "failed_steps": []
+    },
+    {
+      "id": 115093430291,
+      "run_id": 38335147299,
+      "name": "cab-panel (ubuntu-22.04)",
+      "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38335147299/job/115093430291",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "c3e9d436fbdc9b8778b592f333c93037b012b8c5",
+      "checkout_binding": "verified",
+      "checkout_evidence": [
+        "2026-10-13T02:08:21.8258224Z [command]/usr/bin/git log -1 --format=%H",
+        "2026-10-13T02:08:21.8290219Z c3e9d436fbdc9b8778b592f333c93037b012b8c5"
+      ],
+      "original_log": "job-115093430291.log",
+      "failed_steps": []
+    },
+    {
+      "id": 115093430400,
+      "run_id": 38335147299,
+      "name": "cab-panel (windows-latest)",
+      "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38335147299/job/115093430400",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "c3e9d436fbdc9b8778b592f333c93037b012b8c5",
+      "checkout_binding": "verified",
+      "checkout_evidence": [
+        "2026-10-13T02:15:28.4666682Z [command]\"C:\\Program Files\\Git\\bin\\git.exe\" log -1 --format=%H\r",
+        "2026-10-13T02:15:28.4887072Z c3e9d436fbdc9b8778b592f333c93037b012b8c5\r"
+      ],
+      "original_log": "job-115093430400.log",
+      "failed_steps": []
+    },
+    {
+      "id": 115093430087,
+      "run_id": 38335147277,
+      "name": "graphical-eq (windows-latest)",
+      "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38335147277/job/115093430087",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "c3e9d436fbdc9b8778b592f333c93037b012b8c5",
+      "checkout_binding": "verified",
+      "checkout_evidence": [
+        "2026-10-13T02:15:19.0535361Z [command]\"C:\\Program Files\\Git\\bin\\git.exe\" log -1 --format=%H\r",
+        "2026-10-13T02:15:19.0731293Z c3e9d436fbdc9b8778b592f333c93037b012b8c5\r"
+      ],
+      "original_log": "job-115093430087.log",
+      "failed_steps": []
+    },
+    {
+      "id": 115093430240,
+      "run_id": 38335147277,
+      "name": "graphical-eq (macos-15)",
+      "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38335147277/job/115093430240",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "c3e9d436fbdc9b8778b592f333c93037b012b8c5",
+      "checkout_binding": "verified",
+      "checkout_evidence": [
+        "2026-10-13T02:18:44.5373160Z [command]/opt/homebrew/bin/git log -1 --format=%H",
+        "2026-10-13T02:18:44.5473510Z c3e9d436fbdc9b8778b592f333c93037b012b8c5"
+      ],
+      "original_log": "job-115093430240.log",
+      "failed_steps": []
+    },
+    {
+      "id": 115093430366,
+      "run_id": 38335147277,
+      "name": "graphical-eq (ubuntu-22.04)",
+      "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38335147277/job/115093430366",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "c3e9d436fbdc9b8778b592f333c93037b012b8c5",
+      "checkout_binding": "verified",
+      "checkout_evidence": [
+        "2026-10-13T02:13:34.6477698Z [command]/usr/bin/git log -1 --format=%H",
+        "2026-10-13T02:13:34.6509155Z c3e9d436fbdc9b8778b592f333c93037b012b8c5"
+      ],
+      "original_log": "job-115093430366.log",
+      "failed_steps": []
+    },
+    {
+      "id": 115093430061,
+      "run_id": 38335147323,
+      "name": "publisher-contracts",
+      "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38335147323/job/115093430061",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "c3e9d436fbdc9b8778b592f333c93037b012b8c5",
+      "checkout_binding": "verified",
+      "checkout_evidence": [
+        "2026-10-13T02:04:30.2468226Z with:",
+        "2026-10-13T02:04:30.2468728Z   ref: c3e9d436fbdc9b8778b592f333c93037b012b8c5",
+        "2026-10-13T02:04:30.2469361Z   persist-credentials: false",
+        "2026-10-13T02:04:30.2470021Z   repository: raven-deadwire/SpectralForge-Chimera-Amp-Matrix",
+        "2026-10-13T02:04:30.4956998Z ##[group]Fetching the repository",
+        "2026-10-13T02:04:30.4965386Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin c3e9d436fbdc9b8778b592f333c93037b012b8c5",
+        "2026-10-13T02:04:33.7955514Z From https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix",
+        "2026-10-13T02:04:33.7957563Z  * branch            c3e9d436fbdc9b8778b592f333c93037b012b8c5 -> FETCH_HEAD",
+        "2026-10-13T02:04:33.7955514Z From https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix",
+        "2026-10-13T02:04:33.7957563Z  * branch            c3e9d436fbdc9b8778b592f333c93037b012b8c5 -> FETCH_HEAD",
+        "2026-10-13T02:04:33.7960756Z ##[endgroup]",
+        "2026-10-13T02:04:33.7962201Z ##[group]Determining the checkout info",
+        "2026-10-13T02:04:33.8089097Z ##[group]Checking out the ref",
+        "2026-10-13T02:04:33.8094138Z [command]/usr/bin/git checkout --progress --force c3e9d436fbdc9b8778b592f333c93037b012b8c5",
+        "2026-10-13T02:04:34.3965111Z Note: switching to 'c3e9d436fbdc9b8778b592f333c93037b012b8c5'.",
+        "2026-10-13T02:04:34.3965646Z ",
+        "2026-10-13T02:04:33.8094138Z [command]/usr/bin/git checkout --progress --force c3e9d436fbdc9b8778b592f333c93037b012b8c5",
+        "2026-10-13T02:04:34.3965111Z Note: switching to 'c3e9d436fbdc9b8778b592f333c93037b012b8c5'.",
+        "2026-10-13T02:04:34.3965646Z ",
+        "2026-10-13T02:04:34.3965956Z You are in 'detached HEAD' state. You can look around, make experimental",
+        "2026-10-13T02:04:34.3971007Z ",
+        "2026-10-13T02:04:34.3971619Z HEAD is now at c3e9d43 Integrate public naming and safe document upgrades into beta.2 test candidate",
+        "2026-10-13T02:04:34.3993982Z ##[endgroup]",
+        "2026-10-13T02:04:34.4044647Z [command]/usr/bin/git log -1 --format=%H",
+        "2026-10-13T02:04:34.3993982Z ##[endgroup]",
+        "2026-10-13T02:04:34.4044647Z [command]/usr/bin/git log -1 --format=%H",
+        "2026-10-13T02:04:34.4073765Z c3e9d436fbdc9b8778b592f333c93037b012b8c5",
+        "2026-10-13T02:04:34.4083420Z ##[group]Removing auth",
+        "2026-10-13T02:04:34.4044647Z [command]/usr/bin/git log -1 --format=%H",
+        "2026-10-13T02:04:34.4073765Z c3e9d436fbdc9b8778b592f333c93037b012b8c5",
+        "2026-10-13T02:04:34.4083420Z ##[group]Removing auth",
+        "2026-10-13T02:04:34.4087131Z [command]/usr/bin/git config --local --name-only --get-regexp core\\.sshCommand"
+      ],
+      "original_log": "job-115093430061.log",
+      "failed_steps": []
+    },
+    {
+      "id": 115093430164,
+      "run_id": 38335147327,
+      "name": "measure (ubuntu-22.04)",
+      "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38335147327/job/115093430164",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "c3e9d436fbdc9b8778b592f333c93037b012b8c5",
+      "checkout_binding": "verified",
+      "checkout_evidence": [
+        "2026-10-13T02:08:03.4784589Z [command]/usr/bin/git log -1 --format=%H",
+        "2026-10-13T02:08:03.4807489Z c3e9d436fbdc9b8778b592f333c93037b012b8c5"
+      ],
+      "original_log": "job-115093430164.log",
+      "failed_steps": []
+    },
+    {
+      "id": 115093430305,
+      "run_id": 38335147327,
+      "name": "measure (windows-latest)",
+      "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38335147327/job/115093430305",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "c3e9d436fbdc9b8778b592f333c93037b012b8c5",
+      "checkout_binding": "verified",
+      "checkout_evidence": [
+        "2026-10-13T02:16:56.8835600Z [command]\"C:\\Program Files\\Git\\bin\\git.exe\" log -1 --format=%H\r",
+        "2026-10-13T02:16:56.9106712Z c3e9d436fbdc9b8778b592f333c93037b012b8c5\r"
+      ],
+      "original_log": "job-115093430305.log",
+      "failed_steps": []
+    },
+    {
+      "id": 115093430306,
+      "run_id": 38335147327,
+      "name": "measure (macos-15)",
+      "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38335147327/job/115093430306",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "c3e9d436fbdc9b8778b592f333c93037b012b8c5",
+      "checkout_binding": "verified",
+      "checkout_evidence": [
+        "2026-10-13T02:17:44.8503880Z [command]/opt/homebrew/bin/git log -1 --format=%H",
+        "2026-10-13T02:17:44.8578980Z c3e9d436fbdc9b8778b592f333c93037b012b8c5"
+      ],
+      "original_log": "job-115093430306.log",
+      "failed_steps": []
+    },
+    {
+      "id": 115093430505,
+      "run_id": 38335147379,
+      "name": "Document fixtures (ubuntu-24.04)",
+      "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38335147379/job/115093430505",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "c3e9d436fbdc9b8778b592f333c93037b012b8c5",
+      "checkout_binding": "verified",
+      "checkout_evidence": [
+        "2026-10-13T02:13:44.7085790Z [command]/usr/bin/git log -1 --format=%H",
+        "2026-10-13T02:13:44.7108926Z c3e9d436fbdc9b8778b592f333c93037b012b8c5"
+      ],
+      "original_log": "job-115093430505.log",
+      "failed_steps": []
+    },
+    {
+      "id": 115093430550,
+      "run_id": 38335147379,
+      "name": "Document fixtures (macos-15)",
+      "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38335147379/job/115093430550",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "c3e9d436fbdc9b8778b592f333c93037b012b8c5",
+      "checkout_binding": "verified",
+      "checkout_evidence": [
+        "2026-10-13T02:22:28.3028770Z [command]/opt/homebrew/bin/git log -1 --format=%H",
+        "2026-10-13T02:22:28.3110730Z c3e9d436fbdc9b8778b592f333c93037b012b8c5"
+      ],
+      "original_log": "job-115093430550.log",
+      "failed_steps": []
+    },
+    {
+      "id": 115093430649,
+      "run_id": 38335147379,
+      "name": "Windows Inno document fixtures (exact source)",
+      "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38335147379/job/115093430649",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "c3e9d436fbdc9b8778b592f333c93037b012b8c5",
+      "checkout_binding": "verified",
+      "checkout_evidence": [
+        "2026-10-13T02:13:03.4877347Z [command]\"C:\\Program Files\\Git\\bin\\git.exe\" log -1 --format=%H\r",
+        "2026-10-13T02:13:03.5131725Z c3e9d436fbdc9b8778b592f333c93037b012b8c5\r"
+      ],
+      "original_log": "job-115093430649.log",
+      "failed_steps": []
+    },
+    {
+      "id": 115093430312,
+      "run_id": 38335147356,
+      "name": "native-navigation (windows-latest)",
+      "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38335147356/job/115093430312",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "c3e9d436fbdc9b8778b592f333c93037b012b8c5",
+      "checkout_binding": "verified",
+      "checkout_evidence": [
+        "2026-10-13T02:12:11.7829771Z [command]\"C:\\Program Files\\Git\\bin\\git.exe\" log -1 --format=%H\r",
+        "2026-10-13T02:12:11.8088272Z c3e9d436fbdc9b8778b592f333c93037b012b8c5\r"
+      ],
+      "original_log": "job-115093430312.log",
+      "failed_steps": []
+    },
+    {
+      "id": 115093430428,
+      "run_id": 38335147356,
+      "name": "native-navigation (ubuntu-latest)",
+      "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38335147356/job/115093430428",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "c3e9d436fbdc9b8778b592f333c93037b012b8c5",
+      "checkout_binding": "verified",
+      "checkout_evidence": [
+        "2026-10-13T02:05:03.9828439Z [command]/usr/bin/git log -1 --format=%H",
+        "2026-10-13T02:05:03.9858305Z c3e9d436fbdc9b8778b592f333c93037b012b8c5"
+      ],
+      "original_log": "job-115093430428.log",
+      "failed_steps": []
+    },
+    {
+      "id": 115093430508,
+      "run_id": 38335147356,
+      "name": "native-navigation (macos-latest)",
+      "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38335147356/job/115093430508",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "c3e9d436fbdc9b8778b592f333c93037b012b8c5",
+      "checkout_binding": "verified",
+      "checkout_evidence": [
+        "2026-10-13T02:06:11.5434640Z [command]/opt/homebrew/bin/git log -1 --format=%H",
+        "2026-10-13T02:06:11.5556390Z c3e9d436fbdc9b8778b592f333c93037b012b8c5"
+      ],
+      "original_log": "job-115093430508.log",
+      "failed_steps": []
+    },
+    {
+      "id": 115094522921,
+      "run_id": 38335147371,
+      "name": "preparation-contracts",
+      "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38335147371/job/115094522921",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "c3e9d436fbdc9b8778b592f333c93037b012b8c5",
+      "checkout_binding": "verified",
+      "checkout_evidence": [
+        "2026-10-13T02:21:08.0460008Z [command]/usr/bin/git log -1 --format=%H",
+        "2026-10-13T02:21:08.0492035Z c3e9d436fbdc9b8778b592f333c93037b012b8c5"
+      ],
+      "original_log": "job-115094522921.log",
+      "failed_steps": []
+    },
+    {
+      "id": 115094523038,
+      "run_id": 38335147371,
+      "name": "windows-candidate",
+      "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38335147371/job/115094523038",
+      "status": "completed",
+      "conclusion": "failure",
+      "head_sha": "c3e9d436fbdc9b8778b592f333c93037b012b8c5",
+      "checkout_binding": "verified",
+      "checkout_evidence": [
+        "2026-10-13T02:17:28.5257694Z [command]\"C:\\Program Files\\Git\\bin\\git.exe\" log -1 --format=%H\r",
+        "2026-10-13T02:17:28.5513550Z c3e9d436fbdc9b8778b592f333c93037b012b8c5\r"
+      ],
+      "original_log": "job-115094523038.log",
+      "failed_steps": [
+        "Execute DSP and actual JUCE UI tests"
+      ]
+    },
+    {
+      "id": 115094589057,
+      "run_id": 38335147294,
+      "name": "validation-contract",
+      "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38335147294/job/115094589057",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "c3e9d436fbdc9b8778b592f333c93037b012b8c5",
+      "checkout_binding": "verified",
+      "checkout_evidence": [
+        "2026-10-13T02:13:58.2984895Z [command]/usr/bin/git log -1 --format=%H",
+        "2026-10-13T02:13:58.3008765Z c3e9d436fbdc9b8778b592f333c93037b012b8c5"
+      ],
+      "original_log": "job-115094589057.log",
+      "failed_steps": []
+    },
+    {
+      "id": 115095947688,
+      "run_id": 38335147294,
+      "name": "build (macos-15)",
+      "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38335147294/job/115095947688",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "c3e9d436fbdc9b8778b592f333c93037b012b8c5",
+      "checkout_binding": "verified",
+      "checkout_evidence": [
+        "2026-10-13T02:19:54.1863340Z [command]/opt/homebrew/bin/git log -1 --format=%H",
+        "2026-10-13T02:19:54.1951130Z c3e9d436fbdc9b8778b592f333c93037b012b8c5"
+      ],
+      "original_log": "job-115095947688.log",
+      "failed_steps": []
+    },
+    {
+      "id": 115095947747,
+      "run_id": 38335147294,
+      "name": "build (windows-latest)",
+      "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38335147294/job/115095947747",
+      "status": "completed",
+      "conclusion": "failure",
+      "head_sha": "c3e9d436fbdc9b8778b592f333c93037b012b8c5",
+      "checkout_binding": "verified",
+      "checkout_evidence": [
+        "2026-10-13T02:17:31.6090434Z [command]\"C:\\Program Files\\Git\\bin\\git.exe\" log -1 --format=%H\r",
+        "2026-10-13T02:17:31.6388200Z c3e9d436fbdc9b8778b592f333c93037b012b8c5\r"
+      ],
+      "original_log": "job-115095947747.log",
+      "failed_steps": [
+        "Execute Windows and macOS CTest matrix"
+      ]
+    },
+    {
+      "id": 115095947764,
+      "run_id": 38335147294,
+      "name": "build (ubuntu-22.04)",
+      "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38335147294/job/115095947764",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "c3e9d436fbdc9b8778b592f333c93037b012b8c5",
+      "checkout_binding": "verified",
+      "checkout_evidence": [
+        "2026-10-13T02:17:40.2176670Z [command]/usr/bin/git log -1 --format=%H",
+        "2026-10-13T02:17:40.2207954Z c3e9d436fbdc9b8778b592f333c93037b012b8c5"
+      ],
+      "original_log": "job-115095947764.log",
+      "failed_steps": []
+    },
+    {
+      "id": 115113398396,
+      "run_id": 38335147294,
+      "name": "consolidate-release-gate",
+      "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38335147294/job/115113398396",
+      "status": "completed",
+      "conclusion": "failure",
+      "head_sha": "c3e9d436fbdc9b8778b592f333c93037b012b8c5",
+      "checkout_binding": "verified",
+      "checkout_evidence": [
+        "2026-10-13T03:24:23.0517518Z [command]/usr/bin/git log -1 --format=%H",
+        "2026-10-13T03:24:23.0548364Z c3e9d436fbdc9b8778b592f333c93037b012b8c5"
+      ],
+      "original_log": "job-115113398396.log",
+      "failed_steps": [
+        "Compute intended release verdict"
+      ]
+    },
+    {
+      "id": 115113399459,
+      "run_id": 38335147294,
+      "name": "assemble-candidate",
+      "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38335147294/job/115113399459",
+      "status": "completed",
+      "conclusion": "skipped",
+      "head_sha": "c3e9d436fbdc9b8778b592f333c93037b012b8c5",
+      "checkout_binding": "not_executed",
+      "checkout_evidence": [],
+      "original_log": null,
+      "failed_steps": []
+    }
+  ],
+  "artifact_metadata": "product-artifacts-completed.json",
+  "verifier_result": "recorded-ci-metadata-verification.json",
+  "skipped_log_note": "assemble-candidate was skipped and has no checkout or log; GitHub log retrieval returned BlobNotFound, correctly not counted as a verified execution."
+}

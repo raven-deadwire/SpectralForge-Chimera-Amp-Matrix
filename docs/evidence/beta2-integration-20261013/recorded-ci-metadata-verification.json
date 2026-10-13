@@ -1,0 +1,22 @@
+{
+  "schema": "chimera.recorded-ci-metadata-verification.v1",
+  "result": "REJECTED",
+  "source_sha": "c3e9d436fbdc9b8778b592f333c93037b012b8c5",
+  "release_version": "1.3.1-beta.2",
+  "scope": "Recorded actual API metadata with locally filtered workflow paths; unchanged production verify_ci invocation, not publication or approval.",
+  "exception_type": "RuntimeError",
+  "reason": "Latest exact-source verification run has not passed",
+  "required_workflow_count": 7,
+  "required_job_count": 23,
+  "production_verifier_sha256": "63c6a93afefe44a20c4b41457a2d2e2eddb75ddcf27123f9bc57ff693d26a7ca",
+  "production_helpers_sha256": "d639de1edd0401f463b47a5bb7ea884d10bd2b700da3ede226a06675824aded7",
+  "api_calls": [
+    {
+      "endpoint": "/actions/workflows/build.yml/runs?head_sha=c3e9d436fbdc9b8778b592f333c93037b012b8c5",
+      "key": "workflow_runs",
+      "file": "verify-ci/all-source-runs.json",
+      "sha256": "1097c2f87b5a1e81b379b1aa3eb7579a29392a297624d5fbdb9044a4bb0ee05a",
+      "records": 1
+    }
+  ]
+}

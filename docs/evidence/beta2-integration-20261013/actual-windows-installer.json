@@ -1,0 +1,81 @@
+{
+  "schema": "chimera.actual-windows-installer-not-run.v1",
+  "source_sha": "c3e9d436fbdc9b8778b592f333c93037b012b8c5",
+  "run_id": 38335147294,
+  "job_id": 115095947747,
+  "job_conclusion": "failure",
+  "status": "NOT_RUN",
+  "reason": "Windows native CTest failed ChimeraUITests before package staging and installer build/lifecycle.",
+  "ctest": {
+    "passed": 47,
+    "total": 48,
+    "failed_test": "ChimeraUITests",
+    "failure_lines": [
+      "2026-10-13T03:06:08.3175376Z FAIL suite correction UI: Selected amplifier caption must retain its original model name without a prefix",
+      "2026-10-13T03:06:08.3200158Z FAIL: Selected amp caption must show only the original model name after selection"
+    ]
+  },
+  "installer_steps": {
+    "Stage Windows open beta payload": {
+      "name": "Stage Windows open beta payload",
+      "status": "completed",
+      "conclusion": "skipped",
+      "number": 21
+    },
+    "Build Windows installer": {
+      "name": "Build Windows installer",
+      "status": "completed",
+      "conclusion": "skipped",
+      "number": 25
+    },
+    "Verify Windows install, repair and uninstall": {
+      "name": "Verify Windows install, repair and uninstall",
+      "status": "completed",
+      "conclusion": "skipped",
+      "number": 26
+    },
+    "Upload Windows installer verification": {
+      "name": "Upload Windows installer verification",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 27
+    }
+  },
+  "installer_verification_artifact_present": false,
+  "installer_report_present": false,
+  "previous_release_report_present": false,
+  "historical_release_installer_executed": false,
+  "actual_previous_release_upgrade_verified": false,
+  "current_installer_sha256": null,
+  "installed_current_document_hashes_available": false,
+  "native_actual_product_installation_verified": false,
+  "publication_approved": false,
+  "failure_classification": "Concrete stale test expectation of ampInfo(model).reference while intended #56 UI displays amp.character. Both assert locations are unchanged across latest #55, #56, #58 and integration; installer changes are not executed by this failed path. No installer regression proven.",
+  "git_blob_comparison": {
+    "022244e6ce845669665e9ffdfefe25bdee154b75": {
+      "Tests/CorrectionUITests.h": "b20d891ce337ca1190999c755112ee3e48b28857",
+      "Tests/ChimeraUITests.cpp": "104405599cbbb4890e1182006fd53e6912d3c786",
+      "Tests/NativeUITests.h": "9f8d4f05099a1d5a50ee947675d8563e3bbfa6fc",
+      "Source/PluginEditor.cpp": "9baed4b46145ecc21fad4b38b30ba91a0bc8f965"
+    },
+    "d7450883ddbeba58e44cf217072f325654c16128": {
+      "Tests/CorrectionUITests.h": "b20d891ce337ca1190999c755112ee3e48b28857",
+      "Tests/ChimeraUITests.cpp": "104405599cbbb4890e1182006fd53e6912d3c786",
+      "Tests/NativeUITests.h": "c077e25e6535bfd12023cf131fa2ca2267a95bbb",
+      "Source/PluginEditor.cpp": "16bc56b07f5f358d7e9b711ca1a42f8a86a562df"
+    },
+    "068f1547face75b34c1760dd7b8c9d34868a5393": {
+      "Tests/CorrectionUITests.h": "b20d891ce337ca1190999c755112ee3e48b28857",
+      "Tests/ChimeraUITests.cpp": "104405599cbbb4890e1182006fd53e6912d3c786",
+      "Tests/NativeUITests.h": "c077e25e6535bfd12023cf131fa2ca2267a95bbb",
+      "Source/PluginEditor.cpp": "16bc56b07f5f358d7e9b711ca1a42f8a86a562df"
+    },
+    "c3e9d436fbdc9b8778b592f333c93037b012b8c5": {
+      "Tests/CorrectionUITests.h": "b20d891ce337ca1190999c755112ee3e48b28857",
+      "Tests/ChimeraUITests.cpp": "104405599cbbb4890e1182006fd53e6912d3c786",
+      "Tests/NativeUITests.h": "c077e25e6535bfd12023cf131fa2ca2267a95bbb",
+      "Source/PluginEditor.cpp": "16bc56b07f5f358d7e9b711ca1a42f8a86a562df"
+    }
+  },
+  "recorded_utc": "2026-10-13T03:27:17.394260+00:00"
+}
