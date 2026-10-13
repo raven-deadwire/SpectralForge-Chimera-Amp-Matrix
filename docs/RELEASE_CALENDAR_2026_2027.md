@@ -1,6 +1,6 @@
 # SpectralForge 버전별 업데이트·배포 일정 — 2026–2027
 
-갱신: **2026-10-12, 한국 시간(Asia/Seoul)**.
+갱신: **2026-10-13, 한국 시간(Asia/Seoul)**.
 
 현재 공개 기준은 [Chimera 1.3.1-beta.1](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/releases/tag/v1.3.1-beta.1)이다.
 이 문서는 매주 실제 업데이트/유지보수 빌드를 전달한다는 운영 기준을 버전과 날짜로 구체화한 **개발·배포 목표표**다. 앞으로의 번호는 예약이며, 날짜만으로 구현·검증·공개가 완료되지 않는다.
@@ -217,3 +217,9 @@ AAX가 늦어지면 첫 검증 완료 시점의 새 제품 버전으로 배포�
 - [현재 제품 형식과 식별자](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/blob/3817246f779a50f19b5378ec9661a2275e6b91b2/CMakeLists.txt)
 
 문서·일정 변경은 새 제품 구현, 새 패키지 생성, NAM 품질 통과 또는 공개 완료를 의미하지 않는다.
+
+## 10월 13일 다음 업데이트 추가 범위
+
+1.3.1-beta.2의 10/14 테스트 검토·10/15 후보·10/16 조건부 공개 일정에 투명하고 힘 있는 베이스 앰프 연구 검토 및 NAM 검증 착수를 추가한다. Glockenklang·Vanderkley·PJB·Trickfish와 LeSuire Avalanche·Jad Freer Volta·Reeves를 비교하며, roogbass Avalanche NAM 두 개는 예전 불합격 파일과 동일성이 미확인인 검증 후보로 취급한다. 10/23에는 확보한 파일/오디오 증거와 다음 시제품 실험을 검토한다.
+
+동일 DI·캐비넷·청감 음량에서 기음·몸통·타격감·연속음 분리도를 평가하고, 입력 단계별 계측 출력은 정규화하지 않는다. 42앰프 확장 목표와 기존 AMP30 계획의 수량·일정 정합성을 10/16에 검토한다. 연구는 기존 용량 안에서 진행하며, 신규 DSP 구현·검증·배포 완료를 의미하지 않는다. 세부 후보·검증·통합 조건은 [중앙 로드맵의 10/13 추가 범위](DEVELOPMENT_ROADMAP_2026_2027.md#october-13-addition--transparent-power-bass-research-in-the-next-update)를 따른다. 기존 주간 코드 납품 및 출하 검증 기준은 유지한다.
