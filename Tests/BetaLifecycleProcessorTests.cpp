@@ -222,6 +222,8 @@ void preservation(const juce::File& directory) {
     juce::MemoryBlock after;expired->getStateInformation(after);
     auto xml=juce::AudioProcessor::getXmlFromBinary(after.getData(),int(after.getSize()));require(xml!=nullptr,"Expired save is invalid");
     auto tree=juce::ValueTree::fromXml(*xml);require(spectralforge::irState::unpack(tree),"Expired IR assets invalid");
+    require(tree.getChildWithName("MIDI_MAP").getChildWithProperty("cc",40).getProperty("id").toString()=="output",
+        "Expired save lost the exact MIDI controller-to-parameter identity");
     juce::MemoryBlock embedded;require(embedded.fromBase64Encoding(tree.getChildWithName("USER_IRS").getChildWithProperty("lane",0).getProperty("data").toString()) && embedded==originalIR,"Expired save changed embedded IR bytes");
     // JUCE loadFileAsData appends to its destination. Independent buffers
     // are required to compare the two unchanged files, not their concatenation.
@@ -232,8 +234,20 @@ void preservation(const juce::File& directory) {
     require(ir.deleteFile(),"Cannot remove fixture IR");
     auto reopened=ChimeraBetaTestAccess::create(beta,clockNow);reopened->setStateInformation(after.getData(),int(after.getSize()));compareParameters(*expired,*reopened);
     require(reopened->userIRName(0)==ir.getFileName(),"Reopen requires the original IR file");
-    prepare(*reopened,2,48000,128);midi.addEvent(juce::MidiMessage::controllerEvent(1,40,127),0);reopened->processBlock(samples,midi);
-    require(reopened->parameters().getRawParameterValue("output")->load()==12,"Expired instance lost MIDI automation map");
+    prepare(*reopened,2,48000,128);
+    auto* mappedParameter=reopened->parameters().getParameter("output");
+    for(const int value:{0,64,127}) {
+        midi.clear();midi.addEvent(juce::MidiMessage::controllerEvent(1,40,value),0);reopened->processBlock(samples,midi);
+        // JUCE snaps this 0.01 dB range using float arithmetic. ARM's fused
+        // multiply-add yields 11.999999046 at CC127, while x86 yields 12.
+        // Require the exact canonical parameter value, as NativeStateTests do;
+        // a literal decimal comparison incorrectly reports a missing MIDI map.
+        const float expected=mappedParameter->convertFrom0to1(float(value)/127.f);
+        const float actual=reopened->parameters().getRawParameterValue("output")->load();
+        std::cout<<"Restored CC40="<<value<<" output="<<juce::String(actual,9)
+                 <<" canonical="<<juce::String(expected,9)<<'\n';
+        require(actual==expected,"Expired instance lost MIDI automation map");
+    }
     require(samples.getMagnitude(0,128)==0,"Automation unmuted expired instance");
     // Exercise the actual editor lifecycle without opening an HTTP service.
     {auto editor=std::unique_ptr<juce::AudioProcessorEditor>(reopened->createEditor());require(editor!=nullptr,"Expired editor cannot open");}
