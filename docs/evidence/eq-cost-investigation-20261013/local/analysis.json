@@ -1,0 +1,516 @@
+{
+  "daw_acceptance": "NOT_ASSESSED",
+  "sha256": "53adeebe59ed60451a4624b63510c745e06d944c0971a79be4b9851779116083",
+  "cells": [
+    {
+      "rate": "44100",
+      "implementations": {
+        "baseline": {
+          "update_ms": 36.66004521875,
+          "feed_analysis_cpu_ms": 37.028735125,
+          "feed_analysis_wall_ms": 37.04498075
+        },
+        "baseline_AA": {
+          "update_ms": 40.47019190625,
+          "feed_analysis_cpu_ms": 40.793481812500005,
+          "feed_analysis_wall_ms": 40.84588021875
+        },
+        "candidate": {
+          "update_ms": 32.719798749999995,
+          "feed_analysis_cpu_ms": 33.14480603125,
+          "feed_analysis_wall_ms": 33.142454625
+        },
+        "candidate_AA": {
+          "update_ms": 31.6949075,
+          "feed_analysis_cpu_ms": 32.1220726875,
+          "feed_analysis_wall_ms": 32.118009218750004
+        }
+      },
+      "rounds": [
+        {
+          "round": "0",
+          "update_reductions_percent": {
+            "baseline->candidate": 10.179207028513137,
+            "baseline->baseline_AA": 21.09336578012987,
+            "candidate->candidate_AA": -8.550909231076975
+          }
+        },
+        {
+          "round": "1",
+          "update_reductions_percent": {
+            "baseline->candidate": 27.123857742200542,
+            "baseline->baseline_AA": 33.351453045482046,
+            "candidate->candidate_AA": -33.11556006567435
+          }
+        },
+        {
+          "round": "2",
+          "update_reductions_percent": {
+            "baseline->candidate": 19.369446746985076,
+            "baseline->baseline_AA": 12.565289341520469,
+            "candidate->candidate_AA": 7.484409540326209
+          }
+        },
+        {
+          "round": "3",
+          "update_reductions_percent": {
+            "baseline->candidate": 20.756448409009977,
+            "baseline->baseline_AA": 2.2782191963037435,
+            "candidate->candidate_AA": -7.358387999884997
+          }
+        },
+        {
+          "round": "4",
+          "update_reductions_percent": {
+            "baseline->candidate": -12.25969599324892,
+            "baseline->baseline_AA": -102.43108640389758,
+            "candidate->candidate_AA": 15.910052211306791
+          }
+        },
+        {
+          "round": "5",
+          "update_reductions_percent": {
+            "baseline->candidate": -17.13079799568442,
+            "baseline->baseline_AA": -107.56169525306535,
+            "candidate->candidate_AA": 42.89706578470113
+          }
+        },
+        {
+          "round": "6",
+          "update_reductions_percent": {
+            "baseline->candidate": 59.408052774796936,
+            "baseline->baseline_AA": 44.017613094755944,
+            "candidate->candidate_AA": -21.509926986322547
+          }
+        },
+        {
+          "round": "7",
+          "update_reductions_percent": {
+            "baseline->candidate": -9.734364294515817,
+            "baseline->baseline_AA": -38.09713958648653,
+            "candidate->candidate_AA": -6.80829297111103
+          }
+        },
+        {
+          "round": "8",
+          "update_reductions_percent": {
+            "baseline->candidate": 39.66345179242641,
+            "baseline->baseline_AA": 36.205454048400945,
+            "candidate->candidate_AA": 4.387052223484944
+          }
+        },
+        {
+          "round": "9",
+          "update_reductions_percent": {
+            "baseline->candidate": -68.34212131278068,
+            "baseline->baseline_AA": -41.422991917654684,
+            "candidate->candidate_AA": 53.564469842875894
+          }
+        },
+        {
+          "round": "10",
+          "update_reductions_percent": {
+            "baseline->candidate": -2.4831705836561913,
+            "baseline->baseline_AA": 3.6021860277776985,
+            "candidate->candidate_AA": 6.732879419837701
+          }
+        },
+        {
+          "round": "11",
+          "update_reductions_percent": {
+            "baseline->candidate": 24.93889309306119,
+            "baseline->baseline_AA": -42.56342108710287,
+            "candidate->candidate_AA": 0.6649028002337576
+          }
+        }
+      ]
+    },
+    {
+      "rate": "48000",
+      "implementations": {
+        "baseline": {
+          "update_ms": 34.721343437499996,
+          "feed_analysis_cpu_ms": 35.046406687499996,
+          "feed_analysis_wall_ms": 35.11753515625
+        },
+        "baseline_AA": {
+          "update_ms": 34.33822096875,
+          "feed_analysis_cpu_ms": 34.664101875,
+          "feed_analysis_wall_ms": 34.672242
+        },
+        "candidate": {
+          "update_ms": 32.472417031250004,
+          "feed_analysis_cpu_ms": 34.11195728125,
+          "feed_analysis_wall_ms": 34.25201321875
+        },
+        "candidate_AA": {
+          "update_ms": 31.524058906249998,
+          "feed_analysis_cpu_ms": 31.83978953125,
+          "feed_analysis_wall_ms": 31.84631115625
+        }
+      },
+      "rounds": [
+        {
+          "round": "0",
+          "update_reductions_percent": {
+            "baseline->candidate": -10.179459652242716,
+            "baseline->baseline_AA": 6.893530487496546,
+            "candidate->candidate_AA": 10.109373461295679
+          }
+        },
+        {
+          "round": "1",
+          "update_reductions_percent": {
+            "baseline->candidate": -7.441677537755043,
+            "baseline->baseline_AA": 0.9677336295031091,
+            "candidate->candidate_AA": 16.618912673452037
+          }
+        },
+        {
+          "round": "2",
+          "update_reductions_percent": {
+            "baseline->candidate": 22.124894886065917,
+            "baseline->baseline_AA": 8.531662759560666,
+            "candidate->candidate_AA": -7.899738810716084
+          }
+        },
+        {
+          "round": "3",
+          "update_reductions_percent": {
+            "baseline->candidate": 7.785248694614655,
+            "baseline->baseline_AA": 9.91374929990082,
+            "candidate->candidate_AA": 2.733485324009155
+          }
+        },
+        {
+          "round": "4",
+          "update_reductions_percent": {
+            "baseline->candidate": 20.23545743249262,
+            "baseline->baseline_AA": 1.558478504861538,
+            "candidate->candidate_AA": -0.025690398824096405
+          }
+        },
+        {
+          "round": "5",
+          "update_reductions_percent": {
+            "baseline->candidate": 30.357351173294678,
+            "baseline->baseline_AA": 60.20258749097531,
+            "candidate->candidate_AA": 34.14851820671389
+          }
+        },
+        {
+          "round": "6",
+          "update_reductions_percent": {
+            "baseline->candidate": 57.33029142258586,
+            "baseline->baseline_AA": 41.61803808121732,
+            "candidate->candidate_AA": -31.200902571062006
+          }
+        },
+        {
+          "round": "7",
+          "update_reductions_percent": {
+            "baseline->candidate": 31.421056171997385,
+            "baseline->baseline_AA": -27.29728315529172,
+            "candidate->candidate_AA": -65.97457587832002
+          }
+        },
+        {
+          "round": "8",
+          "update_reductions_percent": {
+            "baseline->candidate": -10.120594095225833,
+            "baseline->baseline_AA": -1.783179089302278,
+            "candidate->candidate_AA": -40.879211679769355
+          }
+        },
+        {
+          "round": "9",
+          "update_reductions_percent": {
+            "baseline->candidate": 14.375708687575761,
+            "baseline->baseline_AA": 3.9568935352544132,
+            "candidate->candidate_AA": -16.679283380362552
+          }
+        },
+        {
+          "round": "10",
+          "update_reductions_percent": {
+            "baseline->candidate": -44.34061592461689,
+            "baseline->baseline_AA": -8.761082327810499,
+            "candidate->candidate_AA": 34.523939264949476
+          }
+        },
+        {
+          "round": "11",
+          "update_reductions_percent": {
+            "baseline->candidate": 9.271453381054007,
+            "baseline->baseline_AA": -3.7146566709231,
+            "candidate->candidate_AA": 7.682999422532455
+          }
+        }
+      ]
+    },
+    {
+      "rate": "96000",
+      "implementations": {
+        "baseline": {
+          "update_ms": 34.64480915625,
+          "feed_analysis_cpu_ms": 34.97990690625,
+          "feed_analysis_wall_ms": 34.97649353125
+        },
+        "baseline_AA": {
+          "update_ms": 38.072787375000004,
+          "feed_analysis_cpu_ms": 38.4678750625,
+          "feed_analysis_wall_ms": 38.442014375
+        },
+        "candidate": {
+          "update_ms": 37.88835671875,
+          "feed_analysis_cpu_ms": 38.34781675,
+          "feed_analysis_wall_ms": 38.330456281249994
+        },
+        "candidate_AA": {
+          "update_ms": 35.18392090625,
+          "feed_analysis_cpu_ms": 35.62349853125,
+          "feed_analysis_wall_ms": 35.763834812499994
+        }
+      },
+      "rounds": [
+        {
+          "round": "0",
+          "update_reductions_percent": {
+            "baseline->candidate": -86.04129206751823,
+            "baseline->baseline_AA": 13.652096735577768,
+            "candidate->candidate_AA": 39.68680106590611
+          }
+        },
+        {
+          "round": "1",
+          "update_reductions_percent": {
+            "baseline->candidate": 10.828402923058178,
+            "baseline->baseline_AA": -59.52328039746786,
+            "candidate->candidate_AA": 8.096077578314508
+          }
+        },
+        {
+          "round": "2",
+          "update_reductions_percent": {
+            "baseline->candidate": 7.48675393835756,
+            "baseline->baseline_AA": -6.6512513254163075,
+            "candidate->candidate_AA": -26.721400776067817
+          }
+        },
+        {
+          "round": "3",
+          "update_reductions_percent": {
+            "baseline->candidate": 17.599564984423566,
+            "baseline->baseline_AA": -1.6525842237861577,
+            "candidate->candidate_AA": -10.216233748516078
+          }
+        },
+        {
+          "round": "4",
+          "update_reductions_percent": {
+            "baseline->candidate": 52.1118495821959,
+            "baseline->baseline_AA": 54.32163358800051,
+            "candidate->candidate_AA": -184.27417795357215
+          }
+        },
+        {
+          "round": "5",
+          "update_reductions_percent": {
+            "baseline->candidate": 59.680383554950176,
+            "baseline->baseline_AA": 14.963083780520659,
+            "candidate->candidate_AA": -150.10634253569512
+          }
+        },
+        {
+          "round": "6",
+          "update_reductions_percent": {
+            "baseline->candidate": 49.95860161843697,
+            "baseline->baseline_AA": 57.443643941100554,
+            "candidate->candidate_AA": -75.10724206014392
+          }
+        },
+        {
+          "round": "7",
+          "update_reductions_percent": {
+            "baseline->candidate": -40.45171064448543,
+            "baseline->baseline_AA": -21.34779217542555,
+            "candidate->candidate_AA": 18.39749115357183
+          }
+        },
+        {
+          "round": "8",
+          "update_reductions_percent": {
+            "baseline->candidate": -71.47244247628745,
+            "baseline->baseline_AA": -9.017480121060473,
+            "candidate->candidate_AA": 30.344708353417882
+          }
+        },
+        {
+          "round": "9",
+          "update_reductions_percent": {
+            "baseline->candidate": -8.745185106360886,
+            "baseline->baseline_AA": -10.133473586241792,
+            "candidate->candidate_AA": 8.483979850746415
+          }
+        },
+        {
+          "round": "10",
+          "update_reductions_percent": {
+            "baseline->candidate": -23.824692242336564,
+            "baseline->baseline_AA": -40.292843023089134,
+            "candidate->candidate_AA": 24.769285800443797
+          }
+        },
+        {
+          "round": "11",
+          "update_reductions_percent": {
+            "baseline->candidate": 46.065993120518414,
+            "baseline->baseline_AA": 24.300638436055944,
+            "candidate->candidate_AA": -1.6804727152391452
+          }
+        }
+      ]
+    },
+    {
+      "rate": "192000",
+      "implementations": {
+        "baseline": {
+          "update_ms": 35.49835615625,
+          "feed_analysis_cpu_ms": 35.79967596875,
+          "feed_analysis_wall_ms": 35.911316
+        },
+        "baseline_AA": {
+          "update_ms": 34.222877624999995,
+          "feed_analysis_cpu_ms": 35.09551890625,
+          "feed_analysis_wall_ms": 35.11865496875
+        },
+        "candidate": {
+          "update_ms": 31.1967463125,
+          "feed_analysis_cpu_ms": 31.614793156250002,
+          "feed_analysis_wall_ms": 31.61729303125
+        },
+        "candidate_AA": {
+          "update_ms": 32.3429875625,
+          "feed_analysis_cpu_ms": 32.74524478125,
+          "feed_analysis_wall_ms": 32.740810656250005
+        }
+      },
+      "rounds": [
+        {
+          "round": "0",
+          "update_reductions_percent": {
+            "baseline->candidate": 37.991574624534906,
+            "baseline->baseline_AA": -26.477937276404127,
+            "candidate->candidate_AA": -28.57935242833849
+          }
+        },
+        {
+          "round": "1",
+          "update_reductions_percent": {
+            "baseline->candidate": 9.045813913567658,
+            "baseline->baseline_AA": 6.640733599056025,
+            "candidate->candidate_AA": -2.8904420578332424
+          }
+        },
+        {
+          "round": "2",
+          "update_reductions_percent": {
+            "baseline->candidate": 10.7331527094634,
+            "baseline->baseline_AA": -17.616168947145262,
+            "candidate->candidate_AA": -0.21127447501245733
+          }
+        },
+        {
+          "round": "3",
+          "update_reductions_percent": {
+            "baseline->candidate": 6.933108355270234,
+            "baseline->baseline_AA": -1.2488584726909169,
+            "candidate->candidate_AA": 3.3491098297077415
+          }
+        },
+        {
+          "round": "4",
+          "update_reductions_percent": {
+            "baseline->candidate": 12.57747822077726,
+            "baseline->baseline_AA": 3.985495949875273,
+            "candidate->candidate_AA": -99.48581435142012
+          }
+        },
+        {
+          "round": "5",
+          "update_reductions_percent": {
+            "baseline->candidate": -32.15843438619055,
+            "baseline->baseline_AA": -17.321716740899195,
+            "candidate->candidate_AA": 30.460808102741254
+          }
+        },
+        {
+          "round": "6",
+          "update_reductions_percent": {
+            "baseline->candidate": -17.168444855347744,
+            "baseline->baseline_AA": -89.37594887261511,
+            "candidate->candidate_AA": -51.89997459115252
+          }
+        },
+        {
+          "round": "7",
+          "update_reductions_percent": {
+            "baseline->candidate": 13.409507394385113,
+            "baseline->baseline_AA": 80.86692108097246,
+            "candidate->candidate_AA": 60.66164059637196
+          }
+        },
+        {
+          "round": "8",
+          "update_reductions_percent": {
+            "baseline->candidate": -31.809720741928317,
+            "baseline->baseline_AA": 1.5873190398653758,
+            "candidate->candidate_AA": 23.563382459644444
+          }
+        },
+        {
+          "round": "9",
+          "update_reductions_percent": {
+            "baseline->candidate": 45.63851020580743,
+            "baseline->baseline_AA": 35.50374230280918,
+            "candidate->candidate_AA": -15.764633584735343
+          }
+        },
+        {
+          "round": "10",
+          "update_reductions_percent": {
+            "baseline->candidate": 5.189603129580034,
+            "baseline->baseline_AA": -27.77750052447423,
+            "candidate->candidate_AA": 2.0775800931435495
+          }
+        },
+        {
+          "round": "11",
+          "update_reductions_percent": {
+            "baseline->candidate": 37.57996832368175,
+            "baseline->baseline_AA": 25.424114542612575,
+            "candidate->candidate_AA": -7.791598005203193
+          }
+        }
+      ]
+    }
+  ],
+  "isolated_stages": {
+    "baseline": {
+      "prepare_ms": 0.2195205,
+      "real_fft_ms": 44.715381,
+      "power_and_tail_ms": 32.9539175,
+      "total_thread_cpu_ms": 79.25879649999999,
+      "checksum": 0.750000026599
+    },
+    "candidate": {
+      "prepare_ms": 0.13512249999999998,
+      "real_fft_ms": 43.805221,
+      "power_and_tail_ms": 2.758083,
+      "total_thread_cpu_ms": 47.7606185,
+      "checksum": 0.749999997246
+    }
+  },
+  "stage_limit": "Isolated control; CPU includes timers/checksum; cannot directly assign full-update residuals.",
+  "all_accounting_valid": true
+}

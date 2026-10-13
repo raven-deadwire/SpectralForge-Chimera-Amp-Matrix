@@ -1,0 +1,19 @@
+{
+  "base_sha": "a2ae89467665b9122b7d1ae744dc52fb8f693bd6",
+  "platform": "Linux-6.18.44-x86_64-with-glibc2.39",
+  "compiler": "g++ (Ubuntu 13.3.0-6ubuntu2~24.04) 13.3.0",
+  "juce_sha": "d6181bde38d858c283c3b7bf699ce6340c050b5d",
+  "binary_sha256": "259586440054d2b4f829144e5c7c61e9ab3906cee2c792676c33b819046a201a",
+  "inputs": {
+    "Source/EQSpectrumAnalyzer.h": "a7dd27cef57df2edea050cdbaa07c299a63e526269f8518d00409a4f1f6ff941",
+    "Source/GraphicalEQ.h": "01a639554e7f04099e010c033ba6c116d495cb1c136a9bb41a490a9b81cb9673",
+    "Tests/reference/EQSpectrumAnalyzerBeb72f.h": "ad0e9f7dc7fe46579b24707291bf63a5ee09363de701b1606c5cedf98f970f26",
+    "Tests/EQAnalyzerCostInvestigation.cpp": "6b7f1ef38f85211d7f3356d353c1dd2b801b44cc18dd0e4e70b94b5ffce962d0",
+    "Tests/EQAnalyzerPerformanceTests.cpp": "2e234951c7e6b9fdb6f9ad0ccbd87938badc5ee246fb62581f1261a31bb5acee",
+    "CMakeLists.txt": "f1adab1c7450704f65e3753cd0c2bf409286f4417a12a98c27abab715ec5b2c8"
+  },
+  "build": "direct GCC -O3 -DNDEBUG; module compile recipe build_modules.py; test compile same flags + Source include; link --gc-sections -pthread -ldl -lrt -lz",
+  "product_source_changed": false,
+  "macos_run": "NOT_RUN_LOCALLY",
+  "daw_acceptance": "NOT_ASSESSED"
+}
