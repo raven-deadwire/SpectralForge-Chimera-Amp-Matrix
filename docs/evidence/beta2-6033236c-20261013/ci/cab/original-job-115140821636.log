@@ -1,0 +1,592 @@
+﻿2026-10-13T05:13:10.2239409Z Current runner version: '2.337.0'
+2026-10-13T05:13:10.2265480Z ##[group]Runner Image Provisioner
+2026-10-13T05:13:10.2266262Z Hosted Compute Agent
+2026-10-13T05:13:10.2266923Z Version: 20261002.596
+2026-10-13T05:13:10.2267497Z Commit: c3d12f3313a95f25162a1503be624f3b0617f8c0
+2026-10-13T05:13:10.2268183Z Build Date: 2026-10-02T22:28:27Z
+2026-10-13T05:13:10.2268823Z Worker ID: {4ff5b4f7-ac5a-46d9-b6dc-ff860c46af18}
+2026-10-13T05:13:10.2269472Z Region: westus3
+2026-10-13T05:13:10.2270010Z Cloud: Azure
+2026-10-13T05:13:10.2270539Z ##[endgroup]
+2026-10-13T05:13:10.2272283Z ##[group]Operating System
+2026-10-13T05:13:10.2272899Z Ubuntu
+2026-10-13T05:13:10.2273372Z 22.04.5
+2026-10-13T05:13:10.2273922Z LTS
+2026-10-13T05:13:10.2274387Z ##[endgroup]
+2026-10-13T05:13:10.2274896Z ##[group]Runner Image
+2026-10-13T05:13:10.2275432Z Image: ubuntu-22.04
+2026-10-13T05:13:10.2275942Z Version: 20261004.315.1
+2026-10-13T05:13:10.2277174Z Included Software: https://github.com/actions/runner-images/blob/ubuntu22/20261004.315/images/ubuntu/Ubuntu2204-Readme.md
+2026-10-13T05:13:10.2278595Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu22%2F20261004.315
+2026-10-13T05:13:10.2279473Z ##[endgroup]
+2026-10-13T05:13:10.2280521Z ##[group]GITHUB_TOKEN Permissions
+2026-10-13T05:13:10.2282580Z Contents: read
+2026-10-13T05:13:10.2283135Z Metadata: read
+2026-10-13T05:13:10.2283698Z ##[endgroup]
+2026-10-13T05:13:10.2285740Z Secret source: Actions
+2026-10-13T05:13:10.2286715Z Cache mode: write
+2026-10-13T05:13:10.2287420Z Prepare workflow directory
+2026-10-13T05:13:10.2799063Z Prepare all required actions
+2026-10-13T05:13:10.2848401Z Getting action download info
+2026-10-13T05:13:10.6327839Z Download action repository 'actions/checkout@v5' (SHA:fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09)
+2026-10-13T05:13:10.7460960Z Download action repository 'actions/setup-python@v6' (SHA:ece7cb06caefa5fff74198d8649806c4678c61a1)
+2026-10-13T05:13:10.8567190Z Download action repository 'actions/upload-artifact@v6' (SHA:b7c566a772e6b6bfb58ed0dc250532a479d7789f)
+2026-10-13T05:13:11.0868828Z Complete job name: realtime (ubuntu-22.04)
+2026-10-13T05:13:11.1639810Z ##[group]Run actions/checkout@v5
+2026-10-13T05:13:11.1640749Z with:
+2026-10-13T05:13:11.1641368Z   ref: 6033236cb81820a43679cbbd34be020804f9658d
+2026-10-13T05:13:11.1641886Z   path: candidate
+2026-10-13T05:13:11.1642299Z   persist-credentials: false
+2026-10-13T05:13:11.1642878Z   repository: raven-deadwire/SpectralForge-Chimera-Amp-Matrix
+2026-10-13T05:13:11.1646421Z   token: ***
+2026-10-13T05:13:11.1646798Z   ssh-strict: true
+2026-10-13T05:13:11.1647181Z   ssh-user: git
+2026-10-13T05:13:11.1647549Z   clean: true
+2026-10-13T05:13:11.1647951Z   sparse-checkout-cone-mode: true
+2026-10-13T05:13:11.1648426Z   fetch-depth: 1
+2026-10-13T05:13:11.1648806Z   fetch-tags: false
+2026-10-13T05:13:11.1649200Z   show-progress: true
+2026-10-13T05:13:11.1649594Z   lfs: false
+2026-10-13T05:13:11.1649959Z   submodules: false
+2026-10-13T05:13:11.1650350Z   set-safe-directory: true
+2026-10-13T05:13:11.1650800Z   allow-unsafe-pr-checkout: false
+2026-10-13T05:13:11.1651919Z env:
+2026-10-13T05:13:11.1652486Z   CHIMERA_CANDIDATE_SHA: 6033236cb81820a43679cbbd34be020804f9658d
+2026-10-13T05:13:11.1653226Z   CHIMERA_BASELINE_SHA: aaa1330dd5cf7d51faf1c45a7cef633b9b118458
+2026-10-13T05:13:11.1653844Z ##[endgroup]
+2026-10-13T05:13:11.2717523Z Syncing repository: raven-deadwire/SpectralForge-Chimera-Amp-Matrix
+2026-10-13T05:13:11.2720834Z ##[group]Getting Git version info
+2026-10-13T05:13:11.2722902Z Working directory is '/home/runner/work/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/candidate'
+2026-10-13T05:13:11.2725276Z [command]/usr/bin/git version
+2026-10-13T05:13:11.2826719Z git version 2.55.0
+2026-10-13T05:13:11.2848708Z ##[endgroup]
+2026-10-13T05:13:11.2864834Z Temporarily overriding HOME='/home/runner/work/_temp/2a2d4333-2fbf-4297-971d-2a6debb7ebc5' before making global git config changes
+2026-10-13T05:13:11.2867522Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-13T05:13:11.2872344Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/candidate
+2026-10-13T05:13:11.2910322Z ##[group]Initializing the repository
+2026-10-13T05:13:11.2915923Z [command]/usr/bin/git init /home/runner/work/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/candidate
+2026-10-13T05:13:11.3043241Z hint: Using 'master' as the name for the initial branch. This default branch name
+2026-10-13T05:13:11.3059026Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+2026-10-13T05:13:11.3063030Z hint: to use in all of your new repositories, which will suppress this warning,
+2026-10-13T05:13:11.3064376Z hint: call:
+2026-10-13T05:13:11.3065073Z hint:
+2026-10-13T05:13:11.3065936Z hint: 	git config --global init.defaultBranch <name>
+2026-10-13T05:13:11.3067020Z hint:
+2026-10-13T05:13:11.3067986Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2026-10-13T05:13:11.3069673Z hint: 'development'. The just-created branch can be renamed via this command:
+2026-10-13T05:13:11.3070932Z hint:
+2026-10-13T05:13:11.3071769Z hint: 	git branch -m <name>
+2026-10-13T05:13:11.3072592Z hint:
+2026-10-13T05:13:11.3073643Z hint: Disable this message with "git config set advice.defaultBranchName false"
+2026-10-13T05:13:11.3076104Z Initialized empty Git repository in /home/runner/work/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/candidate/.git/
+2026-10-13T05:13:11.3079563Z [command]/usr/bin/git remote add origin https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix
+2026-10-13T05:13:11.3122467Z ##[endgroup]
+2026-10-13T05:13:11.3131299Z ##[group]Disabling automatic garbage collection
+2026-10-13T05:13:11.3132893Z [command]/usr/bin/git config --local gc.auto 0
+2026-10-13T05:13:11.3183752Z ##[endgroup]
+2026-10-13T05:13:11.3185095Z ##[group]Setting up auth
+2026-10-13T05:13:11.3186426Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-13T05:13:11.3212554Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-13T05:13:11.3588836Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-13T05:13:11.3613435Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-13T05:13:11.3844604Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-13T05:13:11.3872440Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-10-13T05:13:11.4068227Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-10-13T05:13:11.4104013Z ##[endgroup]
+2026-10-13T05:13:11.4104797Z ##[group]Fetching the repository
+2026-10-13T05:13:11.4120405Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin 6033236cb81820a43679cbbd34be020804f9658d
+2026-10-13T05:13:15.0013969Z From https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix
+2026-10-13T05:13:15.0016448Z  * branch            6033236cb81820a43679cbbd34be020804f9658d -> FETCH_HEAD
+2026-10-13T05:13:15.0019318Z ##[endgroup]
+2026-10-13T05:13:15.0021668Z ##[group]Determining the checkout info
+2026-10-13T05:13:15.0023109Z ##[endgroup]
+2026-10-13T05:13:15.0024017Z [command]/usr/bin/git sparse-checkout disable
+2026-10-13T05:13:15.0078162Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+2026-10-13T05:13:15.0108290Z ##[group]Checking out the ref
+2026-10-13T05:13:15.0112302Z [command]/usr/bin/git checkout --progress --force 6033236cb81820a43679cbbd34be020804f9658d
+2026-10-13T05:13:15.5793947Z Note: switching to '6033236cb81820a43679cbbd34be020804f9658d'.
+2026-10-13T05:13:15.5794811Z 
+2026-10-13T05:13:15.5795125Z You are in 'detached HEAD' state. You can look around, make experimental
+2026-10-13T05:13:15.5795738Z changes and commit them, and you can discard any commits you make in this
+2026-10-13T05:13:15.5796363Z state without impacting any branches by switching back to a branch.
+2026-10-13T05:13:15.5796715Z 
+2026-10-13T05:13:15.5796996Z If you want to create a new branch to retain commits you create, you may
+2026-10-13T05:13:15.5797572Z do so (now or later) by using -c with the switch command. Example:
+2026-10-13T05:13:15.5797886Z 
+2026-10-13T05:13:15.5798051Z   git switch -c <new-branch-name>
+2026-10-13T05:13:15.5798315Z 
+2026-10-13T05:13:15.5798473Z Or undo this operation with:
+2026-10-13T05:13:15.5798750Z 
+2026-10-13T05:13:15.5798883Z   git switch -
+2026-10-13T05:13:15.5799080Z 
+2026-10-13T05:13:15.5799365Z Turn off this advice by setting config variable advice.detachedHead to false
+2026-10-13T05:13:15.5799755Z 
+2026-10-13T05:13:15.5800093Z HEAD is now at 6033236 Preserve native UI evidence receipt without changing public captions
+2026-10-13T05:13:15.5821390Z ##[endgroup]
+2026-10-13T05:13:15.5865938Z [command]/usr/bin/git log -1 --format=%H
+2026-10-13T05:13:15.5890836Z 6033236cb81820a43679cbbd34be020804f9658d
+2026-10-13T05:13:15.5901818Z ##[group]Removing auth
+2026-10-13T05:13:15.5905704Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-13T05:13:15.5935170Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-13T05:13:15.6130083Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-13T05:13:15.6153483Z http.https://github.com/.extraheader
+2026-10-13T05:13:15.6161202Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+2026-10-13T05:13:15.6194344Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-13T05:13:15.6392414Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-13T05:13:15.6423233Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-10-13T05:13:15.6614005Z ##[endgroup]
+2026-10-13T05:13:15.6978550Z ##[group]Run actions/checkout@v5
+2026-10-13T05:13:15.6978964Z with:
+2026-10-13T05:13:15.6979296Z   ref: aaa1330dd5cf7d51faf1c45a7cef633b9b118458
+2026-10-13T05:13:15.6979681Z   path: baseline
+2026-10-13T05:13:15.6979994Z   persist-credentials: false
+2026-10-13T05:13:15.6980427Z   repository: raven-deadwire/SpectralForge-Chimera-Amp-Matrix
+2026-10-13T05:13:15.6983674Z   token: ***
+2026-10-13T05:13:15.6983982Z   ssh-strict: true
+2026-10-13T05:13:15.6984299Z   ssh-user: git
+2026-10-13T05:13:15.6984590Z   clean: true
+2026-10-13T05:13:15.6984905Z   sparse-checkout-cone-mode: true
+2026-10-13T05:13:15.6985256Z   fetch-depth: 1
+2026-10-13T05:13:15.6985548Z   fetch-tags: false
+2026-10-13T05:13:15.6985854Z   show-progress: true
+2026-10-13T05:13:15.6986153Z   lfs: false
+2026-10-13T05:13:15.6986429Z   submodules: false
+2026-10-13T05:13:15.6986736Z   set-safe-directory: true
+2026-10-13T05:13:15.6987091Z   allow-unsafe-pr-checkout: false
+2026-10-13T05:13:15.6987436Z env:
+2026-10-13T05:13:15.6987860Z   CHIMERA_CANDIDATE_SHA: 6033236cb81820a43679cbbd34be020804f9658d
+2026-10-13T05:13:15.6988382Z   CHIMERA_BASELINE_SHA: aaa1330dd5cf7d51faf1c45a7cef633b9b118458
+2026-10-13T05:13:15.6988815Z ##[endgroup]
+2026-10-13T05:13:15.7935448Z Syncing repository: raven-deadwire/SpectralForge-Chimera-Amp-Matrix
+2026-10-13T05:13:15.7937627Z ##[group]Getting Git version info
+2026-10-13T05:13:15.7939406Z Working directory is '/home/runner/work/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/baseline'
+2026-10-13T05:13:15.7969979Z [command]/usr/bin/git version
+2026-10-13T05:13:15.8010736Z git version 2.55.0
+2026-10-13T05:13:15.8030208Z ##[endgroup]
+2026-10-13T05:13:15.8045438Z Temporarily overriding HOME='/home/runner/work/_temp/ae2ad548-dd02-415b-b950-c385e19dcb88' before making global git config changes
+2026-10-13T05:13:15.8047292Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-13T05:13:15.8050886Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/baseline
+2026-10-13T05:13:15.8086808Z ##[group]Initializing the repository
+2026-10-13T05:13:15.8092153Z [command]/usr/bin/git init /home/runner/work/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/baseline
+2026-10-13T05:13:15.8129488Z hint: Using 'master' as the name for the initial branch. This default branch name
+2026-10-13T05:13:15.8131327Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+2026-10-13T05:13:15.8132906Z hint: to use in all of your new repositories, which will suppress this warning,
+2026-10-13T05:13:15.8134072Z hint: call:
+2026-10-13T05:13:15.8134792Z hint:
+2026-10-13T05:13:15.8135661Z hint: 	git config --global init.defaultBranch <name>
+2026-10-13T05:13:15.8136605Z hint:
+2026-10-13T05:13:15.8137568Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2026-10-13T05:13:15.8138981Z hint: 'development'. The just-created branch can be renamed via this command:
+2026-10-13T05:13:15.8140113Z hint:
+2026-10-13T05:13:15.8140846Z hint: 	git branch -m <name>
+2026-10-13T05:13:15.8141824Z hint:
+2026-10-13T05:13:15.8142777Z hint: Disable this message with "git config set advice.defaultBranchName false"
+2026-10-13T05:13:15.8144695Z Initialized empty Git repository in /home/runner/work/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/baseline/.git/
+2026-10-13T05:13:15.8149199Z [command]/usr/bin/git remote add origin https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix
+2026-10-13T05:13:15.8175958Z ##[endgroup]
+2026-10-13T05:13:15.8177288Z ##[group]Disabling automatic garbage collection
+2026-10-13T05:13:15.8181224Z [command]/usr/bin/git config --local gc.auto 0
+2026-10-13T05:13:15.8222749Z ##[endgroup]
+2026-10-13T05:13:15.8223403Z ##[group]Setting up auth
+2026-10-13T05:13:15.8224024Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-13T05:13:15.8258729Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-13T05:13:15.8478692Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-13T05:13:15.8510701Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-13T05:13:15.8744438Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-13T05:13:15.8787284Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-10-13T05:13:15.9012039Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-10-13T05:13:15.9048527Z ##[endgroup]
+2026-10-13T05:13:15.9049277Z ##[group]Fetching the repository
+2026-10-13T05:13:15.9065623Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin aaa1330dd5cf7d51faf1c45a7cef633b9b118458
+2026-10-13T05:13:18.9162047Z From https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix
+2026-10-13T05:13:18.9162693Z  * branch            aaa1330dd5cf7d51faf1c45a7cef633b9b118458 -> FETCH_HEAD
+2026-10-13T05:13:18.9172573Z ##[endgroup]
+2026-10-13T05:13:18.9173623Z ##[group]Determining the checkout info
+2026-10-13T05:13:18.9175424Z ##[endgroup]
+2026-10-13T05:13:18.9176123Z [command]/usr/bin/git sparse-checkout disable
+2026-10-13T05:13:18.9211349Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+2026-10-13T05:13:18.9239268Z ##[group]Checking out the ref
+2026-10-13T05:13:18.9244649Z [command]/usr/bin/git checkout --progress --force aaa1330dd5cf7d51faf1c45a7cef633b9b118458
+2026-10-13T05:13:19.2307766Z Note: switching to 'aaa1330dd5cf7d51faf1c45a7cef633b9b118458'.
+2026-10-13T05:13:19.2308493Z 
+2026-10-13T05:13:19.2309430Z You are in 'detached HEAD' state. You can look around, make experimental
+2026-10-13T05:13:19.2310378Z changes and commit them, and you can discard any commits you make in this
+2026-10-13T05:13:19.2311468Z state without impacting any branches by switching back to a branch.
+2026-10-13T05:13:19.2311987Z 
+2026-10-13T05:13:19.2312371Z If you want to create a new branch to retain commits you create, you may
+2026-10-13T05:13:19.2313203Z do so (now or later) by using -c with the switch command. Example:
+2026-10-13T05:13:19.2313725Z 
+2026-10-13T05:13:19.2313936Z   git switch -c <new-branch-name>
+2026-10-13T05:13:19.2314298Z 
+2026-10-13T05:13:19.2314459Z Or undo this operation with:
+2026-10-13T05:13:19.2314737Z 
+2026-10-13T05:13:19.2314895Z   git switch -
+2026-10-13T05:13:19.2315262Z 
+2026-10-13T05:13:19.2315652Z Turn off this advice by setting config variable advice.detachedHead to false
+2026-10-13T05:13:19.2316157Z 
+2026-10-13T05:13:19.2316938Z HEAD is now at aaa1330 Expand native horn grille regression to 100–200 percent device scale
+2026-10-13T05:13:19.2330235Z ##[endgroup]
+2026-10-13T05:13:19.2376230Z [command]/usr/bin/git log -1 --format=%H
+2026-10-13T05:13:19.2400789Z aaa1330dd5cf7d51faf1c45a7cef633b9b118458
+2026-10-13T05:13:19.2410421Z ##[group]Removing auth
+2026-10-13T05:13:19.2415424Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-13T05:13:19.2446823Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-13T05:13:19.2642444Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-13T05:13:19.2665983Z http.https://github.com/.extraheader
+2026-10-13T05:13:19.2673422Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+2026-10-13T05:13:19.2706360Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-13T05:13:19.2895939Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-13T05:13:19.2928041Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-10-13T05:13:19.3112133Z ##[endgroup]
+2026-10-13T05:13:19.3355233Z ##[group]Run actions/setup-python@v6
+2026-10-13T05:13:19.3355580Z with:
+2026-10-13T05:13:19.3355802Z   python-version: 3.12
+2026-10-13T05:13:19.3356037Z   check-latest: false
+2026-10-13T05:13:19.3358524Z   token: ***
+2026-10-13T05:13:19.3358747Z   update-environment: true
+2026-10-13T05:13:19.3358999Z   allow-prereleases: false
+2026-10-13T05:13:19.3359240Z   freethreaded: false
+2026-10-13T05:13:19.3359452Z env:
+2026-10-13T05:13:19.3359722Z   CHIMERA_CANDIDATE_SHA: 6033236cb81820a43679cbbd34be020804f9658d
+2026-10-13T05:13:19.3360159Z   CHIMERA_BASELINE_SHA: aaa1330dd5cf7d51faf1c45a7cef633b9b118458
+2026-10-13T05:13:19.3360493Z ##[endgroup]
+2026-10-13T05:13:19.4669576Z ##[group]Installed versions
+2026-10-13T05:13:19.4762225Z Successfully set up CPython (3.12.15)
+2026-10-13T05:13:19.4763200Z ##[endgroup]
+2026-10-13T05:13:19.4905378Z ##[group]Run python candidate/Tools/test_cab_timing_evidence.py
+2026-10-13T05:13:19.4906290Z [36;1mpython candidate/Tools/test_cab_timing_evidence.py[0m
+2026-10-13T05:13:19.5563111Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-10-13T05:13:19.5563703Z env:
+2026-10-13T05:13:19.5564006Z   CHIMERA_CANDIDATE_SHA: 6033236cb81820a43679cbbd34be020804f9658d
+2026-10-13T05:13:19.5564437Z   CHIMERA_BASELINE_SHA: aaa1330dd5cf7d51faf1c45a7cef633b9b118458
+2026-10-13T05:13:19.5564864Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-13T05:13:19.5565292Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib/pkgconfig
+2026-10-13T05:13:19.5565713Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-13T05:13:19.5566101Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-13T05:13:19.5566482Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-13T05:13:19.5566929Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib
+2026-10-13T05:13:19.5567253Z ##[endgroup]
+2026-10-13T05:13:20.9127958Z ....................
+2026-10-13T05:13:20.9128781Z ----------------------------------------------------------------------
+2026-10-13T05:13:20.9129786Z Ran 20 tests in 0.471s
+2026-10-13T05:13:20.9130152Z 
+2026-10-13T05:13:20.9130488Z OK
+2026-10-13T05:13:20.9341681Z ##[group]Run sudo apt-get update && sudo apt-get install -y libasound2-dev libcurl4-openssl-dev libfreetype6-dev libfontconfig1-dev libx11-dev libxcomposite-dev libxcursor-dev libxext-dev libxinerama-dev libxrandr-dev libxrender-dev libgl1-mesa-dev
+2026-10-13T05:13:20.9343386Z [36;1msudo apt-get update && sudo apt-get install -y libasound2-dev libcurl4-openssl-dev libfreetype6-dev libfontconfig1-dev libx11-dev libxcomposite-dev libxcursor-dev libxext-dev libxinerama-dev libxrandr-dev libxrender-dev libgl1-mesa-dev[0m
+2026-10-13T05:13:20.9384867Z shell: /usr/bin/bash -e {0}
+2026-10-13T05:13:20.9385133Z env:
+2026-10-13T05:13:20.9385778Z   CHIMERA_CANDIDATE_SHA: 6033236cb81820a43679cbbd34be020804f9658d
+2026-10-13T05:13:20.9386374Z   CHIMERA_BASELINE_SHA: aaa1330dd5cf7d51faf1c45a7cef633b9b118458
+2026-10-13T05:13:20.9387029Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-13T05:13:20.9387472Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib/pkgconfig
+2026-10-13T05:13:20.9387945Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-13T05:13:20.9388328Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-13T05:13:20.9388699Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-13T05:13:20.9389075Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib
+2026-10-13T05:13:20.9389395Z ##[endgroup]
+2026-10-13T05:13:21.1851556Z Get:1 file:/etc/apt/apt-mirrors.txt Mirrorlist [144 B]
+2026-10-13T05:13:21.2373130Z Hit:2 http://azure.archive.ubuntu.com/ubuntu jammy InRelease
+2026-10-13T05:13:21.2377738Z Get:6 https://packages.microsoft.com/ubuntu/22.04/prod jammy InRelease [3632 B]
+2026-10-13T05:13:21.2442311Z Get:3 http://azure.archive.ubuntu.com/ubuntu jammy-updates InRelease [128 kB]
+2026-10-13T05:13:21.2447837Z Get:4 http://azure.archive.ubuntu.com/ubuntu jammy-backports InRelease [127 kB]
+2026-10-13T05:13:21.2462293Z Get:5 http://azure.archive.ubuntu.com/ubuntu jammy-security InRelease [129 kB]
+2026-10-13T05:13:21.4516954Z Get:7 https://packages.microsoft.com/ubuntu/22.04/prod jammy/main armhf Packages [23.4 kB]
+2026-10-13T05:13:21.4618213Z Get:8 https://packages.microsoft.com/ubuntu/22.04/prod jammy/main amd64 Packages [859 kB]
+2026-10-13T05:13:21.4718247Z Get:9 https://packages.microsoft.com/ubuntu/22.04/prod jammy/main arm64 Packages [606 kB]
+2026-10-13T05:13:21.5185305Z Get:10 http://azure.archive.ubuntu.com/ubuntu jammy-updates/main amd64 Packages [3908 kB]
+2026-10-13T05:13:21.5383961Z Get:11 http://azure.archive.ubuntu.com/ubuntu jammy-updates/main Translation-en [576 kB]
+2026-10-13T05:13:21.5413826Z Get:12 http://azure.archive.ubuntu.com/ubuntu jammy-updates/restricted amd64 Packages [6740 kB]
+2026-10-13T05:13:21.5717554Z Get:13 http://azure.archive.ubuntu.com/ubuntu jammy-updates/restricted Translation-en [1294 kB]
+2026-10-13T05:13:21.5786072Z Get:14 http://azure.archive.ubuntu.com/ubuntu jammy-updates/universe amd64 Packages [1286 kB]
+2026-10-13T05:13:21.5853936Z Get:15 http://azure.archive.ubuntu.com/ubuntu jammy-updates/universe Translation-en [325 kB]
+2026-10-13T05:13:21.5875040Z Get:16 http://azure.archive.ubuntu.com/ubuntu jammy-updates/multiverse amd64 Packages [86.1 kB]
+2026-10-13T05:13:21.5885042Z Get:17 http://azure.archive.ubuntu.com/ubuntu jammy-updates/multiverse Translation-en [16.6 kB]
+2026-10-13T05:13:21.6640019Z Get:18 http://azure.archive.ubuntu.com/ubuntu jammy-security/main amd64 Packages [3641 kB]
+2026-10-13T05:13:21.6799918Z Get:19 http://azure.archive.ubuntu.com/ubuntu jammy-security/main Translation-en [509 kB]
+2026-10-13T05:13:21.7237761Z Get:20 http://azure.archive.ubuntu.com/ubuntu jammy-security/restricted amd64 Packages [6505 kB]
+2026-10-13T05:13:21.7583997Z Get:21 http://azure.archive.ubuntu.com/ubuntu jammy-security/restricted Translation-en [1250 kB]
+2026-10-13T05:13:21.7657800Z Get:22 http://azure.archive.ubuntu.com/ubuntu jammy-security/universe amd64 Packages [1053 kB]
+2026-10-13T05:13:21.7744481Z Get:23 http://azure.archive.ubuntu.com/ubuntu jammy-security/universe Translation-en [237 kB]
+2026-10-13T05:13:21.7759043Z Get:24 http://azure.archive.ubuntu.com/ubuntu jammy-security/multiverse amd64 Packages [79.6 kB]
+2026-10-13T05:13:21.7769787Z Get:25 http://azure.archive.ubuntu.com/ubuntu jammy-security/multiverse Translation-en [13.7 kB]
+2026-10-13T05:13:30.6940939Z Fetched 29.4 MB in 3s (9095 kB/s)
+2026-10-13T05:13:32.1474999Z Reading package lists...
+2026-10-13T05:13:32.2154118Z Reading package lists...
+2026-10-13T05:13:32.5234620Z Building dependency tree...
+2026-10-13T05:13:32.5247366Z Reading state information...
+2026-10-13T05:13:32.7988621Z libfontconfig1-dev is already the newest version (2.13.1-4.2ubuntu5).
+2026-10-13T05:13:32.7989373Z libfontconfig1-dev set to manually installed.
+2026-10-13T05:13:32.7990144Z libxext-dev is already the newest version (2:1.3.4-1build1).
+2026-10-13T05:13:32.7990805Z libxext-dev set to manually installed.
+2026-10-13T05:13:32.7991703Z libxrender-dev is already the newest version (1:0.9.10-1build4).
+2026-10-13T05:13:32.7992341Z libxrender-dev set to manually installed.
+2026-10-13T05:13:32.7992816Z The following additional packages will be installed:
+2026-10-13T05:13:32.7993439Z   libegl-dev libegl-mesa0 libegl1 libfreetype-dev libfreetype6 libgl-dev
+2026-10-13T05:13:32.7994148Z   libgles-dev libgles1 libgles2 libglvnd-core-dev libglvnd-dev libglx-dev
+2026-10-13T05:13:32.8002005Z   libopengl-dev libopengl0 libx11-6 libx11-xcb1 libxfixes-dev
+2026-10-13T05:13:32.8015750Z Suggested packages:
+2026-10-13T05:13:32.8016284Z   libasound2-doc libcurl4-doc libidn11-dev libkrb5-dev libldap2-dev
+2026-10-13T05:13:32.8016777Z   librtmp-dev libssh2-1-dev freetype2-doc libx11-doc
+2026-10-13T05:13:32.8880089Z The following NEW packages will be installed:
+2026-10-13T05:13:32.8880945Z   libasound2-dev libcurl4-openssl-dev libegl-dev libegl-mesa0 libegl1
+2026-10-13T05:13:32.8882963Z   libgl-dev libgl1-mesa-dev libgles-dev libgles1 libgles2 libglvnd-core-dev
+2026-10-13T05:13:32.8893342Z   libglvnd-dev libglx-dev libopengl-dev libopengl0 libxcomposite-dev
+2026-10-13T05:13:32.8898862Z   libxcursor-dev libxfixes-dev libxinerama-dev libxrandr-dev
+2026-10-13T05:13:32.8905562Z The following packages will be upgraded:
+2026-10-13T05:13:32.8913761Z   libfreetype-dev libfreetype6 libfreetype6-dev libx11-6 libx11-dev
+2026-10-13T05:13:32.8933636Z   libx11-xcb1
+2026-10-13T05:13:32.9115322Z 6 upgraded, 20 newly installed, 0 to remove and 27 not upgraded.
+2026-10-13T05:13:32.9116404Z Need to get 3375 kB of archives.
+2026-10-13T05:13:32.9117271Z After this operation, 6215 kB of additional disk space will be used.
+2026-10-13T05:13:32.9117887Z Get:1 file:/etc/apt/apt-mirrors.txt Mirrorlist [144 B]
+2026-10-13T05:13:32.9986761Z Get:2 http://azure.archive.ubuntu.com/ubuntu jammy-security/main amd64 libx11-dev amd64 2:1.7.5-1ubuntu0.4 [745 kB]
+2026-10-13T05:13:33.0739251Z Get:3 http://azure.archive.ubuntu.com/ubuntu jammy-security/main amd64 libx11-6 amd64 2:1.7.5-1ubuntu0.4 [668 kB]
+2026-10-13T05:13:33.1485825Z Get:4 http://azure.archive.ubuntu.com/ubuntu jammy-security/main amd64 libx11-xcb1 amd64 2:1.7.5-1ubuntu0.4 [7792 B]
+2026-10-13T05:13:33.2106764Z Get:5 http://azure.archive.ubuntu.com/ubuntu jammy-updates/main amd64 libasound2-dev amd64 1.2.6.1-1ubuntu1.2 [110 kB]
+2026-10-13T05:13:33.2756550Z Get:6 http://azure.archive.ubuntu.com/ubuntu jammy-updates/main amd64 libcurl4-openssl-dev amd64 7.81.0-1ubuntu1.29 [387 kB]
+2026-10-13T05:13:33.3418520Z Get:7 http://azure.archive.ubuntu.com/ubuntu jammy-updates/main amd64 libegl-mesa0 amd64 23.2.1-1ubuntu3.1~22.04.4 [118 kB]
+2026-10-13T05:13:33.4140016Z Get:8 http://azure.archive.ubuntu.com/ubuntu jammy/main amd64 libegl1 amd64 1.4.0-1 [28.6 kB]
+2026-10-13T05:13:33.4793511Z Get:9 http://azure.archive.ubuntu.com/ubuntu jammy/main amd64 libglx-dev amd64 1.4.0-1 [14.1 kB]
+2026-10-13T05:13:33.5436458Z Get:10 http://azure.archive.ubuntu.com/ubuntu jammy/main amd64 libgl-dev amd64 1.4.0-1 [101 kB]
+2026-10-13T05:13:33.6145145Z Get:11 http://azure.archive.ubuntu.com/ubuntu jammy/main amd64 libegl-dev amd64 1.4.0-1 [18.0 kB]
+2026-10-13T05:13:33.6790804Z Get:12 http://azure.archive.ubuntu.com/ubuntu jammy-updates/main amd64 libfreetype-dev amd64 2.11.1+dfsg-1ubuntu0.4 [555 kB]
+2026-10-13T05:13:33.7871797Z Get:13 http://azure.archive.ubuntu.com/ubuntu jammy-updates/main amd64 libfreetype6-dev amd64 2.11.1+dfsg-1ubuntu0.4 [8306 B]
+2026-10-13T05:13:33.8511818Z Get:14 http://azure.archive.ubuntu.com/ubuntu jammy-updates/main amd64 libfreetype6 amd64 2.11.1+dfsg-1ubuntu0.4 [388 kB]
+2026-10-13T05:13:33.9407135Z Get:15 http://azure.archive.ubuntu.com/ubuntu jammy/main amd64 libgles1 amd64 1.4.0-1 [11.5 kB]
+2026-10-13T05:13:34.0046206Z Get:16 http://azure.archive.ubuntu.com/ubuntu jammy/main amd64 libgles2 amd64 1.4.0-1 [18.0 kB]
+2026-10-13T05:13:34.0688797Z Get:17 http://azure.archive.ubuntu.com/ubuntu jammy/main amd64 libgles-dev amd64 1.4.0-1 [49.4 kB]
+2026-10-13T05:13:34.1352635Z Get:18 http://azure.archive.ubuntu.com/ubuntu jammy/main amd64 libopengl0 amd64 1.4.0-1 [36.5 kB]
+2026-10-13T05:13:34.2005319Z Get:19 http://azure.archive.ubuntu.com/ubuntu jammy/main amd64 libopengl-dev amd64 1.4.0-1 [3400 B]
+2026-10-13T05:13:34.2645804Z Get:20 http://azure.archive.ubuntu.com/ubuntu jammy/main amd64 libxfixes-dev amd64 1:6.0.0-1 [12.2 kB]
+2026-10-13T05:13:34.3283203Z Get:21 http://azure.archive.ubuntu.com/ubuntu jammy/main amd64 libxcomposite-dev amd64 1:0.4.5-1build2 [9326 B]
+2026-10-13T05:13:34.3923577Z Get:22 http://azure.archive.ubuntu.com/ubuntu jammy/main amd64 libxcursor-dev amd64 1:1.2.0-2build4 [28.2 kB]
+2026-10-13T05:13:34.4562983Z Get:23 http://azure.archive.ubuntu.com/ubuntu jammy/main amd64 libxinerama-dev amd64 2:1.1.4-3 [8104 B]
+2026-10-13T05:13:34.5201782Z Get:24 http://azure.archive.ubuntu.com/ubuntu jammy/main amd64 libxrandr-dev amd64 2:1.5.2-1build1 [26.7 kB]
+2026-10-13T05:13:34.5856947Z Get:25 http://azure.archive.ubuntu.com/ubuntu jammy/main amd64 libglvnd-core-dev amd64 1.4.0-1 [12.7 kB]
+2026-10-13T05:13:34.6500797Z Get:26 http://azure.archive.ubuntu.com/ubuntu jammy/main amd64 libglvnd-dev amd64 1.4.0-1 [3162 B]
+2026-10-13T05:13:34.7148018Z Get:27 http://azure.archive.ubuntu.com/ubuntu jammy-updates/main amd64 libgl1-mesa-dev amd64 23.2.1-1ubuntu3.1~22.04.4 [7012 B]
+2026-10-13T05:13:35.0646006Z Fetched 3375 kB in 2s (1860 kB/s)
+2026-10-13T05:13:35.2407943Z (Reading database ... 
+2026-10-13T05:13:35.2408325Z (Reading database ... 5%
+2026-10-13T05:13:35.2408590Z (Reading database ... 10%
+2026-10-13T05:13:35.2408831Z (Reading database ... 15%
+2026-10-13T05:13:35.2409066Z (Reading database ... 20%
+2026-10-13T05:13:35.2409328Z (Reading database ... 25%
+2026-10-13T05:13:35.2409552Z (Reading database ... 30%
+2026-10-13T05:13:35.2409785Z (Reading database ... 35%
+2026-10-13T05:13:35.2410008Z (Reading database ... 40%
+2026-10-13T05:13:35.2410235Z (Reading database ... 45%
+2026-10-13T05:13:35.2410460Z (Reading database ... 50%
+2026-10-13T05:13:35.6582725Z (Reading database ... 55%
+2026-10-13T05:13:36.2647027Z (Reading database ... 60%
+2026-10-13T05:13:36.7797277Z (Reading database ... 65%
+2026-10-13T05:13:37.3274646Z (Reading database ... 70%
+2026-10-13T05:13:38.3006666Z (Reading database ... 75%
+2026-10-13T05:13:39.3152624Z (Reading database ... 80%
+2026-10-13T05:13:40.2898630Z (Reading database ... 85%
+2026-10-13T05:13:41.4427192Z (Reading database ... 90%
+2026-10-13T05:13:42.4795047Z (Reading database ... 95%
+2026-10-13T05:13:42.4795436Z (Reading database ... 100%
+2026-10-13T05:13:42.4795822Z (Reading database ... 261293 files and directories currently installed.)
+2026-10-13T05:13:42.4874825Z Preparing to unpack .../00-libx11-dev_2%3a1.7.5-1ubuntu0.4_amd64.deb ...
+2026-10-13T05:13:42.4920275Z Unpacking libx11-dev:amd64 (2:1.7.5-1ubuntu0.4) over (2:1.7.5-1ubuntu0.3) ...
+2026-10-13T05:13:42.5813541Z Preparing to unpack .../01-libx11-6_2%3a1.7.5-1ubuntu0.4_amd64.deb ...
+2026-10-13T05:13:42.5849094Z Unpacking libx11-6:amd64 (2:1.7.5-1ubuntu0.4) over (2:1.7.5-1ubuntu0.3) ...
+2026-10-13T05:13:42.6555234Z Preparing to unpack .../02-libx11-xcb1_2%3a1.7.5-1ubuntu0.4_amd64.deb ...
+2026-10-13T05:13:42.6657997Z Unpacking libx11-xcb1:amd64 (2:1.7.5-1ubuntu0.4) over (2:1.7.5-1ubuntu0.3) ...
+2026-10-13T05:13:42.6936512Z Selecting previously unselected package libasound2-dev:amd64.
+2026-10-13T05:13:42.7102101Z Preparing to unpack .../03-libasound2-dev_1.2.6.1-1ubuntu1.2_amd64.deb ...
+2026-10-13T05:13:42.7134012Z Unpacking libasound2-dev:amd64 (1.2.6.1-1ubuntu1.2) ...
+2026-10-13T05:13:42.7686790Z Selecting previously unselected package libcurl4-openssl-dev:amd64.
+2026-10-13T05:13:42.7846497Z Preparing to unpack .../04-libcurl4-openssl-dev_7.81.0-1ubuntu1.29_amd64.deb ...
+2026-10-13T05:13:42.7865697Z Unpacking libcurl4-openssl-dev:amd64 (7.81.0-1ubuntu1.29) ...
+2026-10-13T05:13:42.8240258Z Selecting previously unselected package libegl-mesa0:amd64.
+2026-10-13T05:13:42.8397149Z Preparing to unpack .../05-libegl-mesa0_23.2.1-1ubuntu3.1~22.04.4_amd64.deb ...
+2026-10-13T05:13:42.8405086Z Unpacking libegl-mesa0:amd64 (23.2.1-1ubuntu3.1~22.04.4) ...
+2026-10-13T05:13:42.8671594Z Selecting previously unselected package libegl1:amd64.
+2026-10-13T05:13:42.8832590Z Preparing to unpack .../06-libegl1_1.4.0-1_amd64.deb ...
+2026-10-13T05:13:42.8841699Z Unpacking libegl1:amd64 (1.4.0-1) ...
+2026-10-13T05:13:42.9025912Z Selecting previously unselected package libglx-dev:amd64.
+2026-10-13T05:13:42.9186896Z Preparing to unpack .../07-libglx-dev_1.4.0-1_amd64.deb ...
+2026-10-13T05:13:42.9196545Z Unpacking libglx-dev:amd64 (1.4.0-1) ...
+2026-10-13T05:13:42.9449176Z Selecting previously unselected package libgl-dev:amd64.
+2026-10-13T05:13:42.9607146Z Preparing to unpack .../08-libgl-dev_1.4.0-1_amd64.deb ...
+2026-10-13T05:13:42.9615128Z Unpacking libgl-dev:amd64 (1.4.0-1) ...
+2026-10-13T05:13:42.9828647Z Selecting previously unselected package libegl-dev:amd64.
+2026-10-13T05:13:42.9990043Z Preparing to unpack .../09-libegl-dev_1.4.0-1_amd64.deb ...
+2026-10-13T05:13:42.9999116Z Unpacking libegl-dev:amd64 (1.4.0-1) ...
+2026-10-13T05:13:43.0342039Z Preparing to unpack .../10-libfreetype-dev_2.11.1+dfsg-1ubuntu0.4_amd64.deb ...
+2026-10-13T05:13:43.0370001Z Unpacking libfreetype-dev:amd64 (2.11.1+dfsg-1ubuntu0.4) over (2.11.1+dfsg-1ubuntu0.3) ...
+2026-10-13T05:13:43.1023732Z Preparing to unpack .../11-libfreetype6-dev_2.11.1+dfsg-1ubuntu0.4_amd64.deb ...
+2026-10-13T05:13:43.1043064Z Unpacking libfreetype6-dev:amd64 (2.11.1+dfsg-1ubuntu0.4) over (2.11.1+dfsg-1ubuntu0.3) ...
+2026-10-13T05:13:43.1472298Z Preparing to unpack .../12-libfreetype6_2.11.1+dfsg-1ubuntu0.4_amd64.deb ...
+2026-10-13T05:13:43.1570237Z Unpacking libfreetype6:amd64 (2.11.1+dfsg-1ubuntu0.4) over (2.11.1+dfsg-1ubuntu0.3) ...
+2026-10-13T05:13:43.1803875Z Selecting previously unselected package libgles1:amd64.
+2026-10-13T05:13:43.1968246Z Preparing to unpack .../13-libgles1_1.4.0-1_amd64.deb ...
+2026-10-13T05:13:43.1979530Z Unpacking libgles1:amd64 (1.4.0-1) ...
+2026-10-13T05:13:43.2174889Z Selecting previously unselected package libgles2:amd64.
+2026-10-13T05:13:43.2338706Z Preparing to unpack .../14-libgles2_1.4.0-1_amd64.deb ...
+2026-10-13T05:13:43.2375920Z Unpacking libgles2:amd64 (1.4.0-1) ...
+2026-10-13T05:13:43.2572890Z Selecting previously unselected package libgles-dev:amd64.
+2026-10-13T05:13:43.2735287Z Preparing to unpack .../15-libgles-dev_1.4.0-1_amd64.deb ...
+2026-10-13T05:13:43.2743939Z Unpacking libgles-dev:amd64 (1.4.0-1) ...
+2026-10-13T05:13:43.2982134Z Selecting previously unselected package libopengl0:amd64.
+2026-10-13T05:13:43.3143598Z Preparing to unpack .../16-libopengl0_1.4.0-1_amd64.deb ...
+2026-10-13T05:13:43.3153192Z Unpacking libopengl0:amd64 (1.4.0-1) ...
+2026-10-13T05:13:43.3403322Z Selecting previously unselected package libopengl-dev:amd64.
+2026-10-13T05:13:43.3586424Z Preparing to unpack .../17-libopengl-dev_1.4.0-1_amd64.deb ...
+2026-10-13T05:13:43.3597394Z Unpacking libopengl-dev:amd64 (1.4.0-1) ...
+2026-10-13T05:13:43.3794988Z Selecting previously unselected package libxfixes-dev:amd64.
+2026-10-13T05:13:43.3955474Z Preparing to unpack .../18-libxfixes-dev_1%3a6.0.0-1_amd64.deb ...
+2026-10-13T05:13:43.3963352Z Unpacking libxfixes-dev:amd64 (1:6.0.0-1) ...
+2026-10-13T05:13:43.4259908Z Selecting previously unselected package libxcomposite-dev:amd64.
+2026-10-13T05:13:43.4419168Z Preparing to unpack .../19-libxcomposite-dev_1%3a0.4.5-1build2_amd64.deb ...
+2026-10-13T05:13:43.4427112Z Unpacking libxcomposite-dev:amd64 (1:0.4.5-1build2) ...
+2026-10-13T05:13:43.4712606Z Selecting previously unselected package libxcursor-dev:amd64.
+2026-10-13T05:13:43.4876301Z Preparing to unpack .../20-libxcursor-dev_1%3a1.2.0-2build4_amd64.deb ...
+2026-10-13T05:13:43.4885131Z Unpacking libxcursor-dev:amd64 (1:1.2.0-2build4) ...
+2026-10-13T05:13:43.5080673Z Selecting previously unselected package libxinerama-dev:amd64.
+2026-10-13T05:13:43.5244249Z Preparing to unpack .../21-libxinerama-dev_2%3a1.1.4-3_amd64.deb ...
+2026-10-13T05:13:43.5251978Z Unpacking libxinerama-dev:amd64 (2:1.1.4-3) ...
+2026-10-13T05:13:43.5444542Z Selecting previously unselected package libxrandr-dev:amd64.
+2026-10-13T05:13:43.5605039Z Preparing to unpack .../22-libxrandr-dev_2%3a1.5.2-1build1_amd64.deb ...
+2026-10-13T05:13:43.5613313Z Unpacking libxrandr-dev:amd64 (2:1.5.2-1build1) ...
+2026-10-13T05:13:43.5808624Z Selecting previously unselected package libglvnd-core-dev:amd64.
+2026-10-13T05:13:43.5969492Z Preparing to unpack .../23-libglvnd-core-dev_1.4.0-1_amd64.deb ...
+2026-10-13T05:13:43.5978790Z Unpacking libglvnd-core-dev:amd64 (1.4.0-1) ...
+2026-10-13T05:13:43.6169597Z Selecting previously unselected package libglvnd-dev:amd64.
+2026-10-13T05:13:43.6331560Z Preparing to unpack .../24-libglvnd-dev_1.4.0-1_amd64.deb ...
+2026-10-13T05:13:43.6338456Z Unpacking libglvnd-dev:amd64 (1.4.0-1) ...
+2026-10-13T05:13:43.6515735Z Selecting previously unselected package libgl1-mesa-dev:amd64.
+2026-10-13T05:13:43.6682689Z Preparing to unpack .../25-libgl1-mesa-dev_23.2.1-1ubuntu3.1~22.04.4_amd64.deb ...
+2026-10-13T05:13:43.6690877Z Unpacking libgl1-mesa-dev:amd64 (23.2.1-1ubuntu3.1~22.04.4) ...
+2026-10-13T05:13:43.7175882Z Setting up libglvnd-core-dev:amd64 (1.4.0-1) ...
+2026-10-13T05:13:43.7197037Z Setting up libopengl0:amd64 (1.4.0-1) ...
+2026-10-13T05:13:43.7227000Z Setting up libgles2:amd64 (1.4.0-1) ...
+2026-10-13T05:13:43.7243339Z Setting up libfreetype6:amd64 (2.11.1+dfsg-1ubuntu0.4) ...
+2026-10-13T05:13:43.7259002Z Setting up libcurl4-openssl-dev:amd64 (7.81.0-1ubuntu1.29) ...
+2026-10-13T05:13:43.7273562Z Setting up libgles1:amd64 (1.4.0-1) ...
+2026-10-13T05:13:43.7290420Z Setting up libx11-6:amd64 (2:1.7.5-1ubuntu0.4) ...
+2026-10-13T05:13:43.7305897Z Setting up libopengl-dev:amd64 (1.4.0-1) ...
+2026-10-13T05:13:43.7319487Z Setting up libasound2-dev:amd64 (1.2.6.1-1ubuntu1.2) ...
+2026-10-13T05:13:43.7334307Z Setting up libx11-xcb1:amd64 (2:1.7.5-1ubuntu0.4) ...
+2026-10-13T05:13:43.7354808Z Setting up libx11-dev:amd64 (2:1.7.5-1ubuntu0.4) ...
+2026-10-13T05:13:43.7370513Z Setting up libfreetype-dev:amd64 (2.11.1+dfsg-1ubuntu0.4) ...
+2026-10-13T05:13:43.7385144Z Setting up libxfixes-dev:amd64 (1:6.0.0-1) ...
+2026-10-13T05:13:43.7400489Z Setting up libxrandr-dev:amd64 (2:1.5.2-1build1) ...
+2026-10-13T05:13:43.7415580Z Setting up libegl-mesa0:amd64 (23.2.1-1ubuntu3.1~22.04.4) ...
+2026-10-13T05:13:43.7435146Z Setting up libxinerama-dev:amd64 (2:1.1.4-3) ...
+2026-10-13T05:13:43.7451405Z Setting up libegl1:amd64 (1.4.0-1) ...
+2026-10-13T05:13:43.7466930Z Setting up libglx-dev:amd64 (1.4.0-1) ...
+2026-10-13T05:13:43.7481340Z Setting up libgl-dev:amd64 (1.4.0-1) ...
+2026-10-13T05:13:43.7497553Z Setting up libegl-dev:amd64 (1.4.0-1) ...
+2026-10-13T05:13:43.7515301Z Setting up libxcomposite-dev:amd64 (1:0.4.5-1build2) ...
+2026-10-13T05:13:43.7572825Z Setting up libxcursor-dev:amd64 (1:1.2.0-2build4) ...
+2026-10-13T05:13:43.7595143Z Setting up libfreetype6-dev:amd64 (2.11.1+dfsg-1ubuntu0.4) ...
+2026-10-13T05:13:43.7613181Z Setting up libgles-dev:amd64 (1.4.0-1) ...
+2026-10-13T05:13:43.7626747Z Setting up libglvnd-dev:amd64 (1.4.0-1) ...
+2026-10-13T05:13:43.7640294Z Setting up libgl1-mesa-dev:amd64 (23.2.1-1ubuntu3.1~22.04.4) ...
+2026-10-13T05:13:43.7660462Z Processing triggers for man-db (2.10.2-1) ...
+2026-10-13T05:13:43.7680742Z Not building database; man-db/auto-update is not 'true'.
+2026-10-13T05:13:43.7696252Z Processing triggers for libc-bin (2.35-0ubuntu3.15) ...
+2026-10-13T05:13:45.2350337Z 
+2026-10-13T05:13:45.2351149Z Running kernel seems to be up-to-date.
+2026-10-13T05:13:45.2351540Z 
+2026-10-13T05:13:45.2352065Z Services to be restarted:
+2026-10-13T05:13:45.2406524Z  systemctl restart php8.1-fpm.service
+2026-10-13T05:13:45.2406908Z 
+2026-10-13T05:13:45.2408765Z No containers need to be restarted.
+2026-10-13T05:13:45.2409044Z 
+2026-10-13T05:13:45.2409272Z No user sessions are running outdated binaries.
+2026-10-13T05:13:45.2409493Z 
+2026-10-13T05:13:45.2409681Z No VM guests are running outdated hypervisor (qemu) binaries on this host.
+2026-10-13T05:13:47.0977592Z ##[group]Run python candidate/Tools/run_cab_realtime_ci.py \
+2026-10-13T05:13:47.0978054Z [36;1mpython candidate/Tools/run_cab_realtime_ci.py \[0m
+2026-10-13T05:13:47.0978520Z [36;1m  --candidate-source candidate --candidate-sha "$CHIMERA_CANDIDATE_SHA" \[0m
+2026-10-13T05:13:47.0979059Z [36;1m  --baseline-source baseline --baseline-sha "$CHIMERA_BASELINE_SHA" \[0m
+2026-10-13T05:13:47.0979579Z [36;1m  --build-root cab-realtime-build --output cab-realtime-evidence \[0m
+2026-10-13T05:13:47.0979994Z [36;1m  --profile-target ChimeraCabProfiling[0m
+2026-10-13T05:13:47.1018668Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-10-13T05:13:47.1019009Z env:
+2026-10-13T05:13:47.1019294Z   CHIMERA_CANDIDATE_SHA: 6033236cb81820a43679cbbd34be020804f9658d
+2026-10-13T05:13:47.1019733Z   CHIMERA_BASELINE_SHA: aaa1330dd5cf7d51faf1c45a7cef633b9b118458
+2026-10-13T05:13:47.1020141Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-13T05:13:47.1020636Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib/pkgconfig
+2026-10-13T05:13:47.1021243Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-13T05:13:47.1021624Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-13T05:13:47.1022019Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-13T05:13:47.1022413Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib
+2026-10-13T05:13:47.1022733Z ##[endgroup]
+2026-10-13T05:13:48.6785307Z Running cmake -S /home/runner/work/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/baseline -B /home/runner/work/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/cab-realtime-build/baseline -DCMAKE_BUILD_TYPE=Release
+2026-10-13T05:15:38.6966104Z Exit 0, 110.0s; complete output: /home/runner/work/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/cab-realtime-evidence/baseline/configure.log
+2026-10-13T05:15:38.6968903Z Running cmake --build /home/runner/work/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/cab-realtime-build/baseline --config Release --target ChimeraOriginalCabIntegrationTests --parallel 2
+2026-10-13T05:16:27.2978135Z Exit 0, 48.6s; complete output: /home/runner/work/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/cab-realtime-evidence/baseline/build.log
+2026-10-13T05:16:27.3560265Z Running ctest --test-dir /home/runner/work/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/cab-realtime-build/baseline -C Release -R ^(ChimeraCabExpansionIntegrationTests|ChimeraCabLayoutIntegrationTests|ChimeraOriginalCabIntegrationTests)$ --parallel 1 --verbose --no-tests=error --timeout 600 --test-output-size-passed 10485760 --test-output-size-failed 10485760 --output-junit /home/runner/work/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/cab-realtime-evidence/baseline/ctest-results.xml
+2026-10-13T05:17:28.6720859Z Exit 0, 61.3s; complete output: /home/runner/work/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/cab-realtime-evidence/baseline/ctest-console.log
+2026-10-13T05:17:29.1137303Z Running cmake -S /home/runner/work/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/candidate -B /home/runner/work/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/cab-realtime-build/candidate -DCMAKE_BUILD_TYPE=Release
+2026-10-13T05:19:16.9715755Z Exit 0, 107.9s; complete output: /home/runner/work/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/cab-realtime-evidence/candidate/configure.log
+2026-10-13T05:19:16.9718490Z Running cmake --build /home/runner/work/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/cab-realtime-build/candidate --config Release --target ChimeraOriginalCabIntegrationTests ChimeraOriginalCabRealtimeTests --parallel 2
+2026-10-13T05:20:38.2102370Z Exit 0, 81.2s; complete output: /home/runner/work/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/cab-realtime-evidence/candidate/build.log
+2026-10-13T05:20:38.2368218Z Running ctest --test-dir /home/runner/work/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/cab-realtime-build/candidate -C Release -R ^(ChimeraCabExpansionIntegrationTests|ChimeraCabExtendedTimingTests|ChimeraCabLayoutIntegrationTests|ChimeraOriginalCabIntegrationTests|ChimeraOriginalCabRealtimeTests)$ --parallel 1 --verbose --no-tests=error --timeout 600 --test-output-size-passed 10485760 --test-output-size-failed 10485760 --output-junit /home/runner/work/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/cab-realtime-evidence/candidate/ctest-results.xml
+2026-10-13T05:22:01.8229083Z Exit 0, 83.6s; complete output: /home/runner/work/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/cab-realtime-evidence/candidate/ctest-console.log
+2026-10-13T05:22:02.9289502Z Running cmake --build /home/runner/work/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/cab-realtime-build/candidate --config Release --target ChimeraCabProfiling --parallel 2
+2026-10-13T05:22:43.6536542Z Exit 0, 40.7s; complete output: /home/runner/work/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/cab-realtime-evidence/diagnostic/build.log
+2026-10-13T05:22:43.6591765Z Running /home/runner/work/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/cab-realtime-build/candidate/ChimeraCabProfiling_artefacts/Release/ChimeraCabProfiling --expanded
+2026-10-13T05:22:55.9540025Z Exit 0, 12.3s; complete output: /home/runner/work/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/cab-realtime-evidence/diagnostic/profile.log
+2026-10-13T05:22:56.2113512Z CAB realtime result: PASS; evidence: /home/runner/work/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/cab-realtime-evidence
+2026-10-13T05:22:56.2277425Z ##[group]Run actions/upload-artifact@v6
+2026-10-13T05:22:56.2277730Z with:
+2026-10-13T05:22:56.2278045Z   name: CAB-realtime-Linux-6033236cb81820a43679cbbd34be020804f9658d
+2026-10-13T05:22:56.2278444Z   path: cab-realtime-evidence/
+2026-10-13T05:22:56.2278716Z   if-no-files-found: error
+2026-10-13T05:22:56.2278948Z   retention-days: 90
+2026-10-13T05:22:56.2279165Z   compression-level: 6
+2026-10-13T05:22:56.2279381Z   overwrite: false
+2026-10-13T05:22:56.2279596Z   include-hidden-files: false
+2026-10-13T05:22:56.2280025Z env:
+2026-10-13T05:22:56.2280285Z   CHIMERA_CANDIDATE_SHA: 6033236cb81820a43679cbbd34be020804f9658d
+2026-10-13T05:22:56.2280701Z   CHIMERA_BASELINE_SHA: aaa1330dd5cf7d51faf1c45a7cef633b9b118458
+2026-10-13T05:22:56.2281371Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-13T05:22:56.2281806Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib/pkgconfig
+2026-10-13T05:22:56.2282265Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-13T05:22:56.2282646Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-13T05:22:56.2283016Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-13T05:22:56.2283392Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib
+2026-10-13T05:22:56.2283704Z ##[endgroup]
+2026-10-13T05:22:56.4143179Z With the provided path, there will be 108 files uploaded
+2026-10-13T05:22:56.4149726Z Artifact name is valid!
+2026-10-13T05:22:56.4150284Z Root directory input is valid!
+2026-10-13T05:22:56.7955938Z Beginning upload of artifact content to blob storage
+2026-10-13T05:22:58.0586486Z Uploaded bytes 4052305
+2026-10-13T05:22:58.1157839Z Finished uploading artifact content to blob storage!
+2026-10-13T05:22:58.1158877Z SHA256 digest of uploaded artifact zip is b115d4e02d897abc268511ebe5ebf0c82c470e68dc9941bda55d8c6d9f1ae3c8
+2026-10-13T05:22:58.1160551Z Finalizing artifact upload
+2026-10-13T05:22:58.5052066Z Artifact CAB-realtime-Linux-6033236cb81820a43679cbbd34be020804f9658d.zip successfully finalized. Artifact ID 11790179551
+2026-10-13T05:22:58.5053110Z Artifact CAB-realtime-Linux-6033236cb81820a43679cbbd34be020804f9658d has been successfully uploaded! Final size is 4052305 bytes. Artifact ID is 11790179551
+2026-10-13T05:22:58.5056730Z Artifact download URL: https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38350264721/artifacts/11790179551
+2026-10-13T05:22:58.5226923Z Post job cleanup.
+2026-10-13T05:22:58.6682235Z Post job cleanup.
+2026-10-13T05:22:58.7609059Z [command]/usr/bin/git version
+2026-10-13T05:22:58.7659279Z git version 2.55.0
+2026-10-13T05:22:58.7707894Z Temporarily overriding HOME='/home/runner/work/_temp/1eca0b20-6ce9-40e1-bd14-62a6afdb01ab' before making global git config changes
+2026-10-13T05:22:58.7709369Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-13T05:22:58.7715279Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/baseline
+2026-10-13T05:22:58.7762398Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-13T05:22:58.7814037Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-13T05:22:58.8052134Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-13T05:22:58.8090452Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-13T05:22:58.8402212Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-13T05:22:58.8421108Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-10-13T05:22:58.8834913Z Post job cleanup.
+2026-10-13T05:22:58.9747846Z [command]/usr/bin/git version
+2026-10-13T05:22:58.9799659Z git version 2.55.0
+2026-10-13T05:22:58.9847678Z Temporarily overriding HOME='/home/runner/work/_temp/0186e94c-6903-4c77-99e9-ae7d67719944' before making global git config changes
+2026-10-13T05:22:58.9849249Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-13T05:22:58.9855650Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/candidate
+2026-10-13T05:22:58.9915524Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-13T05:22:58.9963295Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-13T05:22:59.0283363Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-13T05:22:59.0346381Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-13T05:22:59.0696512Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-13T05:22:59.0752095Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-10-13T05:22:59.1225179Z Cleaning up orphan processes

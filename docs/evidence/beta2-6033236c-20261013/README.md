@@ -40,6 +40,17 @@ The exact Git commit and root trees were read afresh. Of 17 root entries, 16 are
 
 Exact-source policy reads confirm preparation authorized, but release approval, publication authorization and owner acceptance remain false. Weekly approval/publication/gap-acceptance flags remain false; waivers are empty. I2.PITCH_LIVE and I2.PITCH_DI remain in the existing transpose follow-up scope, which does not mean PASS or NOT_APPLICABLE. Every other acceptance gate remains.
 
+### Fresh 19-check donor compatibility audit
+
+The full current and three donor Git trees/files were retrieved again and evaluated with 19 explicit JavaScript static assertions; all 19 passed. This is separate from the historical 62-check local audit and is not a local C++/Python run. Raw trees, compared source content, blob IDs and the original current-source validation-contract job log are retained under ci/observations/static.
+
+- All 102 Source paths are accounted for: 81 remain exact latest-#55 blobs, 18 other public-name changes are exact #56 blobs, and three combined files contain the intended label/comment/description changes. Their coefficients, state bodies and numeric behavior remain as in latest #55.
+- The 19 directly inspected DSP/parameter/state/PluginProcessor paths are byte-identical to latest #55.
+- All 20 non-document changes introduced by #58 are exact donor blobs, including native cleanup, platform packaging/installers, inventory and verification fixtures. The full Installer and workflow trees also match #58.
+- Current names, stable IDs, generated filenames, indices 43–47 and routing modes agree. There remain 48 selectable presets and all previous 43 indices are preserved.
+- The actual new validation-contract job (115140821449 in Product38350264755) checks out6033236c and reports the catalog plus13 public documents passing the public-name contract. Runtime captions still require the new native test executions.
+- Selected approval/gate/CI-map/weekly policy files are exact latest #55. The publisher is exact #56/#58 and retains its added distribution public-name guard.
+
 ## Fresh CI
 
 Original attempt-1 run IDs are recorded in ci/run-map.json. All are pinned to the source above. The three document compatibility jobs have completed successfully; final product/installer/CAB results and artifact verification will be recorded when complete. No source qualification is inferred from workflow start or from another SHA.

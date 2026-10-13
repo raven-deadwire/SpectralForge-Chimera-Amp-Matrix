@@ -1,0 +1,336 @@
+{
+  "schema": "spectralforge.chimera.catalog-count-contract",
+  "schema_version": 1,
+  "version": "1.3",
+  "model_counts": {
+    "amp": 25,
+    "pre": 39,
+    "post": 21,
+    "total": 85
+  },
+  "preset_counts": {
+    "factory": 31,
+    "signature": 3,
+    "total": 34
+  },
+  "pre_board_capacity": 5,
+  "factory_ordinals": [
+    "Clean Sustain",
+    "Tight Rhythm",
+    "Bass Matrix",
+    "Filter Lead",
+    "Fuzz Texture",
+    "Bell Clean",
+    "Edge Chime",
+    "Classic Crunch",
+    "Amber Heavy",
+    "Melodic Death Rhythm",
+    "Melodic Lead",
+    "Ambient Clean",
+    "Finger Round",
+    "Pick Punch",
+    "Slap Studio",
+    "Modern Grind",
+    "Vintage Bass DI",
+    "Wool Bass Fuzz",
+    "Bass Envelope",
+    "G+G Clean / Crunch",
+    "G+G Tight / Wide",
+    "G+B Low Anchor",
+    "G+B Air / Weight",
+    "B+B Warm / Definition",
+    "B+B Clean / Grind",
+    "Low B Foundation",
+    "Pick Attack Matrix",
+    "Spectral Texture",
+    "Prism Edge",
+    "Silk Smooth Lead",
+    "Modern Clean"
+  ],
+  "signature_ordinals": [
+    {
+      "index": 31,
+      "name": "Crom Cruach"
+    },
+    {
+      "index": 32,
+      "name": "Wild Hunt"
+    },
+    {
+      "index": 33,
+      "name": "Azhi Dahaka"
+    }
+  ],
+  "sources": {
+    "amp": "Source/AmpCatalog.h",
+    "pre": "Source/PedalBoardCatalog.h",
+    "post": "Source/ModelCatalog.h",
+    "presets": "Source/FactoryPresets.h",
+    "original_presets": "Source/OriginalPresets.h",
+    "niflheimr_original_presets": "Source/NiflheimrPresets.h"
+  },
+  "roadmap": {
+    "target_total": 132,
+    "next_model_window": "2026-12-28",
+    "model_policy": "append-only",
+    "preset_policy": "preserve first 31 Factory ordinals; append new presets",
+    "version_gates": [
+      {
+        "version": "1.1.1",
+        "total": 83,
+        "window": "2026-10-02/2026-10-11",
+        "new_models": 0,
+        "exception": "E670FE appended at 23 replaces active Ironball 16; Ironball DSP/state retained as legacy.",
+        "window_is_historical": true
+      },
+      {
+        "version": "1.2",
+        "name": "Náströnd",
+        "total": 84,
+        "window": "2026-10-12/2026-11-06",
+        "new_models": 1,
+        "window_is_historical": true
+      },
+      {
+        "version": "1.3",
+        "name": "Niflheimr",
+        "total": 85,
+        "window": "2026-11-09/2026-12-04",
+        "new_models": 1,
+        "window_is_historical": true
+      },
+      {
+        "version": "1.3.1",
+        "name": "Graphical EQ, FFT and signal-path navigation",
+        "total": 85,
+        "window": "2026-10-10/2026-11-01",
+        "new_models": 0,
+        "status": "planned_internal_target"
+      },
+      {
+        "version": "1.3.2",
+        "name": "Dynamic EQ and common dynamics",
+        "total": 85,
+        "window": "2026-11-02/2026-11-27",
+        "new_models": 0,
+        "status": "planned_internal_target"
+      },
+      {
+        "version": "1.3.3",
+        "name": "Room Core: adjustable room size, absorption and per-rig sends",
+        "total": 85,
+        "window": "2026-11-30/2026-12-25",
+        "new_models": 0,
+        "status": "planned_internal_target"
+      },
+      {
+        "version": "1.4",
+        "name": "PRE Expansion A and common multiband/routing",
+        "total": 91,
+        "window": "2026-12-28/2027-02-05",
+        "new_models": 6,
+        "status": "planned_internal_target"
+      },
+      {
+        "version": "1.5",
+        "name": "PRE Expansion B and routing interaction",
+        "total": 97,
+        "window": "2027-02-08/2027-03-05",
+        "new_models": 6,
+        "status": "planned_internal_target"
+      },
+      {
+        "version": "1.6",
+        "name": "Reference AMP Expansion and common saturation",
+        "total": 102,
+        "window": "2027-03-08/2027-04-09",
+        "new_models": 5,
+        "status": "planned_internal_target"
+      },
+      {
+        "version": "1.7",
+        "name": "POST Dynamics & Tone and common filters",
+        "total": 111,
+        "window": "2027-04-12/2027-05-07",
+        "new_models": 9,
+        "status": "planned_internal_target"
+      },
+      {
+        "version": "1.8",
+        "name": "POST Motion & Space and Room Advanced",
+        "total": 120,
+        "window": "2027-05-10/2027-06-18",
+        "new_models": 9,
+        "status": "planned_internal_target"
+      },
+      {
+        "version": "1.9",
+        "name": "Creative FX",
+        "total": 129,
+        "window": "2027-06-21/2027-07-16",
+        "new_models": 9,
+        "status": "planned_internal_target"
+      },
+      {
+        "version": "1.10",
+        "name": "Synth Layer",
+        "total": 132,
+        "window": "2027-07-19/2027-08-27",
+        "new_models": 3,
+        "status": "planned_internal_target"
+      },
+      {
+        "version": "2.0",
+        "name": "Integration / RC",
+        "total": 132,
+        "window": "2027-08-30/2027-09-24",
+        "new_models": 0,
+        "status": "planned_internal_target"
+      }
+    ],
+    "preview_authorization": "2026-10-09: owner requested current CAB release preparation as version 1.3. Earlier planning windows do not postpone authorized integration; public publication remains separate.",
+    "updated_at": "2026-10-11",
+    "timezone": "Asia/Seoul",
+    "authoritative_plan": "docs/DEVELOPMENT_ROADMAP_2026_2027.md",
+    "next_common_feature_window": "2026-10-10",
+    "integration_target": "2027-09-24",
+    "date_policy": "Internal work/candidate targets, not guaranteed public release dates. Select work by actual completion, priority and satisfied dependencies; reassess the next four weeks at each checkpoint.",
+    "target_counts": {
+      "pre": 51,
+      "amp": 30,
+      "post": 48,
+      "synth": 3,
+      "total": 132
+    },
+    "count_scope": "132 character models plus separately tracked common processors; CAB, microphones, speakers, presets, modes, bands and repeated instances are separate.",
+    "common_processing_plan": {
+      "status": "planned_not_implemented_by_this_contract",
+      "eq": {
+        "first_version": "1.3.1",
+        "instances": 2,
+        "nodes_per_instance": 12,
+        "positions": [
+          "after_rig_merge_before_post",
+          "after_post_and_width_before_output_trim"
+        ]
+      },
+      "dynamic_eq": {
+        "first_version": "1.3.2",
+        "initial_max_active_nodes_across_all_eq_instances": 4
+      },
+      "multiband_dynamics": {
+        "first_version": "1.4",
+        "initial_bands": 4,
+        "six_band_expansion": "1.5 only after separate performance acceptance"
+      },
+      "saturation": {
+        "first_version": "1.6",
+        "initial_bands": 3
+      },
+      "filter_modulation": {
+        "first_version": "1.7",
+        "initial_filters": 2
+      },
+      "signal_path": {
+        "navigation": "1.3.1",
+        "constrained_order_with_state_and_undo": "1.4",
+        "drag_interaction": "1.5"
+      },
+      "head_controls": {
+        "representative": "1.3.1",
+        "expanded_coverage": "1.3.2"
+      },
+      "studio": {
+        "true_peak_loudness": "1.5 separately gated",
+        "spectral_linear_phase": "1.7 research checkpoint; qualified 2.0 or a separately assigned 2.x release"
+      },
+      "room_acoustics": {
+        "first_version": "1.3.3",
+        "core_window": "2026-11-30/2026-12-25",
+        "required_core_controls": [
+          "size_small_medium_large",
+          "per_rig_send",
+          "absorption_damping",
+          "bypass"
+        ],
+        "core_response": "Shared original early reflections and late decay; defined wet return; stable state and automation",
+        "checkpoints": {
+          "design": "2026-12-04",
+          "playable_prototype": "2026-12-11",
+          "first_windows_test_installer": "2026-12-18",
+          "core_candidate": "2026-12-25"
+        },
+        "advanced_version": "1.8",
+        "advanced_window": "2027-05-10/2027-06-18",
+        "advanced_controls": [
+          "early_late_balance",
+          "decay",
+          "diffusion",
+          "wet_high_low_cuts",
+          "stereo_width",
+          "modeled_room_dimensions",
+          "surface_absorption_materials",
+          "cabinet_boundary_placement",
+          "separate_room_microphone"
+        ],
+        "advanced_checkpoints": {
+          "reestimate_from_core": "2026-12-25",
+          "spatial_scope_review": "2027-05-14",
+          "playable_prototype": "2027-05-28",
+          "first_test_installer": "2027-06-11",
+          "candidate": "2027-06-18"
+        },
+        "routing": "Weighted audible AMP/CAB sends; LOW clean DI excluded; share existing post-rig gate envelope on excitation and add wet return after gate before Tone EQ/POST",
+        "legacy_default": "room_off_sends_zero",
+        "added_character_models": 0,
+        "issue": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/issues/46",
+        "status": "planned_implementation_and_acceptance_pending",
+        "issue_completion": "Keep issue #46 open until both core and advanced implementation and acceptance are complete; schedule registration alone is not completion."
+      }
+    },
+    "room_schedule_revision": {
+      "core_added_weeks": 4,
+      "advanced_added_weeks": 2,
+      "total_added_weeks": 6,
+      "previous_integration_target": "2027-08-13",
+      "integration_target": "2027-09-24",
+      "reestimate_policy": "Review against actual core results on 2026-12-25 and spatial scope on 2027-05-14; explicitly revise affected dates if required."
+    }
+  },
+  "reference_manifest_contract": "Validation/reference-manifest-contract.json",
+  "serialized_model_counts": {
+    "amp": 26,
+    "pre": 39,
+    "post": 21,
+    "total": 86
+  },
+  "legacy_amp_indices": [
+    16
+  ],
+  "original_preset_count": 5,
+  "niflheimr_original_preset_count": 5,
+  "niflheimr_original_preset_ordinals": [
+    {
+      "index": 43,
+      "name": "Clear Attack"
+    },
+    {
+      "index": 44,
+      "name": "Death Grind"
+    },
+    {
+      "index": 45,
+      "name": "Clean Low Drive"
+    },
+    {
+      "index": 46,
+      "name": "Slam Punch"
+    },
+    {
+      "index": 47,
+      "name": "Doom Fuzz"
+    }
+  ],
+  "selectable_preset_count": 48,
+  "development_scope": "1.3 release preparation: Niflheimr, original CAB engine, 14 speakers, 20 microphones and expanded cabinet layouts. CAB inventory is separate from the 85 active AMP/PRE/POST models; publication and actual listening acceptance remain pending."
+}

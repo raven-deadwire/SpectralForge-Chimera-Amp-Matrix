@@ -1,0 +1,8 @@
+{
+  "script_blob": "e698a77b454ce9ecc0f60ac939836ba438ede1aa",
+  "workflow_blob": "df454ae97b1387ed5b7b0954a51f71e576509eab",
+  "reviewer": "ci_review",
+  "result": "PASS",
+  "scope": "Independent exact textual comparison: only six substitutions to previously reviewed diagnostic script (source SHA, tree SHA and four original run IDs). Same read-only permissions, unchanged product verifiers, bounded downloads, original failure handling and no publication.",
+  "publication_authorized": false
+}

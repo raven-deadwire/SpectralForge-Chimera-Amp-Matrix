@@ -1,0 +1,1096 @@
+{
+  "schema": "chimera.fresh-static-source-audit.v1",
+  "observed_at": "2026-10-13T05:33:29.483Z",
+  "source_sha": "6033236cb81820a43679cbbd34be020804f9658d",
+  "source_tree": "7b23b503b807db36ec4f51491d6aa5f8c29e7b8c",
+  "donors": {
+    "latest55": "022244e6ce845669665e9ffdfefe25bdee154b75",
+    "public_names56": "d7450883ddbeba58e44cf217072f325654c16128",
+    "cleanup58": "068f1547face75b34c1760dd7b8c9d34868a5393"
+  },
+  "scope": "Fresh GitHub object/content comparison evaluated in JavaScript, plus original exact603 CI log receipts. Not a local Python/C++ rerun; no earlier-source test passes reused.",
+  "counts": {
+    "checks": 19,
+    "pass": 19
+  },
+  "checks": [
+    {
+      "name": "102 Source files, with exactly three combined files different from #56",
+      "result": "PASS",
+      "details": {
+        "source_files": 102,
+        "combined": [
+          "Source/FactoryCabVoicing.h",
+          "Source/FactoryPresetLevels.h",
+          "Source/NiflheimrPresets.h"
+        ]
+      }
+    },
+    {
+      "name": "81 Source files remain exact Git blobs of latest #55",
+      "result": "PASS",
+      "details": {
+        "count": 81,
+        "files": [
+          "Source/AmpHeadControlView.h",
+          "Source/AmpHeadKnobLook.h",
+          "Source/AmpHeadOverview.h",
+          "Source/AmpNativeCalibration.h",
+          "Source/AmpNativeDSP.h",
+          "Source/AmpNativeParameters.h",
+          "Source/AmpSelectionParameters.h",
+          "Source/AmpSelector.h",
+          "Source/Amplifier.h",
+          "Source/CabArtwork.h",
+          "Source/CabCameraFraming.h",
+          "Source/CabEnclosureArtwork.h",
+          "Source/CabExpansionModel.h",
+          "Source/CabHeadView.h",
+          "Source/CabHornArtwork.h",
+          "Source/CabLayoutModel.h",
+          "Source/CabLayoutView.h",
+          "Source/CabMicrophoneDimensions.h",
+          "Source/CabPanel.h",
+          "Source/CabRealtimeProfile.h",
+          "Source/CabRoom.h",
+          "Source/CabScene.h",
+          "Source/CabSpeakerArt.h",
+          "Source/Cabinet.h",
+          "Source/CabinetSelector.h",
+          "Source/CapturedCabArt.h",
+          "Source/ChimeraDSP.h",
+          "Source/DiagnosticsPanel.h",
+          "Source/FXChain.h",
+          "Source/FXParameters.h",
+          "Source/GlobalDSP.h",
+          "Source/GraphicalEQ.h",
+          "Source/GraphicalEQPanel.h",
+          "Source/HardwareArtwork.h",
+          "Source/IRBrowserPanel.h",
+          "Source/IRCollection.h",
+          "Source/IRLibrary.cpp",
+          "Source/IRLibrary.h",
+          "Source/IRMetadata.h",
+          "Source/IRReferenceCatalog.h",
+          "Source/IRStateAssets.h",
+          "Source/IRUserPreferences.h",
+          "Source/LifecycleTrace.h",
+          "Source/LowCompressor.h",
+          "Source/MatrixTone.h",
+          "Source/MicrophoneCatalog.h",
+          "Source/ModeledCabConvolution.h",
+          "Source/NativeControlView.h",
+          "Source/NewAmpDSP.h",
+          "Source/NiflheimrDSP.h",
+          "Source/NiflheimrDefinition.h",
+          "Source/OriginalAmpDSP.h",
+          "Source/OriginalAmpDefinition.h",
+          "Source/OriginalAmpPanel.h",
+          "Source/OriginalAmpProcessor.h",
+          "Source/OriginalAmpState.h",
+          "Source/OriginalCabControls.h",
+          "Source/OriginalCabModel.h",
+          "Source/OriginalCabParameters.h",
+          "Source/PedalBoardDSP.h",
+          "Source/PedalBoardParameters.h",
+          "Source/PedalOctaverDSP.h",
+          "Source/PerformanceUtilities.h",
+          "Source/PluginEditor.h",
+          "Source/PluginProcessor.cpp",
+          "Source/PluginProcessor.h",
+          "Source/PolyPitch.h",
+          "Source/PostNativeDSP.h",
+          "Source/PostNativeParameters.h",
+          "Source/PostRigGate.h",
+          "Source/PresetOrder.h",
+          "Source/RasterArtwork.h",
+          "Source/ReleaseInfo.h",
+          "Source/ReleaseSupport.cpp",
+          "Source/ReleaseSupport.h",
+          "Source/SignalPath.h",
+          "Source/SignalPathView.h",
+          "Source/SpatialModules.h",
+          "Source/StudioModules.h",
+          "Source/SupportPanel.h",
+          "Source/UIRefresh.h"
+        ]
+      }
+    },
+    {
+      "name": "18 remaining public-name Source changes match exact #56",
+      "result": "PASS",
+      "details": {
+        "count": 18,
+        "files": [
+          "Source/AmpCatalog.h",
+          "Source/AmpHeadLayout.h",
+          "Source/AmpHeadShellMetadata.h",
+          "Source/AmpNativeCatalog.h",
+          "Source/AmpNativePanel.h",
+          "Source/CabHeadDimensions.h",
+          "Source/EffectSelectionCatalog.h",
+          "Source/FactoryNativeVoicing.h",
+          "Source/FactoryPresets.h",
+          "Source/GuitarSignaturePresets.h",
+          "Source/ModelCatalog.h",
+          "Source/OriginalPresets.h",
+          "Source/PedalBoardCatalog.h",
+          "Source/PedalBoardPanel.h",
+          "Source/PluginEditor.cpp",
+          "Source/PostNativeCatalog.h",
+          "Source/PostNativePanel.h",
+          "Source/RackEffectDetailPanel.h"
+        ]
+      }
+    },
+    {
+      "name": "DSP, parameter, serialized-state and PluginProcessor files byte-identical to #55",
+      "result": "PASS",
+      "details": {
+        "count": 19,
+        "files": [
+          "Source/AmpNativeDSP.h",
+          "Source/AmpNativeParameters.h",
+          "Source/AmpSelectionParameters.h",
+          "Source/ChimeraDSP.h",
+          "Source/FXParameters.h",
+          "Source/GlobalDSP.h",
+          "Source/IRStateAssets.h",
+          "Source/NewAmpDSP.h",
+          "Source/NiflheimrDSP.h",
+          "Source/OriginalAmpDSP.h",
+          "Source/OriginalAmpState.h",
+          "Source/OriginalCabParameters.h",
+          "Source/PedalBoardDSP.h",
+          "Source/PedalBoardParameters.h",
+          "Source/PedalOctaverDSP.h",
+          "Source/PluginProcessor.cpp",
+          "Source/PluginProcessor.h",
+          "Source/PostNativeDSP.h",
+          "Source/PostNativeParameters.h"
+        ]
+      }
+    },
+    {
+      "name": "Source/FactoryCabVoicing.h combines #56 with only the requested label/filename changes",
+      "result": "PASS",
+      "details": {
+        "source_blob": "c72c4ef6c96198c7c99f1db3abe8fb92148dab3e",
+        "donor_blob": "693cc5f3bd501aaa0e6171adde51c03e046a3228"
+      }
+    },
+    {
+      "name": "Source/FactoryPresetLevels.h combines #56 with only the requested label/filename changes",
+      "result": "PASS",
+      "details": {
+        "source_blob": "ee4ad1a955c457420f19c13f4ad2e640e66c08af",
+        "donor_blob": "4d23e3ab0e37f436467f043d98aed4ee86fd8377"
+      }
+    },
+    {
+      "name": "Source/NiflheimrPresets.h combines #56 with only the requested label/filename changes",
+      "result": "PASS",
+      "details": {
+        "source_blob": "e51c82740647ba4e8fb1ecc1b910d2f5c4eaf574",
+        "donor_blob": "e36dd9d5004700738e7f69f845e4f873f028ca59"
+      }
+    },
+    {
+      "name": "Source/FactoryCabVoicing.h cabinet coefficients and preset levels unchanged from #55",
+      "result": "PASS",
+      "details": {
+        "comparison": "line comments removed; remaining content exact"
+      }
+    },
+    {
+      "name": "Source/FactoryPresetLevels.h cabinet coefficients and preset levels unchanged from #55",
+      "result": "PASS",
+      "details": {
+        "comparison": "line comments removed; remaining content exact"
+      }
+    },
+    {
+      "name": "Niflheimr DSP values, stable IDs, state handling and all code unchanged from latest #55",
+      "result": "PASS",
+      "details": {
+        "only_presentation_delta": "Diamond compression -> Optical compression"
+      }
+    },
+    {
+      "name": "Current name/ID/file/ordinal/mode tuples preserve intended mapping",
+      "result": "PASS",
+      "details": {
+        "tuples": [
+          {
+            "index": 43,
+            "id": "original.rig.niflheimr.hrimfaxi.v1",
+            "name": "Metal Clank",
+            "fileName": "Niflheimr-01-Metal-Clank.chimera",
+            "mode": 0
+          },
+          {
+            "index": 44,
+            "id": "original.rig.niflheimr.garmr.v1",
+            "name": "Death Grind",
+            "fileName": "Niflheimr-02-Death-Grind.chimera",
+            "mode": 1
+          },
+          {
+            "index": 45,
+            "id": "original.rig.niflheimr.nidavellir.v1",
+            "name": "Heavy Pulse",
+            "fileName": "Niflheimr-03-Heavy-Pulse.chimera",
+            "mode": 2
+          },
+          {
+            "index": 46,
+            "id": "original.rig.niflheimr.ymir.v1",
+            "name": "Slam Punch",
+            "fileName": "Niflheimr-04-Slam-Punch.chimera",
+            "mode": 2
+          },
+          {
+            "index": 47,
+            "id": "original.rig.niflheimr.hel.v1",
+            "name": "Doom Fuzz",
+            "fileName": "Niflheimr-05-Doom-Fuzz.chimera",
+            "mode": 0
+          }
+        ]
+      }
+    },
+    {
+      "name": "48 selectable presets, Niflheimr indices43-47 and all current names align with contract",
+      "result": "PASS",
+      "details": {
+        "selectable": 48,
+        "model_counts": {
+          "amp": 25,
+          "pre": 39,
+          "post": 21,
+          "total": 85
+        },
+        "serialized_model_counts": {
+          "amp": 26,
+          "pre": 39,
+          "post": 21,
+          "total": 86
+        }
+      }
+    },
+    {
+      "name": "Catalog contract only public-name aliases differ from latest #55",
+      "result": "PASS",
+      "details": {
+        "aliases": {
+          "Orange Heavy": "Amber Heavy",
+          "Matchless Edge": "Prism Edge",
+          "Dumble Smooth Lead": "Silk Smooth Lead"
+        }
+      }
+    },
+    {
+      "name": "Checker preserves #56 public-presentation enforcement and latest #55 preset names",
+      "result": "PASS",
+      "details": {
+        "public_presentation_hook": true
+      }
+    },
+    {
+      "name": "Every20 non-document #58 addition/change is present as the exact donor blob",
+      "result": "PASS",
+      "details": {
+        "count": 20,
+        "files": [
+          ".github/workflows/build.yml",
+          ".github/workflows/document-upgrade.yml",
+          "Installer/Chimera.iss",
+          "Installer/LegacyDocumentCleanup.iss",
+          "Tests/Test-WindowsDocumentUpgrade.ps1",
+          "Tests/test_windows_document_rules.py",
+          "Tools/Build-WindowsInstaller.ps1",
+          "Tools/Verify-WindowsInstaller.ps1",
+          "Tools/Verify-WindowsPreviousReleaseUpgrade.ps1",
+          "Tools/audit_legacy_document_inventory.py",
+          "Tools/install-linux.sh",
+          "Tools/legacy_document_cleanup.c",
+          "Tools/legacy_document_cleanup.py",
+          "Tools/package_release.py",
+          "Tools/test_legacy_document_cleanup.py",
+          "Tools/verify_linux_document_upgrade.py",
+          "Tools/verify_linux_tar_document_upgrade.py",
+          "Tools/verify_macos_document_upgrade.py",
+          "Tools/windows_document_rules.py",
+          "Validation/legacy-document-inventory.json"
+        ]
+      }
+    },
+    {
+      "name": "Entire Installer tree and workflow tree equal #58 donor",
+      "result": "PASS",
+      "details": {
+        "Installer": "213a8e48d8e3ebd90bebb55f8541e4e9ad8b3201",
+        "workflows": "1e3a89de5a96a4f258d61dbaeb6322135493d45b"
+      }
+    },
+    {
+      "name": "Selected release approval, gate, map and weekly policies unchanged from latest #55",
+      "result": "PASS",
+      "details": {
+        "files": [
+          "Validation/release-policy.json",
+          "Validation/beta-publication-policy.json",
+          "Validation/beta-publication-policy-1.3.1.json",
+          "Validation/weekly-publication-policy.json",
+          "Validation/ci-check-map.json",
+          "Tools/consolidate_release_gate.py",
+          "Tools/evaluate_release_gate.py",
+          "Tools/beta_publication131.py",
+          "Tools/weekly_publication.py",
+          "Tools/verify_publication_evidence.py"
+        ]
+      }
+    },
+    {
+      "name": "Publisher source equals exact #56/#58 donor",
+      "result": "PASS",
+      "details": {
+        "blob": "1aba2e7b918256b6f73bf0aa3e9c9589c203806a",
+        "reason": "#56 adds distribution public-name guard; no integration change"
+      }
+    },
+    {
+      "name": "Fresh603 validation-contract actual checkout and catalog/public-document receipts",
+      "result": "PASS",
+      "details": {
+        "job_id": 115140821449,
+        "run_id": 38350264755,
+        "binding": [
+          "2026-10-13T05:13:16.0099020Z [command]/usr/bin/git log -1 --format=%H",
+          "2026-10-13T05:13:16.0121697Z 6033236cb81820a43679cbbd34be020804f9658d"
+        ],
+        "receipt_lines": [
+          "2026-10-13T05:13:17.3088067Z PASS: Chimera catalog contract 85 models = AMP 25 + PRE 39 + POST 21; presets 31+3",
+          "2026-10-13T05:13:17.3090533Z PASS: five Náströnd + five Niflheimr Original full rigs; 48 selectable presets, previous 43 indices preserved",
+          "2026-10-13T05:13:17.3091316Z PASS: 13 public documents use product names; runtime labels are checked by native tests"
+        ]
+      }
+    }
+  ],
+  "source_file_bindings": [
+    {
+      "path": "Source/AmpCatalog.h",
+      "current": "6faad11b904b6b4274417d55f95f2844d1342c1e",
+      "latest55": "e3f120864a4fa75d220cadca74ef4ab0cbea1068",
+      "donor56": "6faad11b904b6b4274417d55f95f2844d1342c1e",
+      "donor58": "6faad11b904b6b4274417d55f95f2844d1342c1e"
+    },
+    {
+      "path": "Source/AmpHeadControlView.h",
+      "current": "2e06a9f0982ee3437381b3c160a756fe973e1ed7",
+      "latest55": "2e06a9f0982ee3437381b3c160a756fe973e1ed7",
+      "donor56": "2e06a9f0982ee3437381b3c160a756fe973e1ed7",
+      "donor58": "2e06a9f0982ee3437381b3c160a756fe973e1ed7"
+    },
+    {
+      "path": "Source/AmpHeadKnobLook.h",
+      "current": "0c87b51c32108bfc34f41391afc81433c408b577",
+      "latest55": "0c87b51c32108bfc34f41391afc81433c408b577",
+      "donor56": "0c87b51c32108bfc34f41391afc81433c408b577",
+      "donor58": "0c87b51c32108bfc34f41391afc81433c408b577"
+    },
+    {
+      "path": "Source/AmpHeadLayout.h",
+      "current": "441293ed21a951a866b551e20264122783e51f6f",
+      "latest55": "eb3e673dd92e2a2cb237421905ac07c6834167de",
+      "donor56": "441293ed21a951a866b551e20264122783e51f6f",
+      "donor58": "441293ed21a951a866b551e20264122783e51f6f"
+    },
+    {
+      "path": "Source/AmpHeadOverview.h",
+      "current": "f22cd478c58a1ac2d7b61d8a836272480def6eea",
+      "latest55": "f22cd478c58a1ac2d7b61d8a836272480def6eea",
+      "donor56": "f22cd478c58a1ac2d7b61d8a836272480def6eea",
+      "donor58": "f22cd478c58a1ac2d7b61d8a836272480def6eea"
+    },
+    {
+      "path": "Source/AmpHeadShellMetadata.h",
+      "current": "ccc6697a3d47620f971b2e984cf982253d28d388",
+      "latest55": "c0960341effb2497f8add4ea43cf7eacc68d347e",
+      "donor56": "ccc6697a3d47620f971b2e984cf982253d28d388",
+      "donor58": "ccc6697a3d47620f971b2e984cf982253d28d388"
+    },
+    {
+      "path": "Source/AmpNativeCalibration.h",
+      "current": "f1715aabf296d1cee5a24a5b0369cb4701e7a3e9",
+      "latest55": "f1715aabf296d1cee5a24a5b0369cb4701e7a3e9",
+      "donor56": "f1715aabf296d1cee5a24a5b0369cb4701e7a3e9",
+      "donor58": "f1715aabf296d1cee5a24a5b0369cb4701e7a3e9"
+    },
+    {
+      "path": "Source/AmpNativeCatalog.h",
+      "current": "24b5e31232875542be18d07d07e04fc7b86b1b56",
+      "latest55": "800e858add9e3b6ccb4d31ab66eb5e139fb6cf77",
+      "donor56": "24b5e31232875542be18d07d07e04fc7b86b1b56",
+      "donor58": "24b5e31232875542be18d07d07e04fc7b86b1b56"
+    },
+    {
+      "path": "Source/AmpNativeDSP.h",
+      "current": "99a3d346346da953f47d8fccce317335f0874ee8",
+      "latest55": "99a3d346346da953f47d8fccce317335f0874ee8",
+      "donor56": "99a3d346346da953f47d8fccce317335f0874ee8",
+      "donor58": "99a3d346346da953f47d8fccce317335f0874ee8"
+    },
+    {
+      "path": "Source/AmpNativePanel.h",
+      "current": "0aa91a83e34644761191a6fdcd78e5f85886cc94",
+      "latest55": "f082ec1ff30e1c0bce81b079be7c9eaa408c857c",
+      "donor56": "0aa91a83e34644761191a6fdcd78e5f85886cc94",
+      "donor58": "0aa91a83e34644761191a6fdcd78e5f85886cc94"
+    },
+    {
+      "path": "Source/AmpNativeParameters.h",
+      "current": "4da5af1aaee211357fba8f0f540987280f4cc235",
+      "latest55": "4da5af1aaee211357fba8f0f540987280f4cc235",
+      "donor56": "4da5af1aaee211357fba8f0f540987280f4cc235",
+      "donor58": "4da5af1aaee211357fba8f0f540987280f4cc235"
+    },
+    {
+      "path": "Source/AmpSelectionParameters.h",
+      "current": "dea9ed193651b24efb10b4e8ee7814891996cfc1",
+      "latest55": "dea9ed193651b24efb10b4e8ee7814891996cfc1",
+      "donor56": "dea9ed193651b24efb10b4e8ee7814891996cfc1",
+      "donor58": "dea9ed193651b24efb10b4e8ee7814891996cfc1"
+    },
+    {
+      "path": "Source/AmpSelector.h",
+      "current": "2ba57cc23fb18e6037aac53b45aaaec9e9352079",
+      "latest55": "2ba57cc23fb18e6037aac53b45aaaec9e9352079",
+      "donor56": "2ba57cc23fb18e6037aac53b45aaaec9e9352079",
+      "donor58": "2ba57cc23fb18e6037aac53b45aaaec9e9352079"
+    },
+    {
+      "path": "Source/Amplifier.h",
+      "current": "a691cd4d10b0670af0a9643347410d0ef9e015a8",
+      "latest55": "a691cd4d10b0670af0a9643347410d0ef9e015a8",
+      "donor56": "a691cd4d10b0670af0a9643347410d0ef9e015a8",
+      "donor58": "a691cd4d10b0670af0a9643347410d0ef9e015a8"
+    },
+    {
+      "path": "Source/CabArtwork.h",
+      "current": "d82e031ed563004ff2453fb3751f865feba8ca43",
+      "latest55": "d82e031ed563004ff2453fb3751f865feba8ca43",
+      "donor56": "d82e031ed563004ff2453fb3751f865feba8ca43",
+      "donor58": "d82e031ed563004ff2453fb3751f865feba8ca43"
+    },
+    {
+      "path": "Source/CabCameraFraming.h",
+      "current": "b824e0cf4210564324e3177db5ee20ec60268863",
+      "latest55": "b824e0cf4210564324e3177db5ee20ec60268863",
+      "donor56": "b824e0cf4210564324e3177db5ee20ec60268863",
+      "donor58": "b824e0cf4210564324e3177db5ee20ec60268863"
+    },
+    {
+      "path": "Source/CabEnclosureArtwork.h",
+      "current": "363ce1f1bce43af0a69270015b871fb21be90049",
+      "latest55": "363ce1f1bce43af0a69270015b871fb21be90049",
+      "donor56": "363ce1f1bce43af0a69270015b871fb21be90049",
+      "donor58": "363ce1f1bce43af0a69270015b871fb21be90049"
+    },
+    {
+      "path": "Source/CabExpansionModel.h",
+      "current": "a2c3e77f3ad3182ab5db6e5ddae8b02c0221e757",
+      "latest55": "a2c3e77f3ad3182ab5db6e5ddae8b02c0221e757",
+      "donor56": "a2c3e77f3ad3182ab5db6e5ddae8b02c0221e757",
+      "donor58": "a2c3e77f3ad3182ab5db6e5ddae8b02c0221e757"
+    },
+    {
+      "path": "Source/CabHeadDimensions.h",
+      "current": "edeebf6f8122e728d96c3f607abed24631e8d244",
+      "latest55": "2d449bd3846da14b9201417ab1ca6ab9c857f4f0",
+      "donor56": "edeebf6f8122e728d96c3f607abed24631e8d244",
+      "donor58": "edeebf6f8122e728d96c3f607abed24631e8d244"
+    },
+    {
+      "path": "Source/CabHeadView.h",
+      "current": "d624b8a5ecbbad5916a2db3cea14c12c60dde2c8",
+      "latest55": "d624b8a5ecbbad5916a2db3cea14c12c60dde2c8",
+      "donor56": "d624b8a5ecbbad5916a2db3cea14c12c60dde2c8",
+      "donor58": "d624b8a5ecbbad5916a2db3cea14c12c60dde2c8"
+    },
+    {
+      "path": "Source/CabHornArtwork.h",
+      "current": "3cc50f2483a900e999d668619b1ceb6c6209a07e",
+      "latest55": "3cc50f2483a900e999d668619b1ceb6c6209a07e",
+      "donor56": "3cc50f2483a900e999d668619b1ceb6c6209a07e",
+      "donor58": "3cc50f2483a900e999d668619b1ceb6c6209a07e"
+    },
+    {
+      "path": "Source/CabLayoutModel.h",
+      "current": "f5b07f473e62575b5bff28d3c25616fca9b3a932",
+      "latest55": "f5b07f473e62575b5bff28d3c25616fca9b3a932",
+      "donor56": "f5b07f473e62575b5bff28d3c25616fca9b3a932",
+      "donor58": "f5b07f473e62575b5bff28d3c25616fca9b3a932"
+    },
+    {
+      "path": "Source/CabLayoutView.h",
+      "current": "12f3ed4645d42bee3428a8e09f6d5c511fe860bf",
+      "latest55": "12f3ed4645d42bee3428a8e09f6d5c511fe860bf",
+      "donor56": "12f3ed4645d42bee3428a8e09f6d5c511fe860bf",
+      "donor58": "12f3ed4645d42bee3428a8e09f6d5c511fe860bf"
+    },
+    {
+      "path": "Source/CabMicrophoneDimensions.h",
+      "current": "35e71703f47b9d5cb70f2333f90e697b95ab9a0f",
+      "latest55": "35e71703f47b9d5cb70f2333f90e697b95ab9a0f",
+      "donor56": "35e71703f47b9d5cb70f2333f90e697b95ab9a0f",
+      "donor58": "35e71703f47b9d5cb70f2333f90e697b95ab9a0f"
+    },
+    {
+      "path": "Source/CabPanel.h",
+      "current": "fb6575bc0cff92471f74dd68e87d1fbec340c635",
+      "latest55": "fb6575bc0cff92471f74dd68e87d1fbec340c635",
+      "donor56": "fb6575bc0cff92471f74dd68e87d1fbec340c635",
+      "donor58": "fb6575bc0cff92471f74dd68e87d1fbec340c635"
+    },
+    {
+      "path": "Source/CabRealtimeProfile.h",
+      "current": "6c08f6fab4299c0ea9c92ae6e1e500d28f4dba27",
+      "latest55": "6c08f6fab4299c0ea9c92ae6e1e500d28f4dba27",
+      "donor56": "6c08f6fab4299c0ea9c92ae6e1e500d28f4dba27",
+      "donor58": "6c08f6fab4299c0ea9c92ae6e1e500d28f4dba27"
+    },
+    {
+      "path": "Source/CabRoom.h",
+      "current": "003bd41c81c86ceb4c2da1b574549eac395bce46",
+      "latest55": "003bd41c81c86ceb4c2da1b574549eac395bce46",
+      "donor56": "003bd41c81c86ceb4c2da1b574549eac395bce46",
+      "donor58": "003bd41c81c86ceb4c2da1b574549eac395bce46"
+    },
+    {
+      "path": "Source/CabScene.h",
+      "current": "aeb8bb90d95272abaff2185c3d30f22f531caed1",
+      "latest55": "aeb8bb90d95272abaff2185c3d30f22f531caed1",
+      "donor56": "aeb8bb90d95272abaff2185c3d30f22f531caed1",
+      "donor58": "aeb8bb90d95272abaff2185c3d30f22f531caed1"
+    },
+    {
+      "path": "Source/CabSpeakerArt.h",
+      "current": "b3b77e2a4f27b90dd7fd541e1ea0e60c0dcbb784",
+      "latest55": "b3b77e2a4f27b90dd7fd541e1ea0e60c0dcbb784",
+      "donor56": "b3b77e2a4f27b90dd7fd541e1ea0e60c0dcbb784",
+      "donor58": "b3b77e2a4f27b90dd7fd541e1ea0e60c0dcbb784"
+    },
+    {
+      "path": "Source/Cabinet.h",
+      "current": "2129078aedcc60362e20d51037c7a2044b3b9707",
+      "latest55": "2129078aedcc60362e20d51037c7a2044b3b9707",
+      "donor56": "2129078aedcc60362e20d51037c7a2044b3b9707",
+      "donor58": "2129078aedcc60362e20d51037c7a2044b3b9707"
+    },
+    {
+      "path": "Source/CabinetSelector.h",
+      "current": "03e7bda8921819f342d5c151087b899544247761",
+      "latest55": "03e7bda8921819f342d5c151087b899544247761",
+      "donor56": "03e7bda8921819f342d5c151087b899544247761",
+      "donor58": "03e7bda8921819f342d5c151087b899544247761"
+    },
+    {
+      "path": "Source/CapturedCabArt.h",
+      "current": "8ba10120bf9c15a88cf49a60c72c5367a136617d",
+      "latest55": "8ba10120bf9c15a88cf49a60c72c5367a136617d",
+      "donor56": "8ba10120bf9c15a88cf49a60c72c5367a136617d",
+      "donor58": "8ba10120bf9c15a88cf49a60c72c5367a136617d"
+    },
+    {
+      "path": "Source/ChimeraDSP.h",
+      "current": "73bc4a054981f6478a0b4e2edbf59be69a4db378",
+      "latest55": "73bc4a054981f6478a0b4e2edbf59be69a4db378",
+      "donor56": "73bc4a054981f6478a0b4e2edbf59be69a4db378",
+      "donor58": "73bc4a054981f6478a0b4e2edbf59be69a4db378"
+    },
+    {
+      "path": "Source/DiagnosticsPanel.h",
+      "current": "68da0af0df40373964dd8b2327df129fcb8300c9",
+      "latest55": "68da0af0df40373964dd8b2327df129fcb8300c9",
+      "donor56": "68da0af0df40373964dd8b2327df129fcb8300c9",
+      "donor58": "68da0af0df40373964dd8b2327df129fcb8300c9"
+    },
+    {
+      "path": "Source/EffectSelectionCatalog.h",
+      "current": "cfc2649c9a05ac7c5eb934123c94149e79cb2173",
+      "latest55": "0b769b44c25e35d45b31b7ae4c00bf9401dddad0",
+      "donor56": "cfc2649c9a05ac7c5eb934123c94149e79cb2173",
+      "donor58": "cfc2649c9a05ac7c5eb934123c94149e79cb2173"
+    },
+    {
+      "path": "Source/FXChain.h",
+      "current": "bcac88f426e216dfdb4620e7913b6be1c8fd1819",
+      "latest55": "bcac88f426e216dfdb4620e7913b6be1c8fd1819",
+      "donor56": "bcac88f426e216dfdb4620e7913b6be1c8fd1819",
+      "donor58": "bcac88f426e216dfdb4620e7913b6be1c8fd1819"
+    },
+    {
+      "path": "Source/FXParameters.h",
+      "current": "b5c588c8ac24166f069b9edebf8171439e476e73",
+      "latest55": "b5c588c8ac24166f069b9edebf8171439e476e73",
+      "donor56": "b5c588c8ac24166f069b9edebf8171439e476e73",
+      "donor58": "b5c588c8ac24166f069b9edebf8171439e476e73"
+    },
+    {
+      "path": "Source/FactoryCabVoicing.h",
+      "current": "c72c4ef6c96198c7c99f1db3abe8fb92148dab3e",
+      "latest55": "2a18f9a473fb9eb691e574bd2587373e433c3dbd",
+      "donor56": "693cc5f3bd501aaa0e6171adde51c03e046a3228",
+      "donor58": "693cc5f3bd501aaa0e6171adde51c03e046a3228"
+    },
+    {
+      "path": "Source/FactoryNativeVoicing.h",
+      "current": "cd9045a4eb0893bf7f9d488db984a0d286ff7260",
+      "latest55": "ee5d51a04d2bd4e00631c48e15be8b75a424f9be",
+      "donor56": "cd9045a4eb0893bf7f9d488db984a0d286ff7260",
+      "donor58": "cd9045a4eb0893bf7f9d488db984a0d286ff7260"
+    },
+    {
+      "path": "Source/FactoryPresetLevels.h",
+      "current": "ee4ad1a955c457420f19c13f4ad2e640e66c08af",
+      "latest55": "2494e2df5a9e878299ffe2defc287248689b1a08",
+      "donor56": "4d23e3ab0e37f436467f043d98aed4ee86fd8377",
+      "donor58": "4d23e3ab0e37f436467f043d98aed4ee86fd8377"
+    },
+    {
+      "path": "Source/FactoryPresets.h",
+      "current": "b9c4506e66f63a298394605e6be86a353a9f0274",
+      "latest55": "6b44a593dc9260b8364ce705d2acc340319228fb",
+      "donor56": "b9c4506e66f63a298394605e6be86a353a9f0274",
+      "donor58": "b9c4506e66f63a298394605e6be86a353a9f0274"
+    },
+    {
+      "path": "Source/GlobalDSP.h",
+      "current": "14a901a45eb1e916366b1b6f04a26aea27acef06",
+      "latest55": "14a901a45eb1e916366b1b6f04a26aea27acef06",
+      "donor56": "14a901a45eb1e916366b1b6f04a26aea27acef06",
+      "donor58": "14a901a45eb1e916366b1b6f04a26aea27acef06"
+    },
+    {
+      "path": "Source/GraphicalEQ.h",
+      "current": "3b7109584cb4023f09ff03cd8c77e13f962b9920",
+      "latest55": "3b7109584cb4023f09ff03cd8c77e13f962b9920",
+      "donor56": "3b7109584cb4023f09ff03cd8c77e13f962b9920",
+      "donor58": "3b7109584cb4023f09ff03cd8c77e13f962b9920"
+    },
+    {
+      "path": "Source/GraphicalEQPanel.h",
+      "current": "026d3bc8823d907f2535f11706758475b645d11d",
+      "latest55": "026d3bc8823d907f2535f11706758475b645d11d",
+      "donor56": "026d3bc8823d907f2535f11706758475b645d11d",
+      "donor58": "026d3bc8823d907f2535f11706758475b645d11d"
+    },
+    {
+      "path": "Source/GuitarSignaturePresets.h",
+      "current": "96bd2b7509fd19db6e620a95b44d5dded93dae5e",
+      "latest55": "12b12f5359e2606e0b0f7a84f3e0c300abff6488",
+      "donor56": "96bd2b7509fd19db6e620a95b44d5dded93dae5e",
+      "donor58": "96bd2b7509fd19db6e620a95b44d5dded93dae5e"
+    },
+    {
+      "path": "Source/HardwareArtwork.h",
+      "current": "aac8699698194c5a73fb93df5b1ba078962374b3",
+      "latest55": "aac8699698194c5a73fb93df5b1ba078962374b3",
+      "donor56": "aac8699698194c5a73fb93df5b1ba078962374b3",
+      "donor58": "aac8699698194c5a73fb93df5b1ba078962374b3"
+    },
+    {
+      "path": "Source/IRBrowserPanel.h",
+      "current": "6807d57b68cceb4e39dda69dcc486b0cad068dd4",
+      "latest55": "6807d57b68cceb4e39dda69dcc486b0cad068dd4",
+      "donor56": "6807d57b68cceb4e39dda69dcc486b0cad068dd4",
+      "donor58": "6807d57b68cceb4e39dda69dcc486b0cad068dd4"
+    },
+    {
+      "path": "Source/IRCollection.h",
+      "current": "b0679caf24d00e213b9fa4ac05c0ea81f79c4046",
+      "latest55": "b0679caf24d00e213b9fa4ac05c0ea81f79c4046",
+      "donor56": "b0679caf24d00e213b9fa4ac05c0ea81f79c4046",
+      "donor58": "b0679caf24d00e213b9fa4ac05c0ea81f79c4046"
+    },
+    {
+      "path": "Source/IRLibrary.cpp",
+      "current": "3194d854c8fce46d9f128d8a3ba43cfe8fd289b9",
+      "latest55": "3194d854c8fce46d9f128d8a3ba43cfe8fd289b9",
+      "donor56": "3194d854c8fce46d9f128d8a3ba43cfe8fd289b9",
+      "donor58": "3194d854c8fce46d9f128d8a3ba43cfe8fd289b9"
+    },
+    {
+      "path": "Source/IRLibrary.h",
+      "current": "3dc2e1a8207fc6155d11fa4702ef4af680551365",
+      "latest55": "3dc2e1a8207fc6155d11fa4702ef4af680551365",
+      "donor56": "3dc2e1a8207fc6155d11fa4702ef4af680551365",
+      "donor58": "3dc2e1a8207fc6155d11fa4702ef4af680551365"
+    },
+    {
+      "path": "Source/IRMetadata.h",
+      "current": "4dc1150670b0ed6f20dcdf950614904b293ace44",
+      "latest55": "4dc1150670b0ed6f20dcdf950614904b293ace44",
+      "donor56": "4dc1150670b0ed6f20dcdf950614904b293ace44",
+      "donor58": "4dc1150670b0ed6f20dcdf950614904b293ace44"
+    },
+    {
+      "path": "Source/IRReferenceCatalog.h",
+      "current": "5426dc60663e087d610ab785bd2d120a1812ab71",
+      "latest55": "5426dc60663e087d610ab785bd2d120a1812ab71",
+      "donor56": "5426dc60663e087d610ab785bd2d120a1812ab71",
+      "donor58": "5426dc60663e087d610ab785bd2d120a1812ab71"
+    },
+    {
+      "path": "Source/IRStateAssets.h",
+      "current": "2b729215b0f566d57d43ca2441415a791f948da2",
+      "latest55": "2b729215b0f566d57d43ca2441415a791f948da2",
+      "donor56": "2b729215b0f566d57d43ca2441415a791f948da2",
+      "donor58": "2b729215b0f566d57d43ca2441415a791f948da2"
+    },
+    {
+      "path": "Source/IRUserPreferences.h",
+      "current": "94a6be3755c1fabe69eeeb3b69c4c13d5f6fe704",
+      "latest55": "94a6be3755c1fabe69eeeb3b69c4c13d5f6fe704",
+      "donor56": "94a6be3755c1fabe69eeeb3b69c4c13d5f6fe704",
+      "donor58": "94a6be3755c1fabe69eeeb3b69c4c13d5f6fe704"
+    },
+    {
+      "path": "Source/LifecycleTrace.h",
+      "current": "6e0e3a627cd155c66f868a51332fdee7e1b37480",
+      "latest55": "6e0e3a627cd155c66f868a51332fdee7e1b37480",
+      "donor56": "6e0e3a627cd155c66f868a51332fdee7e1b37480",
+      "donor58": "6e0e3a627cd155c66f868a51332fdee7e1b37480"
+    },
+    {
+      "path": "Source/LowCompressor.h",
+      "current": "e678ce5024a453ed4af958497b9a80ea16861365",
+      "latest55": "e678ce5024a453ed4af958497b9a80ea16861365",
+      "donor56": "e678ce5024a453ed4af958497b9a80ea16861365",
+      "donor58": "e678ce5024a453ed4af958497b9a80ea16861365"
+    },
+    {
+      "path": "Source/MatrixTone.h",
+      "current": "808ef2caaeed5d1bb62d63be51d3b747b18970ef",
+      "latest55": "808ef2caaeed5d1bb62d63be51d3b747b18970ef",
+      "donor56": "808ef2caaeed5d1bb62d63be51d3b747b18970ef",
+      "donor58": "808ef2caaeed5d1bb62d63be51d3b747b18970ef"
+    },
+    {
+      "path": "Source/MicrophoneCatalog.h",
+      "current": "de6835a2d5cc29ae284f46e38dd848b7108eba20",
+      "latest55": "de6835a2d5cc29ae284f46e38dd848b7108eba20",
+      "donor56": "de6835a2d5cc29ae284f46e38dd848b7108eba20",
+      "donor58": "de6835a2d5cc29ae284f46e38dd848b7108eba20"
+    },
+    {
+      "path": "Source/ModelCatalog.h",
+      "current": "f255d70524db8e3451e80d89f45274267edc0bf9",
+      "latest55": "b77e2ecea71049b4adb5941aa64459d5c84dc0a4",
+      "donor56": "f255d70524db8e3451e80d89f45274267edc0bf9",
+      "donor58": "f255d70524db8e3451e80d89f45274267edc0bf9"
+    },
+    {
+      "path": "Source/ModeledCabConvolution.h",
+      "current": "c6f563127ab7c198b3f02d01bf1b72d4e863317f",
+      "latest55": "c6f563127ab7c198b3f02d01bf1b72d4e863317f",
+      "donor56": "c6f563127ab7c198b3f02d01bf1b72d4e863317f",
+      "donor58": "c6f563127ab7c198b3f02d01bf1b72d4e863317f"
+    },
+    {
+      "path": "Source/NativeControlView.h",
+      "current": "dce7c6bf478d48dbbcc6cce99ff8edc10503e0c0",
+      "latest55": "dce7c6bf478d48dbbcc6cce99ff8edc10503e0c0",
+      "donor56": "dce7c6bf478d48dbbcc6cce99ff8edc10503e0c0",
+      "donor58": "dce7c6bf478d48dbbcc6cce99ff8edc10503e0c0"
+    },
+    {
+      "path": "Source/NewAmpDSP.h",
+      "current": "18df2a230c64c7ac5e10c3158a9edd3dbd7b6ad7",
+      "latest55": "18df2a230c64c7ac5e10c3158a9edd3dbd7b6ad7",
+      "donor56": "18df2a230c64c7ac5e10c3158a9edd3dbd7b6ad7",
+      "donor58": "18df2a230c64c7ac5e10c3158a9edd3dbd7b6ad7"
+    },
+    {
+      "path": "Source/NiflheimrDSP.h",
+      "current": "dc0c890829950ebba84d6a461c4d1a4badddd8de",
+      "latest55": "dc0c890829950ebba84d6a461c4d1a4badddd8de",
+      "donor56": "dc0c890829950ebba84d6a461c4d1a4badddd8de",
+      "donor58": "dc0c890829950ebba84d6a461c4d1a4badddd8de"
+    },
+    {
+      "path": "Source/NiflheimrDefinition.h",
+      "current": "b1e9d170ed9a80662fe542fb08714c794e2d8a78",
+      "latest55": "b1e9d170ed9a80662fe542fb08714c794e2d8a78",
+      "donor56": "b1e9d170ed9a80662fe542fb08714c794e2d8a78",
+      "donor58": "b1e9d170ed9a80662fe542fb08714c794e2d8a78"
+    },
+    {
+      "path": "Source/NiflheimrPresets.h",
+      "current": "e51c82740647ba4e8fb1ecc1b910d2f5c4eaf574",
+      "latest55": "3294fd8bca146414b0dbf8e3681274ac836dcabc",
+      "donor56": "e36dd9d5004700738e7f69f845e4f873f028ca59",
+      "donor58": "e36dd9d5004700738e7f69f845e4f873f028ca59"
+    },
+    {
+      "path": "Source/OriginalAmpDSP.h",
+      "current": "897a052f6865e357d680a06c6974620edd657011",
+      "latest55": "897a052f6865e357d680a06c6974620edd657011",
+      "donor56": "897a052f6865e357d680a06c6974620edd657011",
+      "donor58": "897a052f6865e357d680a06c6974620edd657011"
+    },
+    {
+      "path": "Source/OriginalAmpDefinition.h",
+      "current": "c2451d28db17e9f6ecfa1d212639b3f279672ffb",
+      "latest55": "c2451d28db17e9f6ecfa1d212639b3f279672ffb",
+      "donor56": "c2451d28db17e9f6ecfa1d212639b3f279672ffb",
+      "donor58": "c2451d28db17e9f6ecfa1d212639b3f279672ffb"
+    },
+    {
+      "path": "Source/OriginalAmpPanel.h",
+      "current": "8ee4c9bdc6391ca7243407c186db2934603c0a23",
+      "latest55": "8ee4c9bdc6391ca7243407c186db2934603c0a23",
+      "donor56": "8ee4c9bdc6391ca7243407c186db2934603c0a23",
+      "donor58": "8ee4c9bdc6391ca7243407c186db2934603c0a23"
+    },
+    {
+      "path": "Source/OriginalAmpProcessor.h",
+      "current": "b8272a90c3f0c65a5d57d5da694e03cabdbc261e",
+      "latest55": "b8272a90c3f0c65a5d57d5da694e03cabdbc261e",
+      "donor56": "b8272a90c3f0c65a5d57d5da694e03cabdbc261e",
+      "donor58": "b8272a90c3f0c65a5d57d5da694e03cabdbc261e"
+    },
+    {
+      "path": "Source/OriginalAmpState.h",
+      "current": "c3a5272935cbe0fd4c3ee1658ead8844b6cc77e7",
+      "latest55": "c3a5272935cbe0fd4c3ee1658ead8844b6cc77e7",
+      "donor56": "c3a5272935cbe0fd4c3ee1658ead8844b6cc77e7",
+      "donor58": "c3a5272935cbe0fd4c3ee1658ead8844b6cc77e7"
+    },
+    {
+      "path": "Source/OriginalCabControls.h",
+      "current": "a602e7af0ec7a7a6ecaf5ec42968fbd139982384",
+      "latest55": "a602e7af0ec7a7a6ecaf5ec42968fbd139982384",
+      "donor56": "a602e7af0ec7a7a6ecaf5ec42968fbd139982384",
+      "donor58": "a602e7af0ec7a7a6ecaf5ec42968fbd139982384"
+    },
+    {
+      "path": "Source/OriginalCabModel.h",
+      "current": "d0968054bc61718e5d56ef5381df5f00f4b90165",
+      "latest55": "d0968054bc61718e5d56ef5381df5f00f4b90165",
+      "donor56": "d0968054bc61718e5d56ef5381df5f00f4b90165",
+      "donor58": "d0968054bc61718e5d56ef5381df5f00f4b90165"
+    },
+    {
+      "path": "Source/OriginalCabParameters.h",
+      "current": "5ec77c900f18f733f5b7d04d8d6bc2158e4f246b",
+      "latest55": "5ec77c900f18f733f5b7d04d8d6bc2158e4f246b",
+      "donor56": "5ec77c900f18f733f5b7d04d8d6bc2158e4f246b",
+      "donor58": "5ec77c900f18f733f5b7d04d8d6bc2158e4f246b"
+    },
+    {
+      "path": "Source/OriginalPresets.h",
+      "current": "e30d6dcc925f257e66788ae6d1697ba31e9d090e",
+      "latest55": "5fcd3d37d5b5527b8031ba43685dfdb1b0f5331d",
+      "donor56": "e30d6dcc925f257e66788ae6d1697ba31e9d090e",
+      "donor58": "e30d6dcc925f257e66788ae6d1697ba31e9d090e"
+    },
+    {
+      "path": "Source/PedalBoardCatalog.h",
+      "current": "16ff8d9ded1680904ef90f29927d7c4bc0c45d1c",
+      "latest55": "6c0013f3cdd4a3a6e1807a70b1dd4667b92ebd79",
+      "donor56": "16ff8d9ded1680904ef90f29927d7c4bc0c45d1c",
+      "donor58": "16ff8d9ded1680904ef90f29927d7c4bc0c45d1c"
+    },
+    {
+      "path": "Source/PedalBoardDSP.h",
+      "current": "5ec4a3e322b2eb8635c1612b9011ea49edbf520a",
+      "latest55": "5ec4a3e322b2eb8635c1612b9011ea49edbf520a",
+      "donor56": "5ec4a3e322b2eb8635c1612b9011ea49edbf520a",
+      "donor58": "5ec4a3e322b2eb8635c1612b9011ea49edbf520a"
+    },
+    {
+      "path": "Source/PedalBoardPanel.h",
+      "current": "54deaa682b558dbfa18222fa8100175da1dc1ec6",
+      "latest55": "aac624153fe41ae7ce8a055f290edaf19fd14e2d",
+      "donor56": "54deaa682b558dbfa18222fa8100175da1dc1ec6",
+      "donor58": "54deaa682b558dbfa18222fa8100175da1dc1ec6"
+    },
+    {
+      "path": "Source/PedalBoardParameters.h",
+      "current": "9a588b180213659f5573b531e9ec54004d6e7933",
+      "latest55": "9a588b180213659f5573b531e9ec54004d6e7933",
+      "donor56": "9a588b180213659f5573b531e9ec54004d6e7933",
+      "donor58": "9a588b180213659f5573b531e9ec54004d6e7933"
+    },
+    {
+      "path": "Source/PedalOctaverDSP.h",
+      "current": "9b72aa99acde585f48287e3dfa715a1c41c17ef6",
+      "latest55": "9b72aa99acde585f48287e3dfa715a1c41c17ef6",
+      "donor56": "9b72aa99acde585f48287e3dfa715a1c41c17ef6",
+      "donor58": "9b72aa99acde585f48287e3dfa715a1c41c17ef6"
+    },
+    {
+      "path": "Source/PerformanceUtilities.h",
+      "current": "e04c40554b285221aa1a2af94280d24238f3d034",
+      "latest55": "e04c40554b285221aa1a2af94280d24238f3d034",
+      "donor56": "e04c40554b285221aa1a2af94280d24238f3d034",
+      "donor58": "e04c40554b285221aa1a2af94280d24238f3d034"
+    },
+    {
+      "path": "Source/PluginEditor.cpp",
+      "current": "16bc56b07f5f358d7e9b711ca1a42f8a86a562df",
+      "latest55": "9baed4b46145ecc21fad4b38b30ba91a0bc8f965",
+      "donor56": "16bc56b07f5f358d7e9b711ca1a42f8a86a562df",
+      "donor58": "16bc56b07f5f358d7e9b711ca1a42f8a86a562df"
+    },
+    {
+      "path": "Source/PluginEditor.h",
+      "current": "ddaf56978af266404ee1a0b97c89d77aa72522bf",
+      "latest55": "ddaf56978af266404ee1a0b97c89d77aa72522bf",
+      "donor56": "ddaf56978af266404ee1a0b97c89d77aa72522bf",
+      "donor58": "ddaf56978af266404ee1a0b97c89d77aa72522bf"
+    },
+    {
+      "path": "Source/PluginProcessor.cpp",
+      "current": "c8560425cb038ba9f2490df6874d1801ca09d10b",
+      "latest55": "c8560425cb038ba9f2490df6874d1801ca09d10b",
+      "donor56": "c8560425cb038ba9f2490df6874d1801ca09d10b",
+      "donor58": "c8560425cb038ba9f2490df6874d1801ca09d10b"
+    },
+    {
+      "path": "Source/PluginProcessor.h",
+      "current": "068d8ae38145c24f57fd30eebf698f359a1d506d",
+      "latest55": "068d8ae38145c24f57fd30eebf698f359a1d506d",
+      "donor56": "068d8ae38145c24f57fd30eebf698f359a1d506d",
+      "donor58": "068d8ae38145c24f57fd30eebf698f359a1d506d"
+    },
+    {
+      "path": "Source/PolyPitch.h",
+      "current": "8149d7201376f8b4e6cdf89308be9e03e8fb40fe",
+      "latest55": "8149d7201376f8b4e6cdf89308be9e03e8fb40fe",
+      "donor56": "8149d7201376f8b4e6cdf89308be9e03e8fb40fe",
+      "donor58": "8149d7201376f8b4e6cdf89308be9e03e8fb40fe"
+    },
+    {
+      "path": "Source/PostNativeCatalog.h",
+      "current": "87dff65bc320e064db554e69179d16fa7d9727ce",
+      "latest55": "75ed66212eebf22cf0a4fe6655d15a40bd21fb61",
+      "donor56": "87dff65bc320e064db554e69179d16fa7d9727ce",
+      "donor58": "87dff65bc320e064db554e69179d16fa7d9727ce"
+    },
+    {
+      "path": "Source/PostNativeDSP.h",
+      "current": "d9bfb644d3b2e23c0562482d2bb97784af49f523",
+      "latest55": "d9bfb644d3b2e23c0562482d2bb97784af49f523",
+      "donor56": "d9bfb644d3b2e23c0562482d2bb97784af49f523",
+      "donor58": "d9bfb644d3b2e23c0562482d2bb97784af49f523"
+    },
+    {
+      "path": "Source/PostNativePanel.h",
+      "current": "791987c4436d8788ba7b3820407929e8e6e71775",
+      "latest55": "f5fedefc26ed9d5a20b95234154bd3617dccdc76",
+      "donor56": "791987c4436d8788ba7b3820407929e8e6e71775",
+      "donor58": "791987c4436d8788ba7b3820407929e8e6e71775"
+    },
+    {
+      "path": "Source/PostNativeParameters.h",
+      "current": "4a3fc6da3368e4b46102837c267ed1538be0925b",
+      "latest55": "4a3fc6da3368e4b46102837c267ed1538be0925b",
+      "donor56": "4a3fc6da3368e4b46102837c267ed1538be0925b",
+      "donor58": "4a3fc6da3368e4b46102837c267ed1538be0925b"
+    },
+    {
+      "path": "Source/PostRigGate.h",
+      "current": "26697381eb47802e3c621f104d44bb62b66c76f2",
+      "latest55": "26697381eb47802e3c621f104d44bb62b66c76f2",
+      "donor56": "26697381eb47802e3c621f104d44bb62b66c76f2",
+      "donor58": "26697381eb47802e3c621f104d44bb62b66c76f2"
+    },
+    {
+      "path": "Source/PresetOrder.h",
+      "current": "a6974a900771ee289a725959dcf3a60da5b4a363",
+      "latest55": "a6974a900771ee289a725959dcf3a60da5b4a363",
+      "donor56": "a6974a900771ee289a725959dcf3a60da5b4a363",
+      "donor58": "a6974a900771ee289a725959dcf3a60da5b4a363"
+    },
+    {
+      "path": "Source/RackEffectDetailPanel.h",
+      "current": "eef136133e550eb565a2ed53b9ea74cfff59f1b6",
+      "latest55": "ab2d5a09e5d97d6c1ff1c84f2bc378b81de35e91",
+      "donor56": "eef136133e550eb565a2ed53b9ea74cfff59f1b6",
+      "donor58": "eef136133e550eb565a2ed53b9ea74cfff59f1b6"
+    },
+    {
+      "path": "Source/RasterArtwork.h",
+      "current": "10d791ad161294e60b4e16cedbcd22201c073899",
+      "latest55": "10d791ad161294e60b4e16cedbcd22201c073899",
+      "donor56": "10d791ad161294e60b4e16cedbcd22201c073899",
+      "donor58": "10d791ad161294e60b4e16cedbcd22201c073899"
+    },
+    {
+      "path": "Source/ReleaseInfo.h",
+      "current": "9391d851b08299f6e459eefe92393b43fca8782b",
+      "latest55": "9391d851b08299f6e459eefe92393b43fca8782b",
+      "donor56": "9391d851b08299f6e459eefe92393b43fca8782b",
+      "donor58": "9391d851b08299f6e459eefe92393b43fca8782b"
+    },
+    {
+      "path": "Source/ReleaseSupport.cpp",
+      "current": "26ca12c3202514be7bb61ace7ba1104581ca4c55",
+      "latest55": "26ca12c3202514be7bb61ace7ba1104581ca4c55",
+      "donor56": "26ca12c3202514be7bb61ace7ba1104581ca4c55",
+      "donor58": "26ca12c3202514be7bb61ace7ba1104581ca4c55"
+    },
+    {
+      "path": "Source/ReleaseSupport.h",
+      "current": "d203830f9c36944dd7558e51eb5f8d293ae480cf",
+      "latest55": "d203830f9c36944dd7558e51eb5f8d293ae480cf",
+      "donor56": "d203830f9c36944dd7558e51eb5f8d293ae480cf",
+      "donor58": "d203830f9c36944dd7558e51eb5f8d293ae480cf"
+    },
+    {
+      "path": "Source/SignalPath.h",
+      "current": "04db03fd47d5999aff06c0947c4f0fe7ef2bb83f",
+      "latest55": "04db03fd47d5999aff06c0947c4f0fe7ef2bb83f",
+      "donor56": "04db03fd47d5999aff06c0947c4f0fe7ef2bb83f",
+      "donor58": "04db03fd47d5999aff06c0947c4f0fe7ef2bb83f"
+    },
+    {
+      "path": "Source/SignalPathView.h",
+      "current": "097db212a600b486c8f8e8986ca211edd92eef5e",
+      "latest55": "097db212a600b486c8f8e8986ca211edd92eef5e",
+      "donor56": "097db212a600b486c8f8e8986ca211edd92eef5e",
+      "donor58": "097db212a600b486c8f8e8986ca211edd92eef5e"
+    },
+    {
+      "path": "Source/SpatialModules.h",
+      "current": "5fcb44187bf7c52f22acba86031e671dea4f5ef4",
+      "latest55": "5fcb44187bf7c52f22acba86031e671dea4f5ef4",
+      "donor56": "5fcb44187bf7c52f22acba86031e671dea4f5ef4",
+      "donor58": "5fcb44187bf7c52f22acba86031e671dea4f5ef4"
+    },
+    {
+      "path": "Source/StudioModules.h",
+      "current": "8af3c3ca2e252651bcc3079acbd65828beb7479a",
+      "latest55": "8af3c3ca2e252651bcc3079acbd65828beb7479a",
+      "donor56": "8af3c3ca2e252651bcc3079acbd65828beb7479a",
+      "donor58": "8af3c3ca2e252651bcc3079acbd65828beb7479a"
+    },
+    {
+      "path": "Source/SupportPanel.h",
+      "current": "762cfd9c3fffbcff496f1c8bd165c50ac8519e54",
+      "latest55": "762cfd9c3fffbcff496f1c8bd165c50ac8519e54",
+      "donor56": "762cfd9c3fffbcff496f1c8bd165c50ac8519e54",
+      "donor58": "762cfd9c3fffbcff496f1c8bd165c50ac8519e54"
+    },
+    {
+      "path": "Source/UIRefresh.h",
+      "current": "2da41a664df5923655e2a9d2e94fe323a7ba0099",
+      "latest55": "2da41a664df5923655e2a9d2e94fe323a7ba0099",
+      "donor56": "2da41a664df5923655e2a9d2e94fe323a7ba0099",
+      "donor58": "2da41a664df5923655e2a9d2e94fe323a7ba0099"
+    }
+  ]
+}

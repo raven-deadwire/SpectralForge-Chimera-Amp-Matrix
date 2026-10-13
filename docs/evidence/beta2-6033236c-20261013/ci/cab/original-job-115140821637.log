@@ -1,0 +1,366 @@
+﻿2026-10-13T05:13:10.3344640Z Current runner version: '2.337.0'
+2026-10-13T05:13:10.3371058Z ##[group]Runner Image Provisioner
+2026-10-13T05:13:10.3371941Z Hosted Compute Agent
+2026-10-13T05:13:10.3372485Z Version: 20260901.588
+2026-10-13T05:13:10.3373071Z Commit: f88ec8081b781fac6c440065ac7ff9e710ce3d0b
+2026-10-13T05:13:10.3373790Z Build Date: 2026-09-01T19:56:44Z
+2026-10-13T05:13:10.3374434Z Worker ID: {ed19e7ab-a461-4553-bf22-96516112585c}
+2026-10-13T05:13:10.3375117Z Azure Region: westus2
+2026-10-13T05:13:10.3375640Z ##[endgroup]
+2026-10-13T05:13:10.3377028Z ##[group]Operating System
+2026-10-13T05:13:10.3377726Z Microsoft Windows Server 2025
+2026-10-13T05:13:10.3378351Z 10.0.26100
+2026-10-13T05:13:10.3378848Z Datacenter
+2026-10-13T05:13:10.3379334Z ##[endgroup]
+2026-10-13T05:13:10.3379824Z ##[group]Runner Image
+2026-10-13T05:13:10.3380403Z Image: windows-2025-vs2026
+2026-10-13T05:13:10.3380967Z Version: 20260925.250.1
+2026-10-13T05:13:10.3382413Z Included Software: https://github.com/actions/runner-images/blob/win25-vs2026/20260925.250/images/windows/Windows2025-VS2026-Readme.md
+2026-10-13T05:13:10.3384045Z Image Release: https://github.com/actions/runner-images/releases/tag/win25-vs2026%2F20260925.250
+2026-10-13T05:13:10.3385028Z ##[endgroup]
+2026-10-13T05:13:10.3386066Z ##[group]GITHUB_TOKEN Permissions
+2026-10-13T05:13:10.3388222Z Contents: read
+2026-10-13T05:13:10.3388789Z Metadata: read
+2026-10-13T05:13:10.3389329Z ##[endgroup]
+2026-10-13T05:13:10.3391730Z Secret source: Actions
+2026-10-13T05:13:10.3392600Z Cache mode: write
+2026-10-13T05:13:10.3393284Z Prepare workflow directory
+2026-10-13T05:13:10.4001719Z Prepare all required actions
+2026-10-13T05:13:10.4053422Z Getting action download info
+2026-10-13T05:13:10.7699901Z Download action repository 'actions/checkout@v5' (SHA:fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09)
+2026-10-13T05:13:10.9066055Z Download action repository 'actions/setup-python@v6' (SHA:ece7cb06caefa5fff74198d8649806c4678c61a1)
+2026-10-13T05:13:11.0585940Z Download action repository 'actions/upload-artifact@v6' (SHA:b7c566a772e6b6bfb58ed0dc250532a479d7789f)
+2026-10-13T05:13:11.4030882Z Complete job name: realtime (windows-latest)
+2026-10-13T05:13:11.5514569Z ##[group]Run actions/checkout@v5
+2026-10-13T05:13:11.5516522Z with:
+2026-10-13T05:13:11.5517498Z   ref: 6033236cb81820a43679cbbd34be020804f9658d
+2026-10-13T05:13:11.5518669Z   path: candidate
+2026-10-13T05:13:11.5519590Z   persist-credentials: false
+2026-10-13T05:13:11.5520864Z   repository: raven-deadwire/SpectralForge-Chimera-Amp-Matrix
+2026-10-13T05:13:11.5528429Z   token: ***
+2026-10-13T05:13:11.5529287Z   ssh-strict: true
+2026-10-13T05:13:11.5530171Z   ssh-user: git
+2026-10-13T05:13:11.5531020Z   clean: true
+2026-10-13T05:13:11.5531926Z   sparse-checkout-cone-mode: true
+2026-10-13T05:13:11.5532979Z   fetch-depth: 1
+2026-10-13T05:13:11.5533827Z   fetch-tags: false
+2026-10-13T05:13:11.5534781Z   show-progress: true
+2026-10-13T05:13:11.5535680Z   lfs: false
+2026-10-13T05:13:11.5536926Z   submodules: false
+2026-10-13T05:13:11.5537862Z   set-safe-directory: true
+2026-10-13T05:13:11.5538878Z   allow-unsafe-pr-checkout: false
+2026-10-13T05:13:11.5540236Z env:
+2026-10-13T05:13:11.5541398Z   CHIMERA_CANDIDATE_SHA: 6033236cb81820a43679cbbd34be020804f9658d
+2026-10-13T05:13:11.5543002Z   CHIMERA_BASELINE_SHA: aaa1330dd5cf7d51faf1c45a7cef633b9b118458
+2026-10-13T05:13:11.5544302Z ##[endgroup]
+2026-10-13T05:13:11.7044558Z Syncing repository: raven-deadwire/SpectralForge-Chimera-Amp-Matrix
+2026-10-13T05:13:11.7047606Z ##[group]Getting Git version info
+2026-10-13T05:13:11.7049437Z Working directory is 'D:\a\SpectralForge-Chimera-Amp-Matrix\SpectralForge-Chimera-Amp-Matrix\candidate'
+2026-10-13T05:13:11.7994307Z [command]"C:\Program Files\Git\bin\git.exe" version
+2026-10-13T05:13:12.1233091Z git version 2.55.0.windows.5
+2026-10-13T05:13:12.1277488Z ##[endgroup]
+2026-10-13T05:13:12.1297850Z Temporarily overriding HOME='D:\a\_temp\931c0f1e-790c-4078-ae10-f5c7080c9b92' before making global git config changes
+2026-10-13T05:13:12.1304023Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-13T05:13:12.1311088Z [command]"C:\Program Files\Git\bin\git.exe" config --global --add safe.directory D:\a\SpectralForge-Chimera-Amp-Matrix\SpectralForge-Chimera-Amp-Matrix\candidate
+2026-10-13T05:13:12.1922815Z ##[group]Initializing the repository
+2026-10-13T05:13:12.1936773Z [command]"C:\Program Files\Git\bin\git.exe" init D:\a\SpectralForge-Chimera-Amp-Matrix\SpectralForge-Chimera-Amp-Matrix\candidate
+2026-10-13T05:13:12.2746832Z Initialized empty Git repository in D:/a/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/candidate/.git/
+2026-10-13T05:13:12.2791855Z [command]"C:\Program Files\Git\bin\git.exe" remote add origin https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix
+2026-10-13T05:13:12.3394736Z ##[endgroup]
+2026-10-13T05:13:12.3396233Z ##[group]Disabling automatic garbage collection
+2026-10-13T05:13:12.3403521Z [command]"C:\Program Files\Git\bin\git.exe" config --local gc.auto 0
+2026-10-13T05:13:12.3701043Z ##[endgroup]
+2026-10-13T05:13:12.3702744Z ##[group]Setting up auth
+2026-10-13T05:13:12.3712516Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp core\.sshCommand
+2026-10-13T05:13:12.4017712Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :\""
+2026-10-13T05:13:13.7570199Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-13T05:13:13.7891021Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :\""
+2026-10-13T05:13:14.3371884Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-13T05:13:14.3704637Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "git config --local --show-origin --name-only --get-regexp remote.origin.url"
+2026-10-13T05:13:14.9126420Z [command]"C:\Program Files\Git\bin\git.exe" config --local http.https://github.com/.extraheader "AUTHORIZATION: basic ***"
+2026-10-13T05:13:14.9472930Z ##[endgroup]
+2026-10-13T05:13:14.9473865Z ##[group]Fetching the repository
+2026-10-13T05:13:14.9486666Z [command]"C:\Program Files\Git\bin\git.exe" -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin 6033236cb81820a43679cbbd34be020804f9658d
+2026-10-13T05:13:18.4631873Z From https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix
+2026-10-13T05:13:18.4632839Z  * branch            6033236cb81820a43679cbbd34be020804f9658d -> FETCH_HEAD
+2026-10-13T05:13:18.4673396Z ##[endgroup]
+2026-10-13T05:13:18.4674075Z ##[group]Determining the checkout info
+2026-10-13T05:13:18.4676175Z ##[endgroup]
+2026-10-13T05:13:18.4687644Z [command]"C:\Program Files\Git\bin\git.exe" sparse-checkout disable
+2026-10-13T05:13:18.5139202Z [command]"C:\Program Files\Git\bin\git.exe" config --local --unset-all extensions.worktreeConfig
+2026-10-13T05:13:18.5454812Z ##[group]Checking out the ref
+2026-10-13T05:13:18.5465235Z [command]"C:\Program Files\Git\bin\git.exe" checkout --progress --force 6033236cb81820a43679cbbd34be020804f9658d
+2026-10-13T05:13:19.5949174Z Updating files:  72% (715/990)
+2026-10-13T05:13:19.5977914Z Updating files:  73% (723/990)
+2026-10-13T05:13:19.6002630Z Updating files:  74% (733/990)
+2026-10-13T05:13:19.6031198Z Updating files:  75% (743/990)
+2026-10-13T05:13:19.6060581Z Updating files:  76% (753/990)
+2026-10-13T05:13:19.6088347Z Updating files:  77% (763/990)
+2026-10-13T05:13:19.6117734Z Updating files:  78% (773/990)
+2026-10-13T05:13:19.6140227Z Updating files:  79% (783/990)
+2026-10-13T05:13:19.6173307Z Updating files:  80% (792/990)
+2026-10-13T05:13:19.6196268Z Updating files:  81% (802/990)
+2026-10-13T05:13:19.6221994Z Updating files:  82% (812/990)
+2026-10-13T05:13:19.6247842Z Updating files:  83% (822/990)
+2026-10-13T05:13:19.6282922Z Updating files:  84% (832/990)
+2026-10-13T05:13:19.6301331Z Updating files:  85% (842/990)
+2026-10-13T05:13:19.6331534Z Updating files:  86% (852/990)
+2026-10-13T05:13:19.6385332Z Updating files:  87% (862/990)
+2026-10-13T05:13:19.6463928Z Updating files:  88% (872/990)
+2026-10-13T05:13:19.6519721Z Updating files:  89% (882/990)
+2026-10-13T05:13:19.6569850Z Updating files:  90% (891/990)
+2026-10-13T05:13:19.6615991Z Updating files:  91% (901/990)
+2026-10-13T05:13:19.6663021Z Updating files:  92% (911/990)
+2026-10-13T05:13:19.6702788Z Updating files:  93% (921/990)
+2026-10-13T05:13:19.6732933Z Updating files:  94% (931/990)
+2026-10-13T05:13:19.6754338Z Updating files:  95% (941/990)
+2026-10-13T05:13:19.6777012Z Updating files:  96% (951/990)
+2026-10-13T05:13:19.6824762Z Updating files:  97% (961/990)
+2026-10-13T05:13:19.6868445Z Updating files:  98% (971/990)
+2026-10-13T05:13:19.6977935Z Updating files:  99% (981/990)
+2026-10-13T05:13:19.6978429Z Updating files: 100% (990/990)
+2026-10-13T05:13:19.6979093Z Updating files: 100% (990/990), done.
+2026-10-13T05:13:19.7084860Z Note: switching to '6033236cb81820a43679cbbd34be020804f9658d'.
+2026-10-13T05:13:19.7085149Z 
+2026-10-13T05:13:19.7085362Z You are in 'detached HEAD' state. You can look around, make experimental
+2026-10-13T05:13:19.7086089Z changes and commit them, and you can discard any commits you make in this
+2026-10-13T05:13:19.7086577Z state without impacting any branches by switching back to a branch.
+2026-10-13T05:13:19.7086853Z 
+2026-10-13T05:13:19.7087040Z If you want to create a new branch to retain commits you create, you may
+2026-10-13T05:13:19.7087576Z do so (now or later) by using -c with the switch command. Example:
+2026-10-13T05:13:19.7088065Z 
+2026-10-13T05:13:19.7088188Z   git switch -c <new-branch-name>
+2026-10-13T05:13:19.7088355Z 
+2026-10-13T05:13:19.7088545Z Or undo this operation with:
+2026-10-13T05:13:19.7088707Z 
+2026-10-13T05:13:19.7088866Z   git switch -
+2026-10-13T05:13:19.7089870Z 
+2026-10-13T05:13:19.7090124Z Turn off this advice by setting config variable advice.detachedHead to false
+2026-10-13T05:13:19.7090446Z 
+2026-10-13T05:13:19.7090702Z HEAD is now at 6033236 Preserve native UI evidence receipt without changing public captions
+2026-10-13T05:13:19.7335033Z ##[endgroup]
+2026-10-13T05:13:19.7755624Z [command]"C:\Program Files\Git\bin\git.exe" log -1 --format=%H
+2026-10-13T05:13:19.8069521Z 6033236cb81820a43679cbbd34be020804f9658d
+2026-10-13T05:13:19.8095846Z ##[group]Removing auth
+2026-10-13T05:13:19.8103714Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp core\.sshCommand
+2026-10-13T05:13:19.8401278Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :\""
+2026-10-13T05:13:20.4144602Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-13T05:13:20.4444271Z http.https://github.com/.extraheader
+2026-10-13T05:13:20.4493923Z [command]"C:\Program Files\Git\bin\git.exe" config --local --unset-all http.https://github.com/.extraheader
+2026-10-13T05:13:20.4812953Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :\""
+2026-10-13T05:13:21.0271704Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-13T05:13:21.0576353Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "git config --local --show-origin --name-only --get-regexp remote.origin.url"
+2026-10-13T05:13:21.5884674Z ##[endgroup]
+2026-10-13T05:13:21.6324078Z ##[group]Run actions/checkout@v5
+2026-10-13T05:13:21.6324407Z with:
+2026-10-13T05:13:21.6324635Z   ref: aaa1330dd5cf7d51faf1c45a7cef633b9b118458
+2026-10-13T05:13:21.6324928Z   path: baseline
+2026-10-13T05:13:21.6325134Z   persist-credentials: false
+2026-10-13T05:13:21.6325456Z   repository: raven-deadwire/SpectralForge-Chimera-Amp-Matrix
+2026-10-13T05:13:21.6327951Z   token: ***
+2026-10-13T05:13:21.6328147Z   ssh-strict: true
+2026-10-13T05:13:21.6328339Z   ssh-user: git
+2026-10-13T05:13:21.6328522Z   clean: true
+2026-10-13T05:13:21.6328723Z   sparse-checkout-cone-mode: true
+2026-10-13T05:13:21.6328967Z   fetch-depth: 1
+2026-10-13T05:13:21.6329146Z   fetch-tags: false
+2026-10-13T05:13:21.6329338Z   show-progress: true
+2026-10-13T05:13:21.6329531Z   lfs: false
+2026-10-13T05:13:21.6329708Z   submodules: false
+2026-10-13T05:13:21.6329903Z   set-safe-directory: true
+2026-10-13T05:13:21.6330135Z   allow-unsafe-pr-checkout: false
+2026-10-13T05:13:21.6330360Z env:
+2026-10-13T05:13:21.6330660Z   CHIMERA_CANDIDATE_SHA: 6033236cb81820a43679cbbd34be020804f9658d
+2026-10-13T05:13:21.6331066Z   CHIMERA_BASELINE_SHA: aaa1330dd5cf7d51faf1c45a7cef633b9b118458
+2026-10-13T05:13:21.6331382Z ##[endgroup]
+2026-10-13T05:13:21.7444886Z Syncing repository: raven-deadwire/SpectralForge-Chimera-Amp-Matrix
+2026-10-13T05:13:21.7454574Z ##[group]Getting Git version info
+2026-10-13T05:13:21.7455362Z Working directory is 'D:\a\SpectralForge-Chimera-Amp-Matrix\SpectralForge-Chimera-Amp-Matrix\baseline'
+2026-10-13T05:13:21.8285268Z [command]"C:\Program Files\Git\bin\git.exe" version
+2026-10-13T05:13:21.8556341Z git version 2.55.0.windows.5
+2026-10-13T05:13:21.8600869Z ##[endgroup]
+2026-10-13T05:13:21.8619921Z Temporarily overriding HOME='D:\a\_temp\461d9378-89a7-4622-9e91-95cdb11e074d' before making global git config changes
+2026-10-13T05:13:21.8620631Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-13T05:13:21.8631218Z [command]"C:\Program Files\Git\bin\git.exe" config --global --add safe.directory D:\a\SpectralForge-Chimera-Amp-Matrix\SpectralForge-Chimera-Amp-Matrix\baseline
+2026-10-13T05:13:21.8938823Z ##[group]Initializing the repository
+2026-10-13T05:13:21.8949717Z [command]"C:\Program Files\Git\bin\git.exe" init D:\a\SpectralForge-Chimera-Amp-Matrix\SpectralForge-Chimera-Amp-Matrix\baseline
+2026-10-13T05:13:21.9328184Z Initialized empty Git repository in D:/a/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/baseline/.git/
+2026-10-13T05:13:21.9377412Z [command]"C:\Program Files\Git\bin\git.exe" remote add origin https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix
+2026-10-13T05:13:21.9700133Z ##[endgroup]
+2026-10-13T05:13:21.9700771Z ##[group]Disabling automatic garbage collection
+2026-10-13T05:13:21.9710823Z [command]"C:\Program Files\Git\bin\git.exe" config --local gc.auto 0
+2026-10-13T05:13:22.0000777Z ##[endgroup]
+2026-10-13T05:13:22.0001397Z ##[group]Setting up auth
+2026-10-13T05:13:22.0014766Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp core\.sshCommand
+2026-10-13T05:13:22.0320298Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :\""
+2026-10-13T05:13:22.5795252Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-13T05:13:22.6155167Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :\""
+2026-10-13T05:13:23.1935543Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-13T05:13:23.2268617Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "git config --local --show-origin --name-only --get-regexp remote.origin.url"
+2026-10-13T05:13:23.7723311Z [command]"C:\Program Files\Git\bin\git.exe" config --local http.https://github.com/.extraheader "AUTHORIZATION: basic ***"
+2026-10-13T05:13:23.8028727Z ##[endgroup]
+2026-10-13T05:13:23.8029177Z ##[group]Fetching the repository
+2026-10-13T05:13:23.8040586Z [command]"C:\Program Files\Git\bin\git.exe" -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin aaa1330dd5cf7d51faf1c45a7cef633b9b118458
+2026-10-13T05:13:26.3272335Z From https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix
+2026-10-13T05:13:26.3273249Z  * branch            aaa1330dd5cf7d51faf1c45a7cef633b9b118458 -> FETCH_HEAD
+2026-10-13T05:13:26.3312505Z ##[endgroup]
+2026-10-13T05:13:26.3312973Z ##[group]Determining the checkout info
+2026-10-13T05:13:26.3315253Z ##[endgroup]
+2026-10-13T05:13:26.3324689Z [command]"C:\Program Files\Git\bin\git.exe" sparse-checkout disable
+2026-10-13T05:13:26.3654372Z [command]"C:\Program Files\Git\bin\git.exe" config --local --unset-all extensions.worktreeConfig
+2026-10-13T05:13:26.3949891Z ##[group]Checking out the ref
+2026-10-13T05:13:26.3959340Z [command]"C:\Program Files\Git\bin\git.exe" checkout --progress --force aaa1330dd5cf7d51faf1c45a7cef633b9b118458
+2026-10-13T05:13:27.0800404Z Note: switching to 'aaa1330dd5cf7d51faf1c45a7cef633b9b118458'.
+2026-10-13T05:13:27.0800958Z 
+2026-10-13T05:13:27.0801305Z You are in 'detached HEAD' state. You can look around, make experimental
+2026-10-13T05:13:27.0802185Z changes and commit them, and you can discard any commits you make in this
+2026-10-13T05:13:27.0803036Z state without impacting any branches by switching back to a branch.
+2026-10-13T05:13:27.0803547Z 
+2026-10-13T05:13:27.0803879Z If you want to create a new branch to retain commits you create, you may
+2026-10-13T05:13:27.0804659Z do so (now or later) by using -c with the switch command. Example:
+2026-10-13T05:13:27.0805118Z 
+2026-10-13T05:13:27.0805324Z   git switch -c <new-branch-name>
+2026-10-13T05:13:27.0805636Z 
+2026-10-13T05:13:27.0805791Z Or undo this operation with:
+2026-10-13T05:13:27.0806070Z 
+2026-10-13T05:13:27.0806203Z   git switch -
+2026-10-13T05:13:27.0806398Z 
+2026-10-13T05:13:27.0806765Z Turn off this advice by setting config variable advice.detachedHead to false
+2026-10-13T05:13:27.0807284Z 
+2026-10-13T05:13:27.0808122Z HEAD is now at aaa1330 Expand native horn grille regression to 100–200 percent device scale
+2026-10-13T05:13:27.0944130Z ##[endgroup]
+2026-10-13T05:13:27.1268398Z [command]"C:\Program Files\Git\bin\git.exe" log -1 --format=%H
+2026-10-13T05:13:27.1537791Z aaa1330dd5cf7d51faf1c45a7cef633b9b118458
+2026-10-13T05:13:27.1579047Z ##[group]Removing auth
+2026-10-13T05:13:27.1587848Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp core\.sshCommand
+2026-10-13T05:13:27.1890342Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :\""
+2026-10-13T05:13:27.7397697Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-13T05:13:27.7660386Z http.https://github.com/.extraheader
+2026-10-13T05:13:27.7703755Z [command]"C:\Program Files\Git\bin\git.exe" config --local --unset-all http.https://github.com/.extraheader
+2026-10-13T05:13:27.8020314Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :\""
+2026-10-13T05:13:28.3506306Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-13T05:13:28.3809898Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "git config --local --show-origin --name-only --get-regexp remote.origin.url"
+2026-10-13T05:13:28.9129929Z ##[endgroup]
+2026-10-13T05:13:28.9490362Z ##[group]Run actions/setup-python@v6
+2026-10-13T05:13:28.9490701Z with:
+2026-10-13T05:13:28.9490896Z   python-version: 3.12
+2026-10-13T05:13:28.9491113Z   check-latest: false
+2026-10-13T05:13:28.9493470Z   token: ***
+2026-10-13T05:13:28.9493671Z   update-environment: true
+2026-10-13T05:13:28.9493912Z   allow-prereleases: false
+2026-10-13T05:13:28.9494122Z   freethreaded: false
+2026-10-13T05:13:28.9494312Z env:
+2026-10-13T05:13:28.9494552Z   CHIMERA_CANDIDATE_SHA: 6033236cb81820a43679cbbd34be020804f9658d
+2026-10-13T05:13:28.9494959Z   CHIMERA_BASELINE_SHA: aaa1330dd5cf7d51faf1c45a7cef633b9b118458
+2026-10-13T05:13:28.9495276Z ##[endgroup]
+2026-10-13T05:13:29.1138627Z ##[group]Installed versions
+2026-10-13T05:13:29.1335428Z Successfully set up CPython (3.12.10)
+2026-10-13T05:13:29.1337183Z ##[endgroup]
+2026-10-13T05:13:29.1645673Z ##[group]Run python candidate/Tools/test_cab_timing_evidence.py
+2026-10-13T05:13:29.1646246Z [36;1mpython candidate/Tools/test_cab_timing_evidence.py[0m
+2026-10-13T05:13:29.1673939Z shell: C:\Program Files\Git\bin\bash.EXE --noprofile --norc -e -o pipefail {0}
+2026-10-13T05:13:29.1674353Z env:
+2026-10-13T05:13:29.1674611Z   CHIMERA_CANDIDATE_SHA: 6033236cb81820a43679cbbd34be020804f9658d
+2026-10-13T05:13:29.1675028Z   CHIMERA_BASELINE_SHA: aaa1330dd5cf7d51faf1c45a7cef633b9b118458
+2026-10-13T05:13:29.1675453Z   pythonLocation: C:\hostedtoolcache\windows\Python\3.12.10\x64
+2026-10-13T05:13:29.1675944Z   PKG_CONFIG_PATH: C:\hostedtoolcache\windows\Python\3.12.10\x64/lib/pkgconfig
+2026-10-13T05:13:29.1676398Z   Python_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.12.10\x64
+2026-10-13T05:13:29.1676809Z   Python2_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.12.10\x64
+2026-10-13T05:13:29.1677210Z   Python3_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.12.10\x64
+2026-10-13T05:13:29.1677561Z ##[endgroup]
+2026-10-13T05:13:31.7521838Z ....................
+2026-10-13T05:13:31.7522406Z ----------------------------------------------------------------------
+2026-10-13T05:13:31.7522983Z Ran 20 tests in 0.587s
+2026-10-13T05:13:31.7523139Z 
+2026-10-13T05:13:31.7523221Z OK
+2026-10-13T05:13:31.7943006Z ##[group]Run python candidate/Tools/run_cab_realtime_ci.py \
+2026-10-13T05:13:31.7943534Z [36;1mpython candidate/Tools/run_cab_realtime_ci.py \[0m
+2026-10-13T05:13:31.7944008Z [36;1m  --candidate-source candidate --candidate-sha "$CHIMERA_CANDIDATE_SHA" \[0m
+2026-10-13T05:13:31.7944527Z [36;1m  --baseline-source baseline --baseline-sha "$CHIMERA_BASELINE_SHA" \[0m
+2026-10-13T05:13:31.7945019Z [36;1m  --build-root cab-realtime-build --output cab-realtime-evidence \[0m
+2026-10-13T05:13:31.7945417Z [36;1m  --profile-target ChimeraCabProfiling[0m
+2026-10-13T05:13:31.7963795Z shell: C:\Program Files\Git\bin\bash.EXE --noprofile --norc -e -o pipefail {0}
+2026-10-13T05:13:31.7964192Z env:
+2026-10-13T05:13:31.7964447Z   CHIMERA_CANDIDATE_SHA: 6033236cb81820a43679cbbd34be020804f9658d
+2026-10-13T05:13:31.7964868Z   CHIMERA_BASELINE_SHA: aaa1330dd5cf7d51faf1c45a7cef633b9b118458
+2026-10-13T05:13:31.7965279Z   pythonLocation: C:\hostedtoolcache\windows\Python\3.12.10\x64
+2026-10-13T05:13:31.7965785Z   PKG_CONFIG_PATH: C:\hostedtoolcache\windows\Python\3.12.10\x64/lib/pkgconfig
+2026-10-13T05:13:31.7966230Z   Python_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.12.10\x64
+2026-10-13T05:13:31.7966621Z   Python2_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.12.10\x64
+2026-10-13T05:13:31.7967026Z   Python3_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.12.10\x64
+2026-10-13T05:13:31.7967347Z ##[endgroup]
+2026-10-13T05:13:37.3219570Z Running cmake -S D:\a\SpectralForge-Chimera-Amp-Matrix\SpectralForge-Chimera-Amp-Matrix\baseline -B D:\a\SpectralForge-Chimera-Amp-Matrix\SpectralForge-Chimera-Amp-Matrix\cab-realtime-build\baseline -DCMAKE_BUILD_TYPE=Release -A x64
+2026-10-13T05:16:01.1115265Z Exit 0, 143.8s; complete output: D:\a\SpectralForge-Chimera-Amp-Matrix\SpectralForge-Chimera-Amp-Matrix\cab-realtime-evidence\baseline\configure.log
+2026-10-13T05:16:01.1119500Z Running cmake --build D:\a\SpectralForge-Chimera-Amp-Matrix\SpectralForge-Chimera-Amp-Matrix\cab-realtime-build\baseline --config Release --target ChimeraOriginalCabIntegrationTests --parallel 2
+2026-10-13T05:16:40.2170928Z Exit 0, 39.1s; complete output: D:\a\SpectralForge-Chimera-Amp-Matrix\SpectralForge-Chimera-Amp-Matrix\cab-realtime-evidence\baseline\build.log
+2026-10-13T05:16:40.4670070Z Running ctest --test-dir D:\a\SpectralForge-Chimera-Amp-Matrix\SpectralForge-Chimera-Amp-Matrix\cab-realtime-build\baseline -C Release -R ^(ChimeraCabExpansionIntegrationTests|ChimeraCabLayoutIntegrationTests|ChimeraOriginalCabIntegrationTests)$ --parallel 1 --verbose --no-tests=error --timeout 600 --test-output-size-passed 10485760 --test-output-size-failed 10485760 --output-junit D:\a\SpectralForge-Chimera-Amp-Matrix\SpectralForge-Chimera-Amp-Matrix\cab-realtime-evidence\baseline\ctest-results.xml
+2026-10-13T05:17:27.6690045Z Exit 0, 47.2s; complete output: D:\a\SpectralForge-Chimera-Amp-Matrix\SpectralForge-Chimera-Amp-Matrix\cab-realtime-evidence\baseline\ctest-console.log
+2026-10-13T05:17:28.4003861Z Running cmake -S D:\a\SpectralForge-Chimera-Amp-Matrix\SpectralForge-Chimera-Amp-Matrix\candidate -B D:\a\SpectralForge-Chimera-Amp-Matrix\SpectralForge-Chimera-Amp-Matrix\cab-realtime-build\candidate -DCMAKE_BUILD_TYPE=Release -A x64
+2026-10-13T05:19:38.3761850Z Exit 0, 130.0s; complete output: D:\a\SpectralForge-Chimera-Amp-Matrix\SpectralForge-Chimera-Amp-Matrix\cab-realtime-evidence\candidate\configure.log
+2026-10-13T05:19:38.3765237Z Running cmake --build D:\a\SpectralForge-Chimera-Amp-Matrix\SpectralForge-Chimera-Amp-Matrix\cab-realtime-build\candidate --config Release --target ChimeraOriginalCabIntegrationTests ChimeraOriginalCabRealtimeTests --parallel 2
+2026-10-13T05:21:03.9507990Z Exit 0, 85.6s; complete output: D:\a\SpectralForge-Chimera-Amp-Matrix\SpectralForge-Chimera-Amp-Matrix\cab-realtime-evidence\candidate\build.log
+2026-10-13T05:21:04.0921794Z Running ctest --test-dir D:\a\SpectralForge-Chimera-Amp-Matrix\SpectralForge-Chimera-Amp-Matrix\cab-realtime-build\candidate -C Release -R ^(ChimeraCabExpansionIntegrationTests|ChimeraCabExtendedTimingTests|ChimeraCabLayoutIntegrationTests|ChimeraOriginalCabIntegrationTests|ChimeraOriginalCabRealtimeTests)$ --parallel 1 --verbose --no-tests=error --timeout 600 --test-output-size-passed 10485760 --test-output-size-failed 10485760 --output-junit D:\a\SpectralForge-Chimera-Amp-Matrix\SpectralForge-Chimera-Amp-Matrix\cab-realtime-evidence\candidate\ctest-results.xml
+2026-10-13T05:21:57.9236687Z Exit 0, 53.8s; complete output: D:\a\SpectralForge-Chimera-Amp-Matrix\SpectralForge-Chimera-Amp-Matrix\cab-realtime-evidence\candidate\ctest-console.log
+2026-10-13T05:21:59.4101826Z Running cmake --build D:\a\SpectralForge-Chimera-Amp-Matrix\SpectralForge-Chimera-Amp-Matrix\cab-realtime-build\candidate --config Release --target ChimeraCabProfiling --parallel 2
+2026-10-13T05:22:38.8370436Z Exit 0, 39.4s; complete output: D:\a\SpectralForge-Chimera-Amp-Matrix\SpectralForge-Chimera-Amp-Matrix\cab-realtime-evidence\diagnostic\build.log
+2026-10-13T05:22:38.8406922Z Running D:\a\SpectralForge-Chimera-Amp-Matrix\SpectralForge-Chimera-Amp-Matrix\cab-realtime-build\candidate\ChimeraCabProfiling_artefacts\Release\ChimeraCabProfiling.exe --expanded
+2026-10-13T05:22:47.1854804Z Exit 0, 8.3s; complete output: D:\a\SpectralForge-Chimera-Amp-Matrix\SpectralForge-Chimera-Amp-Matrix\cab-realtime-evidence\diagnostic\profile.log
+2026-10-13T05:22:47.6744165Z CAB realtime result: PASS; evidence: D:\a\SpectralForge-Chimera-Amp-Matrix\SpectralForge-Chimera-Amp-Matrix\cab-realtime-evidence
+2026-10-13T05:22:47.7148280Z ##[group]Run actions/upload-artifact@v6
+2026-10-13T05:22:47.7148717Z with:
+2026-10-13T05:22:47.7149095Z   name: CAB-realtime-Windows-6033236cb81820a43679cbbd34be020804f9658d
+2026-10-13T05:22:47.7149578Z   path: cab-realtime-evidence/
+2026-10-13T05:22:47.7149896Z   if-no-files-found: error
+2026-10-13T05:22:47.7150461Z   retention-days: 90
+2026-10-13T05:22:47.7150735Z   compression-level: 6
+2026-10-13T05:22:47.7151002Z   overwrite: false
+2026-10-13T05:22:47.7151266Z   include-hidden-files: false
+2026-10-13T05:22:47.7151549Z env:
+2026-10-13T05:22:47.7151861Z   CHIMERA_CANDIDATE_SHA: 6033236cb81820a43679cbbd34be020804f9658d
+2026-10-13T05:22:47.7152339Z   CHIMERA_BASELINE_SHA: aaa1330dd5cf7d51faf1c45a7cef633b9b118458
+2026-10-13T05:22:47.7152844Z   pythonLocation: C:\hostedtoolcache\windows\Python\3.12.10\x64
+2026-10-13T05:22:47.7153376Z   PKG_CONFIG_PATH: C:\hostedtoolcache\windows\Python\3.12.10\x64/lib/pkgconfig
+2026-10-13T05:22:47.7153963Z   Python_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.12.10\x64
+2026-10-13T05:22:47.7154432Z   Python2_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.12.10\x64
+2026-10-13T05:22:47.7154905Z   Python3_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.12.10\x64
+2026-10-13T05:22:47.7155286Z ##[endgroup]
+2026-10-13T05:22:47.9552002Z With the provided path, there will be 108 files uploaded
+2026-10-13T05:22:47.9557961Z Artifact name is valid!
+2026-10-13T05:22:47.9559201Z Root directory input is valid!
+2026-10-13T05:22:48.3405380Z Beginning upload of artifact content to blob storage
+2026-10-13T05:22:49.9626272Z Uploaded bytes 2814049
+2026-10-13T05:22:50.0404167Z Finished uploading artifact content to blob storage!
+2026-10-13T05:22:50.0405588Z SHA256 digest of uploaded artifact zip is 038002016a47328840360d49fa790135d4bb342381627ddf2da805cd20485bd4
+2026-10-13T05:22:50.0408123Z Finalizing artifact upload
+2026-10-13T05:22:50.4486863Z Artifact CAB-realtime-Windows-6033236cb81820a43679cbbd34be020804f9658d.zip successfully finalized. Artifact ID 11790862141
+2026-10-13T05:22:50.4489190Z Artifact CAB-realtime-Windows-6033236cb81820a43679cbbd34be020804f9658d has been successfully uploaded! Final size is 2814049 bytes. Artifact ID is 11790862141
+2026-10-13T05:22:50.4499547Z Artifact download URL: https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38350264721/artifacts/11790862141
+2026-10-13T05:22:50.4898431Z Post job cleanup.
+2026-10-13T05:22:50.7099720Z Post job cleanup.
+2026-10-13T05:22:50.9247797Z [command]"C:\Program Files\Git\bin\git.exe" version
+2026-10-13T05:22:50.9523723Z git version 2.55.0.windows.5
+2026-10-13T05:22:50.9590853Z Temporarily overriding HOME='D:\a\_temp\50d7a0ed-4dbe-4d79-85cb-f2a830d1fd90' before making global git config changes
+2026-10-13T05:22:50.9592229Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-13T05:22:50.9601944Z [command]"C:\Program Files\Git\bin\git.exe" config --global --add safe.directory D:\a\SpectralForge-Chimera-Amp-Matrix\SpectralForge-Chimera-Amp-Matrix\baseline
+2026-10-13T05:22:50.9911159Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp core\.sshCommand
+2026-10-13T05:22:51.0216781Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :\""
+2026-10-13T05:22:51.5830243Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-13T05:22:51.6144131Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :\""
+2026-10-13T05:22:52.1495205Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-13T05:22:52.1792926Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "git config --local --show-origin --name-only --get-regexp remote.origin.url"
+2026-10-13T05:22:52.7631888Z Post job cleanup.
+2026-10-13T05:22:52.9602549Z [command]"C:\Program Files\Git\bin\git.exe" version
+2026-10-13T05:22:52.9872941Z git version 2.55.0.windows.5
+2026-10-13T05:22:52.9937063Z Temporarily overriding HOME='D:\a\_temp\1a90c1a5-8066-4ca7-ab87-53dea0442220' before making global git config changes
+2026-10-13T05:22:52.9938130Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-13T05:22:52.9949149Z [command]"C:\Program Files\Git\bin\git.exe" config --global --add safe.directory D:\a\SpectralForge-Chimera-Amp-Matrix\SpectralForge-Chimera-Amp-Matrix\candidate
+2026-10-13T05:22:53.0252067Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp core\.sshCommand
+2026-10-13T05:22:53.0546716Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :\""
+2026-10-13T05:22:53.6142432Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-13T05:22:53.6432745Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :\""
+2026-10-13T05:22:54.1508580Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-13T05:22:54.1809924Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "git config --local --show-origin --name-only --get-regexp remote.origin.url"
+2026-10-13T05:22:54.7091518Z Cleaning up orphan processes
+2026-10-13T05:22:54.7350362Z Terminate orphan process: pid (7884) (vctip)
+2026-10-13T05:22:54.7425533Z Terminate orphan process: pid (7084) (MSBuild)
+2026-10-13T05:22:54.7492484Z Terminate orphan process: pid (9680) (conhost)
