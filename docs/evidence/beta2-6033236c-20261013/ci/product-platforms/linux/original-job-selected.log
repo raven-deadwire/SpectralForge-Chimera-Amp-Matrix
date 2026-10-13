@@ -1,0 +1,480 @@
+2026-10-13T05:16:21.2718748Z [command]/usr/bin/git log -1 --format=%H
+2026-10-13T05:16:21.2748857Z 6033236cb81820a43679cbbd34be020804f9658d
+2026-10-13T05:53:18.1151811Z ##[group]Run ctest --test-dir build -C Release --show-only=json-v1 > build/ctest-inventory.json
+2026-10-13T05:53:18.1152519Z [36;1mctest --test-dir build -C Release --show-only=json-v1 > build/ctest-inventory.json[0m
+2026-10-13T05:53:18.1223582Z shell: /usr/bin/bash -e {0}
+2026-10-13T05:53:18.1223823Z env:
+2026-10-13T05:53:18.1224085Z   CHIMERA_SOURCE_SHA: 6033236cb81820a43679cbbd34be020804f9658d
+2026-10-13T05:53:18.1224502Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-13T05:53:18.1224942Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib/pkgconfig
+2026-10-13T05:53:18.1225378Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-13T05:53:18.1226029Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-13T05:53:18.1226427Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-13T05:53:18.1226806Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib
+2026-10-13T05:53:18.1227181Z   CHIMERA_PACKAGE_VERSION: 1.3.1-beta.2
+2026-10-13T05:53:18.1227439Z ##[endgroup]
+2026-10-13T05:53:18.7898096Z ##[group]Run python3 Tools/run_linux_ui_tests.py -- ctest --test-dir build -C Release --output-on-failure --no-tests=error --output-junit ctest-results.xml
+2026-10-13T05:53:18.7899213Z [36;1mpython3 Tools/run_linux_ui_tests.py -- ctest --test-dir build -C Release --output-on-failure --no-tests=error --output-junit ctest-results.xml[0m
+2026-10-13T05:53:18.7971175Z shell: /usr/bin/bash -e {0}
+2026-10-13T05:53:18.7971573Z env:
+2026-10-13T05:53:18.7972019Z   CHIMERA_SOURCE_SHA: 6033236cb81820a43679cbbd34be020804f9658d
+2026-10-13T05:53:18.7972585Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-13T05:53:18.7983489Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib/pkgconfig
+2026-10-13T05:53:18.7984482Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-13T05:53:18.7985034Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-13T05:53:18.7985432Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-13T05:53:18.7986157Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib
+2026-10-13T05:53:18.7986518Z   CHIMERA_PACKAGE_VERSION: 1.3.1-beta.2
+2026-10-13T05:53:18.7986783Z ##[endgroup]
+2026-10-13T05:53:19.9150506Z Openbox-Message: Unable to find a valid menu file "/var/lib/openbox/debian-menu.xml"
+2026-10-13T05:53:19.9367698Z Native desktop ready: DISPLAY=:0, Openbox supporting window=0x20000e, WM_PROTOCOLS present
+2026-10-13T05:53:19.9388939Z Internal ctest changing into directory: /home/runner/work/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build
+2026-10-13T05:53:19.9391114Z Test project /home/runner/work/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build
+2026-10-13T05:53:19.9404721Z       Start  1: ChimeraOriginalAmpTests
+2026-10-13T05:53:25.1907129Z  1/45 Test  #1: ChimeraOriginalAmpTests ...............   Passed    5.25 sec
+2026-10-13T05:53:25.1908024Z       Start  2: ChimeraOriginalAmpIntegrationTests
+2026-10-13T05:53:25.5002371Z  2/45 Test  #2: ChimeraOriginalAmpIntegrationTests ....   Passed    0.31 sec
+2026-10-13T05:53:25.5003180Z       Start  3: ChimeraNiflheimrCoreTests
+2026-10-13T05:53:33.5094866Z  3/45 Test  #3: ChimeraNiflheimrCoreTests .............   Passed    8.01 sec
+2026-10-13T05:53:33.5096170Z       Start  4: ChimeraNiflheimrIntegrationTests
+2026-10-13T05:53:34.6092734Z  4/45 Test  #4: ChimeraNiflheimrIntegrationTests ......   Passed    1.10 sec
+2026-10-13T05:53:34.6093621Z       Start  5: ChimeraPackagingVersionTests
+2026-10-13T05:53:39.2125871Z  5/45 Test  #5: ChimeraPackagingVersionTests ..........   Passed    4.60 sec
+2026-10-13T05:53:39.2126668Z       Start  6: ChimeraVBlankFailureTests
+2026-10-13T05:53:41.3346208Z  6/45 Test  #6: ChimeraVBlankFailureTests .............   Passed    2.12 sec
+2026-10-13T05:53:41.3346690Z       Start  7: ChimeraTests
+2026-10-13T05:54:29.9506854Z  7/45 Test  #7: ChimeraTests ..........................   Passed   48.62 sec
+2026-10-13T05:54:29.9507705Z       Start  8: ChimeraNativeFocusTests
+2026-10-13T05:54:32.9816665Z  8/45 Test  #8: ChimeraNativeFocusTests ...............   Passed    3.03 sec
+2026-10-13T05:54:32.9817463Z       Start  9: ChimeraNativeRendererTests
+2026-10-13T05:54:33.0874878Z  9/45 Test  #9: ChimeraNativeRendererTests ............   Passed    0.11 sec
+2026-10-13T05:54:33.0875834Z       Start 10: ChimeraOriginalRendererTests
+2026-10-13T05:54:33.9899733Z 10/45 Test #10: ChimeraOriginalRendererTests ..........   Passed    0.90 sec
+2026-10-13T05:54:33.9900584Z       Start 11: ChimeraNiflheimrRendererTests
+2026-10-13T05:54:34.2667137Z 11/45 Test #11: ChimeraNiflheimrRendererTests .........   Passed    0.28 sec
+2026-10-13T05:54:34.2667735Z       Start 12: ChimeraReleaseTests
+2026-10-13T05:54:34.2758765Z 12/45 Test #12: ChimeraReleaseTests ...................   Passed    0.01 sec
+2026-10-13T05:54:34.2759419Z       Start 13: ChimeraStabilityTests
+2026-10-13T05:54:38.1534204Z 13/45 Test #13: ChimeraStabilityTests .................   Passed    3.88 sec
+2026-10-13T05:54:38.1535981Z       Start 14: ChimeraPedalBoardTests
+2026-10-13T05:54:42.5303413Z 14/45 Test #14: ChimeraPedalBoardTests ................   Passed    4.38 sec
+2026-10-13T05:54:42.5304232Z       Start 15: ChimeraIRCollectionTests
+2026-10-13T05:54:42.7375062Z 15/45 Test #15: ChimeraIRCollectionTests ..............   Passed    0.21 sec
+2026-10-13T05:54:42.7376053Z       Start 16: ChimeraIRLibraryTests
+2026-10-13T05:54:43.3992419Z 16/45 Test #16: ChimeraIRLibraryTests .................   Passed    0.66 sec
+2026-10-13T05:54:43.3993211Z       Start 17: ChimeraCabPanelTests
+2026-10-13T05:54:46.7429283Z 17/45 Test #17: ChimeraCabPanelTests ..................   Passed    3.34 sec
+2026-10-13T05:54:46.7429910Z       Start 18: ChimeraCabPanelStateTests
+2026-10-13T05:56:29.0636327Z 18/45 Test #18: ChimeraCabPanelStateTests .............   Passed  102.32 sec
+2026-10-13T05:56:29.0636841Z       Start 19: ChimeraCabPanelRoutingTests
+2026-10-13T05:56:39.7844227Z 19/45 Test #19: ChimeraCabPanelRoutingTests ...........   Passed   10.72 sec
+2026-10-13T05:56:39.7844872Z       Start 20: ChimeraCabPanelIRIsolationTests
+2026-10-13T05:56:58.0992848Z 20/45 Test #20: ChimeraCabPanelIRIsolationTests .......   Passed   18.31 sec
+2026-10-13T05:56:58.0993683Z       Start 21: ChimeraNewAmpTests
+2026-10-13T05:57:10.2980884Z 21/45 Test #21: ChimeraNewAmpTests ....................   Passed   12.20 sec
+2026-10-13T05:57:10.2981542Z       Start 22: ChimeraPedalOctaverTests
+2026-10-13T05:57:24.7716491Z 22/45 Test #22: ChimeraPedalOctaverTests ..............   Passed   14.47 sec
+2026-10-13T05:57:24.7717210Z       Start 23: ChimeraAmpNativeTests
+2026-10-13T05:57:37.7424516Z 23/45 Test #23: ChimeraAmpNativeTests .................   Passed   12.97 sec
+2026-10-13T05:57:37.7425001Z       Start 24: ChimeraPostNativeTests
+2026-10-13T05:57:40.3204457Z 24/45 Test #24: ChimeraPostNativeTests ................   Passed    2.58 sec
+2026-10-13T05:57:40.3206319Z       Start 25: ChimeraGateProcessorTests
+2026-10-13T05:57:53.2772015Z 25/45 Test #25: ChimeraGateProcessorTests .............   Passed   12.96 sec
+2026-10-13T05:57:53.2773172Z       Start 26: ChimeraGateTests
+2026-10-13T05:57:53.6201018Z 26/45 Test #26: ChimeraGateTests ......................   Passed    0.34 sec
+2026-10-13T05:57:53.6201972Z       Start 27: ChimeraIntegratedProcessorTests
+2026-10-13T06:02:11.9723028Z 27/45 Test #27: ChimeraIntegratedProcessorTests .......   Passed  258.35 sec
+2026-10-13T06:02:11.9723871Z       Start 28: ChimeraNiflheimrPresetTests
+2026-10-13T06:02:42.7960315Z 28/45 Test #28: ChimeraNiflheimrPresetTests ...........   Passed   30.82 sec
+2026-10-13T06:02:42.7961534Z       Start 29: ChimeraPitchRegressionTests
+2026-10-13T06:03:28.6137770Z 29/45 Test #29: ChimeraPitchRegressionTests ...........   Passed   45.82 sec
+2026-10-13T06:03:28.6138355Z       Start 30: ChimeraCabExpansionModelTests
+2026-10-13T06:03:35.9810555Z 30/45 Test #30: ChimeraCabExpansionModelTests .........   Passed    7.37 sec
+2026-10-13T06:03:35.9811521Z       Start 31: ChimeraOriginalCabModelTests
+2026-10-13T06:03:38.2666323Z 31/45 Test #31: ChimeraOriginalCabModelTests ..........   Passed    2.29 sec
+2026-10-13T06:03:38.2669249Z       Start 32: ChimeraCabTimingDiagnosticsTests
+2026-10-13T06:03:38.2750820Z 32/45 Test #32: ChimeraCabTimingDiagnosticsTests ......   Passed    0.01 sec
+2026-10-13T06:03:38.2751528Z       Start 33: ChimeraOriginalCabIntegrationTests
+2026-10-13T06:03:50.6043715Z 33/45 Test #33: ChimeraOriginalCabIntegrationTests ....   Passed   12.33 sec
+2026-10-13T06:03:50.6044557Z       Start 34: ChimeraOriginalCabRealtimeTests
+2026-10-13T06:04:02.3974698Z 34/45 Test #34: ChimeraOriginalCabRealtimeTests .......   Passed   11.79 sec
+2026-10-13T06:04:02.3975766Z       Start 35: ChimeraCabExpansionIntegrationTests
+2026-10-13T06:04:15.3647217Z 35/45 Test #35: ChimeraCabExpansionIntegrationTests ...   Passed   12.97 sec
+2026-10-13T06:04:15.3648055Z       Start 36: ChimeraCabExtendedTimingTests
+2026-10-13T06:04:52.7612406Z 36/45 Test #36: ChimeraCabExtendedTimingTests .........   Passed   37.40 sec
+2026-10-13T06:04:52.7613408Z       Start 37: ChimeraCabExpansionStateTests
+2026-10-13T06:05:04.5452783Z 37/45 Test #37: ChimeraCabExpansionStateTests .........   Passed   11.78 sec
+2026-10-13T06:05:04.5453742Z       Start 38: ChimeraCabLayoutModelTests
+2026-10-13T06:05:08.6967752Z 38/45 Test #38: ChimeraCabLayoutModelTests ............   Passed    4.15 sec
+2026-10-13T06:05:08.6968519Z       Start 39: ChimeraCabCameraFramingTests
+2026-10-13T06:05:08.6989999Z 39/45 Test #39: ChimeraCabCameraFramingTests ..........   Passed    0.00 sec
+2026-10-13T06:05:08.6990497Z       Start 40: ChimeraCabLayoutIntegrationTests
+2026-10-13T06:05:23.6541251Z 40/45 Test #40: ChimeraCabLayoutIntegrationTests ......   Passed   14.95 sec
+2026-10-13T06:05:23.6541841Z       Start 41: ChimeraCabLayoutStateTests
+2026-10-13T06:05:40.9927065Z 41/45 Test #41: ChimeraCabLayoutStateTests ............   Passed   17.34 sec
+2026-10-13T06:05:40.9927949Z       Start 42: ChimeraCabDriverVisualTests
+2026-10-13T06:05:59.5661813Z 42/45 Test #42: ChimeraCabDriverVisualTests ...........   Passed   18.57 sec
+2026-10-13T06:05:59.5662708Z       Start 43: ChimeraGraphicalEQTests
+2026-10-13T06:06:38.0720427Z 43/45 Test #43: ChimeraGraphicalEQTests ...............   Passed   38.51 sec
+2026-10-13T06:06:38.0721202Z       Start 44: ChimeraGraphicalEQUITests
+2026-10-13T06:06:50.1208917Z 44/45 Test #44: ChimeraGraphicalEQUITests .............   Passed   12.05 sec
+2026-10-13T06:06:50.1209719Z       Start 45: ChimeraAmpHeadControlTests
+2026-10-13T06:09:27.3601749Z 45/45 Test #45: ChimeraAmpHeadControlTests ............   Passed  157.24 sec
+2026-10-13T06:09:27.3606315Z 
+2026-10-13T06:09:27.3606578Z 100% tests passed, 0 tests failed out of 45
+2026-10-13T06:09:27.3606958Z 
+2026-10-13T06:09:27.3607121Z Total Test time (real) = 967.42 sec
+2026-10-13T06:09:27.4210271Z ##[group]Run case "Linux" in Windows) platform=windows;; Linux) platform=linux;; macOS) platform=macos;; esac
+2026-10-13T06:09:27.4211053Z [36;1mcase "Linux" in Windows) platform=windows;; Linux) platform=linux;; macOS) platform=macos;; esac[0m
+2026-10-13T06:09:27.4212116Z [36;1mpython Tools/produce_ctest_validation.py --commit "$(git rev-parse HEAD)" --platform "$platform" --junit build/ctest-results.xml --inventory build/ctest-inventory.json --output build/validation[0m
+2026-10-13T06:09:27.4284320Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-10-13T06:09:27.4284656Z env:
+2026-10-13T06:09:27.4284933Z   CHIMERA_SOURCE_SHA: 6033236cb81820a43679cbbd34be020804f9658d
+2026-10-13T06:09:27.4285348Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-13T06:09:27.4285984Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib/pkgconfig
+2026-10-13T06:09:27.4286431Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-13T06:09:27.4286873Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-13T06:09:27.4287262Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-13T06:09:27.4287662Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib
+2026-10-13T06:09:27.4288015Z   CHIMERA_PACKAGE_VERSION: 1.3.1-beta.2
+2026-10-13T06:09:27.4288274Z ##[endgroup]
+2026-10-13T06:09:27.5520817Z Produced concrete linux CTest evidence; release verdict=BLOCKED
+2026-10-13T06:09:27.5661216Z ##[group]Run actions/upload-artifact@v4
+2026-10-13T06:09:27.5661526Z with:
+2026-10-13T06:09:27.5661769Z   name: Chimera-integration-validation-Linux
+2026-10-13T06:09:27.5662429Z   path: build/validation
+build/ctest-results.xml
+build/ctest-inventory.json
+build/cab-timing-diagnostics/**
+build/signature-snapshots
+
+2026-10-13T06:09:27.5663051Z   if-no-files-found: warn
+2026-10-13T06:09:27.5663290Z   compression-level: 6
+2026-10-13T06:09:27.5663508Z   overwrite: false
+2026-10-13T06:09:27.5663718Z   include-hidden-files: false
+2026-10-13T06:09:27.5663955Z env:
+2026-10-13T06:09:27.5664204Z   CHIMERA_SOURCE_SHA: 6033236cb81820a43679cbbd34be020804f9658d
+2026-10-13T06:09:27.5664607Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-13T06:09:27.5665035Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib/pkgconfig
+2026-10-13T06:09:27.5665766Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-13T06:09:27.5666195Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-13T06:09:27.5666602Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-13T06:09:27.5667020Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib
+2026-10-13T06:09:27.5667519Z   CHIMERA_PACKAGE_VERSION: 1.3.1-beta.2
+2026-10-13T06:09:27.5667778Z ##[endgroup]
+2026-10-13T06:09:27.7774284Z (node:15358) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-13T06:09:27.7776259Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-13T06:09:27.8306617Z Multiple search paths detected. Calculating the least common ancestor of all paths
+2026-10-13T06:09:27.8310930Z The least common ancestor is /home/runner/work/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build. This will be the root directory of the artifact
+2026-10-13T06:09:27.8312654Z With the provided path, there will be 197 files uploaded
+2026-10-13T06:09:27.8315100Z Artifact name is valid!
+2026-10-13T06:09:27.8316041Z Root directory input is valid!
+2026-10-13T06:09:28.0454331Z Beginning upload of artifact content to blob storage
+2026-10-13T06:09:28.7745331Z (node:15358) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-10-13T06:09:29.1324556Z Uploaded bytes 7728171
+2026-10-13T06:09:29.1462158Z Finished uploading artifact content to blob storage!
+2026-10-13T06:09:29.1463309Z SHA256 digest of uploaded artifact zip is a7a25635b29706c66069ccd216aad165b87b1e2bdab1e99d37addb426203b6c0
+2026-10-13T06:09:29.1465904Z Finalizing artifact upload
+2026-10-13T06:09:29.3392342Z Artifact Chimera-integration-validation-Linux.zip successfully finalized. Artifact ID 11792541934
+2026-10-13T06:09:29.3394652Z Artifact Chimera-integration-validation-Linux has been successfully uploaded! Final size is 7728171 bytes. Artifact ID is 11792541934
+2026-10-13T06:09:29.3401370Z Artifact download URL: https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38350264755/artifacts/11792541934
+2026-10-13T06:09:29.3597894Z ##[group]Run actions/upload-artifact@v4
+2026-10-13T06:09:29.3598202Z with:
+2026-10-13T06:09:29.3598422Z   name: Chimera-DSP-verification-Linux
+2026-10-13T06:09:29.3598729Z   path: build/Testing/Temporary/LastTest.log
+2026-10-13T06:09:29.3599020Z   if-no-files-found: warn
+2026-10-13T06:09:29.3599261Z   compression-level: 6
+2026-10-13T06:09:29.3599479Z   overwrite: false
+2026-10-13T06:09:29.3599701Z   include-hidden-files: false
+2026-10-13T06:09:29.3599929Z env:
+2026-10-13T06:09:29.3600182Z   CHIMERA_SOURCE_SHA: 6033236cb81820a43679cbbd34be020804f9658d
+2026-10-13T06:09:29.3600580Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-13T06:09:29.3601017Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib/pkgconfig
+2026-10-13T06:09:29.3601437Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-13T06:09:29.3601816Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-13T06:09:29.3602228Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-13T06:09:29.3602614Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib
+2026-10-13T06:09:29.3602956Z   CHIMERA_PACKAGE_VERSION: 1.3.1-beta.2
+2026-10-13T06:09:29.3603217Z ##[endgroup]
+2026-10-13T06:09:29.5498362Z (node:15372) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-13T06:09:29.5499094Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-13T06:09:29.5526335Z With the provided path, there will be 1 file uploaded
+2026-10-13T06:09:29.5533988Z Artifact name is valid!
+2026-10-13T06:09:29.5534761Z Root directory input is valid!
+2026-10-13T06:09:29.7802049Z Beginning upload of artifact content to blob storage
+2026-10-13T06:09:29.8059813Z (node:15372) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-10-13T06:09:29.8282167Z Uploaded bytes 44168
+2026-10-13T06:09:29.8423336Z Finished uploading artifact content to blob storage!
+2026-10-13T06:09:29.8424734Z SHA256 digest of uploaded artifact zip is bdd55bad887c30b520c46fe24cc99f83beeaf2d848dfff011c487cc354e7df6e
+2026-10-13T06:09:29.8426941Z Finalizing artifact upload
+2026-10-13T06:09:30.0518688Z Artifact Chimera-DSP-verification-Linux.zip successfully finalized. Artifact ID 11792641838
+2026-10-13T06:09:30.0520187Z Artifact Chimera-DSP-verification-Linux has been successfully uploaded! Final size is 44168 bytes. Artifact ID is 11792641838
+2026-10-13T06:09:30.0530193Z Artifact download URL: https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38350264755/artifacts/11792641838
+2026-10-13T06:09:30.0735896Z ##[group]Run python Tools/package_release.py linux
+2026-10-13T06:09:30.0736643Z [36;1mpython Tools/package_release.py linux[0m
+2026-10-13T06:09:30.0835782Z shell: /usr/bin/bash -e {0}
+2026-10-13T06:09:30.0836083Z env:
+2026-10-13T06:09:30.0836356Z   CHIMERA_SOURCE_SHA: 6033236cb81820a43679cbbd34be020804f9658d
+2026-10-13T06:09:30.0836802Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-13T06:09:30.0837264Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib/pkgconfig
+2026-10-13T06:09:30.0837705Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-13T06:09:30.0838106Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-13T06:09:30.0838512Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-13T06:09:30.0838912Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib
+2026-10-13T06:09:30.0839261Z   CHIMERA_PACKAGE_VERSION: 1.3.1-beta.2
+2026-10-13T06:09:30.0839530Z ##[endgroup]
+2026-10-13T06:11:05.6275399Z shlibs:Depends=libasound2 (>= 1.0.16), libc6 (>= 2.35), libcurl4 (>= 7.16.2), libfontconfig1 (>= 2.12.6), libfreetype6 (>= 2.8), libgcc-s1 (>= 4.0), libstdc++6 (>= 12)
+2026-10-13T06:11:05.6276925Z shlibs:Depends=libc6 (>= 2.34)
+2026-10-13T06:11:05.6278520Z dpkg-deb: building package 'chimera-amp-matrix' in '/home/runner/work/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/dist/SpectralForge-Chimera-1.3.1-beta.2-linux-x86_64.deb'.
+2026-10-13T06:11:05.6280249Z 	linux-vdso.so.1 (0x00007ffcd3720000)
+2026-10-13T06:11:05.6280893Z 	libcurl.so.4 => /lib/x86_64-linux-gnu/libcurl.so.4 (0x00007f9bf5359000)
+2026-10-13T06:11:05.6281757Z 	libfontconfig.so.1 => /lib/x86_64-linux-gnu/libfontconfig.so.1 (0x00007f9bf530f000)
+2026-10-13T06:11:05.6282698Z 	libfreetype.so.6 => /lib/x86_64-linux-gnu/libfreetype.so.6 (0x00007f9bf5247000)
+2026-10-13T06:11:05.6283485Z 	libasound.so.2 => /lib/x86_64-linux-gnu/libasound.so.2 (0x00007f9bf5144000)
+2026-10-13T06:11:05.6284240Z 	libstdc++.so.6 => /lib/x86_64-linux-gnu/libstdc++.so.6 (0x00007f9bf4e00000)
+2026-10-13T06:11:05.6284944Z 	libm.so.6 => /lib/x86_64-linux-gnu/libm.so.6 (0x00007f9bf505d000)
+2026-10-13T06:11:05.6285818Z 	libgcc_s.so.1 => /lib/x86_64-linux-gnu/libgcc_s.so.1 (0x00007f9bfcdc2000)
+2026-10-13T06:11:05.6286488Z 	libc.so.6 => /lib/x86_64-linux-gnu/libc.so.6 (0x00007f9bf4a00000)
+2026-10-13T06:11:05.6287057Z 	/lib64/ld-linux-x86-64.so.2 (0x00007f9bfcdf4000)
+2026-10-13T06:11:05.6287711Z 	libnghttp2.so.14 => /lib/x86_64-linux-gnu/libnghttp2.so.14 (0x00007f9bf5033000)
+2026-10-13T06:11:05.6288610Z 	libidn2.so.0 => /lib/x86_64-linux-gnu/libidn2.so.0 (0x00007f9bf4ddf000)
+2026-10-13T06:11:05.6289489Z 	librtmp.so.1 => /lib/x86_64-linux-gnu/librtmp.so.1 (0x00007f9bf4dc0000)
+2026-10-13T06:11:05.6290376Z 	libssh.so.4 => /lib/x86_64-linux-gnu/libssh.so.4 (0x00007f9bf4d52000)
+2026-10-13T06:11:05.6291223Z 	libpsl.so.5 => /lib/x86_64-linux-gnu/libpsl.so.5 (0x00007f9bfcdac000)
+2026-10-13T06:11:05.6292089Z 	libssl.so.3 => /lib/x86_64-linux-gnu/libssl.so.3 (0x00007f9bf4cad000)
+2026-10-13T06:11:05.6292961Z 	libcrypto.so.3 => /lib/x86_64-linux-gnu/libcrypto.so.3 (0x00007f9bf4400000)
+2026-10-13T06:11:05.6293881Z 	libgssapi_krb5.so.2 => /lib/x86_64-linux-gnu/libgssapi_krb5.so.2 (0x00007f9bf4c59000)
+2026-10-13T06:11:05.6294827Z 	libldap-2.5.so.0 => /lib/x86_64-linux-gnu/libldap-2.5.so.0 (0x00007f9bf49a0000)
+2026-10-13T06:11:05.6296040Z 	liblber-2.5.so.0 => /lib/x86_64-linux-gnu/liblber-2.5.so.0 (0x00007f9bf4c48000)
+2026-10-13T06:11:05.6296865Z 	libzstd.so.1 => /lib/x86_64-linux-gnu/libzstd.so.1 (0x00007f9bf48d1000)
+2026-10-13T06:11:05.6297731Z 	libbrotlidec.so.1 => /lib/x86_64-linux-gnu/libbrotlidec.so.1 (0x00007f9bf4c3a000)
+2026-10-13T06:11:05.6298736Z 	libz.so.1 => /lib/x86_64-linux-gnu/libz.so.1 (0x00007f9bf48b5000)
+2026-10-13T06:11:05.6299561Z 	libexpat.so.1 => /lib/x86_64-linux-gnu/libexpat.so.1 (0x00007f9bf4883000)
+2026-10-13T06:11:05.6300408Z 	libuuid.so.1 => /lib/x86_64-linux-gnu/libuuid.so.1 (0x00007f9bf4c31000)
+2026-10-13T06:11:05.6301555Z 	libpng16.so.16 => /lib/x86_64-linux-gnu/libpng16.so.16 (0x00007f9bf4848000)
+2026-10-13T06:11:05.6302517Z 	libunistring.so.2 => /lib/x86_64-linux-gnu/libunistring.so.2 (0x00007f9bf4256000)
+2026-10-13T06:11:05.6303476Z 	libgnutls.so.30 => /lib/x86_64-linux-gnu/libgnutls.so.30 (0x00007f9bf4069000)
+2026-10-13T06:11:05.6304385Z 	libhogweed.so.6 => /lib/x86_64-linux-gnu/libhogweed.so.6 (0x00007f9bf4021000)
+2026-10-13T06:11:05.6305272Z 	libnettle.so.8 => /lib/x86_64-linux-gnu/libnettle.so.8 (0x00007f9bf3fdb000)
+2026-10-13T06:11:05.6306356Z 	libgmp.so.10 => /lib/x86_64-linux-gnu/libgmp.so.10 (0x00007f9bf3f59000)
+2026-10-13T06:11:05.6307234Z 	libkrb5.so.3 => /lib/x86_64-linux-gnu/libkrb5.so.3 (0x00007f9bf3e8e000)
+2026-10-13T06:11:05.6308003Z 	libk5crypto.so.3 => /lib/x86_64-linux-gnu/libk5crypto.so.3 (0x00007f9bf3e5f000)
+2026-10-13T06:11:05.6308870Z 	libcom_err.so.2 => /lib/x86_64-linux-gnu/libcom_err.so.2 (0x00007f9bf4c2b000)
+2026-10-13T06:11:05.6309789Z 	libkrb5support.so.0 => /lib/x86_64-linux-gnu/libkrb5support.so.0 (0x00007f9bf3e51000)
+2026-10-13T06:11:05.6310670Z 	libsasl2.so.2 => /lib/x86_64-linux-gnu/libsasl2.so.2 (0x00007f9bf3e36000)
+2026-10-13T06:11:05.6311642Z 	libbrotlicommon.so.1 => /lib/x86_64-linux-gnu/libbrotlicommon.so.1 (0x00007f9bf3e13000)
+2026-10-13T06:11:05.6312659Z 	libp11-kit.so.0 => /lib/x86_64-linux-gnu/libp11-kit.so.0 (0x00007f9bf3cd8000)
+2026-10-13T06:11:05.6313517Z 	libtasn1.so.6 => /lib/x86_64-linux-gnu/libtasn1.so.6 (0x00007f9bf3cc0000)
+2026-10-13T06:11:05.6314263Z 	libkeyutils.so.1 => /lib/x86_64-linux-gnu/libkeyutils.so.1 (0x00007f9bf3cb9000)
+2026-10-13T06:11:05.6315098Z 	libresolv.so.2 => /lib/x86_64-linux-gnu/libresolv.so.2 (0x00007f9bf3ca6000)
+2026-10-13T06:11:05.6316135Z 	libffi.so.8 => /lib/x86_64-linux-gnu/libffi.so.8 (0x00007f9bf3c99000)
+2026-10-13T06:11:05.6330278Z 	linux-vdso.so.1 (0x00007ffd4bdc3000)
+2026-10-13T06:11:05.6330967Z 	libcurl.so.4 => /lib/x86_64-linux-gnu/libcurl.so.4 (0x00007f9548dd4000)
+2026-10-13T06:11:05.6331854Z 	libfontconfig.so.1 => /lib/x86_64-linux-gnu/libfontconfig.so.1 (0x00007f95413b6000)
+2026-10-13T06:11:05.6332796Z 	libfreetype.so.6 => /lib/x86_64-linux-gnu/libfreetype.so.6 (0x00007f95412ee000)
+2026-10-13T06:11:05.6333671Z 	libstdc++.so.6 => /lib/x86_64-linux-gnu/libstdc++.so.6 (0x00007f9541000000)
+2026-10-13T06:11:05.6334456Z 	libm.so.6 => /lib/x86_64-linux-gnu/libm.so.6 (0x00007f9540f19000)
+2026-10-13T06:11:05.6335240Z 	libgcc_s.so.1 => /lib/x86_64-linux-gnu/libgcc_s.so.1 (0x00007f95412ce000)
+2026-10-13T06:11:05.6336310Z 	libc.so.6 => /lib/x86_64-linux-gnu/libc.so.6 (0x00007f9540c00000)
+2026-10-13T06:11:05.6337008Z 	/lib64/ld-linux-x86-64.so.2 (0x00007f9548e8b000)
+2026-10-13T06:11:05.6337776Z 	libnghttp2.so.14 => /lib/x86_64-linux-gnu/libnghttp2.so.14 (0x00007f95412a4000)
+2026-10-13T06:11:05.6338677Z 	libidn2.so.0 => /lib/x86_64-linux-gnu/libidn2.so.0 (0x00007f9541283000)
+2026-10-13T06:11:05.6339433Z 	librtmp.so.1 => /lib/x86_64-linux-gnu/librtmp.so.1 (0x00007f9541264000)
+2026-10-13T06:11:05.6340221Z 	libssh.so.4 => /lib/x86_64-linux-gnu/libssh.so.4 (0x00007f9540eab000)
+2026-10-13T06:11:05.6340996Z 	libpsl.so.5 => /lib/x86_64-linux-gnu/libpsl.so.5 (0x00007f9541250000)
+2026-10-13T06:11:05.6341786Z 	libssl.so.3 => /lib/x86_64-linux-gnu/libssl.so.3 (0x00007f9540b5b000)
+2026-10-13T06:11:05.6342618Z 	libcrypto.so.3 => /lib/x86_64-linux-gnu/libcrypto.so.3 (0x00007f9540600000)
+2026-10-13T06:11:05.6343567Z 	libgssapi_krb5.so.2 => /lib/x86_64-linux-gnu/libgssapi_krb5.so.2 (0x00007f9540e57000)
+2026-10-13T06:11:05.6344710Z 	libldap-2.5.so.0 => /lib/x86_64-linux-gnu/libldap-2.5.so.0 (0x00007f9540afb000)
+2026-10-13T06:11:05.6345846Z 	liblber-2.5.so.0 => /lib/x86_64-linux-gnu/liblber-2.5.so.0 (0x00007f954123f000)
+2026-10-13T06:11:05.6346794Z 	libzstd.so.1 => /lib/x86_64-linux-gnu/libzstd.so.1 (0x00007f9540531000)
+2026-10-13T06:11:05.6347806Z 	libbrotlidec.so.1 => /lib/x86_64-linux-gnu/libbrotlidec.so.1 (0x00007f9541231000)
+2026-10-13T06:11:05.6348624Z 	libz.so.1 => /lib/x86_64-linux-gnu/libz.so.1 (0x00007f9540e3b000)
+2026-10-13T06:11:05.6349595Z 	libexpat.so.1 => /lib/x86_64-linux-gnu/libexpat.so.1 (0x00007f9540ac9000)
+2026-10-13T06:11:05.6350433Z 	libuuid.so.1 => /lib/x86_64-linux-gnu/libuuid.so.1 (0x00007f9540e32000)
+2026-10-13T06:11:05.6351224Z 	libpng16.so.16 => /lib/x86_64-linux-gnu/libpng16.so.16 (0x00007f9540a8e000)
+2026-10-13T06:11:05.6352073Z 	libunistring.so.2 => /lib/x86_64-linux-gnu/libunistring.so.2 (0x00007f9540387000)
+2026-10-13T06:11:05.6352940Z 	libgnutls.so.30 => /lib/x86_64-linux-gnu/libgnutls.so.30 (0x00007f954019a000)
+2026-10-13T06:11:05.6353770Z 	libhogweed.so.6 => /lib/x86_64-linux-gnu/libhogweed.so.6 (0x00007f9540a46000)
+2026-10-13T06:11:05.6354633Z 	libnettle.so.8 => /lib/x86_64-linux-gnu/libnettle.so.8 (0x00007f9540154000)
+2026-10-13T06:11:05.6355433Z 	libgmp.so.10 => /lib/x86_64-linux-gnu/libgmp.so.10 (0x00007f95400d2000)
+2026-10-13T06:11:05.6356484Z 	libkrb5.so.3 => /lib/x86_64-linux-gnu/libkrb5.so.3 (0x00007f9540007000)
+2026-10-13T06:11:05.6357255Z 	libk5crypto.so.3 => /lib/x86_64-linux-gnu/libk5crypto.so.3 (0x00007f953ffd8000)
+2026-10-13T06:11:05.6358014Z 	libcom_err.so.2 => /lib/x86_64-linux-gnu/libcom_err.so.2 (0x00007f9540e2c000)
+2026-10-13T06:11:05.6358926Z 	libkrb5support.so.0 => /lib/x86_64-linux-gnu/libkrb5support.so.0 (0x00007f953ffca000)
+2026-10-13T06:11:05.6359786Z 	libsasl2.so.2 => /lib/x86_64-linux-gnu/libsasl2.so.2 (0x00007f953ffaf000)
+2026-10-13T06:11:05.6360646Z 	libbrotlicommon.so.1 => /lib/x86_64-linux-gnu/libbrotlicommon.so.1 (0x00007f953ff8c000)
+2026-10-13T06:11:05.6361524Z 	libp11-kit.so.0 => /lib/x86_64-linux-gnu/libp11-kit.so.0 (0x00007f953fe51000)
+2026-10-13T06:11:05.6362298Z 	libtasn1.so.6 => /lib/x86_64-linux-gnu/libtasn1.so.6 (0x00007f953fe39000)
+2026-10-13T06:11:05.6363094Z 	libkeyutils.so.1 => /lib/x86_64-linux-gnu/libkeyutils.so.1 (0x00007f953fe32000)
+2026-10-13T06:11:05.6363889Z 	libresolv.so.2 => /lib/x86_64-linux-gnu/libresolv.so.2 (0x00007f953fe1f000)
+2026-10-13T06:11:05.6364636Z 	libffi.so.8 => /lib/x86_64-linux-gnu/libffi.so.8 (0x00007f953fe12000)
+2026-10-13T06:11:05.6501480Z ##[group]Run actions/upload-artifact@v4
+2026-10-13T06:11:05.6501789Z with:
+2026-10-13T06:11:05.6502074Z   name: SpectralForge-Chimera-1.3.1-beta.2-linux-x86_64
+2026-10-13T06:11:05.6503373Z   path: dist/SpectralForge-Chimera-1.3.1-beta.2-linux-x86_64.deb
+dist/SpectralForge-Chimera-1.3.1-beta.2-linux-x86_64.deb.sha256.txt
+dist/SpectralForge-Chimera-1.3.1-beta.2-linux-x86_64.tar.gz
+dist/SpectralForge-Chimera-1.3.1-beta.2-linux-x86_64.tar.gz.sha256.txt
+dist/Linux-package-verification.txt
+
+2026-10-13T06:11:05.6504637Z   if-no-files-found: error
+2026-10-13T06:11:05.6504883Z   compression-level: 0
+2026-10-13T06:11:05.6505105Z   overwrite: false
+2026-10-13T06:11:05.6505359Z   include-hidden-files: false
+2026-10-13T06:11:05.6506191Z env:
+2026-10-13T06:11:05.6506531Z   CHIMERA_SOURCE_SHA: 6033236cb81820a43679cbbd34be020804f9658d
+2026-10-13T06:11:05.6506964Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-13T06:11:05.6507451Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib/pkgconfig
+2026-10-13T06:11:05.6507891Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-13T06:11:05.6508290Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-13T06:11:05.6508704Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-13T06:11:05.6509121Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib
+2026-10-13T06:11:05.6509479Z   CHIMERA_PACKAGE_VERSION: 1.3.1-beta.2
+2026-10-13T06:11:05.6509881Z ##[endgroup]
+2026-10-13T06:11:05.8378720Z (node:15461) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-13T06:11:05.8379498Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-13T06:11:05.8566482Z Multiple search paths detected. Calculating the least common ancestor of all paths
+2026-10-13T06:11:05.8628398Z The least common ancestor is /home/runner/work/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/dist. This will be the root directory of the artifact
+2026-10-13T06:11:05.8630178Z With the provided path, there will be 5 files uploaded
+2026-10-13T06:11:05.8631407Z Artifact name is valid!
+2026-10-13T06:11:05.8632030Z Root directory input is valid!
+2026-10-13T06:11:06.1483544Z Beginning upload of artifact content to blob storage
+2026-10-13T06:11:06.2020067Z (node:15461) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-10-13T06:11:06.3977773Z Uploaded bytes 8388608
+2026-10-13T06:11:06.4401577Z Uploaded bytes 16777216
+2026-10-13T06:11:06.4898193Z Uploaded bytes 25165824
+2026-10-13T06:11:06.5929771Z Uploaded bytes 33554432
+2026-10-13T06:11:06.6043535Z Uploaded bytes 41943040
+2026-10-13T06:11:06.6723229Z Uploaded bytes 50331648
+2026-10-13T06:11:06.7555653Z Uploaded bytes 58720256
+2026-10-13T06:11:06.7782643Z Uploaded bytes 67108864
+2026-10-13T06:11:06.8062822Z Uploaded bytes 75497472
+2026-10-13T06:11:06.8561665Z Uploaded bytes 83886080
+2026-10-13T06:11:06.9214100Z Uploaded bytes 92274688
+2026-10-13T06:11:06.9430843Z Uploaded bytes 100663296
+2026-10-13T06:11:06.9606160Z Uploaded bytes 109051904
+2026-10-13T06:11:06.9869512Z Uploaded bytes 117440512
+2026-10-13T06:11:07.0842347Z Uploaded bytes 125829120
+2026-10-13T06:11:07.1087923Z Uploaded bytes 134217728
+2026-10-13T06:11:07.1363905Z Uploaded bytes 142606336
+2026-10-13T06:11:07.1702933Z Uploaded bytes 150994944
+2026-10-13T06:11:07.2692219Z Uploaded bytes 159383552
+2026-10-13T06:11:07.2938890Z Uploaded bytes 167772160
+2026-10-13T06:11:07.3116899Z Uploaded bytes 176160768
+2026-10-13T06:11:07.3295657Z Uploaded bytes 184549376
+2026-10-13T06:11:07.4223615Z Uploaded bytes 192937984
+2026-10-13T06:11:07.4479715Z Uploaded bytes 201326592
+2026-10-13T06:11:07.4976583Z Uploaded bytes 209715200
+2026-10-13T06:11:07.5215021Z Uploaded bytes 218103808
+2026-10-13T06:11:07.6617428Z Uploaded bytes 226492416
+2026-10-13T06:11:07.6789187Z Uploaded bytes 234881024
+2026-10-13T06:11:07.6875393Z Uploaded bytes 243269632
+2026-10-13T06:11:07.7787367Z Uploaded bytes 251658240
+2026-10-13T06:11:07.7896728Z Uploaded bytes 260046848
+2026-10-13T06:11:07.8675580Z Uploaded bytes 268435456
+2026-10-13T06:11:07.9286595Z Uploaded bytes 276824064
+2026-10-13T06:11:07.9496546Z Uploaded bytes 285212672
+2026-10-13T06:11:07.9778224Z Uploaded bytes 293601280
+2026-10-13T06:11:08.0839846Z Uploaded bytes 301989888
+2026-10-13T06:11:08.0942460Z Uploaded bytes 310378496
+2026-10-13T06:11:08.1195921Z Uploaded bytes 318767104
+2026-10-13T06:11:08.1272566Z Uploaded bytes 327155712
+2026-10-13T06:11:08.2311490Z Uploaded bytes 335544320
+2026-10-13T06:11:08.2525299Z Uploaded bytes 343932928
+2026-10-13T06:11:08.3080532Z Uploaded bytes 352321536
+2026-10-13T06:11:08.3216526Z Uploaded bytes 360710144
+2026-10-13T06:11:08.3642238Z Uploaded bytes 369098752
+2026-10-13T06:11:08.4824605Z Uploaded bytes 377487360
+2026-10-13T06:11:08.4902580Z Uploaded bytes 385875968
+2026-10-13T06:11:08.4993480Z Uploaded bytes 394264576
+2026-10-13T06:11:08.5334180Z Uploaded bytes 402653184
+2026-10-13T06:11:08.6406500Z Uploaded bytes 411041792
+2026-10-13T06:11:08.6494646Z Uploaded bytes 419430400
+2026-10-13T06:11:08.7047584Z Uploaded bytes 427819008
+2026-10-13T06:11:08.7266501Z Uploaded bytes 436207616
+2026-10-13T06:11:08.7832079Z Uploaded bytes 444596224
+2026-10-13T06:11:08.8646798Z Uploaded bytes 447343745
+2026-10-13T06:11:08.8827899Z Finished uploading artifact content to blob storage!
+2026-10-13T06:11:08.8831506Z SHA256 digest of uploaded artifact zip is 3c6963aff9f5a095af6037038ced66d8e9ff146c4fd9e04d393680fe1049293b
+2026-10-13T06:11:08.8833783Z Finalizing artifact upload
+2026-10-13T06:11:09.1204171Z Artifact SpectralForge-Chimera-1.3.1-beta.2-linux-x86_64.zip successfully finalized. Artifact ID 11792052780
+2026-10-13T06:11:09.1206101Z Artifact SpectralForge-Chimera-1.3.1-beta.2-linux-x86_64 has been successfully uploaded! Final size is 447343745 bytes. Artifact ID is 11792052780
+2026-10-13T06:11:09.1211760Z Artifact download URL: https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38350264755/artifacts/11792052780
+2026-10-13T06:11:09.1398094Z ##[group]Run case "Linux" in
+2026-10-13T06:11:09.1398434Z [36;1mcase "Linux" in[0m
+2026-10-13T06:11:09.1398767Z [36;1m  Windows) platform=windows; package="$WINDOWS_PACKAGE";;[0m
+2026-10-13T06:11:09.1399206Z [36;1m  Linux) platform=linux; package="$LINUX_PACKAGE";;[0m
+2026-10-13T06:11:09.1399614Z [36;1m  macOS) platform=macos; package="$MACOS_PACKAGE";;[0m
+2026-10-13T06:11:09.1399946Z [36;1mesac[0m
+2026-10-13T06:11:09.1401098Z [36;1mpython Tools/produce_release_evidence.py --commit "$CHIMERA_SOURCE_SHA" --run-id "$GITHUB_RUN_ID" --run-attempt "$GITHUB_RUN_ATTEMPT" --kind "$platform" --ctest "$CTEST_OUTCOME" --package "$package" --installer "$INSTALLER_OUTCOME" --msix "$MSIX_OUTCOME" --scan "$SCAN_OUTCOME" --output build/release-evidence[0m
+2026-10-13T06:11:09.1473432Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-10-13T06:11:09.1473793Z env:
+2026-10-13T06:11:09.1474074Z   CHIMERA_SOURCE_SHA: 6033236cb81820a43679cbbd34be020804f9658d
+2026-10-13T06:11:09.1474545Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-13T06:11:09.1475010Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib/pkgconfig
+2026-10-13T06:11:09.1475691Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-13T06:11:09.1476106Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-13T06:11:09.1476513Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-13T06:11:09.1476921Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib
+2026-10-13T06:11:09.1477272Z   CHIMERA_PACKAGE_VERSION: 1.3.1-beta.2
+2026-10-13T06:11:09.1477554Z   CTEST_OUTCOME: success
+2026-10-13T06:11:09.1477809Z   WINDOWS_PACKAGE: skipped
+2026-10-13T06:11:09.1478055Z   LINUX_PACKAGE: success
+2026-10-13T06:11:09.1478283Z   MACOS_PACKAGE: skipped
+2026-10-13T06:11:09.1478520Z   INSTALLER_OUTCOME: skipped
+2026-10-13T06:11:09.1478763Z   MSIX_OUTCOME: skipped
+2026-10-13T06:11:09.1478996Z   SCAN_OUTCOME: skipped
+2026-10-13T06:11:09.1479218Z ##[endgroup]
+2026-10-13T06:11:09.2031371Z Preserved linux evidence for 6033236cb81820a43679cbbd34be020804f9658d, run 38350264755/1
+2026-10-13T06:11:09.2153939Z ##[group]Run actions/upload-artifact@v4
+2026-10-13T06:11:09.2154267Z with:
+2026-10-13T06:11:09.2154496Z   name: Chimera-release-evidence-linux
+2026-10-13T06:11:09.2154808Z   path: build/release-evidence
+2026-10-13T06:11:09.2155072Z   if-no-files-found: error
+2026-10-13T06:11:09.2155317Z   overwrite: true
+2026-10-13T06:11:09.2155834Z   compression-level: 6
+2026-10-13T06:11:09.2156149Z   include-hidden-files: false
+2026-10-13T06:11:09.2156390Z env:
+2026-10-13T06:11:09.2156654Z   CHIMERA_SOURCE_SHA: 6033236cb81820a43679cbbd34be020804f9658d
+2026-10-13T06:11:09.2157072Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-13T06:11:09.2157518Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib/pkgconfig
+2026-10-13T06:11:09.2157951Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-13T06:11:09.2158357Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-13T06:11:09.2158828Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-13T06:11:09.2159252Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib
+2026-10-13T06:11:09.2159615Z   CHIMERA_PACKAGE_VERSION: 1.3.1-beta.2
+2026-10-13T06:11:09.2160022Z ##[endgroup]
+2026-10-13T06:11:09.4050381Z (node:15478) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-13T06:11:09.4051345Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-13T06:11:09.4115834Z With the provided path, there will be 5 files uploaded
+2026-10-13T06:11:09.5136306Z Artifact name is valid!
+2026-10-13T06:11:09.5137260Z Root directory input is valid!
+2026-10-13T06:11:09.6644235Z Beginning upload of artifact content to blob storage
+2026-10-13T06:11:09.7033716Z (node:15478) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-10-13T06:11:09.7236896Z Uploaded bytes 58605
+2026-10-13T06:11:09.7358688Z Finished uploading artifact content to blob storage!
+2026-10-13T06:11:09.7359845Z SHA256 digest of uploaded artifact zip is 5ad81cadb31bd96bc275db684845ce42ade49b53db4bd2da50316af4bbde88b9
+2026-10-13T06:11:09.7360894Z Finalizing artifact upload
+2026-10-13T06:11:09.9530055Z Artifact Chimera-release-evidence-linux.zip successfully finalized. Artifact ID 11792077750
+2026-10-13T06:11:09.9531761Z Artifact Chimera-release-evidence-linux has been successfully uploaded! Final size is 58605 bytes. Artifact ID is 11792077750
+2026-10-13T06:11:09.9538747Z Artifact download URL: https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38350264755/artifacts/11792077750
+2026-10-13T06:11:09.9721024Z Post job cleanup.
+2026-10-13T06:11:10.0998182Z (node:15490) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-13T06:11:10.0999225Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-13T06:11:10.1139886Z Post job cleanup.
+2026-10-13T06:11:10.2161016Z [command]/usr/bin/git version
+2026-10-13T06:11:10.2210366Z git version 2.55.0
+2026-10-13T06:11:10.2256402Z Temporarily overriding HOME='/home/runner/work/_temp/1ca8de17-1d9f-497d-9e0e-49eec0b11c39' before making global git config changes
+2026-10-13T06:11:10.2258074Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-13T06:11:10.2267408Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix
+2026-10-13T06:11:10.2308578Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-13T06:11:10.2351802Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-13T06:11:10.2687590Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-13T06:11:10.2718120Z http.https://github.com/.extraheader
+2026-10-13T06:11:10.2740130Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+2026-10-13T06:11:10.2773059Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-13T06:11:10.3086672Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-13T06:11:10.3133757Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-10-13T06:11:10.3567773Z Cleaning up orphan processes
+2026-10-13T06:11:10.3931891Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, actions/setup-python@v5, actions/upload-artifact@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/

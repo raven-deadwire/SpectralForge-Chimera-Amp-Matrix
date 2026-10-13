@@ -1,0 +1,249 @@
+{
+  "schema": "chimera.integration-installer-verdict.v3",
+  "source_sha": "6033236cb81820a43679cbbd34be020804f9658d",
+  "source_tree": "7b23b503b807db36ec4f51491d6aa5f8c29e7b8c",
+  "parent_source_sha": "9375328c30dfe5908e5010342179b5afbc258900",
+  "reuse_policy": "Only new source6033236c CI evidence may satisfy this verdict. Parent937 results are historical and are not validation of this source.",
+  "local_checks": {
+    "status": "NOT_RUN",
+    "reason": "Local executor remains offline. Fresh CI suites are observed directly; prior local passes are not carried forward."
+  },
+  "document_ci": {
+    "run_id": 38350264747,
+    "run_attempt": 1,
+    "conclusion": "success",
+    "all_three_jobs_success": true,
+    "checkout_source_verified_each_job": true,
+    "ubuntu": {
+      "job_id": 115140821559,
+      "helper_pass_count": 42,
+      "skip_count": 0,
+      "uid_gid_case_passed": true,
+      "scope": "Native helper and isolated real dpkg synthetic document fixtures"
+    },
+    "windows": {
+      "job_id": 115140821355,
+      "portable_rules_pass_count": 11,
+      "native_inno_pass_groups": 8,
+      "native_invocation_count": "Awaiting original report JSON audit",
+      "scope": "Real Inno synthetic historical document fixtures; not actual public previous-release Setup"
+    },
+    "macos": {
+      "job_id": 115140821533,
+      "runner_image": "macos-15-arm64",
+      "helper_methods_run": 39,
+      "helper_method_passes": 33,
+      "helper_method_skips": 6,
+      "skipped_dpkg_class": true,
+      "unexecuted_dpkg_methods": 3,
+      "unittest_reported_skips": 7,
+      "real_pkg_lifecycle_pass_groups": 4,
+      "native_invocation_count": "Awaiting original report JSON audit",
+      "scope": "Synthetic documents under native Apple PKG; not public product package upgrade/DAW acceptance"
+    },
+    "artifacts": [
+      {
+        "id": 11790667188,
+        "name": "Chimera-document-upgrade-macos-15",
+        "size_in_bytes": 7916,
+        "url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/artifacts/11790667188",
+        "archive_download_url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/artifacts/11790667188/zip",
+        "expired": false,
+        "created_at": "2026-10-13T05:13:36Z",
+        "expires_at": "2027-01-11T05:13:04Z",
+        "updated_at": "2026-10-13T05:13:36Z",
+        "digest": "sha256:e43d959d5f985e1a2e2e8807d9064e3eb81f02e0622bfcb3c2cffef9dd5a9c43",
+        "workflow_run": {
+          "id": 38350264747,
+          "repository_id": 1382701489,
+          "head_repository_id": 1382701489,
+          "head_branch": "integration/beta2-test-20261014",
+          "head_sha": "6033236cb81820a43679cbbd34be020804f9658d"
+        }
+      },
+      {
+        "id": 11790402477,
+        "name": "Chimera-document-upgrade-windows-inno-fixtures",
+        "size_in_bytes": 20094,
+        "url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/artifacts/11790402477",
+        "archive_download_url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/artifacts/11790402477/zip",
+        "expired": false,
+        "created_at": "2026-10-13T05:13:36Z",
+        "expires_at": "2027-01-11T05:13:04Z",
+        "updated_at": "2026-10-13T05:13:36Z",
+        "digest": "sha256:26b1dd64fb6e56ac2535ae5800b87e5c562b008de77adf5e20d4fe3980cae277",
+        "workflow_run": {
+          "id": 38350264747,
+          "repository_id": 1382701489,
+          "head_repository_id": 1382701489,
+          "head_branch": "integration/beta2-test-20261014",
+          "head_sha": "6033236cb81820a43679cbbd34be020804f9658d"
+        }
+      },
+      {
+        "id": 11790003728,
+        "name": "Chimera-document-upgrade-ubuntu-24.04",
+        "size_in_bytes": 1819,
+        "url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/artifacts/11790003728",
+        "archive_download_url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/artifacts/11790003728/zip",
+        "expired": false,
+        "created_at": "2026-10-13T05:13:51Z",
+        "expires_at": "2027-01-11T05:13:04Z",
+        "updated_at": "2026-10-13T05:13:51Z",
+        "digest": "sha256:1374c49a7379561577ae3825eb6a773eeafb4ba59da215a47e55df82672568ad",
+        "workflow_run": {
+          "id": 38350264747,
+          "repository_id": 1382701489,
+          "head_repository_id": 1382701489,
+          "head_branch": "integration/beta2-test-20261014",
+          "head_sha": "6033236cb81820a43679cbbd34be020804f9658d"
+        }
+      }
+    ],
+    "original_archive_bytes_independently_verified": false,
+    "original_report_json_independently_read": false
+  },
+  "actual_windows_update_candidate": {
+    "status": "PASS_FROM_FRESH_ORIGINAL_CI_LOG",
+    "run_id": 38350264864,
+    "run_attempt": 1,
+    "job_id": 115140821748,
+    "job_conclusion": "success",
+    "source_checkout_verified": true,
+    "ctest": {
+      "passed": 48,
+      "total": 48,
+      "real_seconds": 1259.52,
+      "completed_utc": "2026-10-13T06:06:55.3445193Z"
+    },
+    "current_installer": {
+      "name": "SpectralForge-Chimera-update-6033236cb8-win64-Setup.exe",
+      "sha256": "97f6216ac93a4343f2cccb3ed4420e0f33c83c831b387a72a66d1e4087ac434c",
+      "basis": "Original new-source installer build log at2026-10-13T06:08:11.5700445Z; no local original binary download."
+    },
+    "artifact": {
+      "id": 11792796513,
+      "name": "Chimera-candidate-installer-verification",
+      "size_in_bytes": 49156,
+      "url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/artifacts/11792796513",
+      "archive_download_url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/artifacts/11792796513/zip",
+      "expired": false,
+      "created_at": "2026-10-13T06:10:41Z",
+      "expires_at": "2027-01-11T05:13:04Z",
+      "updated_at": "2026-10-13T06:10:41Z",
+      "digest": "sha256:74862cef2b87a24710367db3a3706c6c8aec949dcf25c6eed7b75ef28a0f14c6",
+      "workflow_run": {
+        "id": 38350264864,
+        "repository_id": 1382701489,
+        "head_repository_id": 1382701489,
+        "head_branch": "integration/beta2-test-20261014",
+        "head_sha": "6033236cb81820a43679cbbd34be020804f9658d"
+      }
+    },
+    "actual_public_beta1_setup_executed": true,
+    "previous_installed_document_count_asserted": 24,
+    "exact_unedited_research_documents_retired": 9,
+    "modified_retired_document_preserved_in_place": true,
+    "annotated_manual_and_license_snapshots_preserved": true,
+    "current_setup_repair_count": 2,
+    "current_payload_docs_and_standalone_compared_by_runtime_sha256": true,
+    "uninstall_preserves_edited_docs_snapshots_personal_files": true,
+    "no_deferred_document_delete_asserted": true,
+    "current_document_individual_hashes_observed": false,
+    "original_report_json_independently_read": false,
+    "original_archive_independently_audited": false,
+    "lifecycle_command": "./Tools/Verify-WindowsInstaller.ps1 -Installer \"installer-candidate/SpectralForge-Chimera-update-$buildId-win64-Setup.exe\" -Stage installer-candidate/payload -LogDirectory build/candidate-installer-verification",
+    "lifecycle_started_utc": "2026-10-13T06:08:11.6139217Z",
+    "historical_archive_pass_utc": "2026-10-13T06:09:42.9041717Z",
+    "actual_previous_release_final_pass_utc": "2026-10-13T06:10:19.9307077Z",
+    "scope": "Actual public beta.1 Setup to current update candidate Setup standalone upgrade/repair/uninstall, plus separate current full/VST3-only/standalone-only installer, Unicode path, app launch, VST3 loader and IR discovery/decode/load checks. Not manual DAW saved-project/listening acceptance or publication approval."
+  },
+  "actual_windows_product": {
+    "status": "PASS_FROM_FRESH_ORIGINAL_CI_LOG",
+    "run_id": 38350264755,
+    "run_attempt": 1,
+    "job_id": 115141040314,
+    "job_conclusion": "success",
+    "source_checkout_verified": true,
+    "current_installer": {
+      "name": "SpectralForge-Chimera-1.3.1-beta.2-win64-Setup.exe",
+      "sha256": "610b44602b7aec2dd5adb4ac3d90692b4f6dc683ab56ae7012f11bf457a1b4e7",
+      "basis": "Original build log at2026-10-13T06:01:32.0051219Z; original binary not locally downloaded."
+    },
+    "artifact": {
+      "id": 11791897476,
+      "name": "Chimera-Windows-installer-verification",
+      "size_in_bytes": 44010,
+      "url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/artifacts/11791897476",
+      "archive_download_url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/artifacts/11791897476/zip",
+      "expired": false,
+      "created_at": "2026-10-13T06:03:11Z",
+      "expires_at": "2027-01-11T05:13:04Z",
+      "updated_at": "2026-10-13T06:03:11Z",
+      "digest": "sha256:b2ccb79a634ba4c42d962d345e49e9a5e22c2f0440e77e15d26bc95941fc90ff",
+      "workflow_run": {
+        "id": 38350264755,
+        "repository_id": 1382701489,
+        "head_repository_id": 1382701489,
+        "head_branch": "integration/beta2-test-20261014",
+        "head_sha": "6033236cb81820a43679cbbd34be020804f9658d"
+      }
+    },
+    "actual_public_beta1_setup_executed": true,
+    "previous_installed_document_count_asserted": 24,
+    "exact_unedited_research_documents_retired": 9,
+    "modified_retired_document_preserved_in_place": true,
+    "annotated_manual_and_license_snapshots_preserved": true,
+    "current_setup_repair_count": 2,
+    "current_payload_docs_and_standalone_compared_by_runtime_sha256": true,
+    "uninstall_preserves_edited_docs_snapshots_personal_files": true,
+    "no_deferred_document_delete_asserted": true,
+    "current_document_individual_hashes_observed": false,
+    "original_report_json_independently_read": false,
+    "original_archive_independently_audited": false,
+    "lifecycle_command": "./Tools/Verify-WindowsInstaller.ps1",
+    "lifecycle_started_utc": "2026-10-13T06:01:32.0376680Z",
+    "historical_archive_pass_utc": "2026-10-13T06:02:40.1304968Z",
+    "actual_previous_release_final_pass_utc": "2026-10-13T06:03:10.5290442Z",
+    "scope": "Actual public beta.1 Setup to current Product Setup standalone upgrade/repair/uninstall plus separate current installer full/VST3/standalone component, Unicode custom-path, installed app launch, VST3 loader and IR decode/load checks. Not manual DAW saved-project/listening/release acceptance.",
+    "ctest": {
+      "passed": 48,
+      "total": 48,
+      "real_seconds": 1103.14
+    }
+  },
+  "remote_archive_audit": {
+    "status": "PENDING_ROOT_OWNED_READ_ONLY_AUDIT"
+  },
+  "daw_manual_acceptance": false,
+  "publication_approved": false,
+  "document_preservation_semantics": {
+    "basis": "Fresh603 Product and update CI executed source-bound verifiers and reached every relevant PASS receipt.",
+    "cases": [
+      {
+        "case": "Edited retired Documentation/AMP_NATIVE_DSP.md",
+        "behavior": "Retained in place with identical edited bytes; nine other exact unedited historical research documents removed."
+      },
+      {
+        "case": "Annotated previous MANUAL.html during upgrade",
+        "behavior": "Saved byte-for-byte as PreservedDocuments/<edited SHA256>/Documentation/MANUAL.html before replacing the active document with the current Windows staging file."
+      },
+      {
+        "case": "Edited current README.txt during repair",
+        "behavior": "Saved under PreservedDocuments/<edited SHA256>/README.txt; two repairs restore the current payload while retaining both README and prior Manual snapshots."
+      },
+      {
+        "case": "Manual edited after repair then uninstall",
+        "behavior": "Edited active Manual stays in place; prior snapshots, licenses, modified retired document and personal preset/IR/project sentinels remain unchanged."
+      },
+      {
+        "case": "Current PRESETS.md",
+        "behavior": "Included in installed-current-document SHA256 comparisons against current Windows stage. Actual previous-release fixture does not separately annotate PRESETS.md; no old-source PRESETS-edit probe result is reused."
+      }
+    ],
+    "caveat": "Current shipped documents can be intentionally replaced after preserving edits as snapshots. Do not claim every modified document remains at the same active pathname. Personal file sentinels do not establish human DAW project recall/listening acceptance."
+  },
+  "archive_audit_chronology": "At this installer verdict finalization all five fresh source603 workflow/job/artifact bindings and original execution logs have been read, but original ZIP bytes and internal report JSON await the root-owned remote read-only audit. A later audit addendum may resolve that limitation; it does not run additional installers or confer release approval.",
+  "release_acceptance": "NOT_APPROVED_BY_INSTALLER_VERDICT",
+  "source_installer_conclusion": "All three fresh document fixture platform jobs and both actual Windows public beta.1 upgrade lifecycle jobs passed within their stated scope. Source603 passes do not transfer to any later source."
+}

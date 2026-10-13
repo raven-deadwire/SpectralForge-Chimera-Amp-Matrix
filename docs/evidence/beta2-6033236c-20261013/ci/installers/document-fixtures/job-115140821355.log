@@ -1,0 +1,380 @@
+﻿2026-10-13T05:13:09.0225961Z Current runner version: '2.337.0'
+2026-10-13T05:13:09.0250053Z ##[group]Runner Image Provisioner
+2026-10-13T05:13:09.0250894Z Hosted Compute Agent
+2026-10-13T05:13:09.0251435Z Version: 20261002.596
+2026-10-13T05:13:09.0252038Z Commit: c3d12f3313a95f25162a1503be624f3b0617f8c0
+2026-10-13T05:13:09.0252715Z Build Date: 2026-10-02T22:28:27Z
+2026-10-13T05:13:09.0253321Z Worker ID: {e3e73945-6a58-421f-a692-f007bce18ae1}
+2026-10-13T05:13:09.0254020Z Region: southcentralus
+2026-10-13T05:13:09.0254901Z Cloud: Azure
+2026-10-13T05:13:09.0255893Z ##[endgroup]
+2026-10-13T05:13:09.0258267Z ##[group]Operating System
+2026-10-13T05:13:09.0259327Z Microsoft Windows Server 2022
+2026-10-13T05:13:09.0260415Z 10.0.20348
+2026-10-13T05:13:09.0261232Z Datacenter
+2026-10-13T05:13:09.0262102Z ##[endgroup]
+2026-10-13T05:13:09.0263080Z ##[group]Runner Image
+2026-10-13T05:13:09.0264057Z Image: windows-2022
+2026-10-13T05:13:09.0264978Z Version: 20261004.326.1
+2026-10-13T05:13:09.0268217Z Included Software: https://github.com/actions/runner-images/blob/win22/20261004.326/images/windows/Windows2022-Readme.md
+2026-10-13T05:13:09.0271099Z Image Release: https://github.com/actions/runner-images/releases/tag/win22%2F20261004.326
+2026-10-13T05:13:09.0272735Z ##[endgroup]
+2026-10-13T05:13:09.0274538Z ##[group]GITHUB_TOKEN Permissions
+2026-10-13T05:13:09.0277512Z Contents: read
+2026-10-13T05:13:09.0278571Z Metadata: read
+2026-10-13T05:13:09.0279498Z ##[endgroup]
+2026-10-13T05:13:09.0282381Z Secret source: Actions
+2026-10-13T05:13:09.0283840Z Cache mode: write
+2026-10-13T05:13:09.0285023Z Prepare workflow directory
+2026-10-13T05:13:09.0695267Z Prepare all required actions
+2026-10-13T05:13:09.0743375Z Getting action download info
+2026-10-13T05:13:09.3883253Z Download action repository 'actions/checkout@v4' (SHA:11d5960a326750d5838078e36cf38b85af677262)
+2026-10-13T05:13:09.5083009Z Download action repository 'actions/setup-python@v5' (SHA:a26af69be951a213d495a4c3e4e4022e16d87065)
+2026-10-13T05:13:09.6549272Z Download action repository 'actions/upload-artifact@v4' (SHA:ea165f8d65b6e75b540449e92b4886f43607fa02)
+2026-10-13T05:13:09.9742706Z Complete job name: Windows Inno document fixtures (exact source)
+2026-10-13T05:13:10.1454044Z ##[group]Run actions/checkout@v4
+2026-10-13T05:13:10.1455254Z with:
+2026-10-13T05:13:10.1455872Z   ref: 6033236cb81820a43679cbbd34be020804f9658d
+2026-10-13T05:13:10.1456852Z   repository: raven-deadwire/SpectralForge-Chimera-Amp-Matrix
+2026-10-13T05:13:10.1462246Z   token: ***
+2026-10-13T05:13:10.1462803Z   ssh-strict: true
+2026-10-13T05:13:10.1463360Z   ssh-user: git
+2026-10-13T05:13:10.1463914Z   persist-credentials: true
+2026-10-13T05:13:10.1464528Z   clean: true
+2026-10-13T05:13:10.1465082Z   sparse-checkout-cone-mode: true
+2026-10-13T05:13:10.1465676Z   fetch-depth: 1
+2026-10-13T05:13:10.1466109Z   fetch-tags: false
+2026-10-13T05:13:10.1466560Z   show-progress: true
+2026-10-13T05:13:10.1467012Z   lfs: false
+2026-10-13T05:13:10.1467436Z   submodules: false
+2026-10-13T05:13:10.1467933Z   set-safe-directory: true
+2026-10-13T05:13:10.1468449Z   allow-unsafe-pr-checkout: false
+2026-10-13T05:13:10.1469408Z ##[endgroup]
+2026-10-13T05:13:10.2878765Z Syncing repository: raven-deadwire/SpectralForge-Chimera-Amp-Matrix
+2026-10-13T05:13:10.2881261Z ##[group]Getting Git version info
+2026-10-13T05:13:10.2882374Z Working directory is 'D:\a\SpectralForge-Chimera-Amp-Matrix\SpectralForge-Chimera-Amp-Matrix'
+2026-10-13T05:13:10.3843359Z [command]"C:\Program Files\Git\bin\git.exe" version
+2026-10-13T05:13:10.7693520Z git version 2.56.0.windows.1
+2026-10-13T05:13:10.7730350Z ##[endgroup]
+2026-10-13T05:13:10.7748715Z Temporarily overriding HOME='D:\a\_temp\771bf03d-17a4-4722-8b21-05a6860d2724' before making global git config changes
+2026-10-13T05:13:10.7750710Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-13T05:13:10.7760000Z [command]"C:\Program Files\Git\bin\git.exe" config --global --add safe.directory D:\a\SpectralForge-Chimera-Amp-Matrix\SpectralForge-Chimera-Amp-Matrix
+2026-10-13T05:13:10.8344015Z Deleting the contents of 'D:\a\SpectralForge-Chimera-Amp-Matrix\SpectralForge-Chimera-Amp-Matrix'
+2026-10-13T05:13:10.8348764Z ##[group]Initializing the repository
+2026-10-13T05:13:10.8358433Z [command]"C:\Program Files\Git\bin\git.exe" init D:\a\SpectralForge-Chimera-Amp-Matrix\SpectralForge-Chimera-Amp-Matrix
+2026-10-13T05:13:10.9205419Z Initialized empty Git repository in D:/a/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/.git/
+2026-10-13T05:13:10.9242080Z [command]"C:\Program Files\Git\bin\git.exe" remote add origin https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix
+2026-10-13T05:13:11.0284685Z ##[endgroup]
+2026-10-13T05:13:11.0286378Z ##[group]Disabling automatic garbage collection
+2026-10-13T05:13:11.0293171Z [command]"C:\Program Files\Git\bin\git.exe" config --local gc.auto 0
+2026-10-13T05:13:11.0612927Z ##[endgroup]
+2026-10-13T05:13:11.0615596Z ##[group]Setting up auth
+2026-10-13T05:13:11.0630614Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp core\.sshCommand
+2026-10-13T05:13:11.0979189Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :\""
+2026-10-13T05:13:12.6036932Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-13T05:13:12.6343082Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :\""
+2026-10-13T05:13:13.0851061Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-13T05:13:13.1157954Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "git config --local --show-origin --name-only --get-regexp remote.origin.url"
+2026-10-13T05:13:13.5870667Z [command]"C:\Program Files\Git\bin\git.exe" config --local http.https://github.com/.extraheader "AUTHORIZATION: basic ***"
+2026-10-13T05:13:13.6181491Z ##[endgroup]
+2026-10-13T05:13:13.6182184Z ##[group]Fetching the repository
+2026-10-13T05:13:13.6200884Z [command]"C:\Program Files\Git\bin\git.exe" -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin 6033236cb81820a43679cbbd34be020804f9658d
+2026-10-13T05:13:16.3355116Z From https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix
+2026-10-13T05:13:16.3356400Z  * branch            6033236cb81820a43679cbbd34be020804f9658d -> FETCH_HEAD
+2026-10-13T05:13:16.3382989Z ##[endgroup]
+2026-10-13T05:13:16.3383489Z ##[group]Determining the checkout info
+2026-10-13T05:13:16.3385774Z ##[endgroup]
+2026-10-13T05:13:16.3394547Z [command]"C:\Program Files\Git\bin\git.exe" sparse-checkout disable
+2026-10-13T05:13:16.3825448Z [command]"C:\Program Files\Git\bin\git.exe" config --local --unset-all extensions.worktreeConfig
+2026-10-13T05:13:16.4125666Z ##[group]Checking out the ref
+2026-10-13T05:13:16.4134304Z [command]"C:\Program Files\Git\bin\git.exe" checkout --progress --force 6033236cb81820a43679cbbd34be020804f9658d
+2026-10-13T05:13:17.4550907Z Updating files:  97% (965/990)
+2026-10-13T05:13:17.4585511Z Updating files:  98% (971/990)
+2026-10-13T05:13:17.4685542Z Updating files:  99% (981/990)
+2026-10-13T05:13:17.4686485Z Updating files: 100% (990/990)
+2026-10-13T05:13:17.4687032Z Updating files: 100% (990/990), done.
+2026-10-13T05:13:17.4770852Z Note: switching to '6033236cb81820a43679cbbd34be020804f9658d'.
+2026-10-13T05:13:17.4771266Z 
+2026-10-13T05:13:17.4771569Z You are in 'detached HEAD' state. You can look around, make experimental
+2026-10-13T05:13:17.4772407Z changes and commit them, and you can discard any commits you make in this
+2026-10-13T05:13:17.4773445Z state without impacting any branches by switching back to a branch.
+2026-10-13T05:13:17.4775835Z 
+2026-10-13T05:13:17.4776259Z If you want to create a new branch to retain commits you create, you may
+2026-10-13T05:13:17.4777297Z do so (now or later) by using -c with the switch command. Example:
+2026-10-13T05:13:17.4777985Z 
+2026-10-13T05:13:17.4778201Z   git switch -c <new-branch-name>
+2026-10-13T05:13:17.4778596Z 
+2026-10-13T05:13:17.4778817Z Or undo this operation with:
+2026-10-13T05:13:17.4779226Z 
+2026-10-13T05:13:17.4779486Z   git switch -
+2026-10-13T05:13:17.4779745Z 
+2026-10-13T05:13:17.4780183Z Turn off this advice by setting config variable advice.detachedHead to false
+2026-10-13T05:13:17.4780776Z 
+2026-10-13T05:13:17.4854013Z HEAD is now at 6033236 Preserve native UI evidence receipt without changing public captions
+2026-10-13T05:13:17.4933491Z ##[endgroup]
+2026-10-13T05:13:17.5317828Z [command]"C:\Program Files\Git\bin\git.exe" log -1 --format=%H
+2026-10-13T05:13:17.5581663Z 6033236cb81820a43679cbbd34be020804f9658d
+2026-10-13T05:13:17.5987962Z ##[group]Run actions/setup-python@v5
+2026-10-13T05:13:17.5988309Z with:
+2026-10-13T05:13:17.5988506Z   python-version: 3.12
+2026-10-13T05:13:17.5988731Z   check-latest: false
+2026-10-13T05:13:17.5991215Z   token: ***
+2026-10-13T05:13:17.5991411Z   update-environment: true
+2026-10-13T05:13:17.5991635Z   allow-prereleases: false
+2026-10-13T05:13:17.5991853Z   freethreaded: false
+2026-10-13T05:13:17.5992042Z ##[endgroup]
+2026-10-13T05:13:17.7516167Z ##[group]Installed versions
+2026-10-13T05:13:17.7654079Z (node:4608) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-13T05:13:17.7655181Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-13T05:13:17.7656664Z Successfully set up CPython (3.12.10)
+2026-10-13T05:13:17.7657560Z ##[endgroup]
+2026-10-13T05:13:17.7909597Z ##[group]Run python -m unittest Tests.test_windows_document_rules -v
+2026-10-13T05:13:17.7910300Z [36;1mpython -m unittest Tests.test_windows_document_rules -v[0m
+2026-10-13T05:13:17.7910815Z [36;1mif ($LASTEXITCODE -ne 0) { throw "Windows document rule contracts failed." }[0m
+2026-10-13T05:13:17.7911791Z [36;1mforeach ($script in @("Tests/Test-WindowsDocumentUpgrade.ps1", "Tools/Build-WindowsInstaller.ps1", "Tools/Verify-WindowsInstaller.ps1", "Tools/Verify-WindowsPreviousReleaseUpgrade.ps1")) {[0m
+2026-10-13T05:13:17.7912626Z [36;1m  $tokens = $null[0m
+2026-10-13T05:13:17.7912854Z [36;1m  $parseErrors = $null[0m
+2026-10-13T05:13:17.7913444Z [36;1m  [System.Management.Automation.Language.Parser]::ParseFile((Resolve-Path $script).Path, [ref]$tokens, [ref]$parseErrors) | Out-Null[0m
+2026-10-13T05:13:17.7914223Z [36;1m  if ($parseErrors.Count) { throw (($parseErrors | ForEach-Object Message) -join "`n") }[0m
+2026-10-13T05:13:17.7914633Z [36;1m}[0m
+2026-10-13T05:13:17.8190068Z shell: C:\Program Files\PowerShell\7\pwsh.EXE -command ". '{0}'"
+2026-10-13T05:13:17.8190484Z env:
+2026-10-13T05:13:17.8190765Z   pythonLocation: C:\hostedtoolcache\windows\Python\3.12.10\x64
+2026-10-13T05:13:17.8191281Z   PKG_CONFIG_PATH: C:\hostedtoolcache\windows\Python\3.12.10\x64/lib/pkgconfig
+2026-10-13T05:13:17.8191737Z   Python_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.12.10\x64
+2026-10-13T05:13:17.8192140Z   Python2_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.12.10\x64
+2026-10-13T05:13:17.8192533Z   Python3_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.12.10\x64
+2026-10-13T05:13:17.8192842Z ##[endgroup]
+2026-10-13T05:13:19.6836920Z test_ambiguous_windows_paths_rejected (Tests.test_windows_document_rules.WindowsDocumentRulesTest.test_ambiguous_windows_paths_rejected) ... ok
+2026-10-13T05:13:19.6962146Z test_case_colliding_paths_rejected (Tests.test_windows_document_rules.WindowsDocumentRulesTest.test_case_colliding_paths_rejected) ... ok
+2026-10-13T05:13:19.6982886Z test_historical_and_current_stage_mapping_and_raw_hashes (Tests.test_windows_document_rules.WindowsDocumentRulesTest.test_historical_and_current_stage_mapping_and_raw_hashes) ... ok
+2026-10-13T05:13:19.6998828Z test_license_never_becomes_retirement_rule (Tests.test_windows_document_rules.WindowsDocumentRulesTest.test_license_never_becomes_retirement_rule) ... ok
+2026-10-13T05:13:19.7005203Z test_nested_reference_mapping_is_finite_and_preservable (Tests.test_windows_document_rules.WindowsDocumentRulesTest.test_nested_reference_mapping_is_finite_and_preservable) ... ok
+2026-10-13T05:13:19.7007889Z test_no_personal_audio_presets_projects_or_arbitrary_json_can_be_authority (Tests.test_windows_document_rules.WindowsDocumentRulesTest.test_no_personal_audio_presets_projects_or_arbitrary_json_can_be_authority) ... ok
+2026-10-13T05:13:19.7014753Z test_nonwindows_variants_never_become_windows_delete_authority (Tests.test_windows_document_rules.WindowsDocumentRulesTest.test_nonwindows_variants_never_become_windows_delete_authority) ... ok
+2026-10-13T05:13:19.7028868Z test_retired_document_cannot_reenter_current_payload (Tests.test_windows_document_rules.WindowsDocumentRulesTest.test_retired_document_cannot_reenter_current_payload) ... ok
+2026-10-13T05:13:19.7139945Z test_reviewed_production_inventory_can_compile_without_normalization (Tests.test_windows_document_rules.WindowsDocumentRulesTest.test_reviewed_production_inventory_can_compile_without_normalization) ... ok
+2026-10-13T05:13:19.7257292Z test_stage_links_are_not_trusted (Tests.test_windows_document_rules.WindowsDocumentRulesTest.test_stage_links_are_not_trusted) ... ok
+2026-10-13T05:13:19.7292344Z test_unproven_or_malformed_hashes_are_rejected (Tests.test_windows_document_rules.WindowsDocumentRulesTest.test_unproven_or_malformed_hashes_are_rejected) ... ok
+2026-10-13T05:13:19.7293322Z 
+2026-10-13T05:13:19.7293502Z ----------------------------------------------------------------------
+2026-10-13T05:13:19.7293847Z Ran 11 tests in 0.046s
+2026-10-13T05:13:19.7296120Z 
+2026-10-13T05:13:19.7296240Z OK
+2026-10-13T05:13:19.9405039Z ##[group]Run # ISCC.exe's PE FileVersion can be 0.0.0.0; the compiled .iss guard
+2026-10-13T05:13:19.9405705Z [36;1m# ISCC.exe's PE FileVersion can be 0.0.0.0; the compiled .iss guard[0m
+2026-10-13T05:13:19.9406184Z [36;1m# validates the actual engine VER and rejects versions below 6.7.1.[0m
+2026-10-13T05:13:19.9406667Z [36;1mchoco upgrade innosetup --version=6.7.1 --yes --no-progress[0m
+2026-10-13T05:13:19.9407228Z [36;1mif ($LASTEXITCODE -ne 0) { throw "Cannot install Inno Setup for native fixture validation." }[0m
+2026-10-13T05:13:19.9447517Z shell: C:\Program Files\PowerShell\7\pwsh.EXE -command ". '{0}'"
+2026-10-13T05:13:19.9447860Z env:
+2026-10-13T05:13:19.9448120Z   pythonLocation: C:\hostedtoolcache\windows\Python\3.12.10\x64
+2026-10-13T05:13:19.9448574Z   PKG_CONFIG_PATH: C:\hostedtoolcache\windows\Python\3.12.10\x64/lib/pkgconfig
+2026-10-13T05:13:19.9449033Z   Python_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.12.10\x64
+2026-10-13T05:13:19.9449497Z   Python2_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.12.10\x64
+2026-10-13T05:13:19.9449912Z   Python3_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.12.10\x64
+2026-10-13T05:13:19.9450240Z ##[endgroup]
+2026-10-13T05:13:23.6298061Z Chocolatey v2.7.4
+2026-10-13T05:13:23.9359147Z Upgrading the following packages:
+2026-10-13T05:13:23.9363270Z innosetup
+2026-10-13T05:13:23.9366281Z By upgrading, you accept licenses for the packages.
+2026-10-13T05:13:27.4098241Z InnoSetup v6.7.1 is the latest version available based on your source(s).
+2026-10-13T05:13:27.4182736Z 
+2026-10-13T05:13:27.4183218Z Chocolatey upgraded 0/1 packages. 
+2026-10-13T05:13:27.4183925Z  See the log for details (C:\ProgramData\chocolatey\logs\chocolatey.log).
+2026-10-13T05:13:27.5551776Z ##[group]Run ./Tests/Test-WindowsDocumentUpgrade.ps1
+2026-10-13T05:13:27.5552243Z [36;1m./Tests/Test-WindowsDocumentUpgrade.ps1[0m
+2026-10-13T05:13:27.5592479Z shell: C:\Program Files\PowerShell\7\pwsh.EXE -command ". '{0}'"
+2026-10-13T05:13:27.5592826Z env:
+2026-10-13T05:13:27.5593098Z   pythonLocation: C:\hostedtoolcache\windows\Python\3.12.10\x64
+2026-10-13T05:13:27.5593814Z   PKG_CONFIG_PATH: C:\hostedtoolcache\windows\Python\3.12.10\x64/lib/pkgconfig
+2026-10-13T05:13:27.5594261Z   Python_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.12.10\x64
+2026-10-13T05:13:27.5594654Z   Python2_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.12.10\x64
+2026-10-13T05:13:27.5595041Z   Python3_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.12.10\x64
+2026-10-13T05:13:27.5595344Z ##[endgroup]
+2026-10-13T05:13:28.1274592Z Generated Windows document rules: D:\a\_temp\Chimera document lifecycle 3ca2850f916c4581afcd69b782dc009c\rules.iss
+2026-10-13T05:13:28.3294183Z Inno Setup 6 Command-Line Compiler
+2026-10-13T05:13:28.3294958Z Copyright (C) 1997-2026 Jordan Russell. All rights reserved.
+2026-10-13T05:13:28.3295864Z Portions Copyright (C) 2000-2026 Martijn Laan. All rights reserved.
+2026-10-13T05:13:28.3296793Z Portions Copyright (C) 2001-2004 Alex Yackimoff. All rights reserved.
+2026-10-13T05:13:28.3297619Z https://www.innosetup.com
+2026-10-13T05:13:28.3297991Z 
+2026-10-13T05:13:28.4742964Z Compiler engine version: Inno Setup 6.7.1
+2026-10-13T05:13:28.4743561Z Non-commercial use only
+2026-10-13T05:13:28.4743750Z 
+2026-10-13T05:13:28.5928329Z Preprocessing
+2026-10-13T05:13:28.5930411Z    Reading file: c:\program files (x86)\inno setup 6\ISPPBuiltins.iss
+2026-10-13T05:13:28.5943004Z Parsing [Setup] section, line 2
+2026-10-13T05:13:28.5943710Z Parsing [Setup] section, line 3
+2026-10-13T05:13:28.5944245Z Parsing [Setup] section, line 4
+2026-10-13T05:13:28.5944679Z Parsing [Setup] section, line 5
+2026-10-13T05:13:28.5945110Z Parsing [Setup] section, line 6
+2026-10-13T05:13:28.5945545Z Parsing [Setup] section, line 7
+2026-10-13T05:13:28.5945943Z Parsing [Setup] section, line 8
+2026-10-13T05:13:28.5946322Z Parsing [Setup] section, line 9
+2026-10-13T05:13:28.5946733Z Parsing [Setup] section, line 10
+2026-10-13T05:13:28.5947147Z Parsing [Setup] section, line 11
+2026-10-13T05:13:28.5947548Z Parsing [Setup] section, line 12
+2026-10-13T05:13:28.5947944Z Parsing [Setup] section, line 13
+2026-10-13T05:13:28.5948350Z Parsing [Setup] section, line 14
+2026-10-13T05:13:28.5948746Z Parsing [Setup] section, line 15
+2026-10-13T05:13:28.5949154Z Reading file (WizardImageFile)
+2026-10-13T05:13:28.5949567Z Reading file (WizardSmallImageFile)
+2026-10-13T05:13:28.5950028Z Preparing Setup program executable
+2026-10-13T05:13:29.0141883Z    Verification successful
+2026-10-13T05:13:29.0169007Z    Updating icons (Setup.e32)
+2026-10-13T05:13:29.0250635Z    Updating version info (Setup.e32)
+2026-10-13T05:13:29.0262494Z Determining language code pages
+2026-10-13T05:13:29.0263586Z    Reading file: c:\program files (x86)\inno setup 6\Default.isl
+2026-10-13T05:13:29.0311709Z    Messages in script file
+2026-10-13T05:13:29.0312718Z Reading default messages from Default.isl
+2026-10-13T05:13:29.0318953Z Parsing [LangOptions], [Messages], and [CustomMessages] sections
+2026-10-13T05:13:29.0319999Z    Reading file: c:\program files (x86)\inno setup 6\Default.isl
+2026-10-13T05:13:29.0322327Z    Messages in script file
+2026-10-13T05:13:29.0323748Z Reading [Code] section
+2026-10-13T05:13:29.0324707Z Parsing [Files] section, line 17
+2026-10-13T05:13:29.0326315Z Parsing [Files] section, line 18
+2026-10-13T05:13:29.0327906Z Parsing [Files] section, line 19
+2026-10-13T05:13:29.0328856Z Parsing [Files] section, line 20
+2026-10-13T05:13:29.0329479Z Parsing [Files] section, line 21
+2026-10-13T05:13:29.0332146Z Creating setup files
+2026-10-13T05:13:29.1171565Z    Verification successful
+2026-10-13T05:13:29.1179892Z    Updating icons (Setup.exe)
+2026-10-13T05:13:29.1209680Z    Compressing: D:\a\_temp\Chimera document lifecycle 3ca2850f916c4581afcd69b782dc009c\old\README.txt
+2026-10-13T05:13:29.1252180Z    Compressing: D:\a\_temp\Chimera document lifecycle 3ca2850f916c4581afcd69b782dc009c\old\AMP_NATIVE_DSP.md
+2026-10-13T05:13:29.1283408Z    Compressing: D:\a\_temp\Chimera document lifecycle 3ca2850f916c4581afcd69b782dc009c\old\AMP_VALIDATION.md
+2026-10-13T05:13:29.1292454Z    Compressing: D:\a\_temp\Chimera document lifecycle 3ca2850f916c4581afcd69b782dc009c\old\GRAPHICS_DSP_UPDATE.md
+2026-10-13T05:13:29.1301114Z    Compressing: D:\a\_temp\Chimera document lifecycle 3ca2850f916c4581afcd69b782dc009c\old\PEDAL_BOARD_DSP.md
+2026-10-13T05:13:29.1308230Z    Compressing: D:\a\_temp\Chimera document lifecycle 3ca2850f916c4581afcd69b782dc009c\old\POST_NATIVE_DSP.md
+2026-10-13T05:13:29.1314894Z    Compressing: D:\a\_temp\Chimera document lifecycle 3ca2850f916c4581afcd69b782dc009c\old\THIRD_PARTY_NOTICES.md
+2026-10-13T05:13:29.1321542Z    Compressing: D:\a\_temp\Chimera document lifecycle 3ca2850f916c4581afcd69b782dc009c\old\VALIDATION_STATUS.md
+2026-10-13T05:13:29.1328270Z    Compressing: D:\a\_temp\Chimera document lifecycle 3ca2850f916c4581afcd69b782dc009c\old\MANUAL.html
+2026-10-13T05:13:29.1334938Z    Compressing: D:\a\_temp\Chimera document lifecycle 3ca2850f916c4581afcd69b782dc009c\old\ARTWORK_PROMPTS.json
+2026-10-13T05:13:29.1363102Z    Compressing: D:\a\_temp\Chimera document lifecycle 3ca2850f916c4581afcd69b782dc009c\old\payload-manifest.json
+2026-10-13T05:13:29.1366235Z    Compressing: D:\a\_temp\Chimera document lifecycle 3ca2850f916c4581afcd69b782dc009c\old\reference\microphone-tags.json
+2026-10-13T05:13:29.1462133Z    Compressing Setup program executable
+2026-10-13T05:13:29.6750630Z    Updating version info (Setup.exe)
+2026-10-13T05:13:29.6750986Z    Updating manifest (Setup.exe)
+2026-10-13T05:13:29.6751309Z 
+2026-10-13T05:13:29.6753423Z 
+2026-10-13T05:13:29.6753854Z Successful compile (1.203 sec). Resulting Setup program filename is:
+2026-10-13T05:13:29.6754751Z D:\a\_temp\Chimera document lifecycle 3ca2850f916c4581afcd69b782dc009c\installers\old.exe
+2026-10-13T05:13:30.5126907Z Inno Setup 6 Command-Line Compiler
+2026-10-13T05:13:30.5173916Z Copyright (C) 1997-2026 Jordan Russell. All rights reserved.
+2026-10-13T05:13:30.5185050Z Portions Copyright (C) 2000-2026 Martijn Laan. All rights reserved.
+2026-10-13T05:13:30.5190746Z Portions Copyright (C) 2001-2004 Alex Yackimoff. All rights reserved.
+2026-10-13T05:13:30.5196334Z https://www.innosetup.com
+2026-10-13T05:13:30.5201618Z 
+2026-10-13T05:13:30.5207352Z Compiler engine version: Inno Setup 6.7.1
+2026-10-13T05:13:30.5233378Z Non-commercial use only
+2026-10-13T05:13:30.5240323Z 
+2026-10-13T05:13:30.5246741Z Preprocessing
+2026-10-13T05:13:30.5252570Z    Reading file: c:\program files (x86)\inno setup 6\ISPPBuiltins.iss
+2026-10-13T05:13:30.5259414Z    Line 22: Including file: D:\a\SpectralForge-Chimera-Amp-Matrix\SpectralForge-Chimera-Amp-Matrix\Installer\LegacyDocumentCleanup.iss
+2026-10-13T05:13:30.5265378Z    Reading file: D:\a\SpectralForge-Chimera-Amp-Matrix\SpectralForge-Chimera-Amp-Matrix\Installer\LegacyDocumentCleanup.iss
+2026-10-13T05:13:30.5271238Z    Line 104 of LegacyDocumentCleanup.iss: Including file: D:\a\_temp\Chimera document lifecycle 3ca2850f916c4581afcd69b782dc009c\rules.iss
+2026-10-13T05:13:30.5277284Z    Reading file: D:\a\_temp\Chimera document lifecycle 3ca2850f916c4581afcd69b782dc009c\rules.iss
+2026-10-13T05:13:30.5283754Z Parsing [Setup] section, line 2
+2026-10-13T05:13:30.5291852Z Parsing [Setup] section, line 3
+2026-10-13T05:13:30.5299293Z Parsing [Setup] section, line 4
+2026-10-13T05:13:30.5306811Z Parsing [Setup] section, line 5
+2026-10-13T05:13:30.5314557Z Parsing [Setup] section, line 6
+2026-10-13T05:13:30.5322447Z Parsing [Setup] section, line 7
+2026-10-13T05:13:30.5330291Z Parsing [Setup] section, line 8
+2026-10-13T05:13:30.5338536Z Parsing [Setup] section, line 9
+2026-10-13T05:13:30.5346139Z Parsing [Setup] section, line 10
+2026-10-13T05:13:30.5353553Z Parsing [Setup] section, line 11
+2026-10-13T05:13:30.5362808Z Parsing [Setup] section, line 12
+2026-10-13T05:13:30.5369209Z Parsing [Setup] section, line 13
+2026-10-13T05:13:30.5376825Z Parsing [Setup] section, line 14
+2026-10-13T05:13:30.5384703Z Parsing [Setup] section, line 15
+2026-10-13T05:13:30.5392199Z Reading file (WizardImageFile)
+2026-10-13T05:13:30.5400191Z Reading file (WizardSmallImageFile)
+2026-10-13T05:13:30.5406356Z Preparing Setup program executable
+2026-10-13T05:13:30.5413234Z    Verification successful
+2026-10-13T05:13:30.5419094Z    Updating icons (Setup.e32)
+2026-10-13T05:13:30.5425041Z    Updating version info (Setup.e32)
+2026-10-13T05:13:30.5431043Z Determining language code pages
+2026-10-13T05:13:30.5437114Z    Reading file: c:\program files (x86)\inno setup 6\Default.isl
+2026-10-13T05:13:30.5442664Z    Messages in script file
+2026-10-13T05:13:30.5448841Z Reading default messages from Default.isl
+2026-10-13T05:13:30.5454807Z Parsing [LangOptions], [Messages], and [CustomMessages] sections
+2026-10-13T05:13:30.5460852Z    Reading file: c:\program files (x86)\inno setup 6\Default.isl
+2026-10-13T05:13:30.5466594Z    Messages in script file
+2026-10-13T05:13:30.5473129Z Reading [Code] section
+2026-10-13T05:13:30.5478921Z Parsing [Files] section, line 17
+2026-10-13T05:13:30.5484731Z Parsing [Files] section, line 18
+2026-10-13T05:13:30.5490427Z Parsing [Files] section, line 19
+2026-10-13T05:13:30.5496490Z Parsing [Files] section, line 20
+2026-10-13T05:13:30.5501855Z Compiling [Code] section
+2026-10-13T05:13:30.5507970Z Creating setup files
+2026-10-13T05:13:30.5513884Z    Verification successful
+2026-10-13T05:13:30.5519316Z    Updating icons (Setup.exe)
+2026-10-13T05:13:30.5525874Z    Compressing: D:\a\_temp\Chimera document lifecycle 3ca2850f916c4581afcd69b782dc009c\new\README.txt
+2026-10-13T05:13:30.5531849Z    Compressing: D:\a\_temp\Chimera document lifecycle 3ca2850f916c4581afcd69b782dc009c\new\THIRD_PARTY_NOTICES.md
+2026-10-13T05:13:30.5538056Z    Compressing: D:\a\_temp\Chimera document lifecycle 3ca2850f916c4581afcd69b782dc009c\new\MANUAL.html
+2026-10-13T05:13:30.5544404Z    Compressing: D:\a\_temp\Chimera document lifecycle 3ca2850f916c4581afcd69b782dc009c\new\payload-manifest.json
+2026-10-13T05:13:30.5550300Z    Compressing Setup program executable
+2026-10-13T05:13:30.5556762Z    Updating version info (Setup.exe)
+2026-10-13T05:13:30.5562495Z    Updating manifest (Setup.exe)
+2026-10-13T05:13:30.5568500Z 
+2026-10-13T05:13:30.5574201Z 
+2026-10-13T05:13:30.5580035Z Successful compile (0.719 sec). Resulting Setup program filename is:
+2026-10-13T05:13:30.5586468Z D:\a\_temp\Chimera document lifecycle 3ca2850f916c4581afcd69b782dc009c\installers\new.exe
+2026-10-13T05:13:32.2670082Z PASS: Production parent handles block directory rename and preservation handles block deletion independently of external application locks
+2026-10-13T05:13:32.9424663Z PASS: Real Inno fresh installation and removal preserve license notices
+2026-10-13T05:13:33.6482004Z PASS: Upgrade retires only exact hash+size identities; edits, same-size edits, unknown files, hardlinks, symlinks and readonly documents survive
+2026-10-13T05:13:34.2761530Z PASS: Same-version repair and repeat repair restore owned documentation while retaining exact modified copies
+2026-10-13T05:13:34.7071559Z PASS: Junction targets remain unchanged and uninstall refuses historical traversal before deleting files
+2026-10-13T05:13:35.0607516Z SUCCESS: The process with PID 5936 (child process of PID 1420) has been terminated.
+2026-10-13T05:13:35.0799965Z PASS: Absent historical path guards prevent creation during uninstall, disappear on cancellation and forced process termination, and never queue reboot deletion
+2026-10-13T05:13:35.1745946Z PASS: An exclusive writer refuses uninstall before deleting files or registration when a preservation handle cannot be acquired
+2026-10-13T05:13:35.8275083Z PASS: Appended historical uninstall logs preserve edited docs in place, snapshots, licenses, linked files, presets, IRs and projects without reboot deletion
+2026-10-13T05:13:35.9387366Z ##[group]Run actions/upload-artifact@v4
+2026-10-13T05:13:35.9387720Z with:
+2026-10-13T05:13:35.9387985Z   name: Chimera-document-upgrade-windows-inno-fixtures
+2026-10-13T05:13:35.9388370Z   path: build/windows-document-upgrade-verification
+2026-10-13T05:13:35.9388687Z   if-no-files-found: warn
+2026-10-13T05:13:35.9388900Z   compression-level: 6
+2026-10-13T05:13:35.9389295Z   overwrite: false
+2026-10-13T05:13:35.9389487Z   include-hidden-files: false
+2026-10-13T05:13:35.9389696Z env:
+2026-10-13T05:13:35.9389950Z   pythonLocation: C:\hostedtoolcache\windows\Python\3.12.10\x64
+2026-10-13T05:13:35.9390406Z   PKG_CONFIG_PATH: C:\hostedtoolcache\windows\Python\3.12.10\x64/lib/pkgconfig
+2026-10-13T05:13:35.9390855Z   Python_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.12.10\x64
+2026-10-13T05:13:35.9391261Z   Python2_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.12.10\x64
+2026-10-13T05:13:35.9391669Z   Python3_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.12.10\x64
+2026-10-13T05:13:35.9392025Z ##[endgroup]
+2026-10-13T05:13:36.1261776Z (node:8040) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-13T05:13:36.1262502Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-13T05:13:36.1349683Z With the provided path, there will be 14 files uploaded
+2026-10-13T05:13:36.1354822Z Artifact name is valid!
+2026-10-13T05:13:36.1357328Z Root directory input is valid!
+2026-10-13T05:13:36.4179308Z Beginning upload of artifact content to blob storage
+2026-10-13T05:13:36.4616822Z (node:8040) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-10-13T05:13:36.6162592Z Uploaded bytes 20094
+2026-10-13T05:13:36.6558855Z Finished uploading artifact content to blob storage!
+2026-10-13T05:13:36.6560264Z SHA256 digest of uploaded artifact zip is 26b1dd64fb6e56ac2535ae5800b87e5c562b008de77adf5e20d4fe3980cae277
+2026-10-13T05:13:36.6562315Z Finalizing artifact upload
+2026-10-13T05:13:36.9091037Z Artifact Chimera-document-upgrade-windows-inno-fixtures.zip successfully finalized. Artifact ID 11790402477
+2026-10-13T05:13:36.9092170Z Artifact Chimera-document-upgrade-windows-inno-fixtures has been successfully uploaded! Final size is 20094 bytes. Artifact ID is 11790402477
+2026-10-13T05:13:36.9102962Z Artifact download URL: https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38350264747/artifacts/11790402477
+2026-10-13T05:13:36.9382042Z Post job cleanup.
+2026-10-13T05:13:37.0754138Z (node:3128) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-13T05:13:37.0754911Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-13T05:13:37.1004607Z Post job cleanup.
+2026-10-13T05:13:37.3309437Z [command]"C:\Program Files\Git\bin\git.exe" version
+2026-10-13T05:13:37.3578807Z git version 2.56.0.windows.1
+2026-10-13T05:13:37.3634842Z Temporarily overriding HOME='D:\a\_temp\55628f63-6098-4acb-a74a-7cffc5d992d4' before making global git config changes
+2026-10-13T05:13:37.3635689Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-13T05:13:37.3646852Z [command]"C:\Program Files\Git\bin\git.exe" config --global --add safe.directory D:\a\SpectralForge-Chimera-Amp-Matrix\SpectralForge-Chimera-Amp-Matrix
+2026-10-13T05:13:37.3937929Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp core\.sshCommand
+2026-10-13T05:13:37.4228202Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :\""
+2026-10-13T05:13:37.9094642Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-13T05:13:37.9359460Z http.https://github.com/.extraheader
+2026-10-13T05:13:37.9398992Z [command]"C:\Program Files\Git\bin\git.exe" config --local --unset-all http.https://github.com/.extraheader
+2026-10-13T05:13:37.9701694Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :\""
+2026-10-13T05:13:38.4356381Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-13T05:13:38.4641192Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "git config --local --show-origin --name-only --get-regexp remote.origin.url"
+2026-10-13T05:13:38.9643153Z Cleaning up orphan processes
+2026-10-13T05:13:38.9678990Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, actions/setup-python@v5, actions/upload-artifact@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/

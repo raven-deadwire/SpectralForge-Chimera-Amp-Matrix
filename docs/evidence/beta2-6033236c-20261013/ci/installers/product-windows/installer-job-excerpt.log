@@ -1,0 +1,91 @@
+2026-10-13T06:01:30.8098390Z    Compressing: D:\a\SpectralForge-Chimera-Amp-Matrix\SpectralForge-Chimera-Amp-Matrix\dist\SpectralForge-Chimera-1.3.1-beta.2-win64\ReferenceTools\validate_nam.py
+2026-10-13T06:01:31.4305613Z    Compressing Setup program executable
+2026-10-13T06:01:31.7660590Z    Updating version info (Setup.exe)
+2026-10-13T06:01:31.7660839Z    Updating manifest (Setup.exe)
+2026-10-13T06:01:31.7662046Z 
+2026-10-13T06:01:31.7666293Z 
+2026-10-13T06:01:31.7666512Z Successful compile (29.422 sec). Resulting Setup program filename is:
+2026-10-13T06:01:31.7667121Z D:\a\SpectralForge-Chimera-Amp-Matrix\SpectralForge-Chimera-Amp-Matrix\dist\SpectralForge-Chimera-1.3.1-beta.2-win64-Setup.exe
+2026-10-13T06:01:32.0051219Z Installer SHA256: 610b44602b7aec2dd5adb4ac3d90692b4f6dc683ab56ae7012f11bf457a1b4e7
+2026-10-13T06:01:32.0376680Z ##[group]Run ./Tools/Verify-WindowsInstaller.ps1
+2026-10-13T06:01:32.0376947Z [36;1m./Tools/Verify-WindowsInstaller.ps1[0m
+2026-10-13T06:01:32.0423478Z shell: C:\Program Files\PowerShell\7\pwsh.EXE -command ". '{0}'"
+2026-10-13T06:01:32.0423673Z env:
+2026-10-13T06:01:32.0423827Z   CHIMERA_SOURCE_SHA: 6033236cb81820a43679cbbd34be020804f9658d
+2026-10-13T06:01:32.0424050Z   pythonLocation: C:\hostedtoolcache\windows\Python\3.12.10\x64
+2026-10-13T06:01:32.0424307Z   PKG_CONFIG_PATH: C:\hostedtoolcache\windows\Python\3.12.10\x64/lib/pkgconfig
+2026-10-13T06:01:32.0424562Z   Python_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.12.10\x64
+2026-10-13T06:01:32.0424784Z   Python2_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.12.10\x64
+2026-10-13T06:01:32.0425002Z   Python3_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.12.10\x64
+2026-10-13T06:01:32.0425188Z   CHIMERA_PACKAGE_VERSION: 1.3.1-beta.2
+2026-10-13T06:01:32.0425337Z ##[endgroup]
+2026-10-13T06:01:35.7669341Z {"version": "1.3.1-beta.2", "product_version": "1.3.1", "installer_version": "1.3.1", "source_sha": "6033236cb81820a43679cbbd34be020804f9658d", "build_id": "6033236cb8"}
+2026-10-13T06:01:35.7959828Z PASS: Setup version resources match source/payload product version 1.3.1
+2026-10-13T06:01:49.0714440Z PASS: Installed DisplayVersion=1.3.1 and selected binary versions match 1.3.1-beta.2
+2026-10-13T06:01:49.0810406Z PASS: Product rename retires only exact old executable/VST3 binaries and preserves personal preset bytes
+2026-10-13T06:01:49.1351054Z PASS: installed personal IR discovered, audio decoded, selected in the cabinet menu and loaded into a rig
+2026-10-13T06:01:49.1842391Z PASS: installed personal IR discovered, audio decoded, selected in the cabinet menu and loaded into a rig
+2026-10-13T06:01:49.2327548Z PASS: installed personal IR discovered, audio decoded, selected in the cabinet menu and loaded into a rig
+2026-10-13T06:01:49.2830887Z PASS: installed personal IR discovered, audio decoded, selected in the cabinet menu and loaded into a rig
+2026-10-13T06:01:49.3349821Z PASS: installed personal IR discovered, audio decoded, selected in the cabinet menu and loaded into a rig
+2026-10-13T06:01:49.3894346Z PASS: installed personal IR discovered, audio decoded, selected in the cabinet menu and loaded into a rig
+2026-10-13T06:01:49.3958071Z PASS: Companion Bass/Guitar WAVs install recursively, match their source hashes, decode, appear in the cabinet menu and load into a rig
+2026-10-13T06:01:49.3961683Z PASS: Four Raven companion fixtures and sidecars install automatically, decode, appear in CAB and load into a rig
+2026-10-13T06:01:49.3965935Z PASS: Full install: standard VST3 path, app, documentation, shortcuts and uninstall registration; payload hashes match
+2026-10-13T06:01:49.5871210Z PASS: Standalone, VST3 and reference renderer use the static MSVC runtime
+2026-10-13T06:01:49.6009674Z PASS: Installed VST3 loads through the Windows loader and exports GetPluginFactory
+2026-10-13T06:01:53.3978980Z PASS: Start Menu shortcut launches the installed app and its window: C:\Program Files\SpectralForge\Chimera Amp Matrix\SpectralForge Chimera.exe
+2026-10-13T06:02:02.3321651Z PASS: Installed DisplayVersion=1.3.1 and selected binary versions match 1.3.1-beta.2
+2026-10-13T06:02:02.3327505Z PASS: Same-version reinstall repairs files and preserves modified documentation copies and personal presets/IRs
+2026-10-13T06:02:03.4826636Z PASS: Personal IR collection is preserved after uninstall
+2026-10-13T06:02:03.4834540Z PASS: Uninstall removes owned binaries, shortcut and Windows registration; preserves user files
+2026-10-13T06:02:10.7549323Z PASS: Installed DisplayVersion=1.3.1 and selected binary versions match 1.3.1-beta.2
+2026-10-13T06:02:10.7551912Z PASS: Independent custom application and VST3 installation folders accept Unicode paths
+2026-10-13T06:02:17.9428223Z PASS: Installed DisplayVersion=1.3.1 and selected binary versions match 1.3.1-beta.2
+2026-10-13T06:02:17.9432959Z PASS: Repair remembers the selected VST3 folder without a /VST3DIR override
+2026-10-13T06:02:25.1084206Z PASS: Installed DisplayVersion=1.3.1 and selected binary versions match 1.3.1-beta.2
+2026-10-13T06:02:25.1088685Z PASS: Changing the selected VST3 folder retires only its exact old plugin binary and preserves user files
+2026-10-13T06:02:25.8899988Z PASS: VST3-only selection and removal; Unicode custom app path
+2026-10-13T06:02:33.2575284Z PASS: Installed DisplayVersion=1.3.1 and selected binary versions match 1.3.1-beta.2
+2026-10-13T06:02:36.7903612Z PASS: Start Menu shortcut launches the installed app and its window: D:\a\_temp\Chimera 설치 검증\SpectralForge Chimera.exe
+2026-10-13T06:02:37.8029643Z PASS: Standalone-only selection and removal; no VST3 installed
+2026-10-13T06:02:37.9261157Z {"version": "1.3.1-beta.2", "product_version": "1.3.1", "installer_version": "1.3.1", "source_sha": "6033236cb81820a43679cbbd34be020804f9658d", "build_id": "6033236cb8"}
+2026-10-13T06:02:40.1304968Z PASS: Official v1.3.1-beta.1 Setup archive size and SHA256 match the reviewed public release
+2026-10-13T06:02:47.4159104Z PASS: Actual v1.3.1-beta.1 Setup installs exactly 24 documentation files; every raw size and SHA256 matches historical package evidence
+2026-10-13T06:02:54.9034805Z PASS: Real v1.3.1-beta.1 to 1.3.1-beta.2 upgrade retires nine exact owned research documents, preserves an edited legacy document in place and saves the annotated manual and license notices
+2026-10-13T06:03:09.5555435Z PASS: Two actual current-Setup repairs restore current payload bytes and preserve all annotated document snapshots and personal files
+2026-10-13T06:03:10.3256954Z PASS: Actual previous-release uninstall ownership survives upgrade/repair and preserves edited documents, snapshots, licenses, presets, IRs and projects without reboot deletion
+2026-10-13T06:03:10.5290442Z PASS: Actual public beta.1 Setup to current product Setup upgrade, repair and removal preserve user documents and files
+2026-10-13T06:03:10.7716261Z ##[group]Run actions/upload-artifact@v4
+2026-10-13T06:03:10.7716519Z with:
+2026-10-13T06:03:10.7716675Z   name: Chimera-Windows-installer-verification
+2026-10-13T06:03:10.7717010Z   path: build/installer-verification/*.txt
+build/installer-verification/*.log
+build/installer-verification/*.json
+
+2026-10-13T06:03:10.7717321Z   if-no-files-found: warn
+2026-10-13T06:03:10.7717468Z   compression-level: 6
+2026-10-13T06:03:10.7717596Z   overwrite: false
+2026-10-13T06:03:10.7717731Z   include-hidden-files: false
+2026-10-13T06:03:10.7717878Z env:
+2026-10-13T06:03:10.7718035Z   CHIMERA_SOURCE_SHA: 6033236cb81820a43679cbbd34be020804f9658d
+2026-10-13T06:03:10.7718284Z   pythonLocation: C:\hostedtoolcache\windows\Python\3.12.10\x64
+2026-10-13T06:03:10.7718549Z   PKG_CONFIG_PATH: C:\hostedtoolcache\windows\Python\3.12.10\x64/lib/pkgconfig
+2026-10-13T06:03:10.7718818Z   Python_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.12.10\x64
+2026-10-13T06:03:10.7719090Z   Python2_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.12.10\x64
+2026-10-13T06:03:10.7719331Z   Python3_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.12.10\x64
+2026-10-13T06:03:10.7720208Z   CHIMERA_PACKAGE_VERSION: 1.3.1-beta.2
+2026-10-13T06:03:10.7720375Z ##[endgroup]
+2026-10-13T06:03:10.8981619Z (node:7380) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-13T06:03:10.8982062Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-13T06:03:10.9042830Z With the provided path, there will be 19 files uploaded
+2026-10-13T06:03:10.9046668Z Artifact name is valid!
+2026-10-13T06:03:10.9047934Z Root directory input is valid!
+2026-10-13T06:03:11.2182856Z Beginning upload of artifact content to blob storage
+2026-10-13T06:03:11.2504376Z (node:7380) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-10-13T06:03:11.4745819Z Uploaded bytes 44010
+2026-10-13T06:03:11.5146400Z Finished uploading artifact content to blob storage!
+2026-10-13T06:03:11.5146940Z SHA256 digest of uploaded artifact zip is b2ccb79a634ba4c42d962d345e49e9a5e22c2f0440e77e15d26bc95941fc90ff
+2026-10-13T06:03:11.5148501Z Finalizing artifact upload
+2026-10-13T06:03:11.7616803Z Artifact Chimera-Windows-installer-verification.zip successfully finalized. Artifact ID 11791897476
+2026-10-13T06:03:11.7617444Z Artifact Chimera-Windows-installer-verification has been successfully uploaded! Final size is 44010 bytes. Artifact ID is 11791897476

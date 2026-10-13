@@ -1,0 +1,29 @@
+{
+  "source_sha": "6033236cb81820a43679cbbd34be020804f9658d",
+  "scope": "Source assertion contract only; fresh runtime checks bind separately to603 CI. No937 test result is reused.",
+  "sources": [
+    {
+      "path": "Tools/Verify-WindowsInstaller.ps1",
+      "git_blob": "92ccffa0026799a9df2333f87cc09e6f64be923f",
+      "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/blob/6033236cb81820a43679cbbd34be020804f9658d/Tools/Verify-WindowsInstaller.ps1"
+    },
+    {
+      "path": "Tools/Verify-WindowsPreviousReleaseUpgrade.ps1",
+      "git_blob": "fa18d31e218c4bcb966a30d4794369f70a2f379c",
+      "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/blob/6033236cb81820a43679cbbd34be020804f9658d/Tools/Verify-WindowsPreviousReleaseUpgrade.ps1"
+    },
+    {
+      "path": "Validation/legacy-document-inventory.json",
+      "git_blob": "50817aaa33f246f41fafe54b37f7f3fd0a6f2d8e",
+      "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/blob/6033236cb81820a43679cbbd34be020804f9658d/Validation/legacy-document-inventory.json"
+    }
+  ],
+  "current_payload_assertion_exact_source": "function Assert-CurrentPayload {\n    foreach ($file in Current-Documents) {\n        Assert ((Hash (Installed-Document $file.Name)) -eq (Hash $file.FullName)) \"Current documentation was not installed: $($file.Name)\"\n    }\n    Assert ((Hash (Join-Path $app \"SpectralForge Chimera.exe\")) -eq (Hash (Join-Path $stagePath \"Standalone/SpectralForge Chimera.exe\"))) \"Current standalone binary differs from the validated payload\"\n    Assert (!(Test-Path -LiteralPath (Join-Path $app \"ReferenceTools\"))) \"Unselected reference tools were installed\"\n    Assert (Test-Path -LiteralPath (Join-Path $startMenu \"SpectralForge Chimera.lnk\")) \"Current standalone shortcut is missing\"\n}",
+  "current_document_hash_caveat": "Runtime assertions compare actual installed files to this Windows build's staged files after upgrade and each repair. Individual current document raw hashes are not emitted by these serializers. Git/LF source fingerprints must not be assumed equal to raw Windows checkout CRLF bytes.",
+  "previous_public_setup": {
+    "tag": "v1.3.1-beta.1",
+    "expected_bytes": 210803143,
+    "expected_sha256": "da0a0c7f70b2ab6f5e0854ba9180a2eb3a8ab847c31c169db9e82c91002ff41a"
+  },
+  "historical_inventory_identity_preserved": true
+}

@@ -1,0 +1,275 @@
+﻿2026-10-13T05:13:43.2015422Z Current runner version: '2.337.0'
+2026-10-13T05:13:43.2032884Z ##[group]Runner Image Provisioner
+2026-10-13T05:13:43.2033505Z Hosted Compute Agent
+2026-10-13T05:13:43.2033958Z Version: 20261002.596
+2026-10-13T05:13:43.2034385Z Commit: c3d12f3313a95f25162a1503be624f3b0617f8c0
+2026-10-13T05:13:43.2034869Z Build Date: 2026-10-02T22:28:27Z
+2026-10-13T05:13:43.2035339Z Worker ID: {ca6d413c-217f-44a0-9e36-e118d3a98077}
+2026-10-13T05:13:43.2035805Z Region: centralus
+2026-10-13T05:13:43.2036177Z Cloud: Azure
+2026-10-13T05:13:43.2036585Z ##[endgroup]
+2026-10-13T05:13:43.2037420Z ##[group]Operating System
+2026-10-13T05:13:43.2037844Z Ubuntu
+2026-10-13T05:13:43.2038257Z 24.04.5
+2026-10-13T05:13:43.2038628Z LTS
+2026-10-13T05:13:43.2039004Z ##[endgroup]
+2026-10-13T05:13:43.2039372Z ##[group]Runner Image
+2026-10-13T05:13:43.2040072Z Image: ubuntu-24.04
+2026-10-13T05:13:43.2040467Z Version: 20261004.327.1
+2026-10-13T05:13:43.2041378Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20261004.327/images/ubuntu/Ubuntu2404-Readme.md
+2026-10-13T05:13:43.2042456Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20261004.327
+2026-10-13T05:13:43.2043095Z ##[endgroup]
+2026-10-13T05:13:43.2043876Z ##[group]GITHUB_TOKEN Permissions
+2026-10-13T05:13:43.2045351Z Contents: read
+2026-10-13T05:13:43.2045739Z Metadata: read
+2026-10-13T05:13:43.2046125Z ##[endgroup]
+2026-10-13T05:13:43.2047533Z Secret source: Actions
+2026-10-13T05:13:43.2048136Z Cache mode: write
+2026-10-13T05:13:43.2048615Z Prepare workflow directory
+2026-10-13T05:13:43.2376450Z Prepare all required actions
+2026-10-13T05:13:43.2412308Z Getting action download info
+2026-10-13T05:13:43.4475625Z Download action repository 'actions/checkout@v4' (SHA:11d5960a326750d5838078e36cf38b85af677262)
+2026-10-13T05:13:43.6937857Z Download action repository 'actions/setup-python@v5' (SHA:a26af69be951a213d495a4c3e4e4022e16d87065)
+2026-10-13T05:13:43.9810501Z Download action repository 'actions/upload-artifact@v4' (SHA:ea165f8d65b6e75b540449e92b4886f43607fa02)
+2026-10-13T05:13:44.4147656Z Complete job name: Document fixtures (ubuntu-24.04)
+2026-10-13T05:13:44.5101078Z ##[group]Run actions/checkout@v4
+2026-10-13T05:13:44.5102087Z with:
+2026-10-13T05:13:44.5102895Z   ref: 6033236cb81820a43679cbbd34be020804f9658d
+2026-10-13T05:13:44.5103989Z   repository: raven-deadwire/SpectralForge-Chimera-Amp-Matrix
+2026-10-13T05:13:44.5110499Z   token: ***
+2026-10-13T05:13:44.5111248Z   ssh-strict: true
+2026-10-13T05:13:44.5111952Z   ssh-user: git
+2026-10-13T05:13:44.5112672Z   persist-credentials: true
+2026-10-13T05:13:44.5113446Z   clean: true
+2026-10-13T05:13:44.5114160Z   sparse-checkout-cone-mode: true
+2026-10-13T05:13:44.5114985Z   fetch-depth: 1
+2026-10-13T05:13:44.5115701Z   fetch-tags: false
+2026-10-13T05:13:44.5116434Z   show-progress: true
+2026-10-13T05:13:44.5117144Z   lfs: false
+2026-10-13T05:13:44.5117807Z   submodules: false
+2026-10-13T05:13:44.5118534Z   set-safe-directory: true
+2026-10-13T05:13:44.5119333Z   allow-unsafe-pr-checkout: false
+2026-10-13T05:13:44.5120487Z ##[endgroup]
+2026-10-13T05:13:44.5908679Z Syncing repository: raven-deadwire/SpectralForge-Chimera-Amp-Matrix
+2026-10-13T05:13:44.5912258Z ##[group]Getting Git version info
+2026-10-13T05:13:44.5914242Z Working directory is '/home/runner/work/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix'
+2026-10-13T05:13:44.5916927Z [command]/usr/bin/git version
+2026-10-13T05:13:44.5930389Z git version 2.55.0
+2026-10-13T05:13:44.5945026Z ##[endgroup]
+2026-10-13T05:13:44.5952679Z Temporarily overriding HOME='/home/runner/work/_temp/51af5bc4-796f-4649-8fa2-73fded2220ff' before making global git config changes
+2026-10-13T05:13:44.5955661Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-13T05:13:44.5958681Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix
+2026-10-13T05:13:44.6275851Z Deleting the contents of '/home/runner/work/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix'
+2026-10-13T05:13:44.6279799Z ##[group]Initializing the repository
+2026-10-13T05:13:44.6285152Z [command]/usr/bin/git init /home/runner/work/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix
+2026-10-13T05:13:44.7079091Z hint: Using 'master' as the name for the initial branch. This default branch name
+2026-10-13T05:13:44.7081514Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+2026-10-13T05:13:44.7083523Z hint: to use in all of your new repositories, which will suppress this warning,
+2026-10-13T05:13:44.7084858Z hint: call:
+2026-10-13T05:13:44.7085735Z hint:
+2026-10-13T05:13:44.7086831Z hint: 	git config --global init.defaultBranch <name>
+2026-10-13T05:13:44.7088214Z hint:
+2026-10-13T05:13:44.7089344Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2026-10-13T05:13:44.7091049Z hint: 'development'. The just-created branch can be renamed via this command:
+2026-10-13T05:13:44.7092181Z hint:
+2026-10-13T05:13:44.7092926Z hint: 	git branch -m <name>
+2026-10-13T05:13:44.7093857Z hint:
+2026-10-13T05:13:44.7095020Z hint: Disable this message with "git config set advice.defaultBranchName false"
+2026-10-13T05:13:44.7096888Z Initialized empty Git repository in /home/runner/work/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/.git/
+2026-10-13T05:13:44.7100207Z [command]/usr/bin/git remote add origin https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix
+2026-10-13T05:13:44.7782601Z ##[endgroup]
+2026-10-13T05:13:44.7784400Z ##[group]Disabling automatic garbage collection
+2026-10-13T05:13:44.7790551Z [command]/usr/bin/git config --local gc.auto 0
+2026-10-13T05:13:44.8375181Z ##[endgroup]
+2026-10-13T05:13:44.8376467Z ##[group]Setting up auth
+2026-10-13T05:13:44.8383009Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-13T05:13:44.8411274Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-13T05:13:44.8911021Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-13T05:13:44.8934635Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-13T05:13:44.9082189Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-13T05:13:44.9105937Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-10-13T05:13:44.9254330Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-10-13T05:13:45.0061911Z ##[endgroup]
+2026-10-13T05:13:45.0064140Z ##[group]Fetching the repository
+2026-10-13T05:13:45.0071079Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin 6033236cb81820a43679cbbd34be020804f9658d
+2026-10-13T05:13:47.4734969Z From https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix
+2026-10-13T05:13:47.4735690Z  * branch            6033236cb81820a43679cbbd34be020804f9658d -> FETCH_HEAD
+2026-10-13T05:13:47.4752564Z ##[endgroup]
+2026-10-13T05:13:47.4753065Z ##[group]Determining the checkout info
+2026-10-13T05:13:47.4753582Z ##[endgroup]
+2026-10-13T05:13:47.4754223Z [command]/usr/bin/git sparse-checkout disable
+2026-10-13T05:13:47.4793945Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+2026-10-13T05:13:47.4820225Z ##[group]Checking out the ref
+2026-10-13T05:13:47.4822987Z [command]/usr/bin/git checkout --progress --force 6033236cb81820a43679cbbd34be020804f9658d
+2026-10-13T05:13:47.9900303Z Note: switching to '6033236cb81820a43679cbbd34be020804f9658d'.
+2026-10-13T05:13:47.9900725Z 
+2026-10-13T05:13:47.9901075Z You are in 'detached HEAD' state. You can look around, make experimental
+2026-10-13T05:13:47.9901865Z changes and commit them, and you can discard any commits you make in this
+2026-10-13T05:13:47.9902285Z state without impacting any branches by switching back to a branch.
+2026-10-13T05:13:47.9902534Z 
+2026-10-13T05:13:47.9902740Z If you want to create a new branch to retain commits you create, you may
+2026-10-13T05:13:47.9903150Z do so (now or later) by using -c with the switch command. Example:
+2026-10-13T05:13:47.9903333Z 
+2026-10-13T05:13:47.9903464Z   git switch -c <new-branch-name>
+2026-10-13T05:13:47.9903673Z 
+2026-10-13T05:13:47.9903804Z Or undo this operation with:
+2026-10-13T05:13:47.9904010Z 
+2026-10-13T05:13:47.9904096Z   git switch -
+2026-10-13T05:13:47.9904270Z 
+2026-10-13T05:13:47.9904480Z Turn off this advice by setting config variable advice.detachedHead to false
+2026-10-13T05:13:47.9904721Z 
+2026-10-13T05:13:47.9904907Z HEAD is now at 6033236 Preserve native UI evidence receipt without changing public captions
+2026-10-13T05:13:47.9917297Z ##[endgroup]
+2026-10-13T05:13:47.9953500Z [command]/usr/bin/git log -1 --format=%H
+2026-10-13T05:13:47.9972226Z 6033236cb81820a43679cbbd34be020804f9658d
+2026-10-13T05:13:48.0399040Z ##[group]Run actions/setup-python@v5
+2026-10-13T05:13:48.0399265Z with:
+2026-10-13T05:13:48.0399443Z   python-version: 3.12
+2026-10-13T05:13:48.0399990Z   check-latest: false
+2026-10-13T05:13:48.0401906Z   token: ***
+2026-10-13T05:13:48.0402071Z   update-environment: true
+2026-10-13T05:13:48.0402258Z   allow-prereleases: false
+2026-10-13T05:13:48.0402483Z   freethreaded: false
+2026-10-13T05:13:48.0402645Z ##[endgroup]
+2026-10-13T05:13:48.1341587Z ##[group]Installed versions
+2026-10-13T05:13:48.1418960Z (node:2091) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-13T05:13:48.1419660Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-13T05:13:48.1420042Z Successfully set up CPython (3.12.15)
+2026-10-13T05:13:48.1420583Z ##[endgroup]
+2026-10-13T05:13:48.1541297Z ##[group]Run mkdir -p build/document-upgrade
+2026-10-13T05:13:48.1541797Z [36;1mmkdir -p build/document-upgrade[0m
+2026-10-13T05:13:48.1542115Z [36;1mpython - <<'PY'[0m
+2026-10-13T05:13:48.1542455Z [36;1mimport json, os, pathlib, platform, subprocess[0m
+2026-10-13T05:13:48.1542802Z [36;1mrecord = {[0m
+2026-10-13T05:13:48.1543277Z [36;1m    "schema": "spectralforge.document-upgrade-fixtures.v1",[0m
+2026-10-13T05:13:48.1543910Z [36;1m    "source_sha": subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip(),[0m
+2026-10-13T05:13:48.1544434Z [36;1m    "run_id": os.environ["GITHUB_RUN_ID"],[0m
+2026-10-13T05:13:48.1544778Z [36;1m    "runner_os": platform.system(),[0m
+2026-10-13T05:13:48.1545658Z [36;1m    "scope": "Native document helper with synthetic files; Linux invokes real dpkg in an isolated root. macOS additionally runs a guarded synthetic Apple PKG lifecycle reported in macos-pkg-fixture/.",[0m
+2026-10-13T05:13:48.1546643Z [36;1m    "native_product_installation_verified": False,[0m
+2026-10-13T05:13:48.1547055Z [36;1m    "macos_pkg_installation_verified": False,[0m
+2026-10-13T05:13:48.1547407Z [36;1m    "windows_installer_verified": False,[0m
+2026-10-13T05:13:48.1547734Z [36;1m    "daw_audio_verified": False,[0m
+2026-10-13T05:13:48.1548054Z [36;1m    "publication_approved": False,[0m
+2026-10-13T05:13:48.1548520Z [36;1m    "results": "See test-output.txt; this source/scope record is not a PASS verdict.",[0m
+2026-10-13T05:13:48.1548968Z [36;1m}[0m
+2026-10-13T05:13:48.1549809Z [36;1mpathlib.Path("build/document-upgrade/scope.json").write_text(json.dumps(record, indent=2) + "\n", encoding="utf-8")[0m
+2026-10-13T05:13:48.1550427Z [36;1mPY[0m
+2026-10-13T05:13:48.1767070Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-10-13T05:13:48.1767359Z env:
+2026-10-13T05:13:48.1767560Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-13T05:13:48.1767869Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib/pkgconfig
+2026-10-13T05:13:48.1768320Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-13T05:13:48.1768613Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-13T05:13:48.1768883Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-13T05:13:48.1769143Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib
+2026-10-13T05:13:48.1769362Z ##[endgroup]
+2026-10-13T05:13:48.2528981Z ##[group]Run set -o pipefail
+2026-10-13T05:13:48.2529234Z [36;1mset -o pipefail[0m
+2026-10-13T05:13:48.2529425Z [36;1mCHIMERA_TEST_PYTHON=$(command -v python)[0m
+2026-10-13T05:13:48.2530035Z [36;1msudo -- "$CHIMERA_TEST_PYTHON" Tools/test_legacy_document_cleanup.py 2>&1 | tee build/document-upgrade/test-output.txt[0m
+2026-10-13T05:13:48.2565355Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-10-13T05:13:48.2565620Z env:
+2026-10-13T05:13:48.2565830Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-13T05:13:48.2566118Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib/pkgconfig
+2026-10-13T05:13:48.2566423Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-13T05:13:48.2566683Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-13T05:13:48.2566941Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-13T05:13:48.2567207Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib
+2026-10-13T05:13:48.2567497Z ##[endgroup]
+2026-10-13T05:13:48.8450978Z test_real_dpkg_failed_prepare_does_not_unpack_or_lose_user_document (__main__.DpkgDocumentLifecycleTests.test_real_dpkg_failed_prepare_does_not_unpack_or_lose_user_document) ... ok
+2026-10-13T05:13:48.8992925Z test_real_dpkg_fresh_install_and_remove_preserve_licenses_and_personal_files (__main__.DpkgDocumentLifecycleTests.test_real_dpkg_fresh_install_and_remove_preserve_licenses_and_personal_files) ... ok
+2026-10-13T05:13:49.0446609Z test_real_dpkg_upgrade_repair_remove_preserve_user_changes (__main__.DpkgDocumentLifecycleTests.test_real_dpkg_upgrade_repair_remove_preserve_user_changes) ... ok
+2026-10-13T05:13:49.3240848Z test_abort_does_not_overwrite_a_new_user_edit (__main__.LegacyDocumentCleanupTests.test_abort_does_not_overwrite_a_new_user_edit) ... ok
+2026-10-13T05:13:49.3353602Z test_abort_restores_missing_user_document_and_is_repeatable (__main__.LegacyDocumentCleanupTests.test_abort_restores_missing_user_document_and_is_repeatable) ... ok
+2026-10-13T05:13:49.3370320Z test_backup_path_link_refuses_prepare (__main__.LegacyDocumentCleanupTests.test_backup_path_link_refuses_prepare) ... ok
+2026-10-13T05:13:49.3386129Z test_blocked_backup_refuses_prepare_and_preserves_source (__main__.LegacyDocumentCleanupTests.test_blocked_backup_refuses_prepare_and_preserves_source) ... ok
+2026-10-13T05:13:49.3401842Z test_cleanup_removes_only_exact_platform_variants (__main__.LegacyDocumentCleanupTests.test_cleanup_removes_only_exact_platform_variants) ... ok
+2026-10-13T05:13:49.3558567Z test_current_manual_edit_saved_while_repair_restores_payload (__main__.LegacyDocumentCleanupTests.test_current_manual_edit_saved_while_repair_restores_payload) ... ok
+2026-10-13T05:13:49.3594359Z test_fresh_install_has_no_retired_documents (__main__.LegacyDocumentCleanupTests.test_fresh_install_has_no_retired_documents) ... ok
+2026-10-13T05:13:49.3603594Z test_hardlink_file_refuses_prepare (__main__.LegacyDocumentCleanupTests.test_hardlink_file_refuses_prepare) ... ok
+2026-10-13T05:13:49.3612501Z test_linked_parent_refuses_prepare (__main__.LegacyDocumentCleanupTests.test_linked_parent_refuses_prepare) ... ok
+2026-10-13T05:13:49.3748094Z test_modified_retired_document_restored_after_unpack (__main__.LegacyDocumentCleanupTests.test_modified_retired_document_restored_after_unpack) ... ok
+2026-10-13T05:13:49.6505016Z test_native_sha256_matches_hashlib_at_block_and_read_boundaries (__main__.LegacyDocumentCleanupTests.test_native_sha256_matches_hashlib_at_block_and_read_boundaries) ... ok
+2026-10-13T05:13:49.6515366Z test_nonregular_candidate_refuses_prepare (__main__.LegacyDocumentCleanupTests.test_nonregular_candidate_refuses_prepare) ... ok
+2026-10-13T05:13:49.6629642Z test_remove_documents_exact_payload_removal_is_idempotent (__main__.LegacyDocumentCleanupTests.test_remove_documents_exact_payload_removal_is_idempotent) ... ok
+2026-10-13T05:13:49.8673177Z test_remove_documents_preserves_edits_notices_and_unknown_user_files (__main__.LegacyDocumentCleanupTests.test_remove_documents_preserves_edits_notices_and_unknown_user_files) ... ok
+2026-10-13T05:13:49.8819832Z test_remove_restores_user_edits_and_required_notices (__main__.LegacyDocumentCleanupTests.test_remove_restores_user_edits_and_required_notices) ... ok
+2026-10-13T05:13:49.8993730Z test_repeated_prepare_preserves_original_snapshot (__main__.LegacyDocumentCleanupTests.test_repeated_prepare_preserves_original_snapshot) ... ok
+2026-10-13T05:13:49.9219996Z test_restore_retains_private_file_owner_group_and_permissions (__main__.LegacyDocumentCleanupTests.test_restore_retains_private_file_owner_group_and_permissions) ... ok
+2026-10-13T05:13:49.9242824Z test_same_size_changed_content_is_preserved (__main__.LegacyDocumentCleanupTests.test_same_size_changed_content_is_preserved) ... ok
+2026-10-13T05:13:49.9252201Z test_symlink_docroot_refuses_prepare (__main__.LegacyDocumentCleanupTests.test_symlink_docroot_refuses_prepare) ... ok
+2026-10-13T05:13:49.9261794Z test_symlink_file_refuses_prepare_without_deleting_other_files (__main__.LegacyDocumentCleanupTests.test_symlink_file_refuses_prepare_without_deleting_other_files) ... ok
+2026-10-13T05:13:49.9365058Z test_tampered_backup_refuses_restore (__main__.LegacyDocumentCleanupTests.test_tampered_backup_refuses_restore) ... ok
+2026-10-13T05:13:49.9466167Z test_tampered_journal_refuses_commit_without_deleting_original (__main__.LegacyDocumentCleanupTests.test_tampered_journal_refuses_commit_without_deleting_original) ... ok
+2026-10-13T05:13:49.9478477Z test_unknown_user_files_and_forged_runtime_manifest_are_ignored (__main__.LegacyDocumentCleanupTests.test_unknown_user_files_and_forged_runtime_manifest_are_ignored) ... ok
+2026-10-13T05:13:49.9491656Z test_unverified_line_ending_variant_is_preserved (__main__.LegacyDocumentCleanupTests.test_unverified_line_ending_variant_is_preserved) ... ok
+2026-10-13T05:13:50.2757733Z test_native_install_creation_race_preserves_new_user_file (__main__.NativeDocumentInstallTests.test_native_install_creation_race_preserves_new_user_file) ... ok
+2026-10-13T05:13:50.2927793Z test_native_install_failed_preservation_keeps_original_before_replacement (__main__.NativeDocumentInstallTests.test_native_install_failed_preservation_keeps_original_before_replacement) ... ok
+2026-10-13T05:13:50.3029804Z test_native_install_fresh_then_same_version_is_idempotent (__main__.NativeDocumentInstallTests.test_native_install_fresh_then_same_version_is_idempotent) ... ok
+2026-10-13T05:13:50.3102074Z test_native_install_leaf_swap_preserves_both_observed_user_versions (__main__.NativeDocumentInstallTests.test_native_install_leaf_swap_preserves_both_observed_user_versions) ... ok
+2026-10-13T05:13:50.3178093Z test_native_install_manifest_is_copy_only_metadata_and_preserves_previous_bytes (__main__.NativeDocumentInstallTests.test_native_install_manifest_is_copy_only_metadata_and_preserves_previous_bytes) ... ok
+2026-10-13T05:13:50.3214947Z test_native_install_raced_symlink_never_touches_its_target (__main__.NativeDocumentInstallTests.test_native_install_raced_symlink_never_touches_its_target) ... ok
+2026-10-13T05:13:50.3251821Z test_native_install_rechecks_same_size_source_change_before_replacement (__main__.NativeDocumentInstallTests.test_native_install_rechecks_same_size_source_change_before_replacement) ... ok
+2026-10-13T05:13:50.3273358Z test_native_install_refuses_linked_source_or_target_ancestors (__main__.NativeDocumentInstallTests.test_native_install_refuses_linked_source_or_target_ancestors) ... ok
+2026-10-13T05:13:50.3295623Z test_native_install_refuses_source_links_and_nonregular_files (__main__.NativeDocumentInstallTests.test_native_install_refuses_source_links_and_nonregular_files) ... ok
+2026-10-13T05:13:50.3306630Z test_native_install_refuses_target_link_before_retiring_other_files (__main__.NativeDocumentInstallTests.test_native_install_refuses_target_link_before_retiring_other_files) ... ok
+2026-10-13T05:13:50.3331671Z test_native_install_rejects_changed_or_historical_source_bytes_before_changes (__main__.NativeDocumentInstallTests.test_native_install_rejects_changed_or_historical_source_bytes_before_changes) ... ok
+2026-10-13T05:13:50.3353026Z test_native_install_rejects_relative_root_and_source_destination_overlap (__main__.NativeDocumentInstallTests.test_native_install_rejects_relative_root_and_source_destination_overlap) ... ok
+2026-10-13T05:13:50.3426779Z test_native_install_retains_inode_for_an_editor_already_holding_it_open (__main__.NativeDocumentInstallTests.test_native_install_retains_inode_for_an_editor_already_holding_it_open) ... ok
+2026-10-13T05:13:50.3470306Z test_native_install_root_swap_cannot_redirect_copy_to_private_documents (__main__.NativeDocumentInstallTests.test_native_install_root_swap_cannot_redirect_copy_to_private_documents) ... ok
+2026-10-13T05:13:50.3580308Z test_native_install_upgrade_preserves_same_size_edits_and_private_files (__main__.NativeDocumentInstallTests.test_native_install_upgrade_preserves_same_size_edits_and_private_files) ... ok
+2026-10-13T05:13:50.3580930Z 
+2026-10-13T05:13:50.3581112Z ----------------------------------------------------------------------
+2026-10-13T05:13:50.3581409Z Ran 42 tests in 2.003s
+2026-10-13T05:13:50.3581545Z 
+2026-10-13T05:13:50.3581634Z OK
+2026-10-13T05:13:50.3762102Z ##[group]Run actions/upload-artifact@v4
+2026-10-13T05:13:50.3762312Z with:
+2026-10-13T05:13:50.3762499Z   name: Chimera-document-upgrade-ubuntu-24.04
+2026-10-13T05:13:50.3762731Z   path: build/document-upgrade
+2026-10-13T05:13:50.3762923Z   if-no-files-found: error
+2026-10-13T05:13:50.3763101Z   compression-level: 6
+2026-10-13T05:13:50.3763271Z   overwrite: false
+2026-10-13T05:13:50.3763430Z   include-hidden-files: false
+2026-10-13T05:13:50.3763609Z env:
+2026-10-13T05:13:50.3763795Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-13T05:13:50.3764093Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib/pkgconfig
+2026-10-13T05:13:50.3764385Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-13T05:13:50.3764651Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-13T05:13:50.3764920Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-13T05:13:50.3765226Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib
+2026-10-13T05:13:50.3765457Z ##[endgroup]
+2026-10-13T05:13:50.4995307Z (node:2334) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-13T05:13:50.4995913Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-13T05:13:50.5033756Z With the provided path, there will be 2 files uploaded
+2026-10-13T05:13:50.5034686Z Artifact name is valid!
+2026-10-13T05:13:50.5035034Z Root directory input is valid!
+2026-10-13T05:13:50.7426436Z Beginning upload of artifact content to blob storage
+2026-10-13T05:13:50.7570306Z (node:2334) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-10-13T05:13:50.9428800Z Uploaded bytes 1819
+2026-10-13T05:13:50.9942938Z Finished uploading artifact content to blob storage!
+2026-10-13T05:13:50.9943597Z SHA256 digest of uploaded artifact zip is 1374c49a7379561577ae3825eb6a773eeafb4ba59da215a47e55df82672568ad
+2026-10-13T05:13:50.9944274Z Finalizing artifact upload
+2026-10-13T05:13:51.1968528Z Artifact Chimera-document-upgrade-ubuntu-24.04.zip successfully finalized. Artifact ID 11790003728
+2026-10-13T05:13:51.1969245Z Artifact Chimera-document-upgrade-ubuntu-24.04 has been successfully uploaded! Final size is 1819 bytes. Artifact ID is 11790003728
+2026-10-13T05:13:51.1974016Z Artifact download URL: https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38350264747/artifacts/11790003728
+2026-10-13T05:13:51.2095593Z Post job cleanup.
+2026-10-13T05:13:51.2979169Z (node:2346) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-13T05:13:51.2979934Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-13T05:13:51.3098493Z Post job cleanup.
+2026-10-13T05:13:51.3746494Z [command]/usr/bin/git version
+2026-10-13T05:13:51.3784336Z git version 2.55.0
+2026-10-13T05:13:51.3819618Z Temporarily overriding HOME='/home/runner/work/_temp/12630a30-b379-45f9-a2f4-b8d461c6c1e8' before making global git config changes
+2026-10-13T05:13:51.3820660Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-13T05:13:51.3824382Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix
+2026-10-13T05:13:51.3864648Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-13T05:13:51.3900098Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-13T05:13:51.4141180Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-13T05:13:51.4179249Z http.https://github.com/.extraheader
+2026-10-13T05:13:51.4188872Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+2026-10-13T05:13:51.4221872Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-13T05:13:51.4505700Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-13T05:13:51.4527276Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-10-13T05:13:51.4797445Z Cleaning up orphan processes
+2026-10-13T05:13:51.4977789Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, actions/setup-python@v5, actions/upload-artifact@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/

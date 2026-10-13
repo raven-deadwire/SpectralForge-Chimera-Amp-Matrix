@@ -53,7 +53,24 @@ The full current and three donor Git trees/files were retrieved again and evalua
 
 ## Fresh CI
 
-Original attempt-1 run IDs are recorded in ci/run-map.json. All are pinned to the source above. The three document compatibility jobs have completed successfully; final product/installer/CAB results and artifact verification will be recorded when complete. No source qualification is inferred from workflow start or from another SHA.
+Original attempt-1 run IDs are recorded in ci/run-map.json. All are pinned to the source above. At the current checkpoint,10/11 workflows and30 completed jobs succeeded with original checkout logs bound to6033236c. macOS Product CTest and the later assembly/gate remain pending.
+
+| Completed fresh check | Result |
+|---|---|
+| Windows Product CTest | 48/48 PASS;1103.14seconds |
+| Windows update-candidate CTest | 48/48 PASS;1259.52seconds; separate smoke1/1 in2.98seconds |
+| Linux Product CTest | 45/45 PASS;967.42seconds |
+| Three document fixture platform jobs | SUCCESS within platform-specific scope |
+| Both actual Windows previous-public-beta.1 lifecycles | Upgrade, two repairs and uninstall PASS |
+| CAB three-platform workflow | Three original jobs SUCCESS; independent archive metrics audit pending |
+
+Both real Windows lifecycles verified24 historical document hashes/sizes against the frozen inventory, removed9 exact unedited retired documents and preserved the edited retired document. Edited old Manual bytes were snapshotted before current-document replacement. Edited README bytes were snapshotted on repair, and two repairs restored current payload bytes. A later edited Manual, existing snapshots, licenses and personal preset/IR/project sentinels survived uninstall without reboot-delayed deletion. Actual Windows PRESETS.md was checked against the current stage, but that old-product fixture did not separately annotate PRESETS.md; no previous-source local PRESETS-edit probe is credited here.
+
+Product Setup SHA256:610b44602b7aec2dd5adb4ac3d90692b4f6dc683ab56ae7012f11bf457a1b4e7. Update Setup SHA256:97f6216ac93a4343f2cccb3ed4420e0f33c83c831b387a72a66d1e4087ac434c. These are distinct newly built binaries. Original logs/metadata and the exact preservation contract are under ci/installers. Original report ZIP byte audit remains pending; its later result will be recorded as a separate addendum.
+
+Linux packaging verified extracted DEB standalone/VST3/manual hashes, builder ldd and explicit runtime dependencies, plus TAR construction/checksums. This does not establish actual Linux full-product installation/upgrade or installed-app/DAW acceptance. macOS synthetic document PKG fixtures are also distinct from a full old-product upgrade.
+
+Local execution for this source is NOT_RUN because the executor remains offline. No source qualification is inferred from workflow start, parent-source static identity or another SHA's runtime PASS.
 
 ## Release boundary
 

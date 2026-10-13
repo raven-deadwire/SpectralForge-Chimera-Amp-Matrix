@@ -1,0 +1,141 @@
+{
+  "schema": "chimera.product-platform-original-log-review.v1",
+  "phase": "Original completed CI log and API metadata; separate byte audit pending",
+  "platform": "linux",
+  "runner": "ubuntu-22.04",
+  "source_sha": "6033236cb81820a43679cbbd34be020804f9658d",
+  "tree_sha": "7b23b503b807db36ec4f51491d6aa5f8c29e7b8c",
+  "run_id": 38350264755,
+  "run_attempt": 1,
+  "job_id": 115141040273,
+  "job_url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38350264755/job/115141040273",
+  "job_result": "success",
+  "checkout_proof": [
+    "2026-10-13T05:16:21.2718748Z [command]/usr/bin/git log -1 --format=%H",
+    "2026-10-13T05:16:21.2748857Z 6033236cb81820a43679cbbd34be020804f9658d"
+  ],
+  "ctest": {
+    "passed": 45,
+    "total": 45,
+    "failed": 0,
+    "seconds": 967.42,
+    "summary": [
+      "2026-10-13T06:09:27.3606578Z 100% tests passed, 0 tests failed out of 45",
+      "2026-10-13T06:09:27.3607121Z Total Test time (real) = 967.42 sec"
+    ],
+    "original_case_rows": [
+      "2026-10-13T05:53:25.1907129Z  1/45 Test  #1: ChimeraOriginalAmpTests ...............   Passed    5.25 sec",
+      "2026-10-13T05:53:25.5002371Z  2/45 Test  #2: ChimeraOriginalAmpIntegrationTests ....   Passed    0.31 sec",
+      "2026-10-13T05:53:33.5094866Z  3/45 Test  #3: ChimeraNiflheimrCoreTests .............   Passed    8.01 sec",
+      "2026-10-13T05:53:34.6092734Z  4/45 Test  #4: ChimeraNiflheimrIntegrationTests ......   Passed    1.10 sec",
+      "2026-10-13T05:53:39.2125871Z  5/45 Test  #5: ChimeraPackagingVersionTests ..........   Passed    4.60 sec",
+      "2026-10-13T05:53:41.3346208Z  6/45 Test  #6: ChimeraVBlankFailureTests .............   Passed    2.12 sec",
+      "2026-10-13T05:54:29.9506854Z  7/45 Test  #7: ChimeraTests ..........................   Passed   48.62 sec",
+      "2026-10-13T05:54:32.9816665Z  8/45 Test  #8: ChimeraNativeFocusTests ...............   Passed    3.03 sec",
+      "2026-10-13T05:54:33.0874878Z  9/45 Test  #9: ChimeraNativeRendererTests ............   Passed    0.11 sec",
+      "2026-10-13T05:54:33.9899733Z 10/45 Test #10: ChimeraOriginalRendererTests ..........   Passed    0.90 sec",
+      "2026-10-13T05:54:34.2667137Z 11/45 Test #11: ChimeraNiflheimrRendererTests .........   Passed    0.28 sec",
+      "2026-10-13T05:54:34.2758765Z 12/45 Test #12: ChimeraReleaseTests ...................   Passed    0.01 sec",
+      "2026-10-13T05:54:38.1534204Z 13/45 Test #13: ChimeraStabilityTests .................   Passed    3.88 sec",
+      "2026-10-13T05:54:42.5303413Z 14/45 Test #14: ChimeraPedalBoardTests ................   Passed    4.38 sec",
+      "2026-10-13T05:54:42.7375062Z 15/45 Test #15: ChimeraIRCollectionTests ..............   Passed    0.21 sec",
+      "2026-10-13T05:54:43.3992419Z 16/45 Test #16: ChimeraIRLibraryTests .................   Passed    0.66 sec",
+      "2026-10-13T05:54:46.7429283Z 17/45 Test #17: ChimeraCabPanelTests ..................   Passed    3.34 sec",
+      "2026-10-13T05:56:29.0636327Z 18/45 Test #18: ChimeraCabPanelStateTests .............   Passed  102.32 sec",
+      "2026-10-13T05:56:39.7844227Z 19/45 Test #19: ChimeraCabPanelRoutingTests ...........   Passed   10.72 sec",
+      "2026-10-13T05:56:58.0992848Z 20/45 Test #20: ChimeraCabPanelIRIsolationTests .......   Passed   18.31 sec",
+      "2026-10-13T05:57:10.2980884Z 21/45 Test #21: ChimeraNewAmpTests ....................   Passed   12.20 sec",
+      "2026-10-13T05:57:24.7716491Z 22/45 Test #22: ChimeraPedalOctaverTests ..............   Passed   14.47 sec",
+      "2026-10-13T05:57:37.7424516Z 23/45 Test #23: ChimeraAmpNativeTests .................   Passed   12.97 sec",
+      "2026-10-13T05:57:40.3204457Z 24/45 Test #24: ChimeraPostNativeTests ................   Passed    2.58 sec",
+      "2026-10-13T05:57:53.2772015Z 25/45 Test #25: ChimeraGateProcessorTests .............   Passed   12.96 sec",
+      "2026-10-13T05:57:53.6201018Z 26/45 Test #26: ChimeraGateTests ......................   Passed    0.34 sec",
+      "2026-10-13T06:02:11.9723028Z 27/45 Test #27: ChimeraIntegratedProcessorTests .......   Passed  258.35 sec",
+      "2026-10-13T06:02:42.7960315Z 28/45 Test #28: ChimeraNiflheimrPresetTests ...........   Passed   30.82 sec",
+      "2026-10-13T06:03:28.6137770Z 29/45 Test #29: ChimeraPitchRegressionTests ...........   Passed   45.82 sec",
+      "2026-10-13T06:03:35.9810555Z 30/45 Test #30: ChimeraCabExpansionModelTests .........   Passed    7.37 sec",
+      "2026-10-13T06:03:38.2666323Z 31/45 Test #31: ChimeraOriginalCabModelTests ..........   Passed    2.29 sec",
+      "2026-10-13T06:03:38.2750820Z 32/45 Test #32: ChimeraCabTimingDiagnosticsTests ......   Passed    0.01 sec",
+      "2026-10-13T06:03:50.6043715Z 33/45 Test #33: ChimeraOriginalCabIntegrationTests ....   Passed   12.33 sec",
+      "2026-10-13T06:04:02.3974698Z 34/45 Test #34: ChimeraOriginalCabRealtimeTests .......   Passed   11.79 sec",
+      "2026-10-13T06:04:15.3647217Z 35/45 Test #35: ChimeraCabExpansionIntegrationTests ...   Passed   12.97 sec",
+      "2026-10-13T06:04:52.7612406Z 36/45 Test #36: ChimeraCabExtendedTimingTests .........   Passed   37.40 sec",
+      "2026-10-13T06:05:04.5452783Z 37/45 Test #37: ChimeraCabExpansionStateTests .........   Passed   11.78 sec",
+      "2026-10-13T06:05:08.6967752Z 38/45 Test #38: ChimeraCabLayoutModelTests ............   Passed    4.15 sec",
+      "2026-10-13T06:05:08.6989999Z 39/45 Test #39: ChimeraCabCameraFramingTests ..........   Passed    0.00 sec",
+      "2026-10-13T06:05:23.6541251Z 40/45 Test #40: ChimeraCabLayoutIntegrationTests ......   Passed   14.95 sec",
+      "2026-10-13T06:05:40.9927065Z 41/45 Test #41: ChimeraCabLayoutStateTests ............   Passed   17.34 sec",
+      "2026-10-13T06:05:59.5661813Z 42/45 Test #42: ChimeraCabDriverVisualTests ...........   Passed   18.57 sec",
+      "2026-10-13T06:06:38.0720427Z 43/45 Test #43: ChimeraGraphicalEQTests ...............   Passed   38.51 sec",
+      "2026-10-13T06:06:50.1208917Z 44/45 Test #44: ChimeraGraphicalEQUITests .............   Passed   12.05 sec",
+      "2026-10-13T06:09:27.3601749Z 45/45 Test #45: ChimeraAmpHeadControlTests ............   Passed  157.24 sec"
+    ]
+  },
+  "package": {
+    "outcome": "success",
+    "reviewed_exact_source_script": {
+      "path": "Tools/package_release.py",
+      "blob_sha": "c12ff9c05c8a938a520644af13e11b4faf7b6943",
+      "source_sha": "6033236cb81820a43679cbbd34be020804f9658d"
+    },
+    "verified_scope": [
+      "Staged product standalone, VST3, offline manual and document-maintenance helper.",
+      "Generated DEB package and extracted it; compared extracted standalone/VST3/manual SHA256 against staged bytes.",
+      "Ran ldd on staged standalone and VST3; rejected unresolved libraries on this Ubuntu builder.",
+      "Derived explicit DEB Depends and helper Pre-Depends using dpkg-shlibdeps.",
+      "Constructed TAR.GZ containing staged usr tree, install.sh, installation documentation and runtime-dependency notice; wrote package checksum sidecars."
+    ],
+    "dependencies": "libasound2 (>= 1.0.16), libc6 (>= 2.35), libcurl4 (>= 7.16.2), libfontconfig1 (>= 2.12.6), libfreetype6 (>= 2.8), libgcc-s1 (>= 4.0), libstdc++6 (>= 12)",
+    "helper_pre_depends": "libc6 (>= 2.34)",
+    "actual_native_product_install_executed": false,
+    "actual_previous_release_product_upgrade_executed": false,
+    "tar_install_script_executed": false,
+    "installed_application_or_daw_acceptance_executed": false,
+    "target_audio_hardware_verified": false,
+    "scope_limits": [
+      "DEB extraction/hash comparison and builder ldd results do not establish native installed-product acceptance or compatibility on other distributions.",
+      "TAR construction/checksum is not TAR installation acceptance.",
+      "No previous full-product old-to-new Linux upgrade was executed by this Product job."
+    ]
+  },
+  "release_evidence_artifact": {
+    "id": 11792077750,
+    "name": "Chimera-release-evidence-linux",
+    "size_in_bytes": 58605,
+    "url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/artifacts/11792077750",
+    "archive_download_url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/artifacts/11792077750/zip",
+    "expired": false,
+    "created_at": "2026-10-13T06:11:09Z",
+    "expires_at": "2027-01-11T05:13:04Z",
+    "updated_at": "2026-10-13T06:11:09Z",
+    "digest": "sha256:5ad81cadb31bd96bc275db684845ce42ade49b53db4bd2da50316af4bbde88b9",
+    "workflow_run": {
+      "id": 38350264755,
+      "repository_id": 1382701489,
+      "head_repository_id": 1382701489,
+      "head_branch": "integration/beta2-test-20261014",
+      "head_sha": "6033236cb81820a43679cbbd34be020804f9658d"
+    }
+  },
+  "large_platform_binary_artifact_metadata_only": {
+    "id": 11792052780,
+    "name": "SpectralForge-Chimera-1.3.1-beta.2-linux-x86_64",
+    "size_in_bytes": 447343745,
+    "url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/artifacts/11792052780",
+    "archive_download_url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/artifacts/11792052780/zip",
+    "expired": false,
+    "created_at": "2026-10-13T06:11:09Z",
+    "expires_at": "2027-01-11T05:13:04Z",
+    "updated_at": "2026-10-13T06:11:09Z",
+    "digest": "sha256:3c6963aff9f5a095af6037038ced66d8e9ff146c4fd9e04d393680fe1049293b",
+    "workflow_run": {
+      "id": 38350264755,
+      "repository_id": 1382701489,
+      "head_repository_id": 1382701489,
+      "head_branch": "integration/beta2-test-20261014",
+      "head_sha": "6033236cb81820a43679cbbd34be020804f9658d"
+    }
+  },
+  "independent_archive_byte_audit": "PENDING new603 read-only audit; no large binary artifact downloaded",
+  "source_result_reuse": false
+}
