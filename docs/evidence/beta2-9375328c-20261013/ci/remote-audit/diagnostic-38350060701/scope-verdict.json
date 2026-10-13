@@ -1,0 +1,177 @@
+{
+  "schema": "chimera.read-only-audit-diagnostic.v1",
+  "source_sha": "9375328c30dfe5908e5010342179b5afbc258900",
+  "tree_sha": "b02780be13bb594074bf51b269f804b4c861e5a4",
+  "product_run_id": 38342282418,
+  "product_run_attempt": 1,
+  "controller_sha": "ae5f9a034e4d63204acd29b33918545c49438cf6",
+  "audit_run_id": 38350060701,
+  "audit_job_id": 115140174588,
+  "run_url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38350060701",
+  "result": "AUDIT_FAILED",
+  "archive_integrity": {
+    "result": "PASS",
+    "verified_archives": 13,
+    "all_crc": true,
+    "all_api_size_and_sha256": true,
+    "release_evidence_internal_hashes": 20,
+    "cab_internal_hashes": 321
+  },
+  "strict_gate": {
+    "result": "REJECTED",
+    "error": "Automatic check is not supported by embedded raw evidence: E1.STATE_UI (windows)",
+    "original": {
+      "verdict": "BLOCKED",
+      "ready": false,
+      "counts": {
+        "checks": {
+          "total": 128,
+          "pass": 20,
+          "blocked": 108,
+          "not_applicable": 0
+        },
+        "stages": {
+          "total": 30,
+          "pass": 3,
+          "blocked": 27,
+          "not_applicable": 0
+        }
+      },
+      "hard_gates": {
+        "total": 63,
+        "pass": 20,
+        "blocked": 43
+      },
+      "producer": {
+        "name": "consolidate_release_gate",
+        "inputs": [
+          {
+            "kind": "windows",
+            "manifest_sha256": "fe1ef9dbfd50451e575410e60969677660ee32f9a50004ff22eaaf1119182587",
+            "revision": {
+              "commit_sha": "9375328c30dfe5908e5010342179b5afbc258900",
+              "run_id": "38342282418",
+              "run_attempt": "1"
+            }
+          },
+          {
+            "kind": "linux",
+            "manifest_sha256": "76aae4a6efe5988d4b7648d08ffc85e7ad7da3ba07f8f0ae541b19ae9754b502",
+            "revision": {
+              "commit_sha": "9375328c30dfe5908e5010342179b5afbc258900",
+              "run_id": "38342282418",
+              "run_attempt": "1"
+            }
+          },
+          {
+            "kind": "macos",
+            "manifest_sha256": "9a4c093e490c91336a36770a4ad71c5bbe8684577774b0ccf84ff1e5b63c683a",
+            "revision": {
+              "commit_sha": "9375328c30dfe5908e5010342179b5afbc258900",
+              "run_id": "38342282418",
+              "run_attempt": "1"
+            }
+          },
+          {
+            "kind": "assembly",
+            "manifest_sha256": "89bd4c33585e42bc0901521c6c80aa7e84e256a0262074c9bc7572cff7e27c4a",
+            "revision": {
+              "commit_sha": "9375328c30dfe5908e5010342179b5afbc258900",
+              "run_id": "38342282418",
+              "run_attempt": "1"
+            }
+          }
+        ],
+        "errors": []
+      },
+      "revision": {
+        "commit_sha": "9375328c30dfe5908e5010342179b5afbc258900",
+        "run_id": "38342282418",
+        "run_attempt": "1"
+      }
+    }
+  },
+  "automatic_contracts": {
+    "total": 21,
+    "passed": 20,
+    "failed": [
+      {
+        "id": "E1.STATE_UI",
+        "platforms": [
+          "windows"
+        ],
+        "passed": false
+      }
+    ]
+  },
+  "offline_dry_run": {
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "Release preparation/publication stopped: Automatic check is not supported by embedded raw evidence: E1.STATE_UI (windows)\n"
+  },
+  "receipt_diagnosis": {
+    "proven_from_hashed_original_windows_LastTest": true,
+    "actual": "PASS native UI: all 26 serialized amplifier panels at 100/75%, 122 channel cases, 2246 channel/control visibility cases, Matrix LOW priority controls and ALL, 9 POST models / 144 controls at 100/75%, flat POST alias menus and functional captions, six compact rack rows and ALL dialogs, editor teardown and real parameter callbacks",
+    "required": "PASS native UI: all 26 serialized amplifier panels at 100/75%, 122 channel cases, 2246 channel/control visibility cases, Matrix LOW priority controls and ALL, 9 POST models / 144 controls at 100/75%, flat POST alias menus and short original model captions, six compact rack rows and ALL dialogs, editor teardown and real parameter callbacks",
+    "only_text_difference": "functional captions versus short original model captions",
+    "runtime_ctest": "48/48",
+    "inventory_valid": true,
+    "ui_test_passed": true,
+    "unchanged_contract_passed": false,
+    "full_log_sha256": "e9272e915392c25f085c6a4ac4dbb15ba1963b27ea98fb7948f6846999385cdc",
+    "full_log_bytes": 386896
+  },
+  "source_and_policy": {
+    "source_before": {
+      "sha": "9375328c30dfe5908e5010342179b5afbc258900",
+      "tree": "b02780be13bb594074bf51b269f804b4c861e5a4",
+      "tracked_status": "",
+      "tracked_diff": ""
+    },
+    "source_after": {
+      "sha": "9375328c30dfe5908e5010342179b5afbc258900",
+      "tree": "b02780be13bb594074bf51b269f804b4c861e5a4",
+      "tracked_status": "",
+      "tracked_diff": ""
+    },
+    "source_final": {
+      "sha": "9375328c30dfe5908e5010342179b5afbc258900",
+      "tree": "b02780be13bb594074bf51b269f804b4c861e5a4",
+      "tracked_status": "",
+      "tracked_diff": ""
+    },
+    "source_final_error": null,
+    "policy_hashes_before": {
+      "Validation/release-policy.json": "909758fb1169c60c6da22b7bcb4ab4ee8f8f1f7632067c0f6117bf8e117c552c",
+      "Validation/waivers.json": "0bddd84f0795d218b3d14bdda53331bf65e05824d2b12730c2efb98ed1d57b04",
+      "Validation/weekly-publication-policy.json": "9dde322755557bb4f2cbbbf426f9c626676536e6b9521579b393f43ba44f0bf4",
+      "Validation/ci-check-map.json": "4cbbd8fdcc720ae6d7b8a4fbe81d4e13e6a2e01b9f9d73570d2a9039d7754249"
+    },
+    "policy_hashes_after": {
+      "Validation/release-policy.json": "909758fb1169c60c6da22b7bcb4ab4ee8f8f1f7632067c0f6117bf8e117c552c",
+      "Validation/waivers.json": "0bddd84f0795d218b3d14bdda53331bf65e05824d2b12730c2efb98ed1d57b04",
+      "Validation/weekly-publication-policy.json": "9dde322755557bb4f2cbbbf426f9c626676536e6b9521579b393f43ba44f0bf4",
+      "Validation/ci-check-map.json": "4cbbd8fdcc720ae6d7b8a4fbe81d4e13e6a2e01b9f9d73570d2a9039d7754249"
+    },
+    "policy_hashes_final": {
+      "Validation/release-policy.json": "909758fb1169c60c6da22b7bcb4ab4ee8f8f1f7632067c0f6117bf8e117c552c",
+      "Validation/waivers.json": "0bddd84f0795d218b3d14bdda53331bf65e05824d2b12730c2efb98ed1d57b04",
+      "Validation/weekly-publication-policy.json": "9dde322755557bb4f2cbbbf426f9c626676536e6b9521579b393f43ba44f0bf4",
+      "Validation/ci-check-map.json": "4cbbd8fdcc720ae6d7b8a4fbe81d4e13e6a2e01b9f9d73570d2a9039d7754249"
+    }
+  },
+  "published": false,
+  "publication_approved": false,
+  "supersedes_limits": {
+    "local_executor_outage": "Still offline; no local retries performed",
+    "archive_readability": "Remote read-only audit completed all13 requested original ZIP size/SHA256/CRC and available internal-index audits at product937; earlier offline limitation is now historical for these archives.",
+    "source_reuse": "No result from this937 audit qualifies any later product SHA."
+  },
+  "scope_limits": [
+    "Gate remains blocked20/128 passing; no release acceptance or policy waiver.",
+    "Read-only archive verification did not perform any new installation, upgrade, DAW or target-hardware test.",
+    "Windows actual installation reports and synthetic document fixtures remain distinct.",
+    "Product Mac/Linux packaging/extraction checks do not establish actual old-to-new installed product acceptance.",
+    "CAB p99 qualification does not mean zero callback misses; Mac has9/105600."
+  ]
+}

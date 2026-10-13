@@ -1,0 +1,32 @@
+{
+  "content": [
+    {
+      "type": "text",
+      "text": "Action completed."
+    }
+  ],
+  "structuredContent": {
+    "artifacts": [
+      {
+        "id": 11790775912,
+        "name": "Chimera-9375328c-readonly-evidence-audit",
+        "size_in_bytes": 20143979,
+        "url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/artifacts/11790775912",
+        "archive_download_url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/artifacts/11790775912/zip",
+        "expired": false,
+        "created_at": "2026-10-13T05:11:06Z",
+        "expires_at": "2027-01-11T05:10:35Z",
+        "updated_at": "2026-10-13T05:11:06Z",
+        "digest": "sha256:02a966be40940caf91783b29aaad40b77d598e461ecbb9b5a3f46d4149bed850",
+        "workflow_run": {
+          "id": 38350060701,
+          "repository_id": 1382701489,
+          "head_repository_id": 1382701489,
+          "head_branch": "evidence/beta2-9375328c-20261013",
+          "head_sha": "ae5f9a034e4d63204acd29b33918545c49438cf6"
+        }
+      }
+    ]
+  },
+  "isError": false
+}

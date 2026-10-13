@@ -1,0 +1,2214 @@
+{
+  "windows": {
+    "A12.01": {
+      "schema": "spectralforge.chimera.validation.check",
+      "schema_version": 1,
+      "id": "A12.01",
+      "stage": "A12",
+      "name": "A12.01",
+      "scope": {
+        "platform": "windows",
+        "producer": "exact-source-ci",
+        "synthetic_only": true,
+        "run_id": "38342282418",
+        "run_attempt": "1"
+      },
+      "policy": {
+        "required": true,
+        "hard_gate": true,
+        "na_policy": "FORBIDDEN",
+        "requires_current_commit": true,
+        "requires_policy_version": true
+      },
+      "dependencies": [],
+      "execution": {
+        "executed": true,
+        "exit_code": 0
+      },
+      "evidence": {
+        "commit_sha": "9375328c30dfe5908e5010342179b5afbc258900",
+        "policy_version": 4,
+        "artifacts": [
+          "raw/ctest-results.xml",
+          "raw/ctest-inventory.json",
+          "raw/LastTest.log",
+          "raw/InstallerVerification.json",
+          "raw/InstallerVerification.txt",
+          "raw/MSIXVerification.txt",
+          "raw/WindowsSecurity.txt",
+          "raw/FileInventory.json",
+          "raw/DefenderStatus.json"
+        ]
+      },
+      "applicability": {
+        "applicable": true,
+        "waiver_id": null
+      },
+      "assertion": {
+        "passed": true
+      },
+      "failure": {
+        "type": "TEST_FAILURE",
+        "message": "CTest did not run/pass, or its required case is missing/failed/skipped"
+      }
+    },
+    "A12.02": {
+      "schema": "spectralforge.chimera.validation.check",
+      "schema_version": 1,
+      "id": "A12.02",
+      "stage": "A12",
+      "name": "A12.02",
+      "scope": {
+        "platform": "windows",
+        "producer": "exact-source-ci",
+        "synthetic_only": true,
+        "run_id": "38342282418",
+        "run_attempt": "1"
+      },
+      "policy": {
+        "required": true,
+        "hard_gate": true,
+        "na_policy": "FORBIDDEN",
+        "requires_current_commit": true,
+        "requires_policy_version": true
+      },
+      "dependencies": [],
+      "execution": {
+        "executed": true,
+        "exit_code": 0
+      },
+      "evidence": {
+        "commit_sha": "9375328c30dfe5908e5010342179b5afbc258900",
+        "policy_version": 4,
+        "artifacts": [
+          "raw/ctest-results.xml",
+          "raw/ctest-inventory.json",
+          "raw/LastTest.log",
+          "raw/InstallerVerification.json",
+          "raw/InstallerVerification.txt",
+          "raw/MSIXVerification.txt",
+          "raw/WindowsSecurity.txt",
+          "raw/FileInventory.json",
+          "raw/DefenderStatus.json"
+        ]
+      },
+      "applicability": {
+        "applicable": true,
+        "waiver_id": null
+      },
+      "assertion": {
+        "passed": true
+      },
+      "failure": {
+        "type": "TEST_FAILURE",
+        "message": "CTest did not run/pass, or its required case is missing/failed/skipped"
+      }
+    },
+    "A12.03": {
+      "schema": "spectralforge.chimera.validation.check",
+      "schema_version": 1,
+      "id": "A12.03",
+      "stage": "A12",
+      "name": "A12.03",
+      "scope": {
+        "platform": "windows",
+        "producer": "exact-source-ci",
+        "synthetic_only": true,
+        "run_id": "38342282418",
+        "run_attempt": "1"
+      },
+      "policy": {
+        "required": true,
+        "hard_gate": true,
+        "na_policy": "FORBIDDEN",
+        "requires_current_commit": true,
+        "requires_policy_version": true
+      },
+      "dependencies": [],
+      "execution": {
+        "executed": true,
+        "exit_code": 0
+      },
+      "evidence": {
+        "commit_sha": "9375328c30dfe5908e5010342179b5afbc258900",
+        "policy_version": 4,
+        "artifacts": [
+          "raw/ctest-results.xml",
+          "raw/ctest-inventory.json",
+          "raw/LastTest.log",
+          "raw/InstallerVerification.json",
+          "raw/InstallerVerification.txt",
+          "raw/MSIXVerification.txt",
+          "raw/WindowsSecurity.txt",
+          "raw/FileInventory.json",
+          "raw/DefenderStatus.json"
+        ]
+      },
+      "applicability": {
+        "applicable": true,
+        "waiver_id": null
+      },
+      "assertion": {
+        "passed": true
+      },
+      "failure": {
+        "type": "TEST_FAILURE",
+        "message": "CTest did not run/pass, or its required case is missing/failed/skipped"
+      }
+    },
+    "A12.04": {
+      "schema": "spectralforge.chimera.validation.check",
+      "schema_version": 1,
+      "id": "A12.04",
+      "stage": "A12",
+      "name": "A12.04",
+      "scope": {
+        "platform": "windows",
+        "producer": "exact-source-ci",
+        "synthetic_only": true,
+        "run_id": "38342282418",
+        "run_attempt": "1"
+      },
+      "policy": {
+        "required": true,
+        "hard_gate": true,
+        "na_policy": "FORBIDDEN",
+        "requires_current_commit": true,
+        "requires_policy_version": true
+      },
+      "dependencies": [],
+      "execution": {
+        "executed": true,
+        "exit_code": 0
+      },
+      "evidence": {
+        "commit_sha": "9375328c30dfe5908e5010342179b5afbc258900",
+        "policy_version": 4,
+        "artifacts": [
+          "raw/ctest-results.xml",
+          "raw/ctest-inventory.json",
+          "raw/LastTest.log",
+          "raw/InstallerVerification.json",
+          "raw/InstallerVerification.txt",
+          "raw/MSIXVerification.txt",
+          "raw/WindowsSecurity.txt",
+          "raw/FileInventory.json",
+          "raw/DefenderStatus.json"
+        ]
+      },
+      "applicability": {
+        "applicable": true,
+        "waiver_id": null
+      },
+      "assertion": {
+        "passed": true
+      },
+      "failure": {
+        "type": "TEST_FAILURE",
+        "message": "CTest did not run/pass, or its required case is missing/failed/skipped"
+      }
+    },
+    "A12.05": {
+      "schema": "spectralforge.chimera.validation.check",
+      "schema_version": 1,
+      "id": "A12.05",
+      "stage": "A12",
+      "name": "A12.05",
+      "scope": {
+        "platform": "windows",
+        "producer": "exact-source-ci",
+        "synthetic_only": true,
+        "run_id": "38342282418",
+        "run_attempt": "1"
+      },
+      "policy": {
+        "required": true,
+        "hard_gate": true,
+        "na_policy": "FORBIDDEN",
+        "requires_current_commit": true,
+        "requires_policy_version": true
+      },
+      "dependencies": [],
+      "execution": {
+        "executed": true,
+        "exit_code": 0
+      },
+      "evidence": {
+        "commit_sha": "9375328c30dfe5908e5010342179b5afbc258900",
+        "policy_version": 4,
+        "artifacts": [
+          "raw/ctest-results.xml",
+          "raw/ctest-inventory.json",
+          "raw/LastTest.log",
+          "raw/InstallerVerification.json",
+          "raw/InstallerVerification.txt",
+          "raw/MSIXVerification.txt",
+          "raw/WindowsSecurity.txt",
+          "raw/FileInventory.json",
+          "raw/DefenderStatus.json"
+        ]
+      },
+      "applicability": {
+        "applicable": true,
+        "waiver_id": null
+      },
+      "assertion": {
+        "passed": true
+      },
+      "failure": {
+        "type": "TEST_FAILURE",
+        "message": "CTest did not run/pass, or its required case is missing/failed/skipped"
+      }
+    },
+    "A12.06": {
+      "schema": "spectralforge.chimera.validation.check",
+      "schema_version": 1,
+      "id": "A12.06",
+      "stage": "A12",
+      "name": "A12.06",
+      "scope": {
+        "platform": "windows",
+        "producer": "exact-source-ci",
+        "synthetic_only": true,
+        "run_id": "38342282418",
+        "run_attempt": "1"
+      },
+      "policy": {
+        "required": true,
+        "hard_gate": true,
+        "na_policy": "FORBIDDEN",
+        "requires_current_commit": true,
+        "requires_policy_version": true
+      },
+      "dependencies": [],
+      "execution": {
+        "executed": true,
+        "exit_code": 0
+      },
+      "evidence": {
+        "commit_sha": "9375328c30dfe5908e5010342179b5afbc258900",
+        "policy_version": 4,
+        "artifacts": [
+          "raw/ctest-results.xml",
+          "raw/ctest-inventory.json",
+          "raw/LastTest.log",
+          "raw/InstallerVerification.json",
+          "raw/InstallerVerification.txt",
+          "raw/MSIXVerification.txt",
+          "raw/WindowsSecurity.txt",
+          "raw/FileInventory.json",
+          "raw/DefenderStatus.json"
+        ]
+      },
+      "applicability": {
+        "applicable": true,
+        "waiver_id": null
+      },
+      "assertion": {
+        "passed": true
+      },
+      "failure": {
+        "type": "TEST_FAILURE",
+        "message": "CTest did not run/pass, or its required case is missing/failed/skipped"
+      }
+    },
+    "A12.07": {
+      "schema": "spectralforge.chimera.validation.check",
+      "schema_version": 1,
+      "id": "A12.07",
+      "stage": "A12",
+      "name": "A12.07",
+      "scope": {
+        "platform": "windows",
+        "producer": "exact-source-ci",
+        "synthetic_only": true,
+        "run_id": "38342282418",
+        "run_attempt": "1"
+      },
+      "policy": {
+        "required": true,
+        "hard_gate": true,
+        "na_policy": "FORBIDDEN",
+        "requires_current_commit": true,
+        "requires_policy_version": true
+      },
+      "dependencies": [],
+      "execution": {
+        "executed": true,
+        "exit_code": 0
+      },
+      "evidence": {
+        "commit_sha": "9375328c30dfe5908e5010342179b5afbc258900",
+        "policy_version": 4,
+        "artifacts": [
+          "raw/ctest-results.xml",
+          "raw/ctest-inventory.json",
+          "raw/LastTest.log",
+          "raw/InstallerVerification.json",
+          "raw/InstallerVerification.txt",
+          "raw/MSIXVerification.txt",
+          "raw/WindowsSecurity.txt",
+          "raw/FileInventory.json",
+          "raw/DefenderStatus.json"
+        ]
+      },
+      "applicability": {
+        "applicable": true,
+        "waiver_id": null
+      },
+      "assertion": {
+        "passed": true
+      },
+      "failure": {
+        "type": "TEST_FAILURE",
+        "message": "CTest did not run/pass, or its required case is missing/failed/skipped"
+      }
+    },
+    "A13.01": {
+      "schema": "spectralforge.chimera.validation.check",
+      "schema_version": 1,
+      "id": "A13.01",
+      "stage": "A13",
+      "name": "A13.01",
+      "scope": {
+        "platform": "windows",
+        "producer": "exact-source-ci",
+        "synthetic_only": true,
+        "run_id": "38342282418",
+        "run_attempt": "1"
+      },
+      "policy": {
+        "required": true,
+        "hard_gate": true,
+        "na_policy": "FORBIDDEN",
+        "requires_current_commit": true,
+        "requires_policy_version": true
+      },
+      "dependencies": [],
+      "execution": {
+        "executed": true,
+        "exit_code": 0
+      },
+      "evidence": {
+        "commit_sha": "9375328c30dfe5908e5010342179b5afbc258900",
+        "policy_version": 4,
+        "artifacts": [
+          "raw/ctest-results.xml",
+          "raw/ctest-inventory.json",
+          "raw/LastTest.log",
+          "raw/InstallerVerification.json",
+          "raw/InstallerVerification.txt",
+          "raw/MSIXVerification.txt",
+          "raw/WindowsSecurity.txt",
+          "raw/FileInventory.json",
+          "raw/DefenderStatus.json"
+        ]
+      },
+      "applicability": {
+        "applicable": true,
+        "waiver_id": null
+      },
+      "assertion": {
+        "passed": true
+      },
+      "failure": {
+        "type": "TEST_FAILURE",
+        "message": "Incomplete/failed CTest matrix, DSP log or platform package verification"
+      }
+    },
+    "I1.PITCH": {
+      "schema": "spectralforge.chimera.validation.check",
+      "schema_version": 1,
+      "id": "I1.PITCH",
+      "stage": "I1",
+      "name": "I1.PITCH",
+      "scope": {
+        "platform": "windows",
+        "producer": "exact-source-ci",
+        "synthetic_only": true,
+        "run_id": "38342282418",
+        "run_attempt": "1"
+      },
+      "policy": {
+        "required": true,
+        "hard_gate": true,
+        "na_policy": "FORBIDDEN",
+        "requires_current_commit": true,
+        "requires_policy_version": true
+      },
+      "dependencies": [],
+      "execution": {
+        "executed": true,
+        "exit_code": 0
+      },
+      "evidence": {
+        "commit_sha": "9375328c30dfe5908e5010342179b5afbc258900",
+        "policy_version": 4,
+        "artifacts": [
+          "raw/ctest-results.xml",
+          "raw/ctest-inventory.json",
+          "raw/LastTest.log",
+          "raw/InstallerVerification.json",
+          "raw/InstallerVerification.txt",
+          "raw/MSIXVerification.txt",
+          "raw/WindowsSecurity.txt",
+          "raw/FileInventory.json",
+          "raw/DefenderStatus.json"
+        ]
+      },
+      "applicability": {
+        "applicable": true,
+        "waiver_id": null
+      },
+      "assertion": {
+        "passed": true
+      },
+      "failure": {
+        "type": "TEST_FAILURE",
+        "message": "CTest did not run/pass, or its required case is missing/failed/skipped"
+      }
+    },
+    "I1.GATE": {
+      "schema": "spectralforge.chimera.validation.check",
+      "schema_version": 1,
+      "id": "I1.GATE",
+      "stage": "I1",
+      "name": "I1.GATE",
+      "scope": {
+        "platform": "windows",
+        "producer": "exact-source-ci",
+        "synthetic_only": true,
+        "run_id": "38342282418",
+        "run_attempt": "1"
+      },
+      "policy": {
+        "required": true,
+        "hard_gate": true,
+        "na_policy": "FORBIDDEN",
+        "requires_current_commit": true,
+        "requires_policy_version": true
+      },
+      "dependencies": [],
+      "execution": {
+        "executed": true,
+        "exit_code": 0
+      },
+      "evidence": {
+        "commit_sha": "9375328c30dfe5908e5010342179b5afbc258900",
+        "policy_version": 4,
+        "artifacts": [
+          "raw/ctest-results.xml",
+          "raw/ctest-inventory.json",
+          "raw/LastTest.log",
+          "raw/InstallerVerification.json",
+          "raw/InstallerVerification.txt",
+          "raw/MSIXVerification.txt",
+          "raw/WindowsSecurity.txt",
+          "raw/FileInventory.json",
+          "raw/DefenderStatus.json"
+        ]
+      },
+      "applicability": {
+        "applicable": true,
+        "waiver_id": null
+      },
+      "assertion": {
+        "passed": true
+      },
+      "failure": {
+        "type": "TEST_FAILURE",
+        "message": "CTest did not run/pass, or its required case is missing/failed/skipped"
+      }
+    },
+    "I1.STATE_GAIN_GR": {
+      "schema": "spectralforge.chimera.validation.check",
+      "schema_version": 1,
+      "id": "I1.STATE_GAIN_GR",
+      "stage": "I1",
+      "name": "I1.STATE_GAIN_GR",
+      "scope": {
+        "platform": "windows",
+        "producer": "exact-source-ci",
+        "synthetic_only": true,
+        "run_id": "38342282418",
+        "run_attempt": "1"
+      },
+      "policy": {
+        "required": true,
+        "hard_gate": true,
+        "na_policy": "FORBIDDEN",
+        "requires_current_commit": true,
+        "requires_policy_version": true
+      },
+      "dependencies": [],
+      "execution": {
+        "executed": true,
+        "exit_code": 0
+      },
+      "evidence": {
+        "commit_sha": "9375328c30dfe5908e5010342179b5afbc258900",
+        "policy_version": 4,
+        "artifacts": [
+          "raw/ctest-results.xml",
+          "raw/ctest-inventory.json",
+          "raw/LastTest.log",
+          "raw/InstallerVerification.json",
+          "raw/InstallerVerification.txt",
+          "raw/MSIXVerification.txt",
+          "raw/WindowsSecurity.txt",
+          "raw/FileInventory.json",
+          "raw/DefenderStatus.json"
+        ]
+      },
+      "applicability": {
+        "applicable": true,
+        "waiver_id": null
+      },
+      "assertion": {
+        "passed": true
+      },
+      "failure": {
+        "type": "TEST_FAILURE",
+        "message": "CTest did not run/pass, or its required case is missing/failed/skipped"
+      }
+    },
+    "I1.LIVE_REMOVE": {
+      "schema": "spectralforge.chimera.validation.check",
+      "schema_version": 1,
+      "id": "I1.LIVE_REMOVE",
+      "stage": "I1",
+      "name": "I1.LIVE_REMOVE",
+      "scope": {
+        "platform": "windows",
+        "producer": "exact-source-ci",
+        "synthetic_only": true,
+        "run_id": "38342282418",
+        "run_attempt": "1"
+      },
+      "policy": {
+        "required": true,
+        "hard_gate": true,
+        "na_policy": "FORBIDDEN",
+        "requires_current_commit": true,
+        "requires_policy_version": true
+      },
+      "dependencies": [],
+      "execution": {
+        "executed": true,
+        "exit_code": 0
+      },
+      "evidence": {
+        "commit_sha": "9375328c30dfe5908e5010342179b5afbc258900",
+        "policy_version": 4,
+        "artifacts": [
+          "raw/ctest-results.xml",
+          "raw/ctest-inventory.json",
+          "raw/LastTest.log",
+          "raw/InstallerVerification.json",
+          "raw/InstallerVerification.txt",
+          "raw/MSIXVerification.txt",
+          "raw/WindowsSecurity.txt",
+          "raw/FileInventory.json",
+          "raw/DefenderStatus.json"
+        ]
+      },
+      "applicability": {
+        "applicable": true,
+        "waiver_id": null
+      },
+      "assertion": {
+        "passed": true
+      },
+      "failure": {
+        "type": "TEST_FAILURE",
+        "message": "CTest did not run/pass, or its required case is missing/failed/skipped"
+      }
+    },
+    "E1.DSP": {
+      "schema": "spectralforge.chimera.validation.check",
+      "schema_version": 1,
+      "id": "E1.DSP",
+      "stage": "E1",
+      "name": "E1.DSP",
+      "scope": {
+        "platform": "windows",
+        "producer": "exact-source-ci",
+        "synthetic_only": true,
+        "run_id": "38342282418",
+        "run_attempt": "1"
+      },
+      "policy": {
+        "required": true,
+        "hard_gate": true,
+        "na_policy": "FORBIDDEN",
+        "requires_current_commit": true,
+        "requires_policy_version": true
+      },
+      "dependencies": [],
+      "execution": {
+        "executed": true,
+        "exit_code": 0
+      },
+      "evidence": {
+        "commit_sha": "9375328c30dfe5908e5010342179b5afbc258900",
+        "policy_version": 4,
+        "artifacts": [
+          "raw/ctest-results.xml",
+          "raw/ctest-inventory.json",
+          "raw/LastTest.log",
+          "raw/InstallerVerification.json",
+          "raw/InstallerVerification.txt",
+          "raw/MSIXVerification.txt",
+          "raw/WindowsSecurity.txt",
+          "raw/FileInventory.json",
+          "raw/DefenderStatus.json"
+        ]
+      },
+      "applicability": {
+        "applicable": true,
+        "waiver_id": null
+      },
+      "assertion": {
+        "passed": true
+      },
+      "failure": {
+        "type": "TEST_FAILURE",
+        "message": "Missing/failed CTest inventory, case or scoped full-log contract assertion"
+      }
+    },
+    "E1.STATE_UI": {
+      "schema": "spectralforge.chimera.validation.check",
+      "schema_version": 1,
+      "id": "E1.STATE_UI",
+      "stage": "E1",
+      "name": "E1.STATE_UI",
+      "scope": {
+        "platform": "windows",
+        "producer": "exact-source-ci",
+        "synthetic_only": true,
+        "run_id": "38342282418",
+        "run_attempt": "1"
+      },
+      "policy": {
+        "required": true,
+        "hard_gate": true,
+        "na_policy": "FORBIDDEN",
+        "requires_current_commit": true,
+        "requires_policy_version": true
+      },
+      "dependencies": [],
+      "execution": {
+        "executed": true,
+        "exit_code": 1
+      },
+      "evidence": {
+        "commit_sha": "9375328c30dfe5908e5010342179b5afbc258900",
+        "policy_version": 4,
+        "artifacts": [
+          "raw/ctest-results.xml",
+          "raw/ctest-inventory.json",
+          "raw/LastTest.log",
+          "raw/InstallerVerification.json",
+          "raw/InstallerVerification.txt",
+          "raw/MSIXVerification.txt",
+          "raw/WindowsSecurity.txt",
+          "raw/FileInventory.json",
+          "raw/DefenderStatus.json"
+        ]
+      },
+      "applicability": {
+        "applicable": true,
+        "waiver_id": null
+      },
+      "assertion": {
+        "passed": false
+      },
+      "failure": {
+        "type": "TEST_FAILURE",
+        "message": "Missing/failed CTest inventory, case or scoped full-log contract assertion"
+      }
+    },
+    "E1.LEGACY": {
+      "schema": "spectralforge.chimera.validation.check",
+      "schema_version": 1,
+      "id": "E1.LEGACY",
+      "stage": "E1",
+      "name": "E1.LEGACY",
+      "scope": {
+        "platform": "windows",
+        "producer": "exact-source-ci",
+        "synthetic_only": true,
+        "run_id": "38342282418",
+        "run_attempt": "1"
+      },
+      "policy": {
+        "required": true,
+        "hard_gate": true,
+        "na_policy": "FORBIDDEN",
+        "requires_current_commit": true,
+        "requires_policy_version": true
+      },
+      "dependencies": [],
+      "execution": {
+        "executed": true,
+        "exit_code": 0
+      },
+      "evidence": {
+        "commit_sha": "9375328c30dfe5908e5010342179b5afbc258900",
+        "policy_version": 4,
+        "artifacts": [
+          "raw/ctest-results.xml",
+          "raw/ctest-inventory.json",
+          "raw/LastTest.log",
+          "raw/InstallerVerification.json",
+          "raw/InstallerVerification.txt",
+          "raw/MSIXVerification.txt",
+          "raw/WindowsSecurity.txt",
+          "raw/FileInventory.json",
+          "raw/DefenderStatus.json"
+        ]
+      },
+      "applicability": {
+        "applicable": true,
+        "waiver_id": null
+      },
+      "assertion": {
+        "passed": true
+      },
+      "failure": {
+        "type": "TEST_FAILURE",
+        "message": "Missing/failed CTest inventory, case or scoped full-log contract assertion"
+      }
+    },
+    "A13.04": {
+      "schema": "spectralforge.chimera.validation.check",
+      "schema_version": 1,
+      "id": "A13.04",
+      "stage": "A13",
+      "name": "A13.04",
+      "scope": {
+        "platform": "windows",
+        "producer": "exact-source-ci",
+        "synthetic_only": true,
+        "run_id": "38342282418",
+        "run_attempt": "1"
+      },
+      "policy": {
+        "required": true,
+        "hard_gate": true,
+        "na_policy": "FORBIDDEN",
+        "requires_current_commit": true,
+        "requires_policy_version": true
+      },
+      "dependencies": [],
+      "execution": {
+        "executed": true,
+        "exit_code": 0
+      },
+      "evidence": {
+        "commit_sha": "9375328c30dfe5908e5010342179b5afbc258900",
+        "policy_version": 4,
+        "artifacts": [
+          "raw/ctest-results.xml",
+          "raw/ctest-inventory.json",
+          "raw/LastTest.log",
+          "raw/InstallerVerification.json",
+          "raw/InstallerVerification.txt",
+          "raw/MSIXVerification.txt",
+          "raw/WindowsSecurity.txt",
+          "raw/FileInventory.json",
+          "raw/DefenderStatus.json"
+        ]
+      },
+      "applicability": {
+        "applicable": true,
+        "waiver_id": null
+      },
+      "assertion": {
+        "passed": true
+      },
+      "failure": {
+        "type": "TEST_FAILURE",
+        "message": "Installer install/repair/uninstall evidence missing, failed or stale"
+      }
+    },
+    "A13.05": {
+      "schema": "spectralforge.chimera.validation.check",
+      "schema_version": 1,
+      "id": "A13.05",
+      "stage": "A13",
+      "name": "A13.05",
+      "scope": {
+        "platform": "windows",
+        "producer": "exact-source-ci",
+        "synthetic_only": true,
+        "run_id": "38342282418",
+        "run_attempt": "1"
+      },
+      "policy": {
+        "required": true,
+        "hard_gate": true,
+        "na_policy": "FORBIDDEN",
+        "requires_current_commit": true,
+        "requires_policy_version": true
+      },
+      "dependencies": [],
+      "execution": {
+        "executed": true,
+        "exit_code": 0
+      },
+      "evidence": {
+        "commit_sha": "9375328c30dfe5908e5010342179b5afbc258900",
+        "policy_version": 4,
+        "artifacts": [
+          "raw/ctest-results.xml",
+          "raw/ctest-inventory.json",
+          "raw/LastTest.log",
+          "raw/InstallerVerification.json",
+          "raw/InstallerVerification.txt",
+          "raw/MSIXVerification.txt",
+          "raw/WindowsSecurity.txt",
+          "raw/FileInventory.json",
+          "raw/DefenderStatus.json"
+        ]
+      },
+      "applicability": {
+        "applicable": true,
+        "waiver_id": null
+      },
+      "assertion": {
+        "passed": true
+      },
+      "failure": {
+        "type": "TEST_FAILURE",
+        "message": "MSIX execution/completion evidence missing or failed"
+      }
+    },
+    "A13.06": {
+      "schema": "spectralforge.chimera.validation.check",
+      "schema_version": 1,
+      "id": "A13.06",
+      "stage": "A13",
+      "name": "A13.06",
+      "scope": {
+        "platform": "windows",
+        "producer": "exact-source-ci",
+        "synthetic_only": true,
+        "run_id": "38342282418",
+        "run_attempt": "1"
+      },
+      "policy": {
+        "required": true,
+        "hard_gate": true,
+        "na_policy": "FORBIDDEN",
+        "requires_current_commit": true,
+        "requires_policy_version": true
+      },
+      "dependencies": [],
+      "execution": {
+        "executed": true,
+        "exit_code": 0
+      },
+      "evidence": {
+        "commit_sha": "9375328c30dfe5908e5010342179b5afbc258900",
+        "policy_version": 4,
+        "artifacts": [
+          "raw/ctest-results.xml",
+          "raw/ctest-inventory.json",
+          "raw/LastTest.log",
+          "raw/InstallerVerification.json",
+          "raw/InstallerVerification.txt",
+          "raw/MSIXVerification.txt",
+          "raw/WindowsSecurity.txt",
+          "raw/FileInventory.json",
+          "raw/DefenderStatus.json"
+        ]
+      },
+      "applicability": {
+        "applicable": true,
+        "waiver_id": null
+      },
+      "assertion": {
+        "passed": true
+      },
+      "failure": {
+        "type": "TEST_FAILURE",
+        "message": "Defender execution/completion evidence missing, stale or failed"
+      }
+    }
+  },
+  "linux": {
+    "A12.01": {
+      "schema": "spectralforge.chimera.validation.check",
+      "schema_version": 1,
+      "id": "A12.01",
+      "stage": "A12",
+      "name": "A12.01",
+      "scope": {
+        "platform": "linux",
+        "producer": "exact-source-ci",
+        "synthetic_only": true,
+        "run_id": "38342282418",
+        "run_attempt": "1"
+      },
+      "policy": {
+        "required": true,
+        "hard_gate": true,
+        "na_policy": "FORBIDDEN",
+        "requires_current_commit": true,
+        "requires_policy_version": true
+      },
+      "dependencies": [],
+      "execution": {
+        "executed": true,
+        "exit_code": 0
+      },
+      "evidence": {
+        "commit_sha": "9375328c30dfe5908e5010342179b5afbc258900",
+        "policy_version": 4,
+        "artifacts": [
+          "raw/ctest-results.xml",
+          "raw/ctest-inventory.json",
+          "raw/LastTest.log",
+          "raw/Linux-package-verification.txt"
+        ]
+      },
+      "applicability": {
+        "applicable": true,
+        "waiver_id": null
+      },
+      "assertion": {
+        "passed": true
+      },
+      "failure": {
+        "type": "TEST_FAILURE",
+        "message": "CTest did not run/pass, or its required case is missing/failed/skipped"
+      }
+    },
+    "A12.02": {
+      "schema": "spectralforge.chimera.validation.check",
+      "schema_version": 1,
+      "id": "A12.02",
+      "stage": "A12",
+      "name": "A12.02",
+      "scope": {
+        "platform": "linux",
+        "producer": "exact-source-ci",
+        "synthetic_only": true,
+        "run_id": "38342282418",
+        "run_attempt": "1"
+      },
+      "policy": {
+        "required": true,
+        "hard_gate": true,
+        "na_policy": "FORBIDDEN",
+        "requires_current_commit": true,
+        "requires_policy_version": true
+      },
+      "dependencies": [],
+      "execution": {
+        "executed": true,
+        "exit_code": 0
+      },
+      "evidence": {
+        "commit_sha": "9375328c30dfe5908e5010342179b5afbc258900",
+        "policy_version": 4,
+        "artifacts": [
+          "raw/ctest-results.xml",
+          "raw/ctest-inventory.json",
+          "raw/LastTest.log",
+          "raw/Linux-package-verification.txt"
+        ]
+      },
+      "applicability": {
+        "applicable": true,
+        "waiver_id": null
+      },
+      "assertion": {
+        "passed": true
+      },
+      "failure": {
+        "type": "TEST_FAILURE",
+        "message": "CTest did not run/pass, or its required case is missing/failed/skipped"
+      }
+    },
+    "A12.03": {
+      "schema": "spectralforge.chimera.validation.check",
+      "schema_version": 1,
+      "id": "A12.03",
+      "stage": "A12",
+      "name": "A12.03",
+      "scope": {
+        "platform": "linux",
+        "producer": "exact-source-ci",
+        "synthetic_only": true,
+        "run_id": "38342282418",
+        "run_attempt": "1"
+      },
+      "policy": {
+        "required": true,
+        "hard_gate": true,
+        "na_policy": "FORBIDDEN",
+        "requires_current_commit": true,
+        "requires_policy_version": true
+      },
+      "dependencies": [],
+      "execution": {
+        "executed": true,
+        "exit_code": 0
+      },
+      "evidence": {
+        "commit_sha": "9375328c30dfe5908e5010342179b5afbc258900",
+        "policy_version": 4,
+        "artifacts": [
+          "raw/ctest-results.xml",
+          "raw/ctest-inventory.json",
+          "raw/LastTest.log",
+          "raw/Linux-package-verification.txt"
+        ]
+      },
+      "applicability": {
+        "applicable": true,
+        "waiver_id": null
+      },
+      "assertion": {
+        "passed": true
+      },
+      "failure": {
+        "type": "TEST_FAILURE",
+        "message": "CTest did not run/pass, or its required case is missing/failed/skipped"
+      }
+    },
+    "A12.04": {
+      "schema": "spectralforge.chimera.validation.check",
+      "schema_version": 1,
+      "id": "A12.04",
+      "stage": "A12",
+      "name": "A12.04",
+      "scope": {
+        "platform": "linux",
+        "producer": "exact-source-ci",
+        "synthetic_only": true,
+        "run_id": "38342282418",
+        "run_attempt": "1"
+      },
+      "policy": {
+        "required": true,
+        "hard_gate": true,
+        "na_policy": "FORBIDDEN",
+        "requires_current_commit": true,
+        "requires_policy_version": true
+      },
+      "dependencies": [],
+      "execution": {
+        "executed": true,
+        "exit_code": 0
+      },
+      "evidence": {
+        "commit_sha": "9375328c30dfe5908e5010342179b5afbc258900",
+        "policy_version": 4,
+        "artifacts": [
+          "raw/ctest-results.xml",
+          "raw/ctest-inventory.json",
+          "raw/LastTest.log",
+          "raw/Linux-package-verification.txt"
+        ]
+      },
+      "applicability": {
+        "applicable": true,
+        "waiver_id": null
+      },
+      "assertion": {
+        "passed": true
+      },
+      "failure": {
+        "type": "TEST_FAILURE",
+        "message": "CTest did not run/pass, or its required case is missing/failed/skipped"
+      }
+    },
+    "A12.05": {
+      "schema": "spectralforge.chimera.validation.check",
+      "schema_version": 1,
+      "id": "A12.05",
+      "stage": "A12",
+      "name": "A12.05",
+      "scope": {
+        "platform": "linux",
+        "producer": "exact-source-ci",
+        "synthetic_only": true,
+        "run_id": "38342282418",
+        "run_attempt": "1"
+      },
+      "policy": {
+        "required": true,
+        "hard_gate": true,
+        "na_policy": "FORBIDDEN",
+        "requires_current_commit": true,
+        "requires_policy_version": true
+      },
+      "dependencies": [],
+      "execution": {
+        "executed": true,
+        "exit_code": 0
+      },
+      "evidence": {
+        "commit_sha": "9375328c30dfe5908e5010342179b5afbc258900",
+        "policy_version": 4,
+        "artifacts": [
+          "raw/ctest-results.xml",
+          "raw/ctest-inventory.json",
+          "raw/LastTest.log",
+          "raw/Linux-package-verification.txt"
+        ]
+      },
+      "applicability": {
+        "applicable": true,
+        "waiver_id": null
+      },
+      "assertion": {
+        "passed": true
+      },
+      "failure": {
+        "type": "TEST_FAILURE",
+        "message": "CTest did not run/pass, or its required case is missing/failed/skipped"
+      }
+    },
+    "A12.06": {
+      "schema": "spectralforge.chimera.validation.check",
+      "schema_version": 1,
+      "id": "A12.06",
+      "stage": "A12",
+      "name": "A12.06",
+      "scope": {
+        "platform": "linux",
+        "producer": "exact-source-ci",
+        "synthetic_only": true,
+        "run_id": "38342282418",
+        "run_attempt": "1"
+      },
+      "policy": {
+        "required": true,
+        "hard_gate": true,
+        "na_policy": "FORBIDDEN",
+        "requires_current_commit": true,
+        "requires_policy_version": true
+      },
+      "dependencies": [],
+      "execution": {
+        "executed": true,
+        "exit_code": 0
+      },
+      "evidence": {
+        "commit_sha": "9375328c30dfe5908e5010342179b5afbc258900",
+        "policy_version": 4,
+        "artifacts": [
+          "raw/ctest-results.xml",
+          "raw/ctest-inventory.json",
+          "raw/LastTest.log",
+          "raw/Linux-package-verification.txt"
+        ]
+      },
+      "applicability": {
+        "applicable": true,
+        "waiver_id": null
+      },
+      "assertion": {
+        "passed": true
+      },
+      "failure": {
+        "type": "TEST_FAILURE",
+        "message": "CTest did not run/pass, or its required case is missing/failed/skipped"
+      }
+    },
+    "A12.07": {
+      "schema": "spectralforge.chimera.validation.check",
+      "schema_version": 1,
+      "id": "A12.07",
+      "stage": "A12",
+      "name": "A12.07",
+      "scope": {
+        "platform": "linux",
+        "producer": "exact-source-ci",
+        "synthetic_only": true,
+        "run_id": "38342282418",
+        "run_attempt": "1"
+      },
+      "policy": {
+        "required": true,
+        "hard_gate": true,
+        "na_policy": "FORBIDDEN",
+        "requires_current_commit": true,
+        "requires_policy_version": true
+      },
+      "dependencies": [],
+      "execution": {
+        "executed": true,
+        "exit_code": 0
+      },
+      "evidence": {
+        "commit_sha": "9375328c30dfe5908e5010342179b5afbc258900",
+        "policy_version": 4,
+        "artifacts": [
+          "raw/ctest-results.xml",
+          "raw/ctest-inventory.json",
+          "raw/LastTest.log",
+          "raw/Linux-package-verification.txt"
+        ]
+      },
+      "applicability": {
+        "applicable": true,
+        "waiver_id": null
+      },
+      "assertion": {
+        "passed": true
+      },
+      "failure": {
+        "type": "TEST_FAILURE",
+        "message": "CTest did not run/pass, or its required case is missing/failed/skipped"
+      }
+    },
+    "A13.02": {
+      "schema": "spectralforge.chimera.validation.check",
+      "schema_version": 1,
+      "id": "A13.02",
+      "stage": "A13",
+      "name": "A13.02",
+      "scope": {
+        "platform": "linux",
+        "producer": "exact-source-ci",
+        "synthetic_only": true,
+        "run_id": "38342282418",
+        "run_attempt": "1"
+      },
+      "policy": {
+        "required": true,
+        "hard_gate": true,
+        "na_policy": "FORBIDDEN",
+        "requires_current_commit": true,
+        "requires_policy_version": true
+      },
+      "dependencies": [],
+      "execution": {
+        "executed": true,
+        "exit_code": 0
+      },
+      "evidence": {
+        "commit_sha": "9375328c30dfe5908e5010342179b5afbc258900",
+        "policy_version": 4,
+        "artifacts": [
+          "raw/ctest-results.xml",
+          "raw/ctest-inventory.json",
+          "raw/LastTest.log",
+          "raw/Linux-package-verification.txt"
+        ]
+      },
+      "applicability": {
+        "applicable": true,
+        "waiver_id": null
+      },
+      "assertion": {
+        "passed": true
+      },
+      "failure": {
+        "type": "TEST_FAILURE",
+        "message": "Incomplete/failed CTest matrix, DSP log or platform package verification"
+      }
+    },
+    "I1.PITCH": {
+      "schema": "spectralforge.chimera.validation.check",
+      "schema_version": 1,
+      "id": "I1.PITCH",
+      "stage": "I1",
+      "name": "I1.PITCH",
+      "scope": {
+        "platform": "linux",
+        "producer": "exact-source-ci",
+        "synthetic_only": true,
+        "run_id": "38342282418",
+        "run_attempt": "1"
+      },
+      "policy": {
+        "required": true,
+        "hard_gate": true,
+        "na_policy": "FORBIDDEN",
+        "requires_current_commit": true,
+        "requires_policy_version": true
+      },
+      "dependencies": [],
+      "execution": {
+        "executed": true,
+        "exit_code": 0
+      },
+      "evidence": {
+        "commit_sha": "9375328c30dfe5908e5010342179b5afbc258900",
+        "policy_version": 4,
+        "artifacts": [
+          "raw/ctest-results.xml",
+          "raw/ctest-inventory.json",
+          "raw/LastTest.log",
+          "raw/Linux-package-verification.txt"
+        ]
+      },
+      "applicability": {
+        "applicable": true,
+        "waiver_id": null
+      },
+      "assertion": {
+        "passed": true
+      },
+      "failure": {
+        "type": "TEST_FAILURE",
+        "message": "CTest did not run/pass, or its required case is missing/failed/skipped"
+      }
+    },
+    "I1.GATE": {
+      "schema": "spectralforge.chimera.validation.check",
+      "schema_version": 1,
+      "id": "I1.GATE",
+      "stage": "I1",
+      "name": "I1.GATE",
+      "scope": {
+        "platform": "linux",
+        "producer": "exact-source-ci",
+        "synthetic_only": true,
+        "run_id": "38342282418",
+        "run_attempt": "1"
+      },
+      "policy": {
+        "required": true,
+        "hard_gate": true,
+        "na_policy": "FORBIDDEN",
+        "requires_current_commit": true,
+        "requires_policy_version": true
+      },
+      "dependencies": [],
+      "execution": {
+        "executed": true,
+        "exit_code": 0
+      },
+      "evidence": {
+        "commit_sha": "9375328c30dfe5908e5010342179b5afbc258900",
+        "policy_version": 4,
+        "artifacts": [
+          "raw/ctest-results.xml",
+          "raw/ctest-inventory.json",
+          "raw/LastTest.log",
+          "raw/Linux-package-verification.txt"
+        ]
+      },
+      "applicability": {
+        "applicable": true,
+        "waiver_id": null
+      },
+      "assertion": {
+        "passed": true
+      },
+      "failure": {
+        "type": "TEST_FAILURE",
+        "message": "CTest did not run/pass, or its required case is missing/failed/skipped"
+      }
+    },
+    "I1.STATE_GAIN_GR": {
+      "schema": "spectralforge.chimera.validation.check",
+      "schema_version": 1,
+      "id": "I1.STATE_GAIN_GR",
+      "stage": "I1",
+      "name": "I1.STATE_GAIN_GR",
+      "scope": {
+        "platform": "linux",
+        "producer": "exact-source-ci",
+        "synthetic_only": true,
+        "run_id": "38342282418",
+        "run_attempt": "1"
+      },
+      "policy": {
+        "required": true,
+        "hard_gate": true,
+        "na_policy": "FORBIDDEN",
+        "requires_current_commit": true,
+        "requires_policy_version": true
+      },
+      "dependencies": [],
+      "execution": {
+        "executed": true,
+        "exit_code": 0
+      },
+      "evidence": {
+        "commit_sha": "9375328c30dfe5908e5010342179b5afbc258900",
+        "policy_version": 4,
+        "artifacts": [
+          "raw/ctest-results.xml",
+          "raw/ctest-inventory.json",
+          "raw/LastTest.log",
+          "raw/Linux-package-verification.txt"
+        ]
+      },
+      "applicability": {
+        "applicable": true,
+        "waiver_id": null
+      },
+      "assertion": {
+        "passed": true
+      },
+      "failure": {
+        "type": "TEST_FAILURE",
+        "message": "CTest did not run/pass, or its required case is missing/failed/skipped"
+      }
+    },
+    "E1.DSP": {
+      "schema": "spectralforge.chimera.validation.check",
+      "schema_version": 1,
+      "id": "E1.DSP",
+      "stage": "E1",
+      "name": "E1.DSP",
+      "scope": {
+        "platform": "linux",
+        "producer": "exact-source-ci",
+        "synthetic_only": true,
+        "run_id": "38342282418",
+        "run_attempt": "1"
+      },
+      "policy": {
+        "required": true,
+        "hard_gate": true,
+        "na_policy": "FORBIDDEN",
+        "requires_current_commit": true,
+        "requires_policy_version": true
+      },
+      "dependencies": [],
+      "execution": {
+        "executed": true,
+        "exit_code": 0
+      },
+      "evidence": {
+        "commit_sha": "9375328c30dfe5908e5010342179b5afbc258900",
+        "policy_version": 4,
+        "artifacts": [
+          "raw/ctest-results.xml",
+          "raw/ctest-inventory.json",
+          "raw/LastTest.log",
+          "raw/Linux-package-verification.txt"
+        ]
+      },
+      "applicability": {
+        "applicable": true,
+        "waiver_id": null
+      },
+      "assertion": {
+        "passed": true
+      },
+      "failure": {
+        "type": "TEST_FAILURE",
+        "message": "Missing/failed CTest inventory, case or scoped full-log contract assertion"
+      }
+    },
+    "E1.LEGACY": {
+      "schema": "spectralforge.chimera.validation.check",
+      "schema_version": 1,
+      "id": "E1.LEGACY",
+      "stage": "E1",
+      "name": "E1.LEGACY",
+      "scope": {
+        "platform": "linux",
+        "producer": "exact-source-ci",
+        "synthetic_only": true,
+        "run_id": "38342282418",
+        "run_attempt": "1"
+      },
+      "policy": {
+        "required": true,
+        "hard_gate": true,
+        "na_policy": "FORBIDDEN",
+        "requires_current_commit": true,
+        "requires_policy_version": true
+      },
+      "dependencies": [],
+      "execution": {
+        "executed": true,
+        "exit_code": 0
+      },
+      "evidence": {
+        "commit_sha": "9375328c30dfe5908e5010342179b5afbc258900",
+        "policy_version": 4,
+        "artifacts": [
+          "raw/ctest-results.xml",
+          "raw/ctest-inventory.json",
+          "raw/LastTest.log",
+          "raw/Linux-package-verification.txt"
+        ]
+      },
+      "applicability": {
+        "applicable": true,
+        "waiver_id": null
+      },
+      "assertion": {
+        "passed": true
+      },
+      "failure": {
+        "type": "TEST_FAILURE",
+        "message": "Missing/failed CTest inventory, case or scoped full-log contract assertion"
+      }
+    }
+  },
+  "macos": {
+    "A12.01": {
+      "schema": "spectralforge.chimera.validation.check",
+      "schema_version": 1,
+      "id": "A12.01",
+      "stage": "A12",
+      "name": "A12.01",
+      "scope": {
+        "platform": "macos",
+        "producer": "exact-source-ci",
+        "synthetic_only": true,
+        "run_id": "38342282418",
+        "run_attempt": "1"
+      },
+      "policy": {
+        "required": true,
+        "hard_gate": true,
+        "na_policy": "FORBIDDEN",
+        "requires_current_commit": true,
+        "requires_policy_version": true
+      },
+      "dependencies": [],
+      "execution": {
+        "executed": true,
+        "exit_code": 0
+      },
+      "evidence": {
+        "commit_sha": "9375328c30dfe5908e5010342179b5afbc258900",
+        "policy_version": 4,
+        "artifacts": [
+          "raw/ctest-results.xml",
+          "raw/ctest-inventory.json",
+          "raw/LastTest.log",
+          "raw/macOS-package-verification.txt"
+        ]
+      },
+      "applicability": {
+        "applicable": true,
+        "waiver_id": null
+      },
+      "assertion": {
+        "passed": true
+      },
+      "failure": {
+        "type": "TEST_FAILURE",
+        "message": "CTest did not run/pass, or its required case is missing/failed/skipped"
+      }
+    },
+    "A12.02": {
+      "schema": "spectralforge.chimera.validation.check",
+      "schema_version": 1,
+      "id": "A12.02",
+      "stage": "A12",
+      "name": "A12.02",
+      "scope": {
+        "platform": "macos",
+        "producer": "exact-source-ci",
+        "synthetic_only": true,
+        "run_id": "38342282418",
+        "run_attempt": "1"
+      },
+      "policy": {
+        "required": true,
+        "hard_gate": true,
+        "na_policy": "FORBIDDEN",
+        "requires_current_commit": true,
+        "requires_policy_version": true
+      },
+      "dependencies": [],
+      "execution": {
+        "executed": true,
+        "exit_code": 0
+      },
+      "evidence": {
+        "commit_sha": "9375328c30dfe5908e5010342179b5afbc258900",
+        "policy_version": 4,
+        "artifacts": [
+          "raw/ctest-results.xml",
+          "raw/ctest-inventory.json",
+          "raw/LastTest.log",
+          "raw/macOS-package-verification.txt"
+        ]
+      },
+      "applicability": {
+        "applicable": true,
+        "waiver_id": null
+      },
+      "assertion": {
+        "passed": true
+      },
+      "failure": {
+        "type": "TEST_FAILURE",
+        "message": "CTest did not run/pass, or its required case is missing/failed/skipped"
+      }
+    },
+    "A12.03": {
+      "schema": "spectralforge.chimera.validation.check",
+      "schema_version": 1,
+      "id": "A12.03",
+      "stage": "A12",
+      "name": "A12.03",
+      "scope": {
+        "platform": "macos",
+        "producer": "exact-source-ci",
+        "synthetic_only": true,
+        "run_id": "38342282418",
+        "run_attempt": "1"
+      },
+      "policy": {
+        "required": true,
+        "hard_gate": true,
+        "na_policy": "FORBIDDEN",
+        "requires_current_commit": true,
+        "requires_policy_version": true
+      },
+      "dependencies": [],
+      "execution": {
+        "executed": true,
+        "exit_code": 0
+      },
+      "evidence": {
+        "commit_sha": "9375328c30dfe5908e5010342179b5afbc258900",
+        "policy_version": 4,
+        "artifacts": [
+          "raw/ctest-results.xml",
+          "raw/ctest-inventory.json",
+          "raw/LastTest.log",
+          "raw/macOS-package-verification.txt"
+        ]
+      },
+      "applicability": {
+        "applicable": true,
+        "waiver_id": null
+      },
+      "assertion": {
+        "passed": true
+      },
+      "failure": {
+        "type": "TEST_FAILURE",
+        "message": "CTest did not run/pass, or its required case is missing/failed/skipped"
+      }
+    },
+    "A12.04": {
+      "schema": "spectralforge.chimera.validation.check",
+      "schema_version": 1,
+      "id": "A12.04",
+      "stage": "A12",
+      "name": "A12.04",
+      "scope": {
+        "platform": "macos",
+        "producer": "exact-source-ci",
+        "synthetic_only": true,
+        "run_id": "38342282418",
+        "run_attempt": "1"
+      },
+      "policy": {
+        "required": true,
+        "hard_gate": true,
+        "na_policy": "FORBIDDEN",
+        "requires_current_commit": true,
+        "requires_policy_version": true
+      },
+      "dependencies": [],
+      "execution": {
+        "executed": true,
+        "exit_code": 0
+      },
+      "evidence": {
+        "commit_sha": "9375328c30dfe5908e5010342179b5afbc258900",
+        "policy_version": 4,
+        "artifacts": [
+          "raw/ctest-results.xml",
+          "raw/ctest-inventory.json",
+          "raw/LastTest.log",
+          "raw/macOS-package-verification.txt"
+        ]
+      },
+      "applicability": {
+        "applicable": true,
+        "waiver_id": null
+      },
+      "assertion": {
+        "passed": true
+      },
+      "failure": {
+        "type": "TEST_FAILURE",
+        "message": "CTest did not run/pass, or its required case is missing/failed/skipped"
+      }
+    },
+    "A12.05": {
+      "schema": "spectralforge.chimera.validation.check",
+      "schema_version": 1,
+      "id": "A12.05",
+      "stage": "A12",
+      "name": "A12.05",
+      "scope": {
+        "platform": "macos",
+        "producer": "exact-source-ci",
+        "synthetic_only": true,
+        "run_id": "38342282418",
+        "run_attempt": "1"
+      },
+      "policy": {
+        "required": true,
+        "hard_gate": true,
+        "na_policy": "FORBIDDEN",
+        "requires_current_commit": true,
+        "requires_policy_version": true
+      },
+      "dependencies": [],
+      "execution": {
+        "executed": true,
+        "exit_code": 0
+      },
+      "evidence": {
+        "commit_sha": "9375328c30dfe5908e5010342179b5afbc258900",
+        "policy_version": 4,
+        "artifacts": [
+          "raw/ctest-results.xml",
+          "raw/ctest-inventory.json",
+          "raw/LastTest.log",
+          "raw/macOS-package-verification.txt"
+        ]
+      },
+      "applicability": {
+        "applicable": true,
+        "waiver_id": null
+      },
+      "assertion": {
+        "passed": true
+      },
+      "failure": {
+        "type": "TEST_FAILURE",
+        "message": "CTest did not run/pass, or its required case is missing/failed/skipped"
+      }
+    },
+    "A12.06": {
+      "schema": "spectralforge.chimera.validation.check",
+      "schema_version": 1,
+      "id": "A12.06",
+      "stage": "A12",
+      "name": "A12.06",
+      "scope": {
+        "platform": "macos",
+        "producer": "exact-source-ci",
+        "synthetic_only": true,
+        "run_id": "38342282418",
+        "run_attempt": "1"
+      },
+      "policy": {
+        "required": true,
+        "hard_gate": true,
+        "na_policy": "FORBIDDEN",
+        "requires_current_commit": true,
+        "requires_policy_version": true
+      },
+      "dependencies": [],
+      "execution": {
+        "executed": true,
+        "exit_code": 0
+      },
+      "evidence": {
+        "commit_sha": "9375328c30dfe5908e5010342179b5afbc258900",
+        "policy_version": 4,
+        "artifacts": [
+          "raw/ctest-results.xml",
+          "raw/ctest-inventory.json",
+          "raw/LastTest.log",
+          "raw/macOS-package-verification.txt"
+        ]
+      },
+      "applicability": {
+        "applicable": true,
+        "waiver_id": null
+      },
+      "assertion": {
+        "passed": true
+      },
+      "failure": {
+        "type": "TEST_FAILURE",
+        "message": "CTest did not run/pass, or its required case is missing/failed/skipped"
+      }
+    },
+    "A12.07": {
+      "schema": "spectralforge.chimera.validation.check",
+      "schema_version": 1,
+      "id": "A12.07",
+      "stage": "A12",
+      "name": "A12.07",
+      "scope": {
+        "platform": "macos",
+        "producer": "exact-source-ci",
+        "synthetic_only": true,
+        "run_id": "38342282418",
+        "run_attempt": "1"
+      },
+      "policy": {
+        "required": true,
+        "hard_gate": true,
+        "na_policy": "FORBIDDEN",
+        "requires_current_commit": true,
+        "requires_policy_version": true
+      },
+      "dependencies": [],
+      "execution": {
+        "executed": true,
+        "exit_code": 0
+      },
+      "evidence": {
+        "commit_sha": "9375328c30dfe5908e5010342179b5afbc258900",
+        "policy_version": 4,
+        "artifacts": [
+          "raw/ctest-results.xml",
+          "raw/ctest-inventory.json",
+          "raw/LastTest.log",
+          "raw/macOS-package-verification.txt"
+        ]
+      },
+      "applicability": {
+        "applicable": true,
+        "waiver_id": null
+      },
+      "assertion": {
+        "passed": true
+      },
+      "failure": {
+        "type": "TEST_FAILURE",
+        "message": "CTest did not run/pass, or its required case is missing/failed/skipped"
+      }
+    },
+    "A13.03": {
+      "schema": "spectralforge.chimera.validation.check",
+      "schema_version": 1,
+      "id": "A13.03",
+      "stage": "A13",
+      "name": "A13.03",
+      "scope": {
+        "platform": "macos",
+        "producer": "exact-source-ci",
+        "synthetic_only": true,
+        "run_id": "38342282418",
+        "run_attempt": "1"
+      },
+      "policy": {
+        "required": true,
+        "hard_gate": true,
+        "na_policy": "FORBIDDEN",
+        "requires_current_commit": true,
+        "requires_policy_version": true
+      },
+      "dependencies": [],
+      "execution": {
+        "executed": true,
+        "exit_code": 0
+      },
+      "evidence": {
+        "commit_sha": "9375328c30dfe5908e5010342179b5afbc258900",
+        "policy_version": 4,
+        "artifacts": [
+          "raw/ctest-results.xml",
+          "raw/ctest-inventory.json",
+          "raw/LastTest.log",
+          "raw/macOS-package-verification.txt"
+        ]
+      },
+      "applicability": {
+        "applicable": true,
+        "waiver_id": null
+      },
+      "assertion": {
+        "passed": true
+      },
+      "failure": {
+        "type": "TEST_FAILURE",
+        "message": "Incomplete/failed CTest matrix, DSP log or platform package verification"
+      }
+    },
+    "I1.PITCH": {
+      "schema": "spectralforge.chimera.validation.check",
+      "schema_version": 1,
+      "id": "I1.PITCH",
+      "stage": "I1",
+      "name": "I1.PITCH",
+      "scope": {
+        "platform": "macos",
+        "producer": "exact-source-ci",
+        "synthetic_only": true,
+        "run_id": "38342282418",
+        "run_attempt": "1"
+      },
+      "policy": {
+        "required": true,
+        "hard_gate": true,
+        "na_policy": "FORBIDDEN",
+        "requires_current_commit": true,
+        "requires_policy_version": true
+      },
+      "dependencies": [],
+      "execution": {
+        "executed": true,
+        "exit_code": 0
+      },
+      "evidence": {
+        "commit_sha": "9375328c30dfe5908e5010342179b5afbc258900",
+        "policy_version": 4,
+        "artifacts": [
+          "raw/ctest-results.xml",
+          "raw/ctest-inventory.json",
+          "raw/LastTest.log",
+          "raw/macOS-package-verification.txt"
+        ]
+      },
+      "applicability": {
+        "applicable": true,
+        "waiver_id": null
+      },
+      "assertion": {
+        "passed": true
+      },
+      "failure": {
+        "type": "TEST_FAILURE",
+        "message": "CTest did not run/pass, or its required case is missing/failed/skipped"
+      }
+    },
+    "I1.GATE": {
+      "schema": "spectralforge.chimera.validation.check",
+      "schema_version": 1,
+      "id": "I1.GATE",
+      "stage": "I1",
+      "name": "I1.GATE",
+      "scope": {
+        "platform": "macos",
+        "producer": "exact-source-ci",
+        "synthetic_only": true,
+        "run_id": "38342282418",
+        "run_attempt": "1"
+      },
+      "policy": {
+        "required": true,
+        "hard_gate": true,
+        "na_policy": "FORBIDDEN",
+        "requires_current_commit": true,
+        "requires_policy_version": true
+      },
+      "dependencies": [],
+      "execution": {
+        "executed": true,
+        "exit_code": 0
+      },
+      "evidence": {
+        "commit_sha": "9375328c30dfe5908e5010342179b5afbc258900",
+        "policy_version": 4,
+        "artifacts": [
+          "raw/ctest-results.xml",
+          "raw/ctest-inventory.json",
+          "raw/LastTest.log",
+          "raw/macOS-package-verification.txt"
+        ]
+      },
+      "applicability": {
+        "applicable": true,
+        "waiver_id": null
+      },
+      "assertion": {
+        "passed": true
+      },
+      "failure": {
+        "type": "TEST_FAILURE",
+        "message": "CTest did not run/pass, or its required case is missing/failed/skipped"
+      }
+    },
+    "I1.STATE_GAIN_GR": {
+      "schema": "spectralforge.chimera.validation.check",
+      "schema_version": 1,
+      "id": "I1.STATE_GAIN_GR",
+      "stage": "I1",
+      "name": "I1.STATE_GAIN_GR",
+      "scope": {
+        "platform": "macos",
+        "producer": "exact-source-ci",
+        "synthetic_only": true,
+        "run_id": "38342282418",
+        "run_attempt": "1"
+      },
+      "policy": {
+        "required": true,
+        "hard_gate": true,
+        "na_policy": "FORBIDDEN",
+        "requires_current_commit": true,
+        "requires_policy_version": true
+      },
+      "dependencies": [],
+      "execution": {
+        "executed": true,
+        "exit_code": 0
+      },
+      "evidence": {
+        "commit_sha": "9375328c30dfe5908e5010342179b5afbc258900",
+        "policy_version": 4,
+        "artifacts": [
+          "raw/ctest-results.xml",
+          "raw/ctest-inventory.json",
+          "raw/LastTest.log",
+          "raw/macOS-package-verification.txt"
+        ]
+      },
+      "applicability": {
+        "applicable": true,
+        "waiver_id": null
+      },
+      "assertion": {
+        "passed": true
+      },
+      "failure": {
+        "type": "TEST_FAILURE",
+        "message": "CTest did not run/pass, or its required case is missing/failed/skipped"
+      }
+    },
+    "E1.DSP": {
+      "schema": "spectralforge.chimera.validation.check",
+      "schema_version": 1,
+      "id": "E1.DSP",
+      "stage": "E1",
+      "name": "E1.DSP",
+      "scope": {
+        "platform": "macos",
+        "producer": "exact-source-ci",
+        "synthetic_only": true,
+        "run_id": "38342282418",
+        "run_attempt": "1"
+      },
+      "policy": {
+        "required": true,
+        "hard_gate": true,
+        "na_policy": "FORBIDDEN",
+        "requires_current_commit": true,
+        "requires_policy_version": true
+      },
+      "dependencies": [],
+      "execution": {
+        "executed": true,
+        "exit_code": 0
+      },
+      "evidence": {
+        "commit_sha": "9375328c30dfe5908e5010342179b5afbc258900",
+        "policy_version": 4,
+        "artifacts": [
+          "raw/ctest-results.xml",
+          "raw/ctest-inventory.json",
+          "raw/LastTest.log",
+          "raw/macOS-package-verification.txt"
+        ]
+      },
+      "applicability": {
+        "applicable": true,
+        "waiver_id": null
+      },
+      "assertion": {
+        "passed": true
+      },
+      "failure": {
+        "type": "TEST_FAILURE",
+        "message": "Missing/failed CTest inventory, case or scoped full-log contract assertion"
+      }
+    },
+    "E1.LEGACY": {
+      "schema": "spectralforge.chimera.validation.check",
+      "schema_version": 1,
+      "id": "E1.LEGACY",
+      "stage": "E1",
+      "name": "E1.LEGACY",
+      "scope": {
+        "platform": "macos",
+        "producer": "exact-source-ci",
+        "synthetic_only": true,
+        "run_id": "38342282418",
+        "run_attempt": "1"
+      },
+      "policy": {
+        "required": true,
+        "hard_gate": true,
+        "na_policy": "FORBIDDEN",
+        "requires_current_commit": true,
+        "requires_policy_version": true
+      },
+      "dependencies": [],
+      "execution": {
+        "executed": true,
+        "exit_code": 0
+      },
+      "evidence": {
+        "commit_sha": "9375328c30dfe5908e5010342179b5afbc258900",
+        "policy_version": 4,
+        "artifacts": [
+          "raw/ctest-results.xml",
+          "raw/ctest-inventory.json",
+          "raw/LastTest.log",
+          "raw/macOS-package-verification.txt"
+        ]
+      },
+      "applicability": {
+        "applicable": true,
+        "waiver_id": null
+      },
+      "assertion": {
+        "passed": true
+      },
+      "failure": {
+        "type": "TEST_FAILURE",
+        "message": "Missing/failed CTest inventory, case or scoped full-log contract assertion"
+      }
+    }
+  },
+  "assembly": {
+    "A13.07": {
+      "schema": "spectralforge.chimera.validation.check",
+      "schema_version": 1,
+      "id": "A13.07",
+      "stage": "A13",
+      "name": "A13.07",
+      "scope": {
+        "platform": "assembly",
+        "producer": "exact-source-ci",
+        "synthetic_only": true,
+        "run_id": "38342282418",
+        "run_attempt": "1"
+      },
+      "policy": {
+        "required": true,
+        "hard_gate": true,
+        "na_policy": "FORBIDDEN",
+        "requires_current_commit": true,
+        "requires_policy_version": true
+      },
+      "dependencies": [],
+      "execution": {
+        "executed": true,
+        "exit_code": 0
+      },
+      "evidence": {
+        "commit_sha": "9375328c30dfe5908e5010342179b5afbc258900",
+        "policy_version": 4,
+        "artifacts": [
+          "raw/candidate-source.json",
+          "raw/SHA256SUMS.txt",
+          "raw/update-beta.json"
+        ]
+      },
+      "applicability": {
+        "applicable": true,
+        "waiver_id": null
+      },
+      "assertion": {
+        "passed": true
+      },
+      "failure": {
+        "type": "TEST_FAILURE",
+        "message": "Candidate assembly/upload or exact-source candidate receipt missing/failed"
+      }
+    }
+  }
+}

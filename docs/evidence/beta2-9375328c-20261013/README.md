@@ -1,4 +1,6 @@
-# October 14 beta.2 candidate — source-specific verification
+# Historical source 9375328c — failed qualification, superseded
+
+**Superseded by product source `6033236cb81820a43679cbbd34be020804f9658d`. All runtime and CI results in this directory apply only to 9375328c. None qualifies the later source.**
 
 ## Candidate identity and dependency disposition
 
@@ -74,7 +76,11 @@ All 11 original product-source workflows and all 33 jobs completed SUCCESS. All 
 
 A separate read-only remote audit [38348376361](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38348376361), controller48764beceafe47c4c60e7d0544779d6dc1a90fb3, checked out unchanged product9375328c. The unchanged source-specific verify_ci function passed, and the gate ZIP size/digest/CRC passed. The unchanged raw evidence verifier rejected E1.STATE_UI (windows). Its dry-run and remaining12 archive audits did not execute in that first audit; the full original failure is retained under ci/remote-audit/original-38348376361.
 
-Static source comparison identifies a machine-receipt mismatch: NativeUITests emits “flat POST alias menus and functional captions”, while the unchanged hash-pinned CI map requires “flat POST alias menus and short original model captions”. A diagnostic-only evidence-controller run now reads the actual hashed LastTest.log, preserves the strict rejection and runs the remaining archive inspections without changing product source, policies or acceptance. Any subsequent source fix must be tested afresh; no937 PASS qualifies a later SHA.
+The completed diagnostic audit [38350060701](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38350060701), controller ae5f9a034e4d63204acd29b33918545c49438cf6, reproduced the exact failure from the original hashed Windows LastTest.log. That file is 386896 bytes, SHA256 e9272e915392c25f085c6a4ac4dbb15ba1963b27ea98fb7948f6846999385cdc. All 48 CTests passed and the test inventory was valid. The native-UI receipt counts were exactly 26 amplifier models / 122 channel cases / 2246 visibility cases / 144 POST controls. Its phrase “functional captions” differed from the unchanged hash-pinned CI-map requirement “short original model captions”. No other portion of that contract failed. Regenerating all 21 automatic checks using unchanged product tools produced 20 PASS and only E1.STATE_UI failure.
+
+The diagnostic audit preserved both the unchanged strict verifier rejection and the original publication dry-run exit code 1. It completed all 13 small-archive API size, SHA256 and ZIP CRC checks, including 20 platform report internal hashes and 321 CAB internal hashes. The source SHA, tree and four policy hashes were identical before and after. Its final verdict remains AUDIT_FAILED because qualification failed; successful archive integrity does not waive that failure. Full original diagnostic evidence is under ci/remote-audit/diagnostic-38350060701. The audit artifact is 11790775912, 20143979 bytes, SHA256 02a966be40940caf91783b29aaad40b77d598e461ecbb9b5a3f46d4149bed850.
+
+The successor 6033236c changes only Tests/NativeUITests.h (4 additions / 1 deletion). It restores this historical machine-readable receipt without changing any assertion, adds a truthful separate sound-description/public-name success line, and documents why the legacy receipt remains. Source, installer, Tools, Validation and workflow trees are unchanged. The successor must execute its own full CI and installer qualification; no 9375328c PASS is reused.
 
 ### User-modified document preservation semantics
 
@@ -90,4 +96,4 @@ Current beta.2 approval and publication flags remain false, and waivers remain e
 
 ## Evidence layout
 
-Original local reports and their archive remain at this evidence path; the source-verification-evidence.zip SHA256 is f08c949af5925ac8c62fca193c80faca5a9356fd6acad92cccd1a8a7f0f8f18a. CI observations, installer logs, platform package scope and CAB records appear under ci/. Point-in-time offline archive limitations are historical and can be superseded only by a subsequently executed remote audit. Original failures remain retained.
+Original local reports and their archive remain at this evidence path; the source-verification-evidence.zip SHA256 is f08c949af5925ac8c62fca193c80faca5a9356fd6acad92cccd1a8a7f0f8f18a. CI observations, installer logs, platform package scope and CAB records appear under ci/. Point-in-time offline archive limitations are historical. The completed diagnostic audit resolves the thirteen selected small-archive integrity gaps for this source only; it does not resolve the genuine qualification failure or qualify a later source. Original failures remain retained.

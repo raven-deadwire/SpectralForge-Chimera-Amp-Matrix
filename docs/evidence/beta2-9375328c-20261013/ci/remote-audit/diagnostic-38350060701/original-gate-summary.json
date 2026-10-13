@@ -1,0 +1,70 @@
+{
+  "verdict": "BLOCKED",
+  "ready": false,
+  "counts": {
+    "checks": {
+      "total": 128,
+      "pass": 20,
+      "blocked": 108,
+      "not_applicable": 0
+    },
+    "stages": {
+      "total": 30,
+      "pass": 3,
+      "blocked": 27,
+      "not_applicable": 0
+    }
+  },
+  "hard_gates": {
+    "total": 63,
+    "pass": 20,
+    "blocked": 43
+  },
+  "producer": {
+    "name": "consolidate_release_gate",
+    "inputs": [
+      {
+        "kind": "windows",
+        "manifest_sha256": "fe1ef9dbfd50451e575410e60969677660ee32f9a50004ff22eaaf1119182587",
+        "revision": {
+          "commit_sha": "9375328c30dfe5908e5010342179b5afbc258900",
+          "run_id": "38342282418",
+          "run_attempt": "1"
+        }
+      },
+      {
+        "kind": "linux",
+        "manifest_sha256": "76aae4a6efe5988d4b7648d08ffc85e7ad7da3ba07f8f0ae541b19ae9754b502",
+        "revision": {
+          "commit_sha": "9375328c30dfe5908e5010342179b5afbc258900",
+          "run_id": "38342282418",
+          "run_attempt": "1"
+        }
+      },
+      {
+        "kind": "macos",
+        "manifest_sha256": "9a4c093e490c91336a36770a4ad71c5bbe8684577774b0ccf84ff1e5b63c683a",
+        "revision": {
+          "commit_sha": "9375328c30dfe5908e5010342179b5afbc258900",
+          "run_id": "38342282418",
+          "run_attempt": "1"
+        }
+      },
+      {
+        "kind": "assembly",
+        "manifest_sha256": "89bd4c33585e42bc0901521c6c80aa7e84e256a0262074c9bc7572cff7e27c4a",
+        "revision": {
+          "commit_sha": "9375328c30dfe5908e5010342179b5afbc258900",
+          "run_id": "38342282418",
+          "run_attempt": "1"
+        }
+      }
+    ],
+    "errors": []
+  },
+  "revision": {
+    "commit_sha": "9375328c30dfe5908e5010342179b5afbc258900",
+    "run_id": "38342282418",
+    "run_attempt": "1"
+  }
+}
