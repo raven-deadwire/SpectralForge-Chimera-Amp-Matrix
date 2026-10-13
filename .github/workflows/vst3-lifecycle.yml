@@ -1,0 +1,65 @@
+name: VST3 shutdown regression
+on:
+  pull_request:
+    paths:
+      - 'Source/**'
+      - 'Tests/**'
+      - 'Tools/verify_vst3_lifecycle.py'
+      - 'Tools/Trace-Chimera-Session.ps1'
+      - 'Tools/*vblank*'
+      - 'CMakeLists.txt'
+      - 'cmake/**'
+      - '.github/workflows/vst3-lifecycle.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: vst3-shutdown-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+jobs:
+  windows-vst3:
+    runs-on: windows-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - name: Reject incomplete or misleading lifecycle evidence
+        run: python Tests/test_vst3_lifecycle_evidence.py
+      - name: Check DAW diagnostic script and native dump helper
+        shell: pwsh
+        run: |
+          $tokens = $null
+          $parseErrors = $null
+          [System.Management.Automation.Language.Parser]::ParseFile((Resolve-Path 'Tools/Trace-Chimera-Session.ps1').Path, [ref]$tokens, [ref]$parseErrors) | Out-Null
+          if ($parseErrors.Count) { throw (($parseErrors | ForEach-Object Message) -join "`n") }
+          $script = Get-Content Tools/Trace-Chimera-Session.ps1 -Raw
+          $nativeHelper = [regex]::Match($script, "(?s)Add-Type -TypeDefinition @'\r?\n(.*?)\r?\n'@")
+          if (!$nativeHelper.Success) { throw 'Diagnostic dump helper definition missing' }
+          Add-Type -TypeDefinition $nativeHelper.Groups[1].Value
+      - name: Configure exact-source product and existing shutdown probes
+        run: cmake -S . -B build-lifecycle -A x64 -DCMAKE_BUILD_TYPE=Release
+      - name: Build real VST3 DLL and independent ABI host
+        timeout-minutes: 30
+        run: cmake --build build-lifecycle --config Release --target ChimeraAmpMatrix_VST3 ChimeraVST3LifecycleTests ChimeraVBlankFailureTests --parallel 2
+      - name: Exercise VST3 lifetimes, watchdog failures and existing VBlank fix
+        timeout-minutes: 12
+        run: ctest --test-dir build-lifecycle -C Release -R '^(ChimeraVST3LifecycleTests|ChimeraVST3WatchdogTests|ChimeraVST3LifecycleEvidenceTests|ChimeraVBlankFailureTests)$' --output-on-failure --no-tests=error --output-junit lifecycle-results.xml --output-log build-lifecycle/lifecycle-ctest.log
+      - name: Preserve success and failure observations
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: VST3-Shutdown-${{ github.event.pull_request.head.sha || github.sha }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            build-lifecycle/vst3-lifecycle-evidence/
+            build-lifecycle/vst3-watchdog-evidence/
+            build-lifecycle/vblank-failure-verification.json
+            build-lifecycle/vblank-test-generated/extraction.json
+            build-lifecycle/chimera-build-version.json
+            build-lifecycle/lifecycle-results.xml
+            build-lifecycle/lifecycle-ctest.log
+            build-lifecycle/Testing/Temporary/LastTest.log*
+          if-no-files-found: warn

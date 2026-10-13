@@ -120,6 +120,8 @@ target_link_libraries(ChimeraOriginalAmpRender PRIVATE juce::juce_dsp juce::juce
 find_package(Python3 3.9 REQUIRED COMPONENTS Interpreter)
 add_test(NAME ChimeraPackagingVersionTests
   COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/Tests/test_packaging_version.py")
+add_test(NAME ChimeraVST3LifecycleEvidenceTests
+  COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/Tests/test_vst3_lifecycle_evidence.py")
 find_package(Threads REQUIRED)
 set(CHIMERA_VBLANK_TEST_DIR "${CMAKE_BINARY_DIR}/vblank-test-generated")
 execute_process(
@@ -199,8 +201,18 @@ if(WIN32)
   # Keep the host independently buildable for baseline protocol checks. The
   # normal all-target build supplies the plugin used by the CTest below.
   add_test(NAME ChimeraVST3LifecycleTests
-    COMMAND ChimeraVST3LifecycleTests "$<TARGET_FILE:ChimeraAmpMatrix_VST3>")
-  set_tests_properties(ChimeraVST3LifecycleTests PROPERTIES TIMEOUT 370)
+    COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/Tools/verify_vst3_lifecycle.py"
+      --host "$<TARGET_FILE:ChimeraVST3LifecycleTests>"
+      --plugin "$<TARGET_FILE:ChimeraAmpMatrix_VST3>"
+      --evidence-dir "${CMAKE_BINARY_DIR}/vst3-lifecycle-evidence"
+      --build-metadata "${CMAKE_BINARY_DIR}/chimera-build-version.json"
+      --source-sha "${CHIMERA_SOURCE_SHA}")
+  # Twelve separately supervised children, each with its existing 45 s bound.
+  # The outer bound leaves time to preserve failure records and close handles.
+  set_tests_properties(ChimeraVST3LifecycleTests PROPERTIES TIMEOUT 660 RUN_SERIAL TRUE)
+  add_test(NAME ChimeraVST3WatchdogTests
+    COMMAND ChimeraVST3LifecycleTests --watchdog-self-test "${CMAKE_BINARY_DIR}/vst3-watchdog-evidence")
+  set_tests_properties(ChimeraVST3WatchdogTests PROPERTIES TIMEOUT 15 RUN_SERIAL TRUE)
 endif()
 
 # Deterministic offline amp renderer for user-owned NAM reference comparisons.

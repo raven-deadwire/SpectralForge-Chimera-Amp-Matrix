@@ -122,6 +122,8 @@ void ChimeraLookAndFeel::drawRotarySlider(juce::Graphics& g,int x,int y,int widt
 }
 ChimeraEditor::ChimeraEditor(ChimeraProcessor& p) : AudioProcessorEditor(&p),processor(p),boardPanel(p)
 {
+    const spectralforge::lifecycle::Scope trace("editor.create.body", this,
+        spectralforge::lifecycle::messageContext(juce::MessageManager::getInstanceWithoutCreating(), &p));
     setLookAndFeel(&look); canvas.setComponentID("surface"); addAndMakeVisible(canvas);
     auto add=[this](juce::Component& component){canvas.addAndMakeVisible(component);};
     signalPath=std::make_unique<SignalPathView>(processor,true);add(*signalPath);
@@ -307,7 +309,36 @@ ChimeraEditor::ChimeraEditor(ChimeraProcessor& p) : AudioProcessorEditor(&p),pro
     setResizable(true,true); setResizeLimits(885,585,1770,1170); getConstrainer()->setFixedAspectRatio(1180.0/780.0);
     setSize(1180,780); updateModeUI(); startTimerHz(25);
 }
-ChimeraEditor::~ChimeraEditor() { stopTimer(); chooser.reset(); for(auto& dialog:dialogs)if(dialog)delete dialog.getComponent();dialogs.clear();if(support)support->cancel();support.reset();setLookAndFeel(nullptr); }
+ChimeraEditor::~ChimeraEditor()
+{
+    const auto context = spectralforge::lifecycle::messageContext(juce::MessageManager::getInstanceWithoutCreating(), &processor);
+    teardownMembers.arm(context);
+    // This scope ends before automatic member/base destruction. Do not label
+    // it as a completed editor deletion or infer VBlank shutdown from it.
+    const spectralforge::lifecycle::Scope trace("editor.destroy.body", this, context);
+    {
+        const spectralforge::lifecycle::Scope stage("editor.timer.stop", this, context);
+        stopTimer();
+    }
+    {
+        const spectralforge::lifecycle::Scope stage("editor.chooser.reset", this, context);
+        chooser.reset();
+    }
+    {
+        const spectralforge::lifecycle::Scope stage("editor.dialogs.destroy", this, context);
+        for(auto& dialog:dialogs)if(dialog)delete dialog.getComponent();
+        dialogs.clear();
+    }
+    {
+        const spectralforge::lifecycle::Scope stage("editor.support.reset", this, context);
+        if(support)support->cancel();
+        support.reset();
+    }
+    {
+        const spectralforge::lifecycle::Scope stage("editor.look_and_feel.detach", this, context);
+        setLookAndFeel(nullptr);
+    }
+}
 void ChimeraEditor::setupSlider(juce::Slider& slider,const juce::String& name,const juce::String& suffix)
 {
     slider.setName(name); slider.setTooltip(name); slider.setSliderStyle(juce::Slider::LinearHorizontal);

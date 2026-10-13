@@ -165,6 +165,8 @@ jobs:
             build/validation
             build/ctest-results.xml
             build/ctest-inventory.json
+            build/vst3-lifecycle-evidence/
+            build/vst3-watchdog-evidence/
             build/cab-timing-diagnostics/**
             build/signature-snapshots
           if-no-files-found: warn

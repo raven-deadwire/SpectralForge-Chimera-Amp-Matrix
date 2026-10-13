@@ -22,6 +22,11 @@ ChimeraProcessor::ChimeraProcessor()
     : AudioProcessor(BusesProperties().withInput("Input",juce::AudioChannelSet::stereo(),true)
                                       .withOutput("Output",juce::AudioChannelSet::stereo(),true))
 {
+    const auto context = spectralforge::lifecycle::messageContext(juce::MessageManager::getInstanceWithoutCreating());
+    const spectralforge::lifecycle::Scope trace("processor.create.body", this, context);
+    const auto ownedContext = spectralforge::lifecycle::messageContext(juce::MessageManager::getInstanceWithoutCreating(), this);
+    spectralforge::lifecycle::write("ir.owner", &library, -1.0, ownedContext);
+    spectralforge::lifecycle::write("tuner.owner", &tuner, -1.0, ownedContext);
     originalCabParameters.bind(state);
     toneEQ.bind(state,0);finalEQ.bind(state,1);
     const std::array<const char*,10> cabIds{"cabblend","cabAgain","cabAdelay","cabAinvert","cabBgain","cabBdelay","cabBinvert","cabBlow","cabBhigh","cabBtype"};
@@ -47,12 +52,15 @@ ChimeraProcessor::ChimeraProcessor()
 }
 ChimeraProcessor::~ChimeraProcessor()
 {
-    const spectralforge::lifecycle::Scope trace("processor.destroy", this);
+    const auto context = spectralforge::lifecycle::messageContext(juce::MessageManager::getInstanceWithoutCreating());
+    teardownMembers.arm(context);
+    const spectralforge::lifecycle::Scope trace("processor.destroy.body", this, context);
     releaseResources();
 }
 void ChimeraProcessor::releaseResources()
 {
-    const spectralforge::lifecycle::Scope trace("processor.release", this);
+    const spectralforge::lifecycle::Scope trace("processor.release", this,
+        spectralforge::lifecycle::messageContext(juce::MessageManager::getInstanceWithoutCreating()));
     // The host has stopped processing. Signal both workers before joining
     // either, then reclaim ALL IR kernels while the plugin is still loaded.
     // Each juce::dsp::Convolution owns a further background loader: merely
@@ -64,7 +72,8 @@ void ChimeraProcessor::releaseResources()
 }
 void ChimeraProcessor::prepareToPlay(double sr,int block)
 {
-    const spectralforge::lifecycle::Scope trace("processor.prepare", this);
+    const spectralforge::lifecycle::Scope trace("processor.prepare", this,
+        spectralforge::lifecycle::messageContext(juce::MessageManager::getInstanceWithoutCreating()));
     releaseResources(); cpuAverage.store(0);cpuPeak.store(0);rate=sr; maximumBlock=juce::jmax(1,block);
     const juce::dsp::ProcessSpec spec{sr,(juce::uint32)maximumBlock,(juce::uint32)getTotalNumOutputChannels()};
     // Install the restored panel state before Cab::prepare initializes its
@@ -432,7 +441,12 @@ void ChimeraProcessor::copyComparison()
     auto current=captureCore();std::lock_guard<std::mutex> lock(comparisonMutex);
     comparisons[(size_t)(1-selectedComparison.load())]=current.createCopy();
 }
-juce::AudioProcessorEditor* ChimeraProcessor::createEditor() { return new ChimeraEditor(*this); }
+juce::AudioProcessorEditor* ChimeraProcessor::createEditor()
+{
+    const spectralforge::lifecycle::Scope trace("processor.create_editor", this,
+        spectralforge::lifecycle::messageContext(juce::MessageManager::getInstanceWithoutCreating()));
+    return new ChimeraEditor(*this);
+}
 juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter() { return new ChimeraProcessor(); }
 
 void ChimeraProcessor::clearMidi() {for(auto& target:midiMap)target.store(-1);midiLearn.store(-1);}
