@@ -87,6 +87,7 @@ inline void accessibleButton(juce::TextButton& button,const juce::String& label)
 inline void compactContract(SignalPathView& strip,int mode) {
     int count=0;for(auto* child:strip.getChildren())if(child->getComponentID().startsWith("path."))++count;
     require(count==int(compactStages.size()),"Compact workflow must contain exactly six editing stages");
+    require(strip.getHeight()>=44,"Primary navigation hit area is too small");
     int previousRight=0;
     for(size_t i=0;i<compactStages.size();++i) {
         auto& button=pathButton(strip,compactStages[i]);
@@ -120,7 +121,7 @@ inline void globalUtilities(juce::Component& editor,SignalPathView& strip) {
     for(const auto* text:{"GATE","TRANSPOSE","TUNER"}) {
         int count=0;
         const auto visit=[&](auto&& self,juce::Component& root)->void {
-            if(auto* button=dynamic_cast<juce::TextButton*>(&root);button && button->getButtonText()==text) {
+            if(auto* button=dynamic_cast<juce::TextButton*>(&root);button && (button->getButtonText()==text || (juce::String(text)=="TUNER" && button->getComponentID()=="tunerOpen"))) {
                 require(button->isShowing() && button->isEnabled() && !strip.isParentOf(button),
                         "Existing global utility control is hidden or duplicated in workflow");++count;
             }
@@ -192,7 +193,7 @@ inline void compactDestination(juce::Component& editor,SignalPathView& strip,con
                          "PRE workflow action did not open the pedalboard");
     else if(id=="head" || id=="cab") {
         const bool heads=id=="head";const int count=strip.snapshot().mode+1;
-        require(visible("cabRigControls") && !visible("universalPedalBoard") && !visible("postNativePanel0") && !visible("toneEQ_panel"),
+        require(find(editor,"cabRigControls")==nullptr && !visible("universalPedalBoard") && !visible("postNativePanel0") && !visible("toneEQ_panel"),
                 "HEAD/CAB workflow action did not open the current mode's rig editor");
         auto* room=find<CabRoomOverview>(editor,"cabRoomOverview");
         require(room && room->isShowing()!=heads && room->activeRigCount()==count,
@@ -282,13 +283,13 @@ inline void rigPresentation(ChimeraProcessor& processor,juce::Component& editor,
     const auto before=values(processor);const int mode=strip.snapshot().mode;
     const int initialChanges=writes.changes,initialGestures=writes.gestures;
     const auto dual=processor.parameters().getRawParameterValue("dualtype")->load();
-    auto* canvas=find(editor,"surface");auto* toggle=find<juce::TextButton>(editor,"cabRigControls");
-    require(canvas && toggle,"Rig presentation controls are absent");
+    auto* canvas=find(editor,"surface");
+    require(canvas && find(editor,"cabRigControls")==nullptr,"Duplicate rig navigation remains");
     click(pathButton(strip,"head"));compactDestination(editor,strip,"head","initial HEAD pointer click");
     tab(*canvas,"PRE");tab(*canvas,"RIGS");
-    compactDestination(editor,strip,"head","RIGS tab return");
-    click(*toggle);compactDestination(editor,strip,"cab","rig toggle to CAB");
-    click(*toggle);compactDestination(editor,strip,"head","rig toggle to HEAD");
+    compactDestination(editor,strip,"head","HEAD stage return");
+    click(pathButton(strip,"cab"));compactDestination(editor,strip,"cab","CAB navigation");
+    click(pathButton(strip,"head"));compactDestination(editor,strip,"head","HEAD navigation");
     if(mode==1) {
         set(processor,"dualtype",dual>.5f?0.f:1.f);settle(100);
         compactContract(strip,mode);compactDestination(editor,strip,"head","Dual topology change");
@@ -321,7 +322,7 @@ inline void restoredRigDestinations(ChimeraProcessor& processor,juce::Component&
 inline void preSelectionRestore(ChimeraProcessor& processor) {
     const auto before=values(processor);const auto previous=processor.parameters().getRawParameterValue("boardEnabled")->load();
     set(processor,"boardEnabled",1);
-    SignalPathView restored(processor,true);restored.setSize(985,20);
+    SignalPathView restored(processor,true);restored.setSize(1140,44);
     restored.addToDesktop(juce::ComponentPeer::windowIsTemporary);restored.setVisible(true);
     const auto selectFirst=[&](const char* prefix) {
         const auto& nodes=restored.snapshot().nodes;
@@ -344,7 +345,7 @@ inline void preSelectionRestore(ChimeraProcessor& processor) {
 }
 inline void rigSelectionRestore(ChimeraProcessor& processor) {
     const auto before=values(processor);const auto previous=processor.parameters().getRawParameterValue("mode")->load();
-    SignalPathView restored(processor,true);restored.setSize(985,20);
+    SignalPathView restored(processor,true);restored.setSize(1140,44);
     restored.addToDesktop(juce::ComponentPeer::windowIsTemporary);restored.setVisible(true);
     for(const auto* stage:{"head","cab"}) {
         set(processor,"mode",2);restored.refresh();
@@ -476,6 +477,7 @@ inline void run(const juce::File& folder) {
         require(strip->snapshot().mode==int(p->parameters().getRawParameterValue("mode")->load()),"Preset mode/path failed to converge");
         require(!strip->snapshot().find("tone.eq")->active && !strip->snapshot().find("final.eq")->active,"Factory recall left EQ path enabled");
     }
+    std::cout<<"Signal Path final automation / A-B restore"<<std::endl;
     // Host changes converge through a presentation read, including inactive tabs.
     set(*p,"mode",2);set(*p,"cab2",0);set(*p,"gateAfterRig",1);set(*p,"transposeon",1);set(*p,"transpose",-2);settle(120);
     compactContract(*strip,2);
@@ -485,8 +487,10 @@ inline void run(const juce::File& folder) {
     require(requiredNode(strip->snapshot(),"tone.eq","EQ automation").active && requiredNode(strip->snapshot(),"tone.eq","EQ automation").status=="ACTIVE / 1 BANDS" && !requiredNode(strip->snapshot(),"final.eq","EQ automation").active,"Automated EQ bypass/band status did not converge");
     p->copyComparison();set(*p,"cab2",1);set(*p,"toneEQ_bypass",1);set(*p,"finalEQ_bypass",0);p->selectComparison(1);settle(100);require(!requiredNode(strip->snapshot(),"cab.context4","A/B restore").active && requiredNode(strip->snapshot(),"tone.eq","A/B restore").active && !requiredNode(strip->snapshot(),"final.eq","A/B restore").active,"A/B did not restore graph CAB/EQ bypass");compactContract(*strip,2);
     restoredRigDestinations(*p,*editor,*strip,writes);
+    std::cout<<"Signal Path project restore"<<std::endl;
     juce::MemoryBlock saved;p->getStateInformation(saved);p->loadFactoryPreset(0);p->setStateInformation(saved.getData(),int(saved.getSize()));settle(120);require(strip->snapshot().mode==2&&!requiredNode(strip->snapshot(),"cab.context4","project restore").active && requiredNode(strip->snapshot(),"tone.eq","project restore").active && !requiredNode(strip->snapshot(),"final.eq","project restore").active,"Project restore left stale graph");compactContract(*strip,2);
     restoredRigDestinations(*p,*editor,*strip,writes);
+    std::cout<<"Signal Path editor recreation"<<std::endl;
     auto expected=values(*p);writes.changes=writes.gestures=0;editor->removeFromDesktop();editor.reset();editor=std::make_unique<ChimeraEditor>(*p);
     editor->addToDesktop(juce::ComponentPeer::windowIsTemporary);editor->setVisible(true);settle(80);
     strip=find<SignalPathView>(*editor,"signalPathStrip");require(strip,"Restored editor lost the compact workflow");compactContract(*strip,2);globalUtilities(*editor,*strip);

@@ -16,6 +16,7 @@
 #include <algorithm>
 #include "UIRefreshTests.h"
 #include "SignalPathUITests.h"
+#include "PrecisionTunerUITests.h"
 #include <map>
 #include <iostream>
 #include <set>
@@ -577,10 +578,7 @@ int main(int argc, char** argv)
                 set(*processor,"mode",float(mode));
                 for(int lane=0;lane<=mode;++lane)processor->setAmpModel(lane,spectralforge::niflheimrAmpModel);
                 auto editor=std::make_unique<ChimeraEditor>(*processor);
-                if(auto* surface=editor->findChildWithID("surface"))
-                    for(auto* child:surface->getChildren())
-                        if(auto* button=dynamic_cast<juce::TextButton*>(child);button && button->getButtonText()=="RIGS" && button->onClick)
-                            button->onClick();
+                if(auto* button=nativeUITests::find<juce::TextButton>(*editor,"path.cab"))button->onClick();
                 saveSnapshot(*editor,directory,"Niflheimr-software-mode-"+juce::String(mode));
             }
             const auto browserStorage=std::make_unique<IRBrowserPanel>([](juce::File,int){});auto& browser=*browserStorage;
@@ -621,6 +619,7 @@ int main(int argc, char** argv)
         require(juce::Desktop::getInstance().getDisplays().getPrimaryDisplay()!=nullptr,
                 "Native UI regression requires an active display server and window manager");
         if(argc>2 && juce::String(argv[2])=="--ui-refresh-only"){uiRefreshTests::run(directory);return 0;}
+        if(argc>2 && juce::String(argv[2])=="--precision-tuner-only"){precisionTunerUITests::run(directory);return 0;}
         if(argc>2 && juce::String(argv[2])=="--signal-path-only"){signalPathTests::run(directory);return 0;}
         int suiteFailures=0;
         const auto runSuite=[&](const char* name,auto&& run) {
@@ -755,8 +754,7 @@ int main(int argc, char** argv)
             // Keep large UI fixtures off the executable's Windows stack. main
             // remains live while all nested UI suites construct their editors.
             const auto editorStorage=std::make_unique<ChimeraEditor>(processor);auto& editor=*editorStorage;
-            for(auto* child:editor.findChildWithID("surface")->getChildren())
-                if(auto* button=dynamic_cast<juce::TextButton*>(child);button && button->getButtonText()=="RIGS")button->triggerClick();
+            nativeUITests::find<juce::TextButton>(editor,"path.cab")->triggerClick();
             // Exercise the real asynchronous UI event loop. Sleeping the message
             // thread can prevent parameter notifications and timers from settling.
             juce::MessageManager::getInstance()->runDispatchLoopUntil(150);
@@ -853,9 +851,9 @@ int main(int argc, char** argv)
                         }
                     }
                 }
-                for(auto* child:editor.findChildWithID("surface")->getChildren()) if(auto* button=dynamic_cast<juce::TextButton*>(child);button && button->getButtonText()=="RIGS") button->triggerClick();
+                nativeUITests::find<juce::TextButton>(editor,"path.cab")->triggerClick();
                 juce::MessageManager::getInstance()->runDispatchLoopUntil(100);
-                set(processor,"tuneron",1);juce::MessageManager::getInstance()->runDispatchLoopUntil(120);saveSnapshot(editor,directory,"Tuner-global");set(processor,"tuneron",0);
+                nativeUITests::find<juce::TextButton>(editor,"tunerOpen")->triggerClick();set(processor,"tuneron",1);juce::MessageManager::getInstance()->runDispatchLoopUntil(120);saveSnapshot(editor,directory,"Tuner-global");set(processor,"tuneron",0);nativeUITests::find<juce::TextButton>(editor,"path.cab")->triggerClick();
                 // Host-driven mode changes must immediately remove hidden controls.
                 set(processor,"mode",0);
                 juce::MessageManager::getInstance()->runDispatchLoopUntil(150);
@@ -869,7 +867,7 @@ int main(int argc, char** argv)
             const auto universalStorage=std::make_unique<ChimeraProcessor>();auto& universal=*universalStorage;universal.prepareToPlay(48000,256);
             const int models[]{30,6,26,27,31};for(int i=0;i<5;++i)universal.setPedalModel(i,models[i]);set(universal,"boardEnabled",1);
             const auto editorStorage=std::make_unique<ChimeraEditor>(universal);auto& editor=*editorStorage;auto* canvas=editor.findChildWithID("surface");require(canvas,"Missing editor surface");
-            for(auto* child:canvas->getChildren())if(auto* button=dynamic_cast<juce::TextButton*>(child);button&&button->getButtonText()=="PRE")button->triggerClick();
+            nativeUITests::find<juce::TextButton>(*canvas,"path.pre")->triggerClick();
             for(int mode=0;mode<3;++mode) {
                 set(universal,"mode",float(mode));juce::MessageManager::getInstance()->runDispatchLoopUntil(180);
                 auto* board=canvas->findChildWithID("universalPedalBoard");require(board&&board->isVisible(),"Product board view not connected");

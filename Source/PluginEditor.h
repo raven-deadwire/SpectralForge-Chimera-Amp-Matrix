@@ -11,6 +11,7 @@
 #include "GraphicalEQPanel.h"
 #include "EffectSelectionCatalog.h"
 #include "SignalPathView.h"
+#include "PrecisionTunerPanel.h"
 
 class CabRoomOverview;
 
@@ -25,7 +26,8 @@ public:
     juce::Font getComboBoxFont(juce::ComboBox&) override;
 };
 class ChimeraEditor : public juce::AudioProcessorEditor, private juce::Timer,
-                       public juce::FileDragAndDropTarget {
+                       public juce::FileDragAndDropTarget,
+                       private juce::AudioProcessorValueTreeState::Listener, private juce::AsyncUpdater {
 public:
     explicit ChimeraEditor(ChimeraProcessor&);
     ~ChimeraEditor() override;
@@ -46,6 +48,8 @@ private:
     using SA=juce::AudioProcessorValueTreeState::SliderAttachment;
     using BA=juce::AudioProcessorValueTreeState::ButtonAttachment;
     void timerCallback() override;
+    void parameterChanged(const juce::String&,float) override {triggerAsyncUpdate();}
+    void handleAsyncUpdate() override {updateModeUI();}
     void updateModeUI();
     void updateBandLabels();
     void updateHardwareStyles();
@@ -115,10 +119,12 @@ private:
     std::array<std::unique_ptr<SA>,8> globalAttachments;
     juce::TextButton gateOn{"GATE"},pitchOn{"TRANSPOSE"},tunerOn{"TUNER"},tunerMute{"AUTO MUTE"},info{"INFO"};
     std::array<std::unique_ptr<BA>,4> globalButtons;
-    juce::TextButton compareA{"A"},compareB{"B"},copyAB{"COPY"},irLibraryButton{"IR LIBRARY"},rigsTab{"RIGS"},preTab{"PRE"},postTab{"POST"},eqTab{"EQ"};
+    juce::TextButton compareA{"A"},compareB{"B"},copyAB{"COPY"},irLibraryButton{"IR LIBRARY"};
     std::array<std::unique_ptr<spectralforge::GraphicalEQPanel>,2> eqPanels;
     std::unique_ptr<CabRoomOverview> cabRoom;
-    juce::TextButton rigControls{"RIG CONTROLS"};
+    std::unique_ptr<PrecisionTunerPanel> precisionTuner;
+    juce::TextButton tunerOpen{"TUNER"};
+    bool tunerViewOpen{};
     bool showRigControls{};
     int page{0}; // Start on the amp/RIGS view; navigation leaves the signal path unchanged.
     juce::Slider lowComp,lowAmpMix;

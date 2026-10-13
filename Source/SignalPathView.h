@@ -19,12 +19,24 @@ public:
 class SignalPathButton final : public SignalPathNavigationButton {
 public:
     bool compact{},active{};juce::String label,status;
+    spectralforge::signalPath::Target target{};
     void paintButton(juce::Graphics& g,bool hover,bool down) override {
         const auto area=getLocalBounds().toFloat().reduced(.5f);
         g.setColour(getToggleState()?juce::Colour(0xff416953):juce::Colour(hover||down?0xff2f4540:0xff222c30));g.fillRoundedRectangle(area,3);
         g.setColour(hasKeyboardFocus(true)?juce::Colours::white:juce::Colour(getToggleState()?0xff9bc0a8:0xff53675c));g.drawRoundedRectangle(area,3,1);
-        g.setColour(active?juce::Colour(0xffe8e8dc):juce::Colour(0xffacb6b2));g.setFont(juce::FontOptions(11.f));
-        const auto labelBounds=compact?getLocalBounds().reduced(6,2):getLocalBounds().reduced(4).withHeight(22);
+        g.setColour(active?juce::Colour(0xffe8e8dc):juce::Colour(0xffacb6b2));g.setFont(juce::FontOptions(compact?12.f:11.f,juce::Font::bold));
+        auto labelBounds=compact?getLocalBounds().reduced(6,2):getLocalBounds().reduced(4).withHeight(22);
+        if(compact){
+            // Original vector pictograms remain crisp at every UI scale.
+            juce::Graphics::ScopedSaveState saved(g);g.addTransform(juce::AffineTransform::translation(12.f,float(getHeight()-24)/2));
+            using T=spectralforge::signalPath::Target;
+            if(target==T::amp){g.drawRoundedRectangle(1,5,28,18,2,1.5f);g.drawLine(8,5,8,1,1.5f);g.drawLine(8,1,22,1,1.5f);g.drawLine(22,1,22,5,1.5f);for(int i=0;i<3;++i)g.drawEllipse(5.f+i*8,15,3,3,1.2f);}
+            else if(target==T::cab){g.drawRoundedRectangle(4,0,22,24,2,1.5f);g.drawEllipse(10,3,10,8,1.5f);g.drawEllipse(10,13,10,8,1.5f);}
+            else if(target==T::toneEQ||target==T::finalEQ){for(int i=0;i<3;++i){const float x=5.f+i*10;g.drawLine(x,1,x,23,1.5f);g.fillRoundedRectangle(x-3,float(4+i*6),6,4,1);}}
+            else if(target==T::pre){g.drawRoundedRectangle(6,0,18,24,3,1.5f);g.drawEllipse(11,3,8,8,1.5f);g.fillEllipse(13,17,4,4);}
+            else {g.drawRoundedRectangle(0,1,30,22,2,1.5f);g.drawLine(1,12,29,12,1.5f);g.drawEllipse(4,5,3,3,1);g.drawEllipse(4,16,3,3,1);g.drawLine(13,7,25,7,1);g.drawLine(13,18,25,18,1);}
+        }
+        if(compact)labelBounds.removeFromLeft(43);
         g.drawFittedText(label,labelBounds,juce::Justification::centred,1);
         if(!compact){g.setFont(juce::FontOptions(9.f));g.drawFittedText(status,4,25,getWidth()-8,17,juce::Justification::centred,1);}
     }
@@ -86,7 +98,7 @@ public:
             std::unique_ptr<juce::TextButton> button;
             for(auto& old:buttons)if(old && old->getComponentID()=="path."+node.id){button=std::move(old);break;}
             if(!button){button=std::make_unique<SignalPathButton>();addAndMakeVisible(*button);}
-            auto& painted=static_cast<SignalPathButton&>(*button);painted.compact=compact;painted.active=node.active;painted.label=node.label;painted.status=node.status;
+            auto& painted=static_cast<SignalPathButton&>(*button);painted.compact=compact;painted.active=node.active;painted.label=node.label;painted.status=node.status;painted.target=node.target;
             button->setComponentID("path."+node.id);
             button->setButtonText(compact?node.label:node.label+"\n"+node.status);
             button->setName(node.label+" / "+node.status+" / open editor");
@@ -192,10 +204,9 @@ private:
             b->setToggleState(id==(compact?editingStage:selected)||grouped,juce::dontSendNotification);
         }
     }
-    // Mode and Dual topology already call updateModeUI(), which synchronously
-    // refreshes this view. Gate location is host-automatable and otherwise only
-    // reaches the compact view through the editor's polling timer.
-    static constexpr std::array<const char*,1> routingParameters{{"gateAfterRig"}};
+    // Restore/automation notifications must refresh topology even before the
+    // editor timer or ComboBox attachments deliver their presentation update.
+    static constexpr std::array<const char*,3> routingParameters{{"gateAfterRig","mode","dualtype"}};
     ChimeraProcessor& processor;bool compact;juce::String selected;
     spectralforge::signalPath::Snapshot current;
     std::vector<std::unique_ptr<juce::TextButton>> buttons;

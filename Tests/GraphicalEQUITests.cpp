@@ -22,7 +22,10 @@ double processCPUSeconds(){
 void settle(int ms){check(chimeraTest::dispatchFor(ms),"UI loop exited");}
 template<class Predicate> bool waitFor(Predicate predicate){const auto deadline=juce::Time::getMillisecondCounterHiRes()+2000;while(!predicate() && juce::Time::getMillisecondCounterHiRes()<deadline)settle(20);return predicate();}
 template<class T> T* find(juce::Component& c,const juce::String& id){if(c.getComponentID()==id)return dynamic_cast<T*>(&c);for(auto* child:c.getChildren())if(auto* p=find<T>(*child,id))return p;return nullptr;}
-juce::TextButton* tab(juce::Component& c,const juce::String& name){for(auto* child:c.getChildren()){if(auto* b=dynamic_cast<juce::TextButton*>(child);b && b->getButtonText()==name)return b;if(auto* b=tab(*child,name))return b;}return nullptr;}
+juce::TextButton* tab(juce::Component& c,const juce::String& name){
+    const auto id=name=="RIGS"?"cab":name=="PRE"?"pre":name=="POST"?"post":"tone.eq";
+    auto* button=find<juce::TextButton>(c,"path."+juce::String(id));check(button!=nullptr,"Signal stage missing");return button;
+}
 void set(ChimeraProcessor& p,const juce::String& id,float v){auto* q=p.parameters().getParameter(id);check(q!=nullptr,"Parameter missing");q->setValueNotifyingHost(q->convertTo0to1(v));}
 float get(ChimeraProcessor& p,const juce::String& id){return p.parameters().getRawParameterValue(id)->load();}
 struct HostEvents : juce::AudioProcessorParameter::Listener {
