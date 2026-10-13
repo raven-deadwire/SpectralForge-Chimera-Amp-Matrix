@@ -15,6 +15,7 @@ from unittest.mock import Mock, patch
 import zipfile
 
 import publish_release as publisher
+import package_release as packaging
 import release_evidence as evidence
 import test_release_consolidator as fixtures
 
@@ -324,9 +325,22 @@ class BetaLifecyclePackageContracts(SourceFixture):
         self.make_candidate()
         if include:
             metadata = lifecycle.configure_metadata(self.root, self.source, qualification_only=True)
+            build, stage = self.work / "beta-build", self.work / "beta-stage"
+            build.mkdir(exist_ok=True)
+            stage.mkdir(exist_ok=True)
+            self.write_json(build / "chimera-beta-lifecycle.json", metadata)
+            self.write_json(build / "chimera-build-version.json", {
+                "beta_lifecycle_sha256": packaging.sha256(build / "chimera-beta-lifecycle.json")})
+            with patch.object(packaging, "ROOT", self.root):
+                packaging.lifecycle_documents(stage, build, version={"source_sha": self.source})
+            # Exercise the real stager on Windows too: writestr(text) bypasses
+            # Windows newline translation and used to conceal this mismatch.
+            self.assertEqual((stage / "BETA_LIFECYCLE.txt").read_bytes(), lifecycle.notice(metadata).encode("utf-8"))
+            if corrupt_notice:
+                (stage / "BETA_LIFECYCLE.txt").write_bytes(b"wrong deadline")
             with zipfile.ZipFile(self.candidate / (self.prefix + "win64.zip"), "a") as archive:
-                archive.writestr("chimera-beta-lifecycle.json", json.dumps(metadata))
-                archive.writestr("BETA_LIFECYCLE.txt", "wrong deadline" if corrupt_notice else lifecycle.notice(metadata))
+                for name in ("chimera-beta-lifecycle.json", "BETA_LIFECYCLE.txt"):
+                    archive.write(stage / name, name)
         self.refresh_sums()
 
     def test_real_publisher_rejects_qualification_metadata(self):

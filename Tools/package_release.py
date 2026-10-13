@@ -124,7 +124,9 @@ def lifecycle_documents(destination: Path, build: Path, *, version: dict | None 
         if build_identity.get("beta_lifecycle_sha256") != sha256(build / "chimera-beta-lifecycle.json"):
             raise ValueError("Beta metadata differs from the configured build fingerprint")
         copy(build / "chimera-beta-lifecycle.json", destination / "chimera-beta-lifecycle.json")
-        (destination / "BETA_LIFECYCLE.txt").write_text(beta_lifecycle.notice(metadata), encoding="utf-8")
+        # The publisher verifies the exact UTF-8 notice bytes. Do not let
+        # Windows text-mode newline translation change that build contract.
+        (destination / "BETA_LIFECYCLE.txt").write_text(beta_lifecycle.notice(metadata), encoding="utf-8", newline="\n")
 
 
 def verify_stage(stage: Path, required: list[str], *, version: dict | None = None) -> None:
