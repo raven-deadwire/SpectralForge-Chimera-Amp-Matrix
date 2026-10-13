@@ -112,7 +112,9 @@ jobs:
           name: Beta-lifecycle-${{ runner.os }}-${{ github.event.pull_request.head.sha || github.sha }}
           path: runtime
       - if: runner.os == 'Linux'
-        run: sudo apt-get update && sudo apt-get install -y libasound2 libcurl4 libfreetype6 libfontconfig1 libx11-6 libxcomposite1 libxcursor1 libxext6 libxinerama1 libxrandr2 libxrender1 libgl1 xvfb openbox x11-utils
+        # The development package names resolve the appropriate runtime ABI on
+        # both pre-t64 and t64 Ubuntu runners (libasound2 is virtual on 24.04).
+        run: sudo apt-get update && sudo apt-get install -y libasound2-dev libcurl4-openssl-dev libfreetype6 libfontconfig1 libx11-6 libxcomposite1 libxcursor1 libxext6 libxinerama1 libxrandr2 libxrender1 libgl1 xvfb openbox x11-utils
       - name: Restore actual beta.2 source fixture before, at and after expiry
         shell: bash
         run: |
