@@ -1,0 +1,37 @@
+{
+  "checked_utc": "2026-10-13",
+  "pr22_head": "859fea9bc49c4b9981c926a314655e485c51027c",
+  "prior_alternatives_head": "d93f4f26711912c5317fec1dfa4a6f674c988dab",
+  "trainer_head": "0072676419459f5d39e36f5b9fd4172f28d62cbf",
+  "tone3000_current_head": "ab5e5ae4388753184687d67816815aa481f2cea9",
+  "tone3000_pinned_core": "1f42f88535884450104b8711d7595019afa0495b",
+  "core_current_head": "0b3d3c97b0859a3a8c92a8628c4dd89a25eb5842",
+  "juce": "d6181bde38d858c283c3b7bf699ce6340c050b5d",
+  "archives": {
+    "refinement_sha256": "4b3705e3bb515462250f6f59d8d05a96917467efd5b2bd6fdacb78a4615fb6ce",
+    "alternatives_sha256": "90c948f9fb2c10a67bae82f00f1fe6d258c53b9c5593f40712ca90c44b7c988e",
+    "alternatives_manifest_entries_verified": 307
+  },
+  "unchanged_policy_sha256": "6c245586da78b30c4f977293e54589097854ba7b49675a6b7d30fa05d1ab402e",
+  "release_approved": false,
+  "binaries": {
+    "teacher-state-probe": "be5344406a679d88aa2353f5d42889ac4245154a240f432b1be9e39ee6abc4e3",
+    "hybrid-split-probe": "f205fa01fedb027c472b8ef64aa44cd0d7a058e872a9d8d5267ee1a95174ca30",
+    "core-memory-probe": "5dfa0df2609d92da2863141cdfa0d119d9ea8a358d48fd7a6f6eb74bfbe7fe0a"
+  },
+  "compiler": "g++ (Ubuntu 13.3.0-6ubuntu2~24.04) 13.3.0",
+  "platform": "Linux x86_64",
+  "build_method": "Direct compilation via commands in build_probes.py; GUI package discovery not required. HybridSplitProbe separately compiled with g++ -std=c++20 -O2.",
+  "checkpoint_export_used": "refinement/legacy/Nastrond-Fimbulvetr.nam; original weights retained; checkpoint export hash checked before experiment",
+  "delivery_script_sha256": {
+    "HybridSplitProbe.cpp": "aa499cc1bd84cdbd1f57fa55b880efe74028649ed9bd79050bcf3431096c8a2e",
+    "build_probes.py": "dce9e37ab7657dc708a11929cf900dff67b3fee17ca2fffe53950e92ca11aac1",
+    "prepare_state_probe.py": "dccc8573af087f135186ab1756bc3cf03f1a7b5c33b348735a6d65b0fce60260",
+    "probe_cpu.py": "1d55c295d4a551a2c5e693677b60fccc13bbdb2006e0b02eb5ff1139b6c8d4fe",
+    "probe_states.py": "f28b8632c7833424aa4f989c48263ef8d2e1f1ea7398a75d9ba8fdd1cd2d6f97",
+    "probe_rf.py": "96d01ba2e9df87975bbd6ba533fc29f97573498e8286156a50f9329bd5657cc5",
+    "CoreMemoryProbe.cpp": "4eb87379f468c0a6c9c309eba2f768fe85942ed990aa78e14855f960331ef8a1",
+    "verify_evidence.py": "8803781c81c8cd6c5a6b22aca5e9992cee5f10c48a23a1692815df8b9bb1371c",
+    "prepare_hybrid_teacher.py": "81083bac9075bf586d9cfe79e109e7cf87cc570241609b4ffbc746ab3f816d3b"
+  }
+}

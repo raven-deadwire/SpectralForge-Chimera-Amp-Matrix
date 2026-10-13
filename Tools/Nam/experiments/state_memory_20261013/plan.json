@@ -1,0 +1,30 @@
+{
+  "date": "2026-10-13",
+  "parent": "d93f4f26711912c5317fec1dfa4a6f674c988dab",
+  "purpose": "New structural and deployment-cost tests, not repeated training",
+  "existing_experiments_reused": ["5000-step paired training", "1000-step centered refinement", "20261012 head-only ridge and fixed legal EQ", "20261012 nonlinear incremental-memory probe"],
+  "optimizer_updates": 0,
+  "rf_probe": {
+    "model": "archived refinement legacy Fimbulvetr",
+    "dilation_multiplier": [1, 2, 4, 8],
+    "modify": "multiply dilations greater than 1; preserve k=16 head and unit-dilation layers",
+    "weights": "unchanged; output is NOT a trained candidate",
+    "input": "first four seconds of archived validation",
+    "blocks": [64, 256],
+    "bounds": "original revealed 20261011 input and fixed policy windows; no change to scoring skip",
+    "cost": "generic NAM Core vs original A2 fast path, one mono instance at 48k; offline timing only"
+  },
+  "state_probe": {
+    "channels": ["Nidhoggr", "Fimbulvetr", "Ragnarok"],
+    "gaps_ms": [150, 750],
+    "probe_level": 0.03,
+    "input": "reuse archived 20261012 high/low conditioning and probe/zero quartet",
+    "intervention": "one-shot zero selected source states immediately before probe onset, at 192k internal rate",
+    "modes": {"0":"none", "1":"output resonance and filters", "2":"sag+blocking+bias", "3":"all native core audio memory", "4":"sag", "5":"blocking", "6":"bias"},
+    "score": "four-render incremental difference, fixed original level anchor, onset20ms and whole200ms",
+    "limitations": "Diagnostic ablation changes the teacher deliberately. No model fidelity or perceptual approval. Wrappers remain intact. Attribution is intervention-specific; interactions are not additive."
+  },
+  "selection": "Use source-state dependency and measured format/runtime support to choose next development scope; no audio model selected or trained",
+  "quality_policy": "nastrond-tone3000-fidelity-v1 unchanged",
+  "release_approved": false
+}

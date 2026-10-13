@@ -1,0 +1,66 @@
+{
+  "cases": [
+    {
+      "channel": "Fenrir",
+      "checked_samples": 384000,
+      "internal_rate": 48000.0,
+      "max_abs_delta": 0.0
+    },
+    {
+      "channel": "Surtr",
+      "checked_samples": 384000,
+      "internal_rate": 48000.0,
+      "max_abs_delta": 0.0
+    },
+    {
+      "channel": "Nidhoggr",
+      "checked_samples": 384000,
+      "internal_rate": 48000.0,
+      "max_abs_delta": 0.0
+    },
+    {
+      "channel": "Fimbulvetr",
+      "checked_samples": 384000,
+      "internal_rate": 48000.0,
+      "max_abs_delta": 0.0
+    },
+    {
+      "channel": "Ragnarok",
+      "checked_samples": 384000,
+      "internal_rate": 48000.0,
+      "max_abs_delta": 0.0
+    },
+    {
+      "channel": "Fenrir",
+      "checked_samples": 384000,
+      "internal_rate": 192000.0,
+      "max_abs_delta": 0.0
+    },
+    {
+      "channel": "Surtr",
+      "checked_samples": 384000,
+      "internal_rate": 192000.0,
+      "max_abs_delta": 0.0
+    },
+    {
+      "channel": "Nidhoggr",
+      "checked_samples": 384000,
+      "internal_rate": 192000.0,
+      "max_abs_delta": 0.0
+    },
+    {
+      "channel": "Fimbulvetr",
+      "checked_samples": 384000,
+      "internal_rate": 192000.0,
+      "max_abs_delta": 0.0
+    },
+    {
+      "channel": "Ragnarok",
+      "checked_samples": 384000,
+      "internal_rate": 192000.0,
+      "max_abs_delta": 0.0
+    }
+  ],
+  "release_approved": false,
+  "scope": "native core algebraic split with retained source memory, automation and reset; no neural replacement or oversampling/DAW performance claim"
+}

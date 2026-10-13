@@ -1,0 +1,9 @@
+1 {'64': 79.49, '256': 109.2}
+2 {'64': 16.42, '256': 35.68}
+Traceback (most recent call last):
+  File "/workspace/scratch/96ab945d80a5/chimera/Tools/Nam/experiments/state_memory_20261013/probe_cpu.py", line 50, in <module>
+    run(p.parse_args())
+  File "/workspace/scratch/96ab945d80a5/chimera/Tools/Nam/experiments/state_memory_20261013/probe_cpu.py", line 40, in run
+    if seconds<=0:raise ValueError('Invalid CPU estimate')
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: Invalid CPU estimate

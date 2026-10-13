@@ -1,0 +1,2734 @@
+{
+  "plan_sha256": "4bae575ca1e5484e84d248778075d59f9c7ab8ef052503a7b3f3b572db5894d2",
+  "probe_binary_sha256": "be5344406a679d88aa2353f5d42889ac4245154a240f432b1be9e39ee6abc4e3",
+  "quality_profile": {
+    "id": "nastrond-tone3000-fidelity-v1",
+    "authority": "project acceptance policy; not a TONE3000 certification",
+    "window_samples": 4096,
+    "skip_samples": 6347,
+    "active_reference_rms_min_dbfs": -60.0,
+    "full_esr_max_exclusive": 0.01,
+    "esr_guidance_source": "https://www.tone3000.com/guides/capture-your-gear-with-nam-dry-wet",
+    "active_window_esr_median_max": 0.005,
+    "active_window_esr_p95_max": 0.01,
+    "active_window_esr_worst_max": 0.02,
+    "quiet_residual_rms_max_dbfs": -70.0,
+    "quiet_residual_peak_max_dbfs": -60.0,
+    "rms_error_max_db": 0.5,
+    "peak_error_max_db": 1.0,
+    "steady_silence_rms_max_dbfs": -80.0,
+    "engine_parity_residual_max_dbfs": -80.0,
+    "level_anchor": "delivered v0.2 reference_output_scale, frozen per channel",
+    "source_output_scale": {
+      "Fenrir": 0.09195752759643712,
+      "Surtr": 0.09034985741800312,
+      "Nidhoggr": 0.0860012970451488,
+      "Fimbulvetr": 0.09721294970620417,
+      "Ragnarok": 0.05162876564505051
+    }
+  },
+  "release_approved": false,
+  "optimizer_updates": 0,
+  "scope": "state ablation diagnostic, not model performance; altered teacher arms cannot qualify fidelity",
+  "baseline_prefix_max_delta": {
+    "Nidhoggr": 0.0,
+    "Fimbulvetr": 0.0,
+    "Ragnarok": 0.0
+  },
+  "cases": [
+    {
+      "channel": "Nidhoggr",
+      "gap_ms": 150,
+      "onset": 55200,
+      "modes": {
+        "0": {
+          "label": "none",
+          "whole200ms_delta_rms_dbfs": -47.20656094680359,
+          "onset20ms_delta_rms_dbfs": -52.78641127240902,
+          "outputs": {
+            "high0.0": {
+              "input_sha256": "1cf1bfdc92b1158197112d59ef76334f2849efb9af9084b01d7913635633ba4b",
+              "output_sha256": "80e28d5d5a0ac79f49a6a6ceda1c8bccbbfeaa05ee4c375ff1d7986808a3a3e9",
+              "runtime": {
+                "samples": 74400,
+                "latency": 6,
+                "peak": 1.927677273750305,
+                "rms": 0.981267589733661,
+                "sample_rate": 48000,
+                "oversampling": 4,
+                "block_size": 256,
+                "events": 0
+              }
+            },
+            "high0.03": {
+              "input_sha256": "f74f4b2cec9cdb0097e541b5017f1eaa428afa1748eac1e27273c97ab589595b",
+              "output_sha256": "3c0dd224ee656df71ed1befc0d8e6979c57812f6c903d7b5872c9a4533c4a533",
+              "runtime": {
+                "samples": 74400,
+                "latency": 6,
+                "peak": 1.927677273750305,
+                "rms": 1.076208011205078,
+                "sample_rate": 48000,
+                "oversampling": 4,
+                "block_size": 256,
+                "events": 0
+              }
+            },
+            "low0.0": {
+              "input_sha256": "ecbac99474e9cd93e01fe7e32e7ab7a3badf6c9e75020152a19e543792f0caf7",
+              "output_sha256": "815027cc9a4ebc71938b0861dcdcb6bff0139db25054b7fa79d460f4b57a814f",
+              "runtime": {
+                "samples": 74400,
+                "latency": 6,
+                "peak": 1.76792573928833,
+                "rms": 0.986424054161844,
+                "sample_rate": 48000,
+                "oversampling": 4,
+                "block_size": 256,
+                "events": 0
+              }
+            },
+            "low0.03": {
+              "input_sha256": "c08077f8542046a79ab305f5ed700e92b609f7a94f8381cde30ef207e5111e2d",
+              "output_sha256": "c017385133a08e7d7891ecdc87f80f3fbb125dd8740462090268f1e438ee1a25",
+              "runtime": {
+                "samples": 74400,
+                "latency": 6,
+                "peak": 1.76792573928833,
+                "rms": 1.080836227364488,
+                "sample_rate": 48000,
+                "oversampling": 4,
+                "block_size": 256,
+                "events": 0
+              }
+            }
+          },
+          "prior_delta_rms_dbfs": -47.20656094680359
+        },
+        "1": {
+          "label": "output resonance and filters",
+          "whole200ms_delta_rms_dbfs": -47.20656639017301,
+          "onset20ms_delta_rms_dbfs": -52.7864122066088,
+          "outputs": {
+            "high0.0": {
+              "input_sha256": "1cf1bfdc92b1158197112d59ef76334f2849efb9af9084b01d7913635633ba4b",
+              "output_sha256": "6e32040a1c0b1364a2b048def136b08ee619f82480265d01519967138b5e3294",
+              "runtime": {
+                "samples": 74400,
+                "latency": 6,
+                "peak": 1.927677273750305,
+                "rms": 0.981267572597705,
+                "sample_rate": 48000,
+                "oversampling": 4,
+                "block_size": 256,
+                "events": 0
+              }
+            },
+            "high0.03": {
+              "input_sha256": "f74f4b2cec9cdb0097e541b5017f1eaa428afa1748eac1e27273c97ab589595b",
+              "output_sha256": "1dcbccd9d733afdbf3fd80cc39e4cec0028324ce46400e864cf4c9e14df07af6",
+              "runtime": {
+                "samples": 74400,
+                "latency": 6,
+                "peak": 1.927677273750305,
+                "rms": 1.076210498995302,
+                "sample_rate": 48000,
+                "oversampling": 4,
+                "block_size": 256,
+                "events": 0
+              }
+            },
+            "low0.0": {
+              "input_sha256": "ecbac99474e9cd93e01fe7e32e7ab7a3badf6c9e75020152a19e543792f0caf7",
+              "output_sha256": "3bd1d0d9caa06b39b773a5b42bdab604319a9cba8cc8136d425dd8a2dcaad555",
+              "runtime": {
+                "samples": 74400,
+                "latency": 6,
+                "peak": 1.76792573928833,
+                "rms": 0.986424050998149,
+                "sample_rate": 48000,
+                "oversampling": 4,
+                "block_size": 256,
+                "events": 0
+              }
+            },
+            "low0.03": {
+              "input_sha256": "c08077f8542046a79ab305f5ed700e92b609f7a94f8381cde30ef207e5111e2d",
+              "output_sha256": "0a4e51dd77c24ec32eb333640ee71fe55b2a316a7239a33fe2ac7f2c05e134cb",
+              "runtime": {
+                "samples": 74400,
+                "latency": 6,
+                "peak": 1.76792573928833,
+                "rms": 1.080836625164689,
+                "sample_rate": 48000,
+                "oversampling": 4,
+                "block_size": 256,
+                "events": 0
+              }
+            }
+          }
+        },
+        "2": {
+          "label": "sag+blocking+bias",
+          "whole200ms_delta_rms_dbfs": -61.29620520918574,
+          "onset20ms_delta_rms_dbfs": -53.2154579081684,
+          "outputs": {
+            "high0.0": {
+              "input_sha256": "1cf1bfdc92b1158197112d59ef76334f2849efb9af9084b01d7913635633ba4b",
+              "output_sha256": "5808b484e1da4af91902d86dff9cca22209830f9aa51e1aae9c71eb65e5a6de5",
+              "runtime": {
+                "samples": 74400,
+                "latency": 6,
+                "peak": 1.927677273750305,
+                "rms": 0.981267589733027,
+                "sample_rate": 48000,
+                "oversampling": 4,
+                "block_size": 256,
+                "events": 0
+              }
+            },
+            "high0.03": {
+              "input_sha256": "f74f4b2cec9cdb0097e541b5017f1eaa428afa1748eac1e27273c97ab589595b",
+              "output_sha256": "02a2dedbed1769c3f2c51801ccef90bb8638ee7b7808dd063e311418b8dc1567",
+              "runtime": {
+                "samples": 74400,
+                "latency": 6,
+                "peak": 1.927677273750305,
+                "rms": 1.075938805613322,
+                "sample_rate": 48000,
+                "oversampling": 4,
+                "block_size": 256,
+                "events": 0
+              }
+            },
+            "low0.0": {
+              "input_sha256": "ecbac99474e9cd93e01fe7e32e7ab7a3badf6c9e75020152a19e543792f0caf7",
+              "output_sha256": "1d9055c8ef1727549693ff02d89380cd4c0a350396bd63f351683ed8487cae3d",
+              "runtime": {
+                "samples": 74400,
+                "latency": 6,
+                "peak": 1.76792573928833,
+                "rms": 0.986424054161843,
+                "sample_rate": 48000,
+                "oversampling": 4,
+                "block_size": 256,
+                "events": 0
+              }
+            },
+            "low0.03": {
+              "input_sha256": "c08077f8542046a79ab305f5ed700e92b609f7a94f8381cde30ef207e5111e2d",
+              "output_sha256": "c45f4b558cb9b7c0b217e36012ad6e4f57153c1fe629878a931e1278f7401b10",
+              "runtime": {
+                "samples": 74400,
+                "latency": 6,
+                "peak": 1.76792573928833,
+                "rms": 1.080984060640414,
+                "sample_rate": 48000,
+                "oversampling": 4,
+                "block_size": 256,
+                "events": 0
+              }
+            }
+          }
+        },
+        "3": {
+          "label": "all native core audio memory",
+          "whole200ms_delta_rms_dbfs": -182.30226935552037,
+          "onset20ms_delta_rms_dbfs": -172.30226935552037,
+          "outputs": {
+            "high0.0": {
+              "input_sha256": "1cf1bfdc92b1158197112d59ef76334f2849efb9af9084b01d7913635633ba4b",
+              "output_sha256": "30f4934d43cfaceae257ba20fc02d1a2bbb2ef4b056e8f88cc2edd9524357817",
+              "runtime": {
+                "samples": 74400,
+                "latency": 6,
+                "peak": 1.927677273750305,
+                "rms": 0.981267572597703,
+                "sample_rate": 48000,
+                "oversampling": 4,
+                "block_size": 256,
+                "events": 0
+              }
+            },
+            "high0.03": {
+              "input_sha256": "f74f4b2cec9cdb0097e541b5017f1eaa428afa1748eac1e27273c97ab589595b",
+              "output_sha256": "7df6d11e186695d1bdcfba7a9fc1da41906811d48c3de9561d5bb08cc812b04c",
+              "runtime": {
+                "samples": 74400,
+                "latency": 6,
+                "peak": 1.927677273750305,
+                "rms": 1.076281072923998,
+                "sample_rate": 48000,
+                "oversampling": 4,
+                "block_size": 256,
+                "events": 0
+              }
+            },
+            "low0.0": {
+              "input_sha256": "ecbac99474e9cd93e01fe7e32e7ab7a3badf6c9e75020152a19e543792f0caf7",
+              "output_sha256": "2f5bf26ce3e5ce6df5ae12c4ff2d724af5f08c631bd4631ba6ec183fc19acb8e",
+              "runtime": {
+                "samples": 74400,
+                "latency": 6,
+                "peak": 1.76792573928833,
+                "rms": 0.986424050998149,
+                "sample_rate": 48000,
+                "oversampling": 4,
+                "block_size": 256,
+                "events": 0
+              }
+            },
+            "low0.03": {
+              "input_sha256": "c08077f8542046a79ab305f5ed700e92b609f7a94f8381cde30ef207e5111e2d",
+              "output_sha256": "93dc284edc68101c44b595c56486683b29d71adf7967d5d8f009d40dc288064e",
+              "runtime": {
+                "samples": 74400,
+                "latency": 6,
+                "peak": 1.76792573928833,
+                "rms": 1.080984415829969,
+                "sample_rate": 48000,
+                "oversampling": 4,
+                "block_size": 256,
+                "events": 0
+              }
+            }
+          }
+        },
+        "4": {
+          "label": "sag",
+          "whole200ms_delta_rms_dbfs": -47.206826766732284,
+          "onset20ms_delta_rms_dbfs": -52.89578280344302,
+          "outputs": {
+            "high0.0": {
+              "input_sha256": "1cf1bfdc92b1158197112d59ef76334f2849efb9af9084b01d7913635633ba4b",
+              "output_sha256": "fa480e09f58187b280c396a05f9f48cc11be5d489fb65a2b9143fdde051e42c5",
+              "runtime": {
+                "samples": 74400,
+                "latency": 6,
+                "peak": 1.927677273750305,
+                "rms": 0.981267589733114,
+                "sample_rate": 48000,
+                "oversampling": 4,
+                "block_size": 256,
+                "events": 0
+              }
+            },
+            "high0.03": {
+              "input_sha256": "f74f4b2cec9cdb0097e541b5017f1eaa428afa1748eac1e27273c97ab589595b",
+              "output_sha256": "54f5ae2bfffd4211c0a7fd9399372585ab5d56f0c3d9fad435fe8d15ae4be346",
+              "runtime": {
+                "samples": 74400,
+                "latency": 6,
+                "peak": 1.927677273750305,
+                "rms": 1.07633591375229,
+                "sample_rate": 48000,
+                "oversampling": 4,
+                "block_size": 256,
+                "events": 0
+              }
+            },
+            "low0.0": {
+              "input_sha256": "ecbac99474e9cd93e01fe7e32e7ab7a3badf6c9e75020152a19e543792f0caf7",
+              "output_sha256": "f7682533daa1671c1c59ed45567e3305f2dfa82e5e45b90422a9f6acb447a5dd",
+              "runtime": {
+                "samples": 74400,
+                "latency": 6,
+                "peak": 1.76792573928833,
+                "rms": 0.986424054161843,
+                "sample_rate": 48000,
+                "oversampling": 4,
+                "block_size": 256,
+                "events": 0
+              }
+            },
+            "low0.03": {
+              "input_sha256": "c08077f8542046a79ab305f5ed700e92b609f7a94f8381cde30ef207e5111e2d",
+              "output_sha256": "8b3659e5524ef65a71ccbabb76d30dcce64a1b41567917db62a07741f121035c",
+              "runtime": {
+                "samples": 74400,
+                "latency": 6,
+                "peak": 1.76792573928833,
+                "rms": 1.080943316081422,
+                "sample_rate": 48000,
+                "oversampling": 4,
+                "block_size": 256,
+                "events": 0
+              }
+            }
+          }
+        },
+        "5": {
+          "label": "blocking",
+          "whole200ms_delta_rms_dbfs": -61.40373627038815,
+          "onset20ms_delta_rms_dbfs": -53.39160507890484,
+          "outputs": {
+            "high0.0": {
+              "input_sha256": "1cf1bfdc92b1158197112d59ef76334f2849efb9af9084b01d7913635633ba4b",
+              "output_sha256": "92cb36a697141ae8870f0dba027241d9e6ce177ff29fd8075b6104e19df2e7a3",
+              "runtime": {
+                "samples": 74400,
+                "latency": 6,
+                "peak": 1.927677273750305,
+                "rms": 0.98126758973358,
+                "sample_rate": 48000,
+                "oversampling": 4,
+                "block_size": 256,
+                "events": 0
+              }
+            },
+            "high0.03": {
+              "input_sha256": "f74f4b2cec9cdb0097e541b5017f1eaa428afa1748eac1e27273c97ab589595b",
+              "output_sha256": "44074d708f2ec88aa9dee7a493c6ccc6bc2b61e6c7222d8380f6a3065b5809da",
+              "runtime": {
+                "samples": 74400,
+                "latency": 6,
+                "peak": 1.927677273750305,
+                "rms": 1.075811946353901,
+                "sample_rate": 48000,
+                "oversampling": 4,
+                "block_size": 256,
+                "events": 0
+              }
+            },
+            "low0.0": {
+              "input_sha256": "ecbac99474e9cd93e01fe7e32e7ab7a3badf6c9e75020152a19e543792f0caf7",
+              "output_sha256": "2e5854269af3d3413f4807f0f0759d931485ec201f2ee5fe0a6681fdfaf76c54",
+              "runtime": {
+                "samples": 74400,
+                "latency": 6,
+                "peak": 1.76792573928833,
+                "rms": 0.986424054161844,
+                "sample_rate": 48000,
+                "oversampling": 4,
+                "block_size": 256,
+                "events": 0
+              }
+            },
+            "low0.03": {
+              "input_sha256": "c08077f8542046a79ab305f5ed700e92b609f7a94f8381cde30ef207e5111e2d",
+              "output_sha256": "7033861e759103c7961f21945bdf6a224c02bebeef3763314d877dba0f1400da",
+              "runtime": {
+                "samples": 74400,
+                "latency": 6,
+                "peak": 1.76792573928833,
+                "rms": 1.080875428727747,
+                "sample_rate": 48000,
+                "oversampling": 4,
+                "block_size": 256,
+                "events": 0
+              }
+            }
+          }
+        },
+        "6": {
+          "label": "bias",
+          "whole200ms_delta_rms_dbfs": -47.22011992392578,
+          "onset20ms_delta_rms_dbfs": -52.5916167958082,
+          "outputs": {
+            "high0.0": {
+              "input_sha256": "1cf1bfdc92b1158197112d59ef76334f2849efb9af9084b01d7913635633ba4b",
+              "output_sha256": "66f40a5054bcd3a90cb378c329aaa019dee47f07e25c3534627ebec76f096c23",
+              "runtime": {
+                "samples": 74400,
+                "latency": 6,
+                "peak": 1.927677273750305,
+                "rms": 0.981267589733661,
+                "sample_rate": 48000,
+                "oversampling": 4,
+                "block_size": 256,
+                "events": 0
+              }
+            },
+            "high0.03": {
+              "input_sha256": "f74f4b2cec9cdb0097e541b5017f1eaa428afa1748eac1e27273c97ab589595b",
+              "output_sha256": "40ce279f370f27e91bdfa8971b2a322f4dd40bdfd27dad64c5b090cef9752004",
+              "runtime": {
+                "samples": 74400,
+                "latency": 6,
+                "peak": 1.927677273750305,
+                "rms": 1.076208026597048,
+                "sample_rate": 48000,
+                "oversampling": 4,
+                "block_size": 256,
+                "events": 0
+              }
+            },
+            "low0.0": {
+              "input_sha256": "ecbac99474e9cd93e01fe7e32e7ab7a3badf6c9e75020152a19e543792f0caf7",
+              "output_sha256": "a06f850b31a7596255175ed2335d9cc20caa537c1d5e208f0cfcfe5ee56cff4c",
+              "runtime": {
+                "samples": 74400,
+                "latency": 6,
+                "peak": 1.76792573928833,
+                "rms": 0.986424054161844,
+                "sample_rate": 48000,
+                "oversampling": 4,
+                "block_size": 256,
+                "events": 0
+              }
+            },
+            "low0.03": {
+              "input_sha256": "c08077f8542046a79ab305f5ed700e92b609f7a94f8381cde30ef207e5111e2d",
+              "output_sha256": "14896ffb8a5aac3328bfbb9304f9353013a09fafc682556f193efef697137858",
+              "runtime": {
+                "samples": 74400,
+                "latency": 6,
+                "peak": 1.76792573928833,
+                "rms": 1.080837445477284,
+                "sample_rate": 48000,
+                "oversampling": 4,
+                "block_size": 256,
+                "events": 0
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "channel": "Nidhoggr",
+      "gap_ms": 750,
+      "onset": 84000,
+      "modes": {
+        "0": {
+          "label": "none",
+          "whole200ms_delta_rms_dbfs": -48.31045196029943,
+          "onset20ms_delta_rms_dbfs": -51.91395702373302,
+          "outputs": {
+            "high0.0": {
+              "input_sha256": "16ece129b4c39512a01c4ca424801dd5af59adce5658540e8d89af3db5dce376",
+              "output_sha256": "b55f4f62e90b8a8beb6b215d2dfb49d132f916bba6fa4d1f9480a05d9e445c6c",
+              "runtime": {
+                "samples": 103200,
+                "latency": 6,
+                "peak": 1.927677273750305,
+                "rms": 0.833170863328946,
+                "sample_rate": 48000,
+                "oversampling": 4,
+                "block_size": 256,
+                "events": 0
+              }
+            },
+            "high0.03": {
+              "input_sha256": "b928013b08b77035e4d98a20cea9e6291f5ee9625b02919b15d4af7581e10bf2",
+              "output_sha256": "96c6380384404634b64ff0e83b7d764d987e918b00dc9b0fce115965398c262e",
+              "runtime": {
+                "samples": 103200,
+                "latency": 6,
+                "peak": 1.927677273750305,
+                "rms": 0.91419403399223,
+                "sample_rate": 48000,
+                "oversampling": 4,
+                "block_size": 256,
+                "events": 0
+              }
+            },
+            "low0.0": {
+              "input_sha256": "69f78ec76907c38278093753e891559f89f51a47adb33561a1fac0f512964d4b",
+              "output_sha256": "60cf84a662e2919eed4e565c3b156aee3a9c58fa98aa24e7c49d60c53df3ac86",
+              "runtime": {
+                "samples": 103200,
+                "latency": 6,
+                "peak": 1.76792573928833,
+                "rms": 0.837549094062645,
+                "sample_rate": 48000,
+                "oversampling": 4,
+                "block_size": 256,
+                "events": 0
+              }
+            },
+            "low0.03": {
+              "input_sha256": "a108a0438b948d437758514c2d32e4c57a5191b0834c3afa59d58dedacdc84d1",
+              "output_sha256": "d035a88d43f7fb7562b4fcbe1f7b1ea41ac673588ee9f55c16cb08b115dbb5b7",
+              "runtime": {
+                "samples": 103200,
+                "latency": 6,
+                "peak": 1.76792573928833,
+                "rms": 0.917856575060118,
+                "sample_rate": 48000,
+                "oversampling": 4,
+                "block_size": 256,
+                "events": 0
+              }
+            }
+          },
+          "prior_delta_rms_dbfs": -48.31045196029943
+        },
+        "1": {
+          "label": "output resonance and filters",
+          "whole200ms_delta_rms_dbfs": -48.31045200911757,
+          "onset20ms_delta_rms_dbfs": -51.91395727270269,
+          "outputs": {
+            "high0.0": {
+              "input_sha256": "16ece129b4c39512a01c4ca424801dd5af59adce5658540e8d89af3db5dce376",
+              "output_sha256": "4cd105d6723842680a481724dc53fb54a10c24b56e6d039fbfac6968072118af",
+              "runtime": {
+                "samples": 103200,
+                "latency": 6,
+                "peak": 1.927677273750305,
+                "rms": 0.833170863328946,
+                "sample_rate": 48000,
+                "oversampling": 4,
+                "block_size": 256,
+                "events": 0
+              }
+            },
+            "high0.03": {
+              "input_sha256": "b928013b08b77035e4d98a20cea9e6291f5ee9625b02919b15d4af7581e10bf2",
+              "output_sha256": "44d6cac4af9654df5798449f097d4e277192b305fde9aa4d2d982c0b449fdbc8",
+              "runtime": {
+                "samples": 103200,
+                "latency": 6,
+                "peak": 1.927677273750305,
+                "rms": 0.914194034009961,
+                "sample_rate": 48000,
+                "oversampling": 4,
+                "block_size": 256,
+                "events": 0
+              }
+            },
+            "low0.0": {
+              "input_sha256": "69f78ec76907c38278093753e891559f89f51a47adb33561a1fac0f512964d4b",
+              "output_sha256": "6b2aad194a01ba3cec51754ec9caf4383b0885495aac355b3c8e3a28ebabf11c",
+              "runtime": {
+                "samples": 103200,
+                "latency": 6,
+                "peak": 1.76792573928833,
+                "rms": 0.837549094062645,
+                "sample_rate": 48000,
+                "oversampling": 4,
+                "block_size": 256,
+                "events": 0
+              }
+            },
+            "low0.03": {
+              "input_sha256": "a108a0438b948d437758514c2d32e4c57a5191b0834c3afa59d58dedacdc84d1",
+              "output_sha256": "9324b78d31e7f4de7c71a17ec4620a5793272de4aeb71a52e1f12d82027c6b3d",
+              "runtime": {
+                "samples": 103200,
+                "latency": 6,
+                "peak": 1.76792573928833,
+                "rms": 0.917856575027564,
+                "sample_rate": 48000,
+                "oversampling": 4,
+                "block_size": 256,
+                "events": 0
+              }
+            }
+          }
+        },
+        "2": {
+          "label": "sag+blocking+bias",
+          "whole200ms_delta_rms_dbfs": -171.58072840813333,
+          "onset20ms_delta_rms_dbfs": -166.65658611839058,
+          "outputs": {
+            "high0.0": {
+              "input_sha256": "16ece129b4c39512a01c4ca424801dd5af59adce5658540e8d89af3db5dce376",
+              "output_sha256": "b55f4f62e90b8a8beb6b215d2dfb49d132f916bba6fa4d1f9480a05d9e445c6c",
+              "runtime": {
+                "samples": 103200,
+                "latency": 6,
+                "peak": 1.927677273750305,
+                "rms": 0.833170863328946,
+                "sample_rate": 48000,
+                "oversampling": 4,
+                "block_size": 256,
+                "events": 0
+              }
+            },
+            "high0.03": {
+              "input_sha256": "b928013b08b77035e4d98a20cea9e6291f5ee9625b02919b15d4af7581e10bf2",
+              "output_sha256": "f2081cda4ca82297d9e892b99ff6414d8ea89a91aedc1ee5101b263bb67ba9aa",
+              "runtime": {
+                "samples": 103200,
+                "latency": 6,
+                "peak": 1.927677273750305,
+                "rms": 0.913844554836246,
+                "sample_rate": 48000,
+                "oversampling": 4,
+                "block_size": 256,
+                "events": 0
+              }
+            },
+            "low0.0": {
+              "input_sha256": "69f78ec76907c38278093753e891559f89f51a47adb33561a1fac0f512964d4b",
+              "output_sha256": "60cf84a662e2919eed4e565c3b156aee3a9c58fa98aa24e7c49d60c53df3ac86",
+              "runtime": {
+                "samples": 103200,
+                "latency": 6,
+                "peak": 1.76792573928833,
+                "rms": 0.837549094062645,
+                "sample_rate": 48000,
+                "oversampling": 4,
+                "block_size": 256,
+                "events": 0
+              }
+            },
+            "low0.03": {
+              "input_sha256": "a108a0438b948d437758514c2d32e4c57a5191b0834c3afa59d58dedacdc84d1",
+              "output_sha256": "6714aebe1d6b7b6033c57c81715f42405c85db33dc1919535b65211afc934af2",
+              "runtime": {
+                "samples": 103200,
+                "latency": 6,
+                "peak": 1.76792573928833,
+                "rms": 0.91783804011016,
+                "sample_rate": 48000,
+                "oversampling": 4,
+                "block_size": 256,
+                "events": 0
+              }
+            }
+          }
+        },
+        "3": {
+          "label": "all native core audio memory",
+          "whole200ms_delta_rms_dbfs": -244.00425011946183,
+          "onset20ms_delta_rms_dbfs": -234.00425011946183,
+          "outputs": {
+            "high0.0": {
+              "input_sha256": "16ece129b4c39512a01c4ca424801dd5af59adce5658540e8d89af3db5dce376",
+              "output_sha256": "4cd105d6723842680a481724dc53fb54a10c24b56e6d039fbfac6968072118af",
+              "runtime": {
+                "samples": 103200,
+                "latency": 6,
+                "peak": 1.927677273750305,
+                "rms": 0.833170863328946,
+                "sample_rate": 48000,
+                "oversampling": 4,
+                "block_size": 256,
+                "events": 0
+              }
+            },
+            "high0.03": {
+              "input_sha256": "b928013b08b77035e4d98a20cea9e6291f5ee9625b02919b15d4af7581e10bf2",
+              "output_sha256": "8fbb58f6dce4803ffc36ad963ec93accd53670a6f410148d1c11549b9469552b",
+              "runtime": {
+                "samples": 103200,
+                "latency": 6,
+                "peak": 1.927677273750305,
+                "rms": 0.913844554855945,
+                "sample_rate": 48000,
+                "oversampling": 4,
+                "block_size": 256,
+                "events": 0
+              }
+            },
+            "low0.0": {
+              "input_sha256": "69f78ec76907c38278093753e891559f89f51a47adb33561a1fac0f512964d4b",
+              "output_sha256": "6b2aad194a01ba3cec51754ec9caf4383b0885495aac355b3c8e3a28ebabf11c",
+              "runtime": {
+                "samples": 103200,
+                "latency": 6,
+                "peak": 1.76792573928833,
+                "rms": 0.837549094062645,
+                "sample_rate": 48000,
+                "oversampling": 4,
+                "block_size": 256,
+                "events": 0
+              }
+            },
+            "low0.03": {
+              "input_sha256": "a108a0438b948d437758514c2d32e4c57a5191b0834c3afa59d58dedacdc84d1",
+              "output_sha256": "d2f67944c8f2d13f951d50eff281d374aabc02462f915b00f5d5f948c7e40f55",
+              "runtime": {
+                "samples": 103200,
+                "latency": 6,
+                "peak": 1.76792573928833,
+                "rms": 0.917838040127296,
+                "sample_rate": 48000,
+                "oversampling": 4,
+                "block_size": 256,
+                "events": 0
+              }
+            }
+          }
+        },
+        "4": {
+          "label": "sag",
+          "whole200ms_delta_rms_dbfs": -48.31044106175505,
+          "onset20ms_delta_rms_dbfs": -51.91379210444144,
+          "outputs": {
+            "high0.0": {
+              "input_sha256": "16ece129b4c39512a01c4ca424801dd5af59adce5658540e8d89af3db5dce376",
+              "output_sha256": "b55f4f62e90b8a8beb6b215d2dfb49d132f916bba6fa4d1f9480a05d9e445c6c",
+              "runtime": {
+                "samples": 103200,
+                "latency": 6,
+                "peak": 1.927677273750305,
+                "rms": 0.833170863328946,
+                "sample_rate": 48000,
+                "oversampling": 4,
+                "block_size": 256,
+                "events": 0
+              }
+            },
+            "high0.03": {
+              "input_sha256": "b928013b08b77035e4d98a20cea9e6291f5ee9625b02919b15d4af7581e10bf2",
+              "output_sha256": "2642573937bb2227bbef472ae19d1195b21528f43d66cf3b4933c660c5cd80ba",
+              "runtime": {
+                "samples": 103200,
+                "latency": 6,
+                "peak": 1.927677273750305,
+                "rms": 0.914194167637855,
+                "sample_rate": 48000,
+                "oversampling": 4,
+                "block_size": 256,
+                "events": 0
+              }
+            },
+            "low0.0": {
+              "input_sha256": "69f78ec76907c38278093753e891559f89f51a47adb33561a1fac0f512964d4b",
+              "output_sha256": "60cf84a662e2919eed4e565c3b156aee3a9c58fa98aa24e7c49d60c53df3ac86",
+              "runtime": {
+                "samples": 103200,
+                "latency": 6,
+                "peak": 1.76792573928833,
+                "rms": 0.837549094062645,
+                "sample_rate": 48000,
+                "oversampling": 4,
+                "block_size": 256,
+                "events": 0
+              }
+            },
+            "low0.03": {
+              "input_sha256": "a108a0438b948d437758514c2d32e4c57a5191b0834c3afa59d58dedacdc84d1",
+              "output_sha256": "66719803e0540a73a83650e83edc87a7fa9603ac637d9b4f9b4ddcfc69206710",
+              "runtime": {
+                "samples": 103200,
+                "latency": 6,
+                "peak": 1.76792573928833,
+                "rms": 0.917856685894318,
+                "sample_rate": 48000,
+                "oversampling": 4,
+                "block_size": 256,
+                "events": 0
+              }
+            }
+          }
+        },
+        "5": {
+          "label": "blocking",
+          "whole200ms_delta_rms_dbfs": -144.4226924928572,
+          "onset20ms_delta_rms_dbfs": -134.58105321341537,
+          "outputs": {
+            "high0.0": {
+              "input_sha256": "16ece129b4c39512a01c4ca424801dd5af59adce5658540e8d89af3db5dce376",
+              "output_sha256": "b55f4f62e90b8a8beb6b215d2dfb49d132f916bba6fa4d1f9480a05d9e445c6c",
+              "runtime": {
+                "samples": 103200,
+                "latency": 6,
+                "peak": 1.927677273750305,
+                "rms": 0.833170863328946,
+                "sample_rate": 48000,
+                "oversampling": 4,
+                "block_size": 256,
+                "events": 0
+              }
+            },
+            "high0.03": {
+              "input_sha256": "b928013b08b77035e4d98a20cea9e6291f5ee9625b02919b15d4af7581e10bf2",
+              "output_sha256": "ba044098f3df3a30b164f5814931b10993256a7a8e57fad63613bacf46832e7a",
+              "runtime": {
+                "samples": 103200,
+                "latency": 6,
+                "peak": 1.927677273750305,
+                "rms": 0.91384441926608,
+                "sample_rate": 48000,
+                "oversampling": 4,
+                "block_size": 256,
+                "events": 0
+              }
+            },
+            "low0.0": {
+              "input_sha256": "69f78ec76907c38278093753e891559f89f51a47adb33561a1fac0f512964d4b",
+              "output_sha256": "60cf84a662e2919eed4e565c3b156aee3a9c58fa98aa24e7c49d60c53df3ac86",
+              "runtime": {
+                "samples": 103200,
+                "latency": 6,
+                "peak": 1.76792573928833,
+                "rms": 0.837549094062645,
+                "sample_rate": 48000,
+                "oversampling": 4,
+                "block_size": 256,
+                "events": 0
+              }
+            },
+            "low0.03": {
+              "input_sha256": "a108a0438b948d437758514c2d32e4c57a5191b0834c3afa59d58dedacdc84d1",
+              "output_sha256": "50430a8519013dd9899a9998798455f9b5924039f48b4bb899d79e02417d32e9",
+              "runtime": {
+                "samples": 103200,
+                "latency": 6,
+                "peak": 1.76792573928833,
+                "rms": 0.917837927857641,
+                "sample_rate": 48000,
+                "oversampling": 4,
+                "block_size": 256,
+                "events": 0
+              }
+            }
+          }
+        },
+        "6": {
+          "label": "bias",
+          "whole200ms_delta_rms_dbfs": -48.310452053453446,
+          "onset20ms_delta_rms_dbfs": -51.91395646816582,
+          "outputs": {
+            "high0.0": {
+              "input_sha256": "16ece129b4c39512a01c4ca424801dd5af59adce5658540e8d89af3db5dce376",
+              "output_sha256": "b55f4f62e90b8a8beb6b215d2dfb49d132f916bba6fa4d1f9480a05d9e445c6c",
+              "runtime": {
+                "samples": 103200,
+                "latency": 6,
+                "peak": 1.927677273750305,
+                "rms": 0.833170863328946,
+                "sample_rate": 48000,
+                "oversampling": 4,
+                "block_size": 256,
+                "events": 0
+              }
+            },
+            "high0.03": {
+              "input_sha256": "b928013b08b77035e4d98a20cea9e6291f5ee9625b02919b15d4af7581e10bf2",
+              "output_sha256": "881432cae985e4524a010f23688f070420cc676f9e5bbd7a1f303403bc795876",
+              "runtime": {
+                "samples": 103200,
+                "latency": 6,
+                "peak": 1.927677273750305,
+                "rms": 0.914194033993539,
+                "sample_rate": 48000,
+                "oversampling": 4,
+                "block_size": 256,
+                "events": 0
+              }
+            },
+            "low0.0": {
+              "input_sha256": "69f78ec76907c38278093753e891559f89f51a47adb33561a1fac0f512964d4b",
+              "output_sha256": "60cf84a662e2919eed4e565c3b156aee3a9c58fa98aa24e7c49d60c53df3ac86",
+              "runtime": {
+                "samples": 103200,
+                "latency": 6,
+                "peak": 1.76792573928833,
+                "rms": 0.837549094062645,
+                "sample_rate": 48000,
+                "oversampling": 4,
+                "block_size": 256,
+                "events": 0
+              }
+            },
+            "low0.03": {
+              "input_sha256": "a108a0438b948d437758514c2d32e4c57a5191b0834c3afa59d58dedacdc84d1",
+              "output_sha256": "9773fcc7e54fdce1ea2ce1a180aab282daecf9790f5d4106af662c909583e73f",
+              "runtime": {
+                "samples": 103200,
+                "latency": 6,
+                "peak": 1.76792573928833,
+                "rms": 0.917856575034684,
+                "sample_rate": 48000,
+                "oversampling": 4,
+                "block_size": 256,
+                "events": 0
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "channel": "Fimbulvetr",
+      "gap_ms": 150,
+      "onset": 55200,
+      "modes": {
+        "0": {
+          "label": "none",
+          "whole200ms_delta_rms_dbfs": -45.222995327913296,
+          "onset20ms_delta_rms_dbfs": -36.63818162315596,
+          "outputs": {
+            "high0.0": {
+              "input_sha256": "1cf1bfdc92b1158197112d59ef76334f2849efb9af9084b01d7913635633ba4b",
+              "output_sha256": "d889669bccc442a6671003e462cc9e0ce9beff443ed6a94a2afbeb46ec2b4696",
+              "runtime": {
+                "samples": 74400,
+                "latency": 6,
+                "peak": 2.150034427642822,
+                "rms": 0.961108683714326,
+                "sample_rate": 48000,
+                "oversampling": 4,
+                "block_size": 256,
+                "events": 0
+              }
+            },
+            "high0.03": {
+              "input_sha256": "f74f4b2cec9cdb0097e541b5017f1eaa428afa1748eac1e27273c97ab589595b",
+              "output_sha256": "db2029688158e62be55873b9b802385a167d871146b85c8dd0df8bb4ed000302",
+              "runtime": {
+                "samples": 74400,
+                "latency": 6,
+                "peak": 2.150034427642822,
+                "rms": 1.042683593718468,
+                "sample_rate": 48000,
+                "oversampling": 4,
+                "block_size": 256,
+                "events": 0
+              }
+            },
+            "low0.0": {
+              "input_sha256": "ecbac99474e9cd93e01fe7e32e7ab7a3badf6c9e75020152a19e543792f0caf7",
+              "output_sha256": "9a6254ee7185805ab3a7fe6b9a8790372b4ded7be81449ea28003c38535c57d8",
+              "runtime": {
+                "samples": 74400,
+                "latency": 6,
+                "peak": 1.964081525802612,
+                "rms": 0.906181155845093,
+                "sample_rate": 48000,
+                "oversampling": 4,
+                "block_size": 256,
+                "events": 0
+              }
+            },
+            "low0.03": {
+              "input_sha256": "c08077f8542046a79ab305f5ed700e92b609f7a94f8381cde30ef207e5111e2d",
+              "output_sha256": "10b08f76e4170afce5605d96dc889d81507bcaf98e5216c14eb150bf0046f379",
+              "runtime": {
+                "samples": 74400,
+                "latency": 6,
+                "peak": 2.020503282546997,
+                "rms": 0.996173230943549,
+                "sample_rate": 48000,
+                "oversampling": 4,
+                "block_size": 256,
+                "events": 0
+              }
+            }
+          },
+          "prior_delta_rms_dbfs": -45.222995327913296
+        },
+        "1": {
+          "label": "output resonance and filters",
+          "whole200ms_delta_rms_dbfs": -45.22254662563445,
+          "onset20ms_delta_rms_dbfs": -36.637556343635225,
+          "outputs": {
+            "high0.0": {
+              "input_sha256": "1cf1bfdc92b1158197112d59ef76334f2849efb9af9084b01d7913635633ba4b",
+              "output_sha256": "5d71a4ef83dce5286e7ab6d7cb2396ff6ee6ddb3c34ead75829320dc9da06b04",
+              "runtime": {
+                "samples": 74400,
+                "latency": 6,
+                "peak": 2.150034427642822,
+                "rms": 0.961108614555702,
+                "sample_rate": 48000,
+                "oversampling": 4,
+                "block_size": 256,
+                "events": 0
+              }
+            },
+            "high0.03": {
+              "input_sha256": "f74f4b2cec9cdb0097e541b5017f1eaa428afa1748eac1e27273c97ab589595b",
+              "output_sha256": "5e1bd7444ea931f4c0b35da36cf715e37408781de8c5b5db874de5c89819a2de",
+              "runtime": {
+                "samples": 74400,
+                "latency": 6,
+                "peak": 2.150034427642822,
+                "rms": 1.042678893940323,
+                "sample_rate": 48000,
+                "oversampling": 4,
+                "block_size": 256,
+                "events": 0
+              }
+            },
+            "low0.0": {
+              "input_sha256": "ecbac99474e9cd93e01fe7e32e7ab7a3badf6c9e75020152a19e543792f0caf7",
+              "output_sha256": "c4592cc88902d2dc3be7160288e786bcb8a58bc0835dba8d9e1621cb9247239a",
+              "runtime": {
+                "samples": 74400,
+                "latency": 6,
+                "peak": 1.964081525802612,
+                "rms": 0.906181154819063,
+                "sample_rate": 48000,
+                "oversampling": 4,
+                "block_size": 256,
+                "events": 0
+              }
+            },
+            "low0.03": {
+              "input_sha256": "c08077f8542046a79ab305f5ed700e92b609f7a94f8381cde30ef207e5111e2d",
+              "output_sha256": "eb78b11d9d66bfe7c456ff3a18445aa6a23698219699bbe443f02f7518085041",
+              "runtime": {
+                "samples": 74400,
+                "latency": 6,
+                "peak": 2.020357131958008,
+                "rms": 0.996173962170135,
+                "sample_rate": 48000,
+                "oversampling": 4,
+                "block_size": 256,
+                "events": 0
+              }
+            }
+          }
+        },
+        "2": {
+          "label": "sag+blocking+bias",
+          "whole200ms_delta_rms_dbfs": -47.41885161564005,
+          "onset20ms_delta_rms_dbfs": -37.9526480844849,
+          "outputs": {
+            "high0.0": {
+              "input_sha256": "1cf1bfdc92b1158197112d59ef76334f2849efb9af9084b01d7913635633ba4b",
+              "output_sha256": "a3ef1a30354c5c9ee628d99e62a4a4327a6a34f52e7db7075e0e61cb19d146a3",
+              "runtime": {
+                "samples": 74400,
+                "latency": 6,
+                "peak": 2.150034427642822,
+                "rms": 0.961108681545702,
+                "sample_rate": 48000,
+                "oversampling": 4,
+                "block_size": 256,
+                "events": 0
+              }
+            },
+            "high0.03": {
+              "input_sha256": "f74f4b2cec9cdb0097e541b5017f1eaa428afa1748eac1e27273c97ab589595b",
+              "output_sha256": "5857c1aeeda986b7c64f795defc60d5aaca108bd0eb60018710062b4691c94e0",
+              "runtime": {
+                "samples": 74400,
+                "latency": 6,
+                "peak": 2.150034427642822,
+                "rms": 1.049014565634045,
+                "sample_rate": 48000,
+                "oversampling": 4,
+                "block_size": 256,
+                "events": 0
+              }
+            },
+            "low0.0": {
+              "input_sha256": "ecbac99474e9cd93e01fe7e32e7ab7a3badf6c9e75020152a19e543792f0caf7",
+              "output_sha256": "32012c7fc9fec514eece562971090664575dfdd6f694ca82cbed12ef53ff7ac8",
+              "runtime": {
+                "samples": 74400,
+                "latency": 6,
+                "peak": 1.964081525802612,
+                "rms": 0.906181155842285,
+                "sample_rate": 48000,
+                "oversampling": 4,
+                "block_size": 256,
+                "events": 0
+              }
+            },
+            "low0.03": {
+              "input_sha256": "c08077f8542046a79ab305f5ed700e92b609f7a94f8381cde30ef207e5111e2d",
+              "output_sha256": "0bfe2d7c045a5be5adef34e4a60da278b382b568fd7194e1c809642b8ba57178",
+              "runtime": {
+                "samples": 74400,
+                "latency": 6,
+                "peak": 2.175151586532593,
+                "rms": 1.002078778526613,
+                "sample_rate": 48000,
+                "oversampling": 4,
+                "block_size": 256,
+                "events": 0
+              }
+            }
+          }
+        },
+        "3": {
+          "label": "all native core audio memory",
+          "whole200ms_delta_rms_dbfs": -182.50101252596576,
+          "onset20ms_delta_rms_dbfs": -172.50101252596576,
+          "outputs": {
+            "high0.0": {
+              "input_sha256": "1cf1bfdc92b1158197112d59ef76334f2849efb9af9084b01d7913635633ba4b",
+              "output_sha256": "ef598c31d55f9c4e86d932755eb67b706800c08585622ed7345db6fa6cd42a45",
+              "runtime": {
+                "samples": 74400,
+                "latency": 6,
+                "peak": 2.150034427642822,
+                "rms": 0.961108614460629,
+                "sample_rate": 48000,
+                "oversampling": 4,
+                "block_size": 256,
+                "events": 0
+              }
+            },
+            "high0.03": {
+              "input_sha256": "f74f4b2cec9cdb0097e541b5017f1eaa428afa1748eac1e27273c97ab589595b",
+              "output_sha256": "ae102902168f6c19bb10e3e9c19696bdd069010064202886117447bfd4ff9a7f",
+              "runtime": {
+                "samples": 74400,
+                "latency": 6,
+                "peak": 2.17672061920166,
+                "rms": 1.052046516331509,
+                "sample_rate": 48000,
+                "oversampling": 4,
+                "block_size": 256,
+                "events": 0
+              }
+            },
+            "low0.0": {
+              "input_sha256": "ecbac99474e9cd93e01fe7e32e7ab7a3badf6c9e75020152a19e543792f0caf7",
+              "output_sha256": "ce324695a8307ac9636af5275c7cc017197c915c60653cfde301868cb2537fab",
+              "runtime": {
+                "samples": 74400,
+                "latency": 6,
+                "peak": 1.964081525802612,
+                "rms": 0.906181154819048,
+                "sample_rate": 48000,
+                "oversampling": 4,
+                "block_size": 256,
+                "events": 0
+              }
+            },
+            "low0.03": {
+              "input_sha256": "c08077f8542046a79ab305f5ed700e92b609f7a94f8381cde30ef207e5111e2d",
+              "output_sha256": "e28125652228ab4eae6c6ee524d78d1702e4075b01439e5eac3fd9166cce341c",
+              "runtime": {
+                "samples": 74400,
+                "latency": 6,
+                "peak": 2.17672061920166,
+                "rms": 1.002115955925372,
+                "sample_rate": 48000,
+                "oversampling": 4,
+                "block_size": 256,
+                "events": 0
+              }
+            }
+          }
+        },
+        "4": {
+          "label": "sag",
+          "whole200ms_delta_rms_dbfs": -46.41560279176893,
+          "onset20ms_delta_rms_dbfs": -37.81216458010704,
+          "outputs": {
+            "high0.0": {
+              "input_sha256": "1cf1bfdc92b1158197112d59ef76334f2849efb9af9084b01d7913635633ba4b",
+              "output_sha256": "a3d1a357b596479dd97869aba8af67818962d8e1b7dff448c2d9d13606607aca",
+              "runtime": {
+                "samples": 74400,
+                "latency": 6,
+                "peak": 2.150034427642822,
+                "rms": 0.961108681545803,
+                "sample_rate": 48000,
+                "oversampling": 4,
+                "block_size": 256,
+                "events": 0
+              }
+            },
+            "high0.03": {
+              "input_sha256": "f74f4b2cec9cdb0097e541b5017f1eaa428afa1748eac1e27273c97ab589595b",
+              "output_sha256": "cfc95feea2671e09d4dd881ca60eb3432dca66fc5635df46179d252abda7f921",
+              "runtime": {
+                "samples": 74400,
+                "latency": 6,
+                "peak": 2.150034427642822,
+                "rms": 1.049174452269404,
+                "sample_rate": 48000,
+                "oversampling": 4,
+                "block_size": 256,
+                "events": 0
+              }
+            },
+            "low0.0": {
+              "input_sha256": "ecbac99474e9cd93e01fe7e32e7ab7a3badf6c9e75020152a19e543792f0caf7",
+              "output_sha256": "00ed9adae0c8cf713f32a143fec667b2b84ff2ad57f0d86cfa7a1510731bcbc8",
+              "runtime": {
+                "samples": 74400,
+                "latency": 6,
+                "peak": 1.964081525802612,
+                "rms": 0.906181155842288,
+                "sample_rate": 48000,
+                "oversampling": 4,
+                "block_size": 256,
+                "events": 0
+              }
+            },
+            "low0.03": {
+              "input_sha256": "c08077f8542046a79ab305f5ed700e92b609f7a94f8381cde30ef207e5111e2d",
+              "output_sha256": "6212fc62ec056c4ca36834d6a1f423e44cd771181fa8ae20a70922a075ff8348",
+              "runtime": {
+                "samples": 74400,
+                "latency": 6,
+                "peak": 2.17390513420105,
+                "rms": 1.002089349035311,
+                "sample_rate": 48000,
+                "oversampling": 4,
+                "block_size": 256,
+                "events": 0
+              }
+            }
+          }
+        },
+        "5": {
+          "label": "blocking",
+          "whole200ms_delta_rms_dbfs": -45.93355787697544,
+          "onset20ms_delta_rms_dbfs": -36.72288433591423,
+          "outputs": {
+            "high0.0": {
+              "input_sha256": "1cf1bfdc92b1158197112d59ef76334f2849efb9af9084b01d7913635633ba4b",
+              "output_sha256": "425a37e3a6f2eeceb8d424e512d37629f2e7d00a9f93e4fca12380767235b7eb",
+              "runtime": {
+                "samples": 74400,
+                "latency": 6,
+                "peak": 2.150034427642822,
+                "rms": 0.961108683714059,
+                "sample_rate": 48000,
+                "oversampling": 4,
+                "block_size": 256,
+                "events": 0
+              }
+            },
+            "high0.03": {
+              "input_sha256": "f74f4b2cec9cdb0097e541b5017f1eaa428afa1748eac1e27273c97ab589595b",
+              "output_sha256": "4c9c0d1a10a3c22a9ddb33d3421846ae379a6b62d7f8177c7112891b37c2c22b",
+              "runtime": {
+                "samples": 74400,
+                "latency": 6,
+                "peak": 2.150034427642822,
+                "rms": 1.042523622941198,
+                "sample_rate": 48000,
+                "oversampling": 4,
+                "block_size": 256,
+                "events": 0
+              }
+            },
+            "low0.0": {
+              "input_sha256": "ecbac99474e9cd93e01fe7e32e7ab7a3badf6c9e75020152a19e543792f0caf7",
+              "output_sha256": "46fe5466894a2626677fdfbfcb6402e68be27cd9d472c1e22c884fa574e70e36",
+              "runtime": {
+                "samples": 74400,
+                "latency": 6,
+                "peak": 1.964081525802612,
+                "rms": 0.906181155845092,
+                "sample_rate": 48000,
+                "oversampling": 4,
+                "block_size": 256,
+                "events": 0
+              }
+            },
+            "low0.03": {
+              "input_sha256": "c08077f8542046a79ab305f5ed700e92b609f7a94f8381cde30ef207e5111e2d",
+              "output_sha256": "9452ff825d388a0b13dbca79cf004e2dcda637807afd7112526e7e237d10a6cb",
+              "runtime": {
+                "samples": 74400,
+                "latency": 6,
+                "peak": 2.022725582122803,
+                "rms": 0.996165597687734,
+                "sample_rate": 48000,
+                "oversampling": 4,
+                "block_size": 256,
+                "events": 0
+              }
+            }
+          }
+        },
+        "6": {
+          "label": "bias",
+          "whole200ms_delta_rms_dbfs": -45.22125718277141,
+          "onset20ms_delta_rms_dbfs": -36.630986112947234,
+          "outputs": {
+            "high0.0": {
+              "input_sha256": "1cf1bfdc92b1158197112d59ef76334f2849efb9af9084b01d7913635633ba4b",
+              "output_sha256": "c2e8571b91b72b4b49e33aa00becbb5107469a6a0a46fff0b1fc542238aa47b4",
+              "runtime": {
+                "samples": 74400,
+                "latency": 6,
+                "peak": 2.150034427642822,
+                "rms": 0.961108683714319,
+                "sample_rate": 48000,
+                "oversampling": 4,
+                "block_size": 256,
+                "events": 0
+              }
+            },
+            "high0.03": {
+              "input_sha256": "f74f4b2cec9cdb0097e541b5017f1eaa428afa1748eac1e27273c97ab589595b",
+              "output_sha256": "37d056ab3ca8ddba0e74fc02973381f57b4be4489e5f51cc8b3cbf5c046a3f1a",
+              "runtime": {
+                "samples": 74400,
+                "latency": 6,
+                "peak": 2.150034427642822,
+                "rms": 1.042681377593998,
+                "sample_rate": 48000,
+                "oversampling": 4,
+                "block_size": 256,
+                "events": 0
+              }
+            },
+            "low0.0": {
+              "input_sha256": "ecbac99474e9cd93e01fe7e32e7ab7a3badf6c9e75020152a19e543792f0caf7",
+              "output_sha256": "8cffa05be0309e59922bca002ccbe215ec875eec3bccf387c1ff36430105d413",
+              "runtime": {
+                "samples": 74400,
+                "latency": 6,
+                "peak": 1.964081525802612,
+                "rms": 0.906181155845093,
+                "sample_rate": 48000,
+                "oversampling": 4,
+                "block_size": 256,
+                "events": 0
+              }
+            },
+            "low0.03": {
+              "input_sha256": "c08077f8542046a79ab305f5ed700e92b609f7a94f8381cde30ef207e5111e2d",
+              "output_sha256": "3583b9cae9e9745438901bb13bd64fe23d75cfcc9372912b83026a1438280ccb",
+              "runtime": {
+                "samples": 74400,
+                "latency": 6,
+                "peak": 2.02045464515686,
+                "rms": 0.996173118269107,
+                "sample_rate": 48000,
+                "oversampling": 4,
+                "block_size": 256,
+                "events": 0
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "channel": "Fimbulvetr",
+      "gap_ms": 750,
+      "onset": 84000,
+      "modes": {
+        "0": {
+          "label": "none",
+          "whole200ms_delta_rms_dbfs": -69.35144963312166,
+          "onset20ms_delta_rms_dbfs": -65.38083421624054,
+          "outputs": {
+            "high0.0": {
+              "input_sha256": "16ece129b4c39512a01c4ca424801dd5af59adce5658540e8d89af3db5dce376",
+              "output_sha256": "57df8cca4e1e73a9f1ab328c9d9f1aac25b99081f2baf44227bba34d8879b643",
+              "runtime": {
+                "samples": 103200,
+                "latency": 6,
+                "peak": 2.150034427642822,
+                "rms": 0.816054417919356,
+                "sample_rate": 48000,
+                "oversampling": 4,
+                "block_size": 256,
+                "events": 0
+              }
+            },
+            "high0.03": {
+              "input_sha256": "b928013b08b77035e4d98a20cea9e6291f5ee9625b02919b15d4af7581e10bf2",
+              "output_sha256": "3a5684751765a7bf71a040f89c285be8a392978e02112b8e4c0a91011459c8a6",
+              "runtime": {
+                "samples": 103200,
+                "latency": 6,
+                "peak": 2.151790380477905,
+                "rms": 0.892520782082022,
+                "sample_rate": 48000,
+                "oversampling": 4,
+                "block_size": 256,
+                "events": 0
+              }
+            },
+            "low0.0": {
+              "input_sha256": "69f78ec76907c38278093753e891559f89f51a47adb33561a1fac0f512964d4b",
+              "output_sha256": "168ef72b1d204544dd5eb09858d2fc4d6ccf2662da13273830d9306c201e9ce5",
+              "runtime": {
+                "samples": 103200,
+                "latency": 6,
+                "peak": 1.964081525802612,
+                "rms": 0.769416766483446,
+                "sample_rate": 48000,
+                "oversampling": 4,
+                "block_size": 256,
+                "events": 0
+              }
+            },
+            "low0.03": {
+              "input_sha256": "a108a0438b948d437758514c2d32e4c57a5191b0834c3afa59d58dedacdc84d1",
+              "output_sha256": "d493455da9f6fbd0e3b1834e10f1aa5d8adcc9d4a19f264d3c00ca9d942c93e5",
+              "runtime": {
+                "samples": 103200,
+                "latency": 6,
+                "peak": 2.157716035842896,
+                "rms": 0.850213286257882,
+                "sample_rate": 48000,
+                "oversampling": 4,
+                "block_size": 256,
+                "events": 0
+              }
+            }
+          },
+          "prior_delta_rms_dbfs": -69.35144963312166
+        },
+        "1": {
+          "label": "output resonance and filters",
+          "whole200ms_delta_rms_dbfs": -69.35144307590603,
+          "onset20ms_delta_rms_dbfs": -65.38081683193161,
+          "outputs": {
+            "high0.0": {
+              "input_sha256": "16ece129b4c39512a01c4ca424801dd5af59adce5658540e8d89af3db5dce376",
+              "output_sha256": "bd77a6448049f7bbdbeb4a5fa5f4a294d6fc4bfd9a2fd293ab80ad4a295f5097",
+              "runtime": {
+                "samples": 103200,
+                "latency": 6,
+                "peak": 2.150034427642822,
+                "rms": 0.816054417919356,
+                "sample_rate": 48000,
+                "oversampling": 4,
+                "block_size": 256,
+                "events": 0
+              }
+            },
+            "high0.03": {
+              "input_sha256": "b928013b08b77035e4d98a20cea9e6291f5ee9625b02919b15d4af7581e10bf2",
+              "output_sha256": "484f9ee7d05802d128c329a327fe6756638218ad86719a7fb30bd1780b6976b8",
+              "runtime": {
+                "samples": 103200,
+                "latency": 6,
+                "peak": 2.151790618896484,
+                "rms": 0.8925207818533,
+                "sample_rate": 48000,
+                "oversampling": 4,
+                "block_size": 256,
+                "events": 0
+              }
+            },
+            "low0.0": {
+              "input_sha256": "69f78ec76907c38278093753e891559f89f51a47adb33561a1fac0f512964d4b",
+              "output_sha256": "ac617c796e835da290a2c96912794d072b4cf5beae2f2991d15a426af2e46db5",
+              "runtime": {
+                "samples": 103200,
+                "latency": 6,
+                "peak": 1.964081525802612,
+                "rms": 0.769416766483446,
+                "sample_rate": 48000,
+                "oversampling": 4,
+                "block_size": 256,
+                "events": 0
+              }
+            },
+            "low0.03": {
+              "input_sha256": "a108a0438b948d437758514c2d32e4c57a5191b0834c3afa59d58dedacdc84d1",
+              "output_sha256": "a31a7a9306240cb6f9852cdb358f977a207a93f43d40458aca2f622e7b17dbfb",
+              "runtime": {
+                "samples": 103200,
+                "latency": 6,
+                "peak": 2.157715559005737,
+                "rms": 0.850213286425478,
+                "sample_rate": 48000,
+                "oversampling": 4,
+                "block_size": 256,
+                "events": 0
+              }
+            }
+          }
+        },
+        "2": {
+          "label": "sag+blocking+bias",
+          "whole200ms_delta_rms_dbfs": -160.05417930370567,
+          "onset20ms_delta_rms_dbfs": -155.92073071271707,
+          "outputs": {
+            "high0.0": {
+              "input_sha256": "16ece129b4c39512a01c4ca424801dd5af59adce5658540e8d89af3db5dce376",
+              "output_sha256": "57df8cca4e1e73a9f1ab328c9d9f1aac25b99081f2baf44227bba34d8879b643",
+              "runtime": {
+                "samples": 103200,
+                "latency": 6,
+                "peak": 2.150034427642822,
+                "rms": 0.816054417919356,
+                "sample_rate": 48000,
+                "oversampling": 4,
+                "block_size": 256,
+                "events": 0
+              }
+            },
+            "high0.03": {
+              "input_sha256": "b928013b08b77035e4d98a20cea9e6291f5ee9625b02919b15d4af7581e10bf2",
+              "output_sha256": "8b26c3b9ed487a4dfb7838ff69d19b14062e4632f31577dac39f37229baecdff",
+              "runtime": {
+                "samples": 103200,
+                "latency": 6,
+                "peak": 2.17672061920166,
+                "rms": 0.893267612377918,
+                "sample_rate": 48000,
+                "oversampling": 4,
+                "block_size": 256,
+                "events": 0
+              }
+            },
+            "low0.0": {
+              "input_sha256": "69f78ec76907c38278093753e891559f89f51a47adb33561a1fac0f512964d4b",
+              "output_sha256": "168ef72b1d204544dd5eb09858d2fc4d6ccf2662da13273830d9306c201e9ce5",
+              "runtime": {
+                "samples": 103200,
+                "latency": 6,
+                "peak": 1.964081525802612,
+                "rms": 0.769416766483446,
+                "sample_rate": 48000,
+                "oversampling": 4,
+                "block_size": 256,
+                "events": 0
+              }
+            },
+            "low0.03": {
+              "input_sha256": "a108a0438b948d437758514c2d32e4c57a5191b0834c3afa59d58dedacdc84d1",
+              "output_sha256": "724272e1dbed125f94d3803d45ba65c71913323b4820f01a794c9df493b62906",
+              "runtime": {
+                "samples": 103200,
+                "latency": 6,
+                "peak": 2.17672061920166,
+                "rms": 0.850872713603468,
+                "sample_rate": 48000,
+                "oversampling": 4,
+                "block_size": 256,
+                "events": 0
+              }
+            }
+          }
+        },
+        "3": {
+          "label": "all native core audio memory",
+          "whole200ms_delta_rms_dbfs": -218.83558198042704,
+          "onset20ms_delta_rms_dbfs": -208.83558198042704,
+          "outputs": {
+            "high0.0": {
+              "input_sha256": "16ece129b4c39512a01c4ca424801dd5af59adce5658540e8d89af3db5dce376",
+              "output_sha256": "1501ebd6019d0b21a24c83712e88787d566116acf946e84f516785ab5bd8d314",
+              "runtime": {
+                "samples": 103200,
+                "latency": 6,
+                "peak": 2.150034427642822,
+                "rms": 0.816054417919356,
+                "sample_rate": 48000,
+                "oversampling": 4,
+                "block_size": 256,
+                "events": 0
+              }
+            },
+            "high0.03": {
+              "input_sha256": "b928013b08b77035e4d98a20cea9e6291f5ee9625b02919b15d4af7581e10bf2",
+              "output_sha256": "53331d70e54950bd94cd67c957a9e27b400c9090c007e7f82282544ed4bc97ca",
+              "runtime": {
+                "samples": 103200,
+                "latency": 6,
+                "peak": 2.17672061920166,
+                "rms": 0.893267612393834,
+                "sample_rate": 48000,
+                "oversampling": 4,
+                "block_size": 256,
+                "events": 0
+              }
+            },
+            "low0.0": {
+              "input_sha256": "69f78ec76907c38278093753e891559f89f51a47adb33561a1fac0f512964d4b",
+              "output_sha256": "799afe45fb4a6c6bc18a6c907a581179e6ba959be51eb0b9d9f0daaeb6e978fc",
+              "runtime": {
+                "samples": 103200,
+                "latency": 6,
+                "peak": 1.964081525802612,
+                "rms": 0.769416766483446,
+                "sample_rate": 48000,
+                "oversampling": 4,
+                "block_size": 256,
+                "events": 0
+              }
+            },
+            "low0.03": {
+              "input_sha256": "a108a0438b948d437758514c2d32e4c57a5191b0834c3afa59d58dedacdc84d1",
+              "output_sha256": "0e52b04476f28b365716d188623b83013f8720423a07c4bbff8721ea6ae788a4",
+              "runtime": {
+                "samples": 103200,
+                "latency": 6,
+                "peak": 2.17672061920166,
+                "rms": 0.850872713683954,
+                "sample_rate": 48000,
+                "oversampling": 4,
+                "block_size": 256,
+                "events": 0
+              }
+            }
+          }
+        },
+        "4": {
+          "label": "sag",
+          "whole200ms_delta_rms_dbfs": -70.89387450602185,
+          "onset20ms_delta_rms_dbfs": -71.19191919650352,
+          "outputs": {
+            "high0.0": {
+              "input_sha256": "16ece129b4c39512a01c4ca424801dd5af59adce5658540e8d89af3db5dce376",
+              "output_sha256": "57df8cca4e1e73a9f1ab328c9d9f1aac25b99081f2baf44227bba34d8879b643",
+              "runtime": {
+                "samples": 103200,
+                "latency": 6,
+                "peak": 2.150034427642822,
+                "rms": 0.816054417919356,
+                "sample_rate": 48000,
+                "oversampling": 4,
+                "block_size": 256,
+                "events": 0
+              }
+            },
+            "high0.03": {
+              "input_sha256": "b928013b08b77035e4d98a20cea9e6291f5ee9625b02919b15d4af7581e10bf2",
+              "output_sha256": "367e17ca9725ea2687645f571c346608e94c3da070fdd8e61ec3a81a070c39dd",
+              "runtime": {
+                "samples": 103200,
+                "latency": 6,
+                "peak": 2.175133943557739,
+                "rms": 0.893294480043078,
+                "sample_rate": 48000,
+                "oversampling": 4,
+                "block_size": 256,
+                "events": 0
+              }
+            },
+            "low0.0": {
+              "input_sha256": "69f78ec76907c38278093753e891559f89f51a47adb33561a1fac0f512964d4b",
+              "output_sha256": "168ef72b1d204544dd5eb09858d2fc4d6ccf2662da13273830d9306c201e9ce5",
+              "runtime": {
+                "samples": 103200,
+                "latency": 6,
+                "peak": 1.964081525802612,
+                "rms": 0.769416766483446,
+                "sample_rate": 48000,
+                "oversampling": 4,
+                "block_size": 256,
+                "events": 0
+              }
+            },
+            "low0.03": {
+              "input_sha256": "a108a0438b948d437758514c2d32e4c57a5191b0834c3afa59d58dedacdc84d1",
+              "output_sha256": "66767764d1c3d384ccb7b1fc800a7bb36e06da74964dfa7c7fd126af93bd83c2",
+              "runtime": {
+                "samples": 103200,
+                "latency": 6,
+                "peak": 2.176644802093506,
+                "rms": 0.850873511555443,
+                "sample_rate": 48000,
+                "oversampling": 4,
+                "block_size": 256,
+                "events": 0
+              }
+            }
+          }
+        },
+        "5": {
+          "label": "blocking",
+          "whole200ms_delta_rms_dbfs": -74.13253022337634,
+          "onset20ms_delta_rms_dbfs": -64.99191277218274,
+          "outputs": {
+            "high0.0": {
+              "input_sha256": "16ece129b4c39512a01c4ca424801dd5af59adce5658540e8d89af3db5dce376",
+              "output_sha256": "57df8cca4e1e73a9f1ab328c9d9f1aac25b99081f2baf44227bba34d8879b643",
+              "runtime": {
+                "samples": 103200,
+                "latency": 6,
+                "peak": 2.150034427642822,
+                "rms": 0.816054417919356,
+                "sample_rate": 48000,
+                "oversampling": 4,
+                "block_size": 256,
+                "events": 0
+              }
+            },
+            "high0.03": {
+              "input_sha256": "b928013b08b77035e4d98a20cea9e6291f5ee9625b02919b15d4af7581e10bf2",
+              "output_sha256": "e00382e1022f44f146836e02e89db6fe861ede933e6b115f077caeea5fb50380",
+              "runtime": {
+                "samples": 103200,
+                "latency": 6,
+                "peak": 2.153388500213623,
+                "rms": 0.892493875770213,
+                "sample_rate": 48000,
+                "oversampling": 4,
+                "block_size": 256,
+                "events": 0
+              }
+            },
+            "low0.0": {
+              "input_sha256": "69f78ec76907c38278093753e891559f89f51a47adb33561a1fac0f512964d4b",
+              "output_sha256": "168ef72b1d204544dd5eb09858d2fc4d6ccf2662da13273830d9306c201e9ce5",
+              "runtime": {
+                "samples": 103200,
+                "latency": 6,
+                "peak": 1.964081525802612,
+                "rms": 0.769416766483446,
+                "sample_rate": 48000,
+                "oversampling": 4,
+                "block_size": 256,
+                "events": 0
+              }
+            },
+            "low0.03": {
+              "input_sha256": "a108a0438b948d437758514c2d32e4c57a5191b0834c3afa59d58dedacdc84d1",
+              "output_sha256": "da4f9b520649f03dcbae67b89d0b66cdad09557764f18a909664b7a44d04eeb9",
+              "runtime": {
+                "samples": 103200,
+                "latency": 6,
+                "peak": 2.157801389694214,
+                "rms": 0.850212433918265,
+                "sample_rate": 48000,
+                "oversampling": 4,
+                "block_size": 256,
+                "events": 0
+              }
+            }
+          }
+        },
+        "6": {
+          "label": "bias",
+          "whole200ms_delta_rms_dbfs": -69.35144937203277,
+          "onset20ms_delta_rms_dbfs": -65.38083218050255,
+          "outputs": {
+            "high0.0": {
+              "input_sha256": "16ece129b4c39512a01c4ca424801dd5af59adce5658540e8d89af3db5dce376",
+              "output_sha256": "57df8cca4e1e73a9f1ab328c9d9f1aac25b99081f2baf44227bba34d8879b643",
+              "runtime": {
+                "samples": 103200,
+                "latency": 6,
+                "peak": 2.150034427642822,
+                "rms": 0.816054417919356,
+                "sample_rate": 48000,
+                "oversampling": 4,
+                "block_size": 256,
+                "events": 0
+              }
+            },
+            "high0.03": {
+              "input_sha256": "b928013b08b77035e4d98a20cea9e6291f5ee9625b02919b15d4af7581e10bf2",
+              "output_sha256": "35a1de04afbf8b5fe680294ff8c9ba16bbd497cae150a3bdc8c887bba98c62ec",
+              "runtime": {
+                "samples": 103200,
+                "latency": 6,
+                "peak": 2.151790380477905,
+                "rms": 0.892520782085184,
+                "sample_rate": 48000,
+                "oversampling": 4,
+                "block_size": 256,
+                "events": 0
+              }
+            },
+            "low0.0": {
+              "input_sha256": "69f78ec76907c38278093753e891559f89f51a47adb33561a1fac0f512964d4b",
+              "output_sha256": "168ef72b1d204544dd5eb09858d2fc4d6ccf2662da13273830d9306c201e9ce5",
+              "runtime": {
+                "samples": 103200,
+                "latency": 6,
+                "peak": 1.964081525802612,
+                "rms": 0.769416766483446,
+                "sample_rate": 48000,
+                "oversampling": 4,
+                "block_size": 256,
+                "events": 0
+              }
+            },
+            "low0.03": {
+              "input_sha256": "a108a0438b948d437758514c2d32e4c57a5191b0834c3afa59d58dedacdc84d1",
+              "output_sha256": "a3345b5460f66eb42b2fa2b6552e615be10aad624738dcd48324f58ff300af3f",
+              "runtime": {
+                "samples": 103200,
+                "latency": 6,
+                "peak": 2.157716035842896,
+                "rms": 0.850213286261065,
+                "sample_rate": 48000,
+                "oversampling": 4,
+                "block_size": 256,
+                "events": 0
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "channel": "Ragnarok",
+      "gap_ms": 150,
+      "onset": 55200,
+      "modes": {
+        "0": {
+          "label": "none",
+          "whole200ms_delta_rms_dbfs": -38.748153235447916,
+          "onset20ms_delta_rms_dbfs": -31.74798788231223,
+          "outputs": {
+            "high0.0": {
+              "input_sha256": "1cf1bfdc92b1158197112d59ef76334f2849efb9af9084b01d7913635633ba4b",
+              "output_sha256": "fee78e28d084fe2e54e3e2f959c18c780fa0d3b38ee7175d33ceb2ac4c41d5f8",
+              "runtime": {
+                "samples": 74400,
+                "latency": 6,
+                "peak": 3.493983507156372,
+                "rms": 2.326965697642162,
+                "sample_rate": 48000,
+                "oversampling": 4,
+                "block_size": 256,
+                "events": 0
+              }
+            },
+            "high0.03": {
+              "input_sha256": "f74f4b2cec9cdb0097e541b5017f1eaa428afa1748eac1e27273c97ab589595b",
+              "output_sha256": "c9c2e626900795cd254831c4f3f8239203c95b8e59f97991f0406e34719599dd",
+              "runtime": {
+                "samples": 74400,
+                "latency": 6,
+                "peak": 3.493983507156372,
+                "rms": 2.553636378609453,
+                "sample_rate": 48000,
+                "oversampling": 4,
+                "block_size": 256,
+                "events": 0
+              }
+            },
+            "low0.0": {
+              "input_sha256": "ecbac99474e9cd93e01fe7e32e7ab7a3badf6c9e75020152a19e543792f0caf7",
+              "output_sha256": "3eb5111ee02c1e695419b59f1dc0687c4a3a8bc611d5d75217149ce642b510a3",
+              "runtime": {
+                "samples": 74400,
+                "latency": 6,
+                "peak": 3.485624313354492,
+                "rms": 2.289147659151963,
+                "sample_rate": 48000,
+                "oversampling": 4,
+                "block_size": 256,
+                "events": 0
+              }
+            },
+            "low0.03": {
+              "input_sha256": "c08077f8542046a79ab305f5ed700e92b609f7a94f8381cde30ef207e5111e2d",
+              "output_sha256": "4528fa1a8baf886c275ab5537506e3174bd6284f3077dfaf547992128f9592ce",
+              "runtime": {
+                "samples": 74400,
+                "latency": 6,
+                "peak": 3.493786573410034,
+                "rms": 2.522003439002189,
+                "sample_rate": 48000,
+                "oversampling": 4,
+                "block_size": 256,
+                "events": 0
+              }
+            }
+          },
+          "prior_delta_rms_dbfs": -38.748153235447916
+        },
+        "1": {
+          "label": "output resonance and filters",
+          "whole200ms_delta_rms_dbfs": -38.748081222879584,
+          "onset20ms_delta_rms_dbfs": -31.747371609011445,
+          "outputs": {
+            "high0.0": {
+              "input_sha256": "1cf1bfdc92b1158197112d59ef76334f2849efb9af9084b01d7913635633ba4b",
+              "output_sha256": "fc6b95913e5bc888df47d14cf5d97bfa412dedda5b507090755a9b7cead3c642",
+              "runtime": {
+                "samples": 74400,
+                "latency": 6,
+                "peak": 3.493983507156372,
+                "rms": 2.326965694574473,
+                "sample_rate": 48000,
+                "oversampling": 4,
+                "block_size": 256,
+                "events": 0
+              }
+            },
+            "high0.03": {
+              "input_sha256": "f74f4b2cec9cdb0097e541b5017f1eaa428afa1748eac1e27273c97ab589595b",
+              "output_sha256": "efe8d77b1f48b247e06509e84a2796cc280cb78d35f367d75141a2d58d655796",
+              "runtime": {
+                "samples": 74400,
+                "latency": 6,
+                "peak": 3.493983507156372,
+                "rms": 2.553635619208745,
+                "sample_rate": 48000,
+                "oversampling": 4,
+                "block_size": 256,
+                "events": 0
+              }
+            },
+            "low0.0": {
+              "input_sha256": "ecbac99474e9cd93e01fe7e32e7ab7a3badf6c9e75020152a19e543792f0caf7",
+              "output_sha256": "a41e82cbc7e4abb027d7396b4c67186bbec59011f21da2b57f8fb69f31420585",
+              "runtime": {
+                "samples": 74400,
+                "latency": 6,
+                "peak": 3.485624313354492,
+                "rms": 2.289147658879258,
+                "sample_rate": 48000,
+                "oversampling": 4,
+                "block_size": 256,
+                "events": 0
+              }
+            },
+            "low0.03": {
+              "input_sha256": "c08077f8542046a79ab305f5ed700e92b609f7a94f8381cde30ef207e5111e2d",
+              "output_sha256": "803773ff5afa4ce108d22bea1da74a6b3e5909015055adb929d0d5494300d446",
+              "runtime": {
+                "samples": 74400,
+                "latency": 6,
+                "peak": 3.493787050247192,
+                "rms": 2.522003260268754,
+                "sample_rate": 48000,
+                "oversampling": 4,
+                "block_size": 256,
+                "events": 0
+              }
+            }
+          }
+        },
+        "2": {
+          "label": "sag+blocking+bias",
+          "whole200ms_delta_rms_dbfs": -41.07672226062136,
+          "onset20ms_delta_rms_dbfs": -32.61168315420025,
+          "outputs": {
+            "high0.0": {
+              "input_sha256": "1cf1bfdc92b1158197112d59ef76334f2849efb9af9084b01d7913635633ba4b",
+              "output_sha256": "b658fa513ae084d3ea69da47afaa7269c5228a0826e9f6f5a57744f6728c1a69",
+              "runtime": {
+                "samples": 74400,
+                "latency": 6,
+                "peak": 3.493983507156372,
+                "rms": 2.326965697642165,
+                "sample_rate": 48000,
+                "oversampling": 4,
+                "block_size": 256,
+                "events": 0
+              }
+            },
+            "high0.03": {
+              "input_sha256": "f74f4b2cec9cdb0097e541b5017f1eaa428afa1748eac1e27273c97ab589595b",
+              "output_sha256": "30ea0cdae744f2c3c698e44c90342a01c36f4543190d642f31f59550ff5666e1",
+              "runtime": {
+                "samples": 74400,
+                "latency": 6,
+                "peak": 3.493983507156372,
+                "rms": 2.551482058347464,
+                "sample_rate": 48000,
+                "oversampling": 4,
+                "block_size": 256,
+                "events": 0
+              }
+            },
+            "low0.0": {
+              "input_sha256": "ecbac99474e9cd93e01fe7e32e7ab7a3badf6c9e75020152a19e543792f0caf7",
+              "output_sha256": "a909355d013d30f476b1e2e25a3e325f932d44351c6ec4a68cf24d5e37f46645",
+              "runtime": {
+                "samples": 74400,
+                "latency": 6,
+                "peak": 3.485624313354492,
+                "rms": 2.289147659151963,
+                "sample_rate": 48000,
+                "oversampling": 4,
+                "block_size": 256,
+                "events": 0
+              }
+            },
+            "low0.03": {
+              "input_sha256": "c08077f8542046a79ab305f5ed700e92b609f7a94f8381cde30ef207e5111e2d",
+              "output_sha256": "bda8a57308f97aff666d26a6dab96f8f02a2c794eed54331780a4a7f18845a51",
+              "runtime": {
+                "samples": 74400,
+                "latency": 6,
+                "peak": 3.493753433227539,
+                "rms": 2.521968488886774,
+                "sample_rate": 48000,
+                "oversampling": 4,
+                "block_size": 256,
+                "events": 0
+              }
+            }
+          }
+        },
+        "3": {
+          "label": "all native core audio memory",
+          "whole200ms_delta_rms_dbfs": -189.64646515132102,
+          "onset20ms_delta_rms_dbfs": -179.64646515132102,
+          "outputs": {
+            "high0.0": {
+              "input_sha256": "1cf1bfdc92b1158197112d59ef76334f2849efb9af9084b01d7913635633ba4b",
+              "output_sha256": "7ae8bc5d6326141edc9c5489e2a0bac00e5ae415e98f918f10c4a75b325a96e7",
+              "runtime": {
+                "samples": 74400,
+                "latency": 6,
+                "peak": 3.493983507156372,
+                "rms": 2.326965694574473,
+                "sample_rate": 48000,
+                "oversampling": 4,
+                "block_size": 256,
+                "events": 0
+              }
+            },
+            "high0.03": {
+              "input_sha256": "f74f4b2cec9cdb0097e541b5017f1eaa428afa1748eac1e27273c97ab589595b",
+              "output_sha256": "0c4ca7868b3fe82946f028a77ef722f21cb132c985b73da72f53cd1af5de6a01",
+              "runtime": {
+                "samples": 74400,
+                "latency": 6,
+                "peak": 3.493983507156372,
+                "rms": 2.556406536540536,
+                "sample_rate": 48000,
+                "oversampling": 4,
+                "block_size": 256,
+                "events": 0
+              }
+            },
+            "low0.0": {
+              "input_sha256": "ecbac99474e9cd93e01fe7e32e7ab7a3badf6c9e75020152a19e543792f0caf7",
+              "output_sha256": "5a468d35fe3f86fc3bc891db08a2208b340041eacbfe2183146ecea1ef176f37",
+              "runtime": {
+                "samples": 74400,
+                "latency": 6,
+                "peak": 3.485624313354492,
+                "rms": 2.289147658879258,
+                "sample_rate": 48000,
+                "oversampling": 4,
+                "block_size": 256,
+                "events": 0
+              }
+            },
+            "low0.03": {
+              "input_sha256": "c08077f8542046a79ab305f5ed700e92b609f7a94f8381cde30ef207e5111e2d",
+              "output_sha256": "355d53d5233f106522abba8e6aac4ac936c44235485dfabbfd22a479026fc4b1",
+              "runtime": {
+                "samples": 74400,
+                "latency": 6,
+                "peak": 3.493781566619873,
+                "rms": 2.522031332179598,
+                "sample_rate": 48000,
+                "oversampling": 4,
+                "block_size": 256,
+                "events": 0
+              }
+            }
+          }
+        },
+        "4": {
+          "label": "sag",
+          "whole200ms_delta_rms_dbfs": -38.74852029653681,
+          "onset20ms_delta_rms_dbfs": -31.74890407873241,
+          "outputs": {
+            "high0.0": {
+              "input_sha256": "1cf1bfdc92b1158197112d59ef76334f2849efb9af9084b01d7913635633ba4b",
+              "output_sha256": "2936abddfa83f82f402af4d251762056879808278fe45db28283b494e374064f",
+              "runtime": {
+                "samples": 74400,
+                "latency": 6,
+                "peak": 3.493983507156372,
+                "rms": 2.326965697642163,
+                "sample_rate": 48000,
+                "oversampling": 4,
+                "block_size": 256,
+                "events": 0
+              }
+            },
+            "high0.03": {
+              "input_sha256": "f74f4b2cec9cdb0097e541b5017f1eaa428afa1748eac1e27273c97ab589595b",
+              "output_sha256": "f6c6cafde3e27487b783bed9f8207e8df900d0d7fc69a89c322993043299a31e",
+              "runtime": {
+                "samples": 74400,
+                "latency": 6,
+                "peak": 3.493983507156372,
+                "rms": 2.553639068584882,
+                "sample_rate": 48000,
+                "oversampling": 4,
+                "block_size": 256,
+                "events": 0
+              }
+            },
+            "low0.0": {
+              "input_sha256": "ecbac99474e9cd93e01fe7e32e7ab7a3badf6c9e75020152a19e543792f0caf7",
+              "output_sha256": "5be344b52d216050eec880a9cec9c9eadb98b863c91cb56c21a99a1716edea80",
+              "runtime": {
+                "samples": 74400,
+                "latency": 6,
+                "peak": 3.485624313354492,
+                "rms": 2.289147659151963,
+                "sample_rate": 48000,
+                "oversampling": 4,
+                "block_size": 256,
+                "events": 0
+              }
+            },
+            "low0.03": {
+              "input_sha256": "c08077f8542046a79ab305f5ed700e92b609f7a94f8381cde30ef207e5111e2d",
+              "output_sha256": "b4c58c71d68bdf3072f68d2cc5733112673e512f48383f25775950ae92256443",
+              "runtime": {
+                "samples": 74400,
+                "latency": 6,
+                "peak": 3.493785858154297,
+                "rms": 2.522006127052615,
+                "sample_rate": 48000,
+                "oversampling": 4,
+                "block_size": 256,
+                "events": 0
+              }
+            }
+          }
+        },
+        "5": {
+          "label": "blocking",
+          "whole200ms_delta_rms_dbfs": -41.06339804159881,
+          "onset20ms_delta_rms_dbfs": -32.602095233206455,
+          "outputs": {
+            "high0.0": {
+              "input_sha256": "1cf1bfdc92b1158197112d59ef76334f2849efb9af9084b01d7913635633ba4b",
+              "output_sha256": "d4fdf3a5c25c1606fb967c17139f89b85d07248f61b3ed682386dd21dfbbe19b",
+              "runtime": {
+                "samples": 74400,
+                "latency": 6,
+                "peak": 3.493983507156372,
+                "rms": 2.326965697642165,
+                "sample_rate": 48000,
+                "oversampling": 4,
+                "block_size": 256,
+                "events": 0
+              }
+            },
+            "high0.03": {
+              "input_sha256": "f74f4b2cec9cdb0097e541b5017f1eaa428afa1748eac1e27273c97ab589595b",
+              "output_sha256": "93c0e62af8041214dd37b161fa5a09dccff60545aa79ee8b19188a883177ffab",
+              "runtime": {
+                "samples": 74400,
+                "latency": 6,
+                "peak": 3.493983507156372,
+                "rms": 2.551493843888861,
+                "sample_rate": 48000,
+                "oversampling": 4,
+                "block_size": 256,
+                "events": 0
+              }
+            },
+            "low0.0": {
+              "input_sha256": "ecbac99474e9cd93e01fe7e32e7ab7a3badf6c9e75020152a19e543792f0caf7",
+              "output_sha256": "2a5d3fde55a20b0f92600be92595f2994626a4e38eae012e9c0a90fe89f7fdba",
+              "runtime": {
+                "samples": 74400,
+                "latency": 6,
+                "peak": 3.485624313354492,
+                "rms": 2.289147659151963,
+                "sample_rate": 48000,
+                "oversampling": 4,
+                "block_size": 256,
+                "events": 0
+              }
+            },
+            "low0.03": {
+              "input_sha256": "c08077f8542046a79ab305f5ed700e92b609f7a94f8381cde30ef207e5111e2d",
+              "output_sha256": "23e47956e34ac370d455346bbf873df51fb238fa6e25c8810d56890f73890f28",
+              "runtime": {
+                "samples": 74400,
+                "latency": 6,
+                "peak": 3.493754863739014,
+                "rms": 2.521964125514985,
+                "sample_rate": 48000,
+                "oversampling": 4,
+                "block_size": 256,
+                "events": 0
+              }
+            }
+          }
+        },
+        "6": {
+          "label": "bias",
+          "whole200ms_delta_rms_dbfs": -38.780073116451625,
+          "onset20ms_delta_rms_dbfs": -31.763290566746903,
+          "outputs": {
+            "high0.0": {
+              "input_sha256": "1cf1bfdc92b1158197112d59ef76334f2849efb9af9084b01d7913635633ba4b",
+              "output_sha256": "de5cc6e2c241f3aaf1288cb8840320a7caf52c0a9971654e310348cfc325d554",
+              "runtime": {
+                "samples": 74400,
+                "latency": 6,
+                "peak": 3.493983507156372,
+                "rms": 2.326965697642162,
+                "sample_rate": 48000,
+                "oversampling": 4,
+                "block_size": 256,
+                "events": 0
+              }
+            },
+            "high0.03": {
+              "input_sha256": "f74f4b2cec9cdb0097e541b5017f1eaa428afa1748eac1e27273c97ab589595b",
+              "output_sha256": "734d19cce7c383214acae7c41c3416f7cc001ba2178f963166a47c1dec5730e2",
+              "runtime": {
+                "samples": 74400,
+                "latency": 6,
+                "peak": 3.493983507156372,
+                "rms": 2.553627346153696,
+                "sample_rate": 48000,
+                "oversampling": 4,
+                "block_size": 256,
+                "events": 0
+              }
+            },
+            "low0.0": {
+              "input_sha256": "ecbac99474e9cd93e01fe7e32e7ab7a3badf6c9e75020152a19e543792f0caf7",
+              "output_sha256": "43e938465d44d93cfcf835e68b6d143780e658c85b617160e5d15a572d91883a",
+              "runtime": {
+                "samples": 74400,
+                "latency": 6,
+                "peak": 3.485624313354492,
+                "rms": 2.289147659151963,
+                "sample_rate": 48000,
+                "oversampling": 4,
+                "block_size": 256,
+                "events": 0
+              }
+            },
+            "low0.03": {
+              "input_sha256": "c08077f8542046a79ab305f5ed700e92b609f7a94f8381cde30ef207e5111e2d",
+              "output_sha256": "168748a24bc0cd55490aea41fac92983ab020f6cdc2d140cb009955587c2430d",
+              "runtime": {
+                "samples": 74400,
+                "latency": 6,
+                "peak": 3.493787050247192,
+                "rms": 2.522004770034813,
+                "sample_rate": 48000,
+                "oversampling": 4,
+                "block_size": 256,
+                "events": 0
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "channel": "Ragnarok",
+      "gap_ms": 750,
+      "onset": 84000,
+      "modes": {
+        "0": {
+          "label": "none",
+          "whole200ms_delta_rms_dbfs": -82.72706284174777,
+          "onset20ms_delta_rms_dbfs": -83.33548927453434,
+          "outputs": {
+            "high0.0": {
+              "input_sha256": "16ece129b4c39512a01c4ca424801dd5af59adce5658540e8d89af3db5dce376",
+              "output_sha256": "149700df57e23d45064efc4f876e0043300e54d8b7fdd1b728a7615ea225253b",
+              "runtime": {
+                "samples": 103200,
+                "latency": 6,
+                "peak": 3.493983507156372,
+                "rms": 1.975770971675105,
+                "sample_rate": 48000,
+                "oversampling": 4,
+                "block_size": 256,
+                "events": 0
+              }
+            },
+            "high0.03": {
+              "input_sha256": "b928013b08b77035e4d98a20cea9e6291f5ee9625b02919b15d4af7581e10bf2",
+              "output_sha256": "41f7655ae2c943b779b542dc0a0cc2ce42e40b4f2d5c42e930bfd84f95d97fdd",
+              "runtime": {
+                "samples": 103200,
+                "latency": 6,
+                "peak": 3.493983507156372,
+                "rms": 2.170592153857615,
+                "sample_rate": 48000,
+                "oversampling": 4,
+                "block_size": 256,
+                "events": 0
+              }
+            },
+            "low0.0": {
+              "input_sha256": "69f78ec76907c38278093753e891559f89f51a47adb33561a1fac0f512964d4b",
+              "output_sha256": "96ae41796757bc8b42a4f1dfc28f52f440421cb49ad37bb0d4ff1552a848ffc8",
+              "runtime": {
+                "samples": 103200,
+                "latency": 6,
+                "peak": 3.485624313354492,
+                "rms": 1.943660578844502,
+                "sample_rate": 48000,
+                "oversampling": 4,
+                "block_size": 256,
+                "events": 0
+              }
+            },
+            "low0.03": {
+              "input_sha256": "a108a0438b948d437758514c2d32e4c57a5191b0834c3afa59d58dedacdc84d1",
+              "output_sha256": "f8c414f8a4f22ab5cfea59d9c015c1fbf26afae70713355707677a7fbdfdb886",
+              "runtime": {
+                "samples": 103200,
+                "latency": 6,
+                "peak": 3.493781566619873,
+                "rms": 2.141397342814723,
+                "sample_rate": 48000,
+                "oversampling": 4,
+                "block_size": 256,
+                "events": 0
+              }
+            }
+          },
+          "prior_delta_rms_dbfs": -82.72706284174777
+        },
+        "1": {
+          "label": "output resonance and filters",
+          "whole200ms_delta_rms_dbfs": -82.72706284475905,
+          "onset20ms_delta_rms_dbfs": -83.33548927489873,
+          "outputs": {
+            "high0.0": {
+              "input_sha256": "16ece129b4c39512a01c4ca424801dd5af59adce5658540e8d89af3db5dce376",
+              "output_sha256": "4cc74e6b689c56fac074b8c3a6cff2f97f30e311e0c0771332860f9ec80ecb85",
+              "runtime": {
+                "samples": 103200,
+                "latency": 6,
+                "peak": 3.493983507156372,
+                "rms": 1.975770971675105,
+                "sample_rate": 48000,
+                "oversampling": 4,
+                "block_size": 256,
+                "events": 0
+              }
+            },
+            "high0.03": {
+              "input_sha256": "b928013b08b77035e4d98a20cea9e6291f5ee9625b02919b15d4af7581e10bf2",
+              "output_sha256": "8ed5fe51a9cb3a1d6ac15a550f46f1a346d94f712750d0d24f01c2092fdc772f",
+              "runtime": {
+                "samples": 103200,
+                "latency": 6,
+                "peak": 3.493983507156372,
+                "rms": 2.170592153857616,
+                "sample_rate": 48000,
+                "oversampling": 4,
+                "block_size": 256,
+                "events": 0
+              }
+            },
+            "low0.0": {
+              "input_sha256": "69f78ec76907c38278093753e891559f89f51a47adb33561a1fac0f512964d4b",
+              "output_sha256": "bfd96a8a65f2ba1c1a77a6df40c6972c444f4a05d76fa42616919cf0f433a337",
+              "runtime": {
+                "samples": 103200,
+                "latency": 6,
+                "peak": 3.485624313354492,
+                "rms": 1.943660578844502,
+                "sample_rate": 48000,
+                "oversampling": 4,
+                "block_size": 256,
+                "events": 0
+              }
+            },
+            "low0.03": {
+              "input_sha256": "a108a0438b948d437758514c2d32e4c57a5191b0834c3afa59d58dedacdc84d1",
+              "output_sha256": "37d9a20dbee08c9fed0eb0510759ae8e3af394d9f24fa076982875aad8c8fcb9",
+              "runtime": {
+                "samples": 103200,
+                "latency": 6,
+                "peak": 3.493781566619873,
+                "rms": 2.141397342814723,
+                "sample_rate": 48000,
+                "oversampling": 4,
+                "block_size": 256,
+                "events": 0
+              }
+            }
+          }
+        },
+        "2": {
+          "label": "sag+blocking+bias",
+          "whole200ms_delta_rms_dbfs": -168.08500901110548,
+          "onset20ms_delta_rms_dbfs": -160.91257967816998,
+          "outputs": {
+            "high0.0": {
+              "input_sha256": "16ece129b4c39512a01c4ca424801dd5af59adce5658540e8d89af3db5dce376",
+              "output_sha256": "149700df57e23d45064efc4f876e0043300e54d8b7fdd1b728a7615ea225253b",
+              "runtime": {
+                "samples": 103200,
+                "latency": 6,
+                "peak": 3.493983507156372,
+                "rms": 1.975770971675105,
+                "sample_rate": 48000,
+                "oversampling": 4,
+                "block_size": 256,
+                "events": 0
+              }
+            },
+            "high0.03": {
+              "input_sha256": "b928013b08b77035e4d98a20cea9e6291f5ee9625b02919b15d4af7581e10bf2",
+              "output_sha256": "8d0db3d492ede9bcb728ad400e8b82d80665009d461c465d9a4ff9b7896fad4c",
+              "runtime": {
+                "samples": 103200,
+                "latency": 6,
+                "peak": 3.493983507156372,
+                "rms": 2.170583707653435,
+                "sample_rate": 48000,
+                "oversampling": 4,
+                "block_size": 256,
+                "events": 0
+              }
+            },
+            "low0.0": {
+              "input_sha256": "69f78ec76907c38278093753e891559f89f51a47adb33561a1fac0f512964d4b",
+              "output_sha256": "96ae41796757bc8b42a4f1dfc28f52f440421cb49ad37bb0d4ff1552a848ffc8",
+              "runtime": {
+                "samples": 103200,
+                "latency": 6,
+                "peak": 3.485624313354492,
+                "rms": 1.943660578844502,
+                "sample_rate": 48000,
+                "oversampling": 4,
+                "block_size": 256,
+                "events": 0
+              }
+            },
+            "low0.03": {
+              "input_sha256": "a108a0438b948d437758514c2d32e4c57a5191b0834c3afa59d58dedacdc84d1",
+              "output_sha256": "8ea741f1351b576cb8ca64f9b949de4c9fb83c72835870821edc82f97343643c",
+              "runtime": {
+                "samples": 103200,
+                "latency": 6,
+                "peak": 3.493781566619873,
+                "rms": 2.141396541143919,
+                "sample_rate": 48000,
+                "oversampling": 4,
+                "block_size": 256,
+                "events": 0
+              }
+            }
+          }
+        },
+        "3": {
+          "label": "all native core audio memory",
+          "whole200ms_delta_rms_dbfs": -300.0,
+          "onset20ms_delta_rms_dbfs": -300.0,
+          "outputs": {
+            "high0.0": {
+              "input_sha256": "16ece129b4c39512a01c4ca424801dd5af59adce5658540e8d89af3db5dce376",
+              "output_sha256": "4cc74e6b689c56fac074b8c3a6cff2f97f30e311e0c0771332860f9ec80ecb85",
+              "runtime": {
+                "samples": 103200,
+                "latency": 6,
+                "peak": 3.493983507156372,
+                "rms": 1.975770971675105,
+                "sample_rate": 48000,
+                "oversampling": 4,
+                "block_size": 256,
+                "events": 0
+              }
+            },
+            "high0.03": {
+              "input_sha256": "b928013b08b77035e4d98a20cea9e6291f5ee9625b02919b15d4af7581e10bf2",
+              "output_sha256": "696bbe9c78f568eb51abac836add02a6dfe98e8d20c03f7595d101cee39af8da",
+              "runtime": {
+                "samples": 103200,
+                "latency": 6,
+                "peak": 3.493983507156372,
+                "rms": 2.170583707933228,
+                "sample_rate": 48000,
+                "oversampling": 4,
+                "block_size": 256,
+                "events": 0
+              }
+            },
+            "low0.0": {
+              "input_sha256": "69f78ec76907c38278093753e891559f89f51a47adb33561a1fac0f512964d4b",
+              "output_sha256": "bfd96a8a65f2ba1c1a77a6df40c6972c444f4a05d76fa42616919cf0f433a337",
+              "runtime": {
+                "samples": 103200,
+                "latency": 6,
+                "peak": 3.485624313354492,
+                "rms": 1.943660578844502,
+                "sample_rate": 48000,
+                "oversampling": 4,
+                "block_size": 256,
+                "events": 0
+              }
+            },
+            "low0.03": {
+              "input_sha256": "a108a0438b948d437758514c2d32e4c57a5191b0834c3afa59d58dedacdc84d1",
+              "output_sha256": "a5b9992a927b86c8ed3625b4042c37181cb00274c3596aa712aad99c0b272211",
+              "runtime": {
+                "samples": 103200,
+                "latency": 6,
+                "peak": 3.493781566619873,
+                "rms": 2.141396541135088,
+                "sample_rate": 48000,
+                "oversampling": 4,
+                "block_size": 256,
+                "events": 0
+              }
+            }
+          }
+        },
+        "4": {
+          "label": "sag",
+          "whole200ms_delta_rms_dbfs": -82.72706487313556,
+          "onset20ms_delta_rms_dbfs": -83.33551195026635,
+          "outputs": {
+            "high0.0": {
+              "input_sha256": "16ece129b4c39512a01c4ca424801dd5af59adce5658540e8d89af3db5dce376",
+              "output_sha256": "149700df57e23d45064efc4f876e0043300e54d8b7fdd1b728a7615ea225253b",
+              "runtime": {
+                "samples": 103200,
+                "latency": 6,
+                "peak": 3.493983507156372,
+                "rms": 1.975770971675105,
+                "sample_rate": 48000,
+                "oversampling": 4,
+                "block_size": 256,
+                "events": 0
+              }
+            },
+            "high0.03": {
+              "input_sha256": "b928013b08b77035e4d98a20cea9e6291f5ee9625b02919b15d4af7581e10bf2",
+              "output_sha256": "df0c8ebad10c0796cb34f65a054fa77f1b7f9c3d3f481659bf67bfc0c1140819",
+              "runtime": {
+                "samples": 103200,
+                "latency": 6,
+                "peak": 3.493983507156372,
+                "rms": 2.17059215391186,
+                "sample_rate": 48000,
+                "oversampling": 4,
+                "block_size": 256,
+                "events": 0
+              }
+            },
+            "low0.0": {
+              "input_sha256": "69f78ec76907c38278093753e891559f89f51a47adb33561a1fac0f512964d4b",
+              "output_sha256": "96ae41796757bc8b42a4f1dfc28f52f440421cb49ad37bb0d4ff1552a848ffc8",
+              "runtime": {
+                "samples": 103200,
+                "latency": 6,
+                "peak": 3.485624313354492,
+                "rms": 1.943660578844502,
+                "sample_rate": 48000,
+                "oversampling": 4,
+                "block_size": 256,
+                "events": 0
+              }
+            },
+            "low0.03": {
+              "input_sha256": "a108a0438b948d437758514c2d32e4c57a5191b0834c3afa59d58dedacdc84d1",
+              "output_sha256": "a24d663a758e6e4509ef357ab2e3a4488a7f714bc840320b2b63a152562abbcd",
+              "runtime": {
+                "samples": 103200,
+                "latency": 6,
+                "peak": 3.493781566619873,
+                "rms": 2.141397342817575,
+                "sample_rate": 48000,
+                "oversampling": 4,
+                "block_size": 256,
+                "events": 0
+              }
+            }
+          }
+        },
+        "5": {
+          "label": "blocking",
+          "whole200ms_delta_rms_dbfs": -168.0888719328256,
+          "onset20ms_delta_rms_dbfs": -160.6841701113777,
+          "outputs": {
+            "high0.0": {
+              "input_sha256": "16ece129b4c39512a01c4ca424801dd5af59adce5658540e8d89af3db5dce376",
+              "output_sha256": "149700df57e23d45064efc4f876e0043300e54d8b7fdd1b728a7615ea225253b",
+              "runtime": {
+                "samples": 103200,
+                "latency": 6,
+                "peak": 3.493983507156372,
+                "rms": 1.975770971675105,
+                "sample_rate": 48000,
+                "oversampling": 4,
+                "block_size": 256,
+                "events": 0
+              }
+            },
+            "high0.03": {
+              "input_sha256": "b928013b08b77035e4d98a20cea9e6291f5ee9625b02919b15d4af7581e10bf2",
+              "output_sha256": "904d13feba32ccdfa1e0d39ac4445c01e1bd708cf966d70dbeb0853d7f9659f0",
+              "runtime": {
+                "samples": 103200,
+                "latency": 6,
+                "peak": 3.493983507156372,
+                "rms": 2.170583707613039,
+                "sample_rate": 48000,
+                "oversampling": 4,
+                "block_size": 256,
+                "events": 0
+              }
+            },
+            "low0.0": {
+              "input_sha256": "69f78ec76907c38278093753e891559f89f51a47adb33561a1fac0f512964d4b",
+              "output_sha256": "96ae41796757bc8b42a4f1dfc28f52f440421cb49ad37bb0d4ff1552a848ffc8",
+              "runtime": {
+                "samples": 103200,
+                "latency": 6,
+                "peak": 3.485624313354492,
+                "rms": 1.943660578844502,
+                "sample_rate": 48000,
+                "oversampling": 4,
+                "block_size": 256,
+                "events": 0
+              }
+            },
+            "low0.03": {
+              "input_sha256": "a108a0438b948d437758514c2d32e4c57a5191b0834c3afa59d58dedacdc84d1",
+              "output_sha256": "9474ce1307cff331764872f03e8662f9c54a0beb69a272b5048c82a5e4844d5a",
+              "runtime": {
+                "samples": 103200,
+                "latency": 6,
+                "peak": 3.493781566619873,
+                "rms": 2.14139654105375,
+                "sample_rate": 48000,
+                "oversampling": 4,
+                "block_size": 256,
+                "events": 0
+              }
+            }
+          }
+        },
+        "6": {
+          "label": "bias",
+          "whole200ms_delta_rms_dbfs": -82.7270733109604,
+          "onset20ms_delta_rms_dbfs": -83.33551369335241,
+          "outputs": {
+            "high0.0": {
+              "input_sha256": "16ece129b4c39512a01c4ca424801dd5af59adce5658540e8d89af3db5dce376",
+              "output_sha256": "149700df57e23d45064efc4f876e0043300e54d8b7fdd1b728a7615ea225253b",
+              "runtime": {
+                "samples": 103200,
+                "latency": 6,
+                "peak": 3.493983507156372,
+                "rms": 1.975770971675105,
+                "sample_rate": 48000,
+                "oversampling": 4,
+                "block_size": 256,
+                "events": 0
+              }
+            },
+            "high0.03": {
+              "input_sha256": "b928013b08b77035e4d98a20cea9e6291f5ee9625b02919b15d4af7581e10bf2",
+              "output_sha256": "7c5b97cced583fdc467f047dfa3dfe36987cad09c00f5912053e502d0a994e63",
+              "runtime": {
+                "samples": 103200,
+                "latency": 6,
+                "peak": 3.493983507156372,
+                "rms": 2.170592153829285,
+                "sample_rate": 48000,
+                "oversampling": 4,
+                "block_size": 256,
+                "events": 0
+              }
+            },
+            "low0.0": {
+              "input_sha256": "69f78ec76907c38278093753e891559f89f51a47adb33561a1fac0f512964d4b",
+              "output_sha256": "96ae41796757bc8b42a4f1dfc28f52f440421cb49ad37bb0d4ff1552a848ffc8",
+              "runtime": {
+                "samples": 103200,
+                "latency": 6,
+                "peak": 3.485624313354492,
+                "rms": 1.943660578844502,
+                "sample_rate": 48000,
+                "oversampling": 4,
+                "block_size": 256,
+                "events": 0
+              }
+            },
+            "low0.03": {
+              "input_sha256": "a108a0438b948d437758514c2d32e4c57a5191b0834c3afa59d58dedacdc84d1",
+              "output_sha256": "d0efefcde310e3e142829be743404809417834e553e534084704421c7ad76471",
+              "runtime": {
+                "samples": 103200,
+                "latency": 6,
+                "peak": 3.493781566619873,
+                "rms": 2.14139734282853,
+                "sample_rate": 48000,
+                "oversampling": 4,
+                "block_size": 256,
+                "events": 0
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}

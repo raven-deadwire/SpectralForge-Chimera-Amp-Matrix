@@ -1,0 +1,290 @@
+{
+  "plan_sha256": "4bae575ca1e5484e84d248778075d59f9c7ab8ef052503a7b3f3b572db5894d2",
+  "model_sha256": "df28b1397a973d28c50d53d3bdab2e4c63df8850ebb39ba2efa8c1a27f17668d",
+  "probe_binary_sha256": "5dfa0df2609d92da2863141cdfa0d119d9ea8a358d48fd7a6f6eb74bfbe7fe0a",
+  "validation_input_sha256": "6342789050269e87bb2f1e2bc055c1e808c6ee5738b0ee9bf3d0928ef397885a",
+  "quality_profile": {
+    "id": "nastrond-tone3000-fidelity-v1",
+    "authority": "project acceptance policy; not a TONE3000 certification",
+    "window_samples": 4096,
+    "skip_samples": 6347,
+    "active_reference_rms_min_dbfs": -60.0,
+    "full_esr_max_exclusive": 0.01,
+    "esr_guidance_source": "https://www.tone3000.com/guides/capture-your-gear-with-nam-dry-wet",
+    "active_window_esr_median_max": 0.005,
+    "active_window_esr_p95_max": 0.01,
+    "active_window_esr_worst_max": 0.02,
+    "quiet_residual_rms_max_dbfs": -70.0,
+    "quiet_residual_peak_max_dbfs": -60.0,
+    "rms_error_max_db": 0.5,
+    "peak_error_max_db": 1.0,
+    "steady_silence_rms_max_dbfs": -80.0,
+    "engine_parity_residual_max_dbfs": -80.0,
+    "level_anchor": "delivered v0.2 reference_output_scale, frozen per channel",
+    "source_output_scale": {
+      "Fenrir": 0.09195752759643712,
+      "Surtr": 0.09034985741800312,
+      "Nidhoggr": 0.0860012970451488,
+      "Fimbulvetr": 0.09721294970620417,
+      "Ragnarok": 0.05162876564505051
+    }
+  },
+  "optimizer_updates": 0,
+  "release_approved": false,
+  "fidelity": "NOT_EVALUATED: changed dilation with old weights is a runtime fixture only",
+  "timing_scope": "shared Linux CPU, offline mono 48k; not DAW/realtime qualification",
+  "variants": {
+    "1": {
+      "rf_samples": 6347,
+      "history_ms": 132.22916666666666,
+      "dense_support": true,
+      "weights_unchanged": true,
+      "nam_sha256": "5d1a7b31c44ca0f6c2d8d2489834af86e54d38b80c7d60638657594d1dab4d53",
+      "bounds": {
+        "Fenrir": {
+          "native_sha256": "ae97c65d1ffeb93c8900b741f3f3367bd6e0bb7f69fd0d0bdb8c1b3cc39c8f39",
+          "worst_rms": -121.2108878040465,
+          "scope": "necessary lower bound only, no sufficiency or trained fidelity claim"
+        },
+        "Surtr": {
+          "native_sha256": "44228d20125d02f5ba29c9e2803a444bb5425ad9339a9eb1dbb1c7db27c72336",
+          "worst_rms": -78.67089426521835,
+          "scope": "necessary lower bound only, no sufficiency or trained fidelity claim"
+        },
+        "Nidhoggr": {
+          "native_sha256": "4ee26424196c4cde7e9cc862857ee4b916f05060721e4d7b70f6dd99fed43089",
+          "worst_rms": -70.29756556099807,
+          "scope": "necessary lower bound only, no sufficiency or trained fidelity claim"
+        },
+        "Fimbulvetr": {
+          "native_sha256": "43f1aee85524e89b0a739e6df43fc38a6702f51801f343e7be66e6ee9779aec6",
+          "worst_rms": -68.03325797098152,
+          "scope": "necessary lower bound only, no sufficiency or trained fidelity claim"
+        },
+        "Ragnarok": {
+          "native_sha256": "18146273b91c7c0ad8bc6fdfb2f6072af92033a8753ba44f2753ad791e3653c1",
+          "worst_rms": -96.04209153111603,
+          "scope": "necessary lower bound only, no sufficiency or trained fidelity claim"
+        }
+      },
+      "runtime": {
+        "64": {
+          "a2_gate": true,
+          "audio_seconds": 4.0,
+          "block": 64,
+          "deadline_misses": 265,
+          "mean_seconds": 0.0005675122723333328,
+          "p99_seconds": 0.007086781,
+          "processing_seconds": 1.7025368169999984,
+          "release_approved": false,
+          "samples": 192000,
+          "scope": "format and offline CPU only; changed dilation weights are not trained",
+          "output_sha256": "4aac0c40d9daaf850ba1ba70caf06422079732aa8afab403cea88173a24cae04"
+        },
+        "256": {
+          "a2_gate": true,
+          "audio_seconds": 4.0,
+          "block": 256,
+          "deadline_misses": 5,
+          "mean_seconds": 0.0014180317173333335,
+          "p99_seconds": 0.004704113,
+          "processing_seconds": 1.0635237880000001,
+          "release_approved": false,
+          "samples": 192000,
+          "scope": "format and offline CPU only; changed dilation weights are not trained",
+          "output_sha256": "4aac0c40d9daaf850ba1ba70caf06422079732aa8afab403cea88173a24cae04"
+        }
+      },
+      "block_max_abs_delta": 0.0
+    },
+    "2": {
+      "rf_samples": 12649,
+      "history_ms": 263.5208333333333,
+      "dense_support": true,
+      "weights_unchanged": true,
+      "nam_sha256": "c9a576fef9ee42aef32ddf84fd379ce587f233d7eac616b6da17f2a318085272",
+      "bounds": {
+        "Fenrir": {
+          "native_sha256": "ae97c65d1ffeb93c8900b741f3f3367bd6e0bb7f69fd0d0bdb8c1b3cc39c8f39",
+          "worst_rms": -179.08863606108295,
+          "scope": "necessary lower bound only, no sufficiency or trained fidelity claim"
+        },
+        "Surtr": {
+          "native_sha256": "44228d20125d02f5ba29c9e2803a444bb5425ad9339a9eb1dbb1c7db27c72336",
+          "worst_rms": -107.71849707368263,
+          "scope": "necessary lower bound only, no sufficiency or trained fidelity claim"
+        },
+        "Nidhoggr": {
+          "native_sha256": "4ee26424196c4cde7e9cc862857ee4b916f05060721e4d7b70f6dd99fed43089",
+          "worst_rms": -95.16043954379569,
+          "scope": "necessary lower bound only, no sufficiency or trained fidelity claim"
+        },
+        "Fimbulvetr": {
+          "native_sha256": "43f1aee85524e89b0a739e6df43fc38a6702f51801f343e7be66e6ee9779aec6",
+          "worst_rms": -86.46737199730049,
+          "scope": "necessary lower bound only, no sufficiency or trained fidelity claim"
+        },
+        "Ragnarok": {
+          "native_sha256": "18146273b91c7c0ad8bc6fdfb2f6072af92033a8753ba44f2753ad791e3653c1",
+          "worst_rms": -139.22481280209604,
+          "scope": "necessary lower bound only, no sufficiency or trained fidelity claim"
+        }
+      },
+      "runtime": {
+        "64": {
+          "a2_gate": false,
+          "audio_seconds": 4.0,
+          "block": 64,
+          "deadline_misses": 43,
+          "mean_seconds": 0.0003005825463333331,
+          "p99_seconds": 0.0017474,
+          "processing_seconds": 0.9017476389999992,
+          "release_approved": false,
+          "samples": 192000,
+          "scope": "format and offline CPU only; changed dilation weights are not trained",
+          "output_sha256": "bf964568118c875e82c524f1f6c6c0861854b701a84724aa0a1e2c0cecdc9d3b"
+        },
+        "256": {
+          "a2_gate": false,
+          "audio_seconds": 4.0,
+          "block": 256,
+          "deadline_misses": 22,
+          "mean_seconds": 0.0018911122453333339,
+          "p99_seconds": 0.015700297,
+          "processing_seconds": 1.4183341840000003,
+          "release_approved": false,
+          "samples": 192000,
+          "scope": "format and offline CPU only; changed dilation weights are not trained",
+          "output_sha256": "bf964568118c875e82c524f1f6c6c0861854b701a84724aa0a1e2c0cecdc9d3b"
+        }
+      },
+      "block_max_abs_delta": 0.0
+    },
+    "4": {
+      "rf_samples": 25253,
+      "history_ms": 526.1041666666666,
+      "dense_support": true,
+      "weights_unchanged": true,
+      "nam_sha256": "233ae0e2575635cd8ce140892e084c11ec40f39e6a66b6561340884d7db322a3",
+      "bounds": {
+        "Fenrir": {
+          "native_sha256": "ae97c65d1ffeb93c8900b741f3f3367bd6e0bb7f69fd0d0bdb8c1b3cc39c8f39",
+          "worst_rms": -200.0,
+          "scope": "necessary lower bound only, no sufficiency or trained fidelity claim"
+        },
+        "Surtr": {
+          "native_sha256": "44228d20125d02f5ba29c9e2803a444bb5425ad9339a9eb1dbb1c7db27c72336",
+          "worst_rms": -200.0,
+          "scope": "necessary lower bound only, no sufficiency or trained fidelity claim"
+        },
+        "Nidhoggr": {
+          "native_sha256": "4ee26424196c4cde7e9cc862857ee4b916f05060721e4d7b70f6dd99fed43089",
+          "worst_rms": -200.0,
+          "scope": "necessary lower bound only, no sufficiency or trained fidelity claim"
+        },
+        "Fimbulvetr": {
+          "native_sha256": "43f1aee85524e89b0a739e6df43fc38a6702f51801f343e7be66e6ee9779aec6",
+          "worst_rms": -200.0,
+          "scope": "necessary lower bound only, no sufficiency or trained fidelity claim"
+        },
+        "Ragnarok": {
+          "native_sha256": "18146273b91c7c0ad8bc6fdfb2f6072af92033a8753ba44f2753ad791e3653c1",
+          "worst_rms": -200.0,
+          "scope": "necessary lower bound only, no sufficiency or trained fidelity claim"
+        }
+      },
+      "runtime": {
+        "64": {
+          "a2_gate": false,
+          "audio_seconds": 4.0,
+          "block": 64,
+          "deadline_misses": 126,
+          "mean_seconds": 0.00043794826733333376,
+          "p99_seconds": 0.002678568,
+          "processing_seconds": 1.3138448020000013,
+          "release_approved": false,
+          "samples": 192000,
+          "scope": "format and offline CPU only; changed dilation weights are not trained",
+          "output_sha256": "0aed07de598d4b8922154ff94890e8513a6c590733cf50abc85be2c023395623"
+        },
+        "256": {
+          "a2_gate": false,
+          "audio_seconds": 4.0,
+          "block": 256,
+          "deadline_misses": 4,
+          "mean_seconds": 0.0006703787346666663,
+          "p99_seconds": 0.002494704,
+          "processing_seconds": 0.5027840509999997,
+          "release_approved": false,
+          "samples": 192000,
+          "scope": "format and offline CPU only; changed dilation weights are not trained",
+          "output_sha256": "0aed07de598d4b8922154ff94890e8513a6c590733cf50abc85be2c023395623"
+        }
+      },
+      "block_max_abs_delta": 0.0
+    },
+    "8": {
+      "rf_samples": 50461,
+      "history_ms": 1051.2708333333333,
+      "dense_support": true,
+      "weights_unchanged": true,
+      "nam_sha256": "5bb068adee72323bf886122b5075d136351dfdb4097cca1fcb45cdb20bd2c19f",
+      "bounds": {
+        "Fenrir": {
+          "native_sha256": "ae97c65d1ffeb93c8900b741f3f3367bd6e0bb7f69fd0d0bdb8c1b3cc39c8f39",
+          "worst_rms": -200.0,
+          "scope": "necessary lower bound only, no sufficiency or trained fidelity claim"
+        },
+        "Surtr": {
+          "native_sha256": "44228d20125d02f5ba29c9e2803a444bb5425ad9339a9eb1dbb1c7db27c72336",
+          "worst_rms": -200.0,
+          "scope": "necessary lower bound only, no sufficiency or trained fidelity claim"
+        },
+        "Nidhoggr": {
+          "native_sha256": "4ee26424196c4cde7e9cc862857ee4b916f05060721e4d7b70f6dd99fed43089",
+          "worst_rms": -200.0,
+          "scope": "necessary lower bound only, no sufficiency or trained fidelity claim"
+        },
+        "Fimbulvetr": {
+          "native_sha256": "43f1aee85524e89b0a739e6df43fc38a6702f51801f343e7be66e6ee9779aec6",
+          "worst_rms": -200.0,
+          "scope": "necessary lower bound only, no sufficiency or trained fidelity claim"
+        },
+        "Ragnarok": {
+          "native_sha256": "18146273b91c7c0ad8bc6fdfb2f6072af92033a8753ba44f2753ad791e3653c1",
+          "worst_rms": -200.0,
+          "scope": "necessary lower bound only, no sufficiency or trained fidelity claim"
+        }
+      },
+      "runtime": {
+        "64": {
+          "a2_gate": false,
+          "audio_seconds": 4.0,
+          "block": 64,
+          "deadline_misses": 64,
+          "mean_seconds": 0.00028741265900000026,
+          "p99_seconds": 0.002041663,
+          "processing_seconds": 0.8622379770000007,
+          "release_approved": false,
+          "samples": 192000,
+          "scope": "format and offline CPU only; changed dilation weights are not trained",
+          "output_sha256": "d3ca330e00c3955de63caef848ffed7937b1f835723062e13e25f5ef6e3d7ffc"
+        },
+        "256": {
+          "a2_gate": false,
+          "audio_seconds": 4.0,
+          "block": 256,
+          "deadline_misses": 39,
+          "mean_seconds": 0.0025329941613333328,
+          "p99_seconds": 0.021452877,
+          "processing_seconds": 1.8997456209999997,
+          "release_approved": false,
+          "samples": 192000,
+          "scope": "format and offline CPU only; changed dilation weights are not trained",
+          "output_sha256": "d3ca330e00c3955de63caef848ffed7937b1f835723062e13e25f5ef6e3d7ffc"
+        }
+      },
+      "block_max_abs_delta": 0.0
+    }
+  }
+}
