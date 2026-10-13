@@ -1,0 +1,160 @@
+{
+  "reason": "A subsequent startup-subtracted CPU estimate was nonpositive; shared-host timings cannot establish a stable ranking. See cpu-run.log. No timing pass or CPU saving is claimed.",
+  "protocol": "one-sample startup/prewarm control followed by four-second archived input per variant/block; subtract child user+system CPU",
+  "source_results_sha256": "01ad1118cb6638c0061ac2cc4700f682a8737fc5bfd7a79c0b61f1e13e5dddc6",
+  "tool_sha256": "5dfa0df2609d92da2863141cdfa0d119d9ea8a358d48fd7a6f6eb74bfbe7fe0a",
+  "release_approved": false,
+  "realtime_qualified": false,
+  "variants": {
+    "1": {
+      "64": {
+        "startup_control": {
+          "user_seconds": 0.11537199999999999,
+          "system_seconds": 0.037015,
+          "runtime": {
+            "a2_gate": true,
+            "audio_seconds": 2.0833333333333333e-05,
+            "block": 64,
+            "deadline_misses": 0,
+            "mean_seconds": 9.635e-06,
+            "p99_seconds": 9.635e-06,
+            "processing_seconds": 9.635e-06,
+            "release_approved": false,
+            "samples": 1,
+            "scope": "format and offline CPU only; changed dilation weights are not trained"
+          }
+        },
+        "full_run": {
+          "user_seconds": 3.250318,
+          "system_seconds": 0.08182500000000001,
+          "runtime": {
+            "a2_gate": true,
+            "audio_seconds": 4.0,
+            "block": 64,
+            "deadline_misses": 510,
+            "mean_seconds": 0.000993210536666666,
+            "p99_seconds": 0.008095637,
+            "processing_seconds": 2.979631609999998,
+            "release_approved": false,
+            "samples": 192000,
+            "scope": "format and offline CPU only; changed dilation weights are not trained"
+          }
+        },
+        "estimated_cpu_seconds": 3.1797560000000002,
+        "estimated_one_core_percent": 79.4943140328856
+      },
+      "256": {
+        "startup_control": {
+          "user_seconds": 0.10767300000000013,
+          "system_seconds": 0.03067399999999998,
+          "runtime": {
+            "a2_gate": true,
+            "audio_seconds": 2.0833333333333333e-05,
+            "block": 256,
+            "deadline_misses": 0,
+            "mean_seconds": 0.00024235,
+            "p99_seconds": 0.00024235,
+            "processing_seconds": 0.00024235,
+            "release_approved": false,
+            "samples": 1,
+            "scope": "format and offline CPU only; changed dilation weights are not trained"
+          }
+        },
+        "full_run": {
+          "user_seconds": 4.380752,
+          "system_seconds": 0.125734,
+          "runtime": {
+            "a2_gate": true,
+            "audio_seconds": 4.0,
+            "block": 256,
+            "deadline_misses": 232,
+            "mean_seconds": 0.0054889208120000015,
+            "p99_seconds": 0.029365252,
+            "processing_seconds": 4.116690609000001,
+            "release_approved": false,
+            "samples": 192000,
+            "scope": "format and offline CPU only; changed dilation weights are not trained"
+          }
+        },
+        "estimated_cpu_seconds": 4.368139,
+        "estimated_one_core_percent": 109.2040437710613
+      }
+    },
+    "2": {
+      "64": {
+        "startup_control": {
+          "user_seconds": 0.16096999999999895,
+          "system_seconds": 0.03398800000000002,
+          "runtime": {
+            "a2_gate": false,
+            "audio_seconds": 2.0833333333333333e-05,
+            "block": 64,
+            "deadline_misses": 0,
+            "mean_seconds": 1.0758e-05,
+            "p99_seconds": 1.0758e-05,
+            "processing_seconds": 1.0758e-05,
+            "release_approved": false,
+            "samples": 1,
+            "scope": "format and offline CPU only; changed dilation weights are not trained"
+          }
+        },
+        "full_run": {
+          "user_seconds": 0.8304370000000016,
+          "system_seconds": 0.02121099999999998,
+          "runtime": {
+            "a2_gate": false,
+            "audio_seconds": 4.0,
+            "block": 64,
+            "deadline_misses": 23,
+            "mean_seconds": 0.0002562908323333339,
+            "p99_seconds": 0.001196763,
+            "processing_seconds": 0.7688724970000016,
+            "release_approved": false,
+            "samples": 192000,
+            "scope": "format and offline CPU only; changed dilation weights are not trained"
+          }
+        },
+        "estimated_cpu_seconds": 0.6566900000000027,
+        "estimated_one_core_percent": 16.417335506955833
+      },
+      "256": {
+        "startup_control": {
+          "user_seconds": 0.12244899999999959,
+          "system_seconds": 0.03256300000000001,
+          "runtime": {
+            "a2_gate": false,
+            "audio_seconds": 2.0833333333333333e-05,
+            "block": 256,
+            "deadline_misses": 0,
+            "mean_seconds": 4.3786e-05,
+            "p99_seconds": 4.3786e-05,
+            "processing_seconds": 4.3786e-05,
+            "release_approved": false,
+            "samples": 1,
+            "scope": "format and offline CPU only; changed dilation weights are not trained"
+          }
+        },
+        "full_run": {
+          "user_seconds": 1.495362,
+          "system_seconds": 0.08673799999999998,
+          "runtime": {
+            "a2_gate": false,
+            "audio_seconds": 4.0,
+            "block": 256,
+            "deadline_misses": 22,
+            "mean_seconds": 0.0017804094693333336,
+            "p99_seconds": 0.006342416,
+            "processing_seconds": 1.3353071020000002,
+            "release_approved": false,
+            "samples": 192000,
+            "scope": "format and offline CPU only; changed dilation weights are not trained"
+          }
+        },
+        "estimated_cpu_seconds": 1.4270880000000004,
+        "estimated_one_core_percent": 35.67738581971781
+      }
+    }
+  },
+  "status": "INVALID_MEASUREMENT",
+  "ranking_usable": false
+}

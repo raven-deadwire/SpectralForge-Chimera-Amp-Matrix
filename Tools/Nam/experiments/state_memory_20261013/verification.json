@@ -1,0 +1,9 @@
+{
+  "verified": true,
+  "validation_channels": 5,
+  "rf_variants": 4,
+  "state_audio_files_and_statistics": 168,
+  "hybrid_split_cases": 10,
+  "release_approved": false,
+  "scope": "retained evidence integrity/math only, no additional learning or approval"
+}
