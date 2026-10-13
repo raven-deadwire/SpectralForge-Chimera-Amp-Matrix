@@ -1,4 +1,7 @@
 #pragma once
+#if CHIMERA_TUNER_DIAGNOSTICS
+#include "../Tests/TunerDiagnostics.h"
+#endif
 #include <juce_dsp/juce_dsp.h>
 #include "PolyPitch.h"
 #include "LifecycleTrace.h"
@@ -129,6 +132,9 @@ class Tuner : private juce::Thread {
     std::atomic<unsigned> generation{0}, pitchGeneration{0};
     std::atomic<float> hz{0}, certainty{0};
 public:
+#if CHIMERA_TUNER_DIAGNOSTICS
+    std::unique_ptr<tunerDiagnostics::Trace> diagnosticTrace=std::make_unique<tunerDiagnostics::Trace>();
+#endif
     Tuner() : Thread("Chimera tuner") {}
     ~Tuner() override { stop(); }
     void requestStop() { lifecycle::write("tuner.stop.requested", this); signalThreadShouldExit(); notify(); }
@@ -144,24 +150,42 @@ public:
     }
     void push(const juce::AudioBuffer<float>& buffer,bool active)
     {
+#if CHIMERA_TUNER_DIAGNOSTICS
+        tunerDiagnostics::PushScope diagnosticPush;
+#endif
         if(enabled.exchange(active)!=active){generation.fetch_add(1);low1=low2=0;phase=0;previousChannel=-1;}
         if(!active || buffer.getNumChannels()==0) return;
         int channel=0;
         if(buffer.getNumChannels()>1 && buffer.getRMSLevel(1,0,buffer.getNumSamples())>buffer.getRMSLevel(0,0,buffer.getNumSamples())) channel=1;
         if(previousChannel>=0 && channel!=previousChannel){generation.fetch_add(1);low1=low2=0;phase=0;}
         previousChannel=channel;
+        // Reserve once per block, publish only the samples actually produced.
+        // Per-sample FIFO publication needlessly contends with the worker.
+        int start1=0,size1=0,start2=0,size2=0;
+        const int requested=buffer.getNumSamples()/decimation
+            + ((buffer.getNumSamples()%decimation+phase)>=decimation ? 1 : 0);
+        fifo.prepareToWrite(requested,start1,size1,start2,size2);
+        const int available=size1+size2;int produced=0;
         bool overflow=false;
         for(int n=0;n<buffer.getNumSamples();++n)
         {
+#if CHIMERA_TUNER_DIAGNOSTICS
+            ++diagnosticTrace->inputFrame;
+#endif
             const auto sample=buffer.getSample(channel,n);
             if(!std::isfinite(sample)){low1=low2=0;generation.fetch_add(1);continue;}
             low1+=coefficient*(sample-low1); low2+=coefficient*(low1-low2);
             if(++phase<decimation) continue;
             phase=0;
-            if(fifo.getFreeSpace()==0){overflow=true;continue;}
-            const auto scope=fifo.write(1);
-            scope.forEach([this](int i){queue[(size_t)i]=low2;});
+            if(produced>=available){overflow=true;continue;}
+            const int i=produced<size1 ? start1+produced : start2+produced-size1;
+            queue[(size_t)i]=low2;
+#if CHIMERA_TUNER_DIAGNOSTICS
+                diagnosticTrace->inputFrames[(size_t)i]=diagnosticTrace->inputFrame;
+#endif
+            ++produced;
         }
+        fifo.finishedWrite(produced);
         if(overflow)generation.fetch_add(1);
     }
     float frequency() const { return enabled.load() && pitchGeneration.load()==generation.load()?hz.load():0; }
@@ -177,21 +201,42 @@ private:
         unsigned seen=generation.load();double lastReceived=0;
         while(!threadShouldExit())
         {
+#if CHIMERA_TUNER_DIAGNOSTICS
+            tunerDiagnostics::Event event;event.beginUs=tunerDiagnostics::nowUs();event.beginCPU=tunerDiagnostics::readClock();event.queued=fifo.getNumReady();event.generation=generation.load();
+#endif
             const auto next=generation.load();
-            if(next!=seen){seen=next;filled=0;hz.store(0);certainty.store(0);const auto discarded=fifo.read(fifo.getNumReady());}
+            if(next!=seen){
+#if CHIMERA_TUNER_DIAGNOSTICS
+                event.discarded=fifo.getNumReady();
+#endif
+                seen=next;filled=0;hz.store(0);certainty.store(0);const auto discarded=fifo.read(fifo.getNumReady());}
             bool received=false;
             { const auto scope=fifo.read(fifo.getNumReady());
-              scope.forEach([&](int i){history[(size_t)writeIndex]=queue[(size_t)i]; writeIndex=(writeIndex+1)%frameSize; filled=juce::jmin(frameSize,filled+1); received=true;});
+              scope.forEach([&](int i){history[(size_t)writeIndex]=queue[(size_t)i];
+#if CHIMERA_TUNER_DIAGNOSTICS
+                diagnosticTrace->newestInputFrame=diagnosticTrace->inputFrames[(size_t)i];
+#endif
+                 writeIndex=(writeIndex+1)%frameSize; filled=juce::jmin(frameSize,filled+1); received=true;});
             }
             if(received)lastReceived=juce::Time::getMillisecondCounterHiRes();
             if(!enabled.load()) { hz.store(0); certainty.store(0); filled=0; }
             else if(received && filled==frameSize)
             {
                 for(int i=0;i<frameSize;++i) ordered[(size_t)i]=history[(size_t)((writeIndex+i)%frameSize)];
+#if CHIMERA_TUNER_DIAGNOSTICS
+                event.analysed=true;
+#endif
                 const auto pitch=estimate(ordered.data(),frameSize,analysisRate);
-                if(generation.load()==seen && enabled.load()){hz.store(pitch.first);certainty.store(pitch.second);pitchGeneration.store(seen);}
+                if(generation.load()==seen && enabled.load()){hz.store(pitch.first);certainty.store(pitch.second);pitchGeneration.store(seen);
+#if CHIMERA_TUNER_DIAGNOSTICS
+                    event.published=true;
+#endif
+                }
             }
             else if(!received && juce::Time::getMillisecondCounterHiRes()-lastReceived>250) { hz.store(0); certainty.store(0); filled=0; }
+#if CHIMERA_TUNER_DIAGNOSTICS
+            event.endUs=tunerDiagnostics::nowUs();event.endCPU=tunerDiagnostics::readClock();event.filled=filled;event.newestInputFrame=diagnosticTrace->newestInputFrame;event.hz=hz.load();diagnosticTrace->append(event);
+#endif
             wait(10);
         }
     }

@@ -37,6 +37,11 @@ inline std::pair<float,float> estimate(const float* x,int count,double rate) {
         double left=std::max(4.0,coarse-radius),right=coarse+radius;
         // Common support prevents the objective jumping as integer delay changes.
         const int end=std::min(window,count-int(std::ceil(right*periods))-5);
+        // Fixed support: these reference moments do not depend on delay.
+        double referenceSum=0,referencePower=0;
+        for(int n=3;n<end;++n){referenceSum+=x[n];referencePower+=double(x[n])*x[n];}
+        const int length=std::max(1,end-3);
+        const double aa=referencePower-referenceSum*referenceSum/length;
         const auto cost=[&](double period){
             const double delay=period*periods;
             const int base=int(delay);const double t=delay-base;
@@ -46,21 +51,22 @@ inline std::pair<float,float> estimate(const float* x,int count,double rate) {
                 for(int j=0;j<8;++j)if(k!=j)w*=(t-(j-3))/double(k-j);
                 weights[size_t(k)]=w;
             }
-            double ab=0,aa=0,bb=0,asum=0,bsum=0;
+            double ab=0,bb=0,bsum=0;
             for(int n=3;n<end;++n){
                 double shifted=0;
                 for(int k=0;k<8;++k)shifted+=weights[size_t(k)]*x[n+base+k-3];
-                const double sample=x[n];ab+=sample*shifted;aa+=sample*sample;
-                bb+=shifted*shifted;asum+=sample;bsum+=shifted;
+                const double sample=x[n];ab+=sample*shifted;
+                bb+=shifted*shifted;bsum+=shifted;
             }
-            const int length=std::max(1,end-3);
-            ab-=asum*bsum/length;aa-=asum*asum/length;bb-=bsum*bsum/length;
+            ab-=referenceSum*bsum/length;bb-=bsum*bsum/length;
             return aa>1e-20 && bb>1e-20 ? std::clamp(1-ab/std::sqrt(aa*bb),0.0,2.0) : 1.0;
         };
         constexpr double ratio=.6180339887498949;
         double l=right-ratio*(right-left),r=left+ratio*(right-left);
         double fl=cost(l),fr=cost(r);
-        for(int i=0;i<30;++i){
+        // 22 reductions bound the remaining period bracket below 0.02 cent
+        // over the supported 16..2000 Hz/rate domain; existing accuracy gates stay.
+        for(int i=0;i<22;++i){
             if(fl<fr){right=r;r=l;fr=fl;l=right-ratio*(right-left);fl=cost(l);}
             else {left=l;l=r;fl=fr;r=left+ratio*(right-left);fr=cost(r);}
         }

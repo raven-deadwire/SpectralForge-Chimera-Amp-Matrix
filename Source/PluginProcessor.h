@@ -84,6 +84,9 @@ public:
     float cpuPeakLoad() const { return cpuPeak.load(); }
     float lowCompMeter() const {return lowCompGain.load();}
     float gateMeter() const { return gateGain.load(); }
+#if CHIMERA_TUNER_DIAGNOSTICS
+    const tunerDiagnostics::Trace& tunerTrace() const { return *tuner.diagnosticTrace; } // Read only after releaseResources.
+#endif
     float tuningFrequency() const { return tuner.frequency(); }
     float tuningConfidence() const { return tuner.confidence(); }
     void selectComparison(int slot);

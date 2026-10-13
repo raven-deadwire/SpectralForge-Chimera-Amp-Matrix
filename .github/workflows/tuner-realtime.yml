@@ -1,0 +1,42 @@
+name: Tuner realtime attribution
+on:
+  pull_request:
+    paths: ['Source/**', 'Tests/**', 'CMakeLists.txt', 'cmake/**', '.github/workflows/tuner-realtime.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: tuner-rt-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: false
+jobs:
+  attribution:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y libasound2-dev libcurl4-openssl-dev libfreetype6-dev libfontconfig1-dev libx11-dev libxcomposite-dev libxcursor-dev libxext-dev libxinerama-dev libxrandr-dev libxrender-dev libgl1-mesa-dev xvfb openbox x11-utils
+      - run: cmake -S . -B build-tuner -DCMAKE_BUILD_TYPE=Release -DCHIMERA_UI_PROBES=ON -DCHIMERA_TUNER_DIAGNOSTICS=ON
+      - run: cmake --build build-tuner --config Release --target ChimeraTunerCostTests ChimeraTunerClockControls ChimeraTunerResponseTests ChimeraTunerRealtimeTests ChimeraPrecisionTunerTests ChimeraPrecisionTunerIntegrationTests ChimeraUITests --parallel 2
+      - if: runner.os == 'Linux'
+        run: python3 Tools/run_linux_ui_tests.py -- ctest --test-dir build-tuner -C Release -R '^(ChimeraTuner.*Tests|ChimeraPrecisionTuner.*Tests|ChimeraNativeStateTests)$' --output-on-failure --no-tests=error --output-junit tuner-results.xml
+      - if: runner.os != 'Linux'
+        run: ctest --test-dir build-tuner -C Release -R '^(ChimeraTuner.*Tests|ChimeraPrecisionTuner.*Tests|ChimeraNativeStateTests)$' --output-on-failure --no-tests=error --output-junit tuner-results.xml
+      - if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: Tuner-Realtime-${{ runner.os }}-${{ github.event.pull_request.head.sha || github.sha }}-attempt-${{ github.run_attempt }}
+          path: |
+            build-tuner/tuner-response/
+            build-tuner/tuner-realtime/
+            build-tuner/tuner-snapshots/
+            build-tuner/tuner-results.xml
+            build-tuner/chimera-build-version.json
+            build-tuner/Testing/Temporary/LastTest.log
+          if-no-files-found: error
