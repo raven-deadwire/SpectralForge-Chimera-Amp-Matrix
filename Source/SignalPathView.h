@@ -34,7 +34,7 @@ public:
     SignalPathView(ChimeraProcessor& p,bool compactView):processor(p),compact(compactView) {
         setComponentID(compact?"signalPathStrip":"signalPathGraph");
         setName(compact?"Signal path editing stages":"Actual signal routing");
-        setDescription(compact?"PRE, amp rigs, Tone EQ, POST and Final EQ. Open Routing for the complete signal path, including global utilities.":"Complete signal path with utility positions, taps, parallel branches and rig summing. Select a block to open its controls.");
+        setDescription(compact?"PRE, amplifier heads, cabinets, Tone EQ, POST and Final EQ. Open Routing for the complete signal path, including global utilities.":"Complete signal path with utility positions, taps, parallel branches and rig summing. Select a block to open its controls.");
         setFocusContainerType(juce::Component::FocusContainerType::focusContainer);
         if(!compact){setSize(1140,650);startTimerHz(25);}refresh();
     }
@@ -57,7 +57,11 @@ public:
             // remains in current and is inspected in the separate graph.
             bool preActive=false;for(const auto& n:current.nodes)if(n.id.startsWith("pre."))preActive|=n.active;
             visible.push_back({"pre","PRE",preActive?"ACTIVE":"BYPASSED","Open the PRE pedalboard.",Target::pre,-1,-1,preActive});
-            visible.push_back({"rigs",current.mode==0?"CLASSIC":current.mode==1?"DUAL":"MATRIX",current.mode==0?"ONE RIG":current.mode==1?(current.dualCross?"CROSSOVER":"PARALLEL BLEND"):"LOW / MID / HIGH","Open the amp rigs and cabinet room.",Target::rigs});
+            const juce::String modeName=current.mode==0?"CLASSIC":current.mode==1?(current.dualCross?"DUAL CROSSOVER":"DUAL BLEND"):"MATRIX";
+            bool headActive=false,cabActive=false;
+            for(const auto& n:current.nodes){if(n.id.startsWith("amp.context"))headActive|=n.active;if(n.target==Target::cab)cabActive|=n.active;}
+            visible.push_back({"head","HEAD",modeName+" / "+juce::String(current.mode+1)+" HEAD"+(current.mode==0?"":"S"),"Open the amplifier controls for every active rig in the current mode.",Target::amp,-1,-1,headActive});
+            visible.push_back({"cab","CAB",modeName+" / "+juce::String(current.mode+1)+" CAB"+(current.mode==0?"":"S"),"Open the cabinet room for every active rig in the current mode.",Target::cab,-1,-1,cabActive});
             add("tone.eq");
             bool postActive=false;for(const auto& n:current.nodes)if(n.target==Target::post)postActive|=n.active;
             visible.push_back({"post","POST",postActive?"ACTIVE":"BYPASSED","Open the POST effects rack.",Target::post,-1,-1,postActive});
@@ -148,20 +152,22 @@ private:
         if(compact){
             if(selected.startsWith("pre."))editingStage="pre";
             else if(selected.startsWith("post."))editingStage="post";
-            else if(selected.startsWith("amp.")||selected.startsWith("cab.")||selected.startsWith("low.")||selected.startsWith("tone.context")||selected.startsWith("level.context"))editingStage="rigs";
+            else if(selected.startsWith("cab."))editingStage="cab";
+            else if(selected=="rigs"||selected.startsWith("amp.")||selected.startsWith("low.")||selected.startsWith("tone.context")||selected.startsWith("level.context"))editingStage="head";
         }
         if(compact)if(const auto* node=current.find(selected)){
             using Target=spectralforge::signalPath::Target;
             switch(node->target){
                 case Target::pre:editingStage="pre";break;
-                case Target::rigs:case Target::amp:case Target::cab:case Target::low:editingStage="rigs";break;
+                case Target::rigs:case Target::amp:case Target::low:editingStage="head";break;
+                case Target::cab:editingStage="cab";break;
                 case Target::post:editingStage="post";break;
                 default:break;
             }
         }
         for(auto& b:buttons){
             const auto id=b->getComponentID().substring(5);
-            const bool grouped=!compact&&((selected=="rigs"&&id=="split")||(selected=="pre"&&id.startsWith("pre."))||(selected=="post"&&id.startsWith("post.")));
+            const bool grouped=!compact&&((selected=="rigs"&&id=="split")||(selected=="head"&&id.startsWith("amp.context"))||(selected=="cab"&&id.startsWith("cab.context"))||(selected=="pre"&&id.startsWith("pre."))||(selected=="post"&&id.startsWith("post.")));
             b->setToggleState(id==(compact?editingStage:selected)||grouped,juce::dontSendNotification);
         }
     }

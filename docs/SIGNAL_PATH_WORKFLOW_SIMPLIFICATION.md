@@ -12,6 +12,12 @@ The implementation commit and each verification result must be identified by
 their own complete source SHA. The earlier PR #55 CI results remain evidence
 for `e7b00cb09c5431d86c03282392eafddbe8edbfdd` only.
 
+The initial development revision `e27e60769104c2b5606717fb9f793a4995da3f69`
+used a combined current-mode rig button. The revised scope separates **HEAD**
+and **CAB** so each editing destination is directly available. Results and
+artifacts from that initial revision are historical evidence only; the six-stage
+implementation requires its own full source SHA and fresh matching verification.
+
 ## Baseline comparison and editing contract
 
 At the baseline, both views read the complete routing snapshot from
@@ -19,9 +25,16 @@ At the baseline, both views read the complete routing snapshot from
 `Source/SignalPathView.h`; this display list can be simplified without changing
 the snapshot or audio processing.
 
+The presentation change also updates the navigation callbacks and transient
+selection in `Source/PluginEditor.cpp` and `Source/PluginEditor.h`. Those changes
+route HEAD and CAB to distinct existing workspaces. `Source/SignalPath.h`
+remains identical to the original verified baseline; DSP processing,
+parameter definitions, preset data and state serialization are outside this
+change.
+
 | Surface | Baseline | Development behavior |
 | --- | --- | --- |
-| Compact strip | Ten stage buttons: Input, Gate, Transpose, PRE, Rigs, Tone EQ, POST, Utilities, Final EQ, Output; Gate moves with its configured position. A separate PATH + button opens the graph. | Five editing stages: **PRE → CLASSIC / DUAL / MATRIX → TONE EQ → POST → FINAL EQ**, followed by **ROUTING** to inspect the complete path. The rig label reflects the current mode. |
+| Compact strip | Ten stage buttons: Input, Gate, Transpose, PRE, Rigs, Tone EQ, POST, Utilities, Final EQ, Output; Gate moves with its configured position. A separate PATH + button opens the graph. | Six editing stages: **PRE → HEAD → CAB → TONE EQ → POST → FINAL EQ**, followed by **ROUTING** to inspect the complete path. HEAD and CAB open their respective editing destinations for the current mode. |
 | Expanded routing graph | Individual processors, current bypass/model/channel state, rig branches and sums, tuner/detector/clean taps, utilities, and output. | The complete snapshot, nodes and connections remain available. Gate location, Dual Blend/Crossover and Matrix LOW routing can still be inspected. |
 | Existing global controls | Input/output and the top Gate/Transpose controls remain directly accessible; Tuner retains its existing bottom-toolbar control. | Existing locations and behavior are retained. They do not gain another compact stage or another audio-control binding. |
 
@@ -29,18 +42,23 @@ The baseline compact strip did not contain a separate Tuner button. Tuner was
 already represented in the expanded inspection graph and by its existing
 bottom-toolbar control. This change removes the five unnecessary compact buttons—Input, Gate,
 Transpose, Utilities and Output—and keeps Tuner out of the compact inventory.
+It also separates the combined Rigs stage into HEAD and CAB.
 It does not remove those functions or their detailed routing representation.
 
-The five compact stages summarize the editing workflow. Their connecting
+The six compact stages summarize the editing workflow. Their connecting
 arrows do not assert that no utility processing occurs between those stages.
 ROUTING exposes the detailed processing order and tap relationships.
 
 ## Navigation, keyboard and accessibility
 
-PRE, the current amp rig, Tone EQ, POST and Final EQ retain their existing
-editor destinations. Tone EQ and Final EQ remain independently selectable.
-Compact selection follows the existing editing context, including the related
-PRE/POST slots and AMP/CAB/LOW destinations reached from the detailed graph.
+PRE, Tone EQ, POST and Final EQ retain their existing editor destinations.
+HEAD opens the current mode's existing amp controls, while CAB opens the
+existing inline cabinet room, where the user can select a lane for detailed
+editing. The compact actions do not arbitrarily choose the first lane.
+Both remain directly accessible in Classic, Dual and Matrix.
+Tone EQ and Final EQ remain independently selectable. Compact selection follows
+the existing editing context, including related PRE/POST slots and the distinct
+AMP and CAB destinations reached from the detailed graph.
 Inactive or bypassed stages remain available for editing.
 
 ROUTING opens the existing non-modal inspection window. Selecting a detailed
@@ -48,7 +66,7 @@ node continues to use its existing navigation target. Inspecting the tuner
 must not enable it or change its mute state. Inspecting the routing must not
 create a host change gesture or write an audio parameter.
 
-The compact control order is the five displayed stages followed by ROUTING.
+The compact control order is the six displayed stages followed by ROUTING.
 Tab and Shift-Tab move between controls; Enter and unmodified Space activate
 the focused action. Space is scoped to the focused navigation button and is
 not registered as a global shortcut.
@@ -58,10 +76,14 @@ retain focus when host automation refreshes the snapshot. The detail graph
 retains its full navigation and accessibility targets. Native control checks
 do not establish acceptance with an actual screen reader or inside a DAW.
 
-The existing per-mode editing selection remains an editor concern. This work
+The per-mode editing selection remains transient editor state. This work
 does not add a serialized UI preference, alter preset/A-B data, or change what
-an old project restores. Editor recreation continues to use the established
-startup and mode behavior.
+an old project restores. Startup retains the existing cabinet-room default;
+routing-mode changes while viewing rigs also return to that room. The compact
+selection now identifies the destination as CAB. Editor recreation retains
+this startup behavior. Mode changes while editing PRE, POST or either EQ keep
+that global editor and its matching selection; PRE/POST now follow the same
+selection rule as the EQ banks.
 
 ## Processing and compatibility boundary
 
@@ -72,7 +94,7 @@ graph continues to show the existing post-rig sequence:
 
 The input gate option, tuner/detector taps, PRE clean tap, Dual branches and
 Matrix LOW DI/AMP+CAB relationship remain represented by the same snapshot.
-Gate automation therefore changes the detailed graph while leaving the five
+Gate automation therefore changes the detailed graph while leaving the six
 compact editing stages in a stable order.
 
 The scope is UI presentation/navigation and its regression coverage. DSP
@@ -91,7 +113,7 @@ its full source SHA; this preparation table does not certify a later build.
 
 | Verification | Required evidence | Status at preparation |
 | --- | --- | --- |
-| Compact inventory and destinations | Exactly five stages plus ROUTING in Classic, Dual Blend, Dual Crossover and Matrix; no utility duplicates; working PRE/RIGS/Tone EQ/POST/Final EQ navigation. | Pending implementation-source results |
+| Compact inventory and destinations | Exactly six stages plus ROUTING in Classic, Dual Blend, Dual Crossover and Matrix; no utility duplicates; separate HEAD and CAB destinations; working PRE/HEAD/CAB/Tone EQ/POST/Final EQ navigation. | Pending six-stage implementation-source results |
 | Detailed routing | Full node/edge and bypass-state checks with both Gate positions, Tuner/detector taps, PRE clean tap, Dual routes and Matrix LOW; detailed click targets remain usable. | Pending implementation-source results |
 | Keyboard and accessibility | Forward/reverse traversal, activation, focus indication and retention, declared accessible names/help/roles, and ROUTING access using the supported native test harness. | Pending implementation-source results |
 | State and host compatibility | Zero navigation-induced host writes/gestures; factory presets, A/B, project restore, mode switching and editor recreation preserve existing state semantics. | Pending implementation-source results |
