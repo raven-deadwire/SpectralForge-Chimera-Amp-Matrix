@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>SpectralForge Chimera — Open Beta 1.3.1 Manual</title>
+<title>SpectralForge Chimera — 1.3.2 Candidate Manual</title>
 <style>
 :root{color-scheme:dark;--bg:#0d1115;--panel:#171d23;--panel2:#202831;--fg:#edf1f4;--muted:#aeb9c2;--line:#34414c;--gold:#d9bd7d;--blue:#a9d2e8;--warn:#e5bc75}
 *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.68 system-ui,-apple-system,"Segoe UI","Noto Sans KR",sans-serif}
@@ -31,6 +31,7 @@ footer{border-top:1px solid var(--line);margin-top:58px;padding-top:22px;color:v
 <div class="languages" aria-label="Language"><button class="lang-btn" data-lang="en">EN</button><button class="lang-btn" data-lang="de">DE</button><button class="lang-btn" data-lang="ko">KR</button></div></div></header>
 <nav><a href="#release131">1.3.1</a><a href="#quick" data-k="navQuick"></a><a href="#install" data-x="navInstall"></a><a href="#operation" data-x="navOperation"></a><a href="#signal" data-k="navSignal"></a><a href="#compare" data-k="navCompare"></a><a href="#pre" data-k="navPre"></a><a href="#amps" data-k="navAmp"></a><a href="#post" data-k="navPost"></a><a href="#ir" data-k="navIr"></a><a href="#workflows" data-k="navWorkflow"></a><a href="#preset" data-k="navPreset"></a><a href="#global" data-k="navGlobal"></a><a href="#host" data-x="navHost"></a><a href="#diag" data-k="navDiag"></a><a href="#limits" data-k="navLimits"></a></nav>
 <p class="note" data-k="referenceNote"></p>
+<section id="release132"><h2 id="release132Title"></h2><div id="release132Body"></div></section>
 <section id="release131"><h2 id="release131Title"></h2><div id="release131Body"></div></section>
 <section id="release13"><h2 id="release13Title"></h2><div id="release13Body"></div></section>
 <section id="patch112"><h2>1.1.2 · Day-one patch</h2><div id="patch112Body"></div></section>
@@ -1710,6 +1711,31 @@ const RELEASE13={
 };
 
 function render(){
+ const release132={
+  en:{title:'1.3.2 candidate · Navigation, tuner and common dynamics',items:[
+   'Select PRE, HEAD, CAB, TONE EQ, POST or FINAL EQ directly in the signal strip. ROUTING opens the full signal inspector. The footer TUNER button opens its workspace without changing audio; START TUNING and MUTE OUTPUT control detection and mute separately.',
+   'The linear virtual strobe slows as the measured frequency approaches the target. Needle view, compensation profiles, per-string custom offsets and A4 calibration are available. This is a frequency-estimated display; synthetic accuracy tests do not certify real-instrument or audio-interface accuracy.',
+   'TONE EQ / FINAL EQ → DYNAMICS opens clean compression, DI gate/expander, the last output limiter and four shared Dynamic EQ slots. Select existing enabled Bell or shelf nodes in active EQ banks; assignment alone does not enable them. Occupied targets cannot displace another slot. The static and dynamic gain remains within ±24 dB. EQ undo/redo covers the EQ editing controls, not the separate dynamics controls.',
+   'Clean compression follows Tone EQ before POST: choose Peak/RMS detection, high-pass, threshold, ratio, knee, attack/release, makeup and parallel mix. Compressor GR describes the compressed branch. The gate uses clean input before PRE at its existing PRE/POST attenuation location. The sample-peak limiter follows output trim; it is not a true-peak or loudness meter. These stages add no lookahead or audio delay.',
+   'AUDIO / PEAK is callback wall time divided by block duration, not whole-PC CPU. 100% reaches the audio deadline; 570% is 5.7 times the deadline. Scheduling can affect it; peak decays only while processing. Platform/DAW performance qualification and the beta expiry date are pending. This candidate is not a completed public release.'
+  ]},
+  de:{title:'1.3.2-Kandidat · Navigation, Tuner und gemeinsame Dynamik',items:[
+   'PRE, HEAD, CAB, TONE EQ, POST und FINAL EQ sind direkt in der Signalleiste erreichbar. ROUTING zeigt den vollständigen Signalweg. TUNER in der Fußleiste öffnet den Arbeitsbereich ohne Klangänderung; START TUNING und MUTE OUTPUT steuern Erkennung und Stummschaltung getrennt.',
+   'Die lineare virtuelle Stroboskopanzeige wird langsamer, wenn sich die gemessene Frequenz dem Ziel nähert. Nadelanzeige, Kompensationsprofile, eigene Saiten-Offsets und A4-Kalibrierung sind verfügbar. Synthetische Tests zertifizieren nicht die Genauigkeit realer Instrumente oder Audiointerfaces.',
+   'TONE EQ / FINAL EQ → DYNAMICS öffnet Kompressor, DI-Gate/Expander, Ausgangslimiter und vier gemeinsam genutzte Dynamic-EQ-Plätze. Wählen Sie vorhandene aktive Bell- oder Shelf-Bänder bei eingeschaltetem EQ. Die Zuordnung aktiviert keine Bänder und verdrängt keinen anderen Platz. Der gesamte EQ-Gain bleibt innerhalb ±24 dB. EQ-Undo/Redo umfasst nicht die getrennten Dynamikregler.',
+   'Der saubere Kompressor liegt nach Tone EQ und vor POST: Peak/RMS, Detektor-Hochpass, Schwelle, Verhältnis, Knee, Attack/Release, Makeup und Parallelmischung. GR zeigt den komprimierten Zweig. Das Gate erkennt das saubere Eingangssignal vor PRE. Der Sample-Peak-Limiter folgt dem Ausgangspegel; er misst weder True Peak noch Lautheit. Die neuen Module fügen kein Lookahead und keine Audioverzögerung hinzu.',
+   'AUDIO / PEAK ist Callback-Wandzeit geteilt durch Blockdauer, nicht die gesamte PC-CPU. 100% erreicht die Audiofrist; 570% entspricht dem 5,7-Fachen. Scheduling beeinflusst den Wert; der Spitzenwert fällt nur bei laufender Verarbeitung. Plattform-/DAW-Prüfung und Beta-Ablaufdatum stehen noch aus. Dieser Kandidat ist noch keine veröffentlichte Version.'
+  ]},
+  ko:{title:'1.3.2 후보 · 시그널 탐색, 튜너와 공통 다이내믹스',items:[
+   '시그널 바에서 PRE, HEAD, CAB, TONE EQ, POST, FINAL EQ를 직접 선택합니다. ROUTING은 전체 신호 경로를 엽니다. 하단 TUNER는 소리를 바꾸지 않고 작업공간을 열며, START TUNING과 MUTE OUTPUT에서 감지와 음소거를 별도로 조절합니다.',
+   '직선형 가상 스트로브는 측정 주파수가 목표에 가까워질수록 느려집니다. 니들, 보정 프로필, 현별 사용자 오프셋, A4 기준을 선택할 수 있습니다. 주파수 추정 기반 표시이며 합성 신호 시험이 실제 악기·오디오 인터페이스 정확도를 인증하지는 않습니다.',
+   'TONE EQ / FINAL EQ → DYNAMICS에서 클린 컴프레서, DI 게이트/익스팬더, 최종 리미터와 총 4개의 공유 Dynamic EQ 슬롯을 조절합니다. 켜진 EQ 뱅크의 기존 Bell·Shelf 밴드를 선택하세요. 할당만으로 밴드가 켜지지 않으며 다른 슬롯을 빼앗지 않습니다. 정적 게인과 동적 감쇄를 합친 범위는 ±24 dB입니다. EQ 실행 취소·다시 실행은 별도 다이내믹스 조절부에는 적용되지 않습니다.',
+   '클린 컴프레서는 Tone EQ 뒤, POST 앞에 있습니다. Peak/RMS, 감지기 하이패스, 임계값, 비율, 니, 어택·릴리스, 메이크업, 병렬 믹스를 조절합니다. 컴프레서 GR은 압축 경로의 감쇄입니다. 게이트는 PRE 앞의 깨끗한 입력을 감지하고 기존 PRE/POST 위치에서 감쇄합니다. 샘플 피크 리미터는 출력 게인 뒤에 있으며 트루 피크·라우드니스를 측정하지 않습니다. 새 모듈의 룩어헤드와 추가 오디오 지연은 없습니다.',
+   'AUDIO / PEAK는 블록 길이 대비 콜백 경과 시간이며 전체 PC CPU가 아닙니다. 100%는 오디오 처리 마감, 570%는 그 시간의 5.7배입니다. 스케줄링의 영향을 받으며 피크는 오디오 처리 중에만 감소합니다. 플랫폼·DAW 성능 검증과 베타 만료일 승인이 남아 있습니다. 이 후보는 공개 배포 완료본이 아닙니다.'
+  ]}
+ };
+ document.getElementById('release132Title').textContent=release132[lang].title;
+ document.getElementById('release132Body').innerHTML=bullets(release132[lang].items);
  document.getElementById("release131Title").textContent=RELEASE131[lang].title;
  document.getElementById("release131Body").innerHTML=bullets(RELEASE131[lang].items);
  document.getElementById("signal131Body").innerHTML=bullets(SIGNAL131[lang]);

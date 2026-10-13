@@ -34,7 +34,7 @@ public:
                 for(int other=0;other<4;++other)if(other!=i && target!=0 && assignment(other)==target){
                     current.target.setSelectedId(assignment(i)+1,juce::dontSendNotification);notice="That node already has a dynamic slot. Its settings were kept.";repaint();return;
                 }
-                current.targetAttachment->setValueAsCompleteGesture(float(target));notice.clear();refresh();
+                current.targetAttachment->setValueAsCompleteGesture(float(target));notice.clear();refresh();repaint();
             };
             for(size_t f=0;f<fields.size();++f)control(slot.controls[f],dynamicSlotID(i,fields[f]),names[f]);
             slot.status.setFont(juce::FontOptions(12.f));slot.status.setComponentID("dynamicEQ"+juce::String(i+1)+".status");addAndMakeVisible(slot.status);
@@ -91,6 +91,7 @@ private:
     void choice(juce::ComboBox& box,const char* id,const juce::StringArray& names){box.addItemList(names,1);box.setComponentID(id);addAndMakeVisible(box);choices.push_back(std::make_unique<CA>(state,id,box));}
     int assignment(int i)const{return int(state.getRawParameterValue(dynamicSlotID(i,"target"))->load());}
     void refresh(){
+        const int oldUsed=used;bool changed=false;
         used=0;
         for(int i=0;i<4;++i){auto& slot=slots[size_t(i)];const int target=assignment(i);used+=target!=0;bool duplicate=false;
             for(int j=0;j<i;++j)duplicate|=target!=0 && assignment(j)==target;
@@ -98,15 +99,16 @@ private:
             if(target>0 && target<=24){const int bank=(target-1)/12,band=(target-1)%12;const auto v=eq[size_t(bank)]->values(band);
                 enabled=!duplicate && v.type<=2;status=duplicate?"Duplicate / idle":v.type>2?"Bell / shelf only":!v.enabled?"Band off":eq[size_t(bank)]->isBypassed()?"EQ bypassed":juce::String(eq[size_t(bank)]->dynamicReduction(band),1)+" dB GR";
             }
-            slot.status.setText(status,juce::dontSendNotification);for(auto& c:slot.controls)c.slider.setEnabled(enabled);
+            changed|=slot.status.getText()!=status;slot.status.setText(status,juce::dontSendNotification);for(auto& c:slot.controls)c.slider.setEnabled(enabled);
             for(int t=1;t<=24;++t){bool occupied=false;for(int j=0;j<4;++j)occupied|=j!=i && assignment(j)==t;slot.target.setItemEnabled(t+1,!occupied || t==target);}
         }
-        repaint();
+        const std::array<int,3> header{juce::roundToInt(dsp.compReduction.load()*10),juce::roundToInt(dsp.limitReduction.load()*10),int(state.getRawParameterValue("gateon")->load()>.5f)};
+        if(changed || used!=oldUsed || header!=lastHeader){lastHeader=header;repaint();}
     }
     void timerCallback() override {if(isShowing())refresh();}
     juce::AudioProcessorValueTreeState& state;CommonDynamics& dsp;std::array<GraphicalEQ*,2> eq;
     juce::TextButton compOn,limiterOn;juce::ComboBox detector,gateMode;
     std::array<Control,8> comp;std::array<Control,6> gate;Control ceiling,limitRelease;std::array<Slot,4> slots;
-    std::vector<std::unique_ptr<BA>> buttons;std::vector<std::unique_ptr<CA>> choices;int used{};juce::String notice;
+    std::vector<std::unique_ptr<BA>> buttons;std::vector<std::unique_ptr<CA>> choices;int used{};juce::String notice;std::array<int,3> lastHeader{-1,-1,-1};
 };
 }

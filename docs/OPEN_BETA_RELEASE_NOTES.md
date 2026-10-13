@@ -1,4 +1,33 @@
-# 1.3.1-beta.3 — development candidate, not published
+# 1.3.2-beta.1 — integrated candidate, qualification pending
+
+**공개·배포 요청을 받은 통합 후보입니다. 아직 배포 완료가 아닙니다.**
+
+- 시그널 바에서 PRE / HEAD / CAB / TONE EQ / POST / FINAL EQ를 바로 선택합니다. 픽토그램과 강조된 하단 유틸리티, 독립 튜너 화면을 제공합니다.
+- 정밀 추정기와 직선형 가상 스트로브·니들 표시, 보정 튜닝 프로필 및 사용자 오프셋을 추가합니다. 스트로브는 목표음과의 차이가 줄면 느려집니다. 합성 신호 검사는 실제 악기·오디오 인터페이스 정확도 인증이 아닙니다.
+- EQ를 한 뱅크씩 크게 편집하고, 밴드 추가·삭제·실행 취소·다시 실행과 IN/OUT 애널라이저·해상도·스냅샷 고정을 사용합니다.
+- Tone/Final의 기존 EQ 노드에 총 4개의 Dynamic 슬롯, POST 앞 클린 컴프레서, DI 게이트/익스팬더, 출력 게인 뒤의 샘플 피크 리미터를 추가합니다. 새 다이내믹스는 기본적으로 꺼져 있습니다.
+- AUDIO / PEAK는 전체 PC CPU가 아닌 콜백 처리 시간 비율입니다. 100%를 넘는 피크는 원인 확인이 필요합니다. 성능 검증과 실제 DAW 검증은 아직 완료되지 않았습니다.
+
+English: this candidate combines direct signal navigation, precision virtual
+strobe tuning, focused EQ/analyzer editing and common live dynamics. Four dynamic
+slots share existing Tone/Final nodes. Clean compression precedes POST; the
+sample-peak limiter follows final output gain. New stages add no lookahead or
+extra audio delay. Exact-source qualification and beta expiry approval remain
+pending; historical release sections below do not describe this candidate's status.
+
+Deutsch: Dieser Kandidat vereint direkte Signalnavigation, präzise virtuelle
+Stroboskopanzeige, den fokussierten EQ/Analyzer und gemeinsame Live-Dynamik.
+Vier dynamische Plätze verwenden vorhandene Tone-/Final-EQ-Bänder. Der saubere
+Kompressor liegt vor POST, der Sample-Peak-Limiter hinter dem Ausgangspegel.
+Die neuen Module fügen kein Lookahead und keine Audioverzögerung hinzu.
+Quellstandsprüfung und Freigabe des Beta-Ablaufdatums stehen noch aus.
+
+The integrated lifecycle behavior is retained from the following development
+candidate. Its old version heading is historical; no expiry date is approved.
+
+---
+
+## Historical lifecycle candidate: 1.3.1-beta.3 (not published)
 
 This next-version candidate adds per-build UTC beta lifecycle metadata, SETTINGS
 notices, the existing GitHub update route, active-instance audio grace and
