@@ -1,0 +1,8 @@
+PASS: Production parent handles block directory rename and preservation handles block deletion independently of external application locks
+PASS: Real Inno fresh installation and removal preserve license notices
+PASS: Upgrade retires only exact hash+size identities; edits, same-size edits, unknown files, hardlinks, symlinks and readonly documents survive
+PASS: Same-version repair and repeat repair restore owned documentation while retaining exact modified copies
+PASS: Junction targets remain unchanged and uninstall refuses historical traversal before deleting files
+PASS: Absent historical path guards prevent creation during uninstall, disappear on cancellation and forced process termination, and never queue reboot deletion
+PASS: An exclusive writer refuses uninstall before deleting files or registration when a preservation handle cannot be acquired
+PASS: Appended historical uninstall logs preserve edited docs in place, snapshots, licenses, linked files, presets, IRs and projects without reboot deletion

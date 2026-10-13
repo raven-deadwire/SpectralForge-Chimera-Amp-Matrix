@@ -62,25 +62,25 @@ inline constexpr std::array<PedalMenuGroup,10> pedalMenuGroups{{
 inline const char* pedalMenuName(int model) {
     return pedalMenuEntries[(size_t)juce::jlimit(0,pedalModelCount-1,model)].name;
 }
-// Selected-product captions are separate from the alias-only menus. Keep these
-// short enough for a pedal card; the original-DSP entries have no hardware target.
-inline const char* pedalReferenceName(int model) {
-    constexpr std::array<const char*,pedalModelCount> references{{
-        "", "Ibanez TS808", "Klon Centaur", "Pro Co RAT 2",
-        "Tech 21 SansAmp BDDI v2", "Darkglass B3K v2",
-        "MXR M87 Bass Compressor", "MXR Dyna Comp M102", "Diamond Compressor CPR-1",
-        "Origin Effects Cali76 (2024)", "Manley Stereo Variable Mu",
-        "EHX Q-Tron", "Musitronics Mu-Tron III", "Mu-Tron III / Down",
-        "MXR M82 Bass Envelope Filter", "BOSS AW-3", "EHX Big Muff Pi / NYC",
-        "Dunlop Fuzz Face JDF2", "Sola Sound Tone Bender MKII", "ZVEX Woolly Mammoth",
-        "ZVEX Fuzz Factory", "Xotic RC Booster", "Dallas Rangemaster", "MXR Micro Amp M133",
-        "Xotic EP Booster", "EHX LPB-1 / Nano", "BOSS SD-1", "Fulltone OCD v2",
-        "MXR Distortion+ M104", "BOSS / JHS JB-2",
-        "Chimera original wah", "Chimera original EQ", "BOSS CE-2", "Roland Dimension D",
-        "EHX Small Stone", "EHX Electric Mistress", "EHX Eddy", "EHX Pulsar",
-        "Chimera original divider", "Chimera spectral octaver"
+// Public captions describe the sound; source references stay in Preparation.
+// Keep these short enough for a pedal card and its detail panel.
+inline const char* pedalDescription(int model) {
+    constexpr std::array<const char*,pedalModelCount> descriptions{{
+        "", "Mid-forward soft clipping", "Clean blend / open drive", "Hard clipping / low-pass tone",
+        "Bass drive / clean blend", "Clean lows / upper-band drive",
+        "Linked RMS compression", "Fast sustain compression", "Soft-knee optical response",
+        "Fast FET / parallel blend", "Progressive compression",
+        "Upward low-pass sweep", "Band-pass envelope", "Downward low-pass sweep",
+        "Bass sweep / dry-low blend", "Pick-responsive wah", "Dense sustained fuzz",
+        "Volume-sensitive fuzz", "Sharp vintage fuzz", "Bass-forward gated fuzz",
+        "Gated asymmetric fuzz", "Clean bass / treble lift", "Low-cut / upper-mid lift", "Full-band level lift",
+        "Warm lift / softened highs", "Broadband transistor boost", "Asymmetric soft clipping", "Dynamic drive / peak voicing",
+        "Hard-clipped drive", "Two drives / six routings",
+        "Manual wah sweep", "Ten-band graphic equalizer", "Single-voice chorus", "Opposing stereo chorus",
+        "Four-stage phase sweep", "Short-delay flange", "Pitch vibrato / wet blend", "Stereo amplitude modulation",
+        "Single-note octave divider", "Spectral octave layering"
     }};
-    return references[(size_t)juce::jlimit(0,pedalModelCount-1,model)];
+    return descriptions[(size_t)juce::jlimit(0,pedalModelCount-1,model)];
 }
 inline const char* effectFamilyMenuName(int family,int model) {
     constexpr std::array<int,11> firstPedal{1,0,0,6,11,16,21,0,0,0,32};

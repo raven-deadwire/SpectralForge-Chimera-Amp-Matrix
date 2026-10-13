@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import contextlib
+import hashlib
 import io
 import json
 from pathlib import Path
@@ -11,6 +12,7 @@ import subprocess
 import sys
 import tempfile
 import unittest
+import zipfile
 from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -18,6 +20,8 @@ sys.path.insert(0, str(ROOT / "Tools"))
 import chimera_version as version
 import package_installer_candidate as candidate
 import package_release as release
+import package_update_candidate as portable
+import check_public_names as public_names
 
 SHA = "0123456789abcdef0123456789abcdef01234567"
 
@@ -41,6 +45,16 @@ class PackagingVersionTests(unittest.TestCase):
         for bad in (SHA[:10], SHA.upper(), "", "g" * 40):
             with self.subTest(sha=bad), self.assertRaises(ValueError):
                 version.identity(self.root, bad)
+
+    def test_public_document_inventory_and_injected_name_regression(self):
+        public_names.validate_document_names(release.PUBLIC_DOCUMENTS)
+        policy = public_names.load_policy()
+        self.assertEqual(set(release.PUBLIC_DOCUMENTS), set(policy["public_documents"]))
+        public_names.validate_source()
+        with self.assertRaisesRegex(RuntimeError, "Original amp/effect name"):
+            public_names.validate_text('<label title="BOSS SD-1">Yellow Asym</label>',
+                                       "injected public tooltip")
+        public_names.validate_text("A DRIVE / B DRIVE / Mid-forward soft clipping", "functional controls")
 
     def test_beta_identity_and_malformed_channels(self):
         self.write("RELEASE_CHANNEL", "beta.1\n")
@@ -207,7 +221,8 @@ class PackagingVersionTests(unittest.TestCase):
         # Real documents/inventory paths; fixture product bytes are not native-build evidence.
         shutil.copytree(ROOT / "docs", self.root / "docs")
         shutil.copytree(ROOT / "Assets/IRs", self.root / "Assets/IRs")
-        for path in ("CMakeLists.txt", "Source/IRReferenceCatalog.h", "Validation/ir-distribution-policy.json"):
+        for path in ("CMakeLists.txt", "Source/IRReferenceCatalog.h", "Validation/ir-distribution-policy.json",
+                     "Validation/public-presentation-policy.json"):
             target = self.root / path
             target.parent.mkdir(parents=True, exist_ok=True)
             shutil.copyfile(ROOT / path, target)
@@ -224,6 +239,92 @@ class PackagingVersionTests(unittest.TestCase):
             file = self.root / "installer-candidate/payload" / entry["path"]
             self.assertEqual(entry["sha256"], release.sha256(file))
         self.assertFalse(manifest["published_release"])
+
+    def prepare_portable_fixture(self):
+        """Real staging inputs with synthetic executable bytes, not installer evidence."""
+        expected = version.identity(self.root, SHA)
+        self.write("build/chimera-build-version.json", json.dumps(expected))
+        self.write("build/ChimeraAmpMatrix_artefacts/Release/Standalone/SpectralForge Chimera.exe",
+                   "Synthetic standalone bytes; never executed or distributed.\n")
+        self.write("build/ChimeraAmpMatrix_artefacts/Release/VST3/SpectralForge Chimera.vst3/Contents/x86_64-win/SpectralForge Chimera.vst3",
+                   "Synthetic plugin bytes; no native compatibility claim.\n")
+        for name in release.PUBLIC_DOCUMENTS:
+            destination = self.root / "docs" / name
+            destination.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copyfile(ROOT / "docs" / name, destination)
+        shutil.copytree(ROOT / "Assets/IRs", self.root / "Assets/IRs")
+        for relative in ("CMakeLists.txt", "Source/IRReferenceCatalog.h",
+                         "Validation/ir-distribution-policy.json", "Validation/public-presentation-policy.json",
+                         "COPYRIGHT.txt"):
+            destination = self.root / relative
+            destination.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copyfile(ROOT / relative, destination)
+        # Retain a private research document and raw evidence containing names.
+        # The product package must omit them without rewriting these originals.
+        self.write("docs/AMP_NATIVE_DSP.md", "Private research: Fender Twin Reverb / BOSS SD-1.\n")
+        self.write("build/Testing/Temporary/LastTest.log",
+                   "PASS synthetic fixture only\nReference bank: Fender Twin Reverb / BOSS SD-1\n")
+        return expected, self.root / "build/Testing/Temporary/LastTest.log"
+
+    def test_portable_main_writes_exact_source_evidence_pointer_and_archive(self):
+        expected, raw_log = self.prepare_portable_fixture()
+        raw_before = raw_log.read_bytes()
+        globals_before = release.VERSION, dict(release.IDENTITY)
+        with patch.object(portable, "root", self.root), patch.object(release, "ROOT", self.root), \
+             patch.object(portable.subprocess, "check_output", return_value=SHA + "\n") as revision, \
+             patch.object(portable, "transfer") as transfer, \
+             patch.dict(portable.os.environ, {"GITHUB_RUN_ID": "456", "GITHUB_RUN_ATTEMPT": "2"}), \
+             contextlib.redirect_stdout(io.StringIO()):
+            portable.main()
+        revision.assert_called_once_with(["git", "rev-parse", "HEAD"], cwd=self.root, text=True)
+        transfer.assert_called_once()
+        archive_path, digest, transferred_source, transferred_manifest = transfer.call_args.args
+        self.assertEqual(transferred_source, SHA)
+        self.assertEqual(hashlib.sha256(archive_path.read_bytes()).hexdigest(), digest)
+        self.assertEqual(archive_path.with_name(archive_path.name + ".sha256").read_text().split(),
+                         [digest, archive_path.name])
+        with zipfile.ZipFile(archive_path) as archive:
+            names = set(archive.namelist())
+            self.assertIn("CTest.log", names)
+            self.assertIn("SpectralForge Chimera.exe", names)
+            self.assertTrue(set(release.PUBLIC_DOCUMENTS) <= names)
+            self.assertNotIn("Testing/Temporary/LastTest.log", names)
+            self.assertTrue(set(public_names.load_policy()["research_documents_not_shipped"]).isdisjoint(names))
+            pointer = archive.read("CTest.log").decode("utf-8")
+            self.assertIn("Version: " + expected["version"], pointer)
+            self.assertIn("Source commit: " + SHA, pointer)
+            self.assertIn("Raw CTest log SHA-256: " + hashlib.sha256(raw_before).hexdigest(), pointer)
+            self.assertIn("Raw CTest log bytes: " + str(len(raw_before)), pointer)
+            self.assertIn("/actions/runs/456", pointer)
+            self.assertIn("CI run attempt: 2", pointer)
+            self.assertNotIn("Fender", pointer)
+            self.assertNotIn("BOSS", pointer)
+            manifest = json.loads(archive.read("build-manifest.json"))
+            self.assertEqual(manifest, transferred_manifest)
+            version.validate_manifest(manifest, expected)
+            for field in ("published_release", "publisher_signed", "daw_verified"):
+                self.assertFalse(manifest[field])
+            for entry in manifest["files"]:
+                contents = archive.read(entry["path"])
+                self.assertEqual(entry["bytes"], len(contents))
+                self.assertEqual(entry["sha256"], hashlib.sha256(contents).hexdigest())
+        self.assertEqual(raw_log.read_bytes(), raw_before)
+        self.assertIn("Fender", (self.root / "docs/AMP_NATIVE_DSP.md").read_text())
+        self.assertEqual((release.VERSION, release.IDENTITY), globals_before)
+
+    def test_portable_main_rejects_original_name_in_packaged_manual_before_transfer(self):
+        _, raw_log = self.prepare_portable_fixture()
+        raw_before = raw_log.read_bytes()
+        with (self.root / "docs/MANUAL.html").open("a", encoding="utf-8") as stream:
+            stream.write('\n<button title="BOSS SD-1">Yellow Asym</button>\n')
+        with patch.object(portable, "root", self.root), patch.object(release, "ROOT", self.root), \
+             patch.object(portable.subprocess, "check_output", return_value=SHA + "\n"), \
+             patch.object(portable, "transfer") as transfer, contextlib.redirect_stdout(io.StringIO()), \
+             self.assertRaisesRegex(RuntimeError, "Original amp/effect name.*MANUAL.html"):
+            portable.main()
+        transfer.assert_not_called()
+        self.assertEqual(list((self.root / "candidate").glob("*.zip")), [])
+        self.assertEqual(raw_log.read_bytes(), raw_before)
 
     def test_cmake_project_and_generated_product_identity(self):
         # Run the real CMake version module and templates, without fetching JUCE.

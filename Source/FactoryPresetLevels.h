@@ -12,7 +12,7 @@ inline constexpr std::array<float,48> factoryOutputDb{{
     0.0f, // 5: Bell Clean
     0.0f, // 6: Edge Chime
     0.0f, // 7: Classic Crunch
-    0.0f, // 8: Orange Heavy
+    0.0f, // 8: Amber Heavy
     0.0f, // 9: Melodic Death Rhythm
     0.0f, // 10: Melodic Lead
     0.0f, // 11: Ambient Clean
@@ -32,8 +32,8 @@ inline constexpr std::array<float,48> factoryOutputDb{{
     0.0f, // 25: Low B Foundation
     0.0f, // 26: Pick Attack Matrix
     0.0f, // 27: Spectral Texture
-    0.0f, // 28: Matchless Edge
-    0.0f, // 29: Dumble Smooth Lead
+    0.0f, // 28: Prism Edge
+    0.0f, // 29: Silk Smooth Lead
     0.0f, // 30: Modern Clean
     0.0f, // 31: Crom Cruach
     0.0f, // 32: Wild Hunt

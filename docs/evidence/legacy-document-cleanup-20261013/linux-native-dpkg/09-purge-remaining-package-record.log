@@ -1,0 +1,3 @@
+(Reading database ... 5 files and directories currently installed.)
+Purging configuration files for chimera-amp-matrix (1.3.1~beta.2) ...
+dpkg: warning: while removing chimera-amp-matrix, directory '/usr/share/doc/chimera-amp-matrix' not empty so not removed

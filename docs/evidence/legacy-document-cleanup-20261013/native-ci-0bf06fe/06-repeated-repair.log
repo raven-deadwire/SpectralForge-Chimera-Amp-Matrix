@@ -1,0 +1,103 @@
+﻿2026-10-12 16:54:08.373   Log opened. (Time zone: UTC+00:00)
+2026-10-12 16:54:08.373   Setup version: Inno Setup version 6.7.1
+2026-10-12 16:54:08.373   Original Setup EXE: D:\a\_temp\Chimera document lifecycle 916ada417cbe471a89aab6355f61ce77\installers\new.exe
+2026-10-12 16:54:08.373   Setup command line: /SL5="$800C6,894096,893952,D:\a\_temp\Chimera document lifecycle 916ada417cbe471a89aab6355f61ce77\installers\new.exe" /VERYSILENT /SUPPRESSMSGBOXES /NORESTART /SP- /LOG="D:\a\SpectralForge-Chimera-Amp-Matrix\SpectralForge-Chimera-Amp-Matrix\build\windows-document-upgrade-verification/06-repeated-repair.log" /DIR="D:\a\_temp\Chimera document lifecycle 916ada417cbe471a89aab6355f61ce77\설치 경로"
+2026-10-12 16:54:08.373   Windows version: 10.0.20348
+2026-10-12 16:54:08.373   Windows architecture: x64 (64-bit)
+2026-10-12 16:54:08.373   Machine types supported by system: x86 x64
+2026-10-12 16:54:08.373   User privileges: Administrative
+2026-10-12 16:54:08.373   Administrative install mode: Yes
+2026-10-12 16:54:08.373   Install mode root key: HKEY_LOCAL_MACHINE
+2026-10-12 16:54:08.373   64-bit install mode: Yes
+2026-10-12 16:54:08.373   RedirectionGuard status for current process: Enabled in enforcing mode
+2026-10-12 16:54:08.373   Created protected temporary directory: C:\Users\RUNNER~1\AppData\Local\Temp\is-8FFPD7L0IE.tmp
+2026-10-12 16:54:08.373   -- DLL function import --
+2026-10-12 16:54:08.373   Function and DLL name: CreateFileW@kernel32.dll
+2026-10-12 16:54:08.373   Importing the DLL function. Dest DLL name: kernel32.dll
+2026-10-12 16:54:08.373   Successfully imported the DLL function. Delay loaded? No
+2026-10-12 16:54:08.373   -- DLL function import --
+2026-10-12 16:54:08.373   Function and DLL name: CloseHandle@kernel32.dll
+2026-10-12 16:54:08.373   Importing the DLL function. Dest DLL name: kernel32.dll
+2026-10-12 16:54:08.373   Successfully imported the DLL function. Delay loaded? No
+2026-10-12 16:54:08.373   -- DLL function import --
+2026-10-12 16:54:08.373   Function and DLL name: GetFileInformationByHandle@kernel32.dll
+2026-10-12 16:54:08.373   Importing the DLL function. Dest DLL name: kernel32.dll
+2026-10-12 16:54:08.373   Successfully imported the DLL function. Delay loaded? No
+2026-10-12 16:54:08.373   -- DLL function import --
+2026-10-12 16:54:08.373   Function and DLL name: SetFileInformationByHandle@kernel32.dll
+2026-10-12 16:54:08.373   Importing the DLL function. Dest DLL name: kernel32.dll
+2026-10-12 16:54:08.373   Successfully imported the DLL function. Delay loaded? No
+2026-10-12 16:54:08.373   -- DLL function import --
+2026-10-12 16:54:08.373   Function and DLL name: GetFileAttributesW@kernel32.dll
+2026-10-12 16:54:08.373   Importing the DLL function. Dest DLL name: kernel32.dll
+2026-10-12 16:54:08.373   Successfully imported the DLL function. Delay loaded? No
+2026-10-12 16:54:08.373   -- DLL function import --
+2026-10-12 16:54:08.373   Function and DLL name: GetLastError@kernel32.dll
+2026-10-12 16:54:08.373   Importing the DLL function. Dest DLL name: kernel32.dll
+2026-10-12 16:54:08.373   Successfully imported the DLL function. Delay loaded? No
+2026-10-12 16:54:08.373   -- DLL function import --
+2026-10-12 16:54:08.373   Function and DLL name: FlushFileBuffers@kernel32.dll
+2026-10-12 16:54:08.373   Importing the DLL function. Dest DLL name: kernel32.dll
+2026-10-12 16:54:08.373   Successfully imported the DLL function. Delay loaded? No
+2026-10-12 16:54:08.373   -- DLL function import --
+2026-10-12 16:54:08.373   Function and DLL name: GetCurrentProcessId@kernel32.dll
+2026-10-12 16:54:08.373   Importing the DLL function. Dest DLL name: kernel32.dll
+2026-10-12 16:54:08.373   Successfully imported the DLL function. Delay loaded? No
+2026-10-12 16:54:08.451   Starting the installation process.
+2026-10-12 16:54:08.451   Chimera document preservation: verified copy D:\a\_temp\Chimera document lifecycle 916ada417cbe471a89aab6355f61ce77\설치 경로\PreservedDocuments\1a148cdf35a74327a6939f4f6226e13bc0ab104b5082749e7bc0123c3a3abedb\Documentation\THIRD_PARTY_NOTICES.md
+2026-10-12 16:54:08.451   Directory for uninstall files: D:\a\_temp\Chimera document lifecycle 916ada417cbe471a89aab6355f61ce77\설치 경로\Uninstall
+2026-10-12 16:54:08.451   Will append to existing uninstall log: D:\a\_temp\Chimera document lifecycle 916ada417cbe471a89aab6355f61ce77\설치 경로\Uninstall\unins000.dat
+2026-10-12 16:54:08.451   -- File entry --
+2026-10-12 16:54:08.451   Dest filename: D:\a\_temp\Chimera document lifecycle 916ada417cbe471a89aab6355f61ce77\설치 경로\Uninstall\unins000.exe
+2026-10-12 16:54:08.451   Non-default bitness: 32-bit
+2026-10-12 16:54:08.451   Time stamp of our file: 2026-10-12 16:54:08.311
+2026-10-12 16:54:08.451   Dest file exists.
+2026-10-12 16:54:08.451   Time stamp of existing file: 2026-10-12 16:54:07.998
+2026-10-12 16:54:08.451   Version of our file: 51.1054.0.0
+2026-10-12 16:54:08.467   Version of existing file: 51.1054.0.0
+2026-10-12 16:54:08.467   Installing the file.
+2026-10-12 16:54:08.467   Leaving temporary file in place for now.
+2026-10-12 16:54:08.467   -- File entry --
+2026-10-12 16:54:08.467   Dest filename: D:\a\_temp\Chimera document lifecycle 916ada417cbe471a89aab6355f61ce77\설치 경로\README.txt
+2026-10-12 16:54:08.467   Time stamp of our file: 2026-10-12 16:54:02.000
+2026-10-12 16:54:08.467   Dest file exists.
+2026-10-12 16:54:08.467   Time stamp of existing file: 2026-10-12 16:54:02.000
+2026-10-12 16:54:08.467   Installing the file.
+2026-10-12 16:54:08.467   Successfully installed the file.
+2026-10-12 16:54:08.467   Chimera document preservation: verified copy D:\a\_temp\Chimera document lifecycle 916ada417cbe471a89aab6355f61ce77\설치 경로\PreservedDocuments\1a148cdf35a74327a6939f4f6226e13bc0ab104b5082749e7bc0123c3a3abedb\Documentation\THIRD_PARTY_NOTICES.md
+2026-10-12 16:54:08.467   -- File entry --
+2026-10-12 16:54:08.483   Dest filename: D:\a\_temp\Chimera document lifecycle 916ada417cbe471a89aab6355f61ce77\설치 경로\Documentation\THIRD_PARTY_NOTICES.md
+2026-10-12 16:54:08.483   Time stamp of our file: 2026-10-12 16:54:02.000
+2026-10-12 16:54:08.483   Dest file exists.
+2026-10-12 16:54:08.483   Time stamp of existing file: 2026-10-12 16:54:02.000
+2026-10-12 16:54:08.483   Installing the file.
+2026-10-12 16:54:08.483   Successfully installed the file.
+2026-10-12 16:54:08.483   -- File entry --
+2026-10-12 16:54:08.483   Dest filename: D:\a\_temp\Chimera document lifecycle 916ada417cbe471a89aab6355f61ce77\설치 경로\Documentation\MANUAL.html
+2026-10-12 16:54:08.483   Time stamp of our file: 2026-10-12 16:54:02.000
+2026-10-12 16:54:08.483   Dest file exists.
+2026-10-12 16:54:08.483   Time stamp of existing file: 2026-10-12 16:54:02.000
+2026-10-12 16:54:08.483   Installing the file.
+2026-10-12 16:54:08.483   Successfully installed the file.
+2026-10-12 16:54:08.483   -- File entry --
+2026-10-12 16:54:08.483   Dest filename: D:\a\_temp\Chimera document lifecycle 916ada417cbe471a89aab6355f61ce77\설치 경로\Documentation\payload-manifest.json
+2026-10-12 16:54:08.483   Time stamp of our file: 2026-10-12 16:54:02.000
+2026-10-12 16:54:08.483   Dest file exists.
+2026-10-12 16:54:08.483   Time stamp of existing file: 2026-10-12 16:54:02.000
+2026-10-12 16:54:08.483   Installing the file.
+2026-10-12 16:54:08.483   Successfully installed the file.
+2026-10-12 16:54:08.483   Saving uninstall information.
+2026-10-12 16:54:08.483   Renaming uninstaller.
+2026-10-12 16:54:08.483   Deleting uninstall key left over from previous administrative 64-bit install.
+2026-10-12 16:54:08.483   Creating new uninstall key: HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\Uninstall\SpectralForge.Chimera.DocumentUpgradeFixture_is1
+2026-10-12 16:54:08.483   Writing uninstall key values.
+2026-10-12 16:54:08.483   Detected previous non administrative install? No
+2026-10-12 16:54:08.483   Detected previous administrative 32-bit install? No
+2026-10-12 16:54:08.483   Installation process succeeded.
+2026-10-12 16:54:08.483   Chimera document cleanup: preserved modified/unknown legacy file D:\a\_temp\Chimera document lifecycle 916ada417cbe471a89aab6355f61ce77\설치 경로\Documentation\AMP_NATIVE_DSP.md
+2026-10-12 16:54:08.483   Chimera document cleanup: preserved locked/read-only legacy file D:\a\_temp\Chimera document lifecycle 916ada417cbe471a89aab6355f61ce77\설치 경로\Documentation\GRAPHICS_DSP_UPDATE.md
+2026-10-12 16:54:08.483   Chimera document cleanup: preserved modified/unknown legacy file D:\a\_temp\Chimera document lifecycle 916ada417cbe471a89aab6355f61ce77\설치 경로\Documentation\POST_NATIVE_DSP.md
+2026-10-12 16:54:08.483   Chimera document cleanup: preserved modified/unknown legacy file D:\a\_temp\Chimera document lifecycle 916ada417cbe471a89aab6355f61ce77\설치 경로\Documentation\VALIDATION_STATUS.md
+2026-10-12 16:54:08.483   Need to restart Windows? No
+2026-10-12 16:54:08.498   Deinitializing Setup.
+2026-10-12 16:54:08.498   Log closed.

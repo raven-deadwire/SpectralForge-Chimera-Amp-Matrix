@@ -39,7 +39,7 @@ inline constexpr std::array definitions{
     Definition{"headshell06_png",1448,1086,{24,242,1400,603},{24,329,1382,514},845,false}, // 6: Solid Punch
     Definition{"headshell07_png",1672,941,{16,218,1640,522},{16,218,1640,501},740,false}, // 7: Modern Bass
     Definition{"headshell08_png",1672,941,{18,130,1636,682},{18,234,1636,548},812,true}, // 8: Chime 30
-    Definition{"headshell09_png",1536,1024,{27,89,1481,851},{28,185,1479,719},940,true}, // 9: Orange Crown
+    Definition{"headshell09_png",1536,1024,{27,89,1481,851},{28,185,1479,719},940,true}, // 9: Amber Crown
     Definition{"headshell10_png",1448,1086,{19,258,1411,631},{20,344,1409,518},889,true}, // 10: Vintage Valve
     Definition{"headshell11_png",1672,941,{50,288,1572,387},{50,288,1572,357},675,false}, // 11: Metro Clean
     Definition{"headshell12_png",1837,856,{45,10,1747,834},{45,119,1747,697},844,true}, // 12: Prism Chime

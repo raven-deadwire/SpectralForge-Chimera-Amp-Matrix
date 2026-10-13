@@ -1,0 +1,6 @@
+(Reading database ... 34 files and directories currently installed.)
+Removing chimera-amp-matrix (1.3.1~beta.2) ...
+Preserved document copy: /tmp/chimera-dpkg-document-fixture-ykr9vm0x/fresh-root/usr/share/doc/chimera-amp-matrix.preserved/72f5d564400827c4d6d071649c507f36a5a0bc79003b24461f53285f00899bc7/COPYRIGHT.txt
+Preserved document copy: /tmp/chimera-dpkg-document-fixture-ykr9vm0x/fresh-root/usr/share/doc/chimera-amp-matrix.preserved/b936cd11f179273d3505a0fe194a58626ff2a35b658aec65e2ff691758050b4c/THIRD_PARTY_NOTICES.md
+Restored preserved document: COPYRIGHT.txt
+Restored preserved document: THIRD_PARTY_NOTICES.md

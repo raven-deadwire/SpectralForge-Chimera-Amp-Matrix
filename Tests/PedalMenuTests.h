@@ -1,5 +1,6 @@
 #pragma once
 #include "PedalBoardPanel.h"
+#include "PublicNameTests.h"
 #include <array>
 #include <iostream>
 #include <set>
@@ -87,8 +88,9 @@ inline void run() {
     check(reference!=nullptr,"Selected pedal reference caption is missing");
     for(int model=1;model<pedalModelCount;++model) {
         check(first->selectMenuResult(model+1),"Pedal reference target cannot be selected");
-        check(reference->isVisible() && reference->getText()==pedalReferenceName(model) && reference->getText().isNotEmpty(),
-              "Selected pedal does not identify its hardware reference or original DSP");
+        check(reference->isVisible() && reference->getText()==pedalDescription(model) && reference->getText().isNotEmpty(),
+              "Selected pedal does not describe its sound");
+        publicNameTests::componentText(board,"selected PRE pedal");
         check(reference->getY()>=first->getBottom() && board.getLocalBounds().contains(reference->getBounds()),
               "Pedal reference is not visible below the selector");
         check(reference->getFont().getHeight()>=11.f && reference->getMinimumHorizontalScale()==1.f,
@@ -127,8 +129,9 @@ inline void run() {
     check(close!=nullptr && close->isVisible() && title!=nullptr && title->getText()=="Dual Circuit",
           "Pedal detail view did not open the selected product controls");
     auto* detailReference=dynamic_cast<juce::Label*>(board.findChildWithID("boardDetailReference"));
-    check(detailReference && detailReference->isVisible() && detailReference->getText()==pedalReferenceName(29) && !reference->isVisible(),
-          "Detailed pedal view does not retain the selected hardware reference");
+    check(detailReference && detailReference->isVisible() && detailReference->getText()==pedalDescription(29) && !reference->isVisible(),
+          "Detailed pedal view does not retain the selected sound description");
+    publicNameTests::componentText(board,"PRE detail panel");
     for(auto* child:board.getChildren())if(child!=close && child->isVisible())
         check(!close->getBounds().intersects(child->getBounds()),"Return button overlaps a visible pedal-detail control");
     close->triggerClick();settle();

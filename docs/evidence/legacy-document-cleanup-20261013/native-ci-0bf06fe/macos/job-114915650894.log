@@ -1,0 +1,269 @@
+﻿2026-10-12T16:59:27.9023740Z Current runner version: '2.337.0'
+2026-10-12T16:59:27.9056490Z ##[group]Runner Image Provisioner
+2026-10-12T16:59:27.9057030Z Hosted Compute Agent
+2026-10-12T16:59:27.9057430Z Version: 20260828.587
+2026-10-12T16:59:27.9057840Z Commit: abac92662cab4cc7352de4f9f9d2e2419aad9c29
+2026-10-12T16:59:27.9058360Z Build Date: 2026-08-28T16:44:25Z
+2026-10-12T16:59:27.9058910Z Worker ID: {59bc3380-fabc-46ff-bfac-3df57f9377ae}
+2026-10-12T16:59:27.9059370Z Azure Region: westus
+2026-10-12T16:59:27.9059840Z ##[endgroup]
+2026-10-12T16:59:27.9060810Z ##[group]Operating System
+2026-10-12T16:59:27.9061200Z macOS
+2026-10-12T16:59:27.9061610Z 15.7.9
+2026-10-12T16:59:27.9061940Z 24G830
+2026-10-12T16:59:27.9062290Z ##[endgroup]
+2026-10-12T16:59:27.9062650Z ##[group]Runner Image
+2026-10-12T16:59:27.9063170Z Image: macos-15-arm64
+2026-10-12T16:59:27.9063550Z Version: 20260907.0337.1
+2026-10-12T16:59:27.9064380Z Included Software: https://github.com/actions/runner-images/blob/macos-15-arm64/20260907.0337/images/macos/macos-15-arm64-Readme.md
+2026-10-12T16:59:27.9065420Z Image Release: https://github.com/actions/runner-images/releases/tag/macos-15-arm64%2F20260907.0337
+2026-10-12T16:59:27.9066180Z ##[endgroup]
+2026-10-12T16:59:27.9066920Z ##[group]GITHUB_TOKEN Permissions
+2026-10-12T16:59:27.9068040Z Contents: read
+2026-10-12T16:59:27.9068410Z Metadata: read
+2026-10-12T16:59:27.9068890Z ##[endgroup]
+2026-10-12T16:59:27.9070290Z Secret source: Actions
+2026-10-12T16:59:27.9070860Z Cache mode: write
+2026-10-12T16:59:27.9071300Z Prepare workflow directory
+2026-10-12T16:59:27.9299770Z Prepare all required actions
+2026-10-12T16:59:27.9337150Z Getting action download info
+2026-10-12T16:59:28.3402000Z Download action repository 'actions/checkout@v4' (SHA:11d5960a326750d5838078e36cf38b85af677262)
+2026-10-12T16:59:28.6037360Z Download action repository 'actions/setup-python@v5' (SHA:a26af69be951a213d495a4c3e4e4022e16d87065)
+2026-10-12T16:59:28.7249420Z Download action repository 'actions/upload-artifact@v4' (SHA:ea165f8d65b6e75b540449e92b4886f43607fa02)
+2026-10-12T16:59:28.9230530Z Complete job name: Document fixtures (macos-15)
+2026-10-12T16:59:28.9744370Z ##[group]Run actions/checkout@v4
+2026-10-12T16:59:28.9744970Z with:
+2026-10-12T16:59:28.9745340Z   ref: 0bf06fe2a04f7e64b2870dee7d618eb6dad54e1e
+2026-10-12T16:59:28.9745880Z   repository: raven-deadwire/SpectralForge-Chimera-Amp-Matrix
+2026-10-12T16:59:28.9748950Z   token: ***
+2026-10-12T16:59:28.9749270Z   ssh-strict: true
+2026-10-12T16:59:28.9749600Z   ssh-user: git
+2026-10-12T16:59:28.9749940Z   persist-credentials: true
+2026-10-12T16:59:28.9750300Z   clean: true
+2026-10-12T16:59:28.9750630Z   sparse-checkout-cone-mode: true
+2026-10-12T16:59:28.9751020Z   fetch-depth: 1
+2026-10-12T16:59:28.9751340Z   fetch-tags: false
+2026-10-12T16:59:28.9751670Z   show-progress: true
+2026-10-12T16:59:28.9752010Z   lfs: false
+2026-10-12T16:59:28.9752320Z   submodules: false
+2026-10-12T16:59:28.9752660Z   set-safe-directory: true
+2026-10-12T16:59:28.9753040Z   allow-unsafe-pr-checkout: false
+2026-10-12T16:59:28.9753590Z ##[endgroup]
+2026-10-12T16:59:29.2641130Z Syncing repository: raven-deadwire/SpectralForge-Chimera-Amp-Matrix
+2026-10-12T16:59:29.2642720Z ##[group]Getting Git version info
+2026-10-12T16:59:29.2643540Z Working directory is '/Users/runner/work/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix'
+2026-10-12T16:59:29.2644640Z [command]/opt/homebrew/bin/git version
+2026-10-12T16:59:29.3200210Z git version 2.55.0
+2026-10-12T16:59:29.3217240Z ##[endgroup]
+2026-10-12T16:59:29.3224200Z Copying '/Users/runner/.gitconfig' to '/Users/runner/work/_temp/e210d83f-58df-4592-9481-6678d17cb60c/.gitconfig'
+2026-10-12T16:59:29.3236510Z Temporarily overriding HOME='/Users/runner/work/_temp/e210d83f-58df-4592-9481-6678d17cb60c' before making global git config changes
+2026-10-12T16:59:29.3239880Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-12T16:59:29.3243420Z [command]/opt/homebrew/bin/git config --global --add safe.directory /Users/runner/work/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix
+2026-10-12T16:59:29.3398910Z Deleting the contents of '/Users/runner/work/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix'
+2026-10-12T16:59:29.3402710Z ##[group]Initializing the repository
+2026-10-12T16:59:29.3407070Z [command]/opt/homebrew/bin/git init /Users/runner/work/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix
+2026-10-12T16:59:29.3619300Z hint: Using 'master' as the name for the initial branch. This default branch name
+2026-10-12T16:59:29.3622260Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+2026-10-12T16:59:29.3624900Z hint: to use in all of your new repositories, which will suppress this warning,
+2026-10-12T16:59:29.3626660Z hint: call:
+2026-10-12T16:59:29.3627700Z hint:
+2026-10-12T16:59:29.3628940Z hint: 	git config --global init.defaultBranch <name>
+2026-10-12T16:59:29.3630490Z hint:
+2026-10-12T16:59:29.3631860Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2026-10-12T16:59:29.3634080Z hint: 'development'. The just-created branch can be renamed via this command:
+2026-10-12T16:59:29.3635750Z hint:
+2026-10-12T16:59:29.3636770Z hint: 	git branch -m <name>
+2026-10-12T16:59:29.3637920Z hint:
+2026-10-12T16:59:29.3639420Z hint: Disable this message with "git config set advice.defaultBranchName false"
+2026-10-12T16:59:29.3642490Z Initialized empty Git repository in /Users/runner/work/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/.git/
+2026-10-12T16:59:29.3647720Z [command]/opt/homebrew/bin/git remote add origin https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix
+2026-10-12T16:59:29.3696080Z ##[endgroup]
+2026-10-12T16:59:29.3696780Z ##[group]Disabling automatic garbage collection
+2026-10-12T16:59:29.3698540Z [command]/opt/homebrew/bin/git config --local gc.auto 0
+2026-10-12T16:59:29.3761320Z ##[endgroup]
+2026-10-12T16:59:29.3763130Z ##[group]Setting up auth
+2026-10-12T16:59:29.3765590Z [command]/opt/homebrew/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-12T16:59:29.3821680Z [command]/opt/homebrew/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-12T16:59:29.4691030Z [command]/opt/homebrew/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-12T16:59:29.4752910Z [command]/opt/homebrew/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-12T16:59:29.5629550Z [command]/opt/homebrew/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-12T16:59:29.5733910Z [command]/opt/homebrew/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-10-12T16:59:29.6504310Z [command]/opt/homebrew/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-10-12T16:59:29.6574970Z ##[endgroup]
+2026-10-12T16:59:29.6577220Z ##[group]Fetching the repository
+2026-10-12T16:59:29.6581500Z [command]/opt/homebrew/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin 0bf06fe2a04f7e64b2870dee7d618eb6dad54e1e
+2026-10-12T16:59:32.8543670Z From https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix
+2026-10-12T16:59:32.8545130Z  * branch            0bf06fe2a04f7e64b2870dee7d618eb6dad54e1e -> FETCH_HEAD
+2026-10-12T16:59:32.8548930Z ##[endgroup]
+2026-10-12T16:59:32.8550130Z ##[group]Determining the checkout info
+2026-10-12T16:59:32.8551470Z ##[endgroup]
+2026-10-12T16:59:32.8569470Z [command]/opt/homebrew/bin/git sparse-checkout disable
+2026-10-12T16:59:32.8689070Z [command]/opt/homebrew/bin/git config --local --unset-all extensions.worktreeConfig
+2026-10-12T16:59:32.8754000Z ##[group]Checking out the ref
+2026-10-12T16:59:32.8755730Z [command]/opt/homebrew/bin/git checkout --progress --force 0bf06fe2a04f7e64b2870dee7d618eb6dad54e1e
+2026-10-12T16:59:33.3758270Z HEAD is now at 0bf06fe Guard absent historical document paths throughout Windows uninstall
+2026-10-12T16:59:33.3785880Z ##[endgroup]
+2026-10-12T16:59:33.3890590Z [command]/opt/homebrew/bin/git log -1 --format=%H
+2026-10-12T16:59:33.3970750Z 0bf06fe2a04f7e64b2870dee7d618eb6dad54e1e
+2026-10-12T16:59:33.4328810Z ##[group]Run actions/setup-python@v5
+2026-10-12T16:59:33.4329070Z with:
+2026-10-12T16:59:33.4329240Z   python-version: 3.12
+2026-10-12T16:59:33.4329400Z   check-latest: false
+2026-10-12T16:59:33.4331490Z   token: ***
+2026-10-12T16:59:33.4331660Z   update-environment: true
+2026-10-12T16:59:33.4331870Z   allow-prereleases: false
+2026-10-12T16:59:33.4332070Z   freethreaded: false
+2026-10-12T16:59:33.4332230Z ##[endgroup]
+2026-10-12T16:59:33.6093890Z ##[group]Installed versions
+2026-10-12T16:59:33.6165420Z (node:2028) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-12T16:59:33.6167310Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-12T16:59:33.6168270Z Successfully set up CPython (3.12.10)
+2026-10-12T16:59:33.6169470Z ##[endgroup]
+2026-10-12T16:59:33.6300500Z ##[group]Run mkdir -p build/document-upgrade
+2026-10-12T16:59:33.6300970Z [36;1mmkdir -p build/document-upgrade[0m
+2026-10-12T16:59:33.6301240Z [36;1mpython - <<'PY'[0m
+2026-10-12T16:59:33.6301500Z [36;1mimport json, os, pathlib, platform, subprocess[0m
+2026-10-12T16:59:33.6301770Z [36;1mrecord = {[0m
+2026-10-12T16:59:33.6302030Z [36;1m    "schema": "spectralforge.document-upgrade-fixtures.v1",[0m
+2026-10-12T16:59:33.6302500Z [36;1m    "source_sha": subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip(),[0m
+2026-10-12T16:59:33.6302910Z [36;1m    "run_id": os.environ["GITHUB_RUN_ID"],[0m
+2026-10-12T16:59:33.6303210Z [36;1m    "runner_os": platform.system(),[0m
+2026-10-12T16:59:33.6304190Z [36;1m    "scope": "Native document helper with synthetic files; Linux invokes real dpkg in an isolated root. macOS additionally runs a guarded synthetic Apple PKG lifecycle reported in macos-pkg-fixture/.",[0m
+2026-10-12T16:59:33.6305000Z [36;1m    "native_product_installation_verified": False,[0m
+2026-10-12T16:59:33.6305330Z [36;1m    "macos_pkg_installation_verified": False,[0m
+2026-10-12T16:59:33.6305610Z [36;1m    "windows_installer_verified": False,[0m
+2026-10-12T16:59:33.6305870Z [36;1m    "daw_audio_verified": False,[0m
+2026-10-12T16:59:33.6306110Z [36;1m    "publication_approved": False,[0m
+2026-10-12T16:59:33.6306490Z [36;1m    "results": "See test-output.txt; this source/scope record is not a PASS verdict.",[0m
+2026-10-12T16:59:33.6306840Z [36;1m}[0m
+2026-10-12T16:59:33.6307260Z [36;1mpathlib.Path("build/document-upgrade/scope.json").write_text(json.dumps(record, indent=2) + "\n", encoding="utf-8")[0m
+2026-10-12T16:59:33.6307720Z [36;1mPY[0m
+2026-10-12T16:59:33.6362490Z shell: /bin/bash --noprofile --norc -e -o pipefail {0}
+2026-10-12T16:59:33.6362840Z env:
+2026-10-12T16:59:33.6363140Z   pythonLocation: /Users/runner/hostedtoolcache/Python/3.12.10/arm64
+2026-10-12T16:59:33.6363580Z   PKG_CONFIG_PATH: /Users/runner/hostedtoolcache/Python/3.12.10/arm64/lib/pkgconfig
+2026-10-12T16:59:33.6364020Z   Python_ROOT_DIR: /Users/runner/hostedtoolcache/Python/3.12.10/arm64
+2026-10-12T16:59:33.6364440Z   Python2_ROOT_DIR: /Users/runner/hostedtoolcache/Python/3.12.10/arm64
+2026-10-12T16:59:33.6364830Z   Python3_ROOT_DIR: /Users/runner/hostedtoolcache/Python/3.12.10/arm64
+2026-10-12T16:59:33.6365140Z ##[endgroup]
+2026-10-12T16:59:33.9330170Z ##[group]Run set -o pipefail
+2026-10-12T16:59:33.9330430Z [36;1mset -o pipefail[0m
+2026-10-12T16:59:33.9330800Z [36;1mpython Tools/test_legacy_document_cleanup.py 2>&1 | tee build/document-upgrade/test-output.txt[0m
+2026-10-12T16:59:33.9369900Z shell: /bin/bash --noprofile --norc -e -o pipefail {0}
+2026-10-12T16:59:33.9370200Z env:
+2026-10-12T16:59:33.9370430Z   pythonLocation: /Users/runner/hostedtoolcache/Python/3.12.10/arm64
+2026-10-12T16:59:33.9371130Z   PKG_CONFIG_PATH: /Users/runner/hostedtoolcache/Python/3.12.10/arm64/lib/pkgconfig
+2026-10-12T16:59:33.9371550Z   Python_ROOT_DIR: /Users/runner/hostedtoolcache/Python/3.12.10/arm64
+2026-10-12T16:59:33.9371930Z   Python2_ROOT_DIR: /Users/runner/hostedtoolcache/Python/3.12.10/arm64
+2026-10-12T16:59:33.9372300Z   Python3_ROOT_DIR: /Users/runner/hostedtoolcache/Python/3.12.10/arm64
+2026-10-12T16:59:33.9372600Z ##[endgroup]
+2026-10-12T16:59:34.1522050Z setUpClass (__main__.DpkgDocumentLifecycleTests) ... skipped 'Isolated real-dpkg lifecycle requires root in a disposable environment'
+2026-10-12T16:59:36.5464900Z test_abort_does_not_overwrite_a_new_user_edit (__main__.LegacyDocumentCleanupTests.test_abort_does_not_overwrite_a_new_user_edit) ... ok
+2026-10-12T16:59:36.5620610Z test_abort_restores_missing_user_document_and_is_repeatable (__main__.LegacyDocumentCleanupTests.test_abort_restores_missing_user_document_and_is_repeatable) ... ok
+2026-10-12T16:59:36.5674870Z test_backup_path_link_refuses_prepare (__main__.LegacyDocumentCleanupTests.test_backup_path_link_refuses_prepare) ... ok
+2026-10-12T16:59:36.5736570Z test_blocked_backup_refuses_prepare_and_preserves_source (__main__.LegacyDocumentCleanupTests.test_blocked_backup_refuses_prepare_and_preserves_source) ... ok
+2026-10-12T16:59:36.5795210Z test_cleanup_removes_only_exact_platform_variants (__main__.LegacyDocumentCleanupTests.test_cleanup_removes_only_exact_platform_variants) ... ok
+2026-10-12T16:59:36.6013450Z test_current_manual_edit_saved_while_repair_restores_payload (__main__.LegacyDocumentCleanupTests.test_current_manual_edit_saved_while_repair_restores_payload) ... ok
+2026-10-12T16:59:36.6090770Z test_fresh_install_has_no_retired_documents (__main__.LegacyDocumentCleanupTests.test_fresh_install_has_no_retired_documents) ... ok
+2026-10-12T16:59:36.6136160Z test_hardlink_file_refuses_prepare (__main__.LegacyDocumentCleanupTests.test_hardlink_file_refuses_prepare) ... ok
+2026-10-12T16:59:36.6204160Z test_linked_parent_refuses_prepare (__main__.LegacyDocumentCleanupTests.test_linked_parent_refuses_prepare) ... ok
+2026-10-12T16:59:36.6359100Z test_modified_retired_document_restored_after_unpack (__main__.LegacyDocumentCleanupTests.test_modified_retired_document_restored_after_unpack) ... ok
+2026-10-12T16:59:37.0327190Z test_native_sha256_matches_hashlib_at_block_and_read_boundaries (__main__.LegacyDocumentCleanupTests.test_native_sha256_matches_hashlib_at_block_and_read_boundaries) ... ok
+2026-10-12T16:59:37.0383480Z test_nonregular_candidate_refuses_prepare (__main__.LegacyDocumentCleanupTests.test_nonregular_candidate_refuses_prepare) ... ok
+2026-10-12T16:59:37.0531410Z test_remove_documents_exact_payload_removal_is_idempotent (__main__.LegacyDocumentCleanupTests.test_remove_documents_exact_payload_removal_is_idempotent) ... ok
+2026-10-12T16:59:37.0631280Z test_remove_documents_preserves_edits_notices_and_unknown_user_files (__main__.LegacyDocumentCleanupTests.test_remove_documents_preserves_edits_notices_and_unknown_user_files) ... ok
+2026-10-12T16:59:37.0775520Z test_remove_restores_user_edits_and_required_notices (__main__.LegacyDocumentCleanupTests.test_remove_restores_user_edits_and_required_notices) ... ok
+2026-10-12T16:59:37.1020290Z test_repeated_prepare_preserves_original_snapshot (__main__.LegacyDocumentCleanupTests.test_repeated_prepare_preserves_original_snapshot) ... ok
+2026-10-12T16:59:37.1025210Z test_restore_retains_private_file_owner_group_and_permissions (__main__.LegacyDocumentCleanupTests.test_restore_retains_private_file_owner_group_and_permissions) ... skipped "Restoring a different user's ownership requires root"
+2026-10-12T16:59:37.1276850Z test_same_size_changed_content_is_preserved (__main__.LegacyDocumentCleanupTests.test_same_size_changed_content_is_preserved) ... ok
+2026-10-12T16:59:37.1317840Z test_symlink_docroot_refuses_prepare (__main__.LegacyDocumentCleanupTests.test_symlink_docroot_refuses_prepare) ... ok
+2026-10-12T16:59:37.1369450Z test_symlink_file_refuses_prepare_without_deleting_other_files (__main__.LegacyDocumentCleanupTests.test_symlink_file_refuses_prepare_without_deleting_other_files) ... ok
+2026-10-12T16:59:37.1476340Z test_tampered_backup_refuses_restore (__main__.LegacyDocumentCleanupTests.test_tampered_backup_refuses_restore) ... ok
+2026-10-12T16:59:37.1590580Z test_tampered_journal_refuses_commit_without_deleting_original (__main__.LegacyDocumentCleanupTests.test_tampered_journal_refuses_commit_without_deleting_original) ... ok
+2026-10-12T16:59:37.1653670Z test_unknown_user_files_and_forged_runtime_manifest_are_ignored (__main__.LegacyDocumentCleanupTests.test_unknown_user_files_and_forged_runtime_manifest_are_ignored) ... ok
+2026-10-12T16:59:37.1708910Z test_unverified_line_ending_variant_is_preserved (__main__.LegacyDocumentCleanupTests.test_unverified_line_ending_variant_is_preserved) ... ok
+2026-10-12T16:59:37.6027860Z test_native_install_creation_race_preserves_new_user_file (__main__.NativeDocumentInstallTests.test_native_install_creation_race_preserves_new_user_file) ... skipped 'Deterministic libc race fixture is Linux-only; native path tests still run'
+2026-10-12T16:59:37.6105000Z test_native_install_failed_preservation_keeps_original_before_replacement (__main__.NativeDocumentInstallTests.test_native_install_failed_preservation_keeps_original_before_replacement) ... ok
+2026-10-12T16:59:37.6212300Z test_native_install_fresh_then_same_version_is_idempotent (__main__.NativeDocumentInstallTests.test_native_install_fresh_then_same_version_is_idempotent) ... ok
+2026-10-12T16:59:37.6226250Z test_native_install_leaf_swap_preserves_both_observed_user_versions (__main__.NativeDocumentInstallTests.test_native_install_leaf_swap_preserves_both_observed_user_versions) ... skipped 'Deterministic libc race fixture is Linux-only; native path tests still run'
+2026-10-12T16:59:37.6333080Z test_native_install_manifest_is_copy_only_metadata_and_preserves_previous_bytes (__main__.NativeDocumentInstallTests.test_native_install_manifest_is_copy_only_metadata_and_preserves_previous_bytes) ... ok
+2026-10-12T16:59:37.6357940Z test_native_install_raced_symlink_never_touches_its_target (__main__.NativeDocumentInstallTests.test_native_install_raced_symlink_never_touches_its_target) ... skipped 'Deterministic libc race fixture is Linux-only; native path tests still run'
+2026-10-12T16:59:37.6754800Z test_native_install_rechecks_same_size_source_change_before_replacement (__main__.NativeDocumentInstallTests.test_native_install_rechecks_same_size_source_change_before_replacement) ... skipped 'Deterministic libc race fixture is Linux-only; native path tests still run'
+2026-10-12T16:59:37.6865090Z test_native_install_refuses_linked_source_or_target_ancestors (__main__.NativeDocumentInstallTests.test_native_install_refuses_linked_source_or_target_ancestors) ... ok
+2026-10-12T16:59:37.7046800Z test_native_install_refuses_source_links_and_nonregular_files (__main__.NativeDocumentInstallTests.test_native_install_refuses_source_links_and_nonregular_files) ... ok
+2026-10-12T16:59:37.7100580Z test_native_install_refuses_target_link_before_retiring_other_files (__main__.NativeDocumentInstallTests.test_native_install_refuses_target_link_before_retiring_other_files) ... ok
+2026-10-12T16:59:37.7443900Z test_native_install_rejects_changed_or_historical_source_bytes_before_changes (__main__.NativeDocumentInstallTests.test_native_install_rejects_changed_or_historical_source_bytes_before_changes) ... ok
+2026-10-12T16:59:37.7552920Z test_native_install_rejects_relative_root_and_source_destination_overlap (__main__.NativeDocumentInstallTests.test_native_install_rejects_relative_root_and_source_destination_overlap) ... ok
+2026-10-12T16:59:37.7665910Z test_native_install_retains_inode_for_an_editor_already_holding_it_open (__main__.NativeDocumentInstallTests.test_native_install_retains_inode_for_an_editor_already_holding_it_open) ... ok
+2026-10-12T16:59:37.7691500Z test_native_install_root_swap_cannot_redirect_copy_to_private_documents (__main__.NativeDocumentInstallTests.test_native_install_root_swap_cannot_redirect_copy_to_private_documents) ... skipped 'Deterministic libc race fixture is Linux-only; native path tests still run'
+2026-10-12T16:59:37.7903260Z test_native_install_upgrade_preserves_same_size_edits_and_private_files (__main__.NativeDocumentInstallTests.test_native_install_upgrade_preserves_same_size_edits_and_private_files) ... ok
+2026-10-12T16:59:37.8003440Z 
+2026-10-12T16:59:37.8038830Z ----------------------------------------------------------------------
+2026-10-12T16:59:37.8081960Z Ran 39 tests in 3.640s
+2026-10-12T16:59:37.8087630Z 
+2026-10-12T16:59:37.8088780Z OK (skipped=7)
+2026-10-12T16:59:37.8396030Z ##[group]Run set -o pipefail
+2026-10-12T16:59:37.8396270Z [36;1mset -o pipefail[0m
+2026-10-12T16:59:37.8396490Z [36;1mCHIMERA_TEST_PYTHON=$(command -v python)[0m
+2026-10-12T16:59:37.8397250Z [36;1msudo --preserve-env=CI,GITHUB_ACTIONS,GITHUB_RUN_ID,RUNNER_OS,RUNNER_TEMP -- "$CHIMERA_TEST_PYTHON" Tools/verify_macos_document_upgrade.py --disposable-ci 2>&1 | tee build/document-upgrade/macos-pkg-fixture-output.txt[0m
+2026-10-12T16:59:37.8433800Z shell: /bin/bash --noprofile --norc -e -o pipefail {0}
+2026-10-12T16:59:37.8434140Z env:
+2026-10-12T16:59:37.8434410Z   pythonLocation: /Users/runner/hostedtoolcache/Python/3.12.10/arm64
+2026-10-12T16:59:37.8434880Z   PKG_CONFIG_PATH: /Users/runner/hostedtoolcache/Python/3.12.10/arm64/lib/pkgconfig
+2026-10-12T16:59:37.8435300Z   Python_ROOT_DIR: /Users/runner/hostedtoolcache/Python/3.12.10/arm64
+2026-10-12T16:59:37.8435700Z   Python2_ROOT_DIR: /Users/runner/hostedtoolcache/Python/3.12.10/arm64
+2026-10-12T16:59:37.8436170Z   Python3_ROOT_DIR: /Users/runner/hostedtoolcache/Python/3.12.10/arm64
+2026-10-12T16:59:37.8436530Z ##[endgroup]
+2026-10-12T16:59:45.5148500Z PASS: Real Apple PKG fresh installation executes native hooks; document-only removal preserves notices.
+2026-10-12T16:59:45.5150550Z PASS: Real Apple PKG upgrade removes exact retired files and preserves edited legacy and current document bytes.
+2026-10-12T16:59:45.5152540Z PASS: Same-version Apple PKG repair installs current documentation and retains both user revisions.
+2026-10-12T16:59:45.5154340Z PASS: Repeated document-only removal preserves modified docs, license notices, personal presets, IRs and project fixtures.
+2026-10-12T16:59:45.5591840Z ##[group]Run actions/upload-artifact@v4
+2026-10-12T16:59:45.5592170Z with:
+2026-10-12T16:59:45.5592370Z   name: Chimera-document-upgrade-macos-15
+2026-10-12T16:59:45.5592640Z   path: build/document-upgrade
+2026-10-12T16:59:45.5592840Z   if-no-files-found: error
+2026-10-12T16:59:45.5593100Z   compression-level: 6
+2026-10-12T16:59:45.5593300Z   overwrite: false
+2026-10-12T16:59:45.5593500Z   include-hidden-files: false
+2026-10-12T16:59:45.5593730Z env:
+2026-10-12T16:59:45.5594060Z   pythonLocation: /Users/runner/hostedtoolcache/Python/3.12.10/arm64
+2026-10-12T16:59:45.5594580Z   PKG_CONFIG_PATH: /Users/runner/hostedtoolcache/Python/3.12.10/arm64/lib/pkgconfig
+2026-10-12T16:59:45.5595030Z   Python_ROOT_DIR: /Users/runner/hostedtoolcache/Python/3.12.10/arm64
+2026-10-12T16:59:45.5595440Z   Python2_ROOT_DIR: /Users/runner/hostedtoolcache/Python/3.12.10/arm64
+2026-10-12T16:59:45.5595820Z   Python3_ROOT_DIR: /Users/runner/hostedtoolcache/Python/3.12.10/arm64
+2026-10-12T16:59:45.5596250Z ##[endgroup]
+2026-10-12T16:59:45.7380540Z (node:2238) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-12T16:59:45.7381140Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-12T16:59:45.7433320Z With the provided path, there will be 20 files uploaded
+2026-10-12T16:59:45.7434490Z Artifact name is valid!
+2026-10-12T16:59:45.7434970Z Root directory input is valid!
+2026-10-12T16:59:46.1796440Z Beginning upload of artifact content to blob storage
+2026-10-12T16:59:46.2378340Z (node:2238) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-10-12T16:59:46.5222820Z Uploaded bytes 7905
+2026-10-12T16:59:46.6008220Z Finished uploading artifact content to blob storage!
+2026-10-12T16:59:46.6009940Z SHA256 digest of uploaded artifact zip is 6daa2783ce1ea60318e5b52c79c31b8514e469465525329abb241bfebb8bf346
+2026-10-12T16:59:46.6011260Z Finalizing artifact upload
+2026-10-12T16:59:46.8779200Z Artifact Chimera-document-upgrade-macos-15.zip successfully finalized. Artifact ID 11761297517
+2026-10-12T16:59:46.8842450Z Artifact Chimera-document-upgrade-macos-15 has been successfully uploaded! Final size is 7905 bytes. Artifact ID is 11761297517
+2026-10-12T16:59:46.8845830Z Artifact download URL: https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38280283924/artifacts/11761297517
+2026-10-12T16:59:46.9006990Z Post job cleanup.
+2026-10-12T16:59:47.0256630Z (node:2240) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-12T16:59:47.0258230Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-12T16:59:47.0361020Z Post job cleanup.
+2026-10-12T16:59:47.1334560Z [command]/opt/homebrew/bin/git version
+2026-10-12T16:59:47.1405690Z git version 2.55.0
+2026-10-12T16:59:47.1425070Z Copying '/Users/runner/.gitconfig' to '/Users/runner/work/_temp/edef77d3-9790-48c2-8ce4-c4969f818382/.gitconfig'
+2026-10-12T16:59:47.1441650Z Temporarily overriding HOME='/Users/runner/work/_temp/edef77d3-9790-48c2-8ce4-c4969f818382' before making global git config changes
+2026-10-12T16:59:47.1443730Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-12T16:59:47.1445490Z [command]/opt/homebrew/bin/git config --global --add safe.directory /Users/runner/work/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix
+2026-10-12T16:59:47.1517800Z [command]/opt/homebrew/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-12T16:59:47.1582550Z [command]/opt/homebrew/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-12T16:59:47.2603540Z [command]/opt/homebrew/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-12T16:59:47.2654860Z http.https://github.com/.extraheader
+2026-10-12T16:59:47.2660960Z [command]/opt/homebrew/bin/git config --local --unset-all http.https://github.com/.extraheader
+2026-10-12T16:59:47.2727680Z [command]/opt/homebrew/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-12T16:59:47.3680780Z [command]/opt/homebrew/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-12T16:59:47.3742810Z [command]/opt/homebrew/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-10-12T16:59:47.4536910Z Cleaning up orphan processes
+2026-10-12T16:59:47.6939960Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, actions/setup-python@v5, actions/upload-artifact@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/

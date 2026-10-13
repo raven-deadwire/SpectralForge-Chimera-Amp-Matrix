@@ -5,6 +5,7 @@ import json
 import re
 from pathlib import Path
 from check_ir_distribution import validate_source
+from check_public_names import validate_source as validate_public_presentation
 
 ROOT = Path(__file__).resolve().parents[1]
 CONTRACT = json.loads((ROOT / "Validation/catalog-count-contract.json").read_text(encoding="utf-8"))
@@ -89,3 +90,6 @@ assert CONTRACT["niflheimr_original_preset_ordinals"] == [
     {"index": 43 + i, "name": name} for i, name in enumerate(niflheimr_names)
 ]
 print("PASS: five Náströnd + five Niflheimr Original full rigs; 48 selectable presets, previous 43 indices preserved")
+
+presentation = validate_public_presentation(ROOT)
+print(f"PASS: {presentation['source_documents_checked']} public documents use product names; runtime labels are checked by native tests")

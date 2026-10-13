@@ -42,7 +42,12 @@ $isccCommand = Get-Command ISCC.exe -ErrorAction SilentlyContinue
 $iscc = if ($isccCommand) { $isccCommand.Source } else {
     Join-Path ${env:ProgramFiles(x86)} "Inno Setup 6/ISCC.exe"
 }
-if (!(Test-Path -LiteralPath $iscc)) { throw "Inno Setup 6.3 or newer is required to build the installer." }
+if (!(Test-Path -LiteralPath $iscc)) { throw "Inno Setup 6.7.1 or newer is required to build the installer." }
+# All supported public releases used 6.7.1. Older engines can retain the old
+# Pascal uninstall code while appending logs, bypassing document preservation.
+# LegacyDocumentCleanup.iss checks the actual compiler engine's VER value.
+# Do not use ISCC.exe FileVersionInfo: the official 6.7.1 launcher reports
+# 0.0.0.0 even though its loaded compiler engine is 6.7.1.
 $script = Join-Path $PSScriptRoot "../Installer/Chimera.iss"
 $compilerArguments = @("/DStageDir=$stagePath", "/DOutputPath=$outputPath",
     "/DProductVersion=$($identity.product_version)", "/DPackageVersion=$($identity.version)")
@@ -75,6 +80,13 @@ if ($Sign) {
     $compilerArguments += "/DSignRelease"
     $compilerArguments += ('/SChimeraRelease=$q{0}$q -NoProfile -File $q{1}$q -ExpectedPublisher $q{2}$q -Path $f' -f $pwsh, $signScript, $ExpectedPublisher)
 }
+# Freeze both reviewed historical identities and this exact staged payload into
+# Pascal code. Installed JSON is never trusted as file-deletion authority.
+# Generate after signing, which updates payload-manifest.json bytes above.
+$documentRules = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot "../build/installer-generated/WindowsDocumentRules.iss"))
+& python (Join-Path $PSScriptRoot "windows_document_rules.py") --stage $stagePath --output $documentRules
+if ($LASTEXITCODE -ne 0) { throw "Cannot generate verified document cleanup rules." }
+$compilerArguments += "/DDocumentRulesPath=$documentRules"
 & $iscc @compilerArguments $script
 if ($LASTEXITCODE -ne 0) { throw "Inno Setup failed with exit code $LASTEXITCODE" }
 $installer = Join-Path $outputPath $outputName
