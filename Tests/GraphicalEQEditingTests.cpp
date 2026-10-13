@@ -294,7 +294,11 @@ void externalOwnership() {
     check(edits.addBand(0, 1000.f, 3.f) == 0, "External ownership fixture");
     auto* output = processor.parameters().getParameter("output");
     output->setValueNotifyingHost(output->convertTo0to1(-9.f));
-    check(edits.undo() && processor.parameters().getRawParameterValue("output")->load() == -9.f,
+    const float hostOutput = processor.parameters().getRawParameterValue("output")->load();
+    check(near(hostOutput, -9.f), "Unrelated output automation fixture was not applied");
+    // The host range may round -9 by an ULP (notably with ARM fused arithmetic).
+    // Undo must preserve the actual host value exactly, without a tolerance.
+    check(edits.undo() && processor.parameters().getRawParameterValue("output")->load() == hostOutput,
           "EQ undo rewound an unrelated processor parameter or non-EQ automation erased EQ history");
     check(edits.redo(), "External ownership redo fixture");
     check(edits.beginEdit(0, "Interrupted drag") && edits.setValue(0, 0, "frequency", 1750.f),

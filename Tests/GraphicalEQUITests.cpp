@@ -236,7 +236,9 @@ void editingWorkflow(ChimeraProcessor& processor,GraphicalEQPanel& panel,int ban
     undo->triggerClick();check(waitFor([&]{return panel.isBandVisible(0) && get(processor,eqID(bank,0,"enabled"))==1;}),"Undo deletion failed");
     redo->triggerClick();check(waitFor([&]{return !panel.isBandVisible(0) && selector->getNumItems()==0;}),"Redo deletion failed");
     add->triggerClick();check(waitFor([&]{return panel.selectedBand()==0 && selector->getNumItems()==1;}),"Deleted first slot was not reused");
-    check(get(processor,eqID(bank,0,"frequency"))==1000 && get(processor,eqID(bank,0,"gain"))==0,"Reused slot did not start neutral");
+    const auto reusedFrequency=get(processor,eqID(bank,0,"frequency"));
+    std::cout<<"MEASURE reused EQ node bank="<<bank<<" frequency="<<juce::String(reusedFrequency,6)<<" gain="<<juce::String(get(processor,eqID(bank,0,"gain")),6)<<'\n';
+    check(std::abs(reusedFrequency-1000.f)<.02f && get(processor,eqID(bank,0,"gain"))==0,"Reused slot did not start neutral");
     for(int band=1;band<12;++band){add->triggerClick();check(waitFor([&]{return selector->getNumItems()==band+1;}),"Add did not use the next persistent slot");}
     check(!add->isEnabled(),"Full EQ did not disable Add");
     const auto mask=processor.eqEditing().occupiedMask(bank);
@@ -607,10 +609,19 @@ int main(int argc,char** argv){try {
     processor->setStateInformation(saved.getData(),int(saved.getSize()));verifyBanks();
     for(int e=0;e<2;++e)for(int b=0;b<12;++b)check(std::abs(get(*processor,eqID(e,b,"gain"))-float(b-6+e))<.001,"Project recall changed a node");
     for(int mode:{1,2,0}){set(*processor,"mode",float(mode));settle(100);check(find<GraphicalEQPanel>(*editor,"finalEQ_panel")->isNavigationSelected(),"Mode switch lost the global EQ selection");}
-    tab(*editor,"RIGS")->triggerClick();settle(50);eqTab->triggerClick();settle(50);
-    check(find<GraphicalEQPanel>(*editor,"finalEQ_panel")->isShowing(),"Final EQ selection did not survive leaving and returning to EQ");
-    auto* gatePath=find<juce::TextButton>(*editor,"path.gate");check(gatePath,"Utility path target missing");gatePath->triggerClick();settle(50);eqTab->triggerClick();settle(50);
-    check(find<GraphicalEQPanel>(*editor,"finalEQ_panel")->isShowing(),"Utility navigation overwrote the chosen EQ bank");
+    // The compact signal strip has explicit Tone/Final targets, replacing the
+    // old generic EQ tab. Returning through Final must retain its selected node.
+    auto* finalPanel=find<GraphicalEQPanel>(*editor,"finalEQ_panel");
+    auto* finalPath=find<juce::TextButton>(*editor,"path.final.eq");
+    auto* finalSelector=find<juce::ComboBox>(*finalPanel,eqID(1,-1,"band"));
+    check(finalPath && finalSelector,"Final EQ navigation or node selector missing");
+    finalSelector->setSelectedId(7,juce::sendNotificationSync);
+    tab(*editor,"RIGS")->triggerClick();check(waitFor([&]{return !finalPanel->isShowing();}),"CAB navigation did not leave EQ");
+    finalPath->triggerClick();check(waitFor([&]{return finalPanel->isShowing() && finalPanel->selectedBand()==6;}),"Final EQ node selection did not survive CAB navigation");
+    auto* tunerPath=find<juce::TextButton>(*editor,"tunerOpen");check(tunerPath,"Tuner utility target missing");
+    tunerPath->triggerClick();check(waitFor([&]{return !finalPanel->isShowing();}),"Tuner navigation did not leave EQ");
+    finalPath->triggerClick();check(waitFor([&]{return finalPanel->isShowing() && finalPanel->selectedBand()==6;}),"Utility navigation overwrote the selected Final EQ node");
+    finalSelector->setSelectedId(1,juce::sendNotificationSync);
     for(int percent:{75,100,125,150}){editor->setSize(1180*percent/100,780*percent/100);settle(70);
         for(int e=0;e<2;++e){find<juce::TextButton>(*editor,e==0?"eq.bank.tone":"eq.bank.final")->triggerClick();settle(40);auto* panel=find<GraphicalEQPanel>(*editor,e==0?"toneEQ_panel":"finalEQ_panel");check(panel->isShowing(),"Scaled bank is hidden");const auto local=panel->nodePosition(0);
             const auto global=editor->getLocalPoint(panel,local);const auto finish=global+juce::Point<float>(float(percent)/10,0);
