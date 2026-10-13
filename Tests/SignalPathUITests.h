@@ -168,8 +168,25 @@ inline void keyboardOrder(SignalPathView& view,const std::vector<juce::Component
         require(expected[i-1]->hasKeyboardFocus(false),"Shift-Tab does not reverse signal path order");
     }
 }
-inline void compactDestination(juce::Component& editor,SignalPathView& strip,const juce::String& id) {
-    require(pathButton(strip,id).getToggleState(),"Compact workflow action was not selected");
+inline void compactDestination(juce::Component& editor,SignalPathView& strip,const juce::String& id,const char* phase="navigation") {
+    if(!pathButton(strip,id).getToggleState()) {
+        juce::String selected;
+        for(const auto* stage:compactStages)if(pathButton(strip,stage).getToggleState())selected+=juce::String(stage)+" ";
+        auto* room=find(editor,"cabRoomOverview");auto* amp=find(editor,"ampSelect1");
+        auto* toggle=find<juce::TextButton>(editor,"cabRigControls");
+        const auto presentation=juce::String(", roomShowing=")+juce::String(int(room && room->isShowing()))
+            +", ampShowing="+juce::String(int(amp && amp->isShowing()))
+            +", toggleText="+(toggle?toggle->getButtonText():"missing")
+            +", toggleBounds="+(toggle?toggle->getScreenBounds().toString():"missing")
+            +", toggleVisible="+juce::String(int(toggle && toggle->isShowing()))
+            +", toggleEnabled="+juce::String(int(toggle && toggle->isEnabled()))
+            +", toggleBlocked="+juce::String(int(toggle && toggle->isCurrentlyBlockedByAnotherModalComponent()))
+            +", toggleMouseOver="+juce::String(int(toggle && toggle->isMouseOver()));
+        throw std::runtime_error((juce::String("Compact workflow action was not selected: phase=")+phase
+            +", requested="+id+", mode="+juce::String(strip.snapshot().mode)+", selected=["+selected+"]"
+            +", button="+pathButton(strip,id).getScreenBounds().toString()+", editor="+editor.getScreenBounds().toString()
+            +", pointer="+juce::Desktop::getMousePosition().toString()+presentation).toStdString());
+    }
     const auto visible=[&](const char* componentID){auto* c=find(editor,componentID);return c && c->isShowing();};
     if(id=="pre")require(visible("universalPedalBoard") && !visible("postNativePanel0") && !visible("toneEQ_panel"),
                          "PRE workflow action did not open the pedalboard");
@@ -247,29 +264,29 @@ inline void rigPresentation(ChimeraProcessor& processor,juce::Component& editor,
     const auto dual=processor.parameters().getRawParameterValue("dualtype")->load();
     auto* canvas=find(editor,"surface");auto* toggle=find<juce::TextButton>(editor,"cabRigControls");
     require(canvas && toggle,"Rig presentation controls are absent");
-    click(pathButton(strip,"head"));compactDestination(editor,strip,"head");
+    click(pathButton(strip,"head"));compactDestination(editor,strip,"head","initial HEAD pointer click");
     tab(*canvas,"PRE");tab(*canvas,"RIGS");
-    compactDestination(editor,strip,"head");
-    click(*toggle);compactDestination(editor,strip,"cab");
-    click(*toggle);compactDestination(editor,strip,"head");
+    compactDestination(editor,strip,"head","RIGS tab return");
+    click(*toggle);compactDestination(editor,strip,"cab","rig toggle to CAB");
+    click(*toggle);compactDestination(editor,strip,"head","rig toggle to HEAD");
     if(mode==1) {
         set(processor,"dualtype",dual>.5f?0.f:1.f);settle(100);
-        compactContract(strip,mode);compactDestination(editor,strip,"head");
+        compactContract(strip,mode);compactDestination(editor,strip,"head","Dual topology change");
         set(processor,"dualtype",dual);settle(100);
-        compactDestination(editor,strip,"head");
+        compactDestination(editor,strip,"head","Dual topology restore");
     }
     // Routing-mode changes keep the existing room-first policy, while changing
     // the Dual topology alone retains its current HEAD presentation.
     set(processor,"mode",float((mode+1)%3));settle(100);
-    compactContract(strip,(mode+1)%3);compactDestination(editor,strip,"cab");
+    compactContract(strip,(mode+1)%3);compactDestination(editor,strip,"cab","HEAD mode change");
     set(processor,"mode",float(mode));settle(100);
-    compactContract(strip,mode);compactDestination(editor,strip,"cab");
+    compactContract(strip,mode);compactDestination(editor,strip,"cab","CAB mode restore");
     for(const auto* stage:{"pre","post"}) {
-        click(pathButton(strip,stage));compactDestination(editor,strip,stage);
+        click(pathButton(strip,stage));compactDestination(editor,strip,stage,"global stage pointer click");
         set(processor,"mode",float((mode+1)%3));settle(100);
-        compactContract(strip,(mode+1)%3);compactDestination(editor,strip,stage);
+        compactContract(strip,(mode+1)%3);compactDestination(editor,strip,stage,"global stage mode change");
         set(processor,"mode",float(mode));settle(100);
-        compactContract(strip,mode);compactDestination(editor,strip,stage);
+        compactContract(strip,mode);compactDestination(editor,strip,stage,"global stage mode restore");
     }
     require(before==values(processor),"Rig presentation fixture changed audio state");
     require(writes.changes-initialChanges==6+(mode==1?2:0) && writes.gestures==initialGestures,
@@ -401,9 +418,14 @@ inline void run(const juce::File& folder) {
                 auto* button=find<juce::TextButton>(*strip,"path."+juce::String(id));require(button,"Compact navigation missing");click(*button);
                 compactContract(*strip,mode);compactDestination(*editor,*strip,id);
                 if(juce::String(id)=="head" || juce::String(id)=="cab")
-                    for(const auto& node:nodes)
-                        require(pathButton(*graph,node.id).getToggleState()==node.id.startsWith(juce::String(id)=="head"?"amp.context":"cab.context"),
-                                "Aggregate HEAD/CAB selection did not highlight every matching detailed branch");
+                    for(const auto& node:nodes) {
+                        const bool actual=pathButton(*graph,node.id).getToggleState();
+                        const bool expected=node.id.startsWith(juce::String(id)=="head"?"amp.context":"cab.context");
+                        if(actual!=expected)
+                            throw std::runtime_error((juce::String("Aggregate HEAD/CAB selection did not highlight every matching detailed branch: requested=")
+                                +id+", node="+node.id+", actual="+juce::String(int(actual))+", expected="+juce::String(int(expected))
+                                +", graphMode="+juce::String(graph->snapshot().mode)+", scale="+juce::String(scale)).toStdString());
+                    }
                 const auto rect=editor->getLocalArea(strip,strip->getLocalBounds());require(editor->getLocalBounds().contains(rect),"Strip clipped at UI scale");
                 for(auto* sibling:strip->getParentComponent()->getChildren())if(sibling!=strip && sibling->isVisible())require(!rect.intersects(editor->getLocalArea(sibling,sibling->getLocalBounds())),"Strip overlaps visible editor content");
                 for(auto* child:strip->getChildren())inside(*strip,*child,"Compact path button clipped");

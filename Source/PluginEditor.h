@@ -70,7 +70,7 @@ private:
     void referenceFile(bool save);
     void layoutControls();
     void midiMenu();
-    void navigateSignalPath(const spectralforge::signalPath::Node&);
+    void navigateSignalPath(spectralforge::signalPath::Node);
     void openSignalPath();
     std::unique_ptr<SignalPathView> signalPath;
     juce::Component::SafePointer<juce::DialogWindow> pathDialog;

@@ -340,8 +340,9 @@ void ChimeraEditor::openSignalPath()
     pathDialog=new SignalPathWindow(graph,this);trackDialog(pathDialog);
 
 }
-void ChimeraEditor::navigateSignalPath(const spectralforge::signalPath::Node& node)
+void ChimeraEditor::navigateSignalPath(spectralforge::signalPath::Node node)
 {
+    // Own the request: refreshing a view may replace its originating button's callback.
     using Target=spectralforge::signalPath::Target;
     const int modeNow=juce::jlimit(0,2,int(processor.parameters().getRawParameterValue("mode")->load()));
     // A stale graph event must never select a lane from another routing mode.
@@ -642,7 +643,13 @@ void ChimeraEditor::updateModeUI()
     dualLabel.setText(lastDualCross ? "LOW / HIGH CROSSOVER" : "RIG 1 : RIG 2",juce::dontSendNotification);
     tunerMute.setVisible(lastTuner);globalSliders[5].setVisible(lastTuner);delaySync.setVisible(page==2);
     routingHelp.setText(page==3 ? "TONE EQ > POST > WIDTH > FINAL EQ" : page==1 ? "PEDALBOARD / SHARED INPUT" : page==2 ? "RACK / AFTER RIG MERGE" : matrix ? "LR4 / 24 dB per octave" : lastMode==0 ? "ONE FULL-RANGE RIG" : lastDualCross ? "LR4 / 24 dB per octave" : "FULL-RANGE BLEND",juce::dontSendNotification);
-    stateDirty=true;updateBandLabels();refreshVisibleState();layoutControls();repaint();
+    stateDirty=true;updateBandLabels();refreshVisibleState();layoutControls();
+    // User navigation must update both views with the visible editor, rather
+    // than waiting for their independent automation/inspection timers.
+    const auto syncPath=[this](SignalPathView* view){if(view){view->refresh();view->select(pathSelections[size_t(lastMode)]);}};
+    syncPath(signalPath.get());
+    if(pathDialog)syncPath(dynamic_cast<SignalPathView*>(pathDialog->getContentComponent()));
+    repaint();
 }
 void ChimeraEditor::paint(juce::Graphics& g)
 {
