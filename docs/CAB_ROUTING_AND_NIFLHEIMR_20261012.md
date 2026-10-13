@@ -81,16 +81,18 @@ results are recorded in PR #54. The dispatcher and click deadlines are unchanged
 
 | Stored ordinal | Previous name | New name | Routing and purpose |
 | --- | --- | --- | --- |
-| 43 | Frostline Precision | Clear Clank | Classic Hrímfaxi; controlled lows and clear string attack |
+| 43 | Frostline Precision | Metal Clank | Classic Hrímfaxi; controlled lows and clear string attack |
 | 44 | Carrion Barrage | Death Grind | Dual at 180 Hz; restrained Hrímfaxi lows and Garmr upper grind |
-| 45 | Foundry Pulse | Clean Low Pulse | Matrix at 140 / 1600 Hz; clean LOW DI, Nidavellir MID drive, Hrímfaxi HIGH attack |
+| 45 | Foundry Pulse | Heavy Pulse | Matrix at 140 / 1600 Hz; clean LOW DI, Nidavellir MID drive, Hrímfaxi HIGH attack |
 | 46 | Jötunn Hammer | Slam Punch | Matrix at 110 / 900 Hz; LOW DI 75% / Ymir AMP+CAB 25%, Ymir MID, Garmr HIGH |
 | 47 | Mirebound Monolith | Doom Fuzz | Classic Hel; sustained sludge/doom fuzz |
 
 The 12 October naming follow-up replaced the draft names `Progressive Clank`
 and `Industrial Pulse` with `Clear Attack` and `Clean Low Drive`. On 13 October
 (KST), the user clarified that **Clank** and **Pulse** must remain in the names.
-The current names are **Clear Clank** and **Clean Low Pulse**, with matching
+This introduced **Clear Clank** and **Clean Low Pulse**. Later on 13 October
+(KST), the user requested two-word names that better suit metal tones.
+The current names are **Metal Clank** and **Heavy Pulse**, with matching
 catalog/manual labels and default factory export filenames. Their descriptions
 still explain string attack and clean LOW DI. The authored audio parameters,
 routing modes and stable IDs are retained; existing saved references keep their
@@ -117,7 +119,7 @@ around navigation and project recall.
 
 Niflheimr production tests cover dirty-state recall, the correct native bank
 for every lane, actual audio contribution from each split band, silent parked
-LOW hardware in Clean Low Pulse, ordinary and +6 dB input headroom, binary
+LOW hardware in Heavy Pulse, ordinary and +6 dB input headroom, binary
 and A/B restore, and retaining an existing Classic snapshot. The pre-existing
 RMS > −30 dBFS and peak < 0.95 limits are unchanged.
 
@@ -139,7 +141,7 @@ roles; its manifest records these choices explicitly.
 
 The measurements below retain the draft labels recorded at source
 `97d6786ba35fa541f2ff50b621222aac4f007a5b`: `Progressive Clank` is now
-`Clear Clank`, and `Industrial Pulse` is now `Clean Low Pulse`. These are
+`Metal Clank`, and `Industrial Pulse` is now `Heavy Pulse`. These are
 historical render results; the display-name follow-up does not claim a new
 render or real-DI listening result.
 

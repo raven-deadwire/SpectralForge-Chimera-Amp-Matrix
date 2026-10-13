@@ -15,11 +15,11 @@ struct OriginalRigPreset {const char* id;const char* name;const char* role;int m
 // Factory cabinet recipes are modeled and independent of external IR files.
 // These are complete PRE / amp / cabinet / POST rigs with separate identities.
 inline constexpr std::array<OriginalRigPreset,5> originalRigPresets{{
-    {"original.rig.nastrond.thall.v3","Thall Rhythm","Fenrir: hot TS808 / Diamond, Console VCA and sculpted Console Four EQ; dry reference-inspired rhythm.",0},
+    {"original.rig.nastrond.thall.v3","Thall Rhythm","Fenrir: hot Green Drive / Optical, Console VCA and sculpted Console Four EQ; dry reference-inspired rhythm.",0},
     {"original.rig.nastrond.lead.v3","Molten Lead","Surtr: Studio FET / Gold Drive, Inductor EQ, 229 delay and plate for sustained lead.",0},
-    {"original.rig.nastrond.grind.v3","Rotten Grind","Níðhöggr / Ragnarök crossover Dual: Obsession / Diamond, Iron Colour and a 2 kHz POST bite.",1},
+    {"original.rig.nastrond.grind.v3","Rotten Grind","Níðhöggr / Ragnarök crossover Dual: Obsession / Optical, Iron Colour and a 2 kHz POST bite.",1},
     {"original.rig.nastrond.sludge.v3","Sludge Mass","Fimbulvetr: Vintage Fuzz / PRE Graphic EQ, Passive Tube EQ and a small dark hall.",0},
-    {"original.rig.nastrond.slam.v3","Slam Impact","Fenrir LOW / Fimbulvetr MID / Ragnarök HIGH: reference-inspired Matrix, hot TS808 / Diamond and full POST chain.",2}
+    {"original.rig.nastrond.slam.v3","Slam Impact","Fenrir LOW / Fimbulvetr MID / Ragnarök HIGH: reference-inspired Matrix, hot Green Drive / Optical and full POST chain.",2}
 }};
 inline constexpr int originalPresetCount=int(originalRigPresets.size());
 inline bool isOriginalPreset(int index) {return index>=originalPresetStart && index<originalPresetStart+originalPresetCount;}

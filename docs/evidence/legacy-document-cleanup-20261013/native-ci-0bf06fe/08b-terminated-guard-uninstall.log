@@ -1,0 +1,56 @@
+﻿2026-10-12 16:54:09.108   Log opened. (Time zone: UTC+00:00)
+2026-10-12 16:54:09.108   Setup version: Inno Setup version 6.7.1
+2026-10-12 16:54:09.108   Original Uninstall EXE: D:\a\_temp\Chimera document lifecycle 916ada417cbe471a89aab6355f61ce77\설치 경로\Uninstall\unins000.exe
+2026-10-12 16:54:09.108   Uninstall DAT: D:\a\_temp\Chimera document lifecycle 916ada417cbe471a89aab6355f61ce77\설치 경로\Uninstall\unins000.dat
+2026-10-12 16:54:09.108   Current Uninstall EXE: C:\Users\RUNNER~1\AppData\Local\Temp\is-ZIIKDPUXEN-uninstall.tmp\_unins.tmp
+2026-10-12 16:54:09.108   Uninstall command line: /SECONDPHASE="D:\a\_temp\Chimera document lifecycle 916ada417cbe471a89aab6355f61ce77\설치 경로\Uninstall\unins000.exe" /FIRSTPHASEWND=$C022E /VERYSILENT /SUPPRESSMSGBOXES /NORESTART /SP- /DOCGUARDPROBE=hold /DOCGUARDMARKER="D:\a\_temp\Chimera document lifecycle 916ada417cbe471a89aab6355f61ce77\outside\guard-process.txt" /LOG="D:\a\SpectralForge-Chimera-Amp-Matrix\SpectralForge-Chimera-Amp-Matrix\build\windows-document-upgrade-verification/08b-terminated-guard-uninstall.log"
+2026-10-12 16:54:09.108   Windows version: 10.0.20348
+2026-10-12 16:54:09.108   Windows architecture: x64 (64-bit)
+2026-10-12 16:54:09.108   Machine types supported by system: x86 x64
+2026-10-12 16:54:09.108   User privileges: Administrative
+2026-10-12 16:54:09.108   Administrative install mode: Yes
+2026-10-12 16:54:09.108   Install mode root key: HKEY_LOCAL_MACHINE
+2026-10-12 16:54:09.108   RedirectionGuard status for current process: Enabled in enforcing mode
+2026-10-12 16:54:09.108   Cleaning up any residual temporary files from previous Uninstall runs.
+2026-10-12 16:54:09.108   Cleanup finished (1 directories found, 1 directories checked, 0 files deleted).
+2026-10-12 16:54:09.108   Created protected temporary directory: C:\Users\RUNNER~1\AppData\Local\Temp\is-N6G3NSWQ4B.tmp
+2026-10-12 16:54:09.108   -- DLL function import --
+2026-10-12 16:54:09.108   Function and DLL name: CreateFileW@kernel32.dll
+2026-10-12 16:54:09.108   Importing the DLL function. Dest DLL name: kernel32.dll
+2026-10-12 16:54:09.108   Successfully imported the DLL function. Delay loaded? No
+2026-10-12 16:54:09.108   -- DLL function import --
+2026-10-12 16:54:09.108   Function and DLL name: CloseHandle@kernel32.dll
+2026-10-12 16:54:09.108   Importing the DLL function. Dest DLL name: kernel32.dll
+2026-10-12 16:54:09.108   Successfully imported the DLL function. Delay loaded? No
+2026-10-12 16:54:09.108   -- DLL function import --
+2026-10-12 16:54:09.108   Function and DLL name: GetFileInformationByHandle@kernel32.dll
+2026-10-12 16:54:09.108   Importing the DLL function. Dest DLL name: kernel32.dll
+2026-10-12 16:54:09.108   Successfully imported the DLL function. Delay loaded? No
+2026-10-12 16:54:09.108   -- DLL function import --
+2026-10-12 16:54:09.108   Function and DLL name: SetFileInformationByHandle@kernel32.dll
+2026-10-12 16:54:09.108   Importing the DLL function. Dest DLL name: kernel32.dll
+2026-10-12 16:54:09.108   Successfully imported the DLL function. Delay loaded? No
+2026-10-12 16:54:09.108   -- DLL function import --
+2026-10-12 16:54:09.108   Function and DLL name: GetFileAttributesW@kernel32.dll
+2026-10-12 16:54:09.108   Importing the DLL function. Dest DLL name: kernel32.dll
+2026-10-12 16:54:09.108   Successfully imported the DLL function. Delay loaded? No
+2026-10-12 16:54:09.108   -- DLL function import --
+2026-10-12 16:54:09.108   Function and DLL name: GetLastError@kernel32.dll
+2026-10-12 16:54:09.108   Importing the DLL function. Dest DLL name: kernel32.dll
+2026-10-12 16:54:09.108   Successfully imported the DLL function. Delay loaded? No
+2026-10-12 16:54:09.108   -- DLL function import --
+2026-10-12 16:54:09.108   Function and DLL name: FlushFileBuffers@kernel32.dll
+2026-10-12 16:54:09.108   Importing the DLL function. Dest DLL name: kernel32.dll
+2026-10-12 16:54:09.108   Successfully imported the DLL function. Delay loaded? No
+2026-10-12 16:54:09.108   -- DLL function import --
+2026-10-12 16:54:09.108   Function and DLL name: GetCurrentProcessId@kernel32.dll
+2026-10-12 16:54:09.108   Importing the DLL function. Dest DLL name: kernel32.dll
+2026-10-12 16:54:09.108   Successfully imported the DLL function. Delay loaded? No
+2026-10-12 16:54:09.108   Chimera document preservation: locked in place through uninstall D:\a\_temp\Chimera document lifecycle 916ada417cbe471a89aab6355f61ce77\설치 경로\Documentation\AMP_NATIVE_DSP.md
+2026-10-12 16:54:09.108   Chimera document preservation: guarded absent historical pathname D:\a\_temp\Chimera document lifecycle 916ada417cbe471a89aab6355f61ce77\설치 경로\Documentation\AMP_VALIDATION.md
+2026-10-12 16:54:09.108   Chimera document preservation: locked in place through uninstall D:\a\_temp\Chimera document lifecycle 916ada417cbe471a89aab6355f61ce77\설치 경로\Documentation\ARTWORK_PROMPTS.json
+2026-10-12 16:54:09.108   Chimera document preservation: locked in place through uninstall D:\a\_temp\Chimera document lifecycle 916ada417cbe471a89aab6355f61ce77\설치 경로\Documentation\PEDAL_BOARD_DSP.md
+2026-10-12 16:54:09.108   Chimera document preservation: locked in place through uninstall D:\a\_temp\Chimera document lifecycle 916ada417cbe471a89aab6355f61ce77\설치 경로\Documentation\POST_NATIVE_DSP.md
+2026-10-12 16:54:09.108   Chimera document preservation: locked in place through uninstall D:\a\_temp\Chimera document lifecycle 916ada417cbe471a89aab6355f61ce77\설치 경로\Documentation\THIRD_PARTY_NOTICES.md
+2026-10-12 16:54:09.108   Chimera document preservation: locked in place through uninstall D:\a\_temp\Chimera document lifecycle 916ada417cbe471a89aab6355f61ce77\설치 경로\Documentation\VALIDATION_STATUS.md
+2026-10-12 16:54:09.108   Chimera document preservation: guarded absent historical pathname D:\a\_temp\Chimera document lifecycle 916ada417cbe471a89aab6355f61ce77\설치 경로\Documentation\reference\microphone-tags.json

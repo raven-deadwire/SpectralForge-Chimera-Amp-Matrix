@@ -2,7 +2,7 @@
 
 Prepared: **October 13, 2026, Asia/Seoul**.
 
-This development change starts from the verified [PR #55](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/pull/55)
+This development change started from the verified [PR #55](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/pull/55)
 source `e7b00cb09c5431d86c03282392eafddbe8edbfdd` on
 `integration/beta2-test-20261014`. It belongs to a separate stacked development
 PR. Preparing or testing this branch does not update PR #55's head, qualify its
@@ -17,6 +17,29 @@ used a combined current-mode rig button. The revised scope separates **HEAD**
 and **CAB** so each editing destination is directly available. Results and
 artifacts from that initial revision are historical evidence only; the six-stage
 implementation requires its own full source SHA and fresh matching verification.
+
+## Updated integration base
+
+During verification, PR #55 independently advanced to
+`c3e9d436fbdc9b8778b592f333c93037b012b8c5`, incorporating its naming and
+document/installer maintenance. The earlier UI-only source
+`60fc8ecb84f8e3e2df99a986bf2a7ab0b4f5415f` passed its native signal-path test,
+but its Windows Product CI failed before compilation: the updated PR workflow
+required `Tools/Verify-WindowsPreviousReleaseUpgrade.ps1`, which was absent
+from that older source checkout. Re-running the same mismatch would not fix it.
+
+This separate development branch therefore merges the existing `c3e9d436`
+integration base, preserving its changes without writing to PR #55. The
+feature difference against that base remains eight UI, test and documentation
+files. Existing naming, installer helpers, workflow definitions and historical
+evidence are inherited unchanged; they are not new deliveries of this UI work.
+In particular, the upstream public-caption/host-display naming changes are
+distinct from this feature, which changes no host parameter or preset definition.
+
+The combined source requires fresh native tests, exact-source CI and release
+contracts. Results for either parent do not qualify the merge. The UI boundary
+below is measured against `c3e9d436`; the original `e7b00cb0` remains the
+reference for the before/after signal-chain comparison.
 
 ## Baseline comparison and editing contract
 
@@ -97,7 +120,8 @@ Matrix LOW DI/AMP+CAB relationship remain represented by the same snapshot.
 Gate automation therefore changes the detailed graph while leaving the six
 compact editing stages in a stable order.
 
-The scope is UI presentation/navigation and its regression coverage. DSP
+The feature scope relative to the current integration base is UI
+presentation/navigation and its regression coverage. DSP
 processing order, parameter IDs and ordinals, host names, preset format,
 factory-preset data, A/B state and existing global utility controls are preserved.
 No routing reorder, new processor or release-policy exception is introduced.

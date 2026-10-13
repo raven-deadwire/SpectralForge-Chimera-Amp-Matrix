@@ -1,0 +1,161 @@
+{
+  "schema": "spectralforge.legacy-document-regressions.v1",
+  "source_sha": "76889b0a6cba12248c283b930a548ce48805579b",
+  "source_tree": "eb168ebe3b9bedf6e467675c9d04b451a4572e6c",
+  "started_at_utc": "2026-10-12T16:39:42.830452+00:00",
+  "source_clean_before": true,
+  "baseline": "d7450883ddbeba58e44cf217072f325654c16128",
+  "commands": [
+    {
+      "command": [
+        "python3",
+        "Tools/check_catalog_contract.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.79,
+      "test_cases": null,
+      "skipped": 0
+    },
+    {
+      "command": [
+        "python3",
+        "Tests/test_public_names.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.777,
+      "test_cases": 8,
+      "skipped": 0
+    },
+    {
+      "command": [
+        "python3",
+        "Tools/test_publish_release.py"
+      ],
+      "exit_code": 0,
+      "seconds": 1.826,
+      "test_cases": 32,
+      "skipped": 0
+    },
+    {
+      "command": [
+        "python3",
+        "Tests/test_packaging_version.py"
+      ],
+      "exit_code": 0,
+      "seconds": 3.323,
+      "test_cases": 22,
+      "skipped": 3
+    },
+    {
+      "command": [
+        "python3",
+        "Tools/test_candidate_transfer.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.175,
+      "test_cases": 4,
+      "skipped": 0
+    },
+    {
+      "command": [
+        "python3",
+        "Tools/test_weekly_publication.py"
+      ],
+      "exit_code": 0,
+      "seconds": 2.354,
+      "test_cases": 29,
+      "skipped": 0
+    },
+    {
+      "command": [
+        "python3",
+        "Tools/test_publication_evidence.py"
+      ],
+      "exit_code": 0,
+      "seconds": 2.242,
+      "test_cases": 20,
+      "skipped": 0
+    },
+    {
+      "command": [
+        "python3",
+        "Tools/test_release_consolidator.py"
+      ],
+      "exit_code": 0,
+      "seconds": 2.316,
+      "test_cases": 30,
+      "skipped": 0
+    },
+    {
+      "command": [
+        "python3",
+        "Tools/test_beta_publication131.py"
+      ],
+      "exit_code": 0,
+      "seconds": 1.639,
+      "test_cases": 23,
+      "skipped": 0
+    },
+    {
+      "command": [
+        "python3",
+        "Tools/test_publish_beta131.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.773,
+      "test_cases": 45,
+      "skipped": 0
+    },
+    {
+      "command": [
+        "python3",
+        "Tools/test_release_scope.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.293,
+      "test_cases": null,
+      "skipped": 0
+    },
+    {
+      "command": [
+        "python3",
+        "Tests/test_windows_document_rules.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.052,
+      "test_cases": 11,
+      "skipped": 0
+    },
+    {
+      "command": [
+        "python3",
+        "Tools/test_legacy_document_cleanup.py"
+      ],
+      "exit_code": 0,
+      "seconds": 1.844,
+      "test_cases": 42,
+      "skipped": 1
+    }
+  ],
+  "publication_approved": false,
+  "native_product_installation_verified": false,
+  "source_clean_after": true,
+  "success": true,
+  "test_cases": 266,
+  "skipped": 4,
+  "passed": 262,
+  "raw_log_sha256": "5fec1a7d0045d393c6a33b6bb4d04dd9379d72bb997889550dc09e4516bbe889",
+  "cmake_runtime": "/root/.local/lib/python3.12/site-packages/cmake/data/bin",
+  "unchanged_scopes": {
+    "product_source": {
+      "unchanged": true,
+      "changed_files": []
+    },
+    "release_contracts": {
+      "unchanged": true,
+      "changed_files": []
+    }
+  },
+  "equivalent_github_source_sha": "50e40f906843d5bc264774ec27c9a81edddd4884",
+  "source_equivalence": "The exact Git tree eb168ebe3b9bedf6e467675c9d04b451a4572e6c was verified equal between the locally tested commit and the GitHub API-created commit."
+}

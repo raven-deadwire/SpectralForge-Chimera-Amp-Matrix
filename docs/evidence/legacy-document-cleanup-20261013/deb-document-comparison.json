@@ -1,0 +1,115 @@
+{
+  "schema": "spectralforge.historical-deb-doc-comparison.v1",
+  "package": "SpectralForge-Chimera-1.3.1-beta.1-linux-x86_64.deb",
+  "size": 213313724,
+  "sha256": "5ca9409186e20e94781f9b8865eb549909c613d09ff635b7f2a23745a0f7fefd",
+  "status": "pass",
+  "documents_compared": 20,
+  "same_document_bytes_as_public_tar": true,
+  "control_archive_files": [
+    "./control"
+  ],
+  "actual_install_verified": false,
+  "files": [
+    {
+      "path": "AMP_NATIVE_DSP.md",
+      "size": 10588,
+      "sha256": "0387af8daf39ee3373396fec2a05f4f14930cf8d236cd3a90d26baf13bb57eb7"
+    },
+    {
+      "path": "AMP_VALIDATION.md",
+      "size": 12023,
+      "sha256": "1477d4be92eb6bd0904f33f3151469b6e3891fa03ef1848dea9ddedb65acd74f"
+    },
+    {
+      "path": "AMP_VOICES_OPEN_BETA.md",
+      "size": 7811,
+      "sha256": "c67cb981d1fbbe8b7bf3727addccf9fdc0cf3196cb620b1c145d7695ac210fe8"
+    },
+    {
+      "path": "COPYRIGHT.txt",
+      "size": 174,
+      "sha256": "72f5d564400827c4d6d071649c507f36a5a0bc79003b24461f53285f00899bc7"
+    },
+    {
+      "path": "EXTERNAL_BASS_IRS.md",
+      "size": 1714,
+      "sha256": "1ede5213d65938edc037d4bd831169fe33d606c32d23da52882a424ba840dd23"
+    },
+    {
+      "path": "FACTORY_CAB_VOICING_1_3.md",
+      "size": 15969,
+      "sha256": "058ada6a4b6011a3f6330e1552b27b0a974d15cbff18fc8ca58849fd03b284ac"
+    },
+    {
+      "path": "INSTALLATION.md",
+      "size": 7736,
+      "sha256": "e73d1d098a9f725dc9fff3d279fb985194a12700eb248526ccf36e9d00f9ab94"
+    },
+    {
+      "path": "IR_DISTRIBUTION.md",
+      "size": 2508,
+      "sha256": "f5fc289eff9f71b6a71b96a1491483b7736463760957b4b6e6fedefc8f09518e"
+    },
+    {
+      "path": "MANUAL.html",
+      "size": 266264,
+      "sha256": "97645c9cdbb053d50fc190512d0c5656062685885070c6dbc0e03de71c7d778f"
+    },
+    {
+      "path": "OPEN_BETA_RELEASE_NOTES.md",
+      "size": 10171,
+      "sha256": "bb5e44699452c10fcd6b610f5de758372417c04feafe010382179119847fa721"
+    },
+    {
+      "path": "PEDAL_BOARD_DSP.md",
+      "size": 8643,
+      "sha256": "e18fcabebb914a21357e16828e82ccfb17d87eb4e41fa9d7d4f87f7accd43a51"
+    },
+    {
+      "path": "POST_NATIVE_DSP.md",
+      "size": 7143,
+      "sha256": "814fc7fe3184d3093cf2b40d48f9cf520a39cd6678c88a8f5e2b0059c3281372"
+    },
+    {
+      "path": "PRESETS.md",
+      "size": 13829,
+      "sha256": "204d7770911560aa284fdb27e9edab63d7dcfd92d3a4f7e69bfc7d7f74af2fb7"
+    },
+    {
+      "path": "STUDIO_ONE_TEARDOWN.md",
+      "size": 5936,
+      "sha256": "1c7972ba988c8c7e7e210e270999edffcdafc4b87637c11154e297b0064dbd0b"
+    },
+    {
+      "path": "THIRD_PARTY_NOTICES.md",
+      "size": 3627,
+      "sha256": "05cfcd43ab8062b9d3b1425db5955b7d062bf1cc517d7367f51287ff4e5f2908"
+    },
+    {
+      "path": "UPDATES.md",
+      "size": 8181,
+      "sha256": "84d1afcfb2bde692734490544d54ea44f2c2540ea9b05c410cb5687f018b0621"
+    },
+    {
+      "path": "VALIDATION_STATUS.md",
+      "size": 4435,
+      "sha256": "5f14b6c470b0b67a5d8be78629c499c711c1862f5db11233bbc690ab071a7f3a"
+    },
+    {
+      "path": "Verification.txt",
+      "size": 349794,
+      "sha256": "d5d7b02db8e021e9fcb030b51b061a15ca2ce85532f423091c5690bd69c76fb9"
+    },
+    {
+      "path": "WINDOWS_INSTALL.txt",
+      "size": 5290,
+      "sha256": "3850b3a7c448c5467f7ec0c3f0c79bd636b8c8b3ae650930dd558c406f0b5133"
+    },
+    {
+      "path": "payload-manifest.json",
+      "size": 4702,
+      "sha256": "04897baac4061bdb8c902187b84f3f709b6533ed7833bdb724d1aba7842f78aa"
+    }
+  ]
+}

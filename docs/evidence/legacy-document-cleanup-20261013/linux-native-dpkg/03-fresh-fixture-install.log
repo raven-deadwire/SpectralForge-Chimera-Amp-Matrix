@@ -1,0 +1,28 @@
+Selecting previously unselected package chimera-amp-matrix.
+(Reading database ... 0 files and directories currently installed.)
+Preparing to unpack .../document-lifecycle-fixture.deb ...
+Unpacking chimera-amp-matrix (1.3.1~beta.2) ...
+Setting up chimera-amp-matrix (1.3.1~beta.2) ...
+dpkg: regarding .../document-lifecycle-fixture.deb containing chimera-amp-matrix, pre-dependency problem:
+ chimera-amp-matrix pre-depends on libc6
+  libc6 is not installed.
+
+dpkg: warning: ignoring pre-dependency problem!
+dpkg: chimera-amp-matrix: dependency problems, but configuring anyway as you requested:
+ chimera-amp-matrix depends on libasound2 (>= 1.0.16); however:
+  Package libasound2 is not installed.
+ chimera-amp-matrix depends on libc6 (>= 2.35); however:
+  Package libc6 is not installed.
+ chimera-amp-matrix depends on libcurl4 (>= 7.16.2); however:
+  Package libcurl4 is not installed.
+ chimera-amp-matrix depends on libfontconfig1 (>= 2.12.6); however:
+  Package libfontconfig1 is not installed.
+ chimera-amp-matrix depends on libfreetype6 (>= 2.8); however:
+  Package libfreetype6 is not installed.
+ chimera-amp-matrix depends on libgcc-s1 (>= 4.0); however:
+  Package libgcc-s1 is not installed.
+ chimera-amp-matrix depends on libstdc++6 (>= 12); however:
+  Package libstdc++6 is not installed.
+ chimera-amp-matrix depends on libc6; however:
+  Package libc6 is not installed.
+

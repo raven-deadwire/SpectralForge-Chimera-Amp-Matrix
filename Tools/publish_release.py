@@ -22,15 +22,17 @@ import zipfile
 
 import chimera_version
 import check_ir_distribution
+import check_public_names
 import evaluate_release_gate as gate
 import publish_open_beta as transport
 import weekly_publication
+from package_release import PUBLIC_DOCUMENTS
 from verify_publication_evidence import verify_embedded_evidence
 # These version-independent verification primitives retain the shipped CI and
 # archive contracts. No version, branch, approval or publishing entry point from
 # the historical publisher is used.
 from publish_beta131 import (CIPending, WORKFLOWS, GATE_ARTIFACT_NAME,
-    CANDIDATE_MAX_EXPANDED_BYTES, SOURCE_DOCUMENTS, SUFFIXES, verified_run,
+    CANDIDATE_MAX_EXPANDED_BYTES, SUFFIXES, verified_run,
     verified_jobs, verified_artifact, ci_identity, parse_json, read_json, check_archive)
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -40,6 +42,9 @@ CONTROL_PATHS = frozenset({APPROVAL_PATH})
 DOCUMENTS = ("SHA256SUMS.txt", "MANUAL.html", "INSTALLATION.md", "THIRD_PARTY_NOTICES.md",
              "candidate-source.json", "InstallerVerification.txt",
              "macOS-package-verification.txt", "Linux-package-verification.txt")
+# User documentation is a reviewed product surface. Keep historical reference
+# documents in the repository, independently of the unchanged raw gate evidence.
+SOURCE_DOCUMENTS = tuple(name for name in PUBLIC_DOCUMENTS if name not in DOCUMENTS)
 require, sha256 = transport.require, transport.sha256
 
 
@@ -318,6 +323,8 @@ def prepare_assets(candidate, release, run_id, run_attempt):
     assets["COPYRIGHT.txt"] = ROOT / "COPYRIGHT.txt"
     for name, path in assets.items():
         require(path.is_file() and not path.is_symlink() and path.stat().st_size > 0, f"Missing public file: {name}")
+        if name in PUBLIC_DOCUMENTS or name == "COPYRIGHT.txt":
+            check_public_names.validate_document(path, name=name)
     notes = assets["OPEN_BETA_RELEASE_NOTES.md"].read_text(encoding="utf-8").strip()
     require(release.version in notes and "Studio One" in notes and "CAB" in notes,
             "Current version release notes and retained host/CAB disclosure are required")

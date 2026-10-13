@@ -140,8 +140,8 @@ class PedalBoardPanel final : public juce::Component, private juce::Timer {
         detailBypassAttachment.reset();
         if(owner>=0) {
             detailTitle.setText(spectralforge::pedalMenuName(detailedModel),juce::dontSendNotification);
-            detailReference.setText(spectralforge::pedalReferenceName(detailedModel),juce::dontSendNotification);
-            detailReference.setTooltip(spectralforge::pedalModel(detailedModel).name);
+            detailReference.setText(spectralforge::pedalDescription(detailedModel),juce::dontSendNotification);
+            detailReference.setTooltip(detailReference.getText());
             for(int i=0;i<spectralforge::pedalMaxControls;++i)bind(details[(size_t)i],owner,detailedModel,i,true);
             detailBypassAttachment=bindPower(detailBypass,owner,detailedModel);
         }
@@ -166,8 +166,8 @@ class PedalBoardPanel final : public juce::Component, private juce::Timer {
                 layoutChanged=true;
                 const bool ownerChanged=card.owner!=owner;
                 card.owner=owner;card.modelId=model;
-                card.reference.setText(spectralforge::pedalReferenceName(model),juce::dontSendNotification);
-                card.reference.setTooltip(model?spectralforge::pedalModel(model).name:"");
+                card.reference.setText(spectralforge::pedalDescription(model),juce::dontSendNotification);
+                card.reference.setTooltip(card.reference.getText());
                 if(ownerChanged)card.model.resetSyncExplicit(model+1);else card.model.syncSelectedId(model+1);
                 card.attachment.reset();
                 if(model)card.attachment=bindPower(card.bypass,owner,model);

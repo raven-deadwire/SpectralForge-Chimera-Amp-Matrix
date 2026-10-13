@@ -12,7 +12,7 @@ namespace spectralforge {
 struct GuitarSignature { const char* id; const char* name; const char* description; };
 // A separate append-only bank preserves Factory31/Bass3 and every menu ID.
 inline constexpr std::array<GuitarSignature,4> guitarSignatures{{
-    {"raven.alsatia.v1","A Path To Alsatia","Power-metal solo: Hot Lead / Liquid Lead Dual, Studio FET and Gold Drive, FET / Inductor EQ, 229 repeats and plate."},
+    {"raven.alsatia.v1","A Path To Alsatia","Power-metal solo: Hot Lead / Liquid Lead Dual, Studio FET and Gold Drive, FET / Inductor EQ, Precision Delay repeats and plate."},
     {"raven.wrath.v1","Feel My Wrath","Groove-metal rhythm: Fourfold / Tight 515 Dual, Yellow Asym, dry POST; VCA available in bypass for optional glue."},
     {"raven.blackhearted.v1","Blackhearted","Death-metal rhythm: clean LOW, Fourfold MID and Night Harvest HIGH; Yellow Asym after the LOW tap, focused EQ and dry POST."},
     {"raven.throne.v1","Dark Matters of Throne","Death-metal rhythm: clean LOW, Blue Storm MID and Night Harvest HIGH; Obsession after the LOW tap, Iron Colour and Passive Tube EQ."}

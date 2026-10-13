@@ -31,7 +31,7 @@ inline constexpr std::array<AmpInfo, ampModelCount> ampCatalog{{
     {"Solid Punch", "Gallien-Krueger 800RB", "Fast bass attack / clear upper mids", true},
     {"Modern Bass", "Darkglass B7K Ultra + Aguilar DB751", "Blended bass drive / reference chain", true},
     {"Chime 30", "VOX AC30 Top Boost", "Bright edge breakup / responsive upper mids", false},
-    {"Orange Crown", "Orange Rockerverb 50 MKIII", "Dense low mids / thick high gain", false},
+    {"Amber Crown", "Orange Rockerverb 50 MKIII", "Dense low mids / thick high gain", false},
     {"Vintage Valve", "Fender Super Bassman", "Rounded tube bass / retained fundamentals", true},
     {"Metro Clean", "Mesa Subway D-800+", "High-headroom bass / broad clean bandwidth", true},
     {"Prism Chime", "Matchless DC-30", "Complex chime / firm mids and responsive breakup", false},
@@ -71,7 +71,7 @@ inline constexpr std::array<unsigned,ampModelCount> ampRoleTags{{
     AmpRole::clean|AmpRole::crunch|AmpRole::bass,                  // Solid Punch
     AmpRole::crunch|AmpRole::highGain|AmpRole::bass,               // Modern Bass
     AmpRole::clean|AmpRole::crunch,                               // Chime 30
-    AmpRole::crunch|AmpRole::lead|AmpRole::highGain,               // Orange Crown
+    AmpRole::crunch|AmpRole::lead|AmpRole::highGain,               // Amber Crown
     AmpRole::clean|AmpRole::crunch|AmpRole::bass,                  // Bassman Valve
     AmpRole::clean|AmpRole::bass,                                 // Subway Clean
     AmpRole::clean|AmpRole::crunch,                               // Match Chime
@@ -112,8 +112,9 @@ inline const char* ampPrimaryRoleName(int model) {
     return "";
 }
 inline juce::StringArray legacyAmpNames() {
-    return {"Glass","Brit Edge","Tight 515","Wide Rect","Liquid Lead","Iron Tube","Solid Punch","Modern Bass",
-            "Chime 30","Orange Crown","Bassman Valve","Subway Clean","Match Chime","Silk ODS","Taste Punch"};
+    juce::StringArray names;
+    for(int model=0;model<legacyAmpModelCount;++model)names.add(juce::String::fromUTF8(ampCatalog[(size_t)model].name));
+    return names;
 }
 inline const AmpInfo& ampInfo(int index) { return ampCatalog[(size_t)juce::jlimit(0, ampModelCount - 1, index)]; }
 inline juce::StringArray ampNames() { juce::StringArray names; for (const auto& info : ampCatalog) names.add(juce::String::fromUTF8(info.name)); return names; }
