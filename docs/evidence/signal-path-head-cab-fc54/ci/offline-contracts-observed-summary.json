@@ -1,0 +1,101 @@
+{
+  "schema": "spectralforge.chimera.offline-contracts.observed-summary",
+  "schema_version": 1,
+  "report_kind": "OBSERVED_SUMMARY_NOT_RECONSTRUCTED_ORIGINAL_LOGS",
+  "repository": "raven-deadwire/SpectralForge-Chimera-Amp-Matrix",
+  "source_sha": "fc54ab94d40e525006c474d3f1f93ce6bffa688b",
+  "source_tree": "65b2a39cda2e592f3e187dccf9216f36d5eb8360",
+  "integration_base_sha": "c3e9d436fbdc9b8778b592f333c93037b012b8c5",
+  "original_user_verified_source_sha": "e7b00cb09c5431d86c03282392eafddbe8edbfdd",
+  "merge_parents": [
+    "60fc8ecb84f8e3e2df99a986bf2a7ab0b4f5415f",
+    "c3e9d436fbdc9b8778b592f333c93037b012b8c5"
+  ],
+  "observed_execution": {
+    "started_at": "2026-10-13T03:27:50Z",
+    "completed_at": "2026-10-13T03:28:27Z",
+    "worktree": "/workspace/scratch/135d0f1b5f72/chimera-signal-current-base",
+    "clean_exact_source_before_and_after": true
+  },
+  "unique_command_count": 32,
+  "unique_command_pass_count": 32,
+  "unique_unittest_suite_count": 17,
+  "unittest_cases_discovered": 357,
+  "unittest_cases_executed_passed": 353,
+  "unittest_cases_skipped": 4,
+  "non_unittest_command_count": 15,
+  "counting_note": "Unique commands and suite cases only; skipped cases are excluded from executed PASS and historical source runs are not added.",
+  "execution_scope": "The original two build.yml preflight blocks were extracted using Tools/test_release_preflight.py:workflow_script(), source SHA substituted and duplicate commands removed. The existing 27 commands were augmented with five checks required by inherited public-name/document/installer changes. No existing workflow, policy, receipt, waiver, tool or fixture was changed.",
+  "additional_checks": [
+    "Python compilation of inherited public-name/document-cleanup/verification tools",
+    "python Tools/check_public_names.py: 13 source documents and 119 forbidden terms checked",
+    "python Tests/test_public_names.py: 8 cases passed",
+    "python Tests/test_windows_document_rules.py: 11 cases passed",
+    "python Tools/test_legacy_document_cleanup.py: 42 discovered, 41 executed PASS, 1 skip"
+  ],
+  "skip_details": [
+    {
+      "count": 3,
+      "suite": "Tools/test_packaging_version.py",
+      "reason": "Windows PowerShell/PE-resource builder cases unavailable on the Linux runner."
+    },
+    {
+      "count": 1,
+      "test": "test_restore_retains_private_file_owner_group_and_permissions",
+      "reason": "The isolated runtime could not map another UID/GID (Errno 22)."
+    }
+  ],
+  "boundary_observation": {
+    "feature_diff_check_passed": true,
+    "feature_changed_file_count": 8,
+    "feature_changed_source_file_count": 3,
+    "feature_changed_files": [
+      "README.md",
+      "Source/SignalPathView.h",
+      "Source/PluginEditor.cpp",
+      "Source/PluginEditor.h",
+      "Tests/SignalPathUITests.h",
+      "docs/MANUAL.html",
+      "docs/OPEN_BETA_RELEASE_NOTES.md",
+      "docs/SIGNAL_PATH_WORKFLOW_SIMPLIFICATION.md"
+    ],
+    "unchanged_against_integration_base": [
+      "All Source files except SignalPathView.h, PluginEditor.cpp and PluginEditor.h",
+      "Source/SignalPath.h",
+      "DSP processing and parameter/preset state implementations",
+      "Tools",
+      "Installer",
+      ".github/workflows",
+      "Validation policies, CI map, receipts and waivers",
+      "Version/channel and CMake build contract"
+    ],
+    "upstream_changes_note": "The c3 integration base independently changed after the user's original e7 baseline. Its existing naming/document/installer changes were merged into this separate feature branch; they are inherited changes, not authored by this UI work. Do not claim all fc54 files are byte-identical to e7."
+  },
+  "publication_dry_run": {
+    "target_version": "1.3.1-beta.2",
+    "source_sha": "fc54ab94d40e525006c474d3f1f93ce6bffa688b",
+    "published": false,
+    "publication_ready": false,
+    "limitations": [
+      "Approval identity does not authorize this candidate.",
+      "Live exact-source CI was not verified by the offline dry run."
+    ]
+  },
+  "installation_scope": "No additional system-level synthetic install driver was run. Existing inherited cleanup unittest fixtures used an isolated temporary dpkg --root; the host package database was not used. This does not constitute installed-product acceptance.",
+  "original_evidence_status": {
+    "directory": "/workspace/scratch/135d0f1b5f72/native-evidence/headcab-fc54/contracts",
+    "previously_written": [
+      "summary.json",
+      "commands.json",
+      "source-invariants.json",
+      "preflight-1.sh",
+      "preflight-2.sh",
+      "run_offline_contracts.py",
+      "32 per-command logs"
+    ],
+    "accessible_at_report_creation": false,
+    "originals_reconstructed": false,
+    "reason": "Local runtime became offline after these commands completed. This report summarizes recorded observations only; it is not a byte-for-byte replacement for those original files."
+  },
+  "source_acceptance": "NOT_ACCEPTED: offline contract success is separate from the subsequently failed required macOS SignalPath CI."
+}

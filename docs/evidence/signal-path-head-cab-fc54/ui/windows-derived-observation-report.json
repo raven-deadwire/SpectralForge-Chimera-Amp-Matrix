@@ -1,0 +1,46 @@
+{
+  "platform": "Windows",
+  "source_sha": "fc54ab94d40e525006c474d3f1f93ce6bffa688b",
+  "run_id": 38341744958,
+  "attempt": 1,
+  "job_id": 115114297965,
+  "artifact_id": 11788056378,
+  "original_log_retrieved": true,
+  "checkout_sha_confirmed": true,
+  "test_result_lines": [
+    "2026-10-13T03:46:56.5699455Z 1/7 Test  #5: ChimeraPackagingVersionTests .....   Passed   14.70 sec",
+    "2026-10-13T03:49:02.8624283Z 2/7 Test  #9: ChimeraSignalPathUITests .........   Passed  126.29 sec",
+    "2026-10-13T03:49:09.2878767Z 3/7 Test #10: ChimeraNativeStateTests ..........   Passed    6.42 sec",
+    "2026-10-13T03:51:18.1639046Z 4/7 Test #21: ChimeraCabPanelStateTests ........   Passed  128.88 sec",
+    "2026-10-13T03:51:33.1055447Z 5/7 Test #28: ChimeraGateProcessorTests ........   Passed   14.94 sec",
+    "2026-10-13T03:52:06.6850586Z 6/7 Test #46: ChimeraGraphicalEQTests ..........   Passed   33.58 sec",
+    "2026-10-13T03:52:20.7249194Z 7/7 Test #47: ChimeraGraphicalEQUITests ........   Passed   14.04 sec"
+  ],
+  "all_7_tests_pass": true,
+  "archive_api_metadata": {
+    "id": 11788056378,
+    "name": "SignalEQ-Integration-Windows-fc54ab94d40e525006c474d3f1f93ce6bffa688b-attempt-1",
+    "size_in_bytes": 153727892,
+    "url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/artifacts/11788056378",
+    "archive_download_url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/artifacts/11788056378/zip",
+    "expired": false,
+    "created_at": "2026-10-13T03:52:28Z",
+    "expires_at": "2027-01-11T03:26:51Z",
+    "updated_at": "2026-10-13T03:52:28Z",
+    "digest": "sha256:67eddc1fbacb756397dcb814dd225dea9a67552832c98855e55742028cf3f1be",
+    "workflow_run": {
+      "id": 38341744958,
+      "repository_id": 1382701489,
+      "head_repository_id": 1382701489,
+      "head_branch": "fix/signal-path-workflow-20261013",
+      "head_sha": "fc54ab94d40e525006c474d3f1f93ce6bffa688b"
+    }
+  },
+  "archive_digest_download_verification": "NOT_RUN_RUNTIME_UNAVAILABLE",
+  "zip_crc": "NOT_RUN_RUNTIME_UNAVAILABLE",
+  "archive_manifest_junit_lasttest_inspection": "NOT_RUN_RUNTIME_UNAVAILABLE",
+  "png_inventory_integrity_decode": "NOT_RUN_RUNTIME_UNAVAILABLE",
+  "visual_review": "NOT_RUN_RUNTIME_UNAVAILABLE",
+  "limitation": "Local execution runtime failed after completed Linux archive review. Job log/API confirmation does not substitute for direct Windows artifact inspection.",
+  "evidence_classification": "Derived observation report based on the separately preserved original GitHub job log and API metadata; not an artifact-content inspection report."
+}

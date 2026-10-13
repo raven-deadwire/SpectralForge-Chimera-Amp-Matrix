@@ -1,0 +1,806 @@
+{
+  "schema": "spectralforge.chimera.signal-path-ci-disposition.observed-summary",
+  "schema_version": 1,
+  "report_kind": "OBSERVED_REVIEW_NOT_PYTHON_VERIFIER_OUTPUT",
+  "repository": "raven-deadwire/SpectralForge-Chimera-Amp-Matrix",
+  "source_sha": "fc54ab94d40e525006c474d3f1f93ce6bffa688b",
+  "source_tree": "65b2a39cda2e592f3e187dccf9216f36d5eb8360",
+  "capture_started_at": "2026-10-13T04:02:27.408Z",
+  "capture_completed_at": "2026-10-13T04:02:28.964Z",
+  "timezone": "UTC",
+  "disposition": "BLOCKED_REQUIRED_SIGNAL_PATH_MACOS_FAILURE",
+  "scope": "Point-in-time disposition snapshot requested after the required SignalPath macOS failure; remaining Product and Update runs are deliberately recorded in progress. This is not a final all-workflows-terminal report.",
+  "source_pr": {
+    "number": 60,
+    "head_sha": "fc54ab94d40e525006c474d3f1f93ce6bffa688b",
+    "base_sha": "c3e9d436fbdc9b8778b592f333c93037b012b8c5",
+    "draft": true,
+    "mergeable": true,
+    "changed_files": 8
+  },
+  "required_workflow_definition": {
+    "source": "Tools/publish_beta131.py:WORKFLOWS",
+    "imported_by": "Tools/publish_release.py:verify_ci",
+    "source_sha": "fc54ab94d40e525006c474d3f1f93ce6bffa688b",
+    "review_method": "Read exact-source code and compared returned API metadata; did not execute Python verifier.",
+    "required_workflow_count": 7,
+    "required_job_count_when_all_materialized": 23
+  },
+  "counts": {
+    "workflows": 9,
+    "workflow_success": 6,
+    "workflow_failure": 1,
+    "workflow_in_progress": 2,
+    "required_workflow_success": 4,
+    "required_workflow_failure": 1,
+    "required_workflow_in_progress": 2,
+    "materialized_jobs": 25,
+    "job_success": 20,
+    "job_failure": 1,
+    "job_in_progress": 4,
+    "expected_jobs_if_product_assembly_and_gate_materialize": 27,
+    "artifact_metadata_records": 23
+  },
+  "original_capture_pagination": {
+    "runs_complete": true,
+    "jobs_and_artifacts_complete": true,
+    "per_page": 100
+  },
+  "all_observed_runs_exact_source_and_attempt_one": true,
+  "required_ci_satisfied": false,
+  "all_ci_succeeded": false,
+  "blocking_failure": {
+    "workflow": "signal-path.yml",
+    "run_id": 38341744958,
+    "run_attempt": 1,
+    "job_id": 115114298383,
+    "platform": "macos-latest",
+    "conclusion": "failure",
+    "log_analysis_reported_by": "/root/ui_test_review",
+    "test": "ChimeraSignalPathUITests",
+    "test_seconds": 9.29,
+    "assertion": "Compact presentation hid the actual automated routing snapshot",
+    "first_scenario": "Classic 0/0",
+    "other_ctest_cases_passed": 6,
+    "ctest_total_seconds": 208.93,
+    "dispatch_observation": "Immediately before the failure, the nominal 35 ms harness dispatch was reported as 433.22 ms (CoreFoundation 423.3 ms, native_events 0). Timing is an observed clue, not a proven root cause.",
+    "failure_not_waived": true
+  },
+  "unexecuted_verification": {
+    "python_verify_ci": "NOT_EXECUTED_RUNTIME_UNAVAILABLE",
+    "python_verify_release_gate_archive": "NOT_EXECUTED_RUNTIME_UNAVAILABLE_AND_PRODUCT_GATE_NOT_YET_PRODUCED",
+    "reason": "The shared local runtime stopped responding; parent confirmed HTTP 409 environment_offline. Original local files could not be read or copied after the outage.",
+    "product_candidate_archive_payload": "NOT_INSPECTED",
+    "product_gate_archive_contents": "NOT_INSPECTED",
+    "five_package_payload_hashes": "NOT_INDEPENDENTLY_RECOMPUTED",
+    "installed_product_daw_acceptance": "PENDING",
+    "real_screen_reader_acceptance": "PENDING"
+  },
+  "public_release": {
+    "published": false,
+    "publication_authorized": false,
+    "release_approved": false,
+    "policy_source": "Validation/release-policy.json at this exact source retains preparation_authorized=true, publication_authorized=false and release_approved=false; Validation/weekly-publication-policy.json remains unapproved."
+  },
+  "schedule_disposition": {
+    "october_14_test_build": "HOLD",
+    "conditional_followup": {
+      "test": "2026-10-21",
+      "candidate": "2026-10-22",
+      "weekly_beta": "2026-10-23",
+      "version_target": "1.3.1-beta.3"
+    },
+    "timezone": "Asia/Seoul",
+    "conditions": [
+      "Fix and diagnose the macOS routing snapshot failure without weakening the assertion.",
+      "Freeze a new product SHA and rerun its required CI and release contracts.",
+      "Complete remaining platform artifact and installed DAW/accessibility acceptance.",
+      "Obtain the applicable release authorization before publication."
+    ]
+  },
+  "actions_performed": "Read-only API capture and metadata review; evidence tree creation is the only write requested here.",
+  "actions_not_performed": [
+    "No rerun or cancellation",
+    "No product source, PR55, tag or release mutation",
+    "No publication",
+    "No product or evidence commit/ref creation by this report"
+  ],
+  "workflows": [
+    {
+      "workflow": "release-publisher.yml",
+      "run_id": 38341744901,
+      "run_attempt": 1,
+      "head_sha": "fc54ab94d40e525006c474d3f1f93ce6bffa688b",
+      "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38341744901",
+      "required": false,
+      "status": "completed",
+      "conclusion": "success",
+      "repository_identity_matches": true,
+      "all_job_source_attempt_identities_match": true,
+      "expected_job_names": null,
+      "missing_expected_jobs": [],
+      "jobs": [
+        {
+          "id": 115114055005,
+          "name": "publisher-contracts",
+          "head_sha": "fc54ab94d40e525006c474d3f1f93ce6bffa688b",
+          "run_attempt": 1,
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-10-13T03:26:55Z",
+          "completed_at": "2026-10-13T03:27:24Z",
+          "current_steps": []
+        }
+      ],
+      "artifacts": []
+    },
+    {
+      "workflow": "cab-realtime.yml",
+      "run_id": 38341744896,
+      "run_attempt": 1,
+      "head_sha": "fc54ab94d40e525006c474d3f1f93ce6bffa688b",
+      "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38341744896",
+      "required": true,
+      "status": "completed",
+      "conclusion": "success",
+      "repository_identity_matches": true,
+      "all_job_source_attempt_identities_match": true,
+      "expected_job_names": [
+        "realtime (windows-latest)",
+        "realtime (ubuntu-22.04)",
+        "realtime (macos-15)"
+      ],
+      "missing_expected_jobs": [],
+      "jobs": [
+        {
+          "id": 115114054923,
+          "name": "realtime (windows-latest)",
+          "head_sha": "fc54ab94d40e525006c474d3f1f93ce6bffa688b",
+          "run_attempt": 1,
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-10-13T03:26:55Z",
+          "completed_at": "2026-10-13T03:34:30Z",
+          "current_steps": []
+        },
+        {
+          "id": 115114055087,
+          "name": "realtime (ubuntu-22.04)",
+          "head_sha": "fc54ab94d40e525006c474d3f1f93ce6bffa688b",
+          "run_attempt": 1,
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-10-13T03:26:54Z",
+          "completed_at": "2026-10-13T03:36:02Z",
+          "current_steps": []
+        },
+        {
+          "id": 115114055168,
+          "name": "realtime (macos-15)",
+          "head_sha": "fc54ab94d40e525006c474d3f1f93ce6bffa688b",
+          "run_attempt": 1,
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-10-13T03:26:59Z",
+          "completed_at": "2026-10-13T03:35:56Z",
+          "current_steps": []
+        }
+      ],
+      "artifacts": [
+        {
+          "id": 11787407491,
+          "name": "CAB-realtime-Linux-fc54ab94d40e525006c474d3f1f93ce6bffa688b",
+          "size_in_bytes": 3827789,
+          "digest": "sha256:91d4d4e9441c24bb0b9530f2bdd893a5c7e2686610a5a28325f6cfa1a761f85c",
+          "expired": false,
+          "run_source_identity_matches": true,
+          "metadata_format_valid": true
+        },
+        {
+          "id": 11787352421,
+          "name": "CAB-realtime-Windows-fc54ab94d40e525006c474d3f1f93ce6bffa688b",
+          "size_in_bytes": 2676493,
+          "digest": "sha256:64289e23a00cfe5f8d1a7b7c78917c9755e9d16538ca3b41fe5310ba49fc4511",
+          "expired": false,
+          "run_source_identity_matches": true,
+          "metadata_format_valid": true
+        },
+        {
+          "id": 11786883855,
+          "name": "CAB-realtime-macOS-fc54ab94d40e525006c474d3f1f93ce6bffa688b",
+          "size_in_bytes": 2822423,
+          "digest": "sha256:c3a06a7d1cdd4ee047ba05d7ccf2ab0564d7bbba3febef9914d23e75a3248e01",
+          "expired": false,
+          "run_source_identity_matches": true,
+          "metadata_format_valid": true
+        }
+      ]
+    },
+    {
+      "workflow": "update-candidate.yml",
+      "run_id": 38341744943,
+      "run_attempt": 1,
+      "head_sha": "fc54ab94d40e525006c474d3f1f93ce6bffa688b",
+      "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38341744943",
+      "required": true,
+      "status": "in_progress",
+      "conclusion": null,
+      "repository_identity_matches": true,
+      "all_job_source_attempt_identities_match": true,
+      "expected_job_names": [
+        "windows-candidate",
+        "preparation-contracts"
+      ],
+      "missing_expected_jobs": [],
+      "jobs": [
+        {
+          "id": 115114915253,
+          "name": "windows-candidate",
+          "head_sha": "fc54ab94d40e525006c474d3f1f93ce6bffa688b",
+          "run_attempt": 1,
+          "status": "in_progress",
+          "conclusion": null,
+          "started_at": "2026-10-13T03:30:24Z",
+          "completed_at": null,
+          "current_steps": [
+            {
+              "name": "Execute DSP and actual JUCE UI tests",
+              "started_at": "2026-10-13T03:58:28Z"
+            }
+          ]
+        },
+        {
+          "id": 115114915529,
+          "name": "preparation-contracts",
+          "head_sha": "fc54ab94d40e525006c474d3f1f93ce6bffa688b",
+          "run_attempt": 1,
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-10-13T03:38:46Z",
+          "completed_at": "2026-10-13T03:40:08Z",
+          "current_steps": []
+        }
+      ],
+      "artifacts": [
+        {
+          "id": 11787955828,
+          "name": "Chimera-update-preparation-evidence",
+          "size_in_bytes": 2423960,
+          "digest": "sha256:b9e26a93a9290142eebd58df22ff102e0b4610f9ffbdb660a8e4927502c6dc83",
+          "expired": false,
+          "run_source_identity_matches": true,
+          "metadata_format_valid": true
+        },
+        {
+          "id": 11787192810,
+          "name": "Chimera-VST3-baseline-probe",
+          "size_in_bytes": 1453,
+          "digest": "sha256:6029e0ec898986e2eaae531127a16150f3d84c8796d9e2e94bcc34c94436863c",
+          "expired": false,
+          "run_source_identity_matches": true,
+          "metadata_format_valid": true
+        },
+        {
+          "id": 11787133032,
+          "name": "Chimera-VBlank-failure-evidence",
+          "size_in_bytes": 2549,
+          "digest": "sha256:aadf968a4856f389a2512b46230afa163514085da5e2027d1cf81e812467227b",
+          "expired": false,
+          "run_source_identity_matches": true,
+          "metadata_format_valid": true
+        },
+        {
+          "id": 11787063109,
+          "name": "Chimera-candidate-A-stage-release-gate",
+          "size_in_bytes": 65404,
+          "digest": "sha256:468502b3c3ea4b4de7fdf4c48d6aac56271484da26d2f63efefb36d1287b4b0c",
+          "expired": false,
+          "run_source_identity_matches": true,
+          "metadata_format_valid": true
+        }
+      ]
+    },
+    {
+      "workflow": "niflheimr-audition.yml",
+      "run_id": 38341745050,
+      "run_attempt": 1,
+      "head_sha": "fc54ab94d40e525006c474d3f1f93ce6bffa688b",
+      "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38341745050",
+      "required": false,
+      "status": "completed",
+      "conclusion": "success",
+      "repository_identity_matches": true,
+      "all_job_source_attempt_identities_match": true,
+      "expected_job_names": null,
+      "missing_expected_jobs": [],
+      "jobs": [
+        {
+          "id": 115114056318,
+          "name": "audition-contracts (ubuntu-22.04)",
+          "head_sha": "fc54ab94d40e525006c474d3f1f93ce6bffa688b",
+          "run_attempt": 1,
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-10-13T03:26:54Z",
+          "completed_at": "2026-10-13T03:39:26Z",
+          "current_steps": []
+        },
+        {
+          "id": 115114056473,
+          "name": "audition-contracts (macos-15)",
+          "head_sha": "fc54ab94d40e525006c474d3f1f93ce6bffa688b",
+          "run_attempt": 1,
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-10-13T03:27:01Z",
+          "completed_at": "2026-10-13T03:37:02Z",
+          "current_steps": []
+        },
+        {
+          "id": 115114056482,
+          "name": "audition-contracts (windows-latest)",
+          "head_sha": "fc54ab94d40e525006c474d3f1f93ce6bffa688b",
+          "run_attempt": 1,
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-10-13T03:26:54Z",
+          "completed_at": "2026-10-13T03:39:58Z",
+          "current_steps": []
+        }
+      ],
+      "artifacts": [
+        {
+          "id": 11787403162,
+          "name": "Niflheimr-audition-contracts-Linux-fc54ab94d40e525006c474d3f1f93ce6bffa688b",
+          "size_in_bytes": 123459430,
+          "digest": "sha256:2da1223e56b613290f7a03b92153b70e3664eb350f9909ba5bccd3299108ab7a",
+          "expired": false,
+          "run_source_identity_matches": true,
+          "metadata_format_valid": true
+        },
+        {
+          "id": 11787278393,
+          "name": "Niflheimr-audition-contracts-Windows-fc54ab94d40e525006c474d3f1f93ce6bffa688b",
+          "size_in_bytes": 121646128,
+          "digest": "sha256:f65307422ff9480004981fd6a80fbb4d9431c9eede86628c5f80db7111c11a2b",
+          "expired": false,
+          "run_source_identity_matches": true,
+          "metadata_format_valid": true
+        },
+        {
+          "id": 11787003567,
+          "name": "Niflheimr-audition-contracts-macOS-fc54ab94d40e525006c474d3f1f93ce6bffa688b",
+          "size_in_bytes": 123120591,
+          "digest": "sha256:d81fd78a9107f0281a904ad92227379f57dd8999cf8aa425286e90af08186f0d",
+          "expired": false,
+          "run_source_identity_matches": true,
+          "metadata_format_valid": true
+        }
+      ]
+    },
+    {
+      "workflow": "amp-head-controls.yml",
+      "run_id": 38341744885,
+      "run_attempt": 1,
+      "head_sha": "fc54ab94d40e525006c474d3f1f93ce6bffa688b",
+      "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38341744885",
+      "required": true,
+      "status": "completed",
+      "conclusion": "success",
+      "repository_identity_matches": true,
+      "all_job_source_attempt_identities_match": true,
+      "expected_job_names": [
+        "native-navigation (windows-latest)",
+        "native-navigation (ubuntu-latest)",
+        "native-navigation (macos-latest)"
+      ],
+      "missing_expected_jobs": [],
+      "jobs": [
+        {
+          "id": 115114054999,
+          "name": "native-navigation (windows-latest)",
+          "head_sha": "fc54ab94d40e525006c474d3f1f93ce6bffa688b",
+          "run_attempt": 1,
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-10-13T03:26:55Z",
+          "completed_at": "2026-10-13T03:40:12Z",
+          "current_steps": []
+        },
+        {
+          "id": 115114055124,
+          "name": "native-navigation (ubuntu-latest)",
+          "head_sha": "fc54ab94d40e525006c474d3f1f93ce6bffa688b",
+          "run_attempt": 1,
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-10-13T03:26:55Z",
+          "completed_at": "2026-10-13T03:38:43Z",
+          "current_steps": []
+        },
+        {
+          "id": 115114055198,
+          "name": "native-navigation (macos-latest)",
+          "head_sha": "fc54ab94d40e525006c474d3f1f93ce6bffa688b",
+          "run_attempt": 1,
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-10-13T03:27:37Z",
+          "completed_at": "2026-10-13T03:35:18Z",
+          "current_steps": []
+        }
+      ],
+      "artifacts": [
+        {
+          "id": 11787412359,
+          "name": "AmpHead-Controls-macOS-fc54ab94d40e525006c474d3f1f93ce6bffa688b-attempt-1",
+          "size_in_bytes": 339205599,
+          "digest": "sha256:98cdfc4355de9fe5595425f92c65df3f9016502304cc4dcb9c93e7cabc53d8d2",
+          "expired": false,
+          "run_source_identity_matches": true,
+          "metadata_format_valid": true
+        },
+        {
+          "id": 11787108925,
+          "name": "AmpHead-Controls-Windows-fc54ab94d40e525006c474d3f1f93ce6bffa688b-attempt-1",
+          "size_in_bytes": 342836492,
+          "digest": "sha256:475df606457a961c44db9aa9a99b65ea86eedee40c8f5223e4ecb12259ca7ae1",
+          "expired": false,
+          "run_source_identity_matches": true,
+          "metadata_format_valid": true
+        },
+        {
+          "id": 11786988828,
+          "name": "AmpHead-Controls-Linux-fc54ab94d40e525006c474d3f1f93ce6bffa688b-attempt-1",
+          "size_in_bytes": 347867716,
+          "digest": "sha256:dd3ca77e1a6ff0154ce0145e808144f18365ecb69dff0358a97bbb6edd6dd4e2",
+          "expired": false,
+          "run_source_identity_matches": true,
+          "metadata_format_valid": true
+        }
+      ]
+    },
+    {
+      "workflow": "graphical-eq.yml",
+      "run_id": 38341744899,
+      "run_attempt": 1,
+      "head_sha": "fc54ab94d40e525006c474d3f1f93ce6bffa688b",
+      "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38341744899",
+      "required": true,
+      "status": "completed",
+      "conclusion": "success",
+      "repository_identity_matches": true,
+      "all_job_source_attempt_identities_match": true,
+      "expected_job_names": [
+        "graphical-eq (windows-latest)",
+        "graphical-eq (ubuntu-22.04)",
+        "graphical-eq (macos-15)"
+      ],
+      "missing_expected_jobs": [],
+      "jobs": [
+        {
+          "id": 115114054792,
+          "name": "graphical-eq (ubuntu-22.04)",
+          "head_sha": "fc54ab94d40e525006c474d3f1f93ce6bffa688b",
+          "run_attempt": 1,
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-10-13T03:26:54Z",
+          "completed_at": "2026-10-13T03:40:30Z",
+          "current_steps": []
+        },
+        {
+          "id": 115114055088,
+          "name": "graphical-eq (macos-15)",
+          "head_sha": "fc54ab94d40e525006c474d3f1f93ce6bffa688b",
+          "run_attempt": 1,
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-10-13T03:26:59Z",
+          "completed_at": "2026-10-13T03:35:49Z",
+          "current_steps": []
+        },
+        {
+          "id": 115114055102,
+          "name": "graphical-eq (windows-latest)",
+          "head_sha": "fc54ab94d40e525006c474d3f1f93ce6bffa688b",
+          "run_attempt": 1,
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-10-13T03:26:54Z",
+          "completed_at": "2026-10-13T03:39:09Z",
+          "current_steps": []
+        }
+      ],
+      "artifacts": [
+        {
+          "id": 11787571475,
+          "name": "EQ-contracts-Linux-fc54ab94d40e525006c474d3f1f93ce6bffa688b",
+          "size_in_bytes": 2474591,
+          "digest": "sha256:5ef6aa834616034db7be99e64e49ec1d8c310dd531113a4dd8d51ebe2a8cf8e4",
+          "expired": false,
+          "run_source_identity_matches": true,
+          "metadata_format_valid": true
+        },
+        {
+          "id": 11787412911,
+          "name": "EQ-contracts-Windows-fc54ab94d40e525006c474d3f1f93ce6bffa688b",
+          "size_in_bytes": 2256076,
+          "digest": "sha256:e87e4e2d2e776ea1ee2e1515da465ae7f22f24326a70037564c362712c31c534",
+          "expired": false,
+          "run_source_identity_matches": true,
+          "metadata_format_valid": true
+        },
+        {
+          "id": 11787068340,
+          "name": "EQ-contracts-macOS-fc54ab94d40e525006c474d3f1f93ce6bffa688b",
+          "size_in_bytes": 2414652,
+          "digest": "sha256:d87c1b3571bbb4fc033435ae4e4c12949a772e4c57a9623388b2bd9357e48dd6",
+          "expired": false,
+          "run_source_identity_matches": true,
+          "metadata_format_valid": true
+        }
+      ]
+    },
+    {
+      "workflow": "build.yml",
+      "run_id": 38341744887,
+      "run_attempt": 1,
+      "head_sha": "fc54ab94d40e525006c474d3f1f93ce6bffa688b",
+      "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38341744887",
+      "required": true,
+      "status": "in_progress",
+      "conclusion": null,
+      "repository_identity_matches": true,
+      "all_job_source_attempt_identities_match": true,
+      "expected_job_names": [
+        "validation-contract",
+        "build (windows-latest)",
+        "build (ubuntu-22.04)",
+        "build (macos-15)",
+        "assemble-candidate",
+        "consolidate-release-gate"
+      ],
+      "missing_expected_jobs": [
+        "assemble-candidate",
+        "consolidate-release-gate"
+      ],
+      "jobs": [
+        {
+          "id": 115114467114,
+          "name": "validation-contract",
+          "head_sha": "fc54ab94d40e525006c474d3f1f93ce6bffa688b",
+          "run_attempt": 1,
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-10-13T03:28:34Z",
+          "completed_at": "2026-10-13T03:29:12Z",
+          "current_steps": []
+        },
+        {
+          "id": 115114631601,
+          "name": "build (ubuntu-22.04)",
+          "head_sha": "fc54ab94d40e525006c474d3f1f93ce6bffa688b",
+          "run_attempt": 1,
+          "status": "in_progress",
+          "conclusion": null,
+          "started_at": "2026-10-13T03:29:15Z",
+          "completed_at": null,
+          "current_steps": [
+            {
+              "name": "Run cmake --build build --config Release --parallel 2",
+              "started_at": "2026-10-13T03:32:26Z"
+            }
+          ]
+        },
+        {
+          "id": 115114631670,
+          "name": "build (macos-15)",
+          "head_sha": "fc54ab94d40e525006c474d3f1f93ce6bffa688b",
+          "run_attempt": 1,
+          "status": "in_progress",
+          "conclusion": null,
+          "started_at": "2026-10-13T03:43:41Z",
+          "completed_at": null,
+          "current_steps": [
+            {
+              "name": "Run cmake --build build --config Release --parallel 2",
+              "started_at": "2026-10-13T03:46:15Z"
+            }
+          ]
+        },
+        {
+          "id": 115114631682,
+          "name": "build (windows-latest)",
+          "head_sha": "fc54ab94d40e525006c474d3f1f93ce6bffa688b",
+          "run_attempt": 1,
+          "status": "in_progress",
+          "conclusion": null,
+          "started_at": "2026-10-13T03:29:15Z",
+          "completed_at": null,
+          "current_steps": [
+            {
+              "name": "Execute Windows and macOS CTest matrix",
+              "started_at": "2026-10-13T03:59:18Z"
+            }
+          ]
+        }
+      ],
+      "artifacts": [
+        {
+          "id": 11787615148,
+          "name": "Chimera-validation-seed",
+          "size_in_bytes": 64763,
+          "digest": "sha256:59344d4f0bef53d75d04266ff22a93be3776243927a8fc7d3c82ba65aed749ba",
+          "expired": false,
+          "run_source_identity_matches": true,
+          "metadata_format_valid": true
+        }
+      ]
+    },
+    {
+      "workflow": "cab-panel.yml",
+      "run_id": 38341744891,
+      "run_attempt": 1,
+      "head_sha": "fc54ab94d40e525006c474d3f1f93ce6bffa688b",
+      "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38341744891",
+      "required": true,
+      "status": "completed",
+      "conclusion": "success",
+      "repository_identity_matches": true,
+      "all_job_source_attempt_identities_match": true,
+      "expected_job_names": [
+        "cab-panel (windows-latest)",
+        "cab-panel (ubuntu-22.04)",
+        "cab-panel (macos-15)"
+      ],
+      "missing_expected_jobs": [],
+      "jobs": [
+        {
+          "id": 115114139436,
+          "name": "cab-panel (macos-15)",
+          "head_sha": "fc54ab94d40e525006c474d3f1f93ce6bffa688b",
+          "run_attempt": 1,
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-10-13T03:28:15Z",
+          "completed_at": "2026-10-13T03:41:00Z",
+          "current_steps": []
+        },
+        {
+          "id": 115114139618,
+          "name": "cab-panel (windows-latest)",
+          "head_sha": "fc54ab94d40e525006c474d3f1f93ce6bffa688b",
+          "run_attempt": 1,
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-10-13T03:27:14Z",
+          "completed_at": "2026-10-13T03:47:03Z",
+          "current_steps": []
+        },
+        {
+          "id": 115114139781,
+          "name": "cab-panel (ubuntu-22.04)",
+          "head_sha": "fc54ab94d40e525006c474d3f1f93ce6bffa688b",
+          "run_attempt": 1,
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-10-13T03:27:15Z",
+          "completed_at": "2026-10-13T03:46:41Z",
+          "current_steps": []
+        }
+      ],
+      "artifacts": [
+        {
+          "id": 11787681259,
+          "name": "CAB-contracts-macOS-fc54ab94d40e525006c474d3f1f93ce6bffa688b",
+          "size_in_bytes": 41010911,
+          "digest": "sha256:f99ee6507aad768381fb5e456332d252a22b376e7e11169adf17131ff2fb93a6",
+          "expired": false,
+          "run_source_identity_matches": true,
+          "metadata_format_valid": true
+        },
+        {
+          "id": 11787492312,
+          "name": "CAB-contracts-Linux-fc54ab94d40e525006c474d3f1f93ce6bffa688b",
+          "size_in_bytes": 39904134,
+          "digest": "sha256:764bb6643c70a80a02b33abeb8cb6949cfc86860d3f16511af9cc22a8d6203a6",
+          "expired": false,
+          "run_source_identity_matches": true,
+          "metadata_format_valid": true
+        },
+        {
+          "id": 11787453936,
+          "name": "CAB-contracts-Windows-fc54ab94d40e525006c474d3f1f93ce6bffa688b",
+          "size_in_bytes": 37811018,
+          "digest": "sha256:74197f119bc305af539a68dad9052753495dc6b0b5775147d2ab4f9791240b27",
+          "expired": false,
+          "run_source_identity_matches": true,
+          "metadata_format_valid": true
+        }
+      ]
+    },
+    {
+      "workflow": "signal-path.yml",
+      "run_id": 38341744958,
+      "run_attempt": 1,
+      "head_sha": "fc54ab94d40e525006c474d3f1f93ce6bffa688b",
+      "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38341744958",
+      "required": true,
+      "status": "completed",
+      "conclusion": "failure",
+      "repository_identity_matches": true,
+      "all_job_source_attempt_identities_match": true,
+      "expected_job_names": [
+        "native-navigation (windows-latest)",
+        "native-navigation (ubuntu-latest)",
+        "native-navigation (macos-latest)"
+      ],
+      "missing_expected_jobs": [],
+      "jobs": [
+        {
+          "id": 115114297965,
+          "name": "native-navigation (windows-latest)",
+          "head_sha": "fc54ab94d40e525006c474d3f1f93ce6bffa688b",
+          "run_attempt": 1,
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-10-13T03:27:54Z",
+          "completed_at": "2026-10-13T03:52:32Z",
+          "current_steps": []
+        },
+        {
+          "id": 115114298186,
+          "name": "native-navigation (ubuntu-latest)",
+          "head_sha": "fc54ab94d40e525006c474d3f1f93ce6bffa688b",
+          "run_attempt": 1,
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-10-13T03:27:53Z",
+          "completed_at": "2026-10-13T03:43:34Z",
+          "current_steps": []
+        },
+        {
+          "id": 115114298383,
+          "name": "native-navigation (macos-latest)",
+          "head_sha": "fc54ab94d40e525006c474d3f1f93ce6bffa688b",
+          "run_attempt": 1,
+          "status": "completed",
+          "conclusion": "failure",
+          "started_at": "2026-10-13T03:41:35Z",
+          "completed_at": "2026-10-13T03:57:24Z",
+          "current_steps": []
+        }
+      ],
+      "artifacts": [
+        {
+          "id": 11788525780,
+          "name": "SignalEQ-Integration-macOS-fc54ab94d40e525006c474d3f1f93ce6bffa688b-attempt-1",
+          "size_in_bytes": 120588391,
+          "digest": "sha256:9fd5d64c795c57cf007a56370b22747816ae5c22267ebfc4a6234f6793dd0e89",
+          "expired": false,
+          "run_source_identity_matches": true,
+          "metadata_format_valid": true
+        },
+        {
+          "id": 11788056378,
+          "name": "SignalEQ-Integration-Windows-fc54ab94d40e525006c474d3f1f93ce6bffa688b-attempt-1",
+          "size_in_bytes": 153727892,
+          "digest": "sha256:67eddc1fbacb756397dcb814dd225dea9a67552832c98855e55742028cf3f1be",
+          "expired": false,
+          "run_source_identity_matches": true,
+          "metadata_format_valid": true
+        },
+        {
+          "id": 11787328767,
+          "name": "SignalEQ-Integration-Linux-fc54ab94d40e525006c474d3f1f93ce6bffa688b-attempt-1",
+          "size_in_bytes": 158088862,
+          "digest": "sha256:bc0da2a8e88a8d45dbc6d0156dd99463c3a66f238b916d742855dbb7f90379d4",
+          "expired": false,
+          "run_source_identity_matches": true,
+          "metadata_format_valid": true
+        }
+      ]
+    }
+  ]
+}

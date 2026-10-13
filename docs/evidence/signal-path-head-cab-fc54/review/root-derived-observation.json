@@ -1,0 +1,36 @@
+{
+  "record_type": "derived_root_review_observation",
+  "source_sha": "fc54ab94d40e525006c474d3f1f93ce6bffa688b",
+  "integration_base": "c3e9d436fbdc9b8778b592f333c93037b012b8c5",
+  "original_comparison_baseline": "e7b00cb09c5431d86c03282392eafddbe8edbfdd",
+  "scope_checks_observed_before_outage": {
+    "feature_files": 8,
+    "source_files": [
+      "Source/SignalPathView.h",
+      "Source/PluginEditor.cpp",
+      "Source/PluginEditor.h"
+    ],
+    "diff_check": "PASS against c3",
+    "routing_authority_unchanged_against_e7": true
+  },
+  "native_screenshots_directly_viewed": [
+    "signal-workflow-head-mode-2-dual-0-scale-100.png",
+    "signal-workflow-mode-2-dual-0-scale-100.png",
+    "signal-path-matrix-post-gate.png",
+    "signal-workflow-mode-0-dual-0-scale-75.png",
+    "signal-workflow-head-mode-1-dual-1-scale-100.png"
+  ],
+  "visual_observations": [
+    "Six compact editing stages and ROUTING were visible; HEAD and CAB had distinct selection states and destinations.",
+    "Matrix HEAD showed three existing amplifier-control columns; CAB showed the corresponding three-lane room.",
+    "Dual Crossover HEAD showed two amplifier-control columns.",
+    "Classic CAB at75percent showed one room lane with compact controls inside the editor bounds.",
+    "Matrix post-gate detailed graph retained utility taps, LOW DI and amp/cab branches, sums and post-rig stages.",
+    "Top Gate/Transpose controls and footer Tuner remained. Existing per-lane CAB shortcuts in the HEAD destination remained."
+  ],
+  "limitations": [
+    "Representative native visual inspection; this does not establish installed host or real screen-reader acceptance.",
+    "The native screenshot hashes were recorded locally before the outage, but that file cannot now be exported; no hash inventory is reconstructed here.",
+    "macOS CI failed independently and remains blocking."
+  ]
+}

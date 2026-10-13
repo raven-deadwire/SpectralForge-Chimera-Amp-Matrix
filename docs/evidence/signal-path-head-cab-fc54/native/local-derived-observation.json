@@ -1,0 +1,55 @@
+{
+  "record_type": "local_native_observation",
+  "source_sha": "fc54ab94d40e525006c474d3f1f93ce6bffa688b",
+  "source_tree": "65b2a39cda2e592f3e187dccf9216f36d5eb8360",
+  "source_clean_last_verified": true,
+  "feature": {
+    "ctest": "ChimeraSignalPathUITests",
+    "result": "PASS",
+    "attempts": 1,
+    "seconds": 112.56,
+    "png_expected": 49,
+    "png_integrity_passed": 49
+  },
+  "remaining_six_ctests": {
+    "status": "NOT_STARTED_BUILD_BLOCKED",
+    "names": [
+      "ChimeraNativeStateTests",
+      "ChimeraCabPanelStateTests",
+      "ChimeraGraphicalEQTests",
+      "ChimeraGraphicalEQUITests",
+      "ChimeraGateProcessorTests",
+      "ChimeraPackagingVersionTests"
+    ]
+  },
+  "ui_build": {
+    "first_wrapper_exit": 0,
+    "postbuild_guard": "FAIL_ZERO_BYTE_juce_audio_formats_OBJECT",
+    "targeted_object_repair": "PASS",
+    "pre_feature_audit": {
+      "objects": 371,
+      "zero_length": 0
+    }
+  },
+  "remaining_build": {
+    "initial_wrapper_exit": 0,
+    "initial_log_incomplete_at": "45/90",
+    "target_completion_not_established": true,
+    "guard": "FAIL_ZERO_BYTE_CAB_juce_graphics_OBJECT",
+    "targeted_object_repair_started": true,
+    "next_compiler_failure": "Gate juce_dsp.cpp.o.d: No such file or directory",
+    "final_build_exit_unknown": true
+  },
+  "runtime": {
+    "existing_session_resume": "exec-server transport disconnected; recovery timed out after 25s",
+    "root_new_process_error": "exec-server rejected request: No such file or directory",
+    "read_only_recovery_probe": "pwd hung >90s; wrapper terminated",
+    "later_service_response": "environment_offline: Environment is not connected (409)",
+    "final_disk_and_process_state_unavailable": true
+  },
+  "source_assertion_deadline_changes": false,
+  "further_action": "STOPPED_PENDING_RUNTIME_RECOVERY; NO_SIX_TEST_RESULTS_CLAIMED",
+  "evidence_dir": "/workspace/scratch/135d0f1b5f72/native-evidence/headcab-fc54",
+  "raw_local_export_status": "NOT_COMPLETED_RUNTIME_OFFLINE; this is an observed summary, not reconstructed original log files",
+  "cross_platform_scope": "Local feature PASS is not macOS acceptance. The current-source macOS SignalPath CI failed separately."
+}

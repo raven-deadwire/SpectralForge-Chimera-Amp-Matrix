@@ -1,0 +1,95 @@
+{
+  "platform": "Linux",
+  "source_sha": "fc54ab94d40e525006c474d3f1f93ce6bffa688b",
+  "run_id": 38341744958,
+  "attempt": 1,
+  "artifact_id": 11787328767,
+  "evidence_basis": "Direct original archive and extracted text/PNG inspection completed locally before the execution environment disconnected; this is an observation summary, not a replacement for the original local reports.",
+  "archive_sha256": "bc0da2a8e88a8d45dbc6d0156dd99463c3a66f238b916d742855dbb7f90379d4",
+  "archive_size_bytes": 158088862,
+  "archive_digest_and_size_vs_original_api": "PASS",
+  "zip_crc": "PASS",
+  "build_manifest": {
+    "product_version": "1.3.1",
+    "source_sha": "fc54ab94d40e525006c474d3f1f93ce6bffa688b",
+    "version": "1.3.1-beta.2"
+  },
+  "exact_expected_png_inventory": 53,
+  "png_signature_chunks_crc_iend_no_trailing_bytes_and_full_decode": "PASS_53_OF_53",
+  "junit_cases": [
+    {
+      "name": "ChimeraPackagingVersionTests",
+      "seconds": 2.06341,
+      "result": "PASS"
+    },
+    {
+      "name": "ChimeraSignalPathUITests",
+      "seconds": 94.6024,
+      "result": "PASS"
+    },
+    {
+      "name": "ChimeraNativeStateTests",
+      "seconds": 3.95618,
+      "result": "PASS"
+    },
+    {
+      "name": "ChimeraNativeFocusTests",
+      "seconds": 2.9903,
+      "result": "PASS"
+    },
+    {
+      "name": "ChimeraCabPanelStateTests",
+      "seconds": 67.2783,
+      "result": "PASS"
+    },
+    {
+      "name": "ChimeraGateProcessorTests",
+      "seconds": 9.55738,
+      "result": "PASS"
+    },
+    {
+      "name": "ChimeraGraphicalEQTests",
+      "seconds": 21.7215,
+      "result": "PASS"
+    },
+    {
+      "name": "ChimeraGraphicalEQUITests",
+      "seconds": 9.81096,
+      "result": "PASS"
+    }
+  ],
+  "junit_failures": 0,
+  "junit_errors": 0,
+  "junit_skipped": 0,
+  "original_text_records_local_directory": "/workspace/scratch/135d0f1b5f72/native-evidence/headcab-fc54/ci/linux-artifact",
+  "original_text_records": [
+    "github-artifact-metadata.json",
+    "integrity.json",
+    "platform-contract.json",
+    "visual-review.json",
+    "extracted/chimera-build-version.json",
+    "extracted/integration-results.xml",
+    "extracted/Testing/Temporary/LastTest.log"
+  ],
+  "visual_inspected_images": [
+    "signal-path-snapshots/signal-workflow-head-mode-0-dual-0-scale-100.png",
+    "signal-path-snapshots/signal-workflow-head-mode-1-dual-0-scale-100.png",
+    "signal-path-snapshots/signal-workflow-head-mode-1-dual-1-scale-100.png",
+    "signal-path-snapshots/signal-workflow-head-mode-2-dual-0-scale-100.png",
+    "signal-path-snapshots/signal-workflow-mode-0-dual-0-scale-75.png",
+    "signal-path-snapshots/signal-workflow-mode-1-dual-0-scale-125.png",
+    "signal-path-snapshots/signal-workflow-mode-1-dual-1-scale-150.png",
+    "signal-path-snapshots/signal-workflow-mode-2-dual-0-scale-150.png",
+    "signal-path-snapshots/signal-workflow-mode-2-dual-0-scale-100.png",
+    "signal-path-snapshots/integrated-eq-mode-2-dual-0-scale-75.png",
+    "signal-path-snapshots/signal-path-matrix-post-gate.png",
+    "signal-path-snapshots/signal-path-small-mode-1-dual-1.png"
+  ],
+  "visual_result": "No compact stage clipping, incorrect selected destination, or expanded routing node overlap in the inspected sample. Mode-specific HEAD lane counts and CAB targets matched Classic/Dual/Matrix. Six stages plus ROUTING fit representative75/100/125/150 scales, original Gate/Transpose/footer Tuner remain visible, and expanded Matrix post-gate routing keeps actual utility nodes/edges.",
+  "visual_limitations": [
+    "Several original native captures include transient hover tooltips over room/rig headers; originals were preserved unchanged.",
+    "HEAD panels retain existing scrollable control viewports; below-viewport content requires scrolling.",
+    "This sample does not constitute installed-host acceptance or screenreader user testing."
+  ],
+  "remote_preservation_limit": "Local execution environment disconnected before the minimal text-file SHA256/size inventory could be assembled; this report does not claim those original local text files were remotely republished."
+}

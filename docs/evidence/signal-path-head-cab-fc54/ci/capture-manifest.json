@@ -1,0 +1,153 @@
+{
+  "schema": "spectralforge.chimera.ci-disposition-capture",
+  "schema_version": 1,
+  "repository": "raven-deadwire/SpectralForge-Chimera-Amp-Matrix",
+  "product_source_sha": "fc54ab94d40e525006c474d3f1f93ce6bffa688b",
+  "base_tree_sha": "65b2a39cda2e592f3e187dccf9216f36d5eb8360",
+  "capture_started_at": "2026-10-13T04:02:27.408Z",
+  "capture_completed_at": "2026-10-13T04:02:28.964Z",
+  "pr_refreshed_at": "2026-10-13T04:05:23.412Z",
+  "original_body_policy": "Files named original-* preserve the exact UTF-8 JSON response body returned by github_fetch structuredContent.content. They were not parsed and reserialized for storage. Observed summaries are separately authored reports.",
+  "ci_snapshot_scope": "Point-in-time disposition after required macOS failure; Product and Update still running. No further monitoring is required to establish that this source is not accepted.",
+  "python_verifiers_executed_on_this_snapshot": false,
+  "reason": "Local runtime offline (HTTP 409 environment_offline reported by parent).",
+  "signed_download_urls_included": false,
+  "credentials_included": false,
+  "binary_payloads_included": false,
+  "redundant_polling_snapshots_included": false,
+  "api_endpoints": [
+    "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs?head_sha=fc54ab94d40e525006c474d3f1f93ce6bffa688b&per_page=100",
+    "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/pulls/60",
+    "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38341744901/jobs?filter=latest&per_page=100",
+    "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38341744901/artifacts?per_page=100",
+    "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38341744896/jobs?filter=latest&per_page=100",
+    "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38341744896/artifacts?per_page=100",
+    "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38341744943/jobs?filter=latest&per_page=100",
+    "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38341744943/artifacts?per_page=100",
+    "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38341745050/jobs?filter=latest&per_page=100",
+    "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38341745050/artifacts?per_page=100",
+    "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38341744885/jobs?filter=latest&per_page=100",
+    "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38341744885/artifacts?per_page=100",
+    "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38341744899/jobs?filter=latest&per_page=100",
+    "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38341744899/artifacts?per_page=100",
+    "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38341744887/jobs?filter=latest&per_page=100",
+    "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38341744887/artifacts?per_page=100",
+    "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38341744891/jobs?filter=latest&per_page=100",
+    "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38341744891/artifacts?per_page=100",
+    "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38341744958/jobs?filter=latest&per_page=100",
+    "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38341744958/artifacts?per_page=100"
+  ],
+  "files": [
+    {
+      "path": "original-runs.json",
+      "utf8_bytes": 141148,
+      "kind": "ORIGINAL_API_BODY"
+    },
+    {
+      "path": "original-pr-60.json",
+      "utf8_bytes": 28866,
+      "kind": "ORIGINAL_API_BODY"
+    },
+    {
+      "path": "original-jobs-38341744901.json",
+      "utf8_bytes": 2269,
+      "kind": "ORIGINAL_API_BODY"
+    },
+    {
+      "path": "original-artifacts-38341744901.json",
+      "utf8_bytes": 32,
+      "kind": "ORIGINAL_API_BODY"
+    },
+    {
+      "path": "original-jobs-38341744896.json",
+      "utf8_bytes": 9448,
+      "kind": "ORIGINAL_API_BODY"
+    },
+    {
+      "path": "original-artifacts-38341744896.json",
+      "utf8_bytes": 2469,
+      "kind": "ORIGINAL_API_BODY"
+    },
+    {
+      "path": "original-jobs-38341744943.json",
+      "utf8_bytes": 13980,
+      "kind": "ORIGINAL_API_BODY"
+    },
+    {
+      "path": "original-artifacts-38341744943.json",
+      "utf8_bytes": 3166,
+      "kind": "ORIGINAL_API_BODY"
+    },
+    {
+      "path": "original-jobs-38341745050.json",
+      "utf8_bytes": 10630,
+      "kind": "ORIGINAL_API_BODY"
+    },
+    {
+      "path": "original-artifacts-38341745050.json",
+      "utf8_bytes": 2523,
+      "kind": "ORIGINAL_API_BODY"
+    },
+    {
+      "path": "original-jobs-38341744885.json",
+      "utf8_bytes": 10379,
+      "kind": "ORIGINAL_API_BODY"
+    },
+    {
+      "path": "original-artifacts-38341744885.json",
+      "utf8_bytes": 2517,
+      "kind": "ORIGINAL_API_BODY"
+    },
+    {
+      "path": "original-jobs-38341744899.json",
+      "utf8_bytes": 10267,
+      "kind": "ORIGINAL_API_BODY"
+    },
+    {
+      "path": "original-artifacts-38341744899.json",
+      "utf8_bytes": 2469,
+      "kind": "ORIGINAL_API_BODY"
+    },
+    {
+      "path": "original-jobs-38341744887.json",
+      "utf8_bytes": 24398,
+      "kind": "ORIGINAL_API_BODY"
+    },
+    {
+      "path": "original-artifacts-38341744887.json",
+      "utf8_bytes": 805,
+      "kind": "ORIGINAL_API_BODY"
+    },
+    {
+      "path": "original-jobs-38341744891.json",
+      "utf8_bytes": 11920,
+      "kind": "ORIGINAL_API_BODY"
+    },
+    {
+      "path": "original-artifacts-38341744891.json",
+      "utf8_bytes": 2475,
+      "kind": "ORIGINAL_API_BODY"
+    },
+    {
+      "path": "original-jobs-38341744958.json",
+      "utf8_bytes": 12068,
+      "kind": "ORIGINAL_API_BODY"
+    },
+    {
+      "path": "original-artifacts-38341744958.json",
+      "utf8_bytes": 2529,
+      "kind": "ORIGINAL_API_BODY"
+    },
+    {
+      "path": "metadata-observed-summary.json",
+      "utf8_bytes": 29989,
+      "kind": "OBSERVED_SUMMARY"
+    },
+    {
+      "path": "offline-contracts-observed-summary.json",
+      "utf8_bytes": 5039,
+      "kind": "OBSERVED_SUMMARY"
+    }
+  ],
+  "write_scope": "This operation creates a Git tree object only. Root will add other evidence and create a separate evidence commit/ref. Product branch and product SHA remain untouched."
+}
