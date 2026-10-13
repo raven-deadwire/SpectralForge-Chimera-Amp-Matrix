@@ -4,6 +4,7 @@
 #include "IRStateAssets.h"
 #include <iostream>
 #include <memory>
+#include <limits>
 #include <stdexcept>
 
 // Private constructor injection: no environment variable or serialized trial
@@ -91,25 +92,42 @@ void audioSafety() {
             require(active->betaProcessingPermitted(),"Active grace lost on editor close");
         }
         auto restricted=ChimeraBetaTestAccess::create(beta,clockNow);
-        sound(*restricted,mode,dual);prepare(*restricted,channels,48000,128);
-        prepare(*reference,channels,48000,128);
-        require(restricted->getLatencySamples()==reference->getLatencySamples(),"Muted instance changed reported latency");
+        // Both sides must have identical histories: compare recovery against a
+        // fresh uninterrupted processor, not the prior reprepare/offline case.
+        auto recoveryReference=ChimeraBetaTestAccess::create(noRestriction,clockNow);
+        sound(*restricted,mode,dual);sound(*recoveryReference,mode,dual);
+        prepare(*restricted,channels,48000,128);prepare(*recoveryReference,channels,48000,128);
+        require(restricted->getLatencySamples()==recoveryReference->getLatencySamples(),"Muted instance changed reported latency");
         juce::MidiBuffer midi;juce::AudioBuffer<float> out(channels,128), comparison(channels,128);
-        for(int i=0;i<12;++i) {input(out,i);comparison.makeCopyOf(out);restricted->processBlock(out,midi);reference->processBlock(comparison,midi);require(out.getMagnitude(0,out.getNumSamples())==0,"Expired new instance emits audio");}
+        for(int i=0;i<12;++i) {input(out,i);comparison.makeCopyOf(out);restricted->processBlock(out,midi);recoveryReference->processBlock(comparison,midi);require(out.getMagnitude(0,out.getNumSamples())==0,"Expired new instance emits audio");}
         require(!restricted->betaProcessingPermitted(),"Expired new instance admitted");
         now=expiry-1;restricted->recheckBetaClock();require(restricted->betaProcessingPermitted(),"Corrected clock cannot recover");
         double energy=0;
         for(int i=0;i<32;++i) {
-            input(out,i);comparison.makeCopyOf(out);restricted->processBlock(out,midi);reference->processBlock(comparison,midi);
+            input(out,i);comparison.makeCopyOf(out);restricted->processBlock(out,midi);recoveryReference->processBlock(comparison,midi);
             for(int c=0;c<channels;++c)for(int n=0;n<128;++n) {
                 const float expectedGain=juce::jmin(1.f,float(i*128+n+1)/2400.f);
                 require(std::isfinite(out.getSample(c,n)) && std::abs(out.getSample(c,n))<1,"Clock recovery is unbounded");
-                require(std::abs(out.getSample(c,n)-comparison.getSample(c,n)*expectedGain)<5e-7f,"Clock recovery did not use the 50 ms processed-signal fade");
+                // Each float addition can round; bound accumulated gain error
+                // by N * epsilon. A 2400-step ramp differs from the analytical
+                // line by up to 3.48e-5 in a direct IEEE-float reproduction.
+                // After sample 2400 the smoother snaps exactly to unity.
+                const int elapsed=i*128+n+1;
+                const float numericalBound=elapsed<2400
+                    ? std::numeric_limits<float>::epsilon()*float(elapsed)*std::abs(comparison.getSample(c,n))+1e-7f
+                    : 1e-7f;
+                const float error=std::abs(out.getSample(c,n)-comparison.getSample(c,n)*expectedGain);
+                if(error>numericalBound) {
+                    std::cerr<<"Recovery mismatch route="<<route<<" channels="<<channels<<" sample="<<elapsed
+                        <<" processed="<<comparison.getSample(c,n)<<" actual="<<out.getSample(c,n)
+                        <<" expectedGain="<<expectedGain<<" error="<<error<<" bound="<<numericalBound<<'\n';
+                    require(false,"Clock recovery did not use the 50 ms processed-signal fade");
+                }
                 energy+=out.getSample(c,n)*out.getSample(c,n);
             }
         }
         require(energy>1e-8,"Clock recovery remained silent");
-        restricted->releaseResources();reference->releaseResources();
+        restricted->releaseResources();recoveryReference->releaseResources();reference->releaseResources();
     }
     std::cout<<"PASS: eight mono/stereo routing cases; sample-rate/buffer/reprepare/offline/grace/zero-output/clock recovery\n";
 }
