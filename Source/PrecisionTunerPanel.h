@@ -64,7 +64,8 @@ public:
         else{
             juce::String guide="Use a clean, single note.\n\nAUTO detects the closest target. Select a string to lock its target.\n\nStrobe motion follows the measured beat frequency. Right = sharp, left = flat.\n\nLow bass notes need a longer settling time.";
             using P=spectralforge::tuning::Profile;
-            if(settings.profile==P::feitenElectric||settings.profile==P::feitenElectric12)guide="Buzz Feiten electric guitar\n\nFor a correctly fitted system.\n\nOpen: pluck the open string.\n12th fret: fret the note; do not use a harmonic.\n\nOpen and fretted offsets differ. Acoustic and bass tables are not included.";
+            if(settings.profile==P::feitenElectric||settings.profile==P::feitenElectric12)guide="BFTS electric / Anderson targets\n\nPublished electric-guitar offsets. For a correctly fitted system.\n\nOpen: pluck the open string.\n12th fret: fret the note; do not use a harmonic.\n\nOpen and fretted offsets differ. Acoustic and bass tables are not included.";
+            if(settings.profile==P::bass5 || settings.profile==P::bass6)guide="Equal temperament / bass\n\nStrings are numbered high to low.\n5 strings: G2 D2 A1 E1 B0\n6 strings: C3 G2 D2 A1 E1 B0\n\nUse Custom for BEAD, drop A or other tunings.\n\nThese are zero-offset targets, not compensated bass profiles.";
             if(settings.profile==P::tt6||settings.profile==P::tt7||settings.profile==P::tt8||settings.profile==P::ttChromatic)guide="True Temperament / Thidell Formula 1\n\nFor a TT-equipped instrument.\n\nOpen-string mode distinguishes high E, low E, low B and F#.\n\nChromatic uses the published 12-note table. Select the profile for the task.\n\nCustom supports alternate note targets.";
             g.setFont(juce::FontOptions(14.f));g.drawFittedText(guide,810,115,306,274,juce::Justification::topLeft,15);
         }
@@ -80,7 +81,7 @@ private:
         const int count=spectralforge::tuning::strings(settings.profile);strings.setEnabled(count>0);for(int i=1;i<=8;++i)strings.setItemEnabled(i+1,i<=count);
         measured=processor.tuningFrequency();reading=spectralforge::tuning::target(measured,settings);valid=get("tuneron")>.5f&&processor.tuningConfidence()>.9f&&reading.valid;
         const double now=juce::Time::getMillisecondCounterHiRes()*.001,dt=lastTime>0?std::min(.1,now-lastTime):0;lastTime=now;
-        if(valid){if(previousTarget!=reading.hz)phases.fill(0);for(int i=0;i<3;++i)phases[size_t(i)]=spectralforge::tuning::advanceStrobe(phases[size_t(i)],measured,reading.hz,dt,1<<i);previousTarget=reading.hz;}else {phases.fill(0);previousTarget=0;}
+        if(valid){if(previousTarget!=reading.hz)phases.fill(0);for(int i=0;i<3;++i)phases[size_t(i)]=spectralforge::tuning::advanceDisplayStrobe(phases[size_t(i)],measured,reading.hz,dt,1<<i);previousTarget=reading.hz;}else {phases.fill(0);previousTarget=0;}
         juce::String message=get("tuneron")<.5f?"TUNER OFF  /  Press START TUNING":!valid?(count>0 && settings.stringIndex>=count?"Select AUTO or a string in this profile":"LISTENING  /  Play one steady note"):(reading.stringIndex>=0?"STRING "+juce::String(reading.stringIndex+1)+"  /  ":"")+juce::String(reading.cents,2)+" ct  /  target "+juce::String(reading.hz,3)+" Hz  /  offset "+juce::String(reading.offset,1)+" ct";
         if(get("tuneron")>.5f)message+=get("tunermute")>.5f?"  /  MUTED":"  /  MONITOR";
         status.setText(message,juce::dontSendNotification);repaint();

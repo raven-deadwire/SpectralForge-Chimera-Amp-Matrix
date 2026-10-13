@@ -123,15 +123,16 @@ public:
 
 // YIN on a decimated mono input. Analysis runs on a worker, never in processBlock.
 class Tuner : private juce::Thread {
-    static constexpr int frameSize=8192, queueSize=32768;
+    static constexpr int frameSize=4096, queueSize=16384;
     juce::AbstractFifo fifo{queueSize};
     std::array<float,queueSize> queue{};
     std::array<float,frameSize> history{}, ordered{};
     int writeIndex{}, filled{}, decimation{2}, phase{};
     float low1{}, low2{}, coefficient{};
+    int previousChannel{-1};
     double analysisRate{24000};
     std::atomic<bool> enabled{false};
-    std::atomic<unsigned> generation{0};
+    std::atomic<unsigned> generation{0}, pitchGeneration{0};
     std::atomic<float> hz{0}, certainty{0};
 public:
     Tuner() : Thread("Chimera tuner") {}
@@ -142,24 +143,28 @@ public:
     void prepare(double rate)
     {
         const lifecycle::Scope trace("tuner.prepare", this);
-        stop(); fifo.reset(); history.fill(0); writeIndex=filled=phase=0; low1=low2=0;
+        stop(); fifo.reset(); history.fill(0); writeIndex=filled=phase=0; low1=low2=0; previousChannel=-1;
         decimation=juce::jmax(1,juce::roundToInt(rate/24000.0)); analysisRate=rate/decimation;
         coefficient=float(1.0-std::exp(-juce::MathConstants<double>::twoPi*3000.0/rate));
         hz.store(0); certainty.store(0); startThread(juce::Thread::Priority::low);
     }
     void push(const juce::AudioBuffer<float>& buffer,bool active)
     {
-        if(enabled.exchange(active)!=active)generation.fetch_add(1);
-        if(!active) return;
+        if(enabled.exchange(active)!=active){generation.fetch_add(1);low1=low2=0;phase=0;previousChannel=-1;}
+        if(!active || buffer.getNumChannels()==0) return;
         int channel=0;
         if(buffer.getNumChannels()>1 && buffer.getRMSLevel(1,0,buffer.getNumSamples())>buffer.getRMSLevel(0,0,buffer.getNumSamples())) channel=1;
+        if(previousChannel>=0 && channel!=previousChannel){generation.fetch_add(1);low1=low2=0;phase=0;}
+        previousChannel=channel;
         const int produced=(phase+buffer.getNumSamples())/decimation;
         int first{},firstCount{},second{},secondCount{},written=0;
         fifo.prepareToWrite(produced,first,firstCount,second,secondCount);
         const int available=firstCount+secondCount;
         for(int n=0;n<buffer.getNumSamples();++n)
         {
-            low1+=coefficient*(buffer.getSample(channel,n)-low1); low2+=coefficient*(low1-low2);
+            const auto sample=buffer.getSample(channel,n);
+            if(!std::isfinite(sample)){low1=low2=0;phase=0;generation.fetch_add(1);continue;}
+            low1+=coefficient*(sample-low1); low2+=coefficient*(low1-low2);
             if(++phase<decimation) continue;
             phase=0;
             if(written<available){
@@ -171,8 +176,8 @@ public:
         fifo.finishedWrite(written);
         if(available<produced)generation.fetch_add(1);
     }
-    float frequency() const { return enabled.load()?hz.load():0; }
-    float confidence() const { return enabled.load()?certainty.load():0; }
+    float frequency() const { return enabled.load() && pitchGeneration.load()==generation.load()?hz.load():0; }
+    float confidence() const { return enabled.load() && pitchGeneration.load()==generation.load()?certainty.load():0; }
     static std::pair<float,float> estimate(const float* samples,int count,double rate)
     {
         return tuning::estimate(samples,count,rate);
@@ -196,10 +201,10 @@ private:
             {
                 for(int i=0;i<frameSize;++i) ordered[(size_t)i]=history[(size_t)((writeIndex+i)%frameSize)];
                 const auto pitch=estimate(ordered.data(),frameSize,analysisRate);
-                if(generation.load()==seen && enabled.load()){hz.store(pitch.first);certainty.store(pitch.second);}
+                if(generation.load()==seen && enabled.load()){hz.store(pitch.first);certainty.store(pitch.second);pitchGeneration.store(seen);}
             }
             else if(!received && juce::Time::getMillisecondCounterHiRes()-lastReceived>250) { hz.store(0); certainty.store(0); filled=0; }
-            wait(40);
+            wait(10);
         }
     }
 };
