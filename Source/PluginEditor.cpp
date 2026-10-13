@@ -428,6 +428,12 @@ void ChimeraEditor::showInfo()
 }
 void ChimeraEditor::timerCallback()
 {
+#if CHIMERA_ROUTING_DIAGNOSTICS
+    ++routeProbe.ticks; routeProbe.entered=juce::Time::getMillisecondCounterHiRes();
+    routeProbe.visible=spectralforge::ui::visible(*this);
+    routeProbe.messageThread=juce::MessageManager::getInstance()->isThisTheMessageThread();
+    if(!routeProbe.visible)++routeProbe.skipped;
+#endif
     // Detached ALL windows remain live when their owning tab is hidden.
     for(auto& lane:lanes){lane.nativePanel->refreshIfNeeded();if(lane.head->isShowing())lane.head->refresh();}
     for(auto& post:postPanels)post->refreshIfNeeded();
@@ -438,6 +444,9 @@ void ChimeraEditor::timerCallback()
     const int current=(int)processor.parameters().getRawParameterValue("mode")->load();
     if(lastBoardEnabled!=(processor.parameters().getRawParameterValue("boardEnabled")->load()>.5f) || lastBoostAfterDrive!=(gainOrder.getSelectedId()==2) || lastEnvelopeFirst!=(preOrder.getSelectedId()==2) || current!=lastMode || lastDualCross!=(dualType.getSelectedId()==2) || lastTuner!=tunerOn.getToggleState()) updateModeUI();
     signalPath->refresh();signalPath->select(pathSelections[size_t(current)]);
+#if CHIMERA_ROUTING_DIAGNOSTICS
+    ++routeProbe.refreshed; routeProbe.finished=juce::Time::getMillisecondCounterHiRes();
+#endif
     refreshVisibleState();
     refreshMeters();
 }

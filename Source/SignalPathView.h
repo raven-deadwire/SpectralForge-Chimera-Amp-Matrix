@@ -45,7 +45,13 @@ public:
     std::function<juce::String()> selection;
     const spectralforge::signalPath::Snapshot& snapshot() const {return current;}
     void select(const juce::String& id){if(selected!=id){selected=id;updateSelection();}}
+#if CHIMERA_ROUTING_DIAGNOSTICS
+    uint64_t refreshCalls{}; double refreshTime{};
+#endif
     void refresh() {
+#if CHIMERA_ROUTING_DIAGNOSTICS
+        ++refreshCalls; refreshTime=juce::Time::getMillisecondCounterHiRes();
+#endif
         auto next=spectralforge::signalPath::read(processor);
         if(next==current)return;
         current=std::move(next);

@@ -34,7 +34,14 @@ public:
     bool isInterestedInFileDrag(const juce::StringArray&) override;
     void filesDropped(const juce::StringArray&,int,int) override;
     uint64_t metadataRefreshCount() const noexcept {return metadataReads;}
+#if CHIMERA_ROUTING_DIAGNOSTICS
+    struct RoutingProbe { uint64_t ticks{}, skipped{}, refreshed{}; double entered{}, finished{}; bool visible{}, messageThread{}; };
+    const RoutingProbe& routingProbe() const noexcept { return routeProbe; }
+#endif
 private:
+#if CHIMERA_ROUTING_DIAGNOSTICS
+    RoutingProbe routeProbe;
+#endif
     using CA=juce::AudioProcessorValueTreeState::ComboBoxAttachment;
     using SA=juce::AudioProcessorValueTreeState::SliderAttachment;
     using BA=juce::AudioProcessorValueTreeState::ButtonAttachment;

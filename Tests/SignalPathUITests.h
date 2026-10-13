@@ -239,6 +239,20 @@ inline void compactKeyboardAndAccessibility(juce::Component& editor,SignalPathVi
     }
     modifiedSpaceIgnored(*dynamic_cast<juce::TextButton*>(order.back()),*order.front());
 }
+inline void routingTrace(const char* phase, ChimeraProcessor& p, juce::Component& editor, SignalPathView& strip) {
+#if CHIMERA_ROUTING_DIAGNOSTICS
+    const auto actual=read(p); const auto& probe=dynamic_cast<ChimeraEditor&>(editor).routingProbe();
+    std::cerr << "ROUTING TRACE phase=" << phase << " now=" << juce::Time::getMillisecondCounterHiRes()
+        << " rawGate=" << p.parameters().getRawParameterValue("gateAfterRig")->load()
+        << " dspGate=" << p.routingGateObserved.load() << " dspBlocks=" << p.routingBlocks.load()
+        << " directPost=" << edge(actual,"merge","gate") << " cachedPost=" << edge(strip.snapshot(),"merge","gate")
+        << " cachedInput=" << edge(strip.snapshot(),"input","gate")
+        << " ticks=" << probe.ticks << " skipped=" << probe.skipped << " refreshed=" << probe.refreshed
+        << " entered=" << probe.entered << " finished=" << probe.finished << " visible=" << probe.visible
+        << " messageThread=" << probe.messageThread << " viewCalls=" << strip.refreshCalls << " viewTime=" << strip.refreshTime
+        << " snapshotEqual=" << (actual==strip.snapshot()) << std::endl;
+#endif
+}
 inline void automationFocus(ChimeraProcessor& processor,juce::Component& editor,SignalPathView& strip) {
     const auto before=values(processor);
     std::array<float,4> previous{};const std::array<const char*,4> ids{"gateAfterRig","transposeon","transpose","tuneron"};
@@ -247,7 +261,13 @@ inline void automationFocus(ChimeraProcessor& processor,juce::Component& editor,
         juce::Component::SafePointer<juce::TextButton> focused=&pathButton(strip,stage);
         editor.toFront(true);focused->grabKeyboardFocus();settle(35);
         for(const auto gate:{0,1}) {
-            set(processor,"gateAfterRig",float(gate));set(processor,"transposeon",1);set(processor,"transpose",-2);set(processor,"tuneron",1);settle(100);
+            set(processor,"gateAfterRig",float(gate));set(processor,"transposeon",1);set(processor,"transpose",-2);set(processor,"tuneron",1);
+            routingTrace("parameters-set",processor,editor,strip);
+            juce::AudioBuffer<float> diagnosticAudio(2,64); diagnosticAudio.clear(); juce::MidiBuffer diagnosticMidi;
+            processor.processBlock(diagnosticAudio,diagnosticMidi);
+            routingTrace("audio-processed",processor,editor,strip);
+            settle(100);
+            routingTrace("messages-settled",processor,editor,strip);
             require(focused && focused.getComponent()==find<juce::TextButton>(strip,"path."+juce::String(stage)) && focused->hasKeyboardFocus(false),
                     "Utility automation rebuilt or stole focus from the compact stage");
             compactContract(strip,strip.snapshot().mode);globalUtilities(editor,strip);
@@ -341,7 +361,7 @@ inline void rigSelectionRestore(ChimeraProcessor& processor) {
 }
 inline void run(const juce::File& folder) {
     cabLowBlendAudioTests::run();
-    auto p=std::make_unique<ChimeraProcessor>();topology(*p);
+    auto p=std::make_unique<ChimeraProcessor>();topology(*p);p->prepareToPlay(48000,64);
     Writes writes;p->addListener(&writes);
     auto editor=std::make_unique<ChimeraEditor>(*p);editor->addToDesktop(juce::ComponentPeer::windowIsTemporary);editor->setVisible(true);settle(100);
     auto* strip=find<SignalPathView>(*editor,"signalPathStrip");require(strip!=nullptr,"Persistent path strip absent");

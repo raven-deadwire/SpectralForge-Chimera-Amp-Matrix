@@ -165,6 +165,9 @@ void ChimeraProcessor::process(juce::AudioBuffer<float>& buffer)
         if(before==boardEditSequence.load(std::memory_order_acquire)) audioBoard=candidate;
     }
     const bool gateAtOutput=gateAfterRig->load()>.5f;
+#if CHIMERA_ROUTING_DIAGNOSTICS
+    routingGateObserved.store(int(gateAtOutput)); routingBlocks.fetch_add(1);
+#endif
     const float gateRange=gateRangeDb->load();
     const int preLatency=audioBoard.enabled ? pedalBoard.latency(audioBoard)+(pitching ? preFX.transpose.latency() : 0) : preFX.latency(pitching);
     postRigGate.detect(buffer,value(gateOn)>.5f,value(threshold),value(release),value(hold),preLatency+engine.latency(),gateRange);

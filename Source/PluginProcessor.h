@@ -17,6 +17,10 @@ class ChimeraProcessor : public juce::AudioProcessor {
 public:
     ChimeraProcessor();
     ~ChimeraProcessor() override;
+#if CHIMERA_ROUTING_DIAGNOSTICS
+    std::atomic<int> routingGateObserved{-1};
+    std::atomic<uint64_t> routingBlocks{0};
+#endif
     void prepareToPlay(double,int) override;
     void releaseResources() override;
     // Diagnostic/test query. Host audio processing must already be stopped.
