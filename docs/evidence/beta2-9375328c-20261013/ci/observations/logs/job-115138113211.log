@@ -1,0 +1,413 @@
+﻿2026-10-13T05:02:42.6871398Z Current runner version: '2.337.0'
+2026-10-13T05:02:42.6909153Z ##[group]Runner Image Provisioner
+2026-10-13T05:02:42.6910871Z Hosted Compute Agent
+2026-10-13T05:02:42.6912156Z Version: 20261002.596
+2026-10-13T05:02:42.6913384Z Commit: c3d12f3313a95f25162a1503be624f3b0617f8c0
+2026-10-13T05:02:42.6914936Z Build Date: 2026-10-02T22:28:27Z
+2026-10-13T05:02:42.6916332Z Worker ID: {0c22f3e5-c7e5-4edd-9972-7f7c8d19dde5}
+2026-10-13T05:02:42.6917947Z Region: eastus
+2026-10-13T05:02:42.6919179Z Cloud: Azure
+2026-10-13T05:02:42.6920219Z ##[endgroup]
+2026-10-13T05:02:42.6923177Z ##[group]Operating System
+2026-10-13T05:02:42.6924361Z Ubuntu
+2026-10-13T05:02:42.6925358Z 24.04.5
+2026-10-13T05:02:42.6926371Z LTS
+2026-10-13T05:02:42.6927338Z ##[endgroup]
+2026-10-13T05:02:42.6928468Z ##[group]Runner Image
+2026-10-13T05:02:42.6929666Z Image: ubuntu-24.04
+2026-10-13T05:02:42.6931131Z Version: 20261004.327.1
+2026-10-13T05:02:42.6933484Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20261004.327/images/ubuntu/Ubuntu2404-Readme.md
+2026-10-13T05:02:42.6936412Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20261004.327
+2026-10-13T05:02:42.6938191Z ##[endgroup]
+2026-10-13T05:02:42.6940348Z ##[group]GITHUB_TOKEN Permissions
+2026-10-13T05:02:42.6943528Z Actions: read
+2026-10-13T05:02:42.6944655Z Contents: read
+2026-10-13T05:02:42.6945790Z Metadata: read
+2026-10-13T05:02:42.6946993Z ##[endgroup]
+2026-10-13T05:02:42.6951032Z Secret source: Actions
+2026-10-13T05:02:42.6952881Z Cache mode: write
+2026-10-13T05:02:42.6954454Z Prepare workflow directory
+2026-10-13T05:02:42.7764529Z Prepare all required actions
+2026-10-13T05:02:42.7841903Z Getting action download info
+2026-10-13T05:02:42.9497762Z Download action repository 'actions/checkout@v4' (SHA:11d5960a326750d5838078e36cf38b85af677262)
+2026-10-13T05:02:43.0645752Z Download action repository 'actions/setup-python@v5' (SHA:a26af69be951a213d495a4c3e4e4022e16d87065)
+2026-10-13T05:02:43.1695388Z Download action repository 'actions/download-artifact@v4' (SHA:d3f86a106a0bac45b974a628896c90dbdf5c8093)
+2026-10-13T05:02:43.3544652Z Download action repository 'actions/upload-artifact@v4' (SHA:ea165f8d65b6e75b540449e92b4886f43607fa02)
+2026-10-13T05:02:43.5702937Z Complete job name: consolidate-release-gate
+2026-10-13T05:02:43.6544119Z ##[group]Run actions/checkout@v4
+2026-10-13T05:02:43.6545052Z with:
+2026-10-13T05:02:43.6545544Z   ref: 9375328c30dfe5908e5010342179b5afbc258900
+2026-10-13T05:02:43.6546296Z   repository: raven-deadwire/SpectralForge-Chimera-Amp-Matrix
+2026-10-13T05:02:43.6550786Z   token: ***
+2026-10-13T05:02:43.6551262Z   ssh-strict: true
+2026-10-13T05:02:43.6551717Z   ssh-user: git
+2026-10-13T05:02:43.6552174Z   persist-credentials: true
+2026-10-13T05:02:43.6552672Z   clean: true
+2026-10-13T05:02:43.6553130Z   sparse-checkout-cone-mode: true
+2026-10-13T05:02:43.6553665Z   fetch-depth: 1
+2026-10-13T05:02:43.6554116Z   fetch-tags: false
+2026-10-13T05:02:43.6554575Z   show-progress: true
+2026-10-13T05:02:43.6555054Z   lfs: false
+2026-10-13T05:02:43.6555517Z   submodules: false
+2026-10-13T05:02:43.6555987Z   set-safe-directory: true
+2026-10-13T05:02:43.6556565Z   allow-unsafe-pr-checkout: false
+2026-10-13T05:02:43.6557423Z env:
+2026-10-13T05:02:43.6558085Z   CHIMERA_SOURCE_SHA: 9375328c30dfe5908e5010342179b5afbc258900
+2026-10-13T05:02:43.6558804Z ##[endgroup]
+2026-10-13T05:02:43.7717631Z Syncing repository: raven-deadwire/SpectralForge-Chimera-Amp-Matrix
+2026-10-13T05:02:43.7720924Z ##[group]Getting Git version info
+2026-10-13T05:02:43.7722609Z Working directory is '/home/runner/work/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix'
+2026-10-13T05:02:43.7735488Z [command]/usr/bin/git version
+2026-10-13T05:02:43.7878474Z git version 2.55.0
+2026-10-13T05:02:43.7905154Z ##[endgroup]
+2026-10-13T05:02:43.7927941Z Temporarily overriding HOME='/home/runner/work/_temp/aa6e657d-0980-4122-83b3-b80963c257aa' before making global git config changes
+2026-10-13T05:02:43.7930077Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-13T05:02:43.7932825Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix
+2026-10-13T05:02:43.7993867Z Deleting the contents of '/home/runner/work/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix'
+2026-10-13T05:02:43.7997222Z ##[group]Initializing the repository
+2026-10-13T05:02:43.8001998Z [command]/usr/bin/git init /home/runner/work/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix
+2026-10-13T05:02:43.8117794Z hint: Using 'master' as the name for the initial branch. This default branch name
+2026-10-13T05:02:43.8119789Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+2026-10-13T05:02:43.8121636Z hint: to use in all of your new repositories, which will suppress this warning,
+2026-10-13T05:02:43.8122871Z hint: call:
+2026-10-13T05:02:43.8123510Z hint:
+2026-10-13T05:02:43.8124308Z hint: 	git config --global init.defaultBranch <name>
+2026-10-13T05:02:43.8125397Z hint:
+2026-10-13T05:02:43.8126410Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2026-10-13T05:02:43.8127977Z hint: 'development'. The just-created branch can be renamed via this command:
+2026-10-13T05:02:43.8129204Z hint:
+2026-10-13T05:02:43.8129902Z hint: 	git branch -m <name>
+2026-10-13T05:02:43.8131234Z hint:
+2026-10-13T05:02:43.8135393Z hint: Disable this message with "git config set advice.defaultBranchName false"
+2026-10-13T05:02:43.8138147Z Initialized empty Git repository in /home/runner/work/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/.git/
+2026-10-13T05:02:43.8143376Z [command]/usr/bin/git remote add origin https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix
+2026-10-13T05:02:43.8189358Z ##[endgroup]
+2026-10-13T05:02:43.8190980Z ##[group]Disabling automatic garbage collection
+2026-10-13T05:02:43.8194524Z [command]/usr/bin/git config --local gc.auto 0
+2026-10-13T05:02:43.8239653Z ##[endgroup]
+2026-10-13T05:02:43.8241158Z ##[group]Setting up auth
+2026-10-13T05:02:43.8248377Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-13T05:02:43.8289286Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-13T05:02:43.8691870Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-13T05:02:43.8731110Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-13T05:02:43.8969039Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-13T05:02:43.9007290Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-10-13T05:02:43.9237483Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-10-13T05:02:43.9281473Z ##[endgroup]
+2026-10-13T05:02:43.9282938Z ##[group]Fetching the repository
+2026-10-13T05:02:43.9300025Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin 9375328c30dfe5908e5010342179b5afbc258900
+2026-10-13T05:02:47.0664022Z From https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix
+2026-10-13T05:02:47.0667216Z  * branch            9375328c30dfe5908e5010342179b5afbc258900 -> FETCH_HEAD
+2026-10-13T05:02:47.0671804Z ##[endgroup]
+2026-10-13T05:02:47.0673251Z ##[group]Determining the checkout info
+2026-10-13T05:02:47.0674711Z ##[endgroup]
+2026-10-13T05:02:47.0677869Z [command]/usr/bin/git sparse-checkout disable
+2026-10-13T05:02:47.0736044Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+2026-10-13T05:02:47.0774146Z ##[group]Checking out the ref
+2026-10-13T05:02:47.0778848Z [command]/usr/bin/git checkout --progress --force 9375328c30dfe5908e5010342179b5afbc258900
+2026-10-13T05:02:47.6226396Z Note: switching to '9375328c30dfe5908e5010342179b5afbc258900'.
+2026-10-13T05:02:47.6227143Z 
+2026-10-13T05:02:47.6231429Z You are in 'detached HEAD' state. You can look around, make experimental
+2026-10-13T05:02:47.6232478Z changes and commit them, and you can discard any commits you make in this
+2026-10-13T05:02:47.6233486Z state without impacting any branches by switching back to a branch.
+2026-10-13T05:02:47.6234077Z 
+2026-10-13T05:02:47.6234438Z If you want to create a new branch to retain commits you create, you may
+2026-10-13T05:02:47.6235026Z do so (now or later) by using -c with the switch command. Example:
+2026-10-13T05:02:47.6235345Z 
+2026-10-13T05:02:47.6235496Z   git switch -c <new-branch-name>
+2026-10-13T05:02:47.6235725Z 
+2026-10-13T05:02:47.6235887Z Or undo this operation with:
+2026-10-13T05:02:47.6236100Z 
+2026-10-13T05:02:47.6236229Z   git switch -
+2026-10-13T05:02:47.6236435Z 
+2026-10-13T05:02:47.6236706Z Turn off this advice by setting config variable advice.detachedHead to false
+2026-10-13T05:02:47.6237127Z 
+2026-10-13T05:02:47.6237397Z HEAD is now at 9375328 Align two UI caption assertions with Chimera public naming
+2026-10-13T05:02:47.6262437Z ##[endgroup]
+2026-10-13T05:02:47.6308232Z [command]/usr/bin/git log -1 --format=%H
+2026-10-13T05:02:47.6338051Z 9375328c30dfe5908e5010342179b5afbc258900
+2026-10-13T05:02:47.6663895Z ##[group]Run actions/setup-python@v5
+2026-10-13T05:02:47.6664234Z with:
+2026-10-13T05:02:47.6664469Z   python-version: 3.12
+2026-10-13T05:02:47.6664723Z   check-latest: false
+2026-10-13T05:02:47.6667503Z   token: ***
+2026-10-13T05:02:47.6667736Z   update-environment: true
+2026-10-13T05:02:47.6667997Z   allow-prereleases: false
+2026-10-13T05:02:47.6668264Z   freethreaded: false
+2026-10-13T05:02:47.6668487Z env:
+2026-10-13T05:02:47.6668760Z   CHIMERA_SOURCE_SHA: 9375328c30dfe5908e5010342179b5afbc258900
+2026-10-13T05:02:47.6669103Z ##[endgroup]
+2026-10-13T05:02:47.8048081Z ##[group]Installed versions
+2026-10-13T05:02:47.8150837Z (node:2376) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-13T05:02:47.8151853Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-13T05:02:47.8152960Z Successfully set up CPython (3.12.15)
+2026-10-13T05:02:47.8153834Z ##[endgroup]
+2026-10-13T05:02:47.8375201Z ##[group]Run actions/download-artifact@v4
+2026-10-13T05:02:47.8375562Z with:
+2026-10-13T05:02:47.8375806Z   pattern: Chimera-release-evidence-*
+2026-10-13T05:02:47.8376098Z   path: release-inputs
+2026-10-13T05:02:47.8376344Z   merge-multiple: false
+2026-10-13T05:02:47.8376676Z   repository: raven-deadwire/SpectralForge-Chimera-Amp-Matrix
+2026-10-13T05:02:47.8377040Z   run-id: 38342282418
+2026-10-13T05:02:47.8377253Z env:
+2026-10-13T05:02:47.8377517Z   CHIMERA_SOURCE_SHA: 9375328c30dfe5908e5010342179b5afbc258900
+2026-10-13T05:02:47.8377925Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-13T05:02:47.8378417Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib/pkgconfig
+2026-10-13T05:02:47.8378859Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-13T05:02:47.8379265Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-13T05:02:47.8379664Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-13T05:02:47.8380106Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib
+2026-10-13T05:02:47.8380445Z ##[endgroup]
+2026-10-13T05:02:48.0111823Z (node:2384) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-13T05:02:48.0113190Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-13T05:02:48.1075665Z Found 22 artifact(s)
+2026-10-13T05:02:48.1077162Z Filtering artifacts by pattern 'Chimera-release-evidence-*'
+2026-10-13T05:02:48.1099572Z Preparing to download the following artifacts:
+2026-10-13T05:02:48.1101188Z - Chimera-release-evidence-assembly (ID: 11790046786, Size: 1963, Expected Digest: sha256:59e7b6abe973e156c832c9b21f974b6300eada5fb82aaa7fefa592b32fc5ab7a)
+2026-10-13T05:02:48.1103806Z - Chimera-release-evidence-windows (ID: 11789914829, Size: 66399, Expected Digest: sha256:12c97e554b40143a7337b561877646ce066335e7484143a14708d8b69e88a879)
+2026-10-13T05:02:48.1106103Z - Chimera-release-evidence-linux (ID: 11789670530, Size: 58373, Expected Digest: sha256:c40cd2d4b215720f471c9a1e3b4b5a5c99f11720ff7cfe353fbe874e0904119f)
+2026-10-13T05:02:48.1108444Z - Chimera-release-evidence-macos (ID: 11788998464, Size: 57455, Expected Digest: sha256:8c4005a0bdc3eb24cf0533ca196b25ed159f895f3d19c565d577142b168e4fa6)
+2026-10-13T05:02:48.2438991Z Redirecting to blob download url: https://productionresultssa4.blob.core.windows.net/actions-results/6a63bda7-688d-8588-a539-22f7f68f0b72/workflow-job-run-b7c403c8-97a5-5ab1-a5a0-62af9007d117/artifacts/0b23e4c7be1c68401f141dff6f58eec4330226240553e48c2e5e05d87c81ae90.zip
+2026-10-13T05:02:48.2442222Z Starting download of artifact to: /home/runner/work/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/release-inputs/Chimera-release-evidence-assembly
+2026-10-13T05:02:48.2517791Z Redirecting to blob download url: https://productionresultssa4.blob.core.windows.net/actions-results/6a63bda7-688d-8588-a539-22f7f68f0b72/workflow-job-run-8e809f01-e4ed-5bab-9732-ef9411a8be5b/artifacts/757d66d521db6529f4bf4ccb4a3fc5988bedbaced48295784d2752c75aaef898.zip
+2026-10-13T05:02:48.2519931Z Starting download of artifact to: /home/runner/work/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/release-inputs/Chimera-release-evidence-windows
+2026-10-13T05:02:48.2625707Z Redirecting to blob download url: https://productionresultssa4.blob.core.windows.net/actions-results/6a63bda7-688d-8588-a539-22f7f68f0b72/workflow-job-run-c7064513-45b3-5887-80e2-1313535807ec/artifacts/351a5587b06ea0ded64746039ece7ac786c5c52102c4355a4853f216f9180112.zip
+2026-10-13T05:02:48.2627810Z Starting download of artifact to: /home/runner/work/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/release-inputs/Chimera-release-evidence-linux
+2026-10-13T05:02:48.2676563Z Redirecting to blob download url: https://productionresultssa4.blob.core.windows.net/actions-results/6a63bda7-688d-8588-a539-22f7f68f0b72/workflow-job-run-17ca311a-0041-55d4-968a-bc7093cfd607/artifacts/0d6b06d6f9bef657de6cd0ea4ccda4b907308898d9bca46ec513e7c005fc0445.zip
+2026-10-13T05:02:48.2678686Z Starting download of artifact to: /home/runner/work/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/release-inputs/Chimera-release-evidence-macos
+2026-10-13T05:02:48.2778035Z (node:2384) [DEP0005] DeprecationWarning: Buffer() is deprecated due to security and usability issues. Please use the Buffer.alloc(), Buffer.allocUnsafe(), or Buffer.from() methods instead.
+2026-10-13T05:02:48.2982334Z SHA256 digest of downloaded artifact is 59e7b6abe973e156c832c9b21f974b6300eada5fb82aaa7fefa592b32fc5ab7a
+2026-10-13T05:02:48.2983982Z Artifact download completed successfully.
+2026-10-13T05:02:48.3110456Z SHA256 digest of downloaded artifact is 12c97e554b40143a7337b561877646ce066335e7484143a14708d8b69e88a879
+2026-10-13T05:02:48.3112278Z Artifact download completed successfully.
+2026-10-13T05:02:48.3113500Z SHA256 digest of downloaded artifact is 8c4005a0bdc3eb24cf0533ca196b25ed159f895f3d19c565d577142b168e4fa6
+2026-10-13T05:02:48.3114785Z Artifact download completed successfully.
+2026-10-13T05:02:48.3116005Z SHA256 digest of downloaded artifact is c40cd2d4b215720f471c9a1e3b4b5a5c99f11720ff7cfe353fbe874e0904119f
+2026-10-13T05:02:48.3117235Z Artifact download completed successfully.
+2026-10-13T05:02:48.3118039Z Total of 4 artifact(s) downloaded
+2026-10-13T05:02:48.3120857Z Download artifact has finished successfully
+2026-10-13T05:02:48.3317150Z ##[group]Run # The committed source channel selects beta_1_3 or full_release.
+2026-10-13T05:02:48.3317840Z [36;1m# The committed source channel selects beta_1_3 or full_release.[0m
+2026-10-13T05:02:48.3319030Z [36;1mpython Tools/consolidate_release_gate.py --commit "$CHIMERA_SOURCE_SHA" --run-id "$GITHUB_RUN_ID" --run-attempt "$GITHUB_RUN_ATTEMPT" --inputs release-inputs --output build/release-validation[0m
+2026-10-13T05:02:48.3644138Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-10-13T05:02:48.3644571Z env:
+2026-10-13T05:02:48.3644897Z   CHIMERA_SOURCE_SHA: 9375328c30dfe5908e5010342179b5afbc258900
+2026-10-13T05:02:48.3645366Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-13T05:02:48.3645867Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib/pkgconfig
+2026-10-13T05:02:48.3646368Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-13T05:02:48.3646806Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-13T05:02:48.3647322Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-13T05:02:48.3647773Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib
+2026-10-13T05:02:48.3648148Z ##[endgroup]
+2026-10-13T05:02:48.6216542Z # Chimera release gate: BLOCKED
+2026-10-13T05:02:48.6217159Z 
+2026-10-13T05:02:48.6217657Z - Profile: `beta_1_3`
+2026-10-13T05:02:48.6218120Z - Commit: `9375328c30dfe5908e5010342179b5afbc258900`
+2026-10-13T05:02:48.6218721Z - Checks: 20 PASS / 108 BLOCKED / 0 NOT_APPLICABLE
+2026-10-13T05:02:48.6219415Z - Hard gates: 20 / 63 PASS
+2026-10-13T05:02:48.6219698Z 
+2026-10-13T05:02:48.6219877Z | Stage | Status | PASS | BLOCKED | N/A |
+2026-10-13T05:02:48.6220506Z |---|---|---:|---:|---:|
+2026-10-13T05:02:48.6221446Z | A1 Installer consistency | BLOCKED | 0 | 6 | 0 |
+2026-10-13T05:02:48.6222091Z | A2 Signature definition | BLOCKED | 0 | 8 | 0 |
+2026-10-13T05:02:48.6222768Z | A3 Signature APVTS recall | BLOCKED | 0 | 9 | 0 |
+2026-10-13T05:02:48.6223422Z | A4 Factory compatibility | BLOCKED | 0 | 5 | 0 |
+2026-10-13T05:02:48.6224041Z | A5 Hartke IR import | BLOCKED | 0 | 8 | 0 |
+2026-10-13T05:02:48.6224597Z | A6 Marshall IR import | BLOCKED | 0 | 8 | 0 |
+2026-10-13T05:02:48.6225169Z | A7 IR chain of trust | BLOCKED | 0 | 7 | 0 |
+2026-10-13T05:02:48.6225785Z | A8 IR fallback policy | BLOCKED | 0 | 4 | 0 |
+2026-10-13T05:02:48.6226426Z | A9 Signature benchmark calculator | BLOCKED | 0 | 9 | 0 |
+2026-10-13T05:02:48.6227160Z | A10 Signature hard and secondary gates | BLOCKED | 0 | 6 | 0 |
+2026-10-13T05:02:48.6227850Z | A11 Benchmark JSON | BLOCKED | 0 | 9 | 0 |
+2026-10-13T05:02:48.6228429Z | A12 Automated regression tests | PASS | 7 | 0 | 0 |
+2026-10-13T05:02:48.6229039Z | A13 CI final state | PASS | 7 | 0 | 0 |
+2026-10-13T05:02:48.6229616Z | A14 Documentation sync | BLOCKED | 0 | 7 | 0 |
+2026-10-13T05:02:48.6230217Z | B1 Same-DI fixture | BLOCKED | 0 | 1 | 0 |
+2026-10-13T05:02:48.6231078Z | B2 Signature renders | BLOCKED | 0 | 1 | 0 |
+2026-10-13T05:02:48.6231700Z | B3 Audio measurements | BLOCKED | 0 | 1 | 0 |
+2026-10-13T05:02:48.6232323Z | B4 Signature hard gates | BLOCKED | 0 | 4 | 0 |
+2026-10-13T05:02:48.6232980Z | B5 Signature secondary gates | BLOCKED | 0 | 1 | 0 |
+2026-10-13T05:02:48.6233625Z | B6 Signature score verdict | BLOCKED | 0 | 1 | 0 |
+2026-10-13T05:02:48.6234269Z | B8 Listening A/B | BLOCKED | 0 | 1 | 0 |
+2026-10-13T05:02:48.6234915Z | B10 Audio save/restore roundtrip | BLOCKED | 0 | 1 | 0 |
+2026-10-13T05:02:48.6235639Z | B11 Windows host validation | BLOCKED | 0 | 1 | 0 |
+2026-10-13T05:02:48.6236243Z | B12 Studio One 8 validation | BLOCKED | 0 | 1 | 0 |
+2026-10-13T05:02:48.6236849Z | B13 30 minute soak | BLOCKED | 0 | 1 | 0 |
+2026-10-13T05:02:48.6237448Z | B14 Release candidate gate | BLOCKED | 0 | 1 | 0 |
+2026-10-13T05:02:48.6238212Z | E1 E670FE implementation and legacy compatibility | BLOCKED | 2 | 1 | 0 |
+2026-10-13T05:02:48.6239066Z | E2 E670FE reference and sound acceptance | BLOCKED | 0 | 3 | 0 |
+2026-10-13T05:02:48.6240177Z | I1 Combined 1.1.1 synthetic integration | PASS | 4 | 0 | 0 |
+2026-10-13T05:02:48.6241632Z | I2 1.1.1 real-input and host acceptance | BLOCKED | 0 | 3 | 0 |
+2026-10-13T05:02:48.6242072Z 
+2026-10-13T05:02:48.6242242Z ## Blocking path
+2026-10-13T05:02:48.6243020Z - `A1.04` — NOT_EXECUTED: Required validation was not executed
+2026-10-13T05:02:48.6244174Z - `A1.05` — NOT_EXECUTED: Required validation was not executed
+2026-10-13T05:02:48.6244892Z - `A1.06` — NOT_EXECUTED: Required validation was not executed
+2026-10-13T05:02:48.6245598Z - `A3.01` — NOT_EXECUTED: Required validation was not executed
+2026-10-13T05:02:48.6246342Z - `A3.06` — NOT_EXECUTED: Required validation was not executed
+2026-10-13T05:02:48.6247117Z - `A3.07` — NOT_EXECUTED: Required validation was not executed
+2026-10-13T05:02:48.6247901Z - `A3.08` — NOT_EXECUTED: Required validation was not executed
+2026-10-13T05:02:48.6248695Z - `A4.01` — NOT_EXECUTED: Required validation was not executed
+2026-10-13T05:02:48.6249482Z - `A4.03` — NOT_EXECUTED: Required validation was not executed
+2026-10-13T05:02:48.6250405Z - `A4.04` — NOT_EXECUTED: Required validation was not executed
+2026-10-13T05:02:48.6251531Z - `A4.05` — NOT_EXECUTED: Required validation was not executed
+2026-10-13T05:02:48.6252389Z - `A5.01` — NOT_EXECUTED: Required validation was not executed
+2026-10-13T05:02:48.6253250Z - `A5.05` — NOT_EXECUTED: Required validation was not executed
+2026-10-13T05:02:48.6254084Z - `A5.08` — NOT_EXECUTED: Required validation was not executed
+2026-10-13T05:02:48.6254931Z - `A6.01` — NOT_EXECUTED: Required validation was not executed
+2026-10-13T05:02:48.6255815Z - `A6.05` — NOT_EXECUTED: Required validation was not executed
+2026-10-13T05:02:48.6256810Z - `A6.08` — NOT_EXECUTED: Required validation was not executed
+2026-10-13T05:02:48.6257721Z - `A7.01` — NOT_EXECUTED: Required validation was not executed
+2026-10-13T05:02:48.6258612Z - `A7.02` — NOT_EXECUTED: Required validation was not executed
+2026-10-13T05:02:48.6259474Z - `A7.03` — NOT_EXECUTED: Required validation was not executed
+2026-10-13T05:02:48.6260406Z - `A7.04` — NOT_EXECUTED: Required validation was not executed
+2026-10-13T05:02:48.6262377Z - `A7.05` — NOT_EXECUTED: Required validation was not executed
+2026-10-13T05:02:48.6268688Z - `A7.06` — NOT_EXECUTED: Required validation was not executed
+2026-10-13T05:02:48.6269502Z - `A7.07` — NOT_EXECUTED: Required validation was not executed
+2026-10-13T05:02:48.6270378Z - `A8.01` — NOT_EXECUTED: Required validation was not executed
+2026-10-13T05:02:48.6271506Z - `A8.02` — NOT_EXECUTED: Required validation was not executed
+2026-10-13T05:02:48.6272398Z - `A8.03` — NOT_EXECUTED: Required validation was not executed
+2026-10-13T05:02:48.6273318Z - `B4.H1` — NOT_EXECUTED: Required validation was not executed
+2026-10-13T05:02:48.6274254Z - `B4.H2` — NOT_EXECUTED: Required validation was not executed
+2026-10-13T05:02:48.6275117Z - `B4.H3` — NOT_EXECUTED: Required validation was not executed
+2026-10-13T05:02:48.6275962Z - `B4.H4` — NOT_EXECUTED: Required validation was not executed
+2026-10-13T05:02:48.6276888Z - `B6.RESULT` — NOT_EXECUTED: Required validation was not executed
+2026-10-13T05:02:48.6277847Z - `B10.RESULT` — NOT_EXECUTED: Required validation was not executed
+2026-10-13T05:02:48.6278836Z - `B11.RESULT` — NOT_EXECUTED: Required validation was not executed
+2026-10-13T05:02:48.6279780Z - `B13.RESULT` — NOT_EXECUTED: Required validation was not executed
+2026-10-13T05:02:48.6280948Z - `B14.RESULT` — NOT_EXECUTED: Required validation was not executed
+2026-10-13T05:02:48.6281966Z - `E1.STATE_UI` — TEST_FAILURE: Missing/failed evidence from: windows
+2026-10-13T05:02:48.6282975Z - `E2.TD_EQ` — NOT_EXECUTED: Required validation was not executed
+2026-10-13T05:02:48.6283962Z - `E2.CALIBRATION` — NOT_EXECUTED: Required validation was not executed
+2026-10-13T05:02:48.6284912Z - `E2.SAME_DI` — NOT_EXECUTED: Required validation was not executed
+2026-10-13T05:02:48.6285821Z - `I2.GATE_DI` — NOT_EXECUTED: Required validation was not executed
+2026-10-13T05:02:48.6287094Z - `I2.UI_AUDIO_TIMING` — NOT_EXECUTED: Required validation was not executed
+2026-10-13T05:02:48.6288194Z - `I2.LIVE_REMOVE_DAW` — NOT_EXECUTED: Required validation was not executed
+2026-10-13T05:02:48.6289066Z - `A1.01` — NOT_EXECUTED: Required validation was not executed
+2026-10-13T05:02:48.6290156Z - `A1.02` — NOT_EXECUTED: Required validation was not executed
+2026-10-13T05:02:48.6291363Z - `A1.03` — NOT_EXECUTED: Required validation was not executed
+2026-10-13T05:02:48.6292223Z - `A2.01` — NOT_EXECUTED: Required validation was not executed
+2026-10-13T05:02:48.6293004Z - `A2.02` — NOT_EXECUTED: Required validation was not executed
+2026-10-13T05:02:48.6293807Z - `A2.03` — NOT_EXECUTED: Required validation was not executed
+2026-10-13T05:02:48.6294580Z - `A2.04` — NOT_EXECUTED: Required validation was not executed
+2026-10-13T05:02:48.6295342Z - `A2.05` — NOT_EXECUTED: Required validation was not executed
+2026-10-13T05:02:48.6296144Z - `A2.06` — NOT_EXECUTED: Required validation was not executed
+2026-10-13T05:02:48.6296961Z - `A2.07` — NOT_EXECUTED: Required validation was not executed
+2026-10-13T05:02:48.6297751Z - `A2.08` — NOT_EXECUTED: Required validation was not executed
+2026-10-13T05:02:48.6298530Z - `A3.02` — NOT_EXECUTED: Required validation was not executed
+2026-10-13T05:02:48.6299347Z - `A3.03` — NOT_EXECUTED: Required validation was not executed
+2026-10-13T05:02:48.6300164Z - `A3.04` — NOT_EXECUTED: Required validation was not executed
+2026-10-13T05:02:48.6301440Z - `A3.05` — NOT_EXECUTED: Required validation was not executed
+2026-10-13T05:02:48.6302235Z - `A3.09` — NOT_EXECUTED: Required validation was not executed
+2026-10-13T05:02:48.6303010Z - `A4.02` — NOT_EXECUTED: Required validation was not executed
+2026-10-13T05:02:48.6303818Z - `A5.02` — NOT_EXECUTED: Required validation was not executed
+2026-10-13T05:02:48.6304286Z - `A5.03` — NOT_EXECUTED: Required validation was not executed
+2026-10-13T05:02:48.6304745Z - `A5.04` — NOT_EXECUTED: Required validation was not executed
+2026-10-13T05:02:48.6305224Z - `A5.06` — NOT_EXECUTED: Required validation was not executed
+2026-10-13T05:02:48.6305680Z - `A5.07` — NOT_EXECUTED: Required validation was not executed
+2026-10-13T05:02:48.6306151Z - `A6.02` — NOT_EXECUTED: Required validation was not executed
+2026-10-13T05:02:48.6306606Z - `A6.03` — NOT_EXECUTED: Required validation was not executed
+2026-10-13T05:02:48.6307069Z - `A6.04` — NOT_EXECUTED: Required validation was not executed
+2026-10-13T05:02:48.6307515Z - `A6.06` — NOT_EXECUTED: Required validation was not executed
+2026-10-13T05:02:48.6308268Z - `A6.07` — NOT_EXECUTED: Required validation was not executed
+2026-10-13T05:02:48.6309093Z - `A8.04` — NOT_EXECUTED: Required validation was not executed
+2026-10-13T05:02:48.6309909Z - `A9.01` — NOT_EXECUTED: Required validation was not executed
+2026-10-13T05:02:48.6310947Z - `A9.02` — NOT_EXECUTED: Required validation was not executed
+2026-10-13T05:02:48.6311805Z - `A9.03` — NOT_EXECUTED: Required validation was not executed
+2026-10-13T05:02:48.6312611Z - `A9.04` — NOT_EXECUTED: Required validation was not executed
+2026-10-13T05:02:48.6313423Z - `A9.05` — NOT_EXECUTED: Required validation was not executed
+2026-10-13T05:02:48.6314194Z - `A9.06` — NOT_EXECUTED: Required validation was not executed
+2026-10-13T05:02:48.6314979Z - `A9.07` — NOT_EXECUTED: Required validation was not executed
+2026-10-13T05:02:48.6315791Z - `A9.08` — NOT_EXECUTED: Required validation was not executed
+2026-10-13T05:02:48.6316569Z - `A9.09` — NOT_EXECUTED: Required validation was not executed
+2026-10-13T05:02:48.6317341Z - `A10.01` — NOT_EXECUTED: Required validation was not executed
+2026-10-13T05:02:48.6318138Z - `A10.02` — NOT_EXECUTED: Required validation was not executed
+2026-10-13T05:02:48.6318925Z - `A10.03` — NOT_EXECUTED: Required validation was not executed
+2026-10-13T05:02:48.6319698Z - `A10.04` — NOT_EXECUTED: Required validation was not executed
+2026-10-13T05:02:48.6320502Z - `A10.05` — NOT_EXECUTED: Required validation was not executed
+2026-10-13T05:02:48.6321821Z - `A10.06` — NOT_EXECUTED: Required validation was not executed
+2026-10-13T05:02:48.6322607Z - `A11.01` — NOT_EXECUTED: Required validation was not executed
+2026-10-13T05:02:48.6323476Z - `A11.02` — NOT_EXECUTED: Required validation was not executed
+2026-10-13T05:02:48.6324171Z - `A11.03` — NOT_EXECUTED: Required validation was not executed
+2026-10-13T05:02:48.6325162Z - `A11.04` — NOT_EXECUTED: Required validation was not executed
+2026-10-13T05:02:48.6325957Z - `A11.05` — NOT_EXECUTED: Required validation was not executed
+2026-10-13T05:02:48.6326678Z - `A11.06` — NOT_EXECUTED: Required validation was not executed
+2026-10-13T05:02:48.6327424Z - `A11.07` — NOT_EXECUTED: Required validation was not executed
+2026-10-13T05:02:48.6328132Z - `A11.08` — NOT_EXECUTED: Required validation was not executed
+2026-10-13T05:02:48.6328878Z - `A11.09` — NOT_EXECUTED: Required validation was not executed
+2026-10-13T05:02:48.6329619Z - `A14.01` — NOT_EXECUTED: Required validation was not executed
+2026-10-13T05:02:48.6330376Z - `A14.02` — NOT_EXECUTED: Required validation was not executed
+2026-10-13T05:02:48.6331430Z - `A14.03` — NOT_EXECUTED: Required validation was not executed
+2026-10-13T05:02:48.6332224Z - `A14.04` — NOT_EXECUTED: Required validation was not executed
+2026-10-13T05:02:48.6332977Z - `A14.05` — NOT_EXECUTED: Required validation was not executed
+2026-10-13T05:02:48.6333730Z - `A14.06` — NOT_EXECUTED: Required validation was not executed
+2026-10-13T05:02:48.6334473Z - `A14.07` — NOT_EXECUTED: Required validation was not executed
+2026-10-13T05:02:48.6335282Z - `B1.RESULT` — NOT_EXECUTED: Required validation was not executed
+2026-10-13T05:02:48.6336122Z - `B2.RESULT` — NOT_EXECUTED: Required validation was not executed
+2026-10-13T05:02:48.6336940Z - `B3.RESULT` — NOT_EXECUTED: Required validation was not executed
+2026-10-13T05:02:48.6337733Z - `B5.RESULT` — NOT_EXECUTED: Required validation was not executed
+2026-10-13T05:02:48.6338545Z - `B8.RESULT` — NOT_EXECUTED: Required validation was not executed
+2026-10-13T05:02:48.6339451Z - `B12.RESULT` — NOT_EXECUTED: Required validation was not executed
+2026-10-13T05:02:48.6339941Z 
+2026-10-13T05:02:48.6422330Z ##[group]Run actions/upload-artifact@v4
+2026-10-13T05:02:48.6422669Z with:
+2026-10-13T05:02:48.6422917Z   name: Chimera-A-stage-release-gate
+2026-10-13T05:02:48.6423256Z   path: build/release-validation
+2026-10-13T05:02:48.6423551Z   if-no-files-found: error
+2026-10-13T05:02:48.6423813Z   overwrite: true
+2026-10-13T05:02:48.6424053Z   compression-level: 6
+2026-10-13T05:02:48.6424314Z   include-hidden-files: false
+2026-10-13T05:02:48.6424579Z env:
+2026-10-13T05:02:48.6424859Z   CHIMERA_SOURCE_SHA: 9375328c30dfe5908e5010342179b5afbc258900
+2026-10-13T05:02:48.6425297Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-13T05:02:48.6425756Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib/pkgconfig
+2026-10-13T05:02:48.6426215Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-13T05:02:48.6426629Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-13T05:02:48.6427082Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-13T05:02:48.6427500Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib
+2026-10-13T05:02:48.6427858Z ##[endgroup]
+2026-10-13T05:02:48.8114293Z (node:2401) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-13T05:02:48.8115722Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-13T05:02:48.8466153Z With the provided path, there will be 154 files uploaded
+2026-10-13T05:02:48.9245602Z Artifact name is valid!
+2026-10-13T05:02:48.9246498Z Root directory input is valid!
+2026-10-13T05:02:49.0845267Z Beginning upload of artifact content to blob storage
+2026-10-13T05:02:49.2547022Z (node:2401) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-10-13T05:02:49.2891167Z Uploaded bytes 262399
+2026-10-13T05:02:49.3043745Z Finished uploading artifact content to blob storage!
+2026-10-13T05:02:49.3044976Z SHA256 digest of uploaded artifact zip is df95338f989b740485a12aea0ad1ca01ac7f30a4ac03b09af59efa38d4c6fe3f
+2026-10-13T05:02:49.3046596Z Finalizing artifact upload
+2026-10-13T05:02:49.4977823Z Artifact Chimera-A-stage-release-gate.zip successfully finalized. Artifact ID 11789064926
+2026-10-13T05:02:49.4979754Z Artifact Chimera-A-stage-release-gate has been successfully uploaded! Final size is 262399 bytes. Artifact ID is 11789064926
+2026-10-13T05:02:49.4987667Z Artifact download URL: https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38342282418/artifacts/11789064926
+2026-10-13T05:02:49.5127925Z ##[group]Run cat build/release-validation/release-gate.md >> "$GITHUB_STEP_SUMMARY"
+2026-10-13T05:02:49.5128604Z [36;1mcat build/release-validation/release-gate.md >> "$GITHUB_STEP_SUMMARY"[0m
+2026-10-13T05:02:49.5194010Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-10-13T05:02:49.5194397Z env:
+2026-10-13T05:02:49.5194710Z   CHIMERA_SOURCE_SHA: 9375328c30dfe5908e5010342179b5afbc258900
+2026-10-13T05:02:49.5195166Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-13T05:02:49.5195727Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib/pkgconfig
+2026-10-13T05:02:49.5196327Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-13T05:02:49.5196836Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-13T05:02:49.5197530Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-13T05:02:49.5198101Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib
+2026-10-13T05:02:49.5198742Z ##[endgroup]
+2026-10-13T05:02:49.5451758Z Post job cleanup.
+2026-10-13T05:02:49.6676853Z (node:2415) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-13T05:02:49.6677723Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-13T05:02:49.6867589Z Post job cleanup.
+2026-10-13T05:02:49.7859774Z [command]/usr/bin/git version
+2026-10-13T05:02:49.7908096Z git version 2.55.0
+2026-10-13T05:02:49.7953302Z Temporarily overriding HOME='/home/runner/work/_temp/81a60c36-da5e-432a-949d-7410bd39630b' before making global git config changes
+2026-10-13T05:02:49.7955112Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-13T05:02:49.7960889Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix
+2026-10-13T05:02:49.8046045Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-13T05:02:49.8125370Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-13T05:02:49.8492966Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-13T05:02:49.8555909Z http.https://github.com/.extraheader
+2026-10-13T05:02:49.8574556Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+2026-10-13T05:02:49.8619836Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-13T05:02:49.8953343Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-13T05:02:49.9014047Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-10-13T05:02:49.9459242Z Cleaning up orphan processes
+2026-10-13T05:02:49.9740907Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, actions/download-artifact@v4, actions/setup-python@v5, actions/upload-artifact@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/

@@ -1,0 +1,506 @@
+{
+  "source_sha": "9375328c30dfe5908e5010342179b5afbc258900",
+  "bindings": [
+    {
+      "job_id": 115115728717,
+      "run_id": 38342282377,
+      "name": "preparation-contracts",
+      "source_sha": "9375328c30dfe5908e5010342179b5afbc258900",
+      "job_head_sha": "9375328c30dfe5908e5010342179b5afbc258900",
+      "checkout_verified": true,
+      "evidence": [
+        "2026-10-13T03:35:59.8214861Z [command]/usr/bin/git log -1 --format=%H",
+        "2026-10-13T03:35:59.8245395Z 9375328c30dfe5908e5010342179b5afbc258900"
+      ],
+      "conclusion": "success",
+      "error_lines": [],
+      "log_bytes": 47401
+    },
+    {
+      "job_id": 115115728645,
+      "run_id": 38342282373,
+      "name": "Document fixtures (ubuntu-24.04)",
+      "source_sha": "9375328c30dfe5908e5010342179b5afbc258900",
+      "job_head_sha": "9375328c30dfe5908e5010342179b5afbc258900",
+      "checkout_verified": true,
+      "evidence": [
+        "2026-10-13T03:35:18.5502955Z [command]/usr/bin/git log -1 --format=%H",
+        "2026-10-13T03:35:18.5524869Z 9375328c30dfe5908e5010342179b5afbc258900"
+      ],
+      "conclusion": "success",
+      "error_lines": [],
+      "log_bytes": 27169
+    },
+    {
+      "job_id": 115115728962,
+      "run_id": 38342282373,
+      "name": "Windows Inno document fixtures (exact source)",
+      "source_sha": "9375328c30dfe5908e5010342179b5afbc258900",
+      "job_head_sha": "9375328c30dfe5908e5010342179b5afbc258900",
+      "checkout_verified": true,
+      "evidence": [
+        "2026-10-13T03:34:46.1157952Z [command]\"C:\\Program Files\\Git\\bin\\git.exe\" log -1 --format=%H\r",
+        "2026-10-13T03:34:46.1425417Z 9375328c30dfe5908e5010342179b5afbc258900\r"
+      ],
+      "conclusion": "success",
+      "error_lines": [],
+      "log_bytes": 33999
+    },
+    {
+      "job_id": 115115729055,
+      "run_id": 38342282413,
+      "name": "publisher-contracts",
+      "source_sha": "9375328c30dfe5908e5010342179b5afbc258900",
+      "job_head_sha": "9375328c30dfe5908e5010342179b5afbc258900",
+      "checkout_verified": true,
+      "evidence": [
+        "2026-10-13T03:39:17.7183668Z [command]/usr/bin/git log -1 --format=%H",
+        "2026-10-13T03:39:17.7211087Z 9375328c30dfe5908e5010342179b5afbc258900"
+      ],
+      "conclusion": "success",
+      "error_lines": [],
+      "log_bytes": 20320
+    },
+    {
+      "job_id": 115115728892,
+      "run_id": 38342282418,
+      "name": "validation-contract",
+      "source_sha": "9375328c30dfe5908e5010342179b5afbc258900",
+      "job_head_sha": "9375328c30dfe5908e5010342179b5afbc258900",
+      "checkout_verified": true,
+      "evidence": [
+        "2026-10-13T03:40:38.1474548Z [command]/usr/bin/git log -1 --format=%H",
+        "2026-10-13T03:40:38.1504601Z 9375328c30dfe5908e5010342179b5afbc258900"
+      ],
+      "conclusion": "success",
+      "error_lines": [],
+      "log_bytes": 42960
+    },
+    {
+      "job_id": 115115729212,
+      "run_id": 38342282423,
+      "name": "measure (windows-latest)",
+      "source_sha": "9375328c30dfe5908e5010342179b5afbc258900",
+      "job_head_sha": "9375328c30dfe5908e5010342179b5afbc258900",
+      "checkout_verified": true,
+      "evidence": [
+        "2026-10-13T03:40:26.0939224Z [command]\"C:\\Program Files\\Git\\bin\\git.exe\" log -1 --format=%H\r",
+        "2026-10-13T03:40:26.1221912Z 9375328c30dfe5908e5010342179b5afbc258900\r"
+      ],
+      "conclusion": "success",
+      "error_lines": [],
+      "log_bytes": 27234
+    },
+    {
+      "job_id": 115115729269,
+      "run_id": 38342282472,
+      "name": "realtime (macos-15)",
+      "source_sha": "9375328c30dfe5908e5010342179b5afbc258900",
+      "job_head_sha": "9375328c30dfe5908e5010342179b5afbc258900",
+      "checkout_verified": true,
+      "evidence": [
+        "2026-10-13T03:37:32.1560090Z [command]/opt/homebrew/bin/git log -1 --format=%H",
+        "2026-10-13T03:37:32.1638970Z 9375328c30dfe5908e5010342179b5afbc258900",
+        "2026-10-13T03:37:36.9095030Z [command]/opt/homebrew/bin/git log -1 --format=%H",
+        "2026-10-13T03:37:36.9229520Z aaa1330dd5cf7d51faf1c45a7cef633b9b118458"
+      ],
+      "conclusion": "success",
+      "error_lines": [],
+      "log_bytes": 32258
+    },
+    {
+      "job_id": 115115729093,
+      "run_id": 38342282457,
+      "name": "audition-contracts (ubuntu-22.04)",
+      "source_sha": "9375328c30dfe5908e5010342179b5afbc258900",
+      "job_head_sha": "9375328c30dfe5908e5010342179b5afbc258900",
+      "checkout_verified": true,
+      "evidence": [
+        "2026-10-13T03:36:04.3253081Z [command]/usr/bin/git log -1 --format=%H",
+        "2026-10-13T03:36:04.3266573Z 9375328c30dfe5908e5010342179b5afbc258900"
+      ],
+      "conclusion": "success",
+      "error_lines": [],
+      "log_bytes": 994860
+    },
+    {
+      "job_id": 115115729012,
+      "run_id": 38342282423,
+      "name": "measure (ubuntu-22.04)",
+      "source_sha": "9375328c30dfe5908e5010342179b5afbc258900",
+      "job_head_sha": "9375328c30dfe5908e5010342179b5afbc258900",
+      "checkout_verified": true,
+      "evidence": [
+        "2026-10-13T03:44:19.2136414Z [command]/usr/bin/git log -1 --format=%H",
+        "2026-10-13T03:44:19.2161631Z 9375328c30dfe5908e5010342179b5afbc258900"
+      ],
+      "conclusion": "success",
+      "error_lines": [],
+      "log_bytes": 46360
+    },
+    {
+      "job_id": 115115729414,
+      "run_id": 38342282523,
+      "name": "native-navigation (macos-latest)",
+      "source_sha": "9375328c30dfe5908e5010342179b5afbc258900",
+      "job_head_sha": "9375328c30dfe5908e5010342179b5afbc258900",
+      "checkout_verified": true,
+      "evidence": [
+        "2026-10-13T03:40:14.7025390Z [command]/opt/homebrew/bin/git log -1 --format=%H",
+        "2026-10-13T03:40:14.7157450Z 9375328c30dfe5908e5010342179b5afbc258900"
+      ],
+      "conclusion": "success",
+      "error_lines": [],
+      "log_bytes": 1813259
+    },
+    {
+      "job_id": 115115729211,
+      "run_id": 38342282472,
+      "name": "realtime (windows-latest)",
+      "source_sha": "9375328c30dfe5908e5010342179b5afbc258900",
+      "job_head_sha": "9375328c30dfe5908e5010342179b5afbc258900",
+      "checkout_verified": true,
+      "evidence": [
+        "2026-10-13T03:47:39.5974722Z [command]\"C:\\Program Files\\Git\\bin\\git.exe\" log -1 --format=%H\r",
+        "2026-10-13T03:47:39.6261358Z 9375328c30dfe5908e5010342179b5afbc258900\r",
+        "2026-10-13T03:47:47.5170013Z [command]\"C:\\Program Files\\Git\\bin\\git.exe\" log -1 --format=%H\r",
+        "2026-10-13T03:47:47.5436030Z aaa1330dd5cf7d51faf1c45a7cef633b9b118458\r"
+      ],
+      "conclusion": "success",
+      "error_lines": [],
+      "log_bytes": 34783
+    },
+    {
+      "job_id": 115115728457,
+      "run_id": 38342282368,
+      "name": "graphical-eq (windows-latest)",
+      "source_sha": "9375328c30dfe5908e5010342179b5afbc258900",
+      "job_head_sha": "9375328c30dfe5908e5010342179b5afbc258900",
+      "checkout_verified": true,
+      "evidence": [
+        "2026-10-13T03:35:42.1888843Z [command]\"C:\\Program Files\\Git\\bin\\git.exe\" log -1 --format=%H\r",
+        "2026-10-13T03:35:42.2157097Z 9375328c30dfe5908e5010342179b5afbc258900\r"
+      ],
+      "conclusion": "success",
+      "error_lines": [],
+      "log_bytes": 353110
+    },
+    {
+      "job_id": 115115728841,
+      "run_id": 38342282368,
+      "name": "graphical-eq (ubuntu-22.04)",
+      "source_sha": "9375328c30dfe5908e5010342179b5afbc258900",
+      "job_head_sha": "9375328c30dfe5908e5010342179b5afbc258900",
+      "checkout_verified": true,
+      "evidence": [
+        "2026-10-13T03:44:29.1041493Z [command]/usr/bin/git log -1 --format=%H",
+        "2026-10-13T03:44:29.1075384Z 9375328c30dfe5908e5010342179b5afbc258900"
+      ],
+      "conclusion": "success",
+      "error_lines": [],
+      "log_bytes": 1238195
+    },
+    {
+      "job_id": 115115729412,
+      "run_id": 38342282571,
+      "name": "cab-panel (macos-15)",
+      "source_sha": "9375328c30dfe5908e5010342179b5afbc258900",
+      "job_head_sha": "9375328c30dfe5908e5010342179b5afbc258900",
+      "checkout_verified": true,
+      "evidence": [
+        "2026-10-13T03:35:40.3429820Z [command]/opt/homebrew/bin/git log -1 --format=%H",
+        "2026-10-13T03:35:40.3535030Z 9375328c30dfe5908e5010342179b5afbc258900"
+      ],
+      "conclusion": "success",
+      "error_lines": [],
+      "log_bytes": 973981
+    },
+    {
+      "job_id": 115115729628,
+      "run_id": 38342282571,
+      "name": "cab-panel (ubuntu-22.04)",
+      "source_sha": "9375328c30dfe5908e5010342179b5afbc258900",
+      "job_head_sha": "9375328c30dfe5908e5010342179b5afbc258900",
+      "checkout_verified": true,
+      "evidence": [
+        "2026-10-13T03:36:12.1496819Z [command]/usr/bin/git log -1 --format=%H",
+        "2026-10-13T03:36:12.1522999Z 9375328c30dfe5908e5010342179b5afbc258900"
+      ],
+      "conclusion": "success",
+      "error_lines": [],
+      "log_bytes": 1167838
+    },
+    {
+      "job_id": 115115729661,
+      "run_id": 38342282571,
+      "name": "cab-panel (windows-latest)",
+      "source_sha": "9375328c30dfe5908e5010342179b5afbc258900",
+      "job_head_sha": "9375328c30dfe5908e5010342179b5afbc258900",
+      "checkout_verified": true,
+      "evidence": [
+        "2026-10-13T03:39:51.4989905Z [command]\"C:\\Program Files\\Git\\bin\\git.exe\" log -1 --format=%H\r",
+        "2026-10-13T03:39:51.5195407Z 9375328c30dfe5908e5010342179b5afbc258900\r"
+      ],
+      "conclusion": "success",
+      "error_lines": [],
+      "log_bytes": 323687
+    },
+    {
+      "job_id": 115115729550,
+      "run_id": 38342282587,
+      "name": "native-navigation (ubuntu-latest)",
+      "source_sha": "9375328c30dfe5908e5010342179b5afbc258900",
+      "job_head_sha": "9375328c30dfe5908e5010342179b5afbc258900",
+      "checkout_verified": true,
+      "evidence": [
+        "2026-10-13T03:40:19.9377986Z [command]/usr/bin/git log -1 --format=%H",
+        "2026-10-13T03:40:19.9406883Z 9375328c30dfe5908e5010342179b5afbc258900"
+      ],
+      "conclusion": "success",
+      "error_lines": [],
+      "log_bytes": 814717
+    },
+    {
+      "job_id": 115115729680,
+      "run_id": 38342282587,
+      "name": "native-navigation (windows-latest)",
+      "source_sha": "9375328c30dfe5908e5010342179b5afbc258900",
+      "job_head_sha": "9375328c30dfe5908e5010342179b5afbc258900",
+      "checkout_verified": true,
+      "evidence": [
+        "2026-10-13T03:47:28.0148146Z [command]\"C:\\Program Files\\Git\\bin\\git.exe\" log -1 --format=%H\r",
+        "2026-10-13T03:47:28.0338664Z 9375328c30dfe5908e5010342179b5afbc258900\r"
+      ],
+      "conclusion": "success",
+      "error_lines": [],
+      "log_bytes": 239489
+    },
+    {
+      "job_id": 115115729278,
+      "run_id": 38342282457,
+      "name": "audition-contracts (windows-latest)",
+      "source_sha": "9375328c30dfe5908e5010342179b5afbc258900",
+      "job_head_sha": "9375328c30dfe5908e5010342179b5afbc258900",
+      "checkout_verified": true,
+      "evidence": [
+        "2026-10-13T03:46:58.3170704Z [command]\"C:\\Program Files\\Git\\bin\\git.exe\" log -1 --format=%H\r",
+        "2026-10-13T03:46:58.3443357Z 9375328c30dfe5908e5010342179b5afbc258900\r"
+      ],
+      "conclusion": "success",
+      "error_lines": [],
+      "log_bytes": 307796
+    },
+    {
+      "job_id": 115115729074,
+      "run_id": 38342282523,
+      "name": "native-navigation (ubuntu-latest)",
+      "source_sha": "9375328c30dfe5908e5010342179b5afbc258900",
+      "job_head_sha": "9375328c30dfe5908e5010342179b5afbc258900",
+      "checkout_verified": true,
+      "evidence": [
+        "2026-10-13T03:39:36.5791376Z [command]/usr/bin/git log -1 --format=%H",
+        "2026-10-13T03:39:36.5814017Z 9375328c30dfe5908e5010342179b5afbc258900"
+      ],
+      "conclusion": "success",
+      "error_lines": [],
+      "log_bytes": 1689825
+    },
+    {
+      "job_id": 115115729302,
+      "run_id": 38342282523,
+      "name": "native-navigation (windows-latest)",
+      "source_sha": "9375328c30dfe5908e5010342179b5afbc258900",
+      "job_head_sha": "9375328c30dfe5908e5010342179b5afbc258900",
+      "checkout_verified": true,
+      "evidence": [
+        "2026-10-13T03:37:17.7287435Z [command]\"C:\\Program Files\\Git\\bin\\git.exe\" log -1 --format=%H\r",
+        "2026-10-13T03:37:17.7565998Z 9375328c30dfe5908e5010342179b5afbc258900\r"
+      ],
+      "conclusion": "success",
+      "error_lines": [],
+      "log_bytes": 484720
+    },
+    {
+      "job_id": 115115729441,
+      "run_id": 38342282472,
+      "name": "realtime (ubuntu-22.04)",
+      "source_sha": "9375328c30dfe5908e5010342179b5afbc258900",
+      "job_head_sha": "9375328c30dfe5908e5010342179b5afbc258900",
+      "checkout_verified": true,
+      "evidence": [
+        "2026-10-13T03:52:41.2466295Z [command]/usr/bin/git log -1 --format=%H",
+        "2026-10-13T03:52:41.2499720Z 9375328c30dfe5908e5010342179b5afbc258900",
+        "2026-10-13T03:52:44.7195267Z [command]/usr/bin/git log -1 --format=%H",
+        "2026-10-13T03:52:44.7230097Z aaa1330dd5cf7d51faf1c45a7cef633b9b118458"
+      ],
+      "conclusion": "success",
+      "error_lines": [],
+      "log_bytes": 54361
+    },
+    {
+      "job_id": 115115728757,
+      "run_id": 38342282368,
+      "name": "graphical-eq (macos-15)",
+      "source_sha": "9375328c30dfe5908e5010342179b5afbc258900",
+      "job_head_sha": "9375328c30dfe5908e5010342179b5afbc258900",
+      "checkout_verified": true,
+      "evidence": [
+        "2026-10-13T03:53:21.7413640Z [command]/opt/homebrew/bin/git log -1 --format=%H",
+        "2026-10-13T03:53:21.7494610Z 9375328c30dfe5908e5010342179b5afbc258900"
+      ],
+      "conclusion": "success",
+      "error_lines": [],
+      "log_bytes": 1036434
+    },
+    {
+      "job_id": 115115728988,
+      "run_id": 38342282373,
+      "name": "Document fixtures (macos-15)",
+      "source_sha": "9375328c30dfe5908e5010342179b5afbc258900",
+      "job_head_sha": "9375328c30dfe5908e5010342179b5afbc258900",
+      "checkout_verified": true,
+      "evidence": [
+        "2026-10-13T04:03:58.0104220Z [command]/opt/homebrew/bin/git log -1 --format=%H",
+        "2026-10-13T04:03:58.0207340Z 9375328c30dfe5908e5010342179b5afbc258900"
+      ],
+      "conclusion": "success",
+      "error_lines": [],
+      "log_bytes": 28059
+    },
+    {
+      "job_id": 115115729329,
+      "run_id": 38342282587,
+      "name": "native-navigation (macos-latest)",
+      "source_sha": "9375328c30dfe5908e5010342179b5afbc258900",
+      "job_head_sha": "9375328c30dfe5908e5010342179b5afbc258900",
+      "checkout_verified": true,
+      "evidence": [
+        "2026-10-13T03:57:01.6051080Z [command]/opt/homebrew/bin/git log -1 --format=%H",
+        "2026-10-13T03:57:01.6148800Z 9375328c30dfe5908e5010342179b5afbc258900"
+      ],
+      "conclusion": "success",
+      "error_lines": [],
+      "log_bytes": 830676
+    },
+    {
+      "job_id": 115115729504,
+      "run_id": 38342282423,
+      "name": "measure (macos-15)",
+      "source_sha": "9375328c30dfe5908e5010342179b5afbc258900",
+      "job_head_sha": "9375328c30dfe5908e5010342179b5afbc258900",
+      "checkout_verified": true,
+      "evidence": [
+        "2026-10-13T04:04:32.3403460Z [command]/opt/homebrew/bin/git log -1 --format=%H",
+        "2026-10-13T04:04:32.3589400Z 9375328c30dfe5908e5010342179b5afbc258900"
+      ],
+      "conclusion": "success",
+      "error_lines": [],
+      "log_bytes": 23610
+    },
+    {
+      "job_id": 115115729297,
+      "run_id": 38342282457,
+      "name": "audition-contracts (macos-15)",
+      "source_sha": "9375328c30dfe5908e5010342179b5afbc258900",
+      "job_head_sha": "9375328c30dfe5908e5010342179b5afbc258900",
+      "checkout_verified": true,
+      "evidence": [
+        "2026-10-13T03:57:46.4772890Z [command]/opt/homebrew/bin/git log -1 --format=%H",
+        "2026-10-13T03:57:46.5072990Z 9375328c30dfe5908e5010342179b5afbc258900"
+      ],
+      "conclusion": "success",
+      "error_lines": [],
+      "log_bytes": 849089
+    },
+    {
+      "job_id": 115115729052,
+      "run_id": 38342282377,
+      "name": "windows-candidate",
+      "source_sha": "9375328c30dfe5908e5010342179b5afbc258900",
+      "job_head_sha": "9375328c30dfe5908e5010342179b5afbc258900",
+      "checkout_verified": true,
+      "evidence": [
+        "2026-10-13T03:41:12.6822378Z [command]\"C:\\Program Files\\Git\\bin\\git.exe\" log -1 --format=%H\r",
+        "2026-10-13T03:41:12.7027470Z 9375328c30dfe5908e5010342179b5afbc258900\r"
+      ],
+      "conclusion": "success",
+      "error_lines": [],
+      "log_bytes": 932337
+    },
+    {
+      "job_id": 115117633176,
+      "run_id": 38342282418,
+      "name": "build (ubuntu-22.04)",
+      "source_sha": "9375328c30dfe5908e5010342179b5afbc258900",
+      "job_head_sha": "9375328c30dfe5908e5010342179b5afbc258900",
+      "checkout_verified": true,
+      "evidence": [
+        "2026-10-13T03:51:45.5993860Z [command]/usr/bin/git log -1 --format=%H",
+        "2026-10-13T03:51:45.6007302Z 9375328c30dfe5908e5010342179b5afbc258900"
+      ],
+      "conclusion": "success",
+      "error_lines": [],
+      "log_bytes": 2322038
+    },
+    {
+      "job_id": 115117633059,
+      "run_id": 38342282418,
+      "name": "build (macos-15)",
+      "source_sha": "9375328c30dfe5908e5010342179b5afbc258900",
+      "job_head_sha": "9375328c30dfe5908e5010342179b5afbc258900",
+      "checkout_verified": true,
+      "evidence": [
+        "2026-10-13T03:45:32.9641510Z [command]/opt/homebrew/bin/git log -1 --format=%H",
+        "2026-10-13T03:45:32.9917690Z 9375328c30dfe5908e5010342179b5afbc258900"
+      ],
+      "conclusion": "success",
+      "error_lines": [],
+      "log_bytes": 3716299
+    },
+    {
+      "job_id": 115117633007,
+      "run_id": 38342282418,
+      "name": "build (windows-latest)",
+      "source_sha": "9375328c30dfe5908e5010342179b5afbc258900",
+      "job_head_sha": "9375328c30dfe5908e5010342179b5afbc258900",
+      "checkout_verified": true,
+      "evidence": [
+        "2026-10-13T03:50:38.9284831Z [command]\"C:\\Program Files\\Git\\bin\\git.exe\" log -1 --format=%H\r",
+        "2026-10-13T03:50:38.9548869Z 9375328c30dfe5908e5010342179b5afbc258900\r"
+      ],
+      "conclusion": "success",
+      "error_lines": [],
+      "log_bytes": 845383
+    },
+    {
+      "job_id": 115137847661,
+      "run_id": 38342282418,
+      "name": "assemble-candidate",
+      "source_sha": "9375328c30dfe5908e5010342179b5afbc258900",
+      "job_head_sha": "9375328c30dfe5908e5010342179b5afbc258900",
+      "checkout_verified": true,
+      "evidence": [
+        "2026-10-13T05:01:48.3485363Z [command]/usr/bin/git log -1 --format=%H",
+        "2026-10-13T05:01:48.3508611Z 9375328c30dfe5908e5010342179b5afbc258900"
+      ],
+      "conclusion": "success",
+      "error_lines": [],
+      "log_bytes": 41781
+    },
+    {
+      "job_id": 115138113211,
+      "run_id": 38342282418,
+      "name": "consolidate-release-gate",
+      "source_sha": "9375328c30dfe5908e5010342179b5afbc258900",
+      "job_head_sha": "9375328c30dfe5908e5010342179b5afbc258900",
+      "checkout_verified": true,
+      "evidence": [
+        "2026-10-13T05:02:47.6308232Z [command]/usr/bin/git log -1 --format=%H",
+        "2026-10-13T05:02:47.6338051Z 9375328c30dfe5908e5010342179b5afbc258900"
+      ],
+      "conclusion": "success",
+      "error_lines": [],
+      "log_bytes": 36788
+    }
+  ]
+}

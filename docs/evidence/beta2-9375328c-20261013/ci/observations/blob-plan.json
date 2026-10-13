@@ -1,0 +1,194 @@
+{
+  "schema": "chimera.github-evidence-blob-plan.v1",
+  "source_sha": "9375328c30dfe5908e5010342179b5afbc258900",
+  "source_tree": "b02780be13bb594074bf51b269f804b4c861e5a4",
+  "created_at": "2026-10-13T05:08:19.603Z",
+  "scope": "Source-specific 9375328c CI successes with original gate declared BLOCKED (20 PASS / 108 BLOCKED), E1.STATE_UI TEST_FAILURE. No qualification or later-source validation is inferred. Unreferenced blobs only; root owns evidence-tree and branch update.",
+  "tree_entries": [
+    {
+      "path": "docs/evidence/beta2-9375328c-20261013/ci/observations/raw/source-runs.json",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "01b1092e819def06bb679b2ca12ae6c9caf9e7dd",
+      "character_length": 178643,
+      "request_url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs?head_sha=9375328c30dfe5908e5010342179b5afbc258900&per_page=100"
+    },
+    {
+      "path": "docs/evidence/beta2-9375328c-20261013/ci/observations/raw/jobs-38342282587.json",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "4bfe51ddd28c141c3478241e3f027fc69b56f046",
+      "character_length": 10373,
+      "request_url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38342282587/jobs?filter=latest&per_page=100"
+    },
+    {
+      "path": "docs/evidence/beta2-9375328c-20261013/ci/observations/raw/jobs-38342282423.json",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "77ca1bbb19c412f44206c0b02a0cd3db113cd9c0",
+      "character_length": 10960,
+      "request_url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38342282423/jobs?filter=latest&per_page=100"
+    },
+    {
+      "path": "docs/evidence/beta2-9375328c-20261013/ci/observations/raw/jobs-38342282457.json",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "14f2e0803c733e5744fe53e33cd9bf753fef3721",
+      "character_length": 10624,
+      "request_url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38342282457/jobs?filter=latest&per_page=100"
+    },
+    {
+      "path": "docs/evidence/beta2-9375328c-20261013/ci/observations/raw/jobs-38342282523.json",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "75a4260eae5118575826e3ec374ee5e4baca251a",
+      "character_length": 12062,
+      "request_url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38342282523/jobs?filter=latest&per_page=100"
+    },
+    {
+      "path": "docs/evidence/beta2-9375328c-20261013/ci/observations/raw/jobs-38342282472.json",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "6f1455e2d32e9e13d7b0a072bde6c2f3b95cf103",
+      "character_length": 9442,
+      "request_url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38342282472/jobs?filter=latest&per_page=100"
+    },
+    {
+      "path": "docs/evidence/beta2-9375328c-20261013/ci/observations/raw/jobs-38342282368.json",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "472ef2c976221acd2e226ef119b41c2e7c2765c2",
+      "character_length": 10261,
+      "request_url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38342282368/jobs?filter=latest&per_page=100"
+    },
+    {
+      "path": "docs/evidence/beta2-9375328c-20261013/ci/observations/raw/jobs-38342282373.json",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "a66934823bef828b2ea62025ec1f748c102dc7ea",
+      "character_length": 8786,
+      "request_url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38342282373/jobs?filter=latest&per_page=100"
+    },
+    {
+      "path": "docs/evidence/beta2-9375328c-20261013/ci/observations/raw/jobs-38342282571.json",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "c81b2e9fa70ea4d057efbc67c3ac17550bdbdc2d",
+      "character_length": 11914,
+      "request_url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38342282571/jobs?filter=latest&per_page=100"
+    },
+    {
+      "path": "docs/evidence/beta2-9375328c-20261013/ci/observations/raw/jobs-38342282413.json",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "3b58b83dd16cdf55ba15e156e63ca98df51e621f",
+      "character_length": 2267,
+      "request_url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38342282413/jobs?filter=latest&per_page=100"
+    },
+    {
+      "path": "docs/evidence/beta2-9375328c-20261013/ci/observations/raw/jobs-38342282377.json",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "2e80f6a087b9b27265acd154b4a63a630af41841",
+      "character_length": 16280,
+      "request_url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38342282377/jobs?filter=latest&per_page=100"
+    },
+    {
+      "path": "docs/evidence/beta2-9375328c-20261013/ci/observations/raw/jobs-38342282418.json",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "11a4ae57c5fe25d4c31acdf69c6143f9f090469d",
+      "character_length": 34825,
+      "request_url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38342282418/jobs?filter=latest&per_page=100"
+    },
+    {
+      "path": "docs/evidence/beta2-9375328c-20261013/ci/observations/raw/artifacts-38342282418.json",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "1389cfe238bc8fa0fe5f886f98b547ab60f5dc10",
+      "character_length": 18100,
+      "request_url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38342282418/artifacts?per_page=100"
+    },
+    {
+      "path": "docs/evidence/beta2-9375328c-20261013/ci/observations/raw/artifacts-38342282377.json",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "cebcd7ebcbfab41e85a8066ceac1e57b1688e57f",
+      "character_length": 26507,
+      "request_url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38342282377/artifacts?per_page=100"
+    },
+    {
+      "path": "docs/evidence/beta2-9375328c-20261013/ci/observations/final-source-summary.json",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "0141e3040968cbc1f2d76708cf4616a6fc9b634e",
+      "character_length": 33634
+    },
+    {
+      "path": "docs/evidence/beta2-9375328c-20261013/ci/observations/original-checkout-bindings.json",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "ba254c59a36fe2f461c2bafb10c8507518ef21e7",
+      "character_length": 19184
+    },
+    {
+      "path": "docs/evidence/beta2-9375328c-20261013/ci/observations/gate-producer-declared-result.json",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "5c967fa2844902932cc211f20590d581c4911c18",
+      "character_length": 4447
+    },
+    {
+      "path": "docs/evidence/beta2-9375328c-20261013/ci/observations/logs/job-115115729052.log",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "22b3e36f04d4eddf05f8ef59b298d5d1b269a168",
+      "character_length": 932337
+    },
+    {
+      "path": "docs/evidence/beta2-9375328c-20261013/ci/observations/logs/job-115117633007.log",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "ea1c50bc96c14641a01b70b6da69d256a695a0a5",
+      "character_length": 845383
+    },
+    {
+      "path": "docs/evidence/beta2-9375328c-20261013/ci/observations/logs/job-115117633059.log",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "b65166586a146fb2e399890c2d656933cdfddafb",
+      "character_length": 3716299
+    },
+    {
+      "path": "docs/evidence/beta2-9375328c-20261013/ci/observations/logs/job-115117633176.log",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "8906217c1f3582aa199230879171b9ac22260f7a",
+      "character_length": 2322038
+    },
+    {
+      "path": "docs/evidence/beta2-9375328c-20261013/ci/observations/logs/job-115137847661.log",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "f0a81282d4479ae59e37231108b44abab3ea95eb",
+      "character_length": 41781
+    },
+    {
+      "path": "docs/evidence/beta2-9375328c-20261013/ci/observations/logs/job-115138113211.log",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "8625adb0ee6db5b8a0a0b2647ca3e0e224034f57",
+      "character_length": 36788
+    },
+    {
+      "path": "docs/evidence/beta2-9375328c-20261013/ci/observations/source-build-workflow.yml",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "2357c28498b184da8226828503290ba2fc014fea",
+      "source_path": ".github/workflows/build.yml",
+      "source_sha": "9375328c30dfe5908e5010342179b5afbc258900"
+    }
+  ],
+  "summary_blob_sha": "0141e3040968cbc1f2d76708cf4616a6fc9b634e",
+  "gate_log_blob_sha": "8625adb0ee6db5b8a0a0b2647ca3e0e224034f57"
+}

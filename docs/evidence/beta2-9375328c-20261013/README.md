@@ -66,14 +66,28 @@ The document-only local probe preserves modified Manual/Presets files and person
 
 The earlier container Xvfb socket-binding failure is an environment boundary; native Windows full UI execution is required below. Earlier environment failures and old-source measurements are retained in the historical archive rather than represented as new-source passes.
 
-## Fresh CI and installer qualification
+## Fresh CI and installer qualification at 9375328c
 
-Verification is in progress. This section will be completed only from original 9375328c workflow metadata, checkout logs, reports and artifact bytes.
+All 11 original product-source workflows and all 33 jobs completed SUCCESS. All 33 original checkout logs bind this source. Windows Product passed 48/48 CTests (1604.91 s), Windows update candidate 48/48 (1086.70 s), Linux Product 45/45 (645.92 s), and macOS Product 44/44 (921.76 s). Both Windows paths actually executed previous-public-beta.1 upgrade, two repairs and uninstall with document/personal-file preservation; their installer binaries have distinct recorded hashes.
 
-## Release and October 14 decision
+**This source is not fully qualified.** The original consolidated gate declared BLOCKED: 20 PASS / 108 BLOCKED / 0 NOT_APPLICABLE. E1.STATE_UI is BLOCKED with TEST_FAILURE: Missing/failed evidence from windows. Original gate archive11789064926 is262399 bytes with SHA256 df95338f989b740485a12aea0ad1ca01ac7f30a4ac03b09af59efa38d4c6fe3f.
 
-Publication and owner-acceptance flags remain false, waivers remain empty, and the source's release-policy files are unchanged. Any deferred transpose live/DI checks remain deferred, not PASS. The final source-specific gate and acceptance decision will be recorded after verification. No unverified deployment will proceed.
+A separate read-only remote audit [38348376361](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38348376361), controller48764beceafe47c4c60e7d0544779d6dc1a90fb3, checked out unchanged product9375328c. The unchanged source-specific verify_ci function passed, and the gate ZIP size/digest/CRC passed. The unchanged raw evidence verifier rejected E1.STATE_UI (windows). Its dry-run and remaining12 archive audits did not execute in that first audit; the full original failure is retained under ci/remote-audit/original-38348376361.
 
-## Evidence
+Static source comparison identifies a machine-receipt mismatch: NativeUITests emits “flat POST alias menus and functional captions”, while the unchanged hash-pinned CI map requires “flat POST alias menus and short original model captions”. A diagnostic-only evidence-controller run now reads the actual hashed LastTest.log, preserves the strict rejection and runs the remaining archive inspections without changing product source, policies or acceptance. Any subsequent source fix must be tested afresh; no937 PASS qualifies a later SHA.
 
-Final original reports, logs, scripts and archive digests will be supplied beside this README. Historical c3 material remains separately identified. Signed transfer URLs and credentials are excluded.
+### User-modified document preservation semantics
+
+The actual Windows previous-public-beta.1 upgrade fixture confirms a deliberately mixed policy: edited retired Documentation/AMP_NATIVE_DSP.md stays in place, while nine exact unmodified retired files are deleted. An annotated old Manual is preserved byte-for-byte at PreservedDocuments/<edited SHA256>/Documentation/MANUAL.html before the active path receives the current staged Manual. An edited current README is similarly snapshotted during repair, and both repairs restore current payload bytes. A later Manual edit survives uninstall at the active path; saved snapshots, licenses, personal presets, IRs and project sentinels survive as asserted by the executed fixture.
+
+The actual beta.1 Windows fixture did not specifically annotate PRESETS.md. It verifies the installed current Presets document against its Windows stage with all other current public documents. Modified Manual and Presets snapshot preservation/replacement was separately exercised by the fresh local Linux document-only probe. Do not collapse these distinct scopes into an unperformed Windows PRESETS-edit upgrade claim.
+
+Every executed Windows Assert-CurrentPayload check compares installed text/Markdown/HTML/manifest bytes with that Windows stage. Logs assert the checks passed but do not print individual current Manual/Presets hashes; the report serializer omits these per-current-document hashes. Source Git/LF hashes are therefore not claimed as raw installed Windows/CRLF hashes.
+
+## Release decision
+
+Current beta.2 approval and publication flags remain false, and waivers remain empty. The source937 CI success does not override its gate rejection. No main merge, release, tag, feed publication or deployment was performed. The local executor remains offline; the separate read-only remote audit is an explicitly recorded alternate execution environment, not a fabricated local run.
+
+## Evidence layout
+
+Original local reports and their archive remain at this evidence path; the source-verification-evidence.zip SHA256 is f08c949af5925ac8c62fca193c80faca5a9356fd6acad92cccd1a8a7f0f8f18a. CI observations, installer logs, platform package scope and CAB records appear under ci/. Point-in-time offline archive limitations are historical and can be superseded only by a subsequently executed remote audit. Original failures remain retained.

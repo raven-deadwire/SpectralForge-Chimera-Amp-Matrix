@@ -1,0 +1,94 @@
+{
+  "source_sha": "9375328c30dfe5908e5010342179b5afbc258900",
+  "tree_sha": "b02780be13bb594074bf51b269f804b4c861e5a4",
+  "run_id": 38342282418,
+  "run_attempt": 1,
+  "platform": "macOS",
+  "job_id": 115117633059,
+  "job_url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38342282418/job/115117633059",
+  "verdict": "Fresh Product macOS CTest and universal packaging job SUCCESS; installed-product acceptance not performed.",
+  "evidence_basis": [
+    "Original current-source job log read through GitHub connector.",
+    "Original completed job step metadata.",
+    "Original artifact metadata compared with upload-log ID/digest.",
+    "Packaging source read at the exact frozen commit."
+  ],
+  "ctest": {
+    "passed": 44,
+    "total": 44,
+    "failed": 0,
+    "wall_seconds": 921.76,
+    "each_test_row_passed": true,
+    "raw_junit_and_inventory_independently_read_by_this_connector_review": false
+  },
+  "packaging_step": "Package and verify macOS universal installer",
+  "packaging_step_conclusion": "success",
+  "packaging_checks_executed_from_exact_source": [
+    "Build and stage Standalone app, VST3 and AU bundles.",
+    "Verify arm64 and x86_64 slices of all three product bundle executables and the native document maintenance helper with lipo.",
+    "Apply ad-hoc signatures and verify strict code seals on staged product bundles and helper; no publisher identity is established.",
+    "Check the standalone microphone permission description.",
+    "Stage offline manual and document payload at fixed system paths; disable bundle relocatability.",
+    "Create native preinstall/postinstall hooks and build universal PKG using pkgbuild.",
+    "Expand PKG with pkgutil --expand-full and compare all three extracted product executable hashes with the staged binaries.",
+    "Compare the two expanded package hook hashes with the staged native maintenance helper.",
+    "Generate the PKG checksum."
+  ],
+  "configured_deployment_target": "12.0",
+  "actual_generated_product_install_executed": false,
+  "actual_previous_release_to_current_full_product_upgrade_executed": false,
+  "installed_standalone_launch_or_real_daw_acceptance_executed": false,
+  "hardware_audio_or_listening_acceptance_executed": false,
+  "developer_id_signing_or_notarization_certified": false,
+  "independently_verified_archive_bytes_at_this_review": false,
+  "artifact_limit_at_this_review": "The local executor is offline. API/upload-log digests agree, but no local ZIP was materialized/rehashed or internally audited for this new Product macOS artifact. A separate read-only remote audit has been launched; its later result must explicitly supersede this chronological limitation rather than retroactively changing this review.",
+  "large_binary_zip_downloaded": false,
+  "artifacts": [
+    {
+      "id": 11788998464,
+      "name": "Chimera-release-evidence-macos",
+      "size_in_bytes": 57455,
+      "url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/artifacts/11788998464",
+      "archive_download_url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/artifacts/11788998464/zip",
+      "expired": false,
+      "created_at": "2026-10-13T04:49:04Z",
+      "expires_at": "2027-01-11T03:33:35Z",
+      "updated_at": "2026-10-13T04:49:04Z",
+      "digest": "sha256:8c4005a0bdc3eb24cf0533ca196b25ed159f895f3d19c565d577142b168e4fa6",
+      "workflow_run": {
+        "id": 38342282418,
+        "repository_id": 1382701489,
+        "head_repository_id": 1382701489,
+        "head_branch": "integration/beta2-test-20261014",
+        "head_sha": "9375328c30dfe5908e5010342179b5afbc258900"
+      }
+    },
+    {
+      "id": 11788783812,
+      "name": "SpectralForge-Chimera-1.3.1-beta.2-macos-universal",
+      "size_in_bytes": 702463132,
+      "url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/artifacts/11788783812",
+      "archive_download_url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/artifacts/11788783812/zip",
+      "expired": false,
+      "created_at": "2026-10-13T04:49:02Z",
+      "expires_at": "2027-01-11T03:33:35Z",
+      "updated_at": "2026-10-13T04:49:02Z",
+      "digest": "sha256:4c131e6142c70ab47601c589a865231ca3fd8caad6328bf828797ab54a62977c",
+      "workflow_run": {
+        "id": 38342282418,
+        "repository_id": 1382701489,
+        "head_repository_id": 1382701489,
+        "head_branch": "integration/beta2-test-20261014",
+        "head_sha": "9375328c30dfe5908e5010342179b5afbc258900"
+      }
+    }
+  ],
+  "source_provenance": {
+    "repository_path": "Tools/package_release.py",
+    "source_commit": "9375328c30dfe5908e5010342179b5afbc258900",
+    "blob_sha": "c12ff9c05c8a938a520644af13e11b4faf7b6943"
+  },
+  "policy_or_source_changed_by_review": false,
+  "historical_passes_reused": false,
+  "qualification_limit": "Separate synthetic Apple PKG document fixture tests are not generated-product install/upgrade or real DAW acceptance. Historical c3 package success is not qualification for this source."
+}

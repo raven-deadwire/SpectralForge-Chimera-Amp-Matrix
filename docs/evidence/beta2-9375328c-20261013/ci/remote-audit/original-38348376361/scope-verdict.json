@@ -1,0 +1,103 @@
+{
+  "schema": "chimera.read-only-audit-original-failure.v1",
+  "source_sha": "9375328c30dfe5908e5010342179b5afbc258900",
+  "tree_sha": "b02780be13bb594074bf51b269f804b4c861e5a4",
+  "product_run_id": 38342282418,
+  "run_attempt": 1,
+  "controller_sha": "48764beceafe47c4c60e7d0544779d6dc1a90fb3",
+  "audit_run_id": 38348376361,
+  "audit_job_id": 115134933969,
+  "run_url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38348376361",
+  "result": "AUDIT_FAILED",
+  "unchanged_verify_ci": {
+    "result": "PASS",
+    "workflows": {
+      "build.yml": {
+        "id": 38342282418,
+        "run_attempt": 1,
+        "head_sha": "9375328c30dfe5908e5010342179b5afbc258900",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      "update-candidate.yml": {
+        "id": 38342282377,
+        "run_attempt": 1,
+        "head_sha": "9375328c30dfe5908e5010342179b5afbc258900",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      "cab-panel.yml": {
+        "id": 38342282571,
+        "run_attempt": 1,
+        "head_sha": "9375328c30dfe5908e5010342179b5afbc258900",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      "cab-realtime.yml": {
+        "id": 38342282472,
+        "run_attempt": 1,
+        "head_sha": "9375328c30dfe5908e5010342179b5afbc258900",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      "amp-head-controls.yml": {
+        "id": 38342282587,
+        "run_attempt": 1,
+        "head_sha": "9375328c30dfe5908e5010342179b5afbc258900",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      "signal-path.yml": {
+        "id": 38342282523,
+        "run_attempt": 1,
+        "head_sha": "9375328c30dfe5908e5010342179b5afbc258900",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      "graphical-eq.yml": {
+        "id": 38342282368,
+        "run_attempt": 1,
+        "head_sha": "9375328c30dfe5908e5010342179b5afbc258900",
+        "status": "completed",
+        "conclusion": "success"
+      }
+    }
+  },
+  "verified_gate_archive": {
+    "id": 11789064926,
+    "name": "Chimera-A-stage-release-gate",
+    "run_id": 38342282418,
+    "source_sha": "9375328c30dfe5908e5010342179b5afbc258900",
+    "size": 262399,
+    "sha256": "df95338f989b740485a12aea0ad1ca01ac7f30a4ac03b09af59efa38d4c6fe3f",
+    "api_digest": "sha256:df95338f989b740485a12aea0ad1ca01ac7f30a4ac03b09af59efa38d4c6fe3f",
+    "zip_crc_valid": true,
+    "internal_hashes_checked": 0
+  },
+  "strict_gate_error": {
+    "type": "ValidationError",
+    "message": "Automatic check is not supported by embedded raw evidence: E1.STATE_UI (windows)"
+  },
+  "gate_semantic_acceptance": false,
+  "offline_dry_run": "NOT_RUN due to preceding strict gate exception",
+  "remaining_twelve_artifact_audits": "NOT_RUN due to preceding strict gate exception",
+  "published": false,
+  "source_diagnosis": {
+    "status": "Exact-source deterministic marker mismatch; original raw LastTest marker awaits diagnostic inspection",
+    "emitted_file": "Tests/NativeUITests.h",
+    "emitted_line": 293,
+    "emitted_phrase": "flat POST alias menus and functional captions",
+    "policy_file": "Validation/ci-check-map.json",
+    "check": "E1.STATE_UI",
+    "required_phrase": "flat POST alias menus and short original model captions",
+    "predicate": "Tools/release_evidence.py contract_passed uses re.fullmatch per scoped LastTest.log line",
+    "correction_ui_phrase": "Not the mapped E1.STATE_UI marker"
+  },
+  "scope_limits": [
+    "All workflow jobs passing does not establish consolidated release acceptance.",
+    "Archive verification adds no native installation, DAW or target-hardware test.",
+    "Original strict rejection is retained; no gate waiver or policy edit.",
+    "Historical local executor outage remains; GitHub read-only runner enabled this limited byte verification."
+  ],
+  "original_report_count": 1
+}

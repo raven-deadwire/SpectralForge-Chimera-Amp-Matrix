@@ -1,0 +1,52 @@
+[
+  {
+    "path": "evidence/windows/raw/InstallerVerification.json",
+    "report": {
+      "checks": [
+        "PASS: Setup version resources match source/payload product version 1.3.1",
+        "PASS: Installed DisplayVersion=1.3.1 and selected binary versions match 1.3.1-beta.2",
+        "PASS: Product rename retires only exact old executable/VST3 binaries and preserves personal preset bytes",
+        "PASS: Companion Bass/Guitar WAVs install recursively, match their source hashes, decode, appear in the cabinet menu and load into a rig",
+        "PASS: Four Raven companion fixtures and sidecars install automatically, decode, appear in CAB and load into a rig",
+        "PASS: Full install: standard VST3 path, app, documentation, shortcuts and uninstall registration; payload hashes match",
+        "PASS: Standalone, VST3 and reference renderer use the static MSVC runtime",
+        "PASS: Installed VST3 loads through the Windows loader and exports GetPluginFactory",
+        "PASS: Start Menu shortcut launches the installed app and its window: C:\\Program Files\\SpectralForge\\Chimera Amp Matrix\\SpectralForge Chimera.exe",
+        "PASS: Installed DisplayVersion=1.3.1 and selected binary versions match 1.3.1-beta.2",
+        "PASS: Same-version reinstall repairs files and preserves modified documentation copies and personal presets/IRs",
+        "PASS: Personal IR collection is preserved after uninstall",
+        "PASS: Uninstall removes owned binaries, shortcut and Windows registration; preserves user files",
+        "PASS: Installed DisplayVersion=1.3.1 and selected binary versions match 1.3.1-beta.2",
+        "PASS: Independent custom application and VST3 installation folders accept Unicode paths",
+        "PASS: Installed DisplayVersion=1.3.1 and selected binary versions match 1.3.1-beta.2",
+        "PASS: Repair remembers the selected VST3 folder without a /VST3DIR override",
+        "PASS: Installed DisplayVersion=1.3.1 and selected binary versions match 1.3.1-beta.2",
+        "PASS: Changing the selected VST3 folder retires only its exact old plugin binary and preserves user files",
+        "PASS: VST3-only selection and removal; Unicode custom app path",
+        "PASS: Installed DisplayVersion=1.3.1 and selected binary versions match 1.3.1-beta.2",
+        "PASS: Start Menu shortcut launches the installed app and its window: D:\\a\\_temp\\Chimera 설치 검증\\SpectralForge Chimera.exe",
+        "PASS: Standalone-only selection and removal; no VST3 installed",
+        "PASS: Actual public beta.1 Setup to current product Setup upgrade, repair and removal preserve user documents and files"
+      ],
+      "source_sha": "9375328c30dfe5908e5010342179b5afbc258900",
+      "success": true,
+      "payload_manifest_sha256": "e2714e3ff8cfd8d4336005a5ca3c4b5c87608bdff121c21b486904f736e7a46f",
+      "installer_sha256": "0c53285938061fd6b66250f07d25b95abf738d4a79e83acb0ed4c34a1069cb30",
+      "installer": "SpectralForge-Chimera-1.3.1-beta.2-win64-Setup.exe",
+      "product_version": "1.3.1",
+      "build_id": "9375328c30",
+      "actual_previous_release_upgrade_verified": true,
+      "installer_version": "1.3.1",
+      "run_id": "38342282418",
+      "version": "1.3.1-beta.2",
+      "observed_display_versions": [
+        "1.3.1",
+        "1.3.1",
+        "1.3.1",
+        "1.3.1",
+        "1.3.1",
+        "1.3.1"
+      ]
+    }
+  }
+]

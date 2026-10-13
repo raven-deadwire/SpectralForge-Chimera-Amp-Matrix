@@ -2,7 +2,7 @@
 """Read-only exact-source artifact audit; never calls a publication entry point."""
 import sys
 sys.dont_write_bytecode = True
-import hashlib, json, os, stat, subprocess, time, traceback, zipfile
+import hashlib, json, os, re, stat, subprocess, time, traceback, zipfile
 from pathlib import Path, PurePosixPath
 
 SOURCE_SHA = "9375328c30dfe5908e5010342179b5afbc258900"
@@ -23,7 +23,7 @@ result = {
     "product_run_id": PRODUCT_RUN, "product_run_attempt": ATTEMPT,
     "published": False, "publication_entry_point_called": False,
     "candidate_binary_archive_downloaded": False,
-    "result": "INCOMPLETE", "verified_artifacts": []
+    "result": "INCOMPLETE", "verified_artifacts": [], "qualification_failures": []
 }
 
 def save(name, value):
@@ -147,7 +147,7 @@ def audit_zip(path, artifact, run_id):
     print(json.dumps({"artifact_audit": bounded}, ensure_ascii=False), flush=True)
     for report in record.get("selected_reports", []):
         text = json.dumps(report, ensure_ascii=False)
-        print("ORIGINAL_REPORT " + text[:12000] + (" [console excerpt; full original saved]" if len(text) > 12000 else ""), flush=True)
+        print("ORIGINAL_REPORT " + text, flush=True)
     return record
 
 def download_evidence(api, metadata, name, run_id):
@@ -159,6 +159,61 @@ def download_evidence(api, metadata, name, run_id):
     api.download("/actions/artifacts/" + str(artifact["id"]) + "/zip", archive)
     audit_zip(archive, artifact, run_id)
     return archive
+
+
+def diagnose_gate(gate_archive, artifact, policy, release):
+    """Read/hash original evidence and call unchanged sparse producers; no qualification override."""
+    import release_evidence as evidence
+    folder = OUTPUT / "artifacts" / str(artifact["id"])
+    matches = list(folder.rglob("release-gate.json"))
+    if len(matches) != 1:
+        raise RuntimeError("Diagnostic requires exactly one original gate")
+    gate_path = matches[0]
+    original = release_tools.read_json(gate_path)
+    result["original_gate"] = {k: original.get(k) for k in ("verdict", "ready", "counts", "hard_gates", "producer", "revision")}
+    print("ORIGINAL_GATE " + json.dumps(result["original_gate"], ensure_ascii=False), flush=True)
+    mapping = release_tools.read_json(ROOT / "Validation/ci-check-map.json")["checks"]
+    revision = {"commit_sha": SOURCE_SHA, "run_id": str(PRODUCT_RUN), "run_attempt": str(ATTEMPT)}
+    inputs = {v["kind"]: v["manifest_sha256"] for v in original["producer"]["inputs"]}
+    regenerated = {}
+    for kind in evidence.KINDS:
+        target = gate_path.parent / "evidence" / kind
+        if digest((target / "evidence.json").read_bytes()) != inputs[kind]:
+            raise RuntimeError("Diagnostic raw evidence manifest hash mismatch")
+        doc, paths = evidence.read_bundle(target, kind, revision, policy, profile=release.profile)
+        reports = evidence.reports_for_bundle(doc, paths, policy, mapping)
+        regenerated[kind] = reports
+        if kind == "windows":
+            cases, matrix_ok = evidence.test_results(paths["ctest"], paths["inventory"])
+            log = paths["dsp_log"].read_text(encoding="utf-8-sig")
+            spec = mapping["E1.STATE_UI"]
+            sections = re.split(r"^\d+/\d+ Testing: ", log, flags=re.MULTILINE)[1:]
+            matched = [v for v in sections if v.split("\n", 1)[0] == "ChimeraUITests"]
+            actual = matched[0] if len(matched) == 1 else ""
+            markers = [line for line in actual.splitlines() if line.startswith("PASS native UI:") or line.startswith("PASS: six native amp contexts")]
+            detail = {
+                "source_sha": SOURCE_SHA, "run_id": PRODUCT_RUN, "run_attempt": ATTEMPT,
+                "ctest_outcome": doc["outcomes"].get("ctest"),
+                "ctest_passed_count": sum(value is True for value in cases.values()),
+                "ctest_total_count": len(cases), "ctest_matrix_ok": matrix_ok,
+                "ChimeraUITests_passed": cases.get("ChimeraUITests"),
+                "scoped_test_section_count": len(matched),
+                "actual_original_markers": markers,
+                "required_exact_patterns": evidence.contract_tests(spec, kind),
+                "pattern_matches": [{"pattern": pattern, "matched": any(re.fullmatch(pattern, line) for line in actual.splitlines())}
+                                    for pattern in evidence.contract_tests(spec, kind)["ChimeraUITests"]],
+                "unchanged_contract_passed": evidence.contract_passed(spec, kind, cases, log),
+                "regenerated_E1.STATE_UI": reports["E1.STATE_UI"],
+                "original_full_log_sha256": digest(paths["dsp_log"].read_bytes()),
+                "original_full_log_bytes": paths["dsp_log"].stat().st_size,
+                "qualification": "Diagnostic only; original contract and strict gate acceptance unchanged."
+            }
+            save("diagnostic-E1.STATE_UI.json", detail)
+            print("E1_STATE_UI_DIAGNOSTIC " + json.dumps(detail, ensure_ascii=False), flush=True)
+    save("diagnostic-regenerated-automatic-reports.json", regenerated)
+    print("REGENERATED_AUTOMATIC_REPORTS " + json.dumps(regenerated, ensure_ascii=False), flush=True)
+    return original
+
 
 def main():
     result["source_before"] = source_identity()
@@ -193,12 +248,21 @@ def main():
     print(json.dumps({"unchanged_verify_ci": result["verify_ci"]}), flush=True)
     gate_metadata = ci["gate"]
     gate_archive = download_evidence(api, [gate_metadata], release_tools.GATE_ARTIFACT_NAME, PRODUCT_RUN)
-    verdict, decision = release_tools.verify_release_gate_archive(gate_archive, release, PRODUCT_RUN, ATTEMPT, policy, receipt=None)
-    if decision is not None:
-        raise RuntimeError("A publication decision was unexpectedly evaluated")
-    save("verified-release-gate.json", verdict)
-    result["gate"] = {k: verdict[k] for k in ("verdict", "ready", "counts", "hard_gates", "producer", "revision")}
-    print(json.dumps({"unchanged_gate_verifier": result["gate"]}, ensure_ascii=False), flush=True)
+    original_gate = diagnose_gate(gate_archive, gate_metadata, policy, release)
+    verdict = None
+    try:
+        verdict, decision = release_tools.verify_release_gate_archive(gate_archive, release, PRODUCT_RUN, ATTEMPT, policy, receipt=None)
+        if decision is not None:
+            raise RuntimeError("A publication decision was unexpectedly evaluated")
+        save("verified-release-gate.json", verdict)
+        result["gate"] = {k: verdict[k] for k in ("verdict", "ready", "counts", "hard_gates", "producer", "revision")}
+        print(json.dumps({"unchanged_gate_verifier": result["gate"]}, ensure_ascii=False), flush=True)
+    except Exception as exc:
+        failure = {"stage": "unchanged_gate_verifier", "type": type(exc).__name__, "message": str(exc)}
+        result["qualification_failures"].append(failure)
+        save("strict-gate-error.json", failure)
+        (OUTPUT / "strict-gate-error.log").write_text(traceback.format_exc(), encoding="utf-8")
+        print("UNCHANGED_GATE_REJECTED " + json.dumps(failure), flush=True)
     # Run the unchanged CLI in offline dry-run mode; remove credentials from its environment.
     command = [sys.executable, str(ROOT / "Tools/publish_release.py"),
                "--dry-run", "--target-version", release.version, "--source-sha", SOURCE_SHA,
@@ -210,14 +274,16 @@ def main():
     completed = subprocess.run(command, cwd=ROOT, env=env, text=True, capture_output=True)
     (OUTPUT / "unchanged-dry-run.stdout.log").write_text(completed.stdout, encoding="utf-8")
     (OUTPUT / "unchanged-dry-run.stderr.log").write_text(completed.stderr, encoding="utf-8")
+    result["dry_run"] = {"returncode": completed.returncode, "stdout": completed.stdout, "stderr": completed.stderr}
+    print("UNCHANGED_DRY_RUN " + json.dumps(result["dry_run"], ensure_ascii=False), flush=True)
     if completed.returncode != 0:
-        raise RuntimeError("Unchanged offline dry-run failed; inspect preserved original output")
-    dry = release_tools.parse_json(completed.stdout)
-    if dry.get("published") is not False or dry.get("publication_ready") is not False or dry.get("consolidated_acceptance") != verdict["verdict"]:
-        raise RuntimeError("Unexpected dry-run publication or gate claim")
-    result["dry_run"] = dry
-    save("unchanged-dry-run.json", dry)
-    print(json.dumps({"unchanged_dry_run": dry}, ensure_ascii=False), flush=True)
+        result["qualification_failures"].append({"stage": "unchanged_offline_dry_run", "returncode": completed.returncode,
+                                               "message": "Original offline dry-run rejected the evidence; failure retained."})
+    else:
+        dry = release_tools.parse_json(completed.stdout)
+        if dry.get("published") is not False or dry.get("publication_ready") is not False or dry.get("consolidated_acceptance") != original_gate["verdict"]:
+            raise RuntimeError("Unexpected dry-run publication or gate claim")
+        save("unchanged-dry-run.json", dry)
     groups = [
         (38342282373, ["Chimera-document-upgrade-ubuntu-24.04", "Chimera-document-upgrade-windows-inno-fixtures", "Chimera-document-upgrade-macos-15"]),
         (38342282377, ["Chimera-candidate-installer-verification"]),
@@ -237,10 +303,10 @@ def main():
     result["policy_hashes_after"] = {p: digest((ROOT / p).read_bytes()) for p in policy_paths}
     if result["policy_hashes_after"] != result["policy_hashes_before"]:
         raise RuntimeError("Policy bytes changed")
-    result["result"] = "AUDIT_COMPLETED"
+    result["result"] = "AUDIT_FAILED" if result["qualification_failures"] else "AUDIT_COMPLETED"
     result["release_qualification"] = "Strict gate and unchanged dry-run results are preserved verbatim; this audit grants no approval and publishes nothing."
     result["installation_scope"] = "Archive verification is not an additional installation or DAW test. Distinguish actual previous-release upgrade reports from synthetic document fixtures."
-    return 0
+    return 1 if result["qualification_failures"] else 0
 
 exit_code = 1
 try:
@@ -257,6 +323,14 @@ finally:
         result["source_final_error"] = str(exc)
         result["result"] = "AUDIT_FAILED"
         exit_code = 1
+    policy_paths = ["Validation/release-policy.json", "Validation/waivers.json",
+                    "Validation/weekly-publication-policy.json", "Validation/ci-check-map.json"]
+    result["policy_hashes_final"] = {p: digest((ROOT / p).read_bytes()) for p in policy_paths}
+    if result.get("policy_hashes_before") != result["policy_hashes_final"]:
+        result["result"] = "AUDIT_FAILED"
+        exit_code = 1
+    print("SOURCE_AND_POLICY_FINAL " + json.dumps({key: result.get(key) for key in
+          ("source_before", "source_after", "source_final", "source_final_error", "policy_hashes_before", "policy_hashes_after", "policy_hashes_final")}), flush=True)
     save("audit-result.json", result)
     index = [{"path": str(p.relative_to(OUTPUT)), "bytes": p.stat().st_size,
               "sha256": digest(p.read_bytes())}

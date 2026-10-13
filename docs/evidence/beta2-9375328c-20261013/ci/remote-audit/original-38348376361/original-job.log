@@ -1,0 +1,352 @@
+﻿2026-10-13T04:50:16.3955704Z Current runner version: '2.337.0'
+2026-10-13T04:50:16.3972781Z ##[group]Runner Image Provisioner
+2026-10-13T04:50:16.3973379Z Hosted Compute Agent
+2026-10-13T04:50:16.3973712Z Version: 20261002.596
+2026-10-13T04:50:16.3974095Z Commit: c3d12f3313a95f25162a1503be624f3b0617f8c0
+2026-10-13T04:50:16.3974544Z Build Date: 2026-10-02T22:28:27Z
+2026-10-13T04:50:16.3974943Z Worker ID: {bfb83089-83d0-4b98-a92c-2d9f0b3152da}
+2026-10-13T04:50:16.3975378Z Region: westus3
+2026-10-13T04:50:16.3975693Z Cloud: Azure
+2026-10-13T04:50:16.3976025Z ##[endgroup]
+2026-10-13T04:50:16.3976853Z ##[group]Operating System
+2026-10-13T04:50:16.3977192Z Ubuntu
+2026-10-13T04:50:16.3977784Z 24.04.5
+2026-10-13T04:50:16.3978073Z LTS
+2026-10-13T04:50:16.3978358Z ##[endgroup]
+2026-10-13T04:50:16.3978755Z ##[group]Runner Image
+2026-10-13T04:50:16.3979121Z Image: ubuntu-24.04
+2026-10-13T04:50:16.3979474Z Version: 20261004.327.1
+2026-10-13T04:50:16.3980191Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20261004.327/images/ubuntu/Ubuntu2404-Readme.md
+2026-10-13T04:50:16.3981072Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20261004.327
+2026-10-13T04:50:16.3981692Z ##[endgroup]
+2026-10-13T04:50:16.3982365Z ##[group]GITHUB_TOKEN Permissions
+2026-10-13T04:50:16.3983604Z Actions: read
+2026-10-13T04:50:16.3984000Z Contents: read
+2026-10-13T04:50:16.3984317Z Metadata: read
+2026-10-13T04:50:16.3984622Z ##[endgroup]
+2026-10-13T04:50:16.3985893Z Secret source: Actions
+2026-10-13T04:50:16.3986428Z Cache mode: write
+2026-10-13T04:50:16.3986879Z Prepare workflow directory
+2026-10-13T04:50:16.4179240Z Prepare all required actions
+2026-10-13T04:50:16.4208943Z Getting action download info
+2026-10-13T04:50:16.7385424Z Download action repository 'actions/checkout@v4' (SHA:11d5960a326750d5838078e36cf38b85af677262)
+2026-10-13T04:50:16.8134834Z Download action repository 'actions/setup-python@v5' (SHA:a26af69be951a213d495a4c3e4e4022e16d87065)
+2026-10-13T04:50:16.9019035Z Download action repository 'actions/upload-artifact@v4' (SHA:ea165f8d65b6e75b540449e92b4886f43607fa02)
+2026-10-13T04:50:17.1461390Z Complete job name: verify-frozen-source-evidence
+2026-10-13T04:50:17.1899877Z ##[group]Run actions/checkout@v4
+2026-10-13T04:50:17.1900260Z with:
+2026-10-13T04:50:17.1900506Z   ref: 48764beceafe47c4c60e7d0544779d6dc1a90fb3
+2026-10-13T04:50:17.1900808Z   path: controller
+2026-10-13T04:50:17.1901044Z   persist-credentials: false
+2026-10-13T04:50:17.1901401Z   repository: raven-deadwire/SpectralForge-Chimera-Amp-Matrix
+2026-10-13T04:50:17.1903856Z   token: ***
+2026-10-13T04:50:17.1904077Z   ssh-strict: true
+2026-10-13T04:50:17.1904297Z   ssh-user: git
+2026-10-13T04:50:17.1904510Z   clean: true
+2026-10-13T04:50:17.1904740Z   sparse-checkout-cone-mode: true
+2026-10-13T04:50:17.1905009Z   fetch-depth: 1
+2026-10-13T04:50:17.1905229Z   fetch-tags: false
+2026-10-13T04:50:17.1905456Z   show-progress: true
+2026-10-13T04:50:17.1905685Z   lfs: false
+2026-10-13T04:50:17.1905895Z   submodules: false
+2026-10-13T04:50:17.1906123Z   set-safe-directory: true
+2026-10-13T04:50:17.1906407Z   allow-unsafe-pr-checkout: false
+2026-10-13T04:50:17.1906750Z ##[endgroup]
+2026-10-13T04:50:17.2537263Z Syncing repository: raven-deadwire/SpectralForge-Chimera-Amp-Matrix
+2026-10-13T04:50:17.2538421Z ##[group]Getting Git version info
+2026-10-13T04:50:17.2538976Z Working directory is '/home/runner/work/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/controller'
+2026-10-13T04:50:17.2539719Z [command]/usr/bin/git version
+2026-10-13T04:50:17.2602781Z git version 2.55.0
+2026-10-13T04:50:17.2615580Z ##[endgroup]
+2026-10-13T04:50:17.2631636Z Temporarily overriding HOME='/home/runner/work/_temp/935b6989-b1b1-45f7-bd97-883ed2b4a7ce' before making global git config changes
+2026-10-13T04:50:17.2632799Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-13T04:50:17.2636199Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/controller
+2026-10-13T04:50:17.2686031Z ##[group]Initializing the repository
+2026-10-13T04:50:17.2691846Z [command]/usr/bin/git init /home/runner/work/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/controller
+2026-10-13T04:50:17.2787601Z hint: Using 'master' as the name for the initial branch. This default branch name
+2026-10-13T04:50:17.2788282Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+2026-10-13T04:50:17.2788785Z hint: to use in all of your new repositories, which will suppress this warning,
+2026-10-13T04:50:17.2789165Z hint: call:
+2026-10-13T04:50:17.2789372Z hint:
+2026-10-13T04:50:17.2789667Z hint: 	git config --global init.defaultBranch <name>
+2026-10-13T04:50:17.2790035Z hint:
+2026-10-13T04:50:17.2790490Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2026-10-13T04:50:17.2791145Z hint: 'development'. The just-created branch can be renamed via this command:
+2026-10-13T04:50:17.2791666Z hint:
+2026-10-13T04:50:17.2791893Z hint: 	git branch -m <name>
+2026-10-13T04:50:17.2792187Z hint:
+2026-10-13T04:50:17.2792521Z hint: Disable this message with "git config set advice.defaultBranchName false"
+2026-10-13T04:50:17.2793214Z Initialized empty Git repository in /home/runner/work/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/controller/.git/
+2026-10-13T04:50:17.2795866Z [command]/usr/bin/git remote add origin https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix
+2026-10-13T04:50:17.2846591Z ##[endgroup]
+2026-10-13T04:50:17.2847043Z ##[group]Disabling automatic garbage collection
+2026-10-13T04:50:17.2849932Z [command]/usr/bin/git config --local gc.auto 0
+2026-10-13T04:50:17.2879168Z ##[endgroup]
+2026-10-13T04:50:17.2879638Z ##[group]Setting up auth
+2026-10-13T04:50:17.2884247Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-13T04:50:17.2914489Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-13T04:50:17.3207702Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-13T04:50:17.3234866Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-13T04:50:17.3402094Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-13T04:50:17.3429082Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-10-13T04:50:17.3596837Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-10-13T04:50:17.3629654Z ##[endgroup]
+2026-10-13T04:50:17.3630132Z ##[group]Fetching the repository
+2026-10-13T04:50:17.3637063Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin 48764beceafe47c4c60e7d0544779d6dc1a90fb3
+2026-10-13T04:50:22.0485571Z From https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix
+2026-10-13T04:50:22.0487660Z  * branch            48764beceafe47c4c60e7d0544779d6dc1a90fb3 -> FETCH_HEAD
+2026-10-13T04:50:22.0491255Z ##[endgroup]
+2026-10-13T04:50:22.0492282Z ##[group]Determining the checkout info
+2026-10-13T04:50:22.0493227Z ##[endgroup]
+2026-10-13T04:50:22.0494178Z [command]/usr/bin/git sparse-checkout disable
+2026-10-13T04:50:22.0615658Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+2026-10-13T04:50:22.0698545Z ##[group]Checking out the ref
+2026-10-13T04:50:22.0702143Z [command]/usr/bin/git checkout --progress --force 48764beceafe47c4c60e7d0544779d6dc1a90fb3
+2026-10-13T04:50:22.5921688Z Note: switching to '48764beceafe47c4c60e7d0544779d6dc1a90fb3'.
+2026-10-13T04:50:22.5922100Z 
+2026-10-13T04:50:22.5922325Z You are in 'detached HEAD' state. You can look around, make experimental
+2026-10-13T04:50:22.5923149Z changes and commit them, and you can discard any commits you make in this
+2026-10-13T04:50:22.5923629Z state without impacting any branches by switching back to a branch.
+2026-10-13T04:50:22.5923884Z 
+2026-10-13T04:50:22.5924092Z If you want to create a new branch to retain commits you create, you may
+2026-10-13T04:50:22.5924510Z do so (now or later) by using -c with the switch command. Example:
+2026-10-13T04:50:22.5924727Z 
+2026-10-13T04:50:22.5924852Z   git switch -c <new-branch-name>
+2026-10-13T04:50:22.5925014Z 
+2026-10-13T04:50:22.5925157Z Or undo this operation with:
+2026-10-13T04:50:22.5925343Z 
+2026-10-13T04:50:22.5925439Z   git switch -
+2026-10-13T04:50:22.5925587Z 
+2026-10-13T04:50:22.5925792Z Turn off this advice by setting config variable advice.detachedHead to false
+2026-10-13T04:50:22.5926062Z 
+2026-10-13T04:50:22.5926276Z HEAD is now at 48764be Verify frozen beta.2 evidence with a read-only audit controller
+2026-10-13T04:50:22.5946808Z ##[endgroup]
+2026-10-13T04:50:22.5986253Z [command]/usr/bin/git log -1 --format=%H
+2026-10-13T04:50:22.6007406Z 48764beceafe47c4c60e7d0544779d6dc1a90fb3
+2026-10-13T04:50:22.6014739Z ##[group]Removing auth
+2026-10-13T04:50:22.6016931Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-13T04:50:22.6043287Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-13T04:50:22.6219477Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-13T04:50:22.6242922Z http.https://github.com/.extraheader
+2026-10-13T04:50:22.6247096Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+2026-10-13T04:50:22.6326831Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-13T04:50:22.6495959Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-13T04:50:22.6522043Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-10-13T04:50:22.6687192Z ##[endgroup]
+2026-10-13T04:50:22.6940074Z ##[group]Run actions/checkout@v4
+2026-10-13T04:50:22.6940270Z with:
+2026-10-13T04:50:22.6940426Z   ref: 9375328c30dfe5908e5010342179b5afbc258900
+2026-10-13T04:50:22.6940610Z   path: product
+2026-10-13T04:50:22.6940758Z   persist-credentials: false
+2026-10-13T04:50:22.6940967Z   repository: raven-deadwire/SpectralForge-Chimera-Amp-Matrix
+2026-10-13T04:50:22.6942662Z   token: ***
+2026-10-13T04:50:22.6942796Z   ssh-strict: true
+2026-10-13T04:50:22.6942934Z   ssh-user: git
+2026-10-13T04:50:22.6943065Z   clean: true
+2026-10-13T04:50:22.6943210Z   sparse-checkout-cone-mode: true
+2026-10-13T04:50:22.6943374Z   fetch-depth: 1
+2026-10-13T04:50:22.6943523Z   fetch-tags: false
+2026-10-13T04:50:22.6943664Z   show-progress: true
+2026-10-13T04:50:22.6943803Z   lfs: false
+2026-10-13T04:50:22.6943937Z   submodules: false
+2026-10-13T04:50:22.6944080Z   set-safe-directory: true
+2026-10-13T04:50:22.6944245Z   allow-unsafe-pr-checkout: false
+2026-10-13T04:50:22.6944411Z ##[endgroup]
+2026-10-13T04:50:22.7483114Z Syncing repository: raven-deadwire/SpectralForge-Chimera-Amp-Matrix
+2026-10-13T04:50:22.7483936Z ##[group]Getting Git version info
+2026-10-13T04:50:22.7484592Z Working directory is '/home/runner/work/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/product'
+2026-10-13T04:50:22.7503294Z [command]/usr/bin/git version
+2026-10-13T04:50:22.7536633Z git version 2.55.0
+2026-10-13T04:50:22.7549353Z ##[endgroup]
+2026-10-13T04:50:22.7574118Z Temporarily overriding HOME='/home/runner/work/_temp/fe6860d7-261f-46e8-84e0-c95063e74b3d' before making global git config changes
+2026-10-13T04:50:22.7575018Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-13T04:50:22.7576233Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/product
+2026-10-13T04:50:22.7634051Z ##[group]Initializing the repository
+2026-10-13T04:50:22.7638776Z [command]/usr/bin/git init /home/runner/work/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/product
+2026-10-13T04:50:22.8040676Z hint: Using 'master' as the name for the initial branch. This default branch name
+2026-10-13T04:50:22.8042200Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+2026-10-13T04:50:22.8042767Z hint: to use in all of your new repositories, which will suppress this warning,
+2026-10-13T04:50:22.8043154Z hint: call:
+2026-10-13T04:50:22.8043348Z hint:
+2026-10-13T04:50:22.8043632Z hint: 	git config --global init.defaultBranch <name>
+2026-10-13T04:50:22.8043906Z hint:
+2026-10-13T04:50:22.8044261Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2026-10-13T04:50:22.8044795Z hint: 'development'. The just-created branch can be renamed via this command:
+2026-10-13T04:50:22.8045130Z hint:
+2026-10-13T04:50:22.8045346Z hint: 	git branch -m <name>
+2026-10-13T04:50:22.8045568Z hint:
+2026-10-13T04:50:22.8045916Z hint: Disable this message with "git config set advice.defaultBranchName false"
+2026-10-13T04:50:22.8046627Z Initialized empty Git repository in /home/runner/work/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/product/.git/
+2026-10-13T04:50:22.8050822Z [command]/usr/bin/git remote add origin https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix
+2026-10-13T04:50:22.8448455Z ##[endgroup]
+2026-10-13T04:50:22.8448776Z ##[group]Disabling automatic garbage collection
+2026-10-13T04:50:22.8452284Z [command]/usr/bin/git config --local gc.auto 0
+2026-10-13T04:50:22.8823956Z ##[endgroup]
+2026-10-13T04:50:22.8824438Z ##[group]Setting up auth
+2026-10-13T04:50:22.8830477Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-13T04:50:22.8860673Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-13T04:50:22.9027784Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-13T04:50:22.9054289Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-13T04:50:22.9223679Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-13T04:50:22.9253144Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-10-13T04:50:22.9417583Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-10-13T04:50:22.9854293Z ##[endgroup]
+2026-10-13T04:50:22.9862020Z ##[group]Fetching the repository
+2026-10-13T04:50:22.9862507Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin 9375328c30dfe5908e5010342179b5afbc258900
+2026-10-13T04:50:27.2596961Z From https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix
+2026-10-13T04:50:27.2597363Z  * branch            9375328c30dfe5908e5010342179b5afbc258900 -> FETCH_HEAD
+2026-10-13T04:50:27.2599205Z ##[endgroup]
+2026-10-13T04:50:27.2599512Z ##[group]Determining the checkout info
+2026-10-13T04:50:27.2600871Z ##[endgroup]
+2026-10-13T04:50:27.2605279Z [command]/usr/bin/git sparse-checkout disable
+2026-10-13T04:50:27.2640609Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+2026-10-13T04:50:27.2666150Z ##[group]Checking out the ref
+2026-10-13T04:50:27.2669093Z [command]/usr/bin/git checkout --progress --force 9375328c30dfe5908e5010342179b5afbc258900
+2026-10-13T04:50:27.6512460Z Note: switching to '9375328c30dfe5908e5010342179b5afbc258900'.
+2026-10-13T04:50:27.6512850Z 
+2026-10-13T04:50:27.6513042Z You are in 'detached HEAD' state. You can look around, make experimental
+2026-10-13T04:50:27.6513423Z changes and commit them, and you can discard any commits you make in this
+2026-10-13T04:50:27.6513876Z state without impacting any branches by switching back to a branch.
+2026-10-13T04:50:27.6514136Z 
+2026-10-13T04:50:27.6514316Z If you want to create a new branch to retain commits you create, you may
+2026-10-13T04:50:27.6514678Z do so (now or later) by using -c with the switch command. Example:
+2026-10-13T04:50:27.6514902Z 
+2026-10-13T04:50:27.6514996Z   git switch -c <new-branch-name>
+2026-10-13T04:50:27.6515155Z 
+2026-10-13T04:50:27.6515258Z Or undo this operation with:
+2026-10-13T04:50:27.6515412Z 
+2026-10-13T04:50:27.6515489Z   git switch -
+2026-10-13T04:50:27.6515618Z 
+2026-10-13T04:50:27.6515843Z Turn off this advice by setting config variable advice.detachedHead to false
+2026-10-13T04:50:27.6516107Z 
+2026-10-13T04:50:27.6516288Z HEAD is now at 9375328 Align two UI caption assertions with Chimera public naming
+2026-10-13T04:50:27.6535052Z ##[endgroup]
+2026-10-13T04:50:27.6576384Z [command]/usr/bin/git log -1 --format=%H
+2026-10-13T04:50:27.6600984Z 9375328c30dfe5908e5010342179b5afbc258900
+2026-10-13T04:50:27.6608513Z ##[group]Removing auth
+2026-10-13T04:50:27.6610994Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-13T04:50:27.6638053Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-13T04:50:27.6808785Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-13T04:50:27.6829935Z http.https://github.com/.extraheader
+2026-10-13T04:50:27.6834994Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+2026-10-13T04:50:27.6865218Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-13T04:50:27.7035562Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-13T04:50:27.7060919Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-10-13T04:50:27.7226446Z ##[endgroup]
+2026-10-13T04:50:27.7375338Z ##[group]Run actions/setup-python@v5
+2026-10-13T04:50:27.7375501Z with:
+2026-10-13T04:50:27.7375617Z   python-version: 3.12
+2026-10-13T04:50:27.7375749Z   check-latest: false
+2026-10-13T04:50:27.7377141Z   token: ***
+2026-10-13T04:50:27.7377260Z   update-environment: true
+2026-10-13T04:50:27.7377404Z   allow-prereleases: false
+2026-10-13T04:50:27.7377540Z   freethreaded: false
+2026-10-13T04:50:27.7377661Z ##[endgroup]
+2026-10-13T04:50:27.8190502Z ##[group]Installed versions
+2026-10-13T04:50:27.8251297Z (node:2374) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-13T04:50:27.8252059Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-13T04:50:27.8252415Z Successfully set up CPython (3.12.15)
+2026-10-13T04:50:27.8252816Z ##[endgroup]
+2026-10-13T04:50:27.8433951Z ##[group]Run python ../controller/docs/evidence/beta2-9375328c-20261013/remote_audit.py
+2026-10-13T04:50:27.8434615Z [36;1mpython ../controller/docs/evidence/beta2-9375328c-20261013/remote_audit.py[0m
+2026-10-13T04:50:27.8742908Z shell: /usr/bin/bash -e {0}
+2026-10-13T04:50:27.8743121Z env:
+2026-10-13T04:50:27.8743310Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-13T04:50:27.8743558Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib/pkgconfig
+2026-10-13T04:50:27.8743787Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-13T04:50:27.8744173Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-13T04:50:27.8744378Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-13T04:50:27.8744587Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib
+2026-10-13T04:50:27.8746207Z   GH_TOKEN: ***
+2026-10-13T04:50:27.8747557Z   GITHUB_TOKEN: ***
+2026-10-13T04:50:27.8747686Z   PYTHONDONTWRITEBYTECODE: 1
+2026-10-13T04:50:27.8747905Z   CHIMERA_AUDIT_OUTPUT: /home/runner/work/_temp/chimera-audit
+2026-10-13T04:50:27.8748089Z ##[endgroup]
+2026-10-13T04:50:29.5197403Z Waiting for original Product run 38342282418; no CI rerun or publication requested
+2026-10-13T04:50:59.8773844Z Waiting for original Product run 38342282418; no CI rerun or publication requested
+2026-10-13T04:51:30.2273619Z Waiting for original Product run 38342282418; no CI rerun or publication requested
+2026-10-13T04:52:00.6287032Z Waiting for original Product run 38342282418; no CI rerun or publication requested
+2026-10-13T04:52:31.0441113Z Waiting for original Product run 38342282418; no CI rerun or publication requested
+2026-10-13T04:53:01.4200509Z Waiting for original Product run 38342282418; no CI rerun or publication requested
+2026-10-13T04:53:31.8176988Z Waiting for original Product run 38342282418; no CI rerun or publication requested
+2026-10-13T04:54:02.1554576Z Waiting for original Product run 38342282418; no CI rerun or publication requested
+2026-10-13T04:54:32.5114871Z Waiting for original Product run 38342282418; no CI rerun or publication requested
+2026-10-13T04:55:02.9198443Z Waiting for original Product run 38342282418; no CI rerun or publication requested
+2026-10-13T04:55:33.2524036Z Waiting for original Product run 38342282418; no CI rerun or publication requested
+2026-10-13T04:56:03.6031433Z Waiting for original Product run 38342282418; no CI rerun or publication requested
+2026-10-13T04:56:33.9694889Z Waiting for original Product run 38342282418; no CI rerun or publication requested
+2026-10-13T04:57:04.3137239Z Waiting for original Product run 38342282418; no CI rerun or publication requested
+2026-10-13T04:57:34.6879600Z Waiting for original Product run 38342282418; no CI rerun or publication requested
+2026-10-13T04:58:05.1396929Z Waiting for original Product run 38342282418; no CI rerun or publication requested
+2026-10-13T04:58:35.4982079Z Waiting for original Product run 38342282418; no CI rerun or publication requested
+2026-10-13T04:59:05.8934781Z Waiting for original Product run 38342282418; no CI rerun or publication requested
+2026-10-13T04:59:36.2607259Z Waiting for original Product run 38342282418; no CI rerun or publication requested
+2026-10-13T05:00:06.6041180Z Waiting for original Product run 38342282418; no CI rerun or publication requested
+2026-10-13T05:00:37.0154885Z Waiting for original Product run 38342282418; no CI rerun or publication requested
+2026-10-13T05:01:07.4281811Z Waiting for original Product run 38342282418; no CI rerun or publication requested
+2026-10-13T05:01:37.8121918Z Waiting for original Product run 38342282418; no CI rerun or publication requested
+2026-10-13T05:02:08.2072394Z Waiting for original Product run 38342282418; no CI rerun or publication requested
+2026-10-13T05:02:38.7777411Z Waiting for original Product run 38342282418; no CI rerun or publication requested
+2026-10-13T05:03:17.1387785Z {"unchanged_verify_ci": {"result": "PASS", "workflows": {"build.yml": {"id": 38342282418, "run_attempt": 1, "head_sha": "9375328c30dfe5908e5010342179b5afbc258900", "status": "completed", "conclusion": "success"}, "update-candidate.yml": {"id": 38342282377, "run_attempt": 1, "head_sha": "9375328c30dfe5908e5010342179b5afbc258900", "status": "completed", "conclusion": "success"}, "cab-panel.yml": {"id": 38342282571, "run_attempt": 1, "head_sha": "9375328c30dfe5908e5010342179b5afbc258900", "status": "completed", "conclusion": "success"}, "cab-realtime.yml": {"id": 38342282472, "run_attempt": 1, "head_sha": "9375328c30dfe5908e5010342179b5afbc258900", "status": "completed", "conclusion": "success"}, "amp-head-controls.yml": {"id": 38342282587, "run_attempt": 1, "head_sha": "9375328c30dfe5908e5010342179b5afbc258900", "status": "completed", "conclusion": "success"}, "signal-path.yml": {"id": 38342282523, "run_attempt": 1, "head_sha": "9375328c30dfe5908e5010342179b5afbc258900", "status": "completed", "conclusion": "success"}, "graphical-eq.yml": {"id": 38342282368, "run_attempt": 1, "head_sha": "9375328c30dfe5908e5010342179b5afbc258900", "status": "completed", "conclusion": "success"}}}}
+2026-10-13T05:03:17.8998849Z {"artifact_audit": {"id": 11789064926, "name": "Chimera-A-stage-release-gate", "run_id": 38342282418, "source_sha": "9375328c30dfe5908e5010342179b5afbc258900", "size": 262399, "sha256": "df95338f989b740485a12aea0ad1ca01ac7f30a4ac03b09af59efa38d4c6fe3f", "api_digest": "sha256:df95338f989b740485a12aea0ad1ca01ac7f30a4ac03b09af59efa38d4c6fe3f", "zip_crc_valid": true, "internal_hashes_checked": 0}}
+2026-10-13T05:03:17.9005824Z ORIGINAL_REPORT {"path": "evidence/windows/raw/InstallerVerification.json", "report": {"checks": ["PASS: Setup version resources match source/payload product version 1.3.1", "PASS: Installed DisplayVersion=1.3.1 and selected binary versions match 1.3.1-beta.2", "PASS: Product rename retires only exact old executable/VST3 binaries and preserves personal preset bytes", "PASS: Companion Bass/Guitar WAVs install recursively, match their source hashes, decode, appear in the cabinet menu and load into a rig", "PASS: Four Raven companion fixtures and sidecars install automatically, decode, appear in CAB and load into a rig", "PASS: Full install: standard VST3 path, app, documentation, shortcuts and uninstall registration; payload hashes match", "PASS: Standalone, VST3 and reference renderer use the static MSVC runtime", "PASS: Installed VST3 loads through the Windows loader and exports GetPluginFactory", "PASS: Start Menu shortcut launches the installed app and its window: C:\\Program Files\\SpectralForge\\Chimera Amp Matrix\\SpectralForge Chimera.exe", "PASS: Installed DisplayVersion=1.3.1 and selected binary versions match 1.3.1-beta.2", "PASS: Same-version reinstall repairs files and preserves modified documentation copies and personal presets/IRs", "PASS: Personal IR collection is preserved after uninstall", "PASS: Uninstall removes owned binaries, shortcut and Windows registration; preserves user files", "PASS: Installed DisplayVersion=1.3.1 and selected binary versions match 1.3.1-beta.2", "PASS: Independent custom application and VST3 installation folders accept Unicode paths", "PASS: Installed DisplayVersion=1.3.1 and selected binary versions match 1.3.1-beta.2", "PASS: Repair remembers the selected VST3 folder without a /VST3DIR override", "PASS: Installed DisplayVersion=1.3.1 and selected binary versions match 1.3.1-beta.2", "PASS: Changing the selected VST3 folder retires only its exact old plugin binary and preserves user files", "PASS: VST3-only selection and removal; Unicode custom app path", "PASS: Installed DisplayVersion=1.3.1 and selected binary versions match 1.3.1-beta.2", "PASS: Start Menu shortcut launches the installed app and its window: D:\\a\\_temp\\Chimera 설치 검증\\SpectralForge Chimera.exe", "PASS: Standalone-only selection and removal; no VST3 installed", "PASS: Actual public beta.1 Setup to current product Setup upgrade, repair and removal preserve user documents and files"], "source_sha": "9375328c30dfe5908e5010342179b5afbc258900", "success": true, "payload_manifest_sha256": "e2714e3ff8cfd8d4336005a5ca3c4b5c87608bdff121c21b486904f736e7a46f", "installer_sha256": "0c53285938061fd6b66250f07d25b95abf738d4a79e83acb0ed4c34a1069cb30", "installer": "SpectralForge-Chimera-1.3.1-beta.2-win64-Setup.exe", "product_version": "1.3.1", "build_id": "9375328c30", "actual_previous_release_upgrade_verified": true, "installer_version": "1.3.1", "run_id": "38342282418", "version": "1.3.1-beta.2", "observed_display_versions": ["1.3.1", "1.3.1", "1.3.1", "1.3.1", "1.3.1", "1.3.1"]}}
+2026-10-13T05:03:17.9488304Z {"audit_error": {"type": "ValidationError", "message": "Automatic check is not supported by embedded raw evidence: E1.STATE_UI (windows)"}}
+2026-10-13T05:03:17.9667118Z {"audit_result": "AUDIT_FAILED", "source": "9375328c30dfe5908e5010342179b5afbc258900", "gate": null, "verified_artifact_count": 1, "published": false}
+2026-10-13T05:03:17.9773959Z ##[error]Process completed with exit code 1.
+2026-10-13T05:03:17.9820211Z ##[group]Run actions/upload-artifact@v4
+2026-10-13T05:03:17.9820360Z with:
+2026-10-13T05:03:17.9820487Z   name: Chimera-9375328c-readonly-evidence-audit
+2026-10-13T05:03:17.9820660Z   path: /home/runner/work/_temp/chimera-audit
+2026-10-13T05:03:17.9820815Z   if-no-files-found: error
+2026-10-13T05:03:17.9820941Z   retention-days: 90
+2026-10-13T05:03:17.9821056Z   compression-level: 6
+2026-10-13T05:03:17.9821171Z   overwrite: false
+2026-10-13T05:03:17.9821286Z   include-hidden-files: false
+2026-10-13T05:03:17.9821410Z env:
+2026-10-13T05:03:17.9821659Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-13T05:03:17.9821882Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib/pkgconfig
+2026-10-13T05:03:17.9822112Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-13T05:03:17.9822308Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-13T05:03:17.9822513Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-13T05:03:17.9822734Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib
+2026-10-13T05:03:17.9822907Z ##[endgroup]
+2026-10-13T05:03:18.0789713Z (node:2572) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-13T05:03:18.0790203Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-13T05:03:18.0946376Z With the provided path, there will be 163 files uploaded
+2026-10-13T05:03:18.0952168Z Artifact name is valid!
+2026-10-13T05:03:18.0952447Z Root directory input is valid!
+2026-10-13T05:03:18.4487156Z Beginning upload of artifact content to blob storage
+2026-10-13T05:03:18.5500138Z (node:2572) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-10-13T05:03:19.0265525Z Uploaded bytes 525630
+2026-10-13T05:03:19.0805151Z Finished uploading artifact content to blob storage!
+2026-10-13T05:03:19.0805864Z SHA256 digest of uploaded artifact zip is 47bd3b95e81297338216da9331265bb58e0c5c0516d85afa107e7433e5f8f858
+2026-10-13T05:03:19.0807494Z Finalizing artifact upload
+2026-10-13T05:03:19.3399733Z Artifact Chimera-9375328c-readonly-evidence-audit.zip successfully finalized. Artifact ID 11790535714
+2026-10-13T05:03:19.3400525Z Artifact Chimera-9375328c-readonly-evidence-audit has been successfully uploaded! Final size is 525630 bytes. Artifact ID is 11790535714
+2026-10-13T05:03:19.3404576Z Artifact download URL: https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38348376361/artifacts/11790535714
+2026-10-13T05:03:19.3547649Z Post job cleanup.
+2026-10-13T05:03:19.4052053Z [command]/usr/bin/git version
+2026-10-13T05:03:19.4071630Z git version 2.55.0
+2026-10-13T05:03:19.4092811Z Temporarily overriding HOME='/home/runner/work/_temp/71749e7e-4a54-4033-926c-1bcad5e4dc7e' before making global git config changes
+2026-10-13T05:03:19.4093498Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-13T05:03:19.4095793Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/product
+2026-10-13T05:03:19.4129539Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-13T05:03:19.4155658Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-13T05:03:19.4339599Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-13T05:03:19.4372718Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-13T05:03:19.4554033Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-13T05:03:19.4583150Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-10-13T05:03:19.4869997Z Post job cleanup.
+2026-10-13T05:03:19.5382796Z [command]/usr/bin/git version
+2026-10-13T05:03:19.5411941Z git version 2.55.0
+2026-10-13T05:03:19.5413144Z Temporarily overriding HOME='/home/runner/work/_temp/6a6fe54d-52fb-47fc-9c49-0b113ebc0568' before making global git config changes
+2026-10-13T05:03:19.5413737Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-13T05:03:19.5414526Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/controller
+2026-10-13T05:03:19.5442117Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-13T05:03:19.5467770Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-13T05:03:19.5706489Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-13T05:03:19.5745196Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-13T05:03:19.6028069Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-13T05:03:19.6050605Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-10-13T05:03:19.6335504Z Cleaning up orphan processes
+2026-10-13T05:03:19.6526420Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, actions/setup-python@v5, actions/upload-artifact@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/

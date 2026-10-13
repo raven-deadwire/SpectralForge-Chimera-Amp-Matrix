@@ -1,0 +1,182 @@
+2026-10-13T03:45:32.9641510Z [command]/opt/homebrew/bin/git log -1 --format=%H
+2026-10-13T03:45:32.9917690Z 9375328c30dfe5908e5010342179b5afbc258900
+2026-10-13T03:46:18.4031280Z ##[group]Run cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_OSX_ARCHITECTURES="arm64;x86_64" -DCMAKE_OSX_DEPLOYMENT_TARGET=12.0
+2026-10-13T03:46:18.4032270Z [36;1mcmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_OSX_ARCHITECTURES="arm64;x86_64" -DCMAKE_OSX_DEPLOYMENT_TARGET=12.0[0m
+2026-10-13T03:46:18.4109680Z shell: /bin/bash -e {0}
+2026-10-13T03:46:18.4109940Z env:
+2026-10-13T03:46:18.4110310Z   CHIMERA_SOURCE_SHA: 9375328c30dfe5908e5010342179b5afbc258900
+2026-10-13T03:46:18.4110710Z   pythonLocation: /Users/runner/hostedtoolcache/Python/3.12.10/arm64
+2026-10-13T03:46:18.4111210Z   PKG_CONFIG_PATH: /Users/runner/hostedtoolcache/Python/3.12.10/arm64/lib/pkgconfig
+2026-10-13T03:46:18.4111670Z   Python_ROOT_DIR: /Users/runner/hostedtoolcache/Python/3.12.10/arm64
+2026-10-13T03:46:18.4112130Z   Python2_ROOT_DIR: /Users/runner/hostedtoolcache/Python/3.12.10/arm64
+2026-10-13T03:46:18.4112580Z   Python3_ROOT_DIR: /Users/runner/hostedtoolcache/Python/3.12.10/arm64
+2026-10-13T03:46:18.4113020Z   CHIMERA_PACKAGE_VERSION: 1.3.1-beta.2
+2026-10-13T03:46:18.4113330Z ##[endgroup]
+2026-10-13T03:46:21.5817010Z -- The C compiler identification is AppleClang 17.0.0.17000013
+2026-10-13T03:46:23.3016820Z -- The CXX compiler identification is AppleClang 17.0.0.17000013
+2026-10-13T03:46:23.3559280Z -- Detecting C compiler ABI info
+2026-10-13T03:46:24.2547770Z -- Detecting C compiler ABI info - done
+2026-10-13T03:46:24.2776930Z -- Check for working C compiler: /usr/bin/cc - skipped
+2026-10-13T03:46:24.2784260Z -- Detecting C compile features
+2026-10-13T03:46:24.2791620Z -- Detecting C compile features - done
+2026-10-13T03:46:24.2957880Z -- Detecting CXX compiler ABI info
+2026-10-13T03:46:24.5774710Z -- Detecting CXX compiler ABI info - done
+2026-10-13T03:46:24.5992670Z -- Check for working CXX compiler: /usr/bin/c++ - skipped
+2026-10-13T03:46:24.6000470Z -- Detecting CXX compile features
+2026-10-13T03:46:24.6003680Z -- Detecting CXX compile features - done
+2026-10-13T03:46:52.5136100Z -- Configuring juceaide
+2026-10-13T03:46:53.6289980Z -- Building juceaide
+2026-10-13T03:47:47.4168380Z -- Exporting juceaide
+2026-10-13T03:47:47.4199300Z -- Testing juceaide
+2026-10-13T03:47:47.5500790Z -- Finished setting up juceaide
+2026-10-13T03:47:47.5572040Z -- Applied the JUCE 8.0.8 VBlank failure-path shutdown fix
+2026-10-13T03:47:51.1879990Z -- Performing Test CMAKE_HAVE_LIBC_PTHREAD
+2026-10-13T03:47:51.5563040Z -- Performing Test CMAKE_HAVE_LIBC_PTHREAD - Success
+2026-10-13T03:47:51.5581710Z -- Found Threads: TRUE
+2026-10-13T03:47:52.3959300Z -- Found Python3: /Users/runner/hostedtoolcache/Python/3.12.10/arm64/bin/python3.12 (found suitable version "3.12.10", minimum required is "3.9") found components: Interpreter
+2026-10-13T03:47:55.3461910Z -- The OBJCXX compiler identification is AppleClang 17.0.0.17000013
+2026-10-13T03:47:55.3594000Z -- Detecting OBJCXX compiler ABI info
+2026-10-13T03:47:55.6452770Z -- Detecting OBJCXX compiler ABI info - done
+2026-10-13T03:47:55.6670100Z -- Check for working OBJCXX compiler: /usr/bin/c++ - skipped
+2026-10-13T03:47:55.7855880Z -- Configuring done (97.2s)
+2026-10-13T03:47:56.3125510Z -- Generating done (0.5s)
+2026-10-13T03:47:56.3137370Z -- Build files have been written to: /Users/runner/work/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build
+2026-10-13T04:32:37.0350010Z ##[group]Run ctest --test-dir build -C Release --output-on-failure --no-tests=error --output-junit ctest-results.xml
+2026-10-13T04:32:37.0351510Z [36;1mctest --test-dir build -C Release --output-on-failure --no-tests=error --output-junit ctest-results.xml[0m
+2026-10-13T04:32:37.0404480Z shell: /bin/bash -e {0}
+2026-10-13T04:32:37.0404820Z env:
+2026-10-13T04:32:37.0405170Z   CHIMERA_SOURCE_SHA: 9375328c30dfe5908e5010342179b5afbc258900
+2026-10-13T04:32:37.0405830Z   pythonLocation: /Users/runner/hostedtoolcache/Python/3.12.10/arm64
+2026-10-13T04:32:37.0406340Z   PKG_CONFIG_PATH: /Users/runner/hostedtoolcache/Python/3.12.10/arm64/lib/pkgconfig
+2026-10-13T04:32:37.0406920Z   Python_ROOT_DIR: /Users/runner/hostedtoolcache/Python/3.12.10/arm64
+2026-10-13T04:32:37.0407370Z   Python2_ROOT_DIR: /Users/runner/hostedtoolcache/Python/3.12.10/arm64
+2026-10-13T04:32:37.0407870Z   Python3_ROOT_DIR: /Users/runner/hostedtoolcache/Python/3.12.10/arm64
+2026-10-13T04:32:37.0408400Z   CHIMERA_PACKAGE_VERSION: 1.3.1-beta.2
+2026-10-13T04:32:37.0408780Z ##[endgroup]
+2026-10-13T04:32:37.1189230Z Test project /Users/runner/work/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build
+2026-10-13T04:32:37.1277010Z       Start  1: ChimeraOriginalAmpTests
+2026-10-13T04:32:40.8993980Z  1/44 Test  #1: ChimeraOriginalAmpTests ...............   Passed    3.78 sec
+2026-10-13T04:32:40.9004450Z       Start  2: ChimeraOriginalAmpIntegrationTests
+2026-10-13T04:32:41.1485640Z  2/44 Test  #2: ChimeraOriginalAmpIntegrationTests ....   Passed    0.25 sec
+2026-10-13T04:32:41.1495300Z       Start  3: ChimeraNiflheimrCoreTests
+2026-10-13T04:32:46.6772840Z  3/44 Test  #3: ChimeraNiflheimrCoreTests .............   Passed    5.53 sec
+2026-10-13T04:32:46.6774790Z       Start  4: ChimeraNiflheimrIntegrationTests
+2026-10-13T04:32:47.4652040Z  4/44 Test  #4: ChimeraNiflheimrIntegrationTests ......   Passed    0.79 sec
+2026-10-13T04:32:47.4654940Z       Start  5: ChimeraPackagingVersionTests
+2026-10-13T04:32:52.7889990Z  5/44 Test  #5: ChimeraPackagingVersionTests ..........   Passed    5.32 sec
+2026-10-13T04:32:52.7898330Z       Start  6: ChimeraVBlankFailureTests
+2026-10-13T04:32:55.1611670Z  6/44 Test  #6: ChimeraVBlankFailureTests .............   Passed    2.37 sec
+2026-10-13T04:32:55.1613230Z       Start  7: ChimeraTests
+2026-10-13T04:33:44.5700790Z  7/44 Test  #7: ChimeraTests ..........................   Passed   49.41 sec
+2026-10-13T04:33:44.5704740Z       Start  8: ChimeraNativeRendererTests
+2026-10-13T04:33:44.7652800Z  8/44 Test  #8: ChimeraNativeRendererTests ............   Passed    0.19 sec
+2026-10-13T04:33:44.7657640Z       Start  9: ChimeraOriginalRendererTests
+2026-10-13T04:33:45.4800090Z  9/44 Test  #9: ChimeraOriginalRendererTests ..........   Passed    0.71 sec
+2026-10-13T04:33:45.4800680Z       Start 10: ChimeraNiflheimrRendererTests
+2026-10-13T04:33:45.9003850Z 10/44 Test #10: ChimeraNiflheimrRendererTests .........   Passed    0.42 sec
+2026-10-13T04:33:45.9068280Z       Start 11: ChimeraReleaseTests
+2026-10-13T04:33:45.9706930Z 11/44 Test #11: ChimeraReleaseTests ...................   Passed    0.06 sec
+2026-10-13T04:33:45.9707910Z       Start 12: ChimeraStabilityTests
+2026-10-13T04:33:47.7538240Z 12/44 Test #12: ChimeraStabilityTests .................   Passed    1.78 sec
+2026-10-13T04:33:47.7539000Z       Start 13: ChimeraPedalBoardTests
+2026-10-13T04:33:51.5605980Z 13/44 Test #13: ChimeraPedalBoardTests ................   Passed    3.81 sec
+2026-10-13T04:33:51.5607060Z       Start 14: ChimeraIRCollectionTests
+2026-10-13T04:33:51.8665980Z 14/44 Test #14: ChimeraIRCollectionTests ..............   Passed    0.31 sec
+2026-10-13T04:33:51.8667980Z       Start 15: ChimeraIRLibraryTests
+2026-10-13T04:33:54.3870350Z 15/44 Test #15: ChimeraIRLibraryTests .................   Passed    2.52 sec
+2026-10-13T04:33:54.3873320Z       Start 16: ChimeraCabPanelTests
+2026-10-13T04:34:11.3984370Z 16/44 Test #16: ChimeraCabPanelTests ..................   Passed   17.01 sec
+2026-10-13T04:34:11.3988330Z       Start 17: ChimeraCabPanelStateTests
+2026-10-13T04:35:41.0116340Z 17/44 Test #17: ChimeraCabPanelStateTests .............   Passed   89.61 sec
+2026-10-13T04:35:41.0215060Z       Start 18: ChimeraCabPanelRoutingTests
+2026-10-13T04:35:53.4365600Z 18/44 Test #18: ChimeraCabPanelRoutingTests ...........   Passed   12.42 sec
+2026-10-13T04:35:53.4419040Z       Start 19: ChimeraCabPanelIRIsolationTests
+2026-10-13T04:36:09.6929300Z 19/44 Test #19: ChimeraCabPanelIRIsolationTests .......   Passed   16.25 sec
+2026-10-13T04:36:09.6938480Z       Start 20: ChimeraNewAmpTests
+2026-10-13T04:36:17.8714330Z 20/44 Test #20: ChimeraNewAmpTests ....................   Passed    8.18 sec
+2026-10-13T04:36:17.8716270Z       Start 21: ChimeraPedalOctaverTests
+2026-10-13T04:36:20.8252870Z 21/44 Test #21: ChimeraPedalOctaverTests ..............   Passed    2.95 sec
+2026-10-13T04:36:20.8254760Z       Start 22: ChimeraAmpNativeTests
+2026-10-13T04:36:31.8174490Z 22/44 Test #22: ChimeraAmpNativeTests .................   Passed   10.99 sec
+2026-10-13T04:36:31.8175730Z       Start 23: ChimeraPostNativeTests
+2026-10-13T04:36:32.9224950Z 23/44 Test #23: ChimeraPostNativeTests ................   Passed    1.10 sec
+2026-10-13T04:36:32.9226200Z       Start 24: ChimeraGateProcessorTests
+2026-10-13T04:37:04.5162280Z 24/44 Test #24: ChimeraGateProcessorTests .............   Passed   31.59 sec
+2026-10-13T04:37:04.5163940Z       Start 25: ChimeraGateTests
+2026-10-13T04:37:04.7890840Z 25/44 Test #25: ChimeraGateTests ......................   Passed    0.27 sec
+2026-10-13T04:37:04.7893390Z       Start 26: ChimeraIntegratedProcessorTests
+2026-10-13T04:41:15.4460600Z 26/44 Test #26: ChimeraIntegratedProcessorTests .......   Passed  250.65 sec
+2026-10-13T04:41:15.4463430Z       Start 27: ChimeraNiflheimrPresetTests
+2026-10-13T04:41:44.9236610Z 27/44 Test #27: ChimeraNiflheimrPresetTests ...........   Passed   29.48 sec
+2026-10-13T04:41:44.9238460Z       Start 28: ChimeraPitchRegressionTests
+2026-10-13T04:41:55.1588460Z 28/44 Test #28: ChimeraPitchRegressionTests ...........   Passed   10.23 sec
+2026-10-13T04:41:55.1590680Z       Start 29: ChimeraCabExpansionModelTests
+2026-10-13T04:41:58.2160490Z 29/44 Test #29: ChimeraCabExpansionModelTests .........   Passed    3.06 sec
+2026-10-13T04:41:58.2161900Z       Start 30: ChimeraOriginalCabModelTests
+2026-10-13T04:41:59.1548960Z 30/44 Test #30: ChimeraOriginalCabModelTests ..........   Passed    0.94 sec
+2026-10-13T04:41:59.1549650Z       Start 31: ChimeraCabTimingDiagnosticsTests
+2026-10-13T04:41:59.1648230Z 31/44 Test #31: ChimeraCabTimingDiagnosticsTests ......   Passed    0.01 sec
+2026-10-13T04:41:59.1648900Z       Start 32: ChimeraOriginalCabIntegrationTests
+2026-10-13T04:42:21.0896600Z 32/44 Test #32: ChimeraOriginalCabIntegrationTests ....   Passed   21.92 sec
+2026-10-13T04:42:21.0897840Z       Start 33: ChimeraOriginalCabRealtimeTests
+2026-10-13T04:42:33.7125590Z 33/44 Test #33: ChimeraOriginalCabRealtimeTests .......   Passed   12.62 sec
+2026-10-13T04:42:33.7127690Z       Start 34: ChimeraCabExpansionIntegrationTests
+2026-10-13T04:42:56.4583950Z 34/44 Test #34: ChimeraCabExpansionIntegrationTests ...   Passed   22.75 sec
+2026-10-13T04:42:56.4584650Z       Start 35: ChimeraCabExtendedTimingTests
+2026-10-13T04:43:53.0430800Z 35/44 Test #35: ChimeraCabExtendedTimingTests .........   Passed   56.58 sec
+2026-10-13T04:43:53.0432140Z       Start 36: ChimeraCabExpansionStateTests
+2026-10-13T04:44:06.2305350Z 36/44 Test #36: ChimeraCabExpansionStateTests .........   Passed   13.19 sec
+2026-10-13T04:44:06.2306750Z       Start 37: ChimeraCabLayoutModelTests
+2026-10-13T04:44:07.9317970Z 37/44 Test #37: ChimeraCabLayoutModelTests ............   Passed    1.70 sec
+2026-10-13T04:44:07.9318940Z       Start 38: ChimeraCabCameraFramingTests
+2026-10-13T04:44:07.9355490Z 38/44 Test #38: ChimeraCabCameraFramingTests ..........   Passed    0.00 sec
+2026-10-13T04:44:07.9356140Z       Start 39: ChimeraCabLayoutIntegrationTests
+2026-10-13T04:44:31.1736790Z 39/44 Test #39: ChimeraCabLayoutIntegrationTests ......   Passed   23.24 sec
+2026-10-13T04:44:31.1738580Z       Start 40: ChimeraCabLayoutStateTests
+2026-10-13T04:44:42.3196910Z 40/44 Test #40: ChimeraCabLayoutStateTests ............   Passed   11.15 sec
+2026-10-13T04:44:42.3206340Z       Start 41: ChimeraCabDriverVisualTests
+2026-10-13T04:44:55.2562700Z 41/44 Test #41: ChimeraCabDriverVisualTests ...........   Passed   12.94 sec
+2026-10-13T04:44:55.2571730Z       Start 42: ChimeraGraphicalEQTests
+2026-10-13T04:45:24.4288490Z 42/44 Test #42: ChimeraGraphicalEQTests ...............   Passed   29.17 sec
+2026-10-13T04:45:24.4289590Z       Start 43: ChimeraGraphicalEQUITests
+2026-10-13T04:45:36.0861600Z 43/44 Test #43: ChimeraGraphicalEQUITests .............   Passed   11.66 sec
+2026-10-13T04:45:36.0865870Z       Start 44: ChimeraAmpHeadControlTests
+2026-10-13T04:47:58.8489890Z 44/44 Test #44: ChimeraAmpHeadControlTests ............   Passed  142.75 sec
+2026-10-13T04:47:58.8703090Z 
+2026-10-13T04:47:58.8703670Z 100% tests passed out of 44
+2026-10-13T04:47:58.8703990Z 
+2026-10-13T04:47:58.8704400Z Total Test time (real) = 921.76 sec
+2026-10-13T04:48:04.8753190Z ##[group]Run python Tools/package_release.py macos
+2026-10-13T04:48:04.8753670Z [36;1mpython Tools/package_release.py macos[0m
+2026-10-13T04:48:04.8815700Z shell: /bin/bash -e {0}
+2026-10-13T04:48:04.8816060Z env:
+2026-10-13T04:48:04.8816390Z   CHIMERA_SOURCE_SHA: 9375328c30dfe5908e5010342179b5afbc258900
+2026-10-13T04:48:04.8816970Z   pythonLocation: /Users/runner/hostedtoolcache/Python/3.12.10/arm64
+2026-10-13T04:48:04.8817520Z   PKG_CONFIG_PATH: /Users/runner/hostedtoolcache/Python/3.12.10/arm64/lib/pkgconfig
+2026-10-13T04:48:04.8818050Z   Python_ROOT_DIR: /Users/runner/hostedtoolcache/Python/3.12.10/arm64
+2026-10-13T04:48:04.8818500Z   Python2_ROOT_DIR: /Users/runner/hostedtoolcache/Python/3.12.10/arm64
+2026-10-13T04:48:04.8818880Z   Python3_ROOT_DIR: /Users/runner/hostedtoolcache/Python/3.12.10/arm64
+2026-10-13T04:48:04.8819230Z   CHIMERA_PACKAGE_VERSION: 1.3.1-beta.2
+2026-10-13T04:48:04.8819540Z ##[endgroup]
+2026-10-13T04:48:51.0619250Z pkgbuild: Inferring bundle components from contents of /Users/runner/work/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/dist/SpectralForge-Chimera-1.3.1-beta.2-macos-payload
+2026-10-13T04:48:51.0625470Z pkgbuild: Writing new component property list to /var/folders/nj/vtw8zd2j31d1gdrtntc5y4600000gn/T/chimera-pkg-b4ehpoaa/components.plist
+2026-10-13T04:48:51.0628580Z pkgbuild: Reading components from /var/folders/nj/vtw8zd2j31d1gdrtntc5y4600000gn/T/chimera-pkg-b4ehpoaa/components.plist
+2026-10-13T04:48:51.0630980Z pkgbuild: Adding component at Library/Audio/Plug-Ins/VST3/SpectralForge Chimera.vst3
+2026-10-13T04:48:51.0699370Z pkgbuild: Adding component at Library/Audio/Plug-Ins/Components/SpectralForge Chimera.component
+2026-10-13T04:48:51.0702570Z pkgbuild: Adding component at Applications/SpectralForge Chimera.app
+2026-10-13T04:48:51.0704670Z pkgbuild: Adding top-level preinstall script
+2026-10-13T04:48:51.0706340Z pkgbuild: Adding top-level postinstall script
+2026-10-13T04:48:51.0709440Z pkgbuild: Wrote package to /Users/runner/work/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/dist/SpectralForge-Chimera-1.3.1-beta.2-macos-universal.pkg
+2026-10-13T04:48:03.1782380Z SHA256 digest of uploaded artifact zip is 7534d61195a4f725bcec750a836b7a3edfbc41d4819cf5c3730635e7b40ec2fc
+2026-10-13T04:48:03.4653760Z Artifact Chimera-integration-validation-macOS.zip successfully finalized. Artifact ID 11789153140
+2026-10-13T04:48:03.4655810Z Artifact Chimera-integration-validation-macOS has been successfully uploaded! Final size is 6869439 bytes. Artifact ID is 11789153140
+2026-10-13T04:48:04.5542270Z SHA256 digest of uploaded artifact zip is 0b9c6e4e03d6f9bc80c062358d8bca3d426ffac62bac1e5fd297c786bff09ce6
+2026-10-13T04:48:04.8518590Z Artifact Chimera-DSP-verification-macOS.zip successfully finalized. Artifact ID 11788818681
+2026-10-13T04:48:04.8520590Z Artifact Chimera-DSP-verification-macOS has been successfully uploaded! Final size is 43886 bytes. Artifact ID is 11788818681
+2026-10-13T04:49:01.4145740Z SHA256 digest of uploaded artifact zip is 4c131e6142c70ab47601c589a865231ca3fd8caad6328bf828797ab54a62977c
+2026-10-13T04:49:01.8450520Z Artifact SpectralForge-Chimera-1.3.1-beta.2-macos-universal.zip successfully finalized. Artifact ID 11788783812
+2026-10-13T04:49:01.8451570Z Artifact SpectralForge-Chimera-1.3.1-beta.2-macos-universal has been successfully uploaded! Final size is 702463132 bytes. Artifact ID is 11788783812
+2026-10-13T04:49:02.1128380Z Preserved macos evidence for 9375328c30dfe5908e5010342179b5afbc258900, run 38342282418/1
+2026-10-13T04:49:03.3745550Z SHA256 digest of uploaded artifact zip is 8c4005a0bdc3eb24cf0533ca196b25ed159f895f3d19c565d577142b168e4fa6
+2026-10-13T04:49:03.6487500Z Artifact Chimera-release-evidence-macos.zip successfully finalized. Artifact ID 11788998464
+2026-10-13T04:49:03.6489320Z Artifact Chimera-release-evidence-macos has been successfully uploaded! Final size is 57455 bytes. Artifact ID is 11788998464

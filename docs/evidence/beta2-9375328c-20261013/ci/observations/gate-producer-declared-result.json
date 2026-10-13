@@ -1,0 +1,71 @@
+{
+  "source_sha": "9375328c30dfe5908e5010342179b5afbc258900",
+  "gate": {
+    "job_id": 115138113211,
+    "declared_verdict": "BLOCKED",
+    "producer_declared_checks": {
+      "PASS": 20,
+      "BLOCKED": 108,
+      "NOT_APPLICABLE": 0
+    },
+    "E1_STATE_UI": "TEST_FAILURE: Missing/failed evidence from: windows",
+    "job_conclusion": "success",
+    "source_workflow_has_continue_on_error_on_verdict_step": false,
+    "artifact": {
+      "id": 11789064926,
+      "node_id": "MDg6QXJ0aWZhY3QxMTc4OTA2NDkyNg==",
+      "name": "Chimera-A-stage-release-gate",
+      "size_in_bytes": 262399,
+      "url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/artifacts/11789064926",
+      "archive_download_url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/artifacts/11789064926/zip",
+      "expired": false,
+      "digest": "sha256:df95338f989b740485a12aea0ad1ca01ac7f30a4ac03b09af59efa38d4c6fe3f",
+      "created_at": "2026-10-13T05:02:49Z",
+      "updated_at": "2026-10-13T05:02:49Z",
+      "expires_at": "2027-01-11T03:33:35Z",
+      "workflow_run": {
+        "id": 38342282418,
+        "repository_id": 1382701489,
+        "head_repository_id": 1382701489,
+        "head_branch": "integration/beta2-test-20261014",
+        "head_sha": "9375328c30dfe5908e5010342179b5afbc258900"
+      }
+    },
+    "qualification": "CI success does not establish archive validity or release eligibility; separate read-only audit owned by root."
+  },
+  "original_log_lines": [
+    "2026-10-13T05:02:48.6216542Z # Chimera release gate: BLOCKED",
+    "2026-10-13T05:02:48.6218721Z - Checks: 20 PASS / 108 BLOCKED / 0 NOT_APPLICABLE",
+    "2026-10-13T05:02:48.6219877Z | Stage | Status | PASS | BLOCKED | N/A |",
+    "2026-10-13T05:02:48.6221446Z | A1 Installer consistency | BLOCKED | 0 | 6 | 0 |",
+    "2026-10-13T05:02:48.6222091Z | A2 Signature definition | BLOCKED | 0 | 8 | 0 |",
+    "2026-10-13T05:02:48.6222768Z | A3 Signature APVTS recall | BLOCKED | 0 | 9 | 0 |",
+    "2026-10-13T05:02:48.6223422Z | A4 Factory compatibility | BLOCKED | 0 | 5 | 0 |",
+    "2026-10-13T05:02:48.6224041Z | A5 Hartke IR import | BLOCKED | 0 | 8 | 0 |",
+    "2026-10-13T05:02:48.6224597Z | A6 Marshall IR import | BLOCKED | 0 | 8 | 0 |",
+    "2026-10-13T05:02:48.6225169Z | A7 IR chain of trust | BLOCKED | 0 | 7 | 0 |",
+    "2026-10-13T05:02:48.6225785Z | A8 IR fallback policy | BLOCKED | 0 | 4 | 0 |",
+    "2026-10-13T05:02:48.6226426Z | A9 Signature benchmark calculator | BLOCKED | 0 | 9 | 0 |",
+    "2026-10-13T05:02:48.6227160Z | A10 Signature hard and secondary gates | BLOCKED | 0 | 6 | 0 |",
+    "2026-10-13T05:02:48.6227850Z | A11 Benchmark JSON | BLOCKED | 0 | 9 | 0 |",
+    "2026-10-13T05:02:48.6228429Z | A12 Automated regression tests | PASS | 7 | 0 | 0 |",
+    "2026-10-13T05:02:48.6229039Z | A13 CI final state | PASS | 7 | 0 | 0 |",
+    "2026-10-13T05:02:48.6229616Z | A14 Documentation sync | BLOCKED | 0 | 7 | 0 |",
+    "2026-10-13T05:02:48.6230217Z | B1 Same-DI fixture | BLOCKED | 0 | 1 | 0 |",
+    "2026-10-13T05:02:48.6231078Z | B2 Signature renders | BLOCKED | 0 | 1 | 0 |",
+    "2026-10-13T05:02:48.6231700Z | B3 Audio measurements | BLOCKED | 0 | 1 | 0 |",
+    "2026-10-13T05:02:48.6232323Z | B4 Signature hard gates | BLOCKED | 0 | 4 | 0 |",
+    "2026-10-13T05:02:48.6232980Z | B5 Signature secondary gates | BLOCKED | 0 | 1 | 0 |",
+    "2026-10-13T05:02:48.6233625Z | B6 Signature score verdict | BLOCKED | 0 | 1 | 0 |",
+    "2026-10-13T05:02:48.6234269Z | B8 Listening A/B | BLOCKED | 0 | 1 | 0 |",
+    "2026-10-13T05:02:48.6234915Z | B10 Audio save/restore roundtrip | BLOCKED | 0 | 1 | 0 |",
+    "2026-10-13T05:02:48.6235639Z | B11 Windows host validation | BLOCKED | 0 | 1 | 0 |",
+    "2026-10-13T05:02:48.6236243Z | B12 Studio One 8 validation | BLOCKED | 0 | 1 | 0 |",
+    "2026-10-13T05:02:48.6236849Z | B13 30 minute soak | BLOCKED | 0 | 1 | 0 |",
+    "2026-10-13T05:02:48.6237448Z | B14 Release candidate gate | BLOCKED | 0 | 1 | 0 |",
+    "2026-10-13T05:02:48.6238212Z | E1 E670FE implementation and legacy compatibility | BLOCKED | 2 | 1 | 0 |",
+    "2026-10-13T05:02:48.6239066Z | E2 E670FE reference and sound acceptance | BLOCKED | 0 | 3 | 0 |",
+    "2026-10-13T05:02:48.6241632Z | I2 1.1.1 real-input and host acceptance | BLOCKED | 0 | 3 | 0 |",
+    "2026-10-13T05:02:48.6281966Z - `E1.STATE_UI` — TEST_FAILURE: Missing/failed evidence from: windows"
+  ]
+}

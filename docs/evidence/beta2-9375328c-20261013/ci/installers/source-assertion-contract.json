@@ -1,0 +1,38 @@
+{
+  "source_sha": "9375328c30dfe5908e5010342179b5afbc258900",
+  "scope": "Source assertion contract only. Runtime execution is bound separately by original CI logs; this source record is not a test PASS.",
+  "sources": [
+    {
+      "path": "Tools/Verify-WindowsInstaller.ps1",
+      "git_blob": "92ccffa0026799a9df2333f87cc09e6f64be923f",
+      "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/blob/9375328c30dfe5908e5010342179b5afbc258900/Tools/Verify-WindowsInstaller.ps1"
+    },
+    {
+      "path": "Tools/Verify-WindowsPreviousReleaseUpgrade.ps1",
+      "git_blob": "fa18d31e218c4bcb966a30d4794369f70a2f379c",
+      "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/blob/9375328c30dfe5908e5010342179b5afbc258900/Tools/Verify-WindowsPreviousReleaseUpgrade.ps1"
+    }
+  ],
+  "current_payload_assertion_exact_source": "function Assert-CurrentPayload {\n    foreach ($file in Current-Documents) {\n        Assert ((Hash (Installed-Document $file.Name)) -eq (Hash $file.FullName)) \"Current documentation was not installed: $($file.Name)\"\n    }\n    Assert ((Hash (Join-Path $app \"SpectralForge Chimera.exe\")) -eq (Hash (Join-Path $stagePath \"Standalone/SpectralForge Chimera.exe\"))) \"Current standalone binary differs from the validated payload\"\n    Assert (!(Test-Path -LiteralPath (Join-Path $app \"ReferenceTools\"))) \"Unselected reference tools were installed\"\n    Assert (Test-Path -LiteralPath (Join-Path $startMenu \"SpectralForge Chimera.lnk\")) \"Current standalone shortcut is missing\"\n}",
+  "current_payload_assertion_calls": [
+    {
+      "after": "previous-release upgrade",
+      "source_line": 160
+    },
+    {
+      "after": "each of two same-version repairs",
+      "source_line": 185
+    }
+  ],
+  "previous_public_setup": {
+    "tag": "v1.3.1-beta.1",
+    "expected_bytes": 210803143,
+    "expected_sha256": "da0a0c7f70b2ab6f5e0854ba9180a2eb3a8ab847c31c169db9e82c91002ff41a",
+    "runtime_verification": "The log PASS follows matching both constants before the historical Setup is executed."
+  },
+  "current_document_hash_caveat": "Individual current MANUAL/PRESETS raw hashes are not printed in the original job log or emitted by these source serializers; report JSON inside the original artifact was not independently opened after executor outage. Executed assertions compare actual installed files to that Windows build's staged files. Source Git/LF hashes must not be assumed equal to raw Windows CRLF checkout bytes.",
+  "source_git_lf_hashes": {
+    "MANUAL_html": "b831d2059c601ea7cc457d3dc79071b98185857327d20474d2c387cf05e9616e",
+    "PRESETS_md": "d0f6ad555092d3d4a37a0c92ab90df9d435b2aa990bca80191564eeed9f89201"
+  }
+}
