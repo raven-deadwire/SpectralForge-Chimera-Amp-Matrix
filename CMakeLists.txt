@@ -55,6 +55,7 @@ set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS
   "${CMAKE_CURRENT_SOURCE_DIR}/Validation/beta-lifecycle-policy.json"
   "${CMAKE_CURRENT_SOURCE_DIR}/Tools/beta_lifecycle.py")
 configure_file(cmake/ChimeraBuildVersion.h.in generated/ChimeraBuildVersion.h @ONLY)
+file(SHA256 "${CMAKE_BINARY_DIR}/chimera-beta-lifecycle.json" CHIMERA_BETA_METADATA_SHA256)
 configure_file(cmake/chimera-build-version.json.in chimera-build-version.json @ONLY)
 include_directories("${CMAKE_BINARY_DIR}/generated")
 target_compile_definitions(ChimeraAmpMatrix PRIVATE CHIMERA_BUILD_REVISION="${CHIMERA_BUILD_REVISION}")

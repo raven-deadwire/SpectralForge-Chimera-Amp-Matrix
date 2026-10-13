@@ -120,6 +120,9 @@ def lifecycle_documents(destination: Path, build: Path, *, version: dict | None 
         release = IDENTITY if version is None else version
         metadata = json.loads((build / "chimera-beta-lifecycle.json").read_text(encoding="utf-8"))
         beta_lifecycle.validate_metadata(metadata, ROOT, release["source_sha"])
+        build_identity = json.loads((build / "chimera-build-version.json").read_text(encoding="utf-8"))
+        if build_identity.get("beta_lifecycle_sha256") != sha256(build / "chimera-beta-lifecycle.json"):
+            raise ValueError("Beta metadata differs from the configured build fingerprint")
         copy(build / "chimera-beta-lifecycle.json", destination / "chimera-beta-lifecycle.json")
         (destination / "BETA_LIFECYCLE.txt").write_text(beta_lifecycle.notice(metadata), encoding="utf-8")
 
@@ -230,6 +233,10 @@ def macos(build: Path, dist: Path) -> None:
             extracted = unpacked / original.relative_to(stage)
             if not extracted.is_file() or sha256(extracted) != sha256(original):
                 raise RuntimeError(f"macOS package payload differs: {original}")
+        for name in ("chimera-beta-lifecycle.json", "BETA_LIFECYCLE.txt"):
+            original = docdir / name
+            if original.is_file() and sha256(unpacked / original.relative_to(stage)) != sha256(original):
+                raise RuntimeError(f"macOS beta lifecycle payload differs: {name}")
         for phase in ("preinstall", "postinstall"):
             packaged_script = expanded / "Scripts" / phase
             if not packaged_script.is_file() or sha256(packaged_script) != sha256(maintenance):
@@ -297,7 +304,9 @@ def linux(build: Path, dist: Path) -> None:
         run("dpkg-deb", "--build", "--root-owner-group", str(stage), str(package))
         extracted = work / "extracted"
         run("dpkg-deb", "--extract", str(package), str(extracted))
-        for source in (executable, vstbinary, docdir / "MANUAL.html"):
+        beta_documents = [docdir / name for name in ("chimera-beta-lifecycle.json", "BETA_LIFECYCLE.txt")
+                          if (docdir / name).is_file()]
+        for source in (executable, vstbinary, docdir / "MANUAL.html", *beta_documents):
             if sha256(source) != sha256(extracted / source.relative_to(stage)):
                 raise RuntimeError(f"Debian package payload differs: {source}")
         dependency_report = run("ldd", str(executable)) + run("ldd", str(vstbinary))
