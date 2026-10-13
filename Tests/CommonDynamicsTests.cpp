@@ -63,7 +63,7 @@ void compressor(ChimeraProcessor& p){
 void dynamicEQ(ChimeraProcessor& p){
     for(int s=0;s<4;++s){set(p,dynamicSlotID(s,"target"),float(1+s*6));set(p,dynamicSlotID(s,"range"),6);set(p,dynamicSlotID(s,"threshold"),-24);set(p,dynamicSlotID(s,"ratio"),4);}
     DynamicEQBindings bindings;bindings.bind(p.parameters());int assigned=0;for(int t=1;t<=24;++t)assigned+=bindings.forBand(t).enabled;check(assigned==4,"Dynamic EQ shared four-node cap failed");
-    set(p,dynamicSlotID(1,"target"),1);set(p,dynamicSlotID(1,"range"),12);check(bindings.forBand(1).range==6,"Duplicate disabled or replaced the first active node");set(p,dynamicSlotID(1,"target"),7);
+    set(p,dynamicSlotID(1,"target"),1);set(p,dynamicSlotID(1,"range"),12);const auto duplicate=bindings.forBand(1);check(duplicate.enabled && std::abs(duplicate.range-6)<1e-5,"Duplicate disabled or replaced the first active node");set(p,dynamicSlotID(1,"target"),7);
     for(int bank=0;bank<2;++bank){set(p,eqID(bank,-1,"bypass"),0);set(p,eqID(bank,0,"enabled"),1);set(p,eqID(bank,0,"frequency"),1000);set(p,eqID(bank,0,"q"),4);auto& eq=p.graphicalEQ(bank);eq.prepare(48000);
         juce::AudioBuffer<float> b(2,128);double in=0,out=0;
         for(int k=0;k<600;++k){fill(b,k*128,48000);if(k>300)for(int n=0;n<128;++n)in+=b.getSample(0,n)*b.getSample(0,n);
@@ -112,7 +112,7 @@ void state(ChimeraProcessor& p){
     set(p,"cleanCompOn",1);set(p,"gateMode",1);set(p,"liveLimiterOn",1);set(p,"liveLimiterCeiling",-3);
     juce::MemoryBlock saved;p.getStateInformation(saved);auto copy=std::make_unique<ChimeraProcessor>();copy->setStateInformation(saved.getData(),int(saved.getSize()));
     for(int i=4986;i<5026;++i){auto* q=dynamic_cast<juce::RangedAudioParameter*>(p.getParameters()[i]);check(std::abs(get(*copy,q->paramID)-get(p,q->paramID))<.002,"Dynamics project restore failed");}
-    p.copyComparison();p.selectComparison(1);set(p,"liveLimiterCeiling",-12);p.selectComparison(0);check(get(p,"liveLimiterCeiling")==-3,"Dynamics A recall");p.selectComparison(1);check(get(p,"liveLimiterCeiling")==-12,"Dynamics B recall");
+    p.copyComparison();p.selectComparison(1);set(p,"liveLimiterCeiling",-12);p.selectComparison(0);check(std::abs(get(p,"liveLimiterCeiling")+3)<1e-5,"Dynamics A recall");p.selectComparison(1);check(std::abs(get(p,"liveLimiterCeiling")+12)<1e-5,"Dynamics B recall");
     auto legacy=p.parameters().copyState();for(int i=legacy.getNumChildren();--i>=0;){const auto id=legacy.getChild(i).getProperty("id").toString();auto* q=p.parameters().getParameter(id);if(q && q->getParameterIndex()>=4986)legacy.removeChild(i,nullptr);}
     juce::MemoryBlock old;juce::AudioProcessor::copyXmlToBinary(*legacy.createXml(),old);copy->setStateInformation(old.getData(),int(old.getSize()));
     check(get(*copy,"cleanCompOn")==0 && get(*copy,"liveLimiterOn")==0 && get(*copy,"gateMode")==0,"Legacy state inherited enabled dynamics");for(int i=0;i<4;++i)check(get(*copy,dynamicSlotID(i,"target"))==0,"Legacy state inherited a dynamic node");
