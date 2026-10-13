@@ -2,33 +2,63 @@
 #include "SignalPath.h"
 #include "UIRefresh.h"
 
-// Native buttons provide focus/Return/Space navigation and accessibility names.
-// This component has no APVTS attachments and cannot mutate audio state.
-class SignalPathButton final : public juce::TextButton {
+// JUCE buttons activate on Return. Accept unmodified Space only while this
+// navigation button owns focus, without registering a host-wide shortcut.
+class SignalPathNavigationButton : public juce::TextButton {
+public:
+    using juce::TextButton::TextButton;
+    bool keyPressed(const juce::KeyPress& key) override {
+        if(isEnabled() && hasKeyboardFocus(false) && key.isKeyCode(juce::KeyPress::spaceKey)
+            && !key.getModifiers().isAnyModifierKeyDown()){
+            triggerClick();return true;
+        }
+        return juce::TextButton::keyPressed(key);
+    }
+};
+// These navigation buttons have no APVTS attachments or audio-state writes.
+class SignalPathButton final : public SignalPathNavigationButton {
 public:
     bool compact{},active{};juce::String label,status;
     void paintButton(juce::Graphics& g,bool hover,bool down) override {
         const auto area=getLocalBounds().toFloat().reduced(.5f);
         g.setColour(getToggleState()?juce::Colour(0xff416953):juce::Colour(hover||down?0xff2f4540:0xff222c30));g.fillRoundedRectangle(area,3);
         g.setColour(hasKeyboardFocus(true)?juce::Colours::white:juce::Colour(getToggleState()?0xff9bc0a8:0xff53675c));g.drawRoundedRectangle(area,3,1);
-        g.setColour(active?juce::Colour(0xffe8e8dc):juce::Colour(0xffacb6b2));g.setFont(juce::FontOptions(compact?9.5f:11.f));
-        g.drawFittedText(label,getLocalBounds().reduced(4).withHeight(compact?getHeight()-8:22),juce::Justification::centred,1);
+        g.setColour(active?juce::Colour(0xffe8e8dc):juce::Colour(0xffacb6b2));g.setFont(juce::FontOptions(11.f));
+        const auto labelBounds=compact?getLocalBounds().reduced(6,2):getLocalBounds().reduced(4).withHeight(22);
+        g.drawFittedText(label,labelBounds,juce::Justification::centred,1);
         if(!compact){g.setFont(juce::FontOptions(9.f));g.drawFittedText(status,4,25,getWidth()-8,17,juce::Justification::centred,1);}
     }
 };
-class SignalPathView final : public juce::Component,private juce::Timer {
+class SignalPathView final : public juce::Component,
+                             private juce::Timer,
+                             private juce::AudioProcessorValueTreeState::Listener,
+                             private juce::AsyncUpdater {
 public:
     SignalPathView(ChimeraProcessor& p,bool compactView):processor(p),compact(compactView) {
         setComponentID(compact?"signalPathStrip":"signalPathGraph");
+        setName(compact?"Signal path editing stages":"Actual signal routing");
+        setTitle(getName());
+        setDescription(compact?"PRE, amplifier heads, cabinets, Tone EQ, POST and Final EQ. Open Routing for the complete signal path, including global utilities.":"Complete signal path with utility positions, taps, parallel branches and rig summing. Select a block to open its controls.");
+        setFocusContainerType(juce::Component::FocusContainerType::focusContainer);
+        for(const auto* id:routingParameters)processor.parameters().addParameterListener(id,this);
         if(!compact){setSize(1140,650);startTimerHz(25);}refresh();
     }
-    ~SignalPathView() override {stopTimer();}
+    ~SignalPathView() override {
+        stopTimer();cancelPendingUpdate();
+        for(const auto* id:routingParameters)processor.parameters().removeParameterListener(id,this);
+    }
     std::function<void(const spectralforge::signalPath::Node&)> navigate;
     std::function<void()> expand;
     std::function<juce::String()> selection;
     const spectralforge::signalPath::Snapshot& snapshot() const {return current;}
     void select(const juce::String& id){if(selected!=id){selected=id;updateSelection();}}
+#if CHIMERA_ROUTING_DIAGNOSTICS
+    uint64_t refreshCalls{}; double refreshTime{};
+#endif
     void refresh() {
+#if CHIMERA_ROUTING_DIAGNOSTICS
+        ++refreshCalls; refreshTime=juce::Time::getMillisecondCounterHiRes();
+#endif
         auto next=spectralforge::signalPath::read(processor);
         if(next==current)return;
         current=std::move(next);
@@ -37,15 +67,19 @@ public:
         if(compact){
             using namespace spectralforge::signalPath;
             const auto add=[&](const juce::String& id){if(const auto* n=current.find(id))visible.push_back(*n);};
-            add("input");if(!processor.parameters().getRawParameterValue("gateAfterRig")->load())add("gate");add("transpose");
+            // This strip is an editing workflow. The unabridged routing model
+            // remains in current and is inspected in the separate graph.
             bool preActive=false;for(const auto& n:current.nodes)if(n.id.startsWith("pre."))preActive|=n.active;
-            visible.push_back({"pre","PRE",preActive?"ACTIVE":"BYPASSED",{},Target::pre,-1,-1,preActive});
-            visible.push_back({"rigs",current.mode==0?"CLASSIC":current.mode==1?"DUAL":"MATRIX","",{},Target::rigs});
-            if(processor.parameters().getRawParameterValue("gateAfterRig")->load()>.5f)add("gate");
+            visible.push_back({"pre","PRE",preActive?"ACTIVE":"BYPASSED","Open the PRE pedalboard.",Target::pre,-1,-1,preActive});
+            const juce::String modeName=current.mode==0?"CLASSIC":current.mode==1?(current.dualCross?"DUAL CROSSOVER":"DUAL BLEND"):"MATRIX";
+            bool headActive=false,cabActive=false;
+            for(const auto& n:current.nodes){if(n.id.startsWith("amp.context"))headActive|=n.active;if(n.target==Target::cab)cabActive|=n.active;}
+            visible.push_back({"head","HEAD",modeName+" / "+juce::String(current.mode+1)+" HEAD"+(current.mode==0?"":"S"),"Open the amplifier controls for every active rig in the current mode.",Target::amp,-1,-1,headActive});
+            visible.push_back({"cab","CAB",modeName+" / "+juce::String(current.mode+1)+" CAB"+(current.mode==0?"":"S"),"Open the cabinet room for every active rig in the current mode.",Target::cab,-1,-1,cabActive});
             add("tone.eq");
             bool postActive=false;for(const auto& n:current.nodes)if(n.target==Target::post)postActive|=n.active;
-            visible.push_back({"post","POST",postActive?"ACTIVE":"BYPASSED",{},Target::post,-1,-1,postActive});
-            add("utilities");add("final.eq");add("output");
+            visible.push_back({"post","POST",postActive?"ACTIVE":"BYPASSED","Open the POST effects rack.",Target::post,-1,-1,postActive});
+            add("final.eq");
         }else visible=current.nodes;
         std::vector<std::unique_ptr<juce::TextButton>> nextButtons;
         for(const auto& node:visible) {
@@ -56,7 +90,9 @@ public:
             button->setComponentID("path."+node.id);
             button->setButtonText(compact?node.label:node.label+"\n"+node.status);
             button->setName(node.label+" / "+node.status+" / open editor");
-            button->setTooltip(node.label+" | "+node.status+"\n"+node.detail+"\nNavigate only; sound is unchanged.");
+            button->setTitle(button->getName());
+            button->setDescription(node.detail+(compact?" Open Routing to inspect all processing stages.":""));
+            button->setTooltip(node.label+" | "+node.status+"\n"+node.detail+(compact?"\nROUTING shows the complete signal path.":""));
             button->setWantsKeyboardFocus(true);
             button->setColour(juce::TextButton::textColourOffId,node.active?juce::Colour(0xffe5e1d4):juce::Colour(0xff9caaa5));
             button->onClick=[this,node]{selected=node.id;updateSelection();if(navigate)navigate(node);};
@@ -64,11 +100,30 @@ public:
             nextButtons.push_back(std::move(button));
         }
         buttons=std::move(nextButtons);
-        if(compact&&!expandButton){expandButton=std::make_unique<juce::TextButton>("PATH +");expandButton->setComponentID("signalPathExpand");expandButton->setName("Expand actual signal path");expandButton->setWantsKeyboardFocus(true);expandButton->onClick=[this]{if(expand)expand();};addAndMakeVisible(*expandButton);}
+        if(compact&&!expandButton){
+            expandButton=std::make_unique<SignalPathNavigationButton>("ROUTING");
+            expandButton->setComponentID("signalPathExpand");
+            expandButton->setName("Routing / inspect complete signal path");
+            expandButton->setTitle(expandButton->getName());
+            expandButton->setDescription("Inspect Input, Gate, Transpose, Tuner tap, PRE order, amp and cabinet branches, EQ, POST, Doubler, Click and Output. Select a block to open its controls.");
+            expandButton->setTooltip("View the complete signal path, including global utilities and rig branches.");
+            expandButton->setWantsKeyboardFocus(true);
+            expandButton->onClick=[this]{if(expand)expand();};addAndMakeVisible(*expandButton);
+        }
+        if(expandButton)expandButton->setExplicitFocusOrder(int(buttons.size())+1);
         resized();updateSelection();repaint();
     }
     void resized() override {
-        if(compact){const int width=(getWidth()-76)/juce::jmax(1,int(buttons.size()));for(size_t i=0;i<buttons.size();++i)buttons[i]->setBounds(int(i)*width,0,width-10,getHeight());if(expandButton)expandButton->setBounds(getWidth()-74,0,74,getHeight());}
+        if(compact){
+            const int routingWidth=88,gap=10;
+            const int available=juce::jmax(0,getWidth()-routingWidth-gap);
+            const int count=juce::jmax(1,int(buttons.size()));
+            for(size_t i=0;i<buttons.size();++i){
+                const int left=int(i)*available/count,right=(int(i)+1)*available/count;
+                buttons[i]->setBounds(left,0,juce::jmax(0,right-left-gap),getHeight());
+            }
+            if(expandButton)expandButton->setBounds(juce::jmax(0,getWidth()-routingWidth),0,juce::jmin(routingWidth,getWidth()),getHeight());
+        }
         else for(auto& b:buttons)if(const auto* n=current.find(b->getComponentID().substring(5))){b->setBounds(n->bounds);b->setTransform(juce::AffineTransform::scale(graphScale()));}
     }
     void paint(juce::Graphics& g) override {
@@ -79,7 +134,7 @@ public:
         g.addTransform(juce::AffineTransform::scale(graphScale()));
         g.setColour(juce::Colour(0xffc8d7cc));g.setFont(juce::FontOptions(13.f));
         g.drawText(current.mode==0?"CLASSIC  /  ONE RIG":current.mode==1?(current.dualCross?"DUAL  /  CROSSOVER":"DUAL  /  PARALLEL BLEND"):"MATRIX  /  CLEAN LOW + WET MID / HIGH",16,5,700,24,juce::Justification::centredLeft);
-        g.setFont(juce::FontOptions(10.f));g.drawText("Click a block to edit  |  Tab / Shift-Tab + Enter  |  Navigation only",650,8,450,20,juce::Justification::centredRight);
+        g.setFont(juce::FontOptions(10.f));g.drawText("Click a block to edit  |  Tab / Shift-Tab  |  Enter / Space",650,8,450,20,juce::Justification::centredRight);
         for(const auto& e:current.edges){
             const auto* a=current.find(e.from);const auto* b=current.find(e.to);if(!a||!b)continue;
             const auto from=a->bounds.toFloat(),to=b->bounds.toFloat();juce::Path path;
@@ -104,9 +159,43 @@ public:
         }
     }
 private:
+    void parameterChanged(const juce::String&,float) override {triggerAsyncUpdate();}
+    void handleAsyncUpdate() override {
+        refresh();
+        if(selection)select(selection());
+    }
     float graphScale() const {return juce::jmin(float(juce::jmax(1,getWidth()))/1140.f,float(juce::jmax(1,getHeight()))/650.f);}
     void timerCallback() override {if(spectralforge::ui::visible(*this)){refresh();if(selection)select(selection());}}
-    void updateSelection(){for(auto& b:buttons){const auto id=b->getComponentID().substring(5);b->setToggleState(id==selected || (!compact&&((selected=="rigs"&&id=="split")||(selected=="pre"&&id.startsWith("pre."))||(selected=="post"&&id.startsWith("post.")))) || (compact&&((id=="pre"&&selected.startsWith("pre."))||(id=="rigs"&&(selected.startsWith("amp.")||selected.startsWith("cab.")||selected.startsWith("low.")))||(id=="post"&&selected.startsWith("post.")))),juce::dontSendNotification);}}
+    void updateSelection(){
+        auto editingStage=selected;
+        // A mode/board restore may remove the selected detail node. Retain its
+        // editor family until a new selection arrives, as the old strip did.
+        if(compact){
+            if(selected.startsWith("pre."))editingStage="pre";
+            else if(selected.startsWith("post."))editingStage="post";
+            else if(selected.startsWith("cab."))editingStage="cab";
+            else if(selected=="rigs"||selected.startsWith("amp.")||selected.startsWith("low.")||selected.startsWith("tone.context")||selected.startsWith("level.context"))editingStage="head";
+        }
+        if(compact)if(const auto* node=current.find(selected)){
+            using Target=spectralforge::signalPath::Target;
+            switch(node->target){
+                case Target::pre:editingStage="pre";break;
+                case Target::rigs:case Target::amp:case Target::low:editingStage="head";break;
+                case Target::cab:editingStage="cab";break;
+                case Target::post:editingStage="post";break;
+                default:break;
+            }
+        }
+        for(auto& b:buttons){
+            const auto id=b->getComponentID().substring(5);
+            const bool grouped=!compact&&((selected=="rigs"&&id=="split")||(selected=="head"&&id.startsWith("amp.context"))||(selected=="cab"&&id.startsWith("cab.context"))||(selected=="pre"&&id.startsWith("pre."))||(selected=="post"&&id.startsWith("post.")));
+            b->setToggleState(id==(compact?editingStage:selected)||grouped,juce::dontSendNotification);
+        }
+    }
+    // Mode and Dual topology already call updateModeUI(), which synchronously
+    // refreshes this view. Gate location is host-automatable and otherwise only
+    // reaches the compact view through the editor's polling timer.
+    static constexpr std::array<const char*,1> routingParameters{{"gateAfterRig"}};
     ChimeraProcessor& processor;bool compact;juce::String selected;
     spectralforge::signalPath::Snapshot current;
     std::vector<std::unique_ptr<juce::TextButton>> buttons;

@@ -156,7 +156,7 @@ add_test(NAME ChimeraTests COMMAND ChimeraTests)
 # The same harness can be copied onto an unmodified source revision for A/B.
 option(CHIMERA_UI_PROBES "Build UI CPU probe and portable editor regressions" OFF)
 if(CHIMERA_UI_PROBES)
-  target_compile_definitions(ChimeraAmpMatrix PUBLIC JUCE_MODAL_LOOPS_PERMITTED=1)
+  target_compile_definitions(ChimeraAmpMatrix PUBLIC JUCE_MODAL_LOOPS_PERMITTED=1 CHIMERA_ROUTING_DIAGNOSTICS=1)
   juce_add_console_app(ChimeraUIRefreshProbe PRODUCT_NAME "Chimera UI Refresh Probe")
   target_sources(ChimeraUIRefreshProbe PRIVATE Tests/UIRefreshProbe.cpp)
   target_include_directories(ChimeraUIRefreshProbe PRIVATE Source)

@@ -34,7 +34,14 @@ public:
     bool isInterestedInFileDrag(const juce::StringArray&) override;
     void filesDropped(const juce::StringArray&,int,int) override;
     uint64_t metadataRefreshCount() const noexcept {return metadataReads;}
+#if CHIMERA_ROUTING_DIAGNOSTICS
+    struct RoutingProbe { uint64_t ticks{}, skipped{}, refreshed{}; double entered{}, finished{}; bool visible{}, messageThread{}; };
+    const RoutingProbe& routingProbe() const noexcept { return routeProbe; }
+#endif
 private:
+#if CHIMERA_ROUTING_DIAGNOSTICS
+    RoutingProbe routeProbe;
+#endif
     using CA=juce::AudioProcessorValueTreeState::ComboBoxAttachment;
     using SA=juce::AudioProcessorValueTreeState::SliderAttachment;
     using BA=juce::AudioProcessorValueTreeState::ButtonAttachment;
@@ -70,11 +77,11 @@ private:
     void referenceFile(bool save);
     void layoutControls();
     void midiMenu();
-    void navigateSignalPath(const spectralforge::signalPath::Node&);
+    void navigateSignalPath(spectralforge::signalPath::Node);
     void openSignalPath();
     std::unique_ptr<SignalPathView> signalPath;
     juce::Component::SafePointer<juce::DialogWindow> pathDialog;
-    std::array<juce::String,3> pathSelections{{"rigs","rigs","rigs"}};
+    std::array<juce::String,3> pathSelections{{"cab","cab","cab"}};
     ChimeraProcessor& processor;
     // Declared before children so their images/peers die first. The last editor
     // releases native GPU artwork while JUCE and the DLL are still alive.

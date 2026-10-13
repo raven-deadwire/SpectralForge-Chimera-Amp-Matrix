@@ -130,7 +130,7 @@ ChimeraEditor::ChimeraEditor(ChimeraProcessor& p) : AudioProcessorEditor(&p),pro
     add(rigControls);
     rigControls.setComponentID("cabRigControls");
     rigControls.setTooltip("Switch between the shared cabinet room and amplifier controls. The sound is unchanged.");
-    rigControls.onClick=[this]{showRigControls=!showRigControls;updateModeUI();};
+    rigControls.onClick=[this]{showRigControls=!showRigControls;pathSelections[size_t(juce::jlimit(0,2,lastMode))]=showRigControls?"head":"cab";updateModeUI();};
     add(boardPanel);add(preEngineStatus);add(gateLocation);
     gateLocation.setComponentID("gateAfterRig");preEngineStatus.setComponentID("preEngineStatus");
     preEngineStatus.setFont(juce::FontOptions(11.f));preEngineStatus.setColour(juce::Label::textColourId,ink);
@@ -162,7 +162,7 @@ ChimeraEditor::ChimeraEditor(ChimeraProcessor& p) : AudioProcessorEditor(&p),pro
     preOrder.setTooltip("TOUCH lets the envelope follow your picking before compression. SUSTAIN compresses first for a steadier sweep. Fuzz, boost and drive remain after the shared clean tap.");
     gainOrder.setComponentID("gainorder");gainOrder.setName("Gain pedal order");gainOrder.addItemList({"FUZZ > BOOST > DRIVE","FUZZ > DRIVE > BOOST"},1);add(gainOrder);gainOrderAttachment=std::make_unique<CA>(p.parameters(),"gainorder",gainOrder);gainOrder.onChange=[this]{updateModeUI();};
     gainOrder.setTooltip("Boost before drive adds drive saturation. Boost after drive raises its output; a saturated amp may still add distortion instead of loudness. Fuzz stays first; Matrix LOW DI is unaffected.");
-    rigsTab.onClick=[this]{page=0;pathSelections[size_t(juce::jlimit(0,2,lastMode))]="rigs";updateModeUI();};preTab.onClick=[this]{page=1;pathSelections[size_t(juce::jlimit(0,2,lastMode))]="pre";updateModeUI();};postTab.onClick=[this]{page=2;pathSelections[size_t(juce::jlimit(0,2,lastMode))]="post";updateModeUI();};
+    rigsTab.onClick=[this]{page=0;pathSelections[size_t(juce::jlimit(0,2,lastMode))]=showRigControls?"head":"cab";updateModeUI();};preTab.onClick=[this]{page=1;pathSelections[size_t(juce::jlimit(0,2,lastMode))]="pre";updateModeUI();};postTab.onClick=[this]{page=2;pathSelections[size_t(juce::jlimit(0,2,lastMode))]="post";updateModeUI();};
     eqTab.onClick=[this]{const auto route=spectralforge::signalPath::read(processor);navigateSignalPath(*route.find("tone.eq"));};
     for(int e=0;e<2;++e){eqPanels[(size_t)e]=std::make_unique<spectralforge::GraphicalEQPanel>(p.parameters(),p.graphicalEQ(e),e);add(*eqPanels[(size_t)e]);}
     const std::array<const char*,11> effectHeaders{"OVERDRIVE","DELAY","REVERB","COMPRESSOR","ENVELOPE","FUZZ","BOOST","BUS COMP","PREAMP","EQ","MODULATION"};
@@ -340,13 +340,14 @@ void ChimeraEditor::openSignalPath()
     pathDialog=new SignalPathWindow(graph,this);trackDialog(pathDialog);
 
 }
-void ChimeraEditor::navigateSignalPath(const spectralforge::signalPath::Node& node)
+void ChimeraEditor::navigateSignalPath(spectralforge::signalPath::Node node)
 {
+    // Own the request: refreshing a view may replace its originating button's callback.
     using Target=spectralforge::signalPath::Target;
     const int modeNow=juce::jlimit(0,2,int(processor.parameters().getRawParameterValue("mode")->load()));
     // A stale graph event must never select a lane from another routing mode.
     if(node.lane>=modeNow+1)return;
-    if(node.id!="pre" && node.id!="post" && node.id!="rigs" && !spectralforge::signalPath::read(processor).find(node.id))return;
+    if(node.id!="pre" && node.id!="post" && node.id!="head" && node.id!="cab" && node.id!="rigs" && !spectralforge::signalPath::read(processor).find(node.id))return;
     updateModeUI(); // Synchronize restored mode before applying presentation focus.
     pathSelections[size_t(modeNow)]=node.id;
     switch(node.target){
@@ -354,8 +355,8 @@ void ChimeraEditor::navigateSignalPath(const spectralforge::signalPath::Node& no
         case Target::post:page=2;break;
         case Target::toneEQ:case Target::finalEQ:page=3;break;
         case Target::amp:case Target::low:page=0;showRigControls=true;break;
-        case Target::cab:page=0;break;
-        case Target::rigs:page=0;break;
+        case Target::cab:page=0;showRigControls=false;break;
+        case Target::rigs:page=0;showRigControls=true;break;
         default:break;
     }
     updateModeUI();signalPath->select(node.id);
@@ -427,6 +428,12 @@ void ChimeraEditor::showInfo()
 }
 void ChimeraEditor::timerCallback()
 {
+#if CHIMERA_ROUTING_DIAGNOSTICS
+    ++routeProbe.ticks; routeProbe.entered=juce::Time::getMillisecondCounterHiRes();
+    routeProbe.visible=spectralforge::ui::visible(*this);
+    routeProbe.messageThread=juce::MessageManager::getInstance()->isThisTheMessageThread();
+    if(!routeProbe.visible)++routeProbe.skipped;
+#endif
     // Detached ALL windows remain live when their owning tab is hidden.
     for(auto& lane:lanes){lane.nativePanel->refreshIfNeeded();if(lane.head->isShowing())lane.head->refresh();}
     for(auto& post:postPanels)post->refreshIfNeeded();
@@ -437,6 +444,9 @@ void ChimeraEditor::timerCallback()
     const int current=(int)processor.parameters().getRawParameterValue("mode")->load();
     if(lastBoardEnabled!=(processor.parameters().getRawParameterValue("boardEnabled")->load()>.5f) || lastBoostAfterDrive!=(gainOrder.getSelectedId()==2) || lastEnvelopeFirst!=(preOrder.getSelectedId()==2) || current!=lastMode || lastDualCross!=(dualType.getSelectedId()==2) || lastTuner!=tunerOn.getToggleState()) updateModeUI();
     signalPath->refresh();signalPath->select(pathSelections[size_t(current)]);
+#if CHIMERA_ROUTING_DIAGNOSTICS
+    ++routeProbe.refreshed; routeProbe.finished=juce::Time::getMillisecondCounterHiRes();
+#endif
     refreshVisibleState();
     refreshMeters();
 }
@@ -595,10 +605,10 @@ void ChimeraEditor::updateModeUI()
     boardPanel.setVisible(page==1);
     preOrder.setVisible(false);gainOrder.setVisible(false);
     const int nextMode=(int)processor.parameters().getRawParameterValue("mode")->load();
-    // These two banks are global, so switching routing modes while editing an
-    // EQ must keep the path highlight on the same visible bank.
-    if(nextMode!=lastMode && lastMode>=0 && page==3)pathSelections[size_t(nextMode)]=pathSelections[size_t(lastMode)];
-    if(nextMode!=lastMode)showRigControls=false;
+    // PRE, POST and the two EQ banks are global. Changing routing mode keeps
+    // their current editor open, so retain its matching path selection too.
+    if(nextMode!=lastMode && lastMode>=0 && page>=1 && page<=3)pathSelections[size_t(nextMode)]=pathSelections[size_t(lastMode)];
+    if(nextMode!=lastMode){showRigControls=false;if(page==0)pathSelections[size_t(nextMode)]="cab";}
     lastMode=nextMode;
     lastDualCross=dualType.getSelectedId()==2;lastTuner=tunerOn.getToggleState();
     const bool matrix=lastMode==2,split=matrix || (lastMode==1 && lastDualCross); const int count=lastMode==0 ? 1 : lastMode==1 ? 2 : 3;
@@ -642,7 +652,13 @@ void ChimeraEditor::updateModeUI()
     dualLabel.setText(lastDualCross ? "LOW / HIGH CROSSOVER" : "RIG 1 : RIG 2",juce::dontSendNotification);
     tunerMute.setVisible(lastTuner);globalSliders[5].setVisible(lastTuner);delaySync.setVisible(page==2);
     routingHelp.setText(page==3 ? "TONE EQ > POST > WIDTH > FINAL EQ" : page==1 ? "PEDALBOARD / SHARED INPUT" : page==2 ? "RACK / AFTER RIG MERGE" : matrix ? "LR4 / 24 dB per octave" : lastMode==0 ? "ONE FULL-RANGE RIG" : lastDualCross ? "LR4 / 24 dB per octave" : "FULL-RANGE BLEND",juce::dontSendNotification);
-    stateDirty=true;updateBandLabels();refreshVisibleState();layoutControls();repaint();
+    stateDirty=true;updateBandLabels();refreshVisibleState();layoutControls();
+    // User navigation must update both views with the visible editor, rather
+    // than waiting for their independent automation/inspection timers.
+    const auto syncPath=[this](SignalPathView* view){if(view){view->refresh();view->select(pathSelections[size_t(lastMode)]);}};
+    syncPath(signalPath.get());
+    if(pathDialog)syncPath(dynamic_cast<SignalPathView*>(pathDialog->getContentComponent()));
+    repaint();
 }
 void ChimeraEditor::paint(juce::Graphics& g)
 {
