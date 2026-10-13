@@ -1,0 +1,113 @@
+{
+  "schema": "chimera.integrated-current-document-probe.v1",
+  "success": true,
+  "source_sha": "9375328c30dfe5908e5010342179b5afbc258900",
+  "before": {
+    "sha": "9375328c30dfe5908e5010342179b5afbc258900",
+    "tree": "b02780be13bb594074bf51b269f804b4c861e5a4",
+    "status": ""
+  },
+  "after": {
+    "sha": "9375328c30dfe5908e5010342179b5afbc258900",
+    "tree": "b02780be13bb594074bf51b269f804b4c861e5a4",
+    "status": ""
+  },
+  "historical_inventory_byte_equal_donor": "068f1547face75b34c1760dd7b8c9d34868a5393",
+  "historical_inventory_sha256": "f031c868585254123617ed7eca6a659def38c98e0dd64e6118b1534728b5c207",
+  "scope": "12 exact source-authored public documents from integrated source, generated current Windows/Linux/macOS rules, Linux native document-only fresh/repair/remove. Excludes build-generated Verification.txt, README.txt and payload-manifest.json and all product binaries/installers.",
+  "source_documents": {
+    "COPYRIGHT.txt": {
+      "bytes": 174,
+      "sha256": "72f5d564400827c4d6d071649c507f36a5a0bc79003b24461f53285f00899bc7"
+    },
+    "MANUAL.html": {
+      "bytes": 265808,
+      "sha256": "b831d2059c601ea7cc457d3dc79071b98185857327d20474d2c387cf05e9616e"
+    },
+    "OPEN_BETA_RELEASE_NOTES.md": {
+      "bytes": 14670,
+      "sha256": "60239a8b70e00a6a3191966e356b3689336527453d9e95e8dc15762a35bb6071"
+    },
+    "THIRD_PARTY_NOTICES.md": {
+      "bytes": 3434,
+      "sha256": "b936cd11f179273d3505a0fe194a58626ff2a35b658aec65e2ff691758050b4c"
+    },
+    "PRESETS.md": {
+      "bytes": 13583,
+      "sha256": "d0f6ad555092d3d4a37a0c92ab90df9d435b2aa990bca80191564eeed9f89201"
+    },
+    "EXTERNAL_BASS_IRS.md": {
+      "bytes": 1714,
+      "sha256": "1ede5213d65938edc037d4bd831169fe33d606c32d23da52882a424ba840dd23"
+    },
+    "IR_DISTRIBUTION.md": {
+      "bytes": 2508,
+      "sha256": "f5fc289eff9f71b6a71b96a1491483b7736463760957b4b6e6fedefc8f09518e"
+    },
+    "UPDATES.md": {
+      "bytes": 8063,
+      "sha256": "7e1b7ecbbe2e7efdb8c370aac49498aee8a0a1735edcdf9780c52cd1eee8686d"
+    },
+    "WINDOWS_INSTALL.txt": {
+      "bytes": 5290,
+      "sha256": "3850b3a7c448c5467f7ec0c3f0c79bd636b8c8b3ae650930dd558c406f0b5133"
+    },
+    "INSTALLATION.md": {
+      "bytes": 9850,
+      "sha256": "e6bf70276e18fe2a97a8e038f432676d666f692184aa36b2f47cc3851700d2dc"
+    },
+    "STUDIO_ONE_TEARDOWN.md": {
+      "bytes": 5936,
+      "sha256": "1c7972ba988c8c7e7e210e270999edffcdafc4b87637c11154e297b0064dbd0b"
+    },
+    "PUBLIC_PRODUCT_NAMING.md": {
+      "bytes": 2963,
+      "sha256": "3bcf936e16b91b505b4b0336624d00217320dfa1a96a8547ca163f7a9f4e5be3"
+    }
+  },
+  "posix_rule_counts": {
+    "linux": {
+      "total_paths": 76,
+      "current_source_documents": 12
+    },
+    "macos": {
+      "total_paths": 76,
+      "current_source_documents": 12
+    }
+  },
+  "windows_rule_variants": 134,
+  "native_calls": [
+    {
+      "action": "install-documents",
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "action": "install-documents",
+      "exit_code": 0,
+      "stdout": "Preserved replaced document: b23cc714b9652ef89323ae4822a5e35a867e46dc5b86e8535a658a928ad20f06/MANUAL.html\nPreserved replaced document: 9017a274e0d4ca98b06f4330f8ad85e8cea392114ac8137cee4126e36b5876e4/PRESETS.md\n",
+      "stderr": ""
+    },
+    {
+      "action": "remove-documents",
+      "exit_code": 0,
+      "stdout": "Preserved document copy: /workspace/scratch/b934cbc39d7c/evidence/installer-9375328c/current-document-probe/통합 문서 검증.preserved/72f5d564400827c4d6d071649c507f36a5a0bc79003b24461f53285f00899bc7/COPYRIGHT.txt\nPreserved document copy: /workspace/scratch/b934cbc39d7c/evidence/installer-9375328c/current-document-probe/통합 문서 검증.preserved/c6a27b629c96b1e948139b328750a096d47285571ca2badfd184abe011fa6ee2/MANUAL.html\nPreserved document copy: /workspace/scratch/b934cbc39d7c/evidence/installer-9375328c/current-document-probe/통합 문서 검증.preserved/b936cd11f179273d3505a0fe194a58626ff2a35b658aec65e2ff691758050b4c/THIRD_PARTY_NOTICES.md\nRetired verified legacy document: EXTERNAL_BASS_IRS.md\nRetired verified legacy document: INSTALLATION.md\nRetired verified legacy document: IR_DISTRIBUTION.md\nRetired verified legacy document: OPEN_BETA_RELEASE_NOTES.md\nRetired verified legacy document: PRESETS.md\nRetired verified legacy document: PUBLIC_PRODUCT_NAMING.md\nRetired verified legacy document: STUDIO_ONE_TEARDOWN.md\nRetired verified legacy document: UPDATES.md\nRetired verified legacy document: WINDOWS_INSTALL.txt\n",
+      "stderr": ""
+    }
+  ],
+  "checks": [
+    "Metal Clank and Heavy Pulse present in exact MANUAL/PRESETS bytes; superseded labels absent",
+    "All staged current documents have exact SHA/size in Windows/Linux/macOS rules and no retirement flag",
+    "Linux native fresh copy matches all 12 integrated source files",
+    "Repair installs integrated current bytes and preserves edited manual/presets byte-for-byte",
+    "Document-only removal preserves new manual edits, prior snapshots, license notices and personal sentinel files",
+    "Historical inventory is byte-identical to #58 donor; source tree remains clean and unchanged"
+  ],
+  "native_product_installation_verified": false,
+  "windows_native_installer_verified": false,
+  "macos_native_installer_verified": false,
+  "daw_audio_verified": false,
+  "publication_approved": false,
+  "finished_utc": "2026-10-13T03:35:25.382067+00:00"
+}

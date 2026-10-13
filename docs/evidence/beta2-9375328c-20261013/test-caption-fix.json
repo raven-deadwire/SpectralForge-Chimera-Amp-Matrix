@@ -1,0 +1,29 @@
+{
+  "source_sha": "9375328c30dfe5908e5010342179b5afbc258900",
+  "source_tree": "b02780be13bb594074bf51b269f804b4c861e5a4",
+  "parent": "c3e9d436fbdc9b8778b592f333c93037b012b8c5",
+  "reason": "Two independently failed Windows CI matrices exposed obsolete original-equipment caption expectations contradicting the intended #56 public-name policy.",
+  "files_changed": [
+    "Tests/ChimeraUITests.cpp",
+    "Tests/CorrectionUITests.h"
+  ],
+  "diff_stat": "Tests/ChimeraUITests.cpp  | 4 +++-\n Tests/CorrectionUITests.h | 8 +++++---\n 2 files changed, 8 insertions(+), 4 deletions(-)",
+  "product_files_byte_identical_to_parent": true,
+  "positive_reference_caption_assertions_replaced": 2,
+  "visibility_and_exact_caption_assertions_retained": true,
+  "independent_forbidden_name_checks_added": 2,
+  "test_skips_waivers_or_threshold_changes": false,
+  "old_failures": {
+    "source_sha": "c3e9d436fbdc9b8778b592f333c93037b012b8c5",
+    "product_run_id": 38335147294,
+    "windows_product_job_id": 115095947747,
+    "update_run_id": 38335147371,
+    "windows_update_job_id": 115094523038,
+    "each_ctest_passed": 47,
+    "each_ctest_total": 48,
+    "failed_ctest": "ChimeraUITests",
+    "actual_windows_installer": "NOT_RUN"
+  },
+  "patch_sha256": "b22012aba7d64e440501cfd287f66e0d992b80693ef802c543c0586226e3bae1",
+  "source_clean": true
+}

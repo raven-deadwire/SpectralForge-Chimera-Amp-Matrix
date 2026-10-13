@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="(empty)"
+	tests="3"
+	failures="0"
+	disabled="0"
+	skipped="0"
+	hostname=""
+	time="41"
+	timestamp="2026-10-13T12:46:33"
+	>
+	<testcase name="ChimeraNativeStateTests" classname="ChimeraNativeStateTests" time="5.04148" status="run">
+		<properties/>
+		<system-out>Native B canonical POST value=7.000000000 (requested 7)
+PASS: six native amp contexts, all native banks, POST nine models, binary/A-B recall and immediate pedal bank recall
+</system-out>
+	</testcase>
+	<testcase name="ChimeraGateProcessorTests" classname="ChimeraGateProcessorTests" time="12.1027" status="run">
+		<properties/>
+		<system-out>ROUNDING ampchannel1_m15 field=3 expected=0.666666667 actual=0.666666687
+ROUNDING ampchannel2_m15 field=3 expected=0.666666667 actual=0.666666687
+ROUNDING ampchannel3_m15 field=3 expected=0.666666667 actual=0.666666687
+ROUNDING nativeAmp_c0_m2_hw_lead_pre_gain field=3 expected=0.680000000 actual=0.680000007
+ROUNDING nativeAmp_c0_m3_hw_ch2_gain field=3 expected=0.650000000 actual=0.650000036
+ROUNDING nativeAmp_c0_m3_hw_ch3_gain field=3 expected=0.680000000 actual=0.680000007
+ROUNDING nativeAmp_c0_m4_hw_lead_gain field=3 expected=0.720000000 actual=0.720000029
+ROUNDING nativeAmp_c0_m4_hw_lead_drive field=3 expected=0.650000000 actual=0.650000036
+PASS legacy parameter contract: 3686 entries SHA256 c035babc58914c0270e1b5eefb02881a50b88af8b609401d4d391792437e170c approved_112_defaults=111 numeric_rounding_differences=99; append-only gateRangeDb
+PASS binary state, legacy missing-field migration, A/B, factory reset, host gestures and MIDI automation recall
+PASS public presentation: catalog captions, options and fact...
+[This part of the test output was removed since it exceeds the threshold of 1024 bytes.]
+</system-out>
+	</testcase>
+	<testcase name="ChimeraNiflheimrPresetTests" classname="ChimeraNiflheimrPresetTests" time="24.0338" status="run">
+		<properties/>
+		<system-out>PASS NIFLHEIMR_PRESET,43,Metal Clank,-24.267,-9.64738,-6.38747,0
+PASS NIFLHEIMR_PRESET,44,Death Grind,-25.0032,-11.7928,-9.52069,0
+PASS NIFLHEIMR_PRESET,45,Heavy Pulse,-23.3847,-9.32282,-5.42369,0
+PASS NIFLHEIMR_PRESET,46,Slam Punch,-27.1406,-11.0145,-5.85054,0
+PASS NIFLHEIMR_PRESET,47,Doom Fuzz,-24.7331,-13.138,-7.24318,0
+</system-out>
+	</testcase>
+</testsuite>

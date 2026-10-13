@@ -1,0 +1,233 @@
+{
+  "schema": "chimera.source-specific-verification-bundle.v1",
+  "source_sha": "9375328c30dfe5908e5010342179b5afbc258900",
+  "source_tree": "b02780be13bb594074bf51b269f804b4c861e5a4",
+  "created_utc": "2026-10-13T03:49:36.264443+00:00",
+  "evidence_only": true,
+  "old_source_pass_reused": false,
+  "production_source_clean": true,
+  "publication_authorized": false,
+  "historical_failed_integration_evidence": {
+    "source_sha": "c3e9d436fbdc9b8778b592f333c93037b012b8c5",
+    "evidence_commit": "b912d14e2b39dc81a8cf67edfbb4b4aed2bf2feb",
+    "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/tree/b912d14e2b39dc81a8cf67edfbb4b4aed2bf2feb/docs/evidence/beta2-integration-20261013",
+    "qualifies_current_source": false
+  },
+  "files": [
+    {
+      "path": "evidence/installer-9375328c/check_current_documents.py",
+      "bytes": 7293,
+      "sha256": "9a3ac78f9cc60bda127b9511ab000cf5e6a6aa401768a7f0d3f7ce601681be64"
+    },
+    {
+      "path": "evidence/installer-9375328c/current-documents-results.json",
+      "bytes": 5424,
+      "sha256": "63a86b44d49f7bfe0b1b05eb78c862ace1a5a1cdb52b56998c6f10f56890b203"
+    },
+    {
+      "path": "evidence/installer-9375328c/native-helper.log",
+      "bytes": 7101,
+      "sha256": "a342cbda0ea36b0bb0b81a479dc870a55c00302b34b4cb0fd9803bb7f51bb6f5"
+    },
+    {
+      "path": "evidence/installer-9375328c/run_checks.py",
+      "bytes": 3642,
+      "sha256": "6f4b73874dcc3fb1dc5550130464af0ecdd8bfb259b33f6603fc3fe43290b32f"
+    },
+    {
+      "path": "evidence/installer-9375328c/suite-results.json",
+      "bytes": 2934,
+      "sha256": "61e8d9e5bd7409113221c2e78444660da66e2399ac319ef500b1377aca2d499c"
+    },
+    {
+      "path": "evidence/installer-9375328c/windows-rules.log",
+      "bytes": 1985,
+      "sha256": "d255ddd624de4dd872e028c365fdbb9b90b1ad9a20eac1d00832f835357c6d4c"
+    },
+    {
+      "path": "evidence/names-state-9375328c/audit_names_state_9375328c.py",
+      "bytes": 9396,
+      "sha256": "fc7be252080150de01e1665b087c269e5e5df52bdb9debe82e9506ccd103c061"
+    },
+    {
+      "path": "evidence/names-state-9375328c/static-compatibility.json",
+      "bytes": 11248,
+      "sha256": "1535ede08fc962d1ac73cc7dedd33ffdf2eaaa8b317fb4ee021f39850c142622"
+    },
+    {
+      "path": "evidence/native-9375328c/durable/LastTest.log",
+      "bytes": 5735,
+      "sha256": "40bdfd1e5cd339444c666d4a67f3f735f7e8ac13a8e46d929a1554d5e2a0edd3"
+    },
+    {
+      "path": "evidence/native-9375328c/durable/README.md",
+      "bytes": 1990,
+      "sha256": "fca72e3ba7e83b6282a1b4ed4ac532f15c9c3cf1d3f505c26cb63b854ddc5867"
+    },
+    {
+      "path": "evidence/native-9375328c/durable/chimera-build-version.json",
+      "bytes": 114,
+      "sha256": "46b7221074bef680b8baa138e4dd04299b2f5b38789c187613c58f642463bc9e"
+    },
+    {
+      "path": "evidence/native-9375328c/durable/configure.log",
+      "bytes": 450,
+      "sha256": "0ae5fec9b11823f7a5b49732c8a1f124cc8d186582b537a018e91e261fa9e307"
+    },
+    {
+      "path": "evidence/native-9375328c/durable/ctest-processor-state.log",
+      "bytes": 5409,
+      "sha256": "d4368711677439ab5d839f60f385231bcdcc3f60d772ba225cede7e3841cd380"
+    },
+    {
+      "path": "evidence/native-9375328c/durable/ctest-processor-state.xml",
+      "bytes": 2309,
+      "sha256": "3d8338d479c9082575e9b353c6314db338f06671e3bdd8baaad9b1006e7eeac7"
+    },
+    {
+      "path": "evidence/native-9375328c/durable/durable-file-index.json",
+      "bytes": 2876,
+      "sha256": "fad3952b9d16b5557cb812347e891cf811ff025e18aad8fd66d821b8fc89e6fe"
+    },
+    {
+      "path": "evidence/native-9375328c/durable/identity.json",
+      "bytes": 1118,
+      "sha256": "7211ec498a1dfd89907e860f7c3a12509276d8849bdc33ff6a48cd1bc3101bdd"
+    },
+    {
+      "path": "evidence/native-9375328c/durable/native-state/Native-State-Verification.json",
+      "bytes": 1055,
+      "sha256": "5739431c24332c32f008445d49e619e4ee41f8cb42e586ab5adbdfc421901dc0"
+    },
+    {
+      "path": "evidence/native-9375328c/durable/niflheimr-preset-evidence/Niflheimr-01-Metal-Clank.chimera",
+      "bytes": 521780,
+      "sha256": "1af55407393b3f4ecf675dc9fd0f389904c95bca01ee8627b1aecc5b33b56551"
+    },
+    {
+      "path": "evidence/native-9375328c/durable/niflheimr-preset-evidence/Niflheimr-02-Death-Grind.chimera",
+      "bytes": 521852,
+      "sha256": "f07fb902219f3a9732d18c3c1ffa796c8c432ead94921b261697dc39ba3a5fd0"
+    },
+    {
+      "path": "evidence/native-9375328c/durable/niflheimr-preset-evidence/Niflheimr-03-Heavy-Pulse.chimera",
+      "bytes": 522232,
+      "sha256": "ea87db1efd456d7841c9e8ec1eb970344bda8bfad2b80c1e25cf627ea2a2a221"
+    },
+    {
+      "path": "evidence/native-9375328c/durable/niflheimr-preset-evidence/Niflheimr-04-Slam-Punch.chimera",
+      "bytes": 522348,
+      "sha256": "a9c1d602ca6a6c5b633cfa419f3750ab3f6114d20d023f87466e5432beed87e2"
+    },
+    {
+      "path": "evidence/native-9375328c/durable/niflheimr-preset-evidence/Niflheimr-05-Doom-Fuzz.chimera",
+      "bytes": 521516,
+      "sha256": "010dc701d6f32c4322dd68e7d23f1c475cf12a4c6d4edc2ab220f5909cc39192"
+    },
+    {
+      "path": "evidence/native-9375328c/durable/niflheimr-preset-evidence/niflheimr-presets-validation.json",
+      "bytes": 4988,
+      "sha256": "fd2641a4a21f363077f81fffb528be5392b823d0b66c02000a62966f0e831e39"
+    },
+    {
+      "path": "evidence/native-9375328c/durable/original-build-steps.log",
+      "bytes": 29478,
+      "sha256": "8dc759e2990fcac250a717b3cb4bf1dc4b992fb8c0962e48c9eb6b87b2411550"
+    },
+    {
+      "path": "evidence/native-9375328c/durable/provenance.json",
+      "bytes": 788,
+      "sha256": "514e2fb5bfe3c13287e002bd48ce9e02c583d98d0e66c180d059f4c639492457"
+    },
+    {
+      "path": "evidence/native-9375328c/durable/requested-test-inventory.json",
+      "bytes": 2266,
+      "sha256": "802c4d56cc21326d7b61e5119f4cd3401c7faba01cc7cc4c724862729ad128e3"
+    },
+    {
+      "path": "evidence/native-9375328c/durable/test-processor-state-execution.json",
+      "bytes": 2310,
+      "sha256": "be97a8e73445b3cf3fc156a7a11e6b209708a2a702472dd8c84c281ab814e61c"
+    },
+    {
+      "path": "evidence/source-contracts-9375328c/packaging-contract.log",
+      "bytes": 3723,
+      "sha256": "5e0a9a5719a73fa369a01b57fec32c97ea066fc848cf879cf2159af2d615d88d"
+    },
+    {
+      "path": "evidence/source-contracts-9375328c/packaging-contract.original.sh",
+      "bytes": 1084,
+      "sha256": "300747032184b605c70a123a50d102b14ea0325e1f303013a7a2bdaca33df604"
+    },
+    {
+      "path": "evidence/source-contracts-9375328c/packaging-contract.sh",
+      "bytes": 1084,
+      "sha256": "300747032184b605c70a123a50d102b14ea0325e1f303013a7a2bdaca33df604"
+    },
+    {
+      "path": "evidence/source-contracts-9375328c/publish-dry-run.log",
+      "bytes": 598,
+      "sha256": "01899e368af1d7b607e2b2058348588ef72744e619f0122ccd5f3d20709b51ff"
+    },
+    {
+      "path": "evidence/source-contracts-9375328c/run_source_contracts_at_repo.py",
+      "bytes": 7629,
+      "sha256": "4b4c6aa81602ecdab4ec9c55e95b819bfb7331d7b8d21c45a42a88d294599077"
+    },
+    {
+      "path": "evidence/source-contracts-9375328c/source-contract-metadata.json",
+      "bytes": 4551,
+      "sha256": "34c9fee393796540f5063c0e834782fc4804e17c867cdd21ca653cf3ac9b6673"
+    },
+    {
+      "path": "evidence/source-contracts-9375328c/source-contract-results.json",
+      "bytes": 10772,
+      "sha256": "c0e870e59a4b5785b3f59ce44f1b4d8f6dc5f363500ab6d0b23c642668996338"
+    },
+    {
+      "path": "evidence/source-contracts-9375328c/source-version.log",
+      "bytes": 170,
+      "sha256": "d967b0934a2d0f8c3a9bdcdeee3753693fc8d28dc4352ea0d301b4d00ac803bc"
+    },
+    {
+      "path": "evidence/source-contracts-9375328c/validation-contract.log",
+      "bytes": 16476,
+      "sha256": "c4b4596bbf310d06a4b8bf76717ff50d8b92d50fc67311a2dbcdbcd4c9c08a2f"
+    },
+    {
+      "path": "evidence/source-contracts-9375328c/validation-contract.original.sh",
+      "bytes": 1378,
+      "sha256": "aebb8e151c328ce3459ecceb5893867e4bb586c1daf2b16a6ebbcdb14c6f4c9c"
+    },
+    {
+      "path": "evidence/source-contracts-9375328c/validation-contract.sh",
+      "bytes": 1424,
+      "sha256": "0ba2863db6c388c5a32cc68375bc6079d70044002a4a57d46e5fd264757cf402"
+    },
+    {
+      "path": "evidence/test-caption-fix/caption-contract-fix.patch",
+      "bytes": 3503,
+      "sha256": "b22012aba7d64e440501cfd287f66e0d992b80693ef802c543c0586226e3bae1"
+    },
+    {
+      "path": "evidence/test-caption-fix/fix-verification.json",
+      "bytes": 1338,
+      "sha256": "cfc48b4c9e268942755dab0c93be975245d832656d9355b0e85b5bafd5dc7acd"
+    },
+    {
+      "path": "local-9375328c-selection.json",
+      "bytes": 2939,
+      "sha256": "a6eb05a2d695e4deeadeea8c9b7de73c0f52aee4229e948a999dbca7c536e01c"
+    },
+    {
+      "path": "prepare_final_source_evidence.py",
+      "bytes": 2904,
+      "sha256": "13d585903b44e724a3a73e473e3f05c7121e0eb2e87668816101c8ce3a6b4697"
+    }
+  ],
+  "archive": {
+    "filename": "source-verification-evidence.zip",
+    "bytes": 237656,
+    "sha256": "f08c949af5925ac8c62fca193c80faca5a9356fd6acad92cccd1a8a7f0f8f18a"
+  }
+}
