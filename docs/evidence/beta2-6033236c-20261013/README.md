@@ -136,6 +136,14 @@ The large assembled candidate ZIP and separate platform binary archives were not
 
 Public-name policy covers the current product UI/host labels and newly shipped public documents. Retained user-authored historical documents, byte-preserved snapshots, mandatory license notices and historical fingerprints can retain earlier wording. Globally purging that retained content would violate the preservation requirement.
 
+## Concurrent next-update requirement observed after source freeze
+
+At final live-PR verification, [Issue61](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/issues/61) and Draft[PR62](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/pull/62) were present. Issue61 was registered at2026-10-13T06:16:09Z and explicitly targets the next public beta.2 update. It requires beta-expiry/update/project-preservation behavior and is not permission to publish. PR62, observed head95c0e7a5a6b9d239ad251a97e798720d0ff14ed4, is an unintegrated policy-core increment with runtime/UI/package/installed-host work still open. No actual expiry date is approved in those records.
+
+Frozen603 does not implement that feature. The internal acceptance-candidate conclusion above covers the requested #55/#56/#58 integration and its verified automation only; it is **not completion of all current next-public-update scope**. Issue61 cannot be silently deferred while describing the next update as complete. It must be handled as its own implementation/integration work, followed by a new complete product SHA and fresh applicable qualification. No603 PASS result qualifies a later modified binary. This integration task did not merge or modify PR62.
+
+The exact observed Issue61/PR62 descriptions are recorded in static/concurrent-next-update-scope.json. Their future implementation status may change; this snapshot describes the final review's observation.
+
 ## Release boundary
 
 No main merge, release, tag, feed publication or deployment has been performed. The source change is prepared for evaluation as an October 14 test candidate. Actual-user DAW/project recall, audio listening, applicable full platform installation/upgrade and signing acceptance, strict gate completion and owner approval must retain their actual statuses. They are not silently deferred merely to meet the date.
