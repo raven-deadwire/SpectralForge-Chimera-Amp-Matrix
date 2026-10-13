@@ -1,0 +1,23 @@
+{
+  "reason": "Inherited NativeUITests::snapshot opens an append stream. Repeated local runs concatenate PNG files. Parsed PNG chunks, verified every CRC, and extracted the final complete PNG bytes without re-encoding or image editing. Use a fresh snapshot directory for repeat runs.",
+  "files": [
+    {
+      "file": "custom-targets.png",
+      "concatenated_images": 2,
+      "original_sha256": "99927d8f01ab1a6f3dc1899d757fb255ba3d7e4c24d70fd506ca798880544c31",
+      "published_last_png_sha256": "77ad0b237b009b77b13709a3c8fcd030bbab89bbec8fba0f898cf62869f8a594"
+    },
+    {
+      "file": "editor-tuner-entry.png",
+      "concatenated_images": 2,
+      "original_sha256": "9d08b6c69449b7d11c42ba8e0a901ecf464b92ede11d650e32695f3581a5222f",
+      "published_last_png_sha256": "60e3c76bae7802660a1821da605a042e53ff7bee00e1d4841abdf80951989701"
+    },
+    {
+      "file": "strobe-low-A.png",
+      "concatenated_images": 2,
+      "original_sha256": "3225de5d2d0610079d5adcca836f3b13d3918ac9bdebaa68eb88787af0486cb6",
+      "published_last_png_sha256": "58eed98182cf49a97be231d50c3b1e5993a11e7c02ce7e5a1b84a20671ef6399"
+    }
+  ]
+}

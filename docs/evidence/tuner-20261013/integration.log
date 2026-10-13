@@ -1,0 +1,2 @@
+ROUTE FAIL rate=48000 block=256 hz=82.4069 acquire=176.152 settle=305.648 error=5.14413e-05
+FAIL Native acquisition/settle/accuracy gate failed; all route rows retained

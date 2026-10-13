@@ -125,24 +125,6 @@ public:
 };
 
 // Inspect the tuner without turning it on (which could mute the audible path).
-class SignalPathTunerPanel final : public juce::Component,private juce::Timer {
-public:
-    explicit SignalPathTunerPanel(ChimeraProcessor& p):processor(p) {
-        setComponentID("signalPathTuner");setSize(430,150);
-        reference.setSliderStyle(juce::Slider::LinearHorizontal);reference.setTextBoxStyle(juce::Slider::TextBoxRight,false,70,24);reference.setTextValueSuffix(" Hz");reference.setName("Tuner A4 reference");
-        enabled.setClickingTogglesState(true);mute.setClickingTogglesState(true);
-        for(juce::Component* c:std::initializer_list<juce::Component*>{&reference,&enabled,&mute,&reading})addAndMakeVisible(c);
-        ref=std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(p.parameters(),"tunerref",reference);
-        on=std::make_unique<juce::AudioProcessorValueTreeState::ButtonAttachment>(p.parameters(),"tuneron",enabled);
-        silence=std::make_unique<juce::AudioProcessorValueTreeState::ButtonAttachment>(p.parameters(),"tunermute",mute);
-        reference.setBounds(20,20,390,30);enabled.setBounds(20,60,150,28);mute.setBounds(180,60,230,28);reading.setBounds(20,98,390,36);
-        timerCallback();startTimerHz(25);
-    }
-    ~SignalPathTunerPanel() override {stopTimer();}
-    void paint(juce::Graphics& g) override {g.fillAll(juce::Colour(0xff171e20));}
-private:
-    void timerCallback() override {if(isVisible())reading.setText(enabled.getToggleState()?juce::String(processor.tuningFrequency(),1)+" Hz / confidence "+juce::String(processor.tuningConfidence(),2):"Tuner is off. Viewing does not enable or mute.",juce::dontSendNotification);}
-    ChimeraProcessor& processor;juce::Slider reference;juce::TextButton enabled{"TUNER ON"},mute{"MUTE WHILE TUNING"};juce::Label reading;
-    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> ref;
-    std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment> on,silence;
-};
+// Retain the existing inspector type for navigation/test compatibility.
+#include "PrecisionTunerPanel.h"
+using SignalPathTunerPanel = PrecisionTunerPanel;
