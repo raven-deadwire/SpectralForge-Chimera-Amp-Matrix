@@ -34,6 +34,7 @@ public:
     SignalPathView(ChimeraProcessor& p,bool compactView):processor(p),compact(compactView) {
         setComponentID(compact?"signalPathStrip":"signalPathGraph");
         setName(compact?"Signal path editing stages":"Actual signal routing");
+        setTitle(getName());
         setDescription(compact?"PRE, amplifier heads, cabinets, Tone EQ, POST and Final EQ. Open Routing for the complete signal path, including global utilities.":"Complete signal path with utility positions, taps, parallel branches and rig summing. Select a block to open its controls.");
         setFocusContainerType(juce::Component::FocusContainerType::focusContainer);
         if(!compact){setSize(1140,650);startTimerHz(25);}refresh();
@@ -76,6 +77,7 @@ public:
             button->setComponentID("path."+node.id);
             button->setButtonText(compact?node.label:node.label+"\n"+node.status);
             button->setName(node.label+" / "+node.status+" / open editor");
+            button->setTitle(button->getName());
             button->setDescription(node.detail+(compact?" Open Routing to inspect all processing stages.":""));
             button->setTooltip(node.label+" | "+node.status+"\n"+node.detail+(compact?"\nROUTING shows the complete signal path.":""));
             button->setWantsKeyboardFocus(true);
@@ -89,6 +91,7 @@ public:
             expandButton=std::make_unique<SignalPathNavigationButton>("ROUTING");
             expandButton->setComponentID("signalPathExpand");
             expandButton->setName("Routing / inspect complete signal path");
+            expandButton->setTitle(expandButton->getName());
             expandButton->setDescription("Inspect Input, Gate, Transpose, Tuner tap, PRE order, amp and cabinet branches, EQ, POST, Doubler, Click and Output. Select a block to open its controls.");
             expandButton->setTooltip("View the complete signal path, including global utilities and rig branches.");
             expandButton->setWantsKeyboardFocus(true);
