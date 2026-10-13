@@ -1,0 +1,62 @@
+[
+  {
+    "encoded": "callbacks.csv.xz.b64",
+    "decoded": "callbacks.csv.xz",
+    "sha256": "d77407da3b304a317b0b96cb5cb0baabd03f6d14de2e3991dcc4627169c0006c",
+    "uncompressed_sha256": "1848a6411edeac18b3b54434ccd8128c1e60ef4b32e2cec589603c1de740d199"
+  },
+  {
+    "encoded": "workers.csv.xz.b64",
+    "decoded": "workers.csv.xz",
+    "sha256": "b97edf93010aabb83ac9337c91c27f0b5a4fe0a9334e8aaa4885fcc3354be9ab",
+    "uncompressed_sha256": "950123ed4f9a8a130318a2c415b7d8595e979a97df0d89e4f885a78cd4533125"
+  },
+  {
+    "encoded": "output-view0-tuner0.wav.xz.b64",
+    "decoded": "output-view0-tuner0.wav.xz",
+    "sha256": "8ef0574455763f321f098fbc50ecfbbd13ef2e9b87616f9cf2719b36a197ebbb",
+    "uncompressed_sha256": "8fc61234286397fed0f7335fcf8a206b92f600d019b48d30fc845cdbdb1e1ca2"
+  },
+  {
+    "encoded": "output-view0-tuner0.wav.xz.b64",
+    "decoded": "output-view1-tuner0.wav.xz",
+    "sha256": "8ef0574455763f321f098fbc50ecfbbd13ef2e9b87616f9cf2719b36a197ebbb",
+    "uncompressed_sha256": "8fc61234286397fed0f7335fcf8a206b92f600d019b48d30fc845cdbdb1e1ca2"
+  },
+  {
+    "encoded": "output-view0-tuner0.wav.xz.b64",
+    "decoded": "output-view2-tuner0.wav.xz",
+    "sha256": "8ef0574455763f321f098fbc50ecfbbd13ef2e9b87616f9cf2719b36a197ebbb",
+    "uncompressed_sha256": "8fc61234286397fed0f7335fcf8a206b92f600d019b48d30fc845cdbdb1e1ca2"
+  },
+  {
+    "encoded": "output-view0-tuner0.wav.xz.b64",
+    "decoded": "output-view3-tuner1.wav.xz",
+    "sha256": "8ef0574455763f321f098fbc50ecfbbd13ef2e9b87616f9cf2719b36a197ebbb",
+    "uncompressed_sha256": "8fc61234286397fed0f7335fcf8a206b92f600d019b48d30fc845cdbdb1e1ca2"
+  },
+  {
+    "encoded": "output-view0-tuner0.wav.xz.b64",
+    "decoded": "output-view2-tuner1.wav.xz",
+    "sha256": "8ef0574455763f321f098fbc50ecfbbd13ef2e9b87616f9cf2719b36a197ebbb",
+    "uncompressed_sha256": "8fc61234286397fed0f7335fcf8a206b92f600d019b48d30fc845cdbdb1e1ca2"
+  },
+  {
+    "encoded": "output-view0-tuner0.wav.xz.b64",
+    "decoded": "output-view3-tuner0.wav.xz",
+    "sha256": "8ef0574455763f321f098fbc50ecfbbd13ef2e9b87616f9cf2719b36a197ebbb",
+    "uncompressed_sha256": "8fc61234286397fed0f7335fcf8a206b92f600d019b48d30fc845cdbdb1e1ca2"
+  },
+  {
+    "encoded": "output-view0-tuner0.wav.xz.b64",
+    "decoded": "output-view0-tuner1.wav.xz",
+    "sha256": "8ef0574455763f321f098fbc50ecfbbd13ef2e9b87616f9cf2719b36a197ebbb",
+    "uncompressed_sha256": "8fc61234286397fed0f7335fcf8a206b92f600d019b48d30fc845cdbdb1e1ca2"
+  },
+  {
+    "encoded": "output-view0-tuner0.wav.xz.b64",
+    "decoded": "output-view1-tuner1.wav.xz",
+    "sha256": "8ef0574455763f321f098fbc50ecfbbd13ef2e9b87616f9cf2719b36a197ebbb",
+    "uncompressed_sha256": "8fc61234286397fed0f7335fcf8a206b92f600d019b48d30fc845cdbdb1e1ca2"
+  }
+]

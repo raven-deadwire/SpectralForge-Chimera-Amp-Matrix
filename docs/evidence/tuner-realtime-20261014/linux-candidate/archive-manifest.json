@@ -1,0 +1,122 @@
+[
+  {
+    "decoded": "Testing/Temporary/LastTest.log",
+    "encoded": "archives/Testing/Temporary/LastTest.log.xz.b64",
+    "bytes": 44219,
+    "sha256": "f4dc0ae89dc02be6cac113a95dcbcb69cccc23891069b9d377b1cef879af153e"
+  },
+  {
+    "decoded": "chimera-build-version.json",
+    "encoded": "archives/chimera-build-version.json.xz.b64",
+    "bytes": 114,
+    "sha256": "b2b0548357d6fdfbc4f406e64b97867011b90d63ae02ba799780683f02798b20"
+  },
+  {
+    "decoded": "tuner-realtime/callbacks.csv",
+    "encoded": "archives/tuner-realtime/callbacks.csv.xz.b64",
+    "bytes": 8560621,
+    "sha256": "bc0655d369e86065c3fd4b18686d8f01c08e5228406315bbc6ec518152907c29"
+  },
+  {
+    "decoded": "tuner-realtime/output-view0-tuner0.wav",
+    "encoded": "archives/tuner-realtime/output-view0-tuner0.wav.xz.b64",
+    "bytes": 2744936,
+    "sha256": "8fc61234286397fed0f7335fcf8a206b92f600d019b48d30fc845cdbdb1e1ca2"
+  },
+  {
+    "decoded": "tuner-realtime/output-view0-tuner1.wav",
+    "encoded": "archives/tuner-realtime/output-view0-tuner0.wav.xz.b64",
+    "bytes": 2744936,
+    "sha256": "8fc61234286397fed0f7335fcf8a206b92f600d019b48d30fc845cdbdb1e1ca2"
+  },
+  {
+    "decoded": "tuner-realtime/output-view1-tuner0.wav",
+    "encoded": "archives/tuner-realtime/output-view0-tuner0.wav.xz.b64",
+    "bytes": 2744936,
+    "sha256": "8fc61234286397fed0f7335fcf8a206b92f600d019b48d30fc845cdbdb1e1ca2"
+  },
+  {
+    "decoded": "tuner-realtime/output-view1-tuner1.wav",
+    "encoded": "archives/tuner-realtime/output-view0-tuner0.wav.xz.b64",
+    "bytes": 2744936,
+    "sha256": "8fc61234286397fed0f7335fcf8a206b92f600d019b48d30fc845cdbdb1e1ca2"
+  },
+  {
+    "decoded": "tuner-realtime/output-view2-tuner0.wav",
+    "encoded": "archives/tuner-realtime/output-view0-tuner0.wav.xz.b64",
+    "bytes": 2744936,
+    "sha256": "8fc61234286397fed0f7335fcf8a206b92f600d019b48d30fc845cdbdb1e1ca2"
+  },
+  {
+    "decoded": "tuner-realtime/output-view2-tuner1.wav",
+    "encoded": "archives/tuner-realtime/output-view0-tuner0.wav.xz.b64",
+    "bytes": 2744936,
+    "sha256": "8fc61234286397fed0f7335fcf8a206b92f600d019b48d30fc845cdbdb1e1ca2"
+  },
+  {
+    "decoded": "tuner-realtime/output-view3-tuner0.wav",
+    "encoded": "archives/tuner-realtime/output-view0-tuner0.wav.xz.b64",
+    "bytes": 2744936,
+    "sha256": "8fc61234286397fed0f7335fcf8a206b92f600d019b48d30fc845cdbdb1e1ca2"
+  },
+  {
+    "decoded": "tuner-realtime/output-view3-tuner1.wav",
+    "encoded": "archives/tuner-realtime/output-view0-tuner0.wav.xz.b64",
+    "bytes": 2744936,
+    "sha256": "8fc61234286397fed0f7335fcf8a206b92f600d019b48d30fc845cdbdb1e1ca2"
+  },
+  {
+    "decoded": "tuner-realtime/summary.csv",
+    "encoded": "archives/tuner-realtime/summary.csv.xz.b64",
+    "bytes": 4268,
+    "sha256": "6946a59558623de847dcb27b6441a65a02b9e4cbb78bf4286af5076b01cada4d"
+  },
+  {
+    "decoded": "tuner-realtime/workers.csv",
+    "encoded": "archives/tuner-realtime/workers.csv.xz.b64",
+    "bytes": 1837950,
+    "sha256": "c46a0de4b391bb789a676d985ec0fe63163c8eab72311e69764917f560b711cb"
+  },
+  {
+    "decoded": "tuner-response/push.csv",
+    "encoded": "archives/tuner-response/push.csv.xz.b64",
+    "bytes": 103880,
+    "sha256": "baf7ea6f2575717276d6ea60d905b978df2230e5d88580b9de905fbe42fb4077"
+  },
+  {
+    "decoded": "tuner-response/response.csv",
+    "encoded": "archives/tuner-response/response.csv.xz.b64",
+    "bytes": 429,
+    "sha256": "91642cc0644194e3d88f6d6f6285f2e2a4fefc617ddd216de79b1ddf167775ca"
+  },
+  {
+    "decoded": "tuner-response/worker.csv",
+    "encoded": "archives/tuner-response/worker.csv.xz.b64",
+    "bytes": 53012,
+    "sha256": "8a327a617c7fa80b65dfcad8cb7b0d14c6b3b20f82c7eb9c0a95ba1ff515b78f"
+  },
+  {
+    "decoded": "tuner-results.xml",
+    "encoded": "archives/tuner-results.xml.xz.b64",
+    "bytes": 13747,
+    "sha256": "c21865bf31eb2997e5b9b51d6981e43219b77c675e204ba6e2c0edbb607a5f8b"
+  },
+  {
+    "decoded": "tuner-snapshots/custom-targets.png",
+    "encoded": "archives/tuner-snapshots/custom-targets.png.xz.b64",
+    "bytes": 56779,
+    "sha256": "50cd27551dfb80a2c44b436771a23d17d3f97f532e0f3d1e2749c6a1ab6d08e4"
+  },
+  {
+    "decoded": "tuner-snapshots/editor-tuner-entry.png",
+    "encoded": "archives/tuner-snapshots/editor-tuner-entry.png.xz.b64",
+    "bytes": 1026342,
+    "sha256": "28c48f55bdec3e28bd7b89d636dbbe7ed2512f50533c2e6ba2abdccc65ecc680"
+  },
+  {
+    "decoded": "tuner-snapshots/strobe-low-A.png",
+    "encoded": "archives/tuner-snapshots/strobe-low-A.png.xz.b64",
+    "bytes": 57845,
+    "sha256": "655c01bc22cf292a5eea14e9b934d238dac974672c2984258969f0697f10ed21"
+  }
+]

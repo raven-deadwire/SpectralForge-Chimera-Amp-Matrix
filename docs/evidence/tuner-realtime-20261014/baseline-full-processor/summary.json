@@ -1,0 +1,15 @@
+{
+  "source": "36e41a50a9179b52eba21c3e8d5f99d0aad5bbef plus test-only instrumentation 26dc7bb",
+  "scenarios": 32,
+  "total_callbacks": 78192,
+  "wall_misses": 36379,
+  "finish_misses": 73382,
+  "nonfinite": 0,
+  "zero_blocks_after_warmup": 0,
+  "max_reference_difference": 0.0,
+  "trace_dropped": 2246,
+  "wall_max_us": 2420996.908,
+  "release_approved": false,
+  "deadline_verdict": "FAIL",
+  "digital_output_verdict": "PASS"
+}

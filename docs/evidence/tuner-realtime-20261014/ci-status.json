@@ -1,11 +1,16 @@
 {
   "source_sha": "2cf45707e7d3ad9e50569fe1c5fa13815387b975",
   "run_url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38435179453",
-  "status": "PENDING",
+  "status": "FAIL_WITH_MACOS_PENDING",
   "release_approved": false,
   "platforms": {
-    "linux": "BUILDING",
-    "windows": "CONFIGURING",
+    "linux": "FAIL: 6/32 realtime scenarios; 7/8 CTests pass",
+    "windows": "FAIL: 30/32 realtime scenarios and pre-existing UI bounds; 6/8 CTests pass",
     "macos": "QUEUED"
+  },
+  "physical_audio": "NOT_TESTED",
+  "artifacts": {
+    "linux": 11834335846,
+    "windows": 11833843019
   }
 }

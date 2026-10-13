@@ -1,0 +1,177 @@
+{
+  "source_sha": "2cf45707e7d3ad9e50569fe1c5fa13815387b975",
+  "platform": "linux",
+  "callback_count": 78192,
+  "scenarios": 32,
+  "timing_failed_scenarios": 6,
+  "callback_wall_misses": 2,
+  "callback_finish_misses": 12,
+  "nonfinite": 0,
+  "zero_blocks": 0,
+  "reference_max_diff": 0.0,
+  "trace_dropped": 0,
+  "release_approved": false,
+  "physical_audio": "NOT_TESTED",
+  "rates": {
+    "48000": {
+      "mean_wall_us": 785.1697533226077,
+      "worst_callback": {
+        "repeat": "1",
+        "rate": "48000",
+        "block": "256",
+        "view": "1",
+        "tuner": "1",
+        "index": "537",
+        "warmup": "0",
+        "wall_us": "1872.807",
+        "budget_us": "5333.33333333",
+        "cpu_us": "1102.709",
+        "cycles": "0",
+        "late_us": "79.175",
+        "finish_late_us": "-3381.35133333",
+        "push_wall_us": "4.33599996567",
+        "push_cpu_us": "4.42599999998",
+        "hz": "27.4999923706"
+      },
+      "worst_scenario_median_cycles": 0.0,
+      "wall_miss_rows": []
+    },
+    "96000": {
+      "mean_wall_us": 240.86942042338708,
+      "worst_callback": {
+        "repeat": "0",
+        "rate": "96000",
+        "block": "64",
+        "view": "1",
+        "tuner": "0",
+        "index": "2328",
+        "warmup": "0",
+        "wall_us": "760.865",
+        "budget_us": "666.666666667",
+        "cpu_us": "762.301",
+        "cycles": "0",
+        "late_us": "427.327",
+        "finish_late_us": "521.525333333",
+        "push_wall_us": "1.09099984169",
+        "push_cpu_us": "1.03100000008",
+        "hz": "0"
+      },
+      "worst_scenario_median_cycles": 0.0,
+      "wall_miss_rows": [
+        {
+          "repeat": "0",
+          "rate": "96000",
+          "block": "64",
+          "view": "1",
+          "tuner": "0",
+          "index": "2328",
+          "warmup": "0",
+          "wall_us": "760.865",
+          "budget_us": "666.666666667",
+          "cpu_us": "762.301",
+          "cycles": "0",
+          "late_us": "427.327",
+          "finish_late_us": "521.525333333",
+          "push_wall_us": "1.09099984169",
+          "push_cpu_us": "1.03100000008",
+          "hz": "0"
+        },
+        {
+          "repeat": "0",
+          "rate": "96000",
+          "block": "64",
+          "view": "2",
+          "tuner": "0",
+          "index": "1576",
+          "warmup": "0",
+          "wall_us": "691.211",
+          "budget_us": "666.666666667",
+          "cpu_us": "692.728",
+          "cycles": "0",
+          "late_us": "171.176",
+          "finish_late_us": "195.720333333",
+          "push_wall_us": "0.930999994278",
+          "push_cpu_us": "0.92200000002",
+          "hz": "0"
+        }
+      ]
+    }
+  },
+  "distinct_publication_confirmations": [
+    {
+      "repeat": "0",
+      "continuous": "0",
+      "step_ms": 200.25563900000003
+    },
+    {
+      "repeat": "0",
+      "continuous": "1",
+      "step_ms": 184.72778999999997
+    },
+    {
+      "repeat": "1",
+      "continuous": "0",
+      "step_ms": 199.344782
+    },
+    {
+      "repeat": "1",
+      "continuous": "1",
+      "step_ms": 185.91801799999996
+    },
+    {
+      "repeat": "2",
+      "continuous": "0",
+      "step_ms": 199.337422
+    },
+    {
+      "repeat": "2",
+      "continuous": "1",
+      "step_ms": 185.83774900000003
+    }
+  ],
+  "kernel_cost": [
+    {
+      "hz": "16.352",
+      "metric": "cpu_us",
+      "baseline_median": 3728.4305,
+      "candidate_median": 3569.334,
+      "reduction_percent": 4.267117222649053
+    },
+    {
+      "hz": "27.5",
+      "metric": "cpu_us",
+      "baseline_median": 2459.0705,
+      "candidate_median": 2300.9115,
+      "reduction_percent": 6.43165781542252
+    },
+    {
+      "hz": "30.867706",
+      "metric": "cpu_us",
+      "baseline_median": 2246.7255,
+      "candidate_median": 2093.063,
+      "reduction_percent": 6.839398048404222
+    },
+    {
+      "hz": "82.406889",
+      "metric": "cpu_us",
+      "baseline_median": 1201.2785,
+      "candidate_median": 1050.124,
+      "reduction_percent": 12.582802405936667
+    },
+    {
+      "hz": "440",
+      "metric": "cpu_us",
+      "baseline_median": 697.4155000000001,
+      "candidate_median": 546.1659999999999,
+      "reduction_percent": 21.68714346039056
+    },
+    {
+      "hz": "1318.5102",
+      "metric": "cpu_us",
+      "baseline_median": 615.529,
+      "candidate_median": 466.5325,
+      "reduction_percent": 24.206251858157778
+    }
+  ],
+  "windows_cpu_clock_caveat": null
+}

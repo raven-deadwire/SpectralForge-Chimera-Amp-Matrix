@@ -131,6 +131,37 @@ CoreAudio, ALSA or installed DAW test. Physical output, driver xruns and real DI
 remain **NOT TESTED**. A failed wall deadline remains a failure even if its CPU
 share is low, and stable rendered samples cannot override it.
 
+## Completed local full-processor comparison
+
+`baseline-full-processor/` is the original PR #67 production processor plus
+measurement-only hooks, **not the optimized candidate**. All 32 scenarios and
+78,192 callback rows are retained. Every scenario fails timing in this shared
+normal-priority container: 36,379 callback wall-budget misses and 73,382 late
+finishes. The worst wall time is 2,420,996.908 µs; the same callback has
+2,135,316.459 µs CPU but only 72.231 µs in the tuner push. This identifies the
+large measured cost as outside the tuner-input portion in that callback; it does
+not isolate a specific remaining DSP stage or exclude worker/UI contention.
+Tuner-OFF callbacks also miss deadlines. No 570%/966.5% historical peak is
+retroactively attributed from this run.
+
+Digital output passes independently: zero nonfinite samples, zero unexpected
+all-zero post-warm-up blocks, and zero float-sample difference from the reference
+in every scenario. All eight output WAVs have identical bytes. They are stored
+once losslessly and the manifest restores every original filename.
+
+The bounded worker trace overflowed by 2,246 records in three tuner-OFF scenarios
+under prolonged execution. This is explicitly a **trace completeness failure**;
+no complete worker analysis is claimed for those scenarios. All callback rows
+remain present. The harness therefore reports three instrumentation/output-group
+failures despite the separate digital-output equality pass. No records or failed
+verdicts are discarded to produce a clean result.
+
+The full raw callback/worker streams and WAV use `.xz.b64` for lossless archival.
+Run `python3 baseline-full-processor/decode_archives.py` to verify and restore
+them. These local results establish neither physical-driver stability nor the
+optimized candidate's full-processor performance; the exact-source CI below is
+separate.
+
 ## Cross-platform execution
 
 The new [Tuner realtime attribution run](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38435179453)
@@ -142,6 +173,80 @@ attempt in the artifact name. Failures are not marked `continue-on-error`, and
 the callback probe returns failure for any observed callback or finish deadline
 miss. Existing general CI continues independently.
 
-Run status and complete native callback results are recorded in the accompanying
-status/summary files when collected. A queued or running job is **PENDING**, not
-PASS. Release remains blocked regardless of reduced median compute cost.
+### Exact-source candidate results collected
+
+| Check | Linux | Windows | macOS |
+|---|---|---|---|
+| Original accuracy + 32-route integration | PASS | PASS | QUEUED |
+| E2 48 kHz/256, six response routes, unchanged 290 ms gate | PASS | PASS | QUEUED |
+| Step confirmation range, original callback-based rule | 174.736–190.758 ms | 170.247–197.366 ms | PENDING |
+| Three distinct worker publications, step confirmation | 184.728–200.256 ms | 180.574–205.118 ms | PENDING |
+| Native tuner UI / state | PASS / PASS | FAIL bounds / PASS | QUEUED |
+| Callback/finish timing | **FAIL 6/32 scenarios** | **FAIL 30/32 scenarios** | QUEUED |
+| Output equality / nonfinite / zero blocks / trace loss | PASS | PASS | PENDING |
+| Physical device/driver output stability | NOT TESTED | NOT TESTED | NOT TESTED |
+
+Each completed platform retains **78,192 callbacks** including startup. Linux:
+2 callback wall-budget misses and 12 late finishes. Windows: 159 wall-budget
+misses and 41,323 late finishes. The latter includes normal-priority synthetic
+feeder wake-up delay; it is not a measurement of an ASIO callback or a device
+xrun counter. No scheduling debt was reset to hide misses.
+
+| Platform / configuration | Mean callback wall | Worst callback wall | Same callback CPU | Deadline |
+|---|---:|---:|---:|---:|
+| Linux 48 kHz / 256 | 785.170 µs | 1,872.807 µs | 1,102.709 µs | 5,333.333 µs |
+| Linux 96 kHz / 64 | 240.869 µs | 760.865 µs | 762.301 µs | 666.667 µs |
+| Windows 48 kHz / 256 | 646.606 µs | 15,338.200 µs | 15,625 µs, quantized | 5,333.333 µs |
+| Windows 96 kHz / 64 | 197.097 µs | 10,547.200 µs | 0 µs, quantized | 666.667 µs |
+
+The Linux 96 kHz worst callback has the tuner **OFF**, editor open, and only
+1.091 µs in tuner push. Its CPU and wall are almost equal (CPU encloses the wall
+clock reads), so this measured budget overrun contains actual execution cost
+outside the tuner-input section. The other wall overrun also has the tuner OFF.
+This does not identify the remaining DSP stage; it rules out assigning the whole
+callback peak to the pitch estimator. Linux also has late finishes with callback
+execution below budget, demonstrating the distinct input scheduling issue.
+
+Windows `GetThreadTimes` deltas are observed in **15,625 µs** units. Its raw
+`cpu_misses` column must not be used to classify sub-millisecond DSP overruns.
+At the 96 kHz worst callback, 760,108 thread cycles accompany 10,547.2 µs wall;
+the same scenario's median is 481,038 cycles. The cycle increase is much smaller
+than the wall-time increase, consistent with substantial interruption, but no
+cycle-to-time conversion or exact off-CPU duration is claimed. At 48 kHz the
+worst callback has 3,561,712 cycles versus a 1,411,446 median: both extra work and
+interruption remain possible. Both worst callbacks have tuner OFF.
+
+The same-run paired kernel comparison on Linux reduces median CPU cost by
+**4.27–24.21%**, including **12.58% at E2** (1,201.279 → 1,050.124 µs). This
+smaller reduction than the shared-container result illustrates why environments
+must not be pooled. Windows kernel comparisons use raw cycles rather than its
+quantized per-call CPU time; exact figures are in `windows-candidate/derived-summary.json`.
+Neither result proves deadline safety.
+
+Artifacts are archived losslessly in `linux-candidate/` and `windows-candidate/`
+with a per-file byte count and SHA256 manifest. Run `python3 decode_ci_archives.py`
+to restore all original CSV, WAV, screenshot, JUnit, build identity and LastTest
+files. Identical WAVs are deduplicated in storage and restored under all original
+names. Full CI job logs are also retained as `.log.xz.b64`. The original GitHub
+artifacts are [Linux](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38435179453/artifacts/11834335846)
+and [Windows](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38435179453/artifacts/11833843019).
+
+macOS is still **QUEUED** in GitHub Actions at collection, not passed or omitted.
+Its old failed logs remain archived. The current PR source is not changed by this
+evidence-only branch. Release remains blocked by observed misses, pending macOS
+execution and absent physical-device evidence regardless of reduced median cost.
+
+### Remaining qualification work
+
+1. Collect the already queued exact-source macOS job without replacing prior attempts.
+2. Capture per-stage processor CPU and an OS scheduling trace on affected hardware
+   to isolate the remaining non-tuner cost and interruption sources. Windows needs
+   ETW/WPA or an equivalently precise scheduler trace; the coarse thread clock alone
+   cannot settle attribution.
+3. Run the same on/off matrix through ASIO, CoreAudio and ALSA/JACK or a real DAW,
+   recording driver xruns and loopback/output capture together with callback timing.
+   Include real DI pitch changes. These device-dependent checks require hardware
+   access not present in the hosted CI/container.
+4. Retain the 290 ms and accuracy gates and every previous failure; do not mark
+   either overlapping Draft PR as release-approved until the independent timing,
+   response and physical-output gates are supported by evidence.
