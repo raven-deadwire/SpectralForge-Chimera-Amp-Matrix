@@ -12,9 +12,9 @@ namespace spectralforge {
 inline constexpr int niflheimrPresetStart=originalPresetStart+originalPresetCount;
 struct NiflheimrRigPreset {const char* id;const char* name;const char* description;const char* fileName;int mode;};
 inline constexpr std::array<NiflheimrRigPreset,5> niflheimrRigPresets{{
-    {"original.rig.niflheimr.hrimfaxi.v1","Clear Clank","Classic Hrímfaxi: controlled lows and clear string attack, with Bass Comp, focused PRE EQ and a clean 4x10; dry Console Four contour.","Niflheimr-01-Clear-Clank.chimera",0},
+    {"original.rig.niflheimr.hrimfaxi.v1","Metal Clank","Classic Hrímfaxi: controlled lows and clear string attack, with Bass Comp, focused PRE EQ and a clean 4x10; dry Console Four contour.","Niflheimr-01-Metal-Clank.chimera",0},
     {"original.rig.niflheimr.garmr.v1","Death Grind","Dual at 180 Hz: restrained Hrímfaxi and a 2x12 hold the lows; Garmr and a 6x10 deliver upper-band death/grind bite.","Niflheimr-02-Death-Grind.chimera",1},
-    {"original.rig.niflheimr.nidavellir.v1","Clean Low Pulse","Matrix at 140 / 1600 Hz: clean LOW DI anchors Nidavellir MID drive through a 4x10 and Hrímfaxi HIGH attack through a 1x12.","Niflheimr-03-Clean-Low-Pulse.chimera",2},
+    {"original.rig.niflheimr.nidavellir.v1","Heavy Pulse","Matrix at 140 / 1600 Hz: clean LOW DI anchors Nidavellir MID drive through a 4x10 and Hrímfaxi HIGH attack through a 1x12.","Niflheimr-03-Heavy-Pulse.chimera",2},
     {"original.rig.niflheimr.ymir.v1","Slam Punch","Matrix at 110 / 900 Hz: 75% LOW DI with 25% Ymir and cabinet, Ymir MID impact and Garmr HIGH attack; dry slam / brutal-death rhythm.","Niflheimr-04-Slam-Punch.chimera",2},
     {"original.rig.niflheimr.hel.v1","Doom Fuzz","Classic Hel: gentle Diamond compression, restrained PRE low mids, a 1x15 and dark Passive Tube contour for sustained sludge / doom fuzz.","Niflheimr-05-Doom-Fuzz.chimera",0}
 }};

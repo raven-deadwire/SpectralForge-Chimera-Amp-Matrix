@@ -13,7 +13,7 @@ inline void run(const juce::File& directory) {
         "original.rig.niflheimr.nidavellir.v1","original.rig.niflheimr.ymir.v1",
         "original.rig.niflheimr.hel.v1"
     }};
-    constexpr std::array<const char*,5> names{{"Clear Clank","Death Grind","Clean Low Pulse","Slam Punch","Doom Fuzz"}};
+    constexpr std::array<const char*,5> names{{"Metal Clank","Death Grind","Heavy Pulse","Slam Punch","Doom Fuzz"}};
     constexpr std::array<const char*,5> legacyNames{{"Frostline Precision","Carrion Barrage","Foundry Pulse","Jötunn Hammer","Mirebound Monolith"}};
     constexpr std::array<int,5> modes{{0,1,2,2,0}};
     constexpr std::array<std::array<int,3>,5> channels{{{{0,0,0}},{{0,1,0}},{{0,2,0}},{{3,3,1}},{{4,0,0}}}};
@@ -143,7 +143,7 @@ inline void run(const juce::File& directory) {
             set(*b,cabExpansionID(0,"driver"),9);set(*b,cabLayoutID(0,"layout"),7);
             const auto parked=render(*b,true,120);float delta=0;
             for(size_t n=0;n<parked.size();++n)delta=std::max(delta,std::abs(parked[n]-audio[n]));
-            require(delta<1.e-6f,"Clean Low Pulse parked LOW amp/cabinet leaked into its clean DI");
+            require(delta<1.e-6f,"Heavy Pulse parked LOW amp/cabinet leaked into its clean DI");
         }
         b->setStateInformation(bytes.getData(),int(bytes.getSize()));
         set(*b,"input",6);const auto hot=render(*b,true,450,index);float hotPeak=0;

@@ -127,7 +127,7 @@ recall and level checks.
 | Bank | Stored ordinals | Presets |
 |---|---|---|
 | Náströnd | 38–42 | Thall Rhythm, Molten Lead, Rotten Grind, Sludge Mass, Slam Impact |
-| Niflheimr | 43–47 | Clear Clank, Death Grind, Clean Low Pulse, Slam Punch, Doom Fuzz |
+| Niflheimr | 43–47 | Metal Clank, Death Grind, Heavy Pulse, Slam Punch, Doom Fuzz |
 
 The 6×10 assignments use six sources in two columns and three rows. Existing
 user-loaded 8×10 capture audio is retained; the change applies to the unshipped
