@@ -64,6 +64,7 @@ constexpr Evaluation evaluate(const Metadata& metadata, std::int64_t nowUnix) no
 // must not reconstruct this latch. observe() is bounded integer work suitable
 // for a control/UI thread; the audio callback reads processingPermitted() only.
 class InstanceLatch final {
+    static_assert(std::atomic_bool::is_always_lock_free, "Audio decision must be lock-free");
 public:
     InstanceLatch(const Metadata& metadata, std::int64_t activatedAtUnix) noexcept
         : metadata_(metadata), activation_(evaluate(metadata, activatedAtUnix)),

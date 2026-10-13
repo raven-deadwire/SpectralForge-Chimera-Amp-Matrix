@@ -19,8 +19,12 @@ std::pair<int,int> nativeSelectionFromLegacy(int model,int channel) noexcept {
 }
 
 ChimeraProcessor::ChimeraProcessor()
+    : ChimeraProcessor(spectralforge::beta::compiledMetadata(), spectralforge::beta::utcNow) {}
+
+ChimeraProcessor::ChimeraProcessor(const spectralforge::beta::Metadata& metadata, spectralforge::beta::Clock clock)
     : AudioProcessor(BusesProperties().withInput("Input",juce::AudioChannelSet::stereo(),true)
-                                      .withOutput("Output",juce::AudioChannelSet::stereo(),true))
+                                      .withOutput("Output",juce::AudioChannelSet::stereo(),true)),
+      betaClock(clock), betaLifecycle(metadata,clock())
 {
     originalCabParameters.bind(state);
     toneEQ.bind(state,0);finalEQ.bind(state,1);
@@ -45,6 +49,32 @@ ChimeraProcessor::ChimeraProcessor()
     for(int i=0;i<3;++i) for(size_t k=0;k<laneIds.size();++k)
         laneParameters[i][k]=state.getRawParameterValue(juce::String(laneIds[k])+juce::String(i+1));
 }
+juce::String ChimeraProcessor::betaNotice() const
+{
+    using Status=spectralforge::beta::Status;
+    juce::String text=juce::String("BETA / ")+spectralforge::release::version+" / Build "+CHIMERA_BUILD_REVISION;
+    text+="\nSource: "+juce::String(CHIMERA_SOURCE_SHA);
+    text+="\nExpiry (UTC): "+juce::String(CHIMERA_BETA_EXPIRY_UTC[0] ? CHIMERA_BETA_EXPIRY_UTC : "Not set - development only");
+    if(juce::String(CHIMERA_BETA_MODE)=="qualification-only")text+="\nTEST ONLY - synthetic CI expiry; not approved for release.";
+    const auto current=betaStatus();
+    switch(current.status) {
+        case Status::notBeta:
+            text+=juce::String(CHIMERA_BETA_MODE)=="pending-approval"
+                ? "\nExpiry approval pending. This development build cannot be published."
+                : "\nBeta expiry is not enabled for this build.";break;
+        case Status::valid:text+="\nOffline beta is valid.";break;
+        case Status::warning:text+="\nExpires within 14 days. Save your project and plan an update.";break;
+        case Status::expired:
+            text+=betaProcessingPermitted()
+                ? "\nExpired: this active instance keeps its sound until removed. Newly opened instances will be muted."
+                : "\nExpired: this new instance has muted output. Your project and sounds remain editable and saveable.";break;
+        case Status::clockUntrusted:text+="\nSystem clock is invalid. Check the clock; current processing remains available.";break;
+        case Status::configurationError:text+="\nInvalid beta build metadata: output is muted. Install a qualified successor.";break;
+    }
+    text+="\nProjects, presets, automation, A/B and IR data are preserved. Updates are optional network actions.";
+    return text;
+}
+
 ChimeraProcessor::~ChimeraProcessor()
 {
     const spectralforge::lifecycle::Scope trace("processor.destroy", this);
@@ -93,6 +123,8 @@ void ChimeraProcessor::prepareToPlay(double sr,int block)
     inputGain.setCurrentAndTargetValue(juce::Decibels::decibelsToGain(globals[input]->load()));
     outputGain.setCurrentAndTargetValue(juce::Decibels::decibelsToGain(globals[output]->load()));
     tuningMute.setCurrentAndTargetValue(1);
+    betaOutputGain.reset(sr,.050);
+    betaOutputGain.setCurrentAndTargetValue(betaLifecycle.processingPermitted() ? 1.f : 0.f);
     engine.setOversampling((int)globals[os]->load());
     const bool pitchActive=globals[pitchOn]->load()>.5f && int(globals[semitones]->load())!=0;
     setLatencySamples(postFX.latency()+engine.latency()+(audioBoard.enabled ? pedalBoard.latency(audioBoard)+(pitchActive ? preFX.transpose.latency() : 0) : preFX.latency(pitchActive)));
@@ -126,6 +158,18 @@ void ChimeraProcessor::processBlock(juce::AudioBuffer<float>& buffer,juce::MidiB
         juce::AudioBuffer<float> part(channels.data(),buffer.getNumChannels(),count);
         process(part);
     }
+    // The policy is constructed once, off the audio thread. Expiry cannot stop
+    // an admitted instance, including recording or non-realtime rendering.
+    // A newly expired instance keeps the complete graph/latency and emits zero;
+    // a user-requested clock correction fades the processed signal in (50 ms).
+    betaOutputGain.setTargetValue(betaLifecycle.processingPermitted() ? 1.f : 0.f);
+    if(betaOutputGain.isSmoothing()) {
+        for(int n=0;n<buffer.getNumSamples();++n) {
+            const float gain=betaOutputGain.getNextValue();
+            for(int c=0;c<buffer.getNumChannels();++c)buffer.setSample(c,n,buffer.getSample(c,n)*gain);
+        }
+    } else if(betaOutputGain.getCurrentValue()==0.f) buffer.clear();
+    if(!betaLifecycle.processingPermitted())outputPeak.store(0.f);
     if(buffer.getNumSamples()>0 && rate>0) {
         const double budget=buffer.getNumSamples()/rate;
         const float load=float(100.0*juce::Time::highResolutionTicksToSeconds(juce::Time::getHighResolutionTicks()-started)/budget);

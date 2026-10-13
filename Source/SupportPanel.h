@@ -2,13 +2,16 @@
 #include "ReleaseSupport.h"
 #include "ChimeraManualData.h"
 #include <juce_gui_basics/juce_gui_basics.h>
+#include <functional>
 
 // Hosted instances pass no service: network lifetime never belongs to a DAW.
 class ChimeraSupportPanel final : public juce::Component, private juce::Timer {
 public:
     ChimeraSupportPanel(std::shared_ptr<spectralforge::release::ReleaseSupport> service,
-                        spectralforge::release::Diagnostics diagnostics)
-        : support(std::move(service)) {
+                        spectralforge::release::Diagnostics diagnostics,
+                        std::function<juce::String()> lifecycleNotice = {},
+                        std::function<void()> clockRecovery = {})
+        : support(std::move(service)), betaNotice(std::move(lifecycleNotice)), recoverClock(std::move(clockRecovery)) {
         setComponentID("supportPanel");
         check.setComponentID("supportUpdates");
         automatic.setComponentID("supportAutomatic");
@@ -16,6 +19,14 @@ public:
         reveal.setComponentID("supportReveal");
         cancel.setComponentID("supportCancel");
         status.setComponentID("supportStatus");
+        lifecycle.setComponentID("betaLifecycleNotice");
+        recheck.setComponentID("betaRecheckClock");
+        lifecycle.setMultiLine(true,true);lifecycle.setReadOnly(true);lifecycle.setScrollbarsShown(true);
+        lifecycle.setColour(juce::TextEditor::backgroundColourId,juce::Colour(0xff101615));
+        lifecycle.setColour(juce::TextEditor::textColourId,juce::Colour(0xffe1dbce));
+        if(betaNotice) {addAndMakeVisible(lifecycle);addAndMakeVisible(recheck);}
+        recheck.setTooltip("After correcting the system clock, re-evaluate this instance. A recovered signal fades in over 50 ms.");
+        recheck.onClick=[this]{if(recoverClock)recoverClock();refresh();};
         title.setText(juce::String("SpectralForge Chimera  /  ") + spectralforge::release::displayVersion,juce::dontSendNotification);
         title.setFont(juce::FontOptions(21.f,juce::Font::bold));
         status.setMultiLine(true,true);status.setReadOnly(true);status.setScrollbarsShown(true);
@@ -43,10 +54,14 @@ public:
                 component->setVisible(false);
             note.setText("Download updates from the release page or use the Chimera standalone application. Close your DAW before installing an update.",juce::dontSendNotification);
         }
-        setSize(660,support ? 360 : 300);refresh();if(support)startTimerHz(4);
+        setSize(660,(support ? 360 : 300)+(betaNotice ? 240 : 0));refresh();startTimerHz(4);
     }
     void paint(juce::Graphics& g) override {g.fillAll(juce::Colour(0xff171b1b));}
     void resized() override {
+        if(betaNotice) {
+            const int top=support ? 360 : 300;
+            lifecycle.setBounds(24,top,612,186);recheck.setBounds(24,top+196,190,30);
+        }
         title.setBounds(22,18,616,34);manual.setBounds(24,66,182,32);report.setBounds(218,66,182,32);check.setBounds(412,66,224,32);
         automatic.setBounds(24,110,612,28);status.setBounds(24,147,612,84);
         download.setBounds(24,244,248,32);reveal.setBounds(284,244,230,32);cancel.setBounds(526,244,110,32);note.setBounds(24,293,612,59);
@@ -55,8 +70,9 @@ public:
 private:
     void timerCallback() override {refresh();}
     void refresh() {
+        if(betaNotice) {const auto message=betaNotice();if(lifecycle.getText()!=message)lifecycle.setText(message,false);}
         if(!support) {
-            status.setText("Updates open in your browser. Automatic checks and the verified downloader are available in Chimera standalone.",false);
+            status.setText("Updates open in your browser at github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/releases. If GitHub is unreachable, try later; your offline beta and saved project are unaffected.",false);
             return;
         }
         using State=spectralforge::release::ReleaseSupport::State;
@@ -70,6 +86,10 @@ private:
     }
     void showError(const juce::Result& result) {if(result.failed())juce::AlertWindow::showMessageBoxAsync(juce::MessageBoxIconType::WarningIcon,"Chimera support",result.getErrorMessage(),"OK",this);}
     std::shared_ptr<spectralforge::release::ReleaseSupport> support;
+    std::function<juce::String()> betaNotice;
+    std::function<void()> recoverClock;
+    juce::TextEditor lifecycle;
+    juce::TextButton recheck{"RECHECK CLOCK"};
     juce::Label title,note;
     juce::TextEditor status;
     juce::TextButton manual{"OPEN MANUAL"},report{"REPORT A BUG"},check{"CHECK FOR UPDATES"},download{"DOWNLOAD VERIFIED UPDATE"},reveal{"SHOW INSTALLER"},cancel{"CANCEL"};

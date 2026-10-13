@@ -16,6 +16,7 @@ import tarfile
 import tempfile
 import zipfile
 import chimera_version
+import beta_lifecycle
 import check_ir_distribution
 import check_public_names
 import legacy_document_cleanup
@@ -109,6 +110,18 @@ def documents(destination: Path, build: Path, *, version: dict | None = None) ->
         check_public_names.validate_document(ROOT / "docs" / name)
         copy(ROOT / "docs" / name, destination / name)
     write_public_verification(destination / "Verification.txt", build, version=version)
+    lifecycle_documents(destination, build, version=version)
+
+
+def lifecycle_documents(destination: Path, build: Path, *, version: dict | None = None) -> None:
+    # Only new sources containing the lifecycle contract require it. Historical
+    # fixtures and published artifacts remain untouched.
+    if (ROOT / beta_lifecycle.POLICY_PATH).is_file():
+        release = IDENTITY if version is None else version
+        metadata = json.loads((build / "chimera-beta-lifecycle.json").read_text(encoding="utf-8"))
+        beta_lifecycle.validate_metadata(metadata, ROOT, release["source_sha"])
+        copy(build / "chimera-beta-lifecycle.json", destination / "chimera-beta-lifecycle.json")
+        (destination / "BETA_LIFECYCLE.txt").write_text(beta_lifecycle.notice(metadata), encoding="utf-8")
 
 
 def verify_stage(stage: Path, required: list[str], *, version: dict | None = None) -> None:

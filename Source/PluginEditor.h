@@ -106,6 +106,7 @@ private:
     std::unique_ptr<SA> a1,a2;
     std::array<juce::Slider,8> globalSliders;
     std::array<std::unique_ptr<SA>,8> globalAttachments;
+    int betaUiTicks{25};
     juce::TextButton gateOn{"GATE"},pitchOn{"TRANSPOSE"},tunerOn{"TUNER"},tunerMute{"AUTO MUTE"},info{"INFO"};
     std::array<std::unique_ptr<BA>,4> globalButtons;
     juce::TextButton compareA{"A"},compareB{"B"},copyAB{"COPY"},irLibraryButton{"IR LIBRARY"},rigsTab{"RIGS"},preTab{"PRE"},postTab{"POST"},eqTab{"EQ"};

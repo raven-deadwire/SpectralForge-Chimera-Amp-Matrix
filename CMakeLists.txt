@@ -39,6 +39,21 @@ else()
   set(CHIMERA_BUILD_REVISION "source-archive")
 endif()
 chimera_set_package_identity()
+find_package(Python3 3.9 REQUIRED COMPONENTS Interpreter)
+option(CHIMERA_BETA_QUALIFICATION_ONLY "Use a marked synthetic expiry for CI; never publish" OFF)
+set(CHIMERA_BETA_CONFIGURE_ARGS)
+if(CHIMERA_BETA_QUALIFICATION_ONLY)
+  list(APPEND CHIMERA_BETA_CONFIGURE_ARGS --qualification-only)
+endif()
+execute_process(COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/Tools/beta_lifecycle.py"
+  --root "${CMAKE_CURRENT_SOURCE_DIR}" --source-sha "${CHIMERA_SOURCE_SHA}" --configure
+  ${CHIMERA_BETA_CONFIGURE_ARGS}
+  --json "${CMAKE_BINARY_DIR}/chimera-beta-lifecycle.json"
+  --header "${CMAKE_BINARY_DIR}/generated/ChimeraBetaLifecycleBuild.h"
+  COMMAND_ERROR_IS_FATAL ANY)
+set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS
+  "${CMAKE_CURRENT_SOURCE_DIR}/Validation/beta-lifecycle-policy.json"
+  "${CMAKE_CURRENT_SOURCE_DIR}/Tools/beta_lifecycle.py")
 configure_file(cmake/ChimeraBuildVersion.h.in generated/ChimeraBuildVersion.h @ONLY)
 configure_file(cmake/chimera-build-version.json.in chimera-build-version.json @ONLY)
 include_directories("${CMAKE_BINARY_DIR}/generated")
@@ -61,6 +76,15 @@ enable_testing()
 add_executable(ChimeraBetaLifecycleTests Tests/BetaLifecycleTests.cpp)
 target_include_directories(ChimeraBetaLifecycleTests PRIVATE Source)
 add_test(NAME ChimeraBetaLifecycleTests COMMAND ChimeraBetaLifecycleTests)
+
+# Link the real processor, serializer, editor and update panel. Inject only a
+# private test constructor clock; shipped factories always use compiled policy.
+juce_add_console_app(ChimeraBetaLifecycleProcessorTests PRODUCT_NAME "Chimera Beta Lifecycle Processor Tests")
+target_sources(ChimeraBetaLifecycleProcessorTests PRIVATE Tests/BetaLifecycleProcessorTests.cpp)
+target_include_directories(ChimeraBetaLifecycleProcessorTests PRIVATE Source)
+target_link_libraries(ChimeraBetaLifecycleProcessorTests PRIVATE ChimeraAmpMatrix ChimeraArtwork ChimeraManual juce::juce_cryptography juce::juce_audio_utils juce::juce_dsp)
+add_test(NAME ChimeraBetaLifecycleProcessorTests COMMAND ChimeraBetaLifecycleProcessorTests "${CMAKE_BINARY_DIR}/beta-lifecycle-evidence")
+set_tests_properties(ChimeraBetaLifecycleProcessorTests PROPERTIES TIMEOUT 180)
 
 # 1.2 Original engine: isolated core tests alongside the production native route.
 add_executable(ChimeraOriginalAmpTests Tests/OriginalAmpTests.cpp)

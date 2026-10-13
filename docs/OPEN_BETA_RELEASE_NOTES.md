@@ -1,3 +1,19 @@
+# 1.3.1-beta.3 — development candidate, not published
+
+This next-version candidate adds per-build UTC beta lifecycle metadata, SETTINGS
+notices, the existing GitHub update route, active-instance audio grace and
+non-destructive muted output for newly opened expired instances. Existing
+project, preset, automation, A/B and IR identities are retained. A corrected
+system clock can recover audio with a 50 ms fade-in.
+
+**Expiry date: awaiting owner approval. Release approval: not granted.**
+CI may qualify clearly marked synthetic-expiry builds; these cannot be published.
+The exact generated `BETA_LIFECYCLE.txt` is included before installation and with
+the package in English, German and Korean. Existing beta.2 binaries are immutable.
+Fresh complete-source verification is required for the eventual approved build.
+
+---
+
 # SpectralForge Chimera — Open Beta 1.3.1-beta.2 · Room, IR & Niflheimr
 
 **Version: 1.3.1-beta.2 · Windows / macOS / Linux**

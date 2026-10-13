@@ -21,6 +21,7 @@ from urllib.parse import quote
 import zipfile
 
 import chimera_version
+import beta_lifecycle
 import check_ir_distribution
 import check_public_names
 import evaluate_release_gate as gate
@@ -316,9 +317,20 @@ def prepare_assets(candidate, release, run_id, run_attempt):
         require(len(archive.namelist()) == len(set(archive.namelist())), "Duplicate portable ZIP entries")
         check_ir_distribution.validate_zip_payload(archive)
         payload = parse_json(archive.read("payload-manifest.json").decode("utf-8-sig"))
+        if (ROOT / beta_lifecycle.POLICY_PATH).is_file():
+            require("chimera-beta-lifecycle.json" in archive.namelist(), "Packaged beta metadata is missing")
+            metadata = parse_json(archive.read("chimera-beta-lifecycle.json").decode("utf-8"))
+            beta_lifecycle.validate_metadata(metadata, ROOT, release.source_sha, publication=True)
+            require(archive.read("BETA_LIFECYCLE.txt").decode("utf-8") == beta_lifecycle.notice(metadata),
+                    "Packaged beta notice differs from compiled policy")
         chimera_version.validate_manifest(payload, chimera_version.identity(ROOT, release.source_sha))
     assets = {name: candidate / name for name in sorted(names | set(DOCUMENTS) | set(release.manifest_names))}
     assets.update({name: ROOT / "docs" / name for name in SOURCE_DOCUMENTS})
+    if (ROOT / beta_lifecycle.POLICY_PATH).is_file():
+        for name in ("chimera-beta-lifecycle.json", "BETA_LIFECYCLE.txt"):
+            with zipfile.ZipFile(candidate / f"SpectralForge-Chimera-{release.version}-win64.zip") as archive:
+                (candidate / name).write_bytes(archive.read(name))
+            assets[name] = candidate / name
     assets["Trace-Chimera-Session.ps1"] = ROOT / "Tools/Trace-Chimera-Session.ps1"
     assets["COPYRIGHT.txt"] = ROOT / "COPYRIGHT.txt"
     for name, path in assets.items():

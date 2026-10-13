@@ -12,11 +12,16 @@
 #include "AmpNativeParameters.h"
 #include "PostNativeParameters.h"
 #include "GraphicalEQ.h"
+#include "BetaLifecycleRuntime.h"
 
 class ChimeraProcessor : public juce::AudioProcessor {
 public:
     ChimeraProcessor();
     ~ChimeraProcessor() override;
+    spectralforge::beta::Evaluation betaStatus() const noexcept { return betaLifecycle.observe(betaClock()); }
+    bool betaProcessingPermitted() const noexcept { return betaLifecycle.processingPermitted(); }
+    juce::String betaNotice() const;
+    void recheckBetaClock() noexcept { (void)betaLifecycle.recoverFromClockCorrection(betaClock()); }
     void prepareToPlay(double,int) override;
     void releaseResources() override;
     // Diagnostic/test query. Host audio processing must already be stopped.
@@ -116,6 +121,11 @@ public:
     void activateNativeAmp(int lane);
     void activateNativePost(int section);
 private:
+    friend struct ChimeraBetaTestAccess;
+    ChimeraProcessor(const spectralforge::beta::Metadata&, spectralforge::beta::Clock);
+    const spectralforge::beta::Clock betaClock;
+    spectralforge::beta::InstanceLatch betaLifecycle;
+    juce::SmoothedValue<float> betaOutputGain;
     spectralforge::AmpSelectionParameterCache ampSelection;
     spectralforge::AmpNativeParameterCache nativeAmps;
     spectralforge::PostNativeParameterCache nativePost;

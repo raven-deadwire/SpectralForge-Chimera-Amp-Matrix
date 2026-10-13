@@ -148,11 +148,14 @@ ChimeraEditor::ChimeraEditor(ChimeraProcessor& p) : AudioProcessorEditor(&p),pro
     scale.setName("Interface size"); scale.addItemList({"75%","100%","125%","150%"},1); scale.setSelectedId(2); add(scale);
     scale.onChange=[this]{const float factor=float(scale.getSelectedId()+2)*.25f; setSize(juce::roundToInt(1180*factor),juce::roundToInt(780*factor));};
     add(info); info.setButtonText("SETTINGS"); info.onClick=[this]{
-        juce::PopupMenu menu;menu.addItem(6,"Manual / Bug report / Updates...");menu.addItem(7,"Review / copy / save diagnostics...");menu.addSeparator();menu.addItem(1,"Save reference...");menu.addItem(2,"Load reference...");menu.addSeparator();menu.addItem(3,"About / IR credits");menu.addSeparator();menu.addItem(4,"Reset tuner A4 to 440 Hz");menu.addItem(5,"Clear MIDI assignments");
+        juce::PopupMenu menu;
+        menu.addSectionHeader(juce::String("BETA / ")+spectralforge::release::version+" / "+CHIMERA_BUILD_REVISION);
+        menu.addSectionHeader(juce::String("Expiry UTC: ")+(CHIMERA_BETA_EXPIRY_UTC[0] ? CHIMERA_BETA_EXPIRY_UTC : "approval pending"));
+        menu.addItem(6,"Beta / Updates / Manual / Bug report...");menu.addItem(7,"Review / copy / save diagnostics...");menu.addSeparator();menu.addItem(1,"Save reference...");menu.addItem(2,"Load reference...");menu.addSeparator();menu.addItem(3,"About / IR credits");menu.addSeparator();menu.addItem(4,"Reset tuner A4 to 440 Hz");menu.addItem(5,"Clear MIDI assignments");
         const juce::Component::SafePointer<ChimeraEditor> safe(this);
         menu.showMenuAsync(juce::PopupMenu::Options().withTargetComponent(&info),[safe](int result){if(!safe)return;if(result==7)safe->showDiagnostics();else if(result==6)safe->showSupport();else if(result==1)safe->referenceFile(true);else if(result==2)safe->referenceFile(false);else if(result==3)safe->showInfo();else if(result==4){auto* p=safe->processor.parameters().getParameter("tunerref");p->setValueNotifyingHost(p->convertTo0to1(440));}else if(result==5)safe->processor.clearMidi();});
     };
-    info.setTooltip(juce::String("SpectralForge Chimera / ")+spectralforge::release::displayVersion+" / build "+CHIMERA_BUILD_REVISION+"\nManual, bug reporting, updates, reference files and utility settings.");
+    info.setTooltip(processor.betaNotice());
     for(auto* button:{&compareA,&compareB,&copyAB,&irLibraryButton,&rigsTab,&preTab,&postTab,&eqTab}) add(*button);
     compareA.onClick=[this]{processor.selectComparison(0);markPresetCustom();timerCallback();};compareB.onClick=[this]{processor.selectComparison(1);markPresetCustom();timerCallback();};copyAB.onClick=[this]{processor.copyComparison();};
     compareA.setTooltip("Recall sound snapshot A: all parameters, models and embedded IRs. Both stereo channels are processed together.");compareB.setTooltip("Recall sound snapshot B. This is a stored sound, not the right audio channel.");
@@ -427,6 +430,12 @@ void ChimeraEditor::showInfo()
 }
 void ChimeraEditor::timerCallback()
 {
+    if(++betaUiTicks>=25) {
+        betaUiTicks=0;const auto status=processor.betaStatus().status;
+        using Status=spectralforge::beta::Status;
+        const bool warning=status==Status::warning || status==Status::expired || status==Status::clockUntrusted || status==Status::configurationError;
+        info.setButtonText(warning ? "SETTINGS !" : "SETTINGS");info.setTooltip(processor.betaNotice());
+    }
     // Detached ALL windows remain live when their owning tab is hidden.
     for(auto& lane:lanes){lane.nativePanel->refreshIfNeeded();if(lane.head->isShowing())lane.head->refresh();}
     for(auto& post:postPanels)post->refreshIfNeeded();
@@ -832,7 +841,9 @@ void ChimeraEditor::showSupport()
     using Format=spectralforge::release::Diagnostics::Format;
     d.format=processor.wrapperType==juce::AudioProcessor::wrapperType_Standalone ? Format::standalone : processor.wrapperType==juce::AudioProcessor::wrapperType_VST3 ? Format::vst3 : processor.wrapperType==juce::AudioProcessor::wrapperType_AudioUnit ? Format::au : Format::other;
     d.sampleRate=processor.getSampleRate();d.blockSize=processor.getBlockSize();d.inputs=processor.getTotalNumInputChannels();d.outputs=processor.getTotalNumOutputChannels();d.latencySamples=processor.getLatencySamples();
-    juce::DialogWindow::LaunchOptions options;options.content.setOwned(new ChimeraSupportPanel(support,d));options.dialogTitle="Chimera / Support & Updates";options.dialogBackgroundColour=background;options.escapeKeyTriggersCloseButton=true;options.useNativeTitleBar=true;options.resizable=false;options.componentToCentreAround=this;trackDialog(options.launchAsync());
+    juce::DialogWindow::LaunchOptions options;options.content.setOwned(new ChimeraSupportPanel(support,d,
+        [safe=juce::Component::SafePointer<ChimeraEditor>(this)]{return safe ? safe->processor.betaNotice() : juce::String{};},
+        [safe=juce::Component::SafePointer<ChimeraEditor>(this)]{if(safe)safe->processor.recheckBetaClock();}));options.dialogTitle="Chimera / Support & Updates";options.dialogBackgroundColour=background;options.escapeKeyTriggersCloseButton=true;options.useNativeTitleBar=true;options.resizable=false;options.componentToCentreAround=this;trackDialog(options.launchAsync());
 }
 
 void ChimeraEditor::showDiagnostics()
