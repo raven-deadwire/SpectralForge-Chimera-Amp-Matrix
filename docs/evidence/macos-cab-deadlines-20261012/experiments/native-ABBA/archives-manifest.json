@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "archives": [
+    {
+      "label": "native-ABBA",
+      "path": "diagnostic-38185786916-ABBA.zip",
+      "sha256": "97a35a4fccbf1a1e19059a9d2a377a3844035c0bbb8a0dce6c3064e0614e24b9",
+      "artifact_id": 11720400815,
+      "expected_run_id": 38185786916,
+      "expected_run_attempt": 1,
+      "expected_controller_sha": "5bb5b65e4ae706b0e4c532be824108bd36485b91",
+      "expected_frozen_sha": "7b20cd9d1f90e3e2969c250712b199e893cf50cd",
+      "expected_juce_sha": "d6181bde38d858c283c3b7bf699ce6340c050b5d",
+      "expected_order": "ABBA",
+      "artifact_metadata": {
+        "id": 11720400815,
+        "name": "macOS-CAB-deadline-diagnostic-5bb5b65e4ae706b0e4c532be824108bd36485b91-1",
+        "size_in_bytes": 18898030,
+        "url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/artifacts/11720400815",
+        "archive_download_url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/artifacts/11720400815/zip",
+        "expired": false,
+        "created_at": "2026-10-12T00:09:11Z",
+        "expires_at": "2027-01-09T23:50:35Z",
+        "updated_at": "2026-10-12T00:09:11Z",
+        "digest": "sha256:97a35a4fccbf1a1e19059a9d2a377a3844035c0bbb8a0dce6c3064e0614e24b9",
+        "workflow_run": {
+          "id": 38185786916,
+          "repository_id": 1382701489,
+          "head_repository_id": 1382701489,
+          "head_branch": "diagnostic/macos-cab-deadline-20261012",
+          "head_sha": "5bb5b65e4ae706b0e4c532be824108bd36485b91"
+        }
+      },
+      "expected_controller_files": {
+        "CMakeLists.txt": "50e60b1d767f8c7fea1ad07bd809ba42a9574e4172e87e22124e9616d9dfbb29",
+        "CabSchedulingProbe.cpp": "514d2c40afb43ce9e6f3e450339af659530258ff189f5cebf93b4327c5cbf5a2",
+        "README.md": "7598dc5d4d259524fc62ec15689cbd22b5d31676d761c82e628f675e3d1ad787",
+        "run_experiment.py": "b6c8b620c7237ede6cd3ec140593908c6ab19a277046d5d26f7643629acecb93"
+      }
+    }
+  ]
+}

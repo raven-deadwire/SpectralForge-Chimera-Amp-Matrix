@@ -1,0 +1,2802 @@
+[
+  {
+    "archive": "native-BAAB",
+    "run_id": "38186063935",
+    "run_attempt": "1",
+    "controller_sha": "6345092ddefd11d8833eda8c794b7943e0195ef1",
+    "frozen_source_sha": "7b20cd9d1f90e3e2969c250712b199e893cf50cd",
+    "order": "BAAB",
+    "trial": "01-B",
+    "workload_kind": "diagnostic-cab",
+    "suite_command": "original",
+    "returncode": 0,
+    "log": "trials/01-B/original.log",
+    "requested": "user-interactive",
+    "contexts": [
+      {
+        "phase": "entry",
+        "caller_context": "macos_base_qos",
+        "caller_thread_qos": "17",
+        "pthread_qos_query": "0",
+        "pthread_requested_qos": "17",
+        "pthread_relative_priority": "0",
+        "mach_time_constraint_query": "0",
+        "mach_time_constraint_count": "4",
+        "mach_time_constraint_default": "1",
+        "mach_period_ticks": "0",
+        "mach_computation_ticks": "120000",
+        "mach_constraint_ticks": "240000",
+        "mach_preemptible": "1"
+      },
+      {
+        "phase": "before-workload",
+        "caller_context": "macos_base_qos",
+        "caller_thread_qos": "33",
+        "pthread_qos_query": "0",
+        "pthread_requested_qos": "33",
+        "pthread_relative_priority": "0",
+        "mach_time_constraint_query": "0",
+        "mach_time_constraint_count": "4",
+        "mach_time_constraint_default": "1",
+        "mach_period_ticks": "0",
+        "mach_computation_ticks": "120000",
+        "mach_constraint_ticks": "240000",
+        "mach_preemptible": "1"
+      },
+      {
+        "phase": "after-workload",
+        "caller_context": "macos_base_qos",
+        "caller_thread_qos": "33",
+        "pthread_qos_query": "0",
+        "pthread_requested_qos": "33",
+        "pthread_relative_priority": "0",
+        "mach_time_constraint_query": "0",
+        "mach_time_constraint_count": "4",
+        "mach_time_constraint_default": "1",
+        "mach_period_ticks": "0",
+        "mach_computation_ticks": "120000",
+        "mach_constraint_ticks": "240000",
+        "mach_preemptible": "1"
+      }
+    ],
+    "qos_requests": [
+      {
+        "mode": "user-interactive",
+        "setter_called": "1",
+        "setter_result": "0",
+        "requested": "33",
+        "observed": "33"
+      }
+    ],
+    "results": [
+      {
+        "workload_exit": "0",
+        "diagnostic_only": "1",
+        "product_acceptance": "unchanged_external_gate"
+      }
+    ],
+    "clock": {
+      "steady_clock_is_steady": "1",
+      "steady_clock_period_num": "1",
+      "steady_clock_period_den": "1000000000",
+      "thread_cpu_clock_getres_result": "0",
+      "thread_cpu_clock_getres_error": "0",
+      "thread_cpu_resolution_ns": "42",
+      "clocks_have_different_envelopes": "1",
+      "wall_minus_cpu_not_exclusive_scheduler_time": "1",
+      "cpu_clock_not_proof_of_dsp_execution": "1"
+    },
+    "actual_qos_available": true
+  },
+  {
+    "archive": "native-BAAB",
+    "run_id": "38186063935",
+    "run_attempt": "1",
+    "controller_sha": "6345092ddefd11d8833eda8c794b7943e0195ef1",
+    "frozen_source_sha": "7b20cd9d1f90e3e2969c250712b199e893cf50cd",
+    "order": "BAAB",
+    "trial": "01-B",
+    "workload_kind": "diagnostic-cab",
+    "suite_command": "expanded",
+    "returncode": 0,
+    "log": "trials/01-B/expanded.log",
+    "requested": "user-interactive",
+    "contexts": [
+      {
+        "phase": "entry",
+        "caller_context": "macos_base_qos",
+        "caller_thread_qos": "17",
+        "pthread_qos_query": "0",
+        "pthread_requested_qos": "17",
+        "pthread_relative_priority": "0",
+        "mach_time_constraint_query": "0",
+        "mach_time_constraint_count": "4",
+        "mach_time_constraint_default": "1",
+        "mach_period_ticks": "0",
+        "mach_computation_ticks": "120000",
+        "mach_constraint_ticks": "240000",
+        "mach_preemptible": "1"
+      },
+      {
+        "phase": "before-workload",
+        "caller_context": "macos_base_qos",
+        "caller_thread_qos": "33",
+        "pthread_qos_query": "0",
+        "pthread_requested_qos": "33",
+        "pthread_relative_priority": "0",
+        "mach_time_constraint_query": "0",
+        "mach_time_constraint_count": "4",
+        "mach_time_constraint_default": "1",
+        "mach_period_ticks": "0",
+        "mach_computation_ticks": "120000",
+        "mach_constraint_ticks": "240000",
+        "mach_preemptible": "1"
+      },
+      {
+        "phase": "after-workload",
+        "caller_context": "macos_base_qos",
+        "caller_thread_qos": "33",
+        "pthread_qos_query": "0",
+        "pthread_requested_qos": "33",
+        "pthread_relative_priority": "0",
+        "mach_time_constraint_query": "0",
+        "mach_time_constraint_count": "4",
+        "mach_time_constraint_default": "1",
+        "mach_period_ticks": "0",
+        "mach_computation_ticks": "120000",
+        "mach_constraint_ticks": "240000",
+        "mach_preemptible": "1"
+      }
+    ],
+    "qos_requests": [
+      {
+        "mode": "user-interactive",
+        "setter_called": "1",
+        "setter_result": "0",
+        "requested": "33",
+        "observed": "33"
+      }
+    ],
+    "results": [
+      {
+        "workload_exit": "0",
+        "diagnostic_only": "1",
+        "product_acceptance": "unchanged_external_gate"
+      }
+    ],
+    "clock": {
+      "steady_clock_is_steady": "1",
+      "steady_clock_period_num": "1",
+      "steady_clock_period_den": "1000000000",
+      "thread_cpu_clock_getres_result": "0",
+      "thread_cpu_clock_getres_error": "0",
+      "thread_cpu_resolution_ns": "42",
+      "clocks_have_different_envelopes": "1",
+      "wall_minus_cpu_not_exclusive_scheduler_time": "1",
+      "cpu_clock_not_proof_of_dsp_execution": "1"
+    },
+    "actual_qos_available": true
+  },
+  {
+    "archive": "native-BAAB",
+    "run_id": "38186063935",
+    "run_attempt": "1",
+    "controller_sha": "6345092ddefd11d8833eda8c794b7943e0195ef1",
+    "frozen_source_sha": "7b20cd9d1f90e3e2969c250712b199e893cf50cd",
+    "order": "BAAB",
+    "trial": "01-B",
+    "workload_kind": "diagnostic-cab",
+    "suite_command": "layouts",
+    "returncode": 0,
+    "log": "trials/01-B/layouts.log",
+    "requested": "user-interactive",
+    "contexts": [
+      {
+        "phase": "entry",
+        "caller_context": "macos_base_qos",
+        "caller_thread_qos": "17",
+        "pthread_qos_query": "0",
+        "pthread_requested_qos": "17",
+        "pthread_relative_priority": "0",
+        "mach_time_constraint_query": "0",
+        "mach_time_constraint_count": "4",
+        "mach_time_constraint_default": "1",
+        "mach_period_ticks": "0",
+        "mach_computation_ticks": "120000",
+        "mach_constraint_ticks": "240000",
+        "mach_preemptible": "1"
+      },
+      {
+        "phase": "before-workload",
+        "caller_context": "macos_base_qos",
+        "caller_thread_qos": "33",
+        "pthread_qos_query": "0",
+        "pthread_requested_qos": "33",
+        "pthread_relative_priority": "0",
+        "mach_time_constraint_query": "0",
+        "mach_time_constraint_count": "4",
+        "mach_time_constraint_default": "1",
+        "mach_period_ticks": "0",
+        "mach_computation_ticks": "120000",
+        "mach_constraint_ticks": "240000",
+        "mach_preemptible": "1"
+      },
+      {
+        "phase": "after-workload",
+        "caller_context": "macos_base_qos",
+        "caller_thread_qos": "33",
+        "pthread_qos_query": "0",
+        "pthread_requested_qos": "33",
+        "pthread_relative_priority": "0",
+        "mach_time_constraint_query": "0",
+        "mach_time_constraint_count": "4",
+        "mach_time_constraint_default": "1",
+        "mach_period_ticks": "0",
+        "mach_computation_ticks": "120000",
+        "mach_constraint_ticks": "240000",
+        "mach_preemptible": "1"
+      }
+    ],
+    "qos_requests": [
+      {
+        "mode": "user-interactive",
+        "setter_called": "1",
+        "setter_result": "0",
+        "requested": "33",
+        "observed": "33"
+      }
+    ],
+    "results": [
+      {
+        "workload_exit": "0",
+        "diagnostic_only": "1",
+        "product_acceptance": "unchanged_external_gate"
+      }
+    ],
+    "clock": {
+      "steady_clock_is_steady": "1",
+      "steady_clock_period_num": "1",
+      "steady_clock_period_den": "1000000000",
+      "thread_cpu_clock_getres_result": "0",
+      "thread_cpu_clock_getres_error": "0",
+      "thread_cpu_resolution_ns": "42",
+      "clocks_have_different_envelopes": "1",
+      "wall_minus_cpu_not_exclusive_scheduler_time": "1",
+      "cpu_clock_not_proof_of_dsp_execution": "1"
+    },
+    "actual_qos_available": true
+  },
+  {
+    "archive": "native-BAAB",
+    "run_id": "38186063935",
+    "run_attempt": "1",
+    "controller_sha": "6345092ddefd11d8833eda8c794b7943e0195ef1",
+    "frozen_source_sha": "7b20cd9d1f90e3e2969c250712b199e893cf50cd",
+    "order": "BAAB",
+    "trial": "01-B",
+    "workload_kind": "diagnostic-cab",
+    "suite_command": "extended",
+    "returncode": 0,
+    "log": "trials/01-B/extended.log",
+    "requested": "user-interactive",
+    "contexts": [
+      {
+        "phase": "entry",
+        "caller_context": "macos_base_qos",
+        "caller_thread_qos": "17",
+        "pthread_qos_query": "0",
+        "pthread_requested_qos": "17",
+        "pthread_relative_priority": "0",
+        "mach_time_constraint_query": "0",
+        "mach_time_constraint_count": "4",
+        "mach_time_constraint_default": "1",
+        "mach_period_ticks": "0",
+        "mach_computation_ticks": "120000",
+        "mach_constraint_ticks": "240000",
+        "mach_preemptible": "1"
+      },
+      {
+        "phase": "before-workload",
+        "caller_context": "macos_base_qos",
+        "caller_thread_qos": "33",
+        "pthread_qos_query": "0",
+        "pthread_requested_qos": "33",
+        "pthread_relative_priority": "0",
+        "mach_time_constraint_query": "0",
+        "mach_time_constraint_count": "4",
+        "mach_time_constraint_default": "1",
+        "mach_period_ticks": "0",
+        "mach_computation_ticks": "120000",
+        "mach_constraint_ticks": "240000",
+        "mach_preemptible": "1"
+      },
+      {
+        "phase": "after-workload",
+        "caller_context": "macos_base_qos",
+        "caller_thread_qos": "33",
+        "pthread_qos_query": "0",
+        "pthread_requested_qos": "33",
+        "pthread_relative_priority": "0",
+        "mach_time_constraint_query": "0",
+        "mach_time_constraint_count": "4",
+        "mach_time_constraint_default": "1",
+        "mach_period_ticks": "0",
+        "mach_computation_ticks": "120000",
+        "mach_constraint_ticks": "240000",
+        "mach_preemptible": "1"
+      }
+    ],
+    "qos_requests": [
+      {
+        "mode": "user-interactive",
+        "setter_called": "1",
+        "setter_result": "0",
+        "requested": "33",
+        "observed": "33"
+      }
+    ],
+    "results": [
+      {
+        "workload_exit": "0",
+        "diagnostic_only": "1",
+        "product_acceptance": "unchanged_external_gate"
+      }
+    ],
+    "clock": {
+      "steady_clock_is_steady": "1",
+      "steady_clock_period_num": "1",
+      "steady_clock_period_den": "1000000000",
+      "thread_cpu_clock_getres_result": "0",
+      "thread_cpu_clock_getres_error": "0",
+      "thread_cpu_resolution_ns": "42",
+      "clocks_have_different_envelopes": "1",
+      "wall_minus_cpu_not_exclusive_scheduler_time": "1",
+      "cpu_clock_not_proof_of_dsp_execution": "1"
+    },
+    "actual_qos_available": true
+  },
+  {
+    "archive": "native-BAAB",
+    "run_id": "38186063935",
+    "run_attempt": "1",
+    "controller_sha": "6345092ddefd11d8833eda8c794b7943e0195ef1",
+    "frozen_source_sha": "7b20cd9d1f90e3e2969c250712b199e893cf50cd",
+    "order": "BAAB",
+    "trial": "01-B",
+    "workload_kind": "sentinel",
+    "suite_command": "original",
+    "returncode": 0,
+    "log": "trials/01-B/sentinel/original.log",
+    "requested": "user-interactive",
+    "contexts": [
+      {
+        "phase": "entry",
+        "caller_context": "macos_base_qos",
+        "caller_thread_qos": "17",
+        "pthread_qos_query": "0",
+        "pthread_requested_qos": "17",
+        "pthread_relative_priority": "0",
+        "mach_time_constraint_query": "0",
+        "mach_time_constraint_count": "4",
+        "mach_time_constraint_default": "1",
+        "mach_period_ticks": "0",
+        "mach_computation_ticks": "120000",
+        "mach_constraint_ticks": "240000",
+        "mach_preemptible": "1"
+      },
+      {
+        "phase": "before-workload",
+        "caller_context": "macos_base_qos",
+        "caller_thread_qos": "33",
+        "pthread_qos_query": "0",
+        "pthread_requested_qos": "33",
+        "pthread_relative_priority": "0",
+        "mach_time_constraint_query": "0",
+        "mach_time_constraint_count": "4",
+        "mach_time_constraint_default": "1",
+        "mach_period_ticks": "0",
+        "mach_computation_ticks": "120000",
+        "mach_constraint_ticks": "240000",
+        "mach_preemptible": "1"
+      },
+      {
+        "phase": "after-workload",
+        "caller_context": "macos_base_qos",
+        "caller_thread_qos": "33",
+        "pthread_qos_query": "0",
+        "pthread_requested_qos": "33",
+        "pthread_relative_priority": "0",
+        "mach_time_constraint_query": "0",
+        "mach_time_constraint_count": "4",
+        "mach_time_constraint_default": "1",
+        "mach_period_ticks": "0",
+        "mach_computation_ticks": "120000",
+        "mach_constraint_ticks": "240000",
+        "mach_preemptible": "1"
+      }
+    ],
+    "qos_requests": [
+      {
+        "mode": "user-interactive",
+        "setter_called": "1",
+        "setter_result": "0",
+        "requested": "33",
+        "observed": "33"
+      }
+    ],
+    "results": [
+      {
+        "workload_exit": "0",
+        "diagnostic_only": "1",
+        "product_acceptance": "unchanged_external_gate"
+      }
+    ],
+    "clock": {
+      "steady_clock_is_steady": "1",
+      "steady_clock_period_num": "1",
+      "steady_clock_period_den": "1000000000",
+      "thread_cpu_clock_getres_result": "0",
+      "thread_cpu_clock_getres_error": "0",
+      "thread_cpu_resolution_ns": "42",
+      "clocks_have_different_envelopes": "1",
+      "wall_minus_cpu_not_exclusive_scheduler_time": "1",
+      "cpu_clock_not_proof_of_dsp_execution": "1"
+    },
+    "actual_qos_available": true
+  },
+  {
+    "archive": "native-BAAB",
+    "run_id": "38186063935",
+    "run_attempt": "1",
+    "controller_sha": "6345092ddefd11d8833eda8c794b7943e0195ef1",
+    "frozen_source_sha": "7b20cd9d1f90e3e2969c250712b199e893cf50cd",
+    "order": "BAAB",
+    "trial": "01-B",
+    "workload_kind": "sentinel",
+    "suite_command": "expanded",
+    "returncode": 0,
+    "log": "trials/01-B/sentinel/expanded.log",
+    "requested": "user-interactive",
+    "contexts": [
+      {
+        "phase": "entry",
+        "caller_context": "macos_base_qos",
+        "caller_thread_qos": "17",
+        "pthread_qos_query": "0",
+        "pthread_requested_qos": "17",
+        "pthread_relative_priority": "0",
+        "mach_time_constraint_query": "0",
+        "mach_time_constraint_count": "4",
+        "mach_time_constraint_default": "1",
+        "mach_period_ticks": "0",
+        "mach_computation_ticks": "120000",
+        "mach_constraint_ticks": "240000",
+        "mach_preemptible": "1"
+      },
+      {
+        "phase": "before-workload",
+        "caller_context": "macos_base_qos",
+        "caller_thread_qos": "33",
+        "pthread_qos_query": "0",
+        "pthread_requested_qos": "33",
+        "pthread_relative_priority": "0",
+        "mach_time_constraint_query": "0",
+        "mach_time_constraint_count": "4",
+        "mach_time_constraint_default": "1",
+        "mach_period_ticks": "0",
+        "mach_computation_ticks": "120000",
+        "mach_constraint_ticks": "240000",
+        "mach_preemptible": "1"
+      },
+      {
+        "phase": "after-workload",
+        "caller_context": "macos_base_qos",
+        "caller_thread_qos": "33",
+        "pthread_qos_query": "0",
+        "pthread_requested_qos": "33",
+        "pthread_relative_priority": "0",
+        "mach_time_constraint_query": "0",
+        "mach_time_constraint_count": "4",
+        "mach_time_constraint_default": "1",
+        "mach_period_ticks": "0",
+        "mach_computation_ticks": "120000",
+        "mach_constraint_ticks": "240000",
+        "mach_preemptible": "1"
+      }
+    ],
+    "qos_requests": [
+      {
+        "mode": "user-interactive",
+        "setter_called": "1",
+        "setter_result": "0",
+        "requested": "33",
+        "observed": "33"
+      }
+    ],
+    "results": [
+      {
+        "workload_exit": "0",
+        "diagnostic_only": "1",
+        "product_acceptance": "unchanged_external_gate"
+      }
+    ],
+    "clock": {
+      "steady_clock_is_steady": "1",
+      "steady_clock_period_num": "1",
+      "steady_clock_period_den": "1000000000",
+      "thread_cpu_clock_getres_result": "0",
+      "thread_cpu_clock_getres_error": "0",
+      "thread_cpu_resolution_ns": "42",
+      "clocks_have_different_envelopes": "1",
+      "wall_minus_cpu_not_exclusive_scheduler_time": "1",
+      "cpu_clock_not_proof_of_dsp_execution": "1"
+    },
+    "actual_qos_available": true
+  },
+  {
+    "archive": "native-BAAB",
+    "run_id": "38186063935",
+    "run_attempt": "1",
+    "controller_sha": "6345092ddefd11d8833eda8c794b7943e0195ef1",
+    "frozen_source_sha": "7b20cd9d1f90e3e2969c250712b199e893cf50cd",
+    "order": "BAAB",
+    "trial": "01-B",
+    "workload_kind": "sentinel",
+    "suite_command": "layouts",
+    "returncode": 0,
+    "log": "trials/01-B/sentinel/layouts.log",
+    "requested": "user-interactive",
+    "contexts": [
+      {
+        "phase": "entry",
+        "caller_context": "macos_base_qos",
+        "caller_thread_qos": "17",
+        "pthread_qos_query": "0",
+        "pthread_requested_qos": "17",
+        "pthread_relative_priority": "0",
+        "mach_time_constraint_query": "0",
+        "mach_time_constraint_count": "4",
+        "mach_time_constraint_default": "1",
+        "mach_period_ticks": "0",
+        "mach_computation_ticks": "120000",
+        "mach_constraint_ticks": "240000",
+        "mach_preemptible": "1"
+      },
+      {
+        "phase": "before-workload",
+        "caller_context": "macos_base_qos",
+        "caller_thread_qos": "33",
+        "pthread_qos_query": "0",
+        "pthread_requested_qos": "33",
+        "pthread_relative_priority": "0",
+        "mach_time_constraint_query": "0",
+        "mach_time_constraint_count": "4",
+        "mach_time_constraint_default": "1",
+        "mach_period_ticks": "0",
+        "mach_computation_ticks": "120000",
+        "mach_constraint_ticks": "240000",
+        "mach_preemptible": "1"
+      },
+      {
+        "phase": "after-workload",
+        "caller_context": "macos_base_qos",
+        "caller_thread_qos": "33",
+        "pthread_qos_query": "0",
+        "pthread_requested_qos": "33",
+        "pthread_relative_priority": "0",
+        "mach_time_constraint_query": "0",
+        "mach_time_constraint_count": "4",
+        "mach_time_constraint_default": "1",
+        "mach_period_ticks": "0",
+        "mach_computation_ticks": "120000",
+        "mach_constraint_ticks": "240000",
+        "mach_preemptible": "1"
+      }
+    ],
+    "qos_requests": [
+      {
+        "mode": "user-interactive",
+        "setter_called": "1",
+        "setter_result": "0",
+        "requested": "33",
+        "observed": "33"
+      }
+    ],
+    "results": [
+      {
+        "workload_exit": "0",
+        "diagnostic_only": "1",
+        "product_acceptance": "unchanged_external_gate"
+      }
+    ],
+    "clock": {
+      "steady_clock_is_steady": "1",
+      "steady_clock_period_num": "1",
+      "steady_clock_period_den": "1000000000",
+      "thread_cpu_clock_getres_result": "0",
+      "thread_cpu_clock_getres_error": "0",
+      "thread_cpu_resolution_ns": "42",
+      "clocks_have_different_envelopes": "1",
+      "wall_minus_cpu_not_exclusive_scheduler_time": "1",
+      "cpu_clock_not_proof_of_dsp_execution": "1"
+    },
+    "actual_qos_available": true
+  },
+  {
+    "archive": "native-BAAB",
+    "run_id": "38186063935",
+    "run_attempt": "1",
+    "controller_sha": "6345092ddefd11d8833eda8c794b7943e0195ef1",
+    "frozen_source_sha": "7b20cd9d1f90e3e2969c250712b199e893cf50cd",
+    "order": "BAAB",
+    "trial": "01-B",
+    "workload_kind": "sentinel",
+    "suite_command": "extended",
+    "returncode": 0,
+    "log": "trials/01-B/sentinel/extended.log",
+    "requested": "user-interactive",
+    "contexts": [
+      {
+        "phase": "entry",
+        "caller_context": "macos_base_qos",
+        "caller_thread_qos": "17",
+        "pthread_qos_query": "0",
+        "pthread_requested_qos": "17",
+        "pthread_relative_priority": "0",
+        "mach_time_constraint_query": "0",
+        "mach_time_constraint_count": "4",
+        "mach_time_constraint_default": "1",
+        "mach_period_ticks": "0",
+        "mach_computation_ticks": "120000",
+        "mach_constraint_ticks": "240000",
+        "mach_preemptible": "1"
+      },
+      {
+        "phase": "before-workload",
+        "caller_context": "macos_base_qos",
+        "caller_thread_qos": "33",
+        "pthread_qos_query": "0",
+        "pthread_requested_qos": "33",
+        "pthread_relative_priority": "0",
+        "mach_time_constraint_query": "0",
+        "mach_time_constraint_count": "4",
+        "mach_time_constraint_default": "1",
+        "mach_period_ticks": "0",
+        "mach_computation_ticks": "120000",
+        "mach_constraint_ticks": "240000",
+        "mach_preemptible": "1"
+      },
+      {
+        "phase": "after-workload",
+        "caller_context": "macos_base_qos",
+        "caller_thread_qos": "33",
+        "pthread_qos_query": "0",
+        "pthread_requested_qos": "33",
+        "pthread_relative_priority": "0",
+        "mach_time_constraint_query": "0",
+        "mach_time_constraint_count": "4",
+        "mach_time_constraint_default": "1",
+        "mach_period_ticks": "0",
+        "mach_computation_ticks": "120000",
+        "mach_constraint_ticks": "240000",
+        "mach_preemptible": "1"
+      }
+    ],
+    "qos_requests": [
+      {
+        "mode": "user-interactive",
+        "setter_called": "1",
+        "setter_result": "0",
+        "requested": "33",
+        "observed": "33"
+      }
+    ],
+    "results": [
+      {
+        "workload_exit": "0",
+        "diagnostic_only": "1",
+        "product_acceptance": "unchanged_external_gate"
+      }
+    ],
+    "clock": {
+      "steady_clock_is_steady": "1",
+      "steady_clock_period_num": "1",
+      "steady_clock_period_den": "1000000000",
+      "thread_cpu_clock_getres_result": "0",
+      "thread_cpu_clock_getres_error": "0",
+      "thread_cpu_resolution_ns": "42",
+      "clocks_have_different_envelopes": "1",
+      "wall_minus_cpu_not_exclusive_scheduler_time": "1",
+      "cpu_clock_not_proof_of_dsp_execution": "1"
+    },
+    "actual_qos_available": true
+  },
+  {
+    "archive": "native-BAAB",
+    "run_id": "38186063935",
+    "run_attempt": "1",
+    "controller_sha": "6345092ddefd11d8833eda8c794b7943e0195ef1",
+    "frozen_source_sha": "7b20cd9d1f90e3e2969c250712b199e893cf50cd",
+    "order": "BAAB",
+    "trial": "02-A",
+    "workload_kind": "diagnostic-cab",
+    "suite_command": "original",
+    "returncode": 0,
+    "log": "trials/02-A/original.log",
+    "requested": "inherited",
+    "contexts": [
+      {
+        "phase": "entry",
+        "caller_context": "macos_base_qos",
+        "caller_thread_qos": "17",
+        "pthread_qos_query": "0",
+        "pthread_requested_qos": "17",
+        "pthread_relative_priority": "0",
+        "mach_time_constraint_query": "0",
+        "mach_time_constraint_count": "4",
+        "mach_time_constraint_default": "1",
+        "mach_period_ticks": "0",
+        "mach_computation_ticks": "120000",
+        "mach_constraint_ticks": "240000",
+        "mach_preemptible": "1"
+      },
+      {
+        "phase": "before-workload",
+        "caller_context": "macos_base_qos",
+        "caller_thread_qos": "17",
+        "pthread_qos_query": "0",
+        "pthread_requested_qos": "17",
+        "pthread_relative_priority": "0",
+        "mach_time_constraint_query": "0",
+        "mach_time_constraint_count": "4",
+        "mach_time_constraint_default": "1",
+        "mach_period_ticks": "0",
+        "mach_computation_ticks": "120000",
+        "mach_constraint_ticks": "240000",
+        "mach_preemptible": "1"
+      },
+      {
+        "phase": "after-workload",
+        "caller_context": "macos_base_qos",
+        "caller_thread_qos": "17",
+        "pthread_qos_query": "0",
+        "pthread_requested_qos": "17",
+        "pthread_relative_priority": "0",
+        "mach_time_constraint_query": "0",
+        "mach_time_constraint_count": "4",
+        "mach_time_constraint_default": "1",
+        "mach_period_ticks": "0",
+        "mach_computation_ticks": "120000",
+        "mach_constraint_ticks": "240000",
+        "mach_preemptible": "1"
+      }
+    ],
+    "qos_requests": [
+      {
+        "mode": "inherited",
+        "setter_called": "0"
+      }
+    ],
+    "results": [
+      {
+        "workload_exit": "0",
+        "diagnostic_only": "1",
+        "product_acceptance": "unchanged_external_gate"
+      }
+    ],
+    "clock": {
+      "steady_clock_is_steady": "1",
+      "steady_clock_period_num": "1",
+      "steady_clock_period_den": "1000000000",
+      "thread_cpu_clock_getres_result": "0",
+      "thread_cpu_clock_getres_error": "0",
+      "thread_cpu_resolution_ns": "42",
+      "clocks_have_different_envelopes": "1",
+      "wall_minus_cpu_not_exclusive_scheduler_time": "1",
+      "cpu_clock_not_proof_of_dsp_execution": "1"
+    },
+    "actual_qos_available": true
+  },
+  {
+    "archive": "native-BAAB",
+    "run_id": "38186063935",
+    "run_attempt": "1",
+    "controller_sha": "6345092ddefd11d8833eda8c794b7943e0195ef1",
+    "frozen_source_sha": "7b20cd9d1f90e3e2969c250712b199e893cf50cd",
+    "order": "BAAB",
+    "trial": "02-A",
+    "workload_kind": "diagnostic-cab",
+    "suite_command": "expanded",
+    "returncode": 0,
+    "log": "trials/02-A/expanded.log",
+    "requested": "inherited",
+    "contexts": [
+      {
+        "phase": "entry",
+        "caller_context": "macos_base_qos",
+        "caller_thread_qos": "17",
+        "pthread_qos_query": "0",
+        "pthread_requested_qos": "17",
+        "pthread_relative_priority": "0",
+        "mach_time_constraint_query": "0",
+        "mach_time_constraint_count": "4",
+        "mach_time_constraint_default": "1",
+        "mach_period_ticks": "0",
+        "mach_computation_ticks": "120000",
+        "mach_constraint_ticks": "240000",
+        "mach_preemptible": "1"
+      },
+      {
+        "phase": "before-workload",
+        "caller_context": "macos_base_qos",
+        "caller_thread_qos": "17",
+        "pthread_qos_query": "0",
+        "pthread_requested_qos": "17",
+        "pthread_relative_priority": "0",
+        "mach_time_constraint_query": "0",
+        "mach_time_constraint_count": "4",
+        "mach_time_constraint_default": "1",
+        "mach_period_ticks": "0",
+        "mach_computation_ticks": "120000",
+        "mach_constraint_ticks": "240000",
+        "mach_preemptible": "1"
+      },
+      {
+        "phase": "after-workload",
+        "caller_context": "macos_base_qos",
+        "caller_thread_qos": "17",
+        "pthread_qos_query": "0",
+        "pthread_requested_qos": "17",
+        "pthread_relative_priority": "0",
+        "mach_time_constraint_query": "0",
+        "mach_time_constraint_count": "4",
+        "mach_time_constraint_default": "1",
+        "mach_period_ticks": "0",
+        "mach_computation_ticks": "120000",
+        "mach_constraint_ticks": "240000",
+        "mach_preemptible": "1"
+      }
+    ],
+    "qos_requests": [
+      {
+        "mode": "inherited",
+        "setter_called": "0"
+      }
+    ],
+    "results": [
+      {
+        "workload_exit": "0",
+        "diagnostic_only": "1",
+        "product_acceptance": "unchanged_external_gate"
+      }
+    ],
+    "clock": {
+      "steady_clock_is_steady": "1",
+      "steady_clock_period_num": "1",
+      "steady_clock_period_den": "1000000000",
+      "thread_cpu_clock_getres_result": "0",
+      "thread_cpu_clock_getres_error": "0",
+      "thread_cpu_resolution_ns": "42",
+      "clocks_have_different_envelopes": "1",
+      "wall_minus_cpu_not_exclusive_scheduler_time": "1",
+      "cpu_clock_not_proof_of_dsp_execution": "1"
+    },
+    "actual_qos_available": true
+  },
+  {
+    "archive": "native-BAAB",
+    "run_id": "38186063935",
+    "run_attempt": "1",
+    "controller_sha": "6345092ddefd11d8833eda8c794b7943e0195ef1",
+    "frozen_source_sha": "7b20cd9d1f90e3e2969c250712b199e893cf50cd",
+    "order": "BAAB",
+    "trial": "02-A",
+    "workload_kind": "diagnostic-cab",
+    "suite_command": "layouts",
+    "returncode": 0,
+    "log": "trials/02-A/layouts.log",
+    "requested": "inherited",
+    "contexts": [
+      {
+        "phase": "entry",
+        "caller_context": "macos_base_qos",
+        "caller_thread_qos": "17",
+        "pthread_qos_query": "0",
+        "pthread_requested_qos": "17",
+        "pthread_relative_priority": "0",
+        "mach_time_constraint_query": "0",
+        "mach_time_constraint_count": "4",
+        "mach_time_constraint_default": "1",
+        "mach_period_ticks": "0",
+        "mach_computation_ticks": "120000",
+        "mach_constraint_ticks": "240000",
+        "mach_preemptible": "1"
+      },
+      {
+        "phase": "before-workload",
+        "caller_context": "macos_base_qos",
+        "caller_thread_qos": "17",
+        "pthread_qos_query": "0",
+        "pthread_requested_qos": "17",
+        "pthread_relative_priority": "0",
+        "mach_time_constraint_query": "0",
+        "mach_time_constraint_count": "4",
+        "mach_time_constraint_default": "1",
+        "mach_period_ticks": "0",
+        "mach_computation_ticks": "120000",
+        "mach_constraint_ticks": "240000",
+        "mach_preemptible": "1"
+      },
+      {
+        "phase": "after-workload",
+        "caller_context": "macos_base_qos",
+        "caller_thread_qos": "17",
+        "pthread_qos_query": "0",
+        "pthread_requested_qos": "17",
+        "pthread_relative_priority": "0",
+        "mach_time_constraint_query": "0",
+        "mach_time_constraint_count": "4",
+        "mach_time_constraint_default": "1",
+        "mach_period_ticks": "0",
+        "mach_computation_ticks": "120000",
+        "mach_constraint_ticks": "240000",
+        "mach_preemptible": "1"
+      }
+    ],
+    "qos_requests": [
+      {
+        "mode": "inherited",
+        "setter_called": "0"
+      }
+    ],
+    "results": [
+      {
+        "workload_exit": "0",
+        "diagnostic_only": "1",
+        "product_acceptance": "unchanged_external_gate"
+      }
+    ],
+    "clock": {
+      "steady_clock_is_steady": "1",
+      "steady_clock_period_num": "1",
+      "steady_clock_period_den": "1000000000",
+      "thread_cpu_clock_getres_result": "0",
+      "thread_cpu_clock_getres_error": "0",
+      "thread_cpu_resolution_ns": "42",
+      "clocks_have_different_envelopes": "1",
+      "wall_minus_cpu_not_exclusive_scheduler_time": "1",
+      "cpu_clock_not_proof_of_dsp_execution": "1"
+    },
+    "actual_qos_available": true
+  },
+  {
+    "archive": "native-BAAB",
+    "run_id": "38186063935",
+    "run_attempt": "1",
+    "controller_sha": "6345092ddefd11d8833eda8c794b7943e0195ef1",
+    "frozen_source_sha": "7b20cd9d1f90e3e2969c250712b199e893cf50cd",
+    "order": "BAAB",
+    "trial": "02-A",
+    "workload_kind": "diagnostic-cab",
+    "suite_command": "extended",
+    "returncode": 0,
+    "log": "trials/02-A/extended.log",
+    "requested": "inherited",
+    "contexts": [
+      {
+        "phase": "entry",
+        "caller_context": "macos_base_qos",
+        "caller_thread_qos": "17",
+        "pthread_qos_query": "0",
+        "pthread_requested_qos": "17",
+        "pthread_relative_priority": "0",
+        "mach_time_constraint_query": "0",
+        "mach_time_constraint_count": "4",
+        "mach_time_constraint_default": "1",
+        "mach_period_ticks": "0",
+        "mach_computation_ticks": "120000",
+        "mach_constraint_ticks": "240000",
+        "mach_preemptible": "1"
+      },
+      {
+        "phase": "before-workload",
+        "caller_context": "macos_base_qos",
+        "caller_thread_qos": "17",
+        "pthread_qos_query": "0",
+        "pthread_requested_qos": "17",
+        "pthread_relative_priority": "0",
+        "mach_time_constraint_query": "0",
+        "mach_time_constraint_count": "4",
+        "mach_time_constraint_default": "1",
+        "mach_period_ticks": "0",
+        "mach_computation_ticks": "120000",
+        "mach_constraint_ticks": "240000",
+        "mach_preemptible": "1"
+      },
+      {
+        "phase": "after-workload",
+        "caller_context": "macos_base_qos",
+        "caller_thread_qos": "17",
+        "pthread_qos_query": "0",
+        "pthread_requested_qos": "17",
+        "pthread_relative_priority": "0",
+        "mach_time_constraint_query": "0",
+        "mach_time_constraint_count": "4",
+        "mach_time_constraint_default": "1",
+        "mach_period_ticks": "0",
+        "mach_computation_ticks": "120000",
+        "mach_constraint_ticks": "240000",
+        "mach_preemptible": "1"
+      }
+    ],
+    "qos_requests": [
+      {
+        "mode": "inherited",
+        "setter_called": "0"
+      }
+    ],
+    "results": [
+      {
+        "workload_exit": "0",
+        "diagnostic_only": "1",
+        "product_acceptance": "unchanged_external_gate"
+      }
+    ],
+    "clock": {
+      "steady_clock_is_steady": "1",
+      "steady_clock_period_num": "1",
+      "steady_clock_period_den": "1000000000",
+      "thread_cpu_clock_getres_result": "0",
+      "thread_cpu_clock_getres_error": "0",
+      "thread_cpu_resolution_ns": "42",
+      "clocks_have_different_envelopes": "1",
+      "wall_minus_cpu_not_exclusive_scheduler_time": "1",
+      "cpu_clock_not_proof_of_dsp_execution": "1"
+    },
+    "actual_qos_available": true
+  },
+  {
+    "archive": "native-BAAB",
+    "run_id": "38186063935",
+    "run_attempt": "1",
+    "controller_sha": "6345092ddefd11d8833eda8c794b7943e0195ef1",
+    "frozen_source_sha": "7b20cd9d1f90e3e2969c250712b199e893cf50cd",
+    "order": "BAAB",
+    "trial": "02-A",
+    "workload_kind": "sentinel",
+    "suite_command": "original",
+    "returncode": 0,
+    "log": "trials/02-A/sentinel/original.log",
+    "requested": "inherited",
+    "contexts": [
+      {
+        "phase": "entry",
+        "caller_context": "macos_base_qos",
+        "caller_thread_qos": "17",
+        "pthread_qos_query": "0",
+        "pthread_requested_qos": "17",
+        "pthread_relative_priority": "0",
+        "mach_time_constraint_query": "0",
+        "mach_time_constraint_count": "4",
+        "mach_time_constraint_default": "1",
+        "mach_period_ticks": "0",
+        "mach_computation_ticks": "120000",
+        "mach_constraint_ticks": "240000",
+        "mach_preemptible": "1"
+      },
+      {
+        "phase": "before-workload",
+        "caller_context": "macos_base_qos",
+        "caller_thread_qos": "17",
+        "pthread_qos_query": "0",
+        "pthread_requested_qos": "17",
+        "pthread_relative_priority": "0",
+        "mach_time_constraint_query": "0",
+        "mach_time_constraint_count": "4",
+        "mach_time_constraint_default": "1",
+        "mach_period_ticks": "0",
+        "mach_computation_ticks": "120000",
+        "mach_constraint_ticks": "240000",
+        "mach_preemptible": "1"
+      },
+      {
+        "phase": "after-workload",
+        "caller_context": "macos_base_qos",
+        "caller_thread_qos": "17",
+        "pthread_qos_query": "0",
+        "pthread_requested_qos": "17",
+        "pthread_relative_priority": "0",
+        "mach_time_constraint_query": "0",
+        "mach_time_constraint_count": "4",
+        "mach_time_constraint_default": "1",
+        "mach_period_ticks": "0",
+        "mach_computation_ticks": "120000",
+        "mach_constraint_ticks": "240000",
+        "mach_preemptible": "1"
+      }
+    ],
+    "qos_requests": [
+      {
+        "mode": "inherited",
+        "setter_called": "0"
+      }
+    ],
+    "results": [
+      {
+        "workload_exit": "0",
+        "diagnostic_only": "1",
+        "product_acceptance": "unchanged_external_gate"
+      }
+    ],
+    "clock": {
+      "steady_clock_is_steady": "1",
+      "steady_clock_period_num": "1",
+      "steady_clock_period_den": "1000000000",
+      "thread_cpu_clock_getres_result": "0",
+      "thread_cpu_clock_getres_error": "0",
+      "thread_cpu_resolution_ns": "42",
+      "clocks_have_different_envelopes": "1",
+      "wall_minus_cpu_not_exclusive_scheduler_time": "1",
+      "cpu_clock_not_proof_of_dsp_execution": "1"
+    },
+    "actual_qos_available": true
+  },
+  {
+    "archive": "native-BAAB",
+    "run_id": "38186063935",
+    "run_attempt": "1",
+    "controller_sha": "6345092ddefd11d8833eda8c794b7943e0195ef1",
+    "frozen_source_sha": "7b20cd9d1f90e3e2969c250712b199e893cf50cd",
+    "order": "BAAB",
+    "trial": "02-A",
+    "workload_kind": "sentinel",
+    "suite_command": "expanded",
+    "returncode": 0,
+    "log": "trials/02-A/sentinel/expanded.log",
+    "requested": "inherited",
+    "contexts": [
+      {
+        "phase": "entry",
+        "caller_context": "macos_base_qos",
+        "caller_thread_qos": "17",
+        "pthread_qos_query": "0",
+        "pthread_requested_qos": "17",
+        "pthread_relative_priority": "0",
+        "mach_time_constraint_query": "0",
+        "mach_time_constraint_count": "4",
+        "mach_time_constraint_default": "1",
+        "mach_period_ticks": "0",
+        "mach_computation_ticks": "120000",
+        "mach_constraint_ticks": "240000",
+        "mach_preemptible": "1"
+      },
+      {
+        "phase": "before-workload",
+        "caller_context": "macos_base_qos",
+        "caller_thread_qos": "17",
+        "pthread_qos_query": "0",
+        "pthread_requested_qos": "17",
+        "pthread_relative_priority": "0",
+        "mach_time_constraint_query": "0",
+        "mach_time_constraint_count": "4",
+        "mach_time_constraint_default": "1",
+        "mach_period_ticks": "0",
+        "mach_computation_ticks": "120000",
+        "mach_constraint_ticks": "240000",
+        "mach_preemptible": "1"
+      },
+      {
+        "phase": "after-workload",
+        "caller_context": "macos_base_qos",
+        "caller_thread_qos": "17",
+        "pthread_qos_query": "0",
+        "pthread_requested_qos": "17",
+        "pthread_relative_priority": "0",
+        "mach_time_constraint_query": "0",
+        "mach_time_constraint_count": "4",
+        "mach_time_constraint_default": "1",
+        "mach_period_ticks": "0",
+        "mach_computation_ticks": "120000",
+        "mach_constraint_ticks": "240000",
+        "mach_preemptible": "1"
+      }
+    ],
+    "qos_requests": [
+      {
+        "mode": "inherited",
+        "setter_called": "0"
+      }
+    ],
+    "results": [
+      {
+        "workload_exit": "0",
+        "diagnostic_only": "1",
+        "product_acceptance": "unchanged_external_gate"
+      }
+    ],
+    "clock": {
+      "steady_clock_is_steady": "1",
+      "steady_clock_period_num": "1",
+      "steady_clock_period_den": "1000000000",
+      "thread_cpu_clock_getres_result": "0",
+      "thread_cpu_clock_getres_error": "0",
+      "thread_cpu_resolution_ns": "42",
+      "clocks_have_different_envelopes": "1",
+      "wall_minus_cpu_not_exclusive_scheduler_time": "1",
+      "cpu_clock_not_proof_of_dsp_execution": "1"
+    },
+    "actual_qos_available": true
+  },
+  {
+    "archive": "native-BAAB",
+    "run_id": "38186063935",
+    "run_attempt": "1",
+    "controller_sha": "6345092ddefd11d8833eda8c794b7943e0195ef1",
+    "frozen_source_sha": "7b20cd9d1f90e3e2969c250712b199e893cf50cd",
+    "order": "BAAB",
+    "trial": "02-A",
+    "workload_kind": "sentinel",
+    "suite_command": "layouts",
+    "returncode": 0,
+    "log": "trials/02-A/sentinel/layouts.log",
+    "requested": "inherited",
+    "contexts": [
+      {
+        "phase": "entry",
+        "caller_context": "macos_base_qos",
+        "caller_thread_qos": "17",
+        "pthread_qos_query": "0",
+        "pthread_requested_qos": "17",
+        "pthread_relative_priority": "0",
+        "mach_time_constraint_query": "0",
+        "mach_time_constraint_count": "4",
+        "mach_time_constraint_default": "1",
+        "mach_period_ticks": "0",
+        "mach_computation_ticks": "120000",
+        "mach_constraint_ticks": "240000",
+        "mach_preemptible": "1"
+      },
+      {
+        "phase": "before-workload",
+        "caller_context": "macos_base_qos",
+        "caller_thread_qos": "17",
+        "pthread_qos_query": "0",
+        "pthread_requested_qos": "17",
+        "pthread_relative_priority": "0",
+        "mach_time_constraint_query": "0",
+        "mach_time_constraint_count": "4",
+        "mach_time_constraint_default": "1",
+        "mach_period_ticks": "0",
+        "mach_computation_ticks": "120000",
+        "mach_constraint_ticks": "240000",
+        "mach_preemptible": "1"
+      },
+      {
+        "phase": "after-workload",
+        "caller_context": "macos_base_qos",
+        "caller_thread_qos": "17",
+        "pthread_qos_query": "0",
+        "pthread_requested_qos": "17",
+        "pthread_relative_priority": "0",
+        "mach_time_constraint_query": "0",
+        "mach_time_constraint_count": "4",
+        "mach_time_constraint_default": "1",
+        "mach_period_ticks": "0",
+        "mach_computation_ticks": "120000",
+        "mach_constraint_ticks": "240000",
+        "mach_preemptible": "1"
+      }
+    ],
+    "qos_requests": [
+      {
+        "mode": "inherited",
+        "setter_called": "0"
+      }
+    ],
+    "results": [
+      {
+        "workload_exit": "0",
+        "diagnostic_only": "1",
+        "product_acceptance": "unchanged_external_gate"
+      }
+    ],
+    "clock": {
+      "steady_clock_is_steady": "1",
+      "steady_clock_period_num": "1",
+      "steady_clock_period_den": "1000000000",
+      "thread_cpu_clock_getres_result": "0",
+      "thread_cpu_clock_getres_error": "0",
+      "thread_cpu_resolution_ns": "42",
+      "clocks_have_different_envelopes": "1",
+      "wall_minus_cpu_not_exclusive_scheduler_time": "1",
+      "cpu_clock_not_proof_of_dsp_execution": "1"
+    },
+    "actual_qos_available": true
+  },
+  {
+    "archive": "native-BAAB",
+    "run_id": "38186063935",
+    "run_attempt": "1",
+    "controller_sha": "6345092ddefd11d8833eda8c794b7943e0195ef1",
+    "frozen_source_sha": "7b20cd9d1f90e3e2969c250712b199e893cf50cd",
+    "order": "BAAB",
+    "trial": "02-A",
+    "workload_kind": "sentinel",
+    "suite_command": "extended",
+    "returncode": 0,
+    "log": "trials/02-A/sentinel/extended.log",
+    "requested": "inherited",
+    "contexts": [
+      {
+        "phase": "entry",
+        "caller_context": "macos_base_qos",
+        "caller_thread_qos": "17",
+        "pthread_qos_query": "0",
+        "pthread_requested_qos": "17",
+        "pthread_relative_priority": "0",
+        "mach_time_constraint_query": "0",
+        "mach_time_constraint_count": "4",
+        "mach_time_constraint_default": "1",
+        "mach_period_ticks": "0",
+        "mach_computation_ticks": "120000",
+        "mach_constraint_ticks": "240000",
+        "mach_preemptible": "1"
+      },
+      {
+        "phase": "before-workload",
+        "caller_context": "macos_base_qos",
+        "caller_thread_qos": "17",
+        "pthread_qos_query": "0",
+        "pthread_requested_qos": "17",
+        "pthread_relative_priority": "0",
+        "mach_time_constraint_query": "0",
+        "mach_time_constraint_count": "4",
+        "mach_time_constraint_default": "1",
+        "mach_period_ticks": "0",
+        "mach_computation_ticks": "120000",
+        "mach_constraint_ticks": "240000",
+        "mach_preemptible": "1"
+      },
+      {
+        "phase": "after-workload",
+        "caller_context": "macos_base_qos",
+        "caller_thread_qos": "17",
+        "pthread_qos_query": "0",
+        "pthread_requested_qos": "17",
+        "pthread_relative_priority": "0",
+        "mach_time_constraint_query": "0",
+        "mach_time_constraint_count": "4",
+        "mach_time_constraint_default": "1",
+        "mach_period_ticks": "0",
+        "mach_computation_ticks": "120000",
+        "mach_constraint_ticks": "240000",
+        "mach_preemptible": "1"
+      }
+    ],
+    "qos_requests": [
+      {
+        "mode": "inherited",
+        "setter_called": "0"
+      }
+    ],
+    "results": [
+      {
+        "workload_exit": "0",
+        "diagnostic_only": "1",
+        "product_acceptance": "unchanged_external_gate"
+      }
+    ],
+    "clock": {
+      "steady_clock_is_steady": "1",
+      "steady_clock_period_num": "1",
+      "steady_clock_period_den": "1000000000",
+      "thread_cpu_clock_getres_result": "0",
+      "thread_cpu_clock_getres_error": "0",
+      "thread_cpu_resolution_ns": "42",
+      "clocks_have_different_envelopes": "1",
+      "wall_minus_cpu_not_exclusive_scheduler_time": "1",
+      "cpu_clock_not_proof_of_dsp_execution": "1"
+    },
+    "actual_qos_available": true
+  },
+  {
+    "archive": "native-BAAB",
+    "run_id": "38186063935",
+    "run_attempt": "1",
+    "controller_sha": "6345092ddefd11d8833eda8c794b7943e0195ef1",
+    "frozen_source_sha": "7b20cd9d1f90e3e2969c250712b199e893cf50cd",
+    "order": "BAAB",
+    "trial": "03-A",
+    "workload_kind": "diagnostic-cab",
+    "suite_command": "original",
+    "returncode": 0,
+    "log": "trials/03-A/original.log",
+    "requested": "inherited",
+    "contexts": [
+      {
+        "phase": "entry",
+        "caller_context": "macos_base_qos",
+        "caller_thread_qos": "17",
+        "pthread_qos_query": "0",
+        "pthread_requested_qos": "17",
+        "pthread_relative_priority": "0",
+        "mach_time_constraint_query": "0",
+        "mach_time_constraint_count": "4",
+        "mach_time_constraint_default": "1",
+        "mach_period_ticks": "0",
+        "mach_computation_ticks": "120000",
+        "mach_constraint_ticks": "240000",
+        "mach_preemptible": "1"
+      },
+      {
+        "phase": "before-workload",
+        "caller_context": "macos_base_qos",
+        "caller_thread_qos": "17",
+        "pthread_qos_query": "0",
+        "pthread_requested_qos": "17",
+        "pthread_relative_priority": "0",
+        "mach_time_constraint_query": "0",
+        "mach_time_constraint_count": "4",
+        "mach_time_constraint_default": "1",
+        "mach_period_ticks": "0",
+        "mach_computation_ticks": "120000",
+        "mach_constraint_ticks": "240000",
+        "mach_preemptible": "1"
+      },
+      {
+        "phase": "after-workload",
+        "caller_context": "macos_base_qos",
+        "caller_thread_qos": "17",
+        "pthread_qos_query": "0",
+        "pthread_requested_qos": "17",
+        "pthread_relative_priority": "0",
+        "mach_time_constraint_query": "0",
+        "mach_time_constraint_count": "4",
+        "mach_time_constraint_default": "1",
+        "mach_period_ticks": "0",
+        "mach_computation_ticks": "120000",
+        "mach_constraint_ticks": "240000",
+        "mach_preemptible": "1"
+      }
+    ],
+    "qos_requests": [
+      {
+        "mode": "inherited",
+        "setter_called": "0"
+      }
+    ],
+    "results": [
+      {
+        "workload_exit": "0",
+        "diagnostic_only": "1",
+        "product_acceptance": "unchanged_external_gate"
+      }
+    ],
+    "clock": {
+      "steady_clock_is_steady": "1",
+      "steady_clock_period_num": "1",
+      "steady_clock_period_den": "1000000000",
+      "thread_cpu_clock_getres_result": "0",
+      "thread_cpu_clock_getres_error": "0",
+      "thread_cpu_resolution_ns": "42",
+      "clocks_have_different_envelopes": "1",
+      "wall_minus_cpu_not_exclusive_scheduler_time": "1",
+      "cpu_clock_not_proof_of_dsp_execution": "1"
+    },
+    "actual_qos_available": true
+  },
+  {
+    "archive": "native-BAAB",
+    "run_id": "38186063935",
+    "run_attempt": "1",
+    "controller_sha": "6345092ddefd11d8833eda8c794b7943e0195ef1",
+    "frozen_source_sha": "7b20cd9d1f90e3e2969c250712b199e893cf50cd",
+    "order": "BAAB",
+    "trial": "03-A",
+    "workload_kind": "diagnostic-cab",
+    "suite_command": "expanded",
+    "returncode": 0,
+    "log": "trials/03-A/expanded.log",
+    "requested": "inherited",
+    "contexts": [
+      {
+        "phase": "entry",
+        "caller_context": "macos_base_qos",
+        "caller_thread_qos": "17",
+        "pthread_qos_query": "0",
+        "pthread_requested_qos": "17",
+        "pthread_relative_priority": "0",
+        "mach_time_constraint_query": "0",
+        "mach_time_constraint_count": "4",
+        "mach_time_constraint_default": "1",
+        "mach_period_ticks": "0",
+        "mach_computation_ticks": "120000",
+        "mach_constraint_ticks": "240000",
+        "mach_preemptible": "1"
+      },
+      {
+        "phase": "before-workload",
+        "caller_context": "macos_base_qos",
+        "caller_thread_qos": "17",
+        "pthread_qos_query": "0",
+        "pthread_requested_qos": "17",
+        "pthread_relative_priority": "0",
+        "mach_time_constraint_query": "0",
+        "mach_time_constraint_count": "4",
+        "mach_time_constraint_default": "1",
+        "mach_period_ticks": "0",
+        "mach_computation_ticks": "120000",
+        "mach_constraint_ticks": "240000",
+        "mach_preemptible": "1"
+      },
+      {
+        "phase": "after-workload",
+        "caller_context": "macos_base_qos",
+        "caller_thread_qos": "17",
+        "pthread_qos_query": "0",
+        "pthread_requested_qos": "17",
+        "pthread_relative_priority": "0",
+        "mach_time_constraint_query": "0",
+        "mach_time_constraint_count": "4",
+        "mach_time_constraint_default": "1",
+        "mach_period_ticks": "0",
+        "mach_computation_ticks": "120000",
+        "mach_constraint_ticks": "240000",
+        "mach_preemptible": "1"
+      }
+    ],
+    "qos_requests": [
+      {
+        "mode": "inherited",
+        "setter_called": "0"
+      }
+    ],
+    "results": [
+      {
+        "workload_exit": "0",
+        "diagnostic_only": "1",
+        "product_acceptance": "unchanged_external_gate"
+      }
+    ],
+    "clock": {
+      "steady_clock_is_steady": "1",
+      "steady_clock_period_num": "1",
+      "steady_clock_period_den": "1000000000",
+      "thread_cpu_clock_getres_result": "0",
+      "thread_cpu_clock_getres_error": "0",
+      "thread_cpu_resolution_ns": "42",
+      "clocks_have_different_envelopes": "1",
+      "wall_minus_cpu_not_exclusive_scheduler_time": "1",
+      "cpu_clock_not_proof_of_dsp_execution": "1"
+    },
+    "actual_qos_available": true
+  },
+  {
+    "archive": "native-BAAB",
+    "run_id": "38186063935",
+    "run_attempt": "1",
+    "controller_sha": "6345092ddefd11d8833eda8c794b7943e0195ef1",
+    "frozen_source_sha": "7b20cd9d1f90e3e2969c250712b199e893cf50cd",
+    "order": "BAAB",
+    "trial": "03-A",
+    "workload_kind": "diagnostic-cab",
+    "suite_command": "layouts",
+    "returncode": 0,
+    "log": "trials/03-A/layouts.log",
+    "requested": "inherited",
+    "contexts": [
+      {
+        "phase": "entry",
+        "caller_context": "macos_base_qos",
+        "caller_thread_qos": "17",
+        "pthread_qos_query": "0",
+        "pthread_requested_qos": "17",
+        "pthread_relative_priority": "0",
+        "mach_time_constraint_query": "0",
+        "mach_time_constraint_count": "4",
+        "mach_time_constraint_default": "1",
+        "mach_period_ticks": "0",
+        "mach_computation_ticks": "120000",
+        "mach_constraint_ticks": "240000",
+        "mach_preemptible": "1"
+      },
+      {
+        "phase": "before-workload",
+        "caller_context": "macos_base_qos",
+        "caller_thread_qos": "17",
+        "pthread_qos_query": "0",
+        "pthread_requested_qos": "17",
+        "pthread_relative_priority": "0",
+        "mach_time_constraint_query": "0",
+        "mach_time_constraint_count": "4",
+        "mach_time_constraint_default": "1",
+        "mach_period_ticks": "0",
+        "mach_computation_ticks": "120000",
+        "mach_constraint_ticks": "240000",
+        "mach_preemptible": "1"
+      },
+      {
+        "phase": "after-workload",
+        "caller_context": "macos_base_qos",
+        "caller_thread_qos": "17",
+        "pthread_qos_query": "0",
+        "pthread_requested_qos": "17",
+        "pthread_relative_priority": "0",
+        "mach_time_constraint_query": "0",
+        "mach_time_constraint_count": "4",
+        "mach_time_constraint_default": "1",
+        "mach_period_ticks": "0",
+        "mach_computation_ticks": "120000",
+        "mach_constraint_ticks": "240000",
+        "mach_preemptible": "1"
+      }
+    ],
+    "qos_requests": [
+      {
+        "mode": "inherited",
+        "setter_called": "0"
+      }
+    ],
+    "results": [
+      {
+        "workload_exit": "0",
+        "diagnostic_only": "1",
+        "product_acceptance": "unchanged_external_gate"
+      }
+    ],
+    "clock": {
+      "steady_clock_is_steady": "1",
+      "steady_clock_period_num": "1",
+      "steady_clock_period_den": "1000000000",
+      "thread_cpu_clock_getres_result": "0",
+      "thread_cpu_clock_getres_error": "0",
+      "thread_cpu_resolution_ns": "42",
+      "clocks_have_different_envelopes": "1",
+      "wall_minus_cpu_not_exclusive_scheduler_time": "1",
+      "cpu_clock_not_proof_of_dsp_execution": "1"
+    },
+    "actual_qos_available": true
+  },
+  {
+    "archive": "native-BAAB",
+    "run_id": "38186063935",
+    "run_attempt": "1",
+    "controller_sha": "6345092ddefd11d8833eda8c794b7943e0195ef1",
+    "frozen_source_sha": "7b20cd9d1f90e3e2969c250712b199e893cf50cd",
+    "order": "BAAB",
+    "trial": "03-A",
+    "workload_kind": "diagnostic-cab",
+    "suite_command": "extended",
+    "returncode": 0,
+    "log": "trials/03-A/extended.log",
+    "requested": "inherited",
+    "contexts": [
+      {
+        "phase": "entry",
+        "caller_context": "macos_base_qos",
+        "caller_thread_qos": "17",
+        "pthread_qos_query": "0",
+        "pthread_requested_qos": "17",
+        "pthread_relative_priority": "0",
+        "mach_time_constraint_query": "0",
+        "mach_time_constraint_count": "4",
+        "mach_time_constraint_default": "1",
+        "mach_period_ticks": "0",
+        "mach_computation_ticks": "120000",
+        "mach_constraint_ticks": "240000",
+        "mach_preemptible": "1"
+      },
+      {
+        "phase": "before-workload",
+        "caller_context": "macos_base_qos",
+        "caller_thread_qos": "17",
+        "pthread_qos_query": "0",
+        "pthread_requested_qos": "17",
+        "pthread_relative_priority": "0",
+        "mach_time_constraint_query": "0",
+        "mach_time_constraint_count": "4",
+        "mach_time_constraint_default": "1",
+        "mach_period_ticks": "0",
+        "mach_computation_ticks": "120000",
+        "mach_constraint_ticks": "240000",
+        "mach_preemptible": "1"
+      },
+      {
+        "phase": "after-workload",
+        "caller_context": "macos_base_qos",
+        "caller_thread_qos": "17",
+        "pthread_qos_query": "0",
+        "pthread_requested_qos": "17",
+        "pthread_relative_priority": "0",
+        "mach_time_constraint_query": "0",
+        "mach_time_constraint_count": "4",
+        "mach_time_constraint_default": "1",
+        "mach_period_ticks": "0",
+        "mach_computation_ticks": "120000",
+        "mach_constraint_ticks": "240000",
+        "mach_preemptible": "1"
+      }
+    ],
+    "qos_requests": [
+      {
+        "mode": "inherited",
+        "setter_called": "0"
+      }
+    ],
+    "results": [
+      {
+        "workload_exit": "0",
+        "diagnostic_only": "1",
+        "product_acceptance": "unchanged_external_gate"
+      }
+    ],
+    "clock": {
+      "steady_clock_is_steady": "1",
+      "steady_clock_period_num": "1",
+      "steady_clock_period_den": "1000000000",
+      "thread_cpu_clock_getres_result": "0",
+      "thread_cpu_clock_getres_error": "0",
+      "thread_cpu_resolution_ns": "42",
+      "clocks_have_different_envelopes": "1",
+      "wall_minus_cpu_not_exclusive_scheduler_time": "1",
+      "cpu_clock_not_proof_of_dsp_execution": "1"
+    },
+    "actual_qos_available": true
+  },
+  {
+    "archive": "native-BAAB",
+    "run_id": "38186063935",
+    "run_attempt": "1",
+    "controller_sha": "6345092ddefd11d8833eda8c794b7943e0195ef1",
+    "frozen_source_sha": "7b20cd9d1f90e3e2969c250712b199e893cf50cd",
+    "order": "BAAB",
+    "trial": "03-A",
+    "workload_kind": "sentinel",
+    "suite_command": "original",
+    "returncode": 0,
+    "log": "trials/03-A/sentinel/original.log",
+    "requested": "inherited",
+    "contexts": [
+      {
+        "phase": "entry",
+        "caller_context": "macos_base_qos",
+        "caller_thread_qos": "17",
+        "pthread_qos_query": "0",
+        "pthread_requested_qos": "17",
+        "pthread_relative_priority": "0",
+        "mach_time_constraint_query": "0",
+        "mach_time_constraint_count": "4",
+        "mach_time_constraint_default": "1",
+        "mach_period_ticks": "0",
+        "mach_computation_ticks": "120000",
+        "mach_constraint_ticks": "240000",
+        "mach_preemptible": "1"
+      },
+      {
+        "phase": "before-workload",
+        "caller_context": "macos_base_qos",
+        "caller_thread_qos": "17",
+        "pthread_qos_query": "0",
+        "pthread_requested_qos": "17",
+        "pthread_relative_priority": "0",
+        "mach_time_constraint_query": "0",
+        "mach_time_constraint_count": "4",
+        "mach_time_constraint_default": "1",
+        "mach_period_ticks": "0",
+        "mach_computation_ticks": "120000",
+        "mach_constraint_ticks": "240000",
+        "mach_preemptible": "1"
+      },
+      {
+        "phase": "after-workload",
+        "caller_context": "macos_base_qos",
+        "caller_thread_qos": "17",
+        "pthread_qos_query": "0",
+        "pthread_requested_qos": "17",
+        "pthread_relative_priority": "0",
+        "mach_time_constraint_query": "0",
+        "mach_time_constraint_count": "4",
+        "mach_time_constraint_default": "1",
+        "mach_period_ticks": "0",
+        "mach_computation_ticks": "120000",
+        "mach_constraint_ticks": "240000",
+        "mach_preemptible": "1"
+      }
+    ],
+    "qos_requests": [
+      {
+        "mode": "inherited",
+        "setter_called": "0"
+      }
+    ],
+    "results": [
+      {
+        "workload_exit": "0",
+        "diagnostic_only": "1",
+        "product_acceptance": "unchanged_external_gate"
+      }
+    ],
+    "clock": {
+      "steady_clock_is_steady": "1",
+      "steady_clock_period_num": "1",
+      "steady_clock_period_den": "1000000000",
+      "thread_cpu_clock_getres_result": "0",
+      "thread_cpu_clock_getres_error": "0",
+      "thread_cpu_resolution_ns": "42",
+      "clocks_have_different_envelopes": "1",
+      "wall_minus_cpu_not_exclusive_scheduler_time": "1",
+      "cpu_clock_not_proof_of_dsp_execution": "1"
+    },
+    "actual_qos_available": true
+  },
+  {
+    "archive": "native-BAAB",
+    "run_id": "38186063935",
+    "run_attempt": "1",
+    "controller_sha": "6345092ddefd11d8833eda8c794b7943e0195ef1",
+    "frozen_source_sha": "7b20cd9d1f90e3e2969c250712b199e893cf50cd",
+    "order": "BAAB",
+    "trial": "03-A",
+    "workload_kind": "sentinel",
+    "suite_command": "expanded",
+    "returncode": 0,
+    "log": "trials/03-A/sentinel/expanded.log",
+    "requested": "inherited",
+    "contexts": [
+      {
+        "phase": "entry",
+        "caller_context": "macos_base_qos",
+        "caller_thread_qos": "17",
+        "pthread_qos_query": "0",
+        "pthread_requested_qos": "17",
+        "pthread_relative_priority": "0",
+        "mach_time_constraint_query": "0",
+        "mach_time_constraint_count": "4",
+        "mach_time_constraint_default": "1",
+        "mach_period_ticks": "0",
+        "mach_computation_ticks": "120000",
+        "mach_constraint_ticks": "240000",
+        "mach_preemptible": "1"
+      },
+      {
+        "phase": "before-workload",
+        "caller_context": "macos_base_qos",
+        "caller_thread_qos": "17",
+        "pthread_qos_query": "0",
+        "pthread_requested_qos": "17",
+        "pthread_relative_priority": "0",
+        "mach_time_constraint_query": "0",
+        "mach_time_constraint_count": "4",
+        "mach_time_constraint_default": "1",
+        "mach_period_ticks": "0",
+        "mach_computation_ticks": "120000",
+        "mach_constraint_ticks": "240000",
+        "mach_preemptible": "1"
+      },
+      {
+        "phase": "after-workload",
+        "caller_context": "macos_base_qos",
+        "caller_thread_qos": "17",
+        "pthread_qos_query": "0",
+        "pthread_requested_qos": "17",
+        "pthread_relative_priority": "0",
+        "mach_time_constraint_query": "0",
+        "mach_time_constraint_count": "4",
+        "mach_time_constraint_default": "1",
+        "mach_period_ticks": "0",
+        "mach_computation_ticks": "120000",
+        "mach_constraint_ticks": "240000",
+        "mach_preemptible": "1"
+      }
+    ],
+    "qos_requests": [
+      {
+        "mode": "inherited",
+        "setter_called": "0"
+      }
+    ],
+    "results": [
+      {
+        "workload_exit": "0",
+        "diagnostic_only": "1",
+        "product_acceptance": "unchanged_external_gate"
+      }
+    ],
+    "clock": {
+      "steady_clock_is_steady": "1",
+      "steady_clock_period_num": "1",
+      "steady_clock_period_den": "1000000000",
+      "thread_cpu_clock_getres_result": "0",
+      "thread_cpu_clock_getres_error": "0",
+      "thread_cpu_resolution_ns": "42",
+      "clocks_have_different_envelopes": "1",
+      "wall_minus_cpu_not_exclusive_scheduler_time": "1",
+      "cpu_clock_not_proof_of_dsp_execution": "1"
+    },
+    "actual_qos_available": true
+  },
+  {
+    "archive": "native-BAAB",
+    "run_id": "38186063935",
+    "run_attempt": "1",
+    "controller_sha": "6345092ddefd11d8833eda8c794b7943e0195ef1",
+    "frozen_source_sha": "7b20cd9d1f90e3e2969c250712b199e893cf50cd",
+    "order": "BAAB",
+    "trial": "03-A",
+    "workload_kind": "sentinel",
+    "suite_command": "layouts",
+    "returncode": 0,
+    "log": "trials/03-A/sentinel/layouts.log",
+    "requested": "inherited",
+    "contexts": [
+      {
+        "phase": "entry",
+        "caller_context": "macos_base_qos",
+        "caller_thread_qos": "17",
+        "pthread_qos_query": "0",
+        "pthread_requested_qos": "17",
+        "pthread_relative_priority": "0",
+        "mach_time_constraint_query": "0",
+        "mach_time_constraint_count": "4",
+        "mach_time_constraint_default": "1",
+        "mach_period_ticks": "0",
+        "mach_computation_ticks": "120000",
+        "mach_constraint_ticks": "240000",
+        "mach_preemptible": "1"
+      },
+      {
+        "phase": "before-workload",
+        "caller_context": "macos_base_qos",
+        "caller_thread_qos": "17",
+        "pthread_qos_query": "0",
+        "pthread_requested_qos": "17",
+        "pthread_relative_priority": "0",
+        "mach_time_constraint_query": "0",
+        "mach_time_constraint_count": "4",
+        "mach_time_constraint_default": "1",
+        "mach_period_ticks": "0",
+        "mach_computation_ticks": "120000",
+        "mach_constraint_ticks": "240000",
+        "mach_preemptible": "1"
+      },
+      {
+        "phase": "after-workload",
+        "caller_context": "macos_base_qos",
+        "caller_thread_qos": "17",
+        "pthread_qos_query": "0",
+        "pthread_requested_qos": "17",
+        "pthread_relative_priority": "0",
+        "mach_time_constraint_query": "0",
+        "mach_time_constraint_count": "4",
+        "mach_time_constraint_default": "1",
+        "mach_period_ticks": "0",
+        "mach_computation_ticks": "120000",
+        "mach_constraint_ticks": "240000",
+        "mach_preemptible": "1"
+      }
+    ],
+    "qos_requests": [
+      {
+        "mode": "inherited",
+        "setter_called": "0"
+      }
+    ],
+    "results": [
+      {
+        "workload_exit": "0",
+        "diagnostic_only": "1",
+        "product_acceptance": "unchanged_external_gate"
+      }
+    ],
+    "clock": {
+      "steady_clock_is_steady": "1",
+      "steady_clock_period_num": "1",
+      "steady_clock_period_den": "1000000000",
+      "thread_cpu_clock_getres_result": "0",
+      "thread_cpu_clock_getres_error": "0",
+      "thread_cpu_resolution_ns": "42",
+      "clocks_have_different_envelopes": "1",
+      "wall_minus_cpu_not_exclusive_scheduler_time": "1",
+      "cpu_clock_not_proof_of_dsp_execution": "1"
+    },
+    "actual_qos_available": true
+  },
+  {
+    "archive": "native-BAAB",
+    "run_id": "38186063935",
+    "run_attempt": "1",
+    "controller_sha": "6345092ddefd11d8833eda8c794b7943e0195ef1",
+    "frozen_source_sha": "7b20cd9d1f90e3e2969c250712b199e893cf50cd",
+    "order": "BAAB",
+    "trial": "03-A",
+    "workload_kind": "sentinel",
+    "suite_command": "extended",
+    "returncode": 0,
+    "log": "trials/03-A/sentinel/extended.log",
+    "requested": "inherited",
+    "contexts": [
+      {
+        "phase": "entry",
+        "caller_context": "macos_base_qos",
+        "caller_thread_qos": "17",
+        "pthread_qos_query": "0",
+        "pthread_requested_qos": "17",
+        "pthread_relative_priority": "0",
+        "mach_time_constraint_query": "0",
+        "mach_time_constraint_count": "4",
+        "mach_time_constraint_default": "1",
+        "mach_period_ticks": "0",
+        "mach_computation_ticks": "120000",
+        "mach_constraint_ticks": "240000",
+        "mach_preemptible": "1"
+      },
+      {
+        "phase": "before-workload",
+        "caller_context": "macos_base_qos",
+        "caller_thread_qos": "17",
+        "pthread_qos_query": "0",
+        "pthread_requested_qos": "17",
+        "pthread_relative_priority": "0",
+        "mach_time_constraint_query": "0",
+        "mach_time_constraint_count": "4",
+        "mach_time_constraint_default": "1",
+        "mach_period_ticks": "0",
+        "mach_computation_ticks": "120000",
+        "mach_constraint_ticks": "240000",
+        "mach_preemptible": "1"
+      },
+      {
+        "phase": "after-workload",
+        "caller_context": "macos_base_qos",
+        "caller_thread_qos": "17",
+        "pthread_qos_query": "0",
+        "pthread_requested_qos": "17",
+        "pthread_relative_priority": "0",
+        "mach_time_constraint_query": "0",
+        "mach_time_constraint_count": "4",
+        "mach_time_constraint_default": "1",
+        "mach_period_ticks": "0",
+        "mach_computation_ticks": "120000",
+        "mach_constraint_ticks": "240000",
+        "mach_preemptible": "1"
+      }
+    ],
+    "qos_requests": [
+      {
+        "mode": "inherited",
+        "setter_called": "0"
+      }
+    ],
+    "results": [
+      {
+        "workload_exit": "0",
+        "diagnostic_only": "1",
+        "product_acceptance": "unchanged_external_gate"
+      }
+    ],
+    "clock": {
+      "steady_clock_is_steady": "1",
+      "steady_clock_period_num": "1",
+      "steady_clock_period_den": "1000000000",
+      "thread_cpu_clock_getres_result": "0",
+      "thread_cpu_clock_getres_error": "0",
+      "thread_cpu_resolution_ns": "42",
+      "clocks_have_different_envelopes": "1",
+      "wall_minus_cpu_not_exclusive_scheduler_time": "1",
+      "cpu_clock_not_proof_of_dsp_execution": "1"
+    },
+    "actual_qos_available": true
+  },
+  {
+    "archive": "native-BAAB",
+    "run_id": "38186063935",
+    "run_attempt": "1",
+    "controller_sha": "6345092ddefd11d8833eda8c794b7943e0195ef1",
+    "frozen_source_sha": "7b20cd9d1f90e3e2969c250712b199e893cf50cd",
+    "order": "BAAB",
+    "trial": "04-B",
+    "workload_kind": "diagnostic-cab",
+    "suite_command": "original",
+    "returncode": 0,
+    "log": "trials/04-B/original.log",
+    "requested": "user-interactive",
+    "contexts": [
+      {
+        "phase": "entry",
+        "caller_context": "macos_base_qos",
+        "caller_thread_qos": "17",
+        "pthread_qos_query": "0",
+        "pthread_requested_qos": "17",
+        "pthread_relative_priority": "0",
+        "mach_time_constraint_query": "0",
+        "mach_time_constraint_count": "4",
+        "mach_time_constraint_default": "1",
+        "mach_period_ticks": "0",
+        "mach_computation_ticks": "120000",
+        "mach_constraint_ticks": "240000",
+        "mach_preemptible": "1"
+      },
+      {
+        "phase": "before-workload",
+        "caller_context": "macos_base_qos",
+        "caller_thread_qos": "33",
+        "pthread_qos_query": "0",
+        "pthread_requested_qos": "33",
+        "pthread_relative_priority": "0",
+        "mach_time_constraint_query": "0",
+        "mach_time_constraint_count": "4",
+        "mach_time_constraint_default": "1",
+        "mach_period_ticks": "0",
+        "mach_computation_ticks": "120000",
+        "mach_constraint_ticks": "240000",
+        "mach_preemptible": "1"
+      },
+      {
+        "phase": "after-workload",
+        "caller_context": "macos_base_qos",
+        "caller_thread_qos": "33",
+        "pthread_qos_query": "0",
+        "pthread_requested_qos": "33",
+        "pthread_relative_priority": "0",
+        "mach_time_constraint_query": "0",
+        "mach_time_constraint_count": "4",
+        "mach_time_constraint_default": "1",
+        "mach_period_ticks": "0",
+        "mach_computation_ticks": "120000",
+        "mach_constraint_ticks": "240000",
+        "mach_preemptible": "1"
+      }
+    ],
+    "qos_requests": [
+      {
+        "mode": "user-interactive",
+        "setter_called": "1",
+        "setter_result": "0",
+        "requested": "33",
+        "observed": "33"
+      }
+    ],
+    "results": [
+      {
+        "workload_exit": "0",
+        "diagnostic_only": "1",
+        "product_acceptance": "unchanged_external_gate"
+      }
+    ],
+    "clock": {
+      "steady_clock_is_steady": "1",
+      "steady_clock_period_num": "1",
+      "steady_clock_period_den": "1000000000",
+      "thread_cpu_clock_getres_result": "0",
+      "thread_cpu_clock_getres_error": "0",
+      "thread_cpu_resolution_ns": "42",
+      "clocks_have_different_envelopes": "1",
+      "wall_minus_cpu_not_exclusive_scheduler_time": "1",
+      "cpu_clock_not_proof_of_dsp_execution": "1"
+    },
+    "actual_qos_available": true
+  },
+  {
+    "archive": "native-BAAB",
+    "run_id": "38186063935",
+    "run_attempt": "1",
+    "controller_sha": "6345092ddefd11d8833eda8c794b7943e0195ef1",
+    "frozen_source_sha": "7b20cd9d1f90e3e2969c250712b199e893cf50cd",
+    "order": "BAAB",
+    "trial": "04-B",
+    "workload_kind": "diagnostic-cab",
+    "suite_command": "expanded",
+    "returncode": 0,
+    "log": "trials/04-B/expanded.log",
+    "requested": "user-interactive",
+    "contexts": [
+      {
+        "phase": "entry",
+        "caller_context": "macos_base_qos",
+        "caller_thread_qos": "17",
+        "pthread_qos_query": "0",
+        "pthread_requested_qos": "17",
+        "pthread_relative_priority": "0",
+        "mach_time_constraint_query": "0",
+        "mach_time_constraint_count": "4",
+        "mach_time_constraint_default": "1",
+        "mach_period_ticks": "0",
+        "mach_computation_ticks": "120000",
+        "mach_constraint_ticks": "240000",
+        "mach_preemptible": "1"
+      },
+      {
+        "phase": "before-workload",
+        "caller_context": "macos_base_qos",
+        "caller_thread_qos": "33",
+        "pthread_qos_query": "0",
+        "pthread_requested_qos": "33",
+        "pthread_relative_priority": "0",
+        "mach_time_constraint_query": "0",
+        "mach_time_constraint_count": "4",
+        "mach_time_constraint_default": "1",
+        "mach_period_ticks": "0",
+        "mach_computation_ticks": "120000",
+        "mach_constraint_ticks": "240000",
+        "mach_preemptible": "1"
+      },
+      {
+        "phase": "after-workload",
+        "caller_context": "macos_base_qos",
+        "caller_thread_qos": "33",
+        "pthread_qos_query": "0",
+        "pthread_requested_qos": "33",
+        "pthread_relative_priority": "0",
+        "mach_time_constraint_query": "0",
+        "mach_time_constraint_count": "4",
+        "mach_time_constraint_default": "1",
+        "mach_period_ticks": "0",
+        "mach_computation_ticks": "120000",
+        "mach_constraint_ticks": "240000",
+        "mach_preemptible": "1"
+      }
+    ],
+    "qos_requests": [
+      {
+        "mode": "user-interactive",
+        "setter_called": "1",
+        "setter_result": "0",
+        "requested": "33",
+        "observed": "33"
+      }
+    ],
+    "results": [
+      {
+        "workload_exit": "0",
+        "diagnostic_only": "1",
+        "product_acceptance": "unchanged_external_gate"
+      }
+    ],
+    "clock": {
+      "steady_clock_is_steady": "1",
+      "steady_clock_period_num": "1",
+      "steady_clock_period_den": "1000000000",
+      "thread_cpu_clock_getres_result": "0",
+      "thread_cpu_clock_getres_error": "0",
+      "thread_cpu_resolution_ns": "42",
+      "clocks_have_different_envelopes": "1",
+      "wall_minus_cpu_not_exclusive_scheduler_time": "1",
+      "cpu_clock_not_proof_of_dsp_execution": "1"
+    },
+    "actual_qos_available": true
+  },
+  {
+    "archive": "native-BAAB",
+    "run_id": "38186063935",
+    "run_attempt": "1",
+    "controller_sha": "6345092ddefd11d8833eda8c794b7943e0195ef1",
+    "frozen_source_sha": "7b20cd9d1f90e3e2969c250712b199e893cf50cd",
+    "order": "BAAB",
+    "trial": "04-B",
+    "workload_kind": "diagnostic-cab",
+    "suite_command": "layouts",
+    "returncode": 0,
+    "log": "trials/04-B/layouts.log",
+    "requested": "user-interactive",
+    "contexts": [
+      {
+        "phase": "entry",
+        "caller_context": "macos_base_qos",
+        "caller_thread_qos": "17",
+        "pthread_qos_query": "0",
+        "pthread_requested_qos": "17",
+        "pthread_relative_priority": "0",
+        "mach_time_constraint_query": "0",
+        "mach_time_constraint_count": "4",
+        "mach_time_constraint_default": "1",
+        "mach_period_ticks": "0",
+        "mach_computation_ticks": "120000",
+        "mach_constraint_ticks": "240000",
+        "mach_preemptible": "1"
+      },
+      {
+        "phase": "before-workload",
+        "caller_context": "macos_base_qos",
+        "caller_thread_qos": "33",
+        "pthread_qos_query": "0",
+        "pthread_requested_qos": "33",
+        "pthread_relative_priority": "0",
+        "mach_time_constraint_query": "0",
+        "mach_time_constraint_count": "4",
+        "mach_time_constraint_default": "1",
+        "mach_period_ticks": "0",
+        "mach_computation_ticks": "120000",
+        "mach_constraint_ticks": "240000",
+        "mach_preemptible": "1"
+      },
+      {
+        "phase": "after-workload",
+        "caller_context": "macos_base_qos",
+        "caller_thread_qos": "33",
+        "pthread_qos_query": "0",
+        "pthread_requested_qos": "33",
+        "pthread_relative_priority": "0",
+        "mach_time_constraint_query": "0",
+        "mach_time_constraint_count": "4",
+        "mach_time_constraint_default": "1",
+        "mach_period_ticks": "0",
+        "mach_computation_ticks": "120000",
+        "mach_constraint_ticks": "240000",
+        "mach_preemptible": "1"
+      }
+    ],
+    "qos_requests": [
+      {
+        "mode": "user-interactive",
+        "setter_called": "1",
+        "setter_result": "0",
+        "requested": "33",
+        "observed": "33"
+      }
+    ],
+    "results": [
+      {
+        "workload_exit": "0",
+        "diagnostic_only": "1",
+        "product_acceptance": "unchanged_external_gate"
+      }
+    ],
+    "clock": {
+      "steady_clock_is_steady": "1",
+      "steady_clock_period_num": "1",
+      "steady_clock_period_den": "1000000000",
+      "thread_cpu_clock_getres_result": "0",
+      "thread_cpu_clock_getres_error": "0",
+      "thread_cpu_resolution_ns": "42",
+      "clocks_have_different_envelopes": "1",
+      "wall_minus_cpu_not_exclusive_scheduler_time": "1",
+      "cpu_clock_not_proof_of_dsp_execution": "1"
+    },
+    "actual_qos_available": true
+  },
+  {
+    "archive": "native-BAAB",
+    "run_id": "38186063935",
+    "run_attempt": "1",
+    "controller_sha": "6345092ddefd11d8833eda8c794b7943e0195ef1",
+    "frozen_source_sha": "7b20cd9d1f90e3e2969c250712b199e893cf50cd",
+    "order": "BAAB",
+    "trial": "04-B",
+    "workload_kind": "diagnostic-cab",
+    "suite_command": "extended",
+    "returncode": 0,
+    "log": "trials/04-B/extended.log",
+    "requested": "user-interactive",
+    "contexts": [
+      {
+        "phase": "entry",
+        "caller_context": "macos_base_qos",
+        "caller_thread_qos": "17",
+        "pthread_qos_query": "0",
+        "pthread_requested_qos": "17",
+        "pthread_relative_priority": "0",
+        "mach_time_constraint_query": "0",
+        "mach_time_constraint_count": "4",
+        "mach_time_constraint_default": "1",
+        "mach_period_ticks": "0",
+        "mach_computation_ticks": "120000",
+        "mach_constraint_ticks": "240000",
+        "mach_preemptible": "1"
+      },
+      {
+        "phase": "before-workload",
+        "caller_context": "macos_base_qos",
+        "caller_thread_qos": "33",
+        "pthread_qos_query": "0",
+        "pthread_requested_qos": "33",
+        "pthread_relative_priority": "0",
+        "mach_time_constraint_query": "0",
+        "mach_time_constraint_count": "4",
+        "mach_time_constraint_default": "1",
+        "mach_period_ticks": "0",
+        "mach_computation_ticks": "120000",
+        "mach_constraint_ticks": "240000",
+        "mach_preemptible": "1"
+      },
+      {
+        "phase": "after-workload",
+        "caller_context": "macos_base_qos",
+        "caller_thread_qos": "33",
+        "pthread_qos_query": "0",
+        "pthread_requested_qos": "33",
+        "pthread_relative_priority": "0",
+        "mach_time_constraint_query": "0",
+        "mach_time_constraint_count": "4",
+        "mach_time_constraint_default": "1",
+        "mach_period_ticks": "0",
+        "mach_computation_ticks": "120000",
+        "mach_constraint_ticks": "240000",
+        "mach_preemptible": "1"
+      }
+    ],
+    "qos_requests": [
+      {
+        "mode": "user-interactive",
+        "setter_called": "1",
+        "setter_result": "0",
+        "requested": "33",
+        "observed": "33"
+      }
+    ],
+    "results": [
+      {
+        "workload_exit": "0",
+        "diagnostic_only": "1",
+        "product_acceptance": "unchanged_external_gate"
+      }
+    ],
+    "clock": {
+      "steady_clock_is_steady": "1",
+      "steady_clock_period_num": "1",
+      "steady_clock_period_den": "1000000000",
+      "thread_cpu_clock_getres_result": "0",
+      "thread_cpu_clock_getres_error": "0",
+      "thread_cpu_resolution_ns": "42",
+      "clocks_have_different_envelopes": "1",
+      "wall_minus_cpu_not_exclusive_scheduler_time": "1",
+      "cpu_clock_not_proof_of_dsp_execution": "1"
+    },
+    "actual_qos_available": true
+  },
+  {
+    "archive": "native-BAAB",
+    "run_id": "38186063935",
+    "run_attempt": "1",
+    "controller_sha": "6345092ddefd11d8833eda8c794b7943e0195ef1",
+    "frozen_source_sha": "7b20cd9d1f90e3e2969c250712b199e893cf50cd",
+    "order": "BAAB",
+    "trial": "04-B",
+    "workload_kind": "sentinel",
+    "suite_command": "original",
+    "returncode": 0,
+    "log": "trials/04-B/sentinel/original.log",
+    "requested": "user-interactive",
+    "contexts": [
+      {
+        "phase": "entry",
+        "caller_context": "macos_base_qos",
+        "caller_thread_qos": "17",
+        "pthread_qos_query": "0",
+        "pthread_requested_qos": "17",
+        "pthread_relative_priority": "0",
+        "mach_time_constraint_query": "0",
+        "mach_time_constraint_count": "4",
+        "mach_time_constraint_default": "1",
+        "mach_period_ticks": "0",
+        "mach_computation_ticks": "120000",
+        "mach_constraint_ticks": "240000",
+        "mach_preemptible": "1"
+      },
+      {
+        "phase": "before-workload",
+        "caller_context": "macos_base_qos",
+        "caller_thread_qos": "33",
+        "pthread_qos_query": "0",
+        "pthread_requested_qos": "33",
+        "pthread_relative_priority": "0",
+        "mach_time_constraint_query": "0",
+        "mach_time_constraint_count": "4",
+        "mach_time_constraint_default": "1",
+        "mach_period_ticks": "0",
+        "mach_computation_ticks": "120000",
+        "mach_constraint_ticks": "240000",
+        "mach_preemptible": "1"
+      },
+      {
+        "phase": "after-workload",
+        "caller_context": "macos_base_qos",
+        "caller_thread_qos": "33",
+        "pthread_qos_query": "0",
+        "pthread_requested_qos": "33",
+        "pthread_relative_priority": "0",
+        "mach_time_constraint_query": "0",
+        "mach_time_constraint_count": "4",
+        "mach_time_constraint_default": "1",
+        "mach_period_ticks": "0",
+        "mach_computation_ticks": "120000",
+        "mach_constraint_ticks": "240000",
+        "mach_preemptible": "1"
+      }
+    ],
+    "qos_requests": [
+      {
+        "mode": "user-interactive",
+        "setter_called": "1",
+        "setter_result": "0",
+        "requested": "33",
+        "observed": "33"
+      }
+    ],
+    "results": [
+      {
+        "workload_exit": "0",
+        "diagnostic_only": "1",
+        "product_acceptance": "unchanged_external_gate"
+      }
+    ],
+    "clock": {
+      "steady_clock_is_steady": "1",
+      "steady_clock_period_num": "1",
+      "steady_clock_period_den": "1000000000",
+      "thread_cpu_clock_getres_result": "0",
+      "thread_cpu_clock_getres_error": "0",
+      "thread_cpu_resolution_ns": "42",
+      "clocks_have_different_envelopes": "1",
+      "wall_minus_cpu_not_exclusive_scheduler_time": "1",
+      "cpu_clock_not_proof_of_dsp_execution": "1"
+    },
+    "actual_qos_available": true
+  },
+  {
+    "archive": "native-BAAB",
+    "run_id": "38186063935",
+    "run_attempt": "1",
+    "controller_sha": "6345092ddefd11d8833eda8c794b7943e0195ef1",
+    "frozen_source_sha": "7b20cd9d1f90e3e2969c250712b199e893cf50cd",
+    "order": "BAAB",
+    "trial": "04-B",
+    "workload_kind": "sentinel",
+    "suite_command": "expanded",
+    "returncode": 0,
+    "log": "trials/04-B/sentinel/expanded.log",
+    "requested": "user-interactive",
+    "contexts": [
+      {
+        "phase": "entry",
+        "caller_context": "macos_base_qos",
+        "caller_thread_qos": "17",
+        "pthread_qos_query": "0",
+        "pthread_requested_qos": "17",
+        "pthread_relative_priority": "0",
+        "mach_time_constraint_query": "0",
+        "mach_time_constraint_count": "4",
+        "mach_time_constraint_default": "1",
+        "mach_period_ticks": "0",
+        "mach_computation_ticks": "120000",
+        "mach_constraint_ticks": "240000",
+        "mach_preemptible": "1"
+      },
+      {
+        "phase": "before-workload",
+        "caller_context": "macos_base_qos",
+        "caller_thread_qos": "33",
+        "pthread_qos_query": "0",
+        "pthread_requested_qos": "33",
+        "pthread_relative_priority": "0",
+        "mach_time_constraint_query": "0",
+        "mach_time_constraint_count": "4",
+        "mach_time_constraint_default": "1",
+        "mach_period_ticks": "0",
+        "mach_computation_ticks": "120000",
+        "mach_constraint_ticks": "240000",
+        "mach_preemptible": "1"
+      },
+      {
+        "phase": "after-workload",
+        "caller_context": "macos_base_qos",
+        "caller_thread_qos": "33",
+        "pthread_qos_query": "0",
+        "pthread_requested_qos": "33",
+        "pthread_relative_priority": "0",
+        "mach_time_constraint_query": "0",
+        "mach_time_constraint_count": "4",
+        "mach_time_constraint_default": "1",
+        "mach_period_ticks": "0",
+        "mach_computation_ticks": "120000",
+        "mach_constraint_ticks": "240000",
+        "mach_preemptible": "1"
+      }
+    ],
+    "qos_requests": [
+      {
+        "mode": "user-interactive",
+        "setter_called": "1",
+        "setter_result": "0",
+        "requested": "33",
+        "observed": "33"
+      }
+    ],
+    "results": [
+      {
+        "workload_exit": "0",
+        "diagnostic_only": "1",
+        "product_acceptance": "unchanged_external_gate"
+      }
+    ],
+    "clock": {
+      "steady_clock_is_steady": "1",
+      "steady_clock_period_num": "1",
+      "steady_clock_period_den": "1000000000",
+      "thread_cpu_clock_getres_result": "0",
+      "thread_cpu_clock_getres_error": "0",
+      "thread_cpu_resolution_ns": "42",
+      "clocks_have_different_envelopes": "1",
+      "wall_minus_cpu_not_exclusive_scheduler_time": "1",
+      "cpu_clock_not_proof_of_dsp_execution": "1"
+    },
+    "actual_qos_available": true
+  },
+  {
+    "archive": "native-BAAB",
+    "run_id": "38186063935",
+    "run_attempt": "1",
+    "controller_sha": "6345092ddefd11d8833eda8c794b7943e0195ef1",
+    "frozen_source_sha": "7b20cd9d1f90e3e2969c250712b199e893cf50cd",
+    "order": "BAAB",
+    "trial": "04-B",
+    "workload_kind": "sentinel",
+    "suite_command": "layouts",
+    "returncode": 0,
+    "log": "trials/04-B/sentinel/layouts.log",
+    "requested": "user-interactive",
+    "contexts": [
+      {
+        "phase": "entry",
+        "caller_context": "macos_base_qos",
+        "caller_thread_qos": "17",
+        "pthread_qos_query": "0",
+        "pthread_requested_qos": "17",
+        "pthread_relative_priority": "0",
+        "mach_time_constraint_query": "0",
+        "mach_time_constraint_count": "4",
+        "mach_time_constraint_default": "1",
+        "mach_period_ticks": "0",
+        "mach_computation_ticks": "120000",
+        "mach_constraint_ticks": "240000",
+        "mach_preemptible": "1"
+      },
+      {
+        "phase": "before-workload",
+        "caller_context": "macos_base_qos",
+        "caller_thread_qos": "33",
+        "pthread_qos_query": "0",
+        "pthread_requested_qos": "33",
+        "pthread_relative_priority": "0",
+        "mach_time_constraint_query": "0",
+        "mach_time_constraint_count": "4",
+        "mach_time_constraint_default": "1",
+        "mach_period_ticks": "0",
+        "mach_computation_ticks": "120000",
+        "mach_constraint_ticks": "240000",
+        "mach_preemptible": "1"
+      },
+      {
+        "phase": "after-workload",
+        "caller_context": "macos_base_qos",
+        "caller_thread_qos": "33",
+        "pthread_qos_query": "0",
+        "pthread_requested_qos": "33",
+        "pthread_relative_priority": "0",
+        "mach_time_constraint_query": "0",
+        "mach_time_constraint_count": "4",
+        "mach_time_constraint_default": "1",
+        "mach_period_ticks": "0",
+        "mach_computation_ticks": "120000",
+        "mach_constraint_ticks": "240000",
+        "mach_preemptible": "1"
+      }
+    ],
+    "qos_requests": [
+      {
+        "mode": "user-interactive",
+        "setter_called": "1",
+        "setter_result": "0",
+        "requested": "33",
+        "observed": "33"
+      }
+    ],
+    "results": [
+      {
+        "workload_exit": "0",
+        "diagnostic_only": "1",
+        "product_acceptance": "unchanged_external_gate"
+      }
+    ],
+    "clock": {
+      "steady_clock_is_steady": "1",
+      "steady_clock_period_num": "1",
+      "steady_clock_period_den": "1000000000",
+      "thread_cpu_clock_getres_result": "0",
+      "thread_cpu_clock_getres_error": "0",
+      "thread_cpu_resolution_ns": "42",
+      "clocks_have_different_envelopes": "1",
+      "wall_minus_cpu_not_exclusive_scheduler_time": "1",
+      "cpu_clock_not_proof_of_dsp_execution": "1"
+    },
+    "actual_qos_available": true
+  },
+  {
+    "archive": "native-BAAB",
+    "run_id": "38186063935",
+    "run_attempt": "1",
+    "controller_sha": "6345092ddefd11d8833eda8c794b7943e0195ef1",
+    "frozen_source_sha": "7b20cd9d1f90e3e2969c250712b199e893cf50cd",
+    "order": "BAAB",
+    "trial": "04-B",
+    "workload_kind": "sentinel",
+    "suite_command": "extended",
+    "returncode": 0,
+    "log": "trials/04-B/sentinel/extended.log",
+    "requested": "user-interactive",
+    "contexts": [
+      {
+        "phase": "entry",
+        "caller_context": "macos_base_qos",
+        "caller_thread_qos": "17",
+        "pthread_qos_query": "0",
+        "pthread_requested_qos": "17",
+        "pthread_relative_priority": "0",
+        "mach_time_constraint_query": "0",
+        "mach_time_constraint_count": "4",
+        "mach_time_constraint_default": "1",
+        "mach_period_ticks": "0",
+        "mach_computation_ticks": "120000",
+        "mach_constraint_ticks": "240000",
+        "mach_preemptible": "1"
+      },
+      {
+        "phase": "before-workload",
+        "caller_context": "macos_base_qos",
+        "caller_thread_qos": "33",
+        "pthread_qos_query": "0",
+        "pthread_requested_qos": "33",
+        "pthread_relative_priority": "0",
+        "mach_time_constraint_query": "0",
+        "mach_time_constraint_count": "4",
+        "mach_time_constraint_default": "1",
+        "mach_period_ticks": "0",
+        "mach_computation_ticks": "120000",
+        "mach_constraint_ticks": "240000",
+        "mach_preemptible": "1"
+      },
+      {
+        "phase": "after-workload",
+        "caller_context": "macos_base_qos",
+        "caller_thread_qos": "33",
+        "pthread_qos_query": "0",
+        "pthread_requested_qos": "33",
+        "pthread_relative_priority": "0",
+        "mach_time_constraint_query": "0",
+        "mach_time_constraint_count": "4",
+        "mach_time_constraint_default": "1",
+        "mach_period_ticks": "0",
+        "mach_computation_ticks": "120000",
+        "mach_constraint_ticks": "240000",
+        "mach_preemptible": "1"
+      }
+    ],
+    "qos_requests": [
+      {
+        "mode": "user-interactive",
+        "setter_called": "1",
+        "setter_result": "0",
+        "requested": "33",
+        "observed": "33"
+      }
+    ],
+    "results": [
+      {
+        "workload_exit": "0",
+        "diagnostic_only": "1",
+        "product_acceptance": "unchanged_external_gate"
+      }
+    ],
+    "clock": {
+      "steady_clock_is_steady": "1",
+      "steady_clock_period_num": "1",
+      "steady_clock_period_den": "1000000000",
+      "thread_cpu_clock_getres_result": "0",
+      "thread_cpu_clock_getres_error": "0",
+      "thread_cpu_resolution_ns": "42",
+      "clocks_have_different_envelopes": "1",
+      "wall_minus_cpu_not_exclusive_scheduler_time": "1",
+      "cpu_clock_not_proof_of_dsp_execution": "1"
+    },
+    "actual_qos_available": true
+  }
+]

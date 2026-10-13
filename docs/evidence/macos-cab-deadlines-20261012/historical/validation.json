@@ -1,0 +1,41 @@
+{
+  "passed": true,
+  "archives": [
+    {
+      "archive": "latest-macOS",
+      "passed": true,
+      "routes": 66,
+      "callbacks": 105600
+    },
+    {
+      "archive": "latest-Windows",
+      "passed": true,
+      "routes": 66,
+      "callbacks": 105600
+    },
+    {
+      "archive": "latest-Linux",
+      "passed": true,
+      "routes": 66,
+      "callbacks": 105600
+    },
+    {
+      "archive": "prior-Linux",
+      "passed": true,
+      "routes": 66,
+      "callbacks": 105600
+    },
+    {
+      "archive": "prior-Windows",
+      "passed": true,
+      "routes": 66,
+      "callbacks": 105600
+    },
+    {
+      "archive": "prior-macOS",
+      "passed": true,
+      "routes": 66,
+      "callbacks": 105600
+    }
+  ]
+}

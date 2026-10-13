@@ -1,0 +1,3606 @@
+{
+  "schema_version": 1,
+  "document_type": "local_callback_attribution_validation_receipt",
+  "recorded_at_utc": "2026-10-12T08:56:22.456353+00:00",
+  "scope": "Linux x86_64 Release console validation of provisional working-tree builds; no macOS timing or audio-host validation",
+  "platform": "Linux 6b79127e6416 6.18.44 #1 SMP Sat Sep 26 20:02:31 UTC 2026 x86_64 x86_64 x86_64 GNU/Linux",
+  "compiler": "GNU-13.3.0",
+  "juce_tag": "8.0.8",
+  "juce_commit": "d6181bde38d858c283c3b7bf699ce6340c050b5d",
+  "product_fix": false,
+  "product_acceptance": false,
+  "audio_host_validation": "not_executed",
+  "macos_validation_from_this_receipt": "not_executed",
+  "native_ci": {
+    "status_at_report_preparation": "pending",
+    "run_id": 38225976064,
+    "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38225976064",
+    "source_commit": "35617a2e0a5a599c5bd2b2a13113b6f234cd60a3",
+    "independent_orders_requested": [
+      "ABBA",
+      "BAAB"
+    ],
+    "results_evaluated_in_this_receipt": false,
+    "note": "A/B here is hooks compiled out versus compiled in; it is not the historical QoS experiment."
+  },
+  "provenance": {
+    "raw_evidence_root_at_capture": "/workspace/scratch/f74ffd99d2f8/local-validation",
+    "raw_csv_committed": false,
+    "raw_route_files_fingerprinted": 234,
+    "hashes_are_not_a_substitute_for_raw_files": true,
+    "old_gate_quantile_or_miss_comparisons_are_causal_evidence": false,
+    "local_probe_batches_are_independent_abba_baab_trials": false,
+    "before_explicit_page_touch": {
+      "snapshot_receipt": {
+        "local_evidence_path": "final-local-source-and-binaries.json",
+        "sha256": "fa8d9a6f0218f20ab81ba620b9c7eb2f0a4c84c191f778ada4f0aabfd56d4bac",
+        "bytes": 3586
+      },
+      "original_snapshot_preserved": {
+        "scope": "provisional working-tree Linux validation; embedded commit is pre-edit base, not clean source binding",
+        "embedded_head": "f89564f2444359d51bac7d8d0b1a53d2abeeb129",
+        "source_dirty": true,
+        "platform": "Linux 6b79127e6416 6.18.44 #1 SMP Sat Sep 26 20:02:31 UTC 2026 x86_64 x86_64 x86_64 GNU/Linux",
+        "juce_commit": "d6181bde38d858c283c3b7bf699ce6340c050b5d",
+        "build_source_manifest": "schema_version=1\nsource_commit=f89564f2444359d51bac7d8d0b1a53d2abeeb129\ndiagnostic_only=1\njuce_tag=8.0.8\nSource/Cabinet.h=5812eef4483b82ff4359c810cc46c1d23bb9fd94ff7e0511be5252f58b759188\nSource/ModeledCabConvolution.h=b35dff80ddc1de23061666ab7e7bca6e854cbb9d8da05aad09cb888dfc089f33\nSource/IRLibrary.cpp=f9ba65cd05b4b50998114d20dac6106a7b1ce8b4316fa1b485489883cbfdf28e\nSource/IRLibrary.h=50e58acde3f4c77373c6589f914aeb81705df2b96ade29192334016c3abc2936\nSource/CabCallbackTrace.h=7c8fee4a4ddabb2bd7f8b5593f883da7a3d3b477bcdd0c0c78de27f0eb49c718\nTests/OriginalCabIntegrationTests.cpp=dc9a637c9acf36695f8f7c743d179b9125dbebbb06a747c4adcd23f15c423e2d\nTools/CabCallbackAttribution/CabCallbackProbe.cpp=e3628dbbb92312a2e46507745ba0b52fb6b08881c62300cdc8b952de0a24c1c1\nTools/CabCallbackAttribution/CabCallbackTraceTests.cpp=a9c49bd05f4dde0d345b2944a24e0ee871963c0e95670aa34b926a9d097e2ea5\nTools/CabCallbackAttribution/CMakeLists.txt=1c5461e2159487d94319251b509fcdf900dd0f86a58a7a8640c1ecfe2f1cb2b2\n",
+        "source_files": {
+          "Tools/CabCallbackAttribution/CMakeLists.txt": "1c5461e2159487d94319251b509fcdf900dd0f86a58a7a8640c1ecfe2f1cb2b2",
+          "Tools/CabCallbackAttribution/CabCallbackProbe.cpp": "e3628dbbb92312a2e46507745ba0b52fb6b08881c62300cdc8b952de0a24c1c1",
+          "Tools/CabCallbackAttribution/CabCallbackTraceTests.cpp": "a9c49bd05f4dde0d345b2944a24e0ee871963c0e95670aa34b926a9d097e2ea5",
+          "Tools/CabCallbackAttribution/README.md": "b3aba824903fbc6c744e340651926e678847fbd21f44a8713967f0a8e801b795",
+          "Tools/CabCallbackAttribution/run_attribution.py": "fe911b3ef6ef863d0d89ba68a6de0409c2cd964f9b3f05234ca507713e96894a",
+          "Tools/CabCallbackAttribution/test_verify_attribution.py": "5b70bcead6e9d01745642ff27099d2ee5745473307a697d03e83508c9e1ea9ea",
+          "Tools/CabCallbackAttribution/verify_attribution.py": "9f8d538cf5475985f83b22abd8727be9fd7e75a4a60bfacdbfeef6d3a4699732",
+          "Source/CabCallbackTrace.h": "7c8fee4a4ddabb2bd7f8b5593f883da7a3d3b477bcdd0c0c78de27f0eb49c718",
+          "Source/Cabinet.h": "5812eef4483b82ff4359c810cc46c1d23bb9fd94ff7e0511be5252f58b759188",
+          "Source/ModeledCabConvolution.h": "b35dff80ddc1de23061666ab7e7bca6e854cbb9d8da05aad09cb888dfc089f33",
+          "Source/IRLibrary.h": "50e58acde3f4c77373c6589f914aeb81705df2b96ade29192334016c3abc2936",
+          "Source/IRLibrary.cpp": "f9ba65cd05b4b50998114d20dac6106a7b1ce8b4316fa1b485489883cbfdf28e",
+          "Tests/OriginalCabIntegrationTests.cpp": "dc9a637c9acf36695f8f7c743d179b9125dbebbb06a747c4adcd23f15c423e2d",
+          "Tests/CabRealtimeRegressionTests.cpp": "f5f2f293b52f986e740280f84536a9397a5a78392a4aa0d1d0e2759825368f28",
+          ".github/workflows/macos-cab-callback-attribution.yml": "92f5018939fa6f4c6932ef5f89e9c39a0aa8eebad037da1ed2fd5be1f2003d0d"
+        },
+        "binaries": {
+          "ChimeraCabCallbackProbe": "9cf49c5b7f9d072ec6ede92f0f3f1a0ef6c9b1e75745d5f3d8ab022f893e620f",
+          "ChimeraCabCallbackProbeControl": "aaaf13532cef888579f4589af9bb9062b318794582e20bdd2bb35f54adc8083e",
+          "ChimeraCabAttributionRealtimeTests": "9548063b086687e0dcd534ba418486ef18052101480b4a16fc5a8d233d5051f6",
+          "ChimeraCabCallbackTraceTests": "4c1325d4a9fe5920b23ff2acc4f1616ddacdbd1d3cbfe6e31b7bb610ebf4c4df"
+        }
+      },
+      "build_source_manifest_sha256": "3f68e25bf55eee37c9bb816131c31be656211f0d6a1b04c30b458a4f73d8c9b1",
+      "scope": "36 routes and 57,600 intervals below predate the final explicit page-touch change."
+    },
+    "after_explicit_page_touch": {
+      "embedded_head": "f89564f2444359d51bac7d8d0b1a53d2abeeb129",
+      "source_dirty_at_build": true,
+      "build_binding": "Working-tree source and binary hashes; embedded HEAD is the pre-edit base, not a clean final-commit binding.",
+      "observed_checkout_head_at_receipt": "35617a2e0a5a599c5bd2b2a13113b6f234cd60a3",
+      "observed_checkout_head_is_embedded_build_commit": false,
+      "source_files_sha256": {
+        "Tools/CabCallbackAttribution/CMakeLists.txt": "1c5461e2159487d94319251b509fcdf900dd0f86a58a7a8640c1ecfe2f1cb2b2",
+        "Tools/CabCallbackAttribution/CabCallbackProbe.cpp": "9257527520f64c70e21dedc413dd9ebbed0ce1b831fce3d1ae7fb4fd829ae88b",
+        "Tools/CabCallbackAttribution/CabCallbackTraceTests.cpp": "a9c49bd05f4dde0d345b2944a24e0ee871963c0e95670aa34b926a9d097e2ea5",
+        "Tools/CabCallbackAttribution/README.md": "7e33a89236107efd589d2b9968f98c9911ba4ee81443911029a6ceb21467bab3",
+        "Tools/CabCallbackAttribution/run_attribution.py": "fe911b3ef6ef863d0d89ba68a6de0409c2cd964f9b3f05234ca507713e96894a",
+        "Tools/CabCallbackAttribution/test_verify_attribution.py": "5b70bcead6e9d01745642ff27099d2ee5745473307a697d03e83508c9e1ea9ea",
+        "Tools/CabCallbackAttribution/verify_attribution.py": "9f8d538cf5475985f83b22abd8727be9fd7e75a4a60bfacdbfeef6d3a4699732",
+        "Source/CabCallbackTrace.h": "7c8fee4a4ddabb2bd7f8b5593f883da7a3d3b477bcdd0c0c78de27f0eb49c718",
+        "Source/Cabinet.h": "5812eef4483b82ff4359c810cc46c1d23bb9fd94ff7e0511be5252f58b759188",
+        "Source/ModeledCabConvolution.h": "b35dff80ddc1de23061666ab7e7bca6e854cbb9d8da05aad09cb888dfc089f33",
+        "Source/IRLibrary.h": "50e58acde3f4c77373c6589f914aeb81705df2b96ade29192334016c3abc2936",
+        "Source/IRLibrary.cpp": "f9ba65cd05b4b50998114d20dac6106a7b1ce8b4316fa1b485489883cbfdf28e",
+        "Tests/OriginalCabIntegrationTests.cpp": "dc9a637c9acf36695f8f7c743d179b9125dbebbb06a747c4adcd23f15c423e2d",
+        "Tests/CabRealtimeRegressionTests.cpp": "f5f2f293b52f986e740280f84536a9397a5a78392a4aa0d1d0e2759825368f28",
+        ".github/workflows/macos-cab-callback-attribution.yml": "92f5018939fa6f4c6932ef5f89e9c39a0aa8eebad037da1ed2fd5be1f2003d0d"
+      },
+      "build_source_manifest": "schema_version=1\nsource_commit=f89564f2444359d51bac7d8d0b1a53d2abeeb129\ndiagnostic_only=1\njuce_tag=8.0.8\nSource/Cabinet.h=5812eef4483b82ff4359c810cc46c1d23bb9fd94ff7e0511be5252f58b759188\nSource/ModeledCabConvolution.h=b35dff80ddc1de23061666ab7e7bca6e854cbb9d8da05aad09cb888dfc089f33\nSource/IRLibrary.cpp=f9ba65cd05b4b50998114d20dac6106a7b1ce8b4316fa1b485489883cbfdf28e\nSource/IRLibrary.h=50e58acde3f4c77373c6589f914aeb81705df2b96ade29192334016c3abc2936\nSource/CabCallbackTrace.h=7c8fee4a4ddabb2bd7f8b5593f883da7a3d3b477bcdd0c0c78de27f0eb49c718\nTests/OriginalCabIntegrationTests.cpp=dc9a637c9acf36695f8f7c743d179b9125dbebbb06a747c4adcd23f15c423e2d\nTools/CabCallbackAttribution/CabCallbackProbe.cpp=9257527520f64c70e21dedc413dd9ebbed0ce1b831fce3d1ae7fb4fd829ae88b\nTools/CabCallbackAttribution/CabCallbackTraceTests.cpp=a9c49bd05f4dde0d345b2944a24e0ee871963c0e95670aa34b926a9d097e2ea5\nTools/CabCallbackAttribution/CMakeLists.txt=1c5461e2159487d94319251b509fcdf900dd0f86a58a7a8640c1ecfe2f1cb2b2\n",
+      "build_source_manifest_sha256": "d582a23b755f0093c8bee83135f04aeb79c3f91139a7208c357619a481433ae0",
+      "binaries": {
+        "ChimeraCabCallbackProbe": {
+          "build_relative_path": "ChimeraCabCallbackProbe_artefacts/Release/ChimeraCabCallbackProbe",
+          "sha256": "6bcdb99e683cf46183c4fdf5a572aa34a4e27466b9d1d8599af178c403c695e4"
+        },
+        "ChimeraCabCallbackProbeControl": {
+          "build_relative_path": "ChimeraCabCallbackProbeControl_artefacts/Release/ChimeraCabCallbackProbeControl",
+          "sha256": "55048caeadeaeca2d6bf0cd69479c584345e27ac470a0accf60595805549b506"
+        }
+      },
+      "scope": "Only original-v1 stereo CAB off/stages/resources rerun locally after final explicit page touch: 3 routes, 4,800 intervals."
+    }
+  },
+  "build_attempts": [
+    {
+      "attempt": "initial_working_tree_build",
+      "status": "failed",
+      "failure": "gmake: *** No rule to make target 'ChimeraCabAttributionRealtimeTests'.  Stop.",
+      "classification": "New target was not yet configured in the existing build tree.",
+      "full_command_and_exit_code_preserved_in_log": false,
+      "log": {
+        "local_evidence_path": "attribution-build.log",
+        "sha256": "d7480caab8cb1d3a76dbee19e1437ee223e0a38e92c105ec654a616f56198f3f",
+        "bytes": 4467
+      },
+      "captured_output": "[  0%] Generating juce_binarydata_ChimeraIRs/JuceLibraryCode/BinaryData1.cpp, juce_binarydata_ChimeraIRs/JuceLibraryCode/BinaryData2.cpp, juce_binarydata_ChimeraIRs/JuceLibraryCode/ChimeraIRData.h\n[  0%] Building CXX object product/CMakeFiles/ChimeraIRs.dir/juce_binarydata_ChimeraIRs/JuceLibraryCode/BinaryData1.cpp.o\n[  0%] Building CXX object product/CMakeFiles/ChimeraIRs.dir/juce_binarydata_ChimeraIRs/JuceLibraryCode/BinaryData2.cpp.o\n[  0%] Linking CXX static library libChimeraIRs.a\n[  0%] Built target ChimeraIRs\n[ 50%] Building CXX object CMakeFiles/ChimeraCabCallbackProbeControl.dir/CabCallbackProbe.cpp.o\n[ 50%] Building CXX object CMakeFiles/ChimeraCabCallbackProbeControl.dir/workspace/scratch/f74ffd99d2f8/chimera/Source/IRLibrary.cpp.o\n[ 50%] Building CXX object CMakeFiles/ChimeraCabCallbackProbeControl.dir/workspace/scratch/f3df933ddf5b/toolchain/JUCE/modules/juce_data_structures/juce_data_structures.cpp.o\n[ 50%] Building CXX object CMakeFiles/ChimeraCabCallbackProbeControl.dir/workspace/scratch/f3df933ddf5b/toolchain/JUCE/modules/juce_events/juce_events.cpp.o\n[ 50%] Building CXX object CMakeFiles/ChimeraCabCallbackProbeControl.dir/workspace/scratch/f3df933ddf5b/toolchain/JUCE/modules/juce_core/juce_core.cpp.o\n[ 50%] Building CXX object CMakeFiles/ChimeraCabCallbackProbeControl.dir/workspace/scratch/f3df933ddf5b/toolchain/JUCE/modules/juce_core/juce_core_CompilationTime.cpp.o\n[ 50%] Building CXX object CMakeFiles/ChimeraCabCallbackProbeControl.dir/workspace/scratch/f3df933ddf5b/toolchain/JUCE/modules/juce_dsp/juce_dsp.cpp.o\n[100%] Building CXX object CMakeFiles/ChimeraCabCallbackProbeControl.dir/workspace/scratch/f3df933ddf5b/toolchain/JUCE/modules/juce_audio_formats/juce_audio_formats.cpp.o\n[100%] Building CXX object CMakeFiles/ChimeraCabCallbackProbeControl.dir/workspace/scratch/f3df933ddf5b/toolchain/JUCE/modules/juce_audio_basics/juce_audio_basics.cpp.o\n[100%] Linking CXX executable ChimeraCabCallbackProbeControl_artefacts/Release/ChimeraCabCallbackProbeControl\n[100%] Built target ChimeraCabCallbackProbeControl\n-- Checking for modules 'webkit2gtk-4.0;gtk+-x11-3.0'\n--   Package 'webkit2gtk-4.0', required by 'virtual:world', not found\n--   Package 'gtk+-x11-3.0', required by 'virtual:world', not found\n-- Configuring juceaide\n-- Building juceaide\n-- Exporting juceaide\n-- Testing juceaide\n-- Finished setting up juceaide\n-- Configuring done (1.0s)\n-- Generating done (0.2s)\n-- Build files have been written to: /workspace/scratch/f74ffd99d2f8/attribution-build\n[  0%] Generating juce_binarydata_ChimeraIRs/JuceLibraryCode/BinaryData1.cpp, juce_binarydata_ChimeraIRs/JuceLibraryCode/BinaryData2.cpp, juce_binarydata_ChimeraIRs/JuceLibraryCode/ChimeraIRData.h\n[  0%] Generating juce_binarydata_ChimeraIRs/JuceLibraryCode/BinaryData1.cpp, juce_binarydata_ChimeraIRs/JuceLibraryCode/BinaryData2.cpp, juce_binarydata_ChimeraIRs/JuceLibraryCode/ChimeraIRData.h\n[100%] Built target ChimeraIRs\n[100%] Building CXX object CMakeFiles/ChimeraCabCallbackProbe.dir/CabCallbackProbe.cpp.o\n[200%] Building CXX object CMakeFiles/ChimeraCabCallbackProbe.dir/workspace/scratch/f74ffd99d2f8/chimera/Source/IRLibrary.cpp.o\n[400%] Building CXX object CMakeFiles/ChimeraCabCallbackProbe.dir/workspace/scratch/f3df933ddf5b/toolchain/JUCE/modules/juce_data_structures/juce_data_structures.cpp.o\n[400%] Building CXX object CMakeFiles/ChimeraCabCallbackProbe.dir/workspace/scratch/f3df933ddf5b/toolchain/JUCE/modules/juce_events/juce_events.cpp.o\n[400%] Building CXX object CMakeFiles/ChimeraCabCallbackProbe.dir/workspace/scratch/f3df933ddf5b/toolchain/JUCE/modules/juce_core/juce_core.cpp.o\n[400%] Building CXX object CMakeFiles/ChimeraCabCallbackProbe.dir/workspace/scratch/f3df933ddf5b/toolchain/JUCE/modules/juce_core/juce_core_CompilationTime.cpp.o\n[400%] Building CXX object CMakeFiles/ChimeraCabCallbackProbe.dir/workspace/scratch/f3df933ddf5b/toolchain/JUCE/modules/juce_dsp/juce_dsp.cpp.o\n[400%] Building CXX object CMakeFiles/ChimeraCabCallbackProbe.dir/workspace/scratch/f3df933ddf5b/toolchain/JUCE/modules/juce_audio_formats/juce_audio_formats.cpp.o\n[400%] Building CXX object CMakeFiles/ChimeraCabCallbackProbe.dir/workspace/scratch/f3df933ddf5b/toolchain/JUCE/modules/juce_audio_basics/juce_audio_basics.cpp.o\n[400%] Linking CXX executable ChimeraCabCallbackProbe_artefacts/Release/ChimeraCabCallbackProbe\n[400%] Built target ChimeraCabCallbackProbe\ngmake: *** No rule to make target 'ChimeraCabAttributionRealtimeTests'.  Stop.\n",
+      "counted_as_completed_validation": false
+    },
+    {
+      "attempt": "reconfigure_then_build",
+      "status": "targets_built_in_captured_log",
+      "configure_log": {
+        "local_evidence_path": "attribution-reconfigure.log",
+        "sha256": "903d34bc02942fe64103699c079cf62ffa62a79a957c2990ff840fc58d6c4969",
+        "bytes": 451
+      },
+      "build_log": {
+        "local_evidence_path": "attribution-build-2.log",
+        "sha256": "8d576aea6311f8453c0e368f20ce7b5a42b6b3a2e8b628c33fa1e24c44759d5a",
+        "bytes": 5907
+      },
+      "targets_built": [
+        "ChimeraCabAttributionRealtimeTests",
+        "ChimeraCabCallbackProbe",
+        "ChimeraCabCallbackProbeControl",
+        "ChimeraCabCallbackTraceTests",
+        "ChimeraIRs",
+        "ChimeraOriginalCabIntegrationTests",
+        "ChimeraOriginalCabRealtimeTests"
+      ],
+      "later_executable_execution_receipts_confirmed": true
+    },
+    {
+      "attempt": "pre_touch_manifest_refresh",
+      "configure_log": {
+        "local_evidence_path": "final-configure.log",
+        "sha256": "903d34bc02942fe64103699c079cf62ffa62a79a957c2990ff840fc58d6c4969",
+        "bytes": 451
+      },
+      "build_log": {
+        "local_evidence_path": "final-build.log",
+        "sha256": "d67f61899efa931a7f455220de89028bb350786efee16770ef8eab0315cdc4db",
+        "bytes": 1581
+      },
+      "purpose": "Preserved pre-touch source and binary manifest, not an additional measured population."
+    },
+    {
+      "attempt": "post_touch_reconfigure_and_two_probe_rebuild",
+      "execution": [
+        {
+          "command": [
+            "cmake",
+            "-S",
+            "/workspace/scratch/f74ffd99d2f8/chimera/Tools/CabCallbackAttribution",
+            "-B",
+            "/workspace/scratch/f74ffd99d2f8/attribution-build",
+            "-DCMAKE_BUILD_TYPE=Release",
+            "-DCMAKE_EXPORT_COMPILE_COMMANDS=ON",
+            "-DFETCHCONTENT_SOURCE_DIR_JUCE=/workspace/scratch/f3df933ddf5b/toolchain/JUCE"
+          ],
+          "returncode": 0,
+          "seconds": 1.0709579230024246
+        },
+        {
+          "command": [
+            "cmake",
+            "--build",
+            "/workspace/scratch/f74ffd99d2f8/attribution-build",
+            "--config",
+            "Release",
+            "--target",
+            "ChimeraCabCallbackProbe",
+            "ChimeraCabCallbackProbeControl",
+            "--parallel",
+            "2"
+          ],
+          "returncode": 0,
+          "seconds": 14.466512409999268
+        }
+      ],
+      "logs": [
+        {
+          "local_evidence_path": "pretouch-build-0.log",
+          "sha256": "903d34bc02942fe64103699c079cf62ffa62a79a957c2990ff840fc58d6c4969",
+          "bytes": 451
+        },
+        {
+          "local_evidence_path": "pretouch-build-1.log",
+          "sha256": "99fcc8b813395dfc32373fc32b6d36ffe97d22c2a66b9cd636c9ddf3630de060",
+          "bytes": 1336
+        }
+      ]
+    }
+  ],
+  "unchanged_acceptance_target_runs": {
+    "scope": "Separate sequential Linux console runs; deadline misses retained alongside original p99 gates; no causal performance comparison.",
+    "frozen_release": {
+      "source_commit": "7b20cd9d1f90e3e2969c250712b199e893cf50cd",
+      "summary": {
+        "tests": [
+          {
+            "name": "ChimeraOriginalCabIntegrationTests",
+            "passed": true,
+            "seconds": 7.94684
+          },
+          {
+            "name": "ChimeraOriginalCabRealtimeTests",
+            "passed": true,
+            "seconds": 5.05573
+          },
+          {
+            "name": "ChimeraCabExpansionIntegrationTests",
+            "passed": true,
+            "seconds": 8.37114
+          },
+          {
+            "name": "ChimeraCabExtendedTimingTests",
+            "passed": true,
+            "seconds": 22.5397
+          },
+          {
+            "name": "ChimeraCabLayoutIntegrationTests",
+            "passed": true,
+            "seconds": 10.2532
+          }
+        ],
+        "routes": 66,
+        "p99_pass": 66,
+        "callbacks": 105600,
+        "misses": 49
+      },
+      "evidence": [
+        {
+          "local_evidence_path": "frozen-gate/summary.json",
+          "sha256": "994e3e7ef523c98d736da3980b272b8d1b3d04d180bba1585b4b8e55903e5b2a",
+          "bytes": 644
+        },
+        {
+          "local_evidence_path": "frozen-gate/ctest-results.xml",
+          "sha256": "30b2bac5b21499e11f295394505e84c8b6b94735732d16de32ab2d1130b9b2d4",
+          "bytes": 190188
+        },
+        {
+          "local_evidence_path": "frozen-gate/ctest-console.log",
+          "sha256": "3bb8b34ef3e4351db1e70d9feaf88c324cd64ca93a0863318f5389bf27200d92",
+          "bytes": 194940
+        }
+      ]
+    },
+    "working_tree_hooks_off": {
+      "source_batch": "before_explicit_page_touch",
+      "tests": [
+        {
+          "name": "ChimeraOriginalCabIntegrationTests",
+          "passed": true,
+          "seconds": 7.70164
+        },
+        {
+          "name": "ChimeraOriginalCabRealtimeTests",
+          "passed": true,
+          "seconds": 5.00245
+        },
+        {
+          "name": "ChimeraCabExpansionIntegrationTests",
+          "passed": true,
+          "seconds": 8.17942
+        },
+        {
+          "name": "ChimeraCabExtendedTimingTests",
+          "passed": true,
+          "seconds": 21.5331
+        },
+        {
+          "name": "ChimeraCabLayoutIntegrationTests",
+          "passed": true,
+          "seconds": 9.99794
+        }
+      ],
+      "routes": 66,
+      "p99_pass": 66,
+      "callbacks": 105600,
+      "misses": 26,
+      "execution": {
+        "name": "current-gate",
+        "command": [
+          "ctest",
+          "--test-dir",
+          "/workspace/scratch/f74ffd99d2f8/attribution-build/product",
+          "-C",
+          "Release",
+          "-R",
+          "^(ChimeraOriginalCabIntegrationTests|ChimeraOriginalCabRealtimeTests|ChimeraCabExpansionIntegrationTests|ChimeraCabExtendedTimingTests|ChimeraCabLayoutIntegrationTests)$",
+          "--parallel",
+          "1",
+          "--verbose",
+          "--no-tests=error",
+          "--timeout",
+          "600",
+          "--test-output-size-passed",
+          "10485760",
+          "--test-output-size-failed",
+          "10485760",
+          "--output-junit",
+          "/workspace/scratch/f74ffd99d2f8/local-validation/current-gate.xml"
+        ],
+        "returncode": 0,
+        "seconds": 52.44371603000036
+      },
+      "evidence": [
+        {
+          "local_evidence_path": "current-gate-summary.json",
+          "sha256": "d0ea4ae44e3c5c79a6dfefa41aee145d1a5436d02bd27b799f04522d1f0ddbf9",
+          "bytes": 81408
+        },
+        {
+          "local_evidence_path": "current-gate.xml",
+          "sha256": "97f23b4617519d2573fc5b3312022ac446fdd4e8cc43ca9d86cd0e7fdc336aaf",
+          "bytes": 189987
+        },
+        {
+          "local_evidence_path": "current-gate.log",
+          "sha256": "8168bb3b0c87824372c5a8b36110e58594d7e292e605c96c55c4d4fecab6c92e",
+          "bytes": 194921
+        }
+      ]
+    }
+  },
+  "diagnostic_enabled_semantic_run": {
+    "source_batch": "before_explicit_page_touch",
+    "execution": {
+      "name": "enabled-semantics",
+      "command": [
+        "/workspace/scratch/f74ffd99d2f8/attribution-build/ChimeraCabAttributionRealtimeTests_artefacts/Release/ChimeraCabAttributionRealtimeTests"
+      ],
+      "returncode": 0,
+      "seconds": 4.943376291997993
+    },
+    "log": {
+      "local_evidence_path": "enabled-semantics.log",
+      "sha256": "1446b3b62b6752bafaf5995e2ea94fe754683eae933217e83088fd6dd519ed7b",
+      "bytes": 753
+    },
+    "output": "PASS CAB realtime equivalence routes=144 models=v1,v2,v3,userIR prepared_model_routes=108 modeled_juce_loaders=0 uniform_residual=1.25729e-08 impulse_residual=7.45058e-09 reset_residual=0 latency=0 chunks=fixed,1,17,63,max,3 mic_post_routes=18 mic_post_residual=0 reprepare_routes=4 reprepare_residual=0 six_mic_routes=8 six_mic_residual=4.84288e-08 six_mic_oracle=direct_FIR worker_cases=stale,six_ready,reuse fade_ms=50\nPASS residue_bank_reference source=8097ec69594ff728164c77f59e9ea1e39e384643 index_cases=18 index_reads=44288 stream_cases=80 reset_cases=40 private_cases=6 exact_float_samples=2645088 fade_mix_samples=388800 exact_bits=1 immutable_spectra=1 steps=1,3 partial=fixed,1,17,63,max,3 full_wraps=2 active=6 fading=3 fade_ms=50 latency=0\n",
+    "note": "Post-touch changes only touched the probe; this standalone semantic target was not rerun as a final clean-commit build."
+  },
+  "trace_contract_run": {
+    "source_batch": "before_explicit_page_touch",
+    "execution": {
+      "name": "trace-contract",
+      "command": [
+        "/workspace/scratch/f74ffd99d2f8/attribution-build/ChimeraCabCallbackTraceTests"
+      ],
+      "returncode": 0,
+      "seconds": 0.0036239620021660812
+    },
+    "log": {
+      "local_evidence_path": "trace-contract.log",
+      "sha256": "82e9b184e391ae2be2295cbcd7cfa75897dd0185620fefde4cb24a5ab55136a4",
+      "bytes": 142
+    },
+    "output": "TRACE_CONTRACT PASS zero-capacity bounded-overflow parent-depth endpoint-nesting kernel-context worker-packed-state tls-stop sizeof_event=160\n"
+  },
+  "independent_verifier_corruption_tests": {
+    "receipt": {
+      "local_evidence_path": "verifier-tests.json",
+      "sha256": "7fcb97593b2ee9b2c8227644c52b69b25976c93f618cad8a3d4f9b974a573697",
+      "bytes": 801
+    },
+    "result": {
+      "schema_version": 1,
+      "command": "python -m unittest discover -s Tools/CabCallbackAttribution -p test_verify_attribution.py -v",
+      "working_directory": "/workspace/scratch/f74ffd99d2f8/chimera",
+      "exit_code": 0,
+      "tests_run": 21,
+      "reported_duration_seconds": 11.537,
+      "result": "OK",
+      "evidence_kind": "tool-observed unittest completion receipt; not a reconstructed full stdout log",
+      "recorded_at_utc": "2026-10-12T08:44:23.809090+00:00",
+      "files_sha256": {
+        "Tools/CabCallbackAttribution/verify_attribution.py": "9f8d538cf5475985f83b22abd8727be9fd7e75a4a60bfacdbfeef6d3a4699732",
+        "Tools/CabCallbackAttribution/test_verify_attribution.py": "5b70bcead6e9d01745642ff27099d2ee5745473307a697d03e83508c9e1ea9ea"
+      },
+      "product_fix": false,
+      "audio_host_validation": "not_executed"
+    }
+  },
+  "diagnostic_batches": [
+    {
+      "source_batch": "before_explicit_page_touch",
+      "population_count": 12,
+      "route_count": 36,
+      "callback_count": 57600,
+      "counts_are_inventory_not_pooled_timing": true,
+      "populations": [
+        {
+          "population": "cab-stages",
+          "mode": "cab",
+          "trace_level": "stages",
+          "sample_rate": 96000,
+          "block_size": 64,
+          "callbacks_per_route": 1600,
+          "producer_execution": {
+            "name": "cab-stages",
+            "command": [
+              "/workspace/scratch/f74ffd99d2f8/attribution-build/ChimeraCabCallbackProbe_artefacts/Release/ChimeraCabCallbackProbe",
+              "--mode",
+              "cab",
+              "--engine",
+              "all",
+              "--channels",
+              "all",
+              "--trace-level",
+              "stages",
+              "--output-dir",
+              "/workspace/scratch/f74ffd99d2f8/local-validation/cab-stages"
+            ],
+            "returncode": 0,
+            "seconds": 6.887935236001795
+          },
+          "verification": {
+            "method": "Independent verify_directory API with explicit expected arguments",
+            "expected": {
+              "mode": "cab",
+              "trace_level": "stages",
+              "engines": [
+                "array-v3-6x10",
+                "expanded-v2",
+                "original-v1"
+              ],
+              "channels": [
+                1,
+                2
+              ]
+            },
+            "status": "verified_complete",
+            "exit_code": 0,
+            "errors": [],
+            "incomplete_reasons": [],
+            "full_report": {
+              "local_evidence_path": "cab-stages-verification.json",
+              "sha256": "3c5206a542cec50fe34f73f72229a952ccffc3836e97c5b77af670d08a2e1beb",
+              "bytes": 356939
+            }
+          },
+          "route_count": 6,
+          "callback_count": 9600,
+          "wall_misses_preserved": 15,
+          "stage_events": 1337292,
+          "worker_events": 926,
+          "caller_events": 10593,
+          "slot_snapshots": 115200,
+          "routes": [
+            {
+              "raw_file_prefix": "cab-stages/cab-array-v3-6x10-96000-64-1-stages",
+              "sha256": {
+                "metadata": "aaee2d9a6970153bbd754495d88a805648a63a992c38133267efab4c344320c6",
+                "callbacks": "c4244c2ddeffe322120d0045998bccf7f5bc7f4bea0f9c6f81defd5b1ec204b0",
+                "stages": "79a28ff67f500c4e17f0ce0973be6c57218a1752a654a0954e47f3ad340d08b6",
+                "worker": "d38bb2ff322a9a36e6157243a635d5fdffa1c647f5e022c055fd50e6092fec6b",
+                "caller": "cf249a33b16e3ecfc38260340d5fe20f36428221dc9b0dd2e9dfb115ba8e83c0",
+                "slots": "0fb19c54f58b8698a8284ce37129a77e2278110f167839ce7895a7a1c2ced473"
+              },
+              "engine": "array-v3-6x10",
+              "channels": 1,
+              "callback_count": 1600,
+              "attribution_available": true,
+              "hooks_compiled": true,
+              "stage_events": 228132,
+              "worker_events": 140,
+              "caller_events": 1830,
+              "slot_snapshots": 19200,
+              "dropped": 0,
+              "clock_errors": 0,
+              "nesting_errors": 0,
+              "wall": {
+                "samples": 1600,
+                "p50_us": 92.55,
+                "p99_us": 408.086,
+                "maximum_us": 3109.253
+              },
+              "thread_cpu": {
+                "samples": 1600,
+                "p50_us": 92.427,
+                "p99_us": 388.025,
+                "maximum_us": 3109.069
+              },
+              "wall_deadline_misses_preserved": 7,
+              "wall_misses_also_cpu_over_budget": 6,
+              "cpu_greater_than_wall_samples_preserved": 320,
+              "phase_counts": [
+                {
+                  "phase": "worker_and_automation",
+                  "callbacks": 1200,
+                  "wall_misses": 7
+                },
+                {
+                  "phase": "forced_six_slot_publication",
+                  "callbacks": 400,
+                  "wall_misses": 0
+                }
+              ],
+              "observed_cpp_new": 0,
+              "observed_cpp_delete": 0,
+              "semantic_valid_producer_receipt": true,
+              "resource_scope": "disabled",
+              "resource_capture_requested": false,
+              "resource_capture_valid": false
+            },
+            {
+              "raw_file_prefix": "cab-stages/cab-array-v3-6x10-96000-64-2-stages",
+              "sha256": {
+                "metadata": "8c0f98be3b96757feaa80f52539bfba2ea5b48f754e7a749dcb10bf1ac941ae2",
+                "callbacks": "d48358b7fca7b053470c66890378dd5ca9ed41b29354231a56af73d42c33617f",
+                "stages": "1c98d58e6fb9035272e515f67648483e759c775659fd18fb90f327c49f61c551",
+                "worker": "5033146779833effd57f2523386e802a1ea6548bdd4256ff0ec4fb5292163737",
+                "caller": "e1ea06191dd9f0414f9e398f349158771234bf131ee41dd327a06fb007bfa059",
+                "slots": "0cb21329148a375b294141094cab9dfb2d3b0e4bd823045a3389d9fa54c85f3e"
+              },
+              "engine": "array-v3-6x10",
+              "channels": 2,
+              "callback_count": 1600,
+              "attribution_available": true,
+              "hooks_compiled": true,
+              "stage_events": 217632,
+              "worker_events": 154,
+              "caller_events": 1701,
+              "slot_snapshots": 19200,
+              "dropped": 0,
+              "clock_errors": 0,
+              "nesting_errors": 0,
+              "wall": {
+                "samples": 1600,
+                "p50_us": 141.664,
+                "p99_us": 262.686,
+                "maximum_us": 1132.86
+              },
+              "thread_cpu": {
+                "samples": 1600,
+                "p50_us": 141.6,
+                "p99_us": 262.589,
+                "maximum_us": 1132.84
+              },
+              "wall_deadline_misses_preserved": 1,
+              "wall_misses_also_cpu_over_budget": 1,
+              "cpu_greater_than_wall_samples_preserved": 323,
+              "phase_counts": [
+                {
+                  "phase": "worker_and_automation",
+                  "callbacks": 1200,
+                  "wall_misses": 0
+                },
+                {
+                  "phase": "forced_six_slot_publication",
+                  "callbacks": 400,
+                  "wall_misses": 1
+                }
+              ],
+              "observed_cpp_new": 0,
+              "observed_cpp_delete": 0,
+              "semantic_valid_producer_receipt": true,
+              "resource_scope": "disabled",
+              "resource_capture_requested": false,
+              "resource_capture_valid": false
+            },
+            {
+              "raw_file_prefix": "cab-stages/cab-expanded-v2-96000-64-1-stages",
+              "sha256": {
+                "metadata": "f0c33b2e13893042492bd8a26f89b640aca6318bf54f515a38b04244e520a5a6",
+                "callbacks": "6faa8de48b65fbfb3cc6613e8ff939c0274cda20d0d01b4bc5718e2649376025",
+                "stages": "b2ae6bc7554a1767bc759993709e9af6a5bc3a2ab54094ee7395badf884f8ef3",
+                "worker": "2b9dfee197cd5c25af137f2e940b984d87eeed6ecfc78ab1276909aa42b36101",
+                "caller": "15d5227e2b341fc734832abab7de0d9c080f668358eed2f680ceb1ec0170be8b",
+                "slots": "46290ff4e90bf91eb9b4ef062703faf6773e2bb5fc71267641b22485eb3fa773"
+              },
+              "engine": "expanded-v2",
+              "channels": 1,
+              "callback_count": 1600,
+              "attribution_available": true,
+              "hooks_compiled": true,
+              "stage_events": 228132,
+              "worker_events": 161,
+              "caller_events": 1830,
+              "slot_snapshots": 19200,
+              "dropped": 0,
+              "clock_errors": 0,
+              "nesting_errors": 0,
+              "wall": {
+                "samples": 1600,
+                "p50_us": 92.89,
+                "p99_us": 172.791,
+                "maximum_us": 513.436
+              },
+              "thread_cpu": {
+                "samples": 1600,
+                "p50_us": 92.838,
+                "p99_us": 172.686,
+                "maximum_us": 513.321
+              },
+              "wall_deadline_misses_preserved": 0,
+              "wall_misses_also_cpu_over_budget": 0,
+              "cpu_greater_than_wall_samples_preserved": 315,
+              "phase_counts": [
+                {
+                  "phase": "worker_and_automation",
+                  "callbacks": 1200,
+                  "wall_misses": 0
+                },
+                {
+                  "phase": "forced_six_slot_publication",
+                  "callbacks": 400,
+                  "wall_misses": 0
+                }
+              ],
+              "observed_cpp_new": 0,
+              "observed_cpp_delete": 0,
+              "semantic_valid_producer_receipt": true,
+              "resource_scope": "disabled",
+              "resource_capture_requested": false,
+              "resource_capture_valid": false
+            },
+            {
+              "raw_file_prefix": "cab-stages/cab-expanded-v2-96000-64-2-stages",
+              "sha256": {
+                "metadata": "58e172d18cb9f04b2ef8d0672929ef89e23193a701d7b8bc093b1ebb9ad5f037",
+                "callbacks": "0c4b1885772bdcb9852d0c9a5d82ae621d928f7dcb33cc08b87454c93064c920",
+                "stages": "d2f976159ebf3f925dbe46b863caa70c775c74a13d93beea6b1306a9c517e99f",
+                "worker": "ef5b6292a71475eb4c9f2e9dbebb8463f09336e8ece8a0244b5ed475664f7075",
+                "caller": "09697bf012600f788a55c4e6bbef34acc29f8d4aa770bfb30344ee02e3d79d84",
+                "slots": "928cf9214d5fdc60d8273c1e6ef96d7a1da0e4034d9eec627f8e0f291b1c233d"
+              },
+              "engine": "expanded-v2",
+              "channels": 2,
+              "callback_count": 1600,
+              "attribution_available": true,
+              "hooks_compiled": true,
+              "stage_events": 217632,
+              "worker_events": 168,
+              "caller_events": 1701,
+              "slot_snapshots": 19200,
+              "dropped": 0,
+              "clock_errors": 0,
+              "nesting_errors": 0,
+              "wall": {
+                "samples": 1600,
+                "p50_us": 106.581,
+                "p99_us": 302.066,
+                "maximum_us": 831.304
+              },
+              "thread_cpu": {
+                "samples": 1600,
+                "p50_us": 106.548,
+                "p99_us": 302.148,
+                "maximum_us": 831.203
+              },
+              "wall_deadline_misses_preserved": 2,
+              "wall_misses_also_cpu_over_budget": 2,
+              "cpu_greater_than_wall_samples_preserved": 312,
+              "phase_counts": [
+                {
+                  "phase": "worker_and_automation",
+                  "callbacks": 1200,
+                  "wall_misses": 0
+                },
+                {
+                  "phase": "forced_six_slot_publication",
+                  "callbacks": 400,
+                  "wall_misses": 2
+                }
+              ],
+              "observed_cpp_new": 0,
+              "observed_cpp_delete": 0,
+              "semantic_valid_producer_receipt": true,
+              "resource_scope": "disabled",
+              "resource_capture_requested": false,
+              "resource_capture_valid": false
+            },
+            {
+              "raw_file_prefix": "cab-stages/cab-original-v1-96000-64-1-stages",
+              "sha256": {
+                "metadata": "fc333bfb5f0df71f60e6f97c4356b9aacc077b3030ac8eaa166d646a237ba74b",
+                "callbacks": "cd033003829fdd40f0e7939d05989d992b340526d5fdbbe774ca0a7974b72934",
+                "stages": "68ac77348545cb04a6312bdb47da966c5a70791b7ef68f1468d89135ae433cf1",
+                "worker": "55032e73ab49ad07dda2e49f4f4336e7f7088b1fa6bc8ad8dd7e58b4b7b6d941",
+                "caller": "b30bd6484b1ecec2e9d9b339c8d4c8a45a03a2972fa05680f28f7d2db6f914e7",
+                "slots": "2cd2b465de6f2d8a63e7697d48a91163e752aff48dfce2836e558b53cdfdd203"
+              },
+              "engine": "original-v1",
+              "channels": 1,
+              "callback_count": 1600,
+              "attribution_available": true,
+              "hooks_compiled": true,
+              "stage_events": 228132,
+              "worker_events": 175,
+              "caller_events": 1830,
+              "slot_snapshots": 19200,
+              "dropped": 0,
+              "clock_errors": 0,
+              "nesting_errors": 0,
+              "wall": {
+                "samples": 1600,
+                "p50_us": 129.425,
+                "p99_us": 293.363,
+                "maximum_us": 3022.274
+              },
+              "thread_cpu": {
+                "samples": 1600,
+                "p50_us": 129.392,
+                "p99_us": 293.335,
+                "maximum_us": 3022.081
+              },
+              "wall_deadline_misses_preserved": 3,
+              "wall_misses_also_cpu_over_budget": 3,
+              "cpu_greater_than_wall_samples_preserved": 333,
+              "phase_counts": [
+                {
+                  "phase": "worker_and_automation",
+                  "callbacks": 1200,
+                  "wall_misses": 1
+                },
+                {
+                  "phase": "forced_six_slot_publication",
+                  "callbacks": 400,
+                  "wall_misses": 2
+                }
+              ],
+              "observed_cpp_new": 0,
+              "observed_cpp_delete": 0,
+              "semantic_valid_producer_receipt": true,
+              "resource_scope": "disabled",
+              "resource_capture_requested": false,
+              "resource_capture_valid": false
+            },
+            {
+              "raw_file_prefix": "cab-stages/cab-original-v1-96000-64-2-stages",
+              "sha256": {
+                "metadata": "238b763787589fb7f762bdaea08380ac760e948f161efc8cdba548670af4403a",
+                "callbacks": "e153d7e2996075e029cc872cb4555861756c6bcbe742a1215e98990d398e7356",
+                "stages": "a5f121a7677fe43782c08d7788f5fb363f1b576e6168ac79a7d90bf4c64ff823",
+                "worker": "cb02b9829dbdf95e217527b19adc3a9777dfc8a62f405ec36fba360923f5ab31",
+                "caller": "fd4e650614be367827586a22e8e6c02e5ba12679a01e5aea16c39d5877f6dff5",
+                "slots": "7826ddbfe515d0c133ffd988ce91c258436aaca009147feb746be595cdd2ef87"
+              },
+              "engine": "original-v1",
+              "channels": 2,
+              "callback_count": 1600,
+              "attribution_available": true,
+              "hooks_compiled": true,
+              "stage_events": 217632,
+              "worker_events": 128,
+              "caller_events": 1701,
+              "slot_snapshots": 19200,
+              "dropped": 0,
+              "clock_errors": 0,
+              "nesting_errors": 0,
+              "wall": {
+                "samples": 1600,
+                "p50_us": 109.135,
+                "p99_us": 333.203,
+                "maximum_us": 4103.776
+              },
+              "thread_cpu": {
+                "samples": 1600,
+                "p50_us": 109.071,
+                "p99_us": 333.194,
+                "maximum_us": 4103.694
+              },
+              "wall_deadline_misses_preserved": 2,
+              "wall_misses_also_cpu_over_budget": 2,
+              "cpu_greater_than_wall_samples_preserved": 343,
+              "phase_counts": [
+                {
+                  "phase": "worker_and_automation",
+                  "callbacks": 1200,
+                  "wall_misses": 2
+                },
+                {
+                  "phase": "forced_six_slot_publication",
+                  "callbacks": 400,
+                  "wall_misses": 0
+                }
+              ],
+              "observed_cpp_new": 0,
+              "observed_cpp_delete": 0,
+              "semantic_valid_producer_receipt": true,
+              "resource_scope": "disabled",
+              "resource_capture_requested": false,
+              "resource_capture_valid": false
+            }
+          ]
+        },
+        {
+          "population": "cab-off",
+          "mode": "cab",
+          "trace_level": "off",
+          "sample_rate": 96000,
+          "block_size": 64,
+          "callbacks_per_route": 1600,
+          "producer_execution": {
+            "name": "cab-off",
+            "mode": "cab",
+            "trace_level": "off",
+            "command": [
+              "/workspace/scratch/f74ffd99d2f8/attribution-build/ChimeraCabCallbackProbeControl_artefacts/Release/ChimeraCabCallbackProbeControl",
+              "--mode",
+              "cab",
+              "--engine",
+              "all",
+              "--channels",
+              "all",
+              "--trace-level",
+              "off",
+              "--output-dir",
+              "/workspace/scratch/f74ffd99d2f8/local-validation/cab-off"
+            ],
+            "returncode": 0,
+            "seconds": 5.129609026000253
+          },
+          "verification": {
+            "method": "Independent verify_directory API with explicit expected arguments",
+            "expected": {
+              "mode": "cab",
+              "trace_level": "off",
+              "engines": [
+                "array-v3-6x10",
+                "expanded-v2",
+                "original-v1"
+              ],
+              "channels": [
+                1,
+                2
+              ]
+            },
+            "status": "verified_complete",
+            "exit_code": 0,
+            "errors": [],
+            "incomplete_reasons": [],
+            "full_report": {
+              "local_evidence_path": "additional-verification-cab-off.json",
+              "sha256": "e70823fc420a9f12e8528c013ffcb82b6f63faee6c31f160a68fadc8593f5213",
+              "bytes": 81554
+            },
+            "started_at_utc": "2026-10-12T08:45:26.217237+00:00",
+            "elapsed_seconds": 1.4161643619991082,
+            "equivalent_cli_command": "python Tools/CabCallbackAttribution/verify_attribution.py --input /workspace/scratch/f74ffd99d2f8/local-validation/cab-off --output /workspace/scratch/f74ffd99d2f8/local-validation/additional-verification-cab-off.json --expected-mode cab --expected-trace-level off --expected-engines original-v1,expanded-v2,array-v3-6x10 --expected-channels 1,2"
+          },
+          "route_count": 6,
+          "callback_count": 9600,
+          "wall_misses_preserved": 11,
+          "stage_events": 0,
+          "worker_events": 0,
+          "caller_events": 0,
+          "slot_snapshots": 0,
+          "routes": [
+            {
+              "raw_file_prefix": "cab-off/cab-array-v3-6x10-96000-64-1-off",
+              "sha256": {
+                "metadata": "60ea6e08a01a155d34a2257cb10d970a6a8bb72476d8853f531c3a9c28e3785a",
+                "callbacks": "357a043fcd13547592a09a45815009a3c93ef63dd9276c7a7ed185342817dfa1",
+                "stages": "7e9da6e3186d9d33019a5e5ccf4e1b9c95e16db19b2ce5fc8ef1b36429081a88",
+                "worker": "7e9da6e3186d9d33019a5e5ccf4e1b9c95e16db19b2ce5fc8ef1b36429081a88",
+                "caller": "7e9da6e3186d9d33019a5e5ccf4e1b9c95e16db19b2ce5fc8ef1b36429081a88",
+                "slots": "aad4eaf3eddfe074f7de6970f0786ccdd46ef0733fbce6dc9fe1f89d6304bf6f"
+              },
+              "engine": "array-v3-6x10",
+              "channels": 1,
+              "callback_count": 1600,
+              "attribution_available": false,
+              "hooks_compiled": false,
+              "stage_events": 0,
+              "worker_events": 0,
+              "caller_events": 0,
+              "slot_snapshots": 0,
+              "dropped": 0,
+              "clock_errors": 0,
+              "nesting_errors": 0,
+              "wall": {
+                "samples": 1600,
+                "p50_us": 67.882,
+                "p99_us": 191.108,
+                "maximum_us": 1768.35
+              },
+              "thread_cpu": {
+                "samples": 1600,
+                "p50_us": 67.841,
+                "p99_us": 191.564,
+                "maximum_us": 1769.213
+              },
+              "wall_deadline_misses_preserved": 2,
+              "wall_misses_also_cpu_over_budget": 2,
+              "cpu_greater_than_wall_samples_preserved": 586,
+              "phase_counts": [
+                {
+                  "phase": "worker_and_automation",
+                  "callbacks": 1200,
+                  "wall_misses": 2
+                },
+                {
+                  "phase": "forced_six_slot_publication",
+                  "callbacks": 400,
+                  "wall_misses": 0
+                }
+              ],
+              "observed_cpp_new": 0,
+              "observed_cpp_delete": 0,
+              "semantic_valid_producer_receipt": true,
+              "resource_scope": "disabled",
+              "resource_capture_requested": false,
+              "resource_capture_valid": false
+            },
+            {
+              "raw_file_prefix": "cab-off/cab-array-v3-6x10-96000-64-2-off",
+              "sha256": {
+                "metadata": "16abb36a4225f62d3b4bdbbdc174d7a6e7968aa01ffda5f0b9275955832ee7ff",
+                "callbacks": "77ceda4feceb9968c70880982257fbbbe5ebf4d794f3a3dace8038255cabdddd",
+                "stages": "7e9da6e3186d9d33019a5e5ccf4e1b9c95e16db19b2ce5fc8ef1b36429081a88",
+                "worker": "7e9da6e3186d9d33019a5e5ccf4e1b9c95e16db19b2ce5fc8ef1b36429081a88",
+                "caller": "7e9da6e3186d9d33019a5e5ccf4e1b9c95e16db19b2ce5fc8ef1b36429081a88",
+                "slots": "aad4eaf3eddfe074f7de6970f0786ccdd46ef0733fbce6dc9fe1f89d6304bf6f"
+              },
+              "engine": "array-v3-6x10",
+              "channels": 2,
+              "callback_count": 1600,
+              "attribution_available": false,
+              "hooks_compiled": false,
+              "stage_events": 0,
+              "worker_events": 0,
+              "caller_events": 0,
+              "slot_snapshots": 0,
+              "dropped": 0,
+              "clock_errors": 0,
+              "nesting_errors": 0,
+              "wall": {
+                "samples": 1600,
+                "p50_us": 61.793,
+                "p99_us": 175.385,
+                "maximum_us": 4667.518
+              },
+              "thread_cpu": {
+                "samples": 1600,
+                "p50_us": 61.781,
+                "p99_us": 175.931,
+                "maximum_us": 4668.802
+              },
+              "wall_deadline_misses_preserved": 2,
+              "wall_misses_also_cpu_over_budget": 2,
+              "cpu_greater_than_wall_samples_preserved": 466,
+              "phase_counts": [
+                {
+                  "phase": "worker_and_automation",
+                  "callbacks": 1200,
+                  "wall_misses": 2
+                },
+                {
+                  "phase": "forced_six_slot_publication",
+                  "callbacks": 400,
+                  "wall_misses": 0
+                }
+              ],
+              "observed_cpp_new": 0,
+              "observed_cpp_delete": 0,
+              "semantic_valid_producer_receipt": true,
+              "resource_scope": "disabled",
+              "resource_capture_requested": false,
+              "resource_capture_valid": false
+            },
+            {
+              "raw_file_prefix": "cab-off/cab-expanded-v2-96000-64-1-off",
+              "sha256": {
+                "metadata": "62710813365957113b8c333d7ef7b804d48311c07ae886dd9fdade99e92c8f4e",
+                "callbacks": "3c7a48e3bbeadef2c5028e9e204b58f0977d141e14905741ce9b7f7aef412ce9",
+                "stages": "7e9da6e3186d9d33019a5e5ccf4e1b9c95e16db19b2ce5fc8ef1b36429081a88",
+                "worker": "7e9da6e3186d9d33019a5e5ccf4e1b9c95e16db19b2ce5fc8ef1b36429081a88",
+                "caller": "7e9da6e3186d9d33019a5e5ccf4e1b9c95e16db19b2ce5fc8ef1b36429081a88",
+                "slots": "aad4eaf3eddfe074f7de6970f0786ccdd46ef0733fbce6dc9fe1f89d6304bf6f"
+              },
+              "engine": "expanded-v2",
+              "channels": 1,
+              "callback_count": 1600,
+              "attribution_available": false,
+              "hooks_compiled": false,
+              "stage_events": 0,
+              "worker_events": 0,
+              "caller_events": 0,
+              "slot_snapshots": 0,
+              "dropped": 0,
+              "clock_errors": 0,
+              "nesting_errors": 0,
+              "wall": {
+                "samples": 1600,
+                "p50_us": 47.342,
+                "p99_us": 191.98,
+                "maximum_us": 885.347
+              },
+              "thread_cpu": {
+                "samples": 1600,
+                "p50_us": 47.23,
+                "p99_us": 192.535,
+                "maximum_us": 886.014
+              },
+              "wall_deadline_misses_preserved": 2,
+              "wall_misses_also_cpu_over_budget": 2,
+              "cpu_greater_than_wall_samples_preserved": 534,
+              "phase_counts": [
+                {
+                  "phase": "worker_and_automation",
+                  "callbacks": 1200,
+                  "wall_misses": 2
+                },
+                {
+                  "phase": "forced_six_slot_publication",
+                  "callbacks": 400,
+                  "wall_misses": 0
+                }
+              ],
+              "observed_cpp_new": 0,
+              "observed_cpp_delete": 0,
+              "semantic_valid_producer_receipt": true,
+              "resource_scope": "disabled",
+              "resource_capture_requested": false,
+              "resource_capture_valid": false
+            },
+            {
+              "raw_file_prefix": "cab-off/cab-expanded-v2-96000-64-2-off",
+              "sha256": {
+                "metadata": "4b158b1ba912b5bedb86d717420dc5f7a11ead9258b4b16b97ce7c3078838335",
+                "callbacks": "2c8ed01c4d52b9d8e17d97174fefacb5335798b8299f3349f630f433077bab7d",
+                "stages": "7e9da6e3186d9d33019a5e5ccf4e1b9c95e16db19b2ce5fc8ef1b36429081a88",
+                "worker": "7e9da6e3186d9d33019a5e5ccf4e1b9c95e16db19b2ce5fc8ef1b36429081a88",
+                "caller": "7e9da6e3186d9d33019a5e5ccf4e1b9c95e16db19b2ce5fc8ef1b36429081a88",
+                "slots": "aad4eaf3eddfe074f7de6970f0786ccdd46ef0733fbce6dc9fe1f89d6304bf6f"
+              },
+              "engine": "expanded-v2",
+              "channels": 2,
+              "callback_count": 1600,
+              "attribution_available": false,
+              "hooks_compiled": false,
+              "stage_events": 0,
+              "worker_events": 0,
+              "caller_events": 0,
+              "slot_snapshots": 0,
+              "dropped": 0,
+              "clock_errors": 0,
+              "nesting_errors": 0,
+              "wall": {
+                "samples": 1600,
+                "p50_us": 85.84,
+                "p99_us": 240.348,
+                "maximum_us": 1055.108
+              },
+              "thread_cpu": {
+                "samples": 1600,
+                "p50_us": 86.028,
+                "p99_us": 241.413,
+                "maximum_us": 1056.641
+              },
+              "wall_deadline_misses_preserved": 1,
+              "wall_misses_also_cpu_over_budget": 1,
+              "cpu_greater_than_wall_samples_preserved": 657,
+              "phase_counts": [
+                {
+                  "phase": "worker_and_automation",
+                  "callbacks": 1200,
+                  "wall_misses": 1
+                },
+                {
+                  "phase": "forced_six_slot_publication",
+                  "callbacks": 400,
+                  "wall_misses": 0
+                }
+              ],
+              "observed_cpp_new": 0,
+              "observed_cpp_delete": 0,
+              "semantic_valid_producer_receipt": true,
+              "resource_scope": "disabled",
+              "resource_capture_requested": false,
+              "resource_capture_valid": false
+            },
+            {
+              "raw_file_prefix": "cab-off/cab-original-v1-96000-64-1-off",
+              "sha256": {
+                "metadata": "2038dddfa788c30f672659756ce2eaff22092137f19b81228ab183fb215195be",
+                "callbacks": "302169586df0cfaf80b64ee37077e9eb9f372e13e40870d97ad34d8766c3001d",
+                "stages": "7e9da6e3186d9d33019a5e5ccf4e1b9c95e16db19b2ce5fc8ef1b36429081a88",
+                "worker": "7e9da6e3186d9d33019a5e5ccf4e1b9c95e16db19b2ce5fc8ef1b36429081a88",
+                "caller": "7e9da6e3186d9d33019a5e5ccf4e1b9c95e16db19b2ce5fc8ef1b36429081a88",
+                "slots": "aad4eaf3eddfe074f7de6970f0786ccdd46ef0733fbce6dc9fe1f89d6304bf6f"
+              },
+              "engine": "original-v1",
+              "channels": 1,
+              "callback_count": 1600,
+              "attribution_available": false,
+              "hooks_compiled": false,
+              "stage_events": 0,
+              "worker_events": 0,
+              "caller_events": 0,
+              "slot_snapshots": 0,
+              "dropped": 0,
+              "clock_errors": 0,
+              "nesting_errors": 0,
+              "wall": {
+                "samples": 1600,
+                "p50_us": 47.372,
+                "p99_us": 175.445,
+                "maximum_us": 719.146
+              },
+              "thread_cpu": {
+                "samples": 1600,
+                "p50_us": 47.29,
+                "p99_us": 176.412,
+                "maximum_us": 719.576
+              },
+              "wall_deadline_misses_preserved": 1,
+              "wall_misses_also_cpu_over_budget": 1,
+              "cpu_greater_than_wall_samples_preserved": 522,
+              "phase_counts": [
+                {
+                  "phase": "worker_and_automation",
+                  "callbacks": 1200,
+                  "wall_misses": 1
+                },
+                {
+                  "phase": "forced_six_slot_publication",
+                  "callbacks": 400,
+                  "wall_misses": 0
+                }
+              ],
+              "observed_cpp_new": 0,
+              "observed_cpp_delete": 0,
+              "semantic_valid_producer_receipt": true,
+              "resource_scope": "disabled",
+              "resource_capture_requested": false,
+              "resource_capture_valid": false
+            },
+            {
+              "raw_file_prefix": "cab-off/cab-original-v1-96000-64-2-off",
+              "sha256": {
+                "metadata": "742726e580b9df8d86e64c7873c2a9eb318ed5b004e1db020cb6e62df2cc7665",
+                "callbacks": "5eb459304d28ea773d9c049111bb2d4e9b65f3bea90de626535e1e657cd3b0a8",
+                "stages": "7e9da6e3186d9d33019a5e5ccf4e1b9c95e16db19b2ce5fc8ef1b36429081a88",
+                "worker": "7e9da6e3186d9d33019a5e5ccf4e1b9c95e16db19b2ce5fc8ef1b36429081a88",
+                "caller": "7e9da6e3186d9d33019a5e5ccf4e1b9c95e16db19b2ce5fc8ef1b36429081a88",
+                "slots": "aad4eaf3eddfe074f7de6970f0786ccdd46ef0733fbce6dc9fe1f89d6304bf6f"
+              },
+              "engine": "original-v1",
+              "channels": 2,
+              "callback_count": 1600,
+              "attribution_available": false,
+              "hooks_compiled": false,
+              "stage_events": 0,
+              "worker_events": 0,
+              "caller_events": 0,
+              "slot_snapshots": 0,
+              "dropped": 0,
+              "clock_errors": 0,
+              "nesting_errors": 0,
+              "wall": {
+                "samples": 1600,
+                "p50_us": 63.385,
+                "p99_us": 248.996,
+                "maximum_us": 935.262
+              },
+              "thread_cpu": {
+                "samples": 1600,
+                "p50_us": 63.344,
+                "p99_us": 261.658,
+                "maximum_us": 935.787
+              },
+              "wall_deadline_misses_preserved": 3,
+              "wall_misses_also_cpu_over_budget": 3,
+              "cpu_greater_than_wall_samples_preserved": 551,
+              "phase_counts": [
+                {
+                  "phase": "worker_and_automation",
+                  "callbacks": 1200,
+                  "wall_misses": 3
+                },
+                {
+                  "phase": "forced_six_slot_publication",
+                  "callbacks": 400,
+                  "wall_misses": 0
+                }
+              ],
+              "observed_cpp_new": 0,
+              "observed_cpp_delete": 0,
+              "semantic_valid_producer_receipt": true,
+              "resource_scope": "disabled",
+              "resource_capture_requested": false,
+              "resource_capture_valid": false
+            }
+          ]
+        },
+        {
+          "population": "cab-resources",
+          "mode": "cab",
+          "trace_level": "resources",
+          "sample_rate": 96000,
+          "block_size": 64,
+          "callbacks_per_route": 1600,
+          "producer_execution": {
+            "name": "cab-resources",
+            "mode": "cab",
+            "trace_level": "resources",
+            "command": [
+              "/workspace/scratch/f74ffd99d2f8/attribution-build/ChimeraCabCallbackProbe_artefacts/Release/ChimeraCabCallbackProbe",
+              "--mode",
+              "cab",
+              "--engine",
+              "all",
+              "--channels",
+              "all",
+              "--trace-level",
+              "resources",
+              "--output-dir",
+              "/workspace/scratch/f74ffd99d2f8/local-validation/cab-resources"
+            ],
+            "returncode": 0,
+            "seconds": 6.834038796998357
+          },
+          "verification": {
+            "method": "Independent verify_directory API with explicit expected arguments",
+            "expected": {
+              "mode": "cab",
+              "trace_level": "resources",
+              "engines": [
+                "array-v3-6x10",
+                "expanded-v2",
+                "original-v1"
+              ],
+              "channels": [
+                1,
+                2
+              ]
+            },
+            "status": "verified_complete",
+            "exit_code": 0,
+            "errors": [],
+            "incomplete_reasons": [],
+            "full_report": {
+              "local_evidence_path": "additional-verification-cab-resources.json",
+              "sha256": "746ee7f391a5da83315de870f919c75863919975f3c4fd107cb03b9e12422d39",
+              "bytes": 308911
+            },
+            "started_at_utc": "2026-10-12T08:45:27.633482+00:00",
+            "elapsed_seconds": 63.66802760399878,
+            "equivalent_cli_command": "python Tools/CabCallbackAttribution/verify_attribution.py --input /workspace/scratch/f74ffd99d2f8/local-validation/cab-resources --output /workspace/scratch/f74ffd99d2f8/local-validation/additional-verification-cab-resources.json --expected-mode cab --expected-trace-level resources --expected-engines original-v1,expanded-v2,array-v3-6x10 --expected-channels 1,2"
+          },
+          "route_count": 6,
+          "callback_count": 9600,
+          "wall_misses_preserved": 5,
+          "stage_events": 1337292,
+          "worker_events": 946,
+          "caller_events": 10593,
+          "slot_snapshots": 115200,
+          "routes": [
+            {
+              "raw_file_prefix": "cab-resources/cab-array-v3-6x10-96000-64-1-resources",
+              "sha256": {
+                "metadata": "c81bba982bc6b5e1f99a4590828f2557b40c8e0fdddca29d071474c28c3f73a3",
+                "callbacks": "1969fe62999361441c0be202982efed4e54671b428f0968b3ff732803ccab71f",
+                "stages": "265f45320c95acbd82e366cb6a02e0403a99c9cd079dd45c3282c2809dc4841f",
+                "worker": "f864c7d1f5b0b81274a45da86e322b3c04273890b8c030d208102575d4c7ae9d",
+                "caller": "79bf5b09112fe7182f3db973aa9a5a62c6f9494df717e2b38c972291bfcac81f",
+                "slots": "c635522a5d3f0c24e24c97c0a593f1c9c843e18331396af8737080551bbeaad5"
+              },
+              "engine": "array-v3-6x10",
+              "channels": 1,
+              "callback_count": 1600,
+              "attribution_available": true,
+              "hooks_compiled": true,
+              "stage_events": 228132,
+              "worker_events": 140,
+              "caller_events": 1830,
+              "slot_snapshots": 19200,
+              "dropped": 0,
+              "clock_errors": 0,
+              "nesting_errors": 0,
+              "wall": {
+                "samples": 1600,
+                "p50_us": 129.916,
+                "p99_us": 285.111,
+                "maximum_us": 673.307
+              },
+              "thread_cpu": {
+                "samples": 1600,
+                "p50_us": 129.823,
+                "p99_us": 285.113,
+                "maximum_us": 673.038
+              },
+              "wall_deadline_misses_preserved": 1,
+              "wall_misses_also_cpu_over_budget": 1,
+              "cpu_greater_than_wall_samples_preserved": 140,
+              "phase_counts": [
+                {
+                  "phase": "worker_and_automation",
+                  "callbacks": 1200,
+                  "wall_misses": 1
+                },
+                {
+                  "phase": "forced_six_slot_publication",
+                  "callbacks": 400,
+                  "wall_misses": 0
+                }
+              ],
+              "observed_cpp_new": 0,
+              "observed_cpp_delete": 0,
+              "semantic_valid_producer_receipt": true,
+              "resource_scope": "thread_rusage",
+              "resource_capture_requested": true,
+              "resource_capture_valid": true
+            },
+            {
+              "raw_file_prefix": "cab-resources/cab-array-v3-6x10-96000-64-2-resources",
+              "sha256": {
+                "metadata": "ed377e72e6bb4a95be565e9a3b707d63bdfc83c7879d5b5eb27305f2c56c0810",
+                "callbacks": "e8022cea561e047992848cedcf4eded9ab3c16fe42dc73495119954cc337fa33",
+                "stages": "60e5ef2241a6422114ad9667d1959063b96e0d7d0a0c738476b98bad495f79f3",
+                "worker": "3a95eea1478b1ff79e28073e6ee3c01af5805204bc97b719da261a2c47b3be3e",
+                "caller": "98b727463addda5686eface7baf5225ce80275a560f95447840b3acadf23f6a5",
+                "slots": "9221532a44c7ab50ef802f1eb370e92f23187816fd919915c5996a2697c94a2f"
+              },
+              "engine": "array-v3-6x10",
+              "channels": 2,
+              "callback_count": 1600,
+              "attribution_available": true,
+              "hooks_compiled": true,
+              "stage_events": 217632,
+              "worker_events": 147,
+              "caller_events": 1701,
+              "slot_snapshots": 19200,
+              "dropped": 0,
+              "clock_errors": 0,
+              "nesting_errors": 0,
+              "wall": {
+                "samples": 1600,
+                "p50_us": 113.841,
+                "p99_us": 301.065,
+                "maximum_us": 1661.419
+              },
+              "thread_cpu": {
+                "samples": 1600,
+                "p50_us": 113.608,
+                "p99_us": 300.806,
+                "maximum_us": 1661.403
+              },
+              "wall_deadline_misses_preserved": 3,
+              "wall_misses_also_cpu_over_budget": 3,
+              "cpu_greater_than_wall_samples_preserved": 144,
+              "phase_counts": [
+                {
+                  "phase": "worker_and_automation",
+                  "callbacks": 1200,
+                  "wall_misses": 3
+                },
+                {
+                  "phase": "forced_six_slot_publication",
+                  "callbacks": 400,
+                  "wall_misses": 0
+                }
+              ],
+              "observed_cpp_new": 0,
+              "observed_cpp_delete": 0,
+              "semantic_valid_producer_receipt": true,
+              "resource_scope": "thread_rusage",
+              "resource_capture_requested": true,
+              "resource_capture_valid": true
+            },
+            {
+              "raw_file_prefix": "cab-resources/cab-expanded-v2-96000-64-1-resources",
+              "sha256": {
+                "metadata": "403dd01f642b47359b62f695f392652b1c9ffd2df15c9ec14e5b750b5c753aaf",
+                "callbacks": "add7b7b919f7b7d7107267e126eccbd1afc986e7cc0fba13c64c347ec42988eb",
+                "stages": "eb05c00d13407ae856b8897657930c1d77d62d5c2ea66c19b5760ca9f412651d",
+                "worker": "ed0ba70baa352919284729cdea06908eebecff7088c7f25582ac65630953f23d",
+                "caller": "9806185c0f6bb79ed50c08fc4523e19bc4e41a5c89233ec114b2e91e073cf7c6",
+                "slots": "e98dba29b8a73c2bf693e87490e7639b51988cc5d0d716c657020abf9d0a8e39"
+              },
+              "engine": "expanded-v2",
+              "channels": 1,
+              "callback_count": 1600,
+              "attribution_available": true,
+              "hooks_compiled": true,
+              "stage_events": 228132,
+              "worker_events": 161,
+              "caller_events": 1830,
+              "slot_snapshots": 19200,
+              "dropped": 0,
+              "clock_errors": 0,
+              "nesting_errors": 0,
+              "wall": {
+                "samples": 1600,
+                "p50_us": 126.4,
+                "p99_us": 218.439,
+                "maximum_us": 243.578
+              },
+              "thread_cpu": {
+                "samples": 1600,
+                "p50_us": 126.317,
+                "p99_us": 218.554,
+                "maximum_us": 243.561
+              },
+              "wall_deadline_misses_preserved": 0,
+              "wall_misses_also_cpu_over_budget": 0,
+              "cpu_greater_than_wall_samples_preserved": 198,
+              "phase_counts": [
+                {
+                  "phase": "worker_and_automation",
+                  "callbacks": 1200,
+                  "wall_misses": 0
+                },
+                {
+                  "phase": "forced_six_slot_publication",
+                  "callbacks": 400,
+                  "wall_misses": 0
+                }
+              ],
+              "observed_cpp_new": 0,
+              "observed_cpp_delete": 0,
+              "semantic_valid_producer_receipt": true,
+              "resource_scope": "thread_rusage",
+              "resource_capture_requested": true,
+              "resource_capture_valid": true
+            },
+            {
+              "raw_file_prefix": "cab-resources/cab-expanded-v2-96000-64-2-resources",
+              "sha256": {
+                "metadata": "a1b2633dc61a0f20c80a573d31e0d6e33d2b8b949500bf6607e1d08b7ff99271",
+                "callbacks": "360749f1e7f1164da4e65b5ba495d2527e8245c6b159b5ab1896c0e2324faae3",
+                "stages": "c500d2bb6d54bd211f1ef4857d2965ba74974340178d242e4a27dcc6bbde5721",
+                "worker": "711aa7640067abae0b4f64abd7f90167d8033cee353c28c0dfa269c371de555a",
+                "caller": "097e32f01c04cce1304ac8579dfeea8c3cd52ae48fc5015e70de2ab73bf8ca0e",
+                "slots": "107511c59f7a19f07fec37d0a6cf6a713e86aa5327f05a732d87afed37c4d66f"
+              },
+              "engine": "expanded-v2",
+              "channels": 2,
+              "callback_count": 1600,
+              "attribution_available": true,
+              "hooks_compiled": true,
+              "stage_events": 217632,
+              "worker_events": 159,
+              "caller_events": 1701,
+              "slot_snapshots": 19200,
+              "dropped": 0,
+              "clock_errors": 0,
+              "nesting_errors": 0,
+              "wall": {
+                "samples": 1600,
+                "p50_us": 125.129,
+                "p99_us": 297.99,
+                "maximum_us": 593.076
+              },
+              "thread_cpu": {
+                "samples": 1600,
+                "p50_us": 125.056,
+                "p99_us": 297.982,
+                "maximum_us": 592.939
+              },
+              "wall_deadline_misses_preserved": 0,
+              "wall_misses_also_cpu_over_budget": 0,
+              "cpu_greater_than_wall_samples_preserved": 154,
+              "phase_counts": [
+                {
+                  "phase": "worker_and_automation",
+                  "callbacks": 1200,
+                  "wall_misses": 0
+                },
+                {
+                  "phase": "forced_six_slot_publication",
+                  "callbacks": 400,
+                  "wall_misses": 0
+                }
+              ],
+              "observed_cpp_new": 0,
+              "observed_cpp_delete": 0,
+              "semantic_valid_producer_receipt": true,
+              "resource_scope": "thread_rusage",
+              "resource_capture_requested": true,
+              "resource_capture_valid": true
+            },
+            {
+              "raw_file_prefix": "cab-resources/cab-original-v1-96000-64-1-resources",
+              "sha256": {
+                "metadata": "c39edca56b0b245fda88780cecfe3e41defdf362493ed6ae1c06baa5503886b6",
+                "callbacks": "4b01cc51fde38d1081bc566b5f460f09cb0e6615d69f80984c8db67e314ab304",
+                "stages": "41525baa619d3aeb93f398a78e3f492c8cdc41dfd91e5c3ce8cd483c8a62c99d",
+                "worker": "6791bae82dfa0fff521551b7c8d87a6b68753dcd8e528c8fcb4a84658f9f23f6",
+                "caller": "c72653b3d059d9f026822fb81c33946c744f870e089162b4f20eef434227ee8d",
+                "slots": "237a8a9ff8d69279214f26af199485b78f4ab41c68f18fb1225fc143d9d9016d"
+              },
+              "engine": "original-v1",
+              "channels": 1,
+              "callback_count": 1600,
+              "attribution_available": true,
+              "hooks_compiled": true,
+              "stage_events": 228132,
+              "worker_events": 168,
+              "caller_events": 1830,
+              "slot_snapshots": 19200,
+              "dropped": 0,
+              "clock_errors": 0,
+              "nesting_errors": 0,
+              "wall": {
+                "samples": 1600,
+                "p50_us": 102.866,
+                "p99_us": 220.122,
+                "maximum_us": 598.398
+              },
+              "thread_cpu": {
+                "samples": 1600,
+                "p50_us": 102.762,
+                "p99_us": 221.579,
+                "maximum_us": 598.292
+              },
+              "wall_deadline_misses_preserved": 0,
+              "wall_misses_also_cpu_over_budget": 0,
+              "cpu_greater_than_wall_samples_preserved": 184,
+              "phase_counts": [
+                {
+                  "phase": "worker_and_automation",
+                  "callbacks": 1200,
+                  "wall_misses": 0
+                },
+                {
+                  "phase": "forced_six_slot_publication",
+                  "callbacks": 400,
+                  "wall_misses": 0
+                }
+              ],
+              "observed_cpp_new": 0,
+              "observed_cpp_delete": 0,
+              "semantic_valid_producer_receipt": true,
+              "resource_scope": "thread_rusage",
+              "resource_capture_requested": true,
+              "resource_capture_valid": true
+            },
+            {
+              "raw_file_prefix": "cab-resources/cab-original-v1-96000-64-2-resources",
+              "sha256": {
+                "metadata": "6ab03716ea6447c7b613ca0c998f3373bd23fa2ed67f8fc6b63d38585ad15f97",
+                "callbacks": "b63e59dbed042f2649e4cc3c6d4e9ae3ca5bab06df657843974c0bbcfab89201",
+                "stages": "77e1a86005e690f9b734139fa7b910d06246cac4c60eebcff8307eeb69562e11",
+                "worker": "acbbb5c815de4510aca49afc62324a6b909ecbce9982976407aca175b95aa1a5",
+                "caller": "0ff72ae282b4c0448074e2180b6c100d987fd1e2fc6c56a41d6db4964ab3ae30",
+                "slots": "8ef17083e8ed035fe33ae335011cfeb82bf2941e87b40db1952de8ac4d73ba03"
+              },
+              "engine": "original-v1",
+              "channels": 2,
+              "callback_count": 1600,
+              "attribution_available": true,
+              "hooks_compiled": true,
+              "stage_events": 217632,
+              "worker_events": 171,
+              "caller_events": 1701,
+              "slot_snapshots": 19200,
+              "dropped": 0,
+              "clock_errors": 0,
+              "nesting_errors": 0,
+              "wall": {
+                "samples": 1600,
+                "p50_us": 105.619,
+                "p99_us": 346.874,
+                "maximum_us": 1450.11
+              },
+              "thread_cpu": {
+                "samples": 1600,
+                "p50_us": 105.536,
+                "p99_us": 346.975,
+                "maximum_us": 1449.96
+              },
+              "wall_deadline_misses_preserved": 1,
+              "wall_misses_also_cpu_over_budget": 1,
+              "cpu_greater_than_wall_samples_preserved": 126,
+              "phase_counts": [
+                {
+                  "phase": "worker_and_automation",
+                  "callbacks": 1200,
+                  "wall_misses": 0
+                },
+                {
+                  "phase": "forced_six_slot_publication",
+                  "callbacks": 400,
+                  "wall_misses": 1
+                }
+              ],
+              "observed_cpp_new": 0,
+              "observed_cpp_delete": 0,
+              "semantic_valid_producer_receipt": true,
+              "resource_scope": "thread_rusage",
+              "resource_capture_requested": true,
+              "resource_capture_valid": true
+            }
+          ]
+        },
+        {
+          "population": "arithmetic-off",
+          "mode": "arithmetic",
+          "trace_level": "off",
+          "sample_rate": 96000,
+          "block_size": 64,
+          "callbacks_per_route": 1600,
+          "producer_execution": {
+            "name": "arithmetic-off",
+            "mode": "arithmetic",
+            "trace_level": "off",
+            "command": [
+              "/workspace/scratch/f74ffd99d2f8/attribution-build/ChimeraCabCallbackProbeControl_artefacts/Release/ChimeraCabCallbackProbeControl",
+              "--mode",
+              "arithmetic",
+              "--engine",
+              "original-v1",
+              "--channels",
+              "all",
+              "--trace-level",
+              "off",
+              "--output-dir",
+              "/workspace/scratch/f74ffd99d2f8/local-validation/arithmetic-off"
+            ],
+            "returncode": 0,
+            "seconds": 0.46528736099935486
+          },
+          "verification": {
+            "method": "Independent verify_directory API with explicit expected arguments",
+            "expected": {
+              "mode": "arithmetic",
+              "trace_level": "off",
+              "engines": [
+                "original-v1"
+              ],
+              "channels": [
+                1,
+                2
+              ]
+            },
+            "status": "verified_complete",
+            "exit_code": 0,
+            "errors": [],
+            "incomplete_reasons": [],
+            "full_report": {
+              "local_evidence_path": "additional-verification-arithmetic-off.json",
+              "sha256": "fe41e847ff85f459330f57e7407f340ea594194ef3b9fbf3095fc6989152c5ee",
+              "bytes": 10370
+            },
+            "started_at_utc": "2026-10-12T08:46:31.301602+00:00",
+            "elapsed_seconds": 0.46574007199888,
+            "equivalent_cli_command": "python Tools/CabCallbackAttribution/verify_attribution.py --input /workspace/scratch/f74ffd99d2f8/local-validation/arithmetic-off --output /workspace/scratch/f74ffd99d2f8/local-validation/additional-verification-arithmetic-off.json --expected-mode arithmetic --expected-trace-level off --expected-engines original-v1 --expected-channels 1,2"
+          },
+          "route_count": 2,
+          "callback_count": 3200,
+          "wall_misses_preserved": 0,
+          "stage_events": 0,
+          "worker_events": 0,
+          "caller_events": 0,
+          "slot_snapshots": 0,
+          "routes": [
+            {
+              "raw_file_prefix": "arithmetic-off/arithmetic-original-v1-96000-64-1-off",
+              "sha256": {
+                "metadata": "345bc1a3efcc37a31400ea1b66f9ca12ad3f444a60b1fde9702c6fa7d1d1bdcc",
+                "callbacks": "97e045534766080bc07094a3ffc1b61e834ded4827b8d1fd9703065a03fbe16e",
+                "stages": "7e9da6e3186d9d33019a5e5ccf4e1b9c95e16db19b2ce5fc8ef1b36429081a88",
+                "worker": "7e9da6e3186d9d33019a5e5ccf4e1b9c95e16db19b2ce5fc8ef1b36429081a88",
+                "caller": "7e9da6e3186d9d33019a5e5ccf4e1b9c95e16db19b2ce5fc8ef1b36429081a88",
+                "slots": "aad4eaf3eddfe074f7de6970f0786ccdd46ef0733fbce6dc9fe1f89d6304bf6f"
+              },
+              "engine": "original-v1",
+              "channels": 1,
+              "callback_count": 1600,
+              "attribution_available": false,
+              "hooks_compiled": false,
+              "stage_events": 0,
+              "worker_events": 0,
+              "caller_events": 0,
+              "slot_snapshots": 0,
+              "dropped": 0,
+              "clock_errors": 0,
+              "nesting_errors": 0,
+              "wall": {
+                "samples": 1600,
+                "p50_us": 0.561,
+                "p99_us": 0.821,
+                "maximum_us": 89.905
+              },
+              "thread_cpu": {
+                "samples": 1600,
+                "p50_us": 0.561,
+                "p99_us": 0.761,
+                "maximum_us": 90.013
+              },
+              "wall_deadline_misses_preserved": 0,
+              "wall_misses_also_cpu_over_budget": 0,
+              "cpu_greater_than_wall_samples_preserved": 334,
+              "phase_counts": [
+                {
+                  "phase": "paced_control",
+                  "callbacks": 1200,
+                  "wall_misses": 0
+                },
+                {
+                  "phase": "burst_control",
+                  "callbacks": 400,
+                  "wall_misses": 0
+                }
+              ],
+              "observed_cpp_new": 0,
+              "observed_cpp_delete": 0,
+              "semantic_valid_producer_receipt": true,
+              "resource_scope": "disabled",
+              "resource_capture_requested": false,
+              "resource_capture_valid": false
+            },
+            {
+              "raw_file_prefix": "arithmetic-off/arithmetic-original-v1-96000-64-2-off",
+              "sha256": {
+                "metadata": "34bcac7c8b91ba9b8a937ed8f860fa3e727b837a8ee0a1aba9b77be9eaaa5a74",
+                "callbacks": "0ccd500a085be0194fc8aeb4589ef6114658103321a48b5ac696291262a6aac9",
+                "stages": "7e9da6e3186d9d33019a5e5ccf4e1b9c95e16db19b2ce5fc8ef1b36429081a88",
+                "worker": "7e9da6e3186d9d33019a5e5ccf4e1b9c95e16db19b2ce5fc8ef1b36429081a88",
+                "caller": "7e9da6e3186d9d33019a5e5ccf4e1b9c95e16db19b2ce5fc8ef1b36429081a88",
+                "slots": "aad4eaf3eddfe074f7de6970f0786ccdd46ef0733fbce6dc9fe1f89d6304bf6f"
+              },
+              "engine": "original-v1",
+              "channels": 2,
+              "callback_count": 1600,
+              "attribution_available": false,
+              "hooks_compiled": false,
+              "stage_events": 0,
+              "worker_events": 0,
+              "caller_events": 0,
+              "slot_snapshots": 0,
+              "dropped": 0,
+              "clock_errors": 0,
+              "nesting_errors": 0,
+              "wall": {
+                "samples": 1600,
+                "p50_us": 0.561,
+                "p99_us": 0.852,
+                "maximum_us": 15.673
+              },
+              "thread_cpu": {
+                "samples": 1600,
+                "p50_us": 0.561,
+                "p99_us": 0.791,
+                "maximum_us": 20.451
+              },
+              "wall_deadline_misses_preserved": 0,
+              "wall_misses_also_cpu_over_budget": 0,
+              "cpu_greater_than_wall_samples_preserved": 331,
+              "phase_counts": [
+                {
+                  "phase": "paced_control",
+                  "callbacks": 1200,
+                  "wall_misses": 0
+                },
+                {
+                  "phase": "burst_control",
+                  "callbacks": 400,
+                  "wall_misses": 0
+                }
+              ],
+              "observed_cpp_new": 0,
+              "observed_cpp_delete": 0,
+              "semantic_valid_producer_receipt": true,
+              "resource_scope": "disabled",
+              "resource_capture_requested": false,
+              "resource_capture_valid": false
+            }
+          ]
+        },
+        {
+          "population": "arithmetic-stages",
+          "mode": "arithmetic",
+          "trace_level": "stages",
+          "sample_rate": 96000,
+          "block_size": 64,
+          "callbacks_per_route": 1600,
+          "producer_execution": {
+            "name": "arithmetic-stages",
+            "mode": "arithmetic",
+            "trace_level": "stages",
+            "command": [
+              "/workspace/scratch/f74ffd99d2f8/attribution-build/ChimeraCabCallbackProbe_artefacts/Release/ChimeraCabCallbackProbe",
+              "--mode",
+              "arithmetic",
+              "--engine",
+              "original-v1",
+              "--channels",
+              "all",
+              "--trace-level",
+              "stages",
+              "--output-dir",
+              "/workspace/scratch/f74ffd99d2f8/local-validation/arithmetic-stages"
+            ],
+            "returncode": 0,
+            "seconds": 0.46532779300105176
+          },
+          "verification": {
+            "method": "Independent verify_directory API with explicit expected arguments",
+            "expected": {
+              "mode": "arithmetic",
+              "trace_level": "stages",
+              "engines": [
+                "original-v1"
+              ],
+              "channels": [
+                1,
+                2
+              ]
+            },
+            "status": "verified_complete",
+            "exit_code": 0,
+            "errors": [],
+            "incomplete_reasons": [],
+            "full_report": {
+              "local_evidence_path": "additional-verification-arithmetic-stages.json",
+              "sha256": "712b0d16e1bb9d0f79506518ce2af318e9ce01f501ae0be180a849e3652c6a91",
+              "bytes": 18022
+            },
+            "started_at_utc": "2026-10-12T08:46:31.767464+00:00",
+            "elapsed_seconds": 0.7380544129991904,
+            "equivalent_cli_command": "python Tools/CabCallbackAttribution/verify_attribution.py --input /workspace/scratch/f74ffd99d2f8/local-validation/arithmetic-stages --output /workspace/scratch/f74ffd99d2f8/local-validation/additional-verification-arithmetic-stages.json --expected-mode arithmetic --expected-trace-level stages --expected-engines original-v1 --expected-channels 1,2"
+          },
+          "route_count": 2,
+          "callback_count": 3200,
+          "wall_misses_preserved": 1,
+          "stage_events": 6400,
+          "worker_events": 0,
+          "caller_events": 0,
+          "slot_snapshots": 0,
+          "routes": [
+            {
+              "raw_file_prefix": "arithmetic-stages/arithmetic-original-v1-96000-64-1-stages",
+              "sha256": {
+                "metadata": "4d5827237d65d2e4e22cb26e6d177e6d9b19ee1942282311b78d96a202ca7f44",
+                "callbacks": "1254d4f69bb33cbaefccea9bc791aa9e85f207cf56f6241b2658fb1d0cfaab2a",
+                "stages": "e4553b82fffae09f439f0b536929a05d4a80800f9ec5fc86bb9d215a70e4c848",
+                "worker": "7e9da6e3186d9d33019a5e5ccf4e1b9c95e16db19b2ce5fc8ef1b36429081a88",
+                "caller": "7e9da6e3186d9d33019a5e5ccf4e1b9c95e16db19b2ce5fc8ef1b36429081a88",
+                "slots": "aad4eaf3eddfe074f7de6970f0786ccdd46ef0733fbce6dc9fe1f89d6304bf6f"
+              },
+              "engine": "original-v1",
+              "channels": 1,
+              "callback_count": 1600,
+              "attribution_available": true,
+              "hooks_compiled": true,
+              "stage_events": 3200,
+              "worker_events": 0,
+              "caller_events": 0,
+              "slot_snapshots": 0,
+              "dropped": 0,
+              "clock_errors": 0,
+              "nesting_errors": 0,
+              "wall": {
+                "samples": 1600,
+                "p50_us": 1.241,
+                "p99_us": 2.093,
+                "maximum_us": 1629.17
+              },
+              "thread_cpu": {
+                "samples": 1600,
+                "p50_us": 1.232,
+                "p99_us": 2.073,
+                "maximum_us": 1629.136
+              },
+              "wall_deadline_misses_preserved": 1,
+              "wall_misses_also_cpu_over_budget": 1,
+              "cpu_greater_than_wall_samples_preserved": 370,
+              "phase_counts": [
+                {
+                  "phase": "paced_control",
+                  "callbacks": 1200,
+                  "wall_misses": 1
+                },
+                {
+                  "phase": "burst_control",
+                  "callbacks": 400,
+                  "wall_misses": 0
+                }
+              ],
+              "observed_cpp_new": 0,
+              "observed_cpp_delete": 0,
+              "semantic_valid_producer_receipt": true,
+              "resource_scope": "disabled",
+              "resource_capture_requested": false,
+              "resource_capture_valid": false
+            },
+            {
+              "raw_file_prefix": "arithmetic-stages/arithmetic-original-v1-96000-64-2-stages",
+              "sha256": {
+                "metadata": "5719f48200c960adfb93d7ea9f4ece13c746aee035fc779aa731ddf06c6278d4",
+                "callbacks": "45cd10befe9ca6ec2b0eaa4fdf1b2ce3bfdaa1e78ae016b19e85d251df24130d",
+                "stages": "0c900deb8e782b050d5a48a244574176e565fd857a8505bb749612d6e20cab06",
+                "worker": "7e9da6e3186d9d33019a5e5ccf4e1b9c95e16db19b2ce5fc8ef1b36429081a88",
+                "caller": "7e9da6e3186d9d33019a5e5ccf4e1b9c95e16db19b2ce5fc8ef1b36429081a88",
+                "slots": "aad4eaf3eddfe074f7de6970f0786ccdd46ef0733fbce6dc9fe1f89d6304bf6f"
+              },
+              "engine": "original-v1",
+              "channels": 2,
+              "callback_count": 1600,
+              "attribution_available": true,
+              "hooks_compiled": true,
+              "stage_events": 3200,
+              "worker_events": 0,
+              "caller_events": 0,
+              "slot_snapshots": 0,
+              "dropped": 0,
+              "clock_errors": 0,
+              "nesting_errors": 0,
+              "wall": {
+                "samples": 1600,
+                "p50_us": 1.312,
+                "p99_us": 3.736,
+                "maximum_us": 182.756
+              },
+              "thread_cpu": {
+                "samples": 1600,
+                "p50_us": 1.252,
+                "p99_us": 3.715,
+                "maximum_us": 182.491
+              },
+              "wall_deadline_misses_preserved": 0,
+              "wall_misses_also_cpu_over_budget": 0,
+              "cpu_greater_than_wall_samples_preserved": 537,
+              "phase_counts": [
+                {
+                  "phase": "paced_control",
+                  "callbacks": 1200,
+                  "wall_misses": 0
+                },
+                {
+                  "phase": "burst_control",
+                  "callbacks": 400,
+                  "wall_misses": 0
+                }
+              ],
+              "observed_cpp_new": 0,
+              "observed_cpp_delete": 0,
+              "semantic_valid_producer_receipt": true,
+              "resource_scope": "disabled",
+              "resource_capture_requested": false,
+              "resource_capture_valid": false
+            }
+          ]
+        },
+        {
+          "population": "arithmetic-resources",
+          "mode": "arithmetic",
+          "trace_level": "resources",
+          "sample_rate": 96000,
+          "block_size": 64,
+          "callbacks_per_route": 1600,
+          "producer_execution": {
+            "name": "arithmetic-resources",
+            "mode": "arithmetic",
+            "trace_level": "resources",
+            "command": [
+              "/workspace/scratch/f74ffd99d2f8/attribution-build/ChimeraCabCallbackProbe_artefacts/Release/ChimeraCabCallbackProbe",
+              "--mode",
+              "arithmetic",
+              "--engine",
+              "original-v1",
+              "--channels",
+              "all",
+              "--trace-level",
+              "resources",
+              "--output-dir",
+              "/workspace/scratch/f74ffd99d2f8/local-validation/arithmetic-resources"
+            ],
+            "returncode": 0,
+            "seconds": 0.46633187100087525
+          },
+          "verification": {
+            "method": "Independent verify_directory API with explicit expected arguments",
+            "expected": {
+              "mode": "arithmetic",
+              "trace_level": "resources",
+              "engines": [
+                "original-v1"
+              ],
+              "channels": [
+                1,
+                2
+              ]
+            },
+            "status": "verified_complete",
+            "exit_code": 0,
+            "errors": [],
+            "incomplete_reasons": [],
+            "full_report": {
+              "local_evidence_path": "additional-verification-arithmetic-resources.json",
+              "sha256": "deefd93b72610f1f41c56559409a9b6d2ae1cd157ac68725cd67326ff904276a",
+              "bytes": 13155
+            },
+            "started_at_utc": "2026-10-12T08:46:32.505592+00:00",
+            "elapsed_seconds": 0.7453257990018756,
+            "equivalent_cli_command": "python Tools/CabCallbackAttribution/verify_attribution.py --input /workspace/scratch/f74ffd99d2f8/local-validation/arithmetic-resources --output /workspace/scratch/f74ffd99d2f8/local-validation/additional-verification-arithmetic-resources.json --expected-mode arithmetic --expected-trace-level resources --expected-engines original-v1 --expected-channels 1,2"
+          },
+          "route_count": 2,
+          "callback_count": 3200,
+          "wall_misses_preserved": 0,
+          "stage_events": 6400,
+          "worker_events": 0,
+          "caller_events": 0,
+          "slot_snapshots": 0,
+          "routes": [
+            {
+              "raw_file_prefix": "arithmetic-resources/arithmetic-original-v1-96000-64-1-resources",
+              "sha256": {
+                "metadata": "d82bd0cc6935cb86bf531ce9d8e1400f57a1e88a164e974fb4d603e98b2e2de1",
+                "callbacks": "f6925b949003d46950cb4b1075ce87b9748199eac9bd6d3faa4e8e76c7bca62a",
+                "stages": "c572aec52e674ce2def204fe85f4003106f2d1c388365ce1da8ebbb180c01401",
+                "worker": "7e9da6e3186d9d33019a5e5ccf4e1b9c95e16db19b2ce5fc8ef1b36429081a88",
+                "caller": "7e9da6e3186d9d33019a5e5ccf4e1b9c95e16db19b2ce5fc8ef1b36429081a88",
+                "slots": "aad4eaf3eddfe074f7de6970f0786ccdd46ef0733fbce6dc9fe1f89d6304bf6f"
+              },
+              "engine": "original-v1",
+              "channels": 1,
+              "callback_count": 1600,
+              "attribution_available": true,
+              "hooks_compiled": true,
+              "stage_events": 3200,
+              "worker_events": 0,
+              "caller_events": 0,
+              "slot_snapshots": 0,
+              "dropped": 0,
+              "clock_errors": 0,
+              "nesting_errors": 0,
+              "wall": {
+                "samples": 1600,
+                "p50_us": 1.212,
+                "p99_us": 1.753,
+                "maximum_us": 63.606
+              },
+              "thread_cpu": {
+                "samples": 1600,
+                "p50_us": 1.212,
+                "p99_us": 1.672,
+                "maximum_us": 31.387
+              },
+              "wall_deadline_misses_preserved": 0,
+              "wall_misses_also_cpu_over_budget": 0,
+              "cpu_greater_than_wall_samples_preserved": 340,
+              "phase_counts": [
+                {
+                  "phase": "paced_control",
+                  "callbacks": 1200,
+                  "wall_misses": 0
+                },
+                {
+                  "phase": "burst_control",
+                  "callbacks": 400,
+                  "wall_misses": 0
+                }
+              ],
+              "observed_cpp_new": 0,
+              "observed_cpp_delete": 0,
+              "semantic_valid_producer_receipt": true,
+              "resource_scope": "thread_rusage",
+              "resource_capture_requested": true,
+              "resource_capture_valid": true
+            },
+            {
+              "raw_file_prefix": "arithmetic-resources/arithmetic-original-v1-96000-64-2-resources",
+              "sha256": {
+                "metadata": "765c503af4d61d5b7ad3e1bb905eb2391b917de17cfc1ea25792458152c6130b",
+                "callbacks": "7ab30008833551673abc3978a9df8322254a092cae2dcd21cac9fd85e60c0e72",
+                "stages": "96b810305fd7b3474f9aeac0f33645629eb576f701adc4791af3d1e2ce7e77a1",
+                "worker": "7e9da6e3186d9d33019a5e5ccf4e1b9c95e16db19b2ce5fc8ef1b36429081a88",
+                "caller": "7e9da6e3186d9d33019a5e5ccf4e1b9c95e16db19b2ce5fc8ef1b36429081a88",
+                "slots": "aad4eaf3eddfe074f7de6970f0786ccdd46ef0733fbce6dc9fe1f89d6304bf6f"
+              },
+              "engine": "original-v1",
+              "channels": 2,
+              "callback_count": 1600,
+              "attribution_available": true,
+              "hooks_compiled": true,
+              "stage_events": 3200,
+              "worker_events": 0,
+              "caller_events": 0,
+              "slot_snapshots": 0,
+              "dropped": 0,
+              "clock_errors": 0,
+              "nesting_errors": 0,
+              "wall": {
+                "samples": 1600,
+                "p50_us": 1.262,
+                "p99_us": 1.843,
+                "maximum_us": 229.507
+              },
+              "thread_cpu": {
+                "samples": 1600,
+                "p50_us": 1.261,
+                "p99_us": 1.793,
+                "maximum_us": 19.829
+              },
+              "wall_deadline_misses_preserved": 0,
+              "wall_misses_also_cpu_over_budget": 0,
+              "cpu_greater_than_wall_samples_preserved": 335,
+              "phase_counts": [
+                {
+                  "phase": "paced_control",
+                  "callbacks": 1200,
+                  "wall_misses": 0
+                },
+                {
+                  "phase": "burst_control",
+                  "callbacks": 400,
+                  "wall_misses": 0
+                }
+              ],
+              "observed_cpp_new": 0,
+              "observed_cpp_delete": 0,
+              "semantic_valid_producer_receipt": true,
+              "resource_scope": "thread_rusage",
+              "resource_capture_requested": true,
+              "resource_capture_valid": true
+            }
+          ]
+        },
+        {
+          "population": "memory-off",
+          "mode": "memory",
+          "trace_level": "off",
+          "sample_rate": 96000,
+          "block_size": 64,
+          "callbacks_per_route": 1600,
+          "producer_execution": {
+            "name": "memory-off",
+            "mode": "memory",
+            "trace_level": "off",
+            "command": [
+              "/workspace/scratch/f74ffd99d2f8/attribution-build/ChimeraCabCallbackProbeControl_artefacts/Release/ChimeraCabCallbackProbeControl",
+              "--mode",
+              "memory",
+              "--engine",
+              "original-v1",
+              "--channels",
+              "all",
+              "--trace-level",
+              "off",
+              "--output-dir",
+              "/workspace/scratch/f74ffd99d2f8/local-validation/memory-off"
+            ],
+            "returncode": 0,
+            "seconds": 0.4154352490004385
+          },
+          "verification": {
+            "method": "Independent verify_directory API with explicit expected arguments",
+            "expected": {
+              "mode": "memory",
+              "trace_level": "off",
+              "engines": [
+                "original-v1"
+              ],
+              "channels": [
+                1,
+                2
+              ]
+            },
+            "status": "verified_complete",
+            "exit_code": 0,
+            "errors": [],
+            "incomplete_reasons": [],
+            "full_report": {
+              "local_evidence_path": "additional-verification-memory-off.json",
+              "sha256": "3e085d573859eb42f29e1f72b4e55198d4f301b2e33306d6b04fbea40a1c55b4",
+              "bytes": 10324
+            },
+            "started_at_utc": "2026-10-12T08:46:33.250995+00:00",
+            "elapsed_seconds": 0.4481746199999179,
+            "equivalent_cli_command": "python Tools/CabCallbackAttribution/verify_attribution.py --input /workspace/scratch/f74ffd99d2f8/local-validation/memory-off --output /workspace/scratch/f74ffd99d2f8/local-validation/additional-verification-memory-off.json --expected-mode memory --expected-trace-level off --expected-engines original-v1 --expected-channels 1,2"
+          },
+          "route_count": 2,
+          "callback_count": 3200,
+          "wall_misses_preserved": 0,
+          "stage_events": 0,
+          "worker_events": 0,
+          "caller_events": 0,
+          "slot_snapshots": 0,
+          "routes": [
+            {
+              "raw_file_prefix": "memory-off/memory-original-v1-96000-64-1-off",
+              "sha256": {
+                "metadata": "2410ce7a14f204897e58df0762fd6557145814754e45b8ac683cead26de4b625",
+                "callbacks": "ef4cef3697352721ebf8f643900bf7b32242742aa34e576a706b8d6efadfc6d2",
+                "stages": "7e9da6e3186d9d33019a5e5ccf4e1b9c95e16db19b2ce5fc8ef1b36429081a88",
+                "worker": "7e9da6e3186d9d33019a5e5ccf4e1b9c95e16db19b2ce5fc8ef1b36429081a88",
+                "caller": "7e9da6e3186d9d33019a5e5ccf4e1b9c95e16db19b2ce5fc8ef1b36429081a88",
+                "slots": "aad4eaf3eddfe074f7de6970f0786ccdd46ef0733fbce6dc9fe1f89d6304bf6f"
+              },
+              "engine": "original-v1",
+              "channels": 1,
+              "callback_count": 1600,
+              "attribution_available": false,
+              "hooks_compiled": false,
+              "stage_events": 0,
+              "worker_events": 0,
+              "caller_events": 0,
+              "slot_snapshots": 0,
+              "dropped": 0,
+              "clock_errors": 0,
+              "nesting_errors": 0,
+              "wall": {
+                "samples": 1600,
+                "p50_us": 1.793,
+                "p99_us": 4.176,
+                "maximum_us": 19.109
+              },
+              "thread_cpu": {
+                "samples": 1600,
+                "p50_us": 1.802,
+                "p99_us": 4.176,
+                "maximum_us": 19.168
+              },
+              "wall_deadline_misses_preserved": 0,
+              "wall_misses_also_cpu_over_budget": 0,
+              "cpu_greater_than_wall_samples_preserved": 1361,
+              "phase_counts": [
+                {
+                  "phase": "paced_control",
+                  "callbacks": 1200,
+                  "wall_misses": 0
+                },
+                {
+                  "phase": "burst_control",
+                  "callbacks": 400,
+                  "wall_misses": 0
+                }
+              ],
+              "observed_cpp_new": 0,
+              "observed_cpp_delete": 0,
+              "semantic_valid_producer_receipt": true,
+              "resource_scope": "disabled",
+              "resource_capture_requested": false,
+              "resource_capture_valid": false
+            },
+            {
+              "raw_file_prefix": "memory-off/memory-original-v1-96000-64-2-off",
+              "sha256": {
+                "metadata": "28d2e27c06f7337d8244cc58c47577fcc353e6f4a96911a875da5fc8b02e8582",
+                "callbacks": "9a99307ef1320cdccb00f76357aca5c05ee54141019acd8e39f734b505467f6d",
+                "stages": "7e9da6e3186d9d33019a5e5ccf4e1b9c95e16db19b2ce5fc8ef1b36429081a88",
+                "worker": "7e9da6e3186d9d33019a5e5ccf4e1b9c95e16db19b2ce5fc8ef1b36429081a88",
+                "caller": "7e9da6e3186d9d33019a5e5ccf4e1b9c95e16db19b2ce5fc8ef1b36429081a88",
+                "slots": "aad4eaf3eddfe074f7de6970f0786ccdd46ef0733fbce6dc9fe1f89d6304bf6f"
+              },
+              "engine": "original-v1",
+              "channels": 2,
+              "callback_count": 1600,
+              "attribution_available": false,
+              "hooks_compiled": false,
+              "stage_events": 0,
+              "worker_events": 0,
+              "caller_events": 0,
+              "slot_snapshots": 0,
+              "dropped": 0,
+              "clock_errors": 0,
+              "nesting_errors": 0,
+              "wall": {
+                "samples": 1600,
+                "p50_us": 1.712,
+                "p99_us": 4.827,
+                "maximum_us": 49.545
+              },
+              "thread_cpu": {
+                "samples": 1600,
+                "p50_us": 1.723,
+                "p99_us": 4.837,
+                "maximum_us": 49.564
+              },
+              "wall_deadline_misses_preserved": 0,
+              "wall_misses_also_cpu_over_budget": 0,
+              "cpu_greater_than_wall_samples_preserved": 1513,
+              "phase_counts": [
+                {
+                  "phase": "paced_control",
+                  "callbacks": 1200,
+                  "wall_misses": 0
+                },
+                {
+                  "phase": "burst_control",
+                  "callbacks": 400,
+                  "wall_misses": 0
+                }
+              ],
+              "observed_cpp_new": 0,
+              "observed_cpp_delete": 0,
+              "semantic_valid_producer_receipt": true,
+              "resource_scope": "disabled",
+              "resource_capture_requested": false,
+              "resource_capture_valid": false
+            }
+          ]
+        },
+        {
+          "population": "memory-stages",
+          "mode": "memory",
+          "trace_level": "stages",
+          "sample_rate": 96000,
+          "block_size": 64,
+          "callbacks_per_route": 1600,
+          "producer_execution": {
+            "name": "memory-stages",
+            "mode": "memory",
+            "trace_level": "stages",
+            "command": [
+              "/workspace/scratch/f74ffd99d2f8/attribution-build/ChimeraCabCallbackProbe_artefacts/Release/ChimeraCabCallbackProbe",
+              "--mode",
+              "memory",
+              "--engine",
+              "original-v1",
+              "--channels",
+              "all",
+              "--trace-level",
+              "stages",
+              "--output-dir",
+              "/workspace/scratch/f74ffd99d2f8/local-validation/memory-stages"
+            ],
+            "returncode": 0,
+            "seconds": 0.4653688129983493
+          },
+          "verification": {
+            "method": "Independent verify_directory API with explicit expected arguments",
+            "expected": {
+              "mode": "memory",
+              "trace_level": "stages",
+              "engines": [
+                "original-v1"
+              ],
+              "channels": [
+                1,
+                2
+              ]
+            },
+            "status": "verified_complete",
+            "exit_code": 0,
+            "errors": [],
+            "incomplete_reasons": [],
+            "full_report": {
+              "local_evidence_path": "additional-verification-memory-stages.json",
+              "sha256": "fca0be3de25039bed92332d5a4e9e7c158fb94be18528a07b679e0cf379f6ceb",
+              "bytes": 22833
+            },
+            "started_at_utc": "2026-10-12T08:46:33.699241+00:00",
+            "elapsed_seconds": 0.7751278420000745,
+            "equivalent_cli_command": "python Tools/CabCallbackAttribution/verify_attribution.py --input /workspace/scratch/f74ffd99d2f8/local-validation/memory-stages --output /workspace/scratch/f74ffd99d2f8/local-validation/additional-verification-memory-stages.json --expected-mode memory --expected-trace-level stages --expected-engines original-v1 --expected-channels 1,2"
+          },
+          "route_count": 2,
+          "callback_count": 3200,
+          "wall_misses_preserved": 2,
+          "stage_events": 6400,
+          "worker_events": 0,
+          "caller_events": 0,
+          "slot_snapshots": 0,
+          "routes": [
+            {
+              "raw_file_prefix": "memory-stages/memory-original-v1-96000-64-1-stages",
+              "sha256": {
+                "metadata": "cfd3d7cf5c1f4ab14c6d74d644852899fccf29ab0977cae725579ae1b33222d5",
+                "callbacks": "2b3387d5adbbb5ba50a14dc5632544483255339bcb9a410771f9baca69cf95a9",
+                "stages": "de4cbe4fd629216e21edfa37816b59efc63bd55e749a82aecfc080c90139d16b",
+                "worker": "7e9da6e3186d9d33019a5e5ccf4e1b9c95e16db19b2ce5fc8ef1b36429081a88",
+                "caller": "7e9da6e3186d9d33019a5e5ccf4e1b9c95e16db19b2ce5fc8ef1b36429081a88",
+                "slots": "aad4eaf3eddfe074f7de6970f0786ccdd46ef0733fbce6dc9fe1f89d6304bf6f"
+              },
+              "engine": "original-v1",
+              "channels": 1,
+              "callback_count": 1600,
+              "attribution_available": true,
+              "hooks_compiled": true,
+              "stage_events": 3200,
+              "worker_events": 0,
+              "caller_events": 0,
+              "slot_snapshots": 0,
+              "dropped": 0,
+              "clock_errors": 0,
+              "nesting_errors": 0,
+              "wall": {
+                "samples": 1600,
+                "p50_us": 3.155,
+                "p99_us": 23.956,
+                "maximum_us": 180.091
+              },
+              "thread_cpu": {
+                "samples": 1600,
+                "p50_us": 3.165,
+                "p99_us": 24.076,
+                "maximum_us": 180.007
+              },
+              "wall_deadline_misses_preserved": 0,
+              "wall_misses_also_cpu_over_budget": 0,
+              "cpu_greater_than_wall_samples_preserved": 633,
+              "phase_counts": [
+                {
+                  "phase": "paced_control",
+                  "callbacks": 1200,
+                  "wall_misses": 0
+                },
+                {
+                  "phase": "burst_control",
+                  "callbacks": 400,
+                  "wall_misses": 0
+                }
+              ],
+              "observed_cpp_new": 0,
+              "observed_cpp_delete": 0,
+              "semantic_valid_producer_receipt": true,
+              "resource_scope": "disabled",
+              "resource_capture_requested": false,
+              "resource_capture_valid": false
+            },
+            {
+              "raw_file_prefix": "memory-stages/memory-original-v1-96000-64-2-stages",
+              "sha256": {
+                "metadata": "b3a6c15df413aa70b6f6106a6411e76f0591eb093df6f2dfb7d489193dfd8fc3",
+                "callbacks": "14ed4dce3452312f5f0218d217883c51cec013a4ac0546cc2ff8f53473ce22b7",
+                "stages": "cfed71807bcacb078aca3c95de1105239b8a7a90b1605d83e4ce77feb2d772d1",
+                "worker": "7e9da6e3186d9d33019a5e5ccf4e1b9c95e16db19b2ce5fc8ef1b36429081a88",
+                "caller": "7e9da6e3186d9d33019a5e5ccf4e1b9c95e16db19b2ce5fc8ef1b36429081a88",
+                "slots": "aad4eaf3eddfe074f7de6970f0786ccdd46ef0733fbce6dc9fe1f89d6304bf6f"
+              },
+              "engine": "original-v1",
+              "channels": 2,
+              "callback_count": 1600,
+              "attribution_available": true,
+              "hooks_compiled": true,
+              "stage_events": 3200,
+              "worker_events": 0,
+              "caller_events": 0,
+              "slot_snapshots": 0,
+              "dropped": 0,
+              "clock_errors": 0,
+              "nesting_errors": 0,
+              "wall": {
+                "samples": 1600,
+                "p50_us": 3.184,
+                "p99_us": 8.553,
+                "maximum_us": 12910.553
+              },
+              "thread_cpu": {
+                "samples": 1600,
+                "p50_us": 3.215,
+                "p99_us": 8.503,
+                "maximum_us": 12910.222
+              },
+              "wall_deadline_misses_preserved": 2,
+              "wall_misses_also_cpu_over_budget": 2,
+              "cpu_greater_than_wall_samples_preserved": 626,
+              "phase_counts": [
+                {
+                  "phase": "paced_control",
+                  "callbacks": 1200,
+                  "wall_misses": 1
+                },
+                {
+                  "phase": "burst_control",
+                  "callbacks": 400,
+                  "wall_misses": 1
+                }
+              ],
+              "observed_cpp_new": 0,
+              "observed_cpp_delete": 0,
+              "semantic_valid_producer_receipt": true,
+              "resource_scope": "disabled",
+              "resource_capture_requested": false,
+              "resource_capture_valid": false
+            }
+          ]
+        },
+        {
+          "population": "memory-resources",
+          "mode": "memory",
+          "trace_level": "resources",
+          "sample_rate": 96000,
+          "block_size": 64,
+          "callbacks_per_route": 1600,
+          "producer_execution": {
+            "name": "memory-resources",
+            "mode": "memory",
+            "trace_level": "resources",
+            "command": [
+              "/workspace/scratch/f74ffd99d2f8/attribution-build/ChimeraCabCallbackProbe_artefacts/Release/ChimeraCabCallbackProbe",
+              "--mode",
+              "memory",
+              "--engine",
+              "original-v1",
+              "--channels",
+              "all",
+              "--trace-level",
+              "resources",
+              "--output-dir",
+              "/workspace/scratch/f74ffd99d2f8/local-validation/memory-resources"
+            ],
+            "returncode": 0,
+            "seconds": 0.4652847049983393
+          },
+          "verification": {
+            "method": "Independent verify_directory API with explicit expected arguments",
+            "expected": {
+              "mode": "memory",
+              "trace_level": "resources",
+              "engines": [
+                "original-v1"
+              ],
+              "channels": [
+                1,
+                2
+              ]
+            },
+            "status": "verified_complete",
+            "exit_code": 0,
+            "errors": [],
+            "incomplete_reasons": [],
+            "full_report": {
+              "local_evidence_path": "additional-verification-memory-resources.json",
+              "sha256": "1109b2f27bc580433c502e96c2c53f65f1c4b7c078eebec436368a9e29942b50",
+              "bytes": 13117
+            },
+            "started_at_utc": "2026-10-12T08:46:34.474439+00:00",
+            "elapsed_seconds": 0.7381217500005732,
+            "equivalent_cli_command": "python Tools/CabCallbackAttribution/verify_attribution.py --input /workspace/scratch/f74ffd99d2f8/local-validation/memory-resources --output /workspace/scratch/f74ffd99d2f8/local-validation/additional-verification-memory-resources.json --expected-mode memory --expected-trace-level resources --expected-engines original-v1 --expected-channels 1,2"
+          },
+          "route_count": 2,
+          "callback_count": 3200,
+          "wall_misses_preserved": 0,
+          "stage_events": 6400,
+          "worker_events": 0,
+          "caller_events": 0,
+          "slot_snapshots": 0,
+          "routes": [
+            {
+              "raw_file_prefix": "memory-resources/memory-original-v1-96000-64-1-resources",
+              "sha256": {
+                "metadata": "d4459474c3f5dd1dc61364354bebb68563d28cbf656d546aa1c7f6549d721b3b",
+                "callbacks": "fb2a290026a96e789dd3696e9c92338b51198d745b491fbca67133f8b9af743f",
+                "stages": "7df8aadafde874e18b70a515abd36ca5b8a7a1cb4b833b25ca7c4ebdf34e2485",
+                "worker": "7e9da6e3186d9d33019a5e5ccf4e1b9c95e16db19b2ce5fc8ef1b36429081a88",
+                "caller": "7e9da6e3186d9d33019a5e5ccf4e1b9c95e16db19b2ce5fc8ef1b36429081a88",
+                "slots": "aad4eaf3eddfe074f7de6970f0786ccdd46ef0733fbce6dc9fe1f89d6304bf6f"
+              },
+              "engine": "original-v1",
+              "channels": 1,
+              "callback_count": 1600,
+              "attribution_available": true,
+              "hooks_compiled": true,
+              "stage_events": 3200,
+              "worker_events": 0,
+              "caller_events": 0,
+              "slot_snapshots": 0,
+              "dropped": 0,
+              "clock_errors": 0,
+              "nesting_errors": 0,
+              "wall": {
+                "samples": 1600,
+                "p50_us": 3.064,
+                "p99_us": 6.42,
+                "maximum_us": 64.968
+              },
+              "thread_cpu": {
+                "samples": 1600,
+                "p50_us": 3.054,
+                "p99_us": 6.009,
+                "maximum_us": 64.857
+              },
+              "wall_deadline_misses_preserved": 0,
+              "wall_misses_also_cpu_over_budget": 0,
+              "cpu_greater_than_wall_samples_preserved": 412,
+              "phase_counts": [
+                {
+                  "phase": "paced_control",
+                  "callbacks": 1200,
+                  "wall_misses": 0
+                },
+                {
+                  "phase": "burst_control",
+                  "callbacks": 400,
+                  "wall_misses": 0
+                }
+              ],
+              "observed_cpp_new": 0,
+              "observed_cpp_delete": 0,
+              "semantic_valid_producer_receipt": true,
+              "resource_scope": "thread_rusage",
+              "resource_capture_requested": true,
+              "resource_capture_valid": true
+            },
+            {
+              "raw_file_prefix": "memory-resources/memory-original-v1-96000-64-2-resources",
+              "sha256": {
+                "metadata": "18b0f5711198df4aa2f29313382c481e4686cbd6be451f242cda7eb9e4f4cf7b",
+                "callbacks": "20da707aa0edd9494d7beb9f97aee75e8804f372b9e168732642ac120163bbd1",
+                "stages": "cb1c9babd9bdbd8e591a804bd89c502fa6da05d60db58040ab3892e0ec992309",
+                "worker": "7e9da6e3186d9d33019a5e5ccf4e1b9c95e16db19b2ce5fc8ef1b36429081a88",
+                "caller": "7e9da6e3186d9d33019a5e5ccf4e1b9c95e16db19b2ce5fc8ef1b36429081a88",
+                "slots": "aad4eaf3eddfe074f7de6970f0786ccdd46ef0733fbce6dc9fe1f89d6304bf6f"
+              },
+              "engine": "original-v1",
+              "channels": 2,
+              "callback_count": 1600,
+              "attribution_available": true,
+              "hooks_compiled": true,
+              "stage_events": 3200,
+              "worker_events": 0,
+              "caller_events": 0,
+              "slot_snapshots": 0,
+              "dropped": 0,
+              "clock_errors": 0,
+              "nesting_errors": 0,
+              "wall": {
+                "samples": 1600,
+                "p50_us": 3.104,
+                "p99_us": 8.763,
+                "maximum_us": 86.23
+              },
+              "thread_cpu": {
+                "samples": 1600,
+                "p50_us": 3.094,
+                "p99_us": 7.511,
+                "maximum_us": 86.218
+              },
+              "wall_deadline_misses_preserved": 0,
+              "wall_misses_also_cpu_over_budget": 0,
+              "cpu_greater_than_wall_samples_preserved": 411,
+              "phase_counts": [
+                {
+                  "phase": "paced_control",
+                  "callbacks": 1200,
+                  "wall_misses": 0
+                },
+                {
+                  "phase": "burst_control",
+                  "callbacks": 400,
+                  "wall_misses": 0
+                }
+              ],
+              "observed_cpp_new": 0,
+              "observed_cpp_delete": 0,
+              "semantic_valid_producer_receipt": true,
+              "resource_scope": "thread_rusage",
+              "resource_capture_requested": true,
+              "resource_capture_valid": true
+            }
+          ]
+        },
+        {
+          "population": "clock-off",
+          "mode": "clock",
+          "trace_level": "off",
+          "sample_rate": 96000,
+          "block_size": 64,
+          "callbacks_per_route": 1600,
+          "producer_execution": {
+            "name": "clock-off",
+            "mode": "clock",
+            "trace_level": "off",
+            "command": [
+              "/workspace/scratch/f74ffd99d2f8/attribution-build/ChimeraCabCallbackProbeControl_artefacts/Release/ChimeraCabCallbackProbeControl",
+              "--mode",
+              "clock",
+              "--engine",
+              "original-v1",
+              "--channels",
+              "all",
+              "--trace-level",
+              "off",
+              "--output-dir",
+              "/workspace/scratch/f74ffd99d2f8/local-validation/clock-off"
+            ],
+            "returncode": 0,
+            "seconds": 0.46528399200178683
+          },
+          "verification": {
+            "method": "Independent verify_directory API with explicit expected arguments",
+            "expected": {
+              "mode": "clock",
+              "trace_level": "off",
+              "engines": [
+                "original-v1"
+              ],
+              "channels": [
+                1,
+                2
+              ]
+            },
+            "status": "verified_complete",
+            "exit_code": 0,
+            "errors": [],
+            "incomplete_reasons": [],
+            "full_report": {
+              "local_evidence_path": "additional-verification-clock-off.json",
+              "sha256": "e02cec923af1119d20dc93cd732fddc40dc24fe06c312cc1e16432399bb256d0",
+              "bytes": 10277
+            },
+            "started_at_utc": "2026-10-12T08:46:35.212632+00:00",
+            "elapsed_seconds": 0.4330725899999379,
+            "equivalent_cli_command": "python Tools/CabCallbackAttribution/verify_attribution.py --input /workspace/scratch/f74ffd99d2f8/local-validation/clock-off --output /workspace/scratch/f74ffd99d2f8/local-validation/additional-verification-clock-off.json --expected-mode clock --expected-trace-level off --expected-engines original-v1 --expected-channels 1,2"
+          },
+          "route_count": 2,
+          "callback_count": 3200,
+          "wall_misses_preserved": 0,
+          "stage_events": 0,
+          "worker_events": 0,
+          "caller_events": 0,
+          "slot_snapshots": 0,
+          "routes": [
+            {
+              "raw_file_prefix": "clock-off/clock-original-v1-96000-64-1-off",
+              "sha256": {
+                "metadata": "118e602648bfc4a3449c377d8161435587f67c92881f913ccc66c600ca216e63",
+                "callbacks": "0f6e36ecb73dddc45054296fdd3151a2f18b60e0bebc31858cfcf2b44a0e8116",
+                "stages": "7e9da6e3186d9d33019a5e5ccf4e1b9c95e16db19b2ce5fc8ef1b36429081a88",
+                "worker": "7e9da6e3186d9d33019a5e5ccf4e1b9c95e16db19b2ce5fc8ef1b36429081a88",
+                "caller": "7e9da6e3186d9d33019a5e5ccf4e1b9c95e16db19b2ce5fc8ef1b36429081a88",
+                "slots": "aad4eaf3eddfe074f7de6970f0786ccdd46ef0733fbce6dc9fe1f89d6304bf6f"
+              },
+              "engine": "original-v1",
+              "channels": 1,
+              "callback_count": 1600,
+              "attribution_available": false,
+              "hooks_compiled": false,
+              "stage_events": 0,
+              "worker_events": 0,
+              "caller_events": 0,
+              "slot_snapshots": 0,
+              "dropped": 0,
+              "clock_errors": 0,
+              "nesting_errors": 0,
+              "wall": {
+                "samples": 1600,
+                "p50_us": 0.14,
+                "p99_us": 0.381,
+                "maximum_us": 133.761
+              },
+              "thread_cpu": {
+                "samples": 1600,
+                "p50_us": 0.14,
+                "p99_us": 0.27,
+                "maximum_us": 133.968
+              },
+              "wall_deadline_misses_preserved": 0,
+              "wall_misses_also_cpu_over_budget": 0,
+              "cpu_greater_than_wall_samples_preserved": 366,
+              "phase_counts": [
+                {
+                  "phase": "paced_control",
+                  "callbacks": 1200,
+                  "wall_misses": 0
+                },
+                {
+                  "phase": "burst_control",
+                  "callbacks": 400,
+                  "wall_misses": 0
+                }
+              ],
+              "observed_cpp_new": 0,
+              "observed_cpp_delete": 0,
+              "semantic_valid_producer_receipt": true,
+              "resource_scope": "disabled",
+              "resource_capture_requested": false,
+              "resource_capture_valid": false
+            },
+            {
+              "raw_file_prefix": "clock-off/clock-original-v1-96000-64-2-off",
+              "sha256": {
+                "metadata": "c50286ad75d0beefdd2f869fca8acd7a08e3caf78c2133a6202791ef3b09739a",
+                "callbacks": "e5ca0d6f627b8612f89d35a2e4e8e489ca958572968220a866de680a7ec8677c",
+                "stages": "7e9da6e3186d9d33019a5e5ccf4e1b9c95e16db19b2ce5fc8ef1b36429081a88",
+                "worker": "7e9da6e3186d9d33019a5e5ccf4e1b9c95e16db19b2ce5fc8ef1b36429081a88",
+                "caller": "7e9da6e3186d9d33019a5e5ccf4e1b9c95e16db19b2ce5fc8ef1b36429081a88",
+                "slots": "aad4eaf3eddfe074f7de6970f0786ccdd46ef0733fbce6dc9fe1f89d6304bf6f"
+              },
+              "engine": "original-v1",
+              "channels": 2,
+              "callback_count": 1600,
+              "attribution_available": false,
+              "hooks_compiled": false,
+              "stage_events": 0,
+              "worker_events": 0,
+              "caller_events": 0,
+              "slot_snapshots": 0,
+              "dropped": 0,
+              "clock_errors": 0,
+              "nesting_errors": 0,
+              "wall": {
+                "samples": 1600,
+                "p50_us": 0.14,
+                "p99_us": 0.37,
+                "maximum_us": 1.913
+              },
+              "thread_cpu": {
+                "samples": 1600,
+                "p50_us": 0.14,
+                "p99_us": 0.3,
+                "maximum_us": 0.842
+              },
+              "wall_deadline_misses_preserved": 0,
+              "wall_misses_also_cpu_over_budget": 0,
+              "cpu_greater_than_wall_samples_preserved": 394,
+              "phase_counts": [
+                {
+                  "phase": "paced_control",
+                  "callbacks": 1200,
+                  "wall_misses": 0
+                },
+                {
+                  "phase": "burst_control",
+                  "callbacks": 400,
+                  "wall_misses": 0
+                }
+              ],
+              "observed_cpp_new": 0,
+              "observed_cpp_delete": 0,
+              "semantic_valid_producer_receipt": true,
+              "resource_scope": "disabled",
+              "resource_capture_requested": false,
+              "resource_capture_valid": false
+            }
+          ]
+        },
+        {
+          "population": "clock-stages",
+          "mode": "clock",
+          "trace_level": "stages",
+          "sample_rate": 96000,
+          "block_size": 64,
+          "callbacks_per_route": 1600,
+          "producer_execution": {
+            "name": "clock-stages",
+            "mode": "clock",
+            "trace_level": "stages",
+            "command": [
+              "/workspace/scratch/f74ffd99d2f8/attribution-build/ChimeraCabCallbackProbe_artefacts/Release/ChimeraCabCallbackProbe",
+              "--mode",
+              "clock",
+              "--engine",
+              "original-v1",
+              "--channels",
+              "all",
+              "--trace-level",
+              "stages",
+              "--output-dir",
+              "/workspace/scratch/f74ffd99d2f8/local-validation/clock-stages"
+            ],
+            "returncode": 0,
+            "seconds": 0.7680044389999239
+          },
+          "verification": {
+            "method": "Independent verify_directory API with explicit expected arguments",
+            "expected": {
+              "mode": "clock",
+              "trace_level": "stages",
+              "engines": [
+                "original-v1"
+              ],
+              "channels": [
+                1,
+                2
+              ]
+            },
+            "status": "verified_complete",
+            "exit_code": 0,
+            "errors": [],
+            "incomplete_reasons": [],
+            "full_report": {
+              "local_evidence_path": "additional-verification-clock-stages.json",
+              "sha256": "0d8c828eb9e7195f378fd09cd4d63f10451955f24eb12cb7a9a6a29194d82dac",
+              "bytes": 17981
+            },
+            "started_at_utc": "2026-10-12T08:46:35.645776+00:00",
+            "elapsed_seconds": 9.063975080000091,
+            "equivalent_cli_command": "python Tools/CabCallbackAttribution/verify_attribution.py --input /workspace/scratch/f74ffd99d2f8/local-validation/clock-stages --output /workspace/scratch/f74ffd99d2f8/local-validation/additional-verification-clock-stages.json --expected-mode clock --expected-trace-level stages --expected-engines original-v1 --expected-channels 1,2"
+          },
+          "route_count": 2,
+          "callback_count": 3200,
+          "wall_misses_preserved": 1,
+          "stage_events": 208000,
+          "worker_events": 0,
+          "caller_events": 0,
+          "slot_snapshots": 0,
+          "routes": [
+            {
+              "raw_file_prefix": "clock-stages/clock-original-v1-96000-64-1-stages",
+              "sha256": {
+                "metadata": "0a45d649ac7445b59be3c3a9686772e87f99987ae7837816c979a90035c93b88",
+                "callbacks": "c860423b1cf1befedc6333f5a39ad6dea530c5c9e9368ad92b4f1a5b8156a963",
+                "stages": "2f3574c453ae71012ee75bd2db58b0ca35eb3df5e1a6e38601e111256f87b36a",
+                "worker": "7e9da6e3186d9d33019a5e5ccf4e1b9c95e16db19b2ce5fc8ef1b36429081a88",
+                "caller": "7e9da6e3186d9d33019a5e5ccf4e1b9c95e16db19b2ce5fc8ef1b36429081a88",
+                "slots": "aad4eaf3eddfe074f7de6970f0786ccdd46ef0733fbce6dc9fe1f89d6304bf6f"
+              },
+              "engine": "original-v1",
+              "channels": 1,
+              "callback_count": 1600,
+              "attribution_available": true,
+              "hooks_compiled": true,
+              "stage_events": 104000,
+              "worker_events": 0,
+              "caller_events": 0,
+              "slot_snapshots": 0,
+              "dropped": 0,
+              "clock_errors": 0,
+              "nesting_errors": 0,
+              "wall": {
+                "samples": 1600,
+                "p50_us": 21.332,
+                "p99_us": 147.383,
+                "maximum_us": 1108.083
+              },
+              "thread_cpu": {
+                "samples": 1600,
+                "p50_us": 21.321,
+                "p99_us": 147.349,
+                "maximum_us": 1108.103
+              },
+              "wall_deadline_misses_preserved": 1,
+              "wall_misses_also_cpu_over_budget": 1,
+              "cpu_greater_than_wall_samples_preserved": 306,
+              "phase_counts": [
+                {
+                  "phase": "paced_control",
+                  "callbacks": 1200,
+                  "wall_misses": 0
+                },
+                {
+                  "phase": "burst_control",
+                  "callbacks": 400,
+                  "wall_misses": 1
+                }
+              ],
+              "observed_cpp_new": 0,
+              "observed_cpp_delete": 0,
+              "semantic_valid_producer_receipt": true,
+              "resource_scope": "disabled",
+              "resource_capture_requested": false,
+              "resource_capture_valid": false
+            },
+            {
+              "raw_file_prefix": "clock-stages/clock-original-v1-96000-64-2-stages",
+              "sha256": {
+                "metadata": "08eab9684d8c5a326425c22d245eb60fadcbe8a4c48c3b0d278aa2c233260e80",
+                "callbacks": "5e26937d2e1969a97fb173b336381f31cff670be9e1fd42c5865dcbeb562fbb9",
+                "stages": "13b3bcc795845f039a616f301a36a6d430ff35a74fad1c1b3da68f9477ca7384",
+                "worker": "7e9da6e3186d9d33019a5e5ccf4e1b9c95e16db19b2ce5fc8ef1b36429081a88",
+                "caller": "7e9da6e3186d9d33019a5e5ccf4e1b9c95e16db19b2ce5fc8ef1b36429081a88",
+                "slots": "aad4eaf3eddfe074f7de6970f0786ccdd46ef0733fbce6dc9fe1f89d6304bf6f"
+              },
+              "engine": "original-v1",
+              "channels": 2,
+              "callback_count": 1600,
+              "attribution_available": true,
+              "hooks_compiled": true,
+              "stage_events": 104000,
+              "worker_events": 0,
+              "caller_events": 0,
+              "slot_snapshots": 0,
+              "dropped": 0,
+              "clock_errors": 0,
+              "nesting_errors": 0,
+              "wall": {
+                "samples": 1600,
+                "p50_us": 29.885,
+                "p99_us": 53.711,
+                "maximum_us": 88.103
+              },
+              "thread_cpu": {
+                "samples": 1600,
+                "p50_us": 29.864,
+                "p99_us": 53.81,
+                "maximum_us": 88.101
+              },
+              "wall_deadline_misses_preserved": 0,
+              "wall_misses_also_cpu_over_budget": 0,
+              "cpu_greater_than_wall_samples_preserved": 493,
+              "phase_counts": [
+                {
+                  "phase": "paced_control",
+                  "callbacks": 1200,
+                  "wall_misses": 0
+                },
+                {
+                  "phase": "burst_control",
+                  "callbacks": 400,
+                  "wall_misses": 0
+                }
+              ],
+              "observed_cpp_new": 0,
+              "observed_cpp_delete": 0,
+              "semantic_valid_producer_receipt": true,
+              "resource_scope": "disabled",
+              "resource_capture_requested": false,
+              "resource_capture_valid": false
+            }
+          ]
+        },
+        {
+          "population": "clock-resources",
+          "mode": "clock",
+          "trace_level": "resources",
+          "sample_rate": 96000,
+          "block_size": 64,
+          "callbacks_per_route": 1600,
+          "producer_execution": {
+            "name": "clock-resources",
+            "mode": "clock",
+            "trace_level": "resources",
+            "command": [
+              "/workspace/scratch/f74ffd99d2f8/attribution-build/ChimeraCabCallbackProbe_artefacts/Release/ChimeraCabCallbackProbe",
+              "--mode",
+              "clock",
+              "--engine",
+              "original-v1",
+              "--channels",
+              "all",
+              "--trace-level",
+              "resources",
+              "--output-dir",
+              "/workspace/scratch/f74ffd99d2f8/local-validation/clock-resources"
+            ],
+            "returncode": 0,
+            "seconds": 0.7660002529992198
+          },
+          "verification": {
+            "method": "Independent verify_directory API with explicit expected arguments",
+            "expected": {
+              "mode": "clock",
+              "trace_level": "resources",
+              "engines": [
+                "original-v1"
+              ],
+              "channels": [
+                1,
+                2
+              ]
+            },
+            "status": "verified_complete",
+            "exit_code": 0,
+            "errors": [],
+            "incomplete_reasons": [],
+            "full_report": {
+              "local_evidence_path": "additional-verification-clock-resources.json",
+              "sha256": "226e2d6dd4fc720d23d2d1e5d3e8fbd916415f94c265a33389057cf512121abf",
+              "bytes": 13157
+            },
+            "started_at_utc": "2026-10-12T08:46:44.709818+00:00",
+            "elapsed_seconds": 8.886841043000459,
+            "equivalent_cli_command": "python Tools/CabCallbackAttribution/verify_attribution.py --input /workspace/scratch/f74ffd99d2f8/local-validation/clock-resources --output /workspace/scratch/f74ffd99d2f8/local-validation/additional-verification-clock-resources.json --expected-mode clock --expected-trace-level resources --expected-engines original-v1 --expected-channels 1,2"
+          },
+          "route_count": 2,
+          "callback_count": 3200,
+          "wall_misses_preserved": 0,
+          "stage_events": 208000,
+          "worker_events": 0,
+          "caller_events": 0,
+          "slot_snapshots": 0,
+          "routes": [
+            {
+              "raw_file_prefix": "clock-resources/clock-original-v1-96000-64-1-resources",
+              "sha256": {
+                "metadata": "9f4cd9e05e6b352208ee8a98a9764ab34e03246ce9a3621f2eee21409f02b3ee",
+                "callbacks": "64302729e5840c27c069058a0b0ceba8080aa6f1046c0d9347b19059a853f733",
+                "stages": "9737bd18d59116438d1fc1bb4e59b03fa55a689bfdb7471dd836a3b871369c8b",
+                "worker": "7e9da6e3186d9d33019a5e5ccf4e1b9c95e16db19b2ce5fc8ef1b36429081a88",
+                "caller": "7e9da6e3186d9d33019a5e5ccf4e1b9c95e16db19b2ce5fc8ef1b36429081a88",
+                "slots": "aad4eaf3eddfe074f7de6970f0786ccdd46ef0733fbce6dc9fe1f89d6304bf6f"
+              },
+              "engine": "original-v1",
+              "channels": 1,
+              "callback_count": 1600,
+              "attribution_available": true,
+              "hooks_compiled": true,
+              "stage_events": 104000,
+              "worker_events": 0,
+              "caller_events": 0,
+              "slot_snapshots": 0,
+              "dropped": 0,
+              "clock_errors": 0,
+              "nesting_errors": 0,
+              "wall": {
+                "samples": 1600,
+                "p50_us": 21.162,
+                "p99_us": 78.359,
+                "maximum_us": 232.181
+              },
+              "thread_cpu": {
+                "samples": 1600,
+                "p50_us": 21.131,
+                "p99_us": 82.282,
+                "maximum_us": 232.074
+              },
+              "wall_deadline_misses_preserved": 0,
+              "wall_misses_also_cpu_over_budget": 0,
+              "cpu_greater_than_wall_samples_preserved": 399,
+              "phase_counts": [
+                {
+                  "phase": "paced_control",
+                  "callbacks": 1200,
+                  "wall_misses": 0
+                },
+                {
+                  "phase": "burst_control",
+                  "callbacks": 400,
+                  "wall_misses": 0
+                }
+              ],
+              "observed_cpp_new": 0,
+              "observed_cpp_delete": 0,
+              "semantic_valid_producer_receipt": true,
+              "resource_scope": "thread_rusage",
+              "resource_capture_requested": true,
+              "resource_capture_valid": true
+            },
+            {
+              "raw_file_prefix": "clock-resources/clock-original-v1-96000-64-2-resources",
+              "sha256": {
+                "metadata": "91423d9ff8bbb6137aef325e3d8b9675e37c7f198e08f019d89ba576726800ee",
+                "callbacks": "ed994ba59dc6ce5551a21c7d49cd2f926b1f6471f70f7043c6b31f9024080380",
+                "stages": "5c0f370c8ec6aa6bbd32025160d4f4838c04b5bc4fa2314ca3a6cfa53072c438",
+                "worker": "7e9da6e3186d9d33019a5e5ccf4e1b9c95e16db19b2ce5fc8ef1b36429081a88",
+                "caller": "7e9da6e3186d9d33019a5e5ccf4e1b9c95e16db19b2ce5fc8ef1b36429081a88",
+                "slots": "aad4eaf3eddfe074f7de6970f0786ccdd46ef0733fbce6dc9fe1f89d6304bf6f"
+              },
+              "engine": "original-v1",
+              "channels": 2,
+              "callback_count": 1600,
+              "attribution_available": true,
+              "hooks_compiled": true,
+              "stage_events": 104000,
+              "worker_events": 0,
+              "caller_events": 0,
+              "slot_snapshots": 0,
+              "dropped": 0,
+              "clock_errors": 0,
+              "nesting_errors": 0,
+              "wall": {
+                "samples": 1600,
+                "p50_us": 21.122,
+                "p99_us": 74.363,
+                "maximum_us": 356.278
+              },
+              "thread_cpu": {
+                "samples": 1600,
+                "p50_us": 21.092,
+                "p99_us": 74.981,
+                "maximum_us": 356.328
+              },
+              "wall_deadline_misses_preserved": 0,
+              "wall_misses_also_cpu_over_budget": 0,
+              "cpu_greater_than_wall_samples_preserved": 376,
+              "phase_counts": [
+                {
+                  "phase": "paced_control",
+                  "callbacks": 1200,
+                  "wall_misses": 0
+                },
+                {
+                  "phase": "burst_control",
+                  "callbacks": 400,
+                  "wall_misses": 0
+                }
+              ],
+              "observed_cpp_new": 0,
+              "observed_cpp_delete": 0,
+              "semantic_valid_producer_receipt": true,
+              "resource_scope": "thread_rusage",
+              "resource_capture_requested": true,
+              "resource_capture_valid": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "source_batch": "after_explicit_page_touch",
+      "population_count": 3,
+      "route_count": 3,
+      "callback_count": 4800,
+      "counts_are_inventory_not_pooled_timing": true,
+      "folder_prefix_note": "pretouch-cab-* directories contain runs AFTER explicit page touch was added.",
+      "populations": [
+        {
+          "population": "pretouch-cab-off",
+          "mode": "cab",
+          "trace_level": "off",
+          "sample_rate": 96000,
+          "block_size": 64,
+          "callbacks_per_route": 1600,
+          "producer_execution": {
+            "command": [
+              "/workspace/scratch/f74ffd99d2f8/attribution-build/ChimeraCabCallbackProbeControl_artefacts/Release/ChimeraCabCallbackProbeControl",
+              "--mode",
+              "cab",
+              "--engine",
+              "original-v1",
+              "--channels",
+              "2",
+              "--trace-level",
+              "off",
+              "--output-dir",
+              "/workspace/scratch/f74ffd99d2f8/local-validation/pretouch-cab-off"
+            ],
+            "returncode": 0,
+            "seconds": 0.7692455139986123
+          },
+          "verification": {
+            "method": "Independent verify_directory API with explicit expected arguments",
+            "expected": {
+              "mode": "cab",
+              "trace_level": "off",
+              "engines": [
+                "original-v1"
+              ],
+              "channels": [
+                2
+              ]
+            },
+            "status": "verified_complete",
+            "exit_code": 0,
+            "errors": [],
+            "incomplete_reasons": [],
+            "full_report": {
+              "local_evidence_path": "pretouch-verification-off.json",
+              "sha256": "0c1e309f2f0346a9c5917363717a3e1c5e433cf4bef798e8e0e127bd862e3da8",
+              "bytes": 5996
+            },
+            "started_at_utc": "2026-10-12T08:49:20.988447+00:00",
+            "elapsed_seconds": 0.2136369489999197,
+            "equivalent_cli_command": "python Tools/CabCallbackAttribution/verify_attribution.py --input /workspace/scratch/f74ffd99d2f8/local-validation/pretouch-cab-off --output /workspace/scratch/f74ffd99d2f8/local-validation/pretouch-verification-off.json --expected-mode cab --expected-trace-level off --expected-engines original-v1 --expected-channels 2"
+          },
+          "route_count": 1,
+          "callback_count": 1600,
+          "wall_misses_preserved": 0,
+          "stage_events": 0,
+          "worker_events": 0,
+          "caller_events": 0,
+          "slot_snapshots": 0,
+          "routes": [
+            {
+              "raw_file_prefix": "pretouch-cab-off/cab-original-v1-96000-64-2-off",
+              "sha256": {
+                "metadata": "7fad45057f18b9d8d44be253b3bee75fdaa95f6443530d71764829623162c459",
+                "callbacks": "c00814ebf9623f28d9e69e04d9ac027af8f8805f59949017a366a53b4ac7a3b7",
+                "stages": "7e9da6e3186d9d33019a5e5ccf4e1b9c95e16db19b2ce5fc8ef1b36429081a88",
+                "worker": "7e9da6e3186d9d33019a5e5ccf4e1b9c95e16db19b2ce5fc8ef1b36429081a88",
+                "caller": "7e9da6e3186d9d33019a5e5ccf4e1b9c95e16db19b2ce5fc8ef1b36429081a88",
+                "slots": "aad4eaf3eddfe074f7de6970f0786ccdd46ef0733fbce6dc9fe1f89d6304bf6f"
+              },
+              "engine": "original-v1",
+              "channels": 2,
+              "callback_count": 1600,
+              "attribution_available": false,
+              "hooks_compiled": false,
+              "stage_events": 0,
+              "worker_events": 0,
+              "caller_events": 0,
+              "slot_snapshots": 0,
+              "dropped": 0,
+              "clock_errors": 0,
+              "nesting_errors": 0,
+              "wall": {
+                "samples": 1600,
+                "p50_us": 61.042,
+                "p99_us": 239.562,
+                "maximum_us": 588.799
+              },
+              "thread_cpu": {
+                "samples": 1600,
+                "p50_us": 61.01,
+                "p99_us": 240.056,
+                "maximum_us": 589.524
+              },
+              "wall_deadline_misses_preserved": 0,
+              "wall_misses_also_cpu_over_budget": 0,
+              "cpu_greater_than_wall_samples_preserved": 435,
+              "phase_counts": [
+                {
+                  "phase": "worker_and_automation",
+                  "callbacks": 1200,
+                  "wall_misses": 0
+                },
+                {
+                  "phase": "forced_six_slot_publication",
+                  "callbacks": 400,
+                  "wall_misses": 0
+                }
+              ],
+              "observed_cpp_new": 0,
+              "observed_cpp_delete": 0,
+              "semantic_valid_producer_receipt": true,
+              "resource_scope": "disabled",
+              "resource_capture_requested": false,
+              "resource_capture_valid": false,
+              "outside_timer_page_touch": {
+                "prepared_array_pages_touched_before_measurement": true,
+                "page_touch_stride_bytes": 4096,
+                "native_page_size_bytes": 4096,
+                "page_touch_operations": 20122,
+                "prepared_memory_locked": false,
+                "prepared_memory_residency_guaranteed": false
+              }
+            }
+          ]
+        },
+        {
+          "population": "pretouch-cab-stages",
+          "mode": "cab",
+          "trace_level": "stages",
+          "sample_rate": 96000,
+          "block_size": 64,
+          "callbacks_per_route": 1600,
+          "producer_execution": {
+            "command": [
+              "/workspace/scratch/f74ffd99d2f8/attribution-build/ChimeraCabCallbackProbe_artefacts/Release/ChimeraCabCallbackProbe",
+              "--mode",
+              "cab",
+              "--engine",
+              "original-v1",
+              "--channels",
+              "2",
+              "--trace-level",
+              "stages",
+              "--output-dir",
+              "/workspace/scratch/f74ffd99d2f8/local-validation/pretouch-cab-stages"
+            ],
+            "returncode": 0,
+            "seconds": 1.0679661450012645
+          },
+          "verification": {
+            "method": "Independent verify_directory API with explicit expected arguments",
+            "expected": {
+              "mode": "cab",
+              "trace_level": "stages",
+              "engines": [
+                "original-v1"
+              ],
+              "channels": [
+                2
+              ]
+            },
+            "status": "verified_complete",
+            "exit_code": 0,
+            "errors": [],
+            "incomplete_reasons": [],
+            "full_report": {
+              "local_evidence_path": "pretouch-verification-stages.json",
+              "sha256": "525ae8839dd6e3b78a6364d271352168b2e847146be59b6d6c1f64b176615cd3",
+              "bytes": 63239
+            },
+            "started_at_utc": "2026-10-12T08:49:21.202156+00:00",
+            "elapsed_seconds": 10.617676778001623,
+            "equivalent_cli_command": "python Tools/CabCallbackAttribution/verify_attribution.py --input /workspace/scratch/f74ffd99d2f8/local-validation/pretouch-cab-stages --output /workspace/scratch/f74ffd99d2f8/local-validation/pretouch-verification-stages.json --expected-mode cab --expected-trace-level stages --expected-engines original-v1 --expected-channels 2"
+          },
+          "route_count": 1,
+          "callback_count": 1600,
+          "wall_misses_preserved": 3,
+          "stage_events": 217632,
+          "worker_events": 172,
+          "caller_events": 1701,
+          "slot_snapshots": 19200,
+          "routes": [
+            {
+              "raw_file_prefix": "pretouch-cab-stages/cab-original-v1-96000-64-2-stages",
+              "sha256": {
+                "metadata": "aed410710b3468f63ff6a1173436097b9a94a11afff491cc871a74b1021b841e",
+                "callbacks": "b5b7ea1751d5ec52cf7a37f6996c7aea3dba6807c61a2f63f208ca3502c61b6c",
+                "stages": "f7d8ea7583d9892575cb33b754f48214a93479d846a02440f7bf20223b24e5bb",
+                "worker": "c354d3cc6ed7c3ceb3e74092a3fbc55e3f7933d97615f82a7e8949cc7fd6ce3e",
+                "caller": "32d323cd47667a2469d2210eacd27fa2485e7a85998b8d04b1143cf20d22b2a2",
+                "slots": "6f31b0858ccde171bc6482abc0c5617e565501800eb940078fb863ff79ade9b6"
+              },
+              "engine": "original-v1",
+              "channels": 2,
+              "callback_count": 1600,
+              "attribution_available": true,
+              "hooks_compiled": true,
+              "stage_events": 217632,
+              "worker_events": 172,
+              "caller_events": 1701,
+              "slot_snapshots": 19200,
+              "dropped": 0,
+              "clock_errors": 0,
+              "nesting_errors": 0,
+              "wall": {
+                "samples": 1600,
+                "p50_us": 107.573,
+                "p99_us": 367.925,
+                "maximum_us": 1231.66
+              },
+              "thread_cpu": {
+                "samples": 1600,
+                "p50_us": 107.53,
+                "p99_us": 367.915,
+                "maximum_us": 1231.587
+              },
+              "wall_deadline_misses_preserved": 3,
+              "wall_misses_also_cpu_over_budget": 3,
+              "cpu_greater_than_wall_samples_preserved": 309,
+              "phase_counts": [
+                {
+                  "phase": "worker_and_automation",
+                  "callbacks": 1200,
+                  "wall_misses": 3
+                },
+                {
+                  "phase": "forced_six_slot_publication",
+                  "callbacks": 400,
+                  "wall_misses": 0
+                }
+              ],
+              "observed_cpp_new": 0,
+              "observed_cpp_delete": 0,
+              "semantic_valid_producer_receipt": true,
+              "resource_scope": "disabled",
+              "resource_capture_requested": false,
+              "resource_capture_valid": false,
+              "outside_timer_page_touch": {
+                "prepared_array_pages_touched_before_measurement": true,
+                "page_touch_stride_bytes": 4096,
+                "native_page_size_bytes": 4096,
+                "page_touch_operations": 20122,
+                "prepared_memory_locked": false,
+                "prepared_memory_residency_guaranteed": false
+              }
+            }
+          ]
+        },
+        {
+          "population": "pretouch-cab-resources",
+          "mode": "cab",
+          "trace_level": "resources",
+          "sample_rate": 96000,
+          "block_size": 64,
+          "callbacks_per_route": 1600,
+          "producer_execution": {
+            "command": [
+              "/workspace/scratch/f74ffd99d2f8/attribution-build/ChimeraCabCallbackProbe_artefacts/Release/ChimeraCabCallbackProbe",
+              "--mode",
+              "cab",
+              "--engine",
+              "original-v1",
+              "--channels",
+              "2",
+              "--trace-level",
+              "resources",
+              "--output-dir",
+              "/workspace/scratch/f74ffd99d2f8/local-validation/pretouch-cab-resources"
+            ],
+            "returncode": 0,
+            "seconds": 1.1757536650002294
+          },
+          "verification": {
+            "method": "Independent verify_directory API with explicit expected arguments",
+            "expected": {
+              "mode": "cab",
+              "trace_level": "resources",
+              "engines": [
+                "original-v1"
+              ],
+              "channels": [
+                2
+              ]
+            },
+            "status": "verified_complete",
+            "exit_code": 0,
+            "errors": [],
+            "incomplete_reasons": [],
+            "full_report": {
+              "local_evidence_path": "pretouch-verification-resources.json",
+              "sha256": "a99ef15b53ff1497096bde396514030518490f6ead995ad72a310f31986d7e43",
+              "bytes": 68530
+            },
+            "started_at_utc": "2026-10-12T08:49:31.819926+00:00",
+            "elapsed_seconds": 10.699391876001755,
+            "equivalent_cli_command": "python Tools/CabCallbackAttribution/verify_attribution.py --input /workspace/scratch/f74ffd99d2f8/local-validation/pretouch-cab-resources --output /workspace/scratch/f74ffd99d2f8/local-validation/pretouch-verification-resources.json --expected-mode cab --expected-trace-level resources --expected-engines original-v1 --expected-channels 2"
+          },
+          "route_count": 1,
+          "callback_count": 1600,
+          "wall_misses_preserved": 4,
+          "stage_events": 217632,
+          "worker_events": 182,
+          "caller_events": 1701,
+          "slot_snapshots": 19200,
+          "routes": [
+            {
+              "raw_file_prefix": "pretouch-cab-resources/cab-original-v1-96000-64-2-resources",
+              "sha256": {
+                "metadata": "09ba77ff70f4b9eb96e3a075b0d92771debbfc4a86ab894514d1b0360e0faf9a",
+                "callbacks": "b0730444876cb21e9da02e43a8fe1deb45cc9508439a6e24bab488315fa4a87a",
+                "stages": "748a55a6a79615ea7d3f6cdc1173b9963687e177860891a0d8c184f0d8efa856",
+                "worker": "4631718f6e27ce690684bc9df5b141c7d740fd31bc039e27b9deee4b02e4ea96",
+                "caller": "8adcf60ad33005a3ca0a6ebbf90c757fc99a324e618c45cb3446ad4d52434f90",
+                "slots": "4462a291c4414c0e9e629d6d34f9b46e483562e7d94f78a5c2b768828b697be8"
+              },
+              "engine": "original-v1",
+              "channels": 2,
+              "callback_count": 1600,
+              "attribution_available": true,
+              "hooks_compiled": true,
+              "stage_events": 217632,
+              "worker_events": 182,
+              "caller_events": 1701,
+              "slot_snapshots": 19200,
+              "dropped": 0,
+              "clock_errors": 0,
+              "nesting_errors": 0,
+              "wall": {
+                "samples": 1600,
+                "p50_us": 142.845,
+                "p99_us": 403.509,
+                "maximum_us": 2820.489
+              },
+              "thread_cpu": {
+                "samples": 1600,
+                "p50_us": 142.801,
+                "p99_us": 400.644,
+                "maximum_us": 2820.391
+              },
+              "wall_deadline_misses_preserved": 4,
+              "wall_misses_also_cpu_over_budget": 4,
+              "cpu_greater_than_wall_samples_preserved": 118,
+              "phase_counts": [
+                {
+                  "phase": "worker_and_automation",
+                  "callbacks": 1200,
+                  "wall_misses": 4
+                },
+                {
+                  "phase": "forced_six_slot_publication",
+                  "callbacks": 400,
+                  "wall_misses": 0
+                }
+              ],
+              "observed_cpp_new": 0,
+              "observed_cpp_delete": 0,
+              "semantic_valid_producer_receipt": true,
+              "resource_scope": "thread_rusage",
+              "resource_capture_requested": true,
+              "resource_capture_valid": true,
+              "outside_timer_page_touch": {
+                "prepared_array_pages_touched_before_measurement": true,
+                "page_touch_stride_bytes": 4096,
+                "native_page_size_bytes": 4096,
+                "page_touch_operations": 20122,
+                "prepared_memory_locked": false,
+                "prepared_memory_residency_guaranteed": false
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "execution_and_verification_receipt_files": [
+    {
+      "local_evidence_path": "first-execution.json",
+      "sha256": "d12255b2cb24bef3e47b070f2421571b52150a5cb0e7619dd459eea99dbd4e55",
+      "bytes": 1686
+    },
+    {
+      "local_evidence_path": "additional-execution.json",
+      "sha256": "32b49de91272e43d65b86c5e1f18dbf5cb1a30f39ee7cbccb6574a99c2f59b20",
+      "bytes": 5876
+    },
+    {
+      "local_evidence_path": "pretouch-execution.json",
+      "sha256": "b91e544961fa4d82dc7f72c5daea525f16c04f9f91409a46a7c80b6501a4628a",
+      "bytes": 2132
+    },
+    {
+      "local_evidence_path": "additional-verification-summary.json",
+      "sha256": "41a026abb278a82ffcb3320858287a474f9296f0c496d0d92e811d2a5554ce6e",
+      "bytes": 37846
+    },
+    {
+      "local_evidence_path": "pretouch-verification-summary.json",
+      "sha256": "46765a2cc6b3f0a6bf923dc9abe123d2834030aae9ee9f297da68ca00f59679f",
+      "bytes": 6732
+    }
+  ],
+  "interpretation_limits": [
+    "verified_complete means raw artifact integrity for the expected routes, not performance acceptance or a product fix.",
+    "Each population was verified separately. Instrumented resources, stage-only, and compiled-out controls are not pooled, and local runs do not constitute independent repeated A/B evidence.",
+    "Per-route wall and thread CPU quantiles are descriptive. CPU greater than wall samples and every strict wall deadline miss are preserved, not clamped or recoded.",
+    "Wall minus CPU and parent-minus-direct-child wall residuals are not exact operating-system scheduling or virtualization delays.",
+    "Worker overlap is descriptive; separate caller-main publications are not joined to the worker CPU stream.",
+    "Logical memory bytes are not measured cache misses or hardware bandwidth. Outside-timer touching does not lock pages or guarantee continued residency.",
+    "The C++ new/delete guard reports the observed operators only; it is not universal malloc, lock, or system-call tracing.",
+    "Linux thread_rusage resource capture does not validate macOS process/task counters or continuous scheduler state.",
+    "AU, VST3, CoreAudio device callbacks, real DAW uninterrupted playback, and editor interaction are NOT_EXECUTED.",
+    "Any cause-specific performance intervention needs independent repeat evidence and a separate development PR without relaxed response, channel, fade, or realtime gates."
+  ]
+}

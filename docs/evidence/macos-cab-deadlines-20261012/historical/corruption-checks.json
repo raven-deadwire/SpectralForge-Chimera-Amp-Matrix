@@ -1,0 +1,63 @@
+{
+  "schema": 1,
+  "analyzer_sha256": "174ec9726fadd997daadc600145b53498188f259023a470c5533197e3b710555",
+  "original_archive_unchanged": "2630e2e9f54dd9f3beed1f93499fbe37a7fb53ec76ffd70a4cbd6045972ca239",
+  "passed": true,
+  "checks": [
+    {
+      "case": "duplicate_index",
+      "rejected": true,
+      "reason": "missing/duplicate/out-of-order callback 0"
+    },
+    {
+      "case": "bad_clock_delta",
+      "rejected": true,
+      "reason": "paired CPU delta mismatch"
+    },
+    {
+      "case": "invalid_clock",
+      "rejected": true,
+      "reason": "wrong POSIX clock validity"
+    },
+    {
+      "case": "nonfinite_duration",
+      "rejected": true,
+      "reason": "non-finite wall_us: nan"
+    },
+    {
+      "case": "changed_budget",
+      "rejected": true,
+      "reason": "invalid wall duration or changed deadline"
+    },
+    {
+      "case": "hidden_miss_flag",
+      "rejected": true,
+      "reason": "deadline flag mismatch"
+    },
+    {
+      "case": "wrong_phase",
+      "rejected": true,
+      "reason": "wrong phase"
+    },
+    {
+      "case": "macOS_out_of_order_clock_pair",
+      "rejected": true,
+      "reason": "cumulative thread clock goes backwards between callbacks"
+    },
+    {
+      "case": "Windows_out_of_order_clock_pair",
+      "rejected": true,
+      "reason": "cumulative thread clock goes backwards between callbacks"
+    },
+    {
+      "case": "missing_population",
+      "rejected": true,
+      "reason": "missing or unexpected raw populations"
+    },
+    {
+      "case": "short_population",
+      "rejected": true,
+      "reason": "population must retain all 1600 callbacks: candidate/cab-timing-diagnostics/extended/expanded-v2/44100-128-1.csv"
+    }
+  ]
+}

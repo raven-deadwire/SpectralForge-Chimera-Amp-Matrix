@@ -1,0 +1,149 @@
+{
+  "passed": true,
+  "source": "Synthetic verifier fixtures plus the original retained configure-failure archive.",
+  "performance_evidence": false,
+  "original_failed_archive_sha256": "9f11e9032aad0902223d89e29194977fe9929cb9960ecbc1e0b474eb45aee3d6",
+  "original_archive_unchanged": true,
+  "synthetic_fixtures_deleted": true,
+  "accepted_valid_checks": 8,
+  "rejected_corruption_checks": 21,
+  "checks": [
+    {
+      "check": "preserved_configure_failure_is_incomplete_not_zero_miss_success",
+      "outcome": "accepted_valid_fixture"
+    },
+    {
+      "check": "wrong_external_controller_binding",
+      "outcome": "rejected_corruption",
+      "reason": "controller/run artifact metadata mismatch"
+    },
+    {
+      "check": "archive_digest_mismatch",
+      "outcome": "rejected_corruption",
+      "reason": "archive hash differs from expected download digest"
+    },
+    {
+      "check": "member_hash_mismatch",
+      "outcome": "rejected_corruption",
+      "reason": "member checksum mismatch: configure.log"
+    },
+    {
+      "check": "unlisted_member",
+      "outcome": "rejected_corruption",
+      "reason": "checksum manifest has missing or extra members"
+    },
+    {
+      "check": "full_66_by_1600_grid_including_zero_miss_populations",
+      "outcome": "accepted_valid_fixture"
+    },
+    {
+      "check": "raw_independent_summary_and_first_maximum_tie",
+      "outcome": "accepted_valid_fixture"
+    },
+    {
+      "check": "reported_p99_changed",
+      "outcome": "rejected_corruption",
+      "reason": "reported route p50/p99/max/paired CPU/miss/hash summary differs from raw"
+    },
+    {
+      "check": "raw_miss_deleted_from_report",
+      "outcome": "rejected_corruption",
+      "reason": "reported group all_misses differs from raw"
+    },
+    {
+      "check": "paired_logs_use_last_maximum_tie_and_match_original_phases",
+      "outcome": "accepted_valid_fixture"
+    },
+    {
+      "check": "paired_cpu_at_maximum_changed",
+      "outcome": "rejected_corruption",
+      "reason": "paired log thread_cpu_us: numeric mismatch"
+    },
+    {
+      "check": "timing_misses_changed",
+      "outcome": "rejected_corruption",
+      "reason": "timing log misses mismatch"
+    },
+    {
+      "check": "enclosing_cpu_interval_can_exceed_wall",
+      "outcome": "accepted_valid_fixture"
+    },
+    {
+      "check": "changed_budget",
+      "outcome": "rejected_corruption",
+      "reason": "unchanged block-period deadline: numeric mismatch"
+    },
+    {
+      "check": "suppressed_deadline_flag",
+      "outcome": "rejected_corruption",
+      "reason": "deadline miss flag disagrees with wall time"
+    },
+    {
+      "check": "wrong_phase_boundary",
+      "outcome": "rejected_corruption",
+      "reason": "phase mismatch"
+    },
+    {
+      "check": "wrong_phase_index",
+      "outcome": "rejected_corruption",
+      "reason": "phase index mismatch"
+    },
+    {
+      "check": "wrong_automation",
+      "outcome": "rejected_corruption",
+      "reason": "automation mismatch"
+    },
+    {
+      "check": "duplicate_callback",
+      "outcome": "rejected_corruption",
+      "reason": "missing, duplicated, or out-of-order callback"
+    },
+    {
+      "check": "cpu_delta_mismatch",
+      "outcome": "rejected_corruption",
+      "reason": "paired CPU delta: numeric mismatch"
+    },
+    {
+      "check": "clock_error",
+      "outcome": "rejected_corruption",
+      "reason": "native clock read error"
+    },
+    {
+      "check": "unexpected_cycle_clock",
+      "outcome": "rejected_corruption",
+      "reason": "native clock validity mismatch"
+    },
+    {
+      "check": "nonfinite_wall",
+      "outcome": "rejected_corruption",
+      "reason": "non-finite numeric field"
+    },
+    {
+      "check": "clock_moves_back_between_callbacks",
+      "outcome": "rejected_corruption",
+      "reason": "cumulative CPU clock moved backwards"
+    },
+    {
+      "check": "partial_rows_retained_but_no_full_population_or_gate_pass_imputed",
+      "outcome": "accepted_valid_fixture"
+    },
+    {
+      "check": "distinct_sentinel_fields_phases_and_receipts",
+      "outcome": "accepted_valid_fixture"
+    },
+    {
+      "check": "sentinel_claims_ir_worker",
+      "outcome": "rejected_corruption",
+      "reason": "sentinel workload mismatch"
+    },
+    {
+      "check": "observed_high_qos_established_only_after_setter",
+      "outcome": "accepted_valid_fixture"
+    },
+    {
+      "check": "high_qos_label_with_wrong_actual_qos",
+      "outcome": "rejected_corruption",
+      "reason": "actual caller QoS differs from intended condition"
+    }
+  ]
+}
