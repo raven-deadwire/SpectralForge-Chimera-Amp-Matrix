@@ -1,7 +1,11 @@
 #pragma once
+#if CHIMERA_TUNER_DIAGNOSTICS
+#include "../Tests/TunerDiagnostics.h"
+#endif
 #include <juce_dsp/juce_dsp.h>
 #include "PolyPitch.h"
 #include "LifecycleTrace.h"
+#include "PrecisionTuner.h"
 #include <atomic>
 #include <array>
 
@@ -116,107 +120,124 @@ public:
 
 // YIN on a decimated mono input. Analysis runs on a worker, never in processBlock.
 class Tuner : private juce::Thread {
-    static constexpr int frameSize=2048, queueSize=8192;
+    static constexpr int frameSize=4096, queueSize=16384;
     juce::AbstractFifo fifo{queueSize};
     std::array<float,queueSize> queue{};
     std::array<float,frameSize> history{}, ordered{};
-    int writeIndex{}, filled{}, decimation{4}, phase{};
+    int writeIndex{}, filled{}, decimation{2}, phase{};
     float low1{}, low2{}, coefficient{};
-    double analysisRate{12000};
+    int previousChannel{-1};
+    double analysisRate{24000};
     std::atomic<bool> enabled{false};
+    std::atomic<unsigned> generation{0}, pitchGeneration{0};
     std::atomic<float> hz{0}, certainty{0};
 public:
+#if CHIMERA_TUNER_DIAGNOSTICS
+    std::unique_ptr<tunerDiagnostics::Trace> diagnosticTrace=std::make_unique<tunerDiagnostics::Trace>();
+#endif
     Tuner() : Thread("Chimera tuner") {}
     ~Tuner() override { stop(); }
     void requestStop() { lifecycle::write("tuner.stop.requested", this); signalThreadShouldExit(); notify(); }
-    void stop() { const lifecycle::Scope trace("tuner.stop", this); requestStop(); stopThread(-1); }
+    void stop() { const lifecycle::Scope trace("tuner.stop", this); requestStop(); stopThread(-1); enabled.store(false);hz.store(0);certainty.store(0); }
     bool stopped() const noexcept { return !isThreadRunning(); }
     void prepare(double rate)
     {
         const lifecycle::Scope trace("tuner.prepare", this);
-        stop(); fifo.reset(); history.fill(0); writeIndex=filled=phase=0; low1=low2=0;
-        decimation=juce::jmax(1,juce::roundToInt(rate/12000.0)); analysisRate=rate/decimation;
-        coefficient=float(1.0-std::exp(-juce::MathConstants<double>::twoPi*2000.0/rate));
+        stop(); fifo.reset(); history.fill(0); writeIndex=filled=phase=0; low1=low2=0; previousChannel=-1;
+        decimation=juce::jmax(1,juce::roundToInt(rate/24000.0)); analysisRate=rate/decimation;
+        coefficient=float(1.0-std::exp(-juce::MathConstants<double>::twoPi*3000.0/rate));
         hz.store(0); certainty.store(0); startThread();
     }
     void push(const juce::AudioBuffer<float>& buffer,bool active)
     {
-        enabled.store(active);
-        if(!active) return;
+#if CHIMERA_TUNER_DIAGNOSTICS
+        tunerDiagnostics::PushScope diagnosticPush;
+#endif
+        if(enabled.exchange(active)!=active){generation.fetch_add(1);low1=low2=0;phase=0;previousChannel=-1;}
+        if(!active || buffer.getNumChannels()==0) return;
         int channel=0;
         if(buffer.getNumChannels()>1 && buffer.getRMSLevel(1,0,buffer.getNumSamples())>buffer.getRMSLevel(0,0,buffer.getNumSamples())) channel=1;
+        if(previousChannel>=0 && channel!=previousChannel){generation.fetch_add(1);low1=low2=0;phase=0;}
+        previousChannel=channel;
+        // Reserve once per block, publish only the samples actually produced.
+        // Per-sample FIFO publication needlessly contends with the worker.
+        int start1=0,size1=0,start2=0,size2=0;
+        const int requested=buffer.getNumSamples()/decimation
+            + ((buffer.getNumSamples()%decimation+phase)>=decimation ? 1 : 0);
+        fifo.prepareToWrite(requested,start1,size1,start2,size2);
+        const int available=size1+size2;int produced=0;
+        bool overflow=false;
         for(int n=0;n<buffer.getNumSamples();++n)
         {
-            low1+=coefficient*(buffer.getSample(channel,n)-low1); low2+=coefficient*(low1-low2);
+#if CHIMERA_TUNER_DIAGNOSTICS
+            ++diagnosticTrace->inputFrame;
+#endif
+            const auto sample=buffer.getSample(channel,n);
+            if(!std::isfinite(sample)){low1=low2=0;generation.fetch_add(1);continue;}
+            low1+=coefficient*(sample-low1); low2+=coefficient*(low1-low2);
             if(++phase<decimation) continue;
             phase=0;
-            const auto scope=fifo.write(1);
-            scope.forEach([this](int i){queue[(size_t)i]=low2;});
+            if(produced>=available){overflow=true;continue;}
+            const int i=produced<size1 ? start1+produced : start2+produced-size1;
+            queue[(size_t)i]=low2;
+#if CHIMERA_TUNER_DIAGNOSTICS
+                diagnosticTrace->inputFrames[(size_t)i]=diagnosticTrace->inputFrame;
+#endif
+            ++produced;
         }
+        fifo.finishedWrite(produced);
+        if(overflow)generation.fetch_add(1);
     }
-    float frequency() const { return hz.load(); }
-    float confidence() const { return certainty.load(); }
+    float frequency() const { return enabled.load() && pitchGeneration.load()==generation.load()?hz.load():0; }
+    float confidence() const { return enabled.load() && pitchGeneration.load()==generation.load()?certainty.load():0; }
     static std::pair<float,float> estimate(const float* samples,int count,double rate)
     {
-        const int window=count/2;
-        const int minimum=juce::jmax(2,int(rate/1400.0)), maximum=juce::jmin(window-1,int(rate/25.0));
-        double power=0;
-        for(int i=0;i<count;++i) power+=double(samples[i])*samples[i];
-        if(power/count<1e-9) return {0,0};
-        std::array<double,frameSize/2> difference{}, rawDifference{};
-        double sum=0;
-        int selected=0;
-        for(int lag=1;lag<=maximum;++lag)
-        {
-            double delta=0;
-            for(int n=0;n<window;++n) { const double x=samples[n]-samples[n+lag]; delta+=x*x; }
-            rawDifference[(size_t)lag]=delta; sum+=delta; difference[(size_t)lag]=sum>0 ? delta*lag/sum : 1;
-            if(lag>minimum && difference[(size_t)lag-1]<.15 && difference[(size_t)lag]>difference[(size_t)lag-1])
-            { selected=lag-1; break; }
-        }
-        if(selected==0) return {0,0};
-        const double a=rawDifference[(size_t)selected-1], b=rawDifference[(size_t)selected], c=rawDifference[(size_t)selected+1];
-        const double denominator=a-2*b+c;
-        const double refinement=std::abs(denominator)>1e-12 ? .5*(a-c)/denominator : 0;
-        // Refine the period against interpolated samples. Parabolic YIN alone
-        // biases the upper guitar register where a period spans only 8-12 samples.
-        auto cost=[&](double period) {
-            const int base=(int)period; const double t=period-base;
-            const double w0=-.5*t+t*t-.5*t*t*t, w1=1-2.5*t*t+1.5*t*t*t;
-            const double w2=.5*t+2*t*t-1.5*t*t*t, w3=-.5*t*t+.5*t*t*t;
-            double error=0;
-            for(int n=1;n<window-2;++n) {
-                const double shifted=w0*samples[n+base-1]+w1*samples[n+base]+w2*samples[n+base+1]+w3*samples[n+base+2];
-                const double delta=samples[n]-shifted; error+=delta*delta;
-            }
-            return error;
-        };
-        double left=selected+refinement-.65,right=selected+refinement+.65;
-        for(int iteration=0;iteration<18;++iteration) {
-            const double a=left+(right-left)*.38196601125,b=left+(right-left)*.61803398875;
-            if(cost(a)<cost(b)) right=b; else left=a;
-        }
-        return {float(rate/((left+right)*.5)),float(1.0-difference[(size_t)selected])};
+        return tuning::estimate(samples,count,rate);
     }
 private:
     void run() override
     {
         const lifecycle::Scope trace("tuner.worker", this);
+        unsigned seen=generation.load();double lastReceived=0;
         while(!threadShouldExit())
         {
+#if CHIMERA_TUNER_DIAGNOSTICS
+            tunerDiagnostics::Event event;event.beginUs=tunerDiagnostics::nowUs();event.beginCPU=tunerDiagnostics::readClock();event.queued=fifo.getNumReady();event.generation=generation.load();
+#endif
+            const auto next=generation.load();
+            if(next!=seen){
+#if CHIMERA_TUNER_DIAGNOSTICS
+                event.discarded=fifo.getNumReady();
+#endif
+                seen=next;filled=0;hz.store(0);certainty.store(0);const auto discarded=fifo.read(fifo.getNumReady());}
             bool received=false;
             { const auto scope=fifo.read(fifo.getNumReady());
-              scope.forEach([&](int i){history[(size_t)writeIndex]=queue[(size_t)i]; writeIndex=(writeIndex+1)%frameSize; filled=juce::jmin(frameSize,filled+1); received=true;});
+              scope.forEach([&](int i){history[(size_t)writeIndex]=queue[(size_t)i];
+#if CHIMERA_TUNER_DIAGNOSTICS
+                diagnosticTrace->newestInputFrame=diagnosticTrace->inputFrames[(size_t)i];
+#endif
+                 writeIndex=(writeIndex+1)%frameSize; filled=juce::jmin(frameSize,filled+1); received=true;});
             }
+            if(received)lastReceived=juce::Time::getMillisecondCounterHiRes();
             if(!enabled.load()) { hz.store(0); certainty.store(0); filled=0; }
             else if(received && filled==frameSize)
             {
                 for(int i=0;i<frameSize;++i) ordered[(size_t)i]=history[(size_t)((writeIndex+i)%frameSize)];
+#if CHIMERA_TUNER_DIAGNOSTICS
+                event.analysed=true;
+#endif
                 const auto pitch=estimate(ordered.data(),frameSize,analysisRate);
-                hz.store(pitch.first); certainty.store(pitch.second);
+                if(generation.load()==seen && enabled.load()){hz.store(pitch.first);certainty.store(pitch.second);pitchGeneration.store(seen);
+#if CHIMERA_TUNER_DIAGNOSTICS
+                    event.published=true;
+#endif
+                }
             }
-            else if(!received) { hz.store(0); certainty.store(0); }
-            wait(40);
+            else if(!received && juce::Time::getMillisecondCounterHiRes()-lastReceived>250) { hz.store(0); certainty.store(0); filled=0; }
+#if CHIMERA_TUNER_DIAGNOSTICS
+            event.endUs=tunerDiagnostics::nowUs();event.endCPU=tunerDiagnostics::readClock();event.filled=filled;event.newestInputFrame=diagnosticTrace->newestInputFrame;event.hz=hz.load();diagnosticTrace->append(event);
+#endif
+            wait(10);
         }
     }
 };

@@ -19,6 +19,9 @@ inline void run(const juce::File& directory) {
     const auto recalledStorage=std::make_unique<ChimeraProcessor>();auto& recalled=*recalledStorage;
     juce::StringArray checked;
     // Released host ordinals (including POST) precede all new E670FE banks.
+    juce::StringArray tunerIDs{"tunerProfile","tunerDisplay","tunerString"};
+    for(int i=1;i<=8;++i){tunerIDs.add("tunerNote"+juce::String(i));tunerIDs.add("tunerOffset"+juce::String(i));}
+    int tunerCount=0;
     bool sawAppended=false;int eqCount=0,appended=0,originalCount=0,channelCount=0,niflheimrCount=0,cabCount=0,originalCabCount=0,expandedCabCount=0,layoutCabCount=0;
     for(auto* parameter:p.getParameters()) {
         const auto* id=dynamic_cast<juce::AudioProcessorParameterWithID*>(parameter);
@@ -27,7 +30,8 @@ inline void run(const juce::File& directory) {
         const bool isNiflheimr=(id->paramID.startsWith("originalAmp_") && id->paramID.contains("_niflheimr_ch"))
             || (id->paramID.startsWith("nativeAmp_") && id->paramID.contains("_m25_"));
         const bool isCab=id->paramID.startsWith("cabA") || id->paramID.startsWith("cabB") || id->paramID.startsWith("cabblend");
-        if(id->paramID.startsWith("toneEQ_") || id->paramID.startsWith("finalEQ_")){require(parameter->getParameterIndex()==4845+eqCount && parameter->getVersionHint()==10,"Graphical EQ append-only ordinal");++eqCount;}
+        if(tunerIDs.contains(id->paramID)){require(tunerCount<tunerIDs.size() && id->paramID==tunerIDs[tunerCount] && parameter->getParameterIndex()==4845+graphicalEQParameterCount+tunerCount && parameter->getVersionHint()==11,"Precision tuner append-only ID/index/version");++tunerCount;}
+        else if(id->paramID.startsWith("toneEQ_") || id->paramID.startsWith("finalEQ_")){require(parameter->getParameterIndex()==4845+eqCount && parameter->getVersionHint()==10,"Graphical EQ append-only ordinal");++eqCount;}
         else if(id->paramID.startsWith("lcab")){require(parameter->getParameterIndex()==4836+layoutCabCount && parameter->getVersionHint()==9,"Layout CAB append-only ordinal");++layoutCabCount;}
         else if(id->paramID.startsWith("xcab")){require(parameter->getParameterIndex()==4824+expandedCabCount && parameter->getVersionHint()==8,"Expanded CAB append-only ordinal");++expandedCabCount;}
         else if(id->paramID.startsWith("ocab")){require(parameter->getParameterIndex()==4785+originalCabCount && parameter->getVersionHint()==7,"Original CAB append-only ordinal");++originalCabCount;}
@@ -39,6 +43,7 @@ inline void run(const juce::File& directory) {
         else if(id->paramID.startsWith("originalAmp_") || (id->paramID.startsWith("nativeAmp_") && id->paramID.contains("_m24_"))){require(parameter->getParameterIndex()==3891+originalCount && parameter->getVersionHint()==3,"Original parameter moved ahead of released parameters");++originalCount;}
         else require(!sawAppended,"E670FE inserted ahead of a released host parameter");
     }
+    require(tunerCount==19,"Precision tuner bank incomplete");
     require(eqCount==graphicalEQParameterCount,"Graphical EQ bank incomplete");
     require(channelCount==342,"Original channel bank incomplete");
     require(niflheimrCount==6*(2+5*14),"Niflheimr six-context five-channel bank incomplete");

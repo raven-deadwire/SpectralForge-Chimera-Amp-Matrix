@@ -250,7 +250,9 @@ ChimeraEditor::ChimeraEditor(ChimeraProcessor& p) : AudioProcessorEditor(&p),pro
     const std::array<juce::TextButton*,4> globalToggles{&gateOn,&pitchOn,&tunerOn,&tunerMute};
     const std::array<const char*,4> ids{"gateon","transposeon","tuneron","tunermute"};
     for(size_t i=0;i<4;++i) { globalToggles[i]->setClickingTogglesState(true); add(*globalToggles[i]); globalButtons[i]=std::make_unique<BA>(state,ids[i],*globalToggles[i]); }
-    tunerOn.setTooltip("Tune the original input before the gate and transposer. Play one note at a time. Range: 25-1400 Hz.");
+    tunerOn.setTooltip("Tune the original input before the gate and transposer. Play one note at a time. Range: 16-2000 Hz. Use TUNER VIEW for temperament and strobe controls.");
+    add(tunerView);tunerView.setComponentID("tunerView");tunerView.setTooltip("Open the strobe tuner and tuning targets without changing enable or mute.");
+    tunerView.onClick=[this]{juce::DialogWindow::LaunchOptions options;options.content.setOwned(new SignalPathTunerPanel(processor));options.dialogTitle="Chimera / Precision tuner";options.dialogBackgroundColour=background;options.useNativeTitleBar=true;options.escapeKeyTriggersCloseButton=true;options.resizable=false;options.componentToCentreAround=this;trackDialog(options.launchAsync());};
     tunerMute.setTooltip("Silence the output while the tuner is enabled.");
     pitchOn.setTooltip("Polyphonic transpose, -12 to +12 semitones. The added latency is shown below and reported to the host.");
     style(gateStatus,11.f); style(pitchStatus,11.f); add(gateStatus); add(pitchStatus);
@@ -510,11 +512,16 @@ void ChimeraEditor::refreshMeters()
         repaintDesign({37,638,336,5});
     }
     if(page==2)for(int p=3;p<6;++p)if(postMeterKeys[(size_t)p-3].update(meterKey(processor.postModuleLevel(p))))repaintDesign({318,330+p*69+16,112,32});
-    if(lastTuner && tunerKey.update({processor.tuningFrequency(),processor.tuningConfidence(),(float)globalSliders[5].getValue()}))repaintDesign({30,262,694,44});
+    if(lastTuner){
+        auto& parameters=processor.parameters();
+        std::array<float,22> key{processor.tuningFrequency(),processor.tuningConfidence(),float(globalSliders[5].getValue()),parameters.getRawParameterValue("tunerProfile")->load(),parameters.getRawParameterValue("tunerString")->load(),parameters.getRawParameterValue("tunerDisplay")->load()};
+        for(int i=0;i<8;++i){key[size_t(6+i*2)]=parameters.getRawParameterValue("tunerNote"+juce::String(i+1))->load();key[size_t(7+i*2)]=parameters.getRawParameterValue("tunerOffset"+juce::String(i+1))->load();}
+        if(tunerKey.update(key))repaintDesign({30,262,694,44});
+    }
     const auto cpu="CPU "+juce::String(processor.cpuLoad(),1)+"%  |  PK "+juce::String(processor.cpuPeakLoad(),1)+"%";
-    if(cpuText.update(cpu))repaintDesign({601,750,228,25});
+    if(cpuText.update(cpu))repaintDesign({704,750,220,25});
     const auto transport=(hostTempo.getToggleState()?"HOST ":"TEMPO ")+juce::String(processor.currentTempo(),1)+" BPM  |  "+juce::String(processor.getLatencySamples())+" SAMPLES";
-    if(transportText.update(transport))repaintDesign({833,750,327,25});
+    if(transportText.update(transport))repaintDesign({930,750,230,25});
 }
 void ChimeraEditor::updateHardwareStyles()
 {
@@ -668,14 +675,21 @@ void ChimeraEditor::paint(juce::Graphics& g)
     text(g,"Routing",20,267,80,28,12.f);
     if(tunerOn.getToggleState()) {
         g.setColour(panel);g.fillRoundedRectangle(20,258,1140,58,5);
-        const float hz=processor.tuningFrequency();juce::String note="--",detail="PLAY ONE NOTE";float cents=0;
-        if(hz>0 && processor.tuningConfidence()>.85f) {
-            const float reference=processor.parameters().getRawParameterValue("tunerref")->load();const double midiNote=69+12*std::log2(hz/reference);const int nearest=juce::roundToInt(midiNote);
-            const std::array<const char*,12> notes{"C","C#","D","D#","E","F","F#","G","G#","A","A#","B"};note=juce::String(notes[(size_t)((nearest%12+12)%12)])+juce::String(nearest/12-1);cents=float((midiNote-nearest)*100);detail=juce::String(hz,1)+" Hz  |  "+juce::String(cents,1)+" ct";
+        const float hz=processor.tuningFrequency();juce::String note="--",detail="PLAY ONE NOTE";float cents=0;bool detected=false;
+        if(hz>0 && processor.tuningConfidence()>.9f) {
+            spectralforge::tuning::Settings settings;
+            auto& parameters=processor.parameters();
+            settings.reference=parameters.getRawParameterValue("tunerref")->load();
+            settings.profile=static_cast<spectralforge::tuning::Profile>(int(parameters.getRawParameterValue("tunerProfile")->load()));
+            settings.stringIndex=int(parameters.getRawParameterValue("tunerString")->load())-1;
+            for(int i=0;i<8;++i){settings.customMidi[size_t(i)]=int(parameters.getRawParameterValue("tunerNote"+juce::String(i+1))->load());settings.customCents[size_t(i)]=parameters.getRawParameterValue("tunerOffset"+juce::String(i+1))->load();}
+            const auto target=spectralforge::tuning::target(hz,settings);
+            if(target.valid){detected=true;note=PrecisionTunerPanel::noteName(target.midi);cents=float(target.cents);detail=juce::String(hz,2)+" Hz | "+juce::String(cents,2)+" ct";}
+
         }
-        text(g,note,34,262,115,45,32.f,std::abs(cents)<3 ? accent : ink);text(g,detail,158,271,245,28,13.f);
+        text(g,note,34,262,115,45,32.f,detected && std::abs(cents)<.1f ? accent : ink);text(g,detail,158,271,245,28,13.f);
         g.setColour(line);g.drawLine(430,286,716,286,2);g.setColour(ink);g.drawVerticalLine(573,276,297);
-        const float needle=573+juce::jlimit(-50.f,50.f,cents)*2.7f;g.setColour(accent);g.fillRect(needle-2,269.f,4.f,35.f);text(g,"A4",763,270,36,29,11.f);
+        const float needle=573+juce::jlimit(-50.f,50.f,cents)*2.7f;if(detected){g.setColour(accent);g.fillRect(needle-2,269.f,4.f,35.f);}text(g,"A4",763,270,36,29,11.f);
     }
     if(page==2) {
         for(int position=3;position<6;++position) {
@@ -710,8 +724,8 @@ void ChimeraEditor::paint(juce::Graphics& g)
             if(di) {const float reduction=juce::jlimit(0.f,1.f,processor.lowCompMeter()/24.f);g.setColour(line);g.fillRoundedRectangle(x+17,639,float(width-34),2,1);if(reduction>0.f){g.setColour(accent);g.fillRoundedRectangle(x+17,639,float(width-34)*reduction,2,1);}}
         }
     }
-    text(g,"CPU "+juce::String(processor.cpuLoad(),1)+"%  |  PK "+juce::String(processor.cpuPeakLoad(),1)+"%",601,750,228,25,10.5f,processor.cpuPeakLoad()>=100 ? juce::Colours::salmon : muted);
-    text(g,(hostTempo.getToggleState() ? "HOST " : "TEMPO ")+juce::String(processor.currentTempo(),1)+" BPM  |  "+juce::String(processor.getLatencySamples())+" SAMPLES",833,750,327,25,10.5f,muted,juce::Justification::centredRight);
+    text(g,"CPU "+juce::String(processor.cpuLoad(),1)+"%  |  PK "+juce::String(processor.cpuPeakLoad(),1)+"%",704,750,220,25,10.5f,processor.cpuPeakLoad()>=100 ? juce::Colours::salmon : muted);
+    text(g,(hostTempo.getToggleState() ? "HOST " : "TEMPO ")+juce::String(processor.currentTempo(),1)+" BPM  |  "+juce::String(processor.getLatencySamples())+" SAMPLES",930,750,230,25,10.5f,muted,juce::Justification::centredRight);
 
 }
 void ChimeraEditor::resized()
@@ -732,12 +746,12 @@ void ChimeraEditor::layoutControls()
     gateLocation.setBounds(298,93,113,23);
     preOrder.setBounds(585,268,257,28);gainOrder.setBounds(852,268,308,28);
     compareA.setBounds(490,30,30,28);compareB.setBounds(524,30,30,28);copyAB.setBounds(558,30,52,28);rigsTab.setBounds(634,30,44,28);preTab.setBounds(684,30,44,28);postTab.setBounds(734,30,44,28);eqTab.setBounds(784,30,28,28);
-    title.setBounds(30,16,166,40); quality.setBounds(816,30,130,28); scale.setBounds(986,30,80,28);irLibraryButton.setBounds(1074,30,86,28); info.setBounds(504,750,86,25);
+    title.setBounds(30,16,166,40); quality.setBounds(816,30,130,28); scale.setBounds(986,30,80,28);irLibraryButton.setBounds(1074,30,86,28); info.setBounds(608,750,86,25);
     mode.setBounds(106,268,140,28); routingHelp.setBounds(lastMode==1 ? 415 : 258,268,lastMode==1 ? 160 : 277,28);
     dualType.setBounds(260,268,144,28);dualLabel.setBounds(597,257,280,20);dualBlend.setBounds(597,280,330,28);dualFrequency.setBounds(597,280,330,28);
     x1Label.setBounds(565,258,224,20); x1.setBounds(565,280,252,28);
     x2Label.setBounds(858,258,250,20); x2.setBounds(858,280,290,28);
-    gateOn.setBounds(182,93,78,24); pitchOn.setBounds(450,93,148,24); tunerOn.setBounds(20,750,64,25);tunerMute.setBounds(965,273,112,25);
+    gateOn.setBounds(182,93,78,24); pitchOn.setBounds(450,93,148,24); tunerOn.setBounds(20,750,64,25);tunerView.setBounds(91,750,96,25);tunerMute.setBounds(965,273,112,25);
     globalSliders[0].setBounds(30,115,106,92);
     globalSliders[1].setBounds(244,126,167,28);
     globalSliders[2].setBounds(180,173,111,27); globalSliders[3].setBounds(306,173,106,27);
@@ -746,7 +760,7 @@ void ChimeraEditor::layoutControls()
     gateStatus.setBounds(180,228,232,18); pitchStatus.setBounds(447,212,158,29);
     inputMode.setBounds(638,107,108,26);presets.setBounds(756,107,180,26);presetPrevious.setBounds(638,144,28,25);presetNext.setBounds(670,144,28,25);presetSave.setBounds(706,144,107,25);presetLoad.setBounds(821,144,115,25);
     doublerOn.setBounds(638,190,91,26);doublerTime.setBounds(741,190,195,26);
-    midi.setBounds(91,750,61,25);tap.setBounds(160,750,44,25);tempo.setBounds(211,750,128,25);hostTempo.setBounds(347,750,58,25);metronome.setBounds(413,750,82,25);
+    midi.setBounds(195,750,61,25);tap.setBounds(264,750,44,25);tempo.setBounds(315,750,128,25);hostTempo.setBounds(451,750,58,25);metronome.setBounds(517,750,82,25);
     for(size_t i=0;i<postPanels.size();++i)postPanels[i]->setBounds(20,330+(int)i*69,1140,64);
     for(int position=3;position<6;++position) {
         auto& effect=effects[(size_t)rackOrder[(size_t)position]];const int y=330+position*69;

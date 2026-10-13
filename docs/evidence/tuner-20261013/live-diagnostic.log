@@ -1,0 +1,16 @@
+Native desktop ready: DISPLAY=127.0.0.1:0, Openbox supporting window=0x20011f, WM_PROTOCOLS present
+elapsed_ms=141.648 delivered_frames=6656 signal_ms=144 hz=0 confidence=0 process_max_ms=2.76609
+elapsed_ms=241.134 delivered_frames=11520 signal_ms=240 hz=27.5008 confidence=1 process_max_ms=4.80779
+elapsed_ms=345.327 delivered_frames=16640 signal_ms=346.667 hz=27.5008 confidence=1 process_max_ms=4.80779
+elapsed_ms=458.238 delivered_frames=22016 signal_ms=458.667 hz=27.5008 confidence=1 process_max_ms=4.80779
+elapsed_ms=570.384 delivered_frames=27392 signal_ms=570.667 hz=27.5008 confidence=1 process_max_ms=4.80779
+elapsed_ms=733.681 delivered_frames=35328 signal_ms=736 hz=27.5008 confidence=1 process_max_ms=25.9957
+elapsed_ms=840.01 delivered_frames=40448 signal_ms=842.667 hz=27.5008 confidence=1 process_max_ms=25.9957
+elapsed_ms=964.348 delivered_frames=46336 signal_ms=965.333 hz=27.5008 confidence=1 process_max_ms=25.9957
+elapsed_ms=1075.32 delivered_frames=51712 signal_ms=1077.33 hz=27.5008 confidence=1 process_max_ms=25.9957
+elapsed_ms=1183.45 delivered_frames=56832 signal_ms=1184 hz=27.5008 confidence=1 process_max_ms=25.9957
+elapsed_ms=1282.89 delivered_frames=61696 signal_ms=1285.33 hz=27.5008 confidence=1 process_max_ms=25.9957
+elapsed_ms=1394.2 delivered_frames=66816 signal_ms=1392 hz=27.5008 confidence=1 process_max_ms=25.9957
+elapsed_ms=1502.42 delivered_frames=72192 signal_ms=1504 hz=27.5008 confidence=1 process_max_ms=25.9957
+elapsed_ms=1602.76 delivered_frames=76800 signal_ms=1600 hz=27.5008 confidence=1 process_max_ms=25.9957
+elapsed_ms=1721.77 delivered_frames=82688 signal_ms=1722.67 hz=27.5008 confidence=1 process_max_ms=25.9957

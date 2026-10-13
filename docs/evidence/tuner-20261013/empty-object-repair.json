@@ -1,0 +1,7 @@
+{
+  "observed_empty_objects": [
+    "../build/CMakeFiles/ChimeraArtwork.dir/juce_binarydata_ChimeraArtwork/JuceLibraryCode/BinaryData233.cpp.o",
+    "../build/CMakeFiles/ChimeraArtwork.dir/juce_binarydata_ChimeraArtwork/JuceLibraryCode/BinaryData182.cpp.o"
+  ],
+  "action": "Remove only these empty generated objects, then rerun the unchanged build. No source or test threshold change."
+}

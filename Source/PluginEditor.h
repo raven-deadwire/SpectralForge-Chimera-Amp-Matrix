@@ -51,7 +51,7 @@ private:
     spectralforge::ui::Changed<std::array<double,4>> bandKey;
     spectralforge::ui::Changed<std::array<double,3>> tempoKey;
     spectralforge::ui::Changed<std::array<int,2>> inputMeterKey,outputMeterKey;
-    spectralforge::ui::Changed<std::array<float,3>> tunerKey;
+    spectralforge::ui::Changed<std::array<float,22>> tunerKey;
     spectralforge::ui::Changed<int> lowMeterKey;
     std::array<spectralforge::ui::Changed<std::array<int,2>>,3> postMeterKeys;
     spectralforge::ui::Changed<juce::String> cpuText,transportText,gateText,pitchText;
@@ -106,7 +106,7 @@ private:
     std::unique_ptr<SA> a1,a2;
     std::array<juce::Slider,8> globalSliders;
     std::array<std::unique_ptr<SA>,8> globalAttachments;
-    juce::TextButton gateOn{"GATE"},pitchOn{"TRANSPOSE"},tunerOn{"TUNER"},tunerMute{"AUTO MUTE"},info{"INFO"};
+    juce::TextButton gateOn{"GATE"},pitchOn{"TRANSPOSE"},tunerView{"TUNER VIEW"},tunerOn{"TUNER"},tunerMute{"AUTO MUTE"},info{"INFO"};
     std::array<std::unique_ptr<BA>,4> globalButtons;
     juce::TextButton compareA{"A"},compareB{"B"},copyAB{"COPY"},irLibraryButton{"IR LIBRARY"},rigsTab{"RIGS"},preTab{"PRE"},postTab{"POST"},eqTab{"EQ"};
     std::array<std::unique_ptr<spectralforge::GraphicalEQPanel>,2> eqPanels;

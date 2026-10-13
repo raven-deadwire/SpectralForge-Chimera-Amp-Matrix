@@ -16,6 +16,7 @@
 #include <algorithm>
 #include "UIRefreshTests.h"
 #include "SignalPathUITests.h"
+#include "PrecisionTunerUITests.h"
 #include <map>
 #include <iostream>
 #include <set>
@@ -549,6 +550,9 @@ int main(int argc, char** argv)
     {
         // Processor serialization is independent of a native window/display.
         // Keep this a separately named test; it does not satisfy the UI gate.
+        if(argc==3 && juce::String(argv[1])=="--precision-tuner-only") {
+            const juce::File directory(argv[2]);require(directory.createDirectory().wasOk(),"Cannot create tuner evidence directory");precisionTunerUITests::run(directory);return 0;
+        }
         if(argc==3 && juce::String(argv[1])=="--native-state-only") {
             const juce::File directory(argv[2]);
             require(directory.createDirectory().wasOk(),"Cannot create native state evidence directory");

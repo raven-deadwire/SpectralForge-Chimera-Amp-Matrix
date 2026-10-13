@@ -1,0 +1,13 @@
+{
+  "reason": "CMake compiler_depend.make was only its empty template despite populated .o.d/.internal; product object mtimes preceded the final panel header. Force only the two dependent product translation units before final UI tests.",
+  "objects": [
+    {
+      "path": "../build/CMakeFiles/ChimeraAmpMatrix.dir/Source/PluginEditor.cpp.o",
+      "mtime": 1791905117.5865536
+    },
+    {
+      "path": "../build/CMakeFiles/ChimeraAmpMatrix.dir/Source/PluginProcessor.cpp.o",
+      "mtime": 1791905066.5928242
+    }
+  ]
+}

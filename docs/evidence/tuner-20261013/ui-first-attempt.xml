@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="(empty)"
+	tests="2"
+	failures="1"
+	disabled="0"
+	skipped="0"
+	hostname=""
+	time="15"
+	timestamp="2026-10-13T10:34:52"
+	>
+	<testcase name="ChimeraPrecisionTunerUITests" classname="ChimeraPrecisionTunerUITests" time="15.7551" status="run">
+		<properties/>
+		<system-out>PASS native tuner UI, view-neutral host values, production A0, custom/project recall, legacy defaults, close and teardown
+</system-out>
+	</testcase>
+	<testcase name="ChimeraNativeStateTests" classname="ChimeraNativeStateTests" time="0.237342" status="fail">
+		<failure message="Failed"/>
+		<properties/>
+		<system-out>FAIL: E670FE inserted ahead of a released host parameter
+</system-out>
+	</testcase>
+</testsuite>

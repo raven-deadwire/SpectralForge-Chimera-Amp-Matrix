@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="(empty)"
+	tests="1"
+	failures="0"
+	disabled="0"
+	skipped="0"
+	hostname=""
+	time="14"
+	timestamp="2026-10-13T10:57:32"
+	>
+	<testcase name="ChimeraPrecisionTunerUITests" classname="ChimeraPrecisionTunerUITests" time="14.5748" status="run">
+		<properties/>
+		<system-out>UI acquisition elapsed_ms=610.516 delivered_frames=29184 frequency_hz=27.5008 confidence=1
+PASS native tuner UI, view-neutral host values, production A0, custom/project recall, legacy defaults, close and teardown
+</system-out>
+	</testcase>
+</testsuite>

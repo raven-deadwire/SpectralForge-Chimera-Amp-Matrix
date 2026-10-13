@@ -328,6 +328,17 @@ spectralforge::appendOriginalCabParameters(p);
 spectralforge::appendCabExpansionParameters(p);
 spectralforge::appendCabLayoutParameters(p);
 spectralforge::appendGraphicalEQParameters(p);
+// Append only: preserve every released host index and AU version ordering.
+juce::StringArray tunerProfiles;for(const auto* name:spectralforge::tuning::profileNames)tunerProfiles.add(name);
+p.add(std::make_unique<juce::AudioParameterChoice>(juce::ParameterID{"tunerProfile",11},"Tuner temperament",tunerProfiles,0));
+p.add(std::make_unique<juce::AudioParameterChoice>(juce::ParameterID{"tunerDisplay",11},"Tuner display",juce::StringArray{"Strobe","Needle"},0));
+p.add(std::make_unique<juce::AudioParameterInt>(juce::ParameterID{"tunerString",11},"Tuner string (0 = auto)",0,8,0));
+for(int i=0;i<8;++i){
+    const auto suffix=juce::String(i+1);
+    p.add(std::make_unique<juce::AudioParameterInt>(juce::ParameterID{"tunerNote"+suffix,11},"Custom tuner string "+suffix+" MIDI note",12,96,spectralforge::tuning::openMidi[size_t(i)]));
+    p.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{"tunerOffset"+suffix,11},"Custom tuner string "+suffix+" cents",juce::NormalisableRange<float>{-50,50,.1f},0));
+}
+
 return p;
 }
 
