@@ -131,3 +131,7 @@ is at least 3 dB stronger. This prevents small balance fluctuations from repeate
 invalidating the analysis window. A genuine switch still invalidates immediately.
 The native regression covers alternating near-equal input levels and acquisition
 of a new dominant channel, alongside the unchanged timing gates.
+
+After an expired input gap, the worker discards its pending FIFO snapshot and
+retained analysis history before consuming new input. A fresh block therefore
+cannot refresh an old analysis window; subsequent input must fill a new window.

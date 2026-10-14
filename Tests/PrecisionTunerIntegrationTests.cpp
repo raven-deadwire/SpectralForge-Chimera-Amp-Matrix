@@ -78,34 +78,51 @@ void lifecycle(){
 }
 void stalledWorkerFreshness(){
 #if CHIMERA_TUNER_TEST_HOOKS
-    spectralforge::Tuner tuner;tuner.prepare(48000);juce::AudioBuffer<float> audio(2,256);
-    const auto start=Clock::now();
-    for(int block=0;block<70;++block){
-        for(int n=0;n<256;++n)for(int c=0;c<2;++c)audio.setSample(c,n,tone(110,(block*256+n)/48000.,1));
-        tuner.push(audio,true);
-        std::this_thread::sleep_until(start+std::chrono::microseconds((block+1)*5333));
+    for(const auto scenario:{std::pair{1,false},std::pair{1,true},std::pair{40,true}}) {
+        spectralforge::Tuner tuner;tuner.prepare(48000);juce::AudioBuffer<float> audio(2,256);
+        const auto start=Clock::now();
+        for(int block=0;block<70;++block){
+            for(int n=0;n<256;++n)for(int c=0;c<2;++c)audio.setSample(c,n,tone(110,(block*256+n)/48000.,1));
+            tuner.push(audio,true);
+            std::this_thread::sleep_until(start+std::chrono::microseconds((block+1)*5333));
+        }
+        require(std::abs(error(tuner.frequency(),110))<.1,"Stall fixture did not acquire");
+        tuner.pauseWorkerForTest(450);
+        const auto requested=Clock::now();
+        while(!tuner.workerPausedForTest() && Clock::now()-requested<std::chrono::milliseconds(250))
+            std::this_thread::sleep_for(std::chrono::milliseconds(1));
+        require(tuner.workerPausedForTest(),"Stall hook did not reach the worker");
+        const auto pausedIteration=tuner.completedWorkerIterationsForTest();
+        // Leave a coherent final block in the queue, then stop the source. A
+        // delayed consumer must not give these old samples a fresh timestamp.
+        for(int block=0;block<scenario.first;++block) {
+            for(int n=0;n<256;++n)for(int c=0;c<2;++c)audio.setSample(c,n,tone(110,((70+block)*256+n)/48000.,1));
+            tuner.push(audio,true);
+        }
+        std::this_thread::sleep_for(std::chrono::milliseconds(280));
+        require(tuner.workerPausedForTest(),"Worker resumed before stale observation check");
+        require(tuner.frequency()==0 && tuner.confidence()==0,"Paused worker exposed an expired pitch/confidence");
+        if(scenario.second) {
+            // Fresh input must not refresh retained history or a full stale queued
+            // window. One new block is insufficient to acquire a new observation.
+            for(int n=0;n<256;++n)for(int c=0;c<2;++c)audio.setSample(c,n,tone(110,((70+scenario.first)*256+n)/48000.,1));
+            tuner.push(audio,true);
+        }
+        const auto expired=Clock::now();
+        while(tuner.completedWorkerIterationsForTest()==pausedIteration && Clock::now()-expired<std::chrono::milliseconds(500))
+            std::this_thread::sleep_for(std::chrono::milliseconds(1));
+        require(tuner.completedWorkerIterationsForTest()!=pausedIteration,"Worker did not resume after the pause");
+        require(tuner.frequency()==0 && tuner.confidence()==0,"Expired queued input was republished after the worker resumed");
+        const auto resumed=Clock::now();
+        for(int block=0;block<70;++block) {
+            for(int n=0;n<256;++n)for(int c=0;c<2;++c)audio.setSample(c,n,tone(220,(block*256+n)/48000.,1));
+            tuner.push(audio,true);
+            std::this_thread::sleep_until(resumed+std::chrono::microseconds((block+1)*5333));
+        }
+        require(std::abs(error(tuner.frequency(),220))<.1,"Fresh stream failed to reacquire after a stalled-input gap");
+        tuner.stop();require(tuner.stopped(),"Paused worker could not stop");
     }
-    require(std::abs(error(tuner.frequency(),110))<.1,"Stall fixture did not acquire");
-    tuner.pauseWorkerForTest(450);
-    const auto requested=Clock::now();
-    while(!tuner.workerPausedForTest() && Clock::now()-requested<std::chrono::milliseconds(250))
-        std::this_thread::sleep_for(std::chrono::milliseconds(1));
-    require(tuner.workerPausedForTest(),"Stall hook did not reach the worker");
-    const auto pausedIteration=tuner.completedWorkerIterationsForTest();
-    // Leave a coherent final block in the queue, then stop the source. A
-    // delayed consumer must not give these old samples a fresh timestamp.
-    for(int n=0;n<256;++n)for(int c=0;c<2;++c)audio.setSample(c,n,tone(110,(70*256+n)/48000.,1));
-    tuner.push(audio,true);
-    std::this_thread::sleep_for(std::chrono::milliseconds(280));
-    require(tuner.workerPausedForTest(),"Worker resumed before stale observation check");
-    require(tuner.frequency()==0 && tuner.confidence()==0,"Paused worker exposed an expired pitch/confidence");
-    const auto expired=Clock::now();
-    while(tuner.completedWorkerIterationsForTest()==pausedIteration && Clock::now()-expired<std::chrono::milliseconds(500))
-        std::this_thread::sleep_for(std::chrono::milliseconds(1));
-    require(tuner.completedWorkerIterationsForTest()!=pausedIteration,"Worker did not resume after the pause");
-    require(tuner.frequency()==0 && tuner.confidence()==0,"Expired queued input was republished after the worker resumed");
-    tuner.stop();require(tuner.stopped(),"Paused worker could not stop");
-    std::cerr<<"PASS expired observation hidden during worker stall and after queued input resumes\n";
+    std::cerr<<"PASS expired observation hidden through stall/resume, fresh-block and mixed-queue gaps; fresh stream reacquires\n";
 #endif
 }
 int main(int argc,char** argv){try{

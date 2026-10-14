@@ -77,3 +77,10 @@ while retaining every DSP/meter state update. A frozen pre-cache oracle matches
 POST benchmarks and unchanged functional contracts are recorded in
 `evidence/132-post-cache-20261014/`. This optimization does not by itself establish
 that full-processor callback overruns are resolved.
+
+An additional paused-worker case found that one new block could revive a stale
+analysis window even when block-end input timestamps were retained. The worker
+now clears both retained history and the pending FIFO snapshot before consuming
+input after an expired gap, then reacquires from subsequent fresh samples.
+Controlled failure/pass and mixed-queue recovery evidence is in
+`evidence/132-tuner-gap-20261014/`. Source-specific checks must include this fix.

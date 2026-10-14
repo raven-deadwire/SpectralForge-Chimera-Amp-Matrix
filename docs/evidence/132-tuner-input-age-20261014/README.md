@@ -24,3 +24,10 @@ worker iteration, and checks that the old queued input remains hidden.
 This is regression evidence, not a driver/DAW realtime qualification. Previous
 raw observations and failures are retained; acquisition, accuracy and callback
 criteria are not relaxed.
+
+## Later mixed-window correction
+
+This test covered old queued input with no fresh block after the gap. A later
+case found that one fresh block could still revalidate retained or mixed queued
+history. See `../132-tuner-gap-20261014/` for the controlled failure and the
+worker-side snapshot/history invalidation. The earlier logs remain unchanged.

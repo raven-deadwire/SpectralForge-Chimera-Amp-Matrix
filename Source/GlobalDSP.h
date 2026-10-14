@@ -221,7 +221,7 @@ private:
     void run() override
     {
         const lifecycle::Scope trace("tuner.worker", this);
-        unsigned seen=generation.load();double lastReceived=0;
+        unsigned seen=generation.load();double lastReceived=0;bool observedGeneration=false;
         while(!threadShouldExit())
         {
 #if CHIMERA_TUNER_TEST_HOOKS
@@ -233,7 +233,16 @@ private:
             }
 #endif
             const auto next=generation.load();
-            if(next!=seen){seen=next;filled=0;hz.store(0);certainty.store(0);const auto discarded=fifo.read(fifo.getNumReady());}
+            const auto now=juce::Time::getMillisecondCounterHiRes();
+            if(!observedGeneration || next!=seen || (lastReceived>0 && now-lastReceived>250)) {
+                // A fresh block cannot certify an old or mixed queued window.
+                // After an expired input gap, discard the pending snapshot and
+                // reacquire a complete window from subsequently published input.
+                // The first observation also discards any pre-start backlog.
+                observedGeneration=true;seen=next;filled=0;lastReceived=0;
+                hz.store(0);certainty.store(0);
+                const auto discarded=fifo.read(fifo.getNumReady());
+            }
             bool received=false;
             { const auto scope=fifo.read(fifo.getNumReady());int last=-1;
               scope.forEach([&](int i){history[(size_t)writeIndex]=queue[(size_t)i]; writeIndex=(writeIndex+1)%frameSize; filled=juce::jmin(frameSize,filled+1); received=true;last=i;});
