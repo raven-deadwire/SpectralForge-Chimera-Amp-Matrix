@@ -238,7 +238,15 @@ void editingWorkflow(ChimeraProcessor& processor,GraphicalEQPanel& panel,int ban
     add->triggerClick();check(waitFor([&]{return panel.selectedBand()==0 && selector->getNumItems()==1;}),"Deleted first slot was not reused");
     const auto reusedFrequency=get(processor,eqID(bank,0,"frequency"));
     std::cout<<"MEASURE reused EQ node bank="<<bank<<" frequency="<<juce::String(reusedFrequency,6)<<" gain="<<juce::String(get(processor,eqID(bank,0,"gain")),6)<<'\n';
-    check(std::abs(reusedFrequency-1000.f)<.02f && get(processor,eqID(bank,0,"gain"))==0,"Reused slot did not start neutral");
+    // Normalized float round-trips can represent 0 dB as about -1e-6 dB
+    // on ARM. Require the exact canonical host value as well as physical
+    // neutrality, rather than an unattainable literal zero on that platform.
+    auto* reusedGainParameter=processor.parameters().getParameter(eqID(bank,0,"gain"));
+    check(reusedGainParameter!=nullptr,"Reused gain parameter missing");
+    const auto neutralGain=reusedGainParameter->convertFrom0to1(reusedGainParameter->convertTo0to1(0.f));
+    check(std::abs(reusedFrequency-1000.f)<.02f
+          && get(processor,eqID(bank,0,"gain"))==neutralGain && std::abs(neutralGain)<1.e-5f,
+          "Reused slot did not start neutral");
     for(int band=1;band<12;++band){add->triggerClick();check(waitFor([&]{return selector->getNumItems()==band+1;}),"Add did not use the next persistent slot");}
     check(!add->isEnabled(),"Full EQ did not disable Add");
     const auto mask=processor.eqEditing().occupiedMask(bank);

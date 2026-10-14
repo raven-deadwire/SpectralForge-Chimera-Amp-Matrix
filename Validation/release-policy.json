@@ -648,7 +648,7 @@
     "preparation_authorized": true,
     "publication_authorized": true,
     "release_approved": false,
-    "status": "INTEGRATED_1_3_2_QUALIFICATION_EXPIRY_AND_ACCEPTANCE_PENDING",
+    "status": "INTEGRATED_1_3_2_EXPIRY_APPROVED_QUALIFICATION_AND_ACCEPTANCE_PENDING",
     "deferred_checks": [
       "I2.PITCH_LIVE",
       "I2.PITCH_DI"
