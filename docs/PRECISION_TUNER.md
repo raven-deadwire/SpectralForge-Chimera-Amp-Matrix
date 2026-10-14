@@ -32,7 +32,9 @@ back to a signal stage. Navigation itself never changes mute or other parameters
 - A full analysis window is roughly 171 ms at 24 kHz. This is tuner acquisition
   time, not added audio-path latency. Real pluck settling may take longer.
 - Queue discontinuity, channel changes, nonfinite input or enable transitions reset the worker's history. Readings
-  expire after 250 ms without fresh samples. Silence/DC/nonperiodic noise do not lock.
+  expire after 250 ms without fresh samples, including while the worker is stalled
+  and after it resumes with old queued input. Age is measured from input-block
+  publication, not delayed analysis. Silence/DC/nonperiodic noise do not lock.
 - Virtual strobe motion integrates measured minus target Hz at 1×, 2× and 4× rates.
   It is an estimated-frequency visual strobe, not an optical/phase-domain clone.
   No artificial cent dead band, snapped phase or false stationary in-tune animation.
@@ -100,7 +102,9 @@ The embedded workspace and signal/utility navigation remain owned by #66/#68.
 The normalized estimator, shorter window, generation invalidation, bass targets,
 display anti-alias and frozen-baseline acquisition tests are taken from #67
 (`36e41a50a9179b52eba21c3e8d5f99d0aad5bbef`). The #68 single-publication
-SPSC callback and low-priority worker are preserved. There is one engine, one
+SPSC callback and separate analysis worker are preserved. The worker uses normal
+priority, below the host's realtime audio callback, to avoid utility-priority
+deferral on macOS. There is one engine, one
 parameter bank and one UI workspace. No floating tuner window or redundant
 navigation is reintroduced. Custom note names are applied after attachments.
 

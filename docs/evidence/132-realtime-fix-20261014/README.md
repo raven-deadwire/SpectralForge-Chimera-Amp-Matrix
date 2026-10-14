@@ -4,9 +4,11 @@ The integrated source includes PR #69 and the owner-approved expiry from #68.
 This follow-up expires a displayed observation after 250 ms even if the analysis
 worker itself is stalled. A controlled regression restores the former getters:
 it fails while the corrected reader passes the identical worker-stall fixture.
-The input-consumption timestamp is published after estimation; it is not renewed
+In this first correction, the input-consumption timestamp is published after estimation; it is not renewed
 merely because a delayed computation completes. The callback adds no locks,
-allocations, timestamp calls or pitch analysis.
+allocations, timestamp calls or pitch analysis. The later input-arrival correction
+in `../132-tuner-input-age-20261014/` closes the queued-input resumption case;
+these first-correction measurements remain historical evidence.
 
 The worker now uses normal priority rather than background/utility priority.
 The opaque tuner panel repaints its moving reading region, and does not schedule

@@ -126,6 +126,9 @@ class Tuner : private juce::Thread {
     static constexpr int frameSize=4096, queueSize=16384;
     juce::AbstractFifo fifo{queueSize};
     std::array<float,queueSize> queue{};
+    // Only published block ends are stamped. A FIFO snapshot always ends at
+    // one of those boundaries; read its stamp before releasing the slots.
+    std::array<double,queueSize> queueInputTimes{};
     std::array<float,frameSize> history{}, ordered{};
     int writeIndex{}, filled{}, decimation{2}, phase{};
     float low1{}, low2{}, coefficient{};
@@ -138,6 +141,7 @@ class Tuner : private juce::Thread {
 #if CHIMERA_TUNER_TEST_HOOKS
     std::atomic<int> testPauseMilliseconds{0};
     std::atomic<bool> testWorkerPaused{false};
+    std::atomic<unsigned> testCompletedIterations{0};
 #endif
 public:
     Tuner() : Thread("Chimera tuner") {}
@@ -188,6 +192,11 @@ public:
             }
         }
         // One SPSC publication per audio block, with bounded overflow recovery.
+        if(written>0) {
+            const int last=written-1;
+            const int index=last<firstCount?first+last:second+last-firstCount;
+            queueInputTimes[size_t(index)]=juce::Time::getMillisecondCounterHiRes();
+        }
         fifo.finishedWrite(written);
         if(available<produced)generation.fetch_add(1);
     }
@@ -196,6 +205,7 @@ public:
 #if CHIMERA_TUNER_TEST_HOOKS
     void pauseWorkerForTest(int milliseconds) { testPauseMilliseconds.store(milliseconds); notify(); }
     bool workerPausedForTest() const { return testWorkerPaused.load(); }
+    unsigned completedWorkerIterationsForTest() const { return testCompletedIterations.load(); }
 #endif
     static std::pair<float,float> estimate(const float* samples,int count,double rate)
     {
@@ -225,20 +235,23 @@ private:
             const auto next=generation.load();
             if(next!=seen){seen=next;filled=0;hz.store(0);certainty.store(0);const auto discarded=fifo.read(fifo.getNumReady());}
             bool received=false;
-            { const auto scope=fifo.read(fifo.getNumReady());
-              scope.forEach([&](int i){history[(size_t)writeIndex]=queue[(size_t)i]; writeIndex=(writeIndex+1)%frameSize; filled=juce::jmin(frameSize,filled+1); received=true;});
+            { const auto scope=fifo.read(fifo.getNumReady());int last=-1;
+              scope.forEach([&](int i){history[(size_t)writeIndex]=queue[(size_t)i]; writeIndex=(writeIndex+1)%frameSize; filled=juce::jmin(frameSize,filled+1); received=true;last=i;});
+              if(last>=0)lastReceived=queueInputTimes[size_t(last)];
             }
-            if(received)lastReceived=juce::Time::getMillisecondCounterHiRes();
-            if(!enabled.load()) { hz.store(0); certainty.store(0); filled=0; }
+            if(!enabled.load() || juce::Time::getMillisecondCounterHiRes()-lastReceived>250) { hz.store(0); certainty.store(0); filled=0; }
             else if(received && filled==frameSize)
             {
                 for(int i=0;i<frameSize;++i) ordered[(size_t)i]=history[(size_t)((writeIndex+i)%frameSize)];
                 const auto pitch=estimate(ordered.data(),frameSize,analysisRate);
-                // Timestamp the consumed input, never the delayed completion:
+                // Retain the input's arrival time, never the delayed consumption
+                // or computation completion:
                 // readers must also expire old observations if this worker stalls.
                 if(generation.load()==seen && enabled.load()){hz.store(pitch.first);certainty.store(pitch.second);pitchGeneration.store(seen);pitchInputTime.store(lastReceived);}
             }
-            else if(!received && juce::Time::getMillisecondCounterHiRes()-lastReceived>250) { hz.store(0); certainty.store(0); filled=0; }
+#if CHIMERA_TUNER_TEST_HOOKS
+            testCompletedIterations.fetch_add(1);
+#endif
             wait(10);
         }
     }

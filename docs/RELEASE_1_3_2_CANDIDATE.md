@@ -56,6 +56,16 @@ the parameter's canonical normalized zero and also bounds its distance from
 physical 0 dB; no DSP code or audio performance threshold is changed.
 Fresh platform results are required for this correction and the approved policy.
 
-The #69 tuner reconciliation still has an independent macOS acquisition/settling
-failure, and the reported callback peaks remain unresolved. Expiry approval
-does not constitute performance clearance or approval to waive those failures.
+The #69 tuner reconciliation is now included in #68. At source
+`1a4a16d48d6ca21c8a3386beaa354d3744e667bf`, all three platforms passed the
+32-route worker, 108 paired kernel, 576 accuracy and 18 stress cases, including
+stalled-reader expiry. The previously failing macOS acquisition/settling gate
+passed unchanged (maximum 269.19 / 240.47 ms against the 290 ms limits).
+
+A further regression reproduced old queued input briefly reappearing when a
+paused worker resumed. The follow-up stamps input at publication, instead of
+queue consumption, and checks expiry both during and after the pause. See
+`evidence/132-tuner-input-age-20261014/` for the controlled failure and correction.
+The tuner panel is opaque and limits dynamic repainting to its reading region.
+The latest complete source still requires fresh platform/package results and
+callback qualification. Expiry approval does not waive performance failures.

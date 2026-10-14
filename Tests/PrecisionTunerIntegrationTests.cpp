@@ -91,11 +91,21 @@ void stalledWorkerFreshness(){
     while(!tuner.workerPausedForTest() && Clock::now()-requested<std::chrono::milliseconds(250))
         std::this_thread::sleep_for(std::chrono::milliseconds(1));
     require(tuner.workerPausedForTest(),"Stall hook did not reach the worker");
+    const auto pausedIteration=tuner.completedWorkerIterationsForTest();
+    // Leave a coherent final block in the queue, then stop the source. A
+    // delayed consumer must not give these old samples a fresh timestamp.
+    for(int n=0;n<256;++n)for(int c=0;c<2;++c)audio.setSample(c,n,tone(110,(70*256+n)/48000.,1));
+    tuner.push(audio,true);
     std::this_thread::sleep_for(std::chrono::milliseconds(280));
     require(tuner.workerPausedForTest(),"Worker resumed before stale observation check");
     require(tuner.frequency()==0 && tuner.confidence()==0,"Paused worker exposed an expired pitch/confidence");
+    const auto expired=Clock::now();
+    while(tuner.completedWorkerIterationsForTest()==pausedIteration && Clock::now()-expired<std::chrono::milliseconds(500))
+        std::this_thread::sleep_for(std::chrono::milliseconds(1));
+    require(tuner.completedWorkerIterationsForTest()!=pausedIteration,"Worker did not resume after the pause");
+    require(tuner.frequency()==0 && tuner.confidence()==0,"Expired queued input was republished after the worker resumed");
     tuner.stop();require(tuner.stopped(),"Paused worker could not stop");
-    std::cerr<<"PASS expired observation hidden while worker is deliberately stalled\n";
+    std::cerr<<"PASS expired observation hidden during worker stall and after queued input resumes\n";
 #endif
 }
 int main(int argc,char** argv){try{
