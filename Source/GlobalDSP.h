@@ -133,6 +133,9 @@ class Tuner : private juce::Thread {
     int writeIndex{}, filled{}, decimation{2}, phase{};
     float low1{}, low2{}, coefficient{};
     int previousChannel{-1};
+    // prepare() leaves a clean FIFO/history. The first active block belongs to
+    // that clean generation; later active-state transitions invalidate it.
+    bool firstActivation{true};
     double analysisRate{24000};
     std::atomic<bool> enabled{false};
     std::atomic<unsigned> generation{0}, pitchGeneration{0};
@@ -152,7 +155,7 @@ public:
     void prepare(double rate)
     {
         const lifecycle::Scope trace("tuner.prepare", this);
-        stop(); fifo.reset(); history.fill(0); writeIndex=filled=phase=0; low1=low2=0; previousChannel=-1;
+        stop(); fifo.reset(); history.fill(0); writeIndex=filled=phase=0; low1=low2=0; previousChannel=-1;firstActivation=true;
         decimation=juce::jmax(1,juce::roundToInt(rate/24000.0)); analysisRate=rate/decimation;
         coefficient=float(1.0-std::exp(-juce::MathConstants<double>::twoPi*3000.0/rate));
         hz.store(0); certainty.store(0); pitchInputTime.store(0);
@@ -162,7 +165,15 @@ public:
     }
     void push(const juce::AudioBuffer<float>& buffer,bool active)
     {
-        if(enabled.exchange(active)!=active){generation.fetch_add(1);low1=low2=0;phase=0;previousChannel=-1;}
+        const bool wasActive=enabled.exchange(active);
+        if(wasActive!=active) {
+            // No history can precede the first activation after prepare(); do
+            // not create a generation race that discards its fresh FIFO. Every
+            // subsequent disable/re-enable still invalidates queued/history data.
+            if(!(firstActivation && active))generation.fetch_add(1);
+            if(active)firstActivation=false;
+            low1=low2=0;phase=0;previousChannel=-1;
+        }
         if(!active || buffer.getNumChannels()==0) return;
         int channel=0;
         if(buffer.getNumChannels()>1){
