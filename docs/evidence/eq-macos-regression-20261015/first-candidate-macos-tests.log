@@ -1,0 +1,269 @@
+Start testing: Oct 14 16:23 UTC
+----------------------------------------------------------
+5/49 Testing: ChimeraPackagingVersionTests
+5/49 Test: ChimeraPackagingVersionTests
+Command: "/opt/homebrew/Frameworks/Python.framework/Versions/3.14/bin/python3.14" "/Users/runner/work/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/Tests/test_packaging_version.py"
+Directory: /Users/runner/work/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build-path
+"ChimeraPackagingVersionTests" start time: Oct 14 16:23 UTC
+Output:
+----------------------------------------------------------
+test_beta_identity_and_malformed_channels (__main__.PackagingVersionTests.test_beta_identity_and_malformed_channels) ... ok
+test_candidate_stage_inventory_and_versions_without_global_mutation (__main__.PackagingVersionTests.test_candidate_stage_inventory_and_versions_without_global_mutation) ... ok
+test_cmake_project_and_generated_product_identity (__main__.PackagingVersionTests.test_cmake_project_and_generated_product_identity) ... ok
+test_identity_uses_source_version_and_exact_sha (__main__.PackagingVersionTests.test_identity_uses_source_version_and_exact_sha) ... ok
+test_rejects_malformed_and_windows_overflow_versions (__main__.PackagingVersionTests.test_rejects_malformed_and_windows_overflow_versions) ... ok
+test_rejects_old_missing_mixed_or_wrong_head_payload (__main__.PackagingVersionTests.test_rejects_old_missing_mixed_or_wrong_head_payload) ... ok
+test_rejects_stale_configured_build_before_staging (__main__.PackagingVersionTests.test_rejects_stale_configured_build_before_staging) ... ok
+test_repository_consumers_require_version_contract (__main__.PackagingVersionTests.test_repository_consumers_require_version_contract) ... ok
+test_windows_builder_rejects_mixed_or_missing_payload_version (__main__.PackagingVersionTests.test_windows_builder_rejects_mixed_or_missing_payload_version) ... skipped 'actual PowerShell builder regression runs in Windows CI'
+test_windows_builder_rejects_relabelled_binary (__main__.PackagingVersionTests.test_windows_builder_rejects_relabelled_binary) ... skipped 'actual Windows PE resource check runs in Windows CI'
+test_windows_juce_and_inno_resource_layouts (__main__.PackagingVersionTests.test_windows_juce_and_inno_resource_layouts) ... skipped 'PowerShell resource fixtures run in Windows CI'
+
+----------------------------------------------------------------------
+Ran 11 tests in 0.829s
+
+OK (skipped=3)
+<end of output>
+Test time =   1.31 sec
+----------------------------------------------------------
+Test Passed.
+"ChimeraPackagingVersionTests" end time: Oct 14 16:23 UTC
+"ChimeraPackagingVersionTests" time elapsed: 00:00:01
+----------------------------------------------------------
+
+9/49 Testing: ChimeraSignalPathUITests
+9/49 Test: ChimeraSignalPathUITests
+Command: "/Users/runner/work/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build-path/ChimeraUITests_artefacts/Release/ChimeraUITests" "/Users/runner/work/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build-path/signal-path-snapshots" "--signal-path-only"
+Directory: /Users/runner/work/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build-path
+"ChimeraSignalPathUITests" start time: Oct 14 16:23 UTC
+Output:
+----------------------------------------------------------
+PASS Matrix LOW production blend: 0/25/50/75/100, complete AMP + CAB endpoint, DI isolation, amplifier/cabinet bypass; maximum interpolation residual=3.72529e-09
+IOServiceMatchingfailed for: AppleM2ScalerParavirtDriver
+TEST HARNESS: non-blocking macOS native event pump (JUCE #1574)
+Signal Path scenario 0 / 0
+FAIL: EQ navigation did not focus the requested bank's frequency control
+<end of output>
+Test time =  11.56 sec
+----------------------------------------------------------
+Test Failed.
+"ChimeraSignalPathUITests" end time: Oct 14 16:23 UTC
+"ChimeraSignalPathUITests" time elapsed: 00:00:11
+----------------------------------------------------------
+
+10/49 Testing: ChimeraNativeStateTests
+10/49 Test: ChimeraNativeStateTests
+Command: "/Users/runner/work/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build-path/ChimeraUITests_artefacts/Release/ChimeraUITests" "--native-state-only" "/Users/runner/work/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build-path/native-state"
+Directory: /Users/runner/work/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build-path
+"ChimeraNativeStateTests" start time: Oct 14 16:23 UTC
+Output:
+----------------------------------------------------------
+Native B canonical POST value=6.999999523 (requested 7)
+PASS: six native amp contexts, all native banks, POST nine models, binary/A-B recall and immediate pedal bank recall
+<end of output>
+Test time =   7.85 sec
+----------------------------------------------------------
+Test Passed.
+"ChimeraNativeStateTests" end time: Oct 14 16:23 UTC
+"ChimeraNativeStateTests" time elapsed: 00:00:07
+----------------------------------------------------------
+
+20/49 Testing: ChimeraCabPanelStateTests
+20/49 Test: ChimeraCabPanelStateTests
+Command: "/Users/runner/work/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build-path/ChimeraCabPanelStateTests_artefacts/Release/ChimeraCabPanelStateTests" "/Users/runner/work/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build-path/cab-panel.png"
+Directory: /Users/runner/work/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build-path
+"ChimeraCabPanelStateTests" start time: Oct 14 16:23 UTC
+Output:
+----------------------------------------------------------
+IOServiceMatchingfailed for: AppleM2ScalerParavirtDriver
+PASS original CAB production state mode=0 dual=0
+PASS original CAB production state mode=1 dual=0
+PASS original CAB production state mode=1 dual=1
+PASS original CAB production state mode=2 dual=0
+PASS original Matrix low DI 0/50/100 and 1x/2x/4x/8x restoration
+PASS original A/B comparison, position audio, UI and legacy disable
+TEST HARNESS: non-blocking macOS native event pump (JUCE #1574)
+PASS: same-basename Mic B replacement refreshes alias/reference independently; embedded metadata survives deleted source files
+PASS: categorized capture selections resolve real files; other/mixed imports remain usable; combined filters and empty Strike selection cannot load stale audio
+PASS: duplicate microphone/filename labels have private-path-free ordinals and load distinct original audio payloads
+PASS CAB artwork: 27 embedded transparent assets, stable catalog mapping and separate room scenery, combined retained RGBA bytes=16768384
+PASS integrated CAB UI: capture/model provenance, all geometry bindings, host automation, independent transitions, Strike disclosure and deleted-source restoration
+PASS complete amplifier shells: 78 model/camera cases, physical width, uniform authored projection, 69 genuine overhangs and shared support plane
+PASS Matrix LOW production blend: 0/25/50/75/100, complete AMP + CAB endpoint, DI isolation, amplifier/cabinet bypass; maximum interpolation residual=3.72529e-09
+PASS CAB scene: view-only tabs, four physical units, real pointer/Shift gestures, host automation, boundaries, captured/hidden rejection and full project recall
+PASS CAB room: production 1/2/3-rig mapping, real cabinet/back clicks, explicit focus, mode transitions and zero audio/state writes from navigation
+PASS constrained CAB workspace: 1000x657 control containment, uniform artwork, enclosure/blend separation, transformed mic/Shift gestures and view-only IR/back navigation
+LOW blend cabRoomLowAmpMix requested=0.36 literal=0.3600000143 interval=0.009999999776 legal=0.3599999845 expected=0.3599999845 actual=0.3599999845 slider=0.3599999845
+LOW blend cabFocusedLowAmpMix requested=0.68 literal=0.6800000072 interval=0.009999999776 legal=0.6800000072 expected=0.6800000072 actual=0.6800000072 slider=0.6800000072
+PASS Matrix LOW cabinet UI: 0/25/50/75/100 contributions, retained bypass values, room/focused host bindings, IR Loader continuity and view-only navigation
+PASS microphone visual geometry: 96 paired endpoint configurations, body/capsule/mount/cable alignment, independent coincident handles and transformed host gestures
+NATIVE CAB initial rig=2: editor=0 0 1180 780 window-local=0 0 1000 642 window-parent=12 63 1000 642 window-screen=12 63 1000 642 workspace-parent=0 0 1000 642 workspace-in-window=0 0 1000 642 showing=1 desktop-scale=1 display-user=0 31 1024 674 display-total=0 0 1024 768 display-scale=1 peer=12 63 1000 642 peer-scale=1 frame=32,0,0,0 outer=12 31 1000 674 client-contained=1 content-contained=1 frame-contained=1
+NATIVE CAB final rig=2: editor=0 0 1180 780 window-local=0 0 1000 642 window-parent=12 63 1000 642 window-screen=12 63 1000 642 workspace-parent=0 0 1000 642 workspace-in-window=0 0 1000 642 showing=1 desktop-scale=1 display-user=0 31 1024 674 display-total=0 0 1024 768 display-scale=1 peer=12 63 1000 642 peer-scale=1 frame=32,0,0,0 outer=12 31 1000 674 client-contained=1 content-contained=1 frame-contained=1
+NATIVE CAB popup: workspace=1000x642 rig=2
+NATIVE CAB initial rig=3: editor=0 97 1180 780 window-local=0 0 1000 642 window-parent=12 63 1000 642 window-screen=12 63 1000 642 workspace-parent=0 0 1000 642 workspace-in-window=0 0 1000 642 showing=1 desktop-scale=1 display-user=0 31 1024 674 display-total=0 0 1024 768 display-scale=1 peer=12 63 1000 642 peer-scale=1 frame=32,0,0,0 outer=12 31 1000 674 client-contained=1 content-contained=1 frame-contained=1
+NATIVE CAB final rig=3: editor=0 97 1180 780 window-local=0 0 1000 642 window-parent=12 63 1000 642 window-screen=12 63 1000 642 workspace-parent=0 0 1000 642 workspace-in-window=0 0 1000 642 showing=1 desktop-scale=1 display-user=0 31 1024 674 display-total=0 0 1024 768 display-scale=1 peer=12 63 1000 642 peer-scale=1 frame=32,0,0,0 outer=12 31 1000 674 client-contained=1 content-contained=1 frame-contained=1
+NATIVE CAB popup: workspace=1000x642 rig=3
+PASS main editor CAB: AMP/RIGS startup, lazy room while on PRE, Dual/Matrix room defaults, cabinet-to-focused-dialog/back, rig controls toggle, 75 percent layout and no host/audio-state writes
+PASS CAB artwork lifetime: every image released after the last panel closes
+PASS routing 0 dual 0 embedded project
+PASS routing 1 dual 0 embedded project
+PASS routing 1 dual 1 embedded project
+PASS routing 2 dual 0 embedded project
+PASS legacy A-only project migration
+legacy FMA unity residual 7.15256e-07 dB; canonical unity 0 dB
+legacy FMA unity residual 7.15256e-07 dB; canonical unity 0 dB
+legacy FMA unity residual 7.15256e-07 dB; canonical unity 0 dB
+legacy FMA unity residual 7.15256e-07 dB; canonical unity 0 dB
+legacy FMA unity residual 7.15256e-07 dB; canonical unity 0 dB
+legacy FMA unity residual 7.15256e-07 dB; canonical unity 0 dB
+PASS dirty legacy routes, comparison slots, re-save and automation mapping
+PASS shared hashes, six near-limit stereo files, deleted-file comparisons, hash rejection and exact UTF-8 overflow; bytes=34353915
+<end of output>
+Test time = 136.57 sec
+----------------------------------------------------------
+Test Passed.
+"ChimeraCabPanelStateTests" end time: Oct 14 16:25 UTC
+"ChimeraCabPanelStateTests" time elapsed: 00:02:16
+----------------------------------------------------------
+
+25/49 Testing: ChimeraGateProcessorTests
+25/49 Test: ChimeraGateProcessorTests
+Command: "/Users/runner/work/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build-path/ChimeraGateProcessorTests_artefacts/Release/ChimeraGateProcessorTests"
+Directory: /Users/runner/work/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build-path
+"ChimeraGateProcessorTests" start time: Oct 14 16:25 UTC
+Output:
+----------------------------------------------------------
+ROUNDING level1 field=6 expected=-6.000000000 actual=-6.000000477
+ROUNDING level1 field=7 expected=12.000000000 actual=11.999999046
+ROUNDING bass1 field=6 expected=0.000000000 actual=-0.000000268
+ROUNDING bass1 field=7 expected=12.000000000 actual=11.999999046
+ROUNDING lowmid1 field=6 expected=0.000000000 actual=-0.000000268
+ROUNDING lowmid1 field=7 expected=12.000000000 actual=11.999999046
+ROUNDING highmid1 field=6 expected=0.000000000 actual=-0.000000268
+ROUNDING highmid1 field=7 expected=12.000000000 actual=11.999999046
+PASS legacy parameter contract: 3686 entries SHA256 365253d74967018996c41c7a57715cf39ced3d9f361ef21b9513e2ba95b2fdda approved_112_defaults=111 numeric_rounding_differences=292; append-only gateRangeDb
+PASS binary state, legacy missing-field migration, A/B, factory reset, host gestures and MIDI automation recall
+MEASURE high-gain mode=0 board=0 native=0 range24_db=-23.9999 full_db=-300 (floor -300 dB)
+MEASURE high-gain mode=0 board=0 native=1 range24_db=-23.9999 full_db=-300 (floor -300 dB)
+PASS actual processor synthetic hiss: mode 0 board 0; pre/post, Full/24 dB, compatibility/native high gain
+MEASURE high-gain mode=0 board=1 native=0 range24_db=-23.9999 full_db=-300 (floor -300 dB)
+MEASURE high-gain mode=0 board=1 native=1 range24_db=-23.9999 full_db=-300 (floor -300 dB)
+PASS actual processor synthetic hiss: mode 0 board 1; pre/post, Full/24 dB, compatibility/native high gain
+MEASURE high-gain mode=1 board=0 native=0 range24_db=-23.9999 full_db=-300 (floor -300 dB)
+MEASURE high-gain mode=1 board=0 native=1 range24_db=-23.9999 full_db=-300 (floor -300 dB)
+PASS actual processor synthetic hiss: mode 1 board 0; pre/post, Full/24 dB, compatibility/native high gain
+MEASURE high-gain mode=1 board=1 native=0 range24_db=-23.9999 full_db=-300 (floor -300 dB)
+MEASURE high-gain mode=1 board=1 native=1 range24_db=-23.9999 full_db=-300 (floor -300 dB)
+PASS actual processor synthetic hiss: mode 1 board 1; pre/post, Full/24 dB, compatibility/native high gain
+MEASURE high-gain mode=2 board=0 native=0 range24_db=-23.9999 full_db=-300 (floor -300 dB)
+MEASURE high-gain mode=2 board=0 native=1 range24_db=-23.9999 full_db=-300 (floor -300 dB)
+PASS actual processor synthetic hiss: mode 2 board 0; pre/post, Full/24 dB, compatibility/native high gain
+MEASURE high-gain mode=2 board=1 native=0 range24_db=-23.9999 full_db=-300 (floor -300 dB)
+MEASURE high-gain mode=2 board=1 native=1 range24_db=-23.9999 full_db=-300 (floor -300 dB)
+PASS actual processor synthetic hiss: mode 2 board 1; pre/post, Full/24 dB, compatibility/native high gain
+PASS actual processor POST delay and reverb tails remain audible with Full gate closed
+<end of output>
+Test time =  31.34 sec
+----------------------------------------------------------
+Test Passed.
+"ChimeraGateProcessorTests" end time: Oct 14 16:26 UTC
+"ChimeraGateProcessorTests" time elapsed: 00:00:31
+----------------------------------------------------------
+
+42/49 Testing: ChimeraGraphicalEQTests
+42/49 Test: ChimeraGraphicalEQTests
+Command: "/Users/runner/work/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build-path/ChimeraGraphicalEQTests_artefacts/Release/ChimeraGraphicalEQTests" "/Users/runner/work/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build-path/eq-cpu.csv"
+Directory: /Users/runner/work/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build-path
+"ChimeraGraphicalEQTests" start time: Oct 14 16:26 UTC
+Output:
+----------------------------------------------------------
+PASS paired stereo FIFO capacity / overflow / concurrent producer-consumer
+PASS measured 7 filters, 4 rates, mono/stereo, exact bypass, 24-node automation, no EQ allocations
+PASS 122 host parameters / project / A-B / legacy migration / 48 factory defaults
+PASS actual project and A/B audio <= 1e-6 / legacy missing EQ audio exact / unchanged latency
+PASS route 0 analyzer node transfers and final output
+PASS route 1 analyzer node transfers and final output
+PASS route 2 analyzer node transfers and final output
+PASS route 3 analyzer node transfers and final output
+CPU pair24 48000 Hz 64 / 1ch analyzer_capture=0 p50=17.625 p99=30 us / 1333.33 us
+CPU pair24 48000 Hz 64 / 1ch analyzer_capture=1 p50=18.083 p99=31.667 us / 1333.33 us
+CPU pair24 48000 Hz 64 / 2ch analyzer_capture=0 p50=8.375 p99=41.041 us / 1333.33 us
+CPU pair24 48000 Hz 64 / 2ch analyzer_capture=1 p50=7.083 p99=37.75 us / 1333.33 us
+CPU pair24 48000 Hz 128 / 1ch analyzer_capture=0 p50=12.917 p99=45.959 us / 2666.67 us
+CPU pair24 48000 Hz 128 / 1ch analyzer_capture=1 p50=13.208 p99=38.541 us / 2666.67 us
+CPU pair24 48000 Hz 128 / 2ch analyzer_capture=0 p50=12.875 p99=41.625 us / 2666.67 us
+CPU pair24 48000 Hz 128 / 2ch analyzer_capture=1 p50=13.417 p99=29.334 us / 2666.67 us
+CPU pair24 48000 Hz 512 / 1ch analyzer_capture=0 p50=45.25 p99=156.125 us / 10666.7 us
+CPU pair24 48000 Hz 512 / 1ch analyzer_capture=1 p50=52.167 p99=141.167 us / 10666.7 us
+CPU pair24 48000 Hz 512 / 2ch analyzer_capture=0 p50=50.667 p99=157.916 us / 10666.7 us
+CPU pair24 48000 Hz 512 / 2ch analyzer_capture=1 p50=52.708 p99=99.041 us / 10666.7 us
+CPU pair24 96000 Hz 64 / 1ch analyzer_capture=0 p50=6.084 p99=8.042 us / 666.667 us
+CPU pair24 96000 Hz 64 / 1ch analyzer_capture=1 p50=7 p99=36.041 us / 666.667 us
+CPU pair24 96000 Hz 64 / 2ch analyzer_capture=0 p50=7.792 p99=31.125 us / 666.667 us
+CPU pair24 96000 Hz 64 / 2ch analyzer_capture=1 p50=8.834 p99=23.417 us / 666.667 us
+CPU pair24 96000 Hz 128 / 1ch analyzer_capture=0 p50=11.583 p99=14.791 us / 1333.33 us
+CPU pair24 96000 Hz 128 / 1ch analyzer_capture=1 p50=13.292 p99=25.333 us / 1333.33 us
+CPU pair24 96000 Hz 128 / 2ch analyzer_capture=0 p50=13.083 p99=28.042 us / 1333.33 us
+CPU pair24 96000 Hz 128 / 2ch analyzer_capture=1 p50=13.709 p99=44.833 us / 1333.33 us
+CPU pair24 96000 Hz 512 / 1ch analyzer_capture=0 p50=46 p99=145.792 us / 5333.33 us
+CPU pair24 96000 Hz 512 / 1ch analyzer_capture=1 p50=55.5 p99=179.792 us / 5333.33 us
+CPU pair24 96000 Hz 512 / 2ch analyzer_capture=0 p50=54.125 p99=178.166 us / 5333.33 us
+CPU pair24 96000 Hz 512 / 2ch analyzer_capture=1 p50=57.083 p99=230.542 us / 5333.33 us
+<end of output>
+Test time =  31.22 sec
+----------------------------------------------------------
+Test Passed.
+"ChimeraGraphicalEQTests" end time: Oct 14 16:26 UTC
+"ChimeraGraphicalEQTests" time elapsed: 00:00:31
+----------------------------------------------------------
+
+43/49 Testing: ChimeraGraphicalEQUITests
+43/49 Test: ChimeraGraphicalEQUITests
+Command: "/Users/runner/work/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build-path/ChimeraGraphicalEQUITests_artefacts/Release/ChimeraGraphicalEQUITests" "/Users/runner/work/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build-path"
+Directory: /Users/runner/work/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build-path
+"ChimeraGraphicalEQUITests" start time: Oct 14 16:26 UTC
+Output:
+----------------------------------------------------------
+IOServiceMatchingfailed for: AppleM2ScalerParavirtDriver
+TEST HARNESS: non-blocking macOS native event pump (JUCE #1574)
+PARAMETER_ROUNDTRIP toneEQ_b1_frequency requested=1000 expected=1000 actual=1000 literal_equal=1 canonical_bits_equal=1
+PARAMETER_ROUNDTRIP toneEQ_b1_gain requested=0 expected=-5.36441803e-07 actual=-5.36441803e-07 literal_equal=0 canonical_bits_equal=1
+PARAMETER_ROUNDTRIP toneEQ_b1_q requested=0.707106769 expected=0.707000017 actual=0.706999958 literal_equal=0 canonical_bits_equal=0
+FAIL Parameter failed exact canonical roundtrip: toneEQ_b1_q
+<end of output>
+Test time =   4.45 sec
+----------------------------------------------------------
+Test Failed.
+"ChimeraGraphicalEQUITests" end time: Oct 14 16:26 UTC
+"ChimeraGraphicalEQUITests" time elapsed: 00:00:04
+----------------------------------------------------------
+
+45/49 Testing: ChimeraGraphicalEQEditingTests
+45/49 Test: ChimeraGraphicalEQEditingTests
+Command: "/Users/runner/work/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build-path/ChimeraGraphicalEQEditingTests_artefacts/Release/ChimeraGraphicalEQEditingTests"
+Directory: /Users/runner/work/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build-path
+"ChimeraGraphicalEQEditingTests" start time: Oct 14 16:26 UTC
+Output:
+----------------------------------------------------------
+PASS 4,967 unique host IDs / all 122 EQ ordinals, names, version hints, ranges, defaults, steps and choices
+PASS occupied/bypassed/deleted distinction / first-vacancy reuse / 12-slot cap / independent banks / preserved bypass
+PASS synchronous slot reuse order: tuning-before-enable / Undo disable-first / Redo enable-last bank=0
+PASS synchronous slot reuse order: tuning-before-enable / Undo disable-first / Redo enable-last bank=1
+PASS one-step graph/numeric/create/delete Undo/Redo / redo survives no-op / balanced host gestures
+PARAMETER_ROUNDTRIP output requested=-9 expected=-9.00000095 actual=-9.00000095 literal_equal=0 canonical_bits_equal=1
+UNDO_ISOLATION undone=1 output_before=-9.00000095 output_after=-9.00000095 epoch_before=1 epoch_after=1
+PASS host automation ownership / canceled active gestures / no external values in history / unrelated audio parameters preserved
+PASS binary project / independent global A-B slot occupancy / save preserves session history / recall clears history
+PASS P0/pre-EQ migration / disabled tuning preservation / malformed metadata fallback / no hidden enabled band after recall
+PASS all 48 factory occupancy/history resets / bounded 64-operation session history
+PASS audible delete settles exact dry / tuning automation stays hidden / host enable reoccupies / four-rate exact EQ transfer
+PASS October 23 EQ editing backend regression contract
+<end of output>
+Test time =  30.19 sec
+----------------------------------------------------------
+Test Passed.
+"ChimeraGraphicalEQEditingTests" end time: Oct 14 16:27 UTC
+"ChimeraGraphicalEQEditingTests" time elapsed: 00:00:30
+----------------------------------------------------------
+
+End testing: Oct 14 16:27 UTC

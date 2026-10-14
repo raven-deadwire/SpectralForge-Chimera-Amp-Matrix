@@ -1,0 +1,385 @@
+{
+  "archive_sha256": "d9bfb2294b868c039f411d2bc2b0f5463f944bc9e0a66a49f7773ef5d0f80c70",
+  "archive_bytes": 6968647,
+  "run_id": 38599008997,
+  "artifact_id": 11917179795,
+  "files": [
+    {
+      "zip_member": "ctest-results.xml",
+      "saved_file": "final-windows-candidate-ctest-results.xml",
+      "sha256": "8ea837419189a0472fea643ee58eb5a353fa433c75e00b85050129185896063e"
+    },
+    {
+      "zip_member": "Testing/Temporary/LastTest.log",
+      "saved_file": "final-windows-candidate-LastTest.log",
+      "sha256": "d387498849431633b68ee5fc12fe250e6d102f8ee06a43a2fc2e919aee116d7c"
+    }
+  ],
+  "test_suites": [
+    {
+      "file": "final-windows-candidate-ctest-results.xml",
+      "attributes": {
+        "name": "(empty)",
+        "tests": "50",
+        "failures": "0",
+        "disabled": "0",
+        "skipped": "0",
+        "hostname": "",
+        "time": "1765",
+        "timestamp": "2026-10-14T17:25:08"
+      },
+      "cases": [
+        {
+          "name": "ChimeraOriginalAmpTests",
+          "time": "3.8961",
+          "status": "run",
+          "failure": false,
+          "skipped": false
+        },
+        {
+          "name": "ChimeraOriginalAmpIntegrationTests",
+          "time": "0.262712",
+          "status": "run",
+          "failure": false,
+          "skipped": false
+        },
+        {
+          "name": "ChimeraNiflheimrCoreTests",
+          "time": "6.69113",
+          "status": "run",
+          "failure": false,
+          "skipped": false
+        },
+        {
+          "name": "ChimeraNiflheimrIntegrationTests",
+          "time": "1.01822",
+          "status": "run",
+          "failure": false,
+          "skipped": false
+        },
+        {
+          "name": "ChimeraPackagingVersionTests",
+          "time": "7.90652",
+          "status": "run",
+          "failure": false,
+          "skipped": false
+        },
+        {
+          "name": "ChimeraVBlankFailureTests",
+          "time": "2.8468",
+          "status": "run",
+          "failure": false,
+          "skipped": false
+        },
+        {
+          "name": "ChimeraTests",
+          "time": "41.6445",
+          "status": "run",
+          "failure": false,
+          "skipped": false
+        },
+        {
+          "name": "ChimeraUITests",
+          "time": "376.403",
+          "status": "run",
+          "failure": false,
+          "skipped": false
+        },
+        {
+          "name": "ChimeraSignalPathUITests",
+          "time": "88.9518",
+          "status": "run",
+          "failure": false,
+          "skipped": false
+        },
+        {
+          "name": "ChimeraNativeStateTests",
+          "time": "7.3529",
+          "status": "run",
+          "failure": false,
+          "skipped": false
+        },
+        {
+          "name": "ChimeraVST3LifecycleTests",
+          "time": "60.0483",
+          "status": "run",
+          "failure": false,
+          "skipped": false
+        },
+        {
+          "name": "ChimeraNativeRendererTests",
+          "time": "0.221275",
+          "status": "run",
+          "failure": false,
+          "skipped": false
+        },
+        {
+          "name": "ChimeraOriginalRendererTests",
+          "time": "1.00804",
+          "status": "run",
+          "failure": false,
+          "skipped": false
+        },
+        {
+          "name": "ChimeraNiflheimrRendererTests",
+          "time": "0.89154",
+          "status": "run",
+          "failure": false,
+          "skipped": false
+        },
+        {
+          "name": "ChimeraReleaseTests",
+          "time": "0.0302003",
+          "status": "run",
+          "failure": false,
+          "skipped": false
+        },
+        {
+          "name": "ChimeraStabilityTests",
+          "time": "2.30619",
+          "status": "run",
+          "failure": false,
+          "skipped": false
+        },
+        {
+          "name": "ChimeraPedalBoardTests",
+          "time": "4.50109",
+          "status": "run",
+          "failure": false,
+          "skipped": false
+        },
+        {
+          "name": "ChimeraIRCollectionTests",
+          "time": "1.04508",
+          "status": "run",
+          "failure": false,
+          "skipped": false
+        },
+        {
+          "name": "ChimeraIRLibraryTests",
+          "time": "0.718297",
+          "status": "run",
+          "failure": false,
+          "skipped": false
+        },
+        {
+          "name": "ChimeraCabPanelTests",
+          "time": "3.34723",
+          "status": "run",
+          "failure": false,
+          "skipped": false
+        },
+        {
+          "name": "ChimeraCabPanelStateTests",
+          "time": "111.76",
+          "status": "run",
+          "failure": false,
+          "skipped": false
+        },
+        {
+          "name": "ChimeraNewAmpTests",
+          "time": "15.3035",
+          "status": "run",
+          "failure": false,
+          "skipped": false
+        },
+        {
+          "name": "ChimeraPedalOctaverTests",
+          "time": "8.33975",
+          "status": "run",
+          "failure": false,
+          "skipped": false
+        },
+        {
+          "name": "ChimeraAmpNativeTests",
+          "time": "15.0952",
+          "status": "run",
+          "failure": false,
+          "skipped": false
+        },
+        {
+          "name": "ChimeraPostNativeTests",
+          "time": "2.67124",
+          "status": "run",
+          "failure": false,
+          "skipped": false
+        },
+        {
+          "name": "ChimeraGateProcessorTests",
+          "time": "13.8732",
+          "status": "run",
+          "failure": false,
+          "skipped": false
+        },
+        {
+          "name": "ChimeraGateTests",
+          "time": "0.404474",
+          "status": "run",
+          "failure": false,
+          "skipped": false
+        },
+        {
+          "name": "ChimeraIntegratedProcessorTests",
+          "time": "253.559",
+          "status": "run",
+          "failure": false,
+          "skipped": false
+        },
+        {
+          "name": "ChimeraPitchRegressionTests",
+          "time": "25.3684",
+          "status": "run",
+          "failure": false,
+          "skipped": false
+        },
+        {
+          "name": "ChimeraCabExpansionModelTests",
+          "time": "5.71501",
+          "status": "run",
+          "failure": false,
+          "skipped": false
+        },
+        {
+          "name": "ChimeraOriginalCabModelTests",
+          "time": "1.746",
+          "status": "run",
+          "failure": false,
+          "skipped": false
+        },
+        {
+          "name": "ChimeraCabTimingDiagnosticsTests",
+          "time": "0.0290571",
+          "status": "run",
+          "failure": false,
+          "skipped": false
+        },
+        {
+          "name": "ChimeraOriginalCabIntegrationTests",
+          "time": "7.92599",
+          "status": "run",
+          "failure": false,
+          "skipped": false
+        },
+        {
+          "name": "ChimeraOriginalCabRealtimeTests",
+          "time": "5.74124",
+          "status": "run",
+          "failure": false,
+          "skipped": false
+        },
+        {
+          "name": "ChimeraCabExpansionIntegrationTests",
+          "time": "8.41015",
+          "status": "run",
+          "failure": false,
+          "skipped": false
+        },
+        {
+          "name": "ChimeraCabExtendedTimingTests",
+          "time": "22.3399",
+          "status": "run",
+          "failure": false,
+          "skipped": false
+        },
+        {
+          "name": "ChimeraCabExpansionStateTests",
+          "time": "11.9912",
+          "status": "run",
+          "failure": false,
+          "skipped": false
+        },
+        {
+          "name": "ChimeraCabLayoutModelTests",
+          "time": "3.27141",
+          "status": "run",
+          "failure": false,
+          "skipped": false
+        },
+        {
+          "name": "ChimeraCabCameraFramingTests",
+          "time": "0.0102133",
+          "status": "run",
+          "failure": false,
+          "skipped": false
+        },
+        {
+          "name": "ChimeraCabLayoutIntegrationTests",
+          "time": "9.88019",
+          "status": "run",
+          "failure": false,
+          "skipped": false
+        },
+        {
+          "name": "ChimeraCabLayoutStateTests",
+          "time": "17.3815",
+          "status": "run",
+          "failure": false,
+          "skipped": false
+        },
+        {
+          "name": "ChimeraCabDriverVisualTests",
+          "time": "25.5738",
+          "status": "run",
+          "failure": false,
+          "skipped": false
+        },
+        {
+          "name": "ChimeraGraphicalEQTests",
+          "time": "35.1631",
+          "status": "run",
+          "failure": false,
+          "skipped": false
+        },
+        {
+          "name": "ChimeraGraphicalEQUITests",
+          "time": "125.891",
+          "status": "run",
+          "failure": false,
+          "skipped": false
+        },
+        {
+          "name": "ChimeraEQAnalyzerTests",
+          "time": "22.9054",
+          "status": "run",
+          "failure": false,
+          "skipped": false
+        },
+        {
+          "name": "ChimeraGraphicalEQEditingTests",
+          "time": "34.6261",
+          "status": "run",
+          "failure": false,
+          "skipped": false
+        },
+        {
+          "name": "ChimeraEQSnapshotFreezeTests",
+          "time": "4.18889",
+          "status": "run",
+          "failure": false,
+          "skipped": false
+        },
+        {
+          "name": "ChimeraEQAnalyzerPerformanceTests",
+          "time": "23.9118",
+          "status": "run",
+          "failure": false,
+          "skipped": false
+        },
+        {
+          "name": "ChimeraEQHighRateAttributionTests",
+          "time": "152.683",
+          "status": "run",
+          "failure": false,
+          "skipped": false
+        },
+        {
+          "name": "ChimeraAmpHeadControlTests",
+          "time": "188.91",
+          "status": "run",
+          "failure": false,
+          "skipped": false
+        }
+      ]
+    }
+  ]
+}

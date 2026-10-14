@@ -1,0 +1,40 @@
+{
+  "schema": "spectralforge.chimera.release-evidence",
+  "schema_version": 1,
+  "policy_version": 4,
+  "profile": "beta_1_3",
+  "revision": {
+    "commit_sha": "babfecda995141ef3001fc6f9c04c05409ff7ad6",
+    "run_id": "38599009356",
+    "run_attempt": "1"
+  },
+  "kind": "macos",
+  "outcomes": {
+    "ctest": "success",
+    "package": "success",
+    "installer": "skipped",
+    "msix": "skipped",
+    "scan": "skipped",
+    "assemble": "",
+    "source": "",
+    "upload": ""
+  },
+  "files": {
+    "ctest": {
+      "path": "raw/ctest-results.xml",
+      "sha256": "2997686dc93c1561a777519c6d739a868eeeeb9ec86f4f42a1023eb9602ed481"
+    },
+    "inventory": {
+      "path": "raw/ctest-inventory.json",
+      "sha256": "90dd8260abe8222254d35cbf0e78b9ec840bf24845c8c2a130041adcc0cf5188"
+    },
+    "dsp_log": {
+      "path": "raw/LastTest.log",
+      "sha256": "42e8b735a0d1e759f34be15c1ac57ee6c91feec84614e866777f935585e577af"
+    },
+    "macos_package": {
+      "path": "raw/macOS-package-verification.txt",
+      "sha256": "721f7a7bf98e16be3f7f9772416f54f71dc9657476fea84d5b2fb6e9ee217400"
+    }
+  }
+}

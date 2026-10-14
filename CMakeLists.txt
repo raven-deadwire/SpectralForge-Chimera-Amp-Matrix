@@ -434,7 +434,7 @@ add_test(NAME ChimeraCabDriverVisualTests COMMAND ChimeraCabPanelStateTests --vi
 set_tests_properties(ChimeraCabDriverVisualTests PROPERTIES TIMEOUT 1800)
 
 # EQ editor/analysis prototypes are isolated from release publishing and dynamics.
-foreach(eqtest GraphicalEQ GraphicalEQUI EQAnalyzer)
+foreach(eqtest GraphicalEQ GraphicalEQUI EQAnalyzer GraphicalEQEditing EQSnapshotFreeze)
   juce_add_console_app(Chimera${eqtest}Tests PRODUCT_NAME "Chimera ${eqtest} Tests")
   target_sources(Chimera${eqtest}Tests PRIVATE Tests/${eqtest}Tests.cpp)
   target_include_directories(Chimera${eqtest}Tests PRIVATE Source)
@@ -444,6 +444,9 @@ endforeach()
 add_test(NAME ChimeraGraphicalEQTests COMMAND ChimeraGraphicalEQTests "${CMAKE_BINARY_DIR}/eq-cpu.csv")
 add_test(NAME ChimeraGraphicalEQUITests COMMAND ChimeraGraphicalEQUITests "${CMAKE_BINARY_DIR}")
 add_test(NAME ChimeraEQAnalyzerTests COMMAND ChimeraEQAnalyzerTests "${CMAKE_BINARY_DIR}")
+add_test(NAME ChimeraGraphicalEQEditingTests COMMAND ChimeraGraphicalEQEditingTests)
+add_test(NAME ChimeraEQSnapshotFreezeTests COMMAND ChimeraEQSnapshotFreezeTests)
+set_tests_properties(ChimeraGraphicalEQEditingTests ChimeraEQSnapshotFreezeTests PROPERTIES TIMEOUT 180 RUN_SERIAL TRUE)
 set_tests_properties(ChimeraGraphicalEQTests ChimeraGraphicalEQUITests ChimeraEQAnalyzerTests PROPERTIES TIMEOUT 180 RUN_SERIAL TRUE)
 # Six 10-second native high-rate observations replace the former single 2.6 s
 # probe. Accommodate the added measured duration without changing assertions.

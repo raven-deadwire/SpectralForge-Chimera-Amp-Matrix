@@ -99,7 +99,7 @@ def inspect_retained_inputs() -> dict:
 def main() -> None:
     build = Path(sys.argv[1]).resolve()
     build.mkdir(parents=True, exist_ok=True)
-    patterns = ("Source/*.h", "Source/*.cpp", "Tests/*EQ*.cpp", "Tests/EQAttributionDiagnostics.h", "Tests/NativeMessageLoop.*",
+    patterns = ("Source/*.h", "Source/*.cpp", "Tests/*EQ*.cpp", "Tests/EQAttributionDiagnostics.h", "Tests/EQPendingInputTests.h", "Tests/NativeMessageLoop.*",
                 "Tests/reference/EQSpectrumAnalyzerBeb72f.h", "CMakeLists.txt", ".gitattributes",
                 ".github/workflows/graphical-eq.yml", "Tools/eq_attribution_provenance.py")
     files = sorted({p for pattern in patterns for p in ROOT.glob(pattern) if p.is_file()})

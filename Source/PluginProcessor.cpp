@@ -104,6 +104,7 @@ bool ChimeraProcessor::isBusesLayoutSupported(const BusesLayout& buses) const
 }
 void ChimeraProcessor::processBlock(juce::AudioBuffer<float>& buffer,juce::MidiBuffer& midi)
 {
+    spectralforge::EQCaptureBoundary::CallbackScope eqCaptureScope(eqCaptureBoundaryState);
     const auto started=juce::Time::getHighResolutionTicks();
     juce::ScopedNoDenormals noDenormals;
     for(const auto metadata:midi) {
@@ -344,6 +345,7 @@ juce::ValueTree ChimeraProcessor::captureCore()
     auto saved=state.copyState();
     saved.removeChild(saved.getChildWithName("USER_IRS"),nullptr);
     saved.removeChild(saved.getChildWithName("COMPARISONS"),nullptr);
+    eqEditState.saveMetadata(saved);
     saved.appendChild(library.save(),nullptr); saved.setProperty("schemaVersion",10,nullptr);
     return saved;
 }
@@ -370,6 +372,7 @@ void ChimeraProcessor::restoreCore(juce::ValueTree restored)
 {
     ++headRecallRevision;
     if(!restored.isValid() || !restored.hasType("PARAMS")) return;
+    spectralforge::EQEditState::RestoreScope eqRestore(eqEditState,restored);
     boardUndo.clear();boardRedo.clear();midiLearn.store(-1);
     const bool missingNative=!restored.getChildWithProperty("id",spectralforge::ampNativeModelID(0)).isValid();
     const bool missingPost=!restored.getChildWithProperty("id",spectralforge::postNativeModelID(0)).isValid();
@@ -429,6 +432,7 @@ void ChimeraProcessor::selectComparison(int slot)
 }
 void ChimeraProcessor::copyComparison()
 {
+    eqEditState.barrier();
     auto current=captureCore();std::lock_guard<std::mutex> lock(comparisonMutex);
     comparisons[(size_t)(1-selectedComparison.load())]=current.createCopy();
 }
@@ -454,6 +458,7 @@ void ChimeraProcessor::loadFactoryPreset(int index) {
             : spectralforge::isGuitarSignature(index)
             ? spectralforge::guitarSignatureSnapshot(state,index-spectralforge::factoryPresetCount)
             : spectralforge::factoryNativeSnapshot(state,index);
+        spectralforge::EQEditState::RestoreScope eqRestore(eqEditState,snapshot,true);
         state.replaceState(snapshot);
         // Canonicalize host values as well as APVTS values. Bool/choice adapters
         // may already cache the snapped value of a noncanonical host write and

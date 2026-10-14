@@ -1,0 +1,15 @@
+{
+  "archive_sha256": "be12160be0a0b37203c5b5619068344ef2d877932c25a7ce1e510fb01ce502bb",
+  "archive_bytes": 50459,
+  "run_id": 38599009356,
+  "artifact_id": 11917067255,
+  "files": [
+    {
+      "zip_member": "LastTest.log",
+      "saved_file": "final-full-linux-dsp-LastTest.log",
+      "sha256": "0ca055bae9701c72c670d82c1054de94214fc8d7be91d2f45ceb51b593f74c65"
+    }
+  ],
+  "test_suites": [],
+  "workflow_head_sha": "babfecda995141ef3001fc6f9c04c05409ff7ad6"
+}

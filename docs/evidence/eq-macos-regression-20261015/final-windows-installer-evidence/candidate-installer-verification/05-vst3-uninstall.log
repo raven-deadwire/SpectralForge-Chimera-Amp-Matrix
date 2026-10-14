@@ -1,0 +1,92 @@
+﻿2026-10-14 17:56:56.022   Log opened. (Time zone: UTC+00:00)
+2026-10-14 17:56:56.022   Setup version: Inno Setup version 6.7.1
+2026-10-14 17:56:56.022   Original Uninstall EXE: D:\a\_temp\Chimera 설치 검증\Uninstall\unins000.exe
+2026-10-14 17:56:56.022   Uninstall DAT: D:\a\_temp\Chimera 설치 검증\Uninstall\unins000.dat
+2026-10-14 17:56:56.022   Current Uninstall EXE: C:\Users\RUNNER~1\AppData\Local\Temp\is-2HQYXL8DVT-uninstall.tmp\_unins.tmp
+2026-10-14 17:56:56.022   Uninstall command line: /SECONDPHASE="D:\a\_temp\Chimera 설치 검증\Uninstall\unins000.exe" /FIRSTPHASEWND=$130066 /VERYSILENT /SUPPRESSMSGBOXES /NORESTART /LOG="D:\a\SpectralForge-Chimera-Amp-Matrix\SpectralForge-Chimera-Amp-Matrix\build\candidate-installer-verification/05-vst3-uninstall.log"
+2026-10-14 17:56:56.023   Windows version: 10.0.26100
+2026-10-14 17:56:56.023   Windows architecture: x64 (64-bit)
+2026-10-14 17:56:56.023   Machine types supported by system: x86 x64
+2026-10-14 17:56:56.023   User privileges: Administrative
+2026-10-14 17:56:56.023   Administrative install mode: Yes
+2026-10-14 17:56:56.023   Install mode root key: HKEY_LOCAL_MACHINE
+2026-10-14 17:56:56.023   RedirectionGuard status for current process: Enabled in enforcing mode
+2026-10-14 17:56:56.023   Cleaning up any residual temporary files from previous Uninstall runs.
+2026-10-14 17:56:56.024   Deleted file: C:\Users\RUNNER~1\AppData\Local\Temp\is-7FCNJ6DR75-uninstall.tmp\_unins.tmp
+2026-10-14 17:56:56.024   Cleanup finished (2 directories found, 2 directories checked, 1 files deleted).
+2026-10-14 17:56:56.026   Created protected temporary directory: C:\Users\RUNNER~1\AppData\Local\Temp\is-Y6YWXRPG6W.tmp
+2026-10-14 17:56:56.045   Starting the uninstallation process.
+2026-10-14 17:56:56.045   Deleting registry key: HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\Uninstall\SpectralForge.ChimeraAmpMatrix_is1
+2026-10-14 17:56:56.113   Deleting file: C:\ProgramData\Microsoft\Windows\Start Menu\Programs\SpectralForge\SpectralForge Chimera\SpectralForge Chimera 제거.lnk
+2026-10-14 17:56:56.116   Deleting directory: C:\ProgramData\Microsoft\Windows\Start Menu\Programs\SpectralForge\SpectralForge Chimera
+2026-10-14 17:56:56.116   Failed to delete directory (145). Will retry later.
+2026-10-14 17:56:56.128   Deleting file: C:\ProgramData\Microsoft\Windows\Start Menu\Programs\SpectralForge\SpectralForge Chimera\설치 안내.lnk
+2026-10-14 17:56:56.129   Deleting directory: C:\ProgramData\Microsoft\Windows\Start Menu\Programs\SpectralForge\SpectralForge Chimera
+2026-10-14 17:56:56.129   Failed to delete directory (145). Will retry later.
+2026-10-14 17:56:56.142   Deleting file: C:\ProgramData\Microsoft\Windows\Start Menu\Programs\SpectralForge\SpectralForge Chimera\Manual.lnk
+2026-10-14 17:56:56.143   Deleting directory: C:\ProgramData\Microsoft\Windows\Start Menu\Programs\SpectralForge\SpectralForge Chimera
+2026-10-14 17:56:56.144   Deleting file: D:\a\_temp\Chimera 설치 검증\Documentation\WINDOWS_SIGNING.md
+2026-10-14 17:56:56.144   Deleting file: D:\a\_temp\Chimera 설치 검증\Documentation\VALIDATION_STATUS.md
+2026-10-14 17:56:56.144   Deleting file: D:\a\_temp\Chimera 설치 검증\Documentation\UPDATE_TEST_BUILD.md
+2026-10-14 17:56:56.144   Deleting file: D:\a\_temp\Chimera 설치 검증\Documentation\UPDATES.md
+2026-10-14 17:56:56.145   Deleting file: D:\a\_temp\Chimera 설치 검증\Documentation\THIRD_PARTY_NOTICES.md
+2026-10-14 17:56:56.145   Deleting file: D:\a\_temp\Chimera 설치 검증\Documentation\STUDIO_ONE_TEARDOWN.md
+2026-10-14 17:56:56.146   Deleting file: D:\a\_temp\Chimera 설치 검증\Documentation\PRESETS.md
+2026-10-14 17:56:56.146   Deleting file: D:\a\_temp\Chimera 설치 검증\Documentation\POST_NATIVE_DSP.md
+2026-10-14 17:56:56.146   Deleting file: D:\a\_temp\Chimera 설치 검증\Documentation\PEDAL_BOARD_DSP.md
+2026-10-14 17:56:56.146   Deleting file: D:\a\_temp\Chimera 설치 검증\Documentation\OPEN_BETA_RELEASE_NOTES.md
+2026-10-14 17:56:56.146   Deleting file: D:\a\_temp\Chimera 설치 검증\Documentation\NEW_AMP_DSP.md
+2026-10-14 17:56:56.146   Deleting file: D:\a\_temp\Chimera 설치 검증\Documentation\IR_DISTRIBUTION.md
+2026-10-14 17:56:56.147   Deleting file: D:\a\_temp\Chimera 설치 검증\Documentation\INSTALLATION.md
+2026-10-14 17:56:56.147   Deleting file: D:\a\_temp\Chimera 설치 검증\Documentation\GRAPHICS_DSP_UPDATE.md
+2026-10-14 17:56:56.147   Deleting file: D:\a\_temp\Chimera 설치 검증\Documentation\FACTORY_CAB_VOICING_1_3.md
+2026-10-14 17:56:56.147   Deleting file: D:\a\_temp\Chimera 설치 검증\Documentation\EXTERNAL_BASS_IRS.md
+2026-10-14 17:56:56.147   Deleting file: D:\a\_temp\Chimera 설치 검증\Documentation\AMP_VOICES_OPEN_BETA.md
+2026-10-14 17:56:56.147   Deleting file: D:\a\_temp\Chimera 설치 검증\Documentation\AMP_VALIDATION.md
+2026-10-14 17:56:56.148   Deleting file: D:\a\_temp\Chimera 설치 검증\Documentation\AMP_NATIVE_DSP.md
+2026-10-14 17:56:56.148   Deleting file: D:\a\_temp\Chimera 설치 검증\Documentation\payload-manifest.json
+2026-10-14 17:56:56.148   Deleting file: D:\a\_temp\Chimera 설치 검증\Documentation\MANUAL.html
+2026-10-14 17:56:56.148   Deleting file: D:\a\_temp\Chimera 설치 검증\Documentation\ARTWORK_PROMPTS.json
+2026-10-14 17:56:56.148   Deleting file: D:\a\_temp\Chimera 설치 검증\WINDOWS_INSTALL.txt
+2026-10-14 17:56:56.149   Deleting file: D:\a\_temp\Chimera 설치 검증\Verification.txt
+2026-10-14 17:56:56.149   Deleting file: D:\a\_temp\Chimera 설치 검증\README.txt
+2026-10-14 17:56:56.149   Deleting file: D:\a\_temp\Chimera 설치 검증\COPYRIGHT.txt
+2026-10-14 17:56:56.149   Deleting file: D:\a\_temp\Chimera VST3 이동 검증\SpectralForge Chimera.vst3\Contents\x86_64-win\SpectralForge Chimera.vst3
+2026-10-14 17:56:56.165   Deleting directory: D:\a\_temp\Chimera VST3 이동 검증\SpectralForge Chimera.vst3\Contents\x86_64-win
+2026-10-14 17:56:56.165   Deleting file: D:\a\_temp\Chimera VST3 이동 검증\SpectralForge Chimera.vst3\Contents\Resources\moduleinfo.json
+2026-10-14 17:56:56.165   Deleting directory: D:\a\_temp\Chimera VST3 이동 검증\SpectralForge Chimera.vst3\Contents\Resources
+2026-10-14 17:56:56.165   Deleting directory: D:\a\_temp\Chimera VST3 이동 검증\SpectralForge Chimera.vst3\Contents
+2026-10-14 17:56:56.166   Deleting file: D:\a\_temp\Chimera VST3 이동 검증\SpectralForge Chimera.vst3\Plugin.ico
+2026-10-14 17:56:56.166   Deleting file: D:\a\_temp\Chimera VST3 이동 검증\SpectralForge Chimera.vst3\desktop.ini
+2026-10-14 17:56:56.166   Deleting directory: D:\a\_temp\Chimera VST3 이동 검증\SpectralForge Chimera.vst3
+2026-10-14 17:56:56.166   Deleting directory: D:\a\_temp\Chimera VST3 이동 검증
+2026-10-14 17:56:56.166   Deleting registry key: HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\Uninstall\SpectralForge.ChimeraAmpMatrix_is1
+2026-10-14 17:56:56.175   Deleting file: D:\a\_temp\Chimera VST3 설치 검증\SpectralForge Chimera.vst3\Contents\Resources\moduleinfo.json
+2026-10-14 17:56:56.175   Deleting file: D:\a\_temp\Chimera VST3 설치 검증\SpectralForge Chimera.vst3\Plugin.ico
+2026-10-14 17:56:56.176   Deleting file: D:\a\_temp\Chimera VST3 설치 검증\SpectralForge Chimera.vst3\desktop.ini
+2026-10-14 17:56:56.176   Deleting registry key: HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\Uninstall\SpectralForge.ChimeraAmpMatrix_is1
+2026-10-14 17:56:56.183   Deleting directory: C:\ProgramData\Microsoft\Windows\Start Menu\Programs\SpectralForge
+2026-10-14 17:56:56.184   Deleting directory: D:\a\_temp\Chimera 설치 검증\Documentation
+2026-10-14 17:56:56.184   Deleting directory: D:\a\_temp\Chimera VST3 설치 검증\SpectralForge Chimera.vst3\Contents\x86_64-win
+2026-10-14 17:56:56.184   Deleting directory: D:\a\_temp\Chimera VST3 설치 검증\SpectralForge Chimera.vst3\Contents\Resources
+2026-10-14 17:56:56.184   Deleting directory: D:\a\_temp\Chimera VST3 설치 검증\SpectralForge Chimera.vst3\Contents
+2026-10-14 17:56:56.184   Deleting directory: D:\a\_temp\Chimera VST3 설치 검증\SpectralForge Chimera.vst3
+2026-10-14 17:56:56.184   Failed to delete directory (145). Will retry later.
+2026-10-14 17:56:56.184   Deleting directory: D:\a\_temp\Chimera VST3 설치 검증
+2026-10-14 17:56:56.184   Failed to delete directory (145). Will retry later.
+2026-10-14 17:56:56.184   Deleting directory: D:\a\_temp\Chimera 설치 검증\Uninstall
+2026-10-14 17:56:56.184   Failed to delete directory (145). Will retry later.
+2026-10-14 17:56:56.184   Deleting directory: D:\a\_temp\Chimera 설치 검증
+2026-10-14 17:56:56.184   Failed to delete directory (145). Will retry later.
+2026-10-14 17:56:56.185   Deleting Uninstall data files.
+2026-10-14 17:56:56.185   Creating "_unins-done.tmp" file.
+2026-10-14 17:56:56.694   Deleting directory: D:\a\_temp\Chimera VST3 설치 검증\SpectralForge Chimera.vst3
+2026-10-14 17:56:56.694   Failed to delete directory (145).
+2026-10-14 17:56:56.694   Deleting directory: D:\a\_temp\Chimera VST3 설치 검증
+2026-10-14 17:56:56.694   Failed to delete directory (145).
+2026-10-14 17:56:56.694   Deleting directory: D:\a\_temp\Chimera 설치 검증\Uninstall
+2026-10-14 17:56:56.694   Deleting directory: D:\a\_temp\Chimera 설치 검증
+2026-10-14 17:56:56.698   Uninstallation process succeeded.
+2026-10-14 17:56:56.698   Removed all? Yes
+2026-10-14 17:56:56.698   Need to restart Windows? No
+2026-10-14 17:56:56.700   Log closed.

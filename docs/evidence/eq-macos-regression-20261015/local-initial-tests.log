@@ -1,0 +1,67 @@
+Start testing: Oct 15 01:24 JST
+----------------------------------------------------------
+10/50 Testing: ChimeraNativeStateTests
+10/50 Test: ChimeraNativeStateTests
+Command: "/workspace/scratch/c33a51548129/chimera/build-fma/ChimeraUITests_artefacts/Release/ChimeraUITests" "--native-state-only" "/workspace/scratch/c33a51548129/chimera/build-fma/native-state"
+Directory: /workspace/scratch/c33a51548129/chimera/build-fma
+"ChimeraNativeStateTests" start time: Oct 15 01:24 JST
+Output:
+----------------------------------------------------------
+Native B canonical POST value=6.999999523 (requested 7)
+PASS: six native amp contexts, all native banks, POST nine models, binary/A-B recall and immediate pedal bank recall
+<end of output>
+Test time =   5.65 sec
+----------------------------------------------------------
+Test Passed.
+"ChimeraNativeStateTests" end time: Oct 15 01:24 JST
+"ChimeraNativeStateTests" time elapsed: 00:00:05
+----------------------------------------------------------
+
+44/50 Testing: ChimeraGraphicalEQUITests
+44/50 Test: ChimeraGraphicalEQUITests
+Command: "/workspace/scratch/c33a51548129/chimera/build-fma/ChimeraGraphicalEQUITests_artefacts/Release/ChimeraGraphicalEQUITests" "/workspace/scratch/c33a51548129/chimera/build-fma"
+Directory: /workspace/scratch/c33a51548129/chimera/build-fma
+"ChimeraGraphicalEQUITests" start time: Oct 15 01:24 JST
+Output:
+----------------------------------------------------------
+PARAMETER_ROUNDTRIP toneEQ_b1_frequency requested=1000 expected=1000 actual=1000 literal_equal=1 canonical_bits_equal=1
+PARAMETER_ROUNDTRIP toneEQ_b1_gain requested=0 expected=-5.36441803e-07 actual=-5.36441803e-07 literal_equal=0 canonical_bits_equal=1
+PARAMETER_ROUNDTRIP toneEQ_b1_q requested=0.707106769 expected=0.707000017 actual=0.706999958 literal_equal=0 canonical_bits_equal=0
+FAIL Parameter failed exact canonical roundtrip: toneEQ_b1_q
+<end of output>
+Test time =   2.69 sec
+----------------------------------------------------------
+Test Failed.
+"ChimeraGraphicalEQUITests" end time: Oct 15 01:24 JST
+"ChimeraGraphicalEQUITests" time elapsed: 00:00:02
+----------------------------------------------------------
+
+46/50 Testing: ChimeraGraphicalEQEditingTests
+46/50 Test: ChimeraGraphicalEQEditingTests
+Command: "/workspace/scratch/c33a51548129/chimera/build-fma/ChimeraGraphicalEQEditingTests_artefacts/Release/ChimeraGraphicalEQEditingTests"
+Directory: /workspace/scratch/c33a51548129/chimera/build-fma
+"ChimeraGraphicalEQEditingTests" start time: Oct 15 01:24 JST
+Output:
+----------------------------------------------------------
+PASS 4,967 unique host IDs / all 122 EQ ordinals, names, version hints, ranges, defaults, steps and choices
+PASS occupied/bypassed/deleted distinction / first-vacancy reuse / 12-slot cap / independent banks / preserved bypass
+PASS synchronous slot reuse order: tuning-before-enable / Undo disable-first / Redo enable-last bank=0
+PASS synchronous slot reuse order: tuning-before-enable / Undo disable-first / Redo enable-last bank=1
+PASS one-step graph/numeric/create/delete Undo/Redo / redo survives no-op / balanced host gestures
+PARAMETER_ROUNDTRIP output requested=-9 expected=-9.00000095 actual=-9.00000095 literal_equal=0 canonical_bits_equal=1
+UNDO_ISOLATION undone=1 output_before=-9.00000095 output_after=-9.00000095 epoch_before=1 epoch_after=1
+PASS host automation ownership / canceled active gestures / no external values in history / unrelated audio parameters preserved
+PASS binary project / independent global A-B slot occupancy / save preserves session history / recall clears history
+PASS P0/pre-EQ migration / disabled tuning preservation / malformed metadata fallback / no hidden enabled band after recall
+PASS all 48 factory occupancy/history resets / bounded 64-operation session history
+PASS audible delete settles exact dry / tuning automation stays hidden / host enable reoccupies / four-rate exact EQ transfer
+PASS October 23 EQ editing backend regression contract
+<end of output>
+Test time =  28.47 sec
+----------------------------------------------------------
+Test Passed.
+"ChimeraGraphicalEQEditingTests" end time: Oct 15 01:24 JST
+"ChimeraGraphicalEQEditingTests" time elapsed: 00:00:28
+----------------------------------------------------------
+
+End testing: Oct 15 01:24 JST

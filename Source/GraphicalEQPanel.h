@@ -1,6 +1,8 @@
 #pragma once
 #include "GraphicalEQ.h"
 #include "EQSpectrumAnalyzer.h"
+#include "EQEditState.h"
+#include "EQCaptureBoundary.h"
 #include <juce_audio_utils/juce_audio_utils.h>
 
 namespace spectralforge {
@@ -8,18 +10,35 @@ namespace spectralforge {
 // released APVTS attachments/IDs, gestures and parameter meanings.
 class GraphicalEQPanel : public juce::Component, private juce::Timer {
 public:
-    GraphicalEQPanel(juce::AudioProcessorValueTreeState& s,GraphicalEQ& d,int e)
-        :state(s),dsp(d),instance(e) {
-        setOpaque(true);setComponentID(e==0?"toneEQ_panel":"finalEQ_panel");
+    GraphicalEQPanel(juce::AudioProcessorValueTreeState& s,GraphicalEQ& d,int e,EQEditState& edits,EQCaptureBoundary& boundary)
+        :state(s),dsp(d),editing(edits),captureBoundary(boundary),instance(e) {
+        setOpaque(true);setWantsKeyboardFocus(true);setComponentID(e==0?"toneEQ_panel":"finalEQ_panel");
+        lastExternalRevision=editing.externalRevision();
+        pendingCaptureRequest=captureBoundary.latestRequest();
         bypass.setButtonText("BYPASS EQ");bypass.setClickingTogglesState(true);
         bypass.setComponentID(eqID(e,-1,"bypass"));addAndMakeVisible(bypass);
-        bypassAttachment=std::make_unique<BA>(state,eqID(e,-1,"bypass"),bypass);
+        bypassAttachment=std::make_unique<PA>(*state.getParameter(eqID(e,-1,"bypass")),[this](float v){bypass.setToggleState(v>.5f,juce::dontSendNotification);});
+        bypassAttachment->sendInitialUpdate();
+        bypass.onClick=[this]{discreteEdit(-1,"bypass",bypass.getToggleState()?1.f:0.f,"EQ bypass");};
         const auto displayButton=[this,e](juce::TextButton& button,const char* text,const char* id) {
             button.setButtonText(text);button.setToggleState(true,juce::dontSendNotification);
             button.setClickingTogglesState(true);button.setComponentID(eqID(e,-1,id));addAndMakeVisible(button);
         };
         displayButton(analyzerToggle,"LIVE","analyzer");
         displayButton(inputToggle,"IN","inputSpectrum");displayButton(outputToggle,"OUT","outputSpectrum");
+        freezeToggle.setButtonText("FREEZE");freezeToggle.setClickingTogglesState(true);
+        freezeToggle.setComponentID(eqID(e,-1,"freeze"));freezeToggle.setEnabled(false);addAndMakeVisible(freezeToggle);
+        freezeToggle.setTooltip("Keep the last complete spectrum. Release to wait for a new full analysis window. Audio continues unchanged.");
+        freezeToggle.onClick=[this]{setSnapshotFrozen(freezeToggle.getToggleState());};
+        const auto editButton=[this,e](juce::TextButton& button,const char* title,const char* id) {
+            button.setButtonText(title);button.setComponentID(eqID(e,-1,id));addAndMakeVisible(button);
+        };
+        editButton(addButton,"+ BAND","addBand");editButton(deleteButton,"DELETE","deleteBand");
+        editButton(undoButton,"UNDO","undo");editButton(redoButton,"REDO","redo");
+        addButton.setTooltip("Add a Bell band at 1 kHz, or double-click the graph at the frequency and gain you need.");
+        deleteButton.setTooltip("Remove this band. BAND ON keeps a bypassed band available for editing.");
+        addButton.onClick=[this]{createBand(1000.f,0.f);};deleteButton.onClick=[this]{deleteSelectedBand();};
+        undoButton.onClick=[this]{applyHistory(false);};redoButton.onClick=[this]{applyHistory(true);};
         analyzerToggle.setTooltip("Run the selected EQ's live spectrum analyzer. Analysis does not change the sound.");
         inputToggle.setTooltip("Show the dashed input spectrum of this EQ, averaged by stereo power.");
         outputToggle.setTooltip(e==0?"Show the solid output spectrum of Tone EQ, before POST."
@@ -31,6 +50,7 @@ public:
         resolution.addItem("Fast / 2048",1);resolution.addItem("Normal / 4096",2);resolution.addItem("Detailed / 8192",3);
         resolution.setSelectedId(2,juce::dontSendNotification);addAndMakeVisible(resolution);
         resolution.onChange=[this] {
+            if(spectrum.isFrozen()){resolution.setSelectedId(spectrum.fftSize()==2048?1:spectrum.fftSize()==8192?3:2,juce::dontSendNotification);return;}
             spectrum.setFFTSize(1 << (resolution.getSelectedId()+10));spectrum.reset(dsp.analyzer);
             clearSpectrumPaths();updateResolutionTooltip();repaint();
         };
@@ -38,29 +58,69 @@ public:
         smoothing.addItem("Fast",1);smoothing.addItem("Balanced",2);smoothing.addItem("Smooth",3);
         smoothing.setSelectedId(2,juce::dontSendNotification);addAndMakeVisible(smoothing);
         smoothing.setTooltip("Analyzer attack/release only. Time-based smoothing leaves the EQ response and audio unchanged.");
-        smoothing.onChange=[this]{spectrum.setSmoothing(smoothing.getSelectedId()-1);};
-        for(int b=0;b<graphicalEQBands;++b)selector.addItem("Band "+juce::String(b+1),b+1);
-        selector.setComponentID(eqID(e,-1,"band"));selector.setSelectedId(1);
+        smoothing.onChange=[this]{
+            if(spectrum.isFrozen()){smoothing.setSelectedId(spectrum.smoothingMode()+1,juce::dontSendNotification);return;}
+            spectrum.setSmoothing(smoothing.getSelectedId()-1);
+        };
+        selector.setComponentID(eqID(e,-1,"band"));selector.setTextWhenNothingSelected("No bands");
         selector.onChange=[this]{selectBand(selector.getSelectedId()-1);};addAndMakeVisible(selector);
         enabled.setButtonText("BAND ON");enabled.setClickingTogglesState(true);addAndMakeVisible(enabled);
+        enabled.onClick=[this]{if(selected>=0)discreteEdit(selected,"enabled",enabled.getToggleState()?1.f:0.f,"Band enable");};
         type.addItemList(eqFilterNames(),1);
-        type.onChange=[this]{sliders[1].setEnabled(gainApplicable());rebuildResponse();repaint();};addAndMakeVisible(type);
+        type.onChange=[this]{if(selected>=0)discreteEdit(selected,"type",float(type.getSelectedId()-1),"Filter type");updateBandEnablement();};addAndMakeVisible(type);
         for(size_t i=0;i<sliders.size();++i) {
             auto& slider=sliders[i];slider.setSliderStyle(juce::Slider::LinearHorizontal);
             slider.setTextBoxStyle(juce::Slider::TextBoxRight,false,i==0?108:94,26);
             slider.setName(i==0?"Frequency Hz":i==1?"Gain dB":"Q factor");slider.setWantsKeyboardFocus(true);
             slider.textFromValueFunction=[i](double v){return juce::String(v,i==0?1:2)+(i==0?" Hz":i==1?" dB":" Q");};
             slider.valueFromTextFunction=[](const juce::String& t){return t.getDoubleValue();};addAndMakeVisible(slider);
+            slider.onDragStart=[this,i]{
+                endDrag();sliderGestureRejected=cancelExternalInput();
+                if(sliderGestureRejected || selected<0)return;
+                sliderEditing=editing.beginEdit(instance,juce::String("Band ")+juce::String(selected+1)+" "+editFields[i]);
+                if(sliderEditing)editing.touchField(instance,selected,editFields[i]);
+            };
+            slider.onValueChange=[this,i]{
+                if(refreshingControls || selected<0)return;
+                if(sliderGestureRejected){syncDisplayedValues();return;}
+                if(sliderEditing) {
+                    if(!editing.setValue(instance,selected,editFields[i],float(sliders[i].getValue())))syncDisplayedValues();
+                }
+                else discreteEdit(selected,editFields[i],float(sliders[i].getValue()),"Band value");
+                rebuildResponse();updateHistoryControls();repaint();
+            };
+            slider.onDragEnd=[this]{if(sliderEditing){editing.endEdit();sliderEditing=false;refreshEditingState();}sliderGestureRejected=false;};
         }
-        selectBand(0);updateResolutionTooltip();startTimerHz(25);
+        refreshEditingState();updateResolutionTooltip();startTimerHz(25);
     }
     ~GraphicalEQPanel() override {stopTimer();endDrag();dsp.analyzer.enabled.store(false);}
-    void visibilityChanged() override {if(!isShowing())endDrag();updateAnalyzer();}
+    void visibilityChanged() override {if(!isShowing()){discardPendingNumericInput();endDrag();}updateAnalyzer();}
     void parentHierarchyChanged() override {updateAnalyzer();}
     int selectedBand() const noexcept {return selected;}
     void setNavigationSelected(bool chosen) {if(navigationSelected!=chosen){navigationSelected=chosen;repaint();}}
     bool isNavigationSelected() const noexcept {return navigationSelected;}
-    void focusForNavigation() {if(isShowing())sliders[0].grabKeyboardFocus();}
+    void focusForNavigation() {if(isShowing()){if(selected>=0)sliders[0].grabKeyboardFocus();else grabKeyboardFocus();}}
+    std::function<void(int)> onHistoryBankSelected;
+    bool isBandVisible(int band) const noexcept {return editing.isOccupied(instance,band);}
+    bool isSnapshotFrozen() const noexcept {return spectrum.isFrozen();}
+    bool isWaitingForFreshCapture() const noexcept {return pendingCaptureRequest!=0;}
+    void setSnapshotFrozen(bool frozen) {
+        if(frozen==spectrum.isFrozen())return;
+        if(frozen){liveResolutionChoice=resolution.getSelectedId();liveSmoothingChoice=smoothing.getSelectedId();}
+        dsp.analyzer.enabled.store(false);analyzerActive=false;
+        // A callback that was already running can still publish after a FIFO
+        // flush. Keep capture off until a later callback has observed this
+        // request and completed, then flush again before accepting fresh input.
+        pendingCaptureRequest=frozen?0:captureBoundary.requestDrain();
+        spectrum.setFrozen(frozen,dsp.analyzer);
+        freezeToggle.setEnabled(spectrum.isFrozen() || spectrum.canFreezeSnapshot());
+        freezeToggle.setToggleState(spectrum.isFrozen(),juce::dontSendNotification);
+        freezeToggle.setButtonText(spectrum.isFrozen()?"FROZEN":"FREEZE");
+        resolution.setSelectedId(frozen?(spectrum.fftSize()==2048?1:spectrum.fftSize()==8192?3:2):liveResolutionChoice,juce::dontSendNotification);
+        smoothing.setSelectedId(frozen?spectrum.smoothingMode()+1:liveSmoothingChoice,juce::dontSendNotification);
+        resolution.setEnabled(!frozen);smoothing.setEnabled(!frozen);analyzerToggle.setEnabled(!frozen);
+        rebuildSpectrumPaths();updateAnalyzer();updateResolutionTooltip();repaint();
+    }
     uint64_t fftFrames() const noexcept {return spectrum.frames();}
     double lastFFTTimeMicros() const noexcept {return spectrum.fftMicros();}
     float spectrumDB(bool output,int bin) const noexcept {return spectrum.rawDB(output,bin);}
@@ -95,9 +155,12 @@ public:
     }
     void resized() override {
         // Logical workspace scales with the existing 75-150% editor canvas.
-        analyzerToggle.setBounds(350,22,76,28);inputToggle.setBounds(440,22,60,28);outputToggle.setBounds(510,22,64,28);
+        analyzerToggle.setBounds(286,22,60,28);inputToggle.setBounds(354,22,46,28);outputToggle.setBounds(408,22,48,28);
+        freezeToggle.setBounds(465,22,109,28);
         resolution.setBounds(592,22,172,28);smoothing.setBounds(780,22,156,28);
         bypass.setBounds(getWidth()-174,22,156,28);
+        addButton.setBounds(56,68,88,27);deleteButton.setBounds(154,68,88,27);
+        undoButton.setBounds(264,68,76,27);redoButton.setBounds(350,68,76,27);
         const int y=getHeight()-45;
         selector.setBounds(16,y,106,28);enabled.setBounds(132,y,96,28);type.setBounds(240,y,174,28);
         sliders[0].setBounds(434,y-3,240,34);sliders[1].setBounds(694,y-3,198,34);sliders[2].setBounds(912,y-3,getWidth()-930,34);
@@ -116,15 +179,20 @@ public:
         g.fillRect(0,0,getWidth(),62);
         g.setColour(navigationSelected?eq.withAlpha(.65f):grid);g.fillRect(0,0,getWidth(),2);
         g.setColour(text);g.setFont(juce::FontOptions(19.f,juce::Font::bold));
-        g.drawText(instance==0?"TONE EQ":"FINAL EQ",18,9,310,26,juce::Justification::centredLeft);
+        g.drawText(instance==0?"TONE EQ":"FINAL EQ",18,9,252,26,juce::Justification::centredLeft);
         g.setColour(muted);g.setFont(juce::FontOptions(12.5f));
-        g.drawText(instance==0?"Before POST":"After width / before output trim",18,36,312,17,juce::Justification::centredLeft);
+        g.drawText(instance==0?"Before POST":"After width / before output trim",18,36,252,17,juce::Justification::centredLeft);
         g.setFont(juce::FontOptions(12.f));
-        g.drawText("ANALYZER",350,5,80,15,juce::Justification::centredLeft);
+        g.drawText("ANALYZER",286,5,80,15,juce::Justification::centredLeft);
         g.drawText("RESOLUTION",592,5,172,15,juce::Justification::centredLeft);
         g.drawText("SMOOTHING",780,5,156,15,juce::Justification::centredLeft);
-        g.setColour(in);g.drawLine(441.f,12.f,463.f,12.f,1.4f);g.drawLine(469.f,12.f,491.f,12.f,1.4f);
-        g.setColour(out);g.drawLine(512.f,12.f,570.f,12.f,2.f);
+        g.setColour(in);g.drawLine(355.f,12.f,372.f,12.f,1.4f);g.drawLine(378.f,12.f,397.f,12.f,1.4f);
+        g.setColour(out);g.drawLine(410.f,12.f,453.f,12.f,2.f);
+        g.setColour(spectrum.isFrozen()?out:muted);g.setFont(juce::FontOptions(12.5f));
+        const auto hint=spectrum.isFrozen()
+            ? (spectrum.hasData()?"Snapshot  /  "+juce::String(spectrum.lastSampleRate()/1000.,1)+" kHz  /  "+juce::String(spectrum.fftSize()):juce::String("Snapshot: no complete frame"))
+            : (occupiedCount()==graphicalEQBands?juce::String("12 bands in use  /  Delete a band to add another"):juce::String("Double-click to add  /  Delete to remove"));
+        g.drawText(hint,446,72,getWidth()-502,20,juce::Justification::centredRight);
         const auto area=plot();
         g.setGradientFill({juce::Colour(0xff0b1216),area.getX(),area.getY(),juce::Colour(0xff142125),area.getX(),area.getBottom(),false});
         g.fillRect(area);
@@ -139,11 +207,11 @@ public:
             if(db%12==0){g.setColour(muted);g.drawText((db>0?"+":"")+juce::String(db),5,int(y)-8,40,16,juce::Justification::centredRight);}
         }
         g.setColour(muted);g.setFont(juce::FontOptions(12.f));
-        g.drawText("EQ dB",7,62,40,15,juce::Justification::centredRight);
-        g.drawText("dBFS",int(area.getRight())+9,62,42,15,juce::Justification::centredLeft);
+        g.drawText("EQ dB",7,87,40,15,juce::Justification::centredRight);
+        g.drawText("dBFS",int(area.getRight())+9,87,42,15,juce::Justification::centredLeft);
         for(int db:{0,-24,-48,-72,-96})g.drawText(juce::String(db),int(area.getRight())+9,int(spectrumY(float(db)))-8,40,16,juce::Justification::centredLeft);
         g.saveState();g.reduceClipRegion(area.toNearestInt());
-        if(analyzerToggle.getToggleState() && spectrum.hasData()) {
+        if((analyzerToggle.getToggleState() || spectrum.isFrozen()) && spectrum.hasData()) {
             for(int stream=0;stream<2;++stream) {
                 if(!(stream==0?inputToggle:outputToggle).getToggleState())continue;
                 const auto colour=stream==0?in:out;
@@ -158,11 +226,11 @@ public:
         g.setColour(juce::Colours::black.withAlpha(.42f));g.strokePath(response,juce::PathStrokeType(5.f));
         g.setColour(eq.withAlpha(dsp.isBypassed()?.38f:1.f));g.strokePath(response,juce::PathStrokeType(2.4f));
         g.restoreState();
-        for(int b=0;b<graphicalEQBands;++b)if(b!=selected)drawNode(g,b,false);
-        drawNode(g,selected,true);
-        if(!spectrum.hasData() || !analyzerToggle.getToggleState()) {
+        for(int b=0;b<graphicalEQBands;++b)if(b!=selected && isBandVisible(b))drawNode(g,b,false);
+        if(selected>=0 && isBandVisible(selected))drawNode(g,selected,true);
+        if(!spectrum.hasData() || (!analyzerToggle.getToggleState() && !spectrum.isFrozen())) {
             g.setColour(muted.withAlpha(.85f));g.setFont(juce::FontOptions(12.5f));
-            g.drawText(analyzerToggle.getToggleState()?"Waiting for audio":"Analyzer off",int(area.getX())+10,int(area.getBottom())-24,230,18,juce::Justification::centredLeft);
+            g.drawText(spectrum.isFrozen()?"Snapshot: no complete frame":analyzerToggle.getToggleState()?"Waiting for fresh audio":"Analyzer off",int(area.getX())+10,int(area.getBottom())-24,260,18,juce::Justification::centredLeft);
         }
         g.setColour(grid);g.drawRect(area,1.f);g.drawHorizontalLine(getHeight()-65,16.f,float(getWidth()-16));
         g.setColour(muted);g.setFont(juce::FontOptions(12.f));const int labelY=getHeight()-62;
@@ -176,41 +244,65 @@ public:
     }
     void mouseDown(const juce::MouseEvent& event) override {
         if(!plot().contains(event.position))return;
+        refreshEditingState();grabKeyboardFocus();
         // Hit-test in the same front-to-back order as painting. The selected
         // node is drawn last; coincident nodes must not silently redirect its
         // drag/automation to the first persistent slot.
         float distance=18;int closest=-1;
         const auto consider=[&](int band) {
+            if(band<0 || !isBandVisible(band))return;
             const float d=nodePosition(band).getDistanceFrom(event.position);
             if(d<distance){distance=d;closest=band;}
         };
         consider(selected);
         for(int b=graphicalEQBands-1;b>=0;--b)if(b!=selected)consider(b);
-        if(closest<0)return;selector.setSelectedId(closest+1,juce::dontSendNotification);selectBand(closest);dragging=true;
-        parameter("frequency")->beginChangeGesture();parameter("gain")->beginChangeGesture();
+        if(closest<0)return;selector.setSelectedId(closest+1,juce::dontSendNotification);selectBand(closest);
+        if(event.mods.isPopupMenu()) {
+            juce::PopupMenu menu;menu.addItem(1,"Delete Band "+juce::String(closest+1));
+            const auto revision=editing.revision();juce::Component::SafePointer<GraphicalEQPanel> safe(this);
+            menu.showMenuAsync(juce::PopupMenu::Options().withTargetComponent(this),[safe,closest,revision](int result){
+                if(safe && result==1 && safe->editing.revision()==revision && safe->selected==closest)safe->deleteSelectedBand();
+            });return;
+        }
+        if(!event.mods.isLeftButtonDown())return;
+        dragging=editing.beginEdit(instance,"Drag Band "+juce::String(selected+1));
+        if(dragging){editing.touchField(instance,selected,"frequency");if(gainApplicable())editing.touchField(instance,selected,"gain");}
     }
     void mouseDrag(const juce::MouseEvent& event) override {
         if(!dragging)return;write("frequency",xFrequency(event.position.x));if(gainApplicable())write("gain",yGain(event.position.y));rebuildResponse();repaint();
     }
     void mouseUp(const juce::MouseEvent&) override {endDrag();}
+    void mouseDoubleClick(const juce::MouseEvent& event) override {
+        if(!event.mods.isLeftButtonDown() || !plot().contains(event.position))return;
+        for(int b=0;b<graphicalEQBands;++b)if(isBandVisible(b) && nodePosition(b).getDistanceFrom(event.position)<18.f)return;
+        createBand(xFrequency(event.position.x),yGain(event.position.y));
+    }
     void mouseWheelMove(const juce::MouseEvent& event,const juce::MouseWheelDetails& wheel) override {
-        if(!plot().contains(event.position))return;auto* p=parameter("q");p->beginChangeGesture();
-        write("q",dsp.values(selected).q*std::exp(wheel.deltaY*1.5f));p->endChangeGesture();rebuildResponse();repaint();
+        if(!plot().contains(event.position) || selected<0)return;
+        discreteEdit(selected,"q",dsp.values(selected).q*std::exp(wheel.deltaY*1.5f),"Band Q");
+    }
+    bool keyPressed(const juce::KeyPress& key) override {
+        // Let a numeric TextEditor keep its own text-editing shortcuts.
+        if(dynamic_cast<juce::TextEditor*>(juce::Component::getCurrentlyFocusedComponent()))return false;
+        if(key.getModifiers().isCommandDown() || key.getModifiers().isCtrlDown()) {
+            if(key.getKeyCode()=='Z' || key.getKeyCode()=='z'){applyHistory(key.getModifiers().isShiftDown());return true;}
+            if(key.getKeyCode()=='Y' || key.getKeyCode()=='y'){applyHistory(true);return true;}
+        }
+        if(key.getKeyCode()==juce::KeyPress::deleteKey || key.getKeyCode()==juce::KeyPress::backspaceKey){deleteSelectedBand();return true;}
+        return false;
     }
 private:
-    using BA=juce::AudioProcessorValueTreeState::ButtonAttachment;
-    using CA=juce::AudioProcessorValueTreeState::ComboBoxAttachment;
-    using SA=juce::AudioProcessorValueTreeState::SliderAttachment;
-    juce::Rectangle<float> plot() const noexcept {return {56,80,float(std::max(1,getWidth()-112)),float(std::max(1,getHeight()-170))};}
+    using PA=juce::ParameterAttachment;
+    static constexpr std::array<const char*,3> editFields{"frequency","gain","q"};
+    juce::Rectangle<float> plot() const noexcept {return {56,105,float(std::max(1,getWidth()-112)),float(std::max(1,getHeight()-195))};}
     float frequencyX(float hz) const {return plot().getX()+plot().getWidth()*std::log(std::clamp(hz,20.f,20000.f)/20)/std::log(1000.f);}
     float xFrequency(float x) const {return 20*std::pow(1000.f,std::clamp((x-plot().getX())/std::max(1.f,plot().getWidth()),0.f,1.f));}
     float gainY(float db) const {return plot().getCentreY()-db/48*plot().getHeight();}
     float yGain(float y) const {return std::clamp((plot().getCentreY()-y)/std::max(1.f,plot().getHeight())*48,-24.f,24.f);}
     float spectrumY(float db) const {return plot().getBottom()-(std::clamp(db,-96.f,0.f)+96)/96*plot().getHeight();}
-    juce::RangedAudioParameter* parameter(const char* field){return state.getParameter(eqID(instance,selected,field));}
-    void write(const char* field,float value){auto* p=parameter(field);p->setValueNotifyingHost(juce::jlimit(0.f,1.f,p->convertTo0to1(value)));}
-    bool gainApplicable() const {return dsp.values(selected).type<=2;}
-    void endDrag(){if(dragging){parameter("frequency")->endChangeGesture();parameter("gain")->endChangeGesture();dragging=false;}}
+    void write(const char* field,float value){if(selected>=0)editing.setValue(instance,selected,field,value);}
+    bool gainApplicable() const {return selected>=0 && isBandVisible(selected) && dsp.values(selected).type<=2;}
+    void endDrag(){if(dragging || sliderEditing){editing.endEdit();dragging=sliderEditing=false;updateHistoryControls();}}
     void drawNode(juce::Graphics& g,int band,bool chosen) const {
         const auto v=dsp.values(band);const auto p=nodePosition(band);const float r=chosen?9.f:v.enabled?8.f:7.5f;
         const juce::Colour colour(chosen?0xfff0d39b:v.enabled?0xffb5d6c6:0xff718d8a);
@@ -221,28 +313,112 @@ private:
         g.drawText(juce::String(band+1),int(p.x)-10,int(p.y)-8,20,16,juce::Justification::centred);
     }
     void selectBand(int band) {
-        endDrag();selected=juce::jlimit(0,graphicalEQBands-1,band);
+        cancelExternalInput();discardPendingNumericInput();
+        endDrag();selected=(band>=0 && band<graphicalEQBands && isBandVisible(band))?band:-1;
         enabledAttachment.reset();typeAttachment.reset();for(auto& a:sliderAttachments)a.reset();
+        selector.setSelectedId(selected+1,juce::dontSendNotification);
+        if(selected<0) {
+            enabled.setComponentID({});type.setComponentID({});enabled.setToggleState(false,juce::dontSendNotification);
+            for(auto& slider:sliders)slider.setComponentID({});updateBandEnablement();repaint();return;
+        }
         enabled.setComponentID(eqID(instance,selected,"enabled"));type.setComponentID(eqID(instance,selected,"type"));
-        enabledAttachment=std::make_unique<BA>(state,eqID(instance,selected,"enabled"),enabled);
-        typeAttachment=std::make_unique<CA>(state,eqID(instance,selected,"type"),type);
-        constexpr std::array<const char*,3> fields{"frequency","gain","q"};
+        enabledAttachment=std::make_unique<PA>(*state.getParameter(eqID(instance,selected,"enabled")),[this](float v){enabled.setToggleState(v>.5f,juce::dontSendNotification);});
+        typeAttachment=std::make_unique<PA>(*state.getParameter(eqID(instance,selected,"type")),[this](float v){type.setSelectedId(juce::roundToInt(v)+1,juce::dontSendNotification);updateBandEnablement();});
+        enabledAttachment->sendInitialUpdate();typeAttachment->sendInitialUpdate();
+        const juce::ScopedValueSetter<bool> refreshing(refreshingControls,true);
         for(size_t i=0;i<3;++i){
-            sliders[i].setComponentID(eqID(instance,selected,fields[i]));
-            sliderAttachments[i]=std::make_unique<SA>(state,eqID(instance,selected,fields[i]),sliders[i]);
+            sliders[i].setComponentID(eqID(instance,selected,editFields[i]));
+            auto& parameter=*state.getParameter(eqID(instance,selected,editFields[i]));
+            const auto range=parameter.getNormalisableRange();
+            juce::NormalisableRange<double> sliderRange(range.start,range.end,
+                [range](double,double,double value){return double(range.convertFrom0to1(float(value)));},
+                [range](double,double,double value){return double(range.convertTo0to1(float(value)));},
+                [range](double,double,double value){return double(range.snapToLegalValue(float(value)));});
+            sliderRange.interval=range.interval;sliderRange.skew=range.skew;sliderRange.symmetricSkew=range.symmetricSkew;
+            sliders[i].setNormalisableRange(sliderRange);
+            sliders[i].setDoubleClickReturnValue(true,parameter.convertFrom0to1(parameter.getDefaultValue()));
+            sliderAttachments[i]=std::make_unique<PA>(parameter,[this,i](float v){sliders[i].setValue(v,juce::dontSendNotification);});
+            sliderAttachments[i]->sendInitialUpdate();
             sliders[i].textFromValueFunction=[i](double v){return juce::String(v,i==0?1:i==1?2:3)+(i==0?" Hz":i==1?" dB":" Q");};
             sliders[i].valueFromTextFunction=[](const juce::String& t){return t.getDoubleValue();};sliders[i].updateText();
         }
-        sliders[1].setEnabled(gainApplicable());repaint();
+        updateBandEnablement();repaint();
+    }
+    int occupiedCount() const noexcept {
+        int count=0;for(int b=0;b<graphicalEQBands;++b)if(isBandVisible(b))++count;return count;
+    }
+    void updateBandEnablement() {
+        const bool chosen=selected>=0 && isBandVisible(selected);
+        selector.setEnabled(occupiedCount()>0);enabled.setEnabled(chosen);type.setEnabled(chosen);
+        sliders[0].setEnabled(chosen);sliders[1].setEnabled(chosen && gainApplicable());sliders[2].setEnabled(chosen);
+        deleteButton.setEnabled(chosen);addButton.setEnabled(occupiedCount()<graphicalEQBands);
+    }
+    void updateHistoryControls() {
+        const int undoBank=editing.nextUndoBank(),redoBank=editing.nextRedoBank();
+        undoButton.setEnabled(undoBank>=0);redoButton.setEnabled(redoBank>=0);
+        undoButton.setTooltip(undoBank>=0?"Undo "+juce::String(undoBank==0?"Tone EQ: ":"Final EQ: ")+editing.undoDescription():"No EQ edit to undo");
+        redoButton.setTooltip(redoBank>=0?"Redo "+juce::String(redoBank==0?"Tone EQ: ":"Final EQ: ")+editing.redoDescription():"No EQ edit to redo");
+    }
+    void refreshEditingState() {
+        cancelExternalInput();
+        const auto mask=editing.occupiedMask(instance);
+        if(mask!=lastOccupiedMask) {
+            lastOccupiedMask=mask;selector.clear(juce::dontSendNotification);
+            for(int b=0;b<graphicalEQBands;++b)if(isBandVisible(b))selector.addItem("Band "+juce::String(b+1),b+1);
+            int next=selected;
+            if(next<0 || !isBandVisible(next)){next=-1;for(int b=0;b<graphicalEQBands;++b)if(isBandVisible(b)){next=b;break;}}
+            selectBand(next);repaint();
+        }
+        updateBandEnablement();updateHistoryControls();
+    }
+    void discreteEdit(int band,const char* field,float value,const juce::String& title) {
+        if(cancelExternalInput()){syncDisplayedValues();return;}
+        endDrag();if(!editing.beginEdit(instance,title)){syncDisplayedValues();return;}
+        editing.setValue(instance,band,field,value);editing.endEdit();syncDisplayedValues();rebuildResponse();repaint();
+    }
+    void syncDisplayedValues() {
+        refreshEditingState();
+        if(bypassAttachment)bypassAttachment->sendInitialUpdate();
+        if(enabledAttachment)enabledAttachment->sendInitialUpdate();
+        if(typeAttachment)typeAttachment->sendInitialUpdate();
+        for(auto& attachment:sliderAttachments)if(attachment)attachment->sendInitialUpdate();
+    }
+    void discardPendingNumericInput() {
+        for(auto& slider:sliders)slider.hideTextBox(true);
+    }
+    bool cancelExternalInput() {
+        const auto revision=editing.externalRevision();if(revision==lastExternalRevision)return false;
+        lastExternalRevision=revision;discardPendingNumericInput();
+        if(sliderEditing)sliderGestureRejected=true;
+        endDrag();return true;
+    }
+    void createBand(float hz,float gain) {
+        endDrag();const int added=editing.addBand(instance,hz,gain);refreshEditingState();
+        if(added>=0){selectBand(added);grabKeyboardFocus();}rebuildResponse();repaint();
+    }
+    void deleteSelectedBand() {
+        endDrag();if(selected<0)return;
+        editing.removeBand(instance,selected);refreshEditingState();rebuildResponse();repaint();grabKeyboardFocus();
+    }
+    void applyHistory(bool redo) {
+        endDrag();const int bank=redo?editing.nextRedoBank():editing.nextUndoBank();
+        const bool changed=redo?editing.redo():editing.undo();refreshEditingState();rebuildResponse();repaint();
+        if(changed && bank>=0 && onHistoryBankSelected)onHistoryBankSelected(bank);
     }
     void updateAnalyzer() {
         if(!isShowing())endDrag();
-        const bool active=isShowing() && analyzerToggle.getToggleState();if(active==analyzerActive)return;
-        dsp.analyzer.enabled.store(false);spectrum.reset(dsp.analyzer);clearSpectrumPaths();
+        if(pendingCaptureRequest!=0) {
+            dsp.analyzer.enabled.store(false);analyzerActive=false;
+            if(!captureBoundary.isDrained(pendingCaptureRequest))return;
+            pendingCaptureRequest=0;spectrum.reset(dsp.analyzer);clearSpectrumPaths();
+        }
+        const bool active=isShowing() && analyzerToggle.getToggleState() && !spectrum.isFrozen();if(active==analyzerActive)return;
+        dsp.analyzer.enabled.store(false);
+        if(!spectrum.isFrozen()){spectrum.reset(dsp.analyzer);clearSpectrumPaths();}
         analyzerActive=active;dsp.analyzer.enabled.store(active);repaint();
     }
     void updateResolutionTooltip() {
-        const double rate=dsp.sampleRate(),size=spectrum.fftSize();
+        const double rate=spectrum.isFrozen() && spectrum.hasData()?spectrum.lastSampleRate():dsp.sampleRate(),size=spectrum.fftSize();
         resolution.setTooltip(juce::String(int(size))+" samples / "+juce::String(rate/size,2)+" Hz bin spacing / "+juce::String(1000*size/rate,1)+" ms analysis window at "+juce::String(rate/1000,1)+" kHz. Higher resolution responds more slowly; audio latency is unchanged.");
     }
     void rebuildResponse() {
@@ -263,7 +439,7 @@ private:
         for(int stream=0;stream<2;++stream){
             auto& path=spectrumPaths[(size_t)stream];float lastX=area.getX();
             for(int x=0;x<=width;++x){
-                const float px=area.getX()+float(x),centre=xFrequency(px);if(centre>dsp.sampleRate()*.5)break;
+                const float px=area.getX()+float(x),centre=xFrequency(px);if(centre>spectrum.lastSampleRate()*.5)break;
                 const auto db=spectrum.displayDB(stream==1,xFrequency(px-.5f),centre,xFrequency(px+.5f));const float y=spectrumY(db);
                 if(x==0)path.startNewSubPath(px,y);else path.lineTo(px,y);lastX=px;
             }
@@ -274,23 +450,26 @@ private:
     }
     void timerCallback() override {
         const auto diagnosticStart=diagnosticObserver?std::chrono::steady_clock::now():std::chrono::steady_clock::time_point{};
-        updateAnalyzer();if(!isShowing())return;bool changed=false;
+        updateAnalyzer();refreshEditingState();if(!isShowing())return;bool changed=false;
+        freezeToggle.setEnabled(spectrum.isFrozen() || spectrum.canFreezeSnapshot());
         if(diagnosticObserver)pathMicros=0.; // A no-path tick must not reuse a previous measurement.
         if(analyzerActive && spectrum.update(dsp.analyzer,dsp.sampleRate())){rebuildSpectrumPaths();changed=true;}
         // CPU meter fluctuations must not cause a transfer-curve rebuild.
         std::array<float,62> key{};int n=0;key[(size_t)n++]=dsp.isBypassed()?1.f:0.f;
         for(int b=0;b<graphicalEQBands;++b){const auto v=dsp.values(b);for(float f:{v.enabled?1.f:0.f,v.frequency,v.gain,v.q,float(v.type)})key[(size_t)n++]=f;}
         key[61]=float(dsp.sampleRate());
-        if(key!=lastKey){const bool rateChanged=key[61]!=lastKey[61];lastKey=key;rebuildResponse();sliders[1].setEnabled(gainApplicable());if(rateChanged)updateResolutionTooltip();changed=true;}
+        if(key!=lastKey){const bool rateChanged=key[61]!=lastKey[61];lastKey=key;rebuildResponse();updateBandEnablement();if(rateChanged)updateResolutionTooltip();changed=true;}
         if(changed && diagnosticRenderPanel)repaint(); // Only this workspace, never the whole editor.
         if(diagnosticObserver)diagnosticObserver(diagnosticContext,*this,false,
             std::chrono::duration<double,std::micro>(std::chrono::steady_clock::now()-diagnosticStart).count());
     }
-    juce::AudioProcessorValueTreeState& state;GraphicalEQ& dsp;int instance,selected{};
-    bool dragging{},navigationSelected{},analyzerActive{};
-    juce::TextButton bypass,enabled,analyzerToggle,inputToggle,outputToggle;
+    juce::AudioProcessorValueTreeState& state;GraphicalEQ& dsp;EQEditState& editing;EQCaptureBoundary& captureBoundary;int instance,selected{-1};
+    bool dragging{},sliderEditing{},sliderGestureRejected{},refreshingControls{},navigationSelected{},analyzerActive{};
+    uint16_t lastOccupiedMask{0xffff};int liveResolutionChoice{2},liveSmoothingChoice{2};
+    uint64_t lastExternalRevision{},pendingCaptureRequest{};
+    juce::TextButton bypass,enabled,analyzerToggle,inputToggle,outputToggle,freezeToggle,addButton,deleteButton,undoButton,redoButton;
     juce::ComboBox selector,type,resolution,smoothing;std::array<juce::Slider,3> sliders;
-    std::unique_ptr<BA> bypassAttachment,enabledAttachment;std::unique_ptr<CA> typeAttachment;std::array<std::unique_ptr<SA>,3> sliderAttachments;
+    std::unique_ptr<PA> bypassAttachment,enabledAttachment,typeAttachment;std::array<std::unique_ptr<PA>,3> sliderAttachments;
     juce::Path response,dashedInput;std::array<juce::Path,2> spectrumPaths,spectrumFills;
     std::array<float,62> lastKey{};EQSpectrumAnalyzer spectrum;
     double pathMicros{},paintMicros{};

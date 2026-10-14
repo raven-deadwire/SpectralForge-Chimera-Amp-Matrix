@@ -1,0 +1,4 @@
+PASS 4,967 unique host IDs / all 122 EQ ordinals, names, version hints, ranges, defaults, steps and choices
+PASS occupied/bypassed/deleted distinction / first-vacancy reuse / 12-slot cap / independent banks / preserved bypass
+PASS one-step graph/numeric/create/delete Undo/Redo / redo survives no-op / balanced host gestures
+FAIL EQ undo rewound an unrelated processor parameter or non-EQ automation erased EQ history
