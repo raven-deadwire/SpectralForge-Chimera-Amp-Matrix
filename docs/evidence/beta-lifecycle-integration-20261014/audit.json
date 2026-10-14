@@ -1,0 +1,553 @@
+{
+  "audit_date_kst": "2026-10-14",
+  "scope": "PR62 versus PR68 beta lifecycle source integration; documentation-only correction",
+  "sources": {
+    "pr62": "5c858442d0ed8360703e0ce63241a567736608a9",
+    "pr68": "ec47f6c09349af9ee5c1b6aa11a287432610b7ef"
+  },
+  "ci": {
+    "62": [
+      {
+        "id": 38386305308,
+        "name": "Document Upgrade Compatibility",
+        "head_sha": "5c858442d0ed8360703e0ce63241a567736608a9",
+        "conclusion": "success",
+        "attempt": 1,
+        "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38386305308"
+      },
+      {
+        "id": 38386305454,
+        "name": "Niflheimr technical measurements",
+        "head_sha": "5c858442d0ed8360703e0ce63241a567736608a9",
+        "conclusion": "success",
+        "attempt": 1,
+        "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38386305454"
+      },
+      {
+        "id": 38386305360,
+        "name": "Chimera release publisher contracts",
+        "head_sha": "5c858442d0ed8360703e0ce63241a567736608a9",
+        "conclusion": "success",
+        "attempt": 1,
+        "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38386305360"
+      },
+      {
+        "id": 38386305336,
+        "name": "CAB realtime performance",
+        "head_sha": "5c858442d0ed8360703e0ce63241a567736608a9",
+        "conclusion": "success",
+        "attempt": 1,
+        "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38386305336"
+      },
+      {
+        "id": 38386305264,
+        "name": "Niflheimr DI audition contracts",
+        "head_sha": "5c858442d0ed8360703e0ce63241a567736608a9",
+        "conclusion": "success",
+        "attempt": 1,
+        "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38386305264"
+      },
+      {
+        "id": 38386305407,
+        "name": "Chimera update candidate",
+        "head_sha": "5c858442d0ed8360703e0ce63241a567736608a9",
+        "conclusion": "success",
+        "attempt": 1,
+        "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38386305407"
+      },
+      {
+        "id": 38386305841,
+        "name": "Beta lifecycle and state preservation",
+        "head_sha": "5c858442d0ed8360703e0ce63241a567736608a9",
+        "conclusion": "success",
+        "attempt": 1,
+        "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38386305841"
+      },
+      {
+        "id": 38386305222,
+        "name": "CAB Panel prototype contracts",
+        "head_sha": "5c858442d0ed8360703e0ce63241a567736608a9",
+        "conclusion": "success",
+        "attempt": 1,
+        "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38386305222"
+      },
+      {
+        "id": 38386305219,
+        "name": "1.3.1 amplifier head controls",
+        "head_sha": "5c858442d0ed8360703e0ce63241a567736608a9",
+        "conclusion": "success",
+        "attempt": 1,
+        "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38386305219"
+      },
+      {
+        "id": 38386305357,
+        "name": "Graphical EQ prototype contracts",
+        "head_sha": "5c858442d0ed8360703e0ce63241a567736608a9",
+        "conclusion": "success",
+        "attempt": 1,
+        "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38386305357"
+      },
+      {
+        "id": 38386305447,
+        "name": "1.3.1 signal path and EQ integration contracts",
+        "head_sha": "5c858442d0ed8360703e0ce63241a567736608a9",
+        "conclusion": "success",
+        "attempt": 1,
+        "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38386305447"
+      },
+      {
+        "id": 38386305674,
+        "name": "Open Beta Build and Test",
+        "head_sha": "5c858442d0ed8360703e0ce63241a567736608a9",
+        "conclusion": "success",
+        "attempt": 1,
+        "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38386305674"
+      }
+    ],
+    "68": [
+      {
+        "id": 38500448111,
+        "name": "Graphical EQ prototype contracts",
+        "head_sha": "ec47f6c09349af9ee5c1b6aa11a287432610b7ef",
+        "conclusion": "success",
+        "attempt": 1,
+        "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38500448111"
+      },
+      {
+        "id": 38500448295,
+        "name": "Niflheimr DI audition contracts",
+        "head_sha": "ec47f6c09349af9ee5c1b6aa11a287432610b7ef",
+        "conclusion": "success",
+        "attempt": 1,
+        "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38500448295"
+      },
+      {
+        "id": 38500448166,
+        "name": "1.3.1 amplifier head controls",
+        "head_sha": "ec47f6c09349af9ee5c1b6aa11a287432610b7ef",
+        "conclusion": "success",
+        "attempt": 1,
+        "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38500448166"
+      },
+      {
+        "id": 38500448259,
+        "name": "CAB Panel prototype contracts",
+        "head_sha": "ec47f6c09349af9ee5c1b6aa11a287432610b7ef",
+        "conclusion": "success",
+        "attempt": 1,
+        "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38500448259"
+      },
+      {
+        "id": 38500448267,
+        "name": "1.3.2 signal path, tuner and dynamics integration contracts",
+        "head_sha": "ec47f6c09349af9ee5c1b6aa11a287432610b7ef",
+        "conclusion": "success",
+        "attempt": 1,
+        "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38500448267"
+      },
+      {
+        "id": 38500448272,
+        "name": "Open Beta Build and Test",
+        "head_sha": "ec47f6c09349af9ee5c1b6aa11a287432610b7ef",
+        "conclusion": "failure",
+        "attempt": 1,
+        "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38500448272"
+      },
+      {
+        "id": 38500448227,
+        "name": "Chimera update candidate",
+        "head_sha": "ec47f6c09349af9ee5c1b6aa11a287432610b7ef",
+        "conclusion": "success",
+        "attempt": 1,
+        "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38500448227"
+      },
+      {
+        "id": 38500448144,
+        "name": "Chimera release publisher contracts",
+        "head_sha": "ec47f6c09349af9ee5c1b6aa11a287432610b7ef",
+        "conclusion": "success",
+        "attempt": 1,
+        "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38500448144"
+      },
+      {
+        "id": 38500448131,
+        "name": "Niflheimr technical measurements",
+        "head_sha": "ec47f6c09349af9ee5c1b6aa11a287432610b7ef",
+        "conclusion": "success",
+        "attempt": 1,
+        "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38500448131"
+      },
+      {
+        "id": 38500448115,
+        "name": "CAB realtime performance",
+        "head_sha": "ec47f6c09349af9ee5c1b6aa11a287432610b7ef",
+        "conclusion": "success",
+        "attempt": 1,
+        "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38500448115"
+      },
+      {
+        "id": 38500448276,
+        "name": "Document Upgrade Compatibility",
+        "head_sha": "ec47f6c09349af9ee5c1b6aa11a287432610b7ef",
+        "conclusion": "success",
+        "attempt": 1,
+        "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38500448276"
+      },
+      {
+        "id": 38500448294,
+        "name": "Beta lifecycle and state preservation",
+        "head_sha": "ec47f6c09349af9ee5c1b6aa11a287432610b7ef",
+        "conclusion": "success",
+        "attempt": 1,
+        "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38500448294"
+      }
+    ]
+  },
+  "lifecycle_jobs": [
+    {
+      "id": 115646659528,
+      "name": "runtime (macos-latest)",
+      "conclusion": "success"
+    },
+    {
+      "id": 115646659712,
+      "name": "historical-fixture",
+      "conclusion": "success"
+    },
+    {
+      "id": 115646659721,
+      "name": "runtime (ubuntu-latest)",
+      "conclusion": "success"
+    },
+    {
+      "id": 115646659794,
+      "name": "runtime (windows-latest)",
+      "conclusion": "success"
+    },
+    {
+      "id": 115653557460,
+      "name": "historical-restore (windows-latest)",
+      "conclusion": "success"
+    },
+    {
+      "id": 115653557537,
+      "name": "historical-restore (ubuntu-latest)",
+      "conclusion": "success"
+    },
+    {
+      "id": 115653557575,
+      "name": "historical-restore (macos-latest)",
+      "conclusion": "success"
+    }
+  ],
+  "full_product_failure": {
+    "run_id": 38500448272,
+    "macos_job": 115646770241,
+    "tests_passed": 52,
+    "tests_total": 55,
+    "failed_tests": [
+      "ChimeraGraphicalEQUITests: stopped audio did not decay on native screen",
+      "ChimeraAmpHeadControlTests: wrong room cabinet lane",
+      "ChimeraPrecisionTunerIntegrationTests: acquisition >290 ms and lifecycle tone did not acquire"
+    ],
+    "release_gate_job": 115674647428,
+    "gate": {
+      "pass": 7,
+      "blocked": 121,
+      "not_applicable": 0
+    },
+    "assembled_candidate": "skipped"
+  },
+  "downloaded_artifact": {
+    "id": 11865519398,
+    "platform": "Linux",
+    "source_sha": "ec47f6c09349af9ee5c1b6aa11a287432610b7ef",
+    "zip_sha256": "5ecd4522d665843e398a4409745ac41403dacc4c0d603056be896ed17a65f36a",
+    "compiled_metadata_mode": "approved",
+    "expiry_utc": "2027-02-11T14:59:00Z",
+    "expiry_unix": 1802357940,
+    "metadata_sha256": "aeb9fa98cdde6a4976ea15d2244187a75603d90c4bd07b28ac2208dc09af22b0",
+    "compiled_json_matches_packaged_json": true,
+    "configure_time_fingerprint_verified": true
+  },
+  "local_verification": {
+    "lifecycle_python": {
+      "passed": 10
+    },
+    "publisher": {
+      "passed": 35
+    },
+    "weekly_publication": {
+      "passed": 29
+    },
+    "publication_evidence": {
+      "passed": 20
+    },
+    "pure_cpp_policy": "PASS",
+    "packaging": {
+      "passed": 18,
+      "error": 1,
+      "skipped": 3,
+      "error_reason": "cmake executable unavailable locally",
+      "skipped_reason": "Windows-only PowerShell and PE checks"
+    },
+    "full_native_rerun": "NOT_RUN; no runtime/test/package implementation changes",
+    "test_threshold_changes": false,
+    "public_document_scan": {
+      "passed": true,
+      "source_documents_checked": 13,
+      "original_name_terms": 119
+    },
+    "manual_inline_script_syntax": {
+      "passed": true,
+      "scripts_checked": 1
+    }
+  },
+  "decision": {
+    "runtime_integration_omissions_found": 0,
+    "documentation_policy_mismatch_found": true,
+    "pr62": "retain open Draft and branch; consider superseded closure only after audited successor merge and evidence retention, without claiming release approval",
+    "publication": "BLOCKED; expiry approval is not release approval",
+    "existing_releases": "unchanged",
+    "user_data": "no user-data operation performed"
+  },
+  "file_comparison": {
+    "ancestor": true,
+    "total": 35,
+    "identical": 22,
+    "files": [
+      {
+        "path": ".github/workflows/beta-lifecycle.yml",
+        "status": "changed-reviewed",
+        "pr62_sha256": "609790fe3179007199a9f5ba398662aff6f9d2bce027d52c865f30cebe762c0e",
+        "pr68_sha256": "f440aadf8ab1314897955e7aedfb61ce9ff45923d4cb3485890ab01df516e424"
+      },
+      {
+        "path": ".github/workflows/build.yml",
+        "status": "identical",
+        "pr62_sha256": "18bac494053a9fd1589cc58550a7dd58c9b620552bc7283c45fe7f445da58075",
+        "pr68_sha256": "18bac494053a9fd1589cc58550a7dd58c9b620552bc7283c45fe7f445da58075"
+      },
+      {
+        "path": ".github/workflows/update-candidate.yml",
+        "status": "identical",
+        "pr62_sha256": "cd67061587cebce61bdaab9c984d58f57991d16639d76f7573593786795843c3",
+        "pr68_sha256": "cd67061587cebce61bdaab9c984d58f57991d16639d76f7573593786795843c3"
+      },
+      {
+        "path": "CMakeLists.txt",
+        "status": "changed-reviewed",
+        "pr62_sha256": "dd81f113f65bf4017a208eec6cd7925f9bad1a2acbcdaf2f75ef42556c4a214e",
+        "pr68_sha256": "a45d38d2de0b321e90f23db9cd71c85d8abcaa2676c22ed0aa1f5f4047cac37a"
+      },
+      {
+        "path": "Installer/Chimera.iss",
+        "status": "identical",
+        "pr62_sha256": "3e355298c6a4361ae698891892d92d29790c9f7c7cf92f3f53277cce5f9214fb",
+        "pr68_sha256": "3e355298c6a4361ae698891892d92d29790c9f7c7cf92f3f53277cce5f9214fb"
+      },
+      {
+        "path": "RELEASE_CHANNEL",
+        "status": "changed-reviewed",
+        "pr62_sha256": "caaf8b2592f643b1ee4b872bd76761203a3bf59973d7e82ea056896dc07cd6f8",
+        "pr68_sha256": "d11a8a9975b043d17eb65d496a998f9f7cf9d0462f1b5b1a9024b7251873c529"
+      },
+      {
+        "path": "RELEASE_REVIEW_PENDING",
+        "status": "identical",
+        "pr62_sha256": "e9cf6a0726c733ecc253184d27caa7c8af2164ee3f9e5b992a5ad8e53f0afa62",
+        "pr68_sha256": "e9cf6a0726c733ecc253184d27caa7c8af2164ee3f9e5b992a5ad8e53f0afa62"
+      },
+      {
+        "path": "Source/BetaLifecycle.h",
+        "status": "identical",
+        "pr62_sha256": "4415d24685cdfbfb68856452c41eac78c68c420a788d6ce89e38becc4cda3074",
+        "pr68_sha256": "4415d24685cdfbfb68856452c41eac78c68c420a788d6ce89e38becc4cda3074"
+      },
+      {
+        "path": "Source/BetaLifecycleRuntime.h",
+        "status": "identical",
+        "pr62_sha256": "c1571a5f513956d9b7d36598021712bdeefba2b1d2720b9f11a139ea508ac6ba",
+        "pr68_sha256": "c1571a5f513956d9b7d36598021712bdeefba2b1d2720b9f11a139ea508ac6ba"
+      },
+      {
+        "path": "Source/PluginEditor.cpp",
+        "status": "changed-reviewed",
+        "pr62_sha256": "3228ee9217b080cadb4441c0decadb7f11c82c9312a8b9d1962c7f4f3894d776",
+        "pr68_sha256": "8a4256600ad141e2d01b48637a6c0114f65a8f214fbeb95f437fa2ec4bd1d5b6"
+      },
+      {
+        "path": "Source/PluginEditor.h",
+        "status": "changed-reviewed",
+        "pr62_sha256": "a3707316e00f4aa0f2ad451a53e67394900d6d39d81babf14e9fa49333b35638",
+        "pr68_sha256": "fb48ad0740e10a00f9440b4892a7bebff33a4f80674918655df3c151ae558ce5"
+      },
+      {
+        "path": "Source/PluginProcessor.cpp",
+        "status": "changed-reviewed",
+        "pr62_sha256": "759628324a815e0c5417581f69899d94ec586d9e548b287334ed6e62ccf6db40",
+        "pr68_sha256": "a646ea726a92dd7093379c99f323a749f430b0f33f353de328cd29d3fc3407c0"
+      },
+      {
+        "path": "Source/PluginProcessor.h",
+        "status": "changed-reviewed",
+        "pr62_sha256": "1b6d696620cfdfa4d4730abca0e922c810d438dec1dda449761760a9c4e0e95c",
+        "pr68_sha256": "1924ca4962c4430e726b827483e6f7da7f0a4c994246da7151570a15455f0c45"
+      },
+      {
+        "path": "Source/ReleaseSupport.cpp",
+        "status": "identical",
+        "pr62_sha256": "097cdb8057ad29d2c28db35ffcc5507f7e3b4af8011431210f45636a0917de8b",
+        "pr68_sha256": "097cdb8057ad29d2c28db35ffcc5507f7e3b4af8011431210f45636a0917de8b"
+      },
+      {
+        "path": "Source/ReleaseSupport.h",
+        "status": "identical",
+        "pr62_sha256": "5d79c69ea33129f560e8b35abf4a389bb8c19b5dcb7ec0a30cea80087cd13568",
+        "pr68_sha256": "5d79c69ea33129f560e8b35abf4a389bb8c19b5dcb7ec0a30cea80087cd13568"
+      },
+      {
+        "path": "Source/SupportPanel.h",
+        "status": "identical",
+        "pr62_sha256": "65b051a557123d176997c31d7192fb0d142631c55f89b3f937159a5052cf2e10",
+        "pr68_sha256": "65b051a557123d176997c31d7192fb0d142631c55f89b3f937159a5052cf2e10"
+      },
+      {
+        "path": "Tests/BetaLifecycleProcessorTests.cpp",
+        "status": "changed-reviewed",
+        "pr62_sha256": "363eb4d6fcc0bae6341dde9177a9adbe89b229b20104b473edf75b65cf0d3716",
+        "pr68_sha256": "89677e6e0503683b074869579004c8b1e185f3e4b0c2f4f52b0221ef5949a7c2"
+      },
+      {
+        "path": "Tests/BetaLifecycleTests.cpp",
+        "status": "identical",
+        "pr62_sha256": "4574a4258bf5eb7165741334ebfe15773b93a0340738734f63d9ddb68201de1c",
+        "pr68_sha256": "4574a4258bf5eb7165741334ebfe15773b93a0340738734f63d9ddb68201de1c"
+      },
+      {
+        "path": "Tests/WriteBeta2State.cpp",
+        "status": "identical",
+        "pr62_sha256": "93174b9d35bddf33b5e67dffabd409b22d5b3678eb02f92a428dd869b064066b",
+        "pr68_sha256": "93174b9d35bddf33b5e67dffabd409b22d5b3678eb02f92a428dd869b064066b"
+      },
+      {
+        "path": "Tools/Verify-WindowsInstaller.ps1",
+        "status": "identical",
+        "pr62_sha256": "f4e095ab43f4766af436872ca3a7d5e6d050b4461af06632b26392710589b8f8",
+        "pr68_sha256": "f4e095ab43f4766af436872ca3a7d5e6d050b4461af06632b26392710589b8f8"
+      },
+      {
+        "path": "Tools/beta_lifecycle.py",
+        "status": "identical",
+        "pr62_sha256": "0b6a5a76e0f9361561eebad24f1e8171561292b593d9c9ca64acdd85a311ffd9",
+        "pr68_sha256": "0b6a5a76e0f9361561eebad24f1e8171561292b593d9c9ca64acdd85a311ffd9"
+      },
+      {
+        "path": "Tools/package_release.py",
+        "status": "identical",
+        "pr62_sha256": "fde8ddc545babd8d056ef0a38d2b00d3401c18cab1d2bb2a099e07c94fe7ce39",
+        "pr68_sha256": "fde8ddc545babd8d056ef0a38d2b00d3401c18cab1d2bb2a099e07c94fe7ce39"
+      },
+      {
+        "path": "Tools/package_update_candidate.py",
+        "status": "identical",
+        "pr62_sha256": "61b893e69b3dffef20205633f6decbb5dd1d8e5753eb10f6aadf6e3780343ca2",
+        "pr68_sha256": "61b893e69b3dffef20205633f6decbb5dd1d8e5753eb10f6aadf6e3780343ca2"
+      },
+      {
+        "path": "Tools/publish_release.py",
+        "status": "identical",
+        "pr62_sha256": "f4039a30045767295072378e590a3c1bb803125efc8108d3ad39d5b6df388e7b",
+        "pr68_sha256": "f4039a30045767295072378e590a3c1bb803125efc8108d3ad39d5b6df388e7b"
+      },
+      {
+        "path": "Tools/test_beta_lifecycle.py",
+        "status": "identical",
+        "pr62_sha256": "84b3bde3e1eeea3c48d727cf88d5a59b7a7ca389f283bb871f4cb9f8edd71511",
+        "pr68_sha256": "84b3bde3e1eeea3c48d727cf88d5a59b7a7ca389f283bb871f4cb9f8edd71511"
+      },
+      {
+        "path": "Tools/test_publish_release.py",
+        "status": "identical",
+        "pr62_sha256": "cedac8e77c226d24d13f99cef5de9fdc90a122a7b1b0f2fb7be0f5ab4b4fd11b",
+        "pr68_sha256": "cedac8e77c226d24d13f99cef5de9fdc90a122a7b1b0f2fb7be0f5ab4b4fd11b"
+      },
+      {
+        "path": "Tools/windows_document_rules.py",
+        "status": "identical",
+        "pr62_sha256": "2428258a7c59537dc0719de88a36e7c6b3ce67b4572031332ddd32be234539b6",
+        "pr68_sha256": "2428258a7c59537dc0719de88a36e7c6b3ce67b4572031332ddd32be234539b6"
+      },
+      {
+        "path": "Validation/beta-lifecycle-policy.json",
+        "status": "changed-reviewed",
+        "pr62_sha256": "ba4339c10b429803819c865e9cecd478b4fe67bff85dbbe4d93eeca61c38e2bc",
+        "pr68_sha256": "66bc1f7058ce35e7c41b4ddd3ccab4d56c0dfdc58613ea79f2b710f45df204ac"
+      },
+      {
+        "path": "Validation/release-policy.json",
+        "status": "changed-reviewed",
+        "pr62_sha256": "7aac5ca044a0eab53e1415bc73c7301870c402faa5dc3865b4320471cdb8c935",
+        "pr68_sha256": "c3e5a48f0fb4809e91eb8f0447b1bd1b45d06f3daa947b31d9da242d5e09db37"
+      },
+      {
+        "path": "cmake/ChimeraBuildVersion.h.in",
+        "status": "changed-reviewed",
+        "pr62_sha256": "b6c2969d1debb0bb254d97d7cc36684e22ba5344577a296a0292148524450e17",
+        "pr68_sha256": "f16f5e72c317fedd4ad2f091098a3caa7ba48b8307881e65e97339bef6857d21"
+      },
+      {
+        "path": "cmake/chimera-build-version.json.in",
+        "status": "identical",
+        "pr62_sha256": "5b416b8fdb3205c3dc66f6b0bfa9964b681f401f7b8589925d31cc603cd43e78",
+        "pr68_sha256": "5b416b8fdb3205c3dc66f6b0bfa9964b681f401f7b8589925d31cc603cd43e78"
+      },
+      {
+        "path": "docs/BETA_LIFECYCLE.md",
+        "status": "identical",
+        "pr62_sha256": "3d5794feb317aff8fb26d9d1960dd55de8fd38459aa52d56976d6926e118b6dc",
+        "pr68_sha256": "3d5794feb317aff8fb26d9d1960dd55de8fd38459aa52d56976d6926e118b6dc"
+      },
+      {
+        "path": "docs/MANUAL.html",
+        "status": "changed-reviewed",
+        "pr62_sha256": "713b7f279124a17d9cdd6e4ed15ae584fb965790085088e6407a55a47e62a275",
+        "pr68_sha256": "5b0d60bd85bd8e828f0a32d74c483be8fc9769b1457e767380c23a7e4a0ecd76"
+      },
+      {
+        "path": "docs/OPEN_BETA_RELEASE_NOTES.md",
+        "status": "changed-reviewed",
+        "pr62_sha256": "2dd5bc31ba6cd6726f117ea3be5b35a52ff33a9919089c27f99c6002b6d0af3b",
+        "pr68_sha256": "c5a84a290bd66180edbaa634f38538644572e6e97246799372cb16dd1164a8a9"
+      },
+      {
+        "path": "docs/UPDATES.md",
+        "status": "identical",
+        "pr62_sha256": "9c035fa4e5edae4584fefe5b11534434aad6fe2ef8387018d245052c892d7927",
+        "pr68_sha256": "9c035fa4e5edae4584fefe5b11534434aad6fe2ef8387018d245052c892d7927"
+      }
+    ]
+  },
+  "policy_isolation": [
+    {
+      "case": "62 synthetic publication",
+      "result": "REJECTED",
+      "reason": "Qualification-only beta may not be published; owner expiry approval required"
+    },
+    {
+      "case": "62 metadata into 68",
+      "result": "REJECTED",
+      "reason": "Beta metadata differs from configured source identity/policy"
+    },
+    {
+      "case": "68 metadata into 62",
+      "result": "REJECTED",
+      "reason": "Beta metadata differs from configured source identity/policy"
+    },
+    {
+      "case": "62 policy with 68 version",
+      "result": "REJECTED",
+      "reason": "Beta policy version differs from the source version"
+    }
+  ]
+}

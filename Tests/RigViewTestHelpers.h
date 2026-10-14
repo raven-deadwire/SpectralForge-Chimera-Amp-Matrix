@@ -8,10 +8,11 @@ namespace rigViewTests {
 // should continue to exercise that room instead of calling this helper.
 inline void showControls(juce::Component& canvas) {
     auto* panel=canvas.findChildWithID("ampNativePanel1");
-    auto* toggle=dynamic_cast<juce::TextButton*>(canvas.findChildWithID("cabRigControls"));
+    auto* strip=canvas.findChildWithID("signalPathStrip");
+    auto* toggle=strip?dynamic_cast<juce::TextButton*>(strip->findChildWithID("path.head")):nullptr;
     if(!panel || !toggle)throw std::runtime_error("Missing rig controls navigation");
     if(panel->isVisible())return;
-    if(!toggle->isVisible() || !toggle->isEnabled() || toggle->getButtonText()!="RIG CONTROLS")
+    if(!toggle->isVisible() || !toggle->isEnabled() || toggle->getButtonText()!="HEAD")
         throw std::runtime_error("RIG CONTROLS is unavailable from the cabinet room");
     toggle->triggerClick();
     const auto started=juce::Time::getMillisecondCounterHiRes();
@@ -21,7 +22,7 @@ inline void showControls(juce::Component& canvas) {
             throw std::runtime_error("RIG CONTROLS did not reveal the real amplifier controls");
     }
     auto* room=canvas.findChildWithID("cabRoomOverview");
-    if(!room || room->isVisible() || toggle->getButtonText()!="CABINET ROOM")
+    if(!room || room->isVisible() || !toggle->getToggleState())
         throw std::runtime_error("Rig controls and cabinet room navigation disagree");
 }
 }

@@ -1,4 +1,33 @@
-# SpectralForge Chimera — Open Beta 1.3.1 updates and support
+# SpectralForge Chimera — updates and support
+
+## Integrated development candidate: 1.3.2-beta.1
+
+The integrated candidate has an approved expiry of **2027-02-11 23:59 KST /
+2027-02-11T14:59:00Z**, used by both normal and qualification builds. Release
+and deployment were requested, but full source/binary qualification and separate
+release approval remain pending. Expiry approval does not approve publication.
+
+PR #62's separate `1.3.1-beta.3` policy remains unset and unapproved. Its synthetic
+qualification packages cannot pass the publisher or inherit the 1.3.2 deadline.
+Published beta.2 files and tags are unchanged.
+
+SETTINGS > Beta / Updates shows BETA, the package version, source/build ID, absolute
+UTC expiry and current state. A non-modal SETTINGS warning appears in the final
+14 days and after expiry. An instance created before expiry keeps its exact audio
+processing until destruction, including transport stops, editor reopening,
+prepare/release, sample-rate changes and offline rendering. A new instance created
+at or after expiry produces muted output while its state, presets, automation,
+A/B and embedded IR remain editable and saveable. It never switches to dry DI or
+inserts noise bursts. Save work and install a qualified successor before restarting.
+
+Offline operation is independent of GitHub. A wrong local clock can be corrected;
+RECHECK CLOCK restores a falsely expired instance with a 50 ms processed-signal
+fade-in. No persistent clock watermark, account, payment, activation server or
+remote revocation is introduced. This is local lifecycle control, not tamper-proof
+DRM. The generated BETA_LIFECYCLE.txt supplies the exact per-build EN/DE/KR notice.
+
+The beta.2 paragraph below records the previous candidate workflow.
+
 
 Hosted VST3/AU opens the official releases page without creating an HTTP update worker. Automatic update checks and verified downloads described below apply to Standalone.
 

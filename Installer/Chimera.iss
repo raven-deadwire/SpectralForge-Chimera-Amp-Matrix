@@ -21,6 +21,9 @@
 #endif
 
 [Setup]
+#if FileExists(StageDir + "\BETA_LIFECYCLE.txt")
+InfoBeforeFile={#StageDir}\BETA_LIFECYCLE.txt
+#endif
 ; Keep AppId stable across updates so Windows has one uninstall entry.
 AppId=SpectralForge.ChimeraAmpMatrix
 AppName={#ProductName}
@@ -84,6 +87,9 @@ Source: "{#StageDir}\VST3\SpectralForge Chimera.vst3\*"; DestDir: "{code:GetVst3
 Source: "{#StageDir}\Standalone\SpectralForge Chimera.exe"; DestDir: "{app}"; Components: standalone; Flags: ignoreversion
 Source: "{#StageDir}\*.txt"; DestDir: "{app}"; Flags: ignoreversion; Check: ShouldInstallManagedDocument
 Source: "{#StageDir}\*.html"; DestDir: "{app}\Documentation"; Flags: ignoreversion; Check: ShouldInstallManagedDocument
+#if FileExists(StageDir + "\chimera-beta-lifecycle.json")
+Source: "{#StageDir}\chimera-beta-lifecycle.json"; DestDir: "{app}\Documentation"; Flags: ignoreversion; Check: ShouldInstallManagedDocument
+#endif
 Source: "{#StageDir}\payload-manifest.json"; DestDir: "{app}\Documentation"; Flags: ignoreversion; Check: ShouldInstallManagedDocument
 Source: "{#StageDir}\*.md"; DestDir: "{app}\Documentation"; Flags: ignoreversion; Check: ShouldInstallManagedDocument
 Source: "{#StageDir}\ReferenceTools\*"; DestDir: "{app}\ReferenceTools"; Components: reference; Flags: ignoreversion recursesubdirs createallsubdirs

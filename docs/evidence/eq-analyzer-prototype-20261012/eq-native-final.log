@@ -1,0 +1,68 @@
+Start testing: Oct 12 14:27 KST
+----------------------------------------------------------
+41/43 Testing: ChimeraGraphicalEQUITests
+41/43 Test: ChimeraGraphicalEQUITests
+Command: "/workspace/scratch/272ab589d483/chimera-eq-prototype/build-eq-prototype/ChimeraGraphicalEQUITests_artefacts/Release/ChimeraGraphicalEQUITests" "/workspace/scratch/272ab589d483/chimera-eq-prototype/build-eq-prototype"
+Directory: /workspace/scratch/272ab589d483/chimera-eq-prototype/build-eq-prototype
+"ChimeraGraphicalEQUITests" start time: Oct 12 14:27 KST
+Output:
+----------------------------------------------------------
+Numeric 0:0 Hz=200 dB=3.5 Q=1.25
+Numeric 0:1 Hz=517 dB=3.5 Q=1.25
+Numeric 0:2 Hz=834 dB=3.5 Q=1.25
+Numeric 0:3 Hz=1151 dB=3.5 Q=1.25
+Numeric 0:4 Hz=1468 dB=3.5 Q=1.25
+Numeric 0:5 Hz=1785 dB=3.5 Q=1.25
+Numeric 0:6 Hz=2102 dB=3.5 Q=1.25
+Numeric 0:7 Hz=2419 dB=3.5 Q=1.25
+Numeric 0:8 Hz=2736 dB=3.5 Q=1.25
+Numeric 0:9 Hz=3053 dB=3.5 Q=1.25
+Numeric 0:10 Hz=3370 dB=3.5 Q=1.25
+Numeric 0:11 Hz=3687 dB=3.5 Q=1.25
+Numeric 1:0 Hz=200 dB=3.5 Q=1.25
+Numeric 1:1 Hz=517 dB=3.5 Q=1.25
+Numeric 1:2 Hz=834 dB=3.5 Q=1.25
+Numeric 1:3 Hz=1151 dB=3.5 Q=1.25
+Numeric 1:4 Hz=1468 dB=3.5 Q=1.25
+Numeric 1:5 Hz=1785 dB=3.5 Q=1.25
+Numeric 1:6 Hz=2102 dB=3.5 Q=1.25
+Numeric 1:7 Hz=2419 dB=3.5 Q=1.25
+Numeric 1:8 Hz=2736 dB=3.5 Q=1.25
+Numeric 1:9 Hz=3053 dB=3.5 Q=1.25
+Numeric 1:10 Hz=3370 dB=3.5 Q=1.25
+Numeric 1:11 Hz=3687 dB=3.5 Q=1.25
+NATIVE synthetic audio bank=0 FFT=2048 input=-20 output=-14 first_data_observed=59.85 ms paint_p50=2155.76 us
+NATIVE synthetic audio bank=0 FFT=4096 input=-20 output=-14 first_data_observed=112.47 ms paint_p50=2112.38 us
+NATIVE synthetic audio bank=0 FFT=8192 input=-20 output=-14 first_data_observed=183.7 ms paint_p50=2148.44 us
+NATIVE layer state bank=0 both hasData=1 frames=319 dropped=128
+NATIVE layer state bank=0 in_only hasData=1 frames=319 dropped=128
+NATIVE layer state bank=0 neither hasData=1 frames=320 dropped=128
+NATIVE layer pixels bank=0 OUT both=786 in_only=186 IN in_only=113972 neither=113515
+NATIVE synthetic audio bank=1 FFT=2048 input=-20 output=-14 first_data_observed=59.74 ms paint_p50=2122.17 us
+NATIVE synthetic audio bank=1 FFT=4096 input=-20 output=-14 first_data_observed=101.235 ms paint_p50=2240.53 us
+NATIVE synthetic audio bank=1 FFT=8192 input=-20 output=-14 first_data_observed=225.985 ms paint_p50=2223.93 us
+NATIVE layer state bank=1 both hasData=1 frames=319 dropped=0
+NATIVE layer state bank=1 in_only hasData=1 frames=319 dropped=0
+NATIVE layer state bank=1 neither hasData=1 frames=320 dropped=0
+NATIVE layer pixels bank=1 OUT both=786 in_only=186 IN in_only=113972 neither=113515
+PASS native synthetic anti-phase sine / independent IN-OUT layers / master-off / stopped-source decay
+PASS32 changing harmonic-pluck native frames through the full processBlock route / live input-output meters
+NATIVE whole processor FFT=0 p50/p99=354.696/662.45 us; callbacks=575 overruns=0
+NATIVE whole processor FFT=2048 p50/p99=356.468/604.772 us; callbacks=577 overruns=0
+NATIVE whole processor FFT=4096 p50/p99=363.539/579.595 us; callbacks=577 overruns=0
+NATIVE whole processor FFT=8192 p50/p99=377.38/660.777 us; callbacks=577 overruns=0
+NATIVE192k FFT8192 callbacks=3891 effective_samples_per_second=191527 dropped_samples=0 FIFOcapacity=8192
+UI idle 75% = 5.70112% one core (1 second no audio, process CPU)
+UI idle 100% = 5.45881% one core (1 second no audio, process CPU)
+UI idle 125% = 6.33496% one core (1 second no audio, process CPU)
+UI idle 150% = 7.77634% one core (1 second no audio, process CPU)
+PASS real native peer / 24 numeric nodes / drag / Q / host gestures / 7 choices / stereo FFT / 75-150% / hidden and close
+<end of output>
+Test time =  56.43 sec
+----------------------------------------------------------
+Test Passed.
+"ChimeraGraphicalEQUITests" end time: Oct 12 14:28 KST
+"ChimeraGraphicalEQUITests" time elapsed: 00:00:56
+----------------------------------------------------------
+
+End testing: Oct 12 14:28 KST

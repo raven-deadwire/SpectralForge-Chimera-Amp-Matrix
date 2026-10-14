@@ -15,6 +15,7 @@ from unittest.mock import Mock, patch
 import zipfile
 
 import publish_release as publisher
+import package_release as packaging
 import release_evidence as evidence
 import test_release_consolidator as fixtures
 
@@ -310,6 +311,58 @@ class PackageContracts(SourceFixture):
         publish.assert_not_called()
         self.assertEqual(result["candidate"], "LOCAL_PACKAGE_CHECKS_PASS")
         self.assertFalse(result["publication_ready"])
+
+
+class BetaLifecyclePackageContracts(SourceFixture):
+    def beta_candidate(self, approved=False, include=True, corrupt_notice=False):
+        lifecycle = publisher.beta_lifecycle
+        self.write_json(self.root / lifecycle.POLICY_PATH, {
+            "schema": "spectralforge.chimera.beta-policy.v1", "version": "1.3.1-beta.3",
+            "expires_at_utc": "2098-01-01T00:00:00Z" if approved else None,
+            "expiry_approved": approved, "warning_lead_seconds": 1209600,
+            "new_expired_instance": "muted-output-state-preserved", "active_instance_grace": True})
+        self.select_version("1.3.1-beta.3")
+        self.make_candidate()
+        if include:
+            metadata = lifecycle.configure_metadata(self.root, self.source, qualification_only=True)
+            build, stage = self.work / "beta-build", self.work / "beta-stage"
+            build.mkdir(exist_ok=True)
+            stage.mkdir(exist_ok=True)
+            self.write_json(build / "chimera-beta-lifecycle.json", metadata)
+            self.write_json(build / "chimera-build-version.json", {
+                "beta_lifecycle_sha256": packaging.sha256(build / "chimera-beta-lifecycle.json")})
+            with patch.object(packaging, "ROOT", self.root):
+                packaging.lifecycle_documents(stage, build, version={"source_sha": self.source})
+            # Exercise the real stager on Windows too: writestr(text) bypasses
+            # Windows newline translation and used to conceal this mismatch.
+            self.assertEqual((stage / "BETA_LIFECYCLE.txt").read_bytes(), lifecycle.notice(metadata).encode("utf-8"))
+            if corrupt_notice:
+                (stage / "BETA_LIFECYCLE.txt").write_bytes(b"wrong deadline")
+            with zipfile.ZipFile(self.candidate / (self.prefix + "win64.zip"), "a") as archive:
+                for name in ("chimera-beta-lifecycle.json", "BETA_LIFECYCLE.txt"):
+                    archive.write(stage / name, name)
+        self.refresh_sums()
+
+    def test_real_publisher_rejects_qualification_metadata(self):
+        self.beta_candidate()
+        with self.assertRaisesRegex(ValueError, "may not be published"):
+            publisher.prepare_assets(self.candidate, self.release, RUN, ATTEMPT)
+
+    def test_real_publisher_rejects_missing_or_inconsistent_notice(self):
+        self.beta_candidate(include=False)
+        with self.assertRaisesRegex(RuntimeError, "metadata is missing"):
+            publisher.prepare_assets(self.candidate, self.release, RUN, ATTEMPT)
+        self.beta_candidate(approved=True, corrupt_notice=True)
+        with self.assertRaisesRegex(RuntimeError, "notice differs"):
+            publisher.prepare_assets(self.candidate, self.release, RUN, ATTEMPT)
+
+    def test_approved_fixture_exports_exact_notice_without_authorizing_publication(self):
+        self.beta_candidate(approved=True)
+        _, assets = publisher.prepare_assets(self.candidate, self.release, RUN, ATTEMPT)
+        self.assertIn("BETA_LIFECYCLE.txt", assets)
+        self.assertIn("chimera-beta-lifecycle.json", assets)
+        self.assertIn("2098-01-01T00:00:00Z", assets["BETA_LIFECYCLE.txt"].read_text(encoding="utf-8"))
+        self.assertFalse(self.policy["release_scope"]["release_approved"])
 
 
 class CIContracts(unittest.TestCase):

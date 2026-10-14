@@ -1,0 +1,12 @@
+##[group]Run python3 Tools/eq_attribution_provenance.py build-eq
+2026-10-12T11:32:25.2665551Z [36;1mpython3 Tools/eq_attribution_provenance.py build-eq[0m
+2026-10-12T11:32:25.2724013Z shell: C:\Program Files\PowerShell\7\pwsh.EXE -command ". '{0}'"
+2026-10-12T11:32:25.2724325Z ##[endgroup]
+2026-10-12T11:32:26.6211199Z Traceback (most recent call last):
+2026-10-12T11:32:26.6212896Z   File "D:\a\SpectralForge-Chimera-Amp-Matrix\SpectralForge-Chimera-Amp-Matrix\Tools\eq_attribution_provenance.py", line 89, in <module>
+2026-10-12T11:32:26.6213370Z     main()
+2026-10-12T11:32:26.6282365Z   File "D:\a\SpectralForge-Chimera-Amp-Matrix\SpectralForge-Chimera-Amp-Matrix\Tools\eq_attribution_provenance.py", line 41, in main
+2026-10-12T11:32:26.6284232Z     raise RuntimeError("The paired analyzer reference no longer matches the retained transient repair")
+2026-10-12T11:32:26.6285466Z RuntimeError: The paired analyzer reference no longer matches the retained transient repair
+2026-10-12T11:32:26.7299286Z ##[error]Process completed with exit code 1.
+2026-10-12T11:32:26.7667433Z 

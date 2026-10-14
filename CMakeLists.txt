@@ -39,10 +39,32 @@ else()
   set(CHIMERA_BUILD_REVISION "source-archive")
 endif()
 chimera_set_package_identity()
+option(CHIMERA_EQ_DEVELOPMENT_PREVIEW "Identify the isolated EQ development preview (never a public release)" OFF)
+if(CHIMERA_EQ_DEVELOPMENT_PREVIEW)
+  set(CHIMERA_PACKAGE_VERSION "${PROJECT_VERSION}-preview.${CHIMERA_BUILD_REVISION}")
+  set(CHIMERA_PACKAGE_DISPLAY "${PROJECT_VERSION} EQ Preview ${CHIMERA_BUILD_REVISION}")
+endif()
+find_package(Python3 3.9 REQUIRED COMPONENTS Interpreter)
+option(CHIMERA_BETA_QUALIFICATION_ONLY "Use a marked synthetic expiry for CI; never publish" OFF)
+set(CHIMERA_BETA_CONFIGURE_ARGS)
+if(CHIMERA_BETA_QUALIFICATION_ONLY)
+  list(APPEND CHIMERA_BETA_CONFIGURE_ARGS --qualification-only)
+endif()
+execute_process(COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/Tools/beta_lifecycle.py"
+  --root "${CMAKE_CURRENT_SOURCE_DIR}" --source-sha "${CHIMERA_SOURCE_SHA}" --configure
+  ${CHIMERA_BETA_CONFIGURE_ARGS}
+  --json "${CMAKE_BINARY_DIR}/chimera-beta-lifecycle.json"
+  --header "${CMAKE_BINARY_DIR}/generated/ChimeraBetaLifecycleBuild.h"
+  COMMAND_ERROR_IS_FATAL ANY)
+set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS
+  "${CMAKE_CURRENT_SOURCE_DIR}/Validation/beta-lifecycle-policy.json"
+  "${CMAKE_CURRENT_SOURCE_DIR}/Tools/beta_lifecycle.py")
 configure_file(cmake/ChimeraBuildVersion.h.in generated/ChimeraBuildVersion.h @ONLY)
+file(SHA256 "${CMAKE_BINARY_DIR}/chimera-beta-lifecycle.json" CHIMERA_BETA_METADATA_SHA256)
 configure_file(cmake/chimera-build-version.json.in chimera-build-version.json @ONLY)
 include_directories("${CMAKE_BINARY_DIR}/generated")
-target_compile_definitions(ChimeraAmpMatrix PRIVATE CHIMERA_BUILD_REVISION="${CHIMERA_BUILD_REVISION}")
+# Keep source identity in the generated header shared by product and consumers.
+# A commit must not invalidate every unchanged JUCE translation unit.
 target_sources(ChimeraAmpMatrix PRIVATE Source/CabinetSelector.h Source/CabPanel.h Source/MicrophoneCatalog.h Source/ReleaseSupport.cpp Source/ReleaseSupport.h Source/ReleaseInfo.h)
 target_sources(ChimeraAmpMatrix PRIVATE Source/IRLibrary.cpp Source/IRLibrary.h Source/Amplifier.h Source/Cabinet.h Source/GlobalDSP.h Source/PolyPitch.h Source/FXChain.h Source/LowCompressor.h Source/StudioModules.h Source/PerformanceUtilities.h Source/FXParameters.h Source/ModelCatalog.h Source/SpatialModules.h Source/IRMetadata.h Source/IRReferenceCatalog.h Source/HardwareArtwork.h Source/RasterArtwork.h Source/IRCollection.h Source/IRBrowserPanel.h Source/PluginProcessor.cpp Source/PluginProcessor.h Source/PluginEditor.cpp Source/PluginEditor.h Source/ChimeraDSP.h Source/MatrixTone.h)
 set(CHIMERA_USE_CURL 0)
@@ -54,6 +76,22 @@ endif()
 target_compile_definitions(ChimeraAmpMatrix PUBLIC JUCE_WEB_BROWSER=0 JUCE_USE_CURL=${CHIMERA_USE_CURL} JUCE_LOAD_CURL_SYMBOLS_LAZILY=0 JUCE_VST3_CAN_REPLACE_VST2=0)
 target_link_libraries(ChimeraAmpMatrix PRIVATE ChimeraIRs ChimeraArtwork ChimeraManual juce::juce_cryptography juce::juce_audio_utils juce::juce_dsp PUBLIC juce::juce_recommended_config_flags juce::juce_recommended_warning_flags)
 enable_testing()
+
+# Serverless beta lifecycle policy. This target is deliberately independent of
+# JUCE and the audio graph so injected-clock and active-instance latch behavior
+# can be validated without networking, a host, or the machine clock.
+add_executable(ChimeraBetaLifecycleTests Tests/BetaLifecycleTests.cpp)
+target_include_directories(ChimeraBetaLifecycleTests PRIVATE Source)
+add_test(NAME ChimeraBetaLifecycleTests COMMAND ChimeraBetaLifecycleTests)
+
+# Link the real processor, serializer, editor and update panel. Inject only a
+# private test constructor clock; shipped factories always use compiled policy.
+juce_add_console_app(ChimeraBetaLifecycleProcessorTests PRODUCT_NAME "Chimera Beta Lifecycle Processor Tests")
+target_sources(ChimeraBetaLifecycleProcessorTests PRIVATE Tests/BetaLifecycleProcessorTests.cpp)
+target_include_directories(ChimeraBetaLifecycleProcessorTests PRIVATE Source)
+target_link_libraries(ChimeraBetaLifecycleProcessorTests PRIVATE ChimeraAmpMatrix ChimeraArtwork ChimeraManual juce::juce_cryptography juce::juce_audio_utils juce::juce_dsp)
+add_test(NAME ChimeraBetaLifecycleProcessorTests COMMAND ChimeraBetaLifecycleProcessorTests "${CMAKE_BINARY_DIR}/beta-lifecycle-evidence")
+set_tests_properties(ChimeraBetaLifecycleProcessorTests PROPERTIES TIMEOUT 180)
 
 # 1.2 Original engine: isolated core tests alongside the production native route.
 add_executable(ChimeraOriginalAmpTests Tests/OriginalAmpTests.cpp)
@@ -118,6 +156,8 @@ target_link_libraries(ChimeraOriginalAmpRender PRIVATE juce::juce_dsp juce::juce
 # Compile the actual upstream/patched VBlankThread class with a deterministic
 # failing DXGI output. This runs on every platform without a physical display.
 find_package(Python3 3.9 REQUIRED COMPONENTS Interpreter)
+add_test(NAME ChimeraBetaLifecycleToolTests
+  COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/Tools/test_beta_lifecycle.py")
 add_test(NAME ChimeraPackagingVersionTests
   COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/Tests/test_packaging_version.py")
 find_package(Threads REQUIRED)
@@ -156,7 +196,7 @@ add_test(NAME ChimeraTests COMMAND ChimeraTests)
 # The same harness can be copied onto an unmodified source revision for A/B.
 option(CHIMERA_UI_PROBES "Build UI CPU probe and portable editor regressions" OFF)
 if(CHIMERA_UI_PROBES)
-  target_compile_definitions(ChimeraAmpMatrix PUBLIC JUCE_MODAL_LOOPS_PERMITTED=1)
+  target_compile_definitions(ChimeraAmpMatrix PUBLIC JUCE_MODAL_LOOPS_PERMITTED=1 CHIMERA_ROUTING_DIAGNOSTICS=1)
   juce_add_console_app(ChimeraUIRefreshProbe PRODUCT_NAME "Chimera UI Refresh Probe")
   target_sources(ChimeraUIRefreshProbe PRIVATE Tests/UIRefreshProbe.cpp)
   target_include_directories(ChimeraUIRefreshProbe PRIVATE Source)
@@ -171,6 +211,8 @@ if(WIN32 OR CHIMERA_UI_PROBES)
   target_compile_definitions(ChimeraUITests PRIVATE JUCE_MODAL_LOOPS_PERMITTED=1)
   target_link_libraries(ChimeraUITests PRIVATE ChimeraAmpMatrix ChimeraArtwork ChimeraManual juce::juce_cryptography juce::juce_audio_utils juce::juce_dsp)
   add_test(NAME ChimeraUITests COMMAND ChimeraUITests "${CMAKE_BINARY_DIR}/ui-snapshots")
+  add_test(NAME ChimeraPrecisionTunerUITests COMMAND ChimeraUITests "${CMAKE_BINARY_DIR}/precision-tuner-snapshots" --precision-tuner-only)
+  add_test(NAME ChimeraCommonDynamicsUITests COMMAND ChimeraUITests "${CMAKE_BINARY_DIR}/common-dynamics-snapshots" --common-dynamics-only)
   add_test(NAME ChimeraSignalPathUITests COMMAND ChimeraUITests "${CMAKE_BINARY_DIR}/signal-path-snapshots" --signal-path-only)
   add_test(NAME ChimeraNativeStateTests COMMAND ChimeraUITests --native-state-only "${CMAKE_BINARY_DIR}/native-state")
 endif()
@@ -431,8 +473,8 @@ add_test(NAME ChimeraCabDriverVisualTests COMMAND ChimeraCabPanelStateTests --vi
 # Bound it separately without changing any real-time audio assertions.
 set_tests_properties(ChimeraCabDriverVisualTests PROPERTIES TIMEOUT 1800)
 
-# Static EQ prototype is isolated from release publishing and future dynamics.
-foreach(eqtest GraphicalEQ GraphicalEQUI)
+# EQ editor/analysis prototypes are isolated from release publishing and dynamics.
+foreach(eqtest GraphicalEQ GraphicalEQUI EQAnalyzer GraphicalEQEditing EQSnapshotFreeze CommonDynamics)
   juce_add_console_app(Chimera${eqtest}Tests PRODUCT_NAME "Chimera ${eqtest} Tests")
   target_sources(Chimera${eqtest}Tests PRIVATE Tests/${eqtest}Tests.cpp)
   target_include_directories(Chimera${eqtest}Tests PRIVATE Source)
@@ -441,7 +483,37 @@ foreach(eqtest GraphicalEQ GraphicalEQUI)
 endforeach()
 add_test(NAME ChimeraGraphicalEQTests COMMAND ChimeraGraphicalEQTests "${CMAKE_BINARY_DIR}/eq-cpu.csv")
 add_test(NAME ChimeraGraphicalEQUITests COMMAND ChimeraGraphicalEQUITests "${CMAKE_BINARY_DIR}")
-set_tests_properties(ChimeraGraphicalEQTests ChimeraGraphicalEQUITests PROPERTIES TIMEOUT 180 RUN_SERIAL TRUE)
+add_test(NAME ChimeraEQAnalyzerTests COMMAND ChimeraEQAnalyzerTests "${CMAKE_BINARY_DIR}")
+add_test(NAME ChimeraGraphicalEQEditingTests COMMAND ChimeraGraphicalEQEditingTests)
+add_test(NAME ChimeraCommonDynamicsTests COMMAND ChimeraCommonDynamicsTests)
+add_test(NAME ChimeraEQSnapshotFreezeTests COMMAND ChimeraEQSnapshotFreezeTests)
+set_tests_properties(ChimeraGraphicalEQEditingTests ChimeraEQSnapshotFreezeTests PROPERTIES TIMEOUT 180 RUN_SERIAL TRUE)
+set_tests_properties(ChimeraGraphicalEQTests ChimeraGraphicalEQUITests ChimeraEQAnalyzerTests PROPERTIES TIMEOUT 180 RUN_SERIAL TRUE)
+# Six 10-second native high-rate observations replace the former single 2.6 s
+# probe. Accommodate the added measured duration without changing assertions.
+set_tests_properties(ChimeraGraphicalEQUITests PROPERTIES TIMEOUT 240)
+# Required temporal coverage is also run by ChimeraEQAnalyzerTests. Keep this
+# focused target convenient for investigation, with the same detection gates.
+add_custom_target(ChimeraEQTemporalCoverageProbe
+  COMMAND $<TARGET_FILE:ChimeraEQAnalyzerTests> --temporal-coverage-regression "${CMAKE_BINARY_DIR}"
+  DEPENDS ChimeraEQAnalyzerTests
+  COMMENT "Verify EQ transient coverage and update-partition invariance")
+
+# Same-executable baseline/candidate FFT cost and numerical equivalence. This
+# analysis-only target needs no processor, editor, artwork or audio device.
+juce_add_console_app(ChimeraEQAnalyzerPerformanceTests PRODUCT_NAME "Chimera EQ Analyzer Performance Tests")
+target_sources(ChimeraEQAnalyzerPerformanceTests PRIVATE Tests/EQAnalyzerPerformanceTests.cpp)
+target_include_directories(ChimeraEQAnalyzerPerformanceTests PRIVATE Source)
+target_compile_definitions(ChimeraEQAnalyzerPerformanceTests PRIVATE JUCE_USE_CURL=0 JUCE_WEB_BROWSER=0)
+target_link_libraries(ChimeraEQAnalyzerPerformanceTests PRIVATE juce::juce_dsp juce::juce_graphics PUBLIC juce::juce_recommended_config_flags)
+add_test(NAME ChimeraEQAnalyzerPerformanceTests COMMAND ChimeraEQAnalyzerPerformanceTests "${CMAKE_BINARY_DIR}")
+set_tests_properties(ChimeraEQAnalyzerPerformanceTests PROPERTIES TIMEOUT 180 RUN_SERIAL TRUE)
+
+# Normal-thread producer/UI attribution is observational. Its functional gates
+# verify accounting, not a DAW/device real-time performance qualification.
+add_test(NAME ChimeraEQHighRateAttributionTests
+  COMMAND ChimeraGraphicalEQUITests --attribution "${CMAKE_BINARY_DIR}/eq-attribution")
+set_tests_properties(ChimeraEQHighRateAttributionTests PROPERTIES TIMEOUT 360 RUN_SERIAL TRUE)
 
 # Console UI probes pump AppKit explicitly. Tahoe delays events when the legacy
 # JUCE nested dispatcher waits for a future NSEvent deadline (JUCE issue #1574).
@@ -467,3 +539,17 @@ if(APPLE)
 endif()
 add_test(NAME ChimeraAmpHeadControlTests COMMAND ChimeraAmpHeadControlTests "${CMAKE_BINARY_DIR}/amp-head-snapshots")
 set_tests_properties(ChimeraAmpHeadControlTests PROPERTIES TIMEOUT 300 RUN_SERIAL TRUE)
+
+# Precision estimator/profile contracts use the same header as the product worker.
+add_executable(ChimeraPrecisionTunerTests Tests/PrecisionTunerTests.cpp)
+target_include_directories(ChimeraPrecisionTunerTests PRIVATE Source)
+add_test(NAME ChimeraPrecisionTunerTests COMMAND ChimeraPrecisionTunerTests)
+
+# Source-frozen baseline versus production tuner acquisition and lifecycle gates.
+juce_add_console_app(ChimeraPrecisionTunerIntegrationTests PRODUCT_NAME "Chimera Tuner Integration Tests")
+target_sources(ChimeraPrecisionTunerIntegrationTests PRIVATE Tests/PrecisionTunerIntegrationTests.cpp)
+target_include_directories(ChimeraPrecisionTunerIntegrationTests PRIVATE Source)
+target_compile_definitions(ChimeraPrecisionTunerIntegrationTests PRIVATE JUCE_USE_CURL=0 JUCE_WEB_BROWSER=0 CHIMERA_TUNER_TEST_HOOKS=1)
+target_link_libraries(ChimeraPrecisionTunerIntegrationTests PRIVATE juce::juce_dsp PUBLIC juce::juce_recommended_config_flags)
+add_test(NAME ChimeraPrecisionTunerIntegrationTests COMMAND ChimeraPrecisionTunerIntegrationTests)
+set_tests_properties(ChimeraPrecisionTunerIntegrationTests PROPERTIES TIMEOUT 120)

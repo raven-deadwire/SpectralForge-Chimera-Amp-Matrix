@@ -918,9 +918,8 @@ inline void roomNavigation(const juce::File& screenshots) {
 }
 
 inline juce::TextButton& pageButton(juce::Component& canvas,const char* title) {
-    for(auto* child:canvas.getChildren())if(auto* button=dynamic_cast<juce::TextButton*>(child))
-        if(button->getButtonText()==title)return *button;
-    throw std::runtime_error("Missing editor page tab: "+std::string(title));
+    const juce::String label(title);const auto id=label=="RIGS"?"cab":label=="PRE"?"pre":label=="POST"?"post":"tone.eq";
+    return component<juce::TextButton>(canvas,("path."+juce::String(id)).toRawUTF8());
 }
 
 inline juce::DialogWindow* cabinetDialog() {
@@ -1039,8 +1038,8 @@ inline void editorNavigation(const juce::File& screenshots) {
                 return room && room->isVisible() && rigs.getToggleState();
             });
             auto& room=component<CabRoomOverview>(canvas,"cabRoomOverview");
-            auto& toggle=component<juce::TextButton>(canvas,"cabRigControls");
-            require(room.activeRigCount()==mode+1 && toggle.isVisible() && toggle.getButtonText()=="RIG CONTROLS",
+            auto& toggle=component<juce::TextButton>(canvas,"path.head");
+            require(room.activeRigCount()==mode+1 && toggle.isVisible() && toggle.getButtonText()=="HEAD",
                 "Main RIGS page does not default to its active Classic/Dual/Matrix room");
             for(int lane=0;lane<3;++lane)
                 require(component<juce::Button>(room,("cabRoomRig"+juce::String(lane+1)).toRawUTF8()).isVisible()==(lane<=mode),
@@ -1072,11 +1071,11 @@ inline void editorNavigation(const juce::File& screenshots) {
             window->exitModalState(0);
             require(dispatchUntil([&]{return window==nullptr;}),"Closing CAB left a live workspace or parameter attachments");
             click(toggle,[&]{return component<AmpNativePanel>(canvas,"ampNativePanel1").isVisible();});
-            require(!room.isVisible() && toggle.getButtonText()=="CABINET ROOM","RIG CONTROLS did not replace the room");
+            require(!room.isVisible() && toggle.getToggleState(),"RIG CONTROLS did not replace the room");
             for(int lane=0;lane<3;++lane)
                 require(component<AmpNativePanel>(canvas,("ampNativePanel"+juce::String(lane+1)).toRawUTF8()).isVisible()==(lane<=mode),
                     "RIG CONTROLS lost an active amplifier panel or exposed an inactive lane");
-            click(toggle,[&]{return room.isVisible();});
+            click(component<juce::TextButton>(canvas,"path.cab"),[&]{return room.isVisible();});
             editor->setSize(885,585);
             require(editor->getLocalBounds().contains(editor->getLocalArea(&room,room.getLocalBounds())),
                 "Cabinet room is clipped at the supported 75 percent editor size");

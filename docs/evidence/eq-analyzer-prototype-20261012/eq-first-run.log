@@ -1,0 +1,155 @@
+Start testing: Oct 12 14:13 KST
+----------------------------------------------------------
+23/43 Testing: ChimeraGateProcessorTests
+23/43 Test: ChimeraGateProcessorTests
+Command: "/workspace/scratch/272ab589d483/chimera-eq-prototype/build-eq-prototype/ChimeraGateProcessorTests_artefacts/Release/ChimeraGateProcessorTests"
+Directory: /workspace/scratch/272ab589d483/chimera-eq-prototype/build-eq-prototype
+"ChimeraGateProcessorTests" start time: Oct 12 14:13 KST
+Output:
+----------------------------------------------------------
+ROUNDING ampchannel1_m15 field=3 expected=0.666666667 actual=0.666666687
+ROUNDING ampchannel2_m15 field=3 expected=0.666666667 actual=0.666666687
+ROUNDING ampchannel3_m15 field=3 expected=0.666666667 actual=0.666666687
+ROUNDING nativeAmp_c0_m2_hw_lead_pre_gain field=3 expected=0.680000000 actual=0.680000007
+ROUNDING nativeAmp_c0_m3_hw_ch2_gain field=3 expected=0.650000000 actual=0.650000036
+ROUNDING nativeAmp_c0_m3_hw_ch3_gain field=3 expected=0.680000000 actual=0.680000007
+ROUNDING nativeAmp_c0_m4_hw_lead_gain field=3 expected=0.720000000 actual=0.720000029
+ROUNDING nativeAmp_c0_m4_hw_lead_drive field=3 expected=0.650000000 actual=0.650000036
+PASS legacy parameter contract: 3686 entries SHA256 c035babc58914c0270e1b5eefb02881a50b88af8b609401d4d391792437e170c approved_112_defaults=111 numeric_rounding_differences=99; append-only gateRangeDb
+PASS binary state, legacy missing-field migration, A/B, factory reset, host gestures and MIDI automation recall
+MEASURE high-gain mode=0 board=0 native=0 range24_db=-23.9999 full_db=-300 (floor -300 dB)
+MEASURE high-gain mode=0 board=0 native=1 range24_db=-23.9999 full_db=-300 (floor -300 dB)
+PASS actual processor synthetic hiss: mode 0 board 0; pre/post, Full/24 dB, compatibility/native high gain
+MEASURE high-gain mode=0 board=1 native=0 range24_db=-23.9999 full_db=-300 (floor -300 dB)
+MEASURE high-gain mode=0 board=1 native=1 range24_db=-23.9999 full_db=-300 (floor -300 dB)
+PASS actual processor synthetic hiss: mode 0 board 1; pre/post, Full/24 dB, compatibility/native high gain
+MEASURE high-gain mode=1 board=0 native=0 range24_db=-23.9999 full_db=-300 (floor -300 dB)
+MEASURE high-gain mode=1 board=0 native=1 range24_db=-23.9999 full_db=-300 (floor -300 dB)
+PASS actual processor synthetic hiss: mode 1 board 0; pre/post, Full/24 dB, compatibility/native high gain
+MEASURE high-gain mode=1 board=1 native=0 range24_db=-23.9999 full_db=-300 (floor -300 dB)
+MEASURE high-gain mode=1 board=1 native=1 range24_db=-23.9999 full_db=-300 (floor -300 dB)
+PASS actual processor synthetic hiss: mode 1 board 1; pre/post, Full/24 dB, compatibility/native high gain
+MEASURE high-gain mode=2 board=0 native=0 range24_db=-23.9999 full_db=-300 (floor -300 dB)
+MEASURE high-gain mode=2 board=0 native=1 range24_db=-23.9999 full_db=-300 (floor -300 dB)
+PASS actual processor synthetic hiss: mode 2 board 0; pre/post, Full/24 dB, compatibility/native high gain
+MEASURE high-gain mode=2 board=1 native=0 range24_db=-23.9999 full_db=-300 (floor -300 dB)
+MEASURE high-gain mode=2 board=1 native=1 range24_db=-23.9999 full_db=-300 (floor -300 dB)
+PASS actual processor synthetic hiss: mode 2 board 1; pre/post, Full/24 dB, compatibility/native high gain
+PASS actual processor POST delay and reverb tails remain audible with Full gate closed
+<end of output>
+Test time =  11.25 sec
+----------------------------------------------------------
+Test Passed.
+"ChimeraGateProcessorTests" end time: Oct 12 14:13 KST
+"ChimeraGateProcessorTests" time elapsed: 00:00:11
+----------------------------------------------------------
+
+40/43 Testing: ChimeraGraphicalEQTests
+40/43 Test: ChimeraGraphicalEQTests
+Command: "/workspace/scratch/272ab589d483/chimera-eq-prototype/build-eq-prototype/ChimeraGraphicalEQTests_artefacts/Release/ChimeraGraphicalEQTests" "/workspace/scratch/272ab589d483/chimera-eq-prototype/build-eq-prototype/eq-cpu.csv"
+Directory: /workspace/scratch/272ab589d483/chimera-eq-prototype/build-eq-prototype
+"ChimeraGraphicalEQTests" start time: Oct 12 14:13 KST
+Output:
+----------------------------------------------------------
+PASS paired stereo FIFO capacity / overflow / concurrent producer-consumer
+PASS measured 7 filters, 4 rates, mono/stereo, exact bypass, 24-node automation, no EQ allocations
+PASS 122 host parameters / project / A-B / legacy migration / 48 factory defaults
+PASS actual project and A/B audio <= 1e-6 / legacy missing EQ audio exact / unchanged latency
+PASS route 0 analyzer node transfers and final output
+PASS route 1 analyzer node transfers and final output
+PASS route 2 analyzer node transfers and final output
+PASS route 3 analyzer node transfers and final output
+CPU pair24 48000 Hz 64 / 1ch analyzer_capture=0 p50=9.054 p99=27.963 us / 1333.33 us
+CPU pair24 48000 Hz 64 / 1ch analyzer_capture=1 p50=9.224 p99=21.262 us / 1333.33 us
+CPU pair24 48000 Hz 64 / 2ch analyzer_capture=0 p50=10.866 p99=26.34 us / 1333.33 us
+CPU pair24 48000 Hz 64 / 2ch analyzer_capture=1 p50=10.936 p99=31.377 us / 1333.33 us
+CPU pair24 48000 Hz 128 / 1ch analyzer_capture=0 p50=17.677 p99=32.329 us / 2666.67 us
+CPU pair24 48000 Hz 128 / 1ch analyzer_capture=1 p50=17.937 p99=64.437 us / 2666.67 us
+CPU pair24 48000 Hz 128 / 2ch analyzer_capture=0 p50=21.192 p99=63.796 us / 2666.67 us
+CPU pair24 48000 Hz 128 / 2ch analyzer_capture=1 p50=21.382 p99=77.908 us / 2666.67 us
+CPU pair24 48000 Hz 512 / 1ch analyzer_capture=0 p50=69.194 p99=122.275 us / 10666.7 us
+CPU pair24 48000 Hz 512 / 1ch analyzer_capture=1 p50=70.396 p99=181.093 us / 10666.7 us
+CPU pair24 48000 Hz 512 / 2ch analyzer_capture=0 p50=83.306 p99=172.561 us / 10666.7 us
+CPU pair24 48000 Hz 512 / 2ch analyzer_capture=1 p50=84.077 p99=203.127 us / 10666.7 us
+CPU pair24 96000 Hz 64 / 1ch analyzer_capture=0 p50=9.093 p99=22.073 us / 666.667 us
+CPU pair24 96000 Hz 64 / 1ch analyzer_capture=1 p50=9.224 p99=32.95 us / 666.667 us
+CPU pair24 96000 Hz 64 / 2ch analyzer_capture=0 p50=10.846 p99=26.51 us / 666.667 us
+CPU pair24 96000 Hz 64 / 2ch analyzer_capture=1 p50=10.936 p99=23.886 us / 666.667 us
+CPU pair24 96000 Hz 128 / 1ch analyzer_capture=0 p50=17.677 p99=62.114 us / 1333.33 us
+CPU pair24 96000 Hz 128 / 1ch analyzer_capture=1 p50=17.947 p99=53.912 us / 1333.33 us
+CPU pair24 96000 Hz 128 / 2ch analyzer_capture=0 p50=21.192 p99=41.944 us / 1333.33 us
+CPU pair24 96000 Hz 128 / 2ch analyzer_capture=1 p50=21.373 p99=82.074 us / 1333.33 us
+CPU pair24 96000 Hz 512 / 1ch analyzer_capture=0 p50=69.004 p99=157.959 us / 5333.33 us
+CPU pair24 96000 Hz 512 / 1ch analyzer_capture=1 p50=70.366 p99=140.031 us / 5333.33 us
+CPU pair24 96000 Hz 512 / 2ch analyzer_capture=0 p50=83.326 p99=178.68 us / 5333.33 us
+CPU pair24 96000 Hz 512 / 2ch analyzer_capture=1 p50=84.067 p99=154.203 us / 5333.33 us
+<end of output>
+Test time =  26.56 sec
+----------------------------------------------------------
+Test Passed.
+"ChimeraGraphicalEQTests" end time: Oct 12 14:13 KST
+"ChimeraGraphicalEQTests" time elapsed: 00:00:26
+----------------------------------------------------------
+
+41/43 Testing: ChimeraGraphicalEQUITests
+41/43 Test: ChimeraGraphicalEQUITests
+Command: "/workspace/scratch/272ab589d483/chimera-eq-prototype/build-eq-prototype/ChimeraGraphicalEQUITests_artefacts/Release/ChimeraGraphicalEQUITests" "/workspace/scratch/272ab589d483/chimera-eq-prototype/build-eq-prototype"
+Directory: /workspace/scratch/272ab589d483/chimera-eq-prototype/build-eq-prototype
+"ChimeraGraphicalEQUITests" start time: Oct 12 14:13 KST
+Output:
+----------------------------------------------------------
+Numeric 0:0 Hz=200 dB=3.5 Q=1.25
+Numeric 0:1 Hz=517 dB=3.5 Q=1.25
+Numeric 0:2 Hz=834 dB=3.5 Q=1.25
+Numeric 0:3 Hz=1151 dB=3.5 Q=1.25
+Numeric 0:4 Hz=1468 dB=3.5 Q=1.25
+Numeric 0:5 Hz=1785 dB=3.5 Q=1.25
+Numeric 0:6 Hz=2102 dB=3.5 Q=1.25
+Numeric 0:7 Hz=2419 dB=3.5 Q=1.25
+Numeric 0:8 Hz=2736 dB=3.5 Q=1.25
+Numeric 0:9 Hz=3053 dB=3.5 Q=1.25
+Numeric 0:10 Hz=3370 dB=3.5 Q=1.25
+Numeric 0:11 Hz=3687 dB=3.5 Q=1.25
+Numeric 1:0 Hz=200 dB=3.5 Q=1.25
+Numeric 1:1 Hz=517 dB=3.5 Q=1.25
+Numeric 1:2 Hz=834 dB=3.5 Q=1.25
+Numeric 1:3 Hz=1151 dB=3.5 Q=1.25
+Numeric 1:4 Hz=1468 dB=3.5 Q=1.25
+Numeric 1:5 Hz=1785 dB=3.5 Q=1.25
+Numeric 1:6 Hz=2102 dB=3.5 Q=1.25
+Numeric 1:7 Hz=2419 dB=3.5 Q=1.25
+Numeric 1:8 Hz=2736 dB=3.5 Q=1.25
+Numeric 1:9 Hz=3053 dB=3.5 Q=1.25
+Numeric 1:10 Hz=3370 dB=3.5 Q=1.25
+Numeric 1:11 Hz=3687 dB=3.5 Q=1.25
+NATIVE synthetic audio bank=0 FFT=2048 input=-20 output=-14 first_data_observed=60.748 ms paint_p50=2118.12 us
+NATIVE synthetic audio bank=0 FFT=4096 input=-20 output=-14 first_data_observed=110.509 ms paint_p50=2155.77 us
+NATIVE synthetic audio bank=0 FFT=8192 input=-20 output=-14 first_data_observed=180.347 ms paint_p50=2192.81 us
+NATIVE synthetic audio bank=1 FFT=2048 input=-20 output=-14 first_data_observed=59.877 ms paint_p50=2260.85 us
+NATIVE synthetic audio bank=1 FFT=4096 input=-20 output=-14 first_data_observed=100.369 ms paint_p50=2171.76 us
+NATIVE synthetic audio bank=1 FFT=8192 input=-20 output=-14 first_data_observed=220.722 ms paint_p50=2221.97 us
+FAIL IN visibility control did not remove the real input spectrum layer
+<end of output>
+Test time =  30.72 sec
+----------------------------------------------------------
+Test Failed.
+"ChimeraGraphicalEQUITests" end time: Oct 12 14:14 KST
+"ChimeraGraphicalEQUITests" time elapsed: 00:00:30
+----------------------------------------------------------
+
+42/43 Testing: ChimeraEQAnalyzerTests
+42/43 Test: ChimeraEQAnalyzerTests
+Command: "/workspace/scratch/272ab589d483/chimera-eq-prototype/build-eq-prototype/ChimeraEQAnalyzerTests_artefacts/Release/ChimeraEQAnalyzerTests" "/workspace/scratch/272ab589d483/chimera-eq-prototype/build-eq-prototype"
+Directory: /workspace/scratch/272ab589d483/chimera-eq-prototype/build-eq-prototype
+"ChimeraEQAnalyzerTests" start time: Oct 12 14:14 KST
+Output:
+----------------------------------------------------------
+<end of output>
+Test time =   0.00 sec
+----------------------------------------------------------
+Test Failed.
+"ChimeraEQAnalyzerTests" end time: Oct 12 14:14 KST
+"ChimeraEQAnalyzerTests" time elapsed: 00:00:00
+----------------------------------------------------------
+
+End testing: Oct 12 14:14 KST

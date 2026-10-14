@@ -1,0 +1,56 @@
+{
+  "scope": "Independent single-process analytical cost; no audio device, DAW, UI message loop, or product installation",
+  "compiler": "g++ (Ubuntu 13.3.0-6ubuntu2~24.04) 13.3.0",
+  "juce_commit": "d6181bde38d858c283c3b7bf699ce6340c050b5d",
+  "fft_cpp_sha256": "aa1e5209d0bea072e8e57831110d86adfc6f91670c3ce72d3102f1e9a64843a3",
+  "baseline_header_sha256": "ad0e9f7dc7fe46579b24707291bf63a5ee09363de701b1606c5cedf98f970f26",
+  "candidate_header_sha256": "a7dd27cef57df2edea050cdbaa07c299a63e526269f8518d00409a4f1f6ff941",
+  "benchmark_cpp_sha256": "2e234951c7e6b9fdb6f9ad0ccbd87938badc5ee246fb62581f1261a31bb5acee",
+  "baseline_binary_sha256": "702611b06d23f434fe8440d9d32ea3046c210f3e2c91ffe192b46f1cc8da008e",
+  "candidate_binary_sha256": "102f59e842cf5db5ecc26874d0eb2d09ad13cc25793e08a45313792d32bff372",
+  "compiler_flags": "-std=c++20 -O3 -DNDEBUG -DJUCE_GLOBAL_MODULE_SETTINGS_INCLUDED=1 -DJUCE_STANDALONE_APPLICATION=1 -DJUCE_USE_CURL=0 -DJUCE_WEB_BROWSER=0 -ffunction-sections -fdata-sections",
+  "link_flags": "-O3 -Wl,--gc-sections -pthread -ldl -lrt -lz",
+  "juce_modules": [
+    "juce_core.cpp",
+    "juce_core_CompilationTime.cpp",
+    "juce_audio_basics.cpp",
+    "juce_audio_formats.cpp",
+    "juce_dsp.cpp"
+  ],
+  "additional_exact_source": "juce_graphics/colour/juce_Colour.cpp included after juce_graphics.h; satisfies header static Colours, no stub code",
+  "timing_order": "ABBA BAAB (four trials per variant); entire update wall and feed+analysis thread CPU reported separately; no timing pass gates",
+  "outputs": {
+    "loaded_AA": "eq-cost-aa",
+    "idle_AA": "eq-cost-aa-clean",
+    "candidate_AB": "eq-cost-ab"
+  },
+  "loaded_AA_limitation": "First control overlapped an unplanned juceaide rebuild; preserved but superseded by idle AA.",
+  "remaining_variability": "Even idle AA has shared-host scheduling variance; per-cell wall figures are observations, not hardware real-time guarantees.",
+  "native_daw_performance_status": "NOT_ASSESSED",
+  "backend": "JUCE 8.0.8 FFTFallback, Linux x86_64; nm confirms only FFTFallback engine vtable linked",
+  "os": "Linux 6b79127e6416 6.18.44 #1 SMP Sat Sep 26 20:02:31 UTC 2026 x86_64 x86_64 x86_64 GNU/Linux",
+  "baseline_source_blob_sha1": "34f31791c005c291c294afc3fb2ab4783830b4bd",
+  "aa_compiled_production_header_sha256": "ad0e9f7dc7fe46579b24707291bf63a5ee09363de701b1606c5cedf98f970f26",
+  "aa_execution_note": "AA binaries were built while production and frozen header bytes were identical; aa-idle executed after the production working file had been edited, but its already-linked binary still contains the unchanged two baseline classes.",
+  "benchmark_class_note": "Only Tests/reference/EQSpectrumAnalyzerBeb72f.h is included with the class-name macro. The real production header has no benchmark switches or conditional code.",
+  "receipts_sha256": {
+    "aa-loaded": {
+      "eq-analyzer-performance-paired.csv": "b32ba402a9dc895d6ce48974136eecd0c16e768b52375e66b4452ad8c216113f",
+      "eq-analyzer-performance-parity.csv": "44029715ae134d7798a4b1cecf550195ea654510bbb7d42032da361103946771",
+      "eq-analyzer-performance-summary.csv": "7710ded260f2edb7b5b7fda6ee1da1ac5abd5ec532d50b3dc4819c236be72dd2",
+      "run.log": "f8f0f5cf594bcf4c808796b176c944e9b5b00605dff47cb80f76f8638c4ad7e3"
+    },
+    "aa-idle": {
+      "eq-analyzer-performance-paired.csv": "31976d7d7ec5bdfe11cd9eb2da3d457fb50f1bbd1fece9e489a64d5a81033d2e",
+      "eq-analyzer-performance-parity.csv": "44029715ae134d7798a4b1cecf550195ea654510bbb7d42032da361103946771",
+      "eq-analyzer-performance-summary.csv": "29ca45b26d160f9dfed42247266a7691396d6cc9f0461a4b939b46b36ea2c7d6",
+      "run.log": "d3aee7dd77d5098ba773a4005f82cb8f5db231ef125545a34eaf75f85145adac"
+    },
+    "ab-candidate": {
+      "eq-analyzer-performance-paired.csv": "9f2d1ec0b356b4ba7b93f557118df1124f4311d3abf630568b10dbad9f1decff",
+      "eq-analyzer-performance-parity.csv": "fde96883fe8beba116cdb9f2a221002db6b6f474d134dfae0ba42c6b2b2859e5",
+      "eq-analyzer-performance-summary.csv": "2087cb99f5864c2cd6730c30fdae66b95c69f6a74873aad5b77c66e69ca55589",
+      "run.log": "8837cfaf11fc359c88cbab8fd5c3139f3f756bb44a002561ad5cfea11524d831"
+    }
+  }
+}

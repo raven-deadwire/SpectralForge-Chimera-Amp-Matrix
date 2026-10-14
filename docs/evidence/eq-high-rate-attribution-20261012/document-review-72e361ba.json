@@ -1,0 +1,161 @@
+{
+  "reviewer": "/root/local_toolchain",
+  "recorded_utc": "2026-10-12T12:19:43.715287+00:00",
+  "review_scope": "Read-only factual, metric-boundary and acceptance-language review of draft engineering report and evidence README; no source/raw receipt changes, builds, tests, performance runs or network requests.",
+  "tested_source": "72e361ba91ea2c6b8d830921a71275fa25cba493",
+  "final_run_id": 38243938568,
+  "document_snapshots_at_review_end": {
+    "docs/EQ_HIGH_RATE_ATTRIBUTION_20261012.md": "c5b06c2dfde311e2a846a0a0c12a9b55c42736224ada5cc877cf474b01bdab71",
+    "docs/evidence/eq-high-rate-attribution-20261012/README.md": "939945ac70d9a5e9a31bc4cedb500b63bc8f9e24ed3d5cd8cec5f0f72d52c003"
+  },
+  "verdict": "Engineering conclusion supported, with listed documentary scope/inference refinements. No new code/build gate identified. Performance and installer acceptance remain withheld.",
+  "independently_confirmed": {
+    "final_junit_each_os": {
+      "tests": 6,
+      "failures": 0,
+      "disabled": 0,
+      "skipped": 0
+    },
+    "final_attribution_rows_each_os": 90,
+    "all_final_rows_sample_accounting_error": 0,
+    "all_five_native_datasets_fifo_reject_discard": 0,
+    "four_rate_grids": "All 44.1/48/96/192 kHz native production min/max and overrun counts match raw summaries.",
+    "functional_row_counts": {
+      "temporal": 24,
+      "partition": 180,
+      "stalls": 48,
+      "audio_invariance": 12,
+      "eq_pair_callback": 48,
+      "cadence": 12
+    },
+    "host_latency_samples": 42,
+    "maximum_audio_error": 0,
+    "eq_pair_counted_allocations": 0,
+    "final_paired_lower_cells": {
+      "Linux": 48,
+      "Windows": 48,
+      "macOS": 38
+    },
+    "final_paired_median_update_reduction_percent": {
+      "Linux": 2.36226224553,
+      "Windows": 5.631919638,
+      "macOS": 14.75515631535
+    },
+    "all_parity_cases_each_native": 108,
+    "max_raw_envelope_display_error_db": 1.52587890625e-05,
+    "mac_full2048_repeated_counterexample": "Both raw runs match reported positive wall and thread CPU increases; second +6.231% wall/+7.773% CPU.",
+    "windows_cpu_quantization": "15 lower / 24 tied / 9 higher measured CPU medians; headline CPU-saving claim appropriately withheld.",
+    "mac_case85_cpu": {
+      "process_percent": 15.3869720469,
+      "producer_percent": 75.4387531818,
+      "message_percent": 10.7267754466,
+      "wall_seconds": 1.201451458
+    },
+    "historical_preservation": "Final per-OS strict provenance records canonical and exact worktree reference plus all84 evidence files unchanged.",
+    "source_identity": "Canonical ddb0880..72e361ba diff contains only .gitattributes and provenance Python."
+  },
+  "accepted_limits": [
+    "CI normal-thread aggregate rate is not hardware callback stability.",
+    "Native test pump is not a DAW event loop.",
+    "OFF underproduction and clock rebasing do not prove FFT-only or purely processor-overbudget causation.",
+    "Paired update wall and feed-plus-analysis thread CPU have different scopes; old/new narrow FFT timers have different operations.",
+    "All wall-inclusive UI spans must not be summed as CPU.",
+    "Unassigned Windows process residual is not identified IR/FFT/paint work.",
+    "Repeated macOS counterexamples and no physical-host/package sessions block final installer acceptance.",
+    "Known pending native-derived links are not new defects; parent is copying completed agent outputs."
+  ],
+  "findings": [
+    {
+      "id": "DOC_SCOPE_CI_CELLS",
+      "severity": "medium",
+      "status": "parent correction observed",
+      "document": "docs/EQ_HIGH_RATE_ATTRIBUTION_20261012.md",
+      "anchor": "Result and development decision",
+      "finding": "Linux and Windows every measured cell must be limited to CI because the separately retained full-CMake local Linux execution has 45/48 lower candidate medians.",
+      "recommendation": "Linux and Windows CI paired update costs improve in every measured cell.",
+      "evidence": "local-full-ddb0880/eq-analyzer-performance-summary.csv: 45/48; final Linux and Windows: 48/48."
+    },
+    {
+      "id": "DOC_SCOPE_SOURCE_BYTES",
+      "severity": "medium",
+      "status": "parent correction observed in engineering report",
+      "documents": [
+        "docs/EQ_HIGH_RATE_ATTRIBUTION_20261012.md",
+        "docs/evidence/eq-high-rate-attribution-20261012/README.md"
+      ],
+      "anchor": "Preserved source identity",
+      "finding": "Unqualified identical C++ bytes can confuse canonical Git identity with EOL-converted Windows worktree input.",
+      "recommendation": "Specify canonical Git blob bytes, and retain actual checkout-byte provenance separately.",
+      "evidence": "git diff ddb0880..72e361ba changes only .gitattributes and Tools/eq_attribution_provenance.py; final Windows records core.autocrlf=true, exact immutable worktree/reference/tree match."
+    },
+    {
+      "id": "DOC_EOL_CAUSAL_INFERENCE",
+      "severity": "medium",
+      "status": "reported to parent",
+      "document": "docs/EQ_HIGH_RATE_ATTRIBUTION_20261012.md",
+      "anchor": "The first Windows failure is retained as a failure",
+      "finding": "The retained original failure excerpt reports a reference-hash mismatch but neither the observed hash nor first-run checkout config. Reproduction plus later success strongly supports EOL conversion but is not direct original-run byte evidence.",
+      "recommendation": "Label EOL explanation as a reproduced, evidence-supported inference unless separately retained first-run checkout bytes/config exist. State the second run directly records core.autocrlf=true and preserved bytes.",
+      "evidence": "ci-38240150849/Windows/provenance-failure.log; provenance-portability/checkout-reproduction.json; ci-38243938568/Windows/eq-attribution-provenance.json."
+    },
+    {
+      "id": "DOC_SCOPE_WINDOWS_RESIDUAL",
+      "severity": "medium",
+      "status": "reported to parent",
+      "document": "docs/EQ_HIGH_RATE_ATTRIBUTION_20261012.md",
+      "anchor": "Windows makes this remaining uncertainty material",
+      "finding": "The 67.1-74.2 percentage-point residual range belongs to native-painted analyzer-ON due consumer controls 30/34/38, not all native ON cases; paint-suppressed ON controls 29/33/37 range 28.86-39.80.",
+      "recommendation": "Explicitly name native-painted consumer controls at 192 kHz / 40 ms.",
+      "evidence_values": {
+        "painted": {
+          "30": 71.017,
+          "34": 67.136,
+          "38": 74.175
+        },
+        "suppressed": {
+          "29": 29.682,
+          "33": 28.858,
+          "37": 39.799
+        }
+      }
+    },
+    {
+      "id": "DOC_SCOPE_CORRUPT_PARITY",
+      "severity": "medium",
+      "status": "reported to parent",
+      "document": "docs/EQ_HIGH_RATE_ATTRIBUTION_20261012.md",
+      "anchor": "108 spectral parity conditions",
+      "finding": "Corruption probes are a separate finite-containment/recovery check, not included in 108 musical spectral parity CSV cases. The maximum dB error must not appear to bound corrupt-output A/B parity.",
+      "recommendation": "State 108 spectral parity conditions plus separate corruption-containment/recovery checks.",
+      "evidence": "Tests/EQAnalyzerPerformanceTests.cpp: checkParity and checkFiniteRecovery are distinct and called separately; local-paired/README.md explicitly disclaims sample-exact corrupt-input parity."
+    },
+    {
+      "id": "DOC_SCOPE_CALLBACK_FIXTURE",
+      "severity": "medium",
+      "status": "reported to parent",
+      "document": "docs/EQ_HIGH_RATE_ATTRIBUTION_20261012.md",
+      "anchor": "Four-rate functional table, Callback configurations",
+      "finding": "The 48 configurations / 28,800 callbacks / counted allocations 0 / second CI overruns 0 row measures the EQ pair. It is adjacent to a whole-processor invariance row and could be read as the whole amp/cab callback result.",
+      "recommendation": "Label the row EQ-pair callback allocation/timing fixture.",
+      "evidence": "eq-analyzer-callback.csv uses eq_pair_p50_us/eq_pair_p99_us/eq_pair_max_us; Tests/EQAnalyzerTests.cpp callback benchmark processes both EQs."
+    },
+    {
+      "id": "DOC_INDEX_MAC_COUNTER_SCOPE",
+      "severity": "low",
+      "status": "reported to parent",
+      "document": "docs/evidence/eq-high-rate-attribution-20261012/README.md",
+      "anchor": "Important distinctions retained in the raw evidence",
+      "finding": "The final bullet names only the first-run macOS process/thread mismatch; the more material second-run case85 mismatch is documented in the main report.",
+      "recommendation": "Refer to both macOS runs and explicitly include second-run case85."
+    },
+    {
+      "id": "DERIVED_WINDOWS_CPU_TIES",
+      "severity": "low",
+      "status": "reported to parent",
+      "document": "docs/evidence/eq-high-rate-attribution-20261012/ci-38243938568/Windows/paired-analysis.md",
+      "anchor": "The following cells improve update wall time but increase the measured thread CPU cost",
+      "finding": "The list includes 24 tied medians with arithmetic reduction 0%, in addition to increases; the heading labels ties as increased cost.",
+      "recommendation": "Describe cells whose measured CPU median is not lower (ties/increases), retaining quantization-limited status."
+    }
+  ]
+}

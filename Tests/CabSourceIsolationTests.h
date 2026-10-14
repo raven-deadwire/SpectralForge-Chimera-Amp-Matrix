@@ -150,7 +150,7 @@ inline void cabSourceIsolationContracts(const juce::File& folder,const juce::Fil
             return nullptr;
         };
         navigationUnchanged(*processor,[&] {
-            click(component<juce::TextButton>(canvas,"cabRigControls"),[&]{return component<juce::Component>(canvas,"ampNativePanel1").isVisible();});
+            click(component<juce::TextButton>(canvas,"path.head"),[&]{return component<juce::Component>(canvas,"ampNativePanel1").isVisible();});
             auto& cabinet=component<CabinetSelector>(canvas,"cabinet1");
             require(cabinet.isVisible() && cabinet.isEnabled(),"Main cabinet selector is unavailable");
             cabinet.setSelectedId(9000,juce::sendNotificationSync);

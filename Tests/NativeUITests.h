@@ -17,7 +17,11 @@ template<class T=juce::Component> T* find(juce::Component& root,const juce::Stri
     for(auto* child:root.getChildren())if(auto* result=find<T>(*child,id))return result;return nullptr;
 }
 inline void set(ChimeraProcessor& processor,const juce::String& id,float value){auto* p=processor.parameters().getParameter(id);require(p!=nullptr,"Native UI parameter missing");p->setValueNotifyingHost(p->convertTo0to1(value));}
-inline void tab(juce::Component& root,const char* name){for(auto* child:root.getChildren())if(auto* b=dynamic_cast<juce::TextButton*>(child);b && b->getButtonText()==name){b->triggerClick();settle();return;}throw std::runtime_error("Native UI page tab missing");}
+inline void tab(juce::Component& root,const char* name){
+    const juce::String label(name);const auto id=label=="RIGS"?"head":label=="PRE"?"pre":label=="POST"?"post":"tone.eq";
+    auto* button=find<juce::TextButton>(root,"path."+juce::String(id));require(button && button->isVisible(),"Signal navigation stage missing");button->triggerClick();settle();
+}
+
 inline void snapshot(juce::Component& root,const juce::File& directory,const char* name){auto stream=directory.getChildFile(juce::String(name)+".png").createOutputStream();juce::PNGImageFormat png;require(stream && png.writeImageToStream(root.createComponentSnapshot(root.getLocalBounds()),*stream),"Native UI screenshot failed");}
 inline void views(juce::Component& root,std::vector<NativeControlView*>& result) {
     if(auto* view=dynamic_cast<NativeControlView*>(&root))result.push_back(view);

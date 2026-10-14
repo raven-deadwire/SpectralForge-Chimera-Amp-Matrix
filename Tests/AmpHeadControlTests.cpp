@@ -687,7 +687,7 @@ int main(int argc,char** argv){try {
         check(full && full->isShowing(),"Head did not open native enlargement");screenshot(*full,directory,"focus-from-editor-"+juce::String(scale));
         closeWorkspace();check(all.writes==writes && all.begins==begins,"Head open/back changed audio state");
     }
-    auto* roomToggle=find<juce::TextButton>(*canvas,"cabRigControls");check(roomToggle && roomToggle->isShowing(),"Room return unavailable after Classic head controls");
+    auto* roomToggle=find<juce::TextButton>(*canvas,"path.cab");check(roomToggle && roomToggle->isShowing(),"Room return unavailable after Classic head controls");
     roomToggle->triggerClick();
     for(int mode:{0,1,2}){set(*p,"mode",float(mode));CabRoomOverview* room=nullptr;
         // The editor rebuilds routing surfaces asynchronously. Wait for the

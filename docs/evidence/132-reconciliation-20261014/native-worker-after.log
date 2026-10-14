@@ -1,0 +1,12 @@
+ROUTE FAIL rate=44100 block=64 hz=27.5 acquire=210.399 settle=-1 error=-10
+ROUTE FAIL rate=44100 block=64 hz=82.4069 acquire=286.172 settle=-1 error=-9.99996
+ROUTE FAIL rate=44100 block=64 hz=440 acquire=-1 settle=-1 error=-10
+ROUTE FAIL rate=44100 block=256 hz=27.5 acquire=204.826 settle=-1 error=-10
+ROUTE FAIL rate=44100 block=256 hz=82.4069 acquire=291.651 settle=205.972 error=5.14413e-05
+ROUTE FAIL rate=44100 block=256 hz=440 acquire=-1 settle=286.598 error=-1.92066e-05
+ROUTE FAIL rate=48000 block=64 hz=30.8677 acquire=213.571 settle=-1 error=12.1041
+ROUTE FAIL rate=48000 block=256 hz=27.5 acquire=296.397 settle=292.108 error=-1.92066e-05
+ROUTE FAIL rate=96000 block=256 hz=30.8677 acquire=181.413 settle=-1 error=28.1688
+ROUTE FAIL rate=96000 block=256 hz=82.4069 acquire=-1 settle=-1 error=30.5483
+PASS stereo balance continuity and true channel-switch invalidation/reacquisition
+FAIL Native acquisition/settle/accuracy gate failed; all route rows retained

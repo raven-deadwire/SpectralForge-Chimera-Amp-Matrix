@@ -1,0 +1,72 @@
+{
+  "source_commit": "ddb0880bd61a4c794236783b869767b96208bf41",
+  "compiled_version": {
+    "product_version": "1.3.1",
+    "source_sha": "ddb0880bd61a4c794236783b869767b96208bf41",
+    "version": "1.3.1-preview.ddb0880bd6"
+  },
+  "started_utc": "2026-10-12T11:27:07.416122+00:00",
+  "scope": "local Linux; no native peer, physical audio device or DAW",
+  "native_ui": "NOT_RUN",
+  "performance_acceptance": "NOT_ASSESSED",
+  "stages": [
+    {
+      "stage": "functional_and_paired",
+      "command": [
+        "ctest",
+        "--test-dir",
+        "/workspace/scratch/af7c830474b5/eq-local-build",
+        "-C",
+        "Release",
+        "-R",
+        "^(ChimeraGraphicalEQTests|ChimeraEQAnalyzerTests|ChimeraEQAnalyzerPerformanceTests|ChimeraGateProcessorTests)$",
+        "--output-on-failure",
+        "--no-tests=error",
+        "--output-junit",
+        "eq-results-local.xml"
+      ],
+      "log": "local-ctest.log",
+      "started_utc": "2026-10-12T11:27:07.416167+00:00",
+      "cgroup_before": {
+        "cpu.max": "800000 100000\n",
+        "cpu.stat": "usage_usec 15624440833\nuser_usec 14611681412\nsystem_usec 1012759421\nnice_usec 0\nnr_periods 140278\nnr_throttled 82\nthrottled_usec 5727182\nnr_bursts 0\nburst_usec 0\n"
+      },
+      "returncode": 0,
+      "elapsed_s": 83.03381220900337,
+      "cgroup_after": {
+        "cpu.max": "800000 100000\n",
+        "cpu.stat": "usage_usec 15877128519\nuser_usec 14853086498\nsystem_usec 1024042021\nnice_usec 0\nnr_periods 141108\nnr_throttled 82\nthrottled_usec 5727182\nnr_bursts 0\nburst_usec 0\n"
+      },
+      "finished_utc": "2026-10-12T11:28:30.450342+00:00"
+    },
+    {
+      "stage": "attribution_headless",
+      "command": [
+        "/workspace/scratch/af7c830474b5/eq-local-build/ChimeraGraphicalEQUITests_artefacts/Release/ChimeraGraphicalEQUITests",
+        "--attribution-headless",
+        "/workspace/scratch/af7c830474b5/eq-local-build/eq-attribution-headless"
+      ],
+      "log": "local-attribution-headless.log",
+      "started_utc": "2026-10-12T11:28:30.450579+00:00",
+      "cgroup_before": {
+        "cpu.max": "800000 100000\n",
+        "cpu.stat": "usage_usec 15877128519\nuser_usec 14853086498\nsystem_usec 1024042021\nnice_usec 0\nnr_periods 141108\nnr_throttled 82\nthrottled_usec 5727182\nnr_bursts 0\nburst_usec 0\n"
+      },
+      "returncode": 0,
+      "elapsed_s": 40.777135216001625,
+      "cgroup_after": {
+        "cpu.max": "800000 100000\n",
+        "cpu.stat": "usage_usec 15980644625\nuser_usec 14951667245\nsystem_usec 1028977380\nnice_usec 0\nnr_periods 141516\nnr_throttled 82\nthrottled_usec 5727182\nnr_bursts 0\nburst_usec 0\n"
+      },
+      "finished_utc": "2026-10-12T11:29:11.227989+00:00"
+    }
+  ],
+  "executables_sha256": {
+    "ChimeraGateProcessorTests": "88e2ca056cf49724b8ab81a9af528afa575ce7edda6e44c11de7e1e9f67bf415",
+    "ChimeraGraphicalEQTests": "202f1b75fccb31d03b91ad5fc412156d503e0cf6322132c6b219ba010e3e6fbb",
+    "ChimeraGraphicalEQUITests": "21adb9c2a1ddc56f28d07908b0d5ace1aa6c77aaf683ef8a520ae328610a1e5a",
+    "ChimeraEQAnalyzerTests": "13b63933a70a96fdbf32d7f3f6a49e1239d38c13fc3264b0e00aeb59ec179ba6",
+    "ChimeraEQAnalyzerPerformanceTests": "688f691c7fa4f1d6dac2519379668353016339596b955a8400a881a2e54b2421"
+  },
+  "completed_utc": "2026-10-12T11:29:11.799402+00:00"
+}

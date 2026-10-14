@@ -6,6 +6,7 @@
 #include <stdexcept>
 #include <set>
 #include <vector>
+#include "PostNativeCacheTests.h"
 using namespace spectralforge;
 namespace {
 void check(bool condition,const std::string& message){if(!condition)throw std::runtime_error(message);}
@@ -46,6 +47,7 @@ void spatialControls() {
 }
 }
 int main(){try{
+    postNativeCacheParity();
     spatialControls();
     // Model controls may share words with utility controls. Every generated
     // host ID, including disabled hardware controls, must remain independent.

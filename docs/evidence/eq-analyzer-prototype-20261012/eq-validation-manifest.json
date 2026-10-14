@@ -1,0 +1,77 @@
+{
+  "description": "Actual passed suites across targeted runs; not a fabricated single CTest run. Original failed diagnostics are preserved.",
+  "base_commit": "3817246f779a50f19b5378ec9661a2275e6b91b2",
+  "source_tree": "uncommitted prototype; exact source SHA256 hashes below",
+  "build_configuration": "Release, CHIMERA_EQ_DEVELOPMENT_PREVIEW=ON",
+  "cmake": "cmake version 4.4.4",
+  "compiler": "c++ (Ubuntu 13.3.0-6ubuntu2~24.04) 13.3.0",
+  "juce_version": "8.0.8",
+  "juce_commit": "d6181bde38d858c283c3b7bf699ce6340c050b5d",
+  "native_environment": "Authenticated local TCP Xvfb 1920x1200x24 with Openbox; real JUCE native peer and message loop; no physical audio device or host DAW",
+  "native_poll_ms": 20,
+  "motion_fixture": "32 distinct native component frames driven by a paced synthetic harmonic pluck through the production processBlock route; phase-aligned stereo; encoding deferred until stopped",
+  "tests": [
+    {
+      "suite": "ChimeraGateProcessorTests",
+      "status": "passed",
+      "seconds": 11.2469,
+      "junit_xml": "eq-results.xml",
+      "raw_log": "eq-first-run.log"
+    },
+    {
+      "suite": "ChimeraGraphicalEQTests",
+      "status": "passed",
+      "seconds": 26.5593,
+      "junit_xml": "eq-results.xml",
+      "raw_log": "eq-first-run.log"
+    },
+    {
+      "suite": "ChimeraEQAnalyzerTests",
+      "status": "passed",
+      "seconds": 2.99448,
+      "junit_xml": "eq-diagnostics.xml",
+      "raw_log": "eq-png-diagnostic.log"
+    },
+    {
+      "suite": "ChimeraGraphicalEQUITests",
+      "status": "passed",
+      "seconds": 56.434,
+      "junit_xml": "eq-native-results.xml",
+      "raw_log": "eq-native-final.log"
+    }
+  ],
+  "source_sha256": {
+    "CMakeLists.txt": "91c74b6058203f7696e2531fd8e088e4689c9e365dff45dda79bc6ff37b58074",
+    ".github/workflows/graphical-eq.yml": "dd5239f94afbb7822a82cfa42b092d61e2dabbda4277bd82866f4c7967372df5",
+    "Source/EQSpectrumAnalyzer.h": "02630a635bc0d825b88747695871a7fc77fb21b3345f7c579742294f1e06c184",
+    "Source/GraphicalEQ.h": "912f232a48c0bf858b333f0e31646437fe10e3d68e2b98043e40e245d969a87e",
+    "Source/GraphicalEQPanel.h": "3fb5465edb00dfae60e777d4914fa335dba9eedefa03bd8269420a695b8d919a",
+    "Source/PluginEditor.h": "8400f6673fe8635d7e6549ce1e6251aac638d786f781dec42637223c559c3cc0",
+    "Source/PluginEditor.cpp": "f3eb26e049155042eb6d4b922e89a95ee5b4c4faf3334056504f145aaa9ddce1",
+    "Tests/EQAnalyzerTests.cpp": "ae7e7cdbfe8570b5d6dad2b911505c2486917bd9a7920476b62717152fa49d44",
+    "Tests/GraphicalEQUITests.cpp": "27d15d2007dd373f183d4afde59b2b4440f068ee569931cae312e1dd42092787"
+  },
+  "evidence_sha256": {
+    "eq-analyzer-callback.csv": "d646fff855309e3fe373281775eada9c6708730a10c4fce86918a5cffb306e81",
+    "eq-analyzer-cpu.csv": "9676f4de9e9b81fda5a96f53af8ab69c6627acca4e1426e2dff769638caf68a5",
+    "eq-analyzer-full-callback.csv": "35ef4ae33170221a1fefca3bdcc51f33ea6da9cb290cc95a72d9362e156a1488",
+    "eq-analyzer-high-rate.csv": "59a267623882e6f60f64af8950b341e3d4112c507f2dee92708c64f6a3b3397e",
+    "eq-analyzer-live-frames.csv": "69b01a0478836a615865ece762667ee282d17ff3346d0ee43e086dc60e78e415",
+    "eq-analyzer-native-ui.csv": "33c81569534eb1a12fcfe71114cd246bb72d783fa669c82434c030f589f41fe9",
+    "eq-cpu.csv": "b62f2467a6f08d56296c6992ae59c1eac950247bb9e23330dd30cf57cc598a39"
+  },
+  "png_validation": {
+    "artifact": "eq-png-verification.json",
+    "complete_decode_passed": 49,
+    "live_frames": 32,
+    "writer": "Encoded completely in JUCE MemoryOutputStream, replaceWithData, reload and byte-for-byte comparison before success"
+  },
+  "measurement_host": {
+    "os": "Ubuntu 24.04 x86_64",
+    "cpu": "AMD EPYC 9V74",
+    "visible_vcpus": 9,
+    "cpu_quota_cores": 8,
+    "memory_limit_gib": 8,
+    "dedicated_hardware_benchmark": false
+  }
+}
