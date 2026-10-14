@@ -4,6 +4,7 @@
 #include <memory>
 #include <vector>
 #include "CabRealtimeProfile.h"
+#include "CabCallbackTrace.h"
 #if defined(_MSC_VER) && (defined(_M_X64) || defined(_M_IX86))
 #include <xmmintrin.h>
 #endif
@@ -46,6 +47,7 @@ public:
               segmentSize(fftSize-blockSize), segments(samples.getNumSamples()/segmentSize+1),
               inputSegments((blockSize>128 ? 1 : 3)*segments), impulseSpectra(size_t(segments)*size_t(2*bins))
         {
+            SF_CAB_TRACE_WORKER(SpectraPrepare,Prepare);
             jassert(samples.getNumChannels()==1 && maximumBlockSize>0 && maximumBlockSize<=512);
             // Match the existing JUCE fallback's partition geometry: small
             // blocks use 4B FFTs/3B IR segments, larger blocks 2B FFTs/B segments.
@@ -133,10 +135,13 @@ private:
     }
     void sumPartitions(const float* currentInput,InputBank bank,bool firstChunk) noexcept
     {
+        // Eight planar float reads/writes per bin per logical MAC. This is a
+        // source-level estimate; child copy/clear events own their own bytes.
+        SF_CAB_TRACE_BYTES(SpectralMAC,8u*std::uint64_t(bins)*(firstChunk ? segments : 1)*sizeof(float));
         // Delayed partitions cannot change during a partial host block.
         // Recompute only the leading partition for subsequent partial calls.
         if(firstChunk) {
-            std::fill(pastSum.begin(),pastSum.end(),0.f);
+            {SF_CAB_TRACE_BYTES(HistoryClear,pastSum.size()*sizeof(float));std::fill(pastSum.begin(),pastSum.end(),0.f);}
             const auto* bankInput=inputSpectra.data()+size_t(bank.start)*size_t(2*bins);
             int index=bank.offset;
             for(int partition=1;partition<segments;++partition) {
@@ -145,7 +150,7 @@ private:
                     prepared->impulseSpectra.data()+size_t(partition)*size_t(2*bins),pastSum.data());
             }
         }
-        juce::FloatVectorOperations::copy(outputSpectrum.data(),pastSum.data(),2*bins);
+        {SF_CAB_TRACE_BYTES(SpectrumCopy,4u*std::uint64_t(bins)*sizeof(float));juce::FloatVectorOperations::copy(outputSpectrum.data(),pastSum.data(),2*bins);}
         accumulate(currentInput,prepared->impulseSpectra.data(),outputSpectrum.data());
     }
     void processMono(juce::AudioBuffer<float>& buffer) noexcept
@@ -154,35 +159,38 @@ private:
         for(int offset=0;offset<buffer.getNumSamples();) {
             const bool firstChunk=inputPosition==0;
             const int count=juce::jmin(buffer.getNumSamples()-offset,blockSize-inputPosition);
-            juce::FloatVectorOperations::copy(monoInput.data()+inputPosition,channel+offset,count);
+            {SF_CAB_TRACE_BYTES(InputPack,2u*std::uint64_t(count)*sizeof(float));juce::FloatVectorOperations::copy(monoInput.data()+inputPosition,channel+offset,count);}
             {
                 SF_CAB_PROFILE_SCOPE(FFTForward);
-                juce::FloatVectorOperations::copy(monoTransform.data(),monoInput.data(),fftSize);
+                {SF_CAB_TRACE_BYTES(SpectrumCopy,2u*std::uint64_t(fftSize)*sizeof(float));juce::FloatVectorOperations::copy(monoTransform.data(),monoInput.data(),fftSize);}
                 // Keep the platform's real FFT (notably vDSP on macOS). Only
                 // non-negative bins, including DC and Nyquist, enter the FDL.
-                fft.performRealOnlyForwardTransform(monoTransform.data(),true);
+                {SF_CAB_TRACE_SCOPE(FFTForward);fft.performRealOnlyForwardTransform(monoTransform.data(),true);}
             }
             {
                 SF_CAB_PROFILE_SCOPE(SpectralMAC);
                 const auto bank=currentInputBank();
                 auto* currentInput=inputSpectra.data()+size_t(bank.start+bank.offset)*size_t(2*bins);
-                packRealSpectrum(monoTransform.data(),currentInput,bins);
+                {SF_CAB_TRACE_BYTES(SpectrumPack,4u*std::uint64_t(bins)*sizeof(float));packRealSpectrum(monoTransform.data(),currentInput,bins);}
                 sumPartitions(currentInput,bank,firstChunk);
+                {SF_CAB_TRACE_BYTES(SpectrumUnpack,4u*std::uint64_t(bins)*sizeof(float));
                 for(int i=0;i<bins;++i) {
                     monoTransform[size_t(2*i)]=outputSpectrum[size_t(i)];
                     monoTransform[size_t(2*i+1)]=outputSpectrum[size_t(bins+i)];
                 }
+                }
             }
             {
                 SF_CAB_PROFILE_SCOPE(FFTInverse);
+                SF_CAB_TRACE_SCOPE(FFTInverse);
                 fft.performRealOnlyInverseTransform(monoTransform.data());
             }
-            juce::FloatVectorOperations::add(channel+offset,monoTransform.data()+inputPosition,monoOverlap.data()+inputPosition,count);
+            {SF_CAB_TRACE_BYTES(OutputMix,3u*std::uint64_t(count)*sizeof(float));juce::FloatVectorOperations::add(channel+offset,monoTransform.data()+inputPosition,monoOverlap.data()+inputPosition,count);}
             inputPosition+=count;offset+=count;
             if(inputPosition==blockSize) {
-                std::fill(monoInput.begin(),monoInput.end(),0.f);inputPosition=0;
-                juce::FloatVectorOperations::add(monoTransform.data()+blockSize,monoOverlap.data()+blockSize,fftSize-2*blockSize);
-                juce::FloatVectorOperations::copy(monoOverlap.data(),monoTransform.data()+blockSize,fftSize-blockSize);
+                {SF_CAB_TRACE_BYTES(HistoryClear,monoInput.size()*sizeof(float));std::fill(monoInput.begin(),monoInput.end(),0.f);inputPosition=0;}
+                {SF_CAB_TRACE_BYTES(OverlapAdd,3u*std::uint64_t(fftSize-2*blockSize)*sizeof(float));juce::FloatVectorOperations::add(monoTransform.data()+blockSize,monoOverlap.data()+blockSize,fftSize-2*blockSize);}
+                {SF_CAB_TRACE_BYTES(OverlapCopy,2u*std::uint64_t(fftSize-blockSize)*sizeof(float));juce::FloatVectorOperations::copy(monoOverlap.data(),monoTransform.data()+blockSize,fftSize-blockSize);}
                 currentSegment=currentSegment>0 ? currentSegment-1 : inputSegments-1;
             }
         }
@@ -205,6 +213,8 @@ public:
     int getLatency() const noexcept {return 0;}
     void reset() noexcept
     {
+        SF_CAB_TRACE_BYTES(Reset,(inputSpectra.size()+pastSum.size()+outputSpectrum.size()+monoInput.size()+monoTransform.size()+monoOverlap.size())*sizeof(float)
+            +(inputTime.size()+transform.size()+outputTime.size()+overlap.size())*sizeof(Complex));
         std::fill(inputSpectra.begin(),inputSpectra.end(),0.f);
         std::fill(pastSum.begin(),pastSum.end(),0.f);
         std::fill(outputSpectrum.begin(),outputSpectrum.end(),0.f);
@@ -228,33 +238,39 @@ public:
         for(int offset=0;offset<buffer.getNumSamples();) {
             const bool firstChunk=inputPosition==0;
             const int count=juce::jmin(buffer.getNumSamples()-offset,blockSize-inputPosition);
-            for(int i=0;i<count;++i)inputTime[size_t(inputPosition+i)]={left[offset+i],right ? right[offset+i] : 0.f};
+            {SF_CAB_TRACE_BYTES(InputPack,std::uint64_t(count)*(sizeof(Complex)+(right ? 2u : 1u)*sizeof(float)));
+            for(int i=0;i<count;++i)inputTime[size_t(inputPosition+i)]={left[offset+i],right ? right[offset+i] : 0.f};}
             {
                 SF_CAB_PROFILE_SCOPE(FFTForward);
+                SF_CAB_TRACE_SCOPE(FFTForward);
                 fft.perform(inputTime.data(),transform.data(),false);
             }
             {
                 SF_CAB_PROFILE_SCOPE(SpectralMAC);
                 const auto bank=currentInputBank();
                 auto* currentInput=inputSpectra.data()+size_t(bank.start+bank.offset)*size_t(2*fftSize);
-                packSpectrum(transform.data(),currentInput,fftSize);
+                {SF_CAB_TRACE_BYTES(SpectrumPack,2u*std::uint64_t(fftSize)*sizeof(Complex));packSpectrum(transform.data(),currentInput,fftSize);}
                 sumPartitions(currentInput,bank,firstChunk);
-                for(int i=0;i<fftSize;++i)transform[size_t(i)]={outputSpectrum[size_t(i)],outputSpectrum[size_t(fftSize+i)]};
+                {SF_CAB_TRACE_BYTES(SpectrumUnpack,2u*std::uint64_t(fftSize)*sizeof(Complex));
+                for(int i=0;i<fftSize;++i)transform[size_t(i)]={outputSpectrum[size_t(i)],outputSpectrum[size_t(fftSize+i)]};}
             }
             {
                 SF_CAB_PROFILE_SCOPE(FFTInverse);
+                SF_CAB_TRACE_SCOPE(FFTInverse);
                 fft.perform(transform.data(),outputTime.data(),true);
             }
+            {SF_CAB_TRACE_BYTES(OutputMix,std::uint64_t(count)*(2u*sizeof(Complex)+(right ? 2u : 1u)*sizeof(float)));
             for(int i=0;i<count;++i) {
                 const auto value=outputTime[size_t(inputPosition+i)]+overlap[size_t(inputPosition+i)];
                 left[offset+i]=value.real();if(right)right[offset+i]=value.imag();
             }
+            }
             inputPosition+=count;offset+=count;
             if(inputPosition==blockSize) {
-                std::fill(inputTime.begin(),inputTime.end(),Complex{});
+                {SF_CAB_TRACE_BYTES(HistoryClear,inputTime.size()*sizeof(Complex));std::fill(inputTime.begin(),inputTime.end(),Complex{});}
                 inputPosition=0;
-                for(int i=blockSize;i<fftSize-blockSize;++i)outputTime[size_t(i)]+=overlap[size_t(i)];
-                std::copy(outputTime.begin()+blockSize,outputTime.end(),overlap.begin());
+                {SF_CAB_TRACE_BYTES(OverlapAdd,3u*std::uint64_t(fftSize-2*blockSize)*sizeof(Complex));for(int i=blockSize;i<fftSize-blockSize;++i)outputTime[size_t(i)]+=overlap[size_t(i)];}
+                {SF_CAB_TRACE_BYTES(OverlapCopy,2u*std::uint64_t(fftSize-blockSize)*sizeof(Complex));std::copy(outputTime.begin()+blockSize,outputTime.end(),overlap.begin());}
                 currentSegment=currentSegment>0 ? currentSegment-1 : inputSegments-1;
             }
         }

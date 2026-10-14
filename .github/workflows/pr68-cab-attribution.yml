@@ -1,0 +1,55 @@
+name: PR68 CAB failure attribution
+on:
+  pull_request:
+    paths:
+      - 'Tools/CabCallbackAttribution/**'
+      - 'Source/CabCallbackTrace.h'
+      - '.github/workflows/pr68-cab-attribution.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+env:
+  ATTRIBUTION_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+jobs:
+  attribute:
+    strategy:
+      fail-fast: false
+      matrix:
+        block: [32, 64, 256]
+        order: [ABBA, BAAB]
+    runs-on: macos-15
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ env.ATTRIBUTION_SHA }}
+          path: controller
+          persist-credentials: false
+      - uses: actions/checkout@v5
+        with:
+          ref: c2263e4c90bffb9a56cc41285ebf8207e641b3aa
+          path: frozen-source
+          persist-credentials: false
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - name: Check evidence contracts
+        shell: bash
+        run: |
+          python frozen-source/Tools/test_cab_timing_evidence.py
+          python controller/Tools/CabCallbackAttribution/test_verify_attribution.py
+      - name: Run unchanged gates and registered observer comparison
+        run: |
+          python controller/Tools/CabCallbackAttribution/run_attribution.py \
+            --source controller --source-sha '${{ env.ATTRIBUTION_SHA }}' \
+            --frozen-source frozen-source --build-root attribution-build \
+            --output attribution-evidence --block-size '${{ matrix.block }}' \
+            --order '${{ matrix.order }}' --environment native-macos
+      - name: Retain all completed and failed attempts
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: PR68-CAB-${{ matrix.block }}-${{ matrix.order }}-${{ env.ATTRIBUTION_SHA }}-${{ github.run_attempt }}
+          path: attribution-evidence/
+          if-no-files-found: error
+          retention-days: 90
