@@ -2,6 +2,9 @@
 
 **공개·배포 요청을 받은 통합 후보입니다. 아직 배포 완료가 아닙니다.**
 
+**이 후보의 만료일은 2027-02-11 23:59 KST / 2027-02-11T14:59:00Z로 승인됐습니다.
+만료일 승인과 별개로 최종 소스·패키지 검증 및 배포 승인은 미완료입니다.**
+
 - 시그널 바에서 PRE / HEAD / CAB / TONE EQ / POST / FINAL EQ를 바로 선택합니다. 픽토그램과 강조된 하단 유틸리티, 독립 튜너 화면을 제공합니다.
 - 정밀 추정기와 직선형 가상 스트로브·니들 표시, 보정 튜닝 프로필 및 사용자 오프셋을 추가합니다. 스트로브는 목표음과의 차이가 줄면 느려집니다. 합성 신호 검사는 실제 악기·오디오 인터페이스 정확도 인증이 아닙니다.
 - EQ를 한 뱅크씩 크게 편집하고, 밴드 추가·삭제·실행 취소·다시 실행과 IN/OUT 애널라이저·해상도·스냅샷 고정을 사용합니다.
@@ -12,7 +15,8 @@ English: this candidate combines direct signal navigation, precision virtual
 strobe tuning, focused EQ/analyzer editing and common live dynamics. Four dynamic
 slots share existing Tone/Final nodes. Clean compression precedes POST; the
 sample-peak limiter follows final output gain. New stages add no lookahead or
-extra audio delay. Exact-source qualification and beta expiry approval remain
+extra audio delay. The approved beta expiry is 2027-02-11T14:59:00Z
+(2027-02-11 23:59 KST). Exact-source qualification and release approval remain
 pending; historical release sections below do not describe this candidate's status.
 
 Deutsch: Dieser Kandidat vereint direkte Signalnavigation, präzise virtuelle
@@ -20,10 +24,13 @@ Stroboskopanzeige, den fokussierten EQ/Analyzer und gemeinsame Live-Dynamik.
 Vier dynamische Plätze verwenden vorhandene Tone-/Final-EQ-Bänder. Der saubere
 Kompressor liegt vor POST, der Sample-Peak-Limiter hinter dem Ausgangspegel.
 Die neuen Module fügen kein Lookahead und keine Audioverzögerung hinzu.
-Quellstandsprüfung und Freigabe des Beta-Ablaufdatums stehen noch aus.
+Das Beta-Ablaufdatum ist für diese Version auf 2027-02-11T14:59:00Z
+(2027-02-11 23:59 KST) freigegeben. Quellstandsprüfung und Freigabe der
+Veröffentlichung stehen weiterhin aus.
 
 The integrated lifecycle behavior is retained from the following development
-candidate. Its old version heading is historical; no expiry date is approved.
+candidate. Its old version heading and unapproved expiry apply only to PR #62's
+1.3.1-beta.3 scope, not to the approved deadline of this 1.3.2-beta.1 candidate.
 
 ---
 
