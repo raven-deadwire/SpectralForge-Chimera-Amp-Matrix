@@ -857,8 +857,8 @@ int main(int argc, char** argv)
         const auto options = attribution::parse(argc, argv);
         attribution::require(!spectralforge::lifecycle::enabled(), "Run probe with lifecycle tracing disabled");
         const juce::ScopedNoDenormals noDenormals;
-        std::cout << std::setprecision(17) << "ATTRIBUTION_PROTOCOL schema_version=1 diagnostic_only=1 sample_rate=96000 block_size=" << blockSize
-            " three_lanes=1 two_mics_per_lane=1 authored_ir_truncation=0 fade_ms=50 product_gate=unchanged_external"
+        std::cout << std::setprecision(17) << "ATTRIBUTION_PROTOCOL schema_version=1 diagnostic_only=1 sample_rate=96000 block_size=" << attribution::blockSize
+            << " three_lanes=1 two_mics_per_lane=1 authored_ir_truncation=0 fade_ms=50 product_gate=unchanged_external"
             " host_callback=0 realtime_policy_requested=0 wall_cpu_raw_pairs=1\n";
         cabTiming::appendCallerScheduling(std::cout); std::cout << '\n';
         std::vector<std::string> engines = options.engine == "all"
