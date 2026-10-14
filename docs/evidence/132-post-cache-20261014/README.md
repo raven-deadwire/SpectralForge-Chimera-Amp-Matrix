@@ -20,7 +20,7 @@ harness also passed with zero calls (`post-allocation.log`).
 
 ## Narrow local cost measurement
 
-Linux x86-64, GCC 12.2, `-O3`, JUCE 8.0.8; no editor, driver or DAW. Four paired
+Linux x86-64, GCC 13.3.0, `-O3`, JUCE 8.0.8; no editor, driver or DAW. Four paired
 runs per setting alternate execution order, 100 warmup + 1,000 timed blocks per
 run. Values are medians of batch-average wall microseconds for **the three native
 POST sections only**, not callback p99/peak. Model selects the same index in each
