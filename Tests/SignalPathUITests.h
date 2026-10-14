@@ -64,7 +64,19 @@ inline void run(const juce::File& folder) {
     auto* strip=find<SignalPathView>(*editor,"signalPathStrip");require(strip!=nullptr,"Persistent path strip absent");
     for(const auto scenario:std::array<std::array<int,2>,4>{{{0,0},{1,0},{1,1},{2,0}}}) {
         std::cout<<"Signal Path scenario "<<scenario[0]<<" / "<<scenario[1]<<std::endl;
-        const int mode=scenario[0];set(*p,"mode",float(mode));set(*p,"dualtype",float(scenario[1]));settle(100);
+        const int mode=scenario[0];
+        // October 23 starts with empty persistent-slot banks. Exercise both
+        // legitimate focus targets without weakening the occupied-band check.
+        const bool occupiedEQ=mode==1;
+        for(int bank=0;bank<2;++bank) {
+            auto& edits=p->eqEditing();
+            if(occupiedEQ && !edits.isOccupied(bank,0))
+                require(edits.addBand(bank,1000.f,0.f)==0,"Navigation occupied-bank fixture failed");
+            if(!occupiedEQ && edits.isOccupied(bank,0))
+                require(edits.removeBand(bank,0),"Navigation empty-bank fixture failed");
+            require(edits.occupiedMask(bank)==(occupiedEQ?1:0),"Navigation fixture has unexpected occupancy");
+        }
+        set(*p,"mode",float(mode));set(*p,"dualtype",float(scenario[1]));settle(100);
         auto* expand=find<juce::TextButton>(*editor,"signalPathExpand");require(expand,"Path expansion missing");
         const auto before=values(*p);writes.changes=writes.gestures=0;click(*expand);
         auto graphWindow=juce::Component::SafePointer<juce::DialogWindow>(dialog("signalPathGraph"));require(graphWindow,"Path expansion did not open native graph");
@@ -84,8 +96,14 @@ inline void run(const juce::File& folder) {
                 auto* selected=find<spectralforge::GraphicalEQPanel>(*editor,tone?"toneEQ_panel":"finalEQ_panel");
                 auto* other=find<spectralforge::GraphicalEQPanel>(*editor,tone?"finalEQ_panel":"toneEQ_panel");
                 require(selected && other && selected->isShowing() && selected->isNavigationSelected() && !other->isNavigationSelected(),"Expanded EQ click did not open/highlight the requested bank");
-                auto* frequency=find<juce::Slider>(*selected,spectralforge::eqID(tone?0:1,selected->selectedBand(),"frequency"));
-                require(frequency && frequency->hasKeyboardFocus(true),"EQ navigation did not focus the requested bank's frequency control");
+                if(occupiedEQ) {
+                    require(selected->selectedBand()==0,"EQ navigation lost the occupied persistent slot");
+                    auto* frequency=find<juce::Slider>(*selected,spectralforge::eqID(tone?0:1,selected->selectedBand(),"frequency"));
+                    require(frequency && frequency->hasKeyboardFocus(true),"EQ navigation did not focus the requested bank's frequency control");
+                } else {
+                    require(selected->selectedBand()==-1 && selected->hasKeyboardFocus(false),
+                            "Empty EQ navigation did not focus the requested bank's graph");
+                }
             }
             if(node.target==Target::amp && node.lane>=0)require(dialog("ampNativePanel"+juce::String(node.lane+1)),"AMP click did not open the existing lane editor");
             // Amp and CAB dialogs are independently owned and closed here.
