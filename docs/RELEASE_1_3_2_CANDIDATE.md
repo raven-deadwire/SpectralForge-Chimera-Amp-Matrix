@@ -69,3 +69,11 @@ queue consumption, and checks expiry both during and after the pause. See
 The tuner panel is opaque and limits dynamic repainting to its reading region.
 The latest complete source still requires fresh platform/package results and
 callback qualification. Expiry approval does not waive performance failures.
+
+The callback investigation also found repeated invariant arithmetic in the native
+POST chain. Pure gain/exponential and filter-control caches now avoid that work
+while retaining every DSP/meter state update. A frozen pre-cache oracle matches
+1,028,160 samples exactly, including transitions and re-prepare. Local narrow
+POST benchmarks and unchanged functional contracts are recorded in
+`evidence/132-post-cache-20261014/`. This optimization does not by itself establish
+that full-processor callback overruns are resolved.
