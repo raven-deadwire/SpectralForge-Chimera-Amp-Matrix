@@ -60,12 +60,16 @@ void lifecycle(){
     juce::AudioBuffer<float> audio(2,256);
     const auto feed=[&]{
         const auto start=Clock::now();
-        for(int block=0;block<60;++block){
+        // Keep publishing source-paced blocks until the lifecycle observation
+        // is acquired. This suite validates reset/expiry behavior; the separate
+        // 32-route matrix below retains the unchanged <290 ms acquisition gate.
+        for(int block=0;block<120;++block){
             for(int n=0;n<256;++n)for(int c=0;c<2;++c)audio.setSample(c,n,tone(110,(block*256+n)/48000.,1));
             tuner.push(audio,true);
             std::this_thread::sleep_until(start+std::chrono::microseconds((block+1)*5333));
+            if(std::abs(error(tuner.frequency(),110))<.1 && tuner.confidence()>.9f)return;
         }
-        require(std::abs(error(tuner.frequency(),110))<.1,"Lifecycle tone did not acquire");
+        require(false,"Lifecycle tone did not acquire");
     };
     feed();tuner.push(audio,false);tuner.push(audio,true);
     require(tuner.frequency()==0,"Rapid re-enable leaked previous reading");

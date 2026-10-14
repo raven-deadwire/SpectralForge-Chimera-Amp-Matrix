@@ -375,6 +375,12 @@ void liveAnalyzer(ChimeraProcessor& processor,ChimeraEditor& editor,const juce::
     check(waitFor([&]{return panel->fftFrames()>before && panel->spectrumDB(false,256)>-20.2f && panel->spectrumDB(false,86)<-70;}),"Native analyzer did not follow a new real input frequency");
     check(panel->spectrumDB(false,86)<-70,"Native raw spectrum retained the old frequency");
     check(audio.callbacks.load()>100,"Native proof did not run real paced audio callbacks");
+    // Capture the visible peak before stopping. A loaded native dispatcher
+    // may satisfy both requested waits in one long dispatch (observed on macOS),
+    // so sampling the comparison point after the drain can already see -120 dB.
+    // The proof is decay from the last live observation, with no fabricated FFT.
+    const int peakBin=256;
+    const float displayAtStop=panel->displaySpectrumDB(false,peakBin);
     audio.stop();const auto atStop=panel->fftFrames();
     const uint64_t pendingAtStop=processor.graphicalEQ(1).analyzer.pendingSamples();
     const uint64_t hop=uint64_t(panel->analysisFFTSize()/4);
@@ -382,8 +388,9 @@ void liveAnalyzer(ChimeraProcessor& processor,ChimeraEditor& editor,const juce::
     settle(100);
     const auto drained=panel->fftFrames();
     check(drained<=atStop+maximumDrainWindows,"Stopped producer triggered unbounded catch-up FFT work");
-    const int peakBin=256;const float oldDisplay=panel->displaySpectrumDB(false,peakBin);settle(400);
-    check(panel->fftFrames()==drained && panel->spectrumDB(false,peakBin)<=-119.9f && panel->displaySpectrumDB(false,peakBin)<oldDisplay,
+    settle(400);
+    check(panel->fftFrames()==drained && panel->spectrumDB(false,peakBin)<=-119.9f
+              && panel->displaySpectrumDB(false,peakBin)<displayAtStop,
           "Stopped audio did not decay on the native screen without fabricated FFT frames");
     snapshot(editor,directory.getChildFile("eq-ui-stopped-source.png"));
     std::cout<<"PASS native synthetic anti-phase sine / independent IN-OUT layers / master-off / stopped-source decay\n";
