@@ -1,5 +1,6 @@
 #include "PluginEditor.h"
 #include "NativeMessageLoop.h"
+#include "EQParameterAssertions.h"
 #include <algorithm>
 #include <array>
 #include <chrono>
@@ -233,7 +234,11 @@ void editingWorkflow(ChimeraProcessor& processor,GraphicalEQPanel& panel,int ban
     undo->triggerClick();check(waitFor([&]{return panel.isBandVisible(0) && get(processor,eqID(bank,0,"enabled"))==1;}),"Undo deletion failed");
     redo->triggerClick();check(waitFor([&]{return !panel.isBandVisible(0) && selector->getNumItems()==0;}),"Redo deletion failed");
     add->triggerClick();check(waitFor([&]{return panel.selectedBand()==0 && selector->getNumItems()==1;}),"Deleted first slot was not reused");
-    check(get(processor,eqID(bank,0,"frequency"))==1000 && get(processor,eqID(bank,0,"gain"))==0,"Reused slot did not start neutral");
+    chimeraTest::requireParameterRoundtrip(processor,eqID(bank,0,"frequency"),1000.f,.02f);
+    chimeraTest::requireParameterRoundtrip(processor,eqID(bank,0,"gain"),0.f,.002f);
+    chimeraTest::requireParameterRoundtrip(processor,eqID(bank,0,"q"),.70710678f,.002f);
+    check(get(processor,eqID(bank,0,"type"))==0 && get(processor,eqID(bank,0,"enabled"))==1,
+          "Reused slot did not reset filter type before enabling");
     for(int band=1;band<12;++band){add->triggerClick();check(waitFor([&]{return selector->getNumItems()==band+1;}),"Add did not use the next persistent slot");}
     check(!add->isEnabled(),"Full EQ did not disable Add");
     const auto mask=processor.eqEditing().occupiedMask(bank);

@@ -1,5 +1,6 @@
 #include "PluginProcessor.h"
 #include "GuitarSignaturePresets.h"
+#include "EQParameterAssertions.h"
 #include <array>
 #include <atomic>
 #include <cmath>
@@ -119,6 +120,58 @@ private:
     std::array<juce::RangedAudioParameter*, graphicalEQParameterCount> parameters {};
     std::array<HostEvents, graphicalEQParameterCount> events;
 };
+
+// Inspect synchronous host notifications, without depending on APVTS listener
+// registration order or a platform's native message pump.
+class SlotReuseOrder : private juce::AudioProcessorParameter::Listener {
+public:
+    SlotReuseOrder(ChimeraProcessor& processor, int bank) {
+        for (size_t i = 0; i < fields.size(); ++i) {
+            parameters[i] = processor.parameters().getParameter(eqID(bank, 0, fields[i]));
+            parameters[i]->addListener(this);
+        }
+    }
+    ~SlotReuseOrder() override { for (auto* parameter : parameters) parameter->removeListener(this); }
+    void require(const std::array<int, 5>& expected) const {
+        check(count == 5 && order == expected, "Reused slot notification order changed");
+        check(!tuningWasEnabled, "Reused slot became audible before initialization completed");
+    }
+    void reset() { count = 0; order.fill(-1); tuningWasEnabled = false; }
+private:
+    void parameterValueChanged(int index, float) override {
+        for (size_t i = 0; i < parameters.size(); ++i) if (parameters[i]->getParameterIndex() == index) {
+            if (count < order.size()) order[count] = int(i);
+            ++count;
+            if (i != 0 && parameters[0]->getValue() > .5f) tuningWasEnabled = true;
+        }
+    }
+    void parameterGestureChanged(int, bool) override {}
+    std::array<juce::RangedAudioParameter*, 5> parameters {};
+    std::array<int, 5> order { -1, -1, -1, -1, -1 };
+    size_t count {};
+    bool tuningWasEnabled {};
+};
+
+void slotNotificationOrder() {
+    for (int bank = 0; bank < 2; ++bank) {
+        auto processor = std::make_unique<ChimeraProcessor>();
+        auto& edits = processor->eqEditing();
+        check(edits.addBand(bank, 437.5f, 6.f) == 0, "Slot order fixture creation");
+        localSet(*processor, bank, 0, "q", 3.5f);
+        localSet(*processor, bank, 0, "type", 2.f);
+        check(edits.removeBand(bank, 0), "Slot order fixture deletion");
+        SlotReuseOrder trace(*processor, bank);
+        check(edits.addBand(bank, 1000.f, -4.f) == 0, "Slot order fixture reuse");
+        trace.require({ 1, 2, 3, 4, 0 });
+        trace.reset();
+        check(edits.undo(), "Slot order reuse Undo");
+        trace.require({ 0, 1, 2, 3, 4 });
+        trace.reset();
+        check(edits.redo(), "Slot order reuse Redo");
+        trace.require({ 1, 2, 3, 4, 0 });
+        std::cout << "PASS synchronous slot reuse order: tuning-before-enable / Undo disable-first / Redo enable-last bank=" << bank << '\n';
+    }
+}
 
 juce::ValueTree stateTree(ChimeraProcessor& processor) {
     juce::MemoryBlock bytes;
@@ -294,8 +347,24 @@ void externalOwnership() {
     check(edits.addBand(0, 1000.f, 3.f) == 0, "External ownership fixture");
     auto* output = processor.parameters().getParameter("output");
     output->setValueNotifyingHost(output->convertTo0to1(-9.f));
-    check(edits.undo() && processor.parameters().getRawParameterValue("output")->load() == -9.f,
-          "EQ undo rewound an unrelated processor parameter or non-EQ automation erased EQ history");
+    chimeraTest::requireParameterRoundtrip(processor, "output", -9.f, .002f);
+    const float outputBefore = processor.parameters().getRawParameterValue("output")->load();
+    std::vector<float> nonEQBefore;
+    for (int i = 0; i < 4845; ++i) nonEQBefore.push_back(processor.getParameters()[i]->getValue());
+    const auto epochBefore = edits.externalRevision();
+    check(edits.canUndo(), "Non-EQ automation erased EQ history before Undo");
+    const bool undone = edits.undo();
+    const float outputAfter = processor.parameters().getRawParameterValue("output")->load();
+    std::cout << "UNDO_ISOLATION undone=" << undone << " output_before=" << outputBefore
+              << " output_after=" << outputAfter << " epoch_before=" << epochBefore
+              << " epoch_after=" << edits.externalRevision() << '\n';
+    check(undone, "EQ Undo failed after non-EQ automation");
+    check(chimeraTest::sameFloatBits(outputBefore, outputAfter),
+          "EQ Undo changed an unrelated processor parameter's exact stored bits");
+    check(edits.externalRevision() == epochBefore, "EQ Undo unexpectedly introduced an external history boundary");
+    for (int i = 0; i < 4845; ++i)
+        check(chimeraTest::sameFloatBits(nonEQBefore[size_t(i)], processor.getParameters()[i]->getValue()),
+              "EQ Undo changed unrelated host parameter " + std::to_string(i));
     check(edits.redo(), "External ownership redo fixture");
     check(edits.beginEdit(0, "Interrupted drag") && edits.setValue(0, 0, "frequency", 1750.f),
           "Interrupted drag could not start");
@@ -553,6 +622,7 @@ int main() {
         juce::ScopedJuceInitialiser_GUI init;
         hostParameterContract();
         occupancyAndSlotReuse();
+        slotNotificationOrder();
         transactionGrouping();
         externalOwnership();
         projectAndComparisonRecall();
