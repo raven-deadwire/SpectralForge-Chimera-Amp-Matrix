@@ -1,5 +1,16 @@
 # CAB callback attribution
 
+## PR #68 follow-up protocol
+
+The current controller freezes `c2263e4c90bffb9a56cc41285ebf8207e641b3aa`.
+Use `--block-size 32`, `64` (default), or `256` on the controller; direct CMake
+builds use `-DCHIMERA_ATTRIBUTION_BLOCK_SIZE=32`. Independent verification must
+specify the matching `--expected-block-size`; the default remains 64 for old
+archives. The current source-bound findings and workflow are documented in
+[the PR #68 report](../../docs/evidence/pr68-cab-20261015/README.md).
+The remaining text describes the original PR #49 64-sample protocol and its
+historical commands; those old frozen-source examples are not the new baseline.
+
 This diagnostic follows [PR #49's original investigation](../../docs/evidence/macos-cab-deadlines-20261012/README.md).
 It records the same console interval's CAB stages, kernel transitions and
 worker observations. It does not implement a performance fix, alter caller or
