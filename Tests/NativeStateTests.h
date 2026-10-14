@@ -31,7 +31,7 @@ inline void run(const juce::File& directory) {
         const bool isCab=id->paramID.startsWith("cabA") || id->paramID.startsWith("cabB") || id->paramID.startsWith("cabblend");
         const int tunerIndex=tunerIDs.indexOf(id->paramID);
         if(parameter->getVersionHint()==12){require(parameter->getParameterIndex()==4986+dynamicsCount,"Common dynamics must append after tuner parameters");++dynamicsCount;}
-        else if(tunerIndex>=0){require(parameter->getParameterIndex()==4845+graphicalEQParameterCount+tunerIndex && parameter->getVersionHint()==11,"Precision tuner must append after every released host parameter");++tunerCount;}
+        else if(tunerIndex>=0){require(tunerIndex==tunerCount && parameter->getParameterIndex()==4845+graphicalEQParameterCount+tunerIndex && parameter->getVersionHint()==11,"Precision tuner must append after every released host parameter");++tunerCount;}
         else if(id->paramID.startsWith("toneEQ_") || id->paramID.startsWith("finalEQ_")){require(parameter->getParameterIndex()==4845+eqCount && parameter->getVersionHint()==10,"Graphical EQ append-only ordinal");++eqCount;}
         else if(id->paramID.startsWith("lcab")){require(parameter->getParameterIndex()==4836+layoutCabCount && parameter->getVersionHint()==9,"Layout CAB append-only ordinal");++layoutCabCount;}
         else if(id->paramID.startsWith("xcab")){require(parameter->getParameterIndex()==4824+expandedCabCount && parameter->getVersionHint()==8,"Expanded CAB append-only ordinal");++expandedCabCount;}

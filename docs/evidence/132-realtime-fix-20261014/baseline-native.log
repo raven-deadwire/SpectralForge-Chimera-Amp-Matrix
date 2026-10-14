@@ -1,0 +1,2 @@
+PASS stereo balance continuity and true channel-switch invalidation/reacquisition
+PASS 108 kernel cases and 32 native A/B routes. Synthetic sine/harmonic/exponential-decay maxima: 8.06939e-05 0.00235605 0.00235605 ct. Lifecycle re-enable/stale/nonfinite/rate-change passed. Host clock/DI/GUI latency not included.

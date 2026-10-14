@@ -26,15 +26,17 @@ back to a signal stage. Navigation itself never changes mute or other parameters
 - Clean input tap precedes gate/transpose/effects, as in the previous product.
 - Audio callback: existing two-pole low-pass, decimation to approximately 24 kHz,
   and a bounded SPSC queue. No new allocation or pitch estimation in processBlock.
-- Worker: 8192-sample analysis, YIN fundamental selection and a multi-period,
-  eight-point Lagrange fractional-delay refinement. Intended range 16–2000 Hz.
-- A full analysis window is roughly 341 ms at 24 kHz. This is tuner acquisition
+- Worker: 4096-sample analysis, 10 ms polling, YIN fundamental selection and
+  gain/DC-normalized eight-point fractional-delay correlation. Weak-fundamental
+  checks precede multi-period refinement; repeated search evaluations are reused. Intended range 16–2000 Hz.
+- A full analysis window is roughly 171 ms at 24 kHz. This is tuner acquisition
   time, not added audio-path latency. Real pluck settling may take longer.
-- Queue discontinuity or enable transitions reset the worker's history. Readings
+- Queue discontinuity, channel changes, nonfinite input or enable transitions reset the worker's history. Readings
   expire after 250 ms without fresh samples. Silence/DC/nonperiodic noise do not lock.
 - Virtual strobe motion integrates measured minus target Hz at 1×, 2× and 4× rates.
   It is an estimated-frequency visual strobe, not an optical/phase-domain clone.
   No artificial cent dead band, snapped phase or false stationary in-tune animation.
+  Large per-frame steps are limited to 0.2 stripe periods to avoid apparent reversal.
 - Needle view, note/octave, measured Hz, cent error, target Hz and offset are shown.
   Existing A4 calibration range (430–450 Hz) remains unchanged for host compatibility.
 
@@ -91,3 +93,37 @@ fundamental, hum, vibrato), measured lock time/octave errors, worker CPU, audio
 callback deadlines, sample-clock calibration, installed DAW recall and accessible
 navigation on Windows/macOS/Linux. Preserve the inherited PR #60 macOS failure
 until the modified complete source passes; this development is not release approval.
+
+## October 14 reconciliation with #67 and #68
+
+The embedded workspace and signal/utility navigation remain owned by #66/#68.
+The normalized estimator, shorter window, generation invalidation, bass targets,
+display anti-alias and frozen-baseline acquisition tests are taken from #67
+(`36e41a50a9179b52eba21c3e8d5f99d0aad5bbef`). The #68 single-publication
+SPSC callback and low-priority worker are preserved. There is one engine, one
+parameter bank and one UI workspace. No floating tuner window or redundant
+navigation is reintroduced. Custom note names are applied after attachments.
+
+The 19 tuner parameters still precede the 40 common dynamics parameters.
+New zero-offset bass choices append to the unpublished profile choice list;
+all released host IDs, ranges, defaults, indices and hints remain unchanged.
+BFTS choices identify the published Anderson electric open/fretted-12 targets.
+The two bass choices are equal temperament, not proprietary compensation.
+
+The historical [#67 evidence folder](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/tree/36e41a50a9179b52eba21c3e8d5f99d0aad5bbef/docs/evidence/tuner-20261013) retains its failures and original source
+hashes in the existing remote commit; it is not duplicated in this change. It does not qualify this integrated source. The 290 ms native acquisition
+and pitch-step gates and 600 ms UI delivery test remain in the candidate CI.
+The embedded UI now carries #67's bounds/legacy-offset checks as well as #66's
+four-scale, audio-neutral navigation and project recall checks.
+
+Real DI, physical sample-clock calibration, stopped/discontinuous input,
+Windows/macOS/Linux source-matched builds, callback deadlines and installed
+DAW acceptance remain separate release conditions. Two-pole 3 kHz filtering is
+not an ideal anti-alias filter. Synthetic sub-cent results do not certify
+Peterson-equivalent hardware or instrument accuracy.
+
+Stereo channel selection now retains the current input until the other channel
+is at least 3 dB stronger. This prevents small balance fluctuations from repeatedly
+invalidating the analysis window. A genuine switch still invalidates immediately.
+The native regression covers alternating near-equal input levels and acquisition
+of a new dominant channel, alongside the unchanged timing gates.

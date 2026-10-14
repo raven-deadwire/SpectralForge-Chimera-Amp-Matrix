@@ -544,3 +544,12 @@ set_tests_properties(ChimeraAmpHeadControlTests PROPERTIES TIMEOUT 300 RUN_SERIA
 add_executable(ChimeraPrecisionTunerTests Tests/PrecisionTunerTests.cpp)
 target_include_directories(ChimeraPrecisionTunerTests PRIVATE Source)
 add_test(NAME ChimeraPrecisionTunerTests COMMAND ChimeraPrecisionTunerTests)
+
+# Source-frozen baseline versus production tuner acquisition and lifecycle gates.
+juce_add_console_app(ChimeraPrecisionTunerIntegrationTests PRODUCT_NAME "Chimera Tuner Integration Tests")
+target_sources(ChimeraPrecisionTunerIntegrationTests PRIVATE Tests/PrecisionTunerIntegrationTests.cpp)
+target_include_directories(ChimeraPrecisionTunerIntegrationTests PRIVATE Source)
+target_compile_definitions(ChimeraPrecisionTunerIntegrationTests PRIVATE JUCE_USE_CURL=0 JUCE_WEB_BROWSER=0 CHIMERA_TUNER_TEST_HOOKS=1)
+target_link_libraries(ChimeraPrecisionTunerIntegrationTests PRIVATE juce::juce_dsp PUBLIC juce::juce_recommended_config_flags)
+add_test(NAME ChimeraPrecisionTunerIntegrationTests COMMAND ChimeraPrecisionTunerIntegrationTests)
+set_tests_properties(ChimeraPrecisionTunerIntegrationTests PROPERTIES TIMEOUT 120)
