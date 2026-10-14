@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="(empty)"
+	tests="9"
+	failures="0"
+	disabled="0"
+	skipped="0"
+	hostname=""
+	time="380"
+	timestamp="2026-10-14T16:55:39"
+	>
+	<testcase name="ChimeraPackagingVersionTests" classname="ChimeraPackagingVersionTests" time="0.269818" status="run">
+		<properties/>
+		<system-out>test_beta_identity_and_malformed_channels (__main__.PackagingVersionTests.test_beta_identity_and_malformed_channels) ... ok
+test_candidate_stage_inventory_and_versions_without_global_mutation (__main__.PackagingVersionTests.test_candidate_stage_inventory_and_versions_without_global_mutation) ... ok
+test_cmake_project_and_generated_product_identity (__main__.PackagingVersionTests.test_cmake_project_and_generated_product_identity) ... ok
+test_identity_uses_source_version_and_exact_sha (__main__.PackagingVersionTests.test_identity_uses_source_version_and_exact_sha) ... ok
+test_rejects_malformed_and_windows_overflow_versions (__main__.PackagingVersionTests.test_rejects_malformed_and_windows_overflow_versions) ... ok
+test_rejects_old_missing_mixed_or_wrong_head_payload (__main__.PackagingVersionTests.test_rejects_old_missing_mixed_or_wrong_head_payload) ... ok
+test_rejects_stale_configured_build_before_staging (__main__.PackagingVersionTests.test_rejects_stale_configured_build_before_staging) ... ok
+test_repositor...
+[This part of the test output was removed since it exceeds the threshold of 1024 bytes.]
+</system-out>
+	</testcase>
+	<testcase name="ChimeraSignalPathUITests" classname="ChimeraSignalPathUITests" time="82.1569" status="run">
+		<properties/>
+		<system-out>PASS Matrix LOW production blend: 0/25/50/75/100, complete AMP + CAB endpoint, DI isolation, amplifier/cabinet bypass; maximum interpolation residual=0
+Signal Path scenario 0 / 0
+Signal Path scenario 1 / 0
+Signal Path scenario 1 / 1
+Signal Path scenario 2 / 0
+Signal Path preset 0
+Signal Path preset 1
+Signal Path preset 2
+Signal Path preset 3
+Signal Path preset 4
+Signal Path preset 5
+Signal Path preset 6
+Signal Path preset 7
+Signal Path preset 8
+Signal Path preset 9
+Signal Path preset 10
+Signal Path preset 11
+Signal Path preset 12
+Signal Path preset 13
+Signal Path preset 14
+Signal Path preset 15
+Signal Path preset 16
+Signal Path preset 17
+Signal Path preset 18
+Signal Path preset 19
+Signal Path preset 20
+Signal Path preset 21
+Signal Path preset 22
+Signal Path preset 23
+Signal Path preset 24
+Signal Path preset 25
+Signal Path preset 26
+Signal Path preset 27
+Signal Path preset 28
+Signal Path preset 29
+Signal Path preset 30
+Signal Path preset 31
+Signal Path preset 32
+Signal Path preset 33
+Signal Path preset 34
+Sign...
+[This part of the test output was removed since it exceeds the threshold of 1024 bytes.]
+</system-out>
+	</testcase>
+	<testcase name="ChimeraNativeStateTests" classname="ChimeraNativeStateTests" time="7.48588" status="run">
+		<properties/>
+		<system-out>Native B canonical POST value=7.000000000 (requested 7)
+PASS: six native amp contexts, all native banks, POST nine models, binary/A-B recall and immediate pedal bank recall
+</system-out>
+	</testcase>
+	<testcase name="ChimeraNativeFocusTests" classname="ChimeraNativeFocusTests" time="3.02915" status="run">
+		<properties/>
+		<system-out>PASS controlled late FocusIn, superseding request, restoration and transfer: managed owner
+PASS hidden, non-focusable, disabled and deleted target fallback: managed owner
+PASS controlled late FocusIn, superseding request, restoration and transfer: temporary owner
+PASS hidden, non-focusable, disabled and deleted target fallback: temporary owner
+PASS native cross-peer transfer through regular event dispatch: managed owner
+Native focus regressions PASS
+</system-out>
+	</testcase>
+	<testcase name="ChimeraCabPanelStateTests" classname="ChimeraCabPanelStateTests" time="80.4301" status="run">
+		<properties/>
+		<system-out>PASS original CAB production state mode=0 dual=0
+PASS original CAB production state mode=1 dual=0
+PASS original CAB production state mode=1 dual=1
+PASS original CAB production state mode=2 dual=0
+PASS original Matrix low DI 0/50/100 and 1x/2x/4x/8x restoration
+PASS original A/B comparison, position audio, UI and legacy disable
+PASS: same-basename Mic B replacement refreshes alias/reference independently; embedded metadata survives deleted source files
+PASS: categorized capture selections resolve real files; other/mixed imports remain usable; combined filters and empty Strike selection cannot load stale audio
+PASS: duplicate microphone/filename labels have private-path-free ordinals and load distinct original audio payloads
+PASS CAB artwork: 27 embedded transparent assets, stable catalog mapping and separate room scenery, combined retained RGBA bytes=16768384
+PASS integrated CAB UI: capture/model provenance, all geometry bindings, host automation, independent transitions, Strike disclosure and deleted-source r...
+[This part of the test output was removed since it exceeds the threshold of 1024 bytes.]
+</system-out>
+	</testcase>
+	<testcase name="ChimeraGateProcessorTests" classname="ChimeraGateProcessorTests" time="13.0279" status="run">
+		<properties/>
+		<system-out>ROUNDING ampchannel1_m15 field=3 expected=0.666666667 actual=0.666666687
+ROUNDING ampchannel2_m15 field=3 expected=0.666666667 actual=0.666666687
+ROUNDING ampchannel3_m15 field=3 expected=0.666666667 actual=0.666666687
+ROUNDING nativeAmp_c0_m2_hw_lead_pre_gain field=3 expected=0.680000000 actual=0.680000007
+ROUNDING nativeAmp_c0_m3_hw_ch2_gain field=3 expected=0.650000000 actual=0.650000036
+ROUNDING nativeAmp_c0_m3_hw_ch3_gain field=3 expected=0.680000000 actual=0.680000007
+ROUNDING nativeAmp_c0_m4_hw_lead_gain field=3 expected=0.720000000 actual=0.720000029
+ROUNDING nativeAmp_c0_m4_hw_lead_drive field=3 expected=0.650000000 actual=0.650000036
+PASS legacy parameter contract: 3686 entries SHA256 c035babc58914c0270e1b5eefb02881a50b88af8b609401d4d391792437e170c approved_112_defaults=111 numeric_rounding_differences=99; append-only gateRangeDb
+PASS binary state, legacy missing-field migration, A/B, factory reset, host gestures and MIDI automation recall
+MEASURE high-gain mode=0 board=0 native=0 range24_db=-23.999...
+[This part of the test output was removed since it exceeds the threshold of 1024 bytes.]
+</system-out>
+	</testcase>
+	<testcase name="ChimeraGraphicalEQTests" classname="ChimeraGraphicalEQTests" time="37.3273" status="run">
+		<properties/>
+		<system-out>PASS paired stereo FIFO capacity / overflow / concurrent producer-consumer
+PASS measured 7 filters, 4 rates, mono/stereo, exact bypass, 24-node automation, no EQ allocations
+PASS 122 host parameters / project / A-B / legacy migration / 48 factory defaults
+PASS actual project and A/B audio &lt;= 1e-6 / legacy missing EQ audio exact / unchanged latency
+PASS route 0 analyzer node transfers and final output
+PASS route 1 analyzer node transfers and final output
+PASS route 2 analyzer node transfers and final output
+PASS route 3 analyzer node transfers and final output
+CPU pair24 48000 Hz 64 / 1ch analyzer_capture=0 p50=10.61 p99=18.575 us / 1333.33 us
+CPU pair24 48000 Hz 64 / 1ch analyzer_capture=1 p50=10.99 p99=19.386 us / 1333.33 us
+CPU pair24 48000 Hz 64 / 2ch analyzer_capture=0 p50=12.834 p99=21.169 us / 1333.33 us
+CPU pair24 48000 Hz 64 / 2ch analyzer_capture=1 p50=12.924 p99=21.872 us / 1333.33 us
+CPU pair24 48000 Hz 128 / 1ch analyzer_capture=0 p50=20.629 p99=29.475 us / 2666.67 us
+CPU pair24 48000 Hz 128 / 1ch...
+[This part of the test output was removed since it exceeds the threshold of 1024 bytes.]
+</system-out>
+	</testcase>
+	<testcase name="ChimeraGraphicalEQUITests" classname="ChimeraGraphicalEQUITests" time="122.193" status="run">
+		<properties/>
+		<system-out>PARAMETER_ROUNDTRIP toneEQ_b1_frequency requested=1000 expected=1000 actual=1000 literal_equal=1 canonical_bits_equal=1
+PARAMETER_ROUNDTRIP toneEQ_b1_gain requested=0 expected=0 actual=0 literal_equal=1 canonical_bits_equal=1
+PASS native graph add/delete / disabled node visibility / numeric and drag undo-redo / persistent reuse / capacity bank=0
+PASS native pending numeric input / equal-valued slot switch / same-values project+host ownership / immediate stale commit rejected bank=0
+Numeric 0:0 Hz=200 dB=3.5 Q=1.25000012
+Numeric 0:1 Hz=517 dB=3.5 Q=1.25000012
+Numeric 0:2 Hz=834 dB=3.5 Q=1.25000012
+Numeric 0:3 Hz=1151 dB=3.5 Q=1.25000012
+Numeric 0:4 Hz=1468 dB=3.5 Q=1.25000012
+Numeric 0:5 Hz=1785 dB=3.5 Q=1.25000012
+Numeric 0:6 Hz=2102 dB=3.5 Q=1.25000012
+Numeric 0:7 Hz=2419 dB=3.5 Q=1.25000012
+Numeric 0:8 Hz=2736 dB=3.5 Q=1.25000012
+Numeric 0:9 Hz=3053 dB=3.5 Q=1.25000012
+Numeric 0:10 Hz=3370 dB=3.5 Q=1.25000012
+Numeric 0:11 Hz=3687 dB=3.5 Q=1.25000012
+PASS overlapping nodes retain selected Band 12 / only sele...
+[This part of the test output was removed since it exceeds the threshold of 1024 bytes.]
+</system-out>
+	</testcase>
+	<testcase name="ChimeraGraphicalEQEditingTests" classname="ChimeraGraphicalEQEditingTests" time="34.9417" status="run">
+		<properties/>
+		<system-out>PASS 4,967 unique host IDs / all 122 EQ ordinals, names, version hints, ranges, defaults, steps and choices
+PASS occupied/bypassed/deleted distinction / first-vacancy reuse / 12-slot cap / independent banks / preserved bypass
+PASS synchronous slot reuse order: tuning-before-enable / Undo disable-first / Redo enable-last bank=0
+PASS synchronous slot reuse order: tuning-before-enable / Undo disable-first / Redo enable-last bank=1
+PASS one-step graph/numeric/create/delete Undo/Redo / redo survives no-op / balanced host gestures
+PARAMETER_ROUNDTRIP output requested=-9 expected=-9 actual=-9 literal_equal=1 canonical_bits_equal=1
+UNDO_ISOLATION undone=1 output_before=-9 output_after=-9 epoch_before=1 epoch_after=1
+PASS host automation ownership / canceled active gestures / no external values in history / unrelated audio parameters preserved
+PASS binary project / independent global A-B slot occupancy / save preserves session history / recall clears history
+PASS P0/pre-EQ migration / disabled tuning preservation / ma...
+[This part of the test output was removed since it exceeds the threshold of 1024 bytes.]
+</system-out>
+	</testcase>
+</testsuite>

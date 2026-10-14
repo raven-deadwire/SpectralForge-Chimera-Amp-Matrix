@@ -1,0 +1,13 @@
+[
+  {
+    "Attempt": 1,
+    "StartedUTC": "2026-10-14T17:57:17.3039055Z",
+    "FinishedUTC": "2026-10-14T17:57:34.9923490Z",
+    "ExitCode": 0,
+    "HResults": [],
+    "Cause": "update_completed",
+    "Error": null,
+    "Log": "SignatureUpdate-1.log",
+    "RetryDelaySeconds": 0
+  }
+]

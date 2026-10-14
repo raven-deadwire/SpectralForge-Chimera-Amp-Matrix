@@ -1,0 +1,319 @@
+﻿2026-10-14 17:56:34.853   Log opened. (Time zone: UTC+00:00)
+2026-10-14 17:56:34.853   Setup version: Inno Setup version 6.7.1
+2026-10-14 17:56:34.853   Original Setup EXE: D:\a\SpectralForge-Chimera-Amp-Matrix\SpectralForge-Chimera-Amp-Matrix\installer-candidate\SpectralForge-Chimera-update-babfecda99-win64-Setup.exe
+2026-10-14 17:56:34.854   Setup command line: /SL5="$2C0128,209529044,962560,D:\a\SpectralForge-Chimera-Amp-Matrix\SpectralForge-Chimera-Amp-Matrix\installer-candidate\SpectralForge-Chimera-update-babfecda99-win64-Setup.exe" /VERYSILENT /SUPPRESSMSGBOXES /NORESTART /SP- /LANG=korean /TYPE=custom /COMPONENTS=vst3 /DIR="D:\a\_temp\Chimera 설치 검증" /LOG="D:\a\SpectralForge-Chimera-Amp-Matrix\SpectralForge-Chimera-Amp-Matrix\build\candidate-installer-verification/04b-vst3-remembered-repair.log"
+2026-10-14 17:56:34.854   Windows version: 10.0.26100
+2026-10-14 17:56:34.854   Windows architecture: x64 (64-bit)
+2026-10-14 17:56:34.854   Machine types supported by system: x86 x64
+2026-10-14 17:56:34.854   User privileges: Administrative
+2026-10-14 17:56:34.857   Administrative install mode: Yes
+2026-10-14 17:56:34.857   Install mode root key: HKEY_LOCAL_MACHINE
+2026-10-14 17:56:34.857   64-bit install mode: Yes
+2026-10-14 17:56:34.857   RedirectionGuard status for current process: Enabled in enforcing mode
+2026-10-14 17:56:34.859   Created protected temporary directory: C:\Users\RUNNER~1\AppData\Local\Temp\is-52SWA7G9O6.tmp
+2026-10-14 17:56:34.957   Starting the installation process.
+2026-10-14 17:56:34.958   Directory for uninstall files: D:\a\_temp\Chimera 설치 검증\Uninstall
+2026-10-14 17:56:34.958   Will append to existing uninstall log: D:\a\_temp\Chimera 설치 검증\Uninstall\unins000.dat
+2026-10-14 17:56:34.960   -- File entry --
+2026-10-14 17:56:34.960   Dest filename: D:\a\_temp\Chimera 설치 검증\Uninstall\unins000.exe
+2026-10-14 17:56:34.960   Non-default bitness: 32-bit
+2026-10-14 17:56:34.962   Time stamp of our file: 2026-10-14 17:56:34.797
+2026-10-14 17:56:34.962   Dest file exists.
+2026-10-14 17:56:34.962   Time stamp of existing file: 2026-10-14 17:56:24.267
+2026-10-14 17:56:34.962   Version of our file: 51.1054.0.0
+2026-10-14 17:56:34.962   Version of existing file: 51.1054.0.0
+2026-10-14 17:56:34.962   Installing the file.
+2026-10-14 17:56:34.972   Leaving temporary file in place for now.
+2026-10-14 17:56:34.972   -- File entry --
+2026-10-14 17:56:34.973   Dest filename: D:\a\_temp\Chimera VST3 설치 검증\SpectralForge Chimera.vst3\desktop.ini
+2026-10-14 17:56:34.973   Time stamp of our file: 2026-10-14 16:37:40.000
+2026-10-14 17:56:34.973   Dest file exists.
+2026-10-14 17:56:34.973   Time stamp of existing file: 2026-10-14 16:37:40.000
+2026-10-14 17:56:34.973   Installing the file.
+2026-10-14 17:56:34.974   Successfully installed the file.
+2026-10-14 17:56:34.974   -- File entry --
+2026-10-14 17:56:34.974   Dest filename: D:\a\_temp\Chimera VST3 설치 검증\SpectralForge Chimera.vst3\Plugin.ico
+2026-10-14 17:56:34.974   Time stamp of our file: 2026-10-14 16:45:08.000
+2026-10-14 17:56:34.974   Dest file exists.
+2026-10-14 17:56:34.974   Time stamp of existing file: 2026-10-14 16:45:08.000
+2026-10-14 17:56:34.974   Installing the file.
+2026-10-14 17:56:34.979   Successfully installed the file.
+2026-10-14 17:56:34.979   -- File entry --
+2026-10-14 17:56:34.979   Dest filename: D:\a\_temp\Chimera VST3 설치 검증\SpectralForge Chimera.vst3\Contents\Resources\moduleinfo.json
+2026-10-14 17:56:34.979   Time stamp of our file: 2026-10-14 16:45:08.000
+2026-10-14 17:56:34.979   Dest file exists.
+2026-10-14 17:56:34.980   Time stamp of existing file: 2026-10-14 16:45:08.000
+2026-10-14 17:56:34.980   Installing the file.
+2026-10-14 17:56:34.980   Successfully installed the file.
+2026-10-14 17:56:34.980   -- File entry --
+2026-10-14 17:56:34.980   Dest filename: D:\a\_temp\Chimera VST3 설치 검증\SpectralForge Chimera.vst3\Contents\x86_64-win\SpectralForge Chimera.vst3
+2026-10-14 17:56:34.980   Time stamp of our file: 2026-10-14 16:45:08.000
+2026-10-14 17:56:34.981   Dest file exists.
+2026-10-14 17:56:34.981   Time stamp of existing file: 2026-10-14 16:45:08.000
+2026-10-14 17:56:34.981   Installing the file.
+2026-10-14 17:56:40.780   Successfully installed the file.
+2026-10-14 17:56:40.780   -- File entry --
+2026-10-14 17:56:40.780   Dest filename: D:\a\_temp\Chimera 설치 검증\COPYRIGHT.txt
+2026-10-14 17:56:40.780   Time stamp of our file: 2026-10-14 16:34:48.000
+2026-10-14 17:56:40.780   Dest file exists.
+2026-10-14 17:56:40.780   Time stamp of existing file: 2026-10-14 16:34:48.000
+2026-10-14 17:56:40.780   Installing the file.
+2026-10-14 17:56:44.925   Successfully installed the file.
+2026-10-14 17:56:44.925   -- File entry --
+2026-10-14 17:56:44.925   Dest filename: D:\a\_temp\Chimera 설치 검증\README.txt
+2026-10-14 17:56:44.926   Time stamp of our file: 2026-10-14 17:54:54.000
+2026-10-14 17:56:44.926   Dest file exists.
+2026-10-14 17:56:44.926   Time stamp of existing file: 2026-10-14 17:54:54.000
+2026-10-14 17:56:44.926   Installing the file.
+2026-10-14 17:56:44.926   Successfully installed the file.
+2026-10-14 17:56:44.926   -- File entry --
+2026-10-14 17:56:44.926   Dest filename: D:\a\_temp\Chimera 설치 검증\Verification.txt
+2026-10-14 17:56:44.927   Time stamp of our file: 2026-10-14 17:54:34.000
+2026-10-14 17:56:44.927   Dest file exists.
+2026-10-14 17:56:44.927   Time stamp of existing file: 2026-10-14 17:54:34.000
+2026-10-14 17:56:44.927   Installing the file.
+2026-10-14 17:56:44.934   Successfully installed the file.
+2026-10-14 17:56:44.934   -- File entry --
+2026-10-14 17:56:44.934   Dest filename: D:\a\_temp\Chimera 설치 검증\WINDOWS_INSTALL.txt
+2026-10-14 17:56:44.934   Time stamp of our file: 2026-10-14 17:54:54.000
+2026-10-14 17:56:44.934   Dest file exists.
+2026-10-14 17:56:44.935   Time stamp of existing file: 2026-10-14 17:54:54.000
+2026-10-14 17:56:44.935   Installing the file.
+2026-10-14 17:56:44.935   Successfully installed the file.
+2026-10-14 17:56:44.935   -- File entry --
+2026-10-14 17:56:44.935   Dest filename: D:\a\_temp\Chimera 설치 검증\Documentation\ARTWORK_PROMPTS.json
+2026-10-14 17:56:44.935   Time stamp of our file: 2026-10-14 16:34:48.000
+2026-10-14 17:56:44.935   Dest file exists.
+2026-10-14 17:56:44.936   Time stamp of existing file: 2026-10-14 16:34:48.000
+2026-10-14 17:56:44.936   Installing the file.
+2026-10-14 17:56:44.938   Successfully installed the file.
+2026-10-14 17:56:44.939   -- File entry --
+2026-10-14 17:56:44.939   Dest filename: D:\a\_temp\Chimera 설치 검증\Documentation\MANUAL.html
+2026-10-14 17:56:44.939   Time stamp of our file: 2026-10-14 16:34:48.000
+2026-10-14 17:56:44.939   Dest file exists.
+2026-10-14 17:56:44.939   Time stamp of existing file: 2026-10-14 16:34:48.000
+2026-10-14 17:56:44.939   Installing the file.
+2026-10-14 17:56:44.942   Successfully installed the file.
+2026-10-14 17:56:44.942   -- File entry --
+2026-10-14 17:56:44.943   Dest filename: D:\a\_temp\Chimera 설치 검증\Documentation\payload-manifest.json
+2026-10-14 17:56:44.943   Time stamp of our file: 2026-10-14 17:54:54.000
+2026-10-14 17:56:44.943   Dest file exists.
+2026-10-14 17:56:44.943   Time stamp of existing file: 2026-10-14 17:54:54.000
+2026-10-14 17:56:44.943   Installing the file.
+2026-10-14 17:56:44.943   Successfully installed the file.
+2026-10-14 17:56:44.943   -- File entry --
+2026-10-14 17:56:44.944   Dest filename: D:\a\_temp\Chimera 설치 검증\Documentation\AMP_NATIVE_DSP.md
+2026-10-14 17:56:44.944   Time stamp of our file: 2026-10-14 16:34:48.000
+2026-10-14 17:56:44.944   Dest file exists.
+2026-10-14 17:56:44.944   Time stamp of existing file: 2026-10-14 16:34:48.000
+2026-10-14 17:56:44.944   Installing the file.
+2026-10-14 17:56:44.945   Successfully installed the file.
+2026-10-14 17:56:44.945   -- File entry --
+2026-10-14 17:56:44.945   Dest filename: D:\a\_temp\Chimera 설치 검증\Documentation\AMP_VALIDATION.md
+2026-10-14 17:56:44.945   Time stamp of our file: 2026-10-14 16:34:48.000
+2026-10-14 17:56:44.945   Dest file exists.
+2026-10-14 17:56:44.945   Time stamp of existing file: 2026-10-14 16:34:48.000
+2026-10-14 17:56:44.945   Installing the file.
+2026-10-14 17:56:44.946   Successfully installed the file.
+2026-10-14 17:56:44.946   -- File entry --
+2026-10-14 17:56:44.946   Dest filename: D:\a\_temp\Chimera 설치 검증\Documentation\AMP_VOICES_OPEN_BETA.md
+2026-10-14 17:56:44.946   Time stamp of our file: 2026-10-14 16:34:48.000
+2026-10-14 17:56:44.946   Dest file exists.
+2026-10-14 17:56:44.946   Time stamp of existing file: 2026-10-14 16:34:48.000
+2026-10-14 17:56:44.946   Installing the file.
+2026-10-14 17:56:44.947   Successfully installed the file.
+2026-10-14 17:56:44.947   -- File entry --
+2026-10-14 17:56:44.947   Dest filename: D:\a\_temp\Chimera 설치 검증\Documentation\EXTERNAL_BASS_IRS.md
+2026-10-14 17:56:44.947   Time stamp of our file: 2026-10-14 16:34:48.000
+2026-10-14 17:56:44.947   Dest file exists.
+2026-10-14 17:56:44.947   Time stamp of existing file: 2026-10-14 16:34:48.000
+2026-10-14 17:56:44.947   Installing the file.
+2026-10-14 17:56:44.948   Successfully installed the file.
+2026-10-14 17:56:44.948   -- File entry --
+2026-10-14 17:56:44.948   Dest filename: D:\a\_temp\Chimera 설치 검증\Documentation\FACTORY_CAB_VOICING_1_3.md
+2026-10-14 17:56:44.948   Time stamp of our file: 2026-10-14 16:34:48.000
+2026-10-14 17:56:44.948   Dest file exists.
+2026-10-14 17:56:44.948   Time stamp of existing file: 2026-10-14 16:34:48.000
+2026-10-14 17:56:44.948   Installing the file.
+2026-10-14 17:56:44.949   Successfully installed the file.
+2026-10-14 17:56:44.949   -- File entry --
+2026-10-14 17:56:44.950   Dest filename: D:\a\_temp\Chimera 설치 검증\Documentation\GRAPHICS_DSP_UPDATE.md
+2026-10-14 17:56:44.950   Time stamp of our file: 2026-10-14 16:34:48.000
+2026-10-14 17:56:44.950   Dest file exists.
+2026-10-14 17:56:44.950   Time stamp of existing file: 2026-10-14 16:34:48.000
+2026-10-14 17:56:44.950   Installing the file.
+2026-10-14 17:56:44.951   Successfully installed the file.
+2026-10-14 17:56:44.951   -- File entry --
+2026-10-14 17:56:44.951   Dest filename: D:\a\_temp\Chimera 설치 검증\Documentation\INSTALLATION.md
+2026-10-14 17:56:44.951   Time stamp of our file: 2026-10-14 16:34:48.000
+2026-10-14 17:56:44.951   Dest file exists.
+2026-10-14 17:56:44.951   Time stamp of existing file: 2026-10-14 16:34:48.000
+2026-10-14 17:56:44.951   Installing the file.
+2026-10-14 17:56:44.952   Successfully installed the file.
+2026-10-14 17:56:44.952   -- File entry --
+2026-10-14 17:56:44.952   Dest filename: D:\a\_temp\Chimera 설치 검증\Documentation\IR_DISTRIBUTION.md
+2026-10-14 17:56:44.952   Time stamp of our file: 2026-10-14 16:34:48.000
+2026-10-14 17:56:44.952   Dest file exists.
+2026-10-14 17:56:44.952   Time stamp of existing file: 2026-10-14 16:34:48.000
+2026-10-14 17:56:44.952   Installing the file.
+2026-10-14 17:56:44.953   Successfully installed the file.
+2026-10-14 17:56:44.953   -- File entry --
+2026-10-14 17:56:44.953   Dest filename: D:\a\_temp\Chimera 설치 검증\Documentation\NEW_AMP_DSP.md
+2026-10-14 17:56:44.953   Time stamp of our file: 2026-10-14 16:34:48.000
+2026-10-14 17:56:44.953   Dest file exists.
+2026-10-14 17:56:44.953   Time stamp of existing file: 2026-10-14 16:34:48.000
+2026-10-14 17:56:44.953   Installing the file.
+2026-10-14 17:56:44.954   Successfully installed the file.
+2026-10-14 17:56:44.954   -- File entry --
+2026-10-14 17:56:44.954   Dest filename: D:\a\_temp\Chimera 설치 검증\Documentation\OPEN_BETA_RELEASE_NOTES.md
+2026-10-14 17:56:44.955   Time stamp of our file: 2026-10-14 16:34:48.000
+2026-10-14 17:56:44.955   Dest file exists.
+2026-10-14 17:56:44.955   Time stamp of existing file: 2026-10-14 16:34:48.000
+2026-10-14 17:56:44.955   Installing the file.
+2026-10-14 17:56:44.956   Successfully installed the file.
+2026-10-14 17:56:44.956   -- File entry --
+2026-10-14 17:56:44.956   Dest filename: D:\a\_temp\Chimera 설치 검증\Documentation\PEDAL_BOARD_DSP.md
+2026-10-14 17:56:44.956   Time stamp of our file: 2026-10-14 16:34:48.000
+2026-10-14 17:56:44.956   Dest file exists.
+2026-10-14 17:56:44.956   Time stamp of existing file: 2026-10-14 16:34:48.000
+2026-10-14 17:56:44.956   Installing the file.
+2026-10-14 17:56:44.957   Successfully installed the file.
+2026-10-14 17:56:44.957   -- File entry --
+2026-10-14 17:56:44.957   Dest filename: D:\a\_temp\Chimera 설치 검증\Documentation\POST_NATIVE_DSP.md
+2026-10-14 17:56:44.957   Time stamp of our file: 2026-10-14 16:34:48.000
+2026-10-14 17:56:44.957   Dest file exists.
+2026-10-14 17:56:44.957   Time stamp of existing file: 2026-10-14 16:34:48.000
+2026-10-14 17:56:44.957   Installing the file.
+2026-10-14 17:56:44.958   Successfully installed the file.
+2026-10-14 17:56:44.958   -- File entry --
+2026-10-14 17:56:44.958   Dest filename: D:\a\_temp\Chimera 설치 검증\Documentation\PRESETS.md
+2026-10-14 17:56:44.958   Time stamp of our file: 2026-10-14 16:34:48.000
+2026-10-14 17:56:44.958   Dest file exists.
+2026-10-14 17:56:44.959   Time stamp of existing file: 2026-10-14 16:34:48.000
+2026-10-14 17:56:44.959   Installing the file.
+2026-10-14 17:56:44.960   Successfully installed the file.
+2026-10-14 17:56:44.960   -- File entry --
+2026-10-14 17:56:44.960   Dest filename: D:\a\_temp\Chimera 설치 검증\Documentation\STUDIO_ONE_TEARDOWN.md
+2026-10-14 17:56:44.960   Time stamp of our file: 2026-10-14 16:34:48.000
+2026-10-14 17:56:44.960   Dest file exists.
+2026-10-14 17:56:44.960   Time stamp of existing file: 2026-10-14 16:34:48.000
+2026-10-14 17:56:44.960   Installing the file.
+2026-10-14 17:56:44.961   Successfully installed the file.
+2026-10-14 17:56:44.961   -- File entry --
+2026-10-14 17:56:44.961   Dest filename: D:\a\_temp\Chimera 설치 검증\Documentation\THIRD_PARTY_NOTICES.md
+2026-10-14 17:56:44.961   Time stamp of our file: 2026-10-14 16:34:48.000
+2026-10-14 17:56:44.961   Dest file exists.
+2026-10-14 17:56:44.961   Time stamp of existing file: 2026-10-14 16:34:48.000
+2026-10-14 17:56:44.961   Installing the file.
+2026-10-14 17:56:44.962   Successfully installed the file.
+2026-10-14 17:56:44.962   -- File entry --
+2026-10-14 17:56:44.962   Dest filename: D:\a\_temp\Chimera 설치 검증\Documentation\UPDATES.md
+2026-10-14 17:56:44.962   Time stamp of our file: 2026-10-14 16:34:48.000
+2026-10-14 17:56:44.962   Dest file exists.
+2026-10-14 17:56:44.962   Time stamp of existing file: 2026-10-14 16:34:48.000
+2026-10-14 17:56:44.962   Installing the file.
+2026-10-14 17:56:44.963   Successfully installed the file.
+2026-10-14 17:56:44.963   -- File entry --
+2026-10-14 17:56:44.963   Dest filename: D:\a\_temp\Chimera 설치 검증\Documentation\UPDATE_TEST_BUILD.md
+2026-10-14 17:56:44.963   Time stamp of our file: 2026-10-14 16:34:48.000
+2026-10-14 17:56:44.963   Dest file exists.
+2026-10-14 17:56:44.964   Time stamp of existing file: 2026-10-14 16:34:48.000
+2026-10-14 17:56:44.964   Installing the file.
+2026-10-14 17:56:44.964   Successfully installed the file.
+2026-10-14 17:56:44.964   -- File entry --
+2026-10-14 17:56:44.964   Dest filename: D:\a\_temp\Chimera 설치 검증\Documentation\VALIDATION_STATUS.md
+2026-10-14 17:56:44.965   Time stamp of our file: 2026-10-14 16:34:48.000
+2026-10-14 17:56:44.965   Dest file exists.
+2026-10-14 17:56:44.965   Time stamp of existing file: 2026-10-14 16:34:48.000
+2026-10-14 17:56:44.965   Installing the file.
+2026-10-14 17:56:44.965   Successfully installed the file.
+2026-10-14 17:56:44.965   -- File entry --
+2026-10-14 17:56:44.965   Dest filename: D:\a\_temp\Chimera 설치 검증\Documentation\WINDOWS_SIGNING.md
+2026-10-14 17:56:44.966   Time stamp of our file: 2026-10-14 16:34:48.000
+2026-10-14 17:56:44.966   Dest file exists.
+2026-10-14 17:56:44.966   Time stamp of existing file: 2026-10-14 16:34:48.000
+2026-10-14 17:56:44.966   Installing the file.
+2026-10-14 17:56:44.966   Successfully installed the file.
+2026-10-14 17:56:44.967   -- File entry --
+2026-10-14 17:56:44.967   Dest filename: C:\ProgramData\SpectralForge\Chimera\IRs\Bass\CI Bass 8x10 MD421.wav
+2026-10-14 17:56:44.967   Time stamp of our file: 2026-10-14 16:34:49.656
+2026-10-14 17:56:44.967   Dest file exists.
+2026-10-14 17:56:44.967   Skipping due to "onlyifdoesntexist" flag.
+2026-10-14 17:56:44.967   -- File entry --
+2026-10-14 17:56:44.967   Dest filename: C:\ProgramData\SpectralForge\Chimera\IRs\Guitar\CI Guitar 4x12 SM57.wav
+2026-10-14 17:56:44.968   Time stamp of our file: 2026-10-14 16:34:49.656
+2026-10-14 17:56:44.968   Dest file exists.
+2026-10-14 17:56:44.968   Skipping due to "onlyifdoesntexist" flag.
+2026-10-14 17:56:44.968   -- File entry --
+2026-10-14 17:56:44.968   Dest filename: C:\ProgramData\SpectralForge\Chimera\IRs\Raven\CI Raven In.wav
+2026-10-14 17:56:44.968   Time stamp of our file: 2026-10-14 16:34:49.656
+2026-10-14 17:56:44.968   Dest file exists.
+2026-10-14 17:56:44.968   Skipping due to "onlyifdoesntexist" flag.
+2026-10-14 17:56:44.968   -- File entry --
+2026-10-14 17:56:44.968   Dest filename: C:\ProgramData\SpectralForge\Chimera\IRs\Raven\CI Raven Out.wav
+2026-10-14 17:56:44.968   Time stamp of our file: 2026-10-14 16:34:49.656
+2026-10-14 17:56:44.968   Dest file exists.
+2026-10-14 17:56:44.968   Skipping due to "onlyifdoesntexist" flag.
+2026-10-14 17:56:44.969   -- File entry --
+2026-10-14 17:56:44.969   Dest filename: C:\ProgramData\SpectralForge\Chimera\IRs\Raven\CI Raven Ref.wav
+2026-10-14 17:56:44.969   Time stamp of our file: 2026-10-14 16:34:49.656
+2026-10-14 17:56:44.969   Dest file exists.
+2026-10-14 17:56:44.969   Skipping due to "onlyifdoesntexist" flag.
+2026-10-14 17:56:44.969   -- File entry --
+2026-10-14 17:56:44.969   Dest filename: C:\ProgramData\SpectralForge\Chimera\IRs\Raven\CI Raven V30 Comparison.wav
+2026-10-14 17:56:44.969   Time stamp of our file: 2026-10-14 16:34:49.656
+2026-10-14 17:56:44.969   Dest file exists.
+2026-10-14 17:56:44.969   Skipping due to "onlyifdoesntexist" flag.
+2026-10-14 17:56:44.970   -- File entry --
+2026-10-14 17:56:44.970   Dest filename: C:\ProgramData\SpectralForge\Chimera\IRs\Bass\CI Bass 8x10 MD421.wav.json
+2026-10-14 17:56:44.970   Time stamp of our file: 2026-10-14 17:55:49.756
+2026-10-14 17:56:44.970   Dest file exists.
+2026-10-14 17:56:44.970   Skipping due to "onlyifdoesntexist" flag.
+2026-10-14 17:56:44.970   -- File entry --
+2026-10-14 17:56:44.970   Dest filename: C:\ProgramData\SpectralForge\Chimera\IRs\Guitar\CI Guitar 4x12 SM57.wav.json
+2026-10-14 17:56:44.970   Time stamp of our file: 2026-10-14 17:55:49.759
+2026-10-14 17:56:44.970   Dest file exists.
+2026-10-14 17:56:44.970   Skipping due to "onlyifdoesntexist" flag.
+2026-10-14 17:56:44.971   -- File entry --
+2026-10-14 17:56:44.971   Dest filename: C:\ProgramData\SpectralForge\Chimera\IRs\Raven\CI Raven In.wav.json
+2026-10-14 17:56:44.971   Time stamp of our file: 2026-10-14 17:55:49.769
+2026-10-14 17:56:44.971   Dest file exists.
+2026-10-14 17:56:44.971   Skipping due to "onlyifdoesntexist" flag.
+2026-10-14 17:56:44.971   -- File entry --
+2026-10-14 17:56:44.971   Dest filename: C:\ProgramData\SpectralForge\Chimera\IRs\Raven\CI Raven Out.wav.json
+2026-10-14 17:56:44.971   Time stamp of our file: 2026-10-14 17:55:49.773
+2026-10-14 17:56:44.971   Dest file exists.
+2026-10-14 17:56:44.971   Skipping due to "onlyifdoesntexist" flag.
+2026-10-14 17:56:44.972   -- File entry --
+2026-10-14 17:56:44.972   Dest filename: C:\ProgramData\SpectralForge\Chimera\IRs\Raven\CI Raven Ref.wav.json
+2026-10-14 17:56:44.972   Time stamp of our file: 2026-10-14 17:55:49.937
+2026-10-14 17:56:44.972   Dest file exists.
+2026-10-14 17:56:44.972   Skipping due to "onlyifdoesntexist" flag.
+2026-10-14 17:56:44.972   -- File entry --
+2026-10-14 17:56:44.972   Dest filename: C:\ProgramData\SpectralForge\Chimera\IRs\Raven\CI Raven V30 Comparison.wav.json
+2026-10-14 17:56:44.972   Time stamp of our file: 2026-10-14 17:55:49.939
+2026-10-14 17:56:44.972   Dest file exists.
+2026-10-14 17:56:44.972   Skipping due to "onlyifdoesntexist" flag.
+2026-10-14 17:56:44.973   -- Icon entry --
+2026-10-14 17:56:44.973   Dest filename: C:\ProgramData\Microsoft\Windows\Start Menu\Programs\SpectralForge\SpectralForge Chimera\Manual.lnk
+2026-10-14 17:56:44.973   Creating the icon.
+2026-10-14 17:56:45.003   Successfully created the icon.
+2026-10-14 17:56:45.012   -- Icon entry --
+2026-10-14 17:56:45.012   Dest filename: C:\ProgramData\Microsoft\Windows\Start Menu\Programs\SpectralForge\SpectralForge Chimera\설치 안내.lnk
+2026-10-14 17:56:45.013   Creating the icon.
+2026-10-14 17:56:45.016   Successfully created the icon.
+2026-10-14 17:56:45.021   -- Icon entry --
+2026-10-14 17:56:45.021   Dest filename: C:\ProgramData\Microsoft\Windows\Start Menu\Programs\SpectralForge\SpectralForge Chimera\SpectralForge Chimera 제거.lnk
+2026-10-14 17:56:45.022   Creating the icon.
+2026-10-14 17:56:45.024   Successfully created the icon.
+2026-10-14 17:56:45.029   Saving uninstall information.
+2026-10-14 17:56:45.029   Renaming uninstaller.
+2026-10-14 17:56:45.030   Deleting uninstall key left over from previous administrative 64-bit install.
+2026-10-14 17:56:45.030   Creating new uninstall key: HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\Uninstall\SpectralForge.ChimeraAmpMatrix_is1
+2026-10-14 17:56:45.030   Writing uninstall key values.
+2026-10-14 17:56:45.031   Detected previous non administrative install? No
+2026-10-14 17:56:45.031   Detected previous administrative 32-bit install? No
+2026-10-14 17:56:45.032   Installation process succeeded.
+2026-10-14 17:56:45.032   Need to restart Windows? No
+2026-10-14 17:56:45.037   Deinitializing Setup.
+2026-10-14 17:56:45.042   Log closed.

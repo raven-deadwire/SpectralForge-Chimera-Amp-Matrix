@@ -1,0 +1,846 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="(empty)"
+	tests="50"
+	failures="1"
+	disabled="0"
+	skipped="0"
+	hostname=""
+	time="1750"
+	timestamp="2026-10-14T17:23:02"
+	>
+	<testcase name="ChimeraOriginalAmpTests" classname="ChimeraOriginalAmpTests" time="3.89644" status="run">
+		<properties/>
+		<system-out>DEFAULT_GAIN weak_thd=0.598595 growth_db=1.3064
+CONTROL bass matched_residual=0.755047
+CONTROL middle matched_residual=0.62148
+CONTROL treble matched_residual=0.383749
+CONTROL mid_frequency matched_residual=0.0559939
+CONTROL presence matched_residual=0.239642
+CONTROL depth matched_residual=0.325006
+CONTROL clank matched_residual=0.975495
+CONTROL crush matched_residual=0.84375
+CONTROL impact matched_residual=0.597308
+CONTROL rot matched_residual=0.17486
+CONTROL bloom matched_residual=0.902442
+MACRO_RESPONSE clank/crush cosine=-0.562492
+MACRO_RESPONSE clank/impact cosine=-0.761601
+MACRO_RESPONSE clank/rot cosine=0.472348
+MACRO_RESPONSE clank/bloom cosine=-0.970648
+MACRO_RESPONSE crush/impact cosine=0.563144
+MACRO_RESPONSE crush/rot cosine=-0.262379
+MACRO_RESPONSE crush/bloom cosine=0.5017
+MACRO_RESPONSE impact/rot cosine=-0.271805
+MACRO_RESPONSE impact/bloom cosine=0.713899
+MACRO_RESPONSE rot/bloom cosine=-0.496288
+VOICING impact input=0.004 fundamental_ratio=1.32189 even_odd_ratio=1.50187 tail=0.00118086
+VOICI...
+[This part of the test output was removed since it exceeds the threshold of 1024 bytes.]
+</system-out>
+	</testcase>
+	<testcase name="ChimeraOriginalAmpIntegrationTests" classname="ChimeraOriginalAmpIntegrationTests" time="0.266709" status="run">
+		<properties/>
+		<system-out>PASS 84 appended development parameters and six-context state
+PASS 12 JUCE oversampling routes; partition residual=0 peak=0.384028
+</system-out>
+	</testcase>
+	<testcase name="ChimeraNiflheimrCoreTests" classname="ChimeraNiflheimrCoreTests" time="6.68483" status="run">
+		<properties/>
+		<system-out>PASS clean linearity, moving macro isolation, 15 linear BLEND comparisons
+GAIN modern_tight 5_to_7.5=0.593985 7.5_to_10=0.401244
+MACRO modern_tight/mass residual=0.276162
+MACRO modern_tight/split residual=0.193423
+MACRO modern_tight/fang residual=0.349287
+MACRO modern_tight/fold residual=0.355124
+MACRO modern_tight/thrust residual=0.0369771
+GAIN death_grind 5_to_7.5=0.420835 7.5_to_10=0.370461
+MACRO death_grind/mass residual=0.516627
+MACRO death_grind/split residual=0.484186
+MACRO death_grind/fang residual=0.136161
+MACRO death_grind/fold residual=0.682669
+MACRO death_grind/thrust residual=0.0234932
+GAIN industrial_bite 5_to_7.5=0.360856 7.5_to_10=0.160345
+MACRO industrial_bite/mass residual=0.0595575
+MACRO industrial_bite/split residual=0.629245
+MACRO industrial_bite/fang residual=0.430254
+MACRO industrial_bite/fold residual=0.0185467
+MACRO industrial_bite/thrust residual=0.0370031
+GAIN slam_impact 5_to_7.5=0.478533 7.5_to_10=0.388327
+MACRO slam_impact/mass residual=0.358332
+MACRO slam_impact/split residual=0...
+[This part of the test output was removed since it exceeds the threshold of 1024 bytes.]
+</system-out>
+	</testcase>
+	<testcase name="ChimeraNiflheimrIntegrationTests" classname="ChimeraNiflheimrIntegrationTests" time="1.02223" status="run">
+		<properties/>
+		<system-out>PASS five production channel dispatches; 1x core residual=0
+PASS 100 channel/rate/OS routes; partition residual=0 oversized/empty residual=0 allocations=0
+PASS 6 contexts x 5 channels x 14 controls; binary restore and live native cache
+PASS Niflheimr production integration; musical/reference acceptance remains pending
+</system-out>
+	</testcase>
+	<testcase name="ChimeraPackagingVersionTests" classname="ChimeraPackagingVersionTests" time="8.55982" status="run">
+		<properties/>
+		<system-out>test_beta_identity_and_malformed_channels (__main__.PackagingVersionTests.test_beta_identity_and_malformed_channels) ... ok
+test_candidate_stage_inventory_and_versions_without_global_mutation (__main__.PackagingVersionTests.test_candidate_stage_inventory_and_versions_without_global_mutation) ... ok
+test_cmake_project_and_generated_product_identity (__main__.PackagingVersionTests.test_cmake_project_and_generated_product_identity) ... ok
+test_identity_uses_source_version_and_exact_sha (__main__.PackagingVersionTests.test_identity_uses_source_version_and_exact_sha) ... ok
+test_rejects_malformed_and_windows_overflow_versions (__main__.PackagingVersionTests.test_rejects_malformed_and_windows_overflow_versions) ... ok
+test_rejects_old_missing_mixed_or_wrong_head_payload (__main__.PackagingVersionTests.test_rejects_old_missing_mixed_or_wrong_head_payload) ... ok
+test_rejects_stale_configured_build_before_staging (__main__.PackagingVersionTests.test_rejects_stale_configured_build_before_staging) ... ok
+test_repositor...
+[This part of the test output was removed since it exceeds the threshold of 1024 bytes.]
+</system-out>
+	</testcase>
+	<testcase name="ChimeraVBlankFailureTests" classname="ChimeraVBlankFailureTests" time="2.88502" status="run">
+		<properties/>
+		<system-out>PASS baseline/always-fail: expected destructor hang
+PASS baseline/success: shutdown 14.9987 ms
+PASS baseline/mixed: shutdown 31.4352 ms
+PASS patched/always-fail: shutdown 15.9474 ms
+PASS patched/success: shutdown 13.9274 ms
+PASS patched/mixed: shutdown 2.0284 ms
+</system-out>
+	</testcase>
+	<testcase name="ChimeraTests" classname="ChimeraTests" time="40.7178" status="run">
+		<properties/>
+		<system-out>PASS: 26 serialized / 25 active Chimera heads, preserved 15-value legacy host range
+PASS 44100 Hz: band response, routing isolation, live EQ, all amp models
+PASS 48000 Hz: band response, routing isolation, live EQ, all amp models
+PASS 96000 Hz: band response, routing isolation, live EQ, all amp models
+PASS 192000 Hz: band response, routing isolation, live EQ, all amp models
+AMP_DYNAMIC model=0 ratio=17.9233
+AMP_DYNAMIC model=1 ratio=6.30965
+AMP_DYNAMIC model=2 ratio=1.83853
+AMP_DYNAMIC model=3 ratio=2.33048
+AMP_DYNAMIC model=4 ratio=1.55997
+AMP_DYNAMIC model=5 ratio=6.29493
+AMP_DYNAMIC model=6 ratio=11.5285
+AMP_DYNAMIC model=7 ratio=7.41055
+AMP_DYNAMIC model=8 ratio=6.11386
+AMP_DYNAMIC model=9 ratio=2.01783
+AMP_DYNAMIC model=10 ratio=9.54512
+AMP_DYNAMIC model=11 ratio=16.6128
+AMP_DYNAMIC model=12 ratio=6.83465
+AMP_DYNAMIC model=13 ratio=2.38846
+AMP_DYNAMIC model=14 ratio=19.2007
+AMP_DYNAMIC model=15 ratio=1.12567
+AMP_DYNAMIC model=16 ratio=1.10106
+AMP_DYNAMIC model=17 ratio=1.14677
+AMP_DYNAMIC model=18 ratio=...
+[This part of the test output was removed since it exceeds the threshold of 1024 bytes.]
+</system-out>
+	</testcase>
+	<testcase name="ChimeraUITests" classname="ChimeraUITests" time="360.4" status="run">
+		<properties/>
+		<system-out>RUN suite signal path
+PASS Matrix LOW production blend: 0/25/50/75/100, complete AMP + CAB endpoint, DI isolation, amplifier/cabinet bypass; maximum interpolation residual=0
+Signal Path scenario 0 / 0
+Signal Path scenario 1 / 0
+Signal Path scenario 1 / 1
+Signal Path scenario 2 / 0
+Signal Path preset 0
+Signal Path preset 1
+Signal Path preset 2
+Signal Path preset 3
+Signal Path preset 4
+Signal Path preset 5
+Signal Path preset 6
+Signal Path preset 7
+Signal Path preset 8
+Signal Path preset 9
+Signal Path preset 10
+Signal Path preset 11
+Signal Path preset 12
+Signal Path preset 13
+Signal Path preset 14
+Signal Path preset 15
+Signal Path preset 16
+Signal Path preset 17
+Signal Path preset 18
+Signal Path preset 19
+Signal Path preset 20
+Signal Path preset 21
+Signal Path preset 22
+Signal Path preset 23
+Signal Path preset 24
+Signal Path preset 25
+Signal Path preset 26
+Signal Path preset 27
+Signal Path preset 28
+Signal Path preset 29
+Signal Path preset 30
+Signal Path preset 31
+Signal Path preset 32
+Signal Path preset 33
+Sign...
+[This part of the test output was removed since it exceeds the threshold of 1024 bytes.]
+</system-out>
+	</testcase>
+	<testcase name="ChimeraSignalPathUITests" classname="ChimeraSignalPathUITests" time="86.3644" status="run">
+		<properties/>
+		<system-out>PASS Matrix LOW production blend: 0/25/50/75/100, complete AMP + CAB endpoint, DI isolation, amplifier/cabinet bypass; maximum interpolation residual=0
+Signal Path scenario 0 / 0
+Signal Path scenario 1 / 0
+Signal Path scenario 1 / 1
+Signal Path scenario 2 / 0
+Signal Path preset 0
+Signal Path preset 1
+Signal Path preset 2
+Signal Path preset 3
+Signal Path preset 4
+Signal Path preset 5
+Signal Path preset 6
+Signal Path preset 7
+Signal Path preset 8
+Signal Path preset 9
+Signal Path preset 10
+Signal Path preset 11
+Signal Path preset 12
+Signal Path preset 13
+Signal Path preset 14
+Signal Path preset 15
+Signal Path preset 16
+Signal Path preset 17
+Signal Path preset 18
+Signal Path preset 19
+Signal Path preset 20
+Signal Path preset 21
+Signal Path preset 22
+Signal Path preset 23
+Signal Path preset 24
+Signal Path preset 25
+Signal Path preset 26
+Signal Path preset 27
+Signal Path preset 28
+Signal Path preset 29
+Signal Path preset 30
+Signal Path preset 31
+Signal Path preset 32
+Signal Path preset 33
+Signal Path preset 34
+Sign...
+[This part of the test output was removed since it exceeds the threshold of 1024 bytes.]
+</system-out>
+	</testcase>
+	<testcase name="ChimeraNativeStateTests" classname="ChimeraNativeStateTests" time="7.29009" status="run">
+		<properties/>
+		<system-out>Native B canonical POST value=7.000000000 (requested 7)
+PASS: six native amp contexts, all native banks, POST nine models, binary/A-B recall and immediate pedal bank recall
+</system-out>
+	</testcase>
+	<testcase name="ChimeraVST3LifecycleTests" classname="ChimeraVST3LifecycleTests" time="56.9223" status="run">
+		<properties/>
+		<system-out>SCENARIO headless
+STAGE LoadLibrary/InitDll/GetPluginFactory
+STAGE create component/controller
+STAGE state roundtrip and prepare
+PARAMETERS 7048 automated=3
+STAGE audio worker start/process/stop
+STAGE audio worker stopped
+STAGE deactivate component
+STAGE disconnect controller/component
+STAGE terminate/release controller first
+STAGE terminate/release component last
+STAGE instance destroyed
+STAGE release plugin factory
+STAGE ExitDll
+STAGE FreeLibrary (last module reference)
+STAGE bounded host UI cleanup after FreeLibrary
+MODULE_RELEASE immediate_unmapped=1 final_unmapped=1 elapsed_ms=0
+STAGE pump host after module unload
+PASS round=1 scenario=headless
+PASS scenario=headless exit=0 elapsed_ms=719
+SCENARIO editor-pumping
+STAGE LoadLibrary/InitDll/GetPluginFactory
+STAGE create component/controller
+STAGE state roundtrip and prepare
+PARAMETERS 7048 automated=3
+STAGE attach real HWND editor
+STAGE audio worker start/process/stop
+STAGE audio worker stopped
+STAGE remove editor without pumping pending messages
+STAGE deac...
+[This part of the test output was removed since it exceeds the threshold of 1024 bytes.]
+</system-out>
+	</testcase>
+	<testcase name="ChimeraNativeRendererTests" classname="ChimeraNativeRendererTests" time="0.251857" status="run">
+		<properties/>
+		<system-out>PASS native renderer selection, gain response, replacement, invalid-state rejection
+</system-out>
+	</testcase>
+	<testcase name="ChimeraOriginalRendererTests" classname="ChimeraOriginalRendererTests" time="0.968583" status="run">
+		<properties/>
+		<system-out>PASS original renderer preset/gain routing, deterministic replacement, finite float output and invalid-state rejection
+</system-out>
+	</testcase>
+	<testcase name="ChimeraNiflheimrRendererTests" classname="ChimeraNiflheimrRendererTests" time="1.0506" status="run">
+		<properties/>
+		<system-out>PASS Niflheimr production renderer: five channels, mono/stereo, float WAV, source/output hashes, block invariance, clean endpoint and strict rejection. Musical acceptance remains pending.
+</system-out>
+	</testcase>
+	<testcase name="ChimeraReleaseTests" classname="ChimeraReleaseTests" time="0.0292214" status="run">
+		<properties/>
+		<system-out>Release support: SemVer, manifest, platform, URL, draft and privacy checks passed.
+</system-out>
+	</testcase>
+	<testcase name="ChimeraStabilityTests" classname="ChimeraStabilityTests" time="2.22386" status="run">
+		<properties/>
+		<system-out>PASS: exact bypass and latency-matched zero semitones; 3 rates x 2 layouts x 4 block sizes, no FFT frames
+PASS: bypass/zero/shift/re-engagement transitions across 3 rates and 4 intervals
+PASS outgoing ratio retained during bypass fade: 3 rates x 4 shifts
+PASS: 30 active tuner prepare/stop/destruct cycles, 75.0157 ms
+PASS: optional post-rig gate clean detector, stereo gain, residual-noise attenuation, exact 0/37/2048-sample alignment and POST delay tails; legacy gate equivalence
+MEASURE pitch 400 stereo blocks/256 samples at 44100 Hz: bypass 4.5625 ms, zero 4.596 ms, active -5 171.849 ms; algorithm delay 2048 samples (CPU timings are local, not a Windows DAW benchmark)
+MEASURE pitch 400 stereo blocks/256 samples at 48000 Hz: bypass 4.5763 ms, zero 4.5615 ms, active -5 186.67 ms; algorithm delay 2048 samples (CPU timings are local, not a Windows DAW benchmark)
+MEASURE pitch 400 stereo blocks/256 samples at 96000 Hz: bypass 4.564 ms, zero 4.5555 ms, active -5 169.513 ms; algorithm delay 4096 samples (CPU timings...
+[This part of the test output was removed since it exceeds the threshold of 1024 bytes.]
+</system-out>
+	</testcase>
+	<testcase name="ChimeraPedalBoardTests" classname="ChimeraPedalBoardTests" time="4.65806" status="run">
+		<properties/>
+		<system-out>AUDIT PRE model=1 control=hw.over_drive delta=0.609519
+AUDIT PRE model=1 control=hw.tone delta=0.558995
+AUDIT PRE model=1 control=hw.level delta=2.25382
+AUDIT PRE model=2 control=hw.gain delta=0.534963
+AUDIT PRE model=2 control=hw.treble delta=0.497027
+AUDIT PRE model=2 control=hw.output delta=2.1597
+AUDIT PRE model=3 control=hw.distortion delta=0.609366
+AUDIT PRE model=3 control=hw.filter delta=1.02905
+AUDIT PRE model=3 control=hw.volume delta=2.71183
+AUDIT PRE model=4 control=hw.level delta=1.64624
+AUDIT PRE model=4 control=hw.blend delta=0.407821
+AUDIT PRE model=4 control=hw.treble delta=0.399413
+AUDIT PRE model=4 control=hw.mid delta=0.4817
+AUDIT PRE model=4 control=hw.bass delta=0.115777
+AUDIT PRE model=4 control=hw.presence delta=0.110454
+AUDIT PRE model=4 control=hw.drive delta=0.342627
+AUDIT PRE model=4 control=hw.mid_shift delta=0.135857
+AUDIT PRE model=4 control=hw.bass_shift delta=0.0364496
+AUDIT PRE model=5 control=hw.blend delta=0.643954
+AUDIT PRE model=5 control=hw.tone delta=0.421257
+AUDIT PRE ...
+[This part of the test output was removed since it exceeds the threshold of 1024 bytes.]
+</system-out>
+	</testcase>
+	<testcase name="ChimeraIRCollectionTests" classname="ChimeraIRCollectionTests" time="1.00247" status="run">
+		<properties/>
+		<system-out>PASS: 20 stable microphone identities, 9/3/8 categories, original condenser branding, conservative metadata and filename matching
+PASS: release catalog contains only two attributed factory IRs; generic user import preserves bytes and metadata
+PASS: unspecified personal IRs, explicit persistent classification, folder/file precedence, equal-basename isolation, non-destructive remove/re-add, factory protection and embedded metadata roundtrip
+PASS: independent instrument/status/diameter filters, public factory-only catalog, explicit user imports, corrupt/silent file rejection, duplicate-root suppression, explicit 512 vs 513 scan limit
+</system-out>
+	</testcase>
+	<testcase name="ChimeraIRLibraryTests" classname="ChimeraIRLibraryTests" time="0.640624" status="run">
+		<properties/>
+		<system-out>PASS modeled_worker_cancellation cancelled_builds=2 latest_six_mics=converged stop_us=2987.5 reprepare=synchronous resources=released
+PASS: remove-from-list preserves source WAV, active convolution, embedded project bytes and bass classification; binary recall renders identical audio without the source file
+</system-out>
+	</testcase>
+	<testcase name="ChimeraCabPanelTests" classname="ChimeraCabPanelTests" time="3.01673" status="run">
+		<properties/>
+		<system-out>INPUT A 44.1kHz-A.wav / 48000 Hz / 512 frames
+INPUT B B.wav
+PASS 44100 Hz / 1 ch / 64 frames
+PASS 44100 Hz / 1 ch / 256 frames
+PASS 44100 Hz / 2 ch / 64 frames
+PASS 44100 Hz / 2 ch / 256 frames
+PASS 48000 Hz / 1 ch / 64 frames
+PASS 48000 Hz / 1 ch / 256 frames
+PASS 48000 Hz / 2 ch / 64 frames
+PASS 48000 Hz / 2 ch / 256 frames
+PASS 96000 Hz / 1 ch / 64 frames
+PASS 96000 Hz / 1 ch / 256 frames
+PASS 96000 Hz / 2 ch / 64 frames
+PASS 96000 Hz / 2 ch / 256 frames
+</system-out>
+	</testcase>
+	<testcase name="ChimeraCabPanelStateTests" classname="ChimeraCabPanelStateTests" time="116.3" status="run">
+		<properties/>
+		<system-out>PASS original CAB production state mode=0 dual=0
+PASS original CAB production state mode=1 dual=0
+PASS original CAB production state mode=1 dual=1
+PASS original CAB production state mode=2 dual=0
+PASS original Matrix low DI 0/50/100 and 1x/2x/4x/8x restoration
+PASS original A/B comparison, position audio, UI and legacy disable
+PASS: same-basename Mic B replacement refreshes alias/reference independently; embedded metadata survives deleted source files
+PASS: categorized capture selections resolve real files; other/mixed imports remain usable; combined filters and empty Strike selection cannot load stale audio
+PASS: duplicate microphone/filename labels have private-path-free ordinals and load distinct original audio payloads
+PASS CAB artwork: 27 embedded transparent assets, stable catalog mapping and separate room scenery, combined retained RGBA bytes=16768384
+PASS integrated CAB UI: capture/model provenance, all geometry bindings, host automation, independent transitions, Strike disclosure and deleted-source r...
+[This part of the test output was removed since it exceeds the threshold of 1024 bytes.]
+</system-out>
+	</testcase>
+	<testcase name="ChimeraNewAmpTests" classname="ChimeraNewAmpTests" time="13.1034" status="run">
+		<properties/>
+		<system-out>PASS: stable 0..14 indices; eight appended models, 20 native channels, defaults, names and channel clamping
+MEASURE new amp matrix: 160 rate/channel/OS cases, three stereo/block arrangements each; peak 0.947821, partition residual 1.2517e-06, stereo residual 0
+PASS: all native channels, 48/96 kHz, 1x/2x/4x/8x, 64/257 samples, finite bounds, silence, stereo isolation and tone/drive corners
+MEASURE minimum RMS-matched residual: default voices 0.265863, native channels 0.399384, drive .05/.95 0.0809263
+PASS: native channels and new default voices differ beyond output level; drive changes waveform shape
+MEASURE reset residual 0, maximum conditioned-history residual 0.97407, worst recovered residual/cold RMS 3.9208e-05
+PASS: exact reset, signal-history response and two-second recovery for all native channels at .8/1 drive (combined filter/nonlinear state; not isolated sag measurement)
+PASS: repeated host parameter updates preserve samples; rapid native-channel changes stay bounded and reset installs the final rout...
+[This part of the test output was removed since it exceeds the threshold of 1024 bytes.]
+</system-out>
+	</testcase>
+	<testcase name="ChimeraPedalOctaverTests" classname="ChimeraPedalOctaverTests" time="7.614" status="run">
+		<properties/>
+		<system-out>pitch rate=44100 channels=1 input=55 voice=1 mono=27.5 poly=27.5 polyLevel=0.10997
+pitch rate=44100 channels=1 input=55 voice=2 mono=13.75 poly=110 polyLevel=0.0853125
+pitch rate=44100 channels=1 input=110 voice=1 mono=55 poly=55 polyLevel=0.151127
+pitch rate=44100 channels=1 input=110 voice=2 mono=27.5 poly=220 polyLevel=0.0983065
+pitch rate=44100 channels=1 input=220 voice=1 mono=110 poly=110 polyLevel=0.0998477
+pitch rate=44100 channels=1 input=220 voice=2 mono=55 poly=440 polyLevel=0.093994
+pitch rate=44100 channels=1 input=440 voice=1 mono=220 poly=220 polyLevel=0.193348
+pitch rate=44100 channels=1 input=440 voice=2 mono=110 poly=880 polyLevel=0.08553
+chord rate=44100 channels=1 target=110 peak=110 amplitude=0.032038
+chord rate=44100 channels=1 target=138.591 peak=138.591 amplitude=0.0779729
+chord rate=44100 channels=1 target=164.814 peak=164.814 amplitude=0.0539753
+chord rate=44100 channels=1 target=440 peak=440 amplitude=0.0313134
+chord rate=44100 channels=1 target=554.365 peak=554.365 amplitude=0.0326...
+[This part of the test output was removed since it exceeds the threshold of 1024 bytes.]
+</system-out>
+	</testcase>
+	<testcase name="ChimeraAmpNativeTests" classname="ChimeraAmpNativeTests" time="14.9053" status="run">
+		<properties/>
+		<system-out>PASS catalog 26 serialized / 25 active models, 407 controls, six contexts
+BASS_EQ_SPAN model=5 key=hw.ch1.midrange db=40.0006
+BASS_EQ_SPAN model=11 key=hw.lo_mid db=24.0042
+BASS_EQ_SPAN model=11 key=hw.hi_mid db=24.0046
+BASS_EQ_SPAN model=14 key=hw.lo_mid db=24.0004
+GAIN_RANGE model=2 channel=1 thd_low=0.0972533 thd_mid=0.81798
+GAIN_RANGE model=3 channel=2 thd_low=0.0337178 thd_mid=0.860835
+GAIN_RANGE model=4 channel=2 thd_low=0.105261 thd_mid=0.38229
+GAIN_RANGE model=9 channel=1 thd_low=0.115185 thd_mid=0.676277
+GAIN_RANGE model=13 channel=1 thd_low=0.00742875 thd_mid=0.313326
+GAIN_RANGE model=15 channel=2 thd_low=0.00965985 thd_mid=0.724905
+GAIN_RANGE model=17 channel=2 thd_low=0.0193037 thd_mid=0.790712
+GAIN_RANGE model=20 channel=0 thd_low=0.0139506 thd_mid=0.687601
+GAIN_RANGE model=21 channel=1 thd_low=0.00738925 thd_mid=0.629795
+GAIN_RANGE model=22 channel=1 thd_low=0.00945843 thd_mid=0.773345
+GAIN_RANGE model=23 channel=2 thd_low=0.00254538 thd_mid=0.751669
+GAIN_DEFAULT model=2 channel=1 weak_thd=0.800...
+[This part of the test output was removed since it exceeds the threshold of 1024 bytes.]
+</system-out>
+	</testcase>
+	<testcase name="ChimeraPostNativeTests" classname="ChimeraPostNativeTests" time="2.62121" status="run">
+		<properties/>
+		<system-out>SPATIAL_CONTROL family=0 model=0 control=0 residual=0.0532227
+SPATIAL_CONTROL family=0 model=0 control=1 residual=0.0707196
+SPATIAL_CONTROL family=0 model=0 control=2 residual=0.178913
+SPATIAL_CONTROL family=0 model=1 control=0 residual=0.0498568
+SPATIAL_CONTROL family=0 model=1 control=1 residual=0.069617
+SPATIAL_CONTROL family=0 model=1 control=2 residual=0.205665
+SPATIAL_CONTROL family=0 model=2 control=0 residual=0.0388913
+SPATIAL_CONTROL family=0 model=2 control=1 residual=0.0636954
+SPATIAL_CONTROL family=0 model=2 control=2 residual=0.130578
+SPATIAL_CONTROL family=0 model=3 control=0 residual=0.0437715
+SPATIAL_CONTROL family=0 model=3 control=1 residual=0.0649251
+SPATIAL_CONTROL family=0 model=3 control=2 residual=0.167504
+SPATIAL_CONTROL family=0 model=4 control=0 residual=0.0758478
+SPATIAL_CONTROL family=0 model=4 control=1 residual=0.100959
+SPATIAL_CONTROL family=0 model=4 control=2 residual=0.313923
+SPATIAL_CONTROL family=0 model=5 control=0 residual=0.0116178
+SPATIAL_CONTROL family=0 model=5 contro...
+[This part of the test output was removed since it exceeds the threshold of 1024 bytes.]
+</system-out>
+	</testcase>
+	<testcase name="ChimeraGateProcessorTests" classname="ChimeraGateProcessorTests" time="14.096" status="run">
+		<properties/>
+		<system-out>ROUNDING ampchannel1_m15 field=3 expected=0.666666667 actual=0.666666687
+ROUNDING ampchannel2_m15 field=3 expected=0.666666667 actual=0.666666687
+ROUNDING ampchannel3_m15 field=3 expected=0.666666667 actual=0.666666687
+ROUNDING nativeAmp_c0_m2_hw_lead_pre_gain field=3 expected=0.680000000 actual=0.680000007
+ROUNDING nativeAmp_c0_m3_hw_ch2_gain field=3 expected=0.650000000 actual=0.650000036
+ROUNDING nativeAmp_c0_m3_hw_ch3_gain field=3 expected=0.680000000 actual=0.680000007
+ROUNDING nativeAmp_c0_m4_hw_lead_gain field=3 expected=0.720000000 actual=0.720000029
+ROUNDING nativeAmp_c0_m4_hw_lead_drive field=3 expected=0.650000000 actual=0.650000036
+PASS legacy parameter contract: 3686 entries SHA256 c035babc58914c0270e1b5eefb02881a50b88af8b609401d4d391792437e170c approved_112_defaults=111 numeric_rounding_differences=99; append-only gateRangeDb
+PASS binary state, legacy missing-field migration, A/B, factory reset, host gestures and MIDI automation recall
+MEASURE high-gain mode=0 board=0 native=0 range24_db=-23.999...
+[This part of the test output was removed since it exceeds the threshold of 1024 bytes.]
+</system-out>
+	</testcase>
+	<testcase name="ChimeraGateTests" classname="ChimeraGateTests" time="0.414244" status="run">
+		<properties/>
+		<system-out>PASS Gate DSP 44100 Hz / 64: timing, range, hysteresis, palm mute, sustain/rolloff, hiss, stereo and latency alignment
+PASS Gate DSP 44100 Hz / 128: timing, range, hysteresis, palm mute, sustain/rolloff, hiss, stereo and latency alignment
+PASS Gate DSP 44100 Hz / 256: timing, range, hysteresis, palm mute, sustain/rolloff, hiss, stereo and latency alignment
+PASS Gate DSP 48000 Hz / 64: timing, range, hysteresis, palm mute, sustain/rolloff, hiss, stereo and latency alignment
+PASS Gate DSP 48000 Hz / 128: timing, range, hysteresis, palm mute, sustain/rolloff, hiss, stereo and latency alignment
+PASS Gate DSP 48000 Hz / 256: timing, range, hysteresis, palm mute, sustain/rolloff, hiss, stereo and latency alignment
+PASS Gate DSP 96000 Hz / 64: timing, range, hysteresis, palm mute, sustain/rolloff, hiss, stereo and latency alignment
+PASS Gate DSP 96000 Hz / 128: timing, range, hysteresis, palm mute, sustain/rolloff, hiss, stereo and latency alignment
+PASS Gate DSP 96000 Hz / 256: timing, range, hysteresis, palm mute,...
+[This part of the test output was removed since it exceeds the threshold of 1024 bytes.]
+</system-out>
+	</testcase>
+	<testcase name="ChimeraIntegratedProcessorTests" classname="ChimeraIntegratedProcessorTests" time="240.123" status="run">
+		<properties/>
+		<system-out>PASS prepared CAB fresh slot=0 max_error=3.56123e-09
+PASS prepared CAB stop/change/reprepare slot=1 max_error=6.36073e-09
+PASS CAB runtime gain ramp slot=0 start=0.252755 middle=0.382945
+PASS prepared CAB fresh slot=1 max_error=3.56123e-09
+PASS prepared CAB stop/change/reprepare slot=0 max_error=6.36073e-09
+PASS CAB runtime gain ramp slot=1 start=0.252755 middle=0.382945
+PRESET_LEVEL,31,Crom Cruach,-23.716,-11.8421,0
+PRESET_HOT,31,-12.2509
+PERFORMANCE_RECALL preset=31 repeat=0 id=input requested=3 before_raw=3 before_normalized=0.5625 snapshot_raw=3 after_raw=3 after_normalized=0.5625
+PERFORMANCE_RECALL preset=31 repeat=0 id=tempo requested=143 before_raw=143 before_normalized=0.514999986 snapshot_raw=143 after_raw=143 after_normalized=0.514999986
+PERFORMANCE_RECALL preset=31 repeat=1 id=input requested=3 before_raw=3 before_normalized=0.5625 snapshot_raw=3 after_raw=3 after_normalized=0.5625
+PERFORMANCE_RECALL preset=31 repeat=1 id=tempo requested=143 before_raw=143 before_normalized=0.514999986 snapshot_raw...
+[This part of the test output was removed since it exceeds the threshold of 1024 bytes.]
+</system-out>
+	</testcase>
+	<testcase name="ChimeraPitchRegressionTests" classname="ChimeraPitchRegressionTests" time="25.6715" status="run">
+		<properties/>
+		<system-out>fixture=synthetic_sine_0.2_L_negative0.65_R frequency=27.5Hz duration=1.5s analysis_last=0.75s; CPU is shared-runner evidence only
+MEASURE rate=44100 block=64 shift=-12 nominal_latency=2048 baseline_target_db=-7.50147 candidate_target_db=-2.12611 baseline_p99_us=598.1 candidate_p95_us=408.3 candidate_p99_us=586.5
+MEASURE rate=44100 block=64 shift=-5 nominal_latency=2048 baseline_target_db=-6.00529 candidate_target_db=-0.629683 baseline_p99_us=441.9 candidate_p95_us=431.8 candidate_p99_us=441.1
+MEASURE rate=44100 block=64 shift=-2 nominal_latency=2048 baseline_target_db=-5.7183 candidate_target_db=-0.342763 baseline_p99_us=450.7 candidate_p95_us=433.3 candidate_p99_us=445.2
+MEASURE rate=44100 block=64 shift=-1 nominal_latency=2048 baseline_target_db=-5.60194 candidate_target_db=-0.226412 baseline_p99_us=453.8 candidate_p95_us=438.5 candidate_p99_us=458.1
+MEASURE rate=44100 block=64 shift=0 nominal_latency=2048 baseline_target_db=-0.179764 candidate_target_db=-0.179764 baseline_p99_us=427.2 candidate_p95_us=413...
+[This part of the test output was removed since it exceeds the threshold of 1024 bytes.]
+</system-out>
+	</testcase>
+	<testcase name="ChimeraCabExpansionModelTests" classname="ChimeraCabExpansionModelTests" time="5.72529" status="run">
+		<properties/>
+		<system-out>PASS cone_quadrature_reference_v2_v3=2592 exact_double_bits
+PASS cooperative_generation routes=9 engines=v1,v2,v3 completed_waveform=identical cancel=before,during,after invalid_rate=distinct
+distinct drivers minimum_level_matched_spectral_rms_db=1.3166
+distinct microphones minimum_level_matched_spectral_rms_db=0.276468
+PASS drivers=8+6 mics=9+3+8 boundary_cases=8960 magnitude=1.27528 position_tick=0.00162131 distance_tick=0.0459354
+</system-out>
+	</testcase>
+	<testcase name="ChimeraOriginalCabModelTests" classname="ChimeraOriginalCabModelTests" time="1.74661" status="run">
+		<properties/>
+		<system-out>PASS cone_quadrature_reference_v1=864 geometry_doubles=144 exact_double_bits
+PASS rate=44100 cabinet=0 energy=0.0378087 far_ratio=0.104612 tail_ratio=1.02578e-20 generation_suite_ms=201.34
+PASS rate=44100 cabinet=1 energy=0.0340742 far_ratio=0.110149 tail_ratio=5.93437e-17 generation_suite_ms=200.581
+PASS rate=48000 cabinet=0 energy=0.0347434 far_ratio=0.104607 tail_ratio=1.01917e-20 generation_suite_ms=205.574
+PASS rate=48000 cabinet=1 energy=0.0313089 far_ratio=0.110145 tail_ratio=5.98009e-17 generation_suite_ms=200.703
+PASS rate=96000 cabinet=0 energy=0.0173787 far_ratio=0.104589 tail_ratio=9.76896e-21 generation_suite_ms=407.703
+PASS rate=96000 cabinet=1 energy=0.0156577 far_ratio=0.110141 tail_ratio=5.9356e-17 generation_suite_ms=401.312
+PASS distance_tick_delta=0.0147441
+PASS boundary_cases=864 maximum_magnitude=2.3618 position_tick_delta=0.000766346
+</system-out>
+	</testcase>
+	<testcase name="ChimeraCabTimingDiagnosticsTests" classname="ChimeraCabTimingDiagnosticsTests" time="0.0283485" status="run">
+		<properties/>
+		<system-out>PASS paired CAB timing evidence: 1600 samples, unchanged quantiles, CSV phases and clock validity
+</system-out>
+	</testcase>
+	<testcase name="ChimeraOriginalCabIntegrationTests" classname="ChimeraOriginalCabIntegrationTests" time="17.3261" status="fail">
+		<failure message="Failed"/>
+		<properties/>
+		<system-out>TIMING_PROTOCOL lifecycle_trace=disabled measured_blocks=1600 worker_blocks=1200 forced_publication_blocks=400
+PAIRED_TIMING_PROTOCOL thread_clock_evidence_only=1 wall_gate_unchanged=1 thread_clocks_outside_wall=1 thread_clock_reads_per_callback=2 extra_measurement_overhead=1 cycles_to_time=disabled thread_cpu_p99_is_independent=1 raw_samples=csv thread_clock=QueryThreadCycleTime
+CALLER_SCHEDULING phase=entry caller_context=windows_native caller_process_priority_class=16384 caller_thread_priority=0 caller_priority_valid=1 caller_process_affinity_mask=15 caller_affinity_valid=1
+WORKER_SCHEDULING engine=original-v1 suite=integration sr=44100 block=64 channels=1 start_succeeded=1 entered_run=1 requested_juce_priority=-1 observed_juce_priority=-1 worker_priority_query=native caller_context=windows_native caller_process_priority_class=16384 caller_thread_priority=0 caller_priority_valid=1 caller_process_affinity_mask=15 caller_affinity_valid=1
+WORKER_ACTIVITY engine=original-v1 suite=integration sr=44100 block=64 channels=1 cancelled_builds=12
+TIMING_EVIDENCE engine=original-v1 suite=integration sr=44100 block=64 channels=1 samples=1600 path=cab-timing-diagnostics/integration/original-v1/44100-64-1.csv
+PAIRED_TIMING engine=original-v1 suite=integration sr=44100 block=64 channels=1 phase=all samples=1600 thread_cpu_valid_samples=0 thread_cycles_valid_samples=1600 misses=0 misses_with_thread_cycles=0 wall_p99_callback_index=273 wall_p99_wall_us=88.2 wall_p99_thread_cpu_us=-1 wall_p99_thread_cpu_valid=0 wall_p99_thread_cycles=217116 wall_p99_thread_cycles_valid=1 wall_max_callback_index=286 wall_max_wall_us=99.7 wall_max_thread_cpu_us=-1 wall_max_thread_cpu_valid=0 wall_max_thread_cycles=244989 wall_max_thread_cycles_valid=1
+PAIRED_TIMING engine=original-v1 suite=integration sr=44100 block=64 channels=1 phase=worker_and_automation samples=1200 thread_cpu_valid_samples=0 thread_cycles_valid_samples=1200 misses=0 misses_with_thread_cycles=0 wall_p99_callback_index=265 wall_p99_wall_us=88.2 wall_p99_thread_cpu_us=-1 wall_p99_thread_cpu_valid=0 wall_p99_thread_cycles=217116 wall_p99_thread_cycles_valid=1 wall_max_callback_index=286 wall_max_wall_us=99.7 wall_max_thread_cpu_us=-1 wall_max_thread_cpu_valid=0 wall_max_thread_cycles=244989 wall_max_thread_cycles_valid=1
+PAIRED_TIMING engine=original-v1 suite=integration sr=44100 block=64 channels=1 phase=forced_six_slot_publication samples=400 thread_cpu_valid_samples=0 thread_cycles_valid_samples=400 misses=0 misses_with_thread_cycles=0 wall_p99_callback_index=1252 wall_p99_wall_us=89.5 wall_p99_thread_cpu_us=-1 wall_p99_thread_cpu_valid=0 wall_p99_thread_cycles=217360 wall_p99_thread_cycles_valid=1 wall_max_callback_index=1213 wall_max_wall_us=94 wall_max_thread_cpu_us=-1 wall_max_thread_cpu_valid=0 wall_max_thread_cycles=229341 wall_max_thread_cycles_valid=1
+PHASE_CONFIG engine=original-v1 sr=44100 block=64 channels=1
+PHASE name=worker_and_automation blocks=1200 p50_us=58.6 p99_us=88.2 thread_cpu_p99_us=-1 max_us=99.7 misses=0
+PHASE name=forced_six_slot_publication blocks=400 p50_us=49.3 p99_us=89.5 thread_cpu_p99_us=-1 max_us=94 misses=0
+TIMING engine=original-v1 sr=44100 block=64 channels=1 three_cabs_six_mics p50_us=58.3 p99_us=88.2 thread_cpu_p99_us=-1 max_us=99.7 misses=0/1600 kernel_residual=4.88944351673e-09 peak=0.0263230782002 max_step=0.0161654688418
+WORKER_SCHEDULING engine=original-v1 suite=integration sr=44100 block=64 channels=2 start_succeeded=1 entered_run=1 requested_juce_priority=-1 observed_juce_priority=-1 worker_priority_query=native caller_context=windows_native caller_process_priority_class=16384 caller_thread_priority=0 caller_priority_valid=1 caller_process_affinity_mask=15 caller_affinity_valid=1
+WORKER_ACTIVITY engine=original-v1 suite=integration sr=44100 block=64 channels=2 cancelled_builds=12
+TIMING_EVIDENCE engine=original-v1 suite=integration sr=44100 block=64 channels=2 samples=1600 path=cab-timing-diagnostics/integration/original-v1/44100-64-2.csv
+PAIRED_TIMING engine=original-v1 suite=integration sr=44100 block=64 channels=2 phase=all samples=1600 thread_cpu_valid_samples=0 thread_cycles_valid_samples=1600 misses=0 misses_with_thread_cycles=0 wall_p99_callback_index=425 wall_p99_wall_us=92.4 wall_p99_thread_cpu_us=-1 wall_p99_thread_cpu_valid=0 wall_p99_thread_cycles=227630 wall_p99_thread_cycles_valid=1 wall_max_callback_index=1200 wall_max_wall_us=123.5 wall_max_thread_cpu_us=-1 wall_max_thread_cpu_valid=0 wall_max_thread_cycles=302691 wall_max_thread_cycles_valid=1
+PAIRED_TIMING engine=original-v1 suite=integration sr=44100 block=64 channels=2 phase=worker_and_automation samples=1200 thread_cpu_valid_samples=0 thread_cycles_valid_samples=1200 misses=0 misses_with_thread_cycles=0 wall_p99_callback_index=297 wall_p99_wall_us=91.4 wall_p99_thread_cpu_us=-1 wall_p99_thread_cpu_valid=0 wall_p99_thread_cycles=225184 wall_p99_thread_cycles_valid=1 wall_max_callback_index=437 wall_max_wall_us=98.1 wall_max_thread_cpu_us=-1 wall_max_thread_cpu_valid=0 wall_max_thread_cycles=241077 wall_max_thread_cycles_valid=1
+PAIRED_TIMING engine=original-v1 suite=integration sr=44100 block=64 channels=2 phase=forced_six_slot_publication samples=400 thread_cpu_valid_samples=0 thread_cycles_valid_samples=400 misses=0 misses_with_thread_cycles=0 wall_p99_callback_index=1232 wall_p99_wall_us=107.7 wall_p99_thread_cpu_us=-1 wall_p99_thread_cpu_valid=0 wall_p99_thread_cycles=262838 wall_p99_thread_cycles_valid=1 wall_max_callback_index=1200 wall_max_wall_us=123.5 wall_max_thread_cpu_us=-1 wall_max_thread_cpu_valid=0 wall_max_thread_cycles=302691 wall_max_thread_cycles_valid=1
+PHASE_CONFIG engine=original-v1 sr=44100 block=64 channels=2
+PHASE name=worker_and_automation blocks=1200 p50_us=61.1 p99_us=91.4 thread_cpu_p99_us=-1 max_us=98.1 misses=0
+PHASE name=forced_six_slot_publication blocks=400 p50_us=59.6 p99_us=107.7 thread_cpu_p99_us=-1 max_us=123.5 misses=0
+TIMING engine=original-v1 sr=44100 block=64 channels=2 three_cabs_six_mics p50_us=60.9 p99_us=92.4 thread_cpu_p99_us=-1 max_us=123.5 misses=0/1600 kernel_residual=4.88944351673e-09 peak=0.0263230763376 max_step=0.0161654669791
+WORKER_SCHEDULING engine=original-v1 suite=integration sr=44100 block=256 channels=1 start_succeeded=1 entered_run=1 requested_juce_priority=-1 observed_juce_priority=-1 worker_priority_query=native caller_context=windows_native caller_process_priority_class=16384 caller_thread_priority=0 caller_priority_valid=1 caller_process_affinity_mask=15 caller_affinity_valid=1
+WORKER_ACTIVITY engine=original-v1 suite=integration sr=44100 block=256 channels=1 cancelled_builds=12
+TIMING_EVIDENCE engine=original-v1 suite=integration sr=44100 block=256 channels=1 samples=1600 path=cab-timing-diagnostics/integration/original-v1/44100-256-1.csv
+PAIRED_TIMING engine=original-v1 suite=integration sr=44100 block=256 channels=1 phase=all samples=1600 thread_cpu_valid_samples=0 thread_cycles_valid_samples=1600 misses=0 misses_with_thread_cycles=0 wall_p99_callback_index=182 wall_p99_wall_us=188.5 wall_p99_thread_cpu_us=-1 wall_p99_thread_cpu_valid=0 wall_p99_thread_cycles=459171 wall_p99_thread_cycles_valid=1 wall_max_callback_index=1341 wall_max_wall_us=292.5 wall_max_thread_cpu_us=-1 wall_max_thread_cpu_valid=0 wall_max_thread_cycles=514917 wall_max_thread_cycles_valid=1
+PAIRED_TIMING engine=original-v1 suite=integration sr=44100 block=256 channels=1 phase=worker_and_automation samples=1200 thread_cpu_valid_samples=0 thread_cycles_valid_samples=1200 misses=0 misses_with_thread_cycles=0 wall_p99_callback_index=1014 wall_p99_wall_us=181.9 wall_p99_thread_cpu_us=-1 wall_p99_thread_cpu_valid=0 wall_p99_thread_cycles=443768 wall_p99_thread_cycles_valid=1 wall_max_callback_index=264 wall_max_wall_us=196.8 wall_max_thread_cpu_us=-1 wall_max_thread_cpu_valid=0 wall_max_thread_cycles=479465 wall_max_thread_cycles_valid=1
+PAIRED_TIMING engine=original-v1 suite=integration sr=44100 block=256 channels=1 phase=forced_six_slot_publication samples=400 thread_cpu_valid_samples=0 thread_cycles_valid_samples=400 misses=0 misses_with_thread_cycles=0 wall_p99_callback_index=1461 wall_p99_wall_us=200.7 wall_p99_thread_cpu_us=-1 wall_p99_thread_cpu_valid=0 wall_p99_thread_cycles=432275 wall_p99_thread_cycles_valid=1 wall_max_callback_index=1341 wall_max_wall_us=292.5 wall_max_thread_cpu_us=-1 wall_max_thread_cpu_valid=0 wall_max_thread_cycles=514917 wall_max_thread_cycles_valid=1
+PHASE_CONFIG engine=original-v1 sr=44100 block=256 channels=1
+PHASE name=worker_and_automation blocks=1200 p50_us=119.7 p99_us=181.9 thread_cpu_p99_us=-1 max_us=196.8 misses=0
+PHASE name=forced_six_slot_publication blocks=400 p50_us=117.4 p99_us=200.7 thread_cpu_p99_us=-1 max_us=292.5 misses=0
+TIMING engine=original-v1 sr=44100 block=256 channels=1 three_cabs_six_mics p50_us=117.6 p99_us=188.5 thread_cpu_p99_us=-1 max_us=292.5 misses=0/1600 kernel_residual=3.72529029846e-09 peak=0.0263230782002 max_step=0.00773785170168
+WORKER_SCHEDULING engine=original-v1 suite=integration sr=44100 block=256 channels=2 start_succeeded=1 entered_run=1 requested_juce_priority=-1 observed_juce_priority=-1 worker_priority_query=native caller_context=windows_native caller_process_priority_class=16384 caller_thread_priority=0 caller_priority_valid=1 caller_process_affinity_mask=15 caller_affinity_valid=1
+WORKER_ACTIVITY engine=original-v1 suite=integration sr=44100 block=256 channels=2 cancelled_builds=18
+TIMING_EVIDENCE engine=original-v1 suite=integration sr=44100 block=256 channels=2 samples=1600 path=cab-timing-diagnostics/integration/original-v1/44100-256-2.csv
+PAIRED_TIMING engine=original-v1 suite=integration sr=44100 block=256 channels=2 phase=all samples=1600 thread_cpu_valid_samples=0 thread_cycles_valid_samples=1600 misses=0 misses_with_thread_cycles=0 wall_p99_callback_index=920 wall_p99_wall_us=278.8 wall_p99_thread_cpu_us=-1 wall_p99_thread_cpu_valid=0 wall_p99_thread_cycles=678732 wall_p99_thread_cycles_valid=1 wall_max_callback_index=1232 wall_max_wall_us=3211.6 wall_max_thread_cpu_us=-1 wall_max_thread_cpu_valid=0 wall_max_thread_cycles=853057 wall_max_thread_cycles_valid=1
+PAIRED_TIMING engine=original-v1 suite=integration sr=44100 block=256 channels=2 phase=worker_and_automation samples=1200 thread_cpu_valid_samples=0 thread_cycles_valid_samples=1200 misses=0 misses_with_thread_cycles=0 wall_p99_callback_index=244 wall_p99_wall_us=295 wall_p99_thread_cpu_us=-1 wall_p99_thread_cpu_valid=0 wall_p99_thread_cycles=723964 wall_p99_thread_cycles_valid=1 wall_max_callback_index=243 wall_max_wall_us=361.8 wall_max_thread_cpu_us=-1 wall_max_thread_cpu_valid=0 wall_max_thread_cycles=881667 wall_max_thread_cycles_valid=1
+PAIRED_TIMING engine=original-v1 suite=integration sr=44100 block=256 channels=2 phase=forced_six_slot_publication samples=400 thread_cpu_valid_samples=0 thread_cycles_valid_samples=400 misses=0 misses_with_thread_cycles=0 wall_p99_callback_index=1200 wall_p99_wall_us=250.2 wall_p99_thread_cpu_us=-1 wall_p99_thread_cpu_valid=0 wall_p99_thread_cycles=616140 wall_p99_thread_cycles_valid=1 wall_max_callback_index=1232 wall_max_wall_us=3211.6 wall_max_thread_cpu_us=-1 wall_max_thread_cpu_valid=0 wall_max_thread_cycles=853057 wall_max_thread_cycles_valid=1
+PHASE_CONFIG engine=original-v1 sr=44100 block=256 channels=2
+PHASE name=worker_and_automation blocks=1200 p50_us=145.5 p99_us=295 thread_cpu_p99_us=-1 max_us=361.8 misses=0
+PHASE name=forced_six_slot_publication blocks=400 p50_us=141.7 p99_us=250.2 thread_cpu_p99_us=-1 max_us=3211.6 misses=0
+TIMING engine=original-v1 sr=44100 block=256 channels=2 three_cabs_six_mics p50_us=143.6 p99_us=278.8 thread_cpu_p99_us=-1 max_us=3211.6 misses=0/1600 kernel_residual=3.72529029846e-09 peak=0.0263230782002 max_step=0.00773785077035
+WORKER_SCHEDULING engine=original-v1 suite=integration sr=48000 block=64 channels=1 start_succeeded=1 entered_run=1 requested_juce_priority=-1 observed_juce_priority=-1 worker_priority_query=native caller_context=windows_native caller_process_priority_class=16384 caller_thread_priority=0 caller_priority_valid=1 caller_process_affinity_mask=15 caller_affinity_valid=1
+WORKER_ACTIVITY engine=original-v1 suite=integration sr=48000 block=64 channels=1 cancelled_builds=12
+TIMING_EVIDENCE engine=original-v1 suite=integration sr=48000 block=64 channels=1 samples=1600 path=cab-timing-diagnostics/integration/original-v1/48000-64-1.csv
+PAIRED_TIMING engine=original-v1 suite=integration sr=48000 block=64 channels=1 phase=all samples=1600 thread_cpu_valid_samples=0 thread_cycles_valid_samples=1600 misses=0 misses_with_thread_cycles=0 wall_p99_callback_index=310 wall_p99_wall_us=121.5 wall_p99_thread_cpu_us=-1 wall_p99_thread_cpu_valid=0 wall_p99_thread_cycles=298290 wall_p99_thread_cycles_valid=1 wall_max_callback_index=581 wall_max_wall_us=150.7 wall_max_thread_cpu_us=-1 wall_max_thread_cpu_valid=0 wall_max_thread_cycles=277264 wall_max_thread_cycles_valid=1
+PAIRED_TIMING engine=original-v1 suite=integration sr=48000 block=64 channels=1 phase=worker_and_automation samples=1200 thread_cpu_valid_samples=0 thread_cycles_valid_samples=1200 misses=0 misses_with_thread_cycles=0 wall_p99_callback_index=306 wall_p99_wall_us=122.7 wall_p99_thread_cpu_us=-1 wall_p99_thread_cpu_valid=0 wall_p99_thread_cycles=301469 wall_p99_thread_cycles_valid=1 wall_max_callback_index=581 wall_max_wall_us=150.7 wall_max_thread_cpu_us=-1 wall_max_thread_cpu_valid=0 wall_max_thread_cycles=277264 wall_max_thread_cycles_valid=1
+PAIRED_TIMING engine=original-v1 suite=integration sr=48000 block=64 channels=1 phase=forced_six_slot_publication samples=400 thread_cpu_valid_samples=0 thread_cycles_valid_samples=400 misses=0 misses_with_thread_cycles=0 wall_p99_callback_index=1204 wall_p99_wall_us=86.5 wall_p99_thread_cpu_us=-1 wall_p99_thread_cpu_valid=0 wall_p99_thread_cycles=212715 wall_p99_thread_cycles_valid=1 wall_max_callback_index=1268 wall_max_wall_us=95 wall_max_thread_cpu_us=-1 wall_max_thread_cpu_valid=0 wall_max_thread_cycles=231541 wall_max_thread_cycles_valid=1
+PHASE_CONFIG engine=original-v1 sr=48000 block=64 channels=1
+PHASE name=worker_and_automation blocks=1200 p50_us=65.2 p99_us=122.7 thread_cpu_p99_us=-1 max_us=150.7 misses=0
+PHASE name=forced_six_slot_publication blocks=400 p50_us=49.4 p99_us=86.5 thread_cpu_p99_us=-1 max_us=95 misses=0
+TIMING engine=original-v1 sr=48000 block=64 channels=1 three_cabs_six_mics p50_us=59.6 p99_us=121.5 thread_cpu_p99_us=-1 max_us=150.7 misses=0/1600 kernel_residual=3.72529029846e-09 peak=0.023838730529 max_step=0.0125431874767
+WORKER_SCHEDULING engine=original-v1 suite=integration sr=48000 block=64 channels=2 start_succeeded=1 entered_run=1 requested_juce_priority=-1 observed_juce_priority=-1 worker_priority_query=native caller_context=windows_native caller_process_priority_class=16384 caller_thread_priority=0 caller_priority_valid=1 caller_process_affinity_mask=15 caller_affinity_valid=1
+WORKER_ACTIVITY engine=original-v1 suite=integration sr=48000 block=64 channels=2 cancelled_builds=12
+TIMING_EVIDENCE engine=original-v1 suite=integration sr=48000 block=64 channels=2 samples=1600 path=cab-timing-diagnostics/integration/original-v1/48000-64-2.csv
+PAIRED_TIMING engine=original-v1 suite=integration sr=48000 block=64 channels=2 phase=all samples=1600 thread_cpu_valid_samples=0 thread_cycles_valid_samples=1600 misses=0 misses_with_thread_cycles=0 wall_p99_callback_index=207 wall_p99_wall_us=162.5 wall_p99_thread_cpu_us=-1 wall_p99_thread_cpu_valid=0 wall_p99_thread_cycles=396090 wall_p99_thread_cycles_valid=1 wall_max_callback_index=1185 wall_max_wall_us=438.6 wall_max_thread_cpu_us=-1 wall_max_thread_cpu_valid=0 wall_max_thread_cycles=336432 wall_max_thread_cycles_valid=1
+PAIRED_TIMING engine=original-v1 suite=integration sr=48000 block=64 channels=2 phase=worker_and_automation samples=1200 thread_cpu_valid_samples=0 thread_cycles_valid_samples=1200 misses=0 misses_with_thread_cycles=0 wall_p99_callback_index=1120 wall_p99_wall_us=150.9 wall_p99_thread_cpu_us=-1 wall_p99_thread_cpu_valid=0 wall_p99_thread_cycles=292178 wall_p99_thread_cycles_valid=1 wall_max_callback_index=1185 wall_max_wall_us=438.6 wall_max_thread_cpu_us=-1 wall_max_thread_cpu_valid=0 wall_max_thread_cycles=336432 wall_max_thread_cycles_valid=1
+PAIRED_TIMING engine=original-v1 suite=integration sr=48000 block=64 channels=2 phase=forced_six_slot_publication samples=400 thread_cpu_valid_samples=0 thread_cycles_valid_samples=400 misses=0 misses_with_thread_cycles=0 wall_p99_callback_index=1411 wall_p99_wall_us=227 wall_p99_thread_cpu_us=-1 wall_p99_thread_cpu_valid=0 wall_p99_thread_cycles=384111 wall_p99_thread_cycles_valid=1 wall_max_callback_index=1492 wall_max_wall_us=313 wall_max_thread_cpu_us=-1 wall_max_thread_cpu_valid=0 wall_max_thread_cycles=579709 wall_max_thread_cycles_valid=1
+PHASE_CONFIG engine=original-v1 sr=48000 block=64 channels=2
+PHASE name=worker_and_automation blocks=1200 p50_us=68.9 p99_us=150.9 thread_cpu_p99_us=-1 max_us=438.6 misses=0
+PHASE name=forced_six_slot_publication blocks=400 p50_us=98.5 p99_us=227 thread_cpu_p99_us=-1 max_us=313 misses=0
+TIMING engine=original-v1 sr=48000 block=64 channels=2 three_cabs_six_mics p50_us=75.3 p99_us=162.5 thread_cpu_p99_us=-1 max_us=438.6 misses=0/1600 kernel_residual=3.72529029846e-09 peak=0.0238387286663 max_step=0.0125431893393
+WORKER_SCHEDULING engine=original-v1 suite=integration sr=48000 block=256 channels=1 start_succeeded=1 entered_run=1 requested_juce_priority=-1 observed_juce_priority=-1 worker_priority_query=native caller_context=windows_native caller_process_priority_class=16384 caller_thread_priority=0 caller_priority_valid=1 caller_process_affinity_mask=15 caller_affinity_valid=1
+WORKER_ACTIVITY engine=original-v1 suite=integration sr=48000 block=256 channels=1 cancelled_builds=11
+TIMING_EVIDENCE engine=original-v1 suite=integration sr=48000 block=256 channels=1 samples=1600 path=cab-timing-diagnostics/integration/original-v1/48000-256-1.csv
+PAIRED_TIMING engine=original-v1 suite=integration sr=48000 block=256 channels=1 phase=all samples=1600 thread_cpu_valid_samples=0 thread_cycles_valid_samples=1600 misses=0 misses_with_thread_cycles=0 wall_p99_callback_index=1 wall_p99_wall_us=230.9 wall_p99_thread_cpu_us=-1 wall_p99_thread_cpu_valid=0 wall_p99_thread_cycles=567729 wall_p99_thread_cycles_valid=1 wall_max_callback_index=278 wall_max_wall_us=297.6 wall_max_thread_cpu_us=-1 wall_max_thread_cpu_valid=0 wall_max_thread_cycles=729588 wall_max_thread_cycles_valid=1
+PAIRED_TIMING engine=original-v1 suite=integration sr=48000 block=256 channels=1 phase=worker_and_automation samples=1200 thread_cpu_valid_samples=0 thread_cycles_valid_samples=1200 misses=0 misses_with_thread_cycles=0 wall_p99_callback_index=214 wall_p99_wall_us=233.9 wall_p99_thread_cpu_us=-1 wall_p99_thread_cpu_valid=0 wall_p99_thread_cycles=543767 wall_p99_thread_cycles_valid=1 wall_max_callback_index=278 wall_max_wall_us=297.6 wall_max_thread_cpu_us=-1 wall_max_thread_cpu_valid=0 wall_max_thread_cycles=729588 wall_max_thread_cycles_valid=1
+PAIRED_TIMING engine=original-v1 suite=integration sr=48000 block=256 channels=1 phase=forced_six_slot_publication samples=400 thread_cpu_valid_samples=0 thread_cycles_valid_samples=400 misses=0 misses_with_thread_cycles=0 wall_p99_callback_index=1200 wall_p99_wall_us=176.3 wall_p99_thread_cpu_us=-1 wall_p99_thread_cpu_valid=0 wall_p99_thread_cycles=433010 wall_p99_thread_cycles_valid=1 wall_max_callback_index=1210 wall_max_wall_us=211.5 wall_max_thread_cpu_us=-1 wall_max_thread_cpu_valid=0 wall_max_thread_cycles=516873 wall_max_thread_cycles_valid=1
+PHASE_CONFIG engine=original-v1 sr=48000 block=256 channels=1
+PHASE name=worker_and_automation blocks=1200 p50_us=121.2 p99_us=233.9 thread_cpu_p99_us=-1 max_us=297.6 misses=0
+PHASE name=forced_six_slot_publication blocks=400 p50_us=117.9 p99_us=176.3 thread_cpu_p99_us=-1 max_us=211.5 misses=0
+TIMING engine=original-v1 sr=48000 block=256 channels=1 three_cabs_six_mics p50_us=118.2 p99_us=230.9 thread_cpu_p99_us=-1 max_us=297.6 misses=0/1600 kernel_residual=3.49245965481e-09 peak=0.0238387286663 max_step=0.00307572935708
+WORKER_SCHEDULING engine=original-v1 suite=integration sr=48000 block=256 channels=2 start_succeeded=1 entered_run=1 requested_juce_priority=-1 observed_juce_priority=-1 worker_priority_query=native caller_context=windows_native caller_process_priority_class=16384 caller_thread_priority=0 caller_priority_valid=1 caller_process_affinity_mask=15 caller_affinity_valid=1
+WORKER_ACTIVITY engine=original-v1 suite=integration sr=48000 block=256 channels=2 cancelled_builds=9
+TIMING_EVIDENCE engine=original-v1 suite=integration sr=48000 block=256 channels=2 samples=1600 path=cab-timing-diagnostics/integration/original-v1/48000-256-2.csv
+PAIRED_TIMING engine=original-v1 suite=integration sr=48000 block=256 channels=2 phase=all samples=1600 thread_cpu_valid_samples=0 thread_cycles_valid_samples=1600 misses=36 misses_with_thread_cycles=36 wall_p99_callback_index=750 wall_p99_wall_us=10496.6 wall_p99_thread_cpu_us=-1 wall_p99_thread_cpu_valid=0 wall_p99_thread_cycles=667241 wall_p99_thread_cycles_valid=1 wall_max_callback_index=775 wall_max_wall_us=79712.9 wall_max_thread_cpu_us=-1 wall_max_thread_cpu_valid=0 wall_max_thread_cycles=657460 wall_max_thread_cycles_valid=1
+PAIRED_TIMING engine=original-v1 suite=integration sr=48000 block=256 channels=2 phase=worker_and_automation samples=1200 thread_cpu_valid_samples=0 thread_cycles_valid_samples=1200 misses=32 misses_with_thread_cycles=32 wall_p99_callback_index=759 wall_p99_wall_us=13252.4 wall_p99_thread_cpu_us=-1 wall_p99_thread_cpu_valid=0 wall_p99_thread_cycles=766996 wall_p99_thread_cycles_valid=1 wall_max_callback_index=775 wall_max_wall_us=79712.9 wall_max_thread_cpu_us=-1 wall_max_thread_cpu_valid=0 wall_max_thread_cycles=657460 wall_max_thread_cycles_valid=1
+PAIRED_TIMING engine=original-v1 suite=integration sr=48000 block=256 channels=2 phase=forced_six_slot_publication samples=400 thread_cpu_valid_samples=0 thread_cycles_valid_samples=400 misses=4 misses_with_thread_cycles=4 wall_p99_callback_index=1490 wall_p99_wall_us=7879.1 wall_p99_thread_cpu_us=-1 wall_p99_thread_cpu_valid=0 wall_p99_thread_cycles=827387 wall_p99_thread_cycles_valid=1 wall_max_callback_index=1437 wall_max_wall_us=18240.3 wall_max_thread_cpu_us=-1 wall_max_thread_cpu_valid=0 wall_max_thread_cycles=851593 wall_max_thread_cycles_valid=1
+PHASE_CONFIG engine=original-v1 sr=48000 block=256 channels=2
+PHASE name=worker_and_automation blocks=1200 p50_us=335.9 p99_us=13252.4 thread_cpu_p99_us=-1 max_us=79712.9 misses=32
+PHASE name=forced_six_slot_publication blocks=400 p50_us=361.8 p99_us=7879.1 thread_cpu_p99_us=-1 max_us=18240.3 misses=4
+TIMING engine=original-v1 sr=48000 block=256 channels=2 three_cabs_six_mics p50_us=340.5 p99_us=10496.6 thread_cpu_p99_us=-1 max_us=79712.9 misses=36/1600 kernel_residual=3.49245965481e-09 peak=0.0238387268037 max_step=0.00307572982274
+WORKER_SCHEDULING engine=original-v1 suite=integration sr=96000 block=64 channels=1 start_succeeded=1 entered_run=1 requested_juce_priority=-1 observed_juce_priority=-1 worker_priority_query=native caller_context=windows_native caller_process_priority_class=16384 caller_thread_priority=0 caller_priority_valid=1 caller_process_affinity_mask=15 caller_affinity_valid=1
+WORKER_ACTIVITY engine=original-v1 suite=integration sr=96000 block=64 channels=1 cancelled_builds=10
+TIMING_EVIDENCE engine=original-v1 suite=integration sr=96000 block=64 channels=1 samples=1600 path=cab-timing-diagnostics/integration/original-v1/96000-64-1.csv
+PAIRED_TIMING engine=original-v1 suite=integration sr=96000 block=64 channels=1 phase=all samples=1600 thread_cpu_valid_samples=0 thread_cycles_valid_samples=1600 misses=49 misses_with_thread_cycles=49 wall_p99_callback_index=240 wall_p99_wall_us=4995.1 wall_p99_thread_cpu_us=-1 wall_p99_thread_cpu_valid=0 wall_p99_thread_cycles=408804 wall_p99_thread_cycles_valid=1 wall_max_callback_index=1073 wall_max_wall_us=29926.1 wall_max_thread_cpu_us=-1 wall_max_thread_cpu_valid=0 wall_max_thread_cycles=434231 wall_max_thread_cycles_valid=1
+PAIRED_TIMING engine=original-v1 suite=integration sr=96000 block=64 channels=1 phase=worker_and_automation samples=1200 thread_cpu_valid_samples=0 thread_cycles_valid_samples=1200 misses=36 misses_with_thread_cycles=36 wall_p99_callback_index=1069 wall_p99_wall_us=4781.1 wall_p99_thread_cpu_us=-1 wall_p99_thread_cpu_valid=0 wall_p99_thread_cycles=463327 wall_p99_thread_cycles_valid=1 wall_max_callback_index=1073 wall_max_wall_us=29926.1 wall_max_thread_cpu_us=-1 wall_max_thread_cpu_valid=0 wall_max_thread_cycles=434231 wall_max_thread_cycles_valid=1
+PAIRED_TIMING engine=original-v1 suite=integration sr=96000 block=64 channels=1 phase=forced_six_slot_publication samples=400 thread_cpu_valid_samples=0 thread_cycles_valid_samples=400 misses=13 misses_with_thread_cycles=13 wall_p99_callback_index=1264 wall_p99_wall_us=7464.3 wall_p99_thread_cpu_us=-1 wall_p99_thread_cpu_valid=0 wall_p99_thread_cycles=744013 wall_p99_thread_cycles_valid=1 wall_max_callback_index=1262 wall_max_wall_us=20781.2 wall_max_thread_cpu_us=-1 wall_max_thread_cpu_valid=0 wall_max_thread_cycles=775309 wall_max_thread_cycles_valid=1
+PHASE_CONFIG engine=original-v1 sr=96000 block=64 channels=1
+PHASE name=worker_and_automation blocks=1200 p50_us=141.2 p99_us=4781.1 thread_cpu_p99_us=-1 max_us=29926.1 misses=36
+PHASE name=forced_six_slot_publication blocks=400 p50_us=131.5 p99_us=7464.3 thread_cpu_p99_us=-1 max_us=20781.2 misses=13
+TIMING engine=original-v1 sr=96000 block=64 channels=1 three_cabs_six_mics p50_us=140.6 p99_us=4995.1 thread_cpu_p99_us=-1 max_us=29926.1 misses=49/1600 kernel_residual=2.32830643654e-09 peak=0.0189830474555 max_step=0.0153105119243
+WORKER_SCHEDULING engine=original-v1 suite=integration sr=96000 block=64 channels=2 start_succeeded=1 entered_run=1 requested_juce_priority=-1 observed_juce_priority=-1 worker_priority_query=native caller_context=windows_native caller_process_priority_class=16384 caller_thread_priority=0 caller_priority_valid=1 caller_process_affinity_mask=15 caller_affinity_valid=1
+WORKER_ACTIVITY engine=original-v1 suite=integration sr=96000 block=64 channels=2 cancelled_builds=12
+TIMING_EVIDENCE engine=original-v1 suite=integration sr=96000 block=64 channels=2 samples=1600 path=cab-timing-diagnostics/integration/original-v1/96000-64-2.csv
+PAIRED_TIMING engine=original-v1 suite=integration sr=96000 block=64 channels=2 phase=all samples=1600 thread_cpu_valid_samples=0 thread_cycles_valid_samples=1600 misses=8 misses_with_thread_cycles=8 wall_p99_callback_index=0 wall_p99_wall_us=283.7 wall_p99_thread_cpu_us=-1 wall_p99_thread_cpu_valid=0 wall_p99_thread_cycles=633254 wall_p99_thread_cycles_valid=1 wall_max_callback_index=158 wall_max_wall_us=13210.5 wall_max_thread_cpu_us=-1 wall_max_thread_cpu_valid=0 wall_max_thread_cycles=521030 wall_max_thread_cycles_valid=1
+PAIRED_TIMING engine=original-v1 suite=integration sr=96000 block=64 channels=2 phase=worker_and_automation samples=1200 thread_cpu_valid_samples=0 thread_cycles_valid_samples=1200 misses=8 misses_with_thread_cycles=8 wall_p99_callback_index=483 wall_p99_wall_us=329.7 wall_p99_thread_cpu_us=-1 wall_p99_thread_cpu_valid=0 wall_p99_thread_cycles=542056 wall_p99_thread_cycles_valid=1 wall_max_callback_index=158 wall_max_wall_us=13210.5 wall_max_thread_cpu_us=-1 wall_max_thread_cpu_valid=0 wall_max_thread_cycles=521030 wall_max_thread_cycles_valid=1
+PAIRED_TIMING engine=original-v1 suite=integration sr=96000 block=64 channels=2 phase=forced_six_slot_publication samples=400 thread_cpu_valid_samples=0 thread_cycles_valid_samples=400 misses=0 misses_with_thread_cycles=0 wall_p99_callback_index=1201 wall_p99_wall_us=190.7 wall_p99_thread_cpu_us=-1 wall_p99_thread_cpu_valid=0 wall_p99_thread_cycles=468217 wall_p99_thread_cycles_valid=1 wall_max_callback_index=1302 wall_max_wall_us=280.7 wall_max_thread_cpu_us=-1 wall_max_thread_cpu_valid=0 wall_max_thread_cycles=588757 wall_max_thread_cycles_valid=1
+PHASE_CONFIG engine=original-v1 sr=96000 block=64 channels=2
+PHASE name=worker_and_automation blocks=1200 p50_us=125.8 p99_us=329.7 thread_cpu_p99_us=-1 max_us=13210.5 misses=8
+PHASE name=forced_six_slot_publication blocks=400 p50_us=100.9 p99_us=190.7 thread_cpu_p99_us=-1 max_us=280.7 misses=0
+TIMING engine=original-v1 sr=96000 block=64 channels=2 three_cabs_six_mics p50_us=122.7 p99_us=283.7 thread_cpu_p99_us=-1 max_us=13210.5 misses=8/1600 kernel_residual=2.32830643654e-09 peak=0.0189830455929 max_step=0.00603867648169
+WORKER_SCHEDULING engine=original-v1 suite=integration sr=96000 block=256 channels=1 start_succeeded=1 entered_run=1 requested_juce_priority=-1 observed_juce_priority=-1 worker_priority_query=native caller_context=windows_native caller_process_priority_class=16384 caller_thread_priority=0 caller_priority_valid=1 caller_process_affinity_mask=15 caller_affinity_valid=1
+WORKER_ACTIVITY engine=original-v1 suite=integration sr=96000 block=256 channels=1 cancelled_builds=12
+TIMING_EVIDENCE engine=original-v1 suite=integration sr=96000 block=256 channels=1 samples=1600 path=cab-timing-diagnostics/integration/original-v1/96000-256-1.csv
+PAIRED_TIMING engine=original-v1 suite=integration sr=96000 block=256 channels=1 phase=all samples=1600 thread_cpu_valid_samples=0 thread_cycles_valid_samples=1600 misses=0 misses_with_thread_cycles=0 wall_p99_callback_index=913 wall_p99_wall_us=336.5 wall_p99_thread_cpu_us=-1 wall_p99_thread_cpu_valid=0 wall_p99_thread_cycles=764552 wall_p99_thread_cycles_valid=1 wall_max_callback_index=1000 wall_max_wall_us=536.2 wall_max_thread_cpu_us=-1 wall_max_thread_cpu_valid=0 wall_max_thread_cycles=775063 wall_max_thread_cycles_valid=1
+PAIRED_TIMING engine=original-v1 suite=integration sr=96000 block=256 channels=1 phase=worker_and_automation samples=1200 thread_cpu_valid_samples=0 thread_cycles_valid_samples=1200 misses=0 misses_with_thread_cycles=0 wall_p99_callback_index=916 wall_p99_wall_us=340.4 wall_p99_thread_cpu_us=-1 wall_p99_thread_cpu_valid=0 wall_p99_thread_cycles=774822 wall_p99_thread_cycles_valid=1 wall_max_callback_index=1000 wall_max_wall_us=536.2 wall_max_thread_cpu_us=-1 wall_max_thread_cpu_valid=0 wall_max_thread_cycles=775063 wall_max_thread_cycles_valid=1
+PAIRED_TIMING engine=original-v1 suite=integration sr=96000 block=256 channels=1 phase=forced_six_slot_publication samples=400 thread_cpu_valid_samples=0 thread_cycles_valid_samples=400 misses=0 misses_with_thread_cycles=0 wall_p99_callback_index=1370 wall_p99_wall_us=263.7 wall_p99_thread_cpu_us=-1 wall_p99_thread_cpu_valid=0 wall_p99_thread_cycles=579956 wall_p99_thread_cycles_valid=1 wall_max_callback_index=1216 wall_max_wall_us=334.1 wall_max_thread_cpu_us=-1 wall_max_thread_cpu_valid=0 wall_max_thread_cycles=760395 wall_max_thread_cycles_valid=1
+PHASE_CONFIG engine=original-v1 sr=96000 block=256 channels=1
+PHASE name=worker_and_automation blocks=1200 p50_us=214.2 p99_us=340.4 thread_cpu_p99_us=-1 max_us=536.2 misses=0
+PHASE name=forced_six_slot_publication blocks=400 p50_us=137.4 p99_us=263.7 thread_cpu_p99_us=-1 max_us=334.1 misses=0
+TIMING engine=original-v1 sr=96000 block=256 channels=1 three_cabs_six_mics p50_us=204.4 p99_us=336.5 thread_cpu_p99_us=-1 max_us=536.2 misses=0/1600 kernel_residual=2.09547579288e-09 peak=0.0189830455929 max_step=0.00126622803509
+WORKER_SCHEDULING engine=original-v1 suite=integration sr=96000 block=256 channels=2 start_succeeded=1 entered_run=1 requested_juce_priority=-1 observed_juce_priority=-1 worker_priority_query=native caller_context=windows_native caller_process_priority_class=16384 caller_thread_priority=0 caller_priority_valid=1 caller_process_affinity_mask=15 caller_affinity_valid=1
+WORKER_ACTIVITY engine=original-v1 suite=integration sr=96000 block=256 channels=2 cancelled_builds=11
+TIMING_EVIDENCE engine=original-v1 suite=integration sr=96000 block=256 channels=2 samples=1600 path=cab-timing-diagnostics/integration/original-v1/96000-256-2.csv
+PAIRED_TIMING engine=original-v1 suite=integration sr=96000 block=256 channels=2 phase=all samples=1600 thread_cpu_valid_samples=0 thread_cycles_valid_samples=1600 misses=0 misses_with_thread_cycles=0 wall_p99_callback_index=1236 wall_p99_wall_us=434.2 wall_p99_thread_cpu_us=-1 wall_p99_thread_cpu_valid=0 wall_p99_thread_cycles=1010518 wall_p99_thread_cycles_valid=1 wall_max_callback_index=1210 wall_max_wall_us=579.7 wall_max_thread_cpu_us=-1 wall_max_thread_cpu_valid=0 wall_max_thread_cycles=1064064 wall_max_thread_cycles_valid=1
+PAIRED_TIMING engine=original-v1 suite=integration sr=96000 block=256 channels=2 phase=worker_and_automation samples=1200 thread_cpu_valid_samples=0 thread_cycles_valid_samples=1200 misses=0 misses_with_thread_cycles=0 wall_p99_callback_index=950 wall_p99_wall_us=429.6 wall_p99_thread_cpu_us=-1 wall_p99_thread_cpu_valid=0 wall_p99_thread_cycles=966265 wall_p99_thread_cycles_valid=1 wall_max_callback_index=360 wall_max_wall_us=565.8 wall_max_thread_cpu_us=-1 wall_max_thread_cpu_valid=0 wall_max_thread_cycles=1287294 wall_max_thread_cycles_valid=1
+PAIRED_TIMING engine=original-v1 suite=integration sr=96000 block=256 channels=2 phase=forced_six_slot_publication samples=400 thread_cpu_valid_samples=0 thread_cycles_valid_samples=400 misses=0 misses_with_thread_cycles=0 wall_p99_callback_index=1200 wall_p99_wall_us=481.4 wall_p99_thread_cpu_us=-1 wall_p99_thread_cpu_valid=0 wall_p99_thread_cycles=1140348 wall_p99_thread_cycles_valid=1 wall_max_callback_index=1210 wall_max_wall_us=579.7 wall_max_thread_cpu_us=-1 wall_max_thread_cpu_valid=0 wall_max_thread_cycles=1064064 wall_max_thread_cycles_valid=1
+PHASE_CONFIG engine=original-v1 sr=96000 block=256 channels=2
+PHASE name=worker_and_automation blocks=1200 p50_us=263.2 p99_us=429.6 thread_cpu_p99_us=-1 max_us=565.8 misses=0
+PHASE name=forced_six_slot_publication blocks=400 p50_us=272.3 p99_us=481.4 thread_cpu_p99_us=-1 max_us=579.7 misses=0
+TIMING engine=original-v1 sr=96000 block=256 channels=2 three_cabs_six_mics p50_us=263.9 p99_us=434.2 thread_cpu_p99_us=-1 max_us=579.7 misses=0/1600 kernel_residual=2.09547579288e-09 peak=0.0189830455929 max_step=0.00126622815151
+CALLBACK callback_new=0 callback_delete=0 (thread-local C++ operators only; not a universal malloc/lock tracer)
+CAB-only p99 exceeds one block period (runner CPU gate)
+</system-out>
+	</testcase>
+	<testcase name="ChimeraOriginalCabRealtimeTests" classname="ChimeraOriginalCabRealtimeTests" time="7.36497" status="run">
+		<properties/>
+		<system-out>PASS CAB realtime equivalence routes=144 models=v1,v2,v3,userIR prepared_model_routes=108 modeled_juce_loaders=0 uniform_residual=1.25729e-08 impulse_residual=7.45058e-09 reset_residual=0 latency=0 chunks=fixed,1,17,63,max,3 mic_post_routes=18 mic_post_residual=0 reprepare_routes=4 reprepare_residual=0 six_mic_routes=8 six_mic_residual=4.84288e-08 six_mic_oracle=direct_FIR worker_cases=stale,six_ready,reuse fade_ms=50
+PASS residue_bank_reference source=8097ec69594ff728164c77f59e9ea1e39e384643 index_cases=18 index_reads=44288 stream_cases=80 reset_cases=40 private_cases=6 exact_float_samples=2645088 fade_mix_samples=388800 exact_bits=1 immutable_spectra=1 steps=1,3 partial=fixed,1,17,63,max,3 full_wraps=2 active=6 fading=3 fade_ms=50 latency=0
+</system-out>
+	</testcase>
+	<testcase name="ChimeraCabExpansionIntegrationTests" classname="ChimeraCabExpansionIntegrationTests" time="8.57087" status="run">
+		<properties/>
+		<system-out>TIMING_PROTOCOL lifecycle_trace=disabled measured_blocks=1600 worker_blocks=1200 forced_publication_blocks=400
+PAIRED_TIMING_PROTOCOL thread_clock_evidence_only=1 wall_gate_unchanged=1 thread_clocks_outside_wall=1 thread_clock_reads_per_callback=2 extra_measurement_overhead=1 cycles_to_time=disabled thread_cpu_p99_is_independent=1 raw_samples=csv thread_clock=QueryThreadCycleTime
+CALLER_SCHEDULING phase=entry caller_context=windows_native caller_process_priority_class=16384 caller_thread_priority=0 caller_priority_valid=1 caller_process_affinity_mask=15 caller_affinity_valid=1
+WORKER_SCHEDULING engine=expanded-v2 suite=integration sr=44100 block=64 channels=1 start_succeeded=1 entered_run=1 requested_juce_priority=-1 observed_juce_priority=-1 worker_priority_query=native caller_context=windows_native caller_process_priority_class=16384 caller_thread_priority=0 caller_priority_valid=1 caller_process_affinity_mask=15 caller_affinity_valid=1
+WORKER_ACTIVITY engine=expanded-v2 suite=integration sr=44100 block=64 ...
+[This part of the test output was removed since it exceeds the threshold of 1024 bytes.]
+</system-out>
+	</testcase>
+	<testcase name="ChimeraCabExtendedTimingTests" classname="ChimeraCabExtendedTimingTests" time="22.9879" status="run">
+		<properties/>
+		<system-out>TIMING_PROTOCOL lifecycle_trace=disabled measured_blocks=1600 worker_blocks=1200 forced_publication_blocks=400
+PAIRED_TIMING_PROTOCOL thread_clock_evidence_only=1 wall_gate_unchanged=1 thread_clocks_outside_wall=1 thread_clock_reads_per_callback=2 extra_measurement_overhead=1 cycles_to_time=disabled thread_cpu_p99_is_independent=1 raw_samples=csv thread_clock=QueryThreadCycleTime
+CALLER_SCHEDULING phase=entry caller_context=windows_native caller_process_priority_class=16384 caller_thread_priority=0 caller_priority_valid=1 caller_process_affinity_mask=15 caller_affinity_valid=1
+WORKER_SCHEDULING engine=expanded-v2 suite=extended sr=44100 block=32 channels=1 start_succeeded=1 entered_run=1 requested_juce_priority=-1 observed_juce_priority=-1 worker_priority_query=native caller_context=windows_native caller_process_priority_class=16384 caller_thread_priority=0 caller_priority_valid=1 caller_process_affinity_mask=15 caller_affinity_valid=1
+WORKER_ACTIVITY engine=expanded-v2 suite=extended sr=44100 block=32 channe...
+[This part of the test output was removed since it exceeds the threshold of 1024 bytes.]
+</system-out>
+	</testcase>
+	<testcase name="ChimeraCabExpansionStateTests" classname="ChimeraCabExpansionStateTests" time="13.1151" status="run">
+		<properties/>
+		<system-out>PASS expanded 14 drivers/20 microphones: production audio, all routes, independent A/B, recall, legacy and UI
+</system-out>
+	</testcase>
+	<testcase name="ChimeraCabLayoutModelTests" classname="ChimeraCabLayoutModelTests" time="3.35576" status="run">
+		<properties/>
+		<system-out>PASS layouts=9 compatibility_requests=270 compatible_driver_mic_unit_boundaries=15840 max_magnitude=1.04961 position_tick=0.00136444 distance_tick=0.00996308
+</system-out>
+	</testcase>
+	<testcase name="ChimeraCabCameraFramingTests" classname="ChimeraCabCameraFramingTests" time="0.0099514" status="run">
+		<properties/>
+		<system-out>PASS CAB camera framing: active-only uniform room scale, 6x10/4x12/4x10 proportions, selected focus, microphone margin, narrow/scaled viewports and invalid bounds
+</system-out>
+	</testcase>
+	<testcase name="ChimeraCabLayoutIntegrationTests" classname="ChimeraCabLayoutIntegrationTests" time="10.3159" status="run">
+		<properties/>
+		<system-out>TIMING_PROTOCOL lifecycle_trace=disabled measured_blocks=1600 worker_blocks=1200 forced_publication_blocks=400
+PAIRED_TIMING_PROTOCOL thread_clock_evidence_only=1 wall_gate_unchanged=1 thread_clocks_outside_wall=1 thread_clock_reads_per_callback=2 extra_measurement_overhead=1 cycles_to_time=disabled thread_cpu_p99_is_independent=1 raw_samples=csv thread_clock=QueryThreadCycleTime
+CALLER_SCHEDULING phase=entry caller_context=windows_native caller_process_priority_class=16384 caller_thread_priority=0 caller_priority_valid=1 caller_process_affinity_mask=15 caller_affinity_valid=1
+WORKER_SCHEDULING engine=array-v3-6x10 suite=integration sr=44100 block=64 channels=1 start_succeeded=1 entered_run=1 requested_juce_priority=-1 observed_juce_priority=-1 worker_priority_query=native caller_context=windows_native caller_process_priority_class=16384 caller_thread_priority=0 caller_priority_valid=1 caller_process_affinity_mask=15 caller_affinity_valid=1
+WORKER_ACTIVITY engine=array-v3-6x10 suite=integration sr=44100 block...
+[This part of the test output was removed since it exceeds the threshold of 1024 bytes.]
+</system-out>
+	</testcase>
+	<testcase name="ChimeraCabLayoutStateTests" classname="ChimeraCabLayoutStateTests" time="17.5976" status="run">
+		<properties/>
+		<system-out>PASS nine layouts: production, routes, LOW DI, project/comparison/legacy/captured-IR recall, host and UI geometry
+PASS native array gestures: fifth-unit drag and host layout-change cancellation
+</system-out>
+	</testcase>
+	<testcase name="ChimeraCabDriverVisualTests" classname="ChimeraCabDriverVisualTests" time="26.986" status="run">
+		<properties/>
+		<system-out>Slanted rail software ppm=200 dpi=1 max_translation_error=0 mean_translation_error=0 piping_translation_shift_px=0 piping_step_px=0.232224 join_coverage=0.742752
+Slanted rail software ppm=200 dpi=1.5 max_translation_error=0 mean_translation_error=0 piping_translation_shift_px=0 piping_step_px=0.268112 join_coverage=0.819608
+Slanted rail software ppm=200 dpi=2 max_translation_error=0 mean_translation_error=0 piping_translation_shift_px=0 piping_step_px=0.0671692 join_coverage=1
+Slanted rail software ppm=400 dpi=1 max_translation_error=0 mean_translation_error=0 piping_translation_shift_px=0 piping_step_px=0.27356 join_coverage=0.8
+Slanted rail software ppm=400 dpi=1.5 max_translation_error=0 mean_translation_error=0 piping_translation_shift_px=0 piping_step_px=0.125313 join_coverage=0.755317
+Slanted rail software ppm=400 dpi=2 max_translation_error=0 mean_translation_error=0 piping_translation_shift_px=0 piping_step_px=0.139534 join_coverage=0.747857
+Slanted rail software ppm=700 dpi=1 max_translation_error=0 ...
+[This part of the test output was removed since it exceeds the threshold of 1024 bytes.]
+</system-out>
+	</testcase>
+	<testcase name="ChimeraGraphicalEQTests" classname="ChimeraGraphicalEQTests" time="37.1581" status="run">
+		<properties/>
+		<system-out>PASS paired stereo FIFO capacity / overflow / concurrent producer-consumer
+PASS measured 7 filters, 4 rates, mono/stereo, exact bypass, 24-node automation, no EQ allocations
+PASS 122 host parameters / project / A-B / legacy migration / 48 factory defaults
+PASS actual project and A/B audio &lt;= 1e-6 / legacy missing EQ audio exact / unchanged latency
+PASS route 0 analyzer node transfers and final output
+PASS route 1 analyzer node transfers and final output
+PASS route 2 analyzer node transfers and final output
+PASS route 3 analyzer node transfers and final output
+CPU pair24 48000 Hz 64 / 1ch analyzer_capture=0 p50=19.2 p99=33.7 us / 1333.33 us
+CPU pair24 48000 Hz 64 / 1ch analyzer_capture=1 p50=19.4 p99=34.4 us / 1333.33 us
+CPU pair24 48000 Hz 64 / 2ch analyzer_capture=0 p50=17.1 p99=25.3 us / 1333.33 us
+CPU pair24 48000 Hz 64 / 2ch analyzer_capture=1 p50=17.2 p99=25.5 us / 1333.33 us
+CPU pair24 48000 Hz 128 / 1ch analyzer_capture=0 p50=28.5 p99=40.7 us / 2666.67 us
+CPU pair24 48000 Hz 128 / 1ch analyzer_capture=...
+[This part of the test output was removed since it exceeds the threshold of 1024 bytes.]
+</system-out>
+	</testcase>
+	<testcase name="ChimeraGraphicalEQUITests" classname="ChimeraGraphicalEQUITests" time="129.203" status="run">
+		<properties/>
+		<system-out>PARAMETER_ROUNDTRIP toneEQ_b1_frequency requested=1000 expected=1000 actual=1000 literal_equal=1 canonical_bits_equal=1
+PARAMETER_ROUNDTRIP toneEQ_b1_gain requested=0 expected=0 actual=0 literal_equal=1 canonical_bits_equal=1
+PASS native graph add/delete / disabled node visibility / numeric and drag undo-redo / persistent reuse / capacity bank=0
+PASS native pending numeric input / equal-valued slot switch / same-values project+host ownership / immediate stale commit rejected bank=0
+Numeric 0:0 Hz=200 dB=3.5 Q=1.25000012
+Numeric 0:1 Hz=517 dB=3.5 Q=1.25000012
+Numeric 0:2 Hz=834 dB=3.5 Q=1.25000012
+Numeric 0:3 Hz=1151 dB=3.5 Q=1.25000012
+Numeric 0:4 Hz=1468 dB=3.5 Q=1.25000012
+Numeric 0:5 Hz=1785 dB=3.5 Q=1.25000012
+Numeric 0:6 Hz=2102 dB=3.5 Q=1.25000012
+Numeric 0:7 Hz=2419 dB=3.5 Q=1.25000012
+Numeric 0:8 Hz=2736 dB=3.5 Q=1.25000012
+Numeric 0:9 Hz=3053 dB=3.5 Q=1.25000012
+Numeric 0:10 Hz=3370 dB=3.5 Q=1.25000012
+Numeric 0:11 Hz=3687 dB=3.5 Q=1.25000012
+PASS overlapping nodes retain selected Band 12 / only sele...
+[This part of the test output was removed since it exceeds the threshold of 1024 bytes.]
+</system-out>
+	</testcase>
+	<testcase name="ChimeraEQAnalyzerTests" classname="ChimeraEQAnalyzerTests" time="22.0972" status="run">
+		<properties/>
+		<system-out>COVERAGE rate=44100 FFT=2048 position=early batch=1764 samples windows=3 input_energy=30.4415 raw_last=-18.1941 display_at_40ms=-21.2661 bounded_display=-21.2661 dBFS fifo_drops=0
+COVERAGE rate=44100 FFT=2048 position=late batch=1764 samples windows=3 input_energy=30.4415 raw_last=-19.6671 display_at_40ms=-25.1261 bounded_display=-21.5318 dBFS fifo_drops=0
+COVERAGE rate=44100 FFT=4096 position=early batch=1764 samples windows=1 input_energy=30.4415 raw_last=-32.7049 display_at_40ms=-35.8482 bounded_display=-26.2139 dBFS fifo_drops=0
+COVERAGE rate=44100 FFT=4096 position=late batch=1764 samples windows=1 input_energy=30.4415 raw_last=-57.0214 display_at_40ms=-60.1647 bounded_display=-25.3675 dBFS fifo_drops=0
+COVERAGE rate=44100 FFT=8192 position=early batch=1764 samples windows=0 input_energy=30.4415 raw_last=-120 display_at_40ms=-120 bounded_display=-30.1873 dBFS fifo_drops=0
+COVERAGE rate=44100 FFT=8192 position=late batch=1764 samples windows=0 input_energy=30.4415 raw_last=-120 display_at_40ms=-120 bounde...
+[This part of the test output was removed since it exceeds the threshold of 1024 bytes.]
+</system-out>
+	</testcase>
+	<testcase name="ChimeraGraphicalEQEditingTests" classname="ChimeraGraphicalEQEditingTests" time="33.8803" status="run">
+		<properties/>
+		<system-out>PASS 4,967 unique host IDs / all 122 EQ ordinals, names, version hints, ranges, defaults, steps and choices
+PASS occupied/bypassed/deleted distinction / first-vacancy reuse / 12-slot cap / independent banks / preserved bypass
+PASS synchronous slot reuse order: tuning-before-enable / Undo disable-first / Redo enable-last bank=0
+PASS synchronous slot reuse order: tuning-before-enable / Undo disable-first / Redo enable-last bank=1
+PASS one-step graph/numeric/create/delete Undo/Redo / redo survives no-op / balanced host gestures
+PARAMETER_ROUNDTRIP output requested=-9 expected=-9 actual=-9 literal_equal=1 canonical_bits_equal=1
+UNDO_ISOLATION undone=1 output_before=-9 output_after=-9 epoch_before=1 epoch_after=1
+PASS host automation ownership / canceled active gestures / no external values in history / unrelated audio parameters preserved
+PASS binary project / independent global A-B slot occupancy / save preserves session history / recall clears history
+PASS P0/pre-EQ migration / disabled tuning preservation / ma...
+[This part of the test output was removed since it exceeds the threshold of 1024 bytes.]
+</system-out>
+	</testcase>
+	<testcase name="ChimeraEQSnapshotFreezeTests" classname="ChimeraEQSnapshotFreezeTests" time="3.88583" status="run">
+		<properties/>
+		<system-out>PASS 12 rate/FFT pairs: empty/partial Freeze, stale FIFO+overlap purge, first full fresh IN/OUT window and envelope
+PASS 12 rate/FFT pairs: raw/smoothed/pixel identity across Freeze, configuration attempts, reset, overflow and rate changes
+PASS 12 rate/FFT pairs: nonfinite samples/FFT overflow/rate rejected, valid recovery, last normal frame keeps original mapping
+PASS Freeze captures the last real pre-idle frame and the latest valid window before malformed data in one FIFO batch
+PASS 12 rate/FFT pairs: delayed old callback cannot release thaw, disabled callback acknowledgement, final purge, first N callback-fresh samples; stopped/resumed/coalesced requests
+PASS audio identity rate=44100 fft=2048 both active EQ banks / unchanged state+latency=42 / zero counted allocations
+PASS audio identity rate=44100 fft=4096 both active EQ banks / unchanged state+latency=42 / zero counted allocations
+PASS audio identity rate=44100 fft=8192 both active EQ banks / unchanged state+latency=42 / zero counted allocations
+PASS au...
+[This part of the test output was removed since it exceeds the threshold of 1024 bytes.]
+</system-out>
+	</testcase>
+	<testcase name="ChimeraEQAnalyzerPerformanceTests" classname="ChimeraEQAnalyzerPerformanceTests" time="23.9393" status="run">
+		<properties/>
+		<system-out>Frozen analyzer SHA-256 ad0e9f7dc7fe46579b24707291bf63a5ee09363de701b1606c5cedf98f970f26; same-executable ABBA BAAB; no real audio device or DAW
+PASS 108 baseline/candidate spectral cases, max raw/envelope/display errors 1.52588e-05/1.52588e-05/1.52588e-05 dB; every chronological window and FIFO sample preserved
+PASS nonfinite/overflow containment and fresh-spectrum recovery
+PAIR rate=44100 FFT=2048 fixture=nominal_cadence UI=20 ms median_update=27.5803 -&gt; 26.3586 ms reduction=4.42978%; windows=172; DAW=NOT_ASSESSED
+PAIR rate=44100 FFT=2048 fixture=nominal_cadence UI=40 ms median_update=27.7719 -&gt; 26.2364 ms reduction=5.52897%; windows=172; DAW=NOT_ASSESSED
+PAIR rate=44100 FFT=2048 fixture=nominal_cadence UI=80 ms median_update=27.7004 -&gt; 26.1368 ms reduction=5.64451%; windows=172; DAW=NOT_ASSESSED
+PAIR rate=44100 FFT=2048 fixture=full_capacity_catchup UI= ms median_update=20.5326 -&gt; 19.4697 ms reduction=5.17642%; windows=128; DAW=NOT_ASSESSED
+PAIR rate=44100 FFT=4096 fixture=nominal_cadence UI=20 ms median_u...
+[This part of the test output was removed since it exceeds the threshold of 1024 bytes.]
+</system-out>
+	</testcase>
+	<testcase name="ChimeraEQHighRateAttributionTests" classname="ChimeraEQHighRateAttributionTests" time="151.91" status="run">
+		<properties/>
+		<system-out>ATTRIBUTION opt-in matrix direct=22 native=68 duration_scale=1; DAW=NOT_ASSESSED
+ATTRIBUTION case=1 group=stage_clock_control rate=192000 fft=0 stage=producer_noop pacing=legacy_sleep_rebase consumer=headless_direct ratio=0.993672 rebases=8 callback_p99_us=0.1 flow=CAPTURE_OFF DAW=NOT_ASSESSED
+ATTRIBUTION case=2 group=stage_clock_control rate=192000 fft=0 stage=producer_noop pacing=due_samples_catch_up consumer=headless_direct ratio=0.999303 rebases=0 callback_p99_us=0.1 flow=CAPTURE_OFF DAW=NOT_ASSESSED
+ATTRIBUTION case=3 group=stage_clock_control rate=192000 fft=0 stage=eq_pair pacing=legacy_sleep_rebase consumer=headless_direct ratio=0.999048 rebases=0 callback_p99_us=32.7 flow=CAPTURE_OFF DAW=NOT_ASSESSED
+ATTRIBUTION case=4 group=stage_clock_control rate=192000 fft=0 stage=eq_pair pacing=due_samples_catch_up consumer=headless_direct ratio=0.999267 rebases=0 callback_p99_us=38 flow=CAPTURE_OFF DAW=NOT_ASSESSED
+ATTRIBUTION case=5 group=stage_clock_control rate=192000 fft=0 stage=full_processor pacing=legacy...
+[This part of the test output was removed since it exceeds the threshold of 1024 bytes.]
+</system-out>
+	</testcase>
+	<testcase name="ChimeraAmpHeadControlTests" classname="ChimeraAmpHeadControlTests" time="189.993" status="run">
+		<properties/>
+		<system-out>HEAD APPEARANCE: 26 models; 3 sizes; complete RGBA shells, source pixel identity, single projection and corner continuity
+KNOB HARDWARE: per-control native widgets, distinct physical profiles, shared cache identity, fixed light and rotating-grip containment
+ROOM HEAD CONTROLS: Dual/Matrix; 5 visible rigs; native knob presence, per-lane updates, channel lights and read-only refresh
+ALL HEADS: 26 models; 61 channels; 675 visible bindings (532 knobs, 51 selectors, 92 switches); 20 selectable input routes; 4 workspace sizes
+PASS: 16 route/model cases; 6 contexts; all 5 Niflheimr channels; native drag, transient values, numeric entry/cancel, keyboard timeout, automation, A/B/project/factory recall, interrupted gestures, room navigation and 4 editor scales
+</system-out>
+	</testcase>
+</testsuite>

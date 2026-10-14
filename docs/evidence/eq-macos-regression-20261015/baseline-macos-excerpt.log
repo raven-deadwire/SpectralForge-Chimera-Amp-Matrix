@@ -1,0 +1,16 @@
+2026-10-12T17:56:06.1236810Z Test project /Users/runner/work/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build-eq
+2026-10-12T17:56:35.2450770Z 1/8 Test #22: ChimeraGateProcessorTests ...........   Passed   29.12 sec
+2026-10-12T17:57:13.5295840Z 2/8 Test #39: ChimeraGraphicalEQTests .............   Passed   38.28 sec
+2026-10-12T17:57:18.2066480Z 3/8 Test #40: ChimeraGraphicalEQUITests ...........***Failed    4.68 sec
+2026-10-12T17:57:18.2172960Z FAIL Reused slot did not start neutral
+2026-10-12T17:57:42.0893210Z 4/8 Test #41: ChimeraEQAnalyzerTests ..............   Passed   23.87 sec
+2026-10-12T17:57:42.3183290Z 5/8 Test #42: ChimeraGraphicalEQEditingTests ......***Failed    0.23 sec
+2026-10-12T17:57:42.3186090Z PASS 4,967 unique host IDs / all 122 EQ ordinals, names, version hints, ranges, defaults, steps and choices
+2026-10-12T17:57:42.3187770Z PASS occupied/bypassed/deleted distinction / first-vacancy reuse / 12-slot cap / independent banks / preserved bypass
+2026-10-12T17:57:42.3190050Z PASS one-step graph/numeric/create/delete Undo/Redo / redo survives no-op / balanced host gestures
+2026-10-12T17:57:42.3192400Z FAIL EQ undo rewound an unrelated processor parameter or non-EQ automation erased EQ history
+2026-10-12T17:57:51.7055830Z 6/8 Test #43: ChimeraEQSnapshotFreezeTests ........   Passed    9.39 sec
+2026-10-12T17:58:01.8690660Z 7/8 Test #44: ChimeraEQAnalyzerPerformanceTests ...   Passed   10.16 sec
+2026-10-12T18:00:57.9544160Z 8/8 Test #45: ChimeraEQHighRateAttributionTests ...   Passed  176.08 sec
+2026-10-12T18:00:57.9724310Z 75% tests passed, 2 tests failed out of 8
+2026-10-12T18:00:57.9729150Z Total Test time (real) = 291.85 sec

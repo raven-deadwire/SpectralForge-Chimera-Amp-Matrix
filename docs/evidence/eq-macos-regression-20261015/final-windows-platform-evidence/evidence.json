@@ -1,0 +1,36 @@
+{
+  "schema": "spectralforge.chimera.release-evidence",
+  "schema_version": 1,
+  "policy_version": 4,
+  "profile": "beta_1_3",
+  "revision": {
+    "commit_sha": "babfecda995141ef3001fc6f9c04c05409ff7ad6",
+    "run_id": "38599009356",
+    "run_attempt": "1"
+  },
+  "kind": "windows",
+  "outcomes": {
+    "ctest": "failure",
+    "package": "skipped",
+    "installer": "skipped",
+    "msix": "skipped",
+    "scan": "skipped",
+    "assemble": "",
+    "source": "",
+    "upload": ""
+  },
+  "files": {
+    "ctest": {
+      "path": "raw/ctest-results.xml",
+      "sha256": "6aedc7c36018c66f6f602283065083f307efdac1276e62e45fc968c8a26500da"
+    },
+    "inventory": {
+      "path": "raw/ctest-inventory.json",
+      "sha256": "4095ca76fe11e42a39deef52450bdbcadbc0d839c6995e5e82c4e600c77d7424"
+    },
+    "dsp_log": {
+      "path": "raw/LastTest.log",
+      "sha256": "7a2c33faf5ac55fb8b8238101655ad9b4b1ee6a9b45540ecd0e35fa334ed0e24"
+    }
+  }
+}

@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="(empty)"
+	tests="3"
+	failures="1"
+	disabled="0"
+	skipped="0"
+	hostname=""
+	time="36"
+	timestamp="2026-10-15T01:24:10"
+	>
+	<testcase name="ChimeraNativeStateTests" classname="ChimeraNativeStateTests" time="5.64901" status="run">
+		<properties/>
+		<system-out>Native B canonical POST value=6.999999523 (requested 7)
+PASS: six native amp contexts, all native banks, POST nine models, binary/A-B recall and immediate pedal bank recall
+</system-out>
+	</testcase>
+	<testcase name="ChimeraGraphicalEQUITests" classname="ChimeraGraphicalEQUITests" time="2.69457" status="fail">
+		<failure message="Failed"/>
+		<properties/>
+		<system-out>PARAMETER_ROUNDTRIP toneEQ_b1_frequency requested=1000 expected=1000 actual=1000 literal_equal=1 canonical_bits_equal=1
+PARAMETER_ROUNDTRIP toneEQ_b1_gain requested=0 expected=-5.36441803e-07 actual=-5.36441803e-07 literal_equal=0 canonical_bits_equal=1
+PARAMETER_ROUNDTRIP toneEQ_b1_q requested=0.707106769 expected=0.707000017 actual=0.706999958 literal_equal=0 canonical_bits_equal=0
+FAIL Parameter failed exact canonical roundtrip: toneEQ_b1_q
+</system-out>
+	</testcase>
+	<testcase name="ChimeraGraphicalEQEditingTests" classname="ChimeraGraphicalEQEditingTests" time="28.4726" status="run">
+		<properties/>
+		<system-out>PASS 4,967 unique host IDs / all 122 EQ ordinals, names, version hints, ranges, defaults, steps and choices
+PASS occupied/bypassed/deleted distinction / first-vacancy reuse / 12-slot cap / independent banks / preserved bypass
+PASS synchronous slot reuse order: tuning-before-enable / Undo disable-first / Redo enable-last bank=0
+PASS synchronous slot reuse order: tuning-before-enable / Undo disable-first / Redo enable-last bank=1
+PASS one-step graph/numeric/create/delete Undo/Redo / redo survives no-op / balanced host gestures
+PARAMETER_ROUNDTRIP output requested=-9 expected=-9.00000095 actual=-9.00000095 literal_equal=0 canonical_bits_equal=1
+UNDO_ISOLATION undone=1 output_before=-9.00000095 output_after=-9.00000095 epoch_before=1 epoch_after=1
+PASS host automation ownership / canceled active gestures / no external values in history / unrelated audio parameters preserved
+PASS binary project / independent global A-B slot occupancy / save preserves session history / recall clears history
+PASS P0/pre-EQ migration...
+[This part of the test output was removed since it exceeds the threshold of 1024 bytes.]
+</system-out>
+	</testcase>
+</testsuite>

@@ -1,0 +1,28 @@
+{
+  "run_id": 38599009356,
+  "artifact_id": 11918253344,
+  "source_commit": "babfecda995141ef3001fc6f9c04c05409ff7ad6",
+  "archive_sha256": "516591f0c508067ceaf7cb2676824f4d3cae9d8b5716d3a37cfc67e004f4fcc8",
+  "files": [
+    {
+      "path": "evidence.json",
+      "sha256": "7b0f248726fceb000521edb7b6bc1ec42cb6971760822d76a92d69a08f92bced"
+    },
+    {
+      "path": "raw/LastTest.log",
+      "sha256": "42e8b735a0d1e759f34be15c1ac57ee6c91feec84614e866777f935585e577af"
+    },
+    {
+      "path": "raw/ctest-inventory.json",
+      "sha256": "90dd8260abe8222254d35cbf0e78b9ec840bf24845c8c2a130041adcc0cf5188"
+    },
+    {
+      "path": "raw/ctest-results.xml",
+      "sha256": "2997686dc93c1561a777519c6d739a868eeeeb9ec86f4f42a1023eb9602ed481"
+    },
+    {
+      "path": "raw/macOS-package-verification.txt",
+      "sha256": "721f7a7bf98e16be3f7f9772416f54f71dc9657476fea84d5b2fb6e9ee217400"
+    }
+  ]
+}

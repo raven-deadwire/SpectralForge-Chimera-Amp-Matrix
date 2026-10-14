@@ -1,0 +1,123 @@
+{
+  "tested_commit": "babfecda995141ef3001fc6f9c04c05409ff7ad6",
+  "baseline_commit": "e52976f869ea872e3094f3a945d74496665285c5",
+  "observed_utc": "2026-10-14T18:17:35.086328+00:00",
+  "root_cause": "Exact float-literal assertions rejected the valid host parameter canonical roundtrip; not a reproduced slot-order or Undo isolation defect.",
+  "production_source_unchanged": true,
+  "release_approved": false,
+  "eq_suites": {
+    "windows": {
+      "run_id": 38599009075,
+      "artifact_id": 11914831346,
+      "archive_sha256": "e48197e9931a6f1423d7813700dbce7d99eec5f02545102531a2a5df8d851006",
+      "tests": 8,
+      "failures": 0,
+      "disabled": 0,
+      "skipped": 0
+    },
+    "macos": {
+      "run_id": 38599009075,
+      "artifact_id": 11913588594,
+      "archive_sha256": "a9420a9df039c59361a9216cdecda1d473867b579fc0ceb20a5ee84becd66440",
+      "tests": 8,
+      "failures": 0,
+      "disabled": 0,
+      "skipped": 0
+    },
+    "linux": {
+      "run_id": 38599009075,
+      "artifact_id": 11913604683,
+      "archive_sha256": "fa99b9d4f7864286bdf923935c4cf6813d309317771f6705162a5713bbd22a92",
+      "tests": 8,
+      "failures": 0,
+      "disabled": 0,
+      "skipped": 0
+    }
+  },
+  "integration_suites": {
+    "windows": {
+      "run_id": 38599009096,
+      "artifact_id": 11914190651,
+      "archive_sha256": "c88f87ca158f69d2b14bfe412b845123ec1b7786bb479afb3c462522877de4f0",
+      "tests": 8,
+      "failures": 0,
+      "disabled": 0,
+      "skipped": 0
+    },
+    "macos": {
+      "run_id": 38599009096,
+      "artifact_id": 11913837858,
+      "archive_sha256": "33d536e1f3fa43013c80a02e04bdd95b75661b39cfd834ce2264a397cfddc4e2",
+      "tests": 8,
+      "failures": 0,
+      "disabled": 0,
+      "skipped": 0
+    },
+    "linux": {
+      "run_id": 38599009096,
+      "artifact_id": 11914606397,
+      "archive_sha256": "7a280e9d2ddeeb14a800ed40f675f16402f598331cd5c6f9d0b3e62c68382a05",
+      "tests": 9,
+      "failures": 0,
+      "disabled": 0,
+      "skipped": 0
+    }
+  },
+  "installation_status": {
+    "windows_candidate": "PASS_INSTALL_REPAIR_REMOVE",
+    "linux_container": "PASS_POST_PAINT_INSTALL_REPAIR_REMOVE",
+    "linux_immediate_prepaint_close": "UNRESOLVED_OBSERVATION",
+    "macos": "PASS_UNIVERSAL_PACKAGE_CHECKS_ACTUAL_INSTALL_NOT_ASSESSED"
+  },
+  "actual_daw_and_hardware_status": "NOT_ASSESSED",
+  "full_product_suites": {
+    "linux": {
+      "run_id": 38599009356,
+      "tests": 47,
+      "failures": 0,
+      "disabled": 0,
+      "skipped": 0,
+      "seconds": 1279.66
+    },
+    "windows": {
+      "run_id": 38599009356,
+      "tests": 50,
+      "failures": 1,
+      "disabled": 0,
+      "skipped": 0,
+      "seconds": 1750.96,
+      "failed_test": "ChimeraOriginalCabIntegrationTests"
+    },
+    "windows_independent_candidate": {
+      "run_id": 38599008997,
+      "tests": 50,
+      "failures": 0,
+      "disabled": 0,
+      "skipped": 0,
+      "junit_seconds": 1765
+    },
+    "macos": {
+      "run_id": 38599009356,
+      "artifact_id": 11918253344,
+      "tests": 46,
+      "failures": 0,
+      "disabled": 0,
+      "skipped": 0,
+      "seconds": 1256.18,
+      "architecture_executed": "arm64"
+    }
+  },
+  "full_windows_gate": "FAIL_CAB_P99_NOT_OVERRIDDEN_BY_INDEPENDENT_PASS",
+  "vst3_abi_lifecycle": {
+    "platform": "Windows",
+    "run_id": 38599008997,
+    "scenarios_passed": 7,
+    "scenarios_total": 7,
+    "named_daw": false
+  },
+  "full_workflow_conclusion": "failure",
+  "repository_release_gate": "BLOCKED",
+  "assemble_candidate": "skipped",
+  "test_changes_only": true,
+  "evidence_followup_retest_claimed": false
+}

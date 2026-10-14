@@ -1,0 +1,27 @@
+_NET_WM_PID(CARDINAL) = 123
+_NET_WM_NAME:  not found.
+WM_NAME(UTF8_STRING) = "SpectralForge Chimera"
+
+xwininfo: Window id: 0x400006 "SpectralForge Chimera"
+
+  Absolute upper-left X:  369
+  Absolute upper-left Y:  121
+  Relative upper-left X:  0
+  Relative upper-left Y:  0
+  Width: 1188
+  Height: 844
+  Depth: 24
+  Visual: 0x21
+  Visual Class: TrueColor
+  Border width: 0
+  Class: InputOutput
+  Colormap: 0x400005 (installed)
+  Bit Gravity State: ForgetGravity
+  Window Gravity State: NorthWestGravity
+  Backing Store State: NotUseful
+  Save Under State: no
+  Map State: IsViewable
+  Override Redirect State: no
+  Corners:  +369+121  -363+121  -363-115  +369-115
+  -geometry 1188x844+369+121
+

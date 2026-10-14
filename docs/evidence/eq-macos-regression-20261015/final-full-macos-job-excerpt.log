@@ -1,0 +1,31 @@
+2026-10-14T16:58:21.0146500Z   CHIMERA_SOURCE_SHA: babfecda995141ef3001fc6f9c04c05409ff7ad6
+2026-10-14T16:58:38.3864030Z   CHIMERA_SOURCE_SHA: babfecda995141ef3001fc6f9c04c05409ff7ad6
+2026-10-14T16:58:38.7751220Z   CHIMERA_SOURCE_SHA: babfecda995141ef3001fc6f9c04c05409ff7ad6
+2026-10-14T16:58:39.2265720Z   CHIMERA_SOURCE_SHA: babfecda995141ef3001fc6f9c04c05409ff7ad6
+2026-10-14T16:59:16.0621930Z ##[group]Run cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_OSX_ARCHITECTURES="arm64;x86_64" -DCMAKE_OSX_DEPLOYMENT_TARGET=12.0
+2026-10-14T16:59:16.0709080Z   CHIMERA_SOURCE_SHA: babfecda995141ef3001fc6f9c04c05409ff7ad6
+2026-10-14T17:00:45.5115640Z   CHIMERA_SOURCE_SHA: babfecda995141ef3001fc6f9c04c05409ff7ad6
+2026-10-14T17:53:40.0306620Z   CHIMERA_SOURCE_SHA: babfecda995141ef3001fc6f9c04c05409ff7ad6
+2026-10-14T17:53:40.2473390Z   CHIMERA_SOURCE_SHA: babfecda995141ef3001fc6f9c04c05409ff7ad6
+2026-10-14T17:53:40.3138200Z Test project /Users/runner/work/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/build
+2026-10-14T18:14:36.4881160Z 100% tests passed out of 46
+2026-10-14T18:14:36.4890610Z Total Test time (real) = 1256.18 sec
+2026-10-14T18:14:36.5763190Z   CHIMERA_SOURCE_SHA: babfecda995141ef3001fc6f9c04c05409ff7ad6
+2026-10-14T18:14:37.3878520Z ##[group]Run actions/upload-artifact@v4
+2026-10-14T18:14:37.3881920Z   CHIMERA_SOURCE_SHA: babfecda995141ef3001fc6f9c04c05409ff7ad6
+2026-10-14T18:14:40.1842190Z ##[group]Run actions/upload-artifact@v4
+2026-10-14T18:14:40.1847770Z   CHIMERA_SOURCE_SHA: babfecda995141ef3001fc6f9c04c05409ff7ad6
+2026-10-14T18:14:41.3537740Z   CHIMERA_SOURCE_SHA: babfecda995141ef3001fc6f9c04c05409ff7ad6
+2026-10-14T18:15:27.4147150Z pkgbuild: Inferring bundle components from contents of /Users/runner/work/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/dist/SpectralForge-Chimera-1.3.1-beta.1-macos-payload
+2026-10-14T18:15:27.4149460Z pkgbuild: Writing new component property list to /var/folders/nj/vtw8zd2j31d1gdrtntc5y4600000gn/T/chimera-pkg-8j_p2uhr/components.plist
+2026-10-14T18:15:27.4150560Z pkgbuild: Reading components from /var/folders/nj/vtw8zd2j31d1gdrtntc5y4600000gn/T/chimera-pkg-8j_p2uhr/components.plist
+2026-10-14T18:15:27.4151380Z pkgbuild: Adding component at Library/Audio/Plug-Ins/VST3/SpectralForge Chimera.vst3
+2026-10-14T18:15:27.4152190Z pkgbuild: Adding component at Library/Audio/Plug-Ins/Components/SpectralForge Chimera.component
+2026-10-14T18:15:27.4153040Z pkgbuild: Adding component at Applications/SpectralForge Chimera.app
+2026-10-14T18:15:27.4153910Z pkgbuild: Wrote package to /Users/runner/work/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/dist/SpectralForge-Chimera-1.3.1-beta.1-macos-universal.pkg
+2026-10-14T18:15:27.4451730Z ##[group]Run actions/upload-artifact@v4
+dist/macOS-package-verification.txt
+2026-10-14T18:15:27.4454290Z   CHIMERA_SOURCE_SHA: babfecda995141ef3001fc6f9c04c05409ff7ad6
+2026-10-14T18:15:34.8724860Z   CHIMERA_SOURCE_SHA: babfecda995141ef3001fc6f9c04c05409ff7ad6
+2026-10-14T18:15:35.0191670Z ##[group]Run actions/upload-artifact@v4
+2026-10-14T18:15:35.0195150Z   CHIMERA_SOURCE_SHA: babfecda995141ef3001fc6f9c04c05409ff7ad6

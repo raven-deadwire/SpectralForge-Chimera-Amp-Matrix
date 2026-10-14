@@ -1,0 +1,113 @@
+Microsoft (R) COFF/PE Dumper Version 14.51.36260.0
+Copyright (C) Microsoft Corporation.  All rights reserved.
+
+
+Dump of file C:\Program Files\SpectralForge\Chimera Amp Matrix\SpectralForge Chimera.exe
+
+File Type: EXECUTABLE IMAGE
+
+  Image has the following dependencies:
+
+    KERNEL32.dll
+    USER32.dll
+    GDI32.dll
+    SHELL32.dll
+    ole32.dll
+    OLEAUT32.dll
+    COMDLG32.dll
+    ADVAPI32.dll
+    WININET.dll
+    WS2_32.dll
+    VERSION.dll
+    SHLWAPI.dll
+    WINMM.dll
+    dbghelp.dll
+    d2d1.dll
+    dxgi.dll
+    d3d11.dll
+    dcomp.dll
+    IMM32.dll
+    COMCTL32.dll
+    dwmapi.dll
+
+  Summary
+
+       40000 .data
+        1000 .fptable
+       52000 .pdata
+     7087000 .rdata
+       14000 .reloc
+       2A000 .rsrc
+      695000 .text
+Microsoft (R) COFF/PE Dumper Version 14.51.36260.0
+Copyright (C) Microsoft Corporation.  All rights reserved.
+
+
+Dump of file C:\Program Files\SpectralForge\Chimera Amp Matrix\ReferenceTools\ChimeraRender.exe
+
+File Type: EXECUTABLE IMAGE
+
+  Image has the following dependencies:
+
+    KERNEL32.dll
+    USER32.dll
+    SHELL32.dll
+    ole32.dll
+    ADVAPI32.dll
+    WININET.dll
+    WS2_32.dll
+    VERSION.dll
+    SHLWAPI.dll
+    WINMM.dll
+    dbghelp.dll
+
+  Summary
+
+        7000 .data
+        1000 .fptable
+       14000 .pdata
+      100000 .rdata
+        6000 .reloc
+        1000 .rsrc
+      193000 .text
+Microsoft (R) COFF/PE Dumper Version 14.51.36260.0
+Copyright (C) Microsoft Corporation.  All rights reserved.
+
+
+Dump of file C:\Program Files\Common Files\VST3\SpectralForge Chimera.vst3\Contents\x86_64-win\SpectralForge Chimera.vst3
+
+File Type: DLL
+
+  Image has the following dependencies:
+
+    KERNEL32.dll
+    USER32.dll
+    GDI32.dll
+    SHELL32.dll
+    ole32.dll
+    OLEAUT32.dll
+    COMDLG32.dll
+    ADVAPI32.dll
+    WININET.dll
+    WS2_32.dll
+    VERSION.dll
+    SHLWAPI.dll
+    WINMM.dll
+    dbghelp.dll
+    d2d1.dll
+    dxgi.dll
+    d3d11.dll
+    dcomp.dll
+    IMM32.dll
+    COMCTL32.dll
+    dwmapi.dll
+
+  Summary
+
+       41000 .data
+        1000 .fptable
+       54000 .pdata
+     708D000 .rdata
+       14000 .reloc
+       2A000 .rsrc
+      6D9000 .text

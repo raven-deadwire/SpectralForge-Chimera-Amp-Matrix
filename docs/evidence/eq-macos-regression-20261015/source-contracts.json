@@ -1,0 +1,23 @@
+{
+  "source_tree": "d6de02d72f92d550ce131e8ac07109eb9ae99467",
+  "baseline_source_tree": "d6de02d72f92d550ce131e8ac07109eb9ae99467",
+  "candidate_test_sha256": {
+    "Tests/EQParameterAssertions.h": "b7beefa4d4f1e869e5ba183148b6dd128bfd9ac08c7674367fa07e0b3938340f",
+    "Tests/GraphicalEQEditingTests.cpp": "7e890756ade55f46a36be472479aebe1aa8c15fc281837178e616f7ebbb8ea85",
+    "Tests/GraphicalEQUITests.cpp": "72dfbd45daaf9996b61092acd700bc786073fa55dfd585a216aba1f83760696a",
+    "Tests/SignalPathUITests.h": "7b7117e77f2ded617aac572774bfc93b3aa77433802c6d71cc2f65bc544adfab"
+  },
+  "juce_commit": "d6181bde38d858c283c3b7bf699ce6340c050b5d",
+  "probe_flags": [
+    "-O2 -ffp-contract=off",
+    "-O2 -mfma -ffp-contract=fast"
+  ],
+  "compiler": "g++ (Ubuntu 13.3.0-6ubuntu2~24.04) 13.3.0",
+  "release_approved": false,
+  "final_source_commit": "babfecda995141ef3001fc6f9c04c05409ff7ad6",
+  "local_product_build_identity": "195bf12e950ae9cc59e82be22d878baf3b929032",
+  "local_tests_note": "Final changed tests rebuilt against identical production Source tree; initial FMA binary build identity retained. Not a release build.",
+  "local_fma_flags": "-O3 -DNDEBUG -mfma -ffp-contract=fast; CHIMERA_UI_PROBES=ON; CHIMERA_EQ_DEVELOPMENT_PREVIEW=ON",
+  "diagnostic_source_commit": "195bf12e950ae9cc59e82be22d878baf3b929032",
+  "final_production_and_build_paths_unchanged": true
+}

@@ -1,0 +1,1309 @@
+{
+  "tested_commit": "babfecda995141ef3001fc6f9c04c05409ff7ad6",
+  "observed_utc": "2026-10-14T18:17:03.044Z",
+  "release_approved": false,
+  "workflows": [
+    {
+      "id": 38599009116,
+      "name": "CAB Panel prototype contracts",
+      "status": "completed",
+      "conclusion": "success",
+      "run_number": 177,
+      "jobs_url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38599009116/jobs",
+      "logs_url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38599009116/logs",
+      "workflow_id": 378072044
+    },
+    {
+      "id": 38599009149,
+      "name": "1.3.1 amplifier head controls",
+      "status": "completed",
+      "conclusion": "success",
+      "run_number": 108,
+      "jobs_url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38599009149/jobs",
+      "logs_url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38599009149/logs",
+      "workflow_id": 381061299
+    },
+    {
+      "id": 38599009096,
+      "name": "1.3.1 signal path and EQ integration contracts",
+      "status": "completed",
+      "conclusion": "success",
+      "run_number": 114,
+      "jobs_url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38599009096/jobs",
+      "logs_url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38599009096/logs",
+      "workflow_id": 380188203
+    },
+    {
+      "id": 38599009075,
+      "name": "Graphical EQ prototype contracts",
+      "status": "completed",
+      "conclusion": "success",
+      "run_number": 117,
+      "jobs_url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38599009075/jobs",
+      "logs_url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38599009075/logs",
+      "workflow_id": 380197945
+    },
+    {
+      "id": 38599009143,
+      "name": "CAB realtime performance",
+      "status": "completed",
+      "conclusion": "success",
+      "run_number": 94,
+      "jobs_url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38599009143/jobs",
+      "logs_url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38599009143/logs",
+      "workflow_id": 380618591
+    },
+    {
+      "id": 38599009109,
+      "name": "Niflheimr DI audition contracts",
+      "status": "completed",
+      "conclusion": "success",
+      "run_number": 180,
+      "jobs_url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38599009109/jobs",
+      "logs_url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38599009109/logs",
+      "workflow_id": 377957745
+    },
+    {
+      "id": 38599009028,
+      "name": "Niflheimr technical measurements",
+      "status": "completed",
+      "conclusion": "success",
+      "run_number": 163,
+      "jobs_url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38599009028/jobs",
+      "logs_url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38599009028/logs",
+      "workflow_id": 377416923
+    },
+    {
+      "id": 38599008997,
+      "name": "Chimera update candidate",
+      "status": "completed",
+      "conclusion": "success",
+      "run_number": 360,
+      "jobs_url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38599008997/jobs",
+      "logs_url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38599008997/logs",
+      "workflow_id": 369022218
+    },
+    {
+      "id": 38599009356,
+      "name": "Open Beta Build and Test",
+      "status": "completed",
+      "conclusion": "failure",
+      "run_number": 511,
+      "jobs_url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38599009356/jobs",
+      "logs_url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38599009356/logs",
+      "workflow_id": 364798182
+    }
+  ],
+  "full_run_jobs": [
+    {
+      "id": 115973402731,
+      "name": "validation-contract",
+      "status": "completed",
+      "conclusion": "success",
+      "run_id": 38599009356,
+      "logs_url": null,
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1
+        },
+        {
+          "name": "Run actions/checkout@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2
+        },
+        {
+          "name": "Run actions/setup-python@v5",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3
+        },
+        {
+          "name": "Verify catalog and validation producer contracts",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4
+        },
+        {
+          "name": "Upload current-commit release-gate evidence",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5
+        },
+        {
+          "name": "Post Run actions/setup-python@v5",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 9
+        },
+        {
+          "name": "Post Run actions/checkout@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 10
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 11
+        }
+      ]
+    },
+    {
+      "id": 115973750859,
+      "name": "build (windows-latest)",
+      "status": "completed",
+      "conclusion": "failure",
+      "run_id": 38599009356,
+      "logs_url": null,
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1
+        },
+        {
+          "name": "Run actions/checkout@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2
+        },
+        {
+          "name": "Run actions/setup-python@v5",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3
+        },
+        {
+          "name": "Resolve source version",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4
+        },
+        {
+          "name": "Check release packaging and validation syntax",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5
+        },
+        {
+          "name": "Check Windows packaging script syntax",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 6
+        },
+        {
+          "name": "Verify Defender update retry contracts",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 7
+        },
+        {
+          "name": "Run sudo apt-get update && sudo apt-get install -y libasound2-dev libjack-jackd2-dev ladspa-sdk libcurl4-openssl-dev libfreetype6-dev libfontconfig1-dev libx11-dev libxcomposite-dev libxcursor-dev libxext-dev libxinerama-dev libxrandr-dev libxrender-dev libwebkit2gtk-4.1-dev libglu1-mesa-dev mesa-common-dev dpkg-dev xvfb openbox x11-utils",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 8
+        },
+        {
+          "name": "Configure Windows/Linux",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 9
+        },
+        {
+          "name": "Configure universal macOS",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 10
+        },
+        {
+          "name": "Run cmake --build build --config Release --parallel 2",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 11
+        },
+        {
+          "name": "Record configured CTest inventory",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 12
+        },
+        {
+          "name": "Execute Windows and macOS CTest matrix",
+          "status": "completed",
+          "conclusion": "failure",
+          "number": 13
+        },
+        {
+          "name": "Execute Linux CTest matrix with display supervision",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 14
+        },
+        {
+          "name": "Produce current-commit CTest validation evidence",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 15
+        },
+        {
+          "name": "Upload concrete CTest and full-state signature evidence",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 16
+        },
+        {
+          "name": "Upload DSP verification",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 17
+        },
+        {
+          "name": "Upload Windows UI verification",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 18
+        },
+        {
+          "name": "Upload Windows head artwork gallery",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 19
+        },
+        {
+          "name": "Upload Windows pedal and rack gallery",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 20
+        },
+        {
+          "name": "Stage Windows open beta payload",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 21
+        },
+        {
+          "name": "Package and verify macOS universal installer",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 22
+        },
+        {
+          "name": "Package and verify Linux installers",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 23
+        },
+        {
+          "name": "Verify signed release cannot fall back to unsigned",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 24
+        },
+        {
+          "name": "Build Windows installer",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 25
+        },
+        {
+          "name": "Verify Windows install, repair and uninstall",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 26
+        },
+        {
+          "name": "Upload Windows installer verification",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 27
+        },
+        {
+          "name": "Build MSIX review package",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 28
+        },
+        {
+          "name": "Verify MSIX deployment and application activation",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 29
+        },
+        {
+          "name": "Upload MSIX verification",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 30
+        },
+        {
+          "name": "Scan Windows distribution with Microsoft Defender",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 31
+        },
+        {
+          "name": "Upload Windows security report",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 32
+        },
+        {
+          "name": "Upload Windows test package",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 33
+        },
+        {
+          "name": "Upload Windows installer",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 34
+        },
+        {
+          "name": "Upload MSIX review package",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 35
+        },
+        {
+          "name": "Upload macOS installer",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 36
+        },
+        {
+          "name": "Upload Linux installers",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 37
+        },
+        {
+          "name": "Preserve exact-source platform release evidence",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 38
+        },
+        {
+          "name": "Upload platform release evidence",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 39
+        },
+        {
+          "name": "Post Run actions/setup-python@v5",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 77
+        },
+        {
+          "name": "Post Run actions/checkout@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 78
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 79
+        }
+      ]
+    },
+    {
+      "id": 115973750888,
+      "name": "build (ubuntu-22.04)",
+      "status": "completed",
+      "conclusion": "success",
+      "run_id": 38599009356,
+      "logs_url": null,
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1
+        },
+        {
+          "name": "Run actions/checkout@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2
+        },
+        {
+          "name": "Run actions/setup-python@v5",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3
+        },
+        {
+          "name": "Resolve source version",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4
+        },
+        {
+          "name": "Check release packaging and validation syntax",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5
+        },
+        {
+          "name": "Check Windows packaging script syntax",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 6
+        },
+        {
+          "name": "Verify Defender update retry contracts",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 7
+        },
+        {
+          "name": "Run sudo apt-get update && sudo apt-get install -y libasound2-dev libjack-jackd2-dev ladspa-sdk libcurl4-openssl-dev libfreetype6-dev libfontconfig1-dev libx11-dev libxcomposite-dev libxcursor-dev libxext-dev libxinerama-dev libxrandr-dev libxrender-dev libwebkit2gtk-4.1-dev libglu1-mesa-dev mesa-common-dev dpkg-dev xvfb openbox x11-utils",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 8
+        },
+        {
+          "name": "Configure Windows/Linux",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 9
+        },
+        {
+          "name": "Configure universal macOS",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 10
+        },
+        {
+          "name": "Run cmake --build build --config Release --parallel 2",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 11
+        },
+        {
+          "name": "Record configured CTest inventory",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 12
+        },
+        {
+          "name": "Execute Windows and macOS CTest matrix",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 13
+        },
+        {
+          "name": "Execute Linux CTest matrix with display supervision",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 14
+        },
+        {
+          "name": "Produce current-commit CTest validation evidence",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 15
+        },
+        {
+          "name": "Upload concrete CTest and full-state signature evidence",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 16
+        },
+        {
+          "name": "Upload DSP verification",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 17
+        },
+        {
+          "name": "Upload Windows UI verification",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 18
+        },
+        {
+          "name": "Upload Windows head artwork gallery",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 19
+        },
+        {
+          "name": "Upload Windows pedal and rack gallery",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 20
+        },
+        {
+          "name": "Stage Windows open beta payload",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 21
+        },
+        {
+          "name": "Package and verify macOS universal installer",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 22
+        },
+        {
+          "name": "Package and verify Linux installers",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 23
+        },
+        {
+          "name": "Verify signed release cannot fall back to unsigned",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 24
+        },
+        {
+          "name": "Build Windows installer",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 25
+        },
+        {
+          "name": "Verify Windows install, repair and uninstall",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 26
+        },
+        {
+          "name": "Upload Windows installer verification",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 27
+        },
+        {
+          "name": "Build MSIX review package",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 28
+        },
+        {
+          "name": "Verify MSIX deployment and application activation",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 29
+        },
+        {
+          "name": "Upload MSIX verification",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 30
+        },
+        {
+          "name": "Scan Windows distribution with Microsoft Defender",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 31
+        },
+        {
+          "name": "Upload Windows security report",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 32
+        },
+        {
+          "name": "Upload Windows test package",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 33
+        },
+        {
+          "name": "Upload Windows installer",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 34
+        },
+        {
+          "name": "Upload MSIX review package",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 35
+        },
+        {
+          "name": "Upload macOS installer",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 36
+        },
+        {
+          "name": "Upload Linux installers",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 37
+        },
+        {
+          "name": "Preserve exact-source platform release evidence",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 38
+        },
+        {
+          "name": "Upload platform release evidence",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 39
+        },
+        {
+          "name": "Post Run actions/setup-python@v5",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 77
+        },
+        {
+          "name": "Post Run actions/checkout@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 78
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 79
+        }
+      ]
+    },
+    {
+      "id": 115973751046,
+      "name": "build (macos-15)",
+      "status": "completed",
+      "conclusion": "success",
+      "run_id": 38599009356,
+      "logs_url": null,
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1
+        },
+        {
+          "name": "Run actions/checkout@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2
+        },
+        {
+          "name": "Run actions/setup-python@v5",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3
+        },
+        {
+          "name": "Resolve source version",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4
+        },
+        {
+          "name": "Check release packaging and validation syntax",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5
+        },
+        {
+          "name": "Check Windows packaging script syntax",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 6
+        },
+        {
+          "name": "Verify Defender update retry contracts",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 7
+        },
+        {
+          "name": "Run sudo apt-get update && sudo apt-get install -y libasound2-dev libjack-jackd2-dev ladspa-sdk libcurl4-openssl-dev libfreetype6-dev libfontconfig1-dev libx11-dev libxcomposite-dev libxcursor-dev libxext-dev libxinerama-dev libxrandr-dev libxrender-dev libwebkit2gtk-4.1-dev libglu1-mesa-dev mesa-common-dev dpkg-dev xvfb openbox x11-utils",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 8
+        },
+        {
+          "name": "Configure Windows/Linux",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 9
+        },
+        {
+          "name": "Configure universal macOS",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 10
+        },
+        {
+          "name": "Run cmake --build build --config Release --parallel 2",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 11
+        },
+        {
+          "name": "Record configured CTest inventory",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 12
+        },
+        {
+          "name": "Execute Windows and macOS CTest matrix",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 13
+        },
+        {
+          "name": "Execute Linux CTest matrix with display supervision",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 14
+        },
+        {
+          "name": "Produce current-commit CTest validation evidence",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 15
+        },
+        {
+          "name": "Upload concrete CTest and full-state signature evidence",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 16
+        },
+        {
+          "name": "Upload DSP verification",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 17
+        },
+        {
+          "name": "Upload Windows UI verification",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 18
+        },
+        {
+          "name": "Upload Windows head artwork gallery",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 19
+        },
+        {
+          "name": "Upload Windows pedal and rack gallery",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 20
+        },
+        {
+          "name": "Stage Windows open beta payload",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 21
+        },
+        {
+          "name": "Package and verify macOS universal installer",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 22
+        },
+        {
+          "name": "Package and verify Linux installers",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 23
+        },
+        {
+          "name": "Verify signed release cannot fall back to unsigned",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 24
+        },
+        {
+          "name": "Build Windows installer",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 25
+        },
+        {
+          "name": "Verify Windows install, repair and uninstall",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 26
+        },
+        {
+          "name": "Upload Windows installer verification",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 27
+        },
+        {
+          "name": "Build MSIX review package",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 28
+        },
+        {
+          "name": "Verify MSIX deployment and application activation",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 29
+        },
+        {
+          "name": "Upload MSIX verification",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 30
+        },
+        {
+          "name": "Scan Windows distribution with Microsoft Defender",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 31
+        },
+        {
+          "name": "Upload Windows security report",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 32
+        },
+        {
+          "name": "Upload Windows test package",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 33
+        },
+        {
+          "name": "Upload Windows installer",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 34
+        },
+        {
+          "name": "Upload MSIX review package",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 35
+        },
+        {
+          "name": "Upload macOS installer",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 36
+        },
+        {
+          "name": "Upload Linux installers",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 37
+        },
+        {
+          "name": "Preserve exact-source platform release evidence",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 38
+        },
+        {
+          "name": "Upload platform release evidence",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 39
+        },
+        {
+          "name": "Post Run actions/setup-python@v5",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 77
+        },
+        {
+          "name": "Post Run actions/checkout@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 78
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 79
+        }
+      ]
+    },
+    {
+      "id": 116023022354,
+      "name": "consolidate-release-gate",
+      "status": "completed",
+      "conclusion": "failure",
+      "run_id": 38599009356,
+      "logs_url": null,
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1
+        },
+        {
+          "name": "Run actions/checkout@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2
+        },
+        {
+          "name": "Run actions/setup-python@v5",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3
+        },
+        {
+          "name": "Download this run's evidence without merging platform files",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4
+        },
+        {
+          "name": "Compute intended release verdict",
+          "status": "completed",
+          "conclusion": "failure",
+          "number": 5
+        },
+        {
+          "name": "Upload consolidated exact-source verdict",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 6
+        },
+        {
+          "name": "Show release eligibility separately from build success",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 7
+        },
+        {
+          "name": "Post Run actions/setup-python@v5",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 13
+        },
+        {
+          "name": "Post Run actions/checkout@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 14
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 15
+        }
+      ]
+    },
+    {
+      "id": 116023024600,
+      "name": "assemble-candidate",
+      "status": "completed",
+      "conclusion": "skipped",
+      "run_id": 38599009356,
+      "logs_url": null,
+      "steps": null
+    }
+  ],
+  "full_run_artifacts": [
+    {
+      "id": 11918962710,
+      "name": "Chimera-DSP-verification-macOS",
+      "size_in_bytes": 50307,
+      "url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/artifacts/11918962710",
+      "archive_download_url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/artifacts/11918962710/zip",
+      "expired": false,
+      "created_at": "2026-10-14T18:14:41Z",
+      "expires_at": "2027-01-12T16:32:54Z",
+      "updated_at": "2026-10-14T18:14:41Z",
+      "digest": "sha256:a225ef20c751f140e00993e53b3f55218aa384e654f62b748f610e562b1f277a",
+      "workflow_run": {
+        "id": 38599009356,
+        "repository_id": 1382701489,
+        "head_repository_id": 1382701489,
+        "head_branch": "dev/eq-oct23-editing-20261013",
+        "head_sha": "babfecda995141ef3001fc6f9c04c05409ff7ad6"
+      }
+    },
+    {
+      "id": 11918253344,
+      "name": "Chimera-release-evidence-macos",
+      "size_in_bytes": 64817,
+      "url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/artifacts/11918253344",
+      "archive_download_url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/artifacts/11918253344/zip",
+      "expired": false,
+      "created_at": "2026-10-14T18:15:36Z",
+      "expires_at": "2027-01-12T16:32:54Z",
+      "updated_at": "2026-10-14T18:15:36Z",
+      "digest": "sha256:516591f0c508067ceaf7cb2676824f4d3cae9d8b5716d3a37cfc67e004f4fcc8",
+      "workflow_run": {
+        "id": 38599009356,
+        "repository_id": 1382701489,
+        "head_repository_id": 1382701489,
+        "head_branch": "dev/eq-oct23-editing-20261013",
+        "head_sha": "babfecda995141ef3001fc6f9c04c05409ff7ad6"
+      }
+    },
+    {
+      "id": 11918248332,
+      "name": "Chimera-A-stage-release-gate",
+      "size_in_bytes": 280224,
+      "url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/artifacts/11918248332",
+      "archive_download_url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/artifacts/11918248332/zip",
+      "expired": false,
+      "created_at": "2026-10-14T18:15:54Z",
+      "expires_at": "2027-01-12T16:32:54Z",
+      "updated_at": "2026-10-14T18:15:54Z",
+      "digest": "sha256:d696e5813736a4faa5c213c94faa6c9c15e31a75e044ab05f81fc1fbb08e9f3f",
+      "workflow_run": {
+        "id": 38599009356,
+        "repository_id": 1382701489,
+        "head_repository_id": 1382701489,
+        "head_branch": "dev/eq-oct23-editing-20261013",
+        "head_sha": "babfecda995141ef3001fc6f9c04c05409ff7ad6"
+      }
+    },
+    {
+      "id": 11918093291,
+      "name": "Chimera-integration-validation-macOS",
+      "size_in_bytes": 6902437,
+      "url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/artifacts/11918093291",
+      "archive_download_url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/artifacts/11918093291/zip",
+      "expired": false,
+      "created_at": "2026-10-14T18:14:40Z",
+      "expires_at": "2027-01-12T16:32:54Z",
+      "updated_at": "2026-10-14T18:14:40Z",
+      "digest": "sha256:587be23d375e86c0be559b958343b93959e8a63c299264a6d2cf503cebb88022",
+      "workflow_run": {
+        "id": 38599009356,
+        "repository_id": 1382701489,
+        "head_repository_id": 1382701489,
+        "head_branch": "dev/eq-oct23-editing-20261013",
+        "head_sha": "babfecda995141ef3001fc6f9c04c05409ff7ad6"
+      }
+    },
+    {
+      "id": 11917718635,
+      "name": "SpectralForge-Chimera-1.3.1-beta.1-macos-universal",
+      "size_in_bytes": 702602441,
+      "url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/artifacts/11917718635",
+      "archive_download_url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/artifacts/11917718635/zip",
+      "expired": false,
+      "created_at": "2026-10-14T18:15:34Z",
+      "expires_at": "2027-01-12T16:32:54Z",
+      "updated_at": "2026-10-14T18:15:34Z",
+      "digest": "sha256:f9700c5f4c43272735f649a0392964f68fd542b091bf980061844d413506b6ef",
+      "workflow_run": {
+        "id": 38599009356,
+        "repository_id": 1382701489,
+        "head_repository_id": 1382701489,
+        "head_branch": "dev/eq-oct23-editing-20261013",
+        "head_sha": "babfecda995141ef3001fc6f9c04c05409ff7ad6"
+      }
+    },
+    {
+      "id": 11917457143,
+      "name": "Chimera-DSP-verification-Windows",
+      "size_in_bytes": 52242,
+      "url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/artifacts/11917457143",
+      "archive_download_url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/artifacts/11917457143/zip",
+      "expired": false,
+      "created_at": "2026-10-14T17:52:17Z",
+      "expires_at": "2027-01-12T16:32:54Z",
+      "updated_at": "2026-10-14T17:52:17Z",
+      "digest": "sha256:a40014bded0b7d5362f1c0eadd9fd62bd83c58ab388c988a97f6e1ef164852fc",
+      "workflow_run": {
+        "id": 38599009356,
+        "repository_id": 1382701489,
+        "head_repository_id": 1382701489,
+        "head_branch": "dev/eq-oct23-editing-20261013",
+        "head_sha": "babfecda995141ef3001fc6f9c04c05409ff7ad6"
+      }
+    },
+    {
+      "id": 11917307587,
+      "name": "Chimera-Windows-Head-gallery",
+      "size_in_bytes": 18902206,
+      "url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/artifacts/11917307587",
+      "archive_download_url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/artifacts/11917307587/zip",
+      "expired": false,
+      "created_at": "2026-10-14T17:52:22Z",
+      "expires_at": "2027-01-12T16:32:54Z",
+      "updated_at": "2026-10-14T17:52:22Z",
+      "digest": "sha256:097e168a8bc1368f997456012e794d30f7c518a5cc1041570a2ca2f8fd48dcce",
+      "workflow_run": {
+        "id": 38599009356,
+        "repository_id": 1382701489,
+        "head_repository_id": 1382701489,
+        "head_branch": "dev/eq-oct23-editing-20261013",
+        "head_sha": "babfecda995141ef3001fc6f9c04c05409ff7ad6"
+      }
+    },
+    {
+      "id": 11917219149,
+      "name": "Chimera-Windows-UI-snapshots",
+      "size_in_bytes": 68939089,
+      "url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/artifacts/11917219149",
+      "archive_download_url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/artifacts/11917219149/zip",
+      "expired": false,
+      "created_at": "2026-10-14T17:52:20Z",
+      "expires_at": "2027-01-12T16:32:54Z",
+      "updated_at": "2026-10-14T17:52:20Z",
+      "digest": "sha256:1132987228d52b1873c4a11e256d1aa84ba1dd63a11db503e21375384e29e788",
+      "workflow_run": {
+        "id": 38599009356,
+        "repository_id": 1382701489,
+        "head_repository_id": 1382701489,
+        "head_branch": "dev/eq-oct23-editing-20261013",
+        "head_sha": "babfecda995141ef3001fc6f9c04c05409ff7ad6"
+      }
+    },
+    {
+      "id": 11917124376,
+      "name": "Chimera-integration-validation-Windows",
+      "size_in_bytes": 6957168,
+      "url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/artifacts/11917124376",
+      "archive_download_url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/artifacts/11917124376/zip",
+      "expired": false,
+      "created_at": "2026-10-14T17:52:16Z",
+      "expires_at": "2027-01-12T16:32:54Z",
+      "updated_at": "2026-10-14T17:52:16Z",
+      "digest": "sha256:c52241d059e36a037696cf2dae2572ef3181335662538cb4397bddfc3a8cbbb7",
+      "workflow_run": {
+        "id": 38599009356,
+        "repository_id": 1382701489,
+        "head_repository_id": 1382701489,
+        "head_branch": "dev/eq-oct23-editing-20261013",
+        "head_sha": "babfecda995141ef3001fc6f9c04c05409ff7ad6"
+      }
+    },
+    {
+      "id": 11917102193,
+      "name": "Chimera-integration-validation-Linux",
+      "size_in_bytes": 7730425,
+      "url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/artifacts/11917102193",
+      "archive_download_url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/artifacts/11917102193/zip",
+      "expired": false,
+      "created_at": "2026-10-14T17:40:49Z",
+      "expires_at": "2027-01-12T16:32:54Z",
+      "updated_at": "2026-10-14T17:40:49Z",
+      "digest": "sha256:9baf8a5f2b66901997c7a1db78456eabd1ff828630ec87fda9181f990aa96696",
+      "workflow_run": {
+        "id": 38599009356,
+        "repository_id": 1382701489,
+        "head_repository_id": 1382701489,
+        "head_branch": "dev/eq-oct23-editing-20261013",
+        "head_sha": "babfecda995141ef3001fc6f9c04c05409ff7ad6"
+      }
+    },
+    {
+      "id": 11917067255,
+      "name": "Chimera-DSP-verification-Linux",
+      "size_in_bytes": 50459,
+      "url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/artifacts/11917067255",
+      "archive_download_url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/artifacts/11917067255/zip",
+      "expired": false,
+      "created_at": "2026-10-14T17:40:50Z",
+      "expires_at": "2027-01-12T16:32:54Z",
+      "updated_at": "2026-10-14T17:40:50Z",
+      "digest": "sha256:be12160be0a0b37203c5b5619068344ef2d877932c25a7ce1e510fb01ce502bb",
+      "workflow_run": {
+        "id": 38599009356,
+        "repository_id": 1382701489,
+        "head_repository_id": 1382701489,
+        "head_branch": "dev/eq-oct23-editing-20261013",
+        "head_sha": "babfecda995141ef3001fc6f9c04c05409ff7ad6"
+      }
+    },
+    {
+      "id": 11917034577,
+      "name": "Chimera-release-evidence-windows",
+      "size_in_bytes": 70465,
+      "url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/artifacts/11917034577",
+      "archive_download_url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/artifacts/11917034577/zip",
+      "expired": false,
+      "created_at": "2026-10-14T17:52:24Z",
+      "expires_at": "2027-01-12T16:32:54Z",
+      "updated_at": "2026-10-14T17:52:24Z",
+      "digest": "sha256:fd40ea90e101be0a9dd2158cd82b860e1cd7971d509d7f8dd948279105f645ba",
+      "workflow_run": {
+        "id": 38599009356,
+        "repository_id": 1382701489,
+        "head_repository_id": 1382701489,
+        "head_branch": "dev/eq-oct23-editing-20261013",
+        "head_sha": "babfecda995141ef3001fc6f9c04c05409ff7ad6"
+      }
+    },
+    {
+      "id": 11916747755,
+      "name": "Chimera-release-evidence-linux",
+      "size_in_bytes": 66018,
+      "url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/artifacts/11916747755",
+      "archive_download_url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/artifacts/11916747755/zip",
+      "expired": false,
+      "created_at": "2026-10-14T17:42:28Z",
+      "expires_at": "2027-01-12T16:32:54Z",
+      "updated_at": "2026-10-14T17:42:28Z",
+      "digest": "sha256:3aad0ff3bcb3eb8b8bb6206660d81fc993d1201c48679ca5fa98ddd0c1aa32ca",
+      "workflow_run": {
+        "id": 38599009356,
+        "repository_id": 1382701489,
+        "head_repository_id": 1382701489,
+        "head_branch": "dev/eq-oct23-editing-20261013",
+        "head_sha": "babfecda995141ef3001fc6f9c04c05409ff7ad6"
+      }
+    },
+    {
+      "id": 11916732876,
+      "name": "SpectralForge-Chimera-1.3.1-beta.1-linux-x86_64",
+      "size_in_bytes": 447524928,
+      "url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/artifacts/11916732876",
+      "archive_download_url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/artifacts/11916732876/zip",
+      "expired": false,
+      "created_at": "2026-10-14T17:42:26Z",
+      "expires_at": "2027-01-12T16:32:54Z",
+      "updated_at": "2026-10-14T17:42:26Z",
+      "digest": "sha256:7bdd4cbee7a5b3ac3af11005d145162f15462ec429ba6285a442345fe9f0597a",
+      "workflow_run": {
+        "id": 38599009356,
+        "repository_id": 1382701489,
+        "head_repository_id": 1382701489,
+        "head_branch": "dev/eq-oct23-editing-20261013",
+        "head_sha": "babfecda995141ef3001fc6f9c04c05409ff7ad6"
+      }
+    },
+    {
+      "id": 11912746882,
+      "name": "Chimera-validation-seed",
+      "size_in_bytes": 64557,
+      "url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/artifacts/11912746882",
+      "archive_download_url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/artifacts/11912746882/zip",
+      "expired": false,
+      "created_at": "2026-10-14T16:34:15Z",
+      "expires_at": "2027-01-12T16:32:54Z",
+      "updated_at": "2026-10-14T16:34:15Z",
+      "digest": "sha256:e97c48048af444e6f710f13274af923b90c6e444a915f20d438cfb472fcf42bc",
+      "workflow_run": {
+        "id": 38599009356,
+        "repository_id": 1382701489,
+        "head_repository_id": 1382701489,
+        "head_branch": "dev/eq-oct23-editing-20261013",
+        "head_sha": "babfecda995141ef3001fc6f9c04c05409ff7ad6"
+      }
+    }
+  ]
+}

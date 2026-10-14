@@ -1,0 +1,96 @@
+{
+  "archive_sha256": "c88f87ca158f69d2b14bfe412b845123ec1b7786bb479afb3c462522877de4f0",
+  "archive_bytes": 133970981,
+  "run_id": 38599009096,
+  "artifact_id": 11914190651,
+  "files": [
+    {
+      "zip_member": "chimera-build-version.json",
+      "saved_file": "final-integration-windows-chimera-build-version.json",
+      "sha256": "7fdbfcfe09fda487bee02c5e3c494871ed361793bf2c8d8c52d8a5dc57967958"
+    },
+    {
+      "zip_member": "integration-results.xml",
+      "saved_file": "final-integration-windows-integration-results.xml",
+      "sha256": "5d3ada607cca97ba5eb8c3a932bcf3d3b8bc3ca772ff1a471000b1786d96b363"
+    },
+    {
+      "zip_member": "Testing/Temporary/LastTest.log",
+      "saved_file": "final-integration-windows-LastTest.log",
+      "sha256": "f8edeea2538cd1e59cfb08389e0ca616b7ca13e41157b8c01c685b02c5ab1f11"
+    }
+  ],
+  "test_suites": [
+    {
+      "file": "final-integration-windows-integration-results.xml",
+      "attributes": {
+        "name": "(empty)",
+        "tests": "8",
+        "failures": "0",
+        "disabled": "0",
+        "skipped": "0",
+        "hostname": "",
+        "time": "352",
+        "timestamp": "2026-10-14T16:50:43"
+      },
+      "cases": [
+        {
+          "name": "ChimeraPackagingVersionTests",
+          "time": "11.2637",
+          "status": "run",
+          "failure": false,
+          "skipped": false
+        },
+        {
+          "name": "ChimeraSignalPathUITests",
+          "time": "72.4743",
+          "status": "run",
+          "failure": false,
+          "skipped": false
+        },
+        {
+          "name": "ChimeraNativeStateTests",
+          "time": "4.45224",
+          "status": "run",
+          "failure": false,
+          "skipped": false
+        },
+        {
+          "name": "ChimeraCabPanelStateTests",
+          "time": "82.8931",
+          "status": "run",
+          "failure": false,
+          "skipped": false
+        },
+        {
+          "name": "ChimeraGateProcessorTests",
+          "time": "11.4926",
+          "status": "run",
+          "failure": false,
+          "skipped": false
+        },
+        {
+          "name": "ChimeraGraphicalEQTests",
+          "time": "24.6475",
+          "status": "run",
+          "failure": false,
+          "skipped": false
+        },
+        {
+          "name": "ChimeraGraphicalEQUITests",
+          "time": "121.67",
+          "status": "run",
+          "failure": false,
+          "skipped": false
+        },
+        {
+          "name": "ChimeraGraphicalEQEditingTests",
+          "time": "23.0628",
+          "status": "run",
+          "failure": false,
+          "skipped": false
+        }
+      ]
+    }
+  ]
+}

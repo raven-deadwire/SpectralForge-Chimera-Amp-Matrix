@@ -1,0 +1,3 @@
+requested=0 stored=0 equal=1
+requested=-9 stored=-9 equal=1
+requested=1000 stored=1000 equal=1
