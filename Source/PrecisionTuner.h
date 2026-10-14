@@ -32,7 +32,7 @@ inline std::pair<float,float> estimate(const float* x,int count,double rate) {
     const double a=raw[size_t(selected-1)],b=raw[size_t(selected)],c=raw[size_t(selected+1)];
     const double denominator=a-2*b+c;
     const double correction=std::abs(denominator)>1e-20?.5*(a-c)/denominator:0;
-    const auto refine=[&](double coarse,int periods){
+    const auto refine=[&](double coarse,int periods,bool finalPitch=false){
         const double radius=std::max(.75,coarse*.02);
         double left=std::max(4.0,coarse-radius),right=coarse+radius;
         // Common support prevents the objective jumping as integer delay changes.
@@ -61,6 +61,14 @@ inline std::pair<float,float> estimate(const float* x,int count,double rate) {
         double l=right-ratio*(right-left),r=left+ratio*(right-left);
         double fl=cost(l),fr=cost(r);
         for(int i=0;i<30;++i){
+            // Only the last search may stop early. Its residual is not used for
+            // confidence or octave selection. If BOTH remaining bracket ends
+            // map to the same published float Hz, every later refinement has
+            // exactly that output; retain 30 iterations near float/range edges.
+            if(finalPitch){
+                const double lowestHz=rate/right,highestHz=rate/left;
+                if(lowestHz>=16.0 && highestHz<=2000.0 && float(lowestHz)==float(highestHz))break;
+            }
             if(fl<fr){right=r;r=l;fr=fl;l=right-ratio*(right-left);fl=cost(l);}
             else {left=l;l=r;fl=fr;r=left+ratio*(right-left);fr=cost(r);}
         }
@@ -80,7 +88,7 @@ inline std::pair<float,float> estimate(const float* x,int count,double rate) {
         }
     }
     const int periods=std::clamp(int((window-12)/(first.first*1.025)),1,4);
-    const auto refined=refine(first.first,periods);
+    const auto refined=refine(first.first,periods,true);
     const double hz=rate/refined.first;
     if(hz<16 || hz>2000 || first.second>.1)return {};
     return {float(hz),float(1-first.second)};
