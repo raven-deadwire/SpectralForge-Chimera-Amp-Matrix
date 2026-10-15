@@ -1,0 +1,56 @@
+name: PR75 independent original versus S8T comparison
+on:
+  pull_request:
+    paths:
+      - 'Tools/CabS8TAB/**'
+      - '.github/workflows/pr75-s8t-independent.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: pr75-s8t-independent-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: false
+jobs:
+  paired:
+    runs-on: macos-15
+    timeout-minutes: 90
+    env:
+      DEVELOPER_DIR: /Applications/Xcode_16.4.app/Contents/Developer
+      PYTHONDONTWRITEBYTECODE: '1'
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          path: controller
+          persist-credentials: false
+      - uses: actions/checkout@v5
+        with:
+          ref: c2263e4c90bffb9a56cc41285ebf8207e641b3aa
+          path: parent
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/checkout@v5
+        with:
+          ref: 29865abb4da3ab78592c970a263ee62af63fc673
+          path: candidate
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - name: Verify protocol and fail-closed analysis contracts
+        run: |
+          python controller/Tools/CabNeonAB/test_analysis.py
+          python controller/Tools/CabS8TAB/test_contracts.py
+      - name: Apply exact PR75 patch to isolated candidate
+        run: python controller/Tools/CabS8TAB/prepare.py --candidate candidate
+      - name: Build both arms then run ABBA BAAB and identical-binary AA
+        run: python controller/Tools/CabS8TAB/run.py --parent parent --candidate candidate --build builds --output evidence
+      - name: Preserve every population including failures
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: PR75-independent-A-S8T-${{ github.run_id }}-${{ github.run_attempt }}
+          path: evidence/
+          if-no-files-found: error
+          retention-days: 90
