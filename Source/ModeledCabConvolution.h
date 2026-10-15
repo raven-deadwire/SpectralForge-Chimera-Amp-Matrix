@@ -129,9 +129,9 @@ private:
 #elif defined(__APPLE__) && defined(__aarch64__)
         // The macOS attribution matrix places the 96 kHz / 32-sample cost in
         // this spectral MAC, while publication itself remains negligible.
-        // Match the MSVC path with four planar bins per iteration. Keep each
-        // multiply and add/subtract explicit so the scalar arithmetic order,
-        // impulse identity and zero-latency partition schedule are unchanged.
+        // AppleClang contracts the scalar multiply/add pairs on arm64. Express
+        // the same two-step FMA/FMS arithmetic explicitly for four planar bins
+        // so the frozen residue-bank output remains the compatibility gate.
         for(;i+4<=bins;i+=4) {
             const auto inputReal=vld1q_f32(input+i);
             const auto inputImag=vld1q_f32(input+bins+i);
@@ -139,14 +139,10 @@ private:
             const auto impulseImag=vld1q_f32(impulse+bins+i);
             const auto outputReal=vld1q_f32(output+i);
             const auto outputImag=vld1q_f32(output+bins+i);
-            const auto inputRealImpulseReal=vmulq_f32(inputReal,impulseReal);
-            const auto inputImagImpulseImag=vmulq_f32(inputImag,impulseImag);
-            const auto inputRealImpulseImag=vmulq_f32(inputReal,impulseImag);
-            const auto inputImagImpulseReal=vmulq_f32(inputImag,impulseReal);
-            const auto real=vsubq_f32(vaddq_f32(outputReal,inputRealImpulseReal),
-                                      inputImagImpulseImag);
-            const auto imag=vaddq_f32(vaddq_f32(outputImag,inputRealImpulseImag),
-                                      inputImagImpulseReal);
+            const auto real=vfmsq_f32(vfmaq_f32(outputReal,inputReal,impulseReal),
+                                      inputImag,impulseImag);
+            const auto imag=vfmaq_f32(vfmaq_f32(outputImag,inputReal,impulseImag),
+                                      inputImag,impulseReal);
             vst1q_f32(output+i,real);
             vst1q_f32(output+bins+i,imag);
         }
