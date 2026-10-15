@@ -1,0 +1,50 @@
+name: S8T independent scalar comparison
+on:
+  pull_request:
+    paths:
+      - 'Tools/CabS8TAB/**'
+      - '.github/workflows/s8t-independent.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: s8t-independent-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: false
+jobs:
+  paired:
+    runs-on: macos-15
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          path: controller
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/checkout@v5
+        with:
+          ref: c2263e4c90bffb9a56cc41285ebf8207e641b3aa
+          path: parent
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/checkout@v5
+        with:
+          ref: 29865abb4da3ab78592c970a263ee62af63fc673
+          path: candidate
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - name: Verify analysis and exact S8T patch contracts
+        run: python controller/Tools/CabS8TAB/test_analysis.py
+      - name: Build both arms then measure ABBA BAAB and AA on one allocation
+        run: python controller/Tools/CabS8TAB/run.py --parent parent --candidate candidate --build builds --output evidence
+      - name: Preserve every raw result including failed populations
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: S8T-independent-scalar-${{ github.run_id }}-${{ github.run_attempt }}
+          path: evidence/
+          if-no-files-found: error
+          retention-days: 90
