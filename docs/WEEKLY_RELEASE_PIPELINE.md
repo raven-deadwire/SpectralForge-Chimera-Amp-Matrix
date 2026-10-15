@@ -2,8 +2,8 @@
 
 Implementation follow-up to [planning PR #50](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/pull/50).
 The October 14, 2026 test build, October 15 candidate and October 16
-`v1.3.1-beta.2` publication remain conditional targets. This infrastructure
-change grants no release approval and does not publish or relabel beta.1.
+`v1.3.1-beta.3` publication remain conditional targets. The former beta.2 target was published on October 13; October 16 now reserves beta.3 from #62, subject to approved expiry, fresh binary checks and publication approval. This infrastructure
+change grants no release approval and does not publish or relabel any released beta.
 
 ## Entry points and identity
 
@@ -13,7 +13,7 @@ so links and manual workflow selection continue to work. Its display name is
 
 | Input | Contract |
 | --- | --- |
-| `target_version` | Required canonical version, for example `1.3.1-beta.2`, `1.3.1-rc.1` or `1.3.1`; no `v` prefix |
+| `target_version` | Required canonical version, for example `1.3.1-beta.3`, `1.3.1-rc.1` or `1.3.1`; no `v` prefix |
 | `source_sha` | Required exact 40-character lowercase commit SHA of the tested product |
 | `publish` | Defaults to `false`; review is offline and never creates a release |
 | `confirm` | Publication only: `publish-v<TARGET_VERSION>@<FULL_SOURCE_SHA>` |
@@ -47,9 +47,9 @@ an in-flight controller, including a commit that withdraws approval.
 ## October 14 candidate preparation
 
 1. Integrate the reviewed infrastructure and intended product changes into the
-   candidate source. For beta.2, set `VERSION` to `1.3.1`, `RELEASE_CHANNEL` to
-   `beta.2`, and the matching `Validation/release-policy.json.release_scope`
-   identity to `1.3.1-beta.2` / `1.3.1` / `beta.2` / `beta_1_3`.
+   candidate source. For the reserved beta.3, set `VERSION` to `1.3.1`, `RELEASE_CHANNEL` to
+   `beta.3`, and the matching `Validation/release-policy.json.release_scope`
+   identity to `1.3.1-beta.3` / `1.3.1` / `beta.3` / `beta_1_3`.
 2. Keep `preparation_authorized=true`, retain the beta check inventory and its two
    existing transpose deferrals, and keep source release flags unapproved during
    preparation. Update the actual release notes, including retained host and CAB
@@ -58,7 +58,7 @@ an in-flight controller, including a commit that withdraws approval.
    Pull-request CI checks out the PR head. Optional manual build version/SHA
    inputs only assert that identity; they cannot select different bytes under a
    workflow run's original `head_sha`.
-4. Retrieve `SpectralForge-Chimera-1.3.1-beta.2-Release-Candidate` from that build.
+4. Retrieve `SpectralForge-Chimera-1.3.1-beta.3-Release-Candidate` from that build.
    The candidate records `version`, `tag`, `revision`, `runId`, `runAttempt`, and
    unpublished/signing/notarization status. Review the source-bound packages and
    perform the applicable installation, host and listening acceptance.
@@ -76,11 +76,11 @@ An older run of unchanged feature code is not substituted for current-source CI.
 The build workflow always produces a consolidated report even when acceptance
 remains BLOCKED. Successful build jobs alone are not publication authorization.
 
-Example offline review, after selecting an actual beta.2 source:
+Example offline review, after selecting an actual beta.3 source:
 
 ```bash
 python Tools/publish_release.py --dry-run \
-  --target-version 1.3.1-beta.2 \
+  --target-version 1.3.1-beta.3 \
   --source-sha "$TESTED_SOURCE_SHA"
 ```
 
@@ -120,7 +120,7 @@ It preserves the frozen 21 connected automatic checks and 107 individually
 disclosed unexecuted checks, including 42 strict hard gates. Actual failures,
 waivers, changed inventories and invented PASS results are rejected. The strict
 report remains BLOCKED and is published alongside the separate decision. This
-implementation does not grant that exception to beta.2 or any later source.
+implementation does not transfer historical beta.2 acceptance to beta.3 or any later source.
 
 ## Verification and publication
 
@@ -158,7 +158,7 @@ concurrency group; the workflow has no scheduled or automatic publication trigge
 
 | Source channel | Package/tag version | Canonical feed | Compatibility feed | Default receiver |
 | --- | --- | --- | --- | --- |
-| `beta.2` | `1.3.1-beta.2` / `v1.3.1-beta.2` | `update-beta.json` | Same file | beta, RC and stable successors |
+| `beta.3` | `1.3.1-beta.3` / `v1.3.1-beta.3` | `update-beta.json` | Same file | beta, RC and stable successors |
 | `rc.1` | `1.3.1-rc.1` / `v1.3.1-rc.1` | `update-rc.json` | `update-beta.json` | RC and stable successors |
 | `stable` | `1.3.1` / `v1.3.1` | `update-stable.json` | `update-beta.json` | Stable successors only |
 
@@ -202,3 +202,7 @@ python Tools/test_publish_beta131.py
 in native C++. Historical beta.1 policies used by regression fixtures are frozen
 separately so a legitimate beta.2/RC/stable source bump does not break historical
 contracts or silently change the active approval policy.
+
+## Calendar reservation guard (2026-10-15)
+
+The canonical reservations are in `Validation/release-calendar.json`. The publisher validates this plan against recorded history and live GitHub tags/public releases before preparation and again before publication. A reservation is not approval. Newly published rows must be marked published and recorded in the immutable history before the next reservation check. A missed date requires an explicit unpublished reservation remap; no automatic tag reuse, source relabeling or version downgrade is allowed. See [the current calendar](RELEASE_CALENDAR_2026_2027.md).

@@ -21,6 +21,7 @@ from urllib.parse import quote
 import zipfile
 
 import chimera_version
+import check_release_calendar
 import check_ir_distribution
 import check_public_names
 import evaluate_release_gate as gate
@@ -34,6 +35,11 @@ from verify_publication_evidence import verify_embedded_evidence
 from publish_beta131 import (CIPending, WORKFLOWS, GATE_ARTIFACT_NAME,
     CANDIDATE_MAX_EXPANDED_BYTES, SUFFIXES, verified_run,
     verified_jobs, verified_artifact, ci_identity, parse_json, read_json, check_archive)
+
+# Reservation contracts are required release evidence alongside the native jobs.
+WORKFLOWS = {**WORKFLOWS, "release-publisher.yml": (
+    "publisher-contracts", "calendar-contracts (ubuntu-24.04)",
+    "calendar-contracts (windows-latest)", "calendar-contracts (macos-15)", "calendar-live")}
 
 ROOT = Path(__file__).resolve().parents[1]
 APPROVAL_PATH = "Validation/weekly-publication-policy.json"
@@ -357,7 +363,11 @@ def render_public_release_notes(notes, release):
 
 
 def dry_run(args, release, policy, proof):
-    blockers = ["LIVE_EXACT_SOURCE_CI_NOT_VERIFIED"]
+    blockers = ["LIVE_EXACT_SOURCE_CI_NOT_VERIFIED", "LIVE_RELEASE_RESERVATIONS_NOT_VERIFIED"]
+    try:
+        check_release_calendar.check_repository(ROOT, target_version=release.version)
+    except (ValueError, RuntimeError, KeyError, TypeError, OSError) as exc:
+        blockers.append("RELEASE_CALENDAR_BLOCKED: " + str(exc))
     try:
         approval(release, policy)
     except (RuntimeError, ValueError, KeyError, OSError) as exc:
@@ -420,6 +430,7 @@ def publish(args, release, policy, proof):
         require(api.json("/git/ref/heads/" + quote(branch, safe="/"))["object"]["sha"] == controller,
                 "A newer publication controller supersedes this invocation")
 
+    check_release_calendar.check_repository(ROOT, api=api, target_version=release.version)
     ci = wait_for_ci(api, release, args.wait_ci_seconds, check_current_controller)
     build = ci["runs"]["build.yml"]
     with tempfile.TemporaryDirectory(prefix="chimera-release-") as temporary:
@@ -459,6 +470,7 @@ def publish(args, release, policy, proof):
 
         def recheck():
             check_current_controller()
+            check_release_calendar.check_repository(ROOT, api=api, target_version=release.version)
             require(ci_identity(verify_ci(api, release)) == ci_identity(ci),
                     "Verification runs or artifacts changed during preparation")
             require(verify_controller_source(release.source_sha, controller) == proof

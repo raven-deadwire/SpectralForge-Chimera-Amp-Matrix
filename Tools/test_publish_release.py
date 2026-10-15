@@ -82,6 +82,19 @@ class SourceFixture(unittest.TestCase):
         self.write_json(self.root / "Validation/release-policy.json", self.policy)
         self.notes = f"# Chimera {version}\n\nCAB update. Studio One acceptance is source-specific.\n"
         self.write("docs/OPEN_BETA_RELEASE_NOTES.md", self.notes)
+        calendar = json.loads((REAL_ROOT / "Validation/release-calendar.json").read_text(encoding="utf-8"))
+        # Synthetic fixture history predates beta.2; it does not alter real history.
+        calendar['published_releases'] = [r for r in calendar['published_releases'] if r['version'] != '1.3.1-beta.2']
+        calendar['source_baseline'].update(release='v1.3.1-beta.1', product_source=calendar['published_releases'][0]['product_source'])
+        calendar['chimera_weekly'][0].update(version=version, tag='v'+version)
+        calendar['development_candidates'][0].update(version=version, tag='v'+version)
+        self.write_json(self.root / 'Validation/release-calendar.json', calendar)
+        text = (REAL_ROOT / 'docs/RELEASE_CALENDAR_2026_2027.md').read_text(encoding='utf-8').replace('`1.3.1-beta.3` |', '`'+version+'` |')
+        self.write('docs/RELEASE_CALENDAR_2026_2027.md', text)
+        catalog = json.loads((REAL_ROOT / 'Validation/catalog-count-contract.json').read_text(encoding='utf-8'))
+        catalog['roadmap']['delivered_baseline']['version'] = '1.3.1-beta.1'
+        catalog['roadmap']['quality_followup']['weekly_versions'][0]['version'] = version
+        self.write_json(self.root / 'Validation/catalog-count-contract.json', catalog)
         self.source = self.commit("tested " + version)
         self.release = publisher.Release(version, self.source)
         return self.release
@@ -340,7 +353,7 @@ class CIContracts(unittest.TestCase):
 
     def test_exact_workflows_and_three_platform_jobs_remain_required(self):
         self.assertEqual(set(publisher.WORKFLOWS), {"build.yml", "update-candidate.yml", "cab-panel.yml",
-            "cab-realtime.yml", "amp-head-controls.yml", "signal-path.yml", "graphical-eq.yml"})
+            "cab-realtime.yml", "amp-head-controls.yml", "signal-path.yml", "graphical-eq.yml", "release-publisher.yml"})
         self.assertEqual(publisher.verify_ci(self.api, self.release)["candidate"]["name"], self.release.artifact_name)
         for workflow, jobs in self.jobs.items():
             for index, job in enumerate(jobs):
@@ -402,6 +415,7 @@ class InvocationContracts(SourceFixture):
             GITHUB_EVENT_NAME="workflow_dispatch", GITHUB_REF="refs/heads/trunk", GITHUB_RUN_ID="900")
         self.api = Mock()
         self.api.json.side_effect = self.response
+        self.api.pages.return_value = []
         self.args = SimpleNamespace(confirm=self.release.confirm, source_sha=self.source,
             candidate_dir=None, candidate_zip=None, artifact_json=None, gate_archive=None,
             run_id=None, run_attempt=None, wait_ci_seconds=0)
@@ -425,6 +439,20 @@ class InvocationContracts(SourceFixture):
             with self.assertRaisesRegex(RuntimeError, "missing exact CI"):
                 publisher.publish(self.args, self.release, self.policy, self.proof)
         ci.assert_called_once_with(self.api, self.release)
+        publish.assert_not_called()
+
+    def test_consumed_reservation_stops_before_ci_downloads_or_publication(self):
+        self.api.pages.return_value = [{"ref": "refs/tags/" + self.release.tag}]
+        def inventory(path):
+            return [{"ref": "refs/tags/" + self.release.tag}] if path == "/git/refs/tags" else []
+        self.api.pages.side_effect = inventory
+        with patch.dict(publisher.os.environ, self.environment), \
+             patch.object(publisher.transport, "GitHub", return_value=self.api), \
+             patch.object(publisher, "verify_ci") as ci, patch.object(publisher.transport, "publish") as publish:
+            with self.assertRaisesRegex(ValueError, "already consumed"):
+                publisher.publish(self.args, self.release, self.policy, self.proof)
+        ci.assert_not_called()
+        self.api.download.assert_not_called()
         publish.assert_not_called()
 
     def test_feature_branch_and_wrong_workflow_cannot_reach_ci_or_mutation(self):
@@ -481,6 +509,35 @@ class InvocationContracts(SourceFixture):
              patch.object(publisher.weekly_publication, "render_markdown", return_value="fixture disclosure"), \
              patch.object(publisher.transport, "publish", side_effect=staged):
             with self.assertRaisesRegex(RuntimeError, "runs or artifacts changed"):
+                publisher.publish(self.args, self.release, self.policy, self.proof)
+        self.assertEqual(outcome, ["staged"])
+
+
+    def test_consumed_tag_after_staging_blocks_final_publication_callback(self):
+        ci = dict(runs={"build.yml": dict(id=RUN, run_attempt=ATTEMPT, head_sha=self.source)},
+            candidate=dict(id=1, name=self.release.artifact_name, digest="sha256:" + "a" * 64, size_in_bytes=10),
+            gate=dict(id=2, name=publisher.GATE_ARTIFACT_NAME, digest="sha256:" + "b" * 64, size_in_bytes=10))
+        changed = copy.deepcopy(ci)
+        changed["runs"]["build.yml"]["run_attempt"] += 1
+        outcome = []
+        def staged(api, notes, assets, **kwargs):
+            outcome.append("staged")
+            self.api.pages.side_effect = lambda path: ([{"ref": "refs/tags/" + self.release.tag}]
+                if path == "/git/refs/tags" else [])
+            kwargs["before_publish"]()
+            outcome.append("public")
+            return {"html_url": self.release.release_url}
+        with patch.dict(publisher.os.environ, self.environment), \
+             patch.object(publisher.transport, "GitHub", return_value=self.api), \
+             patch.object(publisher, "wait_for_ci", return_value=ci), \
+             patch.object(publisher, "verify_ci", return_value=ci), \
+             patch.object(publisher, "check_archive"), \
+             patch.object(publisher, "verify_release_gate_archive", return_value=({}, {"publication_allowed": True})), \
+             patch.object(publisher.transport, "extract_candidate"), \
+             patch.object(publisher, "prepare_assets", return_value=(self.notes, {})), \
+             patch.object(publisher.weekly_publication, "render_markdown", return_value="fixture disclosure"), \
+             patch.object(publisher.transport, "publish", side_effect=staged):
+            with self.assertRaisesRegex(ValueError, "already consumed"):
                 publisher.publish(self.args, self.release, self.policy, self.proof)
         self.assertEqual(outcome, ["staged"])
 

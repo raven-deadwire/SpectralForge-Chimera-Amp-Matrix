@@ -29,3 +29,38 @@ jobs:
           python Tools/test_publish_beta131.py
           python Tools/test_beta_publication131.py
           python Tools/test_release_consolidator.py
+
+  calendar-contracts:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-24.04, windows-latest, macos-15]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - name: Check reservations and adversarial regression contracts
+        run: |
+          python Tools/check_release_calendar.py
+          python Tools/test_release_calendar.py
+  calendar-live:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - name: Reject remote tags and public releases already consuming reservations
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python Tools/check_release_calendar.py --live

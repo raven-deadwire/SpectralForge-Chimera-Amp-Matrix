@@ -1,0 +1,1672 @@
+{
+  "schema": "spectralforge.release-plan",
+  "schema_version": 2,
+  "updated_at": "2026-10-15",
+  "timezone": "Asia/Seoul",
+  "status": "planning_only_not_release_or_updater_manifest",
+  "source_baseline": {
+    "release": "v1.3.1-beta.2",
+    "product_source": "6033236cb81820a43679cbbd34be020804f9658d",
+    "main": "b4930839a7384a411e6c37e3570d77069f41a024",
+    "planning_parent": "24ac379588f47b257786dbe0da82257bcece1ef1"
+  },
+  "authority": {
+    "work_windows": "docs/DEVELOPMENT_ROADMAP_2026_2027.md",
+    "release_rows": "Validation/release-calendar.json",
+    "human_readable": "docs/RELEASE_CALENDAR_2026_2027.md"
+  },
+  "policy": {
+    "all_dates_are_targets": true,
+    "weekly_test_minimum": 1,
+    "same_capacity_budget": true,
+    "published_tags_immutable": true,
+    "beta_counter_per_product_and_base": true,
+    "stable_promotion_requires_acceptance": true,
+    "empty_update_prohibited": true,
+    "if_missed": "Record the failed target and internal build scope. Remap unpublished reservations before the next publication. If 1.3.2 ships first, cancel the unpublished lower 1.3.1-beta.3 reservation; never publish it afterward or reuse beta.2.",
+    "hotfix_reservation": "Use next unused patch after stable; remap later reserved versions before publication. Do not publish lower-precedence betas after a stable base.",
+    "baseline_platform_contract": "Chimera current public publisher requires Windows, macOS and Linux packages. Focused products need explicit separate platform matrices; changing names alone does not implement that separation.",
+    "preview_upgrade": "Internal preview builds are excluded from public update selection. Provide explicit manual transition to the first beta unless preview-to-beta migration has been implemented and verified.",
+    "maintenance_scope": "Future maintenance descriptions identify review risks, not proof that each named defect exists today.",
+    "stable_channel_transition": "Notify existing beta users of the qualified stable successor; stable installs follow stable by default, with beta opt-in explicit. Verify product-specific feeds and preview-to-beta/manual transition.",
+    "publication_requirements": [
+      "substantive_implemented_improvement",
+      "exact_source_windows_macos_linux_validation",
+      "install_update_repair_uninstall_and_user_data_preservation",
+      "applicable_host_package_acceptance",
+      "version_source_specific_publication_approval",
+      "approved_expiry_and_fresh_binary_if_lifecycle_enabled"
+    ],
+    "calendar_is_not_approval": true,
+    "published_history_update": "After publication, mark the matching row published and add its immutable tag/source to published_releases before reserving the next build. Never delete or move a published tag."
+  },
+  "chimera_weekly": [
+    {
+      "product": "Chimera",
+      "version": "1.3.1-beta.3",
+      "test_build_date": "2026-10-14",
+      "candidate_date": "2026-10-15",
+      "publication_target": "2026-10-16",
+      "scope": "PR #62의 베타 만료·업데이트 안내·상태 보존 기능을 조건부 검증한다. 만료일 승인 및 승인 날짜를 넣은 새 바이너리의 세 OS·설치·업데이트·호스트 검사와 배포 승인이 필요하다. 투명·고헤드룸 베이스 연구와 Avalanche NAM 검증 착수·42앰프 정합성 검토는 별도 연구이며 코드 납품을 대신하지 않는다.",
+      "kind": "public_beta",
+      "conditional": true,
+      "status": "blocked",
+      "tag": "v1.3.1-beta.3",
+      "required_platforms": [
+        "windows_x64",
+        "macos_universal",
+        "linux_x86_64"
+      ],
+      "publication_requires": "applicable_source_platform_host_package_acceptance",
+      "research_qualification": {
+        "status": "registered_not_qualified",
+        "reference": "docs/DEVELOPMENT_ROADMAP_2026_2027.md#october-13-addition--transparent-power-bass-research-in-the-next-update",
+        "next_review": "2026-10-23",
+        "target_amp_count": 42,
+        "existing_count_plan_requires_reconciliation": true
+      },
+      "candidate_pr": 62,
+      "release_approved": false
+    },
+    {
+      "product": "Chimera",
+      "version": "1.3.2-beta.1",
+      "test_build_date": "2026-10-21",
+      "candidate_date": "2026-10-22",
+      "publication_target": "2026-10-23",
+      "scope": "PR #68의 수명주기·신호체인·정밀/스트로브 튜너·공통 다이내믹스 통합 후보를 검증하고, 큰 EQ 화면의 IN/OUT 채움 그래프·스무딩·해상도·Freeze 및 고정 밴드 ID를 유지하는 추가·삭제·Undo/Redo를 충족한다. 후보의 현재 실패를 해결한 동일 소스 재검증과 별도 배포 승인이 필요하다.",
+      "kind": "public_beta",
+      "conditional": true,
+      "status": "blocked",
+      "tag": "v1.3.2-beta.1",
+      "required_platforms": [
+        "windows_x64",
+        "macos_universal",
+        "linux_x86_64"
+      ],
+      "publication_requires": "applicable_source_platform_host_package_acceptance",
+      "candidate_pr": 68,
+      "release_approved": false
+    },
+    {
+      "product": "Chimera",
+      "version": "1.3.2-beta.2",
+      "test_build_date": "2026-10-28",
+      "candidate_date": "2026-10-29",
+      "publication_target": "2026-10-30",
+      "scope": "EQ 다중 선택·밴드 청취·로컬 A/B와 peak hold·표시 범위 조절을 추가하고 마우스·키보드 조작 및 노브 가독성을 개선한다.",
+      "kind": "public_beta",
+      "conditional": true,
+      "status": "planned",
+      "tag": "v1.3.2-beta.2",
+      "required_platforms": [
+        "windows_x64",
+        "macos_universal",
+        "linux_x86_64"
+      ],
+      "publication_requires": "applicable_source_platform_host_package_acceptance"
+    },
+    {
+      "product": "Chimera",
+      "version": "1.3.2-beta.3",
+      "test_build_date": "2026-11-04",
+      "candidate_date": "2026-11-05",
+      "publication_target": "2026-11-06",
+      "scope": "1.3.2 통합 후보에 들어간 기능의 후속 검증·실제 개선: Tone EQ와 Final EQ를 합쳐 최대 네 노드에 동적 검출·감쇠 범위·실제 GR 표시를 추가하고 기존 정적 밴드 상태를 보존한다. 이미 제공한 구현·번호 변경만으로 주간 납품을 중복 집계하지 않는다.",
+      "kind": "public_beta",
+      "conditional": true,
+      "status": "planned",
+      "tag": "v1.3.2-beta.3",
+      "required_platforms": [
+        "windows_x64",
+        "macos_universal",
+        "linux_x86_64"
+      ],
+      "publication_requires": "applicable_source_platform_host_package_acceptance"
+    },
+    {
+      "product": "Chimera",
+      "version": "1.3.2-beta.4",
+      "test_build_date": "2026-11-11",
+      "candidate_date": "2026-11-12",
+      "publication_target": "2026-11-13",
+      "scope": "1.3.2 통합 후보에 들어간 기능의 후속 검증·실제 개선: 공용 클린 컴프레서의 검출·어택·릴리스·병렬 혼합과 GR 응답을 구현하고 Dynamic EQ의 저역·팜뮤트 반응을 보완한다. 이미 제공한 구현·번호 변경만으로 주간 납품을 중복 집계하지 않는다.",
+      "kind": "public_beta",
+      "conditional": true,
+      "status": "planned",
+      "tag": "v1.3.2-beta.4",
+      "required_platforms": [
+        "windows_x64",
+        "macos_universal",
+        "linux_x86_64"
+      ],
+      "publication_requires": "applicable_source_platform_host_package_acceptance"
+    },
+    {
+      "product": "Chimera",
+      "version": "1.3.2-beta.5",
+      "test_build_date": "2026-11-18",
+      "candidate_date": "2026-11-19",
+      "publication_target": "2026-11-20",
+      "scope": "1.3.2 통합 후보에 들어간 기능의 후속 검증·실제 개선: 게이트·익스팬더의 DI 검출과 Hold·Release·Range 동작을 개선하고 최종 출력 뒤에 추가 게인이 없는 Live 피크 리미터를 연결한다. 이미 제공한 구현·번호 변경만으로 주간 납품을 중복 집계하지 않는다.",
+      "kind": "public_beta",
+      "conditional": true,
+      "status": "planned",
+      "tag": "v1.3.2-beta.5",
+      "required_platforms": [
+        "windows_x64",
+        "macos_universal",
+        "linux_x86_64"
+      ],
+      "publication_requires": "applicable_source_platform_host_package_acceptance"
+    },
+    {
+      "product": "Chimera",
+      "version": "1.3.2-beta.6",
+      "test_build_date": "2026-11-25",
+      "candidate_date": "2026-11-26",
+      "publication_target": "2026-11-27",
+      "scope": "1.3.2 통합 후보에 들어간 기능의 후속 검증·실제 개선: 공용 다이내믹스의 bypass 전환·파라미터 자동화·세션 복원과 낮은 음의 어택·서스테인 관련 결함을 수정한다. 이미 제공한 구현·번호 변경만으로 주간 납품을 중복 집계하지 않는다.",
+      "kind": "public_beta",
+      "conditional": true,
+      "status": "planned",
+      "tag": "v1.3.2-beta.6",
+      "required_platforms": [
+        "windows_x64",
+        "macos_universal",
+        "linux_x86_64"
+      ],
+      "publication_requires": "applicable_source_platform_host_package_acceptance"
+    },
+    {
+      "product": "Chimera",
+      "version": "1.3.3-beta.1",
+      "test_build_date": "2026-12-02",
+      "candidate_date": "2026-12-03",
+      "publication_target": "2026-12-04",
+      "scope": "1.3.3 공용 Original FX의 첫 증분으로 기존 엔진을 활용한 기타 BOOST의 Boost·Tight·Tone 반응과 앰프 입력 정돈을 개선한다.",
+      "kind": "public_beta",
+      "conditional": true,
+      "status": "planned",
+      "tag": "v1.3.3-beta.1",
+      "required_platforms": [
+        "windows_x64",
+        "macos_universal",
+        "linux_x86_64"
+      ],
+      "publication_requires": "applicable_source_platform_host_package_acceptance"
+    },
+    {
+      "product": "Chimera",
+      "version": "1.3.3-beta.2",
+      "test_build_date": "2026-12-09",
+      "candidate_date": "2026-12-10",
+      "publication_target": "2026-12-11",
+      "scope": "베이스 DRIVE·FUZZ의 삽입 경계와 저역 보이싱을 구현하고 native LOW·Blend가 raw DI bypass로 오인되지 않도록 처리와 표시를 맞춘다.",
+      "kind": "public_beta",
+      "conditional": true,
+      "status": "planned",
+      "tag": "v1.3.3-beta.2",
+      "required_platforms": [
+        "windows_x64",
+        "macos_universal",
+        "linux_x86_64"
+      ],
+      "publication_requires": "applicable_source_platform_host_package_acceptance"
+    },
+    {
+      "product": "Chimera",
+      "version": "1.3.3-beta.3",
+      "test_build_date": "2026-12-16",
+      "candidate_date": "2026-12-17",
+      "publication_target": "2026-12-18",
+      "scope": "독립적인 FX 인스턴스와 상태를 사용하는 교체형 PRE 슬롯 기반을 추가하되 Chimera는 다섯 슬롯, 별도 제품은 네 슬롯을 유지한다.",
+      "kind": "public_beta",
+      "conditional": true,
+      "status": "planned",
+      "tag": "v1.3.3-beta.3",
+      "required_platforms": [
+        "windows_x64",
+        "macos_universal",
+        "linux_x86_64"
+      ],
+      "publication_requires": "applicable_source_platform_host_package_acceptance"
+    },
+    {
+      "product": "Chimera",
+      "version": "1.3.3-beta.4",
+      "test_build_date": "2026-12-23",
+      "candidate_date": "2026-12-24",
+      "publication_target": "2026-12-25",
+      "scope": "기존 COMP·EQ·Pitch·Wah·Modulation·공간계에서 검증된 기능을 공용 모듈로 연결하고 제품별 선택 목록과 bypass·상태 복원을 정리한다.",
+      "kind": "public_beta",
+      "conditional": true,
+      "status": "planned",
+      "tag": "v1.3.3-beta.4",
+      "required_platforms": [
+        "windows_x64",
+        "macos_universal",
+        "linux_x86_64"
+      ],
+      "publication_requires": "applicable_source_platform_host_package_acceptance"
+    },
+    {
+      "product": "Chimera",
+      "version": "1.3.3-beta.5",
+      "test_build_date": "2026-12-30",
+      "candidate_date": "2026-12-31",
+      "publication_target": "2027-01-01",
+      "scope": "공용 FX 분리로 영향을 받는 Chimera의 기존 프리셋·고정 파라미터 ID·슬롯 선택 복원을 수정해 이전 세션의 소리를 보존한다.",
+      "kind": "public_beta",
+      "conditional": true,
+      "status": "planned",
+      "tag": "v1.3.3-beta.5",
+      "required_platforms": [
+        "windows_x64",
+        "macos_universal",
+        "linux_x86_64"
+      ],
+      "publication_requires": "applicable_source_platform_host_package_acceptance"
+    },
+    {
+      "product": "Chimera",
+      "version": "1.3.3-beta.6",
+      "test_build_date": "2027-01-06",
+      "candidate_date": "2027-01-07",
+      "publication_target": "2027-01-08",
+      "scope": "이미 구현된 beta/RC/stable 생성·publisher·수신 경로를 세 제품별 설치·업데이트·정식 채널 전환에 적용하고 실제 패키지/호스트 회귀를 보완한다. 기존 베타의 정식판 탐색과 stable 기본 수신을 검증한다.",
+      "kind": "public_beta",
+      "conditional": true,
+      "status": "planned",
+      "tag": "v1.3.3-beta.6",
+      "required_platforms": [
+        "windows_x64",
+        "macos_universal",
+        "linux_x86_64"
+      ],
+      "publication_requires": "applicable_source_platform_host_package_acceptance"
+    },
+    {
+      "product": "Chimera",
+      "version": "1.3.3-beta.7",
+      "test_build_date": "2027-01-13",
+      "candidate_date": "2027-01-14",
+      "publication_target": "2027-01-15",
+      "scope": "나스트론드 제품과 공유하는 앰프 코드의 채널별 13개 조절값 기억·초기화 및 FX 전환 레벨 처리를 개선한다.",
+      "kind": "public_beta",
+      "conditional": true,
+      "status": "planned",
+      "tag": "v1.3.3-beta.7",
+      "required_platforms": [
+        "windows_x64",
+        "macos_universal",
+        "linux_x86_64"
+      ],
+      "publication_requires": "applicable_source_platform_host_package_acceptance"
+    },
+    {
+      "product": "Chimera",
+      "version": "1.3.3-beta.8",
+      "test_build_date": "2027-01-20",
+      "candidate_date": "2027-01-21",
+      "publication_target": "2027-01-22",
+      "scope": "나스트론드 공용화 과정에서 드러난 Chimera의 PRE bypass 크로스페이드·A/B 복원과 프리셋 초기화 결함을 수정한다.",
+      "kind": "public_beta",
+      "conditional": true,
+      "status": "planned",
+      "tag": "v1.3.3-beta.8",
+      "required_platforms": [
+        "windows_x64",
+        "macos_universal",
+        "linux_x86_64"
+      ],
+      "publication_requires": "applicable_source_platform_host_package_acceptance"
+    },
+    {
+      "product": "Chimera",
+      "version": "1.3.3-beta.9",
+      "test_build_date": "2027-01-27",
+      "candidate_date": "2027-01-28",
+      "publication_target": "2027-01-29",
+      "scope": "니플헤임 공용 코드의 LOW·clean/dirty Blend 전환과 채널별 14개 조절값 복원을 보완하고 기존 Matrix DI/AMP Mix 의미를 유지한다.",
+      "kind": "public_beta",
+      "conditional": true,
+      "status": "planned",
+      "tag": "v1.3.3-beta.9",
+      "required_platforms": [
+        "windows_x64",
+        "macos_universal",
+        "linux_x86_64"
+      ],
+      "publication_requires": "applicable_source_platform_host_package_acceptance"
+    },
+    {
+      "product": "Chimera",
+      "version": "1.3.3-beta.10",
+      "test_build_date": "2027-02-03",
+      "candidate_date": "2027-02-04",
+      "publication_target": "2027-02-05",
+      "scope": "니플헤임과 공유하는 베이스 DRIVE·FUZZ의 bypass 전환 및 저역 트랜지언트 처리를 개선하고 PRE 활성 상태에서 Blend 응답을 일관되게 만든다.",
+      "kind": "public_beta",
+      "conditional": true,
+      "status": "planned",
+      "tag": "v1.3.3-beta.10",
+      "required_platforms": [
+        "windows_x64",
+        "macos_universal",
+        "linux_x86_64"
+      ],
+      "publication_requires": "applicable_source_platform_host_package_acceptance"
+    },
+    {
+      "product": "Chimera",
+      "version": "1.3.3-beta.11",
+      "test_build_date": "2027-02-10",
+      "candidate_date": "2027-02-11",
+      "publication_target": "2027-02-12",
+      "scope": "Chimera와 별도 제품의 개인 IR·캐비넷 선택·프리셋 경로가 섞이지 않도록 공용 로더와 상태 식별 처리를 수정한다.",
+      "kind": "public_beta",
+      "conditional": true,
+      "status": "planned",
+      "tag": "v1.3.3-beta.11",
+      "required_platforms": [
+        "windows_x64",
+        "macos_universal",
+        "linux_x86_64"
+      ],
+      "publication_requires": "applicable_source_platform_host_package_acceptance"
+    },
+    {
+      "product": "Chimera",
+      "version": "1.3.3-beta.12",
+      "test_build_date": "2027-02-17",
+      "candidate_date": "2027-02-18",
+      "publication_target": "2027-02-19",
+      "scope": "세 제품이 공유하는 DSP·UI 자원의 해제와 인스턴스별 상태 소유권을 정리하고 업데이트·제거 중 다른 제품의 사용자 자산을 보존한다.",
+      "kind": "public_beta",
+      "conditional": true,
+      "status": "planned",
+      "tag": "v1.3.3-beta.12",
+      "required_platforms": [
+        "windows_x64",
+        "macos_universal",
+        "linux_x86_64"
+      ],
+      "publication_requires": "applicable_source_platform_host_package_acceptance"
+    },
+    {
+      "product": "Chimera",
+      "version": "1.3.4-beta.1",
+      "test_build_date": "2027-02-24",
+      "candidate_date": "2027-02-25",
+      "publication_target": "2027-02-26",
+      "scope": "1.3.4 Room Core의 공용 wet 버스·리그별 Send·상태 파라미터를 추가하고 Room Off 및 LOW DI 전용 경로의 기존 출력을 보존한다.",
+      "kind": "public_beta",
+      "conditional": true,
+      "status": "planned",
+      "tag": "v1.3.4-beta.1",
+      "required_platforms": [
+        "windows_x64",
+        "macos_universal",
+        "linux_x86_64"
+      ],
+      "publication_requires": "applicable_source_platform_host_package_acceptance"
+    },
+    {
+      "product": "Chimera",
+      "version": "1.3.4-beta.2",
+      "test_build_date": "2027-03-03",
+      "candidate_date": "2027-03-04",
+      "publication_target": "2027-03-05",
+      "scope": "Room Size·Absorption에 반응하는 초기 반사와 후기 감쇠를 구현해 Classic·Dual·Matrix에서 실제로 조절되는 룸 시제품을 만든다.",
+      "kind": "public_beta",
+      "conditional": true,
+      "status": "planned",
+      "tag": "v1.3.4-beta.2",
+      "required_platforms": [
+        "windows_x64",
+        "macos_universal",
+        "linux_x86_64"
+      ],
+      "publication_requires": "applicable_source_platform_host_package_acceptance"
+    },
+    {
+      "product": "Chimera",
+      "version": "1.3.4-beta.3",
+      "test_build_date": "2027-03-10",
+      "candidate_date": "2027-03-11",
+      "publication_target": "2027-03-12",
+      "scope": "RIGS/CAB의 Room 기본 조절 UI·자동화·A/B·세션 복원과 부드러운 전환을 추가하고 첫 Room Core 설치본에 연결한다.",
+      "kind": "public_beta",
+      "conditional": true,
+      "status": "planned",
+      "tag": "v1.3.4-beta.3",
+      "required_platforms": [
+        "windows_x64",
+        "macos_universal",
+        "linux_x86_64"
+      ],
+      "publication_requires": "applicable_source_platform_host_package_acceptance"
+    },
+    {
+      "product": "Chimera",
+      "version": "1.3.4-beta.4",
+      "test_build_date": "2027-03-17",
+      "candidate_date": "2027-03-18",
+      "publication_target": "2027-03-19",
+      "scope": "Room 입력에 기존 gate envelope를 적용하고 생성된 tail을 보존하도록 Send·Return 및 bypass 전환의 플랫폼·호스트 회귀를 수정한다.",
+      "kind": "public_beta",
+      "conditional": true,
+      "status": "planned",
+      "tag": "v1.3.4-beta.4",
+      "required_platforms": [
+        "windows_x64",
+        "macos_universal",
+        "linux_x86_64"
+      ],
+      "publication_requires": "applicable_source_platform_host_package_acceptance"
+    },
+    {
+      "product": "Chimera",
+      "version": "1.4.0-beta.1",
+      "test_build_date": "2027-03-24",
+      "candidate_date": "2027-03-25",
+      "publication_target": "2027-03-26",
+      "scope": "Matrix 앰프 분할과 독립적인 네 밴드 다이내믹스의 대역 분리·합산·솔로 경로를 구현하고 원신호와의 위상·레벨 관계를 유지한다.",
+      "kind": "public_beta",
+      "conditional": true,
+      "status": "planned",
+      "tag": "v1.4.0-beta.1",
+      "required_platforms": [
+        "windows_x64",
+        "macos_universal",
+        "linux_x86_64"
+      ],
+      "publication_requires": "applicable_source_platform_host_package_acceptance"
+    },
+    {
+      "product": "Chimera",
+      "version": "1.4.0-beta.2",
+      "test_build_date": "2027-03-31",
+      "candidate_date": "2027-04-01",
+      "publication_target": "2027-04-02",
+      "scope": "독립 네 밴드의 Threshold·Ratio·Attack·Release·검출 범위·청취·GR 조절을 연결해 실제 오디오를 처리하는 시제품을 만든다.",
+      "kind": "public_beta",
+      "conditional": true,
+      "status": "planned",
+      "tag": "v1.4.0-beta.2",
+      "required_platforms": [
+        "windows_x64",
+        "macos_universal",
+        "linux_x86_64"
+      ],
+      "publication_requires": "applicable_source_platform_host_package_acceptance"
+    },
+    {
+      "product": "Chimera",
+      "version": "1.4.0-beta.3",
+      "test_build_date": "2027-04-07",
+      "candidate_date": "2027-04-08",
+      "publication_target": "2027-04-09",
+      "scope": "Room Return·Final EQ·최종 리미터의 고정 역할을 유지하면서 허용된 블록만 옮기는 제한적 순서 편집과 상태 저장·Undo를 구현한다.",
+      "kind": "public_beta",
+      "conditional": true,
+      "status": "planned",
+      "tag": "v1.4.0-beta.3",
+      "required_platforms": [
+        "windows_x64",
+        "macos_universal",
+        "linux_x86_64"
+      ],
+      "publication_requires": "applicable_source_platform_host_package_acceptance"
+    },
+    {
+      "product": "Chimera",
+      "version": "1.4.0-beta.4",
+      "test_build_date": "2027-04-14",
+      "candidate_date": "2027-04-15",
+      "publication_target": "2027-04-16",
+      "scope": "PRE A의 첫 두 모델인 Heavy Menace와 Tel-Ray Power Wah Boost를 기존 모델 ID 뒤에 추가하고 각각의 입력·출력 레벨과 조절 반응을 다듬는다.",
+      "kind": "public_beta",
+      "conditional": true,
+      "status": "planned",
+      "tag": "v1.4.0-beta.4",
+      "required_platforms": [
+        "windows_x64",
+        "macos_universal",
+        "linux_x86_64"
+      ],
+      "publication_requires": "applicable_source_platform_host_package_acceptance"
+    },
+    {
+      "product": "Chimera",
+      "version": "1.4.0-beta.5",
+      "test_build_date": "2027-04-21",
+      "candidate_date": "2027-04-22",
+      "publication_target": "2027-04-23",
+      "scope": "PRE A의 다음 두 모델인 MXR MB301 Bass Synth와 EBS MultiComp를 추가하고 입력 추적·검출 및 기존 PRE 인스턴스와의 상태 분리를 구현한다.",
+      "kind": "public_beta",
+      "conditional": true,
+      "status": "planned",
+      "tag": "v1.4.0-beta.5",
+      "required_platforms": [
+        "windows_x64",
+        "macos_universal",
+        "linux_x86_64"
+      ],
+      "publication_requires": "applicable_source_platform_host_package_acceptance"
+    },
+    {
+      "product": "Chimera",
+      "version": "1.4.0-beta.6",
+      "test_build_date": "2027-04-28",
+      "candidate_date": "2027-04-29",
+      "publication_target": "2027-04-30",
+      "scope": "PRE A의 마지막 두 모델인 Fortin 33과 Empress ParaEQ MKII를 추가해 여섯 모델 구성을 완성하고 다이내믹스·순서 편집과의 통합 결함을 수정한다.",
+      "kind": "public_beta",
+      "conditional": true,
+      "status": "planned",
+      "tag": "v1.4.0-beta.6",
+      "required_platforms": [
+        "windows_x64",
+        "macos_universal",
+        "linux_x86_64"
+      ],
+      "publication_requires": "applicable_source_platform_host_package_acceptance"
+    },
+    {
+      "product": "Chimera",
+      "version": "1.5.0-beta.1",
+      "test_build_date": "2027-05-05",
+      "candidate_date": "2027-05-06",
+      "publication_target": "2027-05-07",
+      "scope": "PRE B의 첫 두 모델인 Revv G3와 Wampler Dracarys를 추가하고 각 모델의 클리핑·톤 범위와 기존 프리셋 호환을 정리한다.",
+      "kind": "public_beta",
+      "conditional": true,
+      "status": "planned",
+      "tag": "v1.5.0-beta.1",
+      "required_platforms": [
+        "windows_x64",
+        "macos_universal",
+        "linux_x86_64"
+      ],
+      "publication_requires": "applicable_source_platform_host_package_acceptance"
+    },
+    {
+      "product": "Chimera",
+      "version": "1.5.0-beta.2",
+      "test_build_date": "2027-05-12",
+      "candidate_date": "2027-05-13",
+      "publication_target": "2027-05-14",
+      "scope": "PRE B의 다음 두 모델인 MXR Slash Octave Fuzz와 Dunlop 535Q를 추가하고 옥타브·퍼즈 결합과 와우 범위의 조절 반응을 구현한다.",
+      "kind": "public_beta",
+      "conditional": true,
+      "status": "planned",
+      "tag": "v1.5.0-beta.2",
+      "required_platforms": [
+        "windows_x64",
+        "macos_universal",
+        "linux_x86_64"
+      ],
+      "publication_requires": "applicable_source_platform_host_package_acceptance"
+    },
+    {
+      "product": "Chimera",
+      "version": "1.5.0-beta.3",
+      "test_build_date": "2027-05-19",
+      "candidate_date": "2027-05-20",
+      "publication_target": "2027-05-21",
+      "scope": "PRE B의 마지막 두 모델인 BOSS GE-7과 DigiTech Whammy를 추가하되 Whammy는 별도로 검증된 피치 구현과 실제 지연값을 사용한다.",
+      "kind": "public_beta",
+      "conditional": true,
+      "status": "planned",
+      "tag": "v1.5.0-beta.3",
+      "required_platforms": [
+        "windows_x64",
+        "macos_universal",
+        "linux_x86_64"
+      ],
+      "publication_requires": "applicable_source_platform_host_package_acceptance"
+    },
+    {
+      "product": "Chimera",
+      "version": "1.5.0-beta.4",
+      "test_build_date": "2027-05-26",
+      "candidate_date": "2027-05-27",
+      "publication_target": "2027-05-28",
+      "scope": "PRE 드래그 재정렬과 자동화·Undo 복원을 완성하고 별도 기준을 통과한 여섯 밴드 다이내믹스 및 Studio true-peak·LUFS 옵션만 연결한다.",
+      "kind": "public_beta",
+      "conditional": true,
+      "status": "planned",
+      "tag": "v1.5.0-beta.4",
+      "required_platforms": [
+        "windows_x64",
+        "macos_universal",
+        "linux_x86_64"
+      ],
+      "publication_requires": "applicable_source_platform_host_package_acceptance"
+    },
+    {
+      "product": "Chimera",
+      "version": "1.6.0-beta.1",
+      "test_build_date": "2027-06-02",
+      "candidate_date": "2027-06-03",
+      "publication_target": "2027-06-04",
+      "scope": "다섯 앰프 추가의 첫 모델인 Crystal 120의 JC-120 참고 보이싱과 클린 채널 조절을 구현하고 기존 앰프 ID 뒤에 추가한다.",
+      "kind": "public_beta",
+      "conditional": true,
+      "status": "planned",
+      "tag": "v1.6.0-beta.1",
+      "required_platforms": [
+        "windows_x64",
+        "macos_universal",
+        "linux_x86_64"
+      ],
+      "publication_requires": "applicable_source_platform_host_package_acceptance"
+    },
+    {
+      "product": "Chimera",
+      "version": "1.6.0-beta.2",
+      "test_build_date": "2027-06-09",
+      "candidate_date": "2027-06-10",
+      "publication_target": "2027-06-11",
+      "scope": "두 번째 추가 앰프인 1987X Plexi의 게인·톤·출력단 반응을 구현하고 공유 oversampling·프리셋 복원 경로에 연결한다.",
+      "kind": "public_beta",
+      "conditional": true,
+      "status": "planned",
+      "tag": "v1.6.0-beta.2",
+      "required_platforms": [
+        "windows_x64",
+        "macos_universal",
+        "linux_x86_64"
+      ],
+      "publication_requires": "applicable_source_platform_host_package_acceptance"
+    },
+    {
+      "product": "Chimera",
+      "version": "1.6.0-beta.3",
+      "test_build_date": "2027-06-16",
+      "candidate_date": "2027-06-17",
+      "publication_target": "2027-06-18",
+      "scope": "세 번째 추가 앰프인 JCM800 2203의 게인 구조와 피킹·팜뮤트 반응을 구현하고 레벨 정렬과 채널 기억을 적용한다.",
+      "kind": "public_beta",
+      "conditional": true,
+      "status": "planned",
+      "tag": "v1.6.0-beta.3",
+      "required_platforms": [
+        "windows_x64",
+        "macos_universal",
+        "linux_x86_64"
+      ],
+      "publication_requires": "applicable_source_platform_host_package_acceptance"
+    },
+    {
+      "product": "Chimera",
+      "version": "1.6.0-beta.4",
+      "test_build_date": "2027-06-23",
+      "candidate_date": "2027-06-24",
+      "publication_target": "2027-06-25",
+      "scope": "Hiwatt DR103과 사전 선정한 Glockenklang Blue Rock 또는 Vanderkley Aurora 중 베이스 헤드 한 종을 순서대로 추가해 앰프 다섯 종 구성을 완성한다.",
+      "kind": "public_beta",
+      "conditional": true,
+      "status": "planned",
+      "tag": "v1.6.0-beta.4",
+      "required_platforms": [
+        "windows_x64",
+        "macos_universal",
+        "linux_x86_64"
+      ],
+      "publication_requires": "applicable_source_platform_host_package_acceptance"
+    },
+    {
+      "product": "Chimera",
+      "version": "1.6.0-beta.5",
+      "test_build_date": "2027-06-30",
+      "candidate_date": "2027-07-01",
+      "publication_target": "2027-07-02",
+      "scope": "독립 세 밴드 새추레이션에 밴드별 Drive·Mix·타입과 저역 클린 유지 옵션을 추가하고 분기 위상·dry/wet 정렬을 보완한다.",
+      "kind": "public_beta",
+      "conditional": true,
+      "status": "planned",
+      "tag": "v1.6.0-beta.5",
+      "required_platforms": [
+        "windows_x64",
+        "macos_universal",
+        "linux_x86_64"
+      ],
+      "publication_requires": "applicable_source_platform_host_package_acceptance"
+    },
+    {
+      "product": "Chimera",
+      "version": "1.7.0-beta.1",
+      "test_build_date": "2027-07-07",
+      "candidate_date": "2027-07-08",
+      "publication_target": "2027-07-09",
+      "scope": "POST Dynamics/Tone의 첫 세 모델인 Omnipressor·API 2500·Neve 33609를 추가하고 공용 검출·GR 기반에서 각 압축 반응을 구분한다.",
+      "kind": "public_beta",
+      "conditional": true,
+      "status": "planned",
+      "tag": "v1.7.0-beta.1",
+      "required_platforms": [
+        "windows_x64",
+        "macos_universal",
+        "linux_x86_64"
+      ],
+      "publication_requires": "applicable_source_platform_host_package_acceptance"
+    },
+    {
+      "product": "Chimera",
+      "version": "1.7.0-beta.2",
+      "test_build_date": "2027-07-14",
+      "candidate_date": "2027-07-15",
+      "publication_target": "2027-07-16",
+      "scope": "다음 세 POST 모델인 API 512c·Chandler TG2·Grace m101을 추가하고 프리앰프별 입력 헤드룸·색채와 출력 레벨을 정리한다.",
+      "kind": "public_beta",
+      "conditional": true,
+      "status": "planned",
+      "tag": "v1.7.0-beta.2",
+      "required_platforms": [
+        "windows_x64",
+        "macos_universal",
+        "linux_x86_64"
+      ],
+      "publication_requires": "applicable_source_platform_host_package_acceptance"
+    },
+    {
+      "product": "Chimera",
+      "version": "1.7.0-beta.3",
+      "test_build_date": "2027-07-21",
+      "candidate_date": "2027-07-22",
+      "publication_target": "2027-07-23",
+      "scope": "마지막 세 POST 모델인 API 550A·Mäag EQ4·Chandler Curve Bender를 추가하고 각 필터 응답과 파라미터 자동화를 연결한다.",
+      "kind": "public_beta",
+      "conditional": true,
+      "status": "planned",
+      "tag": "v1.7.0-beta.3",
+      "required_platforms": [
+        "windows_x64",
+        "macos_universal",
+        "linux_x86_64"
+      ],
+      "publication_requires": "applicable_source_platform_host_package_acceptance"
+    },
+    {
+      "product": "Chimera",
+      "version": "1.7.0-beta.4",
+      "test_build_date": "2027-07-28",
+      "candidate_date": "2027-07-29",
+      "publication_target": "2027-07-30",
+      "scope": "LP·HP·BP·Notch를 선택하는 공용 두 필터에 LFO·envelope follower와 제한된 변조 경로를 추가하고 필터 전환·상태 복원을 다듬는다.",
+      "kind": "public_beta",
+      "conditional": true,
+      "status": "planned",
+      "tag": "v1.7.0-beta.4",
+      "required_platforms": [
+        "windows_x64",
+        "macos_universal",
+        "linux_x86_64"
+      ],
+      "publication_requires": "applicable_source_platform_host_package_acceptance"
+    },
+    {
+      "product": "Chimera",
+      "version": "1.8.0-beta.1",
+      "test_build_date": "2027-08-04",
+      "candidate_date": "2027-08-05",
+      "publication_target": "2027-08-06",
+      "scope": "Room Advanced의 독립 Early·Late·Decay·Diffusion·wet 필터·Width 파라미터와 상태 기반을 추가하고 적용할 공간 모델의 범위를 명확히 표시한다.",
+      "kind": "public_beta",
+      "conditional": true,
+      "status": "planned",
+      "tag": "v1.8.0-beta.1",
+      "required_platforms": [
+        "windows_x64",
+        "macos_universal",
+        "linux_x86_64"
+      ],
+      "publication_requires": "applicable_source_platform_host_package_acceptance"
+    },
+    {
+      "product": "Chimera",
+      "version": "1.8.0-beta.2",
+      "test_build_date": "2027-08-11",
+      "candidate_date": "2027-08-12",
+      "publication_target": "2027-08-13",
+      "scope": "Motion/Space의 첫 세 모델인 Rotary·Uni-Vibe·Ring Mod를 추가하고 템포·위상·스테레오 변조와 bypass 전환을 구현한다.",
+      "kind": "public_beta",
+      "conditional": true,
+      "status": "planned",
+      "tag": "v1.8.0-beta.2",
+      "required_platforms": [
+        "windows_x64",
+        "macos_universal",
+        "linux_x86_64"
+      ],
+      "publication_requires": "applicable_source_platform_host_package_acceptance"
+    },
+    {
+      "product": "Chimera",
+      "version": "1.8.0-beta.3",
+      "test_build_date": "2027-08-18",
+      "candidate_date": "2027-08-19",
+      "publication_target": "2027-08-20",
+      "scope": "명시한 공간 모델 안에서 치수·표면 흡음·캐비넷과 경계의 거리 및 close Mic A/B와 구분되는 Room Mic 조절이 실제 응답을 바꾸도록 구현한다.",
+      "kind": "public_beta",
+      "conditional": true,
+      "status": "planned",
+      "tag": "v1.8.0-beta.3",
+      "required_platforms": [
+        "windows_x64",
+        "macos_universal",
+        "linux_x86_64"
+      ],
+      "publication_requires": "applicable_source_platform_host_package_acceptance"
+    },
+    {
+      "product": "Chimera",
+      "version": "1.8.0-beta.4",
+      "test_build_date": "2027-08-25",
+      "candidate_date": "2027-08-26",
+      "publication_target": "2027-08-27",
+      "scope": "다음 세 모델인 UltraTap·Rose·DIG를 추가하고 공용 듀얼 딜레이의 템포·feedback 필터·ducking·변조 조절에 연결한다.",
+      "kind": "public_beta",
+      "conditional": true,
+      "status": "planned",
+      "tag": "v1.8.0-beta.4",
+      "required_platforms": [
+        "windows_x64",
+        "macos_universal",
+        "linux_x86_64"
+      ],
+      "publication_requires": "applicable_source_platform_host_package_acceptance"
+    },
+    {
+      "product": "Chimera",
+      "version": "1.8.0-beta.5",
+      "test_build_date": "2027-09-01",
+      "candidate_date": "2027-09-02",
+      "publication_target": "2027-09-03",
+      "scope": "Bricasti 참고 모델·Blackhole·Non-Linear를 추가하고 리버브의 predelay·Width·Decay·wet EQ 조절을 공용 공간계에 연결한다.",
+      "kind": "public_beta",
+      "conditional": true,
+      "status": "planned",
+      "tag": "v1.8.0-beta.5",
+      "required_platforms": [
+        "windows_x64",
+        "macos_universal",
+        "linux_x86_64"
+      ],
+      "publication_requires": "applicable_source_platform_host_package_acceptance"
+    },
+    {
+      "product": "Chimera",
+      "version": "1.8.0-beta.6",
+      "test_build_date": "2027-09-08",
+      "candidate_date": "2027-09-09",
+      "publication_target": "2027-09-10",
+      "scope": "Room Advanced와 공용 딜레이·리버브의 tail·모드 전환·자동화 및 전체 제품 실시간 비용 문제를 수정해 통합 후보에 반영한다.",
+      "kind": "public_beta",
+      "conditional": true,
+      "status": "planned",
+      "tag": "v1.8.0-beta.6",
+      "required_platforms": [
+        "windows_x64",
+        "macos_universal",
+        "linux_x86_64"
+      ],
+      "publication_requires": "applicable_source_platform_host_package_acceptance"
+    },
+    {
+      "product": "Chimera",
+      "version": "1.9.0-beta.1",
+      "test_build_date": "2027-09-15",
+      "candidate_date": "2027-09-16",
+      "publication_target": "2027-09-17",
+      "scope": "Creative의 첫 세 모델인 Slicer·HarPeggiator·Time Warp를 추가하고 템포·트리거·선언된 처리 경로를 구현한다.",
+      "kind": "public_beta",
+      "conditional": true,
+      "status": "planned",
+      "tag": "v1.9.0-beta.1",
+      "required_platforms": [
+        "windows_x64",
+        "macos_universal",
+        "linux_x86_64"
+      ],
+      "publication_requires": "applicable_source_platform_host_package_acceptance"
+    },
+    {
+      "product": "Chimera",
+      "version": "1.9.0-beta.2",
+      "test_build_date": "2027-09-22",
+      "candidate_date": "2027-09-23",
+      "publication_target": "2027-09-24",
+      "scope": "다음 세 Creative 모델인 Laser·Frequency Shifter·Dynamic Freeze를 추가하고 각 변조·주파수 이동·동결 상태의 전환과 복원을 연결한다.",
+      "kind": "public_beta",
+      "conditional": true,
+      "status": "planned",
+      "tag": "v1.9.0-beta.2",
+      "required_platforms": [
+        "windows_x64",
+        "macos_universal",
+        "linux_x86_64"
+      ],
+      "publication_requires": "applicable_source_platform_host_package_acceptance"
+    },
+    {
+      "product": "Chimera",
+      "version": "1.9.0-beta.3",
+      "test_build_date": "2027-09-29",
+      "candidate_date": "2027-09-30",
+      "publication_target": "2027-10-01",
+      "scope": "마지막 세 Creative 모델인 Glitch·Bit Crusher·Granular Texture를 추가하고 버퍼 상한·출력 레벨·bypass tail 처리를 구현한다.",
+      "kind": "public_beta",
+      "conditional": true,
+      "status": "planned",
+      "tag": "v1.9.0-beta.3",
+      "required_platforms": [
+        "windows_x64",
+        "macos_universal",
+        "linux_x86_64"
+      ],
+      "publication_requires": "applicable_source_platform_host_package_acceptance"
+    },
+    {
+      "product": "Chimera",
+      "version": "1.9.0-beta.4",
+      "test_build_date": "2027-10-06",
+      "candidate_date": "2027-10-07",
+      "publication_target": "2027-10-08",
+      "scope": "검증된 multi-tap·pitch-feedback·freeze 딜레이 확장과 고급 변조 경로를 연결하고 시간 효과의 순서 변경·상태 복원 결함을 수정한다.",
+      "kind": "public_beta",
+      "conditional": true,
+      "status": "planned",
+      "tag": "v1.9.0-beta.4",
+      "required_platforms": [
+        "windows_x64",
+        "macos_universal",
+        "linux_x86_64"
+      ],
+      "publication_requires": "applicable_source_platform_host_package_acceptance"
+    },
+    {
+      "product": "Chimera",
+      "version": "1.10.0-beta.1",
+      "test_build_date": "2027-10-13",
+      "candidate_date": "2027-10-14",
+      "publication_target": "2027-10-15",
+      "scope": "공용 SYNTH의 oscillator·filter·envelope 및 MIDI note 처리 기반을 추가하고 오디오 pitch 추적과 별개인 입력 모드를 구성한다.",
+      "kind": "public_beta",
+      "conditional": true,
+      "status": "planned",
+      "tag": "v1.10.0-beta.1",
+      "required_platforms": [
+        "windows_x64",
+        "macos_universal",
+        "linux_x86_64"
+      ],
+      "publication_requires": "applicable_source_platform_host_package_acceptance"
+    },
+    {
+      "product": "Chimera",
+      "version": "1.10.0-beta.2",
+      "test_build_date": "2027-10-20",
+      "candidate_date": "2027-10-21",
+      "publication_target": "2027-10-22",
+      "scope": "첫 SYNTH 모델 Dvergr Analog를 공용 기반에 추가하고 기본 oscillator·filter·envelope 조절과 프리셋 상태를 구현한다.",
+      "kind": "public_beta",
+      "conditional": true,
+      "status": "planned",
+      "tag": "v1.10.0-beta.2",
+      "required_platforms": [
+        "windows_x64",
+        "macos_universal",
+        "linux_x86_64"
+      ],
+      "publication_requires": "applicable_source_platform_host_package_acceptance"
+    },
+    {
+      "product": "Chimera",
+      "version": "1.10.0-beta.3",
+      "test_build_date": "2027-10-27",
+      "candidate_date": "2027-10-28",
+      "publication_target": "2027-10-29",
+      "scope": "두 번째 SYNTH 모델 Seidr Dynamic를 추가하고 검증된 envelope·동적 변조 경로 및 채널별 상태 복원을 구현한다.",
+      "kind": "public_beta",
+      "conditional": true,
+      "status": "planned",
+      "tag": "v1.10.0-beta.3",
+      "required_platforms": [
+        "windows_x64",
+        "macos_universal",
+        "linux_x86_64"
+      ],
+      "publication_requires": "applicable_source_platform_host_package_acceptance"
+    },
+    {
+      "product": "Chimera",
+      "version": "1.10.0-beta.4",
+      "test_build_date": "2027-11-03",
+      "candidate_date": "2027-11-04",
+      "publication_target": "2027-11-05",
+      "scope": "세 번째 SYNTH 모델 Mimir Impact를 추가하고 onset·임팩트 중심의 검증된 트리거와 발음·감쇠 조절을 구현한다.",
+      "kind": "public_beta",
+      "conditional": true,
+      "status": "planned",
+      "tag": "v1.10.0-beta.4",
+      "required_platforms": [
+        "windows_x64",
+        "macos_universal",
+        "linux_x86_64"
+      ],
+      "publication_requires": "applicable_source_platform_host_package_acceptance"
+    },
+    {
+      "product": "Chimera",
+      "version": "1.10.0-beta.5",
+      "test_build_date": "2027-11-10",
+      "candidate_date": "2027-11-11",
+      "publication_target": "2027-11-12",
+      "scope": "SYNTH의 MIDI·envelope-trigger 입력 구분과 note-on/off 복원을 보완하고 별도 품질 기준을 통과한 오디오 추적 기능만 연결한다.",
+      "kind": "public_beta",
+      "conditional": true,
+      "status": "planned",
+      "tag": "v1.10.0-beta.5",
+      "required_platforms": [
+        "windows_x64",
+        "macos_universal",
+        "linux_x86_64"
+      ],
+      "publication_requires": "applicable_source_platform_host_package_acceptance"
+    },
+    {
+      "product": "Chimera",
+      "version": "1.10.0-beta.6",
+      "test_build_date": "2027-11-17",
+      "candidate_date": "2027-11-18",
+      "publication_target": "2027-11-19",
+      "scope": "세 SYNTH 모델의 인스턴스별 발음 자원·종료 처리와 전체 모델·프리셋 ID 연결을 정리하고 공용 변조의 잔여 회귀를 수정한다.",
+      "kind": "public_beta",
+      "conditional": true,
+      "status": "planned",
+      "tag": "v1.10.0-beta.6",
+      "required_platforms": [
+        "windows_x64",
+        "macos_universal",
+        "linux_x86_64"
+      ],
+      "publication_requires": "applicable_source_platform_host_package_acceptance"
+    },
+    {
+      "product": "Chimera",
+      "version": "2.0.0-rc.1",
+      "test_build_date": "2027-11-24",
+      "candidate_date": "2027-11-25",
+      "publication_target": "2027-11-26",
+      "scope": "기능 동결 기준을 통과한 통합본에서 전체 모델·공용 프로세서·기존 세션 간의 오디오·상태 회귀를 수정한 뒤 첫 RC 후보를 구성한다.",
+      "kind": "release_candidate",
+      "conditional": true,
+      "status": "planned",
+      "tag": "v2.0.0-rc.1",
+      "required_platforms": [
+        "windows_x64",
+        "macos_universal",
+        "linux_x86_64"
+      ],
+      "publication_requires": "applicable_source_platform_host_package_acceptance"
+    },
+    {
+      "product": "Chimera",
+      "version": "2.0.0-rc.2",
+      "test_build_date": "2027-12-01",
+      "candidate_date": "2027-12-02",
+      "publication_target": "2027-12-03",
+      "scope": "실제 지원 호스트에서 확인한 UI 열기·닫기·자동화·세션 재개·다중 인스턴스 결함을 수정하고 세 OS의 해당 출하 검증을 갱신한다.",
+      "kind": "release_candidate",
+      "conditional": true,
+      "status": "planned",
+      "tag": "v2.0.0-rc.2",
+      "required_platforms": [
+        "windows_x64",
+        "macos_universal",
+        "linux_x86_64"
+      ],
+      "publication_requires": "applicable_source_platform_host_package_acceptance"
+    },
+    {
+      "product": "Chimera",
+      "version": "2.0.0-rc.3",
+      "test_build_date": "2027-12-08",
+      "candidate_date": "2027-12-09",
+      "publication_target": "2027-12-10",
+      "scope": "설치·업데이트·제거 및 세 제품 공존에서 확인한 경로·소유권·프리셋·개인 IR 보존 결함을 수정해 최종 RC 후보를 구성한다.",
+      "kind": "release_candidate",
+      "conditional": true,
+      "status": "planned",
+      "tag": "v2.0.0-rc.3",
+      "required_platforms": [
+        "windows_x64",
+        "macos_universal",
+        "linux_x86_64"
+      ],
+      "publication_requires": "applicable_source_platform_host_package_acceptance"
+    },
+    {
+      "product": "Chimera",
+      "version": "2.0.0",
+      "test_build_date": "2027-12-15",
+      "candidate_date": "2027-12-16",
+      "publication_target": "2027-12-17",
+      "scope": "기능 동결과 실제 출하 검증을 통과한 소스에서 정식 채널 패키지를 생성·검증해 2.0.0을 배포하며, 기준 미달이면 RC를 유지한다.",
+      "kind": "stable_target",
+      "conditional": true,
+      "status": "planned",
+      "tag": "v2.0.0",
+      "required_platforms": [
+        "windows_x64",
+        "macos_universal",
+        "linux_x86_64"
+      ],
+      "publication_requires": "applicable_source_platform_host_package_acceptance"
+    },
+    {
+      "product": "Chimera",
+      "version": "2.0.1",
+      "test_build_date": "2027-12-22",
+      "candidate_date": "2027-12-23",
+      "publication_target": "2027-12-24",
+      "scope": "2.0.0 공개 이후 재현된 오디오·UI·호스트 결함의 실제 수정이 있고 필요한 출하 검증을 통과한 경우에만 첫 유지보수 패치를 배포한다.",
+      "kind": "maintenance_reserve",
+      "conditional": true,
+      "status": "planned",
+      "tag": "v2.0.1",
+      "required_platforms": [
+        "windows_x64",
+        "macos_universal",
+        "linux_x86_64"
+      ],
+      "publication_requires": "applicable_source_platform_host_package_acceptance"
+    },
+    {
+      "product": "Chimera",
+      "version": "2.0.2",
+      "test_build_date": "2027-12-29",
+      "candidate_date": "2027-12-30",
+      "publication_target": "2027-12-31",
+      "scope": "남은 재현 가능한 세션 복원·설치·사용자 자산 보존 결함의 실제 수정이 있고 필요한 출하 검증을 통과한 경우에만 추가 유지보수 패치를 배포한다.",
+      "kind": "maintenance_reserve",
+      "conditional": true,
+      "status": "planned",
+      "tag": "v2.0.2",
+      "required_platforms": [
+        "windows_x64",
+        "macos_universal",
+        "linux_x86_64"
+      ],
+      "publication_requires": "applicable_source_platform_host_package_acceptance"
+    }
+  ],
+  "focused_internal": [
+    {
+      "product": "Náströnd",
+      "date": "2027-01-01",
+      "version_template": "1.0.0-preview.<source>",
+      "scope": "독립 타깃·제품 식별자·앰프 핵심 경로의 내부 빌드"
+    },
+    {
+      "product": "Náströnd",
+      "date": "2027-01-08",
+      "version_template": "1.0.0-preview.<source>",
+      "scope": "실제로 연주 가능한 AMP/CAB/EQ와 PRE 보드의 내부 테스트"
+    },
+    {
+      "product": "Náströnd",
+      "date": "2027-01-15",
+      "version_template": "1.0.0-preview.<source>",
+      "scope": "PRE/SPACE·프리셋·설치/업데이트 통합과 첫 공개 베타 준비"
+    },
+    {
+      "product": "Niflheimr",
+      "date": "2027-01-29",
+      "version_template": "1.0.0-preview.<source>",
+      "scope": "독립 타깃·5채널·LOW/Blend/FX 삽입 경로의 내부 빌드"
+    },
+    {
+      "product": "Niflheimr",
+      "date": "2027-02-05",
+      "version_template": "1.0.0-preview.<source>",
+      "scope": "실제 베이스 입력으로 확인하는 PRE/AMP/CAB/EQ/SPACE 내부 테스트"
+    },
+    {
+      "product": "Niflheimr",
+      "date": "2027-02-12",
+      "version_template": "1.0.0-preview.<source>",
+      "scope": "프리셋·저역·저장복원·설치/업데이트 통합과 첫 공개 베타 준비"
+    }
+  ],
+  "focused_releases": [
+    {
+      "product": "Náströnd",
+      "version": "1.0.0-beta.1",
+      "tag": "nastrond-v1.0.0-beta.1",
+      "test_build_date": "2027-01-20",
+      "candidate_date": "2027-01-21",
+      "publication_target": "2027-01-22",
+      "scope": "Windows VST3 첫 공개: 5채널·13컨트롤·4 PRE 슬롯·BOOST 중심의 검증된 이펙트 목록·CAB/EQ/SPACE·전용 프리셋·독립 설치/업데이트 식별자.",
+      "kind": "public_beta",
+      "conditional": true,
+      "status": "planned",
+      "required_platforms": [
+        "windows_x64"
+      ]
+    },
+    {
+      "product": "Náströnd",
+      "version": "1.0.0-beta.2",
+      "tag": "nastrond-v1.0.0-beta.2",
+      "test_build_date": "2027-01-27",
+      "candidate_date": "2027-01-28",
+      "publication_target": "2027-01-29",
+      "scope": "첫 피드백 수정과 macOS Universal VST3 추가 목표; Windows/macOS 제품별 설치·호스트 검증.",
+      "kind": "public_beta",
+      "conditional": true,
+      "status": "planned",
+      "required_platforms": [
+        "windows_x64",
+        "macos_universal"
+      ]
+    },
+    {
+      "product": "Náströnd",
+      "version": "1.0.0-beta.3",
+      "tag": "nastrond-v1.0.0-beta.3",
+      "test_build_date": "2027-02-03",
+      "candidate_date": "2027-02-04",
+      "publication_target": "2027-02-05",
+      "scope": "채널 출력 균형·BOOST와 앰프 입력 상호작용·공용 컴프/EQ 보완.",
+      "kind": "public_beta",
+      "conditional": true,
+      "status": "planned",
+      "required_platforms": [
+        "windows_x64",
+        "macos_universal"
+      ]
+    },
+    {
+      "product": "Náströnd",
+      "version": "1.0.0-beta.4",
+      "tag": "nastrond-v1.0.0-beta.4",
+      "test_build_date": "2027-02-10",
+      "candidate_date": "2027-02-11",
+      "publication_target": "2027-02-12",
+      "scope": "PRE 교체·자동화·프리셋 복원과 공간계 전환 보완; 남은 필수 FX 범위 점검.",
+      "kind": "public_beta",
+      "conditional": true,
+      "status": "planned",
+      "required_platforms": [
+        "windows_x64",
+        "macos_universal"
+      ]
+    },
+    {
+      "product": "Náströnd",
+      "version": "1.0.0-beta.5",
+      "tag": "nastrond-v1.0.0-beta.5",
+      "test_build_date": "2027-02-17",
+      "candidate_date": "2027-02-18",
+      "publication_target": "2027-02-19",
+      "scope": "니플헤임 첫 베타 주간에는 작은 상태·호환성 수정 위주로 나스트론드 안정화.",
+      "kind": "public_beta",
+      "conditional": true,
+      "status": "planned",
+      "required_platforms": [
+        "windows_x64",
+        "macos_universal"
+      ]
+    },
+    {
+      "product": "Náströnd",
+      "version": "1.0.0-rc.1",
+      "tag": "nastrond-v1.0.0-rc.1",
+      "test_build_date": "2027-02-24",
+      "candidate_date": "2027-02-25",
+      "publication_target": "2027-02-26",
+      "scope": "필수 기능과 PRE 목록을 동결하고 실제 연주·호스트·세션·설치 조건을 통과한 첫 RC.",
+      "kind": "release_candidate",
+      "conditional": true,
+      "status": "planned",
+      "required_platforms": [
+        "windows_x64",
+        "macos_universal"
+      ]
+    },
+    {
+      "product": "Náströnd",
+      "version": "1.0.0-rc.2",
+      "tag": "nastrond-v1.0.0-rc.2",
+      "test_build_date": "2027-03-03",
+      "candidate_date": "2027-03-04",
+      "publication_target": "2027-03-05",
+      "scope": "RC에서 확인된 결함 수정과 업그레이드·복구·제거 검증.",
+      "kind": "release_candidate",
+      "conditional": true,
+      "status": "planned",
+      "required_platforms": [
+        "windows_x64",
+        "macos_universal"
+      ]
+    },
+    {
+      "product": "Náströnd",
+      "version": "1.0.0",
+      "tag": "nastrond-v1.0.0",
+      "test_build_date": "2027-03-10",
+      "candidate_date": "2027-03-11",
+      "publication_target": "2027-03-12",
+      "scope": "정식 채널 패키지 검증 후 첫 안정판 출시 목표; 미충족이면 RC 유지.",
+      "kind": "stable_target",
+      "conditional": true,
+      "status": "planned",
+      "required_platforms": [
+        "windows_x64",
+        "macos_universal"
+      ]
+    },
+    {
+      "product": "Náströnd",
+      "version": "1.0.1",
+      "tag": "nastrond-v1.0.1",
+      "test_build_date": "2027-03-17",
+      "candidate_date": "2027-03-18",
+      "publication_target": "2027-03-19",
+      "scope": "실제 보고된 문제와 검증된 수정이 있을 때 사용하는 첫 유지보수 예약.",
+      "kind": "maintenance_reserve",
+      "conditional": true,
+      "status": "planned",
+      "required_platforms": [
+        "windows_x64",
+        "macos_universal"
+      ]
+    },
+    {
+      "product": "Niflheimr",
+      "version": "1.0.0-beta.1",
+      "tag": "niflheimr-v1.0.0-beta.1",
+      "test_build_date": "2027-02-17",
+      "candidate_date": "2027-02-18",
+      "publication_target": "2027-02-19",
+      "scope": "Windows VST3 첫 공개: 5채널·14컨트롤·native LOW/Blend·4 PRE 슬롯·검증된 베이스 FX·CAB/EQ/SPACE·프리셋.",
+      "kind": "public_beta",
+      "conditional": true,
+      "status": "planned",
+      "required_platforms": [
+        "windows_x64"
+      ]
+    },
+    {
+      "product": "Niflheimr",
+      "version": "1.0.0-beta.2",
+      "tag": "niflheimr-v1.0.0-beta.2",
+      "test_build_date": "2027-02-24",
+      "candidate_date": "2027-02-25",
+      "publication_target": "2027-02-26",
+      "scope": "첫 피드백 수정과 macOS Universal VST3 추가 목표; 제품별 설치·호스트 검증.",
+      "kind": "public_beta",
+      "conditional": true,
+      "status": "planned",
+      "required_platforms": [
+        "windows_x64",
+        "macos_universal"
+      ]
+    },
+    {
+      "product": "Niflheimr",
+      "version": "1.0.0-beta.3",
+      "tag": "niflheimr-v1.0.0-beta.3",
+      "test_build_date": "2027-03-03",
+      "candidate_date": "2027-03-04",
+      "publication_target": "2027-03-05",
+      "scope": "저역 어택·Drive/Fuzz 삽입·Blend 동작·채널별 출력 균형 보완.",
+      "kind": "public_beta",
+      "conditional": true,
+      "status": "planned",
+      "required_platforms": [
+        "windows_x64",
+        "macos_universal"
+      ]
+    },
+    {
+      "product": "Niflheimr",
+      "version": "1.0.0-beta.4",
+      "tag": "niflheimr-v1.0.0-beta.4",
+      "test_build_date": "2027-03-10",
+      "candidate_date": "2027-03-11",
+      "publication_target": "2027-03-12",
+      "scope": "PRE/IR/프리셋 복원과 공간계 전환 보완; 전체 필수 FX 범위와 공존 검증.",
+      "kind": "public_beta",
+      "conditional": true,
+      "status": "planned",
+      "required_platforms": [
+        "windows_x64",
+        "macos_universal"
+      ]
+    },
+    {
+      "product": "Niflheimr",
+      "version": "1.0.0-rc.1",
+      "tag": "niflheimr-v1.0.0-rc.1",
+      "test_build_date": "2027-03-17",
+      "candidate_date": "2027-03-18",
+      "publication_target": "2027-03-19",
+      "scope": "필수 기능을 동결하고 실제 베이스 DI·LOW/Blend·호스트·설치 조건을 통과한 첫 RC.",
+      "kind": "release_candidate",
+      "conditional": true,
+      "status": "planned",
+      "required_platforms": [
+        "windows_x64",
+        "macos_universal"
+      ]
+    },
+    {
+      "product": "Niflheimr",
+      "version": "1.0.0-rc.2",
+      "tag": "niflheimr-v1.0.0-rc.2",
+      "test_build_date": "2027-03-24",
+      "candidate_date": "2027-03-25",
+      "publication_target": "2027-03-26",
+      "scope": "RC 결함 수정과 세 제품 공존·업데이트·제거 검증.",
+      "kind": "release_candidate",
+      "conditional": true,
+      "status": "planned",
+      "required_platforms": [
+        "windows_x64",
+        "macos_universal"
+      ]
+    },
+    {
+      "product": "Niflheimr",
+      "version": "1.0.0",
+      "tag": "niflheimr-v1.0.0",
+      "test_build_date": "2027-03-31",
+      "candidate_date": "2027-04-01",
+      "publication_target": "2027-04-02",
+      "scope": "정식 채널 패키지 검증 후 첫 안정판 출시 목표; 미충족이면 RC 유지.",
+      "kind": "stable_target",
+      "conditional": true,
+      "status": "planned",
+      "required_platforms": [
+        "windows_x64",
+        "macos_universal"
+      ]
+    },
+    {
+      "product": "Niflheimr",
+      "version": "1.0.1",
+      "tag": "niflheimr-v1.0.1",
+      "test_build_date": "2027-04-07",
+      "candidate_date": "2027-04-08",
+      "publication_target": "2027-04-09",
+      "scope": "실제 보고된 문제와 검증된 수정이 있을 때 사용하는 첫 유지보수 예약.",
+      "kind": "maintenance_reserve",
+      "conditional": true,
+      "status": "planned",
+      "required_platforms": [
+        "windows_x64",
+        "macos_universal"
+      ]
+    }
+  ],
+  "dependent_deliveries": [
+    {
+      "product": "Náströnd NAM",
+      "version": "1.0.0-beta.1",
+      "tag": "nastrond-nam-v1.0.0-beta.1",
+      "test_build_date": "2026-11-18",
+      "candidate_date": "2026-11-19",
+      "publication_target": "2026-11-20",
+      "kind": "conditional_nam_pack",
+      "conditional": true,
+      "scope": "5채널 전체가 기존 구조/음질·held-out DI·지원 플레이어 조건을 통과한 고정 설정 amp-only NAM 팩",
+      "unresolved": "기존 memory/fidelity blocker; 현재 납품 가능한 팩으로 간주하지 않음"
+    },
+    {
+      "product": "Niflheimr NAM",
+      "version": "1.0.0-beta.1",
+      "tag": "niflheimr-nam-v1.0.0-beta.1",
+      "test_build_date": "2026-12-02",
+      "candidate_date": "2026-12-03",
+      "publication_target": "2026-12-04",
+      "kind": "conditional_nam_pack",
+      "conditional": true,
+      "scope": "5채널 전체의 native 14-control/Blend 캡처 조건을 기록한 검증된 고정 설정 amp-only NAM 팩",
+      "unresolved": "데이터·memory feasibility·전체 학습·held-out DI·player 자격 확인 필요"
+    },
+    {
+      "product": "Chimera AAX",
+      "version": "1.3.2-beta.6",
+      "tag": "v1.3.2-beta.6",
+      "publication_review": "2026-11-27",
+      "kind": "conditional_format",
+      "conditional": true,
+      "scope": "10/30 내부 빌드, 11/20 실제 Pro Tools/서명 검증 후 처음 공개할 수 있는 목표 슬롯",
+      "unresolved": "Avid/PACE 접근, 최종 서명, 정상 Pro Tools 및 패키지 검증; 지연 시 다음 검증된 Chimera 버전 사용",
+      "shares_release_with": "Chimera"
+    },
+    {
+      "product": "Náströnd AAX",
+      "version_policy": "당시 새로 배포하는 검증된 Náströnd 제품 버전과 동일",
+      "publication_review": "2027-03-26",
+      "kind": "conditional_format",
+      "conditional": true,
+      "scope": "native 안정판 검토 이후의 AAX 추가 검토; 공통 배포 기반 재사용",
+      "unresolved": "제품별 ID·최종 서명·실제 Pro Tools/설치 검증과 추가 작업량 배정"
+    },
+    {
+      "product": "Niflheimr AAX",
+      "version_policy": "당시 새로 배포하는 검증된 Niflheimr 제품 버전과 동일",
+      "publication_review": "2027-04-09",
+      "kind": "conditional_format",
+      "conditional": true,
+      "scope": "native 안정판 검토 이후의 AAX 추가 검토; 공통 배포 기반 재사용",
+      "unresolved": "제품별 ID·최종 서명·실제 Pro Tools/설치 검증과 추가 작업량 배정"
+    }
+  ],
+  "published_releases": [
+    {
+      "product": "Chimera",
+      "version": "1.3.1-beta.2",
+      "tag": "v1.3.1-beta.2",
+      "product_source": "6033236cb81820a43679cbbd34be020804f9658d",
+      "published_at": "2026-10-13T07:30:29Z",
+      "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/releases/tag/v1.3.1-beta.2"
+    },
+    {
+      "product": "Chimera",
+      "version": "1.3.1-beta.1",
+      "tag": "v1.3.1-beta.1",
+      "product_source": "7b20cd9d1f90e3e2969c250712b199e893cf50cd",
+      "published_at": "2026-10-11T22:48:14Z",
+      "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/releases/tag/v1.3.1-beta.1"
+    },
+    {
+      "product": "Chimera",
+      "version": "1.3.0-beta.1",
+      "tag": "v1.3.0-beta.1",
+      "product_source": "7f692693f942a0f1dd1973062dc4d5d47b9be4ac",
+      "published_at": "2026-10-11T09:10:21Z",
+      "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/releases/tag/v1.3.0-beta.1"
+    },
+    {
+      "product": "Chimera",
+      "version": "1.2.0-beta.1",
+      "tag": "v1.2.0-beta.1",
+      "product_source": "d93560445c78552768a0ed592e5ec62c3c648fb6",
+      "published_at": "2026-10-05T11:04:57Z",
+      "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/releases/tag/v1.2.0-beta.1"
+    },
+    {
+      "product": "Chimera",
+      "version": "1.1.2-beta.1",
+      "tag": "v1.1.2-beta.1",
+      "product_source": "88b62738fdbd9bcdca34f7b6e1092d6ed411eb94",
+      "published_at": "2026-10-04T16:28:48Z",
+      "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/releases/tag/v1.1.2-beta.1"
+    },
+    {
+      "product": "Chimera",
+      "version": "1.1.1-beta.1",
+      "tag": "v1.1.1-beta.1",
+      "product_source": "91850fdca0c329983e051b113719699dba9831fd",
+      "published_at": "2026-10-04T13:29:43Z",
+      "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/releases/tag/v1.1.1-beta.1"
+    },
+    {
+      "product": "Chimera",
+      "version": "1.1.0-beta.1",
+      "tag": "v1.1.0-beta.1",
+      "product_source": "f5b8ce7d39f69621ffe193fd4be6fbd760a6e6cf",
+      "published_at": "2026-09-29T05:51:24Z",
+      "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/releases/tag/v1.1.0-beta.1"
+    },
+    {
+      "product": "Chimera",
+      "version": "1.0.0-beta.1",
+      "tag": "v1.0.0-beta.1",
+      "product_source": "95b4091af2c914188ea32672f05e00544a1d2098",
+      "published_at": "2026-09-25T08:09:07Z",
+      "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/releases/tag/v1.0.0-beta.1"
+    }
+  ],
+  "development_candidates": [
+    {
+      "pr": 62,
+      "version": "1.3.1-beta.3",
+      "tag": "v1.3.1-beta.3",
+      "source_sha": "5c858442d0ed8360703e0ce63241a567736608a9",
+      "state": "open_draft",
+      "publication_target": "2026-10-16",
+      "scope": "Beta lifecycle, expiry notices, settings and historical state preservation; not the full signal/tuner/dynamics integration.",
+      "publication_approved": false,
+      "expiry_approved": false,
+      "blockers": [
+        "Expiry timestamp not approved; fresh approved-date binary and source-specific acceptance required",
+        "12 successful workflows do not approve 107 unexecuted strict acceptance checks"
+      ]
+    },
+    {
+      "pr": 68,
+      "version": "1.3.2-beta.1",
+      "tag": "v1.3.2-beta.1",
+      "source_sha": "c2263e4c90bffb9a56cc41285ebf8207e641b3aa",
+      "state": "open_draft",
+      "publication_target": "2026-10-23",
+      "scope": "Includes #62 lifecycle plus signal navigation, precision/strobe tuner, EQ/analyzer and common dynamics; preserve October 23/30 EQ acceptance scope.",
+      "publication_approved": false,
+      "expiry_approved": true,
+      "expiry_utc": "2027-02-11T14:59:00Z",
+      "blockers": [
+        "Current-head Open Beta Build and Test, CAB realtime performance and signal/tuner/dynamics workflows failed",
+        "release_approved=false; RELEASE_REVIEW_PENDING; fresh exact-source platform/package/host acceptance required"
+      ]
+    }
+  ]
+}

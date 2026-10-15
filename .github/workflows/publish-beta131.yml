@@ -3,7 +3,7 @@ on:
   workflow_dispatch:
     inputs:
       target_version:
-        description: Source version to review or publish, for example 1.3.1-beta.2
+        description: Source version to review or publish, for example 1.3.1-beta.3
         required: true
         type: string
       source_sha:
