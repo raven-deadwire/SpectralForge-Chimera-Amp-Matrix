@@ -24,9 +24,9 @@ jobs:
         with:
           python-version: '3.12'
       - name: Extract exact kernels and inspect AppleClang ARM64
-        run: python Tools/CabNeonCodegen/run.py --output evidence --new-candidates-only
+        run: python Tools/CabNeonCodegen/run.py --output evidence --prepare-only
       - name: Inspect actual product translation units and validate bounded-loop candidate
-        run: python Tools/CabNeonCodegen/products.py --kernels evidence --output product-evidence
+        run: python Tools/CabNeonCodegen/products.py --kernels evidence --output product-evidence --snapshot
       - name: Preserve codegen and every measurement
         if: always()
         uses: actions/upload-artifact@v6

@@ -28,7 +28,7 @@ def run(cmd,out):
  return p.stdout
 
 def main():
- ap=argparse.ArgumentParser();ap.add_argument('--output',type=Path,required=True);ap.add_argument('--new-candidates-only',action='store_true');args=ap.parse_args()
+ ap=argparse.ArgumentParser();ap.add_argument('--output',type=Path,required=True);ap.add_argument('--new-candidates-only',action='store_true');ap.add_argument('--prepare-only',action='store_true');args=ap.parse_args()
  out=args.output.resolve();out.mkdir(parents=True,exist_ok=False)
  if platform.system()!='Darwin' or platform.machine()!='arm64':raise RuntimeError('Native Apple Silicon required')
  root=Path(__file__).resolve().parents[2]
@@ -48,11 +48,15 @@ def main():
  cxx=['xcrun','clang++',*flags]
  commands=[[*cxx,'-S','-gline-tables-only','-Rpass=loop-vectorize','-Rpass-missed=loop-vectorize','-Rpass=loop-unroll',out/'kernels.cpp','-o',out/'kernels.s'],[*cxx,'-c',out/'kernels.cpp','-o',out/'kernels.o'],[*cxx,root/'Tools/CabNeonCodegen/probe.cpp',out/'kernels.o','-o',out/'probe']]
  (out/'commands.json').write_text(json.dumps([[str(s) for s in c] for c in commands],indent=2))
- for i,cmd in enumerate(commands):run(cmd,out/f'compile-{i}.log')
- run([out/'probe'],out/'bits.log')
+ if not args.prepare_only:
+  for i,cmd in enumerate(commands):run(cmd,out/f'compile-{i}.log')
+  run([out/'probe'],out/'bits.log')
  # Source patches, isolated in diagnostics; production source in this branch is untouched.
  for name,b in zip(NAMES,bodies):
   (out/(name+'-ModeledCabConvolution.h')).write_text(src[1].replace(body(src[1]),b))
+ if args.prepare_only:
+  (out/'manifest.json').write_text(json.dumps({str(p.relative_to(out)):hashlib.sha256(p.read_bytes()).hexdigest() for p in out.rglob('*') if p.is_file()},indent=2))
+  return
  rows=[]
  # Working sets cover small hot loops and realistic partition streams. A/A shares binary/function.
  for n,parts in [(65,64),(128,64),(129,32),(256,32),(513,8),(1024,8)]:

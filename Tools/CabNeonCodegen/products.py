@@ -2,21 +2,22 @@
 """Inspect real inlined product code and run original gates for a bounded-loop candidate.
 No acceptance thresholds/test code/latency geometry are modified.
 """
-import argparse, difflib, gzip, hashlib, importlib.util, json, platform, shlex, shutil, subprocess
+import argparse, difflib, gzip, hashlib, importlib.util, json, platform, re, shlex, shutil, subprocess
 from pathlib import Path
-from run import PARENT,NEON
+from run import PARENT,NEON,body
 
 def load(name,path):
  s=importlib.util.spec_from_file_location(name,path);m=importlib.util.module_from_spec(s);s.loader.exec_module(m);return m
 
 def main():
- ap=argparse.ArgumentParser();ap.add_argument('--kernels',type=Path,required=True);ap.add_argument('--output',type=Path,required=True);args=ap.parse_args()
+ ap=argparse.ArgumentParser();ap.add_argument('--kernels',type=Path,required=True);ap.add_argument('--output',type=Path,required=True);ap.add_argument('--snapshot',action='store_true');args=ap.parse_args()
  if platform.system()!='Darwin' or platform.machine()!='arm64':raise RuntimeError('Native Apple Silicon required')
  root=Path(__file__).resolve().parents[2];out=args.output.resolve();out.mkdir(parents=True,exist_ok=False)
  source=out/'product-source';build=out/'build';kernels=args.kernels.resolve()
  subprocess.run(['git','worktree','add','--detach',str(source),PARENT],cwd=root,check=True)
  driver=load('driver',source/'Tools/run_cab_realtime_ci.py');ab=load('ab',root/'Tools/CabNeonAB/run.py')
- report=dict(complete=False,release_approved=False,integration_eligible=False,performance_demonstrated=False,parent=PARENT,neon=NEON,candidate='bound8',commands=[],sources={})
+ candidate='snapshot8_scalar_tail' if args.snapshot else 'bound8'
+ report=dict(complete=False,release_approved=False,integration_eligible=False,performance_demonstrated=False,parent=PARENT,neon=NEON,candidate=candidate,commands=[],sources={})
  def write(): (out/'report.json').write_text(json.dumps(report,indent=2))
  def run(cmd,log,cwd=source,required=True):
   print('RUN',log,flush=True)
@@ -39,7 +40,20 @@ def main():
    if original[i]=='-o':i+=2;continue
    if original[i]=='-c':i+=1;continue
    flags.append(original[i]);i+=1
-  for name,contents in [('A',exact_a),('B',exact_b),('C4',(kernels/'bound4-ModeledCabConvolution.h').read_bytes()),('C8',(kernels/'bound8-ModeledCabConvolution.h').read_bytes())]:
+  variants=[('A',exact_a),('B',exact_b),('C4',(kernels/'bound4-ModeledCabConvolution.h').read_bytes()),('C8',(kernels/'bound8-ModeledCabConvolution.h').read_bytes())]
+  if args.snapshot:
+   b=body(exact_b.decode())
+   # Restrict snapshot and tail hints to Apple ARM64; other platform bodies stay exact.
+   snapshot='#if defined(__APPLE__) && defined(__aarch64__)\n        const int binCount=bins;\n#endif\n'+b
+   # Rename all bin reads within the Apple branch and shared tail only. Keep Windows branch untouched.
+   start=snapshot.index('#elif defined(__APPLE__)');end=snapshot.index('#endif',start)
+   snapshot=snapshot[:start]+re.sub(r'\bbins\b','binCount',snapshot[start:end])+snapshot[end:]
+   scalar=snapshot.index('        for(;i<bins;++i)')
+   snapshot=snapshot[:scalar]+'#if defined(__APPLE__) && defined(__aarch64__)\n'+snapshot[scalar:].replace('bins','binCount')+'\n#else\n'+snapshot[scalar:]+'\n#endif'
+   unrolled=snapshot.replace('        for(;i+4<=binCount;i+=4)', '        #pragma clang loop unroll_count(2)\n        for(;i+4<=binCount;i+=4)',1)
+   no_tail=unrolled.replace('        for(;i<binCount;++i)', '        #pragma clang loop vectorize(disable) interleave(disable)\n        for(;i<binCount;++i)',1)
+   variants=[(name,exact_b.decode().replace(b,c).encode()) for name,c in [('S4',snapshot),('S8',unrolled),('S8T',no_tail)]]
+  for name,contents in variants:
    header.write_bytes(contents)
    assembly=out/(name+'.s')
    report['sources'][name]=dict(header_sha256=hashlib.sha256(contents).hexdigest(),base=PARENT)
@@ -47,7 +61,14 @@ def main():
    run([*flags,'-S','-o',assembly,'-Rpass=inline','-Rpass-missed=inline','-Rpass=loop-vectorize','-Rpass=loop-unroll'],name+'-codegen.log',Path(entry['directory']))
    with gzip.open(out/(name+'.s.gz'),'wb') as f:f.write(assembly.read_bytes())
    assembly.unlink()
-  # Header now contains C8 only. Other product files and all original tests remain exact parent bytes.
+  final_header=header.read_bytes()
+  for name,contents in [('A',exact_a),('B',exact_b),('selected',final_header)]:
+   header.write_bytes(contents);ir=out/(name+'.ll')
+   run([*flags,'-S','-emit-llvm','-o',ir],name+'-ir.log',Path(entry['directory']))
+   with gzip.open(out/(name+'.ll.gz'),'wb') as f:f.write(ir.read_bytes())
+   ir.unlink()
+  header.write_bytes(final_header)
+  # Header now contains the preselected final candidate only. Other product files and all original tests remain exact parent bytes.
   changed=subprocess.check_output(['git','diff','--name-only'],cwd=source,text=True).splitlines()
   if changed!=['Source/ModeledCabConvolution.h']:raise RuntimeError('unexpected product changes')
   run(['cmake','--build',build,'--target','ChimeraOriginalCabIntegrationTests','ChimeraOriginalCabRealtimeTests','ChimeraCabABControl','ChimeraCabABProfile','--parallel','2'],'C8-build.log')
@@ -70,7 +91,7 @@ def main():
     folder=out/'screen'/mode/engine;folder.mkdir(parents=True)
     receipt=run([binary,*engineflags],f'screen/{mode}/{engine}.log',folder,required=False)
     report['screen'].append(dict(mode=mode,engine=engine,returncode=receipt['returncode'],rows=ab.read_trial(folder,mode,engine)))
-  report['complete']=True;print(json.dumps(dict(complete=True,candidate='bound8',cab_ctest_returncode=evidence['returncode'],deadline_rows=len(evidence['timing']),frozen_bits_and_latency=evidence['frozen_bits_and_latency'],integration_eligible=False,release_approved=False)),flush=True)
+  report['complete']=True;print(json.dumps(dict(complete=True,candidate=candidate,cab_ctest_returncode=evidence['returncode'],deadline_rows=len(evidence['timing']),frozen_bits_and_latency=evidence['frozen_bits_and_latency'],integration_eligible=False,release_approved=False)),flush=True)
  finally:
   write()
   # Keep compact artifacts, not the entire dependency/build tree. Raw callback CSVs already copied.
