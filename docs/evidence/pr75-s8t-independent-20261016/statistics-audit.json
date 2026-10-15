@@ -1,0 +1,14 @@
+{
+  "archive_sha256": "f2916a4438cf4f9c57cf40312acafabe24941cca205e1df105254b6700dbf5cf",
+  "manifest_files_verified": 2176,
+  "trial_order_verified": 96,
+  "command_order_verified": 294,
+  "all_raw_summaries_recomputed": 3456,
+  "statistical_rows_recomputed": 72,
+  "exact_statistical_decision_reproduced": true,
+  "cab_contracts_pass": true,
+  "performance_demonstrated": false,
+  "integration_eligible": false,
+  "release_approved": false,
+  "nonzero_diagnostic_exits": 4
+}
