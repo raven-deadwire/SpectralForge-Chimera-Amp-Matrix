@@ -44,9 +44,14 @@ class Consolidation(unittest.TestCase):
                     'revision': HEAD, 'runId': RUN, 'runAttempt': ATTEMPT, 'published': False})
                 version = self.policy['release_scope']['version']
                 prefix = 'SpectralForge-Chimera-' + version + '-'
-                assets = [{'platform': platform, 'name': prefix + suffix, 'sha256': 'a' * 64, 'size': 10}
+                release_url = 'https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/releases/'
+                assets = [{'platform': platform, 'name': prefix + suffix, 'sha256': 'a' * 64, 'size': 10,
+                           'arch': 'universal' if platform == 'macos' else 'x86_64',
+                           'url': release_url + 'download/v' + version + '/' + prefix + suffix}
                           for platform, suffix in [('windows', 'win64-Setup.exe'), ('macos', 'macos-universal.pkg'), ('linux', 'linux-x86_64.deb')]]
-                raw('manifest', {'schema': 1, 'version': version, 'assets': assets})
+                raw('manifest', {'schema': 1, 'version': version, 'assets': assets,
+                                 'source_sha': HEAD, 'channel': 'beta',
+                                 'releaseUrl': release_url + 'tag/v' + version})
                 suffixes = ('win64-Setup.exe', 'win64.zip', 'macos-universal.pkg', 'linux-x86_64.deb', 'linux-x86_64.tar.gz')
                 raw('sums', ''.join('a' * 64 + '  ' + prefix + suffix + '\n' for suffix in suffixes))
             else:
@@ -315,6 +320,28 @@ class Consolidation(unittest.TestCase):
     def test_candidate_source_must_match_gate_source(self):
         self.raw_change('assembly', 'candidate', lambda s: s.replace(HEAD, 'b' * 40))
         self.assertEqual(self.status(self.run_gate()[0], 'A13.07'), 'BLOCKED')
+
+    def test_update_feed_identity_channel_destination_and_architecture_are_bound(self):
+        original = json.loads((self.folder('assembly') / 'raw/update-beta.json').read_text(encoding='utf-8'))
+        mutations = [
+            lambda d: d.pop('source_sha'),
+            lambda d: d.update(source_sha='b' * 40),
+            lambda d: d.update(channel='stable'),
+            lambda d: d.update(releaseUrl=d['releaseUrl'].replace('v1.', 'v9.')),
+            lambda d: d['assets'][0].update(url='https://example.invalid/installer.exe'),
+            lambda d: d['assets'][0].update(url=d['assets'][0]['url'] + '?redirect=1'),
+            lambda d: d['assets'][1].update(arch='x86_64'),
+            lambda d: d['assets'].__setitem__(0, 'malformed'),
+        ]
+        for index, mutate in enumerate(mutations):
+            with self.subTest(mutation=index):
+                manifest = copy.deepcopy(original)
+                mutate(manifest)
+                self.raw_change('assembly', 'manifest', lambda _: json.dumps(manifest))
+                result, _ = self.run_gate()
+                self.assertEqual(self.status(result, 'A13.07'), 'BLOCKED')
+        self.raw_change('assembly', 'manifest', lambda _: json.dumps(original))
+        self.assertEqual(self.status(self.run_gate()[0], 'A13.07'), 'PASS')
 
     def test_candidate_receipt_requires_current_run_attempt(self):
         original = (self.folder('assembly') / 'raw/candidate-source.json').read_text(encoding='utf-8')

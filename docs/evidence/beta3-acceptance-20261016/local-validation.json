@@ -1,0 +1,18 @@
+{
+  "scope": "Changed evidence tooling and dependent publisher contracts, not product binary qualification",
+  "audited_product_source": "5c858442d0ed8360703e0ce63241a567736608a9",
+  "suites": {
+    "test_release_consolidator": 31,
+    "test_publication_evidence": 20,
+    "test_publish_release": 35,
+    "test_triage_release_acceptance": 9,
+    "test_weekly_publication": 29,
+    "test_beta_publication131": 23,
+    "test_beta_publication": 23
+  },
+  "passed": 170,
+  "failed": 0,
+  "additional_checks": ["Python compilation", "YAML parse", "git diff --check", "GitHub digest-bound raw CI evidence revalidation and gate recomputation"],
+  "windows_installed_upgrade": "Pending dedicated GitHub workflow; cannot run Windows installers in this Linux session",
+  "publication_authorized": false
+}

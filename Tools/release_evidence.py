@@ -215,7 +215,13 @@ def reports_for_bundle(doc, paths, policy, mapping):
                   and source.get('runAttempt') == doc['revision']['run_attempt']
                   and source.get('published') is False and source.get('version') == policy['release_scope']['version']
                   and source.get('tag') == 'v' + source.get('version', '')
-                  and manifest.get('version') == source.get('version') and manifest.get('schema') == 1)
+                  and manifest.get('version') == source.get('version') and manifest.get('schema') == 1
+                  and manifest.get('source_sha') == commit
+                  # RAW_FILES preserves update-beta.json, including the beta
+                  # compatibility feed produced by RC/stable candidates.
+                  and manifest.get('channel') == 'beta'
+                  and manifest.get('releaseUrl') ==
+                      'https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/releases/tag/v' + source['version'])
             lines = paths['sums'].read_text(encoding='utf-8-sig').splitlines()
             ok = ok and len(lines) == 5 and all(re.fullmatch(r'[0-9a-f]{64}  \S+', line) for line in lines)
             if ok:
@@ -225,10 +231,14 @@ def reports_for_bundle(doc, paths, policy, mapping):
                 ok = set(sums) == {prefix + suffix for suffix in suffixes}
                 expected_assets = {'windows': 'win64-Setup.exe', 'macos': 'macos-universal.pkg', 'linux': 'linux-x86_64.deb'}
                 assets = manifest.get('assets')
-                ok = ok and isinstance(assets, list) and len(assets) == 3
+                ok = ok and isinstance(assets, list) and len(assets) == 3 and all(isinstance(a, dict) for a in assets)
                 if ok:
                     ok = {a.get('platform') for a in assets} == set(expected_assets) and all(
                         a.get('name') == prefix + expected_assets.get(a.get('platform'), '')
+                        and a.get('arch') == ('universal' if a.get('platform') == 'macos' else 'x86_64')
+                        and a.get('url') ==
+                            'https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/releases/download/v'
+                            + source['version'] + '/' + a.get('name', '')
                         and a.get('sha256') == sums.get(a.get('name'))
                         and type(a.get('size')) is int and a['size'] > 0 for a in assets)
         record('A13.07', ok, 'Candidate assembly/upload or exact-source candidate receipt missing/failed')
