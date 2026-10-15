@@ -1,0 +1,49 @@
+name: PR73 independent parent NEON comparison
+on:
+  pull_request:
+    paths:
+      - 'Tools/CabNeonAB/**'
+      - '.github/workflows/pr73-neon-independent.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: pr73-independent-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: false
+jobs:
+  paired:
+    runs-on: macos-15
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          path: controller
+          persist-credentials: false
+      - uses: actions/checkout@v5
+        with:
+          ref: c2263e4c90bffb9a56cc41285ebf8207e641b3aa
+          path: parent
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/checkout@v5
+        with:
+          ref: 29865abb4da3ab78592c970a263ee62af63fc673
+          path: candidate
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - name: Verify analysis contracts
+        run: python controller/Tools/CabNeonAB/test_analysis.py
+      - name: Build all binaries then run interleaved ABBA BAAB and AA
+        run: python controller/Tools/CabNeonAB/run.py --parent parent --candidate candidate --build builds --output evidence
+      - name: Preserve every result including failed populations
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: PR73-independent-parent-neon-${{ github.run_id }}-${{ github.run_attempt }}
+          path: evidence/
+          if-no-files-found: error
+          retention-days: 90
