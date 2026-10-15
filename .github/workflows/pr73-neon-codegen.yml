@@ -1,0 +1,41 @@
+name: PR73 NEON structural diagnosis
+on:
+  pull_request:
+    paths:
+      - 'Tools/CabNeonCodegen/**'
+      - '.github/workflows/pr73-neon-codegen.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: neon-codegen-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: false
+jobs:
+  native:
+    runs-on: macos-15
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - name: Extract exact kernels and inspect AppleClang ARM64
+        run: python Tools/CabNeonCodegen/run.py --output evidence --prepare-only
+      - name: Inspect actual product translation units and validate bounded-loop candidate
+        run: python Tools/CabNeonCodegen/products.py --kernels evidence --output product-evidence --snapshot
+      - name: Preserve codegen and every measurement
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: PR73-neon-codegen-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            evidence/
+            product-evidence/
+            !product-evidence/build/
+            !product-evidence/product-source/
+          if-no-files-found: error
+          retention-days: 90
