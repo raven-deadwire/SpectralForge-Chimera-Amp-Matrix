@@ -1,0 +1,53 @@
+{
+  "115259304141": {
+    "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38386305407/job/115259304141",
+    "lines": [
+      "2026-10-13T10:54:36.0084922Z   ref: 5c858442d0ed8360703e0ce63241a567736608a9",
+      "2026-10-13T10:57:30.6413887Z PASS: five N�str�nd + five Niflheimr Original full rigs; 48 selectable presets, previous 43 indices preserved",
+      "2026-10-13T12:04:40.8223202Z PASS: Installed DisplayVersion=1.3.1 and selected binary versions match 1.3.1-beta.3",
+      "2026-10-13T12:04:40.8335344Z PASS: Product rename retires only exact old executable/VST3 binaries and preserves personal preset bytes",
+      "2026-10-13T12:04:40.9391578Z PASS: installed personal IR discovered, audio decoded, selected in the cabinet menu and loaded into a rig",
+      "2026-10-13T12:04:41.0248134Z PASS: installed personal IR discovered, audio decoded, selected in the cabinet menu and loaded into a rig",
+      "2026-10-13T12:04:41.1105580Z PASS: installed personal IR discovered, audio decoded, selected in the cabinet menu and loaded into a rig",
+      "2026-10-13T12:04:41.2071645Z PASS: installed personal IR discovered, audio decoded, selected in the cabinet menu and loaded into a rig",
+      "2026-10-13T12:04:41.3075283Z PASS: installed personal IR discovered, audio decoded, selected in the cabinet menu and loaded into a rig",
+      "2026-10-13T12:04:41.4051092Z PASS: installed personal IR discovered, audio decoded, selected in the cabinet menu and loaded into a rig",
+      "2026-10-13T12:04:41.4163173Z PASS: Full install: standard VST3 path, app, documentation, shortcuts and uninstall registration; payload hashes match",
+      "2026-10-13T12:05:01.2981767Z PASS: Installed DisplayVersion=1.3.1 and selected binary versions match 1.3.1-beta.3",
+      "2026-10-13T12:05:01.2992695Z PASS: Same-version reinstall repairs files and preserves modified documentation copies and personal presets/IRs",
+      "2026-10-13T12:05:02.6153884Z PASS: Personal IR collection is preserved after uninstall",
+      "2026-10-13T12:05:02.6165532Z PASS: Uninstall removes owned binaries, shortcut and Windows registration; preserves user files",
+      "2026-10-13T12:05:13.6415695Z PASS: Installed DisplayVersion=1.3.1 and selected binary versions match 1.3.1-beta.3",
+      "2026-10-13T12:05:24.6923455Z PASS: Installed DisplayVersion=1.3.1 and selected binary versions match 1.3.1-beta.3",
+      "2026-10-13T12:05:24.6926813Z PASS: Repair remembers the selected VST3 folder without a /VST3DIR override",
+      "2026-10-13T12:05:35.7393514Z PASS: Installed DisplayVersion=1.3.1 and selected binary versions match 1.3.1-beta.3",
+      "2026-10-13T12:05:35.7402718Z PASS: Changing the selected VST3 folder retires only its exact old plugin binary and preserves user files",
+      "2026-10-13T12:05:47.7665427Z PASS: Installed DisplayVersion=1.3.1 and selected binary versions match 1.3.1-beta.3",
+      "2026-10-13T12:06:18.0972137Z PASS: Real v1.3.1-beta.1 to 1.3.1-beta.3 upgrade retires nine exact owned research documents, preserves an edited legacy document in place and saves the annotated manual and license notices",
+      "2026-10-13T12:06:40.4144132Z PASS: Two actual current-Setup repairs restore current payload bytes and preserve all annotated document snapshots and personal files",
+      "2026-10-13T12:06:41.3282379Z PASS: Actual previous-release uninstall ownership survives upgrade/repair and preserves edited documents, snapshots, licenses, presets, IRs and projects without reboot deletion",
+      "2026-10-13T12:06:41.6209921Z PASS: Actual public beta.1 Setup to current product Setup upgrade, repair and removal preserve user documents and files"
+    ]
+  },
+  "115266335104": {
+    "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38386305841/job/115266335104",
+    "lines": [
+      "2026-10-13T11:12:06.1393934Z   ref: 5c858442d0ed8360703e0ce63241a567736608a9",
+      "2026-10-13T11:12:21.1402736Z PASS: released beta.2 source fixture, all host values/ordinals/A-B/IR before-at-after expiry and resave/reopen (not DAW acceptance)"
+    ]
+  },
+  "115266335241": {
+    "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38386305841/job/115266335241",
+    "lines": [
+      "2026-10-13T11:12:17.0134560Z   ref: 5c858442d0ed8360703e0ce63241a567736608a9",
+      "2026-10-13T11:12:34.4035680Z PASS: released beta.2 source fixture, all host values/ordinals/A-B/IR before-at-after expiry and resave/reopen (not DAW acceptance)"
+    ]
+  },
+  "115266335356": {
+    "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38386305841/job/115266335356",
+    "lines": [
+      "2026-10-13T11:12:07.2267785Z   ref: 5c858442d0ed8360703e0ce63241a567736608a9",
+      "2026-10-13T11:12:38.3139065Z PASS: released beta.2 source fixture, all host values/ordinals/A-B/IR before-at-after expiry and resave/reopen (not DAW acceptance)"
+    ]
+  }
+}

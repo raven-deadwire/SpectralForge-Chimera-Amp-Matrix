@@ -1,0 +1,68 @@
+name: Beta3 acceptance evidence and installed upgrade
+on:
+  pull_request:
+    paths:
+      - "Tools/release_evidence.py"
+      - "Tools/test_release_consolidator.py"
+      - "Tools/triage_release_acceptance.py"
+      - "Tools/test_triage_release_acceptance.py"
+      - "Tools/Verify-Beta3InstalledUpgrade.ps1"
+      - "docs/evidence/beta3-acceptance-20261016/**"
+      - ".github/workflows/beta3-acceptance-audit.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  audit-contracts:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Verify evidence and update-feed contracts
+        run: |
+          python Tools/test_release_consolidator.py
+          python Tools/test_publication_evidence.py
+          python Tools/test_triage_release_acceptance.py
+          python Tools/triage_release_acceptance.py --archive docs/evidence/beta3-acceptance-20261016/ci-gate-38386305674.zip --snapshot docs/evidence/beta3-acceptance-20261016/github-snapshot.json --output build/beta3-audit
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Beta3-acceptance-triage
+          path: build/beta3-audit
+          if-no-files-found: error
+  existing-binary-upgrade:
+    runs-on: windows-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/download-artifact@v4
+        with:
+          name: SpectralForge-Chimera-1.3.1-beta.3-win64-Setup
+          run-id: 38386305674
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: build/pinned-candidate/setup
+      - uses: actions/download-artifact@v4
+        with:
+          name: SpectralForge-Chimera-1.3.1-beta.3-win64
+          run-id: 38386305674
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: build/pinned-candidate/portable
+      - name: Install released beta.2 then upgrade using existing beta.3 binaries
+        shell: pwsh
+        env:
+          CHIMERA_AUDIT_TOOL_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: ./Tools/Verify-Beta3InstalledUpgrade.ps1 -Artifacts build/pinned-candidate
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: Beta3-installed-upgrade
+          path: build/beta3-installed-upgrade
+          if-no-files-found: error

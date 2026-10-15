@@ -1,0 +1,2470 @@
+{
+  "checked_at_utc": "2026-10-15T17:15:47.653Z",
+  "pr62": {
+    "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/pull/62",
+    "number": 62,
+    "state": "open",
+    "merged": false,
+    "mergeable": true,
+    "draft": true,
+    "body": "## Next-version scope\n\nImplements #61 for a new `1.3.1-beta.3` development candidate. The published `v1.3.1-beta.2` tag and artifacts remain unchanged. Reuses the original policy/latch from this PR and the existing source/build identity and GitHub update service.\n\n### Implemented\n- Processor-owned activation latch, unchanged across prepare/release, editor lifetime, transport and offline rendering. Active instances keep processing across expiry. Newly created expired instances retain their graph/latency and have muted output; explicit clock correction fades the processed signal in over 50 ms.\n- SETTINGS expiry/build/source notices, non-modal warning marker, GitHub update access and clock recheck; no account, payment or activation server.\n- Committed configurable policy with **no approved date**. CI synthetic expiry is clearly marked `qualification-only` and rejected by the existing publisher. `RELEASE_REVIEW_PENDING` remains present.\n- Generated source-bound header/JSON and EN/DE/KR package notice, shared installer/portable staging, publisher metadata checks, and next-version release scope with all acceptance gates retained.\n- Real processor/editor/serializer tests for mono/stereo Classic, both Dual routes and Matrix; injected clock, reprepare/sample-rate/buffer/offline rendering; state/preset/A-B/MIDI and embedded/personal IR preservation.\n- Dedicated three-OS workflow and five consecutive macOS native state restore runs (until-fail, not retries).\n\n### Verification — source `5c858442d0ed8360703e0ce63241a567736608a9`\n\n- [Lifecycle CI](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38386305841) **PASS, all seven jobs**. Windows, macOS and Linux native suites pass 6/6 checks each. macOS native state restoration also passes **five consecutive runs**, using `until-fail:5` (no retry-to-green).\n- **Released-beta.2 restore PASS on all three operating systems**. A helper compiled against immutable product source `6033236cb81820a43679cbbd34be020804f9658d` generates real processor state. Candidate executables preserve every host parameter ID/ordinal/value, A/B and embedded IR before, at and after expiry, including resave/reopen. This reconstructed released-source fixture is separate from installed user DAW acceptance.\n- [Publisher contracts](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38386305360) and [three-OS document-upgrade compatibility](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38386305308) PASS. The real package stager now feeds the publisher fixtures: canonical UTF-8/LF notice bytes are verified on Windows/macOS/Linux, avoiding Windows newline translation mismatches.\n- [Full product/package CI](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38386305674) **PASS, all six jobs**, including Windows **51/51 CTest**, macOS **47/47 CTest**, Linux **48/48 CTest**, platform installer/package checks and candidate assembly. [Windows candidate qualification](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38386305407) **PASS**, including 51/51 CTest, installed app/VST3, selected paths, repair/uninstall and distribution scan. **All 12 workflows for this exact source succeeded.**\n- Local pure C++ policy PASS; Python lifecycle 10 PASS; publisher/weekly/publication-evidence regressions 84 PASS; packaging 22 cases completed locally (three Windows-only cases delegated to and passed in Windows CI).\n- Earlier CI findings are resolved: separate JUCE file-read buffers; matched audio histories and a float-rounding bound for the 50 ms fade; exact canonical ARM MIDI values plus serialized controller IDs; and Ubuntu t64-compatible dependency names. Product DSP/state formats were not changed to satisfy the harness corrections.\n\n### Release boundary\n\n**The existing release eligibility gate remains BLOCKED: 21 PASS / 107 BLOCKED / 0 NOT_APPLICABLE.** The 107 blocked checks are `NOT_EXECUTED`; successful workflow execution is not a release acceptance verdict. See the [consolidated gate job](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38386305674/job/115289457081) and its `Chimera-A-stage-release-gate` artifact. Do not waive these checks or reuse beta.2 receipts.\n\nDraft. No expiry date or publication approval granted. Synthetic CI packages cannot be published. Real historical DAW project acceptance and the eventual approved-date binary need their own evidence. Existing beta.2 approval receipts do not approve this new source/version. No release, tag, update feed or published asset is changed.\n\nExpiry review options: 90, **120 (recommended)** or 180 days from eventual publication. None is selected; the exact absolute UTC timestamp must receive approval, then a fresh approved-date binary must be qualified before a separate publication decision.",
+    "title": "feat: beta.3 lifecycle runtime, settings and state preservation (expiry pending)",
+    "base": "main",
+    "base_sha": "b4930839a7384a411e6c37e3570d77069f41a024",
+    "head": "codex/beta-lifecycle-core-20261013",
+    "head_sha": "5c858442d0ed8360703e0ce63241a567736608a9",
+    "head_repo_id": 1382701489,
+    "head_repo_full_name": "raven-deadwire/SpectralForge-Chimera-Amp-Matrix",
+    "merge_commit_sha": "1b2d0747e5998d7dfd8a54d9badbf08bbc242180",
+    "user": {
+      "login": "raven-deadwire",
+      "name": "raven-deadwire",
+      "email": null,
+      "avatar_url": "https://avatars.githubusercontent.com/u/223809014?v=4",
+      "id": 223809014
+    },
+    "requested_reviewers": null,
+    "requested_team_reviewers": null,
+    "diff": null,
+    "comments": null,
+    "created_at": "2026-10-13T06:41:39Z",
+    "updated_at": "2026-10-13T12:17:23Z",
+    "closed_at": null,
+    "merged_at": null,
+    "commits": 9,
+    "changed_files": 35,
+    "additions": 1374,
+    "deletions": 26,
+    "display_url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/pull/62",
+    "display_title": "feat: beta.3 lifecycle runtime, settings and state preservation (expiry pending)"
+  },
+  "pr50": {
+    "head_sha": "78899a879395d83823f7bf4130c1be632d6be95a",
+    "url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/pull/50"
+  },
+  "runs": [
+    {
+      "id": 38386305308,
+      "name": "Document Upgrade Compatibility",
+      "head_sha": "5c858442d0ed8360703e0ce63241a567736608a9",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38386305308",
+      "run_attempt": 1
+    },
+    {
+      "id": 38386305454,
+      "name": "Niflheimr technical measurements",
+      "head_sha": "5c858442d0ed8360703e0ce63241a567736608a9",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38386305454",
+      "run_attempt": 1
+    },
+    {
+      "id": 38386305360,
+      "name": "Chimera release publisher contracts",
+      "head_sha": "5c858442d0ed8360703e0ce63241a567736608a9",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38386305360",
+      "run_attempt": 1
+    },
+    {
+      "id": 38386305336,
+      "name": "CAB realtime performance",
+      "head_sha": "5c858442d0ed8360703e0ce63241a567736608a9",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38386305336",
+      "run_attempt": 1
+    },
+    {
+      "id": 38386305264,
+      "name": "Niflheimr DI audition contracts",
+      "head_sha": "5c858442d0ed8360703e0ce63241a567736608a9",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38386305264",
+      "run_attempt": 1
+    },
+    {
+      "id": 38386305407,
+      "name": "Chimera update candidate",
+      "head_sha": "5c858442d0ed8360703e0ce63241a567736608a9",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38386305407",
+      "run_attempt": 1
+    },
+    {
+      "id": 38386305841,
+      "name": "Beta lifecycle and state preservation",
+      "head_sha": "5c858442d0ed8360703e0ce63241a567736608a9",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38386305841",
+      "run_attempt": 1
+    },
+    {
+      "id": 38386305222,
+      "name": "CAB Panel prototype contracts",
+      "head_sha": "5c858442d0ed8360703e0ce63241a567736608a9",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38386305222",
+      "run_attempt": 1
+    },
+    {
+      "id": 38386305219,
+      "name": "1.3.1 amplifier head controls",
+      "head_sha": "5c858442d0ed8360703e0ce63241a567736608a9",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38386305219",
+      "run_attempt": 1
+    },
+    {
+      "id": 38386305357,
+      "name": "Graphical EQ prototype contracts",
+      "head_sha": "5c858442d0ed8360703e0ce63241a567736608a9",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38386305357",
+      "run_attempt": 1
+    },
+    {
+      "id": 38386305447,
+      "name": "1.3.1 signal path and EQ integration contracts",
+      "head_sha": "5c858442d0ed8360703e0ce63241a567736608a9",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38386305447",
+      "run_attempt": 1
+    },
+    {
+      "id": 38386305674,
+      "name": "Open Beta Build and Test",
+      "head_sha": "5c858442d0ed8360703e0ce63241a567736608a9",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38386305674",
+      "run_attempt": 1
+    }
+  ],
+  "gate_artifact": {
+    "id": 11812195536,
+    "name": "Chimera-A-stage-release-gate",
+    "size_in_bytes": 264866,
+    "url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/artifacts/11812195536",
+    "archive_download_url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/artifacts/11812195536/zip",
+    "expired": false,
+    "created_at": "2026-10-13T12:11:39Z",
+    "expires_at": "2027-01-11T10:52:16Z",
+    "updated_at": "2026-10-13T12:11:39Z",
+    "digest": "sha256:d34d6e1ac9335a5c6daf66b043f50818e9585e99d04b2bf8722482ff9e25bc14",
+    "workflow_run": {
+      "id": 38386305674,
+      "repository_id": 1382701489,
+      "head_repository_id": 1382701489,
+      "head_branch": "codex/beta-lifecycle-core-20261013",
+      "head_sha": "5c858442d0ed8360703e0ce63241a567736608a9"
+    }
+  },
+  "jobs": [
+    {
+      "run_id": 38386305674,
+      "jobs": [
+        {
+          "id": 115259679188,
+          "name": "validation-contract",
+          "status": "completed",
+          "conclusion": "success",
+          "run_id": 38386305674,
+          "logs_url": null,
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Run actions/setup-python@v5",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Assert requested build identity without changing the workflow source",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Verify catalog and validation producer contracts",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 5
+            },
+            {
+              "name": "Upload current-commit release-gate evidence",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 6
+            },
+            {
+              "name": "Post Run actions/setup-python@v5",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 11
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 12
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 13
+            }
+          ]
+        },
+        {
+          "id": 115262317974,
+          "name": "build (ubuntu-22.04)",
+          "status": "completed",
+          "conclusion": "success",
+          "run_id": 38386305674,
+          "logs_url": null,
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Run actions/setup-python@v5",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Resolve source version",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Check release packaging and validation syntax",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 5
+            },
+            {
+              "name": "Check Windows packaging script syntax",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 6
+            },
+            {
+              "name": "Verify Defender update retry contracts",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 7
+            },
+            {
+              "name": "Run sudo apt-get update && sudo apt-get install -y libasound2-dev libjack-jackd2-dev ladspa-sdk libcurl4-openssl-dev libfreetype6-dev libfontconfig1-dev libx11-dev libxcomposite-dev libxcursor-dev libxext-dev libxinerama-dev libxrandr-dev libxrender-dev libwebkit2gtk-4.1-dev libglu1-mesa-dev mesa-common-dev dpkg-dev xvfb openbox x11-utils",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 8
+            },
+            {
+              "name": "Configure Windows/Linux",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 9
+            },
+            {
+              "name": "Configure universal macOS",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 10
+            },
+            {
+              "name": "Run cmake --build build --config Release --parallel 2",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 11
+            },
+            {
+              "name": "Record configured CTest inventory",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 12
+            },
+            {
+              "name": "Execute Windows and macOS CTest matrix",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 13
+            },
+            {
+              "name": "Execute Linux CTest matrix with display supervision",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 14
+            },
+            {
+              "name": "Produce current-commit CTest validation evidence",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 15
+            },
+            {
+              "name": "Upload concrete CTest and full-state signature evidence",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 16
+            },
+            {
+              "name": "Upload DSP verification",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 17
+            },
+            {
+              "name": "Upload Windows UI verification",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 18
+            },
+            {
+              "name": "Upload Windows head artwork gallery",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 19
+            },
+            {
+              "name": "Upload Windows pedal and rack gallery",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 20
+            },
+            {
+              "name": "Stage Windows open beta payload",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 21
+            },
+            {
+              "name": "Package and verify macOS universal installer",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 22
+            },
+            {
+              "name": "Package and verify Linux installers",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 23
+            },
+            {
+              "name": "Verify signed release cannot fall back to unsigned",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 24
+            },
+            {
+              "name": "Build Windows installer",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 25
+            },
+            {
+              "name": "Verify Windows install, repair and uninstall",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 26
+            },
+            {
+              "name": "Upload Windows installer verification",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 27
+            },
+            {
+              "name": "Build MSIX review package",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 28
+            },
+            {
+              "name": "Verify MSIX deployment and application activation",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 29
+            },
+            {
+              "name": "Upload MSIX verification",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 30
+            },
+            {
+              "name": "Scan Windows distribution with Microsoft Defender",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 31
+            },
+            {
+              "name": "Upload Windows security report",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 32
+            },
+            {
+              "name": "Upload Windows test package",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 33
+            },
+            {
+              "name": "Upload Windows installer",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 34
+            },
+            {
+              "name": "Upload MSIX review package",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 35
+            },
+            {
+              "name": "Upload macOS installer",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 36
+            },
+            {
+              "name": "Upload Linux installers",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 37
+            },
+            {
+              "name": "Preserve exact-source platform release evidence",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 38
+            },
+            {
+              "name": "Upload platform release evidence",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 39
+            },
+            {
+              "name": "Post Run actions/setup-python@v5",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 77
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 78
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 79
+            }
+          ]
+        },
+        {
+          "id": 115262317977,
+          "name": "build (windows-latest)",
+          "status": "completed",
+          "conclusion": "success",
+          "run_id": 38386305674,
+          "logs_url": null,
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Run actions/setup-python@v5",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Resolve source version",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Check release packaging and validation syntax",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 5
+            },
+            {
+              "name": "Check Windows packaging script syntax",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 6
+            },
+            {
+              "name": "Verify Defender update retry contracts",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 7
+            },
+            {
+              "name": "Run sudo apt-get update && sudo apt-get install -y libasound2-dev libjack-jackd2-dev ladspa-sdk libcurl4-openssl-dev libfreetype6-dev libfontconfig1-dev libx11-dev libxcomposite-dev libxcursor-dev libxext-dev libxinerama-dev libxrandr-dev libxrender-dev libwebkit2gtk-4.1-dev libglu1-mesa-dev mesa-common-dev dpkg-dev xvfb openbox x11-utils",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 8
+            },
+            {
+              "name": "Configure Windows/Linux",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 9
+            },
+            {
+              "name": "Configure universal macOS",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 10
+            },
+            {
+              "name": "Run cmake --build build --config Release --parallel 2",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 11
+            },
+            {
+              "name": "Record configured CTest inventory",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 12
+            },
+            {
+              "name": "Execute Windows and macOS CTest matrix",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 13
+            },
+            {
+              "name": "Execute Linux CTest matrix with display supervision",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 14
+            },
+            {
+              "name": "Produce current-commit CTest validation evidence",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 15
+            },
+            {
+              "name": "Upload concrete CTest and full-state signature evidence",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 16
+            },
+            {
+              "name": "Upload DSP verification",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 17
+            },
+            {
+              "name": "Upload Windows UI verification",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 18
+            },
+            {
+              "name": "Upload Windows head artwork gallery",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 19
+            },
+            {
+              "name": "Upload Windows pedal and rack gallery",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 20
+            },
+            {
+              "name": "Stage Windows open beta payload",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 21
+            },
+            {
+              "name": "Package and verify macOS universal installer",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 22
+            },
+            {
+              "name": "Package and verify Linux installers",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 23
+            },
+            {
+              "name": "Verify signed release cannot fall back to unsigned",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 24
+            },
+            {
+              "name": "Build Windows installer",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 25
+            },
+            {
+              "name": "Verify Windows install, repair and uninstall",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 26
+            },
+            {
+              "name": "Upload Windows installer verification",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 27
+            },
+            {
+              "name": "Build MSIX review package",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 28
+            },
+            {
+              "name": "Verify MSIX deployment and application activation",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 29
+            },
+            {
+              "name": "Upload MSIX verification",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 30
+            },
+            {
+              "name": "Scan Windows distribution with Microsoft Defender",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 31
+            },
+            {
+              "name": "Upload Windows security report",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 32
+            },
+            {
+              "name": "Upload Windows test package",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 33
+            },
+            {
+              "name": "Upload Windows installer",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 34
+            },
+            {
+              "name": "Upload MSIX review package",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 35
+            },
+            {
+              "name": "Upload macOS installer",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 36
+            },
+            {
+              "name": "Upload Linux installers",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 37
+            },
+            {
+              "name": "Preserve exact-source platform release evidence",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 38
+            },
+            {
+              "name": "Upload platform release evidence",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 39
+            },
+            {
+              "name": "Post Run actions/setup-python@v5",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 77
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 78
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 79
+            }
+          ]
+        },
+        {
+          "id": 115262318006,
+          "name": "build (macos-15)",
+          "status": "completed",
+          "conclusion": "success",
+          "run_id": 38386305674,
+          "logs_url": null,
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Run actions/setup-python@v5",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Resolve source version",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Check release packaging and validation syntax",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 5
+            },
+            {
+              "name": "Check Windows packaging script syntax",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 6
+            },
+            {
+              "name": "Verify Defender update retry contracts",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 7
+            },
+            {
+              "name": "Run sudo apt-get update && sudo apt-get install -y libasound2-dev libjack-jackd2-dev ladspa-sdk libcurl4-openssl-dev libfreetype6-dev libfontconfig1-dev libx11-dev libxcomposite-dev libxcursor-dev libxext-dev libxinerama-dev libxrandr-dev libxrender-dev libwebkit2gtk-4.1-dev libglu1-mesa-dev mesa-common-dev dpkg-dev xvfb openbox x11-utils",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 8
+            },
+            {
+              "name": "Configure Windows/Linux",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 9
+            },
+            {
+              "name": "Configure universal macOS",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 10
+            },
+            {
+              "name": "Run cmake --build build --config Release --parallel 2",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 11
+            },
+            {
+              "name": "Record configured CTest inventory",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 12
+            },
+            {
+              "name": "Execute Windows and macOS CTest matrix",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 13
+            },
+            {
+              "name": "Execute Linux CTest matrix with display supervision",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 14
+            },
+            {
+              "name": "Produce current-commit CTest validation evidence",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 15
+            },
+            {
+              "name": "Upload concrete CTest and full-state signature evidence",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 16
+            },
+            {
+              "name": "Upload DSP verification",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 17
+            },
+            {
+              "name": "Upload Windows UI verification",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 18
+            },
+            {
+              "name": "Upload Windows head artwork gallery",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 19
+            },
+            {
+              "name": "Upload Windows pedal and rack gallery",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 20
+            },
+            {
+              "name": "Stage Windows open beta payload",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 21
+            },
+            {
+              "name": "Package and verify macOS universal installer",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 22
+            },
+            {
+              "name": "Package and verify Linux installers",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 23
+            },
+            {
+              "name": "Verify signed release cannot fall back to unsigned",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 24
+            },
+            {
+              "name": "Build Windows installer",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 25
+            },
+            {
+              "name": "Verify Windows install, repair and uninstall",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 26
+            },
+            {
+              "name": "Upload Windows installer verification",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 27
+            },
+            {
+              "name": "Build MSIX review package",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 28
+            },
+            {
+              "name": "Verify MSIX deployment and application activation",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 29
+            },
+            {
+              "name": "Upload MSIX verification",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 30
+            },
+            {
+              "name": "Scan Windows distribution with Microsoft Defender",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 31
+            },
+            {
+              "name": "Upload Windows security report",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 32
+            },
+            {
+              "name": "Upload Windows test package",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 33
+            },
+            {
+              "name": "Upload Windows installer",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 34
+            },
+            {
+              "name": "Upload MSIX review package",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 35
+            },
+            {
+              "name": "Upload macOS installer",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 36
+            },
+            {
+              "name": "Upload Linux installers",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 37
+            },
+            {
+              "name": "Preserve exact-source platform release evidence",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 38
+            },
+            {
+              "name": "Upload platform release evidence",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 39
+            },
+            {
+              "name": "Post Run actions/setup-python@v5",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 77
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 78
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 79
+            }
+          ]
+        },
+        {
+          "id": 115289152530,
+          "name": "assemble-candidate",
+          "status": "completed",
+          "conclusion": "success",
+          "run_id": 38386305674,
+          "logs_url": null,
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Run actions/setup-python@v5",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Resolve source version",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Run actions/download-artifact@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 5
+            },
+            {
+              "name": "Assemble update manifest from verified installers",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 6
+            },
+            {
+              "name": "Record exact source revision and publication status",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 7
+            },
+            {
+              "name": "Upload concrete draft-ready release files",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 8
+            },
+            {
+              "name": "Preserve exact-source assembly evidence",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 9
+            },
+            {
+              "name": "Upload assembly release evidence",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 10
+            },
+            {
+              "name": "Post Run actions/setup-python@v5",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 19
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 20
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 21
+            }
+          ]
+        },
+        {
+          "id": 115289457081,
+          "name": "consolidate-release-gate",
+          "status": "completed",
+          "conclusion": "success",
+          "run_id": 38386305674,
+          "logs_url": null,
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Run actions/setup-python@v5",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Download this run's evidence without merging platform files",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Compute intended release verdict",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 5
+            },
+            {
+              "name": "Upload consolidated exact-source verdict",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 6
+            },
+            {
+              "name": "Show release eligibility separately from build success",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 7
+            },
+            {
+              "name": "Post Run actions/setup-python@v5",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 13
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 14
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 15
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "run_id": 38386305841,
+      "jobs": [
+        {
+          "id": 115258845372,
+          "name": "historical-fixture",
+          "status": "completed",
+          "conclusion": "success",
+          "run_id": 38386305841,
+          "logs_url": null,
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Run actions/checkout@v5",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Run actions/checkout@v5",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Run sudo apt-get update && sudo apt-get install -y libasound2-dev libcurl4-openssl-dev libfreetype6-dev libfontconfig1-dev libx11-dev libxcomposite-dev libxcursor-dev libxext-dev libxinerama-dev libxrandr-dev libxrender-dev libgl1-mesa-dev xvfb openbox x11-utils",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Build fixture writer against immutable beta.2 product source",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 5
+            },
+            {
+              "name": "Run actions/upload-artifact@v6",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 6
+            },
+            {
+              "name": "Post Run actions/checkout@v5",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 11
+            },
+            {
+              "name": "Post Run actions/checkout@v5",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 12
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 13
+            }
+          ]
+        },
+        {
+          "id": 115258845641,
+          "name": "runtime (ubuntu-latest)",
+          "status": "completed",
+          "conclusion": "success",
+          "run_id": 38386305841,
+          "logs_url": null,
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Run actions/checkout@v5",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Run actions/setup-python@v6",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Generator, publisher and prior release compatibility",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Run sudo apt-get update && sudo apt-get install -y libasound2-dev libcurl4-openssl-dev libfreetype6-dev libfontconfig1-dev libx11-dev libxcomposite-dev libxcursor-dev libxext-dev libxinerama-dev libxrandr-dev libxrender-dev libgl1-mesa-dev xvfb openbox x11-utils",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 5
+            },
+            {
+              "name": "Configure marked qualification build (no approved deadline)",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 6
+            },
+            {
+              "name": "Build real processor, serializer, editor and updater regressions",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 7
+            },
+            {
+              "name": "Runtime and state tests",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 8
+            },
+            {
+              "name": "Runtime and state tests with supervised display",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 9
+            },
+            {
+              "name": "Repeat macOS native state restoration without retrying failures",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 10
+            },
+            {
+              "name": "Run actions/upload-artifact@v6",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 11
+            },
+            {
+              "name": "Post Run actions/setup-python@v6",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 21
+            },
+            {
+              "name": "Post Run actions/checkout@v5",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 22
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 23
+            }
+          ]
+        },
+        {
+          "id": 115258845726,
+          "name": "runtime (windows-latest)",
+          "status": "completed",
+          "conclusion": "success",
+          "run_id": 38386305841,
+          "logs_url": null,
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Run actions/checkout@v5",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Run actions/setup-python@v6",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Generator, publisher and prior release compatibility",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Run sudo apt-get update && sudo apt-get install -y libasound2-dev libcurl4-openssl-dev libfreetype6-dev libfontconfig1-dev libx11-dev libxcomposite-dev libxcursor-dev libxext-dev libxinerama-dev libxrandr-dev libxrender-dev libgl1-mesa-dev xvfb openbox x11-utils",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 5
+            },
+            {
+              "name": "Configure marked qualification build (no approved deadline)",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 6
+            },
+            {
+              "name": "Build real processor, serializer, editor and updater regressions",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 7
+            },
+            {
+              "name": "Runtime and state tests",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 8
+            },
+            {
+              "name": "Runtime and state tests with supervised display",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 9
+            },
+            {
+              "name": "Repeat macOS native state restoration without retrying failures",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 10
+            },
+            {
+              "name": "Run actions/upload-artifact@v6",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 11
+            },
+            {
+              "name": "Post Run actions/setup-python@v6",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 21
+            },
+            {
+              "name": "Post Run actions/checkout@v5",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 22
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 23
+            }
+          ]
+        },
+        {
+          "id": 115258845746,
+          "name": "runtime (macos-latest)",
+          "status": "completed",
+          "conclusion": "success",
+          "run_id": 38386305841,
+          "logs_url": null,
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Run actions/checkout@v5",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Run actions/setup-python@v6",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Generator, publisher and prior release compatibility",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Run sudo apt-get update && sudo apt-get install -y libasound2-dev libcurl4-openssl-dev libfreetype6-dev libfontconfig1-dev libx11-dev libxcomposite-dev libxcursor-dev libxext-dev libxinerama-dev libxrandr-dev libxrender-dev libgl1-mesa-dev xvfb openbox x11-utils",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 5
+            },
+            {
+              "name": "Configure marked qualification build (no approved deadline)",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 6
+            },
+            {
+              "name": "Build real processor, serializer, editor and updater regressions",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 7
+            },
+            {
+              "name": "Runtime and state tests",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 8
+            },
+            {
+              "name": "Runtime and state tests with supervised display",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 9
+            },
+            {
+              "name": "Repeat macOS native state restoration without retrying failures",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 10
+            },
+            {
+              "name": "Run actions/upload-artifact@v6",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 11
+            },
+            {
+              "name": "Post Run actions/setup-python@v6",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 21
+            },
+            {
+              "name": "Post Run actions/checkout@v5",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 22
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 23
+            }
+          ]
+        },
+        {
+          "id": 115266335104,
+          "name": "historical-restore (windows-latest)",
+          "status": "completed",
+          "conclusion": "success",
+          "run_id": 38386305841,
+          "logs_url": null,
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Run actions/checkout@v5",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Run actions/download-artifact@v5",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Run actions/download-artifact@v5",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Run sudo apt-get update && sudo apt-get install -y libasound2-dev libcurl4-openssl-dev libfreetype6 libfontconfig1 libx11-6 libxcomposite1 libxcursor1 libxext6 libxinerama1 libxrandr2 libxrender1 libgl1 xvfb openbox x11-utils",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 5
+            },
+            {
+              "name": "Restore actual beta.2 source fixture before, at and after expiry",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 6
+            },
+            {
+              "name": "Run actions/upload-artifact@v6",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 7
+            },
+            {
+              "name": "Post Run actions/checkout@v5",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 14
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 15
+            }
+          ]
+        },
+        {
+          "id": 115266335241,
+          "name": "historical-restore (macos-latest)",
+          "status": "completed",
+          "conclusion": "success",
+          "run_id": 38386305841,
+          "logs_url": null,
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Run actions/checkout@v5",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Run actions/download-artifact@v5",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Run actions/download-artifact@v5",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Run sudo apt-get update && sudo apt-get install -y libasound2-dev libcurl4-openssl-dev libfreetype6 libfontconfig1 libx11-6 libxcomposite1 libxcursor1 libxext6 libxinerama1 libxrandr2 libxrender1 libgl1 xvfb openbox x11-utils",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 5
+            },
+            {
+              "name": "Restore actual beta.2 source fixture before, at and after expiry",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 6
+            },
+            {
+              "name": "Run actions/upload-artifact@v6",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 7
+            },
+            {
+              "name": "Post Run actions/checkout@v5",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 14
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 15
+            }
+          ]
+        },
+        {
+          "id": 115266335356,
+          "name": "historical-restore (ubuntu-latest)",
+          "status": "completed",
+          "conclusion": "success",
+          "run_id": 38386305841,
+          "logs_url": null,
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Run actions/checkout@v5",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Run actions/download-artifact@v5",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Run actions/download-artifact@v5",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Run sudo apt-get update && sudo apt-get install -y libasound2-dev libcurl4-openssl-dev libfreetype6 libfontconfig1 libx11-6 libxcomposite1 libxcursor1 libxext6 libxinerama1 libxrandr2 libxrender1 libgl1 xvfb openbox x11-utils",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 5
+            },
+            {
+              "name": "Restore actual beta.2 source fixture before, at and after expiry",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 6
+            },
+            {
+              "name": "Run actions/upload-artifact@v6",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 7
+            },
+            {
+              "name": "Post Run actions/checkout@v5",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 14
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 15
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "run_id": 38386305407,
+      "jobs": [
+        {
+          "id": 115259303709,
+          "name": "preparation-contracts",
+          "status": "completed",
+          "conclusion": "success",
+          "run_id": 38386305407,
+          "logs_url": null,
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Run actions/setup-python@v5",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Run actions/setup-node@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Run pip install -r Preparation/requirements.txt playwright",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 5
+            },
+            {
+              "name": "Run python -m playwright install --with-deps chromium",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 6
+            },
+            {
+              "name": "Require complete browser and state coverage",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 7
+            },
+            {
+              "name": "Run actions/upload-artifact@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 8
+            },
+            {
+              "name": "Post Run actions/setup-node@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 14
+            },
+            {
+              "name": "Post Run actions/setup-python@v5",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 15
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 16
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 17
+            }
+          ]
+        },
+        {
+          "id": 115259304141,
+          "name": "windows-candidate",
+          "status": "completed",
+          "conclusion": "success",
+          "run_id": 38386305407,
+          "logs_url": null,
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Run actions/setup-python@v5",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Check version contract before native build",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Check candidate transfer contract before native build",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 5
+            },
+            {
+              "name": "Configure",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 6
+            },
+            {
+              "name": "Check candidate packaging and validation contracts",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 7
+            },
+            {
+              "name": "Check candidate PowerShell script syntax",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 8
+            },
+            {
+              "name": "Upload current-commit release-gate evidence",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 9
+            },
+            {
+              "name": "Build independent shutdown regression probes",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 10
+            },
+            {
+              "name": "Verify VBlank failure can stop safely",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 11
+            },
+            {
+              "name": "Preserve VBlank failure regression evidence",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 12
+            },
+            {
+              "name": "Fetch previously delivered VST3 for shutdown comparison",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 13
+            },
+            {
+              "name": "Verify baseline binary provenance",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 14
+            },
+            {
+              "name": "Observe previous VST3 shutdown behavior",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 15
+            },
+            {
+              "name": "Preserve early baseline shutdown observations",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 16
+            },
+            {
+              "name": "Build product and regression checks",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 17
+            },
+            {
+              "name": "Record Windows execution environment before CTest",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 18
+            },
+            {
+              "name": "Execute DSP and actual JUCE UI tests",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 19
+            },
+            {
+              "name": "Run actions/upload-artifact@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 20
+            },
+            {
+              "name": "Produce combined-candidate CTest evidence",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 21
+            },
+            {
+              "name": "Upload combined-candidate validation and signatures",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 22
+            },
+            {
+              "name": "Package distinct Windows test build",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 23
+            },
+            {
+              "name": "Stage exact-commit Windows installer payload",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 24
+            },
+            {
+              "name": "Build distinct Windows Setup",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 25
+            },
+            {
+              "name": "Verify selected paths, installed app, VST3, repair and uninstall",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 26
+            },
+            {
+              "name": "Scan candidate Setup with Microsoft Defender",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 27
+            },
+            {
+              "name": "Prepare verified Setup transfer parts",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 28
+            },
+            {
+              "name": "Run actions/upload-artifact@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 29
+            },
+            {
+              "name": "Run actions/upload-artifact@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 30
+            },
+            {
+              "name": "Run actions/upload-artifact@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 31
+            },
+            {
+              "name": "Run actions/upload-artifact@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 32
+            },
+            {
+              "name": "Run actions/upload-artifact@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 33
+            },
+            {
+              "name": "Run actions/upload-artifact@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 34
+            },
+            {
+              "name": "Run actions/upload-artifact@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 35
+            },
+            {
+              "name": "Run actions/upload-artifact@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 36
+            },
+            {
+              "name": "Run actions/upload-artifact@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 37
+            },
+            {
+              "name": "Run actions/upload-artifact@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 38
+            },
+            {
+              "name": "Run actions/upload-artifact@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 39
+            },
+            {
+              "name": "Run actions/upload-artifact@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 40
+            },
+            {
+              "name": "Run actions/upload-artifact@v4",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 41
+            },
+            {
+              "name": "Run actions/upload-artifact@v4",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 42
+            },
+            {
+              "name": "Run actions/upload-artifact@v4",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 43
+            },
+            {
+              "name": "Run actions/upload-artifact@v4",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 44
+            },
+            {
+              "name": "Run actions/upload-artifact@v4",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 45
+            },
+            {
+              "name": "Run actions/upload-artifact@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 46
+            },
+            {
+              "name": "Run actions/upload-artifact@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 47
+            },
+            {
+              "name": "Run actions/upload-artifact@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 48
+            },
+            {
+              "name": "Run actions/upload-artifact@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 49
+            },
+            {
+              "name": "Run actions/upload-artifact@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 50
+            },
+            {
+              "name": "Run actions/upload-artifact@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 51
+            },
+            {
+              "name": "Run actions/upload-artifact@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 52
+            },
+            {
+              "name": "Run actions/upload-artifact@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 53
+            },
+            {
+              "name": "Run actions/upload-artifact@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 54
+            },
+            {
+              "name": "Run actions/upload-artifact@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 55
+            },
+            {
+              "name": "Run actions/upload-artifact@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 56
+            },
+            {
+              "name": "Run actions/upload-artifact@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 57
+            },
+            {
+              "name": "Run actions/upload-artifact@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 58
+            },
+            {
+              "name": "Run actions/upload-artifact@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 59
+            },
+            {
+              "name": "Run actions/upload-artifact@v4",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 60
+            },
+            {
+              "name": "Run actions/upload-artifact@v4",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 61
+            },
+            {
+              "name": "Run actions/upload-artifact@v4",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 62
+            },
+            {
+              "name": "Run actions/upload-artifact@v4",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 63
+            },
+            {
+              "name": "Run actions/upload-artifact@v4",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 64
+            },
+            {
+              "name": "Run actions/upload-artifact@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 65
+            },
+            {
+              "name": "Run actions/upload-artifact@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 66
+            },
+            {
+              "name": "Post Run actions/setup-python@v5",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 131
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 132
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 133
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "run_id": 38386305308,
+      "jobs": [
+        {
+          "id": 115258843414,
+          "name": "Document fixtures (macos-15)",
+          "status": "completed",
+          "conclusion": "success",
+          "run_id": 38386305308,
+          "logs_url": null,
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Run actions/setup-python@v5",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Record source and exact validation scope",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Native helper and isolated real dpkg lifecycle fixtures",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 5
+            },
+            {
+              "name": "Native macOS helper fixtures",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 6
+            },
+            {
+              "name": "Real Apple PKG fixture installation, upgrade and repair",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 7
+            },
+            {
+              "name": "Upload source-bound fixture evidence",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 8
+            },
+            {
+              "name": "Post Run actions/setup-python@v5",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 15
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 16
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 17
+            }
+          ]
+        },
+        {
+          "id": 115258843587,
+          "name": "Document fixtures (ubuntu-24.04)",
+          "status": "completed",
+          "conclusion": "success",
+          "run_id": 38386305308,
+          "logs_url": null,
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Run actions/setup-python@v5",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Record source and exact validation scope",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Native helper and isolated real dpkg lifecycle fixtures",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 5
+            },
+            {
+              "name": "Native macOS helper fixtures",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 6
+            },
+            {
+              "name": "Real Apple PKG fixture installation, upgrade and repair",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 7
+            },
+            {
+              "name": "Upload source-bound fixture evidence",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 8
+            },
+            {
+              "name": "Post Run actions/setup-python@v5",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 15
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 16
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 17
+            }
+          ]
+        },
+        {
+          "id": 115258843602,
+          "name": "Windows Inno document fixtures (exact source)",
+          "status": "completed",
+          "conclusion": "success",
+          "run_id": 38386305308,
+          "logs_url": null,
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Run actions/setup-python@v5",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Verify generated Windows ownership rules",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Locate native Inno Setup compiler",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 5
+            },
+            {
+              "name": "Real Inno fresh, upgrade, repair and historical-log uninstall fixtures",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 6
+            },
+            {
+              "name": "Upload native fixture evidence (not a released-product install claim)",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 7
+            },
+            {
+              "name": "Post Run actions/setup-python@v5",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 13
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 14
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 15
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
