@@ -6,6 +6,8 @@
 #include "CabRealtimeProfile.h"
 #if defined(_MSC_VER) && (defined(_M_X64) || defined(_M_IX86))
 #include <xmmintrin.h>
+#elif defined(__APPLE__) && defined(__aarch64__)
+#include <arm_neon.h>
 #endif
 
 namespace spectralforge {
@@ -123,6 +125,26 @@ private:
                                       _mm_mul_ps(inputImag,impulseReal));
             _mm_storeu_ps(output+i,real);
             _mm_storeu_ps(output+bins+i,imag);
+        }
+#elif defined(__APPLE__) && defined(__aarch64__)
+        // The macOS attribution matrix places the 96 kHz / 32-sample cost in
+        // this spectral MAC, while publication itself remains negligible.
+        // AppleClang contracts the scalar multiply/add pairs on arm64. Express
+        // the same two-step FMA/FMS arithmetic explicitly for four planar bins
+        // so the frozen residue-bank output remains the compatibility gate.
+        for(;i+4<=bins;i+=4) {
+            const auto inputReal=vld1q_f32(input+i);
+            const auto inputImag=vld1q_f32(input+bins+i);
+            const auto impulseReal=vld1q_f32(impulse+i);
+            const auto impulseImag=vld1q_f32(impulse+bins+i);
+            const auto outputReal=vld1q_f32(output+i);
+            const auto outputImag=vld1q_f32(output+bins+i);
+            const auto real=vfmsq_f32(vfmaq_f32(outputReal,inputReal,impulseReal),
+                                      inputImag,impulseImag);
+            const auto imag=vfmaq_f32(vfmaq_f32(outputImag,inputReal,impulseImag),
+                                      inputImag,impulseReal);
+            vst1q_f32(output+i,real);
+            vst1q_f32(output+bins+i,imag);
         }
 #endif
         for(;i<bins;++i) {
