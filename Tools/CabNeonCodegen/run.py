@@ -4,7 +4,7 @@ import argparse, hashlib, json, platform, re, shlex, statistics, subprocess
 from pathlib import Path
 PARENT='c2263e4c90bffb9a56cc41285ebf8207e641b3aa'
 NEON='29865abb4da3ab78592c970a263ee62af63fc673'
-NAMES=['scalar','neon4','neon8','neon16','scalar_ic1','scalar_ic2']
+NAMES=['scalar','neon4','neon8','neon16','scalar_ic1','scalar_ic2','bound4','bound8']
 
 def body(text):
  start=text.index('        int i=0;',text.index('    void accumulate('))
@@ -17,7 +17,9 @@ def candidates(a,b):
  pos=b.index(marker,b.index('#elif defined(__APPLE__)'))
  def unroll(n):return b[:pos]+f'        #pragma clang loop unroll_count({n})\n'+b[pos:]
  def interleave(n):return a.replace('        for(;i<bins;++i) {',f'        #pragma clang loop vectorize_width(4) interleave_count({n})\n        for(;i<bins;++i) {{')
- return [a,b,unroll(2),unroll(4),interleave(1),interleave(2)]
+ bounded=b[:pos]+'        const int vectorBins=bins & ~3;\n'+b[pos:].replace('for(;i+4<=bins;i+=4)', 'for(;i<vectorBins;i+=4)',1)
+ bound8=bounded.replace('        for(;i<vectorBins;i+=4)', '        #pragma clang loop unroll_count(2)\n        for(;i<vectorBins;i+=4)',1)
+ return [a,b,unroll(2),unroll(4),interleave(1),interleave(2),bounded,bound8]
 
 def run(cmd,out):
  p=subprocess.run(list(map(str,cmd)),text=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
@@ -26,7 +28,7 @@ def run(cmd,out):
  return p.stdout
 
 def main():
- ap=argparse.ArgumentParser();ap.add_argument('--output',type=Path,required=True);args=ap.parse_args()
+ ap=argparse.ArgumentParser();ap.add_argument('--output',type=Path,required=True);ap.add_argument('--new-candidates-only',action='store_true');args=ap.parse_args()
  out=args.output.resolve();out.mkdir(parents=True,exist_ok=False)
  if platform.system()!='Darwin' or platform.machine()!='arm64':raise RuntimeError('Native Apple Silicon required')
  root=Path(__file__).resolve().parents[2]
@@ -54,7 +56,7 @@ def main():
  rows=[]
  # Working sets cover small hot loops and realistic partition streams. A/A shares binary/function.
  for n,parts in [(65,64),(128,64),(129,32),(256,32),(513,8),(1024,8)]:
-  for candidate in range(1,6):
+  for candidate in range(6 if args.new_candidates_only else 1,len(NAMES)):
    for round_ in range(6):
     order='ABBA' if round_%2==0 else 'BAAB'
     for exp in (('AA','AB') if round_%2==0 else ('AB','AA')):
@@ -70,7 +72,7 @@ def main():
  spec=importlib.util.spec_from_file_location('ab',root/'Tools/CabNeonAB/run.py');ab=importlib.util.module_from_spec(spec);spec.loader.exec_module(ab)
  summary=[]
  for n,parts in [(65,64),(128,64),(129,32),(256,32),(513,8),(1024,8)]:
-  for name in NAMES[1:]:
+  for name in NAMES[6 if args.new_candidates_only else 1:]:
    effects={};pop=[r for r in rows if r['bins']==n and r['candidate']==name]
    if len({r['hash'] for r in pop})!=1:raise RuntimeError('benchmark bit mismatch')
    for exp in ('AB','AA'):

@@ -24,12 +24,18 @@ jobs:
         with:
           python-version: '3.12'
       - name: Extract exact kernels and inspect AppleClang ARM64
-        run: python Tools/CabNeonCodegen/run.py --output evidence
+        run: python Tools/CabNeonCodegen/run.py --output evidence --new-candidates-only
+      - name: Inspect actual product translation units and validate bounded-loop candidate
+        run: python Tools/CabNeonCodegen/products.py --kernels evidence --output product-evidence
       - name: Preserve codegen and every measurement
         if: always()
         uses: actions/upload-artifact@v6
         with:
           name: PR73-neon-codegen-${{ github.run_id }}-${{ github.run_attempt }}
-          path: evidence/
+          path: |
+            evidence/
+            product-evidence/
+            !product-evidence/build/
+            !product-evidence/product-source/
           if-no-files-found: error
           retention-days: 90
