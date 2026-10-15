@@ -35,7 +35,7 @@ visual or editing acceptance below.
 
 ## October follow-up: required quality scope
 
-Targets: **1.3.1-beta.2 on October 16, beta.3 on October 23, and beta.4 on October 30**. The release calendar assigns the minimum and remaining scope to each weekly build.
+Targets: **1.3.1-beta.3 on October 16 (lifecycle candidate), 1.3.2-beta.1 on October 23 (integrated EQ/tuner/dynamics candidate), and 1.3.2-beta.2 on October 30**. The release calendar assigns the minimum and remaining scope to each weekly build.
 First installer October 23; validation candidate October 30; scope review
 November 1. The released beta.1 remains the historical base.
 

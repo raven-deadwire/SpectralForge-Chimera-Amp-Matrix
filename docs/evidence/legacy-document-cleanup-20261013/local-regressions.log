@@ -1,0 +1,154 @@
+
+COMMAND: python3 Tools/check_catalog_contract.py
+PASS: Chimera catalog contract 85 models = AMP 25 + PRE 39 + POST 21; presets 31+3
+PASS: four append-only full-state Guitar Signatures and two approved embedded IR assets with exact SHA-256
+PASS: five Náströnd + five Niflheimr Original full rigs; 48 selectable presets, previous 43 indices preserved
+PASS: 13 public documents use product names; runtime labels are checked by native tests
+
+COMMAND: python3 Tests/test_public_names.py
+........
+----------------------------------------------------------------------
+Ran 8 tests in 0.728s
+
+OK
+
+COMMAND: python3 Tools/test_publish_release.py
+................................
+----------------------------------------------------------------------
+Ran 32 tests in 1.713s
+
+OK
+
+COMMAND: python3 Tests/test_packaging_version.py
+test_beta_identity_and_malformed_channels (__main__.PackagingVersionTests.test_beta_identity_and_malformed_channels) ... ok
+test_beta_rc_and_stable_have_one_numeric_identity_and_compatible_feeds (__main__.PackagingVersionTests.test_beta_rc_and_stable_have_one_numeric_identity_and_compatible_feeds) ... ok
+test_candidate_stage_inventory_and_versions_without_global_mutation (__main__.PackagingVersionTests.test_candidate_stage_inventory_and_versions_without_global_mutation) ... ok
+test_cmake_project_and_generated_product_identity (__main__.PackagingVersionTests.test_cmake_project_and_generated_product_identity) ... ok
+test_debian_upgrade_order_matches_semver (__main__.PackagingVersionTests.test_debian_upgrade_order_matches_semver) ... ok
+test_identity_uses_source_version_and_exact_sha (__main__.PackagingVersionTests.test_identity_uses_source_version_and_exact_sha) ... ok
+test_installed_product_identity_and_user_data_paths_are_immutable (__main__.PackagingVersionTests.test_installed_product_identity_and_user_data_paths_are_immutable) ... ok
+test_manifest_rejects_bad_source_target_checksums_or_mixed_downloads (__main__.PackagingVersionTests.test_manifest_rejects_bad_source_target_checksums_or_mixed_downloads) ... ok
+test_portable_main_rejects_original_name_in_packaged_manual_before_transfer (__main__.PackagingVersionTests.test_portable_main_rejects_original_name_in_packaged_manual_before_transfer) ... ok
+test_portable_main_writes_exact_source_evidence_pointer_and_archive (__main__.PackagingVersionTests.test_portable_main_writes_exact_source_evidence_pointer_and_archive) ... ok
+test_public_document_inventory_and_injected_name_regression (__main__.PackagingVersionTests.test_public_document_inventory_and_injected_name_regression) ... ok
+test_publishable_versions_do_not_accept_tags_previews_or_metadata (__main__.PackagingVersionTests.test_publishable_versions_do_not_accept_tags_previews_or_metadata) ... ok
+test_rejects_malformed_and_windows_overflow_versions (__main__.PackagingVersionTests.test_rejects_malformed_and_windows_overflow_versions) ... ok
+test_rejects_old_missing_mixed_or_wrong_head_payload (__main__.PackagingVersionTests.test_rejects_old_missing_mixed_or_wrong_head_payload) ... ok
+test_rejects_stale_configured_build_before_staging (__main__.PackagingVersionTests.test_rejects_stale_configured_build_before_staging) ... ok
+test_release_manifests_match_exact_channel_names_urls_and_source (__main__.PackagingVersionTests.test_release_manifests_match_exact_channel_names_urls_and_source) ... ok
+test_repository_consumers_require_version_contract (__main__.PackagingVersionTests.test_repository_consumers_require_version_contract) ... ok
+test_source_preview_candidate_assembly_remains_private_and_source_derived (__main__.PackagingVersionTests.test_source_preview_candidate_assembly_remains_private_and_source_derived) ... ok
+test_target_assertion_cannot_promote_or_relabel_existing_source (__main__.PackagingVersionTests.test_target_assertion_cannot_promote_or_relabel_existing_source) ... ok
+test_windows_builder_rejects_mixed_or_missing_payload_version (__main__.PackagingVersionTests.test_windows_builder_rejects_mixed_or_missing_payload_version) ... skipped 'actual PowerShell builder regression runs in Windows CI'
+test_windows_builder_rejects_relabelled_binary (__main__.PackagingVersionTests.test_windows_builder_rejects_relabelled_binary) ... skipped 'actual Windows PE resource check runs in Windows CI'
+test_windows_juce_and_inno_resource_layouts (__main__.PackagingVersionTests.test_windows_juce_and_inno_resource_layouts) ... skipped 'PowerShell resource fixtures run in Windows CI'
+
+----------------------------------------------------------------------
+Ran 22 tests in 3.228s
+
+OK (skipped=3)
+
+COMMAND: python3 Tools/test_candidate_transfer.py
+test_both_streams_preserve_checksum_and_source_rejection (__main__.CandidateTransferTests.test_both_streams_preserve_checksum_and_source_rejection) ... ok
+test_both_streams_reconstruct_past_old_limits_and_at_sixteen_parts (__main__.CandidateTransferTests.test_both_streams_reconstruct_past_old_limits_and_at_sixteen_parts) ... ok
+test_both_streams_reject_seventeenth_part_before_output (__main__.CandidateTransferTests.test_both_streams_reject_seventeenth_part_before_output) ... ok
+test_workflow_uploads_every_bounded_part_after_security_gate (__main__.CandidateTransferTests.test_workflow_uploads_every_bounded_part_after_security_gate) ... ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 0.077s
+
+OK
+
+COMMAND: python3 Tools/test_weekly_publication.py
+.............................
+----------------------------------------------------------------------
+Ran 29 tests in 2.260s
+
+OK
+
+COMMAND: python3 Tools/test_publication_evidence.py
+....................
+----------------------------------------------------------------------
+Ran 20 tests in 2.144s
+
+OK
+
+COMMAND: python3 Tools/test_release_consolidator.py
+..............................
+----------------------------------------------------------------------
+Ran 30 tests in 2.214s
+
+OK
+
+COMMAND: python3 Tools/test_beta_publication131.py
+.......................
+----------------------------------------------------------------------
+Ran 23 tests in 1.543s
+
+OK
+
+COMMAND: python3 Tools/test_publish_beta131.py
+.............................................
+----------------------------------------------------------------------
+Ran 45 tests in 0.682s
+
+OK
+
+COMMAND: python3 Tools/test_release_scope.py
+PASS: beta defers exactly two transpose goals; RC/stable retain every full-release check; all applicable hard gates fail closed.
+
+COMMAND: python3 Tests/test_windows_document_rules.py
+...........
+----------------------------------------------------------------------
+Ran 11 tests in 0.008s
+
+OK
+
+COMMAND: python3 Tools/test_legacy_document_cleanup.py
+test_real_dpkg_failed_prepare_does_not_unpack_or_lose_user_document (__main__.DpkgDocumentLifecycleTests.test_real_dpkg_failed_prepare_does_not_unpack_or_lose_user_document) ... ok
+test_real_dpkg_fresh_install_and_remove_preserve_licenses_and_personal_files (__main__.DpkgDocumentLifecycleTests.test_real_dpkg_fresh_install_and_remove_preserve_licenses_and_personal_files) ... ok
+test_real_dpkg_upgrade_repair_remove_preserve_user_changes (__main__.DpkgDocumentLifecycleTests.test_real_dpkg_upgrade_repair_remove_preserve_user_changes) ... ok
+test_abort_does_not_overwrite_a_new_user_edit (__main__.LegacyDocumentCleanupTests.test_abort_does_not_overwrite_a_new_user_edit) ... ok
+test_abort_restores_missing_user_document_and_is_repeatable (__main__.LegacyDocumentCleanupTests.test_abort_restores_missing_user_document_and_is_repeatable) ... ok
+test_backup_path_link_refuses_prepare (__main__.LegacyDocumentCleanupTests.test_backup_path_link_refuses_prepare) ... ok
+test_blocked_backup_refuses_prepare_and_preserves_source (__main__.LegacyDocumentCleanupTests.test_blocked_backup_refuses_prepare_and_preserves_source) ... ok
+test_cleanup_removes_only_exact_platform_variants (__main__.LegacyDocumentCleanupTests.test_cleanup_removes_only_exact_platform_variants) ... ok
+test_current_manual_edit_saved_while_repair_restores_payload (__main__.LegacyDocumentCleanupTests.test_current_manual_edit_saved_while_repair_restores_payload) ... ok
+test_fresh_install_has_no_retired_documents (__main__.LegacyDocumentCleanupTests.test_fresh_install_has_no_retired_documents) ... ok
+test_hardlink_file_refuses_prepare (__main__.LegacyDocumentCleanupTests.test_hardlink_file_refuses_prepare) ... ok
+test_linked_parent_refuses_prepare (__main__.LegacyDocumentCleanupTests.test_linked_parent_refuses_prepare) ... ok
+test_modified_retired_document_restored_after_unpack (__main__.LegacyDocumentCleanupTests.test_modified_retired_document_restored_after_unpack) ... ok
+test_native_sha256_matches_hashlib_at_block_and_read_boundaries (__main__.LegacyDocumentCleanupTests.test_native_sha256_matches_hashlib_at_block_and_read_boundaries) ... ok
+test_nonregular_candidate_refuses_prepare (__main__.LegacyDocumentCleanupTests.test_nonregular_candidate_refuses_prepare) ... ok
+test_remove_documents_exact_payload_removal_is_idempotent (__main__.LegacyDocumentCleanupTests.test_remove_documents_exact_payload_removal_is_idempotent) ... ok
+test_remove_documents_preserves_edits_notices_and_unknown_user_files (__main__.LegacyDocumentCleanupTests.test_remove_documents_preserves_edits_notices_and_unknown_user_files) ... ok
+test_remove_restores_user_edits_and_required_notices (__main__.LegacyDocumentCleanupTests.test_remove_restores_user_edits_and_required_notices) ... ok
+test_repeated_prepare_preserves_original_snapshot (__main__.LegacyDocumentCleanupTests.test_repeated_prepare_preserves_original_snapshot) ... ok
+test_restore_retains_private_file_owner_group_and_permissions (__main__.LegacyDocumentCleanupTests.test_restore_retains_private_file_owner_group_and_permissions) ... skipped "This isolated runtime cannot map another UID/GID: [Errno 22] Invalid argument: '/tmp/chimera-document-fixture-skxaub92/Chimera 문서 fixture/AMP_VALIDATION.md'"
+test_same_size_changed_content_is_preserved (__main__.LegacyDocumentCleanupTests.test_same_size_changed_content_is_preserved) ... ok
+test_symlink_docroot_refuses_prepare (__main__.LegacyDocumentCleanupTests.test_symlink_docroot_refuses_prepare) ... ok
+test_symlink_file_refuses_prepare_without_deleting_other_files (__main__.LegacyDocumentCleanupTests.test_symlink_file_refuses_prepare_without_deleting_other_files) ... ok
+test_tampered_backup_refuses_restore (__main__.LegacyDocumentCleanupTests.test_tampered_backup_refuses_restore) ... ok
+test_tampered_journal_refuses_commit_without_deleting_original (__main__.LegacyDocumentCleanupTests.test_tampered_journal_refuses_commit_without_deleting_original) ... ok
+test_unknown_user_files_and_forged_runtime_manifest_are_ignored (__main__.LegacyDocumentCleanupTests.test_unknown_user_files_and_forged_runtime_manifest_are_ignored) ... ok
+test_unverified_line_ending_variant_is_preserved (__main__.LegacyDocumentCleanupTests.test_unverified_line_ending_variant_is_preserved) ... ok
+test_native_install_creation_race_preserves_new_user_file (__main__.NativeDocumentInstallTests.test_native_install_creation_race_preserves_new_user_file) ... ok
+test_native_install_failed_preservation_keeps_original_before_replacement (__main__.NativeDocumentInstallTests.test_native_install_failed_preservation_keeps_original_before_replacement) ... ok
+test_native_install_fresh_then_same_version_is_idempotent (__main__.NativeDocumentInstallTests.test_native_install_fresh_then_same_version_is_idempotent) ... ok
+test_native_install_leaf_swap_preserves_both_observed_user_versions (__main__.NativeDocumentInstallTests.test_native_install_leaf_swap_preserves_both_observed_user_versions) ... ok
+test_native_install_manifest_is_copy_only_metadata_and_preserves_previous_bytes (__main__.NativeDocumentInstallTests.test_native_install_manifest_is_copy_only_metadata_and_preserves_previous_bytes) ... ok
+test_native_install_raced_symlink_never_touches_its_target (__main__.NativeDocumentInstallTests.test_native_install_raced_symlink_never_touches_its_target) ... ok
+test_native_install_rechecks_same_size_source_change_before_replacement (__main__.NativeDocumentInstallTests.test_native_install_rechecks_same_size_source_change_before_replacement) ... ok
+test_native_install_refuses_linked_source_or_target_ancestors (__main__.NativeDocumentInstallTests.test_native_install_refuses_linked_source_or_target_ancestors) ... ok
+test_native_install_refuses_source_links_and_nonregular_files (__main__.NativeDocumentInstallTests.test_native_install_refuses_source_links_and_nonregular_files) ... ok
+test_native_install_refuses_target_link_before_retiring_other_files (__main__.NativeDocumentInstallTests.test_native_install_refuses_target_link_before_retiring_other_files) ... ok
+test_native_install_rejects_changed_or_historical_source_bytes_before_changes (__main__.NativeDocumentInstallTests.test_native_install_rejects_changed_or_historical_source_bytes_before_changes) ... ok
+test_native_install_rejects_relative_root_and_source_destination_overlap (__main__.NativeDocumentInstallTests.test_native_install_rejects_relative_root_and_source_destination_overlap) ... ok
+test_native_install_retains_inode_for_an_editor_already_holding_it_open (__main__.NativeDocumentInstallTests.test_native_install_retains_inode_for_an_editor_already_holding_it_open) ... ok
+test_native_install_root_swap_cannot_redirect_copy_to_private_documents (__main__.NativeDocumentInstallTests.test_native_install_root_swap_cannot_redirect_copy_to_private_documents) ... ok
+test_native_install_upgrade_preserves_same_size_edits_and_private_files (__main__.NativeDocumentInstallTests.test_native_install_upgrade_preserves_same_size_edits_and_private_files) ... ok
+
+----------------------------------------------------------------------
+Ran 42 tests in 1.789s
+
+OK (skipped=1)

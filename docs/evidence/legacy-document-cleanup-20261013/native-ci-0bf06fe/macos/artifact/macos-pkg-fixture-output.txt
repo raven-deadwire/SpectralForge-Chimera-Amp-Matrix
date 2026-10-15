@@ -1,0 +1,4 @@
+PASS: Real Apple PKG fresh installation executes native hooks; document-only removal preserves notices.
+PASS: Real Apple PKG upgrade removes exact retired files and preserves edited legacy and current document bytes.
+PASS: Same-version Apple PKG repair installs current documentation and retains both user revisions.
+PASS: Repeated document-only removal preserves modified docs, license notices, personal presets, IRs and project fixtures.

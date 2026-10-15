@@ -5,6 +5,7 @@ import json
 import re
 from pathlib import Path
 from check_ir_distribution import validate_source
+from check_public_names import validate_source as validate_public_presentation
 
 ROOT = Path(__file__).resolve().parents[1]
 CONTRACT = json.loads((ROOT / "Validation/catalog-count-contract.json").read_text(encoding="utf-8"))
@@ -81,7 +82,7 @@ assert original_names == ["Thall Rhythm", "Molten Lead", "Rotten Grind", "Sludge
 assert len(original_names) == CONTRACT["original_preset_count"]
 niflheimr = read("Source/NiflheimrPresets.h")
 niflheimr_names = re.findall(r'\{"original\.rig\.niflheimr\.[^"]+","([^"]+)"', niflheimr)
-assert niflheimr_names == ["Frostline Precision", "Carrion Barrage", "Foundry Pulse", "Jötunn Hammer", "Mirebound Monolith"], niflheimr_names
+assert niflheimr_names == ["Metal Clank", "Death Grind", "Heavy Pulse", "Slam Punch", "Doom Fuzz"], niflheimr_names
 assert "niflheimrPresetStart=originalPresetStart+originalPresetCount" in niflheimr
 assert len(niflheimr_names) == CONTRACT["niflheimr_original_preset_count"]
 assert preset_total + len(names) + len(original_names) + len(niflheimr_names) == CONTRACT["selectable_preset_count"]
@@ -89,3 +90,6 @@ assert CONTRACT["niflheimr_original_preset_ordinals"] == [
     {"index": 43 + i, "name": name} for i, name in enumerate(niflheimr_names)
 ]
 print("PASS: five Náströnd + five Niflheimr Original full rigs; 48 selectable presets, previous 43 indices preserved")
+
+presentation = validate_public_presentation(ROOT)
+print(f"PASS: {presentation['source_documents_checked']} public documents use product names; runtime labels are checked by native tests")

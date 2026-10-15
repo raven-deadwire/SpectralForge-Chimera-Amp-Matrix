@@ -43,5 +43,5 @@ private:
     std::unique_ptr<juce::AudioProcessorValueTreeState::ComboBoxAttachment> modelAttachment;
     std::unique_ptr<juce::ParameterAttachment> enabledAttachment;std::vector<std::unique_ptr<NativeControlView>> controls;
     void timerCallback() override {if(family==1 && !controls.empty()){controls.front()->slider.setEnabled(processor.parameters().getRawParameterValue("delaysync")->load()<.5f);controls.front()->slider.updateText();}}
-    void refreshModel(){const int selected=juce::jmax(0,model.getSelectedId()-1);reference.setText(juce::String("REFERENCE: ")+juce::String::fromUTF8(spectralforge::modelInfo(family,selected).reference),juce::dontSendNotification);reference.setTooltip(reference.getText());for(auto& control:controls)control->slider.getProperties().set("knobStyle",spectralforge::art::rackStyle(family,selected).knobStyle);repaint();}
+    void refreshModel(){const int selected=juce::jmax(0,model.getSelectedId()-1);reference.setText(juce::String::fromUTF8(spectralforge::modelInfo(family,selected).character),juce::dontSendNotification);reference.setTooltip(reference.getText());for(auto& control:controls)control->slider.getProperties().set("knobStyle",spectralforge::art::rackStyle(family,selected).knobStyle);repaint();}
 };

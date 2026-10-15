@@ -35,3 +35,17 @@ fixed excerpts. Production evidence must come from the exact current CI source,
 run and attempt. Replaying the verified checkpoint bundles with the corrected
 map yields 21 automatic passes while all 107 unowned or external acceptance
 checks stay blocked; it does not replace a fresh CI run or authorize publication.
+
+`release-policy-1.3.0.json` and `release-policy-1.3.1.json` retain the strict
+policies used by the historical beta publisher regression suites. The latter
+is the unchanged policy for `1.3.1-beta.1`, whose canonical JSON fingerprint is
+`b21f8fc7a6f6b5f20a33a4e662d132eb471c54958ffa4801e57eb59cf0f603e2`.
+These frozen inputs keep historical approval tests independent of later weekly
+version and channel changes. They are test fixtures; the generic publisher reads
+the validation policy from the selected product source and requires a separate
+approval for that exact version and source.
+
+`weekly-publication-policy-unapproved.json` freezes the initial empty weekly
+receipt for synthetic approval tests. The live approval file may legitimately
+change in a reviewed controller commit; that change must not alter test setup
+or make the publisher's required regression suite demand an unapproved receipt.

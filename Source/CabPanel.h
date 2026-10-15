@@ -145,16 +145,28 @@ private:
     }
     void timerCallback() override {
         bool artworkChanged=false;
+        bool anyCaptured=false;
         for(int i=0;i<2;++i) {
             auto& slot=slots[i];
             const bool modeled=processor.parameters().getRawParameterValue(spectralforge::originalCabID(lane,i ? "Bon" : "Aon"))->load()>.5f;
-            slot.title.setText(juce::String(i ? "MIC B" : "MIC A")+(modeled ? " / CABINET MIC" : " / CAPTURED IR"),juce::dontSendNotification);
-            slot.provenance.setText(modeled ? "Stored capture / select an IR to use it" : "Captured cabinet and microphone",juce::dontSendNotification);
+            const int source=int(processor.parameters().getRawParameterValue((i ? "cabBtype" : "cabtype")+juce::String(lane+1))->load());
+            const bool inactiveIR=currentView==View::irLoader && modeled;
+            anyCaptured=anyCaptured || !modeled;
+            slot.title.setText(juce::String(i ? "MIC B" : "MIC A")+(modeled ? " / CABINET MIC" : source==0 ? " / FILTERS ONLY" : " / CAPTURED IR"),juce::dontSendNotification);
+            slot.provenance.setText(modeled ? "Stored capture / IR inactive" : source==0 ? "Mic cuts only / no speaker IR" : "Captured cabinet and microphone",juce::dontSendNotification);
             const auto status=processor.micStatus(lane,i);
-            slot.status.setText(modeled ? status.replace(" v1","") : status,juce::dontSendNotification);slot.status.setTooltip(status);
+            slot.status.setText(inactiveIR ? "IR inactive | Edit this mic on CABINET" : modeled ? status.replace(" v1","") : status,juce::dontSendNotification);slot.status.setTooltip(status);
+            // The two views expose one set of mic controls. A retained capture
+            // is not another active path while this slot uses a cabinet model.
+            // Keep its source selectors available for an intentional switch,
+            // but do not let inactive IR controls edit the modeled mic's cuts.
+            for(size_t k=0;k<slot.sliders.size();++k) {
+                slot.sliders[k].setEnabled(!inactiveIR);
+                slot.labels[k].setEnabled(!inactiveIR);
+            }
+            slot.invert.setEnabled(!inactiveIR);
             slot.cabinetImage.setActive(!modeled);slot.microphoneImage.setActive(!modeled);
             const auto name=processor.micName(lane,i);
-            const int source=int(processor.parameters().getRawParameterValue((i ? "cabBtype" : "cabtype")+juce::String(lane+1))->load());
             // Asset/metadata revisions also distinguish equal basenames. Kernel
             // activation alone must not erase a cabinet the user is browsing.
             const auto metadataRevision=processor.micDisplayRevision(lane,i)[0];
@@ -168,11 +180,17 @@ private:
                 slot.cabinetImage.setCapture(metadata,source);
                 slot.microphoneImage.setCapture(metadata,captureName,source);
                 slot.microphoneCaption.setText(spectralforge::capturedCabArt::microphoneCaption(metadata,captureName,source),juce::dontSendNotification);
-                slot.cabinet.setText(source==0 ? "Filters only" : source==1 ? "Factory V30" : source==2 ? "Factory Jensen" : "Current project IR",juce::dontSendNotification);
+                const juce::String captureSource=source==0 ? "Filters only" : source==1 ? "Factory V30" : source==2 ? "Factory Jensen" : "Current project IR";
+                slot.cabinet.setText((modeled ? "Stored / " : "")+captureSource,juce::dontSendNotification);
+                slot.cabinet.setTooltip(modeled ? "Stored source is inactive. Select a captured IR or Filters only to switch this microphone from CABINET."
+                    : "Select the captured source for this microphone.");
                 const auto text=source==0 ? juce::String("No speaker IR") : captureName.isEmpty() ? juce::String("No IR loaded") :
                     model ? juce::String(model->alias)+(source==3 ? " / "+captureName : juce::String{}) : captureName;
-                slot.microphone.setText(text,juce::dontSendNotification);
-                slot.microphone.setTooltip(source==0 ? "Speaker IR bypassed; cabinet filters remain available." : metadata.details(captureName));
+                // Clear a retained item's selected ID while it is inactive so
+                // choosing that same capture again still sends onChange.
+                slot.microphone.setText((modeled ? "Stored / " : "")+text,juce::dontSendNotification);
+                const juce::String captureDetails=source==0 ? "Speaker IR bypassed; mic cuts remain available." : metadata.details(captureName);
+                slot.microphone.setTooltip((modeled ? "Stored capture; inactive while this microphone uses CABINET. " : "")+captureDetails);
                 slot.reference.setText(source==0 || captureName.isEmpty() ? juce::String{} : metadata.microphoneReference(captureName)
                     +(model && model->original ? " / CABINET MIC" : ""),juce::dontSendNotification);
                 slot.reference.setTooltip(source==0 || captureName.isEmpty() ? juce::String{} : metadata.details(captureName));
@@ -180,6 +198,11 @@ private:
             if(!modeled && source!=0 && !bool(slot.cabinetImage.getProperties()["cabCaptureKnownConfiguration"]))
                 slot.provenance.setText("Example cabinet image / capture dimensions unspecified",juce::dontSendNotification);
         }
+        const bool inactiveBlend=currentView==View::irLoader && !anyCaptured;
+        blend.setEnabled(!inactiveBlend);blendLabel.setEnabled(!inactiveBlend);
+        blendLabel.setText(inactiveBlend ? "CABINET MIC BLEND" : "MIC A  /  BLEND  /  MIC B",juce::dontSendNotification);
+        blend.setTooltip(inactiveBlend ? "Both microphones use CABINET. Adjust their blend on the CABINET tab."
+            : "Blend the selected Mic A and Mic B paths, including a cabinet mic and a captured IR when selected.");
         if(artworkChanged && currentView==View::irLoader){resized();repaint();}
     }
 public:
@@ -208,7 +231,7 @@ public:
                 s.labels[size_t(i)].setFont(juce::FontOptions(internal ? 10.f : 12.f));
             }
         }
-        resized();repaint();
+        timerCallback();resized();repaint();
     }
     CabPanel(ChimeraProcessor& p,int rig,const std::vector<juce::File>& folders=spectralforge::IRCollection::roots(),
              const juce::File& settings=spectralforge::IRUserPreferences::file()):processor(p),lane(rig),roots(folders),preferences(settings) {

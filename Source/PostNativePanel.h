@@ -15,7 +15,7 @@ public:
         reference.setComponentID("postNativeReference"+juce::String(section));reference.setMinimumHorizontalScale(1.f);
         title.setText(section==0?"BUS COMPRESSOR":section==1?"PREAMPLIFIER":"EQUALIZER",juce::dontSendNotification);
         addAndMakeVisible(model);addAndMakeVisible(bypass);addAndMakeVisible(viewport);addAndMakeVisible(expand);
-        expand.setButtonText("ALL");expand.setComponentID("postExpand"+juce::String(section));expand.setTooltip("Open all original controls");expand.setVisible(!detailed);
+        expand.setButtonText("ALL");expand.setComponentID("postExpand"+juce::String(section));expand.setTooltip("Open all processor controls");expand.setVisible(!detailed);
         expand.onClick=[this]{if(dialog){dialog->toFront(true);return;}auto* full=new PostNativePanel(processor,section,true);full->setLookAndFeel(&getLookAndFeel());full->setSize(920,480);full->refresh();juce::DialogWindow::LaunchOptions options;options.content.setOwned(full);options.dialogTitle=title.getText()+" / "+juce::String::fromUTF8(spectralforge::postNativeModel(section,selectedModel()).name);options.dialogBackgroundColour=juce::Colour(0xff171b1b);options.useNativeTitleBar=true;options.escapeKeyTriggersCloseButton=true;options.resizable=false;options.componentToCentreAround=this;dialog=options.launchAsync();};
         model.setComponentID(spectralforge::postNativeModelID(section));model.setName(title.getText()+" model");
         for(int m=0;m<3;++m)model.addItem(juce::String::fromUTF8(spectralforge::postNativeModel(section,m).name),m+1);
@@ -42,14 +42,8 @@ public:
         const int nextModel=selected?juce::jlimit(0,2,(int)selected->load()):0;
         if(currentModel!=nextModel) {
             currentModel=nextModel;const auto& spec=spectralforge::postNativeModel(section,currentModel);model.resetSyncExplicit(currentModel+1);
-            // Keep revision and circuit provenance in the catalog; the panel
-            // only needs the original model name beside its Chimera alias.
-            constexpr std::array<const char*,9> referenceNames{{
-                "SSL G Series Compressor","Universal Audio 1176LN","Teletronix LA-2A",
-                "Neve 1073","Avalon V5","Focusrite ISA One",
-                "SSL E Series EQ","Neve 1073","Pultec EQP-1A"
-            }};
-            reference.setText(referenceNames[(size_t)(section*3+currentModel)],juce::dontSendNotification);reference.setTooltip(reference.getText());
+            // Provenance stays in the catalog; the public caption explains the processor.
+            reference.setText(spectralforge::postNativeDescription(section,currentModel),juce::dontSendNotification);reference.setTooltip(reference.getText());
             bypassAttachment.reset();bypass.setComponentID(spectralforge::postNativeBypassID(section,currentModel));
             if(auto* parameter=processor.parameters().getParameter(spectralforge::postNativeBypassID(section,currentModel))) {
                 bypassAttachment=std::make_unique<juce::ParameterAttachment>(*parameter,[this](float v){bypass.setToggleState(v>.5f,juce::dontSendNotification);updateBypass();});bypassAttachment->sendInitialUpdate();

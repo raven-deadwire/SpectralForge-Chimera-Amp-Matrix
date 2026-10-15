@@ -1,0 +1,143 @@
+{
+  "schema": "spectralforge.linux-tar-probe-evidence.v1",
+  "captured_at_utc": "2026-10-12T17:20:21.818100+00:00",
+  "final_result": {
+    "success": true,
+    "current_fixture_fresh_shell_install_verified": true,
+    "fresh_fixture_home_targets_restored": true,
+    "actual_baseline_shell_install_verified": true,
+    "fixture_shell_upgrade_verified": true,
+    "fixture_shell_repair_verified": true,
+    "document_only_removal_verified": true,
+    "shell_install_invocations": 4,
+    "shell_install_successes": 4,
+    "home_scoped_targets_restored": true,
+    "source_inputs_unchanged": true,
+    "home_environment_unchanged": true,
+    "next_release_product_installer_verified": false,
+    "application_or_plugin_executed": false,
+    "byte_assertions": 80,
+    "check_groups": 7,
+    "current_documents": 14,
+    "source_inputs": 21
+  },
+  "first_attempt_failure": "The probe unnecessarily required a duplicate backup of unchanged COPYRIGHT.txt; the production helper correctly kept those exact notice bytes in place. The assertion was corrected; production code was unchanged. That attempt restored all initially absent scoped HOME targets.",
+  "first_attempt_source": "attempt-1/probe-source.py",
+  "files": [
+    {
+      "path": "attempt-1/00-baseline-shell-syntax.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "attempt-1/00-elf-program-headers.log",
+      "bytes": 2992,
+      "sha256": "b68fafb96fbf55f743e0e111ae2c558d9b84e734c92cb30d67d464c2540d3798"
+    },
+    {
+      "path": "attempt-1/00-fixture-shell-syntax.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "attempt-1/00-ldd-standalone.log",
+      "bytes": 3148,
+      "sha256": "b43a091fab860c176ea8b00741405c979940503cfe82119f9f1f57976b40c6d3"
+    },
+    {
+      "path": "attempt-1/01-public-baseline-install.log",
+      "bytes": 175,
+      "sha256": "c25ace0faa104dfd30cb38e07a084bb915576c515d8acab0cdc10509bc7af457"
+    },
+    {
+      "path": "attempt-1/02-internal-fixture-upgrade.log",
+      "bytes": 912,
+      "sha256": "43ba5039459a19c0bea56c4b64ed91bbe6bfa93fb30059c68aa54a3c4dfd0da6"
+    },
+    {
+      "path": "attempt-1/LinuxTarDocumentUpgradeVerification.json",
+      "bytes": 16582,
+      "sha256": "faedb8e3045f032a8a6db9ca2ad7a1e8c7766061c3d44076de903a716ec4c8b6"
+    },
+    {
+      "path": "attempt-1/baseline-install.sh.txt",
+      "bytes": 1906,
+      "sha256": "7a3d6d4e4902ffb01de9f35d97022c98159d2bb7a6d7c6bbbccd16ecfba214b6"
+    },
+    {
+      "path": "attempt-1/fixture-install.sh.txt",
+      "bytes": 2396,
+      "sha256": "388b1bfac8c9fd61cf1cda036d42d55338f650a9b63c1d6441372a6095683ff3"
+    },
+    {
+      "path": "attempt-1/probe-source.py",
+      "bytes": 31112,
+      "sha256": "17c7f2c8d95982d57f9522b34cfdf4acb969d323b7961ea258f33347c965401f"
+    },
+    {
+      "path": "final/00-baseline-shell-syntax.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "final/00-elf-program-headers.log",
+      "bytes": 2992,
+      "sha256": "b68fafb96fbf55f743e0e111ae2c558d9b84e734c92cb30d67d464c2540d3798"
+    },
+    {
+      "path": "final/00-fixture-shell-syntax.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "final/00-ldd-standalone.log",
+      "bytes": 3148,
+      "sha256": "9d597bebdd27c3603527a2da93f7128c16972b6e997f1caaa7f77db85aaeab77"
+    },
+    {
+      "path": "final/00a-current-fixture-fresh-install.log",
+      "bytes": 175,
+      "sha256": "c25ace0faa104dfd30cb38e07a084bb915576c515d8acab0cdc10509bc7af457"
+    },
+    {
+      "path": "final/00b-current-fixture-fresh-document-removal.log",
+      "bytes": 1061,
+      "sha256": "88eec9784650bf04252961c9096109aea45d05d6c88844e67ac046563cb8126b"
+    },
+    {
+      "path": "final/01-public-baseline-install.log",
+      "bytes": 175,
+      "sha256": "c25ace0faa104dfd30cb38e07a084bb915576c515d8acab0cdc10509bc7af457"
+    },
+    {
+      "path": "final/02-internal-fixture-upgrade.log",
+      "bytes": 912,
+      "sha256": "43ba5039459a19c0bea56c4b64ed91bbe6bfa93fb30059c68aa54a3c4dfd0da6"
+    },
+    {
+      "path": "final/03-internal-fixture-repair.log",
+      "bytes": 281,
+      "sha256": "925e5a50c196c6c57b61525fe7fddc8366ec20ed36bf4be2710dda385c81aeb1"
+    },
+    {
+      "path": "final/04-installed-helper-document-removal.log",
+      "bytes": 1495,
+      "sha256": "6391bc3fe9017615ee47cf3ae5cc545ae4623d320e0384022e86e8f48d5316eb"
+    },
+    {
+      "path": "final/LinuxTarDocumentUpgradeVerification.json",
+      "bytes": 27496,
+      "sha256": "4d274a67838f9f9afc6e0d8a0526b182352825bb4cdfaafba1e035d7410833bb"
+    },
+    {
+      "path": "final/baseline-install.sh.txt",
+      "bytes": 1906,
+      "sha256": "7a3d6d4e4902ffb01de9f35d97022c98159d2bb7a6d7c6bbbccd16ecfba214b6"
+    },
+    {
+      "path": "final/fixture-install.sh.txt",
+      "bytes": 2396,
+      "sha256": "388b1bfac8c9fd61cf1cda036d42d55338f650a9b63c1d6441372a6095683ff3"
+    }
+  ]
+}

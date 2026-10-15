@@ -1,0 +1,4 @@
+pkgbuild: Inferring bundle components from contents of /Users/runner/work/_temp/chimera-macos-pkg-fixture-7wbuipdh/new-payload
+pkgbuild: Adding top-level preinstall script
+pkgbuild: Adding top-level postinstall script
+pkgbuild: Wrote package to /Users/runner/work/_temp/chimera-macos-pkg-fixture-7wbuipdh/new.pkg

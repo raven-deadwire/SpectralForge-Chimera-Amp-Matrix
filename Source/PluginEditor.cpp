@@ -318,7 +318,13 @@ void ChimeraEditor::loadIR(int lane)
 {
     const juce::Component::SafePointer<ChimeraEditor> safe(this);juce::DialogWindow::LaunchOptions options;
     options.content.setOwned(new IRBrowserPanel([safe,lane](juce::File file,int factory){if(!safe)return;
-        if(factory) {auto* p=safe->processor.parameters().getParameter("cabtype"+juce::String(lane+1));p->setValueNotifyingHost(p->convertTo0to1(float(factory)));}
+        if(factory) {
+            auto& state=safe->processor.parameters();
+            auto* model=state.getParameter(spectralforge::originalCabID(lane,"Aon"));
+            model->beginChangeGesture();model->setValueNotifyingHost(0);model->endChangeGesture();
+            auto* source=state.getParameter("cabtype"+juce::String(lane+1));
+            source->beginChangeGesture();source->setValueNotifyingHost(source->convertTo0to1(float(factory)));source->endChangeGesture();
+        }
         else safe->processor.loadIR(lane,file);safe->timerCallback();}));
     options.dialogTitle="SpectralForge Chimera / Cabinet library / Rig "+juce::String(lane+1);options.dialogBackgroundColour=background;
     options.useNativeTitleBar=true;options.escapeKeyTriggersCloseButton=true;options.resizable=false;options.componentToCentreAround=this;trackDialog(options.launchAsync());
@@ -523,9 +529,9 @@ void ChimeraEditor::updateHardwareStyles()
         effect.lastModel=model;
         const auto& info=spectralforge::modelInfo((int)family,model);
         const auto description=juce::String(info.character)+"\nApplied after rig merge.";
-        effect.model.setTooltip(juce::String("Reference: ")+info.reference+"\n"+description);
+        effect.model.setTooltip(juce::String(spectralforge::effectFamilyMenuName((int)family,model))+"\n"+description);
         effect.header.setTooltip(description);effect.description.setTooltip(description);
-        effect.description.setText(juce::String(info.character).replace(" / ","\n"),juce::dontSendNotification);effect.scope.setText(info.reference,juce::dontSendNotification);
+        effect.description.setText(juce::String(info.character).replace(" / ","\n"),juce::dontSendNotification);effect.scope.setText("AFTER RIG MERGE",juce::dontSendNotification);
         if(family==9){effect.labels[0].setText(model==1?"LOW 110 Hz":model==2?"LOW 60 Hz":"LOW 80 Hz",juce::dontSendNotification);effect.labels[4].setText(model==1?"HIGH 12 kHz":model==2?"HIGH 10 kHz":"HIGH 8 kHz",juce::dontSendNotification);}
         for(int position=3;position<6;++position)if(rackOrder[(size_t)position]==(int)family)repaintDesign({20,330+position*69,1140,64});
         const bool pedal=family==0 || (family>=3 && family<=6);
@@ -556,7 +562,7 @@ void ChimeraEditor::updateHardwareStyles()
         const int count=lastMode==0?1:lastMode==1?2:3,width=(1140-14*(count-1))/count;
         repaintDesign({20+(int)i*(width+14),330,width,412});
         lane.lastModel=model;const auto& amp=spectralforge::ampInfo(model);
-        lane.ampReference.setText(juce::String::fromUTF8(amp.reference),juce::dontSendNotification);
+        lane.ampReference.setText(juce::String::fromUTF8(amp.character),juce::dontSendNotification);
         lane.amp.setTooltip(juce::String(amp.name)+"\n"+amp.character);
         lane.ampReference.setTooltip(lane.ampReference.getText());
         const auto hardware=spectralforge::art::headStyle(model);
@@ -596,14 +602,16 @@ void ChimeraEditor::updateModeUI()
     lastMode=nextMode;
     lastDualCross=dualType.getSelectedId()==2;lastTuner=tunerOn.getToggleState();
     const bool matrix=lastMode==2,split=matrix || (lastMode==1 && lastDualCross); const int count=lastMode==0 ? 1 : lastMode==1 ? 2 : 3;
-    const bool roomVisible=page==0 && lastMode!=0 && !showRigControls;
+    // Every routing mode opens on its room; the controls toggle is only a
+    // presentation choice and must not change a rig's cabinet source.
+    const bool roomVisible=page==0 && !showRigControls;
     if(roomVisible && !cabRoom) {
         cabRoom=std::make_unique<CabRoomOverview>(processor);canvas.addAndMakeVisible(*cabRoom);
         cabRoom->onCabinetSelected=[this](int lane){openCabWorkspace(lane,true);};
         cabRoom->onAmplifierSelected=[this](int lane){openAmpHead(lane);};
     }
     if(cabRoom) {cabRoom->setVisible(roomVisible);if(roomVisible)cabRoom->refreshState();}
-    rigControls.setVisible(page==0 && lastMode!=0);
+    rigControls.setVisible(page==0);
     rigControls.setButtonText(showRigControls ? "CABINET ROOM" : "RIG CONTROLS");
     x1.setVisible(matrix && page==0 && !lastTuner); x2.setVisible(matrix && page==0 && !lastTuner); x1Label.setVisible(matrix && page==0 && !lastTuner); x2Label.setVisible(matrix && page==0 && !lastTuner);
     rigsTab.setToggleState(page==0,juce::dontSendNotification);preTab.setToggleState(page==1,juce::dontSendNotification);postTab.setToggleState(page==2,juce::dontSendNotification);eqTab.setToggleState(page==3,juce::dontSendNotification);

@@ -1,17 +1,31 @@
 # SpectralForge 버전별 업데이트·배포 일정 — 2026–2027
 
-갱신: **2026-10-13, 한국 시간(Asia/Seoul)**.
+갱신: **2026-10-15, 한국 시간(Asia/Seoul)**.
 
-현재 공개 기준은 [Chimera 1.3.1-beta.1](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/releases/tag/v1.3.1-beta.1)이다.
+현재 공개 기준은 [Chimera 1.3.1-beta.2](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/releases/tag/v1.3.1-beta.2)이다. 2026-10-13 16:30:29 KST에 소스 `6033236cb81820a43679cbbd34be020804f9658d`로 공개됐으며 태그·28개 공개 자산·업데이트 피드는 변경하지 않는다.
 이 문서는 매주 실제 업데이트/유지보수 빌드를 전달한다는 운영 기준을 버전과 날짜로 구체화한 **개발·배포 목표표**다. 앞으로의 번호는 예약이며, 날짜만으로 구현·검증·공개가 완료되지 않는다.
 
 작업 창과 기능 범위는 [중앙 로드맵](DEVELOPMENT_ROADMAP_2026_2027.md)이 관리하고, 아래 배포 행은 [기계 판독용 일정](../Validation/release-calendar.json)과 일치한다. 이 JSON은 배포 계획이며 실제 업데이트 피드로 사용하지 않는다.
+
+## 2026-10-15 공개 이력과 후보 정합성
+
+| 구분 | 버전 / 현재 소스 | 상태와 배포 조건 |
+|---|---|---|
+| 공개 기준 | `1.3.1-beta.2` / `6033236c` | 10/13 공개 완료. 10/16에 다시 예약하거나 태그·바이너리를 교체하지 않는다. |
+| [PR #62](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/pull/62) | `1.3.1-beta.3` / `5c858442` | Draft. 수명주기·업데이트 안내·상태 보존 후보. 12개 CI 성공과 별개로 만료일 및 배포 승인이 없고 엄격한 gate 107개 미실행. 10/16 조건부 목표. |
+| [PR #68](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/pull/68) | `1.3.2-beta.1` / `c2263e4c` | Draft. #62 기능과 신호체인·정밀 튜너·EQ·다이내믹스 통합. 현재 소스의 전체 제품(38572999910)·CAB 실시간(38572999676)·신호/튜너 통합(38572999588) CI 실패. 10/23 조건부 목표. |
+
+#68에 승인된 만료일 **2027-02-11 23:59 KST**는 그 버전에만 적용한다. #62 및 이후 beta.N에 승인 날짜나 공개 승인을 자동 승계하지 않는다. 후보 번호를 일정에 배정하는 행위는 제품 `VERSION`/`RELEASE_CHANNEL`을 바꾸거나 배포를 승인하지 않는다.
+
+**10/16 공개 조건:** 실제 구현 개선, 해당 최종 소스의 Windows·macOS·Linux 검증, 설치·업데이트·복구·제거 및 사용자 데이터 보존, 해당 호스트/패키지 검사, 버전·소스별 배포 승인, 수명주기 사용 시 승인 만료일을 담은 새 바이너리 검증을 모두 충족해야 한다. 실패·미실행이면 공개하지 않고 내부 빌드 범위와 지연 사유를 기록한다. 이 일정 수정 자체는 주간 기능 납품이 아니다.
+
+10/16이 밀리면 미공개 예약을 재배정한다. #68의 1.3.2가 먼저 공개되면 미공개 1.3.1-beta.3 예약을 취소하고 그 뒤에 낮은 버전을 공개하지 않는다. 10/23·10/30 EQ 목표는 유지하고, 11월 다이내믹스는 통합 후보에서 이미 구현한 범위를 중복 납품으로 세지 않는 후속 검증·개선 주차로 운영한다. 12월 이후 날짜와 1.3.3/1.3.4 번호는 유지한다.
 
 ## 1. 버전 번호와 배포 채널
 
 | 구분 | 표기 예 | 운영 원칙 |
 |---|---|---|
-| Chimera 주간 공개 베타 | `1.3.1-beta.2` | 같은 기능 묶음 안에서 제품별 `beta.N`을 증가시킨다. |
+| Chimera 주간 공개 베타 | `1.3.1-beta.3` | 같은 기능 묶음 안에서 제품별 `beta.N`을 증가시킨다. |
 | 다음 기능 묶음 | `1.3.2-beta.1`, `1.4.0-beta.1` | 기본 버전이 바뀌면 베타 순번을 1부터 시작한다. |
 | 최종 검증 후보 | `1.0.0-rc.1` | 필수 범위를 동결하고 후보 조건을 만족할 때 부여한다. |
 | 정식판 | `1.0.0`, `2.0.0` | 정식 채널 패키지·호스트·설치·업데이트 검증을 마친 뒤 공개한다. |
@@ -48,13 +62,13 @@ Chimera의 작은 유지보수와 공통 개선을 주간 기본으로 두고, �
 
 | 테스트 빌드 | 후보 동결 | 공개 목표 | 버전 | 업데이트 세부 내용 |
 |---|---|---|---|---|
-| 2026-10-14 | 2026-10-15 | 2026-10-16 | `1.3.1-beta.2` | 신호체인의 유틸리티 중복 표시를 줄이고 beta.1로 고정된 publisher를 검증 소스와 주간 버전 인자를 받는 구조로 수정한다. |
-| 2026-10-21 | 2026-10-22 | 2026-10-23 | `1.3.1-beta.3` | 다섯 주요 신호 블록과 큰 선택 EQ 화면에 IN/OUT 채움 그래프, 스무딩·해상도·Freeze 및 고정 밴드 ID를 유지하는 추가·삭제·Undo/Redo를 반영한다. |
-| 2026-10-28 | 2026-10-29 | 2026-10-30 | `1.3.1-beta.4` | EQ 다중 선택·밴드 청취·로컬 A/B와 peak hold·표시 범위 조절을 추가하고 마우스·키보드 조작 및 노브 가독성을 개선한다. |
-| 2026-11-04 | 2026-11-05 | 2026-11-06 | `1.3.2-beta.1` | Tone EQ와 Final EQ를 합쳐 최대 네 노드에 동적 검출·감쇠 범위·실제 GR 표시를 추가하고 기존 정적 밴드 상태를 보존한다. |
-| 2026-11-11 | 2026-11-12 | 2026-11-13 | `1.3.2-beta.2` | 공용 클린 컴프레서의 검출·어택·릴리스·병렬 혼합과 GR 응답을 구현하고 Dynamic EQ의 저역·팜뮤트 반응을 보완한다. |
-| 2026-11-18 | 2026-11-19 | 2026-11-20 | `1.3.2-beta.3` | 게이트·익스팬더의 DI 검출과 Hold·Release·Range 동작을 개선하고 최종 출력 뒤에 추가 게인이 없는 Live 피크 리미터를 연결한다. |
-| 2026-11-25 | 2026-11-26 | 2026-11-27 | `1.3.2-beta.4` | 공용 다이내믹스의 bypass 전환·파라미터 자동화·세션 복원과 낮은 음의 어택·서스테인 관련 결함을 수정한다. |
+| 2026-10-14 | 2026-10-15 | 2026-10-16 | `1.3.1-beta.3` | PR #62의 베타 만료·업데이트 안내·상태 보존 기능을 조건부 검증한다. 만료일 승인 및 승인 날짜를 넣은 새 바이너리의 세 OS·설치·업데이트·호스트 검사와 배포 승인이 필요하다. 투명·고헤드룸 베이스 연구와 Avalanche NAM 검증 착수·42앰프 정합성 검토는 별도 연구이며 코드 납품을 대신하지 않는다. |
+| 2026-10-21 | 2026-10-22 | 2026-10-23 | `1.3.2-beta.1` | PR #68의 수명주기·신호체인·정밀/스트로브 튜너·공통 다이내믹스 통합 후보를 검증하고, 큰 EQ 화면의 IN/OUT 채움 그래프·스무딩·해상도·Freeze 및 고정 밴드 ID를 유지하는 추가·삭제·Undo/Redo를 충족한다. 후보의 현재 실패를 해결한 동일 소스 재검증과 별도 배포 승인이 필요하다. |
+| 2026-10-28 | 2026-10-29 | 2026-10-30 | `1.3.2-beta.2` | EQ 다중 선택·밴드 청취·로컬 A/B와 peak hold·표시 범위 조절을 추가하고 마우스·키보드 조작 및 노브 가독성을 개선한다. |
+| 2026-11-04 | 2026-11-05 | 2026-11-06 | `1.3.2-beta.3` | 1.3.2 통합 후보에 들어간 기능의 후속 검증·실제 개선: Tone EQ와 Final EQ를 합쳐 최대 네 노드에 동적 검출·감쇠 범위·실제 GR 표시를 추가하고 기존 정적 밴드 상태를 보존한다. 이미 제공한 구현·번호 변경만으로 주간 납품을 중복 집계하지 않는다. |
+| 2026-11-11 | 2026-11-12 | 2026-11-13 | `1.3.2-beta.4` | 1.3.2 통합 후보에 들어간 기능의 후속 검증·실제 개선: 공용 클린 컴프레서의 검출·어택·릴리스·병렬 혼합과 GR 응답을 구현하고 Dynamic EQ의 저역·팜뮤트 반응을 보완한다. 이미 제공한 구현·번호 변경만으로 주간 납품을 중복 집계하지 않는다. |
+| 2026-11-18 | 2026-11-19 | 2026-11-20 | `1.3.2-beta.5` | 1.3.2 통합 후보에 들어간 기능의 후속 검증·실제 개선: 게이트·익스팬더의 DI 검출과 Hold·Release·Range 동작을 개선하고 최종 출력 뒤에 추가 게인이 없는 Live 피크 리미터를 연결한다. 이미 제공한 구현·번호 변경만으로 주간 납품을 중복 집계하지 않는다. |
+| 2026-11-25 | 2026-11-26 | 2026-11-27 | `1.3.2-beta.6` | 1.3.2 통합 후보에 들어간 기능의 후속 검증·실제 개선: 공용 다이내믹스의 bypass 전환·파라미터 자동화·세션 복원과 낮은 음의 어택·서스테인 관련 결함을 수정한다. 이미 제공한 구현·번호 변경만으로 주간 납품을 중복 집계하지 않는다. |
 | 2026-12-02 | 2026-12-03 | 2026-12-04 | `1.3.3-beta.1` | 1.3.3 공용 Original FX의 첫 증분으로 기존 엔진을 활용한 기타 BOOST의 Boost·Tight·Tone 반응과 앰프 입력 정돈을 개선한다. |
 | 2026-12-09 | 2026-12-10 | 2026-12-11 | `1.3.3-beta.2` | 베이스 DRIVE·FUZZ의 삽입 경계와 저역 보이싱을 구현하고 native LOW·Blend가 raw DI bypass로 오인되지 않도록 처리와 표시를 맞춘다. |
 | 2026-12-16 | 2026-12-17 | 2026-12-18 | `1.3.3-beta.3` | 독립적인 FX 인스턴스와 상태를 사용하는 교체형 PRE 슬롯 기반을 추가하되 Chimera는 다섯 슬롯, 별도 제품은 네 슬롯을 유지한다. |
@@ -67,7 +81,7 @@ Chimera의 작은 유지보수와 공통 개선을 주간 기본으로 두고, �
 | 테스트 빌드 | 후보 동결 | 공개 목표 | 버전 | 업데이트 세부 내용 |
 |---|---|---|---|---|
 | 2026-12-30 | 2026-12-31 | 2027-01-01 | `1.3.3-beta.5` | 공용 FX 분리로 영향을 받는 Chimera의 기존 프리셋·고정 파라미터 ID·슬롯 선택 복원을 수정해 이전 세션의 소리를 보존한다. |
-| 2027-01-06 | 2027-01-07 | 2027-01-08 | `1.3.3-beta.6` | 버전 생성기·publisher·업데이트 수신기에 beta/RC/stable 채널을 연결하고, 기존 베타의 정식판 전환 안내·정식판의 기본 stable 수신 정책과 세 OS 출하 검증을 구현한다. |
+| 2027-01-06 | 2027-01-07 | 2027-01-08 | `1.3.3-beta.6` | 이미 구현된 beta/RC/stable 생성·publisher·수신 경로를 세 제품별 설치·업데이트·정식 채널 전환에 적용하고 실제 패키지/호스트 회귀를 보완한다. 기존 베타의 정식판 탐색과 stable 기본 수신을 검증한다. |
 | 2027-01-13 | 2027-01-14 | 2027-01-15 | `1.3.3-beta.7` | 나스트론드 제품과 공유하는 앰프 코드의 채널별 13개 조절값 기억·초기화 및 FX 전환 레벨 처리를 개선한다. |
 | 2027-01-20 | 2027-01-21 | 2027-01-22 | `1.3.3-beta.8` | 나스트론드 공용화 과정에서 드러난 Chimera의 PRE bypass 크로스페이드·A/B 복원과 프리셋 초기화 결함을 수정한다. |
 | 2027-01-27 | 2027-01-28 | 2027-01-29 | `1.3.3-beta.9` | 니플헤임 공용 코드의 LOW·clean/dirty Blend 전환과 채널별 14개 조절값 복원을 보완하고 기존 Matrix DI/AMP Mix 의미를 유지한다. |
@@ -178,7 +192,7 @@ Chimera의 작은 유지보수와 공통 개선을 주간 기본으로 두고, �
 |---|---|---|---|
 | Náströnd NAM 5채널 팩 | `nastrond-nam-v1.0.0-beta.1` | 테스트 2026-11-18, 공개 2026-11-20 | 10/30 구조·방법 판정 후 5채널 전체 fidelity·실제 DI·플레이어 통과 |
 | Niflheimr NAM 5채널 팩 | `niflheimr-nam-v1.0.0-beta.1` | 테스트 2026-12-02, 공개 2026-12-04 | 10/23 캡처·품질 조건, 10/30 파이프라인/메모리, 11/13 학습 보고와 5채널 최종 검증 |
-| Chimera AAX Native | 목표 `1.3.2-beta.4`와 같은 버전 | 내부 2026-10-30, Pro Tools 검증 11/20, 첫 공개 판정 11/27 | Avid/PACE 접근·최종 서명·정상 Pro Tools·설치 검증 |
+| Chimera AAX Native | 목표 `1.3.2-beta.6`와 같은 버전 | 내부 2026-10-30, Pro Tools 검증 11/20, 첫 공개 판정 11/27 | Avid/PACE 접근·최종 서명·정상 Pro Tools·설치 검증 |
 | Náströnd AAX Native | 당시 새로 배포하는 제품과 같은 버전 | 2027-03-26 추가 공개 판정 | native 안정화, 제품별 ID·서명·호스트·설치 검증과 추가 작업량 확보 |
 | Niflheimr AAX Native | 당시 새로 배포하는 제품과 같은 버전 | 2027-04-09 추가 공개 판정 | native 안정화, 제품별 ID·서명·호스트·설치 검증과 추가 작업량 확보 |
 
@@ -190,15 +204,15 @@ AAX가 늦어지면 첫 검증 완료 시점의 새 제품 버전으로 배포�
 
 | 목표 | 배포 기능 | 현재 판정 |
 |---|---|---|
-| 2026-10-16 | publisher/workflow의 `1.3.1-beta.1` 고정을 제거하고 선택 버전과 동일 소스·패키지·검증 증거를 연결 | 구현 예정. 베타 순번의 비교 기능과 별개 작업 |
-| 2026-10-23 | beta.2→beta.3 설치·업데이트·복구, 전체 베타 번호 표시, 공개 후 태그/파일/해시/피드 일치 | 실제 플랫폼별 검증 필요 |
+| 2026-10-16 | `publish_release.py`의 명시적 버전·소스 검증에 예약 중복 차단 연결 | main의 주간 publisher 구현을 반영. 공개 태그·예약·문서 대조 및 재검사 추가 |
+| 각 후보 공개 전 | 공개 beta.2→선택 후보, beta.3 공개 시 beta.3→1.3.2-beta.1 설치·업데이트·복구 및 피드 일치 | 실제 플랫폼별 검사와 소스별 승인 필요 |
 | 2026-12-25~2027-01-15 | 3제품의 태그·업데이트 피드·플러그인/설치/데이터 식별자 분리 | 제품 타깃과 함께 구현 필요 |
-| 2027-01-08, 늦어도 01-15 | Python/CMake/패키징과 업데이트 수신기의 RC·정식 채널, beta→stable 안내 및 stable 기본 수신, preview→beta 전환 | 현재 생성 경로는 preview/beta만 지원 |
+| 2027-01-08, 늦어도 01-15 | 구현된 Python/CMake/패키징/수신기의 RC·정식 채널을 제품별로 적용·회귀 검증 | 코드 지원과 각 제품 출하 승인은 별개 |
 | 각 공개일 | 실제 파일 다운로드·해시·설치 확인 후 업데이트 정보와 홈페이지 반영 | 미래 버전을 미리 다운로드 가능으로 표시하지 않음 |
 
-정식판 전환 때는 기존 베타 사용자도 검증된 정식판을 발견할 수 있게 안내하고, 정식판 설치는 기본으로 stable 채널을 따른다. 베타 수신은 명시적으로 선택하게 한다. 현재 `ReleaseInfo.h`의 beta 채널·피드 고정도 생성기와 함께 바꾸고 제품별 갱신 경로를 검증한다.
+정식판 전환 때는 기존 베타 사용자도 검증된 정식판을 발견할 수 있게 안내하고, 정식판 설치는 기본으로 stable 채널을 따른다. 베타 수신은 명시적으로 선택하게 한다. 현재 `ReleaseInfo.h`는 생성된 채널 정보를 사용한다. 제품별 갱신 경로를 별도 검증한다.
 
-업데이트 비교기는 1.9.0→1.10.0과 beta.2→beta.3를 숫자와 prerelease 규칙으로 비교한다. 그러나 현행 버전 생성·공개 경로는 RC/정식 및 복수 제품을 모두 지원하는 상태가 아니다. 기존 Chimera의 세 OS 공개 gate를 새 제품 사유로 약화하지 않고, 독립 제품의 지원 플랫폼은 별도 계약으로 구현한다.
+업데이트 비교기는 1.9.0→1.10.0과 beta.2→beta.3를 숫자와 prerelease 규칙으로 비교한다. 현행 Chimera 버전 생성·공개 경로는 beta/RC/정식을 지원하며, 복수 제품의 독립 배포 경로는 별도 구현·검증 대상이다. 기존 Chimera의 세 OS 공개 gate를 새 제품 사유로 약화하지 않고, 독립 제품의 지원 플랫폼은 별도 계약으로 구현한다.
 
 ## 8. 공개 완료의 확인 항목
 
@@ -208,18 +222,24 @@ AAX가 늦어지면 첫 검증 완료 시점의 새 제품 버전으로 배포�
 
 ### 확인한 구현 근거
 
-- [현재 업데이트 채널·피드 설정](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/blob/3817246f779a50f19b5378ec9661a2275e6b91b2/Source/ReleaseInfo.h)
-- [버전 비교와 업데이트 선택](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/blob/3817246f779a50f19b5378ec9661a2275e6b91b2/Source/ReleaseSupport.cpp)
-- [Python 버전 생성의 채널 제한](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/blob/3817246f779a50f19b5378ec9661a2275e6b91b2/Tools/chimera_version.py)
-- [CMake 버전 생성의 채널 제한](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/blob/3817246f779a50f19b5378ec9661a2275e6b91b2/cmake/ChimeraVersion.cmake)
-- [현재 버전에 고정된 publisher](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/blob/3817246f779a50f19b5378ec9661a2275e6b91b2/Tools/publish_beta131.py)
-- [패키지·업데이트 manifest 생성](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/blob/3817246f779a50f19b5378ec9661a2275e6b91b2/Tools/package_release.py)
-- [현재 제품 형식과 식별자](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/blob/3817246f779a50f19b5378ec9661a2275e6b91b2/CMakeLists.txt)
+- [현재 업데이트 채널·피드 설정](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/blob/b4930839a7384a411e6c37e3570d77069f41a024/Source/ReleaseInfo.h)
+- [버전 비교와 업데이트 선택](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/blob/b4930839a7384a411e6c37e3570d77069f41a024/Source/ReleaseSupport.cpp)
+- [Python 버전 생성과 명시적 target 대조](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/blob/b4930839a7384a411e6c37e3570d77069f41a024/Tools/chimera_version.py)
+- [CMake 버전 생성](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/blob/b4930839a7384a411e6c37e3570d77069f41a024/cmake/ChimeraVersion.cmake)
+- [명시적 버전을 받는 주간 publisher](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/blob/b4930839a7384a411e6c37e3570d77069f41a024/Tools/publish_release.py)
+- [패키지·업데이트 manifest 생성](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/blob/b4930839a7384a411e6c37e3570d77069f41a024/Tools/package_release.py)
+- [현재 제품 형식과 식별자](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/blob/b4930839a7384a411e6c37e3570d77069f41a024/CMakeLists.txt)
 
 문서·일정 변경은 새 제품 구현, 새 패키지 생성, NAM 품질 통과 또는 공개 완료를 의미하지 않는다.
 
 ## 10월 13일 다음 업데이트 추가 범위
 
-1.3.1-beta.2의 10/14 테스트 검토·10/15 후보·10/16 조건부 공개 일정에 투명하고 힘 있는 베이스 앰프 연구 검토 및 NAM 검증 착수를 추가한다. Glockenklang·Vanderkley·PJB·Trickfish와 LeSuire Avalanche·Jad Freer Volta·Reeves를 비교하며, roogbass Avalanche NAM 두 개는 예전 불합격 파일과 동일성이 미확인인 검증 후보로 취급한다. 10/23에는 확보한 파일/오디오 증거와 다음 시제품 실험을 검토한다.
+1.3.1-beta.3의 10/14 테스트 검토·10/15 후보·10/16 조건부 공개 일정에 투명하고 힘 있는 베이스 앰프 연구 검토 및 NAM 검증 착수를 추가한다. Glockenklang·Vanderkley·PJB·Trickfish와 LeSuire Avalanche·Jad Freer Volta·Reeves를 비교하며, roogbass Avalanche NAM 두 개는 예전 불합격 파일과 동일성이 미확인인 검증 후보로 취급한다. 10/23에는 확보한 파일/오디오 증거와 다음 시제품 실험을 검토한다.
 
 동일 DI·캐비넷·청감 음량에서 기음·몸통·타격감·연속음 분리도를 평가하고, 입력 단계별 계측 출력은 정규화하지 않는다. 42앰프 확장 목표와 기존 AMP30 계획의 수량·일정 정합성을 10/16에 검토한다. 연구는 기존 용량 안에서 진행하며, 신규 DSP 구현·검증·배포 완료를 의미하지 않는다. 세부 후보·검증·통합 조건은 [중앙 로드맵의 10/13 추가 범위](DEVELOPMENT_ROADMAP_2026_2027.md#october-13-addition--transparent-power-bass-research-in-the-next-update)를 따른다. 기존 주간 코드 납품 및 출하 검증 기준은 유지한다.
+
+## 예약 검증 운영
+
+`python Tools/check_release_calendar.py`는 공개 이력 snapshot, 제품별 예약·태그·증가 순서, 연속 금요일과 테스트/후보 날짜, Markdown/JSON 및 로드맵 mirror를 대조한다. `--live`는 GitHub 전체 태그와 공개 release를 페이지 끝까지 읽고 충돌·역행을 추가 검사하며 조회 실패 시 차단한다. `--target-version`은 예약 존재를 확인한다. `chimera_version.py --check-reservation --target-version ...`은 소스의 VERSION/RELEASE_CHANNEL 일치도 요구한다.
+
+PR CI는 세 OS에서 오프라인 계약 검사, 별도 live job에서 원격 중복 검사를 실행한다. publisher는 동일 검사를 최초 배포 준비와 업로드 후 공개 직전에 반복한다. 캘린더는 승인 증거가 아니며 기존 CI·패키지·설치·승인 gate를 대체하지 않는다. 공개 후 해당 행을 `published`로 기록하고 `published_releases`에 태그·소스를 추가한 뒤 다음 예약을 검증한다.

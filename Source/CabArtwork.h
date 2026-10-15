@@ -115,8 +115,9 @@ struct Bank {
                 auto decoded=juce::ImageFileFormat::loadFrom(bytes,static_cast<size_t>(size));
                 // The two oblique legacy driver assets only retain catalog
                 // identity; every visible unit uses the frontal cache below.
-                // Reclaim their unused detail budget without reducing mics.
-                const int maximum=i<2 ? 640 : i<4 ? 128 : 320;
+                // Their small identity images also fund the repeated grille
+                // textures without reducing any visible speaker or mic detail.
+                const int maximum=i<2 ? 640 : i<4 ? 32 : 320;
                 const int longest=juce::jmax(decoded.getWidth(),decoded.getHeight());
                 if(longest>maximum) {
                     const double scale=double(maximum)/double(longest);

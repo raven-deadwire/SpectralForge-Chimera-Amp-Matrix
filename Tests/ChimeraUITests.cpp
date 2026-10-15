@@ -8,6 +8,7 @@
 #include "BoardStateUITests.h"
 #include "AmpSelectorTests.h"
 #include "AmpSelectionStateTests.h"
+#include "PublicNameTests.h"
 #include "CorrectionUITests.h"
 #include "PedalMenuTests.h"
 #include "NativeStateTests.h"
@@ -760,10 +761,10 @@ int main(int argc, char** argv)
             // thread can prevent parameter notifications and timers from settling.
             juce::MessageManager::getInstance()->runDispatchLoopUntil(150);
             const juce::String name = mode == 0 ? "Classic" : mode == 1 ? "Dual" : "Matrix";
-            if(mode>0) {
+            {
                 auto* canvas=editor.findChildWithID("surface");
                 auto* room=canvas->findChildWithID("cabRoomOverview");
-                require(room && room->isVisible(),"Dual/Matrix RIGS must initially display the cabinet room");
+                require(room && room->isVisible(),"Classic/Dual/Matrix RIGS must initially display the cabinet room");
                 saveSnapshot(editor,directory,name+"-cabinet-room");
                 rigViewTests::showControls(*canvas);
             }
@@ -774,7 +775,8 @@ int main(int argc, char** argv)
                 for(int model=0;model<spectralforge::ampModelCount;++model) {
                     processor.setAmpModel(0,model);juce::MessageManager::getInstance()->runDispatchLoopUntil(80);
                     auto* reference=dynamic_cast<juce::Label*>(editor.findChildWithID("surface")->findChildWithID("ampreference1"));
-                    require(reference && reference->isVisible() && reference->getText()==juce::String::fromUTF8(spectralforge::ampInfo(model).reference),"Selected amp caption must show only the original model name after selection");
+                    require(reference && reference->isVisible() && reference->getText()==juce::String::fromUTF8(spectralforge::ampInfo(model).character),"Selected amp caption must describe the selected sound after selection");
+                    publicNameTests::safeText(reference->getText(),"selected AMP caption after selection");
                     saveSnapshot(editor,directory,"Head-"+juce::String(model+1));
                 }
                 processor.setAmpModel(0,original);
@@ -857,6 +859,7 @@ int main(int argc, char** argv)
                 // Host-driven mode changes must immediately remove hidden controls.
                 set(processor,"mode",0);
                 juce::MessageManager::getInstance()->runDispatchLoopUntil(150);
+                rigViewTests::showControls(*editor.findChildWithID("surface"));
                 checkControls(editor,0);
                 require(processor.parameters().getRawParameterValue("x1")->load()==350,
                         "Switching modes reset saved crossover settings");

@@ -81,11 +81,9 @@ def stage() -> None:
     artifacts = build / "ChimeraAmpMatrix_artefacts/Release"
     for name in ("Standalone", "VST3"):
         release.copy(artifacts / name, destination / name)
-    release.documents(destination, build)
-    for name in ("GRAPHICS_DSP_UPDATE.md", "WINDOWS_SIGNING.md", "ARTWORK_PROMPTS.json",
-                 "UPDATE_TEST_BUILD.md", "PEDAL_BOARD_DSP.md", "NEW_AMP_DSP.md",
-                 "AMP_NATIVE_DSP.md", "POST_NATIVE_DSP.md", "STUDIO_ONE_TEARDOWN.md"):
-        release.copy(ROOT / "docs" / name, destination / name)
+    release.documents(destination, build, version=version)
+    # release.documents supplies the same reviewed public documentation used by
+    # the release packages; developer reference reports remain in CI/research.
     release.copy(ROOT / "Tools/validate_nam.py", destination / "ReferenceTools/validate_nam.py")
     release.copy(ROOT / "Tools/Trace-Chimera-Session.ps1", destination / "ReferenceTools/Trace-Chimera-Session.ps1")
     release.copy(build / "ChimeraRender_artefacts/Release/ChimeraRender.exe",
@@ -99,7 +97,7 @@ def stage() -> None:
         "Use IR LIBRARY / OPEN IR or ADD FOLDER for your own WAV/AIFF files.\n"
         "User IRs and presets are kept across application updates and uninstall.\n"
         "This is an unsigned, separately verified preview; existing public beta assets are unchanged.\n"
-        "SETTINGS shows this commit. Verification.txt records automated checks, not DAW listening approval.\n",
+        "SETTINGS shows this commit. Verification.txt identifies the original automated test evidence; it does not grant DAW/listening approval.\n",
         encoding="utf-8")
     (destination / "WINDOWS_INSTALL.txt").write_text(
         f"SpectralForge Chimera — Windows 업데이트 {sha[:10]} 설치 안내\n\n"

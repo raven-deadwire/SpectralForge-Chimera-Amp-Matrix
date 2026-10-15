@@ -1,6 +1,6 @@
 # Chimera development roadmap, October 2026–December 2027
 
-Updated: **2026-10-13, Asia/Seoul**. The owner requested a new remaining-work
+Updated: **2026-10-15, Asia/Seoul**. The owner requested a new remaining-work
 schedule after using 1.3.1: simplify the signal-chain display, substantially
 improve the EQ analyzer and editing workflow, implement the missing
 [FabFilter reference functions](https://www.fabfilter.com/products), and add
@@ -8,16 +8,7 @@ AAX support. The same-day follow-up makes **five-channel Niflheimr NAM delivery
 required** and adds **separate, simplified Náströnd and Niflheimr VST3 products**,
 using Neural DSP and Odeholm Audio as workflow references.
 
-The verified baseline is public
-[1.3.1-beta.1](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/releases/tag/v1.3.1-beta.1),
-published **2026-10-12 07:48 KST**, from product source
-[7b20cd9d](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/commit/7b20cd9d1f90e3e2969c250712b199e893cf50cd).
-Main incorporates it through
-[PR #48](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/pull/48),
-commit 3817246f779a50f19b5378ec9661a2275e6b91b2.
-The initial graphical EQ, FFT, navigation and complete head-control coverage
-are delivered in that beta. The owner's new quality feedback is follow-up work;
-it does not make those initial features unimplemented again.
+The verified public baseline is [1.3.1-beta.2](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/releases/tag/v1.3.1-beta.2), published **2026-10-13 16:30:29 KST** from `6033236cb81820a43679cbbd34be020804f9658d`. Main is `b4930839a7384a411e6c37e3570d77069f41a024`. Its tags/assets/feed are immutable. The initial EQ/FFT/head controls remain delivered; lifecycle, precision tuner, signal/EQ improvements and dynamics in Draft #62/#68 are development candidates, not public features.
 
 The owner's latest October 12 correction rejects a roadmap stretched into
 2028 and requires **at least one substantive update or maintenance delivery
@@ -28,8 +19,7 @@ assumed. The earlier 2028 chat proposal was not applied to this repository.
 
 Dates below are **internal work and candidate targets, not guaranteed public
 release dates**. Weekly changes continue during every larger feature window.
-The October 23 target is the improved EQ/workflow installer; a smaller verified
-maintenance/UI build is due at the October 16 weekly checkpoint. Re-estimate
+The October 23 target is the improved EQ/workflow installer; the lifecycle candidate is conditionally targeted at the October 16 weekly checkpoint. Re-estimate
 the next four weeks using actual results; do not wait for a calendar boundary.
 
 ## Exact versions and deployment calendar
@@ -45,7 +35,7 @@ Assign **1.3.3 to shared Original FX**; Room Core becomes **1.3.4**, retaining
 February 22–March 19. Version 1.4.0 onward keeps its existing windows. Use three
 numeric components for public versions, retain the existing Chimera `v` tags,
 and give the two focused products and two NAM packs separate tag namespaces.
-October weekly builds are 1.3.1-beta.2, beta.3 and beta.4. Beta counters increase
+October conditional targets are 1.3.1-beta.3 (October 16, #62), 1.3.2-beta.1 (October 23, #68) and 1.3.2-beta.2 (October 30). November continues 1.3.2-beta.3 through beta.6. Beta counters increase
 per product/base version; already published tags and files remain immutable.
 
 Chimera 1.x stays on its existing public-beta track in this plan. The 1.3.3
@@ -62,15 +52,9 @@ March 19 / April 2 for Niflheimr RC / stable review. These stabilization checks
 consume the existing maintenance/validation capacity; a larger correction
 explicitly displaces later work instead of assuming a second full-time team.
 
-The current publisher is pinned to 1.3.1-beta.1. Supporting the next selected
-beta version while retaining source/package/evidence validation is an October
-16 prerequisite. Product-specific tags/feeds/identities, full prerelease build
-display and beta-to-beta installation checks belong to the shared-product
-foundation; RC/stable build-channel and updater-channel/feed-transition support must be ready by January 15, before
-the first focused RC. These are implementation tasks, not capabilities delivered
-by editing this plan. Existing beta users must be able to discover the accepted
-stable successor; stable installs use stable by default and beta opt-in is
-explicit. Validate product-specific feeds and client channel selection.
+Main already implements explicit source/version weekly publication, beta/RC/stable generation and updater transitions. Calendar CI and the publisher now check reservations against immutable public history and live tags/releases. VERSION/RELEASE_CHANNEL remain the source identity, not a value inferred from the calendar. Historical beta.2 approval does not authorize another source/version. Product-specific identities and real installation/host qualification remain required.
+
+#62 has no approved expiry or publication decision. #68 has its own approved expiry but failed current-head native workflows and remains release-blocked. October 16 is conditional on real changes, three-OS checks, install/update/repair/uninstall/user-data acceptance and source-specific approval. On failure defer/remap unpublished targets. If 1.3.2 ships first, cancel the lower unpublished 1.3.1-beta.3 reservation. November is follow-up qualification and substantive improvement of the integrated dynamics, not duplicate delivery credit.
 
 ## Schedule authority and delivery status
 
@@ -150,8 +134,8 @@ A first beta does not require every later Original-engine enhancement to exist.
 
 | Version / allocation | Work window, KST | Main deliverable | Retained character-model plan |
 |---|---|---|---:|
-| 1.3.1-beta.2 through beta.4 | 2026-10-12–2026-11-01 | Weekly compact-chain, focused EQ, analyzer and band-edit improvements | 85 |
-| 1.3.2 | 2026-11-02–2026-11-27 | Dynamic EQ, clean compressor, gate/expander, live limiter; weekly playable increments | 85 |
+| 1.3.1-beta.3 → 1.3.2-beta.2 | 2026-10-12–2026-11-01 | Lifecycle candidate, then integrated signal/tuner/dynamics and focused EQ/analyzer improvements | 85 |
+| 1.3.2-beta.3 through beta.6 | 2026-11-02–2026-11-27 | Follow-up qualification and substantive improvements to integrated Dynamic EQ, compressor, gate/expander and limiter | 85 |
 | 1.3.3 — shared Original FX, first allocation | 2026-11-30–2026-12-25 | Reusable FX interfaces, guitar BOOST and bass Drive/Fuzz behavior, common COMP/EQ integration, PRE board/state foundation; qualified existing pitch/modulation/space reuse | 85 |
 | Náströnd focused VST3 beta | 2026-12-28–2027-01-22 | Five-channel guitar product, full controls, four replaceable PRE slots, focused five-area UI, independent package/presets | 85 |
 | Niflheimr focused VST3 beta | 2027-01-25–2027-02-19 | Five-channel bass product, full controls, four PRE slots, preserved LOW/Blend semantics, independent package/presets | 85 |
@@ -215,10 +199,10 @@ measured carryover explicitly instead of counting unfinished controls as done.
 
 | Week ending, KST | Minimum reviewable weekly increment |
 |---|---|
-| 2026-10-16 | Compact signal navigation/focused EQ usability or a reproducible priority maintenance fix, with a verified test build; make the publisher accept the explicitly selected next beta and verify upgrade identity; freeze the October 23 EQ minimum and product shared-core scope |
+| 2026-10-16 | Qualify #62 lifecycle and state preservation with approved expiry, actual code improvement and fresh three-OS/install/update evidence; verify the explicit-version publisher and reservation guard; freeze the October 23 EQ minimum and product shared-core scope |
 | 2026-10-23 | Improved EQ installer: five-block chain, large EQ, filled IN/OUT, smoothing/resolution/Freeze, persistent-slot add/delete and Undo/Redo |
 | 2026-10-30 | Remaining EQ workflow: multi-selection, band audition, local A/B, peak hold/range controls; full follow-up candidate or explicitly bounded carryover |
-| 2026-11-06 | First Dynamic EQ/GR increment using the existing EQ nodes and repeatable audio |
+| 2026-11-06 | Substantive Dynamic EQ/GR follow-up to the integrated #68 candidate using existing EQ nodes and repeatable audio |
 | 2026-11-13 | Shared clean-compressor increment with actual detector/GR response; Dynamic EQ refinement |
 | 2026-11-20 | Gate/expander improvement and a qualified live-limiter increment in the 1.3.2 test installer |
 | 2026-11-27 | Common-dynamics integration/maintenance candidate with state, automation and real-time evidence |
@@ -584,7 +568,7 @@ because it appears in historical planning text.
 ## October 13 addition — transparent-power bass research in the next update
 
 Owner instruction: incorporate the ongoing expanded amp research into the next
-update schedule. Register the research/qualification work in the **1.3.1-beta.2
+update schedule. Register the research/qualification work in the **1.3.1-beta.3
 cycle (test October 14, candidate October 15, conditional publication October
 16, 2026 KST)**. This is not a promise that a newly researched DSP can qualify
 in that cycle. Preserve the existing UI/EQ, reliability and beta-lifecycle scope;

@@ -4,6 +4,7 @@ import copy
 import json
 from pathlib import Path
 import unittest
+from unittest.mock import patch
 
 import beta_publication131 as beta
 import evaluate_release_gate as gate
@@ -17,6 +18,11 @@ class BetaPublication(unittest.TestCase):
     def setUp(self):
         # Reuse the raw Windows/Linux/macOS/assembly fixture producer, rather
         # than constructing a summary-only PASS or bypassing strict evaluation.
+        legacy_policy = gate.load_json(beta.ROOT / "Tools/fixtures/release-policy-1.3.1.json")
+        mapping = gate.load_json(beta.ROOT / "Validation/ci-check-map.json")["checks"]
+        frozen = patch.object(fixtures.evidence, "configuration", return_value=(legacy_policy, mapping))
+        frozen.start()
+        self.addCleanup(frozen.stop)
         self.fixture = fixtures.Consolidation("test_actual_automatic_receipts_pass_only_owned_checks")
         self.fixture.setUp()
         self.addCleanup(self.fixture.doCleanups)
@@ -64,9 +70,11 @@ class BetaPublication(unittest.TestCase):
         archive = self.fixture.archive(self.output)
         original_bytes = archive.read_bytes()
         with self.assertRaisesRegex(RuntimeError, "not PASS"):
-            publisher.verify_release_gate_archive(archive, HEAD, beta.PROFILE, RUN, ATTEMPT)
+            publisher.verify_release_gate_archive(archive, HEAD, beta.PROFILE, RUN, ATTEMPT,
+                                                 policy=self.strict_policy)
         strict, decision = publisher.verify_release_gate_archive(
-            archive, HEAD, beta.PROFILE, RUN, ATTEMPT, publication_policy=self.policy)
+            archive, HEAD, beta.PROFILE, RUN, ATTEMPT, policy=self.strict_policy,
+            publication_policy=self.policy)
         self.assertEqual(strict["verdict"], "BLOCKED")
         self.assertEqual(strict["counts"]["checks"]["blocked"], 107)
         self.assertEqual(decision["decision"], beta.DECISION)
@@ -80,7 +88,8 @@ class BetaPublication(unittest.TestCase):
         _, output = self.fixture.run_gate()
         with self.assertRaisesRegex(RuntimeError, "Automatic check failed"):
             publisher.verify_release_gate_archive(self.fixture.archive(output), HEAD, beta.PROFILE,
-                                                 RUN, ATTEMPT, publication_policy=self.policy)
+                                                 RUN, ATTEMPT, policy=self.strict_policy,
+                                                 publication_policy=self.policy)
 
     def test_every_required_ci_check_is_mandatory(self):
         for cid in beta.CI_IDS:

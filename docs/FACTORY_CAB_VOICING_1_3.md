@@ -1,14 +1,17 @@
 # Factory CAB voicing — 1.3
 
-Release 1.3 keeps all 48 factory preset ordinals, names and category navigation. Each factory recall now supplies an explicit modeled cabinet, compatible speaker, microphone, pickup unit and visible microphone level. The four snapshot builders share [FactoryCabVoicing.h](../Source/FactoryCabVoicing.h); loading a saved project or user preset does not call that factory revoicing function.
+Release 1.3 keeps all 48 factory preset ordinals and category navigation. Current display names use Chimera naming; dated measurements below retain the names recorded by their original source. Each factory recall supplies an explicit modeled cabinet, compatible speaker, microphone, pickup unit and visible microphone level. The 2026-10-12 Niflheimr revision renames its five factory entries and authors Classic, Dual and Matrix arrangements while preserving their stable IDs. The current assignment table below includes those changes; the 2026-10-09 calibration section remains historical evidence for the earlier source.
+
+The four snapshot builders share [FactoryCabVoicing.h](../Source/FactoryCabVoicing.h). Loading a saved project, user `.chimera` preset or A/B snapshot does not call that factory revoicing function; its stored route, parameter values and display name remain intact.
 
 ## Recall and routing
 
 - Factory recalls use the independently authored Chimera CAB model. They do not scan for or select private/reference IR filenames. No factory preset requires an external IR file.
 - Existing user-imported IR audio, paths, sidecars and A/B project resources retain their normal recall behavior. Factory recall selects its own modeled CAB without deleting the user's files.
-- Classic uses one rig, Dual uses two, and Matrix uses three bands. The authored dry LOW in Bass Matrix, Low B Foundation, Pick Attack Matrix, Spectral Texture, Blackhearted and Dark Matters of Throne remains bypassed. Signature LOW amp blends and Slam Impact's amplified LOW keep their existing routing roles.
+- Classic uses one rig, Dual uses two, and Matrix uses three bands. The authored dry LOW in Bass Matrix, Low B Foundation, Pick Attack Matrix, Spectral Texture, Blackhearted and Dark Matters of Throne remains bypassed. Heavy Pulse also recalls clean LOW DI with AMP/CAB off. Signature LOW amp blends and Slam Impact's amplified LOW keep their existing routing roles; Niflheimr's Slam Punch uses 75% LOW DI and 25% AMP + CAB.
 - Mic A is active on every modeled path. Mic B has an authored alternate microphone and neutral delay/polarity but starts disabled, with the A/B blend at A. This avoids introducing an unmeasured second-microphone phase blend into the existing presets.
-- CAB low/high cuts, PRE drive, native amp voicing, crossovers and spatial effect settings retain each preset's existing musical role. Only the explicit CAB recipe and measured level compensation are owned by this revision. The global OUTPUT contract remains 0 dB.
+- The CAB table owns enclosure/speaker/microphone recipes and visible microphone levels. Each preset builder owns PRE, native voicing, crossovers, cuts, gate and spatial effects. The 2026-10-12 Niflheimr builder explicitly authors the native bank for every lane in its revised routing mode. The global OUTPUT contract remains 0 dB.
+- Stored captured-source ordinal 0 does not add a Filters-only source while a modeled microphone owns the path. The cabinet's explicit HP/LP controls still shape that path. Factory recall leaves the alternate captured source inactive and never substitutes a personal IR.
 
 ## Cabinet assignment
 
@@ -24,7 +27,7 @@ Numbers below are stored preset ordinals, not positions in the category-sorted m
 | 5 | Bell Clean | Classic | Guitar 2x12 · Silver 12 · Pencil 184 | — | — |
 | 6 | Edge Chime | Classic | Guitar 2x12 · Verdant 25 · Spear 441 | — | — |
 | 7 | Classic Crunch | Classic | Guitar 2x12 · Verdant 25 · Needle 57 | — | — |
-| 8 | Orange Heavy | Classic | Guitar 4x12 · Crimson 12 · Veil 7 | — | — |
+| 8 | Amber Heavy | Classic | Guitar 4x12 · Crimson 12 · Veil 7 | — | — |
 | 9 | Melodic Death Rhythm | Classic | Guitar 4x12 · Ember 30 · Needle 57 | — | — |
 | 10 | Melodic Lead | Classic | Guitar 2x12 · Ember 30 · Focus 160 | — | — |
 | 11 | Ambient Clean | Classic | Guitar 2x12 · Silver 12 · Prism 414 | — | — |
@@ -44,8 +47,8 @@ Numbers below are stored preset ordinals, not positions in the category-sorted m
 | 25 | Low B Foundation | Matrix | Dry / CAB bypass | Bass 6x10 · Foundry 10 · Hammer 421 | Bass 4x10 · Vector 10 · Anchor 20 |
 | 26 | Pick Attack Matrix | Matrix | Dry / CAB bypass | Bass 6x10 · Foundry 10 · Hammer 421 | Bass 4x10 · Alloy 10 · Needle 57 |
 | 27 | Spectral Texture | Matrix | Dry / CAB bypass | Guitar 2x12 · Verdant 25 · Spear 441 | Guitar 4x12 · Crimson 12 · Veil 7 |
-| 28 | Matchless Edge | Classic | Guitar 2x12 · Verdant 25 · Spear 441 | — | — |
-| 29 | Dumble Smooth Lead | Classic | Guitar 2x12 · Ember 30 · Focus 160 | — | — |
+| 28 | Prism Edge | Classic | Guitar 2x12 · Verdant 25 · Spear 441 | — | — |
+| 29 | Silk Smooth Lead | Classic | Guitar 2x12 · Ember 30 · Focus 160 | — | — |
 | 30 | Modern Clean | Classic | Bass 1x12 · Clarity 12 · Prism 414 | — | — |
 | 31 | Crom Cruach | Matrix | Bass 2x12 · Chimera Depth 12 · Anchor 20 | Bass 6x10 · Foundry 10 · Hammer 421 | Guitar 4x12 · Nocturne 100 · Needle 57 |
 | 32 | Wild Hunt | Matrix | Bass 4x10 · Vector 10 · Anchor 20 | Bass 4x10 · Alloy 10 · Spear 441 | Guitar 4x12 · Nocturne 100 · Needle 57 |
@@ -59,11 +62,29 @@ Numbers below are stored preset ordinals, not positions in the category-sorted m
 | 40 | Rotten Grind | Dual | Guitar 4x12 · Crimson 12 · Veil 7 | Guitar 4x12 · Chimera Ruin 12 · Chimera Strike | — |
 | 41 | Sludge Mass | Classic | Guitar 4x12 · Granite 55 · Hammer 421 | — | — |
 | 42 | Slam Impact | Matrix | Guitar 4x12 · Chimera Ruin 12 · Chimera Strike | Guitar 4x12 · Crimson 12 · Veil 7 | Guitar 4x12 · Nocturne 100 · Needle 57 |
-| 43 | Frostline Precision | Classic | Bass 4x10 · Vector 10 · Anchor 20 | — | — |
-| 44 | Carrion Barrage | Classic | Bass 6x10 · Foundry 10 · Hammer 421 | — | — |
-| 45 | Foundry Pulse | Classic | Bass 4x10 · Alloy 10 · Spear 441 | — | — |
-| 46 | Jötunn Hammer | Classic | Bass 6x10 · Foundry 10 · Anchor 20 | — | — |
-| 47 | Mirebound Monolith | Classic | Bass 1x15 · Monolith 15 · Anchor 20 | — | — |
+| 43 | Metal Clank | Classic | Bass 4x10 · Vector 10 · Anchor 20 | — | — |
+| 44 | Death Grind | Dual | Bass 2x12 · Chimera Depth 12 · Anchor 20 | Bass 6x10 · Foundry 10 · Hammer 421 | — |
+| 45 | Heavy Pulse | Matrix | Dry DI / AMP and CAB bypass | Bass 4x10 · Alloy 10 · Spear 441 | Bass 1x12 · Clarity 12 · Prism 414 |
+| 46 | Slam Punch | Matrix | Bass 6x10 · Foundry 10 · Anchor 20 | Bass 6x10 · Foundry 10 · Anchor 20 | Bass 4x10 · Alloy 10 · Spear 441 |
+| 47 | Doom Fuzz | Classic | Bass 1x15 · Monolith 15 · Anchor 20 | — | — |
+
+## Current Niflheimr routing — 2026-10-12
+
+These five arrangements are authored settings in the current source. For source-specific native recall/audio test status and level-calibration evidence, see the [revision validation report](CAB_ROUTING_AND_NIFLHEIMR_20261012.md#verification) and [PR #54](https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/pull/54). The historical measurements later in this document do not certify the revised routes.
+
+| ID | Channels by lane | Crossover / LOW routing | Native Amp OUT by lane | Mic A level by lane |
+| --- | --- | --- | --- | --- |
+| 43 | Hrímfaxi | Classic, full range | +7.5 dB | +4.8 dB |
+| 44 | Hrímfaxi / Garmr | Dual low/high split at 180 Hz | +5.0 / −2.0 dB | +4.0 / +4.4 dB |
+| 45 | Hrímfaxi, parked / Nidavellir / Hrímfaxi | Matrix 140 / 1600 Hz; LOW DI 100%; LOW compression 0.25 | 0, inactive / +1.0 / +3.0 dB | 0, inactive / +5.6 / +4.0 dB |
+| 46 | Ymir / Ymir / Garmr | Matrix 110 / 900 Hz; LOW DI 75% + AMP/CAB 25%; LOW compression 0.50 | +3.0 / +1.0 / −2.0 dB | +3.3 / +3.3 / +2.5 dB |
+| 47 | Hel | Classic, full range | −4.5 dB | +10.1 dB |
+
+Slash-separated settings follow Rig A/B for Dual and LOW/MID/HIGH for Matrix. The Matrix blend percentages above mix the compressed LOW DI with its AMP + CAB branch; they are separate from each Niflheimr channel's internal native BLEND. Both Matrix clean taps follow the first PRE compressor, before the Graphic EQ. Death Grind is crossover Dual, so its stored 50% parallel blend does not weight the low/high bands.
+
+Heavy Pulse retains an editable parked LOW recipe: Bass 2x12, Chimera Depth 12 and Anchor 20. Its native Hrímfaxi bank is also authored, but AMP/CAB are off and the LOW wet contribution is zero. The cabinet HP/LP values of 32 Hz / 6.1 kHz are stored without filtering the LOW DI. Slam Punch's LOW cabinet and its 27 Hz / 5.1 kHz cuts affect only the 25% amplified share. The other active lanes use the cabinet shown in the assignment table, with their complete PRE/POST voicings documented in [Niflheimr genre references](NIFLHEIMR_GENRE_REFERENCES.md#original--niflheimr-full-rig-bank).
+
+All five presets retain global **OUTPUT = 0 dB**. The per-lane Amp OUT and mic levels are authored starting values, not measured loudness matches for the revised routes. Stable IDs `original.rig.niflheimr.hrimfaxi.v1`, `original.rig.niflheimr.garmr.v1`, `original.rig.niflheimr.nidavellir.v1`, `original.rig.niflheimr.ymir.v1` and `original.rig.niflheimr.hel.v1` retain indices 43–47. Only selecting the factory entry applies these new routes/names. Existing project/user/A-B snapshots restore their stored sounds, including earlier Classic routes and names.
 
 ## Pickup and enclosure choices
 
@@ -75,23 +96,25 @@ Factory Mic A distances are 6–8 cm. Cone positions are 25–42%, with Thall Rh
 
 ## Level evidence
 
-Mic-stage compensation is measured through the production processor and its actual factory-recall function. The previous 48-preset levels at source `40d5e8a5ea466eaccc1044ccefce1bd33e6ac222` provide a reference for each preset's relative loudness; the presets are not all normalized to one RMS target. Peak headroom takes priority where matching the old RMS would overload the new full rig. PRE drive, amp gain and the global OUTPUT setting are not used for this compensation.
+Mic-stage compensation is evaluated through the production processor and its actual factory-recall function. The historical 48-preset levels at source `40d5e8a5ea466eaccc1044ccefce1bd33e6ac222` provide a reference for relative loudness; the presets are not all normalized to one RMS target. Peak headroom takes priority where matching an old RMS would overload a new full rig. Global OUTPUT remains 0 dB. For measurements of the revised Niflheimr per-lane native and mic settings above, consult the [revision validation report](CAB_ROUTING_AND_NIFLHEIMR_20261012.md#verification). The following dated calibration covers its five earlier Classic arrangements only.
 
 Final acceptance retains the existing 48-preset synthetic-fixture gates: OUTPUT = 0 dB, RMS above −30 dBFS, peak below 0.95, and +6 dB input peak below 0.95. Measurements include the first output sample at 48 kHz, 128 samples per block and 450 blocks per render. No warmup interval is discarded. The dirty-state/clean-state audio comparison and preset/A-B round trips must also pass. Synthetic fixtures establish signal safety and deterministic recall; real instrument/DAW listening remains a separate acceptance item.
 
 Preparation now installs the saved CAB gain, polarity, delay, blend and bypass before initializing its smoothers. It also supplies the complete current native amp state before initializing the native/legacy engine mix. This makes a fresh processor and a re-prepared processor start from the same selected rig. Parameter values and live 20 ms gain/engine transitions retain their existing contracts.
 
-### Completed local calibration
+### Historical local calibration — 2026-10-09
+
+The measurements in this section predate the 2026-10-12 Niflheimr route revision. They describe the measured source and original five Classic entries: 43 Frostline Precision, 44 Carrion Barrage, 45 Foundry Pulse, 46 Jötunn Hammer and 47 Mirebound Monolith. Their names, values and results are preserved as history; no row is relabeled as a measurement of the revised Dual/Matrix preset. Revised-route native test and calibration evidence belongs to the [revision validation report](CAB_ROUTING_AND_NIFLHEIMR_20261012.md#verification) and its linked integration results.
 
 The complete strict default `ChimeraIntegratedProcessorTests` run finished with **exit 0** in **871.09 seconds** at **2026-10-09 16:41:26 UTC**, without diagnostic flags or a preset subset. The production-recall render completed **48/48** nominal and **48/48** hot-input preset checks with all limits unchanged. The lowest RMS is **−27.7529 dBFS** (Slap Studio). The largest nominal and +6 dB-input peaks are **−0.734963 / −0.899584 dBFS** (Orange Heavy), both below the 0.95 linear peak limit (approximately −0.4455 dBFS).
 
 The strict default five-channel CAB comparison also passed with the centred Thall Rhythm pickup. K-weighted spread is **2.32495 dB** without the PRE/POST drive path and **1.54410 dB** with it, within the unchanged **2.5 / 1.6 dB** limits. The largest peak across these ten channel renders is **−0.987072 dBFS**. Only preset 38's microphone position and compensation were changed for this correction; the amp channels and test limits retain their previous definitions.
 
-All five Niflheimr presets also passed binary state and A/B audio round trips with a maximum sample difference of **0**. The separate first-sample CAB regression passed for both microphones, including −12 dB/inverted/4 ms startup, stop/switch/reprepare at −6 dB/7 ms, and the live 20 ms gain ramp.
+All five Niflheimr presets in that historical Classic bank also passed binary state and A/B audio round trips with a maximum sample difference of **0**. The separate first-sample CAB regression passed for both microphones, including −12 dB/inverted/4 ms startup, stop/switch/reprepare at −6 dB/7 ms, and the live 20 ms gain ramp.
 
 This local executable compiles the real production audio/state code against JUCE 8.0.8; its only processor substitutions omit the editor include and return no editor. It does not establish native UI, installer, host performance or musical listening acceptance. The final native three-platform CI must execute the committed source; its results are recorded in the integration PR.
 
-The microphone gain below applies to each active modeled CAB lane of that preset; bypassed LOW and inactive lanes retain 0 dB. Values shown are actual full-processor measurements, with output trim 0 dB throughout.
+The historical microphone gain below applied to each active modeled CAB lane of that measured preset; bypassed LOW and inactive lanes retained 0 dB. Values shown are the 2026-10-09 full-processor measurements, with output trim 0 dB throughout. In particular, rows 44–46 are not the current per-lane gains or results for Death Grind, Heavy Pulse or Slam Punch.
 
 | ID | Mic gain (dB) | RMS (dBFS) | Peak (dBFS) | Peak at +6 dB input (dBFS) |
 | --- | ---: | ---: | ---: | ---: |
@@ -162,5 +185,5 @@ The complete default-suite log (`full-default-pass3.log`) has SHA-256 `9fba2f4f5
 - [OriginalPresets.h](../Source/OriginalPresets.h): five Náströnd full-rig snapshots.
 - [NiflheimrPresets.h](../Source/NiflheimrPresets.h): five Niflheimr full-rig snapshots.
 - [IntegratedProcessorTests.cpp](../Tests/IntegratedProcessorTests.cpp): actual production processor recall and 48-preset level fixtures.
-- [NiflheimrPresetTests.h](../Tests/NiflheimrPresetTests.h): Niflheimr binary export/restore and A/B checks.
+- [NiflheimrPresetTests.h](../Tests/NiflheimrPresetTests.h): mode-specific native context/channel/control recall, each lane's audio contribution, Heavy Pulse LOW hardware isolation, binary/A-B round trips and preservation of saved Classic snapshots.
 - [CabPreparedStateTests.h](../Tests/CabPreparedStateTests.h): first-sample microphone gain/polarity/delay, stop/switch/reprepare and live gain-ramp checks.

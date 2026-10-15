@@ -182,7 +182,7 @@ then publish its AAX package with that new product release. Do not append a
 changed-source binary to an already published older version.
 
 The first Chimera public-AAX review is **November 27, 2026**, targeting
-**1.3.2-beta.4** only if the November 20 host/signing checks and applicable
+**1.3.2-beta.6** only if the November 20 host/signing checks and applicable
 release gates pass. Otherwise use the first later qualified Chimera version.
 This is a conditional slot, not a forecast of Avid/PACE approval or acquired
 credentials. The November 20 check is not itself a public distribution claim.

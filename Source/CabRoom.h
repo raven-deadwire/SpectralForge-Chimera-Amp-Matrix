@@ -417,7 +417,7 @@ public:
         g.setGradientFill({juce::Colours::black.withAlpha(.42f),0.f,0.f,juce::Colours::black.withAlpha(0.f),0.f,90.f,false});
         g.fillRect(0,0,getWidth(),juce::jmin(90,getHeight()));
         g.setColour(juce::Colour(0xffe5dfd4));g.setFont(juce::FontOptions(14.f,juce::Font::bold));
-        g.drawText(currentMode==2 ? "MATRIX / CABINET ROOM" : currentMode==1 ? "DUAL / CABINET ROOM" : "CABINET ROOM",24,13,
+        g.drawText(currentMode==2 ? "MATRIX / CABINET ROOM" : currentMode==1 ? "DUAL / CABINET ROOM" : "CLASSIC / CABINET ROOM",24,13,
             currentMode==2 ? juce::jmax(1,lowBlend.getX()-40) : getWidth()-48,22,juce::Justification::centredLeft);
         if(getHeight()>500) {
             g.setColour(juce::Colour(0xffc6bba8));g.setFont(juce::FontOptions(12.f));
@@ -443,7 +443,7 @@ class CabWorkspace : public juce::Component, private juce::Timer {
     void timerCallback() override {refreshState();}
     void updateNavigation() {
         room.setVisible(roomView);if(panel)panel->setVisible(!roomView);
-        back.setVisible(!roomView && activeRigCount()>1);
+        back.setVisible(!roomView);
         lowBlend.setVisible(!roomView && lastMode==2 && focused==0);
         if(lowBlend.isVisible())lowBlend.refreshState();
         breadcrumb.setText(roomView ? "CHIMERA / CABINET ROOM" :
@@ -462,7 +462,7 @@ public:
         breadcrumb.setFont(juce::FontOptions(12.f,juce::Font::bold));
         breadcrumb.setColour(juce::Label::textColourId,juce::Colour(0xffcfb991));
         setSize(1040,792);lastMode=spectralforge::cabRoom::mode(processor);
-        if(activeRigCount()==1 || focusRequested)focusRig(juce::jlimit(0,activeRigCount()-1,initialLane));
+        if(focusRequested)focusRig(juce::jlimit(0,activeRigCount()-1,initialLane));
         else updateNavigation();
         startTimerHz(12);
     }
@@ -480,7 +480,6 @@ public:
     bool isRoomView() const {return roomView;}
     int focusedRig() const {return focused;}
     void showRoom() {
-        if(activeRigCount()==1) {focusRig(0);return;}
         if(panel)panel->finishInteraction();
         roomView=true;room.refreshState();updateNavigation();
     }
@@ -498,7 +497,12 @@ public:
         const int nextMode=spectralforge::cabRoom::mode(processor);
         if(nextMode!=lastMode) {
             lastMode=nextMode;
-            if(activeRigCount()==1)focusRig(0);else showRoom();
+            if(panel && focused>=activeRigCount()) {
+                // The old rig's library belongs to its focused panel. Dispose
+                // of both before returning to a mode where that rig is absent.
+                panel->finishInteraction();panel.reset();focused=-1;
+            }
+            showRoom();
         }
         if(roomView)room.refreshState();
         else if(lowBlend.isVisible())lowBlend.refreshState();

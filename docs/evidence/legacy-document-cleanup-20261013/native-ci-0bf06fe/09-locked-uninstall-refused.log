@@ -1,0 +1,51 @@
+﻿2026-10-12 16:54:09.373   Log opened. (Time zone: UTC+00:00)
+2026-10-12 16:54:09.373   Setup version: Inno Setup version 6.7.1
+2026-10-12 16:54:09.373   Original Uninstall EXE: D:\a\_temp\Chimera document lifecycle 916ada417cbe471a89aab6355f61ce77\설치 경로\Uninstall\unins000.exe
+2026-10-12 16:54:09.373   Uninstall DAT: D:\a\_temp\Chimera document lifecycle 916ada417cbe471a89aab6355f61ce77\설치 경로\Uninstall\unins000.dat
+2026-10-12 16:54:09.373   Current Uninstall EXE: C:\Users\RUNNER~1\AppData\Local\Temp\is-M02G5E427J-uninstall.tmp\_unins.tmp
+2026-10-12 16:54:09.373   Uninstall command line: /SECONDPHASE="D:\a\_temp\Chimera document lifecycle 916ada417cbe471a89aab6355f61ce77\설치 경로\Uninstall\unins000.exe" /FIRSTPHASEWND=$D022E /VERYSILENT /SUPPRESSMSGBOXES /NORESTART /SP- /LOG="D:\a\SpectralForge-Chimera-Amp-Matrix\SpectralForge-Chimera-Amp-Matrix\build\windows-document-upgrade-verification/09-locked-uninstall-refused.log"
+2026-10-12 16:54:09.373   Windows version: 10.0.20348
+2026-10-12 16:54:09.373   Windows architecture: x64 (64-bit)
+2026-10-12 16:54:09.373   Machine types supported by system: x86 x64
+2026-10-12 16:54:09.373   User privileges: Administrative
+2026-10-12 16:54:09.373   Administrative install mode: Yes
+2026-10-12 16:54:09.373   Install mode root key: HKEY_LOCAL_MACHINE
+2026-10-12 16:54:09.373   RedirectionGuard status for current process: Enabled in enforcing mode
+2026-10-12 16:54:09.373   Cleaning up any residual temporary files from previous Uninstall runs.
+2026-10-12 16:54:09.373   Cleanup finished (1 directories found, 1 directories checked, 0 files deleted).
+2026-10-12 16:54:09.373   Created protected temporary directory: C:\Users\RUNNER~1\AppData\Local\Temp\is-30HXTXH29V.tmp
+2026-10-12 16:54:09.373   -- DLL function import --
+2026-10-12 16:54:09.373   Function and DLL name: CreateFileW@kernel32.dll
+2026-10-12 16:54:09.373   Importing the DLL function. Dest DLL name: kernel32.dll
+2026-10-12 16:54:09.373   Successfully imported the DLL function. Delay loaded? No
+2026-10-12 16:54:09.373   -- DLL function import --
+2026-10-12 16:54:09.373   Function and DLL name: CloseHandle@kernel32.dll
+2026-10-12 16:54:09.373   Importing the DLL function. Dest DLL name: kernel32.dll
+2026-10-12 16:54:09.373   Successfully imported the DLL function. Delay loaded? No
+2026-10-12 16:54:09.373   -- DLL function import --
+2026-10-12 16:54:09.373   Function and DLL name: GetFileInformationByHandle@kernel32.dll
+2026-10-12 16:54:09.373   Importing the DLL function. Dest DLL name: kernel32.dll
+2026-10-12 16:54:09.373   Successfully imported the DLL function. Delay loaded? No
+2026-10-12 16:54:09.373   -- DLL function import --
+2026-10-12 16:54:09.373   Function and DLL name: SetFileInformationByHandle@kernel32.dll
+2026-10-12 16:54:09.373   Importing the DLL function. Dest DLL name: kernel32.dll
+2026-10-12 16:54:09.373   Successfully imported the DLL function. Delay loaded? No
+2026-10-12 16:54:09.373   -- DLL function import --
+2026-10-12 16:54:09.373   Function and DLL name: GetFileAttributesW@kernel32.dll
+2026-10-12 16:54:09.373   Importing the DLL function. Dest DLL name: kernel32.dll
+2026-10-12 16:54:09.373   Successfully imported the DLL function. Delay loaded? No
+2026-10-12 16:54:09.373   -- DLL function import --
+2026-10-12 16:54:09.373   Function and DLL name: GetLastError@kernel32.dll
+2026-10-12 16:54:09.373   Importing the DLL function. Dest DLL name: kernel32.dll
+2026-10-12 16:54:09.373   Successfully imported the DLL function. Delay loaded? No
+2026-10-12 16:54:09.373   -- DLL function import --
+2026-10-12 16:54:09.373   Function and DLL name: FlushFileBuffers@kernel32.dll
+2026-10-12 16:54:09.373   Importing the DLL function. Dest DLL name: kernel32.dll
+2026-10-12 16:54:09.373   Successfully imported the DLL function. Delay loaded? No
+2026-10-12 16:54:09.373   -- DLL function import --
+2026-10-12 16:54:09.373   Function and DLL name: GetCurrentProcessId@kernel32.dll
+2026-10-12 16:54:09.373   Importing the DLL function. Dest DLL name: kernel32.dll
+2026-10-12 16:54:09.373   Successfully imported the DLL function. Delay loaded? No
+2026-10-12 16:54:09.373   Chimera document preservation: uninstall refused: Cannot lock a document for preservation; uninstall stopped before deleting files.
+2026-10-12 16:54:09.373   InitializeUninstall returned False; aborting.
+2026-10-12 16:54:09.373   Log closed.

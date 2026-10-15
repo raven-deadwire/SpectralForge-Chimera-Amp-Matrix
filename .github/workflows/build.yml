@@ -2,7 +2,23 @@ name: Open Beta Build and Test
 on:
   pull_request:
   workflow_dispatch:
+    inputs:
+      target_version:
+        description: Optional assertion of this workflow ref's committed version
+        required: false
+        type: string
+      source_sha:
+        description: Optional assertion of this workflow ref's full source SHA
+        required: false
+        type: string
   workflow_call:
+    inputs:
+      target_version:
+        required: false
+        type: string
+      source_sha:
+        required: false
+        type: string
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
@@ -20,6 +36,16 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+      - name: Assert requested build identity without changing the workflow source
+        shell: bash
+        env:
+          REQUESTED_TARGET_VERSION: ${{ inputs.target_version }}
+          REQUESTED_SOURCE_SHA: ${{ inputs.source_sha }}
+        run: |
+          args=()
+          if [ -n "$REQUESTED_TARGET_VERSION" ]; then args+=(--target-version "$REQUESTED_TARGET_VERSION"); fi
+          if [ -n "$REQUESTED_SOURCE_SHA" ]; then args+=(--source-sha "$REQUESTED_SOURCE_SHA"); fi
+          python Tools/chimera_version.py "${args[@]}"
       - name: Verify catalog and validation producer contracts
         shell: bash
         run: |
@@ -37,6 +63,10 @@ jobs:
           python Tools/test_beta_publication.py
           python Tools/test_publish_beta131.py
           python Tools/test_beta_publication131.py
+          python Tools/test_publish_release.py
+          python Tools/test_weekly_publication.py
+          python Tools/test_publication_evidence.py
+          python Tests/test_packaging_version.py
           python Tools/test_release_preflight.py
           python Tools/test_callback_timing_protocol.py
           python Tools/seed_validation_reports.py --commit "${{ github.event.pull_request.head.sha || github.sha }}" --profile pull_request --output build/validation
@@ -91,7 +121,7 @@ jobs:
         if: runner.os == 'Windows'
         shell: pwsh
         run: |
-          foreach ($script in @("Tools/Build-WindowsInstaller.ps1", "Tools/Verify-WindowsInstaller.ps1", "Tools/Sign-WindowsArtifact.ps1", "Tools/Build-WindowsMSIX.ps1", "Tools/Verify-WindowsMSIX.ps1", "Tools/Scan-WindowsArtifacts.ps1")) {
+          foreach ($script in @("Tools/Build-WindowsInstaller.ps1", "Tools/Verify-WindowsInstaller.ps1", "Tools/Verify-WindowsPreviousReleaseUpgrade.ps1", "Tools/Sign-WindowsArtifact.ps1", "Tools/Build-WindowsMSIX.ps1", "Tools/Verify-WindowsMSIX.ps1", "Tools/Scan-WindowsArtifacts.ps1")) {
             $tokens = $null
             $parseErrors = $null
             [System.Management.Automation.Language.Parser]::ParseFile((Resolve-Path $script).Path, [ref]$tokens, [ref]$parseErrors) | Out-Null
@@ -216,7 +246,7 @@ jobs:
       - name: Verify Windows install, repair and uninstall
         id: installer
         if: runner.os == 'Windows'
-        timeout-minutes: 3
+        timeout-minutes: 10
         shell: pwsh
         run: ./Tools/Verify-WindowsInstaller.ps1
 
@@ -228,6 +258,7 @@ jobs:
           path: |
             build/installer-verification/*.txt
             build/installer-verification/*.log
+            build/installer-verification/*.json
           if-no-files-found: warn
 
       - name: Build MSIX review package
@@ -402,6 +433,7 @@ jobs:
           Path('candidate/candidate-source.json').write_text(json.dumps({
               'version': chimera_version.identity()['version'], 'tag': 'v' + chimera_version.identity()['version'],
               'revision': chimera_version.revision(), 'runId': os.environ['GITHUB_RUN_ID'],
+              'runAttempt': os.environ['GITHUB_RUN_ATTEMPT'],
               'published': False, 'publisherSigned': False, 'macOSNotarized': False
           }, indent=2) + '\n', encoding='utf-8')
           PY
@@ -465,7 +497,8 @@ jobs:
         if: always()
         shell: bash
         run: |
-          python Tools/consolidate_release_gate.py --commit "$CHIMERA_SOURCE_SHA" --run-id "$GITHUB_RUN_ID" --run-attempt "$GITHUB_RUN_ATTEMPT" --profile beta_1_3 --inputs release-inputs --output build/release-validation
+          # The committed source channel selects beta_1_3 or full_release.
+          python Tools/consolidate_release_gate.py --commit "$CHIMERA_SOURCE_SHA" --run-id "$GITHUB_RUN_ID" --run-attempt "$GITHUB_RUN_ATTEMPT" --inputs release-inputs --output build/release-validation
       - name: Upload consolidated exact-source verdict
         if: always()
         uses: actions/upload-artifact@v4

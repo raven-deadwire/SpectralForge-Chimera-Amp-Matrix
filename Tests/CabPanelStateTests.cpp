@@ -37,6 +37,7 @@ void equal(const std::vector<float>& a,const std::vector<float>& b){float d=0;do
 #include "CabLayoutStateTests.h"
 #include "CabDriverVisualTests.h"
 #include "CabIRImageTests.h"
+#include "CabSourceIsolationTests.h"
 void originalStateContracts() {
     auto p=std::make_unique<ChimeraProcessor>();
     set(*p,"gateon",0);set(*p,"oversampling",0);set(*p,"lowampmix",1);
@@ -112,7 +113,21 @@ void originalStateContracts() {
     for(int lane=0;lane<3;++lane)for(const char* suffix:{"Aon","Bon"})check(p->parameters().getRawParameterValue(spectralforge::originalCabID(lane,suffix))->load()==0,"legacy must disable dirty modeled slots");
     std::cout<<"PASS original A/B comparison, position audio, UI and legacy disable\n";
 }
-int main(int argc,char** argv){juce::ScopedJuceInitialiser_GUI gui;auto folder=juce::File::getSpecialLocation(juce::File::tempDirectory).getNonexistentChildFile("cab-state-fixture",{},false);struct Cleanup{juce::File f;~Cleanup(){f.deleteRecursively();}} cleanup{folder};try{if(argc==2 && juce::String(argv[1])=="--visual-only") {check(folder.createDirectory().wasOk(),"directory");driverVisualContracts(juce::File::getCurrentWorkingDirectory());cabIRImageTests::run(folder.getChildFile("ir-images"),juce::File::getCurrentWorkingDirectory());return 0;}if(argc==2 && juce::String(argv[1])=="--layout-only") {layoutStateContracts(juce::File::getCurrentWorkingDirectory());return 0;}if(argc==2 && juce::String(argv[1])=="--expansion-only") {expansionStateContracts(juce::File::getCurrentWorkingDirectory());return 0;}originalStateContracts();check(folder.createDirectory().wasOk(),"directory");auto a=folder.getChildFile("A.wav"),b=folder.getChildFile("B.wav");if(argc==4) {
+int main(int argc,char** argv){juce::ScopedJuceInitialiser_GUI gui;auto folder=juce::File::getSpecialLocation(juce::File::tempDirectory).getNonexistentChildFile("cab-state-fixture",{},false);struct Cleanup{juce::File f;~Cleanup(){f.deleteRecursively();}} cleanup{folder};try{
+    const auto request=argc==2 ? juce::String(argv[1]) : juce::String{};
+    if(request=="--room-ir-regressions" || request=="--classic-room-regression" || request=="--ir-isolation-regression") {
+        check(folder.createDirectory().wasOk(),"directory");
+        check(juce::Desktop::getInstance().getDisplays().getPrimaryDisplay()!=nullptr,
+            "CAB room/IR regressions require a native display and window manager");
+        const auto screenshots=juce::File::getCurrentWorkingDirectory();
+        if(request!="--ir-isolation-regression") {
+            cabSceneUITests::roomNavigation(screenshots);
+            cabSceneUITests::editorNavigation(screenshots);
+        }
+        if(request!="--classic-room-regression")cabSourceIsolationContracts(folder.getChildFile("source-isolation"),screenshots);
+        return 0;
+    }
+    if(argc==2 && juce::String(argv[1])=="--visual-only") {check(folder.createDirectory().wasOk(),"directory");driverVisualContracts(juce::File::getCurrentWorkingDirectory());cabIRImageTests::run(folder.getChildFile("ir-images"),juce::File::getCurrentWorkingDirectory());return 0;}if(argc==2 && juce::String(argv[1])=="--layout-only") {layoutStateContracts(juce::File::getCurrentWorkingDirectory());return 0;}if(argc==2 && juce::String(argv[1])=="--expansion-only") {expansionStateContracts(juce::File::getCurrentWorkingDirectory());return 0;}originalStateContracts();check(folder.createDirectory().wasOk(),"directory");auto a=folder.getChildFile("A.wav"),b=folder.getChildFile("B.wav");if(argc==4) {
         check(juce::File::getCurrentWorkingDirectory().getChildFile(argv[2]).copyFileTo(a),"private A copy");
         check(juce::File::getCurrentWorkingDirectory().getChildFile(argv[3]).copyFileTo(b),"private B copy");
     } else {check(argc<=2,"usage: ChimeraCabPanelStateTests [snapshot.png [user-IR-A user-IR-B]]");fixture(a,0);fixture(b,18);}
@@ -121,6 +136,8 @@ int main(int argc,char** argv){juce::ScopedJuceInitialiser_GUI gui;auto folder=j
     cabIntegratedUITests::run(folder.getChildFile("integrated-ui"),argc>1
         ? juce::File::getCurrentWorkingDirectory().getChildFile(argv[1]).getParentDirectory() : juce::File{});
     cabSceneUITests::run(folder.getChildFile("scene-ui"),argc>1
+        ? juce::File::getCurrentWorkingDirectory().getChildFile(argv[1]).getParentDirectory() : juce::File{});
+    cabSourceIsolationContracts(folder.getChildFile("source-isolation"),argc>1
         ? juce::File::getCurrentWorkingDirectory().getChildFile(argv[1]).getParentDirectory() : juce::File{});
     check(!juce::SharedResourcePointer<spectralforge::cabArt::Bank>::getSharedObjectWithoutCreating(),
         "CAB artwork survives the final panel owner");

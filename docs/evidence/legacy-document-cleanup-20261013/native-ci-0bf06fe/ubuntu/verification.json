@@ -1,0 +1,415 @@
+{
+  "schema": "spectralforge.native-document-ci-artifact-verification.v1",
+  "source_sha": "0bf06fe2a04f7e64b2870dee7d618eb6dad54e1e",
+  "run_id": 38280283924,
+  "job_id": 114915651265,
+  "job_url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38280283924/job/114915651265",
+  "job_conclusion": "success",
+  "artifact_verification": {
+    "success": true,
+    "artifact_id": 11760523733,
+    "name": "Chimera-document-upgrade-ubuntu-24.04",
+    "bytes": 1816,
+    "sha256": "2cb4b531c1fbe0cb59d0d37212ff6132c387c090feb8e816bb7a9999e2089273",
+    "matches_github_api_size": true,
+    "matches_github_api_digest": true,
+    "original_zip": "artifact.zip",
+    "extracted_files_byte_identical_to_zip": true,
+    "path_safety_checked": true,
+    "files": [
+      {
+        "path": "scope.json",
+        "bytes": 653,
+        "sha256": "5c4473374e87a5387b1d16602ccb6554c66b440f5dc081c79d8bfb704ce8b4cc"
+      },
+      {
+        "path": "test-output.txt",
+        "bytes": 6921,
+        "sha256": "f90ce804bd4521cb1322eb3b9af7bdcd851143703a98e6efda425268f5b2ab48"
+      }
+    ]
+  },
+  "job_log": {
+    "file": "job-114915651265.log",
+    "bytes": 27180,
+    "sha256": "21f3e73e81c03d2a69ad8e46e83a4f0f5eb3bfb0d80049611f11575035c1dca0",
+    "encoding": "UTF-8 encoding of the exact decoded content returned by GitHub fetch_workflow_job_logs; no newline normalization."
+  },
+  "tested_source_files": [
+    {
+      "path": "Tools/legacy_document_cleanup.c",
+      "bytes": 34401,
+      "sha256": "1ad869d66aa1a1d46f5d203072d290892f14eaa79df718b5ce3d28c24a6c98ca",
+      "git_blob": "f7aaf48b237e27c3a0c340a77d925b00ae53c52c"
+    },
+    {
+      "path": "Tools/legacy_document_cleanup.py",
+      "bytes": 7038,
+      "sha256": "2af71f2cfec6bff91dfa1e3fd517112be88c949003e9151f4a253d8684ea1c47",
+      "git_blob": "1423bec252cd783b76f352e912f70ed349e5e504"
+    },
+    {
+      "path": "Tools/test_legacy_document_cleanup.py",
+      "bytes": 44272,
+      "sha256": "3ce465b8efddcff4ae2f6a048d3afb140eb156891835c3515caf49bc849f29ab",
+      "git_blob": "5cace9213048c32e1ad531c4a4dc118c9e1b3ebb"
+    },
+    {
+      "path": "Tools/verify_macos_document_upgrade.py",
+      "bytes": 11279,
+      "sha256": "e5cba85a92bdc254d0e4eacea09bba1da6ebc294259510cb1b32cda906583757",
+      "git_blob": "3fcc9dc32c6c499e8e6826b64bd09786753461d2"
+    },
+    {
+      "path": ".github/workflows/document-upgrade.yml",
+      "bytes": 5990,
+      "sha256": "01c3f78585e7bb4296b776402c3b812fa05cbcad997b6e2ad38af16454e8eda5",
+      "git_blob": "3a8e83faebe45e9707bbb2535cd074adf40a49b7"
+    }
+  ],
+  "unittest": {
+    "success": true,
+    "method_count_in_test_source": 42,
+    "framework_tests_run": 42,
+    "framework_skip_events": 0,
+    "passing_test_methods": 42,
+    "skipped_test_methods": 0,
+    "skipped_class_events": 0,
+    "methods_not_run_due_to_class_skip": 0,
+    "total_test_methods_not_executed": 0,
+    "skipped_methods": [],
+    "skipped_classes": [],
+    "method_results": [
+      {
+        "class": "DpkgDocumentLifecycleTests",
+        "method": "test_real_dpkg_failed_prepare_does_not_unpack_or_lose_user_document",
+        "result": "pass",
+        "detail": "ok"
+      },
+      {
+        "class": "DpkgDocumentLifecycleTests",
+        "method": "test_real_dpkg_fresh_install_and_remove_preserve_licenses_and_personal_files",
+        "result": "pass",
+        "detail": "ok"
+      },
+      {
+        "class": "DpkgDocumentLifecycleTests",
+        "method": "test_real_dpkg_upgrade_repair_remove_preserve_user_changes",
+        "result": "pass",
+        "detail": "ok"
+      },
+      {
+        "class": "LegacyDocumentCleanupTests",
+        "method": "test_abort_does_not_overwrite_a_new_user_edit",
+        "result": "pass",
+        "detail": "ok"
+      },
+      {
+        "class": "LegacyDocumentCleanupTests",
+        "method": "test_abort_restores_missing_user_document_and_is_repeatable",
+        "result": "pass",
+        "detail": "ok"
+      },
+      {
+        "class": "LegacyDocumentCleanupTests",
+        "method": "test_backup_path_link_refuses_prepare",
+        "result": "pass",
+        "detail": "ok"
+      },
+      {
+        "class": "LegacyDocumentCleanupTests",
+        "method": "test_blocked_backup_refuses_prepare_and_preserves_source",
+        "result": "pass",
+        "detail": "ok"
+      },
+      {
+        "class": "LegacyDocumentCleanupTests",
+        "method": "test_cleanup_removes_only_exact_platform_variants",
+        "result": "pass",
+        "detail": "ok"
+      },
+      {
+        "class": "LegacyDocumentCleanupTests",
+        "method": "test_current_manual_edit_saved_while_repair_restores_payload",
+        "result": "pass",
+        "detail": "ok"
+      },
+      {
+        "class": "LegacyDocumentCleanupTests",
+        "method": "test_fresh_install_has_no_retired_documents",
+        "result": "pass",
+        "detail": "ok"
+      },
+      {
+        "class": "LegacyDocumentCleanupTests",
+        "method": "test_hardlink_file_refuses_prepare",
+        "result": "pass",
+        "detail": "ok"
+      },
+      {
+        "class": "LegacyDocumentCleanupTests",
+        "method": "test_linked_parent_refuses_prepare",
+        "result": "pass",
+        "detail": "ok"
+      },
+      {
+        "class": "LegacyDocumentCleanupTests",
+        "method": "test_modified_retired_document_restored_after_unpack",
+        "result": "pass",
+        "detail": "ok"
+      },
+      {
+        "class": "LegacyDocumentCleanupTests",
+        "method": "test_native_sha256_matches_hashlib_at_block_and_read_boundaries",
+        "result": "pass",
+        "detail": "ok"
+      },
+      {
+        "class": "LegacyDocumentCleanupTests",
+        "method": "test_nonregular_candidate_refuses_prepare",
+        "result": "pass",
+        "detail": "ok"
+      },
+      {
+        "class": "LegacyDocumentCleanupTests",
+        "method": "test_remove_documents_exact_payload_removal_is_idempotent",
+        "result": "pass",
+        "detail": "ok"
+      },
+      {
+        "class": "LegacyDocumentCleanupTests",
+        "method": "test_remove_documents_preserves_edits_notices_and_unknown_user_files",
+        "result": "pass",
+        "detail": "ok"
+      },
+      {
+        "class": "LegacyDocumentCleanupTests",
+        "method": "test_remove_restores_user_edits_and_required_notices",
+        "result": "pass",
+        "detail": "ok"
+      },
+      {
+        "class": "LegacyDocumentCleanupTests",
+        "method": "test_repeated_prepare_preserves_original_snapshot",
+        "result": "pass",
+        "detail": "ok"
+      },
+      {
+        "class": "LegacyDocumentCleanupTests",
+        "method": "test_restore_retains_private_file_owner_group_and_permissions",
+        "result": "pass",
+        "detail": "ok"
+      },
+      {
+        "class": "LegacyDocumentCleanupTests",
+        "method": "test_same_size_changed_content_is_preserved",
+        "result": "pass",
+        "detail": "ok"
+      },
+      {
+        "class": "LegacyDocumentCleanupTests",
+        "method": "test_symlink_docroot_refuses_prepare",
+        "result": "pass",
+        "detail": "ok"
+      },
+      {
+        "class": "LegacyDocumentCleanupTests",
+        "method": "test_symlink_file_refuses_prepare_without_deleting_other_files",
+        "result": "pass",
+        "detail": "ok"
+      },
+      {
+        "class": "LegacyDocumentCleanupTests",
+        "method": "test_tampered_backup_refuses_restore",
+        "result": "pass",
+        "detail": "ok"
+      },
+      {
+        "class": "LegacyDocumentCleanupTests",
+        "method": "test_tampered_journal_refuses_commit_without_deleting_original",
+        "result": "pass",
+        "detail": "ok"
+      },
+      {
+        "class": "LegacyDocumentCleanupTests",
+        "method": "test_unknown_user_files_and_forged_runtime_manifest_are_ignored",
+        "result": "pass",
+        "detail": "ok"
+      },
+      {
+        "class": "LegacyDocumentCleanupTests",
+        "method": "test_unverified_line_ending_variant_is_preserved",
+        "result": "pass",
+        "detail": "ok"
+      },
+      {
+        "class": "NativeDocumentInstallTests",
+        "method": "test_native_install_creation_race_preserves_new_user_file",
+        "result": "pass",
+        "detail": "ok"
+      },
+      {
+        "class": "NativeDocumentInstallTests",
+        "method": "test_native_install_failed_preservation_keeps_original_before_replacement",
+        "result": "pass",
+        "detail": "ok"
+      },
+      {
+        "class": "NativeDocumentInstallTests",
+        "method": "test_native_install_fresh_then_same_version_is_idempotent",
+        "result": "pass",
+        "detail": "ok"
+      },
+      {
+        "class": "NativeDocumentInstallTests",
+        "method": "test_native_install_leaf_swap_preserves_both_observed_user_versions",
+        "result": "pass",
+        "detail": "ok"
+      },
+      {
+        "class": "NativeDocumentInstallTests",
+        "method": "test_native_install_manifest_is_copy_only_metadata_and_preserves_previous_bytes",
+        "result": "pass",
+        "detail": "ok"
+      },
+      {
+        "class": "NativeDocumentInstallTests",
+        "method": "test_native_install_raced_symlink_never_touches_its_target",
+        "result": "pass",
+        "detail": "ok"
+      },
+      {
+        "class": "NativeDocumentInstallTests",
+        "method": "test_native_install_rechecks_same_size_source_change_before_replacement",
+        "result": "pass",
+        "detail": "ok"
+      },
+      {
+        "class": "NativeDocumentInstallTests",
+        "method": "test_native_install_refuses_linked_source_or_target_ancestors",
+        "result": "pass",
+        "detail": "ok"
+      },
+      {
+        "class": "NativeDocumentInstallTests",
+        "method": "test_native_install_refuses_source_links_and_nonregular_files",
+        "result": "pass",
+        "detail": "ok"
+      },
+      {
+        "class": "NativeDocumentInstallTests",
+        "method": "test_native_install_refuses_target_link_before_retiring_other_files",
+        "result": "pass",
+        "detail": "ok"
+      },
+      {
+        "class": "NativeDocumentInstallTests",
+        "method": "test_native_install_rejects_changed_or_historical_source_bytes_before_changes",
+        "result": "pass",
+        "detail": "ok"
+      },
+      {
+        "class": "NativeDocumentInstallTests",
+        "method": "test_native_install_rejects_relative_root_and_source_destination_overlap",
+        "result": "pass",
+        "detail": "ok"
+      },
+      {
+        "class": "NativeDocumentInstallTests",
+        "method": "test_native_install_retains_inode_for_an_editor_already_holding_it_open",
+        "result": "pass",
+        "detail": "ok"
+      },
+      {
+        "class": "NativeDocumentInstallTests",
+        "method": "test_native_install_root_swap_cannot_redirect_copy_to_private_documents",
+        "result": "pass",
+        "detail": "ok"
+      },
+      {
+        "class": "NativeDocumentInstallTests",
+        "method": "test_native_install_upgrade_preserves_same_size_edits_and_private_files",
+        "result": "pass",
+        "detail": "ok"
+      }
+    ]
+  },
+  "scope_record_is_a_verdict": false,
+  "publication_approved": false,
+  "native_complete_product_installation_verified": false,
+  "historical_public_macos_installer_executed": false,
+  "daw_audio_verified": false,
+  "isolated_native_dpkg_fixture": {
+    "passing_test_methods": 3,
+    "test_methods": [
+      "test_real_dpkg_fresh_install_and_remove_preserve_licenses_and_personal_files",
+      "test_real_dpkg_upgrade_repair_remove_preserve_user_changes",
+      "test_real_dpkg_failed_prepare_does_not_unpack_or_lose_user_document"
+    ],
+    "native_dpkg_calls_inferred_from_passing_test_source": 8,
+    "expected_zero_exit_calls": 7,
+    "expected_nonzero_exit_calls": 1,
+    "count_basis": "Source at the tested commit contains 8 unconditional self.dpkg calls in the three passing tests. Each asserts its expected exit status. The artifact logs test outcomes, not a separate per-invocation counter or dpkg stdout log.",
+    "calls": [
+      {
+        "test_method": "test_real_dpkg_fresh_install_and_remove_preserve_licenses_and_personal_files",
+        "operation": "--install",
+        "expected_exit": "zero"
+      },
+      {
+        "test_method": "test_real_dpkg_fresh_install_and_remove_preserve_licenses_and_personal_files",
+        "operation": "--remove",
+        "expected_exit": "zero"
+      },
+      {
+        "test_method": "test_real_dpkg_upgrade_repair_remove_preserve_user_changes",
+        "operation": "--install",
+        "expected_exit": "zero"
+      },
+      {
+        "test_method": "test_real_dpkg_upgrade_repair_remove_preserve_user_changes",
+        "operation": "--install",
+        "expected_exit": "zero"
+      },
+      {
+        "test_method": "test_real_dpkg_upgrade_repair_remove_preserve_user_changes",
+        "operation": "--install",
+        "expected_exit": "zero"
+      },
+      {
+        "test_method": "test_real_dpkg_upgrade_repair_remove_preserve_user_changes",
+        "operation": "--remove",
+        "expected_exit": "zero"
+      },
+      {
+        "test_method": "test_real_dpkg_failed_prepare_does_not_unpack_or_lose_user_document",
+        "operation": "--install",
+        "expected_exit": "zero"
+      },
+      {
+        "test_method": "test_real_dpkg_failed_prepare_does_not_unpack_or_lose_user_document",
+        "operation": "--install",
+        "expected_exit": "nonzero"
+      }
+    ],
+    "installation_root": "Temporary isolated root with an isolated var/lib/dpkg database",
+    "document_path_within_root": "usr/share/doc/chimera-amp-matrix",
+    "payload": "Synthetic document files plus a package marker; native preinst/postinst/prerm/postrm helpers.",
+    "historical_public_deb_executed_in_this_workflow": false,
+    "separate_pinned_beta1_deb_evidence": "../../linux-native-dpkg/LinuxDocumentUpgradeVerification.json",
+    "full_product_installation_or_tar_wrapper_verified": false
+  },
+  "runner_environment_log": [
+    "2026-10-12T16:56:25.6672064Z ##[group]Operating System",
+    "2026-10-12T16:56:25.6672445Z Ubuntu",
+    "2026-10-12T16:56:25.6672797Z 24.04.5",
+    "2026-10-12T16:56:25.6673193Z LTS",
+    "2026-10-12T16:56:25.6673541Z ##[endgroup]",
+    "2026-10-12T16:56:25.6673908Z ##[group]Runner Image",
+    "2026-10-12T16:56:25.6674274Z Image: ubuntu-24.04",
+    "2026-10-12T16:56:25.6674645Z Version: 20261004.327.1",
+    "2026-10-12T16:56:25.6675483Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20261004.327/images/ubuntu/Ubuntu2404-Readme.md",
+    "2026-10-12T16:56:25.6676450Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20261004.327",
+    "2026-10-12T16:56:25.6677036Z ##[endgroup]"
+  ]
+}

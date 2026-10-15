@@ -123,20 +123,22 @@ class IRBrowserPanel : public juce::Component, private juce::ListBoxModel {
             for(size_t i=0;i<spectralforge::micCatalog::models.size();++i)if(spectralforge::micCatalog::models[i].kind==family)
                 microphone.addItem(spectralforge::micCatalog::models[i].alias,100+int(i));
         }
-        microphone.addSeparator();microphone.addItem("Other / mixed / unspecified",2);microphone.setSelectedId(1);
+        // refresh() applies the defaults once after construction. Queuing
+        // default-change callbacks would clear a valid first row selection.
+        microphone.addSeparator();microphone.addItem("Other / mixed / unspecified",2);microphone.setSelectedId(1,juce::dontSendNotification);
         microphone.onChange=[this]{filter();};
         microphone.setTooltip("Filter cabinet captures by microphone. Load an available capture to apply its sound.");
         microphoneReference.setFont(juce::FontOptions(11.f));microphoneReference.setColour(juce::Label::textColourId,juce::Colour(0xffa6aaa7));
         search.setTextToShowWhenEmpty("Speaker, mic, cone position or creator",juce::Colours::grey);search.onTextChange=[this]{filter();};
-        diameter.addItemList({"All sizes","8 in","10 in","12 in","15 in","18 in"},1);diameter.setSelectedId(1);diameter.onChange=[this]{filter();};
-        kind.addItemList({"All instruments","Bass","Guitar","Unspecified"},1);kind.setSelectedId(1);kind.onChange=[this]{filter();};
+        diameter.addItemList({"All sizes","8 in","10 in","12 in","15 in","18 in"},1);diameter.setSelectedId(1,juce::dontSendNotification);diameter.onChange=[this]{filter();};
+        kind.addItemList({"All instruments","Bass","Guitar","Unspecified"},1);kind.setSelectedId(1,juce::dontSendNotification);kind.onChange=[this]{filter();};
         availability.addItemList({"All statuses","Ready to load","Factory","Installed files"},1);
-        availability.addItem("Invalid files",7);availability.setSelectedId(1);availability.onChange=[this]{filter();};
+        availability.addItem("Invalid files",7);availability.setSelectedId(1,juce::dontSendNotification);availability.onChange=[this]{filter();};
         for(juce::Component* c:std::initializer_list<juce::Component*>{&search,&diameter,&kind,&availability,&microphone,&microphoneReference,&list,&load,&status,&source}) addAndMakeVisible(c);
         addAndMakeVisible(captureDetails);captureDetails.setComponentID("ircapturedetails");captureDetails.setMultiLine(true);captureDetails.setReadOnly(true);captureDetails.setScrollbarsShown(true);captureDetails.setCaretVisible(false);
         captureDetails.setColour(juce::TextEditor::backgroundColourId,juce::Colour(0xff252827));captureDetails.setColour(juce::TextEditor::textColourId,juce::Colour(0xffe2dbcc));captureDetails.setColour(juce::TextEditor::outlineColourId,juce::Colours::transparentBlack);captureDetails.setFont(juce::FontOptions(11.f));
         if(libraryMode)for(juce::Component* c:std::initializer_list<juce::Component*>{&addFolder,&oneFile,&importType})addAndMakeVisible(c);
-        importType.setComponentID("irimporttype");importType.addItemList({"Import: keep existing type","Import as: Bass","Import as: Guitar","Import as: Unspecified"},1);importType.setSelectedId(1);
+        importType.setComponentID("irimporttype");importType.addItemList({"Import: keep existing type","Import as: Bass","Import as: Guitar","Import as: Unspecified"},1);importType.setSelectedId(1,juce::dontSendNotification);
         importType.setTooltip("Keep existing metadata by default; unknown files stay unspecified. Choose Bass or Guitar to classify the next file or folder. Individual files can be reclassified below.");
         addFolder.setComponentID("iraddfolder");oneFile.setComponentID("iropenfile");
         addFolder.onClick=[this]{choose(true);};oneFile.onClick=[this]{choose(false);};

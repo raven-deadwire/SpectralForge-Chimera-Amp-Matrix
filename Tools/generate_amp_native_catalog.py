@@ -12,6 +12,10 @@ sys.path.insert(0,str(ROOT/'Preparation'))
 from amp_controls import amp_panels, original_native_panels
 
 def q(s): return json.dumps(s,ensure_ascii=True)
+def public_group(group):
+    # Only the displayed group changes; hardware keys and panel provenance stay intact.
+    return {'B7K ULTRA':'DRIVE', 'DB751 TARGET':'AMPLIFIER',
+            'EVIL PUMPKIN':'GAIN I', 'KILLER KALI':'GAIN II'}.get(group,group)
 def generate():
     panels=amp_panels()
     keys=[f'legacy.amp.{i}' for i in range(15)]+['planned.amp.'+k for k in ('zuta-gbg120','engl','diezel-vh4','svt-cl','sunn','fortin','soldano','bogner','engl-e670fe')]
@@ -32,7 +36,7 @@ def generate():
             mask=sum(1<<channels.index(ch) for ch in x['channels']) if x['channels'] else (1<<len(channels))-1
             options=f'nativeOptions_{m}_{c}' if x['kind']!='knob' else '{}'
             maximum=len(x.get('options',[]))-1 if x['kind']=='choice' else 1
-            out.append(' {'+','.join([q(x['id']),q(x['label']),q(x['group']),f'AmpNativeControlKind::{x["kind"]}',str(mask),options,str(float(x['initial']))+'f','0.f',str(float(maximum))+'f'])+'},')
+            out.append(' {'+','.join([q(x['id']),q(x['label']),q(public_group(x['group'])),f'AmpNativeControlKind::{x["kind"]}',str(mask),options,str(float(x['initial']))+'f','0.f',str(float(maximum))+'f'])+'},')
         out.append('};')
         for what,arr in [('Channels',[c['label'] for c in p['channels']]),('ChannelKeys',channels),('Routes',[r.replace(' — routing target','').replace(' — target','') for r in p['input_routes']])]:
             # Channel menu never repeats actual original amplifier model names.

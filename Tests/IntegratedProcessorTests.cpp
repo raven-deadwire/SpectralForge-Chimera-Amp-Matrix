@@ -85,7 +85,7 @@ void factoryCabContract(ChimeraProcessor& processor,int index,bool rendered=fals
         require(parameter!=nullptr,"Factory CAB contract parameter missing");return parameter->load();
     };
     const int mode=int(value("mode")),lanes=mode==0?1:mode==1?2:3;
-    const bool dryBass=index==2||index==25||index==26||index==27;
+    const bool dryBass=index==2||index==25||index==26||index==27||index==45;
     const bool dryGuitar=index==36||index==37;
     if(dryBass||dryGuitar)require(mode==2 && value("lowampmix")==0.f,"Factory CAB voicing changed the exact Matrix LOW dry path");
     OriginalCabParameters modeled;modeled.bind(processor.parameters());

@@ -5,6 +5,7 @@
 #include "AmpNativeParameters.h"
 #include "PostNativeCatalog.h"
 #include "NativeMessageLoop.h"
+#include "PublicNameTests.h"
 #include <iostream>
 #include <stdexcept>
 
@@ -55,9 +56,9 @@ inline void postModelPresentation(PostNativePanel& panel,int section,int selecte
         ++found[(size_t)item.itemID-1];++items;
     }
     require(items==3 && found[0]==1 && found[1]==1 && found[2]==1,"Flat POST menu omits or duplicates a model");
-    constexpr std::array<const char*,9> names{{"SSL G Series Compressor","Universal Audio 1176LN","Teletronix LA-2A","Neve 1073","Avalon V5","Focusrite ISA One","SSL E Series EQ","Neve 1073","Pultec EQP-1A"}};
     auto* reference=find<juce::Label>(panel,"postNativeReference"+juce::String(section));
-    require(reference && reference->isVisible() && reference->getText()==names[(size_t)(section*3+selected)],"POST caption must show only the short original model name, without a reference prefix or description");
+    require(reference && reference->isVisible() && reference->getText()==spectralforge::postNativeDescription(section,selected),"POST caption must describe the selected sound");
+    publicNameTests::componentText(panel,"POST panel");
     inside(panel,*reference,"POST model caption is outside its rack panel");
     juce::GlyphArrangement glyphs;glyphs.addLineOfText(reference->getFont(),reference->getText(),0,0);
     require(glyphs.getBoundingBox(0,-1,true).getWidth()<=reference->getWidth()-10,"Short POST model caption still clips in the rack row");
@@ -168,6 +169,7 @@ inline int postPanels(ChimeraProcessor& processor,ChimeraEditor& editor,juce::Co
             for(int choice=0;choice<spectralforge::modelFamilies[(size_t)family].count;++choice) {
                 model->setSelectedId(choice+1,juce::sendNotificationSync);settle(35);
                 require(model->getText()==spectralforge::effectFamilyMenuName(family,choice),"Time/modulation ALL model list exposes a hardware name");
+                publicNameTests::componentText(panel,"time/modulation detail panel");
                 require((int)processor.parameters().getRawParameterValue(spectralforge::modelFamilies[(size_t)family].parameter)->load()==choice,"Time/modulation ALL model callback is disconnected");
             }
             const std::array<const char*,3> ids=family==10?std::array<const char*,3>{"chorusrate","chorusdepth","chorusmix"}:family==1?std::array<const char*,3>{"delaytime","delayfeedback","delaymix"}:std::array<const char*,3>{"reverbsize","reverbdamping","reverbmix"};
@@ -199,6 +201,7 @@ inline void run(const juce::File& directory){
     gateLocation->triggerClick();settle();require((processor.parameters().getRawParameterValue("gateAfterRig")->load()>.5f)==originalGateLocation,"POST GATE button cannot restore the prior routing");
     for(const auto* id:{"legacyPreControls","boardEnabled"})require(find(*canvas,id)==nullptr,"Obsolete Legacy/engine-selection control remains in native editor");
     set(processor,"mode",0);tab(*canvas,"RIGS");
+    rigViewTests::showControls(*canvas);
     auto* selector=find<AmpSelector>(*canvas,"ampSelect1");require(selector!=nullptr,"Native UI amp selector missing");
     int channelCases=0,controlCases=0;
     for(int scale=0;scale<2;++scale){editor.setSize(scale?885:1180,scale?585:780);settle();
@@ -209,11 +212,13 @@ inline void run(const juce::File& directory){
             auto* panel=find<AmpNativePanel>(*canvas,"ampNativePanel1");require(panel!=nullptr,"Native amplifier panel missing");auto* channel=find<juce::ComboBox>(*panel,"ampChannel1");
             const auto& spec=spectralforge::ampNativePanel(model);
             require(channel && channel->isVisible()==(spec.channels.size()>1),"Native UI single-channel selector not hidden");
-            auto* reference=find<juce::Label>(*canvas,"ampreference1");require(reference && reference->isVisible() && reference->getText()==juce::String::fromUTF8(spectralforge::ampInfo(model).reference),"Native amp caption must show only the original model name outside the alias list");
+            auto* reference=find<juce::Label>(*canvas,"ampreference1");require(reference && reference->isVisible() && reference->getText()==juce::String::fromUTF8(spectralforge::ampInfo(model).character),"Native amp caption must describe the selected sound");
+            publicNameTests::safeText(reference->getText(),"selected AMP caption");
             require(selector->getText()==juce::String::fromUTF8(spectralforge::ampInfo(model).name),"Native amp list exposes original reference name");
             require(canvas->getLocalBounds().contains(panel->getBounds()),"Native amp panel exceeds editor bounds");
             for(int ch=0;ch<(int)spec.channels.size();++ch){
                 channel->setSelectedId(ch+1,juce::sendNotificationSync);settle(45);require(processor.selectedAmpChannel(0)==ch,"Original amplifier channel callback not connected");++channelCases;
+                publicNameTests::componentText(*panel,"selected AMP channel");
                 for(int control=0;control<(int)spec.controls.size();++control){
                     const auto id=spectralforge::ampNativeControlID(0,model,control,ch);auto* view=find<NativeControlView>(*panel,id+"_control");
                     require(view!=nullptr,"Original amplifier control was not constructed");
@@ -285,6 +290,9 @@ inline void run(const juce::File& directory){
     lowOverview(processor,editor,*canvas,directory);
     const int postControlCases=postPanels(processor,editor,*canvas,directory);
     dialogTeardown();
+    // Preserve the legacy machine-readable receipt required by Validation/ci-check-map.json.
+    // Its historical caption label does not change the sound-description and safeText assertions above.
+    std::cout<<"PASS public captions: selected amplifier captions use sound descriptions and satisfy the public-name policy\n";
     std::cout<<"PASS native UI: all "<<spectralforge::ampModelCount<<" serialized amplifier panels at 100/75%, "<<channelCases<<" channel cases, "<<controlCases<<" channel/control visibility cases, Matrix LOW priority controls and ALL, 9 POST models / "<<postControlCases<<" controls at 100/75%, flat POST alias menus and short original model captions, six compact rack rows and ALL dialogs, editor teardown and real parameter callbacks\n";
 }
 }

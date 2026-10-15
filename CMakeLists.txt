@@ -269,6 +269,8 @@ target_include_directories(ChimeraCabPanelStateTests PRIVATE Source)
 target_compile_definitions(ChimeraCabPanelStateTests PRIVATE JUCE_MODAL_LOOPS_PERMITTED=1)
 target_link_libraries(ChimeraCabPanelStateTests PRIVATE ChimeraAmpMatrix ChimeraArtwork ChimeraManual juce::juce_cryptography juce::juce_audio_utils juce::juce_dsp)
 add_test(NAME ChimeraCabPanelStateTests COMMAND ChimeraCabPanelStateTests "${CMAKE_BINARY_DIR}/cab-panel.png")
+add_test(NAME ChimeraCabPanelRoutingTests COMMAND ChimeraCabPanelStateTests --classic-room-regression)
+add_test(NAME ChimeraCabPanelIRIsolationTests COMMAND ChimeraCabPanelStateTests --ir-isolation-regression)
 
 
 
@@ -324,6 +326,7 @@ target_sources(ChimeraIntegratedProcessorTests PRIVATE Tests/IntegratedProcessor
 target_include_directories(ChimeraIntegratedProcessorTests PRIVATE Source)
 target_link_libraries(ChimeraIntegratedProcessorTests PRIVATE ChimeraAmpMatrix ChimeraArtwork ChimeraManual juce::juce_cryptography juce::juce_audio_utils juce::juce_dsp)
 add_test(NAME ChimeraIntegratedProcessorTests COMMAND ChimeraIntegratedProcessorTests "${CMAKE_BINARY_DIR}/signature-snapshots")
+add_test(NAME ChimeraNiflheimrPresetTests COMMAND ChimeraIntegratedProcessorTests --niflheimr-presets "${CMAKE_BINARY_DIR}/niflheimr-preset-evidence")
 
 juce_add_console_app(ChimeraPitchRegressionTests PRODUCT_NAME "Chimera Pitch Regression Tests")
 target_sources(ChimeraPitchRegressionTests PRIVATE Tests/PitchRegressionTests.cpp)

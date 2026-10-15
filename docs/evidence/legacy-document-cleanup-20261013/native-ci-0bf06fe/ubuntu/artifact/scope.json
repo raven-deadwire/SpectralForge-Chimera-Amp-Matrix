@@ -1,0 +1,13 @@
+{
+  "schema": "spectralforge.document-upgrade-fixtures.v1",
+  "source_sha": "0bf06fe2a04f7e64b2870dee7d618eb6dad54e1e",
+  "run_id": "38280283924",
+  "runner_os": "Linux",
+  "scope": "Native document helper with synthetic files; Linux invokes real dpkg in an isolated root. macOS additionally runs a guarded synthetic Apple PKG lifecycle reported in macos-pkg-fixture/.",
+  "native_product_installation_verified": false,
+  "macos_pkg_installation_verified": false,
+  "windows_installer_verified": false,
+  "daw_audio_verified": false,
+  "publication_approved": false,
+  "results": "See test-output.txt; this source/scope record is not a PASS verdict."
+}

@@ -24,14 +24,17 @@ struct Manifest {
     juce::String version, releaseUrl;
     std::vector<Installer> assets;
 };
-struct ManifestReference { juce::String version, url; };
+struct ManifestReference { juce::String version, url, manifestChannel; };
 
 juce::String currentPlatform();
 juce::String currentArchitecture();
 // Pure validation helpers are also used by the release regression tests.
-juce::Result parseManifest(const juce::String& json, const juce::String& expectedVersion, Manifest&);
+juce::Result parseManifest(const juce::String& json, const juce::String& expectedVersion, Manifest&,
+                           const juce::String& receiverChannel = channel,
+                           const juce::String& expectedManifestChannel = {});
 std::optional<Installer> selectInstaller(const Manifest&, const juce::String& platform, const juce::String& arch);
-juce::Result findReleaseManifest(const juce::String& releasesJson, ManifestReference&);
+juce::Result findReleaseManifest(const juce::String& releasesJson, ManifestReference&,
+                                const juce::String& receiverChannel = channel);
 bool isOfficialAssetUrl(const juce::String&, const juce::String& expectedVersion, const juce::String& name);
 bool isAllowedDownloadRedirect(const juce::String&);
 juce::Result verifyInstallerFile(const juce::File&, const Installer&);

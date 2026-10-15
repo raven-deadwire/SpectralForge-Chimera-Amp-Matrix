@@ -9,6 +9,7 @@ on:
       - 'Tests/CabMicrophone*'
       - 'Tests/CabIntegrated*'
       - 'Tests/CabScene*'
+      - 'Tests/CabSourceIsolation*'
       - 'Tests/CabLowBlend*'
       - 'Tests/CabExpansion*'
       - 'Tests/CabLayout*'
@@ -23,6 +24,7 @@ on:
       - 'Tests/IRLibraryTests.cpp'
       - 'Tests/GateProcessorTests.cpp'
       - 'Tests/NativeStateTests.h'
+      - 'Tests/NativeMessageLoop.*'
       - 'Tests/ChimeraTests.cpp'
       - 'CMakeLists.txt'
       - 'Tools/run_linux_ui_tests.py'
@@ -66,4 +68,5 @@ jobs:
             build-cab/cab-microphone-library.png
             build-cab/cab-integrated-panel.png
             build-cab/cab-visual-*.png
+            build-cab/cab-ir-isolation-*.png
           if-no-files-found: error

@@ -1,0 +1,515 @@
+{
+  "schema": "spectralforge.native-document-ci-artifact-verification.v1",
+  "source_sha": "0bf06fe2a04f7e64b2870dee7d618eb6dad54e1e",
+  "run_id": 38280283924,
+  "job_id": 114915650894,
+  "job_url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38280283924/job/114915650894",
+  "job_conclusion": "success",
+  "artifact_verification": {
+    "success": true,
+    "artifact_id": 11761297517,
+    "name": "Chimera-document-upgrade-macos-15",
+    "bytes": 7905,
+    "sha256": "6daa2783ce1ea60318e5b52c79c31b8514e469465525329abb241bfebb8bf346",
+    "matches_github_api_size": true,
+    "matches_github_api_digest": true,
+    "original_zip": "artifact.zip",
+    "extracted_files_byte_identical_to_zip": true,
+    "path_safety_checked": true,
+    "files": [
+      {
+        "path": "macos-pkg-fixture/01-fresh-install.log",
+        "bytes": 107,
+        "sha256": "5ca6faffaff7a481dbe5f6b376947b96b7088c95b6b4e6be54feee34ff939270"
+      },
+      {
+        "path": "macos-pkg-fixture/03-forget-fresh-fixture-receipt.log",
+        "bytes": 78,
+        "sha256": "3ffd5fc27976428692200fe92d15d3910738ef26923915f56bf2c99d0797b7ad"
+      },
+      {
+        "path": "macos-pkg-fixture/02-fresh-document-removal.log",
+        "bytes": 413,
+        "sha256": "27135370ae48a7824fadc8cc5d58a308dd393d28fa2622daff7a8f624fbc9c5f"
+      },
+      {
+        "path": "macos-pkg-fixture/04-historical-fixture-install.log",
+        "bytes": 107,
+        "sha256": "b267051782a89c4463a62e9673b80c56da5159e441e03184e7965abe624b520b"
+      },
+      {
+        "path": "macos-pkg-fixture/05-upgrade-native-hooks.log",
+        "bytes": 106,
+        "sha256": "ecc01cca30d68c202bee727d0f3d389f746e3cd470f0e6afcd692f66ade03f6a"
+      },
+      {
+        "path": "macos-pkg-fixture/06-same-version-repair.log",
+        "bytes": 106,
+        "sha256": "ecc01cca30d68c202bee727d0f3d389f746e3cd470f0e6afcd692f66ade03f6a"
+      },
+      {
+        "path": "macos-pkg-fixture/07-edited-document-removal.log",
+        "bytes": 727,
+        "sha256": "8831484302471897b3a8d1e0fdbfb2e424f415e88c56fe3c0c18a85e2baa98d4"
+      },
+      {
+        "path": "macos-pkg-fixture/08-repeat-document-removal.log",
+        "bytes": 727,
+        "sha256": "8831484302471897b3a8d1e0fdbfb2e424f415e88c56fe3c0c18a85e2baa98d4"
+      },
+      {
+        "path": "macos-pkg-fixture/09-forget-fixture-receipt.log",
+        "bytes": 78,
+        "sha256": "3ffd5fc27976428692200fe92d15d3910738ef26923915f56bf2c99d0797b7ad"
+      },
+      {
+        "path": "macos-pkg-fixture/MacOSDocumentUpgradeVerification.json",
+        "bytes": 1018,
+        "sha256": "a99b83a877d41e87b987c3f9700bcc9cc760fd4851eb151e795f737af0531f52"
+      },
+      {
+        "path": "macos-pkg-fixture/build-new.log",
+        "bytes": 313,
+        "sha256": "4395467ea822f3535391340b755a99203faf40a8f9f8a8a6f07be047349f8ff7"
+      },
+      {
+        "path": "macos-pkg-fixture/build-old.log",
+        "bytes": 222,
+        "sha256": "bbf399ac7531e27bba7f018714e94de5cfd03ce8f6cf2d5e360fabad78ea88b9"
+      },
+      {
+        "path": "macos-pkg-fixture/native-helper-ad-hoc-sign.log",
+        "bytes": 111,
+        "sha256": "eb1d0183bf5e4c297c9075475ec0dbf65bb00b68e288bb43c674efe5dc906127"
+      },
+      {
+        "path": "macos-pkg-fixture/native-helper-architectures.log",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": "macos-pkg-fixture/native-helper-code-seal.log",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": "macos-pkg-fixture/receipt-preflight-audio.spectralforge.chimera.document-upgrade-fixture.log",
+        "bytes": 84,
+        "sha256": "4cc75df7d0ca52ee119fa7b25322fdbacad8bdd8d3a8f701a8b006942444f5f0"
+      },
+      {
+        "path": "macos-pkg-fixture/receipt-preflight-audio.spectralforge.chimera.log",
+        "bytes": 59,
+        "sha256": "131c796d05b7df0cb86d1ce4a325909a56e6c8b7fc0673d381c840feeff56640"
+      },
+      {
+        "path": "macos-pkg-fixture-output.txt",
+        "bytes": 440,
+        "sha256": "00c6754bf19fef873f75a0d852eb6d945148d6b0de1b612471cd50ed7f1fdde4"
+      },
+      {
+        "path": "scope.json",
+        "bytes": 654,
+        "sha256": "adcd268211351312664420b844c6ee7504460ab952406b0ecab09cd07e40cf18"
+      },
+      {
+        "path": "test-output.txt",
+        "bytes": 6994,
+        "sha256": "c7bbf9514cb0ed370168bae361be0e04deabb6ed19069950cd0fd986a291832d"
+      }
+    ]
+  },
+  "job_log": {
+    "file": "job-114915650894.log",
+    "bytes": 28070,
+    "sha256": "4565a864bc5e511f9ad9933413b96a835b71c72aca5353d2c83bb2137e86064a",
+    "encoding": "UTF-8 encoding of the exact decoded content returned by GitHub fetch_workflow_job_logs; no newline normalization."
+  },
+  "tested_source_files": [
+    {
+      "path": "Tools/legacy_document_cleanup.c",
+      "bytes": 34401,
+      "sha256": "1ad869d66aa1a1d46f5d203072d290892f14eaa79df718b5ce3d28c24a6c98ca",
+      "git_blob": "f7aaf48b237e27c3a0c340a77d925b00ae53c52c"
+    },
+    {
+      "path": "Tools/legacy_document_cleanup.py",
+      "bytes": 7038,
+      "sha256": "2af71f2cfec6bff91dfa1e3fd517112be88c949003e9151f4a253d8684ea1c47",
+      "git_blob": "1423bec252cd783b76f352e912f70ed349e5e504"
+    },
+    {
+      "path": "Tools/test_legacy_document_cleanup.py",
+      "bytes": 44272,
+      "sha256": "3ce465b8efddcff4ae2f6a048d3afb140eb156891835c3515caf49bc849f29ab",
+      "git_blob": "5cace9213048c32e1ad531c4a4dc118c9e1b3ebb"
+    },
+    {
+      "path": "Tools/verify_macos_document_upgrade.py",
+      "bytes": 11279,
+      "sha256": "e5cba85a92bdc254d0e4eacea09bba1da6ebc294259510cb1b32cda906583757",
+      "git_blob": "3fcc9dc32c6c499e8e6826b64bd09786753461d2"
+    },
+    {
+      "path": ".github/workflows/document-upgrade.yml",
+      "bytes": 5990,
+      "sha256": "01c3f78585e7bb4296b776402c3b812fa05cbcad997b6e2ad38af16454e8eda5",
+      "git_blob": "3a8e83faebe45e9707bbb2535cd074adf40a49b7"
+    }
+  ],
+  "unittest": {
+    "success": true,
+    "method_count_in_test_source": 42,
+    "framework_tests_run": 39,
+    "framework_skip_events": 7,
+    "passing_test_methods": 33,
+    "skipped_test_methods": 6,
+    "skipped_class_events": 1,
+    "methods_not_run_due_to_class_skip": 3,
+    "total_test_methods_not_executed": 9,
+    "skipped_methods": [
+      {
+        "class": "LegacyDocumentCleanupTests",
+        "method": "test_restore_retains_private_file_owner_group_and_permissions",
+        "result": "skip",
+        "detail": "skipped \"Restoring a different user's ownership requires root\""
+      },
+      {
+        "class": "NativeDocumentInstallTests",
+        "method": "test_native_install_creation_race_preserves_new_user_file",
+        "result": "skip",
+        "detail": "skipped 'Deterministic libc race fixture is Linux-only; native path tests still run'"
+      },
+      {
+        "class": "NativeDocumentInstallTests",
+        "method": "test_native_install_leaf_swap_preserves_both_observed_user_versions",
+        "result": "skip",
+        "detail": "skipped 'Deterministic libc race fixture is Linux-only; native path tests still run'"
+      },
+      {
+        "class": "NativeDocumentInstallTests",
+        "method": "test_native_install_raced_symlink_never_touches_its_target",
+        "result": "skip",
+        "detail": "skipped 'Deterministic libc race fixture is Linux-only; native path tests still run'"
+      },
+      {
+        "class": "NativeDocumentInstallTests",
+        "method": "test_native_install_rechecks_same_size_source_change_before_replacement",
+        "result": "skip",
+        "detail": "skipped 'Deterministic libc race fixture is Linux-only; native path tests still run'"
+      },
+      {
+        "class": "NativeDocumentInstallTests",
+        "method": "test_native_install_root_swap_cannot_redirect_copy_to_private_documents",
+        "result": "skip",
+        "detail": "skipped 'Deterministic libc race fixture is Linux-only; native path tests still run'"
+      }
+    ],
+    "skipped_classes": [
+      {
+        "class": "DpkgDocumentLifecycleTests",
+        "skip_events": 1,
+        "reason": "'Isolated real-dpkg lifecycle requires root in a disposable environment'",
+        "methods_not_run": [
+          "test_real_dpkg_fresh_install_and_remove_preserve_licenses_and_personal_files",
+          "test_real_dpkg_upgrade_repair_remove_preserve_user_changes",
+          "test_real_dpkg_failed_prepare_does_not_unpack_or_lose_user_document"
+        ],
+        "methods_not_run_count": 3
+      }
+    ],
+    "method_results": [
+      {
+        "class": "LegacyDocumentCleanupTests",
+        "method": "test_abort_does_not_overwrite_a_new_user_edit",
+        "result": "pass",
+        "detail": "ok"
+      },
+      {
+        "class": "LegacyDocumentCleanupTests",
+        "method": "test_abort_restores_missing_user_document_and_is_repeatable",
+        "result": "pass",
+        "detail": "ok"
+      },
+      {
+        "class": "LegacyDocumentCleanupTests",
+        "method": "test_backup_path_link_refuses_prepare",
+        "result": "pass",
+        "detail": "ok"
+      },
+      {
+        "class": "LegacyDocumentCleanupTests",
+        "method": "test_blocked_backup_refuses_prepare_and_preserves_source",
+        "result": "pass",
+        "detail": "ok"
+      },
+      {
+        "class": "LegacyDocumentCleanupTests",
+        "method": "test_cleanup_removes_only_exact_platform_variants",
+        "result": "pass",
+        "detail": "ok"
+      },
+      {
+        "class": "LegacyDocumentCleanupTests",
+        "method": "test_current_manual_edit_saved_while_repair_restores_payload",
+        "result": "pass",
+        "detail": "ok"
+      },
+      {
+        "class": "LegacyDocumentCleanupTests",
+        "method": "test_fresh_install_has_no_retired_documents",
+        "result": "pass",
+        "detail": "ok"
+      },
+      {
+        "class": "LegacyDocumentCleanupTests",
+        "method": "test_hardlink_file_refuses_prepare",
+        "result": "pass",
+        "detail": "ok"
+      },
+      {
+        "class": "LegacyDocumentCleanupTests",
+        "method": "test_linked_parent_refuses_prepare",
+        "result": "pass",
+        "detail": "ok"
+      },
+      {
+        "class": "LegacyDocumentCleanupTests",
+        "method": "test_modified_retired_document_restored_after_unpack",
+        "result": "pass",
+        "detail": "ok"
+      },
+      {
+        "class": "LegacyDocumentCleanupTests",
+        "method": "test_native_sha256_matches_hashlib_at_block_and_read_boundaries",
+        "result": "pass",
+        "detail": "ok"
+      },
+      {
+        "class": "LegacyDocumentCleanupTests",
+        "method": "test_nonregular_candidate_refuses_prepare",
+        "result": "pass",
+        "detail": "ok"
+      },
+      {
+        "class": "LegacyDocumentCleanupTests",
+        "method": "test_remove_documents_exact_payload_removal_is_idempotent",
+        "result": "pass",
+        "detail": "ok"
+      },
+      {
+        "class": "LegacyDocumentCleanupTests",
+        "method": "test_remove_documents_preserves_edits_notices_and_unknown_user_files",
+        "result": "pass",
+        "detail": "ok"
+      },
+      {
+        "class": "LegacyDocumentCleanupTests",
+        "method": "test_remove_restores_user_edits_and_required_notices",
+        "result": "pass",
+        "detail": "ok"
+      },
+      {
+        "class": "LegacyDocumentCleanupTests",
+        "method": "test_repeated_prepare_preserves_original_snapshot",
+        "result": "pass",
+        "detail": "ok"
+      },
+      {
+        "class": "LegacyDocumentCleanupTests",
+        "method": "test_restore_retains_private_file_owner_group_and_permissions",
+        "result": "skip",
+        "detail": "skipped \"Restoring a different user's ownership requires root\""
+      },
+      {
+        "class": "LegacyDocumentCleanupTests",
+        "method": "test_same_size_changed_content_is_preserved",
+        "result": "pass",
+        "detail": "ok"
+      },
+      {
+        "class": "LegacyDocumentCleanupTests",
+        "method": "test_symlink_docroot_refuses_prepare",
+        "result": "pass",
+        "detail": "ok"
+      },
+      {
+        "class": "LegacyDocumentCleanupTests",
+        "method": "test_symlink_file_refuses_prepare_without_deleting_other_files",
+        "result": "pass",
+        "detail": "ok"
+      },
+      {
+        "class": "LegacyDocumentCleanupTests",
+        "method": "test_tampered_backup_refuses_restore",
+        "result": "pass",
+        "detail": "ok"
+      },
+      {
+        "class": "LegacyDocumentCleanupTests",
+        "method": "test_tampered_journal_refuses_commit_without_deleting_original",
+        "result": "pass",
+        "detail": "ok"
+      },
+      {
+        "class": "LegacyDocumentCleanupTests",
+        "method": "test_unknown_user_files_and_forged_runtime_manifest_are_ignored",
+        "result": "pass",
+        "detail": "ok"
+      },
+      {
+        "class": "LegacyDocumentCleanupTests",
+        "method": "test_unverified_line_ending_variant_is_preserved",
+        "result": "pass",
+        "detail": "ok"
+      },
+      {
+        "class": "NativeDocumentInstallTests",
+        "method": "test_native_install_creation_race_preserves_new_user_file",
+        "result": "skip",
+        "detail": "skipped 'Deterministic libc race fixture is Linux-only; native path tests still run'"
+      },
+      {
+        "class": "NativeDocumentInstallTests",
+        "method": "test_native_install_failed_preservation_keeps_original_before_replacement",
+        "result": "pass",
+        "detail": "ok"
+      },
+      {
+        "class": "NativeDocumentInstallTests",
+        "method": "test_native_install_fresh_then_same_version_is_idempotent",
+        "result": "pass",
+        "detail": "ok"
+      },
+      {
+        "class": "NativeDocumentInstallTests",
+        "method": "test_native_install_leaf_swap_preserves_both_observed_user_versions",
+        "result": "skip",
+        "detail": "skipped 'Deterministic libc race fixture is Linux-only; native path tests still run'"
+      },
+      {
+        "class": "NativeDocumentInstallTests",
+        "method": "test_native_install_manifest_is_copy_only_metadata_and_preserves_previous_bytes",
+        "result": "pass",
+        "detail": "ok"
+      },
+      {
+        "class": "NativeDocumentInstallTests",
+        "method": "test_native_install_raced_symlink_never_touches_its_target",
+        "result": "skip",
+        "detail": "skipped 'Deterministic libc race fixture is Linux-only; native path tests still run'"
+      },
+      {
+        "class": "NativeDocumentInstallTests",
+        "method": "test_native_install_rechecks_same_size_source_change_before_replacement",
+        "result": "skip",
+        "detail": "skipped 'Deterministic libc race fixture is Linux-only; native path tests still run'"
+      },
+      {
+        "class": "NativeDocumentInstallTests",
+        "method": "test_native_install_refuses_linked_source_or_target_ancestors",
+        "result": "pass",
+        "detail": "ok"
+      },
+      {
+        "class": "NativeDocumentInstallTests",
+        "method": "test_native_install_refuses_source_links_and_nonregular_files",
+        "result": "pass",
+        "detail": "ok"
+      },
+      {
+        "class": "NativeDocumentInstallTests",
+        "method": "test_native_install_refuses_target_link_before_retiring_other_files",
+        "result": "pass",
+        "detail": "ok"
+      },
+      {
+        "class": "NativeDocumentInstallTests",
+        "method": "test_native_install_rejects_changed_or_historical_source_bytes_before_changes",
+        "result": "pass",
+        "detail": "ok"
+      },
+      {
+        "class": "NativeDocumentInstallTests",
+        "method": "test_native_install_rejects_relative_root_and_source_destination_overlap",
+        "result": "pass",
+        "detail": "ok"
+      },
+      {
+        "class": "NativeDocumentInstallTests",
+        "method": "test_native_install_retains_inode_for_an_editor_already_holding_it_open",
+        "result": "pass",
+        "detail": "ok"
+      },
+      {
+        "class": "NativeDocumentInstallTests",
+        "method": "test_native_install_root_swap_cannot_redirect_copy_to_private_documents",
+        "result": "skip",
+        "detail": "skipped 'Deterministic libc race fixture is Linux-only; native path tests still run'"
+      },
+      {
+        "class": "NativeDocumentInstallTests",
+        "method": "test_native_install_upgrade_preserves_same_size_edits_and_private_files",
+        "result": "pass",
+        "detail": "ok"
+      }
+    ],
+    "counting_explanation": "unittest Ran 39 includes 33 passing methods plus 6 method skips. OK(skipped=7) adds one DpkgDocumentLifecycleTests setUpClass skip event, whose 3 test methods are absent from testsRun. Subtracting 7 from 39 would incorrectly report 32 passes."
+  },
+  "scope_record_is_a_verdict": false,
+  "publication_approved": false,
+  "native_complete_product_installation_verified": false,
+  "historical_public_macos_installer_executed": false,
+  "daw_audio_verified": false,
+  "apple_pkg_fixture": {
+    "success": true,
+    "report": "artifact/macos-pkg-fixture/MacOSDocumentUpgradeVerification.json",
+    "native_installer_invocations": 4,
+    "native_installer_successes": 4,
+    "successful_check_groups": 4,
+    "checks": [
+      "Real Apple PKG fresh installation executes native hooks; document-only removal preserves notices.",
+      "Real Apple PKG upgrade removes exact retired files and preserves edited legacy and current document bytes.",
+      "Same-version Apple PKG repair installs current documentation and retains both user revisions.",
+      "Repeated document-only removal preserves modified docs, license notices, personal presets, IRs and project fixtures."
+    ],
+    "document_root": "/Library/Application Support/SpectralForge/Chimera/Documentation",
+    "package_identifier": "audio.spectralforge.chimera.document-upgrade-fixture",
+    "package_version_both_generations": "1.3.1",
+    "compiled_native_hooks_executed_by_apple_installer": true,
+    "architectures_in_binary_verified": [
+      "arm64",
+      "x86_64"
+    ],
+    "ad_hoc_signature_verified": true,
+    "architecture_scope": "lipo verified both slices; this runner executed its native slice. Execution on both processor architectures was not separately tested.",
+    "installer_scenarios": [
+      "Fresh synthetic current package install",
+      "Synthetic historical package install",
+      "Upgrade to synthetic current package with native preinstall/postinstall",
+      "Same-version synthetic package repair"
+    ],
+    "document_only_removal_helper_invocations": 3,
+    "removal_scope": "Direct remove-documents helper after fresh install, after edited-document repair, and repeated removal. pkgutil --forget removes only the fixture receipt; no full application uninstaller was executed.",
+    "historical_release_installer_executed": false,
+    "native_product_installation_verified": false,
+    "full_product_pkg_build_signing_notarization_or_install_verified": false,
+    "native_runner_image": "macos-15-arm64",
+    "native_execution_architecture": "arm64",
+    "x86_64_native_execution_verified": false
+  },
+  "scope_record_explanation": "artifact/scope.json is generated before the Mac PKG step and explicitly says it is not a PASS verdict. Its macos_pkg_installation_verified:false is retained unchanged; the later MacOSDocumentUpgradeVerification.json and successful job step report the synthetic Apple PKG result.",
+  "runner_environment_log": [
+    "2026-10-12T16:59:27.9060810Z ##[group]Operating System",
+    "2026-10-12T16:59:27.9061200Z macOS",
+    "2026-10-12T16:59:27.9061610Z 15.7.9",
+    "2026-10-12T16:59:27.9061940Z 24G830",
+    "2026-10-12T16:59:27.9062290Z ##[endgroup]",
+    "2026-10-12T16:59:27.9062650Z ##[group]Runner Image",
+    "2026-10-12T16:59:27.9063170Z Image: macos-15-arm64",
+    "2026-10-12T16:59:27.9063550Z Version: 20260907.0337.1",
+    "2026-10-12T16:59:27.9064380Z Included Software: https://github.com/actions/runner-images/blob/macos-15-arm64/20260907.0337/images/macos/macos-15-arm64-Readme.md",
+    "2026-10-12T16:59:27.9065420Z Image Release: https://github.com/actions/runner-images/releases/tag/macos-15-arm64%2F20260907.0337",
+    "2026-10-12T16:59:27.9066180Z ##[endgroup]"
+  ]
+}

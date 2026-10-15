@@ -127,14 +127,14 @@ inline constexpr Knob model6[]{
 };
 // 7 — Modern Bass
 inline constexpr Knob model7[]{
-    {"hw.b7k.master","ULTRA MSTR",0.1050f,0.6650f},
-    {"hw.b7k.blend","ULTRA MIX",0.2175f,0.6650f},
-    {"hw.b7k.level","ULTRA LEVEL",0.3300f,0.6650f},
-    {"hw.b7k.drive","ULTRA DRIVE",0.4425f,0.6650f},
-    {"hw.b7k.bass","ULTRA BASS",0.5550f,0.6650f},
-    {"hw.b7k.lo_mids","ULTRA LO",0.6675f,0.6650f},
-    {"hw.b7k.hi_mids","ULTRA HI",0.7800f,0.6650f},
-    {"hw.b7k.treble","ULTRA TREB",0.8925f,0.6650f},
+    {"hw.b7k.master","PRE MSTR",0.1050f,0.6650f},
+    {"hw.b7k.blend","PRE MIX",0.2175f,0.6650f},
+    {"hw.b7k.level","PRE LEVEL",0.3300f,0.6650f},
+    {"hw.b7k.drive","PRE DRIVE",0.4425f,0.6650f},
+    {"hw.b7k.bass","PRE BASS",0.5550f,0.6650f},
+    {"hw.b7k.lo_mids","PRE LO",0.6675f,0.6650f},
+    {"hw.b7k.hi_mids","PRE HI",0.7800f,0.6650f},
+    {"hw.b7k.treble","PRE TREB",0.8925f,0.6650f},
     {"hw.db751.gain","AMP GAIN",0.1900f,0.8700f},
     {"hw.db751.bass","AMP BASS",0.3450f,0.8700f},
     {"hw.db751.mid","AMP MID",0.5000f,0.8700f},
@@ -154,7 +154,7 @@ inline constexpr Knob model8[]{
     {"hw.tremolo_speed","TREM SPEED",0.8037f,0.8000f},
     {"hw.tremolo_depth","TREM DEPTH",0.9050f,0.8000f},
 };
-// 9 — Orange Crown
+// 9 — Amber Crown
 inline constexpr Knob model9[]{
     {"hw.clean.volume","VOLUME",0.1100f,0.6750f},
     {"hw.clean.treble","TREBLE",0.2350f,0.6750f},
@@ -421,7 +421,7 @@ inline constexpr std::array<std::span<const Knob>,ampModelCount> modelKnobs{{
     model6, // Solid Punch
     model7, // Modern Bass
     model8, // Chime 30
-    model9, // Orange Crown
+    model9, // Amber Crown
     model10, // Vintage Valve
     model11, // Metro Clean
     model12, // Prism Chime
@@ -452,7 +452,7 @@ inline const std::array<FaceStyle,ampModelCount> faceStyles{{
     {0.0550f,0.0970f,0xfff1ece0,{0.0570f,0.6300f,0.8850f,0.3450f},{},{}}, // Solid Punch
     {0.0430f,0.1080f,0xfff1ece0,{0.0650f,0.4900f,0.8700f,0.4600f},{},{}}, // Modern Bass
     {0.0400f,0.0960f,0xff191b18,{0.0450f,0.6400f,0.9100f,0.2800f},{},{}}, // Chime 30
-    {0.0730f,0.1150f,0xff191b18,{0.0650f,0.4250f,0.8700f,0.4350f},{},{}}, // Orange Crown
+    {0.0730f,0.1150f,0xff191b18,{0.0650f,0.4250f,0.8700f,0.4350f},{},{}}, // Amber Crown
     {0.0410f,0.1040f,0xff191b18,{0.0480f,0.6350f,0.9100f,0.2350f},{},{}}, // Vintage Valve
     {0.0460f,0.1750f,0xfff1ece0,{0.0650f,0.3400f,0.8700f,0.6100f},{},{}}, // Metro Clean
     {0.0550f,0.1550f,0xff191b18,{0.0400f,0.5600f,0.9200f,0.3350f},{},{}}, // Prism Chime

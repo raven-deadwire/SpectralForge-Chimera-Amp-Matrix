@@ -23,7 +23,7 @@
     "Bell Clean",
     "Edge Chime",
     "Classic Crunch",
-    "Orange Heavy",
+    "Amber Heavy",
     "Melodic Death Rhythm",
     "Melodic Lead",
     "Ambient Clean",
@@ -43,8 +43,8 @@
     "Low B Foundation",
     "Pick Attack Matrix",
     "Spectral Texture",
-    "Matchless Edge",
-    "Dumble Smooth Lead",
+    "Prism Edge",
+    "Silk Smooth Lead",
     "Modern Clean"
   ],
   "signature_ordinals": [
@@ -113,11 +113,11 @@
       },
       {
         "version": "1.3.2",
-        "name": "Dynamic EQ, common dynamics and slope/peak editing",
+        "name": "Follow-up qualification and improvements to integrated Dynamic EQ, dynamics and slope/peak editing",
         "total": 85,
         "window": "2026-11-02/2026-11-27",
         "new_models": 0,
-        "status": "planned_internal_target"
+        "status": "draft_integration_then_followup_target"
       },
       {
         "version": "1.3.3",
@@ -228,7 +228,7 @@
           "after_post_and_width_before_output_trim"
         ],
         "status": "static_foundation_delivered_in_1_3_1_beta_1",
-        "workflow_quality_followup": "1.3.1-beta.2 through beta.4; docs/EQ_ANALYZER_WORKFLOW_UPGRADE.md",
+        "workflow_quality_followup": "1.3.1-beta.3 through 1.3.2-beta.2; docs/EQ_ANALYZER_WORKFLOW_UPGRADE.md",
         "slope_and_peak_editing": "1.3.2"
       },
       "dynamic_eq": {
@@ -339,16 +339,16 @@
       "superseded_for_current_dates_by": "weekly_capacity_revision"
     },
     "delivered_baseline": {
-      "version": "1.3.1-beta.1",
-      "published_at": "2026-10-12T07:48:14+09:00",
-      "product_source_sha": "7b20cd9d1f90e3e2969c250712b199e893cf50cd",
-      "main_source_sha": "3817246f779a50f19b5378ec9661a2275e6b91b2",
-      "release_url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/releases/tag/v1.3.1-beta.1",
+      "version": "1.3.1-beta.2",
+      "published_at": "2026-10-13T16:30:29+09:00",
+      "product_source_sha": "6033236cb81820a43679cbbd34be020804f9658d",
+      "main_source_sha": "b4930839a7384a411e6c37e3570d77069f41a024",
+      "release_url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/releases/tag/v1.3.1-beta.2",
       "status": "delivered_public_beta_not_full_production_acceptance"
     },
     "quality_followup": {
-      "version_target": "1.3.1-beta.4",
-      "status": "planned_not_implemented",
+      "version_target": "1.3.2-beta.2",
+      "status": "draft_candidates_not_public",
       "window": "2026-10-12/2026-11-01",
       "scope": [
         "five_primary_signal_blocks",
@@ -384,15 +384,15 @@
       "scope_revision_policy": "Commit October 23 minimum and October 30 remainder on October 16; review variance October 23 and explicitly date any carryover before advertising the full candidate.",
       "weekly_versions": [
         {
-          "version": "1.3.1-beta.2",
+          "version": "1.3.1-beta.3",
           "publication_target": "2026-10-16"
         },
         {
-          "version": "1.3.1-beta.3",
+          "version": "1.3.2-beta.1",
           "publication_target": "2026-10-23"
         },
         {
-          "version": "1.3.1-beta.4",
+          "version": "1.3.2-beta.2",
           "publication_target": "2026-10-30"
         }
       ]
@@ -435,7 +435,7 @@
       "shared_capacity_policy": "Readiness/internal/host dates are conditional checkpoints within the same weekly budget. Re-estimate on October 16 and 23; explicitly move a checkpoint if the original 10-20 engineering days do not fit. Do not assume additional staff.",
       "first_publication_review": {
         "target": "2026-11-27",
-        "candidate_version": "1.3.2-beta.4",
+        "candidate_version": "1.3.2-beta.6",
         "conditional_on": "signed_binary_normal_pro_tools_acceptance_and_same_source_release_checks",
         "if_blocked": "first_later_qualified_product_release_with_its_own_version"
       }
@@ -732,23 +732,23 @@
   "niflheimr_original_preset_ordinals": [
     {
       "index": 43,
-      "name": "Frostline Precision"
+      "name": "Metal Clank"
     },
     {
       "index": 44,
-      "name": "Carrion Barrage"
+      "name": "Death Grind"
     },
     {
       "index": 45,
-      "name": "Foundry Pulse"
+      "name": "Heavy Pulse"
     },
     {
       "index": 46,
-      "name": "Jötunn Hammer"
+      "name": "Slam Punch"
     },
     {
       "index": 47,
-      "name": "Mirebound Monolith"
+      "name": "Doom Fuzz"
     }
   ],
   "selectable_preset_count": 48,
