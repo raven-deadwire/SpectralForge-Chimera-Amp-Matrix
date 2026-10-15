@@ -1,0 +1,57 @@
+--- a/Source/ModeledCabConvolution.h
++++ b/Source/ModeledCabConvolution.h
+@@ -105,6 +105,9 @@
+         // once and read/write each output only once per partition. The buffers
+         // are disjoint; restrict makes that contract available to the compiler.
+         // Keep the original arithmetic order and do not enable fast-math.
++#if defined(__APPLE__) && defined(__aarch64__)
++        const int binCount=bins;
++#endif
+         int i=0;
+ #if defined(_MSC_VER) && (defined(_M_X64) || defined(_M_IX86))
+         // Native Windows profiling identified sustained spectral-MAC cost in
+@@ -130,28 +133,36 @@
+         // The macOS attribution matrix places the 96 kHz / 32-sample cost in
+         // this spectral MAC, while publication itself remains negligible.
+         // AppleClang contracts the scalar multiply/add pairs on arm64. Express
+-        // the same two-step FMA/FMS arithmetic explicitly for four planar bins
++        // the same two-step FMA/FMS arithmetic explicitly for four planar binCount
+         // so the frozen residue-bank output remains the compatibility gate.
+-        for(;i+4<=bins;i+=4) {
++        for(;i+4<=binCount;i+=4) {
+             const auto inputReal=vld1q_f32(input+i);
+-            const auto inputImag=vld1q_f32(input+bins+i);
++            const auto inputImag=vld1q_f32(input+binCount+i);
+             const auto impulseReal=vld1q_f32(impulse+i);
+-            const auto impulseImag=vld1q_f32(impulse+bins+i);
++            const auto impulseImag=vld1q_f32(impulse+binCount+i);
+             const auto outputReal=vld1q_f32(output+i);
+-            const auto outputImag=vld1q_f32(output+bins+i);
++            const auto outputImag=vld1q_f32(output+binCount+i);
+             const auto real=vfmsq_f32(vfmaq_f32(outputReal,inputReal,impulseReal),
+                                       inputImag,impulseImag);
+             const auto imag=vfmaq_f32(vfmaq_f32(outputImag,inputReal,impulseImag),
+                                       inputImag,impulseReal);
+             vst1q_f32(output+i,real);
+-            vst1q_f32(output+bins+i,imag);
+-        }
+-#endif
++            vst1q_f32(output+binCount+i,imag);
++        }
++#endif
++#if defined(__APPLE__) && defined(__aarch64__)
++        for(;i<binCount;++i) {
++            const float re=(output[i]+input[i]*impulse[i])-input[binCount+i]*impulse[binCount+i];
++            const float im=(output[binCount+i]+input[i]*impulse[binCount+i])+input[binCount+i]*impulse[i];
++            output[i]=re;output[binCount+i]=im;
++        }
++#else
+         for(;i<bins;++i) {
+             const float re=(output[i]+input[i]*impulse[i])-input[bins+i]*impulse[bins+i];
+             const float im=(output[bins+i]+input[i]*impulse[bins+i])+input[bins+i]*impulse[i];
+             output[i]=re;output[bins+i]=im;
+         }
++#endif
+     }
+     void sumPartitions(const float* currentInput,InputBank bank,bool firstChunk) noexcept
+     {

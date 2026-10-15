@@ -1,0 +1,12 @@
+--- a/Source/ModeledCabConvolution.h
++++ b/Source/ModeledCabConvolution.h
+@@ -132,7 +132,8 @@
+         // AppleClang contracts the scalar multiply/add pairs on arm64. Express
+         // the same two-step FMA/FMS arithmetic explicitly for four planar bins
+         // so the frozen residue-bank output remains the compatibility gate.
+-        for(;i+4<=bins;i+=4) {
++        const int vectorBins=bins & ~3;
++        for(;i<vectorBins;i+=4) {
+             const auto inputReal=vld1q_f32(input+i);
+             const auto inputImag=vld1q_f32(input+bins+i);
+             const auto impulseReal=vld1q_f32(impulse+i);

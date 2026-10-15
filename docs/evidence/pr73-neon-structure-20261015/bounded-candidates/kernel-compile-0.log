@@ -1,0 +1,18 @@
+/Users/runner/work/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/evidence/kernels.cpp:59:9: remark: loop not vectorized [-Rpass-missed=loop-vectorize]
+   59 |         for(;i+4<=bins;i+=4) {
+      |         ^
+/Users/runner/work/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/evidence/kernels.cpp:109:9: remark: loop not vectorized [-Rpass-missed=loop-vectorize]
+  109 |         for(;i+4<=bins;i+=4) {
+      |         ^
+/Users/runner/work/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/evidence/kernels.cpp:109:9: remark: unrolled loop by a factor of 2 with run-time trip count [-Rpass=loop-unroll]
+/Users/runner/work/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/evidence/kernels.cpp:159:9: remark: loop not vectorized [-Rpass-missed=loop-vectorize]
+  159 |         for(;i+4<=bins;i+=4) {
+      |         ^
+/Users/runner/work/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/evidence/kernels.cpp:159:9: remark: unrolled loop by a factor of 4 with run-time trip count [-Rpass=loop-unroll]
+/Users/runner/work/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/evidence/kernels.cpp:269:9: remark: loop not vectorized [-Rpass-missed=loop-vectorize]
+  269 |         for(;i<vectorBins;i+=4) {
+      |         ^
+/Users/runner/work/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/evidence/kernels.cpp:320:9: remark: loop not vectorized [-Rpass-missed=loop-vectorize]
+  320 |         for(;i<vectorBins;i+=4) {
+      |         ^
+/Users/runner/work/SpectralForge-Chimera-Amp-Matrix/SpectralForge-Chimera-Amp-Matrix/evidence/kernels.cpp:320:9: remark: unrolled loop by a factor of 2 with run-time trip count [-Rpass=loop-unroll]
