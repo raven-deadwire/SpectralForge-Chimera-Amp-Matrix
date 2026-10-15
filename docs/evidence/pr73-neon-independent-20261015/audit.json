@@ -1,0 +1,11 @@
+{
+  "manifest_files_verified": 2174,
+  "raw_callbacks_recomputed": 1843200,
+  "route_phase_summaries_recomputed": 3456,
+  "compiler_commands_match": true,
+  "aa_identical_binary": true,
+  "archive_sha256": "f7990296f7775dfae150e105e7d02517f9978784ce44ee948860995fadcbcc24",
+  "collection_complete": true,
+  "performance_demonstrated": false,
+  "integration_eligible": false
+}
