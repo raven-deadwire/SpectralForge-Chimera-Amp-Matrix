@@ -386,5 +386,17 @@
     "ChimeraTunerGenerationResumeTests",
     "ChimeraTunerGenerationColdQueueTests",
     "ChimeraBetaLifecycleProcessorTests"
-  ]
+  ],
+  "release_baseline_sha256": {
+    "RELEASE_REVIEW_PENDING": "0e4d19ae13f64ef9536fd195d1cd222213e4fc26f4a0650b24491a73c98c4ac0",
+    "docs/BETA_LIFECYCLE.md": "833576cdd6e170cda882a55f9483a5ac0250731859cf54638b890dde61844723",
+    "docs/MANUAL.html": "df78f8f6052eca8f20003ddc902e40f3f12f42ee0e0b7d63a7ef784153cd80b3",
+    "docs/OPEN_BETA_RELEASE_NOTES.md": "552a08487087a1c49fd0fdbea86956e3e3a2fd7c5bb9bc218cf282b8cf806c90",
+    "docs/RELEASE_SCOPE_RECONCILIATION_20261014.md": "ff8bebc9f194fe059baf2562de468f961db381f9cb99bb5ea11954f7f6313d7c",
+    "docs/UPDATES.md": "8623e34c17524e34db5ad455fa3ccd9484ac5c3d67433d63d6b89c54fe6d1ee3",
+    "docs/evidence/beta-lifecycle-integration-20261014/audit.json": "66f04e5c340417d487be3bb8947d6c7c0bb96494d2a5149fdd5a25a13f45197f",
+    "VERSION": "33158972a53877b421cfe2598b8d93cab169963a4964b45ee889e85349979018",
+    "RELEASE_CHANNEL": "d11a8a9975b043d17eb65d496a998f9f7cf9d0462f1b5b1a9024b7251873c529",
+    "Validation/beta-lifecycle-policy.json": "66bc1f7058ce35e7c41b4ddd3ccab4d56c0dfdc58613ea79f2b710f45df204ac"
+  }
 }

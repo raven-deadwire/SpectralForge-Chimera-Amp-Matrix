@@ -23,6 +23,10 @@ def main():
             if hashlib.sha256(subprocess.check_output(['git','show','HEAD:'+path],cwd=root)).hexdigest()!=digest:
                 raise ValueError('Product source changed from #88: '+path)
         report['product_source_files_unchanged']=len(contract['product_source_sha256'])
+        for path,digest in contract['release_baseline_sha256'].items():
+            if hashlib.sha256(subprocess.check_output(['git','show','HEAD:'+path],cwd=root)).hexdigest()!=digest:
+                raise ValueError('Latest #68 lifecycle/release documentation lost: '+path)
+        report['release_baseline_files_preserved']=len(contract['release_baseline_sha256'])
         cmake=(root/'CMakeLists.txt').read_text()
         names=re.findall(r'add_test\(NAME\s+(\w+)\s',cmake)
         if len(names)!=len(set(names)):raise ValueError('duplicate literal CTest registration')
