@@ -1,0 +1,41 @@
+name: Approved existing-behavior baseline
+on:
+  pull_request:
+    paths:
+      - 'Validation/accepted-baseline.json'
+      - 'Tools/accepted_baseline.py'
+      - 'Tools/test_accepted_baseline.py'
+      - 'Tools/consolidate_release_gate.py'
+      - 'Tools/evaluate_signature_benchmark.py'
+      - 'Tools/test_signature_calculator_contracts.py'
+      - 'docs/RELEASE_CHECKLIST.md'
+      - 'docs/ACCEPTED_BASELINE_20261016.md'
+      - '.github/workflows/accepted-baseline.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  baseline-contracts:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Check source binding, negative controls and historical evidence
+        shell: bash
+        env:
+          SOURCE_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          python Tools/test_accepted_baseline.py
+          python Tools/test_release_consolidator.py
+          python Tools/test_release_gate.py
+          python Tools/accepted_baseline.py --commit "$SOURCE_SHA" --run-id "$GITHUB_RUN_ID" --run-attempt "$GITHUB_RUN_ATTEMPT" --output build/accepted-baseline
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Approved-baseline-component-evidence
+          path: build/accepted-baseline
+          if-no-files-found: error

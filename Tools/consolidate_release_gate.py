@@ -48,6 +48,24 @@ def consolidate(inputs, output, revision, profile):
             errors.append({'kind': kind, 'reason': str(exc)})
             received[kind] = {}
     expected_folders = {evidence.BUNDLE_PREFIX + k for k in evidence.KINDS}
+    # The separately approved baseline owns only the 86 formerly undefined IDs.
+    # It never overwrites fresh native/package or external acceptance evidence.
+    import accepted_baseline as baseline
+    expected_folders.add(baseline.FOLDER)
+    baseline_folder = inputs / baseline.FOLDER
+    if baseline_folder.exists():
+        try:
+            baseline_reports = baseline.read_reports(baseline_folder, revision, policy)
+            gate.require(not set(baseline_reports).intersection(mapping), 'Baseline owner collision')
+            for cid, report in baseline_reports.items():
+                if cid in reports:
+                    reports[cid] = report
+            shutil.copytree(baseline_folder, output / 'evidence' / 'accepted-baseline')
+            provenance.append({'kind': 'accepted-baseline',
+                'manifest_sha256': evidence.digest(baseline_folder / 'evidence.json'),
+                'revision': revision, 'definition_sha256': baseline.REGISTRY_SHA256})
+        except (gate.ValidationError, OSError, ValueError, TypeError, KeyError, AttributeError) as exc:
+            errors.append({'kind': 'accepted-baseline', 'reason': str(exc)})
     if inputs.exists() and {p.name for p in inputs.iterdir()} - expected_folders:
         errors.append({'kind': 'unexpected', 'reason': 'Unexpected/duplicate evidence bundle input'})
     # Ownership determines the required platform set. Never last-writer-wins.

@@ -9,7 +9,7 @@ SONGS=("crom","wild","azhi")
 
 def clamp01(x): return max(0.0,min(1.0,x))
 def load(path): return json.loads(Path(path).read_text(encoding="utf-8-sig"))
-def finite(x): return isinstance(x,(int,float)) and math.isfinite(float(x))
+def finite(x): return type(x) in (int,float) and math.isfinite(float(x))
 
 def evaluate(policy,renders):
     if renders.get("schema")!="spectralforge.chimera.signature-renders" or renders.get("schema_version")!=1:

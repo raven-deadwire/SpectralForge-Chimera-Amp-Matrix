@@ -33,6 +33,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
@@ -70,6 +71,17 @@ jobs:
           python Tools/test_release_preflight.py
           python Tools/test_callback_timing_protocol.py
           python Tools/seed_validation_reports.py --commit "${{ github.event.pull_request.head.sha || github.sha }}" --profile pull_request --output build/validation
+      - name: Verify and bind the approved existing-behavior baseline
+        shell: bash
+        run: |
+          python Tools/test_accepted_baseline.py
+          python Tools/accepted_baseline.py --commit "$CHIMERA_SOURCE_SHA" --run-id "$GITHUB_RUN_ID" --run-attempt "$GITHUB_RUN_ATTEMPT" --output build/accepted-baseline
+      - name: Upload approved baseline evidence for this run
+        uses: actions/upload-artifact@v4
+        with:
+          name: Chimera-release-evidence-accepted-baseline
+          path: build/accepted-baseline
+          if-no-files-found: error
       - name: Upload current-commit release-gate evidence
         if: always()
         uses: actions/upload-artifact@v4
@@ -103,6 +115,7 @@ jobs:
           python Tools/test_release_gate.py
           python Tools/test_release_scope.py
           python Tools/test_signature_benchmark.py
+          python Tools/test_signature_calculator_contracts.py
           python Tools/check_catalog_contract.py
           python Tools/check_ir_distribution.py
           python Tests/test_ir_distribution.py
@@ -484,6 +497,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           ref: ${{ env.CHIMERA_SOURCE_SHA }}
+          fetch-depth: 0
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
