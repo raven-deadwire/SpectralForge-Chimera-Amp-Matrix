@@ -1,0 +1,65 @@
+--- ../fft-variants/A/Source/Cabinet.h	2026-10-16 10:34:35.219595015 +0900
++++ ../fft-variants/B/Source/Cabinet.h	2026-10-16 10:34:35.996339045 +0900
+@@ -46,10 +46,10 @@
+         {
+             if(modeledConvolution)modeledConvolution->reset();else convolution->reset();
+         }
+-        void process(juce::AudioBuffer<float>& buffer)
++        void process(juce::AudioBuffer<float>& buffer,ModeledCabConvolution::ForwardCache* cache=nullptr)
+         {
+             if (!hasIR) return;
+-            if(modeledConvolution) {modeledConvolution->process(buffer);return;}
++            if(modeledConvolution) {modeledConvolution->process(buffer,cache);return;}
+             juce::dsp::AudioBlock<float> block(buffer);
+             juce::dsp::ProcessContextReplacing<float> context(block);
+             convolution->process(context);
+@@ -71,6 +71,7 @@
+     double sr{48000};
+     bool on{true};
+     std::unique_ptr<Cab> micB;
++    std::unique_ptr<ModeledCabConvolution::ForwardCache> forwardCache;
+     juce::AudioBuffer<float> second, delayBuffer;
+     int delayWrite{};
+     bool bWasRunning{};
+@@ -111,6 +112,7 @@
+         clear(); sr=spec.sampleRate;
+         if(micB) micB->prepare(spec);
+         bWasRunning=false; preferSecondSwap=false;
++        if(micB)forwardCache=std::make_unique<ModeledCabConvolution::ForwardCache>();
+         second.setSize((int)spec.numChannels,(int)spec.maximumBlockSize);
+         delayBuffer.setSize((int)spec.numChannels,int(sr*.020)+2); delayBuffer.clear(); delayWrite=0;
+         // A prepared/restored state owns its first sample. Ramping from unity
+@@ -157,8 +159,10 @@
+     }
+     // Audio-thread diagnostic; never queried by the worker.
+     int transitioningMicCount() const noexcept {return (fadeRemaining>0 ? 1 : 0)+(micB ? micB->transitioningMicCount() : 0);}
+-    void process(juce::AudioBuffer<float>& buffer,bool allowKernelSwap=true)
++    const auto* cacheStats() const noexcept {return forwardCache.get();}
++    void process(juce::AudioBuffer<float>& buffer,bool allowKernelSwap=true,ModeledCabConvolution::ForwardCache* cache=nullptr)
+     {
++        if(!cache && forwardCache) {forwardCache->begin();cache=forwardCache.get();}
+         SF_CAB_PROFILE_BEGIN(KernelSwap,swapProfile);
+         // Model responses are longer than the legacy captures. Serialize A/B
+         // crossfades within each rig: six steady paths plus at most three fading
+@@ -193,7 +197,7 @@
+         if(renderB) {
+             if(!bWasRunning)micB->reset();second.makeCopyOf(buffer,true);
+             const auto* before=micB->active;
+-            micB->process(second,!serialiseModels || fadeRemaining==0);
++            micB->process(second,!serialiseModels || fadeRemaining==0,cache);
+             if(serialiseModels && before!=micB->active)preferSecondSwap=false;
+         }
+         bWasRunning=renderB;
+@@ -201,10 +205,10 @@
+         juce::dsp::ProcessContextReplacing<float> context(block);
+         { SF_CAB_PROFILE_SCOPE(Filters); hp.process(context); }
+         if(fadeRemaining>0) alternate.makeCopyOf(buffer,true);
+-        if(active) { SF_CAB_PROFILE_SCOPE(ActiveConvolution); active->process(buffer); }
++        if(active) { SF_CAB_PROFILE_SCOPE(ActiveConvolution); active->process(buffer,cache); }
+         if(fadeRemaining>0)
+         {
+-            if(fading) { SF_CAB_PROFILE_SCOPE(FadingConvolution); fading->process(alternate); }
++            if(fading) { SF_CAB_PROFILE_SCOPE(FadingConvolution); fading->process(alternate,cache); }
+             for(int n=0;n<buffer.getNumSamples() && fadeRemaining>0;++n,--fadeRemaining)
+             {
+                 const float wet=1.f-float(fadeRemaining)/float(fadeLength);

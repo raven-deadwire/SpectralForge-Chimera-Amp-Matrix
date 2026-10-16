@@ -1,0 +1,19 @@
+{
+  "tool": "GCC 13.3.0 -fsanitize=thread",
+  "exit_code": 0,
+  "scope": "two concurrent independent processors; scripted publications on audio owner; no concurrent IRLibrary worker stress",
+  "reported_races": 0,
+  "reference_output_bits_equal": [
+    {
+      "processor": 0,
+      "floats": 265200,
+      "sha256": "e177078e61763d6e682a52dea2acc339bcd3b8b68cb96dd075fd08c2a1748f9a"
+    },
+    {
+      "processor": 1,
+      "floats": 265200,
+      "sha256": "e177078e61763d6e682a52dea2acc339bcd3b8b68cb96dd075fd08c2a1748f9a"
+    }
+  ],
+  "libtsan_linked": true
+}

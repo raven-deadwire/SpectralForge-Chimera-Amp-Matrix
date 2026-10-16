@@ -1,0 +1,14 @@
+{
+  "manifest_files": 2767,
+  "correctness_routes": 76,
+  "exact_floats": 92054040,
+  "raw_callbacks": 1843200,
+  "statistics_recomputed": true,
+  "analysis": {
+    "cpu_routes_improved": 1,
+    "all_routes_improved": false,
+    "established_regressions": 0,
+    "release_approved": false
+  },
+  "release_approved": false
+}
