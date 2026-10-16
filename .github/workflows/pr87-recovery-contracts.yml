@@ -1,0 +1,43 @@
+name: PR87 evidence verification
+on:
+  pull_request:
+    paths:
+      - 'Tools/recover_pr87_evidence.py'
+      - 'Tools/test_pr87_recovery.py'
+      - 'docs/evidence/pr87-current-20261016/*metadata.json'
+      - 'docs/evidence/pr87-current-20261016/*snapshot.json'
+      - 'docs/evidence/pr87-current-20261016/*.zip'
+      - '.github/workflows/pr87-recovery-contracts.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  evidence-contracts:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Reject stale, forged, skipped and cross-source evidence
+        run: |
+          set -o pipefail
+          mkdir -p build/pr87-recovery
+          python Tools/test_pr87_recovery.py 2>&1 | tee build/pr87-recovery/contracts.log
+          python Tools/test_accepted_baseline.py 2>&1 | tee build/pr87-recovery/baseline-contracts.log
+      - name: Recompute pinned-product supplemental review (never publish)
+        run: >-
+          python Tools/recover_pr87_evidence.py
+          --upgrade docs/evidence/pr87-current-20261016/upgrade-38905833729.zip
+          --upgrade-metadata docs/evidence/pr87-current-20261016/upgrade-metadata.json
+          --output build/pr87-recovery/recovery.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: PR87-evidence-recovery-review
+          path: build/pr87-recovery
+          if-no-files-found: error

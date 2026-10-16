@@ -1,0 +1,41 @@
+name: PR87 pinned-source acceptance recovery
+on:
+  pull_request:
+    paths:
+      - 'Tools/Verify-PR87InstalledUpgrade.ps1'
+      - '.github/workflows/pr87-evidence-recovery.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  pr87-installed-upgrade:
+    runs-on: windows-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/download-artifact@v4
+        with:
+          name: SpectralForge-Chimera-1.3.1-beta.3-win64-Setup
+          run-id: 38887964838
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: build/pinned-candidate/setup
+      - uses: actions/download-artifact@v4
+        with:
+          name: SpectralForge-Chimera-1.3.1-beta.3-win64
+          run-id: 38887964838
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: build/pinned-candidate/portable
+      - name: Native beta.2 upgrade, repair and uninstall of exact PR87 binaries
+        shell: pwsh
+        env:
+          CHIMERA_AUDIT_TOOL_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: ./Tools/Verify-PR87InstalledUpgrade.ps1 -Artifacts build/pinned-candidate
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: PR87-installed-upgrade
+          path: build/pr87-installed-upgrade
+          if-no-files-found: error

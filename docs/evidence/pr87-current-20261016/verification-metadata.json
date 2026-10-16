@@ -1,0 +1,341 @@
+{
+  "run": {
+    "id": 38906474306,
+    "name": "PR87 evidence verification",
+    "node_id": "WFR_kwLOUmpZsc8AAAAJDwGvQg",
+    "head_branch": "codex/pr87-current-evidence-20261016",
+    "head_sha": "e78bbe4b8cbe8425287a07a44443c10b6a18a9c0",
+    "path": ".github/workflows/pr87-recovery-contracts.yml",
+    "display_title": "test: reacquire PR87 acceptance evidence for exact current product source",
+    "run_number": 1,
+    "event": "pull_request",
+    "status": "completed",
+    "conclusion": "success",
+    "workflow_id": 386708362,
+    "check_suite_id": 105437847198,
+    "check_suite_node_id": "CS_kwDOUmpZsc8AAAAYjJXeng",
+    "url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38906474306",
+    "html_url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38906474306",
+    "pull_requests": [
+      {
+        "url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/pulls/89",
+        "id": 4888851438,
+        "number": 89,
+        "head": {
+          "ref": "codex/pr87-current-evidence-20261016",
+          "sha": "e78bbe4b8cbe8425287a07a44443c10b6a18a9c0",
+          "repo": {
+            "id": 1382701489,
+            "url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix",
+            "name": "SpectralForge-Chimera-Amp-Matrix"
+          }
+        },
+        "base": {
+          "ref": "codex/beta3-cab-ir-negatives-20261016",
+          "sha": "72ecf35fa90293418da8635225435095dbca1135",
+          "repo": {
+            "id": 1382701489,
+            "url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix",
+            "name": "SpectralForge-Chimera-Amp-Matrix"
+          }
+        }
+      }
+    ],
+    "created_at": "2026-10-16T13:15:32Z",
+    "updated_at": "2026-10-16T13:16:09Z",
+    "actor": {
+      "login": "raven-deadwire",
+      "id": 223809014,
+      "node_id": "U_kgDODVcN9g",
+      "avatar_url": "https://avatars.githubusercontent.com/u/223809014?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/raven-deadwire",
+      "html_url": "https://github.com/raven-deadwire",
+      "followers_url": "https://api.github.com/users/raven-deadwire/followers",
+      "following_url": "https://api.github.com/users/raven-deadwire/following{/other_user}",
+      "gists_url": "https://api.github.com/users/raven-deadwire/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/raven-deadwire/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/raven-deadwire/subscriptions",
+      "organizations_url": "https://api.github.com/users/raven-deadwire/orgs",
+      "repos_url": "https://api.github.com/users/raven-deadwire/repos",
+      "events_url": "https://api.github.com/users/raven-deadwire/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/raven-deadwire/received_events",
+      "type": "User",
+      "user_view_type": "public",
+      "site_admin": false
+    },
+    "run_attempt": 1,
+    "referenced_workflows": [],
+    "run_started_at": "2026-10-16T13:15:32Z",
+    "triggering_actor": {
+      "login": "raven-deadwire",
+      "id": 223809014,
+      "node_id": "U_kgDODVcN9g",
+      "avatar_url": "https://avatars.githubusercontent.com/u/223809014?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/raven-deadwire",
+      "html_url": "https://github.com/raven-deadwire",
+      "followers_url": "https://api.github.com/users/raven-deadwire/followers",
+      "following_url": "https://api.github.com/users/raven-deadwire/following{/other_user}",
+      "gists_url": "https://api.github.com/users/raven-deadwire/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/raven-deadwire/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/raven-deadwire/subscriptions",
+      "organizations_url": "https://api.github.com/users/raven-deadwire/orgs",
+      "repos_url": "https://api.github.com/users/raven-deadwire/repos",
+      "events_url": "https://api.github.com/users/raven-deadwire/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/raven-deadwire/received_events",
+      "type": "User",
+      "user_view_type": "public",
+      "site_admin": false
+    },
+    "jobs_url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38906474306/jobs",
+    "logs_url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38906474306/logs",
+    "check_suite_url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/check-suites/105437847198",
+    "artifacts_url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38906474306/artifacts",
+    "cancel_url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38906474306/cancel",
+    "rerun_url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/runs/38906474306/rerun",
+    "previous_attempt_url": null,
+    "workflow_url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/workflows/386708362",
+    "head_commit": {
+      "id": "e78bbe4b8cbe8425287a07a44443c10b6a18a9c0",
+      "tree_id": "e481c39a0f9956b47b41daef43a1139dd57d301d",
+      "message": "test: verify 39 PR87 acceptance claims from current raw evidence",
+      "timestamp": "2026-10-16T13:15:25Z",
+      "author": {
+        "name": "raven-deadwire",
+        "email": "memory_64085@naver.com"
+      },
+      "committer": {
+        "name": "raven-deadwire",
+        "email": "memory_64085@naver.com"
+      }
+    },
+    "repository": {
+      "id": 1382701489,
+      "node_id": "R_kgDOUmpZsQ",
+      "name": "SpectralForge-Chimera-Amp-Matrix",
+      "full_name": "raven-deadwire/SpectralForge-Chimera-Amp-Matrix",
+      "private": false,
+      "owner": {
+        "login": "raven-deadwire",
+        "id": 223809014,
+        "node_id": "U_kgDODVcN9g",
+        "avatar_url": "https://avatars.githubusercontent.com/u/223809014?v=4",
+        "gravatar_id": "",
+        "url": "https://api.github.com/users/raven-deadwire",
+        "html_url": "https://github.com/raven-deadwire",
+        "followers_url": "https://api.github.com/users/raven-deadwire/followers",
+        "following_url": "https://api.github.com/users/raven-deadwire/following{/other_user}",
+        "gists_url": "https://api.github.com/users/raven-deadwire/gists{/gist_id}",
+        "starred_url": "https://api.github.com/users/raven-deadwire/starred{/owner}{/repo}",
+        "subscriptions_url": "https://api.github.com/users/raven-deadwire/subscriptions",
+        "organizations_url": "https://api.github.com/users/raven-deadwire/orgs",
+        "repos_url": "https://api.github.com/users/raven-deadwire/repos",
+        "events_url": "https://api.github.com/users/raven-deadwire/events{/privacy}",
+        "received_events_url": "https://api.github.com/users/raven-deadwire/received_events",
+        "type": "User",
+        "user_view_type": "public",
+        "site_admin": false
+      },
+      "html_url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix",
+      "description": "Chimera Amp Matrix is a guitar and bass amp & effects suite built around a flexible multi-amp architecture.",
+      "fork": false,
+      "url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix",
+      "forks_url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/forks",
+      "keys_url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/keys{/key_id}",
+      "collaborators_url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/collaborators{/collaborator}",
+      "teams_url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/teams",
+      "hooks_url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/hooks",
+      "issue_events_url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/issues/events{/number}",
+      "events_url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/events",
+      "assignees_url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/assignees{/user}",
+      "branches_url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/branches{/branch}",
+      "tags_url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/tags",
+      "blobs_url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/git/blobs{/sha}",
+      "git_tags_url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/git/tags{/sha}",
+      "git_refs_url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/git/refs{/sha}",
+      "trees_url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/git/trees{/sha}",
+      "statuses_url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/statuses/{sha}",
+      "languages_url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/languages",
+      "stargazers_url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/stargazers",
+      "contributors_url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/contributors",
+      "subscribers_url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/subscribers",
+      "subscription_url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/subscription",
+      "commits_url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/commits{/sha}",
+      "git_commits_url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/git/commits{/sha}",
+      "comments_url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/comments{/number}",
+      "issue_comment_url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/issues/comments{/number}",
+      "contents_url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/contents/{+path}",
+      "compare_url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/compare/{base}...{head}",
+      "merges_url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/merges",
+      "archive_url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/{archive_format}{/ref}",
+      "downloads_url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/downloads",
+      "issues_url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/issues{/number}",
+      "pulls_url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/pulls{/number}",
+      "milestones_url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/milestones{/number}",
+      "notifications_url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/notifications{?since,all,participating}",
+      "labels_url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/labels{/name}",
+      "releases_url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/releases{/id}",
+      "deployments_url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/deployments"
+    },
+    "head_repository": {
+      "id": 1382701489,
+      "node_id": "R_kgDOUmpZsQ",
+      "name": "SpectralForge-Chimera-Amp-Matrix",
+      "full_name": "raven-deadwire/SpectralForge-Chimera-Amp-Matrix",
+      "private": false,
+      "owner": {
+        "login": "raven-deadwire",
+        "id": 223809014,
+        "node_id": "U_kgDODVcN9g",
+        "avatar_url": "https://avatars.githubusercontent.com/u/223809014?v=4",
+        "gravatar_id": "",
+        "url": "https://api.github.com/users/raven-deadwire",
+        "html_url": "https://github.com/raven-deadwire",
+        "followers_url": "https://api.github.com/users/raven-deadwire/followers",
+        "following_url": "https://api.github.com/users/raven-deadwire/following{/other_user}",
+        "gists_url": "https://api.github.com/users/raven-deadwire/gists{/gist_id}",
+        "starred_url": "https://api.github.com/users/raven-deadwire/starred{/owner}{/repo}",
+        "subscriptions_url": "https://api.github.com/users/raven-deadwire/subscriptions",
+        "organizations_url": "https://api.github.com/users/raven-deadwire/orgs",
+        "repos_url": "https://api.github.com/users/raven-deadwire/repos",
+        "events_url": "https://api.github.com/users/raven-deadwire/events{/privacy}",
+        "received_events_url": "https://api.github.com/users/raven-deadwire/received_events",
+        "type": "User",
+        "user_view_type": "public",
+        "site_admin": false
+      },
+      "html_url": "https://github.com/raven-deadwire/SpectralForge-Chimera-Amp-Matrix",
+      "description": "Chimera Amp Matrix is a guitar and bass amp & effects suite built around a flexible multi-amp architecture.",
+      "fork": false,
+      "url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix",
+      "forks_url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/forks",
+      "keys_url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/keys{/key_id}",
+      "collaborators_url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/collaborators{/collaborator}",
+      "teams_url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/teams",
+      "hooks_url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/hooks",
+      "issue_events_url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/issues/events{/number}",
+      "events_url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/events",
+      "assignees_url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/assignees{/user}",
+      "branches_url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/branches{/branch}",
+      "tags_url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/tags",
+      "blobs_url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/git/blobs{/sha}",
+      "git_tags_url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/git/tags{/sha}",
+      "git_refs_url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/git/refs{/sha}",
+      "trees_url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/git/trees{/sha}",
+      "statuses_url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/statuses/{sha}",
+      "languages_url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/languages",
+      "stargazers_url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/stargazers",
+      "contributors_url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/contributors",
+      "subscribers_url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/subscribers",
+      "subscription_url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/subscription",
+      "commits_url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/commits{/sha}",
+      "git_commits_url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/git/commits{/sha}",
+      "comments_url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/comments{/number}",
+      "issue_comment_url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/issues/comments{/number}",
+      "contents_url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/contents/{+path}",
+      "compare_url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/compare/{base}...{head}",
+      "merges_url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/merges",
+      "archive_url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/{archive_format}{/ref}",
+      "downloads_url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/downloads",
+      "issues_url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/issues{/number}",
+      "pulls_url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/pulls{/number}",
+      "milestones_url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/milestones{/number}",
+      "notifications_url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/notifications{?since,all,participating}",
+      "labels_url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/labels{/name}",
+      "releases_url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/releases{/id}",
+      "deployments_url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/deployments"
+    }
+  },
+  "artifacts": {
+    "artifacts": [
+      {
+        "id": 12047893764,
+        "name": "PR87-evidence-recovery-review",
+        "size_in_bytes": 24025,
+        "url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/artifacts/12047893764",
+        "archive_download_url": "https://api.github.com/repos/raven-deadwire/SpectralForge-Chimera-Amp-Matrix/actions/artifacts/12047893764/zip",
+        "expired": false,
+        "created_at": "2026-10-16T13:16:06Z",
+        "expires_at": "2027-01-14T13:15:32Z",
+        "updated_at": "2026-10-16T13:16:06Z",
+        "digest": "sha256:796e57443d63ebd3c48d8c5cc70420ff5afd6ef24ba79f2b6f99546ce328afd6",
+        "workflow_run": {
+          "id": 38906474306,
+          "repository_id": 1382701489,
+          "head_repository_id": 1382701489,
+          "head_branch": "codex/pr87-current-evidence-20261016",
+          "head_sha": "e78bbe4b8cbe8425287a07a44443c10b6a18a9c0"
+        }
+      }
+    ]
+  },
+  "jobs": {
+    "jobs": [
+      {
+        "id": 116991183232,
+        "name": "evidence-contracts",
+        "status": "completed",
+        "conclusion": "success",
+        "run_id": 38906474306,
+        "logs_url": null,
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1
+          },
+          {
+            "name": "Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2
+          },
+          {
+            "name": "Run actions/setup-python@v5",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3
+          },
+          {
+            "name": "Reject stale, forged, skipped and cross-source evidence",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4
+          },
+          {
+            "name": "Recompute pinned-product supplemental review (never publish)",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5
+          },
+          {
+            "name": "Run actions/upload-artifact@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 6
+          },
+          {
+            "name": "Post Run actions/setup-python@v5",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 11
+          },
+          {
+            "name": "Post Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 12
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 13
+          }
+        ]
+      }
+    ]
+  }
+}
